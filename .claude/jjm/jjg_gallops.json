@@ -642,6 +642,13 @@
         "₢A1AAQ": {
           "tacks": [
             {
+              "ts": "260401-1358",
+              "state": "abandoned",
+              "text": "## Character\nVerification gate — systematic audit, no code changes. This must complete cleanly before retirement (₢A1AAJ) touches anything.\n\n## Docket\nAfter all porting paces (₢A1AAF, ₢A1AAG, ₢A1AAH, ₢A1AAI) are complete, audit that every existing test case has a theurge equivalent before retirement deletes the originals.\n\n**Audit steps:**\n- Extract complete case list from bash test fixtures: `rbtcns_TadmorSecurity.sh` (22), `rbtcev_EnrollmentValidation.sh` (47), `rbtcrv_RegimeValidation.sh` (21), regime-smoke (7), srjcl-jupyter (3), pluml-diagram (5), four-mode (15), access-probe (4)\n- Extract complete sortie list from python roster: `rbtis_*.py` (11 modules)\n- Extract complete theurge case catalog from Rust source\n- Produce a side-by-side diff: original case → theurge equivalent, flagging any gaps\n- Run theurge complete suite, confirm all cases pass\n\n**Exit criteria:** Zero gaps between original and theurge catalogs. All theurge cases green. Written parity report committed as evidence for the retirement pace. Any gaps discovered here become fix-paces slated before ₢A1AAJ.",
+              "silks": "audit-coverage-parity",
+              "commit": "1dff6f3"
+            },
+            {
               "ts": "260401-1353",
               "state": "rough",
               "text": "## Character\nVerification gate — systematic audit, no code changes. This must complete cleanly before retirement (₢A1AAJ) touches anything.\n\n## Docket\nAfter all porting paces (₢A1AAF, ₢A1AAG, ₢A1AAH, ₢A1AAI) are complete, audit that every existing test case has a theurge equivalent before retirement deletes the originals.\n\n**Audit steps:**\n- Extract complete case list from bash test fixtures: `rbtcns_TadmorSecurity.sh` (22), `rbtcev_EnrollmentValidation.sh` (47), `rbtcrv_RegimeValidation.sh` (21), regime-smoke (7), srjcl-jupyter (3), pluml-diagram (5), four-mode (15), access-probe (4)\n- Extract complete sortie list from python roster: `rbtis_*.py` (11 modules)\n- Extract complete theurge case catalog from Rust source\n- Produce a side-by-side diff: original case → theurge equivalent, flagging any gaps\n- Run theurge complete suite, confirm all cases pass\n\n**Exit criteria:** Zero gaps between original and theurge catalogs. All theurge cases green. Written parity report committed as evidence for the retirement pace. Any gaps discovered here become fix-paces slated before ₢A1AAJ.",
