@@ -14,7 +14,6 @@ use crate::jjrf_favor::jjrf_Coronet as Coronet;
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState};
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
 use crate::jjrs_steeplechase::{jjrs_get_entries, jjrs_ReinArgs};
-use crate::jjrq_query::jjrq_resolve_default_heat;
 use crate::jjrpd_parade::{jjrpd_write_file_bitmap, jjrpd_write_commit_swimlanes};
 use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug};
 
@@ -25,8 +24,8 @@ pub struct jjrsd_SaddleArgs {
     #[arg(long, short = 'f', default_value = ".claude/jjm/jjg_gallops.json")]
     pub file: PathBuf,
 
-    /// Target Heat identity (Firemark) or Pace identity (Coronet). If omitted, uses first racing heat.
-    pub firemark: Option<String>,
+    /// Target Heat identity (Firemark) or Pace identity (Coronet).
+    pub firemark: String,
 }
 
 /// Run the saddle command - return Heat context
@@ -119,19 +118,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette
         }
     }
 
-    // Resolve firemark: use provided value or auto-select first racing heat
-    let firemark_str = match args.firemark {
-        Some(fm) => fm,
-        None => {
-            match jjrq_resolve_default_heat(&gallops) {
-                Ok(fm) => fm,
-                Err(e) => {
-                    vvco_err!(output, "jjx_orient: error: {}", e);
-                    return (1, output.vvco_finish());
-                }
-            }
-        }
-    };
+    let firemark_str = args.firemark;
 
     // Detect if input is a coronet (5 chars) or firemark (2 chars)
     // Strip any prefix first: ₣ (U+20A3) or ₢ (U+20A2)

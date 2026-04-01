@@ -14,25 +14,12 @@
 //! - jjrrt_retire.rs (retire)
 //! - jjrsd_saddle.rs (saddle)
 
-use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus};
 use crate::jjrs_steeplechase::{jjrs_ReinArgs, jjrs_get_entries};
 use regex::Regex;
 use serde::Serialize;
 
 /// Path prefix for JJ infrastructure files (excluded from work file queries)
 const JJRQ_INFRA_PREFIX: &str = ".claude/jjm/";
-
-/// Resolve the default heat (first racing heat) when no target is specified
-pub fn jjrq_resolve_default_heat(gallops: &Gallops) -> Result<String, String> {
-    for heat_key in &gallops.heat_order {
-        if let Some(heat) = gallops.heats.get(heat_key) {
-            if heat.status == HeatStatus::Racing {
-                return Ok(heat_key.clone());
-            }
-        }
-    }
-    Err("No racing heats found".to_string())
-}
 
 // ============================================================================
 // File-touch queries (work files touched by pace commits)

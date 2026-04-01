@@ -202,7 +202,7 @@ pub struct jjrm_ListParams {
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_OrientParams {
-    pub firemark: Option<String>,
+    pub firemark: String,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]

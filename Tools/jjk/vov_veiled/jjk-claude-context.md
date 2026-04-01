@@ -60,7 +60,7 @@ All params are JSON objects. `?` = optional, `[]` = array. Booleans default to f
 jjx_open           {}
 jjx_show           {target?, detail?, remaining?}
 jjx_list           {status?}
-jjx_orient         {firemark?}
+jjx_orient         {firemark}
 jjx_create         {silks}
 jjx_enroll         {firemark, before?, after?, first?}              # silks+docket via gazette_in.md
 jjx_reorder        {firemark, move?, before?, after?, first?, last?}
@@ -148,7 +148,7 @@ Example — mass reslate multiple paces:
 
 When user says "mount" or you need to engage the next pace:
 
-1. Run `jjx_orient` command (with optional firemark) to get context
+1. Run `jjx_orient` command with the firemark. **Firemark is required** — if the user says "mount" without specifying a heat and you have no prior heat context in this session, ask which heat to mount rather than guessing. If you have prior context (previously mounted/groomed heat), use that firemark.
 2. Parse output: Racing-heats table, Heat/Next/Docket/Recent-work sections. Read paddock and pace docket from the gazette file written to the officium exchange directory.
 3. **Read the paddock before the docket.** The paddock tells you the shape of the work and what's been learned; the docket tells you what to do next. Orientation before action.
 4. Display context to user: racing heats, heat silks, paddock summary, recent work, current pace and docket
