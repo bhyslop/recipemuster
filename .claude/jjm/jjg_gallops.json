@@ -258,6 +258,7 @@
         "₢A1AAK",
         "₢A1AAN",
         "₢A1AAB",
+        "₢A1AAO",
         "₢A1AAC",
         "₢A1AAD",
         "₢A1AAE",
@@ -268,7 +269,7 @@
         "₢A1AAJ",
         "₢A1AAM"
       ],
-      "next_pace_seed": "AAO",
+      "next_pace_seed": "AAP",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -576,6 +577,17 @@
               "text": "## Character\nMinting + mechanical implementation.\n\n## Docket\nMint and implement three new non-interactive container exec tabtargets:\n- **writ** — execute arbitrary command in sentry\n- **fiat** — execute arbitrary command in pentacle\n- **bark** — execute arbitrary command in bottle\n\nThese parallel the existing interactive commands (hail/rack/scry) but are exec-and-return: run command, capture output, exit. Designed for theurge to invoke programmatically.\n\nSteps:\n1. Assign colophon strings (candidates: `rbw-cw`, `rbw-cf`, `rbw-cb` — following bottle `rbw-c*` pattern)\n2. Implement backing functions in `rbob_bottle.sh` / `rbob_cli.sh`\n3. Enroll in `rbz_zipper.sh`\n4. Create tabtarget files in `tt/`\n5. Add to theurge's compiled-in colophon set",
               "silks": "mint-writ-fiat-bark-colophons",
               "commit": "879e812"
+            }
+          ]
+        },
+        "₢A1AAO": {
+          "tacks": [
+            {
+              "ts": "260401-1353",
+              "state": "rough",
+              "text": "## Character\nVerification gate — mechanical but disciplined. Run what was built, confirm it works before building on it.\n\n## Docket\nExercise the theurge case engine (built in ₢A1AAB) through scenarios that stress its contracts before C/D build real infrastructure on top of it.\n\n**Scenarios to run:**\n- Mixed verdicts: cases that pass, fail, and skip in one run — verify counts and colored output\n- Fatal-on-first mode: confirm execution stops after first failure, summary reflects partial run\n- Run-all mode: confirm all cases execute despite failures\n- Multiple sections: verify section headers group correctly in output\n- Edge cases: zero cases registered, all-skip, single case\n- Temp dir isolation: two cases running sequentially get distinct temp dirs, files don't leak between them\n- Verbose trace files: confirm per-case output files are written, readable, contain expected detail\n\n**Exit criteria:** All scenarios produce correct output. No code changes to the engine expected — if something fails, fix it in this pace before proceeding.",
+              "silks": "qualify-case-engine",
+              "commit": "ba71cb3"
             }
           ]
         }
