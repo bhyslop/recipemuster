@@ -256,6 +256,7 @@
         "₢A1AAL",
         "₢A1AAA",
         "₢A1AAK",
+        "₢A1AAN",
         "₢A1AAB",
         "₢A1AAC",
         "₢A1AAD",
@@ -267,7 +268,7 @@
         "₢A1AAJ",
         "₢A1AAM"
       ],
-      "next_pace_seed": "AAN",
+      "next_pace_seed": "AAO",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -501,6 +502,17 @@
               "text": "## Character\nDesign judgment — now that all tests are ported faithfully, assess overlap and simplify.\n\n## Docket\nAfter all porting paces are complete and retirement is done, review the combined test catalog (ported bash cases + ported python sorties) for overlap. The bash tadmor DNS-blocked tests and the python dns_exfil_subdomain sortie test similar surfaces from different angles — some may collapse, some may be complementary.\n\nExpress deduplication pass:\n- List all ifrit attack variants and theurge-only cases\n- Identify overlapping coverage (same attack surface, same assertion)\n- Merge where truly redundant, keep both where they test different aspects\n- Document the final catalog",
               "silks": "deduplicate-ported-test-catalog",
               "commit": "1b73bcf"
+            }
+          ]
+        },
+        "₢A1AAN": {
+          "tacks": [
+            {
+              "ts": "260401-1258",
+              "state": "rough",
+              "text": "## Character\nMinting + mechanical implementation.\n\n## Docket\nMint and implement three new non-interactive container exec tabtargets:\n- **writ** — execute arbitrary command in sentry\n- **fiat** — execute arbitrary command in pentacle\n- **bark** — execute arbitrary command in bottle\n\nThese parallel the existing interactive commands (hail/rack/scry) but are exec-and-return: run command, capture output, exit. Designed for theurge to invoke programmatically.\n\nSteps:\n1. Assign colophon strings (candidates: `rbw-cw`, `rbw-cf`, `rbw-cb` — following bottle `rbw-c*` pattern)\n2. Implement backing functions in `rbob_bottle.sh` / `rbob_cli.sh`\n3. Enroll in `rbz_zipper.sh`\n4. Create tabtarget files in `tt/`\n5. Add to theurge's compiled-in colophon set",
+              "silks": "mint-writ-fiat-bark-colophons",
+              "commit": "879e812"
             }
           ]
         }
