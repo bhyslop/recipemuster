@@ -324,6 +324,13 @@
         "₢A1AAC": {
           "tacks": [
             {
+              "ts": "260401-1315",
+              "state": "rough",
+              "text": "## Character\nInfrastructure — mechanical but needs to be solid.\n\n## Docket\nBuild theurge's Rust code for interacting with bottles and container layers, always via tabtargets.\n\n**Tabtarget invocation layer:**\nTheurge shells out to tabtargets using colophon strings verified by the manifest protocol. It constructs paths by globbing `tt/{colophon}.*.{nameplate}.sh`. Uses writ/fiat/bark tabtargets established in ₢A1AAN for container exec, charge/quench for lifecycle.\n\n**BURV isolation for tabtarget invocations:**\nWhen theurge invokes a tabtarget, it must provide per-invocation `BURV_OUTPUT_ROOT_DIR` and `BURV_TEMP_ROOT_DIR` so child tabtarget temp space doesn't collide with theurge's own or with other invocations. Match the isolation pattern from `buto_operations.sh` `zbuto_invoke()`.\n\n**Ifrit invocation:**\nTheurge runs the ifrit binary via bark tabtarget (exec in bottle). The binary is already inside the vessel — no copy step. Theurge parses ifrit's stdout for verdict, checks exit code.",
+              "silks": "theurge-container-interaction-layer",
+              "commit": "0a16347"
+            },
+            {
               "ts": "260401-1238",
               "state": "rough",
               "text": "## Character\nInfrastructure — mechanical but needs to be solid. Several design decisions embedded.\n\n## Docket\nBuild theurge's ability to interact with bottles and container layers, always via tabtargets.\n\n**Tabtarget invocations (charge/quench/observe):**\nTheurge shells out to tabtargets using colophon strings verified by the manifest protocol. It constructs paths by globbing `tt/{colophon}.*.{nameplate}.sh`. Charge and quench use existing `rbw-cC` / `rbw-cQ` colophons.\n\n**New container exec tabtargets — three new words:**\n- **writ** — execute arbitrary command in sentry (`rbw-cw` or similar colophon)\n- **fiat** — execute arbitrary command in pentacle\n- **bark** — execute arbitrary command in bottle\n\nThese need zipper enrollment in `rbz_zipper.sh`, tabtarget files in `tt/`, and backing implementations in `rbob_cli.sh` / `rbob_bottle.sh`. They parallel the existing hail/rack/scry interactive commands but are non-interactive exec-and-return.\n\n**BURV isolation for tabtarget invocations:**\nWhen theurge invokes a tabtarget, it must provide per-invocation `BURV_OUTPUT_ROOT_DIR` and `BURV_TEMP_ROOT_DIR` so child tabtarget temp space doesn't collide with theurge's own or with other invocations. Match the isolation pattern from `buto_operations.sh` `zbuto_invoke()`.\n\n**Copy ifrit into bottle:**\nThe \"copy ifrit binary into bottle\" operation — `docker cp` or equivalent to place the compiled ifrit at a known path inside the bottle before test cases run.",
@@ -366,6 +373,13 @@
         },
         "₢A1AAE": {
           "tacks": [
+            {
+              "ts": "260401-1315",
+              "state": "rough",
+              "text": "## Character\nIntegration milestone — the proof that the architecture works.\n\n## Docket\nWire theurge + ifrit together for the first time against the tadmor nameplate. Theurge charges the crucible via `rbw-cC` tabtarget (ifrit binary is already inside the vessel image), runs 3-5 attack cases via bark tabtarget (exec ifrit in bottle), monitors sentry state from outside via writ tabtarget (exec in sentry), correlates results, reports verdicts.\n\nThis is the moment where \"simultaneous inside/outside observation\" becomes real. Pick cases where outside monitoring adds value (e.g., iptables counter delta on a blocked DNS query).\n\nTheurge owns the full lifecycle: charge → run cases → quench. Establish tabtarget using existing infix pattern with imprint for tier/fixture selection.",
+              "silks": "first-end-to-end-tadmor-cases",
+              "commit": "0a16347"
+            },
             {
               "ts": "260401-1238",
               "state": "rough",
@@ -457,6 +471,13 @@
         "₢A1AAJ": {
           "tacks": [
             {
+              "ts": "260401-1315",
+              "state": "rough",
+              "text": "## Character\nPruning — satisfying but irreversible. Verify full coverage first.\n\n## Docket\nRemove the RBK-specific test consumers and python sortie framework. **Do NOT remove BUK test infrastructure files** (`bute_engine.sh`, `butd_dispatch.sh`, `butr_registry.sh`, `buto_operations.sh`) — those are BUK framework used by other projects.\n\n**Remove:**\n- `Tools/rbk/rbtb_testbench.sh` and `Tools/rbk/rbts/*.sh` (all RBK bash test cases)\n- `Tools/rbk/rbtid/` (python adjutant, roster, all sorties, debrief)\n- Test suite/fixture tabtargets that pointed to bash infrastructure\n- Zipper enrollments for retired test colophons (`rbw-tf`, `rbw-ts`, `rbw-to`)\n- Sortie-related zipper enrollments (`rbw-Is`)\n\n**Establish:**\n- Minimal BUK self-test (`butt_testbench.sh` or similar) that exercises the BUK test framework itself (kick-tires level) so butX files stay tested after RBK consumers are removed.\n\n**Before removing:** run theurge full suite, confirm all ported cases pass, diff coverage against bash/python case lists to ensure nothing was dropped.\n\nUpdate CLAUDE.md prefix mappings to reflect new `rbtd`/`rbid` trees and retired `rbtb`/`rbtid` entries.",
+              "silks": "retire-bash-test-and-python-sortie-infrastructure",
+              "commit": "0a16347"
+            },
+            {
               "ts": "260401-1239",
               "state": "rough",
               "text": "## Character\nPruning — satisfying but irreversible. Verify full coverage first.\n\n## Docket\nRemove the RBK-specific test consumers and python sortie framework. **Do NOT remove BUK test infrastructure files** (`bute_engine.sh`, `butd_dispatch.sh`, `butr_registry.sh`, `buto_operations.sh`) — those are BUK framework used by other projects.\n\n**Remove:**\n- `Tools/rbk/rbtb_testbench.sh` and `Tools/rbk/rbts/*.sh` (all RBK bash test cases)\n- `Tools/rbk/rbtid/` (python adjutant, roster, all sorties, debrief)\n- Test suite/fixture tabtargets that pointed to bash infrastructure\n- Zipper enrollments for retired test colophons (`rbw-tf`, `rbw-ts`, `rbw-to`)\n- Sortie-related zipper enrollments (`rbw-Is`)\n\n**Simplify but keep:**\n- `rbev-vessels/rbev-bottle-ifrit/Dockerfile` — slim down to minimal base + network tools (no python, no nodejs, no Claude Code). The ifrit binary gets copied in at test time, not baked into the image.\n\n**Establish:**\n- Minimal BUK self-test (`butt_testbench.sh` or similar) that exercises the BUK test framework itself (kick-tires level) so butX files stay tested after RBK consumers are removed.\n\n**Before removing:** run theurge full suite, confirm all ported cases pass, diff coverage against bash/python case lists to ensure nothing was dropped.\n\nUpdate CLAUDE.md prefix mappings to reflect new `rbtr`/`rbid` trees and retired `rbtb`/`rbtid` entries.",
@@ -474,6 +495,13 @@
         },
         "₢A1AAK": {
           "tacks": [
+            {
+              "ts": "260401-1315",
+              "state": "rough",
+              "text": "## Character\nLoad-bearing interface design — this is the trust boundary between bash zipper world and Rust binary world. Get it right once.\n\n## Docket\nImplement the colophon manifest protocol that lets theurge verify its compiled-in colophon strings match the live zipper registry.\n\n**Bash side (rbz zipper):**\n- Add kindle constant `readonly ZRBZ_COLOPHON_MANIFEST=\"${z_buz_colophon_roll[*]}\"` to `zrbz_kindle()`, before the `KINDLED=1` sentinel\n- Not exported — stays internal, passed explicitly at dispatch boundary\n\n**Rust side (theurge):**\n- Theurge accepts the manifest string as an argument\n- Compiled-in constant array of colophon strings theurge depends on (initially: charge `rbw-cC`, quench `rbw-cQ`; grows as later paces add writ/fiat/bark, then foundry colophons for four-mode)\n- On startup: for each compiled-in colophon, confirm it appears in the manifest string. Missing → fatal naming the specific string. Manifest absent entirely → fatal with \"theurge must be launched via tabtarget\"\n- The compiled-in set is a subset of the manifest — theurge doesn't care about colophons it doesn't use\n\n**Dispatch glue:**\n- The theurge launcher passes `ZRBZ_COLOPHON_MANIFEST` as argument to the binary before any other args",
+              "silks": "colophon-manifest-protocol",
+              "commit": "0a16347"
+            },
             {
               "ts": "260401-1238",
               "state": "rough",
