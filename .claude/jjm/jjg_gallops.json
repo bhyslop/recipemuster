@@ -9,6 +9,7 @@
     "₣AI",
     "₣AJ",
     "₣AN",
+    "₣A1",
     "₣A0",
     "₣Ah",
     "₣AU",
@@ -18,8 +19,7 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au",
-    "₣A1"
+    "₣Au"
   ],
   "heats": {
     "₣A0": {
@@ -251,7 +251,7 @@
     "₣A1": {
       "silks": "rbk-theurge-rust-test-infrastructure",
       "creation_time": "260401",
-      "status": "stabled",
+      "status": "racing",
       "order": [
         "₢A1AAA",
         "₢A1AAB",
