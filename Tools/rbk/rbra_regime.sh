@@ -37,6 +37,9 @@ zrbra_kindle() {
 
   buv_regime_enroll RBRA
 
+  buv_group_enroll "Role Identity"
+  buv_string_enroll   RBRA_ROLE                1    20  "Service account role (governor|retriever|director)"
+
   buv_group_enroll "Service Account Credentials"
   buv_string_enroll   RBRA_CLIENT_EMAIL        1   256  "Service account email address"
   buv_string_enroll   RBRA_PRIVATE_KEY         1  4096  "PEM-encoded private key material"
@@ -64,6 +67,12 @@ zrbra_enforce() {
   zrbra_sentinel
 
   buv_vet RBRA
+
+  # RBRA_ROLE must be a valid role name
+  case "${RBRA_ROLE}" in
+    governor|retriever|director) ;;
+    *) buc_die "RBRA_ROLE must be governor, retriever, or director — got: '${RBRA_ROLE}'" ;;
+  esac
 
   # Client email must match service account pattern
   [[ "${RBRA_CLIENT_EMAIL}" =~ \.iam\.gserviceaccount\.com$ ]] \

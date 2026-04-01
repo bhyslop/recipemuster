@@ -59,7 +59,7 @@ rblm_zero() {
   if test -n "${z_secrets_dir}"; then
     local z_preview=""
     local z_any_cred=0
-    for z_preview in rbra-governor.env rbra-director.env rbra-retriever.env; do
+    for z_preview in "${RBCC_role_governor}/${RBCC_rbra_file}" "${RBCC_role_director}/${RBCC_rbra_file}" "${RBCC_role_retriever}/${RBCC_rbra_file}"; do
       if test -f "${z_secrets_dir}/${z_preview}"; then
         bug_t "    ${z_secrets_dir}/${z_preview}"
         z_any_cred=1
@@ -129,7 +129,7 @@ rblm_zero() {
   # z_secrets_dir already extracted above for pre-confirmation inventory.
   if test -n "${z_secrets_dir}"; then
     local z_rbra=""
-    for z_rbra in rbra-governor.env rbra-director.env rbra-retriever.env; do
+    for z_rbra in "${RBCC_role_governor}/${RBCC_rbra_file}" "${RBCC_role_director}/${RBCC_rbra_file}" "${RBCC_role_retriever}/${RBCC_rbra_file}"; do
       if test -f "${z_secrets_dir}/${z_rbra}"; then
         rm "${z_secrets_dir}/${z_rbra}" || buc_die "Failed to remove: ${z_secrets_dir}/${z_rbra}"
         bug_t "  Removed stale depot credential: ${z_rbra}"
@@ -323,6 +323,7 @@ zrblm_furnish() {
 
   source "${BURD_CONFIG_DIR}/rbbc_constants.sh"
   local z_rbk_kit_dir="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}"
+  source "${z_rbk_kit_dir}/rbcc_Constants.sh" || buc_die "Failed to source rbcc_Constants.sh"
 
   source "${BURD_BUK_DIR}/bug_guide.sh"      || buc_die "Failed to source bug_guide.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh"     || buc_die "Failed to source buz_zipper.sh"

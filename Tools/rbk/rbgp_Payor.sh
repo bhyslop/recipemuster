@@ -1229,7 +1229,7 @@ rbgp_governor_mantle() {
   date +%Y%m%d%H%M > "${ZRBGP_SCRATCH_FILE}" \
     || buc_die "Failed to generate timestamp"
   z_timestamp=$(<"${ZRBGP_SCRATCH_FILE}")
-  local -r z_governor_account_id="${RBGC_GOVERNOR_PREFIX}-${z_timestamp}"
+  local -r z_governor_account_id="${RBCC_role_governor}-${z_timestamp}"
   local z_governor_email
   z_governor_email=$(rbgu_sa_email_capture "${z_governor_account_id}" "${z_depot_project_id}") \
     || buc_die "Failed to compose Governor email"
@@ -1326,6 +1326,7 @@ rbgp_governor_mantle() {
 
   buc_step 'Write RBRA file'
   {
+    printf 'RBRA_ROLE=%s\n' "${RBCC_role_governor}"
     printf 'RBRA_CLIENT_EMAIL="%s"\n'      "${z_client_email}"
     printf 'RBRA_PRIVATE_KEY="'; printf '%s' "${z_private_key}"; printf '"\n'
     printf 'RBRA_PROJECT_ID="%s"\n'        "${z_project_id}"

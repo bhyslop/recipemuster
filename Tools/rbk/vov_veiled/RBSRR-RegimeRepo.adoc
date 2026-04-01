@@ -60,7 +60,7 @@ Enrolled and validated to exist; individual file paths are derived from this dir
 
 Path derived from
 {rbrr_secrets_dir}
-as `rbra-retriever.env`.
+as `retriever/rbra.env`.
 Enables the operator to assume the retriever role for container image operations.
 
 //axhrgv_variable
@@ -68,7 +68,7 @@ Enables the operator to assume the retriever role for container image operations
 
 Path derived from
 {rbrr_secrets_dir}
-as `rbra-director.env`.
+as `director/rbra.env`.
 Enables the operator to assume the director role for build submission and image management operations.
 
 //axhrgv_variable
@@ -76,7 +76,7 @@ Enables the operator to assume the director role for build submission and image 
 
 Path derived from
 {rbrr_secrets_dir}
-as `rbra-governor.env`.
+as `governor/rbra.env`.
 Enables the operator to assume the governor role for
 {gcp_project_id}
 administration operations.

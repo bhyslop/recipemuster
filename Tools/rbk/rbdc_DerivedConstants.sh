@@ -31,14 +31,29 @@ zrbdc_kindle() {
   test -z "${ZRBDC_KINDLED:-}" || buc_die "Module rbdc already kindled"
   zrbrr_sentinel
 
-  # Ensure secrets directory exists (defensive: Payor Install creates it first,
-  # but other paths like Governor Reset should not assume ordering)
-  mkdir -p "${RBRR_SECRETS_DIR}" || buc_die "Failed to create secrets directory: ${RBRR_SECRETS_DIR}"
+  # Ensure secrets directory and role subdirectories exist
+  mkdir -p "${RBRR_SECRETS_DIR}/${RBCC_role_governor}" \
+           "${RBRR_SECRETS_DIR}/${RBCC_role_retriever}" \
+           "${RBRR_SECRETS_DIR}/${RBCC_role_director}" \
+    || buc_die "Failed to create secrets directories under: ${RBRR_SECRETS_DIR}"
+
+  # One-shot migration: move old flat rbra-{role}.env to {role}/rbra.env
+  local z_mig_role=""
+  for z_mig_role in "${RBCC_role_governor}" "${RBCC_role_retriever}" "${RBCC_role_director}"; do
+    local z_mig_old="${RBRR_SECRETS_DIR}/rbra-${z_mig_role}.env"
+    local z_mig_new="${RBRR_SECRETS_DIR}/${z_mig_role}/${RBCC_rbra_file}"
+    if test -f "${z_mig_old}" && ! test -f "${z_mig_new}"; then
+      mv "${z_mig_old}" "${z_mig_new}" || buc_die "Failed to migrate: ${z_mig_old} → ${z_mig_new}"
+      if ! grep -q '^RBRA_ROLE=' "${z_mig_new}"; then
+        printf 'RBRA_ROLE=%s\n' "${z_mig_role}" >> "${z_mig_new}"
+      fi
+    fi
+  done
 
   # Derive credential file paths from RBRR_SECRETS_DIR
-  readonly RBDC_GOVERNOR_RBRA_FILE="${RBRR_SECRETS_DIR}/rbra-governor.env"
-  readonly RBDC_RETRIEVER_RBRA_FILE="${RBRR_SECRETS_DIR}/rbra-retriever.env"
-  readonly RBDC_DIRECTOR_RBRA_FILE="${RBRR_SECRETS_DIR}/rbra-director.env"
+  readonly RBDC_GOVERNOR_RBRA_FILE="${RBRR_SECRETS_DIR}/${RBCC_role_governor}/${RBCC_rbra_file}"
+  readonly RBDC_RETRIEVER_RBRA_FILE="${RBRR_SECRETS_DIR}/${RBCC_role_retriever}/${RBCC_rbra_file}"
+  readonly RBDC_DIRECTOR_RBRA_FILE="${RBRR_SECRETS_DIR}/${RBCC_role_director}/${RBCC_rbra_file}"
   readonly RBDC_PAYOR_RBRO_FILE="${RBRR_SECRETS_DIR}/rbro-payor.env"
 
   # Derive full pool resource paths from stem (suffixes match RBGC_POOL_SUFFIX_TETHER/AIRGAP)

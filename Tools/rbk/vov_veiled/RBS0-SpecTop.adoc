@@ -2460,7 +2460,7 @@ Path to the
 for container image operations.
 Derived from
 {rbrr_secrets_dir}
-as `rbra-retriever.env`.
+as `retriever/rbra.env`.
 
 [[rbrr_director_rbra_file]]
 //axl_voices axrd_constructed axtu_path
@@ -2471,7 +2471,7 @@ Path to the
 for build submission and image management.
 Derived from
 {rbrr_secrets_dir}
-as `rbra-director.env`.
+as `director/rbra.env`.
 
 [[rbrr_governor_rbra_file]]
 //axl_voices axrd_constructed axtu_path
@@ -2484,7 +2484,7 @@ for
 administration.
 Derived from
 {rbrr_secrets_dir}
-as `rbra-governor.env`.
+as `governor/rbra.env`.
 
 [[rbrr_payor_rbro_file]]
 //axl_voices axrd_constructed axtu_path

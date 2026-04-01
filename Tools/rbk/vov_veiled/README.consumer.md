@@ -219,9 +219,9 @@ All credential files require `600` permissions and must never be committed to ve
 | Credential | Location | Created by |
 |------------|----------|------------|
 | Payor OAuth | `~/.rbw/rbro.env` | `tt/rbw-gPI.PayorInstall.sh` |
-| Governor | `RBRR_SECRETS_DIR/rbra-governor.env` | `tt/rbw-PM.PayorMantlesGovernor.sh` |
-| Director | `RBRR_SECRETS_DIR/rbra-director.env` | `tt/rbw-GK.GovernorKnightsDirector.sh` |
-| Retriever | `RBRR_SECRETS_DIR/rbra-retriever.env` | `tt/rbw-GC.GovernorChartersRetriever.sh` |
+| Governor | `RBRR_SECRETS_DIR/governor/rbra.env` | `tt/rbw-PM.PayorMantlesGovernor.sh` |
+| Director | `RBRR_SECRETS_DIR/director/rbra.env` | `tt/rbw-GK.GovernorKnightsDirector.sh` |
+| Retriever | `RBRR_SECRETS_DIR/retriever/rbra.env` | `tt/rbw-GC.GovernorChartersRetriever.sh` |
 
 Each credential file is scoped to one role within one depot and cannot operate outside its designation.
 

@@ -132,6 +132,10 @@ zrbra_furnish() {
     source "${z_rbra_file}" || buc_die "Failed to source RBRA: ${z_rbra_file}"
     zrbra_kindle
     zrbra_enforce
+
+    # Swizzle guard: RBRA_ROLE must match the expected role from folio
+    test "${RBRA_ROLE}" = "${BUZ_FOLIO}" \
+      || buc_die "RBRA_ROLE swizzle: file declares role '${RBRA_ROLE}' but loaded as '${BUZ_FOLIO}'"
   fi
 }
 

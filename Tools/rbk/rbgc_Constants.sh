@@ -57,10 +57,7 @@ zrbgc_kindle() {
   readonly RBGC_PAYOR_APP_NAME="Recipe Bottle Payor"
 
   # Service Account Prefixes
-  readonly RBGC_GOVERNOR_PREFIX="governor"
   readonly RBGC_MASON_PREFIX="mason"
-  readonly RBGC_DIRECTOR_PREFIX="director"
-  readonly RBGC_RETRIEVER_PREFIX="retriever"
 
   # Timeouts
   readonly RBGC_MAX_CONSISTENCY_SEC=90

@@ -509,9 +509,9 @@ rbgm_onboarding() {
 
   # Service account credentials: RBRA files in secrets dir
   if test -n "${z_secrets_dir}"; then
-    test -f "${z_secrets_dir}/rbra-governor.env"  && z_has_governor=1
-    test -f "${z_secrets_dir}/rbra-director.env"   && z_has_director=1
-    test -f "${z_secrets_dir}/rbra-retriever.env"  && z_has_retriever=1
+    test -f "${z_secrets_dir}/${RBCC_role_governor}/${RBCC_rbra_file}"  && z_has_governor=1
+    test -f "${z_secrets_dir}/${RBCC_role_director}/${RBCC_rbra_file}"   && z_has_director=1
+    test -f "${z_secrets_dir}/${RBCC_role_retriever}/${RBCC_rbra_file}"  && z_has_retriever=1
   fi
 
   # ===================================================================
@@ -558,9 +558,9 @@ rbgm_onboarding() {
       bug_t "  RBRA credential files. Each is a shell-sourceable .env file placed in:"
       bug_tc "    " "${z_secrets_dir}/"
       bug_t "  Required permissions: 600. Expected filenames:"
-      bug_t "    rbra-governor.env   — admin for depot project"
-      bug_t "    rbra-director.env   — executes Cloud Build operations"
-      bug_t "    rbra-retriever.env  — pulls images for local bottles"
+      bug_t "    ${RBCC_role_governor}/${RBCC_rbra_file}   — admin for depot project"
+      bug_t "    ${RBCC_role_director}/${RBCC_rbra_file}   — executes Cloud Build operations"
+      bug_t "    ${RBCC_role_retriever}/${RBCC_rbra_file}  — pulls images for local bottles"
       bug_e
       bug_t "  If you received a credential file, place it at the path above."
       bug_t "  If you are the payor, create credentials via the payor track below."
@@ -793,7 +793,7 @@ rbgm_onboarding() {
     buc_tabtarget "${RBZ_PAYOR_ESTABLISH}"
     bug_e
     bug_t "  B. Retriever-only (you received credential files):"
-    bug_t "     Place rbra-retriever.env in RBRR_SECRETS_DIR and re-run this guide."
+    bug_t "     Place ${RBCC_role_retriever}/${RBCC_rbra_file} in RBRR_SECRETS_DIR and re-run this guide."
   fi
 
   buc_success "Onboarding dashboard displayed"

@@ -167,6 +167,7 @@ zrbgg_create_service_account_with_key() {
   local z_display_name="$2"
   local z_description="$3"
   local z_instance="$4"
+  local z_role="$5"
 
   local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
 
@@ -281,6 +282,7 @@ zrbgg_create_service_account_with_key() {
 
   buc_step 'Write RBRA file' "${z_rbra_file}"
   {
+    printf 'RBRA_ROLE=%s\n'                  "${z_role}"
     printf 'RBRA_CLIENT_EMAIL="%s"\n'      "$z_client_email"
     printf 'RBRA_PRIVATE_KEY="'; printf '%s' "$z_private_key"; printf '"\n'
     printf 'RBRA_PROJECT_ID="%s"\n'        "$z_project_id"
@@ -501,7 +503,7 @@ rbgg_charter_retriever() {
   buc_step 'Rubric infrastructure preflight'
   zrbgg_rubric_preflight
 
-  local z_account_name="${RBGC_RETRIEVER_PREFIX}-${z_instance}"
+  local z_account_name="${RBCC_role_retriever}-${z_instance}"
   local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
 
   buc_step "Chartering Retriever service account: ${z_account_name}"
@@ -510,7 +512,7 @@ rbgg_charter_retriever() {
     "${z_account_name}"                                                        \
     "Recipe Bottle Retriever (${z_instance})"                                  \
     "Read-only access to Google Artifact Registry - instance: ${z_instance}"   \
-    "${z_instance}" > /dev/null || buc_die "Failed to create Retriever SA"
+    "${z_instance}" "${RBCC_role_retriever}" > /dev/null || buc_die "Failed to create Retriever SA"
 
   local z_token
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
@@ -557,7 +559,7 @@ rbgg_knight_director() {
   buc_step 'Rubric infrastructure preflight'
   zrbgg_rubric_preflight
 
-  local z_account_name="${RBGC_DIRECTOR_PREFIX}-${z_instance}"
+  local z_account_name="${RBCC_role_director}-${z_instance}"
   local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
 
   buc_step "Knighting Director service account: ${z_account_name}"
@@ -566,7 +568,7 @@ rbgg_knight_director() {
     "${z_account_name}"                                    \
     "Recipe Bottle Director (${z_instance})"               \
     "Create/destroy container images for ${z_instance}"    \
-    "${z_instance}" > /dev/null || buc_die "Failed to create Director SA"
+    "${z_instance}" "${RBCC_role_director}" > /dev/null || buc_die "Failed to create Director SA"
 
   buc_step 'Get OAuth token from admin'
   local z_token
