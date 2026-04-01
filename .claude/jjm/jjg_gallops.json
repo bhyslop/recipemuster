@@ -627,6 +627,13 @@
         "₢A1AAO": {
           "tacks": [
             {
+              "ts": "260401-1439",
+              "state": "complete",
+              "text": "## Character\nVerification gate — mechanical but disciplined. Run what was built, confirm it works before building on it.\n\n## Docket\nExercise the theurge case engine (built in ₢A1AAB) through scenarios that stress its contracts before C/D build real infrastructure on top of it.\n\n**Scenarios to run:**\n- Mixed verdicts: cases that pass, fail, and skip in one run — verify counts and colored output\n- Fatal-on-first mode: confirm execution stops after first failure, summary reflects partial run\n- Run-all mode: confirm all cases execute despite failures\n- Multiple sections: verify section headers group correctly in output\n- Edge cases: zero cases registered, all-skip, single case\n- Temp dir isolation: two cases running sequentially get distinct temp dirs, files don't leak between them\n- Verbose trace files: confirm per-case output files are written, readable, contain expected detail\n\n**Exit criteria:** All scenarios produce correct output. No code changes to the engine expected — if something fails, fix it in this pace before proceeding.",
+              "silks": "qualify-case-engine",
+              "commit": "ae90264"
+            },
+            {
               "ts": "260401-1353",
               "state": "rough",
               "text": "## Character\nVerification gate — mechanical but disciplined. Run what was built, confirm it works before building on it.\n\n## Docket\nExercise the theurge case engine (built in ₢A1AAB) through scenarios that stress its contracts before C/D build real infrastructure on top of it.\n\n**Scenarios to run:**\n- Mixed verdicts: cases that pass, fail, and skip in one run — verify counts and colored output\n- Fatal-on-first mode: confirm execution stops after first failure, summary reflects partial run\n- Run-all mode: confirm all cases execute despite failures\n- Multiple sections: verify section headers group correctly in output\n- Edge cases: zero cases registered, all-skip, single case\n- Temp dir isolation: two cases running sequentially get distinct temp dirs, files don't leak between them\n- Verbose trace files: confirm per-case output files are written, readable, contain expected detail\n\n**Exit criteria:** All scenarios produce correct output. No code changes to the engine expected — if something fails, fix it in this pace before proceeding.",
