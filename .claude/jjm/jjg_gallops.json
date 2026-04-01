@@ -274,6 +274,13 @@
         "₢A1AAA": {
           "tacks": [
             {
+              "ts": "260401-1322",
+              "state": "complete",
+              "text": "## Character\nMinting discipline — careful, mechanical.\n\n## Docket\nMint the `rbtd` (theurge) and `rbid` (ifrit) prefix trees. Two separate crates in distinct directories:\n- `Tools/rbk/rbtd/` — Theurge directory. Code prefix `rbtd_*`, variables `RBTD_*`.\n- `Tools/rbk/rbid/` — Ifrit directory. Code prefix `rbid_*`, variables `RBID_*`.\n\n**Not `rbtr`** — that AsciiDoc attribute prefix (\"RB Term Role\") is populated in RBS0.\n\nThese are fully distinct Rust codebases, NOT under Tools/vok. Each gets its own `Cargo.toml`, `src/main.rs`. Verify theurge builds on host with cargo. Ifrit builds inside its Dockerfile (no host cargo build needed for ifrit).\n\nNo functionality yet — just skeletons that compile.",
+              "silks": "mint-rbtd-rbid-prefix-and-workspace",
+              "commit": "f74b932"
+            },
+            {
               "ts": "260401-1258",
               "state": "rough",
               "text": "## Character\nMinting discipline — careful, mechanical.\n\n## Docket\nMint the `rbtd` (theurge) and `rbid` (ifrit) prefix trees. Two separate crates in distinct directories:\n- `Tools/rbk/rbtd/` — Theurge directory. Code prefix `rbtd_*`, variables `RBTD_*`.\n- `Tools/rbk/rbid/` — Ifrit directory. Code prefix `rbid_*`, variables `RBID_*`.\n\n**Not `rbtr`** — that AsciiDoc attribute prefix (\"RB Term Role\") is populated in RBS0.\n\nThese are fully distinct Rust codebases, NOT under Tools/vok. Each gets its own `Cargo.toml`, `src/main.rs`. Verify theurge builds on host with cargo. Ifrit builds inside its Dockerfile (no host cargo build needed for ifrit).\n\nNo functionality yet — just skeletons that compile.",
