@@ -32,9 +32,10 @@
         "₢A0AAD",
         "₢A0AAE",
         "₢A0AAF",
-        "₢A0AAG"
+        "₢A0AAG",
+        "₢A0AAH"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_uAl0.md",
       "paces": {
         "₢A0AAA": {
@@ -223,6 +224,17 @@
               "text": "## Character\nFinal extraction — what remains in rbf_Foundry.sh becomes rbfd.\n\n## Context\nAfter core, retriever, verify, and ledger are extracted, what remains is the build/creation domain: ordain (master dispatch), conjure (GCB cloud build), enshrine (upstream copy), graft (local push + GCB metadata), kludge (local dev build), mirror (bind image copy). Rename the residual file to rbfd.\n\n## Acceptance\n- rbfd module exists (formerly the residual of rbf_Foundry.sh)\n- rbf_Foundry.sh no longer exists\n- All child modules (rbfc, rbfd, rbfr, rbfv, rbfl) are independently sourceable\n- All tests pass\n- No monolith remains",
               "silks": "extract-foundry-director-build",
               "commit": "4296d0e"
+            }
+          ]
+        },
+        "₢A0AAH": {
+          "tacks": [
+            {
+              "ts": "260401-0603",
+              "state": "rough",
+              "text": "## Character\nMechanical but careful — run each test fixture, fix any breakage from the rbf→rbfd/rbfl/rbfv/rbfr/rbfc decomposition. The test fixtures exercise the zipper dispatch path so they validate the full wiring.\n\n## Scope\n- Fix stale references in test fixtures (rbf_ → rbfd_, zrbf_ → zrbfd_, rbf_Foundry.sh → rbfd_FoundryDirectorBuild.sh)\n- Fix stale comments in rbtctm_ThreeMode.sh (references rbf_ordain in header comment)\n- Run test fixtures sequentially: three-mode first, then regime-validation, enrollment-validation, etc.\n- Any failures are decomposition regressions — fix and re-run\n\n## Acceptance\n- All test fixtures pass (or known-unrelated failures documented)\n- Zero stale rbf_/zrbf_ references in test fixture files",
+              "silks": "post-decomposition-test-sweep",
+              "commit": "ed00265"
             }
           ]
         }
