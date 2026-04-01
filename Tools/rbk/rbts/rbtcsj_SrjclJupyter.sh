@@ -33,7 +33,9 @@ rbtcsj_jupyter_running_tcase() {
   buto_trace "Verifying Jupyter process is running in bottle"
   # Verify Jupyter process is running in bottle
   buto_unit_expect_ok rbtb_exec_bottle ps aux
-  rbtb_exec_bottle ps aux | grep -q jupyter || buto_fatal "jupyter not running in bottle"
+  local z_ps_output
+  z_ps_output=$(rbtb_exec_bottle ps aux) || buto_fatal "Failed to get process list from bottle"
+  case "${z_ps_output}" in *jupyter*) ;; *) buto_fatal "jupyter not running in bottle" ;; esac
 }
 
 rbtcsj_jupyter_connectivity_tcase() {

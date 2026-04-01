@@ -133,7 +133,9 @@ rbga_repo_get() {
   rbgu_http_json "GET" "${z_get_url}" "${z_token}" "${ZRBGA_INFIX_GET_REPO}"
   rbgu_http_require_ok "Get repository" "${ZRBGA_INFIX_GET_REPO}" 404 "not found"
 
-  if rbgu_http_code_capture "${ZRBGA_INFIX_GET_REPO}" | grep -q "404"; then
+  local z_http_code
+  z_http_code=$(rbgu_http_code_capture "${ZRBGA_INFIX_GET_REPO}")
+  if test "${z_http_code}" = "404"; then
     buc_info "Repository not found: ${z_repo_name} in ${z_location}"
     return 1
   fi

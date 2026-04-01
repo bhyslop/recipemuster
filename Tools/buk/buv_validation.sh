@@ -190,7 +190,7 @@ zbuv_enroll() {
   local z_desc="${5:-}"
 
   test -n "${z_buv_current_scope}" || buc_die "zbuv_enroll: call buv_regime_enroll first"
-  echo "${z_varname}" | grep -qE '^[A-Za-z_][A-Za-z0-9_]*$' || buc_die "zbuv_enroll: invalid variable name: '${z_varname}'"
+  [[ "${z_varname}" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] || buc_die "zbuv_enroll: invalid variable name: '${z_varname}'"
 
   z_buv_scope_roll+=("${z_buv_current_scope}")
   z_buv_varname_roll+=("${z_varname}")
@@ -386,7 +386,7 @@ zbuv_check_capture() {
         echo "${BUV_check_fail}${z_varname} must be no more than ${z_p2} chars, got '${z_val}' (${#z_val})"
         return 0
       fi
-      echo "${z_val}" | grep -qE '^[a-zA-Z][a-zA-Z0-9_-]*$' || {
+      [[ "${z_val}" =~ ^[a-zA-Z][a-zA-Z0-9_-]*$ ]] || {
         echo "${BUV_check_fail}${z_varname} must start with letter and contain only letters, numbers, underscore, hyphen, got '${z_val}'"
         return 0
       }
@@ -408,7 +408,7 @@ zbuv_check_capture() {
         echo "${BUV_check_fail}${z_varname} must be no more than ${z_p2} chars, got '${z_val}' (${#z_val})"
         return 0
       fi
-      echo "${z_val}" | grep -qE '^[a-z][a-z0-9-]*[a-z0-9]$' || {
+      [[ "${z_val}" =~ ^[a-z][a-z0-9-]*[a-z0-9]$ ]] || {
         echo "${BUV_check_fail}${z_varname} must match ^[a-z][a-z0-9-]*[a-z0-9]$ (lowercase letters, digits, hyphens; start with a letter; end with letter/digit), got '${z_val}'"
         return 0
       }
@@ -427,7 +427,7 @@ zbuv_check_capture() {
         echo "${BUV_check_fail}${z_varname} must be no more than ${z_p2} chars, got '${z_val}' (${#z_val})"
         return 0
       fi
-      echo "${z_val}" | grep -qE '^[a-zA-Z0-9][a-zA-Z0-9:._/@-]*$' || {
+      [[ "${z_val}" =~ ^[a-zA-Z0-9][a-zA-Z0-9:._/@-]*$ ]] || {
         echo "${BUV_check_fail}${z_varname} must start with letter/number and contain only letters, numbers, colons, dots, underscores, hyphens, forward slashes, at-signs, got '${z_val}'"
         return 0
       }
@@ -481,7 +481,7 @@ zbuv_check_capture() {
         return 0
       fi
       local z_re='^[a-z0-9.-]+(:[0-9]{2,5})?/([a-z0-9._-]+/)*[a-z0-9._-]+@sha256:[0-9a-f]{64}$'
-      echo "${z_val}" | grep -Eq "${z_re}" || {
+      [[ "${z_val}" =~ ${z_re} ]] || {
         echo "${BUV_check_fail}${z_varname} has invalid image reference format (require host[:port]/repo@sha256:<64hex>), got '${z_val}'"
         return 0
       }
@@ -492,7 +492,7 @@ zbuv_check_capture() {
         echo "${BUV_check_fail}${z_varname} must not be empty"
         return 0
       fi
-      echo "${z_val}" | grep -qE '^([0-9]{1,3}\.){3}[0-9]{1,3}$' || {
+      [[ "${z_val}" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] || {
         echo "${BUV_check_fail}${z_varname} has invalid IPv4 format: '${z_val}'"
         return 0
       }
@@ -531,7 +531,7 @@ zbuv_check_capture() {
       local z_item_num=0
       for z_item in ${z_val}; do
         z_item_num=$((z_item_num + 1))
-        echo "${z_item}" | grep -qE '^([0-9]{1,3}\.){3}[0-9]{1,3}$' || {
+        [[ "${z_item}" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] || {
           echo "${BUV_check_fail}${z_varname} item #${z_item_num} has invalid IPv4 format: '${z_item}'"
           return 0
         }
@@ -551,7 +551,7 @@ zbuv_check_capture() {
           echo "${BUV_check_fail}${z_varname} item #${z_item_num} must be no more than ${z_p2} chars, got '${z_item}' (${#z_item})"
           return 0
         fi
-        echo "${z_item}" | grep -qE '^[a-z][a-z0-9-]*[a-z0-9]$' || {
+        [[ "${z_item}" =~ ^[a-z][a-z0-9-]*[a-z0-9]$ ]] || {
           echo "${BUV_check_fail}${z_varname} item #${z_item_num} must match ^[a-z][a-z0-9-]*[a-z0-9]$, got '${z_item}'"
           return 0
         }
@@ -563,7 +563,7 @@ zbuv_check_capture() {
       local z_item_num=0
       for z_item in ${z_val}; do
         z_item_num=$((z_item_num + 1))
-        echo "${z_item}" | grep -qE '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$' || {
+        [[ "${z_item}" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/[0-9]{1,2}$ ]] || {
           echo "${BUV_check_fail}${z_varname} item #${z_item_num} has invalid CIDR format: '${z_item}'"
           return 0
         }
@@ -575,7 +575,7 @@ zbuv_check_capture() {
       local z_item_num=0
       for z_item in ${z_val}; do
         z_item_num=$((z_item_num + 1))
-        echo "${z_item}" | grep -qE '^[a-zA-Z0-9][a-zA-Z0-9\.-]*[a-zA-Z0-9]$' || {
+        [[ "${z_item}" =~ ^[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]$ ]] || {
           echo "${BUV_check_fail}${z_varname} item #${z_item_num} has invalid domain format: '${z_item}'"
           return 0
         }
@@ -595,7 +595,7 @@ zbuv_check_capture() {
 buv_consecration_format() {
   local z_val="${1:-}"
   test -n "${z_val}" || return 0
-  echo "${z_val}" | grep -qE '^[cbg][0-9]{12}-r[0-9]{12}$' \
+  [[ "${z_val}" =~ ^[cbg][0-9]{12}-r[0-9]{12}$ ]] \
     || buc_die "Invalid consecration format: '${z_val}' (expected [cbg]YYMMDDHHMMSS-rYYMMDDHHMMSS)"
 }
 
@@ -641,7 +641,7 @@ buv_docker_env() {
   local z_array_var="${2:-}"
   test -n "${z_scope}"     || buc_die "buv_docker_env: scope required"
   test -n "${z_array_var}" || buc_die "buv_docker_env: array variable name required"
-  echo "${z_array_var}" | grep -qE '^[A-Za-z_][A-Za-z0-9_]*$' \
+  [[ "${z_array_var}" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] \
     || buc_die "buv_docker_env: invalid array variable name: '${z_array_var}'"
 
   eval "${z_array_var}=()"

@@ -760,8 +760,10 @@ zrbfc_plumb_show_sections() {
     local -r z_recipe="${z_dir}/recipe.txt"
     if test -f "${z_recipe}"; then
       local z_from_line=""
-      grep -i '^FROM ' "${z_recipe}" > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null || true
-      read -r z_from_line < "${ZRBFC_SCRATCH_FILE}" 2>/dev/null || z_from_line=""
+      local z_recipe_line
+      while IFS= read -r z_recipe_line; do
+        case "${z_recipe_line}" in [Ff][Rr][Oo][Mm]\ *) z_from_line="${z_recipe_line}"; break ;; esac
+      done < "${z_recipe}" 2>/dev/null
       if test -n "${z_from_line}"; then
         echo "  Dockerfile FROM: ${z_from_line#FROM }"
       fi

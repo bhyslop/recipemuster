@@ -409,15 +409,17 @@ zrbgm_po_status() {
   fi
 }
 
-# Extract a KEY=VALUE from a file; stdout empty if missing.  grep-only, no sourcing.
+# Extract a KEY=VALUE from a file; stdout empty if missing.  No sourcing.
 zrbgm_po_extract_capture() {
   local -r z_file="${1:-}"
   local -r z_key="${2:-}"
   test -n "${z_key}"  || return 1
   test -f "${z_file}" || return 1
   local z_line=""
-  z_line=$(grep -m1 "^${z_key}=" "${z_file}") || return 1
-  echo "${z_line#"${z_key}="}"
+  while IFS= read -r z_line; do
+    case "${z_line}" in "${z_key}="*) echo "${z_line#"${z_key}="}"; return 0 ;; esac
+  done < "${z_file}"
+  return 1
 }
 
 # Configuration review — displayed at level 0 (first thing a newcomer sees)
@@ -579,11 +581,17 @@ rbgm_onboarding() {
     # Sub-probes: repo-level config facts (committed, not role-specific)
     local z_has_project=0
     if test -f "${RBBC_rbrp_file}"; then
-      grep -q '^RBRP_PAYOR_PROJECT_ID=.\+' "${RBBC_rbrp_file}" && z_has_project=1
+      local z_probe_line
+      while IFS= read -r z_probe_line; do
+        case "${z_probe_line}" in RBRP_PAYOR_PROJECT_ID=?*) z_has_project=1; break ;; esac
+      done < "${RBBC_rbrp_file}"
     fi
     local z_has_depot=0
     if test -f "${RBBC_rbrr_file}"; then
-      grep -q '^RBRR_DEPOT_PROJECT_ID=.\+' "${RBBC_rbrr_file}" && z_has_depot=1
+      local z_probe_line
+      while IFS= read -r z_probe_line; do
+        case "${z_probe_line}" in RBRR_DEPOT_PROJECT_ID=?*) z_has_depot=1; break ;; esac
+      done < "${RBBC_rbrr_file}"
     fi
 
     zrbgm_po_status "${z_has_payor}"    "  OAuth installed"

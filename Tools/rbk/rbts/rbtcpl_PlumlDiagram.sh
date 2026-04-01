@@ -32,10 +32,10 @@ rbtcpl_text_rendering_tcase() {
   local z_url="http://localhost:${RBRN_ENTRY_PORT_WORKSTATION}/txt/SyfFKj2rKt3CoKnELR1Io4ZDoSbNACb8BKhbWeZf0cMTyfEi59Boym40"
   local z_output
   z_output=$(curl -s "${z_url}" 2>&1) || buto_fatal "curl failed: ${z_output}"
-  echo "${z_output}" | grep -q "Bob"         || buto_fatal "Expected 'Bob' in response"
-  echo "${z_output}" | grep -q "Alice"       || buto_fatal "Expected 'Alice' in response"
-  echo "${z_output}" | grep -q "hello there" || buto_fatal "Expected 'hello there' in response"
-  echo "${z_output}" | grep -q "boo"         || buto_fatal "Expected 'boo' in response"
+  case "${z_output}" in *Bob*)     ;; *) buto_fatal "Expected 'Bob' in response" ;; esac
+  case "${z_output}" in *Alice*)   ;; *) buto_fatal "Expected 'Alice' in response" ;; esac
+  case "${z_output}" in *"hello there"*) ;; *) buto_fatal "Expected 'hello there' in response" ;; esac
+  case "${z_output}" in *boo*)     ;; *) buto_fatal "Expected 'boo' in response" ;; esac
 }
 
 rbtcpl_local_diagram_tcase() {
@@ -45,10 +45,10 @@ rbtcpl_local_diagram_tcase() {
   local z_diagram="@startuml\nBob -> Alice: hello there\nAlice --> Bob: boo\n@enduml"
   local z_output
   z_output=$(echo -e "${z_diagram}" | curl -s --data-binary @- "${z_url}" 2>&1) || buto_fatal "curl POST failed: ${z_output}"
-  echo "${z_output}" | grep -q "Bob"         || buto_fatal "Expected 'Bob' in response"
-  echo "${z_output}" | grep -q "Alice"       || buto_fatal "Expected 'Alice' in response"
-  echo "${z_output}" | grep -q "hello there" || buto_fatal "Expected 'hello there' in response"
-  echo "${z_output}" | grep -q "boo"         || buto_fatal "Expected 'boo' in response"
+  case "${z_output}" in *Bob*)     ;; *) buto_fatal "Expected 'Bob' in response" ;; esac
+  case "${z_output}" in *Alice*)   ;; *) buto_fatal "Expected 'Alice' in response" ;; esac
+  case "${z_output}" in *"hello there"*) ;; *) buto_fatal "Expected 'hello there' in response" ;; esac
+  case "${z_output}" in *boo*)     ;; *) buto_fatal "Expected 'boo' in response" ;; esac
 }
 
 rbtcpl_http_headers_tcase() {
@@ -71,8 +71,7 @@ rbtcpl_invalid_hash_tcase() {
   local z_output
   z_output=$(curl -s "${z_url}" 2>&1) || true
   local z_count
-  z_count=$(echo "${z_output}" | grep -c "Bob" || true)
-  test "${z_count}" -eq 0 || buto_fatal "Expected no 'Bob' in invalid hash response"
+  case "${z_output}" in *Bob*) buto_fatal "Expected no 'Bob' in invalid hash response" ;; esac
 }
 
 rbtcpl_malformed_diagram_tcase() {
@@ -81,9 +80,7 @@ rbtcpl_malformed_diagram_tcase() {
   local z_url="http://localhost:${RBRN_ENTRY_PORT_WORKSTATION}/txt/uml"
   local z_output
   z_output=$(echo "invalid uml content" | curl -s --data-binary @- "${z_url}" 2>&1) || true
-  local z_count
-  z_count=$(echo "${z_output}" | grep -c "Bob" || true)
-  test "${z_count}" -eq 0 || buto_fatal "Expected no 'Bob' in malformed diagram response"
+  case "${z_output}" in *Bob*) buto_fatal "Expected no 'Bob' in malformed diagram response" ;; esac
 }
 
 # eof

@@ -172,7 +172,7 @@ zrbgp_depot_list_update() {
       z_project_id=$(rbgu_json_field_capture "depot_list_tracking" ".projects[${z_index}].projectId") || continue
       
       # Validate depot project ID pattern (global namespace)
-      if printf '%s' "${z_project_id}" | grep -qE "${RBGC_GLOBAL_DEPOT_REGEX}"; then
+      if [[ "${z_project_id}" =~ ${RBGC_GLOBAL_DEPOT_REGEX} ]]; then
         z_depot_ids="${z_depot_ids} ${z_project_id}"
       else
         buc_log_args "Warning: Skipping project with invalid depot pattern: ${z_project_id}"
@@ -574,7 +574,7 @@ rbgp_depot_levy() {
   buc_step 'Validate input parameters'
   test -n "${z_depot_name}" || buc_die "Depot name required as first argument"
   
-  if ! printf '%s' "${z_depot_name}" | grep -qE '^[a-z0-9-]+$'; then
+  if ! [[ "${z_depot_name}" =~ ^[a-z0-9-]+$ ]]; then
     buc_die "Depot name must contain only lowercase letters, numbers, and hyphens"
   fi
   
@@ -594,7 +594,7 @@ rbgp_depot_levy() {
   local z_valid_regions
   z_valid_regions=$(rbgu_json_field_capture "region_validation" '.locations[].locationId' | tr '\n' ' ') || buc_die "Failed to parse region list"
   
-  if ! printf '%s' "${z_valid_regions}" | grep -qw "${z_region}"; then
+  if ! [[ " ${z_valid_regions} " =~ [[:space:]]${z_region}[[:space:]] ]]; then
     buc_die "Invalid region. Valid regions: ${z_valid_regions}"
   fi
 
@@ -1063,7 +1063,7 @@ rbgp_depot_list() {
     # Using bash builtins per BCG
     local z_depot_name
     local z_depot_timestamp
-    if printf '%s' "${z_project_id}" | grep -qE "${RBGC_GLOBAL_DEPOT_REGEX}"; then
+    if [[ "${z_project_id}" =~ ${RBGC_GLOBAL_DEPOT_REGEX} ]]; then
       local z_without_prefix="${z_project_id#"${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-"}"
       local z_len=${#z_without_prefix}
       local z_suffix_len=$((1 + RBGC_GLOBAL_TIMESTAMP_LEN))
@@ -1168,7 +1168,7 @@ rbgp_governor_mantle() {
   buc_step 'Validate input parameters'
   test -n "${z_depot_project_id}" || buc_die "RBRR_DEPOT_PROJECT_ID is not set in regime configuration"
 
-  if ! printf '%s' "${z_depot_project_id}" | grep -qE "${RBGC_GLOBAL_DEPOT_REGEX}"; then
+  if ! [[ "${z_depot_project_id}" =~ ${RBGC_GLOBAL_DEPOT_REGEX} ]]; then
     buc_die "Depot project ID must match pattern ${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-{name}-{timestamp}"
   fi
 

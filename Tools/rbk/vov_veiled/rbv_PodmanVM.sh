@@ -103,9 +103,13 @@ zrbv_generate_brand_file() {
 zrbv_extract_natural_tag() {
   local z_init_output_file="$1"
 
-  grep "Looking up Podman Machine image at" "${z_init_output_file}"        \
-    | sed 's/.*Looking up Podman Machine image at \(.*\) to create VM/\1/' \
-    > "${ZRBV_NATURAL_TAG_FILE}"
+  local z_init_line
+  while IFS= read -r z_init_line; do
+    case "${z_init_line}" in *"Looking up Podman Machine image at"*)
+      echo "${z_init_line}" | sed 's/.*Looking up Podman Machine image at \(.*\) to create VM/\1/'
+      break
+    ;; esac
+  done < "${z_init_output_file}" > "${ZRBV_NATURAL_TAG_FILE}"
 
   test -s "${ZRBV_NATURAL_TAG_FILE}" || buc_die "Failed to extract natural tag from init output"
 }
@@ -514,14 +518,16 @@ rbv_init() {
 
   # Perform command
   buc_step "Checking if deploy VM exists..."
-  if podman machine list | grep -q "${RBRM_DEPLOY_MACHINE_NAME}"; then
+  local z_machine_list
+  z_machine_list=$(podman machine list) || buc_die "Failed to list podman machines"
+  if [[ "${z_machine_list}" =~ ${RBRM_DEPLOY_MACHINE_NAME} ]]; then
     buc_die "Deploy VM already exists. Remove it first with rbv_nuke or manually"
   fi
 
   buc_step "Validating platform configuration..."
   test -n "${RBRS_VM_PLATFORM}" || buc_die "RBRS_VM_PLATFORM not set in station config"
-  echo "${RBRM_MANIFEST_PLATFORMS}" | grep -q "${RBRS_VM_PLATFORM}" \
-    || buc_die "Platform ${RBRS_VM_PLATFORM} not in manifest platforms: ${RBRM_MANIFEST_PLATFORMS}"
+  case "${RBRM_MANIFEST_PLATFORMS}" in *"${RBRS_VM_PLATFORM}"*) ;; *)
+    buc_die "Platform ${RBRS_VM_PLATFORM} not in manifest platforms: ${RBRM_MANIFEST_PLATFORMS}" ;; esac
 
   local z_cache_file="${RBRS_VMIMAGE_CACHE_DIR}/${RBRS_VM_PLATFORM}-${RBRM_CHOSEN_IDENTITY}.tar"
 

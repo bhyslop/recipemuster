@@ -202,7 +202,9 @@ rbgb_bucket_get() {
   rbgu_http_json "GET" "${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}" "${z_token}" "${ZRBGB_INFIX_GET}"
   rbgu_http_require_ok "Get bucket" "${ZRBGB_INFIX_GET}" 404 "not found"
 
-  if rbgu_http_code_capture "${ZRBGB_INFIX_GET}" | grep -q "404"; then
+  local z_http_code
+  z_http_code=$(rbgu_http_code_capture "${ZRBGB_INFIX_GET}")
+  if test "${z_http_code}" = "404"; then
     buc_info "Bucket not found: ${z_bucket_name}"
     return 1
   fi

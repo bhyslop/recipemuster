@@ -304,9 +304,10 @@ zbuc_show_help() {
 
   local z_decl z_flag z_cmd
   while read -r z_decl z_flag z_cmd; do
+    [[ "${z_cmd}" =~ ^${prefix}[a-z][a-z0-9_]*$ ]] || continue
     buc_context "${z_cmd}"
     "${z_cmd}"
-  done < <(declare -F | grep -E "^declare -f ${prefix}[a-z][a-z0-9_]*$")
+  done < <(declare -F)
 }
 
 buc_countdown() {
@@ -370,7 +371,7 @@ buc_execute() {
   fi
 
   # Validate prefix pattern, furnish deps, then dispatch command
-  if test -n "${command}" && echo "${command}" | grep -q "^${prefix}[a-z][a-z0-9_]*$"; then
+  if test -n "${command}" && [[ "${command}" =~ ^${prefix}[a-z][a-z0-9_]*$ ]]; then
     buc_context "${command}"
     test -z "${env_func}" || "${env_func}" "${command}"
     declare -F "${command}" >/dev/null || buc_die "Function not found: ${command}"

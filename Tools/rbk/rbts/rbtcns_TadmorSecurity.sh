@@ -147,9 +147,9 @@ rbtcns_icmp_sentry_only_tcase() {
   local z_output
   z_output=$(rbtb_exec_bottle_i traceroute -I -m 1 8.8.8.8 2>&1)
   # Accept either sentry IP visible OR fully blocked (* * *)
-  if echo "${z_output}" | grep -q "${RBRN_ENCLAVE_SENTRY_IP}"; then
+  if [[ "${z_output}" =~ ${RBRN_ENCLAVE_SENTRY_IP} ]]; then
     : # Sentry responded (podman behavior)
-  elif echo "${z_output}" | grep -qE "^\s*1\s+\* \* \*"; then
+  elif [[ "${z_output}" =~ ^[[:space:]]*1[[:space:]]+\*\ \*\ \* ]]; then
     : # Blocked at first hop (Docker behavior - more restrictive)
   else
     buto_fatal "Unexpected traceroute output (expected sentry IP or * * *): ${z_output}"
@@ -160,7 +160,7 @@ rbtcns_icmp_block_beyond_tcase() {
   # Second hop should timeout (blocked)
   local z_output
   z_output=$(rbtb_exec_bottle_i traceroute -I -m 2 8.8.8.8 2>&1)
-  echo "${z_output}" | grep -qE "^[[:space:]]*2[[:space:]]+\* \* \*" || \
+  [[ "${z_output}" =~ ^[[:space:]]*2[[:space:]]+\*\ \*\ \* ]] || \
     buto_fatal "Expected blocked second hop (* * *) in traceroute: ${z_output}"
 }
 

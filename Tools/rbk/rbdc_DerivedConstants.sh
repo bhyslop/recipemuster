@@ -44,7 +44,12 @@ zrbdc_kindle() {
     local z_mig_new="${RBRR_SECRETS_DIR}/${z_mig_role}/${RBCC_rbra_file}"
     if test -f "${z_mig_old}" && ! test -f "${z_mig_new}"; then
       mv "${z_mig_old}" "${z_mig_new}" || buc_die "Failed to migrate: ${z_mig_old} → ${z_mig_new}"
-      if ! grep -q '^RBRA_ROLE=' "${z_mig_new}"; then
+      local z_has_role=0
+      local z_mig_line
+      while IFS= read -r z_mig_line; do
+        case "${z_mig_line}" in RBRA_ROLE=*) z_has_role=1; break ;; esac
+      done < "${z_mig_new}"
+      if test "${z_has_role}" = "0"; then
         printf 'RBRA_ROLE=%s\n' "${z_mig_role}" >> "${z_mig_new}"
       fi
     fi
