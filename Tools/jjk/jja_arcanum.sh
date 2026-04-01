@@ -43,7 +43,8 @@ ZJJW_KIT_PATH="${ZJJW_KIT_PATH:-Tools/jjk/README.md}"
 # Returns 12-char hash of source files (arcanum + README)
 zjjw_compute_source_hash() {
   local z_full
-  z_full=$(cat "${ZJJW_SCRIPT_DIR}/jja_arcanum.sh" "${ZJJW_SCRIPT_DIR}/README.md" | shasum -a 256)
+  z_full=$(cat "${ZJJW_SCRIPT_DIR}/jja_arcanum.sh" "${ZJJW_SCRIPT_DIR}/README.md" | openssl dgst -sha256 -r)
+  read -r z_full _ <<< "${z_full}"
   echo "${z_full:0:12}"
 }
 

@@ -58,14 +58,10 @@ zvob_sentinel() {
 
 zvob_hash_capture() {
   local z_file="$1"
-
-  if command -v sha256sum >/dev/null 2>&1; then
-    sha256sum "${z_file}" | awk '{print $1}'
-  elif command -v shasum >/dev/null 2>&1; then
-    shasum -a 256 "${z_file}" | awk '{print $1}'
-  else
-    return 1
-  fi
+  local z_hash
+  z_hash=$(openssl dgst -sha256 -r "${z_file}") || return 1
+  read -r z_hash _ <<< "${z_hash}"
+  echo "${z_hash}"
 }
 
 zvob_commit_capture() {

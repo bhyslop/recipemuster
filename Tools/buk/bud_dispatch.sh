@@ -223,11 +223,9 @@ zbud_generate_checksum() {
   local -r z_file="${1}"
   local -r z_output_file="${2}"
 
-  # Try multiple checksum commands (platform-dependent)
   local z_checksum
-  z_checksum=$(sha256sum            "${z_file}" 2>/dev/null ||
-               openssl dgst -sha256 "${z_file}" 2>/dev/null ||
-               echo "checksum-unavailable")
+  z_checksum=$(openssl dgst -sha256 -r "${z_file}" 2>/dev/null) || z_checksum="checksum-unavailable"
+  read -r z_checksum _ <<< "${z_checksum}"
 
   echo "Same log checksum: ${z_checksum}" >> "${z_output_file}"
   return 0
