@@ -521,6 +521,13 @@
         "₢A1AAL": {
           "tacks": [
             {
+              "ts": "260401-1319",
+              "state": "complete",
+              "text": "## Character\nHousekeeping — confirm unused, delete, document.\n\n## Docket\nConfirm `rbi_Image.sh` is fully unused (no references from other scripts, no tabtargets, no sourcing). Delete it to reclaim the `rbi` prefix for ifrit directory (`rbid`). Update CLAUDE.md prefix mappings to remove the RBI entry. This must complete before the mint pace since ifrit directory placement depends on `rbi` being available.",
+              "silks": "reclaim-rbi-prefix",
+              "commit": "98bffe4"
+            },
+            {
               "ts": "260401-1237",
               "state": "rough",
               "text": "## Character\nHousekeeping — confirm unused, delete, document.\n\n## Docket\nConfirm `rbi_Image.sh` is fully unused (no references from other scripts, no tabtargets, no sourcing). Delete it to reclaim the `rbi` prefix for ifrit directory (`rbid`). Update CLAUDE.md prefix mappings to remove the RBI entry. This must complete before the mint pace since ifrit directory placement depends on `rbi` being available.",
