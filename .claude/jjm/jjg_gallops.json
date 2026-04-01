@@ -316,6 +316,13 @@
         "₢A1AAB": {
           "tacks": [
             {
+              "ts": "260401-1417",
+              "state": "complete",
+              "text": "## Character\nDesign work — judgment required on reporting model.\n\n## Docket\nBuild the theurge case execution framework: case registration, sequential dispatch, pass/fail/skip tracking, colored terminal output, verbose trace files written to a per-case temp directory. This is the equivalent of BUK's bute_engine + buto_operations + butd_dispatch but as a Rust application.\n\nKey behaviors to match from bash precedent:\n- Section headers for test groups\n- Green PASSED / red FAILED per case\n- Summary line at end (N passed, M failed, K skipped)\n- Verbose detail written to files per-case in temp dir (never rerun for detail, just read)\n- Fatal on first failure option vs run-all mode\n- Per-case temp dir isolation (matches `zbute_tcase` pattern from `bute_engine.sh`)\n\nNo container interaction yet — test with dummy cases that pass/fail. No JSON anywhere — terminal text and files.",
+              "silks": "theurge-reporting-and-case-framework",
+              "commit": "cbcf944"
+            },
+            {
               "ts": "260401-1238",
               "state": "rough",
               "text": "## Character\nDesign work — judgment required on reporting model.\n\n## Docket\nBuild the theurge case execution framework: case registration, sequential dispatch, pass/fail/skip tracking, colored terminal output, verbose trace files written to a per-case temp directory. This is the equivalent of BUK's bute_engine + buto_operations + butd_dispatch but as a Rust application.\n\nKey behaviors to match from bash precedent:\n- Section headers for test groups\n- Green PASSED / red FAILED per case\n- Summary line at end (N passed, M failed, K skipped)\n- Verbose detail written to files per-case in temp dir (never rerun for detail, just read)\n- Fatal on first failure option vs run-all mode\n- Per-case temp dir isolation (matches `zbute_tcase` pattern from `bute_engine.sh`)\n\nNo container interaction yet — test with dummy cases that pass/fail. No JSON anywhere — terminal text and files.",
