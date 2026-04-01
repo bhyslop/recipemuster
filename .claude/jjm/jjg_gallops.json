@@ -260,9 +260,10 @@
         "₢A1AAE",
         "₢A1AAF",
         "₢A1AAG",
-        "₢A1AAH"
+        "₢A1AAH",
+        "₢A1AAI"
       ],
-      "next_pace_seed": "AAI",
+      "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -350,6 +351,17 @@
               "text": "## Character\nMechanical porting — different bottle types but same pattern.\n\n## Docket\nPort the srjcl-jupyter (3 cases) and pluml-diagram (5 cases) bash test fixtures to theurge. These don't use the ifrit — they're service health tests (HTTP GET, WebSocket kernel creation, rendering verification). Theurge handles them as outside-only cases that charge the appropriate nameplate and probe from the host.\n\nAlso port the four-mode integration test (15 steps) if it fits theurge's model, or assess whether it stays as a separate concern (it tests the build pipeline, not container security).",
               "silks": "port-srjcl-pluml-service-tests",
               "commit": "dfbc702"
+            }
+          ]
+        },
+        "₢A1AAI": {
+          "tacks": [
+            {
+              "ts": "260401-1203",
+              "state": "rough",
+              "text": "## Character\nCareful — reimplementing regime validation in Rust means understanding the bash regime loading contract deeply.\n\n## Docket\nPort the fast-tier bash tests to theurge:\n- 47 enrollment-validation cases (`rbtcev_EnrollmentValidation.sh`)\n- 21 regime-validation cases (`rbtcrv_RegimeValidation.sh`)\n- 7 regime-smoke cases\n\nThese are pure config validation — no containers. They currently test bash regime loading (source rbrr.sh, kindle, enforce). The Rust equivalent either:\n(a) shells out to the bash regime scripts and validates their behavior, or\n(b) re-implements regime validation in Rust\n\nOption (a) is more faithful and less work. Option (b) is cleaner but risks divergence. Decide during pace.",
+              "silks": "port-fast-tier-regime-enrollment-validation",
+              "commit": "943111e"
             }
           ]
         }
