@@ -1983,6 +1983,13 @@
         "₢AUAAu": {
           "tacks": [
             {
+              "ts": "260401-0938",
+              "state": "complete",
+              "text": "## Character\n\nMechanical — straightforward channel swap and tabtarget file consolidation.\n\n## Docket\n\nConvert three crucible tabtargets from imprint-style (one file per nameplate) to param-style (single file, nameplate as `$1`):\n\n**Tabtargets to convert:**\n- `rbw-ch.Hail` — currently `rbw-ch.Hail.{tadmor,pluml,srjcl}.sh`\n- `rbw-cr.Rack` — currently `rbw-cr.Rack.{tadmor,srjcl}.sh`\n- `rbw-cs.Scry` — currently `rbw-cs.Scry.{tadmor,pluml,srjcl}.sh`\n\n**Changes required:**\n\n1. **Zipper enrollment** (`rbz_zipper.sh`): Change channel from `\"imprint\"` to `\"param1\"` for the three colophons (`rbw-ch`, `rbw-cr`, `rbw-cs`)\n2. **Create param-style tabtargets**: `rbw-ch.Hail.sh`, `rbw-cr.Rack.sh`, `rbw-cs.Scry.sh` (same launcher body, no imprint segment)\n3. **Delete imprint-style tabtargets**: Remove the per-nameplate files (8 files total)\n4. **Update docs**: Adjust any references in `CLAUDE.consumer.md` or `README.consumer.md` if they mention these specific tabtarget filenames",
+              "silks": "convert-crucible-tabtargets-imprint-to-param",
+              "commit": "526b912"
+            },
+            {
               "ts": "260401-0454",
               "state": "rough",
               "text": "## Character\n\nMechanical — straightforward channel swap and tabtarget file consolidation.\n\n## Docket\n\nConvert three crucible tabtargets from imprint-style (one file per nameplate) to param-style (single file, nameplate as `$1`):\n\n**Tabtargets to convert:**\n- `rbw-ch.Hail` — currently `rbw-ch.Hail.{tadmor,pluml,srjcl}.sh`\n- `rbw-cr.Rack` — currently `rbw-cr.Rack.{tadmor,srjcl}.sh`\n- `rbw-cs.Scry` — currently `rbw-cs.Scry.{tadmor,pluml,srjcl}.sh`\n\n**Changes required:**\n\n1. **Zipper enrollment** (`rbz_zipper.sh`): Change channel from `\"imprint\"` to `\"param1\"` for the three colophons (`rbw-ch`, `rbw-cr`, `rbw-cs`)\n2. **Create param-style tabtargets**: `rbw-ch.Hail.sh`, `rbw-cr.Rack.sh`, `rbw-cs.Scry.sh` (same launcher body, no imprint segment)\n3. **Delete imprint-style tabtargets**: Remove the per-nameplate files (8 files total)\n4. **Update docs**: Adjust any references in `CLAUDE.consumer.md` or `README.consumer.md` if they mention these specific tabtarget filenames",
