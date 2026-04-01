@@ -20,8 +20,8 @@
 
 set -euo pipefail
 
-# Multiple inclusion detection
-test -z "${ZRBFC_SOURCED:-}" || buc_die "Module rbfc multiply sourced - check sourcing hierarchy"
+# Multiple inclusion guard (silent skip — rbfc is sourced by multiple child modules)
+test -z "${ZRBFC_SOURCED:-}" || return 0
 ZRBFC_SOURCED=1
 
 ######################################################################

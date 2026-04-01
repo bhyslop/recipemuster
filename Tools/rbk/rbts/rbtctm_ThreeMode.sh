@@ -28,7 +28,7 @@ set -euo pipefail
 #   check(all vouched) → vouch_gate → retrieve → run → cleanup →
 #   abjure(×3) → check(all gone)
 #
-# Each rbf_ordain call produces image + about + vouch (chained internally).
+# Each rbfd_ordain call produces image + about + vouch (chained internally).
 # Consecration check verifies health=vouched for all three modes.
 # Steps 5-8 exercise consumer-side operations on the conjured busybox.
 #
