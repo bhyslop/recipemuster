@@ -102,8 +102,8 @@
 :rbtgo_consecration_tally:        <<rbtgo_consecration_tally,rbf_tally>>
 :rbtgo_ark_ordain:                <<rbtgo_ark_ordain,rbf_ordain>>
 :rbtgo_ark_conjure:               <<rbtgo_ark_conjure,rbf_build>>
-:rbtgo_ark_vouch:                 <<rbtgo_ark_vouch,rbf_vouch>>
-:rbtgo_ark_about:                 <<rbtgo_ark_about,rbf_about>>
+:rbtgo_ark_vouch:                 <<rbtgo_ark_vouch,rbfv_vouch>>
+:rbtgo_ark_about:                 <<rbtgo_ark_about,rbfv_about>>
 :rbtgo_ark_graft:                 <<rbtgo_ark_graft,rbf_graft>>
 :rbtgo_ark_summon:                <<rbtgo_ark_summon,rbfr_summon>>
 :rbtgo_ark_enshrine:             <<rbtgo_ark_enshrine,rbf_enshrine>>
@@ -112,7 +112,7 @@
 :rbtgo_depot_unmake:              <<rbtgo_depot_unmake,rbgp_depot_unmake>>
 :rbtgo_depot_list:                <<rbtgo_depot_list,rbgp_depot_list>>
 :rbtgo_director_knight:           <<rbtgo_director_knight,rbgg_knight_director>>
-:rbtgo_director_vouch:            <<rbtgo_director_vouch,rbf_batch_vouch>>
+:rbtgo_director_vouch:            <<rbtgo_director_vouch,rbfv_batch_vouch>>
 :rbtgo_governor_mantle:            <<rbtgo_governor_mantle,rbgp_governor_mantle>>
 :rbtgo_image_delete:              <<rbtgo_image_delete,rbf_jettison>>
 :rbtgo_image_retrieve:            <<rbtgo_image_retrieve,rbfr_wrest>>

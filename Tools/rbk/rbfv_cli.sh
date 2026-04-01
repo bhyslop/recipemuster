@@ -21,7 +21,7 @@ set -euo pipefail
 
 source "${BURD_BUK_DIR}/buc_command.sh"
 
-zrbfr_furnish() {
+zrbfv_furnish() {
   buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
   buc_doc_env "BURD_TEMP_DIR         " "Bash Dispatch Utility provided temporary directory, empty at start of command"
@@ -39,7 +39,8 @@ zrbfr_furnish() {
   source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
   source "${RBBC_rbrr_file}"
   source "${z_rbk_kit_dir}/rbgo_OAuth.sh"
-  source "${z_rbk_kit_dir}/rbfr_FoundryRetriever.sh"
+  source "${z_rbk_kit_dir}/rbgu_Utility.sh"
+  source "${z_rbk_kit_dir}/rbfv_FoundryVerify.sh"
 
   zbuv_kindle
 
@@ -52,14 +53,17 @@ zrbfr_furnish() {
   zrbrr_enforce
   zrbdc_kindle
 
+  source "${z_rbk_kit_dir}/rbrv_regime.sh"
+
   buc_log_args 'Kindle modules in dependency order'
   zrbgc_kindle
   zrbgd_kindle
   zrbgo_kindle
+  zrbgu_kindle
   zrbfc_kindle
-  zrbfr_kindle
+  zrbfv_kindle
 }
 
-buc_execute rbfr_ "Recipe Bottle Foundry Retriever" zrbfr_furnish "$@"
+buc_execute rbfv_ "Recipe Bottle Foundry Verify" zrbfv_furnish "$@"
 
 # eof

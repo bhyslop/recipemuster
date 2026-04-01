@@ -74,7 +74,7 @@ zrbz_kindle() {
   buz_enroll RBZ_PLUMB_FULL               "rbw-RpF"      "rbfc_cli.sh" "rbfc_plumb_full"
   buz_enroll RBZ_PLUMB_COMPACT            "rbw-Rpc"      "rbfc_cli.sh" "rbfc_plumb_compact"
   buz_enroll RBZ_TALLY_CONSECRATIONS        "rbw-Dt"       "${z_mod}" "rbf_tally"
-  buz_enroll RBZ_VOUCH_CONSECRATIONS        "rbw-DV"       "${z_mod}" "rbf_batch_vouch"
+  buz_enroll RBZ_VOUCH_CONSECRATIONS        "rbw-DV"       "rbfv_cli.sh" "rbfv_batch_vouch"
   buz_enroll RBZ_KLUDGE_VESSEL             "rbw-ak"       "${z_mod}" "rbf_kludge"
 
   # Regime operations

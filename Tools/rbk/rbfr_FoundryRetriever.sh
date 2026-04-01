@@ -33,8 +33,8 @@ source "${BASH_SOURCE[0]%/*}/rbfc_FoundryCore.sh"
 zrbfr_kindle() {
   test -z "${ZRBFR_KINDLED:-}" || buc_die "Module rbfr already kindled"
 
-  buc_log_args 'Kindle shared Foundry Core infrastructure'
-  zrbfc_kindle
+  buc_log_args 'Validate Foundry Core is kindled'
+  zrbfc_sentinel
 
   buc_log_args 'Define retriever temp file prefix'
   readonly ZRBFR_TEMP_PREFIX="${BURD_TEMP_DIR}/rbfr_"

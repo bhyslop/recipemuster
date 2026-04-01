@@ -117,7 +117,7 @@ rbtctm_three_mode_tcase() {
 
   # Step 5: Verify consumer vouch gate — confirm consumer-side enforcement passes
   buto_section "Step 5/12: Verifying vouch gate (conjured busybox)"
-  rbf_vouch_gate "${z_conjure_vessel}" "${z_conjure_consec}"
+  rbfv_vouch_gate "${z_conjure_vessel}" "${z_conjure_consec}"
   buto_info "Vouch gate passed: ${z_conjure_consec}"
 
   # Step 6: Retrieve image
