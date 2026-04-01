@@ -409,6 +409,13 @@
         "₢A1AAF": {
           "tacks": [
             {
+              "ts": "260401-1358",
+              "state": "rough",
+              "text": "## Character\nMechanical porting + incremental cutover — volume work with a verification gate and retirement at the end.\n\n## Docket\nPort the tadmor-security bash cases (22 total in `rbtcns_TadmorSecurity.sh`) to the theurge+ifrit model, verify parity, and retire the bash originals.\n\n**Port** — categorize and port each existing case:\n- **ifrit attack** — runs inside bottle (DNS queries, apt-get, ICMP probes)\n- **theurge-only** — exec into sentry/pentacle via writ/fiat tabtargets to observe (dnsmasq listening, iptables rules, ping within enclave)\n- **correlated** — ifrit attacks while theurge simultaneously monitors from outside\n\nCategories from the existing 22:\n- Basic infra (dnsmasq listening, ping, iptables) — theurge-only via writ (sentry observation)\n- DNS allow/block (11 cases) — correlated (ifrit tries via bark, theurge checks counters via writ)\n- TCP 443 allow/block — correlated\n- Package mgmt block — ifrit-only via bark\n- ICMP restrictions — correlated\n\nDo NOT deduplicate with python sorties during this pace — faithful port only.\n\n**Verify parity** — run both bash (`rbw-tf.TestFixture.tadmor-security.sh`) and theurge tadmor-security. Confirm same cases, same verdicts. Document any intentional differences (e.g., correlated observation is new — that's an addition, not a divergence).\n\n**Retire** — remove tadmor-security case functions from `rbtcns_TadmorSecurity.sh`. Remove or hollow out the fixture file. Leave the fixture tabtarget pointing at theurge (or remove if theurge has its own invocation path by now).",
+              "silks": "port-remaining-bash-tadmor-security",
+              "commit": "f7aac47"
+            },
+            {
               "ts": "260401-1238",
               "state": "rough",
               "text": "## Character\nMechanical porting — volume work, low judgment.\n\n## Docket\nPort the remaining tadmor-security bash cases (22 total in `rbtcns_TadmorSecurity.sh`) to the theurge+ifrit model. Categorize each existing case:\n- **ifrit attack** — runs inside bottle (DNS queries, apt-get, ICMP probes)\n- **theurge-only** — exec into sentry/pentacle via writ/fiat tabtargets to observe (dnsmasq listening, iptables rules, ping within enclave)\n- **correlated** — ifrit attacks while theurge simultaneously monitors from outside\n\nCategories from the existing 22:\n- Basic infra (dnsmasq listening, ping, iptables) — theurge-only via writ (sentry observation)\n- DNS allow/block (11 cases) — correlated (ifrit tries via bark, theurge checks counters via writ)\n- TCP 443 allow/block — correlated\n- Package mgmt block — ifrit-only via bark\n- ICMP restrictions — correlated\n\nDo NOT deduplicate with python sorties during this pace — faithful port only.",
@@ -426,6 +433,13 @@
         },
         "₢A1AAG": {
           "tacks": [
+            {
+              "ts": "260401-1358",
+              "state": "rough",
+              "text": "## Character\nMechanical porting + incremental cutover — occasional design judgment for raw socket attacks.\n\n## Docket\nPort the 11 rostered python sorties from `Tools/rbk/rbtid/rbtis_*.py` to ifrit attack variants, verify parity, and retire the python infrastructure.\n\n**Port** — each python sortie's `run()` function becomes a Rust attack variant.\n\nComplexity gradient:\n- Simple (dig/nc based): dns_exfil_subdomain, meta_cloud_endpoint, net_forbidden_cidr, direct_sentry_probe — straightforward port\n- Medium (need raw sockets): icmp_exfil_payload, net_ipv6_escape, net_srcip_spoof — need `socket2` or similar crate. The ifrit bottle intentionally grants `CAP_NET_RAW` for this purpose.\n- Hard (scapy-level): proto_smuggle_rawsock, net_fragment_evasion, direct_arp_poison, ns_capability_escape — may need careful Rust equivalents\n\nFor each, add corresponding theurge outside-observation via writ/fiat tabtargets where it adds value.\n\nDo NOT deduplicate with ported bash cases during this pace — faithful port only.\n\n**Verify parity** — run both python sorties (via existing `rbw-Is` sortie tabtargets) and theurge ifrit-attack cases. Confirm same attack surfaces exercised, same security verdicts. Document where Rust implementation improves on python (e.g., proper raw socket vs scapy shim).\n\n**Retire** — remove `Tools/rbk/rbtid/` (python adjutant, roster, all `rbtis_*.py` sorties, debrief). Remove sortie-related zipper enrollments (`rbw-Is`). Remove sortie tabtargets.",
+              "silks": "port-python-sorties-to-ifrit",
+              "commit": "f7aac47"
+            },
             {
               "ts": "260401-1238",
               "state": "rough",
@@ -445,6 +459,13 @@
         "₢A1AAH": {
           "tacks": [
             {
+              "ts": "260401-1358",
+              "state": "rough",
+              "text": "## Character\nMechanical porting + incremental cutover — different bottle types but same pattern.\n\n## Docket\nPort the service-tier and integration bash test fixtures to theurge, verify parity, and retire the bash originals.\n\n**Port:**\n\n*Service health tests (outside-only, no ifrit):*\n- srjcl-jupyter (3 cases): process check, HTTP connectivity, WebSocket kernel\n- pluml-diagram (5 cases): text rendering, local diagram, HTTP headers, invalid hash, malformed diagram\n- These charge the appropriate nameplate and probe from the host via theurge\n\n*Four-mode integration test (15 steps):*\n- Conjure/bind/graft/kludge/run/abjure cycle testing the full foundry build pipeline\n- This is NOT optional — all tests migrate. Port faithfully even though it tests build pipeline rather than container security.\n- Theurge invokes foundry tabtargets (enshrine, ordain, abjure, wrest, kludge, tally) — these colophons must be in the manifest protocol\n\n*Access-probe tests (4 cases):*\n- JWT and OAuth credential validation with retry logic\n- Service-tier dependency (GCP credentials required)\n\n**Verify parity** — run both bash fixtures (`rbw-tf.TestFixture.srjcl-jupyter.sh`, `rbw-tf.TestFixture.pluml-diagram.sh`, `rbw-tf.TestFixture.four-mode.sh`, `rbw-tf.TestFixture.access-probe.sh`) and theurge equivalents. Confirm same cases, same verdicts.\n\n**Retire** — remove the bash case files for these fixtures (`rbtcsj_*.sh`, `rbtcpd_*.sh`, `rbtcfm_*.sh`, `rbtcap_*.sh` or however they're named). Remove or redirect fixture tabtargets.",
+              "silks": "port-srjcl-pluml-service-tests",
+              "commit": "f7aac47"
+            },
+            {
               "ts": "260401-1239",
               "state": "rough",
               "text": "## Character\nMechanical porting — different bottle types but same pattern.\n\n## Docket\nPort ALL remaining bash test fixtures to theurge:\n\n**Service health tests (outside-only, no ifrit):**\n- srjcl-jupyter (3 cases): process check, HTTP connectivity, WebSocket kernel\n- pluml-diagram (5 cases): text rendering, local diagram, HTTP headers, invalid hash, malformed diagram\n- These charge the appropriate nameplate and probe from the host via theurge\n\n**Four-mode integration test (15 steps):**\n- Conjure/bind/graft/kludge/run/abjure cycle testing the full foundry build pipeline\n- This is NOT optional — all tests migrate. Port faithfully even though it tests build pipeline rather than container security.\n- Theurge invokes foundry tabtargets (enshrine, ordain, abjure, wrest, kludge, tally) — these colophons must be in the manifest protocol\n\n**Access-probe tests (4 cases):**\n- JWT and OAuth credential validation with retry logic\n- Service-tier dependency (GCP credentials required)",
@@ -463,6 +484,13 @@
         "₢A1AAI": {
           "tacks": [
             {
+              "ts": "260401-1358",
+              "state": "rough",
+              "text": "## Character\nCareful porting + incremental cutover — testing bash regime parsing from Rust requires understanding the contract without reimplementing it.\n\n## Docket\nPort the fast-tier bash tests to theurge, verify parity, and retire the bash originals.\n\n**Port:**\n- 47 enrollment-validation cases (`rbtcev_EnrollmentValidation.sh`)\n- 21 regime-validation cases (`rbtcrv_RegimeValidation.sh`)\n- 7 regime-smoke cases\n\nApproach: shell out to bash regime scripts and validate their behavior. Theurge invokes the bash utilities (source rbrr.sh, kindle, enforce) and asserts on exit codes and stderr. This tests the *actual* bash regime loading, not a Rust reimplementation. Cases will likely be easier to express in Rust even though they shell to bash.\n\nDo NOT reimplement regime validation in Rust — that's a future concern if it ever becomes one.\n\n**Verify parity** — run both bash (`rbw-tf.TestFixture.enrollment-validation.sh`, `rbw-tf.TestFixture.regime-validation.sh`, `rbw-tf.TestFixture.regime-smoke.sh`) and theurge equivalents. Confirm same cases, same verdicts, same edge-case coverage.\n\n**Retire** — remove the bash case files (`rbtcev_EnrollmentValidation.sh`, `rbtcrv_RegimeValidation.sh`, regime-smoke cases). Remove or redirect fixture tabtargets.",
+              "silks": "port-fast-tier-regime-enrollment-validation",
+              "commit": "f7aac47"
+            },
+            {
               "ts": "260401-1239",
               "state": "rough",
               "text": "## Character\nCareful — testing bash regime parsing from Rust requires understanding the contract without reimplementing it.\n\n## Docket\nPort the fast-tier bash tests to theurge:\n- 47 enrollment-validation cases (`rbtcev_EnrollmentValidation.sh`)\n- 21 regime-validation cases (`rbtcrv_RegimeValidation.sh`)\n- 7 regime-smoke cases\n\nApproach: shell out to bash regime scripts and validate their behavior. Theurge invokes the bash utilities (source rbrr.sh, kindle, enforce) and asserts on exit codes and stderr. This tests the *actual* bash regime loading, not a Rust reimplementation. Cases will likely be easier to express in Rust even though they shell to bash.\n\nDo NOT reimplement regime validation in Rust — that's a future concern if it ever becomes one.",
@@ -480,6 +508,13 @@
         },
         "₢A1AAJ": {
           "tacks": [
+            {
+              "ts": "260401-1358",
+              "state": "rough",
+              "text": "## Character\nCleanup and final sweep — lighter now that each porting pace handled its own retirement.\n\n## Docket\nWith all cases ported and retired incrementally across ₢A1AAF–₢A1AAI, clean up the remaining framework scaffolding.\n\n**Final inventory sweep** (replaces the former audit-coverage-parity pace):\n- Enumerate theurge's complete case catalog from Rust source\n- Confirm total count matches or exceeds the original combined total (bash 124 + python 11)\n- Flag any lingering bash test files that weren't retired in their porting pace\n- Run theurge complete suite, confirm all green\n\n**Remove framework scaffolding:**\n- `Tools/rbk/rbtb_testbench.sh` (RBK testbench router — should be empty/vestigial by now)\n- Any remaining `Tools/rbk/rbts/*.sh` files not already retired\n- Suite tabtargets (`rbw-ts`) — replace with theurge suite invocation or remove if theurge has its own\n- Fixture tabtargets (`rbw-tf`) — same treatment\n- Zipper enrollments for retired test colophons (`rbw-tf`, `rbw-ts`, `rbw-to`) if not already cleaned up\n\n**Establish:**\n- Minimal BUK self-test (`butt_testbench.sh` or similar) that exercises the BUK test framework itself (kick-tires level) so butX files stay tested after RBK consumers are gone\n\n**Update:** CLAUDE.md prefix mappings to reflect `rbtd`/`rbid` trees and retired `rbtb`/`rbtid` entries. Update test execution table to reference theurge tiers instead of bash suite tabtargets.",
+              "silks": "retire-bash-test-and-python-sortie-infrastructure",
+              "commit": "f7aac47"
+            },
             {
               "ts": "260401-1315",
               "state": "rough",
