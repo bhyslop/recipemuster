@@ -19,18 +19,81 @@ tt/rbw-gO.Onboarding.sh
 |------|---------|
 | **Vessel** | A specification for a container workload — a directory in `rbev-vessels/` with `rbrv.env` and optionally a `Dockerfile` |
 | **Consecration** | A specific build instance of a vessel, identified by timestamp (e.g. `c260101120000-r260101130000`). The immutable artifact set: image, about, and vouch |
-| **Vouch** | SLSA provenance verification — proves a consecration was built by trusted infrastructure |
-| **Summon** | Pull a vouched consecration image to the local workstation |
-| **Conjure** | Trigger a Cloud Build to produce a consecration from a vessel |
-| **Inscribe** | Push build definitions from the local repo to the rubric repo for Cloud Build |
-| **Abjure** | Delete a consecration's artifacts from GAR |
+| **Reliquary** | A datestamped namespace in GAR containing co-versioned builder tool images (gcloud, docker, syft, etc.). Created by inscribe; referenced by vessels via `RBRV_RELIQUARY`. One per depot setup. |
+| **Crucible** | The three-container assembly (sentry + pentacle + bottle) that runs an untrusted workload under enforced network isolation |
 | **Depot** | The logical facility where container images are built and stored (GCP project + bucket + registry) |
-| **Nameplate** | Ties a sentry vessel + bottle vessel into a runnable bottle. The moniker (e.g. `tadmor`) is the imprint in tabtargets. |
+| **Nameplate** | Ties a sentry vessel + bottle vessel into a runnable crucible. The moniker (e.g. `tadmor`) is the imprint in tabtargets. |
 | **Regime** | A structured configuration unit: specification + assignment file (`.env`) + validation |
 | **Sentry** | Security container that enforces network policies via `iptables` and `dnsmasq` |
 | **Pentacle** | Privileged container that establishes the network namespace shared with the bottle |
 | **Bottle** | Your workload container, running unmodified in a controlled network environment |
-| **Rubric** | A separate GitLab repo where Cloud Build fetches build instructions (security boundary) |
+| **Ifrit** | A Claude Code instance imprisoned inside a bottle for adversarial escape testing |
+
+## Verb Guide
+
+Recipe Bottle uses domain-specific verbs instead of generic ones (create, delete, start, stop). The frontispiece in each tabtarget filename uses these verbs — this guide maps what you want to do to the vocabulary you will encounter.
+
+### How do I build a container image?
+
+| Verb | What it does |
+|------|-------------|
+| **inscribe** | Create a reliquary — mirror builder tool images from upstream into a datestamped GAR namespace. Prerequisite for enshrine and ordain. |
+| **enshrine** | Copy upstream base images into your private GAR, pinned by content hash. Supply-chain hardening: your builds pull from your own registry. |
+| **ordain** | Build a consecration. Mode-aware: detects the vessel type and dispatches accordingly (conjure, bind, or graft). |
+| **conjure** | Build from source via Cloud Build (full SLSA provenance). A mode of ordain, not a separate command. |
+| **bind** | Mirror an upstream image pinned by digest (digest-pin verification). A mode of ordain. |
+| **graft** | Push a locally-built image to GAR (no provenance chain). A mode of ordain. |
+| **kludge** | Build a vessel image locally for development iteration. No Cloud Build, no consecration — just a local image. |
+
+The supply chain has three layers: inscribe creates the reliquary (tool images), enshrine copies base images, ordain builds your vessel using both.
+
+### How do I verify and inspect images?
+
+| Verb | What it does |
+|------|-------------|
+| **tally** | Count and classify consecrations in the registry by health state |
+| **vouch** | Verify SLSA provenance — proves a consecration was built by trusted infrastructure |
+| **plumb** | Examine an image's provenance details: SBOM, build info, Dockerfile |
+
+### How do I get images onto my workstation?
+
+| Verb | What it does |
+|------|-------------|
+| **summon** | Pull a vouched consecration image locally (full vouch ceremony first) |
+| **wrest** | Pull a specific image by reference (direct pull, no vouch) |
+
+### How do I remove images?
+
+| Verb | What it does |
+|------|-------------|
+| **abjure** | Delete a consecration's artifacts from GAR (the full set: image + about + vouch) |
+| **jettison** | Delete a specific image tag from the registry (surgical, single artifact) |
+
+### How do I run containers?
+
+| Verb | What it does |
+|------|-------------|
+| **charge** | Start the crucible — bring up sentry, pentacle, and bottle containers |
+| **quench** | Stop the crucible — tear down all three containers |
+
+### How do I inspect running containers?
+
+| Verb | What it does |
+|------|-------------|
+| **rack** | Shell into the bottle container (compel the demon to reveal its state) |
+| **hail** | Shell into the sentry container (call out to the guard) |
+| **scry** | Observe network traffic across crucible containers (divine the topology) |
+
+### How do I manage infrastructure and credentials?
+
+| Verb | What it does |
+|------|-------------|
+| **levy** | Provision a depot — GCP project, artifact registry, build infrastructure |
+| **unmake** | Permanently remove a depot |
+| **mantle** | Create or replace the governor service account (old authority cast off, new bestowed) |
+| **knight** | Confer build authority on a director service account |
+| **charter** | Grant a retriever read-only registry access |
+| **forfeit** | Revoke any service account — seize authority back |
 
 ## Roles
 
@@ -62,13 +125,13 @@ All credential files require `600` permissions and must never be committed to ve
 |----------|-------------|---------|
 | `rbw-gPE` | PayorEstablish | Guided GCP project + OAuth consent screen setup |
 | `rbw-gPI` | PayorInstall | Ingest OAuth credentials from JSON key file |
-| `rbw-gPL` | GitLabSetup | Rubric repo + project access token |
 | `rbw-PL` | PayorLeviesDepot | Provision GCP depot project |
 | `rbw-PM` | PayorMantlesGovernor | Create/replace governor service account |
 | `rbw-Pl` | PayorListsDepots | List all active depots |
 | `rbw-PU` | PayorUnmakesDepot | Permanently remove a depot |
 | `rbw-gO` | Onboarding | Adaptive guide — reads current state, shows next step |
 | `rbw-gPR` | PayorRefresh | Refresh expired OAuth tokens |
+| `rbw-gq` | QuotaBuild | Display Cloud Build capacity review procedure |
 
 ### Credential Administration (Governor role)
 
@@ -83,20 +146,21 @@ All credential files require `600` permissions and must never be committed to ve
 
 | Colophon | Frontispiece | Purpose |
 |----------|-------------|---------|
-| `rbw-DPG` | DirectorRefreshesGcbPins | Resolve latest GCB tool image digests |
-| `rbw-DI` | DirectorInscribesRubric | Push build definitions to rubric repo |
-| `rbw-DO` | DirectorOrdainsConsecration | Ordain consecration: conjure (Cloud Build), mirror (bind), or graft (local push) based on vessel mode |
-| `rbw-Dt` | DirectorTalliesConsecrations | Verify builds completed |
+| `rbw-DI` | DirectorInscribesReliquary | Create a reliquary: mirror tool images from upstream to GAR |
+| `rbw-DE` | DirectorEnshrinesVessel | Enshrine upstream base images to GAR via Cloud Build |
+| `rbw-DO` | DirectorOrdainsConsecration | Ordain consecration: conjure, bind, or graft based on vessel mode |
+| `rbw-Dt` | DirectorTalliesConsecrations | Tally consecrations by health state |
 | `rbw-DV` | DirectorVouchesConsecrations | Mode-aware vouch: SLSA (conjure), digest-pin (bind), GRAFTED (graft) |
-| `rbw-DA` | DirectorAbjuresConsecration | Revoke a consecration |
-| `rbw-DJ` | DirectorJettisonsImage | Jettison image from registry |
+| `rbw-DA` | DirectorAbjuresConsecration | Abjure a consecration (delete artifacts from GAR) |
+| `rbw-DJ` | DirectorJettisonsImage | Jettison a specific image tag from registry |
+| `rbw-ak` | ArkKludge | Kludge a vessel image locally for development |
 
 ### Retrieval & Plumb (Retriever role)
 
 | Colophon | Frontispiece | Purpose |
 |----------|-------------|---------|
-| `rbw-Rs` | RetrieverSummonsConsecration | Pull vouched image locally |
-| `rbw-Rw` | RetrieverWrestsImage | Wrest image from registry |
+| `rbw-Rs` | RetrieverSummonsConsecration | Summon vouched consecration image locally |
+| `rbw-Rw` | RetrieverWrestsImage | Wrest a specific image from registry |
 | `rbw-RpF` | RetrieverPlumbsFull | Full provenance display (SBOM, build info, Dockerfile) |
 | `rbw-Rpc` | RetrieverPlumbsCompact | Compact provenance summary |
 
@@ -106,9 +170,11 @@ All credential files require `600` permissions and must never be committed to ve
 |----------|-------------|---------|
 | `rbw-cC` | Charge | Charge crucible (sentry + pentacle + bottle containers) |
 | `rbw-cQ` | Quench | Quench crucible |
-| `rbw-cr` | Rack | Shell into the bottle container (compel the demon to reveal state) |
-| `rbw-ch` | Hail | Shell into the sentry container (call out to the guard) |
+| `rbw-cr` | Rack | Shell into the bottle container |
+| `rbw-ch` | Hail | Shell into the sentry container |
 | `rbw-cs` | Scry | Observe network traffic on crucible containers |
+| `rbw-Ic` | IfritClient | Launch Claude Code inside a running bottle for escape testing |
+| `rbw-Is` | IfritSortie | Run automated security test scripts inside the bottle |
 
 ### Qualification & Testing
 
@@ -162,7 +228,7 @@ A Config Regime is a structured configuration system: a specification document, 
 
 **Recipe Bottle regimes** (in `.rbk/`):
 - **RBRP** — Payor project identity. Set `RBRP_PAYOR_PROJECT_ID` to your GCP project.
-- **RBRR** — Repository/depot configuration. Region, machine type, vessel directory, secrets directory, rubric repo URL, depot project ID.
+- **RBRR** — Repository/depot configuration. Region, machine type, vessel directory, secrets directory, depot project ID.
 - **RBRN** — Nameplate. Per-vessel: runtime (`docker`), vessel names, consecration values (set after builds complete).
 - **RBRV** — Vessel definitions. One per container image you want to build.
 - **RBRS** — Station. Developer-specific paths for Recipe Bottle. Not in git.
@@ -203,6 +269,6 @@ Project Root/
 
 - **Regime validation fails on startup**: Run the regime's render command to see current values, then validate to identify the specific error. Fix the `.env` file and retry.
 - **OAuth token expired**: `tt/rbw-gPR.PayorRefresh.sh`
-- **Lost credential file**: Re-run the creation command for that role (payor install, governor reset, director/retriever create).
+- **Lost credential file**: Re-run the creation command for that role (payor install, governor mantle, director knight, retriever charter).
 - **Tabtarget not found**: Run `tt/rbw-Qf.QualifyFast.sh` to check tabtarget and colophon health.
 - **Build fails**: Check `tt/rbw-Dt.DirectorTalliesConsecrations.sh` for build status. Review logs in the GCP Console for the depot project.
