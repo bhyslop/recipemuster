@@ -305,7 +305,6 @@ Not actionable until vessel ecosystem matures.
 
 * RBSOB: OCI Layout Bridge trade study (superseded)
 * RBSCJ: Cloud Build JSON trade study
-* RBSRI: Rubric Inscribe specification (inactive -- inscribe deferred for reliquary implementation)
 * RBSTB: Trigger Build specification (inactive -- triggers eliminated, builds.create replaces)
 * rbfd_FoundryDirectorBuild.sh: `zrbfd_stitch_build_json()` — build stitching; `rbfl_tally()` — provenance on demand; `rbfc_plumb_full()`/`rbfc_plumb_compact()` — local trust posture display
 * RBSAI: Ark Inspect specification

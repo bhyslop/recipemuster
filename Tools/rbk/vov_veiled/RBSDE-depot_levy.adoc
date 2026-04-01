@@ -173,14 +173,6 @@ Permissions*:
 .. {rbbc_require}
 IAM binding successful
 
-// GitLab/CBv2 infrastructure steps eliminated (₣Av):
-// - Secret Manager storage (3 GitLab secrets)
-// - Secret Manager access grants for CB service agent
-// - CB service agent connection admin grant
-// - CB v2 GitLab connection creation
-// - CB v2 repository creation
-// Builds now use builds.create with pouch for context delivery — no GitLab connection needed.
-
 //axhoot_typed_output
 {rbtgi_depot}
 . *Display Depot Configuration*:

@@ -117,9 +117,6 @@ rblm_zero() {
       RBRR_GAR_REPOSITORY=*)                printf '%s\n' "RBRR_GAR_REPOSITORY="                        ;;
       RBRR_GCB_POOL_STEM=*)                 printf '%s\n' "RBRR_GCB_POOL_STEM="                         ;;
       RBRR_GCB_WORKER_POOL=*)               continue                                                      ;;
-      # CBv2 variables eliminated (₣Av) — strip from rbrr.env if present
-      RBRR_CBV2_CONNECTION_NAME=*)          continue                                                      ;;
-      RBRR_RUBRIC_REPO_URL=*)               continue                                                      ;;
       # Everything else passes through (comments, shebang, blanks)
       *)                                    printf '%s\n' "${z_line}"                                   ;;
     esac

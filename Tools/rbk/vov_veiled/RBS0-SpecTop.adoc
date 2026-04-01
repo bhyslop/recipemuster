@@ -89,12 +89,10 @@
 
 // Recipe Bottle Common Fact Maps (dynamic output contract identifiers)
 :rbcc_fact_consec_infix:     <<rbcc_fact_consec_infix,RBCC_FACT_CONSEC_INFIX>>
-// Recipe Bottle Term Google Rubric (per-vessel build definition)
-// Rubric concept simplified (₣Av) — triggers/rubric repo eliminated, term retained for build definition
+// Recipe Bottle Term Google Build Definitions
 :rbtgr_rubric:              <<rbtgr_rubric,RB Rubric>>
 :rbtgr_rubric_s:            <<rbtgr_rubric,RB Rubrics>>
 :rbtgr_build_json:          <<rbtgr_build_json,cloudbuild.json>>
-// rbtgr_vessel_trigger, rbtgr_rubric_repo, rbtgr_vessel_dir removed (₣Av)
 :rbtgr_provenance:          <<rbtgr_provenance,Rubric Provenance>>
 
 // Recipe Bottle Term Google Operations
@@ -124,7 +122,6 @@
 :rbtgo_sa_list:                   <<rbtgo_sa_list,rbgg_list_service_accounts>>
 :rbtgo_quota_build:               <<rbtgo_quota_build,rbgm_quota_build>>
 :rbtgo_trigger_build:             <<rbtgo_trigger_build,rbfd_build>>
-:rbtgo_rubric_inscribe:          <<rbtgo_rubric_inscribe,rbfl_inscribe>>
 :rbtgo_access_jwt_probe:          <<rbtgo_access_jwt_probe,rbap_jwt_sa_probe>>
 :rbtgo_access_oauth_probe:        <<rbtgo_access_oauth_probe,rbap_payor_oauth_probe>>
 
@@ -135,7 +132,7 @@
 :rbtgog_governor:                 <<rbtgog_governor,Governor Group>>
 :rbtgog_image:                    <<rbtgog_image,Image Group>>
 :rbtgog_payor:                    <<rbtgog_payor,Payor Group>>
-:rbtgog_rubric:                   <<rbtgog_rubric,Rubric Group>>
+:rbtgog_rubric:                   <<rbtgog_rubric,Build Definition Group>>
 :rbtgog_sa:                       <<rbtgog_sa,Service Account Group>>
 
 // Recipe Bottle Term Colophon (tabtarget entry points)
@@ -143,7 +140,6 @@
 :rbtc_plumb_full:                <<rbtc_plumb_full,rbw-RpF>>
 :rbtc_plumb_compact:             <<rbtc_plumb_compact,rbw-Rpc>>
 
-:rbtoe_check_rubric_repo_url:     <<rbtoe_check_rubric_repo_url,Rubric Repo URL Check>>
 :rbtoe_check_cbv2_connection:     <<rbtoe_check_cbv2_connection,CB v2 Connection Check>>
 :rbtoe_depot_list_update:         <<rbtoe_depot_list_update,Depot List Update Pattern>>
 :rbtoe_director_authenticate:     <<rbtoe_director_authenticate,Director Authentication Pattern>>
@@ -328,9 +324,6 @@
 
 // Recipe Bottle Regime: Cloud Build v2
 :rbrr_group_cbv2:               <<rbrr_group_cbv2,Cloud Build v2 Group>>
-// RBRR_CBV2_CONNECTION_NAME and RBRR_RUBRIC_REPO_URL eliminated (₣Av)
-:rbrr_cbv2_connection_name:     RBRR_CBV2_CONNECTION_NAME (eliminated)
-:rbrr_rubric_repo_url:          RBRR_RUBRIC_REPO_URL (eliminated)
 
 // Recipe Bottle Regime: Account (service account credentials)
 :rbra_client_email:          <<rbra_client_email,RBRA_CLIENT_EMAIL>>
@@ -816,7 +809,7 @@ role: configuration reset and subordinate service account creation.
 [[rbtgog_rubric]]
 //axvo_group axd_tabtarget
 {rbtgog_rubric}::
-Build definition lifecycle: stitch and `builds.create` submission. Triggers and rubric repo eliminated (₣Av).
+Build definition lifecycle: stitch and `builds.create` submission.
 
 [[rbtgog_image]]
 //axvo_group axd_tabtarget
@@ -978,17 +971,6 @@ service account
 include::RBSDK-director_knight.adoc[]
 
 == {rbtr_director} Operations
-
-[[rbtgo_rubric_inscribe]]
-//axvo_method axd_transient axd_grouped
-=== {rbtgo_rubric_inscribe}
-
-DEFERRED: Inscribe will become reliquary generation (₣Av).
-The GitLab rubric path (clone, push, trigger creation) is eliminated.
-Builds now use `builds.create` with pouch (build context as GAR image) for context delivery.
-Inscribe currently dies with a stub message; reliquary implementation is future work.
-
-// include::RBSRI-rubric_inscribe.adoc[]
 
 [[rbtgo_trigger_build]]
 //axvo_method axd_transient axd_grouped
@@ -1740,7 +1722,7 @@ in
 The per-vessel build definition comprising a generated
 {rbtgr_build_json}
 and build context delivered via pouch (FROM SCRATCH OCI image in GAR).
-Triggers and rubric repo eliminated (₣Av) — builds submitted directly via `builds.create` API.
+Builds submitted directly via `builds.create` API.
 
 [[rbtgr_build_json]]
 //axl_voices axig_build_config
@@ -1749,10 +1731,6 @@ The generated `cloudbuild.json` for a vessel, produced from step scripts and reg
 All values resolved directly at stitch time — no placeholders, no post-processing.
 Submitted via `builds.create` API. Build context delivered via pouch (FROM SCRATCH OCI image in GAR).
 See <<rbscj_trade_study>>.
-
-// Vessel Trigger, Rubric Repo, Vessel Directory eliminated (₣Av)
-// Triggers replaced by direct builds.create submission.
-// Rubric repo replaced by pouch (build context as GAR image).
 
 [[rbtgr_provenance]]
 //axl_voices axig_slsa_provenance
@@ -1813,12 +1791,6 @@ About assembly (syft, build_info, metadata push) uses reusable {rbtgo_ark_about}
 `images:` lists all per-platform tags — Cloud Build re-pushes each (idempotent, same digest) and generates SLSA provenance.
 `options.requestedVerifyOption: VERIFIED` ensures build fails if provenance cannot be generated.
 Per-platform tags are internal build plumbing; the consumer-facing tag (assembled by `imagetools create`) is platform-transparent, identical to single-arch.
-
-=== Cloud Build v2 Definitions
-
-// CB v2 Connection and Repository definitions eliminated (₣Av)
-// GitLab integration fully removed — builds.create + pouch replaces trigger dispatch.
-// No GitLab account, PAT, Secret Manager secrets, CB v2 connection, or triggers needed.
 
 === Support Infrastructure Definitions
 
@@ -2615,9 +2587,6 @@ Container image build process configuration.
 [[rbrr_group_cbv2]]
 //axvr_group
 {rbrr_group_cbv2}::
-// CB v2 connection and rubric repo regime variables eliminated (₣Av)
-// GitLab integration fully removed — builds.create + pouch replaces trigger dispatch.
-
 include::RBSRR-RegimeRepo.adoc[]
 
 // RBRG regime eliminated (₣Av) — reliquaries replace pin-based tool image management
@@ -3427,9 +3396,6 @@ Provides context or expected outcomes without requiring action.
 == Orchestration Patterns
 
 Recipe Bottle orchestration patterns define reusable implementation sequences for system operations.
-
-// check_rubric_repo_url and check_cbv2_connection procedures eliminated (₣Av)
-// GitLab integration removed — no rubric repo URL or CB v2 connection to validate.
 
 [[rbtoe_rbra_generate]]
 //axvo_procedure axd_transient axd_internal

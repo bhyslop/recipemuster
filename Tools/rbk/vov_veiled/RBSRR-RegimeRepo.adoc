@@ -149,8 +149,6 @@ Must be set to the base name of the pools created by
 {rbtgo_depot_levy}
 for this depot.
 
-// CBv2 group eliminated (₣Av) -- builds.create + pouch replaces triggers; no GitLab connection needed
-
 //axhro_kindle
 {rbkro_kindle}
 

@@ -151,12 +151,7 @@ This phase involves manual work in the Google Cloud Console: creating a GCP proj
 
 ### Phase 4: Build & Retrieve (Director + Retriever roles)
 
-10. **Inscribe** — Translate your vessel definitions into Cloud Build instructions and push to the rubric repo:
-    ```
-    tt/rbw-DI.DirectorInscribesRubric.sh
-    ```
-
-12. **Ordain consecration** — Build (conjure) or mirror (bind) each vessel's image (typically 10-20 minutes for conjure builds):
+10. **Ordain consecration** — Build (conjure) or mirror (bind) each vessel's image (typically 10-20 minutes for conjure builds):
     ```
     tt/rbw-DO.DirectorOrdainsConsecration.sh rbev-vessels/<vessel-name>
     ```

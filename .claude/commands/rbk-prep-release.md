@@ -125,7 +125,7 @@ tt/rbw-MZ.MarshalZeroes.sh
 ```
 
 This will:
-- Blank site-specific RBRR fields (depot project ID, GAR repository, connection name, worker pool, rubric URL)
+- Blank site-specific RBRR fields (depot project ID, GAR repository, connection name, worker pool)
 - Pre-fill RBRR defaults (DNS server, machine type, timeout, region, vessel dir, secrets dir)
 - Delete depot-scoped credential files (governor, director, retriever)
 - Blank consecration values in all nameplate files

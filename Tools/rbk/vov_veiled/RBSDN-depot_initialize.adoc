@@ -7,7 +7,6 @@
 //
 // All former depot_initialize responsibilities are now handled by
 // depot_levy:
-//   - Rubric repo URL validation (moved to depot_levy)
 //   - GitHub PAT storage in Secret Manager (depot_levy stdin)
 //   - CB v2 connection creation (fully automated in depot_levy)
 //   - CB v2 repository creation (fully automated in depot_levy)

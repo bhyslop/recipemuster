@@ -47,10 +47,6 @@ zrbrr_kindle() {
   buv_gname_enroll   RBRR_GCP_REGION               1   32  "GCP region"
   buv_gname_enroll   RBRR_GAR_REPOSITORY           1   63  "Google Artifact Registry repository name"
 
-  # RBRR_CBV2_CONNECTION_NAME and RBRR_RUBRIC_REPO_URL eliminated (₣Av).
-  # Variables retained in rbrr.env as empty strings for backward compatibility
-  # with depot lifecycle code not yet updated (₢AvAAE).
-
   buv_group_enroll "Google Cloud Build Configuration"
   buv_gname_enroll   RBRR_GCB_MACHINE_TYPE           3   64  "Machine type for Cloud Build (CE format)"
   buv_gname_enroll   RBRR_GCB_POOL_STEM                1   63  "Worker pool base name (suffixed with -tether/-airgap)"

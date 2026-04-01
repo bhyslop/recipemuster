@@ -63,7 +63,7 @@ zrbfd_kindle() {
 
   # RBGJI inscribe step scripts now owned by rbfl_FoundryLedger.sh
 
-  # Delete, token, inscribe, reliquary, rubric prefixes now owned by rbfl_FoundryLedger.sh
+  # Delete, token, inscribe, reliquary prefixes now owned by rbfl_FoundryLedger.sh
   # Vouch and about prefixes now owned by rbfv_FoundryVerify.sh
 
   buc_log_args 'Define stitch operation file prefix (postfixed per step id)'
@@ -695,8 +695,7 @@ zrbfd_stitch_build_json() {
 
 # Push vessel build context to GAR as a FROM SCRATCH OCI image.
 # The context image carries the Dockerfile and supporting files that GCB
-# needs in /workspace during the build.  This replaces the rubric repo's
-# role as the build-context delivery mechanism.
+# needs in /workspace during the build.
 #
 # Args: token  sigil  build_context_path
 # Side-effect: writes context image tag to ${ZRBFD_CONTEXT_PREFIX}tag.txt

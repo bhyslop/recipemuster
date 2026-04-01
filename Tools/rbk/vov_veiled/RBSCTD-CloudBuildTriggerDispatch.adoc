@@ -86,8 +86,7 @@ This changes the paddock's infrastructure design:
 * **Add**: CB v2 connection and repository creation
 * **Update**: Linked terms from `rbtgi_source_connection` (Developer Connect)
   to CB v2 equivalents
-* **Retain**: The rubric repo concept and `RBRA_RUBRIC_REPO_URL` — unchanged,
-  CB v2 repositories point to the same git URL
+* **Retain**: Direct `builds.create` submission with pouch-based context delivery
 
 ==== Experimental Evidence
 

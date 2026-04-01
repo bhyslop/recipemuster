@@ -96,26 +96,6 @@ zrbgg_sentinel() {
 }
 
 ######################################################################
-# Governor credential preflight — sources Governor RBRA and validates
-# CB v2 checks removed (₣Av) — builds.create + pouch replaces triggers
-
-zrbgg_rubric_preflight() {
-  zrbgg_sentinel
-
-  local z_gov_rbra="${RBDC_GOVERNOR_RBRA_FILE}"
-  test -f "${z_gov_rbra}" || buc_die "Governor RBRA file not found: ${z_gov_rbra} — run rbgp_governor_mantle"
-
-  if test -z "${ZRBRA_SOURCED:-}"; then
-    source "${BASH_SOURCE[0]%/*}/rbra_regime.sh"
-  fi
-
-  source "${z_gov_rbra}" || buc_die "Failed to source Governor RBRA: ${z_gov_rbra}"
-  zrbra_kindle
-  zrbra_enforce
-
-  buc_log_args "Governor credential preflight passed"
-}
-
 ######################################################################
 # Capture: list required services that are NOT enabled (blank = all enabled)
 zrbgg_required_apis_missing_capture() {
@@ -500,9 +480,6 @@ rbgg_charter_retriever() {
   zburd_sentinel
   test -d "${BURD_OUTPUT_DIR}" || buc_die "BURD_OUTPUT_DIR does not exist: ${BURD_OUTPUT_DIR}"
 
-  buc_step 'Rubric infrastructure preflight'
-  zrbgg_rubric_preflight
-
   local z_account_name="${RBCC_role_retriever}-${z_instance}"
   local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
 
@@ -555,9 +532,6 @@ rbgg_knight_director() {
   test -n "${z_instance}"     || buc_die "Instance name required"
   zburd_sentinel
   test -d "${BURD_OUTPUT_DIR}" || buc_die "BURD_OUTPUT_DIR does not exist: ${BURD_OUTPUT_DIR}"
-
-  buc_step 'Rubric infrastructure preflight'
-  zrbgg_rubric_preflight
 
   local z_account_name="${RBCC_role_director}-${z_instance}"
   local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
