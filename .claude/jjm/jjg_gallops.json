@@ -5522,6 +5522,13 @@
         "₢AxAAR": {
           "tacks": [
             {
+              "ts": "260331-1718",
+              "state": "complete",
+              "text": "## Character\n\nEnd-to-end verification that all verb renames across ₣Ax land correctly. Not mechanical — requires judgment about what constitutes adequate coverage given the breadth of changes (crucible lifecycle, diagnostics, consecration ops, role authority, image-level ops, marshal ops).\n\n## Scope\n\nExercise every renamed tabtarget and verify dispatch reaches the correct function. Specific coverage:\n\n- **Crucible**: charge/quench/enjoin/hail/rack/scry colophons dispatch correctly\n- **Consecration**: tally/ordain colophons dispatch correctly\n- **Governor**: knight/forfeit/charter colophons dispatch correctly\n- **Payor**: levy/unmake/mantle colophons dispatch correctly\n- **Marshal**: zero/proof colophons dispatch correctly\n- **Image**: wrest/jettison/plumb colophons dispatch correctly\n- **Qualification**: rbw-Qf fast qualification passes (tabtarget/colophon health)\n\n## Approach\n\n- Start with `rbw-Qf` fast qualification — catches any broken tabtarget/colophon/nameplate wiring\n- Then exercise `buc_doc_brief` on each renamed command to verify dispatch without side effects\n- Report any stragglers found during testing",
+              "silks": "verb-rename-integration-test",
+              "commit": "a1db341"
+            },
+            {
               "ts": "260331-1422",
               "state": "rough",
               "text": "## Character\n\nEnd-to-end verification that all verb renames across ₣Ax land correctly. Not mechanical — requires judgment about what constitutes adequate coverage given the breadth of changes (crucible lifecycle, diagnostics, consecration ops, role authority, image-level ops, marshal ops).\n\n## Scope\n\nExercise every renamed tabtarget and verify dispatch reaches the correct function. Specific coverage:\n\n- **Crucible**: charge/quench/enjoin/hail/rack/scry colophons dispatch correctly\n- **Consecration**: tally/ordain colophons dispatch correctly\n- **Governor**: knight/forfeit/charter colophons dispatch correctly\n- **Payor**: levy/unmake/mantle colophons dispatch correctly\n- **Marshal**: zero/proof colophons dispatch correctly\n- **Image**: wrest/jettison/plumb colophons dispatch correctly\n- **Qualification**: rbw-Qf fast qualification passes (tabtarget/colophon health)\n\n## Approach\n\n- Start with `rbw-Qf` fast qualification — catches any broken tabtarget/colophon/nameplate wiring\n- Then exercise `buc_doc_brief` on each renamed command to verify dispatch without side effects\n- Report any stragglers found during testing",
