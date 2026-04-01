@@ -257,9 +257,10 @@
         "₢A1AAB",
         "₢A1AAC",
         "₢A1AAD",
-        "₢A1AAE"
+        "₢A1AAE",
+        "₢A1AAF"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -314,6 +315,17 @@
               "text": "## Character\nIntegration milestone — the proof that the architecture works.\n\n## Docket\nWire theurge + ifrit together for the first time against the tadmor nameplate. Theurge charges the bottle, copies ifrit in, runs 3-5 attack cases via `docker exec`, monitors sentry state from outside, correlates results, reports verdicts.\n\nThis is the moment where \"simultaneous inside/outside observation\" becomes real. Pick cases where outside monitoring adds value (e.g., iptables counter delta on a blocked DNS query).\n\nEstablish tabtarget: reuse existing infix pattern, something like `tt/rbw-tf.TestFixture.tadmor.sh` invoking the theurge binary.",
               "silks": "first-end-to-end-tadmor-cases",
               "commit": "217bc24"
+            }
+          ]
+        },
+        "₢A1AAF": {
+          "tacks": [
+            {
+              "ts": "260401-1202",
+              "state": "rough",
+              "text": "## Character\nMechanical porting — volume work, low judgment.\n\n## Docket\nPort the remaining tadmor-security bash cases (22 total in `rbtcns_TadmorSecurity.sh`) to the theurge+ifrit model. Some become ifrit attack variants (things that run inside the bottle), some become theurge-only cases (exec a command into sentry/pentacle and check from outside). Categorize each existing case as inside, outside, or correlated (both).\n\nCategories from the existing 22:\n- Basic infra (dnsmasq listening, ping, iptables) — likely theurge-only (outside observation)\n- DNS allow/block (11 cases) — correlated (ifrit tries, theurge checks counters)\n- TCP 443 allow/block — correlated\n- Package mgmt block — ifrit-only\n- ICMP restrictions — correlated",
+              "silks": "port-remaining-bash-tadmor-security",
+              "commit": "50ed6ec"
             }
           ]
         }
