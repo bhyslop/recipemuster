@@ -896,6 +896,7 @@
       "creation_time": "260131",
       "status": "racing",
       "order": [
+        "₢AUAAv",
         "₢AUAAt",
         "₢AUAAq",
         "₢AUAAr",
@@ -940,7 +941,7 @@
         "₢AUAAn",
         "₢AUAAu"
       ],
-      "next_pace_seed": "AAv",
+      "next_pace_seed": "AAw",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -1917,6 +1918,17 @@
               "text": "## Character\n\nMechanical — straightforward channel swap and tabtarget file consolidation.\n\n## Docket\n\nConvert three crucible tabtargets from imprint-style (one file per nameplate) to param-style (single file, nameplate as `$1`):\n\n**Tabtargets to convert:**\n- `rbw-ch.Hail` — currently `rbw-ch.Hail.{tadmor,pluml,srjcl}.sh`\n- `rbw-cr.Rack` — currently `rbw-cr.Rack.{tadmor,srjcl}.sh`\n- `rbw-cs.Scry` — currently `rbw-cs.Scry.{tadmor,pluml,srjcl}.sh`\n\n**Changes required:**\n\n1. **Zipper enrollment** (`rbz_zipper.sh`): Change channel from `\"imprint\"` to `\"param1\"` for the three colophons (`rbw-ch`, `rbw-cr`, `rbw-cs`)\n2. **Create param-style tabtargets**: `rbw-ch.Hail.sh`, `rbw-cr.Rack.sh`, `rbw-cs.Scry.sh` (same launcher body, no imprint segment)\n3. **Delete imprint-style tabtargets**: Remove the per-nameplate files (8 files total)\n4. **Update docs**: Adjust any references in `CLAUDE.consumer.md` or `README.consumer.md` if they mention these specific tabtarget filenames",
               "silks": "convert-crucible-tabtargets-imprint-to-param",
               "commit": "7a428f1"
+            }
+          ]
+        },
+        "₢AUAAv": {
+          "tacks": [
+            {
+              "ts": "260401-0600",
+              "state": "rough",
+              "text": "## Character\n\nMechanical but broad — many call sites share a single path-construction pattern, plus compose fragment paths. Requires careful grep-driven sweep and manual testing of bottle tabtargets.\n\n## Docket\n\nRestructure nameplate regime files from flat `{moniker}.rbrn.env` to directory-based `{moniker}/rbrn.env`. Also move per-nameplate compose fragments into the same directory.\n\n**File moves:**\n- `.rbk/tadmor.rbrn.env` → `.rbk/tadmor/rbrn.env`\n- `.rbk/srjcl.rbrn.env` → `.rbk/srjcl/rbrn.env`\n- `.rbk/pluml.rbrn.env` → `.rbk/pluml/rbrn.env`\n- `.rbk/tadmor.compose.yml` → `.rbk/tadmor/compose.yml`\n\n**Code changes — path construction (all use `RBCC_rbrn_suffix`):**\n- `rbcc_Constants.sh:33` — redefine or remove `RBCC_rbrn_suffix`; may need a new path-building helper\n- `rbob_cli.sh:126` — furnish: `${RBBC_dot_dir}/${z_folio}${RBCC_rbrn_suffix}`\n- `rbob_bottle.sh:121` — env path: `${RBBC_dot_dir}/${RBRN_MONIKER}${RBCC_rbrn_suffix}`\n- `rbob_bottle.sh:115` — compose fragment: `${RBBC_dot_dir}/${RBRN_MONIKER}.compose.yml`\n- `rbrn_cli.sh:201` — furnish: `${RBBC_dot_dir}/${BUZ_FOLIO}${RBCC_rbrn_suffix}`\n- `rbrn_cli.sh:48` — survey glob\n- `rbrn_regime.sh:125,167` — list/preflight glob: `${RBBC_dot_dir}/*${RBCC_rbrn_suffix}`\n- `rbtb_testbench.sh:93` — test load\n- `rbtcrv_RegimeValidation.sh:329` — test validation\n- `rbgm_ManualProcedures.sh:82` — onboarding\n\n**Pre-existing bug:** `rblm_cli.sh:76,146` globs for `rbrn_*.env` (underscore prefix) — doesn't match current `*.rbrn.env`. Fix to new pattern while here.\n\n**Compose invocation update:** `rbob_compose.yml` header comment (line 7-8) references old path pattern.\n\n**Doc updates:**\n- `RBRN-RegimeNameplate.adoc:8`\n- `README.consumer.md:277`\n- `CLAUDE.consumer.md` / `rbtid/CLAUDE.md:18`\n\n**Test plan — exercise these tabtargets after change:**\n- `rbw-ch` (Hail), `rbw-cr` (Rack), `rbw-cs` (Scry), `rbw-cC` (Charge), `rbw-cQ` (Quench) — bottle ops\n- `rbw-Ic` (Ifrit), `rbw-Is` (Sortie) — bottle ops\n- `rbw-rnl` (list), `rbw-ni` (survey), `rbw-nv` (audit) — nameplate ops\n- `rbw-tf` (TestFixture) — test load",
+              "silks": "nameplate-regime-directory-restructure",
+              "commit": "9a86b4f"
             }
           ]
         }
