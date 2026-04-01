@@ -242,7 +242,7 @@ zbud_resolve_color() {
       export BURE_COLOR
       ;;
     auto|*)
-      if test -t 1 && test "${TERM:-}" != "dumb" && command -v tput >/dev/null 2>&1 && test "$(tput colors 2>/dev/null || echo 0)" -gt 0; then
+      if test -t 1 && test "${TERM:-}" != "dumb"; then
           export BURE_COLOR=1
       else
           export BURE_COLOR=0

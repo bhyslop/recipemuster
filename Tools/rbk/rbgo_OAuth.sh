@@ -65,7 +65,12 @@ zrbgo_base64url_encode_capture() {
   local -r z_input="$1"
 
   # Base64url encode: -A suppresses line wrapping, then URL-safe transform and remove padding
-  printf '%s' "${z_input}" | openssl enc -base64 -A | tr '+/' '-_' | tr -d '='
+  local z_encoded
+  z_encoded=$(printf '%s' "${z_input}" | openssl enc -base64 -A) || return 1
+  z_encoded="${z_encoded//+/-}"
+  z_encoded="${z_encoded//\//_}"
+  z_encoded="${z_encoded//=/}"
+  printf '%s' "${z_encoded}"
 }
 
 zrbgo_build_jwt_capture() {
@@ -123,7 +128,10 @@ zrbgo_build_jwt_capture() {
 
   buc_log_args "Base64url encode signature"
   local z_signature
-  z_signature=$(openssl enc -base64 -A < "${ZRBGO_JWT_SIGNATURE_FILE}" | tr '+/' '-_' | tr -d '=') || return 1
+  z_signature=$(openssl enc -base64 -A < "${ZRBGO_JWT_SIGNATURE_FILE}") || return 1
+  z_signature="${z_signature//+/-}"
+  z_signature="${z_signature//\//_}"
+  z_signature="${z_signature//=/}"
 
   buc_log_args "Return complete JWT"
   printf '%s\n' "${z_header_enc}.${z_claims_enc}.${z_signature}"

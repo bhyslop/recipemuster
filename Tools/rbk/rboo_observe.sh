@@ -37,12 +37,12 @@ zrboo_kindle() {
   # Verify RBOB is kindled (provides container names, runtime)
   zrbob_sentinel
 
-  # Terminal control sequences for colored output
-  readonly ZRBOO_BOLD=$(tput bold 2>/dev/null || echo "")
-  readonly ZRBOO_YELLOW=$(tput setaf 3 2>/dev/null || echo "")
-  readonly ZRBOO_BLUE=$(tput setaf 4 2>/dev/null || echo "")
-  readonly ZRBOO_WHITE=$(tput setaf 7 2>/dev/null || echo "")
-  readonly ZRBOO_RESET=$(tput sgr0 2>/dev/null || echo "")
+  # Terminal control sequences for colored output (ANSI literals, matching BUC constants)
+  readonly ZRBOO_BOLD=$'\033[1m'
+  readonly ZRBOO_YELLOW=$'\033[33m'
+  readonly ZRBOO_BLUE=$'\033[34m'
+  readonly ZRBOO_WHITE=$'\033[37m'
+  readonly ZRBOO_RESET=$'\033[0m'
 
   # Common tcpdump options: unbuffered, line-buffered, no name resolution, verbose
   ZRBOO_TCPDUMP_OPTS=(-U -l -nn -vvv)

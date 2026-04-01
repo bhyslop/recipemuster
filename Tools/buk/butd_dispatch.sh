@@ -45,12 +45,10 @@ butd_run_fixture() {
     butr_fixtures_recite > "${z_fixture_list}"
     while IFS= read -r z_fixture_name || test -n "${z_fixture_name}"; do
       test -n "${z_fixture_name}" || continue
-      local z_case_count
-      local z_cases_list
-      z_cases_list=$(mktemp)
-      butr_cases_recite "${z_fixture_name}" > "${z_cases_list}"
-      z_case_count=$(wc -l < "${z_cases_list}" | tr -d ' ')
-      rm -f "${z_cases_list}"
+      local z_case_count=0
+      while IFS= read -r _; do
+        z_case_count=$((z_case_count + 1))
+      done < <(butr_cases_recite "${z_fixture_name}")
 
       local z_plural=""
       test "${z_case_count}" -eq 1 || z_plural="s"
@@ -262,12 +260,10 @@ butd_run_suite() {
     butr_suites_recite > "${z_suites_temp}"
     while IFS= read -r z_suite_name || test -n "${z_suite_name}"; do
       test -n "${z_suite_name}" || continue
-      local z_case_count
-      local z_cases_list
-      z_cases_list=$(mktemp)
-      butr_suite_cases_recite "${z_suite_name}" > "${z_cases_list}"
-      z_case_count=$(wc -l < "${z_cases_list}" | tr -d ' ')
-      rm -f "${z_cases_list}"
+      local z_case_count=0
+      while IFS= read -r _; do
+        z_case_count=$((z_case_count + 1))
+      done < <(butr_suite_cases_recite "${z_suite_name}")
 
       local z_plural=""
       test "${z_case_count}" -eq 1 || z_plural="s"

@@ -248,7 +248,11 @@ rbi_list() {
   # Display tags to stdout
   echo "Repository: ${ZRBI_REGISTRY_HOST}/${ZRBI_REGISTRY_PATH}"
   echo "Images:"
-  jq -r '.[] | .tag' "${ZRBI_IMAGE_RECORDS_FILE}" | sort -r | head -20
+  local z_count=0 z_tag_line
+  while IFS= read -r z_tag_line && test "${z_count}" -lt 20; do
+    echo "${z_tag_line}"
+    z_count=$((z_count + 1))
+  done < <(jq -r '.[] | .tag' "${ZRBI_IMAGE_RECORDS_FILE}" | sort -r)
 
   test "${z_total}" -gt 20 && echo "... (showing 20 of ${z_total} tags)"
 
@@ -378,7 +382,11 @@ rbi_metadata() {
 
   if test -f "${z_extract_dir}/package_summary.linux_amd64.txt"; then
     buc_step "Package summary (linux/amd64)"
-    head -5 "${z_extract_dir}/package_summary.linux_amd64.txt" || buc_die "Failed to read package summary: ${z_extract_dir}/package_summary.linux_amd64.txt"
+    local z_pkg_count=0 z_pkg_line
+    while IFS= read -r z_pkg_line && test "${z_pkg_count}" -lt 5; do
+      echo "${z_pkg_line}"
+      z_pkg_count=$((z_pkg_count + 1))
+    done < "${z_extract_dir}/package_summary.linux_amd64.txt"
   fi
 
   buc_success "Metadata retrieved to ${z_extract_dir}"

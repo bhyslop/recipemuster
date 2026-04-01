@@ -121,7 +121,14 @@ buut_list_launchers() {
 
   zbuut_show "Listing launchers in .buk/"
   buc_step "Launchers in ${PWD}/.buk/"
-  ls -1 "${PWD}/.buk/launcher."*.sh 2>/dev/null || echo "  (none found)"
+  local z_found=0
+  local z_launcher
+  for z_launcher in "${PWD}/.buk/launcher."*.sh; do
+    test -f "${z_launcher}" || continue
+    echo "${z_launcher}"
+    z_found=1
+  done
+  test "${z_found}" = "1" || echo "  (none found)"
 }
 
 # Create batch+logging tabtargets (default)

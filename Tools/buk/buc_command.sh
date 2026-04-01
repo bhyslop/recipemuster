@@ -302,10 +302,11 @@ zbuc_show_help() {
 
   echo "Commands:"
 
-  for cmd in $(declare -F | grep -E "^declare -f ${prefix}[a-z][a-z0-9_]*$" | cut -d' ' -f3); do
-    buc_context "$cmd"
-    "$cmd"
-  done
+  local z_decl z_flag z_cmd
+  while read -r z_decl z_flag z_cmd; do
+    buc_context "${z_cmd}"
+    "${z_cmd}"
+  done < <(declare -F | grep -E "^declare -f ${prefix}[a-z][a-z0-9_]*$")
 }
 
 buc_countdown() {

@@ -204,7 +204,11 @@ buq_shellcheck() {
   fi
 
   # Count and display findings
-  local -r z_finding_count=$(<"${z_result_file}" wc -l)
+  local z_finding_count=0
+  local z_discard
+  while IFS= read -r z_discard || test -n "${z_discard:-}"; do
+    z_finding_count=$((z_finding_count + 1))
+  done < "${z_result_file}"
   buc_log_args "Shellcheck findings: ${z_finding_count} (see ${z_result_file})"
 
   local z_line=""
