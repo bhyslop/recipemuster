@@ -655,7 +655,7 @@ rbfv_vouch() {
 
 # Internal: Submit vouch Cloud Build job (mode-aware verification)
 # All vessel modes use Cloud Build. The build scripts branch on _RBGV_VESSEL_MODE:
-#   conjure: DSSE envelope signature verification (jq + openssl)
+#   conjure: DSSE envelope signature verification (Python 3 + openssl)
 #   bind: digest-pin comparison against upstream reference
 #   graft: GRAFTED stamp (no verification)
 zrbfv_vouch_submit() {

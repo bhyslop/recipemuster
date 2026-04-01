@@ -13,7 +13,7 @@ The
 {rbtr_director}
 submits a Cloud Build job via `builds.create` (direct submission), which runs as the
 {rbtr_mason}
-service account on the private pool (`RBRR_GCB_POOL_STEM`).
+service account on the airgap private pool (`RBDC_POOL_AIRGAP`, derived from `RBRR_GCB_POOL_STEM` with `-airgap` suffix — no public egress).
 
 NOTE: Vouch uses `builds.create` rather than trigger dispatch because the
 {rbtga_consecration}
@@ -142,7 +142,8 @@ Docker Registry API: HEAD manifests for `«CONSECRATION»-image`
 push succeeds
 
 //axhos_step
-. *Wait for Build Completion*:
+. *Wait for Build Completion* (local polling, not a GCB step):
+.. The Director's workstation polls the builds.get API after submitting steps 1-3 as a single Cloud Build job
 .. {rbbc_poll}
 `GET «GCB_PROJECT_BUILDS_URL»/«BUILD_ID»` every 5 seconds
 .. Continue while status in [`PENDING`, `QUEUED`, `WORKING`]
@@ -186,7 +187,6 @@ All `_RBGV_*` substitution variables are passed in the `builds.create` request b
 | `_RBGV_VESSEL` | Vessel sigil. Source: loaded vessel configuration.
 | `_RBGV_CONSECRATION` | Full consecration string. Source: input parameter.
 | `_RBGV_VESSEL_MODE` | Vessel mode (`conjure`, `bind`, or `graft`). Source: loaded vessel configuration.
-| `_RBGV_VERIFY_METHOD` | Verification method declaration (`dsse`, `digest_pin`, or `grafted`). Source: derived from vessel mode.
 |===
 
 NOTE: Platform list is discovered by step 2 and written to `/workspace/vouch_platforms.txt`, not passed as a substitution variable.
