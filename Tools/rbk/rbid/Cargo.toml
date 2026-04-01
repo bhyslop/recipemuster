@@ -1,0 +1,5 @@
+[package]
+name = "rbid"
+version = "0.1.0"
+edition = "2021"
+description = "Ifrit — in-bottle attack binary for Recipe Bottle crucible testing"

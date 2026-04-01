@@ -22,11 +22,13 @@ Full read and edit access is pre-approved for all files in:
 - **RBGO** → `rbk/rbgo_OAuth.sh`
 - **RBGP** → `rbk/rbgp_Payor.sh`
 - **RBGU** → `rbk/rbgu_Utility.sh`
+- **RBID** → `rbk/rbid/` (Ifrit — in-bottle attack binary for crucible testing)
 - **RBJ**  → Jailer prefix (non-terminal: children rbjs, rbjp, rbje, rbjh)
 - **RBJS** → `rbk/rbjs_sentry.sh` (Jailer Sentry - container security setup: iptables, dnsmasq, enclave network)
 - **RBLM** → `rbk/rblm_cli.sh` (Lifecycle Marshal - zero regime to blank template, proof repo for release testing)
 - **RBOB** → `rbk/rbob_bottle.sh`
 - **RBQ**  → `rbk/rbq_Qualify.sh` (Qualification orchestrator - tabtarget/colophon/nameplate health)
+- **RBTD** → `rbk/rbtd/` (Theurge — crucible test orchestrator)
 - **RBV**  → `rbk/rbv_PodmanVM.sh`
 - **RBS0** → `rbk/vov_veiled/RBS0-SpecTop.adoc`
 - **RBSAA** → `rbk/vov_veiled/RBSAA-ark_abjure.adoc`
