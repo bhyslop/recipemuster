@@ -897,6 +897,7 @@
       "status": "racing",
       "order": [
         "₢AUAAv",
+        "₢AUAAw",
         "₢AUAAt",
         "₢AUAAq",
         "₢AUAAr",
@@ -941,7 +942,7 @@
         "₢AUAAn",
         "₢AUAAu"
       ],
-      "next_pace_seed": "AAw",
+      "next_pace_seed": "AAx",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -1929,6 +1930,17 @@
               "text": "## Character\n\nMechanical but broad — many call sites share a single path-construction pattern, plus compose fragment paths. Requires careful grep-driven sweep and manual testing of bottle tabtargets.\n\n## Docket\n\nRestructure nameplate regime files from flat `{moniker}.rbrn.env` to directory-based `{moniker}/rbrn.env`. Also move per-nameplate compose fragments into the same directory.\n\n**File moves:**\n- `.rbk/tadmor.rbrn.env` → `.rbk/tadmor/rbrn.env`\n- `.rbk/srjcl.rbrn.env` → `.rbk/srjcl/rbrn.env`\n- `.rbk/pluml.rbrn.env` → `.rbk/pluml/rbrn.env`\n- `.rbk/tadmor.compose.yml` → `.rbk/tadmor/compose.yml`\n\n**Code changes — path construction (all use `RBCC_rbrn_suffix`):**\n- `rbcc_Constants.sh:33` — redefine or remove `RBCC_rbrn_suffix`; may need a new path-building helper\n- `rbob_cli.sh:126` — furnish: `${RBBC_dot_dir}/${z_folio}${RBCC_rbrn_suffix}`\n- `rbob_bottle.sh:121` — env path: `${RBBC_dot_dir}/${RBRN_MONIKER}${RBCC_rbrn_suffix}`\n- `rbob_bottle.sh:115` — compose fragment: `${RBBC_dot_dir}/${RBRN_MONIKER}.compose.yml`\n- `rbrn_cli.sh:201` — furnish: `${RBBC_dot_dir}/${BUZ_FOLIO}${RBCC_rbrn_suffix}`\n- `rbrn_cli.sh:48` — survey glob\n- `rbrn_regime.sh:125,167` — list/preflight glob: `${RBBC_dot_dir}/*${RBCC_rbrn_suffix}`\n- `rbtb_testbench.sh:93` — test load\n- `rbtcrv_RegimeValidation.sh:329` — test validation\n- `rbgm_ManualProcedures.sh:82` — onboarding\n\n**Pre-existing bug:** `rblm_cli.sh:76,146` globs for `rbrn_*.env` (underscore prefix) — doesn't match current `*.rbrn.env`. Fix to new pattern while here.\n\n**Compose invocation update:** `rbob_compose.yml` header comment (line 7-8) references old path pattern.\n\n**Doc updates:**\n- `RBRN-RegimeNameplate.adoc:8`\n- `README.consumer.md:277`\n- `CLAUDE.consumer.md` / `rbtid/CLAUDE.md:18`\n\n**Test plan — exercise these tabtargets after change:**\n- `rbw-ch` (Hail), `rbw-cr` (Rack), `rbw-cs` (Scry), `rbw-cC` (Charge), `rbw-cQ` (Quench) — bottle ops\n- `rbw-Ic` (Ifrit), `rbw-Is` (Sortie) — bottle ops\n- `rbw-rnl` (list), `rbw-ni` (survey), `rbw-nv` (audit) — nameplate ops\n- `rbw-tf` (TestFixture) — test load",
               "silks": "nameplate-regime-directory-restructure",
               "commit": "9a86b4f"
+            }
+          ]
+        },
+        "₢AUAAw": {
+          "tacks": [
+            {
+              "ts": "260401-0601",
+              "state": "rough",
+              "text": "## Character\n\nSurgical — fewer call sites than nameplates, but touches credential paths and needs a migration step for existing secrets.\n\n## Docket\n\nRestructure RBRA credential files from `rbra-{role}.env` to `{role}/rbra.env` within the secrets directory. Add `RBRA_ROLE` field for swizzle protection.\n\n**File moves (in `${RBRR_SECRETS_DIR}`):**\n- `rbra-governor.env` → `governor/rbra.env`\n- `rbra-retriever.env` → `retriever/rbra.env`\n- `rbra-director.env` → `director/rbra.env`\n\n**Add `RBRA_ROLE` to each file:**\n- `governor/rbra.env` gets `RBRA_ROLE=governor`\n- `retriever/rbra.env` gets `RBRA_ROLE=retriever`\n- `director/rbra.env` gets `RBRA_ROLE=director`\n\n**Validation:** In `rbra_regime.sh` (or at source-time), assert `RBRA_ROLE` matches the expected role derived from the directory path. Die on mismatch — prevents copy-paste credential swizzle.\n\n**Derived constants update:**\n- `rbdc_DerivedConstants.sh:39-41` — change path pattern from `${RBRR_SECRETS_DIR}/rbra-{role}.env` to `${RBRR_SECRETS_DIR}/{role}/rbra.env`\n\n**Directory provisioning:**\n- Add `mkdir -p` for `governor/`, `retriever/`, `director/` in the access setup flow (wherever secrets dir is created)\n\n**Migration of existing files:**\n- Pace must include a one-shot migration: move existing `rbra-{role}.env` to `{role}/rbra.env` and inject `RBRA_ROLE={role}` line, so testing works without credential regeneration\n\n**Code references to update:**\n- `rbra_cli.sh:39-41,81` — file path resolution\n- `rbf_Foundry.sh` — heavy consumer of `RBDC_DIRECTOR_RBRA_FILE` (paths come from RBDC, no direct changes needed if RBDC is updated)\n- `rbap_AccessProbe.sh:79` — uses `RBDC_GOVERNOR_RBRA_FILE`\n\n**Test plan:**\n- `rbw-rar` (render auth), `rbw-rav` (validate auth), `rbw-ral` (list auth) — RBRA CLI ops\n- Verify credential sourcing still works for foundry operations",
+              "silks": "rbra-regime-directory-restructure",
+              "commit": "77f37e5"
             }
           ]
         }
