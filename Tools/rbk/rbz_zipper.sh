@@ -131,6 +131,8 @@ zrbz_kindle() {
   buz_enroll RBZ_TEST_SUITE   "rbw-ts" "${z_mod}" "rbw-ts" "imprint"
   buz_enroll RBZ_TEST_ONE     "rbw-to" "${z_mod}" "rbw-to"
 
+  readonly ZRBZ_COLOPHON_MANIFEST="${z_buz_colophon_roll[*]}"
+
   readonly ZRBZ_KINDLED=1
 }
 
