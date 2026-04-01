@@ -24,40 +24,21 @@ set -euo pipefail
 test -z "${ZRBF_SOURCED:-}" || buc_die "Module rbf multiply sourced - check sourcing hierarchy"
 ZRBF_SOURCED=1
 
+# Source shared Foundry Core module
+source "${BASH_SOURCE[0]%/*}/rbfc_FoundryCore.sh"
+
 ######################################################################
 # Internal Functions (zrbf_*)
 
 zrbf_kindle() {
   test -z "${ZRBF_KINDLED:-}" || buc_die "Module rbf already kindled"
 
-  # Validate environment
-  zburd_sentinel
-
-  buc_log_args 'Check required GCB/GAR environment variables'
-  zrbgc_sentinel
+  buc_log_args 'Kindle shared Foundry Core infrastructure'
+  zrbfc_kindle
 
   buc_log_args 'Verify service account files'
   test -n "${RBDC_DIRECTOR_RBRA_FILE:-}" || buc_die "RBDC_DIRECTOR_RBRA_FILE not set"
   test -f "${RBDC_DIRECTOR_RBRA_FILE}"   || buc_die "GCB service env file not found: ${RBDC_DIRECTOR_RBRA_FILE}"
-
-  buc_log_args 'Module Variables (ZRBF_*)'
-  readonly ZRBF_GCB_API_BASE="https://cloudbuild.googleapis.com/v1"
-  readonly ZRBF_GAR_API_BASE="https://artifactregistry.googleapis.com/v1"
-  readonly ZRBF_CLOUD_QUERY_BASE="https://console.cloud.google.com/cloud-build/builds"
-
-  readonly ZRBF_GCB_PROJECT_BUILDS_URL="${ZRBF_GCB_API_BASE}/projects/${RBGD_GCB_PROJECT_ID}/locations/${RBGD_GCB_REGION}/builds"
-  readonly ZRBF_GAR_PACKAGE_BASE="projects/${RBGD_GAR_PROJECT_ID}/locations/${RBGD_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
-
-  buc_log_args 'Trigger dispatch endpoints'
-  readonly ZRBF_TRIGGERS_URL="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${RBRR_DEPOT_PROJECT_ID}/locations/${RBGD_GCB_REGION}/triggers"
-
-  buc_log_args 'Registry API endpoints for delete'
-  readonly ZRBF_REGISTRY_HOST="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
-  readonly ZRBF_REGISTRY_PATH="${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
-  readonly ZRBF_REGISTRY_API_BASE="https://${ZRBF_REGISTRY_HOST}/v2/${ZRBF_REGISTRY_PATH}"
-
-  buc_log_args 'Media types for delete operation'
-  readonly ZRBF_ACCEPT_MANIFEST_MTYPES="application/vnd.docker.distribution.manifest.v2+json,application/vnd.docker.distribution.manifest.list.v2+json,application/vnd.oci.image.index.v1+json,application/vnd.oci.image.manifest.v1+json"
 
   buc_log_args 'RBGJ files in same Tools directory as this implementation'
   # Acronym: rbgjb = Recipe Bottle Google Json Build (step scripts in rbgjb/ dir)
@@ -91,22 +72,8 @@ zrbf_kindle() {
   test -d "${ZRBF_RBGJI_STEPS_DIR}"   || buc_die "RBGJI steps directory not found: ${ZRBF_RBGJI_STEPS_DIR}"
 
   buc_log_args 'Define temp files for build operations'
-  readonly ZRBF_BUILD_ID_FILE="${BURD_TEMP_DIR}/rbf_build_id.txt"
-  readonly ZRBF_BUILD_STATUS_FILE="${BURD_TEMP_DIR}/rbf_build_status.json"
   readonly ZRBF_BUILD_RUBRIC_LS="${BURD_TEMP_DIR}/rbf_rubric_ls_remote.txt"
   readonly ZRBF_BUILD_TRIGGER_BODY="${BURD_TEMP_DIR}/rbf_trigger_run_body.json"
-
-  buc_log_args 'Define git info file (used by inscribe -> stitch)'
-  readonly ZRBF_GIT_INFO_FILE="${BURD_TEMP_DIR}/rbf_git_info.json"
-
-  buc_log_args 'Define git metadata files (shared across about/mirror submissions)'
-  readonly ZRBF_GIT_PREFIX="${BURD_TEMP_DIR}/rbf_git_"
-  readonly ZRBF_GIT_COMMIT_FILE="${ZRBF_GIT_PREFIX}commit.txt"
-  readonly ZRBF_GIT_BRANCH_FILE="${ZRBF_GIT_PREFIX}branch.txt"
-  readonly ZRBF_GIT_REPO_FILE="${ZRBF_GIT_PREFIX}repo.txt"
-
-  buc_log_args 'Define validation files'
-  readonly ZRBF_STATUS_CHECK_FILE="${BURD_TEMP_DIR}/rbf_status_check.txt"
 
   buc_log_args 'Define delete operation files'
   readonly ZRBF_DELETE_PREFIX="${BURD_TEMP_DIR}/rbf_delete_"
@@ -117,10 +84,6 @@ zrbf_kindle() {
 
   buc_log_args 'Define about operation file prefix (postfixed per step id)'
   readonly ZRBF_ABOUT_PREFIX="${BURD_TEMP_DIR}/rbf_about_"
-
-  buc_log_args 'Vessel-related files'
-  readonly ZRBF_VESSEL_SIGIL_FILE="${BURD_TEMP_DIR}/rbf_vessel_sigil.txt"
-  readonly ZRBF_VESSEL_RESOLVED_DIR_FILE="${BURD_TEMP_DIR}/rbf_vessel_resolved_dir.txt"
 
   buc_log_args 'Define stitch operation file prefix (postfixed per step id)'
   readonly ZRBF_STITCH_PREFIX="${BURD_TEMP_DIR}/rbf_stitch_"
@@ -148,24 +111,14 @@ zrbf_kindle() {
   buc_log_args 'Define context push operation files'
   readonly ZRBF_CONTEXT_PREFIX="${BURD_TEMP_DIR}/rbf_context_"
 
-  buc_log_args 'Define output files (BURD_OUTPUT_DIR — persists after dispatch)'
-  readonly ZRBF_OUTPUT_VESSEL_DIR="${BURD_OUTPUT_DIR}/rbf_vessel_dir.txt"
-
-  buc_log_args 'Scratch file for sequential temp-file patterns'
-  readonly ZRBF_SCRATCH_FILE="${BURD_TEMP_DIR}/rbf_scratch.txt"
-
   readonly ZRBF_KINDLED=1
 }
 
 zrbf_sentinel() {
+  zrbfc_sentinel
   test "${ZRBF_KINDLED:-}" = "1" || buc_die "Module rbf not kindled - call zrbf_kindle first"
 }
 
-# Capture: decode base64 value (secret — never temp file)
-# Args: base64_encoded_value
-zrbf_base64_decode_capture() {
-  printf '%s' "$1" | base64 -d
-}
 
 # Check concurrent build quota against regime requirements
 # Args: token mode
@@ -279,10 +232,10 @@ zrbf_registry_preflight() {
       --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
       --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
       -H "Authorization: Bearer ${z_token}" \
-      -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}" \
+      -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
       -w "%{http_code}" \
       -o "${z_rqy_response_file}" \
-      "${ZRBF_REGISTRY_API_BASE}/${z_rqy_canary}/manifests/latest" \
+      "${ZRBFC_REGISTRY_API_BASE}/${z_rqy_canary}/manifests/latest" \
       > "${z_rqy_status_file}" 2>"${z_rqy_stderr_file}" \
       || buc_die "HEAD request failed for reliquary canary: ${z_rqy_canary}:latest — see ${z_rqy_stderr_file}"
 
@@ -345,10 +298,10 @@ zrbf_registry_preflight() {
       --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
       --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
       -H "Authorization: Bearer ${z_token}" \
-      -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}" \
+      -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
       -w "%{http_code}" \
       -o "${z_response_file}" \
-      "${ZRBF_REGISTRY_API_BASE}/enshrine/manifests/${z_anchor}" \
+      "${ZRBFC_REGISTRY_API_BASE}/enshrine/manifests/${z_anchor}" \
       > "${z_status_file}" 2>"${z_stderr_file}" \
       || buc_die "HEAD request failed for enshrined image: enshrine:${z_anchor} — see ${z_stderr_file}"
 
@@ -378,26 +331,6 @@ zrbf_registry_preflight() {
   fi
 }
 
-# Internal: Resolve tool image references from reliquary.
-# Must be called after vessel load (reads RBRV_RELIQUARY).
-# Sets module-level ZRBF_TOOL_* variables for downstream step assembly.
-# Idempotent — safe to call multiple times per invocation.
-zrbf_resolve_tool_images() {
-  zrbf_sentinel
-
-  local -r z_reliquary="${RBRV_RELIQUARY:-}"
-  test -n "${z_reliquary}" \
-    || buc_die "RBRV_RELIQUARY is required — run inscribe to create a reliquary first"
-
-  local -r z_rqy_prefix="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${z_reliquary}"
-  ZRBF_TOOL_GCLOUD="${z_rqy_prefix}/gcloud:latest"
-  ZRBF_TOOL_DOCKER="${z_rqy_prefix}/docker:latest"
-  ZRBF_TOOL_ALPINE="${z_rqy_prefix}/alpine:latest"
-  ZRBF_TOOL_SYFT="${z_rqy_prefix}/syft:latest"
-  ZRBF_TOOL_BINFMT="${z_rqy_prefix}/binfmt:latest"
-  ZRBF_TOOL_SKOPEO="${z_rqy_prefix}/skopeo:latest"
-  buc_log_args "Tool images resolved from reliquary: ${z_reliquary}"
-}
 
 zrbf_stitch_build_json() {
   zrbf_sentinel
@@ -409,11 +342,11 @@ zrbf_stitch_build_json() {
   buc_log_args "Stitching builds.create JSON to ${z_output_path}"
 
   # Preconditions: vessel loaded and git state captured
-  test -s "${ZRBF_VESSEL_SIGIL_FILE}" || buc_die "Vessel not loaded — call zrbf_load_vessel first"
-  test -s "${ZRBF_GIT_INFO_FILE}"     || buc_die "Git info not captured — ensure git metadata is captured before stitch"
+  test -s "${ZRBFC_VESSEL_SIGIL_FILE}" || buc_die "Vessel not loaded — call zrbfc_load_vessel first"
+  test -s "${ZRBFC_GIT_INFO_FILE}"     || buc_die "Git info not captured — ensure git metadata is captured before stitch"
 
   buc_log_args 'Read vessel state for substitutions'
-  local -r z_sigil=$(<"${ZRBF_VESSEL_SIGIL_FILE}")
+  local -r z_sigil=$(<"${ZRBFC_VESSEL_SIGIL_FILE}")
   test -n "${z_sigil}" || buc_die "Empty vessel sigil"
   local -r z_dockerfile_name="${RBRV_CONJURE_DOCKERFILE##*/}"
   local -r z_platforms="${RBRV_CONJURE_PLATFORMS// /,}"
@@ -459,11 +392,11 @@ zrbf_stitch_build_json() {
   local -r z_stitch_git_branch_file="${ZRBF_STITCH_PREFIX}git_branch.txt"
   local -r z_stitch_git_repo_file="${ZRBF_STITCH_PREFIX}git_repo.txt"
 
-  jq -r '.commit' "${ZRBF_GIT_INFO_FILE}" > "${z_stitch_git_commit_file}" \
+  jq -r '.commit' "${ZRBFC_GIT_INFO_FILE}" > "${z_stitch_git_commit_file}" \
     || buc_die "Failed to extract git commit from info file"
-  jq -r '.branch' "${ZRBF_GIT_INFO_FILE}" > "${z_stitch_git_branch_file}" \
+  jq -r '.branch' "${ZRBFC_GIT_INFO_FILE}" > "${z_stitch_git_branch_file}" \
     || buc_die "Failed to extract git branch from info file"
-  jq -r '.repo'   "${ZRBF_GIT_INFO_FILE}" > "${z_stitch_git_repo_file}" \
+  jq -r '.repo'   "${ZRBFC_GIT_INFO_FILE}" > "${z_stitch_git_repo_file}" \
     || buc_die "Failed to extract git repo from info file"
 
   local -r z_git_commit=$(<"${z_stitch_git_commit_file}")
@@ -496,17 +429,17 @@ zrbf_stitch_build_json() {
   # Delimiter is | because image refs contain colons (sha256 digests)
   # Pipeline: buildx --push → per-platform pullback → SLSA provenance via images: field
   local z_step_defs=(
-    "rbgjb01-derive-tag-base.sh|${ZRBF_TOOL_GCLOUD}|bash|derive-tag-base"
+    "rbgjb01-derive-tag-base.sh|${ZRBFC_TOOL_GCLOUD}|bash|derive-tag-base"
   )
   if test "${z_needs_binfmt}" = "true"; then
-    z_step_defs+=("rbgjb02-qemu-binfmt.sh|${ZRBF_TOOL_DOCKER}|bash|qemu-binfmt")
+    z_step_defs+=("rbgjb02-qemu-binfmt.sh|${ZRBFC_TOOL_DOCKER}|bash|qemu-binfmt")
   fi
   z_step_defs+=(
-    "rbgjb03-buildx-push-multi.sh|${ZRBF_TOOL_DOCKER}|bash|buildx-push-multi"
-    "rbgjb04-per-platform-pullback.sh|${ZRBF_TOOL_DOCKER}|bash|per-platform-pullback"
-    "rbgjb05-push-per-platform.sh|${ZRBF_TOOL_DOCKER}|bash|push-per-platform"
-    "rbgjb06-imagetools-create.sh|${ZRBF_TOOL_DOCKER}|bash|imagetools-create"
-    "rbgjb07-push-diags.sh|${ZRBF_TOOL_DOCKER}|bash|push-diags"
+    "rbgjb03-buildx-push-multi.sh|${ZRBFC_TOOL_DOCKER}|bash|buildx-push-multi"
+    "rbgjb04-per-platform-pullback.sh|${ZRBFC_TOOL_DOCKER}|bash|per-platform-pullback"
+    "rbgjb05-push-per-platform.sh|${ZRBFC_TOOL_DOCKER}|bash|push-per-platform"
+    "rbgjb06-imagetools-create.sh|${ZRBFC_TOOL_DOCKER}|bash|imagetools-create"
+    "rbgjb07-push-diags.sh|${ZRBFC_TOOL_DOCKER}|bash|push-diags"
   )
 
   # Compute platform suffixes (used in images: field and substitutions)
@@ -564,7 +497,7 @@ zrbf_stitch_build_json() {
     test -n "${z_body}" || buc_die "Empty script body: ${z_script_path}"
 
     buc_log_args "Baking pinned image refs and build strategy into script text"
-    z_body="${z_body//\$\{ZRBF_TOOL_BINFMT\}/${ZRBF_TOOL_BINFMT}}"
+    z_body="${z_body//\$\{ZRBF_TOOL_BINFMT\}/${ZRBFC_TOOL_BINFMT}}"
     z_body="${z_body//\$\{ZRBF_BUILD_STRATEGY\}/${z_build_strategy}}"
 
     case "${z_entrypoint}" in
@@ -596,7 +529,7 @@ zrbf_stitch_build_json() {
 
   buc_log_args "Assembling about steps for combined conjure"
   local -r z_about_steps_file="${ZRBF_STITCH_PREFIX}about_steps.json"
-  zrbf_assemble_about_steps "${z_about_steps_file}" "${ZRBF_STITCH_PREFIX}about_"
+  zrbfc_assemble_about_steps "${z_about_steps_file}" "${ZRBF_STITCH_PREFIX}about_"
 
   # About steps run in vessel dir so .consecration from rbgjb01 is accessible
   buc_log_args "Adding dir field to about steps for vessel directory ${z_sigil}"
@@ -651,7 +584,7 @@ zrbf_stitch_build_json() {
   # Context extraction step (first step — extracts build context from pouch in GAR)
   local -r z_extract_step_file="${ZRBF_STITCH_PREFIX}extract_step.json"
   jq -n \
-    --arg name "${ZRBF_TOOL_DOCKER}" \
+    --arg name "${ZRBFC_TOOL_DOCKER}" \
     --arg ctx_tag "${z_context_tag}" \
     --arg sigil "${z_sigil}" \
     '{
@@ -780,75 +713,7 @@ zrbf_stitch_build_json() {
   buc_log_args "Stitched ${#z_step_defs[@]} + context + about steps to ${z_output_path}"
 }
 
-# Resolve vessel argument: accepts a sigil (e.g., rbev-sentry-debian-slim) or a path
-# (e.g., rbev-vessels/rbev-sentry-debian-slim).  On no-arg or invalid arg, lists
-# available vessels and dies.  On success, writes resolved path to ZRBF_VESSEL_RESOLVED_DIR_FILE.
-zrbf_resolve_vessel() {
-  zrbf_sentinel
 
-  local -r z_arg="${1:-}"
-
-  # Try as path first, then as sigil under RBRR_VESSEL_DIR
-  if test -n "${z_arg}" && test -d "${z_arg}" && test -f "${z_arg}/rbrv.env"; then
-    printf '%s' "${z_arg}" > "${ZRBF_VESSEL_RESOLVED_DIR_FILE}" \
-      || buc_die "Failed to write resolved vessel path"
-    return 0
-  fi
-  if test -n "${z_arg}" && test -d "${RBRR_VESSEL_DIR}/${z_arg}" && test -f "${RBRR_VESSEL_DIR}/${z_arg}/rbrv.env"; then
-    printf '%s' "${RBRR_VESSEL_DIR}/${z_arg}" > "${ZRBF_VESSEL_RESOLVED_DIR_FILE}" \
-      || buc_die "Failed to write resolved vessel path"
-    return 0
-  fi
-
-  # Resolution failed — list available vessels and die
-  local z_sigils=""
-  z_sigils=$(rbrv_list_capture) || buc_die "No vessels found"
-  buc_step "Available vessels:"
-  local z_sigil=""
-  for z_sigil in ${z_sigils}; do
-    buc_bare "        ${z_sigil}"
-  done
-  if test -z "${z_arg}"; then
-    buc_die "Vessel argument required (sigil or path)"
-  fi
-  buc_die "Vessel not found: ${z_arg}"
-}
-
-zrbf_load_vessel() {
-  zrbf_sentinel
-
-  local z_vessel_dir="$1"
-
-  buc_log_args 'Validate vessel directory exists'
-  test -d "${z_vessel_dir}" || buc_die "Vessel directory not found: ${z_vessel_dir}"
-
-  buc_log_args 'Check for rbrv.env file'
-  local z_vessel_env="${z_vessel_dir}/rbrv.env"
-  test -f "${z_vessel_env}" || buc_die "Vessel configuration not found: ${z_vessel_env}"
-
-  buc_log_args 'Source vessel configuration'
-  source "${z_vessel_env}" || buc_die "Failed to source vessel config: ${z_vessel_env}"
-
-  buc_log_args 'Validate vessel directory matches sigil'
-  local z_vessel_dir_clean="${z_vessel_dir%/}"  # Strip any trailing slash
-  local z_dir_name="${z_vessel_dir_clean##*/}"  # Extract directory name
-  buc_log_args "  z_vessel_dir = ${z_vessel_dir}"
-  buc_log_args "  z_dir_name   = ${z_dir_name}"
-  test "${z_dir_name}" = "${RBRV_SIGIL}" || buc_die "Vessel sigil '${RBRV_SIGIL}' does not match directory name '${z_dir_name}'"
-
-  buc_log_args 'Validate vessel path matches expected pattern'
-  local z_expected_vessel_dir="${RBRR_VESSEL_DIR}/${RBRV_SIGIL}"
-  local z_vessel_realpath=""
-  z_vessel_realpath=$(cd "${z_vessel_dir}" && pwd) || buc_die "Failed to resolve vessel directory path"
-  local z_expected_realpath=""
-  z_expected_realpath=$(cd "${z_expected_vessel_dir}" && pwd) || buc_die "Failed to resolve expected vessel path"
-  test "${z_vessel_realpath}" = "${z_expected_realpath}" || buc_die "Vessel directory '${z_vessel_dir}' does not match expected location '${z_expected_vessel_dir}'"
-
-  buc_log_args 'Store loaded vessel info for use by commands'
-  echo "${RBRV_SIGIL}" > "${ZRBF_VESSEL_SIGIL_FILE}" || buc_die "Failed to store vessel sigil"
-
-  buc_info "Loaded vessel: ${RBRV_SIGIL}"
-}
 
 # Push vessel build context to GAR as a FROM SCRATCH OCI image.
 # The context image carries the Dockerfile and supporting files that GCB
@@ -866,7 +731,7 @@ zrbf_push_build_context() {
 
   test -d "${z_bldctx}" || buc_die "Build context directory not found: ${z_bldctx}"
 
-  local -r z_gar_host="${ZRBF_REGISTRY_HOST}"
+  local -r z_gar_host="${ZRBFC_REGISTRY_HOST}"
   local -r z_context_tag_file="${ZRBF_CONTEXT_PREFIX}tag.txt"
   local -r z_context_dockerfile="${ZRBF_CONTEXT_PREFIX}Dockerfile"
 
@@ -877,7 +742,7 @@ zrbf_push_build_context() {
   z_ctx_ts=$(<"${z_ctx_ts_file}")
   test -n "${z_ctx_ts}" || buc_die "Empty context timestamp"
 
-  local -r z_context_tag="${z_gar_host}/${ZRBF_REGISTRY_PATH}/${z_sigil}:context-${z_ctx_ts}"
+  local -r z_context_tag="${z_gar_host}/${ZRBFC_REGISTRY_PATH}/${z_sigil}:context-${z_ctx_ts}"
 
   # Build FROM SCRATCH image containing build context
   buc_step "Building context image for ${z_sigil}"
@@ -901,90 +766,6 @@ zrbf_push_build_context() {
   buc_info "Context image pushed: ${z_context_tag}"
 }
 
-zrbf_wait_build_completion() {
-  zrbf_sentinel
-
-  local z_max_polls="${1:?zrbf_wait_build_completion: max_polls required}"
-  local z_label="${2:?zrbf_wait_build_completion: label required}"
-
-  buc_step "${z_label}: Waiting for build completion"
-
-  local z_build_id=""
-  z_build_id=$(<"${ZRBF_BUILD_ID_FILE}") || buc_die "No build ID found"
-  test -n "${z_build_id}" || buc_die "Build ID file empty"
-
-  buc_log_args 'Get fresh token for polling'
-  local z_token=""
-  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get GCB OAuth token"
-
-  local z_status="PENDING"
-  local z_polls=0
-  local z_queued_advisory_shown=0
-  local z_consecutive_failures=0
-  local z_max_consecutive_failures=3
-  local z_err_check_file="${ZRBF_STITCH_PREFIX}poll_err_check.txt"
-
-  while true; do
-    case "${z_status}" in PENDING|QUEUED|WORKING) : ;; *) break;; esac
-    sleep 5
-
-    z_polls=$((z_polls + 1))
-    test "${z_polls}" -le "${z_max_polls}" || buc_die "${z_label}: Build timeout after ${z_max_polls} polls"
-
-    buc_log_args "Fetch build status (poll ${z_polls}/${z_max_polls})"
-    curl -s                                                \
-         --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-         --max-time "${RBCC_CURL_MAX_TIME_SEC}"             \
-         -H "Authorization: Bearer ${z_token}"             \
-         "${ZRBF_GCB_PROJECT_BUILDS_URL}/${z_build_id}"    \
-         > "${ZRBF_BUILD_STATUS_FILE}"
-    if test $? -ne 0; then
-      z_consecutive_failures=$((z_consecutive_failures + 1))
-      buc_warn "Curl failed (${z_consecutive_failures}/${z_max_consecutive_failures} consecutive)"
-      test ${z_consecutive_failures} -ge ${z_max_consecutive_failures} \
-        && buc_die "Failed to get build status after ${z_max_consecutive_failures} consecutive failures"
-      continue
-    fi
-
-    # Validate response is non-empty
-    if ! test -s "${ZRBF_BUILD_STATUS_FILE}"; then
-      z_consecutive_failures=$((z_consecutive_failures + 1))
-      buc_warn "Empty response (${z_consecutive_failures}/${z_max_consecutive_failures} consecutive)"
-      test ${z_consecutive_failures} -ge ${z_max_consecutive_failures} \
-        && buc_die "Empty build status after ${z_max_consecutive_failures} consecutive failures"
-      continue
-    fi
-
-    # Check for HTTP error responses (401/403/etc) — write to temp file, no subshell
-    jq -r '.error.code // empty' "${ZRBF_BUILD_STATUS_FILE}" > "${z_err_check_file}" 2>/dev/null
-    if test -s "${z_err_check_file}"; then
-      z_consecutive_failures=$((z_consecutive_failures + 1))
-      buc_warn "HTTP error $(<"${z_err_check_file}") (${z_consecutive_failures}/${z_max_consecutive_failures} consecutive)"
-      test ${z_consecutive_failures} -ge ${z_max_consecutive_failures} \
-        && buc_die "HTTP errors after ${z_max_consecutive_failures} consecutive failures"
-      continue
-    fi
-
-    # Successful response — reset failure counter
-    z_consecutive_failures=0
-
-    jq -r '.status' "${ZRBF_BUILD_STATUS_FILE}" > "${ZRBF_STATUS_CHECK_FILE}" || buc_die "Failed to extract status"
-    z_status=$(<"${ZRBF_STATUS_CHECK_FILE}")
-    test -n "${z_status}" || buc_die "Status is empty"
-
-    buc_info "${z_label}: ${z_status} (poll ${z_polls}/${z_max_polls})"
-
-    if test "${z_status}" = "QUEUED" && test "${z_polls}" -ge 20 && test "${z_queued_advisory_shown}" = "0"; then
-      z_queued_advisory_shown=1
-      buc_warn "Build queued longer than normal — another build may be holding the private pool"
-      buc_tabtarget "${RBZ_QUOTA_BUILD}"
-    fi
-  done
-
-  test "${z_status}" = "SUCCESS" || buc_die "${z_label}: Build failed with status: ${z_status}"
-
-  buc_success "${z_label}: Build completed successfully"
-}
 
 ######################################################################
 # External Functions (rbf_*)
@@ -1095,20 +876,20 @@ zrbf_inscribe_submit() {
   buc_log_args "Inscribe build JSON: ${z_build_file}"
 
   buc_step "Submitting inscribe Cloud Build"
-  rbgu_http_json "POST" "${ZRBF_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+  rbgu_http_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
     "reliquary_build_create" "${z_build_file}"
   rbgu_http_require_ok "Inscribe build submission" "reliquary_build_create"
 
   local z_build_id=""
   z_build_id=$(rbgu_json_field_capture "reliquary_build_create" '.metadata.build.id') || z_build_id=""
   test -n "${z_build_id}" || buc_die "Build ID not found in builds.create response"
-  echo "${z_build_id}" > "${ZRBF_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
+  echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
 
-  local -r z_console_url="${ZRBF_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
+  local -r z_console_url="${ZRBFC_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
   buc_info "Inscribe build submitted: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
-  zrbf_wait_build_completion 120 "Inscribe"  # ~10 minutes at 5s intervals (7 images to pull+push)
+  zrbfc_wait_build_completion 120 "Inscribe"  # ~10 minutes at 5s intervals (7 images to pull+push)
 }
 
 rbf_enshrine() {
@@ -1119,10 +900,10 @@ rbf_enshrine() {
   buc_doc_shown || return 0
 
   # Resolve vessel argument (sigil or path) and load
-  zrbf_resolve_vessel "${1:-}"
-  local -r z_vessel_dir=$(<"${ZRBF_VESSEL_RESOLVED_DIR_FILE}")
+  zrbfc_resolve_vessel "${1:-}"
+  local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
   test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
-  zrbf_load_vessel "${z_vessel_dir}"
+  zrbfc_load_vessel "${z_vessel_dir}"
   test "${RBRV_VESSEL_MODE:-}" = "conjure" \
     || buc_die "Vessel '${RBRV_SIGIL}' is not a conjure vessel (mode: ${RBRV_VESSEL_MODE:-unset})"
 
@@ -1135,7 +916,7 @@ rbf_enshrine() {
     || buc_die "Vessel '${RBRV_SIGIL}' has no RBRV_IMAGE_n_ORIGIN declarations"
 
   # Resolve tool images from reliquary (enshrine uses skopeo from reliquary)
-  zrbf_resolve_tool_images
+  zrbfc_resolve_tool_images
 
   # Authenticate as Director
   buc_step "Loading Director RBRA credentials"
@@ -1190,7 +971,7 @@ zrbf_enshrine_submit() {
 
   local -r z_step_built="${ZRBF_ENSHRINE_PREFIX}step_built.json"
   jq \
-    --arg name "${ZRBF_TOOL_SKOPEO}" \
+    --arg name "${ZRBFC_TOOL_SKOPEO}" \
     --arg id "enshrine-copy" \
     --rawfile script "${z_escaped_file}" \
     '. + [{name: $name, id: $id, script: $script}]' \
@@ -1235,20 +1016,20 @@ zrbf_enshrine_submit() {
   buc_log_args "Enshrine build JSON: ${z_build_file}"
 
   buc_step "Submitting enshrine Cloud Build"
-  rbgu_http_json "POST" "${ZRBF_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+  rbgu_http_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
     "enshrine_build_create" "${z_build_file}"
   rbgu_http_require_ok "Enshrine build submission" "enshrine_build_create"
 
   local z_build_id=""
   z_build_id=$(rbgu_json_field_capture "enshrine_build_create" '.metadata.build.id') || z_build_id=""
   test -n "${z_build_id}" || buc_die "Build ID not found in builds.create response"
-  echo "${z_build_id}" > "${ZRBF_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
+  echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
 
-  local -r z_console_url="${ZRBF_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
+  local -r z_console_url="${ZRBFC_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
   buc_info "Enshrine build submitted: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
-  zrbf_wait_build_completion 50 "Enshrine"  # ~4 minutes at 5s intervals
+  zrbfc_wait_build_completion 50 "Enshrine"  # ~4 minutes at 5s intervals
 }
 
 # Internal: Extract anchor results from completed enshrine build and write to vessel regime
@@ -1265,7 +1046,7 @@ zrbf_enshrine_extract_anchors() {
   local -r z_b64_file="${ZRBF_ENSHRINE_PREFIX}output_b64.txt"
   local -r z_output_file="${ZRBF_ENSHRINE_PREFIX}output.json"
 
-  jq -r '.results.buildStepOutputs[0] // empty' "${ZRBF_BUILD_STATUS_FILE}" \
+  jq -r '.results.buildStepOutputs[0] // empty' "${ZRBFC_BUILD_STATUS_FILE}" \
     > "${z_b64_file}" || buc_die "Failed to extract buildStepOutputs from build result"
   test -s "${z_b64_file}" || buc_die "No buildStepOutputs in build result — enshrine step did not produce output"
 
@@ -1326,12 +1107,12 @@ rbf_ordain() {
   buc_doc_shown || return 0
 
   # Resolve vessel argument (sigil or path)
-  zrbf_resolve_vessel "${1:-}"
-  local -r z_vessel_dir=$(<"${ZRBF_VESSEL_RESOLVED_DIR_FILE}")
+  zrbfc_resolve_vessel "${1:-}"
+  local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
   test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
 
   # Peek at vessel mode without sourcing (sourcing makes vars readonly,
-  # and the downstream function will source again via zrbf_load_vessel)
+  # and the downstream function will source again via zrbfc_load_vessel)
   local -r z_rbrv_file="${z_vessel_dir}/rbrv.env"
   local z_mode=""
   local z_mode_line=""
@@ -1397,7 +1178,7 @@ rbf_build() {
   fi
 
   # Load and validate vessel
-  zrbf_load_vessel "${z_vessel_dir}"
+  zrbfc_load_vessel "${z_vessel_dir}"
 
   buc_log_args "Verify vessel has conjuring configuration"
   test -n "${RBRV_CONJURE_DOCKERFILE:-}" || buc_die "Vessel '${RBRV_SIGIL}' is not configured for conjuring (no RBRV_CONJURE_DOCKERFILE)"
@@ -1410,7 +1191,7 @@ rbf_build() {
   buc_info "Building vessel image: ${RBRV_SIGIL}"
 
   # Resolve tool images from reliquary (required for step image references)
-  zrbf_resolve_tool_images
+  zrbfc_resolve_tool_images
 
   # Source Director RBRA for credentials
   buc_step "Loading Director RBRA credentials"
@@ -1428,21 +1209,21 @@ rbf_build() {
   # Registry preflight -- verify reliquary and enshrined base images exist before expensive operations
   zrbf_registry_preflight "${z_token}" "${z_vessel_dir}"
 
-  # Capture git metadata (stitch needs ZRBF_GIT_INFO_FILE)
+  # Capture git metadata (stitch needs ZRBFC_GIT_INFO_FILE)
   buc_step "Capturing git metadata"
-  zrbf_ensure_git_metadata
+  zrbfc_ensure_git_metadata
   local z_git_commit=""
-  z_git_commit=$(<"${ZRBF_GIT_COMMIT_FILE}")
+  z_git_commit=$(<"${ZRBFC_GIT_COMMIT_FILE}")
   local z_git_branch=""
-  z_git_branch=$(<"${ZRBF_GIT_BRANCH_FILE}")
+  z_git_branch=$(<"${ZRBFC_GIT_BRANCH_FILE}")
   local z_git_repo=""
-  z_git_repo=$(<"${ZRBF_GIT_REPO_FILE}")
+  z_git_repo=$(<"${ZRBFC_GIT_REPO_FILE}")
   jq -n \
     --arg commit "${z_git_commit}" \
     --arg branch "${z_git_branch}" \
     --arg repo   "${z_git_repo}" \
     '{"commit": $commit, "branch": $branch, "repo": $repo}' \
-    > "${ZRBF_GIT_INFO_FILE}" || buc_die "Failed to write git info JSON for stitch"
+    > "${ZRBFC_GIT_INFO_FILE}" || buc_die "Failed to write git info JSON for stitch"
   buc_info "Git: ${z_git_commit:0:8} on ${z_git_branch}"
 
   # Push build context to GAR as FROM SCRATCH image
@@ -1461,7 +1242,7 @@ rbf_build() {
 
   # Submit via builds.create (no source — context delivered via GAR image)
   buc_step "Submitting build via builds.create"
-  rbgu_http_json "POST" "${ZRBF_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+  rbgu_http_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
     "build_direct_create" "${z_build_file}"
   rbgu_http_require_ok "Direct build submission" "build_direct_create"
 
@@ -1469,13 +1250,13 @@ rbf_build() {
   local z_build_id=""
   z_build_id=$(rbgu_json_field_capture "build_direct_create" '.metadata.build.id') || z_build_id=""
   test -n "${z_build_id}" || buc_die "Build ID not found in builds.create response"
-  echo "${z_build_id}" > "${ZRBF_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
+  echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
 
-  local -r z_console_url="${ZRBF_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
+  local -r z_console_url="${ZRBFC_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
   buc_info "Build dispatched: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
-  zrbf_wait_build_completion 960 "Conjure"  # 80 minutes at 5s intervals
+  zrbfc_wait_build_completion 960 "Conjure"  # 80 minutes at 5s intervals
 
   # Discover consecration from build step output (strong tie — no GAR scanning)
   # Step[0] is extract-context (no output).  Step[1] is derive-tag-base which
@@ -1483,9 +1264,9 @@ rbf_build() {
   buc_step "Discovering consecration from build step output"
 
   local z_step_output=""
-  jq -r '.results.buildStepOutputs[1] // empty' "${ZRBF_BUILD_STATUS_FILE}" > "${ZRBF_SCRATCH_FILE}" \
+  jq -r '.results.buildStepOutputs[1] // empty' "${ZRBFC_BUILD_STATUS_FILE}" > "${ZRBFC_SCRATCH_FILE}" \
     || buc_die "Failed to extract buildStepOutputs[1] from build response"
-  z_step_output=$(<"${ZRBF_SCRATCH_FILE}")
+  z_step_output=$(<"${ZRBFC_SCRATCH_FILE}")
   test -n "${z_step_output}" || buc_die "Build step 1 output empty — derive-tag-base may not have written to /builder/outputs/output"
 
   local -r z_step_b64_file="${BURD_TEMP_DIR}/rbf_step_b64.txt"
@@ -1500,13 +1281,13 @@ rbf_build() {
   buc_info "Discovered consecration: ${z_found_consecration}"
 
   # Persist to output directory for test harness consumption
-  echo "${z_vessel_dir}" > "${ZRBF_OUTPUT_VESSEL_DIR}" \
+  echo "${z_vessel_dir}" > "${ZRBFC_OUTPUT_VESSEL_DIR}" \
     || buc_die "Failed to write vessel dir to output"
   echo "${z_found_consecration}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}" \
     || buc_die "Failed to write consecration to output"
 
   # Write GAR root fact file (registry prefix for composing full refs)
-  echo "${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_GAR_ROOT}" \
+  echo "${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_GAR_ROOT}" \
     || buc_die "Failed to write GAR root fact file"
 
   # Write ark stem fact file (sigil:consecration base for composing artifact refs)
@@ -1531,7 +1312,7 @@ rbf_build() {
   echo "${z_build_id}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_BUILD_ID}" \
     || buc_die "Failed to write build ID fact file"
 
-  buc_info "Output: ${ZRBF_OUTPUT_VESSEL_DIR}"
+  buc_info "Output: ${ZRBFC_OUTPUT_VESSEL_DIR}"
   buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}"
   buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_GAR_ROOT}"
   buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_STEM}"
@@ -1559,12 +1340,12 @@ rbf_kludge() {
   buc_doc_shown || return 0
 
   # Resolve vessel argument (sigil or path)
-  zrbf_resolve_vessel "${1:-}"
-  local -r z_vessel_dir=$(<"${ZRBF_VESSEL_RESOLVED_DIR_FILE}")
+  zrbfc_resolve_vessel "${1:-}"
+  local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
   test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
 
   # Load vessel configuration
-  zrbf_load_vessel "${z_vessel_dir}"
+  zrbfc_load_vessel "${z_vessel_dir}"
 
   # Validate conjure mode (bind and graft don't have local Dockerfiles)
   test "${RBRV_VESSEL_MODE}" = "conjure" \
@@ -1594,8 +1375,8 @@ rbf_kludge() {
   local -r z_consecration="k${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
 
   # Construct image refs matching compose/vouch-gate format
-  local -r z_image_ref="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${RBRV_SIGIL}:${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}"
-  local -r z_vouch_ref="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${RBRV_SIGIL}:${z_consecration}${RBGC_ARK_SUFFIX_VOUCH}"
+  local -r z_image_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBRV_SIGIL}:${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}"
+  local -r z_vouch_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBRV_SIGIL}:${z_consecration}${RBGC_ARK_SUFFIX_VOUCH}"
 
   buc_step "Kludge build: ${RBRV_SIGIL}"
   buc_info "Consecration: ${z_consecration}"
@@ -1687,7 +1468,7 @@ rbf_jettison() {
     -H "Authorization: Bearer ${z_token}"             \
     -w "%{http_code}"                                 \
     -o "${z_response_file}"                           \
-    "${ZRBF_REGISTRY_API_BASE}/${z_moniker}/manifests/${z_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${z_moniker}/manifests/${z_tag}" \
     > "${z_status_file}" || buc_die "DELETE request failed"
 
   local z_http_code
@@ -1738,10 +1519,10 @@ rbf_wrest() {
   buc_step "Logging into container registry"
 
   # Construct full image reference
-  local z_full_ref="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${z_locator}"
+  local z_full_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${z_locator}"
 
   # Docker login to GAR
-  echo "${z_token}" | docker login -u oauth2accesstoken --password-stdin "https://${ZRBF_REGISTRY_HOST}" \
+  echo "${z_token}" | docker login -u oauth2accesstoken --password-stdin "https://${ZRBFC_REGISTRY_HOST}" \
     || buc_die "Container runtime authentication failed"
 
   buc_step "Pulling image: ${z_full_ref}"
@@ -1751,9 +1532,9 @@ rbf_wrest() {
 
   # Get local image ID
   local z_image_id
-  docker inspect --format='{{.Id}}' "${z_full_ref}" > "${ZRBF_SCRATCH_FILE}" 2>/dev/null \
+  docker inspect --format='{{.Id}}' "${z_full_ref}" > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null \
     || buc_die "Failed to get image ID"
-  z_image_id=$(<"${ZRBF_SCRATCH_FILE}")
+  z_image_id=$(<"${ZRBFC_SCRATCH_FILE}")
 
   # Display results
   echo ""
@@ -1789,14 +1570,14 @@ rbf_mirror() {
   fi
 
   # Load and validate vessel
-  zrbf_load_vessel "${z_vessel_dir}"
+  zrbfc_load_vessel "${z_vessel_dir}"
   test "${RBRV_VESSEL_MODE:-}" = "bind" \
     || buc_die "Vessel '${RBRV_SIGIL}' is not a bind vessel (mode: ${RBRV_VESSEL_MODE:-unset})"
   test -n "${RBRV_BIND_IMAGE:-}" \
     || buc_die "RBRV_BIND_IMAGE not set for bind vessel '${RBRV_SIGIL}'"
 
   # Resolve tool images from reliquary (mirror uses skopeo + about steps from reliquary)
-  zrbf_resolve_tool_images
+  zrbfc_resolve_tool_images
 
   # Dirty-tree guard (same as inscribe — mirror should match a committed state)
   buc_step "Verifying clean working tree"
@@ -1830,7 +1611,7 @@ rbf_mirror() {
   buc_info "Consecration: ${z_consecration}"
 
   # Persist to output directory for chaining by rbf_ordain
-  echo "${z_vessel_dir}" > "${ZRBF_OUTPUT_VESSEL_DIR}" \
+  echo "${z_vessel_dir}" > "${ZRBFC_OUTPUT_VESSEL_DIR}" \
     || buc_die "Failed to write vessel dir to output"
   echo "${z_consecration}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}" \
     || buc_die "Failed to write consecration to output"
@@ -1892,7 +1673,7 @@ zrbf_mirror_submit() {
 
   echo "[]" > "${z_mirror_step_file}" || buc_die "Failed to initialize mirror step JSON"
   jq \
-    --arg name "${ZRBF_TOOL_SKOPEO}" \
+    --arg name "${ZRBFC_TOOL_SKOPEO}" \
     --arg id "mirror-image" \
     --rawfile script "${z_mescaped_file}" \
     '. + [{name: $name, id: $id, script: $script}]' \
@@ -1903,7 +1684,7 @@ zrbf_mirror_submit() {
 
   # Steps 1-4: About (shared with standalone about pipeline)
   local -r z_about_steps_file="${ZRBF_MIRROR_PREFIX}about_steps.json"
-  zrbf_assemble_about_steps "${z_about_steps_file}" "${ZRBF_MIRROR_PREFIX}about_"
+  zrbfc_assemble_about_steps "${z_about_steps_file}" "${ZRBF_MIRROR_PREFIX}about_"
 
   # Combine: mirror step + about steps
   local -r z_combined_steps="${ZRBF_MIRROR_PREFIX}combined_steps.json"
@@ -1911,13 +1692,13 @@ zrbf_mirror_submit() {
     > "${z_combined_steps}" || buc_die "Failed to combine mirror and about steps"
 
   # Git metadata (shared temp files, idempotent)
-  zrbf_ensure_git_metadata
+  zrbfc_ensure_git_metadata
   local z_git_commit=""
-  z_git_commit=$(<"${ZRBF_GIT_COMMIT_FILE}")
+  z_git_commit=$(<"${ZRBFC_GIT_COMMIT_FILE}")
   local z_git_branch=""
-  z_git_branch=$(<"${ZRBF_GIT_BRANCH_FILE}")
+  z_git_branch=$(<"${ZRBFC_GIT_BRANCH_FILE}")
   local z_git_repo=""
-  z_git_repo=$(<"${ZRBF_GIT_REPO_FILE}")
+  z_git_repo=$(<"${ZRBFC_GIT_REPO_FILE}")
 
   # Mode-specific substitution values for bind
   local -r z_bind_source="${RBRV_BIND_IMAGE:-}"
@@ -2003,20 +1784,20 @@ zrbf_mirror_submit() {
   buc_log_args "Mirror build JSON: ${z_mirror_build_file}"
 
   buc_step "Submitting combined mirror Cloud Build"
-  rbgu_http_json "POST" "${ZRBF_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+  rbgu_http_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
     "mirror_build_create" "${z_mirror_build_file}"
   rbgu_http_require_ok "Mirror build submission" "mirror_build_create"
 
   local z_build_id=""
   z_build_id=$(rbgu_json_field_capture "mirror_build_create" '.metadata.build.id') || z_build_id=""
   test -n "${z_build_id}" || buc_die "Build ID not found in builds.create response"
-  echo "${z_build_id}" > "${ZRBF_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
+  echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
 
-  local -r z_console_url="${ZRBF_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
+  local -r z_console_url="${ZRBFC_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
   buc_info "Mirror build submitted: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
-  zrbf_wait_build_completion 100 "Mirror"  # ~8 minutes at 5s intervals (image copy + about steps)
+  zrbfc_wait_build_completion 100 "Mirror"  # ~8 minutes at 5s intervals (image copy + about steps)
 }
 
 ######################################################################
@@ -2045,7 +1826,7 @@ rbf_graft() {
   fi
 
   # Load and validate vessel
-  zrbf_load_vessel "${z_vessel_dir}"
+  zrbfc_load_vessel "${z_vessel_dir}"
   test "${RBRV_VESSEL_MODE:-}" = "graft" \
     || buc_die "Vessel '${RBRV_SIGIL}' is not a graft vessel (mode: ${RBRV_VESSEL_MODE:-unset})"
 
@@ -2056,7 +1837,7 @@ rbf_graft() {
     || buc_die "RBRV_GRAFT_IMAGE not set for graft vessel '${RBRV_SIGIL}'"
 
   # Resolve tool images from reliquary (graft about+vouch steps use tool images)
-  zrbf_resolve_tool_images
+  zrbfc_resolve_tool_images
 
   local -r z_local_image="${RBRV_GRAFT_IMAGE}"
 
@@ -2129,7 +1910,7 @@ rbf_graft() {
   buc_info "Image pushed: ${z_image_ref}"
 
   # Persist to output directory for downstream consumption
-  echo "${z_vessel_dir}" > "${ZRBF_OUTPUT_VESSEL_DIR}" \
+  echo "${z_vessel_dir}" > "${ZRBFC_OUTPUT_VESSEL_DIR}" \
     || buc_die "Failed to write vessel dir to output"
   echo "${z_consecration}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}" \
     || buc_die "Failed to write consecration to output"
@@ -2195,10 +1976,10 @@ rbf_summon() {
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}"           \
     -H "Authorization: Bearer ${z_token}"           \
-    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"     \
+    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}"     \
     -w "%{http_code}"                               \
     -o "${z_image_response_file}"                   \
-    "${ZRBF_REGISTRY_API_BASE}/${z_vessel}/manifests/${z_image_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${z_vessel}/manifests/${z_image_tag}" \
     > "${z_image_status_file}" || buc_die "HEAD request failed for -image artifact"
 
   local z_image_http_code
@@ -2220,10 +2001,10 @@ rbf_summon() {
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}"           \
     -H "Authorization: Bearer ${z_token}"           \
-    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"     \
+    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}"     \
     -w "%{http_code}"                               \
     -o "${z_about_response_file}"                   \
-    "${ZRBF_REGISTRY_API_BASE}/${z_vessel}/manifests/${z_about_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${z_vessel}/manifests/${z_about_tag}" \
     > "${z_about_status_file}" || buc_die "HEAD request failed for -about artifact"
 
   local z_about_http_code
@@ -2245,10 +2026,10 @@ rbf_summon() {
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}"           \
     -H "Authorization: Bearer ${z_token}"           \
-    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"     \
+    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}"     \
     -w "%{http_code}"                               \
     -o "${z_vouch_response_file}"                   \
-    "${ZRBF_REGISTRY_API_BASE}/${z_vessel}/manifests/${z_vouch_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${z_vessel}/manifests/${z_vouch_tag}" \
     > "${z_vouch_status_file}" || buc_die "HEAD request failed for -vouch artifact"
 
   local z_vouch_http_code
@@ -2276,14 +2057,14 @@ rbf_summon() {
   buc_step "Logging into container registry"
 
   # Docker login to GAR
-  echo "${z_token}" | docker login -u oauth2accesstoken --password-stdin "https://${ZRBF_REGISTRY_HOST}" \
+  echo "${z_token}" | docker login -u oauth2accesstoken --password-stdin "https://${ZRBFC_REGISTRY_HOST}" \
     || buc_die "Container runtime authentication failed"
 
   # Pull -image artifact if exists
   if test "${z_image_exists}" = "true"; then
     buc_step "Pulling -image artifact"
 
-    local z_image_ref="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${z_vessel}:${z_image_tag}"
+    local z_image_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${z_vessel}:${z_image_tag}"
     docker pull "${z_image_ref}" || buc_die "Failed to pull -image artifact"
     buc_info "Retrieved: ${z_image_ref}"
   fi
@@ -2292,7 +2073,7 @@ rbf_summon() {
   if test "${z_about_exists}" = "true"; then
     buc_step "Pulling -about artifact"
 
-    local z_about_ref="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${z_vessel}:${z_about_tag}"
+    local z_about_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${z_vessel}:${z_about_tag}"
     docker pull "${z_about_ref}" || buc_die "Failed to pull -about artifact"
     buc_info "Retrieved: ${z_about_ref}"
   fi
@@ -2301,7 +2082,7 @@ rbf_summon() {
   if test "${z_vouch_exists}" = "true"; then
     buc_step "Pulling -vouch artifact"
 
-    local z_vouch_ref="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${z_vessel}:${z_vouch_tag}"
+    local z_vouch_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${z_vessel}:${z_vouch_tag}"
     docker pull "${z_vouch_ref}" || buc_die "Failed to pull -vouch artifact"
     buc_info "Retrieved: ${z_vouch_ref}"
   fi
@@ -2334,10 +2115,10 @@ rbf_abjure() {
   buc_doc_shown || return 0
 
   # Resolve vessel argument (sigil or path) and load
-  zrbf_resolve_vessel "${1:-}"
-  local -r z_vessel_dir=$(<"${ZRBF_VESSEL_RESOLVED_DIR_FILE}")
+  zrbfc_resolve_vessel "${1:-}"
+  local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
   test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
-  zrbf_load_vessel "${z_vessel_dir}"
+  zrbfc_load_vessel "${z_vessel_dir}"
 
   # Validate remaining parameters
   test -n "${z_consecration}" || buc_die "Consecration parameter required"
@@ -2408,10 +2189,10 @@ rbf_abjure() {
       --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
       --max-time "${RBCC_CURL_MAX_TIME_SEC}"           \
       -H "Authorization: Bearer ${z_token}"           \
-      -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"     \
+      -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}"     \
       -w "%{http_code}"                               \
       -o "${z_img_response_file}"                     \
-      "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_img_tag}" \
+      "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_img_tag}" \
       > "${z_img_status_file}" || buc_die "HEAD request failed for image tag: ${z_img_tag}"
 
     local z_img_http_code
@@ -2434,10 +2215,10 @@ rbf_abjure() {
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}"           \
     -H "Authorization: Bearer ${z_token}"           \
-    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"     \
+    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}"     \
     -w "%{http_code}"                               \
     -o "${z_about_response_file}"                   \
-    "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_about_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_about_tag}" \
     > "${z_about_status_file}" || buc_die "HEAD request failed for -about artifact"
 
   local z_about_http_code
@@ -2459,10 +2240,10 @@ rbf_abjure() {
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}"           \
     -H "Authorization: Bearer ${z_token}"           \
-    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"     \
+    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}"     \
     -w "%{http_code}"                               \
     -o "${z_vouch_response_file}"                   \
-    "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_vouch_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_vouch_tag}" \
     > "${z_vouch_status_file}" || buc_die "HEAD request failed for -vouch artifact"
 
   local z_vouch_http_code
@@ -2484,10 +2265,10 @@ rbf_abjure() {
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}"           \
     -H "Authorization: Bearer ${z_token}"           \
-    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}"     \
+    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}"     \
     -w "%{http_code}"                               \
     -o "${z_diags_response_file}"                   \
-    "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_diags_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_diags_tag}" \
     > "${z_diags_status_file}" || buc_die "HEAD request failed for -diags artifact"
 
   local z_diags_http_code
@@ -2547,7 +2328,7 @@ rbf_abjure() {
         -H "Authorization: Bearer ${z_token}"             \
         -w "%{http_code}"                                 \
         -o "${z_delete_img_response}"                     \
-        "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_img_tag}" \
+        "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_img_tag}" \
         > "${z_delete_img_status}" || buc_die "DELETE request failed for image tag: ${z_img_tag}"
 
       local z_delete_img_code
@@ -2579,7 +2360,7 @@ rbf_abjure() {
       -H "Authorization: Bearer ${z_token}"             \
       -w "%{http_code}"                                 \
       -o "${z_delete_about_response}"                   \
-      "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_about_tag}" \
+      "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_about_tag}" \
       > "${z_delete_about_status}" || buc_die "DELETE request failed for -about"
 
     local z_delete_about_code
@@ -2609,7 +2390,7 @@ rbf_abjure() {
       -H "Authorization: Bearer ${z_token}"             \
       -w "%{http_code}"                                 \
       -o "${z_delete_vouch_response}"                   \
-      "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_vouch_tag}" \
+      "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_vouch_tag}" \
       > "${z_delete_vouch_status}" || buc_die "DELETE request failed for -vouch"
 
     local z_delete_vouch_code
@@ -2639,7 +2420,7 @@ rbf_abjure() {
       -H "Authorization: Bearer ${z_token}"             \
       -w "%{http_code}"                                 \
       -o "${z_delete_diags_response}"                   \
-      "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_diags_tag}" \
+      "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_diags_tag}" \
       > "${z_delete_diags_status}" || buc_die "DELETE request failed for -diags"
 
     local z_delete_diags_code
@@ -2706,9 +2487,9 @@ rbf_vouch_gate() {
     -o /dev/null \
     -w "%{http_code}" \
     "${z_registry_api_base}/${z_vessel}/manifests/${z_vouch_tag}" \
-    > "${ZRBF_SCRATCH_FILE}" \
+    > "${ZRBFC_SCRATCH_FILE}" \
     || buc_die "rbf_vouch_gate: HEAD request failed for ${z_vessel}:${z_vouch_tag}"
-  z_vouch_http_code=$(<"${ZRBF_SCRATCH_FILE}")
+  z_vouch_http_code=$(<"${ZRBFC_SCRATCH_FILE}")
 
   if test "${z_vouch_http_code}" != "200"; then
     buc_die "Consecration not vouched: ${z_vessel}:${z_consecration} (HTTP ${z_vouch_http_code} — refusing to use unvouched image)"
@@ -2733,10 +2514,10 @@ rbf_about() {
   buc_doc_shown || return 0
 
   # Resolve vessel argument (sigil or path) and load
-  zrbf_resolve_vessel "${1:-}"
-  local -r z_vessel_dir=$(<"${ZRBF_VESSEL_RESOLVED_DIR_FILE}")
+  zrbfc_resolve_vessel "${1:-}"
+  local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
   test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
-  zrbf_load_vessel "${z_vessel_dir}"
+  zrbfc_load_vessel "${z_vessel_dir}"
   test -n "${z_consecration}" || buc_die "Consecration parameter required"
 
   buc_step "Loading Director RBRA credentials"
@@ -2758,10 +2539,10 @@ rbf_about() {
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
     -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}" \
+    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
     -w "%{http_code}" \
     -o "${z_image_gate_response}" \
-    "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_image_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_image_tag}" \
     > "${z_image_gate_status}" 2>"${z_image_gate_stderr}" \
     || buc_die "HEAD request failed for -image artifact — see ${z_image_gate_stderr}"
 
@@ -2782,10 +2563,10 @@ rbf_about() {
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
     -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}" \
+    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
     -w "%{http_code}" \
     -o "${z_about_gate_response}" \
-    "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_about_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_about_tag}" \
     > "${z_about_gate_status}" 2>"${z_about_gate_stderr}" \
     || buc_die "HEAD request failed for -about artifact — see ${z_about_gate_stderr}"
 
@@ -2802,186 +2583,6 @@ rbf_about() {
   buc_info "About artifact: ${RBRV_SIGIL}:${z_about_tag}"
 }
 
-# Internal: capture git metadata to module temp files (idempotent)
-# No args — reads from git, writes to ZRBF_GIT_*_FILE kindle constants
-zrbf_ensure_git_metadata() {
-  zrbf_sentinel
-
-  # Idempotent — skip if already captured
-  test ! -s "${ZRBF_GIT_COMMIT_FILE}" || return 0
-
-  buc_log_args "Capturing git metadata to temp files"
-
-  local -r z_remote_file="${ZRBF_GIT_PREFIX}remote.txt"
-  local -r z_url_file="${ZRBF_GIT_PREFIX}url.txt"
-
-  git rev-parse HEAD > "${ZRBF_GIT_COMMIT_FILE}" \
-    || buc_die "Failed to get git commit"
-  test -s "${ZRBF_GIT_COMMIT_FILE}" || buc_die "Empty git commit file"
-
-  git rev-parse --abbrev-ref HEAD > "${ZRBF_GIT_BRANCH_FILE}" \
-    || buc_die "Failed to get git branch"
-  test -s "${ZRBF_GIT_BRANCH_FILE}" || buc_die "Empty git branch file"
-
-  git remote > "${z_remote_file}" \
-    || buc_die "Failed to list git remotes"
-  local z_remote=""
-  read -r z_remote < "${z_remote_file}" \
-    || buc_die "Failed to read git remote from ${z_remote_file}"
-  test -n "${z_remote}" || buc_die "No git remotes found"
-
-  git config --get "remote.${z_remote}.url" > "${z_url_file}" \
-    || buc_die "Failed to get git repo URL"
-
-  local z_url=""
-  z_url=$(<"${z_url_file}")
-  test -n "${z_url}" || buc_die "Empty git repo URL from ${z_url_file}"
-  local z_repo="${z_url#*://*/}"
-  z_repo="${z_repo%.git}"
-  echo "${z_repo}" > "${ZRBF_GIT_REPO_FILE}" \
-    || buc_die "Failed to write derived git repo"
-}
-
-# Internal: assemble about step scripts into JSON array file
-# Args: output_file temp_prefix
-# Reads ZRBF_RBGJA_STEPS_DIR and ZRBF_TOOL_* image refs from module state
-zrbf_assemble_about_steps() {
-  zrbf_sentinel
-
-  local -r z_output_file="$1"
-  local -r z_temp_prefix="$2"
-
-  # Step definitions: script|builder|entrypoint|id
-  # Delimiter is | because image refs contain colons (sha256 digests)
-  local -r z_about_step_defs=(
-    "rbgja01-discover-platforms.py|${ZRBF_TOOL_GCLOUD}|python3|discover-platforms"
-    "rbgja02-syft-per-platform.sh|${ZRBF_TOOL_DOCKER}|bash|syft-per-platform"
-    "rbgja03-build-info-per-platform.py|${ZRBF_TOOL_GCLOUD}|python3|build-info-per-platform"
-    "rbgja04-assemble-push-about.sh|${ZRBF_TOOL_DOCKER}|bash|assemble-push-about"
-  )
-
-  echo "[]" > "${z_output_file}" || buc_die "Failed to initialize about steps JSON"
-
-  local z_adef=""
-  local z_ascript=""
-  local z_abuilder=""
-  local z_aentrypoint=""
-  local z_aid=""
-  local z_ascript_path=""
-  local z_abody_file=""
-  local z_aescaped_file=""
-  local z_asteps_file=""
-  local z_abody=""
-  local z_ashebang=""
-
-  for z_adef in "${z_about_step_defs[@]}"; do
-    IFS='|' read -r z_ascript z_abuilder z_aentrypoint z_aid <<< "${z_adef}"
-    z_ascript_path="${ZRBF_RBGJA_STEPS_DIR}/${z_ascript}"
-    z_abody_file="${z_temp_prefix}${z_aid}_body.txt"
-    z_aescaped_file="${z_temp_prefix}${z_aid}_escaped.txt"
-    z_asteps_file="${z_temp_prefix}${z_aid}_steps.json"
-
-    test -f "${z_ascript_path}" || buc_die "About step script not found: ${z_ascript_path}"
-
-    buc_log_args "Reading script body for ${z_aid} (skip shebang)"
-    tail -n +2 "${z_ascript_path}" > "${z_abody_file}" \
-      || buc_die "Failed to read about step script: ${z_ascript_path}"
-    z_abody=$(<"${z_abody_file}")
-    test -n "${z_abody}" || buc_die "Empty about script body: ${z_ascript_path}"
-
-    buc_log_args "Baking pinned image refs into script text"
-    z_abody="${z_abody//\$\{ZRBF_TOOL_SYFT\}/${ZRBF_TOOL_SYFT}}"
-
-    case "${z_aentrypoint}" in
-      bash)    z_ashebang="#!/bin/bash" ;;
-      sh)      z_ashebang="#!/bin/sh" ;;
-      python3) z_ashebang="#!/usr/bin/env python3" ;;
-      *)       buc_die "Unknown entrypoint: ${z_aentrypoint}" ;;
-    esac
-    printf '%s\n%s' "${z_ashebang}" "${z_abody}" > "${z_aescaped_file}" \
-      || buc_die "Failed to write about script body for ${z_aid}"
-
-    buc_log_args "Appending about step ${z_aid} to JSON array"
-    jq \
-      --arg name "${z_abuilder}" \
-      --arg id "${z_aid}" \
-      --rawfile script "${z_aescaped_file}" \
-      '. + [{name: $name, id: $id, script: $script}]' \
-      "${z_output_file}" > "${z_asteps_file}" \
-      || buc_die "Failed to append about step ${z_aid} to JSON"
-    mv "${z_asteps_file}" "${z_output_file}" \
-      || buc_die "Failed to update about steps JSON for ${z_aid}"
-  done
-}
-
-# Internal: assemble vouch step scripts into JSON array file
-# Args: output_file temp_prefix
-# Reads ZRBF_RBGJV_STEPS_DIR and ZRBF_TOOL_* image refs from module state
-zrbf_assemble_vouch_steps() {
-  zrbf_sentinel
-
-  local -r z_output_file="$1"
-  local -r z_temp_prefix="$2"
-
-  # Step definitions: script|builder|entrypoint|id
-  # Delimiter is | because image refs contain colons (sha256 digests)
-  local -r z_vouch_step_defs=(
-    "rbgjv01-download-verifier.sh|${ZRBF_TOOL_ALPINE}|sh|prepare-keys"
-    "rbgjv02-verify-provenance.py|${ZRBF_TOOL_GCLOUD}|python3|verify-provenance"
-    "rbgjv03-assemble-push-vouch.sh|${ZRBF_TOOL_DOCKER}|bash|assemble-push-vouch"
-  )
-
-  echo "[]" > "${z_output_file}" || buc_die "Failed to initialize vouch steps JSON"
-
-  local z_vdef=""
-  local z_vscript=""
-  local z_vbuilder=""
-  local z_ventrypoint=""
-  local z_vid=""
-  local z_vscript_path=""
-  local z_vbody_file=""
-  local z_vescaped_file=""
-  local z_vsteps_file=""
-  local z_vbody=""
-  local z_vshebang=""
-
-  for z_vdef in "${z_vouch_step_defs[@]}"; do
-    IFS='|' read -r z_vscript z_vbuilder z_ventrypoint z_vid <<< "${z_vdef}"
-    z_vscript_path="${ZRBF_RBGJV_STEPS_DIR}/${z_vscript}"
-    z_vbody_file="${z_temp_prefix}${z_vid}_body.txt"
-    z_vescaped_file="${z_temp_prefix}${z_vid}_escaped.txt"
-    z_vsteps_file="${z_temp_prefix}${z_vid}_steps.json"
-
-    test -f "${z_vscript_path}" || buc_die "Vouch step script not found: ${z_vscript_path}"
-
-    buc_log_args "Reading script body for ${z_vid} (skip shebang)"
-    tail -n +2 "${z_vscript_path}" > "${z_vbody_file}" \
-      || buc_die "Failed to read vouch step script: ${z_vscript_path}"
-    z_vbody=$(<"${z_vbody_file}")
-    test -n "${z_vbody}" || buc_die "Empty vouch script body: ${z_vscript_path}"
-
-    case "${z_ventrypoint}" in
-      bash)    z_vshebang="#!/bin/bash" ;;
-      sh)      z_vshebang="#!/bin/sh" ;;
-      python3) z_vshebang="#!/usr/bin/env python3" ;;
-      *)       buc_die "Unknown entrypoint: ${z_ventrypoint}" ;;
-    esac
-    printf '%s\n%s' "${z_vshebang}" "${z_vbody}" > "${z_vescaped_file}" \
-      || buc_die "Failed to write vouch script body for ${z_vid}"
-
-    buc_log_args "Appending vouch step ${z_vid} to JSON array"
-    jq \
-      --arg name "${z_vbuilder}" \
-      --arg id "${z_vid}" \
-      --rawfile script "${z_vescaped_file}" \
-      '. + [{name: $name, id: $id, script: $script}]' \
-      "${z_output_file}" > "${z_vsteps_file}" \
-      || buc_die "Failed to append vouch step ${z_vid} to JSON"
-    mv "${z_vsteps_file}" "${z_output_file}" \
-      || buc_die "Failed to update vouch steps JSON for ${z_vid}"
-  done
-}
-
 # Internal: submit combined about+vouch Cloud Build job for graft mode.
 # Eliminates the orphan gap between standalone about and vouch by running
 # both step sets in a single GCB submission.
@@ -2993,7 +2594,7 @@ zrbf_graft_metadata_submit() {
   local -r z_consecration="$2"
 
   # Load vessel (follows reload pattern used by rbf_about/rbf_vouch)
-  zrbf_load_vessel "${z_vessel_dir}"
+  zrbfc_load_vessel "${z_vessel_dir}"
   test -n "${z_consecration}" || buc_die "Consecration parameter required"
 
   buc_step "Loading Director RBRA credentials"
@@ -3020,10 +2621,10 @@ zrbf_graft_metadata_submit() {
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
     -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}" \
+    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
     -w "%{http_code}" \
     -o "${z_image_gate_response}" \
-    "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_image_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_image_tag}" \
     > "${z_image_gate_status}" 2>"${z_image_gate_stderr}" \
     || buc_die "HEAD request failed for -image artifact — see ${z_image_gate_stderr}"
 
@@ -3035,13 +2636,13 @@ zrbf_graft_metadata_submit() {
   buc_info "Image artifact confirmed: ${z_image_tag}"
 
   # Git metadata (shared temp files, idempotent)
-  zrbf_ensure_git_metadata
+  zrbfc_ensure_git_metadata
   local z_git_commit=""
-  z_git_commit=$(<"${ZRBF_GIT_COMMIT_FILE}")
+  z_git_commit=$(<"${ZRBFC_GIT_COMMIT_FILE}")
   local z_git_branch=""
-  z_git_branch=$(<"${ZRBF_GIT_BRANCH_FILE}")
+  z_git_branch=$(<"${ZRBFC_GIT_BRANCH_FILE}")
   local z_git_repo=""
-  z_git_repo=$(<"${ZRBF_GIT_REPO_FILE}")
+  z_git_repo=$(<"${ZRBFC_GIT_REPO_FILE}")
 
   # Graft-specific about substitution values
   local -r z_graft_source="${RBRV_GRAFT_IMAGE:-}"
@@ -3063,7 +2664,7 @@ zrbf_graft_metadata_submit() {
 
   # === Assemble about steps ===
   local -r z_about_steps_file="${ZRBF_GRAFT_PREFIX}meta_about_steps.json"
-  zrbf_assemble_about_steps "${z_about_steps_file}" "${ZRBF_GRAFT_PREFIX}meta_about_"
+  zrbfc_assemble_about_steps "${z_about_steps_file}" "${ZRBF_GRAFT_PREFIX}meta_about_"
 
   # === Resolve base image provenance (for vouch summary) ===
   local -r z_vi_gar_prefix="${z_gar_host}/${z_gar_path}/${RBRV_SIGIL}"
@@ -3093,7 +2694,7 @@ zrbf_graft_metadata_submit() {
 
   # === Assemble vouch steps ===
   local -r z_vouch_steps_file="${ZRBF_GRAFT_PREFIX}meta_vouch_steps.json"
-  zrbf_assemble_vouch_steps "${z_vouch_steps_file}" "${ZRBF_GRAFT_PREFIX}meta_vouch_"
+  zrbfc_assemble_vouch_steps "${z_vouch_steps_file}" "${ZRBF_GRAFT_PREFIX}meta_vouch_"
 
   # === Combine: about steps + vouch steps ===
   local -r z_combined_steps="${ZRBF_GRAFT_PREFIX}meta_combined_steps.json"
@@ -3176,20 +2777,20 @@ zrbf_graft_metadata_submit() {
   buc_log_args "Combined about+vouch build JSON: ${z_build_file}"
 
   buc_step "Submitting combined about+vouch Cloud Build"
-  rbgu_http_json "POST" "${ZRBF_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+  rbgu_http_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
     "graft_meta_build_create" "${z_build_file}"
   rbgu_http_require_ok "Combined about+vouch build submission" "graft_meta_build_create"
 
   local z_build_id=""
   z_build_id=$(rbgu_json_field_capture "graft_meta_build_create" '.metadata.build.id') || z_build_id=""
   test -n "${z_build_id}" || buc_die "Build ID not found in builds.create response"
-  echo "${z_build_id}" > "${ZRBF_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
+  echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
 
-  local -r z_console_url="${ZRBF_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
+  local -r z_console_url="${ZRBFC_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
   buc_info "Combined about+vouch build submitted: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
-  zrbf_wait_build_completion 100 "About+Vouch"  # ~8 minutes at 5s intervals
+  zrbfc_wait_build_completion 100 "About+Vouch"  # ~8 minutes at 5s intervals
 
   buc_success "About+Vouch complete: ${RBRV_SIGIL}/${z_consecration}"
   local -r z_about_tag="${z_consecration}${RBGC_ARK_SUFFIX_ABOUT}"
@@ -3276,17 +2877,17 @@ zrbf_about_submit() {
   esac
 
   # Git metadata (shared temp files, idempotent)
-  zrbf_ensure_git_metadata
+  zrbfc_ensure_git_metadata
   local z_git_commit=""
-  z_git_commit=$(<"${ZRBF_GIT_COMMIT_FILE}")
+  z_git_commit=$(<"${ZRBFC_GIT_COMMIT_FILE}")
   local z_git_branch=""
-  z_git_branch=$(<"${ZRBF_GIT_BRANCH_FILE}")
+  z_git_branch=$(<"${ZRBFC_GIT_BRANCH_FILE}")
   local z_git_repo=""
-  z_git_repo=$(<"${ZRBF_GIT_REPO_FILE}")
+  z_git_repo=$(<"${ZRBFC_GIT_REPO_FILE}")
 
   # Assemble about steps via shared helper
   local -r z_about_steps_accumulator="${ZRBF_ABOUT_PREFIX}steps.json"
-  zrbf_assemble_about_steps "${z_about_steps_accumulator}" "${ZRBF_ABOUT_PREFIX}"
+  zrbfc_assemble_about_steps "${z_about_steps_accumulator}" "${ZRBF_ABOUT_PREFIX}"
 
   buc_log_args "Composing about Build resource JSON"
   local -r z_about_build_file="${ZRBF_ABOUT_PREFIX}build.json"
@@ -3345,20 +2946,20 @@ zrbf_about_submit() {
   buc_log_args "About build JSON: ${z_about_build_file}"
 
   buc_step "Submitting about Cloud Build"
-  rbgu_http_json "POST" "${ZRBF_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+  rbgu_http_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
     "about_build_create" "${z_about_build_file}"
   rbgu_http_require_ok "About build submission" "about_build_create"
 
   local z_build_id=""
   z_build_id=$(rbgu_json_field_capture "about_build_create" '.metadata.build.id') || z_build_id=""
   test -n "${z_build_id}" || buc_die "Build ID not found in builds.create response"
-  echo "${z_build_id}" > "${ZRBF_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
+  echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
 
-  local -r z_console_url="${ZRBF_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
+  local -r z_console_url="${ZRBFC_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
   buc_info "About build submitted: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
-  zrbf_wait_build_completion 50 "About"  # ~4 minutes at 5s intervals (private pool)
+  zrbfc_wait_build_completion 50 "About"  # ~4 minutes at 5s intervals (private pool)
 }
 
 ######################################################################
@@ -3386,11 +2987,11 @@ rbf_vouch() {
     buc_die "Vessel directory required"
   fi
 
-  zrbf_load_vessel "${z_vessel_dir}"
+  zrbfc_load_vessel "${z_vessel_dir}"
   test -n "${z_consecration}" || buc_die "Consecration parameter required"
 
   # Resolve tool images from reliquary (vouch steps use tool images)
-  zrbf_resolve_tool_images
+  zrbfc_resolve_tool_images
 
   buc_step "Loading Director RBRA credentials"
   source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
@@ -3411,10 +3012,10 @@ rbf_vouch() {
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
     -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}" \
+    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
     -w "%{http_code}" \
     -o "${z_about_gate_response}" \
-    "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_about_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_about_tag}" \
     > "${z_about_gate_status}" 2>"${z_about_gate_stderr}" \
     || buc_die "HEAD request failed for -about artifact — see ${z_about_gate_stderr}"
 
@@ -3435,10 +3036,10 @@ rbf_vouch() {
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
     -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: ${ZRBF_ACCEPT_MANIFEST_MTYPES}" \
+    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
     -w "%{http_code}" \
     -o "${z_vouch_gate_response}" \
-    "${ZRBF_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_vouch_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_vouch_tag}" \
     > "${z_vouch_gate_status}" 2>"${z_vouch_gate_stderr}" \
     || buc_die "HEAD request failed for -vouch artifact — see ${z_vouch_gate_stderr}"
 
@@ -3511,7 +3112,7 @@ zrbf_vouch_submit() {
 
   # Assemble vouch steps via shared helper
   local -r z_vouch_steps_accumulator="${ZRBF_VOUCH_PREFIX}steps.json"
-  zrbf_assemble_vouch_steps "${z_vouch_steps_accumulator}" "${ZRBF_VOUCH_PREFIX}"
+  zrbfc_assemble_vouch_steps "${z_vouch_steps_accumulator}" "${ZRBF_VOUCH_PREFIX}"
 
   buc_log_args "Composing vouch Build resource JSON"
   local -r z_vouch_build_file="${ZRBF_VOUCH_PREFIX}build.json"
@@ -3568,20 +3169,20 @@ zrbf_vouch_submit() {
   buc_log_args "Vouch build JSON: ${z_vouch_build_file}"
 
   buc_step "Submitting vouch Cloud Build"
-  rbgu_http_json "POST" "${ZRBF_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+  rbgu_http_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
     "vouch_build_create" "${z_vouch_build_file}"
   rbgu_http_require_ok "Vouch build submission" "vouch_build_create"
 
   local z_build_id=""
   z_build_id=$(rbgu_json_field_capture "vouch_build_create" '.metadata.build.id') || z_build_id=""
   test -n "${z_build_id}" || buc_die "Build ID not found in builds.create response"
-  echo "${z_build_id}" > "${ZRBF_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
+  echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
 
-  local -r z_console_url="${ZRBF_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
+  local -r z_console_url="${ZRBFC_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
   buc_info "Vouch build submitted: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
-  zrbf_wait_build_completion 50 "Vouch"  # ~4 minutes at 5s intervals (private pool is slower)
+  zrbfc_wait_build_completion 50 "Vouch"  # ~4 minutes at 5s intervals (private pool is slower)
 }
 
 ######################################################################
@@ -3614,15 +3215,15 @@ rbf_tally() {
       --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
       --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
       -H "Authorization: Bearer ${z_token}" \
-      "${ZRBF_REGISTRY_API_BASE}/${z_sigil}/tags/list" \
+      "${ZRBFC_REGISTRY_API_BASE}/${z_sigil}/tags/list" \
       > "${z_tags_file}" 2>"${z_stderr_file}" \
       || buc_die "Failed to fetch tags for ${z_sigil} — see ${z_stderr_file}"
 
     if jq -e '.errors' "${z_tags_file}" >/dev/null 2>&1; then
       local z_err
-      jq -r '.errors[0].message // "Unknown error"' "${z_tags_file}" > "${ZRBF_SCRATCH_FILE}" \
+      jq -r '.errors[0].message // "Unknown error"' "${z_tags_file}" > "${ZRBFC_SCRATCH_FILE}" \
         || buc_die "Failed to extract error message from registry response for ${z_sigil}"
-      z_err=$(<"${ZRBF_SCRATCH_FILE}")
+      z_err=$(<"${ZRBFC_SCRATCH_FILE}")
       buc_die "Registry API error for ${z_sigil}: ${z_err}"
     fi
 
@@ -3773,15 +3374,15 @@ rbf_batch_vouch() {
       --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
       --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
       -H "Authorization: Bearer ${z_token}" \
-      "${ZRBF_REGISTRY_API_BASE}/${z_sigil}/tags/list" \
+      "${ZRBFC_REGISTRY_API_BASE}/${z_sigil}/tags/list" \
       > "${z_tags_file}" 2>"${z_stderr_file}" \
       || buc_die "Failed to fetch tags for ${z_sigil} — see ${z_stderr_file}"
 
     if jq -e '.errors' "${z_tags_file}" >/dev/null 2>&1; then
       local z_err
-      jq -r '.errors[0].message // "Unknown error"' "${z_tags_file}" > "${ZRBF_SCRATCH_FILE}" \
+      jq -r '.errors[0].message // "Unknown error"' "${z_tags_file}" > "${ZRBFC_SCRATCH_FILE}" \
         || buc_die "Failed to extract error message from registry response for ${z_sigil}"
-      z_err=$(<"${ZRBF_SCRATCH_FILE}")
+      z_err=$(<"${ZRBFC_SCRATCH_FILE}")
       buc_die "Registry API error for ${z_sigil}: ${z_err}"
     fi
 
@@ -3879,643 +3480,7 @@ rbf_batch_vouch() {
 }
 
 ######################################################################
-# Plumb (rbw-RpF / rbw-Rpc)
+# Plumb — delegated to rbfc_FoundryCore.sh
 
-# Internal: core plumb logic shared by full and compact modes
-# Args: vessel consecration mode
-zrbf_plumb_core() {
-  local z_vessel="${1:-}"
-  z_vessel="${z_vessel##*/}"  # accept directory path or bare moniker
-  local -r z_consecration="${2:-}"
-  local -r z_mode="${3}"
-
-  test -n "${z_vessel}"       || buc_die "Vessel parameter required"
-  test -n "${z_consecration}" || buc_die "Consecration parameter required"
-
-  # Load vessel config (sets RBRV_VESSEL_MODE, RBRV_BIND_IMAGE, etc.)
-  local -r z_vessel_dir="${RBRR_VESSEL_DIR}/${z_vessel}"
-  zrbf_load_vessel "${z_vessel_dir}"
-
-  # Construct local image references (as tagged by docker pull / summon)
-  local -r z_about_tag="${z_consecration}${RBGC_ARK_SUFFIX_ABOUT}"
-  local -r z_vouch_tag="${z_consecration}${RBGC_ARK_SUFFIX_VOUCH}"
-  local -r z_about_ref="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${z_vessel}:${z_about_tag}"
-  local -r z_vouch_ref="${ZRBF_REGISTRY_HOST}/${ZRBF_REGISTRY_PATH}/${z_vessel}:${z_vouch_tag}"
-
-  # Check local availability of artifacts
-  local z_has_about=false z_has_vouch=false
-  docker image inspect "${z_about_ref}" >/dev/null 2>&1 && z_has_about=true
-  docker image inspect "${z_vouch_ref}" >/dev/null 2>&1 && z_has_vouch=true
-
-  # Bind vessels: use -about if available, fallback to static display
-  if test "${RBRV_VESSEL_MODE}" = "bind"; then
-    if test "${z_has_about}" = "false"; then
-      zrbf_plumb_show_bind "${z_vessel}" "${z_consecration}" "${z_mode}"
-      return 0
-    fi
-    # Bind vessel with -about: fall through to shared extract+display path
-  fi
-
-  # Require -about locally present (summon must have been run)
-  if test "${z_has_about}" = "false"; then
-    buc_die "About artifact not locally present — run summon first"
-  fi
-
-  # Extract -about contents into temp directory
-  buc_step "Extracting -about artifact"
-  local -r z_extract="${BURD_TEMP_DIR}/plumb"
-  mkdir -p "${z_extract}" || buc_die "Failed to create extraction directory: ${z_extract}"
-  local z_cid=""
-  docker create "${z_about_ref}" x > "${ZRBF_SCRATCH_FILE}" 2>/dev/null \
-    || buc_die "Failed to create container from -about artifact"
-  z_cid=$(<"${ZRBF_SCRATCH_FILE}")
-  docker cp "${z_cid}:/build_info.json"          "${z_extract}/" 2>/dev/null || true
-  docker cp "${z_cid}:/sbom.json"                "${z_extract}/" 2>/dev/null || true
-  docker cp "${z_cid}:/recipe.txt"               "${z_extract}/" 2>/dev/null || true
-  docker cp "${z_cid}:/buildkit_metadata.json"   "${z_extract}/" 2>/dev/null || true
-  docker cp "${z_cid}:/cache_before.json"        "${z_extract}/" 2>/dev/null || true
-  docker cp "${z_cid}:/cache_after.json"         "${z_extract}/" 2>/dev/null || true
-  docker rm "${z_cid}" >/dev/null 2>&1
-
-  # Extract -vouch contents if locally present
-  if test "${z_has_vouch}" = "true"; then
-    buc_step "Extracting -vouch artifact"
-    docker create "${z_vouch_ref}" x > "${ZRBF_SCRATCH_FILE}" 2>/dev/null \
-      || buc_die "Failed to create container from -vouch artifact"
-    z_cid=$(<"${ZRBF_SCRATCH_FILE}")
-    docker cp "${z_cid}:/vouch_summary.json" "${z_extract}/" 2>/dev/null || true
-    docker rm "${z_cid}" >/dev/null 2>&1
-  fi
-
-  # Display results
-  if test "${z_mode}" = "compact"; then
-    zrbf_plumb_show_compact "${z_vessel}" "${z_consecration}" "${z_extract}" "${z_has_vouch}"
-  else
-    zrbf_plumb_show_full "${z_vessel}" "${z_consecration}" "${z_extract}" "${z_has_vouch}"
-  fi
-}
-
-# Internal: display bind vessel info
-# Args: vessel consecration mode
-zrbf_plumb_show_bind() {
-  local -r z_vessel="$1"
-  local -r z_consecration="$2"
-  local -r z_mode="$3"
-
-  if test "${z_mode}" = "compact"; then
-    echo ""
-    echo "=== ${z_vessel} / ${z_consecration} ==="
-    echo "  Type: bind | Trust: digest-pin only"
-    test -n "${RBRV_BIND_IMAGE:-}" && echo "  Source: ${RBRV_BIND_IMAGE}"
-    echo "  No SLSA provenance, SBOM, or build transcript (not built by GCB)"
-    echo ""
-    return 0
-  fi
-
-  echo ""
-  echo "================================================================"
-  echo "  CONSECRATION PLUMB: ${z_vessel} / ${z_consecration}"
-  echo "================================================================"
-  echo ""
-  echo "  Vessel type:  BIND (external image pinned by digest)"
-  echo "  Trust model:  Digest-pin only"
-  echo ""
-  test -n "${RBRV_BIND_IMAGE:-}" && echo "  Bind source:  ${RBRV_BIND_IMAGE}"
-  echo ""
-  echo "  TRUST BOUNDARY"
-  echo "  This is a bind vessel. The image was not built by Google Cloud"
-  echo "  Build. No SLSA provenance, no SBOM, and no build transcript"
-  echo "  exist because GCB did not produce this image."
-  echo ""
-  echo "  Trust is based solely on digest pinning of a known-good"
-  echo "  external image from its source registry."
-  echo ""
-  echo "================================================================"
-  echo ""
-}
-
-# Internal: shared section rendering used by both compact and full modes
-# Args: extract_dir has_vouch
-# Outputs: vessel type, source, builder, SLSA, SBOM summary, vouch results
-zrbf_plumb_show_sections() {
-  local -r z_dir="$1"
-  local -r z_has_vouch="$2"
-
-  local -r z_bi="${z_dir}/build_info.json"
-  local -r z_sbom="${z_dir}/sbom.json"
-  local -r z_vs="${z_dir}/vouch_summary.json"
-  local -r z_bkmeta="${z_dir}/buildkit_metadata.json"
-
-  # Determine vessel mode from build_info.json
-  local z_vessel_mode="conjure"
-  if test -f "${z_bi}"; then
-    local z_mode_raw
-    jq -r '.mode // "conjure"' "${z_bi}" > "${ZRBF_SCRATCH_FILE}" 2>/dev/null \
-      || echo "conjure" > "${ZRBF_SCRATCH_FILE}"
-    z_mode_raw=$(<"${ZRBF_SCRATCH_FILE}")
-    z_vessel_mode="${z_mode_raw}"
-  fi
-
-  if test -f "${z_bi}" && test "${z_vessel_mode}" = "bind"; then
-    # ── Bind vessel sections ──────────────────────────────────────────
-    # Batch extract bind fields from build_info.json
-    local z_bi_moniker="" z_bi_source_img="" z_bi_mirror_ts="" z_bi_consecration=""
-    local z_bi_image_uri="" z_bi_git_repo="" z_bi_git_branch="" z_bi_git_commit=""
-    jq -r '
-      (.moniker // "?"),
-      (.source.image_ref // "?"),
-      (.build.inscribe_timestamp // "?"),
-      (.build.consecration // "?"),
-      (.image.uri // "?"),
-      (.git.repo // "?"),
-      (.git.branch // "?"),
-      (.git.commit // "?")
-    ' "${z_bi}" > "${ZRBF_SCRATCH_FILE}" 2>/dev/null || true
-    { read -r z_bi_moniker
-      read -r z_bi_source_img
-      read -r z_bi_mirror_ts
-      read -r z_bi_consecration
-      read -r z_bi_image_uri
-      read -r z_bi_git_repo
-      read -r z_bi_git_branch
-      read -r z_bi_git_commit
-    } < "${ZRBF_SCRATCH_FILE}"
-
-    echo ""
-    echo "  -- Vessel Type -------------------------------------------------"
-    echo "  How this image was produced."
-    echo ""
-    echo "  Mode:           bind (upstream image mirrored to GAR)"
-    echo "  Moniker:        ${z_bi_moniker}"
-
-    echo ""
-    echo "  -- Upstream Source -----------------------------------------------"
-    echo "  The digest-pinned upstream image that was mirrored."
-    echo ""
-    echo "  Source image:   ${z_bi_source_img}"
-    echo "  Trust model:    digest-pin (image identity is the digest itself)"
-
-    echo ""
-    echo "  -- Mirror -------------------------------------------------------"
-    echo "  When the image was mirrored from upstream into GAR."
-    echo ""
-    echo "  Mirror time:    ${z_bi_mirror_ts}"
-    echo "  Consecration:   ${z_bi_consecration}"
-    echo "  Image URI:      ${z_bi_image_uri}"
-
-    echo ""
-    echo "  -- Git Context --------------------------------------------------"
-    echo "  The repository state when the mirror operation was performed."
-    echo ""
-    echo "  Repository:     ${z_bi_git_repo}"
-    echo "  Branch:         ${z_bi_git_branch}"
-    echo "  Commit:         ${z_bi_git_commit}"
-
-    echo ""
-    echo "  -- Trust --------------------------------------------------------"
-    echo "  Bind vessels are NOT built by Cloud Build. Trust comes from the"
-    echo "  digest pin in rbrv.env — the image is exactly the bytes specified."
-    echo ""
-    echo "  SLSA provenance:  not applicable (no build step)"
-    echo "  Verification:     image digest matches the pin in the vessel definition"
-
-  elif test -f "${z_bi}"; then
-    # ── Conjure vessel sections ───────────────────────────────────────
-    # Batch extract conjure fields from build_info.json
-    local z_platform="" z_qemu="" z_cj_moniker=""
-    local z_cj_git_repo="" z_cj_git_branch="" z_cj_git_commit=""
-    local z_cj_build_id="" z_cj_build_ts="" z_cj_inscribe_ts="" z_cj_image_uri=""
-    local z_slsa_level="" z_slsa_invocation="" z_slsa_builder=""
-    jq -r '
-      (.platform // "unknown"),
-      (.qemu_used // "false"),
-      (.moniker // "?"),
-      (.git.repo // "?"),
-      (.git.branch // "?"),
-      (.git.commit // "?"),
-      (.build.build_id // "?"),
-      (.build.timestamp // "?"),
-      (.build.inscribe_timestamp // "?"),
-      (.image.uri // "?"),
-      (.slsa.build_level // "?"),
-      (.slsa.build_invocation_id // "?"),
-      (.slsa.provenance_builder_id // "?")
-    ' "${z_bi}" > "${ZRBF_SCRATCH_FILE}" 2>/dev/null || true
-    { read -r z_platform
-      read -r z_qemu
-      read -r z_cj_moniker
-      read -r z_cj_git_repo
-      read -r z_cj_git_branch
-      read -r z_cj_git_commit
-      read -r z_cj_build_id
-      read -r z_cj_build_ts
-      read -r z_cj_inscribe_ts
-      read -r z_cj_image_uri
-      read -r z_slsa_level
-      read -r z_slsa_invocation
-      read -r z_slsa_builder
-    } < "${ZRBF_SCRATCH_FILE}"
-
-    echo ""
-    echo "  -- Vessel Type -------------------------------------------------"
-    echo "  How this image was produced and for which CPU architecture."
-    echo ""
-    echo "  Mode:           conjure (built by Google Cloud Build)"
-    local z_strategy="native"
-    if test "${z_qemu}" = "true"; then z_strategy="emulated (QEMU)"; fi
-    echo "  Platform:       ${z_platform} (host-platform view)"
-    echo "  Build strategy: ${z_strategy}"
-    echo "  Moniker:        ${z_cj_moniker}"
-
-    echo ""
-    echo "  -- Source -------------------------------------------------------"
-    echo "  The git repository, branch, and commit that produced this build."
-    echo ""
-    echo "  Repository:     ${z_cj_git_repo}"
-    echo "  Branch:         ${z_cj_git_branch}"
-    echo "  Commit:         ${z_cj_git_commit}"
-
-    echo ""
-    echo "  -- Builder ------------------------------------------------------"
-    echo "  The Cloud Build job that executed this build, with timestamps."
-    echo ""
-    echo "  Build ID:       ${z_cj_build_id}"
-    echo "  Build time:     ${z_cj_build_ts}"
-    echo "  Inscribe time:  ${z_cj_inscribe_ts}"
-    echo "  Image URI:      ${z_cj_image_uri}"
-
-    echo ""
-    echo "  -- SLSA Provenance ----------------------------------------------"
-    echo "  Cryptographic proof linking this exact image digest to its build."
-    echo ""
-    echo "  Build level:    ${z_slsa_level}"
-    echo "  Invocation ID:  ${z_slsa_invocation}"
-    echo "  Builder ID:     ${z_slsa_builder}"
-    echo "  Predicate types:"
-    jq -r '.slsa.provenance_predicate_types[]?' "${z_bi}" 2>/dev/null | while IFS= read -r z_pt; do
-      echo "                    ${z_pt}"
-    done
-
-    echo ""
-    echo "  SLSA Build L${z_slsa_level} attests:"
-    echo "    + This digest was produced by this Cloud Build invocation"
-    echo "    + From this source repo and commit"
-    echo "    + On Google's hosted builder (tamper-resistant environment)"
-    echo ""
-    echo "  SLSA Build L${z_slsa_level} does NOT attest:"
-    echo "    - Base image security or supply chain"
-    echo "    - Package integrity within the image"
-    echo "    - Absence of vulnerabilities"
-    echo "    - Correctness or security of the Dockerfile"
-  else
-    echo ""
-    echo "  build_info.json not found in -about artifact"
-  fi
-
-  # Base image section — conjure only (bind has no Dockerfile)
-  if test "${z_vessel_mode}" != "bind"; then
-    echo ""
-    echo "  -- Base Image ---------------------------------------------------"
-    echo "  The upstream image this build started FROM and the OS syft detected."
-    echo ""
-    local -r z_recipe="${z_dir}/recipe.txt"
-    if test -f "${z_recipe}"; then
-      local z_from_line=""
-      grep -i '^FROM ' "${z_recipe}" > "${ZRBF_SCRATCH_FILE}" 2>/dev/null || true
-      read -r z_from_line < "${ZRBF_SCRATCH_FILE}" 2>/dev/null || z_from_line=""
-      if test -n "${z_from_line}"; then
-        echo "  Dockerfile FROM: ${z_from_line#FROM }"
-      fi
-    fi
-    if test -f "${z_sbom}"; then
-      local z_distro_name="" z_distro_ver=""
-      jq -r '(.distro.name // empty), (.distro.version // empty)' "${z_sbom}" \
-        > "${ZRBF_SCRATCH_FILE}" 2>/dev/null || true
-      { read -r z_distro_name; read -r z_distro_ver; } < "${ZRBF_SCRATCH_FILE}"
-      if test -n "${z_distro_name}"; then
-        echo "  Detected distro: ${z_distro_name} ${z_distro_ver}"
-      fi
-    fi
-  fi
-
-  # Build output — conjure only (bind has no buildx step)
-  if test "${z_vessel_mode}" != "bind" && test -f "${z_bkmeta}"; then
-    echo ""
-    echo "  -- Build Output -------------------------------------------------"
-    echo "  The container image manifest produced by this buildx invocation."
-    echo ""
-    local z_bk_digest="" z_bk_mediatype="" z_bk_ref="" z_bk_imgname=""
-    jq -r '
-      (."containerimage.digest" // ""),
-      (."containerimage.descriptor".mediaType // ""),
-      (."buildx.build.ref" // ""),
-      (."image.name" // "")
-    ' "${z_bkmeta}" > "${ZRBF_SCRATCH_FILE}" 2>/dev/null || true
-    { read -r z_bk_digest
-      read -r z_bk_mediatype
-      read -r z_bk_ref
-      read -r z_bk_imgname
-    } < "${ZRBF_SCRATCH_FILE}"
-    test -n "${z_bk_digest}"    && echo "  Output digest:  ${z_bk_digest}"
-    test -n "${z_bk_mediatype}" && echo "  Media type:     ${z_bk_mediatype}"
-    test -n "${z_bk_ref}"       && echo "  Build ref:      ${z_bk_ref}"
-    test -n "${z_bk_imgname}"   && echo "  Image name:     ${z_bk_imgname}"
-    # Per-platform digests if present
-    local z_bk_platforms=""
-    jq -r 'keys[] | select(contains("/"))' "${z_bkmeta}" > "${ZRBF_SCRATCH_FILE}" 2>/dev/null || true
-    z_bk_platforms=$(<"${ZRBF_SCRATCH_FILE}")
-    if test -n "${z_bk_platforms}"; then
-      echo "  Per-platform digests:"
-      local z_bk_plat=""
-      local z_bk_pd=""
-      while IFS= read -r z_bk_plat; do
-        jq -r --arg p "${z_bk_plat}" '.[$p]["containerimage.digest"] // empty' "${z_bkmeta}" \
-          > "${ZRBF_SCRATCH_FILE}" 2>/dev/null || true
-        z_bk_pd=$(<"${ZRBF_SCRATCH_FILE}")
-        test -n "${z_bk_pd}" && echo "    ${z_bk_plat}: ${z_bk_pd}"
-      done <<< "${z_bk_platforms}"
-    fi
-  fi
-
-  # Build cache delta — conjure only
-  if test "${z_vessel_mode}" != "bind"; then
-    local -r z_cache_before="${z_dir}/cache_before.json"
-    local -r z_cache_after="${z_dir}/cache_after.json"
-    if test -f "${z_cache_after}"; then
-      echo ""
-      echo "  -- Build Cache Delta --------------------------------------------"
-      echo "  Images on the Cloud Build worker after vs before this build."
-      echo ""
-      local z_before_count="n/a"
-      local z_after_count=""
-      if test -f "${z_cache_before}"; then
-        jq '.host_daemon_images | length' "${z_cache_before}" > "${ZRBF_SCRATCH_FILE}" 2>/dev/null \
-          || echo "?" > "${ZRBF_SCRATCH_FILE}"
-        z_before_count=$(<"${ZRBF_SCRATCH_FILE}")
-      fi
-      jq '.host_daemon_images | length' "${z_cache_after}" > "${ZRBF_SCRATCH_FILE}" 2>/dev/null \
-        || echo "?" > "${ZRBF_SCRATCH_FILE}"
-      z_after_count=$(<"${ZRBF_SCRATCH_FILE}")
-      echo "  Images before: ${z_before_count}"
-      echo "  Images after:  ${z_after_count}"
-      if test -f "${z_cache_before}"; then
-        local z_new_images=""
-        jq -r --slurpfile before "${z_cache_before}" '
-          ($before[0].host_daemon_images // [] | map(.ID) | unique) as $before_ids |
-          [(.host_daemon_images // [])[] |
-           select(.ID as $id | $before_ids | index($id) | not)] |
-          group_by(.ID) |
-          map(.[0] |
-            (if (.Repository | split("/") | length) > 2 then
-              (.Repository | split("/") | .[-1])
-            else .Repository end) as $short |
-            [$short, .Tag, .Size, .ID[7:19]] | @tsv) |
-          .[]
-        ' "${z_cache_after}" > "${ZRBF_SCRATCH_FILE}" 2>/dev/null || true
-        z_new_images=$(<"${ZRBF_SCRATCH_FILE}")
-        if test -n "${z_new_images}"; then
-          local z_new_count=0
-          local z_count_line=""
-          while IFS= read -r z_count_line; do
-            z_new_count=$((z_new_count + 1))
-          done <<< "${z_new_images}"
-          echo ""
-          echo "  New images (${z_new_count} unique):"
-          printf '%s\n' "${z_new_images}" | while IFS=$'\t' read -r z_repo z_tag z_size z_id; do
-            echo "    ${z_id}  ${z_repo}:${z_tag}  ${z_size}"
-          done
-        else
-          echo "  No new images (cache unchanged)"
-        fi
-      fi
-    fi
-  fi
-
-  # SBOM — present for both bind and conjure (if syft was available)
-  echo ""
-  echo "  -- SBOM Summary (syft) ------------------------------------------"
-  echo "  Software bill of materials: every package syft found installed."
-  echo ""
-  if test -f "${z_sbom}"; then
-    local z_pkg_count=""
-    jq '.artifacts | length' "${z_sbom}" > "${ZRBF_SCRATCH_FILE}" 2>/dev/null \
-      || echo "?" > "${ZRBF_SCRATCH_FILE}"
-    z_pkg_count=$(<"${ZRBF_SCRATCH_FILE}")
-    echo "  Package count:  ${z_pkg_count}"
-
-    echo "  Package types:"
-    jq -r '
-      [.artifacts[]?.type // empty] | group_by(.) |
-      map({type: .[0], count: length}) |
-      sort_by(-.count)[] |
-      "    \(.count)\t\(.type)"
-    ' "${z_sbom}" 2>/dev/null || echo "    (unable to parse)"
-
-    echo ""
-    echo "  Syft inventories installed packages. This is not a security"
-    echo "  assessment, vulnerability scan, or license audit."
-  else
-    echo "  sbom.json not found in -about artifact"
-  fi
-
-  # Vouch — branched by vessel mode
-  echo ""
-  echo "  -- Vouch Results ------------------------------------------------"
-  if test "${z_vessel_mode}" = "bind"; then
-    echo "  Bind verification: was the mirrored image verified against its digest pin?"
-    echo ""
-    if test "${z_has_vouch}" = "true" && test -f "${z_vs}"; then
-      local z_vf_method="" z_vf_result="" z_vf_pin="" z_vf_gar=""
-      local z_vf_match="" z_vf_ts="" z_vf_source=""
-      jq -r '
-        (.verification.method // "?"),
-        (.verification.result // .verification.verdict // "?"),
-        (.verification.pin_digest // .verification.pinned_digest // "?"),
-        (.verification.gar_digest // .verification.actual_digest // "?"),
-        (.verification.digest_match // "?"),
-        (.verification.timestamp // "?"),
-        (.verification.source_image // .verification.bind_source // "?")
-      ' "${z_vs}" > "${ZRBF_SCRATCH_FILE}" 2>/dev/null || true
-      { read -r z_vf_method
-        read -r z_vf_result
-        read -r z_vf_pin
-        read -r z_vf_gar
-        read -r z_vf_match
-        read -r z_vf_ts
-        read -r z_vf_source
-      } < "${ZRBF_SCRATCH_FILE}"
-      echo "  Method:      ${z_vf_method}"
-      echo "  Verdict:     ${z_vf_result}"
-      echo "  Pin digest:  ${z_vf_pin}"
-      echo "  GAR digest:  ${z_vf_gar}"
-      echo "  Match:       ${z_vf_match}"
-      echo "  Timestamp:   ${z_vf_ts}"
-      echo "  Source:      ${z_vf_source}"
-    else
-      echo "  Vouch artifact not locally present — run summon to retrieve"
-    fi
-  elif test "${z_vessel_mode}" = "graft"; then
-    echo "  Graft acknowledgment: no provenance chain — GRAFTED verdict"
-    echo ""
-    if test "${z_has_vouch}" = "true" && test -f "${z_vs}"; then
-      local z_gf_verdict="" z_gf_source="" z_gf_method=""
-      jq -r '
-        (.verification.verdict // "?"),
-        (.verification.graft_source // "?"),
-        (.verification.method // "?")
-      ' "${z_vs}" > "${ZRBF_SCRATCH_FILE}" 2>/dev/null || true
-      { read -r z_gf_verdict
-        read -r z_gf_source
-        read -r z_gf_method
-      } < "${ZRBF_SCRATCH_FILE}"
-      echo "  Verdict:     ${z_gf_verdict}"
-      echo "  Method:      ${z_gf_method}"
-      echo "  Source:      ${z_gf_source}"
-    else
-      echo "  Vouch artifact not locally present — run summon to retrieve"
-    fi
-  else
-    echo "  Independent SLSA verification: did this image pass provenance checks?"
-    echo ""
-    if test "${z_has_vouch}" = "true" && test -f "${z_vs}"; then
-      local z_verifier_url="" z_verifier_sha=""
-      jq -r '(.verifier.url // "?"), (.verifier.sha256 // "?")' "${z_vs}" \
-        > "${ZRBF_SCRATCH_FILE}" 2>/dev/null || true
-      { read -r z_verifier_url; read -r z_verifier_sha; } < "${ZRBF_SCRATCH_FILE}"
-      echo "  Verifier:"
-      echo "    URL:    ${z_verifier_url}"
-      echo "    SHA256: ${z_verifier_sha}"
-      echo ""
-      echo "  Per-platform verdicts:"
-      jq -r '.platforms[]? | "    \(.platform): \(.verdict)"' "${z_vs}" 2>/dev/null \
-        || echo "    (unable to parse)"
-    else
-      echo "  Vouch artifact not locally present — run summon to retrieve"
-    fi
-  fi
-}
-
-# Internal: display compact vessel info (conjure or bind)
-# Args: vessel consecration extract_dir has_vouch
-zrbf_plumb_show_compact() {
-  local -r z_vessel="$1"
-  local -r z_consecration="$2"
-  local -r z_dir="$3"
-  local -r z_has_vouch="$4"
-
-  echo ""
-  echo "================================================================"
-  echo "  CONSECRATION PLUMB: ${z_vessel} / ${z_consecration}"
-  echo "================================================================"
-
-  zrbf_plumb_show_sections "${z_dir}" "${z_has_vouch}"
-
-  echo ""
-  echo "================================================================"
-  echo ""
-}
-
-# Internal: display full vessel info (conjure or bind)
-# Adds per-package inventory and Dockerfile (conjure only) to the compact sections.
-# Args: vessel consecration extract_dir has_vouch
-zrbf_plumb_show_full() {
-  local -r z_vessel="$1"
-  local -r z_consecration="$2"
-  local -r z_dir="$3"
-  local -r z_has_vouch="$4"
-
-  local -r z_sbom="${z_dir}/sbom.json"
-
-  echo ""
-  echo "================================================================"
-  echo "  CONSECRATION PLUMB (FULL): ${z_vessel} / ${z_consecration}"
-  echo "================================================================"
-
-  zrbf_plumb_show_sections "${z_dir}" "${z_has_vouch}"
-
-  echo ""
-  echo "  -- Package Inventory --------------------------------------------"
-  echo "  Every package syft detected, sorted by ecosystem type."
-  echo ""
-  if test -f "${z_sbom}"; then
-    printf "    %-12s %-36s %s\n" "TYPE" "NAME" "VERSION"
-    printf "    %-12s %-36s %s\n" "----" "----" "-------"
-    jq -r '
-      .artifacts[]? |
-      [.type // "?", .name // "?", .version // "?"] |
-      @tsv
-    ' "${z_sbom}" 2>/dev/null | sort | while IFS=$'\t' read -r z_type z_name z_ver; do
-      printf "    %-12s %-36s %s\n" "${z_type}" "${z_name}" "${z_ver}"
-    done
-  else
-    echo "    sbom.json not found in -about artifact"
-  fi
-
-  echo ""
-  echo "  -- Package Licensing & Identity ---------------------------------"
-  echo "  License and Package URL for each package (for compliance review)."
-  echo ""
-  if test -f "${z_sbom}"; then
-    printf "    %-36s %-20s %s\n" "NAME" "LICENSE" "PURL"
-    printf "    %-36s %-20s %s\n" "----" "-------" "----"
-    jq -r '
-      .artifacts[]? |
-      [
-        (.name // "?"),
-        ((.licenses // []) | map(.value // .expression // empty) | join(", ") | if . == "" then "-" else . end),
-        (.purl // "-")
-      ] |
-      @tsv
-    ' "${z_sbom}" 2>/dev/null | sort | while IFS=$'\t' read -r z_name z_lic z_purl; do
-      printf "    %-36s %-20s %s\n" "${z_name}" "${z_lic}" "${z_purl}"
-    done
-  else
-    echo "    sbom.json not found in -about artifact"
-  fi
-
-  local -r z_recipe="${z_dir}/recipe.txt"
-  if test -f "${z_recipe}"; then
-    echo ""
-    echo "  -- Recipe (Dockerfile) ------------------------------------------"
-    echo "  The exact Dockerfile used to build this image."
-    echo ""
-    while IFS= read -r z_line; do
-      echo "    ${z_line}"
-    done < "${z_recipe}"
-  fi
-
-  echo ""
-  echo "================================================================"
-  echo ""
-}
-
-rbf_plumb_full() {
-  zrbf_sentinel
-
-  local z_vessel="${1:-}"
-  local z_consecration="${2:-}"
-
-  buc_doc_brief "Plumb a consecration's trust posture (full detail)"
-  buc_doc_param "vessel" "Vessel name (e.g., rbev-busybox)"
-  buc_doc_param "consecration" "Full consecration (e.g., c260305133650-r260305160530)"
-  buc_doc_shown || return 0
-
-  zrbf_plumb_core "${z_vessel}" "${z_consecration}" "full"
-}
-
-rbf_plumb_compact() {
-  zrbf_sentinel
-
-  local z_vessel="${1:-}"
-  local z_consecration="${2:-}"
-
-  buc_doc_brief "Plumb a consecration's trust posture (compact summary)"
-  buc_doc_param "vessel" "Vessel name (e.g., rbev-busybox)"
-  buc_doc_param "consecration" "Full consecration (e.g., c260305133650-r260305160530)"
-  buc_doc_shown || return 0
-
-  zrbf_plumb_core "${z_vessel}" "${z_consecration}" "compact"
-}
 
 # eof
-
