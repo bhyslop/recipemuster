@@ -100,14 +100,14 @@
 // Recipe Bottle Term Google Operations
 :rbtgo_ark_abjure:                <<rbtgo_ark_abjure,rbfl_abjure>>
 :rbtgo_consecration_tally:        <<rbtgo_consecration_tally,rbfl_tally>>
-:rbtgo_ark_ordain:                <<rbtgo_ark_ordain,rbf_ordain>>
-:rbtgo_ark_conjure:               <<rbtgo_ark_conjure,rbf_build>>
+:rbtgo_ark_ordain:                <<rbtgo_ark_ordain,rbfd_ordain>>
+:rbtgo_ark_conjure:               <<rbtgo_ark_conjure,rbfd_build>>
 :rbtgo_ark_vouch:                 <<rbtgo_ark_vouch,rbfv_vouch>>
 :rbtgo_ark_about:                 <<rbtgo_ark_about,rbfv_about>>
-:rbtgo_ark_graft:                 <<rbtgo_ark_graft,rbf_graft>>
+:rbtgo_ark_graft:                 <<rbtgo_ark_graft,rbfd_graft>>
 :rbtgo_ark_summon:                <<rbtgo_ark_summon,rbfr_summon>>
-:rbtgo_ark_enshrine:             <<rbtgo_ark_enshrine,rbf_enshrine>>
-:rbtgo_ark_inspect:              <<rbtgo_ark_inspect,rbf_plumb>>
+:rbtgo_ark_enshrine:             <<rbtgo_ark_enshrine,rbfd_enshrine>>
+:rbtgo_ark_inspect:              <<rbtgo_ark_inspect,rbfc_plumb>>
 :rbtgo_depot_levy:                <<rbtgo_depot_levy,rbgp_depot_levy>>
 :rbtgo_depot_unmake:              <<rbtgo_depot_unmake,rbgp_depot_unmake>>
 :rbtgo_depot_list:                <<rbtgo_depot_list,rbgp_depot_list>>
@@ -123,7 +123,7 @@
 :rbtgo_sa_forfeit:                <<rbtgo_sa_forfeit,rbgg_forfeit_service_account>>
 :rbtgo_sa_list:                   <<rbtgo_sa_list,rbgg_list_service_accounts>>
 :rbtgo_quota_build:               <<rbtgo_quota_build,rbgm_quota_build>>
-:rbtgo_trigger_build:             <<rbtgo_trigger_build,rbf_build>>
+:rbtgo_trigger_build:             <<rbtgo_trigger_build,rbfd_build>>
 :rbtgo_rubric_inscribe:          <<rbtgo_rubric_inscribe,rbfl_inscribe>>
 :rbtgo_access_jwt_probe:          <<rbtgo_access_jwt_probe,rbap_jwt_sa_probe>>
 :rbtgo_access_oauth_probe:        <<rbtgo_access_oauth_probe,rbap_payor_oauth_probe>>

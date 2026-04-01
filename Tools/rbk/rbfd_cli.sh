@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2025 Scale Invariant, Inc.
+# Copyright 2026 Scale Invariant, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ set -euo pipefail
 
 source "${BURD_BUK_DIR}/buc_command.sh"
 
-zrbf_furnish() {
+zrbfd_furnish() {
   buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
   buc_doc_env "BURD_TEMP_DIR         " "Bash Dispatch Utility provided temporary directory, empty at start of command"
@@ -40,7 +40,7 @@ zrbf_furnish() {
   source "${RBBC_rbrr_file}"
   source "${z_rbk_kit_dir}/rbgo_OAuth.sh"
   source "${z_rbk_kit_dir}/rbgu_Utility.sh"
-  source "${z_rbk_kit_dir}/rbf_Foundry.sh"
+  source "${z_rbk_kit_dir}/rbfd_FoundryDirectorBuild.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh"
   source "${z_rbk_kit_dir}/rbz_zipper.sh"
 
@@ -69,12 +69,12 @@ zrbf_furnish() {
   zrbgd_kindle
   zrbgo_kindle
   zrbgu_kindle
-  zrbf_kindle
+  zrbfd_kindle
 
   zbuz_kindle
   zrbz_kindle
 }
 
-buc_execute rbf_ "Recipe Bottle Foundry" zrbf_furnish "$@"
+buc_execute rbfd_ "Recipe Bottle Foundry Director Build" zrbfd_furnish "$@"
 
 # eof

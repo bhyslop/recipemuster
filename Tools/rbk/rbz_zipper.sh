@@ -62,10 +62,10 @@ zrbz_kindle() {
   buz_enroll RBZ_LIST_SERVICE_ACCOUNTS     "rbw-Gl"        "${z_mod}" "rbgg_list_service_accounts"
   buz_enroll RBZ_FORFEIT_SERVICE_ACCOUNT   "rbw-GF"        "${z_mod}" "rbgg_forfeit_service_account"
 
-  # Retriever/Image commands (rbw-R* colophon family → rbf_cli.sh)
-  z_mod="rbf_cli.sh"
-  buz_enroll RBZ_ENSHRINE_VESSEL             "rbw-DE"       "${z_mod}" "rbf_enshrine"
-  buz_enroll RBZ_ORDAIN_CONSECRATION        "rbw-DO"       "${z_mod}" "rbf_ordain"
+  # Foundry commands — each module has its own CLI
+  z_mod="rbfd_cli.sh"
+  buz_enroll RBZ_ENSHRINE_VESSEL             "rbw-DE"       "${z_mod}" "rbfd_enshrine"
+  buz_enroll RBZ_ORDAIN_CONSECRATION        "rbw-DO"       "${z_mod}" "rbfd_ordain"
   buz_enroll RBZ_ABJURE_CONSECRATION        "rbw-DA"       "rbfl_cli.sh" "rbfl_abjure"
   buz_enroll RBZ_SUMMON_CONSECRATION                 "rbw-Rs"       "rbfr_cli.sh" "rbfr_summon"
   buz_enroll RBZ_INSCRIBE_RELIQUARY         "rbw-DI"       "rbfl_cli.sh" "rbfl_inscribe"
@@ -75,7 +75,7 @@ zrbz_kindle() {
   buz_enroll RBZ_PLUMB_COMPACT            "rbw-Rpc"      "rbfc_cli.sh" "rbfc_plumb_compact"
   buz_enroll RBZ_TALLY_CONSECRATIONS        "rbw-Dt"       "rbfl_cli.sh" "rbfl_tally"
   buz_enroll RBZ_VOUCH_CONSECRATIONS        "rbw-DV"       "rbfv_cli.sh" "rbfv_batch_vouch"
-  buz_enroll RBZ_KLUDGE_VESSEL             "rbw-ak"       "${z_mod}" "rbf_kludge"
+  buz_enroll RBZ_KLUDGE_VESSEL             "rbw-ak"       "${z_mod}" "rbfd_kludge"
 
   # Regime operations
   z_mod="rbrn_cli.sh"

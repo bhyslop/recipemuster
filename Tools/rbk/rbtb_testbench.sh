@@ -42,7 +42,7 @@ source "${RBTB_SCRIPT_DIR}/rbrp_regime.sh"
 source "${RBTB_SCRIPT_DIR}/rbcc_Constants.sh"
 source "${RBTB_SCRIPT_DIR}/rbgc_Constants.sh"
 source "${RBTB_SCRIPT_DIR}/rbgd_DepotConstants.sh"
-source "${RBTB_SCRIPT_DIR}/rbf_Foundry.sh"
+source "${RBTB_SCRIPT_DIR}/rbfd_FoundryDirectorBuild.sh"
 source "${RBTB_SCRIPT_DIR}/rbob_bottle.sh"
 source "${RBTB_SCRIPT_DIR}/rbgo_OAuth.sh"
 source "${RBTB_SCRIPT_DIR}/rbgu_Utility.sh"
@@ -189,7 +189,7 @@ zrbtb_three_mode_baste() {
   zrbdc_kindle
   zrbgo_kindle
   zrbgu_kindle
-  zrbf_kindle
+  zrbfd_kindle
 }
 
 zrbtb_tadmor_baste() {

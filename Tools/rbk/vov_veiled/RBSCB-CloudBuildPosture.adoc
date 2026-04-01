@@ -307,7 +307,7 @@ Not actionable until vessel ecosystem matures.
 * RBSCJ: Cloud Build JSON trade study
 * RBSRI: Rubric Inscribe specification (inactive -- inscribe deferred for reliquary implementation)
 * RBSTB: Trigger Build specification (inactive -- triggers eliminated, builds.create replaces)
-* rbf_Foundry.sh: `zrbf_stitch_build_json()` — build stitching; `rbfl_tally()` — provenance on demand; `rbf_plumb_full()`/`rbf_plumb_compact()` — local trust posture display
+* rbfd_FoundryDirectorBuild.sh: `zrbfd_stitch_build_json()` — build stitching; `rbfl_tally()` — provenance on demand; `rbfc_plumb_full()`/`rbfc_plumb_compact()` — local trust posture display
 * RBSAI: Ark Inspect specification
 * buv_validation.sh: `buv_val_odref()` — digest-pinned image reference validator
 * RBRV vessel regime: `RBRV_CONJURE_PLATFORMS` vs `RBGC_BUILD_RUNNER_PLATFORM` — binfmt inclusion predicate

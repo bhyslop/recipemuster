@@ -16,13 +16,13 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle Foundry - GCB image creation and GAR deletion
+# Recipe Bottle Foundry Director Build - ordain, conjure, enshrine, kludge, mirror, graft operations (director credentials)
 
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBF_SOURCED:-}" || buc_die "Module rbf multiply sourced - check sourcing hierarchy"
-ZRBF_SOURCED=1
+test -z "${ZRBFD_SOURCED:-}" || buc_die "Module rbfd multiply sourced - check sourcing hierarchy"
+ZRBFD_SOURCED=1
 
 # Source shared Foundry Core module
 source "${BASH_SOURCE[0]%/*}/rbfc_FoundryCore.sh"
@@ -31,10 +31,10 @@ source "${BASH_SOURCE[0]%/*}/rbfc_FoundryCore.sh"
 source "${BASH_SOURCE[0]%/*}/rbfv_FoundryVerify.sh"
 
 ######################################################################
-# Internal Functions (zrbf_*)
+# Internal Functions (zrbfd_*)
 
-zrbf_kindle() {
-  test -z "${ZRBF_KINDLED:-}" || buc_die "Module rbf already kindled"
+zrbfd_kindle() {
+  test -z "${ZRBFD_KINDLED:-}" || buc_die "Module rbfd already kindled"
 
   buc_log_args 'Kindle shared Foundry Core infrastructure'
   zrbfc_kindle
@@ -46,20 +46,20 @@ zrbf_kindle() {
   buc_log_args 'RBGJ files in same Tools directory as this implementation'
   # Acronym: rbgjb = Recipe Bottle Google Json Build (step scripts in rbgjb/ dir)
   local z_self_dir="${BASH_SOURCE[0]%/*}"
-  readonly ZRBF_RBGJB_STEPS_DIR="${z_self_dir}/rbgjb"
-  test -d "${ZRBF_RBGJB_STEPS_DIR}"   || buc_die "RBGJB steps directory not found: ${ZRBF_RBGJB_STEPS_DIR}"
+  readonly ZRBFD_RBGJB_STEPS_DIR="${z_self_dir}/rbgjb"
+  test -d "${ZRBFD_RBGJB_STEPS_DIR}"   || buc_die "RBGJB steps directory not found: ${ZRBFD_RBGJB_STEPS_DIR}"
 
   # RBGJV and RBGJA step dirs now owned by rbfc_FoundryCore.sh (shared assembly helpers)
 
   buc_log_args 'RBGJM mirror step scripts (same Tools directory)'
   # Acronym: rbgjm = Recipe Bottle Google Json Mirror (step scripts in rbgjm/ dir)
-  readonly ZRBF_RBGJM_STEPS_DIR="${z_self_dir}/rbgjm"
-  test -d "${ZRBF_RBGJM_STEPS_DIR}"   || buc_die "RBGJM steps directory not found: ${ZRBF_RBGJM_STEPS_DIR}"
+  readonly ZRBFD_RBGJM_STEPS_DIR="${z_self_dir}/rbgjm"
+  test -d "${ZRBFD_RBGJM_STEPS_DIR}"   || buc_die "RBGJM steps directory not found: ${ZRBFD_RBGJM_STEPS_DIR}"
 
   buc_log_args 'RBGJE enshrine step scripts (same Tools directory)'
   # Acronym: rbgje = Recipe Bottle Google Json Enshrine (step scripts in rbgje/ dir)
-  readonly ZRBF_RBGJE_STEPS_DIR="${z_self_dir}/rbgje"
-  test -d "${ZRBF_RBGJE_STEPS_DIR}"   || buc_die "RBGJE steps directory not found: ${ZRBF_RBGJE_STEPS_DIR}"
+  readonly ZRBFD_RBGJE_STEPS_DIR="${z_self_dir}/rbgje"
+  test -d "${ZRBFD_RBGJE_STEPS_DIR}"   || buc_die "RBGJE steps directory not found: ${ZRBFD_RBGJE_STEPS_DIR}"
 
   # RBGJI inscribe step scripts now owned by rbfl_FoundryLedger.sh
 
@@ -67,46 +67,46 @@ zrbf_kindle() {
   # Vouch and about prefixes now owned by rbfv_FoundryVerify.sh
 
   buc_log_args 'Define stitch operation file prefix (postfixed per step id)'
-  readonly ZRBF_STITCH_PREFIX="${BURD_TEMP_DIR}/rbf_stitch_"
+  readonly ZRBFD_STITCH_PREFIX="${BURD_TEMP_DIR}/rbfd_stitch_"
 
   # Inscribe and reliquary prefixes now owned by rbfl_FoundryLedger.sh
 
   buc_log_args 'Define mirror operation files'
-  readonly ZRBF_MIRROR_PREFIX="${BURD_TEMP_DIR}/rbf_mirror_"
+  readonly ZRBFD_MIRROR_PREFIX="${BURD_TEMP_DIR}/rbfd_mirror_"
 
   buc_log_args 'Define graft operation files'
-  readonly ZRBF_GRAFT_PREFIX="${BURD_TEMP_DIR}/rbf_graft_"
+  readonly ZRBFD_GRAFT_PREFIX="${BURD_TEMP_DIR}/rbfd_graft_"
 
   buc_log_args 'Define enshrine operation files'
-  readonly ZRBF_ENSHRINE_PREFIX="${BURD_TEMP_DIR}/rbf_enshrine_"
+  readonly ZRBFD_ENSHRINE_PREFIX="${BURD_TEMP_DIR}/rbfd_enshrine_"
 
   buc_log_args 'Define enshrine preflight files'
-  readonly ZRBF_PREFLIGHT_PREFIX="${BURD_TEMP_DIR}/rbf_preflight_"
+  readonly ZRBFD_PREFLIGHT_PREFIX="${BURD_TEMP_DIR}/rbfd_preflight_"
 
   buc_log_args 'Define context push operation files'
-  readonly ZRBF_CONTEXT_PREFIX="${BURD_TEMP_DIR}/rbf_context_"
+  readonly ZRBFD_CONTEXT_PREFIX="${BURD_TEMP_DIR}/rbfd_context_"
 
   buc_log_args 'Kindle verify module (cross-module calls from ordain)'
   zrbfv_kindle
 
-  readonly ZRBF_KINDLED=1
+  readonly ZRBFD_KINDLED=1
 }
 
-zrbf_sentinel() {
+zrbfd_sentinel() {
   zrbfc_sentinel
-  test "${ZRBF_KINDLED:-}" = "1" || buc_die "Module rbf not kindled - call zrbf_kindle first"
+  test "${ZRBFD_KINDLED:-}" = "1" || buc_die "Module rbfd not kindled - call zrbfd_kindle first"
 }
 
 
 # Check concurrent build quota against regime requirements
 # Args: token mode
 #   mode: "gate" (die if insufficient) or "advisory" (warn if insufficient)
-zrbf_quota_preflight() {
-  zrbf_sentinel
+zrbfd_quota_preflight() {
+  zrbfd_sentinel
 
   local -r z_token="${1:-}"
 
-  test -n "${z_token}" || buc_die "zrbf_quota_preflight: token required"
+  test -n "${z_token}" || buc_die "zrbfd_quota_preflight: token required"
 
   # Extract vCPU count from machine type (last segment after final hyphen)
   local -r z_vcpus="${RBRR_GCB_MACHINE_TYPE##*-}"
@@ -185,13 +185,13 @@ zrbf_quota_preflight() {
 #
 # Must be called after vessel load (reads RBRV_RELIQUARY, RBRV_IMAGE_*_ANCHOR)
 # and authentication (needs token for registry API).
-zrbf_registry_preflight() {
-  zrbf_sentinel
+zrbfd_registry_preflight() {
+  zrbfd_sentinel
 
   local -r z_token="${1:-}"
   local -r z_vessel_dir="${2:-}"
-  test -n "${z_token}"      || buc_die "zrbf_registry_preflight: token required"
-  test -n "${z_vessel_dir}" || buc_die "zrbf_registry_preflight: vessel_dir required"
+  test -n "${z_token}"      || buc_die "zrbfd_registry_preflight: token required"
+  test -n "${z_vessel_dir}" || buc_die "zrbfd_registry_preflight: vessel_dir required"
 
   # --- Layer 1: Reliquary tool images ---
   # Inscribe creates all 6 tool images atomically in one GCB job, so checking
@@ -202,9 +202,9 @@ zrbf_registry_preflight() {
     buc_step "Verifying reliquary tool images exist in GAR"
 
     local -r z_rqy_canary="${z_reliquary}/docker"
-    local -r z_rqy_status_file="${ZRBF_PREFLIGHT_PREFIX}reliquary_status.txt"
-    local -r z_rqy_response_file="${ZRBF_PREFLIGHT_PREFIX}reliquary_response.txt"
-    local -r z_rqy_stderr_file="${ZRBF_PREFLIGHT_PREFIX}reliquary_stderr.txt"
+    local -r z_rqy_status_file="${ZRBFD_PREFLIGHT_PREFIX}reliquary_status.txt"
+    local -r z_rqy_response_file="${ZRBFD_PREFLIGHT_PREFIX}reliquary_response.txt"
+    local -r z_rqy_stderr_file="${ZRBFD_PREFLIGHT_PREFIX}reliquary_stderr.txt"
 
     curl --head -sS \
       --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
@@ -268,9 +268,9 @@ zrbf_registry_preflight() {
     test -n "${z_anchor}" || continue
 
     z_any_checked="true"
-    z_status_file="${ZRBF_PREFLIGHT_PREFIX}enshrine_${z_n}_status.txt"
-    z_response_file="${ZRBF_PREFLIGHT_PREFIX}enshrine_${z_n}_response.txt"
-    z_stderr_file="${ZRBF_PREFLIGHT_PREFIX}enshrine_${z_n}_stderr.txt"
+    z_status_file="${ZRBFD_PREFLIGHT_PREFIX}enshrine_${z_n}_status.txt"
+    z_response_file="${ZRBFD_PREFLIGHT_PREFIX}enshrine_${z_n}_response.txt"
+    z_stderr_file="${ZRBFD_PREFLIGHT_PREFIX}enshrine_${z_n}_stderr.txt"
 
     curl --head -sS \
       --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
@@ -310,8 +310,8 @@ zrbf_registry_preflight() {
 }
 
 
-zrbf_stitch_build_json() {
-  zrbf_sentinel
+zrbfd_stitch_build_json() {
+  zrbfd_sentinel
 
   local -r z_output_path="${1:?Output path required}"
   local -r z_inscribe_ts="${2:?Inscribe timestamp required}"
@@ -366,9 +366,9 @@ zrbf_stitch_build_json() {
   buc_log_args "Vessel platforms: ${z_platform_count} (${z_platforms})"
 
   buc_log_args 'Extract git state for substitutions'
-  local -r z_stitch_git_commit_file="${ZRBF_STITCH_PREFIX}git_commit.txt"
-  local -r z_stitch_git_branch_file="${ZRBF_STITCH_PREFIX}git_branch.txt"
-  local -r z_stitch_git_repo_file="${ZRBF_STITCH_PREFIX}git_repo.txt"
+  local -r z_stitch_git_commit_file="${ZRBFD_STITCH_PREFIX}git_commit.txt"
+  local -r z_stitch_git_branch_file="${ZRBFD_STITCH_PREFIX}git_branch.txt"
+  local -r z_stitch_git_repo_file="${ZRBFD_STITCH_PREFIX}git_repo.txt"
 
   jq -r '.commit' "${ZRBFC_GIT_INFO_FILE}" > "${z_stitch_git_commit_file}" \
     || buc_die "Failed to extract git commit from info file"
@@ -455,17 +455,17 @@ zrbf_stitch_build_json() {
   local z_body_file=""
   local z_escaped_file=""
   local z_steps_file=""
-  local z_accumulator_file="${ZRBF_STITCH_PREFIX}steps.json"
+  local z_accumulator_file="${ZRBFD_STITCH_PREFIX}steps.json"
 
   buc_log_args "Initializing empty steps array"
   echo "[]" > "${z_accumulator_file}" || buc_die "Failed to initialize steps JSON"
 
   for z_def in "${z_step_defs[@]}"; do
     IFS='|' read -r z_script z_builder z_entrypoint z_id <<< "${z_def}"
-    z_script_path="${ZRBF_RBGJB_STEPS_DIR}/${z_script}"
-    z_body_file="${ZRBF_STITCH_PREFIX}${z_id}_body.txt"
-    z_escaped_file="${ZRBF_STITCH_PREFIX}${z_id}_escaped.txt"
-    z_steps_file="${ZRBF_STITCH_PREFIX}${z_id}_steps.json"
+    z_script_path="${ZRBFD_RBGJB_STEPS_DIR}/${z_script}"
+    z_body_file="${ZRBFD_STITCH_PREFIX}${z_id}_body.txt"
+    z_escaped_file="${ZRBFD_STITCH_PREFIX}${z_id}_escaped.txt"
+    z_steps_file="${ZRBFD_STITCH_PREFIX}${z_id}_steps.json"
 
     test -f "${z_script_path}" || buc_die "Step script not found: ${z_script_path}"
 
@@ -506,12 +506,12 @@ zrbf_stitch_build_json() {
   #   - _RBGA_BUILD_ID: Cloud Build job ID, available as built-in $BUILD_ID
 
   buc_log_args "Assembling about steps for combined conjure"
-  local -r z_about_steps_file="${ZRBF_STITCH_PREFIX}about_steps.json"
-  zrbfc_assemble_about_steps "${z_about_steps_file}" "${ZRBF_STITCH_PREFIX}about_"
+  local -r z_about_steps_file="${ZRBFD_STITCH_PREFIX}about_steps.json"
+  zrbfc_assemble_about_steps "${z_about_steps_file}" "${ZRBFD_STITCH_PREFIX}about_"
 
   # About steps run in vessel dir so .consecration from rbgjb01 is accessible
   buc_log_args "Adding dir field to about steps for vessel directory ${z_sigil}"
-  local -r z_about_with_dir="${ZRBF_STITCH_PREFIX}about_with_dir.json"
+  local -r z_about_with_dir="${ZRBFD_STITCH_PREFIX}about_with_dir.json"
   jq --arg dir "${z_sigil}" '[.[] | . + {dir: $dir}]' \
     "${z_about_steps_file}" > "${z_about_with_dir}" \
     || buc_die "Failed to add dir to about steps"
@@ -519,7 +519,7 @@ zrbf_stitch_build_json() {
   # Consecration: $(cat .consecration) → bash reads workspace file written by rbgjb01
   # Build ID: $BUILD_ID → GCB built-in available as env var
   buc_log_args "Post-processing about steps: consecration from workspace, build ID from env"
-  local -r z_about_processed="${ZRBF_STITCH_PREFIX}about_processed.json"
+  local -r z_about_processed="${ZRBFD_STITCH_PREFIX}about_processed.json"
   local z_about_content
   z_about_content=$(<"${z_about_with_dir}") \
     || buc_die "Failed to read about steps for post-processing"
@@ -529,7 +529,7 @@ zrbf_stitch_build_json() {
     || buc_die "Failed to post-process about steps for conjure"
 
   buc_log_args "Combining image steps and about steps"
-  local -r z_combined_steps_file="${ZRBF_STITCH_PREFIX}combined_steps.json"
+  local -r z_combined_steps_file="${ZRBFD_STITCH_PREFIX}combined_steps.json"
   jq -s '.[0] + .[1]' "${z_accumulator_file}" "${z_about_processed}" \
     > "${z_combined_steps_file}" || buc_die "Failed to combine image and about steps"
   z_accumulator_file="${z_combined_steps_file}"
@@ -539,7 +539,7 @@ zrbf_stitch_build_json() {
   local z_stitch_dockerfile_content=""
   local -r z_stitch_df_max_bytes=4000
   if test -f "${RBRV_CONJURE_DOCKERFILE:-}"; then
-    local -r z_stitch_df_size_file="${ZRBF_STITCH_PREFIX}df_size.txt"
+    local -r z_stitch_df_size_file="${ZRBFD_STITCH_PREFIX}df_size.txt"
     wc -c < "${RBRV_CONJURE_DOCKERFILE}" > "${z_stitch_df_size_file}" \
       || buc_die "Failed to measure Dockerfile size"
     local z_stitch_df_size=""
@@ -556,11 +556,11 @@ zrbf_stitch_build_json() {
   # All values resolved directly — no placeholders, no post-processing jq surgery.
   # Context extraction step prepended; mason SA included; images: field uses inscribe_ts.
   buc_log_args "Composing builds.create Build resource"
-  local -r z_build_file="${ZRBF_STITCH_PREFIX}build.json"
+  local -r z_build_file="${ZRBFD_STITCH_PREFIX}build.json"
   local -r z_mason_sa="projects/${RBRR_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
 
   # Context extraction step (first step — extracts build context from pouch in GAR)
-  local -r z_extract_step_file="${ZRBF_STITCH_PREFIX}extract_step.json"
+  local -r z_extract_step_file="${ZRBFD_STITCH_PREFIX}extract_step.json"
   jq -n \
     --arg name "${ZRBFC_TOOL_DOCKER}" \
     --arg ctx_tag "${z_context_tag}" \
@@ -574,12 +574,12 @@ zrbf_stitch_build_json() {
     || buc_die "Failed to compose context extraction step"
 
   # Combine: [extract-context] + image steps + about steps
-  local -r z_all_steps_file="${ZRBF_STITCH_PREFIX}all_steps.json"
+  local -r z_all_steps_file="${ZRBFD_STITCH_PREFIX}all_steps.json"
   jq -s '.[0] + .[1]' <(jq -s '.' "${z_extract_step_file}") "${z_accumulator_file}" \
     > "${z_all_steps_file}" || buc_die "Failed to prepend context extraction step"
 
   # images: field — one entry per platform for SLSA provenance via CB images: push
-  local z_images_file="${ZRBF_STITCH_PREFIX}images.json"
+  local z_images_file="${ZRBFD_STITCH_PREFIX}images.json"
   local z_image_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${z_sigil}"
   local z_remaining_suffixes="${z_platform_suffixes_csv}"
   local z_img_suffix=""
@@ -699,9 +699,9 @@ zrbf_stitch_build_json() {
 # role as the build-context delivery mechanism.
 #
 # Args: token  sigil  build_context_path
-# Side-effect: writes context image tag to ZRBF_CONTEXT_TAG_FILE
-zrbf_push_build_context() {
-  zrbf_sentinel
+# Side-effect: writes context image tag to ${ZRBFD_CONTEXT_PREFIX}tag.txt
+zrbfd_push_build_context() {
+  zrbfd_sentinel
 
   local -r z_token="$1"
   local -r z_sigil="$2"
@@ -710,11 +710,11 @@ zrbf_push_build_context() {
   test -d "${z_bldctx}" || buc_die "Build context directory not found: ${z_bldctx}"
 
   local -r z_gar_host="${ZRBFC_REGISTRY_HOST}"
-  local -r z_context_tag_file="${ZRBF_CONTEXT_PREFIX}tag.txt"
-  local -r z_context_dockerfile="${ZRBF_CONTEXT_PREFIX}Dockerfile"
+  local -r z_context_tag_file="${ZRBFD_CONTEXT_PREFIX}tag.txt"
+  local -r z_context_dockerfile="${ZRBFD_CONTEXT_PREFIX}Dockerfile"
 
   # Generate context timestamp
-  local -r z_ctx_ts_file="${ZRBF_CONTEXT_PREFIX}ts.txt"
+  local -r z_ctx_ts_file="${ZRBFD_CONTEXT_PREFIX}ts.txt"
   date -u +'%y%m%d%H%M%S' > "${z_ctx_ts_file}" || buc_die "Failed to generate context timestamp"
   local z_ctx_ts=""
   z_ctx_ts=$(<"${z_ctx_ts_file}")
@@ -746,12 +746,10 @@ zrbf_push_build_context() {
 
 
 ######################################################################
-# External Functions (rbf_*)
+# External Functions (rbfd_*)
 
-# Inscribe — delegated to rbfl_FoundryLedger.sh
-
-rbf_enshrine() {
-  zrbf_sentinel
+rbfd_enshrine() {
+  zrbfd_sentinel
 
   buc_doc_brief "Enshrine upstream base images to GAR via Cloud Build"
   buc_doc_param "vessel" "Vessel sigil or path to vessel directory"
@@ -786,19 +784,19 @@ rbf_enshrine() {
     || buc_die "Failed to get Director OAuth token"
 
   # Submit enshrine as a Cloud Build job (skopeo runs on GCB, not locally)
-  zrbf_enshrine_submit "${z_token}"
+  zrbfd_enshrine_submit "${z_token}"
 
   # Extract anchor results from build step outputs
   local -r z_rbrv_file="${z_vessel_dir}/rbrv.env"
-  zrbf_enshrine_extract_anchors "${z_rbrv_file}"
+  zrbfd_enshrine_extract_anchors "${z_rbrv_file}"
 
   buc_success "Enshrine complete for vessel: ${RBRV_SIGIL}"
 }
 
 # Internal: Submit enshrine Cloud Build job
 # Single step: skopeo inspect + copy for each ORIGIN slot, returning anchors via buildStepOutputs.
-zrbf_enshrine_submit() {
-  zrbf_sentinel
+zrbfd_enshrine_submit() {
+  zrbfd_sentinel
 
   local -r z_token="$1"
 
@@ -808,11 +806,11 @@ zrbf_enshrine_submit() {
   local -r z_mason_sa="projects/${RBRR_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
 
   # Assemble enshrine step from script
-  local -r z_script_path="${ZRBF_RBGJE_STEPS_DIR}/rbgje01-enshrine-copy.sh"
+  local -r z_script_path="${ZRBFD_RBGJE_STEPS_DIR}/rbgje01-enshrine-copy.sh"
   test -f "${z_script_path}" || buc_die "Enshrine step script not found: ${z_script_path}"
 
-  local -r z_body_file="${ZRBF_ENSHRINE_PREFIX}body.txt"
-  local -r z_escaped_file="${ZRBF_ENSHRINE_PREFIX}escaped.txt"
+  local -r z_body_file="${ZRBFD_ENSHRINE_PREFIX}body.txt"
+  local -r z_escaped_file="${ZRBFD_ENSHRINE_PREFIX}escaped.txt"
 
   buc_log_args "Reading enshrine step script (skip shebang)"
   tail -n +2 "${z_script_path}" > "${z_body_file}" \
@@ -824,10 +822,10 @@ zrbf_enshrine_submit() {
   printf '#!/bin/bash\n%s' "${z_body}" > "${z_escaped_file}" \
     || buc_die "Failed to write escaped enshrine script body"
 
-  local -r z_step_file="${ZRBF_ENSHRINE_PREFIX}step.json"
+  local -r z_step_file="${ZRBFD_ENSHRINE_PREFIX}step.json"
   echo "[]" > "${z_step_file}" || buc_die "Failed to initialize enshrine step JSON"
 
-  local -r z_step_built="${ZRBF_ENSHRINE_PREFIX}step_built.json"
+  local -r z_step_built="${ZRBFD_ENSHRINE_PREFIX}step_built.json"
   jq \
     --arg name "${ZRBFC_TOOL_SKOPEO}" \
     --arg id "enshrine-copy" \
@@ -840,7 +838,7 @@ zrbf_enshrine_submit() {
 
   # Compose Build resource JSON
   buc_log_args "Composing enshrine Build resource JSON"
-  local -r z_build_file="${ZRBF_ENSHRINE_PREFIX}build.json"
+  local -r z_build_file="${ZRBFD_ENSHRINE_PREFIX}build.json"
 
   jq -n \
     --slurpfile zjq_steps  "${z_step_file}" \
@@ -892,8 +890,8 @@ zrbf_enshrine_submit() {
 
 # Internal: Extract anchor results from completed enshrine build and write to vessel regime
 # Reads buildStepOutputs from the build status response (populated by /builder/outputs/output)
-zrbf_enshrine_extract_anchors() {
-  zrbf_sentinel
+zrbfd_enshrine_extract_anchors() {
+  zrbfd_sentinel
 
   local -r z_rbrv_file="$1"
   test -f "${z_rbrv_file}" || buc_die "Vessel regime file not found: ${z_rbrv_file}"
@@ -901,8 +899,8 @@ zrbf_enshrine_extract_anchors() {
   buc_step "Extracting anchor results from build step outputs"
 
   # buildStepOutputs[0] is base64-encoded JSON from the enshrine step
-  local -r z_b64_file="${ZRBF_ENSHRINE_PREFIX}output_b64.txt"
-  local -r z_output_file="${ZRBF_ENSHRINE_PREFIX}output.json"
+  local -r z_b64_file="${ZRBFD_ENSHRINE_PREFIX}output_b64.txt"
+  local -r z_output_file="${ZRBFD_ENSHRINE_PREFIX}output.json"
 
   jq -r '.results.buildStepOutputs[0] // empty' "${ZRBFC_BUILD_STATUS_FILE}" \
     > "${z_b64_file}" || buc_die "Failed to extract buildStepOutputs from build result"
@@ -930,7 +928,7 @@ zrbf_enshrine_extract_anchors() {
 
     z_anchor_var="RBRV_IMAGE_${z_n}_ANCHOR"
     z_anchor_line="${z_anchor_var}=${z_anchor}"
-    z_updated_file="${ZRBF_ENSHRINE_PREFIX}${z_n}_updated_rbrv.env"
+    z_updated_file="${ZRBFD_ENSHRINE_PREFIX}${z_n}_updated_rbrv.env"
 
     buc_step "Writing anchor slot ${z_n}: ${z_anchor}"
 
@@ -957,8 +955,8 @@ zrbf_enshrine_extract_anchors() {
   done
 }
 
-rbf_ordain() {
-  zrbf_sentinel
+rbfd_ordain() {
+  zrbfd_sentinel
 
   buc_doc_brief "Ordain a consecration from a vessel (conjure, mirror, or graft based on vessel mode)"
   buc_doc_param "vessel" "Vessel sigil or path to vessel directory"
@@ -981,9 +979,9 @@ rbf_ordain() {
   done < "${z_rbrv_file}"
   z_mode="${z_mode:-conjure}"
   case "${z_mode}" in
-    conjure) rbf_build "${z_vessel_dir}" ;;
-    bind)    rbf_mirror "${z_vessel_dir}" ;;
-    graft)   rbf_graft "${z_vessel_dir}" ;;
+    conjure) rbfd_build "${z_vessel_dir}" ;;
+    bind)    rbfd_mirror "${z_vessel_dir}" ;;
+    graft)   rbfd_graft "${z_vessel_dir}" ;;
     *)       buc_die "Unknown vessel mode: ${z_mode}" ;;
   esac
 
@@ -1013,8 +1011,8 @@ rbf_ordain() {
   esac
 }
 
-rbf_build() {
-  zrbf_sentinel
+rbfd_build() {
+  zrbfd_sentinel
 
   local -r z_vessel_dir="${1:-}"
 
@@ -1062,10 +1060,10 @@ rbf_build() {
     || buc_die "Failed to get Director OAuth token"
 
   # Quota preflight -- warn if insufficient capacity
-  zrbf_quota_preflight "${z_token}"
+  zrbfd_quota_preflight "${z_token}"
 
   # Registry preflight -- verify reliquary and enshrined base images exist before expensive operations
-  zrbf_registry_preflight "${z_token}" "${z_vessel_dir}"
+  zrbfd_registry_preflight "${z_token}" "${z_vessel_dir}"
 
   # Capture git metadata (stitch needs ZRBFC_GIT_INFO_FILE)
   buc_step "Capturing git metadata"
@@ -1085,16 +1083,16 @@ rbf_build() {
   buc_info "Git: ${z_git_commit:0:8} on ${z_git_branch}"
 
   # Push build context to GAR as FROM SCRATCH image
-  zrbf_push_build_context "${z_token}" "${RBRV_SIGIL}" "${RBRV_CONJURE_BLDCONTEXT}"
+  zrbfd_push_build_context "${z_token}" "${RBRV_SIGIL}" "${RBRV_CONJURE_BLDCONTEXT}"
   local z_context_tag=""
-  z_context_tag=$(<"${ZRBF_CONTEXT_PREFIX}tag.txt")
+  z_context_tag=$(<"${ZRBFD_CONTEXT_PREFIX}tag.txt")
   test -n "${z_context_tag}" || buc_die "Empty context image tag after push"
 
   # Stitch build JSON — generates complete builds.create resource directly
   buc_step "Stitching build JSON"
-  local -r z_build_file="${ZRBF_CONTEXT_PREFIX}build.json"
+  local -r z_build_file="${ZRBFD_CONTEXT_PREFIX}build.json"
   local -r z_inscribe_ts="c${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
-  zrbf_stitch_build_json "${z_build_file}" "${z_inscribe_ts}" "${z_context_tag}"
+  zrbfd_stitch_build_json "${z_build_file}" "${z_inscribe_ts}" "${z_context_tag}"
 
   buc_info "Inscribe timestamp: ${z_inscribe_ts}"
 
@@ -1127,8 +1125,8 @@ rbf_build() {
   z_step_output=$(<"${ZRBFC_SCRATCH_FILE}")
   test -n "${z_step_output}" || buc_die "Build step 1 output empty — derive-tag-base may not have written to /builder/outputs/output"
 
-  local -r z_step_b64_file="${BURD_TEMP_DIR}/rbf_step_b64.txt"
-  local -r z_step_decoded_file="${BURD_TEMP_DIR}/rbf_step_decoded.txt"
+  local -r z_step_b64_file="${BURD_TEMP_DIR}/rbfd_step_b64.txt"
+  local -r z_step_decoded_file="${BURD_TEMP_DIR}/rbfd_step_decoded.txt"
   printf '%s' "${z_step_output}" > "${z_step_b64_file}" \
     || buc_die "Failed to write step output for decoding"
   base64 -d < "${z_step_b64_file}" > "${z_step_decoded_file}" \
@@ -1190,8 +1188,8 @@ rbf_build() {
 # No Cloud Build, no GAR push, no credentials consumed.
 # Host platform only (no multi-arch).
 
-rbf_kludge() {
-  zrbf_sentinel
+rbfd_kludge() {
+  zrbfd_sentinel
 
   buc_doc_brief "Build vessel image locally for development (no Cloud Build, no GAR push)"
   buc_doc_param "vessel" "Vessel sigil or path to vessel directory"
@@ -1272,15 +1270,11 @@ rbf_kludge() {
   esac
 }
 
-# Jettison — delegated to rbfl_FoundryLedger.sh
-
-# Wrest — delegated to rbfr_FoundryRetriever.sh
-
 ######################################################################
 # Mirror (bind vessel → GAR)
 
-rbf_mirror() {
-  zrbf_sentinel
+rbfd_mirror() {
+  zrbfd_sentinel
 
   local z_vessel_dir="${1:-}"
 
@@ -1333,7 +1327,7 @@ rbf_mirror() {
 
   # Generate consecration timestamps: bYYMMDDHHMMSS-rYYMMDDHHMMSS
   local -r z_mirror_ts="b${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
-  local -r z_build_ts_file="${ZRBF_MIRROR_PREFIX}build_ts.txt"
+  local -r z_build_ts_file="${ZRBFD_MIRROR_PREFIX}build_ts.txt"
   date -u +'%y%m%d%H%M%S' > "${z_build_ts_file}" || buc_die "Failed to generate build timestamp"
   local z_build_ts
   z_build_ts="r$(<"${z_build_ts_file}")"
@@ -1342,7 +1336,7 @@ rbf_mirror() {
 
   buc_info "Consecration: ${z_consecration}"
 
-  # Persist to output directory for chaining by rbf_ordain
+  # Persist to output directory for chaining by rbfd_ordain
   echo "${z_vessel_dir}" > "${ZRBFC_OUTPUT_VESSEL_DIR}" \
     || buc_die "Failed to write vessel dir to output"
   echo "${z_consecration}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}" \
@@ -1363,7 +1357,7 @@ rbf_mirror() {
     || buc_die "Failed to write yield fact file"
 
   # Submit combined Cloud Build (skopeo image copy + about steps)
-  zrbf_mirror_submit "${z_consecration}" "${z_token}"
+  zrbfd_mirror_submit "${z_consecration}" "${z_token}"
 
   # Summary
   echo ""
@@ -1373,8 +1367,8 @@ rbf_mirror() {
 
 # Internal: submit combined mirror Cloud Build job (skopeo image copy + about steps)
 # Args: consecration token
-zrbf_mirror_submit() {
-  zrbf_sentinel
+zrbfd_mirror_submit() {
+  zrbfd_sentinel
 
   local -r z_consecration="$1"
   local -r z_token="$2"
@@ -1385,13 +1379,13 @@ zrbf_mirror_submit() {
   local -r z_mason_sa="projects/${RBRR_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
 
   # Step 0: Mirror image via skopeo
-  local -r z_mscript_path="${ZRBF_RBGJM_STEPS_DIR}/rbgjm01-mirror-image.sh"
+  local -r z_mscript_path="${ZRBFD_RBGJM_STEPS_DIR}/rbgjm01-mirror-image.sh"
   test -f "${z_mscript_path}" || buc_die "Mirror step script not found: ${z_mscript_path}"
 
-  local -r z_mbody_file="${ZRBF_MIRROR_PREFIX}mirror_body.txt"
-  local -r z_mescaped_file="${ZRBF_MIRROR_PREFIX}mirror_escaped.txt"
-  local -r z_mirror_step_file="${ZRBF_MIRROR_PREFIX}mirror_step.json"
-  local -r z_mirror_step_built="${ZRBF_MIRROR_PREFIX}mirror_step_built.json"
+  local -r z_mbody_file="${ZRBFD_MIRROR_PREFIX}mirror_body.txt"
+  local -r z_mescaped_file="${ZRBFD_MIRROR_PREFIX}mirror_escaped.txt"
+  local -r z_mirror_step_file="${ZRBFD_MIRROR_PREFIX}mirror_step.json"
+  local -r z_mirror_step_built="${ZRBFD_MIRROR_PREFIX}mirror_step_built.json"
 
   buc_log_args "Reading mirror step script (skip shebang)"
   tail -n +2 "${z_mscript_path}" > "${z_mbody_file}" \
@@ -1415,11 +1409,11 @@ zrbf_mirror_submit() {
     || buc_die "Failed to finalize mirror step JSON"
 
   # Steps 1-4: About (shared with standalone about pipeline)
-  local -r z_about_steps_file="${ZRBF_MIRROR_PREFIX}about_steps.json"
-  zrbfc_assemble_about_steps "${z_about_steps_file}" "${ZRBF_MIRROR_PREFIX}about_"
+  local -r z_about_steps_file="${ZRBFD_MIRROR_PREFIX}about_steps.json"
+  zrbfc_assemble_about_steps "${z_about_steps_file}" "${ZRBFD_MIRROR_PREFIX}about_"
 
   # Combine: mirror step + about steps
-  local -r z_combined_steps="${ZRBF_MIRROR_PREFIX}combined_steps.json"
+  local -r z_combined_steps="${ZRBFD_MIRROR_PREFIX}combined_steps.json"
   jq -s '.[0] + .[1]' "${z_mirror_step_file}" "${z_about_steps_file}" \
     > "${z_combined_steps}" || buc_die "Failed to combine mirror and about steps"
 
@@ -1437,7 +1431,7 @@ zrbf_mirror_submit() {
   local z_dockerfile_content=""
   local -r z_dockerfile_max_bytes=4000
   if test -n "${RBRV_BIND_OPTIONAL_DOCKERFILE:-}" && test -f "${RBRV_BIND_OPTIONAL_DOCKERFILE}"; then
-    local -r z_df_size_file="${ZRBF_MIRROR_PREFIX}df_size.txt"
+    local -r z_df_size_file="${ZRBFD_MIRROR_PREFIX}df_size.txt"
     wc -c < "${RBRV_BIND_OPTIONAL_DOCKERFILE}" > "${z_df_size_file}" \
       || buc_die "Failed to measure Dockerfile size"
     local z_df_size=""
@@ -1460,7 +1454,7 @@ zrbf_mirror_submit() {
 
   # Compose Build resource JSON
   buc_log_args "Composing combined mirror Build resource JSON"
-  local -r z_mirror_build_file="${ZRBF_MIRROR_PREFIX}build.json"
+  local -r z_mirror_build_file="${ZRBFD_MIRROR_PREFIX}build.json"
 
   jq -n \
     --slurpfile zjq_steps  "${z_combined_steps}" \
@@ -1535,8 +1529,8 @@ zrbf_mirror_submit() {
 ######################################################################
 # Graft (graft vessel → GAR)
 
-rbf_graft() {
-  zrbf_sentinel
+rbfd_graft() {
+  zrbfd_sentinel
 
   local z_vessel_dir="${1:-}"
 
@@ -1583,7 +1577,7 @@ rbf_graft() {
 
   # Extract image creation timestamp for consecration T1
   buc_step "Reading image creation timestamp"
-  local -r z_created_file="${ZRBF_GRAFT_PREFIX}created.txt"
+  local -r z_created_file="${ZRBFD_GRAFT_PREFIX}created.txt"
   docker image inspect --format '{{.Created}}' "${z_local_image}" > "${z_created_file}" \
     || buc_die "Failed to inspect image creation timestamp"
   local z_created=""
@@ -1614,7 +1608,7 @@ rbf_graft() {
   local -r z_gar_base="${z_gar_host}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
 
   # Generate push timestamp (T2) for consecration
-  local -r z_push_ts_file="${ZRBF_GRAFT_PREFIX}push_ts.txt"
+  local -r z_push_ts_file="${ZRBFD_GRAFT_PREFIX}push_ts.txt"
   date -u +'%y%m%d%H%M%S' > "${z_push_ts_file}" || buc_die "Failed to generate push timestamp"
   local z_push_ts
   z_push_ts="r$(<"${z_push_ts_file}")"
@@ -1667,14 +1661,6 @@ rbf_graft() {
   echo "  Source:  ${z_local_image}"
   echo "  Image:   ${z_image_ref}"
 }
-
-# Wrest and Summon — delegated to rbfr_FoundryRetriever.sh
-
-# Vouch Gate, About, Vouch, Batch Vouch — delegated to rbfv_FoundryVerify.sh
-
-# Inscribe, Jettison, Abjure, Tally — delegated to rbfl_FoundryLedger.sh
-
-# Plumb — delegated to rbfc_FoundryCore.sh
 
 
 # eof
