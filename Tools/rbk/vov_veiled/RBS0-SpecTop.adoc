@@ -1090,7 +1090,7 @@ Enumerates
 {rbtga_ark}
 consecrations across all regime vessels
 ({rbtgog_ark}),
-classifying each by artifact completeness, platform coverage, and vouch status.
+classifying each by artifact completeness and vouch status.
 
 include::RBSCL-consecration_tally.adoc[]
 
