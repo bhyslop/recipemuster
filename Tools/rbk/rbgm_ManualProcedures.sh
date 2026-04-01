@@ -397,16 +397,6 @@ rbgm_quota_build() {
   buc_success "Cloud Build quota guide displayed"
 }
 
-rbgm_gitlab_setup() {
-  zrbgm_sentinel
-
-  buc_doc_brief "ELIMINATED: GitLab rubric repo no longer needed (₣Av)"
-  buc_doc_shown || return 0
-
-  buc_info "GitLab rubric repo setup is no longer required."
-  buc_info "Recipe Bottle now uses builds.create + pouch for build context delivery."
-  buc_info "No GitLab account, PAT, or CB v2 connection is needed."
-}
 
 # Dashboard status line — no sentinel (used pre-kindle by onboarding guide)
 zrbgm_po_status() {

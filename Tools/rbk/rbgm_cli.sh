@@ -39,7 +39,7 @@ zrbgm_furnish() {
   # Differential furnish: guide commands need only display infrastructure,
   # everything else needs full regime kindle/enforce.
   case "${z_command}" in
-    rbgm_onboarding|rbgm_gitlab_setup)
+    rbgm_onboarding)
       source "${BURD_BUK_DIR}/bug_guide.sh"           || buc_die "Failed to source bug_guide.sh"
       source "${BURD_BUK_DIR}/buv_validation.sh"       || buc_die "Failed to source buv_validation.sh"
       zbuv_kindle

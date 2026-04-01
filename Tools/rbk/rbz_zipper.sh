@@ -44,7 +44,6 @@ zrbz_kindle() {
   buz_enroll RBZ_PAYOR_ESTABLISH            "rbw-gPE"      "${z_mod}" "rbgm_payor_establish"
   buz_enroll RBZ_PAYOR_REFRESH              "rbw-gPR"      "${z_mod}" "rbgm_payor_refresh"
   buz_enroll RBZ_QUOTA_BUILD                "rbw-gq"       "${z_mod}" "rbgm_quota_build"
-  buz_enroll RBZ_GITLAB_SETUP               "rbw-gPL"      "${z_mod}" "rbgm_gitlab_setup"
   buz_enroll RBZ_ONBOARDING                 "rbw-gO"       "${z_mod}" "rbgm_onboarding"
   # Marshal operations (rblm_cli.sh — Lifecycle Marshal)
   buz_enroll RBZ_MARSHAL_ZERO              "rbw-MZ"       "rblm_cli.sh" "rblm_zero"

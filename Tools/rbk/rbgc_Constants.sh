@@ -160,16 +160,6 @@ zrbgc_kindle() {
   readonly RBGC_RUBRIC_TRIGGER_PREFIX="rbw-trigger-"
   readonly RBGC_BUILD_RUNNER_PLATFORM="linux/amd64"
 
-  # Cloud Build v2 connection infrastructure (GitLab)
-  # Single project access token (api scope, includes read_api) stored in two secrets;
-  # webhook secret auto-generated UUID stored in third secret.
-  readonly RBGC_CBV2_API_TOKEN_SECRET_NAME="rbw-gitlab-api-token"
-  readonly RBGC_CBV2_READ_TOKEN_SECRET_NAME="rbw-gitlab-read-token"
-  readonly RBGC_CBV2_WEBHOOK_SECRET_NAME="rbw-gitlab-webhook-secret"
-  readonly RBGC_CBV2_CONNECTION_SUFFIX="-gitlab"
-  readonly RBGC_CBV2_REPOSITORY_ID="rubric"
-  readonly RBGC_API_ROOT_CLOUDBUILD_V2="https://cloudbuild.googleapis.com"
-  readonly RBGC_CLOUDBUILD_V2="/v2"
 
   # Worker pool infrastructure (dual pools: tether + airgap)
   readonly RBGC_POOL_SUFFIX_TETHER="-tether"

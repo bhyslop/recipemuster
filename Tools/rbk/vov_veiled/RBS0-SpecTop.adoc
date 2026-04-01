@@ -139,7 +139,6 @@
 :rbtgog_sa:                       <<rbtgog_sa,Service Account Group>>
 
 // Recipe Bottle Term Colophon (tabtarget entry points)
-:rbtc_gitlab_setup:              rbw-gPL (eliminated)
 // rbtc_refresh_gcb_pins eliminated (₣Av) — RBRG regime removed, reliquaries replace pin refresh
 :rbtc_plumb_full:                <<rbtc_plumb_full,rbw-RpF>>
 :rbtc_plumb_compact:             <<rbtc_plumb_compact,rbw-Rpc>>
@@ -2345,10 +2344,6 @@ A network node that serves as the entry point between two networks.
 
 === Tabtarget Colophons
 
-[[rbtc_gitlab_setup]]
-{rbtc_gitlab_setup}::
-ELIMINATED (₣Av): GitLab rubric repo setup no longer required.
-Builds now use `builds.create` + pouch for context delivery.
 
 // rbtc_refresh_gcb_pins eliminated (₣Av) — RBRG regime removed, reliquaries replace pin refresh
 // rbtc_refresh_binary_pins eliminated (₣Av) — slsa-verifier dropped
@@ -3435,7 +3430,6 @@ Recipe Bottle orchestration patterns define reusable implementation sequences fo
 
 // check_rubric_repo_url and check_cbv2_connection procedures eliminated (₣Av)
 // GitLab integration removed — no rubric repo URL or CB v2 connection to validate.
-Callable from any CLI context via `rbgu_check_cbv2_connection`.
 
 [[rbtoe_rbra_generate]]
 //axvo_procedure axd_transient axd_internal

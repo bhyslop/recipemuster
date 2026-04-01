@@ -30,7 +30,6 @@ The system uses only `bash`, `git`, `curl`, `openssh`, `jq`, and `docker` native
 | **Consecration** | A specific build instance of a vessel, identified by timestamp |
 | **Vouch** | SLSA provenance verification — proves an ark was built by trusted infrastructure |
 | **Depot** | The logical facility where container images are built and stored (GCP project + bucket + registry) |
-| **Rubric repo** | A separate GitLab repository where Cloud Build fetches build instructions. This is a security boundary — Cloud Build never sees your main repository. You define vessels locally; the inscribe command translates them into build instructions and pushes to the rubric repo automatically. |
 | **Sentry** | Security container that enforces network policies via `iptables` and `dnsmasq` |
 | **Pentacle** | Privileged container that establishes the network namespace shared with the bottle |
 | **Bottle** | Your workload container, running unmodified in a controlled network environment |
@@ -64,7 +63,6 @@ This ensures security policies are enforced from the first packet, and the bottl
 - `bash` (3.2+), `git`, `curl`, `openssh`, `jq`
 - `docker` (container runtime)
 - A Google Cloud account with billing enabled (credit card required for verification; free tier is sufficient to start)
-- A GitLab account (the rubric repo requires GitLab's repository-scoped project access tokens, which Cloud Build's v2 connection API needs)
 
 ## Using the CLI
 
@@ -121,11 +119,6 @@ This phase involves manual work in the Google Cloud Console: creating a GCP proj
    tt/rbw-gPI.PayorInstall.sh ~/Downloads/client_secret_*.json
    ```
    On success, the refresh token is stored in `~/.rbw/rbro.env` with `600` permissions. You will not need to repeat the browser flow.
-
-4. **Configure GitLab** — Set up the rubric repo. This is a separate, minimal repository that serves as the security boundary between your project and Google. You never edit it directly — the inscribe command pushes build instructions there automatically.
-   ```
-   tt/rbw-gPL.GitLabSetup.sh
-   ```
 
 ### Phase 2: Infrastructure Provisioning
 

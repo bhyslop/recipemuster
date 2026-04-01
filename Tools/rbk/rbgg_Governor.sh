@@ -97,7 +97,7 @@ zrbgg_sentinel() {
 
 ######################################################################
 # Governor credential preflight — sources Governor RBRA and validates
-# GitLab/CB v2 checks removed (₣Av) — builds.create + pouch replaces triggers
+# CB v2 checks removed (₣Av) — builds.create + pouch replaces triggers
 
 zrbgg_rubric_preflight() {
   zrbgg_sentinel
