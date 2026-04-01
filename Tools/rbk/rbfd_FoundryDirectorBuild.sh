@@ -1279,7 +1279,7 @@ rbfd_ifrit_kludge() {
   buc_doc_shown || return 0
 
   # Resolve ifrit vessel
-  zrbfc_resolve_vessel "ifrit"
+  zrbfc_resolve_vessel "rbev-bottle-ifrit"
   local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
   test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
   zrbfc_load_vessel "${z_vessel_dir}"
