@@ -1771,6 +1771,13 @@
         "₢AUAAj": {
           "tacks": [
             {
+              "ts": "260401-0946",
+              "state": "complete",
+              "text": "## Spook\n\nWhen user says \"mount\" without a firemark, `jjx_orient` without a firemark defaults to the first racing heat — silently switching context away from the heat the chat was just working on. This happened in ₣Aw chat after wrapping ₢AwAAY: the next mount picked ₣Av instead of continuing ₣Aw.\n\n## Fix\n\nUpdate CLAUDE.md Mount Protocol (or orient guidance) so that:\n1. `jjx_orient` without a firemark is never called blindly — the agent must provide the most recently mounted/groomed heat's firemark\n2. If the chat has no prior heat context (fresh session), the agent asks the user which heat to mount rather than letting orient pick a default\n\nThis may be a CLAUDE.md-only fix (agent behavior guidance), or may warrant a code change to make parameterless orient return an error. Assess both options.",
+              "silks": "spook-orient-default-heat-selection",
+              "commit": "feceb60"
+            },
+            {
               "ts": "260327-1709",
               "state": "rough",
               "text": "## Spook\n\nWhen user says \"mount\" without a firemark, `jjx_orient` without a firemark defaults to the first racing heat — silently switching context away from the heat the chat was just working on. This happened in ₣Aw chat after wrapping ₢AwAAY: the next mount picked ₣Av instead of continuing ₣Aw.\n\n## Fix\n\nUpdate CLAUDE.md Mount Protocol (or orient guidance) so that:\n1. `jjx_orient` without a firemark is never called blindly — the agent must provide the most recently mounted/groomed heat's firemark\n2. If the chat has no prior heat context (fresh session), the agent asks the user which heat to mount rather than letting orient pick a default\n\nThis may be a CLAUDE.md-only fix (agent behavior guidance), or may warrant a code change to make parameterless orient return an error. Assess both options.",
