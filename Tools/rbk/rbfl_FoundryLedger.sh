@@ -298,8 +298,8 @@ rbfl_abjure() {
 
   # Build list of image tags to check/delete
   local z_image_tags=()
-  if test "${RBRV_VESSEL_MODE:-conjure}" = "bind"; then
-    # Bind vessels have a single multi-arch manifest list tag (no per-platform suffixes)
+  if test "${RBRV_VESSEL_MODE:-conjure}" = "bind" || test "${RBRV_VESSEL_MODE:-conjure}" = "graft"; then
+    # Bind and graft vessels have a single image tag (no per-platform suffixes)
     z_image_tags+=("${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}")
   else
     # Conjure vessels have per-platform suffixed tags + consumer-facing + intermediate
