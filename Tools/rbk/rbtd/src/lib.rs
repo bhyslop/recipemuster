@@ -22,9 +22,12 @@
 
 pub mod rbtdrd_dummy;
 pub mod rbtdre_engine;
+pub mod rbtdri_invocation;
 pub mod rbtdrm_manifest;
 
 #[cfg(test)]
 mod rbtdte_engine;
+#[cfg(test)]
+mod rbtdti_invocation;
 #[cfg(test)]
 mod rbtdtm_manifest;
