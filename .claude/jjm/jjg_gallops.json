@@ -253,6 +253,7 @@
       "creation_time": "260401",
       "status": "racing",
       "order": [
+        "₢A1AAL",
         "₢A1AAA",
         "₢A1AAK",
         "₢A1AAB",
@@ -265,7 +266,7 @@
         "₢A1AAI",
         "₢A1AAJ"
       ],
-      "next_pace_seed": "AAL",
+      "next_pace_seed": "AAM",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -386,6 +387,17 @@
               "text": "## Character\nLoad-bearing interface design — this is the trust boundary between bash zipper world and Rust binary world. Get it right once.\n\n## Docket\nImplement the colophon manifest protocol that lets theurge verify its compiled-in colophon strings match the live zipper registry.\n\n**Bash side (zipper):**\n- Add kindle constant `readonly ZRBZ_COLOPHON_MANIFEST=\"${z_buz_colophon_roll[*]}\"` to `zrbz_kindle()`, before the `KINDLED=1` sentinel\n- Not exported — stays internal, passed explicitly at dispatch boundary\n\n**Rust side (theurge):**\n- Theurge accepts `--colophon-manifest \"rbw-cC rbw-cQ rbw-cs ...\"` argument\n- Compiled-in constant array of colophon strings theurge depends on (initially: charge, quench, and whatever else the first cases need)\n- On startup: for each compiled-in colophon, confirm it appears in the manifest. Missing → fatal naming the specific string. Manifest absent entirely → fatal with \"theurge must be launched via tabtarget\"\n- Exhaustive match on the compiled-in enum — adding a new colophon dependency forces updating the constant\n\n**Dispatch glue:**\n- The theurge launcher (workbench dispatch or tabtarget) passes `ZRBZ_COLOPHON_MANIFEST` as argument to the binary before any other args\n\nThis pace comes after mint (₢A1AAA) and before container interaction (₢A1AAC), since every tabtarget invocation from Rust depends on this protocol being in place.",
               "silks": "colophon-manifest-protocol",
               "commit": "d41f701"
+            }
+          ]
+        },
+        "₢A1AAL": {
+          "tacks": [
+            {
+              "ts": "260401-1237",
+              "state": "rough",
+              "text": "## Character\nHousekeeping — confirm unused, delete, document.\n\n## Docket\nConfirm `rbi_Image.sh` is fully unused (no references from other scripts, no tabtargets, no sourcing). Delete it to reclaim the `rbi` prefix for ifrit directory (`rbid`). Update CLAUDE.md prefix mappings to remove the RBI entry. This must complete before the mint pace since ifrit directory placement depends on `rbi` being available.",
+              "silks": "reclaim-rbi-prefix",
+              "commit": "95d7716"
             }
           ]
         }
