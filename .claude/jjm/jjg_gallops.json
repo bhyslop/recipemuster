@@ -272,6 +272,13 @@
         "₢A1AAA": {
           "tacks": [
             {
+              "ts": "260401-1238",
+              "state": "rough",
+              "text": "## Character\nMinting discipline — careful, mechanical.\n\n## Docket\nMint the `rbtr` prefix tree for theurge-rust test infrastructure. Two separate crates in distinct directories:\n- `Tools/rbk/rbtd/` — Theurge directory (orchestrator binary, runs on host macOS)\n- `Tools/rbk/rbid/` — Ifrit directory (attack binary, runs inside Linux containers)\n\nThese are fully distinct Rust codebases, NOT under Tools/vok. Each gets its own `Cargo.toml`, `src/main.rs`. Establish workspace structure. Verify theurge builds with existing cargo infrastructure. Ifrit build target is a separate discussion (see cross-compilation note in paddock).\n\nNo functionality yet — just skeletons that compile.",
+              "silks": "mint-rbtr-prefix-and-workspace",
+              "commit": "3e81601"
+            },
+            {
               "ts": "260401-1201",
               "state": "rough",
               "text": "## Character\nMinting discipline — careful, mechanical.\n\n## Docket\nMint the `rbtr` prefix tree. Create Rust workspace entries for theurge and ifrit binaries under Tools/vok (or a new crate location — decide during pace). Establish Cargo.toml structure, empty main.rs for both binaries. Verify builds with `tt/vow-b.Build.sh`. No functionality yet — just the skeleton that compiles.\n\nDecide: do theurge and ifrit live as separate crates in the workspace, or separate binaries in one crate? Leaning separate crates since they have completely different dependency profiles (theurge needs process/Docker interaction, ifrit needs raw network/socket capabilities).",
@@ -283,6 +290,13 @@
         "₢A1AAB": {
           "tacks": [
             {
+              "ts": "260401-1238",
+              "state": "rough",
+              "text": "## Character\nDesign work — judgment required on reporting model.\n\n## Docket\nBuild the theurge case execution framework: case registration, sequential dispatch, pass/fail/skip tracking, colored terminal output, verbose trace files written to a per-case temp directory. This is the equivalent of BUK's bute_engine + buto_operations + butd_dispatch but as a Rust application.\n\nKey behaviors to match from bash precedent:\n- Section headers for test groups\n- Green PASSED / red FAILED per case\n- Summary line at end (N passed, M failed, K skipped)\n- Verbose detail written to files per-case in temp dir (never rerun for detail, just read)\n- Fatal on first failure option vs run-all mode\n- Per-case temp dir isolation (matches `zbute_tcase` pattern from `bute_engine.sh`)\n\nNo container interaction yet — test with dummy cases that pass/fail. No JSON anywhere — terminal text and files.",
+              "silks": "theurge-reporting-and-case-framework",
+              "commit": "3e81601"
+            },
+            {
               "ts": "260401-1202",
               "state": "rough",
               "text": "## Character\nDesign work — judgment required on reporting model.\n\n## Docket\nBuild the theurge case execution framework: case registration, sequential dispatch, pass/fail/skip tracking, colored terminal output, verbose trace files written to TEMP_DIR. This is the equivalent of BUK's bute_engine + buto_operations + butd_dispatch but as a Rust application.\n\nKey behaviors to match from bash precedent:\n- Section headers for test groups\n- Green PASSED / red FAILED per case\n- Summary line at end (N passed, M failed, K skipped)\n- Verbose detail written to files (not rerun, just read)\n- Fatal on first failure option vs run-all mode\n\nNo container interaction yet — test with dummy cases that pass/fail.",
@@ -293,6 +307,13 @@
         },
         "₢A1AAC": {
           "tacks": [
+            {
+              "ts": "260401-1238",
+              "state": "rough",
+              "text": "## Character\nInfrastructure — mechanical but needs to be solid. Several design decisions embedded.\n\n## Docket\nBuild theurge's ability to interact with bottles and container layers, always via tabtargets.\n\n**Tabtarget invocations (charge/quench/observe):**\nTheurge shells out to tabtargets using colophon strings verified by the manifest protocol. It constructs paths by globbing `tt/{colophon}.*.{nameplate}.sh`. Charge and quench use existing `rbw-cC` / `rbw-cQ` colophons.\n\n**New container exec tabtargets — three new words:**\n- **writ** — execute arbitrary command in sentry (`rbw-cw` or similar colophon)\n- **fiat** — execute arbitrary command in pentacle\n- **bark** — execute arbitrary command in bottle\n\nThese need zipper enrollment in `rbz_zipper.sh`, tabtarget files in `tt/`, and backing implementations in `rbob_cli.sh` / `rbob_bottle.sh`. They parallel the existing hail/rack/scry interactive commands but are non-interactive exec-and-return.\n\n**BURV isolation for tabtarget invocations:**\nWhen theurge invokes a tabtarget, it must provide per-invocation `BURV_OUTPUT_ROOT_DIR` and `BURV_TEMP_ROOT_DIR` so child tabtarget temp space doesn't collide with theurge's own or with other invocations. Match the isolation pattern from `buto_operations.sh` `zbuto_invoke()`.\n\n**Copy ifrit into bottle:**\nThe \"copy ifrit binary into bottle\" operation — `docker cp` or equivalent to place the compiled ifrit at a known path inside the bottle before test cases run.",
+              "silks": "theurge-container-interaction-layer",
+              "commit": "3e81601"
+            },
             {
               "ts": "260401-1202",
               "state": "rough",
@@ -381,6 +402,13 @@
         },
         "₢A1AAK": {
           "tacks": [
+            {
+              "ts": "260401-1238",
+              "state": "rough",
+              "text": "## Character\nLoad-bearing interface design — this is the trust boundary between bash zipper world and Rust binary world. Get it right once.\n\n## Docket\nImplement the colophon manifest protocol that lets theurge verify its compiled-in colophon strings match the live zipper registry.\n\n**Bash side (rbz zipper):**\n- Add kindle constant `readonly ZRBZ_COLOPHON_MANIFEST=\"${z_buz_colophon_roll[*]}\"` to `zrbz_kindle()`, before the `KINDLED=1` sentinel\n- Not exported — stays internal, passed explicitly at dispatch boundary\n\n**Rust side (theurge):**\n- Theurge accepts the manifest string as an argument\n- Compiled-in constant array of colophon strings theurge depends on (initially: charge `rbw-cC`, quench `rbw-cQ`, writ/fiat/bark TBD)\n- On startup: for each compiled-in colophon, confirm it appears in the manifest string. Missing → fatal naming the specific string. Manifest absent entirely → fatal with \"theurge must be launched via tabtarget\"\n- The compiled-in set is a subset of the manifest — theurge doesn't care about colophons it doesn't use\n\n**Dispatch glue:**\n- The theurge launcher passes `ZRBZ_COLOPHON_MANIFEST` as argument to the binary before any other args",
+              "silks": "colophon-manifest-protocol",
+              "commit": "3e81601"
+            },
             {
               "ts": "260401-1214",
               "state": "rough",
