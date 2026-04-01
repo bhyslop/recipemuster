@@ -27,7 +27,15 @@ Architectural migration with careful sequencing. Early paces are infrastructure 
 - No Docker volumes, no persistent cargo cache. Layer caching handles dependency compilation; source-only changes recompile just the ifrit crate.
 - Adding a new crate dependency requires a tethered kludge (same cost as adding an apt package today). `Cargo.lock` pins versions.
 
-**Explicitly deferred**: new test design, tcpdump/continuous monitoring, cross-nameplate ifrit deployment, tabtarget reorganization.
+**RBTW workbench — orthogonal Rust pipeline:**
+- Theurge build/test is fully independent of the VOW pipeline (vvk/jjk/cmk kits destined for parcel delivery). VOW will be peeled away; theurge stays with rbk permanently.
+- `rbtw` minted as new sibling under `rbt` (alongside `rbtc` colophons, `rbtd` theurge, `rbtr` roles). Workbench at `Tools/rbk/rbtd/rbtw_workbench.sh`.
+- Tabtargets: `rbtd-b` (build), `rbtd-t` (unit test). Future: `rbtd-r` (run orchestration suite with tier imprints).
+- Theurge unit tests (`cargo test` on rbtd) verify engine internals — distinct from theurge-the-application which produces crucible verdicts. The paddock's "detached from cargo test" describes the application's purpose, not a prohibition on testing engine code.
+- `rbrt` was considered but rejected: `rbr` branch is semantically "Regime" (rbra, rbrm, rbrn, rbro, rbrp, rbrr, rbrs, rbrv) — a Rust test prefix would be an interloper.
+- Ifrit has no macOS unit tests — it's a Linux container binary. Its testing comes from theurge orchestrating the charged bottle.
+
+**Explicitly deferred**: new test design, tcpdump/continuous monitoring, cross-nameplate ifrit deployment.
 
 ## Provenance
 Emerged from conversation about the fundamental flaw in split bash/python test architecture. The name "theurge" chosen for `rbt` prefix compatibility and the mythology (one who compels spirits through ceremony — commanding the ifrit).
