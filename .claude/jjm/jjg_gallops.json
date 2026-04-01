@@ -267,10 +267,11 @@
         "₢A1AAG",
         "₢A1AAH",
         "₢A1AAI",
+        "₢A1AAQ",
         "₢A1AAJ",
         "₢A1AAM"
       ],
-      "next_pace_seed": "AAQ",
+      "next_pace_seed": "AAR",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -600,6 +601,17 @@
               "text": "## Character\nVerification gate — prove the ifrit vessel works in isolation before attempting the full theurge→ifrit pipeline.\n\n## Docket\nVerify the ifrit binary and vessel image (built in ₢A1AAD) work standalone before ₢A1AAE wires theurge+ifrit end-to-end.\n\n**Verify build:**\n- `rbi-iB` kludge tabtarget produces a vessel image successfully\n- Image contains the ifrit binary at expected path\n- Image contains required network tools (socat, dnsutils, netcat-openbsd, traceroute, strace)\n\n**Verify ifrit binary:**\n- Manually charge a tadmor crucible (via `rbw-cC` tabtarget)\n- Exec ifrit inside the bottle via bark tabtarget with each initial attack selector\n- Confirm: correct stdout format (parseable by theurge's expected contract), correct exit codes (0 for pass/SECURE, nonzero for fail)\n- Confirm: unknown attack selector produces clear error, not a panic\n\n**Verify layer caching:**\n- Rebuild with source-only change, confirm dependency layer is cached (fast rebuild)\n\n**Exit criteria:** Ifrit builds, runs inside a charged bottle, produces parseable output for all initial attack variants. Theurge can depend on this contract in ₢A1AAE.",
               "silks": "qualify-ifrit-vessel-standalone",
               "commit": "24f3997"
+            }
+          ]
+        },
+        "₢A1AAQ": {
+          "tacks": [
+            {
+              "ts": "260401-1353",
+              "state": "rough",
+              "text": "## Character\nVerification gate — systematic audit, no code changes. This must complete cleanly before retirement (₢A1AAJ) touches anything.\n\n## Docket\nAfter all porting paces (₢A1AAF, ₢A1AAG, ₢A1AAH, ₢A1AAI) are complete, audit that every existing test case has a theurge equivalent before retirement deletes the originals.\n\n**Audit steps:**\n- Extract complete case list from bash test fixtures: `rbtcns_TadmorSecurity.sh` (22), `rbtcev_EnrollmentValidation.sh` (47), `rbtcrv_RegimeValidation.sh` (21), regime-smoke (7), srjcl-jupyter (3), pluml-diagram (5), four-mode (15), access-probe (4)\n- Extract complete sortie list from python roster: `rbtis_*.py` (11 modules)\n- Extract complete theurge case catalog from Rust source\n- Produce a side-by-side diff: original case → theurge equivalent, flagging any gaps\n- Run theurge complete suite, confirm all cases pass\n\n**Exit criteria:** Zero gaps between original and theurge catalogs. All theurge cases green. Written parity report committed as evidence for the retirement pace. Any gaps discovered here become fix-paces slated before ₢A1AAJ.",
+              "silks": "audit-coverage-parity",
+              "commit": "ef1c1b6"
             }
           ]
         }
