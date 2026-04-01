@@ -333,6 +333,27 @@ rbob_rack() {
   exec ${ZRBOB_RUNTIME} exec -it "${ZRBOB_BOTTLE}" /bin/bash
 }
 
+# Writ sentry — non-interactive command execution in sentry
+rbob_writ() {
+  zrbob_sentinel
+  buc_step "Writ to sentry: ${ZRBOB_SENTRY}"
+  exec ${ZRBOB_RUNTIME} exec "${ZRBOB_SENTRY}" "$@"
+}
+
+# Fiat pentacle — non-interactive command execution in pentacle
+rbob_fiat() {
+  zrbob_sentinel
+  buc_step "Fiat to pentacle: ${ZRBOB_PENTACLE}"
+  exec ${ZRBOB_RUNTIME} exec "${ZRBOB_PENTACLE}" "$@"
+}
+
+# Bark bottle — non-interactive command execution in bottle
+rbob_bark() {
+  zrbob_sentinel
+  buc_step "Bark to bottle: ${ZRBOB_BOTTLE}"
+  exec ${ZRBOB_RUNTIME} exec "${ZRBOB_BOTTLE}" "$@"
+}
+
 # Launch Claude Code client inside bottle (ifrit engagement)
 rbob_ifrit_client() {
   zrbob_sentinel

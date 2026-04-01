@@ -117,6 +117,9 @@ zrbz_kindle() {
   buz_enroll RBZ_CRUCIBLE_HAIL  "rbw-ch" "${z_mod}" "rbob_hail"          "param1"
   buz_enroll RBZ_CRUCIBLE_RACK  "rbw-cr" "${z_mod}" "rbob_rack"          "param1"
   buz_enroll RBZ_CRUCIBLE_SCRY  "rbw-cs" "${z_mod}" "rbob_scry"          "param1"
+  buz_enroll RBZ_CRUCIBLE_WRIT  "rbw-cw" "${z_mod}" "rbob_writ"          "imprint"
+  buz_enroll RBZ_CRUCIBLE_FIAT  "rbw-cf" "${z_mod}" "rbob_fiat"          "imprint"
+  buz_enroll RBZ_CRUCIBLE_BARK  "rbw-cb" "${z_mod}" "rbob_bark"          "imprint"
   buz_enroll RBZ_BOTTLE_IFRIT   "rbw-Ic" "${z_mod}" "rbob_ifrit_client"  "imprint"
   buz_enroll RBZ_BOTTLE_SORTIE  "rbw-Is" "${z_mod}" "rbob_ifrit_sortie"  "imprint"
 

@@ -18,11 +18,21 @@
 
 use std::process::ExitCode;
 
-/// Colophon strings theurge depends on.
-/// Each must appear in the manifest passed from the bash zipper at launch.
+/// Colophon consts — single definition per String Boundary Discipline.
+/// Each names the bash tabtarget colophon theurge invokes for that operation.
+const RBTD_COLOPHON_CHARGE: &str = "rbw-cC";
+const RBTD_COLOPHON_QUENCH: &str = "rbw-cQ";
+const RBTD_COLOPHON_WRIT: &str = "rbw-cw";
+const RBTD_COLOPHON_FIAT: &str = "rbw-cf";
+const RBTD_COLOPHON_BARK: &str = "rbw-cb";
+
+/// Colophon manifest gate — all must appear in the zipper roll at launch.
 const RBTD_REQUIRED_COLOPHONS: &[&str] = &[
-    "rbw-cC", // crucible charge
-    "rbw-cQ", // crucible quench
+    RBTD_COLOPHON_CHARGE,
+    RBTD_COLOPHON_QUENCH,
+    RBTD_COLOPHON_WRIT,
+    RBTD_COLOPHON_FIAT,
+    RBTD_COLOPHON_BARK,
 ];
 
 fn rbtd_verify_colophon_manifest(manifest: &str) -> Result<(), String> {
@@ -68,27 +78,34 @@ mod tests {
 
     #[test]
     fn verify_accepts_valid_manifest() {
-        let manifest = "rbw-PL rbw-gPI rbw-cC rbw-cQ rbw-Qf";
-        assert!(rbtd_verify_colophon_manifest(manifest).is_ok());
+        let manifest = format!(
+            "rbw-PL rbw-gPI {} {} {} {} {} rbw-Qf",
+            RBTD_COLOPHON_CHARGE,
+            RBTD_COLOPHON_QUENCH,
+            RBTD_COLOPHON_WRIT,
+            RBTD_COLOPHON_FIAT,
+            RBTD_COLOPHON_BARK,
+        );
+        assert!(rbtd_verify_colophon_manifest(&manifest).is_ok());
     }
 
     #[test]
     fn verify_rejects_missing_colophon() {
         let manifest = "rbw-PL rbw-gPI rbw-cC rbw-Qf";
         let err = rbtd_verify_colophon_manifest(manifest).unwrap_err();
-        assert!(err.contains("rbw-cQ"));
+        assert!(err.contains(RBTD_COLOPHON_QUENCH));
     }
 
     #[test]
     fn verify_rejects_empty_manifest() {
         let err = rbtd_verify_colophon_manifest("").unwrap_err();
-        assert!(err.contains("rbw-cC"));
+        assert!(err.contains(RBTD_COLOPHON_CHARGE));
     }
 
     #[test]
     fn verify_no_partial_match() {
         let manifest = "rbw-cCC rbw-cQQ";
         let err = rbtd_verify_colophon_manifest(manifest).unwrap_err();
-        assert!(err.contains("rbw-cC"));
+        assert!(err.contains(RBTD_COLOPHON_CHARGE));
     }
 }
