@@ -783,6 +783,81 @@ The `gcloud auth configure-docker` approach also fails mechanically in GCB steps
 NOTE: The gcloud reliquary image exists because conjure build steps use it as a convenience shell (for `bash` and `date`).
 The vouch verification step (conjure mode) additionally invokes `gcloud` for provenance retrieval (see exception above).
 
+== Dependency Inventory
+
+{at_recipe_bottle} depends on a minimal, explicitly managed set of external commands.
+The Bash Console Guide (`BCG-BashConsoleGuide.md`) establishes the universal dependency discipline — POSIX builtins preferred, external commands justified individually.
+This section inventories the concrete choices {at_recipe_bottle} has made within that framework.
+
+=== Consumer Dependencies
+
+Required on every {at_workstation}.
+Enforced by qualification and documented on the project page.
+
+[cols="1,3"]
+|===
+| Command | Purpose
+
+| `bash`
+| Shell runtime (3.2+ compatible)
+
+| `git`
+| Version control and subtree integration
+
+| `curl`
+| HTTP client for all GCP REST API interaction
+
+| `jq`
+| JSON parsing for API responses and configuration
+
+| `docker`
+| {at_runtime} for bottle lifecycle
+
+| `openssl`
+| JWT signing (RS256), base64 encoding/decoding, SHA-256 hashing
+
+| `ssh` / `scp` / `ssh-keygen`
+| Secure credential transport and key generation
+|===
+
+=== Developer Dependencies
+
+Used in development and testing tooling.
+Not required for consumer workflows.
+
+[cols="1,3"]
+|===
+| Command | Purpose
+
+| `shellcheck`
+| Static analysis linter, used by release-tier qualification
+
+| `timeout`
+| GNU coreutils test timeout, used by testbench; absent on stock macOS
+|===
+
+=== Specialized Runtime Dependencies
+
+Present in specific operational modules.
+Not required for core consumer or developer workflows.
+
+[cols="1,3"]
+|===
+| Command | Purpose
+
+| `podman`
+| Alternative container runtime (deferred: dual-runtime support alongside docker)
+
+| `tcpdump`
+| Network debugging in observe module
+
+| `sed`
+| 2 load-bearing uses: log timestamp normalization, Podman output parsing
+
+| `stty`
+| Terminal width detection in launcher
+|===
+
 == Operation Groups
 
 [[rbtgog_payor]]
@@ -1984,7 +2059,7 @@ commands.
 //axl_voices axo_dependency
 {at_base_utilities}::
 The minimal set of command-line tools
-(`bash`, `git`, `curl`, `openssh`, `jq`)
+(`bash`, `git`, `curl`, `openssh`, `jq`, `openssl`)
 required on the
 {at_workstation}.
 
