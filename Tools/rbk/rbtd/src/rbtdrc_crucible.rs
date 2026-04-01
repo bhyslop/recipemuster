@@ -1,0 +1,211 @@
+// Copyright 2026 Scale Invariant, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// Author: Brad Hyslop <bhyslop@scaleinvariant.org>
+//
+// RBTDRC — crucible test cases for theurge end-to-end testing
+//
+// Cases execute inside a charged crucible (sentry + pentacle + bottle).
+// Thread-local context bridges the static case function signature with
+// the mutable invocation context needed for tabtarget calls.
+
+use std::cell::RefCell;
+use std::path::Path;
+
+use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Section, rbtdre_Verdict};
+use crate::rbtdri_invocation::{rbtdri_Context, rbtdri_invoke, rbtdri_parse_ifrit_verdict};
+use crate::rbtdrm_manifest::{RBTDRM_COLOPHON_BARK, RBTDRM_COLOPHON_WRIT};
+
+// ── Thread-local invocation context ──────────────────────────
+
+/// Ifrit binary name inside the bottle container.
+const RBTDRC_IFRIT_BINARY: &str = "rbid";
+
+thread_local! {
+    static RBTDRC_CTX: RefCell<Option<rbtdri_Context>> = RefCell::new(None);
+}
+
+/// Store invocation context for case functions. Called before run_sections.
+pub fn rbtdrc_set_context(ctx: rbtdri_Context) {
+    RBTDRC_CTX.with(|c| *c.borrow_mut() = Some(ctx));
+}
+
+/// Retrieve invocation context after cases complete. Called for quench.
+pub fn rbtdrc_take_context() -> rbtdri_Context {
+    RBTDRC_CTX.with(|c| {
+        c.borrow_mut()
+            .take()
+            .expect("rbtdrc: no context — was rbtdrc_set_context called?")
+    })
+}
+
+fn rbtdrc_with_ctx<F>(f: F) -> rbtdre_Verdict
+where
+    F: FnOnce(&mut rbtdri_Context) -> rbtdre_Verdict,
+{
+    RBTDRC_CTX.with(|c| {
+        let mut opt = c.borrow_mut();
+        let ctx = opt
+            .as_mut()
+            .expect("rbtdrc: no invocation context for case execution");
+        f(ctx)
+    })
+}
+
+// ── Helpers ──────────────────────────────────────────────────
+
+/// Invoke ifrit inside the bottle via bark, saving stdout/stderr to case dir.
+fn rbtdrc_invoke_ifrit(
+    ctx: &mut rbtdri_Context,
+    attack: &str,
+    dir: &Path,
+) -> rbtdre_Verdict {
+    let result = match rbtdri_invoke(ctx, RBTDRM_COLOPHON_BARK, &[RBTDRC_IFRIT_BINARY, attack]) {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("bark invocation error: {}", e)),
+    };
+    let _ = std::fs::write(dir.join("bark-stdout.txt"), &result.stdout);
+    let _ = std::fs::write(dir.join("bark-stderr.txt"), &result.stderr);
+    rbtdri_parse_ifrit_verdict(&result.stdout, result.exit_code)
+}
+
+/// Execute a command in the sentry via writ, returning captured stdout.
+fn rbtdrc_writ(ctx: &mut rbtdri_Context, args: &[&str]) -> Result<String, String> {
+    let result = rbtdri_invoke(ctx, RBTDRM_COLOPHON_WRIT, args)?;
+    if result.exit_code != 0 {
+        return Err(format!(
+            "writ exit {}\nstdout: {}\nstderr: {}",
+            result.exit_code, result.stdout, result.stderr
+        ));
+    }
+    Ok(result.stdout)
+}
+
+// ── Ifrit attack cases (bark-only, inside observation) ───────
+
+fn rbtdrc_ifrit_dns_allowed(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "dns-allowed-anthropic", dir))
+}
+
+fn rbtdrc_ifrit_dns_blocked(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "dns-blocked-google", dir))
+}
+
+fn rbtdrc_ifrit_apt_blocked(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "apt-get-blocked", dir))
+}
+
+// ── Observation cases (writ + bark, inside/outside) ──────────
+
+fn rbtdrc_sentry_iptables_loaded(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        let output = match rbtdrc_writ(ctx, &["iptables", "-S"]) {
+            Ok(o) => o,
+            Err(e) => return rbtdre_Verdict::Fail(format!("writ error: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("iptables-rules.txt"), &output);
+
+        if output.trim().is_empty() {
+            return rbtdre_Verdict::Fail("iptables -S returned empty output".to_string());
+        }
+        // Expect at least one policy line (-P) and one append rule (-A)
+        if !output.contains("-P") || !output.contains("-A") {
+            return rbtdre_Verdict::Fail(format!(
+                "iptables rules incomplete (missing -P or -A):\n{}",
+                output
+            ));
+        }
+        rbtdre_Verdict::Pass
+    })
+}
+
+fn rbtdrc_dns_blocked_with_observation(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        // Before: capture iptables state from sentry
+        let before = match rbtdrc_writ(ctx, &["iptables", "-L", "-v", "-n", "-x"]) {
+            Ok(o) => {
+                let _ = std::fs::write(dir.join("iptables-before.txt"), &o);
+                o
+            }
+            Err(e) => return rbtdre_Verdict::Fail(format!("before-capture: {}", e)),
+        };
+
+        // Attack: invoke ifrit dns-blocked-google inside bottle
+        let ifrit_verdict = rbtdrc_invoke_ifrit(ctx, "dns-blocked-google", dir);
+
+        // After: capture iptables state from sentry
+        let after = match rbtdrc_writ(ctx, &["iptables", "-L", "-v", "-n", "-x"]) {
+            Ok(o) => {
+                let _ = std::fs::write(dir.join("iptables-after.txt"), &o);
+                o
+            }
+            Err(e) => return rbtdre_Verdict::Fail(format!("after-capture: {}", e)),
+        };
+
+        // Log observation: did sentry state change during the attack?
+        let delta = if before != after {
+            "CHANGED — sentry processed traffic during attack"
+        } else {
+            "UNCHANGED — no observable sentry state change"
+        };
+        let observation = format!(
+            "Ifrit verdict: {}\nIptables delta: {}\n",
+            match &ifrit_verdict {
+                rbtdre_Verdict::Pass => "PASS",
+                rbtdre_Verdict::Fail(_) => "FAIL",
+                rbtdre_Verdict::Skip(_) => "SKIP",
+            },
+            delta,
+        );
+        let _ = std::fs::write(dir.join("observation.txt"), &observation);
+
+        // Primary verdict is the ifrit result
+        ifrit_verdict
+    })
+}
+
+// ── Section registry ─────────────────────────────────────────
+
+pub static RBTDRC_SECTIONS: &[rbtdre_Section] = &[
+    rbtdre_Section {
+        name: "tadmor-ifrit-attacks",
+        cases: &[
+            rbtdre_Case {
+                name: "ifrit-dns-allowed",
+                func: rbtdrc_ifrit_dns_allowed,
+            },
+            rbtdre_Case {
+                name: "ifrit-dns-blocked",
+                func: rbtdrc_ifrit_dns_blocked,
+            },
+            rbtdre_Case {
+                name: "ifrit-apt-blocked",
+                func: rbtdrc_ifrit_apt_blocked,
+            },
+        ],
+    },
+    rbtdre_Section {
+        name: "tadmor-observation",
+        cases: &[
+            rbtdre_Case {
+                name: "sentry-iptables-loaded",
+                func: rbtdrc_sentry_iptables_loaded,
+            },
+            rbtdre_Case {
+                name: "dns-blocked-with-observation",
+                func: rbtdrc_dns_blocked_with_observation,
+            },
+        ],
+    },
+];

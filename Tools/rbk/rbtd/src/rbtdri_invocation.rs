@@ -29,6 +29,9 @@ use std::process::Command;
 use crate::rbtdre_engine::rbtdre_Verdict;
 use crate::rbtdrm_manifest::RBTDRM_COLOPHON_BARK;
 
+/// Ifrit binary name inside the bottle container.
+const RBTDRI_IFRIT_BINARY: &str = "rbid";
+
 // ── Invocation result ────────────────────────────────────────
 
 /// Captured output from a tabtarget invocation.
@@ -191,6 +194,6 @@ pub fn rbtdri_invoke_ifrit(
     ctx: &mut rbtdri_Context,
     attack_selector: &str,
 ) -> Result<rbtdre_Verdict, String> {
-    let result = rbtdri_invoke(ctx, RBTDRM_COLOPHON_BARK, &[attack_selector])?;
+    let result = rbtdri_invoke(ctx, RBTDRM_COLOPHON_BARK, &[RBTDRI_IFRIT_BINARY, attack_selector])?;
     Ok(rbtdri_parse_ifrit_verdict(&result.stdout, result.exit_code))
 }

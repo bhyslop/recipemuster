@@ -20,6 +20,7 @@
 #![allow(private_interfaces)]
 #![deny(unused_variables)]
 
+pub mod rbtdrc_crucible;
 pub mod rbtdrd_dummy;
 pub mod rbtdre_engine;
 pub mod rbtdri_invocation;

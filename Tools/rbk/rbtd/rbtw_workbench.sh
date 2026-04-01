@@ -58,6 +58,22 @@ rbtw_route() {
       buc_success "All theurge tests passed"
       ;;
 
+    rbtd-r)
+      local z_nameplate="${BURD_TOKEN_3:-}"
+      test -n "${z_nameplate}" || buc_die "No nameplate imprint — use tabtarget with imprint (e.g. rbtd-r.Run.tadmor.sh)"
+
+      buc_step "Building theurge"
+      cargo build --manifest-path "${RBTW_MANIFEST}" || buc_die "cargo build failed"
+
+      local z_binary="${RBTW_SCRIPT_DIR}/target/debug/rbtd"
+      test -x "${z_binary}" || buc_die "Theurge binary not found: ${z_binary}"
+
+      local z_manifest="rbw-cC rbw-cQ rbw-cw rbw-cf rbw-cb"
+
+      buc_step "Running theurge against nameplate '${z_nameplate}'"
+      "${z_binary}" "${z_manifest}" "${z_nameplate}"
+      ;;
+
     *)
       buc_die "Unknown command: ${z_command}"
       ;;
