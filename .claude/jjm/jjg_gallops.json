@@ -256,9 +256,10 @@
         "₢A1AAA",
         "₢A1AAB",
         "₢A1AAC",
-        "₢A1AAD"
+        "₢A1AAD",
+        "₢A1AAE"
       ],
-      "next_pace_seed": "AAE",
+      "next_pace_seed": "AAF",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -302,6 +303,17 @@
               "text": "## Character\nDesign + implementation — the attack dispatch model matters.\n\n## Docket\nBuild the ifrit binary: a static Rust executable that takes an attack selector argument, executes one attack, prints structured output (verdict + detail to stdout), exits with 0 (SECURE) or 1 (BREACH/ERROR).\n\nStart with 2-3 simple attacks ported from the bash tadmor-security cases (e.g., dns-allowed-anthropic, dns-blocked-google, apt-get-blocked). These are simpler than the scapy-based python sorties and prove the model.\n\nDesign the attack enum — exhaustive match means adding a variant forces handling. The selector is a string on the command line mapped to an enum variant internally.\n\nStatic linking: target `x86_64-unknown-linux-musl` so the binary runs in any container with no runtime dependencies.",
               "silks": "ifrit-binary-with-attack-selector",
               "commit": "93cd662"
+            }
+          ]
+        },
+        "₢A1AAE": {
+          "tacks": [
+            {
+              "ts": "260401-1202",
+              "state": "rough",
+              "text": "## Character\nIntegration milestone — the proof that the architecture works.\n\n## Docket\nWire theurge + ifrit together for the first time against the tadmor nameplate. Theurge charges the bottle, copies ifrit in, runs 3-5 attack cases via `docker exec`, monitors sentry state from outside, correlates results, reports verdicts.\n\nThis is the moment where \"simultaneous inside/outside observation\" becomes real. Pick cases where outside monitoring adds value (e.g., iptables counter delta on a blocked DNS query).\n\nEstablish tabtarget: reuse existing infix pattern, something like `tt/rbw-tf.TestFixture.tadmor.sh` invoking the theurge binary.",
+              "silks": "first-end-to-end-tadmor-cases",
+              "commit": "217bc24"
             }
           ]
         }
