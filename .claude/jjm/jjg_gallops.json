@@ -1,6 +1,6 @@
 {
   "schema_version": 4,
-  "next_heat_seed": "A1",
+  "next_heat_seed": "A2",
   "heat_order": [
     "₣Az",
     "₣An",
@@ -18,7 +18,8 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au"
+    "₣Au",
+    "₣A1"
   ],
   "heats": {
     "₣A0": {
@@ -246,6 +247,15 @@
           ]
         }
       }
+    },
+    "₣A1": {
+      "silks": "rbk-theurge-rust-test-infrastructure",
+      "creation_time": "260401",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uAl1.md",
+      "paces": {}
     },
     "₣AD": {
       "silks": "vos-spec-and-tooling",
