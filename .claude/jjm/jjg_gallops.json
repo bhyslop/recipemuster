@@ -261,9 +261,10 @@
         "₢A1AAF",
         "₢A1AAG",
         "₢A1AAH",
-        "₢A1AAI"
+        "₢A1AAI",
+        "₢A1AAJ"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -362,6 +363,17 @@
               "text": "## Character\nCareful — reimplementing regime validation in Rust means understanding the bash regime loading contract deeply.\n\n## Docket\nPort the fast-tier bash tests to theurge:\n- 47 enrollment-validation cases (`rbtcev_EnrollmentValidation.sh`)\n- 21 regime-validation cases (`rbtcrv_RegimeValidation.sh`)\n- 7 regime-smoke cases\n\nThese are pure config validation — no containers. They currently test bash regime loading (source rbrr.sh, kindle, enforce). The Rust equivalent either:\n(a) shells out to the bash regime scripts and validates their behavior, or\n(b) re-implements regime validation in Rust\n\nOption (a) is more faithful and less work. Option (b) is cleaner but risks divergence. Decide during pace.",
               "silks": "port-fast-tier-regime-enrollment-validation",
               "commit": "943111e"
+            }
+          ]
+        },
+        "₢A1AAJ": {
+          "tacks": [
+            {
+              "ts": "260401-1203",
+              "state": "rough",
+              "text": "## Character\nPruning — satisfying but irreversible. Verify full coverage first.\n\n## Docket\nRemove the bash test infrastructure and python sortie framework:\n- `Tools/buk/bute_engine.sh`, `butd_dispatch.sh`, `butr_registry.sh`, `buto_operations.sh`\n- `Tools/rbk/rbtb_testbench.sh` and `Tools/rbk/rbts/*.sh` (all bash test cases)\n- `Tools/rbk/rbtid/` (python adjutant, roster, all sorties, debrief)\n- `rbev-vessels/rbev-bottle-ifrit/Dockerfile` (rebuild as slim vessel for Rust ifrit)\n- Test suite/fixture tabtargets that pointed to bash infrastructure\n- Zipper enrollments for retired colophons\n\nBefore removing: run theurge suite, confirm all ported cases pass, diff coverage against bash/python case lists to ensure nothing was dropped.\n\nUpdate CLAUDE.md prefix mappings to reflect new `rbtr` tree and retired `rbtb`/`rbtid` entries.",
+              "silks": "retire-bash-test-and-python-sortie-infrastructure",
+              "commit": "00ffe7f"
             }
           ]
         }
