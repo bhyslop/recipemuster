@@ -457,6 +457,8 @@ zrbfc_assemble_vouch_steps() {
 # Internal: core plumb logic shared by full and compact modes
 # Args: vessel consecration mode
 zrbfc_plumb_core() {
+  zrbfc_sentinel
+
   local z_vessel="${1:-}"
   z_vessel="${z_vessel##*/}"  # accept directory path or bare moniker
   local -r z_consecration="${2:-}"
@@ -531,6 +533,8 @@ zrbfc_plumb_core() {
 # Internal: display bind vessel info
 # Args: vessel consecration mode
 zrbfc_plumb_show_bind() {
+  zrbfc_sentinel
+
   local -r z_vessel="$1"
   local -r z_consecration="$2"
   local -r z_mode="$3"
@@ -571,6 +575,8 @@ zrbfc_plumb_show_bind() {
 # Args: extract_dir has_vouch
 # Outputs: vessel type, source, builder, SLSA, SBOM summary, vouch results
 zrbfc_plumb_show_sections() {
+  zrbfc_sentinel
+
   local -r z_dir="$1"
   local -r z_has_vouch="$2"
 
@@ -971,6 +977,8 @@ zrbfc_plumb_show_sections() {
 # Internal: display compact vessel info (conjure or bind)
 # Args: vessel consecration extract_dir has_vouch
 zrbfc_plumb_show_compact() {
+  zrbfc_sentinel
+
   local -r z_vessel="$1"
   local -r z_consecration="$2"
   local -r z_dir="$3"
@@ -992,6 +1000,8 @@ zrbfc_plumb_show_compact() {
 # Adds per-package inventory and Dockerfile (conjure only) to the compact sections.
 # Args: vessel consecration extract_dir has_vouch
 zrbfc_plumb_show_full() {
+  zrbfc_sentinel
+
   local -r z_vessel="$1"
   local -r z_consecration="$2"
   local -r z_dir="$3"
