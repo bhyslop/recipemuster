@@ -14,98 +14,58 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBTD Theurge — crucible test orchestrator for Recipe Bottle
+// RBTD Theurge — crucible test orchestrator entry point
 
 use std::process::ExitCode;
 
-/// Colophon consts — single definition per String Boundary Discipline.
-/// Each names the bash tabtarget colophon theurge invokes for that operation.
-const RBTD_COLOPHON_CHARGE: &str = "rbw-cC";
-const RBTD_COLOPHON_QUENCH: &str = "rbw-cQ";
-const RBTD_COLOPHON_WRIT: &str = "rbw-cw";
-const RBTD_COLOPHON_FIAT: &str = "rbw-cf";
-const RBTD_COLOPHON_BARK: &str = "rbw-cb";
-
-/// Colophon manifest gate — all must appear in the zipper roll at launch.
-const RBTD_REQUIRED_COLOPHONS: &[&str] = &[
-    RBTD_COLOPHON_CHARGE,
-    RBTD_COLOPHON_QUENCH,
-    RBTD_COLOPHON_WRIT,
-    RBTD_COLOPHON_FIAT,
-    RBTD_COLOPHON_BARK,
-];
-
-fn rbtd_verify_colophon_manifest(manifest: &str) -> Result<(), String> {
-    for colophon in RBTD_REQUIRED_COLOPHONS {
-        let found = manifest.split_whitespace().any(|token| token == *colophon);
-        if !found {
-            return Err(format!(
-                "rbtd: colophon '{}' not found in zipper manifest",
-                colophon
-            ));
-        }
-    }
-    Ok(())
-}
-
-fn rbtd_main() -> Result<(), String> {
-    let args: Vec<String> = std::env::args().collect();
-
-    let manifest = args
-        .get(1)
-        .ok_or("rbtd: no colophon manifest argument — theurge must be launched via tabtarget")?;
-
-    rbtd_verify_colophon_manifest(manifest)?;
-
-    // Theurge operational logic goes here in later paces
-    eprintln!("rbtd: colophon manifest verified, theurge not yet implemented");
-    Err("rbtd: no test tier specified".to_string())
-}
+use rbtd::rbtdrd_dummy;
+use rbtd::rbtdre_engine::{rbtdre_detect_colors, rbtdre_print_summary, rbtdre_run_sections};
+use rbtd::rbtdrm_manifest::rbtdrm_verify;
 
 fn main() -> ExitCode {
-    match rbtd_main() {
-        Ok(()) => ExitCode::SUCCESS,
+    let args: Vec<String> = std::env::args().collect();
+
+    let manifest = match args.get(1) {
+        Some(m) => m,
+        None => {
+            eprintln!(
+                "rbtd: no colophon manifest argument — theurge must be launched via tabtarget"
+            );
+            return ExitCode::FAILURE;
+        }
+    };
+
+    if let Err(msg) = rbtdrm_verify(manifest) {
+        eprintln!("{}", msg);
+        return ExitCode::FAILURE;
+    }
+
+    let root_temp = std::env::temp_dir().join(format!("rbtd-{}", std::process::id()));
+    if let Err(e) = std::fs::create_dir_all(&root_temp) {
+        eprintln!("rbtd: failed to create temp dir: {}", e);
+        return ExitCode::FAILURE;
+    }
+
+    let colors = rbtdre_detect_colors();
+    let result = match rbtdre_run_sections(
+        rbtdrd_dummy::RBTDRD_SECTIONS,
+        &colors,
+        false,
+        &root_temp,
+    ) {
+        Ok(r) => r,
         Err(msg) => {
             eprintln!("{}", msg);
-            ExitCode::FAILURE
+            return ExitCode::FAILURE;
         }
-    }
-}
+    };
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+    rbtdre_print_summary(&result, &colors);
 
-    #[test]
-    fn verify_accepts_valid_manifest() {
-        let manifest = format!(
-            "rbw-PL rbw-gPI {} {} {} {} {} rbw-Qf",
-            RBTD_COLOPHON_CHARGE,
-            RBTD_COLOPHON_QUENCH,
-            RBTD_COLOPHON_WRIT,
-            RBTD_COLOPHON_FIAT,
-            RBTD_COLOPHON_BARK,
-        );
-        assert!(rbtd_verify_colophon_manifest(&manifest).is_ok());
-    }
-
-    #[test]
-    fn verify_rejects_missing_colophon() {
-        let manifest = "rbw-PL rbw-gPI rbw-cC rbw-Qf";
-        let err = rbtd_verify_colophon_manifest(manifest).unwrap_err();
-        assert!(err.contains(RBTD_COLOPHON_QUENCH));
-    }
-
-    #[test]
-    fn verify_rejects_empty_manifest() {
-        let err = rbtd_verify_colophon_manifest("").unwrap_err();
-        assert!(err.contains(RBTD_COLOPHON_CHARGE));
-    }
-
-    #[test]
-    fn verify_no_partial_match() {
-        let manifest = "rbw-cCC rbw-cQQ";
-        let err = rbtd_verify_colophon_manifest(manifest).unwrap_err();
-        assert!(err.contains(RBTD_COLOPHON_CHARGE));
+    if result.failed > 0 {
+        eprintln!("rbtd: {} case(s) failed", result.failed);
+        ExitCode::FAILURE
+    } else {
+        ExitCode::SUCCESS
     }
 }
