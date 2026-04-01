@@ -81,7 +81,6 @@ Full read and edit access is pre-approved for all files in:
 - **RBSQB** → `rbk/vov_veiled/RBSQB-quota_build.adoc`
 - **RBSRA** → `rbk/vov_veiled/RBSRA-CredentialFormat.adoc`
 - **RBSRG** → `rbk/vov_veiled/RBSRG-RegimeGcbPins.adoc`
-- **RBSRI** → `rbk/vov_veiled/RBSRI-rubric_inscribe.adoc`
 - **RBSRK** → `rbk/vov_veiled/RBSRK-retriever_knight.adoc`
 - **RBRN**  → `rbk/vov_veiled/RBRN-RegimeNameplate.adoc`
 - **RBSRM** → `rbk/vov_veiled/RBSRM-RegimeMachine.adoc`
@@ -213,6 +212,27 @@ Tabtargets for Rust operations (run from project root):
 - `tt/vow-t.Test.sh` → `cargo test --manifest-path Tools/vok/Cargo.toml`
 
 Never `cd` — use `--manifest-path` to stay at project root.
+
+### Test Execution
+
+**Test suites** group fixtures by dependency tier. Run the broadest applicable suite:
+
+| Suite | Tabtarget | Dependencies | What it covers |
+|-------|-----------|-------------|----------------|
+| `fast` | `tt/rbw-ts.TestSuite.fast.sh` | None | enrollment-validation (47), regime-validation (21), regime-smoke (7) |
+| `service` | `tt/rbw-ts.TestSuite.service.sh` | GCP credentials | fast + access-probe (4), four-mode (15-step integration) |
+| `crucible` | `tt/rbw-ts.TestSuite.crucible.sh` | Container runtime | fast + tadmor-security (22), srjcl-jupyter (3), pluml-diagram (5) |
+| `complete` | `tt/rbw-ts.TestSuite.complete.sh` | All of the above | Everything |
+
+**After code changes**, run the appropriate tier:
+- Regime/validation changes → `fast`
+- Foundry/credential changes → `service`
+- Bottle/sentry/network changes → `crucible`
+- Pre-release or decomposition sweep → `complete`
+
+**Single fixture**: `tt/rbw-tf.TestFixture.{name}.sh` (e.g., `four-mode`, `enrollment-validation`)
+
+**Sequential only**: Never run fixtures in parallel — they share regime state and container namespaces.
 
 ## Prefix Naming Discipline ("mint")
 
