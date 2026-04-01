@@ -1287,9 +1287,10 @@
         "₢AUAAF",
         "₢AUAAV",
         "₢AUAAe",
-        "₢AUAAn"
+        "₢AUAAn",
+        "₢AUAAy"
       ],
-      "next_pace_seed": "AAy",
+      "next_pace_seed": "AAz",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -2390,6 +2391,17 @@
               "text": "## Character\n\nSmall scope but security-adjacent — three compose edits that deliberately cross a container environment boundary and make a capability grant auditable.\n\n## Docket\n\nEffect three compose changes for ifrit sortie portability and CAP_NET_RAW hygiene.\n\n**Changes:**\n\n1. **`.rbk/tadmor.compose.yml`** — Add `env_file: tadmor.rbrn.env` to bottle service so RBRN_* vars are available to ifrit sorties at runtime. This is a deliberate security boundary crossing: bottles are normally blind to RBRN vars (sentry gets them explicitly for iptables/dnsmasq). Ifrit needs them for penetration testing against nameplate network topology.\n\n2. **`.rbk/rbob_compose.yml`** — Add `cap_drop: [NET_RAW]` to bottle service so production bottles lose the Docker-default CAP_NET_RAW.\n\n3. **`.rbk/tadmor.compose.yml`** — Add `cap_add: [NET_RAW]` to bottle service so ifrit explicitly opts back in (scapy needs raw sockets). The cap_drop/cap_add pair makes this a deliberate, auditable decision.\n\n## Context\n\nIfrit sorties were hardcoding nameplate IPs. All 11 sorties now read `os.environ[\"RBRN_*\"]` instead, but the bottle container currently receives zero RBRN vars. The `env_file` line closes that gap.\n\nCAP_NET_RAW was never explicitly authorized — it arrived via Docker defaults. Deny-by-default in base, grant-by-exception in ifrit's nameplate fragment.\n\n## Test plan\n\n- `rbw-ch.Hail.tadmor` — verify bottle starts with RBRN vars visible\n- `rbw-Is` (ifrit sortie) — verify sorties can read RBRN_* from environment\n- Confirm cap_drop/cap_add via `docker inspect` on running containers",
               "silks": "ifrit-sortie-env-and-cap-net-raw",
               "commit": "50c72f2"
+            }
+          ]
+        },
+        "₢AUAAy": {
+          "tacks": [
+            {
+              "ts": "260401-1337",
+              "state": "rough",
+              "text": "## Character\nMechanical — spec text corrections plus one small code extraction. No judgment calls.\n\n## Problem\nSpot check of `rbfd_enshrine` against RBS0/RBSAE found 5 places where the spec wording doesn't match the existing implementation. Additionally, enshrine submits a GCB job that depends on reliquary tool images but lacks the GAR preflight check that conjure already has via `zrbfd_registry_preflight`.\n\n## Deliverable A: Spec text corrections (RBS0 + RBSAE)\n\nAll tightening wording to match existing code — no behavior changes.\n\n1. **RBS0:1133** — \"pulls each upstream image by tag, pushes to GAR\" → \"submits a Cloud Build job that copies each upstream image\" (code submits GCB job, skopeo runs on GCB not locally)\n2. **RBSAE:50-52** — \"Inspects upstream image to obtain the manifest digest\" → clarify digest is computed locally from raw manifest bytes via `openssl dgst -sha256` of `skopeo inspect --raw` output, not retrieved from registry\n3. **RBSAE:53** — \"sanitize origin tag\" → \"sanitize full origin string\" (code runs `tr ':/' '--'` on the entire ORIGIN, not just the tag portion)\n4. **RBSAE typed_parameter block** — Add `{rbbc_require}` vessel mode is `conjure` (code gates on `RBRV_VESSEL_MODE=conjure` at line 762)\n5. **RBSAE typed_parameter block** — Add `{rbbc_require}` reliquary tool images exist in GAR (preflight HEAD check)\n\n## Deliverable B: Factor reliquary preflight for enshrine\n\nExtract reliquary canary check (lines 196-239 of `zrbfd_registry_preflight`) into `zrbfd_preflight_reliquary(token, vessel_dir)`. Call from:\n- `rbfd_enshrine` — after Director auth, before `zrbfd_enshrine_submit`\n- `zrbfd_registry_preflight` — replacing inline layer 1 block, then continuing to layer 2 anchor checks\n\nSame HEAD-request-on-docker:latest pattern, same 404 remediation output. No new logic.\n\n## References\n- Tools/rbk/rbfd_FoundryDirectorBuild.sh — `rbfd_enshrine()` (750), `zrbfd_registry_preflight()` (188)\n- Tools/rbk/vov_veiled/RBS0-SpecTop.adoc — lines 1119-1135\n- Tools/rbk/vov_veiled/RBSAE-ark_enshrine.adoc — full include\n- Tools/rbk/rbgje/rbgje01-enshrine-copy.sh — GCB step script (source of truth for digest/anchor logic)",
+              "silks": "enshrine-spec-realignment",
+              "commit": "a5c01bc"
             }
           ]
         }
