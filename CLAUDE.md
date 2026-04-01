@@ -22,7 +22,6 @@ Full read and edit access is pre-approved for all files in:
 - **RBGO** → `rbk/rbgo_OAuth.sh`
 - **RBGP** → `rbk/rbgp_Payor.sh`
 - **RBGU** → `rbk/rbgu_Utility.sh`
-- **RBI**  → `rbk/rbi_Image.sh`
 - **RBJ**  → Jailer prefix (non-terminal: children rbjs, rbjp, rbje, rbjh)
 - **RBJS** → `rbk/rbjs_sentry.sh` (Jailer Sentry - container security setup: iptables, dnsmasq, enclave network)
 - **RBLM** → `rbk/rblm_cli.sh` (Lifecycle Marshal - zero regime to blank template, proof repo for release testing)
