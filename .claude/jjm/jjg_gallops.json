@@ -254,9 +254,10 @@
       "status": "stabled",
       "order": [
         "₢A1AAA",
-        "₢A1AAB"
+        "₢A1AAB",
+        "₢A1AAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -278,6 +279,17 @@
               "text": "## Character\nDesign work — judgment required on reporting model.\n\n## Docket\nBuild the theurge case execution framework: case registration, sequential dispatch, pass/fail/skip tracking, colored terminal output, verbose trace files written to TEMP_DIR. This is the equivalent of BUK's bute_engine + buto_operations + butd_dispatch but as a Rust application.\n\nKey behaviors to match from bash precedent:\n- Section headers for test groups\n- Green PASSED / red FAILED per case\n- Summary line at end (N passed, M failed, K skipped)\n- Verbose detail written to files (not rerun, just read)\n- Fatal on first failure option vs run-all mode\n\nNo container interaction yet — test with dummy cases that pass/fail.",
               "silks": "theurge-reporting-and-case-framework",
               "commit": "5af721a"
+            }
+          ]
+        },
+        "₢A1AAC": {
+          "tacks": [
+            {
+              "ts": "260401-1202",
+              "state": "rough",
+              "text": "## Character\nInfrastructure — mechanical but needs to be solid.\n\n## Docket\nBuild theurge's ability to interact with bottles: charge a nameplate, exec commands into sentry/pentacle/bottle, capture stdout/stderr/exit code, copy files into containers. This is the bridge between theurge and the existing `rbob_bottle.sh` / podman/docker runtime.\n\nDecide: does theurge shell out to `docker exec` / existing tabtargets, or does it use a Docker API client crate? Leaning toward shelling out — simpler, reuses existing bottle infrastructure, avoids a large dependency.\n\nInclude: the \"copy ifrit binary into bottle\" operation that will be the core of the new model.",
+              "silks": "theurge-container-interaction-layer",
+              "commit": "0414add"
             }
           ]
         }
