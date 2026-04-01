@@ -29,6 +29,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBOB** → `rbk/rbob_bottle.sh`
 - **RBQ**  → `rbk/rbq_Qualify.sh` (Qualification orchestrator - tabtarget/colophon/nameplate health)
 - **RBTD** → `rbk/rbtd/` (Theurge — crucible test orchestrator)
+- **RBTW** → `rbk/rbtd/rbtw_workbench.sh` (Theurge workbench — build/test routing, orthogonal from VOW)
 - **RBV**  → `rbk/rbv_PodmanVM.sh`
 - **RBS0** → `rbk/vov_veiled/RBS0-SpecTop.adoc`
 - **RBSAA** → `rbk/vov_veiled/RBSAA-ark_abjure.adoc`
@@ -207,12 +208,16 @@ When working with .adoc files using MCM patterns:
 
 ### Rust Build Discipline
 
-Tabtargets for Rust operations (run from project root):
-- `tt/vow-b.Build.sh` → `cargo build --manifest-path Tools/vok/Cargo.toml`
-- `tt/vvw-r.RunVVX.sh <cmd>` → runs vvx binary with arguments
-- `tt/vow-t.Test.sh` → `cargo test --manifest-path Tools/vok/Cargo.toml`
+Two orthogonal Rust pipelines. Always use the tabtarget, never raw cargo commands.
 
-Never `cd` — use `--manifest-path` to stay at project root.
+**VOW pipeline** (vvk/jjk/cmk kits — parceled for delivery):
+- `tt/vow-b.Build.sh` — build vvr binary and install to VVK bin
+- `tt/vow-t.Test.sh` — run all kit crate tests
+- `tt/vvw-r.RunVVX.sh <cmd>` — run vvx binary with arguments
+
+**RBTW pipeline** (theurge — rbk's own test infrastructure, orthogonal from VOW):
+- `tt/rbtd-b.Build.sh` — build theurge crate
+- `tt/rbtd-t.Test.sh` — run theurge unit tests
 
 ### Test Execution
 
