@@ -398,6 +398,13 @@
         "₢A1AAH": {
           "tacks": [
             {
+              "ts": "260401-1239",
+              "state": "rough",
+              "text": "## Character\nMechanical porting — different bottle types but same pattern.\n\n## Docket\nPort ALL remaining bash test fixtures to theurge:\n\n**Service health tests (outside-only, no ifrit):**\n- srjcl-jupyter (3 cases): process check, HTTP connectivity, WebSocket kernel\n- pluml-diagram (5 cases): text rendering, local diagram, HTTP headers, invalid hash, malformed diagram\n- These charge the appropriate nameplate and probe from the host via theurge\n\n**Four-mode integration test (15 steps):**\n- Conjure/bind/graft/kludge/run/abjure cycle testing the full foundry build pipeline\n- This is NOT optional — all tests migrate. Port faithfully even though it tests build pipeline rather than container security.\n- Theurge invokes foundry tabtargets (enshrine, ordain, abjure, wrest, kludge, tally) — these colophons must be in the manifest protocol\n\n**Access-probe tests (4 cases):**\n- JWT and OAuth credential validation with retry logic\n- Service-tier dependency (GCP credentials required)",
+              "silks": "port-srjcl-pluml-service-tests",
+              "commit": "93d4f2a"
+            },
+            {
               "ts": "260401-1203",
               "state": "rough",
               "text": "## Character\nMechanical porting — different bottle types but same pattern.\n\n## Docket\nPort the srjcl-jupyter (3 cases) and pluml-diagram (5 cases) bash test fixtures to theurge. These don't use the ifrit — they're service health tests (HTTP GET, WebSocket kernel creation, rendering verification). Theurge handles them as outside-only cases that charge the appropriate nameplate and probe from the host.\n\nAlso port the four-mode integration test (15 steps) if it fits theurge's model, or assess whether it stays as a separate concern (it tests the build pipeline, not container security).",
@@ -409,6 +416,13 @@
         "₢A1AAI": {
           "tacks": [
             {
+              "ts": "260401-1239",
+              "state": "rough",
+              "text": "## Character\nCareful — testing bash regime parsing from Rust requires understanding the contract without reimplementing it.\n\n## Docket\nPort the fast-tier bash tests to theurge:\n- 47 enrollment-validation cases (`rbtcev_EnrollmentValidation.sh`)\n- 21 regime-validation cases (`rbtcrv_RegimeValidation.sh`)\n- 7 regime-smoke cases\n\nApproach: shell out to bash regime scripts and validate their behavior. Theurge invokes the bash utilities (source rbrr.sh, kindle, enforce) and asserts on exit codes and stderr. This tests the *actual* bash regime loading, not a Rust reimplementation. Cases will likely be easier to express in Rust even though they shell to bash.\n\nDo NOT reimplement regime validation in Rust — that's a future concern if it ever becomes one.",
+              "silks": "port-fast-tier-regime-enrollment-validation",
+              "commit": "93d4f2a"
+            },
+            {
               "ts": "260401-1203",
               "state": "rough",
               "text": "## Character\nCareful — reimplementing regime validation in Rust means understanding the bash regime loading contract deeply.\n\n## Docket\nPort the fast-tier bash tests to theurge:\n- 47 enrollment-validation cases (`rbtcev_EnrollmentValidation.sh`)\n- 21 regime-validation cases (`rbtcrv_RegimeValidation.sh`)\n- 7 regime-smoke cases\n\nThese are pure config validation — no containers. They currently test bash regime loading (source rbrr.sh, kindle, enforce). The Rust equivalent either:\n(a) shells out to the bash regime scripts and validates their behavior, or\n(b) re-implements regime validation in Rust\n\nOption (a) is more faithful and less work. Option (b) is cleaner but risks divergence. Decide during pace.",
@@ -419,6 +433,13 @@
         },
         "₢A1AAJ": {
           "tacks": [
+            {
+              "ts": "260401-1239",
+              "state": "rough",
+              "text": "## Character\nPruning — satisfying but irreversible. Verify full coverage first.\n\n## Docket\nRemove the RBK-specific test consumers and python sortie framework. **Do NOT remove BUK test infrastructure files** (`bute_engine.sh`, `butd_dispatch.sh`, `butr_registry.sh`, `buto_operations.sh`) — those are BUK framework used by other projects.\n\n**Remove:**\n- `Tools/rbk/rbtb_testbench.sh` and `Tools/rbk/rbts/*.sh` (all RBK bash test cases)\n- `Tools/rbk/rbtid/` (python adjutant, roster, all sorties, debrief)\n- Test suite/fixture tabtargets that pointed to bash infrastructure\n- Zipper enrollments for retired test colophons (`rbw-tf`, `rbw-ts`, `rbw-to`)\n- Sortie-related zipper enrollments (`rbw-Is`)\n\n**Simplify but keep:**\n- `rbev-vessels/rbev-bottle-ifrit/Dockerfile` — slim down to minimal base + network tools (no python, no nodejs, no Claude Code). The ifrit binary gets copied in at test time, not baked into the image.\n\n**Establish:**\n- Minimal BUK self-test (`butt_testbench.sh` or similar) that exercises the BUK test framework itself (kick-tires level) so butX files stay tested after RBK consumers are removed.\n\n**Before removing:** run theurge full suite, confirm all ported cases pass, diff coverage against bash/python case lists to ensure nothing was dropped.\n\nUpdate CLAUDE.md prefix mappings to reflect new `rbtr`/`rbid` trees and retired `rbtb`/`rbtid` entries.",
+              "silks": "retire-bash-test-and-python-sortie-infrastructure",
+              "commit": "93d4f2a"
+            },
             {
               "ts": "260401-1203",
               "state": "rough",
