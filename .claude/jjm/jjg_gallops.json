@@ -341,6 +341,13 @@
         "₢A1AAC": {
           "tacks": [
             {
+              "ts": "260401-1448",
+              "state": "complete",
+              "text": "## Character\nInfrastructure — mechanical but needs to be solid.\n\n## Docket\nBuild theurge's Rust code for interacting with bottles and container layers, always via tabtargets.\n\n**Tabtarget invocation layer:**\nTheurge shells out to tabtargets using colophon strings verified by the manifest protocol. It constructs paths by globbing `tt/{colophon}.*.{nameplate}.sh`. Uses writ/fiat/bark tabtargets established in ₢A1AAN for container exec, charge/quench for lifecycle.\n\n**BURV isolation for tabtarget invocations:**\nWhen theurge invokes a tabtarget, it must provide per-invocation `BURV_OUTPUT_ROOT_DIR` and `BURV_TEMP_ROOT_DIR` so child tabtarget temp space doesn't collide with theurge's own or with other invocations. Match the isolation pattern from `buto_operations.sh` `zbuto_invoke()`.\n\n**Ifrit invocation:**\nTheurge runs the ifrit binary via bark tabtarget (exec in bottle). The binary is already inside the vessel — no copy step. Theurge parses ifrit's stdout for verdict, checks exit code.",
+              "silks": "theurge-container-interaction-layer",
+              "commit": "b0d8a96"
+            },
+            {
               "ts": "260401-1315",
               "state": "rough",
               "text": "## Character\nInfrastructure — mechanical but needs to be solid.\n\n## Docket\nBuild theurge's Rust code for interacting with bottles and container layers, always via tabtargets.\n\n**Tabtarget invocation layer:**\nTheurge shells out to tabtargets using colophon strings verified by the manifest protocol. It constructs paths by globbing `tt/{colophon}.*.{nameplate}.sh`. Uses writ/fiat/bark tabtargets established in ₢A1AAN for container exec, charge/quench for lifecycle.\n\n**BURV isolation for tabtarget invocations:**\nWhen theurge invokes a tabtarget, it must provide per-invocation `BURV_OUTPUT_ROOT_DIR` and `BURV_TEMP_ROOT_DIR` so child tabtarget temp space doesn't collide with theurge's own or with other invocations. Match the isolation pattern from `buto_operations.sh` `zbuto_invoke()`.\n\n**Ifrit invocation:**\nTheurge runs the ifrit binary via bark tabtarget (exec in bottle). The binary is already inside the vessel — no copy step. Theurge parses ifrit's stdout for verdict, checks exit code.",
