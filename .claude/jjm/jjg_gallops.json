@@ -904,9 +904,10 @@
       "status": "racing",
       "order": [
         "₢A3AAA",
-        "₢A3AAB"
+        "₢A3AAB",
+        "₢A3AAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_uAl3.md",
       "paces": {
         "₢A3AAA": {
@@ -963,6 +964,17 @@
               "text": "## Character\nLinear probe sequence — each step has a concrete test. Simplest role track (fewest steps, read-only operations).\n\n## Docket\n\nBuild `tt/rbw-OR.OnboardRetriever.sh` — the retriever's onboarding guide.\n\n### Probes (in order)\n\n1. **SA key installed** — file exists at expected credential path\n2. **GAR access verified** — HEAD request against registry succeeds with SA token\n3. **Summon a consecration** — guide user to run summon tabtarget, verify local image lands\n4. **Inspect the artifact** — guide user to run inspect, verify about/vouch metadata visible\n5. **Start a bottle** — guide user to run bottle start, verify container running\n\nEach step: probe current state → if green, one-line confirmation → if red, show the action with the exact tabtarget to run. `buc_link` to docs for context where helpful.\n\n### Wire\n- Mint `rbw-OR` colophon in zipper\n- Create tabtarget `tt/rbw-OR.OnboardRetriever.sh`\n- Wire workbench routing\n\n## References\n- `Tools/rbk/rbdc_DerivedConstants.sh` — credential path resolution\n- `Tools/rbk/rbga_ArtifactRegistry.sh` — GAR access patterns\n- Existing summon/inspect/start tabtargets for the action commands",
               "silks": "onboard-retriever-track",
               "commit": "df94429"
+            }
+          ]
+        },
+        "₢A3AAC": {
+          "tacks": [
+            {
+              "ts": "260402-1521",
+              "state": "rough",
+              "text": "## Character\nLinear probe sequence — more steps than retriever, involves build pipeline verification.\n\n## Docket\n\nBuild `tt/rbw-OD.OnboardDirector.sh` — the director's onboarding guide.\n\n### Probes (in order)\n\n1. **SA key installed** — director SA key file at expected credential path\n2. **GAR access verified** — HEAD request against registry with director SA token\n3. **Reliquary images present** — tool images (skopeo, syft) exist in GAR\n4. **Enshrine upstream** — guide user to enshrine base images into GAR\n5. **Conjure a vessel** — guide user to submit a Cloud Build conjure, verify consecration lands\n6. **Vouch exists** — verify about + vouch artifacts present for the consecration\n7. **Graft from local** — guide user through local build + graft push (optional, kludge path)\n\nEach step: probe → green confirmation or red with action tabtarget.\n\n### Wire\n- Mint `rbw-OD` colophon in zipper\n- Create tabtarget `tt/rbw-OD.OnboardDirector.sh`\n- Wire workbench routing\n\n## References\n- `Tools/rbk/rbfd_FoundryDirectorBuild.sh` — conjure, enshrine, graft operations\n- `Tools/rbk/rbga_ArtifactRegistry.sh` — GAR access\n- `Tools/rbk/rbdc_DerivedConstants.sh` — credential path resolution",
+              "silks": "onboard-director-track",
+              "commit": "e08e7f7"
             }
           ]
         }
