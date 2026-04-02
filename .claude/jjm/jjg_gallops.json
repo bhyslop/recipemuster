@@ -9,6 +9,7 @@
     "₣AI",
     "₣AJ",
     "₣AN",
+    "₣A2",
     "₣A1",
     "₣A0",
     "₣Ah",
@@ -19,8 +20,7 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au",
-    "₣A2"
+    "₣Au"
   ],
   "heats": {
     "₣A0": {
@@ -731,7 +731,7 @@
     "₣A2": {
       "silks": "jjk-v3-6-minor-issues",
       "creation_time": "260402",
-      "status": "stabled",
+      "status": "racing",
       "order": [
         "₢A2AAA"
       ],
