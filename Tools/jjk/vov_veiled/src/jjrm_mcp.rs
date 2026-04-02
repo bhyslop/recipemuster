@@ -763,6 +763,9 @@ impl jjrm_McpServer {
 
         // jjx_open creates the officium — handle before officium validation
         if cmd == "jjx_open" {
+            if let Err(msg) = crate::jjrdk_diskcheck::jjrdk_check_disk_space() {
+                return Ok(CallToolResult::error(vec![Content::text(msg)]));
+            }
             return zjjrm_handle_open().await;
         }
 
@@ -814,6 +817,13 @@ impl jjrm_McpServer {
                     Ok(p) => p,
                     Err(e) => return jjrm_deser_error(cmd, e),
                 }
+            }
+        }
+
+        // Disk space guard — block orient and show (mount/groom entry points)
+        if cmd == "jjx_orient" || cmd == "jjx_show" {
+            if let Err(msg) = crate::jjrdk_diskcheck::jjrdk_check_disk_space() {
+                return Ok(CallToolResult::error(vec![Content::text(msg)]));
             }
         }
 

@@ -29,6 +29,7 @@ pub mod jjrnm_markers;
 pub mod jjrq_query;
 pub mod jjrp_print;
 pub mod jjrs_steeplechase;
+pub mod jjrdk_diskcheck;
 // Per-command modules (jjrxx_command pattern)
 pub mod jjrch_chalk;
 pub mod jjrcu_curry;
