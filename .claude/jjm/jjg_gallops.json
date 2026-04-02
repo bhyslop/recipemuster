@@ -274,9 +274,10 @@
         "₢A1AAJ",
         "₢A1AAM",
         "₢A1AAS",
-        "₢A1AAT"
+        "₢A1AAT",
+        "₢A1AAU"
       ],
-      "next_pace_seed": "AAU",
+      "next_pace_seed": "AAV",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -790,6 +791,17 @@
               "text": "## Character\nMechanical with breadth — apply the coordination pattern from the previous pace across several new attack surfaces. Each test is independent; parallelizable research but sequential execution.\n\n## Docket\n\nAdd several novel coordinated and unilateral tests exploiting new attack surfaces not covered by existing 34 tadmor cases. Show that the apparatus passes all.\n\n### Candidate tests (select 4-6 that are load-bearing)\n- **ARP table overflow**: flood sentry with fake ARP entries from bottle, verify legitimate entries survive\n- **MAC flooding**: send frames from many fake MACs to overwhelm bridge CAM table, verify sentry forwarding unaffected\n- **Sentry process integrity**: verify from outside (writ exec) that sentry's iptables rules and dnsmasq process haven't been altered by bottle activity\n- **Route table manipulation**: attempt `ip route replace` or `ip route add` from inside bottle to bypass sentry gateway\n- **Enclave subnet escape**: probe for hosts outside the /24 enclave from bottle, verify no responses\n- **Bridge promiscuous mode**: attempt to put enclave interface into promiscuous mode from bottle, verify blocked\n\n### Implementation\n- New cases in `tadmor-coordinated-attacks` section (or new section if warranted)\n- Each test follows snapshot-attack-resnap pattern where observation is needed\n- Unilateral tests (route manipulation, subnet escape) use standard ifrit exit-code pattern\n\n### Acceptance\n- All new cases pass with SECURE verdicts\n- Total tadmor case count grows by 4-6\n- Full crucible suite green\n- No regressions in existing cases",
               "silks": "novel-coordinated-security-tests",
               "commit": "47e6961"
+            }
+          ]
+        },
+        "₢A1AAU": {
+          "tacks": [
+            {
+              "ts": "260402-1604",
+              "state": "rough",
+              "text": "## Character\nInfrastructure refinement — mechanical refactor of 50 case registrations plus new engine capability. The macro design is settled; execution is methodical.\n\n## Docket\n\nUnify case naming: one name per case (the function name), compiler-enforced uniqueness, plus a single-case runner tabtarget for crucible debugging.\n\n### Macro refactor\n- Create `case!()` macro using `stringify!()` to derive case name from function name\n- Replace all 50 `rbtdre_Case { name: \"...\", func: ... }` registrations with `case!(rbtdrc_fn_name)`\n- Add display-time transform in engine: strip `rbtdrc_` prefix, convert `_` to `-` for output\n- Remove duplicate name strings — compiler enforces uniqueness via function names\n\n### Single-case runner\n- New tabtarget: `tt/rbtd-s.SingleCase.{fixture}.sh [case]`\n- New theurge subcommand: `rbtd single [case]` — no charge/quench lifecycle\n- Shell wrapper checks crucible is charged; if not, `buc_die` with charge instruction\n- No case arg → list all cases for that fixture\n- Case arg → run that one case against the already-charged crucible\n- Case lookup by name across all fixtures (names are globally unique)\n\n### CLAUDE.md updates\n- Add single-case runner to test execution table\n- Document workflow: charge → run single cases → quench\n\n### Acceptance\n- All 50 cases use macro registration\n- `tt/rbtd-s.SingleCase.tadmor.sh` lists cases when no arg given\n- `tt/rbtd-s.SingleCase.tadmor.sh coordinated-arp-gratuitous` runs one case\n- Existing suite tabtargets unaffected\n- All tests pass",
+              "silks": "single-case-runner-and-macro-refactor",
+              "commit": "23761f4"
             }
           ]
         }
