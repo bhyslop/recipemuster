@@ -907,9 +907,10 @@
         "₢A3AAB",
         "₢A3AAC",
         "₢A3AAD",
-        "₢A3AAE"
+        "₢A3AAE",
+        "₢A3AAF"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_uAl3.md",
       "paces": {
         "₢A3AAA": {
@@ -999,6 +1000,17 @@
               "text": "## Character\nLinear probe sequence — heaviest track, project-level and billing operations.\n\n## Docket\n\nBuild `tt/rbw-OP.OnboardPayor.sh` — the payor's onboarding guide.\n\n### Probes (in order)\n\n1. **OAuth credentials present** — `rbro-payor.env` exists with client ID/secret\n2. **OAuth token valid** — token refresh succeeds\n3. **GCP project configured** — project ID set in regime, accessible\n4. **Billing enabled** — billing account linked to project\n5. **Depot initialized** — depot exists, bucket accessible\n6. **Governor SA created** — governor SA exists for depot administration\n7. **Governor reset clean** — governor IAM grants in expected state\n\nEach step: probe → green confirmation or red with action. Payor steps involve `rbgo_*` OAuth, `rbgp_*` Payor, `rbgb_*` Buckets, and `rbgg_*` Governor operations.\n\n### Wire\n- Mint `rbw-OP` colophon in zipper\n- Create tabtarget `tt/rbw-OP.OnboardPayor.sh`\n- Wire workbench routing\n\n## References\n- `Tools/rbk/rbgo_OAuth.sh` — OAuth flow\n- `Tools/rbk/rbgp_Payor.sh` — payor operations\n- `Tools/rbk/rbgb_Buckets.sh` — depot/bucket management\n- `Tools/rbk/rbgg_Governor.sh` — governor SA setup",
               "silks": "onboard-payor-track",
               "commit": "eaaef04"
+            }
+          ]
+        },
+        "₢A3AAF": {
+          "tacks": [
+            {
+              "ts": "260402-1522",
+              "state": "rough",
+              "text": "## Character\nIntegration testing and polish — verify the guides work end-to-end on a fresh machine, align docs with reality.\n\n## Docket\n\nFinal validation pass after all five guides are built.\n\n### Docs alignment\n- Align README.md getting-started section with the onboarding guide flow\n- Align index.html dependency and role descriptions with current truths\n- Ensure `RBGC_PUBLIC_DOCS_URL` links land on correct anchors\n- Verify `buc_link` URLs from triage and role tracks resolve to real content\n\n### Cross-machine testing\n- Test triage on fresh Linux box with no credentials → should show all absent, link to docs\n- Test retriever track with only retriever SA key → should probe and guide through summon/inspect/start\n- Test governor track with project-level access → should guide through depot/SA creation\n- Verify each guide is self-contained — no step requires knowledge from another role's track\n\n### Cleanup\n- Remove any dead code from old `rbgm_onboarding()` not already retired\n- Update CLAUDE.md if onboarding tabtargets need documenting\n\n## References\n- README.md, index.html — consumer-facing docs\n- All `rbw-o*` / `rbw-O*` tabtargets built in prior paces",
+              "silks": "docs-alignment-and-cross-machine-validation",
+              "commit": "ad8641f"
             }
           ]
         }
