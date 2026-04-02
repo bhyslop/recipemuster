@@ -14,15 +14,19 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBTD Theurge — crucible test orchestrator entry point
+// RBTD Theurge — test orchestrator entry point
 //
-// Lifecycle: verify manifest → charge crucible → run cases → quench crucible
+// Lifecycle varies by fixture:
+//   Crucible fixtures (tadmor, srjcl, pluml):
+//     verify manifest → charge → [readiness delay] → run cases → quench
+//   Bare fixtures (four-mode, access-probe):
+//     verify manifest → run cases
 
 use std::process::ExitCode;
 
 use rbtd::rbtdrc_crucible::{
-    rbtdrc_needs_readiness_delay, rbtdrc_sections_for_nameplate, rbtdrc_set_context,
-    rbtdrc_take_context, RBTDRC_SERVICE_READINESS_DELAY_SECS,
+    rbtdrc_needs_charge, rbtdrc_needs_readiness_delay, rbtdrc_sections_for_fixture,
+    rbtdrc_set_context, rbtdrc_take_context, RBTDRC_SERVICE_READINESS_DELAY_SECS,
 };
 use rbtd::rbtdre_engine::{rbtdre_detect_colors, rbtdre_print_summary, rbtdre_run_sections};
 use rbtd::rbtdri_invocation::{rbtdri_Context, rbtdri_invoke};
@@ -35,22 +39,22 @@ fn main() -> ExitCode {
         Some(m) => m,
         None => {
             eprintln!(
-                "rbtd: usage: rbtd <manifest> <nameplate>\n\
+                "rbtd: usage: rbtd <manifest> <fixture>\n\
                  theurge must be launched via tabtarget (e.g. tt/rbtd-r.Run.tadmor.sh)"
             );
             return ExitCode::FAILURE;
         }
     };
 
-    let nameplate = match args.get(2) {
+    let fixture = match args.get(2) {
         Some(n) => n,
         None => {
-            eprintln!("rbtd: no nameplate argument — which crucible to test?");
+            eprintln!("rbtd: no fixture argument — which test fixture to run?");
             return ExitCode::FAILURE;
         }
     };
 
-    if let Err(msg) = rbtdrm_verify(manifest) {
+    if let Err(msg) = rbtdrm_verify(manifest, fixture) {
         eprintln!("{}", msg);
         return ExitCode::FAILURE;
     }
@@ -70,52 +74,57 @@ fn main() -> ExitCode {
     }
 
     let burv_root = root_temp.join("burv");
-    let mut ctx = rbtdri_Context::new(&project_root, nameplate, &burv_root);
+    let mut ctx = rbtdri_Context::new(&project_root, fixture, &burv_root);
+    let needs_charge = rbtdrc_needs_charge(fixture);
 
-    // ── Charge crucible ──────────────────────────────────────
-    eprintln!("\nCharging crucible for nameplate '{}'...", nameplate);
-    match rbtdri_invoke(&mut ctx, RBTDRM_COLOPHON_CHARGE, &[]) {
-        Ok(r) if r.exit_code == 0 => {
-            eprintln!("Crucible charged");
+    // ── Charge crucible (crucible fixtures only) ─────────────
+    if needs_charge {
+        eprintln!("\nCharging crucible for nameplate '{}'...", fixture);
+        match rbtdri_invoke(&mut ctx, RBTDRM_COLOPHON_CHARGE, &[]) {
+            Ok(r) if r.exit_code == 0 => {
+                eprintln!("Crucible charged");
+            }
+            Ok(r) => {
+                eprintln!(
+                    "Charge failed (exit {})\n{}",
+                    r.exit_code, r.stderr
+                );
+                return ExitCode::FAILURE;
+            }
+            Err(e) => {
+                eprintln!("Charge invocation failed: {}", e);
+                return ExitCode::FAILURE;
+            }
         }
-        Ok(r) => {
+
+        // Service readiness delay (srjcl/pluml need services to start)
+        if rbtdrc_needs_readiness_delay(fixture) {
             eprintln!(
-                "Charge failed (exit {})\n{}",
-                r.exit_code, r.stderr
+                "Waiting {}s for service readiness...",
+                RBTDRC_SERVICE_READINESS_DELAY_SECS
             );
-            return ExitCode::FAILURE;
-        }
-        Err(e) => {
-            eprintln!("Charge invocation failed: {}", e);
-            return ExitCode::FAILURE;
+            std::thread::sleep(std::time::Duration::from_secs(
+                RBTDRC_SERVICE_READINESS_DELAY_SECS,
+            ));
         }
     }
 
-    // ── Service readiness delay (srjcl/pluml need services to start) ──
-    if rbtdrc_needs_readiness_delay(nameplate) {
-        eprintln!(
-            "Waiting {}s for service readiness...",
-            RBTDRC_SERVICE_READINESS_DELAY_SECS
-        );
-        std::thread::sleep(std::time::Duration::from_secs(
-            RBTDRC_SERVICE_READINESS_DELAY_SECS,
-        ));
-    }
-
-    // ── Run crucible cases ───────────────────────────────────
-    let sections = rbtdrc_sections_for_nameplate(nameplate);
+    // ── Run cases ────────────────────────────────────────────
+    let sections = rbtdrc_sections_for_fixture(fixture);
     rbtdrc_set_context(ctx);
 
     let colors = rbtdre_detect_colors();
     let run_result = rbtdre_run_sections(sections, &colors, false, &root_temp);
 
-    // ── Quench crucible (unconditional) ──────────────────────
+    // ── Quench crucible (crucible fixtures only, unconditional) ──
     let mut ctx = rbtdrc_take_context();
-    eprintln!("\nQuenching crucible...");
-    match rbtdri_invoke(&mut ctx, RBTDRM_COLOPHON_QUENCH, &[]) {
-        Ok(r) if r.exit_code == 0 => eprintln!("Crucible quenched"),
-        Ok(r) => eprintln!("Warning: quench exited {}", r.exit_code),
-        Err(e) => eprintln!("Warning: quench invocation failed: {}", e),
+    if needs_charge {
+        eprintln!("\nQuenching crucible...");
+        match rbtdri_invoke(&mut ctx, RBTDRM_COLOPHON_QUENCH, &[]) {
+            Ok(r) if r.exit_code == 0 => eprintln!("Crucible quenched"),
+            Ok(r) => eprintln!("Warning: quench exited {}", r.exit_code),
+            Err(e) => eprintln!("Warning: quench invocation failed: {}", e),
+        }
     }
 
     // ── Report ───────────────────────────────────────────────

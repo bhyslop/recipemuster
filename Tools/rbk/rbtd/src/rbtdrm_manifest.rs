@@ -18,29 +18,61 @@
 
 /// Colophon consts — single definition per String Boundary Discipline.
 /// Each names the bash tabtarget colophon theurge invokes for that operation.
+
+// Crucible lifecycle colophons (nameplate-scoped)
 pub const RBTDRM_COLOPHON_CHARGE: &str = "rbw-cC";
 pub const RBTDRM_COLOPHON_QUENCH: &str = "rbw-cQ";
 pub const RBTDRM_COLOPHON_WRIT: &str = "rbw-cw";
 pub const RBTDRM_COLOPHON_FIAT: &str = "rbw-cf";
 pub const RBTDRM_COLOPHON_BARK: &str = "rbw-cb";
 
-/// Colophon manifest gate — all must appear in the zipper roll at launch.
-pub const RBTDRM_REQUIRED_COLOPHONS: &[&str] = &[
-    RBTDRM_COLOPHON_CHARGE,
-    RBTDRM_COLOPHON_QUENCH,
-    RBTDRM_COLOPHON_WRIT,
-    RBTDRM_COLOPHON_FIAT,
-    RBTDRM_COLOPHON_BARK,
-];
+// Foundry colophons (global — no nameplate imprint)
+pub const RBTDRM_COLOPHON_ORDAIN: &str = "rbw-DO";
+pub const RBTDRM_COLOPHON_ABJURE: &str = "rbw-DA";
+pub const RBTDRM_COLOPHON_WREST: &str = "rbw-Rw";
+pub const RBTDRM_COLOPHON_TALLY: &str = "rbw-Dt";
+pub const RBTDRM_COLOPHON_KLUDGE: &str = "rbw-ak";
 
-/// Verify that all required colophons appear in the zipper manifest string.
-pub fn rbtdrm_verify(manifest: &str) -> Result<(), String> {
-    for colophon in RBTDRM_REQUIRED_COLOPHONS {
+// Access probe colophon (imprint-scoped by role)
+pub const RBTDRM_COLOPHON_ACCESS_PROBE: &str = "rbtd-ap";
+
+/// Per-fixture required colophons.
+pub fn rbtdrm_required_colophons(fixture: &str) -> &'static [&'static str] {
+    match fixture {
+        "tadmor" | "srjcl" | "pluml" => &[
+            RBTDRM_COLOPHON_CHARGE,
+            RBTDRM_COLOPHON_QUENCH,
+            RBTDRM_COLOPHON_WRIT,
+            RBTDRM_COLOPHON_FIAT,
+            RBTDRM_COLOPHON_BARK,
+        ],
+        "four-mode" => &[
+            RBTDRM_COLOPHON_ORDAIN,
+            RBTDRM_COLOPHON_ABJURE,
+            RBTDRM_COLOPHON_WREST,
+            RBTDRM_COLOPHON_TALLY,
+            RBTDRM_COLOPHON_KLUDGE,
+        ],
+        "access-probe" => &[RBTDRM_COLOPHON_ACCESS_PROBE],
+        _ => &[],
+    }
+}
+
+/// Verify that all required colophons for a fixture appear in the zipper manifest string.
+pub fn rbtdrm_verify(manifest: &str, fixture: &str) -> Result<(), String> {
+    let required = rbtdrm_required_colophons(fixture);
+    if required.is_empty() {
+        return Err(format!(
+            "rbtd: unknown fixture '{}' — no colophon requirements defined",
+            fixture
+        ));
+    }
+    for colophon in required {
         let found = manifest.split_whitespace().any(|token| token == *colophon);
         if !found {
             return Err(format!(
-                "rbtd: colophon '{}' not found in zipper manifest",
-                colophon
+                "rbtd: colophon '{}' not found in zipper manifest (fixture '{}')",
+                colophon, fixture
             ));
         }
     }

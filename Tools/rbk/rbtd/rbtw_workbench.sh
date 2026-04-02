@@ -59,8 +59,8 @@ rbtw_route() {
       ;;
 
     rbtd-r)
-      local z_nameplate="${BURD_TOKEN_3:-}"
-      test -n "${z_nameplate}" || buc_die "No nameplate imprint — use tabtarget with imprint (e.g. rbtd-r.Run.tadmor.sh)"
+      local z_fixture="${BURD_TOKEN_3:-}"
+      test -n "${z_fixture}" || buc_die "No fixture imprint — use tabtarget with imprint (e.g. rbtd-r.Run.tadmor.sh)"
 
       buc_step "Building theurge"
       cargo build --manifest-path "${RBTW_MANIFEST}" || buc_die "cargo build failed"
@@ -68,10 +68,77 @@ rbtw_route() {
       local z_binary="${RBTW_SCRIPT_DIR}/target/debug/rbtd"
       test -x "${z_binary}" || buc_die "Theurge binary not found: ${z_binary}"
 
-      local z_manifest="rbw-cC rbw-cQ rbw-cw rbw-cf rbw-cb"
+      local z_manifest
+      case "${z_fixture}" in
+        tadmor|srjcl|pluml)
+          z_manifest="rbw-cC rbw-cQ rbw-cw rbw-cf rbw-cb"
+          ;;
+        four-mode)
+          z_manifest="rbw-DO rbw-DA rbw-Rw rbw-Dt rbw-ak"
+          ;;
+        access-probe)
+          z_manifest="rbtd-ap"
+          ;;
+        *)
+          buc_die "Unknown fixture: ${z_fixture}"
+          ;;
+      esac
 
-      buc_step "Running theurge against nameplate '${z_nameplate}'"
-      "${z_binary}" "${z_manifest}" "${z_nameplate}"
+      buc_step "Running theurge fixture '${z_fixture}'"
+      "${z_binary}" "${z_manifest}" "${z_fixture}"
+      ;;
+
+    rbtd-ap)
+      local z_role="${BURD_TOKEN_3:-}"
+      test -n "${z_role}" || buc_die "No role imprint — use tabtarget with imprint (e.g. rbtd-ap.AccessProbe.governor.sh)"
+
+      zburd_sentinel
+
+      # Source RBK modules (kindle functions defined within)
+      local z_rbk="${RBTW_SCRIPT_DIR}/.."
+      source "${z_rbk}/rbcc_Constants.sh"
+      source "${z_rbk}/rbgc_Constants.sh"
+      source "${z_rbk}/rbdc_DerivedConstants.sh"
+      source "${z_rbk}/rbgo_OAuth.sh"
+      source "${z_rbk}/rbgu_Utility.sh"
+      source "${z_rbk}/rbgi_IAM.sh"
+      source "${z_rbk}/rbgp_Payor.sh"
+      source "${z_rbk}/rbap_AccessProbe.sh"
+
+      # Load and kindle regime
+      source "${RBBC_rbrr_file}" || buc_die "Failed to source ${RBBC_rbrr_file}"
+      zrbrr_kindle
+      zrbrr_enforce
+      zrbcc_kindle
+      zrbdc_kindle
+      zrbgc_kindle
+      zrbgo_kindle
+      zrbgu_kindle
+      zrbgi_kindle
+      zrbgp_kindle
+      zrbap_kindle
+
+      local z_iterations=5
+      local z_delay_ms=1500
+
+      case "${z_role}" in
+        governor|director|retriever)
+          buc_step "JWT SA access probe: ${z_role}"
+          rbap_jwt_sa_probe "${z_role}" "${z_iterations}" "${z_delay_ms}"
+          buc_success "${z_role} JWT access probe passed"
+          ;;
+        payor)
+          buc_step "Payor OAuth access probe"
+          source "${RBBC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBBC_rbrp_file}"
+          zrbrp_kindle
+          zrbrp_enforce
+          rbap_payor_oauth_probe "${z_iterations}" "${z_delay_ms}"
+          buc_success "Payor OAuth access probe passed"
+          ;;
+        *)
+          buc_die "Unknown access-probe role: ${z_role} (expected governor|director|retriever|payor)"
+          ;;
+      esac
       ;;
 
     *)

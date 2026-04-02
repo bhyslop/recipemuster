@@ -19,7 +19,7 @@
 use super::rbtdrm_manifest::*;
 
 #[test]
-fn rbtdtm_accepts_valid_manifest() {
+fn rbtdtm_accepts_valid_crucible_manifest() {
     let manifest = format!(
         "rbw-PL rbw-gPI {} {} {} {} {} rbw-Qf",
         RBTDRM_COLOPHON_CHARGE,
@@ -28,25 +28,52 @@ fn rbtdtm_accepts_valid_manifest() {
         RBTDRM_COLOPHON_FIAT,
         RBTDRM_COLOPHON_BARK,
     );
-    assert!(rbtdrm_verify(&manifest).is_ok());
+    assert!(rbtdrm_verify(&manifest, "tadmor").is_ok());
+    assert!(rbtdrm_verify(&manifest, "srjcl").is_ok());
+    assert!(rbtdrm_verify(&manifest, "pluml").is_ok());
+}
+
+#[test]
+fn rbtdtm_accepts_valid_fourmode_manifest() {
+    let manifest = format!(
+        "{} {} {} {} {}",
+        RBTDRM_COLOPHON_ORDAIN,
+        RBTDRM_COLOPHON_ABJURE,
+        RBTDRM_COLOPHON_WREST,
+        RBTDRM_COLOPHON_TALLY,
+        RBTDRM_COLOPHON_KLUDGE,
+    );
+    assert!(rbtdrm_verify(&manifest, "four-mode").is_ok());
+}
+
+#[test]
+fn rbtdtm_accepts_valid_accessprobe_manifest() {
+    let manifest = RBTDRM_COLOPHON_ACCESS_PROBE;
+    assert!(rbtdrm_verify(manifest, "access-probe").is_ok());
 }
 
 #[test]
 fn rbtdtm_rejects_missing_colophon() {
     let manifest = "rbw-PL rbw-gPI rbw-cC rbw-Qf";
-    let err = rbtdrm_verify(manifest).unwrap_err();
+    let err = rbtdrm_verify(manifest, "tadmor").unwrap_err();
     assert!(err.contains(RBTDRM_COLOPHON_QUENCH));
 }
 
 #[test]
 fn rbtdtm_rejects_empty_manifest() {
-    let err = rbtdrm_verify("").unwrap_err();
+    let err = rbtdrm_verify("", "tadmor").unwrap_err();
     assert!(err.contains(RBTDRM_COLOPHON_CHARGE));
 }
 
 #[test]
 fn rbtdtm_no_partial_match() {
     let manifest = "rbw-cCC rbw-cQQ";
-    let err = rbtdrm_verify(manifest).unwrap_err();
+    let err = rbtdrm_verify(manifest, "tadmor").unwrap_err();
     assert!(err.contains(RBTDRM_COLOPHON_CHARGE));
+}
+
+#[test]
+fn rbtdtm_rejects_unknown_fixture() {
+    let err = rbtdrm_verify("rbw-cC", "nonexistent").unwrap_err();
+    assert!(err.contains("unknown fixture"));
 }

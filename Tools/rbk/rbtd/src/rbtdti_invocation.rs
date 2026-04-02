@@ -311,6 +311,147 @@ fn rbtdti_invoke_sets_burv_env_vars() {
     let _ = std::fs::remove_dir_all(&tmp);
 }
 
+// ── BURV output path in result ───────────────────────────────
+
+#[test]
+fn rbtdti_invoke_returns_burv_output_path() {
+    let tmp = rbtdti_make_temp("invoke-burvpath");
+    let tt = rbtdti_make_tt_dir(&tmp);
+    rbtdti_write_script(&tt, "rbw-cb.Bark.testplate.sh", "exit 0\n");
+
+    let burv_root = tmp.join("burv");
+    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_root);
+    let result = rbtdri_invoke(&mut ctx, "rbw-cb", &[]).unwrap();
+
+    assert_eq!(result.burv_output, burv_root.join("invoke-00000").join("output"));
+    assert!(result.burv_output.is_dir());
+
+    let _ = std::fs::remove_dir_all(&tmp);
+}
+
+// ── Global tabtarget discovery ──────────────────────────────
+
+#[test]
+fn rbtdti_find_global_matches() {
+    let tmp = rbtdti_make_temp("global-match");
+    let tt = rbtdti_make_tt_dir(&tmp);
+    rbtdti_write_script(&tt, "rbw-DO.DirectorOrdains.sh", "exit 0\n");
+
+    let result = rbtdri_find_tabtarget_global(&tmp, "rbw-DO");
+    assert!(result.is_ok());
+    assert!(result.unwrap().file_name().unwrap().to_str().unwrap() == "rbw-DO.DirectorOrdains.sh");
+
+    let _ = std::fs::remove_dir_all(&tmp);
+}
+
+#[test]
+fn rbtdti_find_global_rejects_imprint_suffix() {
+    let tmp = rbtdti_make_temp("global-imprint");
+    let tt = rbtdti_make_tt_dir(&tmp);
+    // Only an imprint-scoped tabtarget — global discovery should not find it
+    rbtdti_write_script(&tt, "rbw-DO.DirectorOrdains.tadmor.sh", "exit 0\n");
+
+    let result = rbtdri_find_tabtarget_global(&tmp, "rbw-DO");
+    assert!(result.is_err());
+    assert!(result.unwrap_err().contains("no global tabtarget"));
+
+    let _ = std::fs::remove_dir_all(&tmp);
+}
+
+#[test]
+fn rbtdti_find_global_rejects_no_match() {
+    let tmp = rbtdti_make_temp("global-nomatch");
+    let _tt = rbtdti_make_tt_dir(&tmp);
+
+    let result = rbtdri_find_tabtarget_global(&tmp, "rbw-DO");
+    assert!(result.is_err());
+
+    let _ = std::fs::remove_dir_all(&tmp);
+}
+
+// ── Invoke global ───────────────────────────────────────────
+
+#[test]
+fn rbtdti_invoke_global_passes_extra_env() {
+    let tmp = rbtdti_make_temp("invoke-global-env");
+    let tt = rbtdti_make_tt_dir(&tmp);
+    rbtdti_write_script(
+        &tt,
+        "rbw-DO.DirectorOrdains.sh",
+        "echo \"TWEAK:${BURE_TWEAK_NAME}\"\n",
+    );
+
+    let burv_root = tmp.join("burv");
+    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_root);
+    let result = rbtdri_invoke_global(
+        &mut ctx,
+        "rbw-DO",
+        &[],
+        &[("BURE_TWEAK_NAME", "threemodegraft")],
+    )
+    .unwrap();
+
+    assert!(result.stdout.contains("TWEAK:threemodegraft"));
+
+    let _ = std::fs::remove_dir_all(&tmp);
+}
+
+// ── Invoke with explicit imprint ────────────────────────────
+
+#[test]
+fn rbtdti_invoke_imprint_finds_correct_target() {
+    let tmp = rbtdti_make_temp("invoke-imprint");
+    let tt = rbtdti_make_tt_dir(&tmp);
+    rbtdti_write_script(&tt, "rbtd-ap.AccessProbe.governor.sh", "echo 'governor'\n");
+    rbtdti_write_script(&tt, "rbtd-ap.AccessProbe.director.sh", "echo 'director'\n");
+
+    let burv_root = tmp.join("burv");
+    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_root);
+    let result = rbtdri_invoke_imprint(&mut ctx, "rbtd-ap", "governor", &[]).unwrap();
+
+    assert!(result.stdout.contains("governor"));
+
+    let _ = std::fs::remove_dir_all(&tmp);
+}
+
+// ── BURV fact file reading ──────────────────────────────────
+
+#[test]
+fn rbtdti_read_burv_fact_reads_value() {
+    let tmp = rbtdti_make_temp("burv-fact");
+    let tt = rbtdti_make_tt_dir(&tmp);
+    rbtdti_write_script(
+        &tt,
+        "rbw-cb.Bark.testplate.sh",
+        "echo 'c260305-r260305' > \"${BURV_OUTPUT_ROOT_DIR}/rbf_fact_consecration\"\n",
+    );
+
+    let burv_root = tmp.join("burv");
+    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_root);
+    let result = rbtdri_invoke(&mut ctx, "rbw-cb", &[]).unwrap();
+
+    let fact = rbtdri_read_burv_fact(&result, "rbf_fact_consecration").unwrap();
+    assert_eq!(fact, "c260305-r260305");
+
+    let _ = std::fs::remove_dir_all(&tmp);
+}
+
+#[test]
+fn rbtdti_read_burv_fact_rejects_missing() {
+    let tmp = rbtdti_make_temp("burv-fact-missing");
+    let tt = rbtdti_make_tt_dir(&tmp);
+    rbtdti_write_script(&tt, "rbw-cb.Bark.testplate.sh", "exit 0\n");
+
+    let burv_root = tmp.join("burv");
+    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_root);
+    let result = rbtdri_invoke(&mut ctx, "rbw-cb", &[]).unwrap();
+
+    let fact = rbtdri_read_burv_fact(&result, "rbf_fact_consecration");
+    assert!(fact.is_err());
+
+    let _ = std::fs::remove_dir_all(&tmp);
+}
+
 // ── Invoke error cases ───────────────────────────────────────
 
 #[test]

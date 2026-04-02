@@ -19,9 +19,10 @@
 // Theurge invokes bottle operations exclusively through tabtargets, never
 // reimplementing bash command logic. This module provides:
 //
-//   1. Tabtarget discovery — glob tt/{colophon}.*.{nameplate}.sh
+//   1. Tabtarget discovery — imprint-scoped, global, or nameplate-scoped
 //   2. Tabtarget execution with BURV isolation — per-invocation output/temp dirs
 //   3. Ifrit verdict parsing — extract verdict from ifrit stdout + exit code
+//   4. BURV fact file reading — extract structured output from tabtarget results
 
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -40,6 +41,7 @@ pub struct rbtdri_InvokeResult {
     pub stdout: String,
     pub stderr: String,
     pub exit_code: i32,
+    pub burv_output: PathBuf,
 }
 
 // ── Invocation context ───────────────────────────────────────
@@ -75,9 +77,9 @@ impl rbtdri_Context {
 
 // ── Tabtarget discovery ──────────────────────────────────────
 
-/// Find the tabtarget script for a colophon + nameplate.
+/// Find the tabtarget script for a colophon + imprint (nameplate or role).
 ///
-/// Scans tt/ for files matching `{colophon}.*.{nameplate}.sh`.
+/// Scans tt/ for files matching `{colophon}.*.{imprint}.sh`.
 /// Returns error if zero or multiple matches — exactly one must exist.
 pub fn rbtdri_find_tabtarget(
     project_root: &Path,
@@ -116,20 +118,60 @@ pub fn rbtdri_find_tabtarget(
     }
 }
 
+/// Find a global tabtarget (no imprint suffix).
+///
+/// Scans tt/ for files matching `{colophon}.{frontispiece}.sh` (exactly two dots).
+/// Rejects files with imprint suffixes (three+ dots).
+pub fn rbtdri_find_tabtarget_global(
+    project_root: &Path,
+    colophon: &str,
+) -> Result<PathBuf, String> {
+    let tt_dir = project_root.join("tt");
+    let prefix = format!("{}.", colophon);
+
+    let entries = std::fs::read_dir(&tt_dir)
+        .map_err(|e| format!("rbtdri: cannot read tt/ directory: {}", e))?;
+
+    let matches: Vec<PathBuf> = entries
+        .filter_map(|entry| entry.ok())
+        .map(|entry| entry.path())
+        .filter(|path| {
+            if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
+                if name.starts_with(&prefix) && name.ends_with(".sh") {
+                    // Global: no imprint — exactly one part between colophon and .sh
+                    let middle = &name[prefix.len()..name.len() - 3]; // strip ".sh"
+                    !middle.contains('.')
+                } else {
+                    false
+                }
+            } else {
+                false
+            }
+        })
+        .collect();
+
+    match matches.len() {
+        0 => Err(format!(
+            "rbtdri: no global tabtarget for colophon '{}'",
+            colophon
+        )),
+        1 => Ok(matches.into_iter().next().unwrap()),
+        n => Err(format!(
+            "rbtdri: {} global tabtargets match colophon '{}' — expected exactly one",
+            n, colophon
+        )),
+    }
+}
+
 // ── Tabtarget invocation with BURV isolation ─────────────────
 
-/// Invoke a tabtarget with per-invocation BURV output and temp directories.
-///
-/// Each call creates `invoke-NNNNN/output` and `invoke-NNNNN/temp` under the
-/// context's BURV root, then passes them as BURV_OUTPUT_ROOT_DIR and
-/// BURV_TEMP_ROOT_DIR environment variables to the child process.
-pub fn rbtdri_invoke(
+/// Internal: execute a resolved tabtarget with BURV isolation and optional extra env vars.
+fn rbtdri_invoke_impl(
     ctx: &mut rbtdri_Context,
-    colophon: &str,
+    tabtarget: &Path,
     args: &[&str],
+    extra_env: &[(&str, &str)],
 ) -> Result<rbtdri_InvokeResult, String> {
-    let tabtarget = rbtdri_find_tabtarget(&ctx.project_root, colophon, &ctx.nameplate)?;
-
     let invoke_num = ctx.invoke_count;
     ctx.invoke_count += 1;
 
@@ -142,11 +184,17 @@ pub fn rbtdri_invoke(
     std::fs::create_dir_all(&burv_temp)
         .map_err(|e| format!("rbtdri: failed to create BURV temp dir: {}", e))?;
 
-    let output = Command::new(&tabtarget)
-        .args(args)
+    let mut cmd = Command::new(tabtarget);
+    cmd.args(args)
         .current_dir(&ctx.project_root)
         .env("BURV_OUTPUT_ROOT_DIR", &burv_output)
-        .env("BURV_TEMP_ROOT_DIR", &burv_temp)
+        .env("BURV_TEMP_ROOT_DIR", &burv_temp);
+
+    for (key, value) in extra_env {
+        cmd.env(key, value);
+    }
+
+    let output = cmd
         .output()
         .map_err(|e| format!("rbtdri: failed to execute '{}': {}", tabtarget.display(), e))?;
 
@@ -154,7 +202,58 @@ pub fn rbtdri_invoke(
         stdout: String::from_utf8_lossy(&output.stdout).into_owned(),
         stderr: String::from_utf8_lossy(&output.stderr).into_owned(),
         exit_code: output.status.code().unwrap_or(-1),
+        burv_output,
     })
+}
+
+/// Invoke a nameplate-scoped tabtarget (colophon + ctx.nameplate).
+pub fn rbtdri_invoke(
+    ctx: &mut rbtdri_Context,
+    colophon: &str,
+    args: &[&str],
+) -> Result<rbtdri_InvokeResult, String> {
+    let tabtarget = rbtdri_find_tabtarget(&ctx.project_root, colophon, &ctx.nameplate)?;
+    rbtdri_invoke_impl(ctx, &tabtarget, args, &[])
+}
+
+/// Invoke a global tabtarget (no imprint) with optional extra environment variables.
+pub fn rbtdri_invoke_global(
+    ctx: &mut rbtdri_Context,
+    colophon: &str,
+    args: &[&str],
+    extra_env: &[(&str, &str)],
+) -> Result<rbtdri_InvokeResult, String> {
+    let tabtarget = rbtdri_find_tabtarget_global(&ctx.project_root, colophon)?;
+    rbtdri_invoke_impl(ctx, &tabtarget, args, extra_env)
+}
+
+/// Invoke a tabtarget with an explicit imprint (overrides ctx.nameplate for discovery).
+pub fn rbtdri_invoke_imprint(
+    ctx: &mut rbtdri_Context,
+    colophon: &str,
+    imprint: &str,
+    args: &[&str],
+) -> Result<rbtdri_InvokeResult, String> {
+    let tabtarget = rbtdri_find_tabtarget(&ctx.project_root, colophon, imprint)?;
+    rbtdri_invoke_impl(ctx, &tabtarget, args, &[])
+}
+
+// ── BURV fact file reading ───────────────────────────────────
+
+/// Read a fact file from a tabtarget's BURV output directory.
+/// Fact files are single-line values written by tabtargets to their BURV output dir.
+pub fn rbtdri_read_burv_fact(
+    result: &rbtdri_InvokeResult,
+    fact_name: &str,
+) -> Result<String, String> {
+    let path = result.burv_output.join(fact_name);
+    let content = std::fs::read_to_string(&path)
+        .map_err(|e| format!("rbtdri: cannot read fact '{}' from {}: {}", fact_name, path.display(), e))?;
+    let trimmed = content.trim().to_string();
+    if trimmed.is_empty() {
+        return Err(format!("rbtdri: fact '{}' is empty in {}", fact_name, path.display()));
+    }
+    Ok(trimmed)
 }
 
 // ── Ifrit verdict parsing ────────────────────────────────────

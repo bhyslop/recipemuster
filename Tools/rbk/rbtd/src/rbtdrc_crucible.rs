@@ -26,8 +26,15 @@ use std::path::Path;
 use std::process::{Command, Stdio};
 
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Section, rbtdre_Verdict};
-use crate::rbtdri_invocation::{rbtdri_Context, rbtdri_invoke, rbtdri_parse_ifrit_verdict};
-use crate::rbtdrm_manifest::{RBTDRM_COLOPHON_BARK, RBTDRM_COLOPHON_FIAT, RBTDRM_COLOPHON_WRIT};
+use crate::rbtdri_invocation::{
+    rbtdri_Context, rbtdri_invoke, rbtdri_invoke_global, rbtdri_invoke_imprint,
+    rbtdri_parse_ifrit_verdict, rbtdri_read_burv_fact,
+};
+use crate::rbtdrm_manifest::{
+    RBTDRM_COLOPHON_ABJURE, RBTDRM_COLOPHON_ACCESS_PROBE, RBTDRM_COLOPHON_BARK,
+    RBTDRM_COLOPHON_FIAT, RBTDRM_COLOPHON_KLUDGE, RBTDRM_COLOPHON_ORDAIN,
+    RBTDRM_COLOPHON_TALLY, RBTDRM_COLOPHON_WREST, RBTDRM_COLOPHON_WRIT,
+};
 
 // ── Thread-local invocation context ──────────────────────────
 
@@ -770,21 +777,28 @@ fn rbtdrc_pluml_malformed_diagram(dir: &Path) -> rbtdre_Verdict {
 /// Matches RBCC_BOTTLE_TEST_READINESS_DELAY_SEC from rbcc_Constants.sh.
 pub const RBTDRC_SERVICE_READINESS_DELAY_SECS: u64 = 30;
 
-/// Returns whether this nameplate needs a post-charge readiness delay.
-pub fn rbtdrc_needs_readiness_delay(nameplate: &str) -> bool {
-    matches!(nameplate, "srjcl" | "pluml")
+/// Returns whether this fixture uses the crucible charge/quench lifecycle.
+pub fn rbtdrc_needs_charge(fixture: &str) -> bool {
+    matches!(fixture, "tadmor" | "srjcl" | "pluml")
 }
 
-/// Returns the section array appropriate for the given nameplate.
-pub fn rbtdrc_sections_for_nameplate(nameplate: &str) -> &'static [rbtdre_Section] {
-    match nameplate {
+/// Returns whether this fixture needs a post-charge readiness delay.
+pub fn rbtdrc_needs_readiness_delay(fixture: &str) -> bool {
+    matches!(fixture, "srjcl" | "pluml")
+}
+
+/// Returns the section array appropriate for the given fixture.
+pub fn rbtdrc_sections_for_fixture(fixture: &str) -> &'static [rbtdre_Section] {
+    match fixture {
         "tadmor" => RBTDRC_SECTIONS_TADMOR,
         "srjcl" => RBTDRC_SECTIONS_SRJCL,
         "pluml" => RBTDRC_SECTIONS_PLUML,
+        "four-mode" => RBTDRC_SECTIONS_FOUR_MODE,
+        "access-probe" => RBTDRC_SECTIONS_ACCESS_PROBE,
         _ => {
             eprintln!(
-                "rbtdrc: no sections defined for nameplate '{}' — running empty",
-                nameplate
+                "rbtdrc: no sections defined for fixture '{}' — running empty",
+                fixture
             );
             &[]
         }
@@ -998,3 +1012,335 @@ static RBTDRC_SECTIONS_TADMOR: &[rbtdre_Section] = &[
         ],
     },
 ];
+
+// ── Four-mode foundry integration (bare fixture) ─────────────
+
+/// BURV fact file names — single definition, matching rbgc_Constants.sh values.
+const RBTDRC_FACT_CONSECRATION: &str = "rbf_fact_consecration";
+const RBTDRC_FACT_GAR_ROOT: &str = "rbf_fact_gar_root";
+const RBTDRC_FACT_ARK_STEM: &str = "rbf_fact_ark_stem";
+
+/// Ark tag suffixes — matching rbgc_Constants.sh values.
+const RBTDRC_ARK_SUFFIX_IMAGE: &str = "-image";
+const RBTDRC_ARK_SUFFIX_VOUCH: &str = "-vouch";
+
+/// Fact consec infix — matching rbcc_Constants.sh value.
+const RBTDRC_FACT_CONSEC_INFIX: &str = "_fact_consec_";
+
+/// Docker wrapper: run image and capture output.
+fn rbtdrc_docker_run(image_ref: &str) -> Result<(String, i32), String> {
+    let output = Command::new("docker")
+        .args(["run", "--rm", image_ref])
+        .output()
+        .map_err(|e| format!("docker run exec failed: {}", e))?;
+    let stdout = String::from_utf8_lossy(&output.stdout).into_owned();
+    let stderr = String::from_utf8_lossy(&output.stderr).into_owned();
+    let combined = if stderr.is_empty() {
+        stdout
+    } else {
+        format!("{}{}", stdout, stderr)
+    };
+    Ok((combined, output.status.code().unwrap_or(-1)))
+}
+
+/// Docker wrapper: inspect image (returns true if exists).
+fn rbtdrc_docker_inspect(image_ref: &str) -> bool {
+    Command::new("docker")
+        .args(["inspect", image_ref])
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status()
+        .map(|s| s.success())
+        .unwrap_or(false)
+}
+
+/// Docker wrapper: remove images.
+fn rbtdrc_docker_rmi(refs: &[&str]) -> Result<(), String> {
+    let status = Command::new("docker")
+        .arg("rmi")
+        .args(refs)
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status()
+        .map_err(|e| format!("docker rmi exec failed: {}", e))?;
+    if !status.success() {
+        return Err(format!("docker rmi exited {}", status.code().unwrap_or(-1)));
+    }
+    Ok(())
+}
+
+/// Four-mode integration test — 15-step sequence exercising all four delivery modes.
+/// Faithful port of rbtcfm_four_mode_tcase from rbtcfm_FourMode.sh.
+fn rbtdrc_four_mode(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        let conjure_vessel = "rbev-busybox";
+        let bind_vessel = "rbev-bottle-plantuml";
+        let graft_vessel = "rbev-busybox-graft";
+        let conjure_dir = format!("rbev-vessels/{}", conjure_vessel);
+        let bind_dir = format!("rbev-vessels/{}", bind_vessel);
+        let graft_dir = format!("rbev-vessels/{}", graft_vessel);
+
+        // Verify vessel directories exist
+        for (name, vdir) in [("conjure", &conjure_dir), ("bind", &bind_dir), ("graft", &graft_dir)] {
+            if !ctx.project_root().join(vdir).is_dir() {
+                return rbtdre_Verdict::Fail(format!("vessel directory not found: {}", vdir));
+            }
+            let _ = std::fs::write(dir.join(format!("step-0-{}-dir.txt", name)), vdir.as_str());
+        }
+
+        // Step 1: Conjure busybox
+        let _ = std::fs::write(dir.join("step-01-status.txt"), "conjuring");
+        let conjure_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ORDAIN, &[&conjure_dir], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("conjure failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("conjure invocation: {}", e)),
+        };
+        let conjure_consec = match rbtdri_read_burv_fact(&conjure_result, RBTDRC_FACT_CONSECRATION) {
+            Ok(v) => v,
+            Err(e) => return rbtdre_Verdict::Fail(format!("step 1: {}", e)),
+        };
+        let conjure_gar_root = match rbtdri_read_burv_fact(&conjure_result, RBTDRC_FACT_GAR_ROOT) {
+            Ok(v) => v,
+            Err(e) => return rbtdre_Verdict::Fail(format!("step 1 gar_root: {}", e)),
+        };
+        let conjure_ark_stem = match rbtdri_read_burv_fact(&conjure_result, RBTDRC_FACT_ARK_STEM) {
+            Ok(v) => v,
+            Err(e) => return rbtdre_Verdict::Fail(format!("step 1 ark_stem: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("step-01-conjure-consec.txt"), &conjure_consec);
+
+        // Step 2: Bind plantuml
+        let _ = std::fs::write(dir.join("step-02-status.txt"), "binding");
+        let bind_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ORDAIN, &[&bind_dir], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("bind failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("bind invocation: {}", e)),
+        };
+        let bind_consec = match rbtdri_read_burv_fact(&bind_result, RBTDRC_FACT_CONSECRATION) {
+            Ok(v) => v,
+            Err(e) => return rbtdre_Verdict::Fail(format!("step 2: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("step-02-bind-consec.txt"), &bind_consec);
+
+        // Retrieve conjured image for graft input
+        let graft_retrieve_locator = format!("{}{}", conjure_ark_stem, RBTDRC_ARK_SUFFIX_IMAGE);
+        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_WREST, &[&graft_retrieve_locator], &[]) {
+            Ok(r) if r.exit_code == 0 => {}
+            Ok(r) => return rbtdre_Verdict::Fail(format!("wrest for graft failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("wrest invocation: {}", e)),
+        }
+        let local_image_ref = format!("{}/{}", conjure_gar_root, graft_retrieve_locator);
+
+        // Step 3: Graft busybox
+        let _ = std::fs::write(dir.join("step-03-status.txt"), "grafting");
+        let graft_result = match rbtdri_invoke_global(
+            ctx,
+            RBTDRM_COLOPHON_ORDAIN,
+            &[&graft_dir],
+            &[("BURE_TWEAK_NAME", "threemodegraft"), ("BURE_TWEAK_VALUE", &local_image_ref)],
+        ) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("graft failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("graft invocation: {}", e)),
+        };
+        let graft_consec = match rbtdri_read_burv_fact(&graft_result, RBTDRC_FACT_CONSECRATION) {
+            Ok(v) => v,
+            Err(e) => return rbtdre_Verdict::Fail(format!("step 3: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("step-03-graft-consec.txt"), &graft_consec);
+
+        // Step 4: Kludge busybox (local-only dev build)
+        let _ = std::fs::write(dir.join("step-04-status.txt"), "kludging");
+        let kludge_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_KLUDGE, &[&conjure_dir], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("kludge failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("kludge invocation: {}", e)),
+        };
+        let kludge_consec = match rbtdri_read_burv_fact(&kludge_result, RBTDRC_FACT_CONSECRATION) {
+            Ok(v) => v,
+            Err(e) => return rbtdre_Verdict::Fail(format!("step 4: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("step-04-kludge-consec.txt"), &kludge_consec);
+
+        // Verify kludge image and vouch tag exist locally
+        let kludge_image_ref = format!("{}/{}:{}{}", conjure_gar_root, conjure_vessel, kludge_consec, RBTDRC_ARK_SUFFIX_IMAGE);
+        let kludge_vouch_ref = format!("{}/{}:{}{}", conjure_gar_root, conjure_vessel, kludge_consec, RBTDRC_ARK_SUFFIX_VOUCH);
+
+        if !rbtdrc_docker_inspect(&kludge_image_ref) {
+            return rbtdre_Verdict::Fail(format!("kludge image not found: {}", kludge_image_ref));
+        }
+        if !rbtdrc_docker_inspect(&kludge_vouch_ref) {
+            return rbtdre_Verdict::Fail(format!("kludge vouch tag not found: {}", kludge_vouch_ref));
+        }
+
+        // Run kludge image and verify output
+        let expected_output = "BusyBox container is running!";
+        match rbtdrc_docker_run(&kludge_image_ref) {
+            Ok((output, 0)) if output.contains(expected_output) => {}
+            Ok((output, code)) => {
+                return rbtdre_Verdict::Fail(format!(
+                    "kludge run: expected '{}', got exit {} output: {}",
+                    expected_output, code, output
+                ))
+            }
+            Err(e) => return rbtdre_Verdict::Fail(format!("kludge docker run: {}", e)),
+        }
+
+        // Cleanup kludge images
+        if let Err(e) = rbtdrc_docker_rmi(&[&kludge_image_ref, &kludge_vouch_ref]) {
+            return rbtdre_Verdict::Fail(format!("kludge cleanup: {}", e));
+        }
+
+        // Step 5: Tally — verify all three GAR modes show vouched health
+        let _ = std::fs::write(dir.join("step-05-status.txt"), "tallying");
+        let tally_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_TALLY, &[], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("tally failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("tally invocation: {}", e)),
+        };
+        let tally_dir = &tally_result.burv_output;
+
+        let conjure_fact = format!("{}{}{}", conjure_vessel, RBTDRC_FACT_CONSEC_INFIX, conjure_consec);
+        let bind_fact = format!("{}{}{}", bind_vessel, RBTDRC_FACT_CONSEC_INFIX, bind_consec);
+        let graft_fact = format!("{}{}{}", graft_vessel, RBTDRC_FACT_CONSEC_INFIX, graft_consec);
+
+        if !tally_dir.join(&conjure_fact).exists() {
+            return rbtdre_Verdict::Fail(format!("conjure consecration not found: {}", conjure_fact));
+        }
+        if !tally_dir.join(&bind_fact).exists() {
+            return rbtdre_Verdict::Fail(format!("bind consecration not found: {}", bind_fact));
+        }
+        if !tally_dir.join(&graft_fact).exists() {
+            return rbtdre_Verdict::Fail(format!("graft consecration not found: {}", graft_fact));
+        }
+
+        // Steps 6-9: Vouch gate, retrieve, run, cleanup (conjured busybox)
+        // Step 6: vouch_gate is done by the ordain pipeline — the three consecrations above prove it
+        // Step 7: Retrieve image
+        let retrieve_locator = format!("{}:{}{}", conjure_vessel, conjure_consec, RBTDRC_ARK_SUFFIX_IMAGE);
+        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_WREST, &[&retrieve_locator], &[]) {
+            Ok(r) if r.exit_code == 0 => {}
+            Ok(r) => return rbtdre_Verdict::Fail(format!("wrest failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("wrest invocation: {}", e)),
+        }
+
+        // Step 8: Run and verify
+        let full_image_ref = format!("{}/{}", conjure_gar_root, retrieve_locator);
+        match rbtdrc_docker_run(&full_image_ref) {
+            Ok((output, 0)) if output.contains(expected_output) => {}
+            Ok((output, code)) => {
+                return rbtdre_Verdict::Fail(format!(
+                    "run: expected '{}', got exit {} output: {}",
+                    expected_output, code, output
+                ))
+            }
+            Err(e) => return rbtdre_Verdict::Fail(format!("docker run: {}", e)),
+        }
+
+        // Step 9: Cleanup
+        if let Err(e) = rbtdrc_docker_rmi(&[&full_image_ref]) {
+            return rbtdre_Verdict::Fail(format!("image cleanup: {}", e));
+        }
+
+        // Steps 10-12: Abjure all three consecrations
+        for (label, vdir, consec) in [
+            ("conjure", &conjure_dir, &conjure_consec),
+            ("bind", &bind_dir, &bind_consec),
+            ("graft", &graft_dir, &graft_consec),
+        ] {
+            match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ABJURE, &[vdir.as_str(), consec.as_str(), "--force"], &[]) {
+                Ok(r) if r.exit_code == 0 => {}
+                Ok(r) => return rbtdre_Verdict::Fail(format!("abjure {} failed (exit {})\n{}", label, r.exit_code, r.stderr)),
+                Err(e) => return rbtdre_Verdict::Fail(format!("abjure {} invocation: {}", label, e)),
+            }
+        }
+
+        // Step 13: Tally post-abjure — verify all three are gone
+        let _ = std::fs::write(dir.join("step-13-status.txt"), "post-abjure tally");
+        let post_tally = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_TALLY, &[], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("post-abjure tally failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("post-abjure tally invocation: {}", e)),
+        };
+        let post_dir = &post_tally.burv_output;
+
+        if post_dir.join(&conjure_fact).exists() {
+            return rbtdre_Verdict::Fail(format!("conjure still present after abjure: {}", conjure_fact));
+        }
+        if post_dir.join(&bind_fact).exists() {
+            return rbtdre_Verdict::Fail(format!("bind still present after abjure: {}", bind_fact));
+        }
+        if post_dir.join(&graft_fact).exists() {
+            return rbtdre_Verdict::Fail(format!("graft still present after abjure: {}", graft_fact));
+        }
+
+        let _ = std::fs::write(dir.join("step-15-status.txt"), "passed");
+        rbtdre_Verdict::Pass
+    })
+}
+
+pub static RBTDRC_SECTIONS_FOUR_MODE: &[rbtdre_Section] = &[rbtdre_Section {
+    name: "four-mode-integration",
+    cases: &[rbtdre_Case {
+        name: "four-mode-supply-chain",
+        func: rbtdrc_four_mode,
+    }],
+}];
+
+// ── Access probe cases (bare fixture, imprint-scoped) ────────
+
+/// Invoke an access probe tabtarget by role imprint, check exit code.
+fn rbtdrc_access_probe_role(ctx: &mut rbtdri_Context, role: &str, dir: &Path) -> rbtdre_Verdict {
+    let result = match rbtdri_invoke_imprint(ctx, RBTDRM_COLOPHON_ACCESS_PROBE, role, &[]) {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("{} probe invocation: {}", role, e)),
+    };
+    let _ = std::fs::write(dir.join("probe-stdout.txt"), &result.stdout);
+    let _ = std::fs::write(dir.join("probe-stderr.txt"), &result.stderr);
+
+    if result.exit_code != 0 {
+        return rbtdre_Verdict::Fail(format!(
+            "{} probe exited {}\n{}",
+            role, result.exit_code, result.stderr
+        ));
+    }
+    rbtdre_Verdict::Pass
+}
+
+fn rbtdrc_access_probe_governor(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, "governor", dir))
+}
+
+fn rbtdrc_access_probe_director(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, "director", dir))
+}
+
+fn rbtdrc_access_probe_retriever(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, "retriever", dir))
+}
+
+fn rbtdrc_access_probe_payor(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, "payor", dir))
+}
+
+pub static RBTDRC_SECTIONS_ACCESS_PROBE: &[rbtdre_Section] = &[rbtdre_Section {
+    name: "access-probe",
+    cases: &[
+        rbtdre_Case {
+            name: "jwt-governor",
+            func: rbtdrc_access_probe_governor,
+        },
+        rbtdre_Case {
+            name: "jwt-director",
+            func: rbtdrc_access_probe_director,
+        },
+        rbtdre_Case {
+            name: "jwt-retriever",
+            func: rbtdrc_access_probe_retriever,
+        },
+        rbtdre_Case {
+            name: "oauth-payor",
+            func: rbtdrc_access_probe_payor,
+        },
+    ],
+}];
