@@ -12,13 +12,15 @@ Spun off from ₣AU (rbk-mvp-3-release-finalize). The original ₢AUAAm pace att
 **Decision**: Replace the monolithic `rbgm_onboarding()` with a triage guide plus per-role track guides.
 
 **Tabtargets**:
-- `tt/rbw-o.OnboardMAIN.sh` — Triage: probe credential presence, show detected roles with links to role tracks, link to docs for roles without credentials
-- `tt/rbw-OR.OnboardRetriever.sh` — Retriever track
-- `tt/rbw-OD.OnboardDirector.sh` — Director track
-- `tt/rbw-OG.OnboardGovernor.sh` — Governor track
-- `tt/rbw-OP.OnboardPayor.sh` — Payor track
+- `tt/rbw-go.OnboardMAIN.sh` — Triage: probe credential presence, show detected roles with links to role tracks, link to docs for roles without credentials
+- `tt/rbw-gOR.OnboardRetriever.sh` — Retriever track
+- `tt/rbw-gOD.OnboardDirector.sh` — Director track
+- `tt/rbw-gOG.OnboardGovernor.sh` — Governor track
+- `tt/rbw-gOP.OnboardPayor.sh` — Payor track
 
-**Colophon design**: `rbw-o` (lowercase) is the triage entry point, terminal. `rbw-O` (uppercase) prefixes role tracks with children `R`, `D`, `G`, `P`. Terminal exclusivity holds.
+**Colophon design**: `rbw-go` (lowercase o) is the triage entry point, terminal. `rbw-gO` (uppercase O) prefixes role tracks with children `R`, `D`, `G`, `P`. Terminal exclusivity holds. All live in the `rbw-g` (guide) family alongside existing `rbw-gPE`, `rbw-gPR`, `rbw-gPI`, `rbw-gq`.
+
+**Retired**: `tt/rbw-gO.Onboarding.sh` (old monolithic guide) replaced by `rbw-go.OnboardMAIN.sh`.
 
 **Role model** (dependency flows downhill):
 - **Payor** — owns GCP project and billing, manages multiple depots
@@ -46,7 +48,7 @@ Emerged from testing ₢AUAAm's monolithic dashboard on a fresh machine as a ret
 
 ## References
 - `Tools/rbk/rbgm_ManualProcedures.sh` — current `rbgm_onboarding()` (to be replaced)
-- `Tools/rbk/rbgc_Constants.sh` — home for URL root constant
+- `Tools/rbk/rbgc_Constants.sh` — home for URL constant
 - `Tools/buk/buc_command.sh` — `buc_link` for terminal URLs
 - `https://scaleinv.github.io/recipebottle` — public project page
 - ₣AU paddock — MVP-3 release context
