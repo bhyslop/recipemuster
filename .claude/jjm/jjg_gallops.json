@@ -275,9 +275,10 @@
         "₢A1AAM",
         "₢A1AAS",
         "₢A1AAT",
-        "₢A1AAU"
+        "₢A1AAU",
+        "₢A1AAV"
       ],
-      "next_pace_seed": "AAV",
+      "next_pace_seed": "AAW",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -802,6 +803,17 @@
               "text": "## Character\nInfrastructure refinement — mechanical refactor of 50 case registrations plus new engine capability. The macro design is settled; execution is methodical.\n\n## Docket\n\nUnify case naming: one name per case (the function name), compiler-enforced uniqueness, plus a single-case runner tabtarget for crucible debugging.\n\n### Macro refactor\n- Create `case!()` macro using `stringify!()` to derive case name from function name\n- Replace all 50 `rbtdre_Case { name: \"...\", func: ... }` registrations with `case!(rbtdrc_fn_name)`\n- Add display-time transform in engine: strip `rbtdrc_` prefix, convert `_` to `-` for output\n- Remove duplicate name strings — compiler enforces uniqueness via function names\n\n### Single-case runner\n- New tabtarget: `tt/rbtd-s.SingleCase.{fixture}.sh [case]`\n- New theurge subcommand: `rbtd single [case]` — no charge/quench lifecycle\n- Shell wrapper checks crucible is charged; if not, `buc_die` with charge instruction\n- No case arg → list all cases for that fixture\n- Case arg → run that one case against the already-charged crucible\n- Case lookup by name across all fixtures (names are globally unique)\n\n### CLAUDE.md updates\n- Add single-case runner to test execution table\n- Document workflow: charge → run single cases → quench\n\n### Acceptance\n- All 50 cases use macro registration\n- `tt/rbtd-s.SingleCase.tadmor.sh` lists cases when no arg given\n- `tt/rbtd-s.SingleCase.tadmor.sh coordinated-arp-gratuitous` runs one case\n- Existing suite tabtargets unaffected\n- All tests pass",
               "silks": "single-case-runner-and-macro-refactor",
               "commit": "23761f4"
+            }
+          ]
+        },
+        "₢A1AAV": {
+          "tacks": [
+            {
+              "ts": "260402-1604",
+              "state": "rough",
+              "text": "## Character\nDebugging — three independent failure investigations. Single-case runner (from previous pace) makes iteration fast. Each failure may need ifrit code fix, sentry hardening, or test expectation adjustment.\n\n## Docket\n\nFix the 3 pre-existing tadmor-sortie-attacks failures: sortie-icmp-exfil-payload, sortie-net-srcip-spoof, sortie-ns-capability-escape.\n\n### Workflow\n- Charge crucible once\n- Use single-case runner to iterate on each failure independently\n- Diagnose root cause: is the sortie wrong, the sentry misconfigured, or the expectation incorrect?\n\n### Cases to fix\n- `sortie-icmp-exfil-payload`: ICMP covert channel — investigate what the ifrit reports and why it fails\n- `sortie-net-srcip-spoof`: source IP spoofing via raw sockets — may be a capability/permission issue\n- `sortie-ns-capability-escape`: namespace and capability escape probe — likely a container config finding\n\n### Acceptance\n- All 3 cases pass with correct verdicts\n- Full crucible suite: 37 pass, 0 fail\n- No regressions in other cases",
+              "silks": "fix-three-preexisting-sortie-failures",
+              "commit": "522ae21"
             }
           ]
         }
