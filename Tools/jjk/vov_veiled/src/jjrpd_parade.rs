@@ -41,6 +41,16 @@ pub struct jjrpd_ParadeArgs {
 /// Run the show command - display comprehensive Heat status
 pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (i32, String) {
     let mut output = vvco_Output::buffer();
+
+    // Disk space guard — report survey or block if critical
+    match crate::jjrdk_diskcheck::jjrdk_check_disk_space() {
+        Ok(survey) => vvco_out!(output, "{}", survey),
+        Err(msg) => {
+            vvco_err!(output, "{}", msg);
+            return (1, output.vvco_finish());
+        }
+    }
+
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {

@@ -16,6 +16,7 @@ use rmcp::handler::server::router::tool::ToolRouter;
 use rmcp::handler::server::wrapper::Parameters;
 use rmcp::model::{ServerCapabilities, ServerInfo, CallToolResult, Content};
 use rmcp::{ErrorData as McpError, ServerHandler, tool, tool_handler, tool_router};
+use vvc::vvco_out;
 
 // Handler imports
 use crate::jjrnc_notch::{jjrnc_NotchArgs, jjrnc_run_notch};
@@ -47,7 +48,7 @@ const HEARTBEAT_FILE: &str = "heartbeat";
 const GAZETTE_IN_FILE: &str = "gazette_in.md";
 const GAZETTE_OUT_FILE: &str = "gazette_out.md";
 const PROBE_DATE_FILE: &str = ".probe_date";
-const EXSANGUINATION_THRESHOLD_SECS: u64 = 4 * 3600;
+const EXSANGUINATION_THRESHOLD_SECS: u64 = 7 * 24 * 3600;
 const OFFICIUM_SUN_PREFIX: char = '\u{2609}'; // ☉
 
 fn gallops_pathbuf() -> PathBuf {
@@ -67,6 +68,7 @@ fn jjrm_result(result: (i32, String)) -> Result<CallToolResult, McpError> {
         Ok(CallToolResult::error(vec![Content::text(output)]))
     }
 }
+
 
 /// Return deserialization error as MCP error result.
 fn jjrm_deser_error(cmd: &str, e: serde_json::Error) -> Result<CallToolResult, McpError> {
@@ -458,6 +460,14 @@ fn zjjrm_gazette_out_path(officium: &str) -> std::path::PathBuf {
 
 /// Handle jjx_open: create a new officium.
 async fn zjjrm_handle_open() -> Result<CallToolResult, McpError> {
+    let mut output = vvc::vvco_Output::buffer();
+
+    // Disk space guard — block before any state changes
+    match crate::jjrdk_diskcheck::jjrdk_check_disk_space() {
+        Ok(survey) => vvco_out!(output, "{}", survey),
+        Err(msg) => return Ok(CallToolResult::error(vec![Content::text(msg)])),
+    }
+
     let officia = PathBuf::from(OFFICIA_DIR);
     if let Err(e) = std::fs::create_dir_all(&officia) {
         return Ok(CallToolResult::error(vec![Content::text(
@@ -529,8 +539,8 @@ async fn zjjrm_handle_open() -> Result<CallToolResult, McpError> {
 
     match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(lock) => {
-            let mut output = vvc::vvco_Output::buffer();
-            if let Err(e) = lock.vvcc_commit(&commit_args, &mut output) {
+            let mut commit_output = vvc::vvco_Output::buffer();
+            if let Err(e) = lock.vvcc_commit(&commit_args, &mut commit_output) {
                 return Ok(CallToolResult::error(vec![Content::text(
                     format!("jjx_open: invitatory commit error: {}", e),
                 )]));
@@ -543,9 +553,8 @@ async fn zjjrm_handle_open() -> Result<CallToolResult, McpError> {
         }
     };
 
-    Ok(CallToolResult::success(vec![Content::text(
-        format!("{}{}", OFFICIUM_SUN_PREFIX, id),
-    )]))
+    vvco_out!(output, "{}{}", OFFICIUM_SUN_PREFIX, id);
+    Ok(CallToolResult::success(vec![Content::text(output.vvco_finish())]))
 }
 
 /// Handle jjx_chapter: list active officia with status.
@@ -804,9 +813,6 @@ impl jjrm_McpServer {
 
         // jjx_open creates the officium — handle before officium validation
         if cmd == "jjx_open" {
-            if let Err(msg) = crate::jjrdk_diskcheck::jjrdk_check_disk_space() {
-                return Ok(CallToolResult::error(vec![Content::text(msg)]));
-            }
             return zjjrm_handle_open().await;
         }
 
@@ -861,12 +867,6 @@ impl jjrm_McpServer {
             }
         }
 
-        // Disk space guard — block orient and show (mount/groom entry points)
-        if cmd == "jjx_orient" || cmd == "jjx_show" {
-            if let Err(msg) = crate::jjrdk_diskcheck::jjrdk_check_disk_space() {
-                return Ok(CallToolResult::error(vec![Content::text(msg)]));
-            }
-        }
 
         match cmd {
             "jjx_record" => {

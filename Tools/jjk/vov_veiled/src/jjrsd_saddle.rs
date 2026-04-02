@@ -31,6 +31,16 @@ pub struct jjrsd_SaddleArgs {
 /// Run the saddle command - return Heat context
 pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette) -> (i32, String) {
     let mut output = vvco_Output::buffer();
+
+    // Disk space guard — report survey or block if critical
+    match crate::jjrdk_diskcheck::jjrdk_check_disk_space() {
+        Ok(survey) => vvco_out!(output, "{}", survey),
+        Err(msg) => {
+            vvco_err!(output, "{}", msg);
+            return (1, output.vvco_finish());
+        }
+    }
+
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {

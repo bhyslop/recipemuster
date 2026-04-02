@@ -466,10 +466,10 @@ Runs at the beginning of each {jjdxo_invitatory}, before creating the new {jjdxo
 +
 . Scan `.claude/jjm/officia/` for directories
 . For each directory, check {jjdxo_heartbeat} mtime
-. Remove directories whose {jjdxo_heartbeat} exceeds the staleness threshold (~4-6 hours)
+. Remove directories whose {jjdxo_heartbeat} exceeds the staleness threshold (7 days)
 . Skip directories with no {jjdxo_heartbeat} file (legacy or corrupt — log warning, leave for manual cleanup)
 +
-The generous staleness threshold avoids reaping directories belonging to long-running sessions that happen to be idle.
+The week-long staleness threshold ensures all same-day directories survive long enough for the autonumber scan to see them, preventing {jjdxo_officium} identity collisions within a day.
 Because the `officia/` tree is gitignored, incorrect reaping is benign — no tracked files are lost.
 
 ==== Steeplechase Commit Patterns
