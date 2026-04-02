@@ -36,37 +36,41 @@ pub const RBTDRM_COLOPHON_KLUDGE: &str = "rbw-ak";
 // Access probe colophon (imprint-scoped by role)
 pub const RBTDRM_COLOPHON_ACCESS_PROBE: &str = "rbtd-ap";
 
-/// Per-fixture required colophons.
-pub fn rbtdrm_required_colophons(fixture: &str) -> &'static [&'static str] {
+/// Per-fixture required colophons. Returns None for unknown fixtures.
+pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str]> {
     match fixture {
-        "tadmor" | "srjcl" | "pluml" => &[
+        "tadmor" | "srjcl" | "pluml" => Some(&[
             RBTDRM_COLOPHON_CHARGE,
             RBTDRM_COLOPHON_QUENCH,
             RBTDRM_COLOPHON_WRIT,
             RBTDRM_COLOPHON_FIAT,
             RBTDRM_COLOPHON_BARK,
-        ],
-        "four-mode" => &[
+        ]),
+        "four-mode" => Some(&[
             RBTDRM_COLOPHON_ORDAIN,
             RBTDRM_COLOPHON_ABJURE,
             RBTDRM_COLOPHON_WREST,
             RBTDRM_COLOPHON_TALLY,
             RBTDRM_COLOPHON_KLUDGE,
-        ],
-        "access-probe" => &[RBTDRM_COLOPHON_ACCESS_PROBE],
-        _ => &[],
+        ]),
+        "access-probe" => Some(&[RBTDRM_COLOPHON_ACCESS_PROBE]),
+        // Fast-tier fixtures — no colophon requirements (pure bash/local)
+        "enrollment-validation" | "regime-validation" | "regime-smoke" => Some(&[]),
+        _ => None,
     }
 }
 
 /// Verify that all required colophons for a fixture appear in the zipper manifest string.
 pub fn rbtdrm_verify(manifest: &str, fixture: &str) -> Result<(), String> {
-    let required = rbtdrm_required_colophons(fixture);
-    if required.is_empty() {
-        return Err(format!(
-            "rbtd: unknown fixture '{}' — no colophon requirements defined",
-            fixture
-        ));
-    }
+    let required = match rbtdrm_required_colophons(fixture) {
+        Some(r) => r,
+        None => {
+            return Err(format!(
+                "rbtd: unknown fixture '{}' — not registered in manifest",
+                fixture
+            ));
+        }
+    };
     for colophon in required {
         let found = manifest.split_whitespace().any(|token| token == *colophon);
         if !found {

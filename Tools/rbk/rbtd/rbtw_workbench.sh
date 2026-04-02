@@ -79,6 +79,9 @@ rbtw_route() {
         access-probe)
           z_manifest="rbtd-ap"
           ;;
+        enrollment-validation|regime-validation|regime-smoke)
+          z_manifest="fast"
+          ;;
         *)
           buc_die "Unknown fixture: ${z_fixture}"
           ;;

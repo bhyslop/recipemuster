@@ -795,6 +795,9 @@ pub fn rbtdrc_sections_for_fixture(fixture: &str) -> &'static [rbtdre_Section] {
         "pluml" => RBTDRC_SECTIONS_PLUML,
         "four-mode" => RBTDRC_SECTIONS_FOUR_MODE,
         "access-probe" => RBTDRC_SECTIONS_ACCESS_PROBE,
+        "enrollment-validation" => crate::rbtdrf_fast::RBTDRF_SECTIONS_ENROLLMENT_VALIDATION,
+        "regime-validation" => crate::rbtdrf_fast::RBTDRF_SECTIONS_REGIME_VALIDATION,
+        "regime-smoke" => crate::rbtdrf_fast::RBTDRF_SECTIONS_REGIME_SMOKE,
         _ => {
             eprintln!(
                 "rbtdrc: no sections defined for fixture '{}' — running empty",

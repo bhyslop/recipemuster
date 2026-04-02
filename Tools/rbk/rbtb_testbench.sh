@@ -54,16 +54,10 @@ source "${RBTB_SCRIPT_DIR}/rbap_AccessProbe.sh"
 source "${RBTB_RBTS_DIR}/rbtckk_KickTires.sh"
 source "${RBTB_RBTS_DIR}/rbtcqa_QualifyAll.sh"
   # rbtcap, rbtcfm, rbtcsj, rbtcpl: retired — now run via theurge
-source "${RBTB_BUTS_DIR}/butcrg_RegimeSmoke.sh"
+  # butcrg_RegimeSmoke: retired — now runs via theurge (tt/rbtd-r.Run.regime-smoke.sh)
 source "${RBTB_BUTS_DIR}/butcrg_RegimeCredentials.sh"
-source "${RBTB_BUTS_DIR}/butcev_LengthTypes.sh"
-source "${RBTB_BUTS_DIR}/butcev_ChoiceTypes.sh"
-source "${RBTB_BUTS_DIR}/butcev_NumericTypes.sh"
-source "${RBTB_BUTS_DIR}/butcev_RefTypes.sh"
-source "${RBTB_BUTS_DIR}/butcev_ListTypes.sh"
-source "${RBTB_BUTS_DIR}/butcev_GateEnroll.sh"
-source "${RBTB_BUTS_DIR}/butcev_EnforceReport.sh"
-source "${RBTB_RBTS_DIR}/rbtcrv_RegimeValidation.sh"
+  # butcev_*: retired — now runs via theurge (tt/rbtd-r.Run.enrollment-validation.sh)
+  # rbtcrv_RegimeValidation: retired — now runs via theurge (tt/rbtd-r.Run.regime-validation.sh)
 source "${RBTB_RBTS_DIR}/rbtcbe_BureEnvironment.sh"
 
 buc_context "${0##*/}"
@@ -168,14 +162,7 @@ zrbtb_qualify_baste() {
   # srjcl baste: retired — now runs via theurge (tt/rbtd-r.Run.srjcl.sh)
   # pluml baste: retired — now runs via theurge (tt/rbtd-r.Run.pluml.sh)
 
-zrbtb_regime_validation_baste() {
-  buto_trace "Baste for regime-validation fixture"
-  # Source RBRR env but do NOT kindle — test helpers kindle in their own subshells.
-  # Kindling makes RBRR_ vars readonly, which would prevent RBRR negative tests
-  # from overriding values. ZRBTCRV_VESSEL_DIR caches the path for RBRV iteration.
-  source "${RBBC_rbrr_file}" || buc_die "Failed to source ${RBBC_rbrr_file}"
-  export ZRBTCRV_VESSEL_DIR="${RBRR_VESSEL_DIR}"
-}
+  # regime-validation baste: retired — now runs via theurge
 
 
 ######################################################################
@@ -225,15 +212,7 @@ rbtb_kindle() {
   # -- FAST + CRUCIBLE + COMPLETE: no external dependencies --
   butr_suite_enroll "${BUTR_SUITE_FAST}" "${BUTR_SUITE_CRUCIBLE}" "${BUTR_SUITE_COMPLETE}"
 
-  # regime-smoke fixture
-  butr_fixture_enroll "regime-smoke" "" "zrbtb_noop_baste"
-  butr_case_enroll "regime-smoke" butcrg_burc_tcase
-  butr_case_enroll "regime-smoke" butcrg_burs_tcase
-  butr_case_enroll "regime-smoke" butcrg_rbrn_tcase
-  butr_case_enroll "regime-smoke" butcrg_rbrr_tcase
-  butr_case_enroll "regime-smoke" butcrg_rbrv_tcase
-  butr_case_enroll "regime-smoke" butcrg_rbrp_tcase
-  butr_case_enroll "regime-smoke" butcrg_burd_tcase
+  # regime-smoke: retired — now runs via theurge (tt/rbtd-r.Run.regime-smoke.sh)
 
   # -- SERVICE + COMPLETE: needs all workstation credentials --
   butr_suite_enroll "${BUTR_SUITE_SERVICE}" "${BUTR_SUITE_COMPLETE}"
@@ -247,79 +226,9 @@ rbtb_kindle() {
   # -- FAST + CRUCIBLE + COMPLETE: no external dependencies --
   butr_suite_enroll "${BUTR_SUITE_FAST}" "${BUTR_SUITE_CRUCIBLE}" "${BUTR_SUITE_COMPLETE}"
 
-  # enrollment-validation fixture
-  butr_fixture_enroll "enrollment-validation" "" "zrbtb_noop_baste"
-  butr_case_enroll "enrollment-validation" butcev_string_valid_tcase
-  butr_case_enroll "enrollment-validation" butcev_string_empty_optional_tcase
-  butr_case_enroll "enrollment-validation" butcev_string_too_short_tcase
-  butr_case_enroll "enrollment-validation" butcev_string_too_long_tcase
-  butr_case_enroll "enrollment-validation" butcev_string_empty_required_tcase
-  butr_case_enroll "enrollment-validation" butcev_xname_enrolled_valid_tcase
-  butr_case_enroll "enrollment-validation" butcev_xname_enrolled_invalid_tcase
-  butr_case_enroll "enrollment-validation" butcev_gname_enrolled_valid_tcase
-  butr_case_enroll "enrollment-validation" butcev_gname_enrolled_invalid_tcase
-  butr_case_enroll "enrollment-validation" butcev_fqin_enrolled_valid_tcase
-  butr_case_enroll "enrollment-validation" butcev_fqin_enrolled_invalid_tcase
-  butr_case_enroll "enrollment-validation" butcev_bool_valid_tcase
-  butr_case_enroll "enrollment-validation" butcev_bool_invalid_tcase
-  butr_case_enroll "enrollment-validation" butcev_bool_empty_tcase
-  butr_case_enroll "enrollment-validation" butcev_enum_valid_tcase
-  butr_case_enroll "enrollment-validation" butcev_enum_invalid_tcase
-  butr_case_enroll "enrollment-validation" butcev_enum_empty_tcase
-  butr_case_enroll "enrollment-validation" butcev_decimal_valid_tcase
-  butr_case_enroll "enrollment-validation" butcev_decimal_below_tcase
-  butr_case_enroll "enrollment-validation" butcev_decimal_above_tcase
-  butr_case_enroll "enrollment-validation" butcev_decimal_empty_tcase
-  butr_case_enroll "enrollment-validation" butcev_ipv4_valid_tcase
-  butr_case_enroll "enrollment-validation" butcev_ipv4_invalid_tcase
-  butr_case_enroll "enrollment-validation" butcev_port_valid_tcase
-  butr_case_enroll "enrollment-validation" butcev_port_invalid_tcase
-  butr_case_enroll "enrollment-validation" butcev_odref_valid_tcase
-  butr_case_enroll "enrollment-validation" butcev_odref_no_digest_tcase
-  butr_case_enroll "enrollment-validation" butcev_odref_malformed_tcase
-  butr_case_enroll "enrollment-validation" butcev_odref_empty_tcase
-  butr_case_enroll "enrollment-validation" butcev_list_string_valid_tcase
-  butr_case_enroll "enrollment-validation" butcev_list_string_empty_tcase
-  butr_case_enroll "enrollment-validation" butcev_list_string_bad_item_tcase
-  butr_case_enroll "enrollment-validation" butcev_list_ipv4_valid_tcase
-  butr_case_enroll "enrollment-validation" butcev_list_ipv4_invalid_tcase
-  butr_case_enroll "enrollment-validation" butcev_list_ipv4_empty_tcase
-  butr_case_enroll "enrollment-validation" butcev_list_gname_valid_tcase
-  butr_case_enroll "enrollment-validation" butcev_list_gname_invalid_tcase
-  butr_case_enroll "enrollment-validation" butcev_gate_active_valid_tcase
-  butr_case_enroll "enrollment-validation" butcev_gate_active_invalid_tcase
-  butr_case_enroll "enrollment-validation" butcev_gate_inactive_tcase
-  butr_case_enroll "enrollment-validation" butcev_gate_multi_tcase
-  butr_case_enroll "enrollment-validation" butcev_enforce_all_pass_tcase
-  butr_case_enroll "enrollment-validation" butcev_enforce_first_bad_tcase
-  butr_case_enroll "enrollment-validation" butcev_report_all_pass_tcase
-  butr_case_enroll "enrollment-validation" butcev_report_mixed_tcase
-  butr_case_enroll "enrollment-validation" butcev_report_gated_tcase
-  butr_case_enroll "enrollment-validation" butcev_multiscope_tcase
+  # enrollment-validation: retired — now runs via theurge (tt/rbtd-r.Run.enrollment-validation.sh)
 
-  # regime-validation fixture
-  butr_fixture_enroll "regime-validation" "" "zrbtb_regime_validation_baste"
-  butr_case_enroll "regime-validation" rbtcrv_rbrr_missing_project_id_tcase
-  butr_case_enroll "regime-validation" rbtcrv_rbrr_bad_timeout_tcase
-  butr_case_enroll "regime-validation" rbtcrv_rbrr_bad_pool_stem_tcase
-  butr_case_enroll "regime-validation" rbtcrv_rbrr_unexpected_var_tcase
-  butr_case_enroll "regime-validation" rbtcrv_rbrr_bad_vessel_dir_tcase
-  butr_case_enroll "regime-validation" rbtcrv_rbrr_bad_secrets_dir_tcase
-  butr_case_enroll "regime-validation" rbtcrv_rbrv_missing_sigil_tcase
-  butr_case_enroll "regime-validation" rbtcrv_rbrv_no_bind_image_tcase
-  butr_case_enroll "regime-validation" rbtcrv_rbrv_unexpected_var_tcase
-  butr_case_enroll "regime-validation" rbtcrv_rbrv_partial_conjure_tcase
-  butr_case_enroll "regime-validation" rbtcrv_rbrn_missing_moniker_tcase
-  butr_case_enroll "regime-validation" rbtcrv_rbrn_invalid_runtime_tcase
-  butr_case_enroll "regime-validation" rbtcrv_rbrn_invalid_entry_mode_tcase
-  butr_case_enroll "regime-validation" rbtcrv_rbrn_invalid_dns_mode_tcase
-  butr_case_enroll "regime-validation" rbtcrv_rbrn_invalid_access_mode_tcase
-  butr_case_enroll "regime-validation" rbtcrv_rbrn_port_conflict_tcase
-  butr_case_enroll "regime-validation" rbtcrv_rbrn_unexpected_var_tcase
-  butr_case_enroll "regime-validation" rbtcrv_rbrn_bad_ip_tcase
-  butr_case_enroll "regime-validation" rbtcrv_rbrr_repo_tcase
-  butr_case_enroll "regime-validation" rbtcrv_rbrv_all_vessels_tcase
-  butr_case_enroll "regime-validation" rbtcrv_rbrn_all_nameplates_tcase
+  # regime-validation: retired — now runs via theurge (tt/rbtd-r.Run.regime-validation.sh)
 
   # bure-tweak fixture
   butr_fixture_enroll "bure-tweak" "" "zrbtb_noop_baste"
