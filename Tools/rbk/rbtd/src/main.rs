@@ -20,7 +20,10 @@
 
 use std::process::ExitCode;
 
-use rbtd::rbtdrc_crucible::{rbtdrc_set_context, rbtdrc_take_context, RBTDRC_SECTIONS};
+use rbtd::rbtdrc_crucible::{
+    rbtdrc_needs_readiness_delay, rbtdrc_sections_for_nameplate, rbtdrc_set_context,
+    rbtdrc_take_context, RBTDRC_SERVICE_READINESS_DELAY_SECS,
+};
 use rbtd::rbtdre_engine::{rbtdre_detect_colors, rbtdre_print_summary, rbtdre_run_sections};
 use rbtd::rbtdri_invocation::{rbtdri_Context, rbtdri_invoke};
 use rbtd::rbtdrm_manifest::{rbtdrm_verify, RBTDRM_COLOPHON_CHARGE, RBTDRM_COLOPHON_QUENCH};
@@ -88,11 +91,23 @@ fn main() -> ExitCode {
         }
     }
 
+    // ── Service readiness delay (srjcl/pluml need services to start) ──
+    if rbtdrc_needs_readiness_delay(nameplate) {
+        eprintln!(
+            "Waiting {}s for service readiness...",
+            RBTDRC_SERVICE_READINESS_DELAY_SECS
+        );
+        std::thread::sleep(std::time::Duration::from_secs(
+            RBTDRC_SERVICE_READINESS_DELAY_SECS,
+        ));
+    }
+
     // ── Run crucible cases ───────────────────────────────────
+    let sections = rbtdrc_sections_for_nameplate(nameplate);
     rbtdrc_set_context(ctx);
 
     let colors = rbtdre_detect_colors();
-    let run_result = rbtdre_run_sections(RBTDRC_SECTIONS, &colors, false, &root_temp);
+    let run_result = rbtdre_run_sections(sections, &colors, false, &root_temp);
 
     // ── Quench crucible (unconditional) ──────────────────────
     let mut ctx = rbtdrc_take_context();

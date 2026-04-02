@@ -21,7 +21,9 @@
 // the mutable invocation context needed for tabtarget calls.
 
 use std::cell::RefCell;
+use std::io::Write;
 use std::path::Path;
+use std::process::{Command, Stdio};
 
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Section, rbtdre_Verdict};
 use crate::rbtdri_invocation::{rbtdri_Context, rbtdri_invoke, rbtdri_parse_ifrit_verdict};
@@ -419,9 +421,421 @@ fn rbtdrc_sortie_ns_capability_escape(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "ns-capability-escape", dir))
 }
 
+// ── Host-side helpers (HTTP probes, port discovery) ──────────
+
+/// Test container image for Python networking tests (srjcl WebSocket).
+const RBTDRC_SRJCL_TEST_IMAGE: &str =
+    "ghcr.io/bhyslop/recipemuster:rbtest_python_networking.20250215__171409";
+
+/// Read RBRN_ENTRY_PORT_WORKSTATION from the nameplate's rbrn.env file.
+fn rbtdrc_read_nameplate_port(ctx: &rbtdri_Context) -> Result<u16, String> {
+    let env_path = ctx
+        .project_root()
+        .join(".rbk")
+        .join(ctx.nameplate())
+        .join("rbrn.env");
+    let content = std::fs::read_to_string(&env_path)
+        .map_err(|e| format!("cannot read {}: {}", env_path.display(), e))?;
+    for line in content.lines() {
+        if let Some(rest) = line.strip_prefix("RBRN_ENTRY_PORT_WORKSTATION=") {
+            return rest
+                .trim()
+                .parse::<u16>()
+                .map_err(|e| format!("invalid port '{}': {}", rest.trim(), e));
+        }
+    }
+    Err(format!(
+        "RBRN_ENTRY_PORT_WORKSTATION not found in {}",
+        env_path.display()
+    ))
+}
+
+/// Simple curl GET, returns (body, exit_code).
+fn rbtdrc_curl_get(url: &str) -> Result<(String, i32), String> {
+    let output = Command::new("curl")
+        .args(["-s", "--connect-timeout", "5", "--max-time", "10", url])
+        .output()
+        .map_err(|e| format!("curl exec failed: {}", e))?;
+    let stdout = String::from_utf8_lossy(&output.stdout).into_owned();
+    let code = output.status.code().unwrap_or(-1);
+    Ok((stdout, code))
+}
+
+/// Curl GET returning HTTP status code only.
+fn rbtdrc_curl_status(url: &str, headers: &[(&str, &str)]) -> Result<String, String> {
+    let mut cmd = Command::new("curl");
+    cmd.args([
+        "-s",
+        "-o",
+        "/dev/null",
+        "-w",
+        "%{http_code}",
+        "--connect-timeout",
+        "5",
+        "--max-time",
+        "10",
+    ]);
+    for (name, value) in headers {
+        cmd.arg("-H").arg(format!("{}: {}", name, value));
+    }
+    cmd.arg(url);
+    let output = cmd
+        .output()
+        .map_err(|e| format!("curl exec failed: {}", e))?;
+    Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
+}
+
+/// Curl POST with body from stdin, returns response body.
+fn rbtdrc_curl_post_stdin(url: &str, body: &str) -> Result<String, String> {
+    let mut child = Command::new("curl")
+        .args(["-s", "--data-binary", "@-", url])
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .map_err(|e| format!("curl POST spawn failed: {}", e))?;
+    child
+        .stdin
+        .take()
+        .unwrap()
+        .write_all(body.as_bytes())
+        .map_err(|e| format!("curl POST write failed: {}", e))?;
+    let output = child
+        .wait_with_output()
+        .map_err(|e| format!("curl POST wait failed: {}", e))?;
+    Ok(String::from_utf8_lossy(&output.stdout).into_owned())
+}
+
+// ── SRJCL Jupyter cases (host-side probes) ───────────────────
+
+fn rbtdrc_srjcl_jupyter_running(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        let result =
+            match rbtdri_invoke(ctx, RBTDRM_COLOPHON_BARK, &["ps", "aux"]) {
+                Ok(r) => r,
+                Err(e) => return rbtdre_Verdict::Fail(format!("bark ps aux: {}", e)),
+            };
+        let _ = std::fs::write(dir.join("bark-stdout.txt"), &result.stdout);
+        let _ = std::fs::write(dir.join("bark-stderr.txt"), &result.stderr);
+
+        if result.exit_code != 0 {
+            return rbtdre_Verdict::Fail(format!(
+                "ps aux exited {}\n{}",
+                result.exit_code, result.stderr
+            ));
+        }
+        if !result.stdout.contains("jupyter") {
+            return rbtdre_Verdict::Fail("jupyter not running in bottle".to_string());
+        }
+        rbtdre_Verdict::Pass
+    })
+}
+
+fn rbtdrc_srjcl_jupyter_connectivity(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        let port = match rbtdrc_read_nameplate_port(ctx) {
+            Ok(p) => p,
+            Err(e) => return rbtdre_Verdict::Fail(format!("port discovery: {}", e)),
+        };
+        let url = format!("http://localhost:{}/lab", port);
+        let status = match rbtdrc_curl_status(
+            &url,
+            &[
+                ("User-Agent", "Mozilla/5.0"),
+                ("Accept", "text/html,application/xhtml+xml"),
+            ],
+        ) {
+            Ok(s) => s,
+            Err(e) => return rbtdre_Verdict::Fail(format!("curl error: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("http-status.txt"), &status);
+
+        if status != "200" {
+            return rbtdre_Verdict::Fail(format!(
+                "expected HTTP 200 from Jupyter, got: {}",
+                status
+            ));
+        }
+        rbtdre_Verdict::Pass
+    })
+}
+
+fn rbtdrc_srjcl_websocket_kernel(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        let port = match rbtdrc_read_nameplate_port(ctx) {
+            Ok(p) => p,
+            Err(e) => return rbtdre_Verdict::Fail(format!("port discovery: {}", e)),
+        };
+        let test_script = ctx
+            .project_root()
+            .join("Tools/rbk/rbts/rbt_test_srjcl.py");
+        let script_content = match std::fs::read_to_string(&test_script) {
+            Ok(c) => c,
+            Err(e) => {
+                return rbtdre_Verdict::Fail(format!(
+                    "cannot read test script {}: {}",
+                    test_script.display(),
+                    e
+                ))
+            }
+        };
+
+        let mut child = match Command::new("docker")
+            .args([
+                "run",
+                "--rm",
+                "-i",
+                "--network",
+                "host",
+                "-e",
+                &format!("RBRN_ENTRY_PORT_WORKSTATION={}", port),
+                RBTDRC_SRJCL_TEST_IMAGE,
+                "python3",
+                "-",
+            ])
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+        {
+            Ok(c) => c,
+            Err(e) => {
+                return rbtdre_Verdict::Fail(format!("docker run spawn failed: {}", e))
+            }
+        };
+        let _ = child
+            .stdin
+            .take()
+            .unwrap()
+            .write_all(script_content.as_bytes());
+        let output = match child.wait_with_output() {
+            Ok(o) => o,
+            Err(e) => {
+                return rbtdre_Verdict::Fail(format!("docker run wait failed: {}", e))
+            }
+        };
+
+        let stdout = String::from_utf8_lossy(&output.stdout).into_owned();
+        let stderr = String::from_utf8_lossy(&output.stderr).into_owned();
+        let _ = std::fs::write(dir.join("docker-stdout.txt"), &stdout);
+        let _ = std::fs::write(dir.join("docker-stderr.txt"), &stderr);
+
+        let exit_code = output.status.code().unwrap_or(-1);
+        if exit_code != 0 {
+            return rbtdre_Verdict::Fail(format!(
+                "Python WebSocket test exited {}\nstdout: {}\nstderr: {}",
+                exit_code, stdout, stderr
+            ));
+        }
+        rbtdre_Verdict::Pass
+    })
+}
+
+// ── PLUML PlantUML cases (host-side HTTP probes) ─────────────
+
+/// Known PlantUML diagram hash for Alice/Bob conversation.
+const RBTDRC_PLUML_KNOWN_HASH: &str =
+    "SyfFKj2rKt3CoKnELR1Io4ZDoSbNACb8BKhbWeZf0cMTyfEi59Boym40";
+
+fn rbtdrc_pluml_text_rendering(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        let port = match rbtdrc_read_nameplate_port(ctx) {
+            Ok(p) => p,
+            Err(e) => return rbtdre_Verdict::Fail(format!("port discovery: {}", e)),
+        };
+        let url = format!(
+            "http://localhost:{}/txt/{}",
+            port, RBTDRC_PLUML_KNOWN_HASH
+        );
+        let (body, _) = match rbtdrc_curl_get(&url) {
+            Ok(r) => r,
+            Err(e) => return rbtdre_Verdict::Fail(format!("curl error: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("curl-response.txt"), &body);
+
+        for expected in &["Bob", "Alice", "hello there", "boo"] {
+            if !body.contains(expected) {
+                return rbtdre_Verdict::Fail(format!(
+                    "expected '{}' in response:\n{}",
+                    expected, body
+                ));
+            }
+        }
+        rbtdre_Verdict::Pass
+    })
+}
+
+fn rbtdrc_pluml_local_diagram(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        let port = match rbtdrc_read_nameplate_port(ctx) {
+            Ok(p) => p,
+            Err(e) => return rbtdre_Verdict::Fail(format!("port discovery: {}", e)),
+        };
+        let url = format!("http://localhost:{}/txt/uml", port);
+        let diagram = "@startuml\nBob -> Alice: hello there\nAlice --> Bob: boo\n@enduml";
+        let body = match rbtdrc_curl_post_stdin(&url, diagram) {
+            Ok(b) => b,
+            Err(e) => return rbtdre_Verdict::Fail(format!("curl POST error: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("curl-response.txt"), &body);
+
+        for expected in &["Bob", "Alice", "hello there", "boo"] {
+            if !body.contains(expected) {
+                return rbtdre_Verdict::Fail(format!(
+                    "expected '{}' in response:\n{}",
+                    expected, body
+                ));
+            }
+        }
+        rbtdre_Verdict::Pass
+    })
+}
+
+fn rbtdrc_pluml_http_headers(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        let port = match rbtdrc_read_nameplate_port(ctx) {
+            Ok(p) => p,
+            Err(e) => return rbtdre_Verdict::Fail(format!("port discovery: {}", e)),
+        };
+        let url = format!(
+            "http://localhost:{}/txt/{}",
+            port, RBTDRC_PLUML_KNOWN_HASH
+        );
+        let status = match rbtdrc_curl_status(
+            &url,
+            &[
+                ("User-Agent", "Mozilla/5.0"),
+                ("Accept", "text/plain"),
+            ],
+        ) {
+            Ok(s) => s,
+            Err(e) => return rbtdre_Verdict::Fail(format!("curl error: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("http-status.txt"), &status);
+
+        if status != "200" {
+            return rbtdre_Verdict::Fail(format!("expected HTTP 200, got: {}", status));
+        }
+        rbtdre_Verdict::Pass
+    })
+}
+
+fn rbtdrc_pluml_invalid_hash(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        let port = match rbtdrc_read_nameplate_port(ctx) {
+            Ok(p) => p,
+            Err(e) => return rbtdre_Verdict::Fail(format!("port discovery: {}", e)),
+        };
+        let url = format!("http://localhost:{}/txt/invalid_hash", port);
+        let (body, _) = match rbtdrc_curl_get(&url) {
+            Ok(r) => r,
+            Err(e) => return rbtdre_Verdict::Fail(format!("curl error: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("curl-response.txt"), &body);
+
+        if body.contains("Bob") {
+            return rbtdre_Verdict::Fail(
+                "expected no 'Bob' in invalid hash response".to_string(),
+            );
+        }
+        rbtdre_Verdict::Pass
+    })
+}
+
+fn rbtdrc_pluml_malformed_diagram(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        let port = match rbtdrc_read_nameplate_port(ctx) {
+            Ok(p) => p,
+            Err(e) => return rbtdre_Verdict::Fail(format!("port discovery: {}", e)),
+        };
+        let url = format!("http://localhost:{}/txt/uml", port);
+        let body = match rbtdrc_curl_post_stdin(&url, "invalid uml content") {
+            Ok(b) => b,
+            Err(e) => return rbtdre_Verdict::Fail(format!("curl POST error: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("curl-response.txt"), &body);
+
+        if body.contains("Bob") {
+            return rbtdre_Verdict::Fail(
+                "expected no 'Bob' in malformed diagram response".to_string(),
+            );
+        }
+        rbtdre_Verdict::Pass
+    })
+}
+
 // ── Section registry ─────────────────────────────────────────
 
-pub static RBTDRC_SECTIONS: &[rbtdre_Section] = &[
+/// Readiness delay in seconds after charge for service-bearing nameplates.
+/// Matches RBCC_BOTTLE_TEST_READINESS_DELAY_SEC from rbcc_Constants.sh.
+pub const RBTDRC_SERVICE_READINESS_DELAY_SECS: u64 = 30;
+
+/// Returns whether this nameplate needs a post-charge readiness delay.
+pub fn rbtdrc_needs_readiness_delay(nameplate: &str) -> bool {
+    matches!(nameplate, "srjcl" | "pluml")
+}
+
+/// Returns the section array appropriate for the given nameplate.
+pub fn rbtdrc_sections_for_nameplate(nameplate: &str) -> &'static [rbtdre_Section] {
+    match nameplate {
+        "tadmor" => RBTDRC_SECTIONS_TADMOR,
+        "srjcl" => RBTDRC_SECTIONS_SRJCL,
+        "pluml" => RBTDRC_SECTIONS_PLUML,
+        _ => {
+            eprintln!(
+                "rbtdrc: no sections defined for nameplate '{}' — running empty",
+                nameplate
+            );
+            &[]
+        }
+    }
+}
+
+pub static RBTDRC_SECTIONS_SRJCL: &[rbtdre_Section] = &[rbtdre_Section {
+    name: "srjcl-jupyter",
+    cases: &[
+        rbtdre_Case {
+            name: "jupyter-running",
+            func: rbtdrc_srjcl_jupyter_running,
+        },
+        rbtdre_Case {
+            name: "jupyter-connectivity",
+            func: rbtdrc_srjcl_jupyter_connectivity,
+        },
+        rbtdre_Case {
+            name: "websocket-kernel",
+            func: rbtdrc_srjcl_websocket_kernel,
+        },
+    ],
+}];
+
+pub static RBTDRC_SECTIONS_PLUML: &[rbtdre_Section] = &[rbtdre_Section {
+    name: "pluml-diagram",
+    cases: &[
+        rbtdre_Case {
+            name: "text-rendering",
+            func: rbtdrc_pluml_text_rendering,
+        },
+        rbtdre_Case {
+            name: "local-diagram",
+            func: rbtdrc_pluml_local_diagram,
+        },
+        rbtdre_Case {
+            name: "http-headers",
+            func: rbtdrc_pluml_http_headers,
+        },
+        rbtdre_Case {
+            name: "invalid-hash",
+            func: rbtdrc_pluml_invalid_hash,
+        },
+        rbtdre_Case {
+            name: "malformed-diagram",
+            func: rbtdrc_pluml_malformed_diagram,
+        },
+    ],
+}];
+
+static RBTDRC_SECTIONS_TADMOR: &[rbtdre_Section] = &[
     rbtdre_Section {
         name: "tadmor-basic-infra",
         cases: &[
