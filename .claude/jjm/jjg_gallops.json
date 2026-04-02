@@ -272,9 +272,10 @@
         "₢A1AAQ",
         "₢A1AAJ",
         "₢A1AAM",
-        "₢A1AAS"
+        "₢A1AAS",
+        "₢A1AAT"
       ],
-      "next_pace_seed": "AAT",
+      "next_pace_seed": "AAU",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -777,6 +778,17 @@
               "text": "## Character\nArchitectural — first coordinated ifrit/theurge test pattern. Requires new theurge primitives (snapshot-attack-resnap) and judgment about where ARP hardening belongs (pentacle sysctl vs static entries vs container capabilities).\n\n## Docket\n\nAdd a coordinated ARP poison test where theurge observes sentry state from outside while ifrit attacks from inside.\n\n### New coordination primitive\n- Theurge snapshots sentry ARP table via writ exec (`ip neigh show` on sentry container)\n- Theurge triggers ifrit ARP attack via bark exec (attack selector on bottle)\n- Theurge re-snapshots sentry ARP table\n- Diff: verify sentry's ARP entry for bottle IP did not change MAC, no fake gateway entry appeared\n\n### Test cases\n- `coordinated-arp-gratuitous`: ifrit sends gratuitous ARP claiming sentry IP, verify sentry table unchanged\n- `coordinated-arp-gateway-poison`: ifrit claims gateway IP at bottle MAC, verify sentry doesn't reroute\n- `coordinated-arp-table-stability`: verify sentry ARP entries survive ifrit manipulation attempts\n\n### Implementation\n- New section in rbtdrc_crucible.rs: `tadmor-coordinated-attacks`\n- New ifrit attack variants if needed, or reuse existing DirectArpPoison with theurge-side observation\n- May require pentacle hardening (static ARP, arp_filter/arp_ignore sysctls) to make tests pass — document decisions\n\n### Acceptance\n- All new coordinated cases pass with SECURE verdicts\n- Existing 34 tadmor cases unaffected\n- Full fast + crucible suites green",
               "silks": "coordinated-arp-sentry-observation",
               "commit": "c9e9bfe"
+            }
+          ]
+        },
+        "₢A1AAT": {
+          "tacks": [
+            {
+              "ts": "260402-1509",
+              "state": "rough",
+              "text": "## Character\nMechanical with breadth — apply the coordination pattern from the previous pace across several new attack surfaces. Each test is independent; parallelizable research but sequential execution.\n\n## Docket\n\nAdd several novel coordinated and unilateral tests exploiting new attack surfaces not covered by existing 34 tadmor cases. Show that the apparatus passes all.\n\n### Candidate tests (select 4-6 that are load-bearing)\n- **ARP table overflow**: flood sentry with fake ARP entries from bottle, verify legitimate entries survive\n- **MAC flooding**: send frames from many fake MACs to overwhelm bridge CAM table, verify sentry forwarding unaffected\n- **Sentry process integrity**: verify from outside (writ exec) that sentry's iptables rules and dnsmasq process haven't been altered by bottle activity\n- **Route table manipulation**: attempt `ip route replace` or `ip route add` from inside bottle to bypass sentry gateway\n- **Enclave subnet escape**: probe for hosts outside the /24 enclave from bottle, verify no responses\n- **Bridge promiscuous mode**: attempt to put enclave interface into promiscuous mode from bottle, verify blocked\n\n### Implementation\n- New cases in `tadmor-coordinated-attacks` section (or new section if warranted)\n- Each test follows snapshot-attack-resnap pattern where observation is needed\n- Unilateral tests (route manipulation, subnet escape) use standard ifrit exit-code pattern\n\n### Acceptance\n- All new cases pass with SECURE verdicts\n- Total tadmor case count grows by 4-6\n- Full crucible suite green\n- No regressions in existing cases",
+              "silks": "novel-coordinated-security-tests",
+              "commit": "47e6961"
             }
           ]
         }
