@@ -1566,9 +1566,10 @@
         "₢AUAAV",
         "₢AUAAe",
         "₢AUAAn",
-        "₢AUAAy"
+        "₢AUAAy",
+        "₢AUAAz"
       ],
-      "next_pace_seed": "AAz",
+      "next_pace_seed": "AA0",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -2680,6 +2681,17 @@
               "text": "## Character\nMechanical — spec text corrections plus one small code extraction. No judgment calls.\n\n## Problem\nSpot check of `rbfd_enshrine` against RBS0/RBSAE found 5 places where the spec wording doesn't match the existing implementation. Additionally, enshrine submits a GCB job that depends on reliquary tool images but lacks the GAR preflight check that conjure already has via `zrbfd_registry_preflight`.\n\n## Deliverable A: Spec text corrections (RBS0 + RBSAE)\n\nAll tightening wording to match existing code — no behavior changes.\n\n1. **RBS0:1133** — \"pulls each upstream image by tag, pushes to GAR\" → \"submits a Cloud Build job that copies each upstream image\" (code submits GCB job, skopeo runs on GCB not locally)\n2. **RBSAE:50-52** — \"Inspects upstream image to obtain the manifest digest\" → clarify digest is computed locally from raw manifest bytes via `openssl dgst -sha256` of `skopeo inspect --raw` output, not retrieved from registry\n3. **RBSAE:53** — \"sanitize origin tag\" → \"sanitize full origin string\" (code runs `tr ':/' '--'` on the entire ORIGIN, not just the tag portion)\n4. **RBSAE typed_parameter block** — Add `{rbbc_require}` vessel mode is `conjure` (code gates on `RBRV_VESSEL_MODE=conjure` at line 762)\n5. **RBSAE typed_parameter block** — Add `{rbbc_require}` reliquary tool images exist in GAR (preflight HEAD check)\n\n## Deliverable B: Factor reliquary preflight for enshrine\n\nExtract reliquary canary check (lines 196-239 of `zrbfd_registry_preflight`) into `zrbfd_preflight_reliquary(token, vessel_dir)`. Call from:\n- `rbfd_enshrine` — after Director auth, before `zrbfd_enshrine_submit`\n- `zrbfd_registry_preflight` — replacing inline layer 1 block, then continuing to layer 2 anchor checks\n\nSame HEAD-request-on-docker:latest pattern, same 404 remediation output. No new logic.\n\n## References\n- Tools/rbk/rbfd_FoundryDirectorBuild.sh — `rbfd_enshrine()` (750), `zrbfd_registry_preflight()` (188)\n- Tools/rbk/vov_veiled/RBS0-SpecTop.adoc — lines 1119-1135\n- Tools/rbk/vov_veiled/RBSAE-ark_enshrine.adoc — full include\n- Tools/rbk/rbgje/rbgje01-enshrine-copy.sh — GCB step script (source of truth for digest/anchor logic)",
               "silks": "enshrine-spec-realignment",
               "commit": "a5c01bc"
+            }
+          ]
+        },
+        "₢AUAAz": {
+          "tacks": [
+            {
+              "ts": "260402-1013",
+              "state": "rough",
+              "text": "## Character\nMechanical plumbing — threading existing data through an established pipeline. No design judgment.\n\n## Problem\nCloud Build returns `startTime` and `finishTime` in every build status response. The polling loop in `rbfc_FoundryCore.sh` already fetches this JSON but only extracts `.status`, discarding the timing fields. There is no way to determine build wall-clock duration from the vouch or about artifacts.\n\n## Deliverable: Surface build timing in about artifact for cloud ordain paths\n\nCapture Cloud Build start/finish times from the polling response and thread them into the about artifact's `build_info.json`. This covers all cloud-based ordain paths (conjure, bind, graft) but explicitly excludes kludge (local `podman build`, no Cloud Build API).\n\n### Implementation path\n\n**1. Extract timing from polling response** (`rbfc_FoundryCore.sh`, `zrbfc_wait_build_completion`):\nAfter the terminal status is detected, extract `startTime` and `finishTime` from the already-fetched build status JSON. Write to known file paths (sibling to existing `ZRBFC_BUILD_ID_FILE` pattern).\n\n**2. Pass as substitution variables** (`rbfd_FoundryDirectorBuild.sh`, stitching functions):\nThread the captured timestamps as Cloud Build substitution variables (`_RBGA_BUILD_START_TIME`, `_RBGA_BUILD_FINISH_TIME`) into the about generation step. This follows the existing pattern for passing `_RBGA_INSCRIBE_TIMESTAMP` and other metadata.\n\n**3. Include in build_info.json** (`rbgja03-build-info-per-platform.py`):\nRead the new substitution variables from environment, add `build_start_time` and `build_finish_time` fields to the per-platform `build_info.json`. Compute and include `build_duration_seconds` as a convenience.\n\n### Files to modify\n- `Tools/rbk/rbfc_FoundryCore.sh` — extract timing after poll completion\n- `Tools/rbk/rbfd_FoundryDirectorBuild.sh` — pass timing as substitution vars\n- `Tools/rbk/rbgja/rbgja03-build-info-per-platform.py` — emit timing in build_info\n\n### Scope boundary\n- Cloud ordain paths only (conjure, bind, graft). Not kludge.\n- No spec changes — this is additive metadata, not a contract change.\n- No changes to vouch pipeline — timing lives in about, vouch gates on about as before.\n\n## References\n- `Tools/rbk/rbfc_FoundryCore.sh` — `zrbfc_wait_build_completion()`, polling loop\n- `Tools/rbk/rbfd_FoundryDirectorBuild.sh` — stitching and substitution variable assembly\n- `Tools/rbk/rbgja/rbgja03-build-info-per-platform.py` — about metadata assembly\n- Cloud Build API: `metadata.build.startTime`, `metadata.build.finishTime` fields",
+              "silks": "cloud-build-wall-clock-timing",
+              "commit": "034735b"
             }
           ]
         }
