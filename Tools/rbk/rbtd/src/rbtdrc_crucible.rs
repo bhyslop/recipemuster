@@ -122,38 +122,45 @@ fn rbtdrc_fiat(ctx: &mut rbtdri_Context, args: &[&str]) -> Result<String, String
     Ok(result.stdout)
 }
 
-/// Discover the sentry IP by reading /etc/resolv.conf from inside the bottle via writ.
-/// Returns the first nameserver IP found.
+/// Discover the sentry's enclave IP by reading /etc/resolv.conf from the pentacle via fiat.
+/// The pentacle uses the sentry as its DNS server, so resolv.conf nameserver = sentry enclave IP.
+/// (Sentry's own resolv.conf points to upstream DNS like 8.8.8.8 — wrong for enclave ops.)
 fn rbtdrc_discover_sentry_ip(ctx: &mut rbtdri_Context) -> Result<String, String> {
-    let output = rbtdrc_writ(ctx, &["cat", "/etc/resolv.conf"])?;
+    let output = rbtdrc_fiat(ctx, &["cat", "/etc/resolv.conf"])?;
     for line in output.lines() {
         let trimmed = line.trim();
         if let Some(rest) = trimmed.strip_prefix("nameserver") {
             let ip = rest.trim();
-            if !ip.is_empty() {
+            if !ip.is_empty() && rbtdrc_looks_like_ip(ip) {
                 return Ok(ip.to_string());
             }
         }
     }
     Err(format!(
-        "no nameserver found in /etc/resolv.conf:\n{}",
+        "no nameserver found in pentacle /etc/resolv.conf:\n{}",
         output
     ))
 }
 
 /// Resolve a hostname via writ (running dig +short on the sentry).
-/// Returns the first IP address line from dig output.
+/// Returns the first line that looks like an IP address (filters BUK log headers).
 fn rbtdrc_resolve_via_writ(ctx: &mut rbtdri_Context, hostname: &str) -> Result<String, String> {
     let output = rbtdrc_writ(ctx, &["dig", "+short", hostname])?;
     let ip = output
         .lines()
         .find(|line| {
             let t = line.trim();
-            !t.is_empty() && !t.starts_with(';')
+            !t.is_empty() && rbtdrc_looks_like_ip(t)
         })
         .map(|line| line.trim().to_string())
         .ok_or_else(|| format!("dig +short {} returned no IP:\n{}", hostname, output))?;
     Ok(ip)
+}
+
+/// Quick check: does this string look like an IPv4 address (digits and dots only)?
+/// Not a full validator — just enough to reject BUK log headers and DNS comments.
+fn rbtdrc_looks_like_ip(s: &str) -> bool {
+    !s.is_empty() && s.chars().all(|c| c.is_ascii_digit() || c == '.')
 }
 
 // ── Basic infra cases (fiat) ──────────────────────────────────
