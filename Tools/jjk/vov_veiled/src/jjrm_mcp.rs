@@ -363,6 +363,8 @@ pub struct jjrm_JjxParams {
     #[schemars(description = "Officium identity (from jjx_open). Required for all commands except jjx_open.")]
     #[serde(default)]
     pub officium: Option<String>,
+    #[schemars(description = "Agent model ID string (e.g. 'claude-opus-4-6[1m]'). Required on all commands.")]
+    pub model: String,
 }
 
 // ============================================================================
@@ -741,6 +743,37 @@ fn zjjrm_handle_absolve(caller_officium: &str) -> Result<CallToolResult, McpErro
 }
 
 // ============================================================================
+// Model gate
+// ============================================================================
+
+/// Extract model tier from verbatim model ID string.
+/// Returns "opus", "sonnet", "haiku", or "unknown".
+fn zjjrm_extract_tier(model: &str) -> &'static str {
+    let lower = model.to_ascii_lowercase();
+    if lower.contains("opus") {
+        "opus"
+    } else if lower.contains("sonnet") {
+        "sonnet"
+    } else if lower.contains("haiku") {
+        "haiku"
+    } else {
+        "unknown"
+    }
+}
+
+/// Gate check: require opus-tier model. Returns Err with diagnostic on failure.
+fn zjjrm_check_model_gate(model: &str) -> Result<(), String> {
+    let tier = zjjrm_extract_tier(model);
+    if tier == "opus" {
+        return Ok(());
+    }
+    Err(format!(
+        "MODEL GATE — this command requires opus.\n\n  Received model: {}\n  Extracted tier: {}\n\nJob Jockey commands currently require an opus-tier model.",
+        model, tier
+    ))
+}
+
+// ============================================================================
 // MCP Server
 // ============================================================================
 
@@ -760,6 +793,14 @@ impl jjrm_McpServer {
     #[tool(name = "jjx", description = "Job Jockey Kit - MCP tools for project initiative management")]
     async fn jjx(&self, Parameters(p): Parameters<jjrm_JjxParams>) -> Result<CallToolResult, McpError> {
         let cmd = p.command.as_str();
+
+        // Model gate: required on all commands, checked first
+        if let Err(msg) = zjjrm_check_model_gate(&p.model) {
+            return Ok(CallToolResult::error(vec![Content::text(
+                format!("jjx {}: {}", cmd, msg),
+            )]));
+        }
+        eprintln!("jjx {}: model={}", cmd, p.model);
 
         // jjx_open creates the officium — handle before officium validation
         if cmd == "jjx_open" {

@@ -23,10 +23,11 @@ When a command takes a firemark or coronet, provide the identity, not the silks.
 
 **MCP Tool Usage:**
 
-All JJK commands are accessed via the single `mcp__vvx__jjx` MCP tool with three parameters:
+All JJK commands are accessed via the single `mcp__vvx__jjx` MCP tool with four parameters:
 - `command`: string selecting the operation — always the canonical `jjx_*` name (e.g., `"jjx_show"`, `"jjx_enroll"`, `"jjx_record"`)
 - `params`: JSON object with command-specific fields (see reference below)
 - `officium`: officium identity string from `jjx_open` (required on all commands except `jjx_open` — see Officium Protocol below)
+- `model`: agent's verbatim model ID string from its system prompt (e.g., `"claude-opus-4-6[1m]"`). Required on ALL commands including `jjx_open`. The server gates commands by model tier — currently all commands require opus.
 
 **`params` must be a JSON object, never a string.** If params is accidentally stringified (e.g., `"{\"key\": \"val\"}"` instead of `{"key": "val"}`), deserialization will fail. The server has a defensive fallback for this, but always pass a native object.
 
