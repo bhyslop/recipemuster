@@ -656,6 +656,13 @@
         "₢A1AAM": {
           "tacks": [
             {
+              "ts": "260402-1041",
+              "state": "complete",
+              "text": "## Character\nDesign judgment — now that all tests are ported faithfully, assess overlap and simplify.\n\n## Docket\nAfter all porting paces are complete and retirement is done, review the combined test catalog (ported bash cases + ported python sorties) for overlap. The bash tadmor DNS-blocked tests and the python dns_exfil_subdomain sortie test similar surfaces from different angles — some may collapse, some may be complementary.\n\nExpress deduplication pass:\n- List all ifrit attack variants and theurge-only cases\n- Identify overlapping coverage (same attack surface, same assertion)\n- Merge where truly redundant, keep both where they test different aspects\n- Document the final catalog",
+              "silks": "deduplicate-ported-test-catalog",
+              "commit": "1b0e8fc"
+            },
+            {
               "ts": "260401-1239",
               "state": "rough",
               "text": "## Character\nDesign judgment — now that all tests are ported faithfully, assess overlap and simplify.\n\n## Docket\nAfter all porting paces are complete and retirement is done, review the combined test catalog (ported bash cases + ported python sorties) for overlap. The bash tadmor DNS-blocked tests and the python dns_exfil_subdomain sortie test similar surfaces from different angles — some may collapse, some may be complementary.\n\nExpress deduplication pass:\n- List all ifrit attack variants and theurge-only cases\n- Identify overlapping coverage (same attack surface, same assertion)\n- Merge where truly redundant, keep both where they test different aspects\n- Document the final catalog",
