@@ -1234,7 +1234,9 @@ rbfd_kludge() {
   test ${#z_build_args[@]} -gt 0 || buc_die "No RBRV_IMAGE_n_ORIGIN found in vessel config"
 
   # Generate kludge consecration (k prefix distinguishes from conjure c, bind b)
-  local -r z_consecration="k${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
+  # Timestamp for chronological sorting, git describe for commit provenance
+  # BURD_GIT_CONTEXT is exported by bud_dispatch; dirty-tree guard above ensures clean tree
+  local -r z_consecration="k${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}-${BURD_GIT_CONTEXT}"
 
   # Construct image refs matching compose/vouch-gate format
   local -r z_image_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBRV_SIGIL}:${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}"

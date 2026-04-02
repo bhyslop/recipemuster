@@ -7,7 +7,7 @@ with a `k` prefix (kludge) that composes cleanly with the nameplate and compose 
 
 NOTE: Kludge is a deliberate development shortcut for fast edit-build-test cycles. It enables iterating on vessel Dockerfiles, entrypoint scripts, and package lists without waiting for a Cloud Build round-trip. The ugly name is intentional -- this is not part of the production consecration pipeline.
 
-NOTE: The kludge consecration format is `k«YYMMDDHHMMSS»`, paralleling conjure's `c«YYMMDDHHMMSS»` and bind's `b«YYMMDDHHMMSS»-r«YYMMDDHHMMSS»`. The `k` prefix makes kludge consecrations visually distinct in nameplate files and `docker image ls` output.
+NOTE: The kludge consecration format is `k«YYMMDDHHMMSS»-«git-describe»`, paralleling conjure's `c«YYMMDDHHMMSS»` and bind's `b«YYMMDDHHMMSS»-r«YYMMDDHHMMSS»`. The timestamp provides chronological sorting; the `git describe --always` suffix ties the image to a specific commit. The dirty-tree guard ensures the describe always corresponds to a committed state. The `k` prefix makes kludge consecrations visually distinct in nameplate files and `docker image ls` output.
 
 The kludge operation:
 
@@ -30,7 +30,7 @@ is set, use the origin directly as the `RBF_IMAGE_n` build-arg
 
 //axhos_step
 . *Assign Kludge Consecration*:
-.. Mint consecration as `k«YYMMDDHHMMSS»` from dispatch timestamp
+.. Mint consecration as `k«YYMMDDHHMMSS»-«git-describe»` from dispatch timestamp and `BURD_GIT_CONTEXT`
 .. {rbbc_store}
 `«CONSECRATION»`
 
