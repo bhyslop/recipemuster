@@ -418,15 +418,15 @@ the concrete realizations known from various specifications.
 {axl_annotation}::
 A
 {xref_MCM}
-comment using Strachey brackets that declares the
+comment line that declares the
 {axl_motif_s}
 a term
 {axl_voices}.
 The
 {axl_annotation}
-appears between anchor and definition as a space-separated list of AXL terms within Strachey brackets.
+appears between anchor and definition as a space-separated list of prefix terms on a comment line with no space after `//`.
 +
-Format: `// ⟦relationship primary [dimension ...]⟧`
+Format: `//relationship primary [dimension ...]`
 +
 * First term: the relationship (typically `axl_voices`)
 * Second term: the primary

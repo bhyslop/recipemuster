@@ -470,15 +470,13 @@ The grammar, interpretation, and placement rules for
 are defined by the referencing system, not MCM.
 +
 {mcm_annotation_s}
-take one of two forms:
-+
-* *Strachey bracket form*: `// ⟦terms⟧` — a comment with space after `//` containing Strachey-bracketed content.
-* *Prefix-discriminated form*: `//ax...` — no space after `//`, where the initial characters match a registered prefix identifying the referencing system.
-The full content after `//` is interpreted by the referencing system.
+use prefix-discriminated form: `//ax...` — no space after `//`, where the initial characters match a registered prefix identifying the referencing system.
+The full content after `//` is interpreted by the referencing system as space-separated prefix terms.
 +
 The mechanical discriminator is the character immediately following `//`.
-A space character indicates a regular comment or Strachey bracket form.
-A letter with no intervening space indicates prefix-discriminated form.
+A space character indicates a regular comment.
+A letter with no intervening space indicates an
+{mcm_annotation}.
 +
 Registered prefixes:
 +
@@ -495,7 +493,7 @@ Use for standalone terms with self-contained meaning.
 [source,asciidoc]
 ----
 [[term_anchor]]
-// ⟦...⟧
+//axl_voices axk_motif
 {term_reference}::
 Definition text following sentence-per-line rules.
 ----
@@ -512,7 +510,7 @@ Use for fields of a structure or steps in a procedure.
 [source,asciidoc]
 ----
 * [[field_anchor]]
-// ⟦...⟧
+//axl_voices axr_member
 {field_reference} defines the specific meaning within the parent structure.
 ----
 
@@ -528,13 +526,13 @@ Use for terms whose meaning requires extended explanation or contains nested chi
 [source,asciidoc]
 ----
 [[sequence_anchor]]
-// ⟦...⟧
+//axl_voices axo_sequence
 === {sequence_reference}
 
 The sequence executes these steps:
 
 * [[step_one_anchor]]
-// ⟦...⟧
+//axl_voices axo_step
 First step description.
 ----
 
