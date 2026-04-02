@@ -905,9 +905,10 @@
       "order": [
         "₢A3AAA",
         "₢A3AAB",
-        "₢A3AAC"
+        "₢A3AAC",
+        "₢A3AAD"
       ],
-      "next_pace_seed": "AAD",
+      "next_pace_seed": "AAE",
       "paddock_file": ".claude/jjm/jjp_uAl3.md",
       "paces": {
         "₢A3AAA": {
@@ -975,6 +976,17 @@
               "text": "## Character\nLinear probe sequence — more steps than retriever, involves build pipeline verification.\n\n## Docket\n\nBuild `tt/rbw-OD.OnboardDirector.sh` — the director's onboarding guide.\n\n### Probes (in order)\n\n1. **SA key installed** — director SA key file at expected credential path\n2. **GAR access verified** — HEAD request against registry with director SA token\n3. **Reliquary images present** — tool images (skopeo, syft) exist in GAR\n4. **Enshrine upstream** — guide user to enshrine base images into GAR\n5. **Conjure a vessel** — guide user to submit a Cloud Build conjure, verify consecration lands\n6. **Vouch exists** — verify about + vouch artifacts present for the consecration\n7. **Graft from local** — guide user through local build + graft push (optional, kludge path)\n\nEach step: probe → green confirmation or red with action tabtarget.\n\n### Wire\n- Mint `rbw-OD` colophon in zipper\n- Create tabtarget `tt/rbw-OD.OnboardDirector.sh`\n- Wire workbench routing\n\n## References\n- `Tools/rbk/rbfd_FoundryDirectorBuild.sh` — conjure, enshrine, graft operations\n- `Tools/rbk/rbga_ArtifactRegistry.sh` — GAR access\n- `Tools/rbk/rbdc_DerivedConstants.sh` — credential path resolution",
               "silks": "onboard-director-track",
               "commit": "e08e7f7"
+            }
+          ]
+        },
+        "₢A3AAD": {
+          "tacks": [
+            {
+              "ts": "260402-1521",
+              "state": "rough",
+              "text": "## Character\nLinear probe sequence — administrative operations, creating resources for others.\n\n## Docket\n\nBuild `tt/rbw-OG.OnboardGovernor.sh` — the governor's onboarding guide.\n\n### Probes (in order)\n\n1. **Project access verified** — gcloud project accessible with current credentials\n2. **Depot exists** — depot initialized in the project\n3. **Governor SA active** — governor service account exists and is functional\n4. **Retriever SA created** — SA for retriever role exists, key downloadable\n5. **Director SA created** — SA for director role exists, key downloadable\n6. **IAM grants applied** — verify role bindings for retriever and director SAs on depot resources\n\nEach step: probe → green confirmation or red with action. Governor steps are mostly `rbgm_*` manual procedure calls or `rbgi_*` IAM operations.\n\n### Wire\n- Mint `rbw-OG` colophon in zipper\n- Create tabtarget `tt/rbw-OG.OnboardGovernor.sh`\n- Wire workbench routing\n\n## References\n- `Tools/rbk/rbgm_ManualProcedures.sh` — governor manual procedures\n- `Tools/rbk/rbgi_IAM.sh` — IAM grant operations\n- `Tools/rbk/rbgg_Governor.sh` — governor SA management\n- `Tools/rbk/rgbs_ServiceAccounts.sh` — SA creation",
+              "silks": "onboard-governor-track",
+              "commit": "647f48b"
             }
           ]
         }
