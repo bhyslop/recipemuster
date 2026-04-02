@@ -740,9 +740,11 @@
       "creation_time": "260402",
       "status": "racing",
       "order": [
-        "₢A2AAA"
+        "₢A2AAA",
+        "₢A2AAB",
+        "₢A2AAC"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_uAl2.md",
       "paces": {
         "₢A2AAA": {
@@ -760,6 +762,49 @@
               "text": "## Character\n\nMechanical integration work with a design edge — the `sysinfo` crate does the heavy lifting, but the guard must be wired into three JJK command paths cleanly without disrupting existing flow.\n\n## Objective\n\nAdd a cross-platform disk space check that blocks `jjx_open`, `jjx_orient`, and `jjx_show` (the commands backing open, mount, and groom) when any filesystem with capacity > 10 GB is >= 85% full. Hard error, not a warning — user must free space before proceeding.\n\n## Approach\n\n- Add `sysinfo` crate dependency to the VVK/JJK Rust workspace\n- Implement `check_disk_space()` using `sysinfo::Disks::new_with_refreshed_list()`\n- For each disk: skip if `total_space < 10 GB`; compute `used_pct = (total - available) / total * 100`; collect violations at >= 85%\n- On violation: print diagnostic (mount point, percentage, free bytes in human units), return hard error\n- Gate the three command entry points: `jjx_open`, `jjx_orient`, `jjx_show`\n- No platform-specific code — `sysinfo` handles Windows/macOS/Linux uniformly\n- APFS shared-container redundancy is acceptable (multiple volumes may fire; noise not incorrectness)\n\n## Acceptance\n\n- `jjx_open` refuses with clear diagnostic when any qualifying disk is >= 85% full\n- `jjx_orient` and `jjx_show` refuse similarly\n- Works on macOS (APFS), Linux (ext4/xfs), Windows (NTFS) without conditional compilation\n- Other jjx commands (record, close, enroll, etc.) are not gated — only session-start and orientation commands",
               "silks": "jjk-disk-space-guard",
               "commit": "bc8aefa"
+            }
+          ]
+        },
+        "₢A2AAB": {
+          "tacks": [
+            {
+              "ts": "260402-0733",
+              "state": "rough",
+              "text": "Drafted from ₢AhAAJ in ₣Ah.\n\nDrafted from ₢AYAAA in ₣AY.\n\nAdd a test/probe command to VVX that validates the --model convention for model-aware CLI output.\n\n## Goal\n\nBuild a `jjx_probe` (or similar) command that:\n1. Accepts `--model opus|sonnet|haiku` flag\n2. Emits the same semantic content but formatted differently per model tier:\n   - **opus**: Rich, detailed output (tables, context, suggestions)\n   - **sonnet**: Balanced output (structured but concise)\n   - **haiku**: Minimal, machine-parseable output (bare facts, no decoration)\n3. Returns a known test payload so we can grade whether the calling model correctly interprets it\n\n## Experiment Design\n\nThe probe command should emit a structured scenario that requires the model to:\n- Parse specific fields from the output\n- Make a decision based on parsed data\n- Report what it understood\n\nThis lets us test: \"Given CLAUDE.md says `always pass --model`, does the model do it? And does jjx output tuned for that model tier actually improve comprehension?\"\n\n## CLAUDE.md Cue\n\nAdd to JJK managed insert:\n```\nWhen calling jjx_* commands, pass --model opus|sonnet|haiku matching your model tier.\n```\n\nThen observe across sessions whether models comply and whether tier-tuned output helps.\n\n## Files\n- Tools/jjk/vov_veiled/src/ (new probe command)\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs (register command)\n- CLAUDE.md (add --model cue to JJK insert)\n\n## Success Criteria\n- Command builds and runs\n- Three distinct output modes produce visibly different formatting\n- Can be invoked in a test session to observe model behavior",
+              "silks": "vvx-model-probe",
+              "commit": "d8ca528"
+            },
+            {
+              "ts": "260307-1155",
+              "state": "rough",
+              "text": "Drafted from ₢AYAAA in ₣AY.\n\nAdd a test/probe command to VVX that validates the --model convention for model-aware CLI output.\n\n## Goal\n\nBuild a `jjx_probe` (or similar) command that:\n1. Accepts `--model opus|sonnet|haiku` flag\n2. Emits the same semantic content but formatted differently per model tier:\n   - **opus**: Rich, detailed output (tables, context, suggestions)\n   - **sonnet**: Balanced output (structured but concise)\n   - **haiku**: Minimal, machine-parseable output (bare facts, no decoration)\n3. Returns a known test payload so we can grade whether the calling model correctly interprets it\n\n## Experiment Design\n\nThe probe command should emit a structured scenario that requires the model to:\n- Parse specific fields from the output\n- Make a decision based on parsed data\n- Report what it understood\n\nThis lets us test: \"Given CLAUDE.md says `always pass --model`, does the model do it? And does jjx output tuned for that model tier actually improve comprehension?\"\n\n## CLAUDE.md Cue\n\nAdd to JJK managed insert:\n```\nWhen calling jjx_* commands, pass --model opus|sonnet|haiku matching your model tier.\n```\n\nThen observe across sessions whether models comply and whether tier-tuned output helps.\n\n## Files\n- Tools/jjk/vov_veiled/src/ (new probe command)\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs (register command)\n- CLAUDE.md (add --model cue to JJK insert)\n\n## Success Criteria\n- Command builds and runs\n- Three distinct output modes produce visibly different formatting\n- Can be invoked in a test session to observe model behavior",
+              "silks": "vvx-model-probe",
+              "commit": "8427fc5"
+            },
+            {
+              "ts": "260209-0708",
+              "state": "rough",
+              "text": "Add a test/probe command to VVX that validates the --model convention for model-aware CLI output.\n\n## Goal\n\nBuild a `jjx_probe` (or similar) command that:\n1. Accepts `--model opus|sonnet|haiku` flag\n2. Emits the same semantic content but formatted differently per model tier:\n   - **opus**: Rich, detailed output (tables, context, suggestions)\n   - **sonnet**: Balanced output (structured but concise)\n   - **haiku**: Minimal, machine-parseable output (bare facts, no decoration)\n3. Returns a known test payload so we can grade whether the calling model correctly interprets it\n\n## Experiment Design\n\nThe probe command should emit a structured scenario that requires the model to:\n- Parse specific fields from the output\n- Make a decision based on parsed data\n- Report what it understood\n\nThis lets us test: \"Given CLAUDE.md says `always pass --model`, does the model do it? And does jjx output tuned for that model tier actually improve comprehension?\"\n\n## CLAUDE.md Cue\n\nAdd to JJK managed insert:\n```\nWhen calling jjx_* commands, pass --model opus|sonnet|haiku matching your model tier.\n```\n\nThen observe across sessions whether models comply and whether tier-tuned output helps.\n\n## Files\n- Tools/jjk/vov_veiled/src/ (new probe command)\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs (register command)\n- CLAUDE.md (add --model cue to JJK insert)\n\n## Success Criteria\n- Command builds and runs\n- Three distinct output modes produce visibly different formatting\n- Can be invoked in a test session to observe model behavior",
+              "silks": "vvx-model-probe",
+              "commit": "daf4b26"
+            }
+          ]
+        },
+        "₢A2AAC": {
+          "tacks": [
+            {
+              "ts": "260402-0733",
+              "state": "rough",
+              "text": "Drafted from ₢AhAAR in ₣Ah.\n\nThe jjx_record size guard counts full file content of staged additions without accounting for paired deletions in git renames. File moves (git detects as R status) are effectively zero new bytes, but the guard treats them as full-size additions, forcing unnecessary size_limit overrides.\n\n## Problem\n\nWhen jjx_record stages files that are renames/moves, git stores them efficiently (same blob, new path). But the size guard sums the byte count of all staged additions, triggering the limit even though the commit adds no new content.\n\n## Solution\n\nIn the size guard calculation, detect rename pairs (git diff --cached --name-status shows R100 or similar) and exclude the destination file size from the total, or only count the net new bytes.\n\n## Acceptance\n\n- File moves/renames do not trigger size guard\n- Genuinely large new content still triggers the guard\n- Warning threshold still fires for large commits regardless",
+              "silks": "size-guard-rename-awareness",
+              "commit": "d8ca528"
+            },
+            {
+              "ts": "260313-1238",
+              "state": "rough",
+              "text": "The jjx_record size guard counts full file content of staged additions without accounting for paired deletions in git renames. File moves (git detects as R status) are effectively zero new bytes, but the guard treats them as full-size additions, forcing unnecessary size_limit overrides.\n\n## Problem\n\nWhen jjx_record stages files that are renames/moves, git stores them efficiently (same blob, new path). But the size guard sums the byte count of all staged additions, triggering the limit even though the commit adds no new content.\n\n## Solution\n\nIn the size guard calculation, detect rename pairs (git diff --cached --name-status shows R100 or similar) and exclude the destination file size from the total, or only count the net new bytes.\n\n## Acceptance\n\n- File moves/renames do not trigger size guard\n- Genuinely large new content still triggers the guard\n- Warning threshold still fires for large commits regardless",
+              "silks": "size-guard-rename-awareness",
+              "commit": "28b9e38"
             }
           ]
         }
@@ -2674,9 +2719,7 @@
         "₢AhAAM",
         "₢AhAAD",
         "₢AhAAE",
-        "₢AhAAJ",
         "₢AhAAK",
-        "₢AhAAR",
         "₢AhAAX"
       ],
       "next_pace_seed": "AAY",
@@ -2872,24 +2915,6 @@
               "text": "Rework jjx_archive (retire) command: (1) Remove dry-run mode — always execute. (2) Fail-fast guard: reject immediately if gallops has uncommitted changes. (3) Accept optional size_limit param for commit guard retry. (4) Ensure clean rollback on size-guard failure. (5) Route all error messages to buf, not eprintln, so MCP agent sees diagnostics.",
               "silks": "retire-command-rework",
               "commit": "5c795e4"
-            }
-          ]
-        },
-        "₢AhAAJ": {
-          "tacks": [
-            {
-              "ts": "260307-1155",
-              "state": "rough",
-              "text": "Drafted from ₢AYAAA in ₣AY.\n\nAdd a test/probe command to VVX that validates the --model convention for model-aware CLI output.\n\n## Goal\n\nBuild a `jjx_probe` (or similar) command that:\n1. Accepts `--model opus|sonnet|haiku` flag\n2. Emits the same semantic content but formatted differently per model tier:\n   - **opus**: Rich, detailed output (tables, context, suggestions)\n   - **sonnet**: Balanced output (structured but concise)\n   - **haiku**: Minimal, machine-parseable output (bare facts, no decoration)\n3. Returns a known test payload so we can grade whether the calling model correctly interprets it\n\n## Experiment Design\n\nThe probe command should emit a structured scenario that requires the model to:\n- Parse specific fields from the output\n- Make a decision based on parsed data\n- Report what it understood\n\nThis lets us test: \"Given CLAUDE.md says `always pass --model`, does the model do it? And does jjx output tuned for that model tier actually improve comprehension?\"\n\n## CLAUDE.md Cue\n\nAdd to JJK managed insert:\n```\nWhen calling jjx_* commands, pass --model opus|sonnet|haiku matching your model tier.\n```\n\nThen observe across sessions whether models comply and whether tier-tuned output helps.\n\n## Files\n- Tools/jjk/vov_veiled/src/ (new probe command)\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs (register command)\n- CLAUDE.md (add --model cue to JJK insert)\n\n## Success Criteria\n- Command builds and runs\n- Three distinct output modes produce visibly different formatting\n- Can be invoked in a test session to observe model behavior",
-              "silks": "vvx-model-probe",
-              "commit": "8427fc5"
-            },
-            {
-              "ts": "260209-0708",
-              "state": "rough",
-              "text": "Add a test/probe command to VVX that validates the --model convention for model-aware CLI output.\n\n## Goal\n\nBuild a `jjx_probe` (or similar) command that:\n1. Accepts `--model opus|sonnet|haiku` flag\n2. Emits the same semantic content but formatted differently per model tier:\n   - **opus**: Rich, detailed output (tables, context, suggestions)\n   - **sonnet**: Balanced output (structured but concise)\n   - **haiku**: Minimal, machine-parseable output (bare facts, no decoration)\n3. Returns a known test payload so we can grade whether the calling model correctly interprets it\n\n## Experiment Design\n\nThe probe command should emit a structured scenario that requires the model to:\n- Parse specific fields from the output\n- Make a decision based on parsed data\n- Report what it understood\n\nThis lets us test: \"Given CLAUDE.md says `always pass --model`, does the model do it? And does jjx output tuned for that model tier actually improve comprehension?\"\n\n## CLAUDE.md Cue\n\nAdd to JJK managed insert:\n```\nWhen calling jjx_* commands, pass --model opus|sonnet|haiku matching your model tier.\n```\n\nThen observe across sessions whether models comply and whether tier-tuned output helps.\n\n## Files\n- Tools/jjk/vov_veiled/src/ (new probe command)\n- Tools/jjk/vov_veiled/src/jjrx_cli.rs (register command)\n- CLAUDE.md (add --model cue to JJK insert)\n\n## Success Criteria\n- Command builds and runs\n- Three distinct output modes produce visibly different formatting\n- Can be invoked in a test session to observe model behavior",
-              "silks": "vvx-model-probe",
-              "commit": "daf4b26"
             }
           ]
         },
@@ -3093,17 +3118,6 @@
               "text": "Opus-tier design conversation: define the V4 warrant structure, volte/caracole model, and identity system update in JJS0.\n\n## Scope\n\nThis pace produces JJS0 spec sections for execution infrastructure:\n\n1. **Warrant field shape** — formalize the JSON beat map structure from paddock example into spec (id, quirt, model, depends, files, prompt). Document merger-beat prompt assembly pattern (docket + warrant + per-beat diffs as context).\n2. **Caracole/volte data model** — next_caracole seed on heat, branch naming conventions (jj/₡AhAA, jj/₡AhAA/₢AhAAB), volte lifecycle (branch existence = active), session-scoped worktree lifecycle\n3. **Identity system update** — complete identity table with all V4 symbols (₣/₢/₡/Ꝗ), document three naming regimes (minted/silks/blazes), clarify blaze is not a global identity\n4. **Beat merge ceremony spec** — codify the prompt-assembly resolution: parallel beats with overlapping file scopes produce diffs that jjx assembles as context for a merger beat\n\n## Design constraints\n\n- Warrant is fully resolved — no ₿ symbols, no gait references, only concrete values\n- Paddock warrant example and beat-merge resolution are authoritative\n- Volte state derived from git, not gallops — only next_caracole seed stored\n\n## Depends on\n- ₢AhAAP (design-v4-gait-quirt) — warrant references quirts, so gait model should be settled\n\n## Produces\n- JJS0 section: V4 Warrant Structure\n- JJS0 section: Volte and Caracole Model\n- JJS0 section: V4 Identity System\n\n## Not bridleable\n\nDesign conversation — warrant structure is the execution contract; getting it right requires careful exploration of edge cases (merger beats, overlapping scopes, worktree lifecycle).",
               "silks": "design-v4-warrant-volte-identity",
               "commit": "e250679"
-            }
-          ]
-        },
-        "₢AhAAR": {
-          "tacks": [
-            {
-              "ts": "260313-1238",
-              "state": "rough",
-              "text": "The jjx_record size guard counts full file content of staged additions without accounting for paired deletions in git renames. File moves (git detects as R status) are effectively zero new bytes, but the guard treats them as full-size additions, forcing unnecessary size_limit overrides.\n\n## Problem\n\nWhen jjx_record stages files that are renames/moves, git stores them efficiently (same blob, new path). But the size guard sums the byte count of all staged additions, triggering the limit even though the commit adds no new content.\n\n## Solution\n\nIn the size guard calculation, detect rename pairs (git diff --cached --name-status shows R100 or similar) and exclude the destination file size from the total, or only count the net new bytes.\n\n## Acceptance\n\n- File moves/renames do not trigger size guard\n- Genuinely large new content still triggers the guard\n- Warning threshold still fires for large commits regardless",
-              "silks": "size-guard-rename-awareness",
-              "commit": "28b9e38"
             }
           ]
         },
