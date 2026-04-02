@@ -61,6 +61,10 @@ zbuwz_kindle() {
   z_mod="buq_cli.sh"
   buz_enroll BUWZ_QUALIFY_SHELLCHECK "buw-qsc" "${z_mod}" "buq_shellcheck"
 
+  # Self-test (butt_testbench.sh)
+  z_mod="butt_testbench.sh"
+  buz_enroll BUWZ_SELF_TEST "buw-st" "${z_mod}" "buw-st"
+
   readonly ZBUWZ_KINDLED=1
 }
 

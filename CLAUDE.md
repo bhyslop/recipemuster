@@ -107,6 +107,7 @@ Full read and edit access is pre-approved for all files in:
 - **BUT**  → `buk/but_test.sh` (test utilities, but_* functions)
 - **BUV**  → `buk/buv_validation.sh` (validation utilities, buv_* functions)
 - **BUW**  → `buk/buw_workbench.sh` (workbench utilities, buw_* functions)
+- **BUTT** → `buk/butt_testbench.sh` (BUK test framework self-test — kick-tires + bure-tweak, 9 cases)
 - **BURC** → `buk/burc_cli.sh`, `buk/burc_regime.sh` (regime configuration)
 - **BURS** → `buk/burs_cli.sh`, `buk/burs_regime.sh` (regime station)
 
@@ -225,10 +226,10 @@ Two orthogonal Rust pipelines. Always use the tabtarget, never raw cargo command
 
 | Suite | Tabtarget | Dependencies | What it covers |
 |-------|-----------|-------------|----------------|
-| `fast` | `tt/rbw-ts.TestSuite.fast.sh` | None | enrollment-validation (47), regime-validation (21), regime-smoke (7) |
-| `service` | `tt/rbw-ts.TestSuite.service.sh` | GCP credentials | fast + access-probe (4), four-mode (15-step integration) |
-| `crucible` | `tt/rbw-ts.TestSuite.crucible.sh` | Container runtime | fast + tadmor-security (22), srjcl-jupyter (3), pluml-diagram (5) |
-| `complete` | `tt/rbw-ts.TestSuite.complete.sh` | All of the above | Everything |
+| `fast` | `tt/rbtd-s.TestSuite.fast.sh` | None | enrollment-validation (47), regime-validation (21), regime-smoke (7) = 75 cases |
+| `service` | `tt/rbtd-s.TestSuite.service.sh` | GCP credentials | fast + access-probe (4), four-mode (1) = 80 cases |
+| `crucible` | `tt/rbtd-s.TestSuite.crucible.sh` | Container runtime | fast + tadmor-security (34), srjcl-jupyter (3), pluml-diagram (5) = 117 cases |
+| `complete` | `tt/rbtd-s.TestSuite.complete.sh` | All of the above | All 8 fixtures = 122 cases |
 
 **After code changes**, run the appropriate tier:
 - Regime/validation changes → `fast`
@@ -236,7 +237,9 @@ Two orthogonal Rust pipelines. Always use the tabtarget, never raw cargo command
 - Bottle/sentry/network changes → `crucible`
 - Pre-release or decomposition sweep → `complete`
 
-**Single fixture**: `tt/rbw-tf.TestFixture.{name}.sh` (e.g., `four-mode`, `enrollment-validation`)
+**Single fixture**: `tt/rbtd-r.Run.{name}.sh` (e.g., `tadmor`, `enrollment-validation`, `regime-smoke`)
+
+**BUK self-test**: `tt/buw-st.BukSelfTest.sh` — exercises BUK test framework (kick-tires + bure-tweak, 9 cases)
 
 **Sequential only**: Never run fixtures in parallel — they share regime state and container namespaces.
 

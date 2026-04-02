@@ -16,19 +16,19 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# RBTCKK - Kick-tires test cases for RBTB testbench
+# BUTCKK - Kick-tires test cases for BUK test framework self-test
 
 set -euo pipefail
 
 ######################################################################
 # Kick-tires cases — trivial tests proving end-to-end framework works
 
-rbtckk_true_tcase() {
+butckk_true_tcase() {
   buto_trace "Kick-tires: verifying true returns success"
   buto_unit_expect_ok true
 }
 
-rbtckk_false_tcase() {
+butckk_false_tcase() {
   buto_trace "Kick-tires: verifying false returns failure"
   buto_unit_expect_fatal false
 }

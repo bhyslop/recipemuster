@@ -16,7 +16,7 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# RBTCBE - BURE ambient environment test cases for RBTB testbench
+# BUTCBE - BURE ambient environment test cases for BUK self-test
 #
 # Exercises BURE tweak mechanism enrollment: positive tests for valid
 # tweak combinations, negative tests for length violations and scope
@@ -25,48 +25,48 @@
 set -euo pipefail
 
 ######################################################################
-# BURE tweak positive helpers (set env → kindle → enforce)
+# BURE tweak positive helpers (set env -> kindle -> enforce)
 
-zrbtcbe_tweak_empty() {
+zbutcbe_tweak_empty() {
   zbure_kindle
   zbure_enforce
 }
 
-zrbtcbe_tweak_both_set() {
+zbutcbe_tweak_both_set() {
   export BURE_TWEAK_NAME="graft_image"
   export BURE_TWEAK_VALUE="us-docker.pkg.dev/proj/repo/img:latest"
   zbure_kindle
   zbure_enforce
 }
 
-zrbtcbe_tweak_name_only() {
+zbutcbe_tweak_name_only() {
   export BURE_TWEAK_NAME="graft_image"
   zbure_kindle
   zbure_enforce
 }
 
-zrbtcbe_tweak_value_only() {
+zbutcbe_tweak_value_only() {
   export BURE_TWEAK_VALUE="some-override-value"
   zbure_kindle
   zbure_enforce
 }
 
 ######################################################################
-# BURE tweak negative helpers (set bad state → kindle → enforce)
+# BURE tweak negative helpers (set bad state -> kindle -> enforce)
 
-zrbtcbe_tweak_name_too_long() {
+zbutcbe_tweak_name_too_long() {
   export BURE_TWEAK_NAME="$(printf 'x%.0s' {1..65})"
   zbure_kindle
   zbure_enforce
 }
 
-zrbtcbe_tweak_value_too_long() {
+zbutcbe_tweak_value_too_long() {
   export BURE_TWEAK_VALUE="$(printf 'x%.0s' {1..257})"
   zbure_kindle
   zbure_enforce
 }
 
-zrbtcbe_unexpected_var() {
+zbutcbe_unexpected_var() {
   export BURE_BOGUS="foo"
   zbure_kindle
   zbure_enforce
@@ -75,42 +75,42 @@ zrbtcbe_unexpected_var() {
 ######################################################################
 # Positive test cases
 
-rbtcbe_tweak_empty_tcase() {
+butcbe_tweak_empty_tcase() {
   buto_trace "BURE: empty tweaks (default) must pass"
-  buto_unit_expect_ok zrbtcbe_tweak_empty
+  buto_unit_expect_ok zbutcbe_tweak_empty
 }
 
-rbtcbe_tweak_both_set_tcase() {
+butcbe_tweak_both_set_tcase() {
   buto_trace "BURE: both tweak name and value set must pass"
-  buto_unit_expect_ok zrbtcbe_tweak_both_set
+  buto_unit_expect_ok zbutcbe_tweak_both_set
 }
 
-rbtcbe_tweak_name_only_tcase() {
+butcbe_tweak_name_only_tcase() {
   buto_trace "BURE: tweak name without value must pass"
-  buto_unit_expect_ok zrbtcbe_tweak_name_only
+  buto_unit_expect_ok zbutcbe_tweak_name_only
 }
 
-rbtcbe_tweak_value_only_tcase() {
+butcbe_tweak_value_only_tcase() {
   buto_trace "BURE: tweak value without name must pass"
-  buto_unit_expect_ok zrbtcbe_tweak_value_only
+  buto_unit_expect_ok zbutcbe_tweak_value_only
 }
 
 ######################################################################
 # Negative test cases
 
-rbtcbe_tweak_name_too_long_tcase() {
+butcbe_tweak_name_too_long_tcase() {
   buto_trace "BURE: tweak name exceeding 64 chars must fail"
-  buto_unit_expect_fatal zrbtcbe_tweak_name_too_long
+  buto_unit_expect_fatal zbutcbe_tweak_name_too_long
 }
 
-rbtcbe_tweak_value_too_long_tcase() {
+butcbe_tweak_value_too_long_tcase() {
   buto_trace "BURE: tweak value exceeding 256 chars must fail"
-  buto_unit_expect_fatal zrbtcbe_tweak_value_too_long
+  buto_unit_expect_fatal zbutcbe_tweak_value_too_long
 }
 
-rbtcbe_unexpected_var_tcase() {
+butcbe_unexpected_var_tcase() {
   buto_trace "BURE: unexpected BURE_BOGUS must fail scope sentinel"
-  buto_unit_expect_fatal zrbtcbe_unexpected_var
+  buto_unit_expect_fatal zbutcbe_unexpected_var
 }
 
 # eof
