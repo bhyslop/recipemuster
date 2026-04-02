@@ -55,7 +55,7 @@ source "${RBTB_RBTS_DIR}/rbtckk_KickTires.sh"
 source "${RBTB_RBTS_DIR}/rbtcqa_QualifyAll.sh"
 source "${RBTB_RBTS_DIR}/rbtcap_AccessProbe.sh"
 source "${RBTB_RBTS_DIR}/rbtcfm_FourMode.sh"
-source "${RBTB_RBTS_DIR}/rbtcns_TadmorSecurity.sh"
+
 source "${RBTB_RBTS_DIR}/rbtcsj_SrjclJupyter.sh"
 source "${RBTB_RBTS_DIR}/rbtcpl_PlumlDiagram.sh"
 source "${RBTB_BUTS_DIR}/butcrg_RegimeSmoke.sh"
@@ -192,12 +192,6 @@ zrbtb_four_mode_baste() {
   zrbfd_kindle
 }
 
-zrbtb_tadmor_baste() {
-  buto_trace "Baste for tadmor-security fixture"
-  rbtb_load_nameplate "tadmor"
-  rbob_charge
-}
-
 zrbtb_srjcl_baste() {
   buto_trace "Baste for srjcl-jupyter fixture"
   rbtb_load_nameplate "srjcl"
@@ -270,30 +264,7 @@ rbtb_kindle() {
   # -- CRUCIBLE + COMPLETE: needs container runtime, uses existing consecrations --
   butr_suite_enroll "${BUTR_SUITE_CRUCIBLE}" "${BUTR_SUITE_COMPLETE}"
 
-  # tadmor-security fixture
-  butr_fixture_enroll "tadmor-security" "zrbtb_container_runtime_litmus_predicate" "zrbtb_tadmor_baste"
-  butr_case_enroll "tadmor-security" rbtcns_basic_dnsmasq_tcase
-  butr_case_enroll "tadmor-security" rbtcns_basic_iptables_tcase
-  butr_case_enroll "tadmor-security" rbtcns_basic_ping_sentry_tcase
-  butr_case_enroll "tadmor-security" rbtcns_block_packages_tcase
-  butr_case_enroll "tadmor-security" rbtcns_dns_allow_anthropic_tcase
-  butr_case_enroll "tadmor-security" rbtcns_dns_block_altport_tcase
-  butr_case_enroll "tadmor-security" rbtcns_dns_block_cloudflare_tcase
-  butr_case_enroll "tadmor-security" rbtcns_dns_block_direct_tcase
-  butr_case_enroll "tadmor-security" rbtcns_dns_block_google_tcase
-  butr_case_enroll "tadmor-security" rbtcns_dns_block_ipv6_tcase
-  butr_case_enroll "tadmor-security" rbtcns_dns_block_multicast_tcase
-  butr_case_enroll "tadmor-security" rbtcns_dns_block_quad9_tcase
-  butr_case_enroll "tadmor-security" rbtcns_dns_block_spoofing_tcase
-  butr_case_enroll "tadmor-security" rbtcns_dns_block_tunneling_tcase
-  butr_case_enroll "tadmor-security" rbtcns_dns_block_zonetransfer_tcase
-  butr_case_enroll "tadmor-security" rbtcns_dns_nonexist_tcase
-  butr_case_enroll "tadmor-security" rbtcns_dns_notcp_tcase
-  butr_case_enroll "tadmor-security" rbtcns_dns_tcp_tcase
-  butr_case_enroll "tadmor-security" rbtcns_icmp_block_beyond_tcase
-  butr_case_enroll "tadmor-security" rbtcns_icmp_sentry_only_tcase
-  butr_case_enroll "tadmor-security" rbtcns_tcp443_allow_anthropic_tcase
-  butr_case_enroll "tadmor-security" rbtcns_tcp443_block_google_tcase
+  # tadmor-security: retired — now runs via theurge (tt/rbtd-r.Run.tadmor.sh)
 
   # srjcl-jupyter fixture
   butr_fixture_enroll "srjcl-jupyter" "zrbtb_container_runtime_litmus_predicate" "zrbtb_srjcl_baste"
