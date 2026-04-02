@@ -373,6 +373,52 @@ fn rbtdrc_icmp_second_hop_blocked(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "icmp-second-hop-blocked", dir))
 }
 
+// ── Ported sortie cases (bark-only) ──────────────────────────
+
+fn rbtdrc_sortie_dns_exfil_subdomain(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "dns-exfil-subdomain", dir))
+}
+
+fn rbtdrc_sortie_meta_cloud_endpoint(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "meta-cloud-endpoint", dir))
+}
+
+fn rbtdrc_sortie_net_forbidden_cidr(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "net-forbidden-cidr", dir))
+}
+
+fn rbtdrc_sortie_direct_sentry_probe(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "direct-sentry-probe", dir))
+}
+
+fn rbtdrc_sortie_icmp_exfil_payload(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "icmp-exfil-payload", dir))
+}
+
+fn rbtdrc_sortie_net_ipv6_escape(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "net-ipv6-escape", dir))
+}
+
+fn rbtdrc_sortie_net_srcip_spoof(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "net-srcip-spoof", dir))
+}
+
+fn rbtdrc_sortie_proto_smuggle_rawsock(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "proto-smuggle-rawsock", dir))
+}
+
+fn rbtdrc_sortie_net_fragment_evasion(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "net-fragment-evasion", dir))
+}
+
+fn rbtdrc_sortie_direct_arp_poison(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "direct-arp-poison", dir))
+}
+
+fn rbtdrc_sortie_ns_capability_escape(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "ns-capability-escape", dir))
+}
+
 // ── Section registry ─────────────────────────────────────────
 
 pub static RBTDRC_SECTIONS: &[rbtdre_Section] = &[
@@ -485,6 +531,55 @@ pub static RBTDRC_SECTIONS: &[rbtdre_Section] = &[
             rbtdre_Case {
                 name: "icmp-second-hop-blocked",
                 func: rbtdrc_icmp_second_hop_blocked,
+            },
+        ],
+    },
+    rbtdre_Section {
+        name: "tadmor-sortie-attacks",
+        cases: &[
+            rbtdre_Case {
+                name: "sortie-dns-exfil-subdomain",
+                func: rbtdrc_sortie_dns_exfil_subdomain,
+            },
+            rbtdre_Case {
+                name: "sortie-meta-cloud-endpoint",
+                func: rbtdrc_sortie_meta_cloud_endpoint,
+            },
+            rbtdre_Case {
+                name: "sortie-net-forbidden-cidr",
+                func: rbtdrc_sortie_net_forbidden_cidr,
+            },
+            rbtdre_Case {
+                name: "sortie-direct-sentry-probe",
+                func: rbtdrc_sortie_direct_sentry_probe,
+            },
+            rbtdre_Case {
+                name: "sortie-icmp-exfil-payload",
+                func: rbtdrc_sortie_icmp_exfil_payload,
+            },
+            rbtdre_Case {
+                name: "sortie-net-ipv6-escape",
+                func: rbtdrc_sortie_net_ipv6_escape,
+            },
+            rbtdre_Case {
+                name: "sortie-net-srcip-spoof",
+                func: rbtdrc_sortie_net_srcip_spoof,
+            },
+            rbtdre_Case {
+                name: "sortie-proto-smuggle-rawsock",
+                func: rbtdrc_sortie_proto_smuggle_rawsock,
+            },
+            rbtdre_Case {
+                name: "sortie-net-fragment-evasion",
+                func: rbtdrc_sortie_net_fragment_evasion,
+            },
+            rbtdre_Case {
+                name: "sortie-direct-arp-poison",
+                func: rbtdrc_sortie_direct_arp_poison,
+            },
+            rbtdre_Case {
+                name: "sortie-ns-capability-escape",
+                func: rbtdrc_sortie_ns_capability_escape,
             },
         ],
     },

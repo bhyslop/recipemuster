@@ -22,6 +22,8 @@
 
 use std::process::Command;
 
+use crate::rbida_sorties;
+
 // ── Attack Enum ─────────────────────────────────────────────────
 
 /// Security boundary attack. Each variant probes one aspect of the
@@ -65,6 +67,29 @@ pub enum rbida_Attack {
     IcmpFirstHop,
     /// Second traceroute hop should be blocked (* * *)
     IcmpSecondHopBlocked,
+    // ── Ported python sorties (rbtis_*.py) ──
+    /// DNS exfiltration via subdomain encoding of allowed domains
+    DnsExfilSubdomain,
+    /// Cloud metadata endpoint probe (169.254.169.254)
+    MetaCloudEndpoint,
+    /// TCP/UDP to non-allowed CIDRs
+    NetForbiddenCidr,
+    /// Sentry service enumeration (port scanning)
+    DirectSentryProbe,
+    /// ICMP covert channel via payload encoding
+    IcmpExfilPayload,
+    /// IPv6 unconfigured firewall escape
+    NetIpv6Escape,
+    /// Source IP spoofing via raw sockets
+    NetSrcipSpoof,
+    /// Protocol smuggling via raw sockets (GRE, SCTP, IP-in-IP)
+    ProtoSmuggleRawsock,
+    /// IP fragment reassembly bypass
+    NetFragmentEvasion,
+    /// ARP cache poisoning via AF_PACKET
+    DirectArpPoison,
+    /// Namespace and capability escape probe
+    NsCapabilityEscape,
 }
 
 // ── Verdict ─────────────────────────────────────────────────────
@@ -100,6 +125,17 @@ impl rbida_Attack {
             "tcp443-block" => Some(Self::Tcp443Block),
             "icmp-first-hop" => Some(Self::IcmpFirstHop),
             "icmp-second-hop-blocked" => Some(Self::IcmpSecondHopBlocked),
+            "dns-exfil-subdomain" => Some(Self::DnsExfilSubdomain),
+            "meta-cloud-endpoint" => Some(Self::MetaCloudEndpoint),
+            "net-forbidden-cidr" => Some(Self::NetForbiddenCidr),
+            "direct-sentry-probe" => Some(Self::DirectSentryProbe),
+            "icmp-exfil-payload" => Some(Self::IcmpExfilPayload),
+            "net-ipv6-escape" => Some(Self::NetIpv6Escape),
+            "net-srcip-spoof" => Some(Self::NetSrcipSpoof),
+            "proto-smuggle-rawsock" => Some(Self::ProtoSmuggleRawsock),
+            "net-fragment-evasion" => Some(Self::NetFragmentEvasion),
+            "direct-arp-poison" => Some(Self::DirectArpPoison),
+            "ns-capability-escape" => Some(Self::NsCapabilityEscape),
             _ => None,
         }
     }
@@ -126,6 +162,17 @@ impl rbida_Attack {
             Self::Tcp443Block => "tcp443-block",
             Self::IcmpFirstHop => "icmp-first-hop",
             Self::IcmpSecondHopBlocked => "icmp-second-hop-blocked",
+            Self::DnsExfilSubdomain => "dns-exfil-subdomain",
+            Self::MetaCloudEndpoint => "meta-cloud-endpoint",
+            Self::NetForbiddenCidr => "net-forbidden-cidr",
+            Self::DirectSentryProbe => "direct-sentry-probe",
+            Self::IcmpExfilPayload => "icmp-exfil-payload",
+            Self::NetIpv6Escape => "net-ipv6-escape",
+            Self::NetSrcipSpoof => "net-srcip-spoof",
+            Self::ProtoSmuggleRawsock => "proto-smuggle-rawsock",
+            Self::NetFragmentEvasion => "net-fragment-evasion",
+            Self::DirectArpPoison => "direct-arp-poison",
+            Self::NsCapabilityEscape => "ns-capability-escape",
         }
     }
 
@@ -151,6 +198,17 @@ impl rbida_Attack {
             "tcp443-block",
             "icmp-first-hop",
             "icmp-second-hop-blocked",
+            "dns-exfil-subdomain",
+            "meta-cloud-endpoint",
+            "net-forbidden-cidr",
+            "direct-sentry-probe",
+            "icmp-exfil-payload",
+            "net-ipv6-escape",
+            "net-srcip-spoof",
+            "proto-smuggle-rawsock",
+            "net-fragment-evasion",
+            "direct-arp-poison",
+            "ns-capability-escape",
         ]
     }
 }
@@ -271,6 +329,18 @@ pub fn rbida_run(attack: &rbida_Attack, extra_args: &[&str]) -> rbida_Verdict {
         }
         rbida_Attack::IcmpFirstHop => rbida_check_icmp_first_hop(),
         rbida_Attack::IcmpSecondHopBlocked => rbida_check_icmp_second_hop_blocked(),
+        // Ported python sorties
+        rbida_Attack::DnsExfilSubdomain => rbida_sorties::sortie_dns_exfil_subdomain(extra_args),
+        rbida_Attack::MetaCloudEndpoint => rbida_sorties::sortie_meta_cloud_endpoint(extra_args),
+        rbida_Attack::NetForbiddenCidr => rbida_sorties::sortie_net_forbidden_cidr(extra_args),
+        rbida_Attack::DirectSentryProbe => rbida_sorties::sortie_direct_sentry_probe(extra_args),
+        rbida_Attack::IcmpExfilPayload => rbida_sorties::sortie_icmp_exfil_payload(extra_args),
+        rbida_Attack::NetIpv6Escape => rbida_sorties::sortie_net_ipv6_escape(extra_args),
+        rbida_Attack::NetSrcipSpoof => rbida_sorties::sortie_net_srcip_spoof(extra_args),
+        rbida_Attack::ProtoSmuggleRawsock => rbida_sorties::sortie_proto_smuggle_rawsock(extra_args),
+        rbida_Attack::NetFragmentEvasion => rbida_sorties::sortie_net_fragment_evasion(extra_args),
+        rbida_Attack::DirectArpPoison => rbida_sorties::sortie_direct_arp_poison(extra_args),
+        rbida_Attack::NsCapabilityEscape => rbida_sorties::sortie_ns_capability_escape(extra_args),
     }
 }
 

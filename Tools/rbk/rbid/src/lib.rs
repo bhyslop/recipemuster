@@ -20,3 +20,4 @@
 #![deny(unused_variables)]
 
 pub mod rbida_attacks;
+pub mod rbida_sorties;
