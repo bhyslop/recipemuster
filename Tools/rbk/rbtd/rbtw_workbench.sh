@@ -94,8 +94,10 @@ rbtw_route() {
 
       zburd_sentinel
 
-      # Source RBK modules (kindle functions defined within)
+      # Source RBK modules (regime + constants + probe chain)
       local z_rbk="${RBTW_SCRIPT_DIR}/.."
+      source "${z_rbk}/rbrr_regime.sh"
+      source "${z_rbk}/rbrp_regime.sh"
       source "${z_rbk}/rbcc_Constants.sh"
       source "${z_rbk}/rbgc_Constants.sh"
       source "${z_rbk}/rbdc_DerivedConstants.sh"
@@ -105,7 +107,7 @@ rbtw_route() {
       source "${z_rbk}/rbgp_Payor.sh"
       source "${z_rbk}/rbap_AccessProbe.sh"
 
-      # Load and kindle regime
+      # Load regime env and kindle module chain
       source "${RBBC_rbrr_file}" || buc_die "Failed to source ${RBBC_rbrr_file}"
       zrbrr_kindle
       zrbrr_enforce
