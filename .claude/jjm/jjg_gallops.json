@@ -9,6 +9,7 @@
     "₣AI",
     "₣AJ",
     "₣AN",
+    "₣A3",
     "₣A2",
     "₣A1",
     "₣A0",
@@ -20,8 +21,7 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au",
-    "₣A3"
+    "₣Au"
   ],
   "heats": {
     "₣A0": {
@@ -901,7 +901,7 @@
     "₣A3": {
       "silks": "rbk-mvp-3-onboarding-guides",
       "creation_time": "260402",
-      "status": "stabled",
+      "status": "racing",
       "order": [],
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_uAl3.md",
