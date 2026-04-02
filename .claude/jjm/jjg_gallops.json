@@ -732,10 +732,24 @@
       "silks": "jjk-v3-6-minor-issues",
       "creation_time": "260402",
       "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢A2AAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_uAl2.md",
-      "paces": {}
+      "paces": {
+        "₢A2AAA": {
+          "tacks": [
+            {
+              "ts": "260402-0633",
+              "state": "rough",
+              "text": "## Character\n\nMechanical integration work with a design edge — the `sysinfo` crate does the heavy lifting, but the guard must be wired into three JJK command paths cleanly without disrupting existing flow.\n\n## Objective\n\nAdd a cross-platform disk space check that blocks `jjx_open`, `jjx_orient`, and `jjx_show` (the commands backing open, mount, and groom) when any filesystem with capacity > 10 GB is >= 85% full. Hard error, not a warning — user must free space before proceeding.\n\n## Approach\n\n- Add `sysinfo` crate dependency to the VVK/JJK Rust workspace\n- Implement `check_disk_space()` using `sysinfo::Disks::new_with_refreshed_list()`\n- For each disk: skip if `total_space < 10 GB`; compute `used_pct = (total - available) / total * 100`; collect violations at >= 85%\n- On violation: print diagnostic (mount point, percentage, free bytes in human units), return hard error\n- Gate the three command entry points: `jjx_open`, `jjx_orient`, `jjx_show`\n- No platform-specific code — `sysinfo` handles Windows/macOS/Linux uniformly\n- APFS shared-container redundancy is acceptable (multiple volumes may fire; noise not incorrectness)\n\n## Acceptance\n\n- `jjx_open` refuses with clear diagnostic when any qualifying disk is >= 85% full\n- `jjx_orient` and `jjx_show` refuse similarly\n- Works on macOS (APFS), Linux (ext4/xfs), Windows (NTFS) without conditional compilation\n- Other jjx commands (record, close, enroll, etc.) are not gated — only session-start and orientation commands",
+              "silks": "jjk-disk-space-guard",
+              "commit": "bc8aefa"
+            }
+          ]
+        }
+      }
     },
     "₣AD": {
       "silks": "vos-spec-and-tooling",
