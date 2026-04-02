@@ -46,7 +46,8 @@ fn main() -> ExitCode {
                     return ExitCode::FAILURE;
                 }
             };
-            let result = rbida_run(&attack);
+            let extra_args: Vec<&str> = args[2..].iter().map(|s| s.as_str()).collect();
+            let result = rbida_run(&attack, &extra_args);
             if result.passed {
                 println!("IFRIT_VERDICT: PASS");
                 ExitCode::SUCCESS
