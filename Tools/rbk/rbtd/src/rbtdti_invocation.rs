@@ -423,7 +423,7 @@ fn rbtdti_read_burv_fact_reads_value() {
     rbtdti_write_script(
         &tt,
         "rbw-cb.Bark.testplate.sh",
-        "echo 'c260305-r260305' > \"${BURV_OUTPUT_ROOT_DIR}/rbf_fact_consecration\"\n",
+        "mkdir -p \"${BURV_OUTPUT_ROOT_DIR}/current\"\necho 'c260305-r260305' > \"${BURV_OUTPUT_ROOT_DIR}/current/rbf_fact_consecration\"\n",
     );
 
     let burv_root = tmp.join("burv");

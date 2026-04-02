@@ -28,7 +28,7 @@ use std::process::{Command, Stdio};
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Section, rbtdre_Verdict};
 use crate::rbtdri_invocation::{
     rbtdri_Context, rbtdri_invoke, rbtdri_invoke_global, rbtdri_invoke_imprint,
-    rbtdri_parse_ifrit_verdict, rbtdri_read_burv_fact,
+    rbtdri_parse_ifrit_verdict, rbtdri_read_burv_fact, RBTDRI_BURV_OUTPUT_SUBDIR,
 };
 use crate::rbtdrm_manifest::{
     RBTDRM_COLOPHON_ABJURE, RBTDRM_COLOPHON_ACCESS_PROBE, RBTDRM_COLOPHON_BARK,
@@ -1198,7 +1198,7 @@ fn rbtdrc_four_mode(dir: &Path) -> rbtdre_Verdict {
             Ok(r) => return rbtdre_Verdict::Fail(format!("tally failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("tally invocation: {}", e)),
         };
-        let tally_dir = &tally_result.burv_output;
+        let tally_dir = tally_result.burv_output.join(RBTDRI_BURV_OUTPUT_SUBDIR);
 
         let conjure_fact = format!("{}{}{}", conjure_vessel, RBTDRC_FACT_CONSEC_INFIX, conjure_consec);
         let bind_fact = format!("{}{}{}", bind_vessel, RBTDRC_FACT_CONSEC_INFIX, bind_consec);
@@ -1262,7 +1262,7 @@ fn rbtdrc_four_mode(dir: &Path) -> rbtdre_Verdict {
             Ok(r) => return rbtdre_Verdict::Fail(format!("post-abjure tally failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("post-abjure tally invocation: {}", e)),
         };
-        let post_dir = &post_tally.burv_output;
+        let post_dir = post_tally.burv_output.join(RBTDRI_BURV_OUTPUT_SUBDIR);
 
         if post_dir.join(&conjure_fact).exists() {
             return rbtdre_Verdict::Fail(format!("conjure still present after abjure: {}", conjure_fact));

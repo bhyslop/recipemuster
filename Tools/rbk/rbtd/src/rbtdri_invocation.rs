@@ -33,6 +33,10 @@ use crate::rbtdrm_manifest::RBTDRM_COLOPHON_BARK;
 /// Ifrit binary name inside the bottle container.
 const RBTDRI_IFRIT_BINARY: &str = "rbid";
 
+/// BUK dispatch output subdirectory — tabtargets write facts to BURV_OUTPUT_ROOT_DIR/current.
+/// Matches BURD_OUTPUT_DIR = "${BURC_OUTPUT_ROOT_DIR}/current" from bud_dispatch.sh.
+pub const RBTDRI_BURV_OUTPUT_SUBDIR: &str = "current";
+
 // ── Invocation result ────────────────────────────────────────
 
 /// Captured output from a tabtarget invocation.
@@ -241,12 +245,13 @@ pub fn rbtdri_invoke_imprint(
 // ── BURV fact file reading ───────────────────────────────────
 
 /// Read a fact file from a tabtarget's BURV output directory.
-/// Fact files are single-line values written by tabtargets to their BURV output dir.
+/// Fact files are single-line values written by tabtargets to BURD_OUTPUT_DIR,
+/// which is BURV_OUTPUT_ROOT_DIR/current per BUK dispatch convention.
 pub fn rbtdri_read_burv_fact(
     result: &rbtdri_InvokeResult,
     fact_name: &str,
 ) -> Result<String, String> {
-    let path = result.burv_output.join(fact_name);
+    let path = result.burv_output.join(RBTDRI_BURV_OUTPUT_SUBDIR).join(fact_name);
     let content = std::fs::read_to_string(&path)
         .map_err(|e| format!("rbtdri: cannot read fact '{}' from {}: {}", fact_name, path.display(), e))?;
     let trimmed = content.trim().to_string();

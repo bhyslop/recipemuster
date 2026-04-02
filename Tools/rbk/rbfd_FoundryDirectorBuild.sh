@@ -1126,7 +1126,7 @@ rbfd_build() {
 
   local -r z_step_b64_file="${BURD_TEMP_DIR}/rbfd_step_b64.txt"
   local -r z_step_decoded_file="${BURD_TEMP_DIR}/rbfd_step_decoded.txt"
-  printf '%s' "${z_step_output}" > "${z_step_b64_file}" \
+  printf '%s\n' "${z_step_output}" > "${z_step_b64_file}" \
     || buc_die "Failed to write step output for decoding"
   openssl enc -base64 -d < "${z_step_b64_file}" > "${z_step_decoded_file}" \
     || buc_die "Failed to base64-decode build step output"
