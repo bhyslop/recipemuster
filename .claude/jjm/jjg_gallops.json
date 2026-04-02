@@ -903,9 +903,10 @@
       "creation_time": "260402",
       "status": "racing",
       "order": [
-        "₢A3AAA"
+        "₢A3AAA",
+        "₢A3AAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_uAl3.md",
       "paces": {
         "₢A3AAA": {
@@ -951,6 +952,17 @@
               "text": "## Character\nDesign conversation with incremental implementation. The onboarding guide today is a 14-level linear staircase assuming one person does everything. This pace restructures it into a role-aware dashboard that adapts to what credentials are present on the machine.\n\n## Docket\nRestructure `rbgm_onboarding()` from a single linear staircase into a role-aware dashboard:\n\n1. **Role inventory section** — probe for each RBRA file independently (retriever, director, governor) plus payor (rbrp.env + OAuth). Show what roles are active on this machine.\n\n2. **RBRA credential guidance** — for absent roles, explain what an RBRA file is, where it goes (`RBRR_SECRETS_DIR`), expected filename per role, required permissions (600). This teaches users who *received* a credential file how to emplace it.\n\n3. **Per-role status tracks** — for each detected role, show its specific readiness:\n   - Retriever: creds → nameplate consecrations → images summoned → bottle runs\n   - Director: creds → reliquary inscribed → vessels built → vouched\n   - Governor: creds → directors/retrievers issued\n   - Payor: project → OAuth → depot → governor reset\n\n4. **Next step guidance** — scoped to the most actionable detected role, not the global staircase.\n\nKey insight: RBRA file presence IS the role declaration. No flags, no parameters. The filesystem is the configuration.\n\nResearch finding: retriever-only machines need only two out-of-repo files: `burs.env` (station skeleton) and `rbra-retriever.env`. Everything else (RBRR, RBRN, BURC) is committed.\n\n## References\n- `Tools/rbk/rbgm_ManualProcedures.sh` — current `rbgm_onboarding()` (lines 485–880)\n- `Tools/rbk/vov_veiled/CLAUDE.consumer.md` — role documentation\n- `Tools/rbk/rbdc_DerivedConstants.sh` — credential path resolution",
               "silks": "role-aware-onboarding-dashboard",
               "commit": "ef10ca2"
+            }
+          ]
+        },
+        "₢A3AAB": {
+          "tacks": [
+            {
+              "ts": "260402-1521",
+              "state": "rough",
+              "text": "## Character\nLinear probe sequence — each step has a concrete test. Simplest role track (fewest steps, read-only operations).\n\n## Docket\n\nBuild `tt/rbw-OR.OnboardRetriever.sh` — the retriever's onboarding guide.\n\n### Probes (in order)\n\n1. **SA key installed** — file exists at expected credential path\n2. **GAR access verified** — HEAD request against registry succeeds with SA token\n3. **Summon a consecration** — guide user to run summon tabtarget, verify local image lands\n4. **Inspect the artifact** — guide user to run inspect, verify about/vouch metadata visible\n5. **Start a bottle** — guide user to run bottle start, verify container running\n\nEach step: probe current state → if green, one-line confirmation → if red, show the action with the exact tabtarget to run. `buc_link` to docs for context where helpful.\n\n### Wire\n- Mint `rbw-OR` colophon in zipper\n- Create tabtarget `tt/rbw-OR.OnboardRetriever.sh`\n- Wire workbench routing\n\n## References\n- `Tools/rbk/rbdc_DerivedConstants.sh` — credential path resolution\n- `Tools/rbk/rbga_ArtifactRegistry.sh` — GAR access patterns\n- Existing summon/inspect/start tabtargets for the action commands",
+              "silks": "onboard-retriever-track",
+              "commit": "df94429"
             }
           ]
         }
