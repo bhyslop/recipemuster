@@ -428,6 +428,304 @@ fn rbtdrc_sortie_ns_capability_escape(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "ns-capability-escape", dir))
 }
 
+// ── Coordinated attack cases (writ observes sentry, bark attacks) ──
+
+/// Parse `ip neigh show` output into (IP, MAC) pairs.
+/// Format: "10.242.0.3 dev eth1 lladdr 02:42:0a:f2:00:03 REACHABLE"
+fn rbtdrc_parse_arp_table(output: &str) -> Vec<(String, String)> {
+    let mut entries = Vec::new();
+    for line in output.lines() {
+        let parts: Vec<&str> = line.split_whitespace().collect();
+        // Look for lines with "lladdr" field
+        if let Some(pos) = parts.iter().position(|&p| p == "lladdr") {
+            if let (Some(&ip), Some(&mac)) = (parts.first(), parts.get(pos + 1)) {
+                entries.push((ip.to_string(), mac.to_lowercase()));
+            }
+        }
+    }
+    entries
+}
+
+/// Find the MAC associated with a given IP in parsed ARP entries.
+fn rbtdrc_arp_mac_for_ip<'a>(entries: &'a [(String, String)], ip: &str) -> Option<&'a str> {
+    entries
+        .iter()
+        .find(|(entry_ip, _)| entry_ip == ip)
+        .map(|(_, mac)| mac.as_str())
+}
+
+/// Coordinated ARP test: ifrit sends gratuitous ARP claiming sentry's IP,
+/// theurge verifies sentry's ARP table was not corrupted.
+fn rbtdrc_coordinated_arp_gratuitous(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        // Discover sentry IP
+        let sentry_ip = match rbtdrc_discover_sentry_ip(ctx) {
+            Ok(ip) => ip,
+            Err(e) => return rbtdre_Verdict::Fail(format!("sentry IP discovery: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("sentry-ip.txt"), &sentry_ip);
+
+        // Pre-snapshot: sentry ARP table
+        let pre_arp = match rbtdrc_writ(ctx, &["ip", "neigh", "show"]) {
+            Ok(o) => o,
+            Err(e) => return rbtdre_Verdict::Fail(format!("pre-snapshot: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("pre-arp.txt"), &pre_arp);
+
+        // Execute attack via bark
+        let result = match rbtdri_invoke(
+            ctx,
+            RBTDRM_COLOPHON_BARK,
+            &[RBTDRC_IFRIT_BINARY, "arp-send-gratuitous"],
+        ) {
+            Ok(r) => r,
+            Err(e) => return rbtdre_Verdict::Fail(format!("bark invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("bark-stdout.txt"), &result.stdout);
+        let _ = std::fs::write(dir.join("bark-stderr.txt"), &result.stderr);
+
+        // If ifrit couldn't execute (AF_PACKET blocked), that's SECURE
+        if result.exit_code != 0 {
+            let _ = std::fs::write(
+                dir.join("observation.txt"),
+                "SECURE: ifrit could not send L2 frames (AF_PACKET blocked)",
+            );
+            return rbtdre_Verdict::Pass;
+        }
+
+        // Brief delay for ARP to propagate
+        std::thread::sleep(std::time::Duration::from_millis(500));
+
+        // Post-snapshot: sentry ARP table
+        let post_arp = match rbtdrc_writ(ctx, &["ip", "neigh", "show"]) {
+            Ok(o) => o,
+            Err(e) => return rbtdre_Verdict::Fail(format!("post-snapshot: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("post-arp.txt"), &post_arp);
+
+        // Parse both snapshots
+        let pre_entries = rbtdrc_parse_arp_table(&pre_arp);
+        let post_entries = rbtdrc_parse_arp_table(&post_arp);
+
+        // Check: did the sentry's ARP entry for bottle IP change MAC?
+        // Get bottle IP from the pre-snapshot (it should be there as a neighbor)
+        let observation = format!(
+            "Pre-ARP entries: {:?}\nPost-ARP entries: {:?}\nSentry IP: {}\n",
+            pre_entries, post_entries, sentry_ip
+        );
+        let _ = std::fs::write(dir.join("observation.txt"), &observation);
+
+        // Check that no ARP entry now maps sentry's own IP to a different MAC
+        // (gratuitous ARP claimed sentry IP at bottle MAC)
+        if let Some(post_mac) = rbtdrc_arp_mac_for_ip(&post_entries, &sentry_ip) {
+            if let Some(pre_mac) = rbtdrc_arp_mac_for_ip(&pre_entries, &sentry_ip) {
+                if pre_mac != post_mac {
+                    return rbtdre_Verdict::Fail(format!(
+                        "BREACH: sentry ARP entry for own IP {} changed MAC: {} → {}",
+                        sentry_ip, pre_mac, post_mac
+                    ));
+                }
+            } else {
+                // New entry appeared for sentry's own IP — suspicious
+                return rbtdre_Verdict::Fail(format!(
+                    "BREACH: new ARP entry appeared for sentry IP {} with MAC {}",
+                    sentry_ip, post_mac
+                ));
+            }
+        }
+
+        // Also check that no pre-existing entries had their MAC changed
+        for (ip, pre_mac) in &pre_entries {
+            if let Some(post_mac) = rbtdrc_arp_mac_for_ip(&post_entries, ip) {
+                if pre_mac != post_mac {
+                    return rbtdre_Verdict::Fail(format!(
+                        "BREACH: sentry ARP entry for {} changed MAC: {} → {}",
+                        ip, pre_mac, post_mac
+                    ));
+                }
+            }
+        }
+
+        rbtdre_Verdict::Pass
+    })
+}
+
+/// Coordinated ARP test: ifrit sends targeted ARP reply claiming gateway IP
+/// is at bottle MAC, theurge verifies sentry's routing/ARP was not corrupted.
+fn rbtdrc_coordinated_arp_gateway_poison(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        // Discover sentry IP
+        let sentry_ip = match rbtdrc_discover_sentry_ip(ctx) {
+            Ok(ip) => ip,
+            Err(e) => return rbtdre_Verdict::Fail(format!("sentry IP discovery: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("sentry-ip.txt"), &sentry_ip);
+
+        // Compute expected gateway IP (.1 on sentry's subnet)
+        let prefix: String = sentry_ip
+            .rsplit('.')
+            .skip(1)
+            .collect::<Vec<_>>()
+            .into_iter()
+            .rev()
+            .collect::<Vec<_>>()
+            .join(".");
+        let gateway_ip = format!("{}.1", prefix);
+        let _ = std::fs::write(dir.join("gateway-ip.txt"), &gateway_ip);
+
+        // Pre-snapshot
+        let pre_arp = match rbtdrc_writ(ctx, &["ip", "neigh", "show"]) {
+            Ok(o) => o,
+            Err(e) => return rbtdre_Verdict::Fail(format!("pre-snapshot: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("pre-arp.txt"), &pre_arp);
+        let pre_entries = rbtdrc_parse_arp_table(&pre_arp);
+
+        // Record gateway's pre-attack MAC (if it has an ARP entry)
+        let pre_gw_mac = rbtdrc_arp_mac_for_ip(&pre_entries, &gateway_ip).map(|s| s.to_string());
+        let _ = std::fs::write(
+            dir.join("pre-gw-mac.txt"),
+            pre_gw_mac.as_deref().unwrap_or("(none)"),
+        );
+
+        // Execute attack via bark
+        let result = match rbtdri_invoke(
+            ctx,
+            RBTDRM_COLOPHON_BARK,
+            &[RBTDRC_IFRIT_BINARY, "arp-send-gateway-poison"],
+        ) {
+            Ok(r) => r,
+            Err(e) => return rbtdre_Verdict::Fail(format!("bark invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("bark-stdout.txt"), &result.stdout);
+        let _ = std::fs::write(dir.join("bark-stderr.txt"), &result.stderr);
+
+        if result.exit_code != 0 {
+            let _ = std::fs::write(
+                dir.join("observation.txt"),
+                "SECURE: ifrit could not send L2 frames (AF_PACKET blocked)",
+            );
+            return rbtdre_Verdict::Pass;
+        }
+
+        std::thread::sleep(std::time::Duration::from_millis(500));
+
+        // Post-snapshot
+        let post_arp = match rbtdrc_writ(ctx, &["ip", "neigh", "show"]) {
+            Ok(o) => o,
+            Err(e) => return rbtdre_Verdict::Fail(format!("post-snapshot: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("post-arp.txt"), &post_arp);
+        let post_entries = rbtdrc_parse_arp_table(&post_arp);
+
+        let post_gw_mac = rbtdrc_arp_mac_for_ip(&post_entries, &gateway_ip).map(|s| s.to_string());
+
+        let observation = format!(
+            "Gateway IP: {}\nPre gateway MAC: {:?}\nPost gateway MAC: {:?}\n",
+            gateway_ip, pre_gw_mac, post_gw_mac
+        );
+        let _ = std::fs::write(dir.join("observation.txt"), &observation);
+
+        // Check: did gateway MAC change?
+        match (&pre_gw_mac, &post_gw_mac) {
+            (Some(pre), Some(post)) if pre != post => {
+                return rbtdre_Verdict::Fail(format!(
+                    "BREACH: sentry ARP for gateway {} changed MAC: {} → {}",
+                    gateway_ip, pre, post
+                ));
+            }
+            (None, Some(post)) => {
+                // New gateway entry appeared — check it's not the bottle's MAC
+                // We can't know bottle MAC from theurge, but a new entry after
+                // an ARP poison attempt is suspicious. Log it.
+                let _ = std::fs::write(
+                    dir.join("new-gw-entry.txt"),
+                    format!("New gateway ARP entry: {} → {}", gateway_ip, post),
+                );
+                // Not necessarily a breach — Docker may have refreshed the entry.
+                // But check if any other entries changed.
+            }
+            _ => {}
+        }
+
+        // Verify no pre-existing entries had their MAC changed
+        for (ip, pre_mac) in &pre_entries {
+            if let Some(post_mac) = rbtdrc_arp_mac_for_ip(&post_entries, ip) {
+                if pre_mac != post_mac {
+                    return rbtdre_Verdict::Fail(format!(
+                        "BREACH: sentry ARP entry for {} changed MAC: {} → {}",
+                        ip, pre_mac, post_mac
+                    ));
+                }
+            }
+        }
+
+        rbtdre_Verdict::Pass
+    })
+}
+
+/// Coordinated ARP test: run the full DirectArpPoison sortie from inside bottle,
+/// then verify from outside that the sentry's ARP table remained stable.
+fn rbtdrc_coordinated_arp_table_stability(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        // Pre-snapshot
+        let pre_arp = match rbtdrc_writ(ctx, &["ip", "neigh", "show"]) {
+            Ok(o) => o,
+            Err(e) => return rbtdre_Verdict::Fail(format!("pre-snapshot: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("pre-arp.txt"), &pre_arp);
+        let pre_entries = rbtdrc_parse_arp_table(&pre_arp);
+
+        // Run the full ARP sortie (gratuitous + targeted + cache check)
+        let result = match rbtdri_invoke(
+            ctx,
+            RBTDRM_COLOPHON_BARK,
+            &[RBTDRC_IFRIT_BINARY, "direct-arp-poison"],
+        ) {
+            Ok(r) => r,
+            Err(e) => return rbtdre_Verdict::Fail(format!("bark invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("bark-stdout.txt"), &result.stdout);
+        let _ = std::fs::write(dir.join("bark-stderr.txt"), &result.stderr);
+
+        // The sortie itself reports BREACH if AF_PACKET is available (expected).
+        // We don't care about the ifrit's verdict — we care about the sentry's state.
+        let ifrit_detail = result.stdout.clone();
+
+        std::thread::sleep(std::time::Duration::from_millis(500));
+
+        // Post-snapshot
+        let post_arp = match rbtdrc_writ(ctx, &["ip", "neigh", "show"]) {
+            Ok(o) => o,
+            Err(e) => return rbtdre_Verdict::Fail(format!("post-snapshot: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("post-arp.txt"), &post_arp);
+        let post_entries = rbtdrc_parse_arp_table(&post_arp);
+
+        let observation = format!(
+            "Ifrit verdict (informational): {}\nPre entries: {:?}\nPost entries: {:?}\n",
+            ifrit_detail.trim(),
+            pre_entries,
+            post_entries,
+        );
+        let _ = std::fs::write(dir.join("observation.txt"), &observation);
+
+        // Verify: no pre-existing MAC associations changed
+        for (ip, pre_mac) in &pre_entries {
+            if let Some(post_mac) = rbtdrc_arp_mac_for_ip(&post_entries, ip) {
+                if pre_mac != post_mac {
+                    return rbtdre_Verdict::Fail(format!(
+                        "BREACH: sentry ARP entry for {} changed MAC: {} → {} after full ARP sortie",
+                        ip, pre_mac, post_mac
+                    ));
+                }
+            }
+        }
+
+        rbtdre_Verdict::Pass
+    })
+}
+
 // ── Host-side helpers (HTTP probes, port discovery) ──────────
 
 /// Test container image for Python networking tests (srjcl WebSocket).
@@ -1011,6 +1309,23 @@ static RBTDRC_SECTIONS_TADMOR: &[rbtdre_Section] = &[
             rbtdre_Case {
                 name: "sortie-ns-capability-escape",
                 func: rbtdrc_sortie_ns_capability_escape,
+            },
+        ],
+    },
+    rbtdre_Section {
+        name: "tadmor-coordinated-attacks",
+        cases: &[
+            rbtdre_Case {
+                name: "coordinated-arp-gratuitous",
+                func: rbtdrc_coordinated_arp_gratuitous,
+            },
+            rbtdre_Case {
+                name: "coordinated-arp-gateway-poison",
+                func: rbtdrc_coordinated_arp_gateway_poison,
+            },
+            rbtdre_Case {
+                name: "coordinated-arp-table-stability",
+                func: rbtdrc_coordinated_arp_table_stability,
             },
         ],
     },

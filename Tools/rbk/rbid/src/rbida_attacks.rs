@@ -90,6 +90,11 @@ pub enum rbida_Attack {
     DirectArpPoison,
     /// Namespace and capability escape probe
     NsCapabilityEscape,
+    // ── Coordinated attack primitives (theurge observes effect) ──
+    /// Send gratuitous ARP claiming sentry IP — theurge checks sentry ARP table
+    ArpSendGratuitous,
+    /// Send targeted ARP reply poisoning gateway entry — theurge checks sentry ARP table
+    ArpSendGatewayPoison,
 }
 
 // ── Verdict ─────────────────────────────────────────────────────
@@ -136,6 +141,8 @@ impl rbida_Attack {
             "net-fragment-evasion" => Some(Self::NetFragmentEvasion),
             "direct-arp-poison" => Some(Self::DirectArpPoison),
             "ns-capability-escape" => Some(Self::NsCapabilityEscape),
+            "arp-send-gratuitous" => Some(Self::ArpSendGratuitous),
+            "arp-send-gateway-poison" => Some(Self::ArpSendGatewayPoison),
             _ => None,
         }
     }
@@ -173,6 +180,8 @@ impl rbida_Attack {
             Self::NetFragmentEvasion => "net-fragment-evasion",
             Self::DirectArpPoison => "direct-arp-poison",
             Self::NsCapabilityEscape => "ns-capability-escape",
+            Self::ArpSendGratuitous => "arp-send-gratuitous",
+            Self::ArpSendGatewayPoison => "arp-send-gateway-poison",
         }
     }
 
@@ -209,6 +218,8 @@ impl rbida_Attack {
             "net-fragment-evasion",
             "direct-arp-poison",
             "ns-capability-escape",
+            "arp-send-gratuitous",
+            "arp-send-gateway-poison",
         ]
     }
 }
@@ -341,6 +352,9 @@ pub fn rbida_run(attack: &rbida_Attack, extra_args: &[&str]) -> rbida_Verdict {
         rbida_Attack::NetFragmentEvasion => rbida_sorties::sortie_net_fragment_evasion(extra_args),
         rbida_Attack::DirectArpPoison => rbida_sorties::sortie_direct_arp_poison(extra_args),
         rbida_Attack::NsCapabilityEscape => rbida_sorties::sortie_ns_capability_escape(extra_args),
+        // Coordinated attack primitives — execute action, theurge judges outcome
+        rbida_Attack::ArpSendGratuitous => rbida_sorties::sortie_arp_send_gratuitous(extra_args),
+        rbida_Attack::ArpSendGatewayPoison => rbida_sorties::sortie_arp_send_gateway_poison(extra_args),
     }
 }
 

