@@ -1,6 +1,6 @@
 {
   "schema_version": 4,
-  "next_heat_seed": "A2",
+  "next_heat_seed": "A3",
   "heat_order": [
     "₣Az",
     "₣An",
@@ -19,7 +19,8 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au"
+    "₣Au",
+    "₣A2"
   ],
   "heats": {
     "₣A0": {
@@ -726,6 +727,15 @@
           ]
         }
       }
+    },
+    "₣A2": {
+      "silks": "jjk-v3-6-minor-issues",
+      "creation_time": "260402",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uAl2.md",
+      "paces": {}
     },
     "₣AD": {
       "silks": "vos-spec-and-tooling",
