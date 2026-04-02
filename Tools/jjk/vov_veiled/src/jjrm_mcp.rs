@@ -140,22 +140,6 @@ fn zjjrm_dispatch_inner(
     Ok(CallToolResult::success(vec![Content::text(output)]))
 }
 
-/// Dispatch a heat-affiliated command. Firemark supplied directly from params.
-fn jjrm_dispatch_heat(
-    cmd: &str,
-    firemark_str: &str,
-    handler: impl FnOnce(&mut crate::jjrg_gallops::jjrg_Gallops) -> Result<String, String>,
-) -> Result<CallToolResult, McpError> {
-    let firemark = match crate::jjrf_favor::jjrf_Firemark::jjrf_parse(firemark_str) {
-        Ok(f) => f,
-        Err(e) => {
-            return Ok(CallToolResult::error(vec![Content::text(
-                format!("jjx {}: error: {}", cmd, e),
-            )]));
-        }
-    };
-    zjjrm_dispatch_inner(cmd, &firemark, handler)
-}
 
 /// Dispatch a pace-affiliated command. Coronet supplied from params; parent firemark derived.
 fn jjrm_dispatch_pace(

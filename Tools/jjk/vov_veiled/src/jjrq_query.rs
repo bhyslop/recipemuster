@@ -16,7 +16,6 @@
 
 use crate::jjrs_steeplechase::{jjrs_ReinArgs, jjrs_get_entries};
 use regex::Regex;
-use serde::Serialize;
 
 /// Path prefix for JJ infrastructure files (excluded from work file queries)
 const JJRQ_INFRA_PREFIX: &str = ".claude/jjm/";
@@ -142,35 +141,6 @@ pub struct jjrq_HeatFileTouches {
 // Retire Output Types (used by jjrrt_retire.rs and tests)
 // ============================================================================
 
-/// Output structure for retire command
-#[derive(Serialize)]
-pub(crate) struct zjjrq_RetireOutput {
-    pub(crate) firemark: String,
-    pub(crate) silks: String,
-    pub(crate) created: String,
-    pub(crate) status: String,
-    pub(crate) paddock_file: String,
-    pub(crate) paddock_content: String,
-    pub(crate) paces: Vec<zjjrq_RetirePace>,
-}
-
-/// Pace structure for retire output (full tack history)
-#[derive(Serialize)]
-pub(crate) struct zjjrq_RetirePace {
-    pub(crate) coronet: String,
-    pub(crate) silks: String,
-    pub(crate) tacks: Vec<zjjrq_RetireTack>,
-}
-
-/// Tack structure for retire output
-#[derive(Serialize)]
-pub(crate) struct zjjrq_RetireTack {
-    pub(crate) ts: String,
-    pub(crate) state: String,
-    pub(crate) text: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub(crate) direction: Option<String>,
-}
 
 // ============================================================================
 // Silks Sequence Parsing and Building

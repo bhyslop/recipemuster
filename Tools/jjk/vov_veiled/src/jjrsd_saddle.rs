@@ -233,10 +233,6 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette
                             vvco_err!(output, "jjx_orient: error: Pace '{}' is abandoned", coronet_key);
                             return (1, output.vvco_finish());
                         }
-                        _ => {
-                            vvco_err!(output, "jjx_orient: error: Pace '{}' has invalid state", coronet_key);
-                            return (1, output.vvco_finish());
-                        }
                     }
                 } else {
                     vvco_err!(output, "jjx_orient: error: Pace '{}' has no tacks", coronet_key);

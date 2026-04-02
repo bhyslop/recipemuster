@@ -11,7 +11,7 @@
 use clap::Args;
 use std::collections::HashSet;
 
-use vvc::{vvco_out, vvco_err, vvco_Output};
+use vvc::{vvco_err, vvco_Output};
 
 use crate::jjrf_favor::{jjrf_Coronet as Coronet, jjrf_Firemark as Firemark, JJRF_FIREMARK_PREFIX, JJRF_CORONET_PREFIX};
 use crate::jjrn_notch::{jjrn_format_notch_prefix, JJRN_COMMIT_PREFIX};

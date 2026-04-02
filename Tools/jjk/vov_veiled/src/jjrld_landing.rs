@@ -9,7 +9,7 @@
 //! marker in the steeplechase format.
 
 use clap::Args;
-use vvc::{vvco_out, vvco_err, vvco_Output};
+use vvc::{vvco_err, vvco_Output};
 use crate::jjrf_favor::jjrf_Coronet as Coronet;
 use crate::jjrn_notch::jjrn_format_landing_message;
 

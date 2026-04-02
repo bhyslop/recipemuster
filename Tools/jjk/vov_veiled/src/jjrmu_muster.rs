@@ -8,7 +8,7 @@
 //! with their status and pace completion counts.
 
 use std::path::PathBuf;
-use vvc::{vvco_out, vvco_err, vvco_Output};
+use vvc::{vvco_err, vvco_Output};
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState};
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
 

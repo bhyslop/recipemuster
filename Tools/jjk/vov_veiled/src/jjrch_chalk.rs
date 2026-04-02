@@ -7,7 +7,7 @@
 //! The chalk command creates empty commits with special formatting for tracking
 //! steeplechase events like approach, wrap, fly, or heat-level discussions.
 
-use vvc::{vvco_out, vvco_err, vvco_Output};
+use vvc::{vvco_err, vvco_Output};
 
 use crate::jjrf_favor::{jjrf_Coronet as Coronet, jjrf_Firemark as Firemark};
 use crate::jjrn_notch::{jjrn_ChalkMarker as ChalkMarker, jjrn_format_chalk_message, jjrn_format_heat_discussion};
