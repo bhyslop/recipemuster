@@ -269,9 +269,10 @@
         "₢A1AAI",
         "₢A1AAQ",
         "₢A1AAJ",
-        "₢A1AAM"
+        "₢A1AAM",
+        "₢A1AAR"
       ],
-      "next_pace_seed": "AAR",
+      "next_pace_seed": "AAS",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -696,6 +697,17 @@
               "text": "## Character\nVerification gate — systematic audit, no code changes. This must complete cleanly before retirement (₢A1AAJ) touches anything.\n\n## Docket\nAfter all porting paces (₢A1AAF, ₢A1AAG, ₢A1AAH, ₢A1AAI) are complete, audit that every existing test case has a theurge equivalent before retirement deletes the originals.\n\n**Audit steps:**\n- Extract complete case list from bash test fixtures: `rbtcns_TadmorSecurity.sh` (22), `rbtcev_EnrollmentValidation.sh` (47), `rbtcrv_RegimeValidation.sh` (21), regime-smoke (7), srjcl-jupyter (3), pluml-diagram (5), four-mode (15), access-probe (4)\n- Extract complete sortie list from python roster: `rbtis_*.py` (11 modules)\n- Extract complete theurge case catalog from Rust source\n- Produce a side-by-side diff: original case → theurge equivalent, flagging any gaps\n- Run theurge complete suite, confirm all cases pass\n\n**Exit criteria:** Zero gaps between original and theurge catalogs. All theurge cases green. Written parity report committed as evidence for the retirement pace. Any gaps discovered here become fix-paces slated before ₢A1AAJ.",
               "silks": "audit-coverage-parity",
               "commit": "ef1c1b6"
+            }
+          ]
+        },
+        "₢A1AAR": {
+          "tacks": [
+            {
+              "ts": "260401-1914",
+              "state": "rough",
+              "text": "## Character\nDesign conversation requiring judgment — touches charge contract, nameplate semantics, and the boundary between local iteration and regime truth.\n\n## Docket\nDesign and implement a mechanism for kludge builds (ifrit, and potentially other vessels) to automatically override the nameplate bottle consecration for local testing, without mutating the nameplate's regime-truth consecration.\n\n**Problem**: After `rbi-iK` builds a local kludge image, you must manually edit `rbrn.env` to `RBRN_BOTTLE_CONSECRATION=kdev`, then manually restore it later. This is error-prone and conflates iteration state with regime state.\n\n**Design space**:\n- **Runtime override at charge**: theurge (or charge itself) accepts a `--kludge` flag that substitutes the kludge consecration at charge time, leaving the nameplate untouched\n- **Sidecar save/restore**: kludge tabtarget saves prior consecration to a sidecar file, restores on conjure — fragile if interrupted\n- **Naming**: `kdev` is too generic — consider nameplate-scoped (`kludge`) or vessel-scoped naming\n\n**Constraints**:\n- Nameplate must remain source of truth for \"what's deployed\"\n- Must not break cloud conjure flow\n- Should work for any vessel kludge, not just ifrit\n\n**Deliverable**: chosen design, implementation in charge path and/or theurge, updated kludge tabtarget if needed.",
+              "silks": "kludge-consecration-override-design",
+              "commit": "d88e7f8"
             }
           ]
         }
