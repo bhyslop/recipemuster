@@ -9,9 +9,9 @@
 //!
 //! This crate is compiled into vvr when the jjk feature is enabled.
 
+#![deny(warnings)]
 #![allow(non_camel_case_types)]
 #![allow(private_interfaces)]
-#![deny(unused_variables)]
 
 #[macro_use]
 pub mod jjrc_core;

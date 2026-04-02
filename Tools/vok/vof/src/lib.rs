@@ -11,6 +11,7 @@
 //! All project naming flows through this crate to ensure type safety
 //! and compile-time enforcement of terminal exclusivity.
 
+#![deny(warnings)]
 #![allow(non_camel_case_types)]
 
 pub mod vofc_registry;

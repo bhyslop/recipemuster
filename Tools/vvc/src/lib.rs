@@ -11,6 +11,7 @@
 //! - `vvcc_*`: Interactive/Claude-assisted commits (stages all, generates message)
 //! - `vvcm_*`: Machine/programmatic commits (explicit files, explicit message)
 
+#![deny(warnings)]
 #![allow(non_camel_case_types)]
 
 pub mod vvcc_commit;
