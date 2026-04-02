@@ -1,6 +1,6 @@
 {
   "schema_version": 4,
-  "next_heat_seed": "A3",
+  "next_heat_seed": "A4",
   "heat_order": [
     "₣Az",
     "₣An",
@@ -20,7 +20,8 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au"
+    "₣Au",
+    "₣A3"
   ],
   "heats": {
     "₣A0": {
@@ -896,6 +897,15 @@
           ]
         }
       }
+    },
+    "₣A3": {
+      "silks": "rbk-mvp-3-onboarding-guides",
+      "creation_time": "260402",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uAl3.md",
+      "paces": {}
     },
     "₣AD": {
       "silks": "vos-spec-and-tooling",
