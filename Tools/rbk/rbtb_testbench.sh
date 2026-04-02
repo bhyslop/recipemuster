@@ -53,11 +53,7 @@ source "${RBTB_SCRIPT_DIR}/rbap_AccessProbe.sh"
 # Source test case files
 source "${RBTB_RBTS_DIR}/rbtckk_KickTires.sh"
 source "${RBTB_RBTS_DIR}/rbtcqa_QualifyAll.sh"
-source "${RBTB_RBTS_DIR}/rbtcap_AccessProbe.sh"
-source "${RBTB_RBTS_DIR}/rbtcfm_FourMode.sh"
-
-source "${RBTB_RBTS_DIR}/rbtcsj_SrjclJupyter.sh"
-source "${RBTB_RBTS_DIR}/rbtcpl_PlumlDiagram.sh"
+  # rbtcap, rbtcfm, rbtcsj, rbtcpl: retired — now run via theurge
 source "${RBTB_BUTS_DIR}/butcrg_RegimeSmoke.sh"
 source "${RBTB_BUTS_DIR}/butcrg_RegimeCredentials.sh"
 source "${RBTB_BUTS_DIR}/butcev_LengthTypes.sh"
@@ -167,44 +163,10 @@ zrbtb_qualify_baste() {
   zrbq_kindle
 }
 
-zrbtb_access_probe_baste() {
-  buto_trace "Baste for access-probe fixture"
-  # 5 iterations with 1500ms delay between calls
-  # Total runtime: ~4 roles × 5 × 1.5s ≈ 30 seconds
-  ZRBTCAP_ITERATIONS=5
-  ZRBTCAP_DELAY_MS=1500
-}
-
-zrbtb_four_mode_baste() {
-  buto_trace "Baste for four-mode fixture"
-
-  # Load RBRR regime (repo config)
-  source "${RBBC_rbrr_file}" || buc_die "Failed to source ${RBBC_rbrr_file}"
-  zrbrr_kindle
-  zrbrr_enforce
-
-  # Kindle infrastructure for foundry access
-  zrbgc_kindle
-  zrbgd_kindle
-  zrbdc_kindle
-  zrbgo_kindle
-  zrbgu_kindle
-  zrbfd_kindle
-}
-
-zrbtb_srjcl_baste() {
-  buto_trace "Baste for srjcl-jupyter fixture"
-  rbtb_load_nameplate "srjcl"
-  rbob_charge
-  sleep "${RBCC_BOTTLE_TEST_READINESS_DELAY_SEC}"
-}
-
-zrbtb_pluml_baste() {
-  buto_trace "Baste for pluml-diagram fixture"
-  rbtb_load_nameplate "pluml"
-  rbob_charge
-  sleep "${RBCC_BOTTLE_TEST_READINESS_DELAY_SEC}"
-}
+  # access-probe baste: retired — now runs via theurge (tt/rbtd-r.Run.access-probe.sh)
+  # four-mode baste: retired — now runs via theurge (tt/rbtd-r.Run.four-mode.sh)
+  # srjcl baste: retired — now runs via theurge (tt/rbtd-r.Run.srjcl.sh)
+  # pluml baste: retired — now runs via theurge (tt/rbtd-r.Run.pluml.sh)
 
 zrbtb_regime_validation_baste() {
   buto_trace "Baste for regime-validation fixture"
@@ -243,20 +205,11 @@ rbtb_kindle() {
   # -- SERVICE + COMPLETE: needs credentials, no containers --
   butr_suite_enroll "${BUTR_SUITE_SERVICE}" "${BUTR_SUITE_COMPLETE}"
 
-  # access-probe fixture (runs before four-mode; ~30s smoke test for OAuth/credential issues)
-  # Regression tests for rbgo_OAuth.sh stderr-capture fix (pace AfAAR)
-  butr_fixture_enroll "access-probe" "" "zrbtb_access_probe_baste"
-  butr_case_enroll "access-probe" rbtcap_jwt_governor_tcase
-  butr_case_enroll "access-probe" rbtcap_jwt_director_tcase
-  butr_case_enroll "access-probe" rbtcap_jwt_retriever_tcase
-  butr_case_enroll "access-probe" rbtcap_payor_oauth_tcase
+  # access-probe: retired — now runs via theurge (tt/rbtd-r.Run.access-probe.sh)
+  # four-mode: retired — now runs via theurge (tt/rbtd-r.Run.four-mode.sh)
 
   # -- COMPLETE only: needs container runtime --
   butr_suite_enroll "${BUTR_SUITE_COMPLETE}"
-
-  # four-mode fixture (conjure + bind + graft + kludge + vouch_gate + retrieve + run + abjure)
-  butr_fixture_enroll "four-mode" "zrbtb_container_clean_git_litmus_predicate" "zrbtb_four_mode_baste"
-  butr_case_enroll "four-mode" rbtcfm_four_mode_tcase
 
   # -- FAST + CRUCIBLE + COMPLETE: no external dependencies --
   butr_suite_enroll "${BUTR_SUITE_FAST}" "${BUTR_SUITE_CRUCIBLE}" "${BUTR_SUITE_COMPLETE}"
@@ -266,19 +219,8 @@ rbtb_kindle() {
 
   # tadmor-security: retired — now runs via theurge (tt/rbtd-r.Run.tadmor.sh)
 
-  # srjcl-jupyter fixture
-  butr_fixture_enroll "srjcl-jupyter" "zrbtb_container_runtime_litmus_predicate" "zrbtb_srjcl_baste"
-  butr_case_enroll "srjcl-jupyter" rbtcsj_jupyter_connectivity_tcase
-  butr_case_enroll "srjcl-jupyter" rbtcsj_jupyter_running_tcase
-  butr_case_enroll "srjcl-jupyter" rbtcsj_websocket_kernel_tcase
-
-  # pluml-diagram fixture
-  butr_fixture_enroll "pluml-diagram" "zrbtb_container_runtime_litmus_predicate" "zrbtb_pluml_baste"
-  butr_case_enroll "pluml-diagram" rbtcpl_http_headers_tcase
-  butr_case_enroll "pluml-diagram" rbtcpl_invalid_hash_tcase
-  butr_case_enroll "pluml-diagram" rbtcpl_local_diagram_tcase
-  butr_case_enroll "pluml-diagram" rbtcpl_malformed_diagram_tcase
-  butr_case_enroll "pluml-diagram" rbtcpl_text_rendering_tcase
+  # srjcl-jupyter: retired — now runs via theurge (tt/rbtd-r.Run.srjcl.sh)
+  # pluml-diagram: retired — now runs via theurge (tt/rbtd-r.Run.pluml.sh)
 
   # -- FAST + CRUCIBLE + COMPLETE: no external dependencies --
   butr_suite_enroll "${BUTR_SUITE_FAST}" "${BUTR_SUITE_CRUCIBLE}" "${BUTR_SUITE_COMPLETE}"
