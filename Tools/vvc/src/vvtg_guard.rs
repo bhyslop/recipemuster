@@ -161,4 +161,97 @@ mod tests {
         // Cleanup
         fs::remove_dir_all(&temp_dir).ok();
     }
+
+    #[test]
+    fn vvtg_renamed_file_zero_cost() {
+        // Create temp dir and git repo
+        let temp_dir = get_test_base().join("vvtg_renamed_file_zero_cost");
+        let _ = fs::remove_dir_all(&temp_dir);
+        fs::create_dir_all(&temp_dir).unwrap();
+        init_git_repo(&temp_dir);
+
+        // Create and commit a file larger than the size limit
+        let file_path = temp_dir.join("original.txt");
+        let content = "x".repeat(60_000); // 60KB, above 50KB limit
+        fs::write(&file_path, &content).unwrap();
+        stage_file(&temp_dir, "original.txt");
+
+        crate::vvce_git_command(&["commit", "-m", "Initial commit"])
+            .current_dir(&temp_dir)
+            .output()
+            .expect("git commit failed");
+
+        // Rename the file via git mv
+        crate::vvce_git_command(&["mv", "original.txt", "renamed.txt"])
+            .current_dir(&temp_dir)
+            .output()
+            .expect("git mv failed");
+
+        // Run guard check - exact rename should be 0 cost
+        let args = vvcg_GuardArgs {
+            limit: VVCG_SIZE_LIMIT,  // 50KB
+            warn: VVCG_WARN_LIMIT,   // 30KB
+        };
+        let mut output = crate::vvco_output::vvco_Output::buffer();
+        let result = vvcg_run(&args, Some(&temp_dir), &mut output);
+
+        // Exact rename (R100) should have 0 cost, well under limit
+        assert_eq!(result, 0, "Exact rename should not trigger size guard");
+
+        // Cleanup
+        fs::remove_dir_all(&temp_dir).ok();
+    }
+
+    #[test]
+    fn vvtg_renamed_edited_file_diff_cost() {
+        // Create temp dir and git repo
+        let temp_dir = get_test_base().join("vvtg_renamed_edited_file_diff_cost");
+        let _ = fs::remove_dir_all(&temp_dir);
+        fs::create_dir_all(&temp_dir).unwrap();
+        init_git_repo(&temp_dir);
+
+        // Create and commit a large multi-line file (>50KB)
+        // Must be multi-line: diff context is line-based, so a single-line file
+        // produces a diff as large as the file itself.
+        let file_path = temp_dir.join("original.txt");
+        let mut content = String::new();
+        for i in 0..5000 {
+            content.push_str(&format!("line number {:04}\n", i));
+        }
+        // ~5000 * 17 bytes ≈ 85KB, well above 50KB limit
+        assert!(content.len() > VVCG_SIZE_LIMIT as usize);
+        fs::write(&file_path, &content).unwrap();
+        stage_file(&temp_dir, "original.txt");
+
+        crate::vvce_git_command(&["commit", "-m", "Initial commit"])
+            .current_dir(&temp_dir)
+            .output()
+            .expect("git commit failed");
+
+        // Rename and add a small edit at the end
+        crate::vvce_git_command(&["mv", "original.txt", "renamed.txt"])
+            .current_dir(&temp_dir)
+            .output()
+            .expect("git mv failed");
+
+        let renamed_path = temp_dir.join("renamed.txt");
+        let mut edited = content.clone();
+        edited.push_str("added line\n");
+        fs::write(&renamed_path, &edited).unwrap();
+        stage_file(&temp_dir, "renamed.txt");
+
+        // Run guard check - rename with small edit should cost only the diff
+        let args = vvcg_GuardArgs {
+            limit: VVCG_SIZE_LIMIT,  // 50KB
+            warn: VVCG_WARN_LIMIT,   // 30KB
+        };
+        let mut output = crate::vvco_output::vvco_Output::buffer();
+        let result = vvcg_run(&args, Some(&temp_dir), &mut output);
+
+        // Rename + small edit: diff cost is ~200 bytes (header + context), well under 50KB
+        assert_eq!(result, 0, "Renamed file with small edit should not trigger size guard");
+
+        // Cleanup
+        fs::remove_dir_all(&temp_dir).ok();
+    }
 }

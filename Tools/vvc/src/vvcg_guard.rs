@@ -13,18 +13,22 @@
 //! GitHub charges by repository size, which reflects Git packfile storage
 //! with delta compression. The guard approximates incremental storage cost:
 //!
-//! | Change Type        | Storage Cost    | Measurement           |
-//! |--------------------|-----------------|----------------------|
-//! | New file           | ~Blob size      | `git cat-file -s`    |
-//! | Modified text      | ~Diff size      | `git diff --cached`  |
-//! | Modified binary    | ~Blob size      | `git cat-file -s`    |
-//! | Deleted file       | 0               | (no measurement)     |
+//! | Change Type           | Storage Cost    | Measurement              |
+//! |-----------------------|-----------------|--------------------------|
+//! | New file              | ~Blob size      | `git cat-file -s`        |
+//! | Modified text         | ~Diff size      | `git diff --cached`      |
+//! | Modified binary       | ~Blob size      | `git cat-file -s`        |
+//! | Deleted file          | 0               | (no measurement)         |
+//! | Renamed (exact)       | 0               | (no measurement)         |
+//! | Renamed (edited text) | ~Diff size      | `git diff --cached -M`   |
+//! | Renamed (edited bin)  | ~Blob size      | `git cat-file -s`        |
 //!
 //! # Key Behaviors
 //!
 //! - A 6-line edit to a 350KB JSON file costs ~200 bytes, not 350KB
 //! - A new 100KB tarball costs 100KB (no delta possible)
 //! - A modified PNG costs full blob size (binary delta is poor)
+//! - A `git mv` rename costs 0 bytes (same blob, new path only)
 //!
 //! # Limits
 //!
@@ -73,8 +77,13 @@ pub(crate) struct zvvcg_StagedFile {
 }
 
 /// Get list of staged files with their diff sizes
+///
+/// Uses -M flag for rename detection. Git renames (R status) are costed
+/// by their actual storage impact: exact renames (R100) cost 0, renames
+/// with edits cost their diff or blob size depending on content type.
 fn zvvcg_get_staged_files(repo_dir: Option<&Path>) -> Result<Vec<zvvcg_StagedFile>, String> {
-    let mut cmd = crate::vvce_git_command(&["diff", "--cached", "--name-only"]);
+    // Use -M to enable rename detection so renames appear as R instead of A+D
+    let mut cmd = crate::vvce_git_command(&["diff", "--cached", "-M", "--name-status"]);
     if let Some(dir) = repo_dir {
         cmd.current_dir(dir);
     }
@@ -83,22 +92,63 @@ fn zvvcg_get_staged_files(repo_dir: Option<&Path>) -> Result<Vec<zvvcg_StagedFil
         .map_err(|e| format!("Failed to run git diff: {}", e))?;
 
     if !output.status.success() {
-        return Err("git diff --cached --name-only failed".to_string());
+        return Err("git diff --cached -M --name-status failed".to_string());
     }
 
-    let paths_str = String::from_utf8_lossy(&output.stdout);
+    let stdout = String::from_utf8_lossy(&output.stdout);
     let mut files = Vec::new();
 
-    for path in paths_str.lines() {
-        if path.is_empty() {
+    for line in stdout.lines() {
+        if line.is_empty() {
             continue;
         }
 
-        let size = zvvcg_get_diff_size(path, repo_dir)?;
-        files.push(zvvcg_StagedFile {
-            path: path.to_string(),
-            size,
-        });
+        let parts: Vec<&str> = line.split('\t').collect();
+        if parts.is_empty() {
+            continue;
+        }
+
+        let status = parts[0];
+        let status_char = status.chars().next().unwrap_or('?');
+
+        match status_char {
+            'R' | 'C' => {
+                // Rename or Copy: parts[0]=R100/C080/etc, parts[1]=old, parts[2]=new
+                let old_path = parts.get(1).ok_or_else(||
+                    format!("Missing old path in rename/copy line: {}", line))?;
+                let new_path = parts.get(2).ok_or_else(||
+                    format!("Missing new path in rename/copy line: {}", line))?;
+
+                // Parse similarity index (R100 → 100, R080 → 80)
+                let similarity: u8 = status[1..].parse().unwrap_or(0);
+
+                let size = if similarity == 100 {
+                    // Exact rename/copy: same blob, zero storage cost
+                    0
+                } else if zvvcg_is_binary(new_path, repo_dir)? {
+                    // Binary rename with edits: full blob cost
+                    zvvcg_get_blob_size(new_path, repo_dir)?
+                } else {
+                    // Text rename with edits: diff cost (both paths for rename detection)
+                    zvvcg_get_rename_diff_size(old_path, new_path, repo_dir)?
+                };
+
+                files.push(zvvcg_StagedFile {
+                    path: new_path.to_string(),
+                    size,
+                });
+            }
+            _ => {
+                // A, M, D, and any other status: per-file cost via existing logic
+                let path = parts.get(1).ok_or_else(||
+                    format!("Missing path in status line: {}", line))?;
+                let size = zvvcg_get_diff_size(path, repo_dir)?;
+                files.push(zvvcg_StagedFile {
+                    path: path.to_string(),
+                    size,
+                });
+            }
+        }
     }
 
     Ok(files)
@@ -232,6 +282,27 @@ fn zvvcg_get_text_diff_size(path: &str, repo_dir: Option<&Path>) -> Result<u64, 
 
     if !output.status.success() {
         return Err(format!("git diff --cached -- {} failed", path));
+    }
+
+    Ok(output.stdout.len() as u64)
+}
+
+/// Get the diff output size for a renamed file with content changes
+///
+/// Uses -M flag with both old and new paths in the pathspec so git can
+/// see the deletion+addition pair and detect the rename. A single-path
+/// pathspec would hide the old path, preventing rename detection.
+fn zvvcg_get_rename_diff_size(old_path: &str, new_path: &str, repo_dir: Option<&Path>) -> Result<u64, String> {
+    let mut cmd = crate::vvce_git_command(&["diff", "--cached", "-M", "--", old_path, new_path]);
+    if let Some(dir) = repo_dir {
+        cmd.current_dir(dir);
+    }
+    let output = cmd
+        .output()
+        .map_err(|e| format!("Failed to run git diff -M for {} -> {}: {}", old_path, new_path, e))?;
+
+    if !output.status.success() {
+        return Err(format!("git diff --cached -M -- {} {} failed", old_path, new_path));
     }
 
     Ok(output.stdout.len() as u64)
