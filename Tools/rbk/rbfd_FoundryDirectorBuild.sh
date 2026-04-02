@@ -1188,7 +1188,7 @@ rbfd_build() {
 # Host platform only (no multi-arch).
 
 rbfd_kludge() {
-  zrbfd_sentinel
+  zrbfc_sentinel
 
   buc_doc_brief "Build vessel image locally for development (no Cloud Build, no GAR push)"
   buc_doc_param "vessel" "Vessel sigil or path to vessel directory"
@@ -1261,82 +1261,7 @@ rbfd_kludge() {
   buc_bare "  Image:        ${z_image_ref}"
   buc_bare "  Vouch:        ${z_vouch_ref}"
   buc_bare ""
-  buc_bare "  Update nameplate .env file:"
-  case "${RBRV_SIGIL}" in
-    *sentry*) buc_bare "    RBRN_SENTRY_CONSECRATION=${z_consecration}" ;;
-    *bottle*|*ifrit*) buc_bare "    RBRN_BOTTLE_CONSECRATION=${z_consecration}" ;;
-    *) buc_bare "    RBRN_*_CONSECRATION=${z_consecration}" ;;
-  esac
-}
-
-######################################################################
-# Ifrit kludge (constant consecration for rapid iteration)
-
-rbfd_ifrit_kludge() {
-  zrbfd_sentinel
-
-  buc_doc_brief "Build ifrit vessel with constant kludge consecration for rapid iteration"
-  buc_doc_shown || return 0
-
-  # Resolve ifrit vessel
-  zrbfc_resolve_vessel "rbev-bottle-ifrit"
-  local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
-  test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
-  zrbfc_load_vessel "${z_vessel_dir}"
-
-  test "${RBRV_VESSEL_MODE}" = "conjure" \
-    || buc_die "Ifrit vessel must be conjure mode (got: ${RBRV_VESSEL_MODE})"
-  test -f "${RBRV_CONJURE_DOCKERFILE}" \
-    || buc_die "Dockerfile not found: ${RBRV_CONJURE_DOCKERFILE}"
-  test -d "${RBRV_CONJURE_BLDCONTEXT}" \
-    || buc_die "Build context not found: ${RBRV_CONJURE_BLDCONTEXT}"
-
-  # Resolve base image from vessel config
-  local z_build_args=()
-  local z_slot="" z_origin_var="" z_origin=""
-  for z_slot in 1 2 3; do
-    z_origin_var="RBRV_IMAGE_${z_slot}_ORIGIN"
-    z_origin="${!z_origin_var:-}"
-    test -n "${z_origin}" || continue
-    z_build_args+=("--build-arg" "RBF_IMAGE_${z_slot}=${z_origin}")
-    buc_info "Image slot ${z_slot}: ${z_origin}"
-  done
-  test ${#z_build_args[@]} -gt 0 || buc_die "No RBRV_IMAGE_n_ORIGIN found in vessel config"
-
-  # Constant consecration (no timestamps — rebuild overwrites same tag)
-  local -r z_consecration="kdev"
-
-  # Construct image refs matching compose/vouch-gate format
-  local -r z_image_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBRV_SIGIL}:${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}"
-  local -r z_vouch_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBRV_SIGIL}:${z_consecration}${RBGC_ARK_SUFFIX_VOUCH}"
-
-  buc_step "Ifrit kludge build"
-  buc_info "Consecration: ${z_consecration} (constant)"
-  buc_info "Image tag: ${z_image_ref}"
-
-  docker build \
-    "${z_build_args[@]}" \
-    -f "${RBRV_CONJURE_DOCKERFILE}" \
-    -t "${z_image_ref}" \
-    "${RBRV_CONJURE_BLDCONTEXT}" \
-    || buc_die "Docker build failed for ifrit vessel"
-
-  # Create vouch alias (satisfies charge vouch gate)
-  docker tag "${z_image_ref}" "${z_vouch_ref}" \
-    || buc_die "Failed to create vouch tag"
-
-  # Persist consecration to output directory
-  echo "${z_consecration}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}" \
-    || buc_die "Failed to write consecration to output"
-
-  buc_success "Ifrit kludge build complete"
-  buc_bare ""
-  buc_bare "  Consecration: ${z_consecration}"
-  buc_bare "  Image:        ${z_image_ref}"
-  buc_bare "  Vouch:        ${z_vouch_ref}"
-  buc_bare ""
-  buc_bare "  Set in nameplate .env:"
-  buc_bare "    RBRN_BOTTLE_CONSECRATION=${z_consecration}"
+  buc_bare "  Auto-install via: tt/rbw-cK.Kludge.{moniker}.sh"
 }
 
 ######################################################################

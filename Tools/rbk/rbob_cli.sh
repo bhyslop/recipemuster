@@ -99,6 +99,8 @@ zrbob_furnish() {
   buc_doc_env "BUZ_FOLIO             " "Nameplate moniker (e.g., tadmor)"
   buc_doc_env_done || return 0
 
+  local z_command="${1:-}"
+
   source "${BURD_CONFIG_DIR}/rbbc_constants.sh"
   local z_rbk_kit_dir="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}"
   source "${BURD_BUK_DIR}/buv_validation.sh"
@@ -145,6 +147,17 @@ zrbob_furnish() {
   zrbgd_kindle
   zrbgo_kindle
   zrbob_kindle
+
+  # Differential kindle: foundry modules for kludge/ordain commands
+  case "${z_command}" in
+    rbob_kludge)
+      zrbfc_kindle
+      ;;
+    rbob_ordain)
+      zrbfc_kindle
+      zrbfd_kindle
+      ;;
+  esac
 
   zbuz_kindle
   zrbz_kindle

@@ -148,6 +148,8 @@ zrbob_kindle() {
   export RBRR_DNS_SERVER
   export RBRR_BOTTLE_WORKSPACE
 
+  readonly ZRBOB_DRIVE_PREFIX="${BURD_TEMP_DIR}/rbob_drive_"
+
   readonly ZRBOB_KINDLED=1
 }
 
@@ -266,6 +268,11 @@ rbob_charge() {
 
   buc_step "Starting crucible: ${RBRN_MONIKER}"
 
+  # Gate: nameplate must have no uncommitted changes
+  if ! git diff --quiet -- "${ZRBOB_ENV_RBRN}" 2>/dev/null; then
+    buc_die "Nameplate has uncommitted changes: ${ZRBOB_ENV_RBRN} — commit before charging"
+  fi
+
   # Cross-nameplate validation (silent on success, dies on conflict)
   rbrn_preflight
 
@@ -367,6 +374,112 @@ rbob_ifrit_sortie() {
   buc_step "Running ifrit sortie adjutant in bottle: ${ZRBOB_BOTTLE}"
   ${ZRBOB_RUNTIME} exec -w "${RBRR_BOTTLE_WORKSPACE}" "${ZRBOB_BOTTLE}" \
     python3 rbtia_adjutant.py "$@"
+}
+
+######################################################################
+# Drive Consecration — rewrite a single RBRN_*_CONSECRATION line in nameplate env
+# Args: nameplate_file variable_name new_consecration
+
+zrbob_drive_consecration() {
+  local -r z_file="$1"
+  local -r z_var_name="$2"
+  local -r z_new_value="$3"
+
+  test -f "${z_file}" || buc_die "Nameplate file not found: ${z_file}"
+  test -n "${z_var_name}" || buc_die "Variable name required"
+  test -n "${z_new_value}" || buc_die "New consecration value required"
+
+  # Load file into array (BCG load-then-iterate)
+  local z_lines=()
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    z_lines+=("${z_line}")
+  done < "${z_file}"
+
+  # Rewrite with substitution
+  local -r z_temp="${ZRBOB_DRIVE_PREFIX}${z_var_name}"
+  : > "${z_temp}" || buc_die "Failed to create temp file: ${z_temp}"
+
+  local z_found=0
+  local z_i="" z_current=""
+  for z_i in "${!z_lines[@]}"; do
+    z_current="${z_lines[$z_i]}"
+    case "${z_current}" in
+      "${z_var_name}"=*)
+        z_current="${z_var_name}=${z_new_value}"
+        z_found=1
+        ;;
+    esac
+    printf '%s\n' "${z_current}" >> "${z_temp}" || buc_die "Failed to write line"
+  done
+
+  test "${z_found}" = "1" || buc_die "Variable ${z_var_name} not found in ${z_file}"
+
+  # Atomic replace
+  mv "${z_temp}" "${z_file}" || buc_die "Failed to replace nameplate file: ${z_file}"
+
+  buc_info "Drove ${z_var_name}=${z_new_value} → ${z_file}"
+}
+
+######################################################################
+# Kludge — build bottle vessel locally and drive consecration into nameplate
+
+rbob_kludge() {
+  zrbob_sentinel
+  zrbfc_sentinel
+
+  buc_doc_brief "Build bottle vessel locally and drive consecration into nameplate"
+  buc_doc_shown || return 0
+
+  buc_step "Kludge: ${RBRN_MONIKER} (${RBRN_BOTTLE_VESSEL})"
+
+  # Resolve vessel from nameplate config
+  local -r z_vessel_dir="${RBRR_VESSEL_DIR}/${RBRN_BOTTLE_VESSEL}"
+  test -d "${z_vessel_dir}" || buc_die "Bottle vessel directory not found: ${z_vessel_dir}"
+
+  # Delegate build to foundry kludge
+  rbfd_kludge "${z_vessel_dir}"
+
+  # Read consecration from fact file
+  local z_consecration=""
+  z_consecration=$(<"${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}") \
+    || buc_die "Failed to read consecration from kludge output"
+  test -n "${z_consecration}" || buc_die "Empty consecration from kludge output"
+
+  # Drive consecration into nameplate
+  zrbob_drive_consecration "${ZRBOB_ENV_RBRN}" "RBRN_BOTTLE_CONSECRATION" "${z_consecration}"
+
+  buc_success "Kludge installed: ${z_consecration} → ${RBRN_MONIKER}"
+}
+
+######################################################################
+# Ordain — cloud-build bottle vessel and drive consecration into nameplate
+
+rbob_ordain() {
+  zrbob_sentinel
+  zrbfd_sentinel
+
+  buc_doc_brief "Ordain bottle vessel via cloud build and drive consecration into nameplate"
+  buc_doc_shown || return 0
+
+  buc_step "Ordain: ${RBRN_MONIKER} (${RBRN_BOTTLE_VESSEL})"
+
+  # Resolve vessel from nameplate config
+  local -r z_vessel_dir="${RBRR_VESSEL_DIR}/${RBRN_BOTTLE_VESSEL}"
+  test -d "${z_vessel_dir}" || buc_die "Bottle vessel directory not found: ${z_vessel_dir}"
+
+  # Delegate to foundry ordain (mode-dispatched: conjure, bind, or graft)
+  rbfd_ordain "${z_vessel_dir}"
+
+  # Read consecration from fact file
+  local z_consecration=""
+  z_consecration=$(<"${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}") \
+    || buc_die "Failed to read consecration from ordain output"
+  test -n "${z_consecration}" || buc_die "Empty consecration from ordain output"
+
+  # Drive consecration into nameplate
+  zrbob_drive_consecration "${ZRBOB_ENV_RBRN}" "RBRN_BOTTLE_CONSECRATION" "${z_consecration}"
+
+  buc_success "Ordain installed: ${z_consecration} → ${RBRN_MONIKER}"
 }
 
 # eof
