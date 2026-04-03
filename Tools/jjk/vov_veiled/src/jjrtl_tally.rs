@@ -30,7 +30,7 @@ pub struct jjrtl_ReviseDocketArgs {
 
 /// Run the revise_docket procedure within the dispatch lifecycle.
 ///
-/// Receives &mut Gallops from dispatcher. Returns output text.
+/// Receives &mut Gallops from dispatcher. Returns diff of old vs new docket.
 /// Lock, load, and persist are owned by the dispatcher (jjsodp_command_lifecycle).
 pub fn jjrtl_run_revise_docket(
     gallops: &mut Gallops,
@@ -41,9 +41,57 @@ pub fn jjrtl_run_revise_docket(
     let basis = crate::jjru_util::jjrg_capture_commit_sha();
     let ts = crate::jjrc_core::jjrc_timestamp_full();
 
-    gallops.jjrg_revise_docket(coronet, docket, &basis, &ts)?;
+    let ctx = gallops.jjrg_revise_docket(coronet, docket, &basis, &ts)?;
 
-    Ok(String::new())
+    Ok(jjrtl_diff_docket(&ctx.text, docket))
+}
+
+/// Generate a line-level diff between old and new docket text.
+///
+/// Uses longest-common-subsequence to produce unified-style output:
+/// unchanged lines shown as-is, removed lines prefixed with "- ",
+/// added lines prefixed with "+ ".
+fn jjrtl_diff_docket(old: &str, new: &str) -> String {
+    let old_lines: Vec<&str> = old.lines().collect();
+    let new_lines: Vec<&str> = new.lines().collect();
+    let m = old_lines.len();
+    let n = new_lines.len();
+
+    // Build LCS table
+    let mut dp = vec![vec![0u32; n + 1]; m + 1];
+    for i in (0..m).rev() {
+        for j in (0..n).rev() {
+            dp[i][j] = if old_lines[i] == new_lines[j] {
+                dp[i + 1][j + 1] + 1
+            } else {
+                dp[i + 1][j].max(dp[i][j + 1])
+            };
+        }
+    }
+
+    // Walk the table to emit diff lines
+    let mut result = String::new();
+    let mut i = 0;
+    let mut j = 0;
+    while i < m || j < n {
+        if i < m && j < n && old_lines[i] == new_lines[j] {
+            // Context line — skip to keep output compact
+            i += 1;
+            j += 1;
+        } else if i < m && (j >= n || dp[i + 1][j] >= dp[i][j + 1]) {
+            result.push_str("- ");
+            result.push_str(old_lines[i]);
+            result.push('\n');
+            i += 1;
+        } else {
+            result.push_str("+ ");
+            result.push_str(new_lines[j]);
+            result.push('\n');
+            j += 1;
+        }
+    }
+
+    result
 }
 
 /// Arguments for jjx_relabel command
@@ -208,4 +256,65 @@ pub fn jjrtl_run_drop(args: jjrtl_DropArgs) -> (i32, String) {
         }
     }
     // lock released here
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn jjrtl_diff_identical_texts_empty() {
+        let text = "line one\nline two\nline three";
+        assert_eq!(jjrtl_diff_docket(text, text), "");
+    }
+
+    #[test]
+    fn jjrtl_diff_empty_to_content() {
+        let result = jjrtl_diff_docket("", "added line");
+        assert_eq!(result, "+ added line\n");
+    }
+
+    #[test]
+    fn jjrtl_diff_content_to_empty() {
+        let result = jjrtl_diff_docket("removed line", "");
+        assert_eq!(result, "- removed line\n");
+    }
+
+    #[test]
+    fn jjrtl_diff_single_line_changed() {
+        let result = jjrtl_diff_docket("old line", "new line");
+        assert_eq!(result, "- old line\n+ new line\n");
+    }
+
+    #[test]
+    fn jjrtl_diff_line_added_in_middle() {
+        let old = "first\nthird";
+        let new = "first\nsecond\nthird";
+        let result = jjrtl_diff_docket(old, new);
+        assert_eq!(result, "+ second\n");
+    }
+
+    #[test]
+    fn jjrtl_diff_line_removed_from_middle() {
+        let old = "first\nsecond\nthird";
+        let new = "first\nthird";
+        let result = jjrtl_diff_docket(old, new);
+        assert_eq!(result, "- second\n");
+    }
+
+    #[test]
+    fn jjrtl_diff_line_replaced_in_context() {
+        let old = "## Docket\nold requirement\n### Verification\nrun tests";
+        let new = "## Docket\nnew requirement\n### Verification\nrun tests";
+        let result = jjrtl_diff_docket(old, new);
+        assert_eq!(result, "- old requirement\n+ new requirement\n");
+    }
+
+    #[test]
+    fn jjrtl_diff_multiple_changes() {
+        let old = "alpha\nbeta\ngamma\ndelta";
+        let new = "alpha\nBETA\ngamma\nDELTA";
+        let result = jjrtl_diff_docket(old, new);
+        assert_eq!(result, "- beta\n+ BETA\n- delta\n+ DELTA\n");
+    }
 }

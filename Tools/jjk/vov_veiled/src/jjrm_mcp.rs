@@ -971,16 +971,30 @@ impl jjrm_McpServer {
                     };
                     let first_coronet = pairs[0].0.clone();
                     jjrm_dispatch_pace(cmd, &first_coronet, |gallops| {
+                        let mut diffs = Vec::new();
                         for (coronet, docket) in &pairs {
-                            jjrtl_run_revise_docket(gallops, coronet, docket)?;
+                            let diff = jjrtl_run_revise_docket(gallops, coronet, docket)?;
+                            if !diff.is_empty() {
+                                diffs.push(format!("--- ₢{} reslate diff ---\n{}", coronet, diff));
+                            }
                         }
-                        Ok(format!("Revised {} pace(s)", pairs.len()))
+                        let mut output = format!("Revised {} pace(s)", pairs.len());
+                        if !diffs.is_empty() {
+                            output.push_str("\n\n");
+                            output.push_str(&diffs.join("\n"));
+                        }
+                        Ok(output)
                     })
                 } else {
                     match (p.coronet, p.docket) {
                         (Some(coronet), Some(docket)) => {
                             jjrm_dispatch_pace(cmd, &coronet, |gallops| {
-                                jjrtl_run_revise_docket(gallops, &coronet, &docket)
+                                let diff = jjrtl_run_revise_docket(gallops, &coronet, &docket)?;
+                                let mut output = "Revised 1 pace(s)".to_string();
+                                if !diff.is_empty() {
+                                    output.push_str(&format!("\n\n--- ₢{} reslate diff ---\n{}", coronet, diff));
+                                }
+                                Ok(output)
                             })
                         }
                         _ => Ok(CallToolResult::error(vec![Content::text(
