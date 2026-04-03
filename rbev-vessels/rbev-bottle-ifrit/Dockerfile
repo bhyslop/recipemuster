@@ -24,6 +24,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     netcat-openbsd  \
     traceroute      \
     strace          \
+    libcap2-bin     \
     && rm -rf /var/lib/apt/lists/*
 
 # Layer-cached dependency build: copy manifests first, dummy compile
@@ -37,8 +38,11 @@ RUN mkdir src && echo 'fn main() {}' > src/main.rs && \
 COPY src/ src/
 RUN cargo build --release
 
-# Install binary to standard location
-RUN cp target/release/rbid /usr/local/bin/rbid
+# Install binary to standard location with CAP_NET_RAW file capability.
+# Container cap_add only populates the bounding set; non-root ifrit user
+# needs file capabilities to get NET_RAW in effective set for raw sockets.
+RUN cp target/release/rbid /usr/local/bin/rbid && \
+    setcap cap_net_raw+ep /usr/local/bin/rbid
 
 # Create unprivileged ifrit user
 RUN useradd -m -s /bin/bash ifrit

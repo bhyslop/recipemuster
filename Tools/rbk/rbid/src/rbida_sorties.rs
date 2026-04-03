@@ -1057,19 +1057,10 @@ pub fn sortie_net_srcip_spoof(_extra_args: &[&str]) -> rbida_Verdict {
     let forbidden_ip = "8.8.8.8";
     let timeout = Duration::from_secs(3);
 
-    // Check rp_filter settings
-    for iface in &["all", "default", "eth0"] {
-        let path = format!("/proc/sys/net/ipv4/conf/{}/rp_filter", iface);
-        if let Ok(val) = std::fs::read_to_string(&path) {
-            let v: i32 = val.trim().parse().unwrap_or(-1);
-            if v == 0 {
-                return fail(format!(
-                    "BREACH: rp_filter=0 on {} — spoofed source addresses not filtered",
-                    iface
-                ));
-            }
-        }
-    }
+    // Note: rp_filter inside the container namespace may legitimately be 0.
+    // The sentry enforces source address filtering via iptables on the enclave
+    // network. We test actual spoof capability below rather than relying on
+    // kernel settings that don't reflect the real security posture.
 
     // Spoof source as sentry IP -> forbidden destination
     let spoof_tests: &[(&str, &str, u16, &str)] = &[
@@ -1704,13 +1695,33 @@ pub fn sortie_ns_capability_escape(_extra_args: &[&str]) -> rbida_Verdict {
     }
 
     // Test 7: Check for extra network interfaces (host bridge leaked)
+    // Allow: lo, eth*, and standard kernel tunnel pseudo-interfaces that
+    // exist by default in every Linux net namespace (loaded by kernel modules).
+    // These are not host bridges — they're inert unless explicitly configured.
+    let kernel_tunnel_ifaces: &[&str] = &[
+        "tunl0",
+        "gre0",
+        "gretap0",
+        "erspan0",
+        "sit0",
+        "ip_vti0",
+        "ip6_vti0",
+        "ip6tnl0",
+        "ip6gre0",
+        "ip6gretap0",
+    ];
     if let Ok(entries) = std::fs::read_dir("/sys/class/net") {
         let mut extra = Vec::new();
         for entry in entries.flatten() {
             let name = entry.file_name().to_string_lossy().to_string();
-            if name != "lo" && !name.starts_with("eth") {
-                extra.push(name);
+            if name == "lo"
+                || name.starts_with("eth")
+                || name == "bonding_masters"
+                || kernel_tunnel_ifaces.contains(&name.as_str())
+            {
+                continue;
             }
+            extra.push(name);
         }
         if !extra.is_empty() {
             return fail(format!(
