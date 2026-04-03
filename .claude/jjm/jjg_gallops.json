@@ -255,6 +255,7 @@
       "creation_time": "260401",
       "status": "racing",
       "order": [
+        "₢A1AAd",
         "₢A1AAL",
         "₢A1AAA",
         "₢A1AAK",
@@ -285,7 +286,7 @@
         "₢A1AAT",
         "₢A1AAc"
       ],
-      "next_pace_seed": "AAd",
+      "next_pace_seed": "AAe",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -961,6 +962,17 @@
               "text": "## Character\nDesign-heavy coordination work — each test requires careful orchestration of writ observation around ifrit attacks. Follows the snapshot-attack-resnap pattern established in pace S (coordinated ARP tests). May need 1-2 new ifrit primitives (DNS forge, MAC flood) but the primary complexity is in theurge observation logic.\n\n## Docket\n\nAdd three coordinated security tests that verify the *persistence* of sentry security controls under active attack. Unlike unilateral tests (verdict from ifrit exit code), these use theurge to observe sentry state before and after ifrit attacks.\n\n### New coordinated tests\n\n**Sentry process integrity post-attack** — Run a battery of existing ifrit attacks (dns-blocked-google, direct-arp-poison, proto-smuggle-rawsock), then verify via writ that: (1) dnsmasq process is still running, (2) iptables rules match the pre-attack snapshot (no rules flushed or added), (3) sentry's network interfaces haven't changed. This is a meta-test — it verifies that exercising the security boundary doesn't degrade it.\n\n**DNS cache integrity under attack** — New ifrit primitive sends forged DNS UDP responses to sentry's dnsmasq port (crafted packets claiming google.com resolves to 1.2.3.4). Theurge snapshots frozen DNS records via writ dig before and after, verifies they haven't changed. Tests the resolve-then-freeze invariant: in allowlist mode there's no upstream server= directive, so dnsmasq should ignore unsolicited responses.\n\n**MAC flooding bridge resilience** — New ifrit primitive sends Ethernet frames from many fake source MACs via AF_PACKET (similar infrastructure to ARP sorties). Theurge verifies sentry→bottle connectivity survives the flood by running writ/fiat commands before and after. Tests L2 fabric resilience — existing ARP tests target the L3 ARP table, this targets the bridge's MAC learning table.\n\n### Implementation\n\n- 1-2 new ifrit attack primitives in `rbida_Attack` (dns-forge-response, mac-flood-bridge) + sortie implementations\n- 3 new coordinated cases in `rbtdrc_crucible.rs` following snapshot-attack-resnap pattern\n- New `tadmor-coordinated-integrity` section (distinct from existing `tadmor-coordinated-attacks` which covers ARP)\n\n### Acceptance\n\n- All 3 new coordinated cases pass\n- Total tadmor case count grows by 3 (to 40 if combined with unilateral pace)\n- Sentry integrity test exercises at least 3 different attack types before checking\n- No regressions in existing cases\n- Full crucible suite green",
               "silks": "coordinated-security-integrity-verification",
               "commit": "613f118"
+            }
+          ]
+        },
+        "₢A1AAd": {
+          "tacks": [
+            {
+              "ts": "260403-0830",
+              "state": "rough",
+              "text": "## Character\nSmall, precise spec work — add a missing formal definition.\n\n## Docket\nVessel is used throughout RBS0 but has no `[[rbtga_vessel]]` quoin definition. Add one in the Ark Definitions section (near line 1577), capturing: the container image specification in the regime that defines what to build, with a mode (conjure/bind/graft). Reference its relationship to ark (build output) and consecration (version stamp).",
+              "silks": "add-vessel-quoin-to-rbs0",
+              "commit": "2e8b22c"
             }
           ]
         }
