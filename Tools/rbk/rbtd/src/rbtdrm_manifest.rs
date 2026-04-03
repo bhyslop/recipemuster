@@ -31,7 +31,7 @@ pub const RBTDRM_COLOPHON_ORDAIN: &str = "rbw-DO";
 pub const RBTDRM_COLOPHON_ABJURE: &str = "rbw-DA";
 pub const RBTDRM_COLOPHON_WREST: &str = "rbw-Rw";
 pub const RBTDRM_COLOPHON_TALLY: &str = "rbw-Dt";
-pub const RBTDRM_COLOPHON_KLUDGE: &str = "rbw-ak";
+pub const RBTDRM_COLOPHON_KLUDGE: &str = "rbw-LK";
 
 // Crucible active check (param1 channel — nameplate as argument)
 pub const RBTDRM_COLOPHON_CRUCIBLE_ACTIVE: &str = "rbw-ca";
