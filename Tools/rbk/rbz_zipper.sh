@@ -75,7 +75,7 @@ zrbz_kindle() {
   buz_enroll RBZ_PLUMB_COMPACT            "rbw-Rpc"      "rbfc_cli.sh" "rbfc_plumb_compact"
   buz_enroll RBZ_TALLY_CONSECRATIONS        "rbw-Dt"       "rbfl_cli.sh" "rbfl_tally"
   buz_enroll RBZ_VOUCH_CONSECRATIONS        "rbw-DV"       "rbfv_cli.sh" "rbfv_batch_vouch"
-  buz_enroll RBZ_KLUDGE_VESSEL             "rbw-ak"       "${z_mod}" "rbfd_kludge"
+  buz_enroll RBZ_KLUDGE_VESSEL             "rbw-LK"       "${z_mod}" "rbfd_kludge"
 
   # Regime operations
   z_mod="rbrn_cli.sh"
@@ -120,8 +120,8 @@ zrbz_kindle() {
   buz_enroll RBZ_CRUCIBLE_WRIT  "rbw-cw" "${z_mod}" "rbob_writ"          "imprint"
   buz_enroll RBZ_CRUCIBLE_FIAT  "rbw-cf" "${z_mod}" "rbob_fiat"          "imprint"
   buz_enroll RBZ_CRUCIBLE_BARK  "rbw-cb" "${z_mod}" "rbob_bark"          "imprint"
-  buz_enroll RBZ_CRUCIBLE_KLUDGE "rbw-cK" "${z_mod}" "rbob_kludge"        "imprint"
-  buz_enroll RBZ_CRUCIBLE_ORDAIN "rbw-cO" "${z_mod}" "rbob_ordain"        "imprint"
+  buz_enroll RBZ_THEURGE_KLUDGE  "rbw-Tk" "${z_mod}" "rbob_kludge"        "imprint"
+  buz_enroll RBZ_THEURGE_ORDAIN  "rbw-To" "${z_mod}" "rbob_ordain"        "imprint"
   buz_enroll RBZ_BOTTLE_IFRIT   "rbw-Ic" "${z_mod}" "rbob_ifrit_client"  "imprint"
   buz_enroll RBZ_BOTTLE_SORTIE  "rbw-Is" "${z_mod}" "rbob_ifrit_sortie"  "imprint"
 

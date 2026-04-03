@@ -43,7 +43,7 @@ zrbtw_resolve_manifest() {
     tadmor|srjcl|pluml)
       echo "rbw-cC rbw-cQ rbw-cw rbw-cf rbw-cb" ;;
     four-mode)
-      echo "rbw-DO rbw-DA rbw-Rw rbw-Dt rbw-ak" ;;
+      echo "rbw-DO rbw-DA rbw-Rw rbw-Dt rbw-LK" ;;
     access-probe)
       echo "rbtd-ap" ;;
     enrollment-validation|regime-validation|regime-smoke)

@@ -153,7 +153,7 @@ All credential files require `600` permissions and must never be committed to ve
 | `rbw-DV` | DirectorVouchesConsecrations | Mode-aware vouch: SLSA (conjure), digest-pin (bind), GRAFTED (graft) |
 | `rbw-DA` | DirectorAbjuresConsecration | Abjure a consecration (delete artifacts from GAR) |
 | `rbw-DJ` | DirectorJettisonsImage | Jettison a specific image tag from registry |
-| `rbw-ak` | ArkKludge | Kludge a vessel image locally for development |
+| `rbw-LK` | LocalKludge | Kludge a vessel image locally for development |
 
 ### Retrieval & Plumb (Retriever role)
 
@@ -175,6 +175,13 @@ All credential files require `600` permissions and must never be committed to ve
 | `rbw-cs` | Scry | Observe network traffic on crucible containers |
 | `rbw-Ic` | IfritClient | Launch Claude Code inside a running bottle for escape testing |
 | `rbw-Is` | IfritSortie | Run automated security test scripts inside the bottle |
+
+### Theurge Iteration (imprint = nameplate moniker)
+
+| Colophon | Frontispiece | Purpose |
+|----------|-------------|---------|
+| `rbw-Tk` | KludgeCycle | Local kludge build + install consecration into nameplate |
+| `rbw-To` | OrdainCycle | Cloud build + install consecration into nameplate |
 
 ### Qualification & Testing
 
