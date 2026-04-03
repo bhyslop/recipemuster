@@ -1128,6 +1128,13 @@
         "₢A1AAh": {
           "tacks": [
             {
+              "ts": "260403-1037",
+              "state": "complete",
+              "text": "## Character\nMechanical verification — no code changes, just running suites and investigating any failures.\n\n## Docket\nRun the crucible test suite to verify that the tectonic colophon reorganization didn't break any live colophon usage paths. The fast suite verifies colophon health and regime validation, but crucible actually exercises colophons through charge/writ/fiat/bark/ordain operations against real containers.\n\n**Prerequisite**: ₢A1AAb (tectonic-colophon-reorganization) must be complete.\n\n### Work items\n- Run `tt/rbtd-s.TestSuite.crucible.sh` (117 cases — exercises container runtime colophons)\n- If available, run `tt/rbtd-s.TestSuite.service.sh` (80 cases — exercises GCP credential colophons)\n- Investigate and fix any failures (colophon references in Cloud Build JSON templates, bottle exec paths, etc.)\n\n### Verification\n- Crucible suite green\n- Service suite green (if credentials available)\n\n### Acceptance\n- All colophon usage paths verified through live execution\n- No stale colophon references remain in runtime paths",
+              "silks": "crucible-verification-after-colophon-reorg",
+              "commit": "58d4dc7"
+            },
+            {
               "ts": "260403-0935",
               "state": "rough",
               "text": "## Character\nMechanical verification — no code changes, just running suites and investigating any failures.\n\n## Docket\nRun the crucible test suite to verify that the tectonic colophon reorganization didn't break any live colophon usage paths. The fast suite verifies colophon health and regime validation, but crucible actually exercises colophons through charge/writ/fiat/bark/ordain operations against real containers.\n\n**Prerequisite**: ₢A1AAb (tectonic-colophon-reorganization) must be complete.\n\n### Work items\n- Run `tt/rbtd-s.TestSuite.crucible.sh` (117 cases — exercises container runtime colophons)\n- If available, run `tt/rbtd-s.TestSuite.service.sh` (80 cases — exercises GCP credential colophons)\n- Investigate and fix any failures (colophon references in Cloud Build JSON templates, bottle exec paths, etc.)\n\n### Verification\n- Crucible suite green\n- Service suite green (if credentials available)\n\n### Acceptance\n- All colophon usage paths verified through live execution\n- No stale colophon references remain in runtime paths",
