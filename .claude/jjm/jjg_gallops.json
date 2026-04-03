@@ -280,9 +280,10 @@
         "₢A1AAV",
         "₢A1AAX",
         "₢A1AAT",
-        "₢A1AAZ"
+        "₢A1AAZ",
+        "₢A1AAa"
       ],
-      "next_pace_seed": "AAa",
+      "next_pace_seed": "AAb",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -883,6 +884,17 @@
               "text": "## Character\nMechanical wiring — zipper enrollment, tabtarget creation, and function implementation following established patterns.\n\n## Docket\nAdd `rbw-cKB.KludgeBottle.sh` tabtarget that takes a nameplate as CLI argument (like `rbw-cr.Rack.sh`, not imprinted per-nameplate).\n\nWork items:\n- Enroll `rbw-cKB` colophon in `rbz_zipper.sh` with `param1` mode, routing to a new function in `rbob_cli.sh` or `rbob_bottle.sh`\n- Create `tt/rbw-cKB.KludgeBottle.sh` launcher (standard 3-line pattern)\n- Implement the kludge-bottle function: rebuild vessel image locally (`LK` logic) and re-charge into the running crucible\n- Reuses `zrbob_furnish` nameplate-listing-when-missing behavior via `param1` zipper enrollment\n\n## Context\n- Design discussion established `cKB` over `cK` — the `B` documents bottle scope even without a sentry counterpart\n- Follows `rbw-cr.Rack.sh` precedent: crucible command, argument-based nameplate, no imprints\n- Spec: RBSAK-ark_kludge.adoc describes the existing `LK` kludge operation",
               "silks": "kludge-bottle-crucible-tabtarget",
               "commit": "157ef9e"
+            }
+          ]
+        },
+        "₢A1AAa": {
+          "tacks": [
+            {
+              "ts": "260402-2312",
+              "state": "rough",
+              "text": "## Character\nResearch and design — need to understand what the old Python test actually verified, then determine the right Rust implementation strategy. WebSocket protocol interaction from a compiled binary is non-trivial; may need a crate dependency (tungstenite or similar) which means a tethered kludge for the ifrit vessel.\n\n## Docket\n\nThe `rbtdrc_srjcl_websocket_kernel` theurge case fails because it still shells out to `Tools/rbk/rbts/rbt_test_srjcl.py`, which was deleted in pace J (retire-bash-test-and-python-sortie-infrastructure). The case needs to be reimplemented in pure Rust.\n\n### Research Phase\n- Recover the deleted `rbt_test_srjcl.py` from git history — understand exactly what it tested\n- Document what Jupyter WebSocket kernel interaction involves (protocol, endpoints, message format)\n- Determine whether the test verifies kernel availability, code execution, or both\n- Check what the other two passing srjcl cases (`_running`, `_connectivity`) already cover\n\n### Design Phase\n- Evaluate Rust WebSocket options: raw TCP with HTTP upgrade vs crate (tungstenite, tokio-tungstenite)\n- If a crate is needed, assess ifrit vessel impact (new dependency = tethered kludge, layer cache invalidation)\n- Consider whether the test belongs in ifrit (inside bottle) or theurge (from host via fiat/bark)\n- Alternative: could a simpler HTTP-based check achieve equivalent coverage without full WebSocket?\n\n### Implementation\n- Build the Rust replacement\n- If ifrit dependency added, rebuild vessel\n- Verify all 3 srjcl cases pass\n\n### Acceptance\n- `rbtdrc_srjcl_websocket_kernel` passes\n- Full srjcl fixture: 3 pass, 0 fail\n- No new crate dependencies added without explicit justification",
+              "silks": "reimplement-srjcl-websocket-kernel-test",
+              "commit": "57b2536"
             }
           ]
         }
