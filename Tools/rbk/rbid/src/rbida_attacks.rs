@@ -95,6 +95,13 @@ pub enum rbida_Attack {
     ArpSendGratuitous,
     /// Send targeted ARP reply poisoning gateway entry — theurge checks sentry ARP table
     ArpSendGatewayPoison,
+    // ── Novel unilateral attacks ──
+    /// Route table manipulation — attempt ip route replace/add to bypass sentry gateway
+    NetRouteManipulation,
+    /// Enclave subnet escape — probe hosts outside /24 enclave within bridge network range
+    NetEnclaveSubnetEscape,
+    /// DNAT entry port reflection — TCP connect to sentry entry port from inside bottle
+    NetDnatEntryReflection,
 }
 
 // ── Verdict ─────────────────────────────────────────────────────
@@ -143,6 +150,9 @@ impl rbida_Attack {
             "ns-capability-escape" => Some(Self::NsCapabilityEscape),
             "arp-send-gratuitous" => Some(Self::ArpSendGratuitous),
             "arp-send-gateway-poison" => Some(Self::ArpSendGatewayPoison),
+            "net-route-manipulation" => Some(Self::NetRouteManipulation),
+            "net-enclave-subnet-escape" => Some(Self::NetEnclaveSubnetEscape),
+            "net-dnat-entry-reflection" => Some(Self::NetDnatEntryReflection),
             _ => None,
         }
     }
@@ -182,6 +192,9 @@ impl rbida_Attack {
             Self::NsCapabilityEscape => "ns-capability-escape",
             Self::ArpSendGratuitous => "arp-send-gratuitous",
             Self::ArpSendGatewayPoison => "arp-send-gateway-poison",
+            Self::NetRouteManipulation => "net-route-manipulation",
+            Self::NetEnclaveSubnetEscape => "net-enclave-subnet-escape",
+            Self::NetDnatEntryReflection => "net-dnat-entry-reflection",
         }
     }
 
@@ -220,6 +233,9 @@ impl rbida_Attack {
             "ns-capability-escape",
             "arp-send-gratuitous",
             "arp-send-gateway-poison",
+            "net-route-manipulation",
+            "net-enclave-subnet-escape",
+            "net-dnat-entry-reflection",
         ]
     }
 }
@@ -355,6 +371,10 @@ pub fn rbida_run(attack: &rbida_Attack, extra_args: &[&str]) -> rbida_Verdict {
         // Coordinated attack primitives — execute action, theurge judges outcome
         rbida_Attack::ArpSendGratuitous => rbida_sorties::sortie_arp_send_gratuitous(extra_args),
         rbida_Attack::ArpSendGatewayPoison => rbida_sorties::sortie_arp_send_gateway_poison(extra_args),
+        // Novel unilateral attacks
+        rbida_Attack::NetRouteManipulation => rbida_sorties::sortie_net_route_manipulation(extra_args),
+        rbida_Attack::NetEnclaveSubnetEscape => rbida_sorties::sortie_net_enclave_subnet_escape(extra_args),
+        rbida_Attack::NetDnatEntryReflection => rbida_sorties::sortie_net_dnat_entry_reflection(extra_args),
     }
 }
 

@@ -1782,6 +1782,269 @@ pub fn sortie_arp_send_gratuitous(_extra_args: &[&str]) -> rbida_Verdict {
     }
 }
 
+// ── Novel unilateral attacks ─────────────────────────────────
+
+/// Route table manipulation — attempt ip route replace/add to bypass sentry gateway.
+/// Verifies container lacks CAP_NET_ADMIN to modify routing table.
+pub fn sortie_net_route_manipulation(_extra_args: &[&str]) -> rbida_Verdict {
+    let sentry_ip = match env_require("RBRN_ENCLAVE_SENTRY_IP") {
+        Ok(v) => v,
+        Err(e) => return fail(format!("ERROR: {}", e)),
+    };
+
+    let mut diagnostics = Vec::new();
+
+    // Attempt 1: Replace default route to bypass sentry
+    let replace_result = Command::new("ip")
+        .args(["route", "replace", "default", "via", "127.0.0.1"])
+        .output();
+    match &replace_result {
+        Ok(output) => {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            if output.status.success() {
+                return fail(format!(
+                    "BREACH: ip route replace default succeeded — routing table writable, sentry bypass possible"
+                ));
+            }
+            diagnostics.push(format!(
+                "ip route replace default: blocked (exit {}, {})",
+                output.status.code().unwrap_or(-1),
+                stderr.trim()
+            ));
+        }
+        Err(e) => {
+            diagnostics.push(format!("ip route replace default: exec failed ({})", e));
+        }
+    }
+
+    // Attempt 2: Add a route to an external network bypassing sentry
+    let add_result = Command::new("ip")
+        .args(["route", "add", "192.168.99.0/24", "via", &sentry_ip])
+        .output();
+    match &add_result {
+        Ok(output) => {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            if output.status.success() {
+                // Clean up if it somehow succeeded
+                let _ = Command::new("ip")
+                    .args(["route", "del", "192.168.99.0/24"])
+                    .output();
+                return fail(format!(
+                    "BREACH: ip route add succeeded — container can inject arbitrary routes"
+                ));
+            }
+            diagnostics.push(format!(
+                "ip route add 192.168.99.0/24: blocked (exit {}, {})",
+                output.status.code().unwrap_or(-1),
+                stderr.trim()
+            ));
+        }
+        Err(e) => {
+            diagnostics.push(format!("ip route add: exec failed ({})", e));
+        }
+    }
+
+    // Attempt 3: Delete existing default route
+    let del_result = Command::new("ip")
+        .args(["route", "del", "default"])
+        .output();
+    match &del_result {
+        Ok(output) => {
+            if output.status.success() {
+                return fail(format!(
+                    "BREACH: ip route del default succeeded — container can remove its own routes"
+                ));
+            }
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            diagnostics.push(format!(
+                "ip route del default: blocked (exit {}, {})",
+                output.status.code().unwrap_or(-1),
+                stderr.trim()
+            ));
+        }
+        Err(e) => {
+            diagnostics.push(format!("ip route del default: exec failed ({})", e));
+        }
+    }
+
+    pass(format!(
+        "SECURE: route table immutable — all modification attempts blocked. {}",
+        diagnostics.join("; ")
+    ))
+}
+
+/// Enclave subnet escape — probe hosts outside /24 enclave within bridge network range.
+/// Distinct from net_forbidden_cidr which tests internet-routable destinations.
+pub fn sortie_net_enclave_subnet_escape(_extra_args: &[&str]) -> rbida_Verdict {
+    let base_ip = match env_require("RBRN_ENCLAVE_BASE_IP") {
+        Ok(v) => v,
+        Err(e) => return fail(format!("ERROR: {}", e)),
+    };
+    let netmask: u32 = match env_require("RBRN_ENCLAVE_NETMASK") {
+        Ok(v) => match v.parse() {
+            Ok(n) => n,
+            Err(_) => return fail(format!("ERROR: bad RBRN_ENCLAVE_NETMASK: {}", v)),
+        },
+        Err(e) => return fail(format!("ERROR: {}", e)),
+    };
+
+    let octets: Vec<u8> = match base_ip
+        .split('.')
+        .map(|s| s.parse::<u8>())
+        .collect::<Result<Vec<_>, _>>()
+    {
+        Ok(v) if v.len() == 4 => v,
+        _ => return fail(format!("ERROR: bad RBRN_ENCLAVE_BASE_IP: {}", base_ip)),
+    };
+    let base_u32 =
+        ((octets[0] as u32) << 24) | ((octets[1] as u32) << 16) | ((octets[2] as u32) << 8) | (octets[3] as u32);
+
+    let timeout = Duration::from_millis(1500);
+    let mut diagnostics = Vec::new();
+
+    // Compute probe targets outside the enclave /24 (or whatever netmask) but
+    // within plausible bridge network ranges
+    let enclave_mask = if netmask >= 32 { !0u32 } else { !0u32 << (32 - netmask) };
+    let enclave_net = base_u32 & enclave_mask;
+
+    // Probe: next subnet up (.1 host in adjacent /24)
+    let adjacent_up = (enclave_net | (1u32 << (32 - netmask))) | 1;
+    // Probe: subnet below (wrap-safe)
+    let adjacent_down = enclave_net.wrapping_sub(256) | 1;
+    // Probe: far end of the /16 range
+    let far_end = (base_u32 & 0xFFFF0000) | 0x0000FF01; // x.x.255.1
+
+    let probe_targets = [
+        (adjacent_up, "adjacent subnet +1"),
+        (adjacent_down, "adjacent subnet -1"),
+        (far_end, "far end of /16 range"),
+    ];
+
+    for (ip_u32, label) in &probe_targets {
+        // Skip if target falls within enclave subnet
+        if (*ip_u32 & enclave_mask) == enclave_net {
+            diagnostics.push(format!("{}: skipped (within enclave)", label));
+            continue;
+        }
+        let ip_str = format!(
+            "{}.{}.{}.{}",
+            (*ip_u32 >> 24) & 0xFF,
+            (*ip_u32 >> 16) & 0xFF,
+            (*ip_u32 >> 8) & 0xFF,
+            *ip_u32 & 0xFF
+        );
+        // TCP probe on common ports
+        for &port in &[80u16, 443, 53] {
+            let (connected, refused, _) = tcp_probe(&ip_str, port, timeout);
+            if connected || refused {
+                return fail(format!(
+                    "BREACH: TCP {}:{} ({}) — {} (packet escaped enclave subnet)",
+                    ip_str,
+                    port,
+                    label,
+                    if connected { "CONNECTED" } else { "REFUSED" }
+                ));
+            }
+        }
+        diagnostics.push(format!("{} ({}): unreachable", label, ip_str));
+    }
+
+    pass(format!(
+        "SECURE: enclave subnet isolation enforced — no response from outside /{}. {}",
+        netmask,
+        diagnostics.join("; ")
+    ))
+}
+
+/// DNAT entry port reflection — focused test of sentry DNAT asymmetry.
+/// The sentry DNATs the entry port for external (transit) access to the bottle.
+/// From inside the enclave, the entry port should be unreachable on the sentry.
+pub fn sortie_net_dnat_entry_reflection(_extra_args: &[&str]) -> rbida_Verdict {
+    let sentry_ip = match env_require("RBRN_ENCLAVE_SENTRY_IP") {
+        Ok(v) => v,
+        Err(e) => return fail(format!("ERROR: {}", e)),
+    };
+    let ws_port: u16 = match env_require("RBRN_ENTRY_PORT_WORKSTATION") {
+        Ok(v) => match v.parse() {
+            Ok(p) => p,
+            Err(_) => return fail(format!("ERROR: bad RBRN_ENTRY_PORT_WORKSTATION: {}", v)),
+        },
+        Err(e) => return fail(format!("ERROR: {}", e)),
+    };
+    let enc_port: u16 = match env_require("RBRN_ENTRY_PORT_ENCLAVE") {
+        Ok(v) => match v.parse() {
+            Ok(p) => p,
+            Err(_) => return fail(format!("ERROR: bad RBRN_ENTRY_PORT_ENCLAVE: {}", v)),
+        },
+        Err(e) => return fail(format!("ERROR: {}", e)),
+    };
+
+    let timeout = Duration::from_secs(2);
+    let mut diagnostics = Vec::new();
+
+    // Test 1: Workstation-facing entry port on sentry (the DNAT target)
+    let (ws_connected, ws_refused, ws_err) = tcp_probe(&sentry_ip, ws_port, timeout);
+    if ws_connected {
+        return fail(format!(
+            "BREACH: sentry {}:{} (workstation entry port) — CONNECTED from enclave. \
+             DNAT rule is accepting enclave-originated connections",
+            sentry_ip, ws_port
+        ));
+    }
+    diagnostics.push(format!(
+        "workstation port {}:{}: {} ({})",
+        sentry_ip,
+        ws_port,
+        if ws_refused { "refused" } else { "timeout" },
+        ws_err.as_deref().unwrap_or("clean timeout")
+    ));
+
+    // Test 2: Enclave-side entry port on sentry
+    if enc_port != ws_port {
+        let (enc_connected, enc_refused, enc_err) = tcp_probe(&sentry_ip, enc_port, timeout);
+        if enc_connected {
+            return fail(format!(
+                "BREACH: sentry {}:{} (enclave entry port) — CONNECTED from enclave. \
+                 Enclave-side entry port exposed on sentry",
+                sentry_ip, enc_port
+            ));
+        }
+        diagnostics.push(format!(
+            "enclave port {}:{}: {} ({})",
+            sentry_ip,
+            enc_port,
+            if enc_refused { "refused" } else { "timeout" },
+            enc_err.as_deref().unwrap_or("clean timeout")
+        ));
+    }
+
+    // Test 3: Verify the bottle's own enclave IP doesn't expose the entry port
+    // (DNAT should not reflect back to the bottle itself)
+    if let Ok(bottle_ip) = env_require("RBRN_ENCLAVE_BOTTLE_IP") {
+        let (bottle_connected, bottle_refused, bottle_err) = tcp_probe(&bottle_ip, enc_port, timeout);
+        // Connected is expected if a service is listening — that's the bottle's own port.
+        // Refused is normal (no listener). Only flag if the port shows behavior inconsistent
+        // with what the bottle itself runs.
+        diagnostics.push(format!(
+            "bottle self {}:{}: {}",
+            bottle_ip,
+            enc_port,
+            if bottle_connected {
+                "listening (expected — bottle service port)"
+            } else if bottle_refused {
+                "refused (no listener)"
+            } else {
+                bottle_err.as_deref().unwrap_or("timeout")
+            }
+        ));
+    }
+
+    pass(format!(
+        "SECURE: DNAT entry ports unreachable from enclave — asymmetry enforced. {}",
+        diagnostics.join("; ")
+    ))
+}
+
 pub fn sortie_arp_send_gateway_poison(_extra_args: &[&str]) -> rbida_Verdict {
     let sentry_ip = match env_require("RBRN_ENCLAVE_SENTRY_IP") {
         Ok(v) => v,

@@ -429,6 +429,20 @@ fn rbtdrc_sortie_ns_capability_escape(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "ns-capability-escape", dir))
 }
 
+// ── Novel unilateral attack cases (bark-only) ────────────────
+
+fn rbtdrc_sortie_net_route_manipulation(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "net-route-manipulation", dir))
+}
+
+fn rbtdrc_sortie_net_enclave_subnet_escape(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "net-enclave-subnet-escape", dir))
+}
+
+fn rbtdrc_sortie_net_dnat_entry_reflection(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "net-dnat-entry-reflection", dir))
+}
+
 // ── Coordinated attack cases (writ observes sentry, bark attacks) ──
 
 /// Parse `ip neigh show` output into (IP, MAC) pairs.
@@ -1432,6 +1446,14 @@ static RBTDRC_SECTIONS_TADMOR: &[rbtdre_Section] = &[
             case!(rbtdrc_sortie_net_fragment_evasion),
             case!(rbtdrc_sortie_direct_arp_poison),
             case!(rbtdrc_sortie_ns_capability_escape),
+        ],
+    },
+    rbtdre_Section {
+        name: "tadmor-unilateral-novel",
+        cases: &[
+            case!(rbtdrc_sortie_net_route_manipulation),
+            case!(rbtdrc_sortie_net_enclave_subnet_escape),
+            case!(rbtdrc_sortie_net_dnat_entry_reflection),
         ],
     },
     rbtdre_Section {
