@@ -74,10 +74,10 @@ fn rbtdtm_rejects_unknown_fixture() {
 
 #[test]
 fn rbtdtm_accepts_fast_fixtures() {
-    // Fast-tier fixtures have no colophon requirements — any manifest string passes
-    assert!(rbtdrm_verify("fast", RBTDRM_FIXTURE_ENROLLMENT_VALIDATION).is_ok());
-    assert!(rbtdrm_verify("fast", RBTDRM_FIXTURE_REGIME_VALIDATION).is_ok());
-    assert!(rbtdrm_verify("fast", RBTDRM_FIXTURE_REGIME_SMOKE).is_ok());
-    // Even empty manifest works since no colophons required
-    assert!(rbtdrm_verify("", RBTDRM_FIXTURE_ENROLLMENT_VALIDATION).is_ok());
+    // Fast-tier fixtures have no colophon requirements — empty manifest passes
+    let manifest = rbtdtm_manifest_for(RBTDRM_FIXTURE_ENROLLMENT_VALIDATION);
+    assert!(manifest.is_empty());
+    assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_ENROLLMENT_VALIDATION).is_ok());
+    assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_REGIME_VALIDATION).is_ok());
+    assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_REGIME_SMOKE).is_ok());
 }
