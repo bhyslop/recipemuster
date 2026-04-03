@@ -302,7 +302,7 @@ rbob_charge() {
 
   # Tear down any prior state (tolerates missing project)
   buc_step "Cleaning up any prior state"
-  zrbob_compose down --remove-orphans 2>/dev/null || true
+  zrbob_compose --profile sessile down --remove-orphans 2>/dev/null || true
 
   # Defensive check: another compose project may hold a network on our subnet
   # (e.g., nsproto containers died without compose-down, blocking tadmor's subnet)
@@ -328,7 +328,7 @@ rbob_quench() {
 
   buc_step "Stopping crucible: ${RBRN_MONIKER}"
 
-  zrbob_compose down --remove-orphans
+  zrbob_compose --profile sessile down --remove-orphans
 
   buc_step "Crucible stopped: ${RBRN_MONIKER}"
 }

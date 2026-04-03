@@ -113,6 +113,25 @@ fn run_suite(args: &[String]) -> ExitCode {
             }
         }
 
+        // Lifecycle assertion: crucible must be active after charge
+        eprintln!("Verifying crucible is active after charge...");
+        match rbtdri_invoke_global(&mut ctx, RBTDRM_COLOPHON_CRUCIBLE_ACTIVE, &[fixture], &[]) {
+            Ok(r) if r.exit_code == 0 => {
+                eprintln!("Crucible active confirmed");
+            }
+            Ok(r) => {
+                eprintln!(
+                    "Lifecycle assertion failed: crucible not active after charge (exit {})\n{}",
+                    r.exit_code, r.stderr
+                );
+                return ExitCode::FAILURE;
+            }
+            Err(e) => {
+                eprintln!("CrucibleActive invocation failed after charge: {}", e);
+                return ExitCode::FAILURE;
+            }
+        }
+
         // Service readiness delay (srjcl/pluml need services to start)
         if rbtdrc_needs_readiness_delay(fixture) {
             eprintln!(
@@ -140,6 +159,23 @@ fn run_suite(args: &[String]) -> ExitCode {
             Ok(r) if r.exit_code == 0 => eprintln!("Crucible quenched"),
             Ok(r) => eprintln!("Warning: quench exited {}", r.exit_code),
             Err(e) => eprintln!("Warning: quench invocation failed: {}", e),
+        }
+
+        // Lifecycle assertion: crucible must be inactive after quench
+        eprintln!("Verifying crucible is inactive after quench...");
+        match rbtdri_invoke_global(&mut ctx, RBTDRM_COLOPHON_CRUCIBLE_ACTIVE, &[fixture], &[]) {
+            Ok(r) if r.exit_code != 0 => {
+                eprintln!("Crucible inactive confirmed");
+            }
+            Ok(r) => {
+                eprintln!(
+                    "Warning: crucible still active after quench (exit {})",
+                    r.exit_code
+                );
+            }
+            Err(e) => {
+                eprintln!("Warning: CrucibleActive invocation failed after quench: {}", e);
+            }
         }
     }
 
