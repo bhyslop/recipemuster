@@ -69,6 +69,17 @@ zbuz_resolve_tabtarget_capture() {
 }
 
 ######################################################################
+# Group declaration (no-op category annotation for colophon taxonomy)
+
+# buz_group() - Declare a colophon group category
+# Args: constant_name, prefix, description
+# Currently a no-op — documents the group taxonomy without affecting dispatch.
+buz_group() {
+  zbuz_sentinel
+  :
+}
+
+######################################################################
 # Public enroll (kindle-only registry population)
 
 # buz_enroll() - Register colophon tuple in parallel rolls

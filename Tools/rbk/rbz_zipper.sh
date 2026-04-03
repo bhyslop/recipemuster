@@ -33,6 +33,21 @@ zrbz_kindle() {
   # Verify buz zipper is kindled (CLI furnish must kindle buz first)
   zbuz_sentinel
 
+  # Colophon group taxonomy (pre-rename actor-organized categories)
+  buz_group RBZ__GROUP_PAYOR      "rbw-P"   "Payor depot and governor operations"
+  buz_group RBZ__GROUP_GUIDE      "rbw-g"   "Human-directed procedures"
+  buz_group RBZ__GROUP_MARSHAL    "rbw-M"   "Lifecycle marshal"
+  buz_group RBZ__GROUP_GOVERNOR   "rbw-G"   "Governor service account operations"
+  buz_group RBZ__GROUP_DIRECTOR   "rbw-D"   "Director foundry operations"
+  buz_group RBZ__GROUP_LEDGER     "rbw-L"   "Ledger local operations"
+  buz_group RBZ__GROUP_RETRIEVER  "rbw-R"   "Retriever operations"
+  buz_group RBZ__GROUP_REGIME     "rbw-r"   "Regime config files"
+  buz_group RBZ__GROUP_NAMEPLATE  "rbw-n"   "Cross-nameplate operations"
+  buz_group RBZ__GROUP_CRUCIBLE   "rbw-c"   "Crucible container runtime"
+  buz_group RBZ__GROUP_THEURGE    "rbw-T"   "Theurge test infrastructure"
+  buz_group RBZ__GROUP_IFRIT      "rbw-I"   "Ifrit attack binary"
+  buz_group RBZ__GROUP_QUALIFY    "rbw-Q"   "Qualification operations"
+
   # Payor depot/governor commands
   local z_mod="rbgp_cli.sh"
   buz_enroll RBZ_LEVY_DEPOT                 "rbw-PL"       "${z_mod}" "rbgp_depot_levy"
