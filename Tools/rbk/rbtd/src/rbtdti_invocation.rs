@@ -20,6 +20,7 @@ use std::path::PathBuf;
 
 use super::rbtdre_engine::rbtdre_Verdict;
 use super::rbtdri_invocation::*;
+use super::rbtdrm_manifest::RBTDRM_COLOPHON_ORDAIN;
 
 fn rbtdti_make_temp(label: &str) -> PathBuf {
     let dir = std::env::temp_dir().join(format!("rbtd-test-{}-{}", std::process::id(), label));
@@ -335,11 +336,12 @@ fn rbtdti_invoke_returns_burv_output_path() {
 fn rbtdti_find_global_matches() {
     let tmp = rbtdti_make_temp("global-match");
     let tt = rbtdti_make_tt_dir(&tmp);
-    rbtdti_write_script(&tt, "rbw-DO.DirectorOrdains.sh", "exit 0\n");
+    let script_name = format!("{}.DirectorOrdains.sh", RBTDRM_COLOPHON_ORDAIN);
+    rbtdti_write_script(&tt, &script_name, "exit 0\n");
 
-    let result = rbtdri_find_tabtarget_global(&tmp, "rbw-DO");
+    let result = rbtdri_find_tabtarget_global(&tmp, RBTDRM_COLOPHON_ORDAIN);
     assert!(result.is_ok());
-    assert!(result.unwrap().file_name().unwrap().to_str().unwrap() == "rbw-DO.DirectorOrdains.sh");
+    assert!(result.unwrap().file_name().unwrap().to_str().unwrap() == script_name);
 
     let _ = std::fs::remove_dir_all(&tmp);
 }
@@ -349,9 +351,10 @@ fn rbtdti_find_global_rejects_imprint_suffix() {
     let tmp = rbtdti_make_temp("global-imprint");
     let tt = rbtdti_make_tt_dir(&tmp);
     // Only an imprint-scoped tabtarget — global discovery should not find it
-    rbtdti_write_script(&tt, "rbw-DO.DirectorOrdains.tadmor.sh", "exit 0\n");
+    let script_name = format!("{}.DirectorOrdains.tadmor.sh", RBTDRM_COLOPHON_ORDAIN);
+    rbtdti_write_script(&tt, &script_name, "exit 0\n");
 
-    let result = rbtdri_find_tabtarget_global(&tmp, "rbw-DO");
+    let result = rbtdri_find_tabtarget_global(&tmp, RBTDRM_COLOPHON_ORDAIN);
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("no global tabtarget"));
 
@@ -363,7 +366,7 @@ fn rbtdti_find_global_rejects_no_match() {
     let tmp = rbtdti_make_temp("global-nomatch");
     let _tt = rbtdti_make_tt_dir(&tmp);
 
-    let result = rbtdri_find_tabtarget_global(&tmp, "rbw-DO");
+    let result = rbtdri_find_tabtarget_global(&tmp, RBTDRM_COLOPHON_ORDAIN);
     assert!(result.is_err());
 
     let _ = std::fs::remove_dir_all(&tmp);
@@ -375,9 +378,10 @@ fn rbtdti_find_global_rejects_no_match() {
 fn rbtdti_invoke_global_passes_extra_env() {
     let tmp = rbtdti_make_temp("invoke-global-env");
     let tt = rbtdti_make_tt_dir(&tmp);
+    let script_name = format!("{}.DirectorOrdains.sh", RBTDRM_COLOPHON_ORDAIN);
     rbtdti_write_script(
         &tt,
-        "rbw-DO.DirectorOrdains.sh",
+        &script_name,
         "echo \"TWEAK:${BURE_TWEAK_NAME}\"\n",
     );
 
@@ -385,7 +389,7 @@ fn rbtdti_invoke_global_passes_extra_env() {
     let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_root);
     let result = rbtdri_invoke_global(
         &mut ctx,
-        "rbw-DO",
+        RBTDRM_COLOPHON_ORDAIN,
         &[],
         &[("BURE_TWEAK_NAME", "threemodegraft")],
     )
