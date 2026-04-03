@@ -3,3 +3,6 @@ name = "rbtd"
 version = "0.1.0"
 edition = "2021"
 description = "Theurge — crucible test orchestrator for Recipe Bottle"
+
+[dependencies]
+tungstenite = "0.24"

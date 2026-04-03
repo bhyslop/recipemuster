@@ -729,10 +729,6 @@ fn rbtdrc_coordinated_arp_table_stability(dir: &Path) -> rbtdre_Verdict {
 
 // ── Host-side helpers (HTTP probes, port discovery) ──────────
 
-/// Test container image for Python networking tests (srjcl WebSocket).
-const RBTDRC_SRJCL_TEST_IMAGE: &str =
-    "ghcr.io/bhyslop/recipemuster:rbtest_python_networking.20250215__171409";
-
 /// Read RBRN_ENTRY_PORT_WORKSTATION from the nameplate's rbrn.env file.
 fn rbtdrc_read_nameplate_port(ctx: &rbtdri_Context) -> Result<u16, String> {
     let env_path = ctx
@@ -872,69 +868,311 @@ fn rbtdrc_srjcl_websocket_kernel(dir: &Path) -> rbtdre_Verdict {
             Ok(p) => p,
             Err(e) => return rbtdre_Verdict::Fail(format!("port discovery: {}", e)),
         };
-        let test_script = ctx
-            .project_root()
-            .join("Tools/rbk/rbts/rbt_test_srjcl.py");
-        let script_content = match std::fs::read_to_string(&test_script) {
-            Ok(c) => c,
-            Err(e) => {
+        let base = format!("http://localhost:{}", port);
+
+        // Step 1: GET /lab to obtain XSRF cookie
+        let xsrf = match rbtdrc_curl_get_cookie(&base, "/lab", "_xsrf") {
+            Ok(v) => v,
+            Err(e) => return rbtdre_Verdict::Fail(format!("XSRF fetch: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("xsrf-token.txt"), &xsrf);
+
+        // Step 2: POST /api/sessions to create a kernel
+        let session_body = r#"{"kernel":{"name":"python3"},"name":"test.ipynb","path":"test.ipynb","type":"notebook"}"#;
+        let session_json = match rbtdrc_curl_post_json(
+            &format!("{}/api/sessions", base),
+            session_body,
+            &xsrf,
+        ) {
+            Ok(j) => j,
+            Err(e) => return rbtdre_Verdict::Fail(format!("session create: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("session-response.json"), &session_json);
+
+        let kernel_id = match rbtdrc_extract_json_string(&session_json, "kernel", "id") {
+            Some(id) => id,
+            None => {
                 return rbtdre_Verdict::Fail(format!(
-                    "cannot read test script {}: {}",
-                    test_script.display(),
-                    e
+                    "no kernel.id in session response: {}",
+                    session_json
+                ))
+            }
+        };
+        let session_id = match rbtdrc_extract_json_string_top(&session_json, "id") {
+            Some(id) => id,
+            None => {
+                return rbtdre_Verdict::Fail(format!(
+                    "no id in session response: {}",
+                    session_json
                 ))
             }
         };
 
-        let mut child = match Command::new("docker")
-            .args([
-                "run",
-                "--rm",
-                "-i",
-                "--network",
-                "host",
-                "-e",
-                &format!("RBRN_ENTRY_PORT_WORKSTATION={}", port),
-                RBTDRC_SRJCL_TEST_IMAGE,
-                "python3",
-                "-",
-            ])
-            .stdin(Stdio::piped())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .spawn()
-        {
-            Ok(c) => c,
-            Err(e) => {
-                return rbtdre_Verdict::Fail(format!("docker run spawn failed: {}", e))
-            }
-        };
-        let _ = child
-            .stdin
-            .take()
-            .unwrap()
-            .write_all(script_content.as_bytes());
-        let output = match child.wait_with_output() {
-            Ok(o) => o,
-            Err(e) => {
-                return rbtdre_Verdict::Fail(format!("docker run wait failed: {}", e))
-            }
-        };
+        // Step 3: WebSocket connect to kernel channels
+        let ws_url = format!(
+            "ws://localhost:{}/api/kernels/{}/channels",
+            port, kernel_id
+        );
+        let ws_result = rbtdrc_websocket_kernel_execute(&ws_url, &xsrf, dir);
 
-        let stdout = String::from_utf8_lossy(&output.stdout).into_owned();
-        let stderr = String::from_utf8_lossy(&output.stderr).into_owned();
-        let _ = std::fs::write(dir.join("docker-stdout.txt"), &stdout);
-        let _ = std::fs::write(dir.join("docker-stderr.txt"), &stderr);
+        // Step 4: Clean up session (best-effort)
+        let _ = rbtdrc_curl_delete(
+            &format!("{}/api/sessions/{}", base, session_id),
+            &xsrf,
+        );
 
-        let exit_code = output.status.code().unwrap_or(-1);
-        if exit_code != 0 {
-            return rbtdre_Verdict::Fail(format!(
-                "Python WebSocket test exited {}\nstdout: {}\nstderr: {}",
-                exit_code, stdout, stderr
-            ));
-        }
-        rbtdre_Verdict::Pass
+        ws_result
     })
+}
+
+/// Curl GET returning a specific Set-Cookie value.
+fn rbtdrc_curl_get_cookie(base: &str, path: &str, cookie_name: &str) -> Result<String, String> {
+    let url = format!("{}{}", base, path);
+    let output = Command::new("curl")
+        .args([
+            "-s",
+            "-D", "-",           // dump headers to stdout
+            "-o", "/dev/null",   // discard body
+            "--connect-timeout", "5",
+            "--max-time", "10",
+            "-H", "User-Agent: Mozilla/5.0",
+        ])
+        .arg(&url)
+        .output()
+        .map_err(|e| format!("curl exec failed: {}", e))?;
+    let headers = String::from_utf8_lossy(&output.stdout);
+    for line in headers.lines() {
+        if let Some(rest) = line.to_lowercase().strip_prefix("set-cookie:") {
+            let rest = rest.trim();
+            if let Some(cv) = rest.strip_prefix(&format!("{}=", cookie_name)) {
+                let value = cv.split(';').next().unwrap_or("").trim().to_string();
+                if !value.is_empty() {
+                    return Ok(value);
+                }
+            }
+        }
+    }
+    Err(format!("cookie '{}' not found in response headers", cookie_name))
+}
+
+/// Curl POST with JSON body and XSRF token, returns response body.
+fn rbtdrc_curl_post_json(url: &str, body: &str, xsrf: &str) -> Result<String, String> {
+    let mut child = Command::new("curl")
+        .args([
+            "-s",
+            "--connect-timeout", "5",
+            "--max-time", "10",
+            "-X", "POST",
+            "-H", "Content-Type: application/json",
+        ])
+        .arg("-H")
+        .arg(format!("X-XSRFToken: {}", xsrf))
+        .arg("-b")
+        .arg(format!("_xsrf={}", xsrf))
+        .arg("--data-binary")
+        .arg("@-")
+        .arg(url)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .map_err(|e| format!("curl POST spawn failed: {}", e))?;
+    child
+        .stdin
+        .take()
+        .unwrap()
+        .write_all(body.as_bytes())
+        .map_err(|e| format!("curl POST write failed: {}", e))?;
+    let output = child
+        .wait_with_output()
+        .map_err(|e| format!("curl POST wait failed: {}", e))?;
+    if !output.status.success() {
+        return Err(format!(
+            "curl POST exited {}: {}",
+            output.status.code().unwrap_or(-1),
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+    Ok(String::from_utf8_lossy(&output.stdout).into_owned())
+}
+
+/// Curl DELETE with XSRF token (best-effort cleanup).
+fn rbtdrc_curl_delete(url: &str, xsrf: &str) -> Result<(), String> {
+    Command::new("curl")
+        .args([
+            "-s",
+            "--connect-timeout", "5",
+            "--max-time", "10",
+            "-X", "DELETE",
+        ])
+        .arg("-H")
+        .arg(format!("X-XSRFToken: {}", xsrf))
+        .arg("-b")
+        .arg(format!("_xsrf={}", xsrf))
+        .arg(url)
+        .output()
+        .map_err(|e| format!("curl DELETE failed: {}", e))?;
+    Ok(())
+}
+
+/// Minimal JSON string extraction: obj.key.subkey (no serde dependency).
+fn rbtdrc_extract_json_string(json: &str, key: &str, subkey: &str) -> Option<String> {
+    let needle = format!("\"{}\"", key);
+    let pos = json.find(&needle)?;
+    let rest = &json[pos + needle.len()..];
+    let sub_needle = format!("\"{}\"", subkey);
+    let sub_pos = rest.find(&sub_needle)?;
+    let after = &rest[sub_pos + sub_needle.len()..];
+    rbtdrc_extract_quoted_value(after)
+}
+
+/// Minimal JSON string extraction: obj.key (top-level).
+fn rbtdrc_extract_json_string_top(json: &str, key: &str) -> Option<String> {
+    let needle = format!("\"{}\"", key);
+    let pos = json.find(&needle)?;
+    let after = &json[pos + needle.len()..];
+    rbtdrc_extract_quoted_value(after)
+}
+
+fn rbtdrc_extract_quoted_value(s: &str) -> Option<String> {
+    // skip whitespace and colon, find opening quote
+    let trimmed = s.trim_start();
+    let rest = trimmed.strip_prefix(':')?;
+    let rest = rest.trim_start();
+    let rest = rest.strip_prefix('"')?;
+    let end = rest.find('"')?;
+    Some(rest[..end].to_string())
+}
+
+/// Connect via WebSocket, execute a trivial Python expression, verify result.
+fn rbtdrc_websocket_kernel_execute(
+    ws_url: &str,
+    xsrf: &str,
+    dir: &Path,
+) -> rbtdre_Verdict {
+    use tungstenite::client::connect_with_config;
+    use tungstenite::http::Request;
+    use tungstenite::Message;
+
+    // Build HTTP request with cookies
+    // Extract host:port from ws URL for Host header
+    let host_port = ws_url
+        .strip_prefix("ws://")
+        .and_then(|s| s.split('/').next())
+        .unwrap_or("localhost");
+
+    let request = match Request::builder()
+        .uri(ws_url)
+        .header("Host", host_port)
+        .header("Cookie", format!("_xsrf={}", xsrf))
+        .header("User-Agent", "Mozilla/5.0")
+        .header("Connection", "Upgrade")
+        .header("Upgrade", "websocket")
+        .header("Sec-WebSocket-Version", "13")
+        .header("Sec-WebSocket-Key", tungstenite::handshake::client::generate_key())
+        .body(())
+    {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("WS request build: {}", e)),
+    };
+
+    let (mut ws, _response) = match connect_with_config(request, None, 3) {
+        Ok(pair) => pair,
+        Err(e) => return rbtdre_Verdict::Fail(format!("WS connect: {}", e)),
+    };
+
+    // Send kernel_info_request to trigger readiness
+    let msg_id_info = "theurge-kernel-info-001";
+    let session_id = "theurge-session-001";
+    let kernel_info_req = format!(
+        r#"{{"header":{{"msg_id":"{}","username":"","session":"{}","msg_type":"kernel_info_request","version":"5.3"}},"parent_header":{{}},"metadata":{{}},"content":{{}},"channel":"shell","buffers":[]}}"#,
+        msg_id_info, session_id
+    );
+    if let Err(e) = ws.send(Message::Text(kernel_info_req)) {
+        return rbtdre_Verdict::Fail(format!("WS send kernel_info: {}", e));
+    }
+
+    // Wait for kernel idle after kernel_info_request
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(15);
+    let mut kernel_ready = false;
+    while std::time::Instant::now() < deadline {
+        let msg = match ws.read() {
+            Ok(m) => m,
+            Err(e) => return rbtdre_Verdict::Fail(format!("WS read (ready): {}", e)),
+        };
+        if let Message::Text(ref text) = msg {
+            let _ = std::fs::write(dir.join("ws-ready-trace.txt"),
+                format!("{}\n---\n", text));
+            if text.contains("\"execution_state\"")
+                && text.contains("\"idle\"")
+                && text.contains("kernel_info_request")
+            {
+                kernel_ready = true;
+                break;
+            }
+        }
+    }
+    if !kernel_ready {
+        let _ = ws.close(None);
+        return rbtdre_Verdict::Fail("timeout waiting for kernel ready".to_string());
+    }
+
+    // Send execute_request: print("Hello from theurge")
+    let msg_id_exec = "theurge-execute-001";
+    let execute_req = format!(
+        r#"{{"header":{{"msg_id":"{}","username":"","session":"{}","msg_type":"execute_request","version":"5.3"}},"parent_header":{{}},"metadata":{{}},"content":{{"code":"print(\"Hello from theurge\")","silent":false,"store_history":true,"user_expressions":{{}},"allow_stdin":false}},"channel":"shell","buffers":[]}}"#,
+        msg_id_exec, session_id
+    );
+    if let Err(e) = ws.send(Message::Text(execute_req)) {
+        return rbtdre_Verdict::Fail(format!("WS send execute: {}", e));
+    }
+
+    // Read messages until we see the stream output or execution goes idle
+    let exec_deadline = std::time::Instant::now() + std::time::Duration::from_secs(15);
+    let mut saw_output = false;
+    let mut execution_idle = false;
+    let mut trace = String::new();
+    while std::time::Instant::now() < exec_deadline {
+        let msg = match ws.read() {
+            Ok(m) => m,
+            Err(e) => {
+                let _ = std::fs::write(dir.join("ws-exec-trace.txt"), &trace);
+                return rbtdre_Verdict::Fail(format!("WS read (exec): {}", e));
+            }
+        };
+        if let Message::Text(ref text) = msg {
+            trace.push_str(text);
+            trace.push_str("\n---\n");
+            // Check for stream output with our expected text
+            if text.contains("\"msg_type\":\"stream\"")
+                || text.contains("\"msg_type\": \"stream\"")
+            {
+                if text.contains("Hello from theurge") {
+                    saw_output = true;
+                }
+            }
+            // Check for execution idle (completion)
+            if text.contains("\"execution_state\"")
+                && text.contains("\"idle\"")
+                && !text.contains("kernel_info_request")
+            {
+                execution_idle = true;
+                if execution_idle {
+                    break;
+                }
+            }
+        }
+    }
+    let _ = std::fs::write(dir.join("ws-exec-trace.txt"), &trace);
+    let _ = ws.close(None);
+
+    if !saw_output {
+        return rbtdre_Verdict::Fail(format!(
+            "kernel executed but no stream output with expected text (idle={})",
+            execution_idle
+        ));
+    }
+    rbtdre_Verdict::Pass
 }
 
 // ── PLUML PlantUML cases (host-side HTTP probes) ─────────────
