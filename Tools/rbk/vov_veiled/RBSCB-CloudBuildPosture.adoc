@@ -73,9 +73,9 @@ Build requests set `options.logging: CLOUD_LOGGING_ONLY`.
 Log hygiene (no credential echo) was audited during trigger migration script inlining.
 
 **Provenance on demand.**
-`rbfl_tally()` lists all consecrations and queries Container Analysis inline for each per-platform image,
-displaying SLSA build level, build invocation ID, and single-origin verification per consecration.
-Tabtarget: {rbtgo_consecration_tally}.
+`rbfl_tally()` lists all hallmarks and queries Container Analysis inline for each per-platform image,
+displaying SLSA build level, build invocation ID, and single-origin verification per hallmark.
+Tabtarget: {rbtgo_hallmark_tally}.
 
 ===== Pipeline Architecture: Single-Platform Vessels
 
@@ -102,7 +102,7 @@ About steps (`rbgja/`) are embedded in the build job via stitch (combined image+
 4. **per-platform-pullback** — `docker pull --platform` each arch, tag individually
 5. **push-per-platform** — `docker push` each per-platform tag (pre-push for imagetools); capture `cache_after.json` (Docker daemon state post-push)
 6. **imagetools-create** — reassemble consumer-facing manifest list from per-platform tags
-7. **push-diags** — build `FROM scratch` container with build-time diagnostic files (`buildkit_metadata.json`, `cache_before.json`, `cache_after.json`, `recipe.txt`), push as `«CONSECRATION»-diags`
+7. **push-diags** — build `FROM scratch` container with build-time diagnostic files (`buildkit_metadata.json`, `cache_before.json`, `cache_after.json`, `recipe.txt`), push as `«HALLMARK»-diags`
 
 `images:` field declares all per-platform URIs → CB re-pushes (idempotent) and generates SLSA Level 3.
 The reassembled manifest list provides transparent platform resolution to attested per-platform images.
@@ -117,19 +117,19 @@ The reassembled manifest list provides transparent platform resolution to attest
 |`{INSCRIBE_TS}-multi`
 |Intermediate `buildx --push` target (multi-platform only)
 
-|`{CONSECRATION}-image-{SUFFIX}`
-|Per-platform image (persistent, consecration-tagged)
+|`{HALLMARK}-image-{SUFFIX}`
+|Per-platform image (persistent, hallmark-tagged)
 
 |`{INSCRIBE_TS}-image-{SUFFIX}`
 |SLSA alias tag (`images:` field, provenance generation trigger — ephemeral, overwritten on re-conjure)
 
-|`{CONSECRATION}-image`
+|`{HALLMARK}-image`
 |Consumer-facing manifest list (reassembled by `imagetools create`, multi-platform only)
 
-|`{CONSECRATION}-about`
+|`{HALLMARK}-about`
 |Metadata container (build provenance — multi-platform, see About Artifact Contents below)
 
-|`{CONSECRATION}-diags`
+|`{HALLMARK}-diags`
 |Build-time diagnostics container (conjure only — `buildkit_metadata.json`, `cache_before.json`, `cache_after.json`, `recipe.txt`). Pushed by conjure step 07, pulled by about step 01.
 |===
 
@@ -147,7 +147,7 @@ Contents are extracted by {rbtgo_ark_inspect} for trust posture display.
 |Contents
 
 |`build_info.json`
-|Per-platform build metadata: consecration, image URI, moniker, platform, QEMU usage, git coordinates (repo/branch/commit), build timestamps, and SLSA summary (build level, invocation ID, builder ID, predicate types).
+|Per-platform build metadata: hallmark, image URI, moniker, platform, QEMU usage, git coordinates (repo/branch/commit), build timestamps, and SLSA summary (build level, invocation ID, builder ID, predicate types).
 
 |`sbom.json`
 |Syft SPDX JSON output: package inventory with type, name, version, license, and Package URL for every detected package.
@@ -166,7 +166,7 @@ Contents are extracted by {rbtgo_ark_inspect} for trust posture display.
 
 |===
 
-NOTE: The three enrichment files (`buildkit_metadata.json`, `cache_before.json`, `cache_after.json`) are present only for conjure consecrations.
+NOTE: The three enrichment files (`buildkit_metadata.json`, `cache_before.json`, `cache_after.json`) are present only for conjure hallmarks.
 They are forwarded from the `-diags` registry artifact by the about pipeline's step 1.
 For bind and graft, these files are absent and the about artifact contains only `build_info.json`, `sbom.json`, and optionally `recipe.txt`.
 

@@ -2,7 +2,7 @@
 # RBGJAM Step 02: Syft SBOM scan for each platform of -image
 # Builder: gcr.io/cloud-builders/docker
 # Substitutions: _RBGA_GAR_HOST, _RBGA_GAR_PATH, _RBGA_VESSEL,
-#                _RBGA_CONSECRATION, _RBGA_VESSEL_MODE,
+#                _RBGA_HALLMARK, _RBGA_VESSEL_MODE,
 #                _RBGA_ARK_SUFFIX_IMAGE
 #
 # Scans each platform of -image via registry: transport.
@@ -20,7 +20,7 @@ SYFT_IMAGE="${ZRBF_TOOL_SYFT}"
 test -n "${_RBGA_GAR_HOST}"       || { echo "_RBGA_GAR_HOST missing"       >&2; exit 1; }
 test -n "${_RBGA_GAR_PATH}"       || { echo "_RBGA_GAR_PATH missing"       >&2; exit 1; }
 test -n "${_RBGA_VESSEL}"         || { echo "_RBGA_VESSEL missing"         >&2; exit 1; }
-test -n "${_RBGA_CONSECRATION}"   || { echo "_RBGA_CONSECRATION missing"   >&2; exit 1; }
+test -n "${_RBGA_HALLMARK}"   || { echo "_RBGA_HALLMARK missing"   >&2; exit 1; }
 test -n "${_RBGA_VESSEL_MODE}"    || { echo "_RBGA_VESSEL_MODE missing"    >&2; exit 1; }
 test -n "${_RBGA_ARK_SUFFIX_IMAGE}" || { echo "_RBGA_ARK_SUFFIX_IMAGE missing" >&2; exit 1; }
 
@@ -29,7 +29,7 @@ test -s platform_suffixes.txt || { echo "platform_suffixes.txt not found (step 0
 test -s platform_count.txt    || { echo "platform_count.txt not found (step 01)" >&2; exit 1; }
 
 IMAGE_BASE="${_RBGA_GAR_HOST}/${_RBGA_GAR_PATH}/${_RBGA_VESSEL}"
-IMAGE_TAG="${_RBGA_CONSECRATION}${_RBGA_ARK_SUFFIX_IMAGE}"
+IMAGE_TAG="${_RBGA_HALLMARK}${_RBGA_ARK_SUFFIX_IMAGE}"
 PLATFORM_COUNT=$(cat platform_count.txt)
 GAR_AUTHORITY="${_RBGA_GAR_HOST}"
 

@@ -27,13 +27,13 @@ The system uses only `bash`, `git`, `curl`, `openssh`, `jq`, and `docker` native
 |------|---------|
 | **Vessel** | A specification for a container image — built from source (conjure), mirrored from upstream (bind), or pushed from local (graft) |
 | **Ark** | An immutable container image artifact stored in your own Google Artifact Registry, produced from a vessel |
-| **Consecration** | A specific build instance of a vessel, identified by timestamp |
+| **Hallmark** | A specific build instance of a vessel, identified by timestamp |
 | **Vouch** | SLSA provenance verification — proves an ark was built by trusted infrastructure |
 | **Depot** | The logical facility where container images are built and stored (GCP project + bucket + registry) |
 | **Sentry** | Security container that enforces network policies via `iptables` and `dnsmasq` |
 | **Pentacle** | Privileged container that establishes the network namespace shared with the bottle |
 | **Bottle** | Your workload container, running unmodified in a controlled network environment |
-| **Nameplate** | Per-vessel configuration: runtime, vessel names, consecration values |
+| **Nameplate** | Per-vessel configuration: runtime, vessel names, hallmark values |
 
 ## How It Works
 
@@ -151,7 +151,7 @@ This phase involves manual work in the Google Cloud Console: creating a GCP proj
 
 ### Phase 4: Build & Retrieve (Director + Retriever roles)
 
-10. **Ordain consecration** — Build (conjure) or mirror (bind) each vessel's image (typically 10-20 minutes for conjure builds):
+10. **Ordain hallmark** — Build (conjure) or mirror (bind) each vessel's image (typically 10-20 minutes for conjure builds):
     ```
     tt/rbw-DO.DirectorOrdainsConsecration.sh rbev-vessels/<vessel-name>
     ```
@@ -162,16 +162,16 @@ This phase involves manual work in the Google Cloud Console: creating a GCP proj
     tt/rbw-DV.DirectorVouchesConsecrations.sh
     ```
 
-14. **Record consecrations** — Copy the consecration values from the check output into your nameplate regime file:
+14. **Record hallmarks** — Copy the hallmark values from the check output into your nameplate regime file:
     ```
     # Edit .rbk/rbrn_<vessel>.env and set:
-    RBRN_SENTRY_CONSECRATION=c260101120000-r260101130000
-    RBRN_BOTTLE_CONSECRATION=c260101120000-r260101140000
+    RBRN_SENTRY_HALLMARK=c260101120000-r260101130000
+    RBRN_BOTTLE_HALLMARK=c260101120000-r260101140000
     ```
 
 15. **Summon** — Pull vouched images locally (Retriever role):
     ```
-    tt/rbw-Rs.RetrieverSummonsConsecration.sh <vessel-name> <consecration>
+    tt/rbw-Rs.RetrieverSummonsConsecration.sh <vessel-name> <hallmark>
     ```
 
 ## Day-to-Day Operations
@@ -230,7 +230,7 @@ Recipe Bottle uses a Config Regime system — structured configuration with type
 |--------|------|---------|--------|----------|
 | RBRP | `.rbk/rbrp.env` | Payor GCP project identity | `tt/rbw-rpr.*` | `tt/rbw-rpv.*` |
 | RBRR | `.rbk/rbrr.env` | Depot project, region, build config | `tt/rbw-rrr.*` | `tt/rbw-rrv.*` |
-| RBRN | `.rbk/*/rbrn.env` | Per-vessel: runtime, consecrations | `tt/rbw-rnr.*` | `tt/rbw-rnv.*` |
+| RBRN | `.rbk/*/rbrn.env` | Per-vessel: runtime, hallmarks | `tt/rbw-rnr.*` | `tt/rbw-rnv.*` |
 | RBRV | vessel dirs | Container image build definitions | `tt/rbw-rvr.*` | `tt/rbw-rvv.*` |
 | RBRS | station file | Developer machine paths (not in git) | `tt/rbw-rsr.*` | `tt/rbw-rsv.*` |
 
@@ -301,7 +301,7 @@ tt/rbw-QR.QualifyRelease.sh  # Release: + shellcheck, full test suite
 - **Expired tokens**: `tt/rbw-gPR.PayorRefresh.sh`
 - **Compromised governor**: `tt/rbw-PM.PayorMantlesGovernor.sh` (replaces service account, invalidates old credential)
 - **Compromised director/retriever**: `tt/rbw-GF.GovernorForfeitsServiceAccount.sh` to revoke, then re-knight with `tt/rbw-GK.*` or re-charter with `tt/rbw-GC.*`
-- **Lost nameplate values**: Re-run `tt/rbw-Dt.DirectorTalliesConsecrations.sh` to retrieve consecration values from the registry
+- **Lost nameplate values**: Re-run `tt/rbw-Dt.DirectorTalliesConsecrations.sh` to retrieve hallmark values from the registry
 - **Build timeout or failure**: Check build status with `tt/rbw-Dt.DirectorTalliesConsecrations.sh`, review logs in the GCP Console for the depot project
 
 ## Architecture

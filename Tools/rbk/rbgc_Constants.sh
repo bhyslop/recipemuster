@@ -125,7 +125,7 @@ zrbgc_kindle() {
   readonly RBGC_ARK_SUFFIX_DIAGS="-diags"
 
   # Fact-file filenames (written to BURD_OUTPUT_DIR by producers, read by tests)
-  readonly RBF_FACT_CONSECRATION="rbf_fact_consecration"
+  readonly RBF_FACT_HALLMARK="rbf_fact_hallmark"
   readonly RBF_FACT_BUILD_ID="rbf_fact_build_id"
   readonly RBF_FACT_GAR_ROOT="rbf_fact_gar_root"
   readonly RBF_FACT_ARK_STEM="rbf_fact_ark_stem"

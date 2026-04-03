@@ -6,7 +6,7 @@
 #                _RBGY_GAR_HOST_SUFFIX, _RBGY_ARK_SUFFIX_DIAGS
 #
 # Builds a FROM scratch container containing conjure build-time diagnostic files
-# and pushes as consecration-diags. The about pipeline (rbgja01) pulls this
+# and pushes as hallmark-diags. The about pipeline (rbgja01) pulls this
 # artifact and merges its contents into the -about container.
 #
 # Files included:
@@ -28,10 +28,10 @@ test -n "${_RBGY_GAR_HOST_SUFFIX}"     || (echo "_RBGY_GAR_HOST_SUFFIX missing" 
 test -n "${_RBGY_ARK_SUFFIX_DIAGS}"    || (echo "_RBGY_ARK_SUFFIX_DIAGS missing"    >&2; exit 1)
 test -n "${_RBGY_DOCKERFILE}"          || (echo "_RBGY_DOCKERFILE missing"          >&2; exit 1)
 
-test -s .consecration || (echo "consecration not derived" >&2; exit 1)
-CONSECRATION="$(cat .consecration)"
+test -s .hallmark || (echo "hallmark not derived" >&2; exit 1)
+HALLMARK="$(cat .hallmark)"
 
-DIAGS_URI="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${CONSECRATION}${_RBGY_ARK_SUFFIX_DIAGS}"
+DIAGS_URI="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${HALLMARK}${_RBGY_ARK_SUFFIX_DIAGS}"
 
 echo "=== Building -diags artifact ==="
 

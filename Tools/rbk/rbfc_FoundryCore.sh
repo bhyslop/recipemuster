@@ -455,25 +455,25 @@ zrbfc_assemble_vouch_steps() {
 # Plumb (rbw-RpF / rbw-Rpc)
 
 # Internal: core plumb logic shared by full and compact modes
-# Args: vessel consecration mode
+# Args: vessel hallmark mode
 zrbfc_plumb_core() {
   zrbfc_sentinel
 
   local z_vessel="${1:-}"
   z_vessel="${z_vessel##*/}"  # accept directory path or bare moniker
-  local -r z_consecration="${2:-}"
+  local -r z_hallmark="${2:-}"
   local -r z_mode="${3}"
 
   test -n "${z_vessel}"       || buc_die "Vessel parameter required"
-  test -n "${z_consecration}" || buc_die "Consecration parameter required"
+  test -n "${z_hallmark}" || buc_die "Hallmark parameter required"
 
   # Load vessel config (sets RBRV_VESSEL_MODE, RBRV_BIND_IMAGE, etc.)
   local -r z_vessel_dir="${RBRR_VESSEL_DIR}/${z_vessel}"
   zrbfc_load_vessel "${z_vessel_dir}"
 
   # Construct local image references (as tagged by docker pull / summon)
-  local -r z_about_tag="${z_consecration}${RBGC_ARK_SUFFIX_ABOUT}"
-  local -r z_vouch_tag="${z_consecration}${RBGC_ARK_SUFFIX_VOUCH}"
+  local -r z_about_tag="${z_hallmark}${RBGC_ARK_SUFFIX_ABOUT}"
+  local -r z_vouch_tag="${z_hallmark}${RBGC_ARK_SUFFIX_VOUCH}"
   local -r z_about_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${z_vessel}:${z_about_tag}"
   local -r z_vouch_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${z_vessel}:${z_vouch_tag}"
 
@@ -485,7 +485,7 @@ zrbfc_plumb_core() {
   # Bind vessels: use -about if available, fallback to static display
   if test "${RBRV_VESSEL_MODE}" = "bind"; then
     if test "${z_has_about}" = "false"; then
-      zrbfc_plumb_show_bind "${z_vessel}" "${z_consecration}" "${z_mode}"
+      zrbfc_plumb_show_bind "${z_vessel}" "${z_hallmark}" "${z_mode}"
       return 0
     fi
     # Bind vessel with -about: fall through to shared extract+display path
@@ -524,24 +524,24 @@ zrbfc_plumb_core() {
 
   # Display results
   if test "${z_mode}" = "compact"; then
-    zrbfc_plumb_show_compact "${z_vessel}" "${z_consecration}" "${z_extract}" "${z_has_vouch}"
+    zrbfc_plumb_show_compact "${z_vessel}" "${z_hallmark}" "${z_extract}" "${z_has_vouch}"
   else
-    zrbfc_plumb_show_full "${z_vessel}" "${z_consecration}" "${z_extract}" "${z_has_vouch}"
+    zrbfc_plumb_show_full "${z_vessel}" "${z_hallmark}" "${z_extract}" "${z_has_vouch}"
   fi
 }
 
 # Internal: display bind vessel info
-# Args: vessel consecration mode
+# Args: vessel hallmark mode
 zrbfc_plumb_show_bind() {
   zrbfc_sentinel
 
   local -r z_vessel="$1"
-  local -r z_consecration="$2"
+  local -r z_hallmark="$2"
   local -r z_mode="$3"
 
   if test "${z_mode}" = "compact"; then
     echo ""
-    echo "=== ${z_vessel} / ${z_consecration} ==="
+    echo "=== ${z_vessel} / ${z_hallmark} ==="
     echo "  Type: bind | Trust: digest-pin only"
     test -n "${RBRV_BIND_IMAGE:-}" && echo "  Source: ${RBRV_BIND_IMAGE}"
     echo "  No SLSA provenance, SBOM, or build transcript (not built by GCB)"
@@ -551,7 +551,7 @@ zrbfc_plumb_show_bind() {
 
   echo ""
   echo "================================================================"
-  echo "  CONSECRATION PLUMB: ${z_vessel} / ${z_consecration}"
+  echo "  HALLMARK PLUMB: ${z_vessel} / ${z_hallmark}"
   echo "================================================================"
   echo ""
   echo "  Vessel type:  BIND (external image pinned by digest)"
@@ -598,13 +598,13 @@ zrbfc_plumb_show_sections() {
   if test -f "${z_bi}" && test "${z_vessel_mode}" = "bind"; then
     # ── Bind vessel sections ──────────────────────────────────────────
     # Batch extract bind fields from build_info.json
-    local z_bi_moniker="" z_bi_source_img="" z_bi_mirror_ts="" z_bi_consecration=""
+    local z_bi_moniker="" z_bi_source_img="" z_bi_mirror_ts="" z_bi_hallmark=""
     local z_bi_image_uri="" z_bi_git_repo="" z_bi_git_branch="" z_bi_git_commit=""
     jq -r '
       (.moniker // "?"),
       (.source.image_ref // "?"),
       (.build.inscribe_timestamp // "?"),
-      (.build.consecration // "?"),
+      (.build.hallmark // "?"),
       (.image.uri // "?"),
       (.git.repo // "?"),
       (.git.branch // "?"),
@@ -613,7 +613,7 @@ zrbfc_plumb_show_sections() {
     { read -r z_bi_moniker
       read -r z_bi_source_img
       read -r z_bi_mirror_ts
-      read -r z_bi_consecration
+      read -r z_bi_hallmark
       read -r z_bi_image_uri
       read -r z_bi_git_repo
       read -r z_bi_git_branch
@@ -639,7 +639,7 @@ zrbfc_plumb_show_sections() {
     echo "  When the image was mirrored from upstream into GAR."
     echo ""
     echo "  Mirror time:    ${z_bi_mirror_ts}"
-    echo "  Consecration:   ${z_bi_consecration}"
+    echo "  Hallmark:   ${z_bi_hallmark}"
     echo "  Image URI:      ${z_bi_image_uri}"
 
     echo ""
@@ -977,18 +977,18 @@ zrbfc_plumb_show_sections() {
 }
 
 # Internal: display compact vessel info (conjure or bind)
-# Args: vessel consecration extract_dir has_vouch
+# Args: vessel hallmark extract_dir has_vouch
 zrbfc_plumb_show_compact() {
   zrbfc_sentinel
 
   local -r z_vessel="$1"
-  local -r z_consecration="$2"
+  local -r z_hallmark="$2"
   local -r z_dir="$3"
   local -r z_has_vouch="$4"
 
   echo ""
   echo "================================================================"
-  echo "  CONSECRATION PLUMB: ${z_vessel} / ${z_consecration}"
+  echo "  HALLMARK PLUMB: ${z_vessel} / ${z_hallmark}"
   echo "================================================================"
 
   zrbfc_plumb_show_sections "${z_dir}" "${z_has_vouch}"
@@ -1000,12 +1000,12 @@ zrbfc_plumb_show_compact() {
 
 # Internal: display full vessel info (conjure or bind)
 # Adds per-package inventory and Dockerfile (conjure only) to the compact sections.
-# Args: vessel consecration extract_dir has_vouch
+# Args: vessel hallmark extract_dir has_vouch
 zrbfc_plumb_show_full() {
   zrbfc_sentinel
 
   local -r z_vessel="$1"
-  local -r z_consecration="$2"
+  local -r z_hallmark="$2"
   local -r z_dir="$3"
   local -r z_has_vouch="$4"
 
@@ -1013,7 +1013,7 @@ zrbfc_plumb_show_full() {
 
   echo ""
   echo "================================================================"
-  echo "  CONSECRATION PLUMB (FULL): ${z_vessel} / ${z_consecration}"
+  echo "  HALLMARK PLUMB (FULL): ${z_vessel} / ${z_hallmark}"
   echo "================================================================"
 
   zrbfc_plumb_show_sections "${z_dir}" "${z_has_vouch}"
@@ -1081,28 +1081,28 @@ rbfc_plumb_full() {
   zrbfc_sentinel
 
   local z_vessel="${1:-}"
-  local z_consecration="${2:-}"
+  local z_hallmark="${2:-}"
 
-  buc_doc_brief "Plumb a consecration's trust posture (full detail)"
+  buc_doc_brief "Plumb a hallmark's trust posture (full detail)"
   buc_doc_param "vessel" "Vessel name (e.g., rbev-busybox)"
-  buc_doc_param "consecration" "Full consecration (e.g., c260305133650-r260305160530)"
+  buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"
   buc_doc_shown || return 0
 
-  zrbfc_plumb_core "${z_vessel}" "${z_consecration}" "full"
+  zrbfc_plumb_core "${z_vessel}" "${z_hallmark}" "full"
 }
 
 rbfc_plumb_compact() {
   zrbfc_sentinel
 
   local z_vessel="${1:-}"
-  local z_consecration="${2:-}"
+  local z_hallmark="${2:-}"
 
-  buc_doc_brief "Plumb a consecration's trust posture (compact summary)"
+  buc_doc_brief "Plumb a hallmark's trust posture (compact summary)"
   buc_doc_param "vessel" "Vessel name (e.g., rbev-busybox)"
-  buc_doc_param "consecration" "Full consecration (e.g., c260305133650-r260305160530)"
+  buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"
   buc_doc_shown || return 0
 
-  zrbfc_plumb_core "${z_vessel}" "${z_consecration}" "compact"
+  zrbfc_plumb_core "${z_vessel}" "${z_hallmark}" "compact"
 }
 
 # eof

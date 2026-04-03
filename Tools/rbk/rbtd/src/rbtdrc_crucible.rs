@@ -1447,7 +1447,7 @@ static RBTDRC_SECTIONS_TADMOR: &[rbtdre_Section] = &[
 // ── Four-mode foundry integration (bare fixture) ─────────────
 
 /// BURV fact file names — single definition, matching rbgc_Constants.sh values.
-const RBTDRC_FACT_CONSECRATION: &str = "rbf_fact_consecration";
+const RBTDRC_FACT_HALLMARK: &str = "rbf_fact_hallmark";
 const RBTDRC_FACT_GAR_ROOT: &str = "rbf_fact_gar_root";
 const RBTDRC_FACT_ARK_STEM: &str = "rbf_fact_ark_stem";
 
@@ -1526,7 +1526,7 @@ fn rbtdrc_four_mode_supply_chain(dir: &Path) -> rbtdre_Verdict {
             Ok(r) => return rbtdre_Verdict::Fail(format!("conjure failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("conjure invocation: {}", e)),
         };
-        let conjure_consec = match rbtdri_read_burv_fact(&conjure_result, RBTDRC_FACT_CONSECRATION) {
+        let conjure_consec = match rbtdri_read_burv_fact(&conjure_result, RBTDRC_FACT_HALLMARK) {
             Ok(v) => v,
             Err(e) => return rbtdre_Verdict::Fail(format!("step 1: {}", e)),
         };
@@ -1547,7 +1547,7 @@ fn rbtdrc_four_mode_supply_chain(dir: &Path) -> rbtdre_Verdict {
             Ok(r) => return rbtdre_Verdict::Fail(format!("bind failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("bind invocation: {}", e)),
         };
-        let bind_consec = match rbtdri_read_burv_fact(&bind_result, RBTDRC_FACT_CONSECRATION) {
+        let bind_consec = match rbtdri_read_burv_fact(&bind_result, RBTDRC_FACT_HALLMARK) {
             Ok(v) => v,
             Err(e) => return rbtdre_Verdict::Fail(format!("step 2: {}", e)),
         };
@@ -1574,7 +1574,7 @@ fn rbtdrc_four_mode_supply_chain(dir: &Path) -> rbtdre_Verdict {
             Ok(r) => return rbtdre_Verdict::Fail(format!("graft failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("graft invocation: {}", e)),
         };
-        let graft_consec = match rbtdri_read_burv_fact(&graft_result, RBTDRC_FACT_CONSECRATION) {
+        let graft_consec = match rbtdri_read_burv_fact(&graft_result, RBTDRC_FACT_HALLMARK) {
             Ok(v) => v,
             Err(e) => return rbtdre_Verdict::Fail(format!("step 3: {}", e)),
         };
@@ -1587,7 +1587,7 @@ fn rbtdrc_four_mode_supply_chain(dir: &Path) -> rbtdre_Verdict {
             Ok(r) => return rbtdre_Verdict::Fail(format!("kludge failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("kludge invocation: {}", e)),
         };
-        let kludge_consec = match rbtdri_read_burv_fact(&kludge_result, RBTDRC_FACT_CONSECRATION) {
+        let kludge_consec = match rbtdri_read_burv_fact(&kludge_result, RBTDRC_FACT_HALLMARK) {
             Ok(v) => v,
             Err(e) => return rbtdre_Verdict::Fail(format!("step 4: {}", e)),
         };
@@ -1636,17 +1636,17 @@ fn rbtdrc_four_mode_supply_chain(dir: &Path) -> rbtdre_Verdict {
         let graft_fact = format!("{}{}{}", graft_vessel, RBTDRC_FACT_CONSEC_INFIX, graft_consec);
 
         if !tally_dir.join(&conjure_fact).exists() {
-            return rbtdre_Verdict::Fail(format!("conjure consecration not found: {}", conjure_fact));
+            return rbtdre_Verdict::Fail(format!("conjure hallmark not found: {}", conjure_fact));
         }
         if !tally_dir.join(&bind_fact).exists() {
-            return rbtdre_Verdict::Fail(format!("bind consecration not found: {}", bind_fact));
+            return rbtdre_Verdict::Fail(format!("bind hallmark not found: {}", bind_fact));
         }
         if !tally_dir.join(&graft_fact).exists() {
-            return rbtdre_Verdict::Fail(format!("graft consecration not found: {}", graft_fact));
+            return rbtdre_Verdict::Fail(format!("graft hallmark not found: {}", graft_fact));
         }
 
         // Steps 6-9: Vouch gate, retrieve, run, cleanup (conjured busybox)
-        // Step 6: vouch_gate is done by the ordain pipeline — the three consecrations above prove it
+        // Step 6: vouch_gate is done by the ordain pipeline — the three hallmarks above prove it
         // Step 7: Retrieve image
         let retrieve_locator = format!("{}:{}{}", conjure_vessel, conjure_consec, RBTDRC_ARK_SUFFIX_IMAGE);
         match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_WREST, &[&retrieve_locator], &[]) {
@@ -1673,7 +1673,7 @@ fn rbtdrc_four_mode_supply_chain(dir: &Path) -> rbtdre_Verdict {
             return rbtdre_Verdict::Fail(format!("image cleanup: {}", e));
         }
 
-        // Steps 10-12: Abjure all three consecrations
+        // Steps 10-12: Abjure all three hallmarks
         for (label, vdir, consec) in [
             ("conjure", &conjure_dir, &conjure_consec),
             ("bind", &bind_dir, &bind_consec),

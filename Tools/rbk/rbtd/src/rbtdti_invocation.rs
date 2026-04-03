@@ -427,14 +427,14 @@ fn rbtdti_read_burv_fact_reads_value() {
     rbtdti_write_script(
         &tt,
         "rbw-cb.Bark.testplate.sh",
-        "mkdir -p \"${BURV_OUTPUT_ROOT_DIR}/current\"\necho 'c260305-r260305' > \"${BURV_OUTPUT_ROOT_DIR}/current/rbf_fact_consecration\"\n",
+        "mkdir -p \"${BURV_OUTPUT_ROOT_DIR}/current\"\necho 'c260305-r260305' > \"${BURV_OUTPUT_ROOT_DIR}/current/rbf_fact_hallmark\"\n",
     );
 
     let burv_root = tmp.join("burv");
     let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_root);
     let result = rbtdri_invoke(&mut ctx, "rbw-cb", &[]).unwrap();
 
-    let fact = rbtdri_read_burv_fact(&result, "rbf_fact_consecration").unwrap();
+    let fact = rbtdri_read_burv_fact(&result, "rbf_fact_hallmark").unwrap();
     assert_eq!(fact, "c260305-r260305");
 
     let _ = std::fs::remove_dir_all(&tmp);
@@ -450,7 +450,7 @@ fn rbtdti_read_burv_fact_rejects_missing() {
     let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_root);
     let result = rbtdri_invoke(&mut ctx, "rbw-cb", &[]).unwrap();
 
-    let fact = rbtdri_read_burv_fact(&result, "rbf_fact_consecration");
+    let fact = rbtdri_read_burv_fact(&result, "rbf_fact_hallmark");
     assert!(fact.is_err());
 
     let _ = std::fs::remove_dir_all(&tmp);

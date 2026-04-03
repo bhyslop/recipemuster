@@ -44,8 +44,8 @@ zrbob_validate_compose_env() {
     RBRN_RUNTIME
     RBRN_SENTRY_VESSEL
     RBRN_BOTTLE_VESSEL
-    RBRN_SENTRY_CONSECRATION
-    RBRN_BOTTLE_CONSECRATION
+    RBRN_SENTRY_HALLMARK
+    RBRN_BOTTLE_HALLMARK
     RBRN_ENTRY_MODE
     RBRN_ENTRY_PORT_WORKSTATION
     RBRN_ENTRY_PORT_ENCLAVE
@@ -123,12 +123,12 @@ zrbob_kindle() {
 
   # GAR image references (computed once, used by preflight and auto-summon)
   local z_gar_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
-  readonly ZRBOB_SENTRY_IMAGE="${z_gar_base}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_CONSECRATION}${RBGC_ARK_SUFFIX_IMAGE}"
-  readonly ZRBOB_BOTTLE_IMAGE="${z_gar_base}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_CONSECRATION}${RBGC_ARK_SUFFIX_IMAGE}"
+  readonly ZRBOB_SENTRY_IMAGE="${z_gar_base}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_HALLMARK}${RBGC_ARK_SUFFIX_IMAGE}"
+  readonly ZRBOB_BOTTLE_IMAGE="${z_gar_base}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_HALLMARK}${RBGC_ARK_SUFFIX_IMAGE}"
 
   # GAR vouch references (local presence verified on every start)
-  readonly ZRBOB_SENTRY_VOUCH="${z_gar_base}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_CONSECRATION}${RBGC_ARK_SUFFIX_VOUCH}"
-  readonly ZRBOB_BOTTLE_VOUCH="${z_gar_base}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_CONSECRATION}${RBGC_ARK_SUFFIX_VOUCH}"
+  readonly ZRBOB_SENTRY_VOUCH="${z_gar_base}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_HALLMARK}${RBGC_ARK_SUFFIX_VOUCH}"
+  readonly ZRBOB_BOTTLE_VOUCH="${z_gar_base}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_HALLMARK}${RBGC_ARK_SUFFIX_VOUCH}"
 
   # Export RBRN/RBRR vars for compose environment: bare name forwarding.
   # Compose --env-file populates the compose environment for both YAML interpolation
@@ -188,14 +188,14 @@ zrbob_compose() {
 # Auto-Summon Helper
 
 # Verify vouch exists and pull image if missing locally
-# Usage: zrbob_vouch_gate_and_summon <vessel> <consecration> <image_ref>
+# Usage: zrbob_vouch_gate_and_summon <vessel> <hallmark> <image_ref>
 zrbob_vouch_gate_and_summon() {
   local z_vessel="${1:-}"
-  local z_consecration="${2:-}"
+  local z_hallmark="${2:-}"
   local z_image_ref="${3:-}"
 
   test -n "${z_vessel}"       || buc_die "zrbob_vouch_gate_and_summon: vessel required"
-  test -n "${z_consecration}" || buc_die "zrbob_vouch_gate_and_summon: consecration required"
+  test -n "${z_hallmark}" || buc_die "zrbob_vouch_gate_and_summon: hallmark required"
   test -n "${z_image_ref}"    || buc_die "zrbob_vouch_gate_and_summon: image_ref required"
 
   local z_registry_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
@@ -279,25 +279,25 @@ rbob_charge() {
   # Preflight: verify vouch artifacts exist locally — no network calls, fatal if missing
   if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_SENTRY_VOUCH}" >/dev/null 2>&1; then
     buc_warn "Sentry vouch artifact missing locally: ${ZRBOB_SENTRY_VOUCH}"
-    buc_tabtarget "${RBZ_SUMMON_CONSECRATION}" "${RBRN_SENTRY_VESSEL}" "${RBRN_SENTRY_CONSECRATION}"
+    buc_tabtarget "${RBZ_SUMMON_HALLMARK}" "${RBRN_SENTRY_VESSEL}" "${RBRN_SENTRY_HALLMARK}"
     buc_die "Run summon to pull vouch artifact before starting"
   fi
 
   if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_BOTTLE_VOUCH}" >/dev/null 2>&1; then
     buc_warn "Bottle vouch artifact missing locally: ${ZRBOB_BOTTLE_VOUCH}"
-    buc_tabtarget "${RBZ_SUMMON_CONSECRATION}" "${RBRN_BOTTLE_VESSEL}" "${RBRN_BOTTLE_CONSECRATION}"
+    buc_tabtarget "${RBZ_SUMMON_HALLMARK}" "${RBRN_BOTTLE_VESSEL}" "${RBRN_BOTTLE_HALLMARK}"
     buc_die "Run summon to pull vouch artifact before starting"
   fi
 
   # Preflight: verify container images exist locally, auto-summon if missing
   if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_SENTRY_IMAGE}" >/dev/null 2>&1; then
     buc_warn "Sentry image not found locally: ${ZRBOB_SENTRY_IMAGE}"
-    zrbob_vouch_gate_and_summon "${RBRN_SENTRY_VESSEL}" "${RBRN_SENTRY_CONSECRATION}" "${ZRBOB_SENTRY_IMAGE}"
+    zrbob_vouch_gate_and_summon "${RBRN_SENTRY_VESSEL}" "${RBRN_SENTRY_HALLMARK}" "${ZRBOB_SENTRY_IMAGE}"
   fi
 
   if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_BOTTLE_IMAGE}" >/dev/null 2>&1; then
     buc_warn "Bottle image not found locally: ${ZRBOB_BOTTLE_IMAGE}"
-    zrbob_vouch_gate_and_summon "${RBRN_BOTTLE_VESSEL}" "${RBRN_BOTTLE_CONSECRATION}" "${ZRBOB_BOTTLE_IMAGE}"
+    zrbob_vouch_gate_and_summon "${RBRN_BOTTLE_VESSEL}" "${RBRN_BOTTLE_HALLMARK}" "${ZRBOB_BOTTLE_IMAGE}"
   fi
 
   # Tear down any prior state (tolerates missing project)
@@ -384,17 +384,17 @@ rbob_ifrit_sortie() {
 }
 
 ######################################################################
-# Drive Consecration — rewrite a single RBRN_*_CONSECRATION line in nameplate env
-# Args: nameplate_file variable_name new_consecration
+# Drive Hallmark — rewrite a single RBRN_*_HALLMARK line in nameplate env
+# Args: nameplate_file variable_name new_hallmark
 
-zrbob_drive_consecration() {
+zrbob_drive_hallmark() {
   local -r z_file="$1"
   local -r z_var_name="$2"
   local -r z_new_value="$3"
 
   test -f "${z_file}" || buc_die "Nameplate file not found: ${z_file}"
   test -n "${z_var_name}" || buc_die "Variable name required"
-  test -n "${z_new_value}" || buc_die "New consecration value required"
+  test -n "${z_new_value}" || buc_die "New hallmark value required"
 
   # Load file into array (BCG load-then-iterate)
   local z_lines=()
@@ -428,13 +428,13 @@ zrbob_drive_consecration() {
 }
 
 ######################################################################
-# Kludge — build bottle vessel locally and drive consecration into nameplate
+# Kludge — build bottle vessel locally and drive hallmark into nameplate
 
 rbob_kludge() {
   zrbob_sentinel
   zrbfc_sentinel
 
-  buc_doc_brief "Build bottle vessel locally and drive consecration into nameplate"
+  buc_doc_brief "Build bottle vessel locally and drive hallmark into nameplate"
   buc_doc_shown || return 0
 
   buc_step "Kludge: ${RBRN_MONIKER} (${RBRN_BOTTLE_VESSEL})"
@@ -446,26 +446,26 @@ rbob_kludge() {
   # Delegate build to foundry kludge
   rbfd_kludge "${z_vessel_dir}"
 
-  # Read consecration from fact file
-  local z_consecration=""
-  z_consecration=$(<"${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}") \
-    || buc_die "Failed to read consecration from kludge output"
-  test -n "${z_consecration}" || buc_die "Empty consecration from kludge output"
+  # Read hallmark from fact file
+  local z_hallmark=""
+  z_hallmark=$(<"${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}") \
+    || buc_die "Failed to read hallmark from kludge output"
+  test -n "${z_hallmark}" || buc_die "Empty hallmark from kludge output"
 
-  # Drive consecration into nameplate
-  zrbob_drive_consecration "${ZRBOB_ENV_RBRN}" "RBRN_BOTTLE_CONSECRATION" "${z_consecration}"
+  # Drive hallmark into nameplate
+  zrbob_drive_hallmark "${ZRBOB_ENV_RBRN}" "RBRN_BOTTLE_HALLMARK" "${z_hallmark}"
 
-  buc_success "Kludge installed: ${z_consecration} → ${RBRN_MONIKER}"
+  buc_success "Kludge installed: ${z_hallmark} → ${RBRN_MONIKER}"
 }
 
 ######################################################################
-# Ordain — cloud-build bottle vessel and drive consecration into nameplate
+# Ordain — cloud-build bottle vessel and drive hallmark into nameplate
 
 rbob_ordain() {
   zrbob_sentinel
   zrbfd_sentinel
 
-  buc_doc_brief "Ordain bottle vessel via cloud build and drive consecration into nameplate"
+  buc_doc_brief "Ordain bottle vessel via cloud build and drive hallmark into nameplate"
   buc_doc_shown || return 0
 
   buc_step "Ordain: ${RBRN_MONIKER} (${RBRN_BOTTLE_VESSEL})"
@@ -477,16 +477,16 @@ rbob_ordain() {
   # Delegate to foundry ordain (mode-dispatched: conjure, bind, or graft)
   rbfd_ordain "${z_vessel_dir}"
 
-  # Read consecration from fact file
-  local z_consecration=""
-  z_consecration=$(<"${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}") \
-    || buc_die "Failed to read consecration from ordain output"
-  test -n "${z_consecration}" || buc_die "Empty consecration from ordain output"
+  # Read hallmark from fact file
+  local z_hallmark=""
+  z_hallmark=$(<"${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}") \
+    || buc_die "Failed to read hallmark from ordain output"
+  test -n "${z_hallmark}" || buc_die "Empty hallmark from ordain output"
 
-  # Drive consecration into nameplate
-  zrbob_drive_consecration "${ZRBOB_ENV_RBRN}" "RBRN_BOTTLE_CONSECRATION" "${z_consecration}"
+  # Drive hallmark into nameplate
+  zrbob_drive_hallmark "${ZRBOB_ENV_RBRN}" "RBRN_BOTTLE_HALLMARK" "${z_hallmark}"
 
-  buc_success "Ordain installed: ${z_consecration} → ${RBRN_MONIKER}"
+  buc_success "Ordain installed: ${z_hallmark} → ${RBRN_MONIKER}"
 }
 
 # eof

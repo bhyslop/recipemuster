@@ -23,7 +23,7 @@ The plumb operation:
 .. {rbbc_require}
 vessel provided as first argument
 .. {rbbc_require}
-consecration provided as second argument
+hallmark provided as second argument
 
 //axhos_step
 . *Load Vessel Configuration*:
@@ -81,7 +81,7 @@ vessel mode (conjure, bind, or graft) from vessel regime
 {rbtga_ark}
 . *Display Results*:
 .. {rbbc_show}
-trust posture for the specified consecration
+trust posture for the specified hallmark
 
 //axhoc_completion
 Plumb is a read-only local operation.

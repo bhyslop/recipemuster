@@ -31,7 +31,7 @@ or
 //axhrgb_group
 {rbrn_group_ark_reference}
 
-Ark references identify which vessel consecration to deploy.
+Ark references identify which vessel hallmark to deploy.
 At runtime, these resolve against the repository configuration to form complete image paths.
 
 //axhrgv_variable
@@ -40,9 +40,9 @@ At runtime, these resolve against the repository configuration to form complete 
 Vessel identifier for the sentry container image.
 
 //axhrgv_variable
-{rbrn_sentry_consecration}
+{rbrn_sentry_hallmark}
 
-Consecration timestamp for the sentry container image.
+Hallmark timestamp for the sentry container image.
 
 //axhrgv_variable
 {rbrn_bottle_vessel}
@@ -50,9 +50,9 @@ Consecration timestamp for the sentry container image.
 Vessel identifier for the bottle container image.
 
 //axhrgv_variable
-{rbrn_bottle_consecration}
+{rbrn_bottle_hallmark}
 
-Consecration timestamp for the bottle container image.
+Hallmark timestamp for the bottle container image.
 
 //axhrv_variable
 {rbrn_entry_mode}

@@ -261,13 +261,13 @@ rbfl_jettison() {
 rbfl_abjure() {
   zrbfl_sentinel
 
-  local z_consecration="${2:-}"
+  local z_hallmark="${2:-}"
   local z_force="${3:-}"
 
   # Documentation block
-  buc_doc_brief "Abjure a consecration (delete all per-platform image, about, and vouch artifacts)"
+  buc_doc_brief "Abjure a hallmark (delete all per-platform image, about, and vouch artifacts)"
   buc_doc_param "vessel" "Vessel sigil or path to vessel directory"
-  buc_doc_param "consecration" "Full consecration (e.g., c260305133650-r260305160530)"
+  buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"
   buc_doc_param "--force" "Optional: skip confirmation prompt"
   buc_doc_shown || return 0
 
@@ -278,11 +278,11 @@ rbfl_abjure() {
   zrbfc_load_vessel "${z_vessel_dir}"
 
   # Validate remaining parameters
-  test -n "${z_consecration}" || buc_die "Consecration parameter required"
+  test -n "${z_hallmark}" || buc_die "Hallmark parameter required"
 
-  # Derive inscribe timestamp from full consecration (needed for -multi intermediate tag)
-  local -r z_inscribe_ts="${z_consecration%%-r*}"
-  test -n "${z_inscribe_ts}" || buc_die "Failed to derive inscribe timestamp from consecration"
+  # Derive inscribe timestamp from full hallmark (needed for -multi intermediate tag)
+  local -r z_inscribe_ts="${z_hallmark%%-r*}"
+  test -n "${z_inscribe_ts}" || buc_die "Failed to derive inscribe timestamp from hallmark"
 
   # Check for --force flag
   local z_skip_confirm=false
@@ -300,7 +300,7 @@ rbfl_abjure() {
   local z_image_tags=()
   if test "${RBRV_VESSEL_MODE:-conjure}" = "bind" || test "${RBRV_VESSEL_MODE:-conjure}" = "graft"; then
     # Bind and graft vessels have a single image tag (no per-platform suffixes)
-    z_image_tags+=("${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}")
+    z_image_tags+=("${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}")
   else
     # Conjure vessels have per-platform suffixed tags + consumer-facing + intermediate
     local z_platforms="${RBRV_CONJURE_PLATFORMS// /,}"
@@ -319,18 +319,18 @@ rbfl_abjure() {
 
     local z_idx=0
     for z_idx in "${!z_platform_suffixes[@]}"; do
-      z_image_tags+=("${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}${z_platform_suffixes[$z_idx]}")
+      z_image_tags+=("${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}${z_platform_suffixes[$z_idx]}")
     done
     if test "${#z_platform_suffixes[@]}" -gt 1; then
-      z_image_tags+=("${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}")
+      z_image_tags+=("${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}")
       z_image_tags+=("${z_inscribe_ts}-multi")
     fi
   fi
 
-  # About, vouch, and diags tags use full consecration
-  local -r z_about_tag="${z_consecration}${RBGC_ARK_SUFFIX_ABOUT}"
-  local -r z_vouch_tag="${z_consecration}${RBGC_ARK_SUFFIX_VOUCH}"
-  local -r z_diags_tag="${z_consecration}${RBGC_ARK_SUFFIX_DIAGS}"
+  # About, vouch, and diags tags use full hallmark
+  local -r z_about_tag="${z_hallmark}${RBGC_ARK_SUFFIX_ABOUT}"
+  local -r z_vouch_tag="${z_hallmark}${RBGC_ARK_SUFFIX_VOUCH}"
+  local -r z_diags_tag="${z_hallmark}${RBGC_ARK_SUFFIX_DIAGS}"
 
   buc_step "Verifying ark existence"
 
@@ -441,7 +441,7 @@ rbfl_abjure() {
 
   # Evaluate ark state
   if test "${#z_existing_image_tags[@]}" -eq 0 && test "${z_about_exists}" = "false"; then
-    buc_die "Consecration not found: no image tags and no -about exists for ${RBRV_SIGIL}/${z_consecration}"
+    buc_die "Hallmark not found: no image tags and no -about exists for ${RBRV_SIGIL}/${z_hallmark}"
   fi
 
   if test "${#z_existing_image_tags[@]}" -gt 0 && test "${z_about_exists}" = "false"; then
@@ -452,7 +452,7 @@ rbfl_abjure() {
 
   # Confirm abjuration unless --force
   if test "${z_skip_confirm}" = "false"; then
-    local z_confirm_msg="Will abjure ark ${RBRV_SIGIL}/${z_consecration}:"
+    local z_confirm_msg="Will abjure ark ${RBRV_SIGIL}/${z_hallmark}:"
     if (( ${#z_existing_image_tags[@]} )); then
       for z_img_tag in "${z_existing_image_tags[@]}"; do
         z_confirm_msg="${z_confirm_msg}\n  - ${RBRV_SIGIL}:${z_img_tag}"
@@ -596,7 +596,7 @@ rbfl_abjure() {
 
   # Display results
   echo ""
-  buc_success "Consecration abjured: ${RBRV_SIGIL}/${z_consecration}"
+  buc_success "Hallmark abjured: ${RBRV_SIGIL}/${z_hallmark}"
   if (( ${#z_existing_image_tags[@]} )); then
     for z_img_tag in "${z_existing_image_tags[@]}"; do
       echo "  - ${RBRV_SIGIL}:${z_img_tag} deleted"
@@ -616,7 +616,7 @@ rbfl_abjure() {
 rbfl_tally() {
   zrbfl_sentinel
 
-  buc_doc_brief "List consecrations across all vessels with health status"
+  buc_doc_brief "List hallmarks across all vessels with health status"
   buc_doc_shown || return 0
 
   buc_step "Enumerating vessels"
@@ -652,12 +652,12 @@ rbfl_tally() {
       buc_die "Registry API error for ${z_sigil}: ${z_err}"
     fi
 
-    # Extract tags and identify full consecrations
+    # Extract tags and identify full hallmarks
     local z_all_tags_file="${BURD_TEMP_DIR}/rbfl_dc_${z_sigil}_all_tags.txt"
     jq -r '.tags[]? // empty' "${z_tags_file}" > "${z_all_tags_file}" \
       || buc_die "Failed to extract tags for ${z_sigil}"
 
-    local z_consec_file="${BURD_TEMP_DIR}/rbfl_dc_${z_sigil}_consecrations.txt"
+    local z_consec_file="${BURD_TEMP_DIR}/rbfl_dc_${z_sigil}_hallmarks.txt"
     local z_tag_data_file="${BURD_TEMP_DIR}/rbfl_dc_${z_sigil}_tag_data.txt"
     : > "${z_consec_file}"
     : > "${z_tag_data_file}"
@@ -697,25 +697,25 @@ rbfl_tally() {
 
     local z_unique_file="${BURD_TEMP_DIR}/rbfl_dc_${z_sigil}_unique.txt"
     sort -ur "${z_consec_file}" > "${z_unique_file}" \
-      || buc_die "Failed to sort consecrations for ${z_sigil}"
+      || buc_die "Failed to sort hallmarks for ${z_sigil}"
 
     if ! test -s "${z_unique_file}"; then
-      buc_info "No consecrations found for ${z_sigil}"
+      buc_info "No hallmarks found for ${z_sigil}"
       continue
     fi
 
     # Display per-vessel table with health states
     printf "\nVessel: %s\n" "${z_sigil}"
-    printf "  %-42s %-30s %-10s\n" "Consecration" "Platforms" "Health"
+    printf "  %-42s %-30s %-10s\n" "Hallmark" "Platforms" "Health"
 
-    while IFS= read -r z_consecration || test -n "${z_consecration}"; do
+    while IFS= read -r z_hallmark || test -n "${z_hallmark}"; do
       local z_consec_platforms=""
       local z_has_about="no"
       local z_has_vouch="no"
       local z_has_image="no"
 
       while IFS='|' read -r z_c z_type z_detail; do
-        test "${z_c}" = "${z_consecration}" || continue
+        test "${z_c}" = "${z_hallmark}" || continue
         if test "${z_type}" = "image"; then
           z_has_image="yes"
           if test "${z_detail}" != "consumer"; then
@@ -744,11 +744,11 @@ rbfl_tally() {
         z_any_incomplete=1
       fi
 
-      printf "  %-42s %-30s %-10s\n" "${z_consecration}" "${z_plat_display}" "${z_health}"
+      printf "  %-42s %-30s %-10s\n" "${z_hallmark}" "${z_plat_display}" "${z_health}"
 
-      # Write per-consecration fact file for test observability
-      test -n "${z_consecration}" || buc_die "Empty consecration in unique file for ${z_sigil}"
-      echo "${z_sigil}" > "${BURD_OUTPUT_DIR}/${z_sigil}${RBCC_FACT_CONSEC_INFIX}${z_consecration}"
+      # Write per-hallmark fact file for test observability
+      test -n "${z_hallmark}" || buc_die "Empty hallmark in unique file for ${z_sigil}"
+      echo "${z_sigil}" > "${BURD_OUTPUT_DIR}/${z_sigil}${RBCC_FACT_CONSEC_INFIX}${z_hallmark}"
     done < "${z_unique_file}"
 
   done
@@ -757,15 +757,15 @@ rbfl_tally() {
 
   # Tabtarget recommendations
   if test "${z_any_pending}" = "1"; then
-    buc_step "Pending consecrations can be vouched:"
-    buc_tabtarget "${RBZ_VOUCH_CONSECRATIONS}"
+    buc_step "Pending hallmarks can be vouched:"
+    buc_tabtarget "${RBZ_VOUCH_HALLMARKS}"
   fi
   if test "${z_any_incomplete}" = "1"; then
-    buc_step "Incomplete consecrations should be abjured and re-conjured:"
-    buc_tabtarget "${RBZ_ABJURE_CONSECRATION}"
+    buc_step "Incomplete hallmarks should be abjured and re-conjured:"
+    buc_tabtarget "${RBZ_ABJURE_HALLMARK}"
   fi
 
-  buc_success "Consecration check complete"
+  buc_success "Hallmark check complete"
 }
 
 

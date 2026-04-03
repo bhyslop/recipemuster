@@ -60,7 +60,7 @@ image exists in local container runtime
 `«DIRECTOR_TOKEN»` for subsequent API calls
 
 //axhos_step
-. *Construct Consecration*:
+. *Construct Hallmark*:
 .. {rbbc_call}
 query local container runtime for image creation timestamp via `docker image inspect` (the `Created` field — OCI Image Configuration spec, exposed at `.Created` by both docker and podman)
 .. {rbbc_store}
@@ -68,7 +68,7 @@ query local container runtime for image creation timestamp via `docker image ins
 .. {rbbc_store}
 `«PUSH_TIMESTAMP»` as current UTC time (`YYMMDDHHMMSS`)
 .. {rbbc_store}
-`«CONSECRATION»` as `g«IMAGE_CREATED»-r«PUSH_TIMESTAMP»`
+`«HALLMARK»` as `g«IMAGE_CREATED»-r«PUSH_TIMESTAMP»`
 .. T1 encodes when the image was created (a fact about the artifact); T2 encodes when it was pushed to GAR
 .. NOTE: The `created` field may be `1970-01-01T00:00:00Z` for reproducible builds. This produces `g700101000000-r...` — a true statement about the image, not an error.
 
@@ -77,7 +77,7 @@ query local container runtime for image creation timestamp via `docker image ins
 .. {rbbc_call}
 `docker login` to GAR registry with director credentials
 .. {rbbc_store}
-`«REGISTRY_TAG»` as `«GAR_HOST»/«GAR_PATH»/«VESSEL_SIGIL»:«CONSECRATION»-image`
+`«REGISTRY_TAG»` as `«GAR_HOST»/«GAR_PATH»/«VESSEL_SIGIL»:«HALLMARK»-image`
 .. {rbbc_call}
 `docker tag «LOCAL_IMAGE_REF» «REGISTRY_TAG»`
 .. {rbbc_call}
@@ -89,9 +89,9 @@ push succeeds
 {rbtga_ark_image}
 
 //axhoot_typed_output axd_fact
-{rbf_fact_consecration}
+{rbf_fact_hallmark}
 The full
-{rbtga_consecration}
+{rbtga_hallmark}
 string.
 
 //axhoot_typed_output axd_fact
@@ -113,8 +113,8 @@ for full artifact references.
 {rbf_fact_ark_stem}
 {rbrv_sigil}
 and
-{rbtga_consecration}
-joined as `«VESSEL»:«CONSECRATION»`.
+{rbtga_hallmark}
+joined as `«VESSEL»:«HALLMARK»`.
 Composable with suffix for artifact tags.
 
 //axhoot_typed_output axd_fact
@@ -126,15 +126,15 @@ One fact file (graft is single-platform only).
 
 . *Display Results*:
 .. {rbbc_show}
-graft complete with consecration tag
+graft complete with hallmark tag
 .. {rbbc_show}
 local image reference, registry tag, digest
 
 //axhoc_completion
 Successful execution pushes the locally-built image to
 {rbtgi_repository}
-tagged as `«VESSEL»:«CONSECRATION»-image`.
-The graft operation returns `«CONSECRATION»` to {rbtgo_ark_ordain}, which chains the subsequent pipeline stages automatically:
+tagged as `«VESSEL»:«HALLMARK»-image`.
+The graft operation returns `«HALLMARK»` to {rbtgo_ark_ordain}, which chains the subsequent pipeline stages automatically:
 {rbtgo_ark_about} and {rbtgo_ark_vouch} in a single combined `builds.create` job (about steps followed by vouch steps) to assemble metadata and record the GRAFTED verdict.
 +
 *No SLSA provenance*: Grafted images have no Cloud Build provenance.

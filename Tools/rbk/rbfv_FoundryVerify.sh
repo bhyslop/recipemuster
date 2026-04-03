@@ -64,15 +64,15 @@ rbfv_vouch_gate() {
   zrbfv_sentinel
 
   local -r z_vessel="${1:-}"
-  local -r z_consecration="${2:-}"
+  local -r z_hallmark="${2:-}"
 
   test -n "${z_vessel}"       || buc_die "rbfv_vouch_gate: vessel required"
-  test -n "${z_consecration}" || buc_die "rbfv_vouch_gate: consecration required"
+  test -n "${z_hallmark}" || buc_die "rbfv_vouch_gate: hallmark required"
 
   local -r z_registry_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
   local -r z_registry_api_base="https://${z_registry_host}/v2/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
 
-  local -r z_vouch_tag="${z_consecration}${RBGC_ARK_SUFFIX_VOUCH}"
+  local -r z_vouch_tag="${z_hallmark}${RBGC_ARK_SUFFIX_VOUCH}"
   buc_step "Vouch gate: checking ${z_vessel}:${z_vouch_tag}"
 
   local z_token
@@ -92,7 +92,7 @@ rbfv_vouch_gate() {
   z_vouch_http_code=$(<"${ZRBFC_SCRATCH_FILE}")
 
   if test "${z_vouch_http_code}" != "200"; then
-    buc_die "Consecration not vouched: ${z_vessel}:${z_consecration} (HTTP ${z_vouch_http_code} — refusing to use unvouched image)"
+    buc_die "Hallmark not vouched: ${z_vessel}:${z_hallmark} (HTTP ${z_vouch_http_code} — refusing to use unvouched image)"
   fi
 
   buc_info "Vouch verified: ${z_vessel}:${z_vouch_tag}"
@@ -101,12 +101,12 @@ rbfv_vouch_gate() {
 rbfv_about() {
   zrbfv_sentinel
 
-  local -r z_consecration="${2:-}"
+  local -r z_hallmark="${2:-}"
   local -r z_conjure_build_id="${3:-}"  # Optional: conjure BUILD_ID for provenance
 
-  buc_doc_brief "Assemble about metadata artifact for an existing consecration image"
+  buc_doc_brief "Assemble about metadata artifact for an existing hallmark image"
   buc_doc_param "vessel" "Vessel sigil or path to vessel directory"
-  buc_doc_param "consecration" "Full consecration (e.g., c260305133650-r260305160530)"
+  buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"
   buc_doc_param "conjure_build_id" "(Optional) Cloud Build job ID from conjure"
   buc_doc_shown || return 0
 
@@ -115,7 +115,7 @@ rbfv_about() {
   local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
   test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
   zrbfc_load_vessel "${z_vessel_dir}"
-  test -n "${z_consecration}" || buc_die "Consecration parameter required"
+  test -n "${z_hallmark}" || buc_die "Hallmark parameter required"
 
   buc_step "Loading Director RBRA credentials"
   source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
@@ -127,7 +127,7 @@ rbfv_about() {
 
   # Gate: require -image exists
   buc_step "Gating on image artifact existence"
-  local -r z_image_tag="${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}"
+  local -r z_image_tag="${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}"
   local -r z_image_gate_status="${ZRBFV_ABOUT_PREFIX}image_status.txt"
   local -r z_image_gate_response="${ZRBFV_ABOUT_PREFIX}image_response.json"
   local -r z_image_gate_stderr="${ZRBFV_ABOUT_PREFIX}image_stderr.txt"
@@ -151,7 +151,7 @@ rbfv_about() {
   buc_info "Image artifact confirmed: ${z_image_tag}"
 
   # Gate: warn if -about already exists (re-about is idempotent overwrite)
-  local -r z_about_tag="${z_consecration}${RBGC_ARK_SUFFIX_ABOUT}"
+  local -r z_about_tag="${z_hallmark}${RBGC_ARK_SUFFIX_ABOUT}"
   local -r z_about_gate_status="${ZRBFV_ABOUT_PREFIX}about_status.txt"
   local -r z_about_gate_response="${ZRBFV_ABOUT_PREFIX}about_response.json"
   local -r z_about_gate_stderr="${ZRBFV_ABOUT_PREFIX}about_stderr.txt"
@@ -174,25 +174,25 @@ rbfv_about() {
   fi
 
   # Submit about Cloud Build
-  zrbfv_about_submit "${z_consecration}" "${z_token}" "${z_conjure_build_id}"
+  zrbfv_about_submit "${z_hallmark}" "${z_token}" "${z_conjure_build_id}"
 
-  buc_success "About complete: ${RBRV_SIGIL}/${z_consecration}"
+  buc_success "About complete: ${RBRV_SIGIL}/${z_hallmark}"
   buc_info "About artifact: ${RBRV_SIGIL}:${z_about_tag}"
 }
 
 # Internal: submit combined about+vouch Cloud Build job for graft mode.
 # Eliminates the orphan gap between standalone about and vouch by running
 # both step sets in a single GCB submission.
-# Args: vessel_dir consecration
+# Args: vessel_dir hallmark
 zrbfv_graft_metadata_submit() {
   zrbfv_sentinel
 
   local -r z_vessel_dir="$1"
-  local -r z_consecration="$2"
+  local -r z_hallmark="$2"
 
   # Load vessel (follows reload pattern used by rbfv_about/rbfv_vouch)
   zrbfc_load_vessel "${z_vessel_dir}"
-  test -n "${z_consecration}" || buc_die "Consecration parameter required"
+  test -n "${z_hallmark}" || buc_die "Hallmark parameter required"
 
   buc_step "Loading Director RBRA credentials"
   source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
@@ -209,7 +209,7 @@ zrbfv_graft_metadata_submit() {
 
   # Gate: require -image exists (graft push must have completed)
   buc_step "Gating on image artifact existence"
-  local -r z_image_tag="${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}"
+  local -r z_image_tag="${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}"
   local -r z_image_gate_status="${ZRBFV_GRAFT_META_PREFIX}image_status.txt"
   local -r z_image_gate_response="${ZRBFV_GRAFT_META_PREFIX}image_response.json"
   local -r z_image_gate_stderr="${ZRBFV_GRAFT_META_PREFIX}image_stderr.txt"
@@ -308,7 +308,7 @@ zrbfv_graft_metadata_submit() {
     --arg zjq_gar_host          "${z_gar_host}" \
     --arg zjq_gar_path          "${z_gar_path}" \
     --arg zjq_vessel            "${RBRV_SIGIL}" \
-    --arg zjq_consecration      "${z_consecration}" \
+    --arg zjq_hallmark      "${z_hallmark}" \
     --arg zjq_git_commit        "${z_git_commit}" \
     --arg zjq_git_branch        "${z_git_branch}" \
     --arg zjq_git_repo          "${z_git_repo}" \
@@ -332,7 +332,7 @@ zrbfv_graft_metadata_submit() {
         _RBGA_GAR_HOST:              $zjq_gar_host,
         _RBGA_GAR_PATH:              $zjq_gar_path,
         _RBGA_VESSEL:                $zjq_vessel,
-        _RBGA_CONSECRATION:          $zjq_consecration,
+        _RBGA_HALLMARK:          $zjq_hallmark,
         _RBGA_VESSEL_MODE:           "graft",
         _RBGA_GIT_COMMIT:            $zjq_git_commit,
         _RBGA_GIT_BRANCH:            $zjq_git_branch,
@@ -348,7 +348,7 @@ zrbfv_graft_metadata_submit() {
         _RBGV_GAR_HOST:              $zjq_gar_host,
         _RBGV_GAR_PATH:              $zjq_gar_path,
         _RBGV_VESSEL:                $zjq_vessel,
-        _RBGV_CONSECRATION:          $zjq_consecration,
+        _RBGV_HALLMARK:          $zjq_hallmark,
         _RBGV_VESSEL_MODE:           "graft",
         _RBGV_BIND_SOURCE:           "",
         _RBGV_GRAFT_SOURCE:          $zjq_graft_source,
@@ -389,9 +389,9 @@ zrbfv_graft_metadata_submit() {
 
   zrbfc_wait_build_completion 100 "About+Vouch"  # ~8 minutes at 5s intervals
 
-  buc_success "About+Vouch complete: ${RBRV_SIGIL}/${z_consecration}"
-  local -r z_about_tag="${z_consecration}${RBGC_ARK_SUFFIX_ABOUT}"
-  local -r z_vouch_tag="${z_consecration}${RBGC_ARK_SUFFIX_VOUCH}"
+  buc_success "About+Vouch complete: ${RBRV_SIGIL}/${z_hallmark}"
+  local -r z_about_tag="${z_hallmark}${RBGC_ARK_SUFFIX_ABOUT}"
+  local -r z_vouch_tag="${z_hallmark}${RBGC_ARK_SUFFIX_VOUCH}"
   buc_info "About artifact: ${RBRV_SIGIL}:${z_about_tag}"
   buc_info "Vouch artifact: ${RBRV_SIGIL}:${z_vouch_tag}"
 }
@@ -400,7 +400,7 @@ zrbfv_graft_metadata_submit() {
 zrbfv_about_submit() {
   zrbfv_sentinel
 
-  local -r z_consecration="$1"
+  local -r z_hallmark="$1"
   local -r z_token="$2"
   local -r z_conjure_build_id="${3:-}"
 
@@ -422,8 +422,8 @@ zrbfv_about_submit() {
 
   case "${z_vessel_mode}" in
     conjure)
-      # Extract inscribe timestamp from consecration (e.g., c260305133650 from c260305133650-r260305160530)
-      z_inscribe_ts="${z_consecration%%-r*}"
+      # Extract inscribe timestamp from hallmark (e.g., c260305133650 from c260305133650-r260305160530)
+      z_inscribe_ts="${z_hallmark%%-r*}"
       # Read Dockerfile content for recipe.txt
       if test -f "${RBRV_CONJURE_DOCKERFILE:-}"; then
         wc -c < "${RBRV_CONJURE_DOCKERFILE}" > "${z_df_size_file}" \
@@ -495,7 +495,7 @@ zrbfv_about_submit() {
     --arg zjq_gar_host     "${z_gar_host}" \
     --arg zjq_gar_path     "${z_gar_path}" \
     --arg zjq_vessel       "${RBRV_SIGIL}" \
-    --arg zjq_consecration "${z_consecration}" \
+    --arg zjq_hallmark "${z_hallmark}" \
     --arg zjq_vessel_mode  "${z_vessel_mode}" \
     --arg zjq_git_commit   "${z_git_commit}" \
     --arg zjq_git_branch   "${z_git_branch}" \
@@ -516,7 +516,7 @@ zrbfv_about_submit() {
         _RBGA_GAR_HOST:              $zjq_gar_host,
         _RBGA_GAR_PATH:              $zjq_gar_path,
         _RBGA_VESSEL:                $zjq_vessel,
-        _RBGA_CONSECRATION:          $zjq_consecration,
+        _RBGA_HALLMARK:          $zjq_hallmark,
         _RBGA_VESSEL_MODE:           $zjq_vessel_mode,
         _RBGA_GIT_COMMIT:            $zjq_git_commit,
         _RBGA_GIT_BRANCH:            $zjq_git_branch,
@@ -566,11 +566,11 @@ rbfv_vouch() {
   zrbfv_sentinel
 
   local -r z_vessel_dir="${1:-}"
-  local -r z_consecration="${2:-}"
+  local -r z_hallmark="${2:-}"
 
   buc_doc_brief "Vouch for an ark by mode-aware verification in Cloud Build"
   buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
-  buc_doc_param "consecration" "Full consecration (e.g., c260305133650-r260305160530)"
+  buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"
   buc_doc_shown || return 0
 
   if test -z "${z_vessel_dir}"; then
@@ -585,7 +585,7 @@ rbfv_vouch() {
   fi
 
   zrbfc_load_vessel "${z_vessel_dir}"
-  test -n "${z_consecration}" || buc_die "Consecration parameter required"
+  test -n "${z_hallmark}" || buc_die "Hallmark parameter required"
 
   # Resolve tool images from reliquary (vouch steps use tool images)
   zrbfc_resolve_tool_images
@@ -600,7 +600,7 @@ rbfv_vouch() {
 
   # Gate: require -about exists (about must complete before vouch)
   buc_step "Gating on about artifact existence"
-  local -r z_about_tag="${z_consecration}${RBGC_ARK_SUFFIX_ABOUT}"
+  local -r z_about_tag="${z_hallmark}${RBGC_ARK_SUFFIX_ABOUT}"
   local -r z_about_gate_status="${ZRBFV_VOUCH_PREFIX}about_status.txt"
   local -r z_about_gate_response="${ZRBFV_VOUCH_PREFIX}about_response.json"
   local -r z_about_gate_stderr="${ZRBFV_VOUCH_PREFIX}about_stderr.txt"
@@ -624,7 +624,7 @@ rbfv_vouch() {
   buc_info "About artifact confirmed: ${z_about_tag}"
 
   # Gate: warn if -vouch already exists (re-vouch)
-  local -r z_vouch_tag="${z_consecration}${RBGC_ARK_SUFFIX_VOUCH}"
+  local -r z_vouch_tag="${z_hallmark}${RBGC_ARK_SUFFIX_VOUCH}"
   local -r z_vouch_gate_status="${ZRBFV_VOUCH_PREFIX}vouch_status.txt"
   local -r z_vouch_gate_response="${ZRBFV_VOUCH_PREFIX}vouch_response.json"
   local -r z_vouch_gate_stderr="${ZRBFV_VOUCH_PREFIX}vouch_stderr.txt"
@@ -647,9 +647,9 @@ rbfv_vouch() {
   fi
 
   # All modes use Cloud Build for vouch (mode-aware verification inside the build)
-  zrbfv_vouch_submit "${z_consecration}" "${z_vouch_tag}" "${z_token}"
+  zrbfv_vouch_submit "${z_hallmark}" "${z_vouch_tag}" "${z_token}"
 
-  buc_success "Vouch complete: ${RBRV_SIGIL}/${z_consecration}"
+  buc_success "Vouch complete: ${RBRV_SIGIL}/${z_hallmark}"
   buc_info "Vouch artifact: ${RBRV_SIGIL}:${z_vouch_tag}"
 }
 
@@ -661,7 +661,7 @@ rbfv_vouch() {
 zrbfv_vouch_submit() {
   zrbfv_sentinel
 
-  local -r z_consecration="$1"
+  local -r z_hallmark="$1"
   local -r z_vouch_tag="$2"
   local -r z_token="$3"
 
@@ -720,7 +720,7 @@ zrbfv_vouch_submit() {
     --arg zjq_gar_host          "${z_gar_host}" \
     --arg zjq_gar_path          "${z_gar_path}" \
     --arg zjq_vessel            "${RBRV_SIGIL}" \
-    --arg zjq_consecration      "${z_consecration}" \
+    --arg zjq_hallmark      "${z_hallmark}" \
     --arg zjq_vessel_mode       "${RBRV_VESSEL_MODE}" \
     --arg zjq_bind_source       "${z_bind_source}" \
     --arg zjq_graft_source      "${z_graft_source}" \
@@ -740,7 +740,7 @@ zrbfv_vouch_submit() {
         _RBGV_GAR_HOST:          $zjq_gar_host,
         _RBGV_GAR_PATH:          $zjq_gar_path,
         _RBGV_VESSEL:            $zjq_vessel,
-        _RBGV_CONSECRATION:      $zjq_consecration,
+        _RBGV_HALLMARK:      $zjq_hallmark,
         _RBGV_VESSEL_MODE:       $zjq_vessel_mode,
         _RBGV_BIND_SOURCE:       $zjq_bind_source,
         _RBGV_GRAFT_SOURCE:      $zjq_graft_source,
@@ -788,7 +788,7 @@ zrbfv_vouch_submit() {
 rbfv_batch_vouch() {
   zrbfv_sentinel
 
-  buc_doc_brief "Vouch all pending consecrations across all vessels"
+  buc_doc_brief "Vouch all pending hallmarks across all vessels"
   buc_doc_shown || return 0
 
   buc_step "Enumerating vessels"
@@ -806,7 +806,7 @@ rbfv_batch_vouch() {
   local z_sigil=""
   for z_sigil in ${z_sigils}; do
 
-    buc_step "Scanning ${z_sigil} for pending consecrations"
+    buc_step "Scanning ${z_sigil} for pending hallmarks"
     local z_tags_file="${BURD_TEMP_DIR}/rbfv_bv_${z_sigil}_tags.json"
     local z_stderr_file="${BURD_TEMP_DIR}/rbfv_bv_${z_sigil}_stderr.txt"
     curl -sL \
@@ -829,7 +829,7 @@ rbfv_batch_vouch() {
     jq -r '.tags[]? // empty' "${z_tags_file}" > "${z_all_tags_file}" \
       || buc_die "Failed to extract tags for ${z_sigil}"
 
-    # Classify: find consecrations with -about but no -vouch
+    # Classify: find hallmarks with -about but no -vouch
     local z_about_file="${BURD_TEMP_DIR}/rbfv_bv_${z_sigil}_has_about.txt"
     local z_vouch_file="${BURD_TEMP_DIR}/rbfv_bv_${z_sigil}_has_vouch.txt"
     : > "${z_about_file}"
@@ -859,23 +859,23 @@ rbfv_batch_vouch() {
     sort -u "${z_vouch_file}" > "${z_vouch_file}.sorted" \
       || buc_die "Failed to sort vouch file for ${z_sigil}"
     comm -23 "${z_about_file}.sorted" "${z_vouch_file}.sorted" > "${z_pending_file}" \
-      || buc_die "Failed to compute pending consecrations for ${z_sigil}"
+      || buc_die "Failed to compute pending hallmarks for ${z_sigil}"
 
     # Count already vouched for this vessel
     local z_count_file="${BURD_TEMP_DIR}/rbfv_bv_${z_sigil}_vouch_count.txt"
     wc -l < "${z_vouch_file}.sorted" > "${z_count_file}" \
-      || buc_die "Failed to count vouched consecrations for ${z_sigil}"
+      || buc_die "Failed to count vouched hallmarks for ${z_sigil}"
     local z_vessel_already=0
     z_vessel_already=$(<"${z_count_file}")
     z_vessel_already="${z_vessel_already// /}"
     z_already_count=$((z_already_count + z_vessel_already))
 
     if ! test -s "${z_pending_file}"; then
-      buc_info "No pending consecrations for ${z_sigil}"
+      buc_info "No pending hallmarks for ${z_sigil}"
       continue
     fi
 
-    # Load pending consecrations into array (load-then-iterate)
+    # Load pending hallmarks into array (load-then-iterate)
     local z_pending_items=()
     while IFS= read -r z_pline || test -n "${z_pline}"; do
       z_pending_items+=("${z_pline}")
@@ -884,22 +884,22 @@ rbfv_batch_vouch() {
     local z_vessel_dir="${RBRR_VESSEL_DIR}/${z_sigil}"
     local z_pi=""
     for z_pi in "${!z_pending_items[@]}"; do
-      local z_consecration="${z_pending_items[$z_pi]}"
-      test -n "${z_consecration}" || continue
+      local z_hallmark="${z_pending_items[$z_pi]}"
+      test -n "${z_hallmark}" || continue
 
-      buc_step "Vouching ${z_sigil}/${z_consecration}"
+      buc_step "Vouching ${z_sigil}/${z_hallmark}"
 
       # Run vouch in isolation subshell — buc_die inside kills only the subshell
       local z_vouch_status=0
       (
-        rbfv_vouch "${z_vessel_dir}" "${z_consecration}" \
-          || buc_die "rbfv_vouch failed for ${z_sigil}/${z_consecration}"
+        rbfv_vouch "${z_vessel_dir}" "${z_hallmark}" \
+          || buc_die "rbfv_vouch failed for ${z_sigil}/${z_hallmark}"
       ) || z_vouch_status=$?
 
       if test "${z_vouch_status}" = "0"; then
         z_vouched_count=$((z_vouched_count + 1))
       else
-        buc_warn "Vouch failed for ${z_sigil}/${z_consecration} (exit ${z_vouch_status}) — skipping"
+        buc_warn "Vouch failed for ${z_sigil}/${z_hallmark} (exit ${z_vouch_status}) — skipping"
         z_failed_count=$((z_failed_count + 1))
       fi
     done
@@ -912,7 +912,7 @@ rbfv_batch_vouch() {
   buc_info "  Failed/skipped:  ${z_failed_count}"
 
   if test "${z_failed_count}" -gt 0; then
-    buc_warn "Some consecrations failed — older builds may lack SLSA provenance"
+    buc_warn "Some hallmarks failed — older builds may lack SLSA provenance"
   fi
 
   buc_success "Batch vouch complete"

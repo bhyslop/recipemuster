@@ -114,17 +114,17 @@ rbfr_summon() {
 
   local z_vessel="${1:-}"
   z_vessel="${z_vessel##*/}"  # strip path prefix — accept directory path or bare moniker
-  local z_consecration="${2:-}"
+  local z_hallmark="${2:-}"
 
   # Documentation block
   buc_doc_brief "Summon an ark (pull -image, -about, and -vouch artifacts as a coherent unit)"
   buc_doc_param "vessel" "Vessel name (e.g., rbev-busybox)"
-  buc_doc_param "consecration" "Full consecration (e.g., c260305133650-r260305160530)"
+  buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"
   buc_doc_shown || return 0
 
   buc_log_args "Validate parameters"
   test -n "${z_vessel}" || buc_die "Vessel parameter required"
-  test -n "${z_consecration}" || buc_die "Consecration parameter required"
+  test -n "${z_hallmark}" || buc_die "Hallmark parameter required"
 
   buc_step "Authenticating for retrieval"
 
@@ -134,10 +134,10 @@ rbfr_summon() {
   local z_token
   z_token=$(rbgo_get_token_capture "${RBDC_RETRIEVER_RBRA_FILE}") || buc_die "Failed to get OAuth token"
 
-  # Construct ark tags — all use full consecration
-  local z_image_tag="${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}"
-  local z_about_tag="${z_consecration}${RBGC_ARK_SUFFIX_ABOUT}"
-  local z_vouch_tag="${z_consecration}${RBGC_ARK_SUFFIX_VOUCH}"
+  # Construct ark tags — all use full hallmark
+  local z_image_tag="${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}"
+  local z_about_tag="${z_hallmark}${RBGC_ARK_SUFFIX_ABOUT}"
+  local z_vouch_tag="${z_hallmark}${RBGC_ARK_SUFFIX_VOUCH}"
 
   buc_step "Verifying ark existence"
 
@@ -218,7 +218,7 @@ rbfr_summon() {
 
   # Evaluate ark state
   if test "${z_image_exists}" = "false" && test "${z_about_exists}" = "false"; then
-    buc_die "Consecration not found: neither -image nor -about exists"
+    buc_die "Hallmark not found: neither -image nor -about exists"
   fi
 
   if test "${z_image_exists}" = "true" && test "${z_about_exists}" = "false"; then
@@ -262,7 +262,7 @@ rbfr_summon() {
 
   # Display results
   echo ""
-  buc_success "Consecration summoned: ${z_vessel}/${z_consecration}"
+  buc_success "Hallmark summoned: ${z_vessel}/${z_hallmark}"
   if test "${z_image_exists}" = "true"; then
     echo "  - ${z_vessel}:${z_image_tag} retrieved"
   fi

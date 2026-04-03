@@ -20,7 +20,7 @@
 
 services:
   sentry:
-    image: ${RBRR_GCP_REGION}-docker.pkg.dev/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_CONSECRATION}-image
+    image: ${RBRR_GCP_REGION}-docker.pkg.dev/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_HALLMARK}-image
     container_name: ${RBRN_MONIKER}-sentry
     privileged: true
     networks:
@@ -54,7 +54,7 @@ services:
       start_period: 5s
 
   pentacle:
-    image: ${RBRR_GCP_REGION}-docker.pkg.dev/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_CONSECRATION}-image
+    image: ${RBRR_GCP_REGION}-docker.pkg.dev/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_HALLMARK}-image
     container_name: ${RBRN_MONIKER}-pentacle
     privileged: true
     networks:
@@ -74,7 +74,7 @@ services:
       start_period: 5s
 
   bottle:
-    image: ${RBRR_GCP_REGION}-docker.pkg.dev/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_CONSECRATION}-image
+    image: ${RBRR_GCP_REGION}-docker.pkg.dev/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_HALLMARK}-image
     container_name: ${RBRN_MONIKER}-bottle
     network_mode: "service:pentacle"
     security_opt:

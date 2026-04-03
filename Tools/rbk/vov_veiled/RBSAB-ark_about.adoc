@@ -15,7 +15,7 @@ All jobs run as the
 service account on the private pool (`RBRR_GCB_POOL_STEM`).
 
 NOTE: The about steps receive their context via substitution variables (`_RBGA_*`) and workspace state, not via function parameters.
-For conjure, the consecration is read from `/workspace` (computed by the preceding build steps); for bind and graft, it comes from the `_RBGA_CONSECRATION` substitution variable.
+For conjure, the hallmark is read from `/workspace` (computed by the preceding build steps); for bind and graft, it comes from the `_RBGA_HALLMARK` substitution variable.
 See <<rbtgo_about_substitutions>> below for the full variable reference.
 
 //axhos_step
@@ -23,7 +23,7 @@ See <<rbtgo_about_substitutions>> below for the full variable reference.
 .. Image: gcloud (from reliquary)
 .. Fetch OAuth token from GCE metadata server
 .. {rbbc_call}
-Docker Registry API: GET manifests for `«CONSECRATION»-image` with OCI media type accept headers
+Docker Registry API: GET manifests for `«HALLMARK»-image` with OCI media type accept headers
 .. If response is an OCI image index or Docker manifest list:
 ... Filter out attestation manifests before extracting platforms.
 OCI image indexes may contain non-runnable attestation manifests (SLSA provenance, SBOMs) alongside real platform manifests.
@@ -43,7 +43,7 @@ GET config blob via digest from manifest's `config.digest` field
 platform count for subsequent step branching
 .. After platform discovery, attempt `-diags` artifact extraction (conjure-only):
 ... {rbbc_call}
-Docker Registry API: HEAD manifests for `«CONSECRATION»-diags`
+Docker Registry API: HEAD manifests for `«HALLMARK»-diags`
 ... If HTTP 200: fetch manifest, iterate layer blobs, extract diagnostic files (`buildkit_metadata.json`, `cache_before.json`, `cache_after.json`, `recipe.txt`) to `/workspace`
 ... If HTTP 404 or error: skip gracefully (expected for bind/graft — no `-diags` artifact exists)
 .. NOTE: The `-diags` artifact is pushed by conjure step 07 (`rbgjb07-push-diags.sh`) and contains build-time diagnostics that cannot be conveyed via Cloud Build substitution variables (Dockerfile content exceeding the ~4KB limit, BuildKit metadata, Docker daemon cache snapshots).
@@ -54,11 +54,11 @@ Docker Registry API: HEAD manifests for `«CONSECRATION»-diags`
 .. Fetch OAuth token via metadata server (syft authenticates as {rbtr_mason})
 .. For each platform in `«PLATFORMS»`:
 ... Conjure with per-platform tags (multi-platform): {rbbc_call}
-`syft registry:«GAR_HOST»/«GAR_PATH»/«VESSEL»:«CONSECRATION»-image-«PLATFORM_SUFFIX»`
+`syft registry:«GAR_HOST»/«GAR_PATH»/«VESSEL»:«HALLMARK»-image-«PLATFORM_SUFFIX»`
 ... Conjure single-platform (single manifest, not an index): {rbbc_call}
-`syft registry:«GAR_HOST»/«GAR_PATH»/«VESSEL»:«CONSECRATION»-image`
+`syft registry:«GAR_HOST»/«GAR_PATH»/«VESSEL»:«HALLMARK»-image`
 ... Bind/graft (always via per-platform digest): {rbbc_call}
-`syft registry:«GAR_HOST»/«GAR_PATH»/«VESSEL»:«CONSECRATION»-image@«PLATFORM_DIGEST»` using per-platform digest from step 1's manifest list
+`syft registry:«GAR_HOST»/«GAR_PATH»/«VESSEL»:«HALLMARK»-image@«PLATFORM_DIGEST»` using per-platform digest from step 1's manifest list
 +
 NOTE: Bind and graft images always use `@«PLATFORM_DIGEST»` pinning, even for single-platform images.
 Grafted images may be stored as OCI image indexes containing attestation manifests (see step 1 filtering); scanning the main tag would cause syft to auto-select the Cloud Build worker's native platform (amd64) from the index, failing when the image contains only a different architecture.
@@ -72,7 +72,7 @@ per-platform SBOM to `/workspace/sbom-«LABEL».json` (e.g., `sbom-amd64.json`; 
 .. Image: gcloud (from reliquary)
 .. For each platform in `«PLATFORMS»`:
 ... Construct `build_info.json` with mode-aware fields organized into nested JSON objects:
-.... Root: `consecration`, `vessel_mode`, `vessel_name`, `platform`, `image_digest`, `about_timestamp`
+.... Root: `hallmark`, `vessel_mode`, `vessel_name`, `platform`, `image_digest`, `about_timestamp`
 .... `git` object: `repo`, `branch`, `commit`
 .... Conjure `build` object: `build_id` (from `_RBGA_BUILD_ID`), `inscribe_timestamp`, `qemu_used`
 .... Conjure `slsa` object: `build_level`, `build_invocation_id`, `provenance_predicate_types`, `provenance_builder_id`
@@ -97,14 +97,14 @@ The `-diags` path (conjure only) bypasses this limit by conveying the full Docke
 .. Build multi-platform `FROM scratch` container with per-platform SBOM, `build_info.json`, `recipe.txt` (when present), and conjure enrichment files when forwarded from `-diags`: `buildkit_metadata.json`, `cache_before.json`, `cache_after.json` (conditional COPY — included only if present in `/workspace`)
 .. For single-platform images: build single-platform `-about` container
 .. For multi-platform images: build with `buildx --push` using `TARGETARCH`/`TARGETVARIANT` to select per-platform files
-.. Push to registry tagged `«CONSECRATION»-about` via `docker buildx build --push`
+.. Push to registry tagged `«HALLMARK»-about` via `docker buildx build --push`
 .. {rbbc_require}
 push succeeds
 
 //axhoc_completion
 Successful execution of these four Cloud Build steps produces a
 {rbtga_ark_about}
-artifact in the registry tagged as `«VESSEL»:«CONSECRATION»-about`.
+artifact in the registry tagged as `«VESSEL»:«HALLMARK»-about`.
 The about artifact is a multi-platform container matching the `-image` artifact's platform list.
 +
 *Re-about idempotency*: Re-running about re-executes Syft and rebuilds `build_info.json`, overwriting the previous `-about` artifact.
@@ -125,7 +125,7 @@ All `_RBGA_*` substitution variables are passed in the `builds.create` request b
 | `_RBGA_GAR_HOST` | GAR Docker host. Source: regime constants.
 | `_RBGA_GAR_PATH` | GAR repository path. Source: regime constants.
 | `_RBGA_VESSEL` | Vessel sigil. Source: loaded vessel configuration.
-| `_RBGA_CONSECRATION` | Full consecration string. Source: input parameter.
+| `_RBGA_HALLMARK` | Full hallmark string. Source: input parameter.
 | `_RBGA_VESSEL_MODE` | Vessel mode (`conjure`, `bind`, or `graft`). Source: loaded vessel configuration.
 | `_RBGA_ARK_SUFFIX_IMAGE` | Ark suffix for image artifact. Source: `RBGC_ARK_SUFFIX_IMAGE` constant.
 | `_RBGA_ARK_SUFFIX_ABOUT` | Ark suffix for about artifact. Source: `RBGC_ARK_SUFFIX_ABOUT` constant.
@@ -144,7 +144,7 @@ All `_RBGA_*` substitution variables are passed in the `builds.create` request b
 [cols="1,2"]
 |===
 | `_RBGA_BUILD_ID` | Conjure Cloud Build job ID (conjure only). In the combined conjure job, populated from the built-in `$BUILD_ID`. In manual recovery standalone about, passed by the director from a prior conjure run. Used by step 3 to populate `build_info.json`. Empty for bind/graft.
-| `_RBGA_INSCRIBE_TIMESTAMP` | Inscribe timestamp from consecration (conjure only). Empty for bind/graft.
+| `_RBGA_INSCRIBE_TIMESTAMP` | Inscribe timestamp from hallmark (conjure only). Empty for bind/graft.
 | `_RBGA_BIND_SOURCE` | Pinned upstream image reference (bind only). Source: {rbrv_bind_image}. Empty for conjure/graft.
 | `_RBGA_GRAFT_SOURCE` | Local image reference at push time (graft only). Empty for conjure/bind.
 | `_RBGA_DOCKERFILE_CONTENT` | Dockerfile content read locally by {rbtr_director} (all modes, optional). Source: {rbrv_conjure_dockerfile} (conjure, always populated), {rbrv_graft_optional_dockerfile} (graft, optional), {rbrv_bind_optional_dockerfile} (bind, optional). Empty if file exceeds ~4KB substitution limit or path not configured. Written to `recipe.txt` in step 3.

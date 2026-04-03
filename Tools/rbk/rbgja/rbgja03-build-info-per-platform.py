@@ -3,7 +3,7 @@
 # Builder: gcr.io/cloud-builders/gcloud (switched from alpine for Python availability)
 # Substitutions (GCB anchors — automapSubstitutions provides as env vars):
 #   ${_RBGA_GAR_HOST} ${_RBGA_GAR_PATH} ${_RBGA_VESSEL}
-#   ${_RBGA_CONSECRATION} ${_RBGA_VESSEL_MODE}
+#   ${_RBGA_HALLMARK} ${_RBGA_VESSEL_MODE}
 #   ${_RBGA_GIT_COMMIT} ${_RBGA_GIT_BRANCH} ${_RBGA_GIT_REPO}
 #   ${_RBGA_BUILD_ID} ${_RBGA_INSCRIBE_TIMESTAMP}
 #   ${_RBGA_BIND_SOURCE} ${_RBGA_GRAFT_SOURCE}
@@ -34,16 +34,16 @@ def require_env(name):
     return val
 
 
-def get_consecration():
-    """Get consecration from env var (standalone about) or file (combined conjure)."""
-    val = os.environ.get("_RBGA_CONSECRATION", "")
+def get_hallmark():
+    """Get hallmark from env var (standalone about) or file (combined conjure)."""
+    val = os.environ.get("_RBGA_HALLMARK", "")
     if val:
         return val
     try:
-        with open(".consecration") as f:
+        with open(".hallmark") as f:
             return f.read().strip()
     except FileNotFoundError:
-        die("_RBGA_CONSECRATION not set and .consecration file not found")
+        die("_RBGA_HALLMARK not set and .hallmark file not found")
 
 
 def get_build_id():
@@ -55,7 +55,7 @@ def main():
     _            = require_env("_RBGA_GAR_HOST")
     _            = require_env("_RBGA_GAR_PATH")
     vessel       = require_env("_RBGA_VESSEL")
-    consecration = get_consecration()
+    hallmark = get_hallmark()
     vessel_mode  = require_env("_RBGA_VESSEL_MODE")
 
     for fname in ["platforms.txt", "platform_suffixes.txt", "platform_digests.txt"]:
@@ -104,7 +104,7 @@ def main():
         print(f"--- {plat} \u2192 {info_file} ---")
 
         info = {
-            "consecration": consecration,
+            "hallmark": hallmark,
             "vessel_mode": vessel_mode,
             "vessel_name": vessel,
             "platform": plat,

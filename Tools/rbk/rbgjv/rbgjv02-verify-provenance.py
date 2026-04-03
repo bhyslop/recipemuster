@@ -5,7 +5,7 @@
 # Writes /workspace/vouch_platforms.txt for step 03.
 # Substitutions (GCB anchors — automapSubstitutions provides as env vars):
 #   ${_RBGV_GAR_HOST} ${_RBGV_GAR_PATH} ${_RBGV_VESSEL}
-#   ${_RBGV_CONSECRATION} ${_RBGV_VESSEL_MODE} ${_RBGV_ARK_SUFFIX_IMAGE}
+#   ${_RBGV_HALLMARK} ${_RBGV_VESSEL_MODE} ${_RBGV_ARK_SUFFIX_IMAGE}
 #   ${_RBGV_IMAGE_1} ${_RBGV_IMAGE_2} ${_RBGV_IMAGE_3}
 #   ${_RBGV_IMAGE_1_PROVENANCE} ${_RBGV_IMAGE_2_PROVENANCE} ${_RBGV_IMAGE_3_PROVENANCE}
 #   ${_RBGV_BIND_SOURCE} ${_RBGV_GRAFT_SOURCE}
@@ -83,13 +83,13 @@ def main():
     gar_host       = require_env("_RBGV_GAR_HOST")
     gar_path       = require_env("_RBGV_GAR_PATH")
     vessel         = require_env("_RBGV_VESSEL")
-    consecration   = require_env("_RBGV_CONSECRATION")
+    hallmark       = require_env("_RBGV_HALLMARK")
     ark_suffix_img = require_env("_RBGV_ARK_SUFFIX_IMAGE")
 
     print(f"=== Mode-aware verification ({vessel_mode}) ===")
 
     full_image = f"{gar_host}/{gar_path}/{vessel}"
-    image_tag = f"{consecration}{ark_suffix_img}"
+    image_tag = f"{hallmark}{ark_suffix_img}"
     registry_base = f"https://{gar_host}/v2/{gar_path}/{vessel}"
 
     token = metadata_token()
@@ -134,17 +134,17 @@ def main():
 
     if vessel_mode == "conjure":
         _verify_conjure(manifest, is_index, config, full_image, token,
-                        registry_base, consecration, vessel, ark_suffix_img)
+                        registry_base, hallmark, vessel, ark_suffix_img)
     elif vessel_mode == "bind":
-        _verify_bind(token, registry_base, image_tag, consecration, vessel)
+        _verify_bind(token, registry_base, image_tag, hallmark, vessel)
     elif vessel_mode == "graft":
-        _verify_graft(consecration, vessel)
+        _verify_graft(hallmark, vessel)
     else:
         die(f"Unknown vessel mode: {vessel_mode}")
 
 
 def _verify_conjure(manifest, is_index, config, full_image, token,
-                    registry_base, consecration, vessel, ark_suffix_img):
+                    registry_base, hallmark, vessel, ark_suffix_img):
     builder_id = "https://cloudbuild.googleapis.com/GoogleHostedWorker"
     expected_keyid = ("projects/verified-builder/locations/global/keyRings/"
                       "attestor/cryptoKeys/google-hosted-worker/cryptoKeyVersions/1")
@@ -161,7 +161,7 @@ def _verify_conjure(manifest, is_index, config, full_image, token,
         arch = config["architecture"]
         variant = config.get("variant", "")
         ps = f"{arch}{variant}"
-        at = f"{consecration}{ark_suffix_img}-{ps}"
+        at = f"{hallmark}{ark_suffix_img}-{ps}"
         try:
             resp = gar_fetch(f"{registry_base}/manifests/{at}", token, ACCEPT_ALL, method="HEAD")
             ad = resp.headers.get("Docker-Content-Digest", "")
@@ -262,7 +262,7 @@ def _verify_conjure(manifest, is_index, config, full_image, token,
 
     # Compose vouch summary
     vouch_summary = {
-        "consecration": consecration,
+        "hallmark": hallmark,
         "vessel": vessel,
         "vessel_mode": "conjure",
         "verify_method": "dsse-envelope",
@@ -290,7 +290,7 @@ def _verify_conjure(manifest, is_index, config, full_image, token,
     print("Vouch summary composed")
 
 
-def _verify_bind(token, registry_base, image_tag, consecration, vessel):
+def _verify_bind(token, registry_base, image_tag, hallmark, vessel):
     try:
         resp = gar_fetch(f"{registry_base}/manifests/{image_tag}", token, ACCEPT_ALL, method="HEAD")
         actual_digest = resp.headers.get("Docker-Content-Digest", "")
@@ -310,7 +310,7 @@ def _verify_bind(token, registry_base, image_tag, consecration, vessel):
     print(f"Digest pin verified: {actual_digest}")
 
     vouch_summary = {
-        "consecration": consecration,
+        "hallmark": hallmark,
         "vessel": vessel,
         "vessel_mode": "bind",
         "verification": {
@@ -327,11 +327,11 @@ def _verify_bind(token, registry_base, image_tag, consecration, vessel):
     print("Vouch summary composed")
 
 
-def _verify_graft(consecration, vessel):
+def _verify_graft(hallmark, vessel):
     print("Graft mode \u2014 stamping GRAFTED")
     graft_source = os.environ.get("_RBGV_GRAFT_SOURCE", "")
     vouch_summary = {
-        "consecration": consecration,
+        "hallmark": hallmark,
         "vessel": vessel,
         "vessel_mode": "graft",
         "verification": {

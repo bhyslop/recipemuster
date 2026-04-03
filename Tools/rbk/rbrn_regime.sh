@@ -46,8 +46,8 @@ zrbrn_kindle() {
   buv_group_enroll "Container Image Configuration"
   buv_fqin_enroll    RBRN_SENTRY_VESSEL            1  128  "Vessel identifier for Sentry Image"
   buv_fqin_enroll    RBRN_BOTTLE_VESSEL            1  128  "Vessel identifier for Bottle Image"
-  buv_fqin_enroll    RBRN_SENTRY_CONSECRATION      1  128  "Consecration tag for Sentry Image"
-  buv_fqin_enroll    RBRN_BOTTLE_CONSECRATION      1  128  "Consecration tag for Bottle Image"
+  buv_fqin_enroll    RBRN_SENTRY_HALLMARK      1  128  "Hallmark tag for Sentry Image"
+  buv_fqin_enroll    RBRN_BOTTLE_HALLMARK      1  128  "Hallmark tag for Bottle Image"
 
   buv_group_enroll "Entry Service Configuration"
   buv_enum_enroll    RBRN_ENTRY_MODE                           "Entry functionality: disabled or enabled" \

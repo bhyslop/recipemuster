@@ -18,7 +18,7 @@ tt/rbw-gO.Onboarding.sh
 | Term | Meaning |
 |------|---------|
 | **Vessel** | A specification for a container workload — a directory in `rbev-vessels/` with `rbrv.env` and optionally a `Dockerfile` |
-| **Consecration** | A specific build instance of a vessel, identified by timestamp (e.g. `c260101120000-r260101130000`). The immutable artifact set: image, about, and vouch |
+| **Hallmark** | A specific build instance of a vessel, identified by timestamp (e.g. `c260101120000-r260101130000`). The immutable artifact set: image, about, and vouch |
 | **Reliquary** | A datestamped namespace in GAR containing co-versioned builder tool images (gcloud, docker, syft, etc.). Created by inscribe; referenced by vessels via `RBRV_RELIQUARY`. One per depot setup. |
 | **Crucible** | The three-container assembly (sentry + pentacle + bottle) that runs an untrusted workload under enforced network isolation |
 | **Depot** | The logical facility where container images are built and stored (GCP project + bucket + registry) |
@@ -39,11 +39,11 @@ Recipe Bottle uses domain-specific verbs instead of generic ones (create, delete
 |------|-------------|
 | **inscribe** | Create a reliquary — mirror builder tool images from upstream into a datestamped GAR namespace. Prerequisite for enshrine and ordain. |
 | **enshrine** | Copy upstream base images into your private GAR, pinned by content hash. Supply-chain hardening: your builds pull from your own registry. |
-| **ordain** | Build a consecration. Mode-aware: detects the vessel type and dispatches accordingly (conjure, bind, or graft). |
+| **ordain** | Build a hallmark. Mode-aware: detects the vessel type and dispatches accordingly (conjure, bind, or graft). |
 | **conjure** | Build from source via Cloud Build (full SLSA provenance). A mode of ordain, not a separate command. |
 | **bind** | Mirror an upstream image pinned by digest (digest-pin verification). A mode of ordain. |
 | **graft** | Push a locally-built image to GAR (no provenance chain). A mode of ordain. |
-| **kludge** | Build a vessel image locally for development iteration. No Cloud Build, no consecration — just a local image. |
+| **kludge** | Build a vessel image locally for development iteration. No Cloud Build, no hallmark — just a local image. |
 
 The supply chain has three layers: inscribe creates the reliquary (tool images), enshrine copies base images, ordain builds your vessel using both.
 
@@ -51,22 +51,22 @@ The supply chain has three layers: inscribe creates the reliquary (tool images),
 
 | Verb | What it does |
 |------|-------------|
-| **tally** | Count and classify consecrations in the registry by health state |
-| **vouch** | Verify SLSA provenance — proves a consecration was built by trusted infrastructure |
+| **tally** | Count and classify hallmarks in the registry by health state |
+| **vouch** | Verify SLSA provenance — proves a hallmark was built by trusted infrastructure |
 | **plumb** | Examine an image's provenance details: SBOM, build info, Dockerfile |
 
 ### How do I get images onto my workstation?
 
 | Verb | What it does |
 |------|-------------|
-| **summon** | Pull a vouched consecration image locally (full vouch ceremony first) |
+| **summon** | Pull a vouched hallmark image locally (full vouch ceremony first) |
 | **wrest** | Pull a specific image by reference (direct pull, no vouch) |
 
 ### How do I remove images?
 
 | Verb | What it does |
 |------|-------------|
-| **abjure** | Delete a consecration's artifacts from GAR (the full set: image + about + vouch) |
+| **abjure** | Delete a hallmark's artifacts from GAR (the full set: image + about + vouch) |
 | **jettison** | Delete a specific image tag from the registry (surgical, single artifact) |
 
 ### How do I run containers?
@@ -148,10 +148,10 @@ All credential files require `600` permissions and must never be committed to ve
 |----------|-------------|---------|
 | `rbw-DI` | DirectorInscribesReliquary | Create a reliquary: mirror tool images from upstream to GAR |
 | `rbw-DE` | DirectorEnshrinesVessel | Enshrine upstream base images to GAR via Cloud Build |
-| `rbw-DO` | DirectorOrdainsConsecration | Ordain consecration: conjure, bind, or graft based on vessel mode |
-| `rbw-Dt` | DirectorTalliesConsecrations | Tally consecrations by health state |
-| `rbw-DV` | DirectorVouchesConsecrations | Mode-aware vouch: SLSA (conjure), digest-pin (bind), GRAFTED (graft) |
-| `rbw-DA` | DirectorAbjuresConsecration | Abjure a consecration (delete artifacts from GAR) |
+| `rbw-DO` | DirectorOrdainsHallmark | Ordain hallmark: conjure, bind, or graft based on vessel mode |
+| `rbw-Dt` | DirectorTalliesHallmarks | Tally hallmarks by health state |
+| `rbw-DV` | DirectorVouchesHallmarks | Mode-aware vouch: SLSA (conjure), digest-pin (bind), GRAFTED (graft) |
+| `rbw-DA` | DirectorAbjuresHallmark | Abjure a hallmark (delete artifacts from GAR) |
 | `rbw-DJ` | DirectorJettisonsImage | Jettison a specific image tag from registry |
 | `rbw-LK` | LocalKludge | Kludge a vessel image locally for development |
 
@@ -159,7 +159,7 @@ All credential files require `600` permissions and must never be committed to ve
 
 | Colophon | Frontispiece | Purpose |
 |----------|-------------|---------|
-| `rbw-Rs` | RetrieverSummonsConsecration | Summon vouched consecration image locally |
+| `rbw-Rs` | RetrieverSummonsHallmark | Summon vouched hallmark image locally |
 | `rbw-Rw` | RetrieverWrestsImage | Wrest a specific image from registry |
 | `rbw-RpF` | RetrieverPlumbsFull | Full provenance display (SBOM, build info, Dockerfile) |
 | `rbw-Rpc` | RetrieverPlumbsCompact | Compact provenance summary |
@@ -180,8 +180,8 @@ All credential files require `600` permissions and must never be committed to ve
 
 | Colophon | Frontispiece | Purpose |
 |----------|-------------|---------|
-| `rbw-Tk` | KludgeCycle | Local kludge build + install consecration into nameplate |
-| `rbw-To` | OrdainCycle | Cloud build + install consecration into nameplate |
+| `rbw-Tk` | KludgeCycle | Local kludge build + install hallmark into nameplate |
+| `rbw-To` | OrdainCycle | Cloud build + install hallmark into nameplate |
 
 ### Qualification & Testing
 
@@ -204,7 +204,7 @@ Regimes follow a consistent pattern: `rbw-r{code}{r|v|l}` where `r` = render, `v
 |------|--------|---------|--------|----------|
 | `rp` | RBRP | Payor — GCP billing project identity | `rbw-rpr` | `rbw-rpv` |
 | `rr` | RBRR | Repo — depot project, region, build config | `rbw-rrr` | `rbw-rrv` |
-| `rn` | RBRN | Nameplate — per-vessel consecrations, runtime | `rbw-rnr` | `rbw-rnv` |
+| `rn` | RBRN | Nameplate — per-vessel hallmarks, runtime | `rbw-rnr` | `rbw-rnv` |
 | `rv` | RBRV | Vessel — container image build definitions | `rbw-rvr` | `rbw-rvv` |
 | `rs` | RBRS | Station — developer machine paths | `rbw-rsr` | `rbw-rsv` |
 | `ro` | RBRO | OAuth — payor refresh token (managed) | `rbw-ror` | `rbw-rov` |
@@ -236,7 +236,7 @@ A Config Regime is a structured configuration system: a specification document, 
 **Recipe Bottle regimes** (in `.rbk/`):
 - **RBRP** — Payor project identity. Set `RBRP_PAYOR_PROJECT_ID` to your GCP project.
 - **RBRR** — Repository/depot configuration. Region, machine type, vessel directory, secrets directory, depot project ID.
-- **RBRN** — Nameplate. Per-vessel: runtime (`docker`), vessel names, consecration values (set after builds complete).
+- **RBRN** — Nameplate. Per-vessel: runtime (`docker`), vessel names, hallmark values (set after builds complete).
 - **RBRV** — Vessel definitions. One per container image you want to build.
 - **RBRS** — Station. Developer-specific paths for Recipe Bottle. Not in git.
 
@@ -278,4 +278,4 @@ Project Root/
 - **OAuth token expired**: `tt/rbw-gPR.PayorRefresh.sh`
 - **Lost credential file**: Re-run the creation command for that role (payor install, governor mantle, director knight, retriever charter).
 - **Tabtarget not found**: Run `tt/rbw-Qf.QualifyFast.sh` to check tabtarget and colophon health.
-- **Build fails**: Check `tt/rbw-Dt.DirectorTalliesConsecrations.sh` for build status. Review logs in the GCP Console for the depot project.
+- **Build fails**: Check `tt/rbw-Dt.DirectorTalliesHallmarks.sh` for build status. Review logs in the GCP Console for the depot project.

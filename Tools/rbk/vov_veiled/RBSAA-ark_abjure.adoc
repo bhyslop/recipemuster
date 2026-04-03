@@ -11,7 +11,7 @@ using the Docker Registry HTTP API V2 implemented by
 An
 {rbtga_ark}
 is the coherent unit of a Recipe Bottle build: a set of artifacts sharing a common
-{rbtga_consecration}
+{rbtga_hallmark}
 but distinguished by suffix.
 The
 {rbtga_ark_image}
@@ -35,19 +35,19 @@ abjures an ark:
 .. {rbbc_require}
 `«INPUT_VESSEL»` provided as first argument
 .. {rbbc_require}
-`«INPUT_CONSECRATION»` provided as second argument
+`«INPUT_HALLMARK»` provided as second argument
 .. {rbbc_fatal}
 if vessel missing: "Vessel parameter required"
 .. {rbbc_fatal}
-if consecration missing: "Consecration parameter required"
+if hallmark missing: "Hallmark parameter required"
 
 //axhopt_typed_parameter
-{rbtga_consecration}
-. *Validate Consecration Format*:
+{rbtga_hallmark}
+. *Validate Hallmark Format*:
 .. {rbbc_require}
-`«INPUT_CONSECRATION»` matches pattern `[cbg]\d{12}-r\d{12}` (mode prefix + dual timestamp)
+`«INPUT_HALLMARK»` matches pattern `[cbg]\d{12}-r\d{12}` (mode prefix + dual timestamp)
 .. {rbbc_fatal}
-if malformed: "Consecration format invalid"
+if malformed: "Hallmark format invalid"
 
 //axhos_step
 . *Authenticate as
@@ -69,37 +69,37 @@ if malformed: "Consecration format invalid"
 //axhos_step
 . *Construct Ark Tags*:
 .. {rbbc_store}
-`«IMAGE_TAG»` as `«INPUT_VESSEL»:«INPUT_CONSECRATION»-image`
+`«IMAGE_TAG»` as `«INPUT_VESSEL»:«INPUT_HALLMARK»-image`
 .. {rbbc_store}
-`«ABOUT_TAG»` as `«INPUT_VESSEL»:«INPUT_CONSECRATION»-about`
+`«ABOUT_TAG»` as `«INPUT_VESSEL»:«INPUT_HALLMARK»-about`
 .. {rbbc_store}
-`«VOUCH_TAG»` as `«INPUT_VESSEL»:«INPUT_CONSECRATION»-vouch`
+`«VOUCH_TAG»` as `«INPUT_VESSEL»:«INPUT_HALLMARK»-vouch`
 .. {rbbc_store}
-`«DIAGS_TAG»` as `«INPUT_VESSEL»:«INPUT_CONSECRATION»-diags`
+`«DIAGS_TAG»` as `«INPUT_VESSEL»:«INPUT_HALLMARK»-diags`
 
 //axhos_step
 . *Verify Ark Existence*:
 .. {rbbc_call}
 link:https://github.com/opencontainers/distribution-spec/blob/main/spec.md#pulling-manifests[Docker Registry API: HEAD manifests] for `«IMAGE_TAG»`:
 ... method: `HEAD`
-... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_CONSECRATION»-image`
+... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_HALLMARK»-image`
 ... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
 ... header: `Accept: application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.index.v1+json, application/vnd.oci.image.manifest.v1+json`
 .. {rbbc_store}
 `«IMAGE_EXISTS»` as true if HTTP 200, false if HTTP 404
 .. {rbbc_call}
 same HEAD request for `«ABOUT_TAG»`:
-... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_CONSECRATION»-about`
+... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_HALLMARK»-about`
 .. {rbbc_store}
 `«ABOUT_EXISTS»` as true if HTTP 200, false if HTTP 404
 .. {rbbc_call}
 same HEAD request for `«VOUCH_TAG»`:
-... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_CONSECRATION»-vouch`
+... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_HALLMARK»-vouch`
 .. {rbbc_store}
 `«VOUCH_EXISTS»` as true if HTTP 200, false if HTTP 404
 .. {rbbc_call}
 same HEAD request for `«DIAGS_TAG»`:
-... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_CONSECRATION»-diags`
+... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_HALLMARK»-diags`
 .. {rbbc_store}
 `«DIAGS_EXISTS»` as true if HTTP 200, false if HTTP 404 (optional — conjure-only, absent for bind/graft)
 
@@ -120,7 +120,7 @@ which artifact exists and which is missing
 . *Confirm Abjuration*:
 .. Unless `--force` flag provided:
 ... {rbbc_show}
-"Will abjure ark «INPUT_VESSEL»/«INPUT_CONSECRATION»:" followed by each artifact in `«ARTIFACTS_TO_DELETE»`
+"Will abjure ark «INPUT_VESSEL»/«INPUT_HALLMARK»:" followed by each artifact in `«ARTIFACTS_TO_DELETE»`
 ... {rbbc_require}
 user types `yes` to confirm
 ... {rbbc_fatal}
@@ -132,7 +132,7 @@ if not confirmed: "prompt not confirmed."
 ... {rbbc_call}
 link:https://github.com/opencontainers/distribution-spec/blob/main/spec.md#deleting-tags[Docker Registry API: DELETE manifests] with:
 .... method: `DELETE`
-.... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_CONSECRATION»-image`
+.... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_HALLMARK»-image`
 .... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
 ... {rbbc_require}
 HTTP 202 (Accepted) or 204 (No Content) response
@@ -145,7 +145,7 @@ if delete fails: "Failed to delete -image artifact (HTTP «STATUS_CODE»)"
 ... {rbbc_call}
 Docker Registry API: DELETE manifests with:
 .... method: `DELETE`
-.... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_CONSECRATION»-about`
+.... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_HALLMARK»-about`
 .... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
 ... {rbbc_require}
 HTTP 202 (Accepted) or 204 (No Content) response
@@ -158,7 +158,7 @@ if delete fails: "Failed to delete -about artifact (HTTP «STATUS_CODE»)"
 ... {rbbc_call}
 Docker Registry API: DELETE manifests with:
 .... method: `DELETE`
-.... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_CONSECRATION»-vouch`
+.... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_HALLMARK»-vouch`
 .... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
 ... {rbbc_require}
 HTTP 202 (Accepted) or 204 (No Content) response
@@ -171,7 +171,7 @@ if delete fails: "Failed to delete -vouch artifact (HTTP «STATUS_CODE»)"
 ... {rbbc_call}
 Docker Registry API: DELETE manifests with:
 .... method: `DELETE`
-.... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_CONSECRATION»-diags`
+.... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_HALLMARK»-diags`
 .... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
 ... {rbbc_require}
 HTTP 202 (Accepted) or 204 (No Content) response
@@ -182,7 +182,7 @@ if delete fails: "Failed to delete -diags artifact (HTTP «STATUS_CODE»)"
 {rbtga_ark}
 . *Display Results*:
 .. {rbbc_show}
-"Ark abjured: «INPUT_VESSEL»/«INPUT_CONSECRATION»"
+"Ark abjured: «INPUT_VESSEL»/«INPUT_HALLMARK»"
 .. For each deleted artifact:
 ... {rbbc_show}
 `  - «TAG» deleted`

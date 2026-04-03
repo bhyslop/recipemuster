@@ -1,5 +1,5 @@
 //axhob_operation
-{rbtgo_consecration_tally}
+{rbtgo_hallmark_tally}
 
 NOTE: This operation enumerates
 {rbtga_ark}s
@@ -8,7 +8,7 @@ across all
 packages in
 {rbtgi_repository},
 classifying each
-{rbtga_consecration}
+{rbtga_hallmark}
 by artifact completeness and vouch status.
 Uses local regime vessel list for enumeration, queries
 {gar_service}
@@ -16,7 +16,7 @@ Docker Registry HTTP API V2 for tag data.
 
 The
 {rbtr_director}
-tallies consecrations:
+tallies hallmarks:
 
 //axhos_step
 . *Enumerate Vessels*:
@@ -39,7 +39,7 @@ local regime vessel list via `rbrv_list_capture`
 ... {rbbc_call}
 Docker Registry HTTP API V2 tag list endpoint
 ... For each tag returned, match against
-{rbtga_consecration}
+{rbtga_hallmark}
 pattern (`[cbg]\d{12}-r\d{12}`):
 .... Tags with `-image` suffix → classify by platform suffix (bare = consumer manifest list, `-amd64`/`-arm64` = per-platform)
 .... Tags with `-about` suffix → about artifact present
@@ -48,46 +48,46 @@ pattern (`[cbg]\d{12}-r\d{12}`):
 .... Tags with unrecognized patterns → skip (not ark artifacts)
 .... Other tags → skip (infrastructure aliases, not ark artifacts)
 ... {rbbc_store}
-unique consecrations with artifact type and platform data
+unique hallmarks with artifact type and platform data
 
 //axhos_step
-. *Evaluate Health Per Consecration*:
-.. For each unique vessel+consecration pair:
+. *Evaluate Health Per Hallmark*:
+.. For each unique vessel+hallmark pair:
 ... If `-about` present and `-vouch` present → `vouched`
 ... If `-about` present and `-vouch` absent → `pending`
 ... If `-image` present and `-about` absent → `incomplete`
 .. {rbbc_store}
-health state and platform list per consecration
+health state and platform list per hallmark
 
 //axhoot_typed_output
-{rbtga_consecration}
+{rbtga_hallmark}
 
 //axhoot_typed_output axd_tally
 {rbcc_fact_consec_infix}
 One file per
-{rbtga_consecration}
+{rbtga_hallmark}
 per vessel.
 Consumers check presence via `test -f` on composed filenames.
 
 . *Present Per-Vessel Tables*:
-.. For each vessel with consecrations:
+.. For each vessel with hallmarks:
 ... {rbbc_show}
 vessel header
 ... {rbbc_show}
-column headers: `Consecration`, `Platforms`, `Health`
-... For each consecration (newest first):
+column headers: `Hallmark`, `Platforms`, `Health`
+... For each hallmark (newest first):
 .... {rbbc_show}
-consecration timestamp, platform list (or `single`), health state
+hallmark timestamp, platform list (or `single`), health state
 
 //axhos_step
 . *Recommend Next Actions*:
-.. If any `pending` consecrations:
+.. If any `pending` hallmarks:
 ... {rbbc_show}
 tabtarget recommendation for vouch
-.. If any `incomplete` consecrations:
+.. If any `incomplete` hallmarks:
 ... {rbbc_show}
 tabtarget recommendation to abjure and rebuild (incomplete typically means the build was interrupted or about stitch failed)
 
 //axhoc_completion
-Procedure completes successfully when all vessels have been queried and the per-vessel tables display consecration health.
+Procedure completes successfully when all vessels have been queried and the per-vessel tables display hallmark health.
 The check reveals the registry's ark inventory and vouch coverage without modifying any resources.

@@ -2,12 +2,12 @@
 {rbtgo_ark_kludge}
 
 NOTE: This operation builds a vessel image locally on the workstation using `docker build`, bypassing Cloud Build and GAR entirely. It produces a
-{rbtga_consecration}
-with a `k` prefix (kludge) that composes cleanly with the nameplate and compose infrastructure but is obviously not a production consecration.
+{rbtga_hallmark}
+with a `k` prefix (kludge) that composes cleanly with the nameplate and compose infrastructure but is obviously not a production hallmark.
 
-NOTE: Kludge is a deliberate development shortcut for fast edit-build-test cycles. It enables iterating on vessel Dockerfiles, entrypoint scripts, and package lists without waiting for a Cloud Build round-trip. The ugly name is intentional -- this is not part of the production consecration pipeline.
+NOTE: Kludge is a deliberate development shortcut for fast edit-build-test cycles. It enables iterating on vessel Dockerfiles, entrypoint scripts, and package lists without waiting for a Cloud Build round-trip. The ugly name is intentional -- this is not part of the production hallmark pipeline.
 
-NOTE: The kludge consecration format is `k«YYMMDDHHMMSS»-«git-describe»`, paralleling conjure's `c«YYMMDDHHMMSS»` and bind's `b«YYMMDDHHMMSS»-r«YYMMDDHHMMSS»`. The timestamp provides chronological sorting; the `git describe --always` suffix ties the image to a specific commit. The dirty-tree guard ensures the describe always corresponds to a committed state. The `k` prefix makes kludge consecrations visually distinct in nameplate files and `docker image ls` output.
+NOTE: The kludge hallmark format is `k«YYMMDDHHMMSS»-«git-describe»`, paralleling conjure's `c«YYMMDDHHMMSS»` and bind's `b«YYMMDDHHMMSS»-r«YYMMDDHHMMSS»`. The timestamp provides chronological sorting; the `git describe --always` suffix ties the image to a specific commit. The dirty-tree guard ensures the describe always corresponds to a committed state. The `k` prefix makes kludge hallmarks visually distinct in nameplate files and `docker image ls` output.
 
 The kludge operation:
 
@@ -29,16 +29,16 @@ is set, use the origin directly as the `RBF_IMAGE_n` build-arg
 .. No enshrine anchor resolution -- kludge pulls base images from upstream registries
 
 //axhos_step
-. *Assign Kludge Consecration*:
-.. Mint consecration as `k«YYMMDDHHMMSS»-«git-describe»` from dispatch timestamp and `BURD_GIT_CONTEXT`
+. *Assign Kludge Hallmark*:
+.. Mint hallmark as `k«YYMMDDHHMMSS»-«git-describe»` from dispatch timestamp and `BURD_GIT_CONTEXT`
 .. {rbbc_store}
-`«CONSECRATION»`
+`«HALLMARK»`
 
 //axhos_step
 . *Build Image Locally*:
 .. Run `docker build` with resolved `RBF_IMAGE_n` build-args
 .. Build for host platform only (no multi-arch -- development builds run where they are built)
-.. Tag as `«GAR_BASE»/«SIGIL»:«CONSECRATION»-image` to match compose YAML interpolation format
+.. Tag as `«GAR_BASE»/«SIGIL»:«HALLMARK»-image` to match compose YAML interpolation format
 
 //axhos_step
 . *Create Fake Vouch Tag*:
@@ -47,16 +47,16 @@ is set, use the origin directly as the `RBF_IMAGE_n` build-arg
 .. Satisfies the `rbob_charge` vouch gate (`docker image inspect` on vouch ref)
 
 //axhos_step
-. *Report Consecration*:
-.. Print the consecration value for the operator to paste into the nameplate `.env` file
-.. Persist consecration to `BURD_OUTPUT_DIR` for downstream chaining
+. *Report Hallmark*:
+.. Print the hallmark value for the operator to paste into the nameplate `.env` file
+.. Persist hallmark to `BURD_OUTPUT_DIR` for downstream chaining
 
 == Limitations
 
 * Requires GCP depot configuration (foundry kindle validates `RBDC_DIRECTOR_RBRA_FILE` exists, though kludge does not use credentials)
 * Host platform only -- a kludge-built `linux/arm64` image on Apple Silicon will not run on `linux/amd64` hosts
 * No about artifact, no provenance chain -- the vouch tag is a same-image alias with no attestation content
-* Not suitable for release or delivery -- use {rbtgo_ark_conjure} for production consecrations
+* Not suitable for release or delivery -- use {rbtgo_ark_conjure} for production hallmarks
 
 == Tabtarget
 

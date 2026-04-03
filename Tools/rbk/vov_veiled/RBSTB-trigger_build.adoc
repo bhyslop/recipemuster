@@ -12,7 +12,7 @@ All substitution values are baked at inscribe time — zero custom overrides at 
 NOTE: This operation supports concurrent execution per the Concurrent Session Safety invariant.
 Each invocation dispatches an independent trigger execution with a unique `BUILD_ID`.
 Concurrent builds of the same vessel produce independent images with different
-{rbtga_consecration}
+{rbtga_hallmark}
 timestamps.
 
 The
@@ -144,12 +144,12 @@ if timeout: "Build timeout after 20 minutes"
 if final status is not `SUCCESS`: "Build failed with status: «BUILD_STATUS»"
 
 //axhoot_typed_output
-{rbtga_consecration}
+{rbtga_hallmark}
 . *Display Results*:
 .. {rbbc_show}
 build completed successfully
 .. {rbbc_show}
-{rbtga_consecration}
+{rbtga_hallmark}
 tag (dual-timestamp: inscribe + realized)
 .. {rbbc_show}
 image available in
@@ -200,7 +200,7 @@ Cloud Build resolves these from the committed JSON — no values are overridden 
 | `_RBGY_GIT_REPO` | Main repo identifier (owner/repo).
 | `_RBGY_RUBRIC_REPO` | {rbtgr_rubric_repo} URL. Placeholder in generated JSON; filled at inscribe time.
 | `_RBGY_RUBRIC_COMMIT` | {rbtgr_rubric_repo} HEAD SHA after push. Placeholder in generated JSON; filled at inscribe time.
-| `_RBGY_INSCRIBE_TIMESTAMP` | Inscribe timestamp (`YYMMDDHHMMSS`). Placeholder in generated JSON; filled at inscribe time. Used by rbgjb01 to construct {rbtga_consecration}.
+| `_RBGY_INSCRIBE_TIMESTAMP` | Inscribe timestamp (`YYMMDDHHMMSS`). Placeholder in generated JSON; filled at inscribe time. Used by rbgjb01 to construct {rbtga_hallmark}.
 |===
 
 Builder image references (step `name:` fields) are resolved to digest-pinned URIs from regime pins at inscribe time.
@@ -223,7 +223,7 @@ with the updated content directly into the
 ==== Tag Construction
 
 Each build produces a
-{rbtga_consecration}
+{rbtga_hallmark}
 with dual timestamps:
 
 `c«YYMMDDHHMMSS»-r«YYMMDDHHMMSS»`
@@ -233,11 +233,11 @@ with dual timestamps:
 
 Example: `c260224153022-r260224160530`
 
-Step `rbgjb01` constructs: `CONSECRATION="c${_RBGY_INSCRIBE_TIMESTAMP}-r$(date -u +%y%m%d%H%M%S)"`
+Step `rbgjb01` constructs: `HALLMARK="c${_RBGY_INSCRIBE_TIMESTAMP}-r$(date -u +%y%m%d%H%M%S)"`
 
-Complete artifact tags combine vessel moniker with {rbtga_consecration}:
+Complete artifact tags combine vessel moniker with {rbtga_hallmark}:
 
-* {rbtga_ark_image}: `«MONIKER»:«CONSECRATION»«ARK_SUFFIX_IMAGE»`
+* {rbtga_ark_image}: `«MONIKER»:«HALLMARK»«ARK_SUFFIX_IMAGE»`
 
 About and vouch artifacts are created by subsequent pipeline stages ({rbtgo_ark_about}, {rbtgo_ark_vouch}).
 

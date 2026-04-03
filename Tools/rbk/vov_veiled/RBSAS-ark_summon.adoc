@@ -26,7 +26,7 @@ The summon operation:
 .. {rbbc_require}
 vessel provided as first argument
 .. {rbbc_require}
-consecration provided as second argument
+hallmark provided as second argument
 
 //axhos_step
 . *Authenticate as
@@ -42,11 +42,11 @@ authentication token for subsequent API calls
 //axhos_step
 . *Construct Ark Tags*:
 .. {rbbc_store}
-image tag as `«INPUT_VESSEL»:«INPUT_CONSECRATION»-image`
+image tag as `«INPUT_VESSEL»:«INPUT_HALLMARK»-image`
 .. {rbbc_store}
-about tag as `«INPUT_VESSEL»:«INPUT_CONSECRATION»-about`
+about tag as `«INPUT_VESSEL»:«INPUT_HALLMARK»-about`
 .. {rbbc_store}
-vouch tag as `«INPUT_VESSEL»:«INPUT_CONSECRATION»-vouch`
+vouch tag as `«INPUT_VESSEL»:«INPUT_HALLMARK»-vouch`
 
 //axhos_step
 . *Verify Ark Existence*:

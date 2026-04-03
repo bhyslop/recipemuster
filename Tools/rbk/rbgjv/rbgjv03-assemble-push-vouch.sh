@@ -3,7 +3,7 @@
 # Builder: docker (from reliquary)
 # Entrypoint: bash
 # Substitutions: _RBGV_GAR_HOST, _RBGV_GAR_PATH, _RBGV_VESSEL,
-#                _RBGV_CONSECRATION, _RBGV_ARK_SUFFIX_VOUCH
+#                _RBGV_HALLMARK, _RBGV_ARK_SUFFIX_VOUCH
 #
 # Note: The Dockerfile heredoc below is intentional — this script runs inside
 # a Cloud Build container, not under BCG module discipline.
@@ -22,7 +22,7 @@ test -f /workspace/vouch_platforms.txt \
 PLATFORMS=$(cat /workspace/vouch_platforms.txt)
 test -n "${PLATFORMS}" || { echo "FATAL: vouch_platforms.txt is empty" >&2; exit 1; }
 
-VOUCH_TAG="${_RBGV_GAR_HOST}/${_RBGV_GAR_PATH}/${_RBGV_VESSEL}:${_RBGV_CONSECRATION}${_RBGV_ARK_SUFFIX_VOUCH}"
+VOUCH_TAG="${_RBGV_GAR_HOST}/${_RBGV_GAR_PATH}/${_RBGV_VESSEL}:${_RBGV_HALLMARK}${_RBGV_ARK_SUFFIX_VOUCH}"
 echo "Platforms: ${PLATFORMS}"
 echo "Target: ${VOUCH_TAG}"
 

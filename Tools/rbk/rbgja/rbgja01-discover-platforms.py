@@ -3,7 +3,7 @@
 # Builder: gcr.io/cloud-builders/gcloud
 # Substitutions (GCB anchors — automapSubstitutions provides as env vars):
 #   ${_RBGA_GAR_HOST} ${_RBGA_GAR_PATH} ${_RBGA_VESSEL}
-#   ${_RBGA_CONSECRATION} ${_RBGA_VESSEL_MODE}
+#   ${_RBGA_HALLMARK} ${_RBGA_VESSEL_MODE}
 #   ${_RBGA_ARK_SUFFIX_IMAGE} ${_RBGA_ARK_SUFFIX_DIAGS}
 #
 # Queries the -image manifest to discover what platforms are present.
@@ -47,16 +47,16 @@ def require_env(name):
     return val
 
 
-def get_consecration():
-    """Get consecration from env var (standalone about) or file (combined conjure)."""
-    val = os.environ.get("_RBGA_CONSECRATION", "")
+def get_hallmark():
+    """Get hallmark from env var (standalone about) or file (combined conjure)."""
+    val = os.environ.get("_RBGA_HALLMARK", "")
     if val:
         return val
     try:
-        with open(".consecration") as f:
+        with open(".hallmark") as f:
             return f.read().strip()
     except FileNotFoundError:
-        die("_RBGA_CONSECRATION not set and .consecration file not found")
+        die("_RBGA_HALLMARK not set and .hallmark file not found")
 
 
 METADATA_TOKEN_URL = (
@@ -87,12 +87,12 @@ def main():
     gar_host       = require_env("_RBGA_GAR_HOST")
     gar_path       = require_env("_RBGA_GAR_PATH")
     vessel         = require_env("_RBGA_VESSEL")
-    consecration   = get_consecration()
+    hallmark       = get_hallmark()
     _              = require_env("_RBGA_VESSEL_MODE")
     ark_suffix_img = require_env("_RBGA_ARK_SUFFIX_IMAGE")
     ark_suffix_dia = require_env("_RBGA_ARK_SUFFIX_DIAGS")
 
-    image_tag = f"{consecration}{ark_suffix_img}"
+    image_tag = f"{hallmark}{ark_suffix_img}"
     registry_base = f"https://{gar_host}/v2/{gar_path}/{vessel}"
 
     print("Fetching OAuth2 token via metadata server")
@@ -123,7 +123,7 @@ def main():
         print(f"Count: {f.read()}")
     print("=== Platform discovery complete ===")
 
-    _extract_diags(registry_base, token, consecration, ark_suffix_dia)
+    _extract_diags(registry_base, token, hallmark, ark_suffix_dia)
 
 
 def _discover_index(manifest, registry_base, token):
@@ -211,8 +211,8 @@ def _discover_single(manifest, registry_base, token, image_tag):
         f.write(f"{suffix} {manifest_digest}\n")
 
 
-def _extract_diags(registry_base, token, consecration, ark_suffix_diags):
-    diags_tag = f"{consecration}{ark_suffix_diags}"
+def _extract_diags(registry_base, token, hallmark, ark_suffix_diags):
+    diags_tag = f"{hallmark}{ark_suffix_diags}"
     print()
     print(f"=== Checking for -diags artifact: {diags_tag} ===")
 

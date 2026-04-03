@@ -70,7 +70,7 @@ rblm_zero() {
     bug_t "    (secrets dir not configured)"
   fi
   bug_e
-  bug_t "  Vessel consecrations BLANKED (stale after depot change):"
+  bug_t "  Vessel hallmarks BLANKED (stale after depot change):"
   local z_np_preview=""
   local z_any_np=0
   for z_np_preview in "${RBBC_dot_dir}"/*/rbrn.env; do
@@ -134,8 +134,8 @@ rblm_zero() {
     done
   fi
 
-  # Blank consecration values in all vessel nameplates.
-  # Consecrations reference images built against the prior depot — they
+  # Blank hallmark values in all vessel nameplates.
+  # Hallmarks reference images built against the prior depot — they
   # become stale after reset.  Blanking them causes the onboarding guide
   # to require conjure & vouch before declaring setup complete.
   local z_np=""
@@ -145,12 +145,12 @@ rblm_zero() {
     z_np_tmp="${z_np}.tmp"
     while IFS= read -r z_line; do
       case "${z_line}" in
-        RBRN_SENTRY_CONSECRATION=*)  printf '%s\n' "RBRN_SENTRY_CONSECRATION=" ;;
-        RBRN_BOTTLE_CONSECRATION=*)  printf '%s\n' "RBRN_BOTTLE_CONSECRATION=" ;;
+        RBRN_SENTRY_HALLMARK=*)  printf '%s\n' "RBRN_SENTRY_HALLMARK=" ;;
+        RBRN_BOTTLE_HALLMARK=*)  printf '%s\n' "RBRN_BOTTLE_HALLMARK=" ;;
         *)                           printf '%s\n' "${z_line}"                  ;;
       esac
     done < "${z_np}" > "${z_np_tmp}" && mv "${z_np_tmp}" "${z_np}"
-    bug_t "  Blanked consecrations: ${z_np}"
+    bug_t "  Blanked hallmarks: ${z_np}"
   done
 
   # Blank depot-scoped fields in all vessel regime files.

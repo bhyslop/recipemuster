@@ -229,7 +229,7 @@ zrbfd_registry_preflight() {
       buc_bare "  stages these tools so builds can run without egress. All vessels in a depot"
       buc_bare "  typically share one reliquary. Inscribe creates a new datestamped set:"
       buc_tabtarget "${RBZ_INSCRIBE_RELIQUARY}"
-      buc_tabtarget "${RBZ_ORDAIN_CONSECRATION}" "${z_vessel_dir}"
+      buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir}"
       buc_die "Registry preflight failed — reliquary missing from GAR"
     elif test "${z_rqy_http_code}" != "200"; then
       buc_die "Unexpected HTTP ${z_rqy_http_code} when checking reliquary: ${z_rqy_canary}:latest"
@@ -295,7 +295,7 @@ zrbfd_registry_preflight() {
       buc_bare "  Multiple vessels sharing the same base image anchor need only one enshrine."
       buc_bare "  Run enshrine, then re-run ordain:"
       buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir}"
-      buc_tabtarget "${RBZ_ORDAIN_CONSECRATION}" "${z_vessel_dir}"
+      buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir}"
       buc_die "Registry preflight failed — enshrined base image missing from GAR"
     elif test "${z_http_code}" != "200"; then
       buc_die "Unexpected HTTP ${z_http_code} when checking enshrined image: enshrine:${z_anchor}"
@@ -502,28 +502,28 @@ zrbfd_stitch_build_json() {
   # === Combined conjure: embed about steps after image steps ===
   # About steps use _RBGA_* substitutions. Most are added to the substitutions block.
   # Two require special handling (not known at inscribe time):
-  #   - _RBGA_CONSECRATION: computed at build time by rbgjb01, read from workspace
+  #   - _RBGA_HALLMARK: computed at build time by rbgjb01, read from workspace
   #   - _RBGA_BUILD_ID: Cloud Build job ID, available as built-in $BUILD_ID
 
   buc_log_args "Assembling about steps for combined conjure"
   local -r z_about_steps_file="${ZRBFD_STITCH_PREFIX}about_steps.json"
   zrbfc_assemble_about_steps "${z_about_steps_file}" "${ZRBFD_STITCH_PREFIX}about_"
 
-  # About steps run in vessel dir so .consecration from rbgjb01 is accessible
+  # About steps run in vessel dir so .hallmark from rbgjb01 is accessible
   buc_log_args "Adding dir field to about steps for vessel directory ${z_sigil}"
   local -r z_about_with_dir="${ZRBFD_STITCH_PREFIX}about_with_dir.json"
   jq --arg dir "${z_sigil}" '[.[] | . + {dir: $dir}]' \
     "${z_about_steps_file}" > "${z_about_with_dir}" \
     || buc_die "Failed to add dir to about steps"
 
-  # Consecration: $(cat .consecration) → bash reads workspace file written by rbgjb01
+  # Hallmark: $(cat .hallmark) → bash reads workspace file written by rbgjb01
   # Build ID: $BUILD_ID → GCB built-in available as env var
-  buc_log_args "Post-processing about steps: consecration from workspace, build ID from env"
+  buc_log_args "Post-processing about steps: hallmark from workspace, build ID from env"
   local -r z_about_processed="${ZRBFD_STITCH_PREFIX}about_processed.json"
   local z_about_content
   z_about_content=$(<"${z_about_with_dir}") \
     || buc_die "Failed to read about steps for post-processing"
-  z_about_content="${z_about_content//\$\{_RBGA_CONSECRATION\}/\$(cat .consecration)}"
+  z_about_content="${z_about_content//\$\{_RBGA_HALLMARK\}/\$(cat .hallmark)}"
   z_about_content="${z_about_content//\$\{_RBGA_BUILD_ID:-\}/\$BUILD_ID}"
   printf '%s' "${z_about_content}" > "${z_about_processed}" \
     || buc_die "Failed to post-process about steps for conjure"
@@ -957,7 +957,7 @@ zrbfd_enshrine_extract_anchors() {
 rbfd_ordain() {
   zrbfd_sentinel
 
-  buc_doc_brief "Ordain a consecration from a vessel (conjure, mirror, or graft based on vessel mode)"
+  buc_doc_brief "Ordain a hallmark from a vessel (conjure, mirror, or graft based on vessel mode)"
   buc_doc_param "vessel" "Vessel sigil or path to vessel directory"
   buc_doc_shown || return 0
 
@@ -984,25 +984,25 @@ rbfd_ordain() {
     *)       buc_die "Unknown vessel mode: ${z_mode}" ;;
   esac
 
-  # Chaining: read consecration persisted by mode dispatch
-  buc_step "Reading consecration from mode dispatch output"
-  local z_consecration=""
-  z_consecration=$(<"${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}") \
-    || buc_die "Failed to read consecration from output"
-  test -n "${z_consecration}" || buc_die "Empty consecration in output"
+  # Chaining: read hallmark persisted by mode dispatch
+  buc_step "Reading hallmark from mode dispatch output"
+  local z_hallmark=""
+  z_hallmark=$(<"${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}") \
+    || buc_die "Failed to read hallmark from output"
+  test -n "${z_hallmark}" || buc_die "Empty hallmark in output"
 
   # Metadata pipeline: graft uses combined about+vouch; conjure/bind already have about, need standalone vouch
   case "${z_mode}" in
     conjure)
       buc_info "About produced by combined conjure job — proceeding to vouch"
-      rbfv_vouch "${z_vessel_dir}" "${z_consecration}"
+      rbfv_vouch "${z_vessel_dir}" "${z_hallmark}"
       ;;
     graft)
-      zrbfv_graft_metadata_submit "${z_vessel_dir}" "${z_consecration}"
+      zrbfv_graft_metadata_submit "${z_vessel_dir}" "${z_hallmark}"
       ;;
     bind)
       buc_info "About produced by combined bind job — proceeding to vouch"
-      rbfv_vouch "${z_vessel_dir}" "${z_consecration}"
+      rbfv_vouch "${z_vessel_dir}" "${z_hallmark}"
       ;;
     *)
       buc_die "Unknown vessel mode in chaining: ${z_mode}"
@@ -1113,10 +1113,10 @@ rbfd_build() {
 
   zrbfc_wait_build_completion 960 "Conjure"  # 80 minutes at 5s intervals
 
-  # Discover consecration from build step output (strong tie — no GAR scanning)
+  # Discover hallmark from build step output (strong tie — no GAR scanning)
   # Step[0] is extract-context (no output).  Step[1] is derive-tag-base which
-  # writes consecration to /builder/outputs/output (base64-encoded in buildStepOutputs[1]).
-  buc_step "Discovering consecration from build step output"
+  # writes hallmark to /builder/outputs/output (base64-encoded in buildStepOutputs[1]).
+  buc_step "Discovering hallmark from build step output"
 
   local z_step_output=""
   jq -r '.results.buildStepOutputs[1] // empty' "${ZRBFC_BUILD_STATUS_FILE}" > "${ZRBFC_SCRATCH_FILE}" \
@@ -1130,23 +1130,23 @@ rbfd_build() {
     || buc_die "Failed to write step output for decoding"
   openssl enc -base64 -d < "${z_step_b64_file}" > "${z_step_decoded_file}" \
     || buc_die "Failed to base64-decode build step output"
-  local z_found_consecration=""
-  z_found_consecration=$(<"${z_step_decoded_file}")
-  test -n "${z_found_consecration}" || buc_die "Decoded consecration is empty"
-  buc_info "Discovered consecration: ${z_found_consecration}"
+  local z_found_hallmark=""
+  z_found_hallmark=$(<"${z_step_decoded_file}")
+  test -n "${z_found_hallmark}" || buc_die "Decoded hallmark is empty"
+  buc_info "Discovered hallmark: ${z_found_hallmark}"
 
   # Persist to output directory for test harness consumption
   echo "${z_vessel_dir}" > "${ZRBFC_OUTPUT_VESSEL_DIR}" \
     || buc_die "Failed to write vessel dir to output"
-  echo "${z_found_consecration}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}" \
-    || buc_die "Failed to write consecration to output"
+  echo "${z_found_hallmark}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}" \
+    || buc_die "Failed to write hallmark to output"
 
   # Write GAR root fact file (registry prefix for composing full refs)
   echo "${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_GAR_ROOT}" \
     || buc_die "Failed to write GAR root fact file"
 
-  # Write ark stem fact file (sigil:consecration base for composing artifact refs)
-  echo "${RBRV_SIGIL}:${z_found_consecration}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_STEM}" \
+  # Write ark stem fact file (sigil:hallmark base for composing artifact refs)
+  echo "${RBRV_SIGIL}:${z_found_hallmark}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_STEM}" \
     || buc_die "Failed to write ark stem fact file"
 
   # Write per-platform yield fact files
@@ -1156,7 +1156,7 @@ rbfd_build() {
   for z_plat in ${RBRV_CONJURE_PLATFORMS//,/ }; do
     z_plat_suffix="${z_plat#linux/}"
     z_plat_suffix="${z_plat_suffix//\//}"
-    z_yield_tag="${z_found_consecration}${RBGC_ARK_SUFFIX_IMAGE}-${z_plat_suffix}"
+    z_yield_tag="${z_found_hallmark}${RBGC_ARK_SUFFIX_IMAGE}-${z_plat_suffix}"
     echo "${RBRV_SIGIL}:${z_yield_tag}" \
       > "${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_YIELD}${RBGC_ARK_SUFFIX_IMAGE}-${z_plat_suffix}" \
       || buc_die "Failed to write yield fact file for ${z_plat}"
@@ -1168,7 +1168,7 @@ rbfd_build() {
     || buc_die "Failed to write build ID fact file"
 
   buc_info "Output: ${ZRBFC_OUTPUT_VESSEL_DIR}"
-  buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}"
+  buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}"
   buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_GAR_ROOT}"
   buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_STEM}"
   buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_BUILD_ID}"
@@ -1180,7 +1180,7 @@ rbfd_build() {
 # Kludge Build - Local image build for development
 #
 # Builds a vessel image locally using docker build, tags it with a
-# kludge consecration (k-prefixed timestamp) in the same GAR-style
+# kludge hallmark (k-prefixed timestamp) in the same GAR-style
 # format that compose and rbob_charge expect. Also creates a fake
 # vouch tag (same image, aliased) so the vouch gate passes.
 #
@@ -1233,17 +1233,17 @@ rbfd_kludge() {
   done
   test ${#z_build_args[@]} -gt 0 || buc_die "No RBRV_IMAGE_n_ORIGIN found in vessel config"
 
-  # Generate kludge consecration (k prefix distinguishes from conjure c, bind b)
+  # Generate kludge hallmark (k prefix distinguishes from conjure c, bind b)
   # Timestamp for chronological sorting, git describe for commit provenance
   # BURD_GIT_CONTEXT is exported by bud_dispatch; dirty-tree guard above ensures clean tree
-  local -r z_consecration="k${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}-${BURD_GIT_CONTEXT}"
+  local -r z_hallmark="k${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}-${BURD_GIT_CONTEXT}"
 
   # Construct image refs matching compose/vouch-gate format
-  local -r z_image_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBRV_SIGIL}:${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}"
-  local -r z_vouch_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBRV_SIGIL}:${z_consecration}${RBGC_ARK_SUFFIX_VOUCH}"
+  local -r z_image_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBRV_SIGIL}:${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}"
+  local -r z_vouch_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBRV_SIGIL}:${z_hallmark}${RBGC_ARK_SUFFIX_VOUCH}"
 
   buc_step "Kludge build: ${RBRV_SIGIL}"
-  buc_info "Consecration: ${z_consecration}"
+  buc_info "Hallmark: ${z_hallmark}"
   buc_info "Image tag: ${z_image_ref}"
 
   # Build locally (host platform only — no multi-arch for dev builds)
@@ -1260,13 +1260,13 @@ rbfd_kludge() {
   docker tag "${z_image_ref}" "${z_vouch_ref}" \
     || buc_die "Failed to create vouch tag"
 
-  # Persist consecration to output directory
-  echo "${z_consecration}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}" \
-    || buc_die "Failed to write consecration to output"
+  # Persist hallmark to output directory
+  echo "${z_hallmark}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}" \
+    || buc_die "Failed to write hallmark to output"
 
   buc_success "Kludge build complete: ${RBRV_SIGIL}"
   buc_bare ""
-  buc_bare "  Consecration: ${z_consecration}"
+  buc_bare "  Hallmark: ${z_hallmark}"
   buc_bare "  Image:        ${z_image_ref}"
   buc_bare "  Vouch:        ${z_vouch_ref}"
   buc_bare ""
@@ -1328,52 +1328,52 @@ rbfd_mirror() {
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
   local -r z_gar_base="${z_gar_host}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
 
-  # Generate consecration timestamps: bYYMMDDHHMMSS-rYYMMDDHHMMSS
+  # Generate hallmark timestamps: bYYMMDDHHMMSS-rYYMMDDHHMMSS
   local -r z_mirror_ts="b${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
   local -r z_build_ts_file="${ZRBFD_MIRROR_PREFIX}build_ts.txt"
   date -u +'%y%m%d%H%M%S' > "${z_build_ts_file}" || buc_die "Failed to generate build timestamp"
   local z_build_ts
   z_build_ts="r$(<"${z_build_ts_file}")"
   test -n "${z_build_ts}" || buc_die "Empty build timestamp from ${z_build_ts_file}"
-  local -r z_consecration="${z_mirror_ts}-${z_build_ts}"
+  local -r z_hallmark="${z_mirror_ts}-${z_build_ts}"
 
-  buc_info "Consecration: ${z_consecration}"
+  buc_info "Hallmark: ${z_hallmark}"
 
   # Persist to output directory for chaining by rbfd_ordain
   echo "${z_vessel_dir}" > "${ZRBFC_OUTPUT_VESSEL_DIR}" \
     || buc_die "Failed to write vessel dir to output"
-  echo "${z_consecration}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}" \
-    || buc_die "Failed to write consecration to output"
+  echo "${z_hallmark}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}" \
+    || buc_die "Failed to write hallmark to output"
 
   # Write GAR root fact file
   echo "${z_gar_base}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_GAR_ROOT}" \
     || buc_die "Failed to write GAR root fact file"
 
   # Write ark stem fact file
-  echo "${RBRV_SIGIL}:${z_consecration}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_STEM}" \
+  echo "${RBRV_SIGIL}:${z_hallmark}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_STEM}" \
     || buc_die "Failed to write ark stem fact file"
 
   # Write yield fact file (single-platform bind image)
-  local -r z_bind_image_tag="${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}"
+  local -r z_bind_image_tag="${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}"
   echo "${RBRV_SIGIL}:${z_bind_image_tag}" \
     > "${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_YIELD}${RBGC_ARK_SUFFIX_IMAGE}" \
     || buc_die "Failed to write yield fact file"
 
   # Submit combined Cloud Build (skopeo image copy + about steps)
-  zrbfd_mirror_submit "${z_consecration}" "${z_token}"
+  zrbfd_mirror_submit "${z_hallmark}" "${z_token}"
 
   # Summary
   echo ""
   buc_success "Mirror complete: ${RBRV_SIGIL}"
-  echo "  Consecration: ${z_consecration}"
+  echo "  Hallmark: ${z_hallmark}"
 }
 
 # Internal: submit combined mirror Cloud Build job (skopeo image copy + about steps)
-# Args: consecration token
+# Args: hallmark token
 zrbfd_mirror_submit() {
   zrbfd_sentinel
 
-  local -r z_consecration="$1"
+  local -r z_hallmark="$1"
   local -r z_token="$2"
 
   buc_step "Constructing combined mirror Cloud Build resource"
@@ -1465,7 +1465,7 @@ zrbfd_mirror_submit() {
     --arg zjq_gar_host     "${z_gar_host}" \
     --arg zjq_gar_path     "${z_gar_path}" \
     --arg zjq_vessel       "${RBRV_SIGIL}" \
-    --arg zjq_consecration "${z_consecration}" \
+    --arg zjq_hallmark "${z_hallmark}" \
     --arg zjq_vessel_mode  "bind" \
     --arg zjq_git_commit   "${z_git_commit}" \
     --arg zjq_git_branch   "${z_git_branch}" \
@@ -1486,7 +1486,7 @@ zrbfd_mirror_submit() {
         _RBGA_GAR_HOST:              $zjq_gar_host,
         _RBGA_GAR_PATH:              $zjq_gar_path,
         _RBGA_VESSEL:                $zjq_vessel,
-        _RBGA_CONSECRATION:          $zjq_consecration,
+        _RBGA_HALLMARK:          $zjq_hallmark,
         _RBGA_VESSEL_MODE:           $zjq_vessel_mode,
         _RBGA_GIT_COMMIT:            $zjq_git_commit,
         _RBGA_GIT_BRANCH:            $zjq_git_branch,
@@ -1578,7 +1578,7 @@ rbfd_graft() {
     || buc_die "Local image not found: ${z_local_image} — build the image before grafting"
   buc_info "Local image confirmed: ${z_local_image}"
 
-  # Extract image creation timestamp for consecration T1
+  # Extract image creation timestamp for hallmark T1
   buc_step "Reading image creation timestamp"
   local -r z_created_file="${ZRBFD_GRAFT_PREFIX}created.txt"
   docker image inspect --format '{{.Created}}' "${z_local_image}" > "${z_created_file}" \
@@ -1610,17 +1610,17 @@ rbfd_graft() {
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
   local -r z_gar_base="${z_gar_host}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
 
-  # Generate push timestamp (T2) for consecration
+  # Generate push timestamp (T2) for hallmark
   local -r z_push_ts_file="${ZRBFD_GRAFT_PREFIX}push_ts.txt"
   date -u +'%y%m%d%H%M%S' > "${z_push_ts_file}" || buc_die "Failed to generate push timestamp"
   local z_push_ts
   z_push_ts="r$(<"${z_push_ts_file}")"
   test -n "${z_push_ts}" || buc_die "Empty push timestamp from ${z_push_ts_file}"
-  local -r z_consecration="${z_graft_ts}-${z_push_ts}"
-  local -r z_image_tag="${z_consecration}${RBGC_ARK_SUFFIX_IMAGE}"
+  local -r z_hallmark="${z_graft_ts}-${z_push_ts}"
+  local -r z_image_tag="${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}"
   local -r z_image_ref="${z_gar_base}/${RBRV_SIGIL}:${z_image_tag}"
 
-  buc_info "Consecration: ${z_consecration}"
+  buc_info "Hallmark: ${z_hallmark}"
 
   # Tag and push
   buc_step "Logging into GAR"
@@ -1641,15 +1641,15 @@ rbfd_graft() {
   # Persist to output directory for downstream consumption
   echo "${z_vessel_dir}" > "${ZRBFC_OUTPUT_VESSEL_DIR}" \
     || buc_die "Failed to write vessel dir to output"
-  echo "${z_consecration}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_CONSECRATION}" \
-    || buc_die "Failed to write consecration to output"
+  echo "${z_hallmark}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}" \
+    || buc_die "Failed to write hallmark to output"
 
   # Write GAR root fact file
   echo "${z_gar_base}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_GAR_ROOT}" \
     || buc_die "Failed to write GAR root fact file"
 
   # Write ark stem fact file
-  echo "${RBRV_SIGIL}:${z_consecration}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_STEM}" \
+  echo "${RBRV_SIGIL}:${z_hallmark}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_STEM}" \
     || buc_die "Failed to write ark stem fact file"
 
   # Write yield fact file (single-platform graft image)
@@ -1660,7 +1660,7 @@ rbfd_graft() {
   # Summary
   echo ""
   buc_success "Graft complete: ${RBRV_SIGIL}"
-  echo "  Consecration: ${z_consecration}"
+  echo "  Hallmark: ${z_hallmark}"
   echo "  Source:  ${z_local_image}"
   echo "  Image:   ${z_image_ref}"
 }

@@ -75,13 +75,13 @@
 // Recipe Bottle Term Google Ark (coherent build output unit)
 :rbtga_ark:                  <<rbtga_ark,RB Ark>>
 :rbtga_ark_s:                <<rbtga_ark,RB Arks>>
-:rbtga_consecration:         <<rbtga_consecration,Consecration>>
+:rbtga_hallmark:             <<rbtga_hallmark,Hallmark>>
 :rbtga_ark_image:            <<rbtga_ark_image,Ark Image Artifact>>
 :rbtga_ark_about:            <<rbtga_ark_about,Ark About Artifact>>
 :rbtga_ark_vouch:            <<rbtga_ark_vouch,Ark Vouch Artifact>>
 
 // Recipe Bottle Foundry Fact Files (output contract identifiers)
-:rbf_fact_consecration:      <<rbf_fact_consecration,RBF_FACT_CONSECRATION>>
+:rbf_fact_hallmark:          <<rbf_fact_hallmark,RBF_FACT_HALLMARK>>
 :rbf_fact_build_id:          <<rbf_fact_build_id,RBF_FACT_BUILD_ID>>
 :rbf_fact_gar_root:          <<rbf_fact_gar_root,RBF_FACT_GAR_ROOT>>
 :rbf_fact_ark_stem:          <<rbf_fact_ark_stem,RBF_FACT_ARK_STEM>>
@@ -97,7 +97,7 @@
 
 // Recipe Bottle Term Google Operations
 :rbtgo_ark_abjure:                <<rbtgo_ark_abjure,rbfl_abjure>>
-:rbtgo_consecration_tally:        <<rbtgo_consecration_tally,rbfl_tally>>
+:rbtgo_hallmark_tally:            <<rbtgo_hallmark_tally,rbfl_tally>>
 :rbtgo_ark_ordain:                <<rbtgo_ark_ordain,rbfd_ordain>>
 :rbtgo_ark_conjure:               <<rbtgo_ark_conjure,rbfd_build>>
 :rbtgo_ark_vouch:                 <<rbtgo_ark_vouch,rbfv_vouch>>
@@ -428,7 +428,7 @@
 :rbst_description:           <<rbst_description,Description>>
 :rbst_image_ref:             <<rbst_image_ref,Image Reference>>
 :rbst_locator:               <<rbst_locator,Locator>>
-:rbst_consecration:              <<rbst_consecration,Consecration>>
+:rbst_hallmark:                  <<rbst_hallmark,Hallmark>>
 :rbst_path:                  <<rbst_path,Path>>
 :rbst_platform_list:         <<rbst_platform_list,Platform List>>
 :rbst_binfmt_policy:         <<rbst_binfmt_policy,Binfmt Policy>>
@@ -443,7 +443,7 @@
 :rbrn_regime:                       <<rbrn_regime,RBRN Regime>>
 :rbrn_group_access_allowlist:       <<rbrn_group_access_allowlist,Access Allowlist Group>>
 :rbrn_group_ark_reference:          <<rbrn_group_ark_reference,Ark Reference Group>>
-:rbrn_bottle_consecration:          <<rbrn_bottle_consecration,RBRN_BOTTLE_CONSECRATION>>
+:rbrn_bottle_hallmark:              <<rbrn_bottle_hallmark,RBRN_BOTTLE_HALLMARK>>
 :rbrn_bottle_vessel:                <<rbrn_bottle_vessel,RBRN_BOTTLE_VESSEL>>
 :rbrn_description:                  <<rbrn_description,RBRN_DESCRIPTION>>
 :rbrn_enclave_base_ip:              <<rbrn_enclave_base_ip,RBRN_ENCLAVE_BASE_IP>>
@@ -461,7 +461,7 @@
 :rbrn_runtime:                      <<rbrn_runtime,RBRN_RUNTIME>>
 :rbrn_runtime_docker:               <<rbrn_runtime_docker,docker>>
 :rbrn_runtime_podman:               <<rbrn_runtime_podman,podman>>
-:rbrn_sentry_consecration:          <<rbrn_sentry_consecration,RBRN_SENTRY_CONSECRATION>>
+:rbrn_sentry_hallmark:              <<rbrn_sentry_hallmark,RBRN_SENTRY_HALLMARK>>
 :rbrn_sentry_vessel:                <<rbrn_sentry_vessel,RBRN_SENTRY_VESSEL>>
 :rbrn_uplink_access_mode:           <<rbrn_uplink_access_mode,RBRN_UPLINK_ACCESS_MODE>>
 :rbrn_uplink_access_mode_allowlist: <<rbrn_uplink_access_mode_allowlist,allowlist>>
@@ -898,7 +898,7 @@ artifacts: listing, deletion, and retrieval.
 {rbtgog_ark}::
 Operations on
 {rbtga_ark}
-units: abjuration, conjuring, grafting, about assembly, vouching, summoning, inspection, and consecration checking.
+units: abjuration, conjuring, grafting, about assembly, vouching, summoning, inspection, and hallmark checking.
 
 [[rbtgog_sa]]
 //axvo_group axd_tabtarget
@@ -1053,7 +1053,7 @@ include::RBSDK-director_knight.adoc[]
 
 ELIMINATED (₣Av): Trigger dispatch replaced by direct `builds.create` API submission.
 Build context delivered via pouch (FROM SCRATCH OCI image in GAR).
-Consecration minted locally by the Director before submission.
+Hallmark minted locally by the Director before submission.
 
 // include::RBSTB-trigger_build.adoc[]
 
@@ -1082,13 +1082,13 @@ removing its image, about, and vouch artifacts as a coherent unit.
 
 include::RBSAA-ark_abjure.adoc[]
 
-[[rbtgo_consecration_tally]]
+[[rbtgo_hallmark_tally]]
 //axvo_method axd_transient axd_grouped
-=== {rbtgo_consecration_tally}
+=== {rbtgo_hallmark_tally}
 
 Enumerates
 {rbtga_ark}
-consecrations across all regime vessels
+hallmarks across all regime vessels
 ({rbtgog_ark}),
 classifying each by artifact completeness and vouch status.
 
@@ -1098,7 +1098,7 @@ include::RBSCL-consecration_tally.adoc[]
 //axvo_method axd_transient axd_grouped
 === {rbtgo_ark_ordain}
 
-Ordains a consecration from a vessel — the master ceremony dispatch operation.
+Ordains a hallmark from a vessel — the master ceremony dispatch operation.
 Detects vessel mode (conjure, bind, or graft) and delegates to the appropriate
 {rbtga_ark}
 creation path, then chains metadata and vouch pipeline stages.
@@ -1189,11 +1189,11 @@ include::RBSAV-ark_vouch.adoc[]
 
 Batch-vouches all pending
 {rbtga_ark}
-consecrations across all
+hallmarks across all
 {rbtgi_vessel}
 repositories
 ({rbtgog_ark}).
-Bind and graft consecrations are always vouchable; conjure consecrations require SLSA provenance pre-check.
+Bind and graft hallmarks are always vouchable; conjure hallmarks require SLSA provenance pre-check.
 
 include::RBSDV-director_vouch.adoc[]
 
@@ -1584,7 +1584,7 @@ The coherent unit of a
 build output: a set of artifacts in the
 {rbtgi_repository}
 sharing a common
-{rbtga_consecration}
+{rbtga_hallmark}
 but distinguished by suffix.
 An ark comprises the
 {rbtga_ark_image}
@@ -1605,10 +1605,10 @@ Vouch is mandatory: an ark without a vouch artifact is incomplete.
 Arks are abjured atomically by
 {rbtgo_ark_abjure}.
 
-[[rbtga_consecration]]
+[[rbtga_hallmark]]
 //axl_voices axtg_timestamp
-{rbtga_consecration}::
-The dual-timestamp identifier marking when a vessel was consecrated into an
+{rbtga_hallmark}::
+The dual-timestamp identifier marking when a vessel was hallmarked into an
 {rbtga_ark}.
 Format: `«MODE»YYMMDDHHMMSS-rYYMMDDHHMMSS` where `«MODE»` is a single character encoding the vessel mode.
 +
@@ -1630,18 +1630,18 @@ For graft, T1 is an intrinsic fact about the image (its `created` metadata), not
 Reproducible builds may produce `T1=700101000000` — this is a true statement, not an error.
 +
 Combined with vessel to form complete artifact tags.
-All persistent artifact tags use the full consecration:
-per-platform image tags as `«VESSEL»:«CONSECRATION»-image-amd64`, `«VESSEL»:«CONSECRATION»-image-arm64`;
-consumer-facing manifest list as `«VESSEL»:«CONSECRATION»-image`;
-about as `«VESSEL»:«CONSECRATION»-about`;
-vouch as `«VESSEL»:«CONSECRATION»-vouch`.
+All persistent artifact tags use the full hallmark:
+per-platform image tags as `«VESSEL»:«HALLMARK»-image-amd64`, `«VESSEL»:«HALLMARK»-image-arm64`;
+consumer-facing manifest list as `«VESSEL»:«HALLMARK»-image`;
+about as `«VESSEL»:«HALLMARK»-about`;
+vouch as `«VESSEL»:«HALLMARK»-vouch`.
 Platform suffix is derived from the OCI platform (e.g., `linux/amd64` -> `-amd64`, `linux/arm64` -> `-arm64`, `linux/arm/v7` -> `-armv7`).
-Multiple conjures of the same inscription produce distinct consecrations (unique realized timestamps) with independently-attested images.
+Multiple conjures of the same inscription produce distinct hallmarks (unique realized timestamps) with independently-attested images.
 +
 For conjure, SLSA provenance is generated via the {rbtgr_build_json} `images:` field, which lists inscribe-time-predictable alias tags (`«VESSEL»:«INSCRIBE_TS»-image-«SUFFIX»`).
 These alias tags exist in the local Docker daemon (created during pullback) so that {gcb_service} can push and attest them.
-Provenance is bound to image digests, not tags — the consecration-tagged copies share the same digests and inherit the attestations.
-Alias tags are ephemeral; re-conjure overwrites them in the registry. Consecration-tagged artifacts persist.
+Provenance is bound to image digests, not tags — the hallmark-tagged copies share the same digests and inherit the attestations.
+Alias tags are ephemeral; re-conjure overwrites them in the registry. Hallmark-tagged artifacts persist.
 
 [[rbtga_ark_image]]
 //axl_voices axig_container_image
@@ -1676,7 +1676,7 @@ Created uniformly across all three vessel modes as part of a Cloud Build job: co
 When a Dockerfile path is configured in the vessel regime, its content is embedded as `recipe.txt` (subject to ~4KB Cloud Build substitution variable size limit; omitted with a warning if exceeded).
 +
 `build_info.json` is a nested JSON object with mode-aware fields:
-root — `consecration`, `vessel_mode` (`conjure`/`bind`/`graft`), `vessel_name`, `platform`, `image_digest`, `about_timestamp`;
+root — `hallmark`, `vessel_mode` (`conjure`/`bind`/`graft`), `vessel_name`, `platform`, `image_digest`, `about_timestamp`;
 `git` object — `repo`, `branch`, `commit`;
 conjure `build` object — `build_id`, `inscribe_timestamp`, `qemu_used`;
 conjure `slsa` object — `build_level`, `build_invocation_id`, `provenance_predicate_types`, `provenance_builder_id`;
@@ -1721,7 +1721,7 @@ Step 2 (gcloud/Python 3) fetches provenance via `gcloud artifacts docker images 
 No slsa-verifier, no jq — Python `json` + `base64` modules + openssl subprocess only.
 +
 **Vouch Cloud Build job architecture**:
-Vouch uses the RunBuild API (`builds.create`) rather than trigger dispatch — the consecration is known only after the image arrives in GAR, so a pre-registered trigger cannot provide it.
+Vouch uses the RunBuild API (`builds.create`) rather than trigger dispatch — the hallmark is known only after the image arrives in GAR, so a pre-registered trigger cannot provide it.
 The build runs as the {rbtr_mason} service account.
 The vouch step branches on `_RBGV_VESSEL_MODE`: conjure runs DSSE provenance verification, bind runs digest-pin comparison, graft stamps GRAFTED.
 +
@@ -1740,7 +1740,7 @@ Discovered constraints from implementation:
     builds.create provenance achieves SLSA Build Level 3 (₢AvAAB research confirmed).
 +
 **Idempotent re-vouch**:
-Re-running {rbtgo_ark_vouch} on a consecration that already has a `-vouch` artifact re-executes verification.
+Re-running {rbtgo_ark_vouch} on a hallmark that already has a `-vouch` artifact re-executes verification.
 For conjure and bind, the new vouch content should match the existing vouch (same digests + same provenance/pin + same verifier = identical output).
 For graft, the GRAFTED stamp is always identical.
 A mismatch for conjure/bind indicates provenance change or tampering and must produce a loud alarm.
@@ -1748,14 +1748,14 @@ If determinism proves unreliable in practice, narrow the comparison to verificat
 +
 **Abjure**: {rbtgo_ark_abjure} checks for and deletes the `-vouch` artifact alongside `-image` and `-about`.
 +
-**Display**: {rbtgo_consecration_tally} includes a Vouch column showing `yes`/`no` per consecration, detected by matching the `-vouch` tag suffix in the GAR tag list.
+**Display**: {rbtgo_hallmark_tally} includes a Vouch column showing `yes`/`no` per hallmark, detected by matching the `-vouch` tag suffix in the GAR tag list.
 
 === Foundry Fact Files
 
-[[rbf_fact_consecration]]
+[[rbf_fact_hallmark]]
 //axpof_fact
-{rbf_fact_consecration}::
-Consecration string.
+{rbf_fact_hallmark}::
+Hallmark string.
 
 [[rbf_fact_build_id]]
 //axpof_fact
@@ -1770,22 +1770,22 @@ GAR registry root path.
 [[rbf_fact_ark_stem]]
 //axpof_fact
 {rbf_fact_ark_stem}::
-Ark stem (vessel:consecration).
+Ark stem (vessel:hallmark).
 
 [[rbf_fact_ark_yield]]
 //axpof_fact
 {rbf_fact_ark_yield}::
 Per-platform image reference.
 
-==== Consecration Check Fact Map
+==== Hallmark Check Fact Map
 
 [[rbcc_fact_consec_infix]]
 //axpot_tally
 {rbcc_fact_consec_infix}::
-Per-vessel-consecration presence marker.
-Filename: `«VESSEL»«INFIX»«CONSECRATION»`.
+Per-vessel-hallmark presence marker.
+Filename: `«VESSEL»«INFIX»«HALLMARK»`.
 One file per discovered
-{rbtga_consecration}
+{rbtga_hallmark}
 in
 {rbtgi_repository}.
 
@@ -1825,7 +1825,7 @@ Verified on builds.create submissions — rbev-busybox on depot10030 (3 platform
 +
 **Single-arch pipeline** (3 steps + `images:` push, single build invocation):
 +
-  1. `derive-tag-base` — compute {rbtga_consecration} from inscribe + realized timestamps; writes to `/builder/outputs/output` for strong-tie discovery via `results.buildStepOutputs[0]`
+  1. `derive-tag-base` — compute {rbtga_hallmark} from inscribe + realized timestamps; writes to `/builder/outputs/output` for strong-tie discovery via `results.buildStepOutputs[0]`
   2. `qemu-binfmt` — register cross-architecture emulation (skipped if native platform)
   3. `build-and-load` — `buildx --load` into local Docker daemon (single platform)
 +
@@ -1854,11 +1854,11 @@ See `Memos/memo-20260305-provenance-architecture-gap.md` for full experiment det
 +
 **Target multi-platform pipeline** (6 steps + `images:` push, single build invocation — validated by experiment 6, build `6661d0cd`):
 +
-  1. `derive-tag-base` — compute {rbtga_consecration} from inscribe + realized timestamps
+  1. `derive-tag-base` — compute {rbtga_hallmark} from inscribe + realized timestamps
   2. `qemu-binfmt` — register cross-architecture emulation
   3. `buildx --push` — build all platforms, push intermediate `-multi` tag to GAR
-  4. `per-platform-pullback` — `docker pull --platform <arch>` for each platform, `docker tag` to consecration-tagged and inscribe-time alias tags
-  5. `docker push` — pre-push each consecration-tagged per-platform image to registry (enables in-build `imagetools create`)
+  4. `per-platform-pullback` — `docker pull --platform <arch>` for each platform, `docker tag` to hallmark-tagged and inscribe-time alias tags
+  5. `docker push` — pre-push each hallmark-tagged per-platform image to registry (enables in-build `imagetools create`)
   6. `imagetools create` — assemble consumer-facing multi-platform manifest list from per-platform tags (in-build step, not post-build)
 +
 About assembly (syft, build_info, metadata push) uses reusable {rbtgo_ark_about} scripts (`rbgja/`) embedded in the stitched JSON alongside the build steps.
@@ -2397,12 +2397,12 @@ A network node that serves as the entry point between two networks.
 
 [[rbtc_plumb_full]]
 {rbtc_plumb_full}::
-Tabtarget colophon for full consecration plumb.
+Tabtarget colophon for full hallmark plumb.
 Displays complete trust posture including package inventory, licensing, cache delta, and Dockerfile.
 
 [[rbtc_plumb_compact]]
 {rbtc_plumb_compact}::
-Tabtarget colophon for compact consecration plumb.
+Tabtarget colophon for compact hallmark plumb.
 Displays trust posture summary: vessel type, source, SLSA provenance, base image, build output, cache delta, SBOM summary, and vouch results.
 
 
@@ -3077,20 +3077,20 @@ Use Podman container runtime.
 {rbrn_sentry_vessel}::
 Vessel identifier for the sentry container image.
 
-[[rbrn_sentry_consecration]]
-//axvr_variable axd_required rbst_consecration
-{rbrn_sentry_consecration}::
-Consecration timestamp for the sentry container image.
+[[rbrn_sentry_hallmark]]
+//axvr_variable axd_required rbst_hallmark
+{rbrn_sentry_hallmark}::
+Hallmark timestamp for the sentry container image.
 
 [[rbrn_bottle_vessel]]
 //axvr_variable axd_required rbst_xname
 {rbrn_bottle_vessel}::
 Vessel identifier for the bottle container image.
 
-[[rbrn_bottle_consecration]]
-//axvr_variable axd_required rbst_consecration
-{rbrn_bottle_consecration}::
-Consecration timestamp for the bottle container image.
+[[rbrn_bottle_hallmark]]
+//axvr_variable axd_required rbst_hallmark
+{rbrn_bottle_hallmark}::
+Hallmark timestamp for the bottle container image.
 
 [[rbrn_entry_mode]]
 //axvr_variable axd_required axt_enumeration
@@ -3199,7 +3199,7 @@ Domain names allowed for bottle-initiated DNS resolution.
 [[rbrn_group_ark_reference]]
 //axvr_group
 {rbrn_group_ark_reference}::
-Ark reference variables identifying which vessel consecration to deploy.
+Ark reference variables identifying which vessel hallmark to deploy.
 
 [[rbrn_group_entry]]
 //axvr_group axd_conditional
@@ -3251,10 +3251,10 @@ Identifies a single artifact within the
 {rbtgi_repository}
 without repeating registry host or path.
 
-[[rbst_consecration]]
+[[rbst_hallmark]]
 //axl_voices axtu_string
-{rbst_consecration}::
-Dual-timestamp {rbtga_consecration} identifying a specific build of a vessel.
+{rbst_hallmark}::
+Dual-timestamp {rbtga_hallmark} identifying a specific build of a vessel.
 Format: `«MODE»YYMMDDHHMMSS-rYYMMDDHHMMSS` where `«MODE»` is `c` (conjure), `b` (bind), or `g` (graft).
 Example: `c260224153022-r260224160530`; 1-128 characters.
 Regex: `[cbg]\d{12}-r\d{12}`.

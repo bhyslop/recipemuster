@@ -53,7 +53,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBSCIG** → `rbk/vov_veiled/RBSCIG-IamGrantContracts.adoc` (IAM Grant API Contracts - verified behavioral contracts per resource type)
 - **RBSCIP** → `rbk/vov_veiled/RBSCIP-IamPropagation.adoc`
 - **RBSCJ** → `rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc`
-- **RBSCL** → `rbk/vov_veiled/RBSCL-consecration_tally.adoc` (Consecration Tally - registry ark inventory with health status)
+- **RBSCL** → `rbk/vov_veiled/RBSCL-consecration_tally.adoc` (Hallmark Tally - registry ark inventory with health status)
 - **RBSCN** → `rbk/vov_veiled/RBSCN-crucible_enjoin.adoc`
 - **RBSCO** → `rbk/vov_veiled/RBSCO-CosmologyIntro.adoc`
 - **RBSCTD** → `rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc`

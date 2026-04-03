@@ -683,9 +683,9 @@ rbgm_onboarding() {
       bug_t "  1. Enshrine busybox base image (~2 min):"
       buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir:-rbev-vessels}/${z_busybox_sigil}"
       bug_t "  2. Conjure busybox (~8 min):"
-      buc_tabtarget "${RBZ_ORDAIN_CONSECRATION}" "${z_vessel_dir:-rbev-vessels}/${z_busybox_sigil}"
+      buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir:-rbev-vessels}/${z_busybox_sigil}"
       bug_t "  3. Vouch (verify SLSA provenance):"
-      buc_tabtarget "${RBZ_VOUCH_CONSECRATIONS}"
+      buc_tabtarget "${RBZ_VOUCH_HALLMARKS}"
     elif test "${z_has_bottle_built}" = "0"; then
       bug_t "  Next: Ifrit bottle — Debian bookworm-slim on tether pool."
       bug_t "  1. Record reliquary in bottle vessel:"
@@ -694,9 +694,9 @@ rbgm_onboarding() {
       bug_t "  2. Enshrine bottle base image (~2 min):"
       buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir:-rbev-vessels}/${z_bottle_sigil}"
       bug_t "  3. Conjure ifrit bottle (~8 min):"
-      buc_tabtarget "${RBZ_ORDAIN_CONSECRATION}" "${z_vessel_dir:-rbev-vessels}/${z_bottle_sigil}"
+      buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir:-rbev-vessels}/${z_bottle_sigil}"
       bug_t "  4. Vouch:"
-      buc_tabtarget "${RBZ_VOUCH_CONSECRATIONS}"
+      buc_tabtarget "${RBZ_VOUCH_HALLMARKS}"
     elif test "${z_has_sentry_built}" = "0"; then
       bug_t "  Next: Sentry — Debian bookworm-slim on tether pool."
       bug_t "  1. Record reliquary in sentry vessel:"
@@ -710,9 +710,9 @@ rbgm_onboarding() {
         buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir:-rbev-vessels}/${z_sentry_sigil}"
       fi
       bug_t "  3. Conjure sentry (~5 min):"
-      buc_tabtarget "${RBZ_ORDAIN_CONSECRATION}" "${z_vessel_dir:-rbev-vessels}/${z_sentry_sigil}"
+      buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir:-rbev-vessels}/${z_sentry_sigil}"
       bug_t "  4. Vouch:"
-      buc_tabtarget "${RBZ_VOUCH_CONSECRATIONS}"
+      buc_tabtarget "${RBZ_VOUCH_HALLMARKS}"
     else
       bug_t "  Director track complete. All vessels built and vouched."
     fi
@@ -723,61 +723,61 @@ rbgm_onboarding() {
   if test "${z_has_retriever}" = "1"; then
     bug_section "Retriever Track"
 
-    # Sub-probe: nameplate consecrations populated
-    local z_has_bottle_consecration=0
-    local z_has_sentry_consecration=0
+    # Sub-probe: nameplate hallmarks populated
+    local z_has_bottle_hallmark=0
+    local z_has_sentry_hallmark=0
     if test -f "${ZRBGM_ONBOARDING_NAMEPLATE}"; then
       source "${ZRBGM_ONBOARDING_NAMEPLATE}"
-      test -n "${RBRN_BOTTLE_CONSECRATION:-}" && z_has_bottle_consecration=1
-      test -n "${RBRN_SENTRY_CONSECRATION:-}" && z_has_sentry_consecration=1
+      test -n "${RBRN_BOTTLE_HALLMARK:-}" && z_has_bottle_hallmark=1
+      test -n "${RBRN_SENTRY_HALLMARK:-}" && z_has_sentry_hallmark=1
     fi
 
     # Sub-probe: vouch images present in local runtime
     local z_has_bottle_summoned=0
     local z_has_sentry_summoned=0
-    if test "${z_has_bottle_consecration}" = "1" && test "${z_has_sentry_consecration}" = "1" && \
+    if test "${z_has_bottle_hallmark}" = "1" && test "${z_has_sentry_hallmark}" = "1" && \
        test -f "${RBBC_rbrr_file}"; then
       source "${RBBC_rbrr_file}"
       local z_gar_host="${RBRR_GCP_REGION}-docker.pkg.dev"
-      local z_bottle_vouch_ref="${z_gar_host}/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_CONSECRATION}-vouch"
-      local z_sentry_vouch_ref="${z_gar_host}/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_CONSECRATION}-vouch"
+      local z_bottle_vouch_ref="${z_gar_host}/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_HALLMARK}-vouch"
+      local z_sentry_vouch_ref="${z_gar_host}/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_HALLMARK}-vouch"
       "${RBRN_RUNTIME}" image inspect "${z_bottle_vouch_ref}" >/dev/null 2>&1 && z_has_bottle_summoned=1
       "${RBRN_RUNTIME}" image inspect "${z_sentry_vouch_ref}" >/dev/null 2>&1 && z_has_sentry_summoned=1
     fi
 
     zrbgm_po_status "${z_has_retriever}"           "  Credentials present"
-    zrbgm_po_status "${z_has_bottle_consecration}"  "  Bottle consecration recorded"
-    zrbgm_po_status "${z_has_sentry_consecration}"  "  Sentry consecration recorded"
+    zrbgm_po_status "${z_has_bottle_hallmark}"  "  Bottle hallmark recorded"
+    zrbgm_po_status "${z_has_sentry_hallmark}"  "  Sentry hallmark recorded"
     zrbgm_po_status "${z_has_bottle_summoned}"      "  Bottle image summoned"
     zrbgm_po_status "${z_has_sentry_summoned}"      "  Sentry image summoned"
     bug_e
 
     # Next step for retriever
-    if test "${z_has_bottle_consecration}" = "0"; then
-      bug_t "  Next: Record bottle consecration in the tadmor nameplate."
+    if test "${z_has_bottle_hallmark}" = "0"; then
+      bug_t "  Next: Record bottle hallmark in the tadmor nameplate."
       bug_t "  1. Edit the nameplate:"
       bug_tc "    " "${ZRBGM_ONBOARDING_NAMEPLATE}"
-      bug_t "    Set (substitute your actual consecration value):"
-      bug_tc "    RBRN_BOTTLE_CONSECRATION=" "<consecration>"
+      bug_t "    Set (substitute your actual hallmark value):"
+      bug_tc "    RBRN_BOTTLE_HALLMARK=" "<hallmark>"
       bug_t "  2. Summon bottle:"
-      buc_tabtarget "${RBZ_SUMMON_CONSECRATION}" "${RBRN_BOTTLE_VESSEL:-${z_bottle_sigil}} <consecration>"
-    elif test "${z_has_sentry_consecration}" = "0"; then
-      bug_t "  Next: Record sentry consecration in the tadmor nameplate."
+      buc_tabtarget "${RBZ_SUMMON_HALLMARK}" "${RBRN_BOTTLE_VESSEL:-${z_bottle_sigil}} <hallmark>"
+    elif test "${z_has_sentry_hallmark}" = "0"; then
+      bug_t "  Next: Record sentry hallmark in the tadmor nameplate."
       bug_t "  1. Edit the nameplate:"
       bug_tc "    " "${ZRBGM_ONBOARDING_NAMEPLATE}"
-      bug_t "    Set (substitute your actual consecration value):"
-      bug_tc "    RBRN_SENTRY_CONSECRATION=" "<consecration>"
+      bug_t "    Set (substitute your actual hallmark value):"
+      bug_tc "    RBRN_SENTRY_HALLMARK=" "<hallmark>"
       bug_t "  2. Summon sentry:"
-      buc_tabtarget "${RBZ_SUMMON_CONSECRATION}" "${RBRN_SENTRY_VESSEL:-${z_sentry_sigil}} <consecration>"
+      buc_tabtarget "${RBZ_SUMMON_HALLMARK}" "${RBRN_SENTRY_VESSEL:-${z_sentry_sigil}} <hallmark>"
     elif test "${z_has_bottle_summoned}" = "0" || test "${z_has_sentry_summoned}" = "0"; then
       bug_t "  Next: Summon missing images locally."
       if test "${z_has_bottle_summoned}" = "0"; then
         bug_t "  Summon bottle:"
-        buc_tabtarget "${RBZ_SUMMON_CONSECRATION}" "${RBRN_BOTTLE_VESSEL:-${z_bottle_sigil}} ${RBRN_BOTTLE_CONSECRATION:-<consecration>}"
+        buc_tabtarget "${RBZ_SUMMON_HALLMARK}" "${RBRN_BOTTLE_VESSEL:-${z_bottle_sigil}} ${RBRN_BOTTLE_HALLMARK:-<hallmark>}"
       fi
       if test "${z_has_sentry_summoned}" = "0"; then
         bug_t "  Summon sentry:"
-        buc_tabtarget "${RBZ_SUMMON_CONSECRATION}" "${RBRN_SENTRY_VESSEL:-${z_sentry_sigil}} ${RBRN_SENTRY_CONSECRATION:-<consecration>}"
+        buc_tabtarget "${RBZ_SUMMON_HALLMARK}" "${RBRN_SENTRY_VESSEL:-${z_sentry_sigil}} ${RBRN_SENTRY_HALLMARK:-<hallmark>}"
       fi
     else
       bug_t "  Retriever track complete. Run the tadmor security tests:"
