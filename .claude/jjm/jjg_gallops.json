@@ -836,6 +836,13 @@
         "₢A1AAW": {
           "tacks": [
             {
+              "ts": "260402-1842",
+              "state": "complete",
+              "text": "## Character\nBug fix plus defensive assertion — mechanical once the quench bug is identified, but requires understanding the compose profile interaction.\n\n## Docket\n\n### Bug: bottle survives quench\n`rbob_quench` calls `compose down --remove-orphans` without `--profile sessile`. The bottle container (started under the sessile profile) is not stopped. Fix `rbob_quench` to include `--profile sessile` so all containers are torn down.\n\n### Lifecycle assertions in crucible fixtures\nAdd `rbw-ca` CrucibleActive checks to the existing crucible fixture flow in theurge:\n- After charge succeeds, invoke `rbw-ca` and assert exit 0 (charged)\n- After quench succeeds, invoke `rbw-ca` and assert exit non-zero (not charged)\n\nThis verifies that charge/quench actually achieve their intended state transitions, catching regressions like the sessile profile omission.\n\n### Acceptance\n- `rbob_quench` stops all containers including bottle\n- After charge: `rbw-ca` returns 0 for tadmor, srjcl, pluml\n- After quench: `rbw-ca` returns non-zero for tadmor, srjcl, pluml\n- Existing crucible suite (tadmor) passes end-to-end",
+              "silks": "crucible-active-lifecycle-verification",
+              "commit": "3efcaf6"
+            },
+            {
               "ts": "260402-1812",
               "state": "rough",
               "text": "## Character\nBug fix plus defensive assertion — mechanical once the quench bug is identified, but requires understanding the compose profile interaction.\n\n## Docket\n\n### Bug: bottle survives quench\n`rbob_quench` calls `compose down --remove-orphans` without `--profile sessile`. The bottle container (started under the sessile profile) is not stopped. Fix `rbob_quench` to include `--profile sessile` so all containers are torn down.\n\n### Lifecycle assertions in crucible fixtures\nAdd `rbw-ca` CrucibleActive checks to the existing crucible fixture flow in theurge:\n- After charge succeeds, invoke `rbw-ca` and assert exit 0 (charged)\n- After quench succeeds, invoke `rbw-ca` and assert exit non-zero (not charged)\n\nThis verifies that charge/quench actually achieve their intended state transitions, catching regressions like the sessile profile omission.\n\n### Acceptance\n- `rbob_quench` stops all containers including bottle\n- After charge: `rbw-ca` returns 0 for tadmor, srjcl, pluml\n- After quench: `rbw-ca` returns non-zero for tadmor, srjcl, pluml\n- Existing crucible suite (tadmor) passes end-to-end",
