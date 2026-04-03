@@ -741,6 +741,341 @@ fn rbtdrc_coordinated_arp_table_stability(dir: &Path) -> rbtdre_Verdict {
     })
 }
 
+// ── Coordinated integrity cases (sentry state persistence) ──
+
+/// Coordinated integrity test: run a battery of existing attacks, then verify
+/// sentry's critical processes, iptables rules, and network interfaces are unchanged.
+fn rbtdrc_coordinated_sentry_integrity(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        // Pre-snapshot: capture sentry state
+        let pre_procs = match rbtdrc_writ(ctx, &["pgrep", "-a", "dnsmasq"]) {
+            Ok(o) => o,
+            Err(e) => return rbtdre_Verdict::Fail(format!("pre-snapshot pgrep: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("pre-procs.txt"), &pre_procs);
+
+        let pre_iptables = match rbtdrc_writ(ctx, &["iptables", "-S"]) {
+            Ok(o) => o,
+            Err(e) => return rbtdre_Verdict::Fail(format!("pre-snapshot iptables: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("pre-iptables.txt"), &pre_iptables);
+
+        let pre_links = match rbtdrc_writ(ctx, &["ip", "link", "show"]) {
+            Ok(o) => o,
+            Err(e) => return rbtdre_Verdict::Fail(format!("pre-snapshot ip link: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("pre-links.txt"), &pre_links);
+
+        // Run battery of 3 different attack types
+        let attacks = [
+            "dns-blocked-google",
+            "direct-arp-poison",
+            "proto-smuggle-rawsock",
+        ];
+        for (i, attack) in attacks.iter().enumerate() {
+            let result = rbtdri_invoke(
+                ctx,
+                RBTDRM_COLOPHON_BARK,
+                &[RBTDRC_IFRIT_BINARY, attack],
+            );
+            if let Ok(r) = &result {
+                let _ = std::fs::write(
+                    dir.join(format!("attack-{}-stdout.txt", i)),
+                    &r.stdout,
+                );
+                let _ = std::fs::write(
+                    dir.join(format!("attack-{}-stderr.txt", i)),
+                    &r.stderr,
+                );
+            }
+            // Ignore attack verdicts — we only care about sentry state after
+        }
+
+        std::thread::sleep(std::time::Duration::from_millis(500));
+
+        // Post-snapshot: capture sentry state
+        let post_procs = match rbtdrc_writ(ctx, &["pgrep", "-a", "dnsmasq"]) {
+            Ok(o) => o,
+            Err(e) => {
+                return rbtdre_Verdict::Fail(format!(
+                    "BREACH: dnsmasq process query failed post-attack: {}",
+                    e
+                ))
+            }
+        };
+        let _ = std::fs::write(dir.join("post-procs.txt"), &post_procs);
+
+        let post_iptables = match rbtdrc_writ(ctx, &["iptables", "-S"]) {
+            Ok(o) => o,
+            Err(e) => return rbtdre_Verdict::Fail(format!("post-snapshot iptables: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("post-iptables.txt"), &post_iptables);
+
+        let post_links = match rbtdrc_writ(ctx, &["ip", "link", "show"]) {
+            Ok(o) => o,
+            Err(e) => return rbtdre_Verdict::Fail(format!("post-snapshot ip link: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("post-links.txt"), &post_links);
+
+        // Verify: dnsmasq still running
+        if post_procs.trim().is_empty() {
+            return rbtdre_Verdict::Fail(
+                "BREACH: dnsmasq process not found after attack battery".to_string(),
+            );
+        }
+
+        // Verify: iptables rules unchanged
+        if pre_iptables != post_iptables {
+            let _ = std::fs::write(
+                dir.join("iptables-diff.txt"),
+                format!("BEFORE:\n{}\nAFTER:\n{}\n", pre_iptables, post_iptables),
+            );
+            return rbtdre_Verdict::Fail(
+                "BREACH: iptables rules changed after attack battery".to_string(),
+            );
+        }
+
+        // Verify: network interfaces unchanged
+        if pre_links != post_links {
+            let _ = std::fs::write(
+                dir.join("links-diff.txt"),
+                format!("BEFORE:\n{}\nAFTER:\n{}\n", pre_links, post_links),
+            );
+            return rbtdre_Verdict::Fail(
+                "BREACH: network interfaces changed after attack battery".to_string(),
+            );
+        }
+
+        let _ = std::fs::write(
+            dir.join("observation.txt"),
+            format!(
+                "Sentry integrity verified after {} attacks: dnsmasq running, iptables stable, interfaces stable",
+                attacks.len()
+            ),
+        );
+        rbtdre_Verdict::Pass
+    })
+}
+
+/// Coordinated integrity test: ifrit sends forged DNS responses claiming google.com → 1.2.3.4,
+/// theurge verifies frozen DNS records on sentry's dnsmasq are unchanged.
+fn rbtdrc_coordinated_dns_cache_integrity(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        // Discover sentry enclave IP to query its dnsmasq directly
+        let sentry_ip = match rbtdrc_discover_sentry_ip(ctx) {
+            Ok(ip) => ip,
+            Err(e) => return rbtdre_Verdict::Fail(format!("sentry IP discovery: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("sentry-ip.txt"), &sentry_ip);
+        let dig_server = format!("@{}", sentry_ip);
+
+        // Pre-snapshot: query anthropic.com via sentry's dnsmasq (allowed, should resolve)
+        let pre_anthropic = match rbtdrc_writ(
+            ctx,
+            &["dig", "+short", &dig_server, "anthropic.com"],
+        ) {
+            Ok(o) => o,
+            Err(e) => {
+                return rbtdre_Verdict::Fail(format!("pre dig anthropic.com: {}", e))
+            }
+        };
+        let _ = std::fs::write(dir.join("pre-anthropic.txt"), &pre_anthropic);
+
+        // Pre-snapshot: query google.com via sentry's dnsmasq (blocked)
+        let pre_google_result = rbtdri_invoke(
+            ctx,
+            RBTDRM_COLOPHON_WRIT,
+            &["dig", "+short", "+time=2", "+tries=1", &dig_server, "google.com"],
+        );
+        let pre_google = match &pre_google_result {
+            Ok(r) => r.stdout.clone(),
+            Err(_) => String::new(),
+        };
+        let _ = std::fs::write(dir.join("pre-google.txt"), &pre_google);
+
+        // Attack: invoke dns-forge-response from bottle
+        let result = match rbtdri_invoke(
+            ctx,
+            RBTDRM_COLOPHON_BARK,
+            &[RBTDRC_IFRIT_BINARY, "dns-forge-response"],
+        ) {
+            Ok(r) => r,
+            Err(e) => return rbtdre_Verdict::Fail(format!("bark invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("bark-stdout.txt"), &result.stdout);
+        let _ = std::fs::write(dir.join("bark-stderr.txt"), &result.stderr);
+
+        std::thread::sleep(std::time::Duration::from_millis(500));
+
+        // Post-snapshot: query anthropic.com again
+        let post_anthropic = match rbtdrc_writ(
+            ctx,
+            &["dig", "+short", &dig_server, "anthropic.com"],
+        ) {
+            Ok(o) => o,
+            Err(e) => {
+                return rbtdre_Verdict::Fail(format!("post dig anthropic.com: {}", e))
+            }
+        };
+        let _ = std::fs::write(dir.join("post-anthropic.txt"), &post_anthropic);
+
+        // Post-snapshot: query google.com again
+        let post_google_result = rbtdri_invoke(
+            ctx,
+            RBTDRM_COLOPHON_WRIT,
+            &["dig", "+short", "+time=2", "+tries=1", &dig_server, "google.com"],
+        );
+        let post_google = match &post_google_result {
+            Ok(r) => r.stdout.clone(),
+            Err(_) => String::new(),
+        };
+        let _ = std::fs::write(dir.join("post-google.txt"), &post_google);
+
+        // Verify: anthropic.com resolution unchanged
+        let pre_anthropic_ip = pre_anthropic
+            .lines()
+            .find(|l| rbtdrc_looks_like_ip(l.trim()))
+            .unwrap_or("")
+            .trim();
+        let post_anthropic_ip = post_anthropic
+            .lines()
+            .find(|l| rbtdrc_looks_like_ip(l.trim()))
+            .unwrap_or("")
+            .trim();
+
+        if pre_anthropic_ip.is_empty() {
+            return rbtdre_Verdict::Fail(
+                "pre-snapshot: anthropic.com did not resolve (expected frozen record)".to_string(),
+            );
+        }
+        if pre_anthropic_ip != post_anthropic_ip {
+            return rbtdre_Verdict::Fail(format!(
+                "BREACH: anthropic.com resolution changed: {} → {}",
+                pre_anthropic_ip, post_anthropic_ip
+            ));
+        }
+
+        // Verify: google.com still not resolvable (forged response ignored)
+        if post_google.lines().any(|l| l.trim() == "1.2.3.4") {
+            return rbtdre_Verdict::Fail(
+                "BREACH: google.com now resolves to 1.2.3.4 — DNS cache was poisoned".to_string(),
+            );
+        }
+
+        let _ = std::fs::write(
+            dir.join("observation.txt"),
+            format!(
+                "DNS cache integrity verified:\n  anthropic.com: {} → {} (stable)\n  google.com: forged 1.2.3.4 response ignored\n  ifrit exit: {}\n",
+                pre_anthropic_ip, post_anthropic_ip, result.exit_code
+            ),
+        );
+        rbtdre_Verdict::Pass
+    })
+}
+
+/// Coordinated integrity test: ifrit floods bridge with random MAC frames,
+/// theurge verifies sentry↔bottle connectivity survives.
+fn rbtdrc_coordinated_mac_flood_resilience(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        let sentry_ip = match rbtdrc_discover_sentry_ip(ctx) {
+            Ok(ip) => ip,
+            Err(e) => return rbtdre_Verdict::Fail(format!("sentry IP discovery: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("sentry-ip.txt"), &sentry_ip);
+
+        // Pre: verify connectivity in all three directions
+        let pre_writ = match rbtdrc_writ(ctx, &["echo", "pre-connectivity-check"]) {
+            Ok(o) => o,
+            Err(e) => return rbtdre_Verdict::Fail(format!("pre writ check: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("pre-writ.txt"), &pre_writ);
+
+        let pre_fiat = match rbtdrc_fiat(ctx, &["echo", "pre-connectivity-check"]) {
+            Ok(o) => o,
+            Err(e) => return rbtdre_Verdict::Fail(format!("pre fiat check: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("pre-fiat.txt"), &pre_fiat);
+
+        // Attack: invoke mac-flood-bridge from bottle
+        let result = match rbtdri_invoke(
+            ctx,
+            RBTDRM_COLOPHON_BARK,
+            &[RBTDRC_IFRIT_BINARY, "mac-flood-bridge"],
+        ) {
+            Ok(r) => r,
+            Err(e) => return rbtdre_Verdict::Fail(format!("bark invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("bark-stdout.txt"), &result.stdout);
+        let _ = std::fs::write(dir.join("bark-stderr.txt"), &result.stderr);
+
+        // If ifrit couldn't execute (AF_PACKET blocked), that's SECURE
+        if result.exit_code != 0 {
+            let _ = std::fs::write(
+                dir.join("observation.txt"),
+                "SECURE: ifrit could not send L2 frames (AF_PACKET blocked)",
+            );
+            return rbtdre_Verdict::Pass;
+        }
+
+        std::thread::sleep(std::time::Duration::from_millis(500));
+
+        // Post: verify connectivity survived the flood
+        let post_writ = match rbtdrc_writ(ctx, &["echo", "post-connectivity-check"]) {
+            Ok(o) => o,
+            Err(e) => {
+                return rbtdre_Verdict::Fail(format!(
+                    "BREACH: writ failed post-MAC-flood: {}",
+                    e
+                ))
+            }
+        };
+        let _ = std::fs::write(dir.join("post-writ.txt"), &post_writ);
+
+        let post_fiat = match rbtdrc_fiat(ctx, &["echo", "post-connectivity-check"]) {
+            Ok(o) => o,
+            Err(e) => {
+                return rbtdre_Verdict::Fail(format!(
+                    "BREACH: fiat failed post-MAC-flood: {}",
+                    e
+                ))
+            }
+        };
+        let _ = std::fs::write(dir.join("post-fiat.txt"), &post_fiat);
+
+        // Post: bark still works (sentry→bottle direction)
+        match rbtdri_invoke(
+            ctx,
+            RBTDRM_COLOPHON_BARK,
+            &["echo", "post-connectivity-check"],
+        ) {
+            Ok(r) if r.exit_code == 0 => {
+                let _ = std::fs::write(dir.join("post-bark.txt"), &r.stdout);
+            }
+            Ok(r) => {
+                return rbtdre_Verdict::Fail(format!(
+                    "BREACH: bark failed post-MAC-flood (exit {}): {}",
+                    r.exit_code, r.stderr
+                ))
+            }
+            Err(e) => {
+                return rbtdre_Verdict::Fail(format!(
+                    "BREACH: bark invocation failed post-MAC-flood: {}",
+                    e
+                ))
+            }
+        }
+
+        let _ = std::fs::write(
+            dir.join("observation.txt"),
+            format!(
+                "Bridge resilience verified post-MAC-flood:\n  writ: ok\n  fiat: ok\n  bark: ok\n  ifrit exit: {}\n",
+                result.exit_code
+            ),
+        );
+        rbtdre_Verdict::Pass
+    })
+}
+
 // ── Host-side helpers (HTTP probes, port discovery) ──────────
 
 /// Read RBRN_ENTRY_PORT_WORKSTATION from the nameplate's rbrn.env file.
@@ -1462,6 +1797,14 @@ static RBTDRC_SECTIONS_TADMOR: &[rbtdre_Section] = &[
             case!(rbtdrc_coordinated_arp_gratuitous),
             case!(rbtdrc_coordinated_arp_gateway_poison),
             case!(rbtdrc_coordinated_arp_table_stability),
+        ],
+    },
+    rbtdre_Section {
+        name: "tadmor-coordinated-integrity",
+        cases: &[
+            case!(rbtdrc_coordinated_sentry_integrity),
+            case!(rbtdrc_coordinated_dns_cache_integrity),
+            case!(rbtdrc_coordinated_mac_flood_resilience),
         ],
     },
 ];

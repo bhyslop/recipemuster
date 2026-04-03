@@ -24,6 +24,11 @@ use std::process::Command;
 
 use crate::rbida_sorties;
 
+// ── Selector constants (Single Definition Rule — RCG String Boundary Discipline) ──
+
+const RBIDA_SEL_DNS_FORGE_RESPONSE: &str = "dns-forge-response";
+const RBIDA_SEL_MAC_FLOOD_BRIDGE: &str = "mac-flood-bridge";
+
 // ── Attack Enum ─────────────────────────────────────────────────
 
 /// Security boundary attack. Each variant probes one aspect of the
@@ -95,6 +100,11 @@ pub enum rbida_Attack {
     ArpSendGratuitous,
     /// Send targeted ARP reply poisoning gateway entry — theurge checks sentry ARP table
     ArpSendGatewayPoison,
+    // ── Coordinated integrity primitives (theurge observes sentry state) ──
+    /// Send forged DNS responses to sentry's dnsmasq — theurge checks DNS cache
+    DnsForgeResponse,
+    /// Flood bridge MAC table with random source MACs — theurge checks connectivity
+    MacFloodBridge,
     // ── Novel unilateral attacks ──
     /// Route table manipulation — attempt ip route replace/add to bypass sentry gateway
     NetRouteManipulation,
@@ -150,6 +160,8 @@ impl rbida_Attack {
             "ns-capability-escape" => Some(Self::NsCapabilityEscape),
             "arp-send-gratuitous" => Some(Self::ArpSendGratuitous),
             "arp-send-gateway-poison" => Some(Self::ArpSendGatewayPoison),
+            RBIDA_SEL_DNS_FORGE_RESPONSE => Some(Self::DnsForgeResponse),
+            RBIDA_SEL_MAC_FLOOD_BRIDGE => Some(Self::MacFloodBridge),
             "net-route-manipulation" => Some(Self::NetRouteManipulation),
             "net-enclave-subnet-escape" => Some(Self::NetEnclaveSubnetEscape),
             "net-dnat-entry-reflection" => Some(Self::NetDnatEntryReflection),
@@ -192,6 +204,8 @@ impl rbida_Attack {
             Self::NsCapabilityEscape => "ns-capability-escape",
             Self::ArpSendGratuitous => "arp-send-gratuitous",
             Self::ArpSendGatewayPoison => "arp-send-gateway-poison",
+            Self::DnsForgeResponse => RBIDA_SEL_DNS_FORGE_RESPONSE,
+            Self::MacFloodBridge => RBIDA_SEL_MAC_FLOOD_BRIDGE,
             Self::NetRouteManipulation => "net-route-manipulation",
             Self::NetEnclaveSubnetEscape => "net-enclave-subnet-escape",
             Self::NetDnatEntryReflection => "net-dnat-entry-reflection",
@@ -233,6 +247,8 @@ impl rbida_Attack {
             "ns-capability-escape",
             "arp-send-gratuitous",
             "arp-send-gateway-poison",
+            RBIDA_SEL_DNS_FORGE_RESPONSE,
+            RBIDA_SEL_MAC_FLOOD_BRIDGE,
             "net-route-manipulation",
             "net-enclave-subnet-escape",
             "net-dnat-entry-reflection",
@@ -371,6 +387,9 @@ pub fn rbida_run(attack: &rbida_Attack, extra_args: &[&str]) -> rbida_Verdict {
         // Coordinated attack primitives — execute action, theurge judges outcome
         rbida_Attack::ArpSendGratuitous => rbida_sorties::sortie_arp_send_gratuitous(extra_args),
         rbida_Attack::ArpSendGatewayPoison => rbida_sorties::sortie_arp_send_gateway_poison(extra_args),
+        // Coordinated integrity primitives — execute action, theurge judges state
+        rbida_Attack::DnsForgeResponse => rbida_sorties::sortie_dns_forge_response(extra_args),
+        rbida_Attack::MacFloodBridge => rbida_sorties::sortie_mac_flood_bridge(extra_args),
         // Novel unilateral attacks
         rbida_Attack::NetRouteManipulation => rbida_sorties::sortie_net_route_manipulation(extra_args),
         rbida_Attack::NetEnclaveSubnetEscape => rbida_sorties::sortie_net_enclave_subnet_escape(extra_args),
