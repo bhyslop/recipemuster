@@ -884,6 +884,13 @@
         "₢A1AAY": {
           "tacks": [
             {
+              "ts": "260402-2340",
+              "state": "abandoned",
+              "text": "## Character\nMechanical rename — grep-and-replace across shell, Rust, and tabtargets. No behavioral change.\n\n## Docket\n\nRename colophon `rbw-ca` (CrucibleActive) to `rbw-cic` (CrucibleIsCharged) throughout.\n\n### Touch points\n- Mint `rbw-cic` colophon, retire `rbw-ca`\n- Tabtarget: delete `tt/rbw-ca.CrucibleActive.sh`, create `tt/rbw-cic.CrucibleIsCharged.sh`\n- Zipper enrollment in `rbz_zipper.sh`: rename constant (`RBZ_CRUCIBLE_IS_CHARGED`), update colophon string\n- Theurge colophon manifest in `rbtdrm_manifest.rs`: update compiled-in colophon string\n- Workbench colophon list in `rbtw_workbench.sh` (or `rbte` if decomposition landed)\n- CLAUDE.md tabtarget reference\n\n### Acceptance\n- `tt/rbw-cic.CrucibleIsCharged.sh` returns correct predicate for charged/uncharged crucible\n- `tt/rbw-Qf.QualifyFast.sh` passes (colophon health)\n- `tt/rbtd-t.Test.sh` passes (theurge unit tests)\n- No references to `rbw-ca` remain",
+              "silks": "rename-crucible-active-to-crucible-is-charged",
+              "commit": "1c9559a"
+            },
+            {
               "ts": "260402-2222",
               "state": "rough",
               "text": "## Character\nMechanical rename — grep-and-replace across shell, Rust, and tabtargets. No behavioral change.\n\n## Docket\n\nRename colophon `rbw-ca` (CrucibleActive) to `rbw-cic` (CrucibleIsCharged) throughout.\n\n### Touch points\n- Mint `rbw-cic` colophon, retire `rbw-ca`\n- Tabtarget: delete `tt/rbw-ca.CrucibleActive.sh`, create `tt/rbw-cic.CrucibleIsCharged.sh`\n- Zipper enrollment in `rbz_zipper.sh`: rename constant (`RBZ_CRUCIBLE_IS_CHARGED`), update colophon string\n- Theurge colophon manifest in `rbtdrm_manifest.rs`: update compiled-in colophon string\n- Workbench colophon list in `rbtw_workbench.sh` (or `rbte` if decomposition landed)\n- CLAUDE.md tabtarget reference\n\n### Acceptance\n- `tt/rbw-cic.CrucibleIsCharged.sh` returns correct predicate for charged/uncharged crucible\n- `tt/rbw-Qf.QualifyFast.sh` passes (colophon health)\n- `tt/rbtd-t.Test.sh` passes (theurge unit tests)\n- No references to `rbw-ca` remain",
