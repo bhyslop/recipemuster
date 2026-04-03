@@ -288,9 +288,10 @@
         "₢A1AAZ",
         "₢A1AAV",
         "₢A1AAT",
-        "₢A1AAc"
+        "₢A1AAc",
+        "₢A1AAi"
       ],
-      "next_pace_seed": "AAi",
+      "next_pace_seed": "AAj",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -1161,6 +1162,17 @@
               "text": "## Character\nMechanical verification — no code changes, just running suites and investigating any failures.\n\n## Docket\nRun the crucible test suite to verify that the tectonic colophon reorganization didn't break any live colophon usage paths. The fast suite verifies colophon health and regime validation, but crucible actually exercises colophons through charge/writ/fiat/bark/ordain operations against real containers.\n\n**Prerequisite**: ₢A1AAb (tectonic-colophon-reorganization) must be complete.\n\n### Work items\n- Run `tt/rbtd-s.TestSuite.crucible.sh` (117 cases — exercises container runtime colophons)\n- If available, run `tt/rbtd-s.TestSuite.service.sh` (80 cases — exercises GCP credential colophons)\n- Investigate and fix any failures (colophon references in Cloud Build JSON templates, bottle exec paths, etc.)\n\n### Verification\n- Crucible suite green\n- Service suite green (if credentials available)\n\n### Acceptance\n- All colophon usage paths verified through live execution\n- No stale colophon references remain in runtime paths",
               "silks": "crucible-verification-after-colophon-reorg",
               "commit": "10d268b"
+            }
+          ]
+        },
+        "₢A1AAi": {
+          "tacks": [
+            {
+              "ts": "260403-1154",
+              "state": "rough",
+              "text": "## Character\nMechanical cleanup — no design judgment. Apply RCG Single Definition Rule to all 36 pre-existing attack selector strings in `rbida_attacks.rs`.\n\n## Docket\n\nExtract consts for all pre-existing `rbida_Attack` selector strings following the pattern established by `RBIDA_SEL_DNS_FORGE_RESPONSE` and `RBIDA_SEL_MAC_FLOOD_BRIDGE`. Currently 36 variants have their kebab-case selector string duplicated across `from_selector`, `selector()`, and `all_selectors()` — RCG String Boundary Discipline violation.\n\n### Implementation\n\n- Add ~36 `const RBIDA_SEL_*: &str` definitions to the selector constants block\n- Replace all string literals in the three methods with const references\n- Build, run theurge unit tests\n\n### Acceptance\n\n- `grep '\"dns-allowed-anthropic\"'` finds zero hits in `rbida_attacks.rs` (only the const definition)\n- Theurge builds and unit tests pass\n- No behavioral change",
+              "silks": "rbida-selector-const-extraction",
+              "commit": "21a5627"
             }
           ]
         }
