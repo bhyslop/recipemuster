@@ -26,15 +26,17 @@ pub const RBTDRM_COLOPHON_WRIT: &str = "rbw-cw";
 pub const RBTDRM_COLOPHON_FIAT: &str = "rbw-cf";
 pub const RBTDRM_COLOPHON_BARK: &str = "rbw-cb";
 
-// Foundry colophons (global — no nameplate imprint)
-pub const RBTDRM_COLOPHON_ORDAIN: &str = "rbw-DO";
-pub const RBTDRM_COLOPHON_ABJURE: &str = "rbw-DA";
-pub const RBTDRM_COLOPHON_WREST: &str = "rbw-Rw";
-pub const RBTDRM_COLOPHON_TALLY: &str = "rbw-Dt";
-pub const RBTDRM_COLOPHON_KLUDGE: &str = "rbw-LK";
+// Hallmark colophons (global — no nameplate imprint)
+pub const RBTDRM_COLOPHON_ORDAIN: &str = "rbw-hO";
+pub const RBTDRM_COLOPHON_ABJURE: &str = "rbw-hA";
+pub const RBTDRM_COLOPHON_TALLY: &str = "rbw-ht";
+pub const RBTDRM_COLOPHON_KLUDGE: &str = "rbw-hk";
+
+// Image colophon (global — no nameplate imprint)
+pub const RBTDRM_COLOPHON_WREST: &str = "rbw-iw";
 
 // Crucible active check (param1 channel — nameplate as argument)
-pub const RBTDRM_COLOPHON_CRUCIBLE_ACTIVE: &str = "rbw-ca";
+pub const RBTDRM_COLOPHON_CRUCIBLE_ACTIVE: &str = "rbw-cic";
 
 // Access probe colophon (imprint-scoped by role)
 pub const RBTDRM_COLOPHON_ACCESS_PROBE: &str = "rbtd-ap";

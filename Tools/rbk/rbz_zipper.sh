@@ -33,66 +33,96 @@ zrbz_kindle() {
   # Verify buz zipper is kindled (CLI furnish must kindle buz first)
   zbuz_sentinel
 
-  # Colophon group taxonomy (pre-rename actor-organized categories)
-  buz_group RBZ__GROUP_PAYOR      "rbw-P"   "Payor depot and governor operations"
-  buz_group RBZ__GROUP_GUIDE      "rbw-g"   "Human-directed procedures"
-  buz_group RBZ__GROUP_MARSHAL    "rbw-M"   "Lifecycle marshal"
-  buz_group RBZ__GROUP_GOVERNOR   "rbw-G"   "Governor service account operations"
-  buz_group RBZ__GROUP_DIRECTOR   "rbw-D"   "Director foundry operations"
-  buz_group RBZ__GROUP_LEDGER     "rbw-L"   "Ledger local operations"
-  buz_group RBZ__GROUP_RETRIEVER  "rbw-R"   "Retriever operations"
-  buz_group RBZ__GROUP_REGIME     "rbw-r"   "Regime config files"
-  buz_group RBZ__GROUP_NAMEPLATE  "rbw-n"   "Cross-nameplate operations"
+  # Colophon group taxonomy (domain-object-organized categories)
+  buz_group RBZ__GROUP_ACCOUNTS   "rbw-a"   "Google Cloud service accounts"
   buz_group RBZ__GROUP_CRUCIBLE   "rbw-c"   "Crucible container runtime"
-  buz_group RBZ__GROUP_THEURGE    "rbw-T"   "Theurge test infrastructure"
+  buz_group RBZ__GROUP_DEPOT      "rbw-d"   "GCP project infrastructure and supply chain"
+  buz_group RBZ__GROUP_GUIDE      "rbw-g"   "Human-directed procedures"
+  buz_group RBZ__GROUP_HALLMARK   "rbw-h"   "Registry artifact lifecycle"
   buz_group RBZ__GROUP_IFRIT      "rbw-I"   "Ifrit attack binary"
-  buz_group RBZ__GROUP_QUALIFY    "rbw-Q"   "Qualification operations"
+  buz_group RBZ__GROUP_IMAGE      "rbw-i"   "Container image operations"
+  buz_group RBZ__GROUP_MARSHAL    "rbw-M"   "Lifecycle marshal"
+  buz_group RBZ__GROUP_NAMEPLATE  "rbw-n"   "Cross-nameplate operations"
+  buz_group RBZ__GROUP_REGIME     "rbw-r"   "Regime config files"
+  buz_group RBZ__GROUP_THEURGE    "rbw-t"   "Theurge test infrastructure"
 
-  # Payor depot/governor commands
+  # Accounts — Google Cloud service accounts (rbw-a)
   local z_mod="rbgp_cli.sh"
-  buz_enroll RBZ_LEVY_DEPOT                 "rbw-PL"       "${z_mod}" "rbgp_depot_levy"
+  buz_enroll RBZ_MANTLE_GOVERNOR            "rbw-aM"       "${z_mod}" "rbgp_governor_mantle"
+  z_mod="rbgg_cli.sh"
+  buz_enroll RBZ_CHARTER_RETRIEVER          "rbw-aC"       "${z_mod}" "rbgg_charter_retriever"
+  buz_enroll RBZ_KNIGHT_DIRECTOR            "rbw-aK"       "${z_mod}" "rbgg_knight_director"
+  buz_enroll RBZ_LIST_SERVICE_ACCOUNTS      "rbw-aL"       "${z_mod}" "rbgg_list_service_accounts"
+  buz_enroll RBZ_FORFEIT_SERVICE_ACCOUNT    "rbw-aF"       "${z_mod}" "rbgg_forfeit_service_account"
+
+  # Crucible — container runtime (rbw-c)
+  z_mod="rbob_cli.sh"
+  buz_enroll RBZ_CRUCIBLE_CHARGE  "rbw-cC"  "${z_mod}" "rbob_charge"         "imprint"
+  buz_enroll RBZ_CRUCIBLE_QUENCH  "rbw-cQ"  "${z_mod}" "rbob_quench"         "imprint"
+  buz_enroll RBZ_CRUCIBLE_HAIL   "rbw-ch"  "${z_mod}" "rbob_hail"           "param1"
+  buz_enroll RBZ_CRUCIBLE_RACK   "rbw-cr"  "${z_mod}" "rbob_rack"           "param1"
+  buz_enroll RBZ_CRUCIBLE_SCRY   "rbw-cs"  "${z_mod}" "rbob_scry"           "param1"
+  buz_enroll RBZ_CRUCIBLE_WRIT   "rbw-cw"  "${z_mod}" "rbob_writ"           "imprint"
+  buz_enroll RBZ_CRUCIBLE_FIAT   "rbw-cf"  "${z_mod}" "rbob_fiat"           "imprint"
+  buz_enroll RBZ_CRUCIBLE_BARK   "rbw-cb"  "${z_mod}" "rbob_bark"           "imprint"
+  buz_enroll RBZ_CRUCIBLE_ACTIVE  "rbw-cic" "${z_mod}" "rbob_charged"        "param1"
+
+  # Depot — GCP project infrastructure (rbw-d, UPPER=mutates, lower=read)
+  z_mod="rbgp_cli.sh"
+  buz_enroll RBZ_LEVY_DEPOT                 "rbw-dL"       "${z_mod}" "rbgp_depot_levy"
+  buz_enroll RBZ_UNMAKE_DEPOT               "rbw-dU"       "${z_mod}" "rbgp_depot_unmake"
+  buz_enroll RBZ_LIST_DEPOT                 "rbw-dl"       "${z_mod}" "rbgp_depot_list"
+  z_mod="rbfd_cli.sh"
+  buz_enroll RBZ_ENSHRINE_VESSEL            "rbw-dE"       "${z_mod}" "rbfd_enshrine"
+  z_mod="rbfl_cli.sh"
+  buz_enroll RBZ_INSCRIBE_RELIQUARY         "rbw-dI"       "${z_mod}" "rbfl_inscribe"
+
+  # Guide — human-directed procedures (rbw-g)
+  z_mod="rbgp_cli.sh"
   buz_enroll RBZ_PAYOR_INSTALL              "rbw-gPI"      "${z_mod}" "rbgp_payor_install"
-  buz_enroll RBZ_UNMAKE_DEPOT               "rbw-PU"       "${z_mod}" "rbgp_depot_unmake"
-  buz_enroll RBZ_MANTLE_GOVERNOR            "rbw-PM"       "${z_mod}" "rbgp_governor_mantle"
-  # Payor guide/manual procedures (rbgm_cli.sh)
   z_mod="rbgm_cli.sh"
   buz_enroll RBZ_PAYOR_ESTABLISH            "rbw-gPE"      "${z_mod}" "rbgm_payor_establish"
   buz_enroll RBZ_PAYOR_REFRESH              "rbw-gPR"      "${z_mod}" "rbgm_payor_refresh"
   buz_enroll RBZ_QUOTA_BUILD                "rbw-gq"       "${z_mod}" "rbgm_quota_build"
   buz_enroll RBZ_ONBOARDING                 "rbw-gO"       "${z_mod}" "rbgm_onboarding"
-  # Marshal operations (rblm_cli.sh — Lifecycle Marshal)
-  buz_enroll RBZ_MARSHAL_ZERO              "rbw-MZ"       "rblm_cli.sh" "rblm_zero"
-  buz_enroll RBZ_MARSHAL_PROOF             "rbw-MP"       "rblm_cli.sh" "rblm_proof"
 
-  # Payor depot operations (rbgp_cli.sh)
-  z_mod="rbgp_cli.sh"
-  buz_enroll RBZ_LIST_DEPOT                 "rbw-Pl"      "${z_mod}" "rbgp_depot_list"
-
-  # Governor commands
-  z_mod="rbgg_cli.sh"
-  buz_enroll RBZ_CHARTER_RETRIEVER         "rbw-GC"        "${z_mod}" "rbgg_charter_retriever"
-  buz_enroll RBZ_KNIGHT_DIRECTOR           "rbw-GK"        "${z_mod}" "rbgg_knight_director"
-
-  z_mod="rbgg_cli.sh"
-  buz_enroll RBZ_LIST_SERVICE_ACCOUNTS     "rbw-Gl"        "${z_mod}" "rbgg_list_service_accounts"
-  buz_enroll RBZ_FORFEIT_SERVICE_ACCOUNT   "rbw-GF"        "${z_mod}" "rbgg_forfeit_service_account"
-
-  # Foundry commands — each module has its own CLI
+  # Hallmark — registry artifact lifecycle (rbw-h, UPPER=mutates GAR, lower=read/local)
   z_mod="rbfd_cli.sh"
-  buz_enroll RBZ_ENSHRINE_VESSEL             "rbw-DE"       "${z_mod}" "rbfd_enshrine"
-  buz_enroll RBZ_ORDAIN_HALLMARK        "rbw-DO"       "${z_mod}" "rbfd_ordain"
-  buz_enroll RBZ_ABJURE_HALLMARK        "rbw-DA"       "rbfl_cli.sh" "rbfl_abjure"
-  buz_enroll RBZ_SUMMON_HALLMARK                 "rbw-Rs"       "rbfr_cli.sh" "rbfr_summon"
-  buz_enroll RBZ_INSCRIBE_RELIQUARY         "rbw-DI"       "rbfl_cli.sh" "rbfl_inscribe"
-  buz_enroll RBZ_JETTISON_IMAGE             "rbw-DJ"       "rbfl_cli.sh" "rbfl_jettison"
-  buz_enroll RBZ_WREST_IMAGE               "rbw-Rw"       "rbfr_cli.sh" "rbfr_wrest"
-  buz_enroll RBZ_PLUMB_FULL               "rbw-RpF"      "rbfc_cli.sh" "rbfc_plumb_full"
-  buz_enroll RBZ_PLUMB_COMPACT            "rbw-Rpc"      "rbfc_cli.sh" "rbfc_plumb_compact"
-  buz_enroll RBZ_TALLY_HALLMARKS        "rbw-Dt"       "rbfl_cli.sh" "rbfl_tally"
-  buz_enroll RBZ_VOUCH_HALLMARKS        "rbw-DV"       "rbfv_cli.sh" "rbfv_batch_vouch"
-  buz_enroll RBZ_KLUDGE_VESSEL             "rbw-LK"       "${z_mod}" "rbfd_kludge"
+  buz_enroll RBZ_ORDAIN_HALLMARK            "rbw-hO"       "${z_mod}" "rbfd_ordain"
+  buz_enroll RBZ_KLUDGE_VESSEL              "rbw-hk"       "${z_mod}" "rbfd_kludge"
+  z_mod="rbfl_cli.sh"
+  buz_enroll RBZ_ABJURE_HALLMARK            "rbw-hA"       "${z_mod}" "rbfl_abjure"
+  buz_enroll RBZ_TALLY_HALLMARKS            "rbw-ht"       "${z_mod}" "rbfl_tally"
+  z_mod="rbfv_cli.sh"
+  buz_enroll RBZ_VOUCH_HALLMARKS            "rbw-hV"       "${z_mod}" "rbfv_batch_vouch"
+  z_mod="rbfr_cli.sh"
+  buz_enroll RBZ_SUMMON_HALLMARK            "rbw-hs"       "${z_mod}" "rbfr_summon"
+  z_mod="rbfc_cli.sh"
+  buz_enroll RBZ_PLUMB_FULL                 "rbw-hpf"      "${z_mod}" "rbfc_plumb_full"
+  buz_enroll RBZ_PLUMB_COMPACT              "rbw-hpc"      "${z_mod}" "rbfc_plumb_compact"
 
-  # Regime operations
+  # Ifrit — attack binary (rbw-I)
+  z_mod="rbob_cli.sh"
+  buz_enroll RBZ_BOTTLE_IFRIT    "rbw-Ic"  "${z_mod}" "rbob_ifrit_client"   "imprint"
+  buz_enroll RBZ_BOTTLE_SORTIE   "rbw-Is"  "${z_mod}" "rbob_ifrit_sortie"   "imprint"
+
+  # Image — container image operations (rbw-i, UPPER=mutates, lower=read)
+  z_mod="rbfl_cli.sh"
+  buz_enroll RBZ_JETTISON_IMAGE             "rbw-iJ"       "${z_mod}" "rbfl_jettison"
+  z_mod="rbfr_cli.sh"
+  buz_enroll RBZ_WREST_IMAGE                "rbw-iw"       "${z_mod}" "rbfr_wrest"
+
+  # Marshal — lifecycle (rbw-M)
+  buz_enroll RBZ_MARSHAL_ZERO               "rbw-MZ"       "rblm_cli.sh" "rblm_zero"
+  buz_enroll RBZ_MARSHAL_PROOF              "rbw-MP"       "rblm_cli.sh" "rblm_proof"
+
+  # Nameplate — cross-nameplate operations (rbw-n)
+  z_mod="rbrn_cli.sh"
+  buz_enroll RBZ_LIST_NAMEPLATES             "rbw-rnl"      "${z_mod}" "rbrn_list"
+  buz_enroll RBZ_SURVEY_NAMEPLATES           "rbw-ni"       "${z_mod}" "rbrn_survey"
+  buz_enroll RBZ_AUDIT_NAMEPLATES            "rbw-nv"       "${z_mod}" "rbrn_audit"
+
+  # Regime — config files (rbw-r)
   z_mod="rbrn_cli.sh"
   buz_enroll RBZ_RENDER_NAMEPLATE           "rbw-rnr"      "${z_mod}" "rbrn_render"   "param1"
   buz_enroll RBZ_VALIDATE_NAMEPLATE         "rbw-rnv"      "${z_mod}" "rbrn_validate" "param1"
@@ -117,34 +147,13 @@ zrbz_kindle() {
   buz_enroll RBZ_VALIDATE_AUTH              "rbw-rav"      "${z_mod}" "rbra_validate" "param1"
   buz_enroll RBZ_LIST_AUTH                  "rbw-ral"      "${z_mod}" "rbra_list"
 
-  # Nameplate regime list
-  z_mod="rbrn_cli.sh"
-  buz_enroll RBZ_LIST_NAMEPLATES "rbw-rnl" "${z_mod}" "rbrn_list"
-
-  # Cross-nameplate operations
-  buz_enroll RBZ_SURVEY_NAMEPLATES "rbw-ni" "${z_mod}" "rbrn_survey"
-  buz_enroll RBZ_AUDIT_NAMEPLATES  "rbw-nv" "${z_mod}" "rbrn_audit"
-
-  # Bottle operations (imprint channel sets BUZ_FOLIO from BURD_TOKEN_3)
+  # Theurge — test infrastructure (rbw-t)
   z_mod="rbob_cli.sh"
-  buz_enroll RBZ_CRUCIBLE_CHARGE "rbw-cC" "${z_mod}" "rbob_charge"         "imprint"
-  buz_enroll RBZ_CRUCIBLE_QUENCH "rbw-cQ" "${z_mod}" "rbob_quench"       "imprint"
-  buz_enroll RBZ_CRUCIBLE_HAIL  "rbw-ch" "${z_mod}" "rbob_hail"          "param1"
-  buz_enroll RBZ_CRUCIBLE_RACK  "rbw-cr" "${z_mod}" "rbob_rack"          "param1"
-  buz_enroll RBZ_CRUCIBLE_SCRY  "rbw-cs" "${z_mod}" "rbob_scry"          "param1"
-  buz_enroll RBZ_CRUCIBLE_WRIT  "rbw-cw" "${z_mod}" "rbob_writ"          "imprint"
-  buz_enroll RBZ_CRUCIBLE_FIAT  "rbw-cf" "${z_mod}" "rbob_fiat"          "imprint"
-  buz_enroll RBZ_CRUCIBLE_BARK  "rbw-cb" "${z_mod}" "rbob_bark"          "imprint"
-  buz_enroll RBZ_THEURGE_KLUDGE  "rbw-Tk" "${z_mod}" "rbob_kludge"        "imprint"
-  buz_enroll RBZ_THEURGE_ORDAIN  "rbw-To" "${z_mod}" "rbob_ordain"        "imprint"
-  buz_enroll RBZ_BOTTLE_IFRIT   "rbw-Ic" "${z_mod}" "rbob_ifrit_client"  "imprint"
-  buz_enroll RBZ_BOTTLE_SORTIE  "rbw-Is" "${z_mod}" "rbob_ifrit_sortie"  "imprint"
-  buz_enroll RBZ_CRUCIBLE_ACTIVE "rbw-ca" "${z_mod}" "rbob_charged"       "param1"
-
-  # Qualification operations
+  buz_enroll RBZ_THEURGE_KLUDGE  "rbw-tK"  "${z_mod}" "rbob_kludge"         "imprint"
+  buz_enroll RBZ_THEURGE_ORDAIN  "rbw-tO"  "${z_mod}" "rbob_ordain"         "imprint"
   z_mod="rbq_cli.sh"
-  buz_enroll RBZ_QUALIFY_FAST    "rbw-Qf" "${z_mod}" "rbq_qualify_fast"
-  buz_enroll RBZ_QUALIFY_RELEASE "rbw-QR" "${z_mod}" "rbq_qualify_release"
+  buz_enroll RBZ_QUALIFY_FAST    "rbw-tf"   "${z_mod}" "rbq_qualify_fast"
+  buz_enroll RBZ_QUALIFY_RELEASE "rbw-tr"   "${z_mod}" "rbq_qualify_release"
 
   readonly ZRBZ_COLOPHON_MANIFEST="${z_buz_colophon_roll[*]}"
 

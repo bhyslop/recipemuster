@@ -1270,7 +1270,7 @@ rbfd_kludge() {
   buc_bare "  Image:        ${z_image_ref}"
   buc_bare "  Vouch:        ${z_vouch_ref}"
   buc_bare ""
-  buc_bare "  Auto-install via: tt/rbw-Tk.KludgeCycle.{moniker}.sh"
+  buc_bare "  Auto-install via: tt/rbw-tK.KludgeCycle.{moniker}.sh"
 }
 
 ######################################################################

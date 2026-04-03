@@ -119,82 +119,96 @@ All credential files require `600` permissions and must never be committed to ve
 
 ## Command Reference
 
-### Setup & Onboarding (Payor role)
+### Accounts (rbw-a) — Service Account Management
 
 | Colophon | Frontispiece | Purpose |
 |----------|-------------|---------|
-| `rbw-gPE` | PayorEstablish | Guided GCP project + OAuth consent screen setup |
-| `rbw-gPI` | PayorInstall | Ingest OAuth credentials from JSON key file |
-| `rbw-PL` | PayorLeviesDepot | Provision GCP depot project |
-| `rbw-PM` | PayorMantlesGovernor | Create/replace governor service account |
-| `rbw-Pl` | PayorListsDepots | List all active depots |
-| `rbw-PU` | PayorUnmakesDepot | Permanently remove a depot |
-| `rbw-gO` | Onboarding | Adaptive guide — reads current state, shows next step |
-| `rbw-gPR` | PayorRefresh | Refresh expired OAuth tokens |
-| `rbw-gq` | QuotaBuild | Display Cloud Build capacity review procedure |
+| `rbw-aM` | PayorMantlesGovernor | Create/replace governor service account |
+| `rbw-aK` | GovernorKnightsDirector | Knight director (build) service account |
+| `rbw-aC` | GovernorChartersRetriever | Charter retriever (image pull) service account |
+| `rbw-aL` | GovernorListsServiceAccounts | List issued service accounts |
+| `rbw-aF` | GovernorForfeitsServiceAccount | Forfeit a service account |
 
-### Credential Administration (Governor role)
-
-| Colophon | Frontispiece | Purpose |
-|----------|-------------|---------|
-| `rbw-GK` | GovernorKnightsDirector | Knight director (build) service account |
-| `rbw-GC` | GovernorChartersRetriever | Charter retriever (image pull) service account |
-| `rbw-Gl` | GovernorListsServiceAccounts | List issued service accounts |
-| `rbw-GF` | GovernorForfeitsServiceAccount | Forfeit a service account |
-
-### Build Lifecycle (Director role)
-
-| Colophon | Frontispiece | Purpose |
-|----------|-------------|---------|
-| `rbw-DI` | DirectorInscribesReliquary | Create a reliquary: mirror tool images from upstream to GAR |
-| `rbw-DE` | DirectorEnshrinesVessel | Enshrine upstream base images to GAR via Cloud Build |
-| `rbw-DO` | DirectorOrdainsHallmark | Ordain hallmark: conjure, bind, or graft based on vessel mode |
-| `rbw-Dt` | DirectorTalliesHallmarks | Tally hallmarks by health state |
-| `rbw-DV` | DirectorVouchesHallmarks | Mode-aware vouch: SLSA (conjure), digest-pin (bind), GRAFTED (graft) |
-| `rbw-DA` | DirectorAbjuresHallmark | Abjure a hallmark (delete artifacts from GAR) |
-| `rbw-DJ` | DirectorJettisonsImage | Jettison a specific image tag from registry |
-| `rbw-LK` | LocalKludge | Kludge a vessel image locally for development |
-
-### Retrieval & Plumb (Retriever role)
-
-| Colophon | Frontispiece | Purpose |
-|----------|-------------|---------|
-| `rbw-Rs` | RetrieverSummonsHallmark | Summon vouched hallmark image locally |
-| `rbw-Rw` | RetrieverWrestsImage | Wrest a specific image from registry |
-| `rbw-RpF` | RetrieverPlumbsFull | Full provenance display (SBOM, build info, Dockerfile) |
-| `rbw-Rpc` | RetrieverPlumbsCompact | Compact provenance summary |
-
-### Bottle Operations (imprint = nameplate moniker)
+### Crucible (rbw-c) — Container Runtime
 
 | Colophon | Frontispiece | Purpose |
 |----------|-------------|---------|
 | `rbw-cC` | Charge | Charge crucible (sentry + pentacle + bottle containers) |
 | `rbw-cQ` | Quench | Quench crucible |
+| `rbw-cic` | CrucibleIsCharged | Check if crucible is currently charged |
 | `rbw-cr` | Rack | Shell into the bottle container |
 | `rbw-ch` | Hail | Shell into the sentry container |
 | `rbw-cs` | Scry | Observe network traffic on crucible containers |
+| `rbw-cw` | Writ | Non-interactive exec in sentry container |
+| `rbw-cf` | Fiat | Non-interactive exec in pentacle container |
+| `rbw-cb` | Bark | Non-interactive exec in bottle container |
+
+### Depot (rbw-d) — GCP Project Infrastructure
+
+| Colophon | Frontispiece | Purpose |
+|----------|-------------|---------|
+| `rbw-dL` | PayorLeviesDepot | Provision GCP depot project |
+| `rbw-dU` | PayorUnmakesDepot | Permanently remove a depot |
+| `rbw-dE` | DirectorEnshrinesVessel | Enshrine upstream base images to GAR via Cloud Build |
+| `rbw-dI` | DirectorInscribesReliquary | Create a reliquary: mirror tool images from upstream to GAR |
+| `rbw-dl` | PayorListsDepots | List all active depots |
+
+### Guide (rbw-g) — Human-Directed Procedures
+
+| Colophon | Frontispiece | Purpose |
+|----------|-------------|---------|
+| `rbw-gPE` | PayorEstablish | Guided GCP project + OAuth consent screen setup |
+| `rbw-gPI` | PayorInstall | Ingest OAuth credentials from JSON key file |
+| `rbw-gPR` | PayorRefresh | Refresh expired OAuth tokens |
+| `rbw-gO` | Onboarding | Adaptive guide — reads current state, shows next step |
+| `rbw-gq` | QuotaBuild | Display Cloud Build capacity review procedure |
+
+### Hallmark (rbw-h) — Registry Artifact Lifecycle
+
+| Colophon | Frontispiece | Purpose |
+|----------|-------------|---------|
+| `rbw-hO` | DirectorOrdainsHallmark | Ordain hallmark: conjure, bind, or graft based on vessel mode |
+| `rbw-hA` | DirectorAbjuresHallmark | Abjure a hallmark (delete artifacts from GAR) |
+| `rbw-hV` | DirectorVouchesHallmarks | Mode-aware vouch: SLSA (conjure), digest-pin (bind), GRAFTED (graft) |
+| `rbw-ht` | DirectorTalliesHallmarks | Tally hallmarks by health state |
+| `rbw-hs` | RetrieverSummonsHallmark | Summon vouched hallmark image locally |
+| `rbw-hk` | LocalKludge | Kludge a vessel image locally for development |
+| `rbw-hpf` | RetrieverPlumbsFull | Full provenance display (SBOM, build info, Dockerfile) |
+| `rbw-hpc` | RetrieverPlumbsCompact | Compact provenance summary |
+
+### Ifrit (rbw-I) — Attack Binary
+
+| Colophon | Frontispiece | Purpose |
+|----------|-------------|---------|
 | `rbw-Ic` | IfritClient | Launch Claude Code inside a running bottle for escape testing |
 | `rbw-Is` | IfritSortie | Run automated security test scripts inside the bottle |
 
-### Theurge Iteration (imprint = nameplate moniker)
+### Image (rbw-i) — Container Image Operations
 
 | Colophon | Frontispiece | Purpose |
 |----------|-------------|---------|
-| `rbw-Tk` | KludgeCycle | Local kludge build + install hallmark into nameplate |
-| `rbw-To` | OrdainCycle | Cloud build + install hallmark into nameplate |
+| `rbw-iJ` | DirectorJettisonsImage | Jettison a specific image tag from registry |
+| `rbw-iw` | RetrieverWrestsImage | Wrest a specific image from registry |
 
-### Qualification & Testing
+### Marshal (rbw-M) — Lifecycle
 
 | Colophon | Frontispiece | Purpose |
 |----------|-------------|---------|
-| `rbw-Qf` | QualifyFast | Fast qualify: tabtargets, colophons, nameplate health |
-| `rbw-QR` | QualifyRelease | Release qualify: + shellcheck, full test suite |
-| `rbw-tf` | TestFixture | Run a single test fixture (imprint = fixture name) |
-| `rbw-ts` | TestSuite | Run a test suite (imprint = suite name) |
-| `rbw-to` | TestOne | Run a single test case |
+| `rbw-MZ` | MarshalZeroes | Zero regime to blank template |
+| `rbw-MP` | MarshalProofs | Proof repo for release testing |
 
-Available test fixtures: `ls tt/rbw-tf.*`
-Available test suites: `ls tt/rbw-ts.*`
+### Theurge (rbw-t) — Test Infrastructure
+
+| Colophon | Frontispiece | Purpose |
+|----------|-------------|---------|
+| `rbw-tK` | KludgeCycle | Local kludge build + install hallmark into nameplate |
+| `rbw-tO` | OrdainCycle | Cloud build + install hallmark into nameplate |
+| `rbw-tf` | QualifyFast | Fast qualify: tabtargets, colophons, nameplate health |
+| `rbw-tr` | QualifyRelease | Release qualify: + shellcheck, full test suite |
+
+Test suite/fixture tabtargets use `rbtd-s` and `rbtd-r` colophons:
+- Available test suites: `ls tt/rbtd-s.TestSuite.*`
+- Available test fixtures: `ls tt/rbtd-r.Run.*`
 
 ### Regime Inspection
 
@@ -277,5 +291,5 @@ Project Root/
 - **Regime validation fails on startup**: Run the regime's render command to see current values, then validate to identify the specific error. Fix the `.env` file and retry.
 - **OAuth token expired**: `tt/rbw-gPR.PayorRefresh.sh`
 - **Lost credential file**: Re-run the creation command for that role (payor install, governor mantle, director knight, retriever charter).
-- **Tabtarget not found**: Run `tt/rbw-Qf.QualifyFast.sh` to check tabtarget and colophon health.
-- **Build fails**: Check `tt/rbw-Dt.DirectorTalliesHallmarks.sh` for build status. Review logs in the GCP Console for the depot project.
+- **Tabtarget not found**: Run `tt/rbw-tf.QualifyFast.sh` to check tabtarget and colophon health.
+- **Build fails**: Check `tt/rbw-ht.DirectorTalliesHallmarks.sh` for build status. Review logs in the GCP Console for the depot project.

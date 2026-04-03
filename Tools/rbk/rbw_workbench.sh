@@ -19,7 +19,7 @@
 # RBW Workbench - Routes Recipe Bottle commands to CLIs via zipper registry
 #
 # All commands dispatch via buz_exec_lookup (see rbz_zipper.sh for colophon mapping).
-# Qualification gate runs for rbw-cC (crucible charge) and rbw-DO (cloud build) before dispatch.
+# Qualification gate runs for rbw-cC (crucible charge) and rbw-hO (hallmark ordain) before dispatch.
 
 set -euo pipefail
 

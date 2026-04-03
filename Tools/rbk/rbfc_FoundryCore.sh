@@ -452,7 +452,7 @@ zrbfc_assemble_vouch_steps() {
 }
 
 ######################################################################
-# Plumb (rbw-RpF / rbw-Rpc)
+# Plumb (rbw-hpf / rbw-hpc)
 
 # Internal: core plumb logic shared by full and compact modes
 # Args: vessel hallmark mode

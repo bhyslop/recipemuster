@@ -139,8 +139,8 @@
 
 // Recipe Bottle Term Colophon (tabtarget entry points)
 // rbtc_refresh_gcb_pins eliminated (₣Av) — RBRG regime removed, reliquaries replace pin refresh
-:rbtc_plumb_full:                <<rbtc_plumb_full,rbw-RpF>>
-:rbtc_plumb_compact:             <<rbtc_plumb_compact,rbw-Rpc>>
+:rbtc_plumb_full:                <<rbtc_plumb_full,rbw-hpf>>
+:rbtc_plumb_compact:             <<rbtc_plumb_compact,rbw-hpc>>
 
 :rbtoe_check_cbv2_connection:     <<rbtoe_check_cbv2_connection,CB v2 Connection Check>>
 :rbtoe_depot_list_update:         <<rbtoe_depot_list_update,Depot List Update Pattern>>

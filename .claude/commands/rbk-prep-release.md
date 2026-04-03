@@ -70,7 +70,7 @@ Wait for user acknowledgment.
 Run full release qualification on main to verify the complete codebase is healthy before any transforms:
 
 ```
-tt/rbw-QR.QualifyRelease.sh
+tt/rbw-tr.QualifyRelease.sh
 ```
 
 If qualification fails, **STOP**. The full codebase must pass before we proceed.
@@ -230,7 +230,7 @@ After all removals, verify with `git ls-files` that no proprietary content remai
 Run fast qualification only on the stripped candidate tree:
 
 ```
-tt/rbw-Qf.QualifyFast.sh
+tt/rbw-tf.QualifyFast.sh
 ```
 
 This validates that stripping didn't break wiring — tabtargets resolve, colophons match surviving modules, nameplate preflight passes. No shellcheck, no test suite — the full `.complete.` test already passed pre-strip on main in Step 4, and the stripped tree lacks cloud infrastructure to run integration tests.
