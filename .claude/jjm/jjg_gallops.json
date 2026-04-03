@@ -1115,12 +1115,13 @@
       "creation_time": "260402",
       "status": "racing",
       "order": [
+        "₢A2AAE",
         "₢A2AAA",
         "₢A2AAB",
         "₢A2AAC",
         "₢A2AAD"
       ],
-      "next_pace_seed": "AAE",
+      "next_pace_seed": "AAF",
       "paddock_file": ".claude/jjm/jjp_uAl2.md",
       "paces": {
         "₢A2AAA": {
@@ -1220,6 +1221,17 @@
               "text": "## Character\nSmall focused Rust change — add diff generation to an existing command's output path.\n\n## Docket\n`jjx_redocket` currently returns only \"Revised N pace(s)\". Add a diff of the old vs new docket content to the command output so the agent can immediately verify the reslate without a follow-up `jjx_show`.\n\n### Output format\nAfter the existing \"Revised N pace(s)\" line, emit a clearly labeled diff per revised pace:\n\n```\nRevised 2 pace(s)\n\n--- ₢A1AAe reslate diff ---\n- No remaining references to \"consecration\" (case-insensitive grep)\n+ No remaining references to \"consecration\" (case-insensitive grep, excluding git history)\n+ - `buz_group` descriptions in `rbz_zipper.sh` if any reference consecration\n\n--- ₢A1AAb reslate diff ---\n...\n```\n\n### Design notes\n- Unified diff format (- old, + new) — familiar, compact\n- Label each diff block with the coronet for multi-pace reslates\n- The diff is between the previous revision's docket and the new one\n- Keep it in stdout alongside the existing summary — no gazette output needed\n\n### Verification\n- `tt/rbtd-b.Build.sh` succeeds\n- `tt/rbtd-t.Test.sh` passes\n- Manual test: reslate a pace, verify diff appears and is accurate\n\n### Acceptance\n- `jjx_redocket` output includes readable diff per revised pace\n- Existing \"Revised N pace(s)\" summary still present",
               "silks": "redocket-emits-diff-output",
               "commit": "3d523c6"
+            }
+          ]
+        },
+        "₢A2AAE": {
+          "tacks": [
+            {
+              "ts": "260403-0949",
+              "state": "rough",
+              "text": "## Character\nMechanical rename across spec and Rust code. Straightforward find-replace with attention to the commit wire format documentation.\n\n## Docket\nRename the JJK concept \"hallmark\" to \"brand\" to free the word for RBK's Consecration → Hallmark rename. The source file is already `vvbf_brand.json` — this aligns the spec vocabulary with the existing file name.\n\n### Scope\n- JJS0 spec: all references to \"hallmark\" in commit format documentation, field descriptions\n- Rust code: constants, variable names, string literals, comments referencing hallmark\n- JJK claude-context (`jjk-claude-context.md`): any references to hallmark in the commit format docs\n- VVK code: if `vvbf_brand.json` parsing code references \"hallmark\" internally\n\n### Exclusions\n- Git history — old commits retain `jjb:NNNN:...` format, the numeric value is unchanged\n- The wire format itself doesn't change — the number is the same, only the name for it changes in spec/code\n\n### Work items\n- Update JJS0 spec: hallmark → brand in all definitions and examples\n- Update Rust code: rename hallmark references to brand\n- Update jjk-claude-context.md if needed\n- Build and test\n\n### Verification\n- `tt/vow-b.Build.sh` succeeds\n- `tt/vow-t.Test.sh` passes\n- No remaining references to \"hallmark\" in JJK/VVK code (grep, excluding git history)\n\n### Acceptance\n- JJS0 uses \"brand\" consistently\n- All Rust code uses \"brand\" for the version identifier\n- Word \"hallmark\" freed for RBK usage",
+              "silks": "rename-jjk-hallmark-to-brand",
+              "commit": "129e86d"
             }
           ]
         }
