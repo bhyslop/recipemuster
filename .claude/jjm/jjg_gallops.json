@@ -1188,9 +1188,10 @@
         "₢A2AAB",
         "₢A2AAC",
         "₢A2AAD",
+        "₢A2AAG",
         "₢A2AAF"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_uAl2.md",
       "paces": {
         "₢A2AAA": {
@@ -1354,6 +1355,17 @@
               "text": "## Character\nDesign-first infrastructure — API shape matters more than implementation. The feature is general but the first consumer (onboarding comprehension testing) will validate the design.\n\n## Docket\n\nAdd remote command execution as a JJK primitive: configure a remote target, then execute commands on it.\n\n### Vocabulary\n\n| Layer | Configure | Execute |\n|-------|-----------|---------|\n| Upper verb (equestrian) | tether | lunge |\n| jjx_ operation (boring) | jjx_bind | jjx_send |\n\n### Semantics\n\n**jjx_bind** — store remote target configuration (host, user, directory) in officium. Latest call wins — no concurrent remotes. Subsequent `jjx_send` calls use whatever was last bound.\n\n**jjx_send** — execute a command string on the bound remote, return stdout. Stateless per invocation — no session, no channel, no connection persistence. Transport is SSH but the caller doesn't know or care.\n\n### Officium integration\n\nRemote config lives in the officium directory alongside gazette files. Lifecycle is automatic — when the officium is absolved, the config goes with it. No new cleanup story needed.\n\n### Open design questions\n\n- Param shape for `jjx_bind`: flat `{host, user, directory}` or a single connection string?\n- Does `jjx_send` return stderr separately or merged with stdout?\n- Timeout behavior — what happens when a remote command hangs?\n- Does `jjx_bind` verify connectivity (SSH probe) or is that the caller's problem?\n- Should `jjx_send` accept an optional working directory override, or always use the bound directory?\n- Error reporting: SSH failure vs command failure vs timeout — how to distinguish?\n\n### Motivation\n\nOnboarding comprehension testing (₣A3) needs to run tabtargets on a remote machine with controlled credential state. The comprehension agent should think in terms of \"run this command\" not \"SSH to this user at this host.\" JJK absorbs the transport, the agent sees only `jjx_send`.\n\nAlso general: release qualification on clean machines, cross-platform testing, any \"fresh checkout\" validation.\n\n### Not in scope for this pace\n- Theurge integration (theurge stays container-focused)\n- The comprehension agent itself (₣A3 territory)\n- Remote file transfer (scp/rsync) — may be needed later but start with exec only\n- Concurrent remote targets\n\n## References\n- JJS0 — vocabulary isolation principle (upper verbs vs jjx_ operations)\n- ₣A3 paddock — onboarding comprehension testing motivation\n- Officium lifecycle — `jjx_open`, `jjx_absolve`",
               "silks": "remote-execution-bind-send",
               "commit": "809e286"
+            }
+          ]
+        },
+        "₢A2AAG": {
+          "tacks": [
+            {
+              "ts": "260403-1216",
+              "state": "rough",
+              "text": "## Character\nMechanical BUK infrastructure — new tinder constants file, two writes in dispatch, BUS0 quoin updates. Clear pattern to follow from existing fact-file usage.\n\n## Docket\n\nAdd self-describing dispatch metadata to `BURD_OUTPUT_DIR` via the fact-file pattern.\n\n### Deliverables\n\n**New file `Tools/buk/buf_facts.sh`** — tinder constants (pure string literals, no kindle):\n- `BUF_fact_now_stamp` — filename for the dispatch timestamp fact\n- `BUF_fact_log_hist` — filename for the historical log path fact\n\n**`Tools/buk/bud_dispatch.sh` changes:**\n- Source `buf_facts.sh` (after SOURCED guard, before dispatch runs)\n- After `BURD_OUTPUT_DIR` is created (after line 125), write both facts:\n  - `echo \"${BURD_NOW_STAMP}\" > \"${BURD_OUTPUT_DIR}/${BUF_fact_now_stamp}\"`\n  - `echo \"${BURD_LOG_HIST}\" > \"${BURD_OUTPUT_DIR}/${BUF_fact_log_hist}\"`\n\n**BUS0 updates:**\n- Add `buf_` category declaration in the mapping section comment block\n- Add tinder constant quoins for `BUF_fact_now_stamp` and `BUF_fact_log_hist`\n- Link them to the existing `busff_fact_file` pattern\n\n### Design Notes\n\n- Tinder constants (not kindle) because values are pure string literals with no variable expansion\n- `buf_` prefix is open in the BUK namespace — \"f for facts\"\n- Output dir is already created and cleared by dispatch before command execution — fact writes happen in the same setup window\n- Any consumer (tests, relay, tooling) can source `buf_facts.sh` independently to know the filenames without pulling in dispatch\n\n### Not in Scope\n- Relay consumption (₢A2AAF territory)\n- Additional fact-files beyond now_stamp and log_hist\n- Kindle ceremony (none needed — tinder only)",
+              "silks": "buf-dispatch-fact-files",
+              "commit": "ec1f5a8"
             }
           ]
         }
