@@ -283,13 +283,14 @@
         "₢A1AAX",
         "₢A1AAY",
         "₢A1AAb",
+        "₢A1AAh",
         "₢A1AAg",
         "₢A1AAZ",
         "₢A1AAV",
         "₢A1AAT",
         "₢A1AAc"
       ],
-      "next_pace_seed": "AAh",
+      "next_pace_seed": "AAi",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -1072,6 +1073,17 @@
               "text": "## Character\nInfrastructure plumbing with a design decision about buz_describe API shape. The generation script is mechanical once the API exists.\n\n## Docket\nAdd per-colophon description support to BUK zipper and a Marshal operation that generates `rbk-claude-tabtarget-context.md` from the zipper registry. Both CLAUDE.md variants `@`-include the generated file, eliminating hand-maintained colophon tables.\n\n**Prerequisite**: ₢A1AAb (tectonic-colophon-reorganization) must be complete — generates from final colophon names.\n\n### Design decisions needed\n- API shape for per-colophon descriptions: companion `buz_describe` call vs extra arg to `buz_enroll`\n- `buz_enroll` already has variable trailing args (`param1`, `imprint`), so companion call is cleaner\n- Generated file format: group headers from `buz_group`, colophon rows from `buz_enroll` + `buz_describe`\n\n### Work items\n- Add `buz_describe` (or chosen API) to BUK zipper infrastructure\n- Add description strings to all `rbz_zipper.sh` enrollments\n- Add Marshal generation operation: walk zipper declarations, emit `rbk-claude-tabtarget-context.md`\n- Update both CLAUDE files to `@`-include generated file, remove hand-maintained colophon references\n- Add qualify assertion: generated file matches committed version (freshness gate)\n- Add proof step: regenerate as part of release proofing\n\n### Verification\n- Generated file matches zipper contents exactly\n- Both CLAUDE files include it correctly\n- Qualify detects stale file\n- `tt/rbtd-s.TestSuite.fast.sh` passes\n\n### Acceptance\n- Single source of truth: zipper owns colophon descriptions\n- Generated context file is a build artifact, never hand-edited\n- Marshal proof ensures freshness at release time",
               "silks": "marshal-generates-claude-tabtarget-context",
               "commit": "db078f8"
+            }
+          ]
+        },
+        "₢A1AAh": {
+          "tacks": [
+            {
+              "ts": "260403-0935",
+              "state": "rough",
+              "text": "## Character\nMechanical verification — no code changes, just running suites and investigating any failures.\n\n## Docket\nRun the crucible test suite to verify that the tectonic colophon reorganization didn't break any live colophon usage paths. The fast suite verifies colophon health and regime validation, but crucible actually exercises colophons through charge/writ/fiat/bark/ordain operations against real containers.\n\n**Prerequisite**: ₢A1AAb (tectonic-colophon-reorganization) must be complete.\n\n### Work items\n- Run `tt/rbtd-s.TestSuite.crucible.sh` (117 cases — exercises container runtime colophons)\n- If available, run `tt/rbtd-s.TestSuite.service.sh` (80 cases — exercises GCP credential colophons)\n- Investigate and fix any failures (colophon references in Cloud Build JSON templates, bottle exec paths, etc.)\n\n### Verification\n- Crucible suite green\n- Service suite green (if credentials available)\n\n### Acceptance\n- All colophon usage paths verified through live execution\n- No stale colophon references remain in runtime paths",
+              "silks": "crucible-verification-after-colophon-reorg",
+              "commit": "10d268b"
             }
           ]
         }
