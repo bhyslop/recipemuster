@@ -189,6 +189,46 @@ fn run_single(args: &[String]) -> ExitCode {
         return ExitCode::FAILURE;
     }
 
+    // Set up execution context early — needed for charge check and case execution
+    let project_root = match std::env::current_dir() {
+        Ok(p) => p,
+        Err(e) => {
+            eprintln!("rbtd: cannot determine working directory: {}", e);
+            return ExitCode::FAILURE;
+        }
+    };
+
+    let root_temp = std::env::temp_dir().join(format!("rbtd-{}", std::process::id()));
+    if let Err(e) = std::fs::create_dir_all(&root_temp) {
+        eprintln!("rbtd: failed to create temp dir: {}", e);
+        return ExitCode::FAILURE;
+    }
+
+    // Crucible fixtures: verify charged before listing or running
+    if rbtdrc_needs_charge(fixture) {
+        let burv_root = root_temp.join("burv");
+        let mut ctx = rbtdri_Context::new(&project_root, fixture, &burv_root);
+
+        match rbtdri_invoke_global(
+            &mut ctx,
+            RBTDRM_COLOPHON_CRUCIBLE_ACTIVE,
+            &[fixture],
+            &[],
+        ) {
+            Ok(r) if r.exit_code == 0 => {}
+            _ => {
+                eprintln!(
+                    "rbtd single: crucible not charged for '{}'\n\
+                     charge first: tt/rbw-cC.Charge.{}.sh",
+                    fixture, fixture
+                );
+                return ExitCode::FAILURE;
+            }
+        }
+
+        rbtdrc_set_context(ctx);
+    }
+
     let sections = rbtdrc_sections_for_fixture(fixture);
 
     // No case argument — list all cases
@@ -212,47 +252,6 @@ fn run_single(args: &[String]) -> ExitCode {
             return ExitCode::FAILURE;
         }
     };
-
-    // Set up execution context
-    let project_root = match std::env::current_dir() {
-        Ok(p) => p,
-        Err(e) => {
-            eprintln!("rbtd: cannot determine working directory: {}", e);
-            return ExitCode::FAILURE;
-        }
-    };
-
-    let root_temp = std::env::temp_dir().join(format!("rbtd-{}", std::process::id()));
-    if let Err(e) = std::fs::create_dir_all(&root_temp) {
-        eprintln!("rbtd: failed to create temp dir: {}", e);
-        return ExitCode::FAILURE;
-    }
-
-    // Crucible cases need invocation context (but no charge/quench)
-    if rbtdrc_needs_charge(fixture) {
-        let burv_root = root_temp.join("burv");
-        let mut ctx = rbtdri_Context::new(&project_root, fixture, &burv_root);
-
-        // Verify crucible is charged before attempting to run
-        match rbtdri_invoke_global(
-            &mut ctx,
-            RBTDRM_COLOPHON_CRUCIBLE_ACTIVE,
-            &[fixture],
-            &[],
-        ) {
-            Ok(r) if r.exit_code == 0 => {}
-            _ => {
-                eprintln!(
-                    "rbtd single: crucible not charged for '{}'\n\
-                     charge first: tt/rbw-cC.Charge.{}.sh",
-                    fixture, fixture
-                );
-                return ExitCode::FAILURE;
-            }
-        }
-
-        rbtdrc_set_context(ctx);
-    }
 
     let colors = rbtdre_detect_colors();
     let result = match rbtdre_run_single_case(case, &colors, &root_temp) {
