@@ -428,6 +428,14 @@ zrbob_drive_hallmark() {
 }
 
 ######################################################################
+# Kludge Bottle — param1 dispatch target delegating to rbob_kludge
+
+rbob_kludge_bottle() {
+  zrbob_sentinel
+  rbob_kludge
+}
+
+######################################################################
 # Kludge — build bottle vessel locally and drive hallmark into nameplate
 
 rbob_kludge() {

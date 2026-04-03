@@ -26,6 +26,7 @@
 | `rbw-cf` | Fiat | Non-interactive exec in pentacle container |
 | `rbw-cb` | Bark | Non-interactive exec in bottle container |
 | `rbw-cic` | CrucibleIsCharged | Check if crucible is currently charged |
+| `rbw-cKB` | KludgeBottle | Kludge bottle vessel and drive hallmark into nameplate |
 
 ### Depot — GCP project infrastructure (`rbw-d`)
 
