@@ -280,10 +280,11 @@
         "₢A1AAV",
         "₢A1AAX",
         "₢A1AAT",
+        "₢A1AAb",
         "₢A1AAZ",
         "₢A1AAa"
       ],
-      "next_pace_seed": "AAb",
+      "next_pace_seed": "AAc",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -895,6 +896,17 @@
               "text": "## Character\nResearch and design — need to understand what the old Python test actually verified, then determine the right Rust implementation strategy. WebSocket protocol interaction from a compiled binary is non-trivial; may need a crate dependency (tungstenite or similar) which means a tethered kludge for the ifrit vessel.\n\n## Docket\n\nThe `rbtdrc_srjcl_websocket_kernel` theurge case fails because it still shells out to `Tools/rbk/rbts/rbt_test_srjcl.py`, which was deleted in pace J (retire-bash-test-and-python-sortie-infrastructure). The case needs to be reimplemented in pure Rust.\n\n### Research Phase\n- Recover the deleted `rbt_test_srjcl.py` from git history — understand exactly what it tested\n- Document what Jupyter WebSocket kernel interaction involves (protocol, endpoints, message format)\n- Determine whether the test verifies kernel availability, code execution, or both\n- Check what the other two passing srjcl cases (`_running`, `_connectivity`) already cover\n\n### Design Phase\n- Evaluate Rust WebSocket options: raw TCP with HTTP upgrade vs crate (tungstenite, tokio-tungstenite)\n- If a crate is needed, assess ifrit vessel impact (new dependency = tethered kludge, layer cache invalidation)\n- Consider whether the test belongs in ifrit (inside bottle) or theurge (from host via fiat/bark)\n- Alternative: could a simpler HTTP-based check achieve equivalent coverage without full WebSocket?\n\n### Implementation\n- Build the Rust replacement\n- If ifrit dependency added, rebuild vessel\n- Verify all 3 srjcl cases pass\n\n### Acceptance\n- `rbtdrc_srjcl_websocket_kernel` passes\n- Full srjcl fixture: 3 pass, 0 fail\n- No new crate dependencies added without explicit justification",
               "silks": "reimplement-srjcl-websocket-kernel-test",
               "commit": "57b2536"
+            }
+          ]
+        },
+        "₢A1AAb": {
+          "tacks": [
+            {
+              "ts": "260402-2314",
+              "state": "rough",
+              "text": "## Character\nIntricate but mechanical — large surface area of renames across zipper, tabtargets, and frontispieces, but each individual change is straightforward. Requires care to avoid breaking dispatch routing. Design decisions already made in conversation.\n\n## Docket\nReorganize the `rbw` workbench colophon namespace from actor-organized (director/retriever/ledger) to domain-object-organized categories. This is a rename-only transformation — no new functionality, no behavior changes.\n\n### New category scheme\n\n| Prefix | Domain | Current prefixes being absorbed |\n|--------|--------|---------------------------------|\n| `rbw-a` | Ark (consecration lifecycle) | `DA`, `DV`, `Dt`, `RpF`, `Rpc` |\n| `rbw-c` | Crucible (runtime) | `cC`, `cQ`, `cr`, `cs`, `cw`, `cf`, `cb`, `ch`, `ca` (unchanged) |\n| `rbw-d` | Depot (GCP project infra) | `PL`, `PU`, `Pl` |\n| `rbw-g` | Guide (human-directed procedures) | `gPI`, `gPE`, `gPR`, `gq`, `gO` (unchanged) |\n| `rbw-i` | Image | `DJ`, `Rw` |\n| `rbw-I` | Ifrit | `Ic`, `Is` (unchanged) |\n| `rbw-M` | Marshal (lifecycle) | `MZ`, `MP` (unchanged) |\n| `rbw-r` | Regime (config files) | `rn*`, `rv*`, `rr*`, `rp*`, `ro*`, `rs*`, `ra*`, `ni`, `nv` (unchanged) |\n| `rbw-R` | Reliquary | `DI` |\n| `rbw-s` | Service account | `GC`, `GK`, `Gl`, `GF`, `PM` |\n| `rbw-t` | Theurge/test | `Tk`, `To`, `Qf`, `QR` |\n| `rbw-v` | Vessel (config + ark ops) | `DE`, `DO`, `LK`, `Rs` |\n\n### Service account frontispiece convention\nNoun-Verb-Object when one account acts upon another:\n- `rbw-sM.PayorMantlesGovernor.sh`\n- `rbw-sK.GovernorKnightsDirector.sh`\n- `rbw-sC.GovernorChartersRetriever.sh`\n- `rbw-sL.ListServiceAccounts.sh`\n- `rbw-sF.ForfeitServiceAccount.sh`\n\n### Case convention\nLowercase = high-frequency daily use, uppercase = specialized/rare (`i/I`, `r/R`)\n\n### Work items\n- Update `rbz_zipper.sh` colophon strings for all affected enrollments\n- Rename tabtarget files in `tt/` to match new colophons\n- Update frontispieces where needed (especially service account ops)\n- Verify dispatch routing with a smoke test\n- Update CLAUDE.md acronym mappings if any reference colophons\n\n### Vessel + ark collapse decision\nVessel and ark ops collapse into `rbw-v` — the vessel is the subject in all cases:\n`vE` enshrine, `vO` ordain, `vK` kludge, `vS` summon, `vA` abjure, `vV` vouch, `vT` tally, `vP` plumb\n\n### Open question\n- New `rbw-cKB.KludgeBottle.sh` (₢A1AAZ) should be slated after this lands, or simultaneously",
+              "silks": "tectonic-colophon-reorganization",
+              "commit": "3e31678"
             }
           ]
         }
