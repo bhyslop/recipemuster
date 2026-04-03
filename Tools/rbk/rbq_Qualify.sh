@@ -127,6 +127,27 @@ rbq_qualify_colophons() {
   buc_log_args "All ${z_checked} RBW colophons registered"
 }
 
+rbq_qualify_context() {
+  zrbq_sentinel
+
+  buc_step "Qualifying generated context freshness"
+
+  local -r z_committed="${ZRBQ_RBW_DIR}/rbk-claude-tabtarget-context.md"
+  local -r z_fresh="${BURD_TEMP_DIR}/rbq_context_check.md"
+
+  buz_emit_context "${ZRBQ_TT_DIR}" > "${z_fresh}" || buc_die "Failed to generate context for comparison"
+
+  if ! test -f "${z_committed}"; then
+    buc_die "Generated context file missing: ${z_committed} — run tt/rbw-MG.MarshalGenerate.sh"
+  fi
+
+  if ! diff -q "${z_fresh}" "${z_committed}" >/dev/null 2>&1; then
+    buc_die "Generated context file is stale: ${z_committed} — run tt/rbw-MG.MarshalGenerate.sh"
+  fi
+
+  buc_log_args "Context file is fresh"
+}
+
 rbq_qualify_fast() {
   zrbq_sentinel
 
@@ -136,6 +157,7 @@ rbq_qualify_fast() {
     "butctt.*.sh" \
     # End of exempt list
   rbq_qualify_colophons
+  rbq_qualify_context
   rbrn_preflight
 
   buc_step "Fast qualification passed"

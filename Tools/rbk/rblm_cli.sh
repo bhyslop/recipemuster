@@ -310,12 +310,35 @@ rblm_proof() {
 }
 
 ######################################################################
+# Command: generate - Generate tabtarget context markdown from zipper registry
+
+rblm_generate() {
+  buc_doc_brief "Generate tabtarget context markdown from zipper registry"
+  buc_doc_shown || return 0
+
+  local -r z_target="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}/rbk-claude-tabtarget-context.md"
+  local -r z_tmp="${BURD_TEMP_DIR}/rbk-claude-tabtarget-context.md"
+
+  buz_emit_context "${BURD_TABTARGET_DIR}" > "${z_tmp}" || buc_die "Failed to generate context"
+
+  if test -f "${z_target}" && diff -q "${z_tmp}" "${z_target}" >/dev/null 2>&1; then
+    buc_log_args "Context file already up to date: ${z_target}"
+  else
+    cp "${z_tmp}" "${z_target}" || buc_die "Failed to write: ${z_target}"
+    buc_log_args "Generated: ${z_target}"
+  fi
+
+  buc_success "Context generation complete"
+}
+
+######################################################################
 # Furnish and Main
 
 zrblm_furnish() {
   buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
   buc_doc_env "BURD_TEMP_DIR         " "Temporary directory for this invocation (dispatch-provided)"
+  buc_doc_env "BURD_TABTARGET_DIR    " "Tabtarget directory (dispatch-provided)"
   buc_doc_env_done || return 0
 
   source "${BURD_CONFIG_DIR}/rbbc_constants.sh"

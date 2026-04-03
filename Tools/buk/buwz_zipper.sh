@@ -35,35 +35,35 @@ zbuwz_kindle() {
 
   # TabTarget subsystem (buut_cli.sh)
   local z_mod="buut_cli.sh"
-  buz_enroll BUWZ_TT_LIST_LAUNCHERS      "buw-tt-ll"  "${z_mod}" "buut_list_launchers"
-  buz_enroll BUWZ_TT_BATCH_LOGGING       "buw-tt-cbl" "${z_mod}" "buut_tabtarget_batch_logging"
-  buz_enroll BUWZ_TT_BATCH_NOLOG         "buw-tt-cbn" "${z_mod}" "buut_tabtarget_batch_nolog"
-  buz_enroll BUWZ_TT_INTERACTIVE_LOGGING "buw-tt-cil" "${z_mod}" "buut_tabtarget_interactive_logging"
-  buz_enroll BUWZ_TT_INTERACTIVE_NOLOG   "buw-tt-cin" "${z_mod}" "buut_tabtarget_interactive_nolog"
-  buz_enroll BUWZ_TT_LAUNCHER            "buw-tt-cl"  "${z_mod}" "buut_launcher"
+  buz_enroll BUWZ_TT_LIST_LAUNCHERS      "buw-tt-ll"  "${z_mod}" "buut_list_launchers"               ""  "List all registered launchers"
+  buz_enroll BUWZ_TT_BATCH_LOGGING       "buw-tt-cbl" "${z_mod}" "buut_tabtarget_batch_logging"      ""  "Create batch tabtarget with logging"
+  buz_enroll BUWZ_TT_BATCH_NOLOG         "buw-tt-cbn" "${z_mod}" "buut_tabtarget_batch_nolog"        ""  "Create batch tabtarget without logging"
+  buz_enroll BUWZ_TT_INTERACTIVE_LOGGING "buw-tt-cil" "${z_mod}" "buut_tabtarget_interactive_logging" ""  "Create interactive tabtarget with logging"
+  buz_enroll BUWZ_TT_INTERACTIVE_NOLOG   "buw-tt-cin" "${z_mod}" "buut_tabtarget_interactive_nolog"  ""  "Create interactive tabtarget without logging"
+  buz_enroll BUWZ_TT_LAUNCHER            "buw-tt-cl"  "${z_mod}" "buut_launcher"                     ""  "Create launcher script"
 
   # Config Regime subsystem (burc_cli.sh)
   z_mod="burc_cli.sh"
-  buz_enroll BUWZ_RC_VALIDATE "buw-rcv" "${z_mod}" "burc_validate"
-  buz_enroll BUWZ_RC_RENDER   "buw-rcr" "${z_mod}" "burc_render"
+  buz_enroll BUWZ_RC_VALIDATE "buw-rcv" "${z_mod}" "burc_validate"  ""  "Validate BURC regime"
+  buz_enroll BUWZ_RC_RENDER   "buw-rcr" "${z_mod}" "burc_render"    ""  "Render BURC regime"
 
   # Station Regime subsystem (burs_cli.sh)
   z_mod="burs_cli.sh"
-  buz_enroll BUWZ_RS_VALIDATE "buw-rsv" "${z_mod}" "burs_validate"
-  buz_enroll BUWZ_RS_RENDER   "buw-rsr" "${z_mod}" "burs_render"
+  buz_enroll BUWZ_RS_VALIDATE "buw-rsv" "${z_mod}" "burs_validate"  ""  "Validate BURS regime"
+  buz_enroll BUWZ_RS_RENDER   "buw-rsr" "${z_mod}" "burs_render"    ""  "Render BURS regime"
 
   # Environment Regime subsystem (bure_cli.sh)
   z_mod="bure_cli.sh"
-  buz_enroll BUWZ_RE_VALIDATE "buw-rev" "${z_mod}" "bure_validate"
-  buz_enroll BUWZ_RE_RENDER   "buw-rer" "${z_mod}" "bure_render"
+  buz_enroll BUWZ_RE_VALIDATE "buw-rev" "${z_mod}" "bure_validate"  ""  "Validate BURE regime"
+  buz_enroll BUWZ_RE_RENDER   "buw-rer" "${z_mod}" "bure_render"    ""  "Render BURE regime"
 
   # Qualification subsystem (buq_cli.sh)
   z_mod="buq_cli.sh"
-  buz_enroll BUWZ_QUALIFY_SHELLCHECK "buw-qsc" "${z_mod}" "buq_shellcheck"
+  buz_enroll BUWZ_QUALIFY_SHELLCHECK "buw-qsc" "${z_mod}" "buq_shellcheck"  ""  "Run shellcheck on all tools"
 
   # Self-test (butt_testbench.sh)
   z_mod="butt_testbench.sh"
-  buz_enroll BUWZ_SELF_TEST "buw-st" "${z_mod}" "buw-st"
+  buz_enroll BUWZ_SELF_TEST "buw-st" "${z_mod}" "buw-st"  ""  "BUK self-test (kick-tires + bure-tweak)"
 
   readonly ZBUWZ_KINDLED=1
 }

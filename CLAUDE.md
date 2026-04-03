@@ -371,6 +371,8 @@ When evaluating any new pattern, extraction, or structural choice, the litmus te
 - Documentation format: AsciiDoc (.adoc) for specs, Markdown (.md) for guides
 - Public project page: https://scaleinv.github.io/recipebottle
 
+@Tools/rbk/rbk-claude-tabtarget-context.md
+
 @Tools/jjk/vov_veiled/jjk-claude-context.md
 
 @Tools/vvk/vov_veiled/vvk-claude-context.md
