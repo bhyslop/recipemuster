@@ -279,9 +279,10 @@
         "₢A1AAY",
         "₢A1AAV",
         "₢A1AAX",
-        "₢A1AAT"
+        "₢A1AAT",
+        "₢A1AAZ"
       ],
-      "next_pace_seed": "AAZ",
+      "next_pace_seed": "AAa",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -871,6 +872,17 @@
               "text": "## Character\nMechanical rename — grep-and-replace across shell, Rust, and tabtargets. No behavioral change.\n\n## Docket\n\nRename colophon `rbw-ca` (CrucibleActive) to `rbw-cic` (CrucibleIsCharged) throughout.\n\n### Touch points\n- Mint `rbw-cic` colophon, retire `rbw-ca`\n- Tabtarget: delete `tt/rbw-ca.CrucibleActive.sh`, create `tt/rbw-cic.CrucibleIsCharged.sh`\n- Zipper enrollment in `rbz_zipper.sh`: rename constant (`RBZ_CRUCIBLE_IS_CHARGED`), update colophon string\n- Theurge colophon manifest in `rbtdrm_manifest.rs`: update compiled-in colophon string\n- Workbench colophon list in `rbtw_workbench.sh` (or `rbte` if decomposition landed)\n- CLAUDE.md tabtarget reference\n\n### Acceptance\n- `tt/rbw-cic.CrucibleIsCharged.sh` returns correct predicate for charged/uncharged crucible\n- `tt/rbw-Qf.QualifyFast.sh` passes (colophon health)\n- `tt/rbtd-t.Test.sh` passes (theurge unit tests)\n- No references to `rbw-ca` remain",
               "silks": "rename-crucible-active-to-crucible-is-charged",
               "commit": "daf3956"
+            }
+          ]
+        },
+        "₢A1AAZ": {
+          "tacks": [
+            {
+              "ts": "260402-2247",
+              "state": "rough",
+              "text": "## Character\nMechanical wiring — zipper enrollment, tabtarget creation, and function implementation following established patterns.\n\n## Docket\nAdd `rbw-cKB.KludgeBottle.sh` tabtarget that takes a nameplate as CLI argument (like `rbw-cr.Rack.sh`, not imprinted per-nameplate).\n\nWork items:\n- Enroll `rbw-cKB` colophon in `rbz_zipper.sh` with `param1` mode, routing to a new function in `rbob_cli.sh` or `rbob_bottle.sh`\n- Create `tt/rbw-cKB.KludgeBottle.sh` launcher (standard 3-line pattern)\n- Implement the kludge-bottle function: rebuild vessel image locally (`LK` logic) and re-charge into the running crucible\n- Reuses `zrbob_furnish` nameplate-listing-when-missing behavior via `param1` zipper enrollment\n\n## Context\n- Design discussion established `cKB` over `cK` — the `B` documents bottle scope even without a sentry counterpart\n- Follows `rbw-cr.Rack.sh` precedent: crucible command, argument-based nameplate, no imprints\n- Spec: RBSAK-ark_kludge.adoc describes the existing `LK` kludge operation",
+              "silks": "kludge-bottle-crucible-tabtarget",
+              "commit": "157ef9e"
             }
           ]
         }
