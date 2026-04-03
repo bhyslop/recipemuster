@@ -1110,9 +1110,10 @@
       "order": [
         "₢A2AAA",
         "₢A2AAB",
-        "₢A2AAC"
+        "₢A2AAC",
+        "₢A2AAD"
       ],
-      "next_pace_seed": "AAD",
+      "next_pace_seed": "AAE",
       "paddock_file": ".claude/jjm/jjp_uAl2.md",
       "paces": {
         "₢A2AAA": {
@@ -1201,6 +1202,17 @@
               "text": "The jjx_record size guard counts full file content of staged additions without accounting for paired deletions in git renames. File moves (git detects as R status) are effectively zero new bytes, but the guard treats them as full-size additions, forcing unnecessary size_limit overrides.\n\n## Problem\n\nWhen jjx_record stages files that are renames/moves, git stores them efficiently (same blob, new path). But the size guard sums the byte count of all staged additions, triggering the limit even though the commit adds no new content.\n\n## Solution\n\nIn the size guard calculation, detect rename pairs (git diff --cached --name-status shows R100 or similar) and exclude the destination file size from the total, or only count the net new bytes.\n\n## Acceptance\n\n- File moves/renames do not trigger size guard\n- Genuinely large new content still triggers the guard\n- Warning threshold still fires for large commits regardless",
               "silks": "size-guard-rename-awareness",
               "commit": "28b9e38"
+            }
+          ]
+        },
+        "₢A2AAD": {
+          "tacks": [
+            {
+              "ts": "260403-0940",
+              "state": "rough",
+              "text": "## Character\nSmall focused Rust change — add diff generation to an existing command's output path.\n\n## Docket\n`jjx_redocket` currently returns only \"Revised N pace(s)\". Add a diff of the old vs new docket content to the command output so the agent can immediately verify the reslate without a follow-up `jjx_show`.\n\n### Output format\nAfter the existing \"Revised N pace(s)\" line, emit a clearly labeled diff per revised pace:\n\n```\nRevised 2 pace(s)\n\n--- ₢A1AAe reslate diff ---\n- No remaining references to \"consecration\" (case-insensitive grep)\n+ No remaining references to \"consecration\" (case-insensitive grep, excluding git history)\n+ - `buz_group` descriptions in `rbz_zipper.sh` if any reference consecration\n\n--- ₢A1AAb reslate diff ---\n...\n```\n\n### Design notes\n- Unified diff format (- old, + new) — familiar, compact\n- Label each diff block with the coronet for multi-pace reslates\n- The diff is between the previous revision's docket and the new one\n- Keep it in stdout alongside the existing summary — no gazette output needed\n\n### Verification\n- `tt/rbtd-b.Build.sh` succeeds\n- `tt/rbtd-t.Test.sh` passes\n- Manual test: reslate a pace, verify diff appears and is accurate\n\n### Acceptance\n- `jjx_redocket` output includes readable diff per revised pace\n- Existing \"Revised N pace(s)\" summary still present",
+              "silks": "redocket-emits-diff-output",
+              "commit": "3d523c6"
             }
           ]
         }
