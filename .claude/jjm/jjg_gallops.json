@@ -282,9 +282,10 @@
         "₢A1AAb",
         "₢A1AAZ",
         "₢A1AAV",
-        "₢A1AAT"
+        "₢A1AAT",
+        "₢A1AAc"
       ],
-      "next_pace_seed": "AAc",
+      "next_pace_seed": "AAd",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -928,6 +929,17 @@
               "text": "## Character\nIntricate but mechanical — large surface area of renames across zipper, tabtargets, and frontispieces, but each individual change is straightforward. Requires care to avoid breaking dispatch routing. Design decisions already made in conversation.\n\n## Docket\nReorganize the `rbw` workbench colophon namespace from actor-organized (director/retriever/ledger) to domain-object-organized categories. This is a rename-only transformation — no new functionality, no behavior changes.\n\n### New category scheme\n\n| Prefix | Domain | Current prefixes being absorbed |\n|--------|--------|---------------------------------|\n| `rbw-a` | Ark (consecration lifecycle) | `DA`, `DV`, `Dt`, `RpF`, `Rpc` |\n| `rbw-c` | Crucible (runtime) | `cC`, `cQ`, `cr`, `cs`, `cw`, `cf`, `cb`, `ch`, `ca` (unchanged) |\n| `rbw-d` | Depot (GCP project infra) | `PL`, `PU`, `Pl` |\n| `rbw-g` | Guide (human-directed procedures) | `gPI`, `gPE`, `gPR`, `gq`, `gO` (unchanged) |\n| `rbw-i` | Image | `DJ`, `Rw` |\n| `rbw-I` | Ifrit | `Ic`, `Is` (unchanged) |\n| `rbw-M` | Marshal (lifecycle) | `MZ`, `MP` (unchanged) |\n| `rbw-r` | Regime (config files) | `rn*`, `rv*`, `rr*`, `rp*`, `ro*`, `rs*`, `ra*`, `ni`, `nv` (unchanged) |\n| `rbw-R` | Reliquary | `DI` |\n| `rbw-s` | Service account | `GC`, `GK`, `Gl`, `GF`, `PM` |\n| `rbw-t` | Theurge/test | `Tk`, `To`, `Qf`, `QR` |\n| `rbw-v` | Vessel (config + ark ops) | `DE`, `DO`, `LK`, `Rs` |\n\n### Service account frontispiece convention\nNoun-Verb-Object when one account acts upon another:\n- `rbw-sM.PayorMantlesGovernor.sh`\n- `rbw-sK.GovernorKnightsDirector.sh`\n- `rbw-sC.GovernorChartersRetriever.sh`\n- `rbw-sL.ListServiceAccounts.sh`\n- `rbw-sF.ForfeitServiceAccount.sh`\n\n### Case convention\nLowercase = high-frequency daily use, uppercase = specialized/rare (`i/I`, `r/R`)\n\n### Work items\n- Update `rbz_zipper.sh` colophon strings for all affected enrollments\n- Rename tabtarget files in `tt/` to match new colophons\n- Update frontispieces where needed (especially service account ops)\n- Verify dispatch routing with a smoke test\n- Update CLAUDE.md acronym mappings if any reference colophons\n\n### Vessel + ark collapse decision\nVessel and ark ops collapse into `rbw-v` — the vessel is the subject in all cases:\n`vE` enshrine, `vO` ordain, `vK` kludge, `vS` summon, `vA` abjure, `vV` vouch, `vT` tally, `vP` plumb\n\n### Open question\n- New `rbw-cKB.KludgeBottle.sh` (₢A1AAZ) should be slated after this lands, or simultaneously",
               "silks": "tectonic-colophon-reorganization",
               "commit": "3e31678"
+            }
+          ]
+        },
+        "₢A1AAc": {
+          "tacks": [
+            {
+              "ts": "260402-2338",
+              "state": "rough",
+              "text": "## Character\nDesign-heavy coordination work — each test requires careful orchestration of writ observation around ifrit attacks. Follows the snapshot-attack-resnap pattern established in pace S (coordinated ARP tests). May need 1-2 new ifrit primitives (DNS forge, MAC flood) but the primary complexity is in theurge observation logic.\n\n## Docket\n\nAdd three coordinated security tests that verify the *persistence* of sentry security controls under active attack. Unlike unilateral tests (verdict from ifrit exit code), these use theurge to observe sentry state before and after ifrit attacks.\n\n### New coordinated tests\n\n**Sentry process integrity post-attack** — Run a battery of existing ifrit attacks (dns-blocked-google, direct-arp-poison, proto-smuggle-rawsock), then verify via writ that: (1) dnsmasq process is still running, (2) iptables rules match the pre-attack snapshot (no rules flushed or added), (3) sentry's network interfaces haven't changed. This is a meta-test — it verifies that exercising the security boundary doesn't degrade it.\n\n**DNS cache integrity under attack** — New ifrit primitive sends forged DNS UDP responses to sentry's dnsmasq port (crafted packets claiming google.com resolves to 1.2.3.4). Theurge snapshots frozen DNS records via writ dig before and after, verifies they haven't changed. Tests the resolve-then-freeze invariant: in allowlist mode there's no upstream server= directive, so dnsmasq should ignore unsolicited responses.\n\n**MAC flooding bridge resilience** — New ifrit primitive sends Ethernet frames from many fake source MACs via AF_PACKET (similar infrastructure to ARP sorties). Theurge verifies sentry→bottle connectivity survives the flood by running writ/fiat commands before and after. Tests L2 fabric resilience — existing ARP tests target the L3 ARP table, this targets the bridge's MAC learning table.\n\n### Implementation\n\n- 1-2 new ifrit attack primitives in `rbida_Attack` (dns-forge-response, mac-flood-bridge) + sortie implementations\n- 3 new coordinated cases in `rbtdrc_crucible.rs` following snapshot-attack-resnap pattern\n- New `tadmor-coordinated-integrity` section (distinct from existing `tadmor-coordinated-attacks` which covers ARP)\n\n### Acceptance\n\n- All 3 new coordinated cases pass\n- Total tadmor case count grows by 3 (to 40 if combined with unilateral pace)\n- Sentry integrity test exercises at least 3 different attack types before checking\n- No regressions in existing cases\n- Full crucible suite green",
+              "silks": "coordinated-security-integrity-verification",
+              "commit": "613f118"
             }
           ]
         }
