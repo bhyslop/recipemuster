@@ -277,9 +277,10 @@
         "₢A1AAU",
         "₢A1AAW",
         "₢A1AAV",
-        "₢A1AAT"
+        "₢A1AAT",
+        "₢A1AAX"
       ],
-      "next_pace_seed": "AAX",
+      "next_pace_seed": "AAY",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -840,6 +841,17 @@
               "text": "## Character\nBug fix plus defensive assertion — mechanical once the quench bug is identified, but requires understanding the compose profile interaction.\n\n## Docket\n\n### Bug: bottle survives quench\n`rbob_quench` calls `compose down --remove-orphans` without `--profile sessile`. The bottle container (started under the sessile profile) is not stopped. Fix `rbob_quench` to include `--profile sessile` so all containers are torn down.\n\n### Lifecycle assertions in crucible fixtures\nAdd `rbw-ca` CrucibleActive checks to the existing crucible fixture flow in theurge:\n- After charge succeeds, invoke `rbw-ca` and assert exit 0 (charged)\n- After quench succeeds, invoke `rbw-ca` and assert exit non-zero (not charged)\n\nThis verifies that charge/quench actually achieve their intended state transitions, catching regressions like the sessile profile omission.\n\n### Acceptance\n- `rbob_quench` stops all containers including bottle\n- After charge: `rbw-ca` returns 0 for tadmor, srjcl, pluml\n- After quench: `rbw-ca` returns non-zero for tadmor, srjcl, pluml\n- Existing crucible suite (tadmor) passes end-to-end",
               "silks": "crucible-active-lifecycle-verification",
               "commit": "ec8faf1"
+            }
+          ]
+        },
+        "₢A1AAX": {
+          "tacks": [
+            {
+              "ts": "260402-1818",
+              "state": "rough",
+              "text": "## Character\nMechanical refactoring with clear before/after — every case arm in the existing workbench becomes a named BCG function. No new behavior, just structural decomposition.\n\n## Docket\n\nExtract theurge workbench inline logic into proper BCG module `rbte` (Test Engine).\n\n### Files to create\n- `Tools/rbk/rbtd/rbte_engine.sh` — implementation module (kindle, sentinel, public functions)\n- `Tools/rbk/rbtd/rbte_cli.sh` — CLI entry point with differential furnish\n\n### Functions to extract (from rbtw_workbench.sh case arms)\n- `rbte_build` — cargo build for theurge crate (from `rbtd-b`)\n- `rbte_test` — cargo test for theurge crate (from `rbtd-t`)\n- `rbte_run` — build + invoke binary for single fixture (from `rbtd-r`)\n- `rbte_suite` — build + invoke binary for suite of fixtures (from `rbtd-s` TestSuite)\n- `rbte_single` — build + invoke binary for single case (from `rbtd-s` SingleCase)\n- `rbte_probe` — access probe with heavy kindle chain (from `rbtd-ap`)\n\n### Kindle owns\n- Cargo manifest path (`RBTE_MANIFEST`)\n- Theurge binary path (`ZRBTE_BINARY`)\n- Suite-to-fixture mappings (fast, service, crucible, complete)\n\n### Zipper manifest plumbing\n- `rbte_cli.sh` furnish sources and kindles buz + rbz zippers\n- `ZRBZ_COLOPHON_MANIFEST` passed directly to theurge binary\n- Delete `zrbtw_resolve_manifest` entirely — Rust `rbtdrm_required_colophons` is sole source of truth for per-fixture requirements\n\n### Differential furnish\n- Light path (build/test/run/suite/single): just rbte kindle\n- Heavy path (probe): regime + constants + OAuth + IAM + Payor kindle chain\n\n### Drift fix\n- Update `RBTDRM_COLOPHON_KLUDGE` in `rbtdrm_manifest.rs` from `\"rbw-ak\"` to `\"rbw-LK\"`\n\n### rbtw_workbench.sh becomes pure router\n- Routes colophons to `rbte_cli.sh` commands\n- No inline logic, no fixture knowledge, no kindle chains\n\n### Verification\n- `tt/rbtd-t.Test.sh` passes (theurge unit tests)\n- `tt/rbtd-s.TestSuite.fast.sh` passes (fast suite)\n- `tt/rbw-Qf.QualifyFast.sh` passes (colophon health)",
+              "silks": "decompose-theurge-workbench-to-bcg",
+              "commit": "e26f559"
             }
           ]
         }
