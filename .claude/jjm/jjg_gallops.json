@@ -1241,6 +1241,13 @@
         "₢A2AAE": {
           "tacks": [
             {
+              "ts": "260403-1013",
+              "state": "complete",
+              "text": "## Character\nMechanical rename across two kits (JJK + VOK), Rust, bash, specs, and JSON wire formats.\n\n## Docket\nRename \"hallmark\" to \"brand\" across VVK/JJK/VOK. Aligns spec vocabulary with existing `vvbf_brand.json` file name. Frees \"hallmark\" for RBK usage.\n\n### JSON key renames\n```\nvovr_registry.json:  \"hallmarks\"      →  \"vovr_brands\"\nvvbf_brand.json:     \"vvbh_hallmark\"  →  \"vvbf_brand\"\n```\n\n### Scope\n- VOK: `VOS0` spec, `vofr_release.rs`, `vofe_emplace.rs`, `vorm_main.rs`, `vob_build.sh`, `vovr_registry.json`\n- JJK: `jjrs_steeplechase.rs`, `jjrn_notch.rs`, `jjrnc_notch.rs`, `jjrm_mcp.rs`, tests, specs (JJS0, JJSCCH, JJSCNC, JJSCLD, JJSRPS, JJSCRN)\n- External: `pb_paneboard02/.vvk/vvbf_brand.json`\n\n### Verification\n- `tt/vow-b.Build.sh` succeeds\n- `tt/vow-t.Test.sh` passes\n- No remaining \"hallmark\" references (grep, excluding git history)",
+              "silks": "rename-jjk-hallmark-to-brand",
+              "commit": "41aa7b4"
+            },
+            {
               "ts": "260403-0956",
               "state": "rough",
               "text": "## Character\nMechanical rename across two kits (JJK + VOK), Rust, bash, specs, and JSON wire formats.\n\n## Docket\nRename \"hallmark\" to \"brand\" across VVK/JJK/VOK. Aligns spec vocabulary with existing `vvbf_brand.json` file name. Frees \"hallmark\" for RBK usage.\n\n### JSON key renames\n```\nvovr_registry.json:  \"hallmarks\"      →  \"vovr_brands\"\nvvbf_brand.json:     \"vvbh_hallmark\"  →  \"vvbf_brand\"\n```\n\n### Scope\n- VOK: `VOS0` spec, `vofr_release.rs`, `vofe_emplace.rs`, `vorm_main.rs`, `vob_build.sh`, `vovr_registry.json`\n- JJK: `jjrs_steeplechase.rs`, `jjrn_notch.rs`, `jjrnc_notch.rs`, `jjrm_mcp.rs`, tests, specs (JJS0, JJSCCH, JJSCNC, JJSCLD, JJSRPS, JJSCRN)\n- External: `pb_paneboard02/.vvk/vvbf_brand.json`\n\n### Verification\n- `tt/vow-b.Build.sh` succeeds\n- `tt/vow-t.Test.sh` passes\n- No remaining \"hallmark\" references (grep, excluding git history)",
