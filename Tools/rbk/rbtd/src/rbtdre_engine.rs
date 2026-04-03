@@ -32,7 +32,6 @@ pub enum rbtdre_Verdict {
 
 /// A named test case with a function that receives its isolated temp directory.
 /// The `name` field holds the raw stringified function name (from the `case!` macro).
-/// Use `rbtdre_display_name` to derive the human-readable display name.
 pub struct rbtdre_Case {
     pub name: &'static str,
     pub func: fn(&Path) -> rbtdre_Verdict,
@@ -54,19 +53,6 @@ macro_rules! case {
             func: $func,
         }
     };
-}
-
-// ── Display name ─────────────────────────────────────────────
-
-/// Transform raw case name (stringified function name) to display name.
-/// Strip module prefix (everything up to and including first `_`),
-/// then convert remaining `_` to `-`.
-pub fn rbtdre_display_name(raw: &str) -> String {
-    let stripped = match raw.find('_') {
-        Some(i) => &raw[i + 1..],
-        None => raw,
-    };
-    stripped.replace('_', "-")
 }
 
 // ── Colors ─────────────────────────────────────────────────────
@@ -142,22 +128,21 @@ pub fn rbtdre_run_sections(
         );
 
         for case in section.cases {
-            let display = rbtdre_display_name(case.name);
-            let case_dir = root_temp.join(&display);
+            let case_dir = root_temp.join(case.name);
             std::fs::create_dir_all(&case_dir).map_err(|e| {
-                format!("rbtd: failed to create case dir '{}': {}", display, e)
+                format!("rbtd: failed to create case dir '{}': {}", case.name, e)
             })?;
 
             let verdict = (case.func)(&case_dir);
-            rbtdre_write_trace(&case_dir, &display, &verdict);
+            rbtdre_write_trace(&case_dir, case.name, &verdict);
 
             match &verdict {
                 rbtdre_Verdict::Pass => {
-                    eprintln!("{}PASSED:{} {}", colors.green, colors.reset, display);
+                    eprintln!("{}PASSED:{} {}", colors.green, colors.reset, case.name);
                     passed += 1;
                 }
                 rbtdre_Verdict::Fail(_) => {
-                    eprintln!("{}FAILED:{} {}", colors.red, colors.reset, display);
+                    eprintln!("{}FAILED:{} {}", colors.red, colors.reset, case.name);
                     failed += 1;
                     if fail_fast {
                         break 'outer;
@@ -166,7 +151,7 @@ pub fn rbtdre_run_sections(
                 rbtdre_Verdict::Skip(_) => {
                     eprintln!(
                         "{}SKIPPED:{} {}",
-                        colors.yellow, colors.reset, display
+                        colors.yellow, colors.reset, case.name
                     );
                     skipped += 1;
                 }
@@ -200,14 +185,14 @@ pub fn rbtdre_print_summary(result: &rbtdre_RunResult, colors: &rbtdre_Colors) {
 
 // ── Single-case operations ───────────────────────────────────
 
-/// Find a case by display name within sections.
+/// Find a case by name within sections.
 pub fn rbtdre_find_case<'a>(
     sections: &'a [rbtdre_Section],
     target: &str,
 ) -> Option<&'a rbtdre_Case> {
     for section in sections {
         for case in section.cases {
-            if rbtdre_display_name(case.name) == target {
+            if case.name == target {
                 return Some(case);
             }
         }
@@ -215,12 +200,12 @@ pub fn rbtdre_find_case<'a>(
     None
 }
 
-/// List all cases with display names, grouped by section.
+/// List all cases grouped by section.
 pub fn rbtdre_list_cases(sections: &[rbtdre_Section]) {
     for section in sections {
         eprintln!("\n--- {} ---", section.name);
         for case in section.cases {
-            eprintln!("  {}", rbtdre_display_name(case.name));
+            eprintln!("  {}", case.name);
         }
     }
 }
@@ -231,25 +216,24 @@ pub fn rbtdre_run_single_case(
     colors: &rbtdre_Colors,
     root_temp: &Path,
 ) -> Result<rbtdre_RunResult, String> {
-    let display = rbtdre_display_name(case.name);
-    let case_dir = root_temp.join(&display);
+    let case_dir = root_temp.join(case.name);
     std::fs::create_dir_all(&case_dir)
-        .map_err(|e| format!("rbtd: failed to create case dir '{}': {}", display, e))?;
+        .map_err(|e| format!("rbtd: failed to create case dir '{}': {}", case.name, e))?;
 
     let verdict = (case.func)(&case_dir);
-    rbtdre_write_trace(&case_dir, &display, &verdict);
+    rbtdre_write_trace(&case_dir, case.name, &verdict);
 
     let (passed, failed, skipped) = match &verdict {
         rbtdre_Verdict::Pass => {
-            eprintln!("{}PASSED:{} {}", colors.green, colors.reset, display);
+            eprintln!("{}PASSED:{} {}", colors.green, colors.reset, case.name);
             (1, 0, 0)
         }
         rbtdre_Verdict::Fail(_) => {
-            eprintln!("{}FAILED:{} {}", colors.red, colors.reset, display);
+            eprintln!("{}FAILED:{} {}", colors.red, colors.reset, case.name);
             (0, 1, 0)
         }
         rbtdre_Verdict::Skip(_) => {
-            eprintln!("{}SKIPPED:{} {}", colors.yellow, colors.reset, display);
+            eprintln!("{}SKIPPED:{} {}", colors.yellow, colors.reset, case.name);
             (0, 0, 1)
         }
     };
