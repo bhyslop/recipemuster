@@ -914,6 +914,13 @@
         "₢A1AAZ": {
           "tacks": [
             {
+              "ts": "260403-1113",
+              "state": "complete",
+              "text": "## Character\nMechanical wiring — zipper enrollment, tabtarget creation, and function implementation following established patterns.\n\n## Docket\nAdd `rbw-cKB.KludgeBottle.sh` tabtarget that takes a nameplate as CLI argument (like `rbw-cr.Rack.sh`, not imprinted per-nameplate).\n\nWork items:\n- Enroll `rbw-cKB` colophon in `rbz_zipper.sh` with `param1` mode, routing to a new function in `rbob_cli.sh` or `rbob_bottle.sh`\n- Create `tt/rbw-cKB.KludgeBottle.sh` launcher (standard 3-line pattern)\n- Implement the kludge-bottle function: rebuild vessel image locally (`LK` logic) and re-charge into the running crucible\n- Reuses `zrbob_furnish` nameplate-listing-when-missing behavior via `param1` zipper enrollment\n\n## Context\n- Design discussion established `cKB` over `cK` — the `B` documents bottle scope even without a sentry counterpart\n- Follows `rbw-cr.Rack.sh` precedent: crucible command, argument-based nameplate, no imprints\n- Spec: RBSAK-ark_kludge.adoc describes the existing `LK` kludge operation",
+              "silks": "kludge-bottle-crucible-tabtarget",
+              "commit": "8619677"
+            },
+            {
               "ts": "260402-2247",
               "state": "rough",
               "text": "## Character\nMechanical wiring — zipper enrollment, tabtarget creation, and function implementation following established patterns.\n\n## Docket\nAdd `rbw-cKB.KludgeBottle.sh` tabtarget that takes a nameplate as CLI argument (like `rbw-cr.Rack.sh`, not imprinted per-nameplate).\n\nWork items:\n- Enroll `rbw-cKB` colophon in `rbz_zipper.sh` with `param1` mode, routing to a new function in `rbob_cli.sh` or `rbob_bottle.sh`\n- Create `tt/rbw-cKB.KludgeBottle.sh` launcher (standard 3-line pattern)\n- Implement the kludge-bottle function: rebuild vessel image locally (`LK` logic) and re-charge into the running crucible\n- Reuses `zrbob_furnish` nameplate-listing-when-missing behavior via `param1` zipper enrollment\n\n## Context\n- Design discussion established `cKB` over `cK` — the `B` documents bottle scope even without a sentry counterpart\n- Follows `rbw-cr.Rack.sh` precedent: crucible command, argument-based nameplate, no imprints\n- Spec: RBSAK-ark_kludge.adoc describes the existing `LK` kludge operation",
