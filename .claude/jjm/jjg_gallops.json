@@ -1219,6 +1219,13 @@
         "₢A2AAC": {
           "tacks": [
             {
+              "ts": "260403-1016",
+              "state": "complete",
+              "text": "Drafted from ₢AhAAR in ₣Ah.\n\nThe jjx_record size guard counts full file content of staged additions without accounting for paired deletions in git renames. File moves (git detects as R status) are effectively zero new bytes, but the guard treats them as full-size additions, forcing unnecessary size_limit overrides.\n\n## Problem\n\nWhen jjx_record stages files that are renames/moves, git stores them efficiently (same blob, new path). But the size guard sums the byte count of all staged additions, triggering the limit even though the commit adds no new content.\n\n## Solution\n\nIn the size guard calculation, detect rename pairs (git diff --cached --name-status shows R100 or similar) and exclude the destination file size from the total, or only count the net new bytes.\n\n## Acceptance\n\n- File moves/renames do not trigger size guard\n- Genuinely large new content still triggers the guard\n- Warning threshold still fires for large commits regardless",
+              "silks": "size-guard-rename-awareness",
+              "commit": "39c06eb"
+            },
+            {
               "ts": "260402-0733",
               "state": "rough",
               "text": "Drafted from ₢AhAAR in ₣Ah.\n\nThe jjx_record size guard counts full file content of staged additions without accounting for paired deletions in git renames. File moves (git detects as R status) are effectively zero new bytes, but the guard treats them as full-size additions, forcing unnecessary size_limit overrides.\n\n## Problem\n\nWhen jjx_record stages files that are renames/moves, git stores them efficiently (same blob, new path). But the size guard sums the byte count of all staged additions, triggering the limit even though the commit adds no new content.\n\n## Solution\n\nIn the size guard calculation, detect rename pairs (git diff --cached --name-status shows R100 or similar) and exclude the destination file size from the total, or only count the net new bytes.\n\n## Acceptance\n\n- File moves/renames do not trigger size guard\n- Genuinely large new content still triggers the guard\n- Warning threshold still fires for large commits regardless",
