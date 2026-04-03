@@ -1007,6 +1007,13 @@
         "₢A1AAd": {
           "tacks": [
             {
+              "ts": "260403-1009",
+              "state": "rough",
+              "text": "## Character\nSmall, precise spec work — add a missing formal definition.\n\n## Docket\nVessel is used throughout RBS0 but has no `[[rbtga_vessel]]` quoin definition. Add one in the Ark Definitions section (near line 1577), capturing: the container image specification in the regime that defines what to build, with a mode (conjure/bind/graft). Reference its relationship to ark (build output) and hallmark (version stamp).\n\n### Verification\n- Quoin has all three parts: attribute reference in mapping section, anchor at definition site, definition text\n- References ark and hallmark correctly\n- No broken cross-references in RBS0\n\n### Acceptance\n- `[[rbtga_vessel]]` quoin exists with complete linked term structure",
+              "silks": "add-vessel-quoin-to-rbs0",
+              "commit": "acad352"
+            },
+            {
               "ts": "260403-0930",
               "state": "rough",
               "text": "## Character\nSmall, precise spec work — add a missing formal definition.\n\n## Docket\nVessel is used throughout RBS0 but has no `[[rbtga_vessel]]` quoin definition. Add one in the Ark Definitions section (near line 1577), capturing: the container image specification in the regime that defines what to build, with a mode (conjure/bind/graft). Reference its relationship to ark (build output) and consecration (version stamp).\n\nNote: this pace uses current vocabulary (\"consecration\"). The subsequent pace ₢A1AAe renames consecration → hallmark system-wide.\n\n### Verification\n- Quoin has all three parts: attribute reference in mapping section, anchor at definition site, definition text\n- References ark and consecration correctly\n- No broken cross-references in RBS0\n\n### Acceptance\n- `[[rbtga_vessel]]` quoin exists with complete linked term structure",
