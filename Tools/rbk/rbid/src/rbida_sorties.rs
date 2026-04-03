@@ -556,13 +556,14 @@ fn get_interface_info() -> Option<(String, String)> {
     let entries = std::fs::read_dir("/sys/class/net").ok()?;
     for entry in entries.flatten() {
         let name = entry.file_name().to_string_lossy().to_string();
-        if name == "lo" {
+        if !name.starts_with("eth") {
             continue;
         }
         let mac_path = format!("/sys/class/net/{}/address", name);
         if let Ok(mac) = std::fs::read_to_string(&mac_path) {
             let mac = mac.trim().to_string();
-            if !mac.is_empty() && mac != "00:00:00:00:00:00" {
+            // Valid Ethernet MAC: 6 octets = exactly 5 colons
+            if mac.matches(':').count() == 5 && mac != "00:00:00:00:00:00" {
                 return Some((name, mac));
             }
         }
