@@ -104,7 +104,6 @@ pub fn jjrx_run_nominate(args: jjrx_NominateArgs) -> (i32, String) {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::jjrg_gallops::*;
     use crate::jjtu_testdir::JjkTestDir;
     use std::collections::BTreeMap;

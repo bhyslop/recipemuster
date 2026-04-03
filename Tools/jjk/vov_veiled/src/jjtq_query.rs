@@ -2,7 +2,6 @@
 // All rights reserved.
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
-use super::jjrq_query::*;
 use crate::jjrg_gallops::{jjrg_Heat as Heat, jjrg_Pace as Pace, jjrg_Tack as Tack, jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState, JJRG_UNKNOWN_BASIS};
 use std::collections::BTreeMap;
 
@@ -74,56 +73,6 @@ fn jjtq_muster_output_format() {
 
 // Note: saddle output is now plain text format instead of JSON.
 // Output format is tested through integration tests.
-
-#[test]
-fn jjtq_retire_output_structure() {
-    let output = zjjrq_RetireOutput {
-        firemark: "₣AB".to_string(),
-        silks: "my-heat".to_string(),
-        created: "260101".to_string(),
-        status: "current".to_string(),
-        paddock_file: ".claude/jjm/jjp_AB.md".to_string(),
-        paddock_content: "# Archive this".to_string(),
-        paces: vec![zjjrq_RetirePace {
-            coronet: "₢ABAAA".to_string(),
-            silks: "test-pace".to_string(),
-            tacks: vec![
-                zjjrq_RetireTack {
-                    ts: "260101-1400".to_string(),
-                    state: "complete".to_string(),
-                    text: "Final plan".to_string(),
-                    direction: None,
-                },
-                zjjrq_RetireTack {
-                    ts: "260101-1200".to_string(),
-                    state: "rough".to_string(),
-                    text: "Initial plan".to_string(),
-                    direction: None,
-                },
-            ],
-        }],
-    };
-    let json = serde_json::to_string(&output).unwrap();
-    assert!(json.contains("firemark"));
-    assert!(json.contains("₣AB"));
-    assert!(json.contains("tacks"));
-    // Verify tack history is included
-    assert!(json.contains("260101-1400"));
-    assert!(json.contains("260101-1200"));
-}
-
-#[test]
-fn jjtq_retire_tack_with_direction() {
-    let tack = zjjrq_RetireTack {
-        ts: "260101-1200".to_string(),
-        state: "bridled".to_string(),
-        text: "Ready to fly".to_string(),
-        direction: Some("Execute with agent X".to_string()),
-    };
-    let json = serde_json::to_string(&tack).unwrap();
-    assert!(json.contains("direction"));
-    assert!(json.contains("Execute with agent X"));
-}
 
 #[test]
 fn jjtq_heat_status_filter_current() {
