@@ -124,6 +124,7 @@ zrbz_kindle() {
   buz_enroll RBZ_THEURGE_ORDAIN  "rbw-To" "${z_mod}" "rbob_ordain"        "imprint"
   buz_enroll RBZ_BOTTLE_IFRIT   "rbw-Ic" "${z_mod}" "rbob_ifrit_client"  "imprint"
   buz_enroll RBZ_BOTTLE_SORTIE  "rbw-Is" "${z_mod}" "rbob_ifrit_sortie"  "imprint"
+  buz_enroll RBZ_CRUCIBLE_ACTIVE "rbw-ca" "${z_mod}" "rbob_charged"       "param1"
 
   # Qualification operations
   z_mod="rbq_cli.sh"

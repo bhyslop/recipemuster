@@ -41,7 +41,7 @@ zrbtw_resolve_manifest() {
   local z_fixture="$1"
   case "${z_fixture}" in
     tadmor|srjcl|pluml)
-      echo "rbw-cC rbw-cQ rbw-cw rbw-cf rbw-cb" ;;
+      echo "rbw-cC rbw-cQ rbw-cw rbw-cf rbw-cb rbw-ca" ;;
     four-mode)
       echo "rbw-DO rbw-DA rbw-Rw rbw-Dt rbw-LK" ;;
     access-probe)

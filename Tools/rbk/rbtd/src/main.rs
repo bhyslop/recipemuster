@@ -32,8 +32,11 @@ use rbtd::rbtdre_engine::{
     rbtdre_detect_colors, rbtdre_find_case, rbtdre_list_cases, rbtdre_print_summary,
     rbtdre_run_sections, rbtdre_run_single_case,
 };
-use rbtd::rbtdri_invocation::{rbtdri_Context, rbtdri_invoke};
-use rbtd::rbtdrm_manifest::{rbtdrm_verify, RBTDRM_COLOPHON_CHARGE, RBTDRM_COLOPHON_QUENCH};
+use rbtd::rbtdri_invocation::{rbtdri_Context, rbtdri_invoke, rbtdri_invoke_global};
+use rbtd::rbtdrm_manifest::{
+    rbtdrm_verify, RBTDRM_COLOPHON_CHARGE, RBTDRM_COLOPHON_CRUCIBLE_ACTIVE,
+    RBTDRM_COLOPHON_QUENCH,
+};
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().collect();
@@ -228,7 +231,26 @@ fn run_single(args: &[String]) -> ExitCode {
     // Crucible cases need invocation context (but no charge/quench)
     if rbtdrc_needs_charge(fixture) {
         let burv_root = root_temp.join("burv");
-        let ctx = rbtdri_Context::new(&project_root, fixture, &burv_root);
+        let mut ctx = rbtdri_Context::new(&project_root, fixture, &burv_root);
+
+        // Verify crucible is charged before attempting to run
+        match rbtdri_invoke_global(
+            &mut ctx,
+            RBTDRM_COLOPHON_CRUCIBLE_ACTIVE,
+            &[fixture],
+            &[],
+        ) {
+            Ok(r) if r.exit_code == 0 => {}
+            _ => {
+                eprintln!(
+                    "rbtd single: crucible not charged for '{}'\n\
+                     charge first: tt/rbw-cC.Charge.{}.sh",
+                    fixture, fixture
+                );
+                return ExitCode::FAILURE;
+            }
+        }
+
         rbtdrc_set_context(ctx);
     }
 

@@ -315,6 +315,13 @@ rbob_charge() {
   buc_step "Crucible started: ${RBRN_MONIKER}"
 }
 
+# Check whether the crucible is charged (compose project has running containers).
+# BCG predicate: returns 0 if charged, 1 if not. Never dies, no output.
+rbob_charged_predicate() {
+  zrbob_sentinel
+  "${ZRBOB_RUNTIME}" compose -p "${RBRN_MONIKER}" ps -q --status running 2>/dev/null | grep -q .
+}
+
 # Stop the crucible via compose
 rbob_quench() {
   zrbob_sentinel

@@ -1078,25 +1078,34 @@ pub const RBTDRC_SERVICE_READINESS_DELAY_SECS: u64 = 30;
 
 /// Returns whether this fixture uses the crucible charge/quench lifecycle.
 pub fn rbtdrc_needs_charge(fixture: &str) -> bool {
-    matches!(fixture, "tadmor" | "srjcl" | "pluml")
+    matches!(
+        fixture,
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_TADMOR
+            | crate::rbtdrm_manifest::RBTDRM_FIXTURE_SRJCL
+            | crate::rbtdrm_manifest::RBTDRM_FIXTURE_PLUML
+    )
 }
 
 /// Returns whether this fixture needs a post-charge readiness delay.
 pub fn rbtdrc_needs_readiness_delay(fixture: &str) -> bool {
-    matches!(fixture, "srjcl" | "pluml")
+    matches!(
+        fixture,
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_SRJCL
+            | crate::rbtdrm_manifest::RBTDRM_FIXTURE_PLUML
+    )
 }
 
 /// Returns the section array appropriate for the given fixture.
 pub fn rbtdrc_sections_for_fixture(fixture: &str) -> &'static [rbtdre_Section] {
     match fixture {
-        "tadmor" => RBTDRC_SECTIONS_TADMOR,
-        "srjcl" => RBTDRC_SECTIONS_SRJCL,
-        "pluml" => RBTDRC_SECTIONS_PLUML,
-        "four-mode" => RBTDRC_SECTIONS_FOUR_MODE,
-        "access-probe" => RBTDRC_SECTIONS_ACCESS_PROBE,
-        "enrollment-validation" => crate::rbtdrf_fast::RBTDRF_SECTIONS_ENROLLMENT_VALIDATION,
-        "regime-validation" => crate::rbtdrf_fast::RBTDRF_SECTIONS_REGIME_VALIDATION,
-        "regime-smoke" => crate::rbtdrf_fast::RBTDRF_SECTIONS_REGIME_SMOKE,
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_TADMOR => RBTDRC_SECTIONS_TADMOR,
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_SRJCL => RBTDRC_SECTIONS_SRJCL,
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_PLUML => RBTDRC_SECTIONS_PLUML,
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_FOUR_MODE => RBTDRC_SECTIONS_FOUR_MODE,
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_ACCESS_PROBE => RBTDRC_SECTIONS_ACCESS_PROBE,
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_ENROLLMENT_VALIDATION => crate::rbtdrf_fast::RBTDRF_SECTIONS_ENROLLMENT_VALIDATION,
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_REGIME_VALIDATION => crate::rbtdrf_fast::RBTDRF_SECTIONS_REGIME_VALIDATION,
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_REGIME_SMOKE => crate::rbtdrf_fast::RBTDRF_SECTIONS_REGIME_SMOKE,
         _ => {
             eprintln!(
                 "rbtdrc: no sections defined for fixture '{}' — running empty",

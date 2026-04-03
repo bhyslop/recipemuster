@@ -1,3 +1,3 @@
 #!/bin/bash
-export BURD_LAUNCHER=".buk/launcher.rbtw_workbench.sh"
+export BURD_LAUNCHER=".buk/launcher.rbw_workbench.sh"
 exec "${BASH_SOURCE[0]%/*}/../${BURD_LAUNCHER}" "${0##*/}" "${@}"

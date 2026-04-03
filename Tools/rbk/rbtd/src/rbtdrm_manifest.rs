@@ -33,29 +33,47 @@ pub const RBTDRM_COLOPHON_WREST: &str = "rbw-Rw";
 pub const RBTDRM_COLOPHON_TALLY: &str = "rbw-Dt";
 pub const RBTDRM_COLOPHON_KLUDGE: &str = "rbw-ak";
 
+// Crucible active check (param1 channel — nameplate as argument)
+pub const RBTDRM_COLOPHON_CRUCIBLE_ACTIVE: &str = "rbw-ca";
+
 // Access probe colophon (imprint-scoped by role)
 pub const RBTDRM_COLOPHON_ACCESS_PROBE: &str = "rbtd-ap";
+
+// Fixture name consts — single definition per String Boundary Discipline.
+// Crucible fixtures (charge/quench lifecycle)
+pub const RBTDRM_FIXTURE_TADMOR: &str = "tadmor";
+pub const RBTDRM_FIXTURE_SRJCL: &str = "srjcl";
+pub const RBTDRM_FIXTURE_PLUML: &str = "pluml";
+// Bare fixtures (GCP credentials, no container runtime)
+pub const RBTDRM_FIXTURE_FOUR_MODE: &str = "four-mode";
+pub const RBTDRM_FIXTURE_ACCESS_PROBE: &str = "access-probe";
+// Fast fixtures (no external dependencies)
+pub const RBTDRM_FIXTURE_ENROLLMENT_VALIDATION: &str = "enrollment-validation";
+pub const RBTDRM_FIXTURE_REGIME_VALIDATION: &str = "regime-validation";
+pub const RBTDRM_FIXTURE_REGIME_SMOKE: &str = "regime-smoke";
 
 /// Per-fixture required colophons. Returns None for unknown fixtures.
 pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str]> {
     match fixture {
-        "tadmor" | "srjcl" | "pluml" => Some(&[
+        RBTDRM_FIXTURE_TADMOR | RBTDRM_FIXTURE_SRJCL | RBTDRM_FIXTURE_PLUML => Some(&[
             RBTDRM_COLOPHON_CHARGE,
             RBTDRM_COLOPHON_QUENCH,
             RBTDRM_COLOPHON_WRIT,
             RBTDRM_COLOPHON_FIAT,
             RBTDRM_COLOPHON_BARK,
+            RBTDRM_COLOPHON_CRUCIBLE_ACTIVE,
         ]),
-        "four-mode" => Some(&[
+        RBTDRM_FIXTURE_FOUR_MODE => Some(&[
             RBTDRM_COLOPHON_ORDAIN,
             RBTDRM_COLOPHON_ABJURE,
             RBTDRM_COLOPHON_WREST,
             RBTDRM_COLOPHON_TALLY,
             RBTDRM_COLOPHON_KLUDGE,
         ]),
-        "access-probe" => Some(&[RBTDRM_COLOPHON_ACCESS_PROBE]),
-        // Fast-tier fixtures — no colophon requirements (pure bash/local)
-        "enrollment-validation" | "regime-validation" | "regime-smoke" => Some(&[]),
+        RBTDRM_FIXTURE_ACCESS_PROBE => Some(&[RBTDRM_COLOPHON_ACCESS_PROBE]),
+        RBTDRM_FIXTURE_ENROLLMENT_VALIDATION
+        | RBTDRM_FIXTURE_REGIME_VALIDATION
+        | RBTDRM_FIXTURE_REGIME_SMOKE => Some(&[]),
         _ => None,
     }
 }

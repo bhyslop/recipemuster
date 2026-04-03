@@ -90,6 +90,15 @@ rbob_scry() {
   rboo_observe
 }
 
+rbob_charged() {
+  zrbob_sentinel
+
+  buc_doc_brief "Check whether the crucible is charged (compose project has running containers)"
+  buc_doc_shown || return 0
+
+  rbob_charged_predicate
+}
+
 ######################################################################
 # Furnish and Main
 

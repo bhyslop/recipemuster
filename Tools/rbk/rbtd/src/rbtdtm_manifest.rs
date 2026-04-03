@@ -18,72 +18,66 @@
 
 use super::rbtdrm_manifest::*;
 
+/// Build a manifest string from the required colophons for a fixture.
+fn rbtdtm_manifest_for(fixture: &str) -> String {
+    rbtdrm_required_colophons(fixture)
+        .expect("unknown fixture")
+        .join(" ")
+}
+
 #[test]
 fn rbtdtm_accepts_valid_crucible_manifest() {
-    let manifest = format!(
-        "rbw-PL rbw-gPI {} {} {} {} {} rbw-Qf",
-        RBTDRM_COLOPHON_CHARGE,
-        RBTDRM_COLOPHON_QUENCH,
-        RBTDRM_COLOPHON_WRIT,
-        RBTDRM_COLOPHON_FIAT,
-        RBTDRM_COLOPHON_BARK,
-    );
-    assert!(rbtdrm_verify(&manifest, "tadmor").is_ok());
-    assert!(rbtdrm_verify(&manifest, "srjcl").is_ok());
-    assert!(rbtdrm_verify(&manifest, "pluml").is_ok());
+    let manifest = rbtdtm_manifest_for(RBTDRM_FIXTURE_TADMOR);
+    assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_TADMOR).is_ok());
+    assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_SRJCL).is_ok());
+    assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_PLUML).is_ok());
 }
 
 #[test]
 fn rbtdtm_accepts_valid_fourmode_manifest() {
-    let manifest = format!(
-        "{} {} {} {} {}",
-        RBTDRM_COLOPHON_ORDAIN,
-        RBTDRM_COLOPHON_ABJURE,
-        RBTDRM_COLOPHON_WREST,
-        RBTDRM_COLOPHON_TALLY,
-        RBTDRM_COLOPHON_KLUDGE,
-    );
-    assert!(rbtdrm_verify(&manifest, "four-mode").is_ok());
+    let manifest = rbtdtm_manifest_for(RBTDRM_FIXTURE_FOUR_MODE);
+    assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_FOUR_MODE).is_ok());
 }
 
 #[test]
 fn rbtdtm_accepts_valid_accessprobe_manifest() {
-    let manifest = RBTDRM_COLOPHON_ACCESS_PROBE;
-    assert!(rbtdrm_verify(manifest, "access-probe").is_ok());
+    let manifest = rbtdtm_manifest_for(RBTDRM_FIXTURE_ACCESS_PROBE);
+    assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_ACCESS_PROBE).is_ok());
 }
 
 #[test]
 fn rbtdtm_rejects_missing_colophon() {
-    let manifest = "rbw-PL rbw-gPI rbw-cC rbw-Qf";
-    let err = rbtdrm_verify(manifest, "tadmor").unwrap_err();
+    // Manifest with only charge — missing quench and others
+    let manifest = RBTDRM_COLOPHON_CHARGE;
+    let err = rbtdrm_verify(manifest, RBTDRM_FIXTURE_TADMOR).unwrap_err();
     assert!(err.contains(RBTDRM_COLOPHON_QUENCH));
 }
 
 #[test]
 fn rbtdtm_rejects_empty_manifest() {
-    let err = rbtdrm_verify("", "tadmor").unwrap_err();
+    let err = rbtdrm_verify("", RBTDRM_FIXTURE_TADMOR).unwrap_err();
     assert!(err.contains(RBTDRM_COLOPHON_CHARGE));
 }
 
 #[test]
 fn rbtdtm_no_partial_match() {
-    let manifest = "rbw-cCC rbw-cQQ";
-    let err = rbtdrm_verify(manifest, "tadmor").unwrap_err();
+    let manifest = format!("{}X {}Y", RBTDRM_COLOPHON_CHARGE, RBTDRM_COLOPHON_QUENCH);
+    let err = rbtdrm_verify(&manifest, RBTDRM_FIXTURE_TADMOR).unwrap_err();
     assert!(err.contains(RBTDRM_COLOPHON_CHARGE));
 }
 
 #[test]
 fn rbtdtm_rejects_unknown_fixture() {
-    let err = rbtdrm_verify("rbw-cC", "nonexistent").unwrap_err();
+    let err = rbtdrm_verify(RBTDRM_COLOPHON_CHARGE, "nonexistent").unwrap_err();
     assert!(err.contains("unknown fixture"));
 }
 
 #[test]
 fn rbtdtm_accepts_fast_fixtures() {
     // Fast-tier fixtures have no colophon requirements — any manifest string passes
-    assert!(rbtdrm_verify("fast", "enrollment-validation").is_ok());
-    assert!(rbtdrm_verify("fast", "regime-validation").is_ok());
-    assert!(rbtdrm_verify("fast", "regime-smoke").is_ok());
+    assert!(rbtdrm_verify("fast", RBTDRM_FIXTURE_ENROLLMENT_VALIDATION).is_ok());
+    assert!(rbtdrm_verify("fast", RBTDRM_FIXTURE_REGIME_VALIDATION).is_ok());
+    assert!(rbtdrm_verify("fast", RBTDRM_FIXTURE_REGIME_SMOKE).is_ok());
     // Even empty manifest works since no colophons required
-    assert!(rbtdrm_verify("", "enrollment-validation").is_ok());
+    assert!(rbtdrm_verify("", RBTDRM_FIXTURE_ENROLLMENT_VALIDATION).is_ok());
 }
