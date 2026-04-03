@@ -289,9 +289,10 @@
         "₢A1AAV",
         "₢A1AAT",
         "₢A1AAc",
+        "₢A1AAj",
         "₢A1AAi"
       ],
-      "next_pace_seed": "AAj",
+      "next_pace_seed": "AAk",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -1173,6 +1174,17 @@
               "text": "## Character\nMechanical cleanup — no design judgment. Apply RCG Single Definition Rule to all 36 pre-existing attack selector strings in `rbida_attacks.rs`.\n\n## Docket\n\nExtract consts for all pre-existing `rbida_Attack` selector strings following the pattern established by `RBIDA_SEL_DNS_FORGE_RESPONSE` and `RBIDA_SEL_MAC_FLOOD_BRIDGE`. Currently 36 variants have their kebab-case selector string duplicated across `from_selector`, `selector()`, and `all_selectors()` — RCG String Boundary Discipline violation.\n\n### Implementation\n\n- Add ~36 `const RBIDA_SEL_*: &str` definitions to the selector constants block\n- Replace all string literals in the three methods with const references\n- Build, run theurge unit tests\n\n### Acceptance\n\n- `grep '\"dns-allowed-anthropic\"'` finds zero hits in `rbida_attacks.rs` (only the const definition)\n- Theurge builds and unit tests pass\n- No behavioral change",
               "silks": "rbida-selector-const-extraction",
               "commit": "21a5627"
+            }
+          ]
+        },
+        "₢A1AAj": {
+          "tacks": [
+            {
+              "ts": "260403-1244",
+              "state": "rough",
+              "text": "## Character\nMechanical but wide — touches both binaries, the nameplate regime, and crucible test code. No design judgment needed; the domain choice is settled. Careful grep-and-replace with build verification.\n\n## Docket\n\nReplace the vestigial `anthropic.com claude.ai claude.com` allowlist in tadmor with `example.com example.org` (IANA RFC 2606 reserved domains). Update CIDR to match. Exercises list treatment (2 domains) and removes the false implication that the bottle needs Anthropic access.\n\n### Nameplate regime\n\n- `.rbk/tadmor/rbrn.env`: change `RBRN_UPLINK_ALLOWED_DOMAINS` to `\"example.com example.org\"`\n- `.rbk/tadmor/rbrn.env`: change `RBRN_UPLINK_ALLOWED_CIDRS` to cover the example.com/example.org IP range (currently 93.184.216.34 — use `93.184.216.0/24` or verify at build time)\n\n### Ifrit binary\n\n- `rbida_attacks.rs`: rename `DnsAllowedAnthropic` variant and `dns-allowed-anthropic` selector → `DnsAllowedExample` / `dns-allowed-example`\n- Update all `anthropic.com` probe targets to `example.com`\n- DNS exfiltration sorties: update `ALLOWED_DOMAINS` list from anthropic domains to example domains\n\n### Theurge crucible tests\n\n- `rbtdrc_crucible.rs`: rename `rbtdrc_ifrit_dns_allowed` internals, `rbtdrc_tcp443_allow_anthropic` → `rbtdrc_tcp443_allow_example`\n- Update all `anthropic.com` dig/resolve references to `example.com`\n- Coordinated DNS cache integrity test (from AAc): update if already landed, or already correct if this lands first\n- Add a second allowed-domain DNS test for `example.org` to exercise list treatment\n\n### Acceptance\n\n- `grep -r 'anthropic' Tools/rbk/rbtd/ Tools/rbk/rbid/` returns zero hits\n- `grep -r 'anthropic' .rbk/tadmor/` returns zero hits (except vessel name if unchanged)\n- Theurge builds, unit tests pass\n- Full crucible suite green (charge tadmor, run all tadmor cases)\n- Both `example.com` and `example.org` exercised in at least one test each",
+              "silks": "replace-anthropic-allowlist-with-example-domains",
+              "commit": "cd28fee"
             }
           ]
         }
