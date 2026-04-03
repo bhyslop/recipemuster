@@ -79,6 +79,8 @@
 :rbtga_ark_image:            <<rbtga_ark_image,Ark Image Artifact>>
 :rbtga_ark_about:            <<rbtga_ark_about,Ark About Artifact>>
 :rbtga_ark_vouch:            <<rbtga_ark_vouch,Ark Vouch Artifact>>
+:rbtga_vessel:               <<rbtga_vessel,Vessel>>
+:rbtga_vessel_s:             <<rbtga_vessel,Vessels>>
 
 // Recipe Bottle Foundry Fact Files (output contract identifiers)
 :rbf_fact_hallmark:          <<rbf_fact_hallmark,RBF_FACT_HALLMARK>>
@@ -1190,7 +1192,7 @@ include::RBSAV-ark_vouch.adoc[]
 Batch-vouches all pending
 {rbtga_ark}
 hallmarks across all
-{rbtgi_vessel}
+{rbtga_vessel}
 repositories
 ({rbtgog_ark}).
 Bind and graft hallmarks are always vouchable; conjure hallmarks require SLSA provenance pre-check.
@@ -1749,6 +1751,22 @@ If determinism proves unreliable in practice, narrow the comparison to verificat
 **Abjure**: {rbtgo_ark_abjure} checks for and deletes the `-vouch` artifact alongside `-image` and `-about`.
 +
 **Display**: {rbtgo_hallmark_tally} includes a Vouch column showing `yes`/`no` per hallmark, detected by matching the `-vouch` tag suffix in the GAR tag list.
+
+[[rbtga_vessel]]
+//axl_voices axig_build_specification
+{rbtga_vessel}::
+A named container image specification in the regime that defines what to build and how it arrives in the
+{rbtgi_repository}.
+Each vessel has a
+{rbrv_vessel_mode}
+(conjure, bind, or graft) that determines its arrival path, and produces
+{rbtga_ark_s}
+stamped with a
+{rbtga_hallmark}
+on each successful build.
++
+A vessel's regime file (`rbrv.env`) declares its mode, Dockerfile path (conjure), upstream reference (bind), or local image (graft), along with platform targets and build configuration.
+The vessel name appears in all artifact tags as the stem before the hallmark.
 
 === Foundry Fact Files
 
