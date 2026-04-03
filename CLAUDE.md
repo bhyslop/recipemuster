@@ -239,6 +239,8 @@ Two orthogonal Rust pipelines. Always use the tabtarget, never raw cargo command
 
 **Single fixture**: `tt/rbtd-r.Run.{name}.sh` (e.g., `tadmor`, `enrollment-validation`, `regime-smoke`)
 
+**Single case**: `tt/rbtd-s.SingleCase.{fixture}.sh [case-name]` — run one case against an already-charged crucible (no charge/quench). Omit case name to list all cases. Workflow for crucible debugging: charge via `tt/rbw-cC.Charge.{nameplate}.sh`, run individual cases, quench via `tt/rbw-cQ.Quench.{nameplate}.sh` when done.
+
 **BUK self-test**: `tt/buw-st.BukSelfTest.sh` — exercises BUK test framework (kick-tires + bure-tweak, 9 cases)
 
 **Sequential only**: Never run fixtures in parallel — they share regime state and container namespaces.

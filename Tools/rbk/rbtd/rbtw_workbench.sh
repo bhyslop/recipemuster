@@ -93,43 +93,72 @@ rbtw_route() {
       ;;
 
     rbtd-s)
-      local z_suite="${BURD_TOKEN_3:-}"
-      test -n "${z_suite}" || buc_die "No suite imprint — use tabtarget with imprint (e.g. rbtd-s.TestSuite.fast.sh)"
+      local z_frontispiece="${BURD_TOKEN_2:-}"
 
-      local z_fixtures=()
-      case "${z_suite}" in
-        fast)
-          z_fixtures=("enrollment-validation" "regime-validation" "regime-smoke")
+      case "${z_frontispiece}" in
+
+        TestSuite)
+          local z_suite="${BURD_TOKEN_3:-}"
+          test -n "${z_suite}" || buc_die "No suite imprint — use tabtarget with imprint (e.g. rbtd-s.TestSuite.fast.sh)"
+
+          local z_fixtures=()
+          case "${z_suite}" in
+            fast)
+              z_fixtures=("enrollment-validation" "regime-validation" "regime-smoke")
+              ;;
+            service)
+              z_fixtures=("enrollment-validation" "regime-validation" "regime-smoke" "access-probe" "four-mode")
+              ;;
+            crucible)
+              z_fixtures=("enrollment-validation" "regime-validation" "regime-smoke" "tadmor" "srjcl" "pluml")
+              ;;
+            complete)
+              z_fixtures=("enrollment-validation" "regime-validation" "regime-smoke" "access-probe" "four-mode" "tadmor" "srjcl" "pluml")
+              ;;
+            *)
+              buc_die "Unknown suite: ${z_suite} (expected fast|service|crucible|complete)"
+              ;;
+          esac
+
+          buc_step "Building theurge"
+          cargo build --manifest-path "${RBTW_MANIFEST}" || buc_die "cargo build failed"
+
+          local z_binary="${RBTW_SCRIPT_DIR}/target/debug/rbtd"
+          test -x "${z_binary}" || buc_die "Theurge binary not found: ${z_binary}"
+
+          local z_fixture
+          for z_fixture in "${z_fixtures[@]}"; do
+            local z_manifest
+            z_manifest="$(zrbtw_resolve_manifest "${z_fixture}")" || buc_die "Unknown fixture: ${z_fixture}"
+            buc_step "Running theurge fixture '${z_fixture}'"
+            "${z_binary}" "${z_manifest}" "${z_fixture}"
+          done
+
+          buc_success "Suite '${z_suite}' complete (${#z_fixtures[@]} fixtures)"
           ;;
-        service)
-          z_fixtures=("enrollment-validation" "regime-validation" "regime-smoke" "access-probe" "four-mode")
+
+        SingleCase)
+          local z_fixture="${BURD_TOKEN_3:-}"
+          test -n "${z_fixture}" || buc_die "No fixture imprint — use tabtarget with imprint (e.g. rbtd-s.SingleCase.tadmor.sh)"
+
+          buc_step "Building theurge"
+          cargo build --manifest-path "${RBTW_MANIFEST}" || buc_die "cargo build failed"
+
+          local z_binary="${RBTW_SCRIPT_DIR}/target/debug/rbtd"
+          test -x "${z_binary}" || buc_die "Theurge binary not found: ${z_binary}"
+
+          local z_manifest
+          z_manifest="$(zrbtw_resolve_manifest "${z_fixture}")" || buc_die "Unknown fixture: ${z_fixture}"
+
+          local z_case="${1:-}"
+          "${z_binary}" single "${z_manifest}" "${z_fixture}" ${z_case:+"${z_case}"}
           ;;
-        crucible)
-          z_fixtures=("enrollment-validation" "regime-validation" "regime-smoke" "tadmor" "srjcl" "pluml")
-          ;;
-        complete)
-          z_fixtures=("enrollment-validation" "regime-validation" "regime-smoke" "access-probe" "four-mode" "tadmor" "srjcl" "pluml")
-          ;;
+
         *)
-          buc_die "Unknown suite: ${z_suite} (expected fast|service|crucible|complete)"
+          buc_die "Unknown frontispiece for rbtd-s: ${z_frontispiece} (expected TestSuite|SingleCase)"
           ;;
+
       esac
-
-      buc_step "Building theurge"
-      cargo build --manifest-path "${RBTW_MANIFEST}" || buc_die "cargo build failed"
-
-      local z_binary="${RBTW_SCRIPT_DIR}/target/debug/rbtd"
-      test -x "${z_binary}" || buc_die "Theurge binary not found: ${z_binary}"
-
-      local z_fixture
-      for z_fixture in "${z_fixtures[@]}"; do
-        local z_manifest
-        z_manifest="$(zrbtw_resolve_manifest "${z_fixture}")" || buc_die "Unknown fixture: ${z_fixture}"
-        buc_step "Running theurge fixture '${z_fixture}'"
-        "${z_binary}" "${z_manifest}" "${z_fixture}"
-      done
-
-      buc_success "Suite '${z_suite}' complete (${#z_fixtures[@]} fixtures)"
       ;;
 
     rbtd-ap)

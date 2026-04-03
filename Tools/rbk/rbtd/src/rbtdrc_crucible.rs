@@ -25,7 +25,8 @@ use std::io::Write;
 use std::path::Path;
 use std::process::{Command, Stdio};
 
-use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Section, rbtdre_Verdict};
+use crate::case;
+use crate::rbtdre_engine::{rbtdre_Section, rbtdre_Verdict};
 use crate::rbtdri_invocation::{
     rbtdri_Context, rbtdri_invoke, rbtdri_invoke_global, rbtdri_invoke_imprint,
     rbtdri_parse_ifrit_verdict, rbtdri_read_burv_fact, RBTDRI_BURV_OUTPUT_SUBDIR,
@@ -1109,44 +1110,20 @@ pub fn rbtdrc_sections_for_fixture(fixture: &str) -> &'static [rbtdre_Section] {
 pub static RBTDRC_SECTIONS_SRJCL: &[rbtdre_Section] = &[rbtdre_Section {
     name: "srjcl-jupyter",
     cases: &[
-        rbtdre_Case {
-            name: "jupyter-running",
-            func: rbtdrc_srjcl_jupyter_running,
-        },
-        rbtdre_Case {
-            name: "jupyter-connectivity",
-            func: rbtdrc_srjcl_jupyter_connectivity,
-        },
-        rbtdre_Case {
-            name: "websocket-kernel",
-            func: rbtdrc_srjcl_websocket_kernel,
-        },
+        case!(rbtdrc_srjcl_jupyter_running),
+        case!(rbtdrc_srjcl_jupyter_connectivity),
+        case!(rbtdrc_srjcl_websocket_kernel),
     ],
 }];
 
 pub static RBTDRC_SECTIONS_PLUML: &[rbtdre_Section] = &[rbtdre_Section {
     name: "pluml-diagram",
     cases: &[
-        rbtdre_Case {
-            name: "text-rendering",
-            func: rbtdrc_pluml_text_rendering,
-        },
-        rbtdre_Case {
-            name: "local-diagram",
-            func: rbtdrc_pluml_local_diagram,
-        },
-        rbtdre_Case {
-            name: "http-headers",
-            func: rbtdrc_pluml_http_headers,
-        },
-        rbtdre_Case {
-            name: "invalid-hash",
-            func: rbtdrc_pluml_invalid_hash,
-        },
-        rbtdre_Case {
-            name: "malformed-diagram",
-            func: rbtdrc_pluml_malformed_diagram,
-        },
+        case!(rbtdrc_pluml_text_rendering),
+        case!(rbtdrc_pluml_local_diagram),
+        case!(rbtdrc_pluml_http_headers),
+        case!(rbtdrc_pluml_invalid_hash),
+        case!(rbtdrc_pluml_malformed_diagram),
     ],
 }];
 
@@ -1154,179 +1131,68 @@ static RBTDRC_SECTIONS_TADMOR: &[rbtdre_Section] = &[
     rbtdre_Section {
         name: "tadmor-basic-infra",
         cases: &[
-            rbtdre_Case {
-                name: "pentacle-dnsmasq-responds",
-                func: rbtdrc_pentacle_dnsmasq_responds,
-            },
-            rbtdre_Case {
-                name: "pentacle-ping-sentry",
-                func: rbtdrc_pentacle_ping_sentry,
-            },
+            case!(rbtdrc_pentacle_dnsmasq_responds),
+            case!(rbtdrc_pentacle_ping_sentry),
         ],
     },
     rbtdre_Section {
         name: "tadmor-ifrit-attacks",
         cases: &[
-            rbtdre_Case {
-                name: "ifrit-dns-allowed",
-                func: rbtdrc_ifrit_dns_allowed,
-            },
-            rbtdre_Case {
-                name: "ifrit-dns-blocked",
-                func: rbtdrc_ifrit_dns_blocked,
-            },
-            rbtdre_Case {
-                name: "ifrit-apt-blocked",
-                func: rbtdrc_ifrit_apt_blocked,
-            },
-            rbtdre_Case {
-                name: "ifrit-dns-nonexistent",
-                func: rbtdrc_ifrit_dns_nonexistent,
-            },
-            rbtdre_Case {
-                name: "ifrit-dns-tcp",
-                func: rbtdrc_ifrit_dns_tcp,
-            },
-            rbtdre_Case {
-                name: "ifrit-dns-udp",
-                func: rbtdrc_ifrit_dns_udp,
-            },
-            rbtdre_Case {
-                name: "ifrit-dns-block-direct",
-                func: rbtdrc_ifrit_dns_block_direct,
-            },
-            rbtdre_Case {
-                name: "ifrit-dns-block-altport",
-                func: rbtdrc_ifrit_dns_block_altport,
-            },
-            rbtdre_Case {
-                name: "ifrit-dns-block-cloudflare",
-                func: rbtdrc_ifrit_dns_block_cloudflare,
-            },
-            rbtdre_Case {
-                name: "ifrit-dns-block-quad9",
-                func: rbtdrc_ifrit_dns_block_quad9,
-            },
-            rbtdre_Case {
-                name: "ifrit-dns-block-zonetransfer",
-                func: rbtdrc_ifrit_dns_block_zonetransfer,
-            },
-            rbtdre_Case {
-                name: "ifrit-dns-block-ipv6",
-                func: rbtdrc_ifrit_dns_block_ipv6,
-            },
-            rbtdre_Case {
-                name: "ifrit-dns-block-multicast",
-                func: rbtdrc_ifrit_dns_block_multicast,
-            },
-            rbtdre_Case {
-                name: "ifrit-dns-block-spoofing",
-                func: rbtdrc_ifrit_dns_block_spoofing,
-            },
-            rbtdre_Case {
-                name: "ifrit-dns-block-tunneling",
-                func: rbtdrc_ifrit_dns_block_tunneling,
-            },
+            case!(rbtdrc_ifrit_dns_allowed),
+            case!(rbtdrc_ifrit_dns_blocked),
+            case!(rbtdrc_ifrit_apt_blocked),
+            case!(rbtdrc_ifrit_dns_nonexistent),
+            case!(rbtdrc_ifrit_dns_tcp),
+            case!(rbtdrc_ifrit_dns_udp),
+            case!(rbtdrc_ifrit_dns_block_direct),
+            case!(rbtdrc_ifrit_dns_block_altport),
+            case!(rbtdrc_ifrit_dns_block_cloudflare),
+            case!(rbtdrc_ifrit_dns_block_quad9),
+            case!(rbtdrc_ifrit_dns_block_zonetransfer),
+            case!(rbtdrc_ifrit_dns_block_ipv6),
+            case!(rbtdrc_ifrit_dns_block_multicast),
+            case!(rbtdrc_ifrit_dns_block_spoofing),
+            case!(rbtdrc_ifrit_dns_block_tunneling),
         ],
     },
     rbtdre_Section {
         name: "tadmor-observation",
         cases: &[
-            rbtdre_Case {
-                name: "sentry-iptables-loaded",
-                func: rbtdrc_sentry_iptables_loaded,
-            },
-            rbtdre_Case {
-                name: "dns-blocked-with-observation",
-                func: rbtdrc_dns_blocked_with_observation,
-            },
+            case!(rbtdrc_sentry_iptables_loaded),
+            case!(rbtdrc_dns_blocked_with_observation),
         ],
     },
     rbtdre_Section {
         name: "tadmor-correlated",
         cases: &[
-            rbtdre_Case {
-                name: "tcp443-allow-anthropic",
-                func: rbtdrc_tcp443_allow_anthropic,
-            },
-            rbtdre_Case {
-                name: "tcp443-block-google",
-                func: rbtdrc_tcp443_block_google,
-            },
-            rbtdre_Case {
-                name: "icmp-first-hop",
-                func: rbtdrc_icmp_first_hop,
-            },
-            rbtdre_Case {
-                name: "icmp-second-hop-blocked",
-                func: rbtdrc_icmp_second_hop_blocked,
-            },
+            case!(rbtdrc_tcp443_allow_anthropic),
+            case!(rbtdrc_tcp443_block_google),
+            case!(rbtdrc_icmp_first_hop),
+            case!(rbtdrc_icmp_second_hop_blocked),
         ],
     },
     rbtdre_Section {
         name: "tadmor-sortie-attacks",
         cases: &[
-            rbtdre_Case {
-                name: "sortie-dns-exfil-subdomain",
-                func: rbtdrc_sortie_dns_exfil_subdomain,
-            },
-            rbtdre_Case {
-                name: "sortie-meta-cloud-endpoint",
-                func: rbtdrc_sortie_meta_cloud_endpoint,
-            },
-            rbtdre_Case {
-                name: "sortie-net-forbidden-cidr",
-                func: rbtdrc_sortie_net_forbidden_cidr,
-            },
-            rbtdre_Case {
-                name: "sortie-direct-sentry-probe",
-                func: rbtdrc_sortie_direct_sentry_probe,
-            },
-            rbtdre_Case {
-                name: "sortie-icmp-exfil-payload",
-                func: rbtdrc_sortie_icmp_exfil_payload,
-            },
-            rbtdre_Case {
-                name: "sortie-net-ipv6-escape",
-                func: rbtdrc_sortie_net_ipv6_escape,
-            },
-            rbtdre_Case {
-                name: "sortie-net-srcip-spoof",
-                func: rbtdrc_sortie_net_srcip_spoof,
-            },
-            rbtdre_Case {
-                name: "sortie-proto-smuggle-rawsock",
-                func: rbtdrc_sortie_proto_smuggle_rawsock,
-            },
-            rbtdre_Case {
-                name: "sortie-net-fragment-evasion",
-                func: rbtdrc_sortie_net_fragment_evasion,
-            },
-            rbtdre_Case {
-                name: "sortie-direct-arp-poison",
-                func: rbtdrc_sortie_direct_arp_poison,
-            },
-            rbtdre_Case {
-                name: "sortie-ns-capability-escape",
-                func: rbtdrc_sortie_ns_capability_escape,
-            },
+            case!(rbtdrc_sortie_dns_exfil_subdomain),
+            case!(rbtdrc_sortie_meta_cloud_endpoint),
+            case!(rbtdrc_sortie_net_forbidden_cidr),
+            case!(rbtdrc_sortie_direct_sentry_probe),
+            case!(rbtdrc_sortie_icmp_exfil_payload),
+            case!(rbtdrc_sortie_net_ipv6_escape),
+            case!(rbtdrc_sortie_net_srcip_spoof),
+            case!(rbtdrc_sortie_proto_smuggle_rawsock),
+            case!(rbtdrc_sortie_net_fragment_evasion),
+            case!(rbtdrc_sortie_direct_arp_poison),
+            case!(rbtdrc_sortie_ns_capability_escape),
         ],
     },
     rbtdre_Section {
         name: "tadmor-coordinated-attacks",
         cases: &[
-            rbtdre_Case {
-                name: "coordinated-arp-gratuitous",
-                func: rbtdrc_coordinated_arp_gratuitous,
-            },
-            rbtdre_Case {
-                name: "coordinated-arp-gateway-poison",
-                func: rbtdrc_coordinated_arp_gateway_poison,
-            },
-            rbtdre_Case {
-                name: "coordinated-arp-table-stability",
-                func: rbtdrc_coordinated_arp_table_stability,
-            },
+            case!(rbtdrc_coordinated_arp_gratuitous),
+            case!(rbtdrc_coordinated_arp_gateway_poison),
+            case!(rbtdrc_coordinated_arp_table_stability),
         ],
     },
 ];
@@ -1389,7 +1255,7 @@ fn rbtdrc_docker_rmi(refs: &[&str]) -> Result<(), String> {
 
 /// Four-mode integration test — 15-step sequence exercising all four delivery modes.
 /// Faithful port of rbtcfm_four_mode_tcase from rbtcfm_FourMode.sh.
-fn rbtdrc_four_mode(dir: &Path) -> rbtdre_Verdict {
+fn rbtdrc_four_mode_supply_chain(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
         let conjure_vessel = "rbev-busybox";
         let bind_vessel = "rbev-bottle-plantuml";
@@ -1599,10 +1465,7 @@ fn rbtdrc_four_mode(dir: &Path) -> rbtdre_Verdict {
 
 pub static RBTDRC_SECTIONS_FOUR_MODE: &[rbtdre_Section] = &[rbtdre_Section {
     name: "four-mode-integration",
-    cases: &[rbtdre_Case {
-        name: "four-mode-supply-chain",
-        func: rbtdrc_four_mode,
-    }],
+    cases: &[case!(rbtdrc_four_mode_supply_chain)],
 }];
 
 // ── Access probe cases (bare fixture, imprint-scoped) ────────
@@ -1625,40 +1488,28 @@ fn rbtdrc_access_probe_role(ctx: &mut rbtdri_Context, role: &str, dir: &Path) ->
     rbtdre_Verdict::Pass
 }
 
-fn rbtdrc_access_probe_governor(dir: &Path) -> rbtdre_Verdict {
+fn rbtdrc_jwt_governor(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, "governor", dir))
 }
 
-fn rbtdrc_access_probe_director(dir: &Path) -> rbtdre_Verdict {
+fn rbtdrc_jwt_director(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, "director", dir))
 }
 
-fn rbtdrc_access_probe_retriever(dir: &Path) -> rbtdre_Verdict {
+fn rbtdrc_jwt_retriever(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, "retriever", dir))
 }
 
-fn rbtdrc_access_probe_payor(dir: &Path) -> rbtdre_Verdict {
+fn rbtdrc_oauth_payor(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, "payor", dir))
 }
 
 pub static RBTDRC_SECTIONS_ACCESS_PROBE: &[rbtdre_Section] = &[rbtdre_Section {
     name: "access-probe",
     cases: &[
-        rbtdre_Case {
-            name: "jwt-governor",
-            func: rbtdrc_access_probe_governor,
-        },
-        rbtdre_Case {
-            name: "jwt-director",
-            func: rbtdrc_access_probe_director,
-        },
-        rbtdre_Case {
-            name: "jwt-retriever",
-            func: rbtdrc_access_probe_retriever,
-        },
-        rbtdre_Case {
-            name: "oauth-payor",
-            func: rbtdrc_access_probe_payor,
-        },
+        case!(rbtdrc_jwt_governor),
+        case!(rbtdrc_jwt_director),
+        case!(rbtdrc_jwt_retriever),
+        case!(rbtdrc_oauth_payor),
     ],
 }];
