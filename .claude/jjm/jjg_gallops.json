@@ -255,6 +255,7 @@
       "creation_time": "260401",
       "status": "racing",
       "order": [
+        "₢A1AAf",
         "₢A1AAe",
         "₢A1AAd",
         "₢A1AAL",
@@ -287,7 +288,7 @@
         "₢A1AAT",
         "₢A1AAc"
       ],
-      "next_pace_seed": "AAf",
+      "next_pace_seed": "AAg",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -992,6 +993,17 @@
               "text": "## Character\nLarge mechanical rename with judgment calls at boundaries. Every instance needs inspection — quoin references, display strings, regex patterns, variable names, and comments all have different replacement contexts.\n\n## Docket\nRename the domain concept \"Consecration\" to \"Hallmark\" across the entire system. Consecration collides with Crucible (both start with C, both are ceremony metaphors). Hallmark means \"a distinguishing mark of quality and origin stamped on an artifact\" — exactly what the dual-timestamp version identifier is.\n\n### Scope\n- RBS0 quoin definitions: `rbtga_consecration`, `rbst_consecration`, and all references\n- AsciiDoc attribute references throughout `vov_veiled/` specs\n- Bash variable names, function names, CLI output strings, comments, error messages\n- Regime env files if any reference the term\n- Theurge Rust code (constants, string literals)\n- Consumer-facing docs (README, CLAUDE.consumer.md)\n\n### Exclusions\n- Colophon strings — those change in the separate tectonic-colophon-reorganization pace\n- Git history — no rewriting\n\n### Approach\n- Single-axis change: rename vocabulary while colophons still use old routing names\n- Mechanical find-replace with per-instance review\n- Quoin anchors and attributes must stay coordinated (three-part linked term)\n\n### Verification\n- `tt/rbtd-t.Test.sh` passes (theurge unit tests)\n- `tt/rbtd-s.TestSuite.fast.sh` passes (75 cases)\n- No remaining references to \"consecration\" (case-insensitive grep, excluding git history)\n\n### Acceptance\n- All spec quoins updated with hallmark terminology\n- All code references updated\n- Qualify-fast clean",
               "silks": "rename-consecration-to-hallmark",
               "commit": "302bf75"
+            }
+          ]
+        },
+        "₢A1AAf": {
+          "tacks": [
+            {
+              "ts": "260403-0859",
+              "state": "rough",
+              "text": "## Character\nSmall, precise infrastructure work — add a no-op API to BUK that declares colophon group categories.\n\n## Docket\nAdd `buz_group` function to BUK's zipper infrastructure (`bud_dispatch.sh` or appropriate BUK module). Initially a no-op that accepts three arguments: constant name, group prefix, description string.\n\nThen add `buz_group` declarations to `rbz_zipper.sh` for the current (pre-rename) colophon categories, documenting what exists today. The colophon rename pace will update these to the new domain-organized categories.\n\n### API\n```\nbuz_group <CONSTANT_NAME> <prefix> <description>\n```\nExample: `buz_group RBZ__GROUP_FOUNDRY \"rbw-D\" \"Director/foundry operations\"`\n\n### Work items\n- Add `buz_group` no-op function to BUK\n- Add group declarations to `rbz_zipper.sh` for current categories\n- Consider: double-underscore convention for group constants vs enrollment constants\n\n### Verification\n- `tt/buw-st.BukSelfTest.sh` passes (9 cases)\n- `tt/rbtd-s.TestSuite.fast.sh` passes (75 cases)\n- Existing dispatch routing unaffected\n\n### Acceptance\n- `buz_group` callable without error\n- All current colophon groups declared in rbz_zipper.sh\n- No behavioral change to enrollment or dispatch",
+              "silks": "add-buz-group-to-buk-zipper",
+              "commit": "f62bae5"
             }
           ]
         }
