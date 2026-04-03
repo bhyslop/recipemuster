@@ -173,6 +173,35 @@ fn rbtdrc_looks_like_ip(s: &str) -> bool {
     !s.is_empty() && s.chars().all(|c| c.is_ascii_digit() || c == '.')
 }
 
+/// Extract iptables rule lines from writ output, filtering BUK log headers.
+/// Rules start with -P (policy), -N (new chain), or -A (append).
+fn rbtdrc_extract_iptables_rules(output: &str) -> String {
+    output
+        .lines()
+        .filter(|l| {
+            let t = l.trim();
+            t.starts_with("-P ") || t.starts_with("-N ") || t.starts_with("-A ")
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
+/// Filter writ output to remove BUK log headers (lines starting with known prefixes).
+/// Retains only the actual command output.
+fn rbtdrc_filter_writ_output(output: &str) -> String {
+    output
+        .lines()
+        .filter(|l| {
+            let t = l.trim();
+            !t.starts_with("log files:")
+                && !t.starts_with("transcript:")
+                && !t.starts_with("output dir:")
+                && !t.starts_with("\u{1b}[90m") // ANSI escape for BUK colored prefix
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
 // ── Basic infra cases (fiat) ──────────────────────────────────
 
 fn rbtdrc_pentacle_dnsmasq_responds(dir: &Path) -> rbtdre_Verdict {
@@ -748,22 +777,33 @@ fn rbtdrc_coordinated_arp_table_stability(dir: &Path) -> rbtdre_Verdict {
 fn rbtdrc_coordinated_sentry_integrity(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
         // Pre-snapshot: capture sentry state
-        let pre_procs = match rbtdrc_writ(ctx, &["pgrep", "-a", "dnsmasq"]) {
+        // Use cat on /proc/*/comm — sentry is minimal (no pgrep/ps/pidof)
+        let pre_procs = match rbtdrc_writ(
+            ctx,
+            &["sh", "-c", "cat /proc/[0-9]*/comm 2>/dev/null; exit 0"],
+        ) {
             Ok(o) => o,
-            Err(e) => return rbtdre_Verdict::Fail(format!("pre-snapshot pgrep: {}", e)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("pre-snapshot procs: {}", e)),
         };
         let _ = std::fs::write(dir.join("pre-procs.txt"), &pre_procs);
+        if !pre_procs.lines().any(|l| l.trim() == "dnsmasq") {
+            return rbtdre_Verdict::Fail(
+                "pre-snapshot: dnsmasq not running before attacks".to_string(),
+            );
+        }
 
         let pre_iptables = match rbtdrc_writ(ctx, &["iptables", "-S"]) {
             Ok(o) => o,
             Err(e) => return rbtdre_Verdict::Fail(format!("pre-snapshot iptables: {}", e)),
         };
+        let pre_iptables_rules = rbtdrc_extract_iptables_rules(&pre_iptables);
         let _ = std::fs::write(dir.join("pre-iptables.txt"), &pre_iptables);
 
         let pre_links = match rbtdrc_writ(ctx, &["ip", "link", "show"]) {
             Ok(o) => o,
             Err(e) => return rbtdre_Verdict::Fail(format!("pre-snapshot ip link: {}", e)),
         };
+        let pre_links_filtered = rbtdrc_filter_writ_output(&pre_links);
         let _ = std::fs::write(dir.join("pre-links.txt"), &pre_links);
 
         // Run battery of 3 different attack types
@@ -794,11 +834,14 @@ fn rbtdrc_coordinated_sentry_integrity(dir: &Path) -> rbtdre_Verdict {
         std::thread::sleep(std::time::Duration::from_millis(500));
 
         // Post-snapshot: capture sentry state
-        let post_procs = match rbtdrc_writ(ctx, &["pgrep", "-a", "dnsmasq"]) {
+        let post_procs = match rbtdrc_writ(
+            ctx,
+            &["sh", "-c", "cat /proc/[0-9]*/comm 2>/dev/null; exit 0"],
+        ) {
             Ok(o) => o,
             Err(e) => {
                 return rbtdre_Verdict::Fail(format!(
-                    "BREACH: dnsmasq process query failed post-attack: {}",
+                    "BREACH: process query failed post-attack: {}",
                     e
                 ))
             }
@@ -809,37 +852,45 @@ fn rbtdrc_coordinated_sentry_integrity(dir: &Path) -> rbtdre_Verdict {
             Ok(o) => o,
             Err(e) => return rbtdre_Verdict::Fail(format!("post-snapshot iptables: {}", e)),
         };
+        let post_iptables_rules = rbtdrc_extract_iptables_rules(&post_iptables);
         let _ = std::fs::write(dir.join("post-iptables.txt"), &post_iptables);
 
         let post_links = match rbtdrc_writ(ctx, &["ip", "link", "show"]) {
             Ok(o) => o,
             Err(e) => return rbtdre_Verdict::Fail(format!("post-snapshot ip link: {}", e)),
         };
+        let post_links_filtered = rbtdrc_filter_writ_output(&post_links);
         let _ = std::fs::write(dir.join("post-links.txt"), &post_links);
 
         // Verify: dnsmasq still running
-        if post_procs.trim().is_empty() {
+        if !post_procs.lines().any(|l| l.trim() == "dnsmasq") {
             return rbtdre_Verdict::Fail(
                 "BREACH: dnsmasq process not found after attack battery".to_string(),
             );
         }
 
-        // Verify: iptables rules unchanged
-        if pre_iptables != post_iptables {
+        // Verify: iptables rules unchanged (compare rule lines only, not BUK headers)
+        if pre_iptables_rules != post_iptables_rules {
             let _ = std::fs::write(
                 dir.join("iptables-diff.txt"),
-                format!("BEFORE:\n{}\nAFTER:\n{}\n", pre_iptables, post_iptables),
+                format!(
+                    "BEFORE:\n{}\nAFTER:\n{}\n",
+                    pre_iptables_rules, post_iptables_rules
+                ),
             );
             return rbtdre_Verdict::Fail(
                 "BREACH: iptables rules changed after attack battery".to_string(),
             );
         }
 
-        // Verify: network interfaces unchanged
-        if pre_links != post_links {
+        // Verify: network interfaces unchanged (compare content only, not BUK headers)
+        if pre_links_filtered != post_links_filtered {
             let _ = std::fs::write(
                 dir.join("links-diff.txt"),
-                format!("BEFORE:\n{}\nAFTER:\n{}\n", pre_links, post_links),
+                format!(
+                    "BEFORE:\n{}\nAFTER:\n{}\n",
+                    pre_links_filtered, post_links_filtered
+                ),
             );
             return rbtdre_Verdict::Fail(
                 "BREACH: network interfaces changed after attack battery".to_string(),
