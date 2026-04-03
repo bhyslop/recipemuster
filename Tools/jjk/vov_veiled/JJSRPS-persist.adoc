@@ -45,7 +45,7 @@ extract from message prefix (`N:`, `S:`, `r:`, `T:`, `D:`, `R:`)
 .. If identity is
 {jjdt_coronet}:
 extract from message prefix (`n:`, `A:`, `W:`, `F:`, `d:`)
-. Format full commit message: `jjb:HALLMARK:IDENTITY:ACTION: message\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>`
+. Format full commit message: `jjb:BRAND:IDENTITY:ACTION: message\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>`
 . Run `git commit -m "..."`
 . Return commit hash
 

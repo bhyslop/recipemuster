@@ -35,8 +35,8 @@ Entries ordered newest first (most recent at top).
 {jjds_behavior}
 
 . Run `git log --all --extended-regexp --grep="^jjb:[^:]+:(₣XX|₢XX)" --format="%ai%x09%s"`
-  (skips hallmark field; filtering is by identity)
-. Parse each line: extract timestamp, hallmark, identity, action, and message
+  (skips brand field; filtering is by identity)
+. Parse each line: extract timestamp, brand, identity, action, and message
 . For pace-level (₢CORONET): verify coronet belongs to target heat
 . For heat-level (₣FIREMARK): verify firemark matches target heat
 . Collect entries, limit to requested count (newest first)

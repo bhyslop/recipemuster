@@ -85,8 +85,8 @@
 :vost_cipher:           <<voslc_cipher,Cipher>>
 :vost_cipher_s:         <<voslc_cipher,Ciphers>>
 :vost_cipher_p:         <<voslc_cipher,Cipher's>>
-:vost_hallmark:         <<vost_hallmark,Hallmark>>
-:vost_hallmark_s:       <<vost_hallmark,Hallmarks>>
+:vost_brand:         <<vost_brand,Brand>>
+:vost_brand_s:       <<vost_brand,Brands>>
 :vost_sigil:            <<vost_sigil,Sigil>>
 :vost_sigil_s:          <<vost_sigil,Sigils>>
 
@@ -119,7 +119,7 @@
 :vosem_brand_sha:       <<vosem_brand_sha,brand_sha>>
 :vosem_display_name:    <<vosem_display_name,display_name>>
 :vosem_file:            <<vosem_file,file>>
-:vosem_hallmark:        <<vosem_hallmark,hallmark>>
+:vosem_brand:        <<vosem_brand,brand>>
 :vosem_kit_id:          <<vosem_kit_id,kit_id>>
 :vosem_tag:             <<vosem_tag,tag>>
 
@@ -369,19 +369,19 @@ Progress message indicating completion of a processing stage.
 
 == Types
 
-[[vost_hallmark]]
+[[vost_brand]]
 //axl_voices axt_string
-{vost_hallmark}::
+{vost_brand}::
 A 4-digit version identifier starting at 1000.
-{vost_hallmark_s}
+{vost_brand_s}
 increment for each unique content set during
 {vosor_release}.
 Unlike
 {vost_sigil}
 (timestamp-based),
-{vost_hallmark}
+{vost_brand}
 represents content identity — same content always produces same
-{vost_hallmark}.
+{vost_brand}.
 +
 Examples: `1000`, `1001`, `1042`.
 
@@ -421,7 +421,7 @@ See `jjdxo_officium` in JJS0_JobJockeySpec.adoc for lifecycle details including 
 {vose_parcel}::
 The distribution archive for
 {vose_kit_s}.
-Named `vvk-parcel-{hallmark}.tar.gz`.
+Named `vvk-parcel-{brand}.tar.gz`.
 Contains platform binaries and plain-text
 {vose_kit}
 assets.
@@ -672,7 +672,7 @@ Runtime identity file at
 {vose_parcel}
 root.
 Contains
-{vost_hallmark},
+{vost_brand},
 minted timestamp, and content super-SHA.
 +
 File location: `vvbf_brand.json` at parcel root.
@@ -680,11 +680,11 @@ Installed to `.vvk/vvbf_brand.json` in target.
 +
 Members:
 
-[[vosem_hallmark]]
+[[vosem_brand]]
 //axl_voices axj_field axd_required
-* {vosem_hallmark} — {axj_field_tag}: `vvbh_hallmark`.
+* {vosem_brand} — {axj_field_tag}: `vvbf_brand`.
 4-digit version identifier (
-{vost_hallmark}
+{vost_brand}
 ).
 
 [[vosem_brand_date]]
@@ -715,10 +715,10 @@ to enumerate installed kits.
 {vose_registry}::
 {vosp_veiled}
 mapping of
-{vost_hallmark}
+{vost_brand}
 to content identity.
 Keys are
-{vost_hallmark}
+{vost_brand}
 values; entries contain
 {vosem_brand_date}
 and
@@ -729,9 +729,9 @@ File location: `Tools/vok/vov_veiled/vovr_registry.json`
 Used by
 {vosor_release}
 to allocate
-{vost_hallmark_s}
+{vost_brand_s}
 — if super-SHA exists, reuse its
-{vost_hallmark};
+{vost_brand};
 otherwise allocate next sequential value.
 
 [[vose_output]]
@@ -1021,18 +1021,18 @@ from computation
 super-SHA for registry lookup
 
 //axhos_step
-. *Allocate hallmark*:
+. *Allocate brand*:
 .. {vosc_call}
 read
 {vose_registry}
 .. If super-SHA exists in registry:
 {vosc_store}
 existing
-{vost_hallmark}
+{vost_brand}
 .. If super-SHA is new:
 ... {vosc_store}
 next sequential
-{vost_hallmark}
+{vost_brand}
 (max + 1, starting at 1000)
 ... {vosc_call}
 update
@@ -1047,7 +1047,7 @@ commit registry change
 create
 {vose_brand_file}
 at parcel root with
-{vosem_hallmark},
+{vosem_brand},
 {vosem_brand_date},
 {vosem_brand_sha},
 {vosem_brand_commit}
@@ -1057,7 +1057,7 @@ at parcel root with
 
 //axhos_step
 . *Package parcel*:
-.. Create `vvk-parcel-{hallmark}.tar.gz` with structure:
+.. Create `vvk-parcel-{brand}.tar.gz` with structure:
 ... `vvi_install.sh` — install script (bootstrap, not installed)
 ... `vvbf_brand.json` —
 {vose_brand_file}
@@ -1067,7 +1067,7 @@ at parcel root
 
 //axhoom_motif_output
 * {vose_parcel}
-archive: `vvk-parcel-{hallmark}.tar.gz`
+archive: `vvk-parcel-{brand}.tar.gz`
 * {vose_brand_file}
 at parcel root
 
@@ -1140,7 +1140,7 @@ parse
 {vose_brand_file}
 from parcel root
 .. {vosc_store}
-{vosem_hallmark}
+{vosem_brand}
 and
 {vosem_brand_kits}
 
@@ -1244,7 +1244,7 @@ at project root (`.mcp.json`)
 .. {vosc_call}
 `git add -A`
 .. {vosc_call}
-`git commit -m "VVK install: hallmark {hallmark}"`
+`git commit -m "VVK install: brand {brand}"`
 .. {vosc_step}
 "Installation committed"
 
@@ -1563,7 +1563,7 @@ include::VOSRI-init.adoc[]
 VOK operations use a specialized commit message
 {voscf_format}
 that shares the
-{vost_hallmark}
+{vost_brand}
 concept with Job Jockey but omits identity nesting (no heat/pace hierarchy).
 
 [[voscf_format]]
@@ -1572,15 +1572,15 @@ concept with Job Jockey but omits identity nesting (no heat/pace hierarchy).
 The canonical structure for VVK commits:
 +
 ----
-vvb:HALLMARK::ACTION: message
+vvb:BRAND::ACTION: message
 ----
 +
 Fields:
 +
 * {vosca_vvb}
 — Voce Viva brand prefix (literal string)
-* `HALLMARK` —
-{vost_hallmark}
+* `BRAND` —
+{vost_brand}
 from
 {vose_brand_file}
 or
@@ -1590,7 +1590,7 @@ plus `HEAD`
 * `ACTION` — Single-letter operation code
 +
 The
-{vost_hallmark}
+{vost_brand}
 source follows the same resolution as Job Jockey:
 first check `.vvk/vvbf_brand.json` in the target repo; if absent or operation is in the kit forge, use
 {vose_registry}
@@ -1610,14 +1610,14 @@ Literal string "vvb" appearing as the first field in the
 {voscaa_allocate}::
 Action code `A`.
 Allocates a new
-{vost_hallmark}
+{vost_brand}
 in the
 {vose_registry}.
 +
 Example:
 +
 ----
-vvb:1000::A: allocated hallmark for initial release
+vvb:1000::A: allocated brand for initial release
 ----
 
 [[voscai_invitatory]]
@@ -1658,10 +1658,10 @@ vvb:1000::R: release parcel 1000
 
 **Cross-reference:**
 The
-{vost_hallmark}
+{vost_brand}
 concept is shared with Job Jockey's `jjb:` commit format (documented in JJS0_JobJockeySpec.adoc).
 Both systems use the same resolution logic for sourcing
-{vost_hallmark_s},
+{vost_brand_s},
 but Job Jockey includes heat/pace identity in the third field while VOK leaves it empty.
 
 

@@ -45,8 +45,8 @@ warning: uncommitted changes outside file list:
 .. If `--intent` provided: use the supplied intent string
 .. Otherwise: run `claude --print "Generate commit message for this diff: $(git diff --cached)"`
 . Format full message based on identity type:
-.. Coronet: `jjb:HALLMARK:₢XXXXX:n: message\n\nCo-Authored-By: ...`
-.. Firemark: `jjb:HALLMARK:₣XX:n: message\n\nCo-Authored-By: ...`
+.. Coronet: `jjb:BRAND:₢XXXXX:n: message\n\nCo-Authored-By: ...`
+.. Firemark: `jjb:BRAND:₣XX:n: message\n\nCo-Authored-By: ...`
 . Run `git commit -m "..."`
 . Release lock
 . Output commit hash

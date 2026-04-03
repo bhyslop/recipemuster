@@ -21,8 +21,8 @@ Create an empty commit marking a steeplechase event.
 . Detect identity type by length (5 chars = coronet, 2 chars = firemark)
 . Validate: `A`/`W`/`F` require coronet; `d` accepts either
 . Format message:
-.. If coronet: `jjb:HALLMARK:₢XXXXX:X: description\n\nCo-Authored-By: ...`
-.. If firemark (discussion only): `jjb:HALLMARK:₣XX:d: description\n\nCo-Authored-By: ...`
+.. If coronet: `jjb:BRAND:₢XXXXX:X: description\n\nCo-Authored-By: ...`
+.. If firemark (discussion only): `jjb:BRAND:₣XX:d: description\n\nCo-Authored-By: ...`
 . Run `git commit --allow-empty -m "..."`
 . Release lock
 . Output commit hash

@@ -477,7 +477,7 @@ Because the `officia/` tree is gitignored, incorrect reaping is benign — no tr
 {jjdxo_invitatory} commit (action code `i`):
 +
 ----
-jjb:HALLMARK::i: OFFICIUM <id>
+jjb:BRAND::i: OFFICIUM <id>
 
 haiku: <model-id>
 sonnet: <model-id>
@@ -1872,16 +1872,16 @@ can parse to reconstruct session history.
 
 ==== Commit Message Patterns
 
-All JJ commits use the format: `jjb:HALLMARK:IDENTITY:ACTION: message`
+All JJ commits use the format: `jjb:BRAND:IDENTITY:ACTION: message`
 
 * `jjb` — JJ brand prefix (literal)
-* `HALLMARK` — Version identifier. Format: NNNN (installed) or NNNN-xxxxxxx (dev). Source: `.vvk/vvbf_brand.json` (installed) or max hallmark from `Tools/vok/vov_veiled/vovr_registry.json` + git HEAD (Kit Forge)
+* `BRAND` — Version identifier. Format: NNNN (installed) or NNNN-xxxxxxx (dev). Source: `.vvk/vvbf_brand.json` (installed) or max brand from `Tools/vok/vov_veiled/vovr_registry.json` + git HEAD (Kit Forge)
 * `IDENTITY` — ₢CORONET for pace-level, ₣FIREMARK for heat-level
 * `ACTION` — single-letter code (required for all commits)
 
 *Standard notch* (created by {jjdo_record}):
 ----
-jjb:HALLMARK:₢XXXXX:n: commit message
+jjb:BRAND:₢XXXXX:n: commit message
 
 Co-Authored-By: ...
 ----
@@ -1890,7 +1890,7 @@ Standard notch commits use `n` to denote routine progress tracking.
 
 *Landing marker* (created when spawned agent completes):
 ----
-jjb:HALLMARK:₢XXXXX:L: {agent} {landed|crashed}
+jjb:BRAND:₢XXXXX:L: {agent} {landed|crashed}
 
 {agent completion report}
 
@@ -1901,7 +1901,7 @@ Subject format: `{agent} {landed|crashed}` where agent is the executor tier (hai
 
 *{jjdxo_invitatory} marker* (created by {jjdo_open}):
 ----
-jjb:HALLMARK::i: OFFICIUM <id>
+jjb:BRAND::i: OFFICIUM <id>
 
 haiku: claude-3-5-haiku-20241022
 sonnet: claude-sonnet-4-20250514
@@ -1928,12 +1928,12 @@ Pace-level action codes:
 
 *Heat-level operations*:
 ----
-jjb:HALLMARK:₣XX:N: heat-silks
-jjb:HALLMARK:₣XX:S: pace-silks
-jjb:HALLMARK:₣XX:s: YYMMDD-HHMM session  (superseded — see below)
-jjb:HALLMARK:₣XX:r: reordered
-jjb:HALLMARK:₣XX:D: old-coronet → new-coronet
-jjb:HALLMARK:₣XX:R: heat-silks
+jjb:BRAND:₣XX:N: heat-silks
+jjb:BRAND:₣XX:S: pace-silks
+jjb:BRAND:₣XX:s: YYMMDD-HHMM session  (superseded — see below)
+jjb:BRAND:₣XX:r: reordered
+jjb:BRAND:₣XX:D: old-coronet → new-coronet
+jjb:BRAND:₣XX:R: heat-silks
 ----
 
 Heat-level action codes:

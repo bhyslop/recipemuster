@@ -18,7 +18,7 @@ Create an L (landing) commit recording agent return from autonomous execution.
 {jjds_behavior}
 
 . Parse coronet argument
-. Format subject: `jjb:HALLMARK:₢XXXXX:L: {agent} landed`
+. Format subject: `jjb:BRAND:₢XXXXX:L: {agent} landed`
 . Format body: `content` parameter + Co-Authored-By
 . Run `git commit --allow-empty -m "..."`
 . Output commit hash
