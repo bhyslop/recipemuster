@@ -22,7 +22,7 @@ Architectural migration with careful sequencing. Early paces are infrastructure 
 **Ifrit build model — single Dockerfile, single image:**
 - One Dockerfile at `rbev-vessels/rbev-bottle-ifrit/Dockerfile`. Single stage: `rust:bookworm-slim` base, network tools installed, `Cargo.toml`+`Cargo.lock` copied first (layer cached), then source copied and built. Rust toolchain stays in image — it's a test vessel, size doesn't matter, iteration speed does.
 - The resulting image IS the runtime bottle. When the tadmor crucible charges, the ifrit binary is already inside. No extraction, no docker cp, no two-image dance.
-- Custom `rbi-iK` kludge tabtarget writes to a constant consecration for daily iteration.
+- Custom `rbi-iK` kludge tabtarget writes to a constant hallmark for daily iteration.
 - Steady state: cloud conjure builds the same Dockerfile.
 - No Docker volumes, no persistent cargo cache. Layer caching handles dependency compilation; source-only changes recompile just the ifrit crate.
 - Adding a new crate dependency requires a tethered kludge (same cost as adding an apt package today). `Cargo.lock` pins versions.
