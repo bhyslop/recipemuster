@@ -1168,9 +1168,10 @@
         "₢A2AAA",
         "₢A2AAB",
         "₢A2AAC",
-        "₢A2AAD"
+        "₢A2AAD",
+        "₢A2AAF"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_uAl2.md",
       "paces": {
         "₢A2AAA": {
@@ -1316,6 +1317,17 @@
               "text": "## Character\nMechanical rename across spec and Rust code. Straightforward find-replace with attention to the commit wire format documentation.\n\n## Docket\nRename the JJK concept \"hallmark\" to \"brand\" to free the word for RBK's Consecration → Hallmark rename. The source file is already `vvbf_brand.json` — this aligns the spec vocabulary with the existing file name.\n\n### Scope\n- JJS0 spec: all references to \"hallmark\" in commit format documentation, field descriptions\n- Rust code: constants, variable names, string literals, comments referencing hallmark\n- JJK claude-context (`jjk-claude-context.md`): any references to hallmark in the commit format docs\n- VVK code: if `vvbf_brand.json` parsing code references \"hallmark\" internally\n\n### Exclusions\n- Git history — old commits retain `jjb:NNNN:...` format, the numeric value is unchanged\n- The wire format itself doesn't change — the number is the same, only the name for it changes in spec/code\n\n### Work items\n- Update JJS0 spec: hallmark → brand in all definitions and examples\n- Update Rust code: rename hallmark references to brand\n- Update jjk-claude-context.md if needed\n- Build and test\n\n### Verification\n- `tt/vow-b.Build.sh` succeeds\n- `tt/vow-t.Test.sh` passes\n- No remaining references to \"hallmark\" in JJK/VVK code (grep, excluding git history)\n\n### Acceptance\n- JJS0 uses \"brand\" consistently\n- All Rust code uses \"brand\" for the version identifier\n- Word \"hallmark\" freed for RBK usage",
               "silks": "rename-jjk-hallmark-to-brand",
               "commit": "129e86d"
+            }
+          ]
+        },
+        "₢A2AAF": {
+          "tacks": [
+            {
+              "ts": "260403-1122",
+              "state": "rough",
+              "text": "## Character\nDesign-first infrastructure — API shape matters more than implementation. The feature is general but the first consumer (onboarding comprehension testing) will validate the design.\n\n## Docket\n\nAdd remote command execution as a JJK primitive: configure a remote target, then execute commands on it.\n\n### Vocabulary\n\n| Layer | Configure | Execute |\n|-------|-----------|---------|\n| Upper verb (equestrian) | tether | lunge |\n| jjx_ operation (boring) | jjx_bind | jjx_send |\n\n### Semantics\n\n**jjx_bind** — store remote target configuration (host, user, directory) in officium. Latest call wins — no concurrent remotes. Subsequent `jjx_send` calls use whatever was last bound.\n\n**jjx_send** — execute a command string on the bound remote, return stdout. Stateless per invocation — no session, no channel, no connection persistence. Transport is SSH but the caller doesn't know or care.\n\n### Officium integration\n\nRemote config lives in the officium directory alongside gazette files. Lifecycle is automatic — when the officium is absolved, the config goes with it. No new cleanup story needed.\n\n### Open design questions\n\n- Param shape for `jjx_bind`: flat `{host, user, directory}` or a single connection string?\n- Does `jjx_send` return stderr separately or merged with stdout?\n- Timeout behavior — what happens when a remote command hangs?\n- Does `jjx_bind` verify connectivity (SSH probe) or is that the caller's problem?\n- Should `jjx_send` accept an optional working directory override, or always use the bound directory?\n- Error reporting: SSH failure vs command failure vs timeout — how to distinguish?\n\n### Motivation\n\nOnboarding comprehension testing (₣A3) needs to run tabtargets on a remote machine with controlled credential state. The comprehension agent should think in terms of \"run this command\" not \"SSH to this user at this host.\" JJK absorbs the transport, the agent sees only `jjx_send`.\n\nAlso general: release qualification on clean machines, cross-platform testing, any \"fresh checkout\" validation.\n\n### Not in scope for this pace\n- Theurge integration (theurge stays container-focused)\n- The comprehension agent itself (₣A3 territory)\n- Remote file transfer (scp/rsync) — may be needed later but start with exec only\n- Concurrent remote targets\n\n## References\n- JJS0 — vocabulary isolation principle (upper verbs vs jjx_ operations)\n- ₣A3 paddock — onboarding comprehension testing motivation\n- Officium lifecycle — `jjx_open`, `jjx_absolve`",
+              "silks": "remote-execution-bind-send",
+              "commit": "809e286"
             }
           ]
         }
