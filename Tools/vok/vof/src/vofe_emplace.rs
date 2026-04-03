@@ -44,7 +44,7 @@ use crate::vofc_registry::{vofc_find_kit_by_id, VOFC_COMMAND_SIGNET_SUFFIX, VOFC
 // =============================================================================
 
 /// Brand file JSON field tags (must match vofr_release.rs)
-const VOFE_BRAND_HALLMARK: &str = "vvbh_hallmark";
+const VOFE_BRAND_BRAND: &str = "vvbf_brand";
 const VOFE_BRAND_KITS: &str = "vvbk_kits";
 
 // =============================================================================
@@ -140,8 +140,8 @@ pub struct vofe_EmplaceArgs {
 /// Result of emplace operation.
 #[derive(Debug)]
 pub struct vofe_EmplaceResult {
-    /// Hallmark from brand file
-    pub hallmark: u32,
+    /// Brand from brand file
+    pub brand: u32,
     /// Kits that were installed
     pub kits_installed: Vec<String>,
     /// Total files copied
@@ -213,7 +213,7 @@ pub fn vofe_emplace(args: &vofe_EmplaceArgs) -> Result<vofe_EmplaceResult, Strin
 
     // 3. Read brand identity
     let brand_path = args.parcel_dir.join("vvbf_brand.json");
-    let (hallmark, kit_ids) = zvofe_read_brand(&brand_path)?;
+    let (brand, kit_ids) = zvofe_read_brand(&brand_path)?;
 
     // 4. Validate exact match between parcel kits and target BURC_MANAGED_KITS
     let mut burc_kits_sorted = burc.managed_kits.clone();
@@ -292,13 +292,13 @@ pub fn vofe_emplace(args: &vofe_EmplaceArgs) -> Result<vofe_EmplaceResult, Strin
     zvofe_freshen_claude(&claude_path, &sections)?;
 
     // 9. Commit installation
-    let commit_msg = format!("VVK install: hallmark {}", hallmark);
+    let commit_msg = format!("VVK install: brand {}", brand);
     zvofe_git_commit(&burc.project_root, &commit_msg)?;
 
     eprintln!("emplace: success - {} files, {} commands, {} hooks", total_files, commands_routed, hooks_routed);
 
     Ok(vofe_EmplaceResult {
-        hallmark,
+        brand,
         kits_installed: kit_ids,
         files_copied: total_files,
         commands_routed,
@@ -329,7 +329,7 @@ pub fn vofe_vacate(args: &vofe_VacateArgs) -> Result<vofe_VacateResult, String> 
     if !brand_path.exists() {
         return Err("No VVK installation found (.vvk/vvbf_brand.json missing)".to_string());
     }
-    let (_hallmark, kit_ids) = zvofe_read_brand(&brand_path)?;
+    let (_brand, kit_ids) = zvofe_read_brand(&brand_path)?;
 
     // 4. Remove commands and hooks
     let mut total_files = 0u32;
@@ -582,7 +582,7 @@ pub fn vofe_parse_burc(path: &Path) -> Result<vofe_BurcEnv, String> {
     })
 }
 
-/// Read brand file and extract hallmark and kit list.
+/// Read brand file and extract brand and kit list.
 fn zvofe_read_brand(path: &Path) -> Result<(u32, Vec<String>), String> {
     if !path.exists() {
         return Err(format!("Brand file not found: {}", path.display()));
@@ -594,11 +594,11 @@ fn zvofe_read_brand(path: &Path) -> Result<(u32, Vec<String>), String> {
     let json: serde_json::Value = serde_json::from_str(&content)
         .map_err(|e| format!("Failed to parse brand JSON: {}", e))?;
 
-    let hallmark = json
-        .get(VOFE_BRAND_HALLMARK)
+    let brand = json
+        .get(VOFE_BRAND_BRAND)
         .and_then(|v| v.as_u64())
         .map(|v| v as u32)
-        .ok_or_else(|| "Brand file missing hallmark".to_string())?;
+        .ok_or_else(|| "Brand file missing brand".to_string())?;
 
     let kits = json
         .get(VOFE_BRAND_KITS)
@@ -614,7 +614,7 @@ fn zvofe_read_brand(path: &Path) -> Result<(u32, Vec<String>), String> {
         return Err("Brand file has empty kits array".to_string());
     }
 
-    Ok((hallmark, kit_ids))
+    Ok((brand, kit_ids))
 }
 
 /// Copy a kit directory and route special files.

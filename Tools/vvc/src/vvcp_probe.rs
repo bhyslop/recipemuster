@@ -172,14 +172,14 @@ pub async fn vvcp_invitatory() -> Result<(), String> {
     }
 
     let probe_data = vvcp_probe().await?;
-    let hallmark = crate::vvcc_get_hallmark();
+    let brand = crate::vvcc_get_brand();
     let now = chrono::Local::now();
     let timestamp = now.format("%y%m%d-%H%M").to_string();
     let subject = format!("OFFICIUM {}", timestamp);
 
     let message = crate::vvcc_format_branded(
         ZVVCP_BRAND_PREFIX,
-        &hallmark,
+        &brand,
         "",
         VVCP_ACTION_INVITATORY,
         &subject,

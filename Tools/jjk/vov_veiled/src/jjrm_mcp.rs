@@ -499,13 +499,13 @@ async fn zjjrm_handle_open() -> Result<CallToolResult, McpError> {
         None
     };
 
-    // Invitatory commit: jjb:HALLMARK::i: OFFICIUM <id>
-    let hallmark = vvc::vvcc_get_hallmark();
+    // Invitatory commit: jjb:BRAND::i: OFFICIUM <id>
+    let brand = vvc::vvcc_get_brand();
     let subject = format!("OFFICIUM {}", id);
     let action = crate::jjrnm_markers::JJRNM_INVITATORY.to_string();
     let message = vvc::vvcc_format_branded(
         crate::jjrn_notch::JJRN_COMMIT_PREFIX,
-        &hallmark,
+        &brand,
         "",
         &action,
         &subject,

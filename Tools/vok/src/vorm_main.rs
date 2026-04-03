@@ -43,7 +43,7 @@ enum Commands {
     #[command(name = "release_collect")]
     ReleaseCollect(ReleaseCollectArgs),
 
-    /// Brand staging directory with hallmark
+    /// Brand staging directory with brand
     #[command(name = "release_brand")]
     ReleaseBrand(ReleaseBrandArgs),
 
@@ -464,12 +464,12 @@ fn run_release_brand(args: ReleaseBrandArgs) -> i32 {
 
     match vof::vofr_brand(&args.staging, &args.registry, &args.commit, &managed_kits) {
         Ok(result) => {
-            // Output hallmark for bash to use in tarball name
-            println!("{}", result.hallmark);
+            // Output brand for bash to use in tarball name
+            println!("{}", result.brand);
             if result.is_new {
-                eprintln!("release_brand: allocated new hallmark {}", result.hallmark);
+                eprintln!("release_brand: allocated new brand {}", result.brand);
             } else {
-                eprintln!("release_brand: reusing existing hallmark {}", result.hallmark);
+                eprintln!("release_brand: reusing existing brand {}", result.brand);
             }
             eprintln!("release_brand: super-SHA: {}", result.super_sha);
             0
@@ -496,7 +496,7 @@ fn run_emplace(args: EmplaceArgs) -> i32 {
         Ok(result) => {
             // Output JSON summary
             let mut output = serde_json::Map::new();
-            output.insert("hallmark".to_string(), serde_json::Value::Number(result.hallmark.into()));
+            output.insert("brand".to_string(), serde_json::Value::Number(result.brand.into()));
 
             let kits: Vec<serde_json::Value> = result.kits_installed
                 .iter()

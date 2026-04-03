@@ -64,21 +64,21 @@ fn jjtn_heat_action_as_str() {
 }
 
 // Format function tests
-// New format: jjb:HALLMARK:IDENTITY:ACTION: message
+// New format: jjb:BRAND:IDENTITY:ACTION: message
 
 #[test]
 fn jjtn_format_notch_prefix() {
     let coronet = Coronet::jjrf_parse("ABAAA").unwrap();
     let prefix = jjrn_format_notch_prefix(&coronet);
-    // Check format: jjb:HALLMARK:₢ABAAA:n:
+    // Check format: jjb:BRAND:₢ABAAA:n:
     assert!(prefix.starts_with("jjb:"));
     assert!(prefix.contains(":₢ABAAA:n: "));
-    // Parse structure: jjb, HALLMARK, ₢ABAAA, n, " " (trailing space)
+    // Parse structure: jjb, BRAND, ₢ABAAA, n, " " (trailing space)
     let parts: Vec<&str> = prefix.split(':').collect();
-    assert_eq!(parts.len(), 5); // jjb, HALLMARK, ₢ABAAA, n, " "
-    // Verify hallmark format (NNNN or NNNN-xxxxxxx)
-    let hallmark = parts[1];
-    assert!(!hallmark.is_empty(), "Hallmark should not be empty");
+    assert_eq!(parts.len(), 5); // jjb, BRAND, ₢ABAAA, n, " "
+    // Verify brand format (NNNN or NNNN-xxxxxxx)
+    let brand = parts[1];
+    assert!(!brand.is_empty(), "Brand should not be empty");
 }
 
 #[test]
@@ -185,11 +185,11 @@ fn jjtn_format_landing_message_opus() {
 fn jjtn_format_landing_message_structure() {
     let coronet = Coronet::jjrf_parse("ABAAA").unwrap();
     let msg = jjrn_format_landing_message(&coronet, "sonnet");
-    // Verify structure: jjb:HALLMARK:₢CORONET:L: agent landed
+    // Verify structure: jjb:BRAND:₢CORONET:L: agent landed
     let parts: Vec<&str> = msg.split(':').collect();
-    assert_eq!(parts.len(), 5); // jjb, HALLMARK, ₢ABAAA, L, " sonnet landed"
+    assert_eq!(parts.len(), 5); // jjb, BRAND, ₢ABAAA, L, " sonnet landed"
     assert_eq!(parts[0], "jjb");
-    assert!(!parts[1].is_empty(), "Hallmark should not be empty");
+    assert!(!parts[1].is_empty(), "Brand should not be empty");
     assert_eq!(parts[2], "₢ABAAA");
     assert_eq!(parts[3], "L");
     assert!(parts[4].trim().ends_with("landed"));

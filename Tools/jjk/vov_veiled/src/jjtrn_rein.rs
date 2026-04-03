@@ -174,7 +174,7 @@ fn jjtrn_parse_format_missing_action_colon() {
 
 #[test]
 fn jjtrn_parse_format_no_identity() {
-    // Has hallmark but no identity prefix
+    // Has brand but no identity prefix
     let subject = "jjb:1010:ABAAA:n: Fix bug";
     let result = zjjrs_parse_new_format(subject, "AB");
     assert!(result.is_none(), "Missing identity prefix should not parse");

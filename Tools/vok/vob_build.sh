@@ -187,35 +187,35 @@ vob_release() {
   buc_log_args "Registry: ${z_registry}"
   buc_log_args "Commit: ${z_commit}"
 
-  local z_hallmark_file="${BURD_TEMP_DIR}/hallmark.txt"
+  local z_brand_file="${BURD_TEMP_DIR}/brand.txt"
   local z_stderr_file="${BURD_TEMP_DIR}/release_brand_stderr.txt"
 
   "${z_vvx}" release_brand \
     --staging "${z_staging}" \
     --registry "${z_registry}" \
     --commit "${z_commit}" \
-    --managed-kits "${BURC_MANAGED_KITS}" > "${z_hallmark_file}" 2>"${z_stderr_file}" || buc_die "release_brand failed"
+    --managed-kits "${BURC_MANAGED_KITS}" > "${z_brand_file}" 2>"${z_stderr_file}" || buc_die "release_brand failed"
 
-  local z_hallmark=""
-  z_hallmark=$(<"${z_hallmark_file}")
-  test -n "${z_hallmark}" || buc_die "Failed to read hallmark"
+  local z_brand=""
+  z_brand=$(<"${z_brand_file}")
+  test -n "${z_brand}" || buc_die "Failed to read brand"
 
-  buc_log_args "Hallmark: ${z_hallmark}"
+  buc_log_args "Brand: ${z_brand}"
 
-  # Check if a new hallmark was allocated by examining stderr
+  # Check if a new brand was allocated by examining stderr
   local z_is_new=0
-  if grep -q "Allocated new hallmark: ${z_hallmark}" "${z_stderr_file}" 2>/dev/null; then
+  if grep -q "Allocated new brand: ${z_brand}" "${z_stderr_file}" 2>/dev/null; then
     z_is_new=1
   fi
 
-  # If new hallmark was allocated, commit the registry
+  # If new brand was allocated, commit the registry
   if [ "${z_is_new}" -eq 1 ]; then
-    buc_step "Committing registry for new hallmark"
-    buc_log_args "New hallmark: ${z_hallmark}"
+    buc_step "Committing registry for new brand"
+    buc_log_args "New brand: ${z_brand}"
 
     local z_kit_list="${BURC_MANAGED_KITS// /, }"
     "${z_vvx}" commit \
-      --message "vvb:${z_hallmark}::A: allocate hallmark for ${z_kit_list}" \
+      --message "vvb:${z_brand}::A: allocate brand for ${z_kit_list}" \
       --file "${z_registry}" || buc_die "Failed to commit registry"
 
     buc_log_args "Registry committed"
@@ -223,7 +223,7 @@ vob_release() {
 
   buc_step "Creating tarball"
 
-  local z_parcel_name="vvk-parcel-${z_hallmark}"
+  local z_parcel_name="vvk-parcel-${z_brand}"
   local z_parcels_dir=".jjk/parcels"
   local z_tarball="${z_parcels_dir}/${z_parcel_name}.tar.gz"
 

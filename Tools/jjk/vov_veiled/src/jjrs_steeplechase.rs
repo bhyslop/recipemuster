@@ -7,8 +7,8 @@
 //! Implements jjx_rein: parse git history for steeplechase entries belonging to a Heat.
 //! Steeplechase entries are stored in git commit messages, not the Gallops JSON.
 //!
-//! Commit format: `jjb:HALLMARK:IDENTITY:ACTION: message`
-//! - HALLMARK: Version identifier (NNNN or NNNN-xxxxxxx)
+//! Commit format: `jjb:BRAND:IDENTITY:ACTION: message`
+//! - BRAND: Version identifier (NNNN or NNNN-xxxxxxx)
 //! - IDENTITY: ₢CORONET for pace-level, ₣FIREMARK for heat-level
 //! - ACTION: Single letter code (required for all commits)
 
@@ -36,9 +36,9 @@ pub struct jjrs_SteeplechaseEntry {
     /// Abbreviated git commit SHA
     pub commit: String,
 
-    /// Hallmark version identifier (NNNN or NNNN-xxxxxxx)
+    /// Brand version identifier (NNNN or NNNN-xxxxxxx)
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub hallmark: Option<String>,
+    pub brand: Option<String>,
 
     /// Coronet for pace-level entries, None for heat-level
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -63,49 +63,49 @@ pub(crate) fn zjjrs_parse_timestamp(git_timestamp: &str) -> String {
     }
 }
 
-/// Parse commit format: jjb:HALLMARK:IDENTITY:ACTION: message
+/// Parse commit format: jjb:BRAND:IDENTITY:ACTION: message
 /// Filters by firemark identity.
 pub fn zjjrs_parse_new_format(subject: &str, firemark_raw: &str) -> Option<jjrs_SteeplechaseEntry> {
-    // Expected format: jjb:HALLMARK:IDENTITY:ACTION: message
+    // Expected format: jjb:BRAND:IDENTITY:ACTION: message
     if !subject.starts_with("jjb:") {
         return None;
     }
 
-    // Skip past "jjb:" to get hallmark
+    // Skip past "jjb:" to get brand
     let after_jjb = &subject[4..]; // skip "jjb:"
 
-    // Parse hallmark (required) - find next colon
-    let hallmark_end = after_jjb.find(':')?;
-    let hallmark_str = &after_jjb[..hallmark_end];
-    let hallmark = Some(hallmark_str.to_string());
-    let after_hallmark = &after_jjb[hallmark_end + 1..];
+    // Parse brand (required) - find next colon
+    let brand_end = after_jjb.find(':')?;
+    let brand_str = &after_jjb[..brand_end];
+    let brand = Some(brand_str.to_string());
+    let after_brand = &after_jjb[brand_end + 1..];
 
     // Parse identity (₢CORONET or ₣FIREMARK)
-    let (identity, rest) = if after_hallmark.starts_with(CORONET_PREFIX) {
+    let (identity, rest) = if after_brand.starts_with(CORONET_PREFIX) {
         // Coronet: ₢XXXXX (1 prefix char + 5 base64 chars = 6 chars total in UTF-8)
         let coronet_end = CORONET_PREFIX.len_utf8() + 5;
-        if after_hallmark.len() < coronet_end {
+        if after_brand.len() < coronet_end {
             return None;
         }
-        let coronet = &after_hallmark[..coronet_end];
+        let coronet = &after_brand[..coronet_end];
         // Verify this coronet belongs to our heat (first 2 chars of base64 match firemark)
-        let coronet_heat = &after_hallmark[CORONET_PREFIX.len_utf8()..CORONET_PREFIX.len_utf8() + 2];
+        let coronet_heat = &after_brand[CORONET_PREFIX.len_utf8()..CORONET_PREFIX.len_utf8() + 2];
         if coronet_heat != firemark_raw {
             return None;
         }
-        (Some(coronet.to_string()), &after_hallmark[coronet_end..])
-    } else if after_hallmark.starts_with(FIREMARK_PREFIX) {
+        (Some(coronet.to_string()), &after_brand[coronet_end..])
+    } else if after_brand.starts_with(FIREMARK_PREFIX) {
         // Firemark: ₣XX (1 prefix char + 2 base64 chars)
         let firemark_end = FIREMARK_PREFIX.len_utf8() + 2;
-        if after_hallmark.len() < firemark_end {
+        if after_brand.len() < firemark_end {
             return None;
         }
         // Verify this is our firemark
-        let fm = &after_hallmark[FIREMARK_PREFIX.len_utf8()..firemark_end];
+        let fm = &after_brand[FIREMARK_PREFIX.len_utf8()..firemark_end];
         if fm != firemark_raw {
             return None;
         }
-        (None, &after_hallmark[firemark_end..])
+        (None, &after_brand[firemark_end..])
     } else {
         return None;
     };
@@ -136,7 +136,7 @@ pub fn zjjrs_parse_new_format(subject: &str, firemark_raw: &str) -> Option<jjrs_
     Some(jjrs_SteeplechaseEntry {
         timestamp: String::new(), // filled by caller
         commit: String::new(),    // filled by caller
-        hallmark,
+        brand,
         coronet: identity,
         action,
         subject: message,
@@ -173,7 +173,7 @@ pub fn jjrs_get_entries(args: &jjrs_ReinArgs) -> Result<Vec<jjrs_SteeplechaseEnt
     let firemark_raw = firemark.jjrf_as_str();
 
     // Build the grep pattern for git log
-    // Format: jjb:HALLMARK:IDENTITY:ACTION: message
+    // Format: jjb:BRAND:IDENTITY:ACTION: message
     // Pattern matches both heat-level (₣XX) and pace-level (₢XX...) entries
     let grep_pattern = format!(
         "^jjb:[^:]+:({}{}|{}{})",

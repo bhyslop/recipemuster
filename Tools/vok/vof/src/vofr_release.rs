@@ -7,7 +7,7 @@
 //! Provides asset collection and branding for VVK parcel creation.
 //!
 //! - `vofr_collect`: Enumerate kit files, copy to staging (excludes vov_veiled/)
-//! - `vofr_brand`: Compute super-SHA, allocate hallmark, write brand file
+//! - `vofr_brand`: Compute super-SHA, allocate brand, write brand file
 
 use std::collections::BTreeMap;
 use std::fs;
@@ -19,18 +19,18 @@ use crate::vofc_registry::{DISTRIBUTABLE_KITS, vofc_Kit, VOFC_COMMAND_SIGNET_SUF
 // Constants
 // =============================================================================
 
-/// Starting hallmark for new registries
-const VOFR_HALLMARK_START: u32 = 1000;
+/// Starting brand for new registries
+const VOFR_BRAND_START: u32 = 1000;
 
 /// Brand file JSON field tags (match VOS spec entity members)
-const VOFR_BRAND_HALLMARK: &str = "vvbh_hallmark";
+const VOFR_BRAND_BRAND: &str = "vvbf_brand";
 const VOFR_BRAND_DATE: &str = "vvbd_date";
 const VOFR_BRAND_SHA: &str = "vvbs_sha";
 const VOFR_BRAND_COMMIT: &str = "vvbc_commit";
 const VOFR_BRAND_KITS: &str = "vvbk_kits";
 
 /// Registry JSON field
-const VOFR_REGISTRY_HALLMARKS: &str = "hallmarks";
+const VOFR_REGISTRY_BRANDS: &str = "vovr_brands";
 
 // =============================================================================
 // Public Types
@@ -50,15 +50,15 @@ pub struct vofr_CollectResult {
 /// Result of branding operation.
 #[derive(Debug)]
 pub struct vofr_BrandResult {
-    /// Allocated hallmark
-    pub hallmark: u32,
-    /// Whether this was a new hallmark (vs reused)
+    /// Allocated brand
+    pub brand: u32,
+    /// Whether this was a new brand (vs reused)
     pub is_new: bool,
     /// Computed super-SHA
     pub super_sha: String,
 }
 
-/// Registry entry for a hallmark.
+/// Registry entry for a brand.
 #[derive(Debug, Clone)]
 pub struct vofr_RegistryEntry {
     pub date: String,
@@ -137,7 +137,7 @@ pub fn vofr_collect(
     })
 }
 
-/// Brand a staging directory with hallmark and metadata.
+/// Brand a staging directory with brand and metadata.
 ///
 /// # Arguments
 /// * `staging_dir` - Staging directory with collected assets
@@ -146,7 +146,7 @@ pub fn vofr_collect(
 /// * `managed_kits` - List of kit IDs included (from BURC_MANAGED_KITS)
 ///
 /// # Returns
-/// BrandResult with hallmark info, or error message
+/// BrandResult with brand info, or error message
 pub fn vofr_brand(
     staging_dir: &Path,
     registry_path: &Path,
@@ -160,11 +160,11 @@ pub fn vofr_brand(
     let mut registry = zvofr_load_registry(registry_path)?;
 
     // Check if SHA already exists
-    let (hallmark, is_new) = if let Some(existing) = zvofr_find_by_sha(&registry, &super_sha) {
+    let (brand, is_new) = if let Some(existing) = zvofr_find_by_sha(&registry, &super_sha) {
         (existing, false)
     } else {
-        let new_hallmark = zvofr_allocate_hallmark(&registry);
-        (new_hallmark, true)
+        let new_brand = zvofr_allocate_brand(&registry);
+        (new_brand, true)
     };
 
     // Generate timestamp
@@ -172,7 +172,7 @@ pub fn vofr_brand(
 
     // If new, update registry
     if is_new {
-        registry.insert(hallmark, vofr_RegistryEntry {
+        registry.insert(brand, vofr_RegistryEntry {
             date: date.clone(),
             sha: super_sha.clone(),
         });
@@ -181,10 +181,10 @@ pub fn vofr_brand(
 
     // Write brand file with managed_kits as the kit list
     let brand_path = staging_dir.join("vvbf_brand.json");
-    zvofr_write_brand_file(&brand_path, hallmark, &date, &super_sha, commit_sha, managed_kits)?;
+    zvofr_write_brand_file(&brand_path, brand, &date, &super_sha, commit_sha, managed_kits)?;
 
     Ok(vofr_BrandResult {
-        hallmark,
+        brand,
         is_new,
         super_sha,
     })
@@ -490,27 +490,27 @@ fn zvofr_load_registry(path: &Path) -> Result<BTreeMap<u32, vofr_RegistryEntry>,
     let json: serde_json::Value = serde_json::from_str(&content)
         .map_err(|e| format!("Failed to parse registry JSON: {}", e))?;
 
-    let hallmarks = json.get(VOFR_REGISTRY_HALLMARKS)
+    let brands = json.get(VOFR_REGISTRY_BRANDS)
         .and_then(|v| v.as_object())
-        .ok_or_else(|| "Registry missing 'hallmarks' object".to_string())?;
+        .ok_or_else(|| "Registry missing 'vovr_brands' object".to_string())?;
 
     let mut registry = BTreeMap::new();
 
-    for (key, value) in hallmarks {
-        let hallmark: u32 = key.parse()
-            .map_err(|e| format!("Invalid hallmark key '{}': {}", key, e))?;
+    for (key, value) in brands {
+        let brand: u32 = key.parse()
+            .map_err(|e| format!("Invalid brand key '{}': {}", key, e))?;
 
         let date = value.get("date")
             .and_then(|v| v.as_str())
-            .ok_or_else(|| format!("Hallmark {} missing 'date'", hallmark))?
+            .ok_or_else(|| format!("Brand {} missing 'date'", brand))?
             .to_string();
 
         let sha = value.get("sha")
             .and_then(|v| v.as_str())
-            .ok_or_else(|| format!("Hallmark {} missing 'sha'", hallmark))?
+            .ok_or_else(|| format!("Brand {} missing 'sha'", brand))?
             .to_string();
 
-        registry.insert(hallmark, vofr_RegistryEntry { date, sha });
+        registry.insert(brand, vofr_RegistryEntry { date, sha });
     }
 
     Ok(registry)
@@ -518,17 +518,17 @@ fn zvofr_load_registry(path: &Path) -> Result<BTreeMap<u32, vofr_RegistryEntry>,
 
 /// Save registry to JSON file.
 fn zvofr_save_registry(path: &Path, registry: &BTreeMap<u32, vofr_RegistryEntry>) -> Result<(), String> {
-    let mut hallmarks = serde_json::Map::new();
+    let mut brands = serde_json::Map::new();
 
-    for (hallmark, entry) in registry {
+    for (brand, entry) in registry {
         let mut entry_obj = serde_json::Map::new();
         entry_obj.insert("date".to_string(), serde_json::Value::String(entry.date.clone()));
         entry_obj.insert("sha".to_string(), serde_json::Value::String(entry.sha.clone()));
-        hallmarks.insert(hallmark.to_string(), serde_json::Value::Object(entry_obj));
+        brands.insert(brand.to_string(), serde_json::Value::Object(entry_obj));
     }
 
     let mut root = serde_json::Map::new();
-    root.insert(VOFR_REGISTRY_HALLMARKS.to_string(), serde_json::Value::Object(hallmarks));
+    root.insert(VOFR_REGISTRY_BRANDS.to_string(), serde_json::Value::Object(brands));
 
     let json = serde_json::to_string_pretty(&serde_json::Value::Object(root))
         .map_err(|e| format!("Failed to serialize registry: {}", e))?;
@@ -539,19 +539,19 @@ fn zvofr_save_registry(path: &Path, registry: &BTreeMap<u32, vofr_RegistryEntry>
     Ok(())
 }
 
-/// Find hallmark by SHA.
+/// Find brand by SHA.
 fn zvofr_find_by_sha(registry: &BTreeMap<u32, vofr_RegistryEntry>, sha: &str) -> Option<u32> {
-    for (hallmark, entry) in registry {
+    for (brand, entry) in registry {
         if entry.sha == sha {
-            return Some(*hallmark);
+            return Some(*brand);
         }
     }
     None
 }
 
-/// Allocate next sequential hallmark.
-fn zvofr_allocate_hallmark(registry: &BTreeMap<u32, vofr_RegistryEntry>) -> u32 {
-    registry.keys().max().map(|m| m + 1).unwrap_or(VOFR_HALLMARK_START)
+/// Allocate next sequential brand.
+fn zvofr_allocate_brand(registry: &BTreeMap<u32, vofr_RegistryEntry>) -> u32 {
+    registry.keys().max().map(|m| m + 1).unwrap_or(VOFR_BRAND_START)
 }
 
 /// Generate date string in YYMMDD-HHMM format.
@@ -569,7 +569,7 @@ fn zvofr_generate_date() -> String {
 /// Write brand file to staging.
 fn zvofr_write_brand_file(
     path: &Path,
-    hallmark: u32,
+    brand: u32,
     date: &str,
     sha: &str,
     commit: &str,
@@ -577,7 +577,7 @@ fn zvofr_write_brand_file(
 ) -> Result<(), String> {
     let mut root = serde_json::Map::new();
 
-    root.insert(VOFR_BRAND_HALLMARK.to_string(), serde_json::Value::Number(hallmark.into()));
+    root.insert(VOFR_BRAND_BRAND.to_string(), serde_json::Value::Number(brand.into()));
     root.insert(VOFR_BRAND_DATE.to_string(), serde_json::Value::String(date.to_string()));
     root.insert(VOFR_BRAND_SHA.to_string(), serde_json::Value::String(sha.to_string()));
     root.insert(VOFR_BRAND_COMMIT.to_string(), serde_json::Value::String(commit.to_string()));
@@ -619,21 +619,21 @@ mod tests {
     }
 
     #[test]
-    fn vofr_hallmark_allocation_test() {
+    fn vofr_brand_allocation_test() {
         let empty: BTreeMap<u32, vofr_RegistryEntry> = BTreeMap::new();
-        assert_eq!(zvofr_allocate_hallmark(&empty), VOFR_HALLMARK_START);
+        assert_eq!(zvofr_allocate_brand(&empty), VOFR_BRAND_START);
 
         let mut registry = BTreeMap::new();
         registry.insert(1000, vofr_RegistryEntry {
             date: "260117-1400".to_string(),
             sha: "abc123".to_string(),
         });
-        assert_eq!(zvofr_allocate_hallmark(&registry), 1001);
+        assert_eq!(zvofr_allocate_brand(&registry), 1001);
 
         registry.insert(1005, vofr_RegistryEntry {
             date: "260117-1500".to_string(),
             sha: "def456".to_string(),
         });
-        assert_eq!(zvofr_allocate_hallmark(&registry), 1006);
+        assert_eq!(zvofr_allocate_brand(&registry), 1006);
     }
 }

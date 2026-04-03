@@ -112,9 +112,9 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
                 return (1, output.vvco_finish());
             }
         };
-        let hallmark = vvc::vvcc_get_hallmark();
+        let brand = vvc::vvcc_get_brand();
         let identity_str = format!("{}{}", JJRF_FIREMARK_PREFIX, firemark.jjrf_as_str());
-        vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &hallmark, &identity_str, "n", "", None)
+        vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &brand, &identity_str, "n", "", None)
     } else {
         vvco_err!(output, "jjx_notch: error: identity must be Coronet (5 chars) or Firemark (2 chars), got {} chars", identity.len());
         return (1, output.vvco_finish());
