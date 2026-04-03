@@ -16,7 +16,7 @@ use std::collections::BTreeMap;
 const MIN_DISK_BYTES: u64 = 10 * 1024 * 1024 * 1024; // 10 GB
 const FULL_THRESHOLD_PCT: f64 = 85.0;
 
-struct DiskViolation {
+struct DiskEntry {
     mount_point: String,
     used_pct:    f64,
     available:   u64,
@@ -41,23 +41,14 @@ pub fn jjrdk_check_disk_space() -> Result<String, String> {
 
     // Deduplicate by (total, available) — APFS volumes sharing a container
     // report identical values. BTreeMap gives deterministic output order.
-    let mut seen: BTreeMap<(u64, u64), DiskViolation> = BTreeMap::new();
-    let mut dbg_lines: Vec<String> = Vec::new();
+    let mut seen: BTreeMap<(u64, u64), DiskEntry> = BTreeMap::new();
 
     for disk in disks.list() {
         let total = disk.total_space();
         let available = disk.available_space();
+        if total < MIN_DISK_BYTES { continue; }
         let used_pct = if total > 0 { (total - available) as f64 / total as f64 * 100.0 } else { 0.0 };
-        dbg_lines.push(format!("  {} total={} avail={} used={:.1}%",
-            disk.mount_point().to_string_lossy(), total, available, used_pct));
-        if total < MIN_DISK_BYTES {
-            continue;
-        }
-        if used_pct < FULL_THRESHOLD_PCT {
-            continue;
-        }
-        let key = (total, available);
-        seen.entry(key).or_insert_with(|| DiskViolation {
+        seen.entry((total, available)).or_insert_with(|| DiskEntry {
             mount_point: disk.mount_point().to_string_lossy().into_owned(),
             used_pct,
             available,
@@ -65,14 +56,24 @@ pub fn jjrdk_check_disk_space() -> Result<String, String> {
         });
     }
 
-    let survey = format!("Disk survey (threshold {:.0}%):\n{}", FULL_THRESHOLD_PCT, dbg_lines.join("\n"));
+    // One-line survey: threshold + percent per unique disk
+    let disk_entries: Vec<String> = seen.values()
+        .map(|v| format!("{}: {:.0}%", zjjrdk_format_bytes(v.total), v.used_pct))
+        .collect();
+    let survey = format!("Disk survey (threshold {:.0}%): {}",
+        FULL_THRESHOLD_PCT,
+        if disk_entries.is_empty() { "no qualifying disks".to_string() } else { disk_entries.join(", ") });
 
-    if seen.is_empty() {
+    let violations: Vec<&DiskEntry> = seen.values()
+        .filter(|v| v.used_pct >= FULL_THRESHOLD_PCT)
+        .collect();
+
+    if violations.is_empty() {
         return Ok(survey);
     }
 
     let mut msg = String::from("DISK SPACE CRITICAL — Job Jockey refusing to proceed.\n\n");
-    for v in seen.values() {
+    for v in &violations {
         msg.push_str(&format!(
             "  {}: {:.1}% full ({} free of {})\n",
             v.mount_point,
