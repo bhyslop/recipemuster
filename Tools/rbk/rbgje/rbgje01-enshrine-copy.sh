@@ -46,8 +46,8 @@ for SLOT in 1 2 3; do
     || { echo "FATAL: Failed to inspect upstream: ${ORIGIN}" >&2; exit 1; }
 
   # Compute sha256 of the raw manifest
-  SHA=$(openssl dgst -sha256 -r "${RAW_FILE}") || { echo "FATAL: Hash failed for slot ${SLOT}" >&2; exit 1; }
-  read -r SHA _ <<< "${SHA}"
+  # Note: sha256sum (coreutils), not openssl — this runs inside the skopeo reliquary container
+  SHA=$(sha256sum "${RAW_FILE}" | cut -d' ' -f1)
   test -n "${SHA}" || { echo "FATAL: Empty digest for slot ${SLOT}" >&2; exit 1; }
 
   # Construct anchor: sanitize origin (: and / become -), append first 10 hex chars
