@@ -1717,9 +1717,10 @@
         "₢A4AAA",
         "₢A4AAB",
         "₢A4AAC",
-        "₢A4AAD"
+        "₢A4AAD",
+        "₢A4AAE"
       ],
-      "next_pace_seed": "AAE",
+      "next_pace_seed": "AAF",
       "paddock_file": ".claude/jjm/jjp_uAl4.md",
       "paces": {
         "₢A4AAA": {
@@ -1763,6 +1764,17 @@
               "text": "## Character\nArchitecturally distinct from sync commands — nohup wrapper generation, BURX parsing, PID probing, polling loop. Moderate complexity, builds on SSH infrastructure from ₢A4AAC.\n\n## Docket\nImplement async remote dispatch commands in JJK Rust source.\n\n**Commands to implement:**\n- `jjx_relay` — mint pensum token, construct nohup wrapper script, SSH launch with `BURE_LABEL=<pensum>`, capture remote BURX_TEMP_DIR, disconnect immediately. Timeout is fundus-side self-enforced (nohup wrapper kills after N seconds).\n- `jjx_check` — SSH into fundus, read `burx.env` from stored temp dir path, probe `kill -0 $PID`. Both params required (pensum, timeout). timeout=0 instant probe, timeout>0 poll until terminal or expiry. On terminal status, additionally `ls` the temp dir and return file list. Return BURX fields + liveness report (running/orphaned/stopped/lost).\n\n**Pensum state:**\n- Persisted in officium directory (legatio ref, remote temp dir path per pensum)\n- Multiple pensa per officium\n- Token format TBD (follow existing JJK identity patterns)\n\n**BURX parsing:**\n- Read `burx.env` as key=value fact-file\n- Detect terminal state: BURX_EXIT_STATUS present → stopped\n- Detect anomalies: no EXIT_STATUS + PID dead → orphaned; file missing → lost\n\n**Polling implementation (timeout > 0):**\n- Sleep interval TBD (1-5 seconds reasonable)\n- Each poll iteration: SSH in, read burx.env, probe PID\n- Return same shape whether timed out or terminal reached\n\n**Depends on:** ₢A4AAA (BURX regime), ₢A4AAC (SSH infrastructure + legatio state)",
               "silks": "jjk-async-dispatch-commands",
               "commit": "2b48901"
+            }
+          ]
+        },
+        "₢A4AAE": {
+          "tacks": [
+            {
+              "ts": "260404-0855",
+              "state": "rough",
+              "text": "## Character\nIntegration testing across SSH boundary. Requires a configured fundus (or hairpin localhost with separate user). May need test infrastructure scaffolding. Last pace — validates the full stack.\n\n## Docket\nEnd-to-end integration tests for the remote dispatch command surface.\n\n**Test scenarios:**\n- `jjx_bind` + `jjx_send`: bind to fundus, run simple command, verify output\n- `jjx_bind` failure: bad host, bad RELDIR, SSH not configured\n- `jjx_plant`: reset fundus to known commit, verify working tree state\n- `jjx_relay` + `jjx_check` (timeout=0): launch async job, instant probe shows running\n- `jjx_relay` + `jjx_check` (timeout>0): launch short job, await completion, verify stopped + exit code\n- `jjx_check` file list: verify temp dir contents returned on terminal status\n- `jjx_fetch`: read specific file from fundus using absolute path from BURX_TEMP_DIR\n- `jjx_check` orphaned: simulate crash (kill process before BURX_EXIT_STATUS written)\n- `jjx_check` lost: probe nonexistent temp dir\n- BURX_LABEL correlation: verify pensum token round-trips through BURE_LABEL → BURX_LABEL\n\n**Infrastructure considerations:**\n- Hairpin testing (localhost, separate user) is simplest for CI\n- Tests must be sequential (shared fundus state)\n- Fundus preconditions must be met before test suite runs — fail fast if not\n\n**Depends on:** All prior paces (₢A4AAA through ₢A4AAD)",
+              "silks": "jjk-remote-dispatch-integration-tests",
+              "commit": "a60ca91"
             }
           ]
         }
