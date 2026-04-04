@@ -1713,10 +1713,24 @@
       "silks": "jjk-v3-7-remote-dispatch",
       "creation_time": "260403",
       "status": "racing",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢A4AAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_uAl4.md",
-      "paces": {}
+      "paces": {
+        "₢A4AAA": {
+          "tacks": [
+            {
+              "ts": "260404-0853",
+              "state": "rough",
+              "text": "## Character\nSpec-and-implement in one pass. Mechanical BUK plumbing — the design is fully resolved in the paddock. Requires careful BUS0 quoin treatment but no design judgment.\n\n## Docket\nImplement BURX regime and dual-write fact-file primitive across BUS0 spec and BUK source.\n\n**BUS0 spec work:**\n- Define BURX regime: 9 fields (PID, BEGAN_AT, TABTARGET, TEMP_DIR, TRANSCRIPT, LOG_HIST, LABEL, EXIT_STATUS, ENDED_AT)\n- Define `buf_write_fact` primitive extending `busff_fact_file` pattern for dual-write\n- Add BURE_LABEL to BURE kindle definition (xname, max 120 chars, optional)\n- Quoin treatment for all new terms with appropriate AXLA voicings\n\n**BUK source work:**\n- New `buf_fact.sh` module (or similar) with `buf_write_fact` primitive — writes to both BURD_OUTPUT_DIR and BURD_TEMP_DIR\n- BUD modifications: write `burx.env` at dispatch start (7 fields) and completion (EXIT_STATUS, ENDED_AT)\n- BUC modifications: BURE_LABEL kindle constant\n- BURX_LABEL populated from BURE_LABEL env var; empty string when absent\n\n**Key constraints:**\n- BURX_EXIT_STATUS absence = still running (no explicit \"running\" value)\n- BURX_LABEL is JJK-decoupled — BUD writes whatever BURE_LABEL contains\n- All BURX paths must be absolute\n- See paddock \"BURX Regime\" and \"Dual-Write Fact-File Module\" sections for full design\n\n**Does NOT include:** RBK producer migration (~15 sites) — deferred to separate heat.",
+              "silks": "buk-burx-regime-and-dual-write",
+              "commit": "773f763"
+            }
+          ]
+        }
+      }
     },
     "₣AD": {
       "silks": "vos-spec-and-tooling",
