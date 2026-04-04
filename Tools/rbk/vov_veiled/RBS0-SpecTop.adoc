@@ -3831,9 +3831,9 @@ Each study presents constraints, evaluated alternatives, and the rationale for c
 
 include::RBSOB-oci_layout_bridge.adoc[]
 
-=== Cloud Build Roadmap
+=== Cloud Build Posture
 
-include::RBSCB-CloudBuildRoadmap.adoc[]
+include::RBSCB-CloudBuildPosture.adoc[]
 
 [[rbscj_trade_study]]
 === Cloud Build JSON
@@ -3844,3 +3844,7 @@ include::RBSCJ-CloudBuildJson.adoc[]
 === IAM Propagation Resilience
 
 include::RBSCIP-IamPropagation.adoc[]
+
+=== Horizon Roadmap
+
+include::RBSHR-HorizonRoadmap.adoc[]

@@ -79,6 +79,47 @@ _Trigger_: when a use case requires bottle-to-bottle communication (e.g.,
 microservice composition, service mesh patterns).
 _Reference_: Heat ₣AU paddock (design conversation capture).
 
+===== Network Security Model
+
+**CIDR allowlist granularity vs CDN-hosted domains.**
+The sentry's iptables CIDR rules accept all protocols and all destination ports
+to allowed IP ranges.  This is intentional: the spec defines
+{rbrn_uplink_access_mode_allowlist} as "IP access restricted to allowed CIDR
+ranges" — not port-restricted.  The DNS allowlist
+({rbrn_uplink_allowed_domains}) provides name-level precision; the CIDR
+allowlist provides IP-level gating.  These two layers are independent and
+reinforce each other.
++
+The weakness emerges when allowed domains are CDN-hosted.  IANA's example.com
+(RFC 2606) migrated to Cloudflare, requiring CIDR expansion from
+`93.184.216.0/24` to include `104.16.0.0/12` — a /12 covering ~1M IPs shared
+with a large fraction of Cloudflare-fronted sites.  The DNS allowlist remains
+precise (two domains), but the CIDR backstop is now porous: any destination
+within the Cloudflare range is reachable regardless of domain.  A compromised
+or attacker-controlled site sharing the CDN range would be reachable from the
+bottle.
++
+Three potential mitigations, in order of increasing ambition:
++
+. **Accept as-is with documentation.**  The DNS allowlist is the primary gate;
+  the CIDR is a coarse backstop.  Document the known weakness for broad CIDRs.
+  Suitable when the allowed domains are trusted and the CDN range is acceptable
+  collateral exposure.
+. **Dynamic CIDR from DNS resolution.**  Have dnsmasq feed resolved IPs into
+  iptables at resolution time, so the allowed set tracks actual DNS responses
+  rather than static configuration.  Eliminates CDN range sprawl.  Requires
+  new sentry infrastructure (dnsmasq hook scripts or ipset integration).
+. **TLS SNI enforcement.**  Inspect TLS ClientHello for the SNI field and
+  enforce that it matches the DNS allowlist.  Closes the CDN gap at the
+  application layer without dynamic iptables.  Requires a transparent TLS
+  proxy or eBPF-based SNI extraction in the sentry — a different order of
+  complexity.
++
+_Trigger_: when allowed domains require CIDRs broader than /24, or when the
+threat model requires preventing lateral reachability within a CDN range.
+_Reference_: rbjs_sentry.sh (Phase 3 CIDR rules); .rbk/tadmor/rbrn.env
+(current CIDR configuration); ₣A1 heat ₢A1AAj (discovery context).
+
 ===== Build Pipeline Security
 
 Items below are evaluated and consciously deferred.  Full analysis with
