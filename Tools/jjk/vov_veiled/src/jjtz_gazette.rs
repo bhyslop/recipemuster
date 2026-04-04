@@ -279,6 +279,65 @@ fn jjtz_notice_boundary_detection() {
     assert!(!zjjrz_is_notice_boundary("regular text"));
 }
 
+// --- Fenced code block awareness ---
+
+#[test]
+fn jjtz_parse_fenced_code_block_hash_not_boundary() {
+    let md = format!(
+        "# {} AF\n\nSome text\n\n```bash\n# This is a bash comment\n# Another comment\necho hello\n```\n\nMore text\n",
+        JJRZ_SLUG_PADDOCK
+    );
+    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Paddock], &md).unwrap();
+    let entries = g.jjrz_query_by_slug(jjrz_Slug::Paddock);
+    assert_eq!(entries.len(), 1);
+    assert_eq!(entries[0].0, "AF");
+    assert!(entries[0].1.contains("# This is a bash comment"));
+    assert!(entries[0].1.contains("echo hello"));
+    assert!(entries[0].1.contains("More text"));
+}
+
+#[test]
+fn jjtz_parse_fenced_block_with_slug_like_content() {
+    let md = format!(
+        "# {} AF\n\nBefore\n\n```\n# jjezs_slate fake-header\n# jjezs_paddock also-fake\n```\n\nAfter\n",
+        JJRZ_SLUG_PADDOCK
+    );
+    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Paddock], &md).unwrap();
+    let entries = g.jjrz_query_by_slug(jjrz_Slug::Paddock);
+    assert_eq!(entries.len(), 1);
+    assert!(entries[0].1.contains("# jjezs_slate fake-header"));
+    assert!(entries[0].1.contains("After"));
+}
+
+#[test]
+fn jjtz_parse_notice_after_fenced_block() {
+    let md = format!(
+        "# {} AF\n\n```\n# comment inside\n```\n\n# {} pace-one\n\nDocket\n",
+        JJRZ_SLUG_PADDOCK, JJRZ_SLUG_SLATE
+    );
+    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Paddock, jjrz_Slug::Slate], &md).unwrap();
+    let paddock = g.jjrz_query_by_slug(jjrz_Slug::Paddock);
+    assert_eq!(paddock.len(), 1);
+    assert!(paddock[0].1.contains("# comment inside"));
+    let slate = g.jjrz_query_by_slug(jjrz_Slug::Slate);
+    assert_eq!(slate.len(), 1);
+    assert_eq!(slate[0].0, "pace-one");
+    assert_eq!(slate[0].1, "Docket");
+}
+
+#[test]
+fn jjtz_round_trip_fenced_code_block() {
+    let vocab = &[jjrz_Slug::Paddock];
+    let content = "## Example\n\n```bash\n# safety check\ncd \"$HOME/$RELDIR\" || exit 99\n```\n\nDone";
+    let mut g = jjrz_Gazette::jjrz_build(vocab);
+    g.jjrz_add(jjrz_Slug::Paddock, "AF", content).unwrap();
+    let md = g.jjrz_emit();
+    let g2 = jjrz_Gazette::jjrz_parse(vocab, &md).unwrap();
+    let entries = g2.jjrz_query_by_slug(jjrz_Slug::Paddock);
+    assert_eq!(entries.len(), 1);
+    assert_eq!(entries[0].1, content);
+}
+
 // --- Slate input parsing ---
 
 #[test]

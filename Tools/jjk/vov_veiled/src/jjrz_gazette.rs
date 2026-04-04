@@ -104,11 +104,16 @@ impl jjrz_Gazette {
 
         // (slug, lede, content_lines, header_line_number)
         let mut current: Option<(jjrz_Slug, String, Vec<String>, usize)> = None;
+        let mut in_fence = false;
 
         for (line_idx, line) in markdown.lines().enumerate() {
             let line_num = line_idx + 1;
 
-            if zjjrz_is_notice_boundary(line) {
+            if line.starts_with("```") {
+                in_fence = !in_fence;
+            }
+
+            if !in_fence && zjjrz_is_notice_boundary(line) {
                 if let Some((slug, lede, content_lines, hdr_line)) = current.take() {
                     zjjrz_finalize_notice(slug, &lede, &content_lines, hdr_line, &mut notices, &mut diagnostics);
                 }
