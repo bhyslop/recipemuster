@@ -295,9 +295,10 @@
         "₢A1AAj",
         "₢A1AAl",
         "₢A1AAm",
-        "₢A1AAn"
+        "₢A1AAn",
+        "₢A1AAo"
       ],
-      "next_pace_seed": "AAo",
+      "next_pace_seed": "AAp",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -1290,6 +1291,17 @@
               "text": "## Character\nMore intricate test development requiring careful raw socket construction and understanding of kernel security boundaries. Each test probes a distinct defense-in-depth layer.\n\n## Docket\n\nAdd three advanced adversarial security tests exercising subtler boundaries.\n\n### Test 3: dns-rebinding\n\nFrom inside the bottle, rapidly re-resolve an allowed domain to check if the sentry's dnsmasq cache can be influenced through timing. Distinct from the existing cache integrity test (which tests stability across an external attack); this tests whether the bottle can manipulate its own future resolutions.\n\n- New ifrit sortie: `sortie_dns_rebinding`\n- Resolve example.com, wait, re-resolve, compare IPs — verify dnsmasq returns consistent cached results\n- Also attempt to resolve with different record types (AAAA, MX) to probe cache behavior\n- Theurge case in tadmor-sortie-attacks section\n\n### Test 4: proc-sys-write\n\nFrom inside the bottle, attempt to write to kernel tunables: `/proc/sys/net/ipv4/ip_forward`, `/proc/sys/net/ipv4/conf/*/rp_filter`, `/proc/sys/net/ipv6/conf/all/disable_ipv6`. If the bottle could modify these, it could undermine the sentry's network posture.\n\n- New ifrit sortie: `sortie_proc_sys_write`\n- Attempt to write each tunable, expect permission denied\n- Complements existing `ns-capability-escape` (which tests network namespaces)\n- Theurge case in tadmor-sortie-attacks section\n\n### Test 5: tcp-rst-connection-hijack\n\nFrom inside the bottle, forge TCP RST packets targeting the sentry's upstream DNS connection. Uses raw sockets (like existing raw socket test) but targets connection disruption rather than protocol smuggling.\n\n- New ifrit sortie: `sortie_tcp_rst_hijack`\n- Craft RST packet aimed at sentry IP, DNS port 53\n- Verify sentry DNS continues working after the attempt (coordinated: attack from bottle, verify from writ)\n- Theurge case in tadmor-coordinated-integrity or tadmor-sortie-attacks section\n\n### Acceptance\n\n- All three ifrit sorties implemented and registered\n- All three theurge cases registered\n- Theurge builds, unit tests pass\n- Full tadmor crucible green (46 + 3 = 49 cases expected)",
               "silks": "advanced-adversarial-probe-tests",
               "commit": "7795d77"
+            }
+          ]
+        },
+        "₢A1AAo": {
+          "tacks": [
+            {
+              "ts": "260404-1203",
+              "state": "rough",
+              "text": "## Character\nFocused ifrit sortie development — two tests probing whether the sentry's data path and stateful firewall actually work as every other test assumes.\n\n## Docket\n\nAdd two ifrit sorties testing the network data path and connection tracking state.\n\n### Test: http-end-to-end\n\nFull HTTP GET from inside the bottle to example.com (allowed domain). Verify a 200 response with recognizable body content. Distinct from existing tcp443-connect and cidr-all-ports-allowed which only verify TCP handshake — this proves NAT masquerade correctly returns actual data, not just SYN/ACK.\n\n- New ifrit sortie: `sortie_http_end_to_end`\n- Use the existing `http_get_raw` helper already in rbida_sorties.rs\n- GET to example.com on port 80 (plain HTTP avoids TLS complexity)\n- Verify HTTP status 200 and body contains recognizable content (e.g. \"Example Domain\")\n- Theurge case in tadmor-correlated section (theurge resolves IP on sentry, passes to ifrit)\n\n### Test: conntrack-spoofed-ack\n\nFrom inside the bottle, send a raw TCP ACK packet (without prior SYN) to an allowed CIDR IP on port 80. The sentry's RELATED,ESTABLISHED rule should drop it because no connection was established. If it passes through, the stateful firewall is misconfigured.\n\n- New ifrit sortie: `sortie_conntrack_spoofed_ack`\n- Build TCP ACK packet (not SYN) via raw socket using existing `build_ip_header` + `send_raw_ip_and_listen` helpers\n- Send to an allowed CIDR IP (resolved example.com) on port 80\n- Expect no response (dropped by conntrack) — response means BREACH\n- Theurge case in tadmor-sortie-attacks section\n\n### Acceptance\n\n- Both ifrit sorties implemented and registered\n- Both theurge cases registered\n- Theurge builds, unit tests pass\n- Full tadmor crucible green (49 + 2 = 51 cases expected)",
+              "silks": "network-path-verification",
+              "commit": "bd0e7f7"
             }
           ]
         }
