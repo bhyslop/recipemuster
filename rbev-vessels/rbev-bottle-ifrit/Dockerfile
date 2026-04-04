@@ -4,7 +4,7 @@
 # irrelevant, iteration speed matters). Layer-cached dependency compilation
 # means source-only changes rebuild just the ifrit crate.
 #
-# Build context: Tools/rbk/rbid/ (the ifrit crate directory)
+# Build context: rbev-vessels/rbev-bottle-ifrit/ (co-located with Dockerfile)
 
 ARG RBF_IMAGE_1
 FROM ${RBF_IMAGE_1}
