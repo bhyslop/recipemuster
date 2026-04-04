@@ -373,6 +373,8 @@ When evaluating any new pattern, extraction, or structural choice, the litmus te
 
 @Tools/rbk/rbk-claude-tabtarget-context.md
 
+For theurge/ifrit crucible testing work, read `Tools/rbk/rbk-claude-theurge-ifrit-context.md` — covers the iteration loop (kludge, charge, test, ordain), architecture of the two Rust binaries, and how to add new security test cases.
+
 @Tools/jjk/vov_veiled/jjk-claude-context.md
 
 @Tools/vvk/vov_veiled/vvk-claude-context.md
