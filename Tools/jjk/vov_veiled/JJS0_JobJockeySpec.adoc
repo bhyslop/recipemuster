@@ -23,6 +23,9 @@
 // jjds_:  Section headers (operation documentation structure)
 // jjdx_:  Executor and transport
 // jjdxo_: Officium lifecycle (agent session management)
+// jjdxr_: Remote dispatch (roles and infrastructure)
+// jjdxp_: Pensum lifecycle (remote dispatch job identity)
+// jjdxpe_: Pensum report states (liveness enum)
 // jjdk_:  Key premises (design constraints)
 // jjdz_:  Serialization concerns
 // jjsuv_: Upper API verbs (equestrian vocabulary)
@@ -38,6 +41,9 @@
 //   _p: possessive form
 //
 
+// Cross-references
+:xref_BUS0:                  Bash Utilities Specification
+
 // Types
 :jjdt_coronet:    <<jjdt_coronet,Coronet>>
 :jjdt_coronet_p:  <<jjdt_coronet,Coronet's>>
@@ -45,6 +51,13 @@
 :jjdt_firemark:   <<jjdt_firemark,Firemark>>
 :jjdt_firemark_p: <<jjdt_firemark,Firemark's>>
 :jjdt_firemark_s: <<jjdt_firemark,Firemarks>>
+:jjdt_insignia:   <<jjdt_insignia,Insignia>>
+:jjdt_insignia_s: <<jjdt_insignia,Insignia>>
+:jjdt_legatio:    <<jjdt_legatio,Legatio>>
+:jjdt_legatio_s:  <<jjdt_legatio,Legationes>>
+:jjdt_pensum:     <<jjdt_pensum,Pensum>>
+:jjdt_pensum_s:   <<jjdt_pensum,Pensa>>
+:jjdt_reldir:     <<jjdt_reldir,RELDIR>>
 :jjdt_silks:      <<jjdt_silks,Silks>>
 :jjdt_slug:       <<jjdt_slug,Slug>>
 
@@ -63,11 +76,12 @@
 :jjdhm_created:   <<jjdhm_created,creation_time>>
 :jjdhm_firemark:  <<jjdhm_firemark,firemark>>
 :jjdhm_order:     <<jjdhm_order,order>>
-:jjdhm_paddock:   <<jjdhm_paddock,paddock_file>>
-:jjdhm_seed:      <<jjdhm_seed,next_pace_seed>>
-:jjdhm_silks:     <<jjdhm_silks,silks>>
-:jjdhm_paces:     <<jjdhm_paces,paces>>
-:jjdhm_status:    <<jjdhm_status,status>>
+:jjdhm_paddock:        <<jjdhm_paddock,paddock_file>>
+:jjdhm_pensum_seed:    <<jjdhm_pensum_seed,next_pensum_seed>>
+:jjdhm_seed:           <<jjdhm_seed,next_pace_seed>>
+:jjdhm_silks:          <<jjdhm_silks,silks>>
+:jjdhm_paces:          <<jjdhm_paces,paces>>
+:jjdhm_status:         <<jjdhm_status,status>>
 :jjdhr_heat:      <<jjdhr_heat,Heat>>
 :jjdhr_heat_p:    <<jjdhr_heat,Heat's>>
 :jjdhr_heat_s:    <<jjdhr_heat,Heats>>
@@ -131,6 +145,18 @@
 :jjda_status:         <<jjda_status,--status>>
 :jjda_to:             <<jjda_to,--to>>
 
+// Remote dispatch arguments
+:jjda_host:           <<jjda_host,--host>>
+:jjda_user:           <<jjda_user,--user>>
+:jjda_reldir:         <<jjda_reldir,--reldir>>
+:jjda_command:        <<jjda_command,--command>>
+:jjda_legatio:        <<jjda_legatio,--legatio>>
+:jjda_pensum:         <<jjda_pensum,--pensum>>
+:jjda_timeout:        <<jjda_timeout,--timeout>>
+:jjda_tabtarget:      <<jjda_tabtarget,--tabtarget>>
+:jjda_commit:         <<jjda_commit,--commit>>
+:jjda_path:           <<jjda_path,--path>>
+
 // Executor and transport
 :jjdx_vvx:      <<jjdx_vvx,vvx>>
 :jjdx_cli:      <<jjdx_cli,jjx>>
@@ -149,6 +175,23 @@
 :jjdxo_exsanguination:  <<jjdxo_exsanguination,Exsanguination>>
 :jjdxo_exchange:        <<jjdxo_exchange,Exchange Directory>>
 :jjdxo_gazette:         <<jjdxo_gazette,Gazette Exchange>>
+
+// Remote dispatch roles
+:jjdxr_curia:           <<jjdxr_curia,Curia>>
+:jjdxr_curia_p:         <<jjdxr_curia,Curia's>>
+:jjdxr_fundus:          <<jjdxr_fundus,Fundus>>
+:jjdxr_fundus_p:        <<jjdxr_fundus,Fundus'>>
+
+// Pensum lifecycle
+:jjdxp_pensum:          <<jjdxp_pensum,Pensum>>
+:jjdxp_pensum_s:        <<jjdxp_pensum,Pensa>>
+:jjdxp_pensum_p:        <<jjdxp_pensum,Pensum's>>
+
+// Pensum report states
+:jjdxpe_running:        <<jjdxpe_running,running>>
+:jjdxpe_orphaned:       <<jjdxpe_orphaned,orphaned>>
+:jjdxpe_stopped:        <<jjdxpe_stopped,stopped>>
+:jjdxpe_lost:           <<jjdxpe_lost,lost>>
 
 // Operations
 :jjdo_relocate:          <<jjdo_relocate,jjx_relocate>>
@@ -176,6 +219,17 @@
 :jjdo_open:           <<jjdo_open,jjx_open>>
 :jjdo_chapter:        <<jjdo_chapter,jjx_chapter>>
 :jjdo_absolve:        <<jjdo_absolve,jjx_absolve>>
+
+// Remote dispatch operations
+:jjdo_bind:           <<jjdo_bind,jjx_bind>>
+:jjdo_send:           <<jjdo_send,jjx_send>>
+:jjdo_relay:          <<jjdo_relay,jjx_relay>>
+:jjdo_check:          <<jjdo_check,jjx_check>>
+:jjdo_fetch:          <<jjdo_fetch,jjx_fetch>>
+:jjdo_plant:          <<jjdo_plant,jjx_plant>>
+
+// Remote dispatch operation group
+:jjsogrd_remote_dispatch:  <<jjsogrd_remote_dispatch,Remote Dispatch>>
 
 // Routines
 :jjdr_load:           <<jjdr_load,load routine>>
@@ -230,7 +284,8 @@
 :jjsodp_command_lifecycle:  <<jjsodp_command_lifecycle,Command Lifecycle>>
 
 // Key premises
-:jjdk_sole_operator:  <<jjdk_sole_operator,Sole Operator>>
+:jjdk_sole_operator:   <<jjdk_sole_operator,Sole Operator>>
+:jjdk_reldir_safety:   <<jjdk_reldir_safety,RELDIR Safety>>
 
 // end::mapping-section[]
 
@@ -515,12 +570,168 @@ not the `heats` object directly.
 
 === Identity Encoding
 
-{jjdt_firemark}
-(`₣` prefix) and
+Job Jockey uses the
+{jjdt_insignia}
+type system for all entity identities.
+{axd_algebraic}
+{jjdt_insignia_s}
+({jjdt_firemark},
+{jjdt_coronet},
+{jjdt_pensum})
+use base62 encoding (A-Z, a-z, 0-9) providing compact, URL-safe, shell-safe strings.
+Digit count disambiguates type, with one exception:
+{jjdt_pensum}
+shares digit count 5 with
 {jjdt_coronet}
-(`₢` prefix) are the canonical identities used in JSON keys, CLI arguments, and display.
-The base64 encoding provides compact, URL-safe, shell-safe strings.
+and uses a `%` sentinel at position 3 for discrimination.
++
+{jjdxo_officium}
+uses
+{axd_temporal}
+encoding (YYMMDD-NNNN).
++
 Internally, Rust may decode to integers for arithmetic, but the string form is authoritative.
+See
+{jjdt_insignia}
+in the Types section for the complete identity table.
+
+=== Remote Dispatch
+
+Remote dispatch enables a
+{jjdxr_curia}
+(the invoking side — where the
+{jjdxo_officium}
+lives, where JJK runs, where the LLM works)
+to execute operations on a
+{jjdxr_fundus}
+(the executing side — where BUD runs, where BURX is written, where tabtargets physically execute).
+
+[[jjdxr_curia]]
+//axl_voices axo_role
+{jjdxr_curia}::
+The invoking side of a remote operation.
+Where the
+{jjdxo_officium}
+lives, where JJK runs, where the LLM works.
+The administrative court from which
+{jjdt_legatio_s}
+are sent.
++
+{jjdxr_curia}-side
+state: the
+{jjdxo_officium}
+directory holds active
+{jjdt_legatio}
+handles; the
+{jjdgr_gallops}
+holds
+{jjdt_pensum}
+seeds per
+{jjdhr_heat};
+pulled-back logs are archived by
+{jjdt_pensum}
+token.
+
+[[jjdxr_fundus]]
+//axl_voices axo_role
+{jjdxr_fundus}::
+The executing side of a remote operation.
+Where BUD runs, where `burx.env` is written (per {xref_BUS0}), where the tabtarget physically executes.
+Latin: _fundus_ — estate, landed property; the ground where labor happens.
++
+{jjdxr_fundus}
+preconditions: user account with SSH key access from
+{jjdxr_curia},
+project directory at `~user/RELDIR` with BUK installed,
+functional BUD dispatch chain, git repo with origin configured.
+
+==== Legatio and Pensum
+
+Remote dispatch uses a two-tier identity model:
+
+{jjdt_legatio}::
+Session handle (connection descriptor).
+The meaningful identity is the target triple (host, user, reldir).
+The token is
+{jjdxo_officium}-scoped —
+a convenience handle, not a persistent record.
+See
+{jjdt_legatio}
+in the Types section.
+
+{jjdxp_pensum}::
+Job identity (dispatch record).
+Globally unique
+{axd_algebraic}
+{jjdt_insignia}
+that correlates
+{jjdxr_curia}-side
+dispatch records with
+{jjdxr_fundus}-side
+logs via `BURX_LABEL`.
+See
+{jjdt_pensum}
+in the Types section.
+
+[[jjdxp_pensum]]
+//axve_entity
+{jjdxp_pensum}::
+A single dispatched asynchronous operation on a
+{jjdxr_fundus}.
+Created by
+{jjdo_relay},
+probed by
+{jjdo_check}.
+Identified by a
+{jjdt_pensum}
+token that round-trips through `BURE_LABEL` on the
+{jjdxr_fundus}
+into `BURX_LABEL` in the
+{xref_BUS0}
+`burx.env` fact-file.
++
+{jjdxp_pensum}
+state on the
+{jjdxr_curia}:
+{jjdt_legatio}
+reference and remote temp dir path (captured at relay time).
+Multiple
+{jjdxp_pensum_s}
+may coexist within an
+{jjdxo_officium}.
+
+==== Pensum Report States
+
+{jjdo_check}
+returns a liveness report for each
+{jjdxp_pensum}:
+
+[[jjdxpe_running]]
+//axl_voices axt_enum_value
+{jjdxpe_running}::
+`burx.env` present, PID alive, no `BURX_EXIT_STATUS`.
+The dispatch is still executing.
+
+[[jjdxpe_orphaned]]
+//axl_voices axt_enum_value
+{jjdxpe_orphaned}::
+`burx.env` present, PID dead, no `BURX_EXIT_STATUS`.
+The dispatch crashed without writing terminal status.
+
+[[jjdxpe_stopped]]
+//axl_voices axt_enum_value
+{jjdxpe_stopped}::
+`BURX_EXIT_STATUS` present.
+The dispatch completed; exit code available.
+On terminal status,
+{jjdo_check}
+additionally returns the temp dir file list.
+
+[[jjdxpe_lost]]
+//axl_voices axt_enum_value
+{jjdxpe_lost}::
+`burx.env` file missing.
+The dispatch's temp dir was not found at the stored path.
 
 == Premises
 
@@ -536,6 +747,31 @@ read-only fast path, and the {jjsodp_command_lifecycle} dispatcher need not
 distinguish mutating from non-mutating operations.
 +
 {jjdxo_officium_s} need only identification (which session), not authentication (who).
+
+[[jjdk_reldir_safety]]
+//axk_premise
+{jjdk_reldir_safety}::
+Remote dispatch involves destructive operations on the
+{jjdxr_fundus}
+(workspace cleanup via
+{jjdo_plant}).
+A malformed
+{jjdt_reldir}
+could resolve to `/` or `~`, destroying the filesystem or the user's home.
+Three layers defend against this; no single layer is sufficient alone.
++
+*Layer 1 — Rust constant validation (compile-time obvious):*
+Must not be empty, must not start with `/` (absolute), must not start with `.` (traversal), must contain at least one `/` (forces subdirectory depth).
++
+*Layer 2 — Fundus-side resolved-path check:*
+The remote command validates the resolved path before any destructive operation: must be strictly under `$HOME`, must have minimum depth (at least 2 components under `$HOME`).
++
+*Layer 3 — Bind-time probe:*
+{jjdo_bind}
+performs the same resolved-path check at session creation.
+Fail fast before any
+{jjdo_relay}
+is ever attempted.
 
 == Equestrian Vocabulary
 
@@ -741,26 +977,74 @@ This section is the primary mechanism by which the upper and lower API layers ar
 
 == Types
 
+=== Identity System
+
+[[jjdt_insignia]]
+//axl_voices axt_insignia
+{jjdt_insignia}::
+A glyph-prefixed typed identity string in Job Jockey's type system.
+Every
+{jjdt_insignia}
+has four properties: a unicode verification glyph (decorative in input, mandatory in output), a fixed encoding format, a monotonic seed allocation mechanism, and optional hierarchical embedding (parent identity encoded as a prefix substring).
++
+Two encoding natures, declared via dimension:
++
+* {axd_algebraic} — base62 characters (A-Z, a-z, 0-9), fixed digit count, seed incremented under commit lock.
+Digit count disambiguates type within the algebraic family, with one exception: {jjdt_pensum} shares digit count 5 with {jjdt_coronet} and uses a `%` sentinel at position 3 for disambiguation.
+Case matters: the final character's case distinguishes identities.
++
+* {axd_temporal} — datestamp + autonumber (YYMMDD-NNNN), allocated by filesystem enumeration.
+No hierarchical embedding.
++
+[cols="1,2,1,1,3,2"]
+|===
+| Symbol | Name | Unicode | Digits | Structure | Capacity
+
+| ₣ | {jjdt_firemark}   | U+20A3 | 2 | 2 heat                               | 3,844 heats
+| ₢ | {jjdt_coronet}    | U+20A2 | 5 | 2 heat + 3 index                     | ~238K per heat
+| ₱ | {jjdt_pensum}     | U+20B1 | 5 | 2 heat + `%` sentinel + 2 index      | 3,844 per heat
+| ☉ | {jjdxo_officium}  | U+2609 | — | YYMMDD-NNNN                          | temporal
+|===
+
+=== Algebraic {jjdt_insignia_s}
+
 [[jjdt_firemark]]
-//axl_voices axt_string
+//axl_voices axt_insignia axd_algebraic
 {jjdt_firemark}::
-The identity of a
-{jjdhr_heat}.
-Format: `₣` + 2 base64 characters (e.g., `₣AB`).
-The 2 base64 characters encode an integer 0-4095 (2^12).
+{axd_algebraic}
+{jjdt_insignia}
+for
+{jjdhr_heat}
+identity.
+Format: `₣` + 2 base62 characters (e.g., `₣AB`).
+Seed:
+{jjdgm_seed}
+on
+{jjdgr_gallops},
+incremented by
+{jjdo_create}.
 Used as JSON keys and in CLI arguments.
 Input may omit the `₣` prefix; output always includes it.
 
 [[jjdt_coronet]]
-//axl_voices axt_string
+//axl_voices axt_insignia axd_algebraic
 {jjdt_coronet}::
-The identity of a
-{jjdpr_pace}.
-Format: `₢` + 5 base64 characters (e.g., `₢ABCDE`).
-Globally unique: the first 2 base64 characters are the parent
+{axd_algebraic}
+{jjdt_insignia}
+for
+{jjdpr_pace}
+identity.
+Format: `₢` + 5 base62 characters (e.g., `₢ABCDE`).
+Globally unique: the first 2 characters are the parent
 {jjdhr_heat_p}
-encoded identity; the remaining 3 encode the pace index (0-262143, 2^18).
-Used as JSON keys and in CLI arguments.
+{jjdt_firemark};
+the remaining 3 encode the pace index.
+Seed:
+{jjdhm_seed}
+on
+{jjdhr_heat},
+incremented by
+{jjdo_enroll}.
 Input may omit the `₢` prefix; output always includes it.
 +
 *Reassignment:* When a
@@ -780,6 +1064,108 @@ embeds the destination
 {jjdt_firemark}.
 Pace data is preserved, with a note recording the original
 {jjdt_coronet}.
+
+[[jjdt_pensum]]
+//axl_voices axt_insignia axd_algebraic
+{jjdt_pensum}::
+{axd_algebraic}
+{jjdt_insignia}
+for remote dispatch job identity.
+Format: `₱` + 2 base62 (heat
+{jjdt_firemark})
++ `%` sentinel + 2 base62 (index).
+Example: `₱Ah%BE` belongs to
+{jjdhr_heat}
+`₣Ah`.
++
+The `%` sentinel at position 3 disambiguates from
+{jjdt_coronet},
+which shares digit count 5.
+`%` cannot appear in base62, so the parse is mechanical: 5-character identity with `%` at position 3 is
+{jjdt_pensum},
+without is
+{jjdt_coronet}.
++
+Seed:
+{jjdhm_pensum_seed}
+on
+{jjdhr_heat},
+incremented by
+{jjdo_relay}.
++
+*Persistence:*
+{jjdt_pensum}
+is a globally unique correlation key.
+It appears in `BURX_LABEL` on the
+{jjdxr_fundus}
+(via `BURE_LABEL` in the {xref_BUS0}) and indexes
+{jjdxr_curia}-side
+log archives.
+Its primary purpose is fossil-record correlation — every remote dispatch is traceable months later by its
+{jjdt_pensum}
+token.
++
+*Heat affiliation:* Every
+{jjdt_pensum}
+embeds its parent
+{jjdt_firemark}
+(characters 0-1).
+This correlates remote dispatches to initiative work without requiring pace affiliation.
+A
+{jjdt_pensum}
+dispatched during housekeeping with no active
+{jjdpr_pace}
+still gets a valid identity.
+
+=== Structural Types
+
+[[jjdt_legatio]]
+//axl_voices axt_string
+{jjdt_legatio}::
+A session-local convenience handle for an SSH connection to a remote project.
+The meaningful identity is the target triple: (host, user, reldir).
+The
+{jjdt_legatio}
+token is an
+{jjdxo_officium}-scoped
+handle (e.g., `L0`, `L1`) that avoids repeating the triple on every
+{jjdo_send},
+{jjdo_relay},
+{jjdo_fetch},
+or
+{jjdo_plant}
+call.
++
+{jjdt_legatio}
+is NOT a globally allocated
+{jjdt_insignia} —
+it has no unicode glyph, no persistent seed, and no fossil-record purpose.
+Queries against dispatch history use the target triple, not the
+{jjdt_legatio}
+token.
+Created by
+{jjdo_bind};
+destroyed by
+{jjdxo_officium}
+absolution.
+
+[[jjdt_reldir]]
+//axl_voices axt_string
+{jjdt_reldir}::
+A relative directory path from the
+{jjdxr_fundus}
+user's home directory to the project root.
+SSH sessions land in `~` by default, so `cd $RELDIR && ...` works across platforms without the
+{jjdxr_curia}
+knowing the absolute home path.
++
+Validation rules (enforced by
+{jjdk_reldir_safety}):
+must not be empty, must not start with `/`, must not start with `.`, must contain at least one `/`.
++
+Example: `projects/rbm_alpha_recipemuster`.
+
+=== Other Types
 
 [[jjdt_silks]]
 //axl_voices axt_string
@@ -941,9 +1327,19 @@ May be reordered via
 {jjdhm_seed}
 is the next
 {jjdt_coronet}
-index to allocate, stored as 3 base64 characters.
+index to allocate, stored as 3 base62 characters.
 Incremented by
 {jjdo_enroll}.
+
+* [[jjdhm_pensum_seed]]
+//axl_voices axr_member axd_required
+{jjdhm_pensum_seed}
+is the next
+{jjdt_pensum}
+index to allocate, stored as 2 base62 characters.
+Incremented by
+{jjdo_relay}.
+Initialized to `AA` on heat creation.
 
 * [[jjdhm_paddock]]
 //axl_voices axr_member axd_required
@@ -1860,6 +2256,123 @@ NOTE: {jjdo_absolve} vs. {jjdxo_exsanguination}: these are complementary, not re
 {jjdxo_exsanguination} is *automatic and silent* — it runs inside every {jjdo_open} invocation and produces no output.
 {jjdo_absolve} is *explicit and diagnostic* — it is user-invoked, reports what was removed, and can be called at any time without opening a new {jjdxo_officium}.
 Use {jjdo_absolve} when stale directories accumulate between {jjdo_open} calls, or to inspect cleanup results directly.
+
+=== Remote Dispatch Operations
+
+Operations for executing commands and managing dispatches on a
+{jjdxr_fundus}.
+These are
+{jjdxo_officium}
+infrastructure operations — they bypass the
+{jjdgr_gallops}
+lifecycle except for
+{jjdo_relay}
+which increments
+{jjdhm_pensum_seed}.
+Member of
+{jjsogrd_remote_dispatch}.
+
+[[jjsogrd_remote_dispatch]]
+//axvo_group
+{jjsogrd_remote_dispatch}::
+The collection of remote dispatch operations:
+{jjdo_bind},
+{jjdo_send},
+{jjdo_relay},
+{jjdo_check},
+{jjdo_fetch},
+{jjdo_plant}.
+
+[[jjdo_bind]]
+//axvo_procedure axd_transient
+==== {jjdo_bind}
+
+Create a
+{jjdt_legatio}
+session handle by probing the
+{jjdxr_fundus}
+via SSH and validating
+{jjdt_reldir}
+per
+{jjdk_reldir_safety}.
++
+Detailed specification: see ₢A4AAK.
+
+[[jjdo_send]]
+//axvo_procedure axd_transient
+==== {jjdo_send}
+
+Synchronous remote execution via
+{jjdt_legatio}.
+Single command string interpreted by `bash -c` on the
+{jjdxr_fundus}
+after `cd RELDIR`.
++
+Detailed specification: see ₢A4AAK.
+
+[[jjdo_relay]]
+//axvo_procedure axd_transient
+==== {jjdo_relay}
+
+Asynchronous dispatch via nohup on the
+{jjdxr_fundus}.
+Mints a
+{jjdt_pensum}
+token (incrementing
+{jjdhm_pensum_seed}
+under
+{jjdgr_gallops}
+lock), sets `BURE_LABEL`, launches via SSH, captures `burx.env` start fields via a second SSH connection.
++
+Detailed specification: see ₢A4AAK.
+
+[[jjdo_check]]
+//axvo_procedure axd_transient
+==== {jjdo_check}
+
+Probe or poll a
+{jjdxp_pensum_p}
+status on the
+{jjdxr_fundus}.
+Required timeout parameter: 0 = instant probe, >0 = poll until terminal or expiry.
+Returns BURX fields, liveness report
+({jjdxpe_running},
+{jjdxpe_orphaned},
+{jjdxpe_stopped},
+or
+{jjdxpe_lost}),
+and temp dir file list on terminal status.
++
+Detailed specification: see ₢A4AAK.
+
+[[jjdo_fetch]]
+//axvo_procedure axd_transient
+==== {jjdo_fetch}
+
+Single file read from
+{jjdxr_fundus}
+via
+{jjdt_legatio}.
+Path relative to RELDIR or absolute.
+Transfers raw bytes — works for both text and binary files.
++
+Detailed specification: see ₢A4AAK.
+
+[[jjdo_plant]]
+//axvo_procedure axd_transient
+==== {jjdo_plant}
+
+Reset
+{jjdxr_fundus}
+workspace to an exact git commit.
+Synchronous over SSH, fail-fast.
+Sequence: `git fetch origin && git reset --hard <commit> && git clean -dxf`.
+{jjdt_reldir}
+safety is not re-checked —
+{jjdo_bind}
+already validated it.
++
+Detailed specification: see ₢A4AAK.
 
 === Steeplechase Operations
 

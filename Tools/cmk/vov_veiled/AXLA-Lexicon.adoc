@@ -87,6 +87,8 @@
 :axd_tabtarget:                       <<axd_tabtarget,Tabtarget>>
 :axd_fact:                            <<axd_fact,Fact>>
 :axd_tally:                           <<axd_tally,Tally>>
+:axd_algebraic:                       <<axd_algebraic,Algebraic>>
+:axd_temporal:                        <<axd_temporal,Temporal>>
 :axd_transient:                       <<axd_transient,Transient>>
 :axd_wire_type:                       <<axd_wire_type,Wire Type>>
 :axd_xml_form:                        <<axd_xml_form,XML Form>>
@@ -274,6 +276,8 @@
 :axt_string:                          <<axt_string,String Type>>
 :axt_type:                            <<axt_type,Type>>
 :axt_type_s:                          <<axt_type,Types>>
+:axt_insignia:                        <<axt_insignia,Insignia>>
+:axt_insignia_s:                      <<axt_insignia,Insignia>>
 :axt_variant:                         <<axt_variant,Variant Type>>
 
 // Axial Record Terms
@@ -763,6 +767,23 @@ A
 representing single allowed option within an
 {axt_enumeration}.
 Must be explicitly listed in enumeration definition.
+
+[[axt_insignia]]
+{axt_insignia}::
+A
+{axl_motif}
+representing a glyph-prefixed typed identity string with seed-based allocation.
+Extends
+{axt_string}
+with structural properties: a unicode verification glyph (decorative in input, mandatory in output), a fixed encoding format, a monotonic seed allocation mechanism, and optional hierarchical embedding (parent identity encoded as a prefix substring).
++
+Every
+{axt_insignia}
+declares an encoding nature via
+{axd_dimension_s}:
+{axd_algebraic}
+or
+{axd_temporal}.
 
 [[axt_variant]]
 {axt_variant}::
@@ -2198,6 +2219,25 @@ Valid on
 {axhoot_typed_output}.
 At the definition site, the corresponding term is voiced
 {axpot_tally}.
+
+[[axd_algebraic]]
+{axd_algebraic}::
+A
+{axd_dimension}
+indicating seed-derived positional encoding for an
+{axt_insignia}.
+Characters drawn from a fixed alphabet (e.g., base62: A-Z, a-z, 0-9), fixed digit count, monotonic seed incremented under lock.
+Digit count disambiguates type within the algebraic family.
+Hierarchical embedding via prefix substring: a child identity's leading characters are the parent identity's value.
+
+[[axd_temporal]]
+{axd_temporal}::
+A
+{axd_dimension}
+indicating time-derived encoding for an
+{axt_insignia}.
+Datestamp component plus autonumber (e.g., YYMMDD-NNNN), allocated by filesystem enumeration.
+No hierarchical embedding.
 
 === Product-of-Operation Terms
 
