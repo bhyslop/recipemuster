@@ -1715,10 +1715,10 @@
       "status": "racing",
       "order": [
         "₢A4AAA",
-        "₢A4AAB",
         "₢A4AAC",
         "₢A4AAD",
-        "₢A4AAE"
+        "₢A4AAE",
+        "₢A4AAB"
       ],
       "next_pace_seed": "AAF",
       "paddock_file": ".claude/jjm/jjp_uAl4.md",
