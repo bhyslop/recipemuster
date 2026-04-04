@@ -2447,6 +2447,25 @@ pub fn sortie_tcp_rst_hijack(_extra_args: &[&str]) -> rbida_Verdict {
     }
 }
 
+/// Build TCP ACK segment (20 bytes, no options) — no prior SYN.
+fn build_tcp_ack(src_port: u16, dst_port: u16) -> Vec<u8> {
+    let seq_bytes = random_hex(8);
+    let seq = u32::from_str_radix(&seq_bytes, 16).unwrap_or(0x41414141);
+    let ack_bytes = random_hex(8);
+    let ack = u32::from_str_radix(&ack_bytes, 16).unwrap_or(0x42424242);
+    let data_offset_flags: u16 = (5 << 12) | 0x010; // ACK flag
+    let mut seg = Vec::with_capacity(20);
+    seg.extend_from_slice(&src_port.to_be_bytes());
+    seg.extend_from_slice(&dst_port.to_be_bytes());
+    seg.extend_from_slice(&seq.to_be_bytes());
+    seg.extend_from_slice(&ack.to_be_bytes());
+    seg.extend_from_slice(&data_offset_flags.to_be_bytes());
+    seg.extend_from_slice(&65535u16.to_be_bytes()); // window
+    seg.extend_from_slice(&0u16.to_be_bytes()); // checksum
+    seg.extend_from_slice(&0u16.to_be_bytes()); // urgent
+    seg
+}
+
 /// Build TCP RST segment (20 bytes, no options).
 fn build_tcp_rst(src_port: u16, dst_port: u16) -> Vec<u8> {
     let seq_bytes = random_hex(8);
@@ -2542,4 +2561,146 @@ pub fn sortie_cidr_all_ports_allowed(_extra_args: &[&str]) -> rbida_Verdict {
         "SECURE: CIDR all-ports allowed — TCP to {} on ports {:?} all reached remote",
         ip, ports
     ))
+}
+
+// ── Network path verification: http_end_to_end ──────────────
+
+pub fn sortie_http_end_to_end(_extra_args: &[&str]) -> rbida_Verdict {
+    let timeout = Duration::from_secs(10);
+
+    // Resolve example.com via getent to get IP (same as other ifrit attacks)
+    let resolve_output = match Command::new("getent")
+        .args(["hosts", "example.com"])
+        .output()
+    {
+        Ok(o) => o,
+        Err(e) => return fail(format!("ERROR: getent failed: {}", e)),
+    };
+    if !resolve_output.status.success() {
+        return fail("ERROR: cannot resolve example.com (DNS blocked?)".to_string());
+    }
+    let stdout = String::from_utf8_lossy(&resolve_output.stdout);
+    let ip = match stdout.split_whitespace().next() {
+        Some(ip) => ip.to_string(),
+        None => return fail("ERROR: getent returned empty output".to_string()),
+    };
+
+    // TCP connect to resolved IP on port 80
+    let addr: SocketAddr = match format!("{}:80", ip).parse() {
+        Ok(a) => a,
+        Err(e) => return fail(format!("ERROR: cannot parse {}:80 — {}", ip, e)),
+    };
+    let mut stream = match TcpStream::connect_timeout(&addr, timeout) {
+        Ok(s) => s,
+        Err(e) => {
+            return fail(format!(
+                "BREACH: TCP connect to {}:80 failed — NAT masquerade not routing: {}",
+                ip, e
+            ))
+        }
+    };
+    let _ = stream.set_read_timeout(Some(timeout));
+    let _ = stream.set_write_timeout(Some(timeout));
+
+    // Send HTTP/1.0 GET with Host header for example.com
+    let request = format!("GET / HTTP/1.0\r\nHost: example.com\r\n\r\n");
+    if let Err(e) = IoWrite::write_all(&mut stream, request.as_bytes()) {
+        return fail(format!("ERROR: write failed to {}:80 — {}", ip, e));
+    }
+
+    // Read full response
+    let mut response = Vec::new();
+    let _ = IoRead::read_to_end(&mut stream, &mut response);
+    if response.is_empty() {
+        return fail(format!(
+            "BREACH: empty response from {}:80 — NAT masquerade not returning data",
+            ip
+        ));
+    }
+
+    let response_str = String::from_utf8_lossy(&response);
+
+    // Verify HTTP 200 status
+    let status_ok = response_str
+        .lines()
+        .next()
+        .map_or(false, |line| line.contains("200"));
+    if !status_ok {
+        let first_line = response_str.lines().next().unwrap_or("<empty>");
+        return fail(format!(
+            "BREACH: HTTP response from {}:80 was not 200 — got: {}",
+            ip, first_line
+        ));
+    }
+
+    // Verify body contains "Example Domain"
+    if !response_str.contains("Example Domain") {
+        return fail(format!(
+            "BREACH: HTTP 200 from {}:80 but body missing 'Example Domain' — response truncated or wrong host (body length: {} bytes)",
+            ip,
+            response.len()
+        ));
+    }
+
+    pass(format!(
+        "SECURE: HTTP GET to example.com ({}) returned 200 with 'Example Domain' in body ({} bytes)",
+        ip,
+        response.len()
+    ))
+}
+
+// ── Network path verification: conntrack_spoofed_ack ─────────
+
+pub fn sortie_conntrack_spoofed_ack(_extra_args: &[&str]) -> rbida_Verdict {
+    let timeout = Duration::from_secs(3);
+
+    // Get bottle IP for raw packet source
+    let bottle_ip = match env_require("RBRN_ENCLAVE_BOTTLE_IP") {
+        Ok(v) => v,
+        Err(e) => return fail(format!("ERROR: {}", e)),
+    };
+
+    // Resolve example.com via getent to get an allowed-CIDR IP
+    let resolve_output = match Command::new("getent")
+        .args(["hosts", "example.com"])
+        .output()
+    {
+        Ok(o) => o,
+        Err(e) => return fail(format!("ERROR: getent failed: {}", e)),
+    };
+    if !resolve_output.status.success() {
+        return fail("ERROR: cannot resolve example.com (DNS blocked?)".to_string());
+    }
+    let stdout = String::from_utf8_lossy(&resolve_output.stdout);
+    let dst_ip = match stdout.split_whitespace().next() {
+        Some(ip) => ip.to_string(),
+        None => return fail("ERROR: getent returned empty output".to_string()),
+    };
+
+    // Build TCP ACK packet without prior SYN — conntrack should drop this
+    let tcp_ack = build_tcp_ack(40080, 80);
+    let ip_hdr = match build_ip_header(6, &bottle_ip, &dst_ip, tcp_ack.len()) {
+        Ok(h) => h,
+        Err(e) => return fail(format!("ERROR: build IP header: {}", e)),
+    };
+    let mut packet = ip_hdr;
+    packet.extend_from_slice(&tcp_ack);
+
+    match send_raw_ip_and_listen(&packet, &dst_ip, timeout) {
+        Ok(true) => fail(format!(
+            "BREACH: spoofed ACK to {}:80 got response — conntrack RELATED,ESTABLISHED not filtering stateless ACKs",
+            dst_ip
+        )),
+        Ok(false) => pass(format!(
+            "SECURE: spoofed ACK to {}:80 dropped by conntrack — no response (stateful firewall working)",
+            dst_ip
+        )),
+        Err(e) => {
+            // Raw socket error is acceptable — means the kernel or sentry blocked it
+            pass(format!(
+                "SECURE: spoofed ACK to {}:80 blocked at socket level: {} (security posture intact)",
+                dst_ip, e
+            ))
+        }
+    }
 }

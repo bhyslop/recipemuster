@@ -69,6 +69,8 @@ const RBIDA_SEL_CIDR_ALL_PORTS_ALLOWED: &str = "cidr-all-ports-allowed";
 const RBIDA_SEL_DNS_REBINDING: &str = "dns-rebinding";
 const RBIDA_SEL_PROC_SYS_WRITE: &str = "proc-sys-write";
 const RBIDA_SEL_TCP_RST_HIJACK: &str = "tcp-rst-hijack";
+const RBIDA_SEL_HTTP_END_TO_END: &str = "http-end-to-end";
+const RBIDA_SEL_CONNTRACK_SPOOFED_ACK: &str = "conntrack-spoofed-ack";
 
 // ── Attack Enum ─────────────────────────────────────────────────
 
@@ -167,6 +169,11 @@ pub enum rbida_Attack {
     ProcSysWrite,
     /// TCP RST connection hijack — forge RST packets targeting sentry DNS connection
     TcpRstHijack,
+    // ── Network path verification ──
+    /// Full HTTP GET from bottle to example.com — proves NAT masquerade returns actual data
+    HttpEndToEnd,
+    /// Spoofed ACK without prior SYN — conntrack RELATED,ESTABLISHED should drop it
+    ConntrackSpoofedAck,
 }
 
 // ── Verdict ─────────────────────────────────────────────────────
@@ -226,6 +233,8 @@ impl rbida_Attack {
             RBIDA_SEL_DNS_REBINDING => Some(Self::DnsRebinding),
             RBIDA_SEL_PROC_SYS_WRITE => Some(Self::ProcSysWrite),
             RBIDA_SEL_TCP_RST_HIJACK => Some(Self::TcpRstHijack),
+            RBIDA_SEL_HTTP_END_TO_END => Some(Self::HttpEndToEnd),
+            RBIDA_SEL_CONNTRACK_SPOOFED_ACK => Some(Self::ConntrackSpoofedAck),
             _ => None,
         }
     }
@@ -276,6 +285,8 @@ impl rbida_Attack {
             Self::DnsRebinding => RBIDA_SEL_DNS_REBINDING,
             Self::ProcSysWrite => RBIDA_SEL_PROC_SYS_WRITE,
             Self::TcpRstHijack => RBIDA_SEL_TCP_RST_HIJACK,
+            Self::HttpEndToEnd => RBIDA_SEL_HTTP_END_TO_END,
+            Self::ConntrackSpoofedAck => RBIDA_SEL_CONNTRACK_SPOOFED_ACK,
         }
     }
 
@@ -325,6 +336,8 @@ impl rbida_Attack {
             RBIDA_SEL_DNS_REBINDING,
             RBIDA_SEL_PROC_SYS_WRITE,
             RBIDA_SEL_TCP_RST_HIJACK,
+            RBIDA_SEL_HTTP_END_TO_END,
+            RBIDA_SEL_CONNTRACK_SPOOFED_ACK,
         ]
     }
 }
@@ -479,6 +492,9 @@ pub fn rbida_run(attack: &rbida_Attack, extra_args: &[&str]) -> rbida_Verdict {
         rbida_Attack::DnsRebinding => rbida_sorties::sortie_dns_rebinding(extra_args),
         rbida_Attack::ProcSysWrite => rbida_sorties::sortie_proc_sys_write(extra_args),
         rbida_Attack::TcpRstHijack => rbida_sorties::sortie_tcp_rst_hijack(extra_args),
+        // Network path verification
+        rbida_Attack::HttpEndToEnd => rbida_sorties::sortie_http_end_to_end(extra_args),
+        rbida_Attack::ConntrackSpoofedAck => rbida_sorties::sortie_conntrack_spoofed_ack(extra_args),
     }
 }
 

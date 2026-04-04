@@ -494,6 +494,14 @@ fn rbtdrc_sortie_proc_sys_write(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "proc-sys-write", dir))
 }
 
+fn rbtdrc_sortie_http_end_to_end(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "http-end-to-end", dir))
+}
+
+fn rbtdrc_sortie_conntrack_spoofed_ack(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "conntrack-spoofed-ack", dir))
+}
+
 /// Coordinated: ifrit sends TCP RST packets at sentry DNS, theurge verifies DNS still works.
 fn rbtdrc_coordinated_tcp_rst_hijack(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
@@ -1931,6 +1939,8 @@ static RBTDRC_SECTIONS_TADMOR: &[rbtdre_Section] = &[
             case!(rbtdrc_sortie_ns_capability_escape),
             case!(rbtdrc_sortie_dns_rebinding),
             case!(rbtdrc_sortie_proc_sys_write),
+            case!(rbtdrc_sortie_http_end_to_end),
+            case!(rbtdrc_sortie_conntrack_spoofed_ack),
         ],
     },
     rbtdre_Section {
