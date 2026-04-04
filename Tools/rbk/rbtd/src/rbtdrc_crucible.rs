@@ -484,6 +484,104 @@ fn rbtdrc_sortie_net_dnat_entry_reflection(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "net-dnat-entry-reflection", dir))
 }
 
+// ── Advanced adversarial probe cases ──────────────────────────
+
+fn rbtdrc_sortie_dns_rebinding(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "dns-rebinding", dir))
+}
+
+fn rbtdrc_sortie_proc_sys_write(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "proc-sys-write", dir))
+}
+
+/// Coordinated: ifrit sends TCP RST packets at sentry DNS, theurge verifies DNS still works.
+fn rbtdrc_coordinated_tcp_rst_hijack(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        let sentry_ip = match rbtdrc_discover_sentry_ip(ctx) {
+            Ok(ip) => ip,
+            Err(e) => return rbtdre_Verdict::Fail(format!("sentry IP discovery: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("sentry-ip.txt"), &sentry_ip);
+        let dig_server = format!("@{}", sentry_ip);
+
+        // Pre-snapshot: verify DNS works on sentry before attack
+        let pre_resolve = match rbtdrc_writ(
+            ctx,
+            &["dig", "+short", &dig_server, "example.com"],
+        ) {
+            Ok(o) => o,
+            Err(e) => return rbtdre_Verdict::Fail(format!("pre dig example.com: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("pre-resolve.txt"), &pre_resolve);
+
+        let pre_ip = pre_resolve
+            .lines()
+            .find(|l| rbtdrc_looks_like_ip(l.trim()))
+            .unwrap_or("")
+            .trim()
+            .to_string();
+        if pre_ip.is_empty() {
+            return rbtdre_Verdict::Fail(
+                "pre-snapshot: example.com did not resolve — DNS not working before attack".to_string(),
+            );
+        }
+
+        // Attack: invoke tcp-rst-hijack from bottle
+        let result = match rbtdri_invoke(
+            ctx,
+            RBTDRM_COLOPHON_BARK,
+            &[RBTDRC_IFRIT_BINARY, "tcp-rst-hijack"],
+        ) {
+            Ok(r) => r,
+            Err(e) => return rbtdre_Verdict::Fail(format!("bark invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("bark-stdout.txt"), &result.stdout);
+        let _ = std::fs::write(dir.join("bark-stderr.txt"), &result.stderr);
+
+        // Brief pause for any RST effects to propagate
+        std::thread::sleep(std::time::Duration::from_millis(500));
+
+        // Post-snapshot: verify DNS still works on sentry after attack
+        let post_resolve = match rbtdrc_writ(
+            ctx,
+            &["dig", "+short", &dig_server, "example.com"],
+        ) {
+            Ok(o) => o,
+            Err(e) => return rbtdre_Verdict::Fail(format!("post dig example.com: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("post-resolve.txt"), &post_resolve);
+
+        let post_ip = post_resolve
+            .lines()
+            .find(|l| rbtdrc_looks_like_ip(l.trim()))
+            .unwrap_or("")
+            .trim()
+            .to_string();
+
+        if post_ip.is_empty() {
+            return rbtdre_Verdict::Fail(
+                "BREACH: DNS stopped resolving after TCP RST attack — sentry DNS connection disrupted".to_string(),
+            );
+        }
+
+        if pre_ip != post_ip {
+            return rbtdre_Verdict::Fail(format!(
+                "BREACH: DNS resolution changed after RST attack: {} → {}",
+                pre_ip, post_ip
+            ));
+        }
+
+        let _ = std::fs::write(
+            dir.join("observation.txt"),
+            format!(
+                "TCP RST hijack defense verified:\n  example.com: {} → {} (stable)\n  ifrit exit: {}\n  ifrit output: {}\n",
+                pre_ip, post_ip, result.exit_code, result.stdout.trim()
+            ),
+        );
+        rbtdre_Verdict::Pass
+    })
+}
+
 // ── Coordinated attack cases (writ observes sentry, bark attacks) ──
 
 /// Parse `ip neigh show` output into (IP, MAC) pairs.
@@ -1831,6 +1929,8 @@ static RBTDRC_SECTIONS_TADMOR: &[rbtdre_Section] = &[
             case!(rbtdrc_sortie_net_fragment_evasion),
             case!(rbtdrc_sortie_direct_arp_poison),
             case!(rbtdrc_sortie_ns_capability_escape),
+            case!(rbtdrc_sortie_dns_rebinding),
+            case!(rbtdrc_sortie_proc_sys_write),
         ],
     },
     rbtdre_Section {
@@ -1855,6 +1955,7 @@ static RBTDRC_SECTIONS_TADMOR: &[rbtdre_Section] = &[
             case!(rbtdrc_coordinated_sentry_integrity),
             case!(rbtdrc_coordinated_dns_cache_integrity),
             case!(rbtdrc_coordinated_mac_flood_resilience),
+            case!(rbtdrc_coordinated_tcp_rst_hijack),
         ],
     },
 ];

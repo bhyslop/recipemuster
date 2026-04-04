@@ -66,6 +66,9 @@ const RBIDA_SEL_NET_ENCLAVE_SUBNET_ESCAPE: &str = "net-enclave-subnet-escape";
 const RBIDA_SEL_NET_DNAT_ENTRY_REFLECTION: &str = "net-dnat-entry-reflection";
 const RBIDA_SEL_UDP_NON_DNS_BLOCKED: &str = "udp-non-dns-blocked";
 const RBIDA_SEL_CIDR_ALL_PORTS_ALLOWED: &str = "cidr-all-ports-allowed";
+const RBIDA_SEL_DNS_REBINDING: &str = "dns-rebinding";
+const RBIDA_SEL_PROC_SYS_WRITE: &str = "proc-sys-write";
+const RBIDA_SEL_TCP_RST_HIJACK: &str = "tcp-rst-hijack";
 
 // ── Attack Enum ─────────────────────────────────────────────────
 
@@ -157,6 +160,13 @@ pub enum rbida_Attack {
     UdpNonDnsBlocked,
     /// TCP to allowed CIDR on multiple ports should succeed (CIDR is protocol-agnostic)
     CidrAllPortsAllowed,
+    // ── Advanced adversarial probes ──
+    /// DNS rebinding — re-resolve allowed domain to check dnsmasq cache manipulation
+    DnsRebinding,
+    /// Kernel tunable writes — attempt to modify /proc/sys network parameters
+    ProcSysWrite,
+    /// TCP RST connection hijack — forge RST packets targeting sentry DNS connection
+    TcpRstHijack,
 }
 
 // ── Verdict ─────────────────────────────────────────────────────
@@ -213,6 +223,9 @@ impl rbida_Attack {
             RBIDA_SEL_NET_DNAT_ENTRY_REFLECTION => Some(Self::NetDnatEntryReflection),
             RBIDA_SEL_UDP_NON_DNS_BLOCKED => Some(Self::UdpNonDnsBlocked),
             RBIDA_SEL_CIDR_ALL_PORTS_ALLOWED => Some(Self::CidrAllPortsAllowed),
+            RBIDA_SEL_DNS_REBINDING => Some(Self::DnsRebinding),
+            RBIDA_SEL_PROC_SYS_WRITE => Some(Self::ProcSysWrite),
+            RBIDA_SEL_TCP_RST_HIJACK => Some(Self::TcpRstHijack),
             _ => None,
         }
     }
@@ -260,6 +273,9 @@ impl rbida_Attack {
             Self::NetDnatEntryReflection => RBIDA_SEL_NET_DNAT_ENTRY_REFLECTION,
             Self::UdpNonDnsBlocked => RBIDA_SEL_UDP_NON_DNS_BLOCKED,
             Self::CidrAllPortsAllowed => RBIDA_SEL_CIDR_ALL_PORTS_ALLOWED,
+            Self::DnsRebinding => RBIDA_SEL_DNS_REBINDING,
+            Self::ProcSysWrite => RBIDA_SEL_PROC_SYS_WRITE,
+            Self::TcpRstHijack => RBIDA_SEL_TCP_RST_HIJACK,
         }
     }
 
@@ -306,6 +322,9 @@ impl rbida_Attack {
             RBIDA_SEL_NET_DNAT_ENTRY_REFLECTION,
             RBIDA_SEL_UDP_NON_DNS_BLOCKED,
             RBIDA_SEL_CIDR_ALL_PORTS_ALLOWED,
+            RBIDA_SEL_DNS_REBINDING,
+            RBIDA_SEL_PROC_SYS_WRITE,
+            RBIDA_SEL_TCP_RST_HIJACK,
         ]
     }
 }
@@ -456,6 +475,10 @@ pub fn rbida_run(attack: &rbida_Attack, extra_args: &[&str]) -> rbida_Verdict {
         // Egress control verification
         rbida_Attack::UdpNonDnsBlocked => rbida_sorties::sortie_udp_non_dns_blocked(extra_args),
         rbida_Attack::CidrAllPortsAllowed => rbida_sorties::sortie_cidr_all_ports_allowed(extra_args),
+        // Advanced adversarial probes
+        rbida_Attack::DnsRebinding => rbida_sorties::sortie_dns_rebinding(extra_args),
+        rbida_Attack::ProcSysWrite => rbida_sorties::sortie_proc_sys_write(extra_args),
+        rbida_Attack::TcpRstHijack => rbida_sorties::sortie_tcp_rst_hijack(extra_args),
     }
 }
 

@@ -2225,6 +2225,245 @@ pub fn sortie_mac_flood_bridge(_extra_args: &[&str]) -> rbida_Verdict {
     }
 }
 
+// ── Advanced adversarial probe: dns_rebinding ────────────────
+
+pub fn sortie_dns_rebinding(_extra_args: &[&str]) -> rbida_Verdict {
+    let domains_str = match env_require("RBRN_UPLINK_ALLOWED_DOMAINS") {
+        Ok(v) => v,
+        Err(e) => return fail(format!("ERROR: {}", e)),
+    };
+    let domain = match domains_str.split_whitespace().next() {
+        Some(d) => d,
+        None => return fail("ERROR: RBRN_UPLINK_ALLOWED_DOMAINS is empty".to_string()),
+    };
+
+    // Resolve domain multiple times with short delays to probe cache consistency
+    let mut ips: Vec<String> = Vec::new();
+    for i in 0..5 {
+        match dig_resolve(domain) {
+            Some(ip) => ips.push(ip),
+            None => return fail(format!(
+                "ERROR: cannot resolve {} on iteration {} — DNS down",
+                domain, i
+            )),
+        }
+        if i < 4 {
+            std::thread::sleep(Duration::from_millis(200));
+        }
+    }
+
+    // All resolutions should return the same IP (dnsmasq serves frozen local records)
+    let first = &ips[0];
+    for (i, ip) in ips.iter().enumerate().skip(1) {
+        if ip != first {
+            return fail(format!(
+                "BREACH: {} resolution changed between iterations: {} → {} (iter {}) — cache manipulation possible",
+                domain, first, ip, i
+            ));
+        }
+    }
+
+    // Probe different record types — AAAA and MX should either resolve consistently or return empty
+    let aaaa_results: Vec<Option<String>> = (0..3).map(|_| {
+        let output = Command::new("dig")
+            .args(["+short", "AAAA", domain])
+            .output()
+            .ok();
+        output.and_then(|o| {
+            let stdout = String::from_utf8_lossy(&o.stdout);
+            stdout.lines()
+                .find(|l| !l.trim().is_empty())
+                .map(|l| l.trim().to_string())
+        })
+    }).collect();
+
+    // Check AAAA consistency (all should be the same — either all Some(same) or all None)
+    if aaaa_results.len() >= 2 {
+        let first_aaaa = &aaaa_results[0];
+        for (i, result) in aaaa_results.iter().enumerate().skip(1) {
+            if result != first_aaaa {
+                return fail(format!(
+                    "BREACH: AAAA record for {} inconsistent: {:?} → {:?} (iter {})",
+                    domain, first_aaaa, result, i
+                ));
+            }
+        }
+    }
+
+    // MX record probe
+    let mx_results: Vec<Option<String>> = (0..2).map(|_| {
+        let output = Command::new("dig")
+            .args(["+short", "MX", domain])
+            .output()
+            .ok();
+        output.and_then(|o| {
+            let stdout = String::from_utf8_lossy(&o.stdout);
+            stdout.lines()
+                .find(|l| !l.trim().is_empty())
+                .map(|l| l.trim().to_string())
+        })
+    }).collect();
+
+    if mx_results.len() >= 2 && mx_results[0] != mx_results[1] {
+        return fail(format!(
+            "BREACH: MX record for {} inconsistent: {:?} → {:?}",
+            domain, mx_results[0], mx_results[1]
+        ));
+    }
+
+    pass(format!(
+        "SECURE: DNS rebinding check — {} resolved consistently to {} across {} queries, AAAA/MX stable",
+        domain, first, ips.len()
+    ))
+}
+
+// ── Advanced adversarial probe: proc_sys_write ───────────────
+
+pub fn sortie_proc_sys_write(_extra_args: &[&str]) -> rbida_Verdict {
+    let tunables: &[(&str, &str)] = &[
+        ("/proc/sys/net/ipv4/ip_forward", "1"),
+        ("/proc/sys/net/ipv4/conf/all/rp_filter", "0"),
+        ("/proc/sys/net/ipv4/conf/eth0/rp_filter", "0"),
+        ("/proc/sys/net/ipv6/conf/all/disable_ipv6", "0"),
+        ("/proc/sys/net/ipv4/conf/all/forwarding", "1"),
+        ("/proc/sys/net/ipv4/conf/all/accept_redirects", "1"),
+        ("/proc/sys/net/ipv4/conf/all/send_redirects", "1"),
+    ];
+
+    for (path, value) in tunables {
+        // Try writing via direct file write
+        if let Ok(mut f) = std::fs::File::options().write(true).open(path) {
+            if IoWrite::write_all(&mut f, value.as_bytes()).is_ok() {
+                return fail(format!(
+                    "BREACH: successfully wrote '{}' to {} — kernel network tunable modified",
+                    value, path
+                ));
+            }
+        }
+
+        // Try writing via sysctl command
+        // Convert /proc/sys/net/ipv4/ip_forward → net.ipv4.ip_forward
+        let sysctl_key = path
+            .strip_prefix("/proc/sys/")
+            .unwrap_or(path)
+            .replace('/', ".");
+        if let Ok(output) = Command::new("sysctl")
+            .args(["-w", &format!("{}={}", sysctl_key, value)])
+            .output()
+        {
+            if output.status.success() {
+                return fail(format!(
+                    "BREACH: sysctl -w {}={} succeeded — kernel tunable modified via sysctl",
+                    sysctl_key, value
+                ));
+            }
+        }
+    }
+
+    // Also verify current values are read-only by attempting truncate-open
+    for (path, _) in tunables {
+        if std::fs::File::options()
+            .write(true)
+            .truncate(true)
+            .open(path)
+            .is_ok()
+        {
+            return fail(format!(
+                "BREACH: truncate-open succeeded on {} — file is writable",
+                path
+            ));
+        }
+    }
+
+    pass("SECURE: all /proc/sys kernel tunables are read-only from bottle".to_string())
+}
+
+// ── Advanced adversarial probe: tcp_rst_hijack ───────────────
+//
+// Coordinated primitive: forge TCP RST packets aimed at the sentry's
+// DNS connection (port 53). Verdict semantics:
+//   passed=true  → "I sent the RST packets" (theurge verifies DNS still works)
+//   passed=false → "I could not send" (raw socket blocked, etc.)
+
+pub fn sortie_tcp_rst_hijack(_extra_args: &[&str]) -> rbida_Verdict {
+    let sentry_ip = match env_require("RBRN_ENCLAVE_SENTRY_IP") {
+        Ok(v) => v,
+        Err(e) => return fail(format!("ERROR: {}", e)),
+    };
+
+    let bottle_ip = match env_require("RBRN_ENCLAVE_BOTTLE_IP") {
+        Ok(v) => v,
+        Err(e) => return fail(format!("ERROR: {}", e)),
+    };
+
+    let timeout = Duration::from_secs(3);
+    let mut sent = 0u32;
+
+    // Forge TCP RST packets targeting sentry's DNS port (53) from various source ports
+    // This attempts to disrupt the sentry's upstream DNS forwarding
+    for src_port in [40000u16, 40001, 40002, 53, 1053, 5353] {
+        // Build TCP RST segment
+        let rst_seg = build_tcp_rst(src_port, 53);
+
+        // Build IP header with bottle as source, sentry as destination
+        let ip_hdr = match build_ip_header(6, &bottle_ip, &sentry_ip, rst_seg.len()) {
+            Ok(h) => h,
+            Err(_) => continue,
+        };
+
+        let mut packet = ip_hdr;
+        packet.extend_from_slice(&rst_seg);
+
+        match send_raw_ip_and_listen(&packet, &sentry_ip, timeout) {
+            Ok(_) => sent += 1,
+            Err(_) => {} // Raw socket may be blocked — that's fine
+        }
+    }
+
+    // Also try RST to upstream DNS (8.8.8.8) as if spoofed from sentry
+    for src_port in [53u16, 40000] {
+        let rst_seg = build_tcp_rst(src_port, 53);
+        let ip_hdr = match build_ip_header(6, &bottle_ip, "8.8.8.8", rst_seg.len()) {
+            Ok(h) => h,
+            Err(_) => continue,
+        };
+
+        let mut packet = ip_hdr;
+        packet.extend_from_slice(&rst_seg);
+
+        match send_raw_ip_and_listen(&packet, "8.8.8.8", timeout) {
+            Ok(_) => sent += 1,
+            Err(_) => {}
+        }
+    }
+
+    if sent > 0 {
+        pass(format!(
+            "SENT {} TCP RST packets targeting DNS connections (sentry {}, upstream 8.8.8.8)",
+            sent, sentry_ip
+        ))
+    } else {
+        fail("could not send any TCP RST packets — raw sockets fully blocked".to_string())
+    }
+}
+
+/// Build TCP RST segment (20 bytes, no options).
+fn build_tcp_rst(src_port: u16, dst_port: u16) -> Vec<u8> {
+    let seq_bytes = random_hex(8);
+    let seq = u32::from_str_radix(&seq_bytes, 16).unwrap_or(0x41414141);
+    let data_offset_flags: u16 = (5 << 12) | 0x004; // RST flag
+    let mut seg = Vec::with_capacity(20);
+    seg.extend_from_slice(&src_port.to_be_bytes());
+    seg.extend_from_slice(&dst_port.to_be_bytes());
+    seg.extend_from_slice(&seq.to_be_bytes());
+    seg.extend_from_slice(&0u32.to_be_bytes()); // ACK
+    seg.extend_from_slice(&data_offset_flags.to_be_bytes());
+    seg.extend_from_slice(&0u16.to_be_bytes()); // window
+    seg.extend_from_slice(&0u16.to_be_bytes()); // checksum
+    seg.extend_from_slice(&0u16.to_be_bytes()); // urgent
+    seg
+}
+
 // ── Egress control verification: udp_non_dns_blocked ─────────
 
 pub fn sortie_udp_non_dns_blocked(_extra_args: &[&str]) -> rbida_Verdict {
