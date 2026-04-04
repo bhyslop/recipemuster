@@ -1796,6 +1796,7 @@
       "order": [
         "₢A4AAA",
         "₢A4AAC",
+        "₢A4AAJ",
         "₢A4AAD",
         "₢A4AAE",
         "₢A4AAG",
@@ -1804,7 +1805,7 @@
         "₢A4AAH",
         "₢A4AAI"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_uAl4.md",
       "paces": {
         "₢A4AAA": {
@@ -1959,6 +1960,17 @@
               "text": "## Character\nDesign conversation. The remote dispatch commands introduced non-equestrian vocabulary (bind, send, relay, check, fetch, plant). Need to decide: do these get jjsuv_* verb mappings, or does JJS0 formally acknowledge a second vocabulary domain?\n\n## Docket\nReconcile remote dispatch command names with the equestrian verb layer (jjsuv_*).\n\n**Question**: Remote dispatch commands use their own domain vocabulary rather than equestrian metaphors. Three options:\n1. Mint equestrian verbs that map to the remote operations (forced metaphor)\n2. Formally define a second verb domain in JJS0 for remote operations\n3. Declare remote operations exempt from the verb layer (they're infrastructure, not gallops operations)\n\n**Depends on:** ₢A4AAB (spec work establishes the operations first)",
               "silks": "equestrian-verb-reconciliation",
               "commit": "efbed72"
+            }
+          ]
+        },
+        "₢A4AAJ": {
+          "tacks": [
+            {
+              "ts": "260404-1251",
+              "state": "rough",
+              "text": "## Character\nInfrastructure work requiring precision — new identity type with sentinel disambiguation, gallops schema evolution, and seed lifecycle. Moderate judgment on parse/display API design; the structural decisions are already made.\n\n## Docket\nImplement the Pensum identity type (₱) in JJK Rust source. Pensum is a globally-unique identity for a single remote dispatch operation, used in `BURX_LABEL` for fossil-record correlation.\n\n**Structure:** 5 characters — 2 base64url (heat firemark) + literal `%` sentinel + 2 base64url (index within heat). Example: `₱Ah%BE` belongs to heat `₣Ah`.\n\n**Unicode prefix:** `₱` (U+20B1, peso sign).\n\n**Sentinel disambiguation:** Pensum shares character count 5 with coronet. The `%` at position 3 cannot appear in base64url — parse checks position 3 to distinguish types mechanically.\n\n**Identity type implementation (`jjrf_favor.rs`):**\n- `jjrf_Pensum` struct (newtype wrapping String, like Firemark/Coronet)\n- `JJRF_PENSUM_PREFIX: char = '₱'`\n- `jjrf_encode(heat: &jjrf_Firemark, index: u32) -> Self` — format: `{firemark}%{base64}{base64}`\n- `jjrf_decode(&self) -> Result<(jjrf_Firemark, u32), String>` — split on `%`, validate both parts\n- `jjrf_parse(input: &str) -> Result<Self, String>` — strip prefix if present, validate 5 chars with `%` at position 3\n- `jjrf_display(&self) -> String` — prefix + payload\n- `jjrf_as_str(&self) -> &str` — payload only\n- `jjrf_parent_firemark(&self) -> jjrf_Firemark` — extract chars 0-1\n\n**Gallops schema change (`jjrt_types.rs`):**\n- Add `next_pensum_seed: String` field to `jjrg_Heat` (2-char base64 seed, like `next_pace_seed`)\n- `#[serde(default = \"default_pensum_seed\")]` for backwards compatibility with existing gallops files\n- Default: `\"AA\"`\n\n**Seed minting (`jjro_ops.rs`):**\n- `jjrg_mint_pensum(heat, firemark) -> jjrf_Pensum` — read `next_pensum_seed`, encode, increment seed\n- Same increment logic as pace seed minting\n\n**Capacity:** 3,844 pensa per heat (62^2). Index digits follow same base64url charset as all other identity types.\n\n**Tests:** Encode/decode round-trip, parse with/without prefix, sentinel disambiguation vs coronet, parent firemark extraction, seed increment, gallops backwards compatibility with missing field.\n\n**Does NOT include:** `jjx_relay`, `jjx_check`, or any command that consumes the pensum type. This pace is purely the identity infrastructure.",
+              "silks": "jjk-pensum-identity-type",
+              "commit": "aaba4e8"
             }
           ]
         }
