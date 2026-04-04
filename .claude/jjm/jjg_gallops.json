@@ -1207,6 +1207,13 @@
         "₢A1AAk": {
           "tacks": [
             {
+              "ts": "260403-1817",
+              "state": "complete",
+              "text": "## Character\nTargeted infrastructure fix — one Dockerfile change plus one theurge consumer update.\n\n## Docket\n\nThe sentry integrity test (`rbtdrc_coordinated_sentry_integrity`) uses `cat /proc/[0-9]*/comm` with `; exit 0` to check if dnsmasq is running, because the sentry container lacks process inspection tools. This is fragile — the `/proc` glob races with transient processes and requires a forced-zero exit to avoid false failures.\n\n### Fix\n\n- Add `procps` package to the sentry Dockerfile (provides `pidof`, `pgrep`, `ps`)\n- Replace the `/proc/*/comm` hack in `rbtdrc_coordinated_sentry_integrity` with `pidof dnsmasq`\n- Kludge sentry image, run tadmor fixture\n\n### Acceptance\n\n- `pidof dnsmasq` works inside sentry container\n- No `; exit 0` hack in theurge code\n- Tadmor 43 cases green",
+              "silks": "install-procps-in-sentry-image",
+              "commit": "c1e4fa2"
+            },
+            {
               "ts": "260403-1244",
               "state": "rough",
               "text": "## Character\nTargeted infrastructure fix — one Dockerfile change plus one theurge consumer update.\n\n## Docket\n\nThe sentry integrity test (`rbtdrc_coordinated_sentry_integrity`) uses `cat /proc/[0-9]*/comm` with `; exit 0` to check if dnsmasq is running, because the sentry container lacks process inspection tools. This is fragile — the `/proc` glob races with transient processes and requires a forced-zero exit to avoid false failures.\n\n### Fix\n\n- Add `procps` package to the sentry Dockerfile (provides `pidof`, `pgrep`, `ps`)\n- Replace the `/proc/*/comm` hack in `rbtdrc_coordinated_sentry_integrity` with `pidof dnsmasq`\n- Kludge sentry image, run tadmor fixture\n\n### Acceptance\n\n- `pidof dnsmasq` works inside sentry container\n- No `; exit 0` hack in theurge code\n- Tadmor 43 cases green",
