@@ -308,6 +308,21 @@ const COMMIT_LEN: usize = 7;  // Could diverge from JJRG_UNKNOWN_COMMIT
 format!("--short=7")          // Hardcoded, not derived
 ```
 
+### Identity Rule
+
+The const name must identify the specific value, not just its category. A category-only suffix is ambiguous and becomes a terminal exclusivity violation the moment a second value appears in the same category.
+
+```rust
+// ✅ Suffix identifies the specific command
+const JJRGS_CMD_NAME_GET_SPEC: &str = "jjx_get_spec";
+const JJRLG_CMD_NAME_BIND: &str = "jjx_bind";
+const JJRLG_CMD_NAME_SEND: &str = "jjx_send";
+
+// ❌ Suffix names the role, not the identity — deferred terminal exclusivity debt
+const JJRGS_CMD_NAME: &str = "jjx_get_spec";
+const JJRLG_CMD_NAME: &str = "jjx_bind";  // Blocks JJRLG_CMD_NAME_SEND
+```
+
 ### Smell Test
 
 If `grep '7'` (or any literal) finds the same value used for the same purpose in multiple places, extract a const and derive.
@@ -610,6 +625,7 @@ When extracting inline tests from `{cipher}r{x}_{name}.rs` to `{cipher}t{x}_{nam
 - [ ] Magic values appearing 2+ times extracted to const
 - [ ] Derived values (e.g., length) computed from source const, not hardcoded
 - [ ] No duplicate literals for same semantic value
+- [ ] Const names identify the specific value, not just the category (Identity Rule)
 
 ### Constructor Discipline
 - [ ] Structs with runtime captures (timestamps, git SHA) have constructor helpers

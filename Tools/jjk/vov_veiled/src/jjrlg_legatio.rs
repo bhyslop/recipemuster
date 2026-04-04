@@ -40,6 +40,12 @@ const OFFICIA_DIR: &str = ".claude/jjm/officia";
 /// Officium sun prefix character (mirrors jjrm_mcp.rs constant)
 const OFFICIUM_SUN_PREFIX: char = '\u{2609}'; // ☉
 
+// Command name constants — RCG String Boundary Discipline
+const JJRLG_CMD_NAME_BIND: &str = "jjx_bind";
+const JJRLG_CMD_NAME_SEND: &str = "jjx_send";
+const JJRLG_CMD_NAME_PLANT: &str = "jjx_plant";
+const JJRLG_CMD_NAME_FETCH: &str = "jjx_fetch";
+
 // ============================================================================
 // Legatio state
 // ============================================================================
@@ -206,17 +212,18 @@ pub struct jjrlg_BindArgs {
 /// Bind a legatio: validate RELDIR, SSH probe the fundus, cache regime
 /// paths, mint and persist legatio token.
 pub fn jjrlg_run_bind(args: jjrlg_BindArgs, officium_id: &str) -> (i32, String) {
+    let cn = JJRLG_CMD_NAME_BIND;
     let mut output = vvco_Output::buffer();
 
     // Layer 1: Rust constant validation
     if let Err(e) = jjrlg_validate_reldir(&args.reldir) {
-        vvco_err!(output, "jjx_bind: RELDIR validation failed (Layer 1): {}", e);
+        vvco_err!(output, "{}: RELDIR validation failed (Layer 1): {}", cn, e);
         return (1, output.vvco_finish());
     }
 
     let officium_dir = zjjrlg_officium_dir(officium_id);
     if !officium_dir.is_dir() {
-        vvco_err!(output, "jjx_bind: officium directory not found");
+        vvco_err!(output, "{}: officium directory not found", cn);
         return (1, output.vvco_finish());
     }
 
@@ -248,7 +255,7 @@ pub fn jjrlg_run_bind(args: jjrlg_BindArgs, officium_id: &str) -> (i32, String) 
     let probe_result = match zjjrlg_ssh_exec(&args.host, &args.user, &probe_script) {
         Ok(r) => r,
         Err(e) => {
-            vvco_err!(output, "jjx_bind: SSH probe failed: {}", e);
+            vvco_err!(output, "{}: SSH probe failed: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -256,7 +263,7 @@ pub fn jjrlg_run_bind(args: jjrlg_BindArgs, officium_id: &str) -> (i32, String) 
     if probe_result.exit_code != 0 {
         let stderr = String::from_utf8_lossy(&probe_result.stderr);
         let stdout = String::from_utf8_lossy(&probe_result.stdout);
-        vvco_err!(output, "jjx_bind: SSH probe failed (exit {})", probe_result.exit_code);
+        vvco_err!(output, "{}: SSH probe failed (exit {})", cn, probe_result.exit_code);
         if !stdout.trim().is_empty() { vvco_err!(output, "  stdout: {}", stdout.trim()); }
         if !stderr.trim().is_empty() { vvco_err!(output, "  stderr: {}", stderr.trim()); }
         return (1, output.vvco_finish());
@@ -264,7 +271,7 @@ pub fn jjrlg_run_bind(args: jjrlg_BindArgs, officium_id: &str) -> (i32, String) 
 
     let stdout = String::from_utf8_lossy(&probe_result.stdout);
     if !stdout.contains("PROBE_OK:") {
-        vvco_err!(output, "jjx_bind: probe did not return PROBE_OK sentinel");
+        vvco_err!(output, "{}: probe did not return PROBE_OK sentinel", cn);
         return (1, output.vvco_finish());
     }
 
@@ -279,7 +286,7 @@ pub fn jjrlg_run_bind(args: jjrlg_BindArgs, officium_id: &str) -> (i32, String) 
     let burc_result = match zjjrlg_ssh_exec(&args.host, &args.user, &burc_cmd) {
         Ok(r) => r,
         Err(e) => {
-            vvco_err!(output, "jjx_bind: failed to read burc.env: {}", e);
+            vvco_err!(output, "{}: failed to read burc.env: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -293,7 +300,7 @@ pub fn jjrlg_run_bind(args: jjrlg_BindArgs, officium_id: &str) -> (i32, String) 
         .to_string();
 
     if output_root_dir.is_empty() {
-        vvco_err!(output, "jjx_bind: BURC_OUTPUT_ROOT_DIR not found in fundus .buk/burc.env");
+        vvco_err!(output, "{}: BURC_OUTPUT_ROOT_DIR not found in fundus .buk/burc.env", cn);
         return (1, output.vvco_finish());
     }
 
@@ -309,7 +316,7 @@ pub fn jjrlg_run_bind(args: jjrlg_BindArgs, officium_id: &str) -> (i32, String) 
     };
 
     if let Err(e) = zjjrlg_save_legatio(&officium_dir, &token, &state) {
-        vvco_err!(output, "jjx_bind: {}", e);
+        vvco_err!(output, "{}: {}", cn, e);
         return (1, output.vvco_finish());
     }
 
@@ -334,13 +341,14 @@ pub struct jjrlg_SendArgs {
 /// `cd RELDIR`. Returns 0 with remote exit code in output on SSH success;
 /// returns 1 on SSH transport failure.
 pub fn jjrlg_run_send(args: jjrlg_SendArgs, officium_id: &str) -> (i32, String) {
+    let cn = JJRLG_CMD_NAME_SEND;
     let mut output = vvco_Output::buffer();
 
     let officium_dir = zjjrlg_officium_dir(officium_id);
     let state = match zjjrlg_load_legatio(&officium_dir, &args.legatio) {
         Ok(s) => s,
         Err(e) => {
-            vvco_err!(output, "jjx_send: {}", e);
+            vvco_err!(output, "{}: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -354,7 +362,7 @@ pub fn jjrlg_run_send(args: jjrlg_SendArgs, officium_id: &str) -> (i32, String) 
     let result = match zjjrlg_ssh_exec(&state.host, &state.user, &remote_cmd) {
         Ok(r) => r,
         Err(e) => {
-            vvco_err!(output, "jjx_send: SSH failed: {}", e);
+            vvco_err!(output, "{}: SSH failed: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -388,11 +396,12 @@ pub struct jjrlg_PlantArgs {
 /// Runs `git fetch origin && git reset --hard <commit> && git clean -dxf`
 /// over SSH. Fail-fast on any step.
 pub fn jjrlg_run_plant(args: jjrlg_PlantArgs, officium_id: &str) -> (i32, String) {
+    let cn = JJRLG_CMD_NAME_PLANT;
     let mut output = vvco_Output::buffer();
 
     // Validate git ref contains only safe characters
     if let Err(e) = zjjrlg_validate_git_ref(&args.commit) {
-        vvco_err!(output, "jjx_plant: {}", e);
+        vvco_err!(output, "{}: {}", cn, e);
         return (1, output.vvco_finish());
     }
 
@@ -400,7 +409,7 @@ pub fn jjrlg_run_plant(args: jjrlg_PlantArgs, officium_id: &str) -> (i32, String
     let state = match zjjrlg_load_legatio(&officium_dir, &args.legatio) {
         Ok(s) => s,
         Err(e) => {
-            vvco_err!(output, "jjx_plant: {}", e);
+            vvco_err!(output, "{}: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -423,7 +432,7 @@ pub fn jjrlg_run_plant(args: jjrlg_PlantArgs, officium_id: &str) -> (i32, String
     let result = match zjjrlg_ssh_exec(&state.host, &state.user, &plant_script) {
         Ok(r) => r,
         Err(e) => {
-            vvco_err!(output, "jjx_plant: SSH failed: {}", e);
+            vvco_err!(output, "{}: SSH failed: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -432,7 +441,7 @@ pub fn jjrlg_run_plant(args: jjrlg_PlantArgs, officium_id: &str) -> (i32, String
     let stderr = String::from_utf8_lossy(&result.stderr);
 
     if result.exit_code != 0 {
-        vvco_err!(output, "jjx_plant: failed (exit {})", result.exit_code);
+        vvco_err!(output, "{}: failed (exit {})", cn, result.exit_code);
         if !stdout.trim().is_empty() { vvco_err!(output, "{}", stdout.trim()); }
         if !stderr.trim().is_empty() { vvco_err!(output, "{}", stderr.trim()); }
         return (1, output.vvco_finish());
@@ -461,13 +470,14 @@ pub struct jjrlg_FetchArgs {
 /// Path is relative to RELDIR if it doesn't start with `/`,
 /// or absolute if it does. Returns file content as text (lossy UTF-8).
 pub fn jjrlg_run_fetch(args: jjrlg_FetchArgs, officium_id: &str) -> (i32, String) {
+    let cn = JJRLG_CMD_NAME_FETCH;
     let mut output = vvco_Output::buffer();
 
     let officium_dir = zjjrlg_officium_dir(officium_id);
     let state = match zjjrlg_load_legatio(&officium_dir, &args.legatio) {
         Ok(s) => s,
         Err(e) => {
-            vvco_err!(output, "jjx_fetch: {}", e);
+            vvco_err!(output, "{}: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -486,14 +496,14 @@ pub fn jjrlg_run_fetch(args: jjrlg_FetchArgs, officium_id: &str) -> (i32, String
     let result = match zjjrlg_ssh_exec(&state.host, &state.user, &cat_cmd) {
         Ok(r) => r,
         Err(e) => {
-            vvco_err!(output, "jjx_fetch: SSH failed: {}", e);
+            vvco_err!(output, "{}: SSH failed: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
 
     if result.exit_code != 0 {
         let stderr = String::from_utf8_lossy(&result.stderr);
-        vvco_err!(output, "jjx_fetch: failed (exit {}): {}", result.exit_code, stderr.trim());
+        vvco_err!(output, "{}: failed (exit {}): {}", cn, result.exit_code, stderr.trim());
         return (1, output.vvco_finish());
     }
 

@@ -53,11 +53,11 @@ const OFFICIUM_SUN_PREFIX: char = '\u{2609}'; // ☉
 
 // Legatio command names — const-defined per RCG String Boundary Discipline.
 // Pre-existing commands remain as literals until registry migration.
-const JJRM_CMD_BIND: &str = "jjx_bind";
-const JJRM_CMD_SEND: &str = "jjx_send";
-const JJRM_CMD_PLANT: &str = "jjx_plant";
-const JJRM_CMD_FETCH: &str = "jjx_fetch";
-const JJRM_LEGATIO_COMMANDS: &[&str] = &[JJRM_CMD_BIND, JJRM_CMD_SEND, JJRM_CMD_PLANT, JJRM_CMD_FETCH];
+const JJRM_CMD_NAME_BIND: &str = "jjx_bind";
+const JJRM_CMD_NAME_SEND: &str = "jjx_send";
+const JJRM_CMD_NAME_PLANT: &str = "jjx_plant";
+const JJRM_CMD_NAME_FETCH: &str = "jjx_fetch";
+const JJRM_LEGATIO_COMMANDS: &[&str] = &[JJRM_CMD_NAME_BIND, JJRM_CMD_NAME_SEND, JJRM_CMD_NAME_PLANT, JJRM_CMD_NAME_FETCH];
 
 fn gallops_pathbuf() -> PathBuf {
     PathBuf::from(GALLOPS_PATH)
@@ -1163,7 +1163,7 @@ impl jjrm_McpServer {
                     agent: p.agent,
                 }, p.content.unwrap_or_default()))
             }
-            JJRM_CMD_BIND => {
+            JJRM_CMD_NAME_BIND => {
                 let p = deser!(jjrm_BindParams);
                 jjrm_result(crate::jjrlg_legatio::jjrlg_run_bind(
                     crate::jjrlg_legatio::jjrlg_BindArgs {
@@ -1174,7 +1174,7 @@ impl jjrm_McpServer {
                     officium_id,
                 ))
             }
-            JJRM_CMD_SEND => {
+            JJRM_CMD_NAME_SEND => {
                 let p = deser!(jjrm_SendParams);
                 jjrm_result(crate::jjrlg_legatio::jjrlg_run_send(
                     crate::jjrlg_legatio::jjrlg_SendArgs {
@@ -1184,7 +1184,7 @@ impl jjrm_McpServer {
                     officium_id,
                 ))
             }
-            JJRM_CMD_PLANT => {
+            JJRM_CMD_NAME_PLANT => {
                 let p = deser!(jjrm_PlantParams);
                 jjrm_result(crate::jjrlg_legatio::jjrlg_run_plant(
                     crate::jjrlg_legatio::jjrlg_PlantArgs {
@@ -1194,7 +1194,7 @@ impl jjrm_McpServer {
                     officium_id,
                 ))
             }
-            JJRM_CMD_FETCH => {
+            JJRM_CMD_NAME_FETCH => {
                 let p = deser!(jjrm_FetchParams);
                 jjrm_result(crate::jjrlg_legatio::jjrlg_run_fetch(
                     crate::jjrlg_legatio::jjrlg_FetchArgs {
