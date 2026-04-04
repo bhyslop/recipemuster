@@ -776,21 +776,16 @@ fn rbtdrc_coordinated_arp_table_stability(dir: &Path) -> rbtdre_Verdict {
 /// sentry's critical processes, iptables rules, and network interfaces are unchanged.
 fn rbtdrc_coordinated_sentry_integrity(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
-        // Pre-snapshot: capture sentry state
-        // Use cat on /proc/*/comm — sentry is minimal (no pgrep/ps/pidof)
-        let pre_procs = match rbtdrc_writ(
-            ctx,
-            &["sh", "-c", "cat /proc/[0-9]*/comm 2>/dev/null; exit 0"],
-        ) {
+        // Pre-snapshot: verify dnsmasq is running (procps provides pidof)
+        let pre_procs = match rbtdrc_writ(ctx, &["pidof", "dnsmasq"]) {
             Ok(o) => o,
-            Err(e) => return rbtdre_Verdict::Fail(format!("pre-snapshot procs: {}", e)),
+            Err(_) => {
+                return rbtdre_Verdict::Fail(
+                    "pre-snapshot: dnsmasq not running before attacks".to_string(),
+                )
+            }
         };
         let _ = std::fs::write(dir.join("pre-procs.txt"), &pre_procs);
-        if !pre_procs.lines().any(|l| l.trim() == "dnsmasq") {
-            return rbtdre_Verdict::Fail(
-                "pre-snapshot: dnsmasq not running before attacks".to_string(),
-            );
-        }
 
         let pre_iptables = match rbtdrc_writ(ctx, &["iptables", "-S"]) {
             Ok(o) => o,
@@ -833,17 +828,13 @@ fn rbtdrc_coordinated_sentry_integrity(dir: &Path) -> rbtdre_Verdict {
 
         std::thread::sleep(std::time::Duration::from_millis(500));
 
-        // Post-snapshot: capture sentry state
-        let post_procs = match rbtdrc_writ(
-            ctx,
-            &["sh", "-c", "cat /proc/[0-9]*/comm 2>/dev/null; exit 0"],
-        ) {
+        // Post-snapshot: verify dnsmasq still running
+        let post_procs = match rbtdrc_writ(ctx, &["pidof", "dnsmasq"]) {
             Ok(o) => o,
-            Err(e) => {
-                return rbtdre_Verdict::Fail(format!(
-                    "BREACH: process query failed post-attack: {}",
-                    e
-                ))
+            Err(_) => {
+                return rbtdre_Verdict::Fail(
+                    "BREACH: dnsmasq process not found after attack battery".to_string(),
+                )
             }
         };
         let _ = std::fs::write(dir.join("post-procs.txt"), &post_procs);
@@ -861,13 +852,6 @@ fn rbtdrc_coordinated_sentry_integrity(dir: &Path) -> rbtdre_Verdict {
         };
         let post_links_filtered = rbtdrc_filter_writ_output(&post_links);
         let _ = std::fs::write(dir.join("post-links.txt"), &post_links);
-
-        // Verify: dnsmasq still running
-        if !post_procs.lines().any(|l| l.trim() == "dnsmasq") {
-            return rbtdre_Verdict::Fail(
-                "BREACH: dnsmasq process not found after attack battery".to_string(),
-            );
-        }
 
         // Verify: iptables rules unchanged (compare rule lines only, not BUK headers)
         if pre_iptables_rules != post_iptables_rules {

@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
     iproute2        `# Network configuration (ip command)`  \
     iputils-ping    `# ICMP tests (pentacle role)`            \
     dnsutils        `# dig/nslookup (pentacle role)`          \
+    procps          `# pidof/ps for process inspection`       \
     && rm -rf /var/lib/apt/lists/*
 
 # Pin iptables-legacy backend (nftables not available in slim)
