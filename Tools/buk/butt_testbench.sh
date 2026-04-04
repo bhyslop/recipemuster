@@ -34,10 +34,12 @@ source "${BURD_BUK_DIR}/bute_engine.sh"
 source "${BURD_BUK_DIR}/butr_registry.sh"
 source "${BURD_BUK_DIR}/butd_dispatch.sh"
 source "${BURD_BUK_DIR}/bure_regime.sh"
+source "${BURD_BUK_DIR}/buf_fact.sh"
 
 # Source test case files
 source "${BUTT_BUTS_DIR}/butckk_KickTires.sh"
 source "${BUTT_BUTS_DIR}/butcbe_BureEnvironment.sh"
+source "${BUTT_BUTS_DIR}/butcbx_BurxExchange.sh"
 
 buc_context "${0##*/}"
 zbuv_kindle
@@ -57,7 +59,7 @@ butt_kindle() {
   butr_case_enroll "kick-tires" butckk_false_tcase
   butr_case_enroll "kick-tires" butckk_true_tcase
 
-  # bure-tweak fixture (7 cases)
+  # bure-tweak fixture (9 cases)
   butr_fixture_enroll "bure-tweak" "" "zbutt_noop_baste"
   butr_case_enroll "bure-tweak" butcbe_tweak_empty_tcase
   butr_case_enroll "bure-tweak" butcbe_tweak_both_set_tcase
@@ -65,7 +67,16 @@ butt_kindle() {
   butr_case_enroll "bure-tweak" butcbe_tweak_value_only_tcase
   butr_case_enroll "bure-tweak" butcbe_tweak_name_too_long_tcase
   butr_case_enroll "bure-tweak" butcbe_tweak_value_too_long_tcase
+  butr_case_enroll "bure-tweak" butcbe_label_valid_tcase
+  butr_case_enroll "bure-tweak" butcbe_label_too_long_tcase
   butr_case_enroll "bure-tweak" butcbe_unexpected_var_tcase
+
+  # burx-exchange fixture (4 cases)
+  butr_fixture_enroll "burx-exchange" "" "zbutt_noop_baste"
+  butr_case_enroll "burx-exchange" butcbx_burx_dual_write_tcase
+  butr_case_enroll "burx-exchange" butcbx_burx_fields_tcase
+  butr_case_enroll "burx-exchange" butcbx_burx_preexist_tcase
+  butr_case_enroll "burx-exchange" butcbx_burx_timestamp_format_tcase
 }
 
 zbutt_noop_baste() {

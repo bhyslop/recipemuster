@@ -66,6 +66,18 @@ zbutcbe_tweak_value_too_long() {
   zbure_enforce
 }
 
+zbutcbe_label_valid() {
+  export BURE_LABEL="$(printf 'x%.0s' {1..120})"
+  zbure_kindle
+  zbure_enforce
+}
+
+zbutcbe_label_too_long() {
+  export BURE_LABEL="$(printf 'x%.0s' {1..121})"
+  zbure_kindle
+  zbure_enforce
+}
+
 zbutcbe_unexpected_var() {
   export BURE_BOGUS="foo"
   zbure_kindle
@@ -106,6 +118,16 @@ butcbe_tweak_name_too_long_tcase() {
 butcbe_tweak_value_too_long_tcase() {
   buto_trace "BURE: tweak value exceeding 256 chars must fail"
   buto_unit_expect_fatal zbutcbe_tweak_value_too_long
+}
+
+butcbe_label_valid_tcase() {
+  buto_trace "BURE: label at max length (120 chars) must pass"
+  buto_unit_expect_ok zbutcbe_label_valid
+}
+
+butcbe_label_too_long_tcase() {
+  buto_trace "BURE: label exceeding 120 chars must fail"
+  buto_unit_expect_fatal zbutcbe_label_too_long
 }
 
 butcbe_unexpected_var_tcase() {

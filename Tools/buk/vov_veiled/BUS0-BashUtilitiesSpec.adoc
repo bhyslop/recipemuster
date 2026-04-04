@@ -21,6 +21,8 @@
 // busig_: Invocation Global (capture state set by zbuto_invoke)
 // busx_:  Case Boundary (test case isolation runner)
 // busff_: Fact-File (inter-step communication via output files)
+// buf_:   Fact Module (dual-write fact-file primitives)
+// burx_:  Exchange Regime (cross-project dispatch state)
 //
 // Variant patterns:
 //   _s: plural form
@@ -127,6 +129,7 @@
 :bure_color:                       <<bure_color,BURE_COLOR>>
 :bure_tweak_name:                  <<bure_tweak_name,BURE_TWEAK_NAME>>
 :bure_tweak_value:                 <<bure_tweak_value,BURE_TWEAK_VALUE>>
+:bure_label:                       <<bure_label,BURE_LABEL>>
 
 // Invocation Tier
 :busit_unit:                      <<busit_unit,Unit Tier>>
@@ -146,6 +149,23 @@
 
 // Fact-File
 :busff_fact_file:                 <<busff_fact_file,Fact-File>>
+
+// Fact Module
+:buf_write_fact:                  <<buf_write_fact,buf_write_fact>>
+:buf_burx_env:                    <<buf_burx_env,BUF_burx_env>>
+
+// BURX Regime: Exchange (cross-project dispatch state)
+:burx_prefix:                     <<burx_prefix,BURX_>>
+:burx_regime:                     <<burx_regime,BURX Regime>>
+:burx_pid:                        <<burx_pid,BURX_PID>>
+:burx_began_at:                   <<burx_began_at,BURX_BEGAN_AT>>
+:burx_tabtarget:                  <<burx_tabtarget,BURX_TABTARGET>>
+:burx_temp_dir:                   <<burx_temp_dir,BURX_TEMP_DIR>>
+:burx_transcript:                 <<burx_transcript,BURX_TRANSCRIPT>>
+:burx_log_hist:                   <<burx_log_hist,BURX_LOG_HIST>>
+:burx_label:                      <<burx_label,BURX_LABEL>>
+:burx_exit_status:                <<burx_exit_status,BURX_EXIT_STATUS>>
+:burx_ended_at:                   <<burx_ended_at,BURX_ENDED_AT>>
 
 // end::mapping-section[]
 
@@ -522,6 +542,44 @@ The `current/` path segment maps
 inside the BURV isolation tree.
 Fact-file constants are defined as `readonly` in kindle (e.g., `RBF_FACT_HALLMARK`).
 
+[[buf_write_fact]]
+//axl_voices axo_entity
+{buf_write_fact}::
+Dual-write fact-file primitive.
+Writes a named file to both
+{burd_output_dir}
+and
+{burd_temp_dir}.
+Dies if either copy already exists — a preexisting file indicates a double-write bug.
++
+{burd_output_dir}
+is the latest-command convenience copy, cleared on next dispatch.
+{burd_temp_dir}
+is the durable copy, addressable by anyone who captured the path.
++
+All fact-file producers must use
+{buf_write_fact}
+to ensure durable copies exist.
++
+[source,bash]
+----
+# Single-value fact:
+buf_write_fact "${RBF_FACT_HALLMARK}" "${z_hallmark}"
+
+# Multi-field fact (e.g., burx.env):
+buf_write_fact "${BUF_burx_env}" "${z_content}"
+----
+
+[[buf_burx_env]]
+//axpof_fact
+{buf_burx_env}::
+Tinder constant naming the
+{burx_regime}
+fact-file (`burx.env`).
+Written by bud_dispatch.sh via
+{buf_write_fact}
+at dispatch start, with terminal fields appended at completion.
+
 == Regime Configuration
 
 BUK defines two
@@ -868,5 +926,114 @@ BUK validates length (0–256 characters) but assigns no meaning to the value.
 +
 Either variable may be set independently — BUK does not enforce pairing.
 Consumer kits that require both must enforce that themselves.
+
+==== Exchange Labels
+
+[[bure_label]]
+//axl_voices axrg_variable axtu_xname axd_optional
+{bure_label}::
+Correlation label for cross-project exchange.
+When set, propagated verbatim into
+{burx_label}
+during dispatch.
+When unset, BUD writes empty string.
+Maximum 120 characters, xname format.
++
+BUD writes whatever
+{bure_label}
+contains without interpreting the semantics.
+
+=== BURX Regime
+
+[[burx_prefix]]
+//axl_voices axrg_prefix
+{burx_prefix}::
+Bash Utility Exchange Regime
+
+[[burx_regime]]
+//axvr_regime axf_bash axrd_constructed axrd_singleton
+{burx_regime}::
+Exchange regime for cross-project dispatch state.
+Written by bud_dispatch.sh to both
+{burd_output_dir}
+and
+{burd_temp_dir}
+as `burx.env` via
+{buf_write_fact}.
+Unlike single-project regimes,
+{burx_regime}
+is designed to be read across a remote project boundary.
++
+Variables appear in two phases:
+initial fields are written at dispatch start;
+terminal fields are appended at dispatch completion.
+Absence of
+{burx_exit_status}
+indicates the dispatch is still running.
+
+[[burx_pid]]
+//axl_voices axrg_variable axtu_integer
+{burx_pid}::
+Process ID of the dispatched command.
+
+[[burx_began_at]]
+//axl_voices axrg_variable axtu_string
+{burx_began_at}::
+Nanosecond-precision timestamp when dispatch started.
+Format: `YYYYMMDD-HHMMSS.NNNNNNNNN`.
+
+[[burx_tabtarget]]
+//axl_voices axrg_variable axtu_string
+{burx_tabtarget}::
+The tabtarget that was dispatched.
+Corresponds to
+{burd_target}.
+
+[[burx_temp_dir]]
+//axl_voices axrg_variable axtu_path
+{burx_temp_dir}::
+Absolute path to the dispatch temporary directory.
+Corresponds to
+{burd_temp_dir}.
+
+[[burx_transcript]]
+//axl_voices axrg_variable axtu_path
+{burx_transcript}::
+Absolute path to the transcript file.
+Corresponds to
+{burd_transcript}.
+
+[[burx_log_hist]]
+//axl_voices axrg_variable axtu_path
+{burx_log_hist}::
+Absolute path to the historical log file.
+Corresponds to
+{burd_log_hist}.
+
+[[burx_label]]
+//axl_voices axrg_variable axtu_string axd_optional
+{burx_label}::
+Correlation label from
+{bure_label}.
+Always present — empty string when
+{bure_label}
+is not set.
+Format and interpretation are opaque to BUD.
+
+[[burx_exit_status]]
+//axl_voices axrg_variable axtu_integer axd_optional
+{burx_exit_status}::
+Unix exit code of the dispatched command.
+Absence indicates the dispatch is still running.
+
+[[burx_ended_at]]
+//axl_voices axrg_variable axtu_string axd_optional
+{burx_ended_at}::
+Nanosecond-precision timestamp when dispatch completed.
+Same format as
+{burx_began_at}.
+Present only when
+{burx_exit_status}
+is present.
 
 include::BUSD-DispatchRuntime.adoc[]

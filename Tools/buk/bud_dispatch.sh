@@ -251,6 +251,44 @@ zbud_resolve_color() {
   esac
 }
 
+# Write nanosecond-precision timestamp to the file specified by $1
+zbud_nanosecond_timestamp() {
+  local -r z_output_file="${1}"
+  if command -v gdate >/dev/null 2>&1; then
+    gdate +'%Y%m%d-%H%M%S.%N' > "${z_output_file}" || zbud_die "gdate failed"
+  else
+    date +'%Y%m%d-%H%M%S.000000000' > "${z_output_file}" || zbud_die "date failed"
+  fi
+}
+
+zbud_write_burx_initial() {
+  local -r z_ts_file="${BURD_TEMP_DIR}/zbud_began_at.txt"
+  zbud_nanosecond_timestamp "${z_ts_file}"
+  local -r z_began_at=$(<"${z_ts_file}")
+  test -n "${z_began_at}" || zbud_die "Empty began_at timestamp"
+
+  local -r z_label="${BURE_LABEL:-}"
+  local -r z_content="BURX_PID=$$
+BURX_BEGAN_AT=${z_began_at}
+BURX_TABTARGET=${BURD_TARGET}
+BURX_TEMP_DIR=${BURD_TEMP_DIR}
+BURX_TRANSCRIPT=${BURD_TRANSCRIPT}
+BURX_LOG_HIST=${BURD_LOG_HIST:-}
+BURX_LABEL=${z_label}"
+  buf_write_fact "${BUF_burx_env}" "${z_content}"
+}
+
+zbud_write_burx_completion() {
+  local -r z_exit_status="${1}"
+  local -r z_ts_file="${BURD_TEMP_DIR}/zbud_ended_at.txt"
+  zbud_nanosecond_timestamp "${z_ts_file}"
+  local -r z_ended_at=$(<"${z_ts_file}")
+  test -n "${z_ended_at}" || zbud_die "Empty ended_at timestamp"
+
+  printf 'BURX_EXIT_STATUS=%s\nBURX_ENDED_AT=%s\n' "${z_exit_status}" "${z_ended_at}" >> "${BURD_OUTPUT_DIR}/${BUF_burx_env}"
+  printf 'BURX_EXIT_STATUS=%s\nBURX_ENDED_AT=%s\n' "${z_exit_status}" "${z_ended_at}" >> "${BURD_TEMP_DIR}/${BUF_burx_env}"
+}
+
 zbud_main() {
   zbud_show "Starting BDU dispatch"
 
@@ -261,9 +299,15 @@ zbud_main() {
   zbud_setup || { echo "ERROR: Environment setup failed" >&2; exit 1; }
   zbud_show "Environment setup complete"
 
+  # Source fact-file module for BURX writes
+  source "${BURC_TOOLS_DIR}/buk/buf_fact.sh"
+
   # Process arguments
   zbud_process_args "$@" || { echo "ERROR: Argument processing failed" >&2; exit 1; }
   zbud_show "Arguments processed"
+
+  # Write initial BURX exchange state
+  zbud_write_burx_initial
 
   # Detect unexpected BURD_ variables
   local -r z_known="BURD_CONFIG_DIR BURD_REGIME_FILE BURD_NO_LOG BURD_INTERACTIVE BURD_COORDINATOR_SCRIPT BURD_LAUNCHER BURD_STATION_FILE BURD_TERM_COLS BURD_NOW_STAMP BURD_NOW_EPOCH BURD_TEMP_DIR BURD_OUTPUT_DIR BURD_TRANSCRIPT BURD_GIT_CONTEXT BURD_LOG_LAST BURD_LOG_SAME BURD_LOG_HIST BURD_COMMAND BURD_TARGET BURD_CLI_ARGS BURD_TOKEN_1 BURD_TOKEN_2 BURD_TOKEN_3 BURD_TOKEN_4 BURD_TOKEN_5 BURD_TOOLS_DIR BURD_BUK_DIR BURD_TABTARGET_DIR"
@@ -340,6 +384,10 @@ zbud_main() {
 
   zBURD_EXIT_STATUS=$(cat "${zBURD_STATUS_FILE}")
   rm                     "${zBURD_STATUS_FILE}"
+
+  # Write BURX completion state
+  zbud_write_burx_completion "${zBURD_EXIT_STATUS}"
+
   set -e
 
   # Generate checksum for the log files (only when enabled)

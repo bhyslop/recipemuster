@@ -41,6 +41,7 @@ zbure_kindle() {
   BURE_COUNTDOWN="${BURE_COUNTDOWN:-}"
   BURE_TWEAK_NAME="${BURE_TWEAK_NAME:-}"
   BURE_TWEAK_VALUE="${BURE_TWEAK_VALUE:-}"
+  BURE_LABEL="${BURE_LABEL:-}"
 
   # Enroll all BURE variables — single source of truth for validation and rendering
 
@@ -54,6 +55,9 @@ zbure_kindle() {
   buv_group_enroll "Tweak Mechanism"
   buv_string_enroll  BURE_TWEAK_NAME  0  64   "Tweak name (consumer-interpreted)"
   buv_string_enroll  BURE_TWEAK_VALUE 0  256  "Tweak value (consumer-interpreted)"
+
+  buv_group_enroll "Exchange Labels"
+  buv_string_enroll  BURE_LABEL       0  120  "Correlation label for cross-project exchange (xname format)"
 
   # Guard against unexpected BURE_ variables not in enrollment
   buv_scope_sentinel BURE BURE_
