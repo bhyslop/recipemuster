@@ -2226,7 +2226,7 @@ A
 {axd_dimension}
 indicating seed-derived positional encoding for an
 {axt_insignia}.
-Characters drawn from a fixed alphabet (e.g., base62: A-Z, a-z, 0-9), fixed digit count, monotonic seed incremented under lock.
+Characters drawn from a fixed alphabet, fixed digit count, monotonic seed incremented under lock.
 Digit count disambiguates type within the algebraic family.
 Hierarchical embedding via prefix substring: a child identity's leading characters are the parent identity's value.
 
