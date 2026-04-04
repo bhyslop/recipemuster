@@ -15,6 +15,13 @@ Two Rust binaries with completely different roles and build targets:
 
 The typical development cycle when changing ifrit or theurge code:
 
+#### Iteration strategy: single cases first, full run last
+
+The full tadmor fixture takes ~10 minutes (charge + 49 cases + quench). **Do not run it on every edit.** Instead:
+
+1. Use single-case debugging (below) to iterate on specific cases
+2. Run the full fixture only after all targeted cases pass — as a final integration check
+
 #### Full run (charge + all cases + quench in one command)
 
 1. Edit ifrit source (`rbev-vessels/rbev-bottle-ifrit/src/`) or theurge source (`Tools/rbk/rbtd/src/`)
