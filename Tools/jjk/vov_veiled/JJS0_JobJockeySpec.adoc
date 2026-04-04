@@ -26,6 +26,7 @@
 // jjdxr_: Remote dispatch (roles and infrastructure)
 // jjdxp_: Pensum lifecycle (remote dispatch job identity)
 // jjdxpe_: Pensum report states (liveness enum)
+// jjdxf_: Fundus profiles (test infrastructure configurations)
 // jjdk_:  Key premises (design constraints)
 // jjdz_:  Serialization concerns
 // jjsuv_: Upper API verbs (equestrian vocabulary)
@@ -192,6 +193,18 @@
 :jjdxpe_orphaned:       <<jjdxpe_orphaned,orphaned>>
 :jjdxpe_stopped:        <<jjdxpe_stopped,stopped>>
 :jjdxpe_lost:           <<jjdxpe_lost,lost>>
+
+// Fundus profiles (test infrastructure)
+:jjdxf_profile:         <<jjdxf_profile,Fundus Profile>>
+:jjdxf_profile_p:       <<jjdxf_profile,Fundus Profile's>>
+:jjdxf_profile_s:       <<jjdxf_profile,Fundus Profiles>>
+:jjdxf_hairpin:         <<jjdxf_hairpin,hairpin>>
+:jjdxf_cerebro:         <<jjdxf_cerebro,cerebro>>
+:jjdxf_nokey:           <<jjdxf_nokey,nokey>>
+:jjdxf_norepo:          <<jjdxf_norepo,norepo>>
+:jjdxf_nogit:           <<jjdxf_nogit,nogit>>
+:jjdxf_preflight:       <<jjdxf_preflight,Preflight>>
+:jjdxf_preflight_p:     <<jjdxf_preflight,Preflight's>>
 
 // Operations
 :jjdo_relocate:          <<jjdo_relocate,jjx_relocate>>
@@ -2472,6 +2485,10 @@ include::JJSCRN-rein.adoc[]
 ==== {jjdo_record}
 
 include::JJSCNC-notch.adoc[]
+
+=== Test Infrastructure
+
+include::JJSTF-test-fundus.adoc[]
 
 == V3 Legacy Schema Reference
 
