@@ -30,7 +30,6 @@ Full read and edit access is pre-approved for all files in:
 - **RBQ**  → `rbk/rbq_Qualify.sh` (Qualification orchestrator - tabtarget/colophon/nameplate health)
 - **RBTD** → `rbk/rbtd/` (Theurge — crucible test orchestrator)
 - **RBTW** → `rbk/rbtd/rbtw_workbench.sh` (Theurge workbench — build/test routing, orthogonal from VOW)
-- **RBV**  → `rbk/rbv_PodmanVM.sh`
 - **RBS0** → `rbk/vov_veiled/RBS0-SpecTop.adoc`
 - **RBSAA** → `rbk/vov_veiled/RBSAA-ark_abjure.adoc`
 - **RBSAB** → `rbk/vov_veiled/RBSAB-ark_about.adoc` (Standalone Cloud Build about pipeline - syft SBOM + mode-aware build_info)
@@ -79,7 +78,6 @@ Full read and edit access is pre-approved for all files in:
 - **RBSPI** → `rbk/vov_veiled/RBSPI-payor_install.adoc`
 - **RBSPR** → `rbk/vov_veiled/RBSPR-payor_refresh.adoc`
 - **RBSPT** → `rbk/vov_veiled/RBSPT-port_setup.adoc`
-- **RBSPV** → `rbk/vov_veiled/RBSPV-PodmanVmSupplyChain.adoc`
 - **RBSQB** → `rbk/vov_veiled/RBSQB-quota_build.adoc`
 - **RBSRA** → `rbk/vov_veiled/RBSRA-CredentialFormat.adoc`
 - **RBSRG** → `rbk/vov_veiled/RBSRG-RegimeGcbPins.adoc`

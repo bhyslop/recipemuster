@@ -59,6 +59,30 @@ beyond the current Podman VM approach.
 _Reference_: RBSPV-PodmanVmSupplyChain.adoc (current VM supply chain);
 RBSBS, RBSBR, RBSBL (bottle lifecycle specs).
 
+**`podman-compose` lacks `--wait` for `compose up`.**
+Docker Compose `--wait` (v2.1.1+) blocks until all container health checks
+pass, which `rbob_charge` relies on to guarantee crucible readiness before
+returning.  `podman-compose` does not implement `--wait` — the command
+returns immediately after scheduling containers, creating a race between
+charge completion and the active-check assertion in theurge.
+Without `--wait`, Podman integration will need an alternative readiness
+gate (polling loop, explicit health-check query, or `podman wait
+--condition=healthy`).
+_Trigger_: Podman first-class deployment (above).
+_Reference_: containers/podman-compose#710 (June 2023, open);
+containers/podman-compose#1329 (October 2025, open).
+
+**VM image supply chain targets GHCR, not GAR.**
+The Podman VM image pipeline (`rbv_PodmanVM.sh`) mirrors machine-os disk
+images from quay.io into GHCR as OCI containers, with per-platform tags,
+brand-file provenance, and crane-based extraction inside an ignite VM.
+This infrastructure has not been ported to GAR/Depot.  Podman deployment
+requires either migrating the mirror target to GAR or maintaining a
+parallel GHCR registry alongside the existing Depot project model.
+_Trigger_: Podman first-class deployment (above).
+_Reference_: RBSPV-PodmanVmSupplyChain.adoc; `rbv_PodmanVM.sh` (mirror,
+fetch, init operations).
+
 **Hairpin peer access between crucibles.**
 Bottled containers cannot currently reach each other's published entry ports.
 Each bottle is isolated behind its own sentry on a separate enclave network.

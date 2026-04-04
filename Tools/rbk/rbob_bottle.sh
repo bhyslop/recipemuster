@@ -309,8 +309,9 @@ rbob_charge() {
   zrbob_detect_subnet_conflict
 
   # Start services via compose (--profile sessile includes bottle)
+  # --wait blocks until all health checks pass (sentry → pentacle → bottle chain)
   buc_step "Starting services via compose"
-  zrbob_compose --profile sessile up -d
+  zrbob_compose --profile sessile up -d --wait
 
   buc_step "Crucible started: ${RBRN_MONIKER}"
 }
