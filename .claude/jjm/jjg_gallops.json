@@ -1718,9 +1718,10 @@
         "₢A4AAC",
         "₢A4AAD",
         "₢A4AAE",
-        "₢A4AAB"
+        "₢A4AAB",
+        "₢A4AAF"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_uAl4.md",
       "paces": {
         "₢A4AAA": {
@@ -1775,6 +1776,17 @@
               "text": "## Character\nIntegration testing across SSH boundary. Requires a configured fundus (or hairpin localhost with separate user). May need test infrastructure scaffolding. Last pace — validates the full stack.\n\n## Docket\nEnd-to-end integration tests for the remote dispatch command surface.\n\n**Test scenarios:**\n- `jjx_bind` + `jjx_send`: bind to fundus, run simple command, verify output\n- `jjx_bind` failure: bad host, bad RELDIR, SSH not configured\n- `jjx_plant`: reset fundus to known commit, verify working tree state\n- `jjx_relay` + `jjx_check` (timeout=0): launch async job, instant probe shows running\n- `jjx_relay` + `jjx_check` (timeout>0): launch short job, await completion, verify stopped + exit code\n- `jjx_check` file list: verify temp dir contents returned on terminal status\n- `jjx_fetch`: read specific file from fundus using absolute path from BURX_TEMP_DIR\n- `jjx_check` orphaned: simulate crash (kill process before BURX_EXIT_STATUS written)\n- `jjx_check` lost: probe nonexistent temp dir\n- BURX_LABEL correlation: verify pensum token round-trips through BURE_LABEL → BURX_LABEL\n\n**Infrastructure considerations:**\n- Hairpin testing (localhost, separate user) is simplest for CI\n- Tests must be sequential (shared fundus state)\n- Fundus preconditions must be met before test suite runs — fail fast if not\n\n**Depends on:** All prior paces (₢A4AAA through ₢A4AAD)",
               "silks": "jjk-remote-dispatch-integration-tests",
               "commit": "a60ca91"
+            }
+          ]
+        },
+        "₢A4AAF": {
+          "tacks": [
+            {
+              "ts": "260404-0857",
+              "state": "rough",
+              "text": "## Character\nPainstaking verification. Requires reading every spec definition against every source implementation, line by line. No creativity — pure discipline. The kind of work where missing one field name mismatch means a runtime bug that's hard to trace.\n\n## Docket\nSystematic audit that spec documents and source code are perfectly aligned after all implementation paces complete.\n\n**BUS0 ↔ BUK source:**\n- Every BURX field name in BUS0 matches constants in source\n- BURE_LABEL kindle definition matches BUC implementation\n- `buf_write_fact` spec description matches module implementation\n- Dual-write destinations match (BURD_OUTPUT_DIR + BURD_TEMP_DIR)\n- burx.env write points in BUD match spec (start fields vs completion fields)\n\n**JJS0 ↔ JJK source:**\n- Every command param in JJS0 matches Rust handler signature\n- Legatio/pensum identity formats match between spec and token minting code\n- jjx_check return shape matches spec (BURX fields + liveness report + file list on terminal)\n- jjx_fetch path resolution (relative vs absolute) matches spec\n- jjx_plant fundus-side sequence matches spec\n- jjx_relay nohup wrapper sets BURE_LABEL per spec\n- Curia/fundus vocabulary used consistently (no master/slave leaking through)\n\n**Cross-spec:**\n- JJS0 references to BURX fields match BUS0 definitions\n- BURE_LABEL flow: JJS0 pensum → BURE_LABEL → BUS0 BURX_LABEL chain is consistent\n\n**Paddock ↔ specs:**\n- Design decisions in paddock are faithfully represented in both specs\n- No paddock decisions lost or contradicted\n\n**Method:** Read spec section, read corresponding source, note any divergence. Fix or flag.",
+              "silks": "spec-source-alignment-audit",
+              "commit": "3581ad7"
             }
           ]
         }
