@@ -69,6 +69,7 @@ Evolution: sedes/situs rejected (shared first letter 'S'), locus rejected (too c
 | `jjx_relay` | `{legatio, tabtarget, timeout}` | pensum token | Async via nohup, mints pensum |
 | `jjx_check` | `{pensum}` | BURX fields + liveness | Lightweight, pollable |
 | `jjx_fetch` | `{pensum}` | All artifacts (transcript, log, facts) | Heavy, bundle-fetch, no ref param |
+| `jjx_plant` | `{legatio, commit}` | success/failure | Synchronous, resets fundus workspace to exact commit |
 
 **`jjx_send`** is purely synchronous — uses legatio for SSH target, blocks until done, returns inline. No pensum, no BURX consumption. BUD still writes BURX on the fundus (it always does), but nobody reads it remotely.
 
@@ -84,6 +85,17 @@ Evolution: sedes/situs rejected (shared first letter 'S'), locus rejected (too c
 | file missing | n/a | **lost** |
 
 **`jjx_fetch`** pulls everything in one bundle: transcript dir contents, historical log, all fact-files from temp dir. No selective ref parameter — officium storage is ephemeral anyway.
+
+**`jjx_plant`** resets the fundus workspace to an exact commit. Synchronous over SSH, fail-fast on any step. No clone fallback — the repo must already exist at RELDIR (fundus precondition). Fundus-side sequence:
+
+```bash
+cd ~/RELDIR               || exit
+git fetch origin           || exit
+git reset --hard <commit>  || exit
+git clean -dxf             || exit
+```
+
+**Design rationale**: `git reset --hard` + `git clean -dxf` is functionally equivalent to rm-and-reclone but preserves `.git` (fast on subsequent plants). RELDIR safety is not re-checked — `jjx_bind` already validated it. The directory itself is never removed, only its working tree contents are reset. The commit parameter is the exact ref (SHA, branch, tag) the curia wants on the fundus — typically the curia's own HEAD so both sides run identical code.
 
 ### Async Dispatch Mechanism
 
@@ -115,6 +127,7 @@ The nohup wrapper on the fundus:
 2. Project directory exists at `~user/RELDIR` with BUK installed (`.buk/burc.env` present)
 3. BUD is functional — tabtargets can dispatch (regime chain resolves)
 4. Container runtime configured for that user (if crucible tests are in scope)
+5. Git repo cloned at `~user/RELDIR` with origin configured and GitHub SSH access (required for `jjx_plant`)
 
 ### RELDIR Safety — Defense in Depth
 
@@ -159,6 +172,7 @@ Design emerged through conversation in officium ☉260403-1021. Key evolution:
 - sedes/situs → curia/locus → curia/fundus (first-letter uniqueness, "locus" too common)
 - `jjx_bind {host, user, directory}` → `{host, user, reldir}` all required, relative path, Rust constants as source of truth
 - RELDIR defense-in-depth: Rust validation + fundus-side resolved-path check + bind-time probe
+- `jjx_plant`: rm-and-reclone → `git reset --hard` + `git clean -dxf` (preserves `.git`, fail-fast, no clone fallback). Designed in officium ☉260404-1000.
 
 ### Existing Fact-File Infrastructure (Codebase Survey)
 
