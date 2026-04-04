@@ -67,7 +67,7 @@ Evolution: sedes/situs rejected (shared first letter 'S'), locus rejected (too c
 | `jjx_bind` | `{host, user, reldir}` | legatio token | Creates session, SSH probe + RELDIR safety check at bind time |
 | `jjx_send` | `{legatio, command, timeout}` | exit code + output | Synchronous, no pensum |
 | `jjx_relay` | `{legatio, tabtarget, timeout}` | pensum token | Async via nohup, mints pensum |
-| `jjx_check` | `{pensum}` | BURX fields + liveness | Lightweight, pollable |
+| `jjx_check` | `{pensum, timeout}` | BURX fields + liveness | Probe or poll; timeout=0 instant, timeout>0 polls until done or timeout |
 | `jjx_fetch` | `{pensum}` | All artifacts (transcript, log, facts) | Heavy, bundle-fetch, no ref param |
 | `jjx_plant` | `{legatio, commit}` | success/failure | Synchronous, resets fundus workspace to exact commit |
 
@@ -75,7 +75,7 @@ Evolution: sedes/situs rejected (shared first letter 'S'), locus rejected (too c
 
 **`jjx_relay`** fires via nohup on the fundus. The timeout is self-enforced remotely (the nohup wrapper kills the process after N seconds). SSH disconnects immediately after launch. Returns pensum token with remote temp dir path captured.
 
-**`jjx_check`** is the polling primitive: SSH in, read `burx.env` from the stored temp dir path, probe `kill -0 $PID`. Reports:
+**`jjx_check`** probes or awaits a pensum. Both params required. `timeout` is in seconds: 0 means instant probe (SSH in, read `burx.env`, probe PID, return immediately), >0 means poll until the pensum reaches a terminal state or the timeout expires. Same return shape either way — BURX fields + liveness report:
 
 | BURX_STATUS present? | PID alive? | Report |
 |----------------------|------------|--------|
@@ -83,6 +83,8 @@ Evolution: sedes/situs rejected (shared first letter 'S'), locus rejected (too c
 | no | no | **orphaned** (crashed without writing terminal status) |
 | yes | n/a | **stopped** (exit code = BURX_STATUS) |
 | file missing | n/a | **lost** |
+
+When timeout>0 and the pensum is still running at expiry, the report is **running** (or **orphaned**) — the same as an instant probe would return. The caller decides what to do next.
 
 **`jjx_fetch`** pulls everything in one bundle: transcript dir contents, historical log, all fact-files from temp dir. No selective ref parameter — officium storage is ephemeral anyway.
 
@@ -173,6 +175,7 @@ Design emerged through conversation in officium ☉260403-1021. Key evolution:
 - `jjx_bind {host, user, directory}` → `{host, user, reldir}` all required, relative path, Rust constants as source of truth
 - RELDIR defense-in-depth: Rust validation + fundus-side resolved-path check + bind-time probe
 - `jjx_plant`: rm-and-reclone → `git reset --hard` + `git clean -dxf` (preserves `.git`, fail-fast, no clone fallback). Designed in officium ☉260404-1000.
+- `jjx_check` + `jjx_await` merged: separate await command rejected in favor of required `timeout` param on `jjx_check` (0=instant probe, >0=poll). Same return shape, caller always states intent explicitly. Designed in officium ☉260404-1000.
 
 ### Existing Fact-File Infrastructure (Codebase Survey)
 
