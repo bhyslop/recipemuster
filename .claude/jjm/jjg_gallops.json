@@ -1814,10 +1814,11 @@
         "₢A4AAB",
         "₢A4AAK",
         "₢A4AAH",
+        "₢A4AAL",
         "₢A4AAF",
         "₢A4AAI"
       ],
-      "next_pace_seed": "AAL",
+      "next_pace_seed": "AAM",
       "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAl4.md",
       "paces": {
@@ -2079,6 +2080,17 @@
               "text": "## Character\nMechanical spec writing against a resolved design. Each of the 6 remote dispatch commands needs a procedure specification following the established JJS0 operation pattern (Arguments, Behavior, Exit Status, Stdout). Template-filling, not design — all vocabulary, types, and structural decisions are resolved in ₢A4AAB.\n\n## Docket\nWrite per-procedure specifications for the 6 remote dispatch commands in JJS0.\n\n**Commands to specify:**\n- `jjx_bind` — create legatio handle (SSH probe + RELDIR safety)\n- `jjx_send` — synchronous remote exec\n- `jjx_relay` — async dispatch via nohup, mint pensum\n- `jjx_check` — probe/poll pensum status\n- `jjx_fetch` — single file read from fundus\n- `jjx_plant` — reset fundus workspace to exact commit\n\n**Each command gets:**\n- `[[jjdo_*]]` anchor with `//axvo_procedure axd_transient` voicing\n- Arguments section with shared argument references (`{jjda_legatio}`, `{jjda_timeout}`, etc.)\n- Behavior section (numbered steps)\n- Exit Status section\n- Stdout section\n\n**Pattern to follow:** Existing operations like `jjdo_enroll` (slate.adoc), `jjdo_record` (notch.adoc). Each command may warrant its own include file or may be inline — decide during writing.\n\n**Depends on:** ₢A4AAB (vocabulary, types, structural placement all resolved first)",
               "silks": "remote-dispatch-procedure-specs",
               "commit": "6c7fbfe"
+            }
+          ]
+        },
+        "₢A4AAL": {
+          "tacks": [
+            {
+              "ts": "260404-1601",
+              "state": "rough",
+              "text": "## Character\nMechanical migration — no judgment, no new behavior. Every change is a grep-verifiable substitution of raw `echo > path` writes with the `buf_write_fact` primitive.\n\n## Docket\nMigrate all existing RBK fact-file producers from raw `echo > BURD_OUTPUT_DIR` writes to the `buf_write_fact` dual-write primitive introduced in ₢A4AAA.\n\n**Context:** ₢A4AAA introduced the `buf_write_fact` module providing dual-write (to both `BURD_OUTPUT_DIR` and `BURD_TEMP_DIR`). But existing RBK producers still use raw `echo` to `BURD_OUTPUT_DIR` only. Until migrated, those fact-files are not available via the durable temp-dir path that remote consumers (BURX) need.\n\n**Scope:**\n- `Tools/rbk/rbfd_FoundryDirectorBuild.sh` — ~15 raw `echo \"${value}\" > \"${BURD_OUTPUT_DIR}/${CONSTANT}\"` sites for `RBF_FACT_HALLMARK`, `RBF_FACT_BUILD_ID`, `RBF_FACT_GAR_ROOT`, `RBF_FACT_ARK_STEM`, `RBF_FACT_ARK_YIELD`\n- `Tools/rbk/rbfl_FoundryLedger.sh` — tally fact-file producer (`RBCC_FACT_CONSEC_INFIX`)\n- Any other RBK files with raw fact-file writes discovered during grep\n\n**Method:** `grep -rn 'BURD_OUTPUT_DIR' Tools/rbk/` to find all sites. Replace each with `buf_write_fact` call. Verify `buf_write_fact` is sourced where needed.\n\n**Verification:** `grep 'BURD_OUTPUT_DIR' Tools/rbk/` finds zero raw writes — only `buf_write_fact` references remain.\n\n**Depends on:** ₢A4AAA (buf_write_fact primitive must exist)",
+              "silks": "rbk-fact-file-producer-migration",
+              "commit": "a7f79cc"
             }
           ]
         }
