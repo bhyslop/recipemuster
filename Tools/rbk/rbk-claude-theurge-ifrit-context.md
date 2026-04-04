@@ -15,12 +15,16 @@ Two Rust binaries with completely different roles and build targets:
 
 The typical development cycle when changing ifrit or theurge code:
 
-#### Iteration strategy: single cases first, full run last
+#### Iteration strategy: single cases first, full suite last
 
-The full tadmor fixture takes ~10 minutes (charge + 49 cases + quench). **Do not run it on every edit.** Instead:
+The full tadmor fixture takes ~10 minutes (charge + 50+ cases + quench). **Do not run it as the first verification step** — whether debugging failures or verifying new code. Instead:
 
-1. Use single-case debugging (below) to iterate on specific cases
-2. Run the full fixture only after all targeted cases pass — as a final integration check
+1. Charge the crucible once
+2. Run single-case against each new or changed test to verify it passes
+3. Run the full fixture only after all targeted cases pass — as a final regression check
+4. Quench
+
+This applies to **all** crucible verification: new tests, bug fixes, refactors. The full suite is always the last step, never the first.
 
 #### Full run (charge + all cases + quench in one command)
 
@@ -101,4 +105,21 @@ Tadmor crucible cases are organized by test pattern:
 3. Add theurge case — sorties may need coordinated observation (writ/fiat before/after)
 4. Register in appropriate section
 
-**Build verification**: After changes, build theurge (`tt/rbtd-b.Build.sh`), kludge ifrit if changed (`tt/rbw-cKB.KludgeBottle.sh tadmor`), run fixture.
+**Crucible verification workflow** (applies to all new tests and changes):
+
+1. Build theurge: `tt/rbtd-b.Build.sh` and run unit tests: `tt/rbtd-t.Test.sh`
+2. If ifrit source changed: kludge-rebuild, commit hallmark, then charge:
+   ```
+   tt/rbw-cKB.KludgeBottle.sh tadmor    # builds image, drives hallmark into rbrn.env
+   # commit the rbrn.env change (clean tree required for charge)
+   tt/rbw-cC.Charge.tadmor.sh
+   ```
+3. Verify each new/changed case individually against the live crucible:
+   ```
+   tt/rbtd-s.SingleCase.tadmor.sh rbtdrc_sortie_new_case_name
+   ```
+4. Only after all targeted cases pass, run the full fixture for regression:
+   ```
+   tt/rbtd-r.Run.tadmor.sh
+   ```
+   Note: this charges and quenches internally — quench the manual crucible first if one is active (`tt/rbw-cQ.Quench.tadmor.sh`).
