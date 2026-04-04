@@ -40,6 +40,7 @@
         "₢A0AAH"
       ],
       "next_pace_seed": "AAI",
+      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAl0.md",
       "paces": {
         "₢A0AAA": {
@@ -300,6 +301,7 @@
         "₢A1AAp"
       ],
       "next_pace_seed": "AAq",
+      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -1369,6 +1371,7 @@
         "₢A2AAF"
       ],
       "next_pace_seed": "AAI",
+      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAl2.md",
       "paces": {
         "₢A2AAA": {
@@ -1614,6 +1617,7 @@
         "₢A3AAF"
       ],
       "next_pace_seed": "AAG",
+      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAl3.md",
       "paces": {
         "₢A3AAA": {
@@ -1814,6 +1818,7 @@
         "₢A4AAI"
       ],
       "next_pace_seed": "AAL",
+      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAl4.md",
       "paces": {
         "₢A4AAA": {
@@ -2008,6 +2013,13 @@
         "₢A4AAH": {
           "tacks": [
             {
+              "ts": "260404-1559",
+              "state": "complete",
+              "text": "## Character\nMechanical refactoring — no judgment, no new behavior. Every change is a grep-verifiable string-to-const substitution.\n\n## Docket\nMigrate all MCP command name magic strings across JJK Rust source to RCG-compliant const definitions. Two scopes:\n\n**Scope 1 — Dispatcher (`jjrm_mcp.rs`):**\n- Define `JJRM_CMD_NAME_*` consts for all ~26 pre-existing commands (open, list, show, orient, record, log, validate, create, enroll, close, archive, reorder, redocket, relabel, drop, relocate, alter, search, brief, coronets, paddock, continue, transfer, landing, chapter, absolve)\n- Replace all match arm string literals with the corresponding const\n- Build `JJRM_ALL_COMMANDS` array from all consts (replacing `JJRM_LEGATIO_COMMANDS`)\n- Replace the unknown-command error listing with `JJRM_ALL_COMMANDS.join(\", \")`\n- Update the schemars description if a compile-time approach is feasible; otherwise document the proc-macro limitation\n\n**Scope 2 — Handler files (~168 occurrences across 24 files):**\n- Each handler file defines its own `{PREFIX}_CMD_NAME_{COMMAND}` const (e.g., `JJRGS_CMD_NAME_GET_SPEC`)\n- All `vvco_err!` / `vvco_out!` calls referencing the command name use the const via `let cn = ...;` pattern (as established in `jjrlg_legatio.rs`)\n- Pattern to follow: `jjrlg_legatio.rs` which already uses `JJRLG_CMD_NAME_BIND` etc.\n\n**Verification:** `grep '\"jjx_'` across `Tools/jjk/vov_veiled/src/` finds ONLY const definitions and the schemars attribute. Zero bare string literals in match arms, error messages, or output formatting.\n\n**Size estimate:** ~225 occurrences across 25 files. Mechanical but wide — consider parallel agents per file group.",
+              "silks": "jjk-mcp-command-name-const-registry",
+              "commit": "13d4b10"
+            },
+            {
               "ts": "260404-1031",
               "state": "rough",
               "text": "## Character\nMechanical refactoring — no judgment, no new behavior. Every change is a grep-verifiable string-to-const substitution.\n\n## Docket\nMigrate all MCP command name magic strings across JJK Rust source to RCG-compliant const definitions. Two scopes:\n\n**Scope 1 — Dispatcher (`jjrm_mcp.rs`):**\n- Define `JJRM_CMD_NAME_*` consts for all ~26 pre-existing commands (open, list, show, orient, record, log, validate, create, enroll, close, archive, reorder, redocket, relabel, drop, relocate, alter, search, brief, coronets, paddock, continue, transfer, landing, chapter, absolve)\n- Replace all match arm string literals with the corresponding const\n- Build `JJRM_ALL_COMMANDS` array from all consts (replacing `JJRM_LEGATIO_COMMANDS`)\n- Replace the unknown-command error listing with `JJRM_ALL_COMMANDS.join(\", \")`\n- Update the schemars description if a compile-time approach is feasible; otherwise document the proc-macro limitation\n\n**Scope 2 — Handler files (~168 occurrences across 24 files):**\n- Each handler file defines its own `{PREFIX}_CMD_NAME_{COMMAND}` const (e.g., `JJRGS_CMD_NAME_GET_SPEC`)\n- All `vvco_err!` / `vvco_out!` calls referencing the command name use the const via `let cn = ...;` pattern (as established in `jjrlg_legatio.rs`)\n- Pattern to follow: `jjrlg_legatio.rs` which already uses `JJRLG_CMD_NAME_BIND` etc.\n\n**Verification:** `grep '\"jjx_'` across `Tools/jjk/vov_veiled/src/` finds ONLY const definitions and the schemars attribute. Zero bare string literals in match arms, error messages, or output formatting.\n\n**Size estimate:** ~225 occurrences across 25 files. Mechanical but wide — consider parallel agents per file group.",
@@ -2092,6 +2104,7 @@
         "₢ADAAJ"
       ],
       "next_pace_seed": "AAN",
+      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAuD.md",
       "paces": {
         "₢ADAAA": {
@@ -2481,6 +2494,7 @@
         "₢AIAAD"
       ],
       "next_pace_seed": "AAE",
+      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAuI.md",
       "paces": {
         "₢AIAAA": {
@@ -2580,6 +2594,7 @@
         "₢AJAAB"
       ],
       "next_pace_seed": "AAC",
+      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAuJ.md",
       "paces": {
         "₢AJAAA": {
@@ -2618,6 +2633,7 @@
         "₢ANAAE"
       ],
       "next_pace_seed": "AAF",
+      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAuN.md",
       "paces": {
         "₢ANAAA": {
@@ -2720,6 +2736,7 @@
         "₢AQAAA"
       ],
       "next_pace_seed": "AAB",
+      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAuQ.md",
       "paces": {
         "₢AQAAA": {
@@ -2789,6 +2806,7 @@
         "₢AUAAz"
       ],
       "next_pace_seed": "AA0",
+      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -3897,6 +3915,7 @@
       "status": "stabled",
       "order": [],
       "next_pace_seed": "AAA",
+      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAuV.md",
       "paces": {}
     },
@@ -3906,6 +3925,7 @@
       "status": "stabled",
       "order": [],
       "next_pace_seed": "AAA",
+      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAuZ.md",
       "paces": {}
     },
@@ -3918,6 +3938,7 @@
         "₢AaAAB"
       ],
       "next_pace_seed": "AAC",
+      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAla.md",
       "paces": {
         "₢AaAAA": {
@@ -3971,6 +3992,7 @@
         "₢AhAAX"
       ],
       "next_pace_seed": "AAY",
+      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAlh.md",
       "paces": {
         "₢AhAAA": {
@@ -4512,6 +4534,7 @@
         "₢AmAAI"
       ],
       "next_pace_seed": "AAK",
+      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAlm.md",
       "paces": {
         "₢AmAAA": {
@@ -4733,6 +4756,7 @@
       "status": "stabled",
       "order": [],
       "next_pace_seed": "AAA",
+      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAln.md",
       "paces": {}
     },
@@ -4748,6 +4772,7 @@
         "₢ApAAE"
       ],
       "next_pace_seed": "AAF",
+      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAlp.md",
       "paces": {
         "₢ApAAA": {
@@ -4887,6 +4912,7 @@
         "₢AqAAC"
       ],
       "next_pace_seed": "AAD",
+      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAlq.md",
       "paces": {
         "₢AqAAA": {
@@ -4965,6 +4991,7 @@
       "status": "stabled",
       "order": [],
       "next_pace_seed": "AAA",
+      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAlu.md",
       "paces": {}
     },
@@ -4974,6 +5001,7 @@
       "status": "stabled",
       "order": [],
       "next_pace_seed": "AAA",
+      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAlz.md",
       "paces": {}
     }
