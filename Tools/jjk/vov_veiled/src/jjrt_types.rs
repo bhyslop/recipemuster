@@ -57,6 +57,14 @@ pub struct jjrg_Pace {
     pub tacks: Vec<jjrg_Tack>,
 }
 
+/// Initial pensum seed value (2-char base64url, starts at "AA")
+pub const JJRT_PENSUM_SEED_INIT: &str = "AA";
+
+/// Default pensum seed for backwards compatibility with existing gallops files
+fn default_pensum_seed() -> String {
+    JJRT_PENSUM_SEED_INIT.to_string()
+}
+
 /// Heat record - bounded initiative
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct jjrg_Heat {
@@ -65,6 +73,8 @@ pub struct jjrg_Heat {
     pub status: jjrg_HeatStatus,
     pub order: Vec<String>,
     pub next_pace_seed: String,
+    #[serde(default = "default_pensum_seed")]
+    pub next_pensum_seed: String,
     pub paddock_file: String,
     pub paces: BTreeMap<String, jjrg_Pace>,
 }

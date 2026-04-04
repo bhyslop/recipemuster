@@ -59,6 +59,7 @@ fn make_valid_heat(heat_id: &str, silks: &str) -> (String, jjrg_Heat) {
         status: jjrg_HeatStatus::Racing,
         order: vec![pace_key],
         next_pace_seed: "AAB".to_string(),
+        next_pensum_seed: "AA".to_string(),
         paddock_file: ".claude/jjm/jjp_AB.md".to_string(),
         paces,
     };
@@ -438,9 +439,76 @@ fn jjtg_nominate_creates_heat() {
     assert_eq!(heat.status, jjrg_HeatStatus::Stabled);
     assert!(heat.order.is_empty());
     assert_eq!(heat.next_pace_seed, "AAA");
+    assert_eq!(heat.next_pensum_seed, "AA");
 
     // Check seed was incremented
     assert_eq!(gallops.next_heat_seed, "AC");
+}
+
+#[test]
+fn jjtg_mint_pensum_basic() {
+    let mut gallops = make_valid_gallops();
+    let (heat_key, heat) = make_valid_heat("AB", "test-heat");
+    gallops.heats.insert(heat_key.clone(), heat);
+    gallops.heat_order.push(heat_key);
+
+    let pensum = gallops.jjrg_mint_pensum("AB").unwrap();
+    assert_eq!(pensum.jjrf_as_str(), "AB%AA");
+    assert_eq!(pensum.jjrf_display(), "₱AB%AA");
+
+    // Seed incremented
+    let heat = gallops.heats.get("₣AB").unwrap();
+    assert_eq!(heat.next_pensum_seed, "AB");
+
+    // Second mint
+    let pensum2 = gallops.jjrg_mint_pensum("AB").unwrap();
+    assert_eq!(pensum2.jjrf_as_str(), "AB%AB");
+
+    let heat = gallops.heats.get("₣AB").unwrap();
+    assert_eq!(heat.next_pensum_seed, "AC");
+}
+
+#[test]
+fn jjtg_mint_pensum_parent_firemark() {
+    let mut gallops = make_valid_gallops();
+    let (heat_key, heat) = make_valid_heat("AB", "test-heat");
+    gallops.heats.insert(heat_key.clone(), heat);
+    gallops.heat_order.push(heat_key);
+
+    let pensum = gallops.jjrg_mint_pensum("AB").unwrap();
+    let parent = pensum.jjrf_parent_firemark();
+    assert_eq!(parent.jjrf_as_str(), "AB");
+}
+
+#[test]
+fn jjtg_mint_pensum_heat_not_found() {
+    let mut gallops = make_valid_gallops();
+    assert!(gallops.jjrg_mint_pensum("ZZ").is_err());
+}
+
+#[test]
+fn jjtg_pensum_seed_backwards_compat() {
+    // Simulate a gallops JSON without next_pensum_seed field
+    let json = r#"{
+        "schema_version": 4,
+        "next_heat_seed": "AC",
+        "heat_order": ["₣AB"],
+        "heats": {
+            "₣AB": {
+                "silks": "test-heat",
+                "creation_time": "260101",
+                "status": "racing",
+                "order": [],
+                "next_pace_seed": "AAA",
+                "paddock_file": ".claude/jjm/jjp_AB.md",
+                "paces": {}
+            }
+        }
+    }"#;
+
+    let gallops: jjrg_Gallops = serde_json::from_str(json).unwrap();
+    let heat = gallops.heats.get("₣AB").unwrap();
+    assert_eq!(heat.next_pensum_seed, "AA");
 }
 
 #[test]

@@ -21,7 +21,7 @@ pub use crate::jjrv_validate::jjrg_validate;
 pub use crate::jjru_util::{jjrg_capture_commit_sha, jjrg_make_tack, jjrg_read_stdin, jjrg_read_stdin_optional};
 
 // Re-export operations
-pub use crate::jjro_ops::{jjrg_nominate, jjrg_slate, jjrg_rail, jjrg_tally, jjrg_draft, jjrg_retire, jjrg_build_trophy_preview, jjrg_furlough, jjrg_curry, jjrg_garland, jjrg_restring};
+pub use crate::jjro_ops::{jjrg_nominate, jjrg_slate, jjrg_rail, jjrg_tally, jjrg_draft, jjrg_retire, jjrg_build_trophy_preview, jjrg_furlough, jjrg_curry, jjrg_garland, jjrg_restring, jjrg_mint_pensum};
 
 // Backwards compatibility: impl methods on jjrg_Gallops
 impl jjrg_Gallops {
@@ -104,6 +104,11 @@ impl jjrg_Gallops {
     /// Restring - bulk draft multiple paces atomically
     pub fn jjrg_restring(&mut self, args: jjrg_RestringArgs) -> Result<jjrg_RestringResult, String> {
         jjrg_restring(self, args)
+    }
+
+    /// Mint a Pensum identity for a Heat
+    pub fn jjrg_mint_pensum(&mut self, firemark: &str) -> Result<crate::jjrf_favor::jjrf_Pensum, String> {
+        jjrg_mint_pensum(self, firemark)
     }
 
     // -- Spec-governed primitives (Operation Taxonomy in JJS0) --
@@ -208,6 +213,7 @@ mod tests {
             status: jjrg_HeatStatus::Racing,
             order: vec![coronet_key],
             next_pace_seed: "AAB".to_string(),
+            next_pensum_seed: "AA".to_string(),
             paddock_file: ".claude/jjm/jjp_test.md".to_string(),
             paces,
         };

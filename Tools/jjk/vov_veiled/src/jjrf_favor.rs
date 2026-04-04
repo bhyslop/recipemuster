@@ -19,11 +19,20 @@ pub const JJRF_FIREMARK_PREFIX: char = '₣';
 /// Coronet prefix character
 pub const JJRF_CORONET_PREFIX: char = '₢';
 
+/// Pensum prefix character
+pub const JJRF_PENSUM_PREFIX: char = '₱';
+
+/// Pensum sentinel character — literal `%` at position 3 disambiguates from Coronet
+pub const JJRF_PENSUM_SENTINEL: char = '%';
+
 /// Maximum value for Firemark (2^12 - 1)
 pub const JJRF_FIREMARK_MAX: u16 = 4095;
 
 /// Maximum value for Coronet pace index (2^18 - 1)
 pub const JJRF_CORONET_PACE_MAX: u32 = 262143;
+
+/// Maximum value for Pensum index (2^12 - 1, same as Firemark — 64^2)
+pub const JJRF_PENSUM_INDEX_MAX: u32 = 4095;
 
 /// Look up the position of a character in the charset
 pub fn zjjrf_char_to_value(c: char) -> Result<u8, String> {
@@ -48,6 +57,12 @@ pub struct jjrf_Firemark(pub String);
 /// First 2 chars encode parent Heat, last 3 encode pace index (0-262143)
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct jjrf_Coronet(pub String);
+
+/// Pensum identity - 5 characters, globally unique
+/// Format: 2 base64url (heat firemark) + literal `%` + 2 base64url (index within heat)
+/// Example: `Ah%BE` belongs to heat `₣Ah`
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct jjrf_Pensum(pub String);
 
 impl jjrf_Firemark {
     /// Encode an integer (0-4095) as a Firemark
@@ -149,6 +164,84 @@ impl jjrf_Coronet {
     /// Format with prefix for display
     pub fn jjrf_display(&self) -> String {
         format!("{}{}", JJRF_CORONET_PREFIX, self.0)
+    }
+
+    /// Extract the parent Firemark (first 2 base64 chars)
+    pub fn jjrf_parent_firemark(&self) -> jjrf_Firemark {
+        jjrf_Firemark(self.0[..2].to_string())
+    }
+}
+
+impl jjrf_Pensum {
+    /// Encode a Heat firemark and index as a Pensum
+    pub fn jjrf_encode(heat: &jjrf_Firemark, index: u32) -> Self {
+        debug_assert!(
+            index <= JJRF_PENSUM_INDEX_MAX,
+            "Pensum index {} exceeds max {}",
+            index,
+            JJRF_PENSUM_INDEX_MAX
+        );
+        let high = zjjrf_value_to_char((index / 64) as u8);
+        let low = zjjrf_value_to_char((index % 64) as u8);
+        jjrf_Pensum(format!("{}{}{}{}",
+            heat.jjrf_as_str(),
+            JJRF_PENSUM_SENTINEL,
+            high,
+            low,
+        ))
+    }
+
+    /// Decode a Pensum to its parent Heat firemark and index
+    pub fn jjrf_decode(&self) -> Result<(jjrf_Firemark, u32), String> {
+        let chars: Vec<char> = self.0.chars().collect();
+        if chars.len() != 5 {
+            return Err(format!("Pensum must be 5 characters, got {}", chars.len()));
+        }
+        if chars[2] != JJRF_PENSUM_SENTINEL {
+            return Err(format!(
+                "Pensum must have '{}' sentinel at position 3, got '{}'",
+                JJRF_PENSUM_SENTINEL, chars[2]
+            ));
+        }
+        let heat = jjrf_Firemark(chars[0..2].iter().collect());
+        let high = zjjrf_char_to_value(chars[3])? as u32;
+        let low = zjjrf_char_to_value(chars[4])? as u32;
+        Ok((heat, high * 64 + low))
+    }
+
+    /// Parse a Pensum from string input (with or without prefix)
+    pub fn jjrf_parse(input: &str) -> Result<Self, String> {
+        let stripped = input.strip_prefix(JJRF_PENSUM_PREFIX).unwrap_or(input);
+        if stripped.len() != 5 {
+            return Err(format!(
+                "Pensum must be 5 characters (with or without {} prefix), got '{}'",
+                JJRF_PENSUM_PREFIX, input
+            ));
+        }
+        let chars: Vec<char> = stripped.chars().collect();
+        if chars[2] != JJRF_PENSUM_SENTINEL {
+            return Err(format!(
+                "Pensum must have '{}' sentinel at position 3, got '{}'",
+                JJRF_PENSUM_SENTINEL, chars[2]
+            ));
+        }
+        // Validate firemark chars (positions 0-1)
+        zjjrf_char_to_value(chars[0])?;
+        zjjrf_char_to_value(chars[1])?;
+        // Validate index chars (positions 3-4)
+        zjjrf_char_to_value(chars[3])?;
+        zjjrf_char_to_value(chars[4])?;
+        Ok(jjrf_Pensum(stripped.to_string()))
+    }
+
+    /// Get the raw string (without prefix)
+    pub fn jjrf_as_str(&self) -> &str {
+        &self.0
+    }
+
+    /// Format with prefix for display
+    pub fn jjrf_display(&self) -> String {
+        format!("{}{}", JJRF_PENSUM_PREFIX, self.0)
     }
 
     /// Extract the parent Firemark (first 2 base64 chars)

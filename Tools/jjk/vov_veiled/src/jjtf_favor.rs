@@ -235,3 +235,138 @@ fn jjtf_all_charset_positions_encode_decode() {
         assert_eq!(decoded, i as u16);
     }
 }
+
+// Pensum tests
+
+#[test]
+fn jjtf_pensum_encode_zero() {
+    let heat = jjrf_Firemark::jjrf_encode(0);
+    let pensum = jjrf_Pensum::jjrf_encode(&heat, 0);
+    assert_eq!(pensum.jjrf_as_str(), "AA%AA");
+    assert_eq!(pensum.jjrf_display(), "₱AA%AA");
+}
+
+#[test]
+fn jjtf_pensum_encode_one() {
+    let heat = jjrf_Firemark::jjrf_encode(0);
+    let pensum = jjrf_Pensum::jjrf_encode(&heat, 1);
+    assert_eq!(pensum.jjrf_as_str(), "AA%AB");
+}
+
+#[test]
+fn jjtf_pensum_encode_64() {
+    let heat = jjrf_Firemark::jjrf_encode(0);
+    let pensum = jjrf_Pensum::jjrf_encode(&heat, 64);
+    assert_eq!(pensum.jjrf_as_str(), "AA%BA");
+}
+
+#[test]
+fn jjtf_pensum_encode_max() {
+    // 4095 = 63*64 + 63
+    let heat = jjrf_Firemark::jjrf_encode(0);
+    let pensum = jjrf_Pensum::jjrf_encode(&heat, 4095);
+    assert_eq!(pensum.jjrf_as_str(), "AA%__");
+}
+
+#[test]
+fn jjtf_pensum_encode_with_nonzero_heat() {
+    // Example from spec: heat ₣Ah, index for "BE"
+    let heat = jjrf_Firemark::jjrf_parse("Ah").unwrap();
+    let pensum = jjrf_Pensum::jjrf_encode(&heat, 68); // B=1, E=4 -> 1*64+4=68
+    assert_eq!(pensum.jjrf_as_str(), "Ah%BE");
+    assert_eq!(pensum.jjrf_display(), "₱Ah%BE");
+}
+
+#[test]
+fn jjtf_pensum_encode_decode_roundtrip() {
+    for heat_val in [0, 1, 100, 4095] {
+        for index_val in [0, 1, 63, 64, 1000, 4095] {
+            let heat = jjrf_Firemark::jjrf_encode(heat_val);
+            let pensum = jjrf_Pensum::jjrf_encode(&heat, index_val);
+            let (decoded_heat, decoded_index) = pensum.jjrf_decode().unwrap();
+            assert_eq!(
+                decoded_heat.jjrf_decode().unwrap(),
+                heat_val,
+                "Heat roundtrip failed for heat={} index={}",
+                heat_val,
+                index_val
+            );
+            assert_eq!(
+                decoded_index, index_val,
+                "Index roundtrip failed for heat={} index={}",
+                heat_val, index_val
+            );
+        }
+    }
+}
+
+#[test]
+fn jjtf_pensum_parse_with_prefix() {
+    let pensum = jjrf_Pensum::jjrf_parse("₱Ah%BE").unwrap();
+    assert_eq!(pensum.jjrf_as_str(), "Ah%BE");
+    let (heat, index) = pensum.jjrf_decode().unwrap();
+    assert_eq!(heat.jjrf_as_str(), "Ah");
+    assert_eq!(index, 68);
+}
+
+#[test]
+fn jjtf_pensum_parse_without_prefix() {
+    let pensum = jjrf_Pensum::jjrf_parse("Ah%BE").unwrap();
+    assert_eq!(pensum.jjrf_as_str(), "Ah%BE");
+}
+
+#[test]
+fn jjtf_pensum_parse_invalid_length() {
+    assert!(jjrf_Pensum::jjrf_parse("Ah%B").is_err());
+    assert!(jjrf_Pensum::jjrf_parse("Ah%BEE").is_err());
+    assert!(jjrf_Pensum::jjrf_parse("₱Ah%B").is_err());
+}
+
+#[test]
+fn jjtf_pensum_parse_missing_sentinel() {
+    // 5 base64 chars but no % at position 3 — looks like a Coronet, not Pensum
+    assert!(jjrf_Pensum::jjrf_parse("AhABE").is_err());
+}
+
+#[test]
+fn jjtf_pensum_parse_invalid_chars() {
+    assert!(jjrf_Pensum::jjrf_parse("A!%BE").is_err());
+    assert!(jjrf_Pensum::jjrf_parse("Ah%B!").is_err());
+}
+
+#[test]
+fn jjtf_pensum_sentinel_disambiguation_vs_coronet() {
+    // Coronet: 5 base64url chars, no % at position 3
+    // Pensum: 5 chars with % at position 3
+    let coronet_str = "AhABE";
+    let pensum_str = "Ah%BE";
+
+    // Coronet parses as Coronet, fails as Pensum
+    assert!(jjrf_Coronet::jjrf_parse(coronet_str).is_ok());
+    assert!(jjrf_Pensum::jjrf_parse(coronet_str).is_err());
+
+    // Pensum parses as Pensum, fails as Coronet (% is not in base64url charset)
+    assert!(jjrf_Pensum::jjrf_parse(pensum_str).is_ok());
+    assert!(jjrf_Coronet::jjrf_parse(pensum_str).is_err());
+}
+
+#[test]
+fn jjtf_pensum_parent_firemark() {
+    let heat = jjrf_Firemark::jjrf_encode(42);
+    let pensum = jjrf_Pensum::jjrf_encode(&heat, 123);
+    let parent = pensum.jjrf_parent_firemark();
+    assert_eq!(parent.jjrf_as_str(), heat.jjrf_as_str());
+    assert_eq!(parent.jjrf_decode().unwrap(), 42);
+}
+
+#[test]
+fn jjtf_pensum_decode_invalid_length() {
+    let p = jjrf_Pensum("Ah%B".to_string());
+    assert!(p.jjrf_decode().is_err());
+}
+
+#[test]
+fn jjtf_pensum_decode_missing_sentinel() {
+    let p = jjrf_Pensum("AhABE".to_string());
+    assert!(p.jjrf_decode().is_err());
+}
