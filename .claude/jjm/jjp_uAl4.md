@@ -127,7 +127,22 @@ Remote dispatch involves destructive operations on the fundus (workspace cleanup
 - Must contain at least one `/` (forces subdirectory depth — `projects/foo`, never just `foo`)
 
 **Layer 2 — Fundus-side validation before any destructive operation:**
-The remote command that `jjx_relay` sends validates the resolved path on the fundus before doing anything. The validation resolves the path via `cd "$HOME/$RELDIR" && pwd`, confirms the result is strictly under `$HOME` (prefix match), and confirms minimum depth of 2 components under HOME (must contain a slash after stripping the HOME prefix). Exits with code 99 on any failure.
+The remote command that `jjx_relay` sends validates the resolved path on the fundus before doing anything:
+
+```bash
+z_resolved="$(cd "$HOME/$RELDIR" 2>/dev/null && pwd)" || exit 99
+## Must be strictly under $HOME
+case "$z_resolved" in
+  "$HOME"/*)  ;;
+  *)          echo "FATAL: resolved dir not under HOME"; exit 99 ;;
+esac
+## Must have minimum depth (at least 2 components under HOME)
+z_depth="${z_resolved#"$HOME"/}"
+case "$z_depth" in
+  */*) ;;
+  *)   echo "FATAL: resolved dir too shallow under HOME"; exit 99 ;;
+esac
+```
 
 **Layer 3 — `jjx_bind` probe at session creation:**
 The SSH probe that `jjx_bind` runs at bind time performs the same resolved-path check. Fail fast before any relay is ever attempted.
@@ -189,5 +204,5 @@ All raw `echo > path` to `BURD_OUTPUT_DIR` only. No dual-write. The `buf_write_f
 - `Tools/rbk/rbfl_FoundryLedger.sh` — tally fact-file producer
 - `Tools/buk/bud_dispatch.sh` — dispatch runtime, BURD state assembly
 - `Tools/buk/buc_command.sh` — BURE kindle
-- ₣A2 paddock — original paces ₢A2AAG and ₢A2AAF
+- ₣A2 — original paces ₢A2AAG (buf-dispatch-fact-files) and ₢A2AAF (remote-execution-bind-send) dropped; superseded by this heat's design
 - ₣Ah paddock — officium lifecycle patterns
