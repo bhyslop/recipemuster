@@ -578,7 +578,7 @@ type system for all entity identities.
 ({jjdt_firemark},
 {jjdt_coronet},
 {jjdt_pensum})
-use base62 encoding (A-Z, a-z, 0-9) providing compact, URL-safe, shell-safe strings.
+use base64url encoding (A-Z, a-z, 0-9, `-`, `_`) providing compact, URL-safe, shell-safe strings.
 Digit count disambiguates type, with one exception:
 {jjdt_pensum}
 shares digit count 5 with
@@ -1071,9 +1071,9 @@ Pace data is preserved, with a note recording the original
 {axd_algebraic}
 {jjdt_insignia}
 for remote dispatch job identity.
-Format: `₱` + 2 base62 (heat
+Format: `₱` + 2 base64url (heat
 {jjdt_firemark})
-+ `%` sentinel + 2 base62 (index).
++ `%` sentinel + 2 base64url (index).
 Example: `₱Ah%BE` belongs to
 {jjdhr_heat}
 `₣Ah`.
@@ -1081,7 +1081,7 @@ Example: `₱Ah%BE` belongs to
 The `%` sentinel at position 3 disambiguates from
 {jjdt_coronet},
 which shares digit count 5.
-`%` cannot appear in base62, so the parse is mechanical: 5-character identity with `%` at position 3 is
+`%` cannot appear in base64url, so the parse is mechanical: 5-character identity with `%` at position 3 is
 {jjdt_pensum},
 without is
 {jjdt_coronet}.
