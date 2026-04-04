@@ -668,7 +668,7 @@ pub fn sortie_dns_exfil_subdomain(_extra_args: &[&str]) -> rbida_Verdict {
     }
 
     // Control — non-allowed domain should get NXDOMAIN
-    if dig_resolve("evil-c2-server.example.com").is_some() {
+    if dig_resolve("evil-c2-server.invalid").is_some() {
         return fail("BREACH: non-allowed domain resolved — allowlist broken".to_string());
     }
 
