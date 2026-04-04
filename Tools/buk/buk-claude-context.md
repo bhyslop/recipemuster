@@ -35,6 +35,8 @@ tt/rbw-cC.Charge.pluml.sh
 | **Zipper** | BCG-compliant module kindling colophon→module→command array constants |
 | **Workbench** | Routes commands: `{prefix}w_workbench.sh` |
 | **Testbench** | Routes tests: `{prefix}t_testbench.sh` |
+| **Folio** | Runtime target value (`BUZ_FOLIO`) passed to a command — nameplate moniker, role name, etc. How it arrives depends on the channel |
+| **Channel** | Enrollment-time declaration of how a colophon receives its folio: `imprint` (from filename — one tabtarget per target), `param1` (command-line argument — single tabtarget), or empty (no folio needed) |
 
 **Key files:**
 - `Tools/buk/buc_command.sh` — command utilities
