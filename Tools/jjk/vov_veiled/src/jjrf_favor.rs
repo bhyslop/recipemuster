@@ -2,16 +2,20 @@
 // All rights reserved.
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
-//! Favor encoding - Firemark and Coronet identity types
+//! Favor encoding - Firemark, Coronet, and Pensum identity types
 //!
-//! Implements base64 encoding/decoding for Job Jockey identity types:
-//! - Firemark: Heat identity (2 base64 chars, 0-4095)
-//! - Coronet: Pace identity (5 base64 chars, globally unique)
+//! Implements base64url encoding/decoding for Job Jockey identity types:
+//! - Firemark: Heat identity (2 base64url chars, 0-4095)
+//! - Coronet: Pace identity (5 base64url chars, globally unique)
+//! - Pensum: Remote dispatch identity (5 chars with % sentinel, globally unique)
 
 use serde::{Deserialize, Serialize};
 
 /// URL-safe base64 charset (RFC 4648 section 5)
 pub const JJRF_CHARSET: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+
+/// Encoding radix — derived from charset length
+pub const JJRF_RADIX: u32 = JJRF_CHARSET.len() as u32;
 
 /// Firemark prefix character
 pub const JJRF_FIREMARK_PREFIX: char = '₣';
@@ -25,14 +29,14 @@ pub const JJRF_PENSUM_PREFIX: char = '₱';
 /// Pensum sentinel character — literal `%` at position 3 disambiguates from Coronet
 pub const JJRF_PENSUM_SENTINEL: char = '%';
 
-/// Maximum value for Firemark (2^12 - 1)
-pub const JJRF_FIREMARK_MAX: u16 = 4095;
+/// Maximum value for Firemark (RADIX^2 - 1)
+pub const JJRF_FIREMARK_MAX: u16 = (JJRF_RADIX * JJRF_RADIX - 1) as u16;
 
-/// Maximum value for Coronet pace index (2^18 - 1)
-pub const JJRF_CORONET_PACE_MAX: u32 = 262143;
+/// Maximum value for Coronet pace index (RADIX^3 - 1)
+pub const JJRF_CORONET_PACE_MAX: u32 = JJRF_RADIX * JJRF_RADIX * JJRF_RADIX - 1;
 
-/// Maximum value for Pensum index (2^12 - 1, same as Firemark — 64^2)
-pub const JJRF_PENSUM_INDEX_MAX: u32 = 4095;
+/// Maximum value for Pensum index (RADIX^2 - 1)
+pub const JJRF_PENSUM_INDEX_MAX: u32 = JJRF_RADIX * JJRF_RADIX - 1;
 
 /// Look up the position of a character in the charset
 pub fn zjjrf_char_to_value(c: char) -> Result<u8, String> {
@@ -68,8 +72,9 @@ impl jjrf_Firemark {
     /// Encode an integer (0-4095) as a Firemark
     pub fn jjrf_encode(value: u16) -> Self {
         debug_assert!(value <= JJRF_FIREMARK_MAX, "Firemark value {} exceeds max {}", value, JJRF_FIREMARK_MAX);
-        let high = zjjrf_value_to_char((value / 64) as u8);
-        let low = zjjrf_value_to_char((value % 64) as u8);
+        let radix = JJRF_RADIX as u16;
+        let high = zjjrf_value_to_char((value / radix) as u8);
+        let low = zjjrf_value_to_char((value % radix) as u8);
         jjrf_Firemark(format!("{}{}", high, low))
     }
 
@@ -81,7 +86,7 @@ impl jjrf_Firemark {
         }
         let high = zjjrf_char_to_value(chars[0])? as u16;
         let low = zjjrf_char_to_value(chars[1])? as u16;
-        Ok(high * 64 + low)
+        Ok(high * JJRF_RADIX as u16 + low)
     }
 
     /// Parse a Firemark from string input (with or without prefix)
@@ -120,9 +125,9 @@ impl jjrf_Coronet {
             pace_index,
             JJRF_CORONET_PACE_MAX
         );
-        let p2 = zjjrf_value_to_char((pace_index / 4096) as u8);
-        let p1 = zjjrf_value_to_char(((pace_index / 64) % 64) as u8);
-        let p0 = zjjrf_value_to_char((pace_index % 64) as u8);
+        let p2 = zjjrf_value_to_char((pace_index / (JJRF_RADIX * JJRF_RADIX)) as u8);
+        let p1 = zjjrf_value_to_char(((pace_index / JJRF_RADIX) % JJRF_RADIX) as u8);
+        let p0 = zjjrf_value_to_char((pace_index % JJRF_RADIX) as u8);
         jjrf_Coronet(format!("{}{}{}{}", heat.jjrf_as_str(), p2, p1, p0))
     }
 
@@ -136,7 +141,7 @@ impl jjrf_Coronet {
         let p2 = zjjrf_char_to_value(chars[2])? as u32;
         let p1 = zjjrf_char_to_value(chars[3])? as u32;
         let p0 = zjjrf_char_to_value(chars[4])? as u32;
-        let pace_index = p2 * 4096 + p1 * 64 + p0;
+        let pace_index = p2 * JJRF_RADIX * JJRF_RADIX + p1 * JJRF_RADIX + p0;
         Ok((heat, pace_index))
     }
 
@@ -181,8 +186,8 @@ impl jjrf_Pensum {
             index,
             JJRF_PENSUM_INDEX_MAX
         );
-        let high = zjjrf_value_to_char((index / 64) as u8);
-        let low = zjjrf_value_to_char((index % 64) as u8);
+        let high = zjjrf_value_to_char((index / JJRF_RADIX) as u8);
+        let low = zjjrf_value_to_char((index % JJRF_RADIX) as u8);
         jjrf_Pensum(format!("{}{}{}{}",
             heat.jjrf_as_str(),
             JJRF_PENSUM_SENTINEL,
@@ -206,7 +211,7 @@ impl jjrf_Pensum {
         let heat = jjrf_Firemark(chars[0..2].iter().collect());
         let high = zjjrf_char_to_value(chars[3])? as u32;
         let low = zjjrf_char_to_value(chars[4])? as u32;
-        Ok((heat, high * 64 + low))
+        Ok((heat, high * JJRF_RADIX + low))
     }
 
     /// Parse a Pensum from string input (with or without prefix)

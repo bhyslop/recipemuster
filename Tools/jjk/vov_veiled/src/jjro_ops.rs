@@ -9,7 +9,7 @@
 use std::collections::BTreeMap;
 use std::fs;
 use std::path::Path;
-use crate::jjrf_favor::{jjrf_Firemark as Firemark, jjrf_Coronet as Coronet, jjrf_Pensum as Pensum, JJRF_FIREMARK_PREFIX as FIREMARK_PREFIX, JJRF_CORONET_PREFIX as CORONET_PREFIX};
+use crate::jjrf_favor::{jjrf_Firemark as Firemark, jjrf_Coronet as Coronet, jjrf_Pensum as Pensum, JJRF_FIREMARK_PREFIX as FIREMARK_PREFIX, JJRF_CORONET_PREFIX as CORONET_PREFIX, JJRF_PENSUM_SENTINEL as PENSUM_SENTINEL};
 use crate::jjri_io::jjri_paddock_path;
 use crate::jjrpd_parade::{jjrpd_format_file_bitmap, jjrpd_format_commit_swimlanes};
 use crate::jjrs_steeplechase::jjrs_SteeplechaseEntry as SteeplechaseEntry;
@@ -158,8 +158,8 @@ pub fn jjrg_slate(gallops: &mut jjrg_Gallops, args: jjrg_SlateArgs) -> Result<jj
 
 /// Mint a Pensum identity for a Heat
 ///
-/// Reads `next_pensum_seed`, encodes with the heat firemark, increments seed.
-/// Returns the minted Pensum. Caller must save gallops after mutation.
+/// Reads `next_pensum_seed`, constructs pensum from firemark + sentinel + seed,
+/// increments seed. Caller must save gallops after mutation.
 pub fn jjrg_mint_pensum(gallops: &mut jjrg_Gallops, firemark_input: &str) -> Result<Pensum, String> {
     let firemark = Firemark::jjrf_parse(firemark_input)
         .map_err(|e| format!("Invalid firemark: {}", e))?;
@@ -168,16 +168,11 @@ pub fn jjrg_mint_pensum(gallops: &mut jjrg_Gallops, firemark_input: &str) -> Res
     let heat = gallops.heats.get_mut(&firemark_key)
         .ok_or_else(|| format!("Heat '{}' not found", firemark_key))?;
 
-    // Parse seed to index value
-    let seed_chars: Vec<char> = heat.next_pensum_seed.chars().collect();
-    if seed_chars.len() != 2 {
-        return Err(format!("Invalid pensum seed length: {}", heat.next_pensum_seed.len()));
-    }
-    let high = crate::jjrf_favor::zjjrf_char_to_value(seed_chars[0])? as u32;
-    let low = crate::jjrf_favor::zjjrf_char_to_value(seed_chars[1])? as u32;
-    let index = high * 64 + low;
-
-    let pensum = Pensum::jjrf_encode(&firemark, index);
+    let pensum = Pensum(format!("{}{}{}",
+        firemark.jjrf_as_str(),
+        PENSUM_SENTINEL,
+        heat.next_pensum_seed,
+    ));
 
     heat.next_pensum_seed = zjjrg_increment_seed(&heat.next_pensum_seed);
 
