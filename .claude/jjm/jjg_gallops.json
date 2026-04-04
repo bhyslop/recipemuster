@@ -1773,9 +1773,10 @@
         "₢A4AAG",
         "₢A4AAB",
         "₢A4AAF",
-        "₢A4AAH"
+        "₢A4AAH",
+        "₢A4AAI"
       ],
-      "next_pace_seed": "AAI",
+      "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_uAl4.md",
       "paces": {
         "₢A4AAA": {
@@ -1919,6 +1920,17 @@
               "text": "## Character\nMechanical refactoring — no judgment, no new behavior. Every change is a grep-verifiable string-to-const substitution.\n\n## Docket\nMigrate all pre-existing MCP command name strings in `jjrm_mcp.rs` to RCG-compliant const definitions.\n\n**Problem:** ~26 command names appear as bare string literals in match arms and in the unknown-command error listing. RCG String Boundary Discipline requires a single const definition per serialized string. The legatio commands (bind/send/plant/fetch) were added with consts and a `JJRM_LEGATIO_COMMANDS` array as the pattern to follow.\n\n**Work:**\n- Define `JJRM_CMD_*` consts for all remaining commands (open, list, show, orient, record, log, validate, create, enroll, close, archive, reorder, redocket, relabel, drop, relocate, alter, search, brief, coronets, paddock, continue, transfer, landing, chapter, absolve)\n- Replace all match arm string literals with the corresponding const\n- Build `JJRM_ALL_COMMANDS` array from all consts (replacing `JJRM_LEGATIO_COMMANDS`)\n- Replace the unknown-command error listing with `JJRM_ALL_COMMANDS.join(\", \")`\n- Update the schemars description if a compile-time approach is feasible; otherwise document the proc-macro limitation\n- Verify: `grep '\"jjx_'` in jjrm_mcp.rs finds only the const definitions and the schemars attribute",
               "silks": "jjk-mcp-command-name-const-registry",
               "commit": "d1d383c"
+            }
+          ]
+        },
+        "₢A4AAI": {
+          "tacks": [
+            {
+              "ts": "260404-1205",
+              "state": "rough",
+              "text": "## Character\nDesign conversation. The remote dispatch commands introduced non-equestrian vocabulary (bind, send, relay, check, fetch, plant). Need to decide: do these get jjsuv_* verb mappings, or does JJS0 formally acknowledge a second vocabulary domain?\n\n## Docket\nReconcile remote dispatch command names with the equestrian verb layer (jjsuv_*).\n\n**Question**: Remote dispatch commands use their own domain vocabulary rather than equestrian metaphors. Three options:\n1. Mint equestrian verbs that map to the remote operations (forced metaphor)\n2. Formally define a second verb domain in JJS0 for remote operations\n3. Declare remote operations exempt from the verb layer (they're infrastructure, not gallops operations)\n\n**Depends on:** ₢A4AAB (spec work establishes the operations first)",
+              "silks": "equestrian-verb-reconciliation",
+              "commit": "efbed72"
             }
           ]
         }
