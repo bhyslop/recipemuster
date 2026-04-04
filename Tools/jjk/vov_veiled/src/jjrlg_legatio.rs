@@ -4,16 +4,23 @@
 
 //! Legatio — Remote dispatch via SSH
 //!
-//! Implements the legatio (session) tier of remote execution:
+//! Implements remote execution at two identity tiers:
+//!
+//! Legatio (session):
 //! - `jjx_bind`  — SSH probe, RELDIR validation, legatio minting
 //! - `jjx_send`  — synchronous command execution via legatio
 //! - `jjx_plant` — reset fundus workspace to exact commit
 //! - `jjx_fetch` — read single file from fundus
 //!
+//! Pensum (async job):
+//! - `jjx_relay` — nohup dispatch, pensum minting, BURX capture
+//! - `jjx_check` — probe or poll pensum status via BURX
+//!
 //! SSH transport uses platform `ssh` binary via std::process::Command.
 //! No Rust SSH crate — platform openssh inherits user's ~/.ssh/config,
 //! known_hosts, and agent forwarding.
 
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
 use vvc::{vvco_out, vvco_err, vvco_Output};
@@ -45,6 +52,26 @@ const JJRLG_CMD_NAME_BIND: &str = "jjx_bind";
 const JJRLG_CMD_NAME_SEND: &str = "jjx_send";
 const JJRLG_CMD_NAME_PLANT: &str = "jjx_plant";
 const JJRLG_CMD_NAME_FETCH: &str = "jjx_fetch";
+const JJRLG_CMD_NAME_RELAY: &str = "jjx_relay";
+const JJRLG_CMD_NAME_CHECK: &str = "jjx_check";
+
+/// Pensum state file prefix within officium directory
+const PENSUM_FILE_PREFIX: &str = "pensum_";
+
+/// Pensum state file extension
+const PENSUM_FILE_EXT: &str = ".json";
+
+/// Max retries for initial burx.env read after relay launch
+const BURX_INITIAL_POLL_MAX_RETRIES: u32 = 10;
+
+/// Delay between initial burx.env read retries (seconds)
+const BURX_INITIAL_POLL_DELAY_SECS: u64 = 1;
+
+/// Poll interval for jjx_check with timeout>0 (seconds)
+const BURX_CHECK_POLL_INTERVAL_SECS: u64 = 2;
+
+/// Gallops JSON path (mirrors jjrm_mcp.rs constant)
+const GALLOPS_PATH: &str = ".claude/jjm/jjg_gallops.json";
 
 // ============================================================================
 // Legatio state
@@ -57,6 +84,18 @@ pub struct jjrlg_LegatioState {
     pub user: String,
     pub reldir: String,
     pub output_root_dir: String,
+}
+
+/// Persisted state for a pensum (async remote dispatch job).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct jjrlg_PensumState {
+    pub legatio: String,
+    pub firemark: String,
+    pub temp_dir: String,
+    pub pid: String,
+    pub tabtarget: String,
+    pub timeout: u64,
+    pub began_at: String,
 }
 
 // ============================================================================
@@ -197,6 +236,29 @@ fn zjjrlg_save_legatio(officium_dir: &Path, token: &str, state: &jjrlg_LegatioSt
         .map_err(|e| format!("Cannot serialize legatio: {}", e))?;
     std::fs::write(&path, json.as_bytes())
         .map_err(|e| format!("Cannot write legatio '{}': {}", token, e))
+}
+
+/// Resolve pensum token to its state file path within an officium.
+fn zjjrlg_pensum_path(officium_dir: &Path, token: &str) -> PathBuf {
+    officium_dir.join(format!("{}{}{}", PENSUM_FILE_PREFIX, token, PENSUM_FILE_EXT))
+}
+
+/// Load persisted pensum state from the officium directory.
+fn zjjrlg_load_pensum(officium_dir: &Path, token: &str) -> Result<jjrlg_PensumState, String> {
+    let path = zjjrlg_pensum_path(officium_dir, token);
+    let content = std::fs::read_to_string(&path)
+        .map_err(|e| format!("Cannot read pensum '{}': {}", token, e))?;
+    serde_json::from_str(&content)
+        .map_err(|e| format!("Cannot parse pensum '{}': {}", token, e))
+}
+
+/// Persist pensum state to the officium directory.
+fn zjjrlg_save_pensum(officium_dir: &Path, token: &str, state: &jjrlg_PensumState) -> Result<(), String> {
+    let path = zjjrlg_pensum_path(officium_dir, token);
+    let json = serde_json::to_string_pretty(state)
+        .map_err(|e| format!("Cannot serialize pensum: {}", e))?;
+    std::fs::write(&path, json.as_bytes())
+        .map_err(|e| format!("Cannot write pensum '{}': {}", token, e))
 }
 
 // ============================================================================
@@ -514,6 +576,443 @@ pub fn jjrlg_run_fetch(args: jjrlg_FetchArgs, officium_id: &str) -> (i32, String
 }
 
 // ============================================================================
+// BURX parsing
+// ============================================================================
+
+/// Parse burx.env content as key=value pairs.
+fn zjjrlg_parse_burx(content: &str) -> HashMap<String, String> {
+    let mut map = HashMap::new();
+    for line in content.lines() {
+        if let Some((key, value)) = line.split_once('=') {
+            map.insert(key.to_string(), value.to_string());
+        }
+    }
+    map
+}
+
+// ============================================================================
+// Tabtarget validation
+// ============================================================================
+
+/// Validate a tabtarget is a safe bare filename in tt/.
+fn zjjrlg_validate_tabtarget(s: &str) -> Result<(), String> {
+    if s.is_empty() {
+        return Err("tabtarget must not be empty".to_string());
+    }
+    if s.contains('/') || s.contains("..") {
+        return Err("tabtarget must be a bare filename (no path components)".to_string());
+    }
+    if !s.ends_with(".sh") {
+        return Err("tabtarget must end with .sh".to_string());
+    }
+    Ok(())
+}
+
+// ============================================================================
+// Nohup wrapper construction
+// ============================================================================
+
+/// Build the nohup wrapper script for async dispatch on the fundus.
+///
+/// The wrapper:
+/// 1. Backgrounds the tabtarget with BURE_LABEL set
+/// 2. Starts a watchdog that kills the tabtarget after timeout seconds
+/// 3. Waits for the tabtarget to finish (or be killed)
+/// 4. Cleans up the watchdog
+fn zjjrlg_build_nohup_script(reldir: &str, pensum: &str, timeout: u64, tabtarget: &str) -> String {
+    format!("\
+cd \"$HOME/{}\" || exit 1
+nohup bash -c 'export BURE_LABEL=\"{}\"; \
+./tt/{} & z_child=$!; \
+(sleep {} && kill -TERM $z_child 2>/dev/null) & z_watchdog=$!; \
+wait $z_child; z_rc=$?; \
+kill $z_watchdog 2>/dev/null; \
+exit $z_rc' < /dev/null > /dev/null 2>&1 &
+echo RELAY_OK",
+        reldir, pensum, tabtarget, timeout
+    )
+}
+
+// ============================================================================
+// Pensum minting (gallops integration)
+// ============================================================================
+
+/// Mint a pensum token via the gallops store.
+///
+/// Acquires commit lock, loads gallops, mints pensum (incrementing seed),
+/// persists gallops with commit, releases lock.
+fn zjjrlg_mint_pensum_locked(firemark_input: &str) -> Result<crate::jjrf_favor::jjrf_Pensum, String> {
+    let firemark = crate::jjrf_favor::jjrf_Firemark::jjrf_parse(firemark_input)
+        .map_err(|e| format!("Invalid firemark: {}", e))?;
+
+    let lock = vvc::vvcc_CommitLock::vvcc_acquire()
+        .map_err(|e| format!("Cannot acquire commit lock: {}", e))?;
+
+    let gallops_path = PathBuf::from(GALLOPS_PATH);
+    let mut gallops = crate::jjrg_gallops::jjrg_Gallops::jjrg_load(&gallops_path)
+        .map_err(|e| format!("Cannot load gallops: {}", e))?;
+
+    let pensum = crate::jjro_ops::jjrg_mint_pensum(&mut gallops, firemark_input)?;
+
+    let mut persist_output = vvco_Output::buffer();
+    crate::jjri_io::jjri_persist(
+        &lock,
+        &gallops,
+        &gallops_path,
+        &firemark,
+        format!("jjx: {} mint {}", JJRLG_CMD_NAME_RELAY, pensum.jjrf_display()),
+        50000,
+        &mut persist_output,
+    )?;
+
+    Ok(pensum)
+}
+
+// ============================================================================
+// jjx_relay — async dispatch via nohup on fundus
+// ============================================================================
+
+pub struct jjrlg_RelayArgs {
+    pub legatio: String,
+    pub tabtarget: String,
+    pub timeout: u64,
+    pub firemark: String,
+}
+
+/// Launch an async dispatch on the fundus via nohup.
+///
+/// Mints a pensum token, launches the tabtarget via nohup wrapper over SSH,
+/// reads initial burx.env to capture BURX_TEMP_DIR, persists pensum state.
+pub fn jjrlg_run_relay(args: jjrlg_RelayArgs, officium_id: &str) -> (i32, String) {
+    let cn = JJRLG_CMD_NAME_RELAY;
+    let mut output = vvco_Output::buffer();
+
+    if let Err(e) = zjjrlg_validate_tabtarget(&args.tabtarget) {
+        vvco_err!(output, "{}: {}", cn, e);
+        return (1, output.vvco_finish());
+    }
+
+    let officium_dir = zjjrlg_officium_dir(officium_id);
+    if !officium_dir.is_dir() {
+        vvco_err!(output, "{}: officium directory not found", cn);
+        return (1, output.vvco_finish());
+    }
+
+    // Load legatio state
+    let state = match zjjrlg_load_legatio(&officium_dir, &args.legatio) {
+        Ok(s) => s,
+        Err(e) => {
+            vvco_err!(output, "{}: {}", cn, e);
+            return (1, output.vvco_finish());
+        }
+    };
+
+    // Mint pensum: lock → load → mint → persist → release
+    let pensum = match zjjrlg_mint_pensum_locked(&args.firemark) {
+        Ok(p) => p,
+        Err(e) => {
+            vvco_err!(output, "{}: {}", cn, e);
+            return (1, output.vvco_finish());
+        }
+    };
+    let pensum_token = pensum.jjrf_as_str().to_string();
+    let pensum_display = pensum.jjrf_display();
+
+    vvco_out!(output, "Relaying {} via {} ({})", args.tabtarget, args.legatio, pensum_display);
+
+    // SSH #1: Launch nohup wrapper on fundus
+    let nohup_script = zjjrlg_build_nohup_script(
+        &state.reldir, &pensum_token, args.timeout, &args.tabtarget,
+    );
+
+    let launch = match zjjrlg_ssh_exec(&state.host, &state.user, &nohup_script) {
+        Ok(r) => r,
+        Err(e) => {
+            vvco_err!(output, "{}: SSH launch failed: {}", cn, e);
+            return (1, output.vvco_finish());
+        }
+    };
+
+    let launch_stdout = String::from_utf8_lossy(&launch.stdout);
+    if launch.exit_code != 0 || !launch_stdout.contains("RELAY_OK") {
+        let stderr = String::from_utf8_lossy(&launch.stderr);
+        vvco_err!(output, "{}: nohup launch failed (exit {})", cn, launch.exit_code);
+        if !stderr.trim().is_empty() { vvco_err!(output, "  {}", stderr.trim()); }
+        return (1, output.vvco_finish());
+    }
+
+    vvco_out!(output, "Dispatch launched on fundus.");
+
+    // SSH #2: Read initial burx.env — poll with label matching to avoid stale reads
+    let burx_script = format!("\
+cd \"$HOME/{}\" || exit 1
+z_retries=0
+while [ $z_retries -lt {} ]; do
+  if [ -f '{}/current/burx.env' ]; then
+    z_label=$(grep '^BURX_LABEL=' '{}/current/burx.env' 2>/dev/null | head -1 | cut -d= -f2)
+    if [ \"$z_label\" = '{}' ]; then
+      cat '{}/current/burx.env'
+      exit 0
+    fi
+  fi
+  sleep {}
+  z_retries=$((z_retries + 1))
+done
+exit 1",
+        state.reldir,
+        BURX_INITIAL_POLL_MAX_RETRIES,
+        state.output_root_dir, state.output_root_dir, pensum_token,
+        state.output_root_dir,
+        BURX_INITIAL_POLL_DELAY_SECS,
+    );
+
+    let burx = match zjjrlg_ssh_exec(&state.host, &state.user, &burx_script) {
+        Ok(r) => r,
+        Err(e) => {
+            vvco_err!(output, "{}: SSH burx read failed: {}", cn, e);
+            return (1, output.vvco_finish());
+        }
+    };
+
+    if burx.exit_code != 0 {
+        vvco_err!(output, "{}: burx.env with matching label not found after {} retries",
+            cn, BURX_INITIAL_POLL_MAX_RETRIES);
+        return (1, output.vvco_finish());
+    }
+
+    let burx_content = String::from_utf8_lossy(&burx.stdout);
+    let burx_fields = zjjrlg_parse_burx(&burx_content);
+
+    let temp_dir = match burx_fields.get("BURX_TEMP_DIR") {
+        Some(d) if !d.is_empty() => d.clone(),
+        _ => {
+            vvco_err!(output, "{}: BURX_TEMP_DIR not found in burx.env", cn);
+            return (1, output.vvco_finish());
+        }
+    };
+
+    let pid = match burx_fields.get("BURX_PID") {
+        Some(p) if !p.is_empty() => p.clone(),
+        _ => {
+            vvco_err!(output, "{}: BURX_PID not found in burx.env", cn);
+            return (1, output.vvco_finish());
+        }
+    };
+
+    let began_at = burx_fields.get("BURX_BEGAN_AT").cloned().unwrap_or_default();
+
+    // Persist pensum state
+    let pensum_state = jjrlg_PensumState {
+        legatio: args.legatio.clone(),
+        firemark: args.firemark.clone(),
+        temp_dir: temp_dir.clone(),
+        pid,
+        tabtarget: args.tabtarget.clone(),
+        timeout: args.timeout,
+        began_at,
+    };
+
+    if let Err(e) = zjjrlg_save_pensum(&officium_dir, &pensum_token, &pensum_state) {
+        vvco_err!(output, "{}: {}", cn, e);
+        return (1, output.vvco_finish());
+    }
+
+    vvco_out!(output, "Pensum {} active.", pensum_display);
+    vvco_out!(output, "Remote temp dir: {}", temp_dir);
+
+    (0, output.vvco_finish())
+}
+
+// ============================================================================
+// Pensum probe (shared by jjx_check)
+// ============================================================================
+
+/// Result of a single pensum probe via SSH.
+struct zjjrlg_ProbeResult {
+    report: String,
+    burx_fields: HashMap<String, String>,
+    files: Vec<String>,
+}
+
+/// Execute a single probe of a pensum's status via SSH.
+///
+/// Reads burx.env from the pensum's durable temp dir, checks for
+/// BURX_EXIT_STATUS (terminal), probes PID via kill -0, and lists
+/// files on terminal status.
+fn zjjrlg_probe_pensum(
+    legatio_state: &jjrlg_LegatioState,
+    pensum_state: &jjrlg_PensumState,
+) -> Result<zjjrlg_ProbeResult, String> {
+    let probe_script = format!("\
+if [ ! -f '{temp_dir}/burx.env' ]; then
+  echo 'JJRLG_REPORT:lost'
+  exit 0
+fi
+cat '{temp_dir}/burx.env'
+echo 'JJRLG_BURX_END'
+z_es=$(grep '^BURX_EXIT_STATUS=' '{temp_dir}/burx.env' 2>/dev/null | head -1 | cut -d= -f2)
+if [ -n \"$z_es\" ]; then
+  echo 'JJRLG_REPORT:stopped'
+  echo 'JJRLG_FILES_BEGIN'
+  ls -1 '{temp_dir}/'
+  echo 'JJRLG_FILES_END'
+else
+  if kill -0 {pid} 2>/dev/null; then
+    echo 'JJRLG_REPORT:running'
+  else
+    echo 'JJRLG_REPORT:orphaned'
+  fi
+fi",
+        temp_dir = pensum_state.temp_dir,
+        pid = pensum_state.pid,
+    );
+
+    let result = zjjrlg_ssh_exec(
+        &legatio_state.host,
+        &legatio_state.user,
+        &probe_script,
+    ).map_err(|e| format!("SSH probe failed: {}", e))?;
+
+    let stdout = String::from_utf8_lossy(&result.stdout);
+
+    // Parse report line
+    let report = stdout.lines()
+        .find(|l| l.starts_with("JJRLG_REPORT:"))
+        .map(|l| l["JJRLG_REPORT:".len()..].to_string())
+        .unwrap_or_else(|| "unknown".to_string());
+
+    // Parse BURX fields (lines before JJRLG_BURX_END, excluding sentinel lines)
+    let burx_content: String = stdout.lines()
+        .take_while(|l| !l.starts_with("JJRLG_BURX_END"))
+        .filter(|l| !l.starts_with("JJRLG_"))
+        .collect::<Vec<_>>()
+        .join("\n");
+    let burx_fields = zjjrlg_parse_burx(&burx_content);
+
+    // Parse file list (between JJRLG_FILES_BEGIN and JJRLG_FILES_END)
+    let mut in_files = false;
+    let mut files = Vec::new();
+    for line in stdout.lines() {
+        if line == "JJRLG_FILES_BEGIN" {
+            in_files = true;
+            continue;
+        }
+        if line == "JJRLG_FILES_END" {
+            break;
+        }
+        if in_files && !line.is_empty() {
+            files.push(line.to_string());
+        }
+    }
+
+    Ok(zjjrlg_ProbeResult { report, burx_fields, files })
+}
+
+/// Format probe result into output buffer.
+fn zjjrlg_format_probe_output(pensum_display: &str, probe: &zjjrlg_ProbeResult, output: &mut vvco_Output) {
+    vvco_out!(output, "Pensum: {}", pensum_display);
+    vvco_out!(output, "Report: {}", probe.report);
+
+    for key in &["BURX_PID", "BURX_BEGAN_AT", "BURX_TABTARGET", "BURX_TEMP_DIR",
+                  "BURX_TRANSCRIPT", "BURX_LOG_HIST", "BURX_LABEL",
+                  "BURX_EXIT_STATUS", "BURX_ENDED_AT"] {
+        if let Some(val) = probe.burx_fields.get(*key) {
+            if !val.is_empty() {
+                vvco_out!(output, "{}: {}", key, val);
+            }
+        }
+    }
+
+    if !probe.files.is_empty() {
+        vvco_out!(output, "Files:");
+        for f in &probe.files {
+            vvco_out!(output, "  {}", f);
+        }
+    }
+}
+
+// ============================================================================
+// jjx_check — probe or poll pensum status
+// ============================================================================
+
+pub struct jjrlg_CheckArgs {
+    pub pensum: String,
+    pub timeout: u64,
+}
+
+/// Probe or poll a pensum's status on the fundus.
+///
+/// timeout=0: instant probe (single SSH round-trip).
+/// timeout>0: poll until terminal state or timeout expires.
+///
+/// Returns BURX fields + liveness report (running/orphaned/stopped/lost).
+/// On terminal status (stopped), also returns file list from BURX_TEMP_DIR.
+pub fn jjrlg_run_check(args: jjrlg_CheckArgs, officium_id: &str) -> (i32, String) {
+    let cn = JJRLG_CMD_NAME_CHECK;
+    let mut output = vvco_Output::buffer();
+
+    let officium_dir = zjjrlg_officium_dir(officium_id);
+
+    let parsed = match crate::jjrf_favor::jjrf_Pensum::jjrf_parse(&args.pensum) {
+        Ok(p) => p,
+        Err(e) => {
+            vvco_err!(output, "{}: invalid pensum: {}", cn, e);
+            return (1, output.vvco_finish());
+        }
+    };
+    let pensum_token = parsed.jjrf_as_str().to_string();
+    let pensum_display = parsed.jjrf_display();
+
+    let pensum_state = match zjjrlg_load_pensum(&officium_dir, &pensum_token) {
+        Ok(s) => s,
+        Err(e) => {
+            vvco_err!(output, "{}: {}", cn, e);
+            return (1, output.vvco_finish());
+        }
+    };
+
+    let legatio_state = match zjjrlg_load_legatio(&officium_dir, &pensum_state.legatio) {
+        Ok(s) => s,
+        Err(e) => {
+            vvco_err!(output, "{}: {}", cn, e);
+            return (1, output.vvco_finish());
+        }
+    };
+
+    let deadline = if args.timeout > 0 {
+        Some(std::time::Instant::now() + std::time::Duration::from_secs(args.timeout))
+    } else {
+        None
+    };
+
+    loop {
+        let probe = match zjjrlg_probe_pensum(&legatio_state, &pensum_state) {
+            Ok(p) => p,
+            Err(e) => {
+                vvco_err!(output, "{}: {}", cn, e);
+                return (1, output.vvco_finish());
+            }
+        };
+
+        let is_terminal = probe.report == "stopped" || probe.report == "lost";
+
+        if is_terminal || deadline.is_none() {
+            zjjrlg_format_probe_output(&pensum_display, &probe, &mut output);
+            return (0, output.vvco_finish());
+        }
+
+        if let Some(dl) = deadline {
+            if std::time::Instant::now() >= dl {
+                zjjrlg_format_probe_output(&pensum_display, &probe, &mut output);
+                return (0, output.vvco_finish());
+            }
+        }
+
+        std::thread::sleep(std::time::Duration::from_secs(BURX_CHECK_POLL_INTERVAL_SECS));
+    }
+}
+
+// ============================================================================
 // Tests
 // ============================================================================
 
@@ -586,6 +1085,91 @@ mod tests {
         std::fs::write(dir.join("legatio_L0.json"), "{}").unwrap();
         std::fs::write(dir.join("legatio_L1.json"), "{}").unwrap();
         assert_eq!(zjjrlg_mint_token(&dir), "L2");
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn test_validate_tabtarget_valid() {
+        assert!(zjjrlg_validate_tabtarget("rbw-tf.TestFixture.regime-validation.sh").is_ok());
+        assert!(zjjrlg_validate_tabtarget("vow-b.Build.sh").is_ok());
+    }
+
+    #[test]
+    fn test_validate_tabtarget_empty() {
+        assert!(zjjrlg_validate_tabtarget("").is_err());
+    }
+
+    #[test]
+    fn test_validate_tabtarget_path_traversal() {
+        assert!(zjjrlg_validate_tabtarget("../escape.sh").is_err());
+        assert!(zjjrlg_validate_tabtarget("sub/dir.sh").is_err());
+    }
+
+    #[test]
+    fn test_validate_tabtarget_no_sh_extension() {
+        assert!(zjjrlg_validate_tabtarget("something.py").is_err());
+        assert!(zjjrlg_validate_tabtarget("noext").is_err());
+    }
+
+    #[test]
+    fn test_parse_burx_fields() {
+        let content = "BURX_PID=12345\nBURX_BEGAN_AT=20260403-102137.482951000\nBURX_TEMP_DIR=/home/user/.buk/temp-20260403\nBURX_LABEL=A4%AA";
+        let fields = zjjrlg_parse_burx(content);
+        assert_eq!(fields.get("BURX_PID").unwrap(), "12345");
+        assert_eq!(fields.get("BURX_BEGAN_AT").unwrap(), "20260403-102137.482951000");
+        assert_eq!(fields.get("BURX_TEMP_DIR").unwrap(), "/home/user/.buk/temp-20260403");
+        assert_eq!(fields.get("BURX_LABEL").unwrap(), "A4%AA");
+    }
+
+    #[test]
+    fn test_parse_burx_with_terminal_fields() {
+        let content = "BURX_PID=12345\nBURX_EXIT_STATUS=0\nBURX_ENDED_AT=20260403-102200";
+        let fields = zjjrlg_parse_burx(content);
+        assert_eq!(fields.get("BURX_EXIT_STATUS").unwrap(), "0");
+        assert_eq!(fields.get("BURX_ENDED_AT").unwrap(), "20260403-102200");
+    }
+
+    #[test]
+    fn test_parse_burx_empty() {
+        let fields = zjjrlg_parse_burx("");
+        assert!(fields.is_empty());
+    }
+
+    #[test]
+    fn test_nohup_script_structure() {
+        let script = zjjrlg_build_nohup_script("projects/test", "A4%AA", 300, "rbw-tf.Test.sh");
+        assert!(script.contains("BURE_LABEL"));
+        assert!(script.contains("A4%AA"));
+        assert!(script.contains("tt/rbw-tf.Test.sh"));
+        assert!(script.contains("sleep 300"));
+        assert!(script.contains("RELAY_OK"));
+        assert!(script.contains("nohup"));
+        assert!(script.contains("< /dev/null"));
+    }
+
+    #[test]
+    fn test_pensum_state_roundtrip() {
+        let dir = std::env::temp_dir().join("jjrlg_test_pensum_roundtrip");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+
+        let state = jjrlg_PensumState {
+            legatio: "L0".to_string(),
+            firemark: "A4".to_string(),
+            temp_dir: "/home/test/.buk/temp-20260403".to_string(),
+            pid: "12345".to_string(),
+            tabtarget: "rbw-tf.Test.sh".to_string(),
+            timeout: 300,
+            began_at: "20260403-102137".to_string(),
+        };
+
+        zjjrlg_save_pensum(&dir, "A4%AA", &state).unwrap();
+        let loaded = zjjrlg_load_pensum(&dir, "A4%AA").unwrap();
+        assert_eq!(loaded.legatio, "L0");
+        assert_eq!(loaded.temp_dir, "/home/test/.buk/temp-20260403");
+        assert_eq!(loaded.pid, "12345");
+        assert_eq!(loaded.timeout, 300);
+
         let _ = std::fs::remove_dir_all(&dir);
     }
 }

@@ -57,7 +57,9 @@ const JJRM_CMD_NAME_BIND: &str = "jjx_bind";
 const JJRM_CMD_NAME_SEND: &str = "jjx_send";
 const JJRM_CMD_NAME_PLANT: &str = "jjx_plant";
 const JJRM_CMD_NAME_FETCH: &str = "jjx_fetch";
-const JJRM_LEGATIO_COMMANDS: &[&str] = &[JJRM_CMD_NAME_BIND, JJRM_CMD_NAME_SEND, JJRM_CMD_NAME_PLANT, JJRM_CMD_NAME_FETCH];
+const JJRM_CMD_NAME_RELAY: &str = "jjx_relay";
+const JJRM_CMD_NAME_CHECK: &str = "jjx_check";
+const JJRM_LEGATIO_COMMANDS: &[&str] = &[JJRM_CMD_NAME_BIND, JJRM_CMD_NAME_SEND, JJRM_CMD_NAME_PLANT, JJRM_CMD_NAME_FETCH, JJRM_CMD_NAME_RELAY, JJRM_CMD_NAME_CHECK];
 
 fn gallops_pathbuf() -> PathBuf {
     PathBuf::from(GALLOPS_PATH)
@@ -364,6 +366,20 @@ pub struct jjrm_FetchParams {
     pub path: String,
 }
 
+#[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
+pub struct jjrm_RelayParams {
+    pub legatio: String,
+    pub tabtarget: String,
+    pub timeout: u64,
+    pub firemark: String,
+}
+
+#[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
+pub struct jjrm_CheckParams {
+    pub pensum: String,
+    pub timeout: u64,
+}
+
 // ============================================================================
 // Single dispatcher tool params
 // ============================================================================
@@ -374,7 +390,7 @@ fn jjrm_empty_object() -> serde_json::Value {
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_JjxParams {
-    #[schemars(description = "Command name: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing, jjx_bind, jjx_send, jjx_plant, jjx_fetch, jjx_open")]
+    #[schemars(description = "Command name: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing, jjx_bind, jjx_send, jjx_plant, jjx_fetch, jjx_relay, jjx_check, jjx_open")]
     pub command: String,
     #[schemars(description = "Command parameters as JSON object. See CLAUDE.md for per-command schemas.")]
     #[serde(default = "jjrm_empty_object")]
@@ -1200,6 +1216,28 @@ impl jjrm_McpServer {
                     crate::jjrlg_legatio::jjrlg_FetchArgs {
                         legatio: p.legatio,
                         path: p.path,
+                    },
+                    officium_id,
+                ))
+            }
+            JJRM_CMD_NAME_RELAY => {
+                let p = deser!(jjrm_RelayParams);
+                jjrm_result(crate::jjrlg_legatio::jjrlg_run_relay(
+                    crate::jjrlg_legatio::jjrlg_RelayArgs {
+                        legatio: p.legatio,
+                        tabtarget: p.tabtarget,
+                        timeout: p.timeout,
+                        firemark: p.firemark,
+                    },
+                    officium_id,
+                ))
+            }
+            JJRM_CMD_NAME_CHECK => {
+                let p = deser!(jjrm_CheckParams);
+                jjrm_result(crate::jjrlg_legatio::jjrlg_run_check(
+                    crate::jjrlg_legatio::jjrlg_CheckArgs {
+                        pensum: p.pensum,
+                        timeout: p.timeout,
                     },
                     officium_id,
                 ))
