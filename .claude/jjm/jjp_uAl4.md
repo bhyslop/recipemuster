@@ -45,32 +45,34 @@ Spun off from ₣A2 (jjk-v3-6-minor-issues). The original paces ₢A2AAG (buf-di
 
 ### Two-Tier Identity: Legatio and Pensum
 
-**Legatio** (session): A standing connection to a remote project. Created by `jjx_bind`, identified by a legatio token. Contains host, user, directory. Multiple legationes can coexist within an officium (different hosts, or same host different projects). Persists until explicit unbind or officium absolution.
+**Legatio** (session): A standing connection to a remote project. Created by `jjx_bind`, identified by a legatio token. Contains host, user, reldir. Multiple legationes can coexist within an officium (different hosts, or same host different projects). Persists until explicit unbind or officium absolution.
 
-**Pensum** (job): A single dispatched async operation within a legatio. Created by `jjx_relay`, identified by a pensum token. The pensum stores which legatio it was dispatched through. Multiple pensa can coexist. Each pensum on the curia maps to a remote temp dir path on the locus.
+**Pensum** (job): A single dispatched async operation within a legatio. Created by `jjx_relay`, identified by a pensum token. The pensum stores which legatio it was dispatched through. Multiple pensa can coexist. Each pensum on the curia maps to a remote temp dir path on the fundus.
 
-**Pensum flows curia → locus via BURE**: `jjx_relay` mints the pensum on the curia, sets `BURE_PENSUM=<token>` in the SSH environment. BUD writes it into `burx.env`. Both sides can correlate.
+**Pensum flows curia → fundus via BURE**: `jjx_relay` mints the pensum on the curia, sets `BURE_PENSUM=<token>` in the SSH environment. BUD writes it into `burx.env`. Both sides can correlate.
 
-### Curia and Locus — Role Vocabulary
+### Curia and Fundus — Role Vocabulary
 
 Two sides of every remote operation need distinct quoin-level names:
 
-- **Curia** — the invoking side. Where the officium lives, where JJK runs, where the LLM works. The administrative court from which legationes are sent.
-- **Locus** — the executing side. Where BUD runs, where BURX is written, where the tabtarget physically executes. The place of work.
+- **Curia** — the invoking side (master). Where the officium lives, where JJK runs, where the LLM works. The administrative court from which legationes are sent.
+- **Fundus** — the executing side (slave). Where BUD runs, where BURX is written, where the tabtarget physically executes. Latin: estate, landed property — the ground where labor happens. C/F first-letter-distinct.
+
+Evolution: sedes/situs rejected (shared first letter 'S'), locus rejected (too common, practically English).
 
 ### Command Surface
 
 | Command | Takes | Returns | Mode |
 |---------|-------|---------|------|
-| `jjx_bind` | `{host, user, directory}` | legatio token | Creates session, SSH probe at bind time |
+| `jjx_bind` | `{host, user, reldir}` | legatio token | Creates session, SSH probe + RELDIR safety check at bind time |
 | `jjx_send` | `{legatio, command, timeout}` | exit code + output | Synchronous, no pensum |
 | `jjx_relay` | `{legatio, tabtarget, timeout}` | pensum token | Async via nohup, mints pensum |
 | `jjx_check` | `{pensum}` | BURX fields + liveness | Lightweight, pollable |
 | `jjx_fetch` | `{pensum}` | All artifacts (transcript, log, facts) | Heavy, bundle-fetch, no ref param |
 
-**`jjx_send`** is purely synchronous — uses legatio for SSH target, blocks until done, returns inline. No pensum, no BURX consumption. BUD still writes BURX on the locus (it always does), but nobody reads it remotely.
+**`jjx_send`** is purely synchronous — uses legatio for SSH target, blocks until done, returns inline. No pensum, no BURX consumption. BUD still writes BURX on the fundus (it always does), but nobody reads it remotely.
 
-**`jjx_relay`** fires via nohup on the locus. The timeout is self-enforced remotely (the nohup wrapper kills the process after N seconds). SSH disconnects immediately after launch. Returns pensum token with remote temp dir path captured.
+**`jjx_relay`** fires via nohup on the fundus. The timeout is self-enforced remotely (the nohup wrapper kills the process after N seconds). SSH disconnects immediately after launch. Returns pensum token with remote temp dir path captured.
 
 **`jjx_check`** is the polling primitive: SSH in, read `burx.env` from the stored temp dir path, probe `kill -0 $PID`. Reports:
 
@@ -87,13 +89,50 @@ Two sides of every remote operation need distinct quoin-level names:
 
 nohup + sentinel pattern. POSIX, zero dependencies beyond standard shell.
 
-The nohup wrapper on the locus:
+The nohup wrapper on the fundus:
 1. Sets `BURE_PENSUM` in environment
 2. Invokes the tabtarget (which goes through BUD dispatch)
 3. BUD writes initial `burx.env` (no STATUS field = running)
 4. Tabtarget runs
 5. On completion: BUD exit path writes `BURX_STATUS` and `BURX_ENDED_AT`
 6. On crash: `burx.env` exists with PID but no STATUS — `jjx_check` detects via `kill -0`
+
+### Fundus Configuration
+
+**Curia-side constants** (RCG-compliant Rust `const` in the remote dispatch module):
+
+`const FUNDUS_DEFAULT_USER: &str = "rbtest";`
+`const FUNDUS_DEFAULT_RELDIR: &str = "projects/rbm_alpha_recipemuster";`
+
+`jjx_bind` takes all three params `{host, user, reldir}` as required. The LLM reads the constants and passes them explicitly — no hidden defaulting. The constants are the single source of truth for "what user/directory do we use on the fundus."
+
+**RELDIR is relative to the fundus user's home directory.** SSH sessions land in `~` by default, so `cd $RELDIR && ...` works on macOS (`/Users/`), Linux (`/home/`), and any other home directory layout without the curia knowing the absolute home path. BURX fields like `BURX_TEMP_DIR` are still absolute on the fundus — BUD resolves them at dispatch time from the actual filesystem.
+
+**Hairpin testing**: Even when the fundus is `localhost`, a distinct user account is required. Podman/Docker container namespaces and image caches are per-user — same user means shared state and test interference. The legatio `(host, user, reldir)` triple guarantees isolation: `(localhost, rbtest, projects/rbm)` is fully orthogonal to the curia's own environment.
+
+**Fundus preconditions** (manual setup before `jjx_bind` can succeed):
+1. User account exists with SSH key access from curia
+2. Project directory exists at `~user/RELDIR` with BUK installed (`.buk/burc.env` present)
+3. BUD is functional — tabtargets can dispatch (regime chain resolves)
+4. Container runtime configured for that user (if crucible tests are in scope)
+
+### RELDIR Safety — Defense in Depth
+
+Remote dispatch involves destructive operations on the fundus (workspace cleanup). A malformed RELDIR could resolve to `/` or `~`, destroying the filesystem or the user's home. Three layers defend against this:
+
+**Layer 1 — Rust constant validation (compile-time obvious):**
+- Must not be empty
+- Must not start with `/` (absolute path)
+- Must not start with `.` (relative traversal)
+- Must contain at least one `/` (forces subdirectory depth — `projects/foo`, never just `foo`)
+
+**Layer 2 — Fundus-side validation before any destructive operation:**
+The remote command that `jjx_relay` sends validates the resolved path on the fundus before doing anything. The validation resolves the path via `cd "$HOME/$RELDIR" && pwd`, confirms the result is strictly under `$HOME` (prefix match), and confirms minimum depth of 2 components under HOME (must contain a slash after stripping the HOME prefix). Exits with code 99 on any failure.
+
+**Layer 3 — `jjx_bind` probe at session creation:**
+The SSH probe that `jjx_bind` runs at bind time performs the same resolved-path check. Fail fast before any relay is ever attempted.
+
+Layer 1 catches developer mistakes. Layer 2 catches runtime resolution surprises (symlinks, `..` in path components). Layer 3 catches it early. No single layer is sufficient alone.
 
 ### Provenance
 
@@ -102,7 +141,9 @@ Design emerged through conversation in officium ☉260403-1021. Key evolution:
 - Single bind → legatio/pensum two-tier identity (concurrent connections and jobs)
 - Synchronous-only → async polled dispatch (nohup + PID probe)
 - `BURX_STATUS=running` → absence-of-field = running (cleaner)
-- sedes/situs → curia/locus (first-letter uniqueness)
+- sedes/situs → curia/locus → curia/fundus (first-letter uniqueness, "locus" too common)
+- `jjx_bind {host, user, directory}` → `{host, user, reldir}` all required, relative path, Rust constants as source of truth
+- RELDIR defense-in-depth: Rust validation + fundus-side resolved-path check + bind-time probe
 
 ### Existing Fact-File Infrastructure (Codebase Survey)
 
@@ -131,9 +172,7 @@ The fact-file pattern and AXLA voicing machinery already exist. BURX fields and 
 | `RBCC_FACT_CONSEC_INFIX` | `axpot_tally` | Per-vessel-hallmark presence marker |
 
 **Producer pattern today** (~15 instances in `rbfd_FoundryDirectorBuild.sh`, plus `rbfl_FoundryLedger.sh` for tally):
-```
-echo "${value}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}"
-```
+`echo "${value}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}"`
 All raw `echo > path` to `BURD_OUTPUT_DIR` only. No dual-write. The `buf_write_fact` primitive replaces every one of these.
 
 **Implications for ₣A4 paces:**
