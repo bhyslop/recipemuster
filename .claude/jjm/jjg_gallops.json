@@ -1741,9 +1741,10 @@
         "₢A4AAE",
         "₢A4AAG",
         "₢A4AAB",
-        "₢A4AAF"
+        "₢A4AAF",
+        "₢A4AAH"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_uAl4.md",
       "paces": {
         "₢A4AAA": {
@@ -1869,6 +1870,17 @@
               "text": "## Character\nInteractive planning conversation. Sophisticated failure modes and edge cases need careful thought about how to simulate them reliably in a test harness. Not mechanical — requires judgment about what's testable, what's worth testing, and what infrastructure is needed.\n\n## Docket\nPlan and implement advanced test cases for remote dispatch — failure modes, edge cases, and multi-resource scenarios deferred from ₢A4AAE.\n\n**Cases to plan:**\n- `jjx_check` orphaned: simulate crash (kill process before BURX_EXIT_STATUS written) — how to reliably trigger and detect?\n- `jjx_check` lost: probe nonexistent temp dir — straightforward but needs clean setup\n- `jjx_plant` failures: nonexistent commit, no `.git` at RELDIR, `git fetch` network failure — which are worth simulating?\n- Multiple legationes: bind to two different targets (or same host, different reldirs), operate on each independently\n- `jjx_fetch` relative vs absolute paths: both modes specified, both should be tested\n- `jjx_relay` timeout expiry: dispatch a long-running job, check with short timeout, verify running report\n- `jjx_send` with shell-quoting edge cases: commands with spaces, quotes, special characters\n- `jjx_bind` with stale legatio: what happens when fundus reboots between bind and send?\n\n**Outcome:** Concrete test case specifications added to the test fixture, then implemented.\n\n**Depends on:** ₢A4AAE (basic tests working first)",
               "silks": "advanced-test-case-planning",
               "commit": "3f2c6ce"
+            }
+          ]
+        },
+        "₢A4AAH": {
+          "tacks": [
+            {
+              "ts": "260404-1009",
+              "state": "rough",
+              "text": "## Character\nMechanical refactoring — no judgment, no new behavior. Every change is a grep-verifiable string-to-const substitution.\n\n## Docket\nMigrate all pre-existing MCP command name strings in `jjrm_mcp.rs` to RCG-compliant const definitions.\n\n**Problem:** ~26 command names appear as bare string literals in match arms and in the unknown-command error listing. RCG String Boundary Discipline requires a single const definition per serialized string. The legatio commands (bind/send/plant/fetch) were added with consts and a `JJRM_LEGATIO_COMMANDS` array as the pattern to follow.\n\n**Work:**\n- Define `JJRM_CMD_*` consts for all remaining commands (open, list, show, orient, record, log, validate, create, enroll, close, archive, reorder, redocket, relabel, drop, relocate, alter, search, brief, coronets, paddock, continue, transfer, landing, chapter, absolve)\n- Replace all match arm string literals with the corresponding const\n- Build `JJRM_ALL_COMMANDS` array from all consts (replacing `JJRM_LEGATIO_COMMANDS`)\n- Replace the unknown-command error listing with `JJRM_ALL_COMMANDS.join(\", \")`\n- Update the schemars description if a compile-time approach is feasible; otherwise document the proc-macro limitation\n- Verify: `grep '\"jjx_'` in jjrm_mcp.rs finds only the const definitions and the schemars attribute",
+              "silks": "jjk-mcp-command-name-const-registry",
+              "commit": "d1d383c"
             }
           ]
         }
