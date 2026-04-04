@@ -1725,10 +1725,11 @@
         "₢A4AAC",
         "₢A4AAD",
         "₢A4AAE",
+        "₢A4AAG",
         "₢A4AAB",
         "₢A4AAF"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_uAl4.md",
       "paces": {
         "₢A4AAA": {
@@ -1836,6 +1837,17 @@
               "text": "## Character\nPainstaking verification. Requires reading every spec definition against every source implementation, line by line. No creativity — pure discipline. The kind of work where missing one field name mismatch means a runtime bug that's hard to trace.\n\n## Docket\nSystematic audit that spec documents and source code are perfectly aligned after all implementation paces complete.\n\n**BUS0 ↔ BUK source:**\n- Every BURX field name in BUS0 matches constants in source\n- BURE_LABEL kindle definition matches BUC implementation\n- `buf_write_fact` spec description matches module implementation\n- Dual-write destinations match (BURD_OUTPUT_DIR + BURD_TEMP_DIR)\n- burx.env write points in BUD match spec (start fields vs completion fields)\n\n**JJS0 ↔ JJK source:**\n- Every command param in JJS0 matches Rust handler signature\n- Legatio/pensum identity formats match between spec and token minting code\n- jjx_check return shape matches spec (BURX fields + liveness report + file list on terminal)\n- jjx_fetch path resolution (relative vs absolute) matches spec\n- jjx_plant fundus-side sequence matches spec\n- jjx_relay nohup wrapper sets BURE_LABEL per spec\n- Curia/fundus vocabulary used consistently (no master/slave leaking through)\n\n**Cross-spec:**\n- JJS0 references to BURX fields match BUS0 definitions\n- BURE_LABEL flow: JJS0 pensum → BURE_LABEL → BUS0 BURX_LABEL chain is consistent\n\n**Paddock ↔ specs:**\n- Design decisions in paddock are faithfully represented in both specs\n- No paddock decisions lost or contradicted\n\n**Method:** Read spec section, read corresponding source, note any divergence. Fix or flag.",
               "silks": "spec-source-alignment-audit",
               "commit": "3581ad7"
+            }
+          ]
+        },
+        "₢A4AAG": {
+          "tacks": [
+            {
+              "ts": "260404-0918",
+              "state": "rough",
+              "text": "## Character\nInteractive planning conversation. Sophisticated failure modes and edge cases need careful thought about how to simulate them reliably in a test harness. Not mechanical — requires judgment about what's testable, what's worth testing, and what infrastructure is needed.\n\n## Docket\nPlan and implement advanced test cases for remote dispatch — failure modes, edge cases, and multi-resource scenarios deferred from ₢A4AAE.\n\n**Cases to plan:**\n- `jjx_check` orphaned: simulate crash (kill process before BURX_EXIT_STATUS written) — how to reliably trigger and detect?\n- `jjx_check` lost: probe nonexistent temp dir — straightforward but needs clean setup\n- `jjx_plant` failures: nonexistent commit, no `.git` at RELDIR, `git fetch` network failure — which are worth simulating?\n- Multiple legationes: bind to two different targets (or same host, different reldirs), operate on each independently\n- `jjx_fetch` relative vs absolute paths: both modes specified, both should be tested\n- `jjx_relay` timeout expiry: dispatch a long-running job, check with short timeout, verify running report\n- `jjx_send` with shell-quoting edge cases: commands with spaces, quotes, special characters\n- `jjx_bind` with stale legatio: what happens when fundus reboots between bind and send?\n\n**Outcome:** Concrete test case specifications added to the test fixture, then implemented.\n\n**Depends on:** ₢A4AAE (basic tests working first)",
+              "silks": "advanced-test-case-planning",
+              "commit": "3f2c6ce"
             }
           ]
         }
