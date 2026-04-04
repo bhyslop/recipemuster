@@ -293,9 +293,10 @@
         "₢A1AAi",
         "₢A1AAk",
         "₢A1AAj",
-        "₢A1AAl"
+        "₢A1AAl",
+        "₢A1AAm"
       ],
-      "next_pace_seed": "AAm",
+      "next_pace_seed": "AAn",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -1238,6 +1239,17 @@
               "text": "## Character\nDiagnostic investigation — requires reading lifecycle verification code and understanding Docker health-check timing. May surface a real race condition or confirm adequate retry logic already exists.\n\n## Docket\n\nInvestigate the transient \"crucible not active after charge\" failure observed during ₢A1AAj work. The charge succeeded but the subsequent active-verification failed, and a blind retry succeeded. This pattern masks potential infrastructure bugs.\n\n### Questions to answer\n\n- How does the crucible active-check work? What does it poll, what are its timeouts?\n- Was the failure caused by the new kludge bottle image being slower to start than the cached sentry/pentacle?\n- Is there a quench/charge overlap race if they run in quick succession?\n- Does the active-check have adequate wait/retry logic, or does it fire once and fail?\n\n### Scope\n\n- Read the charge and active-verification code paths\n- Determine if the check is a single-shot assertion or a polling loop with timeout\n- If single-shot: recommend adding a polling loop with reasonable timeout\n- If polling loop: determine why it timed out and whether the timeout is too aggressive\n- Document findings in paddock\n\n### Acceptance\n\n- Root cause identified or narrowed to specific code path\n- Recommendation: fix, extend timeout, or accept-as-is with rationale",
               "silks": "crucible-active-check-race-investigation",
               "commit": "89cb9db"
+            }
+          ]
+        },
+        "₢A1AAm": {
+          "tacks": [
+            {
+              "ts": "260404-0838",
+              "state": "rough",
+              "text": "## Character\nFocused test development — two new ifrit attacks and two new theurge crucible cases. Mechanical implementation following established patterns, but requires understanding iptables rule ordering to know what the expected behavior should be.\n\n## Docket\n\nAdd two new security tests verifying that the sentry's egress controls are port-scoped, not just CIDR-scoped.\n\n### Test 1: tcp-outbound-high-port\n\nFrom inside the bottle, attempt TCP connections to an allowed CIDR IP on non-443 ports (80, 8080, 22). Expect all to fail. Verifies that iptables CIDR rules are not wide-open — if they are, this is a real finding.\n\n- New ifrit attack: `TcpHighPort` / `tcp-high-port`\n- Resolve example.com, attempt connections on ports 80, 8080, 22 with short timeout\n- Verdict: SECURE if all fail, BREACH if any succeed\n- Theurge case: `rbtdrc_tcp_high_port_blocked` in tadmor-correlated section\n\n### Test 2: udp-data-exfil\n\nFrom inside the bottle, attempt to send a UDP datagram on a non-DNS port (e.g., port 1234) to an external IP. Expect failure. Verifies that non-DNS UDP egress is blocked.\n\n- New ifrit attack: `UdpDataExfil` / `udp-data-exfil`\n- Send UDP datagram to example.com IP on port 1234\n- Verdict: SECURE if send fails or packet is dropped, BREACH if send succeeds with no error\n- Theurge case: `rbtdrc_udp_data_exfil_blocked` in tadmor-correlated section\n\n### Acceptance\n\n- Both ifrit selectors implemented and registered\n- Both theurge cases registered in tadmor-correlated section\n- Theurge builds, unit tests pass\n- Full tadmor crucible green (44 + 2 = 46 cases)",
+              "silks": "egress-control-verification-tests",
+              "commit": "ad35120"
             }
           ]
         }
