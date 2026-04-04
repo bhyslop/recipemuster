@@ -123,6 +123,8 @@ Test suite/fixture tabtargets use `rbtd-s` and `rbtd-r` colophons:
 - Available test suites: `ls tt/rbtd-s.TestSuite.*`
 - Available test fixtures: `ls tt/rbtd-r.Run.*`
 
+For theurge/ifrit crucible testing work (editing test cases, adding new security probes, debugging test failures), read `Tools/rbk/rbk-claude-theurge-ifrit-context.md` — covers the two-binary architecture, the kludge/charge/test/ordain iteration loop, and how to add new test cases.
+
 ### Regime Inspection
 
 Regimes follow a consistent pattern: `rbw-r{code}{r|v|l}` where `r` = render, `v` = validate, `l` = list.
