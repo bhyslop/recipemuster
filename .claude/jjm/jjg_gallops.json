@@ -1714,9 +1714,10 @@
       "creation_time": "260403",
       "status": "racing",
       "order": [
-        "₢A4AAA"
+        "₢A4AAA",
+        "₢A4AAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_uAl4.md",
       "paces": {
         "₢A4AAA": {
@@ -1727,6 +1728,17 @@
               "text": "## Character\nSpec-and-implement in one pass. Mechanical BUK plumbing — the design is fully resolved in the paddock. Requires careful BUS0 quoin treatment but no design judgment.\n\n## Docket\nImplement BURX regime and dual-write fact-file primitive across BUS0 spec and BUK source.\n\n**BUS0 spec work:**\n- Define BURX regime: 9 fields (PID, BEGAN_AT, TABTARGET, TEMP_DIR, TRANSCRIPT, LOG_HIST, LABEL, EXIT_STATUS, ENDED_AT)\n- Define `buf_write_fact` primitive extending `busff_fact_file` pattern for dual-write\n- Add BURE_LABEL to BURE kindle definition (xname, max 120 chars, optional)\n- Quoin treatment for all new terms with appropriate AXLA voicings\n\n**BUK source work:**\n- New `buf_fact.sh` module (or similar) with `buf_write_fact` primitive — writes to both BURD_OUTPUT_DIR and BURD_TEMP_DIR\n- BUD modifications: write `burx.env` at dispatch start (7 fields) and completion (EXIT_STATUS, ENDED_AT)\n- BUC modifications: BURE_LABEL kindle constant\n- BURX_LABEL populated from BURE_LABEL env var; empty string when absent\n\n**Key constraints:**\n- BURX_EXIT_STATUS absence = still running (no explicit \"running\" value)\n- BURX_LABEL is JJK-decoupled — BUD writes whatever BURE_LABEL contains\n- All BURX paths must be absolute\n- See paddock \"BURX Regime\" and \"Dual-Write Fact-File Module\" sections for full design\n\n**Does NOT include:** RBK producer migration (~15 sites) — deferred to separate heat.",
               "silks": "buk-burx-regime-and-dual-write",
               "commit": "773f763"
+            }
+          ]
+        },
+        "₢A4AAB": {
+          "tacks": [
+            {
+              "ts": "260404-0854",
+              "state": "rough",
+              "text": "## Character\nDesign conversation requiring judgment. The paddock captures the design decisions, but formalizing them into JJS0's existing document structure requires careful quoin treatment, vocabulary precision, and attention to how the new commands interact with existing JJK concepts (officium, gazette, identity tiers). Expect iterative refinement with the user.\n\n## Docket\nFormalize the remote dispatch command surface in JJS0 spec.\n\n**New command definitions:**\n- `jjx_bind` — create legatio session with SSH probe + RELDIR safety\n- `jjx_send` — synchronous remote exec\n- `jjx_relay` — async dispatch via nohup, mint pensum\n- `jjx_check` — probe/poll pensum status (required timeout: 0=instant, >0=poll), file list on terminal\n- `jjx_fetch` — single file read from fundus (relative to RELDIR or absolute)\n- `jjx_plant` — reset fundus workspace to exact commit\n\n**New vocabulary requiring quoin treatment:**\n- Curia / Fundus role vocabulary\n- Legatio (session identity) / Pensum (job identity) two-tier model\n- BURX regime cross-reference (defined in BUS0, consumed here)\n\n**Structural considerations:**\n- Where do these commands land in JJS0's existing organization?\n- How do legatio/pensum relate to officium lifecycle (absolution cleans up legationes)?\n- BURE_LABEL as the bridge between JJK pensum tokens and BUK's BURX_LABEL\n\n**See paddock** for full design decision record, command surface table, and provenance.",
+              "silks": "jjs0-remote-dispatch-spec",
+              "commit": "09ef7c2"
             }
           ]
         }
