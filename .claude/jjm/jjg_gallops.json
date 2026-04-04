@@ -1,6 +1,6 @@
 {
   "schema_version": 4,
-  "next_heat_seed": "A4",
+  "next_heat_seed": "A5",
   "heat_order": [
     "₣Az",
     "₣An",
@@ -21,7 +21,8 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au"
+    "₣Au",
+    "₣A4"
   ],
   "heats": {
     "₣A0": {
@@ -1617,6 +1618,15 @@
           ]
         }
       }
+    },
+    "₣A4": {
+      "silks": "jjk-v3-7-remote-dispatch",
+      "creation_time": "260403",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uAl4.md",
+      "paces": {}
     },
     "₣AD": {
       "silks": "vos-spec-and-tooling",
