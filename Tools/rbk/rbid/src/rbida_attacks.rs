@@ -26,7 +26,8 @@ use crate::rbida_sorties;
 
 // ── Selector constants (Single Definition Rule — RCG String Boundary Discipline) ──
 
-const RBIDA_SEL_DNS_ALLOWED_ANTHROPIC: &str = "dns-allowed-anthropic";
+const RBIDA_SEL_DNS_ALLOWED_EXAMPLE: &str = "dns-allowed-example";
+const RBIDA_SEL_DNS_ALLOWED_EXAMPLE_ORG: &str = "dns-allowed-example-org";
 const RBIDA_SEL_DNS_BLOCKED_GOOGLE: &str = "dns-blocked-google";
 const RBIDA_SEL_APT_GET_BLOCKED: &str = "apt-get-blocked";
 const RBIDA_SEL_DNS_NONEXISTENT: &str = "dns-nonexistent";
@@ -69,8 +70,10 @@ const RBIDA_SEL_NET_DNAT_ENTRY_REFLECTION: &str = "net-dnat-entry-reflection";
 /// Security boundary attack. Each variant probes one aspect of the
 /// sentry's network security posture from inside the bottle.
 pub enum rbida_Attack {
-    /// DNS resolution of anthropic.com should succeed (allowed domain)
-    DnsAllowedAnthropic,
+    /// DNS resolution of example.com should succeed (allowed domain)
+    DnsAllowedExample,
+    /// DNS resolution of example.org should succeed (second allowed domain — exercises list treatment)
+    DnsAllowedExampleOrg,
     /// DNS resolution of google.com should fail (blocked domain)
     DnsBlockedGoogle,
     /// apt-get update should fail (package repos unreachable)
@@ -163,7 +166,8 @@ impl rbida_Attack {
     /// Parse a kebab-case selector string into an attack variant.
     pub fn from_selector(s: &str) -> Option<Self> {
         match s {
-            RBIDA_SEL_DNS_ALLOWED_ANTHROPIC => Some(Self::DnsAllowedAnthropic),
+            RBIDA_SEL_DNS_ALLOWED_EXAMPLE => Some(Self::DnsAllowedExample),
+            RBIDA_SEL_DNS_ALLOWED_EXAMPLE_ORG => Some(Self::DnsAllowedExampleOrg),
             RBIDA_SEL_DNS_BLOCKED_GOOGLE => Some(Self::DnsBlockedGoogle),
             RBIDA_SEL_APT_GET_BLOCKED => Some(Self::AptGetBlocked),
             RBIDA_SEL_DNS_NONEXISTENT => Some(Self::DnsNonexistent),
@@ -207,7 +211,8 @@ impl rbida_Attack {
     /// Kebab-case selector for this attack (inverse of from_selector).
     pub fn selector(&self) -> &'static str {
         match self {
-            Self::DnsAllowedAnthropic => RBIDA_SEL_DNS_ALLOWED_ANTHROPIC,
+            Self::DnsAllowedExample => RBIDA_SEL_DNS_ALLOWED_EXAMPLE,
+            Self::DnsAllowedExampleOrg => RBIDA_SEL_DNS_ALLOWED_EXAMPLE_ORG,
             Self::DnsBlockedGoogle => RBIDA_SEL_DNS_BLOCKED_GOOGLE,
             Self::AptGetBlocked => RBIDA_SEL_APT_GET_BLOCKED,
             Self::DnsNonexistent => RBIDA_SEL_DNS_NONEXISTENT,
@@ -250,7 +255,8 @@ impl rbida_Attack {
     /// All known attack selectors, in definition order.
     pub fn all_selectors() -> &'static [&'static str] {
         &[
-            RBIDA_SEL_DNS_ALLOWED_ANTHROPIC,
+            RBIDA_SEL_DNS_ALLOWED_EXAMPLE,
+            RBIDA_SEL_DNS_ALLOWED_EXAMPLE_ORG,
             RBIDA_SEL_DNS_BLOCKED_GOOGLE,
             RBIDA_SEL_APT_GET_BLOCKED,
             RBIDA_SEL_DNS_NONEXISTENT,
@@ -298,10 +304,15 @@ impl rbida_Attack {
 /// extra_args: optional additional parameters (e.g. IP address for tcp443 attacks)
 pub fn rbida_run(attack: &rbida_Attack, extra_args: &[&str]) -> rbida_Verdict {
     match attack {
-        rbida_Attack::DnsAllowedAnthropic => rbida_expect_command_succeeds(
+        rbida_Attack::DnsAllowedExample => rbida_expect_command_succeeds(
             "getent",
-            &["hosts", "anthropic.com"],
-            "DNS resolution of anthropic.com (allowed domain)",
+            &["hosts", "example.com"],
+            "DNS resolution of example.com (allowed domain)",
+        ),
+        rbida_Attack::DnsAllowedExampleOrg => rbida_expect_command_succeeds(
+            "getent",
+            &["hosts", "example.org"],
+            "DNS resolution of example.org (second allowed domain)",
         ),
         rbida_Attack::DnsBlockedGoogle => rbida_expect_command_fails(
             "getent",
@@ -320,17 +331,17 @@ pub fn rbida_run(attack: &rbida_Attack, extra_args: &[&str]) -> rbida_Verdict {
         ),
         rbida_Attack::DnsTcp => rbida_expect_command_succeeds(
             "dig",
-            &["+tcp", "anthropic.com"],
-            "DNS over TCP for anthropic.com (allowed domain)",
+            &["+tcp", "example.com"],
+            "DNS over TCP for example.com (allowed domain)",
         ),
         rbida_Attack::DnsUdp => rbida_expect_command_succeeds(
             "dig",
-            &["+notcp", "anthropic.com"],
-            "DNS over UDP for anthropic.com (allowed domain)",
+            &["+notcp", "example.com"],
+            "DNS over UDP for example.com (allowed domain)",
         ),
         rbida_Attack::DnsBlockDirect => rbida_expect_all_fail(
             &[
-                ("dig", &["@8.8.8.8", "anthropic.com"] as &[&str]),
+                ("dig", &["@8.8.8.8", "example.com"] as &[&str]),
                 ("nc", &["-w", "2", "-zv", "8.8.8.8", "53"]),
             ],
             "direct external DNS query bypass (dig @8.8.8.8 and nc 8.8.8.8:53)",

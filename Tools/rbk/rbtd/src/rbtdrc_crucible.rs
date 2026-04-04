@@ -214,7 +214,7 @@ fn rbtdrc_pentacle_dnsmasq_responds(dir: &Path) -> rbtdre_Verdict {
 
         let output = match rbtdrc_fiat(
             ctx,
-            &["dig", "+short", &format!("@{}", sentry_ip), "anthropic.com"],
+            &["dig", "+short", &format!("@{}", sentry_ip), "example.com"],
         ) {
             Ok(o) => o,
             Err(e) => return rbtdre_Verdict::Fail(format!("fiat dig error: {}", e)),
@@ -223,7 +223,7 @@ fn rbtdrc_pentacle_dnsmasq_responds(dir: &Path) -> rbtdre_Verdict {
 
         if output.trim().is_empty() {
             return rbtdre_Verdict::Fail(format!(
-                "dnsmasq on sentry {} returned empty response for anthropic.com",
+                "dnsmasq on sentry {} returned empty response for example.com",
                 sentry_ip
             ));
         }
@@ -252,7 +252,11 @@ fn rbtdrc_pentacle_ping_sentry(dir: &Path) -> rbtdre_Verdict {
 // ── Ifrit attack cases (bark-only, inside observation) ───────
 
 fn rbtdrc_ifrit_dns_allowed(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "dns-allowed-anthropic", dir))
+    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "dns-allowed-example", dir))
+}
+
+fn rbtdrc_ifrit_dns_allowed_example_org(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "dns-allowed-example-org", dir))
 }
 
 fn rbtdrc_ifrit_dns_blocked(dir: &Path) -> rbtdre_Verdict {
@@ -382,11 +386,11 @@ fn rbtdrc_dns_blocked_with_observation(dir: &Path) -> rbtdre_Verdict {
 
 // ── Correlated cases (writ resolves IP, bark tests) ──────────
 
-fn rbtdrc_tcp443_allow_anthropic(dir: &Path) -> rbtdre_Verdict {
+fn rbtdrc_tcp443_allow_example(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
-        let ip = match rbtdrc_resolve_via_writ(ctx, "anthropic.com") {
+        let ip = match rbtdrc_resolve_via_writ(ctx, "example.com") {
             Ok(ip) => ip,
-            Err(e) => return rbtdre_Verdict::Fail(format!("writ resolve anthropic.com: {}", e)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("writ resolve example.com: {}", e)),
         };
         let _ = std::fs::write(dir.join("resolved-ip.txt"), &ip);
         rbtdrc_invoke_ifrit_with_args(ctx, "tcp443-connect", &[&ip], dir)
@@ -904,17 +908,17 @@ fn rbtdrc_coordinated_dns_cache_integrity(dir: &Path) -> rbtdre_Verdict {
         let _ = std::fs::write(dir.join("sentry-ip.txt"), &sentry_ip);
         let dig_server = format!("@{}", sentry_ip);
 
-        // Pre-snapshot: query anthropic.com via sentry's dnsmasq (allowed, should resolve)
-        let pre_anthropic = match rbtdrc_writ(
+        // Pre-snapshot: query example.com via sentry's dnsmasq (allowed, should resolve)
+        let pre_example = match rbtdrc_writ(
             ctx,
-            &["dig", "+short", &dig_server, "anthropic.com"],
+            &["dig", "+short", &dig_server, "example.com"],
         ) {
             Ok(o) => o,
             Err(e) => {
-                return rbtdre_Verdict::Fail(format!("pre dig anthropic.com: {}", e))
+                return rbtdre_Verdict::Fail(format!("pre dig example.com: {}", e))
             }
         };
-        let _ = std::fs::write(dir.join("pre-anthropic.txt"), &pre_anthropic);
+        let _ = std::fs::write(dir.join("pre-example.txt"), &pre_example);
 
         // Pre-snapshot: query google.com via sentry's dnsmasq (blocked)
         let pre_google_result = rbtdri_invoke(
@@ -942,17 +946,17 @@ fn rbtdrc_coordinated_dns_cache_integrity(dir: &Path) -> rbtdre_Verdict {
 
         std::thread::sleep(std::time::Duration::from_millis(500));
 
-        // Post-snapshot: query anthropic.com again
-        let post_anthropic = match rbtdrc_writ(
+        // Post-snapshot: query example.com again
+        let post_example = match rbtdrc_writ(
             ctx,
-            &["dig", "+short", &dig_server, "anthropic.com"],
+            &["dig", "+short", &dig_server, "example.com"],
         ) {
             Ok(o) => o,
             Err(e) => {
-                return rbtdre_Verdict::Fail(format!("post dig anthropic.com: {}", e))
+                return rbtdre_Verdict::Fail(format!("post dig example.com: {}", e))
             }
         };
-        let _ = std::fs::write(dir.join("post-anthropic.txt"), &post_anthropic);
+        let _ = std::fs::write(dir.join("post-example.txt"), &post_example);
 
         // Post-snapshot: query google.com again
         let post_google_result = rbtdri_invoke(
@@ -966,27 +970,27 @@ fn rbtdrc_coordinated_dns_cache_integrity(dir: &Path) -> rbtdre_Verdict {
         };
         let _ = std::fs::write(dir.join("post-google.txt"), &post_google);
 
-        // Verify: anthropic.com resolution unchanged
-        let pre_anthropic_ip = pre_anthropic
+        // Verify: example.com resolution unchanged
+        let pre_example_ip = pre_example
             .lines()
             .find(|l| rbtdrc_looks_like_ip(l.trim()))
             .unwrap_or("")
             .trim();
-        let post_anthropic_ip = post_anthropic
+        let post_example_ip = post_example
             .lines()
             .find(|l| rbtdrc_looks_like_ip(l.trim()))
             .unwrap_or("")
             .trim();
 
-        if pre_anthropic_ip.is_empty() {
+        if pre_example_ip.is_empty() {
             return rbtdre_Verdict::Fail(
-                "pre-snapshot: anthropic.com did not resolve (expected frozen record)".to_string(),
+                "pre-snapshot: example.com did not resolve (expected frozen record)".to_string(),
             );
         }
-        if pre_anthropic_ip != post_anthropic_ip {
+        if pre_example_ip != post_example_ip {
             return rbtdre_Verdict::Fail(format!(
-                "BREACH: anthropic.com resolution changed: {} → {}",
-                pre_anthropic_ip, post_anthropic_ip
+                "BREACH: example.com resolution changed: {} → {}",
+                pre_example_ip, post_example_ip
             ));
         }
 
@@ -1000,8 +1004,8 @@ fn rbtdrc_coordinated_dns_cache_integrity(dir: &Path) -> rbtdre_Verdict {
         let _ = std::fs::write(
             dir.join("observation.txt"),
             format!(
-                "DNS cache integrity verified:\n  anthropic.com: {} → {} (stable)\n  google.com: forged 1.2.3.4 response ignored\n  ifrit exit: {}\n",
-                pre_anthropic_ip, post_anthropic_ip, result.exit_code
+                "DNS cache integrity verified:\n  example.com: {} → {} (stable)\n  google.com: forged 1.2.3.4 response ignored\n  ifrit exit: {}\n",
+                pre_example_ip, post_example_ip, result.exit_code
             ),
         );
         rbtdre_Verdict::Pass
@@ -1770,6 +1774,7 @@ static RBTDRC_SECTIONS_TADMOR: &[rbtdre_Section] = &[
         name: "tadmor-ifrit-attacks",
         cases: &[
             case!(rbtdrc_ifrit_dns_allowed),
+            case!(rbtdrc_ifrit_dns_allowed_example_org),
             case!(rbtdrc_ifrit_dns_blocked),
             case!(rbtdrc_ifrit_apt_blocked),
             case!(rbtdrc_ifrit_dns_nonexistent),
@@ -1796,7 +1801,7 @@ static RBTDRC_SECTIONS_TADMOR: &[rbtdre_Section] = &[
     rbtdre_Section {
         name: "tadmor-correlated",
         cases: &[
-            case!(rbtdrc_tcp443_allow_anthropic),
+            case!(rbtdrc_tcp443_allow_example),
             case!(rbtdrc_tcp443_block_google),
             case!(rbtdrc_icmp_first_hop),
             case!(rbtdrc_icmp_second_hop_blocked),
