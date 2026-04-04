@@ -9,6 +9,7 @@
     "₣AI",
     "₣AJ",
     "₣AN",
+    "₣A4",
     "₣A3",
     "₣A2",
     "₣A1",
@@ -21,8 +22,7 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au",
-    "₣A4"
+    "₣Au"
   ],
   "heats": {
     "₣A0": {
@@ -1622,7 +1622,7 @@
     "₣A4": {
       "silks": "jjk-v3-7-remote-dispatch",
       "creation_time": "260403",
-      "status": "stabled",
+      "status": "racing",
       "order": [],
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_uAl4.md",
