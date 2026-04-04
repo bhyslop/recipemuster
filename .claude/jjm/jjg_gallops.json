@@ -1177,6 +1177,13 @@
         "₢A1AAi": {
           "tacks": [
             {
+              "ts": "260403-1734",
+              "state": "complete",
+              "text": "## Character\nMechanical cleanup — no design judgment. Apply RCG Single Definition Rule to all 36 pre-existing attack selector strings in `rbida_attacks.rs`.\n\n## Docket\n\nExtract consts for all pre-existing `rbida_Attack` selector strings following the pattern established by `RBIDA_SEL_DNS_FORGE_RESPONSE` and `RBIDA_SEL_MAC_FLOOD_BRIDGE`. Currently 36 variants have their kebab-case selector string duplicated across `from_selector`, `selector()`, and `all_selectors()` — RCG String Boundary Discipline violation.\n\n### Implementation\n\n- Add ~36 `const RBIDA_SEL_*: &str` definitions to the selector constants block\n- Replace all string literals in the three methods with const references\n- Build, run theurge unit tests\n\n### Acceptance\n\n- `grep '\"dns-allowed-anthropic\"'` finds zero hits in `rbida_attacks.rs` (only the const definition)\n- Theurge builds and unit tests pass\n- No behavioral change",
+              "silks": "rbida-selector-const-extraction",
+              "commit": "a78b05c"
+            },
+            {
               "ts": "260403-1154",
               "state": "rough",
               "text": "## Character\nMechanical cleanup — no design judgment. Apply RCG Single Definition Rule to all 36 pre-existing attack selector strings in `rbida_attacks.rs`.\n\n## Docket\n\nExtract consts for all pre-existing `rbida_Attack` selector strings following the pattern established by `RBIDA_SEL_DNS_FORGE_RESPONSE` and `RBIDA_SEL_MAC_FLOOD_BRIDGE`. Currently 36 variants have their kebab-case selector string duplicated across `from_selector`, `selector()`, and `all_selectors()` — RCG String Boundary Discipline violation.\n\n### Implementation\n\n- Add ~36 `const RBIDA_SEL_*: &str` definitions to the selector constants block\n- Replace all string literals in the three methods with const references\n- Build, run theurge unit tests\n\n### Acceptance\n\n- `grep '\"dns-allowed-anthropic\"'` finds zero hits in `rbida_attacks.rs` (only the const definition)\n- Theurge builds and unit tests pass\n- No behavioral change",
