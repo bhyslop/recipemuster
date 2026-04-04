@@ -26,8 +26,43 @@ use crate::rbida_sorties;
 
 // ── Selector constants (Single Definition Rule — RCG String Boundary Discipline) ──
 
+const RBIDA_SEL_DNS_ALLOWED_ANTHROPIC: &str = "dns-allowed-anthropic";
+const RBIDA_SEL_DNS_BLOCKED_GOOGLE: &str = "dns-blocked-google";
+const RBIDA_SEL_APT_GET_BLOCKED: &str = "apt-get-blocked";
+const RBIDA_SEL_DNS_NONEXISTENT: &str = "dns-nonexistent";
+const RBIDA_SEL_DNS_TCP: &str = "dns-tcp";
+const RBIDA_SEL_DNS_UDP: &str = "dns-udp";
+const RBIDA_SEL_DNS_BLOCK_DIRECT: &str = "dns-block-direct";
+const RBIDA_SEL_DNS_BLOCK_ALTPORT: &str = "dns-block-altport";
+const RBIDA_SEL_DNS_BLOCK_CLOUDFLARE: &str = "dns-block-cloudflare";
+const RBIDA_SEL_DNS_BLOCK_QUAD9: &str = "dns-block-quad9";
+const RBIDA_SEL_DNS_BLOCK_ZONETRANSFER: &str = "dns-block-zonetransfer";
+const RBIDA_SEL_DNS_BLOCK_IPV6: &str = "dns-block-ipv6";
+const RBIDA_SEL_DNS_BLOCK_MULTICAST: &str = "dns-block-multicast";
+const RBIDA_SEL_DNS_BLOCK_SPOOFING: &str = "dns-block-spoofing";
+const RBIDA_SEL_DNS_BLOCK_TUNNELING: &str = "dns-block-tunneling";
+const RBIDA_SEL_TCP443_CONNECT: &str = "tcp443-connect";
+const RBIDA_SEL_TCP443_BLOCK: &str = "tcp443-block";
+const RBIDA_SEL_ICMP_FIRST_HOP: &str = "icmp-first-hop";
+const RBIDA_SEL_ICMP_SECOND_HOP_BLOCKED: &str = "icmp-second-hop-blocked";
+const RBIDA_SEL_DNS_EXFIL_SUBDOMAIN: &str = "dns-exfil-subdomain";
+const RBIDA_SEL_META_CLOUD_ENDPOINT: &str = "meta-cloud-endpoint";
+const RBIDA_SEL_NET_FORBIDDEN_CIDR: &str = "net-forbidden-cidr";
+const RBIDA_SEL_DIRECT_SENTRY_PROBE: &str = "direct-sentry-probe";
+const RBIDA_SEL_ICMP_EXFIL_PAYLOAD: &str = "icmp-exfil-payload";
+const RBIDA_SEL_NET_IPV6_ESCAPE: &str = "net-ipv6-escape";
+const RBIDA_SEL_NET_SRCIP_SPOOF: &str = "net-srcip-spoof";
+const RBIDA_SEL_PROTO_SMUGGLE_RAWSOCK: &str = "proto-smuggle-rawsock";
+const RBIDA_SEL_NET_FRAGMENT_EVASION: &str = "net-fragment-evasion";
+const RBIDA_SEL_DIRECT_ARP_POISON: &str = "direct-arp-poison";
+const RBIDA_SEL_NS_CAPABILITY_ESCAPE: &str = "ns-capability-escape";
+const RBIDA_SEL_ARP_SEND_GRATUITOUS: &str = "arp-send-gratuitous";
+const RBIDA_SEL_ARP_SEND_GATEWAY_POISON: &str = "arp-send-gateway-poison";
 const RBIDA_SEL_DNS_FORGE_RESPONSE: &str = "dns-forge-response";
 const RBIDA_SEL_MAC_FLOOD_BRIDGE: &str = "mac-flood-bridge";
+const RBIDA_SEL_NET_ROUTE_MANIPULATION: &str = "net-route-manipulation";
+const RBIDA_SEL_NET_ENCLAVE_SUBNET_ESCAPE: &str = "net-enclave-subnet-escape";
+const RBIDA_SEL_NET_DNAT_ENTRY_REFLECTION: &str = "net-dnat-entry-reflection";
 
 // ── Attack Enum ─────────────────────────────────────────────────
 
@@ -128,43 +163,43 @@ impl rbida_Attack {
     /// Parse a kebab-case selector string into an attack variant.
     pub fn from_selector(s: &str) -> Option<Self> {
         match s {
-            "dns-allowed-anthropic" => Some(Self::DnsAllowedAnthropic),
-            "dns-blocked-google" => Some(Self::DnsBlockedGoogle),
-            "apt-get-blocked" => Some(Self::AptGetBlocked),
-            "dns-nonexistent" => Some(Self::DnsNonexistent),
-            "dns-tcp" => Some(Self::DnsTcp),
-            "dns-udp" => Some(Self::DnsUdp),
-            "dns-block-direct" => Some(Self::DnsBlockDirect),
-            "dns-block-altport" => Some(Self::DnsBlockAltport),
-            "dns-block-cloudflare" => Some(Self::DnsBlockCloudflare),
-            "dns-block-quad9" => Some(Self::DnsBlockQuad9),
-            "dns-block-zonetransfer" => Some(Self::DnsBlockZonetransfer),
-            "dns-block-ipv6" => Some(Self::DnsBlockIpv6),
-            "dns-block-multicast" => Some(Self::DnsBlockMulticast),
-            "dns-block-spoofing" => Some(Self::DnsBlockSpoofing),
-            "dns-block-tunneling" => Some(Self::DnsBlockTunneling),
-            "tcp443-connect" => Some(Self::Tcp443Connect),
-            "tcp443-block" => Some(Self::Tcp443Block),
-            "icmp-first-hop" => Some(Self::IcmpFirstHop),
-            "icmp-second-hop-blocked" => Some(Self::IcmpSecondHopBlocked),
-            "dns-exfil-subdomain" => Some(Self::DnsExfilSubdomain),
-            "meta-cloud-endpoint" => Some(Self::MetaCloudEndpoint),
-            "net-forbidden-cidr" => Some(Self::NetForbiddenCidr),
-            "direct-sentry-probe" => Some(Self::DirectSentryProbe),
-            "icmp-exfil-payload" => Some(Self::IcmpExfilPayload),
-            "net-ipv6-escape" => Some(Self::NetIpv6Escape),
-            "net-srcip-spoof" => Some(Self::NetSrcipSpoof),
-            "proto-smuggle-rawsock" => Some(Self::ProtoSmuggleRawsock),
-            "net-fragment-evasion" => Some(Self::NetFragmentEvasion),
-            "direct-arp-poison" => Some(Self::DirectArpPoison),
-            "ns-capability-escape" => Some(Self::NsCapabilityEscape),
-            "arp-send-gratuitous" => Some(Self::ArpSendGratuitous),
-            "arp-send-gateway-poison" => Some(Self::ArpSendGatewayPoison),
+            RBIDA_SEL_DNS_ALLOWED_ANTHROPIC => Some(Self::DnsAllowedAnthropic),
+            RBIDA_SEL_DNS_BLOCKED_GOOGLE => Some(Self::DnsBlockedGoogle),
+            RBIDA_SEL_APT_GET_BLOCKED => Some(Self::AptGetBlocked),
+            RBIDA_SEL_DNS_NONEXISTENT => Some(Self::DnsNonexistent),
+            RBIDA_SEL_DNS_TCP => Some(Self::DnsTcp),
+            RBIDA_SEL_DNS_UDP => Some(Self::DnsUdp),
+            RBIDA_SEL_DNS_BLOCK_DIRECT => Some(Self::DnsBlockDirect),
+            RBIDA_SEL_DNS_BLOCK_ALTPORT => Some(Self::DnsBlockAltport),
+            RBIDA_SEL_DNS_BLOCK_CLOUDFLARE => Some(Self::DnsBlockCloudflare),
+            RBIDA_SEL_DNS_BLOCK_QUAD9 => Some(Self::DnsBlockQuad9),
+            RBIDA_SEL_DNS_BLOCK_ZONETRANSFER => Some(Self::DnsBlockZonetransfer),
+            RBIDA_SEL_DNS_BLOCK_IPV6 => Some(Self::DnsBlockIpv6),
+            RBIDA_SEL_DNS_BLOCK_MULTICAST => Some(Self::DnsBlockMulticast),
+            RBIDA_SEL_DNS_BLOCK_SPOOFING => Some(Self::DnsBlockSpoofing),
+            RBIDA_SEL_DNS_BLOCK_TUNNELING => Some(Self::DnsBlockTunneling),
+            RBIDA_SEL_TCP443_CONNECT => Some(Self::Tcp443Connect),
+            RBIDA_SEL_TCP443_BLOCK => Some(Self::Tcp443Block),
+            RBIDA_SEL_ICMP_FIRST_HOP => Some(Self::IcmpFirstHop),
+            RBIDA_SEL_ICMP_SECOND_HOP_BLOCKED => Some(Self::IcmpSecondHopBlocked),
+            RBIDA_SEL_DNS_EXFIL_SUBDOMAIN => Some(Self::DnsExfilSubdomain),
+            RBIDA_SEL_META_CLOUD_ENDPOINT => Some(Self::MetaCloudEndpoint),
+            RBIDA_SEL_NET_FORBIDDEN_CIDR => Some(Self::NetForbiddenCidr),
+            RBIDA_SEL_DIRECT_SENTRY_PROBE => Some(Self::DirectSentryProbe),
+            RBIDA_SEL_ICMP_EXFIL_PAYLOAD => Some(Self::IcmpExfilPayload),
+            RBIDA_SEL_NET_IPV6_ESCAPE => Some(Self::NetIpv6Escape),
+            RBIDA_SEL_NET_SRCIP_SPOOF => Some(Self::NetSrcipSpoof),
+            RBIDA_SEL_PROTO_SMUGGLE_RAWSOCK => Some(Self::ProtoSmuggleRawsock),
+            RBIDA_SEL_NET_FRAGMENT_EVASION => Some(Self::NetFragmentEvasion),
+            RBIDA_SEL_DIRECT_ARP_POISON => Some(Self::DirectArpPoison),
+            RBIDA_SEL_NS_CAPABILITY_ESCAPE => Some(Self::NsCapabilityEscape),
+            RBIDA_SEL_ARP_SEND_GRATUITOUS => Some(Self::ArpSendGratuitous),
+            RBIDA_SEL_ARP_SEND_GATEWAY_POISON => Some(Self::ArpSendGatewayPoison),
             RBIDA_SEL_DNS_FORGE_RESPONSE => Some(Self::DnsForgeResponse),
             RBIDA_SEL_MAC_FLOOD_BRIDGE => Some(Self::MacFloodBridge),
-            "net-route-manipulation" => Some(Self::NetRouteManipulation),
-            "net-enclave-subnet-escape" => Some(Self::NetEnclaveSubnetEscape),
-            "net-dnat-entry-reflection" => Some(Self::NetDnatEntryReflection),
+            RBIDA_SEL_NET_ROUTE_MANIPULATION => Some(Self::NetRouteManipulation),
+            RBIDA_SEL_NET_ENCLAVE_SUBNET_ESCAPE => Some(Self::NetEnclaveSubnetEscape),
+            RBIDA_SEL_NET_DNAT_ENTRY_REFLECTION => Some(Self::NetDnatEntryReflection),
             _ => None,
         }
     }
@@ -172,86 +207,86 @@ impl rbida_Attack {
     /// Kebab-case selector for this attack (inverse of from_selector).
     pub fn selector(&self) -> &'static str {
         match self {
-            Self::DnsAllowedAnthropic => "dns-allowed-anthropic",
-            Self::DnsBlockedGoogle => "dns-blocked-google",
-            Self::AptGetBlocked => "apt-get-blocked",
-            Self::DnsNonexistent => "dns-nonexistent",
-            Self::DnsTcp => "dns-tcp",
-            Self::DnsUdp => "dns-udp",
-            Self::DnsBlockDirect => "dns-block-direct",
-            Self::DnsBlockAltport => "dns-block-altport",
-            Self::DnsBlockCloudflare => "dns-block-cloudflare",
-            Self::DnsBlockQuad9 => "dns-block-quad9",
-            Self::DnsBlockZonetransfer => "dns-block-zonetransfer",
-            Self::DnsBlockIpv6 => "dns-block-ipv6",
-            Self::DnsBlockMulticast => "dns-block-multicast",
-            Self::DnsBlockSpoofing => "dns-block-spoofing",
-            Self::DnsBlockTunneling => "dns-block-tunneling",
-            Self::Tcp443Connect => "tcp443-connect",
-            Self::Tcp443Block => "tcp443-block",
-            Self::IcmpFirstHop => "icmp-first-hop",
-            Self::IcmpSecondHopBlocked => "icmp-second-hop-blocked",
-            Self::DnsExfilSubdomain => "dns-exfil-subdomain",
-            Self::MetaCloudEndpoint => "meta-cloud-endpoint",
-            Self::NetForbiddenCidr => "net-forbidden-cidr",
-            Self::DirectSentryProbe => "direct-sentry-probe",
-            Self::IcmpExfilPayload => "icmp-exfil-payload",
-            Self::NetIpv6Escape => "net-ipv6-escape",
-            Self::NetSrcipSpoof => "net-srcip-spoof",
-            Self::ProtoSmuggleRawsock => "proto-smuggle-rawsock",
-            Self::NetFragmentEvasion => "net-fragment-evasion",
-            Self::DirectArpPoison => "direct-arp-poison",
-            Self::NsCapabilityEscape => "ns-capability-escape",
-            Self::ArpSendGratuitous => "arp-send-gratuitous",
-            Self::ArpSendGatewayPoison => "arp-send-gateway-poison",
+            Self::DnsAllowedAnthropic => RBIDA_SEL_DNS_ALLOWED_ANTHROPIC,
+            Self::DnsBlockedGoogle => RBIDA_SEL_DNS_BLOCKED_GOOGLE,
+            Self::AptGetBlocked => RBIDA_SEL_APT_GET_BLOCKED,
+            Self::DnsNonexistent => RBIDA_SEL_DNS_NONEXISTENT,
+            Self::DnsTcp => RBIDA_SEL_DNS_TCP,
+            Self::DnsUdp => RBIDA_SEL_DNS_UDP,
+            Self::DnsBlockDirect => RBIDA_SEL_DNS_BLOCK_DIRECT,
+            Self::DnsBlockAltport => RBIDA_SEL_DNS_BLOCK_ALTPORT,
+            Self::DnsBlockCloudflare => RBIDA_SEL_DNS_BLOCK_CLOUDFLARE,
+            Self::DnsBlockQuad9 => RBIDA_SEL_DNS_BLOCK_QUAD9,
+            Self::DnsBlockZonetransfer => RBIDA_SEL_DNS_BLOCK_ZONETRANSFER,
+            Self::DnsBlockIpv6 => RBIDA_SEL_DNS_BLOCK_IPV6,
+            Self::DnsBlockMulticast => RBIDA_SEL_DNS_BLOCK_MULTICAST,
+            Self::DnsBlockSpoofing => RBIDA_SEL_DNS_BLOCK_SPOOFING,
+            Self::DnsBlockTunneling => RBIDA_SEL_DNS_BLOCK_TUNNELING,
+            Self::Tcp443Connect => RBIDA_SEL_TCP443_CONNECT,
+            Self::Tcp443Block => RBIDA_SEL_TCP443_BLOCK,
+            Self::IcmpFirstHop => RBIDA_SEL_ICMP_FIRST_HOP,
+            Self::IcmpSecondHopBlocked => RBIDA_SEL_ICMP_SECOND_HOP_BLOCKED,
+            Self::DnsExfilSubdomain => RBIDA_SEL_DNS_EXFIL_SUBDOMAIN,
+            Self::MetaCloudEndpoint => RBIDA_SEL_META_CLOUD_ENDPOINT,
+            Self::NetForbiddenCidr => RBIDA_SEL_NET_FORBIDDEN_CIDR,
+            Self::DirectSentryProbe => RBIDA_SEL_DIRECT_SENTRY_PROBE,
+            Self::IcmpExfilPayload => RBIDA_SEL_ICMP_EXFIL_PAYLOAD,
+            Self::NetIpv6Escape => RBIDA_SEL_NET_IPV6_ESCAPE,
+            Self::NetSrcipSpoof => RBIDA_SEL_NET_SRCIP_SPOOF,
+            Self::ProtoSmuggleRawsock => RBIDA_SEL_PROTO_SMUGGLE_RAWSOCK,
+            Self::NetFragmentEvasion => RBIDA_SEL_NET_FRAGMENT_EVASION,
+            Self::DirectArpPoison => RBIDA_SEL_DIRECT_ARP_POISON,
+            Self::NsCapabilityEscape => RBIDA_SEL_NS_CAPABILITY_ESCAPE,
+            Self::ArpSendGratuitous => RBIDA_SEL_ARP_SEND_GRATUITOUS,
+            Self::ArpSendGatewayPoison => RBIDA_SEL_ARP_SEND_GATEWAY_POISON,
             Self::DnsForgeResponse => RBIDA_SEL_DNS_FORGE_RESPONSE,
             Self::MacFloodBridge => RBIDA_SEL_MAC_FLOOD_BRIDGE,
-            Self::NetRouteManipulation => "net-route-manipulation",
-            Self::NetEnclaveSubnetEscape => "net-enclave-subnet-escape",
-            Self::NetDnatEntryReflection => "net-dnat-entry-reflection",
+            Self::NetRouteManipulation => RBIDA_SEL_NET_ROUTE_MANIPULATION,
+            Self::NetEnclaveSubnetEscape => RBIDA_SEL_NET_ENCLAVE_SUBNET_ESCAPE,
+            Self::NetDnatEntryReflection => RBIDA_SEL_NET_DNAT_ENTRY_REFLECTION,
         }
     }
 
     /// All known attack selectors, in definition order.
     pub fn all_selectors() -> &'static [&'static str] {
         &[
-            "dns-allowed-anthropic",
-            "dns-blocked-google",
-            "apt-get-blocked",
-            "dns-nonexistent",
-            "dns-tcp",
-            "dns-udp",
-            "dns-block-direct",
-            "dns-block-altport",
-            "dns-block-cloudflare",
-            "dns-block-quad9",
-            "dns-block-zonetransfer",
-            "dns-block-ipv6",
-            "dns-block-multicast",
-            "dns-block-spoofing",
-            "dns-block-tunneling",
-            "tcp443-connect",
-            "tcp443-block",
-            "icmp-first-hop",
-            "icmp-second-hop-blocked",
-            "dns-exfil-subdomain",
-            "meta-cloud-endpoint",
-            "net-forbidden-cidr",
-            "direct-sentry-probe",
-            "icmp-exfil-payload",
-            "net-ipv6-escape",
-            "net-srcip-spoof",
-            "proto-smuggle-rawsock",
-            "net-fragment-evasion",
-            "direct-arp-poison",
-            "ns-capability-escape",
-            "arp-send-gratuitous",
-            "arp-send-gateway-poison",
+            RBIDA_SEL_DNS_ALLOWED_ANTHROPIC,
+            RBIDA_SEL_DNS_BLOCKED_GOOGLE,
+            RBIDA_SEL_APT_GET_BLOCKED,
+            RBIDA_SEL_DNS_NONEXISTENT,
+            RBIDA_SEL_DNS_TCP,
+            RBIDA_SEL_DNS_UDP,
+            RBIDA_SEL_DNS_BLOCK_DIRECT,
+            RBIDA_SEL_DNS_BLOCK_ALTPORT,
+            RBIDA_SEL_DNS_BLOCK_CLOUDFLARE,
+            RBIDA_SEL_DNS_BLOCK_QUAD9,
+            RBIDA_SEL_DNS_BLOCK_ZONETRANSFER,
+            RBIDA_SEL_DNS_BLOCK_IPV6,
+            RBIDA_SEL_DNS_BLOCK_MULTICAST,
+            RBIDA_SEL_DNS_BLOCK_SPOOFING,
+            RBIDA_SEL_DNS_BLOCK_TUNNELING,
+            RBIDA_SEL_TCP443_CONNECT,
+            RBIDA_SEL_TCP443_BLOCK,
+            RBIDA_SEL_ICMP_FIRST_HOP,
+            RBIDA_SEL_ICMP_SECOND_HOP_BLOCKED,
+            RBIDA_SEL_DNS_EXFIL_SUBDOMAIN,
+            RBIDA_SEL_META_CLOUD_ENDPOINT,
+            RBIDA_SEL_NET_FORBIDDEN_CIDR,
+            RBIDA_SEL_DIRECT_SENTRY_PROBE,
+            RBIDA_SEL_ICMP_EXFIL_PAYLOAD,
+            RBIDA_SEL_NET_IPV6_ESCAPE,
+            RBIDA_SEL_NET_SRCIP_SPOOF,
+            RBIDA_SEL_PROTO_SMUGGLE_RAWSOCK,
+            RBIDA_SEL_NET_FRAGMENT_EVASION,
+            RBIDA_SEL_DIRECT_ARP_POISON,
+            RBIDA_SEL_NS_CAPABILITY_ESCAPE,
+            RBIDA_SEL_ARP_SEND_GRATUITOUS,
+            RBIDA_SEL_ARP_SEND_GATEWAY_POISON,
             RBIDA_SEL_DNS_FORGE_RESPONSE,
             RBIDA_SEL_MAC_FLOOD_BRIDGE,
-            "net-route-manipulation",
-            "net-enclave-subnet-escape",
-            "net-dnat-entry-reflection",
+            RBIDA_SEL_NET_ROUTE_MANIPULATION,
+            RBIDA_SEL_NET_ENCLAVE_SUBNET_ESCAPE,
+            RBIDA_SEL_NET_DNAT_ENTRY_REFLECTION,
         ]
     }
 }
