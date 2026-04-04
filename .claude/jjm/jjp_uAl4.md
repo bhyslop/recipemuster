@@ -18,19 +18,20 @@ Spun off from ₣A2 (jjk-v3-6-minor-issues). The original paces ₢A2AAG (buf-di
 - `BURX_BEGAN_AT` — nanosecond-precision timestamp (e.g., `20260403-102137.482951000`)
 - `BURX_TABTARGET` — the tabtarget that was dispatched
 - `BURX_TEMP_DIR` — absolute path to the dispatch temp directory
-- `BURX_TRANSCRIPT` — absolute path to the transcript directory
+- `BURX_TRANSCRIPT` — absolute path to the transcript file
 - `BURX_LOG_HIST` — absolute path to the historical log file
-- `BURX_PENSUM` — pensum token from curia (passed via BURE_PENSUM; empty for local dispatch)
+- `BURX_LABEL` — optional correlation label from curia (passed via BURE_LABEL; empty for local dispatch). xname format, max 120 chars.
 
 **BURX fields written at dispatch completion only:**
-- `BURX_STATUS` — unix exit code (absence of this field = still running)
+- `BURX_EXIT_STATUS` — unix exit code (absence of this field = still running)
 - `BURX_ENDED_AT` — nanosecond-precision timestamp
 
 **Key properties:**
-- Absence of `BURX_STATUS` means the process is still running — no explicit "running" value
+- Absence of `BURX_EXIT_STATUS` means the process is still running — no explicit "running" value
 - `burx.env` is a fact-file, written via the dual-write fact-file primitive
 - BUD always writes it, whether anyone reads it remotely or not
 - BURX is a projection of BURD state across the project boundary
+- `BURX_LABEL` is JJK-decoupled — BUD writes whatever `BURE_LABEL` contains. JJK happens to put pensum tokens in it, but BURX doesn't know or care.
 
 ### Dual-Write Fact-File Module
 
@@ -49,7 +50,7 @@ Spun off from ₣A2 (jjk-v3-6-minor-issues). The original paces ₢A2AAG (buf-di
 
 **Pensum** (job): A single dispatched async operation within a legatio. Created by `jjx_relay`, identified by a pensum token. The pensum stores which legatio it was dispatched through. Multiple pensa can coexist. Each pensum on the curia maps to a remote temp dir path on the fundus.
 
-**Pensum flows curia → fundus via BURE**: `jjx_relay` mints the pensum on the curia, sets `BURE_PENSUM=<token>` in the SSH environment. BUD writes it into `burx.env`. Both sides can correlate.
+**Pensum flows curia → fundus via BURE**: `jjx_relay` mints the pensum on the curia, sets `BURE_LABEL=<token>` in the SSH environment. BUD writes it into `burx.env` as `BURX_LABEL`. Both sides can correlate.
 
 ### Curia and Fundus — Role Vocabulary
 
@@ -67,8 +68,8 @@ Evolution: sedes/situs rejected (shared first letter 'S'), locus rejected (too c
 | `jjx_bind` | `{host, user, reldir}` | legatio token | Creates session, SSH probe + RELDIR safety check at bind time |
 | `jjx_send` | `{legatio, command, timeout}` | exit code + output | Synchronous, no pensum |
 | `jjx_relay` | `{legatio, tabtarget, timeout}` | pensum token | Async via nohup, mints pensum |
-| `jjx_check` | `{pensum, timeout}` | BURX fields + liveness | Probe or poll; timeout=0 instant, timeout>0 polls until done or timeout |
-| `jjx_fetch` | `{pensum}` | All artifacts (transcript, log, facts) | Heavy, bundle-fetch, no ref param |
+| `jjx_check` | `{pensum, timeout}` | BURX fields + file list (on terminal) | Probe or poll; timeout=0 instant, timeout>0 polls until done or timeout |
+| `jjx_fetch` | `{legatio, path}` | file contents | Single file read; path relative to RELDIR or absolute |
 | `jjx_plant` | `{legatio, commit}` | success/failure | Synchronous, resets fundus workspace to exact commit |
 
 **`jjx_send`** is purely synchronous — uses legatio for SSH target, blocks until done, returns inline. No pensum, no BURX consumption. BUD still writes BURX on the fundus (it always does), but nobody reads it remotely.
@@ -77,16 +78,18 @@ Evolution: sedes/situs rejected (shared first letter 'S'), locus rejected (too c
 
 **`jjx_check`** probes or awaits a pensum. Both params required. `timeout` is in seconds: 0 means instant probe (SSH in, read `burx.env`, probe PID, return immediately), >0 means poll until the pensum reaches a terminal state or the timeout expires. Same return shape either way — BURX fields + liveness report:
 
-| BURX_STATUS present? | PID alive? | Report |
-|----------------------|------------|--------|
+| BURX_EXIT_STATUS present? | PID alive? | Report |
+|---------------------------|------------|--------|
 | no | yes | **running** |
 | no | no | **orphaned** (crashed without writing terminal status) |
-| yes | n/a | **stopped** (exit code = BURX_STATUS) |
+| yes | n/a | **stopped** (exit code = BURX_EXIT_STATUS) |
 | file missing | n/a | **lost** |
 
 When timeout>0 and the pensum is still running at expiry, the report is **running** (or **orphaned**) — the same as an instant probe would return. The caller decides what to do next.
 
-**`jjx_fetch`** pulls everything in one bundle: transcript dir contents, historical log, all fact-files from temp dir. No selective ref parameter — officium storage is ephemeral anyway.
+On terminal status (stopped), `jjx_check` additionally returns the file list from `BURX_TEMP_DIR`. This lets the curia see what fact-files were produced and construct absolute paths for selective `jjx_fetch` calls without a heavy bundle transfer.
+
+**`jjx_fetch`** reads a single file from the fundus. Path is either relative to RELDIR or absolute. Returns file contents. Typical workflow: `jjx_check` returns BURX fields (including `BURX_TEMP_DIR`) and file list on terminal status; the LLM constructs absolute paths and fetches individual files of interest. Also useful outside pensum workflows — reading any file on the fundus through the legatio.
 
 **`jjx_plant`** resets the fundus workspace to an exact commit. Synchronous over SSH, fail-fast on any step. No clone fallback — the repo must already exist at RELDIR (fundus precondition). Fundus-side sequence:
 
@@ -104,12 +107,12 @@ git clean -dxf             || exit
 nohup + sentinel pattern. POSIX, zero dependencies beyond standard shell.
 
 The nohup wrapper on the fundus:
-1. Sets `BURE_PENSUM` in environment
+1. Sets `BURE_LABEL` in environment (pensum token from curia)
 2. Invokes the tabtarget (which goes through BUD dispatch)
-3. BUD writes initial `burx.env` (no STATUS field = running)
+3. BUD writes initial `burx.env` (no EXIT_STATUS field = running)
 4. Tabtarget runs
-5. On completion: BUD exit path writes `BURX_STATUS` and `BURX_ENDED_AT`
-6. On crash: `burx.env` exists with PID but no STATUS — `jjx_check` detects via `kill -0`
+5. On completion: BUD exit path writes `BURX_EXIT_STATUS` and `BURX_ENDED_AT`
+6. On crash: `burx.env` exists with PID but no EXIT_STATUS — `jjx_check` detects via `kill -0`
 
 ### Fundus Configuration
 
@@ -176,6 +179,11 @@ Design emerged through conversation in officium ☉260403-1021. Key evolution:
 - RELDIR defense-in-depth: Rust validation + fundus-side resolved-path check + bind-time probe
 - `jjx_plant`: rm-and-reclone → `git reset --hard` + `git clean -dxf` (preserves `.git`, fail-fast, no clone fallback). Designed in officium ☉260404-1000.
 - `jjx_check` + `jjx_await` merged: separate await command rejected in favor of required `timeout` param on `jjx_check` (0=instant probe, >0=poll). Same return shape, caller always states intent explicitly. Designed in officium ☉260404-1000.
+- `BURX_STATUS` → `BURX_EXIT_STATUS`: explicit naming. Designed in officium ☉260404-1000.
+- `BURX_PENSUM`/`BURE_PENSUM` → `BURX_LABEL`/`BURE_LABEL`: JJK-decoupled correlation field. xname format, 120 char max, optional. BUD writes whatever BURE_LABEL contains; JJK puts pensum tokens in it but BURX doesn't know that. Designed in officium ☉260404-1000.
+- `BURX_TRANSCRIPT`: corrected from "directory" to "file" — BUD creates `transcript.txt` as a single file in temp dir. Absolute path retained.
+- `jjx_fetch`: bundle-fetch → single-file read with `{legatio, path}`. Path relative to RELDIR or absolute. Pairs with `jjx_check` returning file list on terminal status. General-purpose — works beyond pensum workflows. Designed in officium ☉260404-1000.
+- `jjx_check` returns temp dir file list on terminal status: cheap `ls` over existing SSH connection, lets curia decide what to fetch selectively.
 
 ### Existing Fact-File Infrastructure (Codebase Survey)
 
