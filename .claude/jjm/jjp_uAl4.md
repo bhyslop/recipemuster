@@ -104,8 +104,50 @@ Design emerged through conversation in officium ☉260403-1021. Key evolution:
 - `BURX_STATUS=running` → absence-of-field = running (cleaner)
 - sedes/situs → curia/locus (first-letter uniqueness)
 
+### Existing Fact-File Infrastructure (Codebase Survey)
+
+The fact-file pattern and AXLA voicing machinery already exist. BURX fields and the dual-write module build on established patterns, not new ones.
+
+**AXLA voicings (in AXLA-Lexicon.adoc):**
+- `axpof_fact` — voices a term as a fact-file constant: named output file carrying a single atomic value. Used at definition sites as `//axpof_fact`.
+- `axpot_tally` — voices a term as a fact-map infix: dynamically-named set of files sharing a common infix. Used at definition sites as `//axpot_tally`.
+- `axd_fact` / `axd_tally` — dimension markers on `axhoot_typed_output` at operation detail sites.
+
+**BUS0 pattern (`busff_fact_file`):**
+- Producer writes to `${BURD_OUTPUT_DIR}/${CONSTANT}`
+- Consumer reads from `${ZBUTO_BURV_OUTPUT}/current/${CONSTANT}`
+- The constant name IS the contract between producer and consumer
+- Currently single-destination only — dual-write extends this
+
+**Existing RBK fact-files (in RBS0, constants in `rbgc_Constants.sh`):**
+
+| Constant | Voicing | Value |
+|----------|---------|-------|
+| `RBF_FACT_HALLMARK` | `axpof_fact` | Hallmark string |
+| `RBF_FACT_BUILD_ID` | `axpof_fact` | Cloud Build job ID |
+| `RBF_FACT_GAR_ROOT` | `axpof_fact` | GAR registry root path |
+| `RBF_FACT_ARK_STEM` | `axpof_fact` | Vessel:hallmark |
+| `RBF_FACT_ARK_YIELD` | `axpof_fact` | Per-platform image ref |
+| `RBCC_FACT_CONSEC_INFIX` | `axpot_tally` | Per-vessel-hallmark presence marker |
+
+**Producer pattern today** (~15 instances in `rbfd_FoundryDirectorBuild.sh`, plus `rbfl_FoundryLedger.sh` for tally):
+```
+echo "${value}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}"
+```
+All raw `echo > path` to `BURD_OUTPUT_DIR` only. No dual-write. The `buf_write_fact` primitive replaces every one of these.
+
+**Implications for ₣A4 paces:**
+1. Each BURX field gets a quoin in BUS0 voiced `//axpof_fact` — the voicing pattern is established.
+2. The `busff_fact_file` pattern description in BUS0 needs extending for dual-write, but the consumer contract (read from known path) is unchanged.
+3. Migrating ~15 raw `echo` writes in RBK to `buf_write_fact` is mechanical but touches `rbfd_FoundryDirectorBuild.sh` heavily. This is a separate pace from the BURX/JJK work — BUK infrastructure first, then RBK producer migration, then JJK command surface.
+
 ## References
-- BUS0 (`Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc`) — regime definitions, fact-file pattern
+- BUS0 (`Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc`) — regime definitions, `busff_fact_file` pattern, existing BUR* regime family
+- AXLA (`Tools/cmk/vov_veiled/AXLA-Lexicon.adoc`) — `axpof_fact`, `axpot_tally`, `axd_fact`, `axhoot_typed_output`
+- RBS0 (`Tools/rbk/vov_veiled/RBS0-SpecTop.adoc`) — `rbf_fact_*` quoins, foundry fact-file section
+- `Tools/rbk/rbgc_Constants.sh` — `RBF_FACT_*` constant definitions
+- `Tools/rbk/rbfd_FoundryDirectorBuild.sh` — primary fact-file producer (~15 write sites)
+- `Tools/rbk/rbfl_FoundryLedger.sh` — tally fact-file producer
 - `Tools/buk/bud_dispatch.sh` — dispatch runtime, BURD state assembly
 - `Tools/buk/buc_command.sh` — BURE kindle
 - ₣A2 paddock — original paces ₢A2AAG and ₢A2AAF
