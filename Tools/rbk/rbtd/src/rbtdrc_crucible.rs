@@ -416,6 +416,14 @@ fn rbtdrc_icmp_second_hop_blocked(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "icmp-second-hop-blocked", dir))
 }
 
+fn rbtdrc_udp_non_dns_blocked(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "udp-non-dns-blocked", dir))
+}
+
+fn rbtdrc_cidr_all_ports_allowed(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "cidr-all-ports-allowed", dir))
+}
+
 // ── Ported sortie cases (bark-only) ──────────────────────────
 
 fn rbtdrc_sortie_dns_exfil_subdomain(dir: &Path) -> rbtdre_Verdict {
@@ -1805,6 +1813,8 @@ static RBTDRC_SECTIONS_TADMOR: &[rbtdre_Section] = &[
             case!(rbtdrc_tcp443_block_google),
             case!(rbtdrc_icmp_first_hop),
             case!(rbtdrc_icmp_second_hop_blocked),
+            case!(rbtdrc_udp_non_dns_blocked),
+            case!(rbtdrc_cidr_all_ports_allowed),
         ],
     },
     rbtdre_Section {

@@ -64,6 +64,8 @@ const RBIDA_SEL_MAC_FLOOD_BRIDGE: &str = "mac-flood-bridge";
 const RBIDA_SEL_NET_ROUTE_MANIPULATION: &str = "net-route-manipulation";
 const RBIDA_SEL_NET_ENCLAVE_SUBNET_ESCAPE: &str = "net-enclave-subnet-escape";
 const RBIDA_SEL_NET_DNAT_ENTRY_REFLECTION: &str = "net-dnat-entry-reflection";
+const RBIDA_SEL_UDP_NON_DNS_BLOCKED: &str = "udp-non-dns-blocked";
+const RBIDA_SEL_CIDR_ALL_PORTS_ALLOWED: &str = "cidr-all-ports-allowed";
 
 // ── Attack Enum ─────────────────────────────────────────────────
 
@@ -150,6 +152,11 @@ pub enum rbida_Attack {
     NetEnclaveSubnetEscape,
     /// DNAT entry port reflection — TCP connect to sentry entry port from inside bottle
     NetDnatEntryReflection,
+    // ── Egress control verification ──
+    /// UDP datagram to non-allowed IP on non-DNS port should be blocked
+    UdpNonDnsBlocked,
+    /// TCP to allowed CIDR on multiple ports should succeed (CIDR is protocol-agnostic)
+    CidrAllPortsAllowed,
 }
 
 // ── Verdict ─────────────────────────────────────────────────────
@@ -204,6 +211,8 @@ impl rbida_Attack {
             RBIDA_SEL_NET_ROUTE_MANIPULATION => Some(Self::NetRouteManipulation),
             RBIDA_SEL_NET_ENCLAVE_SUBNET_ESCAPE => Some(Self::NetEnclaveSubnetEscape),
             RBIDA_SEL_NET_DNAT_ENTRY_REFLECTION => Some(Self::NetDnatEntryReflection),
+            RBIDA_SEL_UDP_NON_DNS_BLOCKED => Some(Self::UdpNonDnsBlocked),
+            RBIDA_SEL_CIDR_ALL_PORTS_ALLOWED => Some(Self::CidrAllPortsAllowed),
             _ => None,
         }
     }
@@ -249,6 +258,8 @@ impl rbida_Attack {
             Self::NetRouteManipulation => RBIDA_SEL_NET_ROUTE_MANIPULATION,
             Self::NetEnclaveSubnetEscape => RBIDA_SEL_NET_ENCLAVE_SUBNET_ESCAPE,
             Self::NetDnatEntryReflection => RBIDA_SEL_NET_DNAT_ENTRY_REFLECTION,
+            Self::UdpNonDnsBlocked => RBIDA_SEL_UDP_NON_DNS_BLOCKED,
+            Self::CidrAllPortsAllowed => RBIDA_SEL_CIDR_ALL_PORTS_ALLOWED,
         }
     }
 
@@ -293,6 +304,8 @@ impl rbida_Attack {
             RBIDA_SEL_NET_ROUTE_MANIPULATION,
             RBIDA_SEL_NET_ENCLAVE_SUBNET_ESCAPE,
             RBIDA_SEL_NET_DNAT_ENTRY_REFLECTION,
+            RBIDA_SEL_UDP_NON_DNS_BLOCKED,
+            RBIDA_SEL_CIDR_ALL_PORTS_ALLOWED,
         ]
     }
 }
@@ -440,6 +453,9 @@ pub fn rbida_run(attack: &rbida_Attack, extra_args: &[&str]) -> rbida_Verdict {
         rbida_Attack::NetRouteManipulation => rbida_sorties::sortie_net_route_manipulation(extra_args),
         rbida_Attack::NetEnclaveSubnetEscape => rbida_sorties::sortie_net_enclave_subnet_escape(extra_args),
         rbida_Attack::NetDnatEntryReflection => rbida_sorties::sortie_net_dnat_entry_reflection(extra_args),
+        // Egress control verification
+        rbida_Attack::UdpNonDnsBlocked => rbida_sorties::sortie_udp_non_dns_blocked(extra_args),
+        rbida_Attack::CidrAllPortsAllowed => rbida_sorties::sortie_cidr_all_ports_allowed(extra_args),
     }
 }
 

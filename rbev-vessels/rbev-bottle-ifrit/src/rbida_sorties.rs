@@ -2224,3 +2224,83 @@ pub fn sortie_mac_flood_bridge(_extra_args: &[&str]) -> rbida_Verdict {
         fail("AF_PACKET open but no frames could be sent".to_string())
     }
 }
+
+// ── Egress control verification: udp_non_dns_blocked ─────────
+
+pub fn sortie_udp_non_dns_blocked(_extra_args: &[&str]) -> rbida_Verdict {
+    let timeout = Duration::from_secs(3);
+
+    // 8.8.8.8 is outside allowed CIDRs — UDP on non-DNS port should be blocked
+    let targets: &[(&str, u16)] = &[
+        ("8.8.8.8", 1234),
+        ("8.8.8.8", 4321),
+        ("1.1.1.1", 1234),
+    ];
+
+    for (host, port) in targets {
+        let addr: SocketAddr = match format!("{}:{}", host, port).parse() {
+            Ok(a) => a,
+            Err(e) => return fail(format!("ERROR: cannot parse {}:{} — {}", host, port, e)),
+        };
+        if let Ok(sock) = UdpSocket::bind("0.0.0.0:0") {
+            let _ = sock.set_read_timeout(Some(timeout));
+            let _ = sock.send_to(b"PROBE", addr);
+            let mut buf = [0u8; 64];
+            if sock.recv_from(&mut buf).is_ok() {
+                return fail(format!(
+                    "BREACH: UDP {}:{} — response received (packet escaped enclave)",
+                    host, port
+                ));
+            }
+        }
+    }
+
+    pass("SECURE: UDP non-DNS to non-allowed IPs blocked — no responses".to_string())
+}
+
+// ── Egress control verification: cidr_all_ports_allowed ──────
+
+pub fn sortie_cidr_all_ports_allowed(_extra_args: &[&str]) -> rbida_Verdict {
+    let timeout = Duration::from_secs(5);
+
+    // Resolve example.com — it's on the allowed CIDR list.
+    // Use getent (same resolver as other ifrit attacks).
+    let resolve_output = match std::process::Command::new("getent")
+        .args(["hosts", "example.com"])
+        .output()
+    {
+        Ok(o) => o,
+        Err(e) => return fail(format!("ERROR: getent failed: {}", e)),
+    };
+    if !resolve_output.status.success() {
+        return fail("ERROR: cannot resolve example.com (DNS blocked?)".to_string());
+    }
+    let stdout = String::from_utf8_lossy(&resolve_output.stdout);
+    let ip = match stdout.split_whitespace().next() {
+        Some(ip) => ip.to_string(),
+        None => return fail("ERROR: getent returned empty output".to_string()),
+    };
+
+    // Test multiple ports — CIDR allowlist should permit all of them
+    let ports: &[u16] = &[80, 443];
+    for port in ports {
+        let (connected, refused, err_msg) = tcp_probe(&ip, *port, timeout);
+        if connected || refused {
+            // Both connected and refused mean iptables allowed the packet through.
+            // Connected = remote accepted; refused = remote sent RST. Either is fine.
+            continue;
+        }
+        // Timeout = iptables DROP'd the packet
+        return fail(format!(
+            "BREACH: TCP {}:{} timed out — iptables blocked (CIDR should allow all ports). Error: {}",
+            ip,
+            port,
+            err_msg.unwrap_or_default()
+        ));
+    }
+
+    pass(format!(
+        "SECURE: CIDR all-ports allowed — TCP to {} on ports {:?} all reached remote",
+        ip, ports
+    ))
+}
