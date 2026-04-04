@@ -1715,9 +1715,10 @@
       "status": "racing",
       "order": [
         "₢A4AAA",
-        "₢A4AAB"
+        "₢A4AAB",
+        "₢A4AAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_uAl4.md",
       "paces": {
         "₢A4AAA": {
@@ -1739,6 +1740,17 @@
               "text": "## Character\nDesign conversation requiring judgment. The paddock captures the design decisions, but formalizing them into JJS0's existing document structure requires careful quoin treatment, vocabulary precision, and attention to how the new commands interact with existing JJK concepts (officium, gazette, identity tiers). Expect iterative refinement with the user.\n\n## Docket\nFormalize the remote dispatch command surface in JJS0 spec.\n\n**New command definitions:**\n- `jjx_bind` — create legatio session with SSH probe + RELDIR safety\n- `jjx_send` — synchronous remote exec\n- `jjx_relay` — async dispatch via nohup, mint pensum\n- `jjx_check` — probe/poll pensum status (required timeout: 0=instant, >0=poll), file list on terminal\n- `jjx_fetch` — single file read from fundus (relative to RELDIR or absolute)\n- `jjx_plant` — reset fundus workspace to exact commit\n\n**New vocabulary requiring quoin treatment:**\n- Curia / Fundus role vocabulary\n- Legatio (session identity) / Pensum (job identity) two-tier model\n- BURX regime cross-reference (defined in BUS0, consumed here)\n\n**Structural considerations:**\n- Where do these commands land in JJS0's existing organization?\n- How do legatio/pensum relate to officium lifecycle (absolution cleans up legationes)?\n- BURE_LABEL as the bridge between JJK pensum tokens and BUK's BURX_LABEL\n\n**See paddock** for full design decision record, command surface table, and provenance.",
               "silks": "jjs0-remote-dispatch-spec",
               "commit": "09ef7c2"
+            }
+          ]
+        },
+        "₢A4AAC": {
+          "tacks": [
+            {
+              "ts": "260404-0854",
+              "state": "rough",
+              "text": "## Character\nStandard Rust development. SSH infrastructure is the foundation — get this right and the async pace builds on it cleanly. Moderate judgment on SSH session management and error handling.\n\n## Docket\nImplement SSH execution infrastructure and all synchronous remote commands in JJK Rust source.\n\n**SSH infrastructure:**\n- SSH connection management using legatio (host, user, reldir)\n- Command execution over SSH (blocking, capture stdout/stderr)\n- Error propagation from remote exit codes\n\n**Commands to implement:**\n- `jjx_bind` — SSH probe, RELDIR safety validation (Layer 1 Rust + Layer 3 remote probe), legatio token minting, persist in officium state\n- `jjx_send` — synchronous exec via legatio, return exit code + output\n- `jjx_plant` — `git fetch origin && git reset --hard <commit> && git clean -dxf` over SSH, fail-fast\n- `jjx_fetch` — SSH cat of single file, path relative to RELDIR or absolute\n\n**Legatio state:**\n- Persisted in officium directory (host, user, reldir per legatio)\n- Multiple legationes per officium\n- Token format TBD (follow existing JJK identity patterns)\n\n**Key constraints:**\n- RELDIR validation: Rust constant checks (Layer 1) + bind-time remote probe (Layer 3)\n- Fundus-side constants: `FUNDUS_DEFAULT_USER`, `FUNDUS_DEFAULT_RELDIR` as Rust `const`\n- All commands fail hard on SSH errors — no retry logic\n\n**Depends on:** ₢A4AAA (BURX regime must exist for the ecosystem, though sync commands don't consume BURX directly)",
+              "silks": "jjk-ssh-foundation-sync-commands",
+              "commit": "6517f5a"
             }
           ]
         }
