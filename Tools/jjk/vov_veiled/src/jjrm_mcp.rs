@@ -51,6 +51,14 @@ const PROBE_DATE_FILE: &str = ".probe_date";
 const EXSANGUINATION_THRESHOLD_SECS: u64 = 7 * 24 * 3600;
 const OFFICIUM_SUN_PREFIX: char = '\u{2609}'; // ☉
 
+// Legatio command names — const-defined per RCG String Boundary Discipline.
+// Pre-existing commands remain as literals until registry migration.
+const JJRM_CMD_BIND: &str = "jjx_bind";
+const JJRM_CMD_SEND: &str = "jjx_send";
+const JJRM_CMD_PLANT: &str = "jjx_plant";
+const JJRM_CMD_FETCH: &str = "jjx_fetch";
+const JJRM_LEGATIO_COMMANDS: &[&str] = &[JJRM_CMD_BIND, JJRM_CMD_SEND, JJRM_CMD_PLANT, JJRM_CMD_FETCH];
+
 fn gallops_pathbuf() -> PathBuf {
     PathBuf::from(GALLOPS_PATH)
 }
@@ -331,6 +339,31 @@ pub struct jjrm_LandingParams {
     pub content: Option<String>,
 }
 
+#[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
+pub struct jjrm_BindParams {
+    pub host: String,
+    pub user: String,
+    pub reldir: String,
+}
+
+#[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
+pub struct jjrm_SendParams {
+    pub legatio: String,
+    pub command: String,
+}
+
+#[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
+pub struct jjrm_PlantParams {
+    pub legatio: String,
+    pub commit: String,
+}
+
+#[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
+pub struct jjrm_FetchParams {
+    pub legatio: String,
+    pub path: String,
+}
+
 // ============================================================================
 // Single dispatcher tool params
 // ============================================================================
@@ -341,7 +374,7 @@ fn jjrm_empty_object() -> serde_json::Value {
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_JjxParams {
-    #[schemars(description = "Command name: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing, jjx_open")]
+    #[schemars(description = "Command name: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing, jjx_bind, jjx_send, jjx_plant, jjx_fetch, jjx_open")]
     pub command: String,
     #[schemars(description = "Command parameters as JSON object. See CLAUDE.md for per-command schemas.")]
     #[serde(default = "jjrm_empty_object")]
@@ -1130,8 +1163,50 @@ impl jjrm_McpServer {
                     agent: p.agent,
                 }, p.content.unwrap_or_default()))
             }
+            JJRM_CMD_BIND => {
+                let p = deser!(jjrm_BindParams);
+                jjrm_result(crate::jjrlg_legatio::jjrlg_run_bind(
+                    crate::jjrlg_legatio::jjrlg_BindArgs {
+                        host: p.host,
+                        user: p.user,
+                        reldir: p.reldir,
+                    },
+                    officium_id,
+                ))
+            }
+            JJRM_CMD_SEND => {
+                let p = deser!(jjrm_SendParams);
+                jjrm_result(crate::jjrlg_legatio::jjrlg_run_send(
+                    crate::jjrlg_legatio::jjrlg_SendArgs {
+                        legatio: p.legatio,
+                        command: p.command,
+                    },
+                    officium_id,
+                ))
+            }
+            JJRM_CMD_PLANT => {
+                let p = deser!(jjrm_PlantParams);
+                jjrm_result(crate::jjrlg_legatio::jjrlg_run_plant(
+                    crate::jjrlg_legatio::jjrlg_PlantArgs {
+                        legatio: p.legatio,
+                        commit: p.commit,
+                    },
+                    officium_id,
+                ))
+            }
+            JJRM_CMD_FETCH => {
+                let p = deser!(jjrm_FetchParams);
+                jjrm_result(crate::jjrlg_legatio::jjrlg_run_fetch(
+                    crate::jjrlg_legatio::jjrlg_FetchArgs {
+                        legatio: p.legatio,
+                        path: p.path,
+                    },
+                    officium_id,
+                ))
+            }
             _ => {
-                Ok(CallToolResult::error(vec![Content::text(format!("jjx: unknown command '{}'\nAvailable: jjx_open, jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing, jjx_chapter, jjx_absolve", cmd))]))
+                let legatio = JJRM_LEGATIO_COMMANDS.join(", ");
+                Ok(CallToolResult::error(vec![Content::text(format!("jjx: unknown command '{}'\nAvailable: jjx_open, jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing, {}, jjx_chapter, jjx_absolve", cmd, legatio))]))
             }
         }
     }

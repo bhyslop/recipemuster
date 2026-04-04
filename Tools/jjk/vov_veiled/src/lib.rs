@@ -39,6 +39,7 @@ pub mod jjrgc_get_coronets;
 pub mod jjrgl_garland;
 pub mod jjrgs_get_spec;
 pub mod jjrld_landing;
+pub mod jjrlg_legatio;
 pub mod jjrmu_muster;
 pub mod jjrnc_notch;
 pub mod jjrno_nominate;
