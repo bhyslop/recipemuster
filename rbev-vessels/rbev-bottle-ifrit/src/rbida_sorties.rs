@@ -2649,6 +2649,70 @@ pub fn sortie_http_end_to_end(_extra_args: &[&str]) -> rbida_Verdict {
     ))
 }
 
+// ── Sentry self-protection: sentry_udp_non_dns ───────────────
+
+pub fn sortie_sentry_udp_non_dns(_extra_args: &[&str]) -> rbida_Verdict {
+    let sentry_ip = match env_require("RBRN_ENCLAVE_SENTRY_IP") {
+        Ok(v) => v,
+        Err(e) => return fail(format!("ERROR: {}", e)),
+    };
+    let timeout = Duration::from_secs(2);
+
+    // Negative tests: UDP to sentry on non-53 ports should be blocked by INPUT DROP
+    let probe_ports: &[u16] = &[123, 161, 1234, 5353, 8053, 10000];
+    for &port in probe_ports {
+        let addr: SocketAddr = match format!("{}:{}", sentry_ip, port).parse() {
+            Ok(a) => a,
+            Err(e) => return fail(format!("ERROR: cannot parse {}:{} — {}", sentry_ip, port, e)),
+        };
+        if let Ok(sock) = UdpSocket::bind("0.0.0.0:0") {
+            let _ = sock.set_read_timeout(Some(timeout));
+            let _ = sock.send_to(b"PROBE", addr);
+            let mut buf = [0u8; 64];
+            if sock.recv_from(&mut buf).is_ok() {
+                return fail(format!(
+                    "BREACH: sentry UDP {}:{} — response received (INPUT DROP not blocking non-DNS UDP)",
+                    sentry_ip, port
+                ));
+            }
+        }
+    }
+
+    // Positive control: UDP 53 (DNS) to sentry should work
+    let dig_output = Command::new("dig")
+        .args(["+short", &format!("@{}", sentry_ip), "example.com"])
+        .output();
+    match dig_output {
+        Ok(o) if o.status.success() => {
+            let stdout = String::from_utf8_lossy(&o.stdout);
+            if stdout.trim().is_empty() {
+                return fail(format!(
+                    "ERROR: dig @{} example.com returned empty — DNS not working",
+                    sentry_ip
+                ));
+            }
+        }
+        Ok(o) => {
+            return fail(format!(
+                "ERROR: dig @{} example.com failed (exit {}) — positive control broken",
+                sentry_ip,
+                o.status.code().unwrap_or(-1)
+            ));
+        }
+        Err(e) => {
+            return fail(format!(
+                "ERROR: dig command failed: {} — positive control broken",
+                e
+            ));
+        }
+    }
+
+    pass(format!(
+        "SECURE: sentry UDP non-DNS ports blocked — {} ports probed, all silent. DNS on :53 works.",
+        probe_ports.len()
+    ))
+}
+
 // ── Network path verification: conntrack_spoofed_ack ─────────
 
 pub fn sortie_conntrack_spoofed_ack(_extra_args: &[&str]) -> rbida_Verdict {

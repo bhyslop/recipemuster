@@ -502,6 +502,178 @@ fn rbtdrc_sortie_conntrack_spoofed_ack(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "conntrack-spoofed-ack", dir))
 }
 
+fn rbtdrc_sortie_sentry_udp_non_dns(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "sentry-udp-non-dns", dir))
+}
+
+// ── Sentry self-protection coordinated cases ─────────────────
+
+/// Coordinated: attempt outbound connections from sentry itself to non-allowed destinations.
+/// The sentry's OUTPUT DROP policy should block these — verifies sentry can't be used as a pivot.
+fn rbtdrc_coordinated_sentry_egress_lockdown(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        // Negative: attempt TCP to 1.1.1.1:443 from sentry via bash /dev/tcp
+        let tcp1_result = rbtdri_invoke(
+            ctx,
+            RBTDRM_COLOPHON_WRIT,
+            &["timeout", "2", "bash", "-c", "echo > /dev/tcp/1.1.1.1/443"],
+        );
+        let tcp1_blocked = match &tcp1_result {
+            Ok(r) => {
+                let _ = std::fs::write(dir.join("tcp1-stdout.txt"), &r.stdout);
+                let _ = std::fs::write(dir.join("tcp1-stderr.txt"), &r.stderr);
+                r.exit_code != 0
+            }
+            Err(e) => {
+                let _ = std::fs::write(dir.join("tcp1-error.txt"), format!("{}", e));
+                true // invocation error = blocked
+            }
+        };
+        if !tcp1_blocked {
+            return rbtdre_Verdict::Fail(
+                "BREACH: sentry TCP to 1.1.1.1:443 succeeded — OUTPUT chain not blocking egress"
+                    .to_string(),
+            );
+        }
+
+        // Negative: attempt TCP to 140.82.121.4:443 (GitHub) from sentry
+        let tcp2_result = rbtdri_invoke(
+            ctx,
+            RBTDRM_COLOPHON_WRIT,
+            &[
+                "timeout",
+                "2",
+                "bash",
+                "-c",
+                "echo > /dev/tcp/140.82.121.4/443",
+            ],
+        );
+        let tcp2_blocked = match &tcp2_result {
+            Ok(r) => {
+                let _ = std::fs::write(dir.join("tcp2-stdout.txt"), &r.stdout);
+                let _ = std::fs::write(dir.join("tcp2-stderr.txt"), &r.stderr);
+                r.exit_code != 0
+            }
+            Err(e) => {
+                let _ = std::fs::write(dir.join("tcp2-error.txt"), format!("{}", e));
+                true
+            }
+        };
+        if !tcp2_blocked {
+            return rbtdre_Verdict::Fail(
+                "BREACH: sentry TCP to 140.82.121.4:443 succeeded — OUTPUT chain not blocking egress"
+                    .to_string(),
+            );
+        }
+
+        // Positive control: dig @8.8.8.8 example.com from sentry must succeed
+        // (proves dnsmasq's egress path works — specific OUTPUT ACCEPT for DNS)
+        let dig_result = match rbtdrc_writ(
+            ctx,
+            &["dig", "+short", "@8.8.8.8", "example.com"],
+        ) {
+            Ok(o) => o,
+            Err(e) => {
+                return rbtdre_Verdict::Fail(format!(
+                    "positive control failed: dig @8.8.8.8 example.com from sentry: {}",
+                    e
+                ))
+            }
+        };
+        let _ = std::fs::write(dir.join("dig-positive.txt"), &dig_result);
+
+        let has_ip = dig_result
+            .lines()
+            .any(|l| rbtdrc_looks_like_ip(l.trim()));
+        if !has_ip {
+            return rbtdre_Verdict::Fail(format!(
+                "positive control: dig @8.8.8.8 example.com returned no IP:\n{}",
+                dig_result
+            ));
+        }
+
+        let _ = std::fs::write(
+            dir.join("observation.txt"),
+            "Sentry egress lockdown verified: TCP to 1.1.1.1:443 blocked, TCP to 140.82.121.4:443 blocked, DNS egress works",
+        );
+        rbtdre_Verdict::Pass
+    })
+}
+
+/// Coordinated: invoke ifrit DNS queries (allowed + blocked), then read dnsmasq log
+/// to verify both queries appear. Proves audit trail is intact.
+fn rbtdrc_coordinated_dnsmasq_query_audit(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        // Invoke ifrit dns-allowed-example via bark
+        let allowed_result = match rbtdri_invoke(
+            ctx,
+            RBTDRM_COLOPHON_BARK,
+            &[RBTDRC_IFRIT_BINARY, "dns-allowed-example"],
+        ) {
+            Ok(r) => r,
+            Err(e) => return rbtdre_Verdict::Fail(format!("bark dns-allowed-example: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("allowed-stdout.txt"), &allowed_result.stdout);
+        let _ = std::fs::write(dir.join("allowed-stderr.txt"), &allowed_result.stderr);
+
+        // Invoke ifrit dns-blocked-google via bark
+        let blocked_result = match rbtdri_invoke(
+            ctx,
+            RBTDRM_COLOPHON_BARK,
+            &[RBTDRC_IFRIT_BINARY, "dns-blocked-google"],
+        ) {
+            Ok(r) => r,
+            Err(e) => return rbtdre_Verdict::Fail(format!("bark dns-blocked-google: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("blocked-stdout.txt"), &blocked_result.stdout);
+        let _ = std::fs::write(dir.join("blocked-stderr.txt"), &blocked_result.stderr);
+
+        // Brief delay for dnsmasq log flush
+        std::thread::sleep(std::time::Duration::from_millis(500));
+
+        // Read dnsmasq log from sentry via writ
+        let log_output = match rbtdrc_writ(ctx, &["cat", "/var/log/dnsmasq.log"]) {
+            Ok(o) => o,
+            Err(e) => {
+                return rbtdre_Verdict::Fail(format!(
+                    "cannot read dnsmasq log: {}",
+                    e
+                ))
+            }
+        };
+        let _ = std::fs::write(dir.join("dnsmasq-log.txt"), &log_output);
+
+        // Filter to actual log lines (strip BUK headers)
+        let log_content = rbtdrc_filter_writ_output(&log_output);
+
+        // Verify example.com query appears in log
+        let has_example = log_content
+            .lines()
+            .any(|l| l.contains("example.com"));
+        if !has_example {
+            return rbtdre_Verdict::Fail(
+                "dnsmasq log missing example.com query — audit trail incomplete".to_string(),
+            );
+        }
+
+        // Verify google.com query appears in log (blocked queries should still be logged)
+        let has_google = log_content
+            .lines()
+            .any(|l| l.contains("google.com"));
+        if !has_google {
+            return rbtdre_Verdict::Fail(
+                "dnsmasq log missing google.com query — blocked queries not audited".to_string(),
+            );
+        }
+
+        let _ = std::fs::write(
+            dir.join("observation.txt"),
+            "dnsmasq audit verified: both allowed (example.com) and blocked (google.com) queries logged",
+        );
+        rbtdre_Verdict::Pass
+    })
+}
+
 /// Coordinated: ifrit sends TCP RST packets at sentry DNS, theurge verifies DNS still works.
 fn rbtdrc_coordinated_tcp_rst_hijack(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
@@ -1941,6 +2113,7 @@ static RBTDRC_SECTIONS_TADMOR: &[rbtdre_Section] = &[
             case!(rbtdrc_sortie_proc_sys_write),
             case!(rbtdrc_sortie_http_end_to_end),
             case!(rbtdrc_sortie_conntrack_spoofed_ack),
+            case!(rbtdrc_sortie_sentry_udp_non_dns),
         ],
     },
     rbtdre_Section {
@@ -1966,6 +2139,8 @@ static RBTDRC_SECTIONS_TADMOR: &[rbtdre_Section] = &[
             case!(rbtdrc_coordinated_dns_cache_integrity),
             case!(rbtdrc_coordinated_mac_flood_resilience),
             case!(rbtdrc_coordinated_tcp_rst_hijack),
+            case!(rbtdrc_coordinated_sentry_egress_lockdown),
+            case!(rbtdrc_coordinated_dnsmasq_query_audit),
         ],
     },
 ];
