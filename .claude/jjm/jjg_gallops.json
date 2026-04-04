@@ -1801,11 +1801,12 @@
         "₢A4AAE",
         "₢A4AAG",
         "₢A4AAB",
+        "₢A4AAK",
         "₢A4AAF",
         "₢A4AAH",
         "₢A4AAI"
       ],
-      "next_pace_seed": "AAK",
+      "next_pace_seed": "AAL",
       "paddock_file": ".claude/jjm/jjp_uAl4.md",
       "paces": {
         "₢A4AAA": {
@@ -1971,6 +1972,17 @@
               "text": "## Character\nInfrastructure work requiring precision — new identity type with sentinel disambiguation, gallops schema evolution, and seed lifecycle. Moderate judgment on parse/display API design; the structural decisions are already made.\n\n## Docket\nImplement the Pensum identity type (₱) in JJK Rust source. Pensum is a globally-unique identity for a single remote dispatch operation, used in `BURX_LABEL` for fossil-record correlation.\n\n**Structure:** 5 characters — 2 base64url (heat firemark) + literal `%` sentinel + 2 base64url (index within heat). Example: `₱Ah%BE` belongs to heat `₣Ah`.\n\n**Unicode prefix:** `₱` (U+20B1, peso sign).\n\n**Sentinel disambiguation:** Pensum shares character count 5 with coronet. The `%` at position 3 cannot appear in base64url — parse checks position 3 to distinguish types mechanically.\n\n**Identity type implementation (`jjrf_favor.rs`):**\n- `jjrf_Pensum` struct (newtype wrapping String, like Firemark/Coronet)\n- `JJRF_PENSUM_PREFIX: char = '₱'`\n- `jjrf_encode(heat: &jjrf_Firemark, index: u32) -> Self` — format: `{firemark}%{base64}{base64}`\n- `jjrf_decode(&self) -> Result<(jjrf_Firemark, u32), String>` — split on `%`, validate both parts\n- `jjrf_parse(input: &str) -> Result<Self, String>` — strip prefix if present, validate 5 chars with `%` at position 3\n- `jjrf_display(&self) -> String` — prefix + payload\n- `jjrf_as_str(&self) -> &str` — payload only\n- `jjrf_parent_firemark(&self) -> jjrf_Firemark` — extract chars 0-1\n\n**Gallops schema change (`jjrt_types.rs`):**\n- Add `next_pensum_seed: String` field to `jjrg_Heat` (2-char base64 seed, like `next_pace_seed`)\n- `#[serde(default = \"default_pensum_seed\")]` for backwards compatibility with existing gallops files\n- Default: `\"AA\"`\n\n**Seed minting (`jjro_ops.rs`):**\n- `jjrg_mint_pensum(heat, firemark) -> jjrf_Pensum` — read `next_pensum_seed`, encode, increment seed\n- Same increment logic as pace seed minting\n\n**Capacity:** 3,844 pensa per heat (62^2). Index digits follow same base64url charset as all other identity types.\n\n**Tests:** Encode/decode round-trip, parse with/without prefix, sentinel disambiguation vs coronet, parent firemark extraction, seed increment, gallops backwards compatibility with missing field.\n\n**Does NOT include:** `jjx_relay`, `jjx_check`, or any command that consumes the pensum type. This pace is purely the identity infrastructure.",
               "silks": "jjk-pensum-identity-type",
               "commit": "aaba4e8"
+            }
+          ]
+        },
+        "₢A4AAK": {
+          "tacks": [
+            {
+              "ts": "260404-1255",
+              "state": "rough",
+              "text": "## Character\nMechanical spec writing against a resolved design. Each of the 6 remote dispatch commands needs a procedure specification following the established JJS0 operation pattern (Arguments, Behavior, Exit Status, Stdout). Template-filling, not design — all vocabulary, types, and structural decisions are resolved in ₢A4AAB.\n\n## Docket\nWrite per-procedure specifications for the 6 remote dispatch commands in JJS0.\n\n**Commands to specify:**\n- `jjx_bind` — create legatio handle (SSH probe + RELDIR safety)\n- `jjx_send` — synchronous remote exec\n- `jjx_relay` — async dispatch via nohup, mint pensum\n- `jjx_check` — probe/poll pensum status\n- `jjx_fetch` — single file read from fundus\n- `jjx_plant` — reset fundus workspace to exact commit\n\n**Each command gets:**\n- `[[jjdo_*]]` anchor with `//axvo_procedure axd_transient` voicing\n- Arguments section with shared argument references (`{jjda_legatio}`, `{jjda_timeout}`, etc.)\n- Behavior section (numbered steps)\n- Exit Status section\n- Stdout section\n\n**Pattern to follow:** Existing operations like `jjdo_enroll` (slate.adoc), `jjdo_record` (notch.adoc). Each command may warrant its own include file or may be inline — decide during writing.\n\n**Depends on:** ₢A4AAB (vocabulary, types, structural placement all resolved first)",
+              "silks": "remote-dispatch-procedure-specs",
+              "commit": "6c7fbfe"
             }
           ]
         }
