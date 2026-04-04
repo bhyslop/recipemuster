@@ -578,7 +578,7 @@ type system for all entity identities.
 ({jjdt_firemark},
 {jjdt_coronet},
 {jjdt_pensum})
-use base64url encoding (A-Z, a-z, 0-9, `-`, `_`) providing compact, URL-safe, shell-safe strings.
+use the {jjdz_charset} providing compact, URL-safe, shell-safe strings.
 Digit count disambiguates type, with one exception:
 {jjdt_pensum}
 shares digit count 5 with
@@ -989,7 +989,7 @@ has four properties: a unicode verification glyph (decorative in input, mandator
 +
 Two encoding natures, declared via dimension:
 +
-* {axd_algebraic} — base64url characters (A-Z, a-z, 0-9, `-`, `_`), fixed digit count, seed incremented under commit lock.
+* {axd_algebraic} — {jjdz_charset} characters, fixed digit count, seed incremented under commit lock.
 Digit count disambiguates type within the algebraic family, with one exception: {jjdt_pensum} shares digit count 5 with {jjdt_coronet} and uses a `%` sentinel at position 3 for disambiguation.
 Case matters: the final character's case distinguishes identities.
 +
@@ -1016,7 +1016,7 @@ No hierarchical embedding.
 for
 {jjdhr_heat}
 identity.
-Format: `₣` + 2 base64url characters (e.g., `₣AB`).
+Format: `₣` + 2 {jjdz_charset} characters (e.g., `₣AB`).
 Seed:
 {jjdgm_seed}
 on
@@ -1034,7 +1034,7 @@ Input may omit the `₣` prefix; output always includes it.
 for
 {jjdpr_pace}
 identity.
-Format: `₢` + 5 base64url characters (e.g., `₢ABCDE`).
+Format: `₢` + 5 {jjdz_charset} characters (e.g., `₢ABCDE`).
 Globally unique: the first 2 characters are the parent
 {jjdhr_heat_p}
 {jjdt_firemark};
@@ -1071,9 +1071,9 @@ Pace data is preserved, with a note recording the original
 {axd_algebraic}
 {jjdt_insignia}
 for remote dispatch job identity.
-Format: `₱` + 2 base64url (heat
+Format: `₱` + 2 {jjdz_charset} (heat
 {jjdt_firemark})
-+ `%` sentinel + 2 base64url (index).
++ `%` sentinel + 2 {jjdz_charset} (index).
 Example: `₱Ah%BE` belongs to
 {jjdhr_heat}
 `₣Ah`.
@@ -1081,7 +1081,7 @@ Example: `₱Ah%BE` belongs to
 The `%` sentinel at position 3 disambiguates from
 {jjdt_coronet},
 which shares digit count 5.
-`%` cannot appear in base64url, so the parse is mechanical: 5-character identity with `%` at position 3 is
+`%` cannot appear in the {jjdz_charset}, so the parse is mechanical: 5-character identity with `%` at position 3 is
 {jjdt_pensum},
 without is
 {jjdt_coronet}.
@@ -1327,7 +1327,7 @@ May be reordered via
 {jjdhm_seed}
 is the next
 {jjdt_coronet}
-index to allocate, stored as 3 base64url characters.
+index to allocate, stored as 3 {jjdz_charset} characters.
 Incremented by
 {jjdo_enroll}.
 
@@ -1336,7 +1336,7 @@ Incremented by
 {jjdhm_pensum_seed}
 is the next
 {jjdt_pensum}
-index to allocate, stored as 2 base64url characters.
+index to allocate, stored as 2 {jjdz_charset} characters.
 Incremented by
 {jjdo_relay}.
 Initialized to `AA` on heat creation.
