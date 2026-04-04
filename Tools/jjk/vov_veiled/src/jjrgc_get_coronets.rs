@@ -12,6 +12,8 @@ use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_PaceState as PaceState};
 use std::path::PathBuf;
 
+const JJRGC_CMD_NAME_CORONETS: &str = "jjx_coronets";
+
 /// Arguments for jjx_coronets command
 #[derive(clap::Args, Debug)]
 pub struct jjrgc_GetCoronetsArgs {
@@ -33,11 +35,12 @@ pub struct jjrgc_GetCoronetsArgs {
 
 /// Run the get_coronets command - output coronets one per line
 pub fn jjrgc_run_get_coronets(args: jjrgc_GetCoronetsArgs) -> (i32, String) {
+    let cn = JJRGC_CMD_NAME_CORONETS;
     let mut output = vvco_Output::buffer();
     let firemark = match Firemark::jjrf_parse(&args.firemark) {
         Ok(fm) => fm,
         Err(e) => {
-            vvco_err!(output, "jjx_coronets: error: {}", e);
+            vvco_err!(output, "{}: error: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -45,7 +48,7 @@ pub fn jjrgc_run_get_coronets(args: jjrgc_GetCoronetsArgs) -> (i32, String) {
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            vvco_err!(output, "jjx_coronets: error: {}", e);
+            vvco_err!(output, "{}: error: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -54,7 +57,7 @@ pub fn jjrgc_run_get_coronets(args: jjrgc_GetCoronetsArgs) -> (i32, String) {
     let heat = match gallops.heats.get(&heat_key) {
         Some(h) => h,
         None => {
-            vvco_err!(output, "jjx_coronets: error: Heat '{}' not found", heat_key);
+            vvco_err!(output, "{}: error: Heat '{}' not found", cn, heat_key);
             return (1, output.vvco_finish());
         }
     };

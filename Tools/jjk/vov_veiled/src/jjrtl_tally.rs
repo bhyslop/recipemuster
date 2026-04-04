@@ -13,6 +13,9 @@ use std::path::PathBuf;
 
 use vvc::{vvco_out, vvco_err, vvco_Output};
 
+const JJRTL_CMD_NAME_RELABEL: &str = "jjx_relabel";
+const JJRTL_CMD_NAME_DROP: &str = "jjx_drop";
+
 use crate::jjrf_favor::jjrf_Coronet as Coronet;
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_PaceState as PaceState};
 use crate::jjrn_notch::{jjrn_format_heat_message as format_heat_message, jjrn_HeatAction as HeatAction};
@@ -113,6 +116,7 @@ pub struct jjrtl_RelabelArgs {
 ///
 /// Renames the pace silks.
 pub fn jjrtl_run_relabel(args: jjrtl_RelabelArgs) -> (i32, String) {
+    let cn = JJRTL_CMD_NAME_RELABEL;
     use crate::jjrg_gallops::jjrg_TallyArgs as LibTallyArgs;
     let mut output = vvco_Output::buffer();
 
@@ -120,7 +124,7 @@ pub fn jjrtl_run_relabel(args: jjrtl_RelabelArgs) -> (i32, String) {
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            vvco_err!(output, "jjx_relabel: error: {}", e);
+            vvco_err!(output, "{}: error: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -128,7 +132,7 @@ pub fn jjrtl_run_relabel(args: jjrtl_RelabelArgs) -> (i32, String) {
     let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            vvco_err!(output, "jjx_relabel: error loading Gallops: {}", e);
+            vvco_err!(output, "{}: error loading Gallops: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -139,7 +143,7 @@ pub fn jjrtl_run_relabel(args: jjrtl_RelabelArgs) -> (i32, String) {
     let fm = match Coronet::jjrf_parse(&coronet_str) {
         Ok(c) => c.jjrf_parent_firemark(),
         Err(e) => {
-            vvco_err!(output, "jjx_relabel: error: {}", e);
+            vvco_err!(output, "{}: error: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -162,13 +166,13 @@ pub fn jjrtl_run_relabel(args: jjrtl_RelabelArgs) -> (i32, String) {
                     (0, output.vvco_finish())
                 }
                 Err(e) => {
-                    vvco_err!(output, "jjx_relabel: error: {}", e);
+                    vvco_err!(output, "{}: error: {}", cn, e);
                     (1, output.vvco_finish())
                 }
             }
         }
         Err(e) => {
-            vvco_err!(output, "jjx_relabel: error: {}", e);
+            vvco_err!(output, "{}: error: {}", cn, e);
             (1, output.vvco_finish())
         }
     }
@@ -190,6 +194,7 @@ pub struct jjrtl_DropArgs {
 ///
 /// Sets pace state to abandoned.
 pub fn jjrtl_run_drop(args: jjrtl_DropArgs) -> (i32, String) {
+    let cn = JJRTL_CMD_NAME_DROP;
     use crate::jjrg_gallops::jjrg_TallyArgs as LibTallyArgs;
     let mut output = vvco_Output::buffer();
 
@@ -197,7 +202,7 @@ pub fn jjrtl_run_drop(args: jjrtl_DropArgs) -> (i32, String) {
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            vvco_err!(output, "jjx_drop: error: {}", e);
+            vvco_err!(output, "{}: error: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -205,7 +210,7 @@ pub fn jjrtl_run_drop(args: jjrtl_DropArgs) -> (i32, String) {
     let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            vvco_err!(output, "jjx_drop: error loading Gallops: {}", e);
+            vvco_err!(output, "{}: error loading Gallops: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -222,7 +227,7 @@ pub fn jjrtl_run_drop(args: jjrtl_DropArgs) -> (i32, String) {
             (parent_fm, silks)
         }
         Err(e) => {
-            vvco_err!(output, "jjx_drop: error: {}", e);
+            vvco_err!(output, "{}: error: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -245,13 +250,13 @@ pub fn jjrtl_run_drop(args: jjrtl_DropArgs) -> (i32, String) {
                     (0, output.vvco_finish())
                 }
                 Err(e) => {
-                    vvco_err!(output, "jjx_drop: error: {}", e);
+                    vvco_err!(output, "{}: error: {}", cn, e);
                     (1, output.vvco_finish())
                 }
             }
         }
         Err(e) => {
-            vvco_err!(output, "jjx_drop: error: {}", e);
+            vvco_err!(output, "{}: error: {}", cn, e);
             (1, output.vvco_finish())
         }
     }

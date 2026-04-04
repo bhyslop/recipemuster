@@ -15,6 +15,8 @@ use vvc::{vvco_out, vvco_err, vvco_Output};
 use crate::jjrf_favor::jjrf_Coronet as Coronet;
 use crate::jjrg_gallops::jjrg_Gallops as Gallops;
 
+const JJRGS_CMD_NAME_GET_SPEC: &str = "jjx_get_spec";
+
 /// Arguments for jjx_get_spec command
 #[derive(Args, Debug)]
 pub struct jjrgs_GetSpecArgs {
@@ -28,12 +30,13 @@ pub struct jjrgs_GetSpecArgs {
 
 /// Run the get_spec command - output raw spec text
 pub fn jjrgs_run_get_spec(args: jjrgs_GetSpecArgs) -> (i32, String) {
+    let cn = JJRGS_CMD_NAME_GET_SPEC;
     let mut output = vvco_Output::buffer();
 
     let coronet = match Coronet::jjrf_parse(&args.coronet) {
         Ok(c) => c,
         Err(e) => {
-            vvco_err!(output, "jjx_get_spec: error: {}", e);
+            vvco_err!(output, "{}: error: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -41,7 +44,7 @@ pub fn jjrgs_run_get_spec(args: jjrgs_GetSpecArgs) -> (i32, String) {
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            vvco_err!(output, "jjx_get_spec: error: {}", e);
+            vvco_err!(output, "{}: error: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -52,7 +55,7 @@ pub fn jjrgs_run_get_spec(args: jjrgs_GetSpecArgs) -> (i32, String) {
     let heat = match gallops.heats.get(&heat_key) {
         Some(h) => h,
         None => {
-            vvco_err!(output, "jjx_get_spec: error: Heat '{}' not found", heat_key);
+            vvco_err!(output, "{}: error: Heat '{}' not found", cn, heat_key);
             return (1, output.vvco_finish());
         }
     };
@@ -62,7 +65,7 @@ pub fn jjrgs_run_get_spec(args: jjrgs_GetSpecArgs) -> (i32, String) {
     let pace = match heat.paces.get(&coronet_key) {
         Some(p) => p,
         None => {
-            vvco_err!(output, "jjx_get_spec: error: Pace '{}' not found in Heat '{}'", coronet_key, heat_key);
+            vvco_err!(output, "{}: error: Pace '{}' not found in Heat '{}'", cn, coronet_key, heat_key);
             return (1, output.vvco_finish());
         }
     };
@@ -72,7 +75,7 @@ pub fn jjrgs_run_get_spec(args: jjrgs_GetSpecArgs) -> (i32, String) {
         vvco_out!(output, "{}", tack.text);
         (0, output.vvco_finish())
     } else {
-        vvco_err!(output, "jjx_get_spec: error: Pace '{}' has no tacks", coronet_key);
+        vvco_err!(output, "{}: error: Pace '{}' has no tacks", cn, coronet_key);
         (1, output.vvco_finish())
     }
 }

@@ -10,6 +10,8 @@ use std::path::PathBuf;
 
 use vvc::{vvco_out, vvco_err, vvco_Output};
 
+const JJRFU_CMD_NAME_FURLOUGH: &str = "jjx_furlough";
+
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_FurloughArgs as LibFurloughArgs};
 use crate::jjrn_notch::{jjrn_HeatAction as HeatAction, jjrn_format_heat_message as format_heat_message};
@@ -39,13 +41,14 @@ pub struct jjrfu_FurloughArgs {
 
 /// Handler for jjx_furlough command
 pub fn jjrfu_run_furlough(args: jjrfu_FurloughArgs) -> (i32, String) {
+    let cn = JJRFU_CMD_NAME_FURLOUGH;
     let mut output = vvco_Output::buffer();
 
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            vvco_err!(output, "jjx_furlough: error: {}", e);
+            vvco_err!(output, "{}: error: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -53,7 +56,7 @@ pub fn jjrfu_run_furlough(args: jjrfu_FurloughArgs) -> (i32, String) {
     let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            vvco_err!(output, "jjx_furlough: error loading Gallops: {}", e);
+            vvco_err!(output, "{}: error loading Gallops: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -85,10 +88,10 @@ pub fn jjrfu_run_furlough(args: jjrfu_FurloughArgs) -> (i32, String) {
 
             match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 100000, &mut output) {
                 Ok(hash) => {
-                    vvco_out!(output, "jjx_furlough: committed {}", &hash[..8]);
+                    vvco_out!(output, "{}: committed {}", cn, &hash[..8]);
                 }
                 Err(e) => {
-                    vvco_err!(output, "jjx_furlough: error: {}", e);
+                    vvco_err!(output, "{}: error: {}", cn, e);
                     return (1, output.vvco_finish());
                 }
             }
@@ -96,7 +99,7 @@ pub fn jjrfu_run_furlough(args: jjrfu_FurloughArgs) -> (i32, String) {
             (0, output.vvco_finish())
         }
         Err(e) => {
-            vvco_err!(output, "jjx_furlough: error: {}", e);
+            vvco_err!(output, "{}: error: {}", cn, e);
             (1, output.vvco_finish())
         }
     }

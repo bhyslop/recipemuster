@@ -17,6 +17,8 @@ use crate::jjrt_types::*;
 use crate::jjru_util::{zjjrg_increment_seed, jjrg_make_tack};
 use crate::jjrv_validate::{zjjrg_is_kebab_case, zjjrg_is_yymmdd};
 
+const JJRO_CMD_NAME_CURRY: &str = "jjx_curry";
+
 /// Nominate a new Heat
 ///
 /// Creates a new Heat with empty Pace structure and creates the paddock file.
@@ -775,7 +777,7 @@ pub fn jjrg_curry(
 
     match vvc::machine_commit(&lock, &commit_args, output) {
         Ok(hash) => {
-            vvc::vvco_out!(output, "jjx_curry: committed {}", &hash[..8]);
+            vvc::vvco_out!(output, "{}: committed {}", JJRO_CMD_NAME_CURRY, &hash[..8]);
             Ok(())
         }
         Err(e) => Err(format!("Commit failed: {}", e)),

@@ -12,6 +12,8 @@ use crate::jjrf_favor::{jjrf_Firemark as Firemark};
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops};
 use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug};
 
+const JJRCU_CMD_NAME_CURRY: &str = "jjx_curry";
+
 /// Arguments for jjx_curry command
 #[derive(clap::Args, Debug)]
 pub struct jjrcu_CurryArgs {
@@ -29,6 +31,7 @@ pub struct jjrcu_CurryArgs {
 
 /// Handler for jjx_curry command
 pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, content: Option<String>, gazette: &mut jjrz_Gazette) -> (i32, String) {
+    let cn = JJRCU_CMD_NAME_CURRY;
     use crate::jjro_ops::jjrg_curry;
 
     let mut output = vvco_Output::buffer();
@@ -37,7 +40,7 @@ pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, content: Option<String>, gazette: 
     let firemark = match Firemark::jjrf_parse(&args.firemark) {
         Ok(fm) => fm,
         Err(e) => {
-            vvco_err!(output, "jjx_curry: error: {}", e);
+            vvco_err!(output, "{}: error: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -48,7 +51,7 @@ pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, content: Option<String>, gazette: 
             let gallops = match Gallops::jjrg_load(&args.file) {
                 Ok(g) => g,
                 Err(e) => {
-                    vvco_err!(output, "jjx_curry: error loading Gallops: {}", e);
+                    vvco_err!(output, "{}: error loading Gallops: {}", cn, e);
                     return (1, output.vvco_finish());
                 }
             };
@@ -57,7 +60,7 @@ pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, content: Option<String>, gazette: 
             let heat = match gallops.heats.get(&firemark_key) {
                 Some(h) => h,
                 None => {
-                    vvco_err!(output, "jjx_curry: error: Heat '{}' not found", firemark_key);
+                    vvco_err!(output, "{}: error: Heat '{}' not found", cn, firemark_key);
                     return (1, output.vvco_finish());
                 }
             };
@@ -66,7 +69,7 @@ pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, content: Option<String>, gazette: 
             let paddock_content = match std::fs::read_to_string(paddock_path) {
                 Ok(c) => c,
                 Err(e) => {
-                    vvco_err!(output, "jjx_curry: error reading paddock: {}", e);
+                    vvco_err!(output, "{}: error reading paddock: {}", cn, e);
                     return (1, output.vvco_finish());
                 }
             };
@@ -81,11 +84,11 @@ pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, content: Option<String>, gazette: 
             // Call operation (curry acquires its own lock)
             match jjrg_curry(&args.file, &firemark, &new_content, args.note.as_deref(), &mut output) {
                 Ok(()) => {
-                    vvco_out!(output, "jjx_curry: paddock updated");
+                    vvco_out!(output, "{}: paddock updated", cn);
                     (0, output.vvco_finish())
                 }
                 Err(e) => {
-                    vvco_err!(output, "jjx_curry: error: {}", e);
+                    vvco_err!(output, "{}: error: {}", cn, e);
                     (1, output.vvco_finish())
                 }
             }

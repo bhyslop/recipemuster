@@ -15,6 +15,8 @@ use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_RestringArgs as LibRestringArgs, jjrg_PaceState};
 use crate::jjrn_notch::{jjrn_HeatAction as HeatAction, jjrn_format_heat_message as format_heat_message};
 
+const JJRRS_CMD_NAME_RESTRING: &str = "jjx_restring";
+
 /// Arguments for jjx_restring command
 #[derive(clap::Args, Debug)]
 pub struct jjrrs_RestringArgs {
@@ -32,13 +34,14 @@ pub struct jjrrs_RestringArgs {
 
 /// Execute restring command - bulk draft multiple paces atomically
 pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
+    let cn = JJRRS_CMD_NAME_RESTRING;
     let mut output = vvco_Output::buffer();
 
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            vvco_err!(output, "jjx_restring: error: {}", e);
+            vvco_err!(output, "{}: error: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -46,7 +49,7 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
     let coronets: Vec<String> = match serde_json::from_str(&coronets) {
         Ok(c) => c,
         Err(e) => {
-            vvco_err!(output, "jjx_restring: error: Expected JSON array of coronets: {}", e);
+            vvco_err!(output, "{}: error: Expected JSON array of coronets: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -54,7 +57,7 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
     let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            vvco_err!(output, "jjx_restring: error loading Gallops: {}", e);
+            vvco_err!(output, "{}: error loading Gallops: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -69,14 +72,14 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
     let result = match gallops.jjrg_restring(restring_args) {
         Ok(r) => r,
         Err(e) => {
-            vvco_err!(output, "jjx_restring: error: {}", e);
+            vvco_err!(output, "{}: error: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
 
     // Save gallops
     if let Err(e) = gallops.jjrg_save(&args.file) {
-        vvco_err!(output, "jjx_restring: error saving Gallops: {}", e);
+        vvco_err!(output, "{}: error saving Gallops: {}", cn, e);
         return (1, output.vvco_finish());
     }
 
@@ -107,10 +110,10 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
 
     match vvc::machine_commit(&lock, &commit_args, &mut output) {
         Ok(hash) => {
-            vvco_out!(output, "jjx_restring: committed {}", &hash[..8]);
+            vvco_out!(output, "{}: committed {}", cn, &hash[..8]);
         }
         Err(e) => {
-            vvco_err!(output, "jjx_restring: commit warning: {}", e);
+            vvco_err!(output, "{}: commit warning: {}", cn, e);
         }
     }
 
@@ -151,7 +154,7 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
             (0, output.vvco_finish())
         }
         Err(e) => {
-            vvco_err!(output, "jjx_restring: error serializing output: {}", e);
+            vvco_err!(output, "{}: error serializing output: {}", cn, e);
             (1, output.vvco_finish())
         }
     }

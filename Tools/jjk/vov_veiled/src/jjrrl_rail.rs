@@ -13,6 +13,9 @@ use std::path::PathBuf;
 
 use vvc::{vvco_out, vvco_err};
 
+// Command name constant — RCG String Boundary Discipline
+const JJRRL_CMD_NAME_REORDER: &str = "jjx_reorder";
+
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrg_gallops::jjrg_Gallops as Gallops;
 
@@ -58,13 +61,14 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> (i32, String) {
     use crate::jjrg_gallops::jjrg_RailArgs as LibRailArgs;
     use crate::jjrn_notch::{jjrn_HeatAction, jjrn_format_heat_message};
 
+    let cn = JJRRL_CMD_NAME_REORDER;
     let mut output = vvc::vvco_Output::buffer();
 
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            vvco_err!(output, "jjx_rail: error: {}", e);
+            vvco_err!(output, "{}: error: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -81,7 +85,7 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> (i32, String) {
     let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            vvco_err!(output, "jjx_rail: error loading Gallops: {}", e);
+            vvco_err!(output, "{}: error loading Gallops: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -119,7 +123,7 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> (i32, String) {
                     else if move_after.is_some() { "requested position" }
                     else { "requested position" };
                 let coronet_display = move_coronet.as_deref().unwrap_or("pace");
-                vvco_out!(output, "jjx_rail: no change — {} is already {}", coronet_display, position);
+                vvco_out!(output, "{}: no change — {} is already {}", cn, coronet_display, position);
                 for coronet in new_order {
                     vvco_out!(output, "{}", coronet);
                 }
@@ -144,10 +148,10 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> (i32, String) {
 
             match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000, &mut output) {
                 Ok(hash) => {
-                    vvco_out!(output, "jjx_rail: committed {}", &hash[..8]);
+                    vvco_out!(output, "{}: committed {}", cn, &hash[..8]);
                 }
                 Err(e) => {
-                    vvco_err!(output, "jjx_rail: error: {}", e);
+                    vvco_err!(output, "{}: error: {}", cn, e);
                     return (1, output.vvco_finish());
                 }
             }
@@ -158,7 +162,7 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> (i32, String) {
             (0, output.vvco_finish())
         }
         Err(e) => {
-            vvco_err!(output, "jjx_rail: error: {}", e);
+            vvco_err!(output, "{}: error: {}", cn, e);
             (1, output.vvco_finish())
         }
     }

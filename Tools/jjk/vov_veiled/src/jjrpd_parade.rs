@@ -19,6 +19,9 @@ use std::fs;
 
 use vvc::{vvco_out, vvco_err, vvco_Output};
 
+// Command name constant — RCG String Boundary Discipline
+const JJRPD_CMD_NAME_SHOW: &str = "jjx_show";
+
 /// Arguments for jjx_show command
 #[derive(clap::Args, Debug)]
 pub struct jjrpd_ParadeArgs {
@@ -40,6 +43,7 @@ pub struct jjrpd_ParadeArgs {
 
 /// Run the show command - display comprehensive Heat status
 pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (i32, String) {
+    let cn = JJRPD_CMD_NAME_SHOW;
     let mut output = vvco_Output::buffer();
 
     // Disk space guard — report survey or block if critical
@@ -54,7 +58,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            vvco_err!(output, "jjx_show: error: {}", e);
+            vvco_err!(output, "{}: error: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -67,7 +71,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
             match zjjrpd_resolve_default_heat(&gallops) {
                 Ok(fm) => fm,
                 Err(e) => {
-                    vvco_err!(output, "jjx_show: error: {}", e);
+                    vvco_err!(output, "{}: error: {}", cn, e);
                     return (1, output.vvco_finish());
                 }
             }
@@ -82,7 +86,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
         let coronet = match Coronet::jjrf_parse(&target) {
             Ok(c) => c,
             Err(e) => {
-                vvco_err!(output, "jjx_show: error: {}", e);
+                vvco_err!(output, "{}: error: {}", cn, e);
                 return (1, output.vvco_finish());
             }
         };
@@ -93,7 +97,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
         let heat = match gallops.heats.get(&heat_key) {
             Some(h) => h,
             None => {
-                vvco_err!(output, "jjx_show: error: Heat '{}' not found", heat_key);
+                vvco_err!(output, "{}: error: Heat '{}' not found", cn, heat_key);
                 return (1, output.vvco_finish());
             }
         };
@@ -103,7 +107,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
         let pace = match heat.paces.get(&coronet_key) {
             Some(p) => p,
             None => {
-                vvco_err!(output, "jjx_show: error: Pace '{}' not found in Heat '{}'", coronet_key, heat_key);
+                vvco_err!(output, "{}: error: Pace '{}' not found in Heat '{}'", cn, coronet_key, heat_key);
                 return (1, output.vvco_finish());
             }
         };
@@ -166,7 +170,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
         let firemark = match Firemark::jjrf_parse(&target) {
             Ok(fm) => fm,
             Err(e) => {
-                vvco_err!(output, "jjx_show: error: {}", e);
+                vvco_err!(output, "{}: error: {}", cn, e);
                 return (1, output.vvco_finish());
             }
         };
@@ -175,7 +179,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
         let heat = match gallops.heats.get(&heat_key) {
             Some(h) => h,
             None => {
-                vvco_err!(output, "jjx_show: error: Heat '{}' not found", heat_key);
+                vvco_err!(output, "{}: error: Heat '{}' not found", cn, heat_key);
                 return (1, output.vvco_finish());
             }
         };
@@ -187,7 +191,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
             let paddock_content = match fs::read_to_string(&heat.paddock_file) {
                 Ok(content) => content,
                 Err(e) => {
-                    vvco_err!(output, "jjx_show: error reading paddock file '{}': {}", heat.paddock_file, e);
+                    vvco_err!(output, "{}: error reading paddock file '{}': {}", cn, heat.paddock_file, e);
                     return (1, output.vvco_finish());
                 }
             };
@@ -395,7 +399,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
             }
         }
     } else {
-        vvco_err!(output, "jjx_show: error: target must be Firemark (2 chars) or Coronet (5 chars), got {} chars", target_str.len());
+        vvco_err!(output, "{}: error: target must be Firemark (2 chars) or Coronet (5 chars), got {} chars", cn, target_str.len());
         return (1, output.vvco_finish());
     }
 
@@ -498,13 +502,14 @@ pub fn jjrpd_format_file_bitmap(firemark: &Firemark, heat: &Heat) -> Result<Stri
 
 /// Write the file-touch bitmap for a heat to output.
 pub(crate) fn jjrpd_write_file_bitmap(output: &mut vvco_Output, firemark: &Firemark, heat: &Heat) {
+    let cn = JJRPD_CMD_NAME_SHOW;
     match jjrpd_format_file_bitmap(firemark, heat) {
         Ok(text) => {
             for line in text.lines() {
                 vvco_out!(output, "{}", line);
             }
         }
-        Err(e) => vvco_err!(output, "jjx_show: error getting file touches: {}", e),
+        Err(e) => vvco_err!(output, "{}: error getting file touches: {}", cn, e),
     }
 }
 
@@ -640,13 +645,14 @@ pub fn jjrpd_format_commit_swimlanes(firemark: &Firemark, heat: &Heat) -> Result
 
 /// Write commit swim lanes for a heat to output.
 pub(crate) fn jjrpd_write_commit_swimlanes(output: &mut vvco_Output, firemark: &Firemark, heat: &Heat) {
+    let cn = JJRPD_CMD_NAME_SHOW;
     match jjrpd_format_commit_swimlanes(firemark, heat) {
         Ok(text) => {
             for line in text.lines() {
                 vvco_out!(output, "{}", line);
             }
         }
-        Err(e) => vvco_err!(output, "jjx_show: error getting steeplechase entries: {}", e),
+        Err(e) => vvco_err!(output, "{}: error getting steeplechase entries: {}", cn, e),
     }
 }
 
@@ -655,6 +661,7 @@ pub(crate) fn jjrpd_write_commit_swimlanes(output: &mut vvco_Output, firemark: &
 /// Shows which files each commit in this pace touched.
 /// Called after tack history in pace parade.
 fn zjjrpd_write_pace_commits(output: &mut vvco_Output, firemark: &Firemark, coronet_key: &str) {
+    let cn = JJRPD_CMD_NAME_SHOW;
     let rein_args = jjrs_ReinArgs {
         firemark: firemark.jjrf_as_str().to_string(),
         limit: 10000,
@@ -663,7 +670,7 @@ fn zjjrpd_write_pace_commits(output: &mut vvco_Output, firemark: &Firemark, coro
     let entries = match jjrs_get_entries(&rein_args) {
         Ok(e) => e,
         Err(e) => {
-            vvco_err!(output, "jjx_show: error getting steeplechase entries: {}", e);
+            vvco_err!(output, "{}: error getting steeplechase entries: {}", cn, e);
             return;
         }
     };

@@ -19,6 +19,8 @@ use crate::jjrf_favor::{jjrf_Firemark as Firemark};
 use crate::jjri_io::jjri_paddock_path;
 use crate::jjrn_notch::{jjrn_HeatAction as HeatAction, jjrn_format_heat_message as format_heat_message};
 
+const JJRGL_CMD_NAME_GARLAND: &str = "jjx_garland";
+
 /// Arguments for jjx_garland command
 #[derive(clap::Args, Debug)]
 pub struct jjrgl_GarlandArgs {
@@ -35,6 +37,7 @@ pub struct jjrgl_GarlandArgs {
 /// Executes garland operation, saves gallops, and commits the result.
 /// Returns exit code (0 for success, non-zero for failure).
 pub fn jjrgl_run_garland(args: jjrgl_GarlandArgs) -> (i32, String) {
+    let cn = JJRGL_CMD_NAME_GARLAND;
     use std::path::Path;
     let mut output = vvco_Output::buffer();
 
@@ -42,7 +45,7 @@ pub fn jjrgl_run_garland(args: jjrgl_GarlandArgs) -> (i32, String) {
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            vvco_err!(output, "jjx_garland: error: {}", e);
+            vvco_err!(output, "{}: error: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -50,7 +53,7 @@ pub fn jjrgl_run_garland(args: jjrgl_GarlandArgs) -> (i32, String) {
     let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            vvco_err!(output, "jjx_garland: error loading Gallops: {}", e);
+            vvco_err!(output, "{}: error loading Gallops: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -71,14 +74,14 @@ pub fn jjrgl_run_garland(args: jjrgl_GarlandArgs) -> (i32, String) {
     let result = match gallops.jjrg_garland(garland_args, base_path) {
         Ok(r) => r,
         Err(e) => {
-            vvco_err!(output, "jjx_garland: error: {}", e);
+            vvco_err!(output, "{}: error: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
 
     // Save gallops
     if let Err(e) = gallops.jjrg_save(&args.file) {
-        vvco_err!(output, "jjx_garland: error saving Gallops: {}", e);
+        vvco_err!(output, "{}: error saving Gallops: {}", cn, e);
         return (1, output.vvco_finish());
     }
 
@@ -110,10 +113,10 @@ pub fn jjrgl_run_garland(args: jjrgl_GarlandArgs) -> (i32, String) {
 
     match vvc::machine_commit(&lock, &commit_args, &mut output) {
         Ok(hash) => {
-            vvco_out!(output, "jjx_garland: committed {}", &hash[..8]);
+            vvco_out!(output, "{}: committed {}", cn, &hash[..8]);
         }
         Err(e) => {
-            vvco_err!(output, "jjx_garland: commit warning: {}", e);
+            vvco_err!(output, "{}: commit warning: {}", cn, e);
         }
     }
 
@@ -133,7 +136,7 @@ pub fn jjrgl_run_garland(args: jjrgl_GarlandArgs) -> (i32, String) {
             (0, output.vvco_finish())
         }
         Err(e) => {
-            vvco_err!(output, "jjx_garland: error serializing output: {}", e);
+            vvco_err!(output, "{}: error serializing output: {}", cn, e);
             (1, output.vvco_finish())
         }
     }

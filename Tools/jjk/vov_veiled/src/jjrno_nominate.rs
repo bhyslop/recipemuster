@@ -11,6 +11,9 @@ use std::collections::BTreeMap;
 
 use vvc::{vvco_out, vvco_err, vvco_Output};
 
+// Command name constant — RCG String Boundary Discipline
+const JJRNO_CMD_NAME_CREATE: &str = "jjx_create";
+
 use crate::jjrf_favor::{jjrf_Firemark as Firemark};
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_NominateArgs as LibNominateArgs};
 use crate::jjrc_core::jjrc_timestamp_from_env;
@@ -31,13 +34,14 @@ pub struct jjrx_NominateArgs {
 /// Handler for jjx_nominate command
 pub fn jjrx_run_nominate(args: jjrx_NominateArgs) -> (i32, String) {
     use std::path::Path;
+    let cn = JJRNO_CMD_NAME_CREATE;
     let mut output = vvco_Output::buffer();
 
     // Acquire lock FIRST - fail fast if another operation is in progress
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            vvco_err!(output, "jjx_nominate: error: {}", e);
+            vvco_err!(output, "{}: error: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -46,14 +50,14 @@ pub fn jjrx_run_nominate(args: jjrx_NominateArgs) -> (i32, String) {
         match Gallops::jjrg_load(&args.file) {
             Ok(g) => g,
             Err(e) => {
-                vvco_err!(output, "jjx_nominate: error loading Gallops: {}", e);
+                vvco_err!(output, "{}: error loading Gallops: {}", cn, e);
                 return (1, output.vvco_finish());
             }
         }
     } else {
         if let Some(parent) = args.file.parent() {
             if let Err(e) = std::fs::create_dir_all(parent) {
-                vvco_err!(output, "jjx_nominate: error creating directory: {}", e);
+                vvco_err!(output, "{}: error creating directory: {}", cn, e);
                 return (1, output.vvco_finish());
             }
         }
@@ -83,10 +87,10 @@ pub fn jjrx_run_nominate(args: jjrx_NominateArgs) -> (i32, String) {
 
             match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000, &mut output) {
                 Ok(hash) => {
-                    vvco_out!(output, "jjx_nominate: committed {}", &hash[..8]);
+                    vvco_out!(output, "{}: committed {}", cn, &hash[..8]);
                 }
                 Err(e) => {
-                    vvco_err!(output, "jjx_nominate: error: {}", e);
+                    vvco_err!(output, "{}: error: {}", cn, e);
                     return (1, output.vvco_finish());
                 }
             }
@@ -95,7 +99,7 @@ pub fn jjrx_run_nominate(args: jjrx_NominateArgs) -> (i32, String) {
             (0, output.vvco_finish())
         }
         Err(e) => {
-            vvco_err!(output, "jjx_nominate: error: {}", e);
+            vvco_err!(output, "{}: error: {}", cn, e);
             (1, output.vvco_finish())
         }
     }

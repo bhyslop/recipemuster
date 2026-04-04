@@ -11,6 +11,8 @@ use std::path::PathBuf;
 
 use vvc::{vvco_out, vvco_err, vvco_Output};
 
+const JJRDR_CMD_NAME_DRAFT: &str = "jjx_draft";
+
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrg_gallops::jjrg_Gallops as Gallops;
 use crate::jjri_io::jjri_paddock_path;
@@ -45,6 +47,7 @@ pub struct jjrdr_DraftArgs {
 
 /// Handler function for draft command
 pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> (i32, String) {
+    let cn = JJRDR_CMD_NAME_DRAFT;
     use crate::jjrg_gallops::jjrg_DraftArgs as LibDraftArgs;
     let mut output = vvco_Output::buffer();
 
@@ -52,7 +55,7 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> (i32, String) {
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
         Ok(l) => l,
         Err(e) => {
-            vvco_err!(output, "jjx_draft: error: {}", e);
+            vvco_err!(output, "{}: error: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -60,7 +63,7 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> (i32, String) {
     let mut gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            vvco_err!(output, "jjx_draft: error loading Gallops: {}", e);
+            vvco_err!(output, "{}: error loading Gallops: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -79,7 +82,7 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> (i32, String) {
         Ok(result) => {
             // Save gallops
             if let Err(e) = gallops.jjrg_save(&args.file) {
-                vvco_err!(output, "jjx_draft: error saving Gallops: {}", e);
+                vvco_err!(output, "{}: error saving Gallops: {}", cn, e);
                 return (1, output.vvco_finish());
             }
 
@@ -107,10 +110,10 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> (i32, String) {
 
             match vvc::machine_commit(&lock, &commit_args, &mut output) {
                 Ok(hash) => {
-                    vvco_out!(output, "jjx_draft: committed {}", &hash[..8]);
+                    vvco_out!(output, "{}: committed {}", cn, &hash[..8]);
                 }
                 Err(e) => {
-                    vvco_err!(output, "jjx_draft: commit warning: {}", e);
+                    vvco_err!(output, "{}: commit warning: {}", cn, e);
                 }
             }
 
@@ -118,7 +121,7 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> (i32, String) {
             (0, output.vvco_finish())
         }
         Err(e) => {
-            vvco_err!(output, "jjx_draft: error: {}", e);
+            vvco_err!(output, "{}: error: {}", cn, e);
             (1, output.vvco_finish())
         }
     }

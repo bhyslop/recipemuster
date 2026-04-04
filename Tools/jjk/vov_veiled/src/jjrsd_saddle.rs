@@ -17,6 +17,8 @@ use crate::jjrs_steeplechase::{jjrs_get_entries, jjrs_ReinArgs};
 use crate::jjrpd_parade::{jjrpd_write_file_bitmap, jjrpd_write_commit_swimlanes};
 use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug};
 
+const JJRSD_CMD_NAME_ORIENT: &str = "jjx_orient";
+
 /// Arguments for saddle command
 #[derive(clap::Args, Debug)]
 pub struct jjrsd_SaddleArgs {
@@ -30,6 +32,7 @@ pub struct jjrsd_SaddleArgs {
 
 /// Run the saddle command - return Heat context
 pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette) -> (i32, String) {
+    let cn = JJRSD_CMD_NAME_ORIENT;
     let mut output = vvco_Output::buffer();
 
     // Disk space guard — report survey or block if critical
@@ -44,7 +47,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            vvco_err!(output, "jjx_orient: error: {}", e);
+            vvco_err!(output, "{}: error: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -141,7 +144,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette
         let coronet = match Coronet::jjrf_parse(&firemark_str) {
             Ok(c) => c,
             Err(e) => {
-                vvco_err!(output, "jjx_orient: error: {}", e);
+                vvco_err!(output, "{}: error: {}", cn, e);
                 return (1, output.vvco_finish());
             }
         };
@@ -150,7 +153,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette
         // It's a firemark - existing behavior
         None
     } else {
-        vvco_err!(output, "jjx_orient: error: Invalid argument '{}' (must be 2-char firemark or 5-char coronet)", firemark_str);
+        vvco_err!(output, "{}: error: Invalid argument '{}' (must be 2-char firemark or 5-char coronet)", cn, firemark_str);
         return (1, output.vvco_finish());
     };
 
@@ -161,7 +164,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette
         match Firemark::jjrf_parse(&firemark_str) {
             Ok(fm) => fm,
             Err(e) => {
-                vvco_err!(output, "jjx_orient: error: {}", e);
+                vvco_err!(output, "{}: error: {}", cn, e);
                 return (1, output.vvco_finish());
             }
         }
@@ -171,14 +174,14 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette
     let heat = match gallops.heats.get(&heat_key) {
         Some(h) => h,
         None => {
-            vvco_err!(output, "jjx_orient: error: Heat '{}' not found", heat_key);
+            vvco_err!(output, "{}: error: Heat '{}' not found", cn, heat_key);
             return (1, output.vvco_finish());
         }
     };
 
     // Check if heat is stabled (cannot saddle stabled heat)
     if heat.status == HeatStatus::Stabled {
-        vvco_err!(output, "jjx_orient: error: Cannot saddle stabled heat '{}'", heat_key);
+        vvco_err!(output, "{}: error: Cannot saddle stabled heat '{}'", cn, heat_key);
         return (1, output.vvco_finish());
     }
 
@@ -186,7 +189,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette
     let paddock_content = match fs::read_to_string(&heat.paddock_file) {
         Ok(content) => content,
         Err(e) => {
-            vvco_err!(output, "jjx_orient: error reading paddock file '{}': {}", heat.paddock_file, e);
+            vvco_err!(output, "{}: error reading paddock file '{}': {}", cn, heat.paddock_file, e);
             return (1, output.vvco_finish());
         }
     };
@@ -226,21 +229,21 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette
                             }
                         }
                         PaceState::Complete => {
-                            vvco_err!(output, "jjx_orient: error: Pace '{}' is already complete", coronet_key);
+                            vvco_err!(output, "{}: error: Pace '{}' is already complete", cn, coronet_key);
                             return (1, output.vvco_finish());
                         }
                         PaceState::Abandoned => {
-                            vvco_err!(output, "jjx_orient: error: Pace '{}' is abandoned", coronet_key);
+                            vvco_err!(output, "{}: error: Pace '{}' is abandoned", cn, coronet_key);
                             return (1, output.vvco_finish());
                         }
                     }
                 } else {
-                    vvco_err!(output, "jjx_orient: error: Pace '{}' has no tacks", coronet_key);
+                    vvco_err!(output, "{}: error: Pace '{}' has no tacks", cn, coronet_key);
                     return (1, output.vvco_finish());
                 }
             }
             None => {
-                vvco_err!(output, "jjx_orient: error: Pace '{}' not found in heat '{}'", coronet_key, heat_key);
+                vvco_err!(output, "{}: error: Pace '{}' not found in heat '{}'", cn, coronet_key, heat_key);
                 return (1, output.vvco_finish());
             }
         }

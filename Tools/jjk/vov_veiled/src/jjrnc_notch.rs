@@ -16,6 +16,8 @@ use vvc::{vvco_err, vvco_Output};
 use crate::jjrf_favor::{jjrf_Coronet as Coronet, jjrf_Firemark as Firemark, JJRF_FIREMARK_PREFIX, JJRF_CORONET_PREFIX};
 use crate::jjrn_notch::{jjrn_format_notch_prefix, JJRN_COMMIT_PREFIX};
 
+const JJRNC_CMD_NAME_RECORD: &str = "jjx_record";
+
 /// Arguments for jjx_notch command
 #[derive(Args, Debug)]
 pub struct jjrnc_NotchArgs {
@@ -40,11 +42,12 @@ pub struct jjrnc_NotchArgs {
 /// Stages specified files and commits with JJ-aware prefix.
 /// Supports both pace-affiliated (Coronet) and heat-only (Firemark) commits.
 pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
+    let cn = JJRNC_CMD_NAME_RECORD;
     let mut output = vvco_Output::buffer();
 
     // Require non-empty files list
     if args.files.is_empty() {
-        vvco_err!(output, "jjx_notch: error: at least one file required");
+        vvco_err!(output, "{}: error: at least one file required", cn);
         return (1, output.vvco_finish());
     }
 
@@ -60,7 +63,7 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
             {
                 Ok(o) => o,
                 Err(e) => {
-                    vvco_err!(output, "jjx_notch: error: failed to check git tracking: {}", e);
+                    vvco_err!(output, "{}: error: failed to check git tracking: {}", cn, e);
                     return (1, output.vvco_finish());
                 }
             };
@@ -72,7 +75,7 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
                 {
                     Ok(o) => o,
                     Err(e) => {
-                        vvco_err!(output, "jjx_notch: error: failed to check staged deletion: {}", e);
+                        vvco_err!(output, "{}: error: failed to check staged deletion: {}", cn, e);
                         return (1, output.vvco_finish());
                     }
                 };
@@ -82,7 +85,7 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
                     && !git_diff_output.stdout.is_empty();
 
                 if !is_staged_deletion {
-                    vvco_err!(output, "jjx_notch: error: file does not exist and is not tracked by git: {}", file);
+                    vvco_err!(output, "{}: error: file does not exist and is not tracked by git: {}", cn, file);
                     return (1, output.vvco_finish());
                 }
                 staged_deletions.insert(file.clone());
@@ -98,7 +101,7 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
         let coronet = match Coronet::jjrf_parse(&args.identity) {
             Ok(c) => c,
             Err(e) => {
-                vvco_err!(output, "jjx_notch: error: {}", e);
+                vvco_err!(output, "{}: error: {}", cn, e);
                 return (1, output.vvco_finish());
             }
         };
@@ -108,7 +111,7 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
         let firemark = match Firemark::jjrf_parse(&args.identity) {
             Ok(fm) => fm,
             Err(e) => {
-                vvco_err!(output, "jjx_notch: error: {}", e);
+                vvco_err!(output, "{}: error: {}", cn, e);
                 return (1, output.vvco_finish());
             }
         };
@@ -116,7 +119,7 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
         let identity_str = format!("{}{}", JJRF_FIREMARK_PREFIX, firemark.jjrf_as_str());
         vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &brand, &identity_str, "n", "", None)
     } else {
-        vvco_err!(output, "jjx_notch: error: identity must be Coronet (5 chars) or Firemark (2 chars), got {} chars", identity.len());
+        vvco_err!(output, "{}: error: identity must be Coronet (5 chars) or Firemark (2 chars), got {} chars", cn, identity.len());
         return (1, output.vvco_finish());
     };
 
@@ -126,13 +129,13 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
     {
         Ok(o) => o,
         Err(e) => {
-            vvco_err!(output, "jjx_notch: error: failed to run git status: {}", e);
+            vvco_err!(output, "{}: error: failed to run git status: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
 
     if !status_result.status.success() {
-        vvco_err!(output, "jjx_notch: error: git status failed");
+        vvco_err!(output, "{}: error: git status failed", cn);
         return (1, output.vvco_finish());
     }
 
@@ -169,13 +172,13 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
         let add_output = match git_add.output() {
             Ok(o) => o,
             Err(e) => {
-                vvco_err!(output, "jjx_notch: error: failed to run git add: {}", e);
+                vvco_err!(output, "{}: error: failed to run git add: {}", cn, e);
                 return (1, output.vvco_finish());
             }
         };
 
         if !add_output.status.success() {
-            vvco_err!(output, "jjx_notch: error: git add failed");
+            vvco_err!(output, "{}: error: git add failed", cn);
             return (1, output.vvco_finish());
         }
     }

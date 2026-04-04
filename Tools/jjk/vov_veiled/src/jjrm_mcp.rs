@@ -51,15 +51,56 @@ const PROBE_DATE_FILE: &str = ".probe_date";
 const EXSANGUINATION_THRESHOLD_SECS: u64 = 7 * 24 * 3600;
 const OFFICIUM_SUN_PREFIX: char = '\u{2609}'; // ☉
 
-// Legatio command names — const-defined per RCG String Boundary Discipline.
-// Pre-existing commands remain as literals until registry migration.
+// Command name constants — RCG String Boundary Discipline.
+// Lifecycle commands (bypass Gallops lock)
+const JJRM_CMD_NAME_OPEN: &str = "jjx_open";
+const JJRM_CMD_NAME_CHAPTER: &str = "jjx_chapter";
+const JJRM_CMD_NAME_ABSOLVE: &str = "jjx_absolve";
+// Gallops commands
+const JJRM_CMD_NAME_RECORD: &str = "jjx_record";
+const JJRM_CMD_NAME_LOG: &str = "jjx_log";
+const JJRM_CMD_NAME_VALIDATE: &str = "jjx_validate";
+const JJRM_CMD_NAME_LIST: &str = "jjx_list";
+const JJRM_CMD_NAME_ORIENT: &str = "jjx_orient";
+const JJRM_CMD_NAME_SHOW: &str = "jjx_show";
+const JJRM_CMD_NAME_ARCHIVE: &str = "jjx_archive";
+const JJRM_CMD_NAME_CREATE: &str = "jjx_create";
+const JJRM_CMD_NAME_ENROLL: &str = "jjx_enroll";
+const JJRM_CMD_NAME_REORDER: &str = "jjx_reorder";
+const JJRM_CMD_NAME_REDOCKET: &str = "jjx_redocket";
+const JJRM_CMD_NAME_RELABEL: &str = "jjx_relabel";
+const JJRM_CMD_NAME_DROP: &str = "jjx_drop";
+const JJRM_CMD_NAME_RELOCATE: &str = "jjx_relocate";
+const JJRM_CMD_NAME_ALTER: &str = "jjx_alter";
+const JJRM_CMD_NAME_CLOSE: &str = "jjx_close";
+const JJRM_CMD_NAME_SEARCH: &str = "jjx_search";
+const JJRM_CMD_NAME_BRIEF: &str = "jjx_brief";
+const JJRM_CMD_NAME_CORONETS: &str = "jjx_coronets";
+const JJRM_CMD_NAME_PADDOCK: &str = "jjx_paddock";
+const JJRM_CMD_NAME_CONTINUE: &str = "jjx_continue";
+const JJRM_CMD_NAME_TRANSFER: &str = "jjx_transfer";
+const JJRM_CMD_NAME_LANDING: &str = "jjx_landing";
+// Legatio commands (remote dispatch)
 const JJRM_CMD_NAME_BIND: &str = "jjx_bind";
 const JJRM_CMD_NAME_SEND: &str = "jjx_send";
 const JJRM_CMD_NAME_PLANT: &str = "jjx_plant";
 const JJRM_CMD_NAME_FETCH: &str = "jjx_fetch";
 const JJRM_CMD_NAME_RELAY: &str = "jjx_relay";
 const JJRM_CMD_NAME_CHECK: &str = "jjx_check";
-const JJRM_LEGATIO_COMMANDS: &[&str] = &[JJRM_CMD_NAME_BIND, JJRM_CMD_NAME_SEND, JJRM_CMD_NAME_PLANT, JJRM_CMD_NAME_FETCH, JJRM_CMD_NAME_RELAY, JJRM_CMD_NAME_CHECK];
+// Complete registry of all commands
+const JJRM_ALL_COMMANDS: &[&str] = &[
+    JJRM_CMD_NAME_OPEN, JJRM_CMD_NAME_CHAPTER, JJRM_CMD_NAME_ABSOLVE,
+    JJRM_CMD_NAME_RECORD, JJRM_CMD_NAME_LOG, JJRM_CMD_NAME_VALIDATE,
+    JJRM_CMD_NAME_LIST, JJRM_CMD_NAME_ORIENT, JJRM_CMD_NAME_SHOW,
+    JJRM_CMD_NAME_ARCHIVE, JJRM_CMD_NAME_CREATE, JJRM_CMD_NAME_ENROLL,
+    JJRM_CMD_NAME_REORDER, JJRM_CMD_NAME_REDOCKET, JJRM_CMD_NAME_RELABEL,
+    JJRM_CMD_NAME_DROP, JJRM_CMD_NAME_RELOCATE, JJRM_CMD_NAME_ALTER,
+    JJRM_CMD_NAME_CLOSE, JJRM_CMD_NAME_SEARCH, JJRM_CMD_NAME_BRIEF,
+    JJRM_CMD_NAME_CORONETS, JJRM_CMD_NAME_PADDOCK, JJRM_CMD_NAME_CONTINUE,
+    JJRM_CMD_NAME_TRANSFER, JJRM_CMD_NAME_LANDING,
+    JJRM_CMD_NAME_BIND, JJRM_CMD_NAME_SEND, JJRM_CMD_NAME_PLANT,
+    JJRM_CMD_NAME_FETCH, JJRM_CMD_NAME_RELAY, JJRM_CMD_NAME_CHECK,
+];
 
 fn gallops_pathbuf() -> PathBuf {
     PathBuf::from(GALLOPS_PATH)
@@ -493,6 +534,7 @@ fn zjjrm_gazette_out_path(officium: &str) -> std::path::PathBuf {
 
 /// Handle jjx_open: create a new officium.
 async fn zjjrm_handle_open() -> Result<CallToolResult, McpError> {
+    let cn = JJRM_CMD_NAME_OPEN;
     let mut output = vvc::vvco_Output::buffer();
 
     // Disk space guard — block before any state changes
@@ -504,7 +546,7 @@ async fn zjjrm_handle_open() -> Result<CallToolResult, McpError> {
     let officia = PathBuf::from(OFFICIA_DIR);
     if let Err(e) = std::fs::create_dir_all(&officia) {
         return Ok(CallToolResult::error(vec![Content::text(
-            format!("jjx_open: error creating officia dir: {}", e),
+            format!("{}: error creating officia dir: {}", cn, e),
         )]));
     }
 
@@ -523,7 +565,7 @@ async fn zjjrm_handle_open() -> Result<CallToolResult, McpError> {
             Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => continue,
             Err(e) => {
                 return Ok(CallToolResult::error(vec![Content::text(
-                    format!("jjx_open: error creating exchange dir: {}", e),
+                    format!("{}: error creating exchange dir: {}", cn, e),
                 )]));
             }
         }
@@ -540,7 +582,7 @@ async fn zjjrm_handle_open() -> Result<CallToolResult, McpError> {
                 Some(data)
             }
             Err(e) => {
-                eprintln!("jjx_open: probe warning: {}", e);
+                eprintln!("{}: probe warning: {}", cn, e);
                 None
             }
         }
@@ -575,13 +617,13 @@ async fn zjjrm_handle_open() -> Result<CallToolResult, McpError> {
             let mut commit_output = vvc::vvco_Output::buffer();
             if let Err(e) = lock.vvcc_commit(&commit_args, &mut commit_output) {
                 return Ok(CallToolResult::error(vec![Content::text(
-                    format!("jjx_open: invitatory commit error: {}", e),
+                    format!("{}: invitatory commit error: {}", cn, e),
                 )]));
             }
         }
         Err(e) => {
             return Ok(CallToolResult::error(vec![Content::text(
-                format!("jjx_open: lock error: {}", e),
+                format!("{}: lock error: {}", cn, e),
             )]));
         }
     };
@@ -592,6 +634,7 @@ async fn zjjrm_handle_open() -> Result<CallToolResult, McpError> {
 
 /// Handle jjx_chapter: list active officia with status.
 fn zjjrm_handle_chapter(caller_officium: &str) -> Result<CallToolResult, McpError> {
+    let cn = JJRM_CMD_NAME_CHAPTER;
     let bare_caller_id = caller_officium.trim_start_matches(OFFICIUM_SUN_PREFIX);
     let officia = PathBuf::from(OFFICIA_DIR);
 
@@ -599,7 +642,7 @@ fn zjjrm_handle_chapter(caller_officium: &str) -> Result<CallToolResult, McpErro
         Ok(e) => e,
         Err(e) => {
             return Ok(CallToolResult::error(vec![Content::text(
-                format!("jjx_chapter: cannot read officia dir: {}", e),
+                format!("{}: cannot read officia dir: {}", cn, e),
             )]));
         }
     };
@@ -707,6 +750,7 @@ fn zjjrm_handle_chapter(caller_officium: &str) -> Result<CallToolResult, McpErro
 
 /// Handle jjx_absolve: remove stale officia directories.
 fn zjjrm_handle_absolve(caller_officium: &str) -> Result<CallToolResult, McpError> {
+    let cn = JJRM_CMD_NAME_ABSOLVE;
     let bare_caller_id = caller_officium.trim_start_matches(OFFICIUM_SUN_PREFIX);
     let officia = PathBuf::from(OFFICIA_DIR);
 
@@ -714,7 +758,7 @@ fn zjjrm_handle_absolve(caller_officium: &str) -> Result<CallToolResult, McpErro
         Ok(e) => e,
         Err(e) => {
             return Ok(CallToolResult::error(vec![Content::text(
-                format!("jjx_absolve: cannot read officia dir: {}", e),
+                format!("{}: cannot read officia dir: {}", cn, e),
             )]));
         }
     };
@@ -845,7 +889,7 @@ impl jjrm_McpServer {
         eprintln!("jjx {}: model={}", cmd, p.model);
 
         // jjx_open creates the officium — handle before officium validation
-        if cmd == "jjx_open" {
+        if cmd == JJRM_CMD_NAME_OPEN {
             return zjjrm_handle_open().await;
         }
 
@@ -865,10 +909,10 @@ impl jjrm_McpServer {
             }
         }
         // Officium lifecycle operations — bypass Gallops lock
-        if cmd == "jjx_chapter" {
+        if cmd == JJRM_CMD_NAME_CHAPTER {
             return zjjrm_handle_chapter(p.officium.as_ref().unwrap());
         }
-        if cmd == "jjx_absolve" {
+        if cmd == JJRM_CMD_NAME_ABSOLVE {
             return zjjrm_handle_absolve(p.officium.as_ref().unwrap());
         }
 
@@ -902,7 +946,7 @@ impl jjrm_McpServer {
 
 
         match cmd {
-            "jjx_record" => {
+            JJRM_CMD_NAME_RECORD => {
                 let p = deser!(jjrm_RecordParams);
                 jjrm_result(jjrnc_run_notch(jjrnc_NotchArgs {
                     identity: p.identity,
@@ -911,27 +955,27 @@ impl jjrm_McpServer {
                     intent: p.intent,
                 }))
             }
-            "jjx_log" => {
+            JJRM_CMD_NAME_LOG => {
                 let p = deser!(jjrm_LogParams);
                 jjrm_result(jjrrn_run_rein(jjrrn_ReinArgs {
                     firemark: p.firemark,
                     limit: p.limit.unwrap_or(50),
                 }))
             }
-            "jjx_validate" => {
+            JJRM_CMD_NAME_VALIDATE => {
                 let _p = deser!(jjrm_ValidateParams);
                 jjrm_result(jjrvl_run_validate(jjrvl_ValidateArgs {
                     file: gallops_pathbuf(),
                 }))
             }
-            "jjx_list" => {
+            JJRM_CMD_NAME_LIST => {
                 let p = deser!(jjrm_ListParams);
                 jjrm_result(jjrmu_run_muster(jjrmu_MusterArgs {
                     file: gallops_pathbuf(),
                     status: p.status,
                 }).await)
             }
-            "jjx_orient" => {
+            JJRM_CMD_NAME_ORIENT => {
                 let p = deser!(jjrm_OrientParams);
                 let mut gazette = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
                 let result = jjrsd_run_saddle(jjrsd_SaddleArgs {
@@ -942,7 +986,7 @@ impl jjrm_McpServer {
                 if !md.is_empty() { std::fs::write(&gazette_out_path, md.as_bytes()).ok(); }
                 jjrm_result(result)
             }
-            "jjx_show" => {
+            JJRM_CMD_NAME_SHOW => {
                 let p = deser!(jjrm_ShowParams);
                 let mut gazette = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
                 let result = jjrpd_run_parade(jjrpd_ParadeArgs {
@@ -955,7 +999,7 @@ impl jjrm_McpServer {
                 if !md.is_empty() { std::fs::write(&gazette_out_path, md.as_bytes()).ok(); }
                 jjrm_result(result)
             }
-            "jjx_archive" => {
+            JJRM_CMD_NAME_ARCHIVE => {
                 let p = deser!(jjrm_ArchiveParams);
                 jjrm_result(jjrrt_run_retire(jjrrt_RetireArgs {
                     file: gallops_pathbuf(),
@@ -963,27 +1007,27 @@ impl jjrm_McpServer {
                     size_limit: p.size_limit,
                 }))
             }
-            "jjx_create" => {
+            JJRM_CMD_NAME_CREATE => {
                 let p = deser!(jjrm_CreateParams);
                 jjrm_result(jjrx_run_nominate(jjrx_NominateArgs {
                     file: gallops_pathbuf(),
                     silks: p.silks,
                 }))
             }
-            "jjx_enroll" => {
+            JJRM_CMD_NAME_ENROLL => {
                 let p = deser!(jjrm_EnrollParams);
                 let (silks, docket) = if let Some(ref content) = gazette_in_content {
                     match jjrz_parse_slate_input(content) {
                         Ok(pair) => pair,
                         Err(e) => return Ok(CallToolResult::error(vec![Content::text(
-                            format!("jjx_enroll: gazette input error: {}", e),
+                            format!("{}: gazette input error: {}", cmd, e),
                         )])),
                     }
                 } else {
                     match (p.silks, p.docket) {
                         (Some(s), Some(d)) => (s, d),
                         _ => return Ok(CallToolResult::error(vec![Content::text(
-                            "jjx_enroll: requires gazette_in.md or both 'silks' and 'docket' params".to_string(),
+                            format!("{}: requires gazette_in.md or both 'silks' and 'docket' params", cmd),
                         )])),
                     }
                 };
@@ -996,7 +1040,7 @@ impl jjrm_McpServer {
                     first: p.first,
                 }, docket))
             }
-            "jjx_reorder" => {
+            JJRM_CMD_NAME_REORDER => {
                 let p = deser!(jjrm_ReorderParams);
                 jjrm_result(jjrrl_run_rail(jjrrl_RailArgs {
                     file: gallops_pathbuf(),
@@ -1009,13 +1053,13 @@ impl jjrm_McpServer {
                     last: p.last,
                 }))
             }
-            "jjx_redocket" => {
+            JJRM_CMD_NAME_REDOCKET => {
                 let p = deser!(jjrm_ReviseDocketParams);
                 if let Some(ref content) = gazette_in_content {
                     let pairs = match jjrz_parse_reslate_input(content) {
                         Ok(p) => p,
                         Err(e) => return Ok(CallToolResult::error(vec![Content::text(
-                            format!("jjx_redocket: gazette input error: {}", e),
+                            format!("{}: gazette input error: {}", cmd, e),
                         )])),
                     };
                     let first_coronet = pairs[0].0.clone();
@@ -1047,12 +1091,12 @@ impl jjrm_McpServer {
                             })
                         }
                         _ => Ok(CallToolResult::error(vec![Content::text(
-                            "jjx_redocket: requires gazette_in.md or both 'coronet' and 'docket' params".to_string(),
+                            format!("{}: requires gazette_in.md or both 'coronet' and 'docket' params", cmd),
                         )])),
                     }
                 }
             }
-            "jjx_relabel" => {
+            JJRM_CMD_NAME_RELABEL => {
                 let p = deser!(jjrm_RelabelParams);
                 jjrm_result(jjrtl_run_relabel(jjrtl_RelabelArgs {
                     file: gallops_pathbuf(),
@@ -1060,14 +1104,14 @@ impl jjrm_McpServer {
                     silks: p.silks,
                 }))
             }
-            "jjx_drop" => {
+            JJRM_CMD_NAME_DROP => {
                 let p = deser!(jjrm_DropParams);
                 jjrm_result(jjrtl_run_drop(jjrtl_DropArgs {
                     file: gallops_pathbuf(),
                     coronet: p.coronet,
                 }))
             }
-            "jjx_relocate" => {
+            JJRM_CMD_NAME_RELOCATE => {
                 let p = deser!(jjrm_RelocateParams);
                 jjrm_result(jjrdr_run_draft(jjrdr_DraftArgs {
                     file: gallops_pathbuf(),
@@ -1078,7 +1122,7 @@ impl jjrm_McpServer {
                     first: p.first,
                 }))
             }
-            "jjx_alter" => {
+            JJRM_CMD_NAME_ALTER => {
                 let p = deser!(jjrm_AlterParams);
                 jjrm_result(jjrfu_run_furlough(jjrfu_FurloughArgs {
                     file: gallops_pathbuf(),
@@ -1088,14 +1132,14 @@ impl jjrm_McpServer {
                     silks: p.silks,
                 }))
             }
-            "jjx_close" => {
+            JJRM_CMD_NAME_CLOSE => {
                 let p = deser!(jjrm_CloseParams);
                 jjrm_result(zjjrx_run_wrap(jjrx_WrapArgs {
                     coronet: p.coronet,
                     size_limit: p.size_limit,
                 }, p.summary))
             }
-            "jjx_search" => {
+            JJRM_CMD_NAME_SEARCH => {
                 let p = deser!(jjrm_SearchParams);
                 jjrm_result(jjrsc_run_scout(jjrsc_ScoutArgs {
                     file: gallops_pathbuf(),
@@ -1103,14 +1147,14 @@ impl jjrm_McpServer {
                     actionable: p.actionable,
                 }))
             }
-            "jjx_brief" => {
+            JJRM_CMD_NAME_BRIEF => {
                 let p = deser!(jjrm_GetBriefParams);
                 jjrm_result(jjrgs_run_get_spec(jjrgs_GetSpecArgs {
                     file: gallops_pathbuf(),
                     coronet: p.coronet,
                 }))
             }
-            "jjx_coronets" => {
+            JJRM_CMD_NAME_CORONETS => {
                 let p = deser!(jjrm_GetCoronetsParams);
                 jjrm_result(jjrgc_run_get_coronets(jjrgc_GetCoronetsArgs {
                     file: gallops_pathbuf(),
@@ -1119,14 +1163,14 @@ impl jjrm_McpServer {
                     rough: p.rough,
                 }))
             }
-            "jjx_paddock" => {
+            JJRM_CMD_NAME_PADDOCK => {
                 let p = deser!(jjrm_PaddockParams);
                 if let Some(ref content) = gazette_in_content {
                     // Setter mode: gazette_in.md had paddock content
                     let (firemark, paddock_content) = match jjrz_parse_paddock_input(content) {
                         Ok(pair) => pair,
                         Err(e) => return Ok(CallToolResult::error(vec![Content::text(
-                            format!("jjx_paddock: gazette input error: {}", e),
+                            format!("{}: gazette input error: {}", cmd, e),
                         )])),
                     };
                     let mut gazette = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
@@ -1143,7 +1187,7 @@ impl jjrm_McpServer {
                     let firemark = match p.firemark {
                         Some(f) => f,
                         None => return Ok(CallToolResult::error(vec![Content::text(
-                            "jjx_paddock: requires gazette_in.md or 'firemark' param".to_string(),
+                            format!("{}: requires gazette_in.md or 'firemark' param", cmd),
                         )])),
                     };
                     let mut gazette = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
@@ -1157,14 +1201,14 @@ impl jjrm_McpServer {
                     jjrm_result(result)
                 }
             }
-            "jjx_continue" => {
+            JJRM_CMD_NAME_CONTINUE => {
                 let p = deser!(jjrm_ContinueParams);
                 jjrm_result(jjrgl_run_garland(jjrgl_GarlandArgs {
                     file: gallops_pathbuf(),
                     firemark: p.firemark,
                 }))
             }
-            "jjx_transfer" => {
+            JJRM_CMD_NAME_TRANSFER => {
                 let p = deser!(jjrm_TransferParams);
                 jjrm_result(jjrrs_run(jjrrs_RestringArgs {
                     file: gallops_pathbuf(),
@@ -1172,7 +1216,7 @@ impl jjrm_McpServer {
                     to: p.to,
                 }, p.coronets))
             }
-            "jjx_landing" => {
+            JJRM_CMD_NAME_LANDING => {
                 let p = deser!(jjrm_LandingParams);
                 jjrm_result(jjrld_run_landing(jjrld_LandingArgs {
                     coronet: p.coronet,
@@ -1243,8 +1287,10 @@ impl jjrm_McpServer {
                 ))
             }
             _ => {
-                let legatio = JJRM_LEGATIO_COMMANDS.join(", ");
-                Ok(CallToolResult::error(vec![Content::text(format!("jjx: unknown command '{}'\nAvailable: jjx_open, jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing, {}, jjx_chapter, jjx_absolve", cmd, legatio))]))
+                Ok(CallToolResult::error(vec![Content::text(format!(
+                    "jjx: unknown command '{}'\nAvailable: {}",
+                    cmd, JJRM_ALL_COMMANDS.join(", ")
+                ))]))
             }
         }
     }

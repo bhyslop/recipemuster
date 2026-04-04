@@ -12,6 +12,8 @@ use vvc::{vvco_err, vvco_Output};
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState};
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
 
+const JJRMU_CMD_NAME_LIST: &str = "jjx_list";
+
 /// Arguments for muster command
 #[derive(clap::Args, Debug)]
 pub struct jjrmu_MusterArgs {
@@ -26,11 +28,12 @@ pub struct jjrmu_MusterArgs {
 
 /// Run the muster command - list Heats as TSV
 pub async fn jjrmu_run_muster(args: jjrmu_MusterArgs) -> (i32, String) {
+    let cn = JJRMU_CMD_NAME_LIST;
     let mut output = vvco_Output::buffer();
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            vvco_err!(output, "jjx_muster: error: {}", e);
+            vvco_err!(output, "{}: error: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };

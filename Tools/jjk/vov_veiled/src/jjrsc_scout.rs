@@ -11,6 +11,8 @@ use std::fs;
 
 use vvc::{vvco_out, vvco_err, vvco_Output};
 
+const JJRSC_CMD_NAME_SCOUT: &str = "jjx_scout";
+
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_PaceState as PaceState};
 
 /// Arguments for jjx_scout command
@@ -30,6 +32,7 @@ pub struct jjrsc_ScoutArgs {
 
 /// Run the scout command - regex search across heats/paces
 pub fn jjrsc_run_scout(args: jjrsc_ScoutArgs) -> (i32, String) {
+    let cn = JJRSC_CMD_NAME_SCOUT;
     use regex::RegexBuilder;
 
     let mut output = vvco_Output::buffer();
@@ -37,7 +40,7 @@ pub fn jjrsc_run_scout(args: jjrsc_ScoutArgs) -> (i32, String) {
     let gallops = match Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
-            vvco_err!(output, "jjx_scout: error: {}", e);
+            vvco_err!(output, "{}: error: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
@@ -49,7 +52,7 @@ pub fn jjrsc_run_scout(args: jjrsc_ScoutArgs) -> (i32, String) {
     {
         Ok(r) => r,
         Err(e) => {
-            vvco_err!(output, "jjx_scout: error: invalid regex pattern: {}", e);
+            vvco_err!(output, "{}: error: invalid regex pattern: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };

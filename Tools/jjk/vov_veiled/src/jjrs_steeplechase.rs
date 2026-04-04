@@ -17,6 +17,8 @@ use serde::Serialize;
 use crate::jjrf_favor::{jjrf_Firemark as Firemark, JJRF_FIREMARK_PREFIX as FIREMARK_PREFIX, JJRF_CORONET_PREFIX as CORONET_PREFIX};
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
 
+const JJRS_CMD_NAME_REIN: &str = "jjx_rein";
+
 /// Arguments for jjx_rein command
 #[derive(Debug)]
 pub struct jjrs_ReinArgs {
@@ -210,6 +212,7 @@ pub fn jjrs_get_entries(args: &jjrs_ReinArgs) -> Result<Vec<jjrs_SteeplechaseEnt
 /// Run jjx_rein command (CLI wrapper)
 /// Outputs column-aligned plain text table with header and separator
 pub fn jjrs_run(args: jjrs_ReinArgs, output: &mut vvc::vvco_Output) -> i32 {
+    let cn = JJRS_CMD_NAME_REIN;
     match jjrs_get_entries(&args) {
         Ok(entries) => {
             // Set up table with column definitions
@@ -265,7 +268,7 @@ pub fn jjrs_run(args: jjrs_ReinArgs, output: &mut vvc::vvco_Output) -> i32 {
             0
         }
         Err(e) => {
-            vvc::vvco_err!(output, "jjx_rein: error: {}", e);
+            vvc::vvco_err!(output, "{}: error: {}", cn, e);
             1
         }
     }
