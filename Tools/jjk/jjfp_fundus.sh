@@ -269,9 +269,9 @@ zjjfp_ssh_setup_repo() {
   local -r z_ssh_target="${z_user}@${z_host}"
   local -r z_project_dir="${ZJJFP_RELDIR}"
 
-  # Create parent directory and clone
+  # Clean slate: remove existing project dir, then clone fresh
   ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new "${z_ssh_target}" \
-    "mkdir -p '${z_project_dir%/*}' && git clone '${z_curia_repo}' '${z_project_dir}'" \
+    "rm -rf '${z_project_dir}' && git config --global --add safe.directory '${z_curia_repo}/.git' && mkdir -p '${z_project_dir%/*}' && git clone '${z_curia_repo}' '${z_project_dir}'" \
     2>"${z_stderr}" \
     || buc_die "Failed to clone repo for: ${z_ssh_target} — see ${z_stderr}"
 
@@ -441,6 +441,14 @@ jjfp_repo() {
 
   # jjfu_full: clone with origin (for jjx_plant — needs git fetch origin)
   zjjfp_ssh_setup_repo "${z_host}" "jjfu_full" 1 "${z_curia_origin}" "${z_curia_repo}"
+
+  # jjfu_full needs GitHub host key for git fetch origin
+  local -r z_ghkey_stderr="${ZJJFP_TEMP_PREFIX}ghkey_jjfu_full_stderr.txt"
+  ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new "jjfu_full@${z_host}" \
+    "ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null" \
+    2>"${z_ghkey_stderr}" \
+    || buc_die "Failed to add GitHub host key for jjfu_full — see ${z_ghkey_stderr}"
+  buc_log_args "GitHub host key added for jjfu_full"
 
   # jjfu_nogit: clone with origin removed (tests plant failure path)
   zjjfp_ssh_setup_repo "${z_host}" "jjfu_nogit" 0 "" "${z_curia_repo}"
