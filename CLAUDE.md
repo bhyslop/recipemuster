@@ -144,7 +144,7 @@ Full read and edit access is pre-approved for all files in:
 - **JJSRPS** → `jjk/vov_veiled/JJSRPS-persist.adoc`
 - **JJSRSV** → `jjk/vov_veiled/JJSRSV-save.adoc`
 - **JJSRWP** → `jjk/vov_veiled/JJSRWP-wrap.adoc`
-- **JJSTF** → `jjk/vov_veiled/JJSTF-test-fundus.adoc` (Test Fundus — remote dispatch integration test profiles and preflight contracts)
+- **JJSTF** → `jjk/vov_veiled/JJSTF-test-fundus.adoc` (Test Fundus — fundus scenario profiles and preflight contracts)
 - **JJA**  → `jjk/jja_arcanum.sh` (arcanum - core internal functions)
 - **JJW**  → `jjk/jjw_workbench.sh` (workbench)
 

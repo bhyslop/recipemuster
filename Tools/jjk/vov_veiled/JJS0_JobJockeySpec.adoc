@@ -198,8 +198,7 @@
 :jjdxf_profile:         <<jjdxf_profile,Fundus Profile>>
 :jjdxf_profile_p:       <<jjdxf_profile,Fundus Profile's>>
 :jjdxf_profile_s:       <<jjdxf_profile,Fundus Profiles>>
-:jjdxf_hairpin:         <<jjdxf_hairpin,hairpin>>
-:jjdxf_cerebro:         <<jjdxf_cerebro,cerebro>>
+:jjdxf_full:            <<jjdxf_full,full>>
 :jjdxf_nokey:           <<jjdxf_nokey,nokey>>
 :jjdxf_norepo:          <<jjdxf_norepo,norepo>>
 :jjdxf_nogit:           <<jjdxf_nogit,nogit>>

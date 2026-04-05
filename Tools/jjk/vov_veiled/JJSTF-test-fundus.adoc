@@ -4,11 +4,12 @@ command surface across SSH boundaries.
 
 A
 {jjdxf_profile}
-is a named configuration that declares
+is a named account shape that declares
 {jjdxr_fundus}
-expectations — host, user,
-{jjdt_reldir},
-what is deliberately configured, what is deliberately broken, and what assertions the profile supports.
+preconditions — what is configured, what is deliberately absent, and what assertions the profile supports.
+Each profile corresponds to an OS user account (`jjfu_*`) that can be installed on any target machine.
+Tests are run against a host specified at invocation time;
+the same profile set works whether the target is localhost or a remote machine.
 Each profile is
 {jjdxf_preflight}-probed
 before execution — missing preconditions skip cleanly, not fail.
@@ -16,28 +17,47 @@ before execution — missing preconditions skip cleanly, not fail.
 [[jjdxf_profile]]
 //axve_entity
 {jjdxf_profile}::
-A named test configuration for
+A named account shape for
 {jjdxr_fundus}
-integration testing.
-Specifies host, user,
+scenario testing.
+Specifies an OS username (`jjfu_*`), expected precondition state, and supported test assertions.
+All profiles share the same
 {jjdt_reldir}
-expectations, deliberate precondition state, and supported test assertions.
+string; the precondition difference is what exists at that path under each account's home directory.
 Two families: happy-path (full command coverage) and failure-mode (one broken precondition each).
 
-==== Happy-Path Profiles
+==== Account Names
 
-Happy-path profiles validate the full
+All test accounts use the `jjfu_` prefix (JJ Fundus User).
+The prefix is globally unique in the minting universe, collision-proof, and grepping a machine for `jjfu_*` accounts shows exactly what is installed for
 {jjsogrd_remote_dispatch}
-command surface against a correctly configured
-{jjdxr_fundus}.
+testing.
 
-[[jjdxf_hairpin]]
+[cols="1,2"]
+|===
+| Account | Precondition shape
+
+| `jjfu_full`
+| SSH keys, project at {jjdt_reldir}, BUK installed, git origin configured
+
+| `jjfu_nokey`
+| OS account exists, no SSH key access from {jjdxr_curia}
+
+| `jjfu_norepo`
+| SSH keys, no project directory at {jjdt_reldir}
+
+| `jjfu_nogit`
+| SSH keys, project at {jjdt_reldir}, BUK installed, no git origin
+|===
+
+==== Happy-Path Profile
+
+[[jjdxf_full]]
 //axl_voices axt_enum_value
-{jjdxf_hairpin}::
-Localhost with a dedicated test user account.
-Host: `localhost`.
-User: `rbtest` (per `FUNDUS_DEFAULT_USER` constant).
-{jjdt_reldir}: `projects/rbm_alpha_recipemuster` (per `FUNDUS_DEFAULT_RELDIR` constant).
+{jjdxf_full}::
+Full happy-path account.
+User: `jjfu_full`.
+{jjdt_reldir}: `projects/rbm_alpha_recipemuster`.
 Full suite:
 {jjdo_bind},
 {jjdo_send},
@@ -47,94 +67,39 @@ Full suite:
 (both instant probe and polled await),
 {jjdo_fetch},
 {jjdo_plant}.
-+
-Even when the
-{jjdxr_fundus}
-is `localhost`, a distinct user account is required.
-Container runtime namespaces and image caches are per-user — same user means shared state and test interference.
-The
-{jjdt_legatio}
-triple `(localhost, rbtest, projects/rbm_alpha_recipemuster)` is fully orthogonal to the
-{jjdxr_curia_p}
-own environment.
-
-*Setup procedure:*
-
-. Create `rbtest` user account on localhost
-. Configure SSH key access from current user to `rbtest@localhost`
-. Clone project repository at `~rbtest/projects/rbm_alpha_recipemuster`
-. Install BUK (`.buk/burc.env` present at {jjdt_reldir})
-. Configure git origin with SSH access (required for {jjdo_plant})
-. Configure container runtime for `rbtest` if crucible dispatch tests are in scope
-
-[[jjdxf_cerebro]]
-//axl_voices axt_enum_value
-{jjdxf_cerebro}::
-Remote machine with identical expectations to
-{jjdxf_hairpin}.
-Host: machine-specific (not hardcoded — read from environment at runtime).
-Validates that nothing in the
-{jjsogrd_remote_dispatch}
-stack is accidentally localhost-dependent.
-Same user, same
-{jjdt_reldir},
-same suite coverage.
-
-*Setup procedure:*
-
-. Same as {jjdxf_hairpin}, performed on the remote machine
-. SSH key access from {jjdxr_curia} to `rbtest@<remote-host>`
-. Network path validated (firewall, DNS)
 
 ==== Failure-Mode Profiles
 
-Failure-mode profiles run on localhost only.
-Each breaks exactly one
+Failure-mode profiles each break exactly one
 {jjdxr_fundus}
 precondition to validate a specific error path.
 
 [[jjdxf_nokey]]
 //axl_voices axt_enum_value
 {jjdxf_nokey}::
-No SSH key configured for the target user.
-Host: `localhost`.
-User: a user account that exists but has no `authorized_keys` entry for the
-{jjdxr_curia}
-user.
+No SSH key configured for this account.
+User: `jjfu_nokey`.
 Expected:
 {jjdo_bind}
 fails with authentication error.
-
-*Setup procedure:*
-Create a user account with no SSH key access from the
-{jjdxr_curia}
-user.
 
 [[jjdxf_norepo]]
 //axl_voices axt_enum_value
 {jjdxf_norepo}::
 SSH access works but no project at
 {jjdt_reldir}.
-Host: `localhost`.
-User: an account with SSH key access.
-{jjdt_reldir}:
-path that does not exist on the
-{jjdxr_fundus}.
+User: `jjfu_norepo`.
 Expected:
 {jjdo_bind}
 fails at Layer 3 probe per
 {jjdk_reldir_safety}
 (resolved-path check fails).
 
-*Setup procedure:*
-Create a user account with SSH key access but do not clone the project repository.
-
 [[jjdxf_nogit]]
 //axl_voices axt_enum_value
 {jjdxf_nogit}::
 SSH access and project directory exist, but git remote is not configured.
-Host: `localhost`.
-User: an account with SSH key access.
+User: `jjfu_nogit`.
 {jjdt_reldir}:
 directory exists with BUK installed, but `git remote` returns no origin.
 Expected:
@@ -142,13 +107,6 @@ Expected:
 fails (no origin to fetch from).
 {jjdo_send}
 still works (BUD dispatch does not require git).
-
-*Setup procedure:*
-
-. Create user account with SSH key access
-. Create project directory at {jjdt_reldir}
-. Install BUK
-. Do NOT configure git origin (or `git remote remove origin` if cloned)
 
 ==== Preflight Contract
 
@@ -163,89 +121,47 @@ A machine may not have all profiles configured;
 {jjdxf_preflight}
 failures are diagnostic, never blocking.
 
-*Happy-path profiles* ({jjdxf_hairpin}, {jjdxf_cerebro}):
+*{jjdxf_full} profile:*
 
-. SSH connection: `ssh -o ConnectTimeout=5 -o BatchMode=yes user@host exit 0`
-. {jjdt_reldir} existence: `ssh user@host test -d RELDIR`
-. BUK installation: `ssh user@host test -f RELDIR/.buk/burc.env`
-. Any step fails → skip suite with diagnostic message
+. SSH connection: `ssh -o ConnectTimeout=5 -o BatchMode=yes jjfu_full@<host> exit 0`
+. {jjdt_reldir} existence: `ssh jjfu_full@<host> test -d $HOME/RELDIR`
+. BUK installation: `ssh jjfu_full@<host> test -f $HOME/RELDIR/.buk/burc.env`
+. Any step fails -> skip suite with diagnostic message
 
 *Failure-mode profiles* ({jjdxf_nokey}, {jjdxf_norepo}, {jjdxf_nogit}):
 
-. Account existence: verify the target user account exists (OS-level check)
-. Missing account → skip suite with diagnostic message
+. Profile-specific precondition check (account existence, SSH reachability, directory state)
+. Missing precondition -> skip suite with diagnostic message
 . These profiles deliberately fail at different stages — the
 {jjdxf_preflight}
 checks only that the test can be meaningfully attempted
 
 ==== Tabtarget Surface
 
-Colophon: `jjw-tR`.
-Channel: imprint (one tabtarget per
-{jjdxf_profile}).
+Suite colophon: `jjw-tfs`.
+Single colophon: `jjw-tfS`.
+Channel: imprint selects the target host.
 
-*Tabtarget manifest:*
+*Suite tabtarget:*
+`tt/jjw-tfs.TestFundusScenario.<host>.sh` — runs all profiles against `<host>`.
 
-[cols="1,1,1"]
-|===
-| Tabtarget | Profile | Suite
-
-| `tt/jjw-tR.TestRemote.hairpin.sh`
-| {jjdxf_hairpin}
-| Full happy-path
-
-| `tt/jjw-tR.TestRemote.cerebro.sh`
-| {jjdxf_cerebro}
-| Full happy-path
-
-| `tt/jjw-tR.TestRemote.nokey.sh`
-| {jjdxf_nokey}
-| Bind auth failure
-
-| `tt/jjw-tR.TestRemote.norepo.sh`
-| {jjdxf_norepo}
-| Bind probe failure
-
-| `tt/jjw-tR.TestRemote.nogit.sh`
-| {jjdxf_nogit}
-| Plant failure
-|===
+*Single tabtarget:*
+`tt/jjw-tfS.TestFundusSingle.<host>.sh <test-function-name>` — runs one test function against `<host>`.
+The argument is the exact Rust test function name (e.g., `full::bind_send`).
 
 Each tabtarget:
 
-. Runs the {jjdxf_preflight} probe for its profile
-. On pass: invokes `cargo test` with profile-specific filter (e.g., `--test remote_dispatch -- --test-threads=1 hairpin::`)
-. On skip: exits 0 with informational message
+. Sets `JJTEST_HOST` from the imprint
+. Invokes `cargo test --test fundus_scenario -- --test-threads=1 --ignored [filter]`
+. Individual test functions run their own {jjdxf_preflight} and skip if preconditions are not met
 
-Profile selection at runtime: the imprint (e.g., `hairpin`) maps to a Rust test module.
-The tabtarget passes the imprint as a `cargo test` filter pattern.
-Rust test code uses module-per-profile organization so filter patterns select cleanly.
-
-Test thread count is always 1 — tests within a profile are sequential
+Test thread count is always 1 — tests within a suite are sequential
 ({jjdxr_fundus}
 state is shared).
-Profiles targeting different user accounts MAY run in parallel, but the tabtarget surface does not enforce this.
-
-==== Workbench Routing
-
-`jjw_workbench.sh` routes `jjw-tR` to the test runner.
-The command:
-
-. Reads imprint from `BUZ_FOLIO`
-. Sources profile-specific configuration (host, user, reldir)
-. Runs {jjdxf_preflight} probe
-. On pass: `exec cargo test` with profile filter
-. On skip: exits 0 with diagnostic
-
-Profile configuration is resolved from the imprint:
-{jjdxf_hairpin}
-and failure-mode profiles use compiled constants (`FUNDUS_DEFAULT_USER`, `FUNDUS_DEFAULT_RELDIR`).
-{jjdxf_cerebro}
-reads the host from environment variable `JJTEST_CEREBRO_HOST`.
 
 ==== Test Assertions by Profile
 
-*{jjdxf_hairpin} / {jjdxf_cerebro} — full happy-path:*
+*{jjdxf_full} — full happy-path:*
 
 * {jjdo_bind} + {jjdo_send}: bind to {jjdxr_fundus}, run simple command, verify output
 * {jjdo_plant}: reset {jjdxr_fundus} to known commit, verify working tree state
@@ -253,7 +169,7 @@ reads the host from environment variable `JJTEST_CEREBRO_HOST`.
 * {jjdo_relay} + {jjdo_check} (timeout>0): launch short job, await completion, verify {jjdxpe_stopped} + exit code
 * {jjdo_check} file list: verify temp dir contents returned on terminal status
 * {jjdo_fetch}: read specific file from {jjdxr_fundus} using absolute path from `BURX_TEMP_DIR`
-* `BURX_LABEL` correlation: verify {jjdt_pensum} token round-trips through `BURE_LABEL` → `BURX_LABEL`
+* `BURX_LABEL` correlation: verify {jjdt_pensum} token round-trips through `BURE_LABEL` -> `BURX_LABEL`
 
 *{jjdxf_nokey} — bind auth failure:*
 

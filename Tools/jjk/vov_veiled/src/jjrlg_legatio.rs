@@ -29,12 +29,6 @@ use vvc::{vvco_out, vvco_err, vvco_Output};
 // Constants
 // ============================================================================
 
-/// Default user for fundus SSH connections
-pub const JJRLG_FUNDUS_DEFAULT_USER: &str = "rbtest";
-
-/// Default relative directory for fundus projects
-pub const JJRLG_FUNDUS_DEFAULT_RELDIR: &str = "projects/rbm_alpha_recipemuster";
-
 /// Legatio state file prefix within officium directory
 const LEGATIO_FILE_PREFIX: &str = "legatio_";
 

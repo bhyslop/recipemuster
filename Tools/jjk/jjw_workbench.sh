@@ -61,81 +61,28 @@ jjw_route() {
       exec "${JJW_SCRIPT_DIR}/jja_arcanum.sh" "${z_command}" "$@"
       ;;
 
-    # Remote dispatch integration tests (JJSTF profiles)
-    jjw-tR)
-      local z_profile="${BURD_TOKEN_3}"
-      test -n "${z_profile}" || buc_die "jjw-tR: no profile in imprint (BURD_TOKEN_3)"
-
-      # Resolve profile configuration and run preflight probe
-      case "${z_profile}" in
-        hairpin)
-          local z_user="rbtest"
-          local z_host="localhost"
-          local z_reldir="projects/rbm_alpha_recipemuster"
-          if ! ssh -o ConnectTimeout=5 -o BatchMode=yes "${z_user}@${z_host}" exit 0 2>/dev/null; then
-            echo "SKIP: ${z_profile}: SSH to ${z_user}@${z_host} failed"; exit 0
-          fi
-          if ! ssh -o ConnectTimeout=5 -o BatchMode=yes "${z_user}@${z_host}" "test -d \$HOME/${z_reldir}" 2>/dev/null; then
-            echo "SKIP: ${z_profile}: RELDIR ${z_reldir} not found on ${z_host}"; exit 0
-          fi
-          if ! ssh -o ConnectTimeout=5 -o BatchMode=yes "${z_user}@${z_host}" "test -f \$HOME/${z_reldir}/.buk/burc.env" 2>/dev/null; then
-            echo "SKIP: ${z_profile}: BUK not installed at ${z_reldir} on ${z_host}"; exit 0
-          fi
-          echo "Preflight PASS: ${z_profile} (${z_user}@${z_host}:~/${z_reldir})"
-          ;;
-        cerebro)
-          local z_host="${JJTEST_CEREBRO_HOST:-}"
-          test -n "${z_host}" || { echo "SKIP: ${z_profile}: JJTEST_CEREBRO_HOST not set"; exit 0; }
-          local z_user="rbtest"
-          local z_reldir="projects/rbm_alpha_recipemuster"
-          if ! ssh -o ConnectTimeout=5 -o BatchMode=yes "${z_user}@${z_host}" exit 0 2>/dev/null; then
-            echo "SKIP: ${z_profile}: SSH to ${z_user}@${z_host} failed"; exit 0
-          fi
-          if ! ssh -o ConnectTimeout=5 -o BatchMode=yes "${z_user}@${z_host}" "test -d \$HOME/${z_reldir}" 2>/dev/null; then
-            echo "SKIP: ${z_profile}: RELDIR ${z_reldir} not found on ${z_host}"; exit 0
-          fi
-          if ! ssh -o ConnectTimeout=5 -o BatchMode=yes "${z_user}@${z_host}" "test -f \$HOME/${z_reldir}/.buk/burc.env" 2>/dev/null; then
-            echo "SKIP: ${z_profile}: BUK not installed at ${z_reldir} on ${z_host}"; exit 0
-          fi
-          echo "Preflight PASS: ${z_profile} (${z_user}@${z_host}:~/${z_reldir})"
-          ;;
-        nokey)
-          local z_user="${JJTEST_NOKEY_USER:-nobody}"
-          if ! id "${z_user}" >/dev/null 2>&1; then
-            echo "SKIP: ${z_profile}: user '${z_user}' does not exist"; exit 0
-          fi
-          echo "Preflight PASS: ${z_profile} (user ${z_user} exists, expecting SSH auth failure)"
-          ;;
-        norepo)
-          if ! ssh -o ConnectTimeout=5 -o BatchMode=yes "rbtest@localhost" exit 0 2>/dev/null; then
-            echo "SKIP: ${z_profile}: SSH to rbtest@localhost failed"; exit 0
-          fi
-          echo "Preflight PASS: ${z_profile} (rbtest@localhost with nonexistent reldir)"
-          ;;
-        nogit)
-          local z_user="${JJTEST_NOGIT_USER:-rbtest_nogit}"
-          local z_reldir="${JJTEST_NOGIT_RELDIR:-projects/rbm_alpha_nogit}"
-          if ! ssh -o ConnectTimeout=5 -o BatchMode=yes "${z_user}@localhost" exit 0 2>/dev/null; then
-            echo "SKIP: ${z_profile}: SSH to ${z_user}@localhost failed"; exit 0
-          fi
-          if ! ssh -o ConnectTimeout=5 -o BatchMode=yes "${z_user}@localhost" "test -d \$HOME/${z_reldir}" 2>/dev/null; then
-            echo "SKIP: ${z_profile}: RELDIR ${z_reldir} not found"; exit 0
-          fi
-          if ! ssh -o ConnectTimeout=5 -o BatchMode=yes "${z_user}@localhost" "test -f \$HOME/${z_reldir}/.buk/burc.env" 2>/dev/null; then
-            echo "SKIP: ${z_profile}: BUK not installed at ${z_reldir}"; exit 0
-          fi
-          echo "Preflight PASS: ${z_profile} (${z_user}@localhost:~/${z_reldir})"
-          ;;
-        *)
-          buc_die "jjw-tR: unknown profile: ${z_profile}"
-          ;;
-      esac
-
-      # Run integration tests for this profile
+    # Fundus scenario suite — all profiles against a host (JJSTF)
+    jjw-tfs)
+      local z_host="${BURD_TOKEN_3}"
+      test -n "${z_host}" || buc_die "jjw-tfs: no host in imprint (BURD_TOKEN_3)"
+      export JJTEST_HOST="${z_host}"
       exec cargo test \
         --manifest-path "${JJW_SCRIPT_DIR}/vov_veiled/Cargo.toml" \
-        --test remote_dispatch \
-        -- --test-threads=1 --ignored "${z_profile}::"
+        --test fundus_scenario \
+        -- --test-threads=1 --ignored
+      ;;
+
+    # Fundus scenario single test — one function against a host
+    jjw-tfS)
+      local z_host="${BURD_TOKEN_3}"
+      test -n "${z_host}" || buc_die "jjw-tfS: no host in imprint (BURD_TOKEN_3)"
+      local z_test="${1:-}"
+      test -n "${z_test}" || buc_die "jjw-tfS: no test function name (pass as argument)"
+      export JJTEST_HOST="${z_host}"
+      exec cargo test \
+        --manifest-path "${JJW_SCRIPT_DIR}/vov_veiled/Cargo.toml" \
+        --test fundus_scenario \
+        -- --test-threads=1 --ignored "${z_test}"
       ;;
 
     *)
