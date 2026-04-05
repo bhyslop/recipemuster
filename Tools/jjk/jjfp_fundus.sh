@@ -158,7 +158,9 @@ zjjfp_create_account() {
         2>"${z_stderr}" \
         || buc_die "Failed to create macOS account: ${z_user} — see ${z_stderr}"
 
-      # sysadminctl creates home dir owned by root — fix ownership
+      # sysadminctl may not create the home dir — ensure it exists with correct ownership
+      mkdir -p "/Users/${z_user}" \
+        || buc_die "Failed to create home dir for: ${z_user}"
       chown -R "${z_user}:staff" "/Users/${z_user}" \
         || buc_die "Failed to chown home dir for: ${z_user}"
       ;;
