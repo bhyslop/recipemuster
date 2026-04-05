@@ -1820,9 +1820,10 @@
         "₢A4AAL",
         "₢A4AAF",
         "₢A4AAI",
-        "₢A4AAP"
+        "₢A4AAP",
+        "₢A4AAQ"
       ],
-      "next_pace_seed": "AAQ",
+      "next_pace_seed": "AAR",
       "next_pensum_seed": "Aw",
       "paddock_file": ".claude/jjm/jjp_uAl4.md",
       "paces": {
@@ -2195,6 +2196,17 @@
               "text": "## Character\nInvestigative — survey what arcanum still provides vs what MCP has superseded. Low-risk decision with clear success criteria.\n\n## Docket\nEvaluate whether `jja_arcanum.sh` and its supporting files (`jjl_ledger.json`, emitted slash commands) can be fully removed now that JJK operates via the `mcp__vvx__jjx` MCP tool.\n\n**Survey:**\n1. Identify all artifacts arcanum creates: `.claude/commands/jjc-*.md`, `.claude/jjm/` directories, `settings.local.json` permissions, ledger entries\n2. Determine which are still consumed by the MCP architecture vs dead weight\n3. Check if the `.claude/jjm/` directory creation and settings permissions are handled elsewhere (e.g., by VVK install)\n\n**Decision:** Remove arcanum entirely, or strip it to only the parts still needed.\n\n**Cleanup if removing:**\n- Delete `jja_arcanum.sh`, `jjl_ledger.json`\n- Remove arcanum routing from workbench (already removed from zipper)\n- Update CLAUDE.md file acronym mappings",
               "silks": "evaluate-arcanum-removal",
               "commit": "be43aec"
+            }
+          ]
+        },
+        "₢A4AAQ": {
+          "tacks": [
+            {
+              "ts": "260405-1253",
+              "state": "rough",
+              "text": "## Character\nMechanical — straightforward constant extraction and platform-specific account enumeration. No design judgment needed.\n\n## Docket\nExtract `jjfu_` prefix as a named constant and use prefix-based enumeration for Phase 1 account deletion.\n\n**Constant:**\n- `JJFP_account_prefix=\"jjfu_\"` — single source of truth for the fundus test account prefix\n\n**Delete phase (Phase 1):**\n- Replace iteration over `ZJJFP_ACCOUNTS` with platform-specific prefix enumeration:\n  - macOS: `dscl . -list /Users | grep \"^${JJFP_account_prefix}\"`\n  - Linux: `getent passwd | grep \"^${JJFP_account_prefix}\" | cut -d: -f1`\n- Catches stale accounts from previous configurations\n\n**Magic string cleanup:**\n- Audit `jjfp_fundus.sh` for bare `jjfu_` literals — replace with constant or derive from it\n- The Rust test constants (`JJFU_FULL`, etc.) are fine as-is — they're in a different namespace and individually named\n\n**Does not change:** Account creation logic (each account has distinct setup steps), `ZJJFP_ACCOUNTS` list (still needed for creation), or test account names.",
+              "silks": "fundus-account-prefix-cleanup",
+              "commit": "7cf1759"
             }
           ]
         }
