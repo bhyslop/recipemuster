@@ -28,8 +28,10 @@ set -euo pipefail
 test -z "${ZJJFP_SOURCED:-}" || buc_die "Module jjfp multiply sourced - check sourcing hierarchy"
 ZJJFP_SOURCED=1
 
-# Tinder constant: SSH key path param (operator passes private key path; .pub derived)
+# Tinder constants
 JJFP_keypath_param="keypath"
+JJFP_pubkey_param="pubkey"
+JJFP_ssh_accounts="jjfu_full jjfu_norepo jjfu_nogit"
 
 ######################################################################
 # Internal Functions (zjjfp_*)
@@ -250,6 +252,43 @@ zjjfp_install_keypair() {
 }
 
 ######################################################################
+# Internal helpers — Phase 2: double-hop SSH (operator → test account via remote operator)
+
+zjjfp_double_hop() {
+  zjjfp_sentinel
+  local -r z_host="${1:-}"
+  local -r z_user="${2:-}"
+  local -r z_cmd="${3:-}"
+  test -n "${z_host}" || buc_die "zjjfp_double_hop: host required"
+  test -n "${z_user}" || buc_die "zjjfp_double_hop: user required"
+  test -n "${z_cmd}"  || buc_die "zjjfp_double_hop: cmd required"
+
+  # SSH to operator@host, then SSH to user@localhost to run cmd
+  local -r z_stderr="${ZJJFP_TEMP_PREFIX}dhop_${z_user}_stderr.txt"
+  ssh -o BatchMode=yes "${z_host}" \
+    "ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new ${z_user}@localhost '${z_cmd}'" \
+    2>"${z_stderr}" \
+    || buc_die "Double-hop to ${z_user}@${z_host} failed — see ${z_stderr}"
+}
+
+# Pipe stdin to a file on the test account via double-hop
+zjjfp_double_hop_pipe() {
+  zjjfp_sentinel
+  local -r z_host="${1:-}"
+  local -r z_user="${2:-}"
+  local -r z_remote_path="${3:-}"
+  test -n "${z_host}"        || buc_die "zjjfp_double_hop_pipe: host required"
+  test -n "${z_user}"        || buc_die "zjjfp_double_hop_pipe: user required"
+  test -n "${z_remote_path}" || buc_die "zjjfp_double_hop_pipe: remote_path required"
+
+  local -r z_stderr="${ZJJFP_TEMP_PREFIX}dhop_pipe_${z_user}_stderr.txt"
+  ssh -o BatchMode=yes "${z_host}" \
+    "ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new ${z_user}@localhost 'cat >> ${z_remote_path}'" \
+    2>"${z_stderr}" \
+    || buc_die "Double-hop pipe to ${z_user}@${z_host}:${z_remote_path} failed — see ${z_stderr}"
+}
+
+######################################################################
 # Internal helpers — Phase 2: repo setup (running as operator, via SSH)
 
 zjjfp_ssh_setup_repo() {
@@ -374,19 +413,14 @@ jjfp_repo() {
   zjjfp_sentinel
 
   local -r z_host="${BUZ_FOLIO:-}"
+  local -r z_pubkey_path="${1:-}"
   test -n "${z_host}" || buc_die "jjfp_repo: no host (BUZ_FOLIO empty)"
 
-  buc_doc_brief "Phase 2: Clone repos and install BUK via SSH to provisioned accounts"
+  buc_doc_brief "Phase 2: Authorize curia access, clone repos, install BUK"
+  buc_doc_param "${JJFP_pubkey_param}" "Path to curia SSH public key (required for remote hosts, omit for localhost)"
   buc_doc_shown || return 0
 
   buc_step "Phase 2: Setting up repos on ${z_host}"
-
-  # Resolve curia repo absolute path
-  local -r z_curia_root_file="${ZJJFP_TEMP_PREFIX}curia_root.txt"
-  (cd "${BURD_TOOLS_DIR}/.." && pwd) > "${z_curia_root_file}" \
-    || buc_die "Failed to resolve curia repo root"
-  local -r z_curia_repo=$(<"${z_curia_root_file}")
-  test -n "${z_curia_repo}" || buc_die "Empty curia repo root"
 
   # Discover git origin URL
   local -r z_origin_file="${ZJJFP_TEMP_PREFIX}origin.txt"
@@ -397,43 +431,52 @@ jjfp_repo() {
   test -n "${z_curia_origin}" || buc_die "Git origin URL is empty"
   buc_log_args "Curia origin: ${z_curia_origin}"
 
-  # Select clone source: localhost clones from local repo (fast), remote clones from GitHub
-  local -r z_clone_source_file="${ZJJFP_TEMP_PREFIX}clone_source.txt"
   if test "${z_host}" = "localhost"; then
-    echo "${z_curia_repo}" > "${z_clone_source_file}"
-  else
-    echo "${z_curia_origin}" > "${z_clone_source_file}"
-  fi
-  local -r z_clone_source=$(<"${z_clone_source_file}")
+    # Localhost: clone from local repo, direct SSH to test accounts
+    local -r z_curia_root_file="${ZJJFP_TEMP_PREFIX}curia_root.txt"
+    (cd "${BURD_TOOLS_DIR}/.." && pwd) > "${z_curia_root_file}" \
+      || buc_die "Failed to resolve curia repo root"
+    local -r z_clone_source=$(<"${z_curia_root_file}")
+    test -n "${z_clone_source}" || buc_die "Empty curia repo root"
 
-  # For remote hosts, accounts need GitHub host key before cloning via SSH
-  if test "${z_host}" != "localhost"; then
-    local z_ghkey_user=""
-    for z_ghkey_user in jjfu_full jjfu_nogit; do
-      local z_ghkey_stderr="${ZJJFP_TEMP_PREFIX}ghkey_${z_ghkey_user}_stderr.txt"
-      ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new "${z_ghkey_user}@${z_host}" \
-        "ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null" \
-        2>"${z_ghkey_stderr}" \
-        || buc_die "Failed to add GitHub host key for ${z_ghkey_user} — see ${z_ghkey_stderr}"
-      buc_log_args "GitHub host key added for ${z_ghkey_user}@${z_host}"
-    done
-  fi
+    zjjfp_ssh_setup_repo "${z_host}" "jjfu_full"  1 "${z_curia_origin}" "${z_clone_source}"
+    zjjfp_ssh_setup_repo "${z_host}" "jjfu_nogit" 0 ""                  "${z_clone_source}"
 
-  # jjfu_full: clone with origin (for jjx_plant — needs git fetch origin)
-  zjjfp_ssh_setup_repo "${z_host}" "jjfu_full" 1 "${z_curia_origin}" "${z_clone_source}"
-
-  # For localhost, jjfu_full also needs GitHub host key for git fetch origin (plant test)
-  if test "${z_host}" = "localhost"; then
+    # GitHub host key for jjfu_full (needs git fetch origin for plant test)
     local -r z_ghkey_stderr="${ZJJFP_TEMP_PREFIX}ghkey_jjfu_full_stderr.txt"
-    ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new "jjfu_full@${z_host}" \
+    ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new "jjfu_full@localhost" \
       "ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null" \
       2>"${z_ghkey_stderr}" \
       || buc_die "Failed to add GitHub host key for jjfu_full — see ${z_ghkey_stderr}"
-    buc_log_args "GitHub host key added for jjfu_full@${z_host}"
-  fi
+    buc_log_args "GitHub host key added for jjfu_full@localhost"
+  else
+    # Remote: validate pubkey argument
+    test -n "${z_pubkey_path}" || buc_die "jjfp_repo: pubkey path required for remote host (pass as argument)"
+    test -f "${z_pubkey_path}" || buc_die "jjfp_repo: pubkey file not found: ${z_pubkey_path}"
+    local -r z_pubkey=$(<"${z_pubkey_path}")
+    test -n "${z_pubkey}" || buc_die "jjfp_repo: pubkey file is empty: ${z_pubkey_path}"
 
-  # jjfu_nogit: clone with origin removed (tests plant failure path)
-  zjjfp_ssh_setup_repo "${z_host}" "jjfu_nogit" 0 "" "${z_clone_source}"
+    # Inject curia pubkey into test accounts via double-hop (operator → test account)
+    buc_step "Authorizing curia access to test accounts on ${z_host}"
+    local z_auth_user=""
+    for z_auth_user in ${JJFP_ssh_accounts}; do
+      echo "${z_pubkey}" | zjjfp_double_hop_pipe "${z_host}" "${z_auth_user}" "~/.ssh/authorized_keys"
+      buc_log_args "Curia pubkey injected for ${z_auth_user}@${z_host}"
+    done
+
+    # Add GitHub host key via double-hop (for clone and plant)
+    buc_step "Adding GitHub host keys on ${z_host}"
+    local z_ghkey_user=""
+    for z_ghkey_user in jjfu_full jjfu_nogit; do
+      zjjfp_double_hop "${z_host}" "${z_ghkey_user}" \
+        "ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null"
+      buc_log_args "GitHub host key added for ${z_ghkey_user}@${z_host}"
+    done
+
+    # Clone from GitHub via direct SSH (curia key now authorized)
+    zjjfp_ssh_setup_repo "${z_host}" "jjfu_full"  1 "${z_curia_origin}" "${z_curia_origin}"
+    zjjfp_ssh_setup_repo "${z_host}" "jjfu_nogit" 0 ""                  "${z_curia_origin}"
+  fi
 
   buc_success "Phase 2 complete — repos and BUK installed"
 }
