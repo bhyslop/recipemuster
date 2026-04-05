@@ -336,6 +336,14 @@ zjjfp_ssh_setup_repo() {
       || buc_die "Failed to remove origin for: ${z_ssh_target} — see ${z_stderr}"
     buc_log_args "Repo cloned with origin removed"
   fi
+
+  # Create station regime — required for BUD dispatch
+  local -r z_station_stderr="${ZJJFP_TEMP_PREFIX}station_${z_user}_stderr.txt"
+  ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new "${z_ssh_target}" \
+    "cd '${z_project_dir}' && ./tt/buw-SI.StationInit.sh" \
+    2>"${z_station_stderr}" \
+    || buc_die "Failed to create station regime for: ${z_ssh_target} — see ${z_station_stderr}"
+  buc_log_args "Station regime created for ${z_user}@${z_host}"
 }
 
 ######################################################################
