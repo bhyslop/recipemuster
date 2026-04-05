@@ -748,7 +748,7 @@ rbfl_tally() {
 
       # Write per-hallmark fact file for test observability
       test -n "${z_hallmark}" || buc_die "Empty hallmark in unique file for ${z_sigil}"
-      echo "${z_sigil}" > "${BURD_OUTPUT_DIR}/${z_sigil}${RBCC_FACT_CONSEC_INFIX}${z_hallmark}"
+      buf_write_fact "${z_sigil}${RBCC_FACT_CONSEC_INFIX}${z_hallmark}" "${z_sigil}"
     done < "${z_unique_file}"
 
   done

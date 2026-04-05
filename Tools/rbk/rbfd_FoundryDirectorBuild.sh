@@ -1138,16 +1138,13 @@ rbfd_build() {
   # Persist to output directory for test harness consumption
   echo "${z_vessel_dir}" > "${ZRBFC_OUTPUT_VESSEL_DIR}" \
     || buc_die "Failed to write vessel dir to output"
-  echo "${z_found_hallmark}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}" \
-    || buc_die "Failed to write hallmark to output"
+  buf_write_fact "${RBF_FACT_HALLMARK}" "${z_found_hallmark}"
 
   # Write GAR root fact file (registry prefix for composing full refs)
-  echo "${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_GAR_ROOT}" \
-    || buc_die "Failed to write GAR root fact file"
+  buf_write_fact "${RBF_FACT_GAR_ROOT}" "${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}"
 
   # Write ark stem fact file (sigil:hallmark base for composing artifact refs)
-  echo "${RBRV_SIGIL}:${z_found_hallmark}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_STEM}" \
-    || buc_die "Failed to write ark stem fact file"
+  buf_write_fact "${RBF_FACT_ARK_STEM}" "${RBRV_SIGIL}:${z_found_hallmark}"
 
   # Write per-platform yield fact files
   local z_plat=""
@@ -1157,15 +1154,12 @@ rbfd_build() {
     z_plat_suffix="${z_plat#linux/}"
     z_plat_suffix="${z_plat_suffix//\//}"
     z_yield_tag="${z_found_hallmark}${RBGC_ARK_SUFFIX_IMAGE}-${z_plat_suffix}"
-    echo "${RBRV_SIGIL}:${z_yield_tag}" \
-      > "${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_YIELD}${RBGC_ARK_SUFFIX_IMAGE}-${z_plat_suffix}" \
-      || buc_die "Failed to write yield fact file for ${z_plat}"
+    buf_write_fact "${RBF_FACT_ARK_YIELD}${RBGC_ARK_SUFFIX_IMAGE}-${z_plat_suffix}" "${RBRV_SIGIL}:${z_yield_tag}"
     buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_YIELD}${RBGC_ARK_SUFFIX_IMAGE}-${z_plat_suffix}"
   done
 
   # Write build ID fact file (dispatched build ID for cross-check with vouch provenance)
-  echo "${z_build_id}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_BUILD_ID}" \
-    || buc_die "Failed to write build ID fact file"
+  buf_write_fact "${RBF_FACT_BUILD_ID}" "${z_build_id}"
 
   buc_info "Output: ${ZRBFC_OUTPUT_VESSEL_DIR}"
   buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}"
@@ -1261,8 +1255,7 @@ rbfd_kludge() {
     || buc_die "Failed to create vouch tag"
 
   # Persist hallmark to output directory
-  echo "${z_hallmark}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}" \
-    || buc_die "Failed to write hallmark to output"
+  buf_write_fact "${RBF_FACT_HALLMARK}" "${z_hallmark}"
 
   buc_success "Kludge build complete: ${RBRV_SIGIL}"
   buc_bare ""
@@ -1342,22 +1335,17 @@ rbfd_mirror() {
   # Persist to output directory for chaining by rbfd_ordain
   echo "${z_vessel_dir}" > "${ZRBFC_OUTPUT_VESSEL_DIR}" \
     || buc_die "Failed to write vessel dir to output"
-  echo "${z_hallmark}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}" \
-    || buc_die "Failed to write hallmark to output"
+  buf_write_fact "${RBF_FACT_HALLMARK}" "${z_hallmark}"
 
   # Write GAR root fact file
-  echo "${z_gar_base}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_GAR_ROOT}" \
-    || buc_die "Failed to write GAR root fact file"
+  buf_write_fact "${RBF_FACT_GAR_ROOT}" "${z_gar_base}"
 
   # Write ark stem fact file
-  echo "${RBRV_SIGIL}:${z_hallmark}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_STEM}" \
-    || buc_die "Failed to write ark stem fact file"
+  buf_write_fact "${RBF_FACT_ARK_STEM}" "${RBRV_SIGIL}:${z_hallmark}"
 
   # Write yield fact file (single-platform bind image)
   local -r z_bind_image_tag="${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}"
-  echo "${RBRV_SIGIL}:${z_bind_image_tag}" \
-    > "${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_YIELD}${RBGC_ARK_SUFFIX_IMAGE}" \
-    || buc_die "Failed to write yield fact file"
+  buf_write_fact "${RBF_FACT_ARK_YIELD}${RBGC_ARK_SUFFIX_IMAGE}" "${RBRV_SIGIL}:${z_bind_image_tag}"
 
   # Submit combined Cloud Build (skopeo image copy + about steps)
   zrbfd_mirror_submit "${z_hallmark}" "${z_token}"
@@ -1641,21 +1629,16 @@ rbfd_graft() {
   # Persist to output directory for downstream consumption
   echo "${z_vessel_dir}" > "${ZRBFC_OUTPUT_VESSEL_DIR}" \
     || buc_die "Failed to write vessel dir to output"
-  echo "${z_hallmark}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}" \
-    || buc_die "Failed to write hallmark to output"
+  buf_write_fact "${RBF_FACT_HALLMARK}" "${z_hallmark}"
 
   # Write GAR root fact file
-  echo "${z_gar_base}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_GAR_ROOT}" \
-    || buc_die "Failed to write GAR root fact file"
+  buf_write_fact "${RBF_FACT_GAR_ROOT}" "${z_gar_base}"
 
   # Write ark stem fact file
-  echo "${RBRV_SIGIL}:${z_hallmark}" > "${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_STEM}" \
-    || buc_die "Failed to write ark stem fact file"
+  buf_write_fact "${RBF_FACT_ARK_STEM}" "${RBRV_SIGIL}:${z_hallmark}"
 
   # Write yield fact file (single-platform graft image)
-  echo "${RBRV_SIGIL}:${z_image_tag}" \
-    > "${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_YIELD}${RBGC_ARK_SUFFIX_IMAGE}" \
-    || buc_die "Failed to write yield fact file"
+  buf_write_fact "${RBF_FACT_ARK_YIELD}${RBGC_ARK_SUFFIX_IMAGE}" "${RBRV_SIGIL}:${z_image_tag}"
 
   # Summary
   echo ""
