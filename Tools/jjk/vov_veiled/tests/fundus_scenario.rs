@@ -148,8 +148,10 @@ fn preflight_ssh(host: &str, user: &str) -> bool {
         .unwrap_or(false)
 }
 
-fn preflight_happy(p: &FundusProfile) -> bool {
-    if !preflight_ssh(&p.host, &p.user) { return false; }
+fn preflight_happy(p: &FundusProfile) -> Result<(), String> {
+    if !preflight_ssh(&p.host, &p.user) {
+        return Err(format!("SSH to {}@{} failed", p.user, p.host));
+    }
     let ssh_test = |cmd: &str| -> bool {
         std::process::Command::new("ssh")
             .args(["-o", "ConnectTimeout=5", "-o", "BatchMode=yes"])
@@ -159,8 +161,24 @@ fn preflight_happy(p: &FundusProfile) -> bool {
             .map(|o| o.status.success())
             .unwrap_or(false)
     };
-    ssh_test(&format!("test -d $HOME/{}", p.reldir))
-        && ssh_test(&format!("test -f $HOME/{}/.buk/burc.env", p.reldir))
+    if !ssh_test(&format!("test -d $HOME/{}", p.reldir)) {
+        return Err(format!("reldir not found: $HOME/{}", p.reldir));
+    }
+    if !ssh_test(&format!("test -f $HOME/{}/.buk/burc.env", p.reldir)) {
+        return Err("BUK not installed: .buk/burc.env missing".to_string());
+    }
+    // Dispatch smoke: run a trivial tabtarget through BUD to verify station regime etc.
+    let smoke = std::process::Command::new("ssh")
+        .args(["-o", "ConnectTimeout=10", "-o", "BatchMode=yes"])
+        .arg(format!("{}@{}", p.user, p.host))
+        .arg(format!("cd $HOME/{} && ./tt/buw-rcr.RenderConfigRegime.sh >/dev/null 2>&1", p.reldir))
+        .output();
+    match smoke {
+        Ok(o) if o.status.success() => Ok(()),
+        Ok(o) => Err(format!("BUD dispatch smoke failed (exit {}) — check station regime (burs.env)",
+            o.status.code().unwrap_or(-1))),
+        Err(e) => Err(format!("BUD dispatch smoke SSH error: {}", e)),
+    }
 }
 
 // ============================================================================
@@ -408,23 +426,6 @@ fn test_relay_concurrent_overlap_impl(p: &FundusProfile) {
     let officium = TestOfficium::new("relay-conc");
     let token = bind_profile(p, &officium);
 
-    // Plant curia HEAD to ensure delay tabtarget exists on fundus
-    let head = std::process::Command::new("git")
-        .args(["rev-parse", "HEAD"])
-        .output()
-        .expect("git rev-parse HEAD");
-    let commit = String::from_utf8_lossy(&head.stdout).trim().to_string();
-    assert!(!commit.is_empty(), "failed to get HEAD commit");
-
-    let (pc, po) = jjrlg_run_plant(
-        jjrlg_PlantArgs {
-            legatio: token.clone(),
-            commit,
-        },
-        &officium.id,
-    );
-    assert_eq!(pc, 0, "plant failed (needed for delay tabtarget):\n{}", po);
-
     // Dispatch 3 concurrent relay jobs using the delay tabtarget
     let mut pensa = Vec::new();
     for i in 0..3 {
@@ -538,9 +539,9 @@ mod full {
             user: JJFU_FULL.to_string(),
             reldir: RELDIR.to_string(),
         };
-        assert!(preflight_happy(&p),
-            "full profile not available ({}@{}) — provision accounts first: sudo tt/jjw-tfP.ProvisionFundusAccounts.localhost.sh",
-            JJFU_FULL, p.host);
+        preflight_happy(&p).unwrap_or_else(|e| panic!(
+            "full profile not available ({}@{}): {}\nProvision: sudo tt/jjw-tfP.ProvisionFundusAccounts.localhost.sh",
+            JJFU_FULL, p.host, e));
         p
     }
 
