@@ -2202,6 +2202,13 @@
         "₢A4AAQ": {
           "tacks": [
             {
+              "ts": "260405-1311",
+              "state": "complete",
+              "text": "## Character\nMechanical — straightforward constant extraction and platform-specific account enumeration. No design judgment needed.\n\n## Docket\nExtract `jjfu_` prefix as a named constant and use prefix-based enumeration for Phase 1 account deletion.\n\n**Constant:**\n- `JJFP_account_prefix=\"jjfu_\"` — single source of truth for the fundus test account prefix\n\n**Delete phase (Phase 1):**\n- Replace iteration over `ZJJFP_ACCOUNTS` with platform-specific prefix enumeration:\n  - macOS: `dscl . -list /Users | grep \"^${JJFP_account_prefix}\"`\n  - Linux: `getent passwd | grep \"^${JJFP_account_prefix}\" | cut -d: -f1`\n- Catches stale accounts from previous configurations\n\n**Magic string cleanup:**\n- Audit `jjfp_fundus.sh` for bare `jjfu_` literals — replace with constant or derive from it\n- The Rust test constants (`JJFU_FULL`, etc.) are fine as-is — they're in a different namespace and individually named\n\n**Does not change:** Account creation logic (each account has distinct setup steps), `ZJJFP_ACCOUNTS` list (still needed for creation), or test account names.",
+              "silks": "fundus-account-prefix-cleanup",
+              "commit": "545244c"
+            },
+            {
               "ts": "260405-1253",
               "state": "rough",
               "text": "## Character\nMechanical — straightforward constant extraction and platform-specific account enumeration. No design judgment needed.\n\n## Docket\nExtract `jjfu_` prefix as a named constant and use prefix-based enumeration for Phase 1 account deletion.\n\n**Constant:**\n- `JJFP_account_prefix=\"jjfu_\"` — single source of truth for the fundus test account prefix\n\n**Delete phase (Phase 1):**\n- Replace iteration over `ZJJFP_ACCOUNTS` with platform-specific prefix enumeration:\n  - macOS: `dscl . -list /Users | grep \"^${JJFP_account_prefix}\"`\n  - Linux: `getent passwd | grep \"^${JJFP_account_prefix}\" | cut -d: -f1`\n- Catches stale accounts from previous configurations\n\n**Magic string cleanup:**\n- Audit `jjfp_fundus.sh` for bare `jjfu_` literals — replace with constant or derive from it\n- The Rust test constants (`JJFU_FULL`, etc.) are fine as-is — they're in a different namespace and individually named\n\n**Does not change:** Account creation logic (each account has distinct setup steps), `ZJJFP_ACCOUNTS` list (still needed for creation), or test account names.",
