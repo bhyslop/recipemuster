@@ -115,23 +115,21 @@ still works (BUD dispatch does not require git).
 {jjdxf_preflight}::
 Probe executed before running a
 {jjdxf_profile_p}
-test suite.
-If preconditions are not met, the suite is skipped with an informational message — not an error.
-A machine may not have all profiles configured;
-{jjdxf_preflight}
-failures are diagnostic, never blocking.
+test.
+If preconditions are not met, the test fails with a diagnostic message directing the operator to provision accounts.
+Tests must never silently pass when preconditions are absent — a passing test means the assertion was actually exercised.
 
 *{jjdxf_full} profile:*
 
 . SSH connection: `ssh -o ConnectTimeout=5 -o BatchMode=yes jjfu_full@<host> exit 0`
 . {jjdt_reldir} existence: `ssh jjfu_full@<host> test -d $HOME/RELDIR`
 . BUK installation: `ssh jjfu_full@<host> test -f $HOME/RELDIR/.buk/burc.env`
-. Any step fails -> skip suite with diagnostic message
+. Any step fails -> test fails with provisioning instructions
 
 *Failure-mode profiles* ({jjdxf_nokey}, {jjdxf_norepo}, {jjdxf_nogit}):
 
 . Profile-specific precondition check (account existence, SSH reachability, directory state)
-. Missing precondition -> skip suite with diagnostic message
+. Missing precondition -> test fails with provisioning instructions
 . These profiles deliberately fail at different stages — the
 {jjdxf_preflight}
 checks only that the test can be meaningfully attempted
@@ -153,7 +151,7 @@ Each tabtarget:
 
 . Sets `JJTEST_HOST` from the imprint
 . Invokes `cargo test --test fundus_scenario -- --test-threads=1 --ignored [filter]`
-. Individual test functions run their own {jjdxf_preflight} and skip if preconditions are not met
+. Individual test functions run their own {jjdxf_preflight} and fail if preconditions are not met
 
 Test thread count is always 1 — tests within a suite are sequential
 ({jjdxr_fundus}
