@@ -61,18 +61,16 @@ The kebab-case identifier that names heats, paces, itches, and scars. Examples: 
 
 ### Day-to-Day Usage
 
-You work on a heat by talking with Claude Code. As you make progress:
-- At session start, use `/jja-heat-saddle` to establish context and see proposed approach
+You work on a heat by talking with Claude Code. All commands route through the `mcp__vvx__jjx` MCP tool. As you make progress:
+- At session start, say "mount" to establish context and see proposed approach
 - Work on the pace together
-- Use `/jja-pace-wrap` to mark complete - auto-notches, then analyzes next pace and proposes approach
-- Use `/jja-notch` mid-pace when you want to commit progress without wrapping
-- New paces emerge and get added with `/jja-pace-new`
+- Say "wrap" to mark complete, then mount the next pace
+- Say "notch" mid-pace when you want to commit progress without wrapping
+- New paces emerge via "slate"
 
-Note: After pace-wrap, you do NOT need heat-saddle - the command flows directly into the next pace.
+When new ideas come up that don't belong in current heat, add them to `jji_itch.md`.
 
-When new ideas come up that don't belong in current heat, use `/jja-itch-add` to file them away.
-
-When a heat completes, Claude uses `/jja-heat-retire` to move it to `retired/` with a datestamp.
+When a heat completes, say "retire" to move it to `retired/` with a datestamp.
 
 ### Interaction Pattern
 
@@ -126,14 +124,6 @@ my-project/                 # Launch Claude Code here
   CLAUDE.md
   .claude/
     commands/
-      jja-heat-saddle.md
-      jja-heat-retire.md
-      jja-pace-new.md
-      jja-pace-arm.md
-      jja-pace-fly.md
-      jja-pace-wrap.md
-      jja-itch-add.md
-      jja-notch.md
     jjm/
       jji_itch.md
       jjs_scar.md
@@ -314,51 +304,19 @@ Tabtargets in `tt/` use a two-tier naming scheme:
 
 | Stem | Purpose | Example |
 |------|---------|---------|
-| `jja-` | Arcanum (installation management) | `jja-i.Install.sh` |
 | `jjw-` | Workflow commands (all user operations) | `jjw-hs.HeatSaddle.sh` |
 
 Additionally, `jjt-` is used for test suites (`jjt-f.TestFavor.sh`).
 
-**Rationale**: Arcanum commands modify the `.claude/` installation itself. Workflow commands are day-to-day operations on heats, paces, and studbook.
-
 ## Installation
 
-Job Jockey is installed via tabtargets:
-
-```bash
-# Install
-tt/jja-i.Install.sh
-
-# Check installation
-tt/jja-c.Check.sh
-
-# Uninstall (preserves .claude/jjm/ state)
-tt/jja-u.Uninstall.sh
-```
-
-The workbench:
-- Creates `.claude/commands/jja-*.md` command files
-- Creates `.claude/jjm/` directory structure
-- Patches CLAUDE.md with configuration section
-- Adds `Edit(/.claude/jjm/**)` permission to `.claude/settings.local.json` for frictionless JJ state updates
-  - Note: Single leading slash makes path relative to project root per [Claude Code IAM docs](https://code.claude.com/docs/en/iam)
-
-Configuration is via environment variables:
-- `ZJJW_TARGET_DIR` - Target repo directory (default: `.`)
-- `ZJJW_KIT_PATH` - Path to this kit file (default: `Tools/jjk/README.md`)
+JJK is installed as part of VVK. All commands are accessed via the `mcp__vvx__jjx` MCP tool. No separate arcanum install step is needed — the Rust MCP layer creates `.claude/jjm/` directories on demand.
 
 **Important**: Restart Claude Code after installation for new commands to become available.
 
 ## Available Commands
 
-- `/jja-heat-saddle` - Saddle up on heat at session start, analyze pace, propose approach
-- `/jja-heat-retire` - Move completed heat to retired with datestamp
-- `/jja-pace-new` - Add a new pace
-- `/jja-pace-arm` - Validate pace spec and arm for autonomous execution
-- `/jja-pace-fly` - Execute an armed pace autonomously
-- `/jja-pace-wrap` - Mark pace complete, auto-notch, analyze next pace, propose approach
-- `/jja-itch-add` - Add a new itch to the backlog
-- `/jja-notch` - JJ-aware git commit, push, and re-engage with current pace
+All commands are accessed via the `mcp__vvx__jjx` MCP tool. See `Tools/jjk/vov_veiled/jjk-claude-context.md` for the full command reference and verb table.
 
 ## Terminology
 
@@ -400,18 +358,6 @@ The kebab-case identifier that uniquely names JJ artifacts:
 - Steeplechases inherit the heat's silks
 - Usage: "What's the silks on that itch?" / "The heat silks are `rbags-specification`"
 
-### Brand and Ledger
-Version tracking for JJ kit installations:
-- **Brand**: The current detected version number (e.g., 600, 601). Computed during install from content hash of kit files.
-- **Ledger entry**: A single version record containing version number, content hash, git commit, and date.
-- **Ledger file**: `Tools/jjk/jjl_ledger.json` - registry of all known versions, tracked in git.
-
-During install:
-1. Compute SHA-256 hash of `jjw_workbench.sh` + `README.md`
-2. Look up hash in ledger
-3. If found, use existing version number
-4. If not found, increment from max version (starting at 600), register new entry
-5. Bake brand into all emitted command files
 
 Benefits:
 - Deterministic: same kit content always produces same brand
