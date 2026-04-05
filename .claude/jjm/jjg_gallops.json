@@ -1806,6 +1806,7 @@
       "status": "racing",
       "order": [
         "₢A4AAM",
+        "₢A4AAN",
         "₢A4AAA",
         "₢A4AAC",
         "₢A4AAJ",
@@ -1819,7 +1820,7 @@
         "₢A4AAF",
         "₢A4AAI"
       ],
-      "next_pace_seed": "AAN",
+      "next_pace_seed": "AAO",
       "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAl4.md",
       "paces": {
@@ -2110,6 +2111,17 @@
               "text": "## Character\nMechanical refactoring with some design judgment on test structure. Touching spec, Rust test code, workbench routing, and tabtargets. All changes follow decisions already made in the groom conversation.\n\n## Docket\nRevise JJSTF and integration test infrastructure to be deployment-agnostic.\n\n**Changes:**\n1. JJSTF-test-fundus.adoc: Remove machine-identity profiles (hairpin/cerebro). Define 4 account-shape profiles using `jjfu_*` usernames (`jjfu_full`, `jjfu_nokey`, `jjfu_norepo`, `jjfu_nogit`). Remove setup procedures. Remove all literal hostnames. Rename \"integration tests\" to \"fundus scenarios.\"\n2. JJS0 mapping section: Remove `:jjdxf_hairpin:` and `:jjdxf_cerebro:` attributes.\n3. remote_dispatch.rs: Remove `FUNDUS_DEFAULT_USER`/`FUNDUS_DEFAULT_RELDIR` imports. Per-profile modules use `jjfu_*` usernames directly. Host parameterized. Rename modules from machine-identity to account-profile. Merge hairpin/cerebro into single `full` module.\n4. jjrlg_legatio.rs: Remove `JJRLG_FUNDUS_DEFAULT_USER` and `JJRLG_FUNDUS_DEFAULT_RELDIR` constants.\n5. Tabtargets: Delete old `jjw-tR.TestRemote.*.sh`. Create `jjw-tfs.TestFundusScenario.<host>.sh` (suite) and `jjw-tfS.TestFundusSingle.<host>.sh` (single test by function name).\n6. jjw_workbench.sh: Replace `jjw-tR` routing with `jjw-tfs`/`jjw-tfS` routing using `jjfu_*` accounts.\n7. Context files: Update references.",
               "silks": "fundus-scenario-revision",
               "commit": "fb503bd"
+            }
+          ]
+        },
+        "₢A4AAN": {
+          "tacks": [
+            {
+              "ts": "260405-0835",
+              "state": "rough",
+              "text": "## Character\nMix of system administration scripting and end-to-end verification. The account provisioning scripts require careful sudo/dscl/sysadminctl work (platform-specific). The smoke run is mechanical — invoke the tabtarget and fix what breaks.\n\n## Docket\nCreate tabtargets that provision the 4 `jjfu_*` accounts on a target machine, then run the fundus scenario suite to verify.\n\n**Provisioning tabtargets:**\n- `tt/jjw-tfP.ProvisionFundusAccounts.localhost.sh` — provision on localhost\n- `tt/jjw-tfP.ProvisionFundusAccounts.cerebro.sh` — provision on cerebro (remote via SSH)\n\nEach provisioning script:\n1. Deletes any existing `jjfu_*` accounts (clean slate)\n2. Creates the 4 accounts with correct precondition states per JJSTF:\n   - `jjfu_full`: SSH key access from curia user, project cloned at `~/projects/rbm_alpha_recipemuster`, BUK installed, git origin configured\n   - `jjfu_nokey`: OS account exists, NO SSH key access from curia user\n   - `jjfu_norepo`: SSH key access, NO project directory at reldir\n   - `jjfu_nogit`: SSH key access, project directory at reldir, BUK installed, git origin removed\n3. Idempotent — safe to re-run (delete + recreate pattern)\n\n**Platform consideration:** macOS uses `sysadminctl`/`dscl` for user management, Linux uses `useradd`/`userdel`. Detect platform and use appropriate commands. localhost script runs locally with sudo; cerebro script runs remotely over SSH.\n\n**Smoke verification:**\nAfter provisioning, run `tt/jjw-tfs.TestFundusScenario.localhost.sh` (or cerebro equivalent) and confirm all 4 profiles pass their expected assertions.\n\n**Workbench routing:** Add `jjw-tfP` colophon to `jjw_workbench.sh`.",
+              "silks": "fundus-account-provision-and-smoke",
+              "commit": "c52bd4b"
             }
           ]
         }
