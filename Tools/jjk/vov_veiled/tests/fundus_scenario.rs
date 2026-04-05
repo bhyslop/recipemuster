@@ -46,11 +46,17 @@ const RELDIR: &str = "projects/rbm_alpha_recipemuster";
 /// Tabtarget for relay tests — quick, safe, goes through BUD dispatch.
 const RELAY_TEST_TABTARGET: &str = "buw-rcr.RenderConfigRegime.sh";
 
+/// Delay tabtarget for concurrent overlap tests — 20s sleep through BUD dispatch.
+const DELAY_TABTARGET: &str = "buw-xd.Delay.sh";
+
 /// Relay timeout (seconds). Self-enforced remotely via watchdog.
 const RELAY_TEST_TIMEOUT: u64 = 60;
 
 /// Check poll timeout (seconds). How long to wait for completion.
 const CHECK_POLL_TIMEOUT: u64 = 30;
+
+/// Delay check poll timeout (seconds). Must exceed the 20s sleep plus dispatch overhead.
+const DELAY_CHECK_TIMEOUT: u64 = 60;
 
 /// Gallops JSON path (relative to project root — CWD during tabtarget dispatch).
 const GALLOPS_PATH: &str = ".claude/jjm/jjg_gallops.json";
@@ -197,6 +203,19 @@ fn find_racing_firemark() -> Option<String> {
         }
     }
     None
+}
+
+// ============================================================================
+// Output extraction helpers
+// ============================================================================
+
+/// Extract a BURX field value from check output (e.g., "BURX_LABEL:value" → "value").
+fn extract_burx_field(output: &str, field: &str) -> String {
+    let prefix = format!("{}:", field);
+    output.lines()
+        .find(|l| l.starts_with(&prefix))
+        .map(|l| l[prefix.len()..].trim().to_string())
+        .unwrap_or_else(|| panic!("missing {} in output:\n{}", field, output))
 }
 
 // ============================================================================
@@ -382,6 +401,105 @@ fn test_relay_parallel_impl(p: &FundusProfile) {
     }
 }
 
+fn test_relay_concurrent_overlap_impl(p: &FundusProfile) {
+    let firemark = match find_racing_firemark() {
+        Some(f) => f,
+        None => { eprintln!("SKIP: no racing heat found for concurrent test"); return; }
+    };
+
+    let officium = TestOfficium::new("relay-conc");
+    let token = bind_profile(p, &officium);
+
+    // Plant curia HEAD to ensure delay tabtarget exists on fundus
+    let head = std::process::Command::new("git")
+        .args(["rev-parse", "HEAD"])
+        .output()
+        .expect("git rev-parse HEAD");
+    let commit = String::from_utf8_lossy(&head.stdout).trim().to_string();
+    assert!(!commit.is_empty(), "failed to get HEAD commit");
+
+    let (pc, po) = jjrlg_run_plant(
+        jjrlg_PlantArgs {
+            legatio: token.clone(),
+            commit,
+        },
+        &officium.id,
+    );
+    assert_eq!(pc, 0, "plant failed (needed for delay tabtarget):\n{}", po);
+
+    // Dispatch 3 concurrent relay jobs using the delay tabtarget
+    let mut pensa = Vec::new();
+    for i in 0..3 {
+        let (code, output) = jjrlg_run_relay(
+            jjrlg_RelayArgs {
+                legatio: token.clone(),
+                tabtarget: DELAY_TABTARGET.to_string(),
+                timeout: RELAY_TEST_TIMEOUT,
+                firemark: firemark.clone(),
+            },
+            &officium.id,
+        );
+        assert_eq!(code, 0, "relay {} failed:\n{}", i, output);
+        pensa.push(parse_pensum_display(&output));
+    }
+
+    // Instant-probe all 3 — 20s sleep guarantees temporal overlap
+    for (i, pensum) in pensa.iter().enumerate() {
+        let (cc, co) = jjrlg_run_check(
+            jjrlg_CheckArgs { pensum: pensum.clone(), timeout: 0 },
+            &officium.id,
+        );
+        assert_eq!(cc, 0, "instant check {} failed:\n{}", i, co);
+        assert!(
+            co.contains("Report: running"),
+            "pensum {} not running (20s sleep should guarantee overlap):\n{}", i, co
+        );
+    }
+
+    // Poll all 3 to completion, collecting labels and temp dirs
+    let mut labels = Vec::new();
+    let mut temp_dirs = Vec::new();
+    for (i, pensum) in pensa.iter().enumerate() {
+        let (cc, co) = jjrlg_run_check(
+            jjrlg_CheckArgs { pensum: pensum.clone(), timeout: DELAY_CHECK_TIMEOUT },
+            &officium.id,
+        );
+        assert_eq!(cc, 0, "poll check {} failed:\n{}", i, co);
+        assert!(co.contains("Report: stopped"), "pensum {} not stopped:\n{}", i, co);
+
+        // Verify BURX_LABEL correlates with pensum token
+        let raw = pensum_raw_token(pensum);
+        let label = extract_burx_field(&co, "BURX_LABEL");
+        assert!(
+            label.contains(raw),
+            "pensum {} BURX_LABEL mismatch: expected '{}' in '{}'", i, raw, label
+        );
+
+        labels.push(label);
+        temp_dirs.push(extract_burx_field(&co, "BURX_TEMP_DIR"));
+    }
+
+    // No cross-contamination: all labels must be distinct
+    for i in 0..labels.len() {
+        for j in (i + 1)..labels.len() {
+            assert_ne!(
+                labels[i], labels[j],
+                "cross-contamination: pensa {} and {} share BURX_LABEL", i, j
+            );
+        }
+    }
+
+    // Isolation: all temp dirs must be distinct
+    for i in 0..temp_dirs.len() {
+        for j in (i + 1)..temp_dirs.len() {
+            assert_ne!(
+                temp_dirs[i], temp_dirs[j],
+                "isolation failure: pensa {} and {} share BURX_TEMP_DIR", i, j
+            );
+        }
+    }
+}
+
 fn test_fetch_impl(p: &FundusProfile) {
     let officium = TestOfficium::new("fetch");
     let token = bind_profile(p, &officium);
@@ -442,6 +560,9 @@ mod full {
 
     #[test] #[ignore]
     fn relay_parallel() { test_relay_parallel_impl(&profile()); }
+
+    #[test] #[ignore]
+    fn relay_concurrent_overlap() { test_relay_concurrent_overlap_impl(&profile()); }
 
     #[test] #[ignore]
     fn fetch() { test_fetch_impl(&profile()); }

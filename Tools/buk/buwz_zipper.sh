@@ -61,6 +61,10 @@ zbuwz_kindle() {
   z_mod="buq_cli.sh"
   buz_enroll BUWZ_QUALIFY_SHELLCHECK "buw-qsc" "${z_mod}" "buq_shellcheck"  ""  "Run shellcheck on all tools"
 
+  # Test fixtures (bux_cli.sh)
+  z_mod="bux_cli.sh"
+  buz_enroll BUWZ_DELAY "buw-xd" "${z_mod}" "bux_delay"  ""  "Sleep 20 seconds (timing fixture)"
+
   # Self-test (butt_testbench.sh)
   z_mod="butt_testbench.sh"
   buz_enroll BUWZ_SELF_TEST "buw-st" "${z_mod}" "buw-st"  ""  "BUK self-test (kick-tires + bure-tweak)"
