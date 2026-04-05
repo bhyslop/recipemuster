@@ -38,6 +38,12 @@ zrbte_kindle() {
   readonly RBTE_MANIFEST="${z_dir}/Cargo.toml"
   readonly ZRBTE_BINARY="${z_dir}/target/debug/rbtd"
 
+  # Theurge-own colophons (routed by rbte_dispatch, not the RBK zipper)
+  readonly ZRBTE_COLOPHONS="rbtd-ap"
+
+  # Combined manifest: RBK zipper colophons + theurge-own colophons
+  readonly ZRBTE_FULL_MANIFEST="${ZRBZ_COLOPHON_MANIFEST} ${ZRBTE_COLOPHONS}"
+
   # Suite-to-fixture mappings
   ZRBTE_SUITE_FAST=("enrollment-validation" "regime-validation" "regime-smoke")
   ZRBTE_SUITE_SERVICE=("${ZRBTE_SUITE_FAST[@]}" "access-probe" "four-mode")
@@ -106,7 +112,7 @@ rbte_run() {
   zrbte_build_binary
 
   buc_step "Running theurge fixture '${z_fixture}'"
-  "${ZRBTE_BINARY}" "${ZRBZ_COLOPHON_MANIFEST}" "${z_fixture}"
+  "${ZRBTE_BINARY}" "${ZRBTE_FULL_MANIFEST}" "${z_fixture}"
 }
 
 rbte_suite() {
@@ -124,7 +130,7 @@ rbte_suite() {
   local z_fixture
   for z_fixture in ${z_fixture_list}; do
     buc_step "Running theurge fixture '${z_fixture}'"
-    "${ZRBTE_BINARY}" "${ZRBZ_COLOPHON_MANIFEST}" "${z_fixture}"
+    "${ZRBTE_BINARY}" "${ZRBTE_FULL_MANIFEST}" "${z_fixture}"
     z_count=$((z_count + 1))
   done
 
@@ -140,7 +146,7 @@ rbte_single() {
   zrbte_build_binary
 
   local z_case="${1:-}"
-  "${ZRBTE_BINARY}" single "${ZRBZ_COLOPHON_MANIFEST}" "${z_fixture}" ${z_case:+"${z_case}"}
+  "${ZRBTE_BINARY}" single "${ZRBTE_FULL_MANIFEST}" "${z_fixture}" ${z_case:+"${z_case}"}
 }
 
 rbte_probe() {
