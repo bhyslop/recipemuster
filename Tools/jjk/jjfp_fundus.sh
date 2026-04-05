@@ -162,6 +162,29 @@ zjjfp_create_account() {
 }
 
 ######################################################################
+# Internal helpers — Phase 1: SSH login access (running as root)
+
+zjjfp_enable_ssh_access() {
+  zjjfp_sentinel
+  local -r z_platform="${1:-}"
+  local -r z_user="${2:-}"
+  test -n "${z_user}" || buc_die "zjjfp_enable_ssh_access: user required"
+
+  case "${z_platform}" in
+    macos)
+      buc_step "Enabling SSH access for: ${z_user}"
+      local -r z_stderr="${ZJJFP_TEMP_PREFIX}sshaccess_${z_user}_stderr.txt"
+      dseditgroup -o edit -a "${z_user}" -t user com.apple.access_ssh 2>"${z_stderr}" \
+        || buc_die "Failed to add ${z_user} to com.apple.access_ssh — see ${z_stderr}"
+      buc_log_args "SSH access enabled for ${z_user}"
+      ;;
+    linux)
+      # Linux sshd allows all local users by default
+      ;;
+  esac
+}
+
+######################################################################
 # Internal helpers — Phase 1: SSH keypair installation (running as root)
 
 zjjfp_install_keypair() {
@@ -230,7 +253,7 @@ zjjfp_ssh_setup_repo() {
   local -r z_project_dir="${ZJJFP_RELDIR}"
 
   # Create parent directory and clone
-  ssh -o BatchMode=yes "${z_ssh_target}" \
+  ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new "${z_ssh_target}" \
     "mkdir -p '${z_project_dir%/*}' && git clone '${z_curia_repo}' '${z_project_dir}'" \
     2>"${z_stderr}" \
     || buc_die "Failed to clone repo for: ${z_ssh_target} — see ${z_stderr}"
@@ -238,13 +261,13 @@ zjjfp_ssh_setup_repo() {
   # Configure origin
   if test "${z_with_origin}" = "1"; then
     test -n "${z_curia_origin}" || buc_die "zjjfp_ssh_setup_repo: curia_origin required when with_origin=1"
-    ssh -o BatchMode=yes "${z_ssh_target}" \
+    ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new "${z_ssh_target}" \
       "git -C '${z_project_dir}' remote set-url origin '${z_curia_origin}'" \
       2>"${z_stderr}" \
       || buc_die "Failed to set origin for: ${z_ssh_target} — see ${z_stderr}"
     buc_log_args "Repo cloned with origin: ${z_curia_origin}"
   else
-    ssh -o BatchMode=yes "${z_ssh_target}" \
+    ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new "${z_ssh_target}" \
       "git -C '${z_project_dir}' remote remove origin" \
       2>"${z_stderr}" \
       || buc_die "Failed to remove origin for: ${z_ssh_target} — see ${z_stderr}"
@@ -266,7 +289,7 @@ zjjfp_ssh_install_buk() {
   local -r z_buk_dir="${ZJJFP_RELDIR}/.buk"
 
   # Create .buk dir and write burc.env
-  ssh -o BatchMode=yes "${z_ssh_target}" "mkdir -p '${z_buk_dir}' && cat > '${z_buk_dir}/burc.env'" <<'BURC'
+  ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new "${z_ssh_target}" "mkdir -p '${z_buk_dir}' && cat > '${z_buk_dir}/burc.env'" <<'BURC'
 BURC_STATION_FILE=../station-files/burs.env
 BURC_TABTARGET_DIR=tt
 BURC_TABTARGET_DELIMITER=.
@@ -287,12 +310,12 @@ BURC
     test -f "${z_launcher}" || continue
     local z_launcher_name="${z_launcher##*/}"
     local -r z_stderr="${ZJJFP_TEMP_PREFIX}buk_${z_user}_${z_launcher_name}_stderr.txt"
-    scp -o BatchMode=yes "${z_launcher}" "${z_ssh_target}:${z_buk_dir}/${z_launcher_name}" \
+    scp -o BatchMode=yes -o StrictHostKeyChecking=accept-new "${z_launcher}" "${z_ssh_target}:${z_buk_dir}/${z_launcher_name}" \
       2>"${z_stderr}" \
       || buc_die "Failed to copy launcher ${z_launcher_name} for: ${z_ssh_target} — see ${z_stderr}"
   done
 
-  ssh -o BatchMode=yes "${z_ssh_target}" "chmod -R u+x '${z_buk_dir}'" \
+  ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new "${z_ssh_target}" "chmod -R u+x '${z_buk_dir}'" \
     || buc_die "Failed to chmod .buk for: ${z_ssh_target}"
 
   buc_log_args "BUK installed for ${z_user}@${z_host}"
@@ -335,19 +358,22 @@ jjfp_provision() {
   buc_step "Creating accounts"
 
   # jjfu_full: SSH keypair (for operator access + GitHub)
-  zjjfp_create_account  "${z_platform}" "jjfu_full"
-  zjjfp_install_keypair "${z_platform}" "jjfu_full" "${z_keypath}"
+  zjjfp_create_account      "${z_platform}" "jjfu_full"
+  zjjfp_enable_ssh_access   "${z_platform}" "jjfu_full"
+  zjjfp_install_keypair     "${z_platform}" "jjfu_full" "${z_keypath}"
 
   # jjfu_nokey: OS account only, no SSH key access from curia
-  zjjfp_create_account  "${z_platform}" "jjfu_nokey"
+  zjjfp_create_account      "${z_platform}" "jjfu_nokey"
 
   # jjfu_norepo: SSH keypair, no project directory at RELDIR
-  zjjfp_create_account  "${z_platform}" "jjfu_norepo"
-  zjjfp_install_keypair "${z_platform}" "jjfu_norepo" "${z_keypath}"
+  zjjfp_create_account      "${z_platform}" "jjfu_norepo"
+  zjjfp_enable_ssh_access   "${z_platform}" "jjfu_norepo"
+  zjjfp_install_keypair     "${z_platform}" "jjfu_norepo" "${z_keypath}"
 
   # jjfu_nogit: SSH keypair (repo setup deferred to phase 2)
-  zjjfp_create_account  "${z_platform}" "jjfu_nogit"
-  zjjfp_install_keypair "${z_platform}" "jjfu_nogit" "${z_keypath}"
+  zjjfp_create_account      "${z_platform}" "jjfu_nogit"
+  zjjfp_enable_ssh_access   "${z_platform}" "jjfu_nogit"
+  zjjfp_install_keypair     "${z_platform}" "jjfu_nogit" "${z_keypath}"
 
   # Restore ownership of dispatch dirs so operator's next dispatch isn't poisoned
   test -n "${SUDO_USER:-}" || buc_die "SUDO_USER not set — cannot restore ownership"
