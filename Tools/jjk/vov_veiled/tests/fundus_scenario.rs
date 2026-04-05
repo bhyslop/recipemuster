@@ -416,47 +416,35 @@ fn test_fetch_impl(p: &FundusProfile) {
 mod full {
     use super::*;
 
-    fn profile() -> Option<FundusProfile> {
+    fn profile() -> FundusProfile {
         let p = FundusProfile {
             host: test_host(),
             user: JJFU_FULL.to_string(),
             reldir: RELDIR.to_string(),
         };
-        if preflight_happy(&p) { Some(p) } else {
-            eprintln!("SKIP: full profile not available ({}@{})", JJFU_FULL, p.host);
-            None
-        }
+        assert!(preflight_happy(&p),
+            "full profile not available ({}@{}) — provision accounts first: sudo tt/jjw-tfP.ProvisionFundusAccounts.localhost.sh",
+            JJFU_FULL, p.host);
+        p
     }
 
     #[test] #[ignore]
-    fn bind_send() {
-        if let Some(p) = profile() { test_bind_send_impl(&p); }
-    }
+    fn bind_send() { test_bind_send_impl(&profile()); }
 
     #[test] #[ignore]
-    fn plant() {
-        if let Some(p) = profile() { test_plant_impl(&p); }
-    }
+    fn plant() { test_plant_impl(&profile()); }
 
     #[test] #[ignore]
-    fn relay_check_instant() {
-        if let Some(p) = profile() { test_relay_check_instant_impl(&p); }
-    }
+    fn relay_check_instant() { test_relay_check_instant_impl(&profile()); }
 
     #[test] #[ignore]
-    fn relay_check_poll() {
-        if let Some(p) = profile() { test_relay_check_poll_impl(&p); }
-    }
+    fn relay_check_poll() { test_relay_check_poll_impl(&profile()); }
 
     #[test] #[ignore]
-    fn relay_parallel() {
-        if let Some(p) = profile() { test_relay_parallel_impl(&p); }
-    }
+    fn relay_parallel() { test_relay_parallel_impl(&profile()); }
 
     #[test] #[ignore]
-    fn fetch() {
-        if let Some(p) = profile() { test_fetch_impl(&p); }
-    }
+    fn fetch() { test_fetch_impl(&profile()); }
 }
 
 // ============================================================================
@@ -477,10 +465,9 @@ mod nokey {
             .output()
             .map(|o| o.status.success())
             .unwrap_or(false);
-        if !id_check {
-            eprintln!("SKIP: {} account does not exist on {}", JJFU_NOKEY, host);
-            return;
-        }
+        assert!(id_check,
+            "{} account does not exist on {} — provision accounts first",
+            JJFU_NOKEY, host);
 
         let officium = TestOfficium::new("nokey");
         let (code, output) = jjrlg_run_bind(
@@ -510,10 +497,9 @@ mod norepo {
     fn bind_fails_probe() {
         let host = test_host();
         // Preflight: SSH to jjfu_norepo must work
-        if !preflight_ssh(&host, JJFU_NOREPO) {
-            eprintln!("SKIP: {} not reachable on {}", JJFU_NOREPO, host);
-            return;
-        }
+        assert!(preflight_ssh(&host, JJFU_NOREPO),
+            "{} not reachable on {} — provision accounts first",
+            JJFU_NOREPO, host);
 
         let officium = TestOfficium::new("norepo");
         let (code, output) = jjrlg_run_bind(
@@ -539,14 +525,16 @@ mod norepo {
 mod nogit {
     use super::*;
 
-    fn profile() -> Option<FundusProfile> {
+    fn profile() -> FundusProfile {
         let host = test_host();
         let p = FundusProfile {
             host,
             user: JJFU_NOGIT.to_string(),
             reldir: RELDIR.to_string(),
         };
-        if !preflight_ssh(&p.host, &p.user) { return None; }
+        assert!(preflight_ssh(&p.host, &p.user),
+            "nogit profile: SSH to {}@{} failed — provision accounts first",
+            JJFU_NOGIT, p.host);
         let ssh_test = |cmd: &str| -> bool {
             std::process::Command::new("ssh")
                 .args(["-o", "ConnectTimeout=5", "-o", "BatchMode=yes"])
@@ -556,21 +544,17 @@ mod nogit {
                 .map(|o| o.status.success())
                 .unwrap_or(false)
         };
-        if ssh_test(&format!("test -d $HOME/{}", p.reldir))
-            && ssh_test(&format!("test -f $HOME/{}/.buk/burc.env", p.reldir))
-        {
-            Some(p)
-        } else {
-            None
-        }
+        assert!(
+            ssh_test(&format!("test -d $HOME/{}", p.reldir))
+                && ssh_test(&format!("test -f $HOME/{}/.buk/burc.env", p.reldir)),
+            "nogit profile: reldir or BUK not found for {}@{} — provision accounts first",
+            JJFU_NOGIT, p.host);
+        p
     }
 
     #[test] #[ignore]
     fn bind_succeeds() {
-        let Some(p) = profile() else {
-            eprintln!("SKIP: nogit profile not available");
-            return;
-        };
+        let p = profile();
         let officium = TestOfficium::new("nogit-bind");
         let (code, output) = jjrlg_run_bind(
             jjrlg_BindArgs {
@@ -585,10 +569,7 @@ mod nogit {
 
     #[test] #[ignore]
     fn send_succeeds() {
-        let Some(p) = profile() else {
-            eprintln!("SKIP: nogit profile not available");
-            return;
-        };
+        let p = profile();
         let officium = TestOfficium::new("nogit-send");
         let token = bind_profile(&p, &officium);
 
@@ -605,10 +586,7 @@ mod nogit {
 
     #[test] #[ignore]
     fn plant_fails() {
-        let Some(p) = profile() else {
-            eprintln!("SKIP: nogit profile not available");
-            return;
-        };
+        let p = profile();
         let officium = TestOfficium::new("nogit-plant");
         let token = bind_profile(&p, &officium);
 
