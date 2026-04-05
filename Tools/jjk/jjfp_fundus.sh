@@ -31,7 +31,12 @@ ZJJFP_SOURCED=1
 # Tinder constants
 JJFP_keypath_param="keypath"
 JJFP_pubkey_param="pubkey"
-JJFP_ssh_accounts="jjfu_full jjfu_norepo jjfu_nogit"
+JJFP_account_prefix="jjfu_"
+JJFP_acct_full="${JJFP_account_prefix}full"
+JJFP_acct_nokey="${JJFP_account_prefix}nokey"
+JJFP_acct_norepo="${JJFP_account_prefix}norepo"
+JJFP_acct_nogit="${JJFP_account_prefix}nogit"
+JJFP_ssh_accounts="${JJFP_acct_full} ${JJFP_acct_norepo} ${JJFP_acct_nogit}"
 
 ######################################################################
 # Internal Functions (zjjfp_*)
@@ -45,7 +50,7 @@ zjjfp_kindle() {
   readonly ZJJFP_SCRIPT_DIR="${BURD_TOOLS_DIR}/jjk"
   readonly ZJJFP_MANIFEST_PATH="${ZJJFP_SCRIPT_DIR}/vov_veiled/Cargo.toml"
   readonly ZJJFP_RELDIR="projects/rbm_alpha_recipemuster"
-  readonly ZJJFP_ACCOUNTS="jjfu_full jjfu_nokey jjfu_norepo jjfu_nogit"
+  readonly ZJJFP_ACCOUNTS="${JJFP_acct_full} ${JJFP_acct_nokey} ${JJFP_acct_norepo} ${JJFP_acct_nogit}"
   readonly ZJJFP_TEMP_PREFIX="${BURD_TEMP_DIR}/jjfp_"
 
   # Shared temp file paths for helper results (sequential access only)
@@ -375,33 +380,39 @@ jjfp_provision() {
   local -r z_platform=$(<"${ZJJFP_RESOLVE_PLATFORM}")
   test -n "${z_platform}" || buc_die "Empty platform result"
 
-  # Delete all existing accounts (clean slate)
+  # Delete all accounts matching the fundus prefix (catches stale accounts from previous configs)
   buc_step "Deleting existing accounts"
+  local -r z_enum_file="${ZJJFP_TEMP_PREFIX}enum_accounts.txt"
+  : > "${z_enum_file}"
+  case "${z_platform}" in
+    macos) dscl . -list /Users | grep "^${JJFP_account_prefix}" > "${z_enum_file}" || true ;;
+    linux) getent passwd | grep "^${JJFP_account_prefix}" | cut -d: -f1 > "${z_enum_file}" || true ;;
+  esac
   local z_acct=""
-  for z_acct in ${ZJJFP_ACCOUNTS}; do
+  for z_acct in $(<"${z_enum_file}"); do
     zjjfp_delete_account "${z_platform}" "${z_acct}"
   done
 
   # Create accounts with SSH keypairs per JJSTF
   buc_step "Creating accounts"
 
-  # jjfu_full: SSH keypair (for operator access + GitHub)
-  zjjfp_create_account      "${z_platform}" "jjfu_full"
-  zjjfp_enable_ssh_access   "${z_platform}" "jjfu_full"
-  zjjfp_install_keypair     "${z_platform}" "jjfu_full" "${z_keypath}"
+  # full: SSH keypair (for operator access + GitHub)
+  zjjfp_create_account      "${z_platform}" "${JJFP_acct_full}"
+  zjjfp_enable_ssh_access   "${z_platform}" "${JJFP_acct_full}"
+  zjjfp_install_keypair     "${z_platform}" "${JJFP_acct_full}" "${z_keypath}"
 
-  # jjfu_nokey: OS account only, no SSH key access from curia
-  zjjfp_create_account      "${z_platform}" "jjfu_nokey"
+  # nokey: OS account only, no SSH key access from curia
+  zjjfp_create_account      "${z_platform}" "${JJFP_acct_nokey}"
 
-  # jjfu_norepo: SSH keypair, no project directory at RELDIR
-  zjjfp_create_account      "${z_platform}" "jjfu_norepo"
-  zjjfp_enable_ssh_access   "${z_platform}" "jjfu_norepo"
-  zjjfp_install_keypair     "${z_platform}" "jjfu_norepo" "${z_keypath}"
+  # norepo: SSH keypair, no project directory at RELDIR
+  zjjfp_create_account      "${z_platform}" "${JJFP_acct_norepo}"
+  zjjfp_enable_ssh_access   "${z_platform}" "${JJFP_acct_norepo}"
+  zjjfp_install_keypair     "${z_platform}" "${JJFP_acct_norepo}" "${z_keypath}"
 
-  # jjfu_nogit: SSH keypair (repo setup deferred to phase 2)
-  zjjfp_create_account      "${z_platform}" "jjfu_nogit"
-  zjjfp_enable_ssh_access   "${z_platform}" "jjfu_nogit"
-  zjjfp_install_keypair     "${z_platform}" "jjfu_nogit" "${z_keypath}"
+  # nogit: SSH keypair (repo setup deferred to phase 2)
+  zjjfp_create_account      "${z_platform}" "${JJFP_acct_nogit}"
+  zjjfp_enable_ssh_access   "${z_platform}" "${JJFP_acct_nogit}"
+  zjjfp_install_keypair     "${z_platform}" "${JJFP_acct_nogit}" "${z_keypath}"
 
   # Restore ownership of dispatch dirs so operator's next dispatch isn't poisoned
   test -n "${SUDO_USER:-}" || buc_die "SUDO_USER not set — cannot restore ownership"
@@ -447,16 +458,16 @@ jjfp_repo() {
     local -r z_clone_source=$(<"${z_curia_root_file}")
     test -n "${z_clone_source}" || buc_die "Empty curia repo root"
 
-    zjjfp_ssh_setup_repo "${z_host}" "jjfu_full"  1 "${z_curia_origin}" "${z_clone_source}"
-    zjjfp_ssh_setup_repo "${z_host}" "jjfu_nogit" 0 ""                  "${z_clone_source}"
+    zjjfp_ssh_setup_repo "${z_host}" "${JJFP_acct_full}"  1 "${z_curia_origin}" "${z_clone_source}"
+    zjjfp_ssh_setup_repo "${z_host}" "${JJFP_acct_nogit}" 0 ""                  "${z_clone_source}"
 
-    # GitHub host key for jjfu_full (needs git fetch origin for plant test)
-    local -r z_ghkey_stderr="${ZJJFP_TEMP_PREFIX}ghkey_jjfu_full_stderr.txt"
-    ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new "jjfu_full@localhost" \
+    # GitHub host key for full account (needs git fetch origin for plant test)
+    local -r z_ghkey_stderr="${ZJJFP_TEMP_PREFIX}ghkey_${JJFP_acct_full}_stderr.txt"
+    ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new "${JJFP_acct_full}@localhost" \
       "ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null" \
       2>"${z_ghkey_stderr}" \
-      || buc_die "Failed to add GitHub host key for jjfu_full — see ${z_ghkey_stderr}"
-    buc_log_args "GitHub host key added for jjfu_full@localhost"
+      || buc_die "Failed to add GitHub host key for ${JJFP_acct_full} — see ${z_ghkey_stderr}"
+    buc_log_args "GitHub host key added for ${JJFP_acct_full}@localhost"
   else
     # Remote: validate pubkey argument
     test -n "${z_pubkey_path}" || buc_die "jjfp_repo: pubkey path required for remote host (pass as argument)"
@@ -475,15 +486,15 @@ jjfp_repo() {
     # Add GitHub host key via double-hop (for clone and plant)
     buc_step "Adding GitHub host keys on ${z_host}"
     local z_ghkey_user=""
-    for z_ghkey_user in jjfu_full jjfu_nogit; do
+    for z_ghkey_user in ${JJFP_acct_full} ${JJFP_acct_nogit}; do
       zjjfp_double_hop "${z_host}" "${z_ghkey_user}" \
         "ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null"
       buc_log_args "GitHub host key added for ${z_ghkey_user}@${z_host}"
     done
 
     # Clone from GitHub via direct SSH (curia key now authorized)
-    zjjfp_ssh_setup_repo "${z_host}" "jjfu_full"  1 "${z_curia_origin}" "${z_curia_origin}"
-    zjjfp_ssh_setup_repo "${z_host}" "jjfu_nogit" 0 ""                  "${z_curia_origin}"
+    zjjfp_ssh_setup_repo "${z_host}" "${JJFP_acct_full}"  1 "${z_curia_origin}" "${z_curia_origin}"
+    zjjfp_ssh_setup_repo "${z_host}" "${JJFP_acct_nogit}" 0 ""                  "${z_curia_origin}"
   fi
 
   buc_success "Phase 2 complete — repos and BUK installed"
