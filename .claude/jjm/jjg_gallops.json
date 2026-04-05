@@ -2043,6 +2043,13 @@
         "₢A4AAI": {
           "tacks": [
             {
+              "ts": "260405-1234",
+              "state": "abandoned",
+              "text": "## Character\nDesign conversation. The remote dispatch commands introduced non-equestrian vocabulary (bind, send, relay, check, fetch, plant). Need to decide: do these get jjsuv_* verb mappings, or does JJS0 formally acknowledge a second vocabulary domain?\n\n## Docket\nReconcile remote dispatch command names with the equestrian verb layer (jjsuv_*).\n\n**Question**: Remote dispatch commands use their own domain vocabulary rather than equestrian metaphors. Three options:\n1. Mint equestrian verbs that map to the remote operations (forced metaphor)\n2. Formally define a second verb domain in JJS0 for remote operations\n3. Declare remote operations exempt from the verb layer (they're infrastructure, not gallops operations)\n\n**Depends on:** ₢A4AAB (spec work establishes the operations first)",
+              "silks": "equestrian-verb-reconciliation",
+              "commit": "13c565c"
+            },
+            {
               "ts": "260404-1205",
               "state": "rough",
               "text": "## Character\nDesign conversation. The remote dispatch commands introduced non-equestrian vocabulary (bind, send, relay, check, fetch, plant). Need to decide: do these get jjsuv_* verb mappings, or does JJS0 formally acknowledge a second vocabulary domain?\n\n## Docket\nReconcile remote dispatch command names with the equestrian verb layer (jjsuv_*).\n\n**Question**: Remote dispatch commands use their own domain vocabulary rather than equestrian metaphors. Three options:\n1. Mint equestrian verbs that map to the remote operations (forced metaphor)\n2. Formally define a second verb domain in JJS0 for remote operations\n3. Declare remote operations exempt from the verb layer (they're infrastructure, not gallops operations)\n\n**Depends on:** ₢A4AAB (spec work establishes the operations first)",
