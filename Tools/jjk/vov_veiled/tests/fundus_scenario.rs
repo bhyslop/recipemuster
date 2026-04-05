@@ -58,8 +58,29 @@ const CHECK_POLL_TIMEOUT: u64 = 30;
 /// Delay check poll timeout (seconds). Must exceed the 20s sleep plus dispatch overhead.
 const DELAY_CHECK_TIMEOUT: u64 = 60;
 
-/// Gallops JSON path (relative to project root — CWD during tabtarget dispatch).
-const GALLOPS_PATH: &str = ".claude/jjm/jjg_gallops.json";
+/// Firemark for relay tests. Pensum minting validates against gallops,
+/// so this must be a real racing heat.
+const RELAY_TEST_FIREMARK: &str = "A4";
+
+// ============================================================================
+// Project root — cargo test CWD is the crate dir, not the project root.
+// JJK library code uses relative paths from project root. Tests run with
+// --test-threads=1, so set_current_dir is safe.
+// ============================================================================
+
+fn ensure_project_root() {
+    use std::sync::Once;
+    static INIT: Once = Once::new();
+    INIT.call_once(|| {
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .parent().unwrap()    // Tools/jjk
+            .parent().unwrap()    // Tools
+            .parent().unwrap()    // project root
+            .to_path_buf();
+        std::env::set_current_dir(&root)
+            .unwrap_or_else(|e| panic!("set_current_dir to {}: {}", root.display(), e));
+    });
+}
 
 // ============================================================================
 // Host resolution
@@ -84,6 +105,7 @@ struct TestOfficium {
 
 impl TestOfficium {
     fn new(label: &str) -> Self {
+        ensure_project_root();
         let ts = chrono::Local::now().format("%H%M%S%.3f").to_string();
         let bare_id = format!("test-{}-{}", label, ts);
         let dir = PathBuf::from(".claude/jjm/officia").join(&bare_id);
@@ -192,18 +214,6 @@ fn bind_profile(p: &FundusProfile, officium: &TestOfficium) -> String {
     parse_legatio_token(&output)
 }
 
-/// Find a racing heat firemark from gallops JSON (for relay tests).
-fn find_racing_firemark() -> Option<String> {
-    let content = std::fs::read_to_string(GALLOPS_PATH).ok()?;
-    let v: serde_json::Value = serde_json::from_str(&content).ok()?;
-    let heats = v.get("heats")?.as_object()?;
-    for (key, heat) in heats {
-        if heat.get("status").and_then(|s| s.as_str()) == Some("racing") {
-            return Some(key.trim_start_matches('\u{20A3}').to_string()); // ₣
-        }
-    }
-    None
-}
 
 // ============================================================================
 // Output extraction helpers
@@ -273,10 +283,7 @@ fn test_plant_impl(p: &FundusProfile) {
 }
 
 fn test_relay_check_instant_impl(p: &FundusProfile) {
-    let firemark = match find_racing_firemark() {
-        Some(f) => f,
-        None => { eprintln!("SKIP: no racing heat found for relay test"); return; }
-    };
+    let firemark = RELAY_TEST_FIREMARK.to_string();
 
     let officium = TestOfficium::new("relay-inst");
     let token = bind_profile(p, &officium);
@@ -306,10 +313,7 @@ fn test_relay_check_instant_impl(p: &FundusProfile) {
 }
 
 fn test_relay_check_poll_impl(p: &FundusProfile) {
-    let firemark = match find_racing_firemark() {
-        Some(f) => f,
-        None => { eprintln!("SKIP: no racing heat found for relay test"); return; }
-    };
+    let firemark = RELAY_TEST_FIREMARK.to_string();
 
     let officium = TestOfficium::new("relay-poll");
     let token = bind_profile(p, &officium);
@@ -351,10 +355,7 @@ fn test_relay_check_poll_impl(p: &FundusProfile) {
 }
 
 fn test_relay_parallel_impl(p: &FundusProfile) {
-    let firemark = match find_racing_firemark() {
-        Some(f) => f,
-        None => { eprintln!("SKIP: no racing heat found for parallel test"); return; }
-    };
+    let firemark = RELAY_TEST_FIREMARK.to_string();
 
     let officium = TestOfficium::new("relay-par");
     let token = bind_profile(p, &officium);
@@ -402,10 +403,7 @@ fn test_relay_parallel_impl(p: &FundusProfile) {
 }
 
 fn test_relay_concurrent_overlap_impl(p: &FundusProfile) {
-    let firemark = match find_racing_firemark() {
-        Some(f) => f,
-        None => { eprintln!("SKIP: no racing heat found for concurrent test"); return; }
-    };
+    let firemark = RELAY_TEST_FIREMARK.to_string();
 
     let officium = TestOfficium::new("relay-conc");
     let token = bind_profile(p, &officium);
