@@ -26,8 +26,8 @@ set -euo pipefail
 test -z "${ZJJFP_SOURCED:-}" || buc_die "Module jjfp multiply sourced - check sourcing hierarchy"
 ZJJFP_SOURCED=1
 
-# Tinder constant: SSH public key path param (operator passes path to authorize)
-JJFP_pubkey_param="pubkey"
+# Tinder constant: SSH key path param (operator passes private key path; .pub derived)
+JJFP_keypath_param="keypath"
 
 ######################################################################
 # Internal Functions (zjjfp_*)
@@ -166,28 +166,45 @@ zjjfp_authorize_ssh() {
   zjjfp_sentinel
   local -r z_platform="${1:-}"
   local -r z_user="${2:-}"
-  local -r z_pubkey="${3:-}"
-  test -n "${z_user}"   || buc_die "zjjfp_authorize_ssh: user required"
-  test -n "${z_pubkey}"  || buc_die "zjjfp_authorize_ssh: pubkey required"
+  local -r z_privkey_path="${3:-}"
+  test -n "${z_user}"         || buc_die "zjjfp_authorize_ssh: user required"
+  test -n "${z_privkey_path}" || buc_die "zjjfp_authorize_ssh: private key path required"
 
-  buc_step "Authorizing SSH for: ${z_user}"
+  buc_step "Installing SSH keypair for: ${z_user}"
 
+  local -r z_pubkey_path="${z_privkey_path}.pub"
+  local -r z_key_name="${z_privkey_path##*/}"
   local -r z_home="$(zjjfp_home_dir "${z_platform}" "${z_user}")"
   local -r z_ssh_dir="${z_home}/.ssh"
   local -r z_group="$(zjjfp_primary_group "${z_platform}" "${z_user}")"
 
   mkdir -p "${z_ssh_dir}" \
     || buc_die "Failed to create .ssh dir for: ${z_user}"
-  echo "${z_pubkey}" > "${z_ssh_dir}/authorized_keys" \
+
+  # Install private key (for GitHub access from the account)
+  cp "${z_privkey_path}" "${z_ssh_dir}/${z_key_name}" \
+    || buc_die "Failed to copy private key for: ${z_user}"
+  chmod 600 "${z_ssh_dir}/${z_key_name}" \
+    || buc_die "Failed to chmod private key for: ${z_user}"
+
+  # Install public key (for GitHub access from the account)
+  cp "${z_pubkey_path}" "${z_ssh_dir}/${z_key_name}.pub" \
+    || buc_die "Failed to copy public key for: ${z_user}"
+  chmod 644 "${z_ssh_dir}/${z_key_name}.pub" \
+    || buc_die "Failed to chmod public key for: ${z_user}"
+
+  # Authorize operator SSH access to this account
+  cp "${z_pubkey_path}" "${z_ssh_dir}/authorized_keys" \
     || buc_die "Failed to write authorized_keys for: ${z_user}"
-  chmod 700 "${z_ssh_dir}" \
-    || buc_die "Failed to chmod .ssh for: ${z_user}"
   chmod 600 "${z_ssh_dir}/authorized_keys" \
     || buc_die "Failed to chmod authorized_keys for: ${z_user}"
+
+  chmod 700 "${z_ssh_dir}" \
+    || buc_die "Failed to chmod .ssh for: ${z_user}"
   chown -R "${z_user}:${z_group}" "${z_ssh_dir}" \
     || buc_die "Failed to chown .ssh for: ${z_user}"
 
-  buc_log_args "SSH authorized for ${z_user}"
+  buc_log_args "SSH keypair installed for ${z_user}"
 }
 
 ######################################################################
@@ -283,20 +300,19 @@ BURC
 jjfp_provision() {
   zjjfp_sentinel
 
-  local -r z_pubkey_file="${1:-}"
+  local -r z_keypath="${1:-}"
 
   buc_doc_brief "Provision all 4 jjfu_* fundus test accounts per JJSTF"
-  buc_doc_param "${JJFP_pubkey_param}" "Path to curia user SSH public key file"
+  buc_doc_param "${JJFP_keypath_param}" "Path to curia user SSH private key (e.g., /Users/you/.ssh/id_ed25519)"
   buc_doc_shown || return 0
 
   # Root gate
-  test "$(id -u)" = "0" || buc_die "jjfp_provision: must run as root (use: sudo tt/jjw-tfP.ProvisionFundusAccounts.localhost.sh)"
+  test "$(id -u)" = "0" || buc_die "jjfp_provision: must run as root (use: sudo tt/jjw-tfP.ProvisionFundusAccounts.localhost.sh <keypath>)"
 
-  # Validate pubkey parameter
-  test -n "${z_pubkey_file}" || buc_die "jjfp_provision: pubkey path required (pass as argument)"
-  test -f "${z_pubkey_file}" || buc_die "jjfp_provision: pubkey file not found: ${z_pubkey_file}"
-  local -r z_pubkey=$(<"${z_pubkey_file}")
-  test -n "${z_pubkey}" || buc_die "jjfp_provision: pubkey file is empty: ${z_pubkey_file}"
+  # Validate keypair
+  test -n "${z_keypath}" || buc_die "jjfp_provision: private key path required (pass as argument)"
+  test -f "${z_keypath}" || buc_die "jjfp_provision: private key not found: ${z_keypath}"
+  test -f "${z_keypath}.pub" || buc_die "jjfp_provision: public key not found: ${z_keypath}.pub"
 
   buc_step "Provisioning fundus test accounts"
 
@@ -329,21 +345,21 @@ jjfp_provision() {
   # Phase 2: Create accounts with correct precondition shapes per JJSTF
   buc_step "Phase 2: Creating accounts"
 
-  # jjfu_full: SSH + repo + BUK + origin
+  # jjfu_full: SSH keypair + repo + BUK + origin
   zjjfp_create_account  "${z_platform}" "jjfu_full"
-  zjjfp_authorize_ssh   "${z_platform}" "jjfu_full" "${z_pubkey}"
+  zjjfp_authorize_ssh   "${z_platform}" "jjfu_full" "${z_keypath}"
   zjjfp_setup_repo      "${z_platform}" "jjfu_full" 1 "${z_curia_origin}" "${z_curia_repo}"
 
   # jjfu_nokey: OS account only, no SSH key access from curia
   zjjfp_create_account  "${z_platform}" "jjfu_nokey"
 
-  # jjfu_norepo: SSH access, no project directory at RELDIR
+  # jjfu_norepo: SSH keypair, no project directory at RELDIR
   zjjfp_create_account  "${z_platform}" "jjfu_norepo"
-  zjjfp_authorize_ssh   "${z_platform}" "jjfu_norepo" "${z_pubkey}"
+  zjjfp_authorize_ssh   "${z_platform}" "jjfu_norepo" "${z_keypath}"
 
-  # jjfu_nogit: SSH + repo + BUK, origin removed
+  # jjfu_nogit: SSH keypair + repo + BUK, origin removed
   zjjfp_create_account  "${z_platform}" "jjfu_nogit"
-  zjjfp_authorize_ssh   "${z_platform}" "jjfu_nogit" "${z_pubkey}"
+  zjjfp_authorize_ssh   "${z_platform}" "jjfu_nogit" "${z_keypath}"
   zjjfp_setup_repo      "${z_platform}" "jjfu_nogit" 0 "" "${z_curia_repo}"
 
   buc_success "All 4 fundus accounts provisioned"
