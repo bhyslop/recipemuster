@@ -16,7 +16,9 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# JJW Workbench - Routes Job Jockey commands
+# JJW Workbench - Routes Job Jockey commands to CLIs via zipper registry
+#
+# All commands dispatch via buz_exec_lookup (see jjz_zipper.sh for colophon mapping).
 
 set -euo pipefail
 
@@ -27,20 +29,26 @@ JJW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 source "${BURD_BUK_DIR}/buc_command.sh"
 source "${BURD_BUK_DIR}/buv_validation.sh"
 source "${BURD_BUK_DIR}/burd_regime.sh"
+source "${BURD_BUK_DIR}/buz_zipper.sh"
+source "${JJW_SCRIPT_DIR}/jjz_zipper.sh"
 
 # Show filename on each displayed line
 buc_context "${0##*/}"
 
-# Verify dispatch completed
+# Kindle dispatch and zipper registry
 zbuv_kindle
 zburd_kindle
+zbuz_kindle
+zjjz_kindle
 
 # Verbose output if BURE_VERBOSE is set
 jjw_show() {
   test "${BURE_VERBOSE:-0}" != "1" || echo "JJWSHOW: $*"
 }
 
-# Simple routing function
+######################################################################
+# Routing
+
 jjw_route() {
   local z_command="$1"
   shift
@@ -48,50 +56,13 @@ jjw_route() {
   jjw_show "Routing command: ${z_command} with args: $*"
 
   zburd_sentinel
+  zjjz_healthcheck
 
-  jjw_show "BDU environment verified"
+  jjw_show "BURD environment verified"
 
-  # Route based on command - only arcanum commands remain
-  # All jjw-* commands deprecated: use /jjc-* slash commands instead
-  case "${z_command}" in
-
-    # Arcanum commands (install/check/uninstall)
-    jja-c|jja-i|jja-u)
-      jjw_show "Delegating to arcanum: ${z_command}"
-      exec "${JJW_SCRIPT_DIR}/jja_arcanum.sh" "${z_command}" "$@"
-      ;;
-
-    # Fundus scenario suite — all profiles against a host (JJSTF)
-    jjw-tfs)
-      local z_host="${BURD_TOKEN_3}"
-      test -n "${z_host}" || buc_die "jjw-tfs: no host in imprint (BURD_TOKEN_3)"
-      export JJTEST_HOST="${z_host}"
-      exec cargo test \
-        --manifest-path "${JJW_SCRIPT_DIR}/vov_veiled/Cargo.toml" \
-        --test fundus_scenario \
-        -- --test-threads=1 --ignored
-      ;;
-
-    # Fundus scenario single test — one function against a host
-    jjw-tfS)
-      local z_host="${BURD_TOKEN_3}"
-      test -n "${z_host}" || buc_die "jjw-tfS: no host in imprint (BURD_TOKEN_3)"
-      local z_test="${1:-}"
-      test -n "${z_test}" || buc_die "jjw-tfS: no test function name (pass as argument)"
-      export JJTEST_HOST="${z_host}"
-      exec cargo test \
-        --manifest-path "${JJW_SCRIPT_DIR}/vov_veiled/Cargo.toml" \
-        --test fundus_scenario \
-        -- --test-threads=1 --ignored "${z_test}"
-      ;;
-
-    *)
-      buc_die "Unknown command: ${z_command} (jjw-* commands removed; use /jjc-* slash commands)"
-      ;;
-  esac
+  buz_exec_lookup "${z_command}" "${JJW_SCRIPT_DIR}" "$@"
 }
 
-# Main entry point
 jjw_main() {
   local z_command="${1:-}"
   shift || true
