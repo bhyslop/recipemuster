@@ -1805,6 +1805,7 @@
       "creation_time": "260403",
       "status": "racing",
       "order": [
+        "₢A4AAM",
         "₢A4AAA",
         "₢A4AAC",
         "₢A4AAJ",
@@ -1818,7 +1819,7 @@
         "₢A4AAF",
         "₢A4AAI"
       ],
-      "next_pace_seed": "AAM",
+      "next_pace_seed": "AAN",
       "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAl4.md",
       "paces": {
@@ -2091,6 +2092,17 @@
               "text": "## Character\nMechanical migration — no judgment, no new behavior. Every change is a grep-verifiable substitution of raw `echo > path` writes with the `buf_write_fact` primitive.\n\n## Docket\nMigrate all existing RBK fact-file producers from raw `echo > BURD_OUTPUT_DIR` writes to the `buf_write_fact` dual-write primitive introduced in ₢A4AAA.\n\n**Context:** ₢A4AAA introduced the `buf_write_fact` module providing dual-write (to both `BURD_OUTPUT_DIR` and `BURD_TEMP_DIR`). But existing RBK producers still use raw `echo` to `BURD_OUTPUT_DIR` only. Until migrated, those fact-files are not available via the durable temp-dir path that remote consumers (BURX) need.\n\n**Scope:**\n- `Tools/rbk/rbfd_FoundryDirectorBuild.sh` — ~15 raw `echo \"${value}\" > \"${BURD_OUTPUT_DIR}/${CONSTANT}\"` sites for `RBF_FACT_HALLMARK`, `RBF_FACT_BUILD_ID`, `RBF_FACT_GAR_ROOT`, `RBF_FACT_ARK_STEM`, `RBF_FACT_ARK_YIELD`\n- `Tools/rbk/rbfl_FoundryLedger.sh` — tally fact-file producer (`RBCC_FACT_CONSEC_INFIX`)\n- Any other RBK files with raw fact-file writes discovered during grep\n\n**Method:** `grep -rn 'BURD_OUTPUT_DIR' Tools/rbk/` to find all sites. Replace each with `buf_write_fact` call. Verify `buf_write_fact` is sourced where needed.\n\n**Verification:** `grep 'BURD_OUTPUT_DIR' Tools/rbk/` finds zero raw writes — only `buf_write_fact` references remain.\n\n**Depends on:** ₢A4AAA (buf_write_fact primitive must exist)",
               "silks": "rbk-fact-file-producer-migration",
               "commit": "a7f79cc"
+            }
+          ]
+        },
+        "₢A4AAM": {
+          "tacks": [
+            {
+              "ts": "260405-0825",
+              "state": "rough",
+              "text": "## Character\nMechanical refactoring with some design judgment on test structure. Touching spec, Rust test code, workbench routing, and tabtargets. All changes follow decisions already made in the groom conversation.\n\n## Docket\nRevise JJSTF and integration test infrastructure to be deployment-agnostic.\n\n**Changes:**\n1. JJSTF-test-fundus.adoc: Remove machine-identity profiles (hairpin/cerebro). Define 4 account-shape profiles using `jjfu_*` usernames (`jjfu_full`, `jjfu_nokey`, `jjfu_norepo`, `jjfu_nogit`). Remove setup procedures. Remove all literal hostnames. Rename \"integration tests\" to \"fundus scenarios.\"\n2. JJS0 mapping section: Remove `:jjdxf_hairpin:` and `:jjdxf_cerebro:` attributes.\n3. remote_dispatch.rs: Remove `FUNDUS_DEFAULT_USER`/`FUNDUS_DEFAULT_RELDIR` imports. Per-profile modules use `jjfu_*` usernames directly. Host parameterized. Rename modules from machine-identity to account-profile. Merge hairpin/cerebro into single `full` module.\n4. jjrlg_legatio.rs: Remove `JJRLG_FUNDUS_DEFAULT_USER` and `JJRLG_FUNDUS_DEFAULT_RELDIR` constants.\n5. Tabtargets: Delete old `jjw-tR.TestRemote.*.sh`. Create `jjw-tfs.TestFundusScenario.<host>.sh` (suite) and `jjw-tfS.TestFundusSingle.<host>.sh` (single test by function name).\n6. jjw_workbench.sh: Replace `jjw-tR` routing with `jjw-tfs`/`jjw-tfS` routing using `jjfu_*` accounts.\n7. Context files: Update references.",
+              "silks": "fundus-scenario-revision",
+              "commit": "fb503bd"
             }
           ]
         }
