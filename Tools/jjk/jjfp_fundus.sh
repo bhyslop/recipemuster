@@ -18,7 +18,9 @@
 #
 # JJFP Fundus - Fundus test account provisioning and scenario dispatch
 #
-# The provision command requires root. Operator runs: sudo tt/jjw-tfP.ProvisionFundusAccounts.localhost.sh
+# Two-phase provisioning:
+#   Phase 1 (root):     sudo tt/jjw-tfP1.ProvisionPhase1.sh <keypath>
+#   Phase 2 (operator): tt/jjw-tfP2.ProvisionPhase2.<host>.sh
 
 set -euo pipefail
 
@@ -90,7 +92,7 @@ zjjfp_primary_group() {
 }
 
 ######################################################################
-# Internal helpers — account management (running as root)
+# Internal helpers — Phase 1: account management (running as root)
 
 zjjfp_delete_account() {
   zjjfp_sentinel
@@ -160,15 +162,15 @@ zjjfp_create_account() {
 }
 
 ######################################################################
-# Internal helpers — SSH key authorization (running as root)
+# Internal helpers — Phase 1: SSH keypair installation (running as root)
 
-zjjfp_authorize_ssh() {
+zjjfp_install_keypair() {
   zjjfp_sentinel
   local -r z_platform="${1:-}"
   local -r z_user="${2:-}"
   local -r z_privkey_path="${3:-}"
-  test -n "${z_user}"         || buc_die "zjjfp_authorize_ssh: user required"
-  test -n "${z_privkey_path}" || buc_die "zjjfp_authorize_ssh: private key path required"
+  test -n "${z_user}"         || buc_die "zjjfp_install_keypair: user required"
+  test -n "${z_privkey_path}" || buc_die "zjjfp_install_keypair: private key path required"
 
   buc_step "Installing SSH keypair for: ${z_user}"
 
@@ -208,62 +210,63 @@ zjjfp_authorize_ssh() {
 }
 
 ######################################################################
-# Internal helpers — repository and BUK setup (running as root, su for target user ops)
+# Internal helpers — Phase 2: repo setup (running as operator, via SSH)
 
-zjjfp_setup_repo() {
+zjjfp_ssh_setup_repo() {
   zjjfp_sentinel
-  local -r z_platform="${1:-}"
+  local -r z_host="${1:-}"
   local -r z_user="${2:-}"
   local -r z_with_origin="${3:-1}"
   local -r z_curia_origin="${4:-}"
   local -r z_curia_repo="${5:-}"
-  test -n "${z_user}" || buc_die "zjjfp_setup_repo: user required"
-  test -n "${z_curia_repo}" || buc_die "zjjfp_setup_repo: curia_repo required"
+  test -n "${z_host}" || buc_die "zjjfp_ssh_setup_repo: host required"
+  test -n "${z_user}" || buc_die "zjjfp_ssh_setup_repo: user required"
+  test -n "${z_curia_repo}" || buc_die "zjjfp_ssh_setup_repo: curia_repo required"
 
-  buc_step "Setting up repo for: ${z_user} (origin=${z_with_origin})"
+  buc_step "Setting up repo for: ${z_user}@${z_host} (origin=${z_with_origin})"
 
-  local -r z_home="$(zjjfp_home_dir "${z_platform}" "${z_user}")"
-  local -r z_project_dir="${z_home}/${ZJJFP_RELDIR}"
-  local -r z_project_parent="${z_project_dir%/*}"
   local -r z_stderr="${ZJJFP_TEMP_PREFIX}repo_${z_user}_stderr.txt"
+  local -r z_ssh_target="${z_user}@${z_host}"
+  local -r z_project_dir="${ZJJFP_RELDIR}"
 
-  su - "${z_user}" -c "mkdir -p '${z_project_parent}'" \
-    || buc_die "Failed to create projects dir for: ${z_user}"
+  # Create parent directory and clone
+  ssh -o BatchMode=yes "${z_ssh_target}" \
+    "mkdir -p '${z_project_dir%/*}' && git clone '${z_curia_repo}' '${z_project_dir}'" \
+    2>"${z_stderr}" \
+    || buc_die "Failed to clone repo for: ${z_ssh_target} — see ${z_stderr}"
 
-  su - "${z_user}" -c "git clone '${z_curia_repo}' '${z_project_dir}'" 2>"${z_stderr}" \
-    || buc_die "Failed to clone repo for: ${z_user} — see ${z_stderr}"
-
+  # Configure origin
   if test "${z_with_origin}" = "1"; then
-    test -n "${z_curia_origin}" || buc_die "zjjfp_setup_repo: curia_origin required when with_origin=1"
-    su - "${z_user}" -c "git -C '${z_project_dir}' remote set-url origin '${z_curia_origin}'" 2>"${z_stderr}" \
-      || buc_die "Failed to set origin for: ${z_user} — see ${z_stderr}"
+    test -n "${z_curia_origin}" || buc_die "zjjfp_ssh_setup_repo: curia_origin required when with_origin=1"
+    ssh -o BatchMode=yes "${z_ssh_target}" \
+      "git -C '${z_project_dir}' remote set-url origin '${z_curia_origin}'" \
+      2>"${z_stderr}" \
+      || buc_die "Failed to set origin for: ${z_ssh_target} — see ${z_stderr}"
     buc_log_args "Repo cloned with origin: ${z_curia_origin}"
   else
-    su - "${z_user}" -c "git -C '${z_project_dir}' remote remove origin" 2>"${z_stderr}" \
-      || buc_die "Failed to remove origin for: ${z_user} — see ${z_stderr}"
+    ssh -o BatchMode=yes "${z_ssh_target}" \
+      "git -C '${z_project_dir}' remote remove origin" \
+      2>"${z_stderr}" \
+      || buc_die "Failed to remove origin for: ${z_ssh_target} — see ${z_stderr}"
     buc_log_args "Repo cloned with origin removed"
   fi
 
-  zjjfp_install_buk "${z_platform}" "${z_user}" "${z_project_dir}" "${z_curia_repo}"
+  zjjfp_ssh_install_buk "${z_host}" "${z_user}" "${z_curia_repo}"
 }
 
-zjjfp_install_buk() {
+zjjfp_ssh_install_buk() {
   zjjfp_sentinel
-  local -r z_platform="${1:-}"
+  local -r z_host="${1:-}"
   local -r z_user="${2:-}"
-  local -r z_project_dir="${3:-}"
-  local -r z_curia_repo="${4:-}"
+  local -r z_curia_repo="${3:-}"
 
-  buc_step "Installing BUK for: ${z_user}"
+  buc_step "Installing BUK for: ${z_user}@${z_host}"
 
-  local -r z_buk_dir="${z_project_dir}/.buk"
-  local -r z_group="$(zjjfp_primary_group "${z_platform}" "${z_user}")"
+  local -r z_ssh_target="${z_user}@${z_host}"
+  local -r z_buk_dir="${ZJJFP_RELDIR}/.buk"
 
-  su - "${z_user}" -c "mkdir -p '${z_buk_dir}'" \
-    || buc_die "Failed to create .buk dir for: ${z_user}"
-
-  # Write burc.env — same relative paths as curia
-  cat > "${z_buk_dir}/burc.env" <<'BURC'
+  # Create .buk dir and write burc.env
+  ssh -o BatchMode=yes "${z_ssh_target}" "mkdir -p '${z_buk_dir}' && cat > '${z_buk_dir}/burc.env'" <<'BURC'
 BURC_STATION_FILE=../station-files/burs.env
 BURC_TABTARGET_DIR=tt
 BURC_TABTARGET_DELIMITER=.
@@ -275,23 +278,24 @@ BURC_OUTPUT_ROOT_DIR=../output-buk
 BURC_LOG_LAST=last
 BURC_LOG_EXT=txt
 BURC
+  test $? -eq 0 || buc_die "Failed to write burc.env for: ${z_ssh_target}"
 
-  # Copy launcher files from curia
+  # Copy launcher files via SSH
   local -r z_curia_buk="${z_curia_repo}/.buk"
   local z_launcher=""
   for z_launcher in "${z_curia_buk}"/launcher.*.sh; do
     test -f "${z_launcher}" || continue
     local z_launcher_name="${z_launcher##*/}"
-    cp "${z_launcher}" "${z_buk_dir}/${z_launcher_name}" \
-      || buc_die "Failed to copy launcher: ${z_launcher_name}"
+    local -r z_stderr="${ZJJFP_TEMP_PREFIX}buk_${z_user}_${z_launcher_name}_stderr.txt"
+    scp -o BatchMode=yes "${z_launcher}" "${z_ssh_target}:${z_buk_dir}/${z_launcher_name}" \
+      2>"${z_stderr}" \
+      || buc_die "Failed to copy launcher ${z_launcher_name} for: ${z_ssh_target} — see ${z_stderr}"
   done
 
-  chown -R "${z_user}:${z_group}" "${z_buk_dir}" \
-    || buc_die "Failed to chown .buk for: ${z_user}"
-  chmod -R u+x "${z_buk_dir}" \
-    || buc_die "Failed to chmod .buk for: ${z_user}"
+  ssh -o BatchMode=yes "${z_ssh_target}" "chmod -R u+x '${z_buk_dir}'" \
+    || buc_die "Failed to chmod .buk for: ${z_ssh_target}"
 
-  buc_log_args "BUK installed for ${z_user}"
+  buc_log_args "BUK installed for ${z_user}@${z_host}"
 }
 
 ######################################################################
@@ -302,23 +306,62 @@ jjfp_provision() {
 
   local -r z_keypath="${1:-}"
 
-  buc_doc_brief "Provision all 4 jjfu_* fundus test accounts per JJSTF"
+  buc_doc_brief "Phase 1: Create OS accounts and install SSH keypairs (requires root)"
   buc_doc_param "${JJFP_keypath_param}" "Path to curia user SSH private key (e.g., /Users/you/.ssh/id_ed25519)"
   buc_doc_shown || return 0
 
   # Root gate
-  test "$(id -u)" = "0" || buc_die "jjfp_provision: must run as root (use: sudo tt/jjw-tfP.ProvisionFundusAccounts.localhost.sh <keypath>)"
+  test "$(id -u)" = "0" || buc_die "jjfp_provision: must run as root (use: sudo tt/jjw-tfP1.ProvisionPhase1.sh <keypath>)"
 
   # Validate keypair
   test -n "${z_keypath}" || buc_die "jjfp_provision: private key path required (pass as argument)"
   test -f "${z_keypath}" || buc_die "jjfp_provision: private key not found: ${z_keypath}"
   test -f "${z_keypath}.pub" || buc_die "jjfp_provision: public key not found: ${z_keypath}.pub"
 
-  buc_step "Provisioning fundus test accounts"
+  buc_step "Phase 1: Provisioning fundus test accounts"
 
   # Discover platform
   local z_platform=""
   z_platform=$(zjjfp_detect_platform) || buc_die "Platform detection failed"
+
+  # Delete all existing accounts (clean slate)
+  buc_step "Deleting existing accounts"
+  local z_acct=""
+  for z_acct in ${ZJJFP_ACCOUNTS}; do
+    zjjfp_delete_account "${z_platform}" "${z_acct}"
+  done
+
+  # Create accounts with SSH keypairs per JJSTF
+  buc_step "Creating accounts"
+
+  # jjfu_full: SSH keypair (for operator access + GitHub)
+  zjjfp_create_account  "${z_platform}" "jjfu_full"
+  zjjfp_install_keypair "${z_platform}" "jjfu_full" "${z_keypath}"
+
+  # jjfu_nokey: OS account only, no SSH key access from curia
+  zjjfp_create_account  "${z_platform}" "jjfu_nokey"
+
+  # jjfu_norepo: SSH keypair, no project directory at RELDIR
+  zjjfp_create_account  "${z_platform}" "jjfu_norepo"
+  zjjfp_install_keypair "${z_platform}" "jjfu_norepo" "${z_keypath}"
+
+  # jjfu_nogit: SSH keypair (repo setup deferred to phase 2)
+  zjjfp_create_account  "${z_platform}" "jjfu_nogit"
+  zjjfp_install_keypair "${z_platform}" "jjfu_nogit" "${z_keypath}"
+
+  buc_success "Phase 1 complete — accounts and keypairs provisioned. Run phase 2 to set up repos."
+}
+
+jjfp_repo() {
+  zjjfp_sentinel
+
+  local -r z_host="${BUZ_FOLIO:-}"
+  test -n "${z_host}" || buc_die "jjfp_repo: no host (BUZ_FOLIO empty)"
+
+  buc_doc_brief "Phase 2: Clone repos and install BUK via SSH to provisioned accounts"
+  buc_doc_shown || return 0
+
+  buc_step "Phase 2: Setting up repos on ${z_host}"
 
   # Resolve curia repo absolute path
   local -r z_curia_root_file="${ZJJFP_TEMP_PREFIX}curia_root.txt"
@@ -335,34 +378,13 @@ jjfp_provision() {
   test -n "${z_curia_origin}" || buc_die "Git origin URL is empty"
   buc_log_args "Curia origin: ${z_curia_origin}"
 
-  # Phase 1: Delete all existing accounts (clean slate)
-  buc_step "Phase 1: Deleting existing accounts"
-  local z_acct=""
-  for z_acct in ${ZJJFP_ACCOUNTS}; do
-    zjjfp_delete_account "${z_platform}" "${z_acct}"
-  done
+  # jjfu_full: clone with origin (for jjx_plant — needs git fetch origin)
+  zjjfp_ssh_setup_repo "${z_host}" "jjfu_full" 1 "${z_curia_origin}" "${z_curia_repo}"
 
-  # Phase 2: Create accounts with correct precondition shapes per JJSTF
-  buc_step "Phase 2: Creating accounts"
+  # jjfu_nogit: clone with origin removed (tests plant failure path)
+  zjjfp_ssh_setup_repo "${z_host}" "jjfu_nogit" 0 "" "${z_curia_repo}"
 
-  # jjfu_full: SSH keypair + repo + BUK + origin
-  zjjfp_create_account  "${z_platform}" "jjfu_full"
-  zjjfp_authorize_ssh   "${z_platform}" "jjfu_full" "${z_keypath}"
-  zjjfp_setup_repo      "${z_platform}" "jjfu_full" 1 "${z_curia_origin}" "${z_curia_repo}"
-
-  # jjfu_nokey: OS account only, no SSH key access from curia
-  zjjfp_create_account  "${z_platform}" "jjfu_nokey"
-
-  # jjfu_norepo: SSH keypair, no project directory at RELDIR
-  zjjfp_create_account  "${z_platform}" "jjfu_norepo"
-  zjjfp_authorize_ssh   "${z_platform}" "jjfu_norepo" "${z_keypath}"
-
-  # jjfu_nogit: SSH keypair + repo + BUK, origin removed
-  zjjfp_create_account  "${z_platform}" "jjfu_nogit"
-  zjjfp_authorize_ssh   "${z_platform}" "jjfu_nogit" "${z_keypath}"
-  zjjfp_setup_repo      "${z_platform}" "jjfu_nogit" 0 "" "${z_curia_repo}"
-
-  buc_success "All 4 fundus accounts provisioned"
+  buc_success "Phase 2 complete — repos and BUK installed"
 }
 
 jjfp_scenario() {

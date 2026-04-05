@@ -35,9 +35,10 @@ zjjz_kindle() {
 
   # Fundus — test account and scenario infrastructure (jjw-tf)
   buz_group JJZ__GROUP_FUNDUS   "jjw-tf"  "Fundus — Test account and scenario infrastructure"
-  buz_enroll JJZ_FUNDUS_PROVISION  "jjw-tfP" "jjfp_cli.sh" "jjfp_provision" ""        "Provision fundus test accounts (requires root)"
-  buz_enroll JJZ_FUNDUS_SCENARIO   "jjw-tfs" "jjfp_cli.sh" "jjfp_scenario"  "imprint" "Run fundus scenario suite"
-  buz_enroll JJZ_FUNDUS_SINGLE     "jjw-tfS" "jjfp_cli.sh" "jjfp_single"    "imprint" "Run single fundus test"
+  buz_enroll JJZ_FUNDUS_PHASE1    "jjw-tfP1" "jjfp_cli.sh" "jjfp_provision" ""        "Phase 1: Create accounts and install keypairs (requires root)"
+  buz_enroll JJZ_FUNDUS_PHASE2    "jjw-tfP2" "jjfp_cli.sh" "jjfp_repo"      "imprint" "Phase 2: Clone repos and install BUK via SSH"
+  buz_enroll JJZ_FUNDUS_SCENARIO  "jjw-tfs"  "jjfp_cli.sh" "jjfp_scenario"  "imprint" "Run fundus scenario suite"
+  buz_enroll JJZ_FUNDUS_SINGLE    "jjw-tfS"  "jjfp_cli.sh" "jjfp_single"    "imprint" "Run single fundus test"
 
   readonly ZJJZ_KINDLED=1
 }
