@@ -349,6 +349,16 @@ jjfp_provision() {
   zjjfp_create_account  "${z_platform}" "jjfu_nogit"
   zjjfp_install_keypair "${z_platform}" "jjfu_nogit" "${z_keypath}"
 
+  # Restore ownership of dispatch dirs so operator's next dispatch isn't poisoned
+  test -n "${SUDO_USER:-}" || buc_die "SUDO_USER not set — cannot restore ownership"
+  local -r z_sudo_group="$(zjjfp_primary_group "${z_platform}" "${SUDO_USER}")"
+  chown -R "${SUDO_USER}:${z_sudo_group}" "${BURD_TEMP_DIR}" \
+    || buc_die "Failed to restore ownership of temp dir"
+  chown -R "${SUDO_USER}:${z_sudo_group}" "${BURD_OUTPUT_DIR}" \
+    || buc_die "Failed to restore ownership of output dir"
+  chown -R "${SUDO_USER}:${z_sudo_group}" "${BURD_OUTPUT_DIR%/*}" \
+    || buc_die "Failed to restore ownership of output root dir"
+
   buc_success "Phase 1 complete — accounts and keypairs provisioned. Run phase 2 to set up repos."
 }
 
