@@ -35,9 +35,9 @@ zjjz_kindle() {
 
   # Fundus — test account and scenario infrastructure (jjw-tf)
   buz_group JJZ__GROUP_FUNDUS   "jjw-tf"  "Fundus — Test account and scenario infrastructure"
-  buz_enroll JJZ_FUNDUS_PROVISION  "jjw-tfP" "jjf_cli.sh" "jjf_provision" "imprint" "Provision fundus test accounts"
-  buz_enroll JJZ_FUNDUS_SCENARIO   "jjw-tfs" "jjf_cli.sh" "jjf_scenario"  "imprint" "Run fundus scenario suite"
-  buz_enroll JJZ_FUNDUS_SINGLE     "jjw-tfS" "jjf_cli.sh" "jjf_single"    "imprint" "Run single fundus test"
+  buz_enroll JJZ_FUNDUS_PROVISION  "jjw-tfP" "jjfp_cli.sh" "jjfp_provision" "imprint" "Provision fundus test accounts"
+  buz_enroll JJZ_FUNDUS_SCENARIO   "jjw-tfs" "jjfp_cli.sh" "jjfp_scenario"  "imprint" "Run fundus scenario suite"
+  buz_enroll JJZ_FUNDUS_SINGLE     "jjw-tfS" "jjfp_cli.sh" "jjfp_single"    "imprint" "Run single fundus test"
 
   readonly ZJJZ_KINDLED=1
 }
