@@ -2288,8 +2288,57 @@ via SSH and validating
 {jjdt_reldir}
 per
 {jjdk_reldir_safety}.
-+
-Detailed specification: see ₢A4AAK.
+
+{jjds_arguments}
+
+//axd_required
+* {jjda_host}
+— hostname or IP of the
+{jjdxr_fundus}
+
+//axd_required
+* {jjda_user}
+— SSH user on the
+{jjdxr_fundus}
+
+//axd_required
+* {jjda_reldir}
+— relative path from user's home to the project directory on the
+{jjdxr_fundus}
+
+{jjds_stdout}
+{jjdt_legatio}
+token and probe results
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. Validate
+{jjdt_reldir}
+(Layer 1 —
+{jjdk_reldir_safety}):
+must not be empty, must not start with `/` or `.`, must contain at least one `/`
+. SSH probe (Layer 3 —
+{jjdk_reldir_safety}):
+execute remote shell script on
+{jjdxr_fundus}
+that resolves `$HOME/{reldir}` to an absolute path, verifies it is strictly under `$HOME`, and verifies minimum depth (at least 2 components under `$HOME`).
+Expect `PROBE_OK` sentinel on success.
+. Read `$HOME/{reldir}/.buk/burc.env` from
+{jjdxr_fundus}
+via SSH and extract `BURC_OUTPUT_ROOT_DIR`
+. Mint
+{jjdt_legatio}
+token: scan existing legatio files in
+{jjdxo_officium}
+directory, assign next sequential `L{N}` token
+. Persist legatio state (host, user, reldir, output_root_dir) as JSON in
+{jjdxo_officium}
+directory
+. Output
+{jjdt_legatio}
+token and binding summary
 
 [[jjdo_send]]
 //axvo_procedure axd_transient
@@ -2300,8 +2349,37 @@ Synchronous remote execution via
 Single command string interpreted by `bash -c` on the
 {jjdxr_fundus}
 after `cd RELDIR`.
-+
-Detailed specification: see ₢A4AAK.
+
+{jjds_arguments}
+
+//axd_required
+* {jjda_legatio}
+—
+{jjdt_legatio}
+token from
+{jjdo_bind}
+
+//axd_required
+* {jjda_command}
+— shell command string to execute on the
+{jjdxr_fundus}
+
+{jjds_stdout} Remote stdout, stderr, and exit code
+
+{jjds_exit_uniform} 0 on SSH transport success, non-zero on SSH transport failure.
+
+{jjds_behavior}
+
+. Load
+{jjdt_legatio}
+state from
+{jjdxo_officium}
+directory
+. Construct remote command: `cd "$HOME/{reldir}" && bash -c {quoted_command}`
+(POSIX single-quote wrapping with `'\''` for embedded quotes)
+. Execute via SSH with `BatchMode=yes` and `ConnectTimeout=10`
+. Capture remote stdout, stderr, and exit code
+. Output remote stdout, stderr, and `Exit: {code}`
 
 [[jjdo_relay]]
 //axvo_procedure axd_transient
@@ -2316,8 +2394,86 @@ token (incrementing
 under
 {jjdgr_gallops}
 lock), sets `BURE_LABEL`, launches via SSH, captures `burx.env` start fields via a second SSH connection.
-+
-Detailed specification: see ₢A4AAK.
+
+{jjds_arguments}
+
+//axd_required
+* {jjda_legatio}
+—
+{jjdt_legatio}
+token from
+{jjdo_bind}
+
+//axd_required
+* {jjda_tabtarget}
+— bare filename of the tabtarget to dispatch (e.g., `rbw-tf.QualifyFast.sh`).
+Must end with `.sh`, no path components.
+
+//axd_required
+* {jjda_timeout}
+— maximum execution time in seconds.
+A watchdog on the
+{jjdxr_fundus}
+kills the tabtarget after this duration.
+
+//axd_required
+* {jjdt_firemark}
+— parent
+{jjdhr_heat}
+identity (used for
+{jjdt_pensum}
+token minting under
+{jjdgr_gallops})
+
+{jjds_stdout}
+{jjdt_pensum}
+token and remote temp directory path
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. Validate tabtarget: must not be empty, must not contain `/` or `..`, must end with `.sh`
+. Load
+{jjdt_legatio}
+state from
+{jjdxo_officium}
+directory
+. Mint
+{jjdt_pensum}
+token:
+.. Acquire commit lock
+.. Load
+{jjdgr_gallops}
+.. Increment
+{jjdhm_pensum_seed}
+.. Persist
+{jjdgr_gallops}
+with commit
+.. Release lock
+. SSH #1 — launch nohup wrapper on
+{jjdxr_fundus}:
+.. Set `BURE_LABEL` to
+{jjdt_pensum}
+token in environment
+.. Background the tabtarget via nohup with timeout watchdog
+.. Expect `RELAY_OK` sentinel on successful launch
+. SSH #2 — poll for initial `burx.env`:
+.. Read `{output_root_dir}/current/burx.env` from
+{jjdxr_fundus}
+(up to 10 retries, 1 second apart)
+.. Validate `BURX_LABEL` matches
+{jjdt_pensum}
+token
+.. Extract `BURX_TEMP_DIR` and `BURX_PID`
+. Persist
+{jjdxp_pensum}
+state (legatio, firemark, temp_dir, pid, tabtarget, timeout, began_at) as JSON in
+{jjdxo_officium}
+directory
+. Output
+{jjdt_pensum}
+token and remote temp directory
 
 [[jjdo_check]]
 //axvo_procedure axd_transient
@@ -2335,8 +2491,60 @@ Returns BURX fields, liveness report
 or
 {jjdxpe_lost}),
 and temp dir file list on terminal status.
-+
-Detailed specification: see ₢A4AAK.
+
+{jjds_arguments}
+
+//axd_required
+* {jjda_pensum}
+—
+{jjdt_pensum}
+token from
+{jjdo_relay}
+
+//axd_required
+* {jjda_timeout}
+— probe timeout in seconds.
+0 = instant single probe.
+>0 = poll until terminal state or timeout expiry (2-second intervals).
+
+{jjds_stdout} BURX fields, liveness report, file list (on terminal status)
+
+{jjds_exit_uniform} 0 on successful probe (regardless of
+{jjdxp_pensum}
+status), non-zero on probe failure.
+
+{jjds_behavior}
+
+. Parse and validate
+{jjdt_pensum}
+token
+. Load
+{jjdxp_pensum}
+state from
+{jjdxo_officium}
+directory
+. Load
+{jjdt_legatio}
+state referenced by
+{jjdxp_pensum}
+. Enter probe loop:
+.. If timeout = 0: single probe, exit loop after first result
+.. If timeout > 0: poll until terminal state or deadline (2-second intervals)
+. Each probe executes SSH script on
+{jjdxr_fundus}:
+.. If `burx.env` file missing: report
+{jjdxpe_lost}
+.. If `BURX_EXIT_STATUS` present in `burx.env`: report
+{jjdxpe_stopped}
+and list files in temp directory
+.. If PID alive (`kill -0`): report
+{jjdxpe_running}
+.. If PID dead and no exit status: report
+{jjdxpe_orphaned}
+. Output BURX fields (ordered): `BURX_PID`, `BURX_BEGAN_AT`, `BURX_TABTARGET`, `BURX_TEMP_DIR`, `BURX_TRANSCRIPT`, `BURX_LOG_HIST`, `BURX_LABEL`, `BURX_EXIT_STATUS`, `BURX_ENDED_AT`
+. On terminal status
+({jjdxpe_stopped}),
+output file list from `BURX_TEMP_DIR`
 
 [[jjdo_fetch]]
 //axvo_procedure axd_transient
@@ -2347,9 +2555,40 @@ Single file read from
 via
 {jjdt_legatio}.
 Path relative to RELDIR or absolute.
-Transfers raw bytes — works for both text and binary files.
-+
-Detailed specification: see ₢A4AAK.
+
+{jjds_arguments}
+
+//axd_required
+* {jjda_legatio}
+—
+{jjdt_legatio}
+token from
+{jjdo_bind}
+
+//axd_required
+* {jjda_path}
+— file path on the
+{jjdxr_fundus}.
+If starts with `/`: absolute path.
+Otherwise: relative to `$HOME/{reldir}`.
+
+{jjds_stdout} File contents (UTF-8 lossy)
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. Load
+{jjdt_legatio}
+state from
+{jjdxo_officium}
+directory
+. Resolve path:
+.. If path starts with `/`: use as absolute
+.. Otherwise: relative to `$HOME/{reldir}`
+. Execute SSH `cat` of the resolved path on the
+{jjdxr_fundus}
+. Output file contents to stdout
 
 [[jjdo_plant]]
 //axvo_procedure axd_transient
@@ -2359,13 +2598,48 @@ Reset
 {jjdxr_fundus}
 workspace to an exact git commit.
 Synchronous over SSH, fail-fast.
-Sequence: `git fetch origin && git reset --hard <commit> && git clean -dxf`.
 {jjdt_reldir}
 safety is not re-checked —
 {jjdo_bind}
 already validated it.
-+
-Detailed specification: see ₢A4AAK.
+
+{jjds_arguments}
+
+//axd_required
+* {jjda_legatio}
+—
+{jjdt_legatio}
+token from
+{jjdo_bind}
+
+//axd_required
+* {jjda_commit}
+— git ref (SHA, branch, tag) to reset the
+{jjdxr_fundus}
+workspace to.
+Must contain only safe characters (alphanumeric, `/`, `-`, `_`, `.`).
+
+{jjds_stdout} Final HEAD SHA on success
+
+{jjds_exit_uniform} 0 success, non-zero error.
+
+{jjds_behavior}
+
+. Validate git ref: must not be empty, must contain only safe characters
+. Load
+{jjdt_legatio}
+state from
+{jjdxo_officium}
+directory
+. Execute SSH script on
+{jjdxr_fundus}:
+.. `cd "$HOME/{reldir}"` or exit
+.. `git fetch origin` or exit
+.. `git reset --hard {commit}` or exit
+.. `git clean -dxf` or exit
+.. Output `PLANT_OK:{HEAD_SHA}` sentinel
+. Parse sentinel to extract final HEAD
+. Output planting result
 
 === Steeplechase Operations
 
