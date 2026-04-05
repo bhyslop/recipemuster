@@ -226,6 +226,8 @@
 :jjdo_enroll:          <<jjdo_enroll,jjx_enroll>>
 :jjdo_relabel:        <<jjdo_relabel,jjx_relabel>>
 :jjdo_drop:           <<jjdo_drop,jjx_drop>>
+:jjdo_redocket:       <<jjdo_redocket,jjx_redocket>>
+:jjdo_chalk:          <<jjdo_chalk,jjx_chalk>>
 :jjdo_close:             <<jjdo_close,jjx_close>>
 :jjdo_paddock:           <<jjdo_paddock,jjx_paddock>>
 :jjdo_validate:       <<jjdo_validate,jjx_validate>>
@@ -2054,45 +2056,23 @@ include::JJSCRL-rail.adoc[]
 
 include::JJSCDR-draft.adoc[]
 
+[[jjdo_redocket]]
+//axvo_procedure axd_transient
+==== {jjdo_redocket}
+
+include::JJSCTL-tally.adoc[tag=redocket]
+
 [[jjdo_relabel]]
 //axvo_procedure axd_transient
 ==== {jjdo_relabel}
 
-Rename a {jjdpr_pace_p} silks.
-
-{jjds_arguments}
-
-* {jjdt_coronet} — target {jjdpr_pace}.
-
-* {jjda_silks} — new silks name.
-
-{jjds_exit_uniform} 0 success, non-zero error.
-
-{jjds_behavior}
-
-. {jjdr_load}
-. Verify {jjdpr_pace} exists
-. Update silks on {jjdpr_pace}
-. {jjdr_save}
+include::JJSCTL-tally.adoc[tag=relabel]
 
 [[jjdo_drop]]
 //axvo_procedure axd_transient
 ==== {jjdo_drop}
 
-Set a {jjdpr_pace_p} state to {jjdpe_abandoned}.
-
-{jjds_arguments}
-
-* {jjdt_coronet} — target {jjdpr_pace}.
-
-{jjds_exit_uniform} 0 success, non-zero error.
-
-{jjds_behavior}
-
-. {jjdr_load}
-. Verify {jjdpr_pace} exists
-. Set state to {jjdpe_abandoned} on {jjdpr_pace}
-. {jjdr_save}
+include::JJSCTL-tally.adoc[tag=drop]
 
 [[jjdo_alter]]
 //axvo_procedure axd_transient
@@ -2485,6 +2465,12 @@ include::JJSCRN-rein.adoc[]
 ==== {jjdo_record}
 
 include::JJSCNC-notch.adoc[]
+
+[[jjdo_chalk]]
+//axvo_procedure axd_transient
+==== {jjdo_chalk}
+
+include::JJSCCH-chalk.adoc[]
 
 === Test Infrastructure
 

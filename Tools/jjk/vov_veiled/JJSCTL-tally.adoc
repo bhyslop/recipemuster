@@ -1,14 +1,7 @@
-
-This document is superseded. The unified `jjx_tally` command has been split into three single-purpose operations:
-
-* `jjx_redocket` — Update docket text
-* `jjx_relabel` — Change silks
-* `jjx_drop` — Set state to {jjdpe_abandoned}
-
+Tally family: three single-purpose {jjdpr_pace} mutation operations split from the original unified `jjx_tally` command.
 Each mutates flat fields on the {jjdpr_pace} directly.
 
-== jjx_redocket
-
+// tag::redocket[]
 Update the docket text of a {jjdpr_pace}.
 
 {jjds_arguments}
@@ -31,9 +24,9 @@ Update the docket text of a {jjdpr_pace}.
 . Verify {jjdpr_pace} exists with given {jjdt_coronet}
 . Update docket text on {jjdpr_pace}
 . {jjdr_save}
+// end::redocket[]
 
-== jjx_relabel
-
+// tag::relabel[]
 Change the {jjdt_silks} (display name) of a {jjdpr_pace}.
 
 {jjds_arguments}
@@ -56,9 +49,9 @@ Change the {jjdt_silks} (display name) of a {jjdpr_pace}.
 . Verify {jjdpr_pace} exists with given {jjdt_coronet}
 . Update silks on {jjdpr_pace}
 . {jjdr_save}
+// end::relabel[]
 
-== jjx_drop
-
+// tag::drop[]
 Mark a {jjdpr_pace} as {jjdpe_abandoned}. The {jjdpr_pace} is removed from active planning but remains in history.
 
 {jjds_arguments}
@@ -78,3 +71,4 @@ Mark a {jjdpr_pace} as {jjdpe_abandoned}. The {jjdpr_pace} is removed from activ
 . Verify {jjdpr_pace} exists with given {jjdt_coronet}
 . Set state to {jjdpe_abandoned} on {jjdpr_pace}
 . {jjdr_save}
+// end::drop[]
