@@ -2280,6 +2280,9 @@ The collection of remote dispatch operations:
 //axvo_procedure axd_transient
 ==== {jjdo_bind}
 
+//axhob_operation
+{jjdo_bind}
+
 Create a
 {jjdt_legatio}
 session handle by probing the
@@ -2291,51 +2294,66 @@ per
 
 {jjds_arguments}
 
+//axhopt_typed_parameter
+{jjda_host}
 //axd_required
 * {jjda_host}
 — hostname or IP of the
 {jjdxr_fundus}
 
+//axhopt_typed_parameter
+{jjda_user}
 //axd_required
 * {jjda_user}
 — SSH user on the
 {jjdxr_fundus}
 
+//axhopt_typed_parameter
+{jjdt_reldir}
 //axd_required
 * {jjda_reldir}
 — relative path from user's home to the project directory on the
 {jjdxr_fundus}
 
+//axhoot_typed_output
+{jjdt_legatio}
 {jjds_stdout}
 {jjdt_legatio}
 token and probe results
 
+//axhoc_completion
 {jjds_exit_uniform} 0 success, non-zero error.
 
 {jjds_behavior}
 
+//axhos_step
 . Validate
 {jjdt_reldir}
 (Layer 1 —
 {jjdk_reldir_safety}):
 must not be empty, must not start with `/` or `.`, must contain at least one `/`
+//axhos_step
 . SSH probe (Layer 3 —
 {jjdk_reldir_safety}):
 execute remote shell script on
 {jjdxr_fundus}
 that resolves `$HOME/{reldir}` to an absolute path, verifies it is strictly under `$HOME`, and verifies minimum depth (at least 2 components under `$HOME`).
 Expect `PROBE_OK` sentinel on success.
+//axhos_step
 . Read `$HOME/{reldir}/.buk/burc.env` from
 {jjdxr_fundus}
 via SSH and extract `BURC_OUTPUT_ROOT_DIR`
+//axhos_step
 . Mint
 {jjdt_legatio}
 token: scan existing legatio files in
 {jjdxo_officium}
 directory, assign next sequential `L{N}` token
+//axhos_step
 . Persist legatio state (host, user, reldir, output_root_dir) as JSON in
 {jjdxo_officium}
 directory
+//axhos_step
 . Output
 {jjdt_legatio}
 token and binding summary
@@ -2343,6 +2361,9 @@ token and binding summary
 [[jjdo_send]]
 //axvo_procedure axd_transient
 ==== {jjdo_send}
+
+//axhob_operation
+{jjdo_send}
 
 Synchronous remote execution via
 {jjdt_legatio}.
@@ -2352,6 +2373,8 @@ after `cd RELDIR`.
 
 {jjds_arguments}
 
+//axhopt_typed_parameter
+{jjdt_legatio}
 //axd_required
 * {jjda_legatio}
 —
@@ -2359,31 +2382,42 @@ after `cd RELDIR`.
 token from
 {jjdo_bind}
 
+//axhopt_typed_parameter
+{jjda_command}
 //axd_required
 * {jjda_command}
 — shell command string to execute on the
 {jjdxr_fundus}
 
+//axhoc_completion
 {jjds_stdout} Remote stdout, stderr, and exit code
 
 {jjds_exit_uniform} 0 on SSH transport success, non-zero on SSH transport failure.
 
 {jjds_behavior}
 
+//axhos_step
 . Load
 {jjdt_legatio}
 state from
 {jjdxo_officium}
 directory
+//axhos_step
 . Construct remote command: `cd "$HOME/{reldir}" && bash -c {quoted_command}`
 (POSIX single-quote wrapping with `'\''` for embedded quotes)
+//axhos_step
 . Execute via SSH with `BatchMode=yes` and `ConnectTimeout=10`
+//axhos_step
 . Capture remote stdout, stderr, and exit code
+//axhos_step
 . Output remote stdout, stderr, and `Exit: {code}`
 
 [[jjdo_relay]]
 //axvo_procedure axd_transient
 ==== {jjdo_relay}
+
+//axhob_operation
+{jjdo_relay}
 
 Asynchronous dispatch via nohup on the
 {jjdxr_fundus}.
@@ -2397,6 +2431,8 @@ lock), sets `BURE_LABEL`, launches via SSH, captures `burx.env` start fields via
 
 {jjds_arguments}
 
+//axhopt_typed_parameter
+{jjdt_legatio}
 //axd_required
 * {jjda_legatio}
 —
@@ -2404,11 +2440,15 @@ lock), sets `BURE_LABEL`, launches via SSH, captures `burx.env` start fields via
 token from
 {jjdo_bind}
 
+//axhopt_typed_parameter
+{jjda_tabtarget}
 //axd_required
 * {jjda_tabtarget}
 — bare filename of the tabtarget to dispatch (e.g., `rbw-tf.QualifyFast.sh`).
 Must end with `.sh`, no path components.
 
+//axhopt_typed_parameter
+{jjda_timeout}
 //axd_required
 * {jjda_timeout}
 — maximum execution time in seconds.
@@ -2416,6 +2456,8 @@ A watchdog on the
 {jjdxr_fundus}
 kills the tabtarget after this duration.
 
+//axhopt_typed_parameter
+{jjdt_firemark}
 //axd_required
 * {jjdt_firemark}
 — parent
@@ -2425,20 +2467,26 @@ identity (used for
 token minting under
 {jjdgr_gallops})
 
+//axhoot_typed_output
+{jjdt_pensum}
 {jjds_stdout}
 {jjdt_pensum}
 token and remote temp directory path
 
+//axhoc_completion
 {jjds_exit_uniform} 0 success, non-zero error.
 
 {jjds_behavior}
 
+//axhos_step
 . Validate tabtarget: must not be empty, must not contain `/` or `..`, must end with `.sh`
+//axhos_step
 . Load
 {jjdt_legatio}
 state from
 {jjdxo_officium}
 directory
+//axhos_step
 . Mint
 {jjdt_pensum}
 token:
@@ -2451,6 +2499,7 @@ token:
 {jjdgr_gallops}
 with commit
 .. Release lock
+//axhos_step
 . SSH #1 — launch nohup wrapper on
 {jjdxr_fundus}:
 .. Set `BURE_LABEL` to
@@ -2458,6 +2507,7 @@ with commit
 token in environment
 .. Background the tabtarget via nohup with timeout watchdog
 .. Expect `RELAY_OK` sentinel on successful launch
+//axhos_step
 . SSH #2 — poll for initial `burx.env`:
 .. Read `{output_root_dir}/current/burx.env` from
 {jjdxr_fundus}
@@ -2466,11 +2516,13 @@ token in environment
 {jjdt_pensum}
 token
 .. Extract `BURX_TEMP_DIR` and `BURX_PID`
+//axhos_step
 . Persist
 {jjdxp_pensum}
 state (legatio, firemark, temp_dir, pid, tabtarget, timeout, began_at) as JSON in
 {jjdxo_officium}
 directory
+//axhos_step
 . Output
 {jjdt_pensum}
 token and remote temp directory
@@ -2478,6 +2530,9 @@ token and remote temp directory
 [[jjdo_check]]
 //axvo_procedure axd_transient
 ==== {jjdo_check}
+
+//axhob_operation
+{jjdo_check}
 
 Probe or poll a
 {jjdxp_pensum_p}
@@ -2494,6 +2549,8 @@ and temp dir file list on terminal status.
 
 {jjds_arguments}
 
+//axhopt_typed_parameter
+{jjdt_pensum}
 //axd_required
 * {jjda_pensum}
 —
@@ -2501,12 +2558,15 @@ and temp dir file list on terminal status.
 token from
 {jjdo_relay}
 
+//axhopt_typed_parameter
+{jjda_timeout}
 //axd_required
 * {jjda_timeout}
 — probe timeout in seconds.
 0 = instant single probe.
 >0 = poll until terminal state or timeout expiry (2-second intervals).
 
+//axhoc_completion
 {jjds_stdout} BURX fields, liveness report, file list (on terminal status)
 
 {jjds_exit_uniform} 0 on successful probe (regardless of
@@ -2515,21 +2575,26 @@ status), non-zero on probe failure.
 
 {jjds_behavior}
 
+//axhos_step
 . Parse and validate
 {jjdt_pensum}
 token
+//axhos_step
 . Load
 {jjdxp_pensum}
 state from
 {jjdxo_officium}
 directory
+//axhos_step
 . Load
 {jjdt_legatio}
 state referenced by
 {jjdxp_pensum}
+//axhos_step
 . Enter probe loop:
 .. If timeout = 0: single probe, exit loop after first result
 .. If timeout > 0: poll until terminal state or deadline (2-second intervals)
+//axhos_step
 . Each probe executes SSH script on
 {jjdxr_fundus}:
 .. If `burx.env` file missing: report
@@ -2541,7 +2606,9 @@ and list files in temp directory
 {jjdxpe_running}
 .. If PID dead and no exit status: report
 {jjdxpe_orphaned}
+//axhos_step
 . Output BURX fields (ordered): `BURX_PID`, `BURX_BEGAN_AT`, `BURX_TABTARGET`, `BURX_TEMP_DIR`, `BURX_TRANSCRIPT`, `BURX_LOG_HIST`, `BURX_LABEL`, `BURX_EXIT_STATUS`, `BURX_ENDED_AT`
+//axhos_step
 . On terminal status
 ({jjdxpe_stopped}),
 output file list from `BURX_TEMP_DIR`
@@ -2549,6 +2616,9 @@ output file list from `BURX_TEMP_DIR`
 [[jjdo_fetch]]
 //axvo_procedure axd_transient
 ==== {jjdo_fetch}
+
+//axhob_operation
+{jjdo_fetch}
 
 Single file read from
 {jjdxr_fundus}
@@ -2558,6 +2628,8 @@ Path relative to RELDIR or absolute.
 
 {jjds_arguments}
 
+//axhopt_typed_parameter
+{jjdt_legatio}
 //axd_required
 * {jjda_legatio}
 —
@@ -2565,6 +2637,8 @@ Path relative to RELDIR or absolute.
 token from
 {jjdo_bind}
 
+//axhopt_typed_parameter
+{jjda_path}
 //axd_required
 * {jjda_path}
 — file path on the
@@ -2572,27 +2646,35 @@ token from
 If starts with `/`: absolute path.
 Otherwise: relative to `$HOME/{reldir}`.
 
+//axhoc_completion
 {jjds_stdout} File contents (UTF-8 lossy)
 
 {jjds_exit_uniform} 0 success, non-zero error.
 
 {jjds_behavior}
 
+//axhos_step
 . Load
 {jjdt_legatio}
 state from
 {jjdxo_officium}
 directory
+//axhos_step
 . Resolve path:
 .. If path starts with `/`: use as absolute
 .. Otherwise: relative to `$HOME/{reldir}`
+//axhos_step
 . Execute SSH `cat` of the resolved path on the
 {jjdxr_fundus}
+//axhos_step
 . Output file contents to stdout
 
 [[jjdo_plant]]
 //axvo_procedure axd_transient
 ==== {jjdo_plant}
+
+//axhob_operation
+{jjdo_plant}
 
 Reset
 {jjdxr_fundus}
@@ -2605,6 +2687,8 @@ already validated it.
 
 {jjds_arguments}
 
+//axhopt_typed_parameter
+{jjdt_legatio}
 //axd_required
 * {jjda_legatio}
 —
@@ -2612,6 +2696,8 @@ already validated it.
 token from
 {jjdo_bind}
 
+//axhopt_typed_parameter
+{jjda_commit}
 //axd_required
 * {jjda_commit}
 — git ref (SHA, branch, tag) to reset the
@@ -2619,18 +2705,22 @@ token from
 workspace to.
 Must contain only safe characters (alphanumeric, `/`, `-`, `_`, `.`).
 
+//axhoc_completion
 {jjds_stdout} Final HEAD SHA on success
 
 {jjds_exit_uniform} 0 success, non-zero error.
 
 {jjds_behavior}
 
+//axhos_step
 . Validate git ref: must not be empty, must contain only safe characters
+//axhos_step
 . Load
 {jjdt_legatio}
 state from
 {jjdxo_officium}
 directory
+//axhos_step
 . Execute SSH script on
 {jjdxr_fundus}:
 .. `cd "$HOME/{reldir}"` or exit
@@ -2638,7 +2728,9 @@ directory
 .. `git reset --hard {commit}` or exit
 .. `git clean -dxf` or exit
 .. Output `PLANT_OK:{HEAD_SHA}` sentinel
+//axhos_step
 . Parse sentinel to extract final HEAD
+//axhos_step
 . Output planting result
 
 === Steeplechase Operations
