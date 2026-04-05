@@ -2162,6 +2162,13 @@
         "₢A4AAP": {
           "tacks": [
             {
+              "ts": "260405-1037",
+              "state": "complete",
+              "text": "## Character\nInvestigative — survey what arcanum still provides vs what MCP has superseded. Low-risk decision with clear success criteria.\n\n## Docket\nEvaluate whether `jja_arcanum.sh` and its supporting files (`jjl_ledger.json`, emitted slash commands) can be fully removed now that JJK operates via the `mcp__vvx__jjx` MCP tool.\n\n**Survey:**\n1. Identify all artifacts arcanum creates: `.claude/commands/jjc-*.md`, `.claude/jjm/` directories, `settings.local.json` permissions, ledger entries\n2. Determine which are still consumed by the MCP architecture vs dead weight\n3. Check if the `.claude/jjm/` directory creation and settings permissions are handled elsewhere (e.g., by VVK install)\n\n**Decision:** Remove arcanum entirely, or strip it to only the parts still needed.\n\n**Cleanup if removing:**\n- Delete `jja_arcanum.sh`, `jjl_ledger.json`\n- Remove arcanum routing from workbench (already removed from zipper)\n- Update CLAUDE.md file acronym mappings",
+              "silks": "evaluate-arcanum-removal",
+              "commit": "a6d53de"
+            },
+            {
               "ts": "260405-0907",
               "state": "rough",
               "text": "## Character\nInvestigative — survey what arcanum still provides vs what MCP has superseded. Low-risk decision with clear success criteria.\n\n## Docket\nEvaluate whether `jja_arcanum.sh` and its supporting files (`jjl_ledger.json`, emitted slash commands) can be fully removed now that JJK operates via the `mcp__vvx__jjx` MCP tool.\n\n**Survey:**\n1. Identify all artifacts arcanum creates: `.claude/commands/jjc-*.md`, `.claude/jjm/` directories, `settings.local.json` permissions, ledger entries\n2. Determine which are still consumed by the MCP architecture vs dead weight\n3. Check if the `.claude/jjm/` directory creation and settings permissions are handled elsewhere (e.g., by VVK install)\n\n**Decision:** Remove arcanum entirely, or strip it to only the parts still needed.\n\n**Cleanup if removing:**\n- Delete `jja_arcanum.sh`, `jjl_ledger.json`\n- Remove arcanum routing from workbench (already removed from zipper)\n- Update CLAUDE.md file acronym mappings",
