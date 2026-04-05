@@ -46,6 +46,12 @@ zjjfp_kindle() {
   readonly ZJJFP_ACCOUNTS="jjfu_full jjfu_nokey jjfu_norepo jjfu_nogit"
   readonly ZJJFP_TEMP_PREFIX="${BURD_TEMP_DIR}/jjfp_"
 
+  # Shared temp file paths for helper results (sequential access only)
+  readonly ZJJFP_RESOLVE_HOME="${ZJJFP_TEMP_PREFIX}home_dir.txt"
+  readonly ZJJFP_RESOLVE_GROUP="${ZJJFP_TEMP_PREFIX}primary_group.txt"
+  readonly ZJJFP_RESOLVE_PLATFORM="${ZJJFP_TEMP_PREFIX}platform.txt"
+  readonly ZJJFP_RESOLVE_UID="${ZJJFP_TEMP_PREFIX}uid.txt"
+
   readonly ZJJFP_KINDLED=1
 }
 
@@ -54,9 +60,9 @@ zjjfp_sentinel() {
 }
 
 ######################################################################
-# Internal helpers — platform detection
+# Internal helpers — resolvers (write to temp file, caller reads)
 
-zjjfp_detect_platform() {
+zjjfp_resolve_platform() {
   zjjfp_sentinel
 
   local -r z_uname_file="${ZJJFP_TEMP_PREFIX}uname.txt"
@@ -65,29 +71,29 @@ zjjfp_detect_platform() {
   test -n "${z_uname}" || buc_die "Empty uname output"
 
   case "${z_uname}" in
-    Darwin) echo "macos" ;;
-    Linux)  echo "linux" ;;
+    Darwin) echo "macos" > "${ZJJFP_RESOLVE_PLATFORM}" ;;
+    Linux)  echo "linux" > "${ZJJFP_RESOLVE_PLATFORM}" ;;
     *)      buc_die "Unsupported platform: ${z_uname}" ;;
   esac
 }
 
-zjjfp_home_dir() {
+zjjfp_resolve_home_dir() {
   zjjfp_sentinel
   local -r z_platform="${1:-}"
   local -r z_user="${2:-}"
   case "${z_platform}" in
-    macos) echo "/Users/${z_user}" ;;
-    linux) echo "/home/${z_user}" ;;
+    macos) echo "/Users/${z_user}" > "${ZJJFP_RESOLVE_HOME}" ;;
+    linux) echo "/home/${z_user}" > "${ZJJFP_RESOLVE_HOME}" ;;
   esac
 }
 
-zjjfp_primary_group() {
+zjjfp_resolve_primary_group() {
   zjjfp_sentinel
   local -r z_platform="${1:-}"
   local -r z_user="${2:-}"
   case "${z_platform}" in
-    macos) echo "staff" ;;
-    linux) echo "${z_user}" ;;
+    macos) echo "staff" > "${ZJJFP_RESOLVE_GROUP}" ;;
+    linux) echo "${z_user}" > "${ZJJFP_RESOLVE_GROUP}" ;;
   esac
 }
 
@@ -100,7 +106,8 @@ zjjfp_delete_account() {
   local -r z_user="${2:-}"
   test -n "${z_user}" || buc_die "zjjfp_delete_account: user required"
 
-  if ! id "${z_user}" >/dev/null 2>&1; then
+  local -r z_id_stderr="${ZJJFP_TEMP_PREFIX}id_${z_user}_stderr.txt"
+  if ! id "${z_user}" >/dev/null 2>"${z_id_stderr}"; then
     buc_log_args "Account ${z_user} does not exist — skip delete"
     return 0
   fi
@@ -199,9 +206,13 @@ zjjfp_install_keypair() {
 
   local -r z_pubkey_path="${z_privkey_path}.pub"
   local -r z_key_name="${z_privkey_path##*/}"
-  local -r z_home="$(zjjfp_home_dir "${z_platform}" "${z_user}")"
+
+  zjjfp_resolve_home_dir "${z_platform}" "${z_user}"
+  local -r z_home=$(<"${ZJJFP_RESOLVE_HOME}")
   local -r z_ssh_dir="${z_home}/.ssh"
-  local -r z_group="$(zjjfp_primary_group "${z_platform}" "${z_user}")"
+
+  zjjfp_resolve_primary_group "${z_platform}" "${z_user}"
+  local -r z_group=$(<"${ZJJFP_RESOLVE_GROUP}")
 
   mkdir -p "${z_ssh_dir}" \
     || buc_die "Failed to create .ssh dir for: ${z_user}"
@@ -287,9 +298,11 @@ zjjfp_ssh_install_buk() {
 
   local -r z_ssh_target="${z_user}@${z_host}"
   local -r z_buk_dir="${ZJJFP_RELDIR}/.buk"
+  local -r z_burc_stderr="${ZJJFP_TEMP_PREFIX}burc_${z_user}_stderr.txt"
 
   # Create .buk dir and write burc.env
-  ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new "${z_ssh_target}" "mkdir -p '${z_buk_dir}' && cat > '${z_buk_dir}/burc.env'" <<'BURC'
+  ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new "${z_ssh_target}" \
+    "mkdir -p '${z_buk_dir}' && cat > '${z_buk_dir}/burc.env'" <<'BURC' || buc_die "Failed to write burc.env for: ${z_ssh_target} — see ${z_burc_stderr}"
 BURC_STATION_FILE=../station-files/burs.env
 BURC_TABTARGET_DIR=tt
 BURC_TABTARGET_DELIMITER=.
@@ -301,18 +314,19 @@ BURC_OUTPUT_ROOT_DIR=../output-buk
 BURC_LOG_LAST=last
 BURC_LOG_EXT=txt
 BURC
-  test $? -eq 0 || buc_die "Failed to write burc.env for: ${z_ssh_target}"
 
   # Copy launcher files via SSH
   local -r z_curia_buk="${z_curia_repo}/.buk"
   local z_launcher=""
+  local z_index=0
   for z_launcher in "${z_curia_buk}"/launcher.*.sh; do
     test -f "${z_launcher}" || continue
     local z_launcher_name="${z_launcher##*/}"
-    local -r z_stderr="${ZJJFP_TEMP_PREFIX}buk_${z_user}_${z_launcher_name}_stderr.txt"
+    local z_scp_stderr="${ZJJFP_TEMP_PREFIX}buk_${z_user}_${z_index}_scp_stderr.txt"
     scp -o BatchMode=yes -o StrictHostKeyChecking=accept-new "${z_launcher}" "${z_ssh_target}:${z_buk_dir}/${z_launcher_name}" \
-      2>"${z_stderr}" \
-      || buc_die "Failed to copy launcher ${z_launcher_name} for: ${z_ssh_target} — see ${z_stderr}"
+      2>"${z_scp_stderr}" \
+      || buc_die "Failed to copy launcher ${z_launcher_name} for: ${z_ssh_target} — see ${z_scp_stderr}"
+    z_index=$((z_index + 1))
   done
 
   ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new "${z_ssh_target}" "chmod -R u+x '${z_buk_dir}'" \
@@ -334,7 +348,9 @@ jjfp_provision() {
   buc_doc_shown || return 0
 
   # Root gate
-  test "$(id -u)" = "0" || buc_die "jjfp_provision: must run as root (use: sudo tt/jjw-tfP1.ProvisionPhase1.sh <keypath>)"
+  id -u > "${ZJJFP_RESOLVE_UID}" || buc_die "Failed to get uid"
+  local -r z_uid=$(<"${ZJJFP_RESOLVE_UID}")
+  test "${z_uid}" = "0" || buc_die "jjfp_provision: must run as root (use: sudo tt/jjw-tfP1.ProvisionPhase1.sh <keypath>)"
 
   # Validate keypair
   test -n "${z_keypath}" || buc_die "jjfp_provision: private key path required (pass as argument)"
@@ -344,8 +360,9 @@ jjfp_provision() {
   buc_step "Phase 1: Provisioning fundus test accounts"
 
   # Discover platform
-  local z_platform=""
-  z_platform=$(zjjfp_detect_platform) || buc_die "Platform detection failed"
+  zjjfp_resolve_platform
+  local -r z_platform=$(<"${ZJJFP_RESOLVE_PLATFORM}")
+  test -n "${z_platform}" || buc_die "Empty platform result"
 
   # Delete all existing accounts (clean slate)
   buc_step "Deleting existing accounts"
@@ -377,7 +394,8 @@ jjfp_provision() {
 
   # Restore ownership of dispatch dirs so operator's next dispatch isn't poisoned
   test -n "${SUDO_USER:-}" || buc_die "SUDO_USER not set — cannot restore ownership"
-  local -r z_sudo_group="$(zjjfp_primary_group "${z_platform}" "${SUDO_USER}")"
+  zjjfp_resolve_primary_group "${z_platform}" "${SUDO_USER}"
+  local -r z_sudo_group=$(<"${ZJJFP_RESOLVE_GROUP}")
   chown -R "${SUDO_USER}:${z_sudo_group}" "${BURD_TEMP_DIR}" \
     || buc_die "Failed to restore ownership of temp dir"
   chown -R "${SUDO_USER}:${z_sudo_group}" "${BURD_OUTPUT_DIR}" \
@@ -408,8 +426,9 @@ jjfp_repo() {
 
   # Discover git origin URL
   local -r z_origin_file="${ZJJFP_TEMP_PREFIX}origin.txt"
-  git -C "${BURD_TOOLS_DIR}/.." remote get-url origin > "${z_origin_file}" 2>/dev/null \
-    || buc_die "Failed to get git origin URL from curia repo"
+  local -r z_origin_stderr="${ZJJFP_TEMP_PREFIX}origin_stderr.txt"
+  git -C "${BURD_TOOLS_DIR}/.." remote get-url origin > "${z_origin_file}" 2>"${z_origin_stderr}" \
+    || buc_die "Failed to get git origin URL from curia repo — see ${z_origin_stderr}"
   local -r z_curia_origin=$(<"${z_origin_file}")
   test -n "${z_curia_origin}" || buc_die "Git origin URL is empty"
   buc_log_args "Curia origin: ${z_curia_origin}"
