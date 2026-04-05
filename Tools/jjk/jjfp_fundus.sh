@@ -258,10 +258,10 @@ zjjfp_ssh_setup_repo() {
   local -r z_user="${2:-}"
   local -r z_with_origin="${3:-1}"
   local -r z_curia_origin="${4:-}"
-  local -r z_curia_repo="${5:-}"
+  local -r z_clone_source="${5:-}"
   test -n "${z_host}" || buc_die "zjjfp_ssh_setup_repo: host required"
   test -n "${z_user}" || buc_die "zjjfp_ssh_setup_repo: user required"
-  test -n "${z_curia_repo}" || buc_die "zjjfp_ssh_setup_repo: curia_repo required"
+  test -n "${z_clone_source}" || buc_die "zjjfp_ssh_setup_repo: clone_source required"
 
   buc_step "Setting up repo for: ${z_user}@${z_host} (origin=${z_with_origin})"
 
@@ -269,9 +269,16 @@ zjjfp_ssh_setup_repo() {
   local -r z_ssh_target="${z_user}@${z_host}"
   local -r z_project_dir="${ZJJFP_RELDIR}"
 
-  # Clean slate: remove existing project dir, then clone fresh
+  # Clean slate and clone — .buk/ is tracked, so clone brings BUK with it
+  # For localhost: clone from local repo path (fast, needs safe.directory for cross-user access)
+  # For remote: clone from GitHub URL (uses account's SSH keypair)
+  local z_clone_cmd="rm -rf '${z_project_dir}' && mkdir -p '${z_project_dir%/*}' && git clone '${z_clone_source}' '${z_project_dir}'"
+  if test "${z_host}" = "localhost"; then
+    z_clone_cmd="git config --global --add safe.directory '${z_clone_source}/.git' && ${z_clone_cmd}"
+  fi
+
   ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new "${z_ssh_target}" \
-    "rm -rf '${z_project_dir}' && git config --global --add safe.directory '${z_curia_repo}/.git' && mkdir -p '${z_project_dir%/*}' && git clone '${z_curia_repo}' '${z_project_dir}'" \
+    "${z_clone_cmd}" \
     2>"${z_stderr}" \
     || buc_die "Failed to clone repo for: ${z_ssh_target} — see ${z_stderr}"
 
@@ -290,55 +297,6 @@ zjjfp_ssh_setup_repo() {
       || buc_die "Failed to remove origin for: ${z_ssh_target} — see ${z_stderr}"
     buc_log_args "Repo cloned with origin removed"
   fi
-
-  zjjfp_ssh_install_buk "${z_host}" "${z_user}" "${z_curia_repo}"
-}
-
-zjjfp_ssh_install_buk() {
-  zjjfp_sentinel
-  local -r z_host="${1:-}"
-  local -r z_user="${2:-}"
-  local -r z_curia_repo="${3:-}"
-
-  buc_step "Installing BUK for: ${z_user}@${z_host}"
-
-  local -r z_ssh_target="${z_user}@${z_host}"
-  local -r z_buk_dir="${ZJJFP_RELDIR}/.buk"
-  local -r z_burc_stderr="${ZJJFP_TEMP_PREFIX}burc_${z_user}_stderr.txt"
-
-  # Create .buk dir and write burc.env
-  ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new "${z_ssh_target}" \
-    "mkdir -p '${z_buk_dir}' && cat > '${z_buk_dir}/burc.env'" <<'BURC' || buc_die "Failed to write burc.env for: ${z_ssh_target} — see ${z_burc_stderr}"
-BURC_STATION_FILE=../station-files/burs.env
-BURC_TABTARGET_DIR=tt
-BURC_TABTARGET_DELIMITER=.
-BURC_TOOLS_DIR=Tools
-BURC_PROJECT_ROOT=..
-BURC_MANAGED_KITS=buk,cmk,jjk,vvk
-BURC_TEMP_ROOT_DIR=../temp-buk
-BURC_OUTPUT_ROOT_DIR=../output-buk
-BURC_LOG_LAST=last
-BURC_LOG_EXT=txt
-BURC
-
-  # Copy launcher files via SSH
-  local -r z_curia_buk="${z_curia_repo}/.buk"
-  local z_launcher=""
-  local z_index=0
-  for z_launcher in "${z_curia_buk}"/launcher.*.sh; do
-    test -f "${z_launcher}" || continue
-    local z_launcher_name="${z_launcher##*/}"
-    local z_scp_stderr="${ZJJFP_TEMP_PREFIX}buk_${z_user}_${z_index}_scp_stderr.txt"
-    scp -o BatchMode=yes -o StrictHostKeyChecking=accept-new "${z_launcher}" "${z_ssh_target}:${z_buk_dir}/${z_launcher_name}" \
-      2>"${z_scp_stderr}" \
-      || buc_die "Failed to copy launcher ${z_launcher_name} for: ${z_ssh_target} — see ${z_scp_stderr}"
-    z_index=$((z_index + 1))
-  done
-
-  ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new "${z_ssh_target}" "chmod -R u+x '${z_buk_dir}'" \
-    || buc_die "Failed to chmod .buk for: ${z_ssh_target}"
-
-  buc_log_args "BUK installed for ${z_user}@${z_host}"
 }
 
 ######################################################################
@@ -439,19 +397,43 @@ jjfp_repo() {
   test -n "${z_curia_origin}" || buc_die "Git origin URL is empty"
   buc_log_args "Curia origin: ${z_curia_origin}"
 
-  # jjfu_full: clone with origin (for jjx_plant — needs git fetch origin)
-  zjjfp_ssh_setup_repo "${z_host}" "jjfu_full" 1 "${z_curia_origin}" "${z_curia_repo}"
+  # Select clone source: localhost clones from local repo (fast), remote clones from GitHub
+  local -r z_clone_source_file="${ZJJFP_TEMP_PREFIX}clone_source.txt"
+  if test "${z_host}" = "localhost"; then
+    echo "${z_curia_repo}" > "${z_clone_source_file}"
+  else
+    echo "${z_curia_origin}" > "${z_clone_source_file}"
+  fi
+  local -r z_clone_source=$(<"${z_clone_source_file}")
 
-  # jjfu_full needs GitHub host key for git fetch origin
-  local -r z_ghkey_stderr="${ZJJFP_TEMP_PREFIX}ghkey_jjfu_full_stderr.txt"
-  ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new "jjfu_full@${z_host}" \
-    "ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null" \
-    2>"${z_ghkey_stderr}" \
-    || buc_die "Failed to add GitHub host key for jjfu_full — see ${z_ghkey_stderr}"
-  buc_log_args "GitHub host key added for jjfu_full"
+  # For remote hosts, accounts need GitHub host key before cloning via SSH
+  if test "${z_host}" != "localhost"; then
+    local z_ghkey_user=""
+    for z_ghkey_user in jjfu_full jjfu_nogit; do
+      local z_ghkey_stderr="${ZJJFP_TEMP_PREFIX}ghkey_${z_ghkey_user}_stderr.txt"
+      ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new "${z_ghkey_user}@${z_host}" \
+        "ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null" \
+        2>"${z_ghkey_stderr}" \
+        || buc_die "Failed to add GitHub host key for ${z_ghkey_user} — see ${z_ghkey_stderr}"
+      buc_log_args "GitHub host key added for ${z_ghkey_user}@${z_host}"
+    done
+  fi
+
+  # jjfu_full: clone with origin (for jjx_plant — needs git fetch origin)
+  zjjfp_ssh_setup_repo "${z_host}" "jjfu_full" 1 "${z_curia_origin}" "${z_clone_source}"
+
+  # For localhost, jjfu_full also needs GitHub host key for git fetch origin (plant test)
+  if test "${z_host}" = "localhost"; then
+    local -r z_ghkey_stderr="${ZJJFP_TEMP_PREFIX}ghkey_jjfu_full_stderr.txt"
+    ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new "jjfu_full@${z_host}" \
+      "ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null" \
+      2>"${z_ghkey_stderr}" \
+      || buc_die "Failed to add GitHub host key for jjfu_full — see ${z_ghkey_stderr}"
+    buc_log_args "GitHub host key added for jjfu_full@${z_host}"
+  fi
 
   # jjfu_nogit: clone with origin removed (tests plant failure path)
-  zjjfp_ssh_setup_repo "${z_host}" "jjfu_nogit" 0 "" "${z_curia_repo}"
+  zjjfp_ssh_setup_repo "${z_host}" "jjfu_nogit" 0 "" "${z_clone_source}"
 
   buc_success "Phase 2 complete — repos and BUK installed"
 }
