@@ -1819,9 +1819,10 @@
         "₢A4AAH",
         "₢A4AAL",
         "₢A4AAF",
-        "₢A4AAI"
+        "₢A4AAI",
+        "₢A4AAP"
       ],
-      "next_pace_seed": "AAP",
+      "next_pace_seed": "AAQ",
       "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAl4.md",
       "paces": {
@@ -2141,6 +2142,17 @@
               "text": "## Character\nTwo parts: a trivial BUK tabtarget (mechanical) and a fundus scenario test function that uses it to prove temporal overlap doesn't cause cross-contamination (moderate — timing assertions need care).\n\n## Docket\nAdd a BUK delay tabtarget and a fundus scenario test exercising genuinely concurrent dispatch.\n\n**BUK delay tabtarget:**\n- Colophon: `buw-dly` (BUK workbench delay). Simple sleep through BUD dispatch.\n- `tt/buw-dly.Delay.sh` — dispatches, sleeps 20 seconds, exits 0.\n- Workbench routing in `buw_workbench.sh` for the `buw-dly` colophon.\n- Purpose: general-purpose timing fixture for any project that installs BUK. Lives in BUK because it tests dispatch infrastructure, not JJK-specific behavior. Usable against foreign BUK instances.\n\n**Fundus scenario test:**\n- New test function in `fundus_scenario.rs` under the `full` module: `relay_concurrent_overlap`\n- Dispatches 3 relay jobs using the delay tabtarget against `jjfu_full`\n- Instant-probes all 3 — asserts all report **running** (temporal overlap guaranteed by 20s sleep)\n- Polls one to completion — confirms **stopped** with correct BURX_LABEL\n- Verifies all 3 BURX_LABELs are distinct (no cross-contamination)\n- Verifies all 3 BURX_TEMP_DIRs are distinct (isolation)\n\n**Replaces:** The existing `relay_parallel` test in `full` module, which uses a fast tabtarget that doesn't guarantee temporal overlap. Or keeps both if the fast version has independent value (testing rapid sequential dispatch).",
               "silks": "concurrent-dispatch-scenario",
               "commit": "2ba1d9a"
+            }
+          ]
+        },
+        "₢A4AAP": {
+          "tacks": [
+            {
+              "ts": "260405-0907",
+              "state": "rough",
+              "text": "## Character\nInvestigative — survey what arcanum still provides vs what MCP has superseded. Low-risk decision with clear success criteria.\n\n## Docket\nEvaluate whether `jja_arcanum.sh` and its supporting files (`jjl_ledger.json`, emitted slash commands) can be fully removed now that JJK operates via the `mcp__vvx__jjx` MCP tool.\n\n**Survey:**\n1. Identify all artifacts arcanum creates: `.claude/commands/jjc-*.md`, `.claude/jjm/` directories, `settings.local.json` permissions, ledger entries\n2. Determine which are still consumed by the MCP architecture vs dead weight\n3. Check if the `.claude/jjm/` directory creation and settings permissions are handled elsewhere (e.g., by VVK install)\n\n**Decision:** Remove arcanum entirely, or strip it to only the parts still needed.\n\n**Cleanup if removing:**\n- Delete `jja_arcanum.sh`, `jjl_ledger.json`\n- Remove arcanum routing from workbench (already removed from zipper)\n- Update CLAUDE.md file acronym mappings",
+              "silks": "evaluate-arcanum-removal",
+              "commit": "be43aec"
             }
           ]
         }
