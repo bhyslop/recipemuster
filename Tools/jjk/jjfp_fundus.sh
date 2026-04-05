@@ -481,6 +481,15 @@ jjfp_repo() {
   buc_success "Phase 2 complete — repos and BUK installed"
 }
 
+zjjfp_require_pushed() {
+  local -r z_branch="$(git rev-parse --abbrev-ref HEAD)"
+  local -r z_local="$(git rev-parse HEAD)"
+  local -r z_remote="$(git rev-parse "origin/${z_branch}" 2>/dev/null)" \
+    || buc_die "No remote tracking branch origin/${z_branch}"
+  test "${z_local}" = "${z_remote}" \
+    || buc_die "Unpushed commits on ${z_branch} — push before running fundus scenarios (local=${z_local:0:8} remote=${z_remote:0:8})"
+}
+
 jjfp_scenario() {
   zjjfp_sentinel
 
@@ -489,6 +498,8 @@ jjfp_scenario() {
 
   buc_doc_brief "Run all fundus scenario profiles against a host"
   buc_doc_shown || return 0
+
+  zjjfp_require_pushed
 
   export JJTEST_HOST="${z_host}"
   exec cargo test \
@@ -508,6 +519,8 @@ jjfp_single() {
   buc_doc_brief "Run a single fundus scenario test function against a host"
   buc_doc_param "test_function" "Rust test function name (e.g., full::bind_send)"
   buc_doc_shown || return 0
+
+  zjjfp_require_pushed
 
   export JJTEST_HOST="${z_host}"
   exec cargo test \
