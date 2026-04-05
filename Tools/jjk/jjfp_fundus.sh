@@ -17,18 +17,23 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # JJFP Fundus - Fundus test account provisioning and scenario dispatch
+#
+# The provision command requires root. Operator runs: sudo tt/jjw-tfP.ProvisionFundusAccounts.localhost.sh
 
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZJJFP_SOURCED:-}" || buc_die "Module jjfpmultiply sourced - check sourcing hierarchy"
+test -z "${ZJJFP_SOURCED:-}" || buc_die "Module jjfp multiply sourced - check sourcing hierarchy"
 ZJJFP_SOURCED=1
+
+# Tinder constant: SSH public key path param (operator passes path to authorize)
+JJFP_pubkey_param="pubkey"
 
 ######################################################################
 # Internal Functions (zjjfp_*)
 
 zjjfp_kindle() {
-  test -z "${ZJJFP_KINDLED:-}" || buc_die "Module jjfpalready kindled"
+  test -z "${ZJJFP_KINDLED:-}" || buc_die "Module jjfp already kindled"
 
   test -n "${BURD_TEMP_DIR:-}"  || buc_die "BURD_TEMP_DIR is unset"
   test -n "${BURD_TOOLS_DIR:-}" || buc_die "BURD_TOOLS_DIR is unset"
@@ -37,13 +42,13 @@ zjjfp_kindle() {
   readonly ZJJFP_MANIFEST_PATH="${ZJJFP_SCRIPT_DIR}/vov_veiled/Cargo.toml"
   readonly ZJJFP_RELDIR="projects/rbm_alpha_recipemuster"
   readonly ZJJFP_ACCOUNTS="jjfu_full jjfu_nokey jjfu_norepo jjfu_nogit"
-  readonly ZJJFP_TEMP_PREFIX="${BURD_TEMP_DIR}/jjf_"
+  readonly ZJJFP_TEMP_PREFIX="${BURD_TEMP_DIR}/jjfp_"
 
   readonly ZJJFP_KINDLED=1
 }
 
 zjjfp_sentinel() {
-  test "${ZJJFP_KINDLED:-}" = "1" || buc_die "Module jjfpnot kindled - call zjjfp_kindle first"
+  test "${ZJJFP_KINDLED:-}" = "1" || buc_die "Module jjfp not kindled - call zjjfp_kindle first"
 }
 
 ######################################################################
@@ -85,7 +90,7 @@ zjjfp_primary_group() {
 }
 
 ######################################################################
-# Internal helpers — account management
+# Internal helpers — account management (running as root)
 
 zjjfp_delete_account() {
   zjjfp_sentinel
@@ -102,18 +107,18 @@ zjjfp_delete_account() {
   local -r z_stderr="${ZJJFP_TEMP_PREFIX}delete_${z_user}_stderr.txt"
   case "${z_platform}" in
     macos)
-      sudo sysadminctl -deleteUser "${z_user}" 2>"${z_stderr}" \
+      sysadminctl -deleteUser "${z_user}" 2>"${z_stderr}" \
         || buc_die "Failed to delete macOS account: ${z_user} — see ${z_stderr}"
       if test -d "/Users/${z_user}"; then
-        sudo rm -rf "/Users/${z_user}" \
+        rm -rf "/Users/${z_user}" \
           || buc_die "Failed to remove residual home dir: /Users/${z_user}"
       fi
       ;;
     linux)
-      sudo userdel -r "${z_user}" 2>"${z_stderr}" \
+      userdel -r "${z_user}" 2>"${z_stderr}" \
         || buc_die "Failed to delete Linux account: ${z_user} — see ${z_stderr}"
       if test -d "/home/${z_user}"; then
-        sudo rm -rf "/home/${z_user}" \
+        rm -rf "/home/${z_user}" \
           || buc_die "Failed to remove residual home dir: /home/${z_user}"
       fi
       ;;
@@ -137,7 +142,7 @@ zjjfp_create_account() {
       local -r z_password=$(<"${z_pw_file}")
       test -n "${z_password}" || buc_die "Generated password is empty"
 
-      sudo sysadminctl -addUser "${z_user}" \
+      sysadminctl -addUser "${z_user}" \
         -password "${z_password}" \
         -home "/Users/${z_user}" \
         -shell /bin/bash \
@@ -145,9 +150,9 @@ zjjfp_create_account() {
         || buc_die "Failed to create macOS account: ${z_user} — see ${z_stderr}"
       ;;
     linux)
-      sudo useradd -m -s /bin/bash "${z_user}" 2>"${z_stderr}" \
+      useradd -m -s /bin/bash "${z_user}" 2>"${z_stderr}" \
         || buc_die "Failed to create Linux account: ${z_user} — see ${z_stderr}"
-      sudo passwd -l "${z_user}" 2>"${z_stderr}" \
+      passwd -l "${z_user}" 2>"${z_stderr}" \
         || buc_die "Failed to lock password for: ${z_user} — see ${z_stderr}"
       ;;
   esac
@@ -155,7 +160,7 @@ zjjfp_create_account() {
 }
 
 ######################################################################
-# Internal helpers — SSH key authorization
+# Internal helpers — SSH key authorization (running as root)
 
 zjjfp_authorize_ssh() {
   zjjfp_sentinel
@@ -171,22 +176,22 @@ zjjfp_authorize_ssh() {
   local -r z_ssh_dir="${z_home}/.ssh"
   local -r z_group="$(zjjfp_primary_group "${z_platform}" "${z_user}")"
 
-  sudo mkdir -p "${z_ssh_dir}" \
+  mkdir -p "${z_ssh_dir}" \
     || buc_die "Failed to create .ssh dir for: ${z_user}"
-  echo "${z_pubkey}" | sudo tee "${z_ssh_dir}/authorized_keys" >/dev/null \
+  echo "${z_pubkey}" > "${z_ssh_dir}/authorized_keys" \
     || buc_die "Failed to write authorized_keys for: ${z_user}"
-  sudo chmod 700 "${z_ssh_dir}" \
+  chmod 700 "${z_ssh_dir}" \
     || buc_die "Failed to chmod .ssh for: ${z_user}"
-  sudo chmod 600 "${z_ssh_dir}/authorized_keys" \
+  chmod 600 "${z_ssh_dir}/authorized_keys" \
     || buc_die "Failed to chmod authorized_keys for: ${z_user}"
-  sudo chown -R "${z_user}:${z_group}" "${z_ssh_dir}" \
+  chown -R "${z_user}:${z_group}" "${z_ssh_dir}" \
     || buc_die "Failed to chown .ssh for: ${z_user}"
 
   buc_log_args "SSH authorized for ${z_user}"
 }
 
 ######################################################################
-# Internal helpers — repository and BUK setup
+# Internal helpers — repository and BUK setup (running as root, su for target user ops)
 
 zjjfp_setup_repo() {
   zjjfp_sentinel
@@ -194,7 +199,9 @@ zjjfp_setup_repo() {
   local -r z_user="${2:-}"
   local -r z_with_origin="${3:-1}"
   local -r z_curia_origin="${4:-}"
+  local -r z_curia_repo="${5:-}"
   test -n "${z_user}" || buc_die "zjjfp_setup_repo: user required"
+  test -n "${z_curia_repo}" || buc_die "zjjfp_setup_repo: curia_repo required"
 
   buc_step "Setting up repo for: ${z_user} (origin=${z_with_origin})"
 
@@ -203,26 +210,19 @@ zjjfp_setup_repo() {
   local -r z_project_parent="${z_project_dir%/*}"
   local -r z_stderr="${ZJJFP_TEMP_PREFIX}repo_${z_user}_stderr.txt"
 
-  # Resolve curia repo absolute path
-  local -r z_curia_root_file="${ZJJFP_TEMP_PREFIX}curia_root.txt"
-  (cd "${BURD_TOOLS_DIR}/.." && pwd) > "${z_curia_root_file}" \
-    || buc_die "Failed to resolve curia repo root"
-  local -r z_curia_repo=$(<"${z_curia_root_file}")
-  test -n "${z_curia_repo}" || buc_die "Empty curia repo root"
-
-  sudo -u "${z_user}" mkdir -p "${z_project_parent}" \
+  su - "${z_user}" -c "mkdir -p '${z_project_parent}'" \
     || buc_die "Failed to create projects dir for: ${z_user}"
 
-  sudo -u "${z_user}" git clone "${z_curia_repo}" "${z_project_dir}" 2>"${z_stderr}" \
+  su - "${z_user}" -c "git clone '${z_curia_repo}' '${z_project_dir}'" 2>"${z_stderr}" \
     || buc_die "Failed to clone repo for: ${z_user} — see ${z_stderr}"
 
   if test "${z_with_origin}" = "1"; then
     test -n "${z_curia_origin}" || buc_die "zjjfp_setup_repo: curia_origin required when with_origin=1"
-    sudo -u "${z_user}" git -C "${z_project_dir}" remote set-url origin "${z_curia_origin}" 2>"${z_stderr}" \
+    su - "${z_user}" -c "git -C '${z_project_dir}' remote set-url origin '${z_curia_origin}'" 2>"${z_stderr}" \
       || buc_die "Failed to set origin for: ${z_user} — see ${z_stderr}"
     buc_log_args "Repo cloned with origin: ${z_curia_origin}"
   else
-    sudo -u "${z_user}" git -C "${z_project_dir}" remote remove origin 2>"${z_stderr}" \
+    su - "${z_user}" -c "git -C '${z_project_dir}' remote remove origin" 2>"${z_stderr}" \
       || buc_die "Failed to remove origin for: ${z_user} — see ${z_stderr}"
     buc_log_args "Repo cloned with origin removed"
   fi
@@ -242,11 +242,11 @@ zjjfp_install_buk() {
   local -r z_buk_dir="${z_project_dir}/.buk"
   local -r z_group="$(zjjfp_primary_group "${z_platform}" "${z_user}")"
 
-  sudo -u "${z_user}" mkdir -p "${z_buk_dir}" \
+  su - "${z_user}" -c "mkdir -p '${z_buk_dir}'" \
     || buc_die "Failed to create .buk dir for: ${z_user}"
 
   # Write burc.env — same relative paths as curia
-  sudo -u "${z_user}" tee "${z_buk_dir}/burc.env" >/dev/null <<'BURC'
+  cat > "${z_buk_dir}/burc.env" <<'BURC'
 BURC_STATION_FILE=../station-files/burs.env
 BURC_TABTARGET_DIR=tt
 BURC_TABTARGET_DELIMITER=.
@@ -265,13 +265,13 @@ BURC
   for z_launcher in "${z_curia_buk}"/launcher.*.sh; do
     test -f "${z_launcher}" || continue
     local z_launcher_name="${z_launcher##*/}"
-    sudo cp "${z_launcher}" "${z_buk_dir}/${z_launcher_name}" \
+    cp "${z_launcher}" "${z_buk_dir}/${z_launcher_name}" \
       || buc_die "Failed to copy launcher: ${z_launcher_name}"
   done
 
-  sudo chown -R "${z_user}:${z_group}" "${z_buk_dir}" \
+  chown -R "${z_user}:${z_group}" "${z_buk_dir}" \
     || buc_die "Failed to chown .buk for: ${z_user}"
-  sudo chmod -R u+x "${z_buk_dir}" \
+  chmod -R u+x "${z_buk_dir}" \
     || buc_die "Failed to chmod .buk for: ${z_user}"
 
   buc_log_args "BUK installed for ${z_user}"
@@ -283,43 +283,33 @@ BURC
 jjfp_provision() {
   zjjfp_sentinel
 
-  local -r z_host="${BUZ_FOLIO:-}"
-  test -n "${z_host}" || buc_die "jjfp_provision: no host (BUZ_FOLIO empty)"
+  local -r z_pubkey_file="${1:-}"
 
   buc_doc_brief "Provision all 4 jjfu_* fundus test accounts per JJSTF"
+  buc_doc_param "${JJFP_pubkey_param}" "Path to curia user SSH public key file"
   buc_doc_shown || return 0
 
-  # Remote provisioning: SSH to host and run the localhost tabtarget there
-  if test "${z_host}" != "localhost"; then
-    buc_step "Provisioning fundus accounts on remote host: ${z_host}"
-    local -r z_remote_stderr="${ZJJFP_TEMP_PREFIX}remote_provision_stderr.txt"
-    ssh "${z_host}" "cd ~/${ZJJFP_RELDIR} && tt/jjw-tfP.ProvisionFundusAccounts.localhost.sh" \
-      2>"${z_remote_stderr}" \
-      || buc_die "Remote provisioning failed on ${z_host} — see ${z_remote_stderr}"
-    buc_success "Remote provisioning complete on ${z_host}"
-    return 0
-  fi
+  # Root gate
+  test "$(id -u)" = "0" || buc_die "jjfp_provision: must run as root (use: sudo tt/jjw-tfP.ProvisionFundusAccounts.localhost.sh)"
 
-  # Local provisioning
-  buc_step "Provisioning fundus test accounts on localhost"
+  # Validate pubkey parameter
+  test -n "${z_pubkey_file}" || buc_die "jjfp_provision: pubkey path required (pass as argument)"
+  test -f "${z_pubkey_file}" || buc_die "jjfp_provision: pubkey file not found: ${z_pubkey_file}"
+  local -r z_pubkey=$(<"${z_pubkey_file}")
+  test -n "${z_pubkey}" || buc_die "jjfp_provision: pubkey file is empty: ${z_pubkey_file}"
+
+  buc_step "Provisioning fundus test accounts"
 
   # Discover platform
   local z_platform=""
   z_platform=$(zjjfp_detect_platform) || buc_die "Platform detection failed"
 
-  # Discover curia SSH public key
-  local -r z_ed25519="${HOME}/.ssh/id_ed25519.pub"
-  local -r z_rsa="${HOME}/.ssh/id_rsa.pub"
-  local z_pubkey=""
-  if test -f "${z_ed25519}"; then
-    z_pubkey=$(<"${z_ed25519}")
-  elif test -f "${z_rsa}"; then
-    z_pubkey=$(<"${z_rsa}")
-  else
-    buc_die "No SSH public key found at ${z_ed25519} or ${z_rsa}"
-  fi
-  test -n "${z_pubkey}" || buc_die "SSH public key file is empty"
-  buc_log_args "Curia SSH key found"
+  # Resolve curia repo absolute path
+  local -r z_curia_root_file="${ZJJFP_TEMP_PREFIX}curia_root.txt"
+  (cd "${BURD_TOOLS_DIR}/.." && pwd) > "${z_curia_root_file}" \
+    || buc_die "Failed to resolve curia repo root"
+  local -r z_curia_repo=$(<"${z_curia_root_file}")
+  test -n "${z_curia_repo}" || buc_die "Empty curia repo root"
 
   # Discover git origin URL
   local -r z_origin_file="${ZJJFP_TEMP_PREFIX}origin.txt"
@@ -342,7 +332,7 @@ jjfp_provision() {
   # jjfu_full: SSH + repo + BUK + origin
   zjjfp_create_account  "${z_platform}" "jjfu_full"
   zjjfp_authorize_ssh   "${z_platform}" "jjfu_full" "${z_pubkey}"
-  zjjfp_setup_repo      "${z_platform}" "jjfu_full" 1 "${z_curia_origin}"
+  zjjfp_setup_repo      "${z_platform}" "jjfu_full" 1 "${z_curia_origin}" "${z_curia_repo}"
 
   # jjfu_nokey: OS account only, no SSH key access from curia
   zjjfp_create_account  "${z_platform}" "jjfu_nokey"
@@ -354,9 +344,9 @@ jjfp_provision() {
   # jjfu_nogit: SSH + repo + BUK, origin removed
   zjjfp_create_account  "${z_platform}" "jjfu_nogit"
   zjjfp_authorize_ssh   "${z_platform}" "jjfu_nogit" "${z_pubkey}"
-  zjjfp_setup_repo      "${z_platform}" "jjfu_nogit" 0
+  zjjfp_setup_repo      "${z_platform}" "jjfu_nogit" 0 "" "${z_curia_repo}"
 
-  buc_success "All 4 fundus accounts provisioned on localhost"
+  buc_success "All 4 fundus accounts provisioned"
 }
 
 jjfp_scenario() {
