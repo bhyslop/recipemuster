@@ -1980,9 +1980,10 @@
         "₢A4AAL",
         "₢A4AAF",
         "₢A4AAI",
-        "₢A4AAP"
+        "₢A4AAP",
+        "₢A4AAR"
       ],
-      "next_pace_seed": "AAR",
+      "next_pace_seed": "AAS",
       "next_pensum_seed": "BC",
       "paddock_file": ".claude/jjm/jjp_uAl4.md",
       "paces": {
@@ -2373,6 +2374,17 @@
               "text": "## Character\nMechanical — straightforward constant extraction and platform-specific account enumeration. No design judgment needed.\n\n## Docket\nExtract `jjfu_` prefix as a named constant and use prefix-based enumeration for Phase 1 account deletion.\n\n**Constant:**\n- `JJFP_account_prefix=\"jjfu_\"` — single source of truth for the fundus test account prefix\n\n**Delete phase (Phase 1):**\n- Replace iteration over `ZJJFP_ACCOUNTS` with platform-specific prefix enumeration:\n  - macOS: `dscl . -list /Users | grep \"^${JJFP_account_prefix}\"`\n  - Linux: `getent passwd | grep \"^${JJFP_account_prefix}\" | cut -d: -f1`\n- Catches stale accounts from previous configurations\n\n**Magic string cleanup:**\n- Audit `jjfp_fundus.sh` for bare `jjfu_` literals — replace with constant or derive from it\n- The Rust test constants (`JJFU_FULL`, etc.) are fine as-is — they're in a different namespace and individually named\n\n**Does not change:** Account creation logic (each account has distinct setup steps), `ZJJFP_ACCOUNTS` list (still needed for creation), or test account names.",
               "silks": "fundus-account-prefix-cleanup",
               "commit": "7cf1759"
+            }
+          ]
+        },
+        "₢A4AAR": {
+          "tacks": [
+            {
+              "ts": "260407-1032",
+              "state": "rough",
+              "text": "## Character\nSurgical plumbing change. Mechanical once the design is clear — move a field from one storage location to another, update all read/write sites, update spec. The tricky part is ensuring token uniqueness without git-tracked state.\n\n## Docket\nMove pensum seed from gallops (git-tracked, commits on every mint) to officium-local storage (ephemeral, no commit).\n\n**Problem**: `jjx_relay` mints a pensum by incrementing `pensum_seed` on the heat in gallops under commit lock. Each mint creates a git commit, advancing HEAD past origin. The curia readiness guard (also on relay) then refuses subsequent relays because HEAD is unpushed. Pensum tokens are session-scoped ephemeral correlation tokens — they don't belong in permanent project history.\n\n**Fix — Rust (`jjrlg_legatio.rs` / `jjrm_mcp.rs`)**:\n- Move pensum seed from `jjrg_Heat.pensum_seed` to a file in the officium directory (e.g., `pensum_seed.json` keyed by firemark)\n- `zjjrlg_mint_pensum_locked` no longer acquires gallops lock or commits — reads/writes officium-local file\n- Remove gallops lock acquisition from the relay dispatch path entirely\n- Pensum tokens remain unique within an officium; cross-officium collision is acceptable (tokens are ephemeral correlation labels, not permanent identifiers)\n\n**Fix — JJS0 (`JJS0_JobJockeySpec.adoc`)**:\n- Update `jjdo_relay` behavior: pensum minting no longer touches gallops or creates a commit\n- Update `jjdhm_pensum_seed` definition: lives in officium exchange directory, not heat metadata\n- Remove pensum seed from heat field inventory if listed\n- Update any cross-references to pensum minting under gallops lock\n\n**Fix — Test (`jjtlg_fundus_scenario.rs`)**:\n- Localhost relay tests should now pass without advancing HEAD\n- Verify: run full localhost suite after fix, all 13 non-ignored tests pass\n\n**Confidence gate**: If pensum token format or identity encoding needs to change, stop and flag — that cascades to BURX_LABEL correlation and check/fetch workflows.",
+              "silks": "move-pensum-seed-to-officium",
+              "commit": "ac31b14"
             }
           ]
         }
