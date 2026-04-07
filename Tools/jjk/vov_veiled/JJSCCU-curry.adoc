@@ -1,13 +1,13 @@
 Read or write a
 {jjdhr_heat_p}
 paddock file.
-Operates in two modes depending on whether content is provided.
+Operates in two modes depending on whether {jjdxo_gazette} input is present.
 
 *Getter mode* (no `gazette_in.md`, `firemark` param required):
 reads the paddock file and returns its contents,
 followed by gazette-formatted output written to `gazette_out.md`.
 
-*Setter mode* (`gazette_in.md` present, or `firemark` + `content` params provided):
+*Setter mode* (`gazette_in.md` present with `jjezs_paddock` notice):
 writes new paddock content to the file,
 creates a discussion commit with optional note.
 
@@ -17,11 +17,8 @@ creates a discussion commit with optional note.
 * {jjdt_firemark}
 — target
 {jjdhr_heat}.
-Required in getter mode and in direct setter mode.
-Not required when {jjdxo_gazette} contains setter input (firemark is parsed from gazette).
-
-//axd_optional
-* `content` (string) — new paddock content (direct setter mode, when `gazette_in.md` is absent).
+Required in getter mode.
+Not required in setter mode (firemark is parsed from {jjdxo_gazette}).
 
 //axd_optional
 * `note` (string) — chalk description appended to commit message.
@@ -39,22 +36,17 @@ If absent, commit message is "paddock curried".
 
 *Getter:*
 
-. Parse {jjdt_firemark}
+. Parse {jjdt_firemark} from param
 . Load {jjdgr_gallops} (read-only, no lock)
 . Verify {jjdhr_heat} exists
 . Read paddock file from {jjdhm_paddock} path
 . Output paddock contents
 . Output gazette-formatted version ({jjezs_paddock} slug)
 
-*Setter (direct):*
+*Setter:*
 
-. Parse {jjdt_firemark}
+. Dispatcher reads `gazette_in.md` via universal entry rule, parses firemark and content from `jjezs_paddock` notice
 . Load {jjdgr_gallops}
 . Verify {jjdhr_heat} exists
 . Write new content to paddock file
 . Commit paddock file with discussion marker (`d` action code)
-
-*Setter (`gazette_in.md`):*
-
-. Dispatcher reads `gazette_in.md` via universal entry rule, parses firemark and content
-. Proceed as direct setter

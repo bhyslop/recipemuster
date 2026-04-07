@@ -2,27 +2,28 @@ Tally family: three single-purpose {jjdpr_pace} mutation operations split from t
 Each mutates flat fields on the {jjdpr_pace} directly.
 
 // tag::redocket[]
-Update the docket text of a {jjdpr_pace}.
+Update the docket text of one or more {jjdpr_pace_s}.
+All input is provided via {jjdxo_gazette} `jjezs_reslate` notices.
+No JSON params are required.
 
 {jjds_arguments}
 
-//axd_required
-* {jjdt_coronet}
+* {jjdt_coronet} and `docket` — provided via {jjdxo_gazette} `jjezs_reslate` notice lede and body.
+Multiple notices in a single gazette enables mass reslate.
 
-//axd_required
-* `docket` (string) — New docket text
-
-{jjds_stdout} None
+{jjds_stdout} Revision count and diffs.
 
 {jjds_exit_uniform} 0 success, non-zero error.
 
 {jjds_behavior}
 
+. Parse {jjdxo_gazette} for one or more `jjezs_reslate` notices, each containing {jjdt_coronet} (lede) and docket text (body)
 . {jjdr_load}; on failure, exit immediately with {jjdr_load} error status
-. Extract parent {jjdt_firemark} from {jjdt_coronet} (first 2 base64 chars after prefix)
-. Verify {jjdhr_heat} exists
-. Verify {jjdpr_pace} exists with given {jjdt_coronet}
-. Update docket text on {jjdpr_pace}
+. For each notice:
+.. Extract parent {jjdt_firemark} from {jjdt_coronet} (first 2 base64 chars after prefix)
+.. Verify {jjdhr_heat} exists
+.. Verify {jjdpr_pace} exists with given {jjdt_coronet}
+.. Update docket text on {jjdpr_pace}
 . {jjdr_save}
 // end::redocket[]
 

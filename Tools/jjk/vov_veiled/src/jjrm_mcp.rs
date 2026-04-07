@@ -265,10 +265,6 @@ pub struct jjrm_CreateParams {
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_EnrollParams {
     pub firemark: String,
-    #[serde(default)]
-    pub silks: Option<String>,
-    #[serde(default)]
-    pub docket: Option<String>,
     pub before: Option<String>,
     pub after: Option<String>,
     #[serde(default)]
@@ -289,10 +285,6 @@ pub struct jjrm_ReorderParams {
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_ReviseDocketParams {
-    #[serde(default)]
-    pub coronet: Option<String>,
-    #[serde(default)]
-    pub docket: Option<String>,
 }
 
 
@@ -359,7 +351,6 @@ pub struct jjrm_GetCoronetsParams {
 pub struct jjrm_PaddockParams {
     #[serde(default)]
     pub firemark: Option<String>,
-    pub content: Option<String>,
     pub note: Option<String>,
 }
 
@@ -1016,20 +1007,16 @@ impl jjrm_McpServer {
             }
             JJRM_CMD_NAME_ENROLL => {
                 let p = deser!(jjrm_EnrollParams);
-                let (silks, docket) = if let Some(ref content) = gazette_in_content {
-                    match jjrz_parse_slate_input(content) {
+                let (silks, docket) = match gazette_in_content {
+                    Some(ref content) => match jjrz_parse_slate_input(content) {
                         Ok(pair) => pair,
                         Err(e) => return Ok(CallToolResult::error(vec![Content::text(
                             format!("{}: gazette input error: {}", cmd, e),
                         )])),
-                    }
-                } else {
-                    match (p.silks, p.docket) {
-                        (Some(s), Some(d)) => (s, d),
-                        _ => return Ok(CallToolResult::error(vec![Content::text(
-                            format!("{}: requires gazette_in.md or both 'silks' and 'docket' params", cmd),
-                        )])),
-                    }
+                    },
+                    None => return Ok(CallToolResult::error(vec![Content::text(
+                        format!("{}: requires gazette_in.md with jjezs_slate notice", cmd),
+                    )])),
                 };
                 jjrm_result(jjrsl_run_slate(jjrsl_SlateArgs {
                     file: gallops_pathbuf(),
@@ -1054,47 +1041,34 @@ impl jjrm_McpServer {
                 }))
             }
             JJRM_CMD_NAME_REDOCKET => {
-                let p = deser!(jjrm_ReviseDocketParams);
-                if let Some(ref content) = gazette_in_content {
-                    let pairs = match jjrz_parse_reslate_input(content) {
+                let _p = deser!(jjrm_ReviseDocketParams);
+                let pairs = match gazette_in_content {
+                    Some(ref content) => match jjrz_parse_reslate_input(content) {
                         Ok(p) => p,
                         Err(e) => return Ok(CallToolResult::error(vec![Content::text(
                             format!("{}: gazette input error: {}", cmd, e),
                         )])),
-                    };
-                    let first_coronet = pairs[0].0.clone();
-                    jjrm_dispatch_pace(cmd, &first_coronet, |gallops| {
-                        let mut diffs = Vec::new();
-                        for (coronet, docket) in &pairs {
-                            let diff = jjrtl_run_revise_docket(gallops, coronet, docket)?;
-                            if !diff.is_empty() {
-                                diffs.push(format!("--- ₢{} reslate diff ---\n{}", coronet, diff));
-                            }
+                    },
+                    None => return Ok(CallToolResult::error(vec![Content::text(
+                        format!("{}: requires gazette_in.md with jjezs_reslate notice(s)", cmd),
+                    )])),
+                };
+                let first_coronet = pairs[0].0.clone();
+                jjrm_dispatch_pace(cmd, &first_coronet, |gallops| {
+                    let mut diffs = Vec::new();
+                    for (coronet, docket) in &pairs {
+                        let diff = jjrtl_run_revise_docket(gallops, coronet, docket)?;
+                        if !diff.is_empty() {
+                            diffs.push(format!("--- ₢{} reslate diff ---\n{}", coronet, diff));
                         }
-                        let mut output = format!("Revised {} pace(s)", pairs.len());
-                        if !diffs.is_empty() {
-                            output.push_str("\n\n");
-                            output.push_str(&diffs.join("\n"));
-                        }
-                        Ok(output)
-                    })
-                } else {
-                    match (p.coronet, p.docket) {
-                        (Some(coronet), Some(docket)) => {
-                            jjrm_dispatch_pace(cmd, &coronet, |gallops| {
-                                let diff = jjrtl_run_revise_docket(gallops, &coronet, &docket)?;
-                                let mut output = "Revised 1 pace(s)".to_string();
-                                if !diff.is_empty() {
-                                    output.push_str(&format!("\n\n--- ₢{} reslate diff ---\n{}", coronet, diff));
-                                }
-                                Ok(output)
-                            })
-                        }
-                        _ => Ok(CallToolResult::error(vec![Content::text(
-                            format!("{}: requires gazette_in.md or both 'coronet' and 'docket' params", cmd),
-                        )])),
                     }
-                }
+                    let mut output = format!("Revised {} pace(s)", pairs.len());
+                    if !diffs.is_empty() {
+                        output.push_str("\n\n");
+                        output.push_str(&diffs.join("\n"));
+                    }
+                    Ok(output)
+                })
             }
             JJRM_CMD_NAME_RELABEL => {
                 let p = deser!(jjrm_RelabelParams);
@@ -1187,7 +1161,7 @@ impl jjrm_McpServer {
                     let firemark = match p.firemark {
                         Some(f) => f,
                         None => return Ok(CallToolResult::error(vec![Content::text(
-                            format!("{}: requires gazette_in.md or 'firemark' param", cmd),
+                            format!("{}: getter mode requires 'firemark' param", cmd),
                         )])),
                     };
                     let mut gazette = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
@@ -1195,7 +1169,7 @@ impl jjrm_McpServer {
                         file: gallops_pathbuf(),
                         firemark,
                         note: p.note,
-                    }, p.content, &mut gazette);
+                    }, None, &mut gazette);
                     let md = gazette.jjrz_emit();
                     if !md.is_empty() { std::fs::write(&gazette_out_path, md.as_bytes()).ok(); }
                     jjrm_result(result)

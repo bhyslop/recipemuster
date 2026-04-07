@@ -21,16 +21,14 @@ Use positioning flags to insert at a specific location.
 — target
 {jjdhr_heat}
 
-//axd_required
 * {jjda_silks}
-(may be omitted when {jjdxo_gazette} contains `jjezs_slate` input; silks is parsed from gazette lede)
+— provided via {jjdxo_gazette} `jjezs_slate` lede
 
-//axd_required
 * `docket` (string) —
 {jjdkm_text}
 content for the initial
-{jjdkr_tack}
-(may be omitted when {jjdxo_gazette} contains `jjezs_slate` input; docket is parsed from gazette content)
+{jjdkr_tack},
+provided via {jjdxo_gazette} `jjezs_slate` body
 
 //axd_optional
 * {jjda_before}
