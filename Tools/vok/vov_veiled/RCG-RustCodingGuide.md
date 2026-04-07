@@ -14,19 +14,19 @@ The primary concern is **minting discipline** — ensuring all identifiers follo
 
 ## Crate Boilerplate
 
-Every crate's `lib.rs` must include these attributes to support RCG naming conventions:
+Every Rust file that serves as a crate root must include these attributes. This includes `lib.rs`, `main.rs`, and every integration test file in `tests/` (each compiles as a separate crate).
 
 ```rust
 #![allow(non_camel_case_types)]
 #![allow(private_interfaces)]
-#![deny(unused_variables)]
+#![deny(warnings)]
 ```
 
 - `non_camel_case_types`: Allows prefixed type names like `jjrg_Gallops`
 - `private_interfaces`: Allows z-prefixed (internal) types in public enum variants
-- `unused_variables`: Promotes to error — catches logic bugs like redundant lookups
+- `deny(warnings)`: All warnings are build failures — no warning is acceptable in committed code
 
-The `allow` directives are mandatory for RCG naming. The `deny` directive catches bugs early.
+The `allow` directives must appear after `deny(warnings)` to override it for RCG-specific naming patterns. The `deny` directive ensures warnings never accumulate — a warning today becomes a mystery tomorrow.
 
 ## File Naming
 
@@ -574,9 +574,9 @@ When extracting inline tests from `{cipher}r{x}_{name}.rs` to `{cipher}t{x}_{nam
 ### File Structure
 - [ ] Source file: `{cipher}r{x}_{name}.rs`
 - [ ] Test file: `{cipher}t{x}_{name}.rs` (if tests exist)
-- [ ] `lib.rs` has `#![allow(non_camel_case_types)]`
-- [ ] `lib.rs` has `#![allow(private_interfaces)]`
-- [ ] `lib.rs` has `#![deny(unused_variables)]`
+- [ ] Every crate root has `#![deny(warnings)]`
+- [ ] Every crate root has `#![allow(non_camel_case_types)]` (after deny)
+- [ ] Every crate root has `#![allow(private_interfaces)]` (after deny)
 - [ ] `lib.rs` declares source module: `pub mod {cipher}r{x}_{name};`
 - [ ] `lib.rs` declares test module: `#[cfg(test)] mod {cipher}t{x}_{name};`
 

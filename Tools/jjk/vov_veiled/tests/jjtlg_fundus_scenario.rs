@@ -2,6 +2,10 @@
 // All rights reserved.
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
+#![deny(warnings)]
+#![allow(non_camel_case_types)]
+#![allow(private_interfaces)]
+
 //! Fundus scenario tests for remote dispatch via SSH.
 //!
 //! Localhost tests run on every `cargo test` — requires jjfu_* accounts
