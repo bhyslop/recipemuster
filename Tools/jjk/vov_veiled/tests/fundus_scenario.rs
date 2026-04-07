@@ -247,6 +247,54 @@ fn extract_burx_field(output: &str, field: &str) -> String {
 }
 
 // ============================================================================
+// Curia readiness guard (RAII helpers + implementations)
+// ============================================================================
+
+/// RAII marker file that creates a dirty working tree. Cleaned up on drop.
+struct DirtyMarker {
+    path: PathBuf,
+}
+
+impl DirtyMarker {
+    fn create() -> Self {
+        ensure_project_root();
+        let path = PathBuf::from(".jjtest_dirty_marker");
+        std::fs::write(&path, "curia readiness test marker")
+            .unwrap_or_else(|e| panic!("failed to create dirty marker: {}", e));
+        Self { path }
+    }
+}
+
+impl Drop for DirtyMarker {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_file(&self.path);
+    }
+}
+
+fn test_relay_refuses_dirty_tree_impl(p: &FundusProfile) {
+    let officium = TestOfficium::new("dirty-guard");
+    let token = bind_profile(p, &officium);
+
+    let _marker = DirtyMarker::create();
+
+    let (code, output) = jjrlg_run_relay(
+        jjrlg_RelayArgs {
+            legatio: token,
+            tabtarget: RELAY_TEST_TABTARGET.to_string(),
+            timeout: RELAY_TEST_TIMEOUT,
+            firemark: RELAY_TEST_FIREMARK.to_string(),
+        },
+        &officium.id,
+    );
+    assert_ne!(code, 0, "relay should refuse dirty tree:\n{}", output);
+    assert!(
+        output.contains("dirty") && output.contains("relay refused"),
+        "expected dirty-tree refusal message:\n{}", output
+    );
+    // _marker dropped here, cleaning up the dirty file
+}
+
+// ============================================================================
 // Happy-path test implementations (jjfu_full)
 // ============================================================================
 
@@ -565,6 +613,9 @@ mod full {
 
     #[test] #[ignore]
     fn fetch() { test_fetch_impl(&profile()); }
+
+    #[test] #[ignore]
+    fn relay_refuses_dirty_tree() { test_relay_refuses_dirty_tree_impl(&profile()); }
 }
 
 // ============================================================================
