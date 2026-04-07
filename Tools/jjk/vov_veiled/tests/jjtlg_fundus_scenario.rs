@@ -4,17 +4,13 @@
 
 //! Fundus scenario tests for remote dispatch via SSH.
 //!
-//! Run via tabtargets:
-//!   Suite:  `tt/jjw-tfs.TestFundusScenario.<host>.sh`
-//!   Single: `tt/jjw-tfS.TestFundusSingle.<host>.sh <test_fn>`
+//! Localhost tests run on every `cargo test` — requires jjfu_* accounts
+//! provisioned on localhost (see JJSTF-test-fundus.adoc).
 //!
-//! Requires jjfu_* accounts on the target host — see JJSTF-test-fundus.adoc.
-//!
-//! All tests use `#[ignore]` to prevent running during normal `cargo test`.
-//! The workbench invokes with `--ignored` after setting JJTEST_HOST.
+//! Cerebro tests use `#[ignore]` — run via tabtarget or `--ignored`.
 //!
 //! Relay tests mint real pensa (creating git commits). This is intentional —
-//! these are end-to-end scenario tests run explicitly via tabtarget.
+//! these are end-to-end scenario tests.
 
 use std::path::PathBuf;
 
@@ -83,14 +79,11 @@ fn zjjtlg_ensure_project_root() {
 }
 
 // ============================================================================
-// Host resolution
+// Host constants
 // ============================================================================
 
-/// Read target host from JJTEST_HOST (set by workbench from tabtarget imprint).
-fn zjjtlg_test_host() -> String {
-    std::env::var("JJTEST_HOST")
-        .unwrap_or_else(|_| panic!("JJTEST_HOST not set — run via tabtarget"))
-}
+const JJTLG_HOST_LOCALHOST: &str = "localhost";
+const JJTLG_HOST_CEREBRO: &str = "cerebro";
 
 // ============================================================================
 // Test officium (RAII)
@@ -574,20 +567,64 @@ fn jjtlg_fetch_impl(p: &jjtlg_FundusProfile) {
 }
 
 // ============================================================================
-// full — happy-path (jjfu_full account)
+// localhost — happy-path against localhost (always available)
 // ============================================================================
 
-mod full {
+mod localhost {
     use super::*;
 
     fn profile() -> jjtlg_FundusProfile {
         let p = jjtlg_FundusProfile {
-            host: zjjtlg_test_host(),
+            host: JJTLG_HOST_LOCALHOST.to_string(),
             user: JJTLG_ACCOUNT_FULL.to_string(),
             reldir: JJTLG_RELDIR.to_string(),
         };
         zjjtlg_preflight_happy(&p).unwrap_or_else(|e| panic!(
-            "full profile not available ({}@{}): {}\nProvision: sudo tt/jjw-tfP.ProvisionFundusAccounts.localhost.sh",
+            "localhost profile not available ({}@{}): {}\nProvision: sudo tt/jjw-tfP.ProvisionFundusAccounts.localhost.sh",
+            JJTLG_ACCOUNT_FULL, p.host, e));
+        p
+    }
+
+    #[test]
+    fn bind_send() { jjtlg_bind_send_impl(&profile()); }
+
+    #[test]
+    fn plant() { jjtlg_plant_impl(&profile()); }
+
+    #[test]
+    fn relay_check_instant() { jjtlg_relay_check_instant_impl(&profile()); }
+
+    #[test]
+    fn relay_check_poll() { jjtlg_relay_check_poll_impl(&profile()); }
+
+    #[test]
+    fn relay_parallel() { jjtlg_relay_parallel_impl(&profile()); }
+
+    #[test]
+    fn relay_concurrent_overlap() { jjtlg_relay_concurrent_overlap_impl(&profile()); }
+
+    #[test]
+    fn fetch() { jjtlg_fetch_impl(&profile()); }
+
+    #[test]
+    fn relay_refuses_dirty_tree() { jjtlg_relay_refuses_dirty_tree_impl(&profile()); }
+}
+
+// ============================================================================
+// cerebro — happy-path against cerebro (remote, may not be reachable)
+// ============================================================================
+
+mod cerebro {
+    use super::*;
+
+    fn profile() -> jjtlg_FundusProfile {
+        let p = jjtlg_FundusProfile {
+            host: JJTLG_HOST_CEREBRO.to_string(),
+            user: JJTLG_ACCOUNT_FULL.to_string(),
+            reldir: JJTLG_RELDIR.to_string(),
+        };
+        zjjtlg_preflight_happy(&p).unwrap_or_else(|e| panic!(
+            "cerebro profile not available ({}@{}): {}\nProvision fundus accounts on cerebro first.",
             JJTLG_ACCOUNT_FULL, p.host, e));
         p
     }
@@ -624,9 +661,9 @@ mod full {
 mod nokey {
     use super::*;
 
-    #[test] #[ignore]
+    #[test]
     fn bind_fails_auth() {
-        let host = zjjtlg_test_host();
+        let host = JJTLG_HOST_LOCALHOST.to_string();
         // Preflight: verify the account exists on the target host
         let id_check = std::process::Command::new("ssh")
             .args(["-o", "ConnectTimeout=5", "-o", "BatchMode=yes"])
@@ -663,9 +700,9 @@ mod nokey {
 mod norepo {
     use super::*;
 
-    #[test] #[ignore]
+    #[test]
     fn bind_fails_probe() {
-        let host = zjjtlg_test_host();
+        let host = JJTLG_HOST_LOCALHOST.to_string();
         // Preflight: SSH to jjfu_norepo must work
         assert!(zjjtlg_preflight_ssh(&host, JJTLG_ACCOUNT_NOREPO),
             "{} not reachable on {} — provision accounts first",
@@ -696,7 +733,7 @@ mod nogit {
     use super::*;
 
     fn profile() -> jjtlg_FundusProfile {
-        let host = zjjtlg_test_host();
+        let host = JJTLG_HOST_LOCALHOST.to_string();
         let p = jjtlg_FundusProfile {
             host,
             user: JJTLG_ACCOUNT_NOGIT.to_string(),
@@ -722,7 +759,7 @@ mod nogit {
         p
     }
 
-    #[test] #[ignore]
+    #[test]
     fn bind_succeeds() {
         let p = profile();
         let officium = jjtlg_TestOfficium::new("nogit-bind");
@@ -737,7 +774,7 @@ mod nogit {
         assert_eq!(code, 0, "bind should succeed for nogit profile:\n{}", output);
     }
 
-    #[test] #[ignore]
+    #[test]
     fn send_succeeds() {
         let p = profile();
         let officium = jjtlg_TestOfficium::new("nogit-send");
@@ -754,7 +791,7 @@ mod nogit {
         assert!(output.contains("nogit_works"), "missing echo output:\n{}", output);
     }
 
-    #[test] #[ignore]
+    #[test]
     fn plant_fails() {
         let p = profile();
         let officium = jjtlg_TestOfficium::new("nogit-plant");

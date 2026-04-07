@@ -515,16 +515,18 @@ jjfp_scenario() {
   local -r z_host="${BUZ_FOLIO:-}"
   test -n "${z_host}" || buc_die "jjfp_scenario: no host (BUZ_FOLIO empty)"
 
-  buc_doc_brief "Run all fundus scenario profiles against a host"
+  buc_doc_brief "Run fundus scenario tests for a host (localhost=normal, cerebro=ignored)"
   buc_doc_shown || return 0
 
   zjjfp_require_pushed
 
-  export JJTEST_HOST="${z_host}"
+  local z_ignored_flag=""
+  test "${z_host}" = "localhost" || z_ignored_flag="--ignored"
+
   exec cargo test \
     --manifest-path "${ZJJFP_MANIFEST_PATH}" \
     --test jjtlg_fundus_scenario \
-    -- --test-threads=1 --ignored
+    -- --test-threads=1 ${z_ignored_flag}
 }
 
 jjfp_single() {
@@ -535,17 +537,18 @@ jjfp_single() {
   test -n "${z_host}" || buc_die "jjfp_single: no host (BUZ_FOLIO empty)"
   test -n "${z_test}" || buc_die "jjfp_single: no test function name (pass as argument)"
 
-  buc_doc_brief "Run a single fundus scenario test function against a host"
-  buc_doc_param "test_function" "Rust test function name (e.g., full::bind_send)"
+  buc_doc_brief "Run a single fundus scenario test (e.g., localhost::bind_send)"
   buc_doc_shown || return 0
 
   zjjfp_require_pushed
 
-  export JJTEST_HOST="${z_host}"
+  local z_ignored_flag=""
+  test "${z_host}" = "localhost" || z_ignored_flag="--ignored"
+
   exec cargo test \
     --manifest-path "${ZJJFP_MANIFEST_PATH}" \
     --test jjtlg_fundus_scenario \
-    -- --test-threads=1 --ignored "${z_test}"
+    -- --test-threads=1 ${z_ignored_flag} "${z_test}"
 }
 
 # eof
