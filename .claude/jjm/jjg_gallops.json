@@ -1609,6 +1609,7 @@
       "creation_time": "260402",
       "status": "racing",
       "order": [
+        "₢A3AAG",
         "₢A3AAA",
         "₢A3AAB",
         "₢A3AAC",
@@ -1616,7 +1617,7 @@
         "₢A3AAE",
         "₢A3AAF"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAl3.md",
       "paces": {
@@ -1837,6 +1838,17 @@
               "text": "## Character\nIntegration testing and polish — verify the guides work end-to-end on a fresh machine, align docs with reality.\n\n## Docket\n\nFinal validation pass after all five guides are built.\n\n### Docs alignment\n- Align README.md getting-started section with the onboarding guide flow\n- Align index.html dependency and role descriptions with current truths\n- Ensure `RBGC_PUBLIC_DOCS_URL` links land on correct anchors\n- Verify `buc_link` URLs from triage and role tracks resolve to real content\n\n### Cross-machine testing\n- Test triage on fresh Linux box with no credentials → should show all absent, link to docs\n- Test retriever track with only retriever SA key → should probe and guide through summon/inspect/start\n- Test governor track with project-level access → should guide through depot/SA creation\n- Verify each guide is self-contained — no step requires knowledge from another role's track\n\n### Cleanup\n- Remove any dead code from old `rbgm_onboarding()` not already retired\n- Update CLAUDE.md if onboarding tabtargets need documenting\n\n## References\n- README.md, index.html — consumer-facing docs\n- All `rbw-o*` / `rbw-O*` tabtargets built in prior paces",
               "silks": "docs-alignment-and-cross-machine-validation",
               "commit": "ad8641f"
+            }
+          ]
+        },
+        "₢A3AAG": {
+          "tacks": [
+            {
+              "ts": "260407-0956",
+              "state": "rough",
+              "text": "## Character\nMechanical BUK extension — add a new combinator letter to an established pattern. The design is settled (two-arg `l` slot); implementation is pattern-following from existing combinators. Test with BUTT self-test framework.\n\n## Docket\n\nExtend `bug_guide.sh` with `l` (link) as a text combinator letter. `l` renders an OSC-8 terminal hyperlink (blue underline, clickable). Unlike other combinator letters which consume one positional arg, `l` consumes two: display text and URL.\n\n### Implementation\n\nAdd to `Tools/buk/bug_guide.sh`:\n\n**Internal helper** (parallel to existing `zbug_show`):\n- `zbug_link_fragment` — returns the OSC-8 formatted link fragment for embedding in combinator output. Must respect `BURD_NO_HYPERLINKS` fallback (same as `bug_link`).\n\n**Combinators** (initial set — expand as needed during onboarding paces):\n\n| Function | Args | Visual sequence |\n|----------|------|-----------------|\n| `bug_lt` | text, url, text | link + text |\n| `bug_tl` | text, text, url | text + link |\n| `bug_tlt` | text, text, url, text | text + link + text |\n| `bug_tlc` | text, text, url, text | text + link + command |\n| `bug_tltlt` | text, text, url, text, text, url, text | text + link + text + link + text |\n\n**Convention**: In the header comment block, document that `l` consumes two positional args (text, url) and note this exception to the one-letter-one-arg rule.\n\n### Relationship to existing `bug_link`\n\n`bug_link` remains as-is — it's the standalone four-arg version with its own prefix/suffix signature. The `l` combinator integrates links into the composable system alongside `c`, `u`, `W`, `E`. No refactoring of `bug_link` needed.\n\n### Test\n\nAdd test cases to BUK self-test (`Tools/buk/butt_testbench.sh` or appropriate fixture):\n- `bug_tlt` produces expected output with OSC-8 sequences\n- `bug_tlt` with `BURD_NO_HYPERLINKS` falls back to styled text + angle-bracket URL\n- Arg count matches combinator letter count (accounting for `l` = 2)\n\n### Validation\n- Run `tt/buw-st.BukSelfTest.sh` — all existing + new cases pass\n- Verify no regressions in existing `bug_link` or `bug_*` combinator behavior\n\n## References\n- `Tools/buk/bug_guide.sh` — implementation target\n- `Tools/buk/butt_testbench.sh` — test framework\n- BUS0 (`Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc`) — may need quoin for new combinator letter",
+              "silks": "bug-link-combinator",
+              "commit": "558156e"
             }
           ]
         }
