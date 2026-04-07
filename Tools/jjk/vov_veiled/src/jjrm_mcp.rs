@@ -54,8 +54,6 @@ const OFFICIUM_SUN_PREFIX: char = '\u{2609}'; // ☉
 // Command name constants — RCG String Boundary Discipline.
 // Lifecycle commands (bypass Gallops lock)
 const JJRM_CMD_NAME_OPEN: &str = "jjx_open";
-const JJRM_CMD_NAME_CHAPTER: &str = "jjx_chapter";
-const JJRM_CMD_NAME_ABSOLVE: &str = "jjx_absolve";
 // Gallops commands
 const JJRM_CMD_NAME_RECORD: &str = "jjx_record";
 const JJRM_CMD_NAME_LOG: &str = "jjx_log";
@@ -89,7 +87,7 @@ const JJRM_CMD_NAME_RELAY: &str = "jjx_relay";
 const JJRM_CMD_NAME_CHECK: &str = "jjx_check";
 // Complete registry of all commands
 const JJRM_ALL_COMMANDS: &[&str] = &[
-    JJRM_CMD_NAME_OPEN, JJRM_CMD_NAME_CHAPTER, JJRM_CMD_NAME_ABSOLVE,
+    JJRM_CMD_NAME_OPEN,
     JJRM_CMD_NAME_RECORD, JJRM_CMD_NAME_LOG, JJRM_CMD_NAME_VALIDATE,
     JJRM_CMD_NAME_LIST, JJRM_CMD_NAME_ORIENT, JJRM_CMD_NAME_SHOW,
     JJRM_CMD_NAME_ARCHIVE, JJRM_CMD_NAME_CREATE, JJRM_CMD_NAME_ENROLL,
@@ -439,15 +437,23 @@ pub struct jjrm_JjxParams {
 // ============================================================================
 
 /// Reap stale officium directories by heartbeat mtime.
-fn zjjrm_exsanguinate(officia: &Path) {
+/// Returns (reaped_count, active_count) for summary reporting.
+fn zjjrm_exsanguinate(officia: &Path) -> (usize, usize) {
     let entries = match std::fs::read_dir(officia) {
         Ok(e) => e,
-        Err(_) => return,
+        Err(_) => return (0, 0),
     };
     let now = std::time::SystemTime::now();
+    let mut reaped: usize = 0;
+    let mut active: usize = 0;
     for entry in entries.flatten() {
         let path = entry.path();
         if !path.is_dir() { continue; }
+        let dir_name = match path.file_name() {
+            Some(n) => n.to_string_lossy().to_string(),
+            None => continue,
+        };
+        if dir_name.starts_with('.') { continue; }
         let heartbeat = path.join(HEARTBEAT_FILE);
         if !heartbeat.exists() {
             // No heartbeat file — legacy or corrupt. Log warning, skip.
@@ -465,9 +471,14 @@ fn zjjrm_exsanguinate(officia: &Path) {
         if age.as_secs() > EXSANGUINATION_THRESHOLD_SECS {
             if let Err(e) = std::fs::remove_dir_all(&path) {
                 eprintln!("jjx exsanguinate: failed to remove {:?}: {}", path.file_name(), e);
+            } else {
+                reaped += 1;
             }
+        } else {
+            active += 1;
         }
     }
+    (reaped, active)
 }
 
 /// Generate officium ID: YYMMDD-NNNN (autonumber from directory listing).
@@ -542,7 +553,7 @@ async fn zjjrm_handle_open() -> Result<CallToolResult, McpError> {
     }
 
     // Exsanguinate stale officia before creating new one
-    zjjrm_exsanguinate(&officia);
+    let (reaped, active) = zjjrm_exsanguinate(&officia);
 
     // Generate officium ID and atomically claim the exchange directory.
     // create_dir (not create_dir_all) fails with AlreadyExists if another
@@ -619,205 +630,13 @@ async fn zjjrm_handle_open() -> Result<CallToolResult, McpError> {
         }
     };
 
+    if reaped > 0 || active > 0 {
+        vvco_out!(output, "Exsanguination: {} active, {} reaped", active, reaped);
+    }
     vvco_out!(output, "{}{}", OFFICIUM_SUN_PREFIX, id);
     Ok(CallToolResult::success(vec![Content::text(output.vvco_finish())]))
 }
 
-/// Handle jjx_chapter: list active officia with status.
-fn zjjrm_handle_chapter(caller_officium: &str) -> Result<CallToolResult, McpError> {
-    let cn = JJRM_CMD_NAME_CHAPTER;
-    let bare_caller_id = caller_officium.trim_start_matches(OFFICIUM_SUN_PREFIX);
-    let officia = PathBuf::from(OFFICIA_DIR);
-
-    let entries = match std::fs::read_dir(&officia) {
-        Ok(e) => e,
-        Err(e) => {
-            return Ok(CallToolResult::error(vec![Content::text(
-                format!("{}: cannot read officia dir: {}", cn, e),
-            )]));
-        }
-    };
-
-    let now = std::time::SystemTime::now();
-
-    struct RowInfo {
-        identity: String,
-        created_str: String,
-        heartbeat_str: String,
-        age_str: String,
-        status: String,
-        caller_marker: &'static str,
-    }
-
-    let mut rows: Vec<RowInfo> = Vec::new();
-
-    for entry in entries.flatten() {
-        let path = entry.path();
-        if !path.is_dir() { continue; }
-        let dir_name = match path.file_name() {
-            Some(n) => n.to_string_lossy().to_string(),
-            None => continue,
-        };
-        // Skip hidden files/dirs (e.g. .probe_date is a file, not a dir, but guard anyway)
-        if dir_name.starts_with('.') { continue; }
-
-        let identity = format!("{}{}", OFFICIUM_SUN_PREFIX, dir_name);
-        let caller_marker = if dir_name == bare_caller_id { " \u{2190} you" } else { "" };
-
-        // Created: try created(), fall back to modified()
-        let created_str = match path.metadata() {
-            Ok(meta) => {
-                let time = meta.created().or_else(|_| meta.modified()).ok();
-                match time {
-                    Some(t) => {
-                        let dt: chrono::DateTime<chrono::Local> = t.into();
-                        dt.format("%y%m%d-%H%M").to_string()
-                    }
-                    None => "?".to_string(),
-                }
-            }
-            Err(_) => "?".to_string(),
-        };
-
-        let heartbeat_path = path.join(HEARTBEAT_FILE);
-        let (heartbeat_str, age_str, status) = match heartbeat_path.metadata().and_then(|m| m.modified()) {
-            Ok(hb_mtime) => {
-                let dt: chrono::DateTime<chrono::Local> = hb_mtime.into();
-                let hb_str = dt.format("%y%m%d-%H%M").to_string();
-                let age = now.duration_since(hb_mtime).unwrap_or_default();
-                let age_secs = age.as_secs();
-                let age_str = if age_secs < 60 {
-                    format!("{}s", age_secs)
-                } else if age_secs < 3600 {
-                    format!("{}m", age_secs / 60)
-                } else {
-                    format!("{}h{}m", age_secs / 3600, (age_secs % 3600) / 60)
-                };
-                let status = if age_secs > EXSANGUINATION_THRESHOLD_SECS {
-                    "stale".to_string()
-                } else {
-                    "active".to_string()
-                };
-                (hb_str, age_str, status)
-            }
-            Err(_) => ("?".to_string(), "?".to_string(), "unknown".to_string()),
-        };
-
-        rows.push(RowInfo {
-            identity,
-            created_str,
-            heartbeat_str,
-            age_str,
-            status,
-            caller_marker,
-        });
-    }
-
-    if rows.is_empty() {
-        return Ok(CallToolResult::success(vec![Content::text("No officia found.".to_string())]));
-    }
-
-    // Sort by identity for stable output
-    rows.sort_by(|a, b| a.identity.cmp(&b.identity));
-
-    // Build aligned table
-    let header = format!("{:<20}  {:<12}  {:<12}  {:>7}  {:<8}",
-        "Officium", "Created", "Heartbeat", "Age", "Status");
-    let separator = "-".repeat(header.len() + 16);
-    let mut lines = vec![header, separator];
-    for row in &rows {
-        lines.push(format!("{:<20}  {:<12}  {:<12}  {:>7}  {:<8}{}",
-            row.identity,
-            row.created_str,
-            row.heartbeat_str,
-            row.age_str,
-            row.status,
-            row.caller_marker,
-        ));
-    }
-
-    Ok(CallToolResult::success(vec![Content::text(lines.join("\n"))]))
-}
-
-/// Handle jjx_absolve: remove stale officia directories.
-fn zjjrm_handle_absolve(caller_officium: &str) -> Result<CallToolResult, McpError> {
-    let cn = JJRM_CMD_NAME_ABSOLVE;
-    let bare_caller_id = caller_officium.trim_start_matches(OFFICIUM_SUN_PREFIX);
-    let officia = PathBuf::from(OFFICIA_DIR);
-
-    let entries = match std::fs::read_dir(&officia) {
-        Ok(e) => e,
-        Err(e) => {
-            return Ok(CallToolResult::error(vec![Content::text(
-                format!("{}: cannot read officia dir: {}", cn, e),
-            )]));
-        }
-    };
-
-    let now = std::time::SystemTime::now();
-    let mut removed: Vec<String> = Vec::new();
-    let mut errors: Vec<String> = Vec::new();
-
-    for entry in entries.flatten() {
-        let path = entry.path();
-        if !path.is_dir() { continue; }
-        let dir_name = match path.file_name() {
-            Some(n) => n.to_string_lossy().to_string(),
-            None => continue,
-        };
-        if dir_name.starts_with('.') { continue; }
-
-        // Never remove the caller's own officium
-        if dir_name == bare_caller_id { continue; }
-
-        let heartbeat_path = path.join(HEARTBEAT_FILE);
-        if !heartbeat_path.exists() {
-            // No heartbeat — treat as stale
-            match std::fs::remove_dir_all(&path) {
-                Ok(()) => removed.push(format!("{}{}", OFFICIUM_SUN_PREFIX, dir_name)),
-                Err(e) => errors.push(format!("{}{}: {}", OFFICIUM_SUN_PREFIX, dir_name, e)),
-            }
-            continue;
-        }
-
-        let mtime = match heartbeat_path.metadata().and_then(|m| m.modified()) {
-            Ok(t) => t,
-            Err(_) => continue,
-        };
-        let age = match now.duration_since(mtime) {
-            Ok(d) => d,
-            Err(_) => continue,
-        };
-
-        if age.as_secs() > EXSANGUINATION_THRESHOLD_SECS {
-            match std::fs::remove_dir_all(&path) {
-                Ok(()) => removed.push(format!("{}{}", OFFICIUM_SUN_PREFIX, dir_name)),
-                Err(e) => errors.push(format!("{}{}: {}", OFFICIUM_SUN_PREFIX, dir_name, e)),
-            }
-        }
-    }
-
-    let mut lines: Vec<String> = Vec::new();
-
-    if removed.is_empty() && errors.is_empty() {
-        lines.push("Nothing to absolve.".to_string());
-    } else {
-        if !removed.is_empty() {
-            lines.push(format!("Absolved {} officium/officia:", removed.len()));
-            for id in &removed {
-                lines.push(format!("  {}", id));
-            }
-        }
-        if !errors.is_empty() {
-            lines.push(format!("Errors ({}):", errors.len()));
-            for e in &errors {
-                lines.push(format!("  {}", e));
-            }
-        }
-    }
-
-    Ok(CallToolResult::success(vec![Content::text(lines.join("\n"))]))
-}
 
 // ============================================================================
 // Model gate
@@ -899,14 +718,6 @@ impl jjrm_McpServer {
                 )]));
             }
         }
-        // Officium lifecycle operations — bypass Gallops lock
-        if cmd == JJRM_CMD_NAME_CHAPTER {
-            return zjjrm_handle_chapter(p.officium.as_ref().unwrap());
-        }
-        if cmd == JJRM_CMD_NAME_ABSOLVE {
-            return zjjrm_handle_absolve(p.officium.as_ref().unwrap());
-        }
-
         // Universal entry rule: read+delete gazette_in, delete gazette_out.
         // Gazette content has single-MCP-call lifetime.
         let officium_id = p.officium.as_ref().unwrap();

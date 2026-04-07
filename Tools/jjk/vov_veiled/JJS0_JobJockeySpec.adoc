@@ -231,8 +231,6 @@
 :jjdo_paddock:           <<jjdo_paddock,jjx_paddock>>
 :jjdo_validate:       <<jjdo_validate,jjx_validate>>
 :jjdo_open:           <<jjdo_open,jjx_open>>
-:jjdo_chapter:        <<jjdo_chapter,jjx_chapter>>
-:jjdo_absolve:        <<jjdo_absolve,jjx_absolve>>
 
 // Remote dispatch operations
 :jjdo_bind:           <<jjdo_bind,jjx_bind>>
@@ -277,8 +275,6 @@
 :jjsuv_mount:      <<jjsuv_mount,mount>>
 :jjsuv_groom:      <<jjsuv_groom,groom>>
 :jjsuv_notch:      <<jjsuv_notch,notch>>
-:jjsuv_chapter:    <<jjsuv_chapter,chapter>>
-:jjsuv_absolve:    <<jjsuv_absolve,absolve>>
 
 // Upper API: context artifact
 :jjsuc_insert:  <<jjsuc_insert,CLAUDE.md JJK section>>
@@ -530,13 +526,16 @@ A stale {jjdxo_heartbeat} (mtime exceeding the staleness threshold) indicates th
 {jjdxo_exsanguination}::
 The stale officium reaping procedure.
 Runs at the beginning of each {jjdxo_invitatory}, before creating the new {jjdxo_officium} directory.
+Returns counts of active and reaped officia for {jjdo_open} summary output.
 +
 {jjds_behavior}
 +
-. Scan `.claude/jjm/officia/` for directories
+. Scan `.claude/jjm/officia/` for directories (skip hidden entries)
 . For each directory, check {jjdxo_heartbeat} mtime
-. Remove directories whose {jjdxo_heartbeat} exceeds the staleness threshold (7 days)
+. Remove directories whose {jjdxo_heartbeat} exceeds the staleness threshold (7 days); count as reaped
+. Count directories within threshold as active
 . Skip directories with no {jjdxo_heartbeat} file (legacy or corrupt — log warning, leave for manual cleanup)
+. Return (active count, reaped count)
 +
 The week-long staleness threshold ensures all same-day directories survive long enough for the autonumber scan to see them, preventing {jjdxo_officium} identity collisions within a day.
 Because the `officia/` tree is gitignored, incorrect reaping is benign — no tracked files are lost.
@@ -962,17 +961,6 @@ Orchestrates {jjdo_show} with remaining view, then enters planning mode for stru
 JJ-aware git commit with heat and pace affiliation.
 Detects context (pace-affiliated or heat-affiliated), then invokes {jjdo_record} with appropriate identity.
 
-[[jjsuv_chapter]]
-//axl_voices axi_cc_claudemd_verb
-{jjsuv_chapter}::
-List active {jjdxo_officium_s}.
-Invokes {jjdo_chapter}.
-
-[[jjsuv_absolve]]
-//axl_voices axi_cc_claudemd_verb
-{jjsuv_absolve}::
-Reap stale {jjdxo_officium} directories.
-Invokes {jjdo_absolve}.
 
 === Slash Commands
 
@@ -1933,7 +1921,7 @@ Heat-affiliated commands supply a {jjdt_firemark} directly.
 Pace-affiliated commands supply a {jjdt_coronet}; the dispatcher derives the
 parent {jjdt_firemark}.
 +
-Officium operations ({jjdo_open}, {jjdo_chapter}, {jjdo_absolve}) bypass the {jjdgr_gallops} lifecycle entirely — they are infrastructure that does not touch persistent state.
+{jjdo_open} bypasses the {jjdgr_gallops} lifecycle entirely — it is infrastructure that does not touch persistent state.
 +
 *{jjsz_gazette} I/O wiring* (output and input operations):
 +
@@ -2161,93 +2149,26 @@ include::JJSCPD-parade.adoc[]
 
 === Officium Operations
 
-Operations for inspecting and maintaining {jjdxo_officium} state.
-These are infrastructure operations — they do not touch {jjdgr_gallops}.
-
 [[jjdo_open]]
 //axvo_procedure axd_transient
 ==== {jjdo_open}
 
 Create a new {jjdxo_officium} for the calling agent session.
 Takes no parameters; returns the {jjdxo_officium} identity string.
+Does not touch {jjdgr_gallops}.
 +
 {jjds_behavior}
 +
 . Execute {jjdxo_invitatory} procedure ({jjdxo_exsanguination} → identity → directory → probe → commit)
-. Return identity string (e.g. `☉260327-1000`)
+. Return {jjdxo_exsanguination} summary and identity string
 +
 The agent calls {jjdo_open} once per chat session, at the beginning.
 The returned identity becomes a required parameter on all subsequent {jjdx_tool} calls.
 +
 {jjds_stdout}
 +
-The {jjdxo_officium} identity string, prefixed with ☉.
-
-[[jjdo_chapter]]
-//axvo_procedure axd_transient
-==== {jjdo_chapter}
-
-List active {jjdxo_officium_s}.
-Scans `.claude/jjm/officia/` for directories.
-Bypasses the {jjdgr_gallops} lifecycle — infrastructure operation.
-+
-{jjds_arguments}
-+
-* `officium` (string, required) — identity of the calling {jjdxo_officium}.
-  Used to mark the caller's own entry distinctly in output.
-+
-{jjds_behavior}
-+
-. Scan `.claude/jjm/officia/` for directories
-. For each directory, report:
-  * {jjdxo_officium} identity: ☉-prefixed (e.g. `☉260327-1000`)
-  * Creation time: directory ctime (fall back to mtime if ctime unavailable)
-  * {jjdxo_heartbeat} mtime: timestamp of last dispatch that touched the heartbeat file
-  * Age: human-readable elapsed time since heartbeat mtime (e.g. `42s`, `5m`, `1h23m`)
-  * Staleness status: `active` (within threshold), `stale` (exceeds threshold), or `unknown` (heartbeat metadata unavailable)
-. Mark the caller's own {jjdxo_officium} entry distinctly (e.g. `← you`)
-+
-{jjds_stdout}
-+
-Tabular listing of {jjdxo_officium_s}.
-Columns: Officium, Created, Heartbeat, Age, Status.
-Rows sorted by identity.
-Caller's own row marked with a distinguishing indicator.
-If no officia directories exist, reports "No officia found."
-
-[[jjdo_absolve]]
-//axvo_procedure axd_transient
-==== {jjdo_absolve}
-
-Reap stale {jjdxo_officium} directories.
-Removes {jjdxo_exchange} directories whose {jjdxo_heartbeat} exceeds the staleness threshold.
-Bypasses the {jjdgr_gallops} lifecycle — infrastructure operation.
-+
-{jjds_arguments}
-+
-* `officium` (string, required) — identity of the calling {jjdxo_officium}.
-  The caller's own directory is never removed, regardless of staleness.
-+
-{jjds_behavior}
-+
-. Scan `.claude/jjm/officia/` for directories
-. Skip the calling {jjdxo_officium_p} own directory (identified by `officium` param)
-. For each remaining directory:
-  * If no {jjdxo_heartbeat} file exists, treat as stale and remove
-  * Otherwise check {jjdxo_heartbeat} mtime; remove if it exceeds the staleness threshold (same threshold as {jjdxo_exsanguination})
-. Report each removed directory by ☉-prefixed identity
-. Report each removal error separately
-. If no directories were removed and no errors occurred, report "Nothing to absolve."
-+
-{jjds_stdout}
-+
-List of removed {jjdxo_officium} identities (count + per-identity lines), followed by any removal errors.
-When nothing was removed and no errors occurred, reports "Nothing to absolve."
-+
-NOTE: {jjdo_absolve} vs. {jjdxo_exsanguination}: these are complementary, not redundant.
-{jjdxo_exsanguination} is *automatic and silent* — it runs inside every {jjdo_open} invocation and produces no output.
-{jjdo_absolve} is *explicit and diagnostic* — it is user-invoked, reports what was removed, and can be called at any time without opening a new {jjdxo_officium}.
-Use {jjdo_absolve} when stale directories accumulate between {jjdo_open} calls, or to inspect cleanup results directly.
+When {jjdxo_exsanguination} encounters prior officia, a summary line: `Exsanguination: N active, M reaped`.
+Then the {jjdxo_officium} identity string, prefixed with ☉.
 
 === Remote Dispatch Operations
 
