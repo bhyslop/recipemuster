@@ -673,6 +673,50 @@ pub struct jjrlg_RelayArgs {
     pub firemark: String,
 }
 
+/// Verify curia git state is clean and pushed before remote dispatch.
+/// Returns Ok(()) if ready, Err(message) if not.
+fn zjjrlg_require_curia_ready() -> Result<(), String> {
+    // Check working tree is clean
+    let status = vvc::vvce_git_command(&["status", "--porcelain"])
+        .output()
+        .map_err(|e| format!("git status failed: {}", e))?;
+    let status_text = String::from_utf8_lossy(&status.stdout);
+    let dirty_count = status_text.lines().filter(|l| !l.is_empty()).count();
+    if dirty_count > 0 {
+        return Err(format!(
+            "curia working tree is dirty ({} files). Commit before dispatching.", dirty_count
+        ));
+    }
+
+    // Check HEAD is pushed to origin
+    let head = vvc::vvce_git_command(&["rev-parse", "HEAD"])
+        .output()
+        .map_err(|e| format!("git rev-parse HEAD failed: {}", e))?;
+    let head_sha = String::from_utf8_lossy(&head.stdout).trim().to_string();
+
+    let branch = vvc::vvce_git_command(&["rev-parse", "--abbrev-ref", "HEAD"])
+        .output()
+        .map_err(|e| format!("git rev-parse --abbrev-ref failed: {}", e))?;
+    let branch_name = String::from_utf8_lossy(&branch.stdout).trim().to_string();
+
+    let remote_ref = format!("origin/{}", branch_name);
+    let remote = vvc::vvce_git_command(&["rev-parse", &remote_ref])
+        .output()
+        .map_err(|e| format!("git rev-parse {} failed: {}", remote_ref, e))?;
+    let remote_sha = String::from_utf8_lossy(&remote.stdout).trim().to_string();
+
+    if head_sha != remote_sha {
+        return Err(format!(
+            "curia HEAD {} is not pushed to {} (remote {}). Push before dispatching.",
+            &head_sha[..8.min(head_sha.len())],
+            remote_ref,
+            &remote_sha[..8.min(remote_sha.len())]
+        ));
+    }
+
+    Ok(())
+}
+
 /// Launch an async dispatch on the fundus via nohup.
 ///
 /// Mints a pensum token, launches the tabtarget via nohup wrapper over SSH,
@@ -680,6 +724,12 @@ pub struct jjrlg_RelayArgs {
 pub fn jjrlg_run_relay(args: jjrlg_RelayArgs, officium_id: &str) -> (i32, String) {
     let cn = JJRLG_CMD_NAME_RELAY;
     let mut output = vvco_Output::buffer();
+
+    // Curia readiness gate: clean tree + pushed HEAD
+    if let Err(e) = zjjrlg_require_curia_ready() {
+        vvco_err!(output, "{}: relay refused: {}", cn, e);
+        return (1, output.vvco_finish());
+    }
 
     if let Err(e) = zjjrlg_validate_tabtarget(&args.tabtarget) {
         vvco_err!(output, "{}: {}", cn, e);

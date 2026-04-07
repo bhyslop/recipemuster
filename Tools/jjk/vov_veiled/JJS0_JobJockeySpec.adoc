@@ -2399,6 +2399,10 @@ token and remote temp directory path
 {jjds_behavior}
 
 //axhos_step
+. Verify {jjdxr_curia} readiness:
+.. Working tree must be clean (`git status --porcelain` empty). If dirty, fail with file count.
+.. HEAD must equal `origin/<branch>` (`git rev-parse` comparison). If unpushed, fail with abbreviated SHAs.
+//axhos_step
 . Validate tabtarget: must not be empty, must not contain `/` or `..`, must end with `.sh`
 //axhos_step
 . Load
