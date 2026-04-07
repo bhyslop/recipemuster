@@ -52,6 +52,7 @@ NEVER invent param fields — check the reference below first.
 | furlough | heat | `jjx_alter` |
 | retire | heat | `jjx_archive` |
 | restring | heat | `jjx_transfer` |
+| foray | remote dispatch | See Foray Protocol below |
 
 **MCP Command Reference:**
 
@@ -63,7 +64,7 @@ jjx_show           {target?, detail?, remaining?}
 jjx_list           {status?}
 jjx_orient         {firemark}
 jjx_create         {silks}
-jjx_enroll         {firemark, before?, after?, first?}              # silks+docket via gazette_in.md
+jjx_enroll         {firemark, before?, after?, first?}              # silks+docket via gazette_in.md only
 jjx_reorder        {firemark, move?, before?, after?, first?, last?}
 jjx_alter          {firemark, racing?, stabled?, silks?}
 jjx_record         {identity, files[], size_limit?, intent?}
@@ -73,15 +74,21 @@ jjx_search         {pattern, actionable?}
 jjx_archive        {firemark, size_limit?}
 jjx_transfer       {firemark, to, coronets}
 jjx_continue       {firemark}
-jjx_paddock        {firemark?, note?}                               # content via gazette (set) or gazette_out (get)
+jjx_paddock        {firemark?, note?}                               # gazette_in.md to set, gazette_out.md to get
 jjx_relocate       {coronet, to, before?, after?, first?}
-jjx_redocket       {coronet?}                                      # docket via gazette_in.md; supports mass reslate
+jjx_redocket       {}                                               # docket via gazette_in.md only; supports mass reslate
 jjx_relabel        {coronet, silks}
 jjx_drop           {coronet}
 jjx_brief      {coronet}
 jjx_coronets   {firemark, remaining?, rough?}
 jjx_landing        {coronet, agent, content?}
 jjx_validate       {}
+jjx_bind           {host, user, reldir}                             # remote: create legatio session
+jjx_send           {legatio, command}                               # remote: synchronous exec on fundus
+jjx_plant          {legatio, commit}                                # remote: reset fundus to exact commit
+jjx_relay          {legatio, tabtarget, timeout, firemark}          # remote: async dispatch via nohup
+jjx_check          {pensum, timeout}                                # remote: probe/poll pensum status
+jjx_fetch          {legatio, path}                                  # remote: read single file from fundus
 ```
 
 **Key points:**
@@ -91,7 +98,7 @@ jjx_validate       {}
   - Additional params: `detail`, `remaining` only
 - `jjx_orient` output includes next actionable pace — no separate show call needed
 - **Gazette output**: `jjx_orient`, `jjx_show` (with detail), and `jjx_paddock` (getter) write `gazette_out.md` with paddock and pace docket notices. Read the gazette file after these commands to get full content.
-- **Gazette input**: `jjx_enroll`, `jjx_redocket`, and `jjx_paddock` (setter) read docket/content from `gazette_in.md`. Do NOT pass multiline content via JSON params — gazette is the canonical path. The JSON `docket`/`content` params exist as fallback but fail on complex markdown due to escaping.
+- **Gazette input**: `jjx_enroll`, `jjx_redocket`, and `jjx_paddock` (setter) read docket/content from `gazette_in.md`. Gazette is the sole input path for docket content — no JSON param fallback.
 - `jjx_redocket` supports **mass reslate**: multiple `# jjezs_reslate <coronet>` notices in a single `gazette_in.md`, each with its own docket body. All paces updated in one call.
 - `jjx_paddock` `note` param: optional short string appended to the paddock discussion commit message (e.g., `{"note": "updated after spook fix"}`)
 - `jjx_close` takes `summary` as a string param (not stdin pipe)
@@ -168,6 +175,36 @@ When user says "groom":
 2. Read `gazette_out.md` for full paddock and pace docket content
 3. Display overview: heat silks, progress, remaining paces with dockets (from gazette)
 4. Enter planning mode: suggest structural operations (slate new paces, rail to reorder, reslate to refine dockets, paddock review)
+
+### Foray Protocol
+
+When user says "foray" or asks to run something on a remote machine:
+
+**Concepts:**
+- **Legatio**: A standing SSH session to a remote project (fundus). Created by `jjx_bind`, identified by a token (L0, L1, ...). Persists for the officium lifetime.
+- **Pensum**: An async dispatched job within a legatio. Created by `jjx_relay`, identified by a `₱`-prefixed token. Each pensum maps to a remote temp directory on the fundus.
+- **Curia**: The invoking side (where Claude runs). **Fundus**: The executing side (where the tabtarget runs).
+
+**Fundus constants** (use these for `jjx_bind`):
+- Default user: `rbtest`
+- Default reldir: `projects/rbm_alpha_recipemuster`
+
+**Workflow:**
+
+1. **Bind** (once per session per host): `jjx_bind` with `{host: "<hostname>", user: "rbtest", reldir: "projects/rbm_alpha_recipemuster"}`. Returns legatio token.
+2. **Ensure curia is clean and pushed**: notch if needed, `git push` if needed. `jjx_relay` will refuse dispatch if working tree is dirty or HEAD is unpushed.
+3. **Plant**: `jjx_plant` with `{legatio: "L0", commit: "<HEAD SHA>"}`. Resets fundus to exact commit.
+4. **Relay**: `jjx_relay` with `{legatio: "L0", tabtarget: "<filename>.sh", timeout: <seconds>, firemark: "<heat>"}`. Returns pensum token.
+5. **Check**: `jjx_check` with `{pensum: "<token>", timeout: 0}` for instant probe, or `timeout: <seconds>` to poll until terminal. Returns BURX fields + liveness report. On terminal status, also returns file list from remote temp dir.
+6. **Fetch** (selective): `jjx_fetch` with `{legatio: "L0", path: "<absolute-path>"}` to retrieve specific result files. Use paths from the check file list.
+
+**Liveness states** (from `jjx_check`):
+- **running**: BURX_EXIT_STATUS absent, PID alive
+- **orphaned**: BURX_EXIT_STATUS absent, PID dead (crashed without writing status)
+- **stopped**: BURX_EXIT_STATUS present (check exit code)
+- **lost**: burx.env file missing
+
+**`jjx_send`** is for synchronous one-off commands (no pensum, no polling). Use when the command is short and you need inline results.
 
 ### Commit Discipline
 
