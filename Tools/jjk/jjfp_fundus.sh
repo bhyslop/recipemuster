@@ -523,7 +523,7 @@ jjfp_scenario() {
   export JJTEST_HOST="${z_host}"
   exec cargo test \
     --manifest-path "${ZJJFP_MANIFEST_PATH}" \
-    --test fundus_scenario \
+    --test jjtlg_fundus_scenario \
     -- --test-threads=1 --ignored
 }
 
@@ -544,7 +544,7 @@ jjfp_single() {
   export JJTEST_HOST="${z_host}"
   exec cargo test \
     --manifest-path "${ZJJFP_MANIFEST_PATH}" \
-    --test fundus_scenario \
+    --test jjtlg_fundus_scenario \
     -- --test-threads=1 --ignored "${z_test}"
 }
 

@@ -31,36 +31,36 @@ use jjk::jjrlg_legatio::{
 // Account names — jjfu_* (JJ Fundus User)
 // ============================================================================
 
-const JJFU_FULL: &str = "jjfu_full";
-const JJFU_NOKEY: &str = "jjfu_nokey";
-const JJFU_NOREPO: &str = "jjfu_norepo";
-const JJFU_NOGIT: &str = "jjfu_nogit";
+const JJTLG_ACCOUNT_FULL: &str = "jjfu_full";
+const JJTLG_ACCOUNT_NOKEY: &str = "jjfu_nokey";
+const JJTLG_ACCOUNT_NOREPO: &str = "jjfu_norepo";
+const JJTLG_ACCOUNT_NOGIT: &str = "jjfu_nogit";
 
 // ============================================================================
 // Shared constants
 // ============================================================================
 
 /// Relative directory for fundus projects (shared across all accounts).
-const RELDIR: &str = "projects/rbm_alpha_recipemuster";
+const JJTLG_RELDIR: &str = "projects/rbm_alpha_recipemuster";
 
 /// Tabtarget for relay tests — quick, safe, goes through BUD dispatch.
-const RELAY_TEST_TABTARGET: &str = "buw-rcr.RenderConfigRegime.sh";
+const JJTLG_RELAY_TABTARGET: &str = "buw-rcr.RenderConfigRegime.sh";
 
 /// Delay tabtarget for concurrent overlap tests — 20s sleep through BUD dispatch.
-const DELAY_TABTARGET: &str = "buw-xd.Delay.sh";
+const JJTLG_DELAY_TABTARGET: &str = "buw-xd.Delay.sh";
 
 /// Relay timeout (seconds). Self-enforced remotely via watchdog.
-const RELAY_TEST_TIMEOUT: u64 = 60;
+const JJTLG_RELAY_TIMEOUT: u64 = 60;
 
 /// Check poll timeout (seconds). How long to wait for completion.
-const CHECK_POLL_TIMEOUT: u64 = 30;
+const JJTLG_CHECK_POLL_TIMEOUT: u64 = 30;
 
 /// Delay check poll timeout (seconds). Must exceed the 20s sleep plus dispatch overhead.
-const DELAY_CHECK_TIMEOUT: u64 = 60;
+const JJTLG_DELAY_CHECK_TIMEOUT: u64 = 60;
 
 /// Firemark for relay tests. Pensum minting validates against gallops,
 /// so this must be a real racing heat.
-const RELAY_TEST_FIREMARK: &str = "A4";
+const JJTLG_RELAY_FIREMARK: &str = "A4";
 
 // ============================================================================
 // Project root — cargo test CWD is the crate dir, not the project root.
@@ -68,7 +68,7 @@ const RELAY_TEST_FIREMARK: &str = "A4";
 // --test-threads=1, so set_current_dir is safe.
 // ============================================================================
 
-fn ensure_project_root() {
+fn zjjtlg_ensure_project_root() {
     use std::sync::Once;
     static INIT: Once = Once::new();
     INIT.call_once(|| {
@@ -87,7 +87,7 @@ fn ensure_project_root() {
 // ============================================================================
 
 /// Read target host from JJTEST_HOST (set by workbench from tabtarget imprint).
-fn test_host() -> String {
+fn zjjtlg_test_host() -> String {
     std::env::var("JJTEST_HOST")
         .unwrap_or_else(|_| panic!("JJTEST_HOST not set — run via tabtarget"))
 }
@@ -98,14 +98,14 @@ fn test_host() -> String {
 
 /// Temporary officium directory for scenario tests.
 /// Cleaned up on drop, even on panic.
-struct TestOfficium {
+struct jjtlg_TestOfficium {
     id: String,
     dir: PathBuf,
 }
 
-impl TestOfficium {
+impl jjtlg_TestOfficium {
     fn new(label: &str) -> Self {
-        ensure_project_root();
+        zjjtlg_ensure_project_root();
         let ts = chrono::Local::now().format("%H%M%S%.3f").to_string();
         let bare_id = format!("test-{}-{}", label, ts);
         let dir = PathBuf::from(".claude/jjm/officia").join(&bare_id);
@@ -118,7 +118,7 @@ impl TestOfficium {
     }
 }
 
-impl Drop for TestOfficium {
+impl Drop for jjtlg_TestOfficium {
     fn drop(&mut self) {
         let _ = std::fs::remove_dir_all(&self.dir);
     }
@@ -128,7 +128,7 @@ impl Drop for TestOfficium {
 // Profile configuration
 // ============================================================================
 
-struct FundusProfile {
+struct jjtlg_FundusProfile {
     host: String,
     user: String,
     reldir: String,
@@ -138,7 +138,7 @@ struct FundusProfile {
 // Preflight
 // ============================================================================
 
-fn preflight_ssh(host: &str, user: &str) -> bool {
+fn zjjtlg_preflight_ssh(host: &str, user: &str) -> bool {
     std::process::Command::new("ssh")
         .args(["-o", "ConnectTimeout=5", "-o", "BatchMode=yes"])
         .arg(format!("{}@{}", user, host))
@@ -148,8 +148,8 @@ fn preflight_ssh(host: &str, user: &str) -> bool {
         .unwrap_or(false)
 }
 
-fn preflight_happy(p: &FundusProfile) -> Result<(), String> {
-    if !preflight_ssh(&p.host, &p.user) {
+fn zjjtlg_preflight_happy(p: &jjtlg_FundusProfile) -> Result<(), String> {
+    if !zjjtlg_preflight_ssh(&p.host, &p.user) {
         return Err(format!("SSH to {}@{} failed", p.user, p.host));
     }
     let ssh_test = |cmd: &str| -> bool {
@@ -186,7 +186,7 @@ fn preflight_happy(p: &FundusProfile) -> Result<(), String> {
 // ============================================================================
 
 /// Parse legatio token from bind output ("Legatio L0 bound to ...").
-fn parse_legatio_token(output: &str) -> String {
+fn zjjtlg_parse_legatio_token(output: &str) -> String {
     output.lines()
         .find(|l| l.contains("Legatio ") && l.contains(" bound to "))
         .and_then(|l| {
@@ -198,7 +198,7 @@ fn parse_legatio_token(output: &str) -> String {
 }
 
 /// Parse pensum display from relay output ("Pensum ₱XX%YY active.").
-fn parse_pensum_display(output: &str) -> String {
+fn zjjtlg_parse_pensum_display(output: &str) -> String {
     output.lines()
         .find(|l| l.contains("Pensum ") && l.contains(" active."))
         .and_then(|l| {
@@ -210,7 +210,7 @@ fn parse_pensum_display(output: &str) -> String {
 }
 
 /// Strip ₱ (U+20B1) prefix from pensum display to get raw token.
-fn pensum_raw_token(display: &str) -> &str {
+fn zjjtlg_pensum_raw_token(display: &str) -> &str {
     display.trim_start_matches('\u{20B1}')
 }
 
@@ -219,7 +219,7 @@ fn pensum_raw_token(display: &str) -> &str {
 // ============================================================================
 
 /// Bind to a fundus profile and return the legatio token.
-fn bind_profile(p: &FundusProfile, officium: &TestOfficium) -> String {
+fn zjjtlg_bind_profile(p: &jjtlg_FundusProfile, officium: &jjtlg_TestOfficium) -> String {
     let (code, output) = jjrlg_run_bind(
         jjrlg_BindArgs {
             host: p.host.clone(),
@@ -229,16 +229,15 @@ fn bind_profile(p: &FundusProfile, officium: &TestOfficium) -> String {
         &officium.id,
     );
     assert_eq!(code, 0, "bind failed:\n{}", output);
-    parse_legatio_token(&output)
+    zjjtlg_parse_legatio_token(&output)
 }
-
 
 // ============================================================================
 // Output extraction helpers
 // ============================================================================
 
 /// Extract a BURX field value from check output (e.g., "BURX_LABEL:value" → "value").
-fn extract_burx_field(output: &str, field: &str) -> String {
+fn zjjtlg_extract_burx_field(output: &str, field: &str) -> String {
     let prefix = format!("{}:", field);
     output.lines()
         .find(|l| l.starts_with(&prefix))
@@ -251,13 +250,13 @@ fn extract_burx_field(output: &str, field: &str) -> String {
 // ============================================================================
 
 /// RAII marker file that creates a dirty working tree. Cleaned up on drop.
-struct DirtyMarker {
+struct jjtlg_DirtyMarker {
     path: PathBuf,
 }
 
-impl DirtyMarker {
+impl jjtlg_DirtyMarker {
     fn create() -> Self {
-        ensure_project_root();
+        zjjtlg_ensure_project_root();
         let path = PathBuf::from(".jjtest_dirty_marker");
         std::fs::write(&path, "curia readiness test marker")
             .unwrap_or_else(|e| panic!("failed to create dirty marker: {}", e));
@@ -265,24 +264,24 @@ impl DirtyMarker {
     }
 }
 
-impl Drop for DirtyMarker {
+impl Drop for jjtlg_DirtyMarker {
     fn drop(&mut self) {
         let _ = std::fs::remove_file(&self.path);
     }
 }
 
-fn test_relay_refuses_dirty_tree_impl(p: &FundusProfile) {
-    let officium = TestOfficium::new("dirty-guard");
-    let token = bind_profile(p, &officium);
+fn jjtlg_relay_refuses_dirty_tree_impl(p: &jjtlg_FundusProfile) {
+    let officium = jjtlg_TestOfficium::new("dirty-guard");
+    let token = zjjtlg_bind_profile(p, &officium);
 
-    let _marker = DirtyMarker::create();
+    let _marker = jjtlg_DirtyMarker::create();
 
     let (code, output) = jjrlg_run_relay(
         jjrlg_RelayArgs {
             legatio: token,
-            tabtarget: RELAY_TEST_TABTARGET.to_string(),
-            timeout: RELAY_TEST_TIMEOUT,
-            firemark: RELAY_TEST_FIREMARK.to_string(),
+            tabtarget: JJTLG_RELAY_TABTARGET.to_string(),
+            timeout: JJTLG_RELAY_TIMEOUT,
+            firemark: JJTLG_RELAY_FIREMARK.to_string(),
         },
         &officium.id,
     );
@@ -298,9 +297,9 @@ fn test_relay_refuses_dirty_tree_impl(p: &FundusProfile) {
 // Happy-path test implementations (jjfu_full)
 // ============================================================================
 
-fn test_bind_send_impl(p: &FundusProfile) {
-    let officium = TestOfficium::new("bind-send");
-    let token = bind_profile(p, &officium);
+fn jjtlg_bind_send_impl(p: &jjtlg_FundusProfile) {
+    let officium = jjtlg_TestOfficium::new("bind-send");
+    let token = zjjtlg_bind_profile(p, &officium);
 
     let (code, output) = jjrlg_run_send(
         jjrlg_SendArgs {
@@ -314,9 +313,9 @@ fn test_bind_send_impl(p: &FundusProfile) {
     assert!(output.contains("Exit: 0"), "expected exit 0:\n{}", output);
 }
 
-fn test_plant_impl(p: &FundusProfile) {
-    let officium = TestOfficium::new("plant");
-    let token = bind_profile(p, &officium);
+fn jjtlg_plant_impl(p: &jjtlg_FundusProfile) {
+    let officium = jjtlg_TestOfficium::new("plant");
+    let token = zjjtlg_bind_profile(p, &officium);
 
     // Get curia HEAD
     let head = std::process::Command::new("git")
@@ -348,23 +347,23 @@ fn test_plant_impl(p: &FundusProfile) {
     assert!(so.contains(&commit), "fundus HEAD mismatch:\n{}", so);
 }
 
-fn test_relay_check_instant_impl(p: &FundusProfile) {
-    let firemark = RELAY_TEST_FIREMARK.to_string();
+fn jjtlg_relay_check_instant_impl(p: &jjtlg_FundusProfile) {
+    let firemark = JJTLG_RELAY_FIREMARK.to_string();
 
-    let officium = TestOfficium::new("relay-inst");
-    let token = bind_profile(p, &officium);
+    let officium = jjtlg_TestOfficium::new("relay-inst");
+    let token = zjjtlg_bind_profile(p, &officium);
 
     let (code, output) = jjrlg_run_relay(
         jjrlg_RelayArgs {
             legatio: token,
-            tabtarget: RELAY_TEST_TABTARGET.to_string(),
-            timeout: RELAY_TEST_TIMEOUT,
+            tabtarget: JJTLG_RELAY_TABTARGET.to_string(),
+            timeout: JJTLG_RELAY_TIMEOUT,
             firemark,
         },
         &officium.id,
     );
     assert_eq!(code, 0, "relay failed:\n{}", output);
-    let pensum = parse_pensum_display(&output);
+    let pensum = zjjtlg_parse_pensum_display(&output);
 
     // Instant probe (timeout=0) — tabtarget may already be done
     let (cc, co) = jjrlg_run_check(
@@ -378,28 +377,28 @@ fn test_relay_check_instant_impl(p: &FundusProfile) {
     );
 }
 
-fn test_relay_check_poll_impl(p: &FundusProfile) {
-    let firemark = RELAY_TEST_FIREMARK.to_string();
+fn jjtlg_relay_check_poll_impl(p: &jjtlg_FundusProfile) {
+    let firemark = JJTLG_RELAY_FIREMARK.to_string();
 
-    let officium = TestOfficium::new("relay-poll");
-    let token = bind_profile(p, &officium);
+    let officium = jjtlg_TestOfficium::new("relay-poll");
+    let token = zjjtlg_bind_profile(p, &officium);
 
     let (code, output) = jjrlg_run_relay(
         jjrlg_RelayArgs {
             legatio: token,
-            tabtarget: RELAY_TEST_TABTARGET.to_string(),
-            timeout: RELAY_TEST_TIMEOUT,
+            tabtarget: JJTLG_RELAY_TABTARGET.to_string(),
+            timeout: JJTLG_RELAY_TIMEOUT,
             firemark,
         },
         &officium.id,
     );
     assert_eq!(code, 0, "relay failed:\n{}", output);
-    let pensum = parse_pensum_display(&output);
-    let raw = pensum_raw_token(&pensum);
+    let pensum = zjjtlg_parse_pensum_display(&output);
+    let raw = zjjtlg_pensum_raw_token(&pensum);
 
     // Poll to completion
     let (cc, co) = jjrlg_run_check(
-        jjrlg_CheckArgs { pensum: pensum.clone(), timeout: CHECK_POLL_TIMEOUT },
+        jjrlg_CheckArgs { pensum: pensum.clone(), timeout: JJTLG_CHECK_POLL_TIMEOUT },
         &officium.id,
     );
     assert_eq!(cc, 0, "check failed:\n{}", co);
@@ -420,11 +419,11 @@ fn test_relay_check_poll_impl(p: &FundusProfile) {
     assert!(co.contains("burx.env"), "burx.env not in file list:\n{}", co);
 }
 
-fn test_relay_parallel_impl(p: &FundusProfile) {
-    let firemark = RELAY_TEST_FIREMARK.to_string();
+fn jjtlg_relay_parallel_impl(p: &jjtlg_FundusProfile) {
+    let firemark = JJTLG_RELAY_FIREMARK.to_string();
 
-    let officium = TestOfficium::new("relay-par");
-    let token = bind_profile(p, &officium);
+    let officium = jjtlg_TestOfficium::new("relay-par");
+    let token = zjjtlg_bind_profile(p, &officium);
 
     // Dispatch 3 concurrent jobs
     let mut pensa = Vec::new();
@@ -432,21 +431,21 @@ fn test_relay_parallel_impl(p: &FundusProfile) {
         let (code, output) = jjrlg_run_relay(
             jjrlg_RelayArgs {
                 legatio: token.clone(),
-                tabtarget: RELAY_TEST_TABTARGET.to_string(),
-                timeout: RELAY_TEST_TIMEOUT,
+                tabtarget: JJTLG_RELAY_TABTARGET.to_string(),
+                timeout: JJTLG_RELAY_TIMEOUT,
                 firemark: firemark.clone(),
             },
             &officium.id,
         );
         assert_eq!(code, 0, "relay {} failed:\n{}", i, output);
-        pensa.push(parse_pensum_display(&output));
+        pensa.push(zjjtlg_parse_pensum_display(&output));
     }
 
     // Verify all 3 complete independently with distinct labels
     let mut labels = Vec::new();
     for (i, pensum) in pensa.iter().enumerate() {
         let (cc, co) = jjrlg_run_check(
-            jjrlg_CheckArgs { pensum: pensum.clone(), timeout: CHECK_POLL_TIMEOUT },
+            jjrlg_CheckArgs { pensum: pensum.clone(), timeout: JJTLG_CHECK_POLL_TIMEOUT },
             &officium.id,
         );
         assert_eq!(cc, 0, "check {} failed:\n{}", i, co);
@@ -468,11 +467,11 @@ fn test_relay_parallel_impl(p: &FundusProfile) {
     }
 }
 
-fn test_relay_concurrent_overlap_impl(p: &FundusProfile) {
-    let firemark = RELAY_TEST_FIREMARK.to_string();
+fn jjtlg_relay_concurrent_overlap_impl(p: &jjtlg_FundusProfile) {
+    let firemark = JJTLG_RELAY_FIREMARK.to_string();
 
-    let officium = TestOfficium::new("relay-conc");
-    let token = bind_profile(p, &officium);
+    let officium = jjtlg_TestOfficium::new("relay-conc");
+    let token = zjjtlg_bind_profile(p, &officium);
 
     // Dispatch 3 concurrent relay jobs using the delay tabtarget
     let mut pensa = Vec::new();
@@ -480,14 +479,14 @@ fn test_relay_concurrent_overlap_impl(p: &FundusProfile) {
         let (code, output) = jjrlg_run_relay(
             jjrlg_RelayArgs {
                 legatio: token.clone(),
-                tabtarget: DELAY_TABTARGET.to_string(),
-                timeout: RELAY_TEST_TIMEOUT,
+                tabtarget: JJTLG_DELAY_TABTARGET.to_string(),
+                timeout: JJTLG_RELAY_TIMEOUT,
                 firemark: firemark.clone(),
             },
             &officium.id,
         );
         assert_eq!(code, 0, "relay {} failed:\n{}", i, output);
-        pensa.push(parse_pensum_display(&output));
+        pensa.push(zjjtlg_parse_pensum_display(&output));
     }
 
     // Instant-probe all 3 — 20s sleep guarantees temporal overlap
@@ -508,22 +507,22 @@ fn test_relay_concurrent_overlap_impl(p: &FundusProfile) {
     let mut temp_dirs = Vec::new();
     for (i, pensum) in pensa.iter().enumerate() {
         let (cc, co) = jjrlg_run_check(
-            jjrlg_CheckArgs { pensum: pensum.clone(), timeout: DELAY_CHECK_TIMEOUT },
+            jjrlg_CheckArgs { pensum: pensum.clone(), timeout: JJTLG_DELAY_CHECK_TIMEOUT },
             &officium.id,
         );
         assert_eq!(cc, 0, "poll check {} failed:\n{}", i, co);
         assert!(co.contains("Report: stopped"), "pensum {} not stopped:\n{}", i, co);
 
         // Verify BURX_LABEL correlates with pensum token
-        let raw = pensum_raw_token(pensum);
-        let label = extract_burx_field(&co, "BURX_LABEL");
+        let raw = zjjtlg_pensum_raw_token(pensum);
+        let label = zjjtlg_extract_burx_field(&co, "BURX_LABEL");
         assert!(
             label.contains(raw),
             "pensum {} BURX_LABEL mismatch: expected '{}' in '{}'", i, raw, label
         );
 
         labels.push(label);
-        temp_dirs.push(extract_burx_field(&co, "BURX_TEMP_DIR"));
+        temp_dirs.push(zjjtlg_extract_burx_field(&co, "BURX_TEMP_DIR"));
     }
 
     // No cross-contamination: all labels must be distinct
@@ -547,9 +546,9 @@ fn test_relay_concurrent_overlap_impl(p: &FundusProfile) {
     }
 }
 
-fn test_fetch_impl(p: &FundusProfile) {
-    let officium = TestOfficium::new("fetch");
-    let token = bind_profile(p, &officium);
+fn jjtlg_fetch_impl(p: &jjtlg_FundusProfile) {
+    let officium = jjtlg_TestOfficium::new("fetch");
+    let token = zjjtlg_bind_profile(p, &officium);
 
     // Fetch relative to RELDIR
     let (code, output) = jjrlg_run_fetch(
@@ -581,41 +580,41 @@ fn test_fetch_impl(p: &FundusProfile) {
 mod full {
     use super::*;
 
-    fn profile() -> FundusProfile {
-        let p = FundusProfile {
-            host: test_host(),
-            user: JJFU_FULL.to_string(),
-            reldir: RELDIR.to_string(),
+    fn profile() -> jjtlg_FundusProfile {
+        let p = jjtlg_FundusProfile {
+            host: zjjtlg_test_host(),
+            user: JJTLG_ACCOUNT_FULL.to_string(),
+            reldir: JJTLG_RELDIR.to_string(),
         };
-        preflight_happy(&p).unwrap_or_else(|e| panic!(
+        zjjtlg_preflight_happy(&p).unwrap_or_else(|e| panic!(
             "full profile not available ({}@{}): {}\nProvision: sudo tt/jjw-tfP.ProvisionFundusAccounts.localhost.sh",
-            JJFU_FULL, p.host, e));
+            JJTLG_ACCOUNT_FULL, p.host, e));
         p
     }
 
     #[test] #[ignore]
-    fn bind_send() { test_bind_send_impl(&profile()); }
+    fn bind_send() { jjtlg_bind_send_impl(&profile()); }
 
     #[test] #[ignore]
-    fn plant() { test_plant_impl(&profile()); }
+    fn plant() { jjtlg_plant_impl(&profile()); }
 
     #[test] #[ignore]
-    fn relay_check_instant() { test_relay_check_instant_impl(&profile()); }
+    fn relay_check_instant() { jjtlg_relay_check_instant_impl(&profile()); }
 
     #[test] #[ignore]
-    fn relay_check_poll() { test_relay_check_poll_impl(&profile()); }
+    fn relay_check_poll() { jjtlg_relay_check_poll_impl(&profile()); }
 
     #[test] #[ignore]
-    fn relay_parallel() { test_relay_parallel_impl(&profile()); }
+    fn relay_parallel() { jjtlg_relay_parallel_impl(&profile()); }
 
     #[test] #[ignore]
-    fn relay_concurrent_overlap() { test_relay_concurrent_overlap_impl(&profile()); }
+    fn relay_concurrent_overlap() { jjtlg_relay_concurrent_overlap_impl(&profile()); }
 
     #[test] #[ignore]
-    fn fetch() { test_fetch_impl(&profile()); }
+    fn fetch() { jjtlg_fetch_impl(&profile()); }
 
     #[test] #[ignore]
-    fn relay_refuses_dirty_tree() { test_relay_refuses_dirty_tree_impl(&profile()); }
+    fn relay_refuses_dirty_tree() { jjtlg_relay_refuses_dirty_tree_impl(&profile()); }
 }
 
 // ============================================================================
@@ -627,25 +626,25 @@ mod nokey {
 
     #[test] #[ignore]
     fn bind_fails_auth() {
-        let host = test_host();
+        let host = zjjtlg_test_host();
         // Preflight: verify the account exists on the target host
         let id_check = std::process::Command::new("ssh")
             .args(["-o", "ConnectTimeout=5", "-o", "BatchMode=yes"])
-            .arg(format!("{}@{}", JJFU_FULL, host))
-            .arg(format!("id {}", JJFU_NOKEY))
+            .arg(format!("{}@{}", JJTLG_ACCOUNT_FULL, host))
+            .arg(format!("id {}", JJTLG_ACCOUNT_NOKEY))
             .output()
             .map(|o| o.status.success())
             .unwrap_or(false);
         assert!(id_check,
             "{} account does not exist on {} — provision accounts first",
-            JJFU_NOKEY, host);
+            JJTLG_ACCOUNT_NOKEY, host);
 
-        let officium = TestOfficium::new("nokey");
+        let officium = jjtlg_TestOfficium::new("nokey");
         let (code, output) = jjrlg_run_bind(
             jjrlg_BindArgs {
                 host,
-                user: JJFU_NOKEY.to_string(),
-                reldir: RELDIR.to_string(),
+                user: JJTLG_ACCOUNT_NOKEY.to_string(),
+                reldir: JJTLG_RELDIR.to_string(),
             },
             &officium.id,
         );
@@ -666,18 +665,18 @@ mod norepo {
 
     #[test] #[ignore]
     fn bind_fails_probe() {
-        let host = test_host();
+        let host = zjjtlg_test_host();
         // Preflight: SSH to jjfu_norepo must work
-        assert!(preflight_ssh(&host, JJFU_NOREPO),
+        assert!(zjjtlg_preflight_ssh(&host, JJTLG_ACCOUNT_NOREPO),
             "{} not reachable on {} — provision accounts first",
-            JJFU_NOREPO, host);
+            JJTLG_ACCOUNT_NOREPO, host);
 
-        let officium = TestOfficium::new("norepo");
+        let officium = jjtlg_TestOfficium::new("norepo");
         let (code, output) = jjrlg_run_bind(
             jjrlg_BindArgs {
                 host,
-                user: JJFU_NOREPO.to_string(),
-                reldir: RELDIR.to_string(),
+                user: JJTLG_ACCOUNT_NOREPO.to_string(),
+                reldir: JJTLG_RELDIR.to_string(),
             },
             &officium.id,
         );
@@ -696,16 +695,16 @@ mod norepo {
 mod nogit {
     use super::*;
 
-    fn profile() -> FundusProfile {
-        let host = test_host();
-        let p = FundusProfile {
+    fn profile() -> jjtlg_FundusProfile {
+        let host = zjjtlg_test_host();
+        let p = jjtlg_FundusProfile {
             host,
-            user: JJFU_NOGIT.to_string(),
-            reldir: RELDIR.to_string(),
+            user: JJTLG_ACCOUNT_NOGIT.to_string(),
+            reldir: JJTLG_RELDIR.to_string(),
         };
-        assert!(preflight_ssh(&p.host, &p.user),
+        assert!(zjjtlg_preflight_ssh(&p.host, &p.user),
             "nogit profile: SSH to {}@{} failed — provision accounts first",
-            JJFU_NOGIT, p.host);
+            JJTLG_ACCOUNT_NOGIT, p.host);
         let ssh_test = |cmd: &str| -> bool {
             std::process::Command::new("ssh")
                 .args(["-o", "ConnectTimeout=5", "-o", "BatchMode=yes"])
@@ -719,14 +718,14 @@ mod nogit {
             ssh_test(&format!("test -d $HOME/{}", p.reldir))
                 && ssh_test(&format!("test -f $HOME/{}/.buk/burc.env", p.reldir)),
             "nogit profile: reldir or BUK not found for {}@{} — provision accounts first",
-            JJFU_NOGIT, p.host);
+            JJTLG_ACCOUNT_NOGIT, p.host);
         p
     }
 
     #[test] #[ignore]
     fn bind_succeeds() {
         let p = profile();
-        let officium = TestOfficium::new("nogit-bind");
+        let officium = jjtlg_TestOfficium::new("nogit-bind");
         let (code, output) = jjrlg_run_bind(
             jjrlg_BindArgs {
                 host: p.host,
@@ -741,8 +740,8 @@ mod nogit {
     #[test] #[ignore]
     fn send_succeeds() {
         let p = profile();
-        let officium = TestOfficium::new("nogit-send");
-        let token = bind_profile(&p, &officium);
+        let officium = jjtlg_TestOfficium::new("nogit-send");
+        let token = zjjtlg_bind_profile(&p, &officium);
 
         let (code, output) = jjrlg_run_send(
             jjrlg_SendArgs {
@@ -758,8 +757,8 @@ mod nogit {
     #[test] #[ignore]
     fn plant_fails() {
         let p = profile();
-        let officium = TestOfficium::new("nogit-plant");
-        let token = bind_profile(&p, &officium);
+        let officium = jjtlg_TestOfficium::new("nogit-plant");
+        let token = zjjtlg_bind_profile(&p, &officium);
 
         let (code, output) = jjrlg_run_plant(
             jjrlg_PlantArgs {
