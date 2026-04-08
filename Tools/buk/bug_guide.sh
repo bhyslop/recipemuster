@@ -210,6 +210,20 @@ bug_tltlt() {
 }
 
 ######################################################################
+# Public: Tabtarget display (colophon resolution)
+
+# bug_tabtarget "colophon" [extra_args...]
+# Resolves colophon to tabtarget filename, renders in guide style.
+bug_tabtarget() {
+  local z_colophon="$1"
+  shift
+  local z_extra="${*:+ $*}"
+  local z_matches=("${BURD_TABTARGET_DIR}"/${z_colophon}.*)
+  test -e "${z_matches[0]}" || buc_die "bug_tabtarget: no tabtarget found for colophon '${z_colophon}'"
+  bug_tc "    " "${z_matches[0]}${z_extra}"
+}
+
+######################################################################
 # Public: User prompts
 
 # bug_prompt "prompt text"

@@ -1300,7 +1300,8 @@ rbgm_onboard_retriever() {
   fi
 
   bug_e
-  bug_tc "  Triage: " "tt/rbw-go.OnboardMAIN.sh"
+  bug_t  "  Triage:"
+  bug_tabtarget "${RBZ_ONBOARD_TRIAGE}"
 
 }
 
@@ -1522,7 +1523,8 @@ rbgm_onboard_director() {
   fi
 
   bug_e
-  bug_tc "  Triage: " "tt/rbw-go.OnboardMAIN.sh"
+  bug_t  "  Triage:"
+  bug_tabtarget "${RBZ_ONBOARD_TRIAGE}"
 
 }
 
