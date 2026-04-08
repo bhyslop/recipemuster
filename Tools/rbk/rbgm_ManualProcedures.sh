@@ -423,31 +423,6 @@ zrbgm_po_extract_capture() {
 }
 
 ######################################################################
-# Shared probe: detect role credentials from filesystem only.
-# Sets caller-scope: z_has_payor, z_has_governor, z_has_director,
-#                    z_has_retriever, z_secrets_dir
-# No sentinel — works pre-kindle (probes filesystem only)
-
-zrbgm_probe_role_credentials() {
-  z_has_payor=0
-  z_has_governor=0
-  z_has_director=0
-  z_has_retriever=0
-  z_secrets_dir=""
-
-  if test -f "${RBBC_rbrr_file}"; then
-    z_secrets_dir=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_SECRETS_DIR") || z_secrets_dir=""
-  fi
-
-  if test -n "${z_secrets_dir}"; then
-    if test -f "${z_secrets_dir}/rbro-payor.env"; then z_has_payor=1; fi
-    if test -f "${z_secrets_dir}/${RBCC_role_governor}/${RBCC_rbra_file}"; then z_has_governor=1; fi
-    if test -f "${z_secrets_dir}/${RBCC_role_director}/${RBCC_rbra_file}"; then z_has_director=1; fi
-    if test -f "${z_secrets_dir}/${RBCC_role_retriever}/${RBCC_rbra_file}"; then z_has_retriever=1; fi
-  fi
-}
-
-######################################################################
 # Probe retriever walkthrough units — sets caller-scope z_ru1..z_ru4
 # Requires: z_secrets_dir already set (from zrbgm_probe_role_credentials
 #           or direct extraction).
@@ -486,6 +461,84 @@ zrbgm_probe_retriever_units() {
   # Unit 4: Kludge-tagged image exists (k-prefixed hallmark)
   if docker images --format "{{.Tag}}" 2>/dev/null | grep -q "^k[0-9]"; then
     z_ru4=1
+  fi
+}
+
+######################################################################
+# Probe director walkthrough units — sets caller-scope z_du1..z_du7
+# Requires: z_secrets_dir already set (from zrbgm_probe_role_credentials
+#           or direct extraction).
+# No sentinel — works pre-kindle
+#
+# Vessel assignments per docket:
+#   Unit 2,4,6: rbev-sentry-debian-slim (conjure vessel)
+#   Unit 5:     rbev-bottle-plantuml    (bind vessel)
+#
+# Probes use local filesystem + docker only (no GAR API, no gcloud).
+# Units 3-7 check docker image tags — these require the user to have
+# summoned (pulled) the result locally after cloud operations.
+# Unit 6 (graft) is detectable without summoning because graft tags
+# the local image before pushing.
+
+zrbgm_probe_director_units() {
+  z_du1=0; z_du2=0; z_du3=0; z_du4=0; z_du5=0; z_du6=0; z_du7=0
+
+  # Unit 1: Director credential file exists
+  if test -n "${z_secrets_dir}" && \
+     test -f "${z_secrets_dir}/${RBCC_role_director}/${RBCC_rbra_file}"; then
+    z_du1=1
+  fi
+
+  # Units 2-7 require Docker
+  if ! command -v docker >/dev/null 2>&1; then return 0; fi
+
+  # Build GAR image prefix for this depot
+  local z_project_id="" z_region=""
+  if test -f "${RBBC_rbrr_file}"; then
+    z_project_id=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_DEPOT_PROJECT_ID") || z_project_id=""
+    z_region=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_GCP_REGION") || z_region=""
+  fi
+  if test -z "${z_region}" || test -z "${z_project_id}"; then return 0; fi
+
+  local z_gar_prefix="${z_region}${RBGC_GAR_HOST_SUFFIX}/${z_project_id}/"
+
+  # Collect docker images from this depot (repo:tag pairs)
+  local z_images=""
+  z_images=$(docker images --format "{{.Repository}}:{{.Tag}}" 2>/dev/null \
+    | grep "^${z_gar_prefix}" || true)
+  if test -z "${z_images}"; then return 0; fi
+
+  # Unit 2: Kludge image for sentry (k-prefixed hallmark tag)
+  if printf '%s\n' "${z_images}" | grep -q "rbev-sentry-debian-slim:k[0-9]"; then
+    z_du2=1
+  fi
+
+  # Unit 3: Depot foundation (reliquary + enshrine) — no direct local probe.
+  # Conjure requires reliquary + enshrine as prerequisites, so a conjure
+  # hallmark present locally implies depot foundation is complete.
+  # Shares detection with unit 4.
+  if printf '%s\n' "${z_images}" | grep -q "rbev-sentry-debian-slim:c[0-9]"; then
+    z_du3=1
+  fi
+
+  # Unit 4: Conjure hallmark for sentry (c-prefixed tag, summoned locally)
+  if printf '%s\n' "${z_images}" | grep -q "rbev-sentry-debian-slim:c[0-9]"; then
+    z_du4=1
+  fi
+
+  # Unit 5: Bind hallmark for plantuml (b-prefixed tag, summoned locally)
+  if printf '%s\n' "${z_images}" | grep -q "rbev-bottle-plantuml:b[0-9]"; then
+    z_du5=1
+  fi
+
+  # Unit 6: Graft hallmark for sentry (g-prefixed tag — local from graft push)
+  if printf '%s\n' "${z_images}" | grep -q "rbev-sentry-debian-slim:g[0-9]"; then
+    z_du6=1
+  fi
+
+  # Unit 7: All three modes present
+  if test "${z_du4}" = "1" && test "${z_du5}" = "1" && test "${z_du6}" = "1"; then
+    z_du7=1
   fi
 }
 
@@ -987,10 +1040,18 @@ rbgm_onboard_reference() {
   bug_tc "  Walkthrough: " "tt/rbw-gOR.OnboardRetriever.sh"
   bug_e
 
-  # Director — per-unit probes pending
+  # Director — full per-unit probes
   bug_section "Director"
-  zrbgm_po_status "${z_has_director}" "  Credential present"
-  bug_t  "  (Walkthrough pending — see tt/rbw-gOD.OnboardDirector.sh)"
+  local z_du1 z_du2 z_du3 z_du4 z_du5 z_du6 z_du7
+  zrbgm_probe_director_units
+  zrbgm_po_status "${z_du1}" "  Credential gate — director SA key installed"
+  zrbgm_po_status "${z_du2}" "  Local build — kludge image present"
+  zrbgm_po_status "${z_du3}" "  Depot foundation — base images enshrined"
+  zrbgm_po_status "${z_du4}" "  Conjure — production build image present"
+  zrbgm_po_status "${z_du5}" "  Bind — pinned upstream image present"
+  zrbgm_po_status "${z_du6}" "  Graft — locally-built image pushed"
+  zrbgm_po_status "${z_du7}" "  Full ark — all three modes compared"
+  bug_tc "  Walkthrough: " "tt/rbw-gOD.OnboardDirector.sh"
   bug_e
 
   # Governor — per-unit probes pending
@@ -1137,10 +1198,218 @@ rbgm_onboard_retriever() {
 rbgm_onboard_director() {
   buc_doc_brief "Director walkthrough — build and publish vessel images"
   buc_doc_shown || return 0
+
+  local -r z_docs="${RBGC_PUBLIC_DOCS_URL}"
+
+  # --- Extract config and probe ---
+  local z_secrets_dir=""
+  if test -f "${RBBC_rbrr_file}"; then
+    z_secrets_dir=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_SECRETS_DIR") || z_secrets_dir=""
+  fi
+
+  local z_du1 z_du2 z_du3 z_du4 z_du5 z_du6 z_du7
+  zrbgm_probe_director_units
+
+  # --- Count progress ---
+  local z_done=0
+  if test "${z_du1}" = "1"; then z_done=$((z_done + 1)); fi
+  if test "${z_du2}" = "1"; then z_done=$((z_done + 1)); fi
+  if test "${z_du3}" = "1"; then z_done=$((z_done + 1)); fi
+  if test "${z_du4}" = "1"; then z_done=$((z_done + 1)); fi
+  if test "${z_du5}" = "1"; then z_done=$((z_done + 1)); fi
+  if test "${z_du6}" = "1"; then z_done=$((z_done + 1)); fi
+  if test "${z_du7}" = "1"; then z_done=$((z_done + 1)); fi
+  local -r z_total=7
+
+  # --- Header ---
   bug_section "Director Walkthrough"
-  bug_t  "  Coming in a future update."
+  bug_e
+
+  if test "${z_done}" = "${z_total}"; then
+    # ============ REFERENCE MODE — all probes green ============
+    bug_t  "  All steps complete. Re-run anytime to verify health."
+    bug_e
+    zrbgm_po_status 1 "  Credential gate — director SA key installed"
+    zrbgm_po_status 1 "  Local build — kludge image present"
+    zrbgm_po_status 1 "  Depot foundation — base images enshrined"
+    zrbgm_po_status 1 "  Conjure — production build image present"
+    zrbgm_po_status 1 "  Bind — pinned upstream image present"
+    zrbgm_po_status 1 "  Graft — locally-built image pushed"
+    zrbgm_po_status 1 "  Full ark — all three modes compared"
+  else
+    # ============ WALKTHROUGH MODE — show frontier unit ============
+    local -r z_frontier=$((z_done + 1))
+    bug_t  "  Step ${z_frontier} of ${z_total}"
+    bug_e
+
+    if test "${z_du1}" = "0"; then
+      # ---- Unit 1: Credential Gate ----
+      bug_section "  Credential Gate"
+      bug_e
+      bug_tlt "  A " "depot" "${z_docs}#depot" " is the facility where container images are built and stored."
+      bug_tlt "  A " "director" "${z_docs}#director" " is a role with build and publish access to a depot —"
+      bug_t   "  you create container images and push them to the registry."
+      bug_e
+      bug_t   "  Where a retriever can only pull, a director can build, push, and manage"
+      bug_t   "  artifacts. Your governor knighted this service account for build operations."
+      bug_e
+      bug_t   "  To access a depot, you need a service account key. Your governor creates"
+      bug_t   "  one by running:"
+      bug_tc  "    " "tt/rbw-aK.GovernorKnightsDirector.sh"
+      bug_e
+      if test -n "${z_secrets_dir}"; then
+        bug_t   "  Install the key file to:"
+        bug_tc  "    " "${z_secrets_dir}/${RBCC_role_director}/${RBCC_rbra_file}"
+      else
+        bug_tW  "  " "Project not configured — .rbk/rbrr.env not found."
+        bug_t   "  Run the payor walkthrough first, or ask your payor for the project files."
+      fi
+      bug_e
+      bug_t   "  Once installed, re-run this walkthrough to continue."
+
+    elif test "${z_du2}" = "0"; then
+      # ---- Unit 2: Kludge — Local Build ----
+      bug_section "  Kludge: Local Build"
+      bug_e
+      bug_tlt "  A " "vessel" "${z_docs}#vessel" " is a specification for a container image — a Dockerfile,"
+      bug_t   "  build context, and metadata defining what gets built."
+      bug_e
+      bug_tlt "  " "Kludge" "${z_docs}#kludge" " builds a vessel image locally using Docker — no Cloud Build"
+      bug_t   "  setup needed, no registry push. The fastest way to see a vessel come to life."
+      bug_e
+      bug_t   "  Build the sentry vessel locally:"
+      bug_tc  "    " "tt/rbw-hk.LocalKludge.sh"
+      bug_e
+      bug_tlt "  After kludging, test by " "charging" "${z_docs}#charge" " a crucible and shelling in:"
+      bug_tc  "    " "tt/rbw-cC.Charge.tadmor.sh"
+      bug_tc  "    " "tt/rbw-cr.Rack.sh tadmor"
+      bug_e
+      bug_t   "  Later units teach how to build this same vessel via Cloud Build for production,"
+      bug_t   "  and how to push your local build to the registry."
+
+    elif test "${z_du3}" = "0"; then
+      # ---- Unit 3: Depot Foundation — Reliquary and Enshrine ----
+      bug_section "  Depot Foundation: Reliquary and Enshrine"
+      bug_e
+      bug_t   "  Before Cloud Build can create production images, the depot needs two kinds"
+      bug_t   "  of upstream images mirrored into your registry:"
+      bug_e
+      bug_tlt "  An " "ark" "${z_docs}#ark" " is an immutable container image artifact in the registry,"
+      bug_t   "  produced from a vessel."
+      bug_e
+      bug_t   "  Tool images (reliquary): gcloud, docker, syft, skopeo, binfmt — the"
+      bug_t   "  tools that Cloud Build steps consume during a build."
+      bug_e
+      bug_tlt "  Base images (" "enshrine" "${z_docs}#enshrine" "): the upstream images that vessels build FROM."
+      bug_t   "  Mirrored into your depot's registry with content-addressed anchors."
+      bug_e
+      bug_t   "  Mirror tool images into the depot:"
+      bug_tc  "    " "tt/rbw-dI.DirectorInscribesReliquary.sh"
+      bug_e
+      bug_t   "  Enshrine base images for the sentry vessel:"
+      bug_tc  "    " "tt/rbw-dE.DirectorEnshrinesVessel.sh"
+      bug_e
+      bug_t   "  Reliquary provides the tools; enshrine provides the foundations."
+      bug_tltlt "  Both must be in place before " "conjure" "${z_docs}#conjure" " or " "bind" "${z_docs}#bind" "."
+      bug_e
+      bug_t   "  After completing both, proceed to conjure your first production build."
+      bug_tlt "  The probe for this step turns green when a conjure " "hallmark" "${z_docs}#hallmark" ""
+      bug_tlt "  is " "summoned" "${z_docs}#summon" " locally (next step)."
+
+    elif test "${z_du4}" = "0"; then
+      # ---- Unit 4: Conjure — Production Build ----
+      # (Frontier only if du3 green but du4 red — rare due to shared probe,
+      #  but shown in reference mode as separate unit)
+      bug_section "  Conjure: Production Build"
+      bug_e
+      bug_tlt "  A " "hallmark" "${z_docs}#hallmark" " is a specific build instance of a vessel, identified by"
+      bug_t   "  timestamp."
+      bug_e
+      bug_tlt "  " "Ordain" "${z_docs}#ordain" " creates a hallmark with full attestation — the production build"
+      bug_t   "  command."
+      bug_tlt "  " "Conjure" "${z_docs}#conjure" " is the ordain mode where Cloud Build creates the image from"
+      bug_t   "  source. Every conjure produces a three-part ark: image, about (SBOM + build"
+      bug_t   "  info), and vouch (DSSE signature verification)."
+      bug_e
+      bug_t   "  This is the same vessel you kludged locally — now Cloud Build creates it"
+      bug_t   "  with full SLSA provenance:"
+      bug_tc  "    " "tt/rbw-hO.DirectorOrdainsHallmark.sh"
+      bug_e
+      bug_tlt "  Verify with " "vouch" "${z_docs}#vouch" " (cryptographic attestation) and"
+      bug_tlt "  " "tally" "${z_docs}#tally" " (registry inventory):"
+      bug_tc  "    " "tt/rbw-hV.DirectorVouchesHallmarks.sh"
+      bug_tc  "    " "tt/rbw-ht.DirectorTalliesHallmarks.sh"
+      bug_e
+      bug_tlt "  Then " "summon" "${z_docs}#summon" " the hallmark locally to confirm the full pipeline:"
+      bug_tc  "    " "tt/rbw-hs.RetrieverSummonsHallmark.sh"
+
+    elif test "${z_du5}" = "0"; then
+      # ---- Unit 5: Bind — Pin Upstream Image ----
+      bug_section "  Bind: Pin Upstream Image"
+      bug_e
+      bug_tlt "  " "Bind" "${z_docs}#bind" " mirrors a pinned upstream image into your depot. No Dockerfile,"
+      bug_t   "  no build — just a content-addressed copy."
+      bug_e
+      bug_t   "  PlantUML is useful for rendering architecture diagrams, but its Docker Hub"
+      bug_tlt "  image could send your private diagrams anywhere. Bind pins it by " "digest" "${z_docs}#bind" " —"
+      bug_tlt "  no silent updates. Then " "charge" "${z_docs}#charge" " it as a bottle: the sentry blocks"
+      bug_t   "  all egress. You get the tool without the risk."
+      bug_e
+      bug_t   "  Ordain the plantuml vessel in bind mode:"
+      bug_tc  "    " "tt/rbw-hO.DirectorOrdainsHallmark.sh"
+      bug_e
+      bug_t   "  The upstream image is pulled by digest, pushed to GAR, about metadata"
+      bug_tlt "  generated, and " "vouch" "${z_docs}#vouch" " records a digest-pin verdict. No SLSA provenance —"
+      bug_t   "  the image was not built here, but it is pinned and bottled."
+      bug_e
+      bug_tlt "  Verify and " "summon" "${z_docs}#summon" ":"
+      bug_tc  "    " "tt/rbw-hV.DirectorVouchesHallmarks.sh"
+      bug_tc  "    " "tt/rbw-hs.RetrieverSummonsHallmark.sh"
+
+    elif test "${z_du6}" = "0"; then
+      # ---- Unit 6: Graft — Push Local to Registry ----
+      bug_section "  Graft: Push Local to Registry"
+      bug_e
+      bug_tlt "  " "Graft" "${z_docs}#graft" " pushes a locally-built image to GAR. The image push is local"
+      bug_t   "  (docker push), but about and vouch still run in Cloud Build."
+      bug_e
+      bug_t   "  You kludged the sentry in step 2 and conjured it in step 4. Now push your"
+      bug_t   "  local build to the registry via graft:"
+      bug_tc  "    " "tt/rbw-hO.DirectorOrdainsHallmark.sh"
+      bug_e
+      bug_t   "  One combined Cloud Build job runs about + vouch. The vouch verdict is"
+      bug_t   "  GRAFTED — meaning this image was locally built, trust it at your own"
+      bug_t   "  assessment."
+      bug_e
+      bug_t   "  The development cycle: kludge, test, graft when satisfied."
+
+    else
+      # ---- Unit 7: Full Ark — About and Vouch Pipeline ----
+      bug_section "  The Full Ark: About and Vouch Pipeline"
+      bug_e
+      bug_t   "  Every hallmark — regardless of mode — produces the same three-part"
+      bug_t   "  structure: image, about, and vouch. About contains the SBOM and"
+      bug_t   "  build_info.json. Vouch contains the mode-specific verification."
+      bug_e
+      bug_tlt "  " "Plumb" "${z_docs}#plumb" " lets you inspect an artifact's provenance — SBOM, build info,"
+      bug_t   "  and vouch chain:"
+      bug_tc  "    " "tt/rbw-hpf.RetrieverPlumbsFull.sh"
+      bug_e
+      bug_t   "  Run plumb against each mode's hallmark and compare:"
+      bug_tlt "    - " "Conjure" "${z_docs}#conjure" " (sentry): DSSE vouch, SLSA provenance"
+      bug_tlt "    - " "Bind" "${z_docs}#bind" " (plantuml): digest-pin vouch, no provenance"
+      bug_tlt "    - " "Graft" "${z_docs}#graft" " (sentry): GRAFTED vouch, no provenance chain"
+      bug_e
+      bug_t   "  The tally command shows the full registry health view — the director's"
+      bug_t   "  operational dashboard:"
+      bug_tc  "    " "tt/rbw-ht.DirectorTalliesHallmarks.sh"
+    fi
+  fi
+
+  bug_e
   bug_tc "  Triage: " "tt/rbw-go.OnboardMAIN.sh"
-  buc_success "Director walkthrough stub displayed"
+
+  buc_success "Director walkthrough displayed"
 }
 
 rbgm_onboard_governor() {
