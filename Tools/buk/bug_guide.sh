@@ -232,6 +232,7 @@ zbug_tabtarget_fragment() {
 bug_T()       { zbug_tabtarget_fragment "${1}"; zbug_show "${ZBUG_TT_FRAG}"; }
 bug_tT()      { zbug_tabtarget_fragment "${2}"; zbug_show "${1}${ZBUG_TT_FRAG}"; }
 bug_cT()      { zbug_tabtarget_fragment "${2}"; zbug_show "${ZBUG_C}${1}${ZBUG_R}${ZBUG_TT_FRAG}"; }
+bug_tlT()     { zbug_link_fragment "${2}" "${3}"; zbug_tabtarget_fragment "${4}"; zbug_show "${1}${ZBUG_LINK_FRAG} ${ZBUG_TT_FRAG}"; }
 
 ######################################################################
 # Public: User prompts

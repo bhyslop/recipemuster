@@ -1061,11 +1061,13 @@ zrbgm_probe_role_credentials() {
 zrbgm_triage_role() {
   local -r z_detected="${1}" z_name="${2}" z_colophon="${3}"
   local -r z_anchor=$(printf '%s' "${z_name}" | tr '[:upper:]' '[:lower:]')
-  local -r z_label=$(printf ' [%s] %-12s' "$(test "${z_detected}" = "1" && printf '*' || printf ' ')" "${z_name}")
+  local -r z_url="${RBGC_PUBLIC_DOCS_URL}#${z_anchor}"
+  local -r z_check=$(test "${z_detected}" = "1" && printf '*' || printf ' ')
+  local -r z_prefix=$(printf ' [%s] ' "${z_check}")
   if test "${z_detected}" = "1"; then
-    bug_cT "${z_label}" "${z_colophon}"
+    bug_tlT "${z_prefix}" "${z_name}" "${z_url}" "${z_colophon}"
   else
-    bug_tl "${z_label}" "about this role" "${RBGC_PUBLIC_DOCS_URL}#${z_anchor}"
+    bug_tl "${z_prefix}" "${z_name}" "${z_url}"
   fi
 }
 
