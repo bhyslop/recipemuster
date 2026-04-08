@@ -422,6 +422,73 @@ zrbgm_po_extract_capture() {
   return 1
 }
 
+######################################################################
+# Shared probe: detect role credentials from filesystem only.
+# Sets caller-scope: z_has_payor, z_has_governor, z_has_director,
+#                    z_has_retriever, z_secrets_dir
+# No sentinel — works pre-kindle (probes filesystem only)
+
+zrbgm_probe_role_credentials() {
+  z_has_payor=0
+  z_has_governor=0
+  z_has_director=0
+  z_has_retriever=0
+  z_secrets_dir=""
+
+  if test -f "${RBBC_rbrr_file}"; then
+    z_secrets_dir=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_SECRETS_DIR") || z_secrets_dir=""
+  fi
+
+  if test -n "${z_secrets_dir}"; then
+    if test -f "${z_secrets_dir}/rbro-payor.env"; then z_has_payor=1; fi
+    if test -f "${z_secrets_dir}/${RBCC_role_governor}/${RBCC_rbra_file}"; then z_has_governor=1; fi
+    if test -f "${z_secrets_dir}/${RBCC_role_director}/${RBCC_rbra_file}"; then z_has_director=1; fi
+    if test -f "${z_secrets_dir}/${RBCC_role_retriever}/${RBCC_rbra_file}"; then z_has_retriever=1; fi
+  fi
+}
+
+######################################################################
+# Probe retriever walkthrough units — sets caller-scope z_ru1..z_ru4
+# Requires: z_secrets_dir already set (from zrbgm_probe_role_credentials
+#           or direct extraction).
+# No sentinel — works pre-kindle
+
+zrbgm_probe_retriever_units() {
+  z_ru1=0; z_ru2=0; z_ru3=0; z_ru4=0
+
+  # Unit 1: Retriever credential file exists
+  if test -n "${z_secrets_dir}" && \
+     test -f "${z_secrets_dir}/${RBCC_role_retriever}/${RBCC_rbra_file}"; then
+    z_ru1=1
+  fi
+
+  # Units 2-4 require Docker
+  if ! command -v docker >/dev/null 2>&1; then return 0; fi
+
+  # Unit 2: Any image from this depot's GAR exists locally
+  local z_project_id="" z_region=""
+  if test -f "${RBBC_rbrr_file}"; then
+    z_project_id=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_DEPOT_PROJECT_ID") || z_project_id=""
+    z_region=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_GCP_REGION") || z_region=""
+  fi
+  if test -n "${z_region}" && test -n "${z_project_id}"; then
+    local z_gar_prefix="${z_region}${RBGC_GAR_HOST_SUFFIX}/${z_project_id}/"
+    if docker images --format "{{.Repository}}" 2>/dev/null | grep -q "^${z_gar_prefix}"; then
+      z_ru2=1
+    fi
+  fi
+
+  # Unit 3: Any crucible is charged (bottle container running)
+  if docker ps --format "{{.Names}}" 2>/dev/null | grep -q -- "-bottle$"; then
+    z_ru3=1
+  fi
+
+  # Unit 4: Kludge-tagged image exists (k-prefixed hallmark)
+  if docker images --format "{{.Tag}}" 2>/dev/null | grep -q "^k[0-9]"; then
+    z_ru4=1
+  fi
+}
+
 # Configuration review — displayed at level 0 (first thing a newcomer sees)
 # Shows pre-selected RBRR defaults with orientation, plus BURC project structure.
 # No sentinel: runs pre-kindle like the rest of the onboarding guide.
@@ -909,21 +976,30 @@ rbgm_onboard_reference() {
   bug_t  "  Health dashboard across all roles. Re-run anytime to check status."
   bug_e
 
+  # Retriever — full per-unit probes
   bug_section "Retriever"
-  zrbgm_po_status "${z_has_retriever}" "  Credential present"
-  bug_t  "  (Walkthrough pending — see tt/rbw-gOR.OnboardRetriever.sh)"
+  local z_ru1 z_ru2 z_ru3 z_ru4
+  zrbgm_probe_retriever_units
+  zrbgm_po_status "${z_ru1}" "  Credential gate — SA key installed"
+  zrbgm_po_status "${z_ru2}" "  First artifact — hallmark summoned locally"
+  zrbgm_po_status "${z_ru3}" "  Container runtime — crucible charged"
+  zrbgm_po_status "${z_ru4}" "  Local experimentation — kludge image present"
+  bug_tc "  Walkthrough: " "tt/rbw-gOR.OnboardRetriever.sh"
   bug_e
 
+  # Director — per-unit probes pending
   bug_section "Director"
   zrbgm_po_status "${z_has_director}" "  Credential present"
   bug_t  "  (Walkthrough pending — see tt/rbw-gOD.OnboardDirector.sh)"
   bug_e
 
+  # Governor — per-unit probes pending
   bug_section "Governor"
   zrbgm_po_status "${z_has_governor}" "  Credential present"
   bug_t  "  (Walkthrough pending — see tt/rbw-gOG.OnboardGovernor.sh)"
   bug_e
 
+  # Payor — per-unit probes pending
   bug_section "Payor"
   zrbgm_po_status "${z_has_payor}" "  Credential present"
   bug_t  "  (Walkthrough pending — see tt/rbw-gOP.OnboardPayor.sh)"
@@ -938,10 +1014,124 @@ rbgm_onboard_reference() {
 rbgm_onboard_retriever() {
   buc_doc_brief "Retriever walkthrough — pull and run vessel images"
   buc_doc_shown || return 0
+
+  local -r z_docs="${RBGC_PUBLIC_DOCS_URL}"
+
+  # --- Extract config and probe ---
+  local z_secrets_dir=""
+  if test -f "${RBBC_rbrr_file}"; then
+    z_secrets_dir=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_SECRETS_DIR") || z_secrets_dir=""
+  fi
+
+  local z_ru1 z_ru2 z_ru3 z_ru4
+  zrbgm_probe_retriever_units
+
+  # --- Count progress ---
+  local z_done=0
+  if test "${z_ru1}" = "1"; then z_done=$((z_done + 1)); fi
+  if test "${z_ru2}" = "1"; then z_done=$((z_done + 1)); fi
+  if test "${z_ru3}" = "1"; then z_done=$((z_done + 1)); fi
+  if test "${z_ru4}" = "1"; then z_done=$((z_done + 1)); fi
+  local -r z_total=4
+
+  # --- Header ---
   bug_section "Retriever Walkthrough"
-  bug_t  "  Coming in a future update."
+  bug_e
+
+  if test "${z_done}" = "${z_total}"; then
+    # ============ REFERENCE MODE — all probes green ============
+    bug_t  "  All steps complete. Re-run anytime to verify health."
+    bug_e
+    zrbgm_po_status 1 "  Credential gate — SA key installed"
+    zrbgm_po_status 1 "  First artifact — hallmark summoned locally"
+    zrbgm_po_status 1 "  Container runtime — crucible charged"
+    zrbgm_po_status 1 "  Local experimentation — kludge image present"
+  else
+    # ============ WALKTHROUGH MODE — show frontier unit ============
+    local -r z_frontier=$((z_done + 1))
+    bug_t  "  Step ${z_frontier} of ${z_total}"
+    bug_e
+
+    if test "${z_ru1}" = "0"; then
+      # ---- Unit 1: Credential Gate ----
+      bug_section "  Credential Gate"
+      bug_e
+      bug_tlt "  A " "depot" "${z_docs}#depot" " is the facility where container images are built and stored."
+      bug_tlt "  A " "retriever" "${z_docs}#retriever" " is a role with read access to a depot — you pull and run"
+      bug_t   "  container images that others have built."
+      bug_e
+      bug_t   "  To access a depot, you need a service account key. Your governor creates"
+      bug_t   "  one by running:"
+      bug_tc  "    " "tt/rbw-aC.GovernorChartersRetriever.sh"
+      bug_e
+      if test -n "${z_secrets_dir}"; then
+        bug_t   "  Install the key file to:"
+        bug_tc  "    " "${z_secrets_dir}/${RBCC_role_retriever}/${RBCC_rbra_file}"
+      else
+        bug_tW  "  " "Project not configured — .rbk/rbrr.env not found."
+        bug_t   "  Run the payor walkthrough first, or ask your payor for the project files."
+      fi
+      bug_e
+      bug_t   "  Once installed, re-run this walkthrough to continue."
+
+    elif test "${z_ru2}" = "0"; then
+      # ---- Unit 2: First Artifact ----
+      bug_section "  First Artifact"
+      bug_e
+      bug_tlt "  A " "vessel" "${z_docs}#vessel" " is a specification for a container image."
+      bug_tlt "  A " "hallmark" "${z_docs}#hallmark" " is a specific build instance of a vessel, identified by"
+      bug_t   "  timestamp."
+      bug_e
+      bug_tlt "  " "Summon" "${z_docs}#summon" " pulls a hallmark image from the depot to your local machine:"
+      bug_tc  "    " "tt/rbw-hs.RetrieverSummonsHallmark.sh"
+      bug_e
+      bug_t   "  After summoning, inspect the artifact's provenance:"
+      bug_tc  "    " "tt/rbw-hpf.RetrieverPlumbsFull.sh"
+      bug_tc  "    " "tt/rbw-hpc.RetrieverPlumbsCompact.sh"
+      bug_e
+      bug_tlt "  A " "vouch" "${z_docs}#vouch" " is cryptographic attestation proving the artifact was built"
+      bug_t   "  by trusted infrastructure."
+      bug_tlt "  " "Plumb" "${z_docs}#plumb" " lets you inspect the SBOM, build info, and vouch chain —"
+      bug_t   "  this is how you know what you're running."
+
+    elif test "${z_ru3}" = "0"; then
+      # ---- Unit 3: Container Runtime ----
+      bug_section "  Container Runtime"
+      bug_e
+      bug_tlt "  A " "bottle" "${z_docs}#bottle" " is your workload container, running unmodified in a controlled"
+      bug_t   "  network environment."
+      bug_tlt "  A " "nameplate" "${z_docs}#nameplate" " ties a sentry and bottle together into a runnable unit."
+      bug_e
+      bug_tlt "  The " "sentry" "${z_docs}#sentry" " enforces network policies via iptables and dnsmasq."
+      bug_tlt "  The " "pentacle" "${z_docs}#pentacle" " establishes the network namespace shared with the bottle."
+      bug_e
+      bug_tlt "  " "Charge" "${z_docs}#charge" " starts the sentry/pentacle/bottle triad:"
+      bug_tc  "    " "tt/rbw-cC.Charge.tadmor.sh"
+      bug_e
+      bug_t   "  Shell into the bottle and look around:"
+      bug_tc  "    " "tt/rbw-cr.Rack.sh tadmor"
+      bug_e
+      bug_tlt "  When done, " "quench" "${z_docs}#quench" " stops and cleans up:"
+      bug_tc  "    " "tt/rbw-cQ.Quench.tadmor.sh"
+
+    else
+      # ---- Unit 4: Local Experimentation ----
+      bug_section "  Local Experimentation"
+      bug_e
+      bug_tlt "  " "Kludge" "${z_docs}#kludge" " builds a vessel image locally for fast iteration — no registry"
+      bug_t   "  push, no director credentials needed:"
+      bug_tc  "    " "tt/rbw-hk.LocalKludge.sh"
+      bug_e
+      bug_t   "  After kludging, charge a nameplate to test your local build, then rack in"
+      bug_t   "  and look around. Kludge is the retriever's experimentation tool — iterate"
+      bug_t   "  on your local environment without Cloud Build."
+    fi
+  fi
+
+  bug_e
   bug_tc "  Triage: " "tt/rbw-go.OnboardMAIN.sh"
-  buc_success "Retriever walkthrough stub displayed"
+
+  buc_success "Retriever walkthrough displayed"
 }
 
 rbgm_onboard_director() {
