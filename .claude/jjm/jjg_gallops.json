@@ -2420,6 +2420,13 @@
         "₢A4AAS": {
           "tacks": [
             {
+              "ts": "260407-2143",
+              "state": "complete",
+              "text": "## Character\nCareful reading and editing. Requires comparing BCG z-prefix conventions against RCG z-prefix conventions to find gaps, then updating RCG to match. Not creative — alignment work.\n\n## Docket\nAudit RCG internal prefix (`z`) conventions against BCG and align. BCG uses `z` prefix for private/internal functions consistently (e.g., `zbuc_color`, `zbud_die`). RCG already has the `z` prefix pattern but may have gaps or inconsistencies relative to BCG's more mature treatment.\n\nReview BCG (`Tools/buk/vov_veiled/BCG-BashConsoleGuide.md`) z-prefix sections, then review RCG (`Tools/vok/vov_veiled/RCG-RustCodingGuide.md`) internal declarations section. Ensure RCG covers:\n- Naming pattern alignment with BCG convention\n- When to use z-prefix vs true private\n- Visibility mapping (`pub(crate)` as Rust equivalent of BCG's file-scoped private)\n- Any BCG z-prefix rules that RCG is missing or contradicts\n\nAlso while in RCG: upgrade all four `lib.rs` files from `deny(unused_variables)` to `deny(warnings)` per the new RCG boilerplate rule. Verify no new warnings surface.",
+              "silks": "rcg-internal-prefix-bcg-alignment",
+              "commit": "460b577"
+            },
+            {
               "ts": "260407-1037",
               "state": "rough",
               "text": "## Character\nCareful reading and editing. Requires comparing BCG z-prefix conventions against RCG z-prefix conventions to find gaps, then updating RCG to match. Not creative — alignment work.\n\n## Docket\nAudit RCG internal prefix (`z`) conventions against BCG and align. BCG uses `z` prefix for private/internal functions consistently (e.g., `zbuc_color`, `zbud_die`). RCG already has the `z` prefix pattern but may have gaps or inconsistencies relative to BCG's more mature treatment.\n\nReview BCG (`Tools/buk/vov_veiled/BCG-BashConsoleGuide.md`) z-prefix sections, then review RCG (`Tools/vok/vov_veiled/RCG-RustCodingGuide.md`) internal declarations section. Ensure RCG covers:\n- Naming pattern alignment with BCG convention\n- When to use z-prefix vs true private\n- Visibility mapping (`pub(crate)` as Rust equivalent of BCG's file-scoped private)\n- Any BCG z-prefix rules that RCG is missing or contradicts\n\nAlso while in RCG: upgrade all four `lib.rs` files from `deny(unused_variables)` to `deny(warnings)` per the new RCG boilerplate rule. Verify no new warnings surface.",
