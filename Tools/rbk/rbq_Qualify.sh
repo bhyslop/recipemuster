@@ -155,6 +155,7 @@ rbq_qualify_fast() {
 
   buq_tabtargets "${ZRBQ_TT_DIR}" "${ZRBQ_PROJECT_ROOT}" \
     "butctt.*.sh" \
+    "buw-SI.*.sh" \
     # End of exempt list
   rbq_qualify_colophons
   rbq_qualify_context

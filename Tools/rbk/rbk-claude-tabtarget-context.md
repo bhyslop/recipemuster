@@ -53,7 +53,12 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-gPE` | PayorEstablish | — | Guided GCP project + OAuth consent screen setup |
 | `rbw-gPR` | PayorRefresh | — | Refresh expired OAuth tokens |
 | `rbw-gq` | QuotaBuild | — | Display Cloud Build capacity review procedure |
-| `rbw-gO` | Onboarding | — | Adaptive guide — reads current state, shows next step |
+| `rbw-go` | OnboardMAIN | — | Triage — detect roles, route to per-role walkthrough |
+| `rbw-gOR` | OnboardRetriever | — | Retriever walkthrough — pull and run vessel images |
+| `rbw-gOD` | OnboardDirector | — | Director walkthrough — build and publish vessel images |
+| `rbw-gOG` | OnboardGovernor | — | Governor walkthrough — manage service accounts and access |
+| `rbw-gOP` | OnboardPayor | — | Payor walkthrough — GCP project, billing, and OAuth setup |
+| `rbw-gOr` | OnboardReference | — | Reference — all roles, all units, single health dashboard |
 
 ### Hallmark — Registry artifact lifecycle (`rbw-h`)
 
