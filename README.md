@@ -25,33 +25,33 @@ The system uses only `bash`, `git`, `curl`, `openssh`, `jq`, and `docker` native
 
 | Term | Meaning |
 |------|---------|
-| <a id="vessel"></a>**Vessel** | A specification for a container image — built from source ([conjure](#conjure)), mirrored from upstream ([bind](#bind)), or pushed from local ([graft](#graft)) |
-| <a id="ark"></a>**Ark** | An immutable container image artifact in the registry, produced from a [vessel](#vessel) |
-| <a id="hallmark"></a>**Hallmark** | A specific build instance of a [vessel](#vessel), identified by timestamp |
-| <a id="vouch"></a>**Vouch** | Cryptographic attestation proving an [ark](#ark) was built by trusted infrastructure |
-| <a id="depot"></a>**Depot** | The facility where container images are built and stored (GCP project + registry + bucket) |
-| <a id="nameplate"></a>**Nameplate** | Per-vessel configuration tying a [sentry](#sentry) and [bottle](#bottle) together into a runnable unit |
-| <a id="sentry"></a>**Sentry** | Security container enforcing network policies via `iptables` and `dnsmasq` |
-| <a id="pentacle"></a>**Pentacle** | Privileged container establishing the network namespace shared with the [bottle](#bottle) |
-| <a id="bottle"></a>**Bottle** | Your workload container, running unmodified in a controlled network environment |
-| <a id="charge"></a>**Charge** | Start the [sentry](#sentry)/[pentacle](#pentacle)/[bottle](#bottle) triad for a [nameplate](#nameplate) |
-| <a id="quench"></a>**Quench** | Stop and clean up a charged [nameplate](#nameplate)'s containers |
-| <a id="ordain"></a>**Ordain** | Create a [hallmark](#hallmark) with full attestation — the production build command |
-| <a id="conjure"></a>**Conjure** | [Ordain](#ordain) mode: Cloud Build creates the image from source |
-| <a id="bind"></a>**Bind** | [Ordain](#ordain) mode: mirror an upstream image pinned by digest |
-| <a id="graft"></a>**Graft** | [Ordain](#ordain) mode: push a locally-built image to the registry |
-| <a id="kludge"></a>**Kludge** | Build a [vessel](#vessel) image locally for fast iteration (no registry push) |
-| <a id="enshrine"></a>**Enshrine** | Mirror upstream base images into your [depot](#depot)'s registry |
-| <a id="summon"></a>**Summon** | Pull a [hallmark](#hallmark) image from the [depot](#depot) to your local machine |
-| <a id="plumb"></a>**Plumb** | Inspect an artifact's provenance (SBOM, build info, [vouch](#vouch) chain) |
-| <a id="tally"></a>**Tally** | Inventory [hallmarks](#hallmark) in the registry by health status |
-| <a id="levy"></a>**Levy** | Provision a new [depot](#depot)'s GCP infrastructure |
-| <a id="payor"></a>**Payor** | Owns the GCP project and funds it; authenticates via OAuth |
-| <a id="governor"></a>**Governor** | Administers a [depot](#depot): creates service accounts, manages access |
-| <a id="director"></a>**Director** | Builds and publishes [vessel](#vessel) images into a [depot](#depot) |
-| <a id="retriever"></a>**Retriever** | Pulls and runs [vessel](#vessel) images from a [depot](#depot) |
-| <a id="charter"></a>**Charter** | Create a [retriever](#retriever) service account ([governor](#governor) operation) |
-| <a id="knight"></a>**Knight** | Create a [director](#director) service account ([governor](#governor) operation) |
+| <a id="Vessel"></a>**Vessel** | A specification for a container image — built from source ([conjure](#Conjure)), mirrored from upstream ([bind](#Bind)), or pushed from local ([graft](#Graft)) |
+| <a id="Ark"></a>**Ark** | An immutable container image artifact in the registry, produced from a [vessel](#Vessel) |
+| <a id="Hallmark"></a>**Hallmark** | A specific build instance of a [vessel](#Vessel), identified by timestamp |
+| <a id="Vouch"></a>**Vouch** | Cryptographic attestation proving an [ark](#Ark) was built by trusted infrastructure |
+| <a id="Depot"></a>**Depot** | The facility where container images are built and stored (GCP project + registry + bucket) |
+| <a id="Nameplate"></a>**Nameplate** | Per-vessel configuration tying a [sentry](#Sentry) and [bottle](#Bottle) together into a runnable unit |
+| <a id="Sentry"></a>**Sentry** | Security container enforcing network policies via `iptables` and `dnsmasq` |
+| <a id="Pentacle"></a>**Pentacle** | Privileged container establishing the network namespace shared with the [bottle](#Bottle) |
+| <a id="Bottle"></a>**Bottle** | Your workload container, running unmodified in a controlled network environment |
+| <a id="Charge"></a>**Charge** | Start the [sentry](#Sentry)/[pentacle](#Pentacle)/[bottle](#Bottle) triad for a [nameplate](#Nameplate) |
+| <a id="Quench"></a>**Quench** | Stop and clean up a charged [nameplate](#Nameplate)'s containers |
+| <a id="Ordain"></a>**Ordain** | Create a [hallmark](#Hallmark) with full attestation — the production build command |
+| <a id="Conjure"></a>**Conjure** | [Ordain](#Ordain) mode: Cloud Build creates the image from source |
+| <a id="Bind"></a>**Bind** | [Ordain](#Ordain) mode: mirror an upstream image pinned by digest |
+| <a id="Graft"></a>**Graft** | [Ordain](#Ordain) mode: push a locally-built image to the registry |
+| <a id="Kludge"></a>**Kludge** | Build a [vessel](#Vessel) image locally for fast iteration (no registry push) |
+| <a id="Enshrine"></a>**Enshrine** | Mirror upstream base images into your [depot](#Depot)'s registry |
+| <a id="Summon"></a>**Summon** | Pull a [hallmark](#Hallmark) image from the [depot](#Depot) to your local machine |
+| <a id="Plumb"></a>**Plumb** | Inspect an artifact's provenance (SBOM, build info, [vouch](#Vouch) chain) |
+| <a id="Tally"></a>**Tally** | Inventory [hallmarks](#Hallmark) in the registry by health status |
+| <a id="Levy"></a>**Levy** | Provision a new [depot](#Depot)'s GCP infrastructure |
+| <a id="Payor"></a>**Payor** | Owns the GCP project and funds it; authenticates via OAuth |
+| <a id="Governor"></a>**Governor** | Administers a [depot](#Depot): creates service accounts, manages access |
+| <a id="Director"></a>**Director** | Builds and publishes [vessel](#Vessel) images into a [depot](#Depot) |
+| <a id="Retriever"></a>**Retriever** | Pulls and runs [vessel](#Vessel) images from a [depot](#Depot) |
+| <a id="Charter"></a>**Charter** | Create a [retriever](#Retriever) service account ([governor](#Governor) operation) |
+| <a id="Knight"></a>**Knight** | Create a [director](#Director) service account ([governor](#Governor) operation) |
 
 ## How It Works
 
@@ -101,10 +101,10 @@ Recipe Bottle uses a role-based security model with four roles:
 
 | Role | Authenticates via | Purpose |
 |------|-------------------|---------|
-| [**Payor**](#payor) | OAuth (browser flow) | Creates/funds GCP infrastructure, manages [governor](#governor) lifecycle |
-| [**Governor**](#governor) | Service account credential | Administers [director](#director) and [retriever](#retriever) credentials within a [depot](#depot) |
-| [**Director**](#director) | Service account credential | Submits builds, manages images, verifies provenance |
-| [**Retriever**](#retriever) | Service account credential | Pulls images for local use |
+| [**Payor**](#Payor) | OAuth (browser flow) | Creates/funds GCP infrastructure, manages [governor](#Governor) lifecycle |
+| [**Governor**](#Governor) | Service account credential | Administers [director](#Director) and [retriever](#Retriever) credentials within a [depot](#Depot) |
+| [**Director**](#Director) | Service account credential | Submits builds, manages images, verifies provenance |
+| [**Retriever**](#Retriever) | Service account credential | Pulls images for local use |
 
 The payor stands apart — it requires manual Google Cloud Console work and OAuth authentication. All downstream roles authenticate via credential files, enabling full automation.
 

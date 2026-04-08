@@ -1057,10 +1057,10 @@ zrbgm_probe_role_credentials() {
 ######################################################################
 # Onboarding triage — helper and entry point
 
-# Args: detected(0|1) role_name anchor colophon
+# Args: detected(0|1) role_name colophon
 zrbgm_triage_role() {
-  local -r z_detected="${1}" z_name="${2}" z_anchor="${3}" z_colophon="${4}"
-  local -r z_url="${RBGC_PUBLIC_DOCS_URL}#${z_anchor}"
+  local -r z_detected="${1}" z_name="${2}" z_colophon="${3}"
+  local -r z_url="${RBGC_PUBLIC_DOCS_URL}#${z_name}"
   local z_padded
   printf -v z_padded '%-12s' "${z_name}"
   if test "${z_detected}" = "1"; then
@@ -1088,10 +1088,10 @@ rbgm_onboard_triage() {
   bug_e
 
   # Each role: detected → walkthrough tabtarget, absent → docs link
-  zrbgm_triage_role "${z_has_retriever}" "Retriever" "retriever" "${RBZ_ONBOARD_RETRIEVER}"
-  zrbgm_triage_role "${z_has_director}"  "Director"  "director"  "${RBZ_ONBOARD_DIRECTOR}"
-  zrbgm_triage_role "${z_has_governor}"  "Governor"  "governor"  "${RBZ_ONBOARD_GOVERNOR}"
-  zrbgm_triage_role "${z_has_payor}"     "Payor"     "payor"     "${RBZ_ONBOARD_PAYOR}"
+  zrbgm_triage_role "${z_has_retriever}" "Retriever" "${RBZ_ONBOARD_RETRIEVER}"
+  zrbgm_triage_role "${z_has_director}"  "Director"  "${RBZ_ONBOARD_DIRECTOR}"
+  zrbgm_triage_role "${z_has_governor}"  "Governor"  "${RBZ_ONBOARD_GOVERNOR}"
+  zrbgm_triage_role "${z_has_payor}"     "Payor"     "${RBZ_ONBOARD_PAYOR}"
 
   bug_e
   bug_t  "  For a full health dashboard across all roles:"
@@ -1221,8 +1221,8 @@ rbgm_onboard_retriever() {
       # ---- Unit 1: Credential Gate ----
       bug_section "  Credential Gate"
       bug_e
-      bug_tlt "  A " "depot" "${z_docs}#depot" " is the facility where container images are built and stored."
-      bug_tlt "  A " "retriever" "${z_docs}#retriever" " is a role with read access to a depot — you pull and run"
+      bug_tlt "  A " "depot" "${z_docs}#Depot" " is the facility where container images are built and stored."
+      bug_tlt "  A " "retriever" "${z_docs}#Retriever" " is a role with read access to a depot — you pull and run"
       bug_t   "  container images that others have built."
       bug_e
       bug_t   "  To access a depot, you need a service account key. Your governor creates"
@@ -1243,47 +1243,47 @@ rbgm_onboard_retriever() {
       # ---- Unit 2: First Artifact ----
       bug_section "  First Artifact"
       bug_e
-      bug_tlt "  A " "vessel" "${z_docs}#vessel" " is a specification for a container image."
-      bug_tlt "  A " "hallmark" "${z_docs}#hallmark" " is a specific build instance of a vessel, identified by"
+      bug_tlt "  A " "vessel" "${z_docs}#Vessel" " is a specification for a container image."
+      bug_tlt "  A " "hallmark" "${z_docs}#Hallmark" " is a specific build instance of a vessel, identified by"
       bug_t   "  timestamp."
       bug_e
-      bug_tlt "  " "Summon" "${z_docs}#summon" " pulls a hallmark image from the depot to your local machine:"
+      bug_tlt "  " "Summon" "${z_docs}#Summon" " pulls a hallmark image from the depot to your local machine:"
       bug_tc  "    " "tt/rbw-hs.RetrieverSummonsHallmark.sh"
       bug_e
       bug_t   "  After summoning, inspect the artifact's provenance:"
       bug_tc  "    " "tt/rbw-hpf.RetrieverPlumbsFull.sh"
       bug_tc  "    " "tt/rbw-hpc.RetrieverPlumbsCompact.sh"
       bug_e
-      bug_tlt "  A " "vouch" "${z_docs}#vouch" " is cryptographic attestation proving the artifact was built"
+      bug_tlt "  A " "vouch" "${z_docs}#Vouch" " is cryptographic attestation proving the artifact was built"
       bug_t   "  by trusted infrastructure."
-      bug_tlt "  " "Plumb" "${z_docs}#plumb" " lets you inspect the SBOM, build info, and vouch chain —"
+      bug_tlt "  " "Plumb" "${z_docs}#Plumb" " lets you inspect the SBOM, build info, and vouch chain —"
       bug_t   "  this is how you know what you're running."
 
     elif test "${z_ru3}" = "0"; then
       # ---- Unit 3: Container Runtime ----
       bug_section "  Container Runtime"
       bug_e
-      bug_tlt "  A " "bottle" "${z_docs}#bottle" " is your workload container, running unmodified in a controlled"
+      bug_tlt "  A " "bottle" "${z_docs}#Bottle" " is your workload container, running unmodified in a controlled"
       bug_t   "  network environment."
-      bug_tlt "  A " "nameplate" "${z_docs}#nameplate" " ties a sentry and bottle together into a runnable unit."
+      bug_tlt "  A " "nameplate" "${z_docs}#Nameplate" " ties a sentry and bottle together into a runnable unit."
       bug_e
-      bug_tlt "  The " "sentry" "${z_docs}#sentry" " enforces network policies via iptables and dnsmasq."
-      bug_tlt "  The " "pentacle" "${z_docs}#pentacle" " establishes the network namespace shared with the bottle."
+      bug_tlt "  The " "sentry" "${z_docs}#Sentry" " enforces network policies via iptables and dnsmasq."
+      bug_tlt "  The " "pentacle" "${z_docs}#Pentacle" " establishes the network namespace shared with the bottle."
       bug_e
-      bug_tlt "  " "Charge" "${z_docs}#charge" " starts the sentry/pentacle/bottle triad:"
+      bug_tlt "  " "Charge" "${z_docs}#Charge" " starts the sentry/pentacle/bottle triad:"
       bug_tc  "    " "tt/rbw-cC.Charge.tadmor.sh"
       bug_e
       bug_t   "  Shell into the bottle and look around:"
       bug_tc  "    " "tt/rbw-cr.Rack.sh tadmor"
       bug_e
-      bug_tlt "  When done, " "quench" "${z_docs}#quench" " stops and cleans up:"
+      bug_tlt "  When done, " "quench" "${z_docs}#Quench" " stops and cleans up:"
       bug_tc  "    " "tt/rbw-cQ.Quench.tadmor.sh"
 
     else
       # ---- Unit 4: Local Experimentation ----
       bug_section "  Local Experimentation"
       bug_e
-      bug_tlt "  " "Kludge" "${z_docs}#kludge" " builds a vessel image locally for fast iteration — no registry"
+      bug_tlt "  " "Kludge" "${z_docs}#Kludge" " builds a vessel image locally for fast iteration — no registry"
       bug_t   "  push, no director credentials needed:"
       bug_tc  "    " "tt/rbw-hk.LocalKludge.sh"
       bug_e
@@ -1355,8 +1355,8 @@ rbgm_onboard_director() {
       # ---- Unit 1: Credential Gate ----
       bug_section "  Credential Gate"
       bug_e
-      bug_tlt "  A " "depot" "${z_docs}#depot" " is the facility where container images are built and stored."
-      bug_tlt "  A " "director" "${z_docs}#director" " is a role with build and publish access to a depot —"
+      bug_tlt "  A " "depot" "${z_docs}#Depot" " is the facility where container images are built and stored."
+      bug_tlt "  A " "director" "${z_docs}#Director" " is a role with build and publish access to a depot —"
       bug_t   "  you create container images and push them to the registry."
       bug_e
       bug_t   "  Where a retriever can only pull, a director can build, push, and manage"
@@ -1380,16 +1380,16 @@ rbgm_onboard_director() {
       # ---- Unit 2: Kludge — Local Build ----
       bug_section "  Kludge: Local Build"
       bug_e
-      bug_tlt "  A " "vessel" "${z_docs}#vessel" " is a specification for a container image — a Dockerfile,"
+      bug_tlt "  A " "vessel" "${z_docs}#Vessel" " is a specification for a container image — a Dockerfile,"
       bug_t   "  build context, and metadata defining what gets built."
       bug_e
-      bug_tlt "  " "Kludge" "${z_docs}#kludge" " builds a vessel image locally using Docker — no Cloud Build"
+      bug_tlt "  " "Kludge" "${z_docs}#Kludge" " builds a vessel image locally using Docker — no Cloud Build"
       bug_t   "  setup needed, no registry push. The fastest way to see a vessel come to life."
       bug_e
       bug_t   "  Build the sentry vessel locally:"
       bug_tc  "    " "tt/rbw-hk.LocalKludge.sh"
       bug_e
-      bug_tlt "  After kludging, test by " "charging" "${z_docs}#charge" " a crucible and shelling in:"
+      bug_tlt "  After kludging, test by " "charging" "${z_docs}#Charge" " a crucible and shelling in:"
       bug_tc  "    " "tt/rbw-cC.Charge.tadmor.sh"
       bug_tc  "    " "tt/rbw-cr.Rack.sh tadmor"
       bug_e
@@ -1403,13 +1403,13 @@ rbgm_onboard_director() {
       bug_t   "  Before Cloud Build can create production images, the depot needs two kinds"
       bug_t   "  of upstream images mirrored into your registry:"
       bug_e
-      bug_tlt "  An " "ark" "${z_docs}#ark" " is an immutable container image artifact in the registry,"
+      bug_tlt "  An " "ark" "${z_docs}#Ark" " is an immutable container image artifact in the registry,"
       bug_t   "  produced from a vessel."
       bug_e
       bug_t   "  Tool images (reliquary): gcloud, docker, syft, skopeo, binfmt — the"
       bug_t   "  tools that Cloud Build steps consume during a build."
       bug_e
-      bug_tlt "  Base images (" "enshrine" "${z_docs}#enshrine" "): the upstream images that vessels build FROM."
+      bug_tlt "  Base images (" "enshrine" "${z_docs}#Enshrine" "): the upstream images that vessels build FROM."
       bug_t   "  Mirrored into your depot's registry with content-addressed anchors."
       bug_e
       bug_t   "  Mirror tool images into the depot:"
@@ -1419,11 +1419,11 @@ rbgm_onboard_director() {
       bug_tc  "    " "tt/rbw-dE.DirectorEnshrinesVessel.sh"
       bug_e
       bug_t   "  Reliquary provides the tools; enshrine provides the foundations."
-      bug_tltlt "  Both must be in place before " "conjure" "${z_docs}#conjure" " or " "bind" "${z_docs}#bind" "."
+      bug_tltlt "  Both must be in place before " "conjure" "${z_docs}#Conjure" " or " "bind" "${z_docs}#Bind" "."
       bug_e
       bug_t   "  After completing both, proceed to conjure your first production build."
-      bug_tlt "  The probe for this step turns green when a conjure " "hallmark" "${z_docs}#hallmark" ""
-      bug_tlt "  is " "summoned" "${z_docs}#summon" " locally (next step)."
+      bug_tlt "  The probe for this step turns green when a conjure " "hallmark" "${z_docs}#Hallmark" ""
+      bug_tlt "  is " "summoned" "${z_docs}#Summon" " locally (next step)."
 
     elif test "${z_du4}" = "0"; then
       # ---- Unit 4: Conjure — Production Build ----
@@ -1431,12 +1431,12 @@ rbgm_onboard_director() {
       #  but shown in reference mode as separate unit)
       bug_section "  Conjure: Production Build"
       bug_e
-      bug_tlt "  A " "hallmark" "${z_docs}#hallmark" " is a specific build instance of a vessel, identified by"
+      bug_tlt "  A " "hallmark" "${z_docs}#Hallmark" " is a specific build instance of a vessel, identified by"
       bug_t   "  timestamp."
       bug_e
-      bug_tlt "  " "Ordain" "${z_docs}#ordain" " creates a hallmark with full attestation — the production build"
+      bug_tlt "  " "Ordain" "${z_docs}#Ordain" " creates a hallmark with full attestation — the production build"
       bug_t   "  command."
-      bug_tlt "  " "Conjure" "${z_docs}#conjure" " is the ordain mode where Cloud Build creates the image from"
+      bug_tlt "  " "Conjure" "${z_docs}#Conjure" " is the ordain mode where Cloud Build creates the image from"
       bug_t   "  source. Every conjure produces a three-part ark: image, about (SBOM + build"
       bug_t   "  info), and vouch (DSSE signature verification)."
       bug_e
@@ -1444,34 +1444,34 @@ rbgm_onboard_director() {
       bug_t   "  with full SLSA provenance:"
       bug_tc  "    " "tt/rbw-hO.DirectorOrdainsHallmark.sh"
       bug_e
-      bug_tlt "  Verify with " "vouch" "${z_docs}#vouch" " (cryptographic attestation) and"
-      bug_tlt "  " "tally" "${z_docs}#tally" " (registry inventory):"
+      bug_tlt "  Verify with " "vouch" "${z_docs}#Vouch" " (cryptographic attestation) and"
+      bug_tlt "  " "tally" "${z_docs}#Tally" " (registry inventory):"
       bug_tc  "    " "tt/rbw-hV.DirectorVouchesHallmarks.sh"
       bug_tc  "    " "tt/rbw-ht.DirectorTalliesHallmarks.sh"
       bug_e
-      bug_tlt "  Then " "summon" "${z_docs}#summon" " the hallmark locally to confirm the full pipeline:"
+      bug_tlt "  Then " "summon" "${z_docs}#Summon" " the hallmark locally to confirm the full pipeline:"
       bug_tc  "    " "tt/rbw-hs.RetrieverSummonsHallmark.sh"
 
     elif test "${z_du5}" = "0"; then
       # ---- Unit 5: Bind — Pin Upstream Image ----
       bug_section "  Bind: Pin Upstream Image"
       bug_e
-      bug_tlt "  " "Bind" "${z_docs}#bind" " mirrors a pinned upstream image into your depot. No Dockerfile,"
+      bug_tlt "  " "Bind" "${z_docs}#Bind" " mirrors a pinned upstream image into your depot. No Dockerfile,"
       bug_t   "  no build — just a content-addressed copy."
       bug_e
       bug_t   "  PlantUML is useful for rendering architecture diagrams, but its Docker Hub"
-      bug_tlt "  image could send your private diagrams anywhere. Bind pins it by " "digest" "${z_docs}#bind" " —"
-      bug_tlt "  no silent updates. Then " "charge" "${z_docs}#charge" " it as a bottle: the sentry blocks"
+      bug_tlt "  image could send your private diagrams anywhere. Bind pins it by " "digest" "${z_docs}#Bind" " —"
+      bug_tlt "  no silent updates. Then " "charge" "${z_docs}#Charge" " it as a bottle: the sentry blocks"
       bug_t   "  all egress. You get the tool without the risk."
       bug_e
       bug_t   "  Ordain the plantuml vessel in bind mode:"
       bug_tc  "    " "tt/rbw-hO.DirectorOrdainsHallmark.sh"
       bug_e
       bug_t   "  The upstream image is pulled by digest, pushed to GAR, about metadata"
-      bug_tlt "  generated, and " "vouch" "${z_docs}#vouch" " records a digest-pin verdict. No SLSA provenance —"
+      bug_tlt "  generated, and " "vouch" "${z_docs}#Vouch" " records a digest-pin verdict. No SLSA provenance —"
       bug_t   "  the image was not built here, but it is pinned and bottled."
       bug_e
-      bug_tlt "  Verify and " "summon" "${z_docs}#summon" ":"
+      bug_tlt "  Verify and " "summon" "${z_docs}#Summon" ":"
       bug_tc  "    " "tt/rbw-hV.DirectorVouchesHallmarks.sh"
       bug_tc  "    " "tt/rbw-hs.RetrieverSummonsHallmark.sh"
 
@@ -1479,7 +1479,7 @@ rbgm_onboard_director() {
       # ---- Unit 6: Graft — Push Local to Registry ----
       bug_section "  Graft: Push Local to Registry"
       bug_e
-      bug_tlt "  " "Graft" "${z_docs}#graft" " pushes a locally-built image to GAR. The image push is local"
+      bug_tlt "  " "Graft" "${z_docs}#Graft" " pushes a locally-built image to GAR. The image push is local"
       bug_t   "  (docker push), but about and vouch still run in Cloud Build."
       bug_e
       bug_t   "  You kludged the sentry in step 2 and conjured it in step 4. Now push your"
@@ -1500,14 +1500,14 @@ rbgm_onboard_director() {
       bug_t   "  structure: image, about, and vouch. About contains the SBOM and"
       bug_t   "  build_info.json. Vouch contains the mode-specific verification."
       bug_e
-      bug_tlt "  " "Plumb" "${z_docs}#plumb" " lets you inspect an artifact's provenance — SBOM, build info,"
+      bug_tlt "  " "Plumb" "${z_docs}#Plumb" " lets you inspect an artifact's provenance — SBOM, build info,"
       bug_t   "  and vouch chain:"
       bug_tc  "    " "tt/rbw-hpf.RetrieverPlumbsFull.sh"
       bug_e
       bug_t   "  Run plumb against each mode's hallmark and compare:"
-      bug_tlt "    - " "Conjure" "${z_docs}#conjure" " (sentry): DSSE vouch, SLSA provenance"
-      bug_tlt "    - " "Bind" "${z_docs}#bind" " (plantuml): digest-pin vouch, no provenance"
-      bug_tlt "    - " "Graft" "${z_docs}#graft" " (sentry): GRAFTED vouch, no provenance chain"
+      bug_tlt "    - " "Conjure" "${z_docs}#Conjure" " (sentry): DSSE vouch, SLSA provenance"
+      bug_tlt "    - " "Bind" "${z_docs}#Bind" " (plantuml): digest-pin vouch, no provenance"
+      bug_tlt "    - " "Graft" "${z_docs}#Graft" " (sentry): GRAFTED vouch, no provenance chain"
       bug_e
       bug_t   "  The tally command shows the full registry health view — the director's"
       bug_t   "  operational dashboard:"
@@ -1563,8 +1563,8 @@ rbgm_onboard_governor() {
       # ---- Unit 1: Project Access ----
       bug_section "  Project Access"
       bug_e
-      bug_tlt "  A " "depot" "${z_docs}#depot" " is the facility where container images are built and stored."
-      bug_tlt "  A " "governor" "${z_docs}#governor" " administers a depot — creating service accounts and"
+      bug_tlt "  A " "depot" "${z_docs}#Depot" " is the facility where container images are built and stored."
+      bug_tlt "  A " "governor" "${z_docs}#Governor" " administers a depot — creating service accounts and"
       bug_t   "  managing access for those who build and run container images."
       bug_e
       bug_t   "  The governor works within a depot that the payor created. If no depot exists"
@@ -1591,15 +1591,15 @@ rbgm_onboard_governor() {
       bug_e
       bug_t   "  The governor provisions access for two downstream roles:"
       bug_e
-      bug_tlt "  A " "retriever" "${z_docs}#retriever" " has read access to the depot — they pull and run"
+      bug_tlt "  A " "retriever" "${z_docs}#Retriever" " has read access to the depot — they pull and run"
       bug_t   "  container images that others have built."
-      bug_tlt "  A " "director" "${z_docs}#director" " has build and publish access — they create container"
+      bug_tlt "  A " "director" "${z_docs}#Director" " has build and publish access — they create container"
       bug_t   "  images and push them to the registry."
       bug_e
-      bug_tlt "  " "Charter" "${z_docs}#charter" " creates a retriever service account with read access:"
+      bug_tlt "  " "Charter" "${z_docs}#Charter" " creates a retriever service account with read access:"
       bug_tc  "    " "tt/rbw-aC.GovernorChartersRetriever.sh"
       bug_e
-      bug_tlt "  " "Knight" "${z_docs}#knight" " creates a director service account with build access:"
+      bug_tlt "  " "Knight" "${z_docs}#Knight" " creates a director service account with build access:"
       bug_tc  "    " "tt/rbw-aK.GovernorKnightsDirector.sh"
       bug_e
       bug_t   "  Each command creates the service account and applies the IAM grants it needs."
@@ -1686,7 +1686,7 @@ rbgm_onboard_payor() {
       # ---- Unit 1: OAuth Bootstrap ----
       bug_section "  OAuth Bootstrap"
       bug_e
-      bug_tlt "  The " "payor" "${z_docs}#payor" " owns the GCP project and funds it. Unlike other roles"
+      bug_tlt "  The " "payor" "${z_docs}#Payor" " owns the GCP project and funds it. Unlike other roles"
       bug_t   "  that use service account keys, the payor authenticates via OAuth — representing"
       bug_t   "  the human project owner."
       bug_e
@@ -1720,10 +1720,10 @@ rbgm_onboard_payor() {
       # ---- Unit 3: Depot Provisioning ----
       bug_section "  Depot Provisioning"
       bug_e
-      bug_tlt "  A " "depot" "${z_docs}#depot" " is the facility where container images are built and stored"
+      bug_tlt "  A " "depot" "${z_docs}#Depot" " is the facility where container images are built and stored"
       bug_t   "  — a GCP project with a registry, storage bucket, and build infrastructure."
       bug_e
-      bug_tlt "  To " "levy" "${z_docs}#levy" " a depot is to provision this infrastructure. Run:"
+      bug_tlt "  To " "levy" "${z_docs}#Levy" " a depot is to provision this infrastructure. Run:"
       bug_tc  "    " "tt/rbw-dL.PayorLeviesDepot.sh"
       bug_e
       bug_t   "  This enables APIs, creates the Artifact Registry repository and Cloud Storage"
@@ -1738,7 +1738,7 @@ rbgm_onboard_payor() {
       # ---- Unit 4: Governor Handoff ----
       bug_section "  Governor Handoff"
       bug_e
-      bug_tlt "  A " "governor" "${z_docs}#governor" " administers a depot — creating service accounts and"
+      bug_tlt "  A " "governor" "${z_docs}#Governor" " administers a depot — creating service accounts and"
       bug_t   "  managing access for those who build and run container images."
       bug_e
       bug_t   "  The payor funds the infrastructure; the governor operates it. After this"
