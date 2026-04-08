@@ -78,7 +78,7 @@
 :jjdhm_firemark:  <<jjdhm_firemark,firemark>>
 :jjdhm_order:     <<jjdhm_order,order>>
 :jjdhm_paddock:        <<jjdhm_paddock,paddock_file>>
-:jjdhm_pensum_seed:    <<jjdhm_pensum_seed,next_pensum_seed>>
+:jjdhm_pensum_seed:    <<jjdhm_pensum_seed,pensum_seed>>
 :jjdhm_seed:           <<jjdhm_seed,next_pace_seed>>
 :jjdhm_silks:          <<jjdhm_silks,silks>>
 :jjdhm_paces:          <<jjdhm_paces,paces>>
@@ -635,12 +635,11 @@ state: the
 {jjdxo_officium}
 directory holds active
 {jjdt_legatio}
-handles; the
-{jjdgr_gallops}
-holds
+handles and
 {jjdt_pensum}
-seeds per
-{jjdhr_heat};
+seeds (per
+{jjdhr_heat},
+in `pensum_seeds.json`);
 pulled-back logs are archived by
 {jjdt_pensum}
 token.
@@ -991,7 +990,7 @@ has four properties: a unicode verification glyph (decorative in input, mandator
 +
 Two encoding natures, declared via dimension:
 +
-* {axd_algebraic} — {jjdz_charset} characters, fixed digit count, seed incremented under commit lock.
+* {axd_algebraic} — {jjdz_charset} characters, fixed digit count, seed incremented per allocation ({jjdt_firemark}/{jjdt_coronet} under commit lock; {jjdt_pensum} in officium-local storage).
 Digit count disambiguates type within the algebraic family, with one exception: {jjdt_pensum} shares digit count 5 with {jjdt_coronet} and uses a `%` sentinel at position 3 for disambiguation.
 Case matters: the final character's case distinguishes identities.
 +
@@ -1090,8 +1089,10 @@ without is
 +
 Seed:
 {jjdhm_pensum_seed}
-on
-{jjdhr_heat},
+in the
+{jjdxo_officium}
+directory (keyed by
+{jjdt_firemark}),
 incremented by
 {jjdo_relay}.
 +
@@ -1334,14 +1335,26 @@ Incremented by
 {jjdo_enroll}.
 
 * [[jjdhm_pensum_seed]]
-//axl_voices axr_member axd_required
+//axl_voices axr_member axd_ephemeral
 {jjdhm_pensum_seed}
 is the next
 {jjdt_pensum}
 index to allocate, stored as 2 {jjdz_charset} characters.
+Lives in the
+{jjdxo_officium}
+directory as `pensum_seeds.json` (keyed by
+{jjdt_firemark}).
 Incremented by
 {jjdo_relay}.
-Initialized to `AA` on heat creation.
+Initialized to `AA` on first relay for a given heat within an officium.
++
+Formerly a
+{jjdhr_heat}
+member in
+{jjdgr_gallops}.
+Moved to officium-local storage because each mint committed to gallops, advancing HEAD past origin and triggering the curia readiness guard on subsequent relays.
+Pensum tokens are session-scoped ephemeral correlation labels — they do not belong in permanent project history.
+Cross-officium seed collision is acceptable.
 
 * [[jjdhm_paddock]]
 //axl_voices axr_member axd_required
@@ -2178,10 +2191,11 @@ These are
 {jjdxo_officium}
 infrastructure operations — they bypass the
 {jjdgr_gallops}
-lifecycle except for
+lifecycle entirely.
 {jjdo_relay}
-which increments
-{jjdhm_pensum_seed}.
+increments
+{jjdhm_pensum_seed}
+in officium-local storage.
 Member of
 {jjsogrd_remote_dispatch}.
 
@@ -2345,9 +2359,9 @@ Mints a
 {jjdt_pensum}
 token (incrementing
 {jjdhm_pensum_seed}
-under
+in officium-local storage — no
 {jjdgr_gallops}
-lock), sets `BURE_LABEL`, launches via SSH, captures `burx.env` start fields via a second SSH connection.
+lock or commit), sets `BURE_LABEL`, launches via SSH, captures `burx.env` start fields via a second SSH connection.
 
 {jjds_arguments}
 
