@@ -105,13 +105,9 @@ buc_tabtarget() {
   local z_colophon="$1"
   shift
   local z_extra="${*:+ $*}"
-  local -r z_find_file="${BURD_TEMP_DIR}/buc_tabtarget_find.txt"
-  local -r z_find_stderr="${BURD_TEMP_DIR}/buc_tabtarget_find_stderr.txt"
-  find "${BURD_TABTARGET_DIR}" -maxdepth 1 -name "${z_colophon}."'*' -print > "${z_find_file}" 2>"${z_find_stderr}" || true
-  local z_match=""
-  read -r z_match < "${z_find_file}" || true
-  test -n "${z_match}" || buc_die "buc_tabtarget: no tabtarget found for colophon '${z_colophon}'"
-  buc_bare "        ${BURD_TABTARGET_DIR}/${z_match##*/}${z_extra}"
+  local z_matches=("${BURD_TABTARGET_DIR}"/${z_colophon}.*)
+  test -e "${z_matches[0]}" || buc_die "buc_tabtarget: no tabtarget found for colophon '${z_colophon}'"
+  buc_bare "        ${z_matches[0]}${z_extra}"
 }
 
 buc_context() {

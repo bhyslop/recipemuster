@@ -210,18 +210,28 @@ bug_tltlt() {
 }
 
 ######################################################################
-# Public: Tabtarget display (colophon resolution)
+# Internal: Tabtarget fragment builder
+#
+# Sets ZBUG_TT_FRAG to a resolved tabtarget path in cyan for embedding
+# in combinator output.  Resolves colophon via glob.
+# Args: colophon
 
-# bug_tabtarget "colophon" [extra_args...]
-# Resolves colophon to tabtarget filename, renders in guide style.
-bug_tabtarget() {
-  local z_colophon="$1"
-  shift
-  local z_extra="${*:+ $*}"
-  local z_matches=("${BURD_TABTARGET_DIR}"/${z_colophon}.*)
-  test -e "${z_matches[0]}" || buc_die "bug_tabtarget: no tabtarget found for colophon '${z_colophon}'"
-  bug_tc "    " "${z_matches[0]}${z_extra}"
+zbug_tabtarget_fragment() {
+  zbug_sentinel
+  local z_matches=("${BURD_TABTARGET_DIR}"/${1}.*)
+  test -e "${z_matches[0]}" || buc_die "bug: no tabtarget for colophon '${1}'"
+  ZBUG_TT_FRAG="${ZBUG_C}${z_matches[0]}${ZBUG_R}"
 }
+
+######################################################################
+# Public: Tabtarget combinators
+#
+# T consumes one positional arg (colophon), resolves to tabtarget path,
+# renders in cyan.  Parallel to l (link) combinator.
+
+bug_T()       { zbug_tabtarget_fragment "${1}"; zbug_show "${ZBUG_TT_FRAG}"; }
+bug_tT()      { zbug_tabtarget_fragment "${2}"; zbug_show "${1}${ZBUG_TT_FRAG}"; }
+bug_cT()      { zbug_tabtarget_fragment "${2}"; zbug_show "${ZBUG_C}${1}${ZBUG_R}${ZBUG_TT_FRAG}"; }
 
 ######################################################################
 # Public: User prompts

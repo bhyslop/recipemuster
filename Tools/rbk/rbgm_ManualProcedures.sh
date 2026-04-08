@@ -1076,32 +1076,32 @@ rbgm_onboard_triage() {
 
   # Each role: detected → walkthrough tabtarget, absent → docs link
   if test "${z_has_retriever}" = "1"; then
-    bug_ct " [*] Retriever   " "tt/rbw-gOR.OnboardRetriever.sh"
+    bug_cT " [*] Retriever   " "${RBZ_ONBOARD_RETRIEVER}"
   else
     bug_tl " [ ] Retriever   " "about this role" "${z_docs}#retriever"
   fi
 
   if test "${z_has_director}" = "1"; then
-    bug_ct " [*] Director    " "tt/rbw-gOD.OnboardDirector.sh"
+    bug_cT " [*] Director    " "${RBZ_ONBOARD_DIRECTOR}"
   else
     bug_tl " [ ] Director    " "about this role" "${z_docs}#director"
   fi
 
   if test "${z_has_governor}" = "1"; then
-    bug_ct " [*] Governor    " "tt/rbw-gOG.OnboardGovernor.sh"
+    bug_cT " [*] Governor    " "${RBZ_ONBOARD_GOVERNOR}"
   else
     bug_tl " [ ] Governor    " "about this role" "${z_docs}#governor"
   fi
 
   if test "${z_has_payor}" = "1"; then
-    bug_ct " [*] Payor       " "tt/rbw-gOP.OnboardPayor.sh"
+    bug_cT " [*] Payor       " "${RBZ_ONBOARD_PAYOR}"
   else
     bug_tl " [ ] Payor       " "about this role" "${z_docs}#payor"
   fi
 
   bug_e
   bug_t  "  For a full health dashboard across all roles:"
-  bug_tc "    " "tt/rbw-gOr.OnboardReference.sh"
+  bug_tT "    " "${RBZ_ONBOARD_REFERENCE}"
 
 }
 
@@ -1300,8 +1300,7 @@ rbgm_onboard_retriever() {
   fi
 
   bug_e
-  bug_t  "  Triage:"
-  bug_tabtarget "${RBZ_ONBOARD_TRIAGE}"
+  bug_tT "  Triage: " "${RBZ_ONBOARD_TRIAGE}"
 
 }
 
@@ -1523,8 +1522,7 @@ rbgm_onboard_director() {
   fi
 
   bug_e
-  bug_t  "  Triage:"
-  bug_tabtarget "${RBZ_ONBOARD_TRIAGE}"
+  bug_tT "  Triage: " "${RBZ_ONBOARD_TRIAGE}"
 
 }
 
