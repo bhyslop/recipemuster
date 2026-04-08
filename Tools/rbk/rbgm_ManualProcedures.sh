@@ -1055,7 +1055,19 @@ zrbgm_probe_role_credentials() {
 }
 
 ######################################################################
-# Onboarding triage — detect roles, route to per-role walkthrough
+# Onboarding triage — helper and entry point
+
+# Args: detected(0|1) role_name colophon
+zrbgm_triage_role() {
+  local -r z_detected="${1}" z_name="${2}" z_colophon="${3}"
+  local -r z_anchor=$(printf '%s' "${z_name}" | tr '[:upper:]' '[:lower:]')
+  local -r z_label=$(printf ' [%s] %-12s' "$(test "${z_detected}" = "1" && printf '*' || printf ' ')" "${z_name}")
+  if test "${z_detected}" = "1"; then
+    bug_cT "${z_label}" "${z_colophon}"
+  else
+    bug_tl "${z_label}" "about this role" "${RBGC_PUBLIC_DOCS_URL}#${z_anchor}"
+  fi
+}
 
 rbgm_onboard_triage() {
   # No sentinel — works pre-kindle (probes filesystem only)
@@ -1075,29 +1087,10 @@ rbgm_onboard_triage() {
   bug_e
 
   # Each role: detected → walkthrough tabtarget, absent → docs link
-  if test "${z_has_retriever}" = "1"; then
-    bug_cT " [*] Retriever   " "${RBZ_ONBOARD_RETRIEVER}"
-  else
-    bug_tl " [ ] Retriever   " "about this role" "${z_docs}#retriever"
-  fi
-
-  if test "${z_has_director}" = "1"; then
-    bug_cT " [*] Director    " "${RBZ_ONBOARD_DIRECTOR}"
-  else
-    bug_tl " [ ] Director    " "about this role" "${z_docs}#director"
-  fi
-
-  if test "${z_has_governor}" = "1"; then
-    bug_cT " [*] Governor    " "${RBZ_ONBOARD_GOVERNOR}"
-  else
-    bug_tl " [ ] Governor    " "about this role" "${z_docs}#governor"
-  fi
-
-  if test "${z_has_payor}" = "1"; then
-    bug_cT " [*] Payor       " "${RBZ_ONBOARD_PAYOR}"
-  else
-    bug_tl " [ ] Payor       " "about this role" "${z_docs}#payor"
-  fi
+  zrbgm_triage_role "${z_has_retriever}" "Retriever" "${RBZ_ONBOARD_RETRIEVER}"
+  zrbgm_triage_role "${z_has_director}"  "Director"  "${RBZ_ONBOARD_DIRECTOR}"
+  zrbgm_triage_role "${z_has_governor}"  "Governor"  "${RBZ_ONBOARD_GOVERNOR}"
+  zrbgm_triage_role "${z_has_payor}"     "Payor"     "${RBZ_ONBOARD_PAYOR}"
 
   bug_e
   bug_t  "  For a full health dashboard across all roles:"
