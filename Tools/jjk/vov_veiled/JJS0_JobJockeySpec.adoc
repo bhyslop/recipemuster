@@ -2428,15 +2428,14 @@ directory
 . Mint
 {jjdt_pensum}
 token:
-.. Acquire commit lock
-.. Load
-{jjdgr_gallops}
+.. Read `pensum_seeds.json` from
+{jjdxo_officium}
+directory
 .. Increment
 {jjdhm_pensum_seed}
-.. Persist
-{jjdgr_gallops}
-with commit
-.. Release lock
+for this
+{jjdt_firemark}
+.. Write `pensum_seeds.json` back (no commit lock, no git commit)
 //axhos_step
 . SSH #1 — launch nohup wrapper on
 {jjdxr_fundus}:

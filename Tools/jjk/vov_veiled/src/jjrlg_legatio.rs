@@ -648,14 +648,14 @@ fn zjjrlg_mint_pensum_local(
 
     let seeds_path = officium_dir.join(PENSUM_SEEDS_FILE);
 
-    // Load existing seeds or start empty
-    let mut seeds: HashMap<String, String> = if seeds_path.exists() {
+    // Load existing seeds or start empty (BTreeMap for deterministic JSON output)
+    let mut seeds: std::collections::BTreeMap<String, String> = if seeds_path.exists() {
         let content = std::fs::read_to_string(&seeds_path)
             .map_err(|e| format!("Cannot read pensum seeds: {}", e))?;
         serde_json::from_str(&content)
             .map_err(|e| format!("Cannot parse pensum seeds: {}", e))?
     } else {
-        HashMap::new()
+        std::collections::BTreeMap::new()
     };
 
     // Get or initialize seed for this heat
