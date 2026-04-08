@@ -2006,6 +2006,13 @@
         "₢A3AAH": {
           "tacks": [
             {
+              "ts": "260408-0932",
+              "state": "complete",
+              "text": "## Character\nMechanical find-and-replace across README.md and guide callsites. No judgment calls — every anchor gets the same treatment.\n\n## Docket\n\nCapitalize all 27 glossary anchor IDs in README.md from lowercase to title case (e.g., `<a id=\"vessel\">` → `<a id=\"Vessel\">`), and update all references:\n\n### README.md\n- All `<a id=\"...\">` definitions: lowercase → title case\n- All `[text](#anchor)` cross-links within the glossary table\n- All `[**Role**](#role)` links in the roles table\n\n### Guide callsites (rbgm_ManualProcedures.sh)\n- All `bug_tlt` URLs containing `${z_docs}#anchor` fragments\n- After this, `zrbgm_triage_role` drops its 3rd parameter (anchor) and uses `z_name` directly\n\n### Verification\n- All `bug_tlt` URLs resolve to valid anchors\n- All README cross-links resolve\n- Triage helper simplified to 3 parameters",
+              "silks": "readme-glossary-anchor-capitalization",
+              "commit": "0916f40"
+            },
+            {
               "ts": "260408-0916",
               "state": "rough",
               "text": "## Character\nMechanical find-and-replace across README.md and guide callsites. No judgment calls — every anchor gets the same treatment.\n\n## Docket\n\nCapitalize all 27 glossary anchor IDs in README.md from lowercase to title case (e.g., `<a id=\"vessel\">` → `<a id=\"Vessel\">`), and update all references:\n\n### README.md\n- All `<a id=\"...\">` definitions: lowercase → title case\n- All `[text](#anchor)` cross-links within the glossary table\n- All `[**Role**](#role)` links in the roles table\n\n### Guide callsites (rbgm_ManualProcedures.sh)\n- All `bug_tlt` URLs containing `${z_docs}#anchor` fragments\n- After this, `zrbgm_triage_role` drops its 3rd parameter (anchor) and uses `z_name` directly\n\n### Verification\n- All `bug_tlt` URLs resolve to valid anchors\n- All README cross-links resolve\n- Triage helper simplified to 3 parameters",
