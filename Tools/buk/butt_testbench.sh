@@ -35,11 +35,13 @@ source "${BURD_BUK_DIR}/butr_registry.sh"
 source "${BURD_BUK_DIR}/butd_dispatch.sh"
 source "${BURD_BUK_DIR}/bure_regime.sh"
 source "${BURD_BUK_DIR}/buf_fact.sh"
+source "${BURD_BUK_DIR}/bug_guide.sh"
 
 # Source test case files
 source "${BUTT_BUTS_DIR}/butckk_KickTires.sh"
 source "${BUTT_BUTS_DIR}/butcbe_BureEnvironment.sh"
 source "${BUTT_BUTS_DIR}/butcbx_BurxExchange.sh"
+source "${BUTT_BUTS_DIR}/butclc_LinkCombinator.sh"
 
 buc_context "${0##*/}"
 zbuv_kindle
@@ -77,6 +79,12 @@ butt_kindle() {
   butr_case_enroll "burx-exchange" butcbx_burx_fields_tcase
   butr_case_enroll "burx-exchange" butcbx_burx_preexist_tcase
   butr_case_enroll "burx-exchange" butcbx_burx_timestamp_format_tcase
+
+  # bug-link fixture (3 cases)
+  butr_fixture_enroll "bug-link" "" "zbutt_noop_baste"
+  butr_case_enroll "bug-link" butclc_tlt_osc8_tcase
+  butr_case_enroll "bug-link" butclc_tlt_fallback_tcase
+  butr_case_enroll "bug-link" butclc_all_combinators_tcase
 }
 
 zbutt_noop_baste() {

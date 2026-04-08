@@ -28,9 +28,18 @@
 #   u = UI element (magenta) - text user sees on screen
 #   W = warning (yellow) - uppercase for visual pop
 #   E = error (red) - uppercase for visual pop
+#   l = link (blue underline, OSC-8 hyperlink) - consumes TWO args
+#
+# Each letter consumes one positional argument, except 'l' which consumes
+# two (display_text then url). This is the only multi-arg letter.
 #
 # Example: bug_tut "Click the " "Save" " button"
 #   Renders: "Click the " + magenta("Save") + " button"
+#
+# Link arg mapping example for bug_tlt:
+#   bug_tlt  "A "  "hallmark"  "https://...#hallmark"  " is a named artifact."
+#            ^^^^  ^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^   ^^^^^^^^^^^^^^^^^^^^^^^^
+#            t(1)  l(1:text)   l(2:url)                t(1)
 
 set -euo pipefail
 
@@ -58,6 +67,7 @@ zbug_kindle() {
     readonly ZBUG_W="\033[1;33m"       # Warning (bright yellow)
     readonly ZBUG_E="\033[1;31m"       # Error (bright red)
     readonly ZBUG_S="\033[1;37m"       # Section (bright white)
+    readonly ZBUG_L="\033[34;4m"       # Link (blue + underline)
   else
     readonly ZBUG_R=""
     readonly ZBUG_T=""
@@ -66,6 +76,7 @@ zbug_kindle() {
     readonly ZBUG_W=""
     readonly ZBUG_E=""
     readonly ZBUG_S=""
+    readonly ZBUG_L=""
   fi
 
   readonly ZBUG_KINDLED=1
@@ -81,6 +92,24 @@ zbug_sentinel() {
 zbug_show() {
   zbug_sentinel
   printf '%b\n' "${1:-}" >&2
+}
+
+######################################################################
+# Internal: Link fragment builder
+#
+# Sets ZBUG_LINK_FRAG to a formatted link fragment for embedding in
+# combinator output.  Respects BURD_NO_HYPERLINKS fallback.
+# Args: display_text url
+
+zbug_link_fragment() {
+  zbug_sentinel
+  local -r z_text="${1:-}"
+  local -r z_url="${2:-}"
+  if test -n "${BURD_NO_HYPERLINKS:-}"; then
+    ZBUG_LINK_FRAG="${ZBUG_L}${z_text}${ZBUG_R} <${z_url}>"
+  else
+    ZBUG_LINK_FRAG="${ZBUG_L}\033]8;;${z_url}\033\\${z_text}\033]8;;\033\\${ZBUG_R}"
+  fi
 }
 
 ######################################################################
@@ -155,6 +184,29 @@ bug_link() {
     printf '%s%b\033]8;;%s\033\\%s\033]8;;\033\\%b%s\n' \
       "${z_prefix}" "${z_link_style}" "${z_url}" "${z_text}" "${ZBUG_R}" "${z_suffix}" >&2
   fi
+}
+
+######################################################################
+# Public: Link combinators
+#
+# The 'l' letter consumes TWO positional args (display_text, url) and
+# renders an OSC-8 terminal hyperlink.  All other letters consume one.
+#
+# Arg mapping example for bug_tlt:
+#   bug_tlt  "A "  "hallmark"  "https://...#hallmark"  " is a named artifact."
+#            ^^^^  ^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^   ^^^^^^^^^^^^^^^^^^^^^^^^
+#            t(1)  l(1:text)   l(2:url)                t(1)
+
+bug_lt()      { zbug_link_fragment "${1}" "${2}"; zbug_show "${ZBUG_LINK_FRAG}${3}"; }
+bug_tl()      { zbug_link_fragment "${2}" "${3}"; zbug_show "${1}${ZBUG_LINK_FRAG}"; }
+bug_tlt()     { zbug_link_fragment "${2}" "${3}"; zbug_show "${1}${ZBUG_LINK_FRAG}${4}"; }
+bug_tlc()     { zbug_link_fragment "${2}" "${3}"; zbug_show "${1}${ZBUG_LINK_FRAG}${ZBUG_C}${4}${ZBUG_R}"; }
+
+bug_tltlt() {
+  zbug_link_fragment "${2}" "${3}"
+  local -r z_frag1="${ZBUG_LINK_FRAG}"
+  zbug_link_fragment "${5}" "${6}"
+  zbug_show "${1}${z_frag1}${4}${ZBUG_LINK_FRAG}${7}"
 }
 
 ######################################################################
