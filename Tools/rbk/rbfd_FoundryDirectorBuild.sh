@@ -1182,7 +1182,7 @@ rbfd_build() {
 # Host platform only (no multi-arch).
 
 rbfd_kludge() {
-  zrbfc_sentinel
+  zrbfd_sentinel
 
   buc_doc_brief "Build vessel image locally for development (no Cloud Build, no GAR push)"
   buc_doc_param "vessel" "Vessel sigil or path to vessel directory"
