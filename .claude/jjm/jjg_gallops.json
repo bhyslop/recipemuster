@@ -40,7 +40,6 @@
         "₢A0AAH"
       ],
       "next_pace_seed": "AAI",
-      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAl0.md",
       "paces": {
         "₢A0AAA": {
@@ -308,7 +307,6 @@
         "₢A1AAp"
       ],
       "next_pace_seed": "AAq",
-      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAl1.md",
       "paces": {
         "₢A1AAA": {
@@ -1378,7 +1376,6 @@
         "₢A2AAF"
       ],
       "next_pace_seed": "AAI",
-      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAl2.md",
       "paces": {
         "₢A2AAA": {
@@ -1622,10 +1619,10 @@
         "₢A3AAC",
         "₢A3AAD",
         "₢A3AAE",
-        "₢A3AAF"
+        "₢A3AAF",
+        "₢A3AAH"
       ],
-      "next_pace_seed": "AAH",
-      "next_pensum_seed": "AA",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_uAl3.md",
       "paces": {
         "₢A3AAA": {
@@ -2005,6 +2002,17 @@
               "commit": "558156e"
             }
           ]
+        },
+        "₢A3AAH": {
+          "tacks": [
+            {
+              "ts": "260408-0916",
+              "state": "rough",
+              "text": "## Character\nMechanical find-and-replace across README.md and guide callsites. No judgment calls — every anchor gets the same treatment.\n\n## Docket\n\nCapitalize all 27 glossary anchor IDs in README.md from lowercase to title case (e.g., `<a id=\"vessel\">` → `<a id=\"Vessel\">`), and update all references:\n\n### README.md\n- All `<a id=\"...\">` definitions: lowercase → title case\n- All `[text](#anchor)` cross-links within the glossary table\n- All `[**Role**](#role)` links in the roles table\n\n### Guide callsites (rbgm_ManualProcedures.sh)\n- All `bug_tlt` URLs containing `${z_docs}#anchor` fragments\n- After this, `zrbgm_triage_role` drops its 3rd parameter (anchor) and uses `z_name` directly\n\n### Verification\n- All `bug_tlt` URLs resolve to valid anchors\n- All README cross-links resolve\n- Triage helper simplified to 3 parameters",
+              "silks": "readme-glossary-anchor-capitalization",
+              "commit": "bcb3909"
+            }
+          ]
         }
       }
     },
@@ -2034,7 +2042,6 @@
         "₢A4AAS"
       ],
       "next_pace_seed": "AAT",
-      "next_pensum_seed": "BC",
       "paddock_file": ".claude/jjm/jjp_uAl4.md",
       "paces": {
         "₢A4AAA": {
@@ -2492,7 +2499,6 @@
         "₢ADAAJ"
       ],
       "next_pace_seed": "AAN",
-      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAuD.md",
       "paces": {
         "₢ADAAA": {
@@ -2882,7 +2888,6 @@
         "₢AIAAD"
       ],
       "next_pace_seed": "AAE",
-      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAuI.md",
       "paces": {
         "₢AIAAA": {
@@ -2982,7 +2987,6 @@
         "₢AJAAB"
       ],
       "next_pace_seed": "AAC",
-      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAuJ.md",
       "paces": {
         "₢AJAAA": {
@@ -3021,7 +3025,6 @@
         "₢ANAAE"
       ],
       "next_pace_seed": "AAF",
-      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAuN.md",
       "paces": {
         "₢ANAAA": {
@@ -3124,7 +3127,6 @@
         "₢AQAAA"
       ],
       "next_pace_seed": "AAB",
-      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAuQ.md",
       "paces": {
         "₢AQAAA": {
@@ -3194,7 +3196,6 @@
         "₢AUAAz"
       ],
       "next_pace_seed": "AA0",
-      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAAA": {
@@ -4324,7 +4325,6 @@
       "status": "stabled",
       "order": [],
       "next_pace_seed": "AAA",
-      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAuV.md",
       "paces": {}
     },
@@ -4334,7 +4334,6 @@
       "status": "stabled",
       "order": [],
       "next_pace_seed": "AAA",
-      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAuZ.md",
       "paces": {}
     },
@@ -4347,7 +4346,6 @@
         "₢AaAAB"
       ],
       "next_pace_seed": "AAC",
-      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAla.md",
       "paces": {
         "₢AaAAA": {
@@ -4401,7 +4399,6 @@
         "₢AhAAX"
       ],
       "next_pace_seed": "AAY",
-      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAlh.md",
       "paces": {
         "₢AhAAA": {
@@ -4943,7 +4940,6 @@
         "₢AmAAI"
       ],
       "next_pace_seed": "AAK",
-      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAlm.md",
       "paces": {
         "₢AmAAA": {
@@ -5165,7 +5161,6 @@
       "status": "stabled",
       "order": [],
       "next_pace_seed": "AAA",
-      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAln.md",
       "paces": {}
     },
@@ -5181,7 +5176,6 @@
         "₢ApAAE"
       ],
       "next_pace_seed": "AAF",
-      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAlp.md",
       "paces": {
         "₢ApAAA": {
@@ -5321,7 +5315,6 @@
         "₢AqAAC"
       ],
       "next_pace_seed": "AAD",
-      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAlq.md",
       "paces": {
         "₢AqAAA": {
@@ -5400,7 +5393,6 @@
       "status": "stabled",
       "order": [],
       "next_pace_seed": "AAA",
-      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAlu.md",
       "paces": {}
     },
@@ -5410,7 +5402,6 @@
       "status": "stabled",
       "order": [],
       "next_pace_seed": "AAA",
-      "next_pensum_seed": "AA",
       "paddock_file": ".claude/jjm/jjp_uAlz.md",
       "paces": {}
     }
