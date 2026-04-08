@@ -58,6 +58,8 @@ zrbfc_kindle() {
   buc_log_args 'Define build polling files'
   readonly ZRBFC_BUILD_ID_FILE="${BURD_TEMP_DIR}/rbfc_build_id.txt"
   readonly ZRBFC_BUILD_STATUS_FILE="${BURD_TEMP_DIR}/rbfc_build_status.json"
+  readonly ZRBFC_BUILD_START_FILE="${BURD_TEMP_DIR}/rbfc_build_start.txt"
+  readonly ZRBFC_BUILD_FINISH_FILE="${BURD_TEMP_DIR}/rbfc_build_finish.txt"
 
   buc_log_args 'Define git info file (used by stitch)'
   readonly ZRBFC_GIT_INFO_FILE="${BURD_TEMP_DIR}/rbfc_git_info.json"
@@ -267,6 +269,35 @@ zrbfc_wait_build_completion() {
   done
 
   test "${z_status}" = "SUCCESS" || buc_die "${z_label}: Build failed with status: ${z_status}"
+
+  # Extract build wall-clock timing from terminal status response
+  jq -r '.startTime // empty' "${ZRBFC_BUILD_STATUS_FILE}" > "${ZRBFC_BUILD_START_FILE}"
+  jq -r '.finishTime // empty' "${ZRBFC_BUILD_STATUS_FILE}" > "${ZRBFC_BUILD_FINISH_FILE}"
+  local z_start_time=""
+  z_start_time=$(<"${ZRBFC_BUILD_START_FILE}")
+  local z_finish_time=""
+  z_finish_time=$(<"${ZRBFC_BUILD_FINISH_FILE}")
+
+  if test -n "${z_start_time}" && test -n "${z_finish_time}"; then
+    local z_start_clean="${z_start_time%%.*}"
+    z_start_clean="${z_start_clean%%Z}"
+    local z_finish_clean="${z_finish_time%%.*}"
+    z_finish_clean="${z_finish_clean%%Z}"
+    local z_start_epoch=""
+    z_start_epoch=$(date -d "${z_start_clean}Z" '+%s' 2>/dev/null) \
+      || z_start_epoch=$(date -j -f '%Y-%m-%dT%H:%M:%S' "${z_start_clean}" '+%s' 2>/dev/null) \
+      || z_start_epoch=""
+    local z_finish_epoch=""
+    z_finish_epoch=$(date -d "${z_finish_clean}Z" '+%s' 2>/dev/null) \
+      || z_finish_epoch=$(date -j -f '%Y-%m-%dT%H:%M:%S' "${z_finish_clean}" '+%s' 2>/dev/null) \
+      || z_finish_epoch=""
+    if test -n "${z_start_epoch}" && test -n "${z_finish_epoch}"; then
+      local -r z_duration=$((z_finish_epoch - z_start_epoch))
+      local -r z_minutes=$((z_duration / 60))
+      local -r z_seconds=$((z_duration % 60))
+      buc_info "${z_label}: Wall clock ${z_minutes}m ${z_seconds}s"
+    fi
+  fi
 
   buc_success "${z_label}: Build completed successfully"
 }
