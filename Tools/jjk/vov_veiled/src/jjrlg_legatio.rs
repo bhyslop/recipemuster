@@ -64,8 +64,8 @@ const BURX_INITIAL_POLL_DELAY_SECS: u64 = 1;
 /// Poll interval for jjx_check with timeout>0 (seconds)
 const BURX_CHECK_POLL_INTERVAL_SECS: u64 = 2;
 
-/// Gallops JSON path (mirrors jjrm_mcp.rs constant)
-const GALLOPS_PATH: &str = ".claude/jjm/jjg_gallops.json";
+/// Pensum seeds file within officium directory (keyed by firemark)
+const PENSUM_SEEDS_FILE: &str = "pensum_seeds.json";
 
 // ============================================================================
 // Legatio state
@@ -628,36 +628,54 @@ echo RELAY_OK",
 }
 
 // ============================================================================
-// Pensum minting (gallops integration)
+// Pensum minting (officium-local storage)
 // ============================================================================
 
-/// Mint a pensum token via the gallops store.
+/// Mint a pensum token via officium-local seed storage.
 ///
-/// Acquires commit lock, loads gallops, mints pensum (incrementing seed),
-/// persists gallops with commit, releases lock.
-fn zjjrlg_mint_pensum_locked(firemark_input: &str) -> Result<crate::jjrf_favor::jjrf_Pensum, String> {
-    let firemark = crate::jjrf_favor::jjrf_Firemark::jjrf_parse(firemark_input)
+/// Reads/writes pensum_seeds.json in the officium directory (keyed by firemark).
+/// No gallops lock, no git commit — pensum tokens are ephemeral correlation labels.
+fn zjjrlg_mint_pensum_local(
+    firemark_input: &str,
+    officium_dir: &Path,
+) -> Result<crate::jjrf_favor::jjrf_Pensum, String> {
+    use crate::jjrf_favor::{jjrf_Firemark, jjrf_Pensum, JJRF_PENSUM_SENTINEL};
+    use crate::jjru_util::zjjrg_increment_seed;
+
+    let firemark = jjrf_Firemark::jjrf_parse(firemark_input)
         .map_err(|e| format!("Invalid firemark: {}", e))?;
+    let firemark_key = firemark.jjrf_display();
 
-    let lock = vvc::vvcc_CommitLock::vvcc_acquire()
-        .map_err(|e| format!("Cannot acquire commit lock: {}", e))?;
+    let seeds_path = officium_dir.join(PENSUM_SEEDS_FILE);
 
-    let gallops_path = PathBuf::from(GALLOPS_PATH);
-    let mut gallops = crate::jjrg_gallops::jjrg_Gallops::jjrg_load(&gallops_path)
-        .map_err(|e| format!("Cannot load gallops: {}", e))?;
+    // Load existing seeds or start empty
+    let mut seeds: HashMap<String, String> = if seeds_path.exists() {
+        let content = std::fs::read_to_string(&seeds_path)
+            .map_err(|e| format!("Cannot read pensum seeds: {}", e))?;
+        serde_json::from_str(&content)
+            .map_err(|e| format!("Cannot parse pensum seeds: {}", e))?
+    } else {
+        HashMap::new()
+    };
 
-    let pensum = crate::jjro_ops::jjrg_mint_pensum(&mut gallops, firemark_input)?;
+    // Get or initialize seed for this heat
+    let seed = seeds.entry(firemark_key.clone())
+        .or_insert_with(|| crate::jjrt_types::JJRT_PENSUM_SEED_INIT.to_string());
 
-    let mut persist_output = vvco_Output::buffer();
-    crate::jjri_io::jjri_persist(
-        &lock,
-        &gallops,
-        &gallops_path,
-        &firemark,
-        format!("jjx: {} mint {}", JJRLG_CMD_NAME_RELAY, pensum.jjrf_display()),
-        50000,
-        &mut persist_output,
-    )?;
+    let pensum = jjrf_Pensum(format!("{}{}{}",
+        firemark.jjrf_as_str(),
+        JJRF_PENSUM_SENTINEL,
+        seed,
+    ));
+
+    // Increment seed
+    *seed = zjjrg_increment_seed(seed);
+
+    // Persist seeds back
+    let json = serde_json::to_string_pretty(&seeds)
+        .map_err(|e| format!("Cannot serialize pensum seeds: {}", e))?;
+    std::fs::write(&seeds_path, json.as_bytes())
+        .map_err(|e| format!("Cannot write pensum seeds: {}", e))?;
 
     Ok(pensum)
 }
@@ -755,8 +773,8 @@ pub fn jjrlg_run_relay(args: jjrlg_RelayArgs, officium_id: &str) -> (i32, String
         }
     };
 
-    // Mint pensum: lock → load → mint → persist → release
-    let pensum = match zjjrlg_mint_pensum_locked(&args.firemark) {
+    // Mint pensum: officium-local seed, no gallops lock
+    let pensum = match zjjrlg_mint_pensum_local(&args.firemark, &officium_dir) {
         Ok(p) => p,
         Err(e) => {
             vvco_err!(output, "{}: {}", cn, e);

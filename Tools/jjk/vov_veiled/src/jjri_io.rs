@@ -96,15 +96,16 @@ pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
     // Old-format files cannot pass round-trip check because BTreeMap serializes heats
     // in sorted key order, which differs from original furlough-shuffled order.
     //
-    // Also detect missing next_pensum_seed field (added in v3.7). Serde inserts
-    // default "AA" on deserialization, causing round-trip byte mismatch until the
-    // next save writes the field back to disk.
+    // Also detect stale next_pensum_seed field (removed in v3.7 — pensum seeds moved
+    // to officium-local storage). Serde silently ignores the unknown field on read,
+    // but re-serialization omits it, causing round-trip byte mismatch until the next
+    // save writes the clean format back to disk.
     const PENSUM_SEED_KEY: &[u8] = b"\"next_pensum_seed\"";
-    let needs_pensum_seed_migration = !gallops.heats.is_empty()
-        && !original_bytes.windows(PENSUM_SEED_KEY.len()).any(|w| w == PENSUM_SEED_KEY);
+    let needs_pensum_seed_removal = !gallops.heats.is_empty()
+        && original_bytes.windows(PENSUM_SEED_KEY.len()).any(|w| w == PENSUM_SEED_KEY);
     let is_migration_mode = gallops.heat_order.is_empty()
         || gallops.schema_version.is_none()
-        || needs_pensum_seed_migration;
+        || needs_pensum_seed_removal;
 
     // Round-trip validation: run before recomputation to validate the stored format.
     // Skipped for old-format files (heat_order empty) — BTreeMap key order differs from

@@ -58,7 +58,7 @@ fn make_heat_with_paces(heat_id: &str, silks: &str, pace_count: usize) -> (Strin
         status: jjrg_HeatStatus::Racing,
         order,
         next_pace_seed: next_pace_suffix,
-        next_pensum_seed: "AA".to_string(),
+
         paddock_file: format!(".claude/jjm/jjp_{}.md", heat_id),
         paces,
     };

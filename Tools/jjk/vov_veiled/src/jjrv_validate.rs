@@ -167,20 +167,6 @@ fn zjjrg_validate_heat(heat_key: &str, heat: &jjrg_Heat, errors: &mut Vec<String
         ));
     }
 
-    // next_pensum_seed (2 URL-safe base64 characters)
-    if heat.next_pensum_seed.len() != 2 {
-        errors.push(format!(
-            "{}: next_pensum_seed must be 2 characters, got {}",
-            heat_ctx,
-            heat.next_pensum_seed.len()
-        ));
-    } else if !zjjrg_is_base64(&heat.next_pensum_seed) {
-        errors.push(format!(
-            "{}: next_pensum_seed contains invalid base64 characters",
-            heat_ctx
-        ));
-    }
-
     // Extract heat identity (base64 part without prefix) for pace validation
     let heat_identity = if heat_key.starts_with('₣') && heat_key.len() >= 5 {
         Some(&heat_key[3..]) // ₣ is 3 bytes

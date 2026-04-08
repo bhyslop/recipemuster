@@ -62,7 +62,7 @@ fn make_heat_with_paces(heat_id: &str, silks: &str, pace_states: Vec<jjrg_PaceSt
         status: jjrg_HeatStatus::Racing,
         order,
         next_pace_seed,
-        next_pensum_seed: "AA".to_string(),
+
         paddock_file: format!(".claude/jjm/jjp_{}.md", heat_id),
         paces,
     };
@@ -209,7 +209,7 @@ fn jjtgl_garland_successful_with_bridled_paces() {
         status: jjrg_HeatStatus::Racing,
         order,
         next_pace_seed: "AAC".to_string(),
-        next_pensum_seed: "AA".to_string(),
+
         paddock_file: ".claude/jjm/jjp_AB.md".to_string(),
         paces,
     };
