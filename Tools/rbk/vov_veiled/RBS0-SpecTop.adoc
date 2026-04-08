@@ -1132,7 +1132,7 @@ references from
 declarations.
 The
 {rbtr_director}
-pulls each upstream image by tag, pushes to GAR with a human-readable anchor tag, and writes the anchor back to the vessel regime.
+submits a Cloud Build job that copies each upstream image by tag to GAR with a human-readable anchor tag, and writes the anchor back to the vessel regime.
 
 include::RBSAE-ark_enshrine.adoc[]
 

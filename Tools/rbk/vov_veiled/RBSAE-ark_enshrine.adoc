@@ -36,6 +36,10 @@ vessel provided as first argument
 vessel contains at least one
 {rbrv_image_origin}
 declaration (slots 1-3)
+.. {rbbc_require}
+vessel mode is `conjure` (`RBRV_VESSEL_MODE`)
+.. {rbbc_require}
+reliquary tool images exist in GAR (HEAD check on `docker:latest` canary)
 
 //axhos_step
 . *Submit Enshrine Cloud Build Job*:
@@ -47,10 +51,10 @@ as the builder image (script: `rbgje01-enshrine-copy.sh`)
 ... Mason SA, private pool, timeout
 .. Submit via `builds.create` and wait for completion
 .. The GCB step, for each non-empty ORIGIN slot:
-... Inspects upstream image to obtain the manifest digest
+... Fetches the raw upstream manifest (`skopeo inspect --raw`) and computes its sha256 digest (`sha256sum` of the raw manifest bytes)
 ... {rbbc_store}
 `<<DIGEST>>` -- the sha256 digest of the upstream manifest (manifest list digest for multi-platform images, single manifest digest for single-platform images)
-... Constructs anchor: sanitize origin tag (`:` `/` replaced with `-`), append first 10 hex chars of sha256 digest
+... Constructs anchor: sanitize full origin string (`:` `/` replaced with `-`), append first 10 hex chars of sha256 digest
 ... Example: `python:3.11-slim` with `sha256:abc123def4...` produces `python-3.11-slim-abc123def4`
 ... Copies upstream image to the shared `enshrine` namespace in GAR (`{repo}/enshrine:{anchor}`) using `skopeo copy --all`, transferring the manifest list and all per-platform manifests atomically. The anchor is vessel-independent — multiple vessels sharing the same base image origin share one enshrined artifact.
 ... {rbbc_require}

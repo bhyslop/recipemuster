@@ -98,6 +98,61 @@ zrbfd_sentinel() {
 }
 
 
+# Verify reliquary tool images exist in GAR.
+# Inscribe creates all 6 tool images atomically in one GCB job, so checking
+# one (docker:latest) is sufficient as a canary for the entire reliquary.
+# Args: token vessel_dir
+zrbfd_preflight_reliquary() {
+  zrbfd_sentinel
+
+  local -r z_token="${1:-}"
+  local -r z_vessel_dir="${2:-}"
+  test -n "${z_token}"      || buc_die "zrbfd_preflight_reliquary: token required"
+  test -n "${z_vessel_dir}" || buc_die "zrbfd_preflight_reliquary: vessel_dir required"
+
+  local -r z_reliquary="${RBRV_RELIQUARY:-}"
+  if test -n "${z_reliquary}"; then
+    buc_step "Verifying reliquary tool images exist in GAR"
+
+    local -r z_rqy_canary="${z_reliquary}/docker"
+    local -r z_rqy_status_file="${ZRBFD_PREFLIGHT_PREFIX}reliquary_status.txt"
+    local -r z_rqy_response_file="${ZRBFD_PREFLIGHT_PREFIX}reliquary_response.txt"
+    local -r z_rqy_stderr_file="${ZRBFD_PREFLIGHT_PREFIX}reliquary_stderr.txt"
+
+    curl --head -sS \
+      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+      --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+      -H "Authorization: Bearer ${z_token}" \
+      -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
+      -w "%{http_code}" \
+      -o "${z_rqy_response_file}" \
+      "${ZRBFC_REGISTRY_API_BASE}/${z_rqy_canary}/manifests/latest" \
+      > "${z_rqy_status_file}" 2>"${z_rqy_stderr_file}" \
+      || buc_die "HEAD request failed for reliquary canary: ${z_rqy_canary}:latest — see ${z_rqy_stderr_file}"
+
+    local z_rqy_http_code=""
+    z_rqy_http_code=$(<"${z_rqy_status_file}")
+    test -n "${z_rqy_http_code}" || buc_die "HTTP status code is empty for reliquary check"
+
+    if test "${z_rqy_http_code}" = "404"; then
+      buc_warn "Reliquary not found: ${z_reliquary}"
+      buc_bare "  The reliquary is a co-versioned set of builder tool images (gcloud, docker,"
+      buc_bare "  syft, alpine, binfmt, skopeo) inscribed from upstream into your private GAR."
+      buc_bare "  Air-gapped worker pools cannot pull from the public internet — the reliquary"
+      buc_bare "  stages these tools so builds can run without egress. All vessels in a depot"
+      buc_bare "  typically share one reliquary. Inscribe creates a new datestamped set:"
+      buc_tabtarget "${RBZ_INSCRIBE_RELIQUARY}"
+      buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir}"
+      buc_die "Registry preflight failed — reliquary missing from GAR"
+    elif test "${z_rqy_http_code}" != "200"; then
+      buc_die "Unexpected HTTP ${z_rqy_http_code} when checking reliquary: ${z_rqy_canary}:latest"
+    fi
+
+    buc_info "Reliquary verified: ${z_reliquary}"
+  fi
+}
+
+
 # Check concurrent build quota against regime requirements
 # Args: token mode
 #   mode: "gate" (die if insufficient) or "advisory" (warn if insufficient)
@@ -194,49 +249,7 @@ zrbfd_registry_preflight() {
   test -n "${z_vessel_dir}" || buc_die "zrbfd_registry_preflight: vessel_dir required"
 
   # --- Layer 1: Reliquary tool images ---
-  # Inscribe creates all 6 tool images atomically in one GCB job, so checking
-  # one (docker:latest) is sufficient as a canary for the entire reliquary.
-
-  local -r z_reliquary="${RBRV_RELIQUARY:-}"
-  if test -n "${z_reliquary}"; then
-    buc_step "Verifying reliquary tool images exist in GAR"
-
-    local -r z_rqy_canary="${z_reliquary}/docker"
-    local -r z_rqy_status_file="${ZRBFD_PREFLIGHT_PREFIX}reliquary_status.txt"
-    local -r z_rqy_response_file="${ZRBFD_PREFLIGHT_PREFIX}reliquary_response.txt"
-    local -r z_rqy_stderr_file="${ZRBFD_PREFLIGHT_PREFIX}reliquary_stderr.txt"
-
-    curl --head -sS \
-      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-      --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-      -H "Authorization: Bearer ${z_token}" \
-      -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
-      -w "%{http_code}" \
-      -o "${z_rqy_response_file}" \
-      "${ZRBFC_REGISTRY_API_BASE}/${z_rqy_canary}/manifests/latest" \
-      > "${z_rqy_status_file}" 2>"${z_rqy_stderr_file}" \
-      || buc_die "HEAD request failed for reliquary canary: ${z_rqy_canary}:latest — see ${z_rqy_stderr_file}"
-
-    local z_rqy_http_code=""
-    z_rqy_http_code=$(<"${z_rqy_status_file}")
-    test -n "${z_rqy_http_code}" || buc_die "HTTP status code is empty for reliquary check"
-
-    if test "${z_rqy_http_code}" = "404"; then
-      buc_warn "Reliquary not found: ${z_reliquary}"
-      buc_bare "  The reliquary is a co-versioned set of builder tool images (gcloud, docker,"
-      buc_bare "  syft, alpine, binfmt, skopeo) inscribed from upstream into your private GAR."
-      buc_bare "  Air-gapped worker pools cannot pull from the public internet — the reliquary"
-      buc_bare "  stages these tools so builds can run without egress. All vessels in a depot"
-      buc_bare "  typically share one reliquary. Inscribe creates a new datestamped set:"
-      buc_tabtarget "${RBZ_INSCRIBE_RELIQUARY}"
-      buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir}"
-      buc_die "Registry preflight failed — reliquary missing from GAR"
-    elif test "${z_rqy_http_code}" != "200"; then
-      buc_die "Unexpected HTTP ${z_rqy_http_code} when checking reliquary: ${z_rqy_canary}:latest"
-    fi
-
-    buc_info "Reliquary verified: ${z_reliquary}"
-  fi
+  zrbfd_preflight_reliquary "${z_token}" "${z_vessel_dir}"
 
   # --- Layer 2: Enshrined base images ---
   # Each vessel declares base images via RBRV_IMAGE_n_ORIGIN (upstream tag) and
@@ -781,6 +794,9 @@ rbfd_enshrine() {
   local z_token=""
   z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
     || buc_die "Failed to get Director OAuth token"
+
+  # Verify reliquary tool images exist before submitting
+  zrbfd_preflight_reliquary "${z_token}" "${z_vessel_dir}"
 
   # Submit enshrine as a Cloud Build job (skopeo runs on GCB, not locally)
   zrbfd_enshrine_submit "${z_token}"
