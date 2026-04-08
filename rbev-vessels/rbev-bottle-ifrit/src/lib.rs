@@ -16,8 +16,8 @@
 //
 // RBID Ifrit — in-bottle attack binary for Recipe Bottle crucible testing
 
+#![deny(warnings)]
 #![allow(non_camel_case_types)]
-#![deny(unused_variables)]
 
 pub mod rbida_attacks;
 pub mod rbida_sorties;

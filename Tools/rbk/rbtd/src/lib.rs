@@ -16,9 +16,9 @@
 //
 // RBTD Theurge — crucible test orchestrator for Recipe Bottle
 
+#![deny(warnings)]
 #![allow(non_camel_case_types)]
 #![allow(private_interfaces)]
-#![deny(unused_variables)]
 
 pub mod rbtdrc_crucible;
 pub mod rbtdrd_dummy;

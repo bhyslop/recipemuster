@@ -76,14 +76,14 @@ This is non-negotiable. It enables grep-based discovery and clear provenance in 
 
 For a file with prefix `jjrg`:
 
-| Declaration | Pattern | Example |
-|-------------|---------|---------|
-| Struct | `{prefix}_PascalName` | `jjrg_Gallops` |
-| Enum | `{prefix}_PascalName` | `jjrg_PaceState` |
-| Function | `{prefix}_snake_name` | `jjrg_load()` |
-| Constant | `{PREFIX}_SCREAMING` | `JJRG_DEFAULT_PATH` |
-| Trait | `{prefix}_TraitName` | `jjrg_Storable` |
-| Type alias | `{prefix}_AliasName` | `jjrg_Result` |
+| Declaration | Public Pattern | Example | Internal Pattern | Example |
+|-------------|---------------|---------|-----------------|---------|
+| Struct | `{prefix}_PascalName` | `jjrg_Gallops` | `z{prefix}_PascalName` | `zjjrg_Output` |
+| Enum | `{prefix}_PascalName` | `jjrg_PaceState` | `z{prefix}_PascalName` | `zjjrg_ParseMode` |
+| Function | `{prefix}_snake_name` | `jjrg_load()` | `z{prefix}_snake_name` | `zjjrg_validate()` |
+| Constant | `{PREFIX}_SCREAMING` | `JJRG_DEFAULT_PATH` | `Z{PREFIX}_SCREAMING` | `ZJJRG_MAX_DEPTH` |
+| Trait | `{prefix}_TraitName` | `jjrg_Storable` | `z{prefix}_TraitName` | `zjjrg_Parseable` |
+| Type alias | `{prefix}_AliasName` | `jjrg_Result` | `z{prefix}_AliasName` | `zjjrg_InternalResult` |
 
 ### Impl Methods
 
@@ -100,12 +100,9 @@ Rationale: When reading `gallops.jjrg_save(path)`, the provenance is immediately
 
 ## Internal Declarations
 
-Internal (crate-private) declarations use the `z` prefix pattern:
+**The `z`/`Z` prefix applies uniformly to all internal declaration types** — structs, enums, functions, constants, traits, and type aliases. The prefix letter follows the casing context: lowercase `z` for snake_case and PascalCase names, uppercase `Z` for SCREAMING_SNAKE constants. See the Internal Pattern columns in the naming table above.
 
-| Visibility | Pattern | Example |
-|------------|---------|---------|
-| Public | `{prefix}_name` | `jjrg_load()` |
-| Internal | `z{prefix}_name` | `zjjrg_validate()` |
+This parallels BCG's `z«prefix»_` convention for bash. The key difference: BCG also uses `z_«name»` for local variables because bash has flat function scope. Rust's block scoping eliminates this need — local variables use normal names without any z-prefix.
 
 Internal items use `pub(crate)` visibility to enable testing from separate test files:
 
@@ -113,9 +110,15 @@ Internal items use `pub(crate)` visibility to enable testing from separate test 
 pub(crate) fn zjjrg_validate_silks(s: &str) -> bool {
     // Internal helper, testable from jjtg_gallops.rs
 }
+
+pub(crate) const ZJJRG_MAX_DEPTH: usize = 16;
+
+pub(crate) struct zjjrg_Output {
+    pub(crate) heat_silks: String,
+}
 ```
 
-The `z` prefix signals "do not call from outside this module's conceptual boundary" even though Rust visibility permits crate-internal access.
+The `z`/`Z` prefix signals "do not call from outside this module's conceptual boundary" even though Rust visibility permits crate-internal access.
 
 ### Visibility and Derive Macros
 
@@ -486,17 +489,23 @@ Trust Claude's Rust idioms for:
 ```rust
 #![allow(non_camel_case_types)]
 
-// Constants
+// Public constants
 pub const JJRG_DEFAULT_PATH: &str = ".claude/jjm/jjg_gallops.json";
 
-// Types
+// Internal constants (z/Z prefix + pub(crate))
+pub(crate) const ZJJRG_MAX_DEPTH: usize = 16;
+
+// Public types
 pub struct jjrg_Gallops { ... }
 pub enum jjrg_PaceState { ... }
+
+// Internal types (z prefix + pub(crate))
+pub(crate) struct zjjrg_Output { ... }
 
 // Public functions
 pub fn jjrg_load(path: &Path) -> Result<jjrg_Gallops, String> { ... }
 
-// Internal functions (pub(crate) for testability)
+// Internal functions (z prefix + pub(crate))
 pub(crate) fn zjjrg_validate(s: &str) -> bool { ... }
 
 // Impl methods - also prefixed
@@ -585,12 +594,16 @@ When extracting inline tests from `{cipher}r{x}_{name}.rs` to `{cipher}t{x}_{nam
 - [ ] All public functions: `{prefix}_snake_name`
 - [ ] All public constants: `{PREFIX}_SCREAMING`
 - [ ] All impl methods: `{prefix}_method_name`
-- [ ] All internal items: `z{prefix}_name` with `pub(crate)`
+- [ ] All internal structs/enums: `z{prefix}_PascalName` with `pub(crate)`
+- [ ] All internal functions: `z{prefix}_snake_name` with `pub(crate)`
+- [ ] All internal constants: `Z{PREFIX}_SCREAMING` with `pub(crate)`
+- [ ] All internal traits/aliases: `z{prefix}_Name` with `pub(crate)`
 - [ ] All test functions: `{cipher}t{x}_test_name`
+- [ ] Local variables: normal names (no z-prefix — Rust block scoping suffices)
 
 ### Visibility Discipline
 - [ ] Public API uses `pub`
-- [ ] Internal helpers use `pub(crate)` with `z` prefix
+- [ ] All internal declarations use `pub(crate)` with `z`/`Z` prefix (every type, not just functions)
 - [ ] Structs constructed by tests have `pub(crate)` fields
 - [ ] True private reserved for trivial implementation details
 

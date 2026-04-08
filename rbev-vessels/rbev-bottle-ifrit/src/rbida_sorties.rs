@@ -1537,7 +1537,7 @@ fn arp_test_af_packet(_iface: &str) -> Result<bool, String> {
 }
 
 /// Send a raw Ethernet frame via AF_PACKET.
-fn send_raw_frame(iface: &str, frame: &[u8]) -> bool {
+fn send_raw_frame(_iface: &str, _frame: &[u8]) -> bool {
     #[cfg(target_os = "linux")]
     {
         unsafe {
@@ -1552,7 +1552,7 @@ fn send_raw_frame(iface: &str, frame: &[u8]) -> bool {
 
             // Get interface index
             let mut ifr: libc::ifreq = std::mem::zeroed();
-            let iface_bytes = iface.as_bytes();
+            let iface_bytes = _iface.as_bytes();
             let copy_len = iface_bytes.len().min(libc::IFNAMSIZ - 1);
             std::ptr::copy_nonoverlapping(
                 iface_bytes.as_ptr(),
@@ -1577,7 +1577,7 @@ fn send_raw_frame(iface: &str, frame: &[u8]) -> bool {
             );
 
             // Send frame
-            let sent = libc::send(fd, frame.as_ptr() as *const libc::c_void, frame.len(), 0);
+            let sent = libc::send(fd, _frame.as_ptr() as *const libc::c_void, _frame.len(), 0);
             libc::close(fd);
             sent > 0
         }
