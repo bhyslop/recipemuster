@@ -108,7 +108,7 @@ zbug_link_fragment() {
   if test -n "${BURD_NO_HYPERLINKS:-}"; then
     ZBUG_LINK_FRAG="${ZBUG_L}${z_text}${ZBUG_R} <${z_url}>"
   else
-    ZBUG_LINK_FRAG="${ZBUG_L}\033]8;;${z_url}\033\\${z_text}\033]8;;\033\\${ZBUG_R}"
+    ZBUG_LINK_FRAG="${ZBUG_L}\033]8;;${z_url}\033\\\\${z_text}\033]8;;\033\\\\${ZBUG_R}"
   fi
 }
 
