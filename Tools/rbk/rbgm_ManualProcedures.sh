@@ -1057,10 +1057,10 @@ zrbgm_probe_role_credentials() {
 ######################################################################
 # Onboarding triage — helper and entry point
 
-# Args: detected(0|1) role_name colophon
+# Args: detected(0|1) role_name anchor colophon
 zrbgm_triage_role() {
-  local -r z_detected="${1}" z_name="${2}" z_colophon="${3}"
-  local -r z_url="${RBGC_PUBLIC_DOCS_URL}#${z_name,,}"
+  local -r z_detected="${1}" z_name="${2}" z_anchor="${3}" z_colophon="${4}"
+  local -r z_url="${RBGC_PUBLIC_DOCS_URL}#${z_anchor}"
   local z_padded
   printf -v z_padded '%-12s' "${z_name}"
   if test "${z_detected}" = "1"; then
@@ -1088,10 +1088,10 @@ rbgm_onboard_triage() {
   bug_e
 
   # Each role: detected → walkthrough tabtarget, absent → docs link
-  zrbgm_triage_role "${z_has_retriever}" "Retriever" "${RBZ_ONBOARD_RETRIEVER}"
-  zrbgm_triage_role "${z_has_director}"  "Director"  "${RBZ_ONBOARD_DIRECTOR}"
-  zrbgm_triage_role "${z_has_governor}"  "Governor"  "${RBZ_ONBOARD_GOVERNOR}"
-  zrbgm_triage_role "${z_has_payor}"     "Payor"     "${RBZ_ONBOARD_PAYOR}"
+  zrbgm_triage_role "${z_has_retriever}" "Retriever" "retriever" "${RBZ_ONBOARD_RETRIEVER}"
+  zrbgm_triage_role "${z_has_director}"  "Director"  "director"  "${RBZ_ONBOARD_DIRECTOR}"
+  zrbgm_triage_role "${z_has_governor}"  "Governor"  "governor"  "${RBZ_ONBOARD_GOVERNOR}"
+  zrbgm_triage_role "${z_has_payor}"     "Payor"     "payor"     "${RBZ_ONBOARD_PAYOR}"
 
   bug_e
   bug_t  "  For a full health dashboard across all roles:"
