@@ -700,7 +700,6 @@ rbgm_onboarding() {
   bug_t "This command has been replaced by per-role onboarding guides."
   bug_tc "  Triage:    " "tt/rbw-go.OnboardMAIN.sh"
   bug_tc "  Reference: " "tt/rbw-gOr.OnboardReference.sh"
-  buc_success "Onboarding pointer displayed"
   return 0
 
   # --- Dead code: original onboarding body (colophon deregistered) ---
@@ -1028,7 +1027,6 @@ rbgm_onboarding() {
     bug_t "     Place ${RBCC_role_retriever}/${RBCC_rbra_file} in RBRR_SECRETS_DIR and re-run this guide."
   fi
 
-  buc_success "Onboarding dashboard displayed"
 }
 
 ######################################################################
@@ -1105,7 +1103,6 @@ rbgm_onboard_triage() {
   bug_t  "  For a full health dashboard across all roles:"
   bug_tc "    " "tt/rbw-gOr.OnboardReference.sh"
 
-  buc_success "Onboarding triage displayed"
 }
 
 ######################################################################
@@ -1180,7 +1177,6 @@ rbgm_onboard_reference() {
   bug_tc "  Walkthrough: " "tt/rbw-gOP.OnboardPayor.sh"
   bug_e
 
-  buc_success "Onboarding reference displayed"
 }
 
 ######################################################################
@@ -1306,7 +1302,6 @@ rbgm_onboard_retriever() {
   bug_e
   bug_tc "  Triage: " "tt/rbw-go.OnboardMAIN.sh"
 
-  buc_success "Retriever walkthrough displayed"
 }
 
 rbgm_onboard_director() {
@@ -1529,7 +1524,6 @@ rbgm_onboard_director() {
   bug_e
   bug_tc "  Triage: " "tt/rbw-go.OnboardMAIN.sh"
 
-  buc_success "Director walkthrough displayed"
 }
 
 rbgm_onboard_governor() {
@@ -1648,7 +1642,6 @@ rbgm_onboard_governor() {
   bug_e
   bug_tc "  Triage: " "tt/rbw-go.OnboardMAIN.sh"
 
-  buc_success "Governor walkthrough displayed"
 }
 
 rbgm_onboard_payor() {
@@ -1771,7 +1764,6 @@ rbgm_onboard_payor() {
   bug_e
   bug_tc "  Triage: " "tt/rbw-go.OnboardMAIN.sh"
 
-  buc_success "Payor walkthrough displayed"
 }
 
 rbgm_LEGACY_setup_admin() { # ITCH_DELETE_THIS_AFTER_ABOVE_TESTED
