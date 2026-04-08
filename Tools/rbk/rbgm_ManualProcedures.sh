@@ -542,6 +542,50 @@ zrbgm_probe_director_units() {
   fi
 }
 
+######################################################################
+# Probe governor walkthrough units — sets caller-scope z_gu1..z_gu3
+# Requires: z_secrets_dir already set (from zrbgm_probe_role_credentials
+#           or direct extraction).
+# No sentinel — works pre-kindle
+#
+# Unit 1: Governor credential installed
+# Unit 2: Retriever AND director credentials installed (governor created them)
+# Unit 3: Functional verification — a GAR image has been pulled locally
+#         (proves the full charter/knight → IAM → access chain works)
+
+zrbgm_probe_governor_units() {
+  z_gu1=0; z_gu2=0; z_gu3=0
+
+  # Unit 1: Governor credential file exists
+  if test -n "${z_secrets_dir}" && \
+     test -f "${z_secrets_dir}/${RBCC_role_governor}/${RBCC_rbra_file}"; then
+    z_gu1=1
+  fi
+
+  # Unit 2: Both retriever AND director credential files exist
+  if test -n "${z_secrets_dir}" && \
+     test -f "${z_secrets_dir}/${RBCC_role_retriever}/${RBCC_rbra_file}" && \
+     test -f "${z_secrets_dir}/${RBCC_role_director}/${RBCC_rbra_file}"; then
+    z_gu2=1
+  fi
+
+  # Unit 3: Functional verification — a GAR image exists locally
+  # This proves the SAs the governor created actually work (IAM grants applied).
+  if ! command -v docker >/dev/null 2>&1; then return 0; fi
+
+  local z_project_id="" z_region=""
+  if test -f "${RBBC_rbrr_file}"; then
+    z_project_id=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_DEPOT_PROJECT_ID") || z_project_id=""
+    z_region=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_GCP_REGION") || z_region=""
+  fi
+  if test -n "${z_region}" && test -n "${z_project_id}"; then
+    local z_gar_prefix="${z_region}${RBGC_GAR_HOST_SUFFIX}/${z_project_id}/"
+    if docker images --format "{{.Repository}}" 2>/dev/null | grep -q "^${z_gar_prefix}"; then
+      z_gu3=1
+    fi
+  fi
+}
+
 # Configuration review — displayed at level 0 (first thing a newcomer sees)
 # Shows pre-selected RBRR defaults with orientation, plus BURC project structure.
 # No sentinel: runs pre-kindle like the rest of the onboarding guide.
@@ -1054,10 +1098,14 @@ rbgm_onboard_reference() {
   bug_tc "  Walkthrough: " "tt/rbw-gOD.OnboardDirector.sh"
   bug_e
 
-  # Governor — per-unit probes pending
+  # Governor — full per-unit probes
   bug_section "Governor"
-  zrbgm_po_status "${z_has_governor}" "  Credential present"
-  bug_t  "  (Walkthrough pending — see tt/rbw-gOG.OnboardGovernor.sh)"
+  local z_gu1 z_gu2 z_gu3
+  zrbgm_probe_governor_units
+  zrbgm_po_status "${z_gu1}" "  Project access — governor credentials installed"
+  zrbgm_po_status "${z_gu2}" "  Service accounts — retriever and director SAs provisioned"
+  zrbgm_po_status "${z_gu3}" "  Verification — downstream roles can access the depot"
+  bug_tc "  Walkthrough: " "tt/rbw-gOG.OnboardGovernor.sh"
   bug_e
 
   # Payor — per-unit probes pending
@@ -1415,10 +1463,120 @@ rbgm_onboard_director() {
 rbgm_onboard_governor() {
   buc_doc_brief "Governor walkthrough — manage service accounts and access"
   buc_doc_shown || return 0
+
+  local -r z_docs="${RBGC_PUBLIC_DOCS_URL}"
+
+  # --- Extract config and probe ---
+  local z_secrets_dir=""
+  if test -f "${RBBC_rbrr_file}"; then
+    z_secrets_dir=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_SECRETS_DIR") || z_secrets_dir=""
+  fi
+
+  local z_gu1 z_gu2 z_gu3
+  zrbgm_probe_governor_units
+
+  # --- Count progress ---
+  local z_done=0
+  if test "${z_gu1}" = "1"; then z_done=$((z_done + 1)); fi
+  if test "${z_gu2}" = "1"; then z_done=$((z_done + 1)); fi
+  if test "${z_gu3}" = "1"; then z_done=$((z_done + 1)); fi
+  local -r z_total=3
+
+  # --- Header ---
   bug_section "Governor Walkthrough"
-  bug_t  "  Coming in a future update."
+  bug_e
+
+  if test "${z_done}" = "${z_total}"; then
+    # ============ REFERENCE MODE — all probes green ============
+    bug_t  "  All steps complete. Re-run anytime to verify health."
+    bug_e
+    zrbgm_po_status 1 "  Project access — governor credentials installed"
+    zrbgm_po_status 1 "  Service accounts — retriever and director SAs provisioned"
+    zrbgm_po_status 1 "  Verification — downstream roles can access the depot"
+  else
+    # ============ WALKTHROUGH MODE — show frontier unit ============
+    local -r z_frontier=$((z_done + 1))
+    bug_t  "  Step ${z_frontier} of ${z_total}"
+    bug_e
+
+    if test "${z_gu1}" = "0"; then
+      # ---- Unit 1: Project Access ----
+      bug_section "  Project Access"
+      bug_e
+      bug_tlt "  A " "depot" "${z_docs}#depot" " is the facility where container images are built and stored."
+      bug_tlt "  A " "governor" "${z_docs}#governor" " administers a depot — creating service accounts and"
+      bug_t   "  managing access for those who build and run container images."
+      bug_e
+      bug_t   "  The governor works within a depot that the payor created. If no depot exists"
+      bug_t   "  yet, that is a payor responsibility:"
+      bug_tc  "    " "tt/rbw-gOP.OnboardPayor.sh"
+      bug_e
+      bug_t   "  To administer a depot, you need a governor service account key. Your payor"
+      bug_t   "  creates one by running:"
+      bug_tc  "    " "tt/rbw-aM.PayorMantlesGovernor.sh"
+      bug_e
+      if test -n "${z_secrets_dir}"; then
+        bug_t   "  Install the key file to:"
+        bug_tc  "    " "${z_secrets_dir}/${RBCC_role_governor}/${RBCC_rbra_file}"
+      else
+        bug_tW  "  " "Project not configured — .rbk/rbrr.env not found."
+        bug_t   "  Run the payor walkthrough first, or ask your payor for the project files."
+      fi
+      bug_e
+      bug_t   "  Once installed, re-run this walkthrough to continue."
+
+    elif test "${z_gu2}" = "0"; then
+      # ---- Unit 2: Service Account Lifecycle ----
+      bug_section "  Service Account Lifecycle"
+      bug_e
+      bug_t   "  The governor provisions access for two downstream roles:"
+      bug_e
+      bug_tlt "  A " "retriever" "${z_docs}#retriever" " has read access to the depot — they pull and run"
+      bug_t   "  container images that others have built."
+      bug_tlt "  A " "director" "${z_docs}#director" " has build and publish access — they create container"
+      bug_t   "  images and push them to the registry."
+      bug_e
+      bug_tlt "  " "Charter" "${z_docs}#charter" " creates a retriever service account with read access:"
+      bug_tc  "    " "tt/rbw-aC.GovernorChartersRetriever.sh"
+      bug_e
+      bug_tlt "  " "Knight" "${z_docs}#knight" " creates a director service account with build access:"
+      bug_tc  "    " "tt/rbw-aK.GovernorKnightsDirector.sh"
+      bug_e
+      bug_t   "  Each command creates the service account and applies the IAM grants it needs."
+      bug_t   "  The output is an RBRA key file — hand it to the retriever or director user."
+      bug_e
+      bug_t   "  List issued service accounts:"
+      bug_tc  "    " "tt/rbw-aL.GovernorListsServiceAccounts.sh"
+      bug_e
+      bug_t   "  Install both credentials locally to advance this walkthrough."
+      if test -n "${z_secrets_dir}"; then
+        bug_tc  "    " "${z_secrets_dir}/${RBCC_role_retriever}/${RBCC_rbra_file}"
+        bug_tc  "    " "${z_secrets_dir}/${RBCC_role_director}/${RBCC_rbra_file}"
+      fi
+
+    else
+      # ---- Unit 3: Verification ----
+      bug_section "  Verification"
+      bug_e
+      bug_t   "  The service accounts you created include IAM grants — each SA gets exactly"
+      bug_t   "  the permissions its role requires, no more. Retriever gets read access."
+      bug_t   "  Director gets read, write, and build trigger access."
+      bug_e
+      bug_t   "  Verify the complete chain works by pulling an artifact with the retriever"
+      bug_t   "  credentials. If the retriever can access the depot, your grants are correct."
+      bug_e
+      bug_t   "  Run the retriever walkthrough to summon a hallmark:"
+      bug_tc  "    " "tt/rbw-gOR.OnboardRetriever.sh"
+      bug_e
+      bug_t   "  This probe turns green when a GAR image from your depot exists locally —"
+      bug_t   "  proving the retriever SA you chartered can actually access the registry."
+    fi
+  fi
+
+  bug_e
   bug_tc "  Triage: " "tt/rbw-go.OnboardMAIN.sh"
-  buc_success "Governor walkthrough stub displayed"
+
+  buc_success "Governor walkthrough displayed"
 }
 
 rbgm_onboard_payor() {
