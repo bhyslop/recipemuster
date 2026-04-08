@@ -475,11 +475,19 @@ zrbgm_po_review_defaults() {
 }
 
 rbgm_onboarding() {
-  # No zrbgm_sentinel — works pre-kindle (load-bearing: the guide's purpose
-  # is to run before a valid regime exists; see docket for rationale)
+  # RETIRED — replaced by per-role onboarding guides (₢A3AAA)
+  # Colophon rbw-gO deregistered; old body below preserved during transition.
 
-  buc_doc_brief "Role-aware onboarding dashboard — probes credentials and shows per-role status"
+  buc_doc_brief "RETIRED — use tt/rbw-go.OnboardMAIN.sh"
   buc_doc_shown || return 0
+
+  bug_t "This command has been replaced by per-role onboarding guides."
+  bug_tc "  Triage:    " "tt/rbw-go.OnboardMAIN.sh"
+  bug_tc "  Reference: " "tt/rbw-gOr.OnboardReference.sh"
+  buc_success "Onboarding pointer displayed"
+  return 0
+
+  # --- Dead code: original onboarding body (colophon deregistered) ---
 
   # --- Shared state extracted once from config files ---
   local z_secrets_dir=""
@@ -805,6 +813,162 @@ rbgm_onboarding() {
   fi
 
   buc_success "Onboarding dashboard displayed"
+}
+
+######################################################################
+# Onboarding — shared credential probing (no sentinel, pre-kindle)
+#
+# Sets caller-scoped: z_has_payor, z_has_governor, z_has_director,
+# z_has_retriever, z_secrets_dir
+
+zrbgm_probe_role_credentials() {
+  z_has_payor=0
+  z_has_governor=0
+  z_has_director=0
+  z_has_retriever=0
+  z_secrets_dir=""
+
+  if test -f "${RBBC_rbrr_file}"; then
+    z_secrets_dir=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_SECRETS_DIR") || z_secrets_dir=""
+  fi
+
+  if test -n "${z_secrets_dir}"; then
+    test -f "${z_secrets_dir}/rbro-payor.env"                          && z_has_payor=1
+    test -f "${z_secrets_dir}/${RBCC_role_governor}/${RBCC_rbra_file}"  && z_has_governor=1
+    test -f "${z_secrets_dir}/${RBCC_role_director}/${RBCC_rbra_file}"  && z_has_director=1
+    test -f "${z_secrets_dir}/${RBCC_role_retriever}/${RBCC_rbra_file}" && z_has_retriever=1
+  fi
+}
+
+######################################################################
+# Onboarding triage — detect roles, route to per-role walkthrough
+
+rbgm_onboard_triage() {
+  # No sentinel — works pre-kindle (probes filesystem only)
+
+  buc_doc_brief "Detect credential roles and route to per-role onboarding walkthrough"
+  buc_doc_shown || return 0
+
+  local z_has_payor z_has_governor z_has_director z_has_retriever z_secrets_dir
+  zrbgm_probe_role_credentials
+
+  local -r z_docs="${RBGC_PUBLIC_DOCS_URL}"
+
+  bug_section "Recipe Bottle Onboarding"
+  bug_e
+  bug_tlt "  " "Recipe Bottle" "${z_docs}" " builds container images with supply-chain provenance"
+  bug_t   "  and runs untrusted containers behind enforced network isolation."
+  bug_e
+
+  # Each role: detected → walkthrough tabtarget, absent → docs link
+  if test "${z_has_retriever}" = "1"; then
+    bug_ct " [*] Retriever   " "tt/rbw-gOR.OnboardRetriever.sh"
+  else
+    bug_tl " [ ] Retriever   " "about this role" "${z_docs}#retriever"
+  fi
+
+  if test "${z_has_director}" = "1"; then
+    bug_ct " [*] Director    " "tt/rbw-gOD.OnboardDirector.sh"
+  else
+    bug_tl " [ ] Director    " "about this role" "${z_docs}#director"
+  fi
+
+  if test "${z_has_governor}" = "1"; then
+    bug_ct " [*] Governor    " "tt/rbw-gOG.OnboardGovernor.sh"
+  else
+    bug_tl " [ ] Governor    " "about this role" "${z_docs}#governor"
+  fi
+
+  if test "${z_has_payor}" = "1"; then
+    bug_ct " [*] Payor       " "tt/rbw-gOP.OnboardPayor.sh"
+  else
+    bug_tl " [ ] Payor       " "about this role" "${z_docs}#payor"
+  fi
+
+  bug_e
+  bug_t  "  For a full health dashboard across all roles:"
+  bug_tc "    " "tt/rbw-gOr.OnboardReference.sh"
+
+  buc_success "Onboarding triage displayed"
+}
+
+######################################################################
+# Onboarding reference — all roles, all units, single health dashboard
+
+rbgm_onboard_reference() {
+  # No sentinel — works pre-kindle (probes filesystem only)
+
+  buc_doc_brief "Reference dashboard — all roles, all units, current probe status"
+  buc_doc_shown || return 0
+
+  local z_has_payor z_has_governor z_has_director z_has_retriever z_secrets_dir
+  zrbgm_probe_role_credentials
+
+  bug_section "Recipe Bottle — Onboarding Reference"
+  bug_e
+  bug_t  "  Health dashboard across all roles. Re-run anytime to check status."
+  bug_e
+
+  bug_section "Retriever"
+  zrbgm_po_status "${z_has_retriever}" "  Credential present"
+  bug_t  "  (Walkthrough pending — see tt/rbw-gOR.OnboardRetriever.sh)"
+  bug_e
+
+  bug_section "Director"
+  zrbgm_po_status "${z_has_director}" "  Credential present"
+  bug_t  "  (Walkthrough pending — see tt/rbw-gOD.OnboardDirector.sh)"
+  bug_e
+
+  bug_section "Governor"
+  zrbgm_po_status "${z_has_governor}" "  Credential present"
+  bug_t  "  (Walkthrough pending — see tt/rbw-gOG.OnboardGovernor.sh)"
+  bug_e
+
+  bug_section "Payor"
+  zrbgm_po_status "${z_has_payor}" "  Credential present"
+  bug_t  "  (Walkthrough pending — see tt/rbw-gOP.OnboardPayor.sh)"
+  bug_e
+
+  buc_success "Onboarding reference displayed"
+}
+
+######################################################################
+# Onboarding walkthrough stubs — built by subsequent paces (₢A3AAB-E)
+
+rbgm_onboard_retriever() {
+  buc_doc_brief "Retriever walkthrough — pull and run vessel images"
+  buc_doc_shown || return 0
+  bug_section "Retriever Walkthrough"
+  bug_t  "  Coming in a future update."
+  bug_tc "  Triage: " "tt/rbw-go.OnboardMAIN.sh"
+  buc_success "Retriever walkthrough stub displayed"
+}
+
+rbgm_onboard_director() {
+  buc_doc_brief "Director walkthrough — build and publish vessel images"
+  buc_doc_shown || return 0
+  bug_section "Director Walkthrough"
+  bug_t  "  Coming in a future update."
+  bug_tc "  Triage: " "tt/rbw-go.OnboardMAIN.sh"
+  buc_success "Director walkthrough stub displayed"
+}
+
+rbgm_onboard_governor() {
+  buc_doc_brief "Governor walkthrough — manage service accounts and access"
+  buc_doc_shown || return 0
+  bug_section "Governor Walkthrough"
+  bug_t  "  Coming in a future update."
+  bug_tc "  Triage: " "tt/rbw-go.OnboardMAIN.sh"
+  buc_success "Governor walkthrough stub displayed"
+}
+
+rbgm_onboard_payor() {
+  buc_doc_brief "Payor walkthrough — GCP project, billing, and OAuth setup"
+  buc_doc_shown || return 0
+  bug_section "Payor Walkthrough"
+  bug_t  "  Coming in a future update."
+  bug_tc "  Triage: " "tt/rbw-go.OnboardMAIN.sh"
+  buc_success "Payor walkthrough stub displayed"
 }
 
 rbgm_LEGACY_setup_admin() { # ITCH_DELETE_THIS_AFTER_ABOVE_TESTED

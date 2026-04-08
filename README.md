@@ -25,15 +25,33 @@ The system uses only `bash`, `git`, `curl`, `openssh`, `jq`, and `docker` native
 
 | Term | Meaning |
 |------|---------|
-| **Vessel** | A specification for a container image — built from source (conjure), mirrored from upstream (bind), or pushed from local (graft) |
-| **Ark** | An immutable container image artifact stored in your own Google Artifact Registry, produced from a vessel |
-| **Hallmark** | A specific build instance of a vessel, identified by timestamp |
-| **Vouch** | SLSA provenance verification — proves an ark was built by trusted infrastructure |
-| **Depot** | The logical facility where container images are built and stored (GCP project + bucket + registry) |
-| **Sentry** | Security container that enforces network policies via `iptables` and `dnsmasq` |
-| **Pentacle** | Privileged container that establishes the network namespace shared with the bottle |
-| **Bottle** | Your workload container, running unmodified in a controlled network environment |
-| **Nameplate** | Per-vessel configuration: runtime, vessel names, hallmark values |
+| <a id="vessel"></a>**Vessel** | A specification for a container image — built from source ([conjure](#conjure)), mirrored from upstream ([bind](#bind)), or pushed from local ([graft](#graft)) |
+| <a id="ark"></a>**Ark** | An immutable container image artifact in the registry, produced from a [vessel](#vessel) |
+| <a id="hallmark"></a>**Hallmark** | A specific build instance of a [vessel](#vessel), identified by timestamp |
+| <a id="vouch"></a>**Vouch** | Cryptographic attestation proving an [ark](#ark) was built by trusted infrastructure |
+| <a id="depot"></a>**Depot** | The facility where container images are built and stored (GCP project + registry + bucket) |
+| <a id="nameplate"></a>**Nameplate** | Per-vessel configuration tying a [sentry](#sentry) and [bottle](#bottle) together into a runnable unit |
+| <a id="sentry"></a>**Sentry** | Security container enforcing network policies via `iptables` and `dnsmasq` |
+| <a id="pentacle"></a>**Pentacle** | Privileged container establishing the network namespace shared with the [bottle](#bottle) |
+| <a id="bottle"></a>**Bottle** | Your workload container, running unmodified in a controlled network environment |
+| <a id="charge"></a>**Charge** | Start the [sentry](#sentry)/[pentacle](#pentacle)/[bottle](#bottle) triad for a [nameplate](#nameplate) |
+| <a id="quench"></a>**Quench** | Stop and clean up a charged [nameplate](#nameplate)'s containers |
+| <a id="ordain"></a>**Ordain** | Create a [hallmark](#hallmark) with full attestation — the production build command |
+| <a id="conjure"></a>**Conjure** | [Ordain](#ordain) mode: Cloud Build creates the image from source |
+| <a id="bind"></a>**Bind** | [Ordain](#ordain) mode: mirror an upstream image pinned by digest |
+| <a id="graft"></a>**Graft** | [Ordain](#ordain) mode: push a locally-built image to the registry |
+| <a id="kludge"></a>**Kludge** | Build a [vessel](#vessel) image locally for fast iteration (no registry push) |
+| <a id="enshrine"></a>**Enshrine** | Mirror upstream base images into your [depot](#depot)'s registry |
+| <a id="summon"></a>**Summon** | Pull a [hallmark](#hallmark) image from the [depot](#depot) to your local machine |
+| <a id="plumb"></a>**Plumb** | Inspect an artifact's provenance (SBOM, build info, [vouch](#vouch) chain) |
+| <a id="tally"></a>**Tally** | Inventory [hallmarks](#hallmark) in the registry by health status |
+| <a id="levy"></a>**Levy** | Provision a new [depot](#depot)'s GCP infrastructure |
+| <a id="payor"></a>**Payor** | Owns the GCP project and funds it; authenticates via OAuth |
+| <a id="governor"></a>**Governor** | Administers a [depot](#depot): creates service accounts, manages access |
+| <a id="director"></a>**Director** | Builds and publishes [vessel](#vessel) images into a [depot](#depot) |
+| <a id="retriever"></a>**Retriever** | Pulls and runs [vessel](#vessel) images from a [depot](#depot) |
+| <a id="charter"></a>**Charter** | Create a [retriever](#retriever) service account ([governor](#governor) operation) |
+| <a id="knight"></a>**Knight** | Create a [director](#director) service account ([governor](#governor) operation) |
 
 ## How It Works
 
@@ -83,24 +101,26 @@ Recipe Bottle uses a role-based security model with four roles:
 
 | Role | Authenticates via | Purpose |
 |------|-------------------|---------|
-| **Payor** | OAuth (browser flow) | Creates/funds GCP infrastructure, manages governor lifecycle |
-| **Governor** | Service account credential | Administers director and retriever credentials within a depot |
-| **Director** | Service account credential | Submits builds, manages images, verifies provenance |
-| **Retriever** | Service account credential | Pulls images for local use |
+| [**Payor**](#payor) | OAuth (browser flow) | Creates/funds GCP infrastructure, manages [governor](#governor) lifecycle |
+| [**Governor**](#governor) | Service account credential | Administers [director](#director) and [retriever](#retriever) credentials within a [depot](#depot) |
+| [**Director**](#director) | Service account credential | Submits builds, manages images, verifies provenance |
+| [**Retriever**](#retriever) | Service account credential | Pulls images for local use |
 
 The payor stands apart — it requires manual Google Cloud Console work and OAuth authentication. All downstream roles authenticate via credential files, enabling full automation.
 
-### Adaptive Onboarding Guide
+### Onboarding Guide
 
-The onboarding guide reads your current state and shows exactly what to do next:
+The onboarding guide detects which roles you have credentials for and routes you to the right walkthrough:
 
 ```
-tt/rbw-gO.Onboarding.sh
+tt/rbw-go.OnboardMAIN.sh
 ```
 
-It probes configuration files, credentials, and local images to determine your progress through 9 levels, then displays the next required step with the exact command to run. Use it alongside the steps below to track your progress.
+Each role has its own walkthrough that probes your progress and shows the next step. For a full health dashboard across all roles:
 
-**Note**: The onboarding guide requires BUK regime files (`.buk/burc.env`, station file) to be in place before it can run. These ship with the repository — you only need to create your station file (see Phase 1 below).
+```
+tt/rbw-gOr.OnboardReference.sh
+```
 
 ### Phase 1: Payor Establishment
 

@@ -76,7 +76,12 @@ zrbz_kindle() {
   buz_enroll RBZ_PAYOR_ESTABLISH        "rbw-gPE" "${z_mod}" "rbgm_payor_establish" ""  "Guided GCP project + OAuth consent screen setup"
   buz_enroll RBZ_PAYOR_REFRESH          "rbw-gPR" "${z_mod}" "rbgm_payor_refresh"   ""  "Refresh expired OAuth tokens"
   buz_enroll RBZ_QUOTA_BUILD            "rbw-gq"  "${z_mod}" "rbgm_quota_build"     ""  "Display Cloud Build capacity review procedure"
-  buz_enroll RBZ_ONBOARDING            "rbw-gO"  "${z_mod}" "rbgm_onboarding"      ""  "Adaptive guide — reads current state, shows next step"
+  buz_enroll RBZ_ONBOARD_TRIAGE        "rbw-go"  "${z_mod}" "rbgm_onboard_triage"     ""  "Triage — detect roles, route to per-role walkthrough"
+  buz_enroll RBZ_ONBOARD_RETRIEVER     "rbw-gOR" "${z_mod}" "rbgm_onboard_retriever"  ""  "Retriever walkthrough — pull and run vessel images"
+  buz_enroll RBZ_ONBOARD_DIRECTOR      "rbw-gOD" "${z_mod}" "rbgm_onboard_director"   ""  "Director walkthrough — build and publish vessel images"
+  buz_enroll RBZ_ONBOARD_GOVERNOR      "rbw-gOG" "${z_mod}" "rbgm_onboard_governor"   ""  "Governor walkthrough — manage service accounts and access"
+  buz_enroll RBZ_ONBOARD_PAYOR         "rbw-gOP" "${z_mod}" "rbgm_onboard_payor"      ""  "Payor walkthrough — GCP project, billing, and OAuth setup"
+  buz_enroll RBZ_ONBOARD_REFERENCE     "rbw-gOr" "${z_mod}" "rbgm_onboard_reference"  ""  "Reference — all roles, all units, single health dashboard"
 
   # Hallmark — registry artifact lifecycle (rbw-h, UPPER=mutates GAR, lower=read/local)
   buz_group RBZ__GROUP_HALLMARK   "rbw-h"   "Hallmark — Registry artifact lifecycle"

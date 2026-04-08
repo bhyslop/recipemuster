@@ -39,6 +39,13 @@ zrbgm_furnish() {
   # Differential furnish: guide commands need only display infrastructure,
   # everything else needs full regime kindle/enforce.
   case "${z_command}" in
+    rbgm_onboard_triage|rbgm_onboard_retriever|rbgm_onboard_director|rbgm_onboard_governor|rbgm_onboard_payor|rbgm_onboard_reference)
+      source "${BURD_BUK_DIR}/bug_guide.sh"              || buc_die "Failed to source bug_guide.sh"
+      source "${z_rbk_kit_dir}/rbcc_Constants.sh"        || buc_die "Failed to source rbcc_Constants.sh"
+      source "${z_rbk_kit_dir}/rbgc_Constants.sh"        || buc_die "Failed to source rbgc_Constants.sh"
+      zrbgc_kindle
+      source "${z_rbk_kit_dir}/rbgm_ManualProcedures.sh" || buc_die "Failed to source rbgm_ManualProcedures.sh"
+      ;;
     rbgm_onboarding)
       source "${BURD_BUK_DIR}/bug_guide.sh"           || buc_die "Failed to source bug_guide.sh"
       source "${BURD_BUK_DIR}/buv_validation.sh"       || buc_die "Failed to source buv_validation.sh"
