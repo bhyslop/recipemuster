@@ -593,6 +593,51 @@ zrbgm_probe_governor_units() {
   fi
 }
 
+######################################################################
+# Probe payor walkthrough units — sets caller-scope z_pu1..z_pu4
+# Requires: z_secrets_dir already set.
+# No sentinel — works pre-kindle
+#
+# Unit 1: OAuth credential present (rbro-payor.env in secrets dir)
+# Unit 2: Payor project configured (RBRP_PAYOR_PROJECT_ID non-empty)
+# Unit 3: Depot provisioned (RBRR_DEPOT_PROJECT_ID non-empty)
+# Unit 4: Governor SA exists (governor credential file present)
+
+zrbgm_probe_payor_units() {
+  z_pu1=0
+  z_pu2=0
+  z_pu3=0
+  z_pu4=0
+
+  # Unit 1: OAuth credential present
+  if test -n "${z_secrets_dir}" && \
+     test -f "${z_secrets_dir}/rbro-payor.env"; then
+    z_pu1=1
+  fi
+
+  # Unit 2: Payor project configured
+  if test -f "${RBBC_rbrp_file}"; then
+    local z_probe_line=""
+    while IFS= read -r z_probe_line; do
+      case "${z_probe_line}" in RBRP_PAYOR_PROJECT_ID=?*) z_pu2=1; break ;; esac
+    done < "${RBBC_rbrp_file}"
+  fi
+
+  # Unit 3: Depot provisioned
+  if test -f "${RBBC_rbrr_file}"; then
+    local z_probe_line=""
+    while IFS= read -r z_probe_line; do
+      case "${z_probe_line}" in RBRR_DEPOT_PROJECT_ID=?*) z_pu3=1; break ;; esac
+    done < "${RBBC_rbrr_file}"
+  fi
+
+  # Unit 4: Governor SA credential file exists
+  if test -n "${z_secrets_dir}" && \
+     test -f "${z_secrets_dir}/${RBCC_role_governor}/${RBCC_rbra_file}"; then
+    z_pu4=1
+  fi
+}
+
 # Configuration review — displayed at level 0 (first thing a newcomer sees)
 # Shows pre-selected RBRR defaults with orientation, plus BURC project structure.
 # No sentinel: runs pre-kindle like the rest of the onboarding guide.
@@ -1121,17 +1166,25 @@ rbgm_onboard_reference() {
   bug_tc "  Walkthrough: " "tt/rbw-gOG.OnboardGovernor.sh"
   bug_e
 
-  # Payor — per-unit probes pending
+  # Payor — full per-unit probes
   bug_section "Payor"
-  zrbgm_po_status "${z_has_payor}" "  Credential present"
-  bug_t  "  (Walkthrough pending — see tt/rbw-gOP.OnboardPayor.sh)"
+  local z_pu1=0
+  local z_pu2=0
+  local z_pu3=0
+  local z_pu4=0
+  zrbgm_probe_payor_units
+  zrbgm_po_status "${z_pu1}" "  OAuth bootstrap — credentials installed"
+  zrbgm_po_status "${z_pu2}" "  Project setup — GCP project configured"
+  zrbgm_po_status "${z_pu3}" "  Depot provisioning — infrastructure levied"
+  zrbgm_po_status "${z_pu4}" "  Governor handoff — governor SA created"
+  bug_tc "  Walkthrough: " "tt/rbw-gOP.OnboardPayor.sh"
   bug_e
 
   buc_success "Onboarding reference displayed"
 }
 
 ######################################################################
-# Onboarding walkthrough stubs — built by subsequent paces (₢A3AAB-E)
+# Onboarding role walkthroughs — dual-mode rendering (₢A3AAB-E)
 
 rbgm_onboard_retriever() {
   buc_doc_brief "Retriever walkthrough — pull and run vessel images"
@@ -1601,10 +1654,124 @@ rbgm_onboard_governor() {
 rbgm_onboard_payor() {
   buc_doc_brief "Payor walkthrough — GCP project, billing, and OAuth setup"
   buc_doc_shown || return 0
+
+  local -r z_docs="${RBGC_PUBLIC_DOCS_URL}"
+
+  # --- Extract config and probe ---
+  local z_secrets_dir=""
+  if test -f "${RBBC_rbrr_file}"; then
+    z_secrets_dir=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_SECRETS_DIR") || z_secrets_dir=""
+  fi
+
+  local z_pu1=0
+  local z_pu2=0
+  local z_pu3=0
+  local z_pu4=0
+  zrbgm_probe_payor_units
+
+  # --- Count progress ---
+  local z_done=0
+  if test "${z_pu1}" = "1"; then z_done=$((z_done + 1)); fi
+  if test "${z_pu2}" = "1"; then z_done=$((z_done + 1)); fi
+  if test "${z_pu3}" = "1"; then z_done=$((z_done + 1)); fi
+  if test "${z_pu4}" = "1"; then z_done=$((z_done + 1)); fi
+  local -r z_total=4
+
+  # --- Header ---
   bug_section "Payor Walkthrough"
-  bug_t  "  Coming in a future update."
+  bug_e
+
+  if test "${z_done}" = "${z_total}"; then
+    # ============ REFERENCE MODE — all probes green ============
+    bug_t  "  All steps complete. Re-run anytime to verify health."
+    bug_e
+    zrbgm_po_status 1 "  OAuth bootstrap — credentials installed"
+    zrbgm_po_status 1 "  Project setup — GCP project configured"
+    zrbgm_po_status 1 "  Depot provisioning — infrastructure levied"
+    zrbgm_po_status 1 "  Governor handoff — governor SA created"
+  else
+    # ============ WALKTHROUGH MODE — show frontier unit ============
+    local -r z_frontier=$((z_done + 1))
+    bug_t  "  Step ${z_frontier} of ${z_total}"
+    bug_e
+
+    if test "${z_pu1}" = "0"; then
+      # ---- Unit 1: OAuth Bootstrap ----
+      bug_section "  OAuth Bootstrap"
+      bug_e
+      bug_tlt "  The " "payor" "${z_docs}#payor" " owns the GCP project and funds it. Unlike other roles"
+      bug_t   "  that use service account keys, the payor authenticates via OAuth — representing"
+      bug_t   "  the human project owner."
+      bug_e
+      bug_t   "  To get started, download an OAuth client secret JSON file from your GCP"
+      bug_t   "  project's API credentials page, then run:"
+      bug_tc  "    " "tt/rbw-gPI.PayorInstall.sh \${HOME}/Downloads/client_secret_*.json"
+      bug_e
+      bug_t   "  This walks you through the OAuth authorization flow and stores the credential"
+      bug_t   "  securely. If you have an existing credential that has expired:"
+      bug_tc  "    " "tt/rbw-gPR.PayorRefresh.sh"
+      bug_e
+      bug_t   "  Once installed, re-run this walkthrough to continue."
+
+    elif test "${z_pu2}" = "0"; then
+      # ---- Unit 2: Project Setup ----
+      bug_section "  Project Setup"
+      bug_e
+      bug_t   "  A funded GCP project is required before any infrastructure can be provisioned."
+      bug_t   "  The project must have billing enabled and the OAuth consent screen configured."
+      bug_e
+      bug_t   "  Run the guided setup:"
+      bug_tc  "    " "tt/rbw-gPE.PayorEstablish.sh"
+      bug_e
+      bug_t   "  This will guide you through project creation, billing enablement, and OAuth"
+      bug_t   "  consent screen configuration. The project ID is recorded in regime files"
+      bug_t   "  and becomes the identity for all depot operations."
+      bug_e
+      bug_t   "  Once complete, re-run this walkthrough to continue."
+
+    elif test "${z_pu3}" = "0"; then
+      # ---- Unit 3: Depot Provisioning ----
+      bug_section "  Depot Provisioning"
+      bug_e
+      bug_tlt "  A " "depot" "${z_docs}#depot" " is the facility where container images are built and stored"
+      bug_t   "  — a GCP project with a registry, storage bucket, and build infrastructure."
+      bug_e
+      bug_tlt "  To " "levy" "${z_docs}#levy" " a depot is to provision this infrastructure. Run:"
+      bug_tc  "    " "tt/rbw-dL.PayorLeviesDepot.sh"
+      bug_e
+      bug_t   "  This enables APIs, creates the Artifact Registry repository and Cloud Storage"
+      bug_t   "  bucket, and configures Cloud Build. The depot is now ready for use."
+      bug_e
+      bug_t   "  List your depots to verify:"
+      bug_tc  "    " "tt/rbw-dl.PayorListsDepots.sh"
+      bug_e
+      bug_t   "  Once provisioned, re-run this walkthrough to continue."
+
+    else
+      # ---- Unit 4: Governor Handoff ----
+      bug_section "  Governor Handoff"
+      bug_e
+      bug_tlt "  A " "governor" "${z_docs}#governor" " administers a depot — creating service accounts and"
+      bug_t   "  managing access for those who build and run container images."
+      bug_e
+      bug_t   "  The payor funds the infrastructure; the governor operates it. After this"
+      bug_t   "  handoff, the governor can charter retrievers and knight directors"
+      bug_t   "  independently. Run:"
+      bug_tc  "    " "tt/rbw-aM.PayorMantlesGovernor.sh"
+      bug_e
+      bug_t   "  This creates the governor service account with administrative permissions"
+      bug_t   "  over the depot. Hand the resulting key file to the person who will"
+      bug_t   "  administer this depot."
+      bug_e
+      bug_t   "  The payor's job for this depot is done unless billing or project-level"
+      bug_t   "  changes are needed."
+    fi
+  fi
+
+  bug_e
   bug_tc "  Triage: " "tt/rbw-go.OnboardMAIN.sh"
-  buc_success "Payor walkthrough stub displayed"
+
+  buc_success "Payor walkthrough displayed"
 }
 
 rbgm_LEGACY_setup_admin() { # ITCH_DELETE_THIS_AFTER_ABOVE_TESTED
