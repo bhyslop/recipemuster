@@ -481,7 +481,13 @@ zrbgm_probe_retriever_units() {
 # the local image before pushing.
 
 zrbgm_probe_director_units() {
-  z_du1=0; z_du2=0; z_du3=0; z_du4=0; z_du5=0; z_du6=0; z_du7=0
+  z_du1=0
+  z_du2=0
+  z_du3=0
+  z_du4=0
+  z_du5=0
+  z_du6=0
+  z_du7=0
 
   # Unit 1: Director credential file exists
   if test -n "${z_secrets_dir}" && \
@@ -493,47 +499,48 @@ zrbgm_probe_director_units() {
   if ! command -v docker >/dev/null 2>&1; then return 0; fi
 
   # Build GAR image prefix for this depot
-  local z_project_id="" z_region=""
+  local z_project_id=""
+  local z_region=""
   if test -f "${RBBC_rbrr_file}"; then
     z_project_id=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_DEPOT_PROJECT_ID") || z_project_id=""
     z_region=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_GCP_REGION") || z_region=""
   fi
   if test -z "${z_region}" || test -z "${z_project_id}"; then return 0; fi
 
-  local z_gar_prefix="${z_region}${RBGC_GAR_HOST_SUFFIX}/${z_project_id}/"
+  local -r z_gar_prefix="${z_region}${RBGC_GAR_HOST_SUFFIX}/${z_project_id}/"
+  local -r z_docker_images="${BURD_TEMP_DIR}/zrbgm_probe_director_images.txt"
+  local -r z_docker_stderr="${BURD_TEMP_DIR}/zrbgm_probe_director_stderr.txt"
 
-  # Collect docker images from this depot (repo:tag pairs)
-  local z_images=""
-  z_images=$(docker images --format "{{.Repository}}:{{.Tag}}" 2>/dev/null \
-    | grep "^${z_gar_prefix}" || true)
-  if test -z "${z_images}"; then return 0; fi
+  # Collect docker images into temp file
+  docker images --format "{{.Repository}}:{{.Tag}}" \
+    > "${z_docker_images}" 2>"${z_docker_stderr}" \
+    || return 0
 
-  # Unit 2: Kludge image for sentry (k-prefixed hallmark tag)
-  if printf '%s\n' "${z_images}" | grep -q "rbev-sentry-debian-slim:k[0-9]"; then
-    z_du2=1
-  fi
+  # Load lines matching this depot's GAR prefix into array
+  local z_depot_images=()
+  local z_line=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    case "${z_line}" in
+      "${z_gar_prefix}"*) z_depot_images+=("${z_line}") ;;
+    esac
+  done < "${z_docker_images}"
 
-  # Unit 3: Depot foundation (reliquary + enshrine) — no direct local probe.
-  # Conjure requires reliquary + enshrine as prerequisites, so a conjure
-  # hallmark present locally implies depot foundation is complete.
-  # Shares detection with unit 4.
-  if printf '%s\n' "${z_images}" | grep -q "rbev-sentry-debian-slim:c[0-9]"; then
+  # Single pass: match hallmark tag patterns via case
+  local z_conjure_found=0
+  local z_i=0
+  for z_i in "${!z_depot_images[@]}"; do
+    case "${z_depot_images[$z_i]}" in
+      *"rbev-sentry-debian-slim:k"[0-9]*) z_du2=1 ;;
+      *"rbev-sentry-debian-slim:c"[0-9]*) z_conjure_found=1 ;;
+      *"rbev-bottle-plantuml:b"[0-9]*)    z_du5=1 ;;
+      *"rbev-sentry-debian-slim:g"[0-9]*) z_du6=1 ;;
+    esac
+  done
+
+  # Conjure implies depot foundation (reliquary + enshrine are prerequisites)
+  if test "${z_conjure_found}" = "1"; then
     z_du3=1
-  fi
-
-  # Unit 4: Conjure hallmark for sentry (c-prefixed tag, summoned locally)
-  if printf '%s\n' "${z_images}" | grep -q "rbev-sentry-debian-slim:c[0-9]"; then
     z_du4=1
-  fi
-
-  # Unit 5: Bind hallmark for plantuml (b-prefixed tag, summoned locally)
-  if printf '%s\n' "${z_images}" | grep -q "rbev-bottle-plantuml:b[0-9]"; then
-    z_du5=1
-  fi
-
-  # Unit 6: Graft hallmark for sentry (g-prefixed tag — local from graft push)
-  if printf '%s\n' "${z_images}" | grep -q "rbev-sentry-debian-slim:g[0-9]"; then
-    z_du6=1
   fi
 
   # Unit 7: All three modes present
@@ -1086,7 +1093,13 @@ rbgm_onboard_reference() {
 
   # Director — full per-unit probes
   bug_section "Director"
-  local z_du1 z_du2 z_du3 z_du4 z_du5 z_du6 z_du7
+  local z_du1=0
+  local z_du2=0
+  local z_du3=0
+  local z_du4=0
+  local z_du5=0
+  local z_du6=0
+  local z_du7=0
   zrbgm_probe_director_units
   zrbgm_po_status "${z_du1}" "  Credential gate — director SA key installed"
   zrbgm_po_status "${z_du2}" "  Local build — kludge image present"
@@ -1255,7 +1268,13 @@ rbgm_onboard_director() {
     z_secrets_dir=$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" "RBRR_SECRETS_DIR") || z_secrets_dir=""
   fi
 
-  local z_du1 z_du2 z_du3 z_du4 z_du5 z_du6 z_du7
+  local z_du1=0
+  local z_du2=0
+  local z_du3=0
+  local z_du4=0
+  local z_du5=0
+  local z_du6=0
+  local z_du7=0
   zrbgm_probe_director_units
 
   # --- Count progress ---
