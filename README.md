@@ -21,6 +21,12 @@ The system uses only `bash`, `git`, `curl`, `openssh`, `jq`, and `docker` native
   <img src="rbm-abstract-drawio.svg" alt="Recipe Bottle architecture diagram" width="720" />
 </p>
 
+Recipe Bottle treats two complexity domains as distinct, orthogonal concerns. The first is **image management**: producing container images from untrusted source with verifiable provenance. Builds run on Google Cloud Build in an egress-locked ("airgap") configuration using digest-pinned toolchains, produce SLSA attestations and SBOMs, and draw from upstream base images mirrored into a project-owned registry — so the build pipeline has a fixed, self-contained supply chain independent of third-party registry availability. The second domain is **crucible orchestration**: running those images — or any unmodified third-party image — behind a security apparatus that enforces network policy without touching the workload. A developer can adopt either domain alone; the two are designed to compose, not to depend on each other.
+
+The distinctive case Recipe Bottle addresses is *running untrusted code*: third-party tooling, experimental packages, binaries with uncertain provenance. Containers excel at packaging known applications, but running unvetted code poses security risks that ordinary container deployment does not solve. The [bottle](#Bottle) container runs unmodified, in a network namespace prepared by a privileged [pentacle](#Pentacle), with all egress flowing through a [sentry](#Sentry) gateway configured via the mature tools `iptables` and `dnsmasq`.
+
+Recipe Bottle is a set of bash scripts designed to be incorporated into arbitrary projects — via `git subtree`, `git subrepo`, `git submodule`, or simply by copying a few directories into place. The workstation floor is deliberately narrow: `bash 3.2`, `git`, `curl`, `openssh`, `jq`, `openssl`, and `docker`. There is no Python runtime, no language-specific package manager, no `gcloud` CLI on the workstation — Google Cloud operations run as REST calls over `curl` and `jq`. A small team can stand up a hardened build pipeline and a sandboxed runtime without specialized DevOps expertise.
+
 ## Key Concepts
 
 | Term | Meaning |
@@ -55,6 +61,8 @@ The system uses only `bash`, `git`, `curl`, `openssh`, `jq`, and `docker` native
 
 ## How It Works
 
+Recipe Bottle addresses two orthogonal complexity domains: building container images with verifiable provenance, and running untrusted images with enforced network isolation. The two tracks compose but neither requires the other.
+
 ### Image Management
 
 Recipe Bottle builds container images on Google Cloud Build (GCB) and stores them in Google Artifact Registry (GAR):
@@ -64,8 +72,10 @@ Recipe Bottle builds container images on Google Cloud Build (GCB) and stores the
 - SLSA provenance attestation and verification
 - Software Bills of Material (SBOM) for every build
 - Full build transcripts captured as auxiliary metadata artifacts
+- Upstream base images [enshrined](#Enshrine) into the [depot's](#Depot) registry, so builds do not depend on third-party registry availability at build time
+- `gcloud` never runs on the workstation — REST calls via `curl` and `jq` drive all remote operations, and the Google-supplied `gcloud` binary is confined to Cloud Build step containers on the server side
 
-### Bottle Orchestration
+### Crucible Orchestration
 
 For running containers with network services, Recipe Bottle orchestrates three containers working together:
 
@@ -74,6 +84,16 @@ For running containers with network services, Recipe Bottle orchestrates three c
 - **Bottle** — your workload container, running unmodified in a controlled network environment
 
 This ensures security policies are enforced from the first packet, and the bottle container experiences only a functional path to its sentry gateway.
+
+The [sentry](#Sentry) applies two layers of egress policy: `dnsmasq` answers DNS queries only for explicitly allowed names, and `iptables` permits outbound IP traffic only to allowed CIDR ranges. The two layers combine into an enforced allowlist that a compromised or misbehaving [bottle](#Bottle) cannot bypass — neither by DNS-based exfiltration nor by direct IP connection to an unapproved destination. Each crucible's allowlist is declared in a [nameplate](#Nameplate) regime file alongside the sentry and bottle [vessel](#Vessel) selections, making network policy a reviewable artifact of the configuration rather than an implicit runtime behavior.
+
+### Project Direction
+
+**Build pipeline.** Egress lockdown is implemented via a dual-pool Cloud Build architecture. VPC Service Controls and cosign signing are evaluated and deferred until organizational policy or external distribution triggers them.
+
+**Runtime.** Docker on Linux is the first-class runtime; rootless Podman and macOS-native workflows are deferred pending user demand. One known weakness: when allowed domains are CDN-hosted (e.g. Cloudflare), the [sentry's](#Sentry) CIDR allowlist becomes coarse — DNS-level gating remains precise, but IP-level gating is porous across shared CDN ranges.
+
+**Networking.** [Bottle](#Bottle)-to-bottle communication is feasible under the current sentry model but not implemented; waiting for a concrete use case.
 
 ## Prerequisites
 
