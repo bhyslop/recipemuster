@@ -9,6 +9,7 @@
     "₣AI",
     "₣AJ",
     "₣AN",
+    "₣A7",
     "₣A6",
     "₣A5",
     "₣Ah",
@@ -19,8 +20,7 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au",
-    "₣A7"
+    "₣Au"
   ],
   "heats": {
     "₣A5": {
@@ -388,7 +388,7 @@
     "₣A7": {
       "silks": "rbk-mvp-3-regime-scrub",
       "creation_time": "260409",
-      "status": "stabled",
+      "status": "racing",
       "order": [],
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_uAl7.md",
