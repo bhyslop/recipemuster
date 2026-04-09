@@ -11,7 +11,7 @@ Teaching pedagogy is distinct from setup choreography. This heat is about helpin
 - `₢A3AAJ` (rbgm-split-to-rbho-rbhp) — file structure in place
 - `₢A3AAF` (docs-alignment-and-cross-machine-validation) — final A3 validation
 
-After A3 retires, this heat consumes `Tools/rbk/rbho_onboarding.sh` as the home for new handbook content. All new tabtargets use the `rbw-h?` prefix (handbook), replacing the old `rbw-gO*` onboarding family from A3.
+After A3 retires, this heat consumes `Tools/rbk/rbho_onboarding.sh` as the home for new handbook content. New tabtargets use a **two-colophon scheme**: `rbw-o` (lowercase, terminal) for the onboarding StartHere entry point, and `rbw-O*` (uppercase family) for individual onboarding handbook tracks (e.g. `rbw-Occ.OnboardingCrashCourse.sh`). This replaces the old `rbw-gO*` onboarding family from A3. The case-split family is a deliberate starting-letter differentiation for clarity. (The initially-proposed `rbw-h?` prefix was found to collide with the existing Hallmark tabtarget family — see Provenance.)
 
 ## Context — The Malformation
 
@@ -32,7 +32,7 @@ A learner reads top-to-bottom for teaching; an expert scrolls for the first red 
 
 ### Probe-Aware Menu Routing
 
-`tt/rbw-h?.StartHere.sh` runs quick triage probes and highlights menu items based on repo state. Unpopulated RBRR highlights the payor path. Populated RBRR plus existing RBRA highlights "find your role." Static menu items remain visible so learners can override routing — probe-aware is guidance, not gating.
+`tt/rbw-o.OnboardingStartHere.sh` runs quick triage probes and highlights menu items based on repo state. Unpopulated RBRR highlights the payor path. Populated RBRR plus existing RBRA highlights "find your role." Static menu items remain visible so learners can override routing — probe-aware is guidance, not gating.
 
 ### Handbook Output Is Ephemeral
 
@@ -82,17 +82,17 @@ Cleanup action items surfaced by interview:
 
 ## Rough Track Roster
 
-Working titles, evocative and distinct from the prior role placeholders. **All names are rough** and will be refined in later interview passes. Each track is a single `tt/rbw-h?.{TrackName}.sh` tabtarget rendering a complete teaching document in Frame 4-refined format.
+Working titles, evocative and distinct from the prior role placeholders. **All names are rough** and will be refined in later interview passes. Each track is a single `tt/rbw-O??.Onboarding{TrackName}.sh` tabtarget (uppercase-O family) rendering a complete teaching document in Frame 4-refined format. Final track acronyms (the `??` slots) are assigned during the drafting pace (₢A6AAA Artifact 3).
 
 ### Foundation (everyone)
 
-1. **Crash Course: Reading the Map** — universal prerequisite. Tabtargets, regimes, log placement, station vs versioned, the `rbw-r{letter}{r|v}` pattern. Local-only, no cloud, no image operations. Teaches BURC, BURS, RBRR at a surface level — enough to navigate the rest.
+1. **Crash Course: Reading the Map** — universal prerequisite. Tabtargets, regimes, log placement, station vs versioned, the `rbw-r{letter}{r|v}` pattern. Local-only, no cloud, no image operations. Teaches BURC, BURS, RBRR at a surface level — enough to navigate the rest. Provisional acronym: `Occ`.
 
 2. **Take Your Station** — joining an existing configured project. Verify your RBRA is placed correctly, run access probes, confirm you can operate in your role(s). Shortest path, mostly probe-driven with minimal teaching.
 
 ### Role-intent tracks
 
-3. **Kindle Your First Crucible** — crucible explorer. Local sandbox with kludged hallmarks, security exploration, fast iteration, no cloud. Teaches: crucible, charge/quench, sentry/pentacle/bottle composition, kludge mode for local hallmark synthesis. *First implementation target — simplest path, zero cloud, tightest feedback loop.*
+3. **Kindle Your First Crucible** — crucible explorer. Local sandbox with kludged hallmarks, security exploration, fast iteration, no cloud. Teaches: crucible, charge/quench, sentry/pentacle/bottle composition, kludge mode for local hallmark synthesis. *First implementation target — simplest path, zero cloud, tightest feedback loop.* (Name flagged for "kindle" vocabulary overload — see Open Questions.)
 
 4. **Establish the Depot** — payor ceremony (~15 min). GCP project creation, OAuth consent screen, billing, RBRR initial population. Teaches: depot, payor responsibility, consent dance, the relationship between payor identity (RBRP) and depot identity (RBRR).
 
@@ -180,6 +180,7 @@ Items that can wait until later interview passes (between implementations):
 - **Shared snippet mechanism** — how do Depot Relationships and Secret Handling Primer appear in multiple handbooks without duplication?
 - **Probe-aware menu implementation** — mechanism for triage probes and dynamic highlighting
 - **Track name refinement** — current roster is rough; final names come from iteration
+- **"Kindle" vocabulary overload** — the rough track "Kindle Your First Crucible" overloads the verb "kindle", which is already used in BUK/zipper vocabulary for module kindling (colophon→module→command array generation). The BUK usage is implementer-facing and learners don't directly encounter it, so the overload may be tolerable; alternatively, pick a different verb for the crucible track. Flagged during interview `☉260409-1001`, resolution deferred to track-name refinement.
 - **Wait-time pedagogy for the first long-running track implementation**
 
 ## Provenance
@@ -188,7 +189,7 @@ Interview conducted in officium `☉260409-1001`. Key turning points:
 - User articulated that role tracks are a malformation — authorization ≠ intent
 - User articulated concern for teaching NOVEL vocabulary specifically (not general containers/GCP)
 - User proposed probe-aware handbook with checkmark redisplay, refining interviewer's Frame 4 into Frame 4-refined
-- User confirmed `tt/rbw-h?` as new tabtarget prefix family
+- User initially confirmed `tt/rbw-h?` as the new tabtarget prefix family; collision with the existing `rbw-h` Hallmark family (`rbw-hO` DirectorOrdainsHallmark, `rbw-hk` LocalKludge, `rbw-hA` DirectorAbjuresHallmark, `rbw-ht` DirectorTalliesHallmarks, `rbw-hV` DirectorVouchesHallmarks, `rbw-hs` RetrieverSummonsHallmark, `rbw-hpf` RetrieverPlumbsFull, `rbw-hpc` RetrieverPlumbsCompact — 8 tabtargets) was caught post-interview when mounting `₢A6AAA`. Corrected to a two-colophon scheme: `rbw-o` (lowercase, terminal) for `OnboardingStartHere`, and `rbw-O*` (uppercase family) for individual handbook tracks (`rbw-Occ` etc.). Case-split family deliberately chosen for starting-letter clarity. **Lesson**: mint-time namespace verification must sweep the existing tabtarget tree (`ls tt/`), not only the paddock's own proposals — a project-prefix check against CLAUDE.md's registry is insufficient when prefixes have families with reserved subfunction letters.
 - User identified implementation burden (not learner burden) as reason to drop step recording
 - User surfaced additional learner profiles through the interview exercise ("crumbs I forgot")
 - User asked for intimate track names distinct from prior role placeholders
