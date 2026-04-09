@@ -1061,12 +1061,14 @@ zrbgm_probe_role_credentials() {
 zrbgm_triage_role() {
   local -r z_detected="${1}" z_name="${2}" z_colophon="${3}"
   local -r z_url="${RBGC_PUBLIC_DOCS_URL}#${z_name}"
-  local z_padded
-  printf -v z_padded '%-12s' "${z_name}"
+  # Column pad lives OUTSIDE the link envelope so the underline/OSC-8 stop
+  # at the end of the role name.  Width 13 = 12-char column + 1 separator.
+  local z_pad=""
+  printf -v z_pad '%*s' $((13 - ${#z_name})) ''
   if test "${z_detected}" = "1"; then
-    bug_tlT " [*] " "${z_padded}" "${z_url}" "${z_colophon}"
+    bug_tltT " [*] " "${z_name}" "${z_url}" "${z_pad}" "${z_colophon}"
   else
-    bug_tl  " [ ] " "${z_padded}" "${z_url}"
+    bug_tl   " [ ] " "${z_name}" "${z_url}"
   fi
 }
 
