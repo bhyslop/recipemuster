@@ -2,6 +2,7 @@
   "schema_version": 4,
   "next_heat_seed": "A5",
   "heat_order": [
+    "₣A3",
     "₣Az",
     "₣An",
     "₣Am",
@@ -10,7 +11,6 @@
     "₣AJ",
     "₣AN",
     "₣A4",
-    "₣A3",
     "₣A2",
     "₣A1",
     "₣A0",
@@ -1611,7 +1611,7 @@
     "₣A3": {
       "silks": "rbk-mvp-3-onboarding-guides",
       "creation_time": "260402",
-      "status": "racing",
+      "status": "stabled",
       "order": [
         "₢A3AAG",
         "₢A3AAA",
