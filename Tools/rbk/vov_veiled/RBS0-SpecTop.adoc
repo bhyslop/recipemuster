@@ -116,13 +116,13 @@
 :rbtgo_governor_mantle:            <<rbtgo_governor_mantle,rbgp_governor_mantle>>
 :rbtgo_image_delete:              <<rbtgo_image_delete,rbfl_jettison>>
 :rbtgo_image_retrieve:            <<rbtgo_image_retrieve,rbfr_wrest>>
-:rbtgo_payor_establish:           <<rbtgo_payor_establish,rbgm_payor_establish>>
+:rbtgo_payor_establish:           <<rbtgo_payor_establish,rbhp_establish>>
 :rbtgo_payor_install:             <<rbtgo_payor_install,rbgp_payor_install>>
-:rbtgo_payor_refresh:             <<rbtgo_payor_refresh,rbgm_payor_refresh>>
+:rbtgo_payor_refresh:             <<rbtgo_payor_refresh,rbhp_refresh>>
 :rbtgo_retriever_charter:         <<rbtgo_retriever_charter,rbgg_charter_retriever>>
 :rbtgo_sa_forfeit:                <<rbtgo_sa_forfeit,rbgg_forfeit_service_account>>
 :rbtgo_sa_list:                   <<rbtgo_sa_list,rbgg_list_service_accounts>>
-:rbtgo_quota_build:               <<rbtgo_quota_build,rbgm_quota_build>>
+:rbtgo_quota_build:               <<rbtgo_quota_build,rbhp_quota_build>>
 :rbtgo_trigger_build:             <<rbtgo_trigger_build,rbfd_build>>
 :rbtgo_access_jwt_probe:          <<rbtgo_access_jwt_probe,rbap_jwt_sa_probe>>
 :rbtgo_access_oauth_probe:        <<rbtgo_access_oauth_probe,rbap_payor_oauth_probe>>

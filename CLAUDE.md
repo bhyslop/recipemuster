@@ -18,10 +18,12 @@ Full read and edit access is pre-approved for all files in:
 - **RBGC** → `rbk/rbgc_Constants.sh`
 - **RBGG** → `rbk/rbgg_Governor.sh`
 - **RBGI** → `rbk/rbgi_IAM.sh`
-- **RBGM** → `rbk/rbgm_ManualProcedures.sh`
 - **RBGO** → `rbk/rbgo_OAuth.sh`
 - **RBGP** → `rbk/rbgp_Payor.sh`
 - **RBGU** → `rbk/rbgu_Utility.sh`
+- **RBHO** → `rbk/rbho_onboarding.sh` (Handbook — cross-role onboarding walkthroughs)
+- **RBHP** → `rbk/rbhp_payor.sh` (Handbook — payor-only ceremonies: establish, refresh, quota)
+  - `rbh*` is the Handbook family (human-facing procedures), parallel to `rbg*` (Google machinery). Reserved future slots: `RBHG` governor ceremonies, `RBHD` director ceremonies, `RBHR` retriever ceremonies.
 - **RBID** → `rbev-vessels/rbev-bottle-ifrit/` (Ifrit — in-bottle attack binary for crucible testing)
 - **RBJ**  → Jailer prefix (non-terminal: children rbjs, rbjp, rbje, rbjh)
 - **RBJS** → `rbk/rbjs_sentry.sh` (Jailer Sentry - container security setup: iptables, dnsmasq, enclave network)
