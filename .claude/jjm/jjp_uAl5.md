@@ -4,9 +4,9 @@ Architecture and content work for the public docs surface — the page that onbo
 
 - **Rewrite `README.md`** as the canonical link-landing surface, harmonizing the current glossary + setup content with a new intro section ported from the internal cosmology spec
 - **Move the docs URL to an RBRR field** (`RBRR_PUBLIC_DOCS_URL`) so the value can be updated per-release or per-incorporation without editing source code
-- **Retire legacy scaffolding** (`index.html`, `README.consumer.md`, prep-release Step 8 copy logic) that no longer serves any purpose under the new architecture
+- **Retire legacy scaffolding** (`index.html`, `README.consumer.md`, the `README.consumer.md` copy line in prep-release Step 8) that no longer serves any purpose under the new architecture. `CLAUDE.consumer.md` is NOT retired — it is kept as the canonical ship template for Claude Code customers and gets its stale tabtarget references updated in place.
 
-The cognitive posture this work requires: design judgment during the README rewrite (voice, audience, structural choices) but mechanical execution on the field plumbing and retirement tracks. The inventory pace is read-and-decide; the production paces split content editing from mechanical edits so each gets its own session space.
+The cognitive posture this work requires: design judgment during the README rewrite (voice, audience, structural choices) but mechanical execution on the field plumbing and retirement tracks. Pace 1 was resolved through live conversation review (officium ☉260409-1007) rather than memo drafting — all open questions have definitive answers baked directly into downstream pace dockets. The production paces split content editing from mechanical edits so each gets its own session space.
 
 "Refresh" in the silks names the goal plainly: the public docs surface is presently stale and disconnected from current Recipe Bottle vocabulary. This heat refreshes the surface to a correct, sustainable shape — not a full release, not a polish pass, just the minimum for the `buh_tlt` links to land somewhere useful and for future iteration to build cleanly.
 
@@ -60,7 +60,7 @@ local -r z_docs="${RBRR_PUBLIC_DOCS_URL}"
 # (RBGC_PUBLIC_DOCS_URL line is DELETED — no fallback, no proxy)
 ```
 
-The current `RBGC_PUBLIC_DOCS_URL` constant is deleted entirely. Only two consumers exist in the tree (`rbgc_Constants.sh` itself and `rbho_onboarding.sh`), so the refactor is small.
+The current `RBGC_PUBLIC_DOCS_URL` constant is deleted entirely. Two consumer files touch it (`rbgc_Constants.sh` declaration + `rbho_onboarding.sh` reader), and the reader has **six call sites** (lines 320, 341, 442, 564, 786, 904 — most assign to a local `z_docs` once per function). The refactor updates one declaration line and six consumer call sites.
 
 ### rbho_cli.sh gains RBRR sourcing
 
@@ -68,7 +68,7 @@ Because `rbho_onboarding.sh` now reads `RBRR_PUBLIC_DOCS_URL`, the onboarding CL
 
 This relaxes ₢A3AAJ's "thin deps" design for `rbho_cli.sh` by adding a single schema source. The full depot-provisioning validation chain remains out of scope for onboarding.
 
-**Open verification (Pace 1 Q7)**: `zrbrr_kindle` must tolerate pre-depot-setup state — an onboarding user may have `rbrr.env` with placeholder values before they've provisioned GCP infrastructure. Pace 1 verifies this empirically before Pace 2 commits to the approach. If kindle refuses to succeed on placeholder values, the architecture needs a different resolution (e.g., a minimal RBRR_DOCS sub-regime, or moving the URL to a lighter regime).
+**Kindle tolerance (resolved in ₢A5AAA)**: GO. `zrbrr_kindle` is schema-only by design — it enrolls variables into the buv validator and reads `RBRR_DNS_SERVER` directly for the `ZRBRR_DOCKER_ENV` array, but does NOT call `buv_vet` (length/format checks) or `buv_dir_exists` (filesystem checks). Those live in `zrbrr_enforce`. Pre-depot-setup state (marshal-zeroed rbrr.env with blanked depot fields but pre-filled DNS/vessel/secrets) succeeds at kindle time. No empirical probe needed — user confirmed this is the established design pattern.
 
 ### README.md is the canonical link landing surface
 
@@ -84,22 +84,36 @@ Cross-linkify ported content with `[term](#Term)` markdown links wherever a Reci
 
 Drop Significant Events from README (relocates to new RBSPH per below). Drop Vision Part One/Part Two narrative as duplicating README's existing How It Works content — replace both with the two-complexity-domain framing.
 
-Apply term renames throughout README per Pace 1's inventory. Confirmed starting points: Bottle Service → crucible, censer → pentacle. Likely more.
+**Term rename scope (resolved in ₢A5AAA)**: essentially empty. The "Bottle Service → crucible" and "censer → pentacle" examples that seeded this concern were old index.html wording already swept by prior work (₣Au verb colorization, ₢AUAAP freshen). Current RBSCO, RBS0 mapping section, README, and all live vov_veiled/ files use current vocabulary. Pace 3 does NOT run a dedicated rename sweep — any incidental corrections fold into the ordinary rewrite. One residual: RBSCO's Aug 23 2025 Significant Events entry mentions "Governor, Director, Mason, and Retriever"; Mason is still valid internal vocabulary (`{rbtr_mason}`, 12 mentions in vov_veiled/) as the build service account role, not a customer-facing role. Since this line relocates to RBSPH as historical record, leave it verbatim.
 
 ### Full retirement of `index.html` and `README.consumer.md`
 
-Both files cease to serve any purpose under the new architecture and get fully deleted from the tree:
+Both files cease to serve any purpose under the new architecture and get fully deleted from the tree. `.nojekyll` joins them — the GitHub Pages jekyll-disable marker becomes vestigial without a github.io publishing target.
 
 - **`index.html`** was a render target for `RBSCO-CosmologyIntro.adoc` (last freshened in ₢AUAAP). The cosmology content now lives in `README.md` (intro section) and RBSCO becomes internal narrative memory. No render target needed at repo root, no `index.html` on any branch after this heat.
 - **`Tools/rbk/vov_veiled/README.consumer.md`** is a stale legacy template that the `rbk-prep-release` ceremony Step 8 copies onto `README.md`. After this heat, that copy operation would overwrite the new authoritative root README with stale content — a real foot-gun. The ceremony step gets rewritten in tandem with the template deletion.
+- **`.nojekyll`** at repo root is a leftover from the github.io publishing target that this heat retires. Delete for cleanliness.
 
 The prep-release ceremony audit in this heat is **full-ceremony scope** (not just Step 8). Every step that references retired files or assumes the old README/index.html architecture needs review and update.
 
+### `CLAUDE.consumer.md` kept and updated, not retired (resolved in ₢A5AAA)
+
+Unlike `README.consumer.md`, `CLAUDE.consumer.md` is **kept as the canonical Claude Code ship template**. It is not a duplicate of the root `CLAUDE.md` — root `CLAUDE.md` contains internal development-only content (File Acronym Mappings, Prefix Naming Discipline, heat workflow discipline, JJK/VVK/CMK bindings) that cannot and should not serve customers. Consumer `CLAUDE.md` is a distinct customer-facing document. The prep-release Step 8 copy operation for `CLAUDE.consumer.md` → `CLAUDE.md` is the intended mechanism: at ship time, the internal development CLAUDE.md is replaced by the consumer template. No overwrite hazard.
+
+**Stale references to update in place** (Pace 4 mechanical edit):
+
+- Line 13: `tt/rbw-gO.Onboarding.sh` → `tt/rbw-go.OnboardMAIN.sh`
+- Glossary (lines 18-31): currently 11 terms; align with README's 27-term canonical form or trim to a curated introductory subset (decision during Pace 4)
+
+Everything else in `CLAUDE.consumer.md` (verb guide, role table, regime inspection, architecture) appears current per audit.
+
 ### Project history relocates to new RBSPH
 
-`Tools/rbk/vov_veiled/RBSPH-ProjectHistory.adoc` is created to hold the Significant Events timeline currently embedded in RBSCO. Terse — bullet-style entries, no narrative wrapping. **Commented-out entries** (e.g., the `// | Feb 23, 2022 | Got Docker ID.` lines) are preserved verbatim as historical notes the project may want to reactivate later.
+`Tools/rbk/vov_veiled/RBSPH-ProjectHistory.adoc` is created to hold the Significant Events timeline currently embedded in RBSCO. Format: preserve RBSCO's AsciiDoc table structure (`[%header,cols="1,3"]`) — terser than bullets for date-driven chronology and preserves comment syntax cleanly. **Commented-out entries** (e.g., the `// | Feb 23, 2022 | Got Docker ID.` lines) are preserved verbatim as historical notes the project may want to reactivate later.
 
-RBSCO sheds the timeline and becomes the project's narrative-and-vision spec doc, no longer a render target. Its header comment is updated to reflect the new purpose. Pace 1 literally drafts the replacement header comment so Pace 4 has no ambiguity.
+RBSCO sheds the timeline and becomes the project's narrative-and-vision spec doc, no longer a render target. Its header comment is updated to reflect the new purpose.
+
+**Header format shift (resolved in ₢A5AAA)**: both RBSPH's new header and RBSCO's rewritten header use **first-class document prose**, not AsciiDoc comment blocks. The comment form was a relic of the old render pipeline where `index.adoc` generated `index.html` — with `vov_veiled/` fully withheld from customers, purpose and ancestry become ordinary document content. Pace 1 drafted both headers verbatim; Pace 4 pastes them as drafted.
 
 ### Push destination for this refresh
 
@@ -113,7 +127,6 @@ The first refresh commit lands on `bhyslop/recipemuster` (origin) only. The PR c
 - **RBS0 ↔ README drift audit slash command (`/rbk-audit-readme`).** The drift between RBS0's mapping section and README's glossary is real but small today. Build the audit when the cost of drift becomes visible in practice.
 - **PR ceremony from `bhyslop/recipemuster` to `scaleinv/recipebottle`.** This heat ends at origin commit. The origin-to-public push is its own future heat, likely scheduled around first actual release.
 - **Cosmology narrative as a full essay.** Pace 3 produces a working intro section from RBSCO's highlights. Further polish or expansion of the project narrative voice is its own future work.
-- **Parallel `CLAUDE.consumer.md` audit and retirement.** Pace 1 Q8 checks whether the same template-copy-overwrite concern applies. If yes, retirement is included in Pace 4. If no, defer.
 
 ## Provenance
 
@@ -133,24 +146,34 @@ The RBS0 constraint — `.adoc` files never ship, the spec language is proprieta
 
 **Mid-chat discovery**: during the design conversation, two recent structural commits in the tree were not in the agent's initial mental model: ₢A3AAI renamed `bug_guide.sh` → `buh_handbook.sh` (all `bug_*` identifiers became `buh_*`), and ₢A3AAJ retired `rbgm_ManualProcedures.sh` by splitting it into `rbho_onboarding.sh` + `rbhp_payor.sh`. Any future work in this heat should use the current names (`buh_*`, `zrbho_*`, `zrbhp_*`); any grep for the old names during Paces 2-4 should come up empty.
 
+**Paddock damage discovered during ₢A5AAA (officium ☉260409-1007)**: the original paddock (committed as 906d3e3c) carried several stale framings from its curry pass:
+
+1. **Phantom term renames**: "Confirmed starting points: Bottle Service → crucible, censer → pentacle" cited examples that were already swept by prior heats (verb colorization ₣Au, freshen ₢AUAAP). Grep of current RBSCO returned zero hits. The rename sweep framing was obsolete.
+2. **Consumer count miscount**: "Only two consumers exist" undercounted the rbho_onboarding.sh reader — the file has 6 call sites to `${RBGC_PUBLIC_DOCS_URL}`, not one.
+3. **Cosmology port line budget overestimate**: "50-100 lines" estimate was ~2-3x reality; the actual port is ~30 lines since README's existing How It Works covers most of the same ground.
+4. **`CLAUDE.consumer.md` misframed as parallel retirement concern**: deferred list treated it as "if yes, retirement is included in Pace 4; if no, defer." The correct framing is kept-and-updated — different audience from internal CLAUDE.md, no overwrite hazard, the prep-release Step 8 copy IS the intended mechanism.
+
+These corrections were resolved through live conversation review during ₢A5AAA and baked into both this paddock (in place) and the downstream pace dockets (AAB, AAC, AAD). The original Q1-Q11 docket structure for ₢A5AAA was collapsed into the resolved-answer form — the memo deliverable was replaced by inline resolution in the pace docket itself.
+
 "Refresh" in the silks came after the first attempt ("first imprint") was flagged as collision-prone with BUK's existing "imprint" tabtarget terminology. "Refresh" names the goal plainly: the public docs surface is stale and needs refreshing to a correct, current shape.
 
 ## References
 
-- `Tools/rbk/rbho_onboarding.sh` — onboarding code; the `buh_tlt` link caller that will consume `RBRR_PUBLIC_DOCS_URL` directly
-- `Tools/rbk/rbho_cli.sh` — onboarding CLI; gains RBRR sourcing
-- `Tools/rbk/rbgc_Constants.sh` — `RBGC_PUBLIC_DOCS_URL` constant to be deleted
-- `Tools/rbk/rbrr_regime.sh` — RBRR enrollment; target for new field
+- `Tools/rbk/rbho_onboarding.sh` — onboarding code; 6 call sites to `${RBGC_PUBLIC_DOCS_URL}` (lines 320, 341, 442, 564, 786, 904) all updated to `${RBRR_PUBLIC_DOCS_URL}` in Pace 2
+- `Tools/rbk/rbho_cli.sh` — onboarding CLI; gains RBRR sourcing (source rbrr_regime.sh + rbrr.env + zrbrr_kindle, NOT zrbrr_enforce)
+- `Tools/rbk/rbgc_Constants.sh` — `RBGC_PUBLIC_DOCS_URL` constant to be deleted (line 80)
+- `Tools/rbk/rbrr_regime.sh` — RBRR enrollment; new "Public Docs" group added, single `buv_string_enroll` with bounds 1 512
 - `Tools/rbk/vov_veiled/RBSRR-RegimeRepo.adoc` — spec for RBRR; target for new field documentation
 - `.rbk/rbrr.env` — the one and only RBRR instance file; target for new URL value
-- `README.md` — current root README (348 lines); rewrite target
-- `index.html` — to be deleted
-- `Tools/rbk/vov_veiled/README.consumer.md` — to be deleted (and ceremony audit)
-- `Tools/rbk/vov_veiled/CLAUDE.consumer.md` — parallel concern; Pace 1 Q8 decides fate
-- `Tools/rbk/vov_veiled/RBSCO-CosmologyIntro.adoc` — source of porting content; header comment rewritten; Significant Events removed after RBSPH populated
-- `Tools/rbk/vov_veiled/RBSHR-HorizonRoadmap.adoc` — to read for achieved-vs-gap audit feeding the README project-direction subsection
-- `Tools/rbk/vov_veiled/RBSPH-ProjectHistory.adoc` — to be created with relocated Significant Events
-- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc` — mapping section for canonical term definitions; reference for term rename inventory
+- `README.md` — current root README (348 lines); rewrite target (~30 line growth expected, not 50-100)
+- `index.html` — to be deleted (504 lines, the retired render target)
+- `.nojekyll` — to be deleted (vestigial GitHub Pages marker)
+- `Tools/rbk/vov_veiled/README.consumer.md` — to be deleted (stale template, ceremony foot-gun)
+- `Tools/rbk/vov_veiled/CLAUDE.consumer.md` — **kept**, stale tabtarget refs updated in place
+- `Tools/rbk/vov_veiled/RBSCO-CosmologyIntro.adoc` — source of porting content; header rewritten as first-class prose; Significant Events removed after RBSPH populated
+- `Tools/rbk/vov_veiled/RBSHR-HorizonRoadmap.adoc` — audit for achieved-vs-gap list (only egress lockdown fully implemented; rest legitimately-deferred; CDN/CIDR weakness worth naming in README Project Direction)
+- `Tools/rbk/vov_veiled/RBSPH-ProjectHistory.adoc` — to be created with relocated Significant Events, header as first-class prose
+- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc` — mapping section for canonical term definitions; audit found no stale attribute resolutions
 - `Tools/buk/buh_handbook.sh` — handbook display module; where `buh_tltT` lives (added in ₢A3AAF, renamed from `bug_*` in ₢A3AAI)
-- `.claude/commands/rbk-prep-release.md` — ceremony; full-scope audit target
+- `.claude/commands/rbk-prep-release.md` — ceremony; Pace 1 Q9 produced per-step delta list baked into AAD docket
 - ₣A3 paddock — onboarding development context (furloughed for duration of this heat)
