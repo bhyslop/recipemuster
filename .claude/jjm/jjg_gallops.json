@@ -1,6 +1,6 @@
 {
   "schema_version": 4,
-  "next_heat_seed": "A7",
+  "next_heat_seed": "A8",
   "heat_order": [
     "₣Az",
     "₣An",
@@ -19,7 +19,8 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au"
+    "₣Au",
+    "₣A7"
   ],
   "heats": {
     "₣A5": {
@@ -383,6 +384,15 @@
           ]
         }
       }
+    },
+    "₣A7": {
+      "silks": "rbk-mvp-3-regime-scrub",
+      "creation_time": "260409",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uAl7.md",
+      "paces": {}
     },
     "₣AD": {
       "silks": "vos-spec-and-tooling",
