@@ -84,6 +84,12 @@ zrbz_kindle() {
   buz_enroll RBZ_ONBOARD_PAYOR         "rbw-gOP" "${z_mod}" "rbho_payor"      ""  "Payor walkthrough — GCP project, billing, and OAuth setup"
   buz_enroll RBZ_ONBOARD_REFERENCE     "rbw-gOr" "${z_mod}" "rbho_reference"  ""  "Reference — all roles, all units, single health dashboard"
 
+  # Onboarding — handbook restart (rbw-o terminal + rbw-O* family, see ₣A6 paddock)
+  buz_group RBZ__GROUP_ONBOARDING "rbw-o"   "Onboarding — Handbook restart"
+  z_mod="rbho_cli.sh"
+  buz_enroll RBZ_ONBOARD_START_HERE    "rbw-o"   "${z_mod}" "rbho_start_here"   ""  "Onboarding start — probe-aware menu into handbook tracks"
+  buz_enroll RBZ_ONBOARD_CRASH_COURSE  "rbw-Occ" "${z_mod}" "rbho_crash_course" ""  "Crash Course — universal prerequisite: tabtargets, regimes, Marshal Zero"
+
   # Hallmark — registry artifact lifecycle (rbw-h, UPPER=mutates GAR, lower=read/local)
   buz_group RBZ__GROUP_HALLMARK   "rbw-h"   "Hallmark — Registry artifact lifecycle"
   z_mod="rbfd_cli.sh"

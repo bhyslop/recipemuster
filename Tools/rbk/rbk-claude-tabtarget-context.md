@@ -60,6 +60,13 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-gOP` | OnboardPayor | — | Payor walkthrough — GCP project, billing, and OAuth setup |
 | `rbw-gOr` | OnboardReference | — | Reference — all roles, all units, single health dashboard |
 
+### Onboarding — Handbook restart (`rbw-o`)
+
+| Colophon | Frontispiece | Folio | Purpose |
+|----------|-------------|-------|---------|
+| `rbw-o` | OnboardingStartHere | — | Onboarding start — probe-aware menu into handbook tracks |
+| `rbw-Occ` | OnboardingCrashCourse | — | Crash Course — universal prerequisite: tabtargets, regimes, Marshal Zero |
+
 ### Hallmark — Registry artifact lifecycle (`rbw-h`)
 
 | Colophon | Frontispiece | Folio | Purpose |
