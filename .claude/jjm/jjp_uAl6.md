@@ -17,7 +17,7 @@ After A3 retires, this heat consumes `Tools/rbk/rbho_onboarding.sh` as the home 
 
 A3 produced onboarding guides organized around four "role tracks" (retriever, director, governor, payor). The decomposition followed **authorization boundaries** — which roles can perform which actions. But learners don't come to the tool with a role; they come with an **intent**. They want to explore local containers, evaluate the cloud build engine, set up billing, or administer credentials. Role-tracks answered "what can I do next?" but never "what does this mean?" The teaching was setup-oriented, not understanding-oriented.
 
-Breakthrough insight (from interview in `☉260409-1001`): **learners decompose along intent and goal, not along authorization**. The same probe can appear in multiple handbooks with different teaching contexts. The same role can appear in multiple tracks for different learner goals. Authorization gates actions; intent shapes learning.
+Breakthrough insight (from the interview distilled in this paddock): **learners decompose along intent and goal, not along authorization**. The same probe can appear in multiple handbooks with different teaching contexts. The same role can appear in multiple tracks for different learner goals. Authorization gates actions; intent shapes learning.
 
 ## Design Decision Record
 
@@ -124,6 +124,19 @@ Working titles, evocative and distinct from the prior role placeholders. **All n
 - **Secret Handling Primer** — the RBRA distribution lesson, appearing as a unit in Knight the Realm (governor side, distributing) and Receive Your Knighthood (recipient side, placing). Teaches operational handling knowledge — *what it is, how to handle, where it goes* — without teaching *how to read*.
 - **Depot Relationships** — the user flagged wanting good intro text explaining "what a Depot is and how Directors dictate its content but Retrievers use it." This is a relational teaching unit that may appear verbatim in multiple tracks. Candidate for a shared snippet consumed by multiple handbooks.
 
+## Public-Docs Anchor Coordination with `₣A5`
+
+Handbook sequences link into `${RBGC_PUBLIC_DOCS_URL}#{Anchor}` where `{Anchor}` is a **PascalCase single word per concept**. `₣A5` (rbk-mvp-3-public-docs-refresh) curates `README.md` to host these anchors; `₣A6` consumes them. The coupling is load-bearing — either heat changing an anchor requires the other heat to update references. This list is the shared truth.
+
+**Existing** (live callers in `Tools/rbk/rbho_onboarding.sh` — must survive A5's refresh):
+`Retriever`, `Director`, `Governor`, `Payor`, `Depot`, `Vessel`, `Hallmark`, `Summon`, `Vouch`, `Plumb`, `Bottle`, `Nameplate`, `Sentry`, `Pentacle`, `Charge`, `Quench`
+
+**New for Crash Course** (`₢A6AAA`): A5 must add during its refresh.
+`Tabtarget`, `Regime`, `RBRR`, `BURC`, `BURS`, `MarshalZero`, `DiagnosticFailure`
+
+**New for later tracks** (added per pace as each track is drafted; non-final):
+`Crucible`, `Kludge`, `Ordain`, `Conjure`, `Bind`, `Graft`, `Reliquary`, `Enshrine`, `Charter`, `Knight`, `RBRP`, `RBRV`, `RBRN`, `OAuth`, `ConsentScreen`, `Airgap`, `Tethered`
+
 ## Teaching Voice
 
 Teaching content is **vocabulary-first and relational**. The example the user articulated during interview: *"I want good intro text to what a 'Depot' is and how 'Directors' dictate its content but 'Retrievers' use it."* This is the shape of good teaching — nouns introduced in relation to each other, verbs connecting them, roles emerging from what they do to the nouns rather than abstract job titles.
@@ -134,6 +147,12 @@ Principles:
 - Roles emerge from actions, not labels
 - Each new term has a reason to exist at the moment of introduction
 - Avoid "X is defined as Y" — prefer "when you X, you Y, which is called Z"
+
+The load-bearing primitive for vocabulary-first teaching is `buh_tlt` from `Tools/buk/buh_handbook.sh`:
+```bash
+buh_tlt "  A " "depot" "${z_docs}#Depot" " is the facility where container images are built and stored."
+```
+Renders the noun as a clickable OSC-8 hyperlink to the public-docs anchor. Every new concept introduced to a learner should be a `buh_tlt` call on its first mention.
 
 ## Release Gate: Agent-Learner Evaluation
 
@@ -154,7 +173,7 @@ This heat runs on interview-implement-interview cycles, not linear execution.
 
 | Pace kind | Produces |
 |-----------|----------|
-| **Interview-paddock** | Interview transcript + paddock refinement + spec for next implementation pace(s) |
+| **Interview-paddock** | Paddock refinement + spec for next implementation pace(s) |
 | **Implement-{track}** | Working handbook tabtarget for one track, tested via agent-learner eval |
 | **Interview-reconcile** | Absorption of implementation findings + spec for next implementation pace |
 
@@ -180,27 +199,45 @@ Items that can wait until later interview passes (between implementations):
 - **Shared snippet mechanism** — how do Depot Relationships and Secret Handling Primer appear in multiple handbooks without duplication?
 - **Probe-aware menu implementation** — mechanism for triage probes and dynamic highlighting
 - **Track name refinement** — current roster is rough; final names come from iteration
-- **"Kindle" vocabulary overload** — the rough track "Kindle Your First Crucible" overloads the verb "kindle", which is already used in BUK/zipper vocabulary for module kindling (colophon→module→command array generation). The BUK usage is implementer-facing and learners don't directly encounter it, so the overload may be tolerable; alternatively, pick a different verb for the crucible track. Flagged during interview `☉260409-1001`, resolution deferred to track-name refinement.
+- **"Kindle" vocabulary overload** — the rough track "Kindle Your First Crucible" overloads the verb "kindle", which is already used in BUK/zipper vocabulary for module kindling (colophon→module→command array generation). The BUK usage is implementer-facing and learners don't directly encounter it, so the overload may be tolerable; alternatively, pick a different verb for the crucible track. Flagged during the prior interview, resolution deferred to track-name refinement.
 - **Wait-time pedagogy for the first long-running track implementation**
 
 ## Provenance
 
-Interview conducted in officium `☉260409-1001`. Key turning points:
+Interview conducted in a prior chat session whose jjk officium identity was `☉260409-1001`. **No retrievable transcript exists** — officia record identity, not conversation content. This paddock is the authoritative digest of the interview.
+
+### Key turning points from the interview
+
 - User articulated that role tracks are a malformation — authorization ≠ intent
 - User articulated concern for teaching NOVEL vocabulary specifically (not general containers/GCP)
 - User proposed probe-aware handbook with checkmark redisplay, refining interviewer's Frame 4 into Frame 4-refined
-- User initially confirmed `tt/rbw-h?` as the new tabtarget prefix family; collision with the existing `rbw-h` Hallmark family (`rbw-hO` DirectorOrdainsHallmark, `rbw-hk` LocalKludge, `rbw-hA` DirectorAbjuresHallmark, `rbw-ht` DirectorTalliesHallmarks, `rbw-hV` DirectorVouchesHallmarks, `rbw-hs` RetrieverSummonsHallmark, `rbw-hpf` RetrieverPlumbsFull, `rbw-hpc` RetrieverPlumbsCompact — 8 tabtargets) was caught post-interview when mounting `₢A6AAA`. Corrected to a two-colophon scheme: `rbw-o` (lowercase, terminal) for `OnboardingStartHere`, and `rbw-O*` (uppercase family) for individual handbook tracks (`rbw-Occ` etc.). Case-split family deliberately chosen for starting-letter clarity. **Lesson**: mint-time namespace verification must sweep the existing tabtarget tree (`ls tt/`), not only the paddock's own proposals — a project-prefix check against CLAUDE.md's registry is insufficient when prefixes have families with reserved subfunction letters.
+- User initially confirmed `tt/rbw-h?` as the new tabtarget prefix family (corrected post-interview — see Mounting corrections below)
 - User identified implementation burden (not learner burden) as reason to drop step recording
 - User surfaced additional learner profiles through the interview exercise ("crumbs I forgot")
 - User asked for intimate track names distinct from prior role placeholders
 
+### Mounting corrections caught in `₢A6AAA`
+
+**Prefix collision**: `rbw-h?` (initially confirmed during interview) collided with the existing `rbw-h` Hallmark family — 8 tabtargets: `rbw-hO` DirectorOrdainsHallmark, `rbw-hk` LocalKludge, `rbw-hA` DirectorAbjuresHallmark, `rbw-ht` DirectorTalliesHallmarks, `rbw-hV` DirectorVouchesHallmarks, `rbw-hs` RetrieverSummonsHallmark, `rbw-hpf` RetrieverPlumbsFull, `rbw-hpc` RetrieverPlumbsCompact. Corrected to the two-colophon scheme: `rbw-o` (lowercase, terminal) for `OnboardingStartHere` + `rbw-O*` (uppercase family) for individual handbook tracks (`rbw-Occ` for Crash Course, etc.). Case-split family chosen deliberately for starting-letter clarity.
+
+**Transcript phantom**: The original docket and this Provenance section referenced "interview transcript" as if the officium were a retrievable archive. It is not — officia record identity only; conversation content is not persisted. Only jjk commands that write to paddocks, dockets, or gazette files leave durable traces. Docket and this paddock updated accordingly; this paddock is the authoritative digest.
+
+### Lessons
+
+- **Mint-time namespace verification** must sweep the existing tabtarget tree (`ls tt/`), not only the paddock's own proposals — a project-prefix check against CLAUDE.md's registry is insufficient when prefixes have families with reserved subfunction letters.
+- **Officium identity ≠ officium archive**. Treat `☉` references as provenance markers, not as fetchable artifacts. If a prior session's conversation content matters beyond the committed paddock/docket state, capture it explicitly at the time — a memo, a paddock section, a design-note commit. Retroactive archaeology is not available.
+
 ## References
 
 ### Code and configuration
-- `Tools/rbk/rbho_onboarding.sh` — new home for handbook functions (post-A3)
+- `Tools/rbk/rbho_onboarding.sh` — home for new handbook sequence functions
+- `Tools/rbk/rbho_cli.sh` — CLI furnish (sources buh, rbcc, rbgc, rbz, rbho; kindles dependencies)
 - `Tools/rbk/rbhp_payor.sh` — payor ceremonies (post-A3)
 - `Tools/rbk/rblm_cli.sh` — `rblm_zero()` produces the invalid-state baseline that teaches diagnostic failure
-- `Tools/buk/buh_handbook.sh` — display module for handbook tabtargets (post-α rename)
+- `Tools/rbk/rbz_zipper.sh` — rbw colophon registry; new `RBZ__GROUP_ONBOARDING` added here
+- `Tools/rbk/rbgc_Constants.sh` — defines `RBGC_PUBLIC_DOCS_URL`
+- `Tools/buk/buh_handbook.sh` — display module for handbook tabtargets; `buh_tlt` is the vocabulary-first primitive
+- `Tools/buk/buz_zipper.sh` — generic zipper mechanism (`buz_group`, `buz_enroll`, `buz_exec_lookup`)
 - `.rbk/rbrr.env` — concrete RBRR example
 - `.buk/burc.env` — concrete BURC example
 - `Tools/rbk/rbrp_regime.sh` — RBRP validator (reveals payor identity field shape)
@@ -214,6 +251,7 @@ Interview conducted in officium `☉260409-1001`. Key turning points:
 
 ### Prior work
 - `₣A3` paddock — contains the role-track design this heat supersedes
+- `₣A5` paddock — public-docs refresh; coordinates anchor curation with this heat
 - `₣AU` paddock — MVP-3 release context from which A3 was spun
 
 ### External
