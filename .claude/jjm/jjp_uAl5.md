@@ -128,6 +128,16 @@ The first refresh commit lands on `bhyslop/recipemuster` (origin) only. The PR c
 - **PR ceremony from `bhyslop/recipemuster` to `scaleinv/recipebottle`.** This heat ends at origin commit. The origin-to-public push is its own future heat, likely scheduled around first actual release.
 - **Cosmology narrative as a full essay.** Pace 3 produces a working intro section from RBSCO's highlights. Further polish or expansion of the project narrative voice is its own future work.
 
+## Additional Safety Paces
+
+Two paces extend the core refresh work with targeted safety passes that are not part of the DDR above:
+
+- **₢A5AAE (retention audit)** — a post-rewrite second-look pass catching content that may have been lost during AAC's rewriting motion. Produces a memo classifying dropped passages (obsolete / better-placed-elsewhere / should-reappear-in-README), then applies user-approved re-additions. Added because content-loss during rewrites is hard to see from inside the rewriting motion; not a duplicate of AAA's inventory work, which ran *before* any rewrite. Produces a `Memos/memo-*.md` artifact — intentionally different from AAA's "dockets ARE the deliverable" pattern, because a retention audit has standalone future-reference value.
+
+- **₢A5AAF (SVG vocabulary review)** — closes an audit gap from ₢A5AAA Q1. That grep scoped RBSCO, RBS0, README, and live vov_veiled/ files but **not** `rbm-abstract-drawio.svg`, so the SVG remains the one surface where stale vocabulary might still live. Claude advises via a directive list; the user performs all drawio edits (hard boundary — Claude does not touch the SVG source). Ensures the embedded architecture diagram doesn't carry stale vocabulary into the refreshed README.
+
+Neither pace alters the core refresh scope; both run after AAC/AAD land.
+
 ## Provenance
 
 Emerged from chat in officium ☉260409-1000 during ₢A3AAF investigation of the underline-bleed bug. The bug fix itself was notched in ₢A3AAF as commit 930ca93f. Further investigation of *where* the fixed links actually land surfaced this heat's architectural concerns.
