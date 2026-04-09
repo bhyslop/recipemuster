@@ -1620,9 +1620,10 @@
         "₢A3AAD",
         "₢A3AAE",
         "₢A3AAH",
+        "₢A3AAI",
         "₢A3AAF"
       ],
-      "next_pace_seed": "AAI",
+      "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_uAl3.md",
       "paces": {
         "₢A3AAA": {
@@ -2018,6 +2019,17 @@
               "text": "## Character\nMechanical find-and-replace across README.md and guide callsites. No judgment calls — every anchor gets the same treatment.\n\n## Docket\n\nCapitalize all 27 glossary anchor IDs in README.md from lowercase to title case (e.g., `<a id=\"vessel\">` → `<a id=\"Vessel\">`), and update all references:\n\n### README.md\n- All `<a id=\"...\">` definitions: lowercase → title case\n- All `[text](#anchor)` cross-links within the glossary table\n- All `[**Role**](#role)` links in the roles table\n\n### Guide callsites (rbgm_ManualProcedures.sh)\n- All `bug_tlt` URLs containing `${z_docs}#anchor` fragments\n- After this, `zrbgm_triage_role` drops its 3rd parameter (anchor) and uses `z_name` directly\n\n### Verification\n- All `bug_tlt` URLs resolve to valid anchors\n- All README cross-links resolve\n- Triage helper simplified to 3 parameters",
               "silks": "readme-glossary-anchor-capitalization",
               "commit": "bcb3909"
+            }
+          ]
+        },
+        "₢A3AAI": {
+          "tacks": [
+            {
+              "ts": "260409-0821",
+              "state": "rough",
+              "text": "## Character\nMechanical rename sweep across a known file set — disciplined find/replace, completeness over design judgment. Spans ~900 symbol occurrences but within narrow territory. Prerequisite for Pace β (rbgm split) because that pace consumes `buh_*` symbols.\n\n## Docket\n\nRename the BUK guide module to \"handbook\" to prepare for the `rbh*` Handbook cluster in rbk. This pace only touches BUK and its consumers — it does not yet split rbgm.\n\n### File Rename\n- `Tools/buk/bug_guide.sh` → `Tools/buk/buh_handbook.sh`\n\n### Symbol Renames\n- Public functions: `bug_*` → `buh_*` (e.g., `bug_tlt` → `buh_tlt`, `bug_log_args` → `buh_log_args`)\n- Private helpers: `zbug_*` → `zbuh_*`\n- State variables: `ZBUG_*` → `ZBUH_*` (68 occurrences, all internal to the module)\n- Module identity: `ZBUG_SOURCED` → `ZBUH_SOURCED`, `ZBUG_KINDLED` → `ZBUH_KINDLED`\n- Kindle function: `zbug_kindle` → `zbuh_kindle`\n\n### Live Touch Points (7 files, ~900 occurrences)\n- `Tools/buk/buh_handbook.sh` — renamed file, 48 self-refs + 68 ZBUG_*\n- `Tools/buk/butt_testbench.sh` — 1 ref\n- `Tools/buk/buts/butclc_LinkCombinator.sh` — 11 refs\n- `Tools/rbk/rbgm_ManualProcedures.sh` — **704 refs** (heaviest consumer — deferred rename in Pace β)\n- `Tools/rbk/rbgm_cli.sh` — 3 refs (source path + branch cases)\n- `Tools/rbk/rbgp_cli.sh` — 1 ref\n- `Tools/rbk/rbgp_Payor.sh` — 12 refs\n- `Tools/rbk/rblm_cli.sh` — 59 refs\n- `CLAUDE.md` — 1 ref (acronym map BUG → BUH)\n\n### Infrastructure Touch Points\n- `Tools/buk/buz_zipper.sh` — module registration if bug is tracked there\n- Any workbench kindle calls — `zbug_kindle` → `zbuh_kindle`\n- Any remaining `source .../bug_guide.sh` paths in cli dispatchers\n\n### Historical Record (leave as-is)\n- Retired `jjh_*` files in `.claude/jjm/retired/` — historical record, do not update\n- `.claude/jjm/jjg_gallops.json` — JJ state, commit history is immutable\n- `Memos/memo-20260110-acronym-selection-study.md` — historical analysis, leave untouched\n\n### Validation\n- `tt/buw-st.BukSelfTest.sh` passes (9 cases — exercises the renamed display module)\n- `tt/rbtd-s.TestSuite.fast.sh` passes (75 cases — catches any consumer breakage)\n- Manual smoke: `tt/rbw-go.OnboardMAIN.sh` renders triage correctly; `tt/rbw-gOR.OnboardRetriever.sh` walks through retriever track with term introductions visible via `buh_tlt` links\n\n### Out of Scope\n- Rename of `rbgm → rbho/rbhp` (Pace β)\n- Retirement of `rbgm_onboarding()` old monolithic (Pace β)\n- Any semantic changes to display behavior — this pace is pure rename\n- Updating historical records in retired heats, memos, or gallops state\n\n## References\n- `Tools/buk/bug_guide.sh` — current source of truth\n- `₢A3AAG` (bug-link-combinator) — established the `l` combinator this pace renames\n- `CLAUDE.md` — acronym map to update",
+              "silks": "buh-handbook-rename-sweep",
+              "commit": "930ca93"
             }
           ]
         }
