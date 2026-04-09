@@ -10,6 +10,7 @@
     "₣AI",
     "₣AJ",
     "₣AN",
+    "₣A6",
     "₣A5",
     "₣A4",
     "₣A2",
@@ -23,8 +24,7 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au",
-    "₣A6"
+    "₣Au"
   ],
   "heats": {
     "₣A0": {
@@ -2605,9 +2605,9 @@
       }
     },
     "₣A6": {
-      "silks": "rbk-handbook-pedagogy",
+      "silks": "rbk-mvp-3-handbook-restart",
       "creation_time": "260409",
-      "status": "stabled",
+      "status": "racing",
       "order": [
         "₢A6AAA",
         "₢A6AAB",
