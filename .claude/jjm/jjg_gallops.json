@@ -10,6 +10,7 @@
     "₣AI",
     "₣AJ",
     "₣AN",
+    "₣A5",
     "₣A4",
     "₣A2",
     "₣A1",
@@ -22,8 +23,7 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au",
-    "₣A5"
+    "₣Au"
   ],
   "heats": {
     "₣A0": {
@@ -2521,7 +2521,7 @@
     "₣A5": {
       "silks": "rbk-mvp-3-public-docs-first-imprint",
       "creation_time": "260409",
-      "status": "stabled",
+      "status": "racing",
       "order": [
         "₢A5AAA",
         "₢A5AAB"
