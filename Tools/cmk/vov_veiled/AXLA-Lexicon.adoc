@@ -1776,21 +1776,27 @@ the parent regime (an anchor that voices
 [[axvr_kindle]]
 {axvr_kindle}::
 Voices a regime kindle operation definition.
-The annotated term defines the silent initialization phase for a
+The annotated term is a dedicated
+{mcm_quoin}
+naming the silent initialization phase for exactly one
 {axrg_regime}:
 setting defaults, detecting unexpected variables, and building derived structures.
 
 [[axvr_validate]]
 {axvr_validate}::
 Voices a regime validate operation definition.
-The annotated term defines the strict verification phase for a
+The annotated term is a dedicated
+{mcm_quoin}
+naming the strict verification phase for exactly one
 {axrg_regime}:
 checking all type and constraint requirements, failing on first violation.
 
 [[axvr_render]]
 {axvr_render}::
 Voices a regime render operation definition.
-The annotated term defines the diagnostic display phase for a
+The annotated term is a dedicated
+{mcm_quoin}
+naming the diagnostic display phase for exactly one
 {axrg_regime}:
 producing human-readable presentation of current state.
 Rendering occurs before validation so all fields are visible on failure.
@@ -1798,7 +1804,9 @@ Rendering occurs before validation so all fields are visible on failure.
 [[axvr_list]]
 {axvr_list}::
 Voices a regime list operation definition.
-The annotated term defines an enumeration operation for an
+The annotated term is a dedicated
+{mcm_quoin}
+naming the enumeration operation for exactly one
 {axrd_manifold}
 {axrg_regime}:
 listing available instances.
@@ -1806,14 +1814,18 @@ listing available instances.
 [[axvr_survey]]
 {axvr_survey}::
 Voices a regime survey operation definition.
-The annotated term defines a read-only cross-instance summary operation for an
+The annotated term is a dedicated
+{mcm_quoin}
+naming the read-only cross-instance summary operation for exactly one
 {axrd_manifold}
 {axrg_regime}.
 
 [[axvr_audit]]
 {axvr_audit}::
 Voices a regime audit operation definition.
-The annotated term defines a cross-instance validation plus external verification operation for an
+The annotated term is a dedicated
+{mcm_quoin}
+naming the cross-instance validation plus external verification operation for exactly one
 {axrd_manifold}
 {axrg_regime}.
 

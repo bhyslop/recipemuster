@@ -2480,7 +2480,7 @@ Repository-wide configuration and installation-wide settings shared across all
 operations.
 
 [[rbrr_depot_project_id]]
-//axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtg_project_id
+//axl_voices axrg_variable axtg_project_id
 {rbrr_depot_project_id}::
 {gcp_service}
 {gcp_project_id}
@@ -2489,7 +2489,7 @@ where all
 resources are created and managed.
 
 [[rbrr_gcp_region]]
-//axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtg_region
+//axl_voices axrg_variable axtg_region
 {rbrr_gcp_region}::
 Default
 {gcp_service}
@@ -2499,7 +2499,7 @@ and
 {gcb_service}.
 
 [[rbrr_gar_repository]]
-//axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtg_project_id
+//axl_voices axrg_variable axtg_project_id
 {rbrr_gar_repository}::
 {gar_service}
 {rbtgi_repository}
@@ -2511,7 +2511,7 @@ and
 {rbtgi_metadata_s}.
 
 [[rbrr_secrets_dir]]
-//axl_voices axrg_variable axvr_kindle axvr_validate axvr_render axtu_path
+//axl_voices axrg_variable axtu_path
 {rbrr_secrets_dir}::
 Directory containing service account credential files for all operational roles.
 Validated to exist before credential file paths are derived.
