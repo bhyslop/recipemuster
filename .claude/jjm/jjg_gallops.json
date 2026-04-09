@@ -1,6 +1,6 @@
 {
   "schema_version": 4,
-  "next_heat_seed": "A6",
+  "next_heat_seed": "A7",
   "heat_order": [
     "₣A3",
     "₣Az",
@@ -23,7 +23,8 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au"
+    "₣Au",
+    "₣A6"
   ],
   "heats": {
     "₣A0": {
@@ -2552,6 +2553,15 @@
           ]
         }
       }
+    },
+    "₣A6": {
+      "silks": "rbk-handbook-pedagogy",
+      "creation_time": "260409",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uAl6.md",
+      "paces": {}
     },
     "₣AD": {
       "silks": "vos-spec-and-tooling",
