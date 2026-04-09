@@ -209,6 +209,15 @@ buh_tltlt() {
   zbuh_show "${1}${z_frag1}${4}${ZBUH_LINK_FRAG}${7}"
 }
 
+buh_tltltlt() {
+  zbuh_link_fragment "${2}" "${3}"
+  local -r z_frag1="${ZBUH_LINK_FRAG}"
+  zbuh_link_fragment "${5}" "${6}"
+  local -r z_frag2="${ZBUH_LINK_FRAG}"
+  zbuh_link_fragment "${8}" "${9}"
+  zbuh_show "${1}${z_frag1}${4}${z_frag2}${7}${ZBUH_LINK_FRAG}${10}"
+}
+
 ######################################################################
 # Internal: Tabtarget fragment builder
 #

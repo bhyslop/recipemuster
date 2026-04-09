@@ -1086,71 +1086,75 @@ rbho_start_here() {
   # --- Foundation ---
   buh_section "Foundation"
   buh_e
-  buh_t  "  ${z_arrow_cc}Crash Course — reading the map"
-  buh_tT "      Run: " "${RBZ_ONBOARD_CRASH_COURSE}"
-  buh_t  "      Universal prerequisite. Tabtargets, regimes, the diagnostic-failure"
-  buh_t  "      pattern. Local-only, no cloud."
+  buh_t   "  ${z_arrow_cc}Crash Course — reading the map"
+  buh_tT  "      Run: " "${RBZ_ONBOARD_CRASH_COURSE}"
+  buh_tlt "      Universal prerequisite. " "Tabtargets" "${z_docs}#Tabtarget" ","
+  buh_tltlt "      " "Regimes" "${z_docs}#Regime" ", the " "Diagnostic Failure" "${z_docs}#DiagnosticFailure" " pattern. Local-only, no cloud."
   buh_e
-  buh_t  "  ${z_arrow_tys}Take Your Station  [planned]"
-  buh_t  "      Joining an existing configured project. Verify your credential file"
-  buh_t  "      placement, run access probes, confirm you can operate in your role(s)."
+  buh_t   "  ${z_arrow_tys}Take Your Station  [planned]"
+  buh_t   "      Joining an existing configured project. Verify your credential file"
+  buh_t   "      placement, run access probes, confirm you can operate in your role(s)."
   buh_e
 
   # --- Role-intent tracks ---
   buh_section "Role-intent tracks"
   buh_e
-  buh_t  "    Your First Crucible  [planned]"
-  buh_t  "      Crucible explorer — local sandbox with kludged hallmarks. The tightest"
-  buh_t  "      feedback loop in the system. No cloud."
+  buh_tlt "    Your First " "Crucible" "${z_docs}#Crucible" "  [planned]"
+  buh_tlt "      " "Crucible" "${z_docs}#Crucible" " explorer — local sandbox with"
+  buh_tltlt "      " "Kludged" "${z_docs}#Kludge" " " "Hallmarks" "${z_docs}#Hallmark" ". The tightest feedback loop"
+  buh_t   "      in the system. No cloud."
   buh_e
-  buh_t  "  ${z_arrow_etd}Establish the Depot  [planned]"
-  buh_t  "      Payor ceremony (~15 minutes): GCP project, OAuth consent screen,"
-  buh_t  "      billing, RBRR initial population. The ground truth other tracks rest on."
+  buh_tlt "  ${z_arrow_etd}Establish the " "Depot" "${z_docs}#Depot" "  [planned]"
+  buh_tlt "      " "Payor" "${z_docs}#Payor" " ceremony (~15 minutes): GCP project, OAuth consent screen,"
+  buh_tlt "      billing, RBRR initial population. A " "Depot" "${z_docs}#Depot" " is the facility where the"
+  buh_t   "      team's container images are built and stored — the ground truth other"
+  buh_t   "      tracks rest on."
   buh_e
-  buh_t  "    Knight the Realm  [planned]"
-  buh_t  "      Governor track: create governor/director/retriever SAs, issue"
-  buh_t  "      credentials, distribute securely."
+  buh_tlt "    " "Knight" "${z_docs}#Knight" " the Realm  [planned]"
+  buh_tlt "      " "Governor" "${z_docs}#Governor" " track: administer the full role ladder. Create"
+  buh_tltlt "      " "Director" "${z_docs}#Director" " and " "Retriever" "${z_docs}#Retriever" " service accounts, issue"
+  buh_t   "      credentials, distribute securely."
   buh_e
-  buh_t  "    Receive Your Knighthood  [planned]"
-  buh_t  "      Director/retriever: place your credential file, verify via access"
-  buh_t  "      probe, understand sensitivity."
+  buh_tlt "    Receive Your " "Knighthood" "${z_docs}#Knight" "  [planned]"
+  buh_tltlt "      " "Director" "${z_docs}#Director" "/" "Retriever" "${z_docs}#Retriever" ": place your credential file, verify"
+  buh_t   "      via access probe, understand sensitivity."
   buh_e
 
   # --- Director subtracks ---
   buh_section "Director subtracks"
   buh_e
-  buh_t  "    Your First Ordination    [planned]  — one vessel, one ordain mode"
-  buh_t  "    Enshrine the Ancestors   [planned]  — base image enshrinement"
-  buh_t  "    Inscribe the Reliquary   [planned]  — reliquary management"
-  buh_t  "    Tethered Cloud Builds    [planned]  — cloud build from workstation"
-  buh_t  "    Airgap Your Builds       [planned]  — most restrictive ordain mode"
-  buh_t  "    Building for Crucibles   [planned]  — build crucible test targets"
+  buh_tltltlt "    Your First " "Ordination" "${z_docs}#Ordain" "    [planned]  — one " "Vessel" "${z_docs}#Vessel" ", one " "Ordain" "${z_docs}#Ordain" " mode"
+  buh_tlt     "    " "Enshrine" "${z_docs}#Enshrine" " the Ancestors   [planned]  — base image enshrinement"
+  buh_t       "    Inscribe the Reliquary   [planned]  — reliquary management"
+  buh_t       "    Tethered Cloud Builds    [planned]  — cloud build from workstation"
+  buh_tlt     "    Airgap Your Builds       [planned]  — most restrictive " "Ordain" "${z_docs}#Ordain" " mode"
+  buh_tlt     "    Building for " "Crucibles" "${z_docs}#Crucible" "   [planned]  — build crucible test targets"
   buh_e
 
   # --- Evaluation ---
   buh_section "Evaluation"
   buh_e
-  buh_t  "    Assay the Realm  [planned]"
-  buh_t  "      Enterprise evaluator — tour of ordain modes, enshrinement,"
-  buh_t  "      reliquaries, airgap. Breadth over depth."
+  buh_t   "    Assay the Realm  [planned]"
+  buh_tltlt "      Enterprise evaluator — tour of " "Ordain" "${z_docs}#Ordain" " modes, " "Enshrinement" "${z_docs}#Enshrine" ","
+  buh_t   "      reliquaries, airgap. Breadth over depth."
   buh_e
 
   # --- Reference ---
   buh_section "Reference"
   buh_e
-  buh_tT "    Realm Dashboard: " "${RBZ_ONBOARD_REFERENCE}"
-  buh_t  "      Current health of all roles and units, reference format."
+  buh_tT  "    Realm Dashboard: " "${RBZ_ONBOARD_REFERENCE}"
+  buh_t   "      Current health of all roles and units, reference format."
   buh_e
 
   # --- Find your role / legacy fallback ---
   buh_section "Find your role"
   buh_e
-  buh_t  "  If you don't know which path to pick: run the Crash Course first."
-  buh_t  "  It explains the apparatus and points you forward."
+  buh_t   "  If you don't know which path to pick: run the Crash Course first."
+  buh_t   "  It explains the apparatus and points you forward."
   buh_e
-  buh_t  "  A legacy role-organized triage is preserved during this heat as a"
-  buh_t  "  fallback for anyone who already knows their role:"
-  buh_tT "    " "${RBZ_ONBOARD_TRIAGE}"
+  buh_t   "  A legacy role-organized triage is preserved during this heat as a"
+  buh_t   "  fallback for anyone who already knows their role:"
+  buh_tT  "    " "${RBZ_ONBOARD_TRIAGE}"
   buh_e
 }
 
@@ -1165,20 +1169,20 @@ rbho_start_here() {
 rbho_crash_course() {
   # No sentinel — works pre-kindle (probes filesystem only)
 
-  buc_doc_brief "Crash Course — universal prerequisite: tabtargets, regimes, Marshal Zero first lesson"
+  buc_doc_brief "Crash Course — universal prerequisite: tabtargets, regimes, reading diagnostic failures"
   buc_doc_shown || return 0
 
   local -r z_docs="${RBRR_PUBLIC_DOCS_URL}"
 
   # --- Probes ---
+  # BURC is not probed: .buk/burc.env is committed, so it is always present
+  # on any fresh clone. Integrators may customize the file, but its existence
+  # is guaranteed by the repository itself.
   local z_rbrr_project="" z_rbrr_populated=0
   if test -f "${RBBC_rbrr_file}"; then
     z_rbrr_project=$(zrbho_po_extract_capture "${RBBC_rbrr_file}" "RBRR_DEPOT_PROJECT_ID") || z_rbrr_project=""
     test -n "${z_rbrr_project}" && z_rbrr_populated=1
   fi
-
-  local z_burc_present=0
-  test -f ".buk/burc.env" && z_burc_present=1
 
   local z_station_present=0
   if test -n "${BURD_STATION_FILE:-}" && test -f "${BURD_STATION_FILE}"; then
@@ -1200,16 +1204,16 @@ rbho_crash_course() {
   buh_section "  Learning outcomes"
   buh_e
   buh_t   "  After reading this handbook, you can:"
-  buh_t   "    - Invoke any tabtarget and interpret what you see"
-  buh_t   "    - Find the regime behind any behavior you don't understand"
-  buh_t   "    - Recognize a diagnostic failure and read it as teaching"
+  buh_tlt "    - Invoke any " "Tabtarget" "${z_docs}#Tabtarget" " and interpret what you see"
+  buh_tlt "    - Find the " "Regime" "${z_docs}#Regime" " behind any behavior you don't understand"
+  buh_tlt "    - Recognize a " "Diagnostic Failure" "${z_docs}#DiagnosticFailure" " and read it as teaching"
   buh_t   "    - Pick the next track from the StartHere menu"
   buh_e
 
   # --- Unit 1: What you're looking at (teaching-only) ---
   buh_section "  Unit 1 — What you're looking at"
   buh_e
-  buh_tlt "  A " "tabtarget" "${z_docs}#Tabtarget" " is a tiny launcher script in the tt/ directory."
+  buh_tlt "  A " "Tabtarget" "${z_docs}#Tabtarget" " is a tiny launcher script in the tt/ directory."
   buh_t   "  Its filename encodes what it does. Example:"
   buh_e
   buh_t   "      tt/rbw-go.OnboardMAIN.sh"
@@ -1217,42 +1221,83 @@ rbho_crash_course() {
   buh_t   "         \`OnboardMAIN\` is the frontispiece (human-readable description)"
   buh_e
   buh_t   "  Tab completion on the \`tt/\` directory narrows by colophon prefix:"
-  buh_t   "  type \`tt/rbw-<TAB>\` to list every Recipe Bottle command. Every"
-  buh_t   "  tabtarget in this project follows the same shape — project prefix,"
+  buh_tlt "  type \`tt/rbw-<TAB>\` to list every " "Recipe Bottle" "${z_docs}" " command. Every"
+  buh_tlt "  " "Tabtarget" "${z_docs}#Tabtarget" " in this project follows the same shape — project prefix,"
   buh_t   "  family letter, subfunction letter(s), frontispiece."
   buh_e
 
-  # --- Unit 2: Regimes — the configuration map (teaching-only) ---
-  buh_section "  Unit 2 — Regimes, the configuration map"
+  # --- Unit 2: BURC and BURS (project config, personal station) ---
+  buh_section "  Unit 2 — BURC and BURS (project config, personal station)"
   buh_e
-  buh_tlt "  A " "regime" "${z_docs}#Regime" " is a structured configuration file with validation."
-  buh_t   "  Recipe Bottle has thirteen regimes total. Six are user-facing:"
+  buh_tlt "  A " "Regime" "${z_docs}#Regime" " is a structured configuration file with validation — a"
+  buh_t   "  named group of settings with a schema, a renderer, and a validator."
+  buh_tlt "  The first two regimes you meet come from BUK, the bash-utility layer " "Recipe Bottle" "${z_docs}" ""
+  buh_t   "  builds on."
   buh_e
-  buh_t   "    BURC — project-level BUK settings       (.buk/burc.env, checked in)"
-  buh_t   "    BURS — per-developer station            (local, gitignored)"
-  buh_t   "    RBRR — repository regime                (.rbk/rbrr.env, checked in)"
-  buh_t   "    RBRP — payor regime                     (.rbk/rbrp.env, payor-only)"
-  buh_t   "    RBRV — vessel regime                    (per-image)"
-  buh_t   "    RBRN — nameplate regime                 (per-crucible)"
+  buh_tlt "  " "BURC" "${z_docs}#BURC" " is the project config: checked into git, shared by everyone,"
+  buh_t   "  and points the launcher at your station file. Because it ships with"
+  buh_t   "  the repo, it is always present on any fresh clone — no probe needed."
   buh_e
-  buh_t   "  Every regime has the same tabtarget pattern:"
+  buh_t   "  BURC tabtargets:"
+  buh_tc  "    Render:   " "tt/buw-rcr.RenderConfigRegime.sh"
+  buh_tc  "    Validate: " "tt/buw-rcv.ValidateConfigRegime.sh"
   buh_e
-  buh_t   "      tt/rbw-r{L}r.Render{R}Regime.sh   — render current values"
-  buh_t   "      tt/rbw-r{L}v.Validate{R}Regime.sh — validate against rules"
+  buh_tlt "  " "BURS" "${z_docs}#BURS" " is the per-developer station: local only, gitignored, holds"
+  buh_t   "  things that vary per machine. The anchor variable is \`BURS_LOG_DIR\`:"
+  buh_t   "  the directory where local run logs land."
   buh_e
-  buh_t   "  where \`{L}\` is the first letter of the regime's suffix (\`r\` for RBRR,"
-  buh_t   "  \`p\` for RBRP, \`s\` for BURS, and so on). Learn the pattern, not the"
-  buh_t   "  list — once you know it, you can find any regime's tools from one"
-  buh_t   "  letter."
+  if test "${z_station_present}" = "1"; then
+    zrbho_po_status 1 "  Station file present at ${BURD_STATION_FILE}"
+  else
+    zrbho_po_status 0 "  Station file not found (set during first launch)"
+  fi
+  buh_t   "  BURS tabtargets:"
+  buh_tc  "    Render:   " "tt/buw-rsr.RenderStationRegime.sh"
+  buh_tc  "    Validate: " "tt/buw-rsv.ValidateStationRegime.sh"
+  buh_e
+  buh_t   "  Logs: state-changing commands write to \`BURS_LOG_DIR\`. Handbook"
+  buh_t   "  display commands (like this one) do not log — teaching output is"
+  buh_t   "  ephemeral by design."
   buh_e
 
-  # --- Unit 3: Repository regime (verified) ---
-  buh_section "  Unit 3 — Repository regime (RBRR)"
+  # --- Unit 3: Recipe Bottle regime family (teaching-only) ---
+  buh_section "  Unit 3 — Recipe Bottle regime family"
   buh_e
-  buh_tlt "  The " "repository regime" "${z_docs}#RBRR" " (RBRR) holds depot identity: the GCP"
-  buh_tlt "  project where your team builds and stores container images. A " "depot" "${z_docs}#Depot" ""
+  buh_tlt "  Above the BUK foundation, " "Recipe Bottle" "${z_docs}" " has its own regime family."
+  buh_t   "  Seven user-facing regimes — the ones you read, edit, or place by hand:"
+  buh_e
+  buh_tlt "    " "BURC" "${z_docs}#BURC" " — project-level BUK settings"
+  buh_tlt "    " "BURS" "${z_docs}#BURS" " — per-developer station"
+  buh_tlt "    " "RBRR" "${z_docs}#RBRR" " — repository regime"
+  buh_t   "    RBRA — role credentials"
+  buh_tlt "    RBRP — " "Payor" "${z_docs}#Payor" " regime"
+  buh_tlt "    RBRV — " "Vessel" "${z_docs}#Vessel" " regime"
+  buh_tltlt "    RBRN — " "Crucible" "${z_docs}#Crucible" " " "Nameplate" "${z_docs}#Nameplate" " regime"
+  buh_e
+  buh_t   "  Most regimes are hand-edited text files. RBRA is the exception: its"
+  buh_t   "  files are credential material you place from a source but never edit"
+  buh_t   "  by hand."
+  buh_e
+  buh_tlt "  Every " "Regime" "${z_docs}#Regime" " has the same tabtarget pattern:"
+  buh_e
+  buh_t   "      tt/{W}-r{L}r.Render{R}Regime.sh   — render current values"
+  buh_t   "      tt/{W}-r{L}v.Validate{R}Regime.sh — validate against rules"
+  buh_e
+  buh_t   "  where \`{W}\` is the workbench (\`buw\` for BUK regimes BURC and BURS,"
+  buh_t   "  \`rbw\` for the Recipe Bottle regimes) and \`{L}\` is the first letter"
+  buh_t   "  of the regime's suffix (\`c\` for BURC, \`s\` for BURS, \`r\` for RBRR,"
+  buh_t   "  \`a\` for RBRA, \`p\` for RBRP, and so on). Learn the pattern, not the"
+  buh_t   "  list — once you know it, you can find any regime's tools from one"
+  buh_t   "  or two letters."
+  buh_e
+
+  # --- Unit 4: Repository regime (RBRR) ---
+  buh_section "  Unit 4 — Repository regime (RBRR)"
+  buh_e
+  buh_tlt "  The repository regime (" "RBRR" "${z_docs}#RBRR" ") holds depot identity: the GCP"
+  buh_tlt "  project where your team builds and stores container images. A " "Depot" "${z_docs}#Depot" ""
   buh_t   "  is a shared team resource, not a per-developer concern, so RBRR is"
-  buh_t   "  checked into git. Every role reads it to know *which* depot."
+  buh_tlt "  checked into git. Every role reads it to know *which* " "Depot" "${z_docs}#Depot" "."
   buh_e
   if test "${z_rbrr_populated}" = "1"; then
     zrbho_po_status 1 "  RBRR populated — depot project: ${z_rbrr_project}"
@@ -1263,59 +1308,28 @@ rbho_crash_course() {
   buh_tc "  Validate: " "tt/rbw-rrv.ValidateRepoRegime.sh"
   buh_e
 
-  # --- Unit 4: Station regime and log placement (verified) ---
-  buh_section "  Unit 4 — Station regime (BURS) and log placement"
+  # --- Unit 5: Diagnostic failure — read the errors (teaching-only) ---
+  buh_section "  Unit 5 — Diagnostic failure: read the errors"
   buh_e
-  buh_tlt "  " "BURC" "${z_docs}#BURC" " is the project config: checked into git, shared by everyone,"
-  buh_t   "  points the launcher at your station file."
-  buh_tlt "  " "BURS" "${z_docs}#BURS" " is the per-developer station: local only, gitignored, holds"
-  buh_t   "  things that vary per machine. The anchor variable is \`BURS_LOG_DIR\`:"
-  buh_t   "  the directory where local run logs land."
+  buh_tlt "  " "Recipe Bottle" "${z_docs}" " treats configuration errors as teaching. When a"
+  buh_t   "  field is missing, wrong, or inconsistent, validation doesn't produce"
+  buh_t   "  a stack trace or a generic \"config error\" — it names the field,"
+  buh_t   "  shows what was expected, and hints at what to fill in."
   buh_e
-  if test "${z_burc_present}" = "1"; then
-    zrbho_po_status 1 "  BURC present at .buk/burc.env"
-  else
-    zrbho_po_status 0 "  BURC missing at .buk/burc.env"
-  fi
-  if test "${z_station_present}" = "1"; then
-    zrbho_po_status 1 "  Station file present at ${BURD_STATION_FILE}"
-  else
-    zrbho_po_status 0 "  Station file not found (set during first launch)"
-  fi
-  buh_tc "  Render:   " "tt/rbw-rsr.RenderStationRegime.sh"
-  buh_tc "  Validate: " "tt/rbw-rsv.ValidateStationRegime.sh"
+  buh_tlt "  That is a " "Diagnostic Failure" "${z_docs}#DiagnosticFailure" ". The render/validate pattern you met"
+  buh_t   "  in Unit 3 exists to surface these diagnostics on demand. When something"
+  buh_t   "  you try later doesn't work:"
   buh_e
-  buh_t  "  Logs: state-changing commands write to \`BURS_LOG_DIR\`. Handbook"
-  buh_t  "  display commands (like this one) do not log — teaching output is"
-  buh_t  "  ephemeral by design."
+  buh_tlt "      1. Find the " "Regime" "${z_docs}#Regime" " governing the thing that failed"
+  buh_t   "      2. Run its \`Validate\` tabtarget"
+  buh_t   "      3. Read the error fields by name"
+  buh_t   "      4. Fix the file, re-validate"
   buh_e
-
-  # --- Unit 5: Marshal Zero — the first lesson (teaching + verified) ---
-  buh_section "  Unit 5 — Marshal Zero: the first lesson"
+  buh_t   "  This is the single most important habit in the crash course:"
   buh_e
-  buh_tlt "  " "Marshal Zero" "${z_docs}#MarshalZero" " is the entry point for bare-fork learners. Run:"
-  buh_tc "  " "tt/rbw-MZ.MarshalZeroes.sh"
-  buh_t  "  on a fresh clone (or to reset a workbench) and it blanks RBRR identity"
-  buh_t  "  fields, deletes placed credentials, clears hallmark pins, and preserves"
-  buh_t  "  only the payor's OAuth state. The repo is now in a known-invalid state,"
-  buh_t  "  intentionally."
-  buh_e
-  buh_t  "  Now run:"
-  buh_tc "  " "tt/rbw-rrv.ValidateRepoRegime.sh"
-  buh_t  "  against the zero state. It fails — but not with a stack trace or a"
-  buh_tlt "  mystery. It fails " "diagnostically" "${z_docs}#DiagnosticFailure" ": every blank"
-  buh_t  "  field is reported by name, with a hint about what to fill in."
-  buh_e
-  buh_t  "  This is the single most important lesson in the crash course:"
-  buh_e
-  buh_t  "      In this system, configuration errors fail diagnostically."
-  buh_t  "      Trust the error messages. Read them. They tell you what to do next."
-  buh_e
-  if test "${z_rbrr_populated}" = "1"; then
-    zrbho_po_status 1 "  Current RBRR state: populated (not a zero state right now)"
-  else
-    zrbho_po_status 0 "  Current RBRR state: zero-like — this is where a bare-fork learner starts"
-  fi
+  buh_t   "      In this system, configuration errors fail diagnostically."
+  buh_t   "      Trust the error messages. Read them. They tell you what to"
+  buh_t   "      do next."
   buh_e
 
   # --- Unit 6: Next steps (teaching-only) ---

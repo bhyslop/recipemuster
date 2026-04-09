@@ -88,7 +88,7 @@ zrbz_kindle() {
   buz_group RBZ__GROUP_ONBOARDING "rbw-o"   "Onboarding — Handbook restart"
   z_mod="rbho_cli.sh"
   buz_enroll RBZ_ONBOARD_START_HERE    "rbw-o"   "${z_mod}" "rbho_start_here"   ""  "Onboarding start — probe-aware menu into handbook tracks"
-  buz_enroll RBZ_ONBOARD_CRASH_COURSE  "rbw-Occ" "${z_mod}" "rbho_crash_course" ""  "Crash Course — universal prerequisite: tabtargets, regimes, Marshal Zero"
+  buz_enroll RBZ_ONBOARD_CRASH_COURSE  "rbw-Occ" "${z_mod}" "rbho_crash_course" ""  "Crash Course — universal prerequisite: tabtargets, regimes, diagnostic failure"
 
   # Hallmark — registry artifact lifecycle (rbw-h, UPPER=mutates GAR, lower=read/local)
   buz_group RBZ__GROUP_HALLMARK   "rbw-h"   "Hallmark — Registry artifact lifecycle"

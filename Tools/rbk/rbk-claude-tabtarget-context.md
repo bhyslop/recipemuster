@@ -65,7 +65,7 @@ The Folio column shows how each tabtarget receives it:
 | Colophon | Frontispiece | Folio | Purpose |
 |----------|-------------|-------|---------|
 | `rbw-o` | OnboardingStartHere | — | Onboarding start — probe-aware menu into handbook tracks |
-| `rbw-Occ` | OnboardingCrashCourse | — | Crash Course — universal prerequisite: tabtargets, regimes, Marshal Zero |
+| `rbw-Occ` | OnboardingCrashCourse | — | Crash Course — universal prerequisite: tabtargets, regimes, diagnostic failure |
 
 ### Hallmark — Registry artifact lifecycle (`rbw-h`)
 
