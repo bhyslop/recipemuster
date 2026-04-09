@@ -1,6 +1,6 @@
 {
   "schema_version": 4,
-  "next_heat_seed": "A5",
+  "next_heat_seed": "A6",
   "heat_order": [
     "₣A3",
     "₣Az",
@@ -22,7 +22,8 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au"
+    "₣Au",
+    "₣A5"
   ],
   "heats": {
     "₣A0": {
@@ -2516,6 +2517,15 @@
           ]
         }
       }
+    },
+    "₣A5": {
+      "silks": "rbk-mvp-3-public-docs-first-imprint",
+      "creation_time": "260409",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uAl5.md",
+      "paces": {}
     },
     "₣AD": {
       "silks": "vos-spec-and-tooling",
