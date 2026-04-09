@@ -56,6 +56,9 @@ zrbrr_kindle() {
   buv_group_enroll "Secrets Directory"
   buv_string_enroll  RBRR_SECRETS_DIR              1  512  "Directory containing credential files"
 
+  buv_group_enroll "Public Docs"
+  buv_string_enroll  RBRR_PUBLIC_DOCS_URL          1  512  "Public docs URL — readme target for buh_tlt glossary links, updated per-release or per-incorporation"
+
   # Guard against unexpected RBRR_ variables not in enrollment
   buv_scope_sentinel RBRR RBRR_
 

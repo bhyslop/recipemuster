@@ -149,6 +149,18 @@ Must be set to the base name of the pools created by
 {rbtgo_depot_levy}
 for this depot.
 
+//axhrgb_group
+{rbrr_group_public_docs}
+
+Public documentation URL for user-facing references.
+
+//axhrgv_variable
+{rbrr_public_docs_url}
+
+Complete URL for the public documentation entry point.
+Updated per-release (swap branch name) or per-incorporation (point at a fork).
+Used by buh_tlt glossary links and user-facing output.
+
 //axhro_kindle
 {rbkro_kindle}
 

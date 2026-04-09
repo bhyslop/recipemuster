@@ -315,6 +315,8 @@
 :rbrr_gcb_timeout:           <<rbrr_gcb_timeout,RBRR_GCB_TIMEOUT>>
 :rbrr_gcb_pool_stem:         <<rbrr_gcb_pool_stem,RBRR_GCB_POOL_STEM>>
 :rbrr_gcb_min_concurrent_builds: <<rbrr_gcb_min_concurrent_builds,RBRR_GCB_MIN_CONCURRENT_BUILDS>>
+:rbrr_public_docs_url:       <<rbrr_public_docs_url,RBRR_PUBLIC_DOCS_URL>>
+:rbrr_group_public_docs:     <<rbrr_group_public_docs,Public Docs Group>>
 // RBRG regime eliminated (₣Av) — reliquaries replace pin-based tool image management
 :rbrm_chosen_identity:       <<rbrm_chosen_identity,RBRM_CHOSEN_IDENTITY>>
 :rbrm_chosen_podman_version: <<rbrm_chosen_podman_version,RBRM_CHOSEN_PODMAN_VERSION>>
@@ -2657,8 +2659,18 @@ Minimum concurrent Cloud Build execution count.
 {rbrr_gcb_timeout}::
 Maximum duration for Cloud Build operations.
 
+[[rbrr_public_docs_url]]
+//axvr_variable axd_required rbst_url
+{rbrr_public_docs_url}::
+Public docs URL — readme target for buh_tlt glossary links, updated per-release or per-incorporation.
+
 // RBRG variable definitions eliminated (₣Av) — reliquaries replace pin-based tool image management
 // Tool images (gcloud, docker, alpine, syft, binfmt, skopeo) now sourced from reliquary at conjure time
+
+[[rbrr_group_public_docs]]
+//axvr_group
+{rbrr_group_public_docs}::
+Public documentation URL for user-facing references.
 
 [[rbrr_group_service_accounts]]
 //axvr_group

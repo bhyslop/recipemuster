@@ -77,7 +77,6 @@ zrbgc_kindle() {
   readonly RBGC_API_ROOT_SECRETMANAGER="https://secretmanager.googleapis.com"
   readonly RBGC_CONSOLE_URL="https://console.cloud.google.com/"
   readonly RBGC_SIGNUP_URL="https://cloud.google.com/free"
-  readonly RBGC_PUBLIC_DOCS_URL="https://scaleinv.github.io/recipebottle"
 
   # OAuth Scopes
   readonly RBGC_SCOPE_CLOUD_PLATFORM="https://www.googleapis.com/auth/cloud-platform"
