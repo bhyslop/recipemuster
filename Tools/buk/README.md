@@ -486,7 +486,7 @@ BUK modules use `bu{x}_` prefixes where `{x}` identifies the module.
 |--------|------|--------|---------|
 | `buc_` | command | Active | Command utilities, output formatting |
 | `burd_` | dispatch | Active | Environment setup, invokes workbench |
-| `bug_` | guide | Active | Always-visible user interaction |
+| `buh_` | handbook | Active | Always-visible user interaction |
 | `burc_` | regime-config | Active | Project-level Config Regime |
 | `burs_` | regime-station | Active | Station-level Config Regime |
 | `but_` | test | Active | Testing framework |

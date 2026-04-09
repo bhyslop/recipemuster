@@ -40,7 +40,7 @@ zrbgm_furnish() {
   # everything else needs full regime kindle/enforce.
   case "${z_command}" in
     rbgm_onboard_triage|rbgm_onboard_retriever|rbgm_onboard_director|rbgm_onboard_governor|rbgm_onboard_payor|rbgm_onboard_reference)
-      source "${BURD_BUK_DIR}/bug_guide.sh"              || buc_die "Failed to source bug_guide.sh"
+      source "${BURD_BUK_DIR}/buh_handbook.sh"              || buc_die "Failed to source buh_handbook.sh"
       source "${BURD_BUK_DIR}/buz_zipper.sh"             || buc_die "Failed to source buz_zipper.sh"
       source "${z_rbk_kit_dir}/rbcc_Constants.sh"        || buc_die "Failed to source rbcc_Constants.sh"
       source "${z_rbk_kit_dir}/rbgc_Constants.sh"        || buc_die "Failed to source rbgc_Constants.sh"
@@ -51,7 +51,7 @@ zrbgm_furnish() {
       source "${z_rbk_kit_dir}/rbgm_ManualProcedures.sh" || buc_die "Failed to source rbgm_ManualProcedures.sh"
       ;;
     rbgm_onboarding)
-      source "${BURD_BUK_DIR}/bug_guide.sh"           || buc_die "Failed to source bug_guide.sh"
+      source "${BURD_BUK_DIR}/buh_handbook.sh"           || buc_die "Failed to source buh_handbook.sh"
       source "${BURD_BUK_DIR}/buv_validation.sh"       || buc_die "Failed to source buv_validation.sh"
       zbuv_kindle
       source "${BURD_BUK_DIR}/burc_regime.sh"          || buc_die "Failed to source burc_regime.sh"
@@ -67,7 +67,7 @@ zrbgm_furnish() {
     *)
       source "${BURD_BUK_DIR}/burd_regime.sh"
       source "${BURD_BUK_DIR}/buv_validation.sh"
-      source "${BURD_BUK_DIR}/bug_guide.sh"
+      source "${BURD_BUK_DIR}/buh_handbook.sh"
       source "${z_rbk_kit_dir}/rbgc_Constants.sh"
       source "${z_rbk_kit_dir}/rbcc_Constants.sh"
       source "${z_rbk_kit_dir}/rbrr_regime.sh"

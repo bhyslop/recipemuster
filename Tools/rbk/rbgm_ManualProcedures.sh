@@ -143,138 +143,138 @@ rbgm_payor_establish() {
   buc_doc_brief "Display the manual Payor Establishment procedure for OAuth authentication"
   buc_doc_shown || return 0
 
-  bug_section  "Manual Payor OAuth Establishment Procedure"
-  bug_t        "${RBGC_PAYOR_APP_NAME} now uses OAuth 2.0 for individual developer accounts."
-  bug_t        "This resolves project creation limitations for personal Google accounts."
-  bug_e
-  bug_section  "Key:"
-  bug_tu       "   Magenta text refers to " "precise words you see on the web page."
-  bug_tc       "   Cyan text is " "something you might copy from here."
-  bug_link     "   Clickable links look like " "EXAMPLE DOT COM" "https://example.com/" " (often, ${ZRBGM_CLICK_MOD} + mouse click)"
-  bug_e
-  bug_section  "1. Confirm Payor Regime:"
-  bug_tc       "   File: " "${ZRBGM_RBRP_FILE}"
-  bug_tc       "   RBRP_PAYOR_PROJECT_ID: " "${RBRP_PAYOR_PROJECT_ID}"
-  bug_t        "   (You will discover RBRP_BILLING_ACCOUNT_ID later in step 5)"
-  bug_e
-  bug_t        "   First time setup? Set a timestamped project ID with:"
-  bug_c        "   sed -i '' 's/^RBRP_PAYOR_PROJECT_ID=.*/RBRP_PAYOR_PROJECT_ID=${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_PAYOR}-$(date "${RBGC_GLOBAL_TIMESTAMP_FORMAT}")/' ${ZRBGM_RBRP_FILE}"
-  bug_e
-  bug_section  "2. Check if Project Already Exists:"
-  bug_t        "   Before creating a new project, verify the configured ID is not already in use:"
-  bug_link     "   1. Check existing projects: " "Google Cloud Project List" "https://console.cloud.google.com/cloud-resource-manager"
-  bug_tu       "   2. Look for a project with ID " "${RBRP_PAYOR_PROJECT_ID}"
-  bug_t        "      - Hover over project IDs to verify the full ID matches your configured value"
-  bug_tctu     "   3. If you " "find the project" " with matching ID, it already exists - edit " "${ZRBGM_RBRP_FILE_BASENAME}"
-  bug_t        "      and re-run this procedure"
-  bug_t        "   4. If you don't find it, proceed to step 3 to create it"
-  bug_e
-  bug_section  "3. Create Payor Project:"
-  bug_link     "   1. Open browser to: " "Google Cloud Project Create" "https://console.cloud.google.com/projectcreate"
-  bug_t        "   2. Ensure signed in with intended Google account (check top-right avatar)"
-  bug_t        "   3. Configure new project:"
-  bug_tc       "      - Project name: " "${RBGC_PAYOR_APP_NAME}"
-  bug_t        "      - Project ID: Google will auto-generate a value; click Edit to replace it with:"
-  bug_tc       "        " "${RBRP_PAYOR_PROJECT_ID}"
-  bug_tut      "      - Location: " "No organization" " (required for this guide; organization affiliation is advanced)"
-  bug_tu       "   4. Click " "CREATE"
-  bug_tut      "   5. Wait for " "Creating project..." " notification to complete"
-  bug_e
-  bug_section  "4. Verify Project Creation:"
-  bug_t        "   Verify that your rbrp.env configuration matches the created project:"
-  bug_link     "   1. Test this link: " "Google Cloud APIs Dashboard" "https://console.cloud.google.com/apis/dashboard?project=${RBRP_PAYOR_PROJECT_ID}"
-  bug_t        "   2. If the page loads and shows your project, your configuration is correct"
-  bug_tut      "   3. If you see " "You need additional access" ", wait a few minutes and refresh the page"
-  bug_link     "      GCP IAM changes are eventually consistent: " "Access Change Propagation" "https://cloud.google.com/iam/docs/access-change-propagation"
-  bug_e
-  bug_section  "5. Configure Billing Account:"
-  bug_link     "   1. Go to: " "Google Cloud Billing" "https://console.cloud.google.com/billing"
-  bug_t        "      If no billing accounts exist:"
-  bug_tu       "          a. Click " "CREATE ACCOUNT"
-  bug_t        "          b. Configure payment method and submit"
-  bug_tu       "          c. Copy new " "Account ID" " from table"
-  bug_t        "      else if single Open account exists:"
-  bug_tu       "          a. Copy the " "Account ID" " value"
-  bug_t        "      else if multiple Open accounts exist:"
-  bug_t        "          a. Choose account for Recipe Bottle funding"
-  bug_tu       "          b. Copy chosen " "Account ID" " value"
-  bug_link     "   2. Go to: " "Google Cloud Billing Projects" "https://console.cloud.google.com/billing/projects"
-  bug_tu       "   3. Save the billing account ID to your " "${ZRBGM_RBRP_FILE}"
-  bug_tctu     "      Record as: " "RBRP_BILLING_ACCOUNT_ID=" " # " "Value from Account ID column"
-  bug_t        "   4. Find project row with ID matching your payor project (not name) and get the Account ID value"
-  bug_tu       "   5. Update " "${ZRBGM_RBRP_FILE}" " and re-display this procedure."
-  bug_e
-  bug_section  "6. Link Billing to Payor Project:"
-  bug_t        "   Link your billing account to the newly created project."
-  bug_link     "   Go to: " "Google Cloud Billing Account Management" "https://console.cloud.google.com/billing/manage"
-  bug_t        "   1. The page loads to your default billing account."
-  bug_tu       "   2. If you have multiple billing accounts, use the " "Select a billing account" " dropdown at top"
-  bug_t        "      - Choose the account matching your RBRP_BILLING_ACCOUNT_ID"
-  bug_t        "   3. Look for the section " "Projects linked to this billing account"
-  bug_t        "   4. Verify your payor project appears in the table:"
-  bug_tc       "      - Project name: " "${RBGC_PAYOR_APP_NAME}"
-  bug_tc       "      - Project ID: " "${RBRP_PAYOR_PROJECT_ID}"
-  bug_t        "   5. If project is NOT listed and billing needs to be enabled:"
-  bug_link     "      - Go to: " "Project Billing" "https://console.cloud.google.com/billing/linkedaccount?project=${RBRP_PAYOR_PROJECT_ID}"
-  bug_tu       "      - Click " "Link a Billing Account"
-  bug_t        "      - Select your billing account and confirm"
-  bug_e
-  bug_section  "7. Enable Required APIs:"
-  bug_link     "   Go to: " "APIs & Services for your payor project" "https://console.cloud.google.com/apis/dashboard?project=${RBRP_PAYOR_PROJECT_ID}"
-  bug_tu       "   1. Click " "+ ENABLE APIS AND SERVICES"
-  bug_t        "   2. Search for and enable these APIs:"
-  bug_tc       "      - " "Cloud Resource Manager API"
-  bug_tc       "      - " "Cloud Billing API"
-  bug_tct      "      - " "Service Usage API" " (often enabled by default, look for green check)"
-  bug_tc       "      - " "IAM Service Account Credentials API"
-  bug_tc       "      - " "Artifact Registry API"
-  bug_t        "   These enable programmatic depot management operations."
-  bug_e
-  bug_section  "8. Configure OAuth Consent Screen:"
-  bug_link     "   Go to: " "OAuth consent screen" "https://console.cloud.google.com/apis/credentials/consent?project=${RBRP_PAYOR_PROJECT_ID}"
-  bug_tu       "   1. The console displays " "Google Auth Platform not configured yet"
-  bug_tu       "   2. Click " "Get started"
-  bug_t        "   3. Complete the Project Configuration wizard:"
-  bug_t        "      Step 1 - App Information:"
-  bug_tc       "        - App name: " "${RBGC_PAYOR_APP_NAME}"
-  bug_t        "        - User support email: (your email)"
-  bug_tu       "        - Click " "Next"
-  bug_t        "      Step 2 - Audience:"
-  bug_tu       "        - Select " "External"
-  bug_tu       "        - Click " "Next"
-  bug_t        "      Step 3 - Contact Information:"
-  bug_t        "        - Email addresses: (your email), press Enter"
-  bug_tu       "        - Click " "Next"
-  bug_t        "      Step 4 - Finish:"
-  bug_tu       "        - Check " "I agree to the Google API Services: User Data Policy"
-  bug_tu       "        - Click " "Continue"
-  bug_tu       "        - Click " "Create"
-  bug_e
-  bug_t        "   4. Add your email as a test user (avoids Google app verification process):"
-  bug_tu       "      1. Click " "Audience" " in left sidebar"
-  bug_tu       "      2. Scroll down to section " "Test users"
-  bug_tu       "      3. Click " "+ Add users"
-  bug_tut      "      4. Right-side panel titled " "Add Users" " slides in"
-  bug_t        "      5. Enter your email address in the field"
-  bug_tu       "      6. Click " "Save"
-  bug_tut      "      7. Verify " "1 user" " appears in OAuth user cap"
-  bug_e
-  bug_section  "9. Create OAuth 2.0 Client ID:"
-  bug_link     "   Go to: " "Credentials" "https://console.cloud.google.com/apis/credentials?project=${RBRP_PAYOR_PROJECT_ID}"
-  bug_tu       "   1. From top bar, click " "+ Create credentials"
-  bug_tu       "   2. Select " "OAuth client ID"
-  bug_tu       "   3. Application type: " "Desktop app"
-  bug_tc       "   4. Name: " "${RBGC_PAYOR_APP_NAME}"
-  bug_tu       "   5. Click " "CREATE"
-  bug_tut      "   6. Popup titled " "OAuth client created" " displays client ID and secret"
-  bug_tu       "   7. Click " "Download JSON"
-  bug_tutu     "   8. Click " "OK" " ; browser downloads " "client_secret_[id].apps.googleusercontent.com.json"
-  bug_tW       "      " "CRITICAL: Save securely - contains client secret"
-  bug_e
-  bug_section  "10. Install OAuth Credentials:"
-  bug_t        "   Run:"
-  bug_c        "   rbgp_payor_install ~/Downloads/payor-oauth.json"
-  bug_t        "   This will guide you through OAuth authorization and complete the setup."
+  buh_section  "Manual Payor OAuth Establishment Procedure"
+  buh_t        "${RBGC_PAYOR_APP_NAME} now uses OAuth 2.0 for individual developer accounts."
+  buh_t        "This resolves project creation limitations for personal Google accounts."
+  buh_e
+  buh_section  "Key:"
+  buh_tu       "   Magenta text refers to " "precise words you see on the web page."
+  buh_tc       "   Cyan text is " "something you might copy from here."
+  buh_link     "   Clickable links look like " "EXAMPLE DOT COM" "https://example.com/" " (often, ${ZRBGM_CLICK_MOD} + mouse click)"
+  buh_e
+  buh_section  "1. Confirm Payor Regime:"
+  buh_tc       "   File: " "${ZRBGM_RBRP_FILE}"
+  buh_tc       "   RBRP_PAYOR_PROJECT_ID: " "${RBRP_PAYOR_PROJECT_ID}"
+  buh_t        "   (You will discover RBRP_BILLING_ACCOUNT_ID later in step 5)"
+  buh_e
+  buh_t        "   First time setup? Set a timestamped project ID with:"
+  buh_c        "   sed -i '' 's/^RBRP_PAYOR_PROJECT_ID=.*/RBRP_PAYOR_PROJECT_ID=${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_PAYOR}-$(date "${RBGC_GLOBAL_TIMESTAMP_FORMAT}")/' ${ZRBGM_RBRP_FILE}"
+  buh_e
+  buh_section  "2. Check if Project Already Exists:"
+  buh_t        "   Before creating a new project, verify the configured ID is not already in use:"
+  buh_link     "   1. Check existing projects: " "Google Cloud Project List" "https://console.cloud.google.com/cloud-resource-manager"
+  buh_tu       "   2. Look for a project with ID " "${RBRP_PAYOR_PROJECT_ID}"
+  buh_t        "      - Hover over project IDs to verify the full ID matches your configured value"
+  buh_tctu     "   3. If you " "find the project" " with matching ID, it already exists - edit " "${ZRBGM_RBRP_FILE_BASENAME}"
+  buh_t        "      and re-run this procedure"
+  buh_t        "   4. If you don't find it, proceed to step 3 to create it"
+  buh_e
+  buh_section  "3. Create Payor Project:"
+  buh_link     "   1. Open browser to: " "Google Cloud Project Create" "https://console.cloud.google.com/projectcreate"
+  buh_t        "   2. Ensure signed in with intended Google account (check top-right avatar)"
+  buh_t        "   3. Configure new project:"
+  buh_tc       "      - Project name: " "${RBGC_PAYOR_APP_NAME}"
+  buh_t        "      - Project ID: Google will auto-generate a value; click Edit to replace it with:"
+  buh_tc       "        " "${RBRP_PAYOR_PROJECT_ID}"
+  buh_tut      "      - Location: " "No organization" " (required for this guide; organization affiliation is advanced)"
+  buh_tu       "   4. Click " "CREATE"
+  buh_tut      "   5. Wait for " "Creating project..." " notification to complete"
+  buh_e
+  buh_section  "4. Verify Project Creation:"
+  buh_t        "   Verify that your rbrp.env configuration matches the created project:"
+  buh_link     "   1. Test this link: " "Google Cloud APIs Dashboard" "https://console.cloud.google.com/apis/dashboard?project=${RBRP_PAYOR_PROJECT_ID}"
+  buh_t        "   2. If the page loads and shows your project, your configuration is correct"
+  buh_tut      "   3. If you see " "You need additional access" ", wait a few minutes and refresh the page"
+  buh_link     "      GCP IAM changes are eventually consistent: " "Access Change Propagation" "https://cloud.google.com/iam/docs/access-change-propagation"
+  buh_e
+  buh_section  "5. Configure Billing Account:"
+  buh_link     "   1. Go to: " "Google Cloud Billing" "https://console.cloud.google.com/billing"
+  buh_t        "      If no billing accounts exist:"
+  buh_tu       "          a. Click " "CREATE ACCOUNT"
+  buh_t        "          b. Configure payment method and submit"
+  buh_tu       "          c. Copy new " "Account ID" " from table"
+  buh_t        "      else if single Open account exists:"
+  buh_tu       "          a. Copy the " "Account ID" " value"
+  buh_t        "      else if multiple Open accounts exist:"
+  buh_t        "          a. Choose account for Recipe Bottle funding"
+  buh_tu       "          b. Copy chosen " "Account ID" " value"
+  buh_link     "   2. Go to: " "Google Cloud Billing Projects" "https://console.cloud.google.com/billing/projects"
+  buh_tu       "   3. Save the billing account ID to your " "${ZRBGM_RBRP_FILE}"
+  buh_tctu     "      Record as: " "RBRP_BILLING_ACCOUNT_ID=" " # " "Value from Account ID column"
+  buh_t        "   4. Find project row with ID matching your payor project (not name) and get the Account ID value"
+  buh_tu       "   5. Update " "${ZRBGM_RBRP_FILE}" " and re-display this procedure."
+  buh_e
+  buh_section  "6. Link Billing to Payor Project:"
+  buh_t        "   Link your billing account to the newly created project."
+  buh_link     "   Go to: " "Google Cloud Billing Account Management" "https://console.cloud.google.com/billing/manage"
+  buh_t        "   1. The page loads to your default billing account."
+  buh_tu       "   2. If you have multiple billing accounts, use the " "Select a billing account" " dropdown at top"
+  buh_t        "      - Choose the account matching your RBRP_BILLING_ACCOUNT_ID"
+  buh_t        "   3. Look for the section " "Projects linked to this billing account"
+  buh_t        "   4. Verify your payor project appears in the table:"
+  buh_tc       "      - Project name: " "${RBGC_PAYOR_APP_NAME}"
+  buh_tc       "      - Project ID: " "${RBRP_PAYOR_PROJECT_ID}"
+  buh_t        "   5. If project is NOT listed and billing needs to be enabled:"
+  buh_link     "      - Go to: " "Project Billing" "https://console.cloud.google.com/billing/linkedaccount?project=${RBRP_PAYOR_PROJECT_ID}"
+  buh_tu       "      - Click " "Link a Billing Account"
+  buh_t        "      - Select your billing account and confirm"
+  buh_e
+  buh_section  "7. Enable Required APIs:"
+  buh_link     "   Go to: " "APIs & Services for your payor project" "https://console.cloud.google.com/apis/dashboard?project=${RBRP_PAYOR_PROJECT_ID}"
+  buh_tu       "   1. Click " "+ ENABLE APIS AND SERVICES"
+  buh_t        "   2. Search for and enable these APIs:"
+  buh_tc       "      - " "Cloud Resource Manager API"
+  buh_tc       "      - " "Cloud Billing API"
+  buh_tct      "      - " "Service Usage API" " (often enabled by default, look for green check)"
+  buh_tc       "      - " "IAM Service Account Credentials API"
+  buh_tc       "      - " "Artifact Registry API"
+  buh_t        "   These enable programmatic depot management operations."
+  buh_e
+  buh_section  "8. Configure OAuth Consent Screen:"
+  buh_link     "   Go to: " "OAuth consent screen" "https://console.cloud.google.com/apis/credentials/consent?project=${RBRP_PAYOR_PROJECT_ID}"
+  buh_tu       "   1. The console displays " "Google Auth Platform not configured yet"
+  buh_tu       "   2. Click " "Get started"
+  buh_t        "   3. Complete the Project Configuration wizard:"
+  buh_t        "      Step 1 - App Information:"
+  buh_tc       "        - App name: " "${RBGC_PAYOR_APP_NAME}"
+  buh_t        "        - User support email: (your email)"
+  buh_tu       "        - Click " "Next"
+  buh_t        "      Step 2 - Audience:"
+  buh_tu       "        - Select " "External"
+  buh_tu       "        - Click " "Next"
+  buh_t        "      Step 3 - Contact Information:"
+  buh_t        "        - Email addresses: (your email), press Enter"
+  buh_tu       "        - Click " "Next"
+  buh_t        "      Step 4 - Finish:"
+  buh_tu       "        - Check " "I agree to the Google API Services: User Data Policy"
+  buh_tu       "        - Click " "Continue"
+  buh_tu       "        - Click " "Create"
+  buh_e
+  buh_t        "   4. Add your email as a test user (avoids Google app verification process):"
+  buh_tu       "      1. Click " "Audience" " in left sidebar"
+  buh_tu       "      2. Scroll down to section " "Test users"
+  buh_tu       "      3. Click " "+ Add users"
+  buh_tut      "      4. Right-side panel titled " "Add Users" " slides in"
+  buh_t        "      5. Enter your email address in the field"
+  buh_tu       "      6. Click " "Save"
+  buh_tut      "      7. Verify " "1 user" " appears in OAuth user cap"
+  buh_e
+  buh_section  "9. Create OAuth 2.0 Client ID:"
+  buh_link     "   Go to: " "Credentials" "https://console.cloud.google.com/apis/credentials?project=${RBRP_PAYOR_PROJECT_ID}"
+  buh_tu       "   1. From top bar, click " "+ Create credentials"
+  buh_tu       "   2. Select " "OAuth client ID"
+  buh_tu       "   3. Application type: " "Desktop app"
+  buh_tc       "   4. Name: " "${RBGC_PAYOR_APP_NAME}"
+  buh_tu       "   5. Click " "CREATE"
+  buh_tut      "   6. Popup titled " "OAuth client created" " displays client ID and secret"
+  buh_tu       "   7. Click " "Download JSON"
+  buh_tutu     "   8. Click " "OK" " ; browser downloads " "client_secret_[id].apps.googleusercontent.com.json"
+  buh_tW       "      " "CRITICAL: Save securely - contains client secret"
+  buh_e
+  buh_section  "10. Install OAuth Credentials:"
+  buh_t        "   Run:"
+  buh_c        "   rbgp_payor_install ~/Downloads/payor-oauth.json"
+  buh_t        "   This will guide you through OAuth authorization and complete the setup."
 
   buc_success "OAuth Payor establishment procedure displayed"
 }
@@ -336,63 +336,63 @@ rbgm_quota_build() {
   buc_doc_brief "Display the Cloud Build capacity review procedure to verify machine type and quota settings"
   buc_doc_shown || return 0
 
-  bug_section  "Cloud Build Concurrent Build Capacity"
-  bug_t        "Review your build capacity settings to ensure sufficient concurrent build execution."
-  bug_t        "Recipe Bottle uses a private worker pool — quota is tracked per private pool host project."
-  bug_e
-  bug_t        "   Private pool machine types vs concurrency at 10-CPU quota:"
-  bug_tc       "     e2-standard-2  " "(2 vCPU)   → 5 concurrent builds"
-  bug_tc       "     e2-standard-8  " "(8 vCPU)   → 1 concurrent build"
-  bug_tc       "     e2-standard-32 " "(32 vCPU)  → needs 32+ CPU quota"
-  bug_e
-  bug_section  "Key:"
-  bug_tu       "   Magenta text refers to " "precise words you see on the web page."
-  bug_tc       "   Cyan text is " "something you might copy from here."
-  bug_link     "   Clickable links look like " "EXAMPLE DOT COM" "https://example.com/" " (often, ${ZRBGM_CLICK_MOD} + mouse click)"
-  bug_e
-  bug_section  "1. Current Regime Configuration:"
-  bug_tc       "   RBRR_DEPOT_PROJECT_ID:          " "${RBRR_DEPOT_PROJECT_ID}"
-  bug_tc       "   RBRR_GCP_REGION:                " "${RBRR_GCP_REGION}"
-  bug_tc       "   RBRR_GCB_MACHINE_TYPE:          " "${RBRR_GCB_MACHINE_TYPE}"
-  bug_tc       "   RBRR_GCB_POOL_STEM:             " "${RBRR_GCB_POOL_STEM}"
-  bug_tc       "   RBRR_GCB_MIN_CONCURRENT_BUILDS: " "${RBRR_GCB_MIN_CONCURRENT_BUILDS}"
-  bug_e
-  bug_t        "   The build preflight gate checks quota automatically before each build."
-  bug_t        "   It computes: quota_vCPUs / machine_vCPUs >= RBRR_GCB_MIN_CONCURRENT_BUILDS"
-  bug_e
-  bug_section  "2. Check CPU Quota:"
-  bug_t        "   Private pool quota is tracked under the depot project."
-  bug_e
-  bug_link     "   Go to: " "Quotas & System Limits (opens to depot project)" "https://console.cloud.google.com/iam-admin/quotas?project=${RBRR_DEPOT_PROJECT_ID}"
-  bug_tu       "   1. Verify project " "${RBRR_DEPOT_PROJECT_ID}" " is selected in the project picker"
-  bug_tut      "   2. In the " "Enter property name or value" " filter bar, type:"
-  bug_tc       "      " "concurrent_private"
-  bug_tut      "   3. Select " "cloudbuild.googleapis.com/concurrent_private_pool_build_cpus" " from the autocomplete"
-  bug_t        "   4. Multiple rows appear. Look for the row with Type column showing"
-  bug_tut      "      " "Quota" " (not System limit) and your region in the Dimensions column"
-  bug_t        "   5. Note the quota value and current usage percentage"
-  bug_t        "      If usage is near 100% with one build, the machine type is too large for the quota"
-  bug_e
-  bug_section  "3. Request a Quota Increase (if needed):"
-  bug_tut      "   On the " "Quota" " row identified above:"
-  bug_tut      "   1. Click the three-dot menu " "⋮" " at the right end of the row"
-  bug_tu       "   2. Select " "Edit quota"
-  bug_tu       "   3. In the side panel, enter the new value in the " "New value" " field"
-  bug_t        "      Recommended: 10 (allows 5 concurrent e2-standard-2 builds across both pools)"
-  bug_tu       "   4. A " "Request description" " field appears. Enter:"
-  bug_tc       "      " "Need parallel builds on private worker pool for CI/CD pipeline testing."
-  bug_tu       "   5. Click " "Next"
-  bug_t        "   6. Step 2/2 shows contact details (pre-filled from your Google account)"
-  bug_tu       "   7. Click " "Submit request"
-  bug_t        "      Increases are typically approved within minutes."
-  bug_e
-  bug_section  "4. Confirm Quota Increase:"
-  bug_t        "   After approval, quotas can take up to 15 minutes to propagate."
-  bug_link     "   Return to: " "Quotas & System Limits (opens to depot project)" "https://console.cloud.google.com/iam-admin/quotas?project=${RBRR_DEPOT_PROJECT_ID}"
-  bug_tut      "   Filter for " "concurrent_private" " again and verify the new value"
-  bug_t        "   Verify: quota / vCPUs per machine type >= RBRR_GCB_MIN_CONCURRENT_BUILDS"
-  bug_tc       "     Current target: " "${RBRR_GCB_MIN_CONCURRENT_BUILDS} concurrent builds"
-  bug_e
+  buh_section  "Cloud Build Concurrent Build Capacity"
+  buh_t        "Review your build capacity settings to ensure sufficient concurrent build execution."
+  buh_t        "Recipe Bottle uses a private worker pool — quota is tracked per private pool host project."
+  buh_e
+  buh_t        "   Private pool machine types vs concurrency at 10-CPU quota:"
+  buh_tc       "     e2-standard-2  " "(2 vCPU)   → 5 concurrent builds"
+  buh_tc       "     e2-standard-8  " "(8 vCPU)   → 1 concurrent build"
+  buh_tc       "     e2-standard-32 " "(32 vCPU)  → needs 32+ CPU quota"
+  buh_e
+  buh_section  "Key:"
+  buh_tu       "   Magenta text refers to " "precise words you see on the web page."
+  buh_tc       "   Cyan text is " "something you might copy from here."
+  buh_link     "   Clickable links look like " "EXAMPLE DOT COM" "https://example.com/" " (often, ${ZRBGM_CLICK_MOD} + mouse click)"
+  buh_e
+  buh_section  "1. Current Regime Configuration:"
+  buh_tc       "   RBRR_DEPOT_PROJECT_ID:          " "${RBRR_DEPOT_PROJECT_ID}"
+  buh_tc       "   RBRR_GCP_REGION:                " "${RBRR_GCP_REGION}"
+  buh_tc       "   RBRR_GCB_MACHINE_TYPE:          " "${RBRR_GCB_MACHINE_TYPE}"
+  buh_tc       "   RBRR_GCB_POOL_STEM:             " "${RBRR_GCB_POOL_STEM}"
+  buh_tc       "   RBRR_GCB_MIN_CONCURRENT_BUILDS: " "${RBRR_GCB_MIN_CONCURRENT_BUILDS}"
+  buh_e
+  buh_t        "   The build preflight gate checks quota automatically before each build."
+  buh_t        "   It computes: quota_vCPUs / machine_vCPUs >= RBRR_GCB_MIN_CONCURRENT_BUILDS"
+  buh_e
+  buh_section  "2. Check CPU Quota:"
+  buh_t        "   Private pool quota is tracked under the depot project."
+  buh_e
+  buh_link     "   Go to: " "Quotas & System Limits (opens to depot project)" "https://console.cloud.google.com/iam-admin/quotas?project=${RBRR_DEPOT_PROJECT_ID}"
+  buh_tu       "   1. Verify project " "${RBRR_DEPOT_PROJECT_ID}" " is selected in the project picker"
+  buh_tut      "   2. In the " "Enter property name or value" " filter bar, type:"
+  buh_tc       "      " "concurrent_private"
+  buh_tut      "   3. Select " "cloudbuild.googleapis.com/concurrent_private_pool_build_cpus" " from the autocomplete"
+  buh_t        "   4. Multiple rows appear. Look for the row with Type column showing"
+  buh_tut      "      " "Quota" " (not System limit) and your region in the Dimensions column"
+  buh_t        "   5. Note the quota value and current usage percentage"
+  buh_t        "      If usage is near 100% with one build, the machine type is too large for the quota"
+  buh_e
+  buh_section  "3. Request a Quota Increase (if needed):"
+  buh_tut      "   On the " "Quota" " row identified above:"
+  buh_tut      "   1. Click the three-dot menu " "⋮" " at the right end of the row"
+  buh_tu       "   2. Select " "Edit quota"
+  buh_tu       "   3. In the side panel, enter the new value in the " "New value" " field"
+  buh_t        "      Recommended: 10 (allows 5 concurrent e2-standard-2 builds across both pools)"
+  buh_tu       "   4. A " "Request description" " field appears. Enter:"
+  buh_tc       "      " "Need parallel builds on private worker pool for CI/CD pipeline testing."
+  buh_tu       "   5. Click " "Next"
+  buh_t        "   6. Step 2/2 shows contact details (pre-filled from your Google account)"
+  buh_tu       "   7. Click " "Submit request"
+  buh_t        "      Increases are typically approved within minutes."
+  buh_e
+  buh_section  "4. Confirm Quota Increase:"
+  buh_t        "   After approval, quotas can take up to 15 minutes to propagate."
+  buh_link     "   Return to: " "Quotas & System Limits (opens to depot project)" "https://console.cloud.google.com/iam-admin/quotas?project=${RBRR_DEPOT_PROJECT_ID}"
+  buh_tut      "   Filter for " "concurrent_private" " again and verify the new value"
+  buh_t        "   Verify: quota / vCPUs per machine type >= RBRR_GCB_MIN_CONCURRENT_BUILDS"
+  buh_tc       "     Current target: " "${RBRR_GCB_MIN_CONCURRENT_BUILDS} concurrent builds"
+  buh_e
 
   buc_success "Cloud Build quota guide displayed"
 }
@@ -403,9 +403,9 @@ zrbgm_po_status() {
   local -r z_flag="${1:-}"
   local -r z_text="${2:-}"
   if test "${z_flag}" = "1"; then
-    bug_ct " [*] " "${z_text}"
+    buh_ct " [*] " "${z_text}"
   else
-    bug_t " [ ] ${z_text}"
+    buh_t " [ ] ${z_text}"
   fi
 }
 
@@ -645,49 +645,49 @@ zrbgm_po_review_defaults() {
   local z_rbrr_file="${RBBC_rbrr_file}"
 
   # --- Pre-selected RBRR defaults ---
-  bug_section "Pre-selected Defaults"
-  bug_tc "  File: " "${z_rbrr_file}"
-  bug_t  "  Edit this file if any defaults don't fit, then re-run this guide."
-  bug_e
-  bug_t  "  Infrastructure:"
-  bug_tc "    RBRR_DNS_SERVER                " "$(zrbgm_po_extract_capture "${z_rbrr_file}" RBRR_DNS_SERVER)"
-  bug_t  "      Resolver for bottle network connectivity checks (Google Public DNS)."
-  bug_tc "    RBRR_GCB_MACHINE_TYPE          " "$(zrbgm_po_extract_capture "${z_rbrr_file}" RBRR_GCB_MACHINE_TYPE)"
-  bug_t  "      Compute Engine type for Cloud Build workers. Smallest reasonable option;"
-  bug_t  "      balances cost and build speed."
-  bug_tc "    RBRR_GCB_TIMEOUT               " "$(zrbgm_po_extract_capture "${z_rbrr_file}" RBRR_GCB_TIMEOUT)"
-  bug_t  "      Maximum time for a single Cloud Build job (20 minutes)."
-  bug_tc "    RBRR_GCB_MIN_CONCURRENT_BUILDS " "$(zrbgm_po_extract_capture "${z_rbrr_file}" RBRR_GCB_MIN_CONCURRENT_BUILDS)"
-  bug_t  "      Preflight gate: require capacity for this many parallel builds."
-  bug_t  "      With e2-standard-2 (2 vCPU) and default 10-CPU quota, 5 are possible."
-  bug_e
-  bug_t  "  Conventions:"
-  bug_tc "    RBRR_VESSEL_DIR                " "$(zrbgm_po_extract_capture "${z_rbrr_file}" RBRR_VESSEL_DIR)"
-  bug_t  "      Directory containing vessel specifications — what gets built into"
-  bug_t  "      container images."
-  bug_tc "    RBRR_GCP_REGION                " "$(zrbgm_po_extract_capture "${z_rbrr_file}" RBRR_GCP_REGION)"
-  bug_t  "      GCP region for all infrastructure. Change if you need geographic"
-  bug_t  "      proximity to a different region."
-  bug_tc "    RBRR_SECRETS_DIR               " "$(zrbgm_po_extract_capture "${z_rbrr_file}" RBRR_SECRETS_DIR)"
-  bug_t  "      Local directory for credential files, outside the repo for security."
-  bug_t  "      Created automatically when credentials are first installed."
-  bug_e
+  buh_section "Pre-selected Defaults"
+  buh_tc "  File: " "${z_rbrr_file}"
+  buh_t  "  Edit this file if any defaults don't fit, then re-run this guide."
+  buh_e
+  buh_t  "  Infrastructure:"
+  buh_tc "    RBRR_DNS_SERVER                " "$(zrbgm_po_extract_capture "${z_rbrr_file}" RBRR_DNS_SERVER)"
+  buh_t  "      Resolver for bottle network connectivity checks (Google Public DNS)."
+  buh_tc "    RBRR_GCB_MACHINE_TYPE          " "$(zrbgm_po_extract_capture "${z_rbrr_file}" RBRR_GCB_MACHINE_TYPE)"
+  buh_t  "      Compute Engine type for Cloud Build workers. Smallest reasonable option;"
+  buh_t  "      balances cost and build speed."
+  buh_tc "    RBRR_GCB_TIMEOUT               " "$(zrbgm_po_extract_capture "${z_rbrr_file}" RBRR_GCB_TIMEOUT)"
+  buh_t  "      Maximum time for a single Cloud Build job (20 minutes)."
+  buh_tc "    RBRR_GCB_MIN_CONCURRENT_BUILDS " "$(zrbgm_po_extract_capture "${z_rbrr_file}" RBRR_GCB_MIN_CONCURRENT_BUILDS)"
+  buh_t  "      Preflight gate: require capacity for this many parallel builds."
+  buh_t  "      With e2-standard-2 (2 vCPU) and default 10-CPU quota, 5 are possible."
+  buh_e
+  buh_t  "  Conventions:"
+  buh_tc "    RBRR_VESSEL_DIR                " "$(zrbgm_po_extract_capture "${z_rbrr_file}" RBRR_VESSEL_DIR)"
+  buh_t  "      Directory containing vessel specifications — what gets built into"
+  buh_t  "      container images."
+  buh_tc "    RBRR_GCP_REGION                " "$(zrbgm_po_extract_capture "${z_rbrr_file}" RBRR_GCP_REGION)"
+  buh_t  "      GCP region for all infrastructure. Change if you need geographic"
+  buh_t  "      proximity to a different region."
+  buh_tc "    RBRR_SECRETS_DIR               " "$(zrbgm_po_extract_capture "${z_rbrr_file}" RBRR_SECRETS_DIR)"
+  buh_t  "      Local directory for credential files, outside the repo for security."
+  buh_t  "      Created automatically when credentials are first installed."
+  buh_e
 
   # --- BURC project structure (read-only orientation) ---
-  bug_section "Project Structure (BURC regime — rarely needs changing)"
-  bug_tc "    BURC_TOOLS_DIR                 " "${BURC_TOOLS_DIR}"
-  bug_t  "      Tool modules — the kit scripts that implement every operation."
-  bug_tc "    BURC_TABTARGET_DIR             " "${BURC_TABTARGET_DIR}"
-  bug_t  "      Launcher scripts. Tab-complete these in your terminal to run commands."
-  bug_tc "    BURC_STATION_FILE              " "${BURC_STATION_FILE}"
-  bug_t  "      Developer-local settings (log directory). Lives outside the repo."
-  bug_tc "    BURC_TEMP_ROOT_DIR             " "${BURC_TEMP_ROOT_DIR}"
-  bug_t  "      Temporary working files for each command run. Outside the repo."
-  bug_tc "    BURC_OUTPUT_ROOT_DIR           " "${BURC_OUTPUT_ROOT_DIR}"
-  bug_t  "      Persistent command output. Outside the repo."
-  bug_tc "    BURC_MANAGED_KITS              " "${BURC_MANAGED_KITS}"
-  bug_t  "      Kit modules managed by the vvx toolchain."
-  bug_e
+  buh_section "Project Structure (BURC regime — rarely needs changing)"
+  buh_tc "    BURC_TOOLS_DIR                 " "${BURC_TOOLS_DIR}"
+  buh_t  "      Tool modules — the kit scripts that implement every operation."
+  buh_tc "    BURC_TABTARGET_DIR             " "${BURC_TABTARGET_DIR}"
+  buh_t  "      Launcher scripts. Tab-complete these in your terminal to run commands."
+  buh_tc "    BURC_STATION_FILE              " "${BURC_STATION_FILE}"
+  buh_t  "      Developer-local settings (log directory). Lives outside the repo."
+  buh_tc "    BURC_TEMP_ROOT_DIR             " "${BURC_TEMP_ROOT_DIR}"
+  buh_t  "      Temporary working files for each command run. Outside the repo."
+  buh_tc "    BURC_OUTPUT_ROOT_DIR           " "${BURC_OUTPUT_ROOT_DIR}"
+  buh_t  "      Persistent command output. Outside the repo."
+  buh_tc "    BURC_MANAGED_KITS              " "${BURC_MANAGED_KITS}"
+  buh_t  "      Kit modules managed by the vvx toolchain."
+  buh_e
 }
 
 rbgm_onboarding() {
@@ -697,9 +697,9 @@ rbgm_onboarding() {
   buc_doc_brief "RETIRED — use tt/rbw-go.OnboardMAIN.sh"
   buc_doc_shown || return 0
 
-  bug_t "This command has been replaced by per-role onboarding guides."
-  bug_tc "  Triage:    " "tt/rbw-go.OnboardMAIN.sh"
-  bug_tc "  Reference: " "tt/rbw-gOr.OnboardReference.sh"
+  buh_t "This command has been replaced by per-role onboarding guides."
+  buh_tc "  Triage:    " "tt/rbw-go.OnboardMAIN.sh"
+  buh_tc "  Reference: " "tt/rbw-gOr.OnboardReference.sh"
   return 0
 
   # --- Dead code: original onboarding body (colophon deregistered) ---
@@ -742,54 +742,54 @@ rbgm_onboarding() {
   # ===================================================================
   # Header
   # ===================================================================
-  bug_section "Recipe Bottle Onboarding Dashboard"
-  bug_e
+  buh_section "Recipe Bottle Onboarding Dashboard"
+  buh_e
 
   # ===================================================================
   # Role Inventory Display
   # ===================================================================
-  bug_section "Role Inventory"
-  bug_t "  Credential file presence IS the role declaration. No flags, no parameters."
-  bug_t "  The filesystem is the configuration."
-  bug_e
+  buh_section "Role Inventory"
+  buh_t "  Credential file presence IS the role declaration. No flags, no parameters."
+  buh_t "  The filesystem is the configuration."
+  buh_e
 
   zrbgm_po_status "${z_has_payor}"     "Payor       — OAuth credential: creates/funds GCP infrastructure"
   zrbgm_po_status "${z_has_governor}"  "Governor    — Service account: administers director/retriever credentials"
   zrbgm_po_status "${z_has_director}"  "Director    — Service account: submits builds, manages images"
   zrbgm_po_status "${z_has_retriever}" "Retriever   — Service account: pulls images for local bottles"
-  bug_e
+  buh_e
 
   # ===================================================================
   # Credential Guidance — for absent roles
   # ===================================================================
   if test "${z_has_payor}" = "0" || test "${z_has_governor}" = "0" || \
      test "${z_has_director}" = "0" || test "${z_has_retriever}" = "0"; then
-    bug_section "Credential Guidance"
+    buh_section "Credential Guidance"
 
     if test "${z_has_payor}" = "0"; then
-      bug_t "  Payor: OAuth credential (rbro-payor.env) not found."
+      buh_t "  Payor: OAuth credential (rbro-payor.env) not found."
       if test -n "${z_secrets_dir}"; then
-        bug_tc "    Expected at: " "${z_secrets_dir}/rbro-payor.env"
+        buh_tc "    Expected at: " "${z_secrets_dir}/rbro-payor.env"
       fi
-      bug_t "    To become the payor, run Payor Establish then Payor Install:"
+      buh_t "    To become the payor, run Payor Establish then Payor Install:"
       buc_tabtarget "${RBZ_PAYOR_ESTABLISH}"
       buc_tabtarget "${RBZ_PAYOR_INSTALL}" "\${HOME}/Downloads/client_secret_*.json"
-      bug_e
+      buh_e
     fi
 
     if test "${z_has_governor}" = "0" && test "${z_has_director}" = "0" && \
        test "${z_has_retriever}" = "0" && test -n "${z_secrets_dir}"; then
-      bug_t "  Service accounts (governor, director, retriever) authenticate via"
-      bug_t "  RBRA credential files. Each is a shell-sourceable .env file placed in:"
-      bug_tc "    " "${z_secrets_dir}/"
-      bug_t "  Required permissions: 600. Expected filenames:"
-      bug_t "    ${RBCC_role_governor}/${RBCC_rbra_file}   — admin for depot project"
-      bug_t "    ${RBCC_role_director}/${RBCC_rbra_file}   — executes Cloud Build operations"
-      bug_t "    ${RBCC_role_retriever}/${RBCC_rbra_file}  — pulls images for local bottles"
-      bug_e
-      bug_t "  If you received a credential file, place it at the path above."
-      bug_t "  If you are the payor, create credentials via the payor track below."
-      bug_e
+      buh_t "  Service accounts (governor, director, retriever) authenticate via"
+      buh_t "  RBRA credential files. Each is a shell-sourceable .env file placed in:"
+      buh_tc "    " "${z_secrets_dir}/"
+      buh_t "  Required permissions: 600. Expected filenames:"
+      buh_t "    ${RBCC_role_governor}/${RBCC_rbra_file}   — admin for depot project"
+      buh_t "    ${RBCC_role_director}/${RBCC_rbra_file}   — executes Cloud Build operations"
+      buh_t "    ${RBCC_role_retriever}/${RBCC_rbra_file}  — pulls images for local bottles"
+      buh_e
+      buh_t "  If you received a credential file, place it at the path above."
+      buh_t "  If you are the payor, create credentials via the payor track below."
+      buh_e
     fi
   fi
 
@@ -799,7 +799,7 @@ rbgm_onboarding() {
 
   # --- Payor Track ---
   if test "${z_has_payor}" = "1"; then
-    bug_section "Payor Track"
+    buh_section "Payor Track"
 
     # Sub-probes: repo-level config facts (committed, not role-specific)
     local z_has_project=0
@@ -821,39 +821,39 @@ rbgm_onboarding() {
     zrbgm_po_status "${z_has_project}"  "  Project configured"
     zrbgm_po_status "${z_has_depot}"    "  Depot created"
     zrbgm_po_status "${z_has_governor}" "  Governor reset"
-    bug_e
+    buh_e
 
     # Next step for payor
     if test "${z_has_project}" = "0"; then
-      bug_t "  Next: Configure the payor project identity."
-      bug_tc "    Edit: " "${RBBC_rbrp_file}"
-      bug_t "    Set RBRP_PAYOR_PROJECT_ID, then run:"
+      buh_t "  Next: Configure the payor project identity."
+      buh_tc "    Edit: " "${RBBC_rbrp_file}"
+      buh_t "    Set RBRP_PAYOR_PROJECT_ID, then run:"
       buc_tabtarget "${RBZ_PAYOR_ESTABLISH}"
     elif test "${z_has_depot}" = "0"; then
-      bug_t "  Next: Create the GCP depot project."
-      bug_t "  Review RBRR defaults before proceeding — one RBRR is tied to one depot."
-      bug_e
-      bug_tc "    RBRR_GCP_REGION                " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_GCP_REGION)"
-      bug_tc "    RBRR_GCB_MACHINE_TYPE          " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_GCB_MACHINE_TYPE)"
-      bug_tc "    RBRR_VESSEL_DIR                " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_VESSEL_DIR)"
-      bug_tc "    RBRR_SECRETS_DIR               " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_SECRETS_DIR)"
-      bug_e
-      bug_t "  Run (~2 min):"
+      buh_t "  Next: Create the GCP depot project."
+      buh_t "  Review RBRR defaults before proceeding — one RBRR is tied to one depot."
+      buh_e
+      buh_tc "    RBRR_GCP_REGION                " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_GCP_REGION)"
+      buh_tc "    RBRR_GCB_MACHINE_TYPE          " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_GCB_MACHINE_TYPE)"
+      buh_tc "    RBRR_VESSEL_DIR                " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_VESSEL_DIR)"
+      buh_tc "    RBRR_SECRETS_DIR               " "$(zrbgm_po_extract_capture "${RBBC_rbrr_file}" RBRR_SECRETS_DIR)"
+      buh_e
+      buh_t "  Run (~2 min):"
       buc_tabtarget "${RBZ_LEVY_DEPOT}" "<depot-name>"
     elif test "${z_has_governor}" = "0"; then
-      bug_t "  Next: Mantle the governor service account."
-      bug_t "  Run:"
+      buh_t "  Next: Mantle the governor service account."
+      buh_t "  Run:"
       buc_tabtarget "${RBZ_MANTLE_GOVERNOR}"
     else
-      bug_t "  Payor track complete. Governor, director, and retriever credentials"
-      bug_t "  are issued from the governor track (below) or distributed to machines."
+      buh_t "  Payor track complete. Governor, director, and retriever credentials"
+      buh_t "  are issued from the governor track (below) or distributed to machines."
     fi
-    bug_e
+    buh_e
   fi
 
   # --- Director Track ---
   if test "${z_has_director}" = "1"; then
-    bug_section "Director Track"
+    buh_section "Director Track"
 
     # Sub-probe: reliquary inscribed (busybox RBRV_RELIQUARY non-empty)
     local z_has_reliquary=0
@@ -891,60 +891,60 @@ rbgm_onboarding() {
     zrbgm_po_status "${z_has_busybox_built}" "  Busybox built (airgap)"
     zrbgm_po_status "${z_has_bottle_built}"  "  Ifrit bottle built (Debian slim, tether)"
     zrbgm_po_status "${z_has_sentry_built}"  "  Sentry built (Debian slim, tether)"
-    bug_e
+    buh_e
 
     # Next step for director
     if test "${z_has_reliquary}" = "0"; then
-      bug_t "  Next: Inscribe reliquary — freeze tool images in GAR."
-      bug_t "  Run (~6 min):"
+      buh_t "  Next: Inscribe reliquary — freeze tool images in GAR."
+      buh_t "  Run (~6 min):"
       buc_tabtarget "${RBZ_INSCRIBE_RELIQUARY}"
-      bug_t "  Then record the reliquary ID in the busybox vessel:"
-      bug_tc "    Edit: " "${z_vessel_dir:-rbev-vessels}/${z_busybox_sigil}/rbrv.env"
-      bug_tc "    Set RBRV_RELIQUARY=" "<reliquary-id>"
+      buh_t "  Then record the reliquary ID in the busybox vessel:"
+      buh_tc "    Edit: " "${z_vessel_dir:-rbev-vessels}/${z_busybox_sigil}/rbrv.env"
+      buh_tc "    Set RBRV_RELIQUARY=" "<reliquary-id>"
     elif test "${z_has_busybox_built}" = "0"; then
-      bug_t "  Next: Airgap build — busybox on the air-gapped pool."
-      bug_t "  1. Enshrine busybox base image (~2 min):"
+      buh_t "  Next: Airgap build — busybox on the air-gapped pool."
+      buh_t "  1. Enshrine busybox base image (~2 min):"
       buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir:-rbev-vessels}/${z_busybox_sigil}"
-      bug_t "  2. Conjure busybox (~8 min):"
+      buh_t "  2. Conjure busybox (~8 min):"
       buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir:-rbev-vessels}/${z_busybox_sigil}"
-      bug_t "  3. Vouch (verify SLSA provenance):"
+      buh_t "  3. Vouch (verify SLSA provenance):"
       buc_tabtarget "${RBZ_VOUCH_HALLMARKS}"
     elif test "${z_has_bottle_built}" = "0"; then
-      bug_t "  Next: Ifrit bottle — Debian bookworm-slim on tether pool."
-      bug_t "  1. Record reliquary in bottle vessel:"
-      bug_tc "    Edit: " "${z_vessel_dir:-rbev-vessels}/${z_bottle_sigil}/rbrv.env"
-      bug_tc "    Set RBRV_RELIQUARY=" "${z_busybox_reliquary:-<reliquary-id>}"
-      bug_t "  2. Enshrine bottle base image (~2 min):"
+      buh_t "  Next: Ifrit bottle — Debian bookworm-slim on tether pool."
+      buh_t "  1. Record reliquary in bottle vessel:"
+      buh_tc "    Edit: " "${z_vessel_dir:-rbev-vessels}/${z_bottle_sigil}/rbrv.env"
+      buh_tc "    Set RBRV_RELIQUARY=" "${z_busybox_reliquary:-<reliquary-id>}"
+      buh_t "  2. Enshrine bottle base image (~2 min):"
       buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir:-rbev-vessels}/${z_bottle_sigil}"
-      bug_t "  3. Conjure ifrit bottle (~8 min):"
+      buh_t "  3. Conjure ifrit bottle (~8 min):"
       buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir:-rbev-vessels}/${z_bottle_sigil}"
-      bug_t "  4. Vouch:"
+      buh_t "  4. Vouch:"
       buc_tabtarget "${RBZ_VOUCH_HALLMARKS}"
     elif test "${z_has_sentry_built}" = "0"; then
-      bug_t "  Next: Sentry — Debian bookworm-slim on tether pool."
-      bug_t "  1. Record reliquary in sentry vessel:"
-      bug_tc "    Edit: " "${z_vessel_dir:-rbev-vessels}/${z_sentry_sigil}/rbrv.env"
-      bug_tc "    Set RBRV_RELIQUARY=" "${z_busybox_reliquary:-<reliquary-id>}"
+      buh_t "  Next: Sentry — Debian bookworm-slim on tether pool."
+      buh_t "  1. Record reliquary in sentry vessel:"
+      buh_tc "    Edit: " "${z_vessel_dir:-rbev-vessels}/${z_sentry_sigil}/rbrv.env"
+      buh_tc "    Set RBRV_RELIQUARY=" "${z_busybox_reliquary:-<reliquary-id>}"
       if test -n "${z_sentry_anchor}" && test -n "${z_bottle_anchor}" && \
          test "${z_sentry_anchor}" = "${z_bottle_anchor}"; then
-        bug_t "  2. Enshrine: SKIP — same base image already enshrined (shared enshrine namespace)"
+        buh_t "  2. Enshrine: SKIP — same base image already enshrined (shared enshrine namespace)"
       else
-        bug_t "  2. Enshrine sentry base image (~2 min):"
+        buh_t "  2. Enshrine sentry base image (~2 min):"
         buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir:-rbev-vessels}/${z_sentry_sigil}"
       fi
-      bug_t "  3. Conjure sentry (~5 min):"
+      buh_t "  3. Conjure sentry (~5 min):"
       buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir:-rbev-vessels}/${z_sentry_sigil}"
-      bug_t "  4. Vouch:"
+      buh_t "  4. Vouch:"
       buc_tabtarget "${RBZ_VOUCH_HALLMARKS}"
     else
-      bug_t "  Director track complete. All vessels built and vouched."
+      buh_t "  Director track complete. All vessels built and vouched."
     fi
-    bug_e
+    buh_e
   fi
 
   # --- Retriever Track ---
   if test "${z_has_retriever}" = "1"; then
-    bug_section "Retriever Track"
+    buh_section "Retriever Track"
 
     # Sub-probe: nameplate hallmarks populated
     local z_has_bottle_hallmark=0
@@ -973,43 +973,43 @@ rbgm_onboarding() {
     zrbgm_po_status "${z_has_sentry_hallmark}"  "  Sentry hallmark recorded"
     zrbgm_po_status "${z_has_bottle_summoned}"      "  Bottle image summoned"
     zrbgm_po_status "${z_has_sentry_summoned}"      "  Sentry image summoned"
-    bug_e
+    buh_e
 
     # Next step for retriever
     if test "${z_has_bottle_hallmark}" = "0"; then
-      bug_t "  Next: Record bottle hallmark in the tadmor nameplate."
-      bug_t "  1. Edit the nameplate:"
-      bug_tc "    " "${ZRBGM_ONBOARDING_NAMEPLATE}"
-      bug_t "    Set (substitute your actual hallmark value):"
-      bug_tc "    RBRN_BOTTLE_HALLMARK=" "<hallmark>"
-      bug_t "  2. Summon bottle:"
+      buh_t "  Next: Record bottle hallmark in the tadmor nameplate."
+      buh_t "  1. Edit the nameplate:"
+      buh_tc "    " "${ZRBGM_ONBOARDING_NAMEPLATE}"
+      buh_t "    Set (substitute your actual hallmark value):"
+      buh_tc "    RBRN_BOTTLE_HALLMARK=" "<hallmark>"
+      buh_t "  2. Summon bottle:"
       buc_tabtarget "${RBZ_SUMMON_HALLMARK}" "${RBRN_BOTTLE_VESSEL:-${z_bottle_sigil}} <hallmark>"
     elif test "${z_has_sentry_hallmark}" = "0"; then
-      bug_t "  Next: Record sentry hallmark in the tadmor nameplate."
-      bug_t "  1. Edit the nameplate:"
-      bug_tc "    " "${ZRBGM_ONBOARDING_NAMEPLATE}"
-      bug_t "    Set (substitute your actual hallmark value):"
-      bug_tc "    RBRN_SENTRY_HALLMARK=" "<hallmark>"
-      bug_t "  2. Summon sentry:"
+      buh_t "  Next: Record sentry hallmark in the tadmor nameplate."
+      buh_t "  1. Edit the nameplate:"
+      buh_tc "    " "${ZRBGM_ONBOARDING_NAMEPLATE}"
+      buh_t "    Set (substitute your actual hallmark value):"
+      buh_tc "    RBRN_SENTRY_HALLMARK=" "<hallmark>"
+      buh_t "  2. Summon sentry:"
       buc_tabtarget "${RBZ_SUMMON_HALLMARK}" "${RBRN_SENTRY_VESSEL:-${z_sentry_sigil}} <hallmark>"
     elif test "${z_has_bottle_summoned}" = "0" || test "${z_has_sentry_summoned}" = "0"; then
-      bug_t "  Next: Summon missing images locally."
+      buh_t "  Next: Summon missing images locally."
       if test "${z_has_bottle_summoned}" = "0"; then
-        bug_t "  Summon bottle:"
+        buh_t "  Summon bottle:"
         buc_tabtarget "${RBZ_SUMMON_HALLMARK}" "${RBRN_BOTTLE_VESSEL:-${z_bottle_sigil}} ${RBRN_BOTTLE_HALLMARK:-<hallmark>}"
       fi
       if test "${z_has_sentry_summoned}" = "0"; then
-        bug_t "  Summon sentry:"
+        buh_t "  Summon sentry:"
         buc_tabtarget "${RBZ_SUMMON_HALLMARK}" "${RBRN_SENTRY_VESSEL:-${z_sentry_sigil}} ${RBRN_SENTRY_HALLMARK:-<hallmark>}"
       fi
     else
-      bug_t "  Retriever track complete. Run the tadmor security tests:"
-      bug_tc "    " "tt/rbw-tf.TestFixture.tadmor-security.sh"
-      bug_e
-      bug_t "  Or start a bottle:"
+      buh_t "  Retriever track complete. Run the tadmor security tests:"
+      buh_tc "    " "tt/rbw-tf.TestFixture.tadmor-security.sh"
+      buh_e
+      buh_t "  Or start a bottle:"
       buc_tabtarget "${RBZ_CRUCIBLE_CHARGE}" "tadmor"
     fi
-    bug_e
+    buh_e
   fi
 
   # ===================================================================
@@ -1017,14 +1017,14 @@ rbgm_onboarding() {
   # ===================================================================
   if test "${z_has_payor}" = "0" && test "${z_has_governor}" = "0" && \
      test "${z_has_director}" = "0" && test "${z_has_retriever}" = "0"; then
-    bug_section "Next Step"
-    bug_t "  No roles detected on this machine. Two paths forward:"
-    bug_e
-    bug_t "  A. Full setup (you are the payor):"
+    buh_section "Next Step"
+    buh_t "  No roles detected on this machine. Two paths forward:"
+    buh_e
+    buh_t "  A. Full setup (you are the payor):"
     buc_tabtarget "${RBZ_PAYOR_ESTABLISH}"
-    bug_e
-    bug_t "  B. Retriever-only (you received credential files):"
-    bug_t "     Place ${RBCC_role_retriever}/${RBCC_rbra_file} in RBRR_SECRETS_DIR and re-run this guide."
+    buh_e
+    buh_t "  B. Retriever-only (you received credential files):"
+    buh_t "     Place ${RBCC_role_retriever}/${RBCC_rbra_file} in RBRR_SECRETS_DIR and re-run this guide."
   fi
 
 }
@@ -1066,9 +1066,9 @@ zrbgm_triage_role() {
   local z_pad=""
   printf -v z_pad '%*s' $((13 - ${#z_name})) ''
   if test "${z_detected}" = "1"; then
-    bug_tltT " [*] " "${z_name}" "${z_url}" "${z_pad}" "${z_colophon}"
+    buh_tltT " [*] " "${z_name}" "${z_url}" "${z_pad}" "${z_colophon}"
   else
-    bug_tl   " [ ] " "${z_name}" "${z_url}"
+    buh_tl   " [ ] " "${z_name}" "${z_url}"
   fi
 }
 
@@ -1083,11 +1083,11 @@ rbgm_onboard_triage() {
 
   local -r z_docs="${RBGC_PUBLIC_DOCS_URL}"
 
-  bug_section "Recipe Bottle Onboarding"
-  bug_e
-  bug_tlt "  " "Recipe Bottle" "${z_docs}" " builds container images with supply-chain provenance"
-  bug_t   "  and runs untrusted containers behind enforced network isolation."
-  bug_e
+  buh_section "Recipe Bottle Onboarding"
+  buh_e
+  buh_tlt "  " "Recipe Bottle" "${z_docs}" " builds container images with supply-chain provenance"
+  buh_t   "  and runs untrusted containers behind enforced network isolation."
+  buh_e
 
   # Each role: detected → walkthrough tabtarget, absent → docs link
   zrbgm_triage_role "${z_has_retriever}" "Retriever" "${RBZ_ONBOARD_RETRIEVER}"
@@ -1095,9 +1095,9 @@ rbgm_onboard_triage() {
   zrbgm_triage_role "${z_has_governor}"  "Governor"  "${RBZ_ONBOARD_GOVERNOR}"
   zrbgm_triage_role "${z_has_payor}"     "Payor"     "${RBZ_ONBOARD_PAYOR}"
 
-  bug_e
-  bug_t  "  For a full health dashboard across all roles:"
-  bug_tT "    " "${RBZ_ONBOARD_REFERENCE}"
+  buh_e
+  buh_t  "  For a full health dashboard across all roles:"
+  buh_tT "    " "${RBZ_ONBOARD_REFERENCE}"
 
 }
 
@@ -1113,24 +1113,24 @@ rbgm_onboard_reference() {
   local z_has_payor z_has_governor z_has_director z_has_retriever z_secrets_dir
   zrbgm_probe_role_credentials
 
-  bug_section "Recipe Bottle — Onboarding Reference"
-  bug_e
-  bug_t  "  Health dashboard across all roles. Re-run anytime to check status."
-  bug_e
+  buh_section "Recipe Bottle — Onboarding Reference"
+  buh_e
+  buh_t  "  Health dashboard across all roles. Re-run anytime to check status."
+  buh_e
 
   # Retriever — full per-unit probes
-  bug_section "Retriever"
+  buh_section "Retriever"
   local z_ru1 z_ru2 z_ru3 z_ru4
   zrbgm_probe_retriever_units
   zrbgm_po_status "${z_ru1}" "  Credential gate — SA key installed"
   zrbgm_po_status "${z_ru2}" "  First artifact — hallmark summoned locally"
   zrbgm_po_status "${z_ru3}" "  Container runtime — crucible charged"
   zrbgm_po_status "${z_ru4}" "  Local experimentation — kludge image present"
-  bug_tc "  Walkthrough: " "tt/rbw-gOR.OnboardRetriever.sh"
-  bug_e
+  buh_tc "  Walkthrough: " "tt/rbw-gOR.OnboardRetriever.sh"
+  buh_e
 
   # Director — full per-unit probes
-  bug_section "Director"
+  buh_section "Director"
   local z_du1=0
   local z_du2=0
   local z_du3=0
@@ -1146,21 +1146,21 @@ rbgm_onboard_reference() {
   zrbgm_po_status "${z_du5}" "  Bind — pinned upstream image present"
   zrbgm_po_status "${z_du6}" "  Graft — locally-built image pushed"
   zrbgm_po_status "${z_du7}" "  Full ark — all three modes compared"
-  bug_tc "  Walkthrough: " "tt/rbw-gOD.OnboardDirector.sh"
-  bug_e
+  buh_tc "  Walkthrough: " "tt/rbw-gOD.OnboardDirector.sh"
+  buh_e
 
   # Governor — full per-unit probes
-  bug_section "Governor"
+  buh_section "Governor"
   local z_gu1 z_gu2 z_gu3
   zrbgm_probe_governor_units
   zrbgm_po_status "${z_gu1}" "  Project access — governor credentials installed"
   zrbgm_po_status "${z_gu2}" "  Service accounts — retriever and director SAs provisioned"
   zrbgm_po_status "${z_gu3}" "  Verification — downstream roles can access the depot"
-  bug_tc "  Walkthrough: " "tt/rbw-gOG.OnboardGovernor.sh"
-  bug_e
+  buh_tc "  Walkthrough: " "tt/rbw-gOG.OnboardGovernor.sh"
+  buh_e
 
   # Payor — full per-unit probes
-  bug_section "Payor"
+  buh_section "Payor"
   local z_pu1=0
   local z_pu2=0
   local z_pu3=0
@@ -1170,8 +1170,8 @@ rbgm_onboard_reference() {
   zrbgm_po_status "${z_pu2}" "  Project setup — GCP project configured"
   zrbgm_po_status "${z_pu3}" "  Depot provisioning — infrastructure levied"
   zrbgm_po_status "${z_pu4}" "  Governor handoff — governor SA created"
-  bug_tc "  Walkthrough: " "tt/rbw-gOP.OnboardPayor.sh"
-  bug_e
+  buh_tc "  Walkthrough: " "tt/rbw-gOP.OnboardPayor.sh"
+  buh_e
 
 }
 
@@ -1202,13 +1202,13 @@ rbgm_onboard_retriever() {
   local -r z_total=4
 
   # --- Header ---
-  bug_section "Retriever Walkthrough"
-  bug_e
+  buh_section "Retriever Walkthrough"
+  buh_e
 
   if test "${z_done}" = "${z_total}"; then
     # ============ REFERENCE MODE — all probes green ============
-    bug_t  "  All steps complete. Re-run anytime to verify health."
-    bug_e
+    buh_t  "  All steps complete. Re-run anytime to verify health."
+    buh_e
     zrbgm_po_status 1 "  Credential gate — SA key installed"
     zrbgm_po_status 1 "  First artifact — hallmark summoned locally"
     zrbgm_po_status 1 "  Container runtime — crucible charged"
@@ -1216,87 +1216,87 @@ rbgm_onboard_retriever() {
   else
     # ============ WALKTHROUGH MODE — show frontier unit ============
     local -r z_frontier=$((z_done + 1))
-    bug_t  "  Step ${z_frontier} of ${z_total}"
-    bug_e
+    buh_t  "  Step ${z_frontier} of ${z_total}"
+    buh_e
 
     if test "${z_ru1}" = "0"; then
       # ---- Unit 1: Credential Gate ----
-      bug_section "  Credential Gate"
-      bug_e
-      bug_tlt "  A " "depot" "${z_docs}#Depot" " is the facility where container images are built and stored."
-      bug_tlt "  A " "retriever" "${z_docs}#Retriever" " is a role with read access to a depot — you pull and run"
-      bug_t   "  container images that others have built."
-      bug_e
-      bug_t   "  To access a depot, you need a service account key. Your governor creates"
-      bug_t   "  one by running:"
-      bug_tc  "    " "tt/rbw-aC.GovernorChartersRetriever.sh"
-      bug_e
+      buh_section "  Credential Gate"
+      buh_e
+      buh_tlt "  A " "depot" "${z_docs}#Depot" " is the facility where container images are built and stored."
+      buh_tlt "  A " "retriever" "${z_docs}#Retriever" " is a role with read access to a depot — you pull and run"
+      buh_t   "  container images that others have built."
+      buh_e
+      buh_t   "  To access a depot, you need a service account key. Your governor creates"
+      buh_t   "  one by running:"
+      buh_tc  "    " "tt/rbw-aC.GovernorChartersRetriever.sh"
+      buh_e
       if test -n "${z_secrets_dir}"; then
-        bug_t   "  Install the key file to:"
-        bug_tc  "    " "${z_secrets_dir}/${RBCC_role_retriever}/${RBCC_rbra_file}"
+        buh_t   "  Install the key file to:"
+        buh_tc  "    " "${z_secrets_dir}/${RBCC_role_retriever}/${RBCC_rbra_file}"
       else
-        bug_tW  "  " "Project not configured — .rbk/rbrr.env not found."
-        bug_t   "  Run the payor walkthrough first, or ask your payor for the project files."
+        buh_tW  "  " "Project not configured — .rbk/rbrr.env not found."
+        buh_t   "  Run the payor walkthrough first, or ask your payor for the project files."
       fi
-      bug_e
-      bug_t   "  Once installed, re-run this walkthrough to continue."
+      buh_e
+      buh_t   "  Once installed, re-run this walkthrough to continue."
 
     elif test "${z_ru2}" = "0"; then
       # ---- Unit 2: First Artifact ----
-      bug_section "  First Artifact"
-      bug_e
-      bug_tlt "  A " "vessel" "${z_docs}#Vessel" " is a specification for a container image."
-      bug_tlt "  A " "hallmark" "${z_docs}#Hallmark" " is a specific build instance of a vessel, identified by"
-      bug_t   "  timestamp."
-      bug_e
-      bug_tlt "  " "Summon" "${z_docs}#Summon" " pulls a hallmark image from the depot to your local machine:"
-      bug_tc  "    " "tt/rbw-hs.RetrieverSummonsHallmark.sh"
-      bug_e
-      bug_t   "  After summoning, inspect the artifact's provenance:"
-      bug_tc  "    " "tt/rbw-hpf.RetrieverPlumbsFull.sh"
-      bug_tc  "    " "tt/rbw-hpc.RetrieverPlumbsCompact.sh"
-      bug_e
-      bug_tlt "  A " "vouch" "${z_docs}#Vouch" " is cryptographic attestation proving the artifact was built"
-      bug_t   "  by trusted infrastructure."
-      bug_tlt "  " "Plumb" "${z_docs}#Plumb" " lets you inspect the SBOM, build info, and vouch chain —"
-      bug_t   "  this is how you know what you're running."
+      buh_section "  First Artifact"
+      buh_e
+      buh_tlt "  A " "vessel" "${z_docs}#Vessel" " is a specification for a container image."
+      buh_tlt "  A " "hallmark" "${z_docs}#Hallmark" " is a specific build instance of a vessel, identified by"
+      buh_t   "  timestamp."
+      buh_e
+      buh_tlt "  " "Summon" "${z_docs}#Summon" " pulls a hallmark image from the depot to your local machine:"
+      buh_tc  "    " "tt/rbw-hs.RetrieverSummonsHallmark.sh"
+      buh_e
+      buh_t   "  After summoning, inspect the artifact's provenance:"
+      buh_tc  "    " "tt/rbw-hpf.RetrieverPlumbsFull.sh"
+      buh_tc  "    " "tt/rbw-hpc.RetrieverPlumbsCompact.sh"
+      buh_e
+      buh_tlt "  A " "vouch" "${z_docs}#Vouch" " is cryptographic attestation proving the artifact was built"
+      buh_t   "  by trusted infrastructure."
+      buh_tlt "  " "Plumb" "${z_docs}#Plumb" " lets you inspect the SBOM, build info, and vouch chain —"
+      buh_t   "  this is how you know what you're running."
 
     elif test "${z_ru3}" = "0"; then
       # ---- Unit 3: Container Runtime ----
-      bug_section "  Container Runtime"
-      bug_e
-      bug_tlt "  A " "bottle" "${z_docs}#Bottle" " is your workload container, running unmodified in a controlled"
-      bug_t   "  network environment."
-      bug_tlt "  A " "nameplate" "${z_docs}#Nameplate" " ties a sentry and bottle together into a runnable unit."
-      bug_e
-      bug_tlt "  The " "sentry" "${z_docs}#Sentry" " enforces network policies via iptables and dnsmasq."
-      bug_tlt "  The " "pentacle" "${z_docs}#Pentacle" " establishes the network namespace shared with the bottle."
-      bug_e
-      bug_tlt "  " "Charge" "${z_docs}#Charge" " starts the sentry/pentacle/bottle triad:"
-      bug_tc  "    " "tt/rbw-cC.Charge.tadmor.sh"
-      bug_e
-      bug_t   "  Shell into the bottle and look around:"
-      bug_tc  "    " "tt/rbw-cr.Rack.sh tadmor"
-      bug_e
-      bug_tlt "  When done, " "quench" "${z_docs}#Quench" " stops and cleans up:"
-      bug_tc  "    " "tt/rbw-cQ.Quench.tadmor.sh"
+      buh_section "  Container Runtime"
+      buh_e
+      buh_tlt "  A " "bottle" "${z_docs}#Bottle" " is your workload container, running unmodified in a controlled"
+      buh_t   "  network environment."
+      buh_tlt "  A " "nameplate" "${z_docs}#Nameplate" " ties a sentry and bottle together into a runnable unit."
+      buh_e
+      buh_tlt "  The " "sentry" "${z_docs}#Sentry" " enforces network policies via iptables and dnsmasq."
+      buh_tlt "  The " "pentacle" "${z_docs}#Pentacle" " establishes the network namespace shared with the bottle."
+      buh_e
+      buh_tlt "  " "Charge" "${z_docs}#Charge" " starts the sentry/pentacle/bottle triad:"
+      buh_tc  "    " "tt/rbw-cC.Charge.tadmor.sh"
+      buh_e
+      buh_t   "  Shell into the bottle and look around:"
+      buh_tc  "    " "tt/rbw-cr.Rack.sh tadmor"
+      buh_e
+      buh_tlt "  When done, " "quench" "${z_docs}#Quench" " stops and cleans up:"
+      buh_tc  "    " "tt/rbw-cQ.Quench.tadmor.sh"
 
     else
       # ---- Unit 4: Local Experimentation ----
-      bug_section "  Local Experimentation"
-      bug_e
-      bug_tlt "  " "Kludge" "${z_docs}#Kludge" " builds a vessel image locally for fast iteration — no registry"
-      bug_t   "  push, no director credentials needed:"
-      bug_tc  "    " "tt/rbw-hk.LocalKludge.sh"
-      bug_e
-      bug_t   "  After kludging, charge a nameplate to test your local build, then rack in"
-      bug_t   "  and look around. Kludge is the retriever's experimentation tool — iterate"
-      bug_t   "  on your local environment without Cloud Build."
+      buh_section "  Local Experimentation"
+      buh_e
+      buh_tlt "  " "Kludge" "${z_docs}#Kludge" " builds a vessel image locally for fast iteration — no registry"
+      buh_t   "  push, no director credentials needed:"
+      buh_tc  "    " "tt/rbw-hk.LocalKludge.sh"
+      buh_e
+      buh_t   "  After kludging, charge a nameplate to test your local build, then rack in"
+      buh_t   "  and look around. Kludge is the retriever's experimentation tool — iterate"
+      buh_t   "  on your local environment without Cloud Build."
     fi
   fi
 
-  bug_e
-  bug_tT "  Triage: " "${RBZ_ONBOARD_TRIAGE}"
+  buh_e
+  buh_tT "  Triage: " "${RBZ_ONBOARD_TRIAGE}"
 
 }
 
@@ -1333,13 +1333,13 @@ rbgm_onboard_director() {
   local -r z_total=7
 
   # --- Header ---
-  bug_section "Director Walkthrough"
-  bug_e
+  buh_section "Director Walkthrough"
+  buh_e
 
   if test "${z_done}" = "${z_total}"; then
     # ============ REFERENCE MODE — all probes green ============
-    bug_t  "  All steps complete. Re-run anytime to verify health."
-    bug_e
+    buh_t  "  All steps complete. Re-run anytime to verify health."
+    buh_e
     zrbgm_po_status 1 "  Credential gate — director SA key installed"
     zrbgm_po_status 1 "  Local build — kludge image present"
     zrbgm_po_status 1 "  Depot foundation — base images enshrined"
@@ -1350,175 +1350,175 @@ rbgm_onboard_director() {
   else
     # ============ WALKTHROUGH MODE — show frontier unit ============
     local -r z_frontier=$((z_done + 1))
-    bug_t  "  Step ${z_frontier} of ${z_total}"
-    bug_e
+    buh_t  "  Step ${z_frontier} of ${z_total}"
+    buh_e
 
     if test "${z_du1}" = "0"; then
       # ---- Unit 1: Credential Gate ----
-      bug_section "  Credential Gate"
-      bug_e
-      bug_tlt "  A " "depot" "${z_docs}#Depot" " is the facility where container images are built and stored."
-      bug_tlt "  A " "director" "${z_docs}#Director" " is a role with build and publish access to a depot —"
-      bug_t   "  you create container images and push them to the registry."
-      bug_e
-      bug_t   "  Where a retriever can only pull, a director can build, push, and manage"
-      bug_t   "  artifacts. Your governor knighted this service account for build operations."
-      bug_e
-      bug_t   "  To access a depot, you need a service account key. Your governor creates"
-      bug_t   "  one by running:"
-      bug_tc  "    " "tt/rbw-aK.GovernorKnightsDirector.sh"
-      bug_e
+      buh_section "  Credential Gate"
+      buh_e
+      buh_tlt "  A " "depot" "${z_docs}#Depot" " is the facility where container images are built and stored."
+      buh_tlt "  A " "director" "${z_docs}#Director" " is a role with build and publish access to a depot —"
+      buh_t   "  you create container images and push them to the registry."
+      buh_e
+      buh_t   "  Where a retriever can only pull, a director can build, push, and manage"
+      buh_t   "  artifacts. Your governor knighted this service account for build operations."
+      buh_e
+      buh_t   "  To access a depot, you need a service account key. Your governor creates"
+      buh_t   "  one by running:"
+      buh_tc  "    " "tt/rbw-aK.GovernorKnightsDirector.sh"
+      buh_e
       if test -n "${z_secrets_dir}"; then
-        bug_t   "  Install the key file to:"
-        bug_tc  "    " "${z_secrets_dir}/${RBCC_role_director}/${RBCC_rbra_file}"
+        buh_t   "  Install the key file to:"
+        buh_tc  "    " "${z_secrets_dir}/${RBCC_role_director}/${RBCC_rbra_file}"
       else
-        bug_tW  "  " "Project not configured — .rbk/rbrr.env not found."
-        bug_t   "  Run the payor walkthrough first, or ask your payor for the project files."
+        buh_tW  "  " "Project not configured — .rbk/rbrr.env not found."
+        buh_t   "  Run the payor walkthrough first, or ask your payor for the project files."
       fi
-      bug_e
-      bug_t   "  Once installed, re-run this walkthrough to continue."
+      buh_e
+      buh_t   "  Once installed, re-run this walkthrough to continue."
 
     elif test "${z_du2}" = "0"; then
       # ---- Unit 2: Kludge — Local Build ----
-      bug_section "  Kludge: Local Build"
-      bug_e
-      bug_tlt "  A " "vessel" "${z_docs}#Vessel" " is a specification for a container image — a Dockerfile,"
-      bug_t   "  build context, and metadata defining what gets built."
-      bug_e
-      bug_tlt "  " "Kludge" "${z_docs}#Kludge" " builds a vessel image locally using Docker — no Cloud Build"
-      bug_t   "  setup needed, no registry push. The fastest way to see a vessel come to life."
-      bug_e
-      bug_t   "  Build the sentry vessel locally:"
-      bug_tc  "    " "tt/rbw-hk.LocalKludge.sh"
-      bug_e
-      bug_tlt "  After kludging, test by " "charging" "${z_docs}#Charge" " a crucible and shelling in:"
-      bug_tc  "    " "tt/rbw-cC.Charge.tadmor.sh"
-      bug_tc  "    " "tt/rbw-cr.Rack.sh tadmor"
-      bug_e
-      bug_t   "  Later units teach how to build this same vessel via Cloud Build for production,"
-      bug_t   "  and how to push your local build to the registry."
+      buh_section "  Kludge: Local Build"
+      buh_e
+      buh_tlt "  A " "vessel" "${z_docs}#Vessel" " is a specification for a container image — a Dockerfile,"
+      buh_t   "  build context, and metadata defining what gets built."
+      buh_e
+      buh_tlt "  " "Kludge" "${z_docs}#Kludge" " builds a vessel image locally using Docker — no Cloud Build"
+      buh_t   "  setup needed, no registry push. The fastest way to see a vessel come to life."
+      buh_e
+      buh_t   "  Build the sentry vessel locally:"
+      buh_tc  "    " "tt/rbw-hk.LocalKludge.sh"
+      buh_e
+      buh_tlt "  After kludging, test by " "charging" "${z_docs}#Charge" " a crucible and shelling in:"
+      buh_tc  "    " "tt/rbw-cC.Charge.tadmor.sh"
+      buh_tc  "    " "tt/rbw-cr.Rack.sh tadmor"
+      buh_e
+      buh_t   "  Later units teach how to build this same vessel via Cloud Build for production,"
+      buh_t   "  and how to push your local build to the registry."
 
     elif test "${z_du3}" = "0"; then
       # ---- Unit 3: Depot Foundation — Reliquary and Enshrine ----
-      bug_section "  Depot Foundation: Reliquary and Enshrine"
-      bug_e
-      bug_t   "  Before Cloud Build can create production images, the depot needs two kinds"
-      bug_t   "  of upstream images mirrored into your registry:"
-      bug_e
-      bug_tlt "  An " "ark" "${z_docs}#Ark" " is an immutable container image artifact in the registry,"
-      bug_t   "  produced from a vessel."
-      bug_e
-      bug_t   "  Tool images (reliquary): gcloud, docker, syft, skopeo, binfmt — the"
-      bug_t   "  tools that Cloud Build steps consume during a build."
-      bug_e
-      bug_tlt "  Base images (" "enshrine" "${z_docs}#Enshrine" "): the upstream images that vessels build FROM."
-      bug_t   "  Mirrored into your depot's registry with content-addressed anchors."
-      bug_e
-      bug_t   "  Mirror tool images into the depot:"
-      bug_tc  "    " "tt/rbw-dI.DirectorInscribesReliquary.sh"
-      bug_e
-      bug_t   "  Enshrine base images for the sentry vessel:"
-      bug_tc  "    " "tt/rbw-dE.DirectorEnshrinesVessel.sh"
-      bug_e
-      bug_t   "  Reliquary provides the tools; enshrine provides the foundations."
-      bug_tltlt "  Both must be in place before " "conjure" "${z_docs}#Conjure" " or " "bind" "${z_docs}#Bind" "."
-      bug_e
-      bug_t   "  After completing both, proceed to conjure your first production build."
-      bug_tlt "  The probe for this step turns green when a conjure " "hallmark" "${z_docs}#Hallmark" ""
-      bug_tlt "  is " "summoned" "${z_docs}#Summon" " locally (next step)."
+      buh_section "  Depot Foundation: Reliquary and Enshrine"
+      buh_e
+      buh_t   "  Before Cloud Build can create production images, the depot needs two kinds"
+      buh_t   "  of upstream images mirrored into your registry:"
+      buh_e
+      buh_tlt "  An " "ark" "${z_docs}#Ark" " is an immutable container image artifact in the registry,"
+      buh_t   "  produced from a vessel."
+      buh_e
+      buh_t   "  Tool images (reliquary): gcloud, docker, syft, skopeo, binfmt — the"
+      buh_t   "  tools that Cloud Build steps consume during a build."
+      buh_e
+      buh_tlt "  Base images (" "enshrine" "${z_docs}#Enshrine" "): the upstream images that vessels build FROM."
+      buh_t   "  Mirrored into your depot's registry with content-addressed anchors."
+      buh_e
+      buh_t   "  Mirror tool images into the depot:"
+      buh_tc  "    " "tt/rbw-dI.DirectorInscribesReliquary.sh"
+      buh_e
+      buh_t   "  Enshrine base images for the sentry vessel:"
+      buh_tc  "    " "tt/rbw-dE.DirectorEnshrinesVessel.sh"
+      buh_e
+      buh_t   "  Reliquary provides the tools; enshrine provides the foundations."
+      buh_tltlt "  Both must be in place before " "conjure" "${z_docs}#Conjure" " or " "bind" "${z_docs}#Bind" "."
+      buh_e
+      buh_t   "  After completing both, proceed to conjure your first production build."
+      buh_tlt "  The probe for this step turns green when a conjure " "hallmark" "${z_docs}#Hallmark" ""
+      buh_tlt "  is " "summoned" "${z_docs}#Summon" " locally (next step)."
 
     elif test "${z_du4}" = "0"; then
       # ---- Unit 4: Conjure — Production Build ----
       # (Frontier only if du3 green but du4 red — rare due to shared probe,
       #  but shown in reference mode as separate unit)
-      bug_section "  Conjure: Production Build"
-      bug_e
-      bug_tlt "  A " "hallmark" "${z_docs}#Hallmark" " is a specific build instance of a vessel, identified by"
-      bug_t   "  timestamp."
-      bug_e
-      bug_tlt "  " "Ordain" "${z_docs}#Ordain" " creates a hallmark with full attestation — the production build"
-      bug_t   "  command."
-      bug_tlt "  " "Conjure" "${z_docs}#Conjure" " is the ordain mode where Cloud Build creates the image from"
-      bug_t   "  source. Every conjure produces a three-part ark: image, about (SBOM + build"
-      bug_t   "  info), and vouch (DSSE signature verification)."
-      bug_e
-      bug_t   "  This is the same vessel you kludged locally — now Cloud Build creates it"
-      bug_t   "  with full SLSA provenance:"
-      bug_tc  "    " "tt/rbw-hO.DirectorOrdainsHallmark.sh"
-      bug_e
-      bug_tlt "  Verify with " "vouch" "${z_docs}#Vouch" " (cryptographic attestation) and"
-      bug_tlt "  " "tally" "${z_docs}#Tally" " (registry inventory):"
-      bug_tc  "    " "tt/rbw-hV.DirectorVouchesHallmarks.sh"
-      bug_tc  "    " "tt/rbw-ht.DirectorTalliesHallmarks.sh"
-      bug_e
-      bug_tlt "  Then " "summon" "${z_docs}#Summon" " the hallmark locally to confirm the full pipeline:"
-      bug_tc  "    " "tt/rbw-hs.RetrieverSummonsHallmark.sh"
+      buh_section "  Conjure: Production Build"
+      buh_e
+      buh_tlt "  A " "hallmark" "${z_docs}#Hallmark" " is a specific build instance of a vessel, identified by"
+      buh_t   "  timestamp."
+      buh_e
+      buh_tlt "  " "Ordain" "${z_docs}#Ordain" " creates a hallmark with full attestation — the production build"
+      buh_t   "  command."
+      buh_tlt "  " "Conjure" "${z_docs}#Conjure" " is the ordain mode where Cloud Build creates the image from"
+      buh_t   "  source. Every conjure produces a three-part ark: image, about (SBOM + build"
+      buh_t   "  info), and vouch (DSSE signature verification)."
+      buh_e
+      buh_t   "  This is the same vessel you kludged locally — now Cloud Build creates it"
+      buh_t   "  with full SLSA provenance:"
+      buh_tc  "    " "tt/rbw-hO.DirectorOrdainsHallmark.sh"
+      buh_e
+      buh_tlt "  Verify with " "vouch" "${z_docs}#Vouch" " (cryptographic attestation) and"
+      buh_tlt "  " "tally" "${z_docs}#Tally" " (registry inventory):"
+      buh_tc  "    " "tt/rbw-hV.DirectorVouchesHallmarks.sh"
+      buh_tc  "    " "tt/rbw-ht.DirectorTalliesHallmarks.sh"
+      buh_e
+      buh_tlt "  Then " "summon" "${z_docs}#Summon" " the hallmark locally to confirm the full pipeline:"
+      buh_tc  "    " "tt/rbw-hs.RetrieverSummonsHallmark.sh"
 
     elif test "${z_du5}" = "0"; then
       # ---- Unit 5: Bind — Pin Upstream Image ----
-      bug_section "  Bind: Pin Upstream Image"
-      bug_e
-      bug_tlt "  " "Bind" "${z_docs}#Bind" " mirrors a pinned upstream image into your depot. No Dockerfile,"
-      bug_t   "  no build — just a content-addressed copy."
-      bug_e
-      bug_t   "  PlantUML is useful for rendering architecture diagrams, but its Docker Hub"
-      bug_tlt "  image could send your private diagrams anywhere. Bind pins it by " "digest" "${z_docs}#Bind" " —"
-      bug_tlt "  no silent updates. Then " "charge" "${z_docs}#Charge" " it as a bottle: the sentry blocks"
-      bug_t   "  all egress. You get the tool without the risk."
-      bug_e
-      bug_t   "  Ordain the plantuml vessel in bind mode:"
-      bug_tc  "    " "tt/rbw-hO.DirectorOrdainsHallmark.sh"
-      bug_e
-      bug_t   "  The upstream image is pulled by digest, pushed to GAR, about metadata"
-      bug_tlt "  generated, and " "vouch" "${z_docs}#Vouch" " records a digest-pin verdict. No SLSA provenance —"
-      bug_t   "  the image was not built here, but it is pinned and bottled."
-      bug_e
-      bug_tlt "  Verify and " "summon" "${z_docs}#Summon" ":"
-      bug_tc  "    " "tt/rbw-hV.DirectorVouchesHallmarks.sh"
-      bug_tc  "    " "tt/rbw-hs.RetrieverSummonsHallmark.sh"
+      buh_section "  Bind: Pin Upstream Image"
+      buh_e
+      buh_tlt "  " "Bind" "${z_docs}#Bind" " mirrors a pinned upstream image into your depot. No Dockerfile,"
+      buh_t   "  no build — just a content-addressed copy."
+      buh_e
+      buh_t   "  PlantUML is useful for rendering architecture diagrams, but its Docker Hub"
+      buh_tlt "  image could send your private diagrams anywhere. Bind pins it by " "digest" "${z_docs}#Bind" " —"
+      buh_tlt "  no silent updates. Then " "charge" "${z_docs}#Charge" " it as a bottle: the sentry blocks"
+      buh_t   "  all egress. You get the tool without the risk."
+      buh_e
+      buh_t   "  Ordain the plantuml vessel in bind mode:"
+      buh_tc  "    " "tt/rbw-hO.DirectorOrdainsHallmark.sh"
+      buh_e
+      buh_t   "  The upstream image is pulled by digest, pushed to GAR, about metadata"
+      buh_tlt "  generated, and " "vouch" "${z_docs}#Vouch" " records a digest-pin verdict. No SLSA provenance —"
+      buh_t   "  the image was not built here, but it is pinned and bottled."
+      buh_e
+      buh_tlt "  Verify and " "summon" "${z_docs}#Summon" ":"
+      buh_tc  "    " "tt/rbw-hV.DirectorVouchesHallmarks.sh"
+      buh_tc  "    " "tt/rbw-hs.RetrieverSummonsHallmark.sh"
 
     elif test "${z_du6}" = "0"; then
       # ---- Unit 6: Graft — Push Local to Registry ----
-      bug_section "  Graft: Push Local to Registry"
-      bug_e
-      bug_tlt "  " "Graft" "${z_docs}#Graft" " pushes a locally-built image to GAR. The image push is local"
-      bug_t   "  (docker push), but about and vouch still run in Cloud Build."
-      bug_e
-      bug_t   "  You kludged the sentry in step 2 and conjured it in step 4. Now push your"
-      bug_t   "  local build to the registry via graft:"
-      bug_tc  "    " "tt/rbw-hO.DirectorOrdainsHallmark.sh"
-      bug_e
-      bug_t   "  One combined Cloud Build job runs about + vouch. The vouch verdict is"
-      bug_t   "  GRAFTED — meaning this image was locally built, trust it at your own"
-      bug_t   "  assessment."
-      bug_e
-      bug_t   "  The development cycle: kludge, test, graft when satisfied."
+      buh_section "  Graft: Push Local to Registry"
+      buh_e
+      buh_tlt "  " "Graft" "${z_docs}#Graft" " pushes a locally-built image to GAR. The image push is local"
+      buh_t   "  (docker push), but about and vouch still run in Cloud Build."
+      buh_e
+      buh_t   "  You kludged the sentry in step 2 and conjured it in step 4. Now push your"
+      buh_t   "  local build to the registry via graft:"
+      buh_tc  "    " "tt/rbw-hO.DirectorOrdainsHallmark.sh"
+      buh_e
+      buh_t   "  One combined Cloud Build job runs about + vouch. The vouch verdict is"
+      buh_t   "  GRAFTED — meaning this image was locally built, trust it at your own"
+      buh_t   "  assessment."
+      buh_e
+      buh_t   "  The development cycle: kludge, test, graft when satisfied."
 
     else
       # ---- Unit 7: Full Ark — About and Vouch Pipeline ----
-      bug_section "  The Full Ark: About and Vouch Pipeline"
-      bug_e
-      bug_t   "  Every hallmark — regardless of mode — produces the same three-part"
-      bug_t   "  structure: image, about, and vouch. About contains the SBOM and"
-      bug_t   "  build_info.json. Vouch contains the mode-specific verification."
-      bug_e
-      bug_tlt "  " "Plumb" "${z_docs}#Plumb" " lets you inspect an artifact's provenance — SBOM, build info,"
-      bug_t   "  and vouch chain:"
-      bug_tc  "    " "tt/rbw-hpf.RetrieverPlumbsFull.sh"
-      bug_e
-      bug_t   "  Run plumb against each mode's hallmark and compare:"
-      bug_tlt "    - " "Conjure" "${z_docs}#Conjure" " (sentry): DSSE vouch, SLSA provenance"
-      bug_tlt "    - " "Bind" "${z_docs}#Bind" " (plantuml): digest-pin vouch, no provenance"
-      bug_tlt "    - " "Graft" "${z_docs}#Graft" " (sentry): GRAFTED vouch, no provenance chain"
-      bug_e
-      bug_t   "  The tally command shows the full registry health view — the director's"
-      bug_t   "  operational dashboard:"
-      bug_tc  "    " "tt/rbw-ht.DirectorTalliesHallmarks.sh"
+      buh_section "  The Full Ark: About and Vouch Pipeline"
+      buh_e
+      buh_t   "  Every hallmark — regardless of mode — produces the same three-part"
+      buh_t   "  structure: image, about, and vouch. About contains the SBOM and"
+      buh_t   "  build_info.json. Vouch contains the mode-specific verification."
+      buh_e
+      buh_tlt "  " "Plumb" "${z_docs}#Plumb" " lets you inspect an artifact's provenance — SBOM, build info,"
+      buh_t   "  and vouch chain:"
+      buh_tc  "    " "tt/rbw-hpf.RetrieverPlumbsFull.sh"
+      buh_e
+      buh_t   "  Run plumb against each mode's hallmark and compare:"
+      buh_tlt "    - " "Conjure" "${z_docs}#Conjure" " (sentry): DSSE vouch, SLSA provenance"
+      buh_tlt "    - " "Bind" "${z_docs}#Bind" " (plantuml): digest-pin vouch, no provenance"
+      buh_tlt "    - " "Graft" "${z_docs}#Graft" " (sentry): GRAFTED vouch, no provenance chain"
+      buh_e
+      buh_t   "  The tally command shows the full registry health view — the director's"
+      buh_t   "  operational dashboard:"
+      buh_tc  "    " "tt/rbw-ht.DirectorTalliesHallmarks.sh"
     fi
   fi
 
-  bug_e
-  bug_tT "  Triage: " "${RBZ_ONBOARD_TRIAGE}"
+  buh_e
+  buh_tT "  Triage: " "${RBZ_ONBOARD_TRIAGE}"
 
 }
 
@@ -1545,98 +1545,98 @@ rbgm_onboard_governor() {
   local -r z_total=3
 
   # --- Header ---
-  bug_section "Governor Walkthrough"
-  bug_e
+  buh_section "Governor Walkthrough"
+  buh_e
 
   if test "${z_done}" = "${z_total}"; then
     # ============ REFERENCE MODE — all probes green ============
-    bug_t  "  All steps complete. Re-run anytime to verify health."
-    bug_e
+    buh_t  "  All steps complete. Re-run anytime to verify health."
+    buh_e
     zrbgm_po_status 1 "  Project access — governor credentials installed"
     zrbgm_po_status 1 "  Service accounts — retriever and director SAs provisioned"
     zrbgm_po_status 1 "  Verification — downstream roles can access the depot"
   else
     # ============ WALKTHROUGH MODE — show frontier unit ============
     local -r z_frontier=$((z_done + 1))
-    bug_t  "  Step ${z_frontier} of ${z_total}"
-    bug_e
+    buh_t  "  Step ${z_frontier} of ${z_total}"
+    buh_e
 
     if test "${z_gu1}" = "0"; then
       # ---- Unit 1: Project Access ----
-      bug_section "  Project Access"
-      bug_e
-      bug_tlt "  A " "depot" "${z_docs}#Depot" " is the facility where container images are built and stored."
-      bug_tlt "  A " "governor" "${z_docs}#Governor" " administers a depot — creating service accounts and"
-      bug_t   "  managing access for those who build and run container images."
-      bug_e
-      bug_t   "  The governor works within a depot that the payor created. If no depot exists"
-      bug_t   "  yet, that is a payor responsibility:"
-      bug_tc  "    " "tt/rbw-gOP.OnboardPayor.sh"
-      bug_e
-      bug_t   "  To administer a depot, you need a governor service account key. Your payor"
-      bug_t   "  creates one by running:"
-      bug_tc  "    " "tt/rbw-aM.PayorMantlesGovernor.sh"
-      bug_e
+      buh_section "  Project Access"
+      buh_e
+      buh_tlt "  A " "depot" "${z_docs}#Depot" " is the facility where container images are built and stored."
+      buh_tlt "  A " "governor" "${z_docs}#Governor" " administers a depot — creating service accounts and"
+      buh_t   "  managing access for those who build and run container images."
+      buh_e
+      buh_t   "  The governor works within a depot that the payor created. If no depot exists"
+      buh_t   "  yet, that is a payor responsibility:"
+      buh_tc  "    " "tt/rbw-gOP.OnboardPayor.sh"
+      buh_e
+      buh_t   "  To administer a depot, you need a governor service account key. Your payor"
+      buh_t   "  creates one by running:"
+      buh_tc  "    " "tt/rbw-aM.PayorMantlesGovernor.sh"
+      buh_e
       if test -n "${z_secrets_dir}"; then
-        bug_t   "  Install the key file to:"
-        bug_tc  "    " "${z_secrets_dir}/${RBCC_role_governor}/${RBCC_rbra_file}"
+        buh_t   "  Install the key file to:"
+        buh_tc  "    " "${z_secrets_dir}/${RBCC_role_governor}/${RBCC_rbra_file}"
       else
-        bug_tW  "  " "Project not configured — .rbk/rbrr.env not found."
-        bug_t   "  Run the payor walkthrough first, or ask your payor for the project files."
+        buh_tW  "  " "Project not configured — .rbk/rbrr.env not found."
+        buh_t   "  Run the payor walkthrough first, or ask your payor for the project files."
       fi
-      bug_e
-      bug_t   "  Once installed, re-run this walkthrough to continue."
+      buh_e
+      buh_t   "  Once installed, re-run this walkthrough to continue."
 
     elif test "${z_gu2}" = "0"; then
       # ---- Unit 2: Service Account Lifecycle ----
-      bug_section "  Service Account Lifecycle"
-      bug_e
-      bug_t   "  The governor provisions access for two downstream roles:"
-      bug_e
-      bug_tlt "  A " "retriever" "${z_docs}#Retriever" " has read access to the depot — they pull and run"
-      bug_t   "  container images that others have built."
-      bug_tlt "  A " "director" "${z_docs}#Director" " has build and publish access — they create container"
-      bug_t   "  images and push them to the registry."
-      bug_e
-      bug_tlt "  " "Charter" "${z_docs}#Charter" " creates a retriever service account with read access:"
-      bug_tc  "    " "tt/rbw-aC.GovernorChartersRetriever.sh"
-      bug_e
-      bug_tlt "  " "Knight" "${z_docs}#Knight" " creates a director service account with build access:"
-      bug_tc  "    " "tt/rbw-aK.GovernorKnightsDirector.sh"
-      bug_e
-      bug_t   "  Each command creates the service account and applies the IAM grants it needs."
-      bug_t   "  The output is an RBRA key file — hand it to the retriever or director user."
-      bug_e
-      bug_t   "  List issued service accounts:"
-      bug_tc  "    " "tt/rbw-aL.GovernorListsServiceAccounts.sh"
-      bug_e
-      bug_t   "  Install both credentials locally to advance this walkthrough."
+      buh_section "  Service Account Lifecycle"
+      buh_e
+      buh_t   "  The governor provisions access for two downstream roles:"
+      buh_e
+      buh_tlt "  A " "retriever" "${z_docs}#Retriever" " has read access to the depot — they pull and run"
+      buh_t   "  container images that others have built."
+      buh_tlt "  A " "director" "${z_docs}#Director" " has build and publish access — they create container"
+      buh_t   "  images and push them to the registry."
+      buh_e
+      buh_tlt "  " "Charter" "${z_docs}#Charter" " creates a retriever service account with read access:"
+      buh_tc  "    " "tt/rbw-aC.GovernorChartersRetriever.sh"
+      buh_e
+      buh_tlt "  " "Knight" "${z_docs}#Knight" " creates a director service account with build access:"
+      buh_tc  "    " "tt/rbw-aK.GovernorKnightsDirector.sh"
+      buh_e
+      buh_t   "  Each command creates the service account and applies the IAM grants it needs."
+      buh_t   "  The output is an RBRA key file — hand it to the retriever or director user."
+      buh_e
+      buh_t   "  List issued service accounts:"
+      buh_tc  "    " "tt/rbw-aL.GovernorListsServiceAccounts.sh"
+      buh_e
+      buh_t   "  Install both credentials locally to advance this walkthrough."
       if test -n "${z_secrets_dir}"; then
-        bug_tc  "    " "${z_secrets_dir}/${RBCC_role_retriever}/${RBCC_rbra_file}"
-        bug_tc  "    " "${z_secrets_dir}/${RBCC_role_director}/${RBCC_rbra_file}"
+        buh_tc  "    " "${z_secrets_dir}/${RBCC_role_retriever}/${RBCC_rbra_file}"
+        buh_tc  "    " "${z_secrets_dir}/${RBCC_role_director}/${RBCC_rbra_file}"
       fi
 
     else
       # ---- Unit 3: Verification ----
-      bug_section "  Verification"
-      bug_e
-      bug_t   "  The service accounts you created include IAM grants — each SA gets exactly"
-      bug_t   "  the permissions its role requires, no more. Retriever gets read access."
-      bug_t   "  Director gets read, write, and build trigger access."
-      bug_e
-      bug_t   "  Verify the complete chain works by pulling an artifact with the retriever"
-      bug_t   "  credentials. If the retriever can access the depot, your grants are correct."
-      bug_e
-      bug_t   "  Run the retriever walkthrough to summon a hallmark:"
-      bug_tc  "    " "tt/rbw-gOR.OnboardRetriever.sh"
-      bug_e
-      bug_t   "  This probe turns green when a GAR image from your depot exists locally —"
-      bug_t   "  proving the retriever SA you chartered can actually access the registry."
+      buh_section "  Verification"
+      buh_e
+      buh_t   "  The service accounts you created include IAM grants — each SA gets exactly"
+      buh_t   "  the permissions its role requires, no more. Retriever gets read access."
+      buh_t   "  Director gets read, write, and build trigger access."
+      buh_e
+      buh_t   "  Verify the complete chain works by pulling an artifact with the retriever"
+      buh_t   "  credentials. If the retriever can access the depot, your grants are correct."
+      buh_e
+      buh_t   "  Run the retriever walkthrough to summon a hallmark:"
+      buh_tc  "    " "tt/rbw-gOR.OnboardRetriever.sh"
+      buh_e
+      buh_t   "  This probe turns green when a GAR image from your depot exists locally —"
+      buh_t   "  proving the retriever SA you chartered can actually access the registry."
     fi
   fi
 
-  bug_e
-  bug_tc "  Triage: " "tt/rbw-go.OnboardMAIN.sh"
+  buh_e
+  buh_tc "  Triage: " "tt/rbw-go.OnboardMAIN.sh"
 
 }
 
@@ -1667,13 +1667,13 @@ rbgm_onboard_payor() {
   local -r z_total=4
 
   # --- Header ---
-  bug_section "Payor Walkthrough"
-  bug_e
+  buh_section "Payor Walkthrough"
+  buh_e
 
   if test "${z_done}" = "${z_total}"; then
     # ============ REFERENCE MODE — all probes green ============
-    bug_t  "  All steps complete. Re-run anytime to verify health."
-    bug_e
+    buh_t  "  All steps complete. Re-run anytime to verify health."
+    buh_e
     zrbgm_po_status 1 "  OAuth bootstrap — credentials installed"
     zrbgm_po_status 1 "  Project setup — GCP project configured"
     zrbgm_po_status 1 "  Depot provisioning — infrastructure levied"
@@ -1681,84 +1681,84 @@ rbgm_onboard_payor() {
   else
     # ============ WALKTHROUGH MODE — show frontier unit ============
     local -r z_frontier=$((z_done + 1))
-    bug_t  "  Step ${z_frontier} of ${z_total}"
-    bug_e
+    buh_t  "  Step ${z_frontier} of ${z_total}"
+    buh_e
 
     if test "${z_pu1}" = "0"; then
       # ---- Unit 1: OAuth Bootstrap ----
-      bug_section "  OAuth Bootstrap"
-      bug_e
-      bug_tlt "  The " "payor" "${z_docs}#Payor" " owns the GCP project and funds it. Unlike other roles"
-      bug_t   "  that use service account keys, the payor authenticates via OAuth — representing"
-      bug_t   "  the human project owner."
-      bug_e
-      bug_t   "  To get started, download an OAuth client secret JSON file from your GCP"
-      bug_t   "  project's API credentials page, then run:"
-      bug_tc  "    " "tt/rbw-gPI.PayorInstall.sh \${HOME}/Downloads/client_secret_*.json"
-      bug_e
-      bug_t   "  This walks you through the OAuth authorization flow and stores the credential"
-      bug_t   "  securely. If you have an existing credential that has expired:"
-      bug_tc  "    " "tt/rbw-gPR.PayorRefresh.sh"
-      bug_e
-      bug_t   "  Once installed, re-run this walkthrough to continue."
+      buh_section "  OAuth Bootstrap"
+      buh_e
+      buh_tlt "  The " "payor" "${z_docs}#Payor" " owns the GCP project and funds it. Unlike other roles"
+      buh_t   "  that use service account keys, the payor authenticates via OAuth — representing"
+      buh_t   "  the human project owner."
+      buh_e
+      buh_t   "  To get started, download an OAuth client secret JSON file from your GCP"
+      buh_t   "  project's API credentials page, then run:"
+      buh_tc  "    " "tt/rbw-gPI.PayorInstall.sh \${HOME}/Downloads/client_secret_*.json"
+      buh_e
+      buh_t   "  This walks you through the OAuth authorization flow and stores the credential"
+      buh_t   "  securely. If you have an existing credential that has expired:"
+      buh_tc  "    " "tt/rbw-gPR.PayorRefresh.sh"
+      buh_e
+      buh_t   "  Once installed, re-run this walkthrough to continue."
 
     elif test "${z_pu2}" = "0"; then
       # ---- Unit 2: Project Setup ----
-      bug_section "  Project Setup"
-      bug_e
-      bug_t   "  A funded GCP project is required before any infrastructure can be provisioned."
-      bug_t   "  The project must have billing enabled and the OAuth consent screen configured."
-      bug_e
-      bug_t   "  Run the guided setup:"
-      bug_tc  "    " "tt/rbw-gPE.PayorEstablish.sh"
-      bug_e
-      bug_t   "  This will guide you through project creation, billing enablement, and OAuth"
-      bug_t   "  consent screen configuration. The project ID is recorded in regime files"
-      bug_t   "  and becomes the identity for all depot operations."
-      bug_e
-      bug_t   "  Once complete, re-run this walkthrough to continue."
+      buh_section "  Project Setup"
+      buh_e
+      buh_t   "  A funded GCP project is required before any infrastructure can be provisioned."
+      buh_t   "  The project must have billing enabled and the OAuth consent screen configured."
+      buh_e
+      buh_t   "  Run the guided setup:"
+      buh_tc  "    " "tt/rbw-gPE.PayorEstablish.sh"
+      buh_e
+      buh_t   "  This will guide you through project creation, billing enablement, and OAuth"
+      buh_t   "  consent screen configuration. The project ID is recorded in regime files"
+      buh_t   "  and becomes the identity for all depot operations."
+      buh_e
+      buh_t   "  Once complete, re-run this walkthrough to continue."
 
     elif test "${z_pu3}" = "0"; then
       # ---- Unit 3: Depot Provisioning ----
-      bug_section "  Depot Provisioning"
-      bug_e
-      bug_tlt "  A " "depot" "${z_docs}#Depot" " is the facility where container images are built and stored"
-      bug_t   "  — a GCP project with a registry, storage bucket, and build infrastructure."
-      bug_e
-      bug_tlt "  To " "levy" "${z_docs}#Levy" " a depot is to provision this infrastructure. Run:"
-      bug_tc  "    " "tt/rbw-dL.PayorLeviesDepot.sh"
-      bug_e
-      bug_t   "  This enables APIs, creates the Artifact Registry repository and Cloud Storage"
-      bug_t   "  bucket, and configures Cloud Build. The depot is now ready for use."
-      bug_e
-      bug_t   "  List your depots to verify:"
-      bug_tc  "    " "tt/rbw-dl.PayorListsDepots.sh"
-      bug_e
-      bug_t   "  Once provisioned, re-run this walkthrough to continue."
+      buh_section "  Depot Provisioning"
+      buh_e
+      buh_tlt "  A " "depot" "${z_docs}#Depot" " is the facility where container images are built and stored"
+      buh_t   "  — a GCP project with a registry, storage bucket, and build infrastructure."
+      buh_e
+      buh_tlt "  To " "levy" "${z_docs}#Levy" " a depot is to provision this infrastructure. Run:"
+      buh_tc  "    " "tt/rbw-dL.PayorLeviesDepot.sh"
+      buh_e
+      buh_t   "  This enables APIs, creates the Artifact Registry repository and Cloud Storage"
+      buh_t   "  bucket, and configures Cloud Build. The depot is now ready for use."
+      buh_e
+      buh_t   "  List your depots to verify:"
+      buh_tc  "    " "tt/rbw-dl.PayorListsDepots.sh"
+      buh_e
+      buh_t   "  Once provisioned, re-run this walkthrough to continue."
 
     else
       # ---- Unit 4: Governor Handoff ----
-      bug_section "  Governor Handoff"
-      bug_e
-      bug_tlt "  A " "governor" "${z_docs}#Governor" " administers a depot — creating service accounts and"
-      bug_t   "  managing access for those who build and run container images."
-      bug_e
-      bug_t   "  The payor funds the infrastructure; the governor operates it. After this"
-      bug_t   "  handoff, the governor can charter retrievers and knight directors"
-      bug_t   "  independently. Run:"
-      bug_tc  "    " "tt/rbw-aM.PayorMantlesGovernor.sh"
-      bug_e
-      bug_t   "  This creates the governor service account with administrative permissions"
-      bug_t   "  over the depot. Hand the resulting key file to the person who will"
-      bug_t   "  administer this depot."
-      bug_e
-      bug_t   "  The payor's job for this depot is done unless billing or project-level"
-      bug_t   "  changes are needed."
+      buh_section "  Governor Handoff"
+      buh_e
+      buh_tlt "  A " "governor" "${z_docs}#Governor" " administers a depot — creating service accounts and"
+      buh_t   "  managing access for those who build and run container images."
+      buh_e
+      buh_t   "  The payor funds the infrastructure; the governor operates it. After this"
+      buh_t   "  handoff, the governor can charter retrievers and knight directors"
+      buh_t   "  independently. Run:"
+      buh_tc  "    " "tt/rbw-aM.PayorMantlesGovernor.sh"
+      buh_e
+      buh_t   "  This creates the governor service account with administrative permissions"
+      buh_t   "  over the depot. Hand the resulting key file to the person who will"
+      buh_t   "  administer this depot."
+      buh_e
+      buh_t   "  The payor's job for this depot is done unless billing or project-level"
+      buh_t   "  changes are needed."
     fi
   fi
 
-  bug_e
-  bug_tc "  Triage: " "tt/rbw-go.OnboardMAIN.sh"
+  buh_e
+  buh_tc "  Triage: " "tt/rbw-go.OnboardMAIN.sh"
 
 }
 

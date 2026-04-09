@@ -442,19 +442,19 @@ rbgp_payor_install() {
   buc_step 'OAuth authorization flow'
   local -r z_auth_url="https://accounts.google.com/o/oauth2/v2/auth?client_id=${z_client_id}&redirect_uri=urn:ietf:wg:oauth:2.0:oob&scope=openid%20email%20https://www.googleapis.com/auth/cloud-platform%20https://www.googleapis.com/auth/cloud-billing&response_type=code&access_type=offline"
 
-  bug_e
-  bug_link "Open this URL in your browser: " "Google OAuth Authorization" "${z_auth_url}"
-  bug_e
-  bug_t  "You will see three or four screens:"
-  bug_tut "  1. " "Choose an account" " - Select the Google account for this payor"
-  bug_tut "  2. If screen says " "Google hasn't verified this app" ", click Continue"
-  bug_t   "     Otherwise, proceed to next step"
-  bug_tut "  3. " "Recipe Bottle Payor wants access" " - Review the requested permissions"
-  bug_tu  "     Check the permission checkboxes to grant access, then click " "Continue"
-  bug_t   "  4. Authorization code will be displayed"
-  bug_e
+  buh_e
+  buh_link "Open this URL in your browser: " "Google OAuth Authorization" "${z_auth_url}"
+  buh_e
+  buh_t  "You will see three or four screens:"
+  buh_tut "  1. " "Choose an account" " - Select the Google account for this payor"
+  buh_tut "  2. If screen says " "Google hasn't verified this app" ", click Continue"
+  buh_t   "     Otherwise, proceed to next step"
+  buh_tut "  3. " "Recipe Bottle Payor wants access" " - Review the requested permissions"
+  buh_tu  "     Check the permission checkboxes to grant access, then click " "Continue"
+  buh_t   "  4. Authorization code will be displayed"
+  buh_e
   local z_auth_code
-  z_auth_code=$(bug_prompt "Copy the authorization code and paste here: ")
+  z_auth_code=$(buh_prompt "Copy the authorization code and paste here: ")
   test -n "${z_auth_code}" || buc_die "Authorization code is required"
 
   buc_log_args "Exchanging authorization code for tokens"

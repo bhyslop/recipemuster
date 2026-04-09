@@ -33,7 +33,7 @@ zrbgp_furnish() {
   local z_rbk_kit_dir="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}"
   source "${BURD_BUK_DIR}/burd_regime.sh"
   source "${BURD_BUK_DIR}/buv_validation.sh"
-  source "${BURD_BUK_DIR}/bug_guide.sh"
+  source "${BURD_BUK_DIR}/buh_handbook.sh"
   source "${z_rbk_kit_dir}/rbgc_Constants.sh"
   source "${z_rbk_kit_dir}/rbcc_Constants.sh"
   source "${z_rbk_kit_dir}/rbrr_regime.sh"

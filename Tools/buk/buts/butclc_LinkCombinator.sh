@@ -18,7 +18,7 @@
 #
 # BUTCLC - Link combinator test cases for BUK self-test
 #
-# Exercises bug_* link combinators: OSC-8 hyperlink output and
+# Exercises buh_* link combinators: OSC-8 hyperlink output and
 # BURD_NO_HYPERLINKS fallback.  Pure local — no GCP, no containers.
 
 set -euo pipefail
@@ -27,29 +27,29 @@ set -euo pipefail
 # Helpers
 
 zbutclc_tlt_osc8() {
-  bug_tlt "A " "hallmark" "https://example.com#hallmark" " is a named artifact."
+  buh_tlt "A " "hallmark" "https://example.com#hallmark" " is a named artifact."
 }
 
 zbutclc_tlt_fallback() {
   export BURD_NO_HYPERLINKS=1
-  bug_tlt "A " "hallmark" "https://example.com#hallmark" " is a named artifact."
+  buh_tlt "A " "hallmark" "https://example.com#hallmark" " is a named artifact."
 }
 
 zbutclc_all_combinators() {
-  bug_lt    "click here" "https://example.com" " for details"
-  bug_tl    "See " "docs" "https://example.com/docs"
-  bug_tlt   "A " "vessel" "https://example.com#vessel" " is a container image."
-  bug_tlc   "Run " "setup" "https://example.com#setup" "tt/rbw-gO.sh"
-  bug_tltlt "A " "vessel" "https://example.com#vessel" " contains a " "bottle" "https://example.com#bottle" " runtime."
+  buh_lt    "click here" "https://example.com" " for details"
+  buh_tl    "See " "docs" "https://example.com/docs"
+  buh_tlt   "A " "vessel" "https://example.com#vessel" " is a container image."
+  buh_tlc   "Run " "setup" "https://example.com#setup" "tt/rbw-gO.sh"
+  buh_tltlt "A " "vessel" "https://example.com#vessel" " contains a " "bottle" "https://example.com#bottle" " runtime."
 }
 
 ######################################################################
 # Test cases
 
 butclc_tlt_osc8_tcase() {
-  buto_trace "bug_tlt: OSC-8 hyperlink present in output"
+  buto_trace "buh_tlt: OSC-8 hyperlink present in output"
   zbuto_invoke zbutclc_tlt_osc8
-  buto_fatal_on_error "${ZBUTO_STATUS}" "bug_tlt failed" "STDERR: ${ZBUTO_STDERR}"
+  buto_fatal_on_error "${ZBUTO_STATUS}" "buh_tlt failed" "STDERR: ${ZBUTO_STDERR}"
   local z_osc_marker
   z_osc_marker=$(printf '\033]8;;')
   case "${ZBUTO_STDERR}" in
@@ -59,9 +59,9 @@ butclc_tlt_osc8_tcase() {
 }
 
 butclc_tlt_fallback_tcase() {
-  buto_trace "bug_tlt: BURD_NO_HYPERLINKS falls back to angle-bracket URL"
+  buto_trace "buh_tlt: BURD_NO_HYPERLINKS falls back to angle-bracket URL"
   zbuto_invoke zbutclc_tlt_fallback
-  buto_fatal_on_error "${ZBUTO_STATUS}" "bug_tlt fallback failed" "STDERR: ${ZBUTO_STDERR}"
+  buto_fatal_on_error "${ZBUTO_STATUS}" "buh_tlt fallback failed" "STDERR: ${ZBUTO_STDERR}"
   case "${ZBUTO_STDERR}" in
     *"<https://example.com#hallmark>"*) ;;
     *) buto_fatal "Fallback URL not found in output" "Got: ${ZBUTO_STDERR}" ;;

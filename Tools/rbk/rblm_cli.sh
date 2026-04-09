@@ -43,61 +43,61 @@ rblm_zero() {
     esac
   done < "${z_rbrr}"
 
-  bug_section "Marshal Zero"
-  bug_t "  Target: ${z_rbrr}"
-  bug_e
-  bug_t "  RBRR fields blanked (zeroed to onboarding start):"
-  bug_t "    RBRR_DEPOT_PROJECT_ID, RBRR_GAR_REPOSITORY,"
-  bug_t "    RBRR_GCB_POOL_STEM"
-  bug_e
-  bug_t "  RBRR fields pre-filled to defaults:"
-  bug_t "    RBRR_DNS_SERVER, RBRR_GCB_MACHINE_TYPE, RBRR_GCB_TIMEOUT,"
-  bug_t "    RBRR_GCB_MIN_CONCURRENT_BUILDS, RBRR_GCP_REGION,"
-  bug_t "    RBRR_VESSEL_DIR, RBRR_SECRETS_DIR"
-  bug_e
-  bug_t "  Depot credentials DELETED (tied to prior depot):"
+  buh_section "Marshal Zero"
+  buh_t "  Target: ${z_rbrr}"
+  buh_e
+  buh_t "  RBRR fields blanked (zeroed to onboarding start):"
+  buh_t "    RBRR_DEPOT_PROJECT_ID, RBRR_GAR_REPOSITORY,"
+  buh_t "    RBRR_GCB_POOL_STEM"
+  buh_e
+  buh_t "  RBRR fields pre-filled to defaults:"
+  buh_t "    RBRR_DNS_SERVER, RBRR_GCB_MACHINE_TYPE, RBRR_GCB_TIMEOUT,"
+  buh_t "    RBRR_GCB_MIN_CONCURRENT_BUILDS, RBRR_GCP_REGION,"
+  buh_t "    RBRR_VESSEL_DIR, RBRR_SECRETS_DIR"
+  buh_e
+  buh_t "  Depot credentials DELETED (tied to prior depot):"
   if test -n "${z_secrets_dir}"; then
     local z_preview=""
     local z_any_cred=0
     for z_preview in "${RBCC_role_governor}/${RBCC_rbra_file}" "${RBCC_role_director}/${RBCC_rbra_file}" "${RBCC_role_retriever}/${RBCC_rbra_file}"; do
       if test -f "${z_secrets_dir}/${z_preview}"; then
-        bug_t "    ${z_secrets_dir}/${z_preview}"
+        buh_t "    ${z_secrets_dir}/${z_preview}"
         z_any_cred=1
       fi
     done
-    test "${z_any_cred}" = "1" || bug_t "    (none present)"
+    test "${z_any_cred}" = "1" || buh_t "    (none present)"
   else
-    bug_t "    (secrets dir not configured)"
+    buh_t "    (secrets dir not configured)"
   fi
-  bug_e
-  bug_t "  Vessel hallmarks BLANKED (stale after depot change):"
+  buh_e
+  buh_t "  Vessel hallmarks BLANKED (stale after depot change):"
   local z_np_preview=""
   local z_any_np=0
   for z_np_preview in "${RBBC_dot_dir}"/*/rbrn.env; do
     test -f "${z_np_preview}" || continue
-    bug_t "    ${z_np_preview}"
+    buh_t "    ${z_np_preview}"
     z_any_np=1
   done
-  test "${z_any_np}" = "1" || bug_t "    (no nameplates found)"
-  bug_e
-  bug_t "  Vessel regime fields BLANKED (depot-scoped, stale after depot change):"
-  bug_t "    RBRV_RELIQUARY, RBRV_IMAGE_*_ANCHOR in all rbrv.env"
+  test "${z_any_np}" = "1" || buh_t "    (no nameplates found)"
+  buh_e
+  buh_t "  Vessel regime fields BLANKED (depot-scoped, stale after depot change):"
+  buh_t "    RBRV_RELIQUARY, RBRV_IMAGE_*_ANCHOR in all rbrv.env"
   if test -n "${z_vessel_dir}" && test -d "${z_vessel_dir}"; then
     local z_vr_preview=""
     local z_any_vr=0
     for z_vr_preview in "${z_vessel_dir}"/*/rbrv.env; do
       test -f "${z_vr_preview}" || continue
-      bug_t "    ${z_vr_preview}"
+      buh_t "    ${z_vr_preview}"
       z_any_vr=1
     done
-    test "${z_any_vr}" = "1" || bug_t "    (no vessel regimes found)"
+    test "${z_any_vr}" = "1" || buh_t "    (no vessel regimes found)"
   else
-    bug_t "    (vessel dir not configured or missing)"
+    buh_t "    (vessel dir not configured or missing)"
   fi
-  bug_e
-  bug_t "  Preserved (payor-scoped, survives depot change):"
-  bug_t "    ${z_secrets_dir}/rbro-payor.env"
-  bug_e
+  buh_e
+  buh_t "  Preserved (payor-scoped, survives depot change):"
+  buh_t "    ${z_secrets_dir}/rbro-payor.env"
+  buh_e
   buc_require "Proceed with marshal zero?" "zero"
 
   local -r z_tmp="${z_rbrr}.tmp"
@@ -129,7 +129,7 @@ rblm_zero() {
     for z_rbra in "${RBCC_role_governor}/${RBCC_rbra_file}" "${RBCC_role_director}/${RBCC_rbra_file}" "${RBCC_role_retriever}/${RBCC_rbra_file}"; do
       if test -f "${z_secrets_dir}/${z_rbra}"; then
         rm "${z_secrets_dir}/${z_rbra}" || buc_die "Failed to remove: ${z_secrets_dir}/${z_rbra}"
-        bug_t "  Removed stale depot credential: ${z_rbra}"
+        buh_t "  Removed stale depot credential: ${z_rbra}"
       fi
     done
   fi
@@ -150,7 +150,7 @@ rblm_zero() {
         *)                           printf '%s\n' "${z_line}"                  ;;
       esac
     done < "${z_np}" > "${z_np_tmp}" && mv "${z_np_tmp}" "${z_np}"
-    bug_t "  Blanked hallmarks: ${z_np}"
+    buh_t "  Blanked hallmarks: ${z_np}"
   done
 
   # Blank depot-scoped fields in all vessel regime files.
@@ -170,13 +170,13 @@ rblm_zero() {
           *)                      printf '%s\n' "${z_line}"             ;;
         esac
       done < "${z_vr}" > "${z_vr_tmp}" && mv "${z_vr_tmp}" "${z_vr}"
-      bug_t "  Blanked depot-scoped fields: ${z_vr}"
+      buh_t "  Blanked depot-scoped fields: ${z_vr}"
     done
   fi
 
-  bug_t "  Zero complete: ${z_rbrr}"
-  bug_e
-  bug_t "  Next: verify onboarding guide detects blank state:"
+  buh_t "  Zero complete: ${z_rbrr}"
+  buh_e
+  buh_t "  Next: verify onboarding guide detects blank state:"
   buc_tabtarget "${RBZ_ONBOARDING}"
   buc_success "Regime zeroed to blank template"
 }
@@ -232,22 +232,22 @@ rblm_proof() {
   fi
 
   # Present plan
-  bug_section "Marshal Proof"
-  bug_t "  Target directory:     ${z_target_dir}"
-  bug_t "  Clone subdirectory:   ${z_clone_dir}"
-  bug_t "  Station files:        ${z_target_station_dir}"
-  bug_t "  Repo name:            ${z_repo_name}"
-  bug_e
-  bug_t "  Source station dir:   ${z_source_station_dir}"
-  bug_t "  Source secrets:       ${z_source_secrets}"
-  bug_e
-  bug_t "  Clone origin:         ${z_origin_url}"
+  buh_section "Marshal Proof"
+  buh_t "  Target directory:     ${z_target_dir}"
+  buh_t "  Clone subdirectory:   ${z_clone_dir}"
+  buh_t "  Station files:        ${z_target_station_dir}"
+  buh_t "  Repo name:            ${z_repo_name}"
+  buh_e
+  buh_t "  Source station dir:   ${z_source_station_dir}"
+  buh_t "  Source secrets:       ${z_source_secrets}"
+  buh_e
+  buh_t "  Clone origin:         ${z_origin_url}"
   if test -n "${z_upstream_url}"; then
-    bug_t "  OPEN_SOURCE_UPSTREAM: ${z_upstream_url}"
+    buh_t "  OPEN_SOURCE_UPSTREAM: ${z_upstream_url}"
   else
-    bug_t "  OPEN_SOURCE_UPSTREAM: (not configured)"
+    buh_t "  OPEN_SOURCE_UPSTREAM: (not configured)"
   fi
-  bug_e
+  buh_e
 
   # Create target directory
   buc_step "Creating target directory"
@@ -280,7 +280,7 @@ rblm_proof() {
     test -f "${z_env_file}" || continue
     z_env_name="${z_env_file##*/}"
     cp "${z_env_file}" "${z_target_station_dir}/${z_env_name}" || buc_die "Failed to copy: ${z_env_name}"
-    bug_t "  Copied: ${z_env_name}"
+    buh_t "  Copied: ${z_env_name}"
   done
 
   # Copy secrets (credential files)
@@ -293,19 +293,19 @@ rblm_proof() {
       z_cred_name="${z_cred##*/}"
       cp "${z_cred}" "${z_target_secrets}/${z_cred_name}" || buc_die "Failed to copy credential: ${z_cred_name}"
       chmod 600 "${z_target_secrets}/${z_cred_name}" || buc_die "Failed to set permissions on: ${z_cred_name}"
-      bug_t "  Copied: secrets/${z_cred_name}"
+      buh_t "  Copied: secrets/${z_cred_name}"
       z_any_copied=1
     done
-    test "${z_any_copied}" = "1" || bug_t "  No credential files found in: ${z_source_secrets}"
+    test "${z_any_copied}" = "1" || buh_t "  No credential files found in: ${z_source_secrets}"
   else
-    bug_t "  Warning: source secrets directory not found: ${z_source_secrets}"
+    buh_t "  Warning: source secrets directory not found: ${z_source_secrets}"
   fi
 
-  bug_e
-  bug_t "  Proof complete: ${z_clone_dir}"
-  bug_e
-  bug_t "  To use the duplicate, start Claude Code from:"
-  bug_t "    ${z_clone_dir}"
+  buh_e
+  buh_t "  Proof complete: ${z_clone_dir}"
+  buh_e
+  buh_t "  To use the duplicate, start Claude Code from:"
+  buh_t "    ${z_clone_dir}"
   buc_success "Proof copy created at ${z_target_dir}"
 }
 
@@ -345,7 +345,7 @@ zrblm_furnish() {
   local z_rbk_kit_dir="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}"
   source "${z_rbk_kit_dir}/rbcc_Constants.sh" || buc_die "Failed to source rbcc_Constants.sh"
 
-  source "${BURD_BUK_DIR}/bug_guide.sh"      || buc_die "Failed to source bug_guide.sh"
+  source "${BURD_BUK_DIR}/buh_handbook.sh"      || buc_die "Failed to source buh_handbook.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh"     || buc_die "Failed to source buz_zipper.sh"
   source "${z_rbk_kit_dir}/rbz_zipper.sh"    || buc_die "Failed to source rbz_zipper.sh"
   zbuz_kindle
