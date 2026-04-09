@@ -13,7 +13,7 @@ On the build side, Recipe Bottle orchestrates Google Cloud Build to produce imag
 
 On the runtime side, Recipe Bottle interposes a sentry container between untrusted workloads and system resources, enforcing network policy via `iptables` and `dnsmasq` — without requiring modifications to existing container images.
 
-The system uses only `bash`, `git`, `curl`, `openssh`, `jq`, and `docker` natively. No `gcloud` CLI is required on your workstation — cloud operations use REST APIs via `curl` and `jq`.
+The system uses only `bash`, `git`, `curl`, `openssh`, `jq`, `openssl`, and `docker` natively. No `gcloud` CLI is required on your workstation — cloud operations use REST APIs via `curl` and `jq`.
 
 **Project page**: https://scaleinv.github.io/recipebottle
 
@@ -40,6 +40,7 @@ Recipe Bottle is a set of bash scripts designed to be incorporated into arbitrar
 | <a id="Sentry"></a>**Sentry** | Security container enforcing network policies via `iptables` and `dnsmasq` |
 | <a id="Pentacle"></a>**Pentacle** | Privileged container establishing the network namespace shared with the [bottle](#Bottle) |
 | <a id="Bottle"></a>**Bottle** | Your workload container, running unmodified in a controlled network environment |
+| <a id="Crucible"></a>**Crucible** | The [sentry](#Sentry)/[pentacle](#Pentacle)/[bottle](#Bottle) triad running together as one runnable unit for a [nameplate](#Nameplate) |
 | <a id="Charge"></a>**Charge** | Start the [sentry](#Sentry)/[pentacle](#Pentacle)/[bottle](#Bottle) triad for a [nameplate](#Nameplate) |
 | <a id="Quench"></a>**Quench** | Stop and clean up a charged [nameplate](#Nameplate)'s containers |
 | <a id="Ordain"></a>**Ordain** | Create a [hallmark](#Hallmark) with full attestation — the production build command |
@@ -98,7 +99,7 @@ The [sentry](#Sentry) applies two layers of egress policy: `dnsmasq` answers DNS
 ## Prerequisites
 
 - macOS or Linux workstation
-- `bash` (3.2+), `git`, `curl`, `openssh`, `jq`
+- `bash` (3.2+), `git`, `curl`, `openssh`, `jq`, `openssl`
 - `docker` (container runtime)
 - A Google Cloud account with billing enabled (credit card required for verification; free tier is sufficient to start)
 
