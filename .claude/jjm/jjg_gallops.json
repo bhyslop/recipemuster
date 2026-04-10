@@ -692,9 +692,10 @@
         "₢A9AAJ",
         "₢A9AAK",
         "₢A9AAL",
-        "₢A9AAM"
+        "₢A9AAM",
+        "₢A9AAN"
       ],
-      "next_pace_seed": "AAN",
+      "next_pace_seed": "AAO",
       "paddock_file": ".claude/jjm/jjp_uAl9.md",
       "paces": {
         "₢A9AAA": {
@@ -977,6 +978,17 @@
               "text": "## Character\n\nInteractive design decision. The premise is clear and the options are enumerated — this pace is a conversation to pick a path, then a small implementation.\n\n## Problem\n\nThe `apcad` dictionary refresh binary cannot download SSA Baby Names data programmatically. SSA uses Akamai bot protection that 403s non-browser HTTP clients (ureq, curl). The current workaround requires a human to download `names.zip` in a browser and place it at a staging path (`.ssa_names_staging.zip`). This builds a human into a loop that should be automatable.\n\n## Options Identified\n\n1. **Commit the staging zip** (~7.7MB, public domain). Tool already prefers staging file over download. Eliminates human-in-loop entirely. Update by committing a new zip whenever new year data matters.\n2. **Use an alternative mirror** (GitHub, Kaggle, data.gov). Avoids Akamai but trades URL stability.\n3. **Browser-mimicking HTTP** (curl-impersonate, crafted TLS). Arms race with Akamai.\n4. **Headless browser** (chromiumoxide, playwright). Heavy dependency for one file.\n5. **Accept the status quo** — staging zip is a one-time manual step that persists indefinitely. SSA data is historical; new year files are annual.\n\n## Deliverables\n\n- Interactive decision on which option to pursue\n- Implement the chosen resolution\n- Remove or update the staging fallback messaging if no longer needed",
               "silks": "ssa-download-resolution",
               "commit": "986b15c"
+            }
+          ]
+        },
+        "₢A9AAN": {
+          "tacks": [
+            {
+              "ts": "260410-1659",
+              "state": "rough",
+              "text": "## Character\n\nFocused detection enhancement. Mechanical implementation following established Tier 2/3 patterns — no design ambiguity. The aho-corasick infrastructure already exists for Tier 3; this reuses it with a dynamic phrase dictionary built per-document.\n\n## Problem\n\nTier 2 (label-anchored) identifies entities like \"Maine Medical Center\" from the `Facility:` field, but when the same phrase appears in narrative text, no tier catches it. Tier 3 (dictionary) operates on individual words, and common words like \"Medical\" and \"Center\" are whitelisted. The identifying unit is the multi-word phrase, not the individual tokens.\n\n## Approach\n\nAdd entity propagation between Tier 2 and Tier 3 in `apcre_engine.rs`:\n\n1. After `apcrm_scan_anchored` completes, collect the full multi-word values from labeled field spans (Facility, Patient, Attending, Provider, Referring, etc.)\n2. Build a case-insensitive aho-corasick automaton from those phrases\n3. Scan `plain_text` for matches — emit RED findings with a new `Propagated` mechanism variant\n4. Existing merge logic (`zapcre_merge_findings`) handles overlap with Tier 2's original findings\n\n**Whitespace normalization**: Already handled by the parser (`zapcrp_normalize_whitespace`) — both `plain_text` and span values are single-space-normalized. No additional normalization needed.\n\n**Category**: Inherit the category from the originating Tier 2 finding (Facility stays Facility, Provider stays Provider, etc.)\n\n## Scope\n\n- Modify `apcrm_match.rs`: add `Propagated` to `apcrm_Mechanism` enum\n- Modify `apcre_engine.rs`: add propagation scan between Tier 2 and Tier 3 calls\n- Add unit tests for propagation (facility in narrative, provider in signature block)\n- No frontend changes needed — findings render the same regardless of mechanism",
+              "silks": "entity-propagation-tier",
+              "commit": "ea2eead"
             }
           ]
         }
