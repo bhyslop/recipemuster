@@ -236,12 +236,16 @@ Tools/apck/
     src/
       apcap_main.rs               # Tauri app entry point
       apcal_main.rs               # Fixture loader entry point
-      lib.rs                      # Engine library
+      lib.rs                      # Engine library + test module declarations
       apcre_engine.rs             # PHI detection orchestrator
+      apcte_engine.rs             # Tests for engine
       apcrp_parse.rs              # HTML clipboard parsing
+      apctp_parse.rs              # Tests for parser
       apcrm_match.rs              # Dictionary/regex matching
+      apctm_match.rs              # Tests for matching
       apcrd_dictionaries.rs       # Dictionary loading
-      apcru_update.rs             # Directory watcher + self-update
+      apctd_dictionaries.rs       # Tests for dictionaries
+      apcru_update.rs             # Directory watcher + self-update (no unit tests)
     ui/
       index.html
       style.css
@@ -271,7 +275,21 @@ apc  (non-terminal)
 └── apcz   — zipper
 ```
 
-Rust source file prefixes follow RCG: `{cipher}r{classifier}_{name}.rs` where cipher is `apc`. See RCG (Rust Coding Guide) for full naming conventions, including `z`-prefix internal declarations, string boundary discipline, and constant discipline.
+Rust source file prefixes follow RCG: `{cipher}r{classifier}_{name}.rs` where cipher is `apc`. Test files: `{cipher}t{classifier}_{name}.rs` — classifier matches between source and test. See RCG (Rust Coding Guide) for full naming conventions, including `z`-prefix internal declarations, string boundary discipline, and constant discipline.
+
+`lib.rs` wiring:
+```rust
+pub mod apcre_engine;
+pub mod apcrp_parse;
+pub mod apcrm_match;
+pub mod apcrd_dictionaries;
+pub mod apcru_update;
+
+#[cfg(test)] mod apcte_engine;
+#[cfg(test)] mod apctp_parse;
+#[cfg(test)] mod apctm_match;
+#[cfg(test)] mod apctd_dictionaries;
+```
 
 ## Tabtargets
 
@@ -281,3 +299,4 @@ Rust source file prefixes follow RCG: `{cipher}r{classifier}_{name}.rs` where ci
 | `tt/apcw-r.Run.sh` | `apcw-r` | `cargo tauri dev` (local development) |
 | `tt/apcw-d.Deploy.sh` | `apcw-d` | Build + scp to `anns-macbook-air:/Users/Shared/apcua/` |
 | `tt/apcw-fl.FixtureLoad.sh` | `apcw-fl` | Run `apcal` to load fixture HTML onto clipboard |
+| `tt/apcw-t.Test.sh` | `apcw-t` | `cargo test` in `apcd/` |

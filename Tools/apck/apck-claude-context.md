@@ -1,0 +1,71 @@
+## Ann's PHI Clipbuddy Kit (APCK)
+
+APCK is a Tauri desktop app that intercepts clipboard content from Epic EHR, detects PHI via a three-tier engine (regex, label-anchored, dictionary), presents a red/yellow/grey triage view, and writes anonymized plain text to clipboard for pasting into Open Evidence.
+
+### File Acronym Mappings
+
+| Acronym | File | Description |
+|---------|------|-------------|
+| **APCS** | `apck/APCS-Specification.md` | Product spec — UX, workflow, deployment |
+| **APCPS** | `apck/APCPS-PrototypeSpecification.md` | Prototype spec — detection pipeline, tech stack |
+| **APCW** | `apck/apcw_workbench.sh` | Workbench |
+| **APCZ** | `apck/apcz_zipper.sh` | Zipper enrollment |
+| **APCAP** | `apck/apcd/src/apcap_main.rs` | Tauri app entry point |
+| **APCAL** | `apck/apcd/src/apcal_main.rs` | Fixture loader (clipboard writer) |
+
+**Source modules:**
+
+| Source | Prefix | Test | Prefix | Purpose |
+|--------|--------|------|--------|---------|
+| `apcre_engine.rs` | `apcre` | `apcte_engine.rs` | `apcte` | PHI detection orchestrator |
+| `apcrp_parse.rs` | `apcrp` | `apctp_parse.rs` | `apctp` | HTML clipboard parsing |
+| `apcrm_match.rs` | `apcrm` | `apctm_match.rs` | `apctm` | Dictionary/regex matching |
+| `apcrd_dictionaries.rs` | `apcrd` | `apctd_dictionaries.rs` | `apctd` | Dictionary loading |
+| `apcru_update.rs` | `apcru` | — | — | Self-update watcher (no unit tests — I/O + process) |
+
+**Other key paths:**
+- `Tools/apck/apcd/ui/` — Frontend (HTML/CSS/JS)
+- `Tools/apck/apcd/dictionaries/` — Blacklist/whitelist data files
+- `Tools/apck/test_fixtures/` — Synthetic Epic clipboard data
+
+**Rust conventions:** Follow RCG (`Tools/vok/vov_veiled/RCG-RustCodingGuide.md`). Source prefix: `apcr{classifier}_{name}.rs`. Test prefix: `apct{classifier}_{name}.rs`. Classifier matches between source and test.
+
+### Tabtargets
+
+| Tabtarget | Colophon | Purpose |
+|-----------|----------|---------|
+| `tt/apcw-b.Build.sh` | `apcw-b` | `cargo tauri build` (release) |
+| `tt/apcw-r.Run.sh` | `apcw-r` | `cargo tauri dev` (local development) |
+| `tt/apcw-d.Deploy.sh` | `apcw-d` | Build + scp to `anns-macbook-air:/Users/Shared/apcua/` |
+| `tt/apcw-fl.FixtureLoad.sh` | `apcw-fl` | Run `apcal` to load fixture HTML onto clipboard |
+| `tt/apcw-t.Test.sh` | `apcw-t` | `cargo test` in `apcd/` |
+
+### Prefix Tree
+
+```
+apc  (non-terminal)
+├── apca   (non-terminal)
+│   ├── apcal  — App Loader binary (fixture clipboard tool)
+│   └── apcap  — App Prototype binary (Tauri main)
+├── apcd   — Rust/Tauri source directory
+├── apck   — kit directory
+├── apcps  — prototype specification document
+├── apcs   — product specification document
+├── apcu   (non-terminal)
+│   └── apcua — update staging directory (/Users/Shared/apcua/)
+├── apcw   — workbench
+└── apcz   — zipper
+```
+
+### Detection Architecture
+
+Three tiers, merged by highest severity:
+- **Tier 1 — Regex (RED):** SSN, phone, email, dates, addresses, zip, labeled identifiers
+- **Tier 2 — Label-anchored (RED):** Words following Epic labels (Patient:, Attending:, Facility:, etc.)
+- **Tier 3 — Dictionary (YELLOW/PASS):** aho-corasick blacklist scan, whitelist filter, collision → YELLOW
+
+### Deploy Workflow
+
+1. `tt/apcw-b.Build.sh` — produces `.app` bundle
+2. `tt/apcw-d.Deploy.sh` — scp to Ann's machine at `/Users/Shared/apcua/`
+3. App self-updates: watches staging directory, copies new bundle over self, relaunches
