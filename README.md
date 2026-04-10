@@ -40,13 +40,12 @@ The [Foundry](#Foundry) orchestrates Google Cloud Build to produce container ima
 
 The facility where container images are built and stored — a GCP project with an artifact registry and a storage bucket. The [Payor](#Payor) [Levies](#Levy) a [Depot](#Depot), and the [Governor](#Governor) administers access to it. Each [Depot](#Depot) operates as an independent supply-chain boundary with its own credentials, builds, and registry.
 
-<a id="Levy"></a>**[Levy](#Levy).** Provision a new [Depot's](#Depot) GCP infrastructure. [Levying](#Levy) creates the GCP project, artifact registry, storage bucket, and build configuration. This is a [Payor](#Payor) operation that binds [Regime](#Regime) configuration to real cloud resources.
+<a id="Levy"></a>**[Levy](#Levy)** — Provision a new [Depot's](#Depot) GCP infrastructure. [Levying](#Levy) creates the GCP project, artifact registry, storage bucket, and build configuration. This is a [Payor](#Payor) operation that binds [Regime](#Regime) configuration to real cloud resources.
 
 Each [Depot](#Depot) operates in one of two build egress profiles:
 
-<a id="Tethered"></a>**[Tethered](#Tethered).** Build egress mode allowing public internet access during Cloud Build. [Tethered](#Tethered) builds pull base images from upstream registries at build time — simpler to set up, but dependent on upstream availability. Compare with [Airgap](#Airgap).
-
-<a id="Airgap"></a>**[Airgap](#Airgap).** Build egress mode with no public internet access during Cloud Build. [Airgap](#Airgap) builds draw all dependencies from [Enshrined](#Enshrine) images in the [Depot's](#Depot) registry — fully self-contained, independent of upstream availability. Requires [Enshrining](#Enshrine) base images before the first build. Compare with [Tethered](#Tethered).
+- <a id="Tethered"></a>**[Tethered](#Tethered)** — Build egress mode allowing public internet access during Cloud Build. [Tethered](#Tethered) builds pull base images from upstream registries at build time — simpler to set up, but dependent on upstream availability. Compare with [Airgap](#Airgap).
+- <a id="Airgap"></a>**[Airgap](#Airgap)** — Build egress mode with no public internet access during Cloud Build. [Airgap](#Airgap) builds draw all dependencies from [Enshrined](#Enshrine) images in the [Depot's](#Depot) registry — fully self-contained, independent of upstream availability. Requires [Enshrining](#Enshrine) base images before the first build. Compare with [Tethered](#Tethered).
 
 ### <a id="Payor"></a>Payor
 
@@ -54,41 +53,34 @@ Owns the GCP project and funds it; authenticates via OAuth. The [Payor](#Payor) 
 
 ### <a id="Governor"></a>Governor
 
-Administers a [Depot](#Depot): creates service accounts, manages access. The [Governor](#Governor) is mantled by the [Payor](#Payor) and holds the administrative credential for the [Depot](#Depot). The [Governor](#Governor) [Knights](#Knight) [Directors](#Director) and [Charters](#Charter) [Retrievers](#Retriever).
+Administers a [Depot](#Depot): creates service accounts, manages access. The [Governor](#Governor) is mantled by the [Payor](#Payor) and holds the administrative credential for the [Depot](#Depot). The [Governor](#Governor) issues two kinds of credentials:
 
-<a id="Knight"></a>**[Knight](#Knight).** Create a [Director](#Director) service account — a [Governor](#Governor) operation. [Knighting](#Knight) provisions a new credential scoped to build and publish access within a single [Depot](#Depot).
-
-<a id="Charter"></a>**[Charter](#Charter).** Create a [Retriever](#Retriever) service account — a [Governor](#Governor) operation. [Chartering](#Charter) provisions a new credential scoped to image pull access within a single [Depot](#Depot).
+- <a id="Knight"></a>**[Knight](#Knight)** — Create a [Director](#Director) service account. [Knighting](#Knight) provisions a new credential scoped to build and publish access within a single [Depot](#Depot).
+- <a id="Charter"></a>**[Charter](#Charter)** — Create a [Retriever](#Retriever) service account. [Chartering](#Charter) provisions a new credential scoped to image pull access within a single [Depot](#Depot).
 
 ### <a id="Director"></a>Director
 
-Builds and publishes [Vessel](#Vessel) images into a [Depot](#Depot). The [Director](#Director) [Ordains](#Ordain) [Hallmarks](#Hallmark), [Tallies](#Tally) build status, [Vouches](#Vouch) provenance, and manages the image lifecycle. Each [Director](#Director) credential is scoped to one [Depot](#Depot).
+Builds and publishes [Vessel](#Vessel) images into a [Depot](#Depot). Each [Director](#Director) credential is scoped to one [Depot](#Depot). The [Director](#Director) manages the image lifecycle through three operations:
 
-<a id="Ordain"></a>**[Ordain](#Ordain).** Create a [Hallmark](#Hallmark) with full attestation — the production build operation. [Ordaining](#Ordain) is mode-aware: it [Conjures](#Conjure), [Binds](#Bind), or [Grafts](#Graft) depending on the [Vessel's](#Vessel) configuration. Each [Ordain](#Ordain) produces an image in the registry with associated provenance metadata.
-
-<a id="Tally"></a>**[Tally](#Tally).** Inventory [Hallmarks](#Hallmark) in the registry by health status. [Tallying](#Tally) shows which builds succeeded, which are pending, and which failed. The [Director](#Director) [Tallies](#Tally) before [Vouching](#Vouch) to confirm build completion.
-
-<a id="Vouch"></a>**[Vouch](#Vouch).** Cryptographic attestation proving a [Hallmark](#Hallmark) was built by trusted infrastructure. The [Vouch](#Vouch) verdict is mode-aware: [Conjure](#Conjure) builds receive full SLSA provenance verification, [Bind](#Bind) builds receive digest-pin verification, and [Graft](#Graft) builds receive a GRAFTED verdict with no provenance chain. The [Director](#Director) [Vouches](#Vouch) [Hallmarks](#Hallmark) after [Tallying](#Tally) their build status.
+- <a id="Ordain"></a>**[Ordain](#Ordain)** — Create a [Hallmark](#Hallmark) with full attestation — the production build operation. [Ordaining](#Ordain) is mode-aware: it [Conjures](#Conjure), [Binds](#Bind), or [Grafts](#Graft) depending on the [Vessel's](#Vessel) configuration. Each [Ordain](#Ordain) produces an image in the registry with associated provenance metadata.
+- <a id="Tally"></a>**[Tally](#Tally)** — Inventory [Hallmarks](#Hallmark) in the registry by health status. [Tallying](#Tally) shows which builds succeeded, which are pending, and which failed. The [Director](#Director) [Tallies](#Tally) before [Vouching](#Vouch) to confirm build completion.
+- <a id="Vouch"></a>**[Vouch](#Vouch)** — Cryptographic attestation proving a [Hallmark](#Hallmark) was built by trusted infrastructure. The [Vouch](#Vouch) verdict is mode-aware: [Conjure](#Conjure) builds receive full SLSA provenance verification, [Bind](#Bind) builds receive digest-pin verification, and [Graft](#Graft) builds receive a GRAFTED verdict with no provenance chain. The [Director](#Director) [Vouches](#Vouch) [Hallmarks](#Hallmark) after [Tallying](#Tally) their build status.
 
 ### <a id="Retriever"></a>Retriever
 
-Pulls and runs [Vessel](#Vessel) images from a [Depot](#Depot). The [Retriever](#Retriever) [Summons](#Summon) [Vouched](#Vouch) images and [Plumbs](#Plumb) their provenance. This is the most constrained role — read-only access to the registry.
+Pulls and runs [Vessel](#Vessel) images from a [Depot](#Depot). This is the most constrained role — read-only access to the registry. The [Retriever](#Retriever) accesses the registry through two operations:
 
-<a id="Summon"></a>**[Summon](#Summon).** Pull a [Hallmark](#Hallmark) image from the [Depot](#Depot) to your local machine. The [Retriever](#Retriever) [Summons](#Summon) [Vouched](#Vouch) images for local use — the final step before a [Hallmark](#Hallmark) can be used in a [Crucible](#Crucible).
-
-<a id="Plumb"></a>**[Plumb](#Plumb).** Inspect an artifact's provenance — SBOM, build info, and [Vouch](#Vouch) chain. [Plumbing](#Plumb) provides full transparency into how an image was built and what it contains. Two views are available: full (SBOM, build info, Dockerfile) and compact (attestation summary).
+- <a id="Summon"></a>**[Summon](#Summon)** — Pull a [Hallmark](#Hallmark) image from the [Depot](#Depot) to your local machine. The [Retriever](#Retriever) [Summons](#Summon) [Vouched](#Vouch) images for local use — the final step before a [Hallmark](#Hallmark) can be used in a [Crucible](#Crucible).
+- <a id="Plumb"></a>**[Plumb](#Plumb)** — Inspect an artifact's provenance — SBOM, build info, and [Vouch](#Vouch) chain. [Plumbing](#Plumb) provides full transparency into how an image was built and what it contains. Two views are available: full (SBOM, build info, Dockerfile) and compact (attestation summary).
 
 ### <a id="Vessel"></a>Vessel
 
-A specification for a container image — built from source ([Conjure](#Conjure)), mirrored from upstream ([Bind](#Bind)), or pushed from local ([Graft](#Graft)). Each [Vessel](#Vessel) is a directory under `rbev-vessels/` containing at minimum an `rbrv.env` configuration file; [Conjure](#Conjure) [Vessels](#Vessel) also include a Dockerfile. The [Vessel](#Vessel) mode determines how the [Director](#Director) [Ordains](#Ordain) its [Hallmark](#Hallmark).
+A specification for a container image — built from source ([Conjure](#Conjure)), mirrored from upstream ([Bind](#Bind)), or pushed from local ([Graft](#Graft)). Each [Vessel](#Vessel) is a directory under `rbev-vessels/` containing at minimum an `rbrv.env` configuration file; [Conjure](#Conjure) [Vessels](#Vessel) also include a Dockerfile. Each [Vessel](#Vessel) operates in one of three [Ordain](#Ordain) modes, plus a local development mode:
 
-<a id="Conjure"></a>**[Conjure](#Conjure).** [Ordain](#Ordain) mode: Cloud Build creates the image from source. [Conjure](#Conjure) builds run in an egress-locked environment with digest-pinned toolchains, producing full SLSA attestation and SBOMs. This is the highest-trust build mode.
-
-<a id="Bind"></a>**[Bind](#Bind).** [Ordain](#Ordain) mode: mirror an upstream image pinned by digest. [Binding](#Bind) captures an external image at a specific digest into the [Depot's](#Depot) registry. Trust is established through digest-pin verification rather than build provenance.
-
-<a id="Graft"></a>**[Graft](#Graft).** [Ordain](#Ordain) mode: push a locally-built image to the registry. [Grafting](#Graft) uploads a local image to GAR via docker push — no Cloud Build for the image itself, though about and [Vouch](#Vouch) metadata still run in Cloud Build. This is the lowest-trust mode (GRAFTED verdict).
-
-<a id="Kludge"></a>**[Kludge](#Kludge).** Build a [Vessel](#Vessel) image locally for fast iteration, without registry push. [Kludging](#Kludge) produces a local Docker image for development and testing without involving Cloud Build or the [Depot](#Depot). The resulting image can be used to [Charge](#Charge) a [Crucible](#Crucible) directly.
+- <a id="Conjure"></a>**[Conjure](#Conjure)** — Cloud Build creates the image from source. [Conjure](#Conjure) builds run in an egress-locked environment with digest-pinned toolchains, producing full SLSA attestation and SBOMs. This is the highest-trust build mode.
+- <a id="Bind"></a>**[Bind](#Bind)** — Mirror an upstream image pinned by digest. [Binding](#Bind) captures an external image at a specific digest into the [Depot's](#Depot) registry. Trust is established through digest-pin verification rather than build provenance.
+- <a id="Graft"></a>**[Graft](#Graft)** — Push a locally-built image to the registry. [Grafting](#Graft) uploads a local image to GAR via docker push — no Cloud Build for the image itself, though about and [Vouch](#Vouch) metadata still run in Cloud Build. This is the lowest-trust mode (GRAFTED verdict).
+- <a id="Kludge"></a>**[Kludge](#Kludge)** — Build a [Vessel](#Vessel) image locally for fast iteration, without registry push. [Kludging](#Kludge) produces a local Docker image for development and testing without involving Cloud Build or the [Depot](#Depot). The resulting image can be used to [Charge](#Charge) a [Crucible](#Crucible) directly.
 
 ### <a id="Hallmark"></a>Hallmark
 
@@ -113,7 +105,10 @@ The [Payor](#Payor) begins by creating a GCP project and configuring an OAuth co
 
 With [Payor](#Payor) credentials in place, the [Payor](#Payor) [Levies](#Levy) a [Depot](#Depot), provisioning it with build infrastructure, artifact registry, and secrets storage. The [Payor](#Payor) then mantles a [Governor](#Governor) service account to administer the [Depot](#Depot).
 
-Before the first build can run, the [Depot](#Depot) needs its supply-chain infrastructure in place. <a id="Enshrine"></a>**[Enshrine](#Enshrine)**: mirror upstream base images into your [Depot's](#Depot) registry. [Enshrining](#Enshrine) ensures the build pipeline has a fixed, self-contained supply chain — builds draw from project-owned copies rather than depending on third-party registry availability at build time. <a id="Reliquary"></a>**[Reliquary](#Reliquary)**: co-versioned set of builder tool images (skopeo, docker, gcloud, syft) inscribed from upstream into the [Depot's](#Depot) registry. Cloud Build jobs use [Reliquary](#Reliquary) images as step containers, ensuring builds run with known, project-owned toolchains rather than pulling tools from upstream at build time. The [Director](#Director) inscribes a [Reliquary](#Reliquary) before any [Ordain](#Ordain) or [Enshrine](#Enshrine) operation can run.
+Before the first build can run, the [Depot](#Depot) needs its supply-chain infrastructure in place:
+
+- <a id="Enshrine"></a>**[Enshrine](#Enshrine)** — Mirror upstream base images into your [Depot's](#Depot) registry. [Enshrining](#Enshrine) ensures the build pipeline has a fixed, self-contained supply chain — builds draw from project-owned copies rather than depending on third-party registry availability at build time.
+- <a id="Reliquary"></a>**[Reliquary](#Reliquary)** — Co-versioned set of builder tool images (skopeo, docker, gcloud, syft) inscribed from upstream into the [Depot's](#Depot) registry. Cloud Build jobs use [Reliquary](#Reliquary) images as step containers, ensuring builds run with known, project-owned toolchains rather than pulling tools from upstream at build time. The [Director](#Director) inscribes a [Reliquary](#Reliquary) before any [Ordain](#Ordain) or [Enshrine](#Enshrine) operation can run.
 
 #### Credential Distribution
 
@@ -171,9 +166,10 @@ This ensures security policies are enforced from the first packet, and the [Bott
 
 The [Sentry](#Sentry) applies two layers of egress policy: `dnsmasq` answers DNS queries only for explicitly allowed names, and `iptables` permits outbound IP traffic only to allowed CIDR ranges. The two layers combine into an enforced allowlist that a compromised or misbehaving [Bottle](#Bottle) cannot bypass — neither by DNS-based exfiltration nor by direct IP connection to an unapproved destination. Each [Crucible's](#Crucible) allowlist is declared in a [Nameplate](#Nameplate) [Regime](#Regime) file alongside the [Sentry](#Sentry) and [Bottle](#Bottle) [Vessel](#Vessel) selections, making network policy a reviewable artifact of the configuration rather than an implicit runtime behavior.
 
-<a id="Charge"></a>**[Charge](#Charge).** Start the [Sentry](#Sentry)/[Pentacle](#Pentacle)/[Bottle](#Bottle) triad for a [Nameplate](#Nameplate). [Charging](#Charge) brings up the [Crucible](#Crucible) in dependency order: [Pentacle](#Pentacle) creates the namespace, [Sentry](#Sentry) configures policy, then the [Bottle](#Bottle) starts with its network already constrained.
+The [Crucible](#Crucible) has two lifecycle operations:
 
-<a id="Quench"></a>**[Quench](#Quench).** Stop and clean up a [Charged](#Charge) [Nameplate's](#Nameplate) containers. [Quenching](#Quench) tears down the [Crucible](#Crucible) in reverse order and removes the network resources created during [Charging](#Charge).
+- <a id="Charge"></a>**[Charge](#Charge)** — Start the [Sentry](#Sentry)/[Pentacle](#Pentacle)/[Bottle](#Bottle) triad for a [Nameplate](#Nameplate). [Charging](#Charge) brings up the [Crucible](#Crucible) in dependency order: [Pentacle](#Pentacle) creates the namespace, [Sentry](#Sentry) configures policy, then the [Bottle](#Bottle) starts with its network already constrained.
+- <a id="Quench"></a>**[Quench](#Quench)** — Stop and clean up a [Charged](#Charge) [Nameplate's](#Nameplate) containers. [Quenching](#Quench) tears down the [Crucible](#Crucible) in reverse order and removes the network resources created during [Charging](#Charge).
 
 #### Day-to-Day Operations
 
