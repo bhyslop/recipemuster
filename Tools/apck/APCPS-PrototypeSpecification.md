@@ -14,8 +14,7 @@ The prototype deliberately excludes:
 - **One patient at a time** — no batch processing, no queue
 - **No configuration** — no custom blacklists, no user preferences, no settings UI
 - **No click-to-highlight** — clicking a finding does not scroll/highlight in the document preview (future feature)
-- **No clipboard source detection** — the app does not verify that clipboard content came from Epic
-- **No clipboard clearing** — clipboard is not cleared after consumption (reserved for future)
+- **No multi-word merge** — adjacent name hits are individually flagged, not merged into a single token
 
 ## Tech Stack
 
@@ -42,6 +41,28 @@ Epic's "Copy All" places HTML on the clipboard with structural formatting:
 
 The HTML structure is semi-structured — not arbitrary prose and not fully machine-readable. This structure is the primary advantage over plain text processing: labels anchor PHI detection with high precision.
 
+## Clipboard Handling
+
+### Clinical Content Heuristic
+
+Before processing, the engine checks whether clipboard content appears to be clinical. The check scans for known Epic/clinical label patterns:
+
+**Positive indicators** (presence of 2+ triggers acceptance):
+- `Patient:`, `DOB:`, `MRN:`, `Attending:`, `Facility:`
+- `Chief Complaint:`, `History of Present Illness:`, `Assessment/Plan:`
+- `Vitals:`, `Labs:`, `Medications:`, `Allergies:`
+- HTML `<b>Label:</b>` structure characteristic of Epic formatting
+
+If clinical content is detected, the engine proceeds to the detection pipeline and clears the system clipboard (writes empty string via `arboard::set_text("")`).
+
+If clinical content is NOT detected, the app clears any previous triage state and returns to the initial instruction view. The app displays a brief diagnostic line showing: clipboard content length, content type (HTML/plain text), and the first ~100 characters of content. This diagnostic aids debugging when real Epic data fails the heuristic — the developer can see what was on the clipboard and update the label list accordingly.
+
+This heuristic will be refined when tested against real Epic output. The initial label list is calibrated to pass the synthetic test fixture.
+
+### Clipboard Change Detection
+
+On window focus, the engine compares the current clipboard content (byte-for-byte string comparison) against the last successfully consumed content. If identical, the existing triage state is preserved — no reprocessing. If different, the clinical content heuristic runs on the new content. Clinical notes are a few KB; storing the last consumed string for comparison has negligible memory cost at prototype scale.
+
 ## Detection Pipeline
 
 ### Overview
@@ -66,7 +87,9 @@ Input: Epic HTML clipboard content
 
 ### Tier 1 — Regex Patterns (→ RED)
 
-Unambiguous structural patterns. No false positives. No database dependency.
+Structural patterns with low false positive rate. No database dependency.
+
+**Known ambiguities:** The zip code regex (`\d{5}`) can match 5-digit lab values, identifiers, or dosage amounts. The date regex can match version numbers or other formatted numerics. The street address regex can match non-address text with number-word-suffix patterns. These are accepted risks for the prototype — the conservative bias (false positive > false negative) means these appear as RED items the clinician can review. Context-aware refinement is deferred.
 
 | Pattern | Category | Regex (representative) | Notes |
 |---------|----------|----------------------|-------|
@@ -99,18 +122,32 @@ Words immediately following known Epic labels are PHI regardless of dictionary m
 
 Label matching is case-insensitive on the label text. Value extraction extends to the next structural boundary (label, line break, or HTML element boundary).
 
-Items caught by Tier 2 are not subsequently dictionary-checked — their RED classification is final.
+**Per-word anchoring:** Each word in the extracted value is individually flagged as RED. "Margaret J. Thornton" after `Patient:` produces three separate **anchored** items, each classified `[NAME]`. In anonymized output: `[NAME] [NAME] [NAME]`. No multi-word merge is attempted.
+
+Items caught by Tier 2 are **anchored** — their RED classification is final. They are not subsequently dictionary-checked. If a word is both anchored (Tier 2) and matched (Tier 3), the anchored classification takes precedence.
+
+### Vocabulary: Anchored vs. Matched
+
+Two independent mechanisms flag words as potential PHI. To avoid confusion, the spec distinguishes:
+
+- **Anchored**: Flagged by Tier 2 because of *position* — the word follows a known label. Always RED. Independent of any dictionary.
+- **Matched**: Flagged by Tier 3 because of *identity* — the word appears in a name/location dictionary. YELLOW (unless also anchored, in which case RED wins).
+
+A word can be both anchored and matched (e.g., "Thornton" after `Patient:` AND in the Census surname list). Anchored always takes precedence. The term "blacklist" in this spec refers specifically to the Tier 3 name/location dictionaries; Tier 2 label-anchored extraction is a separate mechanism.
 
 ### Tier 3 — Dictionary Blacklist/Whitelist (→ YELLOW or PASS)
 
 Catches names and locations in narrative text that lack label anchors (e.g., "her husband Robert Thornton called 911").
 
+**Case handling:** All dictionary lookups are case-insensitive. The aho-corasick automaton is built from lowercase dictionary entries. Input tokens are lowercased before matching. Original case is preserved in display and anonymized output.
+
 **Process:**
 1. Segment text into words using `unicode-segmentation` (UAX#29 boundaries)
-2. Run aho-corasick automaton against all words (single pass, O(n))
-3. For each hit, check whitelist membership
-4. Classify:
-   - Blacklist hit, no whitelist hit → **YELLOW** (questionable, default ELIDE)
+2. Lowercase each token for lookup; preserve original for display
+3. Run aho-corasick automaton against lowercased tokens (single pass, O(n))
+4. For each hit, check whitelist membership (also lowercase)
+5. Classify:
+   - Blacklist hit, no whitelist hit → **YELLOW** (matched, default ELIDE)
    - Blacklist hit AND whitelist hit → **YELLOW** (collision, default ELIDE)
    - Whitelist hit only → **PASS**
    - Neither list → **PASS**
