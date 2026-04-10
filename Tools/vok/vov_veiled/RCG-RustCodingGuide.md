@@ -416,6 +416,121 @@ Comments describe what code does permanently, not why it was written this sessio
 // Added in tack-struct-rust-migration pace to support old JSON
 ```
 
+## Output Discipline
+
+**Core rule**: Every crate must route all output through a declared output module. No naked `println!`, `eprintln!`, `print!`, or `eprint!` anywhere except inside that module's implementation.
+
+### Why This Exists
+
+Raw print statements scatter output decisions across the codebase. This creates problems ranging from cosmetic (inconsistent format) to fatal (MCP servers use stdout for JSON-RPC — a stray `println!` corrupts the transport). A single output module centralizes the decision of where output goes, what format it takes, and how to disable it.
+
+### Sentinel Comment
+
+Every file that produces output must carry a standardized import with a sentinel comment:
+
+```rust
+// RCG output discipline: all emission via apcrl_*! — no direct println!/eprintln!
+use apcd::{apcrl_info_now, apcrl_error_now, apcrl_fatal_now};
+```
+
+The tag `RCG output discipline:` is grep-able. The comment restates the rule at the point where violations would occur. Future editors see the prohibition when they open the file, not buried in a spec.
+
+### Four Severity Levels
+
+Every output module must provide these four levels with consistent semantics:
+
+| Level | Semantics | Continues? | Rate |
+|-------|-----------|------------|------|
+| `trace` | Development debugging | Yes | High — may compile out in release |
+| `info` | Operational milestones | Yes | Low — always present |
+| `error` | Recoverable failure | Yes | Hopefully rare |
+| `fatal` | Unrecoverable | No — exits process | Terminal |
+
+### Line Discipline
+
+Every emission is one complete line. The output module appends the newline — callers never include `\n`. Every emission automatically includes the source file and line number of the call site.
+
+Output format:
+```
+[LEVEL] [file:line] message text
+```
+
+### Naming Convention
+
+All macros carry the project's output module prefix. Three suffix families:
+
+**Unconditional (`_now`)** — emit and continue (or exit for fatal):
+
+```rust
+xxx_trace_now!("checking entry {}", i);
+xxx_info_now!("loaded {} entries", count);
+xxx_error_now!("parse failed: {}", err);
+xxx_fatal_now!("config missing, cannot start");  // never returns
+```
+
+The `_now` suffix distinguishes unconditional emission from conditional variants and enables tab completion: `xxx_error_` → `now`, `if`, `eq`, `ne`, ...
+
+**Boolean conditional (`_if`)** — evaluates condition, emits if true, returns the bool:
+
+```rust
+if xxx_error_if!(items.is_empty(), "no items loaded from {}", path) {
+    return default_result;
+}
+
+xxx_fatal_if!(config.is_none(), "config file not found");
+// only reachable if config is Some
+```
+
+`_if` fuses the condition check and the diagnostic. The caller cannot forget to log when the condition triggers.
+
+**Comparison conditional (`_eq`, `_ne`, `_lt`, `_gt`, `_le`, `_ge`)** — compares two expressions, emits if the comparison is true, returns the bool. Uses `stringify!()` to capture expression names and `{:?}` to show values:
+
+```rust
+if xxx_error_ne!(items.len(), expected, "dictionary load") {
+    return fallback;
+}
+// emits: [ERROR] [src/apcrd_dictionaries.rs:47] dictionary load: items.len() (0) != expected (1000)
+
+xxx_fatal_lt!(available, required, "insufficient memory");
+// emits: [FATAL] [src/apcap_main.rs:30] insufficient memory: available (64) < required (256)
+// then exits
+```
+
+The suffix names the error condition — the thing that is wrong. The output shows both expressions and their values automatically.
+
+### Variant Matrix
+
+Projects implement the variants they need. The full matrix:
+
+| | `_now` | `_if` | `_eq` `_ne` `_lt` `_gt` `_le` `_ge` |
+|---|---|---|---|
+| **trace** | unconditional | returns bool | returns bool + stringify |
+| **info** | unconditional | — | — |
+| **error** | unconditional | returns bool | returns bool + stringify |
+| **fatal** | emit + exit | exit or fall through | exit or fall through + stringify |
+
+`info` has only `_now` — milestones are unconditional by nature.
+
+### What RCG Specifies vs. What Projects Own
+
+**RCG specifies:**
+- The discipline (must have a module, must route through it, must carry the sentinel)
+- The four severity levels and their semantics
+- The suffix naming convention (`_now`, `_if`, comparison operators)
+- Line-oriented output with automatic file/line
+- No naked print statements
+
+**Projects specify:**
+- The prefix (`apcrl_`, `vvco_`, etc.)
+- The output target (stdout, stderr, buffer, file)
+- Trace gating strategy (`cfg!(debug_assertions)`, feature flag, runtime toggle)
+- Whether the module is macro-based or object-based
+- Which comparison variants to implement
+
+### Relationship to Other Disciplines
+
+Output Discipline is an instance of Interface Contamination Discipline applied to program output. Just as there must be one canonical form for each input, there must be one canonical path for each output. A stray `println!` is output contamination — an undocumented emission path that bypasses format, level, and routing decisions.
+
 ## File Size Discipline
 
 Large files degrade code quality by hiding patterns and encouraging copy-paste.
@@ -650,6 +765,18 @@ When extracting inline tests from `{cipher}r{x}_{name}.rs` to `{cipher}t{x}_{nam
 - [ ] No references to pace/heat names, coronets, firemarks
 - [ ] No task-focused language ("this migration", "for this pace")
 - [ ] Comments describe permanent purpose, not current task
+
+### Output Discipline
+- [ ] Crate has a declared output module (e.g., `{cipher}rl_log.rs`)
+- [ ] No naked `println!`, `eprintln!`, `print!`, or `eprint!` outside the output module
+- [ ] Files producing output carry the sentinel comment: `// RCG output discipline: ...`
+- [ ] Four severity levels implemented: trace, info, error, fatal
+- [ ] All emissions are line-oriented with automatic file/line
+- [ ] `_now` suffix on unconditional variants
+- [ ] `_if` suffix on boolean conditional variants (returns bool)
+- [ ] Comparison variants (`_eq`, `_ne`, `_lt`, `_gt`, `_le`, `_ge`) stringify arguments
+- [ ] `fatal` variants exit the process (never return)
+- [ ] `grep -rn 'println!\|eprintln!\|print!\|eprint!' src/` finds only the output module
 
 ### File Size Discipline
 - [ ] File under 500 lines (good)
