@@ -2040,7 +2040,7 @@ system enabling secure container management.
 [[at_bottle_image]]
 //axl_voices axig_container_image
 {at_bottle_image}::
-A container image built or replicated through the Google build infrastructure.
+A container image built or replicated through the {at_foundry}.
 
 [[rbtr_consumer]]
 //axl_voices axo_actor

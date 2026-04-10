@@ -85,7 +85,7 @@ This file enables the
 to authenticate for all future operations without repeating the browser flow.
 
 {rbtgo_depot_levy}
-provisions the container build infrastructure.
+provisions the {at_foundry} infrastructure.
 Most installations require exactly one
 {rbtgi_depot}-
 a cohesive unit comprising a dedicated

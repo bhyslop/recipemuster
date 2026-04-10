@@ -172,7 +172,7 @@ This empowers organizations to leverage the expanding ecosystem of containerized
 
 The following themes represent future directions for Recipe Bottle, drawn from the project's horizon roadmap.
 
-**Build pipeline security hardening.**
+**{at_foundry} security hardening.**
 Egress lockdown, VPC Service Controls, cosign image signing, and Binary Authorization are evaluated and consciously deferred.
 Each has a defined trigger condition — they activate when compliance requirements, threat models, or deployment targets change.
 Full analysis lives in the Cloud Build security posture documentation.
