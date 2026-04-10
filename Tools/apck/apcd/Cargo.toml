@@ -20,6 +20,7 @@ path = "src/apcal_main.rs"
 [dependencies]
 tauri = { version = "2", features = [] }
 arboard = "3"
+scraper = "0.21"
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
