@@ -30,6 +30,12 @@ The prototype deliberately excludes:
 
 All engine crates are pure Rust, fully Cargo-lockable on macOS and Windows. Tauri requires the system webview (WebKit on macOS, WebView2 on Windows — both ship with the OS).
 
+### Tauri CLI cwd Constraint
+
+The `cargo tauri build` command discovers its project by walking up from the current working directory looking for `Cargo.toml` and `tauri.conf.json`. It has no `--manifest-path` equivalent. Additionally, `tauri.conf.json` uses relative paths (e.g., `"frontendDist": "./ui"`) that resolve from the Tauri project directory.
+
+This means `cargo tauri build` must run with cwd set to `Tools/apck/apcd/`. This is an external tool constraint, not a design choice. All other cargo commands (`cargo run`, `cargo test`) use `--manifest-path` and run from the project root per BCG convention. The two `cargo tauri` call sites (`apcc_build`, `apcc_deploy`) use BCG isolation subshells to contain the `cd`.
+
 ## Input: Epic "Copy All" HTML
 
 Epic's "Copy All" places HTML on the clipboard with structural formatting:

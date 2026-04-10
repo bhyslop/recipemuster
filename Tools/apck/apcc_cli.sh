@@ -20,21 +20,34 @@
 
 set -euo pipefail
 
+source "${BURD_BUK_DIR}/buc_command.sh"
+
 ZAPCC_APCD_DIR="${BASH_SOURCE[0]%/*}/apcd"
+ZAPCC_MANIFEST="${ZAPCC_APCD_DIR}/Cargo.toml"
+
+######################################################################
+# Commands
 
 apcc_build() {
   buc_step "Building Tauri app (release)"
-  (cd "${ZAPCC_APCD_DIR}" && cargo tauri build)
+  (
+    cd "${ZAPCC_APCD_DIR}" || buc_die "Failed to cd to ${ZAPCC_APCD_DIR}"
+    cargo tauri build     || buc_die "cargo tauri build failed"
+  ) || buc_die "Build subshell failed"
 }
 
 apcc_run() {
   buc_step "Running Tauri app (development)"
-  (cd "${ZAPCC_APCD_DIR}" && cargo run --bin apcap)
+  cargo run --bin apcap --manifest-path "${ZAPCC_MANIFEST}" \
+    || buc_die "cargo run failed"
 }
 
 apcc_deploy() {
   buc_step "Building for deployment"
-  (cd "${ZAPCC_APCD_DIR}" && cargo tauri build)
+  (
+    cd "${ZAPCC_APCD_DIR}" || buc_die "Failed to cd to ${ZAPCC_APCD_DIR}"
+    cargo tauri build     || buc_die "cargo tauri build failed"
+  ) || buc_die "Build subshell failed"
 
   local -r z_bundle_dir="${ZAPCC_APCD_DIR}/target/release/bundle/macos"
   local -r z_size_file="${BURD_TEMP_DIR}/apcc_deploy_size.txt"
@@ -76,17 +89,30 @@ apcc_fixture_load() {
   esac
   test -f "${z_fixture_file}" || buc_die "Fixture file not found: ${z_fixture_file}"
   buc_step "Loading fixture '${z_folio}' onto clipboard"
-  (cd "${ZAPCC_APCD_DIR}" && cargo run --bin apcal -- "${z_fixture_file}")
+  cargo run --bin apcal --manifest-path "${ZAPCC_MANIFEST}" -- "${z_fixture_file}" \
+    || buc_die "cargo run apcal failed"
 }
 
 apcc_test() {
   buc_step "Running cargo test"
-  (cd "${ZAPCC_APCD_DIR}" && cargo test)
+  cargo test --manifest-path "${ZAPCC_MANIFEST}" \
+    || buc_die "cargo test failed"
 }
 
 apcc_dictionary_refresh() {
   buc_step "Refreshing dictionaries from public sources"
-  (cd "${ZAPCC_APCD_DIR}" && cargo run --bin apcad)
+  cargo run --bin apcad --manifest-path "${ZAPCC_MANIFEST}" \
+    || buc_die "cargo run apcad failed"
 }
+
+######################################################################
+# Furnish and dispatch
+
+zapcc_furnish() {
+  buc_doc_env "BURD_TEMP_DIR" "Temporary directory (dispatch-provided)"
+  buc_doc_env_done || return 0
+}
+
+buc_execute apcc_ "APCK CLI" zapcc_furnish "$@"
 
 # eof
