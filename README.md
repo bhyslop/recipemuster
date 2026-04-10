@@ -34,7 +34,7 @@ Recipe Bottle addresses two orthogonal complexity domains: the [Foundry](#Foundr
 
 Recipe Bottle's remote build orchestration system for producing, attesting, and distributing container images via Google Cloud Build and Google Artifact Registry. The [Foundry](#Foundry) encompasses [Depots](#Depot), [Vessels](#Vessel), [Hallmark](#Hallmark) tracking, and build definitions. Three [Vessel](#Vessel) modes determine how images enter the [Depot](#Depot): [Conjure](#Conjure) (egress-locked build from source with SLSA provenance), [Bind](#Bind) (digest-pinned upstream mirror), and [Graft](#Graft) (local push). Peer to [Crucible](#Crucible), which handles local runtime containment.
 
-The [Foundry](#Foundry) orchestrates Google Cloud Build to produce container images with SLSA attestation, software bills of material, reproducible multi-architecture builds, and digest-pinned toolchains — so every image has a verifiable origin story. Builds run in an egress-locked configuration, drawing from upstream base images mirrored into a project-owned registry — a fixed, self-contained supply chain independent of third-party registry availability.
+The [Foundry](#Foundry) orchestrates Google Cloud Build to produce container images with SLSA attestation, software bills of material, reproducible multi-architecture builds, and digest-pinned toolchains — so every image has a verifiable origin story. Builds run in an egress-locked configuration, drawing from upstream base images mirrored into a project-owned [Depot](#Depot) registry — a fixed, self-contained supply chain independent of third-party registry availability.
 
 ### <a id="Depot"></a>Depot
 
@@ -62,13 +62,13 @@ Administers a [Depot](#Depot): creates service accounts, manages access. The [Go
 
 Builds and publishes [Vessel](#Vessel) images into a [Depot](#Depot). Each [Director](#Director) credential is scoped to one [Depot](#Depot). The [Director](#Director) manages the image lifecycle through three operations:
 
-- <a id="Ordain"></a>**[Ordain](#Ordain)** — Create a [Hallmark](#Hallmark) with full attestation — the production build operation. [Ordaining](#Ordain) is mode-aware: it [Conjures](#Conjure), [Binds](#Bind), or [Grafts](#Graft) depending on the [Vessel's](#Vessel) configuration. Each [Ordain](#Ordain) produces an image in the registry with associated provenance metadata.
-- <a id="Tally"></a>**[Tally](#Tally)** — Inventory [Hallmarks](#Hallmark) in the registry by health status. [Tallying](#Tally) shows which builds succeeded, which are pending, and which failed. The [Director](#Director) [Tallies](#Tally) before [Vouching](#Vouch) to confirm build completion.
+- <a id="Ordain"></a>**[Ordain](#Ordain)** — Create a [Hallmark](#Hallmark) with full attestation — the production build operation. [Ordaining](#Ordain) is mode-aware: it [Conjures](#Conjure), [Binds](#Bind), or [Grafts](#Graft) depending on the [Vessel's](#Vessel) configuration. Each [Ordain](#Ordain) produces an image in the [Depot](#Depot) registry with associated provenance metadata.
+- <a id="Tally"></a>**[Tally](#Tally)** — Inventory [Hallmarks](#Hallmark) in the [Depot](#Depot) registry by health status. [Tallying](#Tally) shows which builds succeeded, which are pending, and which failed. The [Director](#Director) [Tallies](#Tally) before [Vouching](#Vouch) to confirm build completion.
 - <a id="Vouch"></a>**[Vouch](#Vouch)** — Cryptographic attestation proving a [Hallmark](#Hallmark) was built by trusted infrastructure. The [Vouch](#Vouch) verdict is mode-aware: [Conjure](#Conjure) builds receive full SLSA provenance verification, [Bind](#Bind) builds receive digest-pin verification, and [Graft](#Graft) builds receive a GRAFTED verdict with no provenance chain. The [Director](#Director) [Vouches](#Vouch) [Hallmarks](#Hallmark) after [Tallying](#Tally) their build status.
 
 ### <a id="Retriever"></a>Retriever
 
-Pulls and runs [Vessel](#Vessel) images from a [Depot](#Depot). This is the most constrained role — read-only access to the registry. The [Retriever](#Retriever) accesses the registry through two operations:
+Pulls and runs [Vessel](#Vessel) images from a [Depot](#Depot). This is the most constrained role — read-only access to the [Depot](#Depot) registry. The [Retriever](#Retriever) accesses the [Depot](#Depot) registry through two operations:
 
 - <a id="Summon"></a>**[Summon](#Summon)** — Pull a [Hallmark](#Hallmark) image from the [Depot](#Depot) to your local machine. The [Retriever](#Retriever) [Summons](#Summon) [Vouched](#Vouch) images for local use — the final step before a [Hallmark](#Hallmark) can be used in a [Crucible](#Crucible).
 - <a id="Plumb"></a>**[Plumb](#Plumb)** — Inspect an artifact's provenance — SBOM, build info, and [Vouch](#Vouch) chain. [Plumbing](#Plumb) provides full transparency into how an image was built and what it contains. Two views are available: full (SBOM, build info, Dockerfile) and compact (attestation summary).
@@ -79,12 +79,12 @@ A specification for a container image — built from source ([Conjure](#Conjure)
 
 - <a id="Conjure"></a>**[Conjure](#Conjure)** — Cloud Build creates the image from source. [Conjure](#Conjure) builds run in an egress-locked environment with digest-pinned toolchains, producing full SLSA attestation and SBOMs. This is the highest-trust build mode.
 - <a id="Bind"></a>**[Bind](#Bind)** — Mirror an upstream image pinned by digest. [Binding](#Bind) captures an external image at a specific digest into the [Depot's](#Depot) registry. Trust is established through digest-pin verification rather than build provenance.
-- <a id="Graft"></a>**[Graft](#Graft)** — Push a locally-built image to the registry. [Grafting](#Graft) uploads a local image to GAR via docker push — no Cloud Build for the image itself, though about and [Vouch](#Vouch) metadata still run in Cloud Build. This is the lowest-trust mode (GRAFTED verdict).
-- <a id="Kludge"></a>**[Kludge](#Kludge)** — Build a [Vessel](#Vessel) image locally for fast iteration, without registry push. [Kludging](#Kludge) produces a local Docker image for development and testing without involving Cloud Build or the [Depot](#Depot). The resulting image can be used to [Charge](#Charge) a [Crucible](#Crucible) directly.
+- <a id="Graft"></a>**[Graft](#Graft)** — Push a locally-built image to the [Depot](#Depot) registry. [Grafting](#Graft) uploads a local image to GAR via docker push — no Cloud Build for the image itself, though about and [Vouch](#Vouch) metadata still run in Cloud Build. This is the lowest-trust mode (GRAFTED verdict).
+- <a id="Kludge"></a>**[Kludge](#Kludge)** — Build a [Vessel](#Vessel) image locally for fast iteration, without [Depot](#Depot) registry push. [Kludging](#Kludge) produces a local Docker image for development and testing without involving Cloud Build or the [Depot](#Depot). The resulting image can be used to [Charge](#Charge) a [Crucible](#Crucible) directly.
 
 ### <a id="Hallmark"></a>Hallmark
 
-A specific build instance of a [Vessel](#Vessel), identified by timestamp. [Hallmarks](#Hallmark) are the unit of provenance tracking — each one records when and how the image was produced. Each [Hallmark](#Hallmark) produces three tagged artifacts in the registry: the container image (`-image`), the software bill of materials (`-about`), and the cryptographic attestation (`-vouch`). [Hallmark](#Hallmark) values are recorded into [Nameplate](#Nameplate) [Regime](#Regime) files to pin a [Crucible](#Crucible) to specific image versions.
+A specific build instance of a [Vessel](#Vessel), identified by timestamp. [Hallmarks](#Hallmark) are the unit of provenance tracking — each one records when and how the image was produced. Each [Hallmark](#Hallmark) produces three tagged artifacts in the [Depot](#Depot) registry: the container image (`-image`), the software bill of materials (`-about`), and the cryptographic attestation (`-vouch`). [Hallmark](#Hallmark) values are recorded into [Nameplate](#Nameplate) [Regime](#Regime) files to pin a [Crucible](#Crucible) to specific image versions.
 
 ### Foundry Lifecycle
 
@@ -271,7 +271,7 @@ Two qualification gates exercise the full system: a fast qualify checks [Tabtarg
 - **Expired tokens**: Run the [Payor](#Payor) refresh operation
 - **Compromised [Governor](#Governor)**: Re-mantle the [Governor](#Governor) (replaces the service account, invalidates the old credential)
 - **Compromised [Director](#Director)/[Retriever](#Retriever)**: Forfeit the compromised account, then re-[Knight](#Knight) or re-[Charter](#Charter)
-- **Lost [Nameplate](#Nameplate) values**: Re-[Tally](#Tally) [Hallmarks](#Hallmark) to retrieve values from the registry
+- **Lost [Nameplate](#Nameplate) values**: Re-[Tally](#Tally) [Hallmarks](#Hallmark) to retrieve values from the [Depot](#Depot) registry
 - **Build timeout or failure**: [Tally](#Tally) to check build status, review logs in the GCP Console for the [Depot](#Depot) project
 
 ## Architecture
