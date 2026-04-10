@@ -92,6 +92,7 @@ Working titles, evocative and distinct from the prior role placeholders. **All n
 | `rbev-bottle-ccyolo` | conjure | First crucible experience — Claude Code in a sandbox (₢A6AAG creates this) |
 | `rbev-bottle-ifrit` | conjure | Adversarial testing vessel — teaches that containment is actively validated |
 | `rbev-bottle-plantuml` | bind | Upstream image pinned by digest — teaches bind mode |
+| `rbev-bottle-graft-demo` | graft | Teaching-only graft vessel — local image pushed to GAR, no Dockerfile in project, no nameplate |
 
 | Nameplate | Sentry | Bottle | Teaching role |
 |-----------|--------|--------|---------------|
@@ -125,15 +126,21 @@ The director subtracks follow a strict dependency chain: inscribe → tethered �
 
 9. **Tethered Cloud Builds** — hands-on, first real cloud build. Tether pool has public internet; base images pulled from upstream during build. Wall-clock ~20 min — pedagogy needs to handle wait time (open question). Requires: reliquary inscribed. **Vessel: `rbev-sentry-debian-slim`** (conjure mode, learner already knows this vessel from the crucible track).
 
-10. **Enshrine the Ancestors** — hands-on. Mirror upstream base images into GAR with content-addressed anchors. Produces `RBRV_IMAGE_n_ANCHOR` values. Enshrine itself requires reliquary tool images. Teaches: supply-chain independence, anchor scheme, air-gap readiness. Requires: reliquary inscribed. **Vessel: whichever vessel the learner just built in track 9** (enshrine targets that vessel's declared base image origins).
+10. **Enshrine the Ancestors** — hands-on. Mirror upstream base images into GAR with content-addressed anchors for **all shipped conjure vessels** (sentry-debian-slim, bottle-ccyolo, bottle-ifrit). Produces `RBRV_IMAGE_n_ANCHOR` values per vessel. Enshrine itself requires reliquary tool images. Teaches: supply-chain independence, anchor scheme, air-gap readiness, and the concrete scope of upstream dependencies the project carries. Requires: reliquary inscribed.
 
-11. **Airgap Your Builds** — hands-on, airgap pool with no public internet. All dependencies pre-enshrined in GAR. Most restrictive build mode, full isolation. Requires: enshrined base images. **Vessel: same as tracks 9-10** (rebuild with airgap pool, proving the enshrined bases work).
+11. **Airgap Your Builds** — hands-on, airgap pool with no public internet. All dependencies pre-enshrined in GAR. Most restrictive build mode, full isolation. Requires: enshrined base images. **Vessel: `rbev-sentry-debian-slim`** (rebuild the same vessel from track 9, now airgapped — proving the enshrined bases work).
 
-12. **Building for Crucibles** — building targets for local testing. The learner ordains the vessels they need to charge a crucible from cloud-built hallmarks instead of kludged ones. **Nameplate: `tadmor`** (sentry + ifrit, the adversarial testing target). Gap: may also need ccyolo cloud-built — see Gaps below.
+12. **Building for Crucibles** — ordain the vessels needed to charge a crucible from cloud-built hallmarks instead of kludged ones. The learner ordains **bottle-ifrit** (airgapped, completing the full chain), drives the hallmark into the tadmor nameplate, charges, and runs the adversarial test suite. Closes the loop: the learner built the security testing infrastructure themselves. **Nameplate: `tadmor`** (sentry + ifrit).
 
-### Evaluation tracks
+### Evaluation tracks (split by concern)
 
-13. **Assay the Realm** — enterprise evaluator. Tour across all three ordain modes using concrete shipped vessels: conjure (**sentry-debian-slim**), bind (**bottle-plantuml**), graft (gap — see below). **Framing matters**: this learner is evaluating, not executing. Critical eye, breadth over depth.
+Evaluators arrive with specific concerns, not a desire to tour everything. Three discrete tracks, each self-contained. **Framing matters**: these learners are evaluating, not executing. Critical eye, breadth over depth.
+
+13. **Assay: Supply Chain** — evaluator concerned with build provenance. Tours all three ordain modes using concrete shipped vessels: conjure (**sentry-debian-slim**), bind (**bottle-plantuml**), graft (**bottle-graft-demo** — no nameplate, just a local image pushed to GAR). Teaches: SLSA attestation chain, SBOM via plumb, vouch verdicts per mode (full SLSA / digest-pin / GRAFTED), pouch as security boundary, reliquary as toolchain control. The trust hierarchy across modes is the central lesson.
+
+14. **Assay: Containment** — evaluator concerned with runtime security. Tours the crucible architecture: sentry/pentacle/bottle composition, iptables + dnsmasq dual-layer enforcement, namespace isolation. Introduces the Ifrit and Theurge — adversarial AI-authored escape tests that actively validate containment. The evaluator sees the test results, understands the methodology (Claude Code sessions with full visibility authored the attacks, Ifrit delivers them, Theurge coordinates inside/outside observation). **Nameplate: `tadmor`** (the adversarial testing target).
+
+15. **Assay: Operations** — evaluator concerned with operational model. Tours credential lifecycle (payor → governor → director/retriever), regime configuration, depot provisioning/unmake, and day-to-day operations (charge/quench, tally/vouch/summon cycle). Teaches: how a small team stands this up, what ongoing maintenance looks like, recovery procedures. **No vessels** — operational walkthrough, not hands-on building.
 
 ### Cross-cutting surfaces
 
@@ -141,12 +148,11 @@ The director subtracks follow a strict dependency chain: inscribe → tethered �
 - **Secret Handling Primer** — the RBRA distribution lesson, appearing as a unit in Knight the Realm (governor side, distributing) and Receive Your Knighthood (recipient side, placing). Teaches operational handling knowledge — *what it is, how to handle, where it goes* — without teaching *how to read*.
 - **Depot Relationships** — the user flagged wanting good intro text explaining "what a Depot is and how Directors dictate its content but Retrievers use it." This is a relational teaching unit that may appear verbatim in multiple tracks. Candidate for a shared snippet consumed by multiple handbooks.
 
-### Gaps identified
+### Remaining gaps
 
-- **Graft vessel**: Assay the Realm (track 13) wants to demonstrate all three ordain modes. Conjure and bind have shipped vessels. Graft has no shipped example — no vessel currently uses graft mode. Either create a teaching-only graft vessel, or demonstrate graft using an ad-hoc local image. Decision deferred.
-- **Enshrine target selection** (track 10): The enshrine operation targets a vessel's declared `RBRV_IMAGE_n_ORIGIN` base images. If the learner builds sentry-debian-slim in track 9, the enshrine target is `debian:bookworm-slim`. Confirm this is pedagogically clear — the learner is enshrining the *base image* of a vessel they already built, not the vessel itself.
-- **ccyolo cloud build** (track 12): Building for Crucibles teaches ordaining crucible targets. The learner knows ccyolo from track 3 (kludge) — should they now ordain it via cloud build? This would close the loop (kludge→cloud build for the same vessel). But ccyolo's npm base is large and slow to build. Decision deferred.
-- **Bind mode track**: bottle-plantuml is the shipped bind vessel, but no director subtrack currently teaches bind mode explicitly. Bind is mentioned in Your First Ordination (conceptual) and demonstrated in Assay the Realm (evaluation). Is a hands-on bind track needed, or is bind simple enough that the conceptual introduction + eval tour suffices?
+- **Graft demo vessel creation**: `rbev-bottle-graft-demo` needs to be created — a minimal image (alpine + socat or similar) with a graft-mode `rbrv.env`, no Dockerfile in the project, no nameplate. Used only in Assay: Supply Chain (track 13). Needs a pace or folded into an existing one.
+- **Ifrit airgap feasibility** (track 12): Building for Crucibles proposes airgapped bottle-ifrit. Ifrit has heavy dependencies (nodejs, npm, scapy, strace). If its Dockerfile can't realistically go airgapped (apt-get installs at build time), keep ifrit tethered and teach the distinction: "this vessel needs upstream access at build time because of X."
+- **Bind mode hands-on**: No director subtrack teaches bind explicitly. Bind is covered conceptually (track 7) and demonstrated in Assay: Supply Chain (track 13). Bind is simple enough (no Dockerfile, no build, just a digest pin in rbrv.env) that the conceptual + eval coverage likely suffices. Revisit if learner feedback says otherwise.
 
 ## README Anchor Inventory
 
