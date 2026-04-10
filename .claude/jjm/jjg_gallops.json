@@ -2,6 +2,7 @@
   "schema_version": 4,
   "next_heat_seed": "A-",
   "heat_order": [
+    "₣A9",
     "₣A8",
     "₣Az",
     "₣An",
@@ -21,8 +22,7 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au",
-    "₣A9"
+    "₣Au"
   ],
   "heats": {
     "₣A5": {
@@ -678,7 +678,7 @@
     "₣A9": {
       "silks": "apck-1-proof-of-life",
       "creation_time": "260410",
-      "status": "stabled",
+      "status": "racing",
       "order": [
         "₢A9AAA",
         "₢A9AAB",
