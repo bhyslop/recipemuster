@@ -181,12 +181,13 @@
         "₢A6AAB",
         "₢A6AAG",
         "₢A6AAH",
+        "₢A6AAI",
         "₢A6AAC",
         "₢A6AAD",
         "₢A6AAE",
         "₢A6AAF"
       ],
-      "next_pace_seed": "AAI",
+      "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
       "paces": {
         "₢A6AAA": {
@@ -393,6 +394,17 @@
               "text": "## Character\n\nSmall infrastructure build. Create a minimal graft-mode vessel for use in Assay: Supply Chain (track 13). No nameplate, no crucible integration — just an `rbrv.env` declaring graft mode and a local image the learner can push to GAR.\n\n## Docket\n\nCreate `rbev-vessels/rbev-bottle-graft-demo/` with graft-mode configuration.\n\n### Create vessel directory\n\n- `rbrv.env` with `RBRV_VESSEL_MODE=graft` and minimal configuration\n- No Dockerfile (graft vessels have no project-side Dockerfile — the image is built locally by the user)\n- Document in a comment or README what local image the learner builds before grafting (e.g., `docker build` a trivial alpine+socat image, then graft it)\n\n### Verify graft cycle\n\n1. Build a trivial local image (alpine + socat or similar)\n2. Graft it: `tt/rbw-hO.DirectorOrdainsHallmark.sh rbev-bottle-graft-demo`\n3. Verify the GRAFTED verdict from vouch\n4. Verify tally shows the grafted hallmark\n\n### Out of scope\n\n- Nameplate or crucible integration for this vessel\n- Cloud Build ordination (graft bypasses Cloud Build for the image)\n- Onboarding handbook content (that's the Assay: Supply Chain track)",
               "silks": "graft-demo-vessel",
               "commit": "47ff2c0"
+            }
+          ]
+        },
+        "₢A6AAI": {
+          "tacks": [
+            {
+              "ts": "260410-0953",
+              "state": "rough",
+              "text": "## Character\n\nInvestigation pace — determine whether bottle-ifrit can realistically build on the airgap pool. The answer directly affects track 12 (Building for Crucibles) docket. Quick, focused, binary outcome.\n\n## Docket\n\nDetermine whether `rbev-bottle-ifrit` can be built airgapped, or must remain tethered.\n\n### Investigate\n\nRead `rbev-vessels/rbev-bottle-ifrit/Dockerfile`. Identify all network-dependent build steps:\n- `apt-get install` / `apt-get update` — pulls from Debian repos\n- `npm install` — pulls from npm registry\n- Any other fetches (pip, curl, wget)\n\n### Assess\n\nFor each network dependency, determine:\n1. Can it be satisfied from enshrined base images alone? (unlikely for apt/npm)\n2. Can it be pre-staged into the build context via the pouch? (possible but complex)\n3. Is there a simpler vessel that demonstrates airgap without these complications?\n\n### Decide\n\nThree possible outcomes:\n- **Ifrit goes airgap**: all dependencies resolvable without upstream at build time. Update track 12 docket accordingly.\n- **Ifrit stays tethered, sentry goes airgap**: sentry-debian-slim has minimal deps (bash, iptables, dnsmasq, iproute2 — all in the base image). Track 12 uses sentry as the airgap demonstration and ifrit as the tethered companion. Teaches the distinction: \"some vessels can go airgapped, others need upstream.\"\n- **Ifrit stays tethered, separate airgap demo**: if neither vessel works cleanly, note for later.\n\nRecord the decision in the A6 paddock (track 12 description and remaining gaps section).\n\n### Out of scope\n\n- Actually building ifrit airgapped (that's track 12's job if feasible)\n- Changing ifrit's Dockerfile\n- Onboarding content",
+              "silks": "ifrit-airgap-feasibility",
+              "commit": "de5297f"
             }
           ]
         }
