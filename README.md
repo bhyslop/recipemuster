@@ -183,6 +183,15 @@ For diagnostics, shell into the [Bottle](#Bottle) or the [Sentry](#Sentry), or o
 
 To inspect an image's supply chain, [Plumb](#Plumb) its provenance — the full view shows the SBOM, build info, and Dockerfile; the compact view summarizes the attestation chain.
 
+#### Adversarial Testing
+
+The [Crucible's](#Crucible) containment is validated through coordinated escape testing using two components:
+
+- <a id="Ifrit"></a>**[Ifrit](#Ifrit)** — Adversarial attack [Vessel](#Vessel) purpose-built to run inside a [Bottle](#Bottle), seeking escape. The [Ifrit](#Ifrit) carries scapy (arbitrary packet construction), strace (syscall boundary probing), and a minimal footprint — tools chosen to probe every surface the [Sentry's](#Sentry) containment exposes. Named for the djinn imprisoned in a bottle.
+- <a id="Theurge"></a>**[Theurge](#Theurge)** — Test orchestrator running on the host, outside the [Crucible](#Crucible). The [Theurge](#Theurge) [Charges](#Charge) a [Crucible](#Crucible) with the [Ifrit](#Ifrit) as its [Bottle](#Bottle), then dispatches curated, reproducible, version-controlled attack scripts targeting specific surfaces: DNS exfiltration, ICMP covert channels, cloud metadata probing, namespace breakout, and direct IP bypass attempts. Each attack runs inside the [Bottle](#Bottle) while the [Theurge](#Theurge) simultaneously observes the [Sentry's](#Sentry) network from outside — confirming that blocked traffic is actually blocked, not merely unrequested.
+
+The escape tests were developed through adversarial Claude Code sessions with full visibility into the [Sentry's](#Sentry) source, `iptables` rules, `dnsmasq` configuration, and the Recipe Bottle specification. The [Ifrit](#Ifrit) [Vessel](#Vessel) is the delivery vehicle; the intelligence came from the authoring process. Every test that passes is evidence the containment holds — not proof. The test suite grows as new attack surfaces are identified.
+
 ## Project Direction
 
 **[Foundry](#Foundry).** Egress lockdown is implemented via a dual-pool Cloud Build architecture. VPC Service Controls and cosign signing are evaluated and deferred until organizational policy or external distribution triggers them.
