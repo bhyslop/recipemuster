@@ -60,9 +60,9 @@ The regime landscape has 13 regimes and a consistent `rbw-r{letter}{r|v}` tabtar
 
 The same probe appears in multiple handbooks. RBRR probes appear in the payor handbook ("you are responsible for filling this") *and* the director handbook ("your payor established this; verify before building"). Same ground truth, different teaching context. This repetition is load-bearing — different learners in different sessions, each deserves their own framing.
 
-### Marshal Zero as First-Lesson Gift
+### Diagnostic Failure as First-Lesson Principle
 
-`rblm_zero()` produces the invalid-baseline state bare-fork learners encounter: RBRR identity fields blanked, RBRA credentials deleted, hallmarks blanked, reliquary/anchor values blanked, payor OAuth preserved. Running `tt/rbw-rrv.ValidateRepoRegime.sh` against this state **fails diagnostically** — telling the learner exactly which fields need values. This failure is the crash course's first concrete teaching moment: *"In this system, configuration errors fail diagnostically. Trust the error messages."*
+Running `tt/rbw-rrv.ValidateRepoRegime.sh` against incomplete state **fails diagnostically** — telling the learner exactly which fields need values. This is the crash course's first concrete teaching moment: *"In this system, configuration errors fail diagnostically. Trust the error messages."* Marshal Zero is internal release tooling and must not appear in onboarding content.
 
 ## Regime Filtering for Pedagogy
 
@@ -100,19 +100,21 @@ Working titles, evocative and distinct from the prior role placeholders. **All n
 
 6. **Receive Your Knighthood** — cross-cutting mini-track for directors and retrievers receiving their RBRA from a governor. Place the file correctly (path derived from RBRR), verify via access probe, understand sensitivity. May appear as a unit within Director/Retriever tracks or as a standalone for experienced users receiving new credentials.
 
-### Director subtracks (rough — may decompose or merge)
+### Director subtracks (dependency-ordered)
 
-7. **Your First Ordination** — director, one vessel, one ordain mode. Generic path teaching what ordination means, what gets produced, how vouching works, where hallmarks land. *May decompose by mode (conjure/bind/graft).*
+The director subtracks follow a strict dependency chain: inscribe → tethered → enshrine → airgap. Each track requires the previous track's outcome.
 
-8. **Enshrine the Ancestors** — base image enshrinement. Mirror upstream tool images into GAR, understand supply-chain intent, observe the resulting reliquary contents.
+7. **Your First Ordination** — conceptual map, **no probes**. Teaches the ordination pipeline shape: director pushes a pouch (build context) to GAR, Cloud Build produces an `-image` (the container) and an `-about` (the SBOM), then a separate job produces `-vouch` (provenance attestation). Introduces the tethered vs airgap egress mode fork. All teaching-only units — the learner hasn't done anything yet, they're learning the shape of what the next several tracks walk through.
 
-9. **Inscribe the Reliquary** — reliquary management. Create reliquary, understand its role as canonical image reference, understand `RBRV_RELIQUARY`. *May merge with #8 into "Stock the Armory" or similar.*
+8. **Inscribe the Reliquary** — hands-on. Get builder tool images (skopeo, docker, gcloud, syft) into GAR. Prerequisite for all Cloud Build operations — conjure's preflight fails without a reliquary. Teaches: reliquary as co-versioned toolchain, `RBRV_RELIQUARY` in vessel regime.
 
-10. **Tethered Cloud Builds** — cloud build integration from workstation. Understand tethered vs airgapped distinction. Wall-clock ~20 min — pedagogy needs to handle wait time (open question).
+9. **Tethered Cloud Builds** — hands-on, first real cloud build. Tether pool has public internet; base images pulled from upstream during build. Wall-clock ~20 min — pedagogy needs to handle wait time (open question). Requires: reliquary inscribed.
 
-11. **Airgap Your Builds** — airgapped mode. Most restrictive ordain mode, teaches isolation. Presumes tethered is understood.
+10. **Enshrine the Ancestors** — hands-on. Mirror upstream base images into GAR with content-addressed anchors. Produces `RBRV_IMAGE_n_ANCHOR` values. Enshrine itself requires reliquary tool images. Teaches: supply-chain independence, anchor scheme, air-gap readiness. Requires: reliquary inscribed.
 
-12. **Building for Crucibles** — building crucible targets for testing. May be distinct from tethered/airgapped or variant of Your First Ordination. Needs interview refinement.
+11. **Airgap Your Builds** — hands-on, airgap pool with no public internet. All dependencies pre-enshrined in GAR. Most restrictive build mode, full isolation. Requires: enshrined base images.
+
+12. **Building for Crucibles** — building targets for local testing. Placement and relationship to crucible track (₢A6AAC/AAD) needs interview refinement.
 
 ### Evaluation tracks
 
@@ -124,18 +126,15 @@ Working titles, evocative and distinct from the prior role placeholders. **All n
 - **Secret Handling Primer** — the RBRA distribution lesson, appearing as a unit in Knight the Realm (governor side, distributing) and Receive Your Knighthood (recipient side, placing). Teaches operational handling knowledge — *what it is, how to handle, where it goes* — without teaching *how to read*.
 - **Depot Relationships** — the user flagged wanting good intro text explaining "what a Depot is and how Directors dictate its content but Retrievers use it." This is a relational teaching unit that may appear verbatim in multiple tracks. Candidate for a shared snippet consumed by multiple handbooks.
 
-## Public-Docs Anchor Coordination with `₣A5`
+## README Anchor Inventory
 
-Handbook sequences link into `${RBGC_PUBLIC_DOCS_URL}#{Anchor}` where `{Anchor}` is a **PascalCase single word per concept**. `₣A5` (rbk-mvp-3-public-docs-refresh) curates `README.md` to host these anchors; `₣A6` consumes them. The coupling is load-bearing — either heat changing an anchor requires the other heat to update references. This list is the shared truth.
+Handbook sequences link into `${RBGC_PUBLIC_DOCS_URL}#{Anchor}` via `buh_tlt`. All anchors below are live in `README.md` as of `6c266d09`.
 
-**Existing** (live callers in `Tools/rbk/rbho_onboarding.sh` — must survive A5's refresh):
-`Retriever`, `Director`, `Governor`, `Payor`, `Depot`, `Vessel`, `Hallmark`, `Summon`, `Vouch`, `Plumb`, `Bottle`, `Nameplate`, `Sentry`, `Pentacle`, `Charge`, `Quench`
+`Vessel`, `Hallmark`, `Vouch`, `Depot`, `Ordain`, `Conjure`, `Bind`, `Graft`, `Kludge`, `Enshrine`, `Reliquary`, `Pouch`, `Tethered`, `Airgap`, `Summon`, `Plumb`, `Tally`, `Levy`, `Payor`, `Governor`, `Director`, `Retriever`, `Charter`, `Knight`, `Nameplate`, `Sentry`, `Pentacle`, `Bottle`, `Crucible`, `Charge`, `Quench`, `Tabtarget`, `Regime`, `RBRP`, `RBRR`, `RBRN`, `RBRV`, `BURC`, `BURS`
 
-**New for Crash Course** (`₢A6AAA`): A5 must add during its refresh.
-`Tabtarget`, `Regime`, `RBRR`, `BURC`, `BURS`, `MarshalZero`, `DiagnosticFailure`
+The `-image`, `-about`, and `-vouch` artifact suffixes are described within the `Hallmark` entry (plain English, no separate anchors).
 
-**New for later tracks** (added per pace as each track is drafted; non-final):
-`Crucible`, `Kludge`, `Ordain`, `Conjure`, `Bind`, `Graft`, `Reliquary`, `Enshrine`, `Charter`, `Knight`, `RBRP`, `RBRV`, `RBRN`, `OAuth`, `ConsentScreen`, `Airgap`, `Tethered`
+**Not anchored** (intentional): Marshal Zero (internal release tooling), DiagnosticFailure (property not noun), ConsentScreen (Google's term), OAuth (described in prose within RBRP track).
 
 ## Teaching Voice
 
@@ -183,24 +182,15 @@ Interview paces are a **first-class pace type**, not preamble. Each interview pa
 
 **Second implementation candidates** (after first is stable): Crash Course (universal foundation) or Take Your Station (shortest path, probe-heavy, exercises the monotonic-probe side of the framing).
 
-## Open Questions (Interview Work Remaining)
+## Open Questions
 
-Items to resolve before implementation can start:
-
-- **StartHere menu text** — exact words (in progress as Q3 when interview resumes)
-- **Crash Course unit breakdown** — what units, what each teaches, what each probes, learning outcomes
-- **Kindle Your First Crucible unit breakdown** — the first complete learner path spec at implementation fidelity
-
-Items that can wait until later interview passes (between implementations):
-
-- **Wait-time pedagogy** — what does a learner do during a 20-minute cloud build? Teaching moment or drop-off risk?
+- **Wait-time pedagogy** — what does a learner do during a 20-minute cloud build? Blocking for Tethered Cloud Builds track.
 - **Agent-learner eval mechanics** — concrete harness design
-- **Director subtrack decomposition** — are tethered/airgapped/crucible builds distinct paths or variants of one path?
 - **Shared snippet mechanism** — how do Depot Relationships and Secret Handling Primer appear in multiple handbooks without duplication?
-- **Probe-aware menu implementation** — mechanism for triage probes and dynamic highlighting
 - **Track name refinement** — current roster is rough; final names come from iteration
-- **"Kindle" vocabulary overload** — the rough track "Kindle Your First Crucible" overloads the verb "kindle", which is already used in BUK/zipper vocabulary for module kindling (colophon→module→command array generation). The BUK usage is implementer-facing and learners don't directly encounter it, so the overload may be tolerable; alternatively, pick a different verb for the crucible track. Flagged during the prior interview, resolution deferred to track-name refinement.
-- **Wait-time pedagogy for the first long-running track implementation**
+- **"Kindle" vocabulary overload** — overloads BUK/zipper "kindle" (module kindling). BUK usage is implementer-facing so may be tolerable; deferred to track-name refinement.
+- **Building for Crucibles placement** — does this fold into the crucible track (₢A6AAC/AAD) since kludge bypasses cloud, or is it a distinct director subtrack?
+- **Crash Course Unit 5 rework** — currently teaches diagnostic failure via Marshal Zero; needs reframing to teach the principle without referencing Marshal (internal release tooling)
 
 ## Provenance
 
@@ -233,7 +223,6 @@ Interview conducted in a prior chat session whose jjk officium identity was `☉
 - `Tools/rbk/rbho_onboarding.sh` — home for new handbook sequence functions
 - `Tools/rbk/rbho_cli.sh` — CLI furnish (sources buh, rbcc, rbgc, rbz, rbho; kindles dependencies)
 - `Tools/rbk/rbhp_payor.sh` — payor ceremonies (post-A3)
-- `Tools/rbk/rblm_cli.sh` — `rblm_zero()` produces the invalid-state baseline that teaches diagnostic failure
 - `Tools/rbk/rbz_zipper.sh` — rbw colophon registry; new `RBZ__GROUP_ONBOARDING` added here
 - `Tools/rbk/rbgc_Constants.sh` — defines `RBGC_PUBLIC_DOCS_URL`
 - `Tools/buk/buh_handbook.sh` — display module for handbook tabtargets; `buh_tlt` is the vocabulary-first primitive
