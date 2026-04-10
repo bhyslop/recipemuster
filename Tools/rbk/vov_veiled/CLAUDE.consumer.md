@@ -10,7 +10,7 @@ New users: start with the README.md at the project root. It walks through the fu
 
 After initial payor setup, the adaptive onboarding guide reads your current state and shows the next step:
 ```
-tt/rbw-gO.Onboarding.sh
+tt/rbw-go.OnboardMAIN.sh
 ```
 
 ## Glossary

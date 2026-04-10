@@ -1,14 +1,18 @@
-// RBSCO-CosmologyIntro.adoc
-//
-// Recipe Bottle Cosmology Overview — the nosebleed-terse "what this is"
-//
-// PURPOSE: This document is the index.html frontmatter source for the
-// Recipe Bottle project page (scaleinv.github.io/recipebottle).
-//
-// ANCESTRY: Renamed from index.adoc (last committed 84323c31, 2025-08-18).
-// Full git lineage: 31 commits from 2642121c through 84323c31.
-//
-// DEPENDENCY: Requires RBS0-SpecTop.adoc mapping section for attribute resolution.
+= RBSCO-CosmologyIntro: Recipe Bottle Cosmology Overview
+
+Internal narrative memory. The project's "what Recipe Bottle is and why
+it exists" story, the two-complexity-domain framing (image management
+and crucible orchestration), and reference material that informs
+customer-facing documentation without itself being shipped. Never
+rendered to a publishing target, never consumed by the build pipeline —
+a source-of-truth for writers porting into README.md and other
+customer-visible surfaces.
+
+Renamed from index.adoc (last committed 84323c31, 2025-08-18). Full git
+lineage: 31 commits from 2642121c through 84323c31. Significant Events
+timeline relocated to RBSPH-ProjectHistory.adoc during ₣A5
+(rbk-mvp-3-public-docs-refresh). Requires RBS0-SpecTop.adoc mapping
+section for attribute resolution.
 
 == Overview
 
@@ -186,116 +190,4 @@ Source repository: https://github.com/scaleinv/recipebottle
 
 Project page: https://scaleinv.github.io/recipebottle
 
-== Significant Events
-
-// Deep spelunk helper: $ git log --remotes=origin --all --graph --name-status
-
-[%header,cols="1,3"]
-|===
-| Date | Event
-
-// | Feb 23, 2022
-// | Got Docker ID.
-// [cnmp:73066af]
-
-| Dec 10, 2023
-| First try at wrangling Docker in local cygwin environment.
-// [cnmp:4009f87]
-
-| Mar 18, 2024
-| Embrace multiple ephemeral docker container images for single build.
-// [cnmp:60f0cf2]
-
-| Aug 7, 2024
-| Started Jupyter Notebook in docker container.
-// [cnmp:22d2fce]
-
-| Aug 11, 2024
-| Learned docker can't connect to host and internal network simultaneously.
-// [cnmp:3b20684]
-
-| Aug 17, 2024
-| Switched to podman for better networking.
-// [cnmp:3a47915]
-
-| Sep 2, 2024
-| First attempt to use asciidoc for concept models.
-
-| Oct 7, 2024
-| GitHub Action performed docker
-{st_image}
-build.
-
-| Nov 2024
-| Bespoke
-{at_bottle_container}
-images with custom networking use
-{at_sentry_container}
-networking via Claude curated requirements and script generation.
-
-| Dec 2024
-| Experiments to start unmodified
-{at_bottle_container}
-images using podman networking configurations fail.
-
-| Dec 31, 2024
-| Submitted Podman feature request https://github.com/containers/podman/issues/24920[issue #24920] for gateway feature.
-
-| Jan 6, 2025
-| Feature request https://github.com/containers/podman/issues/24920[issue #24920] rejected.
-
-| Jan 2025
-| Podman 5.2 VMs running unmodified
-{at_bottle_container}
-images using VM network namespace machinations.
-
-| Feb 2025
-| Podman 5.3 VM update breaks previous, and reversion to 5.2 fails due to reissued VM.  Podman VM tags determined not immutable.
-
-| Mar 2025
-| Developed full reproducibility scenarios and determined that VM network namespace approach no longer valid.
-
-// | Apr 2025
-// | Attempted podman-unshare approach to access network namespaces.
-
-| June 25, 2025
-| Attempting to use eBPF frame rewriting to bypass Netavark gateway behaviors lead to third container concept.
-
-| July 3, 2025
-| {at_pentacle_container}
-as privileged network namespace configurator hosting unprivileged
-{at_bottle_container}
-functions; all
-{at_sentry_container}/{at_bottle_container}
-test cases pass again.
-
-| July 27, 2025
-| GHCR
-{st_image}
-deletions determined unsafe due to lack of OCI-specified reference counting on layers; deleting old images can destroy new ones.
-
-| Aug 5, 2025
-| Abandoned GitHub Actions and GHCR for Google Cloud Build and Google Artifact Registry — isolated build environments, SLSA attestations, reference-counted layer management.
-
-| Aug 23, 2025
-| First GCP project provisioned with role-based service accounts: Governor, Director, Mason, and Retriever — no single credential has full access.
-
-| Dec 29, 2025
-| Switched container runtime from podman to docker. Entire bottle lifecycle rewritten from Makefile to pure bash.
-
-| Jan 13, 2026
-| Job Jockey initiative tracker rewritten in Rust, enabling structured multi-heat development with machine-readable commit discipline.
-
-| Mar 2, 2026
-| Cloud Build v2 migration: replaced Developer Connect with CB v2 connections and Secret Manager PAT retrieval, decoupling the build pipeline from GitHub.
-
-| Mar 5, 2026
-| SLSA Build Level 3 provenance verified end-to-end — single-architecture and multi-platform, dual provenance signatures (v0.1 and v1).
-
-| Mar 13, 2026
-| Bind vessel mode operational: upstream image mirroring to GAR with digest fidelity verification and containerized SBOM generation.
-
-| Mar 14, 2026
-| Graft vessel mode specified: local image push to GAR as third ark arrival path alongside conjure and bind.
-
-|===
+See `RBSPH-ProjectHistory.adoc` for the project's significant events timeline.
