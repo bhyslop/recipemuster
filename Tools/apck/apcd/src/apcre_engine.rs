@@ -198,3 +198,44 @@ fn zapcre_merge_findings(findings: Vec<apcrm_Finding>) -> Vec<apcrm_Finding> {
 
     by_position.into_values().collect()
 }
+
+// ---------------------------------------------------------------------------
+// Anonymize — produce clean text from classified findings + toggle states
+// ---------------------------------------------------------------------------
+
+pub fn apcre_anonymize(
+    plain_text: &str,
+    findings:   &[apcrm_Finding],
+    toggle_states: &[String],
+) -> String {
+    let mut indexed: Vec<(usize, &apcrm_Finding)> = findings.iter().enumerate().collect();
+    indexed.sort_by_key(|(_, f)| (f.offset, std::cmp::Reverse(f.length)));
+
+    let mut result = String::with_capacity(plain_text.len());
+    let mut pos = 0;
+
+    for (idx, finding) in &indexed {
+        if finding.offset < pos {
+            continue;
+        }
+
+        if finding.offset > pos {
+            result.push_str(&plain_text[pos..finding.offset]);
+        }
+
+        let state = toggle_states.get(*idx).map(|s| s.as_str()).unwrap_or("elide");
+        if state == "pass" {
+            result.push_str(&plain_text[finding.offset..finding.offset + finding.length]);
+        } else {
+            result.push_str(&finding.replacement);
+        }
+
+        pos = finding.offset + finding.length;
+    }
+
+    if pos < plain_text.len() {
+        result.push_str(&plain_text[pos..]);
+    }
+
+    result
+}

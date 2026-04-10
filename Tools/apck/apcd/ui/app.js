@@ -184,3 +184,24 @@ function zapcapEscape(text) {
   el.textContent = text;
   return el.innerHTML;
 }
+
+// ---------------------------------------------------------------------------
+// Copy anonymized — send toggle states to backend, write clean text to clipboard
+// ---------------------------------------------------------------------------
+
+async function zapcapCopyAnonymized() {
+  if (!triageData) return;
+  var btn = document.getElementById("copy-btn");
+  try {
+    await window.__TAURI__.core.invoke("copy_anonymized", { toggle_states: toggleStates });
+    btn.textContent = "Copied!";
+    setTimeout(function() {
+      btn.textContent = "Copy Anonymized to Clipboard";
+    }, 2000);
+  } catch (e) {
+    btn.textContent = "Error: " + e;
+    setTimeout(function() {
+      btn.textContent = "Copy Anonymized to Clipboard";
+    }, 4000);
+  }
+}

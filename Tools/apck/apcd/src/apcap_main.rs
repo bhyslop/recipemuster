@@ -27,6 +27,12 @@ use std::sync::{Mutex, OnceLock};
 
 static ZAPCAP_DICTS: OnceLock<apcd::apcrd_dictionaries::apcrd_Dictionaries> = OnceLock::new();
 static ZAPCAP_LAST_CLIPBOARD: Mutex<Option<String>> = Mutex::new(None);
+static ZAPCAP_LAST_CLINICAL: Mutex<Option<zapcap_ClinicalCache>> = Mutex::new(None);
+
+struct zapcap_ClinicalCache {
+    findings:   Vec<apcd::apcrm_match::apcrm_Finding>,
+    plain_text: String,
+}
 
 // ---------------------------------------------------------------------------
 // IPC result type — tagged enum for JS consumption
@@ -84,6 +90,15 @@ fn consume_clipboard() -> Result<zapcap_ConsumeResult, String> {
             let mut last = ZAPCAP_LAST_CLIPBOARD.lock()
                 .map_err(|e| format!("lock error: {}", e))?;
             *last = Some(String::new());
+            // Cache clinical result for anonymization
+            {
+                let mut cache = ZAPCAP_LAST_CLINICAL.lock()
+                    .map_err(|e| format!("lock error: {}", e))?;
+                *cache = Some(zapcap_ClinicalCache {
+                    findings:   findings.clone(),
+                    plain_text: plain_text.clone(),
+                });
+            }
             Ok(zapcap_ConsumeResult::Clinical { findings, plain_text })
         }
         apcd::apcre_engine::apcre_Result::NonClinical { content_length, content_type, preview } => {
@@ -91,9 +106,42 @@ fn consume_clipboard() -> Result<zapcap_ConsumeResult, String> {
             let mut last = ZAPCAP_LAST_CLIPBOARD.lock()
                 .map_err(|e| format!("lock error: {}", e))?;
             *last = Some(content);
+            // Clear clinical cache — non-clinical content invalidates prior triage
+            {
+                let mut cache = ZAPCAP_LAST_CLINICAL.lock()
+                    .map_err(|e| format!("lock error: {}", e))?;
+                *cache = None;
+            }
             Ok(zapcap_ConsumeResult::NonClinical { content_length, content_type, preview })
         }
     }
+}
+
+// ---------------------------------------------------------------------------
+// Tauri command — copy anonymized text to clipboard
+// ---------------------------------------------------------------------------
+
+#[tauri::command]
+fn copy_anonymized(toggle_states: Vec<String>) -> Result<(), String> {
+    let cache = ZAPCAP_LAST_CLINICAL.lock()
+        .map_err(|e| format!("lock error: {}", e))?;
+    let clinical = cache.as_ref()
+        .ok_or_else(|| "no clinical data to anonymize".to_string())?;
+
+    let anonymized = apcd::apcre_engine::apcre_anonymize(
+        &clinical.plain_text,
+        &clinical.findings,
+        &toggle_states,
+    );
+
+    drop(cache);
+
+    let mut clipboard = arboard::Clipboard::new()
+        .map_err(|e| format!("clipboard error: {}", e))?;
+    clipboard.set_text(anonymized)
+        .map_err(|e| format!("clipboard error: {}", e))?;
+
+    Ok(())
 }
 
 // ---------------------------------------------------------------------------
@@ -104,7 +152,7 @@ fn main() {
     apcd::apcrl_info_now!("starting Ann's PHI Clipbuddy");
     apcd::apcru_update::apcru_start_watcher();
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![consume_clipboard])
+        .invoke_handler(tauri::generate_handler![consume_clipboard, copy_anonymized])
         .run(tauri::generate_context!())
         .unwrap_or_else(|e| apcd::apcrl_fatal_now!("tauri application error: {}", e));
 }

@@ -183,6 +183,111 @@ mod tests {
         }
     }
 
+    // -----------------------------------------------------------------------
+    // Anonymize
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn test_anonymize_elide_replaces_with_placeholder() {
+        let plain = "Patient: John Smith, MRN: 12345678";
+        let findings = vec![
+            apcrm_Finding {
+                text: "John".to_string(),
+                replacement: "[NAME]".to_string(),
+                severity: apcrm_Severity::Red,
+                mechanism: apcrm_Mechanism::Anchored,
+                category: apcrm_PhiCategory::Name,
+                offset: 9,
+                length: 4,
+            },
+            apcrm_Finding {
+                text: "Smith".to_string(),
+                replacement: "[NAME]".to_string(),
+                severity: apcrm_Severity::Red,
+                mechanism: apcrm_Mechanism::Anchored,
+                category: apcrm_PhiCategory::Name,
+                offset: 14,
+                length: 5,
+            },
+        ];
+        let toggles = vec!["elide".to_string(), "elide".to_string()];
+        let result = apcre_anonymize(plain, &findings, &toggles);
+        assert_eq!(result, "Patient: [NAME] [NAME], MRN: 12345678");
+    }
+
+    #[test]
+    fn test_anonymize_pass_preserves_original() {
+        let plain = "Patient: John Smith";
+        let findings = vec![
+            apcrm_Finding {
+                text: "John".to_string(),
+                replacement: "[NAME]".to_string(),
+                severity: apcrm_Severity::Red,
+                mechanism: apcrm_Mechanism::Anchored,
+                category: apcrm_PhiCategory::Name,
+                offset: 9,
+                length: 4,
+            },
+            apcrm_Finding {
+                text: "Smith".to_string(),
+                replacement: "[NAME]".to_string(),
+                severity: apcrm_Severity::Red,
+                mechanism: apcrm_Mechanism::Anchored,
+                category: apcrm_PhiCategory::Name,
+                offset: 14,
+                length: 5,
+            },
+        ];
+        let toggles = vec!["elide".to_string(), "pass".to_string()];
+        let result = apcre_anonymize(plain, &findings, &toggles);
+        assert_eq!(result, "Patient: [NAME] Smith");
+    }
+
+    #[test]
+    fn test_anonymize_dob_uses_age_replacement() {
+        let plain = "DOB: 03/15/1952";
+        let findings = vec![
+            apcrm_Finding {
+                text: "03/15/1952".to_string(),
+                replacement: "Age: 74".to_string(),
+                severity: apcrm_Severity::Red,
+                mechanism: apcrm_Mechanism::Regex,
+                category: apcrm_PhiCategory::Dob,
+                offset: 5,
+                length: 10,
+            },
+        ];
+        let toggles = vec!["elide".to_string()];
+        let result = apcre_anonymize(plain, &findings, &toggles);
+        assert_eq!(result, "DOB: Age: 74");
+    }
+
+    #[test]
+    fn test_anonymize_preserves_line_breaks() {
+        let plain = "Line one\nPatient: John\nLine three";
+        let findings = vec![
+            apcrm_Finding {
+                text: "John".to_string(),
+                replacement: "[NAME]".to_string(),
+                severity: apcrm_Severity::Red,
+                mechanism: apcrm_Mechanism::Anchored,
+                category: apcrm_PhiCategory::Name,
+                offset: 18,
+                length: 4,
+            },
+        ];
+        let toggles = vec!["elide".to_string()];
+        let result = apcre_anonymize(plain, &findings, &toggles);
+        assert_eq!(result, "Line one\nPatient: [NAME]\nLine three");
+    }
+
+    #[test]
+    fn test_anonymize_no_findings_returns_original() {
+        let plain = "No PHI here at all.";
+        let result = apcre_anonymize(plain, &[], &[]);
+        assert_eq!(result, plain);
+    }
+
     #[test]
     fn test_fixture_no_medical_terms_flagged_red() {
         let dicts = apcrd_Dictionaries::apcrd_load();
