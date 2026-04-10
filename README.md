@@ -236,36 +236,38 @@ If you use [Claude Code](https://claude.com/claude-code), the project includes a
 
 This repository is the reference implementation of Recipe Bottle. The annotated tree below maps its files to the concepts defined above.
 
-`Project Root/                            `\
-`├── tt/                                  ` 136 [Tabtargets](#Tabtarget) — `tt/rbw-<TAB>` for all operations\
-`├── Tools/                               `\
-`│   ├── buk/                             ` Bash Utility Kit — portable CLI infrastructure\
-`│   └── rbk/                             ` Recipe Bottle Kit — domain logic\
-`├── .buk/                                ` [BURC](#BURC) project structure [Regime](#Regime)\
-`├── .rbk/                                ` [Regime](#Regime) configuration root\
-`│   ├── rbrp.env                         ` [RBRP](#RBRP) — [Payor](#Payor) identity for this [Depot](#Depot)\
-`│   ├── rbrr.env                         ` [RBRR](#RBRR) — [Depot](#Depot) identity and build configuration\
-`│   ├── tadmor/                          ` [Nameplate](#Nameplate) — adversarial testing [Crucible](#Crucible)\
-`│   │   └── rbrn.env                     ` [RBRN](#RBRN) — [Sentry](#Sentry) + [Ifrit](#Ifrit), restrictive allowlist\
-`│   ├── srjcl/                           ` [Nameplate](#Nameplate) — Jupyter notebook [Crucible](#Crucible)\
-`│   │   └── rbrn.env                     ` [RBRN](#RBRN) — [Sentry](#Sentry) + Jupyter, academic-domain allowlist\
-`│   └── pluml/                           ` [Nameplate](#Nameplate) — PlantUML diagram server [Crucible](#Crucible)\
-`│       └── rbrn.env                     ` [RBRN](#RBRN) — [Sentry](#Sentry) + PlantUML, no-egress allowlist\
-`└── rbev-vessels/                        ` [Vessel](#Vessel) definitions\
-`    ├── rbev-sentry-debian-slim/         ` [Conjure](#Conjure) — the [Sentry](#Sentry)/[Pentacle](#Pentacle) image\
-`    │   ├── Dockerfile                   ` debian-slim + iptables + dnsmasq\
-`    │   ├── rbjs_sentry.sh               ` [Sentry](#Sentry) runtime — policy engine\
-`    │   ├── rbjp_pentacle.sh             ` [Pentacle](#Pentacle) runtime — namespace setup\
-`    │   └── rbrv.env                     ` [RBRV](#RBRV) — [Conjure](#Conjure) mode\
-`    ├── rbev-bottle-ifrit/               ` [Conjure](#Conjure) — [Ifrit](#Ifrit) attack binary\
-`    │   ├── Dockerfile                   ` Rust binary + scapy + strace\
-`    │   └── rbrv.env                     ` [RBRV](#RBRV) — [Conjure](#Conjure) mode\
-`    ├── rbev-bottle-plantuml/            ` [Bind](#Bind) — upstream image pinned by digest\
-`    │   └── rbrv.env                     ` [RBRV](#RBRV) — [Bind](#Bind) mode, digest reference\
-`    ├── rbev-bottle-anthropic-jupyter/   ` [Conjure](#Conjure) — Jupyter notebook server\
-`    │   ├── Dockerfile                   `\
-`    │   └── rbrv.env                     ` [RBRV](#RBRV) — [Conjure](#Conjure) mode\
-`    └── (4 additional test vessels)      ` busybox variants for [Theurge](#Theurge) fixture coverage
+| Path | Description |
+|------|-------------|
+| `Project Root/` | |
+| `├── tt/` | 136 [Tabtargets](#Tabtarget) — `tt/rbw-<TAB>` for all operations |
+| `├── Tools/` | |
+| `│   ├── buk/` | Bash Utility Kit — portable CLI infrastructure |
+| `│   └── rbk/` | Recipe Bottle Kit — domain logic |
+| `├── .buk/` | [BURC](#BURC) project structure [Regime](#Regime) |
+| `├── .rbk/` | [Regime](#Regime) configuration root |
+| `│   ├── rbrp.env` | [RBRP](#RBRP) — [Payor](#Payor) identity for this [Depot](#Depot) |
+| `│   ├── rbrr.env` | [RBRR](#RBRR) — [Depot](#Depot) identity and build configuration |
+| `│   ├── tadmor/` | [Nameplate](#Nameplate) — adversarial testing [Crucible](#Crucible) |
+| `│   │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + [Ifrit](#Ifrit), restrictive allowlist |
+| `│   ├── srjcl/` | [Nameplate](#Nameplate) — Jupyter notebook [Crucible](#Crucible) |
+| `│   │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + Jupyter, academic-domain allowlist |
+| `│   └── pluml/` | [Nameplate](#Nameplate) — PlantUML diagram server [Crucible](#Crucible) |
+| `│       └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + PlantUML, no-egress allowlist |
+| `└── rbev-vessels/` | [Vessel](#Vessel) definitions |
+| `    ├── rbev-sentry-debian-slim/` | [Conjure](#Conjure) — the [Sentry](#Sentry)/[Pentacle](#Pentacle) image |
+| `    │   ├── Dockerfile` | debian-slim + iptables + dnsmasq |
+| `    │   ├── rbjs_sentry.sh` | [Sentry](#Sentry) runtime — policy engine |
+| `    │   ├── rbjp_pentacle.sh` | [Pentacle](#Pentacle) runtime — namespace setup |
+| `    │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode |
+| `    ├── rbev-bottle-ifrit/` | [Conjure](#Conjure) — [Ifrit](#Ifrit) attack binary |
+| `    │   ├── Dockerfile` | Rust binary + scapy + strace |
+| `    │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode |
+| `    ├── rbev-bottle-plantuml/` | [Bind](#Bind) — upstream image pinned by digest |
+| `    │   └── rbrv.env` | [RBRV](#RBRV) — [Bind](#Bind) mode, digest reference |
+| `    ├── rbev-bottle-anthropic-jupyter/` | [Conjure](#Conjure) — Jupyter notebook server |
+| `    │   ├── Dockerfile` | |
+| `    │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode |
+| `    └── (4 additional test vessels)` | busybox variants for [Theurge](#Theurge) fixture coverage |
 
 ## Appendix: Specific Regimes
 
