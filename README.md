@@ -212,22 +212,6 @@ The following features are not yet implemented but are under consideration:
 
 - **[Crucible](#Crucible)-to-[Crucible](#Crucible) networking** - Under the current [Sentry](#Sentry) model, [Bottles](#Bottle) have no direct network path to each other; any inter-[Bottle](#Bottle) communication would route through their respective [Sentries](#Sentry). The plumbing is feasible but not implemented, pending a concrete use case.
 
-## Prerequisites
-
-- macOS or Linux workstation
-- `bash` (3.2+), `git`, `curl`, `openssh`, `jq`, `openssl`
-- `docker` (container runtime)
-- A Google Cloud account with billing enabled (credit card required for verification; free tier is sufficient to start)
-
-## Recovery
-
-- **Lost OAuth credentials**: Download a fresh JSON key from Google Cloud Console and re-run the [Payor](#Payor) installation
-- **Expired tokens**: Run the [Payor](#Payor) refresh operation
-- **Compromised [Governor](#Governor)**: Re-mantle the [Governor](#Governor) (replaces the service account, invalidates the old credential)
-- **Compromised [Director](#Director)/[Retriever](#Retriever)**: Forfeit the compromised account, then re-[Knight](#Knight) or re-[Charter](#Charter)
-- **Lost [Nameplate](#Nameplate) values**: Re-[Tally](#Tally) [Hallmarks](#Hallmark) to retrieve values from the [Depot](#Depot) registry
-- **Build timeout or failure**: [Tally](#Tally) to check build status, review logs in the GCP Console for the [Depot](#Depot) project
-
 ## Claude Code
 
 If you use [Claude Code](https://claude.com/claude-code), the project includes a `CLAUDE.md` with a full command reference table, glossary, and conventions for AI-assisted development.
