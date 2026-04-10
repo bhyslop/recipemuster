@@ -51,3 +51,4 @@ Tools/vvc/target/
 .claude/jjm/officia/
 
 # JJK release directory (parcels ignored via .jjk/.gitignore)
+**/gen/

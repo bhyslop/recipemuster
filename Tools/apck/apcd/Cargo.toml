@@ -1,0 +1,24 @@
+[package]
+name = "apcd"
+version = "0.1.0"
+edition = "2021"
+description = "Ann's PHI Clipbuddy — clipboard PHI detection for Epic EHR"
+default-run = "apcap"
+
+[lib]
+name = "apcd"
+path = "src/lib.rs"
+
+[[bin]]
+name = "apcap"
+path = "src/apcap_main.rs"
+
+[[bin]]
+name = "apcal"
+path = "src/apcal_main.rs"
+
+[dependencies]
+tauri = { version = "2", features = [] }
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }

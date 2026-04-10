@@ -10,6 +10,7 @@ APCK is a Tauri desktop app that intercepts clipboard content from Epic EHR, det
 | **APCPS** | `apck/APCPS-PrototypeSpecification.md` | Prototype spec — detection pipeline, tech stack |
 | **APCW** | `apck/apcw_workbench.sh` | Workbench |
 | **APCZ** | `apck/apcz_zipper.sh` | Zipper enrollment |
+| **APCC** | `apck/apcc_cli.sh` | CLI command implementations |
 | **APCAP** | `apck/apcd/src/apcap_main.rs` | Tauri app entry point |
 | **APCAL** | `apck/apcd/src/apcal_main.rs` | Fixture loader (clipboard writer) |
 
@@ -17,6 +18,7 @@ APCK is a Tauri desktop app that intercepts clipboard content from Epic EHR, det
 
 | Source | Prefix | Test | Prefix | Purpose |
 |--------|--------|------|--------|---------|
+| `apcrl_log.rs` | `apcrl` | — | — | Logging macros (`apcrl_info!`, `apcrl_error!`, `apcrl_fatal!`) |
 | `apcre_engine.rs` | `apcre` | `apcte_engine.rs` | `apcte` | PHI detection orchestrator |
 | `apcrp_parse.rs` | `apcrp` | `apctp_parse.rs` | `apctp` | HTML clipboard parsing |
 | `apcrm_match.rs` | `apcrm` | `apctm_match.rs` | `apctm` | Dictionary/regex matching |
@@ -35,7 +37,7 @@ APCK is a Tauri desktop app that intercepts clipboard content from Epic EHR, det
 | Tabtarget | Colophon | Purpose |
 |-----------|----------|---------|
 | `tt/apcw-b.Build.sh` | `apcw-b` | `cargo tauri build` (release) |
-| `tt/apcw-r.Run.sh` | `apcw-r` | `cargo tauri dev` (local development) |
+| `tt/apcw-r.Run.sh` | `apcw-r` | `cargo run --bin apcap` (local development) |
 | `tt/apcw-d.Deploy.sh` | `apcw-d` | Build + scp to `anns-macbook-air:/Users/Shared/apcua/` |
 | `tt/apcw-fl.FixtureLoad.sh` | `apcw-fl` | Run `apcal` to load fixture HTML onto clipboard |
 | `tt/apcw-t.Test.sh` | `apcw-t` | `cargo test` in `apcd/` |
@@ -47,7 +49,9 @@ apc  (non-terminal)
 ├── apca   (non-terminal)
 │   ├── apcal  — App Loader binary (fixture clipboard tool)
 │   └── apcap  — App Prototype binary (Tauri main)
+├── apcc   — CLI command implementations
 ├── apcd   — Rust/Tauri source directory
+│   └── apcrl  — Logging macros (info, error, fatal with file/line)
 ├── apck   — kit directory
 ├── apcps  — prototype specification document
 ├── apcs   — product specification document

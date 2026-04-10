@@ -1,0 +1,25 @@
+{
+  "productName": "Ann's PHI Clipbuddy",
+  "version": "0.1.0",
+  "identifier": "org.scaleinvariant.apcap",
+  "build": {
+    "frontendDist": "./ui"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Ann's PHI Clipbuddy",
+        "width": 800,
+        "height": 600
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["app"],
+    "icon": ["icons/icon.png"]
+  }
+}
