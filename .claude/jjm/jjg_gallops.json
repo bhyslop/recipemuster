@@ -687,9 +687,10 @@
         "₢A9AAE",
         "₢A9AAF",
         "₢A9AAG",
-        "₢A9AAH"
+        "₢A9AAH",
+        "₢A9AAI"
       ],
-      "next_pace_seed": "AAI",
+      "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_uAl9.md",
       "paces": {
         "₢A9AAA": {
@@ -854,6 +855,17 @@
               "text": "## Character\n\nInfrastructure and platform integration. Two independent pieces: self-update mechanism in the app, and the deploy tabtarget that ships to Ann's machine.\n\n## Deliverables\n\n**Self-update (`apcd/src/apcru_update.rs`):**\n- Watch `/Users/Shared/apcua/` using `notify` crate (FSEvents on macOS)\n- On new `.app` bundle detected: copy over current app bundle, spawn `open -n` on new path, exit current process\n- No confirmation dialog — fully automatic\n- Graceful handling: if watch directory doesn't exist, create it silently and keep watching\n- Run watcher on a background thread, independent of main Tauri event loop\n\n**Deploy tabtarget (`tt/apcw-d.Deploy.sh`):**\n- `cargo tauri build` (release)\n- `scp` the `.app` bundle to `anns-macbook-air:/Users/Shared/apcua/`\n- Report success with bundle size and path\n\n**Integration:**\n- Wire `apcru_update` into `apcap_main.rs` — start watcher on app launch\n- Update `apck-claude-context.md` with deploy workflow documentation\n\n## Verification\n\n1. Build and run app locally. Confirm watcher starts (log message).\n2. Copy a dummy `.app` to `/Users/Shared/apcua/` — app detects it (may not self-replace locally since paths differ, but detection fires).\n3. `tt/apcw-d.Deploy.sh` completes: bundle appears on Ann's machine at `/Users/Shared/apcua/`.\n4. End-to-end: Ann launches app, we deploy an update, app auto-restarts with new version.",
               "silks": "self-update-deploy",
               "commit": "d681de3"
+            }
+          ]
+        },
+        "₢A9AAI": {
+          "tacks": [
+            {
+              "ts": "260410-1515",
+              "state": "rough",
+              "text": "## Character\n\nMechanical data engineering. Replace LLM-approximated dictionary files with real public-domain data via download-and-transform script. Quality improvement, not functional change — the detection engine already works with current files.\n\n## Deliverables\n\n**Dictionary acquisition command (via `apcc_cli.sh` or dedicated tabtarget):**\n- Shell script that downloads and transforms public-domain sources into dictionary files\n- Surnames: Census 2010 `Names_2010Census.csv` → top N by frequency, lowercase, sorted\n- First names: SSA baby names (national data) → top N by cumulative frequency across decades, lowercase, sorted\n- Cities: Census gazetteer or equivalent → state capitals + top 100 cities, lowercase, sorted\n- English whitelist: established word frequency list (e.g., `google-10000-english` or similar) → top 5000+, lowercase, sorted\n- Medical whitelist: untouched (LLM-curated, clinical judgment required)\n- Output replaces files in `apcd/dictionaries/`. Idempotent — safe to re-run.\n- Document source URLs and licenses in a comment header or companion README\n\n## Verification\n\n- Run the script — dictionary files regenerated from real sources\n- File format unchanged (one-per-line, lowercase, sorted, no duplicates)\n- Existing unit tests still pass with new dictionary content\n- Spot-check: Census top 10 surnames present, SSA top 10 first names present",
+              "silks": "dictionary-deepen-from-sources",
+              "commit": "f3382f9"
             }
           ]
         }
