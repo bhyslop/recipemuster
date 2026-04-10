@@ -23,21 +23,24 @@ use unicode_segmentation::UnicodeSegmentation;
 // Public types
 // ---------------------------------------------------------------------------
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
+#[serde(rename_all = "lowercase")]
 pub enum apcrm_Severity {
     Red,
     Yellow,
     Pass,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
+#[serde(rename_all = "lowercase")]
 pub enum apcrm_Mechanism {
     Regex,
     Anchored,
     Matched,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum apcrm_PhiCategory {
     Name,
     Provider,
@@ -84,7 +87,7 @@ impl apcrm_PhiCategory {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize)]
 pub struct apcrm_Finding {
     pub text:        String,
     pub replacement: String,

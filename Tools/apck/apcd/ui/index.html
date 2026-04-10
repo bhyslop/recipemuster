@@ -7,9 +7,25 @@
 </head>
 <body>
   <div id="app">
-    <h1>Ann's PHI Clipbuddy</h1>
-    <p class="instruction" id="status">Copy a clinical note from Epic using "Copy All", then switch to this window.</p>
-    <pre id="clipboard-content"></pre>
+    <div id="instruction-state">
+      <h1>Ann's PHI Clipbuddy</h1>
+      <p class="instruction">Copy a clinical note from Epic using "Copy All", then switch to this window.</p>
+      <p class="diagnostic" id="diagnostic"></p>
+    </div>
+    <div id="triage-state" style="display: none;">
+      <h1>Ann's PHI Clipbuddy</h1>
+      <div id="document-preview"></div>
+      <div id="findings-panel">
+        <div class="findings-section" id="findings-yellow">
+          <h3>Questionable Findings</h3>
+          <div class="findings-list" id="yellow-list"></div>
+        </div>
+        <div class="findings-section" id="findings-red">
+          <h3>Definite PHI</h3>
+          <div class="findings-list" id="red-list"></div>
+        </div>
+      </div>
+    </div>
   </div>
   <script src="app.js"></script>
 </body>
