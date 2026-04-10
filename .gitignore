@@ -43,6 +43,9 @@ __pycache__/
 lenses/.idea/
 Tools/vvk/bin/vvx-*
 
+# Dictionary refresh staging (manual SSA download)
+Tools/apck/apcd/dictionaries/.ssa_names_staging.zip
+
 # Rust build artifacts
 **/target/
 Tools/vvc/target/

@@ -13,6 +13,7 @@ baltimore
 baton rouge
 bismarck
 boise
+boise city
 boston
 buffalo
 carson city
@@ -50,11 +51,11 @@ harrisburg
 hartford
 helena
 henderson
-hialeah
 honolulu
 houston
 huntsville
 indianapolis
+indianapolis city (balance)
 irvine
 irving
 jackson
@@ -63,14 +64,15 @@ jefferson city
 jersey city
 juneau
 kansas city
+lansing
 laredo
 las vegas
-lexington
+lexington-fayette urban county
 lincoln
 little rock
 long beach
 los angeles
-louisville
+louisville/jefferson county metro government (balance)
 lubbock
 madison
 memphis
@@ -81,6 +83,7 @@ minneapolis
 montgomery
 montpelier
 nashville
+nashville-davidson metropolitan government (balance)
 new orleans
 new york
 newark
@@ -96,19 +99,17 @@ phoenix
 pierre
 pittsburgh
 plano
+port st. lucie
 portland
 providence
 raleigh
 reno
 richmond
 riverside
-rochester
 sacramento
-saint paul
 salem
 salt lake city
 san antonio
-san bernardino
 san diego
 san francisco
 san jose
@@ -119,6 +120,7 @@ seattle
 spokane
 springfield
 st. louis
+st. paul
 st. petersburg
 stockton
 tallahassee
@@ -128,6 +130,7 @@ topeka
 trenton
 tucson
 tulsa
+urban honolulu
 virginia beach
 washington
 wichita

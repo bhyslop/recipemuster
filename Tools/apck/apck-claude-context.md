@@ -13,6 +13,7 @@ APCK is a Tauri desktop app that intercepts clipboard content from Epic EHR, det
 | **APCC** | `apck/apcc_cli.sh` | CLI command implementations |
 | **APCAP** | `apck/apcd/src/apcap_main.rs` | Tauri app entry point |
 | **APCAL** | `apck/apcd/src/apcal_main.rs` | Fixture loader (clipboard writer) |
+| **APCAD** | `apck/apcd/src/apcad_main.rs` | Dictionary refresh (downloads public sources, regenerates dictionaries) |
 
 **Source modules:**
 
@@ -41,12 +42,14 @@ APCK is a Tauri desktop app that intercepts clipboard content from Epic EHR, det
 | `tt/apcw-d.Deploy.sh` | `apcw-d` | Build + scp to `anns-macbook-air:/Users/Shared/apcua/` |
 | `tt/apcw-fl.FixtureLoad.sh` | `apcw-fl` | Run `apcal` to load fixture HTML onto clipboard |
 | `tt/apcw-t.Test.sh` | `apcw-t` | `cargo test` in `apcd/` |
+| `tt/apcw-dr.DictionaryRefresh.sh` | `apcw-dr` | `cargo run --bin apcad` (refresh dictionaries from public sources) |
 
 ### Prefix Tree
 
 ```
 apc  (non-terminal)
 ├── apca   (non-terminal)
+│   ├── apcad  — App Dictionary binary (refresh from public sources)
 │   ├── apcal  — App Loader binary (fixture clipboard tool)
 │   └── apcap  — App Prototype binary (Tauri main)
 ├── apcc   — CLI command implementations

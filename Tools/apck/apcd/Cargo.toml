@@ -17,6 +17,10 @@ path = "src/apcap_main.rs"
 name = "apcal"
 path = "src/apcal_main.rs"
 
+[[bin]]
+name = "apcad"
+path = "src/apcad_main.rs"
+
 [dependencies]
 tauri = { version = "2", features = [] }
 serde = { version = "1", features = ["derive"] }
@@ -27,6 +31,9 @@ regex = "1"
 unicode-segmentation = "1"
 chrono = "0.4"
 notify = "6"
+csv = "1"
+zip = "2"
+ureq = "2"
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }

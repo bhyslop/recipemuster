@@ -84,4 +84,9 @@ apcc_test() {
   (cd "${ZAPCC_APCD_DIR}" && cargo test)
 }
 
+apcc_dictionary_refresh() {
+  buc_step "Refreshing dictionaries from public sources"
+  (cd "${ZAPCC_APCD_DIR}" && cargo run --bin apcad)
+}
+
 # eof
