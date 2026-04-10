@@ -130,6 +130,18 @@ The application is built on the developer's machine and delivered to the clinici
 
 No app store, no installer, no signing infrastructure in the current model. The clinician's machine is `anns-macbook-air`, accessible via SSH as `bhyslop`.
 
+## Network Isolation
+
+The application processes PHI locally. It must never transmit clipboard content over the network — not by design intent, not by accident, not by a future bug. This is enforced at the OS sandbox level, not by application-layer discipline.
+
+At startup, before any other code executes, the application drops network access permanently for the lifetime of the process. If the sandbox cannot be established, the application exits immediately (fail-closed). There is no configuration to disable this. There is no fallback mode that runs without isolation.
+
+**macOS:** The application calls `sandbox_init()` with a Seatbelt policy denying all network operations (socket create, connect, bind, listen, send, receive). This is a kernel-enforced, irreversible, self-applied restriction — no code signing or entitlements required.
+
+**Windows:** The application re-launches itself as an AppContainer process, which has zero network access unless explicitly granted. The re-launch is transparent — the user sees a single application start. AppContainer isolation is kernel-enforced and irreversible for the process lifetime.
+
+The contract across both platforms: the process that handles PHI cannot reach the network. A code defect, a compromised dependency, or a malicious clipboard payload cannot exfiltrate data because the syscalls are denied by the kernel.
+
 ## Detection Pipeline
 
 *This section is deliberately left blank in the product specification. The detection pipeline is an engineering concern documented in the living prototype specification ([APCPS-PrototypeSpecification.md](APCPS-PrototypeSpecification.md)). The product spec defines WHAT the user sees (red/yellow/grey triage); the prototype spec defines HOW the engine classifies.*
