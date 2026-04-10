@@ -3,7 +3,7 @@
 > [!IMPORTANT]
 > **Early-stage project — security review welcome**
 >
-> Recipe Bottle runs untrusted containers inside a three-container security apparatus: a privileged pentacle establishes the network namespace, a sentry enforces iptables policy on dual networks, and the bottle workload has no direct network access. The supply chain is hardened with SLSA provenance verification, least-privilege service accounts, and no secrets in version control.
+> Recipe Bottle runs untrusted containers inside a three-container security apparatus: a privileged [Pentacle](#Pentacle) establishes the network namespace, a [Sentry](#Sentry) enforces iptables policy on dual networks, and the [Bottle](#Bottle) workload has no direct network access. The supply chain is hardened with SLSA provenance verification, least-privilege service accounts, and no secrets in version control.
 >
 > This architecture is deliberate, but it has not yet had broad independent review — particularly the runtime containment (iptables rules, privileged namespace setup, network isolation enforcement). If you evaluate or deploy this, you are contributing to its hardening. Security-focused contributors and responsible disclosure are especially valued.
 
@@ -11,7 +11,7 @@ Recipe Bottle helps you build container images with rigorous supply-chain proven
 
 On the build side, Recipe Bottle orchestrates Google Cloud Build to produce images with SLSA attestation, software bills of material, reproducible multi-architecture builds, and digest-pinned toolchains — so every image has a verifiable origin story.
 
-On the runtime side, Recipe Bottle interposes a sentry container between untrusted workloads and system resources, enforcing network policy via `iptables` and `dnsmasq` — without requiring modifications to existing container images.
+On the runtime side, Recipe Bottle interposes a [Sentry](#Sentry) container between untrusted workloads and system resources, enforcing network policy via `iptables` and `dnsmasq` — without requiring modifications to existing container images.
 
 The system uses only `bash`, `git`, `curl`, `openssh`, `jq`, `openssl`, and `docker` natively. No `gcloud` CLI is required on your workstation — cloud operations use REST APIs via `curl` and `jq`.
 
@@ -21,7 +21,7 @@ The system uses only `bash`, `git`, `curl`, `openssh`, `jq`, `openssl`, and `doc
   <img src="rbm-abstract-drawio.svg" alt="Recipe Bottle architecture diagram" width="720" />
 </p>
 
-Recipe Bottle treats two complexity domains as distinct, orthogonal concerns. The first is **image management**: producing container images from untrusted source with verifiable provenance. Builds run on Google Cloud Build in an egress-locked ("airgap") configuration using digest-pinned toolchains, produce SLSA attestations and SBOMs, and draw from upstream base images mirrored into a project-owned registry — so the build pipeline has a fixed, self-contained supply chain independent of third-party registry availability. The second domain is **crucible orchestration**: running those images — or any unmodified third-party image — behind a security apparatus that enforces network policy without touching the workload. A developer can adopt either domain alone; the two are designed to compose, not to depend on each other.
+Recipe Bottle treats two complexity domains as distinct, orthogonal concerns. The first is **image management**: producing container images from untrusted source with verifiable provenance. Builds run on Google Cloud Build in an egress-locked ("airgap") configuration using digest-pinned toolchains, produce SLSA attestations and SBOMs, and draw from upstream base images mirrored into a project-owned registry — so the build pipeline has a fixed, self-contained supply chain independent of third-party registry availability. The second domain is **[Crucible](#Crucible) orchestration**: running those images — or any unmodified third-party image — behind a security apparatus that enforces network policy without touching the workload. A developer can adopt either domain alone; the two are designed to compose, not to depend on each other.
 
 The distinctive case Recipe Bottle addresses is *running untrusted code*: third-party tooling, experimental packages, binaries with uncertain provenance. Containers excel at packaging known applications, but running unvetted code poses security risks that ordinary container deployment does not solve. The [Bottle](#Bottle) container runs unmodified, in a network namespace prepared by a privileged [Pentacle](#Pentacle), with all egress flowing through a [Sentry](#Sentry) gateway configured via the mature tools `iptables` and `dnsmasq`.
 
@@ -161,13 +161,13 @@ Recipe Bottle builds container images on Google Cloud Build (GCB) and stores the
 
 For running containers with network services, Recipe Bottle orchestrates three containers working together:
 
-- **Sentry** — enforces network security policies via `iptables` and `dnsmasq`
-- **Pentacle** — establishes a privileged network namespace and shares it with the bottle
-- **Bottle** — your workload container, running unmodified in a controlled network environment
+- **[Sentry](#Sentry)** — enforces network security policies via `iptables` and `dnsmasq`
+- **[Pentacle](#Pentacle)** — establishes a privileged network namespace and shares it with the [Bottle](#Bottle)
+- **[Bottle](#Bottle)** — your workload container, running unmodified in a controlled network environment
 
-This ensures security policies are enforced from the first packet, and the bottle container experiences only a functional path to its sentry gateway.
+This ensures security policies are enforced from the first packet, and the [Bottle](#Bottle) container experiences only a functional path to its [Sentry](#Sentry) gateway.
 
-The [Sentry](#Sentry) applies two layers of egress policy: `dnsmasq` answers DNS queries only for explicitly allowed names, and `iptables` permits outbound IP traffic only to allowed CIDR ranges. The two layers combine into an enforced allowlist that a compromised or misbehaving [Bottle](#Bottle) cannot bypass — neither by DNS-based exfiltration nor by direct IP connection to an unapproved destination. Each crucible's allowlist is declared in a [Nameplate](#Nameplate) regime file alongside the sentry and bottle [Vessel](#Vessel) selections, making network policy a reviewable artifact of the configuration rather than an implicit runtime behavior.
+The [Sentry](#Sentry) applies two layers of egress policy: `dnsmasq` answers DNS queries only for explicitly allowed names, and `iptables` permits outbound IP traffic only to allowed CIDR ranges. The two layers combine into an enforced allowlist that a compromised or misbehaving [Bottle](#Bottle) cannot bypass — neither by DNS-based exfiltration nor by direct IP connection to an unapproved destination. Each [Crucible's](#Crucible) allowlist is declared in a [Nameplate](#Nameplate) regime file alongside the [Sentry](#Sentry) and [Bottle](#Bottle) [Vessel](#Vessel) selections, making network policy a reviewable artifact of the configuration rather than an implicit runtime behavior.
 
 ### Project Direction
 
@@ -175,7 +175,7 @@ The [Sentry](#Sentry) applies two layers of egress policy: `dnsmasq` answers DNS
 
 **Runtime.** Docker on Linux is the first-class runtime; rootless Podman and macOS-native workflows are deferred pending user demand. One known weakness: when allowed domains are CDN-hosted (e.g. Cloudflare), the [Sentry's](#Sentry) CIDR allowlist becomes coarse — DNS-level gating remains precise, but IP-level gating is porous across shared CDN ranges.
 
-**Networking.** [Bottle](#Bottle)-to-bottle communication is feasible under the current sentry model but not implemented; waiting for a concrete use case.
+**Networking.** [Bottle](#Bottle)-to-[Bottle](#Bottle) communication is feasible under the current [Sentry](#Sentry) model but not implemented; waiting for a concrete use case.
 
 ## Prerequisites
 
@@ -207,9 +207,9 @@ The interactive onboarding guide detects which roles you have credentials for an
 
 ### Establishment and Provisioning
 
-The [Payor](#Payor) begins by creating a GCP project and configuring an OAuth consent screen through the Google Cloud Console. After downloading the OAuth client credentials, the payor installs them via a browser authorization flow — the resulting refresh token is stored locally with restrictive permissions and does not need to be repeated.
+The [Payor](#Payor) begins by creating a GCP project and configuring an OAuth consent screen through the Google Cloud Console. After downloading the OAuth client credentials, the [Payor](#Payor) installs them via a browser authorization flow — the resulting refresh token is stored locally with restrictive permissions and does not need to be repeated.
 
-With payor credentials in place, the payor [Levies](#Levy) a [Depot](#Depot), provisioning it with build infrastructure, artifact registry, and secrets storage. The payor then mantles a [Governor](#Governor) service account to administer the [Depot](#Depot).
+With [Payor](#Payor) credentials in place, the [Payor](#Payor) [Levies](#Levy) a [Depot](#Depot), provisioning it with build infrastructure, artifact registry, and secrets storage. The [Payor](#Payor) then mantles a [Governor](#Governor) service account to administer the [Depot](#Depot).
 
 ### Credential Distribution
 
@@ -217,9 +217,9 @@ The [Governor](#Governor) creates downstream credentials: [Knighting](#Knight) a
 
 ### Build and Retrieve
 
-The [Director](#Director) [Ordains](#Ordain) [Hallmarks](#Hallmark) for each [Vessel](#Vessel) — [Conjuring](#Conjure) from source, [Binding](#Bind) from upstream, or [Grafting](#Graft) from local builds. After builds complete, the director [Tallies](#Tally) [Hallmarks](#Hallmark) by health status and [Vouches](#Vouch) their provenance. [Hallmark](#Hallmark) values from the tally are recorded into [Nameplate](#Nameplate) regime files, completing the chain from build to runtime.
+The [Director](#Director) [Ordains](#Ordain) [Hallmarks](#Hallmark) for each [Vessel](#Vessel) — [Conjuring](#Conjure) from source, [Binding](#Bind) from upstream, or [Grafting](#Graft) from local builds. After builds complete, the [Director](#Director) [Tallies](#Tally) [Hallmarks](#Hallmark) by health status and [Vouches](#Vouch) their provenance. [Hallmark](#Hallmark) values from the [Tally](#Tally) are recorded into [Nameplate](#Nameplate) regime files, completing the chain from build to runtime.
 
-The [Retriever](#Retriever) [Summons](#Summon) vouched images locally for use.
+The [Retriever](#Retriever) [Summons](#Summon) [Vouched](#Vouch) images locally for use.
 
 ## Day-to-Day Operations
 
@@ -240,7 +240,7 @@ All credential files require `600` permissions and must never be committed to ve
 | [Director](#Director) | `RBRR_SECRETS_DIR/director/rbra.env` | [Director](#Director) [Knighting](#Knight) |
 | [Retriever](#Retriever) | `RBRR_SECRETS_DIR/retriever/rbra.env` | [Retriever](#Retriever) [Chartering](#Charter) |
 
-Each credential file is scoped to one role within one depot and cannot operate outside its designation.
+Each credential file is scoped to one role within one [Depot](#Depot) and cannot operate outside its designation.
 
 ## Configuration
 
@@ -253,7 +253,7 @@ Recipe Bottle uses a Config Regime system — structured configuration with type
 | RBRP | `.rbk/rbrp.env` | [Payor](#Payor) GCP project identity |
 | RBRR | `.rbk/rbrr.env` | [Depot](#Depot) project, region, build config |
 | RBRN | `.rbk/*/rbrn.env` | Per-[Vessel](#Vessel): runtime, [Hallmarks](#Hallmark) |
-| RBRV | vessel dirs | Container image build definitions |
+| RBRV | [Vessel](#Vessel) dirs | Container image build definitions |
 | RBRS | station file | Developer machine paths (not in git) |
 
 ### Managed Regimes (generated by operations)
@@ -272,7 +272,7 @@ Recipe Bottle uses a Config Regime system — structured configuration with type
 
 ## Vessels and Nameplates
 
-**Vessels** are build definitions — each is a directory under `rbev-vessels/`:
+**[Vessels](#Vessel)** are build definitions — each is a directory under `rbev-vessels/`:
 
 ```
 rbev-vessels/
@@ -286,7 +286,7 @@ rbev-vessels/
     └── rbrv.env
 ```
 
-Conjure vessels have a Dockerfile and are built by Cloud Build. Bind vessels (like `rbev-bottle-plantuml`) pin an external image by digest in `rbrv.env` — no Dockerfile, no build step. Graft vessels push a locally-built image to GAR via docker push — no Cloud Build for the image, but about and [Vouch](#Vouch) still run in Cloud Build. The same [Ordain](#Ordain) operation handles all three: it detects the [Vessel](#Vessel) mode and triggers a Cloud Build ([Conjure](#Conjure)), mirrors from upstream ([Bind](#Bind)), or pushes a local image ([Graft](#Graft)). Trust hierarchy: [Conjure](#Conjure) has full SLSA provenance, [Bind](#Bind) has digest-pin verification, [Graft](#Graft) has no provenance chain (GRAFTED verdict).
+[Conjure](#Conjure) [Vessels](#Vessel) have a Dockerfile and are built by Cloud Build. [Bind](#Bind) [Vessels](#Vessel) (like `rbev-bottle-plantuml`) pin an external image by digest in `rbrv.env` — no Dockerfile, no build step. [Graft](#Graft) [Vessels](#Vessel) push a locally-built image to GAR via docker push — no Cloud Build for the image, but about and [Vouch](#Vouch) still run in Cloud Build. The same [Ordain](#Ordain) operation handles all three: it detects the [Vessel](#Vessel) mode and triggers a Cloud Build ([Conjure](#Conjure)), mirrors from upstream ([Bind](#Bind)), or pushes a local image ([Graft](#Graft)). Trust hierarchy: [Conjure](#Conjure) has full SLSA provenance, [Bind](#Bind) has digest-pin verification, [Graft](#Graft) has no provenance chain (GRAFTED verdict).
 
 **[Nameplates](#Nameplate)** tie [Vessels](#Vessel) together into a runnable [Crucible](#Crucible). The [Nameplate](#Nameplate) moniker (e.g. `tadmor`) identifies the unit across all operations:
 
