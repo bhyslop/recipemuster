@@ -21,6 +21,10 @@ path = "src/apcal_main.rs"
 tauri = { version = "2", features = [] }
 arboard = "3"
 scraper = "0.21"
+aho-corasick = "1"
+regex = "1"
+unicode-segmentation = "1"
+chrono = "0.4"
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
