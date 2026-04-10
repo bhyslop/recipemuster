@@ -19,6 +19,8 @@
 //! Fixture loader — writes synthetic Epic clipboard HTML for testing.
 //! Usage: cargo run --bin apcal [fixture-file]
 
+// RCG output discipline: all emission via apcrl_*! — no direct println!/eprintln!
+
 fn main() {
-    apcd::apcrl_info!("fixture loader stub — not yet implemented");
+    apcd::apcrl_info_now!("fixture loader stub — not yet implemented");
 }

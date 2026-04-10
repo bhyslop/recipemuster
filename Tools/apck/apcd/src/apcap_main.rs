@@ -17,9 +17,11 @@
 #![allow(private_interfaces)]
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+// RCG output discipline: all emission via apcrl_*! — no direct println!/eprintln!
+
 fn main() {
-    apcd::apcrl_info!("starting Ann's PHI Clipbuddy");
+    apcd::apcrl_info_now!("starting Ann's PHI Clipbuddy");
     tauri::Builder::default()
         .run(tauri::generate_context!())
-        .unwrap_or_else(|e| apcd::apcrl_fatal!("tauri application error: {}", e));
+        .unwrap_or_else(|e| apcd::apcrl_fatal_now!("tauri application error: {}", e));
 }

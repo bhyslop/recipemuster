@@ -14,69 +14,130 @@
 
 //! Logging infrastructure — severity-named macros with auto file/line capture.
 //!
-//! All application logging goes through `apcrl_info!`, `apcrl_error!`, and
-//! `apcrl_fatal!`. No naked `println!`/`eprintln!` elsewhere in the codebase.
+//! All application logging goes through `apcrl_*_now!`, `apcrl_*_if!`, and
+//! comparison variants. No naked `println!`/`eprintln!` elsewhere in the codebase.
 //!
 //! Output is line-oriented to stdout. Format:
 //!   `[LEVEL] [file:line] message`
+//!
+//! Suffix families:
+//!   `_now`  — unconditional emission
+//!   `_if`   — boolean conditional, returns the bool
+//!   `_eq`, `_ne`, `_lt`, `_gt`, `_le`, `_ge` — comparison conditional,
+//!            stringifies arguments, returns the bool
 
+pub const APCRL_LEVEL_TRACE: &str = "[TRACE]";
 pub const APCRL_LEVEL_INFO:  &str = "[INFO]";
 pub const APCRL_LEVEL_ERROR: &str = "[ERROR]";
 pub const APCRL_LEVEL_FATAL: &str = "[FATAL]";
 
-/// Macro infrastructure — do not call directly. Use `apcrl_info!` instead.
 #[doc(hidden)]
 pub fn zapcrl_emit(level: &str, file: &str, line: u32, msg: &str) {
     println!("{} [{}:{}] {}", level, file, line, msg);
 }
 
-/// Macro infrastructure — do not call directly. Use `apcrl_fatal!` instead.
 #[doc(hidden)]
 pub fn zapcrl_emit_fatal(file: &str, line: u32, msg: &str) -> ! {
     println!("{} [{}:{}] {}", APCRL_LEVEL_FATAL, file, line, msg);
     std::process::exit(1);
 }
 
-/// Log at INFO level. Supports format strings.
-///
-/// ```ignore
-/// apcrl_info!("loaded {} entries", count);
-/// ```
-#[macro_export]
-macro_rules! apcrl_info {
-    ($($arg:tt)*) => {
-        $crate::apcrl_log::zapcrl_emit(
-            $crate::apcrl_log::APCRL_LEVEL_INFO,
-            file!(), line!(), &format!($($arg)*)
-        )
-    };
+// ============================================================
+// Unconditional (_now)
+// ============================================================
+
+#[macro_export] macro_rules! apcrl_trace_now {
+    ($($arg:tt)*) => { $crate::apcrl_log::zapcrl_emit($crate::apcrl_log::APCRL_LEVEL_TRACE, file!(), line!(), &format!($($arg)*)) };
+}
+#[macro_export] macro_rules! apcrl_info_now {
+    ($($arg:tt)*) => { $crate::apcrl_log::zapcrl_emit($crate::apcrl_log::APCRL_LEVEL_INFO, file!(), line!(), &format!($($arg)*)) };
+}
+#[macro_export] macro_rules! apcrl_error_now {
+    ($($arg:tt)*) => { $crate::apcrl_log::zapcrl_emit($crate::apcrl_log::APCRL_LEVEL_ERROR, file!(), line!(), &format!($($arg)*)) };
+}
+#[macro_export] macro_rules! apcrl_fatal_now {
+    ($($arg:tt)*) => { $crate::apcrl_log::zapcrl_emit_fatal(file!(), line!(), &format!($($arg)*)) };
 }
 
-/// Log at ERROR level. Supports format strings.
-///
-/// ```ignore
-/// apcrl_error!("failed to parse clipboard: {}", err);
-/// ```
-#[macro_export]
-macro_rules! apcrl_error {
-    ($($arg:tt)*) => {
-        $crate::apcrl_log::zapcrl_emit(
-            $crate::apcrl_log::APCRL_LEVEL_ERROR,
-            file!(), line!(), &format!($($arg)*)
-        )
-    };
+// ============================================================
+// Boolean conditional (_if)
+// ============================================================
+
+#[macro_export] macro_rules! apcrl_trace_if {
+    ($cond:expr, $($arg:tt)*) => {{ let z = $cond; if z { $crate::apcrl_log::zapcrl_emit($crate::apcrl_log::APCRL_LEVEL_TRACE, file!(), line!(), &format!($($arg)*)); } z }};
+}
+#[macro_export] macro_rules! apcrl_error_if {
+    ($cond:expr, $($arg:tt)*) => {{ let z = $cond; if z { $crate::apcrl_log::zapcrl_emit($crate::apcrl_log::APCRL_LEVEL_ERROR, file!(), line!(), &format!($($arg)*)); } z }};
+}
+#[macro_export] macro_rules! apcrl_fatal_if {
+    ($cond:expr, $($arg:tt)*) => { if $cond { $crate::apcrl_log::zapcrl_emit_fatal(file!(), line!(), &format!($($arg)*)); } };
 }
 
-/// Log at FATAL level and exit. Supports format strings. Never returns.
-///
-/// ```ignore
-/// apcrl_fatal!("unrecoverable: {}", err);
-/// ```
-#[macro_export]
-macro_rules! apcrl_fatal {
-    ($($arg:tt)*) => {
-        $crate::apcrl_log::zapcrl_emit_fatal(
-            file!(), line!(), &format!($($arg)*)
-        )
-    };
+// ============================================================
+// Trace comparison variants
+// ============================================================
+
+#[macro_export] macro_rules! apcrl_trace_eq {
+    ($left:expr, $right:expr, $($arg:tt)*) => {{ let (zl, zr) = (&$left, &$right); let z = *zl == *zr; if z { $crate::apcrl_log::zapcrl_emit($crate::apcrl_log::APCRL_LEVEL_TRACE, file!(), line!(), &format!("{}: {} ({:?}) == {} ({:?})", format!($($arg)*), stringify!($left), zl, stringify!($right), zr)); } z }};
+}
+#[macro_export] macro_rules! apcrl_trace_ne {
+    ($left:expr, $right:expr, $($arg:tt)*) => {{ let (zl, zr) = (&$left, &$right); let z = *zl != *zr; if z { $crate::apcrl_log::zapcrl_emit($crate::apcrl_log::APCRL_LEVEL_TRACE, file!(), line!(), &format!("{}: {} ({:?}) != {} ({:?})", format!($($arg)*), stringify!($left), zl, stringify!($right), zr)); } z }};
+}
+#[macro_export] macro_rules! apcrl_trace_lt {
+    ($left:expr, $right:expr, $($arg:tt)*) => {{ let (zl, zr) = (&$left, &$right); let z = *zl < *zr; if z { $crate::apcrl_log::zapcrl_emit($crate::apcrl_log::APCRL_LEVEL_TRACE, file!(), line!(), &format!("{}: {} ({:?}) < {} ({:?})", format!($($arg)*), stringify!($left), zl, stringify!($right), zr)); } z }};
+}
+#[macro_export] macro_rules! apcrl_trace_gt {
+    ($left:expr, $right:expr, $($arg:tt)*) => {{ let (zl, zr) = (&$left, &$right); let z = *zl > *zr; if z { $crate::apcrl_log::zapcrl_emit($crate::apcrl_log::APCRL_LEVEL_TRACE, file!(), line!(), &format!("{}: {} ({:?}) > {} ({:?})", format!($($arg)*), stringify!($left), zl, stringify!($right), zr)); } z }};
+}
+#[macro_export] macro_rules! apcrl_trace_le {
+    ($left:expr, $right:expr, $($arg:tt)*) => {{ let (zl, zr) = (&$left, &$right); let z = *zl <= *zr; if z { $crate::apcrl_log::zapcrl_emit($crate::apcrl_log::APCRL_LEVEL_TRACE, file!(), line!(), &format!("{}: {} ({:?}) <= {} ({:?})", format!($($arg)*), stringify!($left), zl, stringify!($right), zr)); } z }};
+}
+#[macro_export] macro_rules! apcrl_trace_ge {
+    ($left:expr, $right:expr, $($arg:tt)*) => {{ let (zl, zr) = (&$left, &$right); let z = *zl >= *zr; if z { $crate::apcrl_log::zapcrl_emit($crate::apcrl_log::APCRL_LEVEL_TRACE, file!(), line!(), &format!("{}: {} ({:?}) >= {} ({:?})", format!($($arg)*), stringify!($left), zl, stringify!($right), zr)); } z }};
+}
+
+// ============================================================
+// Error comparison variants
+// ============================================================
+
+#[macro_export] macro_rules! apcrl_error_eq {
+    ($left:expr, $right:expr, $($arg:tt)*) => {{ let (zl, zr) = (&$left, &$right); let z = *zl == *zr; if z { $crate::apcrl_log::zapcrl_emit($crate::apcrl_log::APCRL_LEVEL_ERROR, file!(), line!(), &format!("{}: {} ({:?}) == {} ({:?})", format!($($arg)*), stringify!($left), zl, stringify!($right), zr)); } z }};
+}
+#[macro_export] macro_rules! apcrl_error_ne {
+    ($left:expr, $right:expr, $($arg:tt)*) => {{ let (zl, zr) = (&$left, &$right); let z = *zl != *zr; if z { $crate::apcrl_log::zapcrl_emit($crate::apcrl_log::APCRL_LEVEL_ERROR, file!(), line!(), &format!("{}: {} ({:?}) != {} ({:?})", format!($($arg)*), stringify!($left), zl, stringify!($right), zr)); } z }};
+}
+#[macro_export] macro_rules! apcrl_error_lt {
+    ($left:expr, $right:expr, $($arg:tt)*) => {{ let (zl, zr) = (&$left, &$right); let z = *zl < *zr; if z { $crate::apcrl_log::zapcrl_emit($crate::apcrl_log::APCRL_LEVEL_ERROR, file!(), line!(), &format!("{}: {} ({:?}) < {} ({:?})", format!($($arg)*), stringify!($left), zl, stringify!($right), zr)); } z }};
+}
+#[macro_export] macro_rules! apcrl_error_gt {
+    ($left:expr, $right:expr, $($arg:tt)*) => {{ let (zl, zr) = (&$left, &$right); let z = *zl > *zr; if z { $crate::apcrl_log::zapcrl_emit($crate::apcrl_log::APCRL_LEVEL_ERROR, file!(), line!(), &format!("{}: {} ({:?}) > {} ({:?})", format!($($arg)*), stringify!($left), zl, stringify!($right), zr)); } z }};
+}
+#[macro_export] macro_rules! apcrl_error_le {
+    ($left:expr, $right:expr, $($arg:tt)*) => {{ let (zl, zr) = (&$left, &$right); let z = *zl <= *zr; if z { $crate::apcrl_log::zapcrl_emit($crate::apcrl_log::APCRL_LEVEL_ERROR, file!(), line!(), &format!("{}: {} ({:?}) <= {} ({:?})", format!($($arg)*), stringify!($left), zl, stringify!($right), zr)); } z }};
+}
+#[macro_export] macro_rules! apcrl_error_ge {
+    ($left:expr, $right:expr, $($arg:tt)*) => {{ let (zl, zr) = (&$left, &$right); let z = *zl >= *zr; if z { $crate::apcrl_log::zapcrl_emit($crate::apcrl_log::APCRL_LEVEL_ERROR, file!(), line!(), &format!("{}: {} ({:?}) >= {} ({:?})", format!($($arg)*), stringify!($left), zl, stringify!($right), zr)); } z }};
+}
+
+// ============================================================
+// Fatal comparison variants
+// ============================================================
+
+#[macro_export] macro_rules! apcrl_fatal_eq {
+    ($left:expr, $right:expr, $($arg:tt)*) => {{ let (zl, zr) = (&$left, &$right); if *zl == *zr { $crate::apcrl_log::zapcrl_emit_fatal(file!(), line!(), &format!("{}: {} ({:?}) == {} ({:?})", format!($($arg)*), stringify!($left), zl, stringify!($right), zr)); } }};
+}
+#[macro_export] macro_rules! apcrl_fatal_ne {
+    ($left:expr, $right:expr, $($arg:tt)*) => {{ let (zl, zr) = (&$left, &$right); if *zl != *zr { $crate::apcrl_log::zapcrl_emit_fatal(file!(), line!(), &format!("{}: {} ({:?}) != {} ({:?})", format!($($arg)*), stringify!($left), zl, stringify!($right), zr)); } }};
+}
+#[macro_export] macro_rules! apcrl_fatal_lt {
+    ($left:expr, $right:expr, $($arg:tt)*) => {{ let (zl, zr) = (&$left, &$right); if *zl < *zr { $crate::apcrl_log::zapcrl_emit_fatal(file!(), line!(), &format!("{}: {} ({:?}) < {} ({:?})", format!($($arg)*), stringify!($left), zl, stringify!($right), zr)); } }};
+}
+#[macro_export] macro_rules! apcrl_fatal_gt {
+    ($left:expr, $right:expr, $($arg:tt)*) => {{ let (zl, zr) = (&$left, &$right); if *zl > *zr { $crate::apcrl_log::zapcrl_emit_fatal(file!(), line!(), &format!("{}: {} ({:?}) > {} ({:?})", format!($($arg)*), stringify!($left), zl, stringify!($right), zr)); } }};
+}
+#[macro_export] macro_rules! apcrl_fatal_le {
+    ($left:expr, $right:expr, $($arg:tt)*) => {{ let (zl, zr) = (&$left, &$right); if *zl <= *zr { $crate::apcrl_log::zapcrl_emit_fatal(file!(), line!(), &format!("{}: {} ({:?}) <= {} ({:?})", format!($($arg)*), stringify!($left), zl, stringify!($right), zr)); } }};
+}
+#[macro_export] macro_rules! apcrl_fatal_ge {
+    ($left:expr, $right:expr, $($arg:tt)*) => {{ let (zl, zr) = (&$left, &$right); if *zl >= *zr { $crate::apcrl_log::zapcrl_emit_fatal(file!(), line!(), &format!("{}: {} ({:?}) >= {} ({:?})", format!($($arg)*), stringify!($left), zl, stringify!($right), zr)); } }};
 }
