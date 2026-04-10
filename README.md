@@ -173,7 +173,7 @@ The [Crucible](#Crucible) has two lifecycle operations:
 
 To run a workload, [Charge](#Charge) the [Crucible](#Crucible) for a [Nameplate](#Nameplate). This starts the [Sentry](#Sentry), [Pentacle](#Pentacle), and [Bottle](#Bottle) containers together — the [Bottle](#Bottle) is ready for interactive use immediately. For diagnostics, shell into the [Bottle](#Bottle) or the [Sentry](#Sentry), or observe network traffic across the [Crucible's](#Crucible) containers. When finished, [Quench](#Quench) the [Crucible](#Crucible) to stop and clean up all three containers. To inspect an image's supply chain, [Plumb](#Plumb) its provenance — the full view shows the SBOM, build info, and Dockerfile; the compact view summarizes the attestation chain.
 
-### Adversarial Testing
+## Appendix: Adversarial Test Method
 
 The [Crucible's](#Crucible) containment is validated through coordinated escape testing using two components:
 
