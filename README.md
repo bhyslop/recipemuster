@@ -166,16 +166,6 @@ Your workload container, running unmodified in a controlled network environment.
 
 ### Crucible Lifecycle
 
-For running containers with network services, Recipe Bottle orchestrates three containers working together:
-
-- **[Sentry](#Sentry)** — enforces network security policies via `iptables` and `dnsmasq`
-- **[Pentacle](#Pentacle)** — establishes a privileged network namespace and shares it with the [Bottle](#Bottle)
-- **[Bottle](#Bottle)** — your workload container, running unmodified in a controlled network environment
-
-This ensures security policies are enforced from the first packet, and the [Bottle](#Bottle) container experiences only a functional path to its [Sentry](#Sentry) gateway.
-
-The [Sentry](#Sentry) applies two layers of egress policy: `dnsmasq` answers DNS queries only for explicitly allowed names, and `iptables` permits outbound IP traffic only to allowed CIDR ranges. The two layers combine into an enforced allowlist that a compromised or misbehaving [Bottle](#Bottle) cannot bypass — neither by DNS-based exfiltration nor by direct IP connection to an unapproved destination. Each [Crucible's](#Crucible) allowlist is declared in a [Nameplate](#Nameplate) [Regime](#Regime) file alongside the [Sentry](#Sentry) and [Bottle](#Bottle) [Vessel](#Vessel) selections, making network policy a reviewable artifact of the configuration rather than an implicit runtime behavior.
-
 The [Crucible](#Crucible) has two lifecycle operations:
 
 - <a id="Charge"></a>**[Charge](#Charge)** — Start the [Sentry](#Sentry)/[Pentacle](#Pentacle)/[Bottle](#Bottle) triad for a [Nameplate](#Nameplate). [Charging](#Charge) brings up the [Crucible](#Crucible) in dependency order: [Pentacle](#Pentacle) creates the namespace, [Sentry](#Sentry) configures policy, then the [Bottle](#Bottle) starts with its network already constrained.
