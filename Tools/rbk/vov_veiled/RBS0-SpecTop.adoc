@@ -214,6 +214,8 @@
 :at_bottle_image:            <<at_bottle_image,Bottle Image>>
 :at_bottle_image_s:          <<at_bottle_image,Bottle Images>>
 :at_build_service:           <<at_build_service,Build Service>>
+:at_foundry:                 <<at_foundry,Foundry>>
+:at_foundry_p:               <<at_foundry,Foundry's>>
 :at_recipe_bottle:           <<at_recipe_bottle,Recipe Bottle>>
 :at_rbm_system:              <<at_rbm_system,Recipe Bottle Workbench>>
 :at_runtime:                 <<at_runtime,Container Runtime>>
@@ -2082,6 +2084,13 @@ The minimal set of command-line tools
 (`bash`, `git`, `curl`, `openssh`, `jq`, `openssl`)
 required on the
 {at_workstation}.
+
+[[at_foundry]]
+{at_foundry}::
+Recipe Bottle's remote build orchestration system for producing, attesting, and distributing container images via {gcb_service} and {gar_service}.
+The {at_foundry} encompasses {rbtgi_depot_s}, {rbtga_vessel_s}, {rbtga_hallmark} tracking, and {rbtgr_rubric_s}.
+Three vessel modes determine how images enter the {rbtgi_depot}: conjure (egress-locked build from source with SLSA provenance), bind (digest-pinned upstream mirror), and graft (local push).
+Peer to {rbsc_crucible}, which handles local runtime containment.
 
 [[at_build_service]]
 {at_build_service}::
