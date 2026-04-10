@@ -338,6 +338,7 @@ Before minting new prefixes:
 | `ccc` | CCCK (Claude Code Container Kit) |
 | `hm` | HMK (Hard-state Machine Kit) |
 | `lmci` | LMCI (Language Model Console Integration) |
+| `apc` | APCK (Ann's PHI Clipbuddy Kit) |
 | `vsl` | VSLK (Visual SlickEdit Local Kit) |
 
 For expanded prefix trees within each project, see **File Acronym Mappings** above.
@@ -378,3 +379,5 @@ For theurge/ifrit crucible testing work, read `Tools/rbk/rbk-claude-theurge-ifri
 @Tools/jjk/vov_veiled/jjk-claude-context.md
 
 @Tools/vvk/vov_veiled/vvk-claude-context.md
+
+@Tools/apck/apck-claude-context.md
