@@ -9,7 +9,7 @@ Recipe Bottle helps you produce container images across three supply-chain modes
 >
 > This architecture is deliberate, but it has not yet had broad independent review — particularly the runtime containment (iptables rules, privileged namespace setup, network isolation enforcement). If you evaluate or deploy this, you are contributing to its hardening. Security-focused contributors and responsible disclosure are especially valued.
 
-Recipe Bottle is a set of bash scripts designed to be incorporated into arbitrary projects — via `git subtree`, `git subrepo`, `git submodule`, or simply by copying a few directories into place. The workstation floor is deliberately narrow: `bash 3.2`, `git`, `curl`, `openssh`, `jq`, `openssl`, and `docker`. There is no Python runtime, no language-specific package manager, no `gcloud` CLI on the workstation — Google Cloud operations run as REST calls over `curl` and `jq`. A small team can stand up a hardened build pipeline and a sandboxed runtime without specialized DevOps expertise.
+Recipe Bottle is a set of bash scripts designed for incorporation into arbitrary projects. The dependency footprint is deliberately narrow — `bash 3.2` and a handful of standard tools — with no Python runtime, no language-specific package manager, and no `gcloud` CLI. A small team can stand up a hardened build pipeline and a sandboxed runtime without specialized DevOps expertise.
 
 **Project page**: https://scaleinv.github.io/recipebottle
 
