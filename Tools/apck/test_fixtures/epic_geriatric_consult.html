@@ -1,0 +1,121 @@
+<!--
+  Synthetic Epic "Copy All" HTML fixture — geriatric consultation.
+  Exercises the HIPAA Safe Harbor age >89 rule (45 CFR 164.514(b)(2)(i)(C)).
+  Patient is 93 years old; DOB→age must emit "Age: 90+" not "Age: 93".
+
+  Also exercises:
+    - Fewer PHI categories than the progress note (lighter fixture)
+    - Different Epic section structure (consult vs admission note)
+    - Provider names in Assessment that lack label anchoring
+    - Medication list with brand/generic pairs
+    - Cognitive assessment scores that must survive (not PHI)
+-->
+<html>
+<body style="font-family: Arial, sans-serif; font-size: 10pt;">
+
+<div style="border-bottom: 1px solid #000; padding-bottom: 4px; margin-bottom: 8px;">
+<b>Patient:</b> Harold W. Eriksen<br>
+<b>DOB:</b> 11/02/1932<br>
+<b>Age:</b> 93 y.o. Male<br>
+<b>MRN:</b> 01192847<br>
+<b>Account:</b> 5578203916<br>
+<b>Encounter ID:</b> ENC-2026-0051203<br>
+<b>Address:</b> 42 Pinehurst Drive, Scarborough, ME 04074<br>
+<b>Phone:</b> 207-555-0312<br>
+<b>Emergency Contact:</b> Karen Eriksen-Moody (daughter) — 207-555-0488<br>
+</div>
+
+<div style="border-bottom: 1px solid #ccc; padding-bottom: 4px; margin-bottom: 8px;">
+<b>Facility:</b> Maine Medical Center<br>
+<b>Attending:</b> James R. Whitfield, MD<br>
+<b>Consulting:</b> Naomi Okwu, MD — Geriatric Medicine<br>
+<b>Referring:</b> Susan Chen, MD<br>
+<b>Visit Date:</b> 04/09/2026<br>
+</div>
+
+<div style="margin-bottom: 8px;">
+<b>Reason for Consult:</b><br>
+Geriatric medicine consultation requested for cognitive assessment and fall risk evaluation in the setting of acute hospitalization for NSTEMI.
+</div>
+
+<div style="margin-bottom: 8px;">
+<b>History of Present Illness:</b><br>
+Mr. Eriksen is a 93-year-old male admitted 04/07/2026 with NSTEMI, now post-catheterization with single-vessel PCI to LAD. Consultation requested by Dr. Whitfield for pre-discharge cognitive and functional assessment. The patient's daughter, Karen Eriksen-Moody, reports progressive memory difficulties over the past 18 months — missed appointments, repeated questions, and difficulty managing medications. She states her brother, Thomas Eriksen of 15 Ocean View Road, Cape Elizabeth, ME 04107, has also noticed the changes during weekly phone calls. The patient lives alone at 42 Pinehurst Drive since the death of his wife, Miriam Eriksen, in 2024. A home health aide, Patricia Nowak, visits three times weekly.
+
+Prior cognitive screening by Dr. Susan Chen on 01/15/2026 noted MoCA 22/30 with deficits in delayed recall and visuospatial domains.
+</div>
+
+<div style="margin-bottom: 8px;">
+<b>Past Medical History:</b><br>
+1. Coronary artery disease — NSTEMI 04/2026, s/p PCI to LAD<br>
+2. Hypertension<br>
+3. Atrial fibrillation — rate controlled, on apixaban<br>
+4. Mild cognitive impairment — MoCA 22/30 (01/2026)<br>
+5. Benign prostatic hyperplasia<br>
+6. Osteoporosis — T-score -2.8 lumbar spine<br>
+7. Bilateral sensorineural hearing loss — uses hearing aids<br>
+8. S/P appendectomy 1961<br>
+</div>
+
+<div style="margin-bottom: 8px;">
+<b>Medications (Home):</b><br>
+1. Apixaban (Eliquis) 5mg PO BID<br>
+2. Metoprolol succinate (Toprol-XL) 50mg PO daily<br>
+3. Amlodipine 5mg PO daily<br>
+4. Atorvastatin 40mg PO QHS<br>
+5. Tamsulosin (Flomax) 0.4mg PO QHS<br>
+6. Alendronate (Fosamax) 70mg PO weekly<br>
+7. Vitamin D3 2000 IU PO daily<br>
+8. Aspirin 81mg PO daily — added post-PCI<br>
+9. Clopidogrel 75mg PO daily — added post-PCI<br>
+</div>
+
+<div style="margin-bottom: 8px;">
+<b>Vitals (04/09/2026 08:15):</b><br>
+BP: 132/78 mmHg | HR: 72 bpm (irregular) | RR: 16 /min | Temp: 97.8 F | SpO2: 95% RA<br>
+Weight: 68.5 kg | Height: 175 cm | BMI: 22.4
+</div>
+
+<div style="margin-bottom: 8px;">
+<b>Cognitive Assessment:</b><br>
+<b>MoCA:</b> 20/30 (decline from 22/30 on 01/15/2026)<br>
+  - Visuospatial/Executive: 3/5<br>
+  - Naming: 3/3<br>
+  - Attention: 5/6<br>
+  - Language: 2/3<br>
+  - Abstraction: 1/2<br>
+  - Delayed Recall: 2/5 (registered 5/5)<br>
+  - Orientation: 4/6 (missed day of week, date)<br>
+<br>
+<b>GDS-15:</b> 4/15 (mild depressive symptoms)<br>
+<b>Timed Up and Go:</b> 18.2 seconds (elevated fall risk, cutoff >12s)<br>
+<b>Grip Strength:</b> 22 kg right, 20 kg left (below normative for age/sex)<br>
+<b>ADLs:</b> Independent in bathing, dressing, toileting. Requires cueing for medication management.<br>
+<b>IADLs:</b> Requires assistance with finances, transportation, meal preparation. Independent in telephone use.
+</div>
+
+<div style="margin-bottom: 8px;">
+<b>Assessment/Plan:</b><br>
+93-year-old male with mild cognitive impairment progressing toward early dementia, now post-NSTEMI with increased fall risk and polypharmacy concerns.<br>
+<br>
+1. <b>Cognitive Decline</b> — MoCA 20/30, down from 22 three months ago. Pattern suggests amnestic MCI progressing. Recommend outpatient neuropsych testing with Dr. Rebecca Langford at Maine Neuropsychology Associates, 75 John Roberts Road, South Portland, ME 04106, phone 207-555-0671. Consider cholinesterase inhibitor (donepezil 5mg QHS) after cardiology clears — discuss with Dr. Whitfield re: bradycardia risk given recent ACS.<br>
+<br>
+2. <b>Fall Risk</b> — TUG 18.2s, grip strength below normative. Recommend PT for balance and strengthening program. Home safety evaluation by OT. Remove loose rugs, install grab bars in bathroom at 42 Pinehurst Drive. Night lights in hallway and bathroom.<br>
+<br>
+3. <b>Polypharmacy</b> — Currently on 9 medications. Reviewed with clinical pharmacist Angela Kim, PharmD. No immediate deprescribing targets given acute ACS requiring DAPT. Reassess tamsulosin and alendronate at 3-month follow-up — fall risk vs benefit.<br>
+<br>
+4. <b>Caregiver Support</b> — Daughter Karen Eriksen-Moody is primary caregiver at distance. Brother Thomas Eriksen is local but limited involvement. Current home health aide 3x/week may be insufficient. SW referral for Area Agency on Aging services. Discussed with Karen at 207-555-0488 — she will explore increased aide hours.<br>
+<br>
+5. <b>Advance Care Planning</b> — Patient has DPOA (Karen Eriksen-Moody) but no living will on file. Recommend goals of care conversation prior to discharge given cognitive trajectory and cardiac disease burden. Palliative care consult if patient/family amenable.<br>
+<br>
+6. <b>Follow-up</b> — Geriatric medicine clinic in 4-6 weeks. Repeat MoCA at that visit. PCP follow-up with Dr. Chen within 2 weeks of discharge.
+</div>
+
+<div style="margin-top: 12px; border-top: 1px solid #ccc; padding-top: 4px; font-size: 9pt; color: #666;">
+<b>Electronically signed by:</b> Naomi Okwu, MD — 04/09/2026 14:33<br>
+<br>
+<i>System: Epic 2024 R1 | Node: MMCPRD-APP-12 | IP: 10.142.38.107 | Print ID: RPT-2026-0409-14331</i>
+</div>
+
+</body>
+</html>
