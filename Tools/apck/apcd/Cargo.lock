@@ -70,6 +70,7 @@ dependencies = [
  "notify",
  "regex",
  "scraper",
+ "serde",
  "tauri",
  "tauri-build",
  "unicode-segmentation",
