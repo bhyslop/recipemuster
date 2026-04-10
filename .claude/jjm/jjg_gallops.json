@@ -182,12 +182,13 @@
         "₢A6AAG",
         "₢A6AAH",
         "₢A6AAI",
+        "₢A6AAJ",
         "₢A6AAC",
         "₢A6AAD",
         "₢A6AAE",
         "₢A6AAF"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
       "paces": {
         "₢A6AAA": {
@@ -405,6 +406,17 @@
               "text": "## Character\n\nInvestigation pace — determine whether bottle-ifrit can realistically build on the airgap pool. The answer directly affects track 12 (Building for Crucibles) docket. Quick, focused, binary outcome.\n\n## Docket\n\nDetermine whether `rbev-bottle-ifrit` can be built airgapped, or must remain tethered.\n\n### Investigate\n\nRead `rbev-vessels/rbev-bottle-ifrit/Dockerfile`. Identify all network-dependent build steps:\n- `apt-get install` / `apt-get update` — pulls from Debian repos\n- `npm install` — pulls from npm registry\n- Any other fetches (pip, curl, wget)\n\n### Assess\n\nFor each network dependency, determine:\n1. Can it be satisfied from enshrined base images alone? (unlikely for apt/npm)\n2. Can it be pre-staged into the build context via the pouch? (possible but complex)\n3. Is there a simpler vessel that demonstrates airgap without these complications?\n\n### Decide\n\nThree possible outcomes:\n- **Ifrit goes airgap**: all dependencies resolvable without upstream at build time. Update track 12 docket accordingly.\n- **Ifrit stays tethered, sentry goes airgap**: sentry-debian-slim has minimal deps (bash, iptables, dnsmasq, iproute2 — all in the base image). Track 12 uses sentry as the airgap demonstration and ifrit as the tethered companion. Teaches the distinction: \"some vessels can go airgapped, others need upstream.\"\n- **Ifrit stays tethered, separate airgap demo**: if neither vessel works cleanly, note for later.\n\nRecord the decision in the A6 paddock (track 12 description and remaining gaps section).\n\n### Out of scope\n\n- Actually building ifrit airgapped (that's track 12's job if feasible)\n- Changing ifrit's Dockerfile\n- Onboarding content",
               "silks": "ifrit-airgap-feasibility",
               "commit": "de5297f"
+            }
+          ]
+        },
+        "₢A6AAJ": {
+          "tacks": [
+            {
+              "ts": "260410-0954",
+              "state": "rough",
+              "text": "## Character\n\nDecision pace — confirm or reject the current assumption that bind mode doesn't need its own hands-on director subtrack. Quick review of what the existing tracks cover, then a recorded decision.\n\n## Docket\n\nEvaluate whether bind mode needs a dedicated hands-on track or is sufficiently covered by existing tracks.\n\n### Review current coverage\n\n1. **Track 7 (Your First Ordination)** — conceptual introduction mentions bind as one of three ordain modes\n2. **Track 13 (Assay: Supply Chain)** — evaluator tours bind using bottle-plantuml, sees digest-pin verification verdict\n\n### Assess\n\nBind mode is operationally simple: no Dockerfile, no build context, no pouch. The director runs ordain, which mirrors an upstream image by digest into GAR. The complexity is in understanding *when* to use bind vs conjure, not in executing it.\n\nQuestions to answer:\n- Does the evaluator tour in track 13 give enough hands-on exposure?\n- Would a director who needs to bind an upstream image in production be served by the conceptual intro + eval tour, or do they need a dedicated walkthrough?\n- Is there pedagogical value in a \"bind your first upstream image\" experience distinct from the evaluation tour?\n\n### Record decision\n\nUpdate the A6 paddock remaining gaps section with the outcome:\n- **No dedicated track**: bind is covered; remove from gaps\n- **Add dedicated track**: slate a new director subtrack and update the roster\n\n### Out of scope\n\n- Actually implementing any new track\n- Changing existing track dockets",
+              "silks": "bind-mode-coverage-decision",
+              "commit": "1ec9daa"
             }
           ]
         }
