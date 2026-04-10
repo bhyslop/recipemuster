@@ -90,7 +90,7 @@ fn consume_clipboard() -> Result<zapcap_ConsumeResult, String> {
             let mut last = ZAPCAP_LAST_CLIPBOARD.lock()
                 .map_err(|e| format!("lock error: {}", e))?;
             *last = Some(String::new());
-            // Cache clinical result for anonymization
+            // Cache clinical result for anonymization (byte offsets for Rust slicing)
             {
                 let mut cache = ZAPCAP_LAST_CLINICAL.lock()
                     .map_err(|e| format!("lock error: {}", e))?;
@@ -99,7 +99,10 @@ fn consume_clipboard() -> Result<zapcap_ConsumeResult, String> {
                     plain_text: plain_text.clone(),
                 });
             }
-            Ok(zapcap_ConsumeResult::Clinical { findings, plain_text })
+            // Convert byte offsets to char offsets for JS (substring uses char indices)
+            let mut js_findings = findings;
+            zapcap_byte_to_char_offsets(&plain_text, &mut js_findings);
+            Ok(zapcap_ConsumeResult::Clinical { findings: js_findings, plain_text })
         }
         apcd::apcre_engine::apcre_Result::NonClinical { content_length, content_type, preview } => {
             // Track so repeated refocus with same non-clinical content → unchanged
@@ -142,6 +145,22 @@ fn copy_anonymized(toggle_states: Vec<String>) -> Result<(), String> {
         .map_err(|e| format!("clipboard error: {}", e))?;
 
     Ok(())
+}
+
+// ---------------------------------------------------------------------------
+// Internal — byte-to-char offset conversion for JS interop
+// ---------------------------------------------------------------------------
+
+fn zapcap_byte_to_char_offsets(
+    plain_text: &str,
+    findings: &mut [apcd::apcrm_match::apcrm_Finding],
+) {
+    for f in findings.iter_mut() {
+        let byte_offset = f.offset;
+        let byte_end = f.offset + f.length;
+        f.offset = plain_text[..byte_offset].chars().count();
+        f.length = plain_text[byte_offset..byte_end].chars().count();
+    }
 }
 
 // ---------------------------------------------------------------------------

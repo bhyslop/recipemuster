@@ -95,8 +95,13 @@ apcc_fixture_load() {
 
 apcc_test() {
   buc_step "Running cargo test"
+  local -r z_output_file="${BURD_TEMP_DIR}/apcc_test_output.txt"
   cargo test --manifest-path "${ZAPCC_MANIFEST}" \
-    || buc_die "cargo test failed"
+    > "${z_output_file}" 2>&1 \
+    || { cat "${z_output_file}"; buc_die "cargo test failed"; }
+  cat "${z_output_file}"
+  local -r z_total_passed=$(grep -c '^test .* ok$' "${z_output_file}" || true)
+  buc_step "Tests complete: ${z_total_passed} passed"
 }
 
 apcc_dictionary_refresh() {
