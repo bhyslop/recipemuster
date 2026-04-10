@@ -80,7 +80,7 @@ Unambiguous structural patterns. No false positives. No database dependency.
 | Account (labeled) | `[ACCOUNT]` | Value following `Account` or `Acct` label | |
 | Encounter ID (labeled) | `[ENCOUNTER_ID]` | Value following `Encounter ID:` label | |
 
-Dates receive special handling: when a date follows a `DOB:` label, the engine computes age from the current date and emits `Age: NN` instead of `[DATE]` in the anonymized output.
+Dates receive special handling: when a date follows a `DOB:` label, the engine computes age from the current date and emits `Age: NN` instead of `[DATE]` in the anonymized output. Per HIPAA Safe Harbor (45 CFR 164.514(b)(2)(i)(C)), ages over 89 are aggregated: computed age >89 emits `Age: 90+`.
 
 ### Tier 2 — Label-Anchored Extraction (→ RED)
 
@@ -158,7 +158,7 @@ Category-specific placeholders preserve semantic context for Open Evidence:
 |-------------|-------------|---------|
 | Patient/person names | `[NAME]` | "Ms. [NAME] is a 74-year-old female" |
 | Dates (non-DOB) | `[DATE]` | "Visit Date: [DATE]" |
-| Date of birth | `Age: NN` | "DOB: 03/15/1952" → "Age: 74" |
+| Date of birth | `Age: NN` or `Age: 90+` | "DOB: 03/15/1952" → "Age: 74"; ages >89 → "Age: 90+" |
 | Medical record number | `[MRN]` | "MRN: [MRN]" |
 | Phone numbers | `[PHONE]` | "phone: [PHONE]" |
 | Addresses | `[ADDRESS]` | "at [ADDRESS]" |
