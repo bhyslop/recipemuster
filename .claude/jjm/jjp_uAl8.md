@@ -1,5 +1,3 @@
-Garlanded at pace 5 — magnificent service
-
 ## Character
 
 Architecture and content work for the public docs surface — the page that onboarding's `buh_tlt` links actually land on. Three interlocked concerns:
