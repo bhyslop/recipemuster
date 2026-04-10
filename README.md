@@ -219,32 +219,6 @@ The following features are not yet implemented but are under consideration:
 - `docker` (container runtime)
 - A Google Cloud account with billing enabled (credit card required for verification; free tier is sufficient to start)
 
-## Vessels and Nameplates
-
-**[Vessels](#Vessel)** are build definitions — each is a directory under `rbev-vessels/`:
-
-```
-rbev-vessels/
-├── rbev-sentry-debian-slim/    # Sentry vessel (conjure — built from source)
-│   ├── Dockerfile
-│   └── rbrv.env
-├── rbev-bottle-ifrit/          # Ifrit bottle vessel (conjure — built from source)
-│   ├── Dockerfile
-│   └── rbrv.env
-└── rbev-bottle-plantuml/       # PlantUML server (bind — upstream image pinned by digest)
-    └── rbrv.env
-```
-
-[Conjure](#Conjure) [Vessels](#Vessel) have a Dockerfile and are built by Cloud Build. [Bind](#Bind) [Vessels](#Vessel) (like `rbev-bottle-plantuml`) pin an external image by digest in `rbrv.env` — no Dockerfile, no build step. [Graft](#Graft) [Vessels](#Vessel) push a locally-built image to GAR via docker push — no Cloud Build for the image, but about and [Vouch](#Vouch) still run in Cloud Build. The same [Ordain](#Ordain) operation handles all three: it detects the [Vessel](#Vessel) mode and triggers a Cloud Build ([Conjure](#Conjure)), mirrors from upstream ([Bind](#Bind)), or pushes a local image ([Graft](#Graft)). Trust hierarchy: [Conjure](#Conjure) has full SLSA provenance, [Bind](#Bind) has digest-pin verification, [Graft](#Graft) has no provenance chain (GRAFTED verdict).
-
-**[Nameplates](#Nameplate)** tie [Vessels](#Vessel) together into a runnable [Crucible](#Crucible). The [Nameplate](#Nameplate) moniker (e.g. `tadmor`) identifies the unit across all operations:
-
-```
-.rbk/tadmor/rbrn.env          # Maps tadmor → rbev-sentry-debian-slim + rbev-bottle-ifrit
-```
-
-[Charging](#Charge) `tadmor` starts the [Crucible](#Crucible) defined by the `tadmor` [Nameplate](#Nameplate), which selects its [Sentry](#Sentry) and [Bottle](#Bottle) [Vessel](#Vessel) images.
-
 ## Recovery
 
 - **Lost OAuth credentials**: Download a fresh JSON key from Google Cloud Console and re-run the [Payor](#Payor) installation
@@ -254,40 +228,50 @@ rbev-vessels/
 - **Lost [Nameplate](#Nameplate) values**: Re-[Tally](#Tally) [Hallmarks](#Hallmark) to retrieve values from the [Depot](#Depot) registry
 - **Build timeout or failure**: [Tally](#Tally) to check build status, review logs in the GCP Console for the [Depot](#Depot) project
 
-## Architecture
-
-```
-Project Root/
-├── .buk/                    # BUK launcher directory + BURC config
-├── .rbk/                    # Recipe Bottle config regimes
-├── tt/                      # TabTargets — all CLI commands live here
-├── Tools/
-│   ├── buk/                 # Bash Utility Kit (portable CLI infrastructure)
-│   └── rbk/                 # Recipe Bottle Kit (domain logic)
-└── rbev-vessels/            # Vessel definitions (Dockerfile + rbrv.env per vessel)
-```
-
 ## Claude Code
 
 If you use [Claude Code](https://claude.com/claude-code), the project includes a `CLAUDE.md` with a full command reference table, glossary, and conventions for AI-assisted development.
 
-## Appendix: Specific Regimes
+## Appendix: Reference Project
 
-<a id="BURC"></a>**[BURC](#BURC)** — Project structure configuration, in the repo. [Tabtarget](#Tabtarget) directory, tools directory.
+This repository is the reference implementation of Recipe Bottle. The annotated tree below maps its files to the concepts defined above.
 
-<a id="BURS"></a>**[BURS](#BURS)** — Developer workstation configuration. Not in git. Log directory, station paths.
+`Project Root/                            `\
+`├── tt/                                  ` 136 [Tabtargets](#Tabtarget) — `tt/rbw-<TAB>` for all operations\
+`├── Tools/                               `\
+`│   ├── buk/                             ` Bash Utility Kit — portable CLI infrastructure\
+`│   └── rbk/                             ` Recipe Bottle Kit — domain logic\
+`├── .buk/                                ` <a id="BURC"></a>[BURC](#BURC) project structure [Regime](#Regime)\
+`├── .rbk/                                ` [Regime](#Regime) configuration root\
+`│   ├── rbrp.env                         ` <a id="RBRP"></a>[RBRP](#RBRP) — [Payor](#Payor) identity for this [Depot](#Depot)\
+`│   ├── rbrr.env                         ` <a id="RBRR"></a>[RBRR](#RBRR) — [Depot](#Depot) identity and build configuration\
+`│   ├── tadmor/                          ` [Nameplate](#Nameplate) — adversarial testing [Crucible](#Crucible)\
+`│   │   └── rbrn.env                     ` <a id="RBRN"></a>[RBRN](#RBRN) — [Sentry](#Sentry) + [Ifrit](#Ifrit), restrictive allowlist\
+`│   ├── srjcl/                           ` [Nameplate](#Nameplate) — Jupyter notebook [Crucible](#Crucible)\
+`│   │   └── rbrn.env                     ` [RBRN](#RBRN) — [Sentry](#Sentry) + Jupyter, academic-domain allowlist\
+`│   └── pluml/                           ` [Nameplate](#Nameplate) — PlantUML diagram server [Crucible](#Crucible)\
+`│       └── rbrn.env                     ` [RBRN](#RBRN) — [Sentry](#Sentry) + PlantUML, no-egress allowlist\
+`└── rbev-vessels/                        ` [Vessel](#Vessel) definitions\
+`    ├── rbev-sentry-debian-slim/         ` [Conjure](#Conjure) — the [Sentry](#Sentry)/[Pentacle](#Pentacle) image\
+`    │   ├── Dockerfile                   ` debian-slim + iptables + dnsmasq\
+`    │   ├── rbjs_sentry.sh              ` [Sentry](#Sentry) runtime — policy engine\
+`    │   ├── rbjp_pentacle.sh            ` [Pentacle](#Pentacle) runtime — namespace setup\
+`    │   └── rbrv.env                     ` <a id="RBRV"></a>[RBRV](#RBRV) — [Conjure](#Conjure) mode\
+`    ├── rbev-bottle-ifrit/               ` [Conjure](#Conjure) — [Ifrit](#Ifrit) attack binary\
+`    │   ├── Dockerfile                   ` Rust binary + scapy + strace\
+`    │   └── rbrv.env                     ` [RBRV](#RBRV) — [Conjure](#Conjure) mode\
+`    ├── rbev-bottle-plantuml/            ` [Bind](#Bind) — upstream image pinned by digest\
+`    │   └── rbrv.env                     ` [RBRV](#RBRV) — [Bind](#Bind) mode, digest reference\
+`    ├── rbev-bottle-anthropic-jupyter/   ` [Conjure](#Conjure) — Jupyter notebook server\
+`    │   ├── Dockerfile                   `\
+`    │   └── rbrv.env                     ` [RBRV](#RBRV) — [Conjure](#Conjure) mode\
+`    └── (4 additional test vessels)      ` busybox variants for [Theurge](#Theurge) fixture coverage
 
-<a id="RBRR"></a>**[RBRR](#RBRR)** — [Depot](#Depot) identity and build configuration — populated during [Levy](#Levy), consumed by [Director](#Director) and [Retriever](#Retriever) operations.
+<a id="BURS"></a>**[BURS](#BURS)** — Developer workstation configuration ([Regime](#Regime)). Not in git. Log directory, station paths.
 
-<a id="RBRP"></a>**[RBRP](#RBRP)** — [Payor](#Payor) administrative identity — GCP project, billing account, OAuth client ID, operator email. In the repo.
+<a id="RBRO"></a>**[RBRO](#RBRO)** — [Payor](#Payor) OAuth credentials ([Regime](#Regime)) — client secret and refresh token. Not in the repo.
 
-<a id="RBRO"></a>**[RBRO](#RBRO)** — [Payor](#Payor) OAuth credentials — client secret and refresh token. Not in the repo.
-
-<a id="RBRA"></a>**[RBRA](#RBRA)** — Role credentials resident on user workstation, enabling [Governor](#Governor), [Director](#Director), or [Retriever](#Retriever) operations. One credential file per role per [Depot](#Depot).
-
-<a id="RBRV"></a>**[RBRV](#RBRV)** — [Vessel](#Vessel) configuration specifying [Bind](#Bind), [Conjure](#Conjure), or [Graft](#Graft) mode for creating [Hallmarks](#Hallmark).
-
-<a id="RBRN"></a>**[RBRN](#RBRN)** — Per-[Nameplate](#Nameplate) [Crucible](#Crucible) configuration mapping two [Vessels](#Vessel) — [Sentry](#Sentry) and [Bottle](#Bottle) — with runtime and [Hallmark](#Hallmark) assignments.
+<a id="RBRA"></a>**[RBRA](#RBRA)** — Role credentials ([Regime](#Regime)) resident on user workstation, enabling [Governor](#Governor), [Director](#Director), or [Retriever](#Retriever) operations. One credential file per role per [Depot](#Depot).
 
 ## License
 
