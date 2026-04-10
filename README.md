@@ -245,25 +245,6 @@ rbev-vessels/
 
 [Charging](#Charge) `tadmor` starts the [Crucible](#Crucible) defined by the `tadmor` [Nameplate](#Nameplate), which selects its [Sentry](#Sentry) and [Bottle](#Bottle) [Vessel](#Vessel) images.
 
-## Credential Safety
-
-All credential files require `600` permissions and must never be committed to version control.
-
-| Credential | Location | Created during |
-|------------|----------|----------------|
-| [Payor](#Payor) OAuth | `~/.rbw/rbro.env` | [Payor](#Payor) installation |
-| [Governor](#Governor) | `RBRR_SECRETS_DIR/governor/rbra.env` | [Governor](#Governor) mantling |
-| [Director](#Director) | `RBRR_SECRETS_DIR/director/rbra.env` | [Director](#Director) [Knighting](#Knight) |
-| [Retriever](#Retriever) | `RBRR_SECRETS_DIR/retriever/rbra.env` | [Retriever](#Retriever) [Chartering](#Charter) |
-
-Each credential file is scoped to one role within one [Depot](#Depot) and cannot operate outside its designation.
-
-## Testing
-
-Run test fixtures sequentially — they share regime state and container namespaces. Never run fixtures in parallel.
-
-Two qualification gates exercise the full system: a fast qualify checks [Tabtarget](#Tabtarget) structure, colophon integrity, and [Nameplate](#Nameplate) health; a release qualify adds shellcheck analysis and the complete test suite.
-
 ## Recovery
 
 - **Lost OAuth credentials**: Download a fresh JSON key from Google Cloud Console and re-run the [Payor](#Payor) installation
