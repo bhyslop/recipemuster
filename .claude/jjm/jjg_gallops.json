@@ -688,9 +688,10 @@
         "₢A9AAF",
         "₢A9AAG",
         "₢A9AAH",
-        "₢A9AAI"
+        "₢A9AAI",
+        "₢A9AAJ"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_uAl9.md",
       "paces": {
         "₢A9AAA": {
@@ -887,6 +888,17 @@
               "text": "## Character\n\nMechanical data engineering. Replace LLM-approximated dictionary files with real public-domain data via download-and-transform script. Quality improvement, not functional change — the detection engine already works with current files.\n\n## Deliverables\n\n**Dictionary acquisition command (via `apcc_cli.sh` or dedicated tabtarget):**\n- Shell script that downloads and transforms public-domain sources into dictionary files\n- Surnames: Census 2010 `Names_2010Census.csv` → top N by frequency, lowercase, sorted\n- First names: SSA baby names (national data) → top N by cumulative frequency across decades, lowercase, sorted\n- Cities: Census gazetteer or equivalent → state capitals + top 100 cities, lowercase, sorted\n- English whitelist: established word frequency list (e.g., `google-10000-english` or similar) → top 5000+, lowercase, sorted\n- Medical whitelist: untouched (LLM-curated, clinical judgment required)\n- Output replaces files in `apcd/dictionaries/`. Idempotent — safe to re-run.\n- Document source URLs and licenses in a comment header or companion README\n\n## Verification\n\n- Run the script — dictionary files regenerated from real sources\n- File format unchanged (one-per-line, lowercase, sorted, no duplicates)\n- Existing unit tests still pass with new dictionary content\n- Spot-check: Census top 10 surnames present, SSA top 10 first names present",
               "silks": "dictionary-deepen-from-sources",
               "commit": "f3382f9"
+            }
+          ]
+        },
+        "₢A9AAJ": {
+          "tacks": [
+            {
+              "ts": "260410-1558",
+              "state": "rough",
+              "text": "## Character\n\nExecution and debugging. Run the dictionary refresh script drafted in the prior pace, verify output format, fix any download/transform issues, confirm unit tests pass with new dictionary content.\n\n## Deliverables\n\n- Run the dictionary refresh script from the prior pace\n- Debug any download failures (SSA bot protection, URL changes, CSV format surprises)\n- Verify output files: one-per-line, lowercase, sorted, no duplicates, no trailing blank lines\n- Spot-check content: Census top 10 surnames present, SSA top 10 first names present, all 50 state capitals present\n- Run `tt/apcw-t.Test.sh` — existing unit tests pass with new dictionary content\n- Fix any test failures caused by dictionary content changes (updated expected values, new collisions, etc.)\n- Notch the final working dictionary files\n\n## Verification\n\n- Dictionary files regenerated from real sources, committed\n- `tt/apcw-t.Test.sh` passes clean\n- Script is confirmed idempotent (second run produces identical output)",
+              "silks": "dictionary-run-and-debug",
+              "commit": "38a3edc"
             }
           ]
         }
