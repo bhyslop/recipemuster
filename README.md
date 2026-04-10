@@ -1,6 +1,9 @@
 # Recipe Bottle
 
-Recipe Bottle helps you produce container images across three supply-chain modes — egress-locked Cloud Build from source, digest-pinned upstream mirrors, and local pushes — and run untrusted containers inside a [Crucible](#Crucible) that enforces network isolation without touching the workload. A developer can adopt either domain alone; the two are designed to compose, not to depend on each other.
+Recipe Bottle provides two independent container image capabilities:
+
+- **Remote**: orchestrate Google Cloud Build to produce images in egress-locked environments with full supply-chain provenance
+- **Local**: run untrusted containers behind enforced network isolation — DNS filtering and IP filtering — without modifying the workload image
 
 > [!IMPORTANT]
 > **Early-stage project — security review welcome**
