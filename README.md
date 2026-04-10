@@ -6,11 +6,13 @@ Recipe Bottle provides two independent container image capabilities:
 - **Local**: run untrusted containers behind enforced network isolation — DNS filtering and IP filtering — without modifying the workload image
 
 > [!IMPORTANT]
-> **Early-stage project — security review welcome**
+> **Early-stage project — security review welcome in both domains**
 >
-> Builds use SLSA provenance attestation, digest-pinned toolchains, and upstream base images mirrored into a project-owned registry. The [Bottle](#Bottle) runs unprivileged in a network namespace created by the [Pentacle](#Pentacle), so all traffic necessarily flows through a [Sentry](#Sentry) enforcing dual-layer egress policy (DNS filtering + IP filtering). Credentials use least-privilege scoping; no secrets are stored in version control.
+> The egress-locked Cloud Build configuration — including the SLSA attestation chain, build isolation, and digest-pinned toolchains — has not yet had broad independent review.
 >
-> This architecture is deliberate, but it has not yet had broad independent review — particularly the runtime containment (iptables rules, privileged namespace setup, network isolation enforcement). If you evaluate or deploy this, you are contributing to its hardening. Security-focused contributors and responsible disclosure are especially valued.
+> The [Crucible](#Crucible) runtime containment — a multi-container apparatus where the workload runs unprivileged in a network namespace it does not control — has also not had broad review, particularly the iptables rules, privileged namespace setup, and network isolation enforcement.
+>
+> If you evaluate or deploy this, you are contributing to its hardening. Security-focused contributors and responsible disclosure are especially valued.
 
 Recipe Bottle is a set of bash scripts designed for incorporation into arbitrary projects. The dependency footprint is deliberately narrow — `bash 3.2` and a handful of standard tools — with no Python runtime, no language-specific package manager, and no `gcloud` CLI. A small team can stand up a hardened build pipeline and a sandboxed runtime without specialized DevOps expertise.
 
