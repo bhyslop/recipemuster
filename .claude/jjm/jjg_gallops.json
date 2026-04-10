@@ -686,9 +686,10 @@
         "₢A9AAD",
         "₢A9AAE",
         "₢A9AAF",
-        "₢A9AAG"
+        "₢A9AAG",
+        "₢A9AAH"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_uAl9.md",
       "paces": {
         "₢A9AAA": {
@@ -765,6 +766,17 @@
               "text": "## Character\n\nPipeline completion. Wire the \"Copy Anonymized\" button to produce clean text from the triage state.\n\n## Deliverables\n\n- `apcre_engine.rs` updated: generate anonymized plain text from classified token stream respecting current ELIDE/PASS state\n- Category-specific placeholders: `[NAME]`, `[DATE]`, `[MRN]`, `[PHONE]`, `[ADDRESS]`, `[EMAIL]`, `[SSN]`, `[FACILITY]`, `[PROVIDER]`, `[ACCOUNT]`, `[ENCOUNTER_ID]`\n- DOB→age transform: dates labeled as DOB emit `Age: NN` instead of `[DATE]`\n- PASS items: emit original text unchanged\n- ELIDE items: emit placeholder for their PHI category\n- Preserve line breaks and section structure from parsed output — plain text should be readable, not a wall\n- Tauri IPC command: `copy_anonymized` — takes current toggle state from frontend, generates clean text, writes to clipboard via `arboard::set_text()`\n- Frontend: \"Copy Anonymized to Clipboard\" button at bottom of window, calls `copy_anonymized`\n\n## Verification\n\nLoad fixture → triage view appears → toggle a few yellow items to PASS → click \"Copy Anonymized\" → paste into a text editor. Verify: all RED items replaced with category placeholders, DOB replaced with computed age, toggled PASS items preserved as original text, section structure readable, no PHI leaks. Text should be suitable for pasting into Open Evidence.",
               "silks": "anonymized-output",
               "commit": "7a9d3a8"
+            }
+          ]
+        },
+        "₢A9AAH": {
+          "tacks": [
+            {
+              "ts": "260410-1329",
+              "state": "rough",
+              "text": "## Character\n\nInfrastructure and platform integration. Two independent pieces: self-update mechanism in the app, and the deploy tabtarget that ships to Ann's machine.\n\n## Deliverables\n\n**Self-update (`apcd/src/apcru_update.rs`):**\n- Watch `/Users/Shared/apcua/` using `notify` crate (FSEvents on macOS)\n- On new `.app` bundle detected: copy over current app bundle, spawn `open -n` on new path, exit current process\n- No confirmation dialog — fully automatic\n- Graceful handling: if watch directory doesn't exist, create it silently and keep watching\n- Run watcher on a background thread, independent of main Tauri event loop\n\n**Deploy tabtarget (`tt/apcw-d.Deploy.sh`):**\n- `cargo tauri build` (release)\n- `scp` the `.app` bundle to `anns-macbook-air:/Users/Shared/apcua/`\n- Report success with bundle size and path\n\n**Integration:**\n- Wire `apcru_update` into `apcap_main.rs` — start watcher on app launch\n- Update `apck-claude-context.md` with deploy workflow documentation\n\n## Verification\n\n1. Build and run app locally. Confirm watcher starts (log message).\n2. Copy a dummy `.app` to `/Users/Shared/apcua/` — app detects it (may not self-replace locally since paths differ, but detection fires).\n3. `tt/apcw-d.Deploy.sh` completes: bundle appears on Ann's machine at `/Users/Shared/apcua/`.\n4. End-to-end: Ann launches app, we deploy an update, app auto-restarts with new version.",
+              "silks": "self-update-deploy",
+              "commit": "d681de3"
             }
           ]
         }
