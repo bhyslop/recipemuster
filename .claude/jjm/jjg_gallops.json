@@ -680,9 +680,10 @@
       "creation_time": "260410",
       "status": "stabled",
       "order": [
-        "₢A9AAA"
+        "₢A9AAA",
+        "₢A9AAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_uAl9.md",
       "paces": {
         "₢A9AAA": {
@@ -693,6 +694,17 @@
               "text": "## Character\n\nSynthesis and writing. Distill the design conversation into two complementary documents with different audiences and lifespans.\n\n## Deliverables\n\n**APCS-Specification.md (Product Spec):**\n- Full UX plan: focus-to-consume workflow, three-category triage (red/yellow/grey), findings panel with ELIDE/PASS toggles, \"Copy Anonymized\" button, DOB→age transform\n- Self-update behavior description (user-facing: app updates itself silently)\n- Deployment model (scp to shared directory, Ann launches independently)\n- Target platforms (macOS first, Windows planned)\n- Open Evidence context and HIPAA Safe Harbor motivation\n- Pipeline/detection section: deliberately blank, marked with note pointing to APCPS as the living engineering document\n- Redistribution considerations (public domain dictionaries, SNOMED/NLM deferred)\n\n**APCPS-PrototypeSpecification.md (Prototype Spec):**\n- Full three-tier detection pipeline: regex → label-anchored → dictionary\n- Tier 1 regex patterns enumerated (SSN, phone, date, email, address, zip, labeled identifiers)\n- Tier 2 Epic label vocabulary (Patient:, Attending:, Facility:, etc.)\n- Tier 3 dictionary strategy: blacklist/whitelist, collision resolution, curated-small sizing\n- Anonymization strategy: category-specific placeholders, DOB→age transform, plain text output\n- Tech stack with crate choices and rationale\n- Project structure with full file tree and prefix tree\n- Scope boundaries: no persistence, one patient, no configuration, no click-to-highlight\n- NO UX plan (lives in APCS only)\n\n## Approach\n\nRead the paddock thoroughly — it captures the full design conversation. Translate into spec prose. Ensure both documents cross-reference each other at their boundary.",
               "silks": "write-specifications",
               "commit": "d976d8c"
+            }
+          ]
+        },
+        "₢A9AAB": {
+          "tacks": [
+            {
+              "ts": "260410-1327",
+              "state": "rough",
+              "text": "## Character\n\nMechanical with minting attention. Create every file and directory, wire BUK dispatch, get first Tauri window on screen.\n\n## Deliverables\n\n- `Tools/apck/` directory with full tree per paddock\n- `apcw_workbench.sh` — routes `apcw-*` commands\n- `apcz_zipper.sh` — enrolls colophons with BUK dispatch\n- `apck-claude-context.md` — build, run, deploy instructions; references RCG as Rust coding guide\n- `apcd/Cargo.toml` — two `[[bin]]` targets: `apcap` (Tauri app), `apcal` (fixture loader)\n- `apcd/src/apcap_main.rs` — Tauri entry point, launches window with static \"Hello from APCK\" text\n- `apcd/src/lib.rs` — module declarations (empty stubs for engine modules)\n- `apcd/ui/index.html`, `style.css`, `app.js` — minimal Tauri frontend\n- Tabtargets: `tt/apcw-b.Build.sh`, `tt/apcw-r.Run.sh`, `tt/apcw-d.Deploy.sh`, `tt/apcw-fl.FixtureLoad.sh`\n- `test_fixtures/` directory (empty, ready for next pace)\n- `apcd/dictionaries/` directory (empty, ready for later pace)\n- Tauri config (`tauri.conf.json` or Cargo-based Tauri 2.x config)\n\n## Verification\n\n`tt/apcw-r.Run.sh` launches a Tauri window displaying static text. `tt/apcw-b.Build.sh` produces a `.app` bundle.",
+              "silks": "scaffold-hello-world",
+              "commit": "0c096c4"
             }
           ]
         }
