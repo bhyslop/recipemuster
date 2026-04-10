@@ -42,6 +42,8 @@ The facility where container images are built and stored — a GCP project with 
 
 <a id="Levy"></a>**[Levy](#Levy)** — Provision a new [Depot's](#Depot) GCP infrastructure. [Levying](#Levy) creates the GCP project, artifact registry, storage bucket, and build configuration. This is a [Payor](#Payor) operation that binds [Regime](#Regime) configuration to real cloud resources.
 
+<a id="Unmake"></a>**[Unmake](#Unmake)** — Permanently destroy a [Depot's](#Depot) GCP infrastructure — project, artifact registry, storage bucket, and all contents. [Unmaking](#Unmake) is the reverse of [Levying](#Levy). This is a [Payor](#Payor) operation and is irreversible.
+
 Each [Depot](#Depot) operates in one of two build egress profiles:
 
 - <a id="Tethered"></a>**[Tethered](#Tethered)** — Build egress mode allowing public internet access during Cloud Build. [Tethered](#Tethered) builds pull base images from upstream registries at build time — simpler to set up, but dependent on upstream availability. Compare with [Airgap](#Airgap).
@@ -60,11 +62,13 @@ Administers a [Depot](#Depot): creates service accounts, manages access. The [Go
 
 ### <a id="Director"></a>Director
 
-Builds and publishes [Vessel](#Vessel) images into a [Depot](#Depot). Each [Director](#Director) credential is scoped to one [Depot](#Depot). The [Director](#Director) manages the image lifecycle through three operations:
+Builds and publishes [Vessel](#Vessel) images into a [Depot](#Depot). Each [Director](#Director) credential is scoped to one [Depot](#Depot). The [Director](#Director) manages the image lifecycle through five operations:
 
 - <a id="Ordain"></a>**[Ordain](#Ordain)** — Create a [Hallmark](#Hallmark) with full attestation — the production build operation. [Ordaining](#Ordain) is mode-aware: it [Conjures](#Conjure), [Binds](#Bind), or [Grafts](#Graft) depending on the [Vessel's](#Vessel) configuration. Each [Ordain](#Ordain) produces an image in the [Depot](#Depot) registry with associated provenance metadata.
 - <a id="Tally"></a>**[Tally](#Tally)** — Inventory [Hallmarks](#Hallmark) in the [Depot](#Depot) registry by health status. [Tallying](#Tally) shows which builds succeeded, which are pending, and which failed. The [Director](#Director) [Tallies](#Tally) before [Vouching](#Vouch) to confirm build completion.
 - <a id="Vouch"></a>**[Vouch](#Vouch)** — Cryptographic attestation proving a [Hallmark](#Hallmark) was built by trusted infrastructure. The [Vouch](#Vouch) verdict is mode-aware: [Conjure](#Conjure) builds receive full SLSA provenance verification, [Bind](#Bind) builds receive digest-pin verification, and [Graft](#Graft) builds receive a GRAFTED verdict with no provenance chain. The [Director](#Director) [Vouches](#Vouch) [Hallmarks](#Hallmark) after [Tallying](#Tally) their build status.
+- <a id="Abjure"></a>**[Abjure](#Abjure)** — Remove a [Hallmark's](#Hallmark) artifacts from the [Depot's](#Depot) registry — the `-image`, `-about`, and `-vouch` tags deleted as a coherent unit. [Abjuring](#Abjure) is the reverse of [Ordaining](#Ordain): it formally renounces a build instance. The [Director](#Director) [Abjures](#Abjure) [Hallmarks](#Hallmark) that are superseded, broken, or no longer needed.
+- <a id="Jettison"></a>**[Jettison](#Jettison)** — Delete a specific image tag from the [Depot's](#Depot) registry. [Jettisoning](#Jettison) is lower-level than [Abjure](#Abjure) — it removes a single tag rather than a complete [Hallmark](#Hallmark) artifact set. Used for cleanup of individual registry entries.
 
 ### <a id="Retriever"></a>Retriever
 
