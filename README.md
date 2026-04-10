@@ -241,12 +241,12 @@ This repository is the reference implementation of Recipe Bottle. The annotated 
 `├── Tools/                               `\
 `│   ├── buk/                             ` Bash Utility Kit — portable CLI infrastructure\
 `│   └── rbk/                             ` Recipe Bottle Kit — domain logic\
-`├── .buk/                                ` <a id="BURC"></a>[BURC](#BURC) project structure [Regime](#Regime)\
+`├── .buk/                                ` [BURC](#BURC) project structure [Regime](#Regime)\
 `├── .rbk/                                ` [Regime](#Regime) configuration root\
-`│   ├── rbrp.env                         ` <a id="RBRP"></a>[RBRP](#RBRP) — [Payor](#Payor) identity for this [Depot](#Depot)\
-`│   ├── rbrr.env                         ` <a id="RBRR"></a>[RBRR](#RBRR) — [Depot](#Depot) identity and build configuration\
+`│   ├── rbrp.env                         ` [RBRP](#RBRP) — [Payor](#Payor) identity for this [Depot](#Depot)\
+`│   ├── rbrr.env                         ` [RBRR](#RBRR) — [Depot](#Depot) identity and build configuration\
 `│   ├── tadmor/                          ` [Nameplate](#Nameplate) — adversarial testing [Crucible](#Crucible)\
-`│   │   └── rbrn.env                     ` <a id="RBRN"></a>[RBRN](#RBRN) — [Sentry](#Sentry) + [Ifrit](#Ifrit), restrictive allowlist\
+`│   │   └── rbrn.env                     ` [RBRN](#RBRN) — [Sentry](#Sentry) + [Ifrit](#Ifrit), restrictive allowlist\
 `│   ├── srjcl/                           ` [Nameplate](#Nameplate) — Jupyter notebook [Crucible](#Crucible)\
 `│   │   └── rbrn.env                     ` [RBRN](#RBRN) — [Sentry](#Sentry) + Jupyter, academic-domain allowlist\
 `│   └── pluml/                           ` [Nameplate](#Nameplate) — PlantUML diagram server [Crucible](#Crucible)\
@@ -254,9 +254,9 @@ This repository is the reference implementation of Recipe Bottle. The annotated 
 `└── rbev-vessels/                        ` [Vessel](#Vessel) definitions\
 `    ├── rbev-sentry-debian-slim/         ` [Conjure](#Conjure) — the [Sentry](#Sentry)/[Pentacle](#Pentacle) image\
 `    │   ├── Dockerfile                   ` debian-slim + iptables + dnsmasq\
-`    │   ├── rbjs_sentry.sh              ` [Sentry](#Sentry) runtime — policy engine\
-`    │   ├── rbjp_pentacle.sh            ` [Pentacle](#Pentacle) runtime — namespace setup\
-`    │   └── rbrv.env                     ` <a id="RBRV"></a>[RBRV](#RBRV) — [Conjure](#Conjure) mode\
+`    │   ├── rbjs_sentry.sh               ` [Sentry](#Sentry) runtime — policy engine\
+`    │   ├── rbjp_pentacle.sh             ` [Pentacle](#Pentacle) runtime — namespace setup\
+`    │   └── rbrv.env                     ` [RBRV](#RBRV) — [Conjure](#Conjure) mode\
 `    ├── rbev-bottle-ifrit/               ` [Conjure](#Conjure) — [Ifrit](#Ifrit) attack binary\
 `    │   ├── Dockerfile                   ` Rust binary + scapy + strace\
 `    │   └── rbrv.env                     ` [RBRV](#RBRV) — [Conjure](#Conjure) mode\
@@ -267,11 +267,23 @@ This repository is the reference implementation of Recipe Bottle. The annotated 
 `    │   └── rbrv.env                     ` [RBRV](#RBRV) — [Conjure](#Conjure) mode\
 `    └── (4 additional test vessels)      ` busybox variants for [Theurge](#Theurge) fixture coverage
 
-<a id="BURS"></a>**[BURS](#BURS)** — Developer workstation configuration ([Regime](#Regime)). Not in git. Log directory, station paths.
+## Appendix: Specific Regimes
 
-<a id="RBRO"></a>**[RBRO](#RBRO)** — [Payor](#Payor) OAuth credentials ([Regime](#Regime)) — client secret and refresh token. Not in the repo.
+<a id="BURC"></a>**[BURC](#BURC)** — Project structure configuration, in the repo. [Tabtarget](#Tabtarget) directory, tools directory.
 
-<a id="RBRA"></a>**[RBRA](#RBRA)** — Role credentials ([Regime](#Regime)) resident on user workstation, enabling [Governor](#Governor), [Director](#Director), or [Retriever](#Retriever) operations. One credential file per role per [Depot](#Depot).
+<a id="BURS"></a>**[BURS](#BURS)** — Developer workstation configuration. Not in git. Log directory, station paths.
+
+<a id="RBRR"></a>**[RBRR](#RBRR)** — [Depot](#Depot) identity and build configuration — populated during [Levy](#Levy), consumed by [Director](#Director) and [Retriever](#Retriever) operations.
+
+<a id="RBRP"></a>**[RBRP](#RBRP)** — [Payor](#Payor) administrative identity — GCP project, billing account, OAuth client ID, operator email. In the repo.
+
+<a id="RBRO"></a>**[RBRO](#RBRO)** — [Payor](#Payor) OAuth credentials — client secret and refresh token. Not in the repo.
+
+<a id="RBRA"></a>**[RBRA](#RBRA)** — Role credentials resident on user workstation, enabling [Governor](#Governor), [Director](#Director), or [Retriever](#Retriever) operations. One credential file per role per [Depot](#Depot).
+
+<a id="RBRV"></a>**[RBRV](#RBRV)** — [Vessel](#Vessel) configuration specifying [Bind](#Bind), [Conjure](#Conjure), or [Graft](#Graft) mode for creating [Hallmarks](#Hallmark).
+
+<a id="RBRN"></a>**[RBRN](#RBRN)** — Per-[Nameplate](#Nameplate) [Crucible](#Crucible) configuration mapping two [Vessels](#Vessel) — [Sentry](#Sentry) and [Bottle](#Bottle) — with runtime and [Hallmark](#Hallmark) assignments.
 
 ## License
 
