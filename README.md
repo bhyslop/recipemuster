@@ -194,11 +194,17 @@ The escape tests were developed through adversarial Claude Code sessions with fu
 
 ## Project Direction
 
-**[Foundry](#Foundry).** Egress lockdown is implemented via a dual-pool Cloud Build architecture. VPC Service Controls and cosign signing are evaluated and deferred until organizational policy or external distribution triggers them.
+The following features are not yet implemented but are under consideration:
 
-**Runtime.** Docker on Linux is the first-class runtime; rootless Podman and macOS-native workflows are deferred pending user demand. One known weakness: when allowed domains are CDN-hosted (e.g. Cloudflare), the [Sentry's](#Sentry) CIDR allowlist becomes coarse — DNS-level gating remains precise, but IP-level gating is porous across shared CDN ranges.
+- **VPC Service Controls** - Google Cloud security perimeters that prevent data from being copied out of a project even if an attacker holds valid credentials. Recipe Bottle's Cloud Build architecture uses private pools, which are the prerequisite for VPC enforcement; enabling the controls themselves is deferred until organizational policy or external distribution requires them.
 
-**Networking.** [Bottle](#Bottle)-to-[Bottle](#Bottle) communication is feasible under the current [Sentry](#Sentry) model but not implemented; waiting for a concrete use case.
+- **Cosign container signing** - Cryptographic image signatures independent of registry trust. Deferred alongside VPC Service Controls until external distribution triggers the need.
+
+- **CDN-aware IP gating** - When allowed domains are CDN-hosted (e.g. Cloudflare), the [Sentry's](#Sentry) CIDR allowlist becomes coarse: DNS-level gating remains precise, but IP-level gating is porous across shared CDN address ranges. A tighter mechanism is recognized but not yet designed.
+
+- **Podman support** - The spec accommodates Podman as an alternative container runtime, but support is deferred. On macOS, both Docker and Podman run Linux containers inside a hidden Linux VM — there is no native container runtime on Darwin. Podman support would require managing that VM's lifecycle within the customer's [Depot](#Depot), adding infrastructure complexity with no architectural advantage over Docker Desktop.
+
+- **[Crucible](#Crucible)-to-[Crucible](#Crucible) networking** - Under the current [Sentry](#Sentry) model, [Bottles](#Bottle) have no direct network path to each other; any inter-[Bottle](#Bottle) communication would route through their respective [Sentries](#Sentry). The plumbing is feasible but not implemented, pending a concrete use case.
 
 ## Prerequisites
 
