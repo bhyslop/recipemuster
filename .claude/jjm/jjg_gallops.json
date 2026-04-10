@@ -402,6 +402,7 @@
       "creation_time": "260410",
       "status": "racing",
       "order": [
+        "₢A8AAH",
         "₢A8AAG",
         "₢A8AAF",
         "₢A8AAE",
@@ -410,7 +411,7 @@
         "₢A8AAC",
         "₢A8AAD"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_uAl8.md",
       "paces": {
         "₢A8AAA": {
@@ -557,6 +558,17 @@
               "text": "## Character\n\nContinuation of ₢A5AAJ work. Same iterative structural editing posture — iterate until user signs off.\n\n## Docket\n\nContinuation of README structural editing from ₢A5AAJ (wrapped prematurely in ₣A5). The four original tasks landed; this pace carries any remaining iteration the user wants on the document's structure, section titles, intro flow, or content placement.\n\n### Iteration\n\nNo fixed endpoint. Iterate until user signs off. Do not auto-wrap.",
               "silks": "readme-structure-continued",
               "commit": "71f58e1"
+            }
+          ]
+        },
+        "₢A8AAH": {
+          "tacks": [
+            {
+              "ts": "260410-0809",
+              "state": "rough",
+              "text": "## Character\n\nNaming decision with spec-layer consequences. Design judgment on the quoin definition, then mechanical propagation across documents. The decision itself (Foundry as peer to Crucible) is settled; this pace is execution.\n\n## Docket\n\nElevate \"Foundry\" from code module name (`rbf_Foundry.sh`) to top-level concept — the umbrella term for Recipe Bottle's remote build orchestration system, peer to Crucible.\n\n### Tasks\n\n1. **Mint the quoin in RBS0.** Add mapping section entry, anchor, and definition for Foundry as the remote build orchestration apparatus. Category prefix TBD — likely `at_` (Core Architecture Terms) alongside `at_build_service`. Definition should name what Foundry encompasses: Depots, Vessels, Hallmarks, Rubrics, roles, egress-locked Cloud Build, SLSA provenance.\n\n2. **Update README.md.** Rename `## Supply Chain` → `## Foundry`. Add `### Foundry` glossary entry with anchor. Update the elevator pitch bullets to name Foundry. Update the Important blockquote if it references \"supply chain\" generically.\n\n3. **Audit RBSCO and other vov_veiled docs** for generic references to the build system that should now say Foundry. Check RBSHR, RBSGS, any spec that describes the build domain as a whole.\n\n4. **Verify cross-links.** Any `[Supply Chain]` or similar links in README should become `[Foundry](#Foundry)`.\n\n5. **Notch and present for review.** Do not auto-wrap.",
+              "silks": "foundry-quoin-elevation",
+              "commit": "8bc16e2"
             }
           ]
         }
