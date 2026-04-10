@@ -47,8 +47,17 @@ apcc_deploy() {
 }
 
 apcc_fixture_load() {
-  buc_step "Loading fixture HTML onto clipboard"
-  (cd "${ZAPCC_APCD_DIR}" && cargo run --bin apcal)
+  local z_folio="${BUZ_FOLIO:?fixture name required}"
+  local z_fixture_dir="${BASH_SOURCE[0]%/*}/test_fixtures"
+  local z_fixture_file
+  case "${z_folio}" in
+    progress)  z_fixture_file="${z_fixture_dir}/epic_progress_note.html" ;;
+    geriatric) z_fixture_file="${z_fixture_dir}/epic_geriatric_consult.html" ;;
+    *) buc_die "Unknown fixture: ${z_folio}" ;;
+  esac
+  test -f "${z_fixture_file}" || buc_die "Fixture file not found: ${z_fixture_file}"
+  buc_step "Loading fixture '${z_folio}' onto clipboard"
+  (cd "${ZAPCC_APCD_DIR}" && cargo run --bin apcal -- "${z_fixture_file}")
 }
 
 apcc_test() {

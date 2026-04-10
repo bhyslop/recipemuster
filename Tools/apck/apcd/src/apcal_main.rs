@@ -22,5 +22,20 @@
 // RCG output discipline: all emission via apcrl_*! — no direct println!/eprintln!
 
 fn main() {
-    apcd::apcrl_info_now!("fixture loader stub — not yet implemented");
+    let args: Vec<String> = std::env::args().collect();
+    if args.len() != 2 {
+        apcd::apcrl_fatal_now!("usage: apcal <fixture-file-path>");
+    }
+    let path = &args[1];
+
+    let html = std::fs::read_to_string(path)
+        .unwrap_or_else(|e| apcd::apcrl_fatal_now!("failed to read {}: {}", path, e));
+
+    let mut clipboard = arboard::Clipboard::new()
+        .unwrap_or_else(|e| apcd::apcrl_fatal_now!("failed to open clipboard: {}", e));
+
+    clipboard.set_html(&html, Some(&html))
+        .unwrap_or_else(|e| apcd::apcrl_fatal_now!("failed to set clipboard HTML: {}", e));
+
+    apcd::apcrl_info_now!("loaded {} onto clipboard as HTML ({} bytes)", path, html.len());
 }

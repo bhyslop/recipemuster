@@ -38,7 +38,7 @@ zapcz_kindle() {
   buz_enroll APCZ_BUILD          "apcw-b"  "apcc_cli.sh" "apcc_build"         ""  "cargo tauri build (release)"
   buz_enroll APCZ_RUN            "apcw-r"  "apcc_cli.sh" "apcc_run"           ""  "cargo tauri dev (local development)"
   buz_enroll APCZ_DEPLOY         "apcw-d"  "apcc_cli.sh" "apcc_deploy"        ""  "Build + scp to anns-macbook-air"
-  buz_enroll APCZ_FIXTURE_LOAD   "apcw-fl" "apcc_cli.sh" "apcc_fixture_load"  ""  "Run apcal to load fixture HTML onto clipboard"
+  buz_enroll APCZ_FIXTURE_LOAD   "apcw-fl" "apcc_cli.sh" "apcc_fixture_load"  "imprint"  "Run apcal to load fixture HTML onto clipboard"
   buz_enroll APCZ_TEST           "apcw-t"  "apcc_cli.sh" "apcc_test"          ""  "cargo test in apcd/"
 
   readonly ZAPCZ_KINDLED=1
