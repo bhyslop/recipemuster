@@ -689,9 +689,10 @@
         "₢A9AAG",
         "₢A9AAH",
         "₢A9AAI",
-        "₢A9AAJ"
+        "₢A9AAJ",
+        "₢A9AAK"
       ],
-      "next_pace_seed": "AAK",
+      "next_pace_seed": "AAL",
       "paddock_file": ".claude/jjm/jjp_uAl9.md",
       "paces": {
         "₢A9AAA": {
@@ -941,6 +942,17 @@
               "text": "## Character\n\nExecution and debugging. Run the dictionary refresh script drafted in the prior pace, verify output format, fix any download/transform issues, confirm unit tests pass with new dictionary content.\n\n## Deliverables\n\n- Run the dictionary refresh script from the prior pace\n- Debug any download failures (SSA bot protection, URL changes, CSV format surprises)\n- Verify output files: one-per-line, lowercase, sorted, no duplicates, no trailing blank lines\n- Spot-check content: Census top 10 surnames present, SSA top 10 first names present, all 50 state capitals present\n- Run `tt/apcw-t.Test.sh` — existing unit tests pass with new dictionary content\n- Fix any test failures caused by dictionary content changes (updated expected values, new collisions, etc.)\n- Notch the final working dictionary files\n\n## Verification\n\n- Dictionary files regenerated from real sources, committed\n- `tt/apcw-t.Test.sh` passes clean\n- Script is confirmed idempotent (second run produces identical output)",
               "silks": "dictionary-run-and-debug",
               "commit": "38a3edc"
+            }
+          ]
+        },
+        "₢A9AAK": {
+          "tacks": [
+            {
+              "ts": "260410-1625",
+              "state": "rough",
+              "text": "## Character\n\nGuided manual verification. No code changes expected — this is a structured test session using the two synthetic fixtures to confirm the full pipeline works end-to-end on the developer's machine. Debugging character: if something fails, diagnose and fix inline.\n\n## Prerequisites\n\n- App builds clean: `tt/apcw-b.Build.sh` or `cargo build` in apcd/\n- Two fixture loaders available: `tt/apcw-fl.FixtureLoad.progress.sh` and `tt/apcw-fl.FixtureLoad.geriatric.sh`\n\n## Walkthrough — Progress Note Fixture\n\n1. Run `tt/apcw-r.Run.sh` to launch the app\n2. Run `tt/apcw-fl.FixtureLoad.progress.sh` to load progress note HTML onto clipboard\n3. Switch to the app window — triage view should appear\n4. Confirm: RED findings include Patient (Margaret Thornton), Attending (Dr. Sarah Whitfield), DOB date, SSN, MRN, phone, email, address, URL\n5. Confirm: YELLOW findings include dictionary-matched names in narrative\n6. Confirm: DOB shows the date highlighted, not an age yet (age appears in anonymized output)\n7. Toggle two YELLOW items to PASS — confirm preview updates (grey styling)\n8. Toggle one RED item to PASS — confirm preview updates\n9. Click \"Copy Anonymized to Clipboard\" — button should show \"Copied!\"\n10. Paste into a text editor. Verify:\n    - Elided items show category placeholders: `[NAME]`, `[SSN]`, `[PHONE]`, `[EMAIL]`, `[ADDRESS]`, etc.\n    - DOB shows `Age: 74` (or appropriate computed age)\n    - Items toggled to PASS show original text\n    - Line breaks and section structure preserved — readable, not a wall\n    - No PHI leaks in elided regions\n\n## Walkthrough — Geriatric Consult Fixture\n\n1. Run `tt/apcw-fl.FixtureLoad.geriatric.sh` to load geriatric HTML onto clipboard\n2. Switch to app — triage view should refresh with new content\n3. Confirm: clinical content detected, findings populated\n4. Click \"Copy Anonymized to Clipboard\" with all defaults (everything elided)\n5. Paste and verify: all PHI replaced, structure preserved\n6. If geriatric fixture has a DOB for patient >89 years old, confirm `Age: 90+` appears\n\n## Edge Cases to Probe\n\n- Refocus without changing clipboard — should show \"unchanged\", triage preserved\n- Copy non-clinical text (e.g., \"hello world\") — should show non-clinical diagnostic, triage cleared\n- After non-clinical, click \"Copy Anonymized\" — should show error (no clinical data)\n- Refocus with original fixture again — full triage should reappear\n\n## Exit Criteria\n\nAll walkthrough steps pass on both fixtures. Any bugs found are fixed and notched inline before wrapping.",
+              "silks": "fixture-walkthrough-debug",
+              "commit": "c0ea14c"
             }
           ]
         }
