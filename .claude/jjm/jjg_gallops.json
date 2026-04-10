@@ -1388,11 +1388,23 @@
         "₢AUAAe",
         "₢AUAAn",
         "₢AUAAy",
-        "₢AUAAz"
+        "₢AUAAz",
+        "₢AUAA0"
       ],
-      "next_pace_seed": "AA0",
+      "next_pace_seed": "AA1",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
+        "₢AUAA0": {
+          "tacks": [
+            {
+              "ts": "260410-1021",
+              "state": "rough",
+              "text": "## Character\n\nMechanical refactoring with spec-level implications. Move RBRO storage from user home directory to RBRR_SECRETS_DIR alongside RBRA credentials.\n\n## Docket\n\nRBRO (Payor OAuth credentials — client secret and refresh token) currently lives at `~/.rbw/rbro.env`, separate from all other credentials which live under `RBRR_SECRETS_DIR`. Consolidate RBRO into `RBRR_SECRETS_DIR/payor/rbra.env` (or similar) so all role credentials follow the same pattern: one directory per role under the secrets directory.\n\n### Changes required\n\n- **RBS0-SpecTop.adoc**: Update `[[rbro_regime]]` definition and any references to `~/.rbw/rbro.env` location\n- **RBSRO-RegimeOauth.adoc**: Update regime file path specification\n- **README.md**: Update Credential Safety table (currently shows `~/.rbw/rbro.env`) and RBRO appendix entry\n- **Implementation files**: `rbgo_OAuth.sh`, `rbhp_payor.sh`, `rbho_onboarding.sh` — anywhere that reads/writes the RBRO path\n- **Regime sourcing**: Update `zrbro_kindle` / any path constants pointing at `~/.rbw/`\n\n### Rationale\n\nAll other credentials (Governor, Director, Retriever) already live under `RBRR_SECRETS_DIR/{role}/rbra.env`. RBRO being at `~/.rbw/` is a historical outlier. Consolidating simplifies the credential safety story: one directory to protect, one backup target, one permission audit scope.",
+              "silks": "relocate-rbro-to-secrets-dir",
+              "commit": "e3e0f32"
+            }
+          ]
+        },
         "₢AUAAA": {
           "tacks": [
             {
