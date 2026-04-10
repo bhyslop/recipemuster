@@ -2,13 +2,13 @@
 
 Recipe Bottle provides two independent container image capabilities:
 
-- **Remote**: orchestrate Google Cloud Build to produce images in egress-locked environments with full supply-chain provenance
-- **Local**: run untrusted containers behind enforced network isolation — DNS filtering and IP filtering — without modifying the workload image
+- **[Foundry](#Foundry)**: orchestrate Google Cloud Build to produce images in egress-locked environments with full supply-chain provenance
+- **[Crucible](#Crucible)**: run untrusted containers behind enforced network isolation — DNS filtering and IP filtering — without modifying the workload image
 
 > [!IMPORTANT]
 > **Early-stage project — security review welcome in both domains**
 >
-> The egress-locked Cloud Build configuration — including the SLSA attestation chain, build isolation, and digest-pinned toolchains — has not yet had broad independent review.
+> The [Foundry's](#Foundry) egress-locked Cloud Build configuration — including the SLSA attestation chain, build isolation, and digest-pinned toolchains — has not yet had broad independent review.
 >
 > The [Crucible](#Crucible) runtime containment — a multi-container apparatus where the workload runs unprivileged in a network namespace it does not control — has also not had broad review, particularly the iptables rules, privileged namespace setup, and network isolation enforcement.
 >
@@ -22,9 +22,13 @@ Recipe Bottle is a set of bash scripts designed for incorporation into arbitrary
   <img src="rbm-abstract-drawio.svg" alt="Recipe Bottle architecture diagram" width="720" />
 </p>
 
-## Supply Chain
+## Foundry
 
-Recipe Bottle orchestrates Google Cloud Build to produce container images with SLSA attestation, software bills of material, reproducible multi-architecture builds, and digest-pinned toolchains — so every image has a verifiable origin story. Builds run in an egress-locked configuration, drawing from upstream base images mirrored into a project-owned registry — a fixed, self-contained supply chain independent of third-party registry availability.
+The [Foundry](#Foundry) orchestrates Google Cloud Build to produce container images with SLSA attestation, software bills of material, reproducible multi-architecture builds, and digest-pinned toolchains — so every image has a verifiable origin story. Builds run in an egress-locked configuration, drawing from upstream base images mirrored into a project-owned registry — a fixed, self-contained supply chain independent of third-party registry availability.
+
+### <a id="Foundry"></a>Foundry
+
+Recipe Bottle's remote build orchestration system for producing, attesting, and distributing container images via Google Cloud Build and Google Artifact Registry. The [Foundry](#Foundry) encompasses [Depots](#Depot), [Vessels](#Vessel), [Hallmark](#Hallmark) tracking, and build definitions. Three [Vessel](#Vessel) modes determine how images enter the [Depot](#Depot): [Conjure](#Conjure) (egress-locked build from source with SLSA provenance), [Bind](#Bind) (digest-pinned upstream mirror), and [Graft](#Graft) (local push). Peer to [Crucible](#Crucible), which handles local runtime containment.
 
 ### <a id="Vessel"></a>Vessel
 
@@ -156,7 +160,7 @@ Stop and clean up a [Charged](#Charge) [Nameplate's](#Nameplate) containers. [Qu
 
 ## How It Works
 
-Recipe Bottle addresses two orthogonal complexity domains: building container images with verifiable provenance, and running untrusted images with enforced network isolation. The two tracks compose but neither requires the other.
+Recipe Bottle addresses two orthogonal complexity domains: the [Foundry](#Foundry) builds container images with verifiable provenance, and the [Crucible](#Crucible) runs untrusted images with enforced network isolation. The two compose but neither requires the other.
 
 ### Image Management
 
@@ -184,7 +188,7 @@ The [Sentry](#Sentry) applies two layers of egress policy: `dnsmasq` answers DNS
 
 ### Project Direction
 
-**Build pipeline.** Egress lockdown is implemented via a dual-pool Cloud Build architecture. VPC Service Controls and cosign signing are evaluated and deferred until organizational policy or external distribution triggers them.
+**[Foundry](#Foundry).** Egress lockdown is implemented via a dual-pool Cloud Build architecture. VPC Service Controls and cosign signing are evaluated and deferred until organizational policy or external distribution triggers them.
 
 **Runtime.** Docker on Linux is the first-class runtime; rootless Podman and macOS-native workflows are deferred pending user demand. One known weakness: when allowed domains are CDN-hosted (e.g. Cloudflare), the [Sentry's](#Sentry) CIDR allowlist becomes coarse — DNS-level gating remains precise, but IP-level gating is porous across shared CDN ranges.
 
