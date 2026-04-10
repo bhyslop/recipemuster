@@ -182,7 +182,7 @@ The [Crucible's](#Crucible) containment is validated through coordinated escape 
 
 The escape tests were developed through adversarial Claude Code sessions with full visibility into the [Sentry's](#Sentry) source, configuration, and the Recipe Bottle specification. The [Ifrit](#Ifrit) [Vessel](#Vessel) is the delivery vehicle; the intelligence came from the authoring process. Every test that passes is evidence the containment holds — not proof. The test suite grows as new attack surfaces are identified.
 
-## Project Direction
+## Appendix: Roadmap
 
 The following features are not yet implemented but are under consideration:
 
@@ -196,10 +196,6 @@ The following features are not yet implemented but are under consideration:
 
 - **[Crucible](#Crucible)-to-[Crucible](#Crucible) networking** - Under the current [Sentry](#Sentry) model, [Bottles](#Bottle) have no direct network path to each other; any inter-[Bottle](#Bottle) communication would route through their respective [Sentries](#Sentry). The plumbing is feasible but not implemented, pending a concrete use case.
 
-## Claude Code
-
-If you use [Claude Code](https://claude.com/claude-code), the project includes a `CLAUDE.md` with a full command reference table, glossary, and conventions for AI-assisted development.
-
 ## Appendix: Reference Project
 
 This repository is the reference implementation of Recipe Bottle. The annotated tree below maps its files to the concepts defined above.
@@ -207,6 +203,7 @@ This repository is the reference implementation of Recipe Bottle. The annotated 
 | Path | Description |
 |------|-------------|
 | `Project Root/` | |
+| `├── CLAUDE.md` | [Claude Code](https://claude.com/claude-code) command reference, glossary, conventions |
 | `├── tt/` | 136 [Tabtargets](#Tabtarget) — `tt/rbw-<TAB>` for all operations |
 | `├── Tools/` | |
 | `│   ├── buk/` | Bash Utility Kit — portable CLI infrastructure |
