@@ -7,13 +7,9 @@
 >
 > This architecture is deliberate, but it has not yet had broad independent review — particularly the runtime containment (iptables rules, privileged namespace setup, network isolation enforcement). If you evaluate or deploy this, you are contributing to its hardening. Security-focused contributors and responsible disclosure are especially valued.
 
-Recipe Bottle helps you build container images with rigorous supply-chain provenance, and run untrusted containers inside a [Crucible](#Crucible) that enforces network isolation without touching the workload.
+Recipe Bottle helps you build container images with rigorous supply-chain provenance, and run untrusted containers inside a [Crucible](#Crucible) that enforces network isolation without touching the workload. A developer can adopt either domain alone; the two are designed to compose, not to depend on each other.
 
-On the build side, Recipe Bottle orchestrates Google Cloud Build to produce images with SLSA attestation, software bills of material, reproducible multi-architecture builds, and digest-pinned toolchains — so every image has a verifiable origin story.
-
-On the runtime side, Recipe Bottle assembles a [Crucible](#Crucible) — three cooperating containers where a [Sentry](#Sentry) enforces network policy via `iptables` and `dnsmasq` — without requiring modifications to existing container images.
-
-The system uses only `bash`, `git`, `curl`, `openssh`, `jq`, `openssl`, and `docker` natively. No `gcloud` CLI is required on your workstation — cloud operations use REST APIs via `curl` and `jq`.
+Recipe Bottle is a set of bash scripts designed to be incorporated into arbitrary projects — via `git subtree`, `git subrepo`, `git submodule`, or simply by copying a few directories into place. The workstation floor is deliberately narrow: `bash 3.2`, `git`, `curl`, `openssh`, `jq`, `openssl`, and `docker`. There is no Python runtime, no language-specific package manager, no `gcloud` CLI on the workstation — Google Cloud operations run as REST calls over `curl` and `jq`. A small team can stand up a hardened build pipeline and a sandboxed runtime without specialized DevOps expertise.
 
 **Project page**: https://scaleinv.github.io/recipebottle
 
@@ -21,65 +17,29 @@ The system uses only `bash`, `git`, `curl`, `openssh`, `jq`, `openssl`, and `doc
   <img src="rbm-abstract-drawio.svg" alt="Recipe Bottle architecture diagram" width="720" />
 </p>
 
-Recipe Bottle treats two complexity domains as distinct, orthogonal concerns. The first is **image management**: producing container images from untrusted source with verifiable provenance. Builds run on Google Cloud Build in an egress-locked ("airgap") configuration using digest-pinned toolchains, produce SLSA attestations and SBOMs, and draw from upstream base images mirrored into a project-owned registry — so the build pipeline has a fixed, self-contained supply chain independent of third-party registry availability. The second domain is **[Crucible](#Crucible) orchestration**: running those images — or any unmodified third-party image — behind a security apparatus that enforces network policy without touching the workload. A developer can adopt either domain alone; the two are designed to compose, not to depend on each other.
+## Supply Chain
 
-The distinctive case Recipe Bottle addresses is *running untrusted code*: third-party tooling, experimental packages, binaries with uncertain provenance. Containers excel at packaging known applications, but running unvetted code poses security risks that ordinary container deployment does not solve. The [Bottle](#Bottle) container runs unmodified, in a network namespace prepared by a privileged [Pentacle](#Pentacle), with all egress flowing through a [Sentry](#Sentry) gateway configured via the mature tools `iptables` and `dnsmasq`.
-
-Recipe Bottle is a set of bash scripts designed to be incorporated into arbitrary projects — via `git subtree`, `git subrepo`, `git submodule`, or simply by copying a few directories into place. The workstation floor is deliberately narrow: `bash 3.2`, `git`, `curl`, `openssh`, `jq`, `openssl`, and `docker`. There is no Python runtime, no language-specific package manager, no `gcloud` CLI on the workstation — Google Cloud operations run as REST calls over `curl` and `jq`. A small team can stand up a hardened build pipeline and a sandboxed runtime without specialized DevOps expertise.
-
-## Key Concepts
+Recipe Bottle orchestrates Google Cloud Build to produce container images with SLSA attestation, software bills of material, reproducible multi-architecture builds, and digest-pinned toolchains — so every image has a verifiable origin story. Builds run in an egress-locked configuration, drawing from upstream base images mirrored into a project-owned registry — a fixed, self-contained supply chain independent of third-party registry availability.
 
 ### <a id="Vessel"></a>Vessel
 
 A specification for a container image — built from source ([Conjure](#Conjure)), mirrored from upstream ([Bind](#Bind)), or pushed from local ([Graft](#Graft)). Each [Vessel](#Vessel) is a directory under `rbev-vessels/` containing at minimum an `rbrv.env` configuration file; [Conjure](#Conjure) [Vessels](#Vessel) also include a Dockerfile. The [Vessel](#Vessel) mode determines how the [Director](#Director) [Ordains](#Ordain) its [Hallmark](#Hallmark).
 
-### <a id="Ark"></a>Ark
-
-An immutable container image artifact in the registry, produced from a [Vessel](#Vessel). Each [Ark](#Ark) is the concrete output of an [Ordain](#Ordain) operation — the image bytes stored in Google Artifact Registry. [Vouching](#Vouch) verifies that an [Ark](#Ark) was built by trusted infrastructure.
-
 ### <a id="Hallmark"></a>Hallmark
 
-A specific build instance of a [Vessel](#Vessel), identified by timestamp. [Hallmarks](#Hallmark) are the unit of provenance tracking — each one records when and how an [Ark](#Ark) was produced. [Hallmark](#Hallmark) values are recorded into [Nameplate](#Nameplate) regime files to pin a [Crucible](#Crucible) to specific image versions.
+A specific build instance of a [Vessel](#Vessel), identified by timestamp. [Hallmarks](#Hallmark) are the unit of provenance tracking — each one records when and how the image was produced. [Hallmark](#Hallmark) values are recorded into [Nameplate](#Nameplate) regime files to pin a [Crucible](#Crucible) to specific image versions.
 
 ### <a id="Vouch"></a>Vouch
 
-Cryptographic attestation proving an [Ark](#Ark) was built by trusted infrastructure. The [Vouch](#Vouch) verdict is mode-aware: [Conjure](#Conjure) builds receive full SLSA provenance verification, [Bind](#Bind) builds receive digest-pin verification, and [Graft](#Graft) builds receive a GRAFTED verdict with no provenance chain. The [Director](#Director) [Vouches](#Vouch) [Hallmarks](#Hallmark) after [Tallying](#Tally) their build status.
+Cryptographic attestation proving a [Hallmark](#Hallmark) was built by trusted infrastructure. The [Vouch](#Vouch) verdict is mode-aware: [Conjure](#Conjure) builds receive full SLSA provenance verification, [Bind](#Bind) builds receive digest-pin verification, and [Graft](#Graft) builds receive a GRAFTED verdict with no provenance chain. The [Director](#Director) [Vouches](#Vouch) [Hallmarks](#Hallmark) after [Tallying](#Tally) their build status.
 
 ### <a id="Depot"></a>Depot
 
 The facility where container images are built and stored — a GCP project with an artifact registry and a storage bucket. The [Payor](#Payor) [Levies](#Levy) a [Depot](#Depot), and the [Governor](#Governor) administers access to it. Each [Depot](#Depot) operates as an independent supply-chain boundary with its own credentials, builds, and registry.
 
-### <a id="Nameplate"></a>Nameplate
-
-Per-[Vessel](#Vessel) configuration tying a [Sentry](#Sentry) and [Bottle](#Bottle) together into a runnable [Crucible](#Crucible). The [Nameplate](#Nameplate) moniker (e.g. `tadmor`) identifies the unit across all operations. Each [Nameplate](#Nameplate) declares its [Vessel](#Vessel) selections, [Hallmark](#Hallmark) pins, and the network policy that the [Sentry](#Sentry) enforces.
-
-### <a id="Sentry"></a>Sentry
-
-Security container enforcing network policies via `iptables` and `dnsmasq`. The [Sentry](#Sentry) applies two layers of egress policy: DNS-level filtering (only allowed domain names resolve) and IP-level filtering (only allowed CIDR ranges pass). A compromised [Bottle](#Bottle) cannot bypass either layer — the [Sentry](#Sentry) is the sole gateway between the [Bottle](#Bottle) and the outside network.
-
-### <a id="Pentacle"></a>Pentacle
-
-Privileged container establishing the network namespace shared with the [Bottle](#Bottle). The [Pentacle](#Pentacle) runs briefly with elevated privileges to create the network topology, then remains as the namespace anchor. Security policies are enforced from the first packet because the [Sentry](#Sentry) configures the namespace before the [Bottle](#Bottle) starts.
-
-### <a id="Bottle"></a>Bottle
-
-Your workload container, running unmodified in a controlled network environment. The [Bottle](#Bottle) has no direct network access — all traffic routes through the [Sentry](#Sentry) gateway in a namespace prepared by the [Pentacle](#Pentacle). Any existing container image can run as a [Bottle](#Bottle) without modification.
-
-### <a id="Crucible"></a>Crucible
-
-The [Sentry](#Sentry)/[Pentacle](#Pentacle)/[Bottle](#Bottle) triad running together as one unit for a [Nameplate](#Nameplate). The [Crucible](#Crucible) is the local safety orchestration — the apparatus that makes running untrusted code practical. [Charging](#Charge) starts all three containers; [Quenching](#Quench) stops and cleans them up.
-
-### <a id="Charge"></a>Charge
-
-Start the [Sentry](#Sentry)/[Pentacle](#Pentacle)/[Bottle](#Bottle) triad for a [Nameplate](#Nameplate). [Charging](#Charge) brings up the [Crucible](#Crucible) in dependency order: [Pentacle](#Pentacle) creates the namespace, [Sentry](#Sentry) configures policy, then the [Bottle](#Bottle) starts with its network already constrained.
-
-### <a id="Quench"></a>Quench
-
-Stop and clean up a [Charged](#Charge) [Nameplate's](#Nameplate) containers. [Quenching](#Quench) tears down the [Crucible](#Crucible) in reverse order and removes the network resources created during [Charging](#Charge).
-
 ### <a id="Ordain"></a>Ordain
 
-Create a [Hallmark](#Hallmark) with full attestation — the production build operation. [Ordaining](#Ordain) is mode-aware: it [Conjures](#Conjure), [Binds](#Bind), or [Grafts](#Graft) depending on the [Vessel's](#Vessel) configuration. Each [Ordain](#Ordain) produces an [Ark](#Ark) in the registry with associated provenance metadata.
+Create a [Hallmark](#Hallmark) with full attestation — the production build operation. [Ordaining](#Ordain) is mode-aware: it [Conjures](#Conjure), [Binds](#Bind), or [Grafts](#Graft) depending on the [Vessel's](#Vessel) configuration. Each [Ordain](#Ordain) produces an image in the registry with associated provenance metadata.
 
 ### <a id="Conjure"></a>Conjure
 
@@ -141,6 +101,38 @@ Create a [Retriever](#Retriever) service account — a [Governor](#Governor) ope
 
 Create a [Director](#Director) service account — a [Governor](#Governor) operation. [Knighting](#Knight) provisions a new credential scoped to build and publish access within a single [Depot](#Depot).
 
+## Crucible
+
+The distinctive case Recipe Bottle addresses is *running untrusted code*: third-party tooling, experimental packages, binaries with uncertain provenance. Containers excel at packaging known applications, but running unvetted code poses security risks that ordinary container deployment does not solve. Recipe Bottle assembles a [Crucible](#Crucible) — three cooperating containers where a [Sentry](#Sentry) enforces network policy via `iptables` and `dnsmasq` — without requiring modifications to existing container images. The [Bottle](#Bottle) container runs unmodified, in a network namespace prepared by a privileged [Pentacle](#Pentacle), with all egress flowing through the [Sentry](#Sentry) gateway.
+
+### <a id="Nameplate"></a>Nameplate
+
+Per-[Vessel](#Vessel) configuration tying a [Sentry](#Sentry) and [Bottle](#Bottle) together into a runnable [Crucible](#Crucible). The [Nameplate](#Nameplate) moniker (e.g. `tadmor`) identifies the unit across all operations. Each [Nameplate](#Nameplate) declares its [Vessel](#Vessel) selections, [Hallmark](#Hallmark) pins, and the network policy that the [Sentry](#Sentry) enforces.
+
+### <a id="Sentry"></a>Sentry
+
+Security container enforcing network policies via `iptables` and `dnsmasq`. The [Sentry](#Sentry) applies two layers of egress policy: DNS-level filtering (only allowed domain names resolve) and IP-level filtering (only allowed CIDR ranges pass). A compromised [Bottle](#Bottle) cannot bypass either layer — the [Sentry](#Sentry) is the sole gateway between the [Bottle](#Bottle) and the outside network.
+
+### <a id="Pentacle"></a>Pentacle
+
+Privileged container establishing the network namespace shared with the [Bottle](#Bottle). The [Pentacle](#Pentacle) runs briefly with elevated privileges to create the network topology, then remains as the namespace anchor. Security policies are enforced from the first packet because the [Sentry](#Sentry) configures the namespace before the [Bottle](#Bottle) starts.
+
+### <a id="Bottle"></a>Bottle
+
+Your workload container, running unmodified in a controlled network environment. The [Bottle](#Bottle) has no direct network access — all traffic routes through the [Sentry](#Sentry) gateway in a namespace prepared by the [Pentacle](#Pentacle). Any existing container image can run as a [Bottle](#Bottle) without modification.
+
+### <a id="Crucible"></a>Crucible
+
+The [Sentry](#Sentry)/[Pentacle](#Pentacle)/[Bottle](#Bottle) triad running together as one unit for a [Nameplate](#Nameplate). The [Crucible](#Crucible) is the local safety orchestration — the apparatus that makes running untrusted code practical. [Charging](#Charge) starts all three containers; [Quenching](#Quench) stops and cleans them up.
+
+### <a id="Charge"></a>Charge
+
+Start the [Sentry](#Sentry)/[Pentacle](#Pentacle)/[Bottle](#Bottle) triad for a [Nameplate](#Nameplate). [Charging](#Charge) brings up the [Crucible](#Crucible) in dependency order: [Pentacle](#Pentacle) creates the namespace, [Sentry](#Sentry) configures policy, then the [Bottle](#Bottle) starts with its network already constrained.
+
+### <a id="Quench"></a>Quench
+
+Stop and clean up a [Charged](#Charge) [Nameplate's](#Nameplate) containers. [Quenching](#Quench) tears down the [Crucible](#Crucible) in reverse order and removes the network resources created during [Charging](#Charge).
+
 ## How It Works
 
 Recipe Bottle addresses two orthogonal complexity domains: building container images with verifiable provenance, and running untrusted images with enforced network isolation. The two tracks compose but neither requires the other.
@@ -186,7 +178,7 @@ The [Sentry](#Sentry) applies two layers of egress policy: `dnsmasq` answers DNS
 
 ## Using the CLI
 
-All Recipe Bottle operations are invoked through lightweight shell scripts in the `tt/` directory, run from the project root. Tab completion narrows by prefix. The project's `CLAUDE.md` provides a complete command reference; the interactive onboarding walkthroughs are the authoritative procedure source.
+All Recipe Bottle operations are invoked through lightweight shell scripts in the `tt/` directory, run from the project root. Tab completion narrows by prefix. The project's `CLAUDE.md` provides a complete command reference; the CLI's interactive walkthroughs are the authoritative procedure source.
 
 ## Setup
 
@@ -200,10 +192,6 @@ Recipe Bottle uses a role-based security model with four roles, each building on
 | [**Retriever**](#Retriever) | Service account credential | Pulls images for local use |
 
 The [Payor](#Payor) stands apart — it requires manual Google Cloud Console work and OAuth authentication. All downstream roles authenticate via credential files, enabling full automation.
-
-### Onboarding
-
-The interactive onboarding guide detects which roles you have credentials for and routes you to the appropriate walkthrough. Each role has its own guided procedure that probes your progress and shows the next step. A reference view provides a full health dashboard across all roles.
 
 ### Establishment and Provisioning
 
