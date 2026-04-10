@@ -690,9 +690,10 @@
         "₢A9AAH",
         "₢A9AAI",
         "₢A9AAJ",
-        "₢A9AAK"
+        "₢A9AAK",
+        "₢A9AAL"
       ],
-      "next_pace_seed": "AAL",
+      "next_pace_seed": "AAM",
       "paddock_file": ".claude/jjm/jjp_uAl9.md",
       "paces": {
         "₢A9AAA": {
@@ -953,6 +954,17 @@
               "text": "## Character\n\nGuided manual verification. No code changes expected — this is a structured test session using the two synthetic fixtures to confirm the full pipeline works end-to-end on the developer's machine. Debugging character: if something fails, diagnose and fix inline.\n\n## Prerequisites\n\n- App builds clean: `tt/apcw-b.Build.sh` or `cargo build` in apcd/\n- Two fixture loaders available: `tt/apcw-fl.FixtureLoad.progress.sh` and `tt/apcw-fl.FixtureLoad.geriatric.sh`\n\n## Walkthrough — Progress Note Fixture\n\n1. Run `tt/apcw-r.Run.sh` to launch the app\n2. Run `tt/apcw-fl.FixtureLoad.progress.sh` to load progress note HTML onto clipboard\n3. Switch to the app window — triage view should appear\n4. Confirm: RED findings include Patient (Margaret Thornton), Attending (Dr. Sarah Whitfield), DOB date, SSN, MRN, phone, email, address, URL\n5. Confirm: YELLOW findings include dictionary-matched names in narrative\n6. Confirm: DOB shows the date highlighted, not an age yet (age appears in anonymized output)\n7. Toggle two YELLOW items to PASS — confirm preview updates (grey styling)\n8. Toggle one RED item to PASS — confirm preview updates\n9. Click \"Copy Anonymized to Clipboard\" — button should show \"Copied!\"\n10. Paste into a text editor. Verify:\n    - Elided items show category placeholders: `[NAME]`, `[SSN]`, `[PHONE]`, `[EMAIL]`, `[ADDRESS]`, etc.\n    - DOB shows `Age: 74` (or appropriate computed age)\n    - Items toggled to PASS show original text\n    - Line breaks and section structure preserved — readable, not a wall\n    - No PHI leaks in elided regions\n\n## Walkthrough — Geriatric Consult Fixture\n\n1. Run `tt/apcw-fl.FixtureLoad.geriatric.sh` to load geriatric HTML onto clipboard\n2. Switch to app — triage view should refresh with new content\n3. Confirm: clinical content detected, findings populated\n4. Click \"Copy Anonymized to Clipboard\" with all defaults (everything elided)\n5. Paste and verify: all PHI replaced, structure preserved\n6. If geriatric fixture has a DOB for patient >89 years old, confirm `Age: 90+` appears\n\n## Edge Cases to Probe\n\n- Refocus without changing clipboard — should show \"unchanged\", triage preserved\n- Copy non-clinical text (e.g., \"hello world\") — should show non-clinical diagnostic, triage cleared\n- After non-clinical, click \"Copy Anonymized\" — should show error (no clinical data)\n- Refocus with original fixture again — full triage should reappear\n\n## Exit Criteria\n\nAll walkthrough steps pass on both fixtures. Any bugs found are fixed and notched inline before wrapping.",
               "silks": "fixture-walkthrough-debug",
               "commit": "c0ea14c"
+            }
+          ]
+        },
+        "₢A9AAL": {
+          "tacks": [
+            {
+              "ts": "260410-1626",
+              "state": "rough",
+              "text": "## Character\n\nField deployment and live validation. Ship the app to Ann's MacBook Air, then test against real Epic clipboard content. This is the proof-of-life moment — synthetic fixtures are behind us.\n\n## Deploy\n\n1. Build release: `tt/apcw-b.Build.sh`\n2. Deploy to Ann's machine: `tt/apcw-d.Deploy.sh` (scp to `anns-macbook-air:/Users/Shared/apcua/`)\n3. If app is already running on Ann's machine, the self-update watcher should detect the new bundle and relaunch automatically\n4. If not running, launch manually from `/Users/Shared/apcua/`\n\n## Real Data Test\n\n1. On Ann's machine, open Epic and navigate to a patient chart\n2. Use Epic's \"Copy All\" to copy a clinical note to clipboard\n3. Switch to PHI Clipbuddy — triage view should appear\n4. Review findings: confirm real patient name, DOB, MRN, provider names detected as RED\n5. Review YELLOW findings: check for false positives on common medical terms — these should NOT appear as yellow (whitelist should filter them)\n6. Toggle any legitimate non-PHI yellow items to PASS\n7. Click \"Copy Anonymized to Clipboard\"\n8. Paste into a text editor — confirm clean output suitable for Open Evidence\n9. Paste into Open Evidence and confirm it accepts the text\n\n## What to Watch For\n\n- **False negatives (missed PHI)**: Any patient name, DOB, MRN, or provider name that slips through — critical failure\n- **False positives (over-flagging)**: Medical terms, drug names, or common English words flagged as PHI — annoying but fixable via whitelist\n- **Formatting**: Is the anonymized output readable? Does it preserve enough structure for Open Evidence to understand?\n- **Performance**: Any perceptible lag on focus switch or copy?\n- **Self-update**: Did the watcher pick up the new bundle correctly?\n\n## Exit Criteria\n\nAt least one real Epic note processed end-to-end: clipboard → triage → toggle → anonymize → paste into Open Evidence. No PHI leaks in anonymized output. Any issues found are documented as itches or new paces.",
+              "silks": "deploy-and-real-data-test",
+              "commit": "76f3c60"
             }
           ]
         }
