@@ -3,15 +3,15 @@
 > [!IMPORTANT]
 > **Early-stage project — security review welcome**
 >
-> Recipe Bottle runs untrusted containers inside a three-container security apparatus: a privileged [Pentacle](#Pentacle) establishes the network namespace, a [Sentry](#Sentry) enforces iptables policy on dual networks, and the [Bottle](#Bottle) workload has no direct network access. The supply chain is hardened with SLSA provenance verification, least-privilege service accounts, and no secrets in version control.
+> Recipe Bottle runs untrusted containers inside a [Crucible](#Crucible) — a three-container security apparatus where a privileged [Pentacle](#Pentacle) establishes the network namespace, a [Sentry](#Sentry) enforces iptables policy on dual networks, and the [Bottle](#Bottle) workload has no direct network access. The supply chain is hardened with SLSA provenance verification, least-privilege service accounts, and no secrets in version control.
 >
 > This architecture is deliberate, but it has not yet had broad independent review — particularly the runtime containment (iptables rules, privileged namespace setup, network isolation enforcement). If you evaluate or deploy this, you are contributing to its hardening. Security-focused contributors and responsible disclosure are especially valued.
 
-Recipe Bottle helps you build container images with rigorous supply-chain provenance, and run untrusted containers behind enforced network isolation.
+Recipe Bottle helps you build container images with rigorous supply-chain provenance, and run untrusted containers inside a [Crucible](#Crucible) that enforces network isolation without touching the workload.
 
 On the build side, Recipe Bottle orchestrates Google Cloud Build to produce images with SLSA attestation, software bills of material, reproducible multi-architecture builds, and digest-pinned toolchains — so every image has a verifiable origin story.
 
-On the runtime side, Recipe Bottle interposes a [Sentry](#Sentry) container between untrusted workloads and system resources, enforcing network policy via `iptables` and `dnsmasq` — without requiring modifications to existing container images.
+On the runtime side, Recipe Bottle assembles a [Crucible](#Crucible) — three cooperating containers where a [Sentry](#Sentry) enforces network policy via `iptables` and `dnsmasq` — without requiring modifications to existing container images.
 
 The system uses only `bash`, `git`, `curl`, `openssh`, `jq`, `openssl`, and `docker` natively. No `gcloud` CLI is required on your workstation — cloud operations use REST APIs via `curl` and `jq`.
 
