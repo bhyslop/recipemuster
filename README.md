@@ -10,7 +10,7 @@ Recipe Bottle provides two independent container image capabilities:
 >
 > The [Foundry's](#Foundry) egress-locked Cloud Build configuration — including the SLSA attestation chain, build isolation, and digest-pinned toolchains — has not yet had broad independent review.
 >
-> The [Crucible](#Crucible) runtime containment — a multi-container apparatus where the workload runs unprivileged in a network namespace it does not control — has also not had broad review, particularly the iptables rules, privileged namespace setup, and network isolation enforcement.
+> The [Crucible](#Crucible) runtime containment — a multi-container apparatus where the workload runs unprivileged in a network namespace it does not control — has also not had broad review, particularly the network isolation rules, privileged namespace setup, and egress enforcement.
 >
 > If you evaluate or deploy this, you are contributing to its hardening. Security-focused contributors and responsible disclosure are especially valued.
 
@@ -144,7 +144,7 @@ Each build passes through a <a id="Pouch"></a>**[Pouch](#Pouch)** — build cont
 
 ## <a id="Crucible"></a>Crucible
 
-The distinctive case Recipe Bottle addresses is *running untrusted code*: third-party tooling, experimental packages, binaries with uncertain provenance. Containers excel at packaging known applications, but running unvetted code poses security risks that ordinary container deployment does not solve. Recipe Bottle assembles a [Crucible](#Crucible) — three cooperating containers where a [Sentry](#Sentry) enforces network policy via `iptables` and `dnsmasq` — without requiring modifications to existing container images. The [Bottle](#Bottle) container runs unmodified, in a network namespace prepared by a privileged [Pentacle](#Pentacle), with all egress flowing through the [Sentry](#Sentry) gateway.
+The distinctive case Recipe Bottle addresses is *running untrusted code*: third-party tooling, experimental packages, binaries with uncertain provenance. Containers excel at packaging known applications, but running unvetted code poses security risks that ordinary container deployment does not solve. Recipe Bottle assembles a [Crucible](#Crucible) — three cooperating containers where a [Sentry](#Sentry) enforces network policy — without requiring modifications to existing container images. The [Bottle](#Bottle) container runs unmodified, in a network namespace prepared by a privileged [Pentacle](#Pentacle), with all egress flowing through the [Sentry](#Sentry) gateway.
 
 The [Sentry](#Sentry)/[Pentacle](#Pentacle)/[Bottle](#Bottle) triad running together as one unit for a [Nameplate](#Nameplate). The [Crucible](#Crucible) is the local safety orchestration — the apparatus that makes running untrusted code practical. [Charging](#Charge) starts all three containers; [Quenching](#Quench) stops and cleans them up.
 
@@ -186,7 +186,7 @@ The [Crucible's](#Crucible) containment is validated through coordinated escape 
 - <a id="Ifrit"></a>**[Ifrit](#Ifrit)** — Adversarial attack [Vessel](#Vessel) purpose-built to run inside a [Bottle](#Bottle), seeking escape. The [Ifrit](#Ifrit) carries scapy (arbitrary packet construction), strace (syscall boundary probing), and a minimal footprint — tools chosen to probe every surface the [Sentry's](#Sentry) containment exposes. Named for the djinn imprisoned in a bottle.
 - <a id="Theurge"></a>**[Theurge](#Theurge)** — Test orchestrator running on the host, outside the [Crucible](#Crucible). The [Theurge](#Theurge) [Charges](#Charge) a [Crucible](#Crucible) with the [Ifrit](#Ifrit) as its [Bottle](#Bottle), then dispatches curated, reproducible, version-controlled attack scripts targeting specific surfaces: DNS exfiltration, ICMP covert channels, cloud metadata probing, namespace breakout, and direct IP bypass attempts. Each attack runs inside the [Bottle](#Bottle) while the [Theurge](#Theurge) simultaneously observes the [Sentry's](#Sentry) network from outside — confirming that blocked traffic is actually blocked, not merely unrequested.
 
-The escape tests were developed through adversarial Claude Code sessions with full visibility into the [Sentry's](#Sentry) source, `iptables` rules, `dnsmasq` configuration, and the Recipe Bottle specification. The [Ifrit](#Ifrit) [Vessel](#Vessel) is the delivery vehicle; the intelligence came from the authoring process. Every test that passes is evidence the containment holds — not proof. The test suite grows as new attack surfaces are identified.
+The escape tests were developed through adversarial Claude Code sessions with full visibility into the [Sentry's](#Sentry) source, configuration, and the Recipe Bottle specification. The [Ifrit](#Ifrit) [Vessel](#Vessel) is the delivery vehicle; the intelligence came from the authoring process. Every test that passes is evidence the containment holds — not proof. The test suite grows as new attack surfaces are identified.
 
 ## Project Direction
 
