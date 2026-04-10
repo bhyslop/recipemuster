@@ -105,20 +105,11 @@ The [sentry](#Sentry) applies two layers of egress policy: `dnsmasq` answers DNS
 
 ## Using the CLI
 
-All Recipe Bottle operations are **tabtargets** — lightweight shell scripts in the `tt/` directory. Run them from the project root.
-
-**Discover commands**: `ls tt/` shows everything. Tab completion narrows by prefix: `tt/rbw-<TAB>`.
-
-**Naming pattern**: `{colophon}.{frontispiece}[.{imprint}].sh`
-- **Colophon**: routing identifier (e.g. `rbw-cC`)
-- **Frontispiece**: human-readable description (e.g. `Start`)
-- **Imprint**: optional target parameter, often a vessel name (e.g. `tadmor`)
-
-Example: `tt/rbw-cC.Charge.tadmor.sh` charges the `tadmor` crucible.
+All Recipe Bottle operations are invoked through lightweight shell scripts in the `tt/` directory, run from the project root. Tab completion narrows by prefix. The project's `CLAUDE.md` provides a complete command reference; the interactive onboarding walkthroughs are the authoritative procedure source.
 
 ## Setup
 
-Recipe Bottle uses a role-based security model with four roles:
+Recipe Bottle uses a role-based security model with four roles, each building on the previous:
 
 | Role | Authenticates via | Purpose |
 |------|-------------------|---------|
@@ -127,137 +118,46 @@ Recipe Bottle uses a role-based security model with four roles:
 | [**Director**](#Director) | Service account credential | Submits builds, manages images, verifies provenance |
 | [**Retriever**](#Retriever) | Service account credential | Pulls images for local use |
 
-The payor stands apart — it requires manual Google Cloud Console work and OAuth authentication. All downstream roles authenticate via credential files, enabling full automation.
+The [payor](#Payor) stands apart — it requires manual Google Cloud Console work and OAuth authentication. All downstream roles authenticate via credential files, enabling full automation.
 
-### Onboarding Guide
+### Onboarding
 
-The onboarding guide detects which roles you have credentials for and routes you to the right walkthrough:
+The interactive onboarding guide detects which roles you have credentials for and routes you to the appropriate walkthrough. Each role has its own guided procedure that probes your progress and shows the next step. A reference view provides a full health dashboard across all roles.
 
-```
-tt/rbw-go.OnboardMAIN.sh
-```
+### Establishment and Provisioning
 
-Each role has its own walkthrough that probes your progress and shows the next step. For a full health dashboard across all roles:
+The [payor](#Payor) begins by creating a GCP project and configuring an OAuth consent screen through the Google Cloud Console. After downloading the OAuth client credentials, the payor installs them via a browser authorization flow — the resulting refresh token is stored locally with restrictive permissions and does not need to be repeated.
 
-```
-tt/rbw-gOr.OnboardReference.sh
-```
+With payor credentials in place, the payor [levies](#Levy) a [depot](#Depot), provisioning it with build infrastructure, artifact registry, and secrets storage. The payor then mantles a [governor](#Governor) service account to administer the [depot](#Depot).
 
-### Phase 1: Payor Establishment
+### Credential Distribution
 
-This phase involves manual work in the Google Cloud Console: creating a GCP project, enabling APIs, and configuring an OAuth consent screen. The guided procedure walks you through each click.
+The [governor](#Governor) creates downstream credentials: [knighting](#Knight) a [director](#Director) for build operations and [chartering](#Charter) a [retriever](#Retriever) for image pull access. Each credential is scoped to a single role within a single [depot](#Depot).
 
-1. **Configure payor project** — Edit `.rbk/rbrp.env` and set `RBRP_PAYOR_PROJECT_ID` to your desired GCP project ID (must be globally unique across all of GCP, 6-30 characters, lowercase letters/numbers/hyphens).
+### Build and Retrieve
 
-2. **Establish payor** — Follow the guided procedure to create the GCP project and configure OAuth consent screen:
-   ```
-   tt/rbw-gPE.PayorEstablish.sh
-   ```
-   This displays step-by-step instructions for the Google Cloud Console. At the end you will download a JSON key file containing OAuth client credentials.
+The [director](#Director) [ordains](#Ordain) [hallmarks](#Hallmark) for each [vessel](#Vessel) — [conjuring](#Conjure) from source, [binding](#Bind) from upstream, or [grafting](#Graft) from local builds. After builds complete, the director [tallies](#Tally) [hallmarks](#Hallmark) by health status and [vouches](#Vouch) their provenance. [Hallmark](#Hallmark) values from the tally are recorded into [nameplate](#Nameplate) regime files, completing the chain from build to runtime.
 
-3. **Install OAuth credentials** — Ingest the JSON key file downloaded during establishment. A browser window will open for authorization:
-   ```
-   tt/rbw-gPI.PayorInstall.sh ~/Downloads/client_secret_*.json
-   ```
-   On success, the refresh token is stored in `~/.rbw/rbro.env` with `600` permissions. You will not need to repeat the browser flow.
-
-### Phase 2: Infrastructure Provisioning
-
-5. **Review depot configuration** — Edit `.rbk/rbrr.env` to set region, machine type, and other depot parameters. Use the render command to review:
-   ```
-   tt/rbw-rrr.RenderRepoRegime.sh
-   ```
-
-6. **Levy depot** — This provisions the GCP depot project with build infrastructure, artifact registry, and secrets. This binds your RBRR configuration to real cloud resources:
-   ```
-   tt/rbw-dL.PayorLeviesDepot.sh <depot-name>
-   ```
-
-7. **Mantle governor** — Admin service account for the depot:
-   ```
-   tt/rbw-aM.PayorMantlesGovernor.sh
-   ```
-
-### Phase 3: Credential Creation (Governor role)
-
-8. **Knight director** — Build service account. The instance name labels this director — use a short identifier:
-   ```
-   tt/rbw-aK.GovernorKnightsDirector.sh <instance-name>
-   ```
-
-9. **Charter retriever** — Image pull service account. Use the same instance name as your director:
-   ```
-   tt/rbw-aC.GovernorChartersRetriever.sh <instance-name>
-   ```
-
-### Phase 4: Build & Retrieve (Director + Retriever roles)
-
-10. **Ordain hallmark** — Build (conjure) or mirror (bind) each vessel's image (typically 10-20 minutes for conjure builds):
-    ```
-    tt/rbw-hO.DirectorOrdainsHallmark.sh rbev-vessels/<vessel-name>
-    ```
-
-13. **Check & vouch** — Verify builds completed and SLSA provenance:
-    ```
-    tt/rbw-ht.DirectorTalliesHallmarks.sh
-    tt/rbw-hV.DirectorVouchesHallmarks.sh
-    ```
-
-14. **Record hallmarks** — Copy the hallmark values from the check output into your nameplate regime file:
-    ```
-    # Edit .rbk/rbrn_<vessel>.env and set:
-    RBRN_SENTRY_HALLMARK=c260101120000-r260101130000
-    RBRN_BOTTLE_HALLMARK=c260101120000-r260101140000
-    ```
-
-15. **Summon** — Pull vouched images locally (Retriever role):
-    ```
-    tt/rbw-hs.RetrieverSummonsHallmark.sh <vessel-name> <hallmark>
-    ```
+The [retriever](#Retriever) [summons](#Summon) vouched images locally for use.
 
 ## Day-to-Day Operations
 
-The examples below use `tadmor` (the included test nameplate). Replace with your own nameplate moniker — imprints in tabtarget filenames match the nameplate name from `.rbk/*/rbrn.env`.
+To run a workload, [charge](#Charge) the [crucible](#Crucible) for a [nameplate](#Nameplate). This starts the [sentry](#Sentry), [pentacle](#Pentacle), and [bottle](#Bottle) containers together — the [bottle](#Bottle) is ready for interactive use immediately.
 
-### Starting a Bottle
+For diagnostics, shell into the [bottle](#Bottle) or the [sentry](#Sentry), or observe network traffic across the [crucible's](#Crucible) containers. When finished, [quench](#Quench) the [crucible](#Crucible) to stop and clean up all three containers.
 
-```
-tt/rbw-cC.Charge.tadmor.sh
-```
-
-This charges the crucible — starts the sentry, pentacle, and bottle containers for the vessel.
-
-### Diagnostics
-
-```
-tt/rbw-cr.Rack.sh tadmor    # Shell into bottle (rack the demon)
-tt/rbw-ch.Hail.sh tadmor    # Shell into sentry (hail the guard)
-tt/rbw-cs.Scry.sh tadmor    # Observe network traffic (scry the topology)
-```
-
-### Stopping
-
-```
-tt/rbw-cQ.Quench.tadmor.sh
-```
-
-### Plumbing Provenance
-
-```
-tt/rbw-hpf.RetrieverPlumbsFull.sh   # Full: SBOM, build info, Dockerfile
-tt/rbw-hpc.RetrieverPlumbsCompact.sh # Compact summary
-```
+To inspect an image's supply chain, [plumb](#Plumb) its provenance — the full view shows the SBOM, build info, and Dockerfile; the compact view summarizes the attestation chain.
 
 ## Credential Safety
 
 All credential files require `600` permissions and must never be committed to version control.
 
-| Credential | Location | Created by |
-|------------|----------|------------|
-| Payor OAuth | `~/.rbw/rbro.env` | `tt/rbw-gPI.PayorInstall.sh` |
-| Governor | `RBRR_SECRETS_DIR/governor/rbra.env` | `tt/rbw-aM.PayorMantlesGovernor.sh` |
-| Director | `RBRR_SECRETS_DIR/director/rbra.env` | `tt/rbw-aK.GovernorKnightsDirector.sh` |
-| Retriever | `RBRR_SECRETS_DIR/retriever/rbra.env` | `tt/rbw-aC.GovernorChartersRetriever.sh` |
+| Credential | Location | Created during |
+|------------|----------|----------------|
+| [Payor](#Payor) OAuth | `~/.rbw/rbro.env` | [Payor](#Payor) installation |
+| [Governor](#Governor) | `RBRR_SECRETS_DIR/governor/rbra.env` | [Governor](#Governor) mantling |
+| [Director](#Director) | `RBRR_SECRETS_DIR/director/rbra.env` | [Director](#Director) [knighting](#Knight) |
+| [Retriever](#Retriever) | `RBRR_SECRETS_DIR/retriever/rbra.env` | [Retriever](#Retriever) [chartering](#Charter) |
 
 Each credential file is scoped to one role within one depot and cannot operate outside its designation.
 
@@ -267,20 +167,20 @@ Recipe Bottle uses a Config Regime system — structured configuration with type
 
 ### User-Configured Regimes
 
-| Regime | File | Purpose | Render | Validate |
-|--------|------|---------|--------|----------|
-| RBRP | `.rbk/rbrp.env` | Payor GCP project identity | `tt/rbw-rpr.*` | `tt/rbw-rpv.*` |
-| RBRR | `.rbk/rbrr.env` | Depot project, region, build config | `tt/rbw-rrr.*` | `tt/rbw-rrv.*` |
-| RBRN | `.rbk/*/rbrn.env` | Per-vessel: runtime, hallmarks | `tt/rbw-rnr.*` | `tt/rbw-rnv.*` |
-| RBRV | vessel dirs | Container image build definitions | `tt/rbw-rvr.*` | `tt/rbw-rvv.*` |
-| RBRS | station file | Developer machine paths (not in git) | `tt/rbw-rsr.*` | `tt/rbw-rsv.*` |
+| Regime | File | Purpose |
+|--------|------|---------|
+| RBRP | `.rbk/rbrp.env` | [Payor](#Payor) GCP project identity |
+| RBRR | `.rbk/rbrr.env` | [Depot](#Depot) project, region, build config |
+| RBRN | `.rbk/*/rbrn.env` | Per-[vessel](#Vessel): runtime, [hallmarks](#Hallmark) |
+| RBRV | vessel dirs | Container image build definitions |
+| RBRS | station file | Developer machine paths (not in git) |
 
-### Managed Regimes (generated by commands)
+### Managed Regimes (generated by operations)
 
-| Regime | Purpose | Generated by |
-|--------|---------|-------------|
-| RBRO | OAuth refresh token | `tt/rbw-gPI.PayorInstall.sh` |
-| RBRA | Service account credentials | `tt/rbw-aM.*` / `tt/rbw-aK.*` / `tt/rbw-aC.*` |
+| Regime | Purpose | Generated during |
+|--------|---------|-----------------|
+| RBRO | OAuth refresh token | [Payor](#Payor) installation |
+| RBRA | Service account credentials | Mantling, [knighting](#Knight), [chartering](#Charter) |
 
 ### BUK Base Regimes
 
@@ -305,45 +205,30 @@ rbev-vessels/
     └── rbrv.env
 ```
 
-Conjure vessels have a Dockerfile and are built by Cloud Build. Bind vessels (like `rbev-bottle-plantuml`) pin an external image by digest in `rbrv.env` — no Dockerfile, no build step. Graft vessels push a locally-built image to GAR via docker push — no Cloud Build for the image, but about and vouch still run in Cloud Build. The same `tt/rbw-hO.DirectorOrdainsHallmark.sh` command handles all three: it detects the vessel mode and triggers a Cloud Build (conjure), mirrors from upstream (bind), or pushes a local image (graft). Trust hierarchy: conjure has full SLSA provenance, bind has digest-pin verification, graft has no provenance chain (GRAFTED verdict).
+Conjure vessels have a Dockerfile and are built by Cloud Build. Bind vessels (like `rbev-bottle-plantuml`) pin an external image by digest in `rbrv.env` — no Dockerfile, no build step. Graft vessels push a locally-built image to GAR via docker push — no Cloud Build for the image, but about and [vouch](#Vouch) still run in Cloud Build. The same [ordain](#Ordain) operation handles all three: it detects the [vessel](#Vessel) mode and triggers a Cloud Build ([conjure](#Conjure)), mirrors from upstream ([bind](#Bind)), or pushes a local image ([graft](#Graft)). Trust hierarchy: [conjure](#Conjure) has full SLSA provenance, [bind](#Bind) has digest-pin verification, [graft](#Graft) has no provenance chain (GRAFTED verdict).
 
-**Nameplates** tie vessels together into a runnable bottle. The nameplate moniker (e.g. `tadmor`) is what appears as the imprint in tabtarget filenames:
+**[Nameplates](#Nameplate)** tie [vessels](#Vessel) together into a runnable [crucible](#Crucible). The [nameplate](#Nameplate) moniker (e.g. `tadmor`) identifies the unit across all operations:
 
 ```
 .rbk/tadmor/rbrn.env          # Maps tadmor → rbev-sentry-debian-slim + rbev-bottle-ifrit
 ```
 
-So `tt/rbw-cC.Charge.tadmor.sh` charges the crucible defined by the `tadmor` nameplate, which selects its sentry and bottle vessel images.
+[Charging](#Charge) `tadmor` starts the [crucible](#Crucible) defined by the `tadmor` [nameplate](#Nameplate), which selects its [sentry](#Sentry) and [bottle](#Bottle) [vessel](#Vessel) images.
 
 ## Testing
 
-Run test fixtures **sequentially** — they share regime state and container namespaces. Never run fixtures in parallel.
+Run test fixtures sequentially — they share regime state and container namespaces. Never run fixtures in parallel.
 
-```
-tt/rbtd-r.Run.regime-validation.sh
-tt/rbtd-r.Run.tadmor.sh
-```
-
-List all available fixtures and suites:
-```
-ls tt/rbtd-r.Run.*
-ls tt/rbtd-s.TestSuite.*
-```
-
-Qualification gates:
-```
-tt/rbw-tf.QualifyFast.sh    # Fast: tabtargets, colophons, nameplate health
-tt/rbw-tr.QualifyRelease.sh  # Release: + shellcheck, full test suite
-```
+Two qualification gates exercise the full system: a fast qualify checks tabtarget structure, colophon integrity, and [nameplate](#Nameplate) health; a release qualify adds shellcheck analysis and the complete test suite.
 
 ## Recovery
 
-- **Lost OAuth credentials**: Download a fresh JSON key from Google Cloud Console, re-run `tt/rbw-gPI.PayorInstall.sh`
-- **Expired tokens**: `tt/rbw-gPR.PayorRefresh.sh`
-- **Compromised governor**: `tt/rbw-aM.PayorMantlesGovernor.sh` (replaces service account, invalidates old credential)
-- **Compromised director/retriever**: `tt/rbw-aF.GovernorForfeitsServiceAccount.sh` to revoke, then re-knight with `tt/rbw-aK.*` or re-charter with `tt/rbw-aC.*`
-- **Lost nameplate values**: Re-run `tt/rbw-ht.DirectorTalliesHallmarks.sh` to retrieve hallmark values from the registry
-- **Build timeout or failure**: Check build status with `tt/rbw-ht.DirectorTalliesHallmarks.sh`, review logs in the GCP Console for the depot project
+- **Lost OAuth credentials**: Download a fresh JSON key from Google Cloud Console and re-run the [payor](#Payor) installation
+- **Expired tokens**: Run the [payor](#Payor) refresh operation
+- **Compromised [governor](#Governor)**: Re-mantle the [governor](#Governor) (replaces the service account, invalidates the old credential)
+- **Compromised [director](#Director)/[retriever](#Retriever)**: Forfeit the compromised account, then re-[knight](#Knight) or re-[charter](#Charter)
+- **Lost [nameplate](#Nameplate) values**: Re-[tally](#Tally) [hallmarks](#Hallmark) to retrieve values from the registry
+- **Build timeout or failure**: [Tally](#Tally) to check build status, review logs in the GCP Console for the [depot](#Depot) project
 
 ## Architecture
 
