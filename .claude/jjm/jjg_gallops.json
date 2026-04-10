@@ -179,12 +179,13 @@
       "order": [
         "₢A6AAA",
         "₢A6AAB",
+        "₢A6AAG",
         "₢A6AAC",
         "₢A6AAD",
         "₢A6AAE",
         "₢A6AAF"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
       "paces": {
         "₢A6AAA": {
@@ -369,6 +370,17 @@
               "text": "## Character\nIntegration testing and polish — verify the guides work end-to-end on a fresh machine, align docs with reality.\n\n## Docket\n\nFinal validation pass after all five guides are built.\n\n### Docs alignment\n- Align README.md getting-started section with the onboarding guide flow\n- Align index.html dependency and role descriptions with current truths\n- Ensure `RBGC_PUBLIC_DOCS_URL` links land on correct anchors\n- Verify `buc_link` URLs from triage and role tracks resolve to real content\n\n### Cross-machine testing\n- Test triage on fresh Linux box with no credentials → should show all absent, link to docs\n- Test retriever track with only retriever SA key → should probe and guide through summon/inspect/start\n- Test governor track with project-level access → should guide through depot/SA creation\n- Verify each guide is self-contained — no step requires knowledge from another role's track\n\n### Cleanup\n- Remove any dead code from old `rbgm_onboarding()` not already retired\n- Update CLAUDE.md if onboarding tabtargets need documenting\n\n## References\n- README.md, index.html — consumer-facing docs\n- All `rbw-o*` / `rbw-O*` tabtargets built in prior paces",
               "silks": "docs-alignment-and-cross-machine-validation",
               "commit": "ad8641f"
+            }
+          ]
+        },
+        "₢A6AAG": {
+          "tacks": [
+            {
+              "ts": "260410-0925",
+              "state": "rough",
+              "text": "## Character\n\nInfrastructure build — new vessel, new nameplate, CCCK retirement. Mechanical once the Dockerfile and nameplate config are settled, but the Dockerfile needs care: npm-friendly base, Claude Code installation, minimal attack surface beyond what Claude Code needs. Debug cycle is kludge→charge→shell-in→verify Claude Code authenticates via OAuth copy/paste. This pace produces the artifact; teaching with it is a separate pace.\n\n## Docket\n\nCreate the ccyolo vessel and nameplate for running Claude Code inside a Crucible with network containment scoped to Anthropic API endpoints. Retire CCCK (`Tools/ccck/`).\n\n### Create vessel `rbev-bottle-ccyolo`\n\nNew vessel directory under `rbev-vessels/`:\n\n- **Mode**: conjure (has Dockerfile)\n- **Base image**: npm-friendly (node:lts-slim or similar — pick the smallest image that gives a working `npm install`)\n- **Installed**: Claude Code via npm (`@anthropic-ai/claude-code`), bash, curl, git (Claude Code operational dependencies)\n- **NOT installed**: scapy, strace, or other attack tooling (that's ifrit's job)\n- **`rbrv.env`**: conjure mode, kludge-oriented (no reliquary or enshrine dependencies needed for first use)\n\n### Create nameplate `ccyolo`\n\nNew nameplate directory `.rbk/ccyolo/`:\n\n- **Sentry vessel**: sentry-debian-slim (shared with tadmor)\n- **Bottle vessel**: rbev-bottle-ccyolo\n- **DNS allowlist**: Anthropic API endpoints (`api.anthropic.com`, and whatever else Claude Code needs for OAuth browser flow)\n- **CIDR allowlist**: corresponding IP ranges for the DNS entries\n- **Hallmark fields**: blank initially, populated by first kludge\n\n### Verify kludge→charge→authenticate cycle\n\n1. Kludge sentry: `tt/rbw-cKB.KludgeBottle.sh ccyolo` (or kludge both vessels)\n2. Charge: `tt/rbw-cC.Charge.ccyolo.sh`\n3. Shell into bottle: `tt/rbw-cr.Rack.sh ccyolo`\n4. Run `claude` inside the bottle — verify OAuth copy/paste flow works (user copies URL from bottle terminal, pastes in workstation browser, copies code back)\n5. Verify Claude Code can reach Anthropic API\n6. Verify Claude Code cannot reach anything else (no npm registry, no github, no arbitrary hosts)\n7. Quench: `tt/rbw-cQ.Quench.ccyolo.sh`\n\n### Retire CCCK\n\n- Remove `Tools/ccck/` directory (cccw_workbench.sh and any other files)\n- Remove CCCK entries from `CLAUDE.md` file acronym mappings\n- Remove any CCCK zipper enrollments if they exist\n- Update any cross-references\n\n### Out of scope\n\n- Onboarding handbook content using ccyolo (that's the first crucible drafting/implementation paces)\n- Cloud Build ordination of ccyolo (kludge-only for now)\n- Enshrinement of ccyolo base image\n- Aggressive Claude Code permission configuration details (deferred to handbook pace where the learner experience is designed)",
+              "silks": "ccyolo-vessel-and-nameplate",
+              "commit": "48408dd"
             }
           ]
         }
