@@ -1,13 +1,13 @@
 # Recipe Bottle
 
+Recipe Bottle helps you produce container images across three supply-chain modes — egress-locked Cloud Build from source, digest-pinned upstream mirrors, and local pushes — and run untrusted containers inside a [Crucible](#Crucible) that enforces network isolation without touching the workload. A developer can adopt either domain alone; the two are designed to compose, not to depend on each other.
+
 > [!IMPORTANT]
 > **Early-stage project — security review welcome**
 >
-> Recipe Bottle runs untrusted containers inside a [Crucible](#Crucible) — a three-container security apparatus where a privileged [Pentacle](#Pentacle) establishes the network namespace, a [Sentry](#Sentry) enforces iptables policy on dual networks, and the [Bottle](#Bottle) workload has no direct network access. The supply chain is hardened with SLSA provenance verification, least-privilege service accounts, and no secrets in version control.
+> Builds use SLSA provenance attestation, digest-pinned toolchains, and upstream base images mirrored into a project-owned registry. The [Bottle](#Bottle) runs unprivileged in a network namespace created by the [Pentacle](#Pentacle), so all traffic necessarily flows through a [Sentry](#Sentry) enforcing dual-layer egress policy (DNS filtering + IP filtering). Credentials use least-privilege scoping; no secrets are stored in version control.
 >
 > This architecture is deliberate, but it has not yet had broad independent review — particularly the runtime containment (iptables rules, privileged namespace setup, network isolation enforcement). If you evaluate or deploy this, you are contributing to its hardening. Security-focused contributors and responsible disclosure are especially valued.
-
-Recipe Bottle helps you build container images with rigorous supply-chain provenance, and run untrusted containers inside a [Crucible](#Crucible) that enforces network isolation without touching the workload. A developer can adopt either domain alone; the two are designed to compose, not to depend on each other.
 
 Recipe Bottle is a set of bash scripts designed to be incorporated into arbitrary projects — via `git subtree`, `git subrepo`, `git submodule`, or simply by copying a few directories into place. The workstation floor is deliberately narrow: `bash 3.2`, `git`, `curl`, `openssh`, `jq`, `openssl`, and `docker`. There is no Python runtime, no language-specific package manager, no `gcloud` CLI on the workstation — Google Cloud operations run as REST calls over `curl` and `jq`. A small team can stand up a hardened build pipeline and a sandboxed runtime without specialized DevOps expertise.
 
