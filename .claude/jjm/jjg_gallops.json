@@ -1,6 +1,6 @@
 {
   "schema_version": 4,
-  "next_heat_seed": "A9",
+  "next_heat_seed": "A-",
   "heat_order": [
     "₣A8",
     "₣Az",
@@ -21,7 +21,8 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au"
+    "₣Au",
+    "₣A9"
   ],
   "heats": {
     "₣A5": {
@@ -673,6 +674,15 @@
           ]
         }
       }
+    },
+    "₣A9": {
+      "silks": "apck-1-proof-of-life",
+      "creation_time": "260410",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uAl9.md",
+      "paces": {}
     },
     "₣AD": {
       "silks": "vos-spec-and-tooling",
