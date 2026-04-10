@@ -171,15 +171,9 @@ The [Crucible](#Crucible) has two lifecycle operations:
 - <a id="Charge"></a>**[Charge](#Charge)** — Start the [Sentry](#Sentry)/[Pentacle](#Pentacle)/[Bottle](#Bottle) triad for a [Nameplate](#Nameplate). [Charging](#Charge) brings up the [Crucible](#Crucible) in dependency order: [Pentacle](#Pentacle) creates the namespace, [Sentry](#Sentry) configures policy, then the [Bottle](#Bottle) starts with its network already constrained.
 - <a id="Quench"></a>**[Quench](#Quench)** — Stop and clean up a [Charged](#Charge) [Nameplate's](#Nameplate) containers. [Quenching](#Quench) tears down the [Crucible](#Crucible) in reverse order and removes the network resources created during [Charging](#Charge).
 
-#### Day-to-Day Operations
+To run a workload, [Charge](#Charge) the [Crucible](#Crucible) for a [Nameplate](#Nameplate). This starts the [Sentry](#Sentry), [Pentacle](#Pentacle), and [Bottle](#Bottle) containers together — the [Bottle](#Bottle) is ready for interactive use immediately. For diagnostics, shell into the [Bottle](#Bottle) or the [Sentry](#Sentry), or observe network traffic across the [Crucible's](#Crucible) containers. When finished, [Quench](#Quench) the [Crucible](#Crucible) to stop and clean up all three containers. To inspect an image's supply chain, [Plumb](#Plumb) its provenance — the full view shows the SBOM, build info, and Dockerfile; the compact view summarizes the attestation chain.
 
-To run a workload, [Charge](#Charge) the [Crucible](#Crucible) for a [Nameplate](#Nameplate). This starts the [Sentry](#Sentry), [Pentacle](#Pentacle), and [Bottle](#Bottle) containers together — the [Bottle](#Bottle) is ready for interactive use immediately.
-
-For diagnostics, shell into the [Bottle](#Bottle) or the [Sentry](#Sentry), or observe network traffic across the [Crucible's](#Crucible) containers. When finished, [Quench](#Quench) the [Crucible](#Crucible) to stop and clean up all three containers.
-
-To inspect an image's supply chain, [Plumb](#Plumb) its provenance — the full view shows the SBOM, build info, and Dockerfile; the compact view summarizes the attestation chain.
-
-#### Adversarial Testing
+### Adversarial Testing
 
 The [Crucible's](#Crucible) containment is validated through coordinated escape testing using two components:
 
