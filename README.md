@@ -2,7 +2,7 @@
 
 Recipe Bottle provides two independent container image capabilities:
 
-- **[Foundry](#Foundry)**: orchestrate Google Cloud Build to produce images in egress-locked environments with full supply-chain provenance
+- **[Foundry](#Foundry)**: orchestrate Google Cloud Build to produce and retain images in a private cloud registry — egress-locked builds with full supply-chain provenance
 - **[Crucible](#Crucible)**: run untrusted containers behind enforced network isolation — DNS filtering and IP filtering — without modifying the workload image
 
 > [!IMPORTANT]
@@ -14,7 +14,7 @@ Recipe Bottle provides two independent container image capabilities:
 >
 > If you evaluate or deploy this, you are contributing to its hardening. Security-focused contributors and responsible disclosure are especially valued.
 
-Recipe Bottle is a set of bash scripts designed for incorporation into arbitrary projects. The dependency footprint is deliberately narrow — `bash 3.2` and a handful of standard tools — with no Python runtime, no language-specific package manager, and no `gcloud` CLI. A small team can stand up a hardened build pipeline and a sandboxed runtime without specialized DevOps expertise.
+Recipe Bottle is a set of bash scripts designed for incorporation into arbitrary projects. The dependency footprint is deliberately narrow — `bash 3.2` and a handful of standard tools — with no Python runtime, no language-specific package manager, and no `gcloud` CLI. A small team can stand up a hardened build pipeline and a sandboxed runtime without specialized DevOps expertise. Recipe Bottle's goal is a workflow where every container image has a verified origin and a controlled version, running behind appropriate network safeguards.
 
 **Project page**: https://scaleinv.github.io/recipebottle
 
