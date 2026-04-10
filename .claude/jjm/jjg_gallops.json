@@ -35,9 +35,10 @@
         "₢A5AAD",
         "₢A5AAE",
         "₢A5AAH",
-        "₢A5AAF"
+        "₢A5AAF",
+        "₢A5AAJ"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_uAl5.md",
       "paces": {
         "₢A5AAA": {
@@ -209,6 +210,17 @@
               "text": "## Character\n\nIterative prose rewrite. Open-ended — iterate until user signs off. Heavy user-in-the-loop; each pass gets reviewed and the work may loop back to any earlier decision. Not a one-shot draft. Editorial judgment and verb-vocabulary discipline.\n\n## Docket\n\n**Prerequisites**: ₢A5AAC notched.\n\n### Direction\n\nReshape `README.md` toward pure reference and conceptual orientation. Remove tabtarget commands and numbered setup procedures. Keep — and enrich — prose that teaches the *shape of the work* through linked verb vocabulary. `CLAUDE.md` (customer-facing) becomes the command lookup surface; the interactive onboarding walkthroughs remain the authoritative procedure source.\n\n### Key shifts\n\n- **Delete tabtarget commands from README.** No `tt/rbw-*` references anywhere in the body. Setup Phases 1-4, Day-to-Day Operations, Recovery, Testing all lose their command listings.\n\n- **Replace with verb-vocabulary talk-throughs.** Instead of command listings, prose narrates the conceptual cycles using linked glossary terms. Example direction (not prescription): \"The [director](#Director) [ordains](#Ordain) a [hallmark](#Hallmark), which [conjures](#Conjure), [binds](#Bind), or [grafts](#Graft) depending on the [vessel's](#Vessel) mode.\" The reader learns the shape of each workflow through the verbs. Commands live elsewhere.\n\n- **Convert Key Concepts from table to H3-per-term.** Each glossary entry becomes `### Term` with a ~3-sentence definition: meaning, context, relationship to other terms. The short-form table stops carrying the primary explanation. Definitions themselves cross-link to other terms.\n\n- **Dense cross-linkification.** Every occurrence of a glossary term in prose becomes a link to its anchor — plurals, inflections, possessives included. Display text matches prose case; anchor stays capitalized. Code blocks, headers, and definitional self-references are excluded.\n\n- **Promote Crucible.** Introduce the term earlier and more prominently, framed as *the local safety orchestration*. It currently sits mid-glossary and mid-How-It-Works; it deserves surface weight as the name of the runtime safety apparatus, appearing in the intro paragraphs and ideally in the elevator pitch.\n\n### Iteration\n\nNo fixed endpoint. Iterate until the user signs off that README reads as intended. Loop back to any earlier decision at any time. Do not auto-wrap.\n\n### Downstream flags\n\n- **₢A5AAE (retention audit)** was scoped against ₢A5AAC's rewrite only. After this pace, its scope may need to be reslated to cover content lost across both passes.\n- **₢A5AAD (retirement + ceremony audit)** touches the prep-release ceremony's Step 8 behavior; if that ceremony references README Setup content that will no longer exist, the step delta in AAD may need to account for this reshape.\n- **CLAUDE.md**: confirm which file becomes the customer-facing command reference (likely `Tools/rbk/vov_veiled/CLAUDE.consumer.md` per the heat paddock's \"kept and updated\" decision) before declaring the command-reference story closed.\n\n## References\n\n- `README.md` — reshape target (current baseline: post-₢A5AAC commit `0adaa6ff`)\n- `Tools/rbk/vov_veiled/CLAUDE.consumer.md` — customer Claude template\n- `Tools/rbk/rbho_onboarding.sh` — interactive procedure surface\n- ₣A5 paddock — link-landing-surface framing",
               "silks": "readme-reshape-iterative",
               "commit": "c300dbb"
+            }
+          ]
+        },
+        "₢A5AAJ": {
+          "tacks": [
+            {
+              "ts": "260410-0643",
+              "state": "rough",
+              "text": "## Character\n\nIterative structural editing. Same user-in-the-loop posture as ₢A5AAI — iterate until sign-off. Editorial judgment on section titles and content placement.\n\n## Docket\n\n**Prerequisites**: ₢A5AAI wrapped.\n\n### Tasks\n\n1. **Split Key Concepts into two top-level sections.** The current flat glossary mixes build-pipeline terms (Vessel, Hallmark, Vouch, Depot, Ordain, Conjure, Bind, Graft, Kludge, Enshrine, Summon, Plumb, Tally, Levy, Payor, Governor, Director, Retriever, Charter, Knight) with crucible-runtime terms (Nameplate, Sentry, Pentacle, Bottle, Crucible, Charge, Quench). Split into two sections with well-chosen titles. Some terms may belong in both or need judgment calls on placement.\n\n2. **Deduplicate intro content.** The introduction paragraphs (lines 10-28) repeat concepts that would read better as introductions to the two new sections. Remove duplication from the top-level intro; relocate relevant content as section-level introductions for the build and crucible sections.\n\n3. **Remove onboarding references.** The \"Onboarding\" subsection under Setup and any other onboarding mentions should be removed from this document entirely.\n\n4. **Remove Ark concept.** Delete the `### Ark` definition, its `<a id=\"Ark\"></a>` anchor, and all `[Ark](#Ark)` links throughout the document. Rewrite affected sentences to use Hallmark and Vessel as needed.\n\n### Iteration\n\nNo fixed endpoint. Iterate until user signs off. Do not auto-wrap.",
+              "silks": "readme-structure-and-dedup",
+              "commit": "23da528"
             }
           ]
         }
