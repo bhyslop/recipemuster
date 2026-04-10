@@ -84,47 +84,69 @@ Cleanup action items surfaced by interview:
 
 Working titles, evocative and distinct from the prior role placeholders. **All names are rough** and will be refined in later interview passes. Each track is a single `tt/rbw-O??.Onboarding{TrackName}.sh` tabtarget (uppercase-O family) rendering a complete teaching document in Frame 4-refined format. Final track acronyms (the `??` slots) are assigned during the drafting pace (₢A6AAA Artifact 3).
 
+**Vessel/nameplate assignments**: Tracks that involve hands-on container work should use concrete vessels shipped with the project, not abstract examples. The four shipped vessels and their teaching roles:
+
+| Vessel | Mode | Teaching role |
+|--------|------|---------------|
+| `rbev-sentry-debian-slim` | conjure | Shared sentry for all nameplates; director subtrack build target |
+| `rbev-bottle-ccyolo` | conjure | First crucible experience — Claude Code in a sandbox (₢A6AAG creates this) |
+| `rbev-bottle-ifrit` | conjure | Adversarial testing vessel — teaches that containment is actively validated |
+| `rbev-bottle-plantuml` | bind | Upstream image pinned by digest — teaches bind mode |
+
+| Nameplate | Sentry | Bottle | Teaching role |
+|-----------|--------|--------|---------------|
+| `ccyolo` | sentry-debian-slim | bottle-ccyolo | First crucible, kludge-only, Claude OAuth subscription required |
+| `tadmor` | sentry-debian-slim | bottle-ifrit | Adversarial security testing, Building for Crucibles |
+| `pluml` | sentry-debian-slim | bottle-plantuml | Bind mode demonstration |
+
 ### Foundation (everyone)
 
-1. **Crash Course: Reading the Map** — universal prerequisite. Tabtargets, regimes, log placement, station vs versioned, the `rbw-r{letter}{r|v}` pattern. Local-only, no cloud, no image operations. Teaches BURC, BURS, RBRR at a surface level — enough to navigate the rest. Provisional acronym: `Occ`.
+1. **Crash Course: Reading the Map** — universal prerequisite. Tabtargets, regimes, log placement, station vs versioned, the `rbw-r{letter}{r|v}` pattern. Local-only, no cloud, no image operations. Teaches BURC, BURS, RBRR at a surface level — enough to navigate the rest. Provisional acronym: `Occ`. **No vessels.**
 
-2. **Take Your Station** — joining an existing configured project. Verify your RBRA is placed correctly, run access probes, confirm you can operate in your role(s). Shortest path, mostly probe-driven with minimal teaching.
+2. **Take Your Station** — joining an existing configured project. Verify your RBRA is placed correctly, run access probes, confirm you can operate in your role(s). Shortest path, mostly probe-driven with minimal teaching. **No vessels.**
 
 ### Role-intent tracks
 
-3. **Kindle Your First Crucible** — crucible explorer. Local sandbox with kludged hallmarks, security exploration, fast iteration, no cloud. Teaches: crucible, charge/quench, sentry/pentacle/bottle composition, kludge mode for local hallmark synthesis. *First implementation target — simplest path, zero cloud, tightest feedback loop.* (Name flagged for "kindle" vocabulary overload — see Open Questions.)
+3. **Kindle Your First Crucible** — crucible explorer. Kludge ccyolo locally, charge, shell in, authenticate Claude Code via OAuth copy/paste between bottle terminal and workstation browser. Teaches: crucible, charge/quench, sentry/pentacle/bottle composition, kludge mode for local hallmark synthesis. *First implementation target — simplest path, zero cloud, tightest feedback loop.* Prerequisite: Claude OAuth subscription. **Nameplate: `ccyolo`.** (Name flagged for "kindle" vocabulary overload — see Open Questions.)
 
-4. **Establish the Depot** — payor ceremony (~15 min). GCP project creation, OAuth consent screen, billing, RBRR initial population. Teaches: depot, payor responsibility, consent dance, the relationship between payor identity (RBRP) and depot identity (RBRR).
+4. **Establish the Depot** — payor ceremony (~15 min). GCP project creation, OAuth consent screen, billing, RBRR initial population. Teaches: depot, payor responsibility, consent dance, the relationship between payor identity (RBRP) and depot identity (RBRR). **No vessels.**
 
-5. **Knight the Realm** — governor. SA administration: create governor/director/retriever SAs, issue RBRA credentials, distribute securely. Teaches: knight, charter, SA lifecycle, secret distribution discipline.
+5. **Knight the Realm** — governor. SA administration: create governor/director/retriever SAs, issue RBRA credentials, distribute securely. Teaches: knight, charter, SA lifecycle, secret distribution discipline. **No vessels.**
 
-6. **Receive Your Knighthood** — cross-cutting mini-track for directors and retrievers receiving their RBRA from a governor. Place the file correctly (path derived from RBRR), verify via access probe, understand sensitivity. May appear as a unit within Director/Retriever tracks or as a standalone for experienced users receiving new credentials.
+6. **Receive Your Knighthood** — cross-cutting mini-track for directors and retrievers receiving their RBRA from a governor. Place the file correctly (path derived from RBRR), verify via access probe, understand sensitivity. May appear as a unit within Director/Retriever tracks or as a standalone for experienced users receiving new credentials. **No vessels.**
 
 ### Director subtracks (dependency-ordered)
 
-The director subtracks follow a strict dependency chain: inscribe → tethered → enshrine → airgap. Each track requires the previous track's outcome.
+The director subtracks follow a strict dependency chain: inscribe → tethered → enshrine → airgap. Each track requires the previous track's outcome. The learner builds real shipped vessels — the same ones they already met in the crucible track.
 
-7. **Your First Ordination** — conceptual map, **no probes**. Teaches the ordination pipeline shape: director pushes a pouch (build context) to GAR, Cloud Build produces an `-image` (the container) and an `-about` (the SBOM), then a separate job produces `-vouch` (provenance attestation). Introduces the tethered vs airgap egress mode fork. All teaching-only units — the learner hasn't done anything yet, they're learning the shape of what the next several tracks walk through.
+7. **Your First Ordination** — conceptual map, **no probes, no vessels**. Teaches the ordination pipeline shape: director pushes a pouch (build context) to GAR, Cloud Build produces an `-image` (the container) and an `-about` (the SBOM), then a separate job produces `-vouch` (provenance attestation). Introduces the tethered vs airgap egress mode fork. All teaching-only units.
 
-8. **Inscribe the Reliquary** — hands-on. Get builder tool images (skopeo, docker, gcloud, syft) into GAR. Prerequisite for all Cloud Build operations — conjure's preflight fails without a reliquary. Teaches: reliquary as co-versioned toolchain, `RBRV_RELIQUARY` in vessel regime.
+8. **Inscribe the Reliquary** — hands-on. Get builder tool images (skopeo, docker, gcloud, syft) into GAR. Prerequisite for all Cloud Build operations — conjure's preflight fails without a reliquary. Teaches: reliquary as co-versioned toolchain, `RBRV_RELIQUARY` in vessel regime. **No vessel target** (reliquary is tool infrastructure, not a vessel build).
 
-9. **Tethered Cloud Builds** — hands-on, first real cloud build. Tether pool has public internet; base images pulled from upstream during build. Wall-clock ~20 min — pedagogy needs to handle wait time (open question). Requires: reliquary inscribed.
+9. **Tethered Cloud Builds** — hands-on, first real cloud build. Tether pool has public internet; base images pulled from upstream during build. Wall-clock ~20 min — pedagogy needs to handle wait time (open question). Requires: reliquary inscribed. **Vessel: `rbev-sentry-debian-slim`** (conjure mode, learner already knows this vessel from the crucible track).
 
-10. **Enshrine the Ancestors** — hands-on. Mirror upstream base images into GAR with content-addressed anchors. Produces `RBRV_IMAGE_n_ANCHOR` values. Enshrine itself requires reliquary tool images. Teaches: supply-chain independence, anchor scheme, air-gap readiness. Requires: reliquary inscribed.
+10. **Enshrine the Ancestors** — hands-on. Mirror upstream base images into GAR with content-addressed anchors. Produces `RBRV_IMAGE_n_ANCHOR` values. Enshrine itself requires reliquary tool images. Teaches: supply-chain independence, anchor scheme, air-gap readiness. Requires: reliquary inscribed. **Vessel: whichever vessel the learner just built in track 9** (enshrine targets that vessel's declared base image origins).
 
-11. **Airgap Your Builds** — hands-on, airgap pool with no public internet. All dependencies pre-enshrined in GAR. Most restrictive build mode, full isolation. Requires: enshrined base images.
+11. **Airgap Your Builds** — hands-on, airgap pool with no public internet. All dependencies pre-enshrined in GAR. Most restrictive build mode, full isolation. Requires: enshrined base images. **Vessel: same as tracks 9-10** (rebuild with airgap pool, proving the enshrined bases work).
 
-12. **Building for Crucibles** — building targets for local testing. Placement and relationship to crucible track (₢A6AAC/AAD) needs interview refinement.
+12. **Building for Crucibles** — building targets for local testing. The learner ordains the vessels they need to charge a crucible from cloud-built hallmarks instead of kludged ones. **Nameplate: `tadmor`** (sentry + ifrit, the adversarial testing target). Gap: may also need ccyolo cloud-built — see Gaps below.
 
 ### Evaluation tracks
 
-13. **Assay the Realm** — enterprise evaluator. Tour of all ordain modes, enshrinement, reliquaries, airgap. For someone deciding whether to trust Recipe Bottle as a corporate build engine. **Framing matters**: this learner is evaluating, not executing. Critical eye, breadth over depth.
+13. **Assay the Realm** — enterprise evaluator. Tour across all three ordain modes using concrete shipped vessels: conjure (**sentry-debian-slim**), bind (**bottle-plantuml**), graft (gap — see below). **Framing matters**: this learner is evaluating, not executing. Critical eye, breadth over depth.
 
 ### Cross-cutting surfaces
 
 - **Realm Dashboard** — reference surface showing all probes across all regimes. Equivalent to the old `rbw-gOr` reference mode, now in Frame 4-refined format. Reachable from StartHere menu and as its own tabtarget.
 - **Secret Handling Primer** — the RBRA distribution lesson, appearing as a unit in Knight the Realm (governor side, distributing) and Receive Your Knighthood (recipient side, placing). Teaches operational handling knowledge — *what it is, how to handle, where it goes* — without teaching *how to read*.
 - **Depot Relationships** — the user flagged wanting good intro text explaining "what a Depot is and how Directors dictate its content but Retrievers use it." This is a relational teaching unit that may appear verbatim in multiple tracks. Candidate for a shared snippet consumed by multiple handbooks.
+
+### Gaps identified
+
+- **Graft vessel**: Assay the Realm (track 13) wants to demonstrate all three ordain modes. Conjure and bind have shipped vessels. Graft has no shipped example — no vessel currently uses graft mode. Either create a teaching-only graft vessel, or demonstrate graft using an ad-hoc local image. Decision deferred.
+- **Enshrine target selection** (track 10): The enshrine operation targets a vessel's declared `RBRV_IMAGE_n_ORIGIN` base images. If the learner builds sentry-debian-slim in track 9, the enshrine target is `debian:bookworm-slim`. Confirm this is pedagogically clear — the learner is enshrining the *base image* of a vessel they already built, not the vessel itself.
+- **ccyolo cloud build** (track 12): Building for Crucibles teaches ordaining crucible targets. The learner knows ccyolo from track 3 (kludge) — should they now ordain it via cloud build? This would close the loop (kludge→cloud build for the same vessel). But ccyolo's npm base is large and slow to build. Decision deferred.
+- **Bind mode track**: bottle-plantuml is the shipped bind vessel, but no director subtrack currently teaches bind mode explicitly. Bind is mentioned in Your First Ordination (conceptual) and demonstrated in Assay the Realm (evaluation). Is a hands-on bind track needed, or is bind simple enough that the conceptual introduction + eval tour suffices?
 
 ## README Anchor Inventory
 
