@@ -36,14 +36,33 @@ apcc_deploy() {
   buc_step "Building for deployment"
   (cd "${ZAPCC_APCD_DIR}" && cargo tauri build)
 
-  local z_bundle_dir="${ZAPCC_APCD_DIR}/target/release/bundle/macos"
-  local z_app_name
-  z_app_name=$(ls "${z_bundle_dir}"/*.app 2>/dev/null | head -1) || true
+  local -r z_bundle_dir="${ZAPCC_APCD_DIR}/target/release/bundle/macos"
+  local -r z_size_file="${BURD_TEMP_DIR}/apcc_deploy_size.txt"
+  local -r z_size_stderr="${BURD_TEMP_DIR}/apcc_deploy_size_stderr.txt"
+  local -r z_ssh_stderr="${BURD_TEMP_DIR}/apcc_deploy_ssh_stderr.txt"
+  local -r z_scp_stderr="${BURD_TEMP_DIR}/apcc_deploy_scp_stderr.txt"
+
+  # Find first .app bundle via glob
+  local z_app_name=""
+  for z_app_name in "${z_bundle_dir}"/*.app; do
+    test -d "${z_app_name}" && break
+    z_app_name=""
+  done
   test -n "${z_app_name}" || buc_die "No .app bundle found in ${z_bundle_dir}"
 
+  # Measure bundle size via temp file
+  du -sh "${z_app_name}" > "${z_size_file}" 2>"${z_size_stderr}" \
+    || buc_die "Failed to measure bundle — see ${z_size_stderr}"
+  local -r z_size_raw=$(<"${z_size_file}")
+  test -n "${z_size_raw}" || buc_die "Empty size output from ${z_size_file}"
+  local -r z_bundle_size="${z_size_raw%%$'\t'*}"
+
   buc_step "Deploying to anns-macbook-air:/Users/Shared/apcua/"
-  scp -r "${z_app_name}" anns-macbook-air:/Users/Shared/apcua/
-  buc_step "Deploy complete"
+  ssh anns-macbook-air 'rm -rf /Users/Shared/apcua/*.app' 2>"${z_ssh_stderr}" \
+    || buc_die "Failed to clean staging dir — see ${z_ssh_stderr}"
+  scp -r "${z_app_name}" anns-macbook-air:/Users/Shared/apcua/ 2>"${z_scp_stderr}" \
+    || buc_die "Failed to deploy bundle — see ${z_scp_stderr}"
+  buc_step "Deploy complete: ${z_app_name##*/} (${z_bundle_size}) → anns-macbook-air:/Users/Shared/apcua/"
 }
 
 apcc_fixture_load() {

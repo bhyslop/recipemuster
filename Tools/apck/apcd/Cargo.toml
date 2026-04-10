@@ -25,6 +25,7 @@ aho-corasick = "1"
 regex = "1"
 unicode-segmentation = "1"
 chrono = "0.4"
+notify = "6"
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }

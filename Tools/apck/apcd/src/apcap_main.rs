@@ -28,6 +28,7 @@ fn read_clipboard() -> Result<String, String> {
 
 fn main() {
     apcd::apcrl_info_now!("starting Ann's PHI Clipbuddy");
+    apcd::apcru_update::apcru_start_watcher();
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![read_clipboard])
         .run(tauri::generate_context!())
