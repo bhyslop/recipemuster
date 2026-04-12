@@ -23,7 +23,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBGU** → `rbk/rbgu_Utility.sh`
 - **RBHO** → `rbk/rbho_onboarding.sh` (Handbook — cross-role onboarding walkthroughs)
 - **RBHP** → `rbk/rbhp_payor.sh` (Handbook — payor-only ceremonies: establish, refresh, quota)
-  - `rbh*` is the Handbook family (human-facing procedures), parallel to `rbg*` (Google machinery). Reserved future slots: `RBHG` governor ceremonies, `RBHD` director ceremonies, `RBHR` retriever ceremonies.
+  - `rbh*` is the Handbook family (human-facing procedures), parallel to `rbg*` (Google machinery). Three groups: `RBHO` onboarding, `RBHP` payor, `RBHW` windows. Colophon pattern: `rbw-h0` (HandbookTOP index), `rbw-h{o,p,w}` (group tops), `rbw-H{O,P,W}*` (subordinate procedures).
 - **RBID** → `rbev-vessels/rbev-bottle-ifrit/` (Ifrit — in-bottle attack binary for crucible testing)
 - **RBJ**  → Jailer prefix (non-terminal: children rbjs, rbjp, rbje, rbjh)
 - **RBJS** → `rbk/rbjs_sentry.sh` (Jailer Sentry - container security setup: iptables, dnsmasq, enclave network)
