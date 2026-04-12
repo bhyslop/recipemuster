@@ -2,8 +2,8 @@
 
 Recipe Bottle provides two independent container image capabilities:
 
-- **[Foundry](#Foundry)**: orchestrate Google Cloud Build to produce and retain images in a private cloud registry — egress-locked builds with full supply-chain provenance
-- **[Crucible](#Crucible)**: run untrusted containers behind enforced network isolation — DNS filtering and IP filtering — without modifying the workload image
+- **[Foundry](#Foundry)**: orchestrate Google Cloud Build to produce, fetch, retain, and serve images in a private cloud registry — even can coordinate egress-locked builds with full supply-chain provenance
+- **[Crucible](#Crucible)**: run untrusted containers behind enforced network isolation — DNS filtering and IP filtering — even using images unmodified from "in the wild"
 
 > [!IMPORTANT]
 > **Early-stage project — security review welcome in both domains**
@@ -16,6 +16,7 @@ Recipe Bottle provides two independent container image capabilities:
 
 Recipe Bottle is a set of bash scripts designed for incorporation into arbitrary projects.
 The dependency footprint is deliberately narrow — `bash 3.2` and a handful of standard tools — with no Python runtime, no language-specific package manager, and no `gcloud` CLI.
+After initial manual setup, all cloud API calls use `openssl` + `curl`.
 A small team can stand up a hardened build pipeline and a sandboxed runtime without specialized DevOps expertise.
 Recipe Bottle's goal is a workflow where every container image has a verified origin and a controlled version, running behind appropriate network safeguards.
 
@@ -27,17 +28,17 @@ Recipe Bottle's goal is a workflow where every container image has a verified or
 
 ## Environment
 
-Recipe Bottle addresses two orthogonal complexity domains: the [Foundry](#Foundry) builds container images with verifiable provenance, and the [Crucible](#Crucible) runs untrusted images with enforced network isolation.
+Recipe Bottle is organized around two independent capabilities: the [Foundry](#Foundry) builds container images with verifiable provenance, and the [Crucible](#Crucible) runs untrusted images with enforced network isolation.
 The two compose but neither requires the other.
 
-<a id="Regime"></a>**[Regime](#Regime).** Structured configuration with typed validation.
-Each [Regime](#Regime) is a set of environment variables in an `.env` file with a render command (display current values) and a validate command (check correctness).
-Recipe Bottle uses [Regimes](#Regime) for everything from [Depot](#Depot) identity to [Vessel](#Vessel) build definitions to developer workstation paths.
+<a id="Regime"></a>All configuration flows through [Regimes](#Regime) — structured `.env` files with typed validation, each with its own render and validate commands.
+Some regimes are committed in the repo: [Vessel](#Vessel) definitions ([RBRV](#RBRV)), [Nameplate](#Nameplate) configurations ([RBRN](#RBRN)), [Depot](#Depot) identity ([RBRR](#RBRR)), and [Payor](#Payor) identity ([RBRP](#RBRP)).
+Others live on the filesystem outside revision control: OAuth credentials ([RBRO](#RBRO)), role credentials ([RBRA](#RBRA)), and developer workstation paths ([BURS](#BURS)).
 
-<a id="Tabtarget"></a>**[Tabtarget](#Tabtarget).** Lightweight shell script in the `tt/` directory serving as the entry point for a single CLI operation.
-[Tabtargets](#Tabtarget) are named `{colophon}.{frontispiece}.sh` — the colophon routes to the right module, the frontispiece describes what it does.
-Tab completion narrows by prefix: `tt/rbw-<TAB>` shows all Recipe Bottle operations.
-The project's `CLAUDE.md` provides a complete command reference; the CLI's interactive walkthroughs are the authoritative procedure source.
+<a id="Tabtarget"></a>Every operation is launched through a [Tabtarget](#Tabtarget) — a shell script in the `tt/` directory.
+The critical property: tab completion finds the command you want.
+Type `tt/rbw-<TAB>` and the shell narrows to all Recipe Bottle operations; type `tt/rbw-h<TAB>` to see just the [Hallmark](#Hallmark) commands.
+Each [Tabtarget](#Tabtarget) is named `{colophon}.{frontispiece}.sh` — the colophon routes to the right module, the frontispiece tells you what it does.
 
 To begin, run the onboarding walkthrough:
 
