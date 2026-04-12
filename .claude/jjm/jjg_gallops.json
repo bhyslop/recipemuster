@@ -601,6 +601,7 @@
       "creation_time": "260410",
       "status": "racing",
       "order": [
+        "₢A8AAK",
         "₢A8AAH",
         "₢A8AAC",
         "₢A8AAD",
@@ -612,7 +613,7 @@
         "₢A8AAA",
         "₢A8AAB"
       ],
-      "next_pace_seed": "AAK",
+      "next_pace_seed": "AAL",
       "paddock_file": ".claude/jjm/jjp_uAl8.md",
       "paces": {
         "₢A8AAA": {
@@ -834,6 +835,17 @@
               "text": "## Character\n\nContent drafting requiring human review. The concepts (Ifrit, Theurge, coordinated testing) are well-defined in RBS0 and internal docs, but the public-facing framing — how much to say, what tone to strike, where the line is between \"inviting security scrutiny\" and \"overselling\" — requires judgment the user must approve. Draft, present, wait.\n\n## Docket\n\nAdd an \"Adversarial Security Testing\" section to README.md introducing the Ifrit and Theurge concepts to external readers. **Do not auto-wrap — this pace requires human review of the final text.**\n\n### Section placement\n\nAfter the existing \"Testing\" section, before \"Recovery\". Peer to Testing (which covers qualification gates), this section covers security validation.\n\n### Concepts to introduce\n\nTwo anchored glossary entries:\n\n- **Ifrit** — adversarial attack vessel running inside a Bottle. Purpose-built with scapy (arbitrary packet construction), strace (syscall boundary probing), and minimal footprint. Named for the djinn imprisoned in a bottle, seeking escape.\n- **Theurge** — test orchestrator running on the host, outside the Crucible. Charges a crucible, dispatches Ifrit attacks, and observes results from both inside the Bottle and outside via the Sentry. Coordinated testing — simultaneous attack and observation — is the distinctive capability.\n\n### Framing guidance\n\n- The escape tests were **developed through adversarial Claude Code sessions** with full visibility into the Sentry's source, iptables rules, dnsmasq configuration, and RBS0 spec. The Ifrit vessel is the delivery vehicle; the intelligence came from the authoring process.\n- Do NOT say \"the Ifrit has perfect information\" or similar — that conflates the author (Claude Code session) with the running artifact (attack binary).\n- Do NOT introduce \"Sortie\" as a glossary term. Describe the escape tests as curated, reproducible, version-controlled attack scripts targeting specific surfaces (DNS exfiltration, ICMP covert channels, metadata probing, namespace breakout, etc.) — in plain prose, not coined vocabulary.\n- Tone should match the Important blockquote at the top of README: honest about early-stage status, inviting scrutiny, not claiming certainty. \"Every test that passes is evidence the containment holds\" — not proof.\n\n### Draft, review, iterate\n\n1. Read current README.md structure at mount time (Foundry restructuring and other A8 paces may have changed layout)\n2. Draft the section following the framing guidance above\n3. Present draft to user for review — **do not commit without explicit approval**\n4. Iterate on feedback\n5. Notch after approval, present for wrap\n\n### Out of scope\n\n- Sortie framework internals (roster, adjutant, debrief, fronts — implementer vocabulary)\n- Theurge Rust architecture or build instructions\n- Ifrit vessel Dockerfile details\n- Test case inventory or fixture names\n- Changes to RBS0 or other specs",
               "silks": "adversarial-testing-readme-section",
               "commit": "e76f9a1"
+            }
+          ]
+        },
+        "₢A8AAK": {
+          "tacks": [
+            {
+              "ts": "260412-1154",
+              "state": "rough",
+              "text": "## Character\n\nMechanical rename with a Rust rebuild gate. Every change is a string substitution — no design judgment, no new code. But the blast radius touches zipper enrollments, onboarding display, theurge Rust constants, spec docs, and tabtarget filenames, so it needs careful execution and a test pass to confirm nothing broke.\n\n## Docket\n\nRestore `rbw-f` as the Foundry artifact operations colophon, vacating `rbw-h` for exclusive Handbook use. This resolves a terminal exclusivity violation where `rbw-h<TAB>` mixes Hallmark operations with Handbook pages.\n\n**History**: `rbw-f` was originally Foundry (`rbw-fA` Abjure, `rbw-fB` Build, `rbw-fD` Delete) until ₣Av scattered them to `rbw-a`/`rbw-i`/`rbw-h`. This pace brings Foundry ops home.\n\n### Colophon mapping\n\n| Old | New | Frontispiece |\n|-----|-----|-------------|\n| `rbw-hO` | `rbw-fO` | DirectorOrdainsHallmark |\n| `rbw-hk` | `rbw-fk` | LocalKludge |\n| `rbw-hA` | `rbw-fA` | DirectorAbjuresHallmark |\n| `rbw-ht` | `rbw-ft` | DirectorTalliesHallmarks |\n| `rbw-hV` | `rbw-fV` | DirectorVouchesHallmarks |\n| `rbw-hs` | `rbw-fs` | RetrieverSummonsHallmark |\n| `rbw-hpf` | `rbw-fpf` | RetrieverPlumbsFull |\n| `rbw-hpc` | `rbw-fpc` | RetrieverPlumbsCompact |\n\n### Steps\n\n1. **Rename 8 tabtarget files** in `tt/` (old → new per mapping above)\n2. **Update `Tools/rbk/rbz_zipper.sh`** — 8 `buz_enroll` colophon strings\n3. **Update `Tools/rbk/rbho_onboarding.sh`** — 14 `buh_tc` tabtarget filename references\n4. **Update `Tools/rbk/rbtd/src/rbtdrm_manifest.rs`** — 4 Rust colophon constants\n5. **Update `Tools/rbk/rbw_workbench.sh`** — 1 comment\n6. **Update `Tools/rbk/rbfc_FoundryCore.sh`** — 1 comment\n7. **Update `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc`** — 2 linked term colophon refs\n8. **Update `Tools/rbk/vov_veiled/CLAUDE.consumer.md`** — 1 troubleshooting reference\n9. **Update `Tools/rbk/vov_veiled/RBSAK-ark_kludge.adoc`** — 1 spec reference\n10. **Rebuild theurge**: `tt/rbtd-b.Build.sh`\n11. **Regenerate tabtarget context**: `tt/rbw-MG.MarshalGenerate.sh`\n12. **Run fast qualify**: `tt/rbw-tf.QualifyFast.sh`\n13. **Verify** `tt/rbw-h<TAB>` shows only Handbook targets, `tt/rbw-f<TAB>` shows only Foundry targets\n14. **Notch** with full before/after colophon inventory\n\n### Verification gates\n\n- Fast qualify passes\n- Theurge builds clean\n- Zero references to old `rbw-h{O,k,A,t,V,s,pf,pc}` colophons remain in live code (grep confirm)\n- `rbw-h*` contains only Handbook targets\n- `rbw-f*` contains only Foundry targets",
+              "silks": "foundry-colophon-restore",
+              "commit": "640147a"
             }
           ]
         }
