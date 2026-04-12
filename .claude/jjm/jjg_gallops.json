@@ -32,9 +32,10 @@
       "status": "racing",
       "order": [
         "₢A-AAA",
-        "₢A-AAB"
+        "₢A-AAB",
+        "₢A-AAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -56,6 +57,17 @@
               "text": "## Character\nCritical review — fresh eyes on mechanical output.\n\n## Docket\nReview all files from the draft pace. Check:\n- `buh_*` combinator arg counts match function signatures (the positional color encoding is error-prone)\n- Tabtarget → workbench → CLI → module dispatch chain actually wires up\n- Kindle/tinder constants are readonly and properly guarded\n- Parameters flow correctly through folio/positional args\n- `buw-hw` and `rbw-hw` top-level overviews render without crashing\n- No private color variables (old `rbhp` style) — `buh_*` combinators only\n- Zipper enrollments match tabtarget filenames and colophons",
               "silks": "review-handbook-draft",
               "commit": "fc98fa3"
+            }
+          ]
+        },
+        "₢A-AAC": {
+          "tacks": [
+            {
+              "ts": "260412-0931",
+              "state": "rough",
+              "text": "## Character\nHuman-driven with agent amending — discovery through real execution.\n\n## Docket\nUser executes Access procedures on actual Windows host:\n- `buw-HWab` — OpenSSH install + lockdown\n- `buw-HWar` — client key gen + ssh config\n- `buw-HWax` — key→environment routing via command= in authorized_keys\n\nAgent monitors progress, amends handbook text for any issues discovered during first practice (wrong syntax, missing steps, unclear instructions). Goal: SSH works end-to-end with key-based auth routing to correct environments.",
+              "silks": "practice-access-procedures",
+              "commit": "e53d3b6"
             }
           ]
         }
