@@ -33,9 +33,10 @@
       "order": [
         "₢A-AAA",
         "₢A-AAB",
-        "₢A-AAC"
+        "₢A-AAC",
+        "₢A-AAD"
       ],
-      "next_pace_seed": "AAD",
+      "next_pace_seed": "AAE",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -68,6 +69,17 @@
               "text": "## Character\nHuman-driven with agent amending — discovery through real execution.\n\n## Docket\nUser executes Access procedures on actual Windows host:\n- `buw-HWab` — OpenSSH install + lockdown\n- `buw-HWar` — client key gen + ssh config\n- `buw-HWax` — key→environment routing via command= in authorized_keys\n\nAgent monitors progress, amends handbook text for any issues discovered during first practice (wrong syntax, missing steps, unclear instructions). Goal: SSH works end-to-end with key-based auth routing to correct environments.",
               "silks": "practice-access-procedures",
               "commit": "e53d3b6"
+            }
+          ]
+        },
+        "₢A-AAD": {
+          "tacks": [
+            {
+              "ts": "260412-0931",
+              "state": "rough",
+              "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\nUser executes Environment procedures on Windows host:\n- `buw-HWew` — WSL distro creation (`rbtww-main`)\n- `buw-HWec` — Cygwin install\n\nAgent amends handbook for issues. Goal: WSL distro and Cygwin both functional, ready for fundus provisioning and Docker.",
+              "silks": "practice-environment-procedures",
+              "commit": "b53f1f6"
             }
           ]
         }
