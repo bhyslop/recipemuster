@@ -31,9 +31,10 @@
       "creation_time": "260412",
       "status": "racing",
       "order": [
-        "₢A-AAA"
+        "₢A-AAA",
+        "₢A-AAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -44,6 +45,17 @@
               "text": "## Character\nMechanical but broad — translating settled design into code across two kits.\n\n## Docket\nImplement all handbook procedures from the paddock design. This is pure translation — the design conversation is complete, the tabtarget inventory is fixed, the `buh_*` combinator precedent in `rbhp_payor.sh` is the template.\n\nDeliverables:\n- BUK: `buhw_windows.sh` module with 6 public functions (`buhw_access_base`, `buhw_access_remote`, `buhw_access_entrypoints`, `buhw_environment_wsl`, `buhw_environment_cygwin`, `buhw_top`), plus `buhw_cli.sh`, zipper enrollment, 6 tabtargets\n- RBK: `rbhw_windows.sh` module with 4 public functions (`rbhw_docker_desktop`, `rbhw_docker_wsl_native`, `rbhw_docker_context_discipline`, `rbhw_top`), plus `rbhw_cli.sh`, zipper enrollment, 4 tabtargets\n- Tinder/kindle constants for fixed paths, distro name, docker context name\n- Source content from `Memos/memo-20260412-windows-handbook-draft.md`, adapted to use `buh_*` combinators exclusively (no private color variables like `rbhp`'s old style)\n- Parameters on `buhw_access_remote` (host, user, key-name, alias) and `buhw_environment_wsl`/`rbhw_docker_wsl_native` (distro-name)",
               "silks": "draft-all-handbook-implementations",
               "commit": "38a3e73"
+            }
+          ]
+        },
+        "₢A-AAB": {
+          "tacks": [
+            {
+              "ts": "260412-0931",
+              "state": "rough",
+              "text": "## Character\nCritical review — fresh eyes on mechanical output.\n\n## Docket\nReview all files from the draft pace. Check:\n- `buh_*` combinator arg counts match function signatures (the positional color encoding is error-prone)\n- Tabtarget → workbench → CLI → module dispatch chain actually wires up\n- Kindle/tinder constants are readonly and properly guarded\n- Parameters flow correctly through folio/positional args\n- `buw-hw` and `rbw-hw` top-level overviews render without crashing\n- No private color variables (old `rbhp` style) — `buh_*` combinators only\n- Zipper enrollments match tabtarget filenames and colophons",
+              "silks": "review-handbook-draft",
+              "commit": "fc98fa3"
             }
           ]
         }
