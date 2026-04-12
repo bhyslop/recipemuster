@@ -30,10 +30,24 @@
       "silks": "rbk-mvp-3-draft-windows-procedures",
       "creation_time": "260412",
       "status": "racing",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢A-AAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
-      "paces": {}
+      "paces": {
+        "₢A-AAA": {
+          "tacks": [
+            {
+              "ts": "260412-0930",
+              "state": "rough",
+              "text": "## Character\nMechanical but broad — translating settled design into code across two kits.\n\n## Docket\nImplement all handbook procedures from the paddock design. This is pure translation — the design conversation is complete, the tabtarget inventory is fixed, the `buh_*` combinator precedent in `rbhp_payor.sh` is the template.\n\nDeliverables:\n- BUK: `buhw_windows.sh` module with 6 public functions (`buhw_access_base`, `buhw_access_remote`, `buhw_access_entrypoints`, `buhw_environment_wsl`, `buhw_environment_cygwin`, `buhw_top`), plus `buhw_cli.sh`, zipper enrollment, 6 tabtargets\n- RBK: `rbhw_windows.sh` module with 4 public functions (`rbhw_docker_desktop`, `rbhw_docker_wsl_native`, `rbhw_docker_context_discipline`, `rbhw_top`), plus `rbhw_cli.sh`, zipper enrollment, 4 tabtargets\n- Tinder/kindle constants for fixed paths, distro name, docker context name\n- Source content from `Memos/memo-20260412-windows-handbook-draft.md`, adapted to use `buh_*` combinators exclusively (no private color variables like `rbhp`'s old style)\n- Parameters on `buhw_access_remote` (host, user, key-name, alias) and `buhw_environment_wsl`/`rbhw_docker_wsl_native` (distro-name)",
+              "silks": "draft-all-handbook-implementations",
+              "commit": "38a3e73"
+            }
+          ]
+        }
+      }
     },
     "₣A5": {
       "silks": "garlanded-rbk-mvp-3-public-docs-refresh-01",
