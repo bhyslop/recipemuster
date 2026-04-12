@@ -34,9 +34,10 @@
         "₢A-AAA",
         "₢A-AAB",
         "₢A-AAC",
-        "₢A-AAD"
+        "₢A-AAD",
+        "₢A-AAE"
       ],
-      "next_pace_seed": "AAE",
+      "next_pace_seed": "AAF",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -80,6 +81,17 @@
               "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\nUser executes Environment procedures on Windows host:\n- `buw-HWew` — WSL distro creation (`rbtww-main`)\n- `buw-HWec` — Cygwin install\n\nAgent amends handbook for issues. Goal: WSL distro and Cygwin both functional, ready for fundus provisioning and Docker.",
               "silks": "practice-environment-procedures",
               "commit": "b53f1f6"
+            }
+          ]
+        },
+        "₢A-AAE": {
+          "tacks": [
+            {
+              "ts": "260412-0931",
+              "state": "rough",
+              "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\nUser runs existing JJK fundus provisioning inside the WSL distro:\n- `jjw-tfP1.ProvisionPhase1.sh` (sudo, inside WSL) — create `jjfu_*` accounts\n- `jjw-tfP2.ProvisionPhase2.sh` — clone repos, install BUK\n\nNo new code expected — this validates that the existing `jjfp_fundus.sh` works unchanged inside WSL on Windows. If issues arise (platform detection, path differences, SSH localhost behavior in WSL), agent amends `jjfp_fundus.sh` or documents WSL-specific caveats.",
+              "silks": "practice-fundus-provisioning",
+              "commit": "f290e70"
             }
           ]
         }
