@@ -90,21 +90,21 @@ zrbz_kindle() {
   buz_enroll RBZ_ONBOARD_START_HERE    "rbw-o"   "${z_mod}" "rbho_start_here"   ""  "Onboarding start — probe-aware menu into handbook tracks"
   buz_enroll RBZ_ONBOARD_CRASH_COURSE  "rbw-Occ" "${z_mod}" "rbho_crash_course" ""  "Crash Course — universal prerequisite: tabtargets, regimes, diagnostic failure"
 
-  # Hallmark — registry artifact lifecycle (rbw-h, UPPER=mutates GAR, lower=read/local)
-  buz_group RBZ__GROUP_HALLMARK   "rbw-h"   "Hallmark — Registry artifact lifecycle"
+  # Foundry — registry artifact lifecycle (rbw-f, UPPER=mutates GAR, lower=read/local)
+  buz_group RBZ__GROUP_FOUNDRY    "rbw-f"   "Foundry — Registry artifact lifecycle"
   z_mod="rbfd_cli.sh"
-  buz_enroll RBZ_ORDAIN_HALLMARK        "rbw-hO"  "${z_mod}" "rbfd_ordain"          ""  "Ordain hallmark: conjure, bind, or graft based on vessel mode"
-  buz_enroll RBZ_KLUDGE_VESSEL          "rbw-hk"  "${z_mod}" "rbfd_kludge"          ""  "Kludge a vessel image locally for development"
+  buz_enroll RBZ_ORDAIN_HALLMARK        "rbw-fO"  "${z_mod}" "rbfd_ordain"          ""  "Ordain hallmark: conjure, bind, or graft based on vessel mode"
+  buz_enroll RBZ_KLUDGE_VESSEL          "rbw-fk"  "${z_mod}" "rbfd_kludge"          ""  "Kludge a vessel image locally for development"
   z_mod="rbfl_cli.sh"
-  buz_enroll RBZ_ABJURE_HALLMARK        "rbw-hA"  "${z_mod}" "rbfl_abjure"          ""  "Abjure a hallmark (delete artifacts from GAR)"
-  buz_enroll RBZ_TALLY_HALLMARKS        "rbw-ht"  "${z_mod}" "rbfl_tally"           ""  "Tally hallmarks by health state"
+  buz_enroll RBZ_ABJURE_HALLMARK        "rbw-fA"  "${z_mod}" "rbfl_abjure"          ""  "Abjure a hallmark (delete artifacts from GAR)"
+  buz_enroll RBZ_TALLY_HALLMARKS        "rbw-ft"  "${z_mod}" "rbfl_tally"           ""  "Tally hallmarks by health state"
   z_mod="rbfv_cli.sh"
-  buz_enroll RBZ_VOUCH_HALLMARKS        "rbw-hV"  "${z_mod}" "rbfv_batch_vouch"     ""  "Mode-aware vouch: SLSA (conjure), digest-pin (bind), GRAFTED (graft)"
+  buz_enroll RBZ_VOUCH_HALLMARKS        "rbw-fV"  "${z_mod}" "rbfv_batch_vouch"     ""  "Mode-aware vouch: SLSA (conjure), digest-pin (bind), GRAFTED (graft)"
   z_mod="rbfr_cli.sh"
-  buz_enroll RBZ_SUMMON_HALLMARK        "rbw-hs"  "${z_mod}" "rbfr_summon"          ""  "Summon vouched hallmark image locally"
+  buz_enroll RBZ_SUMMON_HALLMARK        "rbw-fs"  "${z_mod}" "rbfr_summon"          ""  "Summon vouched hallmark image locally"
   z_mod="rbfc_cli.sh"
-  buz_enroll RBZ_PLUMB_FULL             "rbw-hpf" "${z_mod}" "rbfc_plumb_full"      ""  "Full provenance display (SBOM, build info, Dockerfile)"
-  buz_enroll RBZ_PLUMB_COMPACT          "rbw-hpc" "${z_mod}" "rbfc_plumb_compact"   ""  "Compact provenance summary"
+  buz_enroll RBZ_PLUMB_FULL             "rbw-fpf" "${z_mod}" "rbfc_plumb_full"      ""  "Full provenance display (SBOM, build info, Dockerfile)"
+  buz_enroll RBZ_PLUMB_COMPACT          "rbw-fpc" "${z_mod}" "rbfc_plumb_compact"   ""  "Compact provenance summary"
 
   # Ifrit — attack binary (rbw-I)
   buz_group RBZ__GROUP_IFRIT      "rbw-I"   "Ifrit — Attack binary"

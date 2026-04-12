@@ -67,18 +67,18 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-o` | OnboardingStartHere | — | Onboarding start — probe-aware menu into handbook tracks |
 | `rbw-Occ` | OnboardingCrashCourse | — | Crash Course — universal prerequisite: tabtargets, regimes, diagnostic failure |
 
-### Hallmark — Registry artifact lifecycle (`rbw-h`)
+### Foundry — Registry artifact lifecycle (`rbw-f`)
 
 | Colophon | Frontispiece | Folio | Purpose |
 |----------|-------------|-------|---------|
-| `rbw-hO` | DirectorOrdainsHallmark | — | Ordain hallmark: conjure, bind, or graft based on vessel mode |
-| `rbw-hk` | LocalKludge | — | Kludge a vessel image locally for development |
-| `rbw-hA` | DirectorAbjuresHallmark | — | Abjure a hallmark (delete artifacts from GAR) |
-| `rbw-ht` | DirectorTalliesHallmarks | — | Tally hallmarks by health state |
-| `rbw-hV` | DirectorVouchesHallmarks | — | Mode-aware vouch: SLSA (conjure), digest-pin (bind), GRAFTED (graft) |
-| `rbw-hs` | RetrieverSummonsHallmark | — | Summon vouched hallmark image locally |
-| `rbw-hpf` | RetrieverPlumbsFull | — | Full provenance display (SBOM, build info, Dockerfile) |
-| `rbw-hpc` | RetrieverPlumbsCompact | — | Compact provenance summary |
+| `rbw-fO` | DirectorOrdainsHallmark | — | Ordain hallmark: conjure, bind, or graft based on vessel mode |
+| `rbw-fk` | LocalKludge | — | Kludge a vessel image locally for development |
+| `rbw-fA` | DirectorAbjuresHallmark | — | Abjure a hallmark (delete artifacts from GAR) |
+| `rbw-ft` | DirectorTalliesHallmarks | — | Tally hallmarks by health state |
+| `rbw-fV` | DirectorVouchesHallmarks | — | Mode-aware vouch: SLSA (conjure), digest-pin (bind), GRAFTED (graft) |
+| `rbw-fs` | RetrieverSummonsHallmark | — | Summon vouched hallmark image locally |
+| `rbw-fpf` | RetrieverPlumbsFull | — | Full provenance display (SBOM, build info, Dockerfile) |
+| `rbw-fpc` | RetrieverPlumbsCompact | — | Compact provenance summary |
 
 ### Ifrit — Attack binary (`rbw-I`)
 

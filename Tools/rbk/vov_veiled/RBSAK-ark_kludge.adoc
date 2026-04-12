@@ -60,7 +60,7 @@ is set, use the origin directly as the `RBF_IMAGE_n` build-arg
 
 == Tabtarget
 
-`tt/rbw-hk.LocalKludge.sh «vessel-sigil»`
+`tt/rbw-fk.LocalKludge.sh «vessel-sigil»`
 
 == See Also
 

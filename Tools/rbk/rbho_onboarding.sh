@@ -507,11 +507,11 @@ rbho_retriever() {
       buh_t   "  timestamp."
       buh_e
       buh_tlt "  " "Summon" "${z_docs}#Summon" " pulls a hallmark image from the depot to your local machine:"
-      buh_tc  "    " "tt/rbw-hs.RetrieverSummonsHallmark.sh"
+      buh_tT  "    " "${RBZ_SUMMON_HALLMARK}"
       buh_e
       buh_t   "  After summoning, inspect the artifact's provenance:"
-      buh_tc  "    " "tt/rbw-hpf.RetrieverPlumbsFull.sh"
-      buh_tc  "    " "tt/rbw-hpc.RetrieverPlumbsCompact.sh"
+      buh_tT  "    " "${RBZ_PLUMB_FULL}"
+      buh_tT  "    " "${RBZ_PLUMB_COMPACT}"
       buh_e
       buh_tlt "  A " "vouch" "${z_docs}#Vouch" " is cryptographic attestation proving the artifact was built"
       buh_t   "  by trusted infrastructure."
@@ -544,7 +544,7 @@ rbho_retriever() {
       buh_e
       buh_tlt "  " "Kludge" "${z_docs}#Kludge" " builds a vessel image locally for fast iteration — no registry"
       buh_t   "  push, no director credentials needed:"
-      buh_tc  "    " "tt/rbw-hk.LocalKludge.sh"
+      buh_tT  "    " "${RBZ_KLUDGE_VESSEL}"
       buh_e
       buh_t   "  After kludging, charge a nameplate to test your local build, then rack in"
       buh_t   "  and look around. Kludge is the retriever's experimentation tool — iterate"
@@ -646,7 +646,7 @@ rbho_director() {
       buh_t   "  setup needed, no registry push. The fastest way to see a vessel come to life."
       buh_e
       buh_t   "  Build the sentry vessel locally:"
-      buh_tc  "    " "tt/rbw-hk.LocalKludge.sh"
+      buh_tT  "    " "${RBZ_KLUDGE_VESSEL}"
       buh_e
       buh_tlt "  After kludging, test by " "charging" "${z_docs}#Charge" " a crucible and shelling in:"
       buh_tc  "    " "tt/rbw-cC.Charge.tadmor.sh"
@@ -701,15 +701,15 @@ rbho_director() {
       buh_e
       buh_t   "  This is the same vessel you kludged locally — now Cloud Build creates it"
       buh_t   "  with full SLSA provenance:"
-      buh_tc  "    " "tt/rbw-hO.DirectorOrdainsHallmark.sh"
+      buh_tT  "    " "${RBZ_ORDAIN_HALLMARK}"
       buh_e
       buh_tlt "  Verify with " "vouch" "${z_docs}#Vouch" " (cryptographic attestation) and"
       buh_tlt "  " "tally" "${z_docs}#Tally" " (registry inventory):"
-      buh_tc  "    " "tt/rbw-hV.DirectorVouchesHallmarks.sh"
-      buh_tc  "    " "tt/rbw-ht.DirectorTalliesHallmarks.sh"
+      buh_tT  "    " "${RBZ_VOUCH_HALLMARKS}"
+      buh_tT  "    " "${RBZ_TALLY_HALLMARKS}"
       buh_e
       buh_tlt "  Then " "summon" "${z_docs}#Summon" " the hallmark locally to confirm the full pipeline:"
-      buh_tc  "    " "tt/rbw-hs.RetrieverSummonsHallmark.sh"
+      buh_tT  "    " "${RBZ_SUMMON_HALLMARK}"
 
     elif test "${z_du5}" = "0"; then
       # ---- Unit 5: Bind — Pin Upstream Image ----
@@ -724,15 +724,15 @@ rbho_director() {
       buh_t   "  all egress. You get the tool without the risk."
       buh_e
       buh_t   "  Ordain the plantuml vessel in bind mode:"
-      buh_tc  "    " "tt/rbw-hO.DirectorOrdainsHallmark.sh"
+      buh_tT  "    " "${RBZ_ORDAIN_HALLMARK}"
       buh_e
       buh_t   "  The upstream image is pulled by digest, pushed to GAR, about metadata"
       buh_tlt "  generated, and " "vouch" "${z_docs}#Vouch" " records a digest-pin verdict. No SLSA provenance —"
       buh_t   "  the image was not built here, but it is pinned and bottled."
       buh_e
       buh_tlt "  Verify and " "summon" "${z_docs}#Summon" ":"
-      buh_tc  "    " "tt/rbw-hV.DirectorVouchesHallmarks.sh"
-      buh_tc  "    " "tt/rbw-hs.RetrieverSummonsHallmark.sh"
+      buh_tT  "    " "${RBZ_VOUCH_HALLMARKS}"
+      buh_tT  "    " "${RBZ_SUMMON_HALLMARK}"
 
     elif test "${z_du6}" = "0"; then
       # ---- Unit 6: Graft — Push Local to Registry ----
@@ -743,7 +743,7 @@ rbho_director() {
       buh_e
       buh_t   "  You kludged the sentry in step 2 and conjured it in step 4. Now push your"
       buh_t   "  local build to the registry via graft:"
-      buh_tc  "    " "tt/rbw-hO.DirectorOrdainsHallmark.sh"
+      buh_tT  "    " "${RBZ_ORDAIN_HALLMARK}"
       buh_e
       buh_t   "  One combined Cloud Build job runs about + vouch. The vouch verdict is"
       buh_t   "  GRAFTED — meaning this image was locally built, trust it at your own"
@@ -761,7 +761,7 @@ rbho_director() {
       buh_e
       buh_tlt "  " "Plumb" "${z_docs}#Plumb" " lets you inspect an artifact's provenance — SBOM, build info,"
       buh_t   "  and vouch chain:"
-      buh_tc  "    " "tt/rbw-hpf.RetrieverPlumbsFull.sh"
+      buh_tT  "    " "${RBZ_PLUMB_FULL}"
       buh_e
       buh_t   "  Run plumb against each mode's hallmark and compare:"
       buh_tlt "    - " "Conjure" "${z_docs}#Conjure" " (sentry): DSSE vouch, SLSA provenance"
@@ -770,7 +770,7 @@ rbho_director() {
       buh_e
       buh_t   "  The tally command shows the full registry health view — the director's"
       buh_t   "  operational dashboard:"
-      buh_tc  "    " "tt/rbw-ht.DirectorTalliesHallmarks.sh"
+      buh_tT  "    " "${RBZ_TALLY_HALLMARKS}"
     fi
   fi
 

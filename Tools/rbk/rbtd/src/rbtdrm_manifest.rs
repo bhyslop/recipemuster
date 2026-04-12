@@ -26,11 +26,11 @@ pub const RBTDRM_COLOPHON_WRIT: &str = "rbw-cw";
 pub const RBTDRM_COLOPHON_FIAT: &str = "rbw-cf";
 pub const RBTDRM_COLOPHON_BARK: &str = "rbw-cb";
 
-// Hallmark colophons (global — no nameplate imprint)
-pub const RBTDRM_COLOPHON_ORDAIN: &str = "rbw-hO";
-pub const RBTDRM_COLOPHON_ABJURE: &str = "rbw-hA";
-pub const RBTDRM_COLOPHON_TALLY: &str = "rbw-ht";
-pub const RBTDRM_COLOPHON_KLUDGE: &str = "rbw-hk";
+// Foundry colophons (global — no nameplate imprint)
+pub const RBTDRM_COLOPHON_ORDAIN: &str = "rbw-fO";
+pub const RBTDRM_COLOPHON_ABJURE: &str = "rbw-fA";
+pub const RBTDRM_COLOPHON_TALLY: &str = "rbw-ft";
+pub const RBTDRM_COLOPHON_KLUDGE: &str = "rbw-fk";
 
 // Image colophon (global — no nameplate imprint)
 pub const RBTDRM_COLOPHON_WREST: &str = "rbw-iw";

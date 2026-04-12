@@ -66,11 +66,11 @@ Kludge builds are for rapid local iteration. Once all tests pass with the kludge
 
 1. Ordain the vessel:
    ```
-   tt/rbw-hO.DirectorOrdainsHallmark.sh rbev-bottle-ifrit
+   tt/rbw-fO.DirectorOrdainsHallmark.sh rbev-bottle-ifrit
    ```
 2. Summon the ordained hallmark locally:
    ```
-   tt/rbw-hs.RetrieverSummonsHallmark.sh rbev-bottle-ifrit <hallmark>
+   tt/rbw-fs.RetrieverSummonsHallmark.sh rbev-bottle-ifrit <hallmark>
    ```
 3. Drive the ordained hallmark into the nameplate (edit `RBRN_BOTTLE_HALLMARK` in `.rbk/tadmor/rbrn.env`), commit, and re-run the full fixture to verify.
 

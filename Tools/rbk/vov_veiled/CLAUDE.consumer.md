@@ -203,4 +203,4 @@ Project Root/
 - **OAuth token expired**: `tt/rbw-gPR.PayorRefresh.sh`
 - **Lost credential file**: Re-run the creation command for that role (payor install, governor mantle, director knight, retriever charter).
 - **Tabtarget not found**: Run `tt/rbw-tf.QualifyFast.sh` to check tabtarget and colophon health.
-- **Build fails**: Check `tt/rbw-ht.DirectorTalliesHallmarks.sh` for build status. Review logs in the GCP Console for the depot project.
+- **Build fails**: Check `tt/rbw-ft.DirectorTalliesHallmarks.sh` for build status. Review logs in the GCP Console for the depot project.
