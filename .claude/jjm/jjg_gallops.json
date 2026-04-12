@@ -85,6 +85,13 @@
         "₢A-AAB": {
           "tacks": [
             {
+              "ts": "260412-1056",
+              "state": "complete",
+              "text": "## Character\nCritical review — fresh eyes on mechanical output.\n\n## Docket\nReview all files from the draft pace. Check:\n- `buh_*` combinator arg counts match function signatures (the positional color encoding is error-prone)\n- Tabtarget → workbench → CLI → module dispatch chain actually wires up\n- Kindle/tinder constants are readonly and properly guarded\n- Parameters flow correctly through folio/positional args\n- `buw-hw` and `rbw-hw` top-level overviews render without crashing\n- No private color variables (old `rbhp` style) — `buh_*` combinators only\n- Zipper enrollments match tabtarget filenames and colophons",
+              "silks": "review-handbook-draft",
+              "commit": "bcb90f5"
+            },
+            {
               "ts": "260412-0931",
               "state": "rough",
               "text": "## Character\nCritical review — fresh eyes on mechanical output.\n\n## Docket\nReview all files from the draft pace. Check:\n- `buh_*` combinator arg counts match function signatures (the positional color encoding is error-prone)\n- Tabtarget → workbench → CLI → module dispatch chain actually wires up\n- Kindle/tinder constants are readonly and properly guarded\n- Parameters flow correctly through folio/positional args\n- `buw-hw` and `rbw-hw` top-level overviews render without crashing\n- No private color variables (old `rbhp` style) — `buh_*` combinators only\n- Zipper enrollments match tabtarget filenames and colophons",
