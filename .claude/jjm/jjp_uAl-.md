@@ -24,7 +24,6 @@ Raw draft captured in `Memos/memo-20260412-windows-handbook-draft.md` (9 procedu
 - Tinder: Windows fixed paths (`C:\ProgramData\ssh\*`, `C:\cygwin64`), TCP/22, firewall rule name
 - Kindle: WSL distro name (`rbtww-main` — deferred deconfliction), docker context name (`wsl-native`), SSH key filename, host alias
 - Parameters on `buw-HWar`: host, user, key-name, alias (four params)
-- Parameters on `buw-HWax`: environment routing entries (key-comment, command pairs) — mechanism is generic, policy comes from caller
 - Parameters on `buw-HWew` and `rbw-HWdw`: distro-name
 - No regime file needed yet
 
@@ -36,6 +35,10 @@ Raw draft captured in `Memos/memo-20260412-windows-handbook-draft.md` (9 procedu
 
 **RBK orchestrator rendering**: `rbw-hw` uses `buh_T` (tabtarget combinator) to render clickable BUK/JJK/RBK tabtarget paths in dependency order.
 
+**Handbook/tabtarget separation**: Handbooks display, tabtargets do. Following the `rbho_onboarding.sh` pattern: handbooks render copy-paste commands (`buh_c` for PowerShell, `buh_T` for tabtargets) and the human orchestrates. No attempt to wrap PowerShell or get exit status from it. `buw-HWax` is pure display — shows the `command=` routing format and `icacls` commands, takes no params. Project-specific environment commands appear in `rbw-hw`'s orchestrator output.
+
+**Verification tabtargets**: Deferred to after practice walkthroughs. Once SSH routing works, real tabtargets can probe Windows host status over SSH (like onboarding's probe functions). Practice paces will reveal which verifications are worth automating.
+
 ## Tabtarget Inventory
 
 ```
@@ -43,9 +46,9 @@ BUK:
   tt/buw-hw.WindowsHandbook.sh          — top-level checklist
   tt/buw-HWab.AccessBase.sh             — OpenSSH server install + lockdown
   tt/buw-HWar.AccessRemote.sh           — client key gen + ssh config (params: host, user, key-name, alias)
-  tt/buw-HWax.AccessEntrypoints.sh      — command= routing + icacls (params: environment routing entries)
+  tt/buw-HWax.AccessEntrypoints.sh      — command= routing format + icacls (pure display, no params)
   tt/buw-HWew.EnvironmentWSL.sh         — WSL distro creation (param: distro-name)
-  tt/buw-HWec.EnvironmentCygwin.sh      — Cygwin install (verification: bash >= 3.2, not a specific version)
+  tt/buw-HWec.EnvironmentCygwin.sh      — Cygwin install (verification: bash >= 3.2)
 
 RBK:
   tt/rbw-hw.WindowsHandbook.sh          — orchestrator referencing BUK + JJK + RBK steps via buh_T
@@ -57,4 +60,3 @@ RBK:
 ## Open Questions
 - `rbtww-main` mint deconfliction deferred to post-MVP
 - BUK handbook module naming: `buhw_*` functions in `buhw_windows.sh` (new file, not extending `buh_handbook.sh`)
-- `buw-HWax` parameterization: how environment routing entries are passed — positional args, array, or kindle constants sourced from caller's kit? (OPEN — needs design discussion)
