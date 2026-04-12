@@ -95,8 +95,12 @@ buhw_access_base() {
   buh_c        "PasswordAuthentication no"
   buh_c        "PubkeyAuthentication yes"
   buh_c        "PermitEmptyPasswords no"
-  buh_c        "ChallengeResponseAuthentication no"
-  buh_c        "UsePAM no"
+  buh_t        "Do NOT add UsePAM or ChallengeResponseAuthentication — Windows OpenSSH"
+  buh_t        "rejects unrecognized directives and the service will fail to start."
+  buh_e
+  buh_step2    "Validate before applying:"
+  buh_c        "sshd -t -f \$env:TEMP\\sshd_config"
+  buh_t        "Expect: no output (silence means valid). Fix any reported errors."
   buh_e
   buh_step2    "Replace the original:"
   buh_c        "Copy-Item \$env:TEMP\\sshd_config ${ZBUHW_SSHD_CONFIG} -Force"
@@ -105,9 +109,15 @@ buhw_access_base() {
   buh_c        "Restart-Service sshd"
   buh_e
   buh_step1    "Verify:"
-  buh_t        "From a remote machine:"
-  buh_c        "ssh user@host"
-  buh_t        "Expect: publickey prompt; password login rejected."
+  buh_t        "Discover your Windows username and IP (on the Windows machine):"
+  buh_c        "whoami"
+  buh_c        "ipconfig"
+  buh_t        "Note the username (after the backslash) and IPv4 address."
+  buh_e
+  buh_t        "From a remote machine, test SSH reachability:"
+  buh_c        "ssh <username>@<ip>"
+  buh_t        "Expect: Permission denied (publickey). This confirms sshd is running"
+  buh_t        "and password login is correctly rejected. Key setup follows in step 2."
 
 }
 
