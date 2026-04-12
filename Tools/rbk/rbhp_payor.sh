@@ -34,27 +34,6 @@ ZRBHP_SOURCED=1
 zrbhp_kindle() {
   test -z "${ZRBHP_KINDLED:-}" || buc_die "Module rbhp already kindled"
 
-  local z_use_color=0
-  if test -z "${NO_COLOR:-}" && test "${BURE_COLOR:-0}" = "1"; then
-    z_use_color=1
-  fi
-
-  if test "${z_use_color}" = "1"; then
-    readonly ZRBHP_R="\033[0m"         # Reset
-    readonly ZRBHP_S="\033[1;37m"      # Section (bright white)
-    readonly ZRBHP_C="\033[36m"        # Command (cyan)
-    readonly ZRBHP_W="\033[35m"        # Website (magenta)
-    readonly ZRBHP_Y="\033[1;33m"      # Warning (bright yellow)
-    readonly ZRBHP_CR="\033[1;31m"     # Critical (bright red)
-  else
-    readonly ZRBHP_R=""                # No color, or disabled
-    readonly ZRBHP_S=""                # No color, or disabled
-    readonly ZRBHP_C=""                # No color, or disabled
-    readonly ZRBHP_W=""                # No color, or disabled
-    readonly ZRBHP_Y=""                # No color, or disabled
-    readonly ZRBHP_CR=""               # No color, or disabled
-  fi
-
   # Click modifier: Cmd on macOS, Ctrl elsewhere
   case "$(uname -s)" in
     Darwin) readonly ZRBHP_CLICK_MOD="Cmd" ;;
@@ -77,45 +56,6 @@ zrbhp_enforce() {
   test   "${#RBRR_DEPOT_PROJECT_ID}" -gt 0 || buc_die "RBRR_DEPOT_PROJECT_ID is empty"
   zrbgc_sentinel
 }
-
-zrbhp_show() {
-  zrbhp_sentinel
-  printf '%b\n' "${1:-}"
-}
-
-zrbhp_s1()      { zrbhp_show "${ZRBHP_S}${1}${ZRBHP_R}"; }
-zrbhp_s2()      { zrbhp_show "${ZRBHP_S}${1}${ZRBHP_R}"; }
-zrbhp_s3()      { zrbhp_show "${ZRBHP_S}${1}${ZRBHP_R}"; }
-
-zrbhp_e()       { zrbhp_show "";                                                             }
-zrbhp_d()       { zrbhp_show "${1}";                                                         }
-zrbhp_dc()      { zrbhp_show "${1}${ZRBHP_C}${2}${ZRBHP_R}";                                 }
-zrbhp_dcd()     { zrbhp_show "${1}${ZRBHP_C}${2}${ZRBHP_R}${3}";                             }
-zrbhp_dcdm()    { zrbhp_show "${1}${ZRBHP_C}${2}${ZRBHP_R}${3}${ZRBHP_W}${4}${ZRBHP_R}";     }
-zrbhp_dm()      { zrbhp_show "${1}${ZRBHP_W}${2}${ZRBHP_R}";                                 }
-zrbhp_dmd()     { zrbhp_show "${1}${ZRBHP_W}${2}${ZRBHP_R}${3}";                             }
-zrbhp_dmdr()    { zrbhp_show "${1}${ZRBHP_W}${2}${ZRBHP_R}${3}${ZRBHP_CR}${4}${ZRBHP_R}";    }
-zrbhp_dmdm()    { zrbhp_show "${1}${ZRBHP_W}${2}${ZRBHP_R}${3}${ZRBHP_W}${4}${ZRBHP_R}";     }
-zrbhp_dwdwd()   { zrbhp_show "${1}${ZRBHP_W}${2}${ZRBHP_R}${3}${ZRBHP_W}${4}${ZRBHP_R}${5}"; }
-zrbhp_dy()      { zrbhp_show "${1}${ZRBHP_Y}${2}${ZRBHP_R}";                                 }
-
-zrbhp_de()      { zrbhp_show "${1}${ZRBHP_CR}${2}${ZRBHP_R}"; }
-
-zrbhp_cmd()     { zrbhp_show "${ZRBHP_C}${1}${ZRBHP_R}"; }
-zrbhp_critic()  { zrbhp_show "\n${ZRBHP_CR} CRITICAL SECURITY WARNING: ${1}${ZRBHP_R}\n"; }
-
-zrbhp_dld() {
-  local z_default="${1:-}"
-  local z_label="${2:-}"
-  local z_url="${3:-}"
-  local z_coda="${4:-}"
-  test -n "${z_label}" || buc_die "missing label"
-  test -n "${z_url}"   || buc_die "missing url"
-
-  # Blue + underline style, wrapped in OSC 8 hyperlink
-  printf '%s\e[34;4m\e]8;;%s\a%s\e]8;;\a\e[0m%s\n' "${z_default}" "${z_url}" "${z_label}" "${z_coda}"
-}
-
 
 ######################################################################
 # External Functions (rbhp_*)
@@ -268,47 +208,47 @@ rbhp_refresh() {
   buc_doc_brief "Display the manual Payor OAuth credential installation/refresh procedure"
   buc_doc_shown || return 0
 
-  zrbhp_s1     "Manual Payor OAuth Credential Installation/Refresh Procedure"
-  zrbhp_d      "Use this for initial credential setup after payor establishment or to refresh expired/compromised credentials."
-  zrbhp_d      "Testing mode refresh tokens expire after 6 months of non-use."
-  zrbhp_e
-  zrbhp_s2     "When to use this procedure:"
-  zrbhp_d      "  - Initial setup after running rbhp_establish"
-  zrbhp_d      "  - Payor operations return 401/403 errors"
-  zrbhp_d      "  - OAuth client secret compromised"
-  zrbhp_d      "  - 6+ months since last Payor operation"
-  zrbhp_e
-  zrbhp_s2     "1. Obtain OAuth Credentials:"
-  zrbhp_d      "   For initial setup:"
-  zrbhp_d      "      - Use JSON file downloaded during rbhp_establish"
-  zrbhp_d      "   For refresh/renewal:"
-  zrbhp_dld    "      - Go to: " "Credentials for Payor Project" "https://console.cloud.google.com/apis/credentials?project=${RBRP_PAYOR_PROJECT_ID}"
-  zrbhp_dm     "      - Find existing " "${RBGC_PAYOR_APP_NAME}" " OAuth client"
-  zrbhp_d      "      - Click the OAuth client name to open details"
-  zrbhp_d      "      - To rotate secret if compromised:"
-  zrbhp_dm     "        a. Click " "+ Add secret"
-  zrbhp_d      "        b. Click the download icon next to the NEW secret"
-  zrbhp_dm     "           Browser downloads: " "client_secret_[id].apps.googleusercontent.com.json"
-  zrbhp_dmd    "        c. Click " "Disable" " on the secret with the older creation date"
-  zrbhp_d      "        d. Click the trash icon to delete that disabled secret"
-  zrbhp_e
-  zrbhp_s2     "2. Install/Refresh OAuth Credentials:"
-  zrbhp_d      "   Run the payor install command with the downloaded JSON:"
-  zrbhp_dc     "      " "rbgp_payor_install ~/Downloads/client_secret_*.json"
-  zrbhp_d      "   This will:"
-  zrbhp_d      "   - Guide you through OAuth authorization flow"
-  zrbhp_d      "   - Store secure credentials in RBRR_SECRETS_DIR/rbro-payor.env"
-  zrbhp_d      "   - Update RBRP_OAUTH_CLIENT_ID in rbrp.env"
-  zrbhp_d      "   - Test the authentication"
-  zrbhp_d      "   - Initialize depot tracking"
-  zrbhp_d      "   - Reset the 6-month expiration timer"
-  zrbhp_e
-  zrbhp_s2     "3. Verify Installation:"
-  zrbhp_d      "   Test with a simple operation:"
+  buh_section  "Manual Payor OAuth Credential Installation/Refresh Procedure"
+  buh_t        "Use this for initial credential setup after payor establishment or to refresh expired/compromised credentials."
+  buh_t        "Testing mode refresh tokens expire after 6 months of non-use."
+  buh_e
+  buh_section  "When to use this procedure:"
+  buh_t        "  - Initial setup after running rbhp_establish"
+  buh_t        "  - Payor operations return 401/403 errors"
+  buh_t        "  - OAuth client secret compromised"
+  buh_t        "  - 6+ months since last Payor operation"
+  buh_e
+  buh_section  "1. Obtain OAuth Credentials:"
+  buh_t        "   For initial setup:"
+  buh_t        "      - Use JSON file downloaded during rbhp_establish"
+  buh_t        "   For refresh/renewal:"
+  buh_link     "      - Go to: " "Credentials for Payor Project" "https://console.cloud.google.com/apis/credentials?project=${RBRP_PAYOR_PROJECT_ID}"
+  buh_tut      "      - Find existing " "${RBGC_PAYOR_APP_NAME}" " OAuth client"
+  buh_t        "      - Click the OAuth client name to open details"
+  buh_t        "      - To rotate secret if compromised:"
+  buh_tu       "        a. Click " "+ Add secret"
+  buh_t        "        b. Click the download icon next to the NEW secret"
+  buh_tu       "           Browser downloads: " "client_secret_[id].apps.googleusercontent.com.json"
+  buh_tut      "        c. Click " "Disable" " on the secret with the older creation date"
+  buh_t        "        d. Click the trash icon to delete that disabled secret"
+  buh_e
+  buh_section  "2. Install/Refresh OAuth Credentials:"
+  buh_t        "   Run the payor install command with the downloaded JSON:"
+  buh_tc       "      " "rbgp_payor_install ~/Downloads/client_secret_*.json"
+  buh_t        "   This will:"
+  buh_t        "   - Guide you through OAuth authorization flow"
+  buh_t        "   - Store secure credentials in RBRR_SECRETS_DIR/rbro-payor.env"
+  buh_t        "   - Update RBRP_OAUTH_CLIENT_ID in rbrp.env"
+  buh_t        "   - Test the authentication"
+  buh_t        "   - Initialize depot tracking"
+  buh_t        "   - Reset the 6-month expiration timer"
+  buh_e
+  buh_section  "3. Verify Installation:"
+  buh_t        "   Test with a simple operation:"
   buc_tabtarget "${RBZ_LIST_DEPOT}"
-  zrbhp_d      "   Should display current depots without authentication errors."
-  zrbhp_e
-  zrbhp_d      "Prevention: Run any Payor operation monthly to prevent expiration."
+  buh_t        "   Should display current depots without authentication errors."
+  buh_e
+  buh_t        "Prevention: Run any Payor operation monthly to prevent expiration."
 
   buc_success "OAuth credential installation/refresh procedure displayed"
 }
