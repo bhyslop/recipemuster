@@ -38,9 +38,10 @@
         "₢A-AAD",
         "₢A-AAE",
         "₢A-AAF",
-        "₢A-AAH"
+        "₢A-AAH",
+        "₢A-AAI"
       ],
-      "next_pace_seed": "AAI",
+      "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -170,6 +171,17 @@
               "text": "## Character\nDesign + implementation — informed by practice walkthrough discoveries.\n\n## Docket\nCreate real (non-handbook) tabtargets that probe Windows host status over SSH and report health. Modeled on `rbho_onboarding.sh`'s probe functions but operating across an SSH boundary.\n\nCandidates (refine based on what practice paces reveal):\n- SSH routing verification: connect via each key, confirm correct environment lands\n- WSL distro health: systemd running, expected packages present\n- Fundus accounts: `jjfu_*` users exist and are SSH-reachable\n- Docker dual-daemon: both daemons running, context routing correct\n- End-to-end: RBK test fixture can charge/quench inside WSL\n\nThese are automation tabtargets (exit status matters), not handbooks. They run from the client (curia) and probe the Windows host via SSH — so they depend on Access procedures being complete.\n\nScope will narrow during practice — not all candidates may be worth automating.",
               "silks": "create-verification-tabtargets",
               "commit": "099958a"
+            }
+          ]
+        },
+        "₢A-AAI": {
+          "tacks": [
+            {
+              "ts": "260412-1449",
+              "state": "rough",
+              "text": "## Character\nDesign review — lightweight judgment call.\n\n## Docket\nRevisit whether `buw-HWec` should dictate full Cygwin installation or just configure an existing install. After practicing the other procedures, we'll have better intuition about how much hand-holding the handbook should provide vs assuming prerequisites are already in place.",
+              "silks": "reconsider-cygwin-install-procedure",
+              "commit": "1fa2c30"
             }
           ]
         }
