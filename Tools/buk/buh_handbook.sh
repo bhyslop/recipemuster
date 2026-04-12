@@ -232,14 +232,32 @@ zbuh_tabtarget_fragment() {
   ZBUH_TT_FRAG="${ZBUH_C}${z_matches[0]}${ZBUH_R}"
 }
 
+# Imprint tabtarget fragment: resolves colophon + imprint to a specific
+# imprint tabtarget.  Glob: ${colophon}.*.${imprint}.sh
+# Args: colophon imprint
+
+zbuh_imprint_fragment() {
+  zbuh_sentinel
+  local z_matches=("${BURD_TABTARGET_DIR}"/${1}.*.${2}.sh)
+  test -e "${z_matches[0]}" || buc_die "buh: no tabtarget for colophon '${1}' imprint '${2}'"
+  ZBUH_TT_FRAG="${ZBUH_C}${z_matches[0]}${ZBUH_R}"
+}
+
 ######################################################################
 # Public: Tabtarget combinators
 #
 # T consumes one positional arg (colophon), resolves to tabtarget path,
 # renders in cyan.  Parallel to l (link) combinator.
+# I consumes two positional args (colophon, imprint), resolves to a
+# specific imprint tabtarget.
+# Trailing c after T or I appends cyan text (arguments) to the resolved
+# path, keeping the whole command visually unified.
 
 buh_T()       { zbuh_tabtarget_fragment "${1}"; zbuh_show "${ZBUH_TT_FRAG}"; }
 buh_tT()      { zbuh_tabtarget_fragment "${2}"; zbuh_show "${1}${ZBUH_TT_FRAG}"; }
+buh_tTc()     { zbuh_tabtarget_fragment "${2}"; zbuh_show "${1}${ZBUH_TT_FRAG}${ZBUH_C}${3}${ZBUH_R}"; }
+buh_tI()      { zbuh_imprint_fragment "${2}" "${3}"; zbuh_show "${1}${ZBUH_TT_FRAG}"; }
+buh_tIc()     { zbuh_imprint_fragment "${2}" "${3}"; zbuh_show "${1}${ZBUH_TT_FRAG}${ZBUH_C}${4}${ZBUH_R}"; }
 buh_cT()      { zbuh_tabtarget_fragment "${2}"; zbuh_show "${ZBUH_C}${1}${ZBUH_R}${ZBUH_TT_FRAG}"; }
 buh_tlT()     { zbuh_link_fragment "${2}" "${3}"; zbuh_tabtarget_fragment "${4}"; zbuh_show "${1}${ZBUH_LINK_FRAG} ${ZBUH_TT_FRAG}"; }
 buh_tltT()    { zbuh_link_fragment "${2}" "${3}"; zbuh_tabtarget_fragment "${5}"; zbuh_show "${1}${ZBUH_LINK_FRAG}${4}${ZBUH_TT_FRAG}"; }

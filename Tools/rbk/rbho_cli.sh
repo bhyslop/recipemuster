@@ -41,6 +41,7 @@ zrbho_furnish() {
   source "${BURD_BUK_DIR}/buh_handbook.sh"           || buc_die "Failed to source buh_handbook.sh"
   source "${BURD_BUK_DIR}/buv_validation.sh"         || buc_die "Failed to source buv_validation.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh"             || buc_die "Failed to source buz_zipper.sh"
+  source "${BURD_BUK_DIR}/buwz_zipper.sh"            || buc_die "Failed to source buwz_zipper.sh"
   source "${z_rbk_kit_dir}/rbcc_Constants.sh"        || buc_die "Failed to source rbcc_Constants.sh"
   source "${z_rbk_kit_dir}/rbgc_Constants.sh"        || buc_die "Failed to source rbgc_Constants.sh"
   source "${z_rbk_kit_dir}/rbrr_regime.sh"           || buc_die "Failed to source rbrr_regime.sh"
@@ -49,6 +50,7 @@ zrbho_furnish() {
   zbuv_kindle
   zrbgc_kindle
   zbuz_kindle
+  zbuwz_kindle
   zrbz_kindle
   # RBRR kindle only — thin-deps concession: enforce would fail on fresh installs
   # (filesystem gates for vessel/secrets dirs), blocking onboarding entry.

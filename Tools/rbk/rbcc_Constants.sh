@@ -35,6 +35,7 @@ RBCC_rbra_file="rbra.env"
 RBCC_role_governor="governor"
 RBCC_role_retriever="retriever"
 RBCC_role_director="director"
+RBCC_onboarding_nameplate="tadmor"
 
 ######################################################################
 # Internal Functions (zrbcc_*)

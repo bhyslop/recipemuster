@@ -530,13 +530,13 @@ rbho_retriever() {
       buh_tlt "  The " "pentacle" "${z_docs}#Pentacle" " establishes the network namespace shared with the bottle."
       buh_e
       buh_tlt "  " "Charge" "${z_docs}#Charge" " starts the sentry/pentacle/bottle triad:"
-      buh_tc  "    " "tt/rbw-cC.Charge.tadmor.sh"
+      buh_tI  "    " "${RBZ_CRUCIBLE_CHARGE}" "${RBCC_onboarding_nameplate}"
       buh_e
       buh_t   "  Shell into the bottle and look around:"
-      buh_tc  "    " "tt/rbw-cr.Rack.sh tadmor"
+      buh_tTc "    " "${RBZ_CRUCIBLE_RACK}" " ${RBCC_onboarding_nameplate}"
       buh_e
       buh_tlt "  When done, " "quench" "${z_docs}#Quench" " stops and cleans up:"
-      buh_tc  "    " "tt/rbw-cQ.Quench.tadmor.sh"
+      buh_tI  "    " "${RBZ_CRUCIBLE_QUENCH}" "${RBCC_onboarding_nameplate}"
 
     else
       # ---- Unit 4: Local Experimentation ----
@@ -649,8 +649,8 @@ rbho_director() {
       buh_tT  "    " "${RBZ_KLUDGE_VESSEL}"
       buh_e
       buh_tlt "  After kludging, test by " "charging" "${z_docs}#Charge" " a crucible and shelling in:"
-      buh_tc  "    " "tt/rbw-cC.Charge.tadmor.sh"
-      buh_tc  "    " "tt/rbw-cr.Rack.sh tadmor"
+      buh_tI  "    " "${RBZ_CRUCIBLE_CHARGE}" "${RBCC_onboarding_nameplate}"
+      buh_tTc "    " "${RBZ_CRUCIBLE_RACK}" " ${RBCC_onboarding_nameplate}"
       buh_e
       buh_t   "  Later units teach how to build this same vessel via Cloud Build for production,"
       buh_t   "  and how to push your local build to the registry."
@@ -951,7 +951,7 @@ rbho_payor() {
       buh_e
       buh_t   "  To get started, download an OAuth client secret JSON file from your GCP"
       buh_t   "  project's API credentials page, then run:"
-      buh_tc  "    " "tt/rbw-gPI.PayorInstall.sh \${HOME}/Downloads/client_secret_*.json"
+      buh_tTc "    " "${RBZ_PAYOR_INSTALL}" " \${HOME}/Downloads/client_secret_*.json"
       buh_e
       buh_t   "  This walks you through the OAuth authorization flow and stores the credential"
       buh_t   "  securely. If you have an existing credential that has expired:"
@@ -1239,8 +1239,8 @@ rbho_crash_course() {
   buh_t   "  the repo, it is always present on any fresh clone — no probe needed."
   buh_e
   buh_t   "  BURC tabtargets:"
-  buh_tc  "    Render:   " "tt/buw-rcr.RenderConfigRegime.sh"
-  buh_tc  "    Validate: " "tt/buw-rcv.ValidateConfigRegime.sh"
+  buh_tT  "    Render:   " "${BUWZ_RC_RENDER}"
+  buh_tT  "    Validate: " "${BUWZ_RC_VALIDATE}"
   buh_e
   buh_tlt "  " "BURS" "${z_docs}#BURS" " is the per-developer station: local only, gitignored, holds"
   buh_t   "  things that vary per machine. The anchor variable is \`BURS_LOG_DIR\`:"
@@ -1252,8 +1252,8 @@ rbho_crash_course() {
     zrbho_po_status 0 "  Station file not found (set during first launch)"
   fi
   buh_t   "  BURS tabtargets:"
-  buh_tc  "    Render:   " "tt/buw-rsr.RenderStationRegime.sh"
-  buh_tc  "    Validate: " "tt/buw-rsv.ValidateStationRegime.sh"
+  buh_tT  "    Render:   " "${BUWZ_RS_RENDER}"
+  buh_tT  "    Validate: " "${BUWZ_RS_VALIDATE}"
   buh_e
   buh_t   "  Logs: state-changing commands write to \`BURS_LOG_DIR\`. Handbook"
   buh_t   "  display commands (like this one) do not log — teaching output is"
