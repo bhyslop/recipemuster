@@ -2,6 +2,7 @@
   "schema_version": 4,
   "next_heat_seed": "A_",
   "heat_order": [
+    "₣A-",
     "₣A9",
     "₣A8",
     "₣Az",
@@ -22,14 +23,13 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au",
-    "₣A-"
+    "₣Au"
   ],
   "heats": {
     "₣A-": {
       "silks": "rbk-mvp-3-draft-windows-procedures",
       "creation_time": "260412",
-      "status": "stabled",
+      "status": "racing",
       "order": [],
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
