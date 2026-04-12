@@ -1,8 +1,8 @@
-# Recipe Bottle
+# <a id="RecipeBottle"></a>Recipe Bottle
 
-Recipe Bottle provides two independent container image capabilities:
+[Recipe Bottle](#RecipeBottle) provides two independent container image capabilities:
 
-- **[Foundry](#Foundry)**: orchestrate Google Cloud Build to produce, fetch, retain, and serve images in a private cloud registry — even can coordinate egress-locked builds with full supply-chain provenance
+- **[Foundry](#Foundry)**: orchestrate Google Cloud Build to produce, fetch, retain, and serve images using a role-managed private cloud registry — even can coordinate egress-locked builds with full supply-chain provenance
 - **[Crucible](#Crucible)**: run untrusted containers behind enforced network isolation — DNS filtering and IP filtering — even using images unmodified from "in the wild"
 
 > [!IMPORTANT]
@@ -14,11 +14,11 @@ Recipe Bottle provides two independent container image capabilities:
 >
 > If you evaluate or deploy this, you are contributing to its hardening. Security-focused contributors and responsible disclosure are especially valued.
 
-Recipe Bottle is a set of bash scripts designed for incorporation into arbitrary projects.
+[Recipe Bottle](#RecipeBottle) is a set of bash scripts designed for incorporation into arbitrary projects.
 The dependency footprint is deliberately narrow — `bash 3.2` and a handful of standard tools — with no Python runtime, no language-specific package manager, and no `gcloud` CLI.
 After initial manual setup, all cloud API calls use `openssl` + `curl`.
 A small team can stand up a hardened build pipeline and a sandboxed runtime without specialized DevOps expertise.
-Recipe Bottle's goal is a workflow where every container image has a verified origin and a controlled version, running behind appropriate network safeguards.
+[Recipe Bottle's](#RecipeBottle) goal is a workflow where every container image has a verified origin and a controlled version, running behind appropriate network safeguards.
 
 **Project page**: https://scaleinv.github.io/recipebottle
 
@@ -28,7 +28,7 @@ Recipe Bottle's goal is a workflow where every container image has a verified or
 
 ## Environment
 
-Recipe Bottle is organized around two independent capabilities: the [Foundry](#Foundry) builds container images with verifiable provenance, and the [Crucible](#Crucible) runs untrusted images with enforced network isolation.
+[Recipe Bottle](#RecipeBottle) is organized around two independent capabilities: the [Foundry](#Foundry) builds container images with verifiable provenance, and the [Crucible](#Crucible) runs untrusted images with enforced network isolation.
 The two compose but neither requires the other.
 
 <a id="Regime"></a>All configuration flows through [Regimes](#Regime) — structured `.env` files with typed validation, each with its own render and validate commands.
@@ -37,7 +37,7 @@ Others live on the filesystem outside revision control: OAuth credentials ([RBRO
 
 <a id="Tabtarget"></a>Every operation is launched through a [Tabtarget](#Tabtarget) — a shell script in the `tt/` directory.
 The critical property: tab completion finds the command you want.
-Type `tt/rbw-<TAB>` and the shell narrows to all Recipe Bottle operations; type `tt/rbw-h<TAB>` to see just the [Hallmark](#Hallmark) commands.
+Type `tt/rbw-<TAB>` and the shell narrows to all [Recipe Bottle](#RecipeBottle) operations; type `tt/rbw-h<TAB>` to see just the [Hallmark](#Hallmark) commands.
 Each [Tabtarget](#Tabtarget) is named `{colophon}.{frontispiece}.sh` — the colophon routes to the right module, the frontispiece tells you what it does.
 
 To begin, run the onboarding walkthrough:
@@ -48,7 +48,7 @@ tt/rbw-o.OnboardingStartHere.sh
 
 ## <a id="Foundry"></a>Foundry
 
-Recipe Bottle's remote build orchestration system for producing, attesting, and distributing container images via Google Cloud Build and Google Artifact Registry.
+[Recipe Bottle's](#RecipeBottle) remote build orchestration system for producing, attesting, and distributing container images via Google Cloud Build and Google Artifact Registry.
 The [Foundry](#Foundry) encompasses [Depots](#Depot), [Vessels](#Vessel), [Hallmark](#Hallmark) tracking, and build definitions.
 Three [Vessel](#Vessel) modes determine how images enter the [Depot](#Depot): [Conjure](#Conjure) (egress-locked build from source with SLSA provenance), [Bind](#Bind) (digest-pinned upstream mirror), and [Graft](#Graft) (local push).
 Peer to [Crucible](#Crucible), which handles local runtime containment.
@@ -106,7 +106,7 @@ Each [Hallmark](#Hallmark) produces three tagged artifacts in the [Depot](#Depot
 
 ### Foundry Lifecycle
 
-Recipe Bottle uses a role-based security model with four roles, each building on the previous:
+[Recipe Bottle](#RecipeBottle) uses a role-based security model with four roles, each building on the previous:
 
 | Role | Authenticates via | Purpose |
 |------|-------------------|---------|
@@ -141,7 +141,7 @@ After builds complete, the [Director](#Director) [Tallies](#Tally) [Hallmarks](#
 
 The [Retriever](#Retriever) [Summons](#Summon) [Vouched](#Vouch) images locally for use.
 
-Recipe Bottle builds container images on Google Cloud Build (GCB) and stores them in Google Artifact Registry (GAR):
+[Recipe Bottle](#RecipeBottle) builds container images on Google Cloud Build (GCB) and stores them in Google Artifact Registry (GAR):
 
 - Isolated build environments using Google-curated Cloud Build builder images
 - Multi-architecture support via `docker buildx` with binfmt emulation
@@ -155,9 +155,9 @@ Each build's source context is packaged as a [Pouch](#Pouch) — the security bo
 
 ## <a id="Crucible"></a>Crucible
 
-The distinctive case Recipe Bottle addresses is *running untrusted code*: third-party tooling, experimental packages, binaries with uncertain provenance.
+The distinctive case [Recipe Bottle](#RecipeBottle) addresses is *running untrusted code*: third-party tooling, experimental packages, binaries with uncertain provenance.
 Containers excel at packaging known applications, but running unvetted code poses security risks that ordinary container deployment does not solve.
-Recipe Bottle assembles a [Crucible](#Crucible) — three cooperating containers where a [Sentry](#Sentry) enforces network policy — without requiring modifications to existing container images.
+[Recipe Bottle](#RecipeBottle) assembles a [Crucible](#Crucible) — three cooperating containers where a [Sentry](#Sentry) enforces network policy — without requiring modifications to existing container images.
 The [Bottle](#Bottle) container runs unmodified, in a network namespace prepared by a privileged [Pentacle](#Pentacle), with all egress flowing through the [Sentry](#Sentry) gateway.
 
 The [Sentry](#Sentry)/[Pentacle](#Pentacle)/[Bottle](#Bottle) triad running together as one unit for a [Nameplate](#Nameplate).
@@ -342,7 +342,7 @@ The [Crucible's](#Crucible) containment is validated through coordinated escape 
 - <a id="Ifrit"></a>**[Ifrit](#Ifrit)** — Adversarial attack [Vessel](#Vessel) purpose-built to run inside a [Bottle](#Bottle), seeking escape. The [Ifrit](#Ifrit) carries scapy (arbitrary packet construction), strace (syscall boundary probing), and a minimal footprint — tools chosen to probe every surface the [Sentry's](#Sentry) containment exposes. Named for the djinn imprisoned in a bottle.
 - <a id="Theurge"></a>**[Theurge](#Theurge)** — Test orchestrator running on the host, outside the [Crucible](#Crucible). The [Theurge](#Theurge) [Charges](#Charge) a [Crucible](#Crucible) with the [Ifrit](#Ifrit) as its [Bottle](#Bottle), then dispatches curated, reproducible, version-controlled attack scripts targeting specific surfaces: DNS exfiltration, ICMP covert channels, cloud metadata probing, namespace breakout, and direct IP bypass attempts. Each attack runs inside the [Bottle](#Bottle) while the [Theurge](#Theurge) simultaneously observes the [Sentry's](#Sentry) network from outside — confirming that blocked traffic is actually blocked, not merely unrequested.
 
-The escape tests were developed through adversarial Claude Code sessions with full visibility into the [Sentry's](#Sentry) source, configuration, and the Recipe Bottle specification.
+The escape tests were developed through adversarial Claude Code sessions with full visibility into the [Sentry's](#Sentry) source, configuration, and the [Recipe Bottle](#RecipeBottle) specification.
 The [Ifrit](#Ifrit) [Vessel](#Vessel) is the delivery vehicle; the intelligence came from the authoring process.
 Every test that passes is evidence the containment holds — not proof.
 The test suite grows as new attack surfaces are identified.
@@ -351,7 +351,7 @@ The test suite grows as new attack surfaces are identified.
 
 The following features are not yet implemented but are under consideration:
 
-- **VPC Service Controls** - Google Cloud security perimeters that prevent data from being copied out of a project even if an attacker holds valid credentials. Recipe Bottle's Cloud Build architecture uses private pools, which are the prerequisite for VPC enforcement; enabling the controls themselves is deferred until organizational policy or external distribution requires them.
+- **VPC Service Controls** - Google Cloud security perimeters that prevent data from being copied out of a project even if an attacker holds valid credentials. [Recipe Bottle's](#RecipeBottle) Cloud Build architecture uses private pools, which are the prerequisite for VPC enforcement; enabling the controls themselves is deferred until organizational policy or external distribution requires them.
 
 - **Cosign container signing** - Cryptographic image signatures independent of registry trust. Deferred alongside VPC Service Controls until external distribution triggers the need.
 
@@ -363,7 +363,7 @@ The following features are not yet implemented but are under consideration:
 
 ## Appendix: Reference Project
 
-This repository is the reference implementation of Recipe Bottle.
+This repository is the reference implementation of [Recipe Bottle](#RecipeBottle).
 The annotated tree below maps its files to the concepts defined above.
 
 | Path | Description |
