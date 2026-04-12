@@ -73,7 +73,6 @@ rbhw_handbook_top() {
   buh_t        "  SSH access, WSL, Cygwin, Docker for Windows-hosted testing."
   buh_tT       "  Full setup: " "rbw-hw"
 
-  buc_success "Handbook index displayed"
 }
 
 rbhw_docker_desktop() {
@@ -100,7 +99,6 @@ rbhw_docker_desktop() {
   buh_c        "   docker ps"
   buh_t        "   Expect: empty container list (no errors)."
 
-  buc_success "Docker Desktop installation procedure displayed"
 }
 
 rbhw_docker_wsl_native() {
@@ -132,7 +130,6 @@ rbhw_docker_wsl_native() {
   buh_c        "   docker ps"
   buh_t        "   Expect: empty container list (no errors)."
 
-  buc_success "Native WSL Docker installation procedure displayed"
 }
 
 rbhw_docker_context_discipline() {
@@ -166,7 +163,6 @@ rbhw_docker_context_discipline() {
   buh_c        "   docker info | grep \"Server\""
   buh_t        "   Expect: active context matches the environment."
 
-  buc_success "Docker context discipline procedure displayed"
 }
 
 rbhw_top() {
@@ -201,7 +197,6 @@ rbhw_top() {
   buh_tc       "     Pass distro name: " "${ZRBHW_WSL_DISTRO}"
   buh_tT       "  9. Docker context discipline:          " "rbw-HWdc"
 
-  buc_success "Windows handbook orchestrator displayed"
 }
 
 # eof

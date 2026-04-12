@@ -199,7 +199,6 @@ rbhp_establish() {
   buh_c        "   rbgp_payor_install ~/Downloads/payor-oauth.json"
   buh_t        "   This will guide you through OAuth authorization and complete the setup."
 
-  buc_success "OAuth Payor establishment procedure displayed"
 }
 
 rbhp_refresh() {
@@ -250,7 +249,6 @@ rbhp_refresh() {
   buh_e
   buh_t        "Prevention: Run any Payor operation monthly to prevent expiration."
 
-  buc_success "OAuth credential installation/refresh procedure displayed"
 }
 
 rbhp_quota_build() {
@@ -317,7 +315,6 @@ rbhp_quota_build() {
   buh_tc       "     Current target: " "${RBRR_GCB_MIN_CONCURRENT_BUILDS} concurrent builds"
   buh_e
 
-  buc_success "Cloud Build quota guide displayed"
 }
 
 # eof

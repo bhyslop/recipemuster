@@ -65,7 +65,7 @@ buhw_access_base() {
   buh_e
   buh_section  "Preconditions:"
   buh_t        "  - Windows host with administrator access"
-  buh_tc       "  - Network reachable on TCP/" "${ZBUHW_SSH_PORT}"
+  buh_t        "  - Network reachable on TCP/${ZBUHW_SSH_PORT}"
   buh_e
   buh_section  "1. Install and Enable OpenSSH Server:"
   buh_t        "   Run in an elevated PowerShell:"
@@ -93,7 +93,6 @@ buhw_access_base() {
   buh_c        "   ssh user@host"
   buh_t        "   Expect: publickey prompt; password login rejected."
 
-  buc_success "OpenSSH lockdown procedure displayed"
 }
 
 buhw_access_remote() {
@@ -141,7 +140,6 @@ buhw_access_remote() {
   buh_c        "   ssh ${z_alias}"
   buh_t        "   Expect: connects (may not yet enter target env — routing not configured)."
 
-  buc_success "SSH client configuration procedure displayed"
 }
 
 buhw_access_entrypoints() {
@@ -180,7 +178,6 @@ buhw_access_entrypoints() {
   buh_c        "   ssh -i key-wsl host      # lands in WSL"
   buh_c        "   ssh -i key-win host      # lands in PowerShell"
 
-  buc_success "SSH entrypoint routing procedure displayed"
 }
 
 buhw_environment_wsl() {
@@ -220,7 +217,6 @@ buhw_environment_wsl() {
   buh_c        "   wsl -d ${z_distro} systemctl is-system-running"
   buh_t        "   Expect: running or degraded (acceptable)."
 
-  buc_success "WSL distribution setup procedure displayed"
 }
 
 buhw_environment_cygwin() {
@@ -251,7 +247,6 @@ buhw_environment_cygwin() {
   buh_c        "   bash --version"
   buh_t        "   Expect: bash version >= 3.2"
 
-  buc_success "Cygwin installation procedure displayed"
 }
 
 buhw_handbook_top() {
@@ -265,7 +260,6 @@ buhw_handbook_top() {
   buh_e
   buh_index_buk
 
-  buc_success "BUK handbook index displayed"
 }
 
 buhw_top() {
@@ -287,7 +281,6 @@ buhw_top() {
   buh_tT       "  4. WSL distribution setup:             " "buw-HWew"
   buh_tT       "  5. Cygwin installation:                " "buw-HWec"
 
-  buc_success "BUK Windows procedures checklist displayed"
 }
 
 # eof
