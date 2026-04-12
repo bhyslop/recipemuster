@@ -83,18 +83,28 @@ buhw_access_base() {
   buh_c        "New-NetFirewallRule -Name ${ZBUHW_FW_RULE_NAME} -DisplayName \"${ZBUHW_FW_DISPLAY_NAME}\" -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort ${ZBUHW_SSH_PORT}"
   buh_e
   buh_step1    "Configure sshd_config:"
-  buh_tc       "Edit: " "${ZBUHW_SSHD_CONFIG}"
-  buh_t        "Set these directives:"
+  buh_tc       "File: " "${ZBUHW_SSHD_CONFIG}"
+  buh_t        "This file is SYSTEM-owned. Edit a temp copy, then replace."
+  buh_e
+  buh_step2    "Copy to editable location:"
+  buh_c        "Copy-Item ${ZBUHW_SSHD_CONFIG} \$env:TEMP\\sshd_config"
+  buh_e
+  buh_step2    "Edit the copy:"
+  buh_c        "notepad \$env:TEMP\\sshd_config"
+  buh_t        "Set these directives (add if not present):"
   buh_c        "PasswordAuthentication no"
   buh_c        "PubkeyAuthentication yes"
   buh_c        "PermitEmptyPasswords no"
   buh_c        "ChallengeResponseAuthentication no"
   buh_c        "UsePAM no"
   buh_e
+  buh_step2    "Replace the original:"
+  buh_c        "Copy-Item \$env:TEMP\\sshd_config ${ZBUHW_SSHD_CONFIG} -Force"
+  buh_e
   buh_step1    "Restart Service:"
   buh_c        "Restart-Service sshd"
   buh_e
-  buh_section  "Verification:"
+  buh_step1    "Verify:"
   buh_t        "From a remote machine:"
   buh_c        "ssh user@host"
   buh_t        "Expect: publickey prompt; password login rejected."
