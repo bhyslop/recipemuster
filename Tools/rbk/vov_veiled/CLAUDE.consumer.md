@@ -13,21 +13,17 @@ After initial payor setup, the adaptive onboarding guide reads your current stat
 tt/rbw-go.OnboardMAIN.sh
 ```
 
-## Glossary
+## Domain Vocabulary
 
-| Term | Meaning |
-|------|---------|
-| **Vessel** | A specification for a container workload — a directory in `rbev-vessels/` with `rbrv.env` and optionally a `Dockerfile` |
-| **Hallmark** | A specific build instance of a vessel, identified by timestamp (e.g. `c260101120000-r260101130000`). The immutable artifact set: image, about, and vouch |
-| **Reliquary** | A datestamped namespace in GAR containing co-versioned builder tool images (gcloud, docker, syft, etc.). Created by inscribe; referenced by vessels via `RBRV_RELIQUARY`. One per depot setup. |
-| **Crucible** | The three-container assembly (sentry + pentacle + bottle) that runs an untrusted workload under enforced network isolation |
-| **Depot** | The logical facility where container images are built and stored (GCP project + bucket + registry) |
-| **Nameplate** | Ties a sentry vessel + bottle vessel into a runnable crucible. The moniker (e.g. `tadmor`) is the imprint in tabtargets. |
-| **Regime** | A structured configuration unit: specification + assignment file (`.env`) + validation |
-| **Sentry** | Security container that enforces network policies via `iptables` and `dnsmasq` |
-| **Pentacle** | Privileged container that establishes the network namespace shared with the bottle |
-| **Bottle** | Your workload container, running unmodified in a controlled network environment |
-| **Ifrit** | A Claude Code instance imprisoned inside a bottle for adversarial escape testing |
+Recipe Bottle uses domain-specific terminology throughout its CLI and documentation. **When you encounter an unfamiliar term, read `README.md`** — it contains anchored definitions (`<a id>`) for all concepts. Navigate directly via anchor links (e.g., `#Ordain`, `#Depot`, `#Charge`).
+
+Key term categories in README.md:
+- **Architecture**: Foundry, Crucible, Depot, Vessel, Hallmark, Nameplate, Regime, Tabtarget
+- **Roles**: Payor, Governor, Director, Retriever
+- **Containers**: Sentry, Pentacle, Bottle
+- **Foundry Operations** (appendix): Establish, Install, Levy, Unmake, Mantle, Knight, Charter, Forfeit, Enshrine, Reliquary, Ordain, Conjure, Bind, Graft, Kludge, Tally, Vouch, Plumb, Summon, Wrest, Abjure, Jettison
+- **Crucible Operations** (appendix): Charge, Quench, Rack, Hail, Scry
+- **Testing**: Ifrit, Theurge
 
 ## Verb Guide
 
