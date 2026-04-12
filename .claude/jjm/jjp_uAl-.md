@@ -21,12 +21,20 @@ Raw draft captured in `Memos/memo-20260412-windows-handbook-draft.md` (9 procedu
 **Key insight**: JJK's `jjfp_fundus.sh` already handles Linux account provisioning (create `jjfu_*` users, install SSH keys, clone repos). It runs unchanged inside a WSL distro. The draft's `alice`/`bob` users were always `jjfu_*` profiles wearing placeholder names.
 
 **Constants classification**:
-- Tinder: Windows fixed paths (`C:\ProgramData\ssh\*`, `C:\cygwin64`), TCP/22
-- Kindle: WSL distro name (`rbtww-main` — deferred deconfliction), docker context name
-- Parameters: host IP, Windows username (only `buw-HWar` needs these)
+- Tinder: Windows fixed paths (`C:\ProgramData\ssh\*`, `C:\cygwin64`), TCP/22, firewall rule name
+- Kindle: WSL distro name (`rbtww-main` — deferred deconfliction), docker context name (`wsl-native`), SSH key filename, host alias
+- Parameters on `buw-HWar`: host, user, key-name, alias (four params)
+- Parameters on `buw-HWax`: environment routing entries (key-comment, command pairs) — mechanism is generic, policy comes from caller
+- Parameters on `buw-HWew` and `rbw-HWdw`: distro-name
 - No regime file needed yet
 
 **Docker stays in RBK** because the dual-daemon topology (Desktop for Windows/Cygwin, native for WSL) is a Recipe Bottle testing decision, not generic Windows setup.
+
+**Furnish weight**: BUK handbook CLI needs only `buh_*` combinators — thin furnish like `rbho_cli.sh`. RBK orchestrator needs BUK constants plus its own Docker constants — still thin, no regime/OAuth/IAM.
+
+**Style rule**: Use `buh_*` combinators exclusively. The `rbhp_establish` function is the template (new style). Do NOT follow `rbhp_refresh` or `rbhp_quota_build`'s old-style `zrbhp_show()` private color variables.
+
+**RBK orchestrator rendering**: `rbw-hw` uses `buh_T` (tabtarget combinator) to render clickable BUK/JJK/RBK tabtarget paths in dependency order.
 
 ## Tabtarget Inventory
 
@@ -35,12 +43,12 @@ BUK:
   tt/buw-hw.WindowsHandbook.sh          — top-level checklist
   tt/buw-HWab.AccessBase.sh             — OpenSSH server install + lockdown
   tt/buw-HWar.AccessRemote.sh           — client key gen + ssh config (params: host, user, key-name, alias)
-  tt/buw-HWax.AccessEntrypoints.sh      — command= routing + icacls
+  tt/buw-HWax.AccessEntrypoints.sh      — command= routing + icacls (params: environment routing entries)
   tt/buw-HWew.EnvironmentWSL.sh         — WSL distro creation (param: distro-name)
-  tt/buw-HWec.EnvironmentCygwin.sh      — Cygwin install
+  tt/buw-HWec.EnvironmentCygwin.sh      — Cygwin install (verification: bash >= 3.2, not a specific version)
 
 RBK:
-  tt/rbw-hw.WindowsHandbook.sh          — orchestrator referencing BUK + JJK + RBK steps
+  tt/rbw-hw.WindowsHandbook.sh          — orchestrator referencing BUK + JJK + RBK steps via buh_T
   tt/rbw-HWdd.DockerDesktop.sh          — Docker Desktop install
   tt/rbw-HWdw.DockerWSLNative.sh        — native dockerd in WSL (param: distro-name)
   tt/rbw-HWdc.DockerContextDiscipline.sh — deterministic daemon selection
@@ -48,5 +56,5 @@ RBK:
 
 ## Open Questions
 - `rbtww-main` mint deconfliction deferred to post-MVP
-- BUK handbook module naming: `buhw_*` functions in `buh_windows.sh`? Or extend `buh_handbook.sh`? Probably new file.
-- Whether `buw-HWar` key-name/alias params should default to the colophon prefix of the calling kit
+- BUK handbook module naming: `buhw_*` functions in `buhw_windows.sh` (new file, not extending `buh_handbook.sh`)
+- `buw-HWax` parameterization: how environment routing entries are passed — positional args, array, or kindle constants sourced from caller's kit? (OPEN — needs design discussion)
