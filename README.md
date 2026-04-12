@@ -14,7 +14,10 @@ Recipe Bottle provides two independent container image capabilities:
 >
 > If you evaluate or deploy this, you are contributing to its hardening. Security-focused contributors and responsible disclosure are especially valued.
 
-Recipe Bottle is a set of bash scripts designed for incorporation into arbitrary projects. The dependency footprint is deliberately narrow — `bash 3.2` and a handful of standard tools — with no Python runtime, no language-specific package manager, and no `gcloud` CLI. A small team can stand up a hardened build pipeline and a sandboxed runtime without specialized DevOps expertise. Recipe Bottle's goal is a workflow where every container image has a verified origin and a controlled version, running behind appropriate network safeguards.
+Recipe Bottle is a set of bash scripts designed for incorporation into arbitrary projects.
+The dependency footprint is deliberately narrow — `bash 3.2` and a handful of standard tools — with no Python runtime, no language-specific package manager, and no `gcloud` CLI.
+A small team can stand up a hardened build pipeline and a sandboxed runtime without specialized DevOps expertise.
+Recipe Bottle's goal is a workflow where every container image has a verified origin and a controlled version, running behind appropriate network safeguards.
 
 **Project page**: https://scaleinv.github.io/recipebottle
 
@@ -24,11 +27,17 @@ Recipe Bottle is a set of bash scripts designed for incorporation into arbitrary
 
 ## Environment
 
-Recipe Bottle addresses two orthogonal complexity domains: the [Foundry](#Foundry) builds container images with verifiable provenance, and the [Crucible](#Crucible) runs untrusted images with enforced network isolation. The two compose but neither requires the other.
+Recipe Bottle addresses two orthogonal complexity domains: the [Foundry](#Foundry) builds container images with verifiable provenance, and the [Crucible](#Crucible) runs untrusted images with enforced network isolation.
+The two compose but neither requires the other.
 
-<a id="Regime"></a>**[Regime](#Regime).** Structured configuration with typed validation. Each [Regime](#Regime) is a set of environment variables in an `.env` file with a render command (display current values) and a validate command (check correctness). Recipe Bottle uses [Regimes](#Regime) for everything from [Depot](#Depot) identity to [Vessel](#Vessel) build definitions to developer workstation paths.
+<a id="Regime"></a>**[Regime](#Regime).** Structured configuration with typed validation.
+Each [Regime](#Regime) is a set of environment variables in an `.env` file with a render command (display current values) and a validate command (check correctness).
+Recipe Bottle uses [Regimes](#Regime) for everything from [Depot](#Depot) identity to [Vessel](#Vessel) build definitions to developer workstation paths.
 
-<a id="Tabtarget"></a>**[Tabtarget](#Tabtarget).** Lightweight shell script in the `tt/` directory serving as the entry point for a single CLI operation. [Tabtargets](#Tabtarget) are named `{colophon}.{frontispiece}.sh` — the colophon routes to the right module, the frontispiece describes what it does. Tab completion narrows by prefix: `tt/rbw-<TAB>` shows all Recipe Bottle operations. The project's `CLAUDE.md` provides a complete command reference; the CLI's interactive walkthroughs are the authoritative procedure source.
+<a id="Tabtarget"></a>**[Tabtarget](#Tabtarget).** Lightweight shell script in the `tt/` directory serving as the entry point for a single CLI operation.
+[Tabtargets](#Tabtarget) are named `{colophon}.{frontispiece}.sh` — the colophon routes to the right module, the frontispiece describes what it does.
+Tab completion narrows by prefix: `tt/rbw-<TAB>` shows all Recipe Bottle operations.
+The project's `CLAUDE.md` provides a complete command reference; the CLI's interactive walkthroughs are the authoritative procedure source.
 
 To begin, run the onboarding walkthrough:
 
@@ -38,13 +47,19 @@ tt/rbw-o.OnboardingStartHere.sh
 
 ## <a id="Foundry"></a>Foundry
 
-Recipe Bottle's remote build orchestration system for producing, attesting, and distributing container images via Google Cloud Build and Google Artifact Registry. The [Foundry](#Foundry) encompasses [Depots](#Depot), [Vessels](#Vessel), [Hallmark](#Hallmark) tracking, and build definitions. Three [Vessel](#Vessel) modes determine how images enter the [Depot](#Depot): [Conjure](#Conjure) (egress-locked build from source with SLSA provenance), [Bind](#Bind) (digest-pinned upstream mirror), and [Graft](#Graft) (local push). Peer to [Crucible](#Crucible), which handles local runtime containment.
+Recipe Bottle's remote build orchestration system for producing, attesting, and distributing container images via Google Cloud Build and Google Artifact Registry.
+The [Foundry](#Foundry) encompasses [Depots](#Depot), [Vessels](#Vessel), [Hallmark](#Hallmark) tracking, and build definitions.
+Three [Vessel](#Vessel) modes determine how images enter the [Depot](#Depot): [Conjure](#Conjure) (egress-locked build from source with SLSA provenance), [Bind](#Bind) (digest-pinned upstream mirror), and [Graft](#Graft) (local push).
+Peer to [Crucible](#Crucible), which handles local runtime containment.
 
-The [Foundry](#Foundry) orchestrates Google Cloud Build to produce container images with SLSA attestation, software bills of material, reproducible multi-architecture builds, and digest-pinned toolchains — so every image has a verifiable origin story. Builds run in an egress-locked configuration, drawing from upstream base images mirrored into a project-owned [Depot](#Depot) registry — a fixed, self-contained supply chain independent of third-party registry availability.
+The [Foundry](#Foundry) orchestrates Google Cloud Build to produce container images with SLSA attestation, software bills of material, reproducible multi-architecture builds, and digest-pinned toolchains — so every image has a verifiable origin story.
+Builds run in an egress-locked configuration, drawing from upstream base images mirrored into a project-owned [Depot](#Depot) registry — a fixed, self-contained supply chain independent of third-party registry availability.
 
 ### <a id="Depot"></a>Depot
 
-The facility where container images are built and stored — a GCP project with an artifact registry and a storage bucket. The [Payor](#Payor) [Levies](#Levy) a [Depot](#Depot), and the [Governor](#Governor) administers access to it. Each [Depot](#Depot) operates as an independent supply-chain boundary with its own credentials, builds, and registry.
+The facility where container images are built and stored — a GCP project with an artifact registry and a storage bucket.
+The [Payor](#Payor) [Levies](#Levy) a [Depot](#Depot), and the [Governor](#Governor) administers access to it.
+Each [Depot](#Depot) operates as an independent supply-chain boundary with its own credentials, builds, and registry.
 
 Each [Depot](#Depot) operates in one of two build egress profiles:
 
@@ -53,27 +68,40 @@ Each [Depot](#Depot) operates in one of two build egress profiles:
 
 ### <a id="Payor"></a>Payor
 
-Owns the GCP project and funds it; authenticates via OAuth. The [Payor](#Payor) is the only role requiring manual Google Cloud Console interaction — [Establishing](#Establish) the project, configuring OAuth, and [Installing](#Install) credentials via browser flow. All other roles descend from credentials the [Payor's](#Payor) infrastructure creates.
+Owns the GCP project and funds it; authenticates via OAuth.
+The [Payor](#Payor) is the only role requiring manual Google Cloud Console interaction — [Establishing](#Establish) the project, configuring OAuth, and [Installing](#Install) credentials via browser flow.
+All other roles descend from credentials the [Payor's](#Payor) infrastructure creates.
 
 ### <a id="Governor"></a>Governor
 
-Administers a [Depot](#Depot): creates service accounts, manages access. The [Governor](#Governor) is [Mantled](#Mantle) by the [Payor](#Payor) and holds the administrative credential for the [Depot](#Depot). The [Governor](#Governor) [Knights](#Knight) [Directors](#Director) for build access, [Charters](#Charter) [Retrievers](#Retriever) for pull access, and [Forfeits](#Forfeit) credentials when they are no longer needed.
+Administers a [Depot](#Depot): creates service accounts, manages access.
+The [Governor](#Governor) is [Mantled](#Mantle) by the [Payor](#Payor) and holds the administrative credential for the [Depot](#Depot).
+The [Governor](#Governor) [Knights](#Knight) [Directors](#Director) for build access, [Charters](#Charter) [Retrievers](#Retriever) for pull access, and [Forfeits](#Forfeit) credentials when they are no longer needed.
 
 ### <a id="Director"></a>Director
 
-Builds and publishes [Vessel](#Vessel) images into a [Depot](#Depot). Each [Director](#Director) credential is scoped to one [Depot](#Depot). The [Director](#Director) manages the image lifecycle: [Ordain](#Ordain) a build, [Tally](#Tally) registry health, [Vouch](#Vouch) provenance, [Abjure](#Abjure) superseded artifacts, and [Jettison](#Jettison) individual tags.
+Builds and publishes [Vessel](#Vessel) images into a [Depot](#Depot).
+Each [Director](#Director) credential is scoped to one [Depot](#Depot).
+The [Director](#Director) manages the image lifecycle: [Ordain](#Ordain) a build, [Tally](#Tally) registry health, [Vouch](#Vouch) provenance, [Abjure](#Abjure) superseded artifacts, and [Jettison](#Jettison) individual tags.
 
 ### <a id="Retriever"></a>Retriever
 
-Pulls and runs [Vessel](#Vessel) images from a [Depot](#Depot). This is the most constrained role — read-only access to the [Depot](#Depot) registry. The [Retriever](#Retriever) [Summons](#Summon) [Vouched](#Vouch) images for local use, [Plumbs](#Plumb) their provenance, or [Wrests](#Wrest) a specific image directly.
+Pulls and runs [Vessel](#Vessel) images from a [Depot](#Depot).
+This is the most constrained role — read-only access to the [Depot](#Depot) registry.
+The [Retriever](#Retriever) [Summons](#Summon) [Vouched](#Vouch) images for local use, [Plumbs](#Plumb) their provenance, or [Wrests](#Wrest) a specific image directly.
 
 ### <a id="Vessel"></a>Vessel
 
-A specification for a container image — built from source ([Conjure](#Conjure)), mirrored from upstream ([Bind](#Bind)), or pushed from local ([Graft](#Graft)). Each [Vessel](#Vessel) is a directory under `rbev-vessels/` containing at minimum an `rbrv.env` configuration file; [Conjure](#Conjure) [Vessels](#Vessel) also include a Dockerfile. A fourth mode, [Kludge](#Kludge), builds locally for development without involving the [Depot](#Depot).
+A specification for a container image — built from source ([Conjure](#Conjure)), mirrored from upstream ([Bind](#Bind)), or pushed from local ([Graft](#Graft)).
+Each [Vessel](#Vessel) is a directory under `rbev-vessels/` containing at minimum an `rbrv.env` configuration file; [Conjure](#Conjure) [Vessels](#Vessel) also include a Dockerfile.
+A fourth mode, [Kludge](#Kludge), builds locally for development without involving the [Depot](#Depot).
 
 ### <a id="Hallmark"></a>Hallmark
 
-A specific build instance of a [Vessel](#Vessel), identified by timestamp. [Hallmarks](#Hallmark) are the unit of provenance tracking — each one records when and how the image was produced. Each [Hallmark](#Hallmark) produces three tagged artifacts in the [Depot](#Depot) registry: the container image (`-image`), the software bill of materials ([`-about`](#About)), and the cryptographic attestation ([`-vouch`](#Vouch)). [Hallmark](#Hallmark) values are recorded into [Nameplate](#Nameplate) [Regime](#Regime) files to pin a [Crucible](#Crucible) to specific image versions.
+A specific build instance of a [Vessel](#Vessel), identified by timestamp.
+[Hallmarks](#Hallmark) are the unit of provenance tracking — each one records when and how the image was produced.
+Each [Hallmark](#Hallmark) produces three tagged artifacts in the [Depot](#Depot) registry: the container image (`-image`), the software bill of materials ([`-about`](#About)), and the cryptographic attestation ([`-vouch`](#Vouch)).
+[Hallmark](#Hallmark) values are recorded into [Nameplate](#Nameplate) [Regime](#Regime) files to pin a [Crucible](#Crucible) to specific image versions.
 
 ### Foundry Lifecycle
 
@@ -86,23 +114,29 @@ Recipe Bottle uses a role-based security model with four roles, each building on
 | [**Director**](#Director) | Service account credential | Submits builds, manages images, verifies provenance |
 | [**Retriever**](#Retriever) | Service account credential | Pulls images for local use |
 
-The [Payor](#Payor) stands apart — it requires manual Google Cloud Console work and OAuth authentication. All downstream roles authenticate via credential files, enabling full automation.
+The [Payor](#Payor) stands apart — it requires manual Google Cloud Console work and OAuth authentication.
+All downstream roles authenticate via credential files, enabling full automation.
 
 #### Establishment and Provisioning
 
-The [Payor](#Payor) begins by [Establishing](#Establish) a GCP project and configuring an OAuth consent screen through the Google Cloud Console. After downloading the OAuth client credentials, the [Payor](#Payor) [Installs](#Install) them via a browser authorization flow — the resulting refresh token is stored locally with restrictive permissions and does not need to be repeated.
+The [Payor](#Payor) begins by [Establishing](#Establish) a GCP project and configuring an OAuth consent screen through the Google Cloud Console.
+After downloading the OAuth client credentials, the [Payor](#Payor) [Installs](#Install) them via a browser authorization flow — the resulting refresh token is stored locally with restrictive permissions and does not need to be repeated.
 
-With [Payor](#Payor) credentials in place, the [Payor](#Payor) [Levies](#Levy) a [Depot](#Depot), provisioning it with build infrastructure, artifact registry, and secrets storage. The [Payor](#Payor) then [Mantles](#Mantle) a [Governor](#Governor) service account to administer the [Depot](#Depot).
+With [Payor](#Payor) credentials in place, the [Payor](#Payor) [Levies](#Levy) a [Depot](#Depot), provisioning it with build infrastructure, artifact registry, and secrets storage.
+The [Payor](#Payor) then [Mantles](#Mantle) a [Governor](#Governor) service account to administer the [Depot](#Depot).
 
 Before the first build can run, the [Depot](#Depot) needs its supply-chain infrastructure in place: upstream base images must be [Enshrined](#Enshrine) into the registry, and a [Reliquary](#Reliquary) of builder tool images must be inscribed.
 
 #### Credential Distribution
 
-The [Governor](#Governor) creates downstream credentials: [Knighting](#Knight) a [Director](#Director) for build operations and [Chartering](#Charter) a [Retriever](#Retriever) for image pull access. Each credential is scoped to a single role within a single [Depot](#Depot).
+The [Governor](#Governor) creates downstream credentials: [Knighting](#Knight) a [Director](#Director) for build operations and [Chartering](#Charter) a [Retriever](#Retriever) for image pull access.
+Each credential is scoped to a single role within a single [Depot](#Depot).
 
 #### Build and Retrieve
 
-The [Director](#Director) [Ordains](#Ordain) [Hallmarks](#Hallmark) for each [Vessel](#Vessel) — [Conjuring](#Conjure) from source, [Binding](#Bind) from upstream, or [Grafting](#Graft) from local builds. After builds complete, the [Director](#Director) [Tallies](#Tally) [Hallmarks](#Hallmark) by health status and [Vouches](#Vouch) their provenance. [Hallmark](#Hallmark) values from the [Tally](#Tally) are recorded into [Nameplate](#Nameplate) [Regime](#Regime) files, completing the chain from build to runtime.
+The [Director](#Director) [Ordains](#Ordain) [Hallmarks](#Hallmark) for each [Vessel](#Vessel) — [Conjuring](#Conjure) from source, [Binding](#Bind) from upstream, or [Grafting](#Graft) from local builds.
+After builds complete, the [Director](#Director) [Tallies](#Tally) [Hallmarks](#Hallmark) by health status and [Vouches](#Vouch) their provenance.
+[Hallmark](#Hallmark) values from the [Tally](#Tally) are recorded into [Nameplate](#Nameplate) [Regime](#Regime) files, completing the chain from build to runtime.
 
 The [Retriever](#Retriever) [Summons](#Summon) [Vouched](#Vouch) images locally for use.
 
@@ -120,13 +154,20 @@ Each build's source context is packaged as a [Pouch](#Pouch) — the security bo
 
 ## <a id="Crucible"></a>Crucible
 
-The distinctive case Recipe Bottle addresses is *running untrusted code*: third-party tooling, experimental packages, binaries with uncertain provenance. Containers excel at packaging known applications, but running unvetted code poses security risks that ordinary container deployment does not solve. Recipe Bottle assembles a [Crucible](#Crucible) — three cooperating containers where a [Sentry](#Sentry) enforces network policy — without requiring modifications to existing container images. The [Bottle](#Bottle) container runs unmodified, in a network namespace prepared by a privileged [Pentacle](#Pentacle), with all egress flowing through the [Sentry](#Sentry) gateway.
+The distinctive case Recipe Bottle addresses is *running untrusted code*: third-party tooling, experimental packages, binaries with uncertain provenance.
+Containers excel at packaging known applications, but running unvetted code poses security risks that ordinary container deployment does not solve.
+Recipe Bottle assembles a [Crucible](#Crucible) — three cooperating containers where a [Sentry](#Sentry) enforces network policy — without requiring modifications to existing container images.
+The [Bottle](#Bottle) container runs unmodified, in a network namespace prepared by a privileged [Pentacle](#Pentacle), with all egress flowing through the [Sentry](#Sentry) gateway.
 
-The [Sentry](#Sentry)/[Pentacle](#Pentacle)/[Bottle](#Bottle) triad running together as one unit for a [Nameplate](#Nameplate). The [Crucible](#Crucible) is the local safety orchestration — the apparatus that makes running untrusted code practical. [Charging](#Charge) starts all three containers; [Quenching](#Quench) stops and cleans them up.
+The [Sentry](#Sentry)/[Pentacle](#Pentacle)/[Bottle](#Bottle) triad running together as one unit for a [Nameplate](#Nameplate).
+The [Crucible](#Crucible) is the local safety orchestration — the apparatus that makes running untrusted code practical.
+[Charging](#Charge) starts all three containers; [Quenching](#Quench) stops and cleans them up.
 
 ### <a id="Nameplate"></a>Nameplate
 
-Per-[Vessel](#Vessel) configuration tying a [Sentry](#Sentry) and [Bottle](#Bottle) together into a runnable [Crucible](#Crucible). The [Nameplate](#Nameplate) moniker (e.g. `tadmor`) identifies the unit across all operations. Each [Nameplate](#Nameplate) declares its [Vessel](#Vessel) selections, [Hallmark](#Hallmark) pins, and the network policy that the [Sentry](#Sentry) enforces.
+Per-[Vessel](#Vessel) configuration tying a [Sentry](#Sentry) and [Bottle](#Bottle) together into a runnable [Crucible](#Crucible).
+The [Nameplate](#Nameplate) moniker (e.g. `tadmor`) identifies the unit across all operations.
+Each [Nameplate](#Nameplate) declares its [Vessel](#Vessel) selections, [Hallmark](#Hallmark) pins, and the network policy that the [Sentry](#Sentry) enforces.
 
 ### Containers
 
@@ -136,7 +177,10 @@ Per-[Vessel](#Vessel) configuration tying a [Sentry](#Sentry) and [Bottle](#Bott
 
 ### Crucible Lifecycle
 
-[Charge](#Charge) the [Crucible](#Crucible) for a [Nameplate](#Nameplate) to start the [Sentry](#Sentry), [Pentacle](#Pentacle), and [Bottle](#Bottle) together — the [Bottle](#Bottle) is ready for interactive use immediately. [Rack](#Rack) the [Bottle](#Bottle) to shell in, [Hail](#Hail) the [Sentry](#Sentry) to inspect the gateway, or [Scry](#Scry) the network to observe traffic across [Crucible](#Crucible) containers. When finished, [Quench](#Quench) the [Crucible](#Crucible) to stop and clean up all three containers. To inspect an image's supply chain, [Plumb](#Plumb) its provenance — the full view shows the SBOM, build info, and Dockerfile; the compact view summarizes the attestation chain.
+[Charge](#Charge) the [Crucible](#Crucible) for a [Nameplate](#Nameplate) to start the [Sentry](#Sentry), [Pentacle](#Pentacle), and [Bottle](#Bottle) together — the [Bottle](#Bottle) is ready for interactive use immediately.
+[Rack](#Rack) the [Bottle](#Bottle) to shell in, [Hail](#Hail) the [Sentry](#Sentry) to inspect the gateway, or [Scry](#Scry) the network to observe traffic across [Crucible](#Crucible) containers.
+When finished, [Quench](#Quench) the [Crucible](#Crucible) to stop and clean up all three containers.
+To inspect an image's supply chain, [Plumb](#Plumb) its provenance — the full view shows the SBOM, build info, and Dockerfile; the compact view summarizes the attestation chain.
 
 ## Appendix: Foundry Operations
 
@@ -144,79 +188,128 @@ Formal definitions for all [Foundry](#Foundry) operations, organized by lifecycl
 
 ### Infrastructure
 
-<a id="Establish"></a>**[Establish](#Establish)** — Guided setup of a new GCP project and OAuth consent screen through the Google Cloud Console. [Establishing](#Establish) walks the [Payor](#Payor) through project creation, API enablement, and consent screen configuration — the manual prerequisites before any automated operations can run.
+<a id="Establish"></a>**[Establish](#Establish)** — Guided setup of a new GCP project and OAuth consent screen through the Google Cloud Console.
+[Establishing](#Establish) walks the [Payor](#Payor) through project creation, API enablement, and consent screen configuration — the manual prerequisites before any automated operations can run.
 
-<a id="Install"></a>**[Install](#Install)** — Ingest OAuth client credentials from a downloaded JSON key file. [Installing](#Install) triggers a browser authorization flow and stores the resulting refresh token locally with restrictive permissions (`600`). This is a one-time [Payor](#Payor) operation — the refresh token persists until explicitly revoked.
+<a id="Install"></a>**[Install](#Install)** — Ingest OAuth client credentials from a downloaded JSON key file.
+[Installing](#Install) triggers a browser authorization flow and stores the resulting refresh token locally with restrictive permissions (`600`).
+This is a one-time [Payor](#Payor) operation — the refresh token persists until explicitly revoked.
 
-<a id="Levy"></a>**[Levy](#Levy)** — Provision a new [Depot's](#Depot) GCP infrastructure. [Levying](#Levy) creates the GCP project, artifact registry, storage bucket, and build configuration. This is a [Payor](#Payor) operation that binds [Regime](#Regime) configuration to real cloud resources.
+<a id="Levy"></a>**[Levy](#Levy)** — Provision a new [Depot's](#Depot) GCP infrastructure.
+[Levying](#Levy) creates the GCP project, artifact registry, storage bucket, and build configuration.
+This is a [Payor](#Payor) operation that binds [Regime](#Regime) configuration to real cloud resources.
 
-<a id="Unmake"></a>**[Unmake](#Unmake)** — Permanently destroy a [Depot's](#Depot) GCP infrastructure ��� project, artifact registry, storage bucket, and all contents. [Unmaking](#Unmake) is the reverse of [Levying](#Levy). This is a [Payor](#Payor) operation and is irreversible.
+<a id="Unmake"></a>**[Unmake](#Unmake)** — Permanently destroy a [Depot's](#Depot) GCP infrastructure — project, artifact registry, storage bucket, and all contents.
+[Unmaking](#Unmake) is the reverse of [Levying](#Levy).
+This is a [Payor](#Payor) operation and is irreversible.
 
-<a id="Refresh"></a>**[Refresh](#Refresh)** — Refresh an expired [Payor](#Payor) OAuth token. OAuth tokens expire periodically; [Refreshing](#Refresh) re-authenticates via the stored refresh token without repeating the full [Install](#Install) flow. Run when [Payor](#Payor) operations fail with authentication errors.
+<a id="Refresh"></a>**[Refresh](#Refresh)** — Refresh an expired [Payor](#Payor) OAuth token.
+OAuth tokens expire periodically; [Refreshing](#Refresh) re-authenticates via the stored refresh token without repeating the full [Install](#Install) flow.
+Run when [Payor](#Payor) operations fail with authentication errors.
 
-<a id="Quota"></a>**[Quota](#Quota)** — Review Cloud Build capacity and usage. [Quota](#Quota) displays the current build minute allocation, consumption, and any throttling in effect for the [Depot's](#Depot) GCP project.
+<a id="Quota"></a>**[Quota](#Quota)** — Review Cloud Build capacity and usage.
+[Quota](#Quota) displays the current build minute allocation, consumption, and any throttling in effect for the [Depot's](#Depot) GCP project.
 
 ### Credentials
 
-<a id="Mantle"></a>**[Mantle](#Mantle)** — Create or replace the [Governor](#Governor) service account for a [Depot](#Depot). [Mantling](#Mantle) is a [Payor](#Payor) operation that provisions the administrative credential — the [Governor](#Governor) inherits the [Payor's](#Payor) authority to manage the [Depot](#Depot) but authenticates via service account key rather than OAuth.
+<a id="Mantle"></a>**[Mantle](#Mantle)** — Create or replace the [Governor](#Governor) service account for a [Depot](#Depot).
+[Mantling](#Mantle) is a [Payor](#Payor) operation that provisions the administrative credential — the [Governor](#Governor) inherits the [Payor's](#Payor) authority to manage the [Depot](#Depot) but authenticates via service account key rather than OAuth.
 
-<a id="Knight"></a>**[Knight](#Knight)** �� Create a [Director](#Director) service account. [Knighting](#Knight) provisions a new credential scoped to build and publish access within a single [Depot](#Depot).
+<a id="Knight"></a>**[Knight](#Knight)** — Create a [Director](#Director) service account.
+[Knighting](#Knight) provisions a new credential scoped to build and publish access within a single [Depot](#Depot).
 
-<a id="Charter"></a>**[Charter](#Charter)** — Create a [Retriever](#Retriever) service account. [Chartering](#Charter) provisions a new credential scoped to image pull access within a single [Depot](#Depot).
+<a id="Charter"></a>**[Charter](#Charter)** — Create a [Retriever](#Retriever) service account.
+[Chartering](#Charter) provisions a new credential scoped to image pull access within a single [Depot](#Depot).
 
-<a id="Forfeit"></a>**[Forfeit](#Forfeit)** — Revoke a service account credential. [Forfeiting](#Forfeit) deletes the service account and its key material from the [Depot](#Depot) — the credential becomes permanently unusable. This is a [Governor](#Governor) operation used when a credential is compromised, no longer needed, or being rotated.
+<a id="Forfeit"></a>**[Forfeit](#Forfeit)** — Revoke a service account credential.
+[Forfeiting](#Forfeit) deletes the service account and its key material from the [Depot](#Depot) — the credential becomes permanently unusable.
+This is a [Governor](#Governor) operation used when a credential is compromised, no longer needed, or being rotated.
 
-<a id="ListSAs"></a>**[List Service Accounts](#ListSAs)** — Inventory all service accounts issued within a [Depot](#Depot). Shows [Governor](#Governor), [Director](#Director), and [Retriever](#Retriever) credentials with their creation dates and status.
+<a id="ListSAs"></a>**[List Service Accounts](#ListSAs)** — Inventory all service accounts issued within a [Depot](#Depot).
+Shows [Governor](#Governor), [Director](#Director), and [Retriever](#Retriever) credentials with their creation dates and status.
 
 ### Supply Chain
 
-<a id="Enshrine"></a>**[Enshrine](#Enshrine)** — Mirror upstream base images into your [Depot's](#Depot) registry. [Enshrining](#Enshrine) ensures the build pipeline has a fixed, self-contained supply chain — builds draw from project-owned copies rather than depending on third-party registry availability at build time.
+<a id="Enshrine"></a>**[Enshrine](#Enshrine)** — Mirror upstream base images into your [Depot's](#Depot) registry.
+[Enshrining](#Enshrine) ensures the build pipeline has a fixed, self-contained supply chain — builds draw from project-owned copies rather than depending on third-party registry availability at build time.
 
-<a id="Reliquary"></a>**[Reliquary](#Reliquary)** — Co-versioned set of builder tool images (skopeo, docker, gcloud, syft) inscribed from upstream into the [Depot's](#Depot) registry. Cloud Build jobs use [Reliquary](#Reliquary) images as step containers, ensuring builds run with known, project-owned toolchains rather than pulling tools from upstream at build time. The [Director](#Director) inscribes a [Reliquary](#Reliquary) before any [Ordain](#Ordain) or [Enshrine](#Enshrine) operation can run.
+<a id="Reliquary"></a>**[Reliquary](#Reliquary)** — Co-versioned set of builder tool images (skopeo, docker, gcloud, syft) inscribed from upstream into the [Depot's](#Depot) registry.
+Cloud Build jobs use [Reliquary](#Reliquary) images as step containers, ensuring builds run with known, project-owned toolchains rather than pulling tools from upstream at build time.
+The [Director](#Director) inscribes a [Reliquary](#Reliquary) before any [Ordain](#Ordain) or [Enshrine](#Enshrine) operation can run.
 
 ### Building
 
-<a id="Ordain"></a>**[Ordain](#Ordain)** — Create a [Hallmark](#Hallmark) with full attestation — the production build operation. [Ordaining](#Ordain) is mode-aware: it [Conjures](#Conjure), [Binds](#Bind), or [Grafts](#Graft) depending on the [Vessel's](#Vessel) configuration. Each [Ordain](#Ordain) produces an image in the [Depot](#Depot) registry with associated provenance metadata.
+<a id="Ordain"></a>**[Ordain](#Ordain)** — Create a [Hallmark](#Hallmark) with full attestation — the production build operation.
+[Ordaining](#Ordain) is mode-aware: it [Conjures](#Conjure), [Binds](#Bind), or [Grafts](#Graft) depending on the [Vessel's](#Vessel) configuration.
+Each [Ordain](#Ordain) produces an image in the [Depot](#Depot) registry with associated provenance metadata.
 
-<a id="Conjure"></a>**[Conjure](#Conjure)** — Cloud Build creates the image from source. [Conjure](#Conjure) builds run in an egress-locked environment with digest-pinned toolchains, producing full SLSA attestation and SBOMs. This is the highest-trust build mode.
+<a id="Conjure"></a>**[Conjure](#Conjure)** — Cloud Build creates the image from source.
+[Conjure](#Conjure) builds run in an egress-locked environment with digest-pinned toolchains, producing full SLSA attestation and SBOMs.
+This is the highest-trust build mode.
 
-<a id="Bind"></a>**[Bind](#Bind)** — Mirror an upstream image pinned by digest. [Binding](#Bind) captures an external image at a specific digest into the [Depot's](#Depot) registry. Trust is established through digest-pin verification rather than build provenance.
+<a id="Bind"></a>**[Bind](#Bind)** — Mirror an upstream image pinned by digest.
+[Binding](#Bind) captures an external image at a specific digest into the [Depot's](#Depot) registry.
+Trust is established through digest-pin verification rather than build provenance.
 
-<a id="Graft"></a>**[Graft](#Graft)** — Push a locally-built image to the [Depot](#Depot) registry. [Grafting](#Graft) uploads a local image to GAR via docker push — no Cloud Build for the image itself, though [About](#About) and [Vouch](#Vouch) metadata still run in Cloud Build. This is the lowest-trust mode (GRAFTED verdict).
+<a id="Graft"></a>**[Graft](#Graft)** — Push a locally-built image to the [Depot](#Depot) registry.
+[Grafting](#Graft) uploads a local image to GAR via docker push — no Cloud Build for the image itself, though [About](#About) and [Vouch](#Vouch) metadata still run in Cloud Build.
+This is the lowest-trust mode (GRAFTED verdict).
 
-<a id="Kludge"></a>**[Kludge](#Kludge)** — Build a [Vessel](#Vessel) image locally for fast iteration, without [Depot](#Depot) registry push. [Kludging](#Kludge) produces a local Docker image for development and testing without involving Cloud Build or the [Depot](#Depot). The resulting image can be used to [Charge](#Charge) a [Crucible](#Crucible) directly.
+<a id="Kludge"></a>**[Kludge](#Kludge)** — Build a [Vessel](#Vessel) image locally for fast iteration, without [Depot](#Depot) registry push.
+[Kludging](#Kludge) produces a local Docker image for development and testing without involving Cloud Build or the [Depot](#Depot).
+The resulting image can be used to [Charge](#Charge) a [Crucible](#Crucible) directly.
 
-<a id="Pouch"></a>**[Pouch](#Pouch)** — Build context packaged as a FROM SCRATCH OCI image and pushed to the [Depot's](#Depot) registry before a Cloud Build job runs. The [Director](#Director) controls what enters the [Pouch](#Pouch) — Dockerfile, context files, build scripts — and the cloud receives only what the [Pouch](#Pouch) contains. This is the security boundary between workstation and build infrastructure.
+<a id="Pouch"></a>**[Pouch](#Pouch)** — Build context packaged as a FROM SCRATCH OCI image and pushed to the [Depot's](#Depot) registry before a Cloud Build job runs.
+The [Director](#Director) controls what enters the [Pouch](#Pouch) — Dockerfile, context files, build scripts — and the cloud receives only what the [Pouch](#Pouch) contains.
+This is the security boundary between workstation and build infrastructure.
 
 ### Verification
 
-<a id="Tally"></a>**[Tally](#Tally)** — Inventory [Hallmarks](#Hallmark) in the [Depot](#Depot) registry by health status. [Tallying](#Tally) shows which builds succeeded, which are pending, and which failed. The [Director](#Director) [Tallies](#Tally) before [Vouching](#Vouch) to confirm build completion.
+<a id="Tally"></a>**[Tally](#Tally)** — Inventory [Hallmarks](#Hallmark) in the [Depot](#Depot) registry by health status.
+[Tallying](#Tally) shows which builds succeeded, which are pending, and which failed.
+The [Director](#Director) [Tallies](#Tally) before [Vouching](#Vouch) to confirm build completion.
 
-<a id="Vouch"></a>**[Vouch](#Vouch)** — Cryptographic attestation proving a [Hallmark](#Hallmark) was built by trusted infrastructure. The [Vouch](#Vouch) verdict is mode-aware: [Conjure](#Conjure) builds receive full SLSA provenance verification, [Bind](#Bind) builds receive digest-pin verification, and [Graft](#Graft) builds receive a GRAFTED verdict with no provenance chain. The [Director](#Director) [Vouches](#Vouch) [Hallmarks](#Hallmark) after [Tallying](#Tally) their build status.
+<a id="Vouch"></a>**[Vouch](#Vouch)** — Cryptographic attestation proving a [Hallmark](#Hallmark) was built by trusted infrastructure.
+The [Vouch](#Vouch) verdict is mode-aware: [Conjure](#Conjure) builds receive full SLSA provenance verification, [Bind](#Bind) builds receive digest-pin verification, and [Graft](#Graft) builds receive a GRAFTED verdict with no provenance chain.
+The [Director](#Director) [Vouches](#Vouch) [Hallmarks](#Hallmark) after [Tallying](#Tally) their build status.
 
-<a id="About"></a>**[About](#About)** — Build metadata and software bill of materials for a [Hallmark](#Hallmark). The [About](#About) artifact (`-about` tag) contains the SBOM, build transcript, build configuration snapshot, and key package summaries — bundled as a compressed archive and stored as a Generic Artifact in GAR. Every [Ordain](#Ordain) produces an [About](#About) alongside the image.
+<a id="About"></a>**[About](#About)** — Build metadata and software bill of materials for a [Hallmark](#Hallmark).
+The [About](#About) artifact (`-about` tag) contains the SBOM, build transcript, build configuration snapshot, and key package summaries — bundled as a compressed archive and stored as a Generic Artifact in GAR.
+Every [Ordain](#Ordain) produces an [About](#About) alongside the image.
 
-<a id="Plumb"></a>**[Plumb](#Plumb)** — Inspect an artifact's provenance — SBOM, build info, and [Vouch](#Vouch) chain. [Plumbing](#Plumb) provides full transparency into how an image was built and what it contains. Two views are available: full (SBOM, build info, Dockerfile) and compact (attestation summary).
+<a id="Plumb"></a>**[Plumb](#Plumb)** — Inspect an artifact's provenance — SBOM, build info, and [Vouch](#Vouch) chain.
+[Plumbing](#Plumb) provides full transparency into how an image was built and what it contains.
+Two views are available: full (SBOM, build info, Dockerfile) and compact (attestation summary).
 
 ### Distribution
 
-<a id="Summon"></a>**[Summon](#Summon)** — Pull a [Hallmark](#Hallmark) image from the [Depot](#Depot) to your local machine. The [Retriever](#Retriever) [Summons](#Summon) [Vouched](#Vouch) images for local use — the final step before a [Hallmark](#Hallmark) can be used in a [Crucible](#Crucible).
+<a id="Summon"></a>**[Summon](#Summon)** — Pull a [Hallmark](#Hallmark) image from the [Depot](#Depot) to your local machine.
+The [Retriever](#Retriever) [Summons](#Summon) [Vouched](#Vouch) images for local use — the final step before a [Hallmark](#Hallmark) can be used in a [Crucible](#Crucible).
 
-<a id="Wrest"></a>**[Wrest](#Wrest)** — Pull a specific image from the [Depot](#Depot) registry by reference. [Wresting](#Wrest) is a direct pull without [Vouch](#Vouch) verification — used when you need a specific image tag regardless of attestation status. Compare with [Summon](#Summon), which enforces the [Vouch](#Vouch) ceremony.
+<a id="Wrest"></a>**[Wrest](#Wrest)** — Pull a specific image from the [Depot](#Depot) registry by reference.
+[Wresting](#Wrest) is a direct pull without [Vouch](#Vouch) verification — used when you need a specific image tag regardless of attestation status.
+Compare with [Summon](#Summon), which enforces the [Vouch](#Vouch) ceremony.
 
 ### Removal
 
-<a id="Abjure"></a>**[Abjure](#Abjure)** — Remove a [Hallmark's](#Hallmark) artifacts from the [Depot's](#Depot) registry — the `-image`, [`-about`](#About), and [`-vouch`](#Vouch) tags deleted as a coherent unit. [Abjuring](#Abjure) is the reverse of [Ordaining](#Ordain): it formally renounces a build instance. The [Director](#Director) [Abjures](#Abjure) [Hallmarks](#Hallmark) that are superseded, broken, or no longer needed.
+<a id="Abjure"></a>**[Abjure](#Abjure)** — Remove a [Hallmark's](#Hallmark) artifacts from the [Depot's](#Depot) registry — the `-image`, [`-about`](#About), and [`-vouch`](#Vouch) tags deleted as a coherent unit.
+[Abjuring](#Abjure) is the reverse of [Ordaining](#Ordain): it formally renounces a build instance.
+The [Director](#Director) [Abjures](#Abjure) [Hallmarks](#Hallmark) that are superseded, broken, or no longer needed.
 
-<a id="Jettison"></a>**[Jettison](#Jettison)** — Delete a specific image tag from the [Depot's](#Depot) registry. [Jettisoning](#Jettison) is lower-level than [Abjure](#Abjure) — it removes a single tag rather than a complete [Hallmark](#Hallmark) artifact set. Used for cleanup of individual registry entries.
+<a id="Jettison"></a>**[Jettison](#Jettison)** — Delete a specific image tag from the [Depot's](#Depot) registry.
+[Jettisoning](#Jettison) is lower-level than [Abjure](#Abjure) — it removes a single tag rather than a complete [Hallmark](#Hallmark) artifact set.
+Used for cleanup of individual registry entries.
 
 ### Diagnostics
 
-<a id="ListDepots"></a>**[List Depots](#ListDepots)** — Inventory all active [Depots](#Depot) visible to the current [Payor](#Payor) credentials. Shows project IDs, regions, and provisioning status.
+<a id="ListDepots"></a>**[List Depots](#ListDepots)** — Inventory all active [Depots](#Depot) visible to the current [Payor](#Payor) credentials.
+Shows project IDs, regions, and provisioning status.
 
-<a id="JWTProbe"></a>**[JWT Probe](#JWTProbe)** — Test service account authentication. The [JWT Probe](#JWTProbe) verifies that a [Governor](#Governor), [Director](#Director), or [Retriever](#Retriever) credential can successfully authenticate to the [Depot's](#Depot) GCP project — useful for diagnosing access failures after credential creation or rotation.
+<a id="JWTProbe"></a>**[JWT Probe](#JWTProbe)** — Test service account authentication.
+The [JWT Probe](#JWTProbe) verifies that a [Governor](#Governor), [Director](#Director), or [Retriever](#Retriever) credential can successfully authenticate to the [Depot's](#Depot) GCP project — useful for diagnosing access failures after credential creation or rotation.
 
-<a id="OAuthProbe"></a>**[OAuth Probe](#OAuthProbe)** — Test [Payor](#Payor) OAuth authentication. The [OAuth Probe](#OAuthProbe) verifies that the stored refresh token can obtain a valid access token — useful for diagnosing [Payor](#Payor) operation failures before attempting a full [Refresh](#Refresh).
+<a id="OAuthProbe"></a>**[OAuth Probe](#OAuthProbe)** — Test [Payor](#Payor) OAuth authentication.
+The [OAuth Probe](#OAuthProbe) verifies that the stored refresh token can obtain a valid access token — useful for diagnosing [Payor](#Payor) operation failures before attempting a full [Refresh](#Refresh).
 
 ## Appendix: Crucible Operations
 
@@ -224,17 +317,22 @@ Formal definitions for all [Crucible](#Crucible) operations.
 
 ### Lifecycle
 
-<a id="Charge"></a>**[Charge](#Charge)** — Start the [Sentry](#Sentry)/[Pentacle](#Pentacle)/[Bottle](#Bottle) triad for a [Nameplate](#Nameplate). [Charging](#Charge) brings up the [Crucible](#Crucible) in dependency order: [Pentacle](#Pentacle) creates the namespace, [Sentry](#Sentry) configures policy, then the [Bottle](#Bottle) starts with its network already constrained.
+<a id="Charge"></a>**[Charge](#Charge)** — Start the [Sentry](#Sentry)/[Pentacle](#Pentacle)/[Bottle](#Bottle) triad for a [Nameplate](#Nameplate).
+[Charging](#Charge) brings up the [Crucible](#Crucible) in dependency order: [Pentacle](#Pentacle) creates the namespace, [Sentry](#Sentry) configures policy, then the [Bottle](#Bottle) starts with its network already constrained.
 
-<a id="Quench"></a>**[Quench](#Quench)** — Stop and clean up a [Charged](#Charge) [Nameplate's](#Nameplate) containers. [Quenching](#Quench) tears down the [Crucible](#Crucible) in reverse order and removes the network resources created during [Charging](#Charge).
+<a id="Quench"></a>**[Quench](#Quench)** — Stop and clean up a [Charged](#Charge) [Nameplate's](#Nameplate) containers.
+[Quenching](#Quench) tears down the [Crucible](#Crucible) in reverse order and removes the network resources created during [Charging](#Charge).
 
 ### Interaction
 
-<a id="Rack"></a>**[Rack](#Rack)** — Shell into a [Bottle](#Bottle) container. [Racking](#Rack) opens an interactive session inside the running workload — for debugging, inspecting state, or running commands as the [Bottle](#Bottle) user would experience them.
+<a id="Rack"></a>**[Rack](#Rack)** — Shell into a [Bottle](#Bottle) container.
+[Racking](#Rack) opens an interactive session inside the running workload — for debugging, inspecting state, or running commands as the [Bottle](#Bottle) user would experience them.
 
-<a id="Hail"></a>**[Hail](#Hail)** — Shell into a [Sentry](#Sentry) container. [Hailing](#Hail) opens an interactive session on the gateway — for inspecting `iptables` rules, `dnsmasq` configuration, network state, and egress logs.
+<a id="Hail"></a>**[Hail](#Hail)** — Shell into a [Sentry](#Sentry) container.
+[Hailing](#Hail) opens an interactive session on the gateway — for inspecting `iptables` rules, `dnsmasq` configuration, network state, and egress logs.
 
-<a id="Scry"></a>**[Scry](#Scry)** — Observe network traffic across [Crucible](#Crucible) containers. [Scrying](#Scry) captures packets on the [Crucible's](#Crucible) network interfaces — for verifying that blocked traffic is actually blocked, diagnosing connectivity issues, or watching the [Sentry's](#Sentry) filtering in action.
+<a id="Scry"></a>**[Scry](#Scry)** — Observe network traffic across [Crucible](#Crucible) containers.
+[Scrying](#Scry) captures packets on the [Crucible's](#Crucible) network interfaces — for verifying that blocked traffic is actually blocked, diagnosing connectivity issues, or watching the [Sentry's](#Sentry) filtering in action.
 
 ## Appendix: Adversarial Test Method
 
@@ -243,7 +341,10 @@ The [Crucible's](#Crucible) containment is validated through coordinated escape 
 - <a id="Ifrit"></a>**[Ifrit](#Ifrit)** — Adversarial attack [Vessel](#Vessel) purpose-built to run inside a [Bottle](#Bottle), seeking escape. The [Ifrit](#Ifrit) carries scapy (arbitrary packet construction), strace (syscall boundary probing), and a minimal footprint — tools chosen to probe every surface the [Sentry's](#Sentry) containment exposes. Named for the djinn imprisoned in a bottle.
 - <a id="Theurge"></a>**[Theurge](#Theurge)** — Test orchestrator running on the host, outside the [Crucible](#Crucible). The [Theurge](#Theurge) [Charges](#Charge) a [Crucible](#Crucible) with the [Ifrit](#Ifrit) as its [Bottle](#Bottle), then dispatches curated, reproducible, version-controlled attack scripts targeting specific surfaces: DNS exfiltration, ICMP covert channels, cloud metadata probing, namespace breakout, and direct IP bypass attempts. Each attack runs inside the [Bottle](#Bottle) while the [Theurge](#Theurge) simultaneously observes the [Sentry's](#Sentry) network from outside — confirming that blocked traffic is actually blocked, not merely unrequested.
 
-The escape tests were developed through adversarial Claude Code sessions with full visibility into the [Sentry's](#Sentry) source, configuration, and the Recipe Bottle specification. The [Ifrit](#Ifrit) [Vessel](#Vessel) is the delivery vehicle; the intelligence came from the authoring process. Every test that passes is evidence the containment holds — not proof. The test suite grows as new attack surfaces are identified.
+The escape tests were developed through adversarial Claude Code sessions with full visibility into the [Sentry's](#Sentry) source, configuration, and the Recipe Bottle specification.
+The [Ifrit](#Ifrit) [Vessel](#Vessel) is the delivery vehicle; the intelligence came from the authoring process.
+Every test that passes is evidence the containment holds — not proof.
+The test suite grows as new attack surfaces are identified.
 
 ## Appendix: Roadmap
 
@@ -261,7 +362,8 @@ The following features are not yet implemented but are under consideration:
 
 ## Appendix: Reference Project
 
-This repository is the reference implementation of Recipe Bottle. The annotated tree below maps its files to the concepts defined above.
+This repository is the reference implementation of Recipe Bottle.
+The annotated tree below maps its files to the concepts defined above.
 
 | Path | Description |
 |------|-------------|
@@ -299,17 +401,23 @@ This repository is the reference implementation of Recipe Bottle. The annotated 
 
 ## Appendix: Specific Regimes
 
-<a id="BURC"></a>**[BURC](#BURC)** — Project structure configuration, in the repo. [Tabtarget](#Tabtarget) directory, tools directory.
+<a id="BURC"></a>**[BURC](#BURC)** — Project structure configuration, in the repo.
+[Tabtarget](#Tabtarget) directory, tools directory.
 
-<a id="BURS"></a>**[BURS](#BURS)** — Developer workstation configuration. Not in git. Log directory, station paths.
+<a id="BURS"></a>**[BURS](#BURS)** — Developer workstation configuration.
+Not in git.
+Log directory, station paths.
 
 <a id="RBRR"></a>**[RBRR](#RBRR)** — [Depot](#Depot) identity and build configuration — populated during [Levy](#Levy), consumed by [Director](#Director) and [Retriever](#Retriever) operations.
 
-<a id="RBRP"></a>**[RBRP](#RBRP)** — [Payor](#Payor) administrative identity — GCP project, billing account, OAuth client ID, operator email. In the repo.
+<a id="RBRP"></a>**[RBRP](#RBRP)** — [Payor](#Payor) administrative identity — GCP project, billing account, OAuth client ID, operator email.
+In the repo.
 
-<a id="RBRO"></a>**[RBRO](#RBRO)** — [Payor](#Payor) OAuth credentials — client secret and refresh token. Not in the repo.
+<a id="RBRO"></a>**[RBRO](#RBRO)** — [Payor](#Payor) OAuth credentials — client secret and refresh token.
+Not in the repo.
 
-<a id="RBRA"></a>**[RBRA](#RBRA)** — Role credentials resident on user workstation, enabling [Governor](#Governor), [Director](#Director), or [Retriever](#Retriever) operations. One credential file per role per [Depot](#Depot).
+<a id="RBRA"></a>**[RBRA](#RBRA)** — Role credentials resident on user workstation, enabling [Governor](#Governor), [Director](#Director), or [Retriever](#Retriever) operations.
+One credential file per role per [Depot](#Depot).
 
 <a id="RBRV"></a>**[RBRV](#RBRV)** — [Vessel](#Vessel) configuration specifying [Bind](#Bind), [Conjure](#Conjure), or [Graft](#Graft) mode for creating [Hallmarks](#Hallmark).
 
