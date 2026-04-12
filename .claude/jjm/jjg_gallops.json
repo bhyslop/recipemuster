@@ -37,9 +37,10 @@
         "₢A-AAC",
         "₢A-AAD",
         "₢A-AAE",
-        "₢A-AAF"
+        "₢A-AAF",
+        "₢A-AAH"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -123,6 +124,17 @@
               "text": "## Character\nMechanical — bounded refactor, verifiable by display diff.\n\n## Docket\nUpgrade `rbhp_refresh` and `rbhp_quota_build` in `Tools/rbk/rbhp_payor.sh` from old-style `zrbhp_show()` private color variables to `buh_*` combinators exclusively.\n\nVerification: render each guide before edits (capture output), perform conversion, render after, confirm equivalent output. The `zrbhp_*` private display functions (`zrbhp_show`, `zrbhp_s1`, `zrbhp_s2`, `zrbhp_d`, `zrbhp_dc`, `zrbhp_dcd`, `zrbhp_dm`, `zrbhp_dmd`, `zrbhp_dld`, etc.) should be dead code after conversion — remove them. Keep `zrbhp_kindle`, `zrbhp_sentinel`, `zrbhp_enforce` (module lifecycle, not display).\n\nThis removes bad precedent before the new Windows handbook code is drafted against this template.",
               "silks": "upgrade-rbhp-to-buh-combinators",
               "commit": "1e165b4"
+            }
+          ]
+        },
+        "₢A-AAH": {
+          "tacks": [
+            {
+              "ts": "260412-0947",
+              "state": "rough",
+              "text": "## Character\nDesign + implementation — informed by practice walkthrough discoveries.\n\n## Docket\nCreate real (non-handbook) tabtargets that probe Windows host status over SSH and report health. Modeled on `rbho_onboarding.sh`'s probe functions but operating across an SSH boundary.\n\nCandidates (refine based on what practice paces reveal):\n- SSH routing verification: connect via each key, confirm correct environment lands\n- WSL distro health: systemd running, expected packages present\n- Fundus accounts: `jjfu_*` users exist and are SSH-reachable\n- Docker dual-daemon: both daemons running, context routing correct\n- End-to-end: RBK test fixture can charge/quench inside WSL\n\nThese are automation tabtargets (exit status matters), not handbooks. They run from the client (curia) and probe the Windows host via SSH — so they depend on Access procedures being complete.\n\nScope will narrow during practice — not all candidates may be worth automating.",
+              "silks": "create-verification-tabtargets",
+              "commit": "099958a"
             }
           ]
         }
