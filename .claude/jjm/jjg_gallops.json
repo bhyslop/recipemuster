@@ -35,9 +35,10 @@
         "₢A-AAB",
         "₢A-AAC",
         "₢A-AAD",
-        "₢A-AAE"
+        "₢A-AAE",
+        "₢A-AAF"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -92,6 +93,17 @@
               "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\nUser runs existing JJK fundus provisioning inside the WSL distro:\n- `jjw-tfP1.ProvisionPhase1.sh` (sudo, inside WSL) — create `jjfu_*` accounts\n- `jjw-tfP2.ProvisionPhase2.sh` — clone repos, install BUK\n\nNo new code expected — this validates that the existing `jjfp_fundus.sh` works unchanged inside WSL on Windows. If issues arise (platform detection, path differences, SSH localhost behavior in WSL), agent amends `jjfp_fundus.sh` or documents WSL-specific caveats.",
               "silks": "practice-fundus-provisioning",
               "commit": "f290e70"
+            }
+          ]
+        },
+        "₢A-AAF": {
+          "tacks": [
+            {
+              "ts": "260412-0931",
+              "state": "rough",
+              "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\nUser executes Docker procedures on Windows host:\n- `rbw-HWdd` — Docker Desktop install + WSL integration\n- `rbw-HWdw` — native dockerd inside WSL distro\n- `rbw-HWdc` — docker context discipline (WSL uses native, Windows/Cygwin use Desktop)\n\nAgent amends handbook for issues. Goal: both Docker daemons running, context routing deterministic, `jjfu_*` users can access Docker inside WSL.",
+              "silks": "practice-docker-procedures",
+              "commit": "81229ed"
             }
           ]
         }
