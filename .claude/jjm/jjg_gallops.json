@@ -39,9 +39,10 @@
         "₢A-AAE",
         "₢A-AAF",
         "₢A-AAH",
-        "₢A-AAI"
+        "₢A-AAI",
+        "₢A-AAJ"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -182,6 +183,17 @@
               "text": "## Character\nDesign review — lightweight judgment call.\n\n## Docket\nRevisit whether `buw-HWec` should dictate full Cygwin installation or just configure an existing install. After practicing the other procedures, we'll have better intuition about how much hand-holding the handbook should provide vs assuming prerequisites are already in place.",
               "silks": "reconsider-cygwin-install-procedure",
               "commit": "1fa2c30"
+            }
+          ]
+        },
+        "₢A-AAJ": {
+          "tacks": [
+            {
+              "ts": "260412-1514",
+              "state": "rough",
+              "text": "## Character\nMechanical sweep with judgment — convert existing procedures, evaluate whether the pattern held up.\n\n## Docket\nAfter practicing the Windows procedures with `buh_step1`/`buh_step2`, decide whether to adopt auto-numbered steps across all handbook procedures (onboarding, payor). Convert if yes, document why not if no. Includes PayorEstablish, PayorRefresh, QuotaBuild, and any onboarding procedures still using hardcoded `buh_section \"N. ...\"`.",
+              "silks": "adopt-step-autonumber-across-all-procedures",
+              "commit": "87e1814"
             }
           ]
         }
