@@ -84,20 +84,20 @@ rbhw_docker_desktop() {
   buh_section  "Docker Desktop Installation"
   buh_t        "Provide Windows-hosted Docker daemon for Windows and Cygwin environments."
   buh_e
-  buh_section  "1. Download and Install Docker Desktop:"
-  buh_link     "   " "Docker Desktop for Windows" "https://www.docker.com/products/docker-desktop/"
+  buh_step1    "Download and Install Docker Desktop:"
+  buh_link     "" "Docker Desktop for Windows" "https://www.docker.com/products/docker-desktop/"
   buh_e
-  buh_section  "2. Enable WSL Integration:"
-  buh_tu       "   In Docker Desktop Settings > Resources > " "WSL Integration"
-  buh_tu       "   Enable " "Enable integration with my default WSL distro"
+  buh_step1    "Enable WSL Integration:"
+  buh_tu       "In Docker Desktop Settings > Resources > " "WSL Integration"
+  buh_tu       "Enable " "Enable integration with my default WSL distro"
   buh_e
-  buh_section  "3. Start Docker Desktop:"
-  buh_t        "   Launch Docker Desktop from the Start menu or system tray."
+  buh_step1    "Start Docker Desktop:"
+  buh_t        "Launch Docker Desktop from the Start menu or system tray."
   buh_e
   buh_section  "Verification:"
-  buh_t        "   In a Windows PowerShell:"
-  buh_c        "   docker ps"
-  buh_t        "   Expect: empty container list (no errors)."
+  buh_t        "In a Windows PowerShell:"
+  buh_c        "docker ps"
+  buh_t        "Expect: empty container list (no errors)."
 
 }
 
@@ -113,22 +113,22 @@ rbhw_docker_wsl_native() {
   buh_section  "Native Docker Daemon in WSL"
   buh_tct      "Install and run dockerd natively inside WSL distro " "${z_distro}" "."
   buh_e
-  buh_section  "1. Enter the Distribution:"
-  buh_c        "   wsl -d ${z_distro}"
+  buh_step1    "Enter the Distribution:"
+  buh_c        "wsl -d ${z_distro}"
   buh_e
-  buh_section  "2. Install Docker Engine:"
-  buh_c        "   sudo apt update"
-  buh_c        "   sudo apt install -y docker.io"
-  buh_c        "   sudo systemctl enable --now docker"
+  buh_step1    "Install Docker Engine:"
+  buh_c        "sudo apt update"
+  buh_c        "sudo apt install -y docker.io"
+  buh_c        "sudo systemctl enable --now docker"
   buh_e
-  buh_section  "3. Grant Docker Access to Users:"
-  buh_t        "   Add each user that needs Docker access to the docker group:"
-  buh_c        "   sudo usermod -aG docker USERNAME"
-  buh_t        "   Replace USERNAME with each fundus user account."
+  buh_step1    "Grant Docker Access to Users:"
+  buh_t        "Add each user that needs Docker access to the docker group:"
+  buh_c        "sudo usermod -aG docker USERNAME"
+  buh_t        "Replace USERNAME with each fundus user account."
   buh_e
   buh_section  "Verification:"
-  buh_c        "   docker ps"
-  buh_t        "   Expect: empty container list (no errors)."
+  buh_c        "docker ps"
+  buh_t        "Expect: empty container list (no errors)."
 
 }
 
@@ -142,26 +142,26 @@ rbhw_docker_context_discipline() {
   buh_t        "Ensure deterministic daemon selection across environments."
   buh_e
   buh_section  "Preconditions:"
-  buh_t        "  - Docker Desktop installed (docker-desktop procedure)"
-  buh_t        "  - Native dockerd in WSL (docker-wsl-native procedure)"
+  buh_t        "- Docker Desktop installed (docker-desktop procedure)"
+  buh_t        "- Native dockerd in WSL (docker-wsl-native procedure)"
   buh_e
-  buh_section  "1. Inside WSL — Create Named Context:"
-  buh_tct      "   Create context " "${ZRBHW_DOCKER_CONTEXT}" " for the native daemon:"
-  buh_c        "   docker context create ${ZRBHW_DOCKER_CONTEXT} --docker \"host=unix:///var/run/docker.sock\""
-  buh_c        "   docker context use ${ZRBHW_DOCKER_CONTEXT}"
+  buh_step1    "Inside WSL — Create Named Context:"
+  buh_tct      "Create context " "${ZRBHW_DOCKER_CONTEXT}" " for the native daemon:"
+  buh_c        "docker context create ${ZRBHW_DOCKER_CONTEXT} --docker \"host=unix:///var/run/docker.sock\""
+  buh_c        "docker context use ${ZRBHW_DOCKER_CONTEXT}"
   buh_e
-  buh_section  "2. On Windows (PowerShell) — Confirm Default Context:"
-  buh_t        "   Ensure the default context is active (Docker Desktop):"
-  buh_c        "   docker context use default"
+  buh_step1    "On Windows (PowerShell) — Confirm Default Context:"
+  buh_t        "Ensure the default context is active (Docker Desktop):"
+  buh_c        "docker context use default"
   buh_e
   buh_section  "Result:"
-  buh_t        "  - WSL shells use native daemon (via context)"
-  buh_t        "  - Windows and Cygwin use Docker Desktop daemon (default)"
+  buh_t        "- WSL shells use native daemon (via context)"
+  buh_t        "- Windows and Cygwin use Docker Desktop daemon (default)"
   buh_e
   buh_section  "Verification:"
-  buh_c        "   docker context ls"
-  buh_c        "   docker info | grep \"Server\""
-  buh_t        "   Expect: active context matches the environment."
+  buh_c        "docker context ls"
+  buh_c        "docker info | grep \"Server\""
+  buh_t        "Expect: active context matches the environment."
 
 }
 

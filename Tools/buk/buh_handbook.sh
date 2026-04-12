@@ -79,6 +79,11 @@ zbuh_kindle() {
     readonly ZBUH_L=""
   fi
 
+  # Mutable kindle state — step counters and body indent
+  z_buh_step1_n=0
+  z_buh_step2_n=0
+  z_buh_body_indent=""
+
   readonly ZBUH_KINDLED=1
 }
 
@@ -91,7 +96,7 @@ zbuh_sentinel() {
 
 zbuh_show() {
   zbuh_sentinel
-  printf '%b\n' "${1:-}" >&2
+  printf '%b\n' "${z_buh_body_indent}${1:-}" >&2
 }
 
 ######################################################################
@@ -113,10 +118,25 @@ zbuh_link_fragment() {
 }
 
 ######################################################################
-# Public: Section headers
+# Public: Section headers and numbered steps
 
-buh_section() { zbuh_sentinel; printf '%b\n' "${ZBUH_S}${1}${ZBUH_R}" >&2; }
+buh_section() { zbuh_sentinel; z_buh_body_indent=""; printf '%b\n' "${ZBUH_S}${1}${ZBUH_R}" >&2; }
 buh_e()       { echo "" >&2; }
+
+buh_step1() {
+  zbuh_sentinel
+  z_buh_step1_n=$((z_buh_step1_n + 1))
+  z_buh_step2_n=0
+  z_buh_body_indent="   "
+  printf '%b\n' "${ZBUH_S}${z_buh_step1_n}. ${1}${ZBUH_R}" >&2
+}
+
+buh_step2() {
+  zbuh_sentinel
+  z_buh_step2_n=$((z_buh_step2_n + 1))
+  z_buh_body_indent="      "
+  printf '%b\n' "   ${ZBUH_S}${z_buh_step1_n}.${z_buh_step2_n}. ${1}${ZBUH_R}" >&2
+}
 
 ######################################################################
 # Public: Text combinators
@@ -177,12 +197,12 @@ buh_link() {
 
   if test -n "${BURD_NO_HYPERLINKS:-}"; then
     # Fallback: styled text with URL in angle brackets
-    printf '%s%b%s%b <%s>%s\n' \
-      "${z_prefix}" "${z_link_style}" "${z_text}" "${ZBUH_R}" "${z_url}" "${z_suffix}" >&2
+    printf '%s%s%b%s%b <%s>%s\n' \
+      "${z_buh_body_indent}" "${z_prefix}" "${z_link_style}" "${z_text}" "${ZBUH_R}" "${z_url}" "${z_suffix}" >&2
   else
     # OSC-8 hyperlink with styling
-    printf '%s%b\033]8;;%s\033\\%s\033]8;;\033\\%b%s\n' \
-      "${z_prefix}" "${z_link_style}" "${z_url}" "${z_text}" "${ZBUH_R}" "${z_suffix}" >&2
+    printf '%s%s%b\033]8;;%s\033\\%s\033]8;;\033\\%b%s\n' \
+      "${z_buh_body_indent}" "${z_prefix}" "${z_link_style}" "${z_url}" "${z_text}" "${ZBUH_R}" "${z_suffix}" >&2
   fi
 }
 

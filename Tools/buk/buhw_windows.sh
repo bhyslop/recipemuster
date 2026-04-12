@@ -64,40 +64,40 @@ buhw_access_base() {
   buh_t        "Establish Windows as a keys-only SSH endpoint."
   buh_e
   buh_section  "Preconditions:"
-  buh_t        "  - Windows host with administrator access"
-  buh_t        "  - Network reachable on TCP/${ZBUHW_SSH_PORT}"
+  buh_t        "- Windows host with administrator access"
+  buh_t        "- Network reachable on TCP/${ZBUHW_SSH_PORT}"
   buh_e
-  buh_section  "1. Open Elevated PowerShell:"
-  buh_t        "   Right-click Start → Terminal (Admin), or search 'PowerShell' and Run as Administrator."
-  buh_t        "   All commands below run in this elevated session."
+  buh_step1    "Open Elevated PowerShell:"
+  buh_t        "Right-click Start → Terminal (Admin), or search 'PowerShell' and Run as Administrator."
+  buh_t        "All commands below run in this elevated session."
   buh_e
-  buh_section  "2. Install OpenSSH Server:"
-  buh_t        "   This downloads from Windows Update — may take 10+ minutes."
-  buh_c        "   Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0"
+  buh_step1    "Install OpenSSH Server:"
+  buh_t        "This downloads from Windows Update — may take 10+ minutes."
+  buh_c        "Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0"
   buh_e
-  buh_section  "3. Enable OpenSSH Server:"
-  buh_c        "   Start-Service sshd"
-  buh_c        "   Set-Service -Name sshd -StartupType Automatic"
+  buh_step1    "Enable OpenSSH Server:"
+  buh_c        "Start-Service sshd"
+  buh_c        "Set-Service -Name sshd -StartupType Automatic"
   buh_e
-  buh_section  "4. Allow Port ${ZBUHW_SSH_PORT} Through Firewall:"
-  buh_c        "   New-NetFirewallRule -Name ${ZBUHW_FW_RULE_NAME} -DisplayName \"${ZBUHW_FW_DISPLAY_NAME}\" -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort ${ZBUHW_SSH_PORT}"
+  buh_step1    "Allow Port ${ZBUHW_SSH_PORT} Through Firewall:"
+  buh_c        "New-NetFirewallRule -Name ${ZBUHW_FW_RULE_NAME} -DisplayName \"${ZBUHW_FW_DISPLAY_NAME}\" -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort ${ZBUHW_SSH_PORT}"
   buh_e
-  buh_section  "5. Configure sshd_config:"
-  buh_tc       "   Edit: " "${ZBUHW_SSHD_CONFIG}"
-  buh_t        "   Set these directives:"
-  buh_c        "   PasswordAuthentication no"
-  buh_c        "   PubkeyAuthentication yes"
-  buh_c        "   PermitEmptyPasswords no"
-  buh_c        "   ChallengeResponseAuthentication no"
-  buh_c        "   UsePAM no"
+  buh_step1    "Configure sshd_config:"
+  buh_tc       "Edit: " "${ZBUHW_SSHD_CONFIG}"
+  buh_t        "Set these directives:"
+  buh_c        "PasswordAuthentication no"
+  buh_c        "PubkeyAuthentication yes"
+  buh_c        "PermitEmptyPasswords no"
+  buh_c        "ChallengeResponseAuthentication no"
+  buh_c        "UsePAM no"
   buh_e
-  buh_section  "6. Restart Service:"
-  buh_c        "   Restart-Service sshd"
+  buh_step1    "Restart Service:"
+  buh_c        "Restart-Service sshd"
   buh_e
   buh_section  "Verification:"
-  buh_t        "   From a remote machine:"
-  buh_c        "   ssh user@host"
-  buh_t        "   Expect: publickey prompt; password login rejected."
+  buh_t        "From a remote machine:"
+  buh_c        "ssh user@host"
+  buh_t        "Expect: publickey prompt; password login rejected."
 
 }
 
@@ -121,30 +121,30 @@ buhw_access_remote() {
   buh_t        "Provision client with a dedicated key and deterministic host config."
   buh_e
   buh_section  "Parameters:"
-  buh_tc       "   Host:     " "${z_host}"
-  buh_tc       "   User:     " "${z_user}"
-  buh_tc       "   Key name: " "${z_key_name}"
-  buh_tc       "   Alias:    " "${z_alias}"
+  buh_tc       "  Host:     " "${z_host}"
+  buh_tc       "  User:     " "${z_user}"
+  buh_tc       "  Key name: " "${z_key_name}"
+  buh_tc       "  Alias:    " "${z_alias}"
   buh_e
-  buh_section  "1. Generate Key:"
-  buh_c        "   ssh-keygen -t ed25519 -f ~/.ssh/${z_key_name}"
+  buh_step1    "Generate Key:"
+  buh_c        "ssh-keygen -t ed25519 -f ~/.ssh/${z_key_name}"
   buh_e
-  buh_section  "2. Create SSH Config Entry:"
-  buh_tc       "   Add to " "~/.ssh/config"
+  buh_step1    "Create SSH Config Entry:"
+  buh_tc       "Add to " "~/.ssh/config"
   buh_e
-  buh_c        "   Host ${z_alias}"
-  buh_c        "     HostName ${z_host}"
-  buh_c        "     User ${z_user}"
-  buh_c        "     IdentityFile ~/.ssh/${z_key_name}"
+  buh_c        "Host ${z_alias}"
+  buh_c        "  HostName ${z_host}"
+  buh_c        "  User ${z_user}"
+  buh_c        "  IdentityFile ~/.ssh/${z_key_name}"
   buh_e
-  buh_section  "3. Copy Public Key to Host:"
-  buh_t        "   The public key must be added to the host's authorized_keys."
-  buh_tc       "   Display the key: " "cat ~/.ssh/${z_key_name}.pub"
-  buh_t        "   Copy the output for use in the entrypoints procedure."
+  buh_step1    "Copy Public Key to Host:"
+  buh_t        "The public key must be added to the host's authorized_keys."
+  buh_tc       "Display the key: " "cat ~/.ssh/${z_key_name}.pub"
+  buh_t        "Copy the output for use in the entrypoints procedure."
   buh_e
   buh_section  "Verification:"
-  buh_c        "   ssh ${z_alias}"
-  buh_t        "   Expect: connects (may not yet enter target env — routing not configured)."
+  buh_c        "ssh ${z_alias}"
+  buh_t        "Expect: connects (may not yet enter target env — routing not configured)."
 
 }
 
@@ -159,30 +159,30 @@ buhw_access_entrypoints() {
   buh_t        "Each key forces a single environment — no interactive shell selection."
   buh_e
   buh_section  "Preconditions:"
-  buh_t        "  - OpenSSH server installed (access-base complete)"
-  buh_t        "  - Public keys available from access-remote"
+  buh_t        "- OpenSSH server installed (access-base complete)"
+  buh_t        "- Public keys available from access-remote"
   buh_e
-  buh_section  "1. Edit Administrators Authorized Keys:"
-  buh_tc       "   File: " "${ZBUHW_ADMIN_AUTH_KEYS}"
-  buh_t        "   Add one line per environment, prefixed with command= directive:"
+  buh_step1    "Edit Administrators Authorized Keys:"
+  buh_tc       "File: " "${ZBUHW_ADMIN_AUTH_KEYS}"
+  buh_t        "Add one line per environment, prefixed with command= directive:"
   buh_e
-  buh_c        "   command=\"${ZBUHW_CYGWIN_BASH} -l\" ssh-ed25519 AAAA... cygwin"
-  buh_c        "   command=\"wsl.exe -d DISTRO\"        ssh-ed25519 BBBB... wsl"
-  buh_c        "   command=\"powershell.exe\"            ssh-ed25519 CCCC... windows"
+  buh_c        "command=\"${ZBUHW_CYGWIN_BASH} -l\" ssh-ed25519 AAAA... cygwin"
+  buh_c        "command=\"wsl.exe -d DISTRO\"        ssh-ed25519 BBBB... wsl"
+  buh_c        "command=\"powershell.exe\"            ssh-ed25519 CCCC... windows"
   buh_e
-  buh_tut      "   Replace " "DISTRO" " with your WSL distribution name."
-  buh_tut      "   Replace " "AAAA.../BBBB.../CCCC..." " with actual public key content."
+  buh_tut      "Replace " "DISTRO" " with your WSL distribution name."
+  buh_tut      "Replace " "AAAA.../BBBB.../CCCC..." " with actual public key content."
   buh_e
-  buh_section  "2. Set File Permissions:"
-  buh_t        "   Run in an elevated PowerShell:"
-  buh_c        "   icacls \"${ZBUHW_ADMIN_AUTH_KEYS}\" /inheritance:r"
-  buh_c        "   icacls \"${ZBUHW_ADMIN_AUTH_KEYS}\" /grant \"Administrators:F\""
+  buh_step1    "Set File Permissions:"
+  buh_t        "Run in an elevated PowerShell:"
+  buh_c        "icacls \"${ZBUHW_ADMIN_AUTH_KEYS}\" /inheritance:r"
+  buh_c        "icacls \"${ZBUHW_ADMIN_AUTH_KEYS}\" /grant \"Administrators:F\""
   buh_e
   buh_section  "Verification:"
-  buh_t        "   Test each key lands in the correct environment:"
-  buh_c        "   ssh -i key-cygwin host   # lands in Cygwin bash"
-  buh_c        "   ssh -i key-wsl host      # lands in WSL"
-  buh_c        "   ssh -i key-win host      # lands in PowerShell"
+  buh_t        "Test each key lands in the correct environment:"
+  buh_c        "ssh -i key-cygwin host   # lands in Cygwin bash"
+  buh_c        "ssh -i key-wsl host      # lands in WSL"
+  buh_c        "ssh -i key-win host      # lands in PowerShell"
 
 }
 
@@ -198,30 +198,30 @@ buhw_environment_wsl() {
   buh_section  "WSL Distribution Setup"
   buh_tc       "Create canonical Linux environment: " "${z_distro}"
   buh_e
-  buh_section  "1. Enable WSL (if not already):"
-  buh_t        "   Run in an elevated PowerShell:"
-  buh_c        "   wsl --install"
+  buh_step1    "Enable WSL (if not already):"
+  buh_t        "Run in an elevated PowerShell:"
+  buh_c        "wsl --install"
   buh_e
-  buh_section  "2. Install Base Ubuntu:"
-  buh_c        "   wsl --install -d Ubuntu"
+  buh_step1    "Install Base Ubuntu:"
+  buh_c        "wsl --install -d Ubuntu"
   buh_e
-  buh_section  "3. Export and Re-import as Named Distribution:"
-  buh_c        "   wsl --export Ubuntu ubuntu.tar"
-  buh_c        "   wsl --import ${z_distro} C:\\\\WSL\\\\${z_distro} ubuntu.tar"
+  buh_step1    "Export and Re-import as Named Distribution:"
+  buh_c        "wsl --export Ubuntu ubuntu.tar"
+  buh_c        "wsl --import ${z_distro} C:\\\\WSL\\\\${z_distro} ubuntu.tar"
   buh_e
-  buh_section  "4. Enable systemd:"
-  buh_tct      "   Inside the distro (wsl -d " "${z_distro}" "):"
-  buh_c        "   sudo nano /etc/wsl.conf"
-  buh_t        "   Add:"
-  buh_c        "   [boot]"
-  buh_c        "   systemd=true"
+  buh_step1    "Enable systemd:"
+  buh_tct      "Inside the distro (wsl -d " "${z_distro}" "):"
+  buh_c        "sudo nano /etc/wsl.conf"
+  buh_t        "Add:"
+  buh_c        "[boot]"
+  buh_c        "systemd=true"
   buh_e
-  buh_section  "5. Restart WSL:"
-  buh_c        "   wsl --shutdown"
+  buh_step1    "Restart WSL:"
+  buh_c        "wsl --shutdown"
   buh_e
   buh_section  "Verification:"
-  buh_c        "   wsl -d ${z_distro} systemctl is-system-running"
-  buh_t        "   Expect: running or degraded (acceptable)."
+  buh_c        "wsl -d ${z_distro} systemctl is-system-running"
+  buh_t        "Expect: running or degraded (acceptable)."
 
 }
 
@@ -234,24 +234,24 @@ buhw_environment_cygwin() {
   buh_section  "Cygwin Installation"
   buh_t        "Install POSIX userland for orchestration testing."
   buh_e
-  buh_section  "1. Download and Run Cygwin Installer:"
-  buh_link     "   " "Cygwin Setup (64-bit)" "https://cygwin.com/setup-x86_64.exe"
-  buh_tc       "   Install to: " "${ZBUHW_CYGWIN_ROOT}"
+  buh_step1    "Download and Run Cygwin Installer:"
+  buh_link     "" "Cygwin Setup (64-bit)" "https://cygwin.com/setup-x86_64.exe"
+  buh_tc       "Install to: " "${ZBUHW_CYGWIN_ROOT}"
   buh_e
-  buh_section  "2. Required Packages:"
-  buh_t        "   Select these during installation:"
-  buh_c        "   bash"
-  buh_c        "   openssl"
-  buh_c        "   curl"
+  buh_step1    "Required Packages:"
+  buh_t        "Select these during installation:"
+  buh_c        "bash"
+  buh_c        "openssl"
+  buh_c        "curl"
   buh_e
-  buh_section  "3. Verify Installation:"
-  buh_t        "   Launch Cygwin bash:"
-  buh_c        "   ${ZBUHW_CYGWIN_BASH} -l"
+  buh_step1    "Verify Installation:"
+  buh_t        "Launch Cygwin bash:"
+  buh_c        "${ZBUHW_CYGWIN_BASH} -l"
   buh_e
   buh_section  "Verification:"
-  buh_c        "   openssl version"
-  buh_c        "   bash --version"
-  buh_t        "   Expect: bash version >= 3.2"
+  buh_c        "openssl version"
+  buh_c        "bash --version"
+  buh_t        "Expect: bash version >= 3.2"
 
 }
 
