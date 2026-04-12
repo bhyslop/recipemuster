@@ -71,15 +71,18 @@ buhw_access_base() {
   buh_t        "   Right-click Start → Terminal (Admin), or search 'PowerShell' and Run as Administrator."
   buh_t        "   All commands below run in this elevated session."
   buh_e
-  buh_section  "2. Install and Enable OpenSSH Server:"
+  buh_section  "2. Install OpenSSH Server:"
+  buh_t        "   This downloads from Windows Update — may take 10+ minutes."
   buh_c        "   Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0"
+  buh_e
+  buh_section  "3. Enable OpenSSH Server:"
   buh_c        "   Start-Service sshd"
   buh_c        "   Set-Service -Name sshd -StartupType Automatic"
   buh_e
-  buh_section  "3. Allow Port ${ZBUHW_SSH_PORT} Through Firewall:"
+  buh_section  "4. Allow Port ${ZBUHW_SSH_PORT} Through Firewall:"
   buh_c        "   New-NetFirewallRule -Name ${ZBUHW_FW_RULE_NAME} -DisplayName \"${ZBUHW_FW_DISPLAY_NAME}\" -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort ${ZBUHW_SSH_PORT}"
   buh_e
-  buh_section  "4. Configure sshd_config:"
+  buh_section  "5. Configure sshd_config:"
   buh_tc       "   Edit: " "${ZBUHW_SSHD_CONFIG}"
   buh_t        "   Set these directives:"
   buh_c        "   PasswordAuthentication no"
@@ -88,7 +91,7 @@ buhw_access_base() {
   buh_c        "   ChallengeResponseAuthentication no"
   buh_c        "   UsePAM no"
   buh_e
-  buh_section  "5. Restart Service:"
+  buh_section  "6. Restart Service:"
   buh_c        "   Restart-Service sshd"
   buh_e
   buh_section  "Verification:"
