@@ -31,6 +31,7 @@
       "creation_time": "260412",
       "status": "racing",
       "order": [
+        "₢A-AAG",
         "₢A-AAA",
         "₢A-AAB",
         "₢A-AAC",
@@ -38,7 +39,7 @@
         "₢A-AAE",
         "₢A-AAF"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -111,6 +112,17 @@
               "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\nUser executes Docker procedures on Windows host:\n- `rbw-HWdd` — Docker Desktop install + WSL integration\n- `rbw-HWdw` — native dockerd inside WSL distro\n- `rbw-HWdc` — docker context discipline (WSL uses native, Windows/Cygwin use Desktop)\n\nAgent amends handbook for issues. Goal: both Docker daemons running, context routing deterministic, `jjfu_*` users can access Docker inside WSL.",
               "silks": "practice-docker-procedures",
               "commit": "81229ed"
+            }
+          ]
+        },
+        "₢A-AAG": {
+          "tacks": [
+            {
+              "ts": "260412-0941",
+              "state": "rough",
+              "text": "## Character\nMechanical — bounded refactor, verifiable by display diff.\n\n## Docket\nUpgrade `rbhp_refresh` and `rbhp_quota_build` in `Tools/rbk/rbhp_payor.sh` from old-style `zrbhp_show()` private color variables to `buh_*` combinators exclusively.\n\nVerification: render each guide before edits (capture output), perform conversion, render after, confirm equivalent output. The `zrbhp_*` private display functions (`zrbhp_show`, `zrbhp_s1`, `zrbhp_s2`, `zrbhp_d`, `zrbhp_dc`, `zrbhp_dcd`, `zrbhp_dm`, `zrbhp_dmd`, `zrbhp_dld`, etc.) should be dead code after conversion — remove them. Keep `zrbhp_kindle`, `zrbhp_sentinel`, `zrbhp_enforce` (module lifecycle, not display).\n\nThis removes bad precedent before the new Windows handbook code is drafted against this template.",
+              "silks": "upgrade-rbhp-to-buh-combinators",
+              "commit": "1e165b4"
             }
           ]
         }
