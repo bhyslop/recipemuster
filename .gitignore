@@ -32,6 +32,10 @@ bin/
 # podman trash
 NUL
 
+# drawio temp/backup files
+.*drawio*.bkp
+.*drawio*.dtmp
+
 # Claude Code - ignore machine-specific settings
 .claude/settings.local.json
 .claude/settings.json
