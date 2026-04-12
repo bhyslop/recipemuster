@@ -245,6 +245,18 @@ buh_tlT()     { zbuh_link_fragment "${2}" "${3}"; zbuh_tabtarget_fragment "${4}"
 buh_tltT()    { zbuh_link_fragment "${2}" "${3}"; zbuh_tabtarget_fragment "${5}"; zbuh_show "${1}${ZBUH_LINK_FRAG}${4}${ZBUH_TT_FRAG}"; }
 
 ######################################################################
+# Public: Index renderers
+#
+# Group-level handbook indexes shared across kits.
+# Each function renders one kit's handbook group tops.
+
+buh_index_buk() {
+  buh_section  "Generic OS Procedures (Bash Utility Kit)"
+  buh_t        "  Project-independent OS-level mechanisms."
+  buh_tT       "  Windows:  " "buw-hw"
+}
+
+######################################################################
 # Public: User prompts
 
 # buh_prompt "prompt text"

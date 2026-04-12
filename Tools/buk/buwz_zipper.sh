@@ -69,8 +69,9 @@ zbuwz_kindle() {
   z_mod="butt_testbench.sh"
   buz_enroll BUWZ_SELF_TEST "buw-st" "${z_mod}" "buw-st"  ""  "BUK self-test (kick-tires + bure-tweak)"
 
-  # Handbook — Windows OS procedures (buhw_cli.sh)
+  # Handbook — top index + Windows OS procedures (buhw_cli.sh)
   z_mod="buhw_cli.sh"
+  buz_enroll BUWZ_H0_TOP            "buw-h0"    "${z_mod}" "buhw_handbook_top"        ""        "BUK top-level handbook index"
   buz_enroll BUWZ_HW_TOP            "buw-hw"    "${z_mod}" "buhw_top"                ""        "BUK-level Windows procedures checklist"
   buz_enroll BUWZ_HW_ACCESS_BASE    "buw-HWab"  "${z_mod}" "buhw_access_base"        ""        "OpenSSH server install + lockdown"
   buz_enroll BUWZ_HW_ACCESS_REMOTE  "buw-HWar"  "${z_mod}" "buhw_access_remote"      ""        "Client key gen + ssh config"

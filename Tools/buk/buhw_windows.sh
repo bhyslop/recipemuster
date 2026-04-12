@@ -254,6 +254,20 @@ buhw_environment_cygwin() {
   buc_success "Cygwin installation procedure displayed"
 }
 
+buhw_handbook_top() {
+  zbuhw_sentinel
+
+  buc_doc_brief "Display BUK top-level handbook index"
+  buc_doc_shown || return 0
+
+  buh_section  "Bash Utility Kit Handbook"
+  buh_t        "OS-level procedures across all platforms."
+  buh_e
+  buh_index_buk
+
+  buc_success "BUK handbook index displayed"
+}
+
 buhw_top() {
   zbuhw_sentinel
 

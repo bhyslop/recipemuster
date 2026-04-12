@@ -56,6 +56,8 @@ rbhw_handbook_top() {
   buh_section  "Recipe Bottle Handbook"
   buh_t        "Three handbook groups covering setup, operations, and maintenance."
   buh_e
+  buh_index_buk
+  buh_e
   buh_section  "Onboarding — role-based walkthroughs"
   buh_t        "  Per-role setup guides with health probes."
   buh_tT       "  Start here:   " "rbw-o"
