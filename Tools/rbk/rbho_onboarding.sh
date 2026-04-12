@@ -383,7 +383,7 @@ rbho_reference() {
   zrbho_po_status "${z_ru2}" "  First artifact — hallmark summoned locally"
   zrbho_po_status "${z_ru3}" "  Container runtime — crucible charged"
   zrbho_po_status "${z_ru4}" "  Local experimentation — kludge image present"
-  buh_tc "  Walkthrough: " "tt/rbw-gOR.OnboardRetriever.sh"
+  buh_tT "  Walkthrough: " "${RBZ_ONBOARD_RETRIEVER}"
   buh_e
 
   # Director — full per-unit probes
@@ -403,7 +403,7 @@ rbho_reference() {
   zrbho_po_status "${z_du5}" "  Bind — pinned upstream image present"
   zrbho_po_status "${z_du6}" "  Graft — locally-built image pushed"
   zrbho_po_status "${z_du7}" "  Full ark — all three modes compared"
-  buh_tc "  Walkthrough: " "tt/rbw-gOD.OnboardDirector.sh"
+  buh_tT "  Walkthrough: " "${RBZ_ONBOARD_DIRECTOR}"
   buh_e
 
   # Governor — full per-unit probes
@@ -413,7 +413,7 @@ rbho_reference() {
   zrbho_po_status "${z_gu1}" "  Project access — governor credentials installed"
   zrbho_po_status "${z_gu2}" "  Service accounts — retriever and director SAs provisioned"
   zrbho_po_status "${z_gu3}" "  Verification — downstream roles can access the depot"
-  buh_tc "  Walkthrough: " "tt/rbw-gOG.OnboardGovernor.sh"
+  buh_tT "  Walkthrough: " "${RBZ_ONBOARD_GOVERNOR}"
   buh_e
 
   # Payor — full per-unit probes
@@ -427,7 +427,7 @@ rbho_reference() {
   zrbho_po_status "${z_pu2}" "  Project setup — GCP project configured"
   zrbho_po_status "${z_pu3}" "  Depot provisioning — infrastructure levied"
   zrbho_po_status "${z_pu4}" "  Governor handoff — governor SA created"
-  buh_tc "  Walkthrough: " "tt/rbw-gOP.OnboardPayor.sh"
+  buh_tT "  Walkthrough: " "${RBZ_ONBOARD_PAYOR}"
   buh_e
 
 }
@@ -486,7 +486,7 @@ rbho_retriever() {
       buh_e
       buh_t   "  To access a depot, you need a service account key. Your governor creates"
       buh_t   "  one by running:"
-      buh_tc  "    " "tt/rbw-aC.GovernorChartersRetriever.sh"
+      buh_tT  "    " "${RBZ_CHARTER_RETRIEVER}"
       buh_e
       if test -n "${z_secrets_dir}"; then
         buh_t   "  Install the key file to:"
@@ -623,7 +623,7 @@ rbho_director() {
       buh_e
       buh_t   "  To access a depot, you need a service account key. Your governor creates"
       buh_t   "  one by running:"
-      buh_tc  "    " "tt/rbw-aK.GovernorKnightsDirector.sh"
+      buh_tT  "    " "${RBZ_KNIGHT_DIRECTOR}"
       buh_e
       if test -n "${z_secrets_dir}"; then
         buh_t   "  Install the key file to:"
@@ -672,10 +672,10 @@ rbho_director() {
       buh_t   "  Mirrored into your depot's registry with content-addressed anchors."
       buh_e
       buh_t   "  Mirror tool images into the depot:"
-      buh_tc  "    " "tt/rbw-dI.DirectorInscribesReliquary.sh"
+      buh_tT  "    " "${RBZ_INSCRIBE_RELIQUARY}"
       buh_e
       buh_t   "  Enshrine base images for the sentry vessel:"
-      buh_tc  "    " "tt/rbw-dE.DirectorEnshrinesVessel.sh"
+      buh_tT  "    " "${RBZ_ENSHRINE_VESSEL}"
       buh_e
       buh_t   "  Reliquary provides the tools; enshrine provides the foundations."
       buh_tltlt "  Both must be in place before " "conjure" "${z_docs}#Conjure" " or " "bind" "${z_docs}#Bind" "."
@@ -828,11 +828,11 @@ rbho_governor() {
       buh_e
       buh_t   "  The governor works within a depot that the payor created. If no depot exists"
       buh_t   "  yet, that is a payor responsibility:"
-      buh_tc  "    " "tt/rbw-gOP.OnboardPayor.sh"
+      buh_tT  "    " "${RBZ_ONBOARD_PAYOR}"
       buh_e
       buh_t   "  To administer a depot, you need a governor service account key. Your payor"
       buh_t   "  creates one by running:"
-      buh_tc  "    " "tt/rbw-aM.PayorMantlesGovernor.sh"
+      buh_tT  "    " "${RBZ_MANTLE_GOVERNOR}"
       buh_e
       if test -n "${z_secrets_dir}"; then
         buh_t   "  Install the key file to:"
@@ -856,16 +856,16 @@ rbho_governor() {
       buh_t   "  images and push them to the registry."
       buh_e
       buh_tlt "  " "Charter" "${z_docs}#Charter" " creates a retriever service account with read access:"
-      buh_tc  "    " "tt/rbw-aC.GovernorChartersRetriever.sh"
+      buh_tT  "    " "${RBZ_CHARTER_RETRIEVER}"
       buh_e
       buh_tlt "  " "Knight" "${z_docs}#Knight" " creates a director service account with build access:"
-      buh_tc  "    " "tt/rbw-aK.GovernorKnightsDirector.sh"
+      buh_tT  "    " "${RBZ_KNIGHT_DIRECTOR}"
       buh_e
       buh_t   "  Each command creates the service account and applies the IAM grants it needs."
       buh_t   "  The output is an RBRA key file — hand it to the retriever or director user."
       buh_e
       buh_t   "  List issued service accounts:"
-      buh_tc  "    " "tt/rbw-aL.GovernorListsServiceAccounts.sh"
+      buh_tT  "    " "${RBZ_LIST_SERVICE_ACCOUNTS}"
       buh_e
       buh_t   "  Install both credentials locally to advance this walkthrough."
       if test -n "${z_secrets_dir}"; then
@@ -885,7 +885,7 @@ rbho_governor() {
       buh_t   "  credentials. If the retriever can access the depot, your grants are correct."
       buh_e
       buh_t   "  Run the retriever walkthrough to summon a hallmark:"
-      buh_tc  "    " "tt/rbw-gOR.OnboardRetriever.sh"
+      buh_tT  "    " "${RBZ_ONBOARD_RETRIEVER}"
       buh_e
       buh_t   "  This probe turns green when a GAR image from your depot exists locally —"
       buh_t   "  proving the retriever SA you chartered can actually access the registry."
@@ -893,7 +893,7 @@ rbho_governor() {
   fi
 
   buh_e
-  buh_tc "  Triage: " "tt/rbw-go.OnboardMAIN.sh"
+  buh_tT "  Triage: " "${RBZ_ONBOARD_TRIAGE}"
 
 }
 
@@ -955,7 +955,7 @@ rbho_payor() {
       buh_e
       buh_t   "  This walks you through the OAuth authorization flow and stores the credential"
       buh_t   "  securely. If you have an existing credential that has expired:"
-      buh_tc  "    " "tt/rbw-gPR.PayorRefresh.sh"
+      buh_tT  "    " "${RBZ_PAYOR_REFRESH}"
       buh_e
       buh_t   "  Once installed, re-run this walkthrough to continue."
 
@@ -967,7 +967,7 @@ rbho_payor() {
       buh_t   "  The project must have billing enabled and the OAuth consent screen configured."
       buh_e
       buh_t   "  Run the guided setup:"
-      buh_tc  "    " "tt/rbw-gPE.PayorEstablish.sh"
+      buh_tT  "    " "${RBZ_PAYOR_ESTABLISH}"
       buh_e
       buh_t   "  This will guide you through project creation, billing enablement, and OAuth"
       buh_t   "  consent screen configuration. The project ID is recorded in regime files"
@@ -983,13 +983,13 @@ rbho_payor() {
       buh_t   "  — a GCP project with a registry, storage bucket, and build infrastructure."
       buh_e
       buh_tlt "  To " "levy" "${z_docs}#Levy" " a depot is to provision this infrastructure. Run:"
-      buh_tc  "    " "tt/rbw-dL.PayorLeviesDepot.sh"
+      buh_tT  "    " "${RBZ_LEVY_DEPOT}"
       buh_e
       buh_t   "  This enables APIs, creates the Artifact Registry repository and Cloud Storage"
       buh_t   "  bucket, and configures Cloud Build. The depot is now ready for use."
       buh_e
       buh_t   "  List your depots to verify:"
-      buh_tc  "    " "tt/rbw-dl.PayorListsDepots.sh"
+      buh_tT  "    " "${RBZ_LIST_DEPOT}"
       buh_e
       buh_t   "  Once provisioned, re-run this walkthrough to continue."
 
@@ -1003,7 +1003,7 @@ rbho_payor() {
       buh_t   "  The payor funds the infrastructure; the governor operates it. After this"
       buh_t   "  handoff, the governor can charter retrievers and knight directors"
       buh_t   "  independently. Run:"
-      buh_tc  "    " "tt/rbw-aM.PayorMantlesGovernor.sh"
+      buh_tT  "    " "${RBZ_MANTLE_GOVERNOR}"
       buh_e
       buh_t   "  This creates the governor service account with administrative permissions"
       buh_t   "  over the depot. Hand the resulting key file to the person who will"
@@ -1015,7 +1015,7 @@ rbho_payor() {
   fi
 
   buh_e
-  buh_tc "  Triage: " "tt/rbw-go.OnboardMAIN.sh"
+  buh_tT "  Triage: " "${RBZ_ONBOARD_TRIAGE}"
 
 }
 
@@ -1304,8 +1304,8 @@ rbho_crash_course() {
   else
     zrbho_po_status 0 "  RBRR not populated — depot identity fields are blank"
   fi
-  buh_tc "  Render:   " "tt/rbw-rrr.RenderRepoRegime.sh"
-  buh_tc "  Validate: " "tt/rbw-rrv.ValidateRepoRegime.sh"
+  buh_tT "  Render:   " "${RBZ_RENDER_REPO}"
+  buh_tT "  Validate: " "${RBZ_VALIDATE_REPO}"
   buh_e
 
   # --- Unit 5: Diagnostic failure — read the errors (teaching-only) ---
