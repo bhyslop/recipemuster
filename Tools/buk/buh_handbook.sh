@@ -79,10 +79,12 @@ zbuh_kindle() {
     readonly ZBUH_L=""
   fi
 
-  # Mutable kindle state — step counters and body indent
+  # Mutable kindle state — step counters, body indent, step format
   z_buh_step1_n=0
   z_buh_step2_n=0
   z_buh_body_indent=""
+  z_buh_step_prefix=""
+  z_buh_step_separator=". "
 
   readonly ZBUH_KINDLED=1
 }
@@ -123,19 +125,25 @@ zbuh_link_fragment() {
 buh_section() { zbuh_sentinel; z_buh_body_indent=""; printf '%b\n' "${ZBUH_S}${1}${ZBUH_R}" >&2; }
 buh_e()       { echo "" >&2; }
 
+buh_step_style() {
+  zbuh_sentinel
+  z_buh_step_prefix="${1:-}"
+  z_buh_step_separator="${2:-". "}"
+}
+
 buh_step1() {
   zbuh_sentinel
   z_buh_step1_n=$((z_buh_step1_n + 1))
   z_buh_step2_n=0
   z_buh_body_indent="   "
-  printf '%b\n' "${ZBUH_S}${z_buh_step1_n}. ${1}${ZBUH_R}" >&2
+  printf '%b\n' "${ZBUH_S}${z_buh_step_prefix}${z_buh_step1_n}${z_buh_step_separator}${1}${ZBUH_R}" >&2
 }
 
 buh_step2() {
   zbuh_sentinel
   z_buh_step2_n=$((z_buh_step2_n + 1))
   z_buh_body_indent="      "
-  printf '%b\n' "   ${ZBUH_S}${z_buh_step1_n}.${z_buh_step2_n}. ${1}${ZBUH_R}" >&2
+  printf '%b\n' "   ${ZBUH_S}${z_buh_step_prefix}${z_buh_step1_n}.${z_buh_step2_n}${z_buh_step_separator}${1}${ZBUH_R}" >&2
 }
 
 ######################################################################

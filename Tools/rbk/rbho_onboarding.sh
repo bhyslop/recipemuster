@@ -1168,119 +1168,120 @@ rbho_crash_course() {
   # --- Header ---
   buh_section "Recipe Bottle — Configure your Repo's Environment"
   buh_e
+  buh_step_style "Step " " — "
 
   # --- Step 1: What you ran to get here ---
-  buh_section "  Step 1 — What you ran to get here"
+  buh_step1 "What you ran to get here"
   buh_e
-  buh_tlt "  The command you just ran is a " "Tabtarget" "${z_docs}#Tabtarget" " — a launcher script"
-  buh_t   "  in the ${BURC_TABTARGET_DIR}/ directory. Tab completion narrows by prefix: type \`${BURC_TABTARGET_DIR}/rbw-<TAB>\` to see every"
-  buh_tlt "  " "Recipe Bottle" "${z_docs}" " command."
+  buh_tlt "The command you just ran is a " "Tabtarget" "${z_docs}#Tabtarget" " — a launcher script"
+  buh_t   "in the ${BURC_TABTARGET_DIR}/ directory. Tab completion narrows by prefix: type \`${BURC_TABTARGET_DIR}/rbw-<TAB>\` to see every"
+  buh_tlt "" "Recipe Bottle" "${z_docs}" " command."
   buh_e
 
   # --- Step 2: View the project config (BURC) ---
-  buh_section "  Step 2 — View the project config"
+  buh_step1 "View the project config"
   buh_e
-  buh_tlt "  A " "Regime" "${z_docs}#Regime" " is a configuration file with a schema, a renderer,"
-  buh_t   "  and a validator. Run the renderer for the project config regime:"
+  buh_tlt "A " "Regime" "${z_docs}#Regime" " is a configuration file with a schema, a renderer,"
+  buh_t   "and a validator. Run the renderer for the project config regime:"
   buh_e
-  buh_tT  "      " "${BUWZ_RC_RENDER}"
+  buh_tT  "   " "${BUWZ_RC_RENDER}"
   buh_e
-  buh_tlt "  " "BURC" "${z_docs}#BURC" " is checked into git — shared project settings that every"
-  buh_t   "  clone gets. It tells the launcher where to find tools and where"
-  buh_t   "  to look for your personal station file."
+  buh_tlt "" "BURC" "${z_docs}#BURC" " is checked into git — shared project settings that every"
+  buh_t   "clone gets. It tells the launcher where to find tools and where"
+  buh_t   "to look for your personal station file."
   buh_e
 
   # --- Step 3: View your station (BURS) ---
-  buh_section "  Step 3 — View your personal station"
+  buh_step1 "View your personal station"
   buh_e
-  buh_tlt "  " "BURS" "${z_docs}#BURS" " is your per-developer station file: local, gitignored,"
-  buh_t   "  holds things that vary per machine. Run the renderer:"
+  buh_tlt "" "BURS" "${z_docs}#BURS" " is your per-developer station file: local, gitignored,"
+  buh_t   "holds things that vary per machine. Run the renderer:"
   buh_e
-  buh_tT  "      " "${BUWZ_RS_RENDER}"
+  buh_tT  "   " "${BUWZ_RS_RENDER}"
   buh_e
-  buh_t   "  The repo-vs-personal split is deliberate: BURC travels with the code;"
-  buh_t   "  BURS stays on your machine."
+  buh_t   "The repo-vs-personal split is deliberate: BURC travels with the code;"
+  buh_t   "BURS stays on your machine."
   buh_e
 
   # --- Step 4: Validate your station ---
-  buh_section "  Step 4 — Validate your station"
+  buh_step1 "Validate your station"
   buh_e
-  buh_t   "  Every regime has a validate tabtarget that checks the file against"
-  buh_t   "  its schema. This may fail if your station file is missing fields"
-  buh_t   "  beyond the minimum the launcher required — that is expected."
-  buh_t   "  Run it:"
+  buh_t   "Every regime has a validate tabtarget that checks the file against"
+  buh_t   "its schema. This may fail if your station file is missing fields"
+  buh_t   "beyond the minimum the launcher required — that is expected."
+  buh_t   "Run it:"
   buh_e
-  buh_tT  "      " "${BUWZ_RS_VALIDATE}"
+  buh_tT  "   " "${BUWZ_RS_VALIDATE}"
   buh_e
-  buh_t   "  Read the error if it fails — it names the field and tells you"
-  buh_t   "  what to fill in."
+  buh_t   "Read the error if it fails — it names the field and tells you"
+  buh_t   "what to fill in."
   buh_e
   if test "${z_station_present}" = "1"; then
-    zrbho_po_status 1 "  Station file present at ${BURD_STATION_FILE}"
+    zrbho_po_status 1 "Station file present at ${BURD_STATION_FILE}"
   else
-    zrbho_po_status 0 "  Station file not found"
+    zrbho_po_status 0 "Station file not found"
   fi
   buh_e
 
   # --- Step 5: Validate the repo regime ---
-  buh_section "  Step 5 — Validate the repo regime"
+  buh_step1 "Validate the repo regime"
   buh_e
-  buh_tlt "  The repository regime (" "RBRR" "${z_docs}#RBRR" ") holds your team's " "Depot" "${z_docs}#Depot" ""
-  buh_t   "  identity — the GCP project where container images are built and stored."
-  buh_t   "  Run the validator:"
+  buh_tlt "The repository regime (" "RBRR" "${z_docs}#RBRR" ") holds your team's " "Depot" "${z_docs}#Depot" ""
+  buh_t   "identity — the GCP project where container images are built and stored."
+  buh_t   "Run the validator:"
   buh_e
-  buh_tT  "      " "${RBZ_VALIDATE_REPO}"
+  buh_tT  "   " "${RBZ_VALIDATE_REPO}"
   buh_e
-  buh_t   "  On a bare fork, RBRR fields are blank and validation will fail."
-  buh_t   "  On a team repo, they are already populated and validation passes."
-  buh_t   "  Either way, read the output — it tells you exactly what state you're in."
+  buh_t   "On a bare fork, RBRR fields are blank and validation will fail."
+  buh_t   "On a team repo, they are already populated and validation passes."
+  buh_t   "Either way, read the output — it tells you exactly what state you're in."
   buh_e
   if test "${z_rbrr_populated}" = "1"; then
-    zrbho_po_status 1 "  RBRR populated — depot project: ${z_rbrr_project}"
+    zrbho_po_status 1 "RBRR populated — depot project: ${z_rbrr_project}"
   else
-    zrbho_po_status 0 "  RBRR not populated — depot identity fields are blank"
+    zrbho_po_status 0 "RBRR not populated — depot identity fields are blank"
   fi
   buh_e
 
   # --- Step 6: Check your logs ---
-  buh_section "  Step 6 — Check your logs"
+  buh_step1 "Check your logs"
   buh_e
-  buh_t   "  When you ran the validator, it printed file paths at the top"
-  buh_t   "  of its output. Every state-changing command writes three"
-  buh_tlt "  " "Log" "${z_docs}#Log" " files to \`BURS_LOG_DIR\`: a stable-name file (always the same"
-  buh_t   "  path — easy for tooling to find the latest run), a per-command file"
-  buh_t   "  (same name across runs — diff between executions), and a timestamped"
-  buh_t   "  historical file. Disk space is cheap; log unconditionally."
+  buh_t   "When you ran the validator, it printed file paths at the top"
+  buh_t   "of its output. Every state-changing command writes three"
+  buh_tlt "" "Log" "${z_docs}#Log" " files to \`BURS_LOG_DIR\`: a stable-name file (always the same"
+  buh_t   "path — easy for tooling to find the latest run), a per-command file"
+  buh_t   "(same name across runs — diff between executions), and a timestamped"
+  buh_t   "historical file. Disk space is cheap; log unconditionally."
   buh_e
-  buh_tlt "  Orchestration commands also write a " "Transcript" "${z_docs}#Transcript" " — a single file"
-  buh_t   "  capturing key decision points and state transitions. When a multi-step"
-  buh_t   "  command fails, the transcript is the first thing to read."
+  buh_tlt "Orchestration commands also write a " "Transcript" "${z_docs}#Transcript" " — a single file"
+  buh_t   "capturing key decision points and state transitions. When a multi-step"
+  buh_t   "command fails, the transcript is the first thing to read."
   buh_e
-  buh_t   "  Handbook display commands (like this one) do not log — teaching"
-  buh_t   "  output is ephemeral by design."
+  buh_t   "Handbook display commands (like this one) do not log — teaching"
+  buh_t   "output is ephemeral by design."
   buh_e
 
   # --- Step 7: The pattern ---
-  buh_section "  Step 7 — The pattern"
+  buh_step1 "The pattern"
   buh_e
-  buh_tlt "  Every " "Regime" "${z_docs}#Regime" " follows the same tabtarget pattern:"
+  buh_tlt "Every " "Regime" "${z_docs}#Regime" " follows the same tabtarget pattern:"
   buh_e
-  buh_t   "      ${BURC_TABTARGET_DIR}/{W}-r{L}r.Render{R}Regime.sh   — show current values"
-  buh_t   "      ${BURC_TABTARGET_DIR}/{W}-r{L}v.Validate{R}Regime.sh — check against rules"
+  buh_t   "   ${BURC_TABTARGET_DIR}/{W}-r{L}r.Render{R}Regime.sh   — show current values"
+  buh_t   "   ${BURC_TABTARGET_DIR}/{W}-r{L}v.Validate{R}Regime.sh — check against rules"
   buh_e
-  buh_t   "  \`{W}\` is the workbench (\`buw\` for BUK, \`rbw\` for Recipe Bottle)."
-  buh_t   "  \`{L}\` is the regime letter (\`c\` for BURC, \`s\` for BURS, \`r\` for RBRR)."
-  buh_t   "  Learn the pattern — you can find any regime's tools from two letters."
+  buh_t   "\`{W}\` is the workbench (\`buw\` for BUK, \`rbw\` for Recipe Bottle)."
+  buh_t   "\`{L}\` is the regime letter (\`c\` for BURC, \`s\` for BURS, \`r\` for RBRR)."
+  buh_t   "Learn the pattern — you can find any regime's tools from two letters."
   buh_e
 
   # --- Step 8: Next steps ---
-  buh_section "  Step 8 — Next steps"
+  buh_step1 "Next steps"
   buh_e
-  buh_t  "  Your repo environment is configured. The tools work, errors explain"
-  buh_tlt "  themselves, and " "Logs" "${z_docs}#Log" " land where you told them to."
+  buh_t  "Your repo environment is configured. The tools work, errors explain"
+  buh_tlt "themselves, and " "Logs" "${z_docs}#Log" " land where you told them to."
   buh_e
-  buh_t  "  Return to the start menu for what to do next:"
-  buh_tT "    " "${RBZ_ONBOARD_START_HERE}"
+  buh_t  "Return to the start menu for what to do next:"
+  buh_tT "   " "${RBZ_ONBOARD_START_HERE}"
   buh_e
 }
 
