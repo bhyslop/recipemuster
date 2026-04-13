@@ -209,6 +209,13 @@
         "₢A-AAK": {
           "tacks": [
             {
+              "ts": "260413-0945",
+              "state": "complete",
+              "text": "## Character\nInfrastructure implementation — new BUK regime following established patterns.\n\n## Docket\nImplement BURH (BUK Regime Host) — per-user, per-connection-profile regime for SSH access to remote hosts.\n\nDeliverables:\n- Add `BURH_` entry to BUS0 spec with 5 fields: HOST, USER, ALIAS, SSH_PUBKEY, COMMAND\n- Create `burh_regime.sh` (validator + renderer) following BURC/BURS pattern\n- Add `BURS_USER` field to BURS station regime (spec, validator, renderer)\n- Create directory structure: `.buk/users/` with README explaining the convention\n- Create skeleton BURH profiles for three Windows connections (pubkey TBD):\n  - `.buk/users/bhyslop/winhost-cyg/burh.env`\n  - `.buk/users/bhyslop/winhost-wsl/burh.env`\n  - `.buk/users/bhyslop/winhost-ps/burh.env`\n- Validate: `burh_regime.sh validate` passes on skeleton profiles",
+              "silks": "implement-burh-regime",
+              "commit": "f1a3243"
+            },
+            {
               "ts": "260413-0925",
               "state": "rough",
               "text": "## Character\nInfrastructure implementation — new BUK regime following established patterns.\n\n## Docket\nImplement BURH (BUK Regime Host) — per-user, per-connection-profile regime for SSH access to remote hosts.\n\nDeliverables:\n- Add `BURH_` entry to BUS0 spec with 5 fields: HOST, USER, ALIAS, SSH_PUBKEY, COMMAND\n- Create `burh_regime.sh` (validator + renderer) following BURC/BURS pattern\n- Add `BURS_USER` field to BURS station regime (spec, validator, renderer)\n- Create directory structure: `.buk/users/` with README explaining the convention\n- Create skeleton BURH profiles for three Windows connections (pubkey TBD):\n  - `.buk/users/bhyslop/winhost-cyg/burh.env`\n  - `.buk/users/bhyslop/winhost-wsl/burh.env`\n  - `.buk/users/bhyslop/winhost-ps/burh.env`\n- Validate: `burh_regime.sh validate` passes on skeleton profiles",
