@@ -1065,25 +1065,26 @@ rbho_start_here() {
   buh_section "Foundation"
   buh_e
   buh_t   "    Configure your Repo's Environment"
-  buh_tT  "      " "${RBZ_ONBOARD_CRASH_COURSE}"
+  buh_tT  "        " "${RBZ_ONBOARD_CRASH_COURSE}"
   buh_tltlt "      Universal prerequisite. " "Tabtargets" "${z_docs}#Tabtarget" ", " "Regimes" "${z_docs}#Regime" ","
   buh_tltlt "      " "Station" "${z_docs}#Station" " setup, validation, " "Logs" "${z_docs}#Log" ". Local-only, no cloud."
   buh_e
   buh_tlt "    Install " "Retriever" "${z_docs}#Retriever" " Credentials"
-  buh_tT  "      " "${RBZ_ONBOARD_CRED_RETRIEVER}"
+  buh_tT  "        " "${RBZ_ONBOARD_CRED_RETRIEVER}"
   buh_tlt "      Place your " "RBRA" "${z_docs}#RBRA" " credential file, verify, confirm you can pull images."
   buh_e
   buh_tlt "    Install " "Director" "${z_docs}#Director" " Credentials"
-  buh_tT  "      " "${RBZ_ONBOARD_CRED_DIRECTOR}"
+  buh_tT  "        " "${RBZ_ONBOARD_CRED_DIRECTOR}"
   buh_tlt "      Place your " "RBRA" "${z_docs}#RBRA" " credential file, verify, confirm you can build and publish."
   buh_e
   buh_tlt "    Start a " "Crucible" "${z_docs}#Crucible" " Using Local Builds"
+  buh_tT  "        " "${RBZ_ONBOARD_FIRST_CRUCIBLE}"
   buh_tlt "      The ccyolo " "Crucible" "${z_docs}#Crucible" " runs Claude Code in a container that can"
   buh_t   "      only reach Anthropic. Requires a Claude OAuth subscription."
   buh_tltltltlt "        Build images locally      — " "Kludge" "${z_docs}#Kludge" " " "Sentry" "${z_docs}#Sentry" "/" "Pentacle" "${z_docs}#Pentacle" " and " "Bottle" "${z_docs}#Bottle" ""
   buh_tltlt   "        Configure local network   — amend " "Nameplate" "${z_docs}#Nameplate" " " "RBRN" "${z_docs}#RBRN" " file"
   buh_tltlt   "        Start the sandbox         — " "Charge" "${z_docs}#Charge" " the " "Crucible" "${z_docs}#Crucible" ""
-  buh_tlt     "        Shell into the container  — rack the " "Bottle" "${z_docs}#Bottle" ""
+  buh_tltlt   "        Shell into the container  — " "Rack" "${z_docs}#Rack" " the " "Bottle" "${z_docs}#Bottle" ""
   buh_t   "      No cloud, no credentials beyond your own."
   buh_e
 
@@ -1095,7 +1096,7 @@ rbho_start_here() {
   buh_e
   buh_tlt "    User creates " "Payor" "${z_docs}#Payor" " account"
   buh_t   "      ~15 minutes: create a GCP account, attach a credit card, configure"
-  buh_t   "      OAuth consent screen, initial RBRR population. Required before any"
+  buh_tlt "      OAuth consent screen, initial " "RBRR" "${z_docs}#RBRR" " population. Required before any"
   buh_t   "      cloud operations."
   buh_e
   buh_tltltlt "    " "Payor" "${z_docs}#Payor" " creates the " "Depot" "${z_docs}#Depot" " and its " "Governor" "${z_docs}#Governor" ""
@@ -1111,9 +1112,9 @@ rbho_start_here() {
   buh_tltlt   "    Your First Cloud Build       — " "Ordain" "${z_docs}#Ordain" " one " "Vessel" "${z_docs}#Vessel" ""
   buh_tlt     "    Mirror Upstream Base Images  — " "Enshrine" "${z_docs}#Enshrine" " the Ancestors"
   buh_tlt     "    Provision Builder Toolchain  — inscribe the " "Reliquary" "${z_docs}#Reliquary" ""
-  buh_tlt     "    Build With Internet Access   — " "Tethered" "${z_docs}#Tethered" " cloud builds"
-  buh_tlt     "    Build Without Internet       — " "Airgap" "${z_docs}#Airgap" " cloud builds"
-  buh_tltlt   "    Build " "Crucible" "${z_docs}#Crucible" " Test Images   — " "Ordain" "${z_docs}#Ordain" " for crucibles"
+  buh_tlt     "    Cloud Build using Internet   — " "Tethered" "${z_docs}#Tethered" " cloud builds"
+  buh_tlt     "    Cloud Build Without Internet — " "Airgap" "${z_docs}#Airgap" " cloud builds"
+  buh_tltl    "    Build other Test Images      — " "Ordain" "${z_docs}#Ordain" " for" "Crucibles" "${z_docs}#Crucible"
   buh_e
 
   # --- Evaluation ---
