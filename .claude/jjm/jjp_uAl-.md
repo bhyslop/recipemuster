@@ -28,7 +28,7 @@ The `rbh` family has three real groups: onboarding, payor, windows. Speculative 
 
 | Kit | Scope | Tabtargets |
 |-----|-------|------------|
-| BUK (`buw-HW*`) | Generic OS mechanisms + BURH constructors | 6 constructors (Linux, macOS, Cygwin, WSL, PowerShell, Localhost), 3 automation (SshConfig, VerifySsh, BootstrapSshd), 6 handbooks (top, AccessBase, AccessRemote, AccessEntrypoints, EnvironmentWSL, EnvironmentCygwin) |
+| BUK | Generic OS mechanisms + BURH regime | 6 constructors (`buw-rhc*` in `burh_cli.sh`), 3 automation (`buw-HW*`), 6 handbooks (`buw-HW*`) |
 | JJK (existing `jjw-tfP1/P2`) | Fundus user provisioning (`jjfu_*` accounts) | 0 new — existing P1/P2 already work inside WSL |
 | RBK (`rbw-HW*`) | Project topology + Docker policy | 4: DockerDesktop, DockerWSLNative, DockerContextDiscipline, orchestrator |
 
@@ -103,7 +103,7 @@ Bash owns control flow, error handling, and output. PowerShell is just the sysca
 | PowerShell | `-ps` | `C:\...\powershell.exe` | Windows PowerShell |
 | Localhost | special | empty | `host=localhost`, no command= routing |
 
-Common params: `host`, `user`, `moniker`. Alias = `{moniker}-{suffix}`. `BURH_COMMAND` empty is valid (validation min-length changed to 0). Constructors read `~/.ssh/{alias}.pub` if present; otherwise display keygen command for user to run manually.
+Common params: `host`, `user`, `moniker`. Alias = `{moniker}-{suffix}`. `BURH_COMMAND` empty is valid (validation min-length changed to 0). Constructors read `~/.ssh/{alias}.pub` if present; otherwise display keygen command for user to run manually. Constructor implementations live in `burh_cli.sh` (command layer), not `burh_regime.sh` (read-only kindle/enforce). Colophon family: `buw-rhc*` (children of existing `buw-rh` host regime ops).
 
 **Step auto-numbering** (`buh_step1`/`buh_step2`):
 
@@ -129,13 +129,13 @@ Discovered during AccessBase practice that hardcoded step numbers cause renumber
 ## Tabtarget Inventory
 
 ```
-BUK — Constructors (new, from ₢A-AAL — one per platform):
-  tt/buw-HWcl.ConstructLinux.sh          — BURH constructor: Linux target
-  tt/buw-HWcm.ConstructMac.sh           — BURH constructor: macOS target
-  tt/buw-HWcc.ConstructCygwin.sh         — BURH constructor: Windows Cygwin
-  tt/buw-HWcw.ConstructWSL.sh           — BURH constructor: Windows WSL
-  tt/buw-HWcp.ConstructPowerShell.sh     — BURH constructor: Windows PowerShell
-  tt/buw-HWcx.ConstructLocalhost.sh      — BURH constructor: localhost (host=localhost, no command=)
+BUK — BURH Constructors (new, from ₢A-AAL — regime ops in burh_cli.sh):
+  tt/buw-rhcl.ConstructLinux.sh          — BURH constructor: Linux target
+  tt/buw-rhcm.ConstructMac.sh           — BURH constructor: macOS target
+  tt/buw-rhcc.ConstructCygwin.sh         — BURH constructor: Windows Cygwin
+  tt/buw-rhcw.ConstructWSL.sh           — BURH constructor: Windows WSL
+  tt/buw-rhcp.ConstructPowerShell.sh     — BURH constructor: Windows PowerShell
+  tt/buw-rhcx.ConstructLocalhost.sh      — BURH constructor: localhost (host=localhost, no command=)
 
 BUK — Automation (new, from ₢A-AAL):
   tt/buw-HWsc.SshConfig.sh              — kindle all BURH profiles, write ~/.ssh/config
