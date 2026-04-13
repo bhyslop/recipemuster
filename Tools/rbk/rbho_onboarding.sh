@@ -1068,23 +1068,24 @@ rbho_start_here() {
   buh_tlt "      Place your " "RBRA" "${z_docs}#RBRA" " credential file, verify via access probe, confirm"
   buh_t   "      you can build and publish images."
   buh_e
-
-  # --- Role-intent tracks ---
-  buh_section "Role-intent tracks"
-  buh_e
   buh_tlt "    User sets up " "Crucible" "${z_docs}#Crucible" " with local builds"
   buh_tltlt "      Local sandbox with " "Kludged" "${z_docs}#Kludge" " " "Hallmarks" "${z_docs}#Hallmark" ". The tightest feedback loop"
   buh_t   "      in the system. No cloud."
   buh_e
+
+  # --- Create Payor and Depot ---
+  buh_section "Create Payor and Depot"
+  buh_e
+  buh_tlt "  A " "Depot" "${z_docs}#Depot" " is the facility where the team's container images are"
+  buh_t   "  built and stored — the ground truth other tracks rest on."
+  buh_e
   buh_tlt "    User creates " "Payor" "${z_docs}#Payor" " account"
-  buh_t   "      Human setup: create a GCP account, attach a credit card, configure"
-  buh_t   "      OAuth consent screen. Required before any cloud operations."
+  buh_t   "      ~15 minutes: create a GCP account, attach a credit card, configure"
+  buh_t   "      OAuth consent screen, initial RBRR population. Required before any"
+  buh_t   "      cloud operations."
   buh_e
   buh_tltltlt "    " "Payor" "${z_docs}#Payor" " creates the " "Depot" "${z_docs}#Depot" " and its " "Governor" "${z_docs}#Governor" ""
-  buh_t   "      ~15 minutes: GCP project, OAuth consent screen, billing, RBRR"
-  buh_tlt "      initial population. The " "Depot" "${z_docs}#Depot" " is the facility where the team's"
-  buh_t   "      container images are built and stored — the ground truth other"
-  buh_t   "      tracks rest on."
+  buh_t   "      GCP project provisioning, billing linkage, service account creation."
   buh_e
   buh_tltltlt "    " "Governor" "${z_docs}#Governor" " administers " "Directors" "${z_docs}#Director" " and " "Retrievers" "${z_docs}#Retriever" ""
   buh_t   "      Create service accounts, issue credentials, distribute securely."
