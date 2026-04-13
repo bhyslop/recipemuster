@@ -36,6 +36,7 @@
         "₢A-AAB",
         "₢A-AAK",
         "₢A-AAM",
+        "₢A-AAN",
         "₢A-AAL",
         "₢A-AAC",
         "₢A-AAD",
@@ -45,7 +46,7 @@
         "₢A-AAI",
         "₢A-AAJ"
       ],
-      "next_pace_seed": "AAN",
+      "next_pace_seed": "AAO",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -244,6 +245,17 @@
               "text": "## Character\nSpec writing — load-bearing changes to a formal spec. Careful, precise, every word earns its place.\n\n## Docket\nUpdate JJS0 to make `jjx_bind` consume BURH profiles instead of raw (host, user) params.\n\nDeliverables:\n- Change `jjx_bind` signature from `{host, user, reldir}` to `{alias, reldir}`\n- Add BURH profile as curia-side precondition for all remote dispatch (fundus definition update)\n- Update bind behavior steps: resolve BURH profile on curia → extract BURH_HOST/BURH_USER → SSH via BURH_ALIAS\n- Update JJSTF preflight contract: alias-based SSH probes, BURH profiles for test accounts\n- Design decision: `BURH_COMMAND` optionality — localhost fundus accounts don't need `command=` routing. Resolve whether empty is allowed or the field needs a sentinel.\n- Update jjk-claude-context.md: bind params, foray protocol, fundus constants\n\nDepends on ₢A-AAK (implement-burh-regime) establishing BURH schema and directory structure.",
               "silks": "jjk-spec-burh-bind-in-jjs0",
               "commit": "59bd928"
+            }
+          ]
+        },
+        "₢A-AAN": {
+          "tacks": [
+            {
+              "ts": "260413-0954",
+              "state": "rough",
+              "text": "## Character\nRust implementation + mechanical provisioning. Standard dev work with clear spec to follow.\n\n## Docket\nImplement BURH-based bind in Rust and provision fundus test profiles.\n\nRust changes in `Tools/jjk/vov_veiled/src/jjrlg_legatio.rs`:\n- Change `jjrlg_BindArgs` from `{host, user, reldir}` to `{alias, reldir}`\n- Add BURH profile reading: parse `.buk/users/${BURS_USER}/${alias}/burh.env` on curia\n- Change `zjjrlg_ssh_exec` to use BURH_ALIAS instead of constructing `user@host`\n- Update `jjrlg_LegatioState` to include alias (host/user still stored for display/logging)\n- All downstream ops (send, plant, fetch, relay, check) use alias for SSH\n- Update MCP param handling in `jjrm_mcp.rs`\n\nProvisioning:\n- Create BURH profiles for localhost fundus test accounts: `jjfu-full`, `jjfu-nokey`, `jjfu-norepo`, `jjfu-nogit` in `.buk/users/bhyslop/`\n- Add corresponding `~/.ssh/config` entries (or document manual step)\n\nBuild: `tt/vow-b.Build.sh`\n\nDepends on ₢A-AAM (spec) defining the exact behavior.",
+              "silks": "jjk-implement-burh-bind",
+              "commit": "97d6e0e"
             }
           ]
         }
