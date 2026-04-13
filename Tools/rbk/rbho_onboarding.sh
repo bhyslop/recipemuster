@@ -1069,18 +1069,21 @@ rbho_start_here() {
   buh_tltlt "      Universal prerequisite. " "Tabtargets" "${z_docs}#Tabtarget" ", " "Regimes" "${z_docs}#Regime" ","
   buh_tltlt "      " "Station" "${z_docs}#Station" " setup, validation, " "Logs" "${z_docs}#Log" ". Local-only, no cloud."
   buh_e
-  buh_tlt "    Install " "Retriever" "${z_docs}#Retriever" " credentials"
+  buh_tlt "    Install " "Retriever" "${z_docs}#Retriever" " Credentials"
   buh_tT  "      " "${RBZ_ONBOARD_CRED_RETRIEVER}"
   buh_tlt "      Place your " "RBRA" "${z_docs}#RBRA" " credential file, verify, confirm you can pull images."
   buh_e
-  buh_tlt "    Install " "Director" "${z_docs}#Director" " credentials"
+  buh_tlt "    Install " "Director" "${z_docs}#Director" " Credentials"
   buh_tT  "      " "${RBZ_ONBOARD_CRED_DIRECTOR}"
   buh_tlt "      Place your " "RBRA" "${z_docs}#RBRA" " credential file, verify, confirm you can build and publish."
   buh_e
-  buh_tlt "    User builds images locally to start a " "Crucible" "${z_docs}#Crucible" ""
-  buh_tltlt "      " "Kludge" "${z_docs}#Kludge" " " "Vessels" "${z_docs}#Vessel" " on your workstation, " "Charge" "${z_docs}#Charge" " a"
-  buh_tltlt "      " "Crucible" "${z_docs}#Crucible" ", shell into the " "Bottle" "${z_docs}#Bottle" ", and run Claude Code"
-  buh_t   "      inside the sandbox. No cloud, no credentials beyond your own."
+  buh_tlt "    Start a " "Crucible" "${z_docs}#Crucible" " Using Local Builds"
+  buh_tlt "      The ccyolo " "Bottle" "${z_docs}#Bottle" " runs Claude Code in a container that can"
+  buh_t   "      only reach Anthropic. Requires a Claude OAuth subscription."
+  buh_tltltltlt "        Build images locally      — " "Kludge" "${z_docs}#Kludge" " " "Sentry" "${z_docs}#Sentry" "/" "Pentacle" "${z_docs}#Pentacle" " and " "Bottle" "${z_docs}#Bottle" ""
+  buh_tltlt   "        Start the sandbox         — " "Charge" "${z_docs}#Charge" " the " "Crucible" "${z_docs}#Crucible" ""
+  buh_tlt     "        Shell into the container  — rack the " "Bottle" "${z_docs}#Bottle" ""
+  buh_t   "      No cloud, no credentials beyond your own."
   buh_e
 
   # --- Create Payor and Depot ---
@@ -1104,12 +1107,12 @@ rbho_start_here() {
   # --- Director subtracks ---
   buh_section "Director subtracks"
   buh_e
-  buh_tltltlt "    Your First " "Ordination" "${z_docs}#Ordain" "    — one " "Vessel" "${z_docs}#Vessel" ", one " "Ordain" "${z_docs}#Ordain" " mode"
-  buh_tlt     "    " "Enshrine" "${z_docs}#Enshrine" " the Ancestors   — base image enshrinement"
-  buh_t       "    Inscribe the Reliquary   — reliquary management"
-  buh_t       "    Tethered Cloud Builds    — cloud build from workstation"
-  buh_tlt     "    Airgap Your Builds       — most restrictive " "Ordain" "${z_docs}#Ordain" " mode"
-  buh_tlt     "    Building for " "Crucibles" "${z_docs}#Crucible" "   — build crucible test targets"
+  buh_tltlt   "    Your First Cloud Build       — " "Ordain" "${z_docs}#Ordain" " one " "Vessel" "${z_docs}#Vessel" ""
+  buh_tlt     "    Mirror Upstream Base Images   — " "Enshrine" "${z_docs}#Enshrine" " the Ancestors"
+  buh_tlt     "    Provision Builder Toolchain   — inscribe the " "Reliquary" "${z_docs}#Reliquary" ""
+  buh_tlt     "    Build With Internet Access    — " "Tethered" "${z_docs}#Tethered" " cloud builds"
+  buh_tlt     "    Build Without Internet        — " "Airgap" "${z_docs}#Airgap" " cloud builds"
+  buh_tltlt   "    Build " "Crucible" "${z_docs}#Crucible" " Test Images  — " "Ordain" "${z_docs}#Ordain" " for crucibles"
   buh_e
 
   # --- Evaluation ---
