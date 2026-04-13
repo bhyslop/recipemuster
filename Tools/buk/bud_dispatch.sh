@@ -80,12 +80,14 @@ zbud_setup() {
   BURD_TABTARGET_DIR="${BURC_TABTARGET_DIR}"
   export BURD_TOOLS_DIR BURD_BUK_DIR BURD_TABTARGET_DIR
 
-  # Source station file
-  zbud_show "Sourcing station file: ${BURC_STATION_FILE}"
-  source                           "${BURC_STATION_FILE}"
+  # Source station file (skip for no-log handbook tabtargets)
+  if test -z "${BURD_NO_LOG:-}"; then
+    zbud_show "Sourcing station file: ${BURC_STATION_FILE}"
+    source                           "${BURC_STATION_FILE}"
 
-  # Validate station variables
-  zbud_check_string "${BURC_STATION_FILE}" BURS_LOG_DIR 1 256
+    # Validate station variables
+    zbud_check_string "${BURC_STATION_FILE}" BURS_LOG_DIR 1 256
+  fi
 
   mkdir -p "${BURC_TEMP_ROOT_DIR}" || zbud_die "Failed to create temp root: ${BURC_TEMP_ROOT_DIR}"
   local -r z_date_file="${BURC_TEMP_ROOT_DIR}/bud_bootstrap_date.txt"
@@ -173,16 +175,12 @@ zbud_process_args() {
   # Create tag for log files
   local -r z_tag="${z_tokens[0]}-${z_tokens[2]:-unknown}"
 
-  # Setup log paths
-  BURD_LOG_LAST="${BURS_LOG_DIR}/${BURC_LOG_LAST}.${BURC_LOG_EXT}"
-  BURD_LOG_SAME="${BURS_LOG_DIR}/same-${z_tag}.${BURC_LOG_EXT}"
-  BURD_LOG_HIST="${BURS_LOG_DIR}/hist-${z_tag}-${BURD_NOW_STAMP}.${BURC_LOG_EXT}"
-
-  # Prepare/initialize log files unless logging disabled
+  # Setup log paths and files (skip entirely for no-log tabtargets)
   if test -z "${BURD_NO_LOG:-}"; then
-    # Prepare log directories
+    BURD_LOG_LAST="${BURS_LOG_DIR}/${BURC_LOG_LAST}.${BURC_LOG_EXT}"
+    BURD_LOG_SAME="${BURS_LOG_DIR}/same-${z_tag}.${BURC_LOG_EXT}"
+    BURD_LOG_HIST="${BURS_LOG_DIR}/hist-${z_tag}-${BURD_NOW_STAMP}.${BURC_LOG_EXT}"
     mkdir -p "${BURS_LOG_DIR}"
-    # Initialize log files
     : > "${BURD_LOG_LAST}"
     : > "${BURD_LOG_SAME}"
     : > "${BURD_LOG_HIST}"
