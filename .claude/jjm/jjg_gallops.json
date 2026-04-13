@@ -35,6 +35,7 @@
         "₢A-AAA",
         "₢A-AAB",
         "₢A-AAK",
+        "₢A-AAM",
         "₢A-AAL",
         "₢A-AAC",
         "₢A-AAD",
@@ -44,7 +45,7 @@
         "₢A-AAI",
         "₢A-AAJ"
       ],
-      "next_pace_seed": "AAM",
+      "next_pace_seed": "AAN",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -232,6 +233,17 @@
               "text": "## Character\nMechanical rewiring — procedures consume BURH instead of free-form params.\n\n## Docket\nRewire AccessRemote and AccessEntrypoints handbook procedures to kindle BURH profiles.\n\nDeliverables:\n- `buw-HWar` (AccessRemote): takes BURH profile directory as param instead of 4 free-form args. Kindles burh.env, renders ssh-keygen and ~/.ssh/config entries from BURH fields.\n- `buw-HWax` (AccessEntrypoints): kindles all BURH profiles sharing a BURH_HOST, renders complete authorized_keys lines with real BURH_SSH_PUBKEY and command= from BURH_COMMAND. No more placeholder AAAA.../BBBB...\n- `rbw-hw` (orchestrator): update Phase 1 to show per-profile invocations with real values.\n- Verification section in AccessRemote uses BURH_ALIAS for the ssh test command.",
               "silks": "wire-handbooks-to-burh",
               "commit": "c587ff5"
+            }
+          ]
+        },
+        "₢A-AAM": {
+          "tacks": [
+            {
+              "ts": "260413-0954",
+              "state": "rough",
+              "text": "## Character\nSpec writing — load-bearing changes to a formal spec. Careful, precise, every word earns its place.\n\n## Docket\nUpdate JJS0 to make `jjx_bind` consume BURH profiles instead of raw (host, user) params.\n\nDeliverables:\n- Change `jjx_bind` signature from `{host, user, reldir}` to `{alias, reldir}`\n- Add BURH profile as curia-side precondition for all remote dispatch (fundus definition update)\n- Update bind behavior steps: resolve BURH profile on curia → extract BURH_HOST/BURH_USER → SSH via BURH_ALIAS\n- Update JJSTF preflight contract: alias-based SSH probes, BURH profiles for test accounts\n- Design decision: `BURH_COMMAND` optionality — localhost fundus accounts don't need `command=` routing. Resolve whether empty is allowed or the field needs a sentinel.\n- Update jjk-claude-context.md: bind params, foray protocol, fundus constants\n\nDepends on ₢A-AAK (implement-burh-regime) establishing BURH schema and directory structure.",
+              "silks": "jjk-spec-burh-bind-in-jjs0",
+              "commit": "59bd928"
             }
           ]
         }
