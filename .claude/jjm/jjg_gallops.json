@@ -35,6 +35,7 @@
         "₢A-AAA",
         "₢A-AAB",
         "₢A-AAK",
+        "₢A-AAL",
         "₢A-AAC",
         "₢A-AAD",
         "₢A-AAE",
@@ -43,7 +44,7 @@
         "₢A-AAI",
         "₢A-AAJ"
       ],
-      "next_pace_seed": "AAL",
+      "next_pace_seed": "AAM",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -206,6 +207,17 @@
               "text": "## Character\nInfrastructure implementation — new BUK regime following established patterns.\n\n## Docket\nImplement BURH (BUK Regime Host) — per-user, per-connection-profile regime for SSH access to remote hosts.\n\nDeliverables:\n- Add `BURH_` entry to BUS0 spec with 5 fields: HOST, USER, ALIAS, SSH_PUBKEY, COMMAND\n- Create `burh_regime.sh` (validator + renderer) following BURC/BURS pattern\n- Add `BURS_USER` field to BURS station regime (spec, validator, renderer)\n- Create directory structure: `.buk/users/` with README explaining the convention\n- Create skeleton BURH profiles for three Windows connections (pubkey TBD):\n  - `.buk/users/bhyslop/winhost-cyg/burh.env`\n  - `.buk/users/bhyslop/winhost-wsl/burh.env`\n  - `.buk/users/bhyslop/winhost-ps/burh.env`\n- Validate: `burh_regime.sh validate` passes on skeleton profiles",
               "silks": "implement-burh-regime",
               "commit": "c9ee2a8"
+            }
+          ]
+        },
+        "₢A-AAL": {
+          "tacks": [
+            {
+              "ts": "260413-0925",
+              "state": "rough",
+              "text": "## Character\nMechanical rewiring — procedures consume BURH instead of free-form params.\n\n## Docket\nRewire AccessRemote and AccessEntrypoints handbook procedures to kindle BURH profiles.\n\nDeliverables:\n- `buw-HWar` (AccessRemote): takes BURH profile directory as param instead of 4 free-form args. Kindles burh.env, renders ssh-keygen and ~/.ssh/config entries from BURH fields.\n- `buw-HWax` (AccessEntrypoints): kindles all BURH profiles sharing a BURH_HOST, renders complete authorized_keys lines with real BURH_SSH_PUBKEY and command= from BURH_COMMAND. No more placeholder AAAA.../BBBB...\n- `rbw-hw` (orchestrator): update Phase 1 to show per-profile invocations with real values.\n- Verification section in AccessRemote uses BURH_ALIAS for the ssh test command.",
+              "silks": "wire-handbooks-to-burh",
+              "commit": "c587ff5"
             }
           ]
         }
