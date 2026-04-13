@@ -15,13 +15,13 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install SSH server and Claude Code operational dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    openssh-server  \
-    ca-certificates \
-    curl            \
-    git             \
+    openssh-server    `# SSH daemon for workstation entry via sentry DNAT`  \
+    ca-certificates   `# TLS root certs — required for HTTPS to Anthropic API` \
+    curl              `# HTTP client (Claude Code operational dependency)`  \
+    git               `# Version control (Claude Code operational dependency)` \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Claude Code globally via npm
+# Install Claude Code globally via npm (node and npm provided by base image)
 RUN npm install -g @anthropic-ai/claude-code
 
 # Create unprivileged claude user with empty password
