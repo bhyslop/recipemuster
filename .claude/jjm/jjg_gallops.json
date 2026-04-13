@@ -334,6 +334,13 @@
         "₢A-AAO": {
           "tacks": [
             {
+              "ts": "260413-1233",
+              "state": "complete",
+              "text": "## Character\nTest execution — run, diagnose, fix. Iterative until green.\n\n## Docket\nRun the full fundus scenario test suite against localhost to validate the BURH-based bind change.\n\nExecute: `tt/jjw-tfs.TestFundusScenario.localhost.sh`\n\nExpected coverage:\n- `jjfu_full` profile: bind, send, plant, relay+check, fetch — all via BURH alias\n- `jjfu_nokey` profile: bind fails with auth error\n- `jjfu_norepo` profile: bind fails at Layer 3 probe\n- `jjfu_nogit` profile: bind succeeds, send works, plant fails\n\nFix any failures from the bind signature change. May require iteration between this pace and ₢A-AAN (implement) if issues surface.\n\nDepends on ₢A-AAN (implement) completing the Rust changes and BURH profile provisioning.",
+              "silks": "jjk-validate-fundus-scenarios",
+              "commit": "2994d10"
+            },
+            {
               "ts": "260413-0955",
               "state": "rough",
               "text": "## Character\nTest execution — run, diagnose, fix. Iterative until green.\n\n## Docket\nRun the full fundus scenario test suite against localhost to validate the BURH-based bind change.\n\nExecute: `tt/jjw-tfs.TestFundusScenario.localhost.sh`\n\nExpected coverage:\n- `jjfu_full` profile: bind, send, plant, relay+check, fetch — all via BURH alias\n- `jjfu_nokey` profile: bind fails with auth error\n- `jjfu_norepo` profile: bind fails at Layer 3 probe\n- `jjfu_nogit` profile: bind succeeds, send works, plant fails\n\nFix any failures from the bind signature change. May require iteration between this pace and ₢A-AAN (implement) if issues surface.\n\nDepends on ₢A-AAN (implement) completing the Rust changes and BURH profile provisioning.",
