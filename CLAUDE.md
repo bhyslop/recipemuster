@@ -112,9 +112,6 @@ Full read and edit access is pre-approved for all files in:
 - **BURC** → `buk/burc_cli.sh`, `buk/burc_regime.sh` (regime configuration)
 - **BURS** → `buk/burs_cli.sh`, `buk/burs_regime.sh` (regime station)
 
-#### CCCK Subdirectory (`Tools/ccck/`)
-- **CCCK** → `ccck/cccw_workbench.sh`
-
 #### GAD Subdirectory (`Tools/gad/`)
 - **See `Tools/gad/CLAUDE.md` for complete GAD acronym mappings**
 - Quick reference: GADF (factory), GADI* (inspector), GADS (spec), GADP (planner), GADM* (memos)
@@ -259,7 +256,7 @@ When asked to "mint" names, apply these rules. Full study: `Memos/memo-20260110-
 ### Core Rules
 
 **Rule 1 - Project Prefix**: Names start with 2-4 char project ID:
-`rb` (Recipe Bottle), `gad` (GAD), `bu` (BUK), `jj` (Job Jockey), `pb` (Paneboard), `mcm`/`axl` (CMK), `crg`, `wrs`, `ccc` (CCCK), `hm` (HMK), `lmci`, `vsl` (VSLK)
+`rb` (Recipe Bottle), `gad` (GAD), `bu` (BUK), `jj` (Job Jockey), `pb` (Paneboard), `mcm`/`axl` (CMK), `crg`, `wrs`, `hm` (HMK), `lmci`, `vsl` (VSLK)
 
 **Rule 2 - Terminal Exclusivity**: A prefix either IS a name or HAS children, never both.
 - `rbg` has children (`rbga`, `rbgb`...) → `rbg` cannot name a thing
@@ -336,7 +333,6 @@ Before minting new prefixes:
 | `mcm`, `axl` | CMK (Concept Model Kit) |
 | `crg` | Config Regime |
 | `wrs` | Ward Realm Substrate |
-| `ccc` | CCCK (Claude Code Container Kit) |
 | `hm` | HMK (Hard-state Machine Kit) |
 | `lmci` | LMCI (Language Model Console Integration) |
 | `apc` | APCK (Ann's PHI Clipbuddy Kit) |
