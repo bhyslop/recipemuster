@@ -34,12 +34,52 @@ The `rbh` family has three real groups: onboarding, payor, windows. Speculative 
 
 **Key insight**: JJK's `jjfp_fundus.sh` already handles Linux account provisioning (create `jjfu_*` users, install SSH keys, clone repos). It runs unchanged inside a WSL distro. The draft's `alice`/`bob` users were always `jjfu_*` profiles wearing placeholder names.
 
-**Constants classification**:
-- Tinder: Windows fixed paths (`C:\ProgramData\ssh\*`, `C:\cygwin64`), TCP/22, firewall rule name
-- Kindle: WSL distro name (`rbtww-main` — deferred deconfliction), docker context name (`wsl-native`), SSH key filename, host alias
-- Parameters on `buw-HWar`: host, user, key-name, alias (four params)
-- Parameters on `buw-HWew` and `rbw-HWdw`: distro-name
-- No regime file needed yet
+**BURH — BUK Regime Host** (new regime, discovered during AccessBase practice):
+
+Per-user, per-connection-profile regime for SSH access to remote hosts. Solves three problems discovered during first practice:
+1. AccessRemote took 4 free-form params that the user had to guess
+2. No way to transport public key material between machines except manual transcription
+3. Connective details (host IP, username, key names, aliases) scattered across human memory
+
+Directory structure:
+```
+.buk/users/${BURS_USER}/<virtual-hostname>/burh.env
+```
+
+Each profile is one SSH connection — one key, one alias, one entry point. Three profiles for Windows (cygwin, wsl, ps) share the same physical host but are distinct connections.
+
+Schema (5 fields):
+```bash
+BURH_HOST=192.168.86.27
+BURH_USER=bhyslop
+BURH_ALIAS=winhost-cyg
+BURH_SSH_PUBKEY='ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA... bhyslop@macmini'
+BURH_COMMAND='C:\cygwin64\bin\bash.exe -l'
+```
+
+- `BURH_HOST` — IP or hostname of the physical machine
+- `BURH_USER` — username on the remote (may differ from local `BURS_USER`)
+- `BURH_ALIAS` — SSH alias and key filename (must match directory name)
+- `BURH_SSH_PUBKEY` — full public key line (git-transported, solves chicken-and-egg)
+- `BURH_COMMAND` — shell command for `command=` routing in `authorized_keys`
+
+Single-quoted values for Windows backslashes. Git-safe: no private key material.
+
+`BURS_USER` addition: station regime gets a new field identifying the local developer. Routes to the correct `.buk/users/` subdirectory.
+
+**Impact on handbook procedures:**
+- `buw-HWar` (AccessRemote): kindles BURH profile instead of taking 4 params. Renders exact `ssh-keygen` and `~/.ssh/config` entries.
+- `buw-HWax` (AccessEntrypoints): kindles all BURH profiles for a host, renders complete `authorized_keys` lines with real pubkey material and `command=` prefixes. No more `AAAA... replace me`.
+- `rbw-hw` (orchestrator): renders exact invocations per profile instead of generic tabtarget links.
+
+**Step auto-numbering** (`buh_step1`/`buh_step2`):
+
+Discovered during AccessBase practice that hardcoded step numbers cause renumbering bugs on every insertion/deletion. Implemented mutable kindle state (`z_buh_step_n`, `z_buh_substep_n`, `z_buh_body_indent`) following the zipper roll precedent for controlled mutables. `buh_section` resets indent to top level. All 8 Windows/Docker handbook procedures converted.
+
+**sshd_config discovery** (from AccessBase practice):
+- `UsePAM` and `ChallengeResponseAuthentication` are unsupported by Windows OpenSSH — service fails to start with any unrecognized directive
+- Config file is SYSTEM-owned — procedure uses copy-edit-validate-replace workflow with `buh_step2` substeps
+- `sshd -t` validates config before applying
 
 **Docker stays in RBK** because the dual-daemon topology (Desktop for Windows/Cygwin, native for WSL) is a Recipe Bottle testing decision, not generic Windows setup.
 
@@ -47,11 +87,9 @@ The `rbh` family has three real groups: onboarding, payor, windows. Speculative 
 
 **Style rule**: Use `buh_*` combinators exclusively. The `rbhp_establish` function is the template (new style). Do NOT follow `rbhp_refresh` or `rbhp_quota_build`'s old-style `zrbhp_show()` private color variables.
 
-**RBK orchestrator rendering**: `rbw-hw` uses `buh_T` (tabtarget combinator) to render clickable BUK/JJK/RBK tabtarget paths in dependency order.
+**Handbook/tabtarget separation**: Handbooks display, tabtargets do. Following the `rbho_onboarding.sh` pattern.
 
-**Handbook/tabtarget separation**: Handbooks display, tabtargets do. Following the `rbho_onboarding.sh` pattern: handbooks render copy-paste commands (`buh_c` for PowerShell, `buh_T` for tabtargets) and the human orchestrates. No attempt to wrap PowerShell or get exit status from it. `buw-HWax` is pure display — shows the `command=` routing format and `icacls` commands, takes no params. Project-specific environment commands appear in `rbw-hw`'s orchestrator output.
-
-**Verification tabtargets**: Deferred to after practice walkthroughs. Once SSH routing works, real tabtargets can probe Windows host status over SSH (like onboarding's probe functions). Practice paces will reveal which verifications are worth automating.
+**Verification tabtargets**: Deferred to after practice walkthroughs.
 
 **Fundus capability registry**: `Tools/rbk/vov_veiled/RBSFR-FundusRegistry.md` — agent-interpreted inventory of all test targets. Prototype, not program-readable. TBD fields fill in as practice paces complete.
 
@@ -61,8 +99,8 @@ The `rbh` family has three real groups: onboarding, payor, windows. Speculative 
 BUK:
   tt/buw-hw.HandbookWindows.sh           — BUK-level top checklist (generic OS procedures)
   tt/buw-HWab.AccessBase.sh             — OpenSSH server install + lockdown
-  tt/buw-HWar.AccessRemote.sh           — client key gen + ssh config (params: host, user, key-name, alias)
-  tt/buw-HWax.AccessEntrypoints.sh      — command= routing format + icacls (pure display, no params)
+  tt/buw-HWar.AccessRemote.sh           — client key gen + ssh config (kindles BURH profile)
+  tt/buw-HWax.AccessEntrypoints.sh      — command= routing from BURH profiles
   tt/buw-HWew.EnvironmentWSL.sh         — WSL distro creation (param: distro-name)
   tt/buw-HWec.EnvironmentCygwin.sh      — Cygwin install (verification: bash >= 3.2)
 
@@ -73,8 +111,6 @@ RBK:
   tt/rbw-HWdw.DockerWSLNative.sh        — native dockerd in WSL (param: distro-name)
   tt/rbw-HWdc.DockerContextDiscipline.sh — deterministic daemon selection
 ```
-
-Note: `rbw-h0` (HandbookTOP), `rbw-ho` (HandbookOnboarding), `rbw-hp` (HandbookPayor) are part of the handbook family reorganization but are NOT in scope for this heat. Existing onboarding/payor tabtargets (`rbw-go*`, `rbw-gP*`) continue to work as-is.
 
 ## Open Questions
 - `rbtww-main` mint deconfliction deferred to post-MVP
