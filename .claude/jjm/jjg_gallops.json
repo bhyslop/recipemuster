@@ -283,6 +283,13 @@
         "₢A-AAM": {
           "tacks": [
             {
+              "ts": "260413-1050",
+              "state": "rough",
+              "text": "## Character\nSpec writing — load-bearing changes to a formal spec. Careful, precise, every word earns its place.\n\n## Docket\nUpdate JJS0 to make `jjx_bind` consume BURH profiles instead of raw (host, user) params.\n\nDeliverables:\n- Change `jjx_bind` signature from `{host, user, reldir}` to `{alias, reldir}`\n- Add BURH profile as curia-side precondition for all remote dispatch (fundus definition update)\n- Update bind behavior steps: resolve BURH profile on curia → extract BURH_HOST/BURH_USER → SSH via BURH_ALIAS\n- Update JJSTF preflight contract: alias-based SSH probes, BURH profiles for test accounts\n- `BURH_COMMAND` optionality is resolved: empty is valid (min-length 0 in `burh_regime.sh`). Spec should document this — no sentinel needed.\n- Update jjk-claude-context.md: bind params, foray protocol, fundus constants",
+              "silks": "jjk-spec-burh-bind-in-jjs0",
+              "commit": "77642b7"
+            },
+            {
               "ts": "260413-0954",
               "state": "rough",
               "text": "## Character\nSpec writing — load-bearing changes to a formal spec. Careful, precise, every word earns its place.\n\n## Docket\nUpdate JJS0 to make `jjx_bind` consume BURH profiles instead of raw (host, user) params.\n\nDeliverables:\n- Change `jjx_bind` signature from `{host, user, reldir}` to `{alias, reldir}`\n- Add BURH profile as curia-side precondition for all remote dispatch (fundus definition update)\n- Update bind behavior steps: resolve BURH profile on curia → extract BURH_HOST/BURH_USER → SSH via BURH_ALIAS\n- Update JJSTF preflight contract: alias-based SSH probes, BURH profiles for test accounts\n- Design decision: `BURH_COMMAND` optionality — localhost fundus accounts don't need `command=` routing. Resolve whether empty is allowed or the field needs a sentinel.\n- Update jjk-claude-context.md: bind params, foray protocol, fundus constants\n\nDepends on ₢A-AAK (implement-burh-regime) establishing BURH schema and directory structure.",
