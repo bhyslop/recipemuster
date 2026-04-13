@@ -1916,9 +1916,10 @@
         "₢AUAAn",
         "₢AUAAy",
         "₢AUAAz",
-        "₢AUAA0"
+        "₢AUAA0",
+        "₢AUAA1"
       ],
-      "next_pace_seed": "AA1",
+      "next_pace_seed": "AA2",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAA0": {
@@ -1929,6 +1930,17 @@
               "text": "## Character\n\nMechanical refactoring with spec-level implications. Move RBRO storage from user home directory to RBRR_SECRETS_DIR alongside RBRA credentials.\n\n## Docket\n\nRBRO (Payor OAuth credentials — client secret and refresh token) currently lives at `~/.rbw/rbro.env`, separate from all other credentials which live under `RBRR_SECRETS_DIR`. Consolidate RBRO into `RBRR_SECRETS_DIR/payor/rbra.env` (or similar) so all role credentials follow the same pattern: one directory per role under the secrets directory.\n\n### Changes required\n\n- **RBS0-SpecTop.adoc**: Update `[[rbro_regime]]` definition and any references to `~/.rbw/rbro.env` location\n- **RBSRO-RegimeOauth.adoc**: Update regime file path specification\n- **README.md**: Update Credential Safety table (currently shows `~/.rbw/rbro.env`) and RBRO appendix entry\n- **Implementation files**: `rbgo_OAuth.sh`, `rbhp_payor.sh`, `rbho_onboarding.sh` — anywhere that reads/writes the RBRO path\n- **Regime sourcing**: Update `zrbro_kindle` / any path constants pointing at `~/.rbw/`\n\n### Rationale\n\nAll other credentials (Governor, Director, Retriever) already live under `RBRR_SECRETS_DIR/{role}/rbra.env`. RBRO being at `~/.rbw/` is a historical outlier. Consolidating simplifies the credential safety story: one directory to protect, one backup target, one permission audit scope.",
               "silks": "relocate-rbro-to-secrets-dir",
               "commit": "e3e0f32"
+            }
+          ]
+        },
+        "₢AUAA1": {
+          "tacks": [
+            {
+              "ts": "260413-0912",
+              "state": "rough",
+              "text": "## Character\nMechanical with some judgment — find the right home, move the file, update all references.\n\n## Docket\nMove `.rbk/rbje_compose_probe.env` out of the `.rbk/` runtime config directory into somewhere inside `Tools/rbk/`. This file is a sentinel/test fixture (compose env-file quoting probe), not a regime assignment — it doesn't belong alongside `rbrp.env` and `rbrr.env`.\n\nPrecise destination TBD during execution. Candidates: `Tools/rbk/` root, a test-fixtures subdirectory, or alongside sentry code that reads it. Need to trace all references (compose files, sentry startup, any sourcing) and update paths.",
+              "silks": "relocate-compose-probe-env",
+              "commit": "47f885d"
             }
           ]
         },
