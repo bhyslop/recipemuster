@@ -161,6 +161,7 @@ zrbob_furnish() {
   case "${z_command}" in
     rbob_kludge|rbob_kludge_bottle)
       zrbfc_kindle
+      zrbfd_kindle
       ;;
     rbob_ordain)
       zrbfc_kindle
