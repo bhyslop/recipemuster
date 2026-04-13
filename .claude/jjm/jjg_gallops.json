@@ -34,6 +34,7 @@
         "₢A-AAG",
         "₢A-AAA",
         "₢A-AAB",
+        "₢A-AAK",
         "₢A-AAC",
         "₢A-AAD",
         "₢A-AAE",
@@ -42,7 +43,7 @@
         "₢A-AAI",
         "₢A-AAJ"
       ],
-      "next_pace_seed": "AAK",
+      "next_pace_seed": "AAL",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -194,6 +195,17 @@
               "text": "## Character\nMechanical sweep with judgment — convert existing procedures, evaluate whether the pattern held up.\n\n## Docket\nAfter practicing the Windows procedures with `buh_step1`/`buh_step2`, decide whether to adopt auto-numbered steps across all handbook procedures (onboarding, payor). Convert if yes, document why not if no. Includes PayorEstablish, PayorRefresh, QuotaBuild, and any onboarding procedures still using hardcoded `buh_section \"N. ...\"`.",
               "silks": "adopt-step-autonumber-across-all-procedures",
               "commit": "87e1814"
+            }
+          ]
+        },
+        "₢A-AAK": {
+          "tacks": [
+            {
+              "ts": "260413-0925",
+              "state": "rough",
+              "text": "## Character\nInfrastructure implementation — new BUK regime following established patterns.\n\n## Docket\nImplement BURH (BUK Regime Host) — per-user, per-connection-profile regime for SSH access to remote hosts.\n\nDeliverables:\n- Add `BURH_` entry to BUS0 spec with 5 fields: HOST, USER, ALIAS, SSH_PUBKEY, COMMAND\n- Create `burh_regime.sh` (validator + renderer) following BURC/BURS pattern\n- Add `BURS_USER` field to BURS station regime (spec, validator, renderer)\n- Create directory structure: `.buk/users/` with README explaining the convention\n- Create skeleton BURH profiles for three Windows connections (pubkey TBD):\n  - `.buk/users/bhyslop/winhost-cyg/burh.env`\n  - `.buk/users/bhyslop/winhost-wsl/burh.env`\n  - `.buk/users/bhyslop/winhost-ps/burh.env`\n- Validate: `burh_regime.sh validate` passes on skeleton profiles",
+              "silks": "implement-burh-regime",
+              "commit": "c9ee2a8"
             }
           ]
         }
