@@ -110,6 +110,13 @@
         "₢A-AAC": {
           "tacks": [
             {
+              "ts": "260413-1002",
+              "state": "rough",
+              "text": "## Character\nHuman-driven with agent amending — running automation tabtargets on real hardware, discovering gaps.\n\n## Docket\nRun the new SSH automation tabtargets against the actual Windows host. AccessBase practice is already complete (steps 1-7 done in prior work).\n\n**Mac side:**\n- `buw-HWkg` per BURH profile — generate keys, capture pubkeys back into profiles\n- `buw-HWsc` — write/update `~/.ssh/config` entries from all profiles\n- Commit + push (BURH profiles now carry real pubkeys)\n\n**Windows/WSL side:**\n- Git pull in WSL (or first-time clone if needed)\n- `buw-HWbs` — bootstrap sshd: install OpenSSH, write sshd_config, write authorized_keys from BURH, start service, firewall\n\n**Verify:**\n- `buw-HWvs` per profile — ssh via each alias, confirm correct environment lands\n- `jjx_bind` to Windows host — confirm relay works\n\nAgent amends tabtarget code for any issues discovered during practice. This is the first real cross-boundary execution — expect discoveries.",
+              "silks": "practice-access-procedures",
+              "commit": "966ef88"
+            },
+            {
               "ts": "260413-0926",
               "state": "rough",
               "text": "## Character\nHuman-driven with agent amending — discovery through real execution.\n\n## Docket\nAccessBase practice is complete (steps 1-7 all executed on Windows host).\n\nRemaining: practice AccessRemote and AccessEntrypoints on the actual Windows host, now using BURH profiles (₢A-AAK and ₢A-AAL must be complete first).\n\n- `buw-HWar` per profile — generate keys, populate BURH_SSH_PUBKEY, create ~/.ssh/config entries\n- `buw-HWax` — install authorized_keys with command= routing from BURH profiles\n- Verify: ssh via each alias lands in correct environment\n\nAgent amends handbook text for any issues discovered during practice.",
@@ -178,6 +185,13 @@
         },
         "₢A-AAH": {
           "tacks": [
+            {
+              "ts": "260413-1002",
+              "state": "rough",
+              "text": "## Character\nDesign + implementation — informed by practice walkthrough discoveries.\n\n## Docket\nCreate automation tabtargets that probe Windows host health over SSH. SSH connectivity verification moved to ₢A-AAL (`buw-HWvs`); this pace covers post-SSH infrastructure health.\n\nCandidates (refine based on what practice paces reveal):\n- WSL distro health: systemd running, expected packages present\n- Fundus accounts: `jjfu_*` users exist and are SSH-reachable\n- Docker dual-daemon: both daemons running, context routing correct\n- End-to-end: RBK test fixture can charge/quench inside WSL\n\nThese are automation tabtargets (exit status matters), not handbooks. They run from the curia and probe the Windows host via SSH — so they depend on ₢A-AAC (practice-access) completing successfully.\n\nScope will narrow during practice — not all candidates may be worth automating.",
+              "silks": "create-verification-tabtargets",
+              "commit": "966ef88"
+            },
             {
               "ts": "260412-0947",
               "state": "rough",
