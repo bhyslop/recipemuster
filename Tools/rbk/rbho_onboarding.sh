@@ -1164,7 +1164,7 @@ rbho_crash_course() {
   buh_section "  Step 1 — What you ran to get here"
   buh_e
   buh_tlt "  The command you just ran is a " "Tabtarget" "${z_docs}#Tabtarget" " — a launcher script"
-  buh_t   "  in the tt/ directory. Tab completion narrows by prefix: type \`tt/rbw-<TAB>\` to see every"
+  buh_t   "  in the ${BURC_TABTARGET_DIR}/ directory. Tab completion narrows by prefix: type \`${BURC_TABTARGET_DIR}/rbw-<TAB>\` to see every"
   buh_tlt "  " "Recipe Bottle" "${z_docs}" " command."
   buh_e
 
@@ -1251,8 +1251,8 @@ rbho_crash_course() {
   buh_e
   buh_tlt "  Every " "Regime" "${z_docs}#Regime" " follows the same tabtarget pattern:"
   buh_e
-  buh_t   "      tt/{W}-r{L}r.Render{R}Regime.sh   — show current values"
-  buh_t   "      tt/{W}-r{L}v.Validate{R}Regime.sh — check against rules"
+  buh_t   "      ${BURC_TABTARGET_DIR}/{W}-r{L}r.Render{R}Regime.sh   — show current values"
+  buh_t   "      ${BURC_TABTARGET_DIR}/{W}-r{L}v.Validate{R}Regime.sh — check against rules"
   buh_e
   buh_t   "  \`{W}\` is the workbench (\`buw\` for BUK, \`rbw\` for Recipe Bottle)."
   buh_t   "  \`{L}\` is the regime letter (\`c\` for BURC, \`s\` for BURS, \`r\` for RBRR)."
