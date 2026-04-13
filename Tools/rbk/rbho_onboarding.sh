@@ -1077,9 +1077,10 @@ rbho_start_here() {
   buh_tT  "      " "${RBZ_ONBOARD_CRED_DIRECTOR}"
   buh_tlt "      Place your " "RBRA" "${z_docs}#RBRA" " credential file, verify, confirm you can build and publish."
   buh_e
-  buh_tlt "    User sets up " "Crucible" "${z_docs}#Crucible" " with local builds"
-  buh_tltlt "      Local sandbox with " "Kludged" "${z_docs}#Kludge" " " "Hallmarks" "${z_docs}#Hallmark" ". The tightest feedback loop"
-  buh_t   "      in the system. No cloud."
+  buh_tlt "    User builds images locally to start a " "Crucible" "${z_docs}#Crucible" ""
+  buh_tltlt "      " "Kludge" "${z_docs}#Kludge" " " "Vessels" "${z_docs}#Vessel" " on your workstation, " "Charge" "${z_docs}#Charge" " a"
+  buh_tltlt "      " "Crucible" "${z_docs}#Crucible" ", shell into the " "Bottle" "${z_docs}#Bottle" ", and run Claude Code"
+  buh_t   "      inside the sandbox. No cloud, no credentials beyond your own."
   buh_e
 
   # --- Create Payor and Depot ---
