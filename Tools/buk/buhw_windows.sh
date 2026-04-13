@@ -35,11 +35,11 @@ zbuhw_kindle() {
   test -z "${ZBUHW_KINDLED:-}" || buc_die "Module buhw already kindled"
 
   # Tinder — fixed Windows paths and network constants
-  # Double-backslash for correct rendering through printf %b
-  readonly ZBUHW_SSHD_CONFIG='C:\\ProgramData\\ssh\\sshd_config'
-  readonly ZBUHW_ADMIN_AUTH_KEYS='C:\\ProgramData\\ssh\\administrators_authorized_keys'
-  readonly ZBUHW_CYGWIN_ROOT='C:\\cygwin64'
-  readonly ZBUHW_CYGWIN_BASH='C:\\cygwin64\\bin\\bash.exe'
+  # Forward slashes throughout — works in PowerShell, display, and icacls
+  readonly ZBUHW_SSHD_CONFIG='C:/ProgramData/ssh/sshd_config'
+  readonly ZBUHW_ADMIN_AUTH_KEYS='C:/ProgramData/ssh/administrators_authorized_keys'
+  readonly ZBUHW_CYGWIN_ROOT='C:/cygwin64'
+  readonly ZBUHW_CYGWIN_BASH='C:/cygwin64/bin/bash.exe'
   readonly ZBUHW_SSH_PORT="22"
   readonly ZBUHW_FW_RULE_NAME="sshd"
   readonly ZBUHW_FW_DISPLAY_NAME="OpenSSH Server"

@@ -44,6 +44,38 @@ zbuwc_sentinel() {
 ######################################################################
 # External Functions (buwc_*)
 
+buwc_install_key() {
+  zbuwc_sentinel
+
+  buc_doc_brief "Install BURH profile SSH key into Windows administrators authorized_keys (idempotent)"
+  buc_doc_shown || return 0
+
+  test -n "${BUZ_FOLIO:-}" || buc_die "Profile alias required (e.g., winhost-cyg)"
+
+  command -v powershell.exe >/dev/null 2>&1 \
+    || buc_die "powershell.exe not found — this command must run from WSL"
+
+  zburh_build_key_line
+
+  # Read existing file, remove old marker line, append new line — all via PowerShell
+  local z_existing=""
+  if z_existing=$(powershell.exe -Command "Get-Content -Path '${ZBUHW_ADMIN_AUTH_KEYS}' -ErrorAction SilentlyContinue" 2>/dev/null); then
+    z_existing=$(printf '%s\n' "${z_existing}" | grep -v "${ZBURH_KEY_MARKER}" || true)
+  fi
+
+  {
+    test -z "${z_existing}" || printf '%s\n' "${z_existing}"
+    printf '%s\n' "${ZBURH_KEY_LINE}"
+  } | powershell.exe -Command "\$input | Set-Content -Path '${ZBUHW_ADMIN_AUTH_KEYS}' -Force" \
+    || buc_die "Failed to write authorized_keys (elevated terminal required)"
+
+  # Windows admin authorized_keys requires specific ACL
+  powershell.exe -Command "icacls '${ZBUHW_ADMIN_AUTH_KEYS}' /inheritance:r /grant 'Administrators:F' /grant 'SYSTEM:F'" \
+    || buc_die "Failed to set authorized_keys permissions"
+
+  buc_success "Key installed for ${BURH_ALIAS} in ${ZBUHW_ADMIN_AUTH_KEYS}"
+}
+
 buwc_bootstrap_sshd() {
   zbuwc_sentinel
 
@@ -84,12 +116,12 @@ buwc_bootstrap_sshd() {
     echo "Subsystem sftp sftp-server.exe"
     echo "Match Group administrators"
     echo "  AuthorizedKeysFile __PROGRAMDATA__/ssh/administrators_authorized_keys"
-  } | powershell.exe -Command '$input | Set-Content -Path "C:/ProgramData/ssh/sshd_config" -Force' \
+  } | powershell.exe -Command "\$input | Set-Content -Path '${ZBUHW_SSHD_CONFIG}' -Force" \
     || buc_die "Failed to write sshd_config (elevated terminal required)"
   buc_step "sshd_config written"
 
   # Validate sshd_config
-  powershell.exe -Command 'sshd -t -f "C:/ProgramData/ssh/sshd_config"' \
+  powershell.exe -Command "sshd -t -f '${ZBUHW_SSHD_CONFIG}'" \
     || buc_die "sshd_config validation failed — check config syntax"
   buc_step "sshd_config validated"
 

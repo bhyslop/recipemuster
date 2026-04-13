@@ -90,6 +90,7 @@ zbuwz_kindle() {
   # Windows Commands (buwc_cli.sh)
   z_mod="buwc_cli.sh"
   buz_enroll BUWZ_WC_BOOTSTRAP   "buw-wcb"   "${z_mod}" "buwc_bootstrap_sshd"       ""        "Provision sshd on Windows (WSL)"
+  buz_enroll BUWZ_WC_INSTALL_KEY "buw-wck"   "${z_mod}" "buwc_install_key"          "param1"  "Install BURH key into Windows admin authorized_keys"
 
   # Handbook — top index + Windows OS procedures (buhw_cli.sh)
   z_mod="buhw_cli.sh"

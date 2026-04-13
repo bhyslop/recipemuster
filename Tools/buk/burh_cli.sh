@@ -270,28 +270,19 @@ burh_install_key() {
 
   test -n "${BUZ_FOLIO:-}" || buc_die "Profile alias required (e.g., winhost-cyg)"
 
-  local -r z_marker="# BURH:${BURH_ALIAS}"
   local -r z_auth_keys="${HOME}/.ssh/authorized_keys"
 
-  # Build the new key line
-  local z_key_line=""
-  if test -n "${BURH_COMMAND}"; then
-    z_key_line="command=\"${BURH_COMMAND}\" ${BURH_SSH_PUBKEY} ${z_marker}"
-  else
-    z_key_line="${BURH_SSH_PUBKEY} ${z_marker}"
-  fi
+  zburh_build_key_line
 
   mkdir -p "${HOME}/.ssh"
 
   if test -f "${z_auth_keys}"; then
-    # Remove any existing line for this alias
     local -r z_temp=$(mktemp)
-    grep -v "${z_marker}" "${z_auth_keys}" > "${z_temp}" || true
+    grep -v "${ZBURH_KEY_MARKER}" "${z_auth_keys}" > "${z_temp}" || true
     mv "${z_temp}" "${z_auth_keys}"
   fi
 
-  # Append new key line
-  printf '%s\n' "${z_key_line}" >> "${z_auth_keys}"
+  printf '%s\n' "${ZBURH_KEY_LINE}" >> "${z_auth_keys}"
   chmod 600 "${z_auth_keys}"
 
   buc_success "Key installed for ${BURH_ALIAS} in ${z_auth_keys}"

@@ -75,6 +75,22 @@ zburh_enforce() {
 ######################################################################
 # Public Functions (burh_*)
 
+# Build a BURH authorized_keys line with alias marker.
+# Pure string builder — no I/O. Caller decides how to write.
+# Sets ZBURH_KEY_LINE (the full line) and ZBURH_KEY_MARKER (the grep tag).
+# Prerequisite: BURH kindled (needs BURH_ALIAS, BURH_COMMAND, BURH_SSH_PUBKEY)
+zburh_build_key_line() {
+  zburh_sentinel
+
+  ZBURH_KEY_MARKER="# BURH:${BURH_ALIAS}"
+
+  if test -n "${BURH_COMMAND}"; then
+    ZBURH_KEY_LINE="command=\"${BURH_COMMAND}\" ${BURH_SSH_PUBKEY} ${ZBURH_KEY_MARKER}"
+  else
+    ZBURH_KEY_LINE="${BURH_SSH_PUBKEY} ${ZBURH_KEY_MARKER}"
+  fi
+}
+
 # List available alias names as space-separated tokens
 # Prerequisite: BURS kindled (needs BURS_USER), BURD kindled (needs BURD_CONFIG_DIR)
 burh_list_capture() {
