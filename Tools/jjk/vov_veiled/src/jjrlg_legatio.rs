@@ -74,6 +74,7 @@ const PENSUM_SEEDS_FILE: &str = "pensum_seeds.json";
 /// Persisted state for a legatio (SSH session to a fundus).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct jjrlg_LegatioState {
+    pub alias: String,
     pub host: String,
     pub user: String,
     pub reldir: String,
@@ -141,17 +142,16 @@ pub struct jjrlg_SshResult {
     pub stderr: Vec<u8>,
 }
 
-/// Execute a command on a remote host via SSH.
+/// Execute a command on a remote host via SSH using a BURH alias.
 ///
-/// Uses BatchMode=yes (no password prompts) and ConnectTimeout=10.
-/// The command string is passed as a single argument to ssh, which
-/// the remote sshd passes to the user's login shell for interpretation.
-fn zjjrlg_ssh_exec(host: &str, user: &str, command: &str) -> Result<jjrlg_SshResult, String> {
-    let target = format!("{}@{}", user, host);
+/// The alias routes through ~/.ssh/config to the correct host, user, key,
+/// and optional forced command. Uses BatchMode=yes (no password prompts)
+/// and ConnectTimeout=10.
+fn zjjrlg_ssh_exec(alias: &str, command: &str) -> Result<jjrlg_SshResult, String> {
     let output = std::process::Command::new("ssh")
         .arg("-o").arg("BatchMode=yes")
         .arg("-o").arg("ConnectTimeout=10")
-        .arg(&target)
+        .arg(alias)
         .arg(command)
         .output()
         .map_err(|e| format!("SSH execution failed: {}", e))?;
@@ -260,18 +260,97 @@ fn zjjrlg_save_pensum(officium_dir: &Path, token: &str, state: &jjrlg_PensumStat
 // ============================================================================
 
 pub struct jjrlg_BindArgs {
-    pub host: String,
-    pub user: String,
+    pub alias: String,
     pub reldir: String,
 }
 
-/// Bind a legatio: validate RELDIR, SSH probe the fundus, cache regime
-/// paths, mint and persist legatio token.
+/// Resolved BURH profile fields (read from curia-side .buk/users/).
+struct zjjrlg_BurhProfile {
+    host: String,
+    user: String,
+    alias: String,
+}
+
+/// Read a simple KEY=VALUE env file and return a HashMap.
+/// Strips single/double quotes from values. Ignores comments and blank lines.
+fn zjjrlg_read_env_file(path: &Path) -> Result<HashMap<String, String>, String> {
+    let content = std::fs::read_to_string(path)
+        .map_err(|e| format!("Cannot read '{}': {}", path.display(), e))?;
+    let mut map = HashMap::new();
+    for line in content.lines() {
+        let trimmed = line.trim();
+        if trimmed.is_empty() || trimmed.starts_with('#') { continue; }
+        if let Some((key, val)) = trimmed.split_once('=') {
+            let val = val.trim_matches(|c| c == '\'' || c == '"');
+            map.insert(key.to_string(), val.to_string());
+        }
+    }
+    Ok(map)
+}
+
+/// Resolve a BURH profile on the curia by reading .buk/ regime files.
+///
+/// Resolution chain:
+/// 1. .buk/burc.env → BURC_STATION_FILE (path to burs.env, relative to .buk/)
+/// 2. burs.env → BURS_USER
+/// 3. .buk/users/${BURS_USER}/${alias}/burh.env → BURH_HOST, BURH_USER, BURH_ALIAS
+fn zjjrlg_resolve_burh(alias: &str) -> Result<zjjrlg_BurhProfile, String> {
+    let buk_dir = PathBuf::from(".buk");
+
+    // Step 1: Read burc.env to find station file path
+    let burc_path = buk_dir.join("burc.env");
+    let burc = zjjrlg_read_env_file(&burc_path)?;
+    let station_rel = burc.get("BURC_STATION_FILE")
+        .ok_or_else(|| "BURC_STATION_FILE not found in .buk/burc.env".to_string())?;
+
+    // Station file path is relative to project root (CWD), per BUK launcher convention
+    let station_path = PathBuf::from(station_rel);
+    let station = zjjrlg_read_env_file(&station_path)?;
+    let burs_user = station.get("BURS_USER")
+        .ok_or_else(|| format!("BURS_USER not found in {}", station_path.display()))?;
+
+    // Step 3: Read BURH profile
+    let burh_path = buk_dir.join("users").join(burs_user).join(alias).join("burh.env");
+    let burh = zjjrlg_read_env_file(&burh_path)?;
+
+    let host = burh.get("BURH_HOST")
+        .ok_or_else(|| format!("BURH_HOST not found in {}", burh_path.display()))?
+        .clone();
+    let user = burh.get("BURH_USER")
+        .ok_or_else(|| format!("BURH_USER not found in {}", burh_path.display()))?
+        .clone();
+    let burh_alias = burh.get("BURH_ALIAS")
+        .ok_or_else(|| format!("BURH_ALIAS not found in {}", burh_path.display()))?
+        .clone();
+
+    if burh_alias != alias {
+        return Err(format!(
+            "BURH_ALIAS mismatch: profile directory '{}' but BURH_ALIAS='{}'",
+            alias, burh_alias
+        ));
+    }
+
+    Ok(zjjrlg_BurhProfile { host, user, alias: burh_alias })
+}
+
+/// Bind a legatio: resolve BURH profile, validate RELDIR, SSH probe the
+/// fundus, cache regime paths, mint and persist legatio token.
 pub fn jjrlg_run_bind(args: jjrlg_BindArgs, officium_id: &str) -> (i32, String) {
     let cn = JJRLG_CMD_NAME_BIND;
     let mut output = vvco_Output::buffer();
 
-    // Layer 1: Rust constant validation
+    // Step 1: Resolve BURH profile on curia
+    let burh = match zjjrlg_resolve_burh(&args.alias) {
+        Ok(b) => b,
+        Err(e) => {
+            vvco_err!(output, "{}: BURH resolution failed: {}", cn, e);
+            return (1, output.vvco_finish());
+        }
+    };
+
+    vvco_out!(output, "BURH profile: {} → {}@{}", burh.alias, burh.user, burh.host);
+
+    // Step 2: Layer 1 RELDIR validation
     if let Err(e) = jjrlg_validate_reldir(&args.reldir) {
         vvco_err!(output, "{}: RELDIR validation failed (Layer 1): {}", cn, e);
         return (1, output.vvco_finish());
@@ -283,12 +362,7 @@ pub fn jjrlg_run_bind(args: jjrlg_BindArgs, officium_id: &str) -> (i32, String) 
         return (1, output.vvco_finish());
     }
 
-    // Layer 3: SSH probe with resolved-path safety check
-    //
-    // Validates on the fundus that:
-    // 1. RELDIR resolves to a real directory
-    // 2. Resolved path is strictly under $HOME
-    // 3. Resolved path has at least 2 components under $HOME
+    // Step 3: SSH probe via BURH alias (Layer 3 — resolved-path safety)
     let probe_script = format!(
         concat!(
             "z_resolved=\"$(cd \"$HOME/{reldir}\" 2>/dev/null && pwd)\" || exit 99\n",
@@ -306,9 +380,9 @@ pub fn jjrlg_run_bind(args: jjrlg_BindArgs, officium_id: &str) -> (i32, String) 
         reldir = args.reldir
     );
 
-    vvco_out!(output, "Probing {}@{}:~/{} ...", args.user, args.host, args.reldir);
+    vvco_out!(output, "Probing {} ({}@{}):~/{} ...", burh.alias, burh.user, burh.host, args.reldir);
 
-    let probe_result = match zjjrlg_ssh_exec(&args.host, &args.user, &probe_script) {
+    let probe_result = match zjjrlg_ssh_exec(&burh.alias, &probe_script) {
         Ok(r) => r,
         Err(e) => {
             vvco_err!(output, "{}: SSH probe failed: {}", cn, e);
@@ -333,13 +407,13 @@ pub fn jjrlg_run_bind(args: jjrlg_BindArgs, officium_id: &str) -> (i32, String) 
 
     vvco_out!(output, "RELDIR probe passed.");
 
-    // Read BURC_OUTPUT_ROOT_DIR from fundus .buk/burc.env
+    // Step 4: Read BURC_OUTPUT_ROOT_DIR from fundus .buk/burc.env
     let burc_cmd = format!(
         "cd \"$HOME/{}\" && cat .buk/burc.env 2>/dev/null | grep '^BURC_OUTPUT_ROOT_DIR=' | head -1",
         args.reldir
     );
 
-    let burc_result = match zjjrlg_ssh_exec(&args.host, &args.user, &burc_cmd) {
+    let burc_result = match zjjrlg_ssh_exec(&burh.alias, &burc_cmd) {
         Ok(r) => r,
         Err(e) => {
             vvco_err!(output, "{}: failed to read burc.env: {}", cn, e);
@@ -362,11 +436,12 @@ pub fn jjrlg_run_bind(args: jjrlg_BindArgs, officium_id: &str) -> (i32, String) 
 
     vvco_out!(output, "Fundus output root: {}", output_root_dir);
 
-    // Mint legatio token and persist state
+    // Step 5: Mint legatio token and persist state
     let token = zjjrlg_mint_token(&officium_dir);
     let state = jjrlg_LegatioState {
-        host: args.host.clone(),
-        user: args.user.clone(),
+        alias: burh.alias.clone(),
+        host: burh.host.clone(),
+        user: burh.user.clone(),
         reldir: args.reldir.clone(),
         output_root_dir: output_root_dir.clone(),
     };
@@ -376,7 +451,7 @@ pub fn jjrlg_run_bind(args: jjrlg_BindArgs, officium_id: &str) -> (i32, String) 
         return (1, output.vvco_finish());
     }
 
-    vvco_out!(output, "Legatio {} bound to {}@{}:~/{}", token, state.user, state.host, state.reldir);
+    vvco_out!(output, "Legatio {} bound to {} ({}@{}):~/{}", token, state.alias, state.user, state.host, state.reldir);
     vvco_out!(output, "Output root: {}", output_root_dir);
 
     (0, output.vvco_finish())
@@ -415,7 +490,7 @@ pub fn jjrlg_run_send(args: jjrlg_SendArgs, officium_id: &str) -> (i32, String) 
         zjjrlg_shell_quote(&args.command)
     );
 
-    let result = match zjjrlg_ssh_exec(&state.host, &state.user, &remote_cmd) {
+    let result = match zjjrlg_ssh_exec(&state.alias, &remote_cmd) {
         Ok(r) => r,
         Err(e) => {
             vvco_err!(output, "{}: SSH failed: {}", cn, e);
@@ -482,10 +557,10 @@ pub fn jjrlg_run_plant(args: jjrlg_PlantArgs, officium_id: &str) -> (i32, String
         commit = args.commit
     );
 
-    vvco_out!(output, "Planting {} on {}@{}:~/{} ...",
-        args.commit, state.user, state.host, state.reldir);
+    vvco_out!(output, "Planting {} on {} ({}@{}):~/{} ...",
+        args.commit, state.alias, state.user, state.host, state.reldir);
 
-    let result = match zjjrlg_ssh_exec(&state.host, &state.user, &plant_script) {
+    let result = match zjjrlg_ssh_exec(&state.alias, &plant_script) {
         Ok(r) => r,
         Err(e) => {
             vvco_err!(output, "{}: SSH failed: {}", cn, e);
@@ -549,7 +624,7 @@ pub fn jjrlg_run_fetch(args: jjrlg_FetchArgs, officium_id: &str) -> (i32, String
         )
     };
 
-    let result = match zjjrlg_ssh_exec(&state.host, &state.user, &cat_cmd) {
+    let result = match zjjrlg_ssh_exec(&state.alias, &cat_cmd) {
         Ok(r) => r,
         Err(e) => {
             vvco_err!(output, "{}: SSH failed: {}", cn, e);
@@ -791,7 +866,7 @@ pub fn jjrlg_run_relay(args: jjrlg_RelayArgs, officium_id: &str) -> (i32, String
         &state.reldir, &pensum_token, args.timeout, &args.tabtarget,
     );
 
-    let launch = match zjjrlg_ssh_exec(&state.host, &state.user, &nohup_script) {
+    let launch = match zjjrlg_ssh_exec(&state.alias, &nohup_script) {
         Ok(r) => r,
         Err(e) => {
             vvco_err!(output, "{}: SSH launch failed: {}", cn, e);
@@ -832,7 +907,7 @@ exit 1",
         BURX_INITIAL_POLL_DELAY_SECS,
     );
 
-    let burx = match zjjrlg_ssh_exec(&state.host, &state.user, &burx_script) {
+    let burx = match zjjrlg_ssh_exec(&state.alias, &burx_script) {
         Ok(r) => r,
         Err(e) => {
             vvco_err!(output, "{}: SSH burx read failed: {}", cn, e);
@@ -934,8 +1009,7 @@ fi",
     );
 
     let result = zjjrlg_ssh_exec(
-        &legatio_state.host,
-        &legatio_state.user,
+        &legatio_state.alias,
         &probe_script,
     ).map_err(|e| format!("SSH probe failed: {}", e))?;
 

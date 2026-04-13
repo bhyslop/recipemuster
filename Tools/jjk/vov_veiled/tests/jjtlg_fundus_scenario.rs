@@ -36,6 +36,12 @@ const JJTLG_ACCOUNT_NOKEY: &str = "jjfu_nokey";
 const JJTLG_ACCOUNT_NOREPO: &str = "jjfu_norepo";
 const JJTLG_ACCOUNT_NOGIT: &str = "jjfu_nogit";
 
+// BURH aliases for fundus test accounts (must match .buk/users/ profile dirs)
+const JJTLG_ALIAS_FULL: &str = "jjfu-full";
+const JJTLG_ALIAS_NOKEY: &str = "jjfu-nokey";
+const JJTLG_ALIAS_NOREPO: &str = "jjfu-norepo";
+const JJTLG_ALIAS_NOGIT: &str = "jjfu-nogit";
+
 // ============================================================================
 // Shared constants
 // ============================================================================
@@ -126,6 +132,7 @@ impl Drop for jjtlg_TestOfficium {
 // ============================================================================
 
 struct jjtlg_FundusProfile {
+    alias: String,
     host: String,
     user: String,
     reldir: String,
@@ -219,8 +226,7 @@ fn zjjtlg_pensum_raw_token(display: &str) -> &str {
 fn zjjtlg_bind_profile(p: &jjtlg_FundusProfile, officium: &jjtlg_TestOfficium) -> String {
     let (code, output) = jjrlg_run_bind(
         jjrlg_BindArgs {
-            host: p.host.clone(),
-            user: p.user.clone(),
+            alias: p.alias.clone(),
             reldir: p.reldir.clone(),
         },
         &officium.id,
@@ -579,6 +585,7 @@ mod localhost {
 
     fn profile() -> jjtlg_FundusProfile {
         let p = jjtlg_FundusProfile {
+            alias: JJTLG_ALIAS_FULL.to_string(),
             host: JJTLG_HOST_LOCALHOST.to_string(),
             user: JJTLG_ACCOUNT_FULL.to_string(),
             reldir: JJTLG_RELDIR.to_string(),
@@ -623,6 +630,7 @@ mod cerebro {
 
     fn profile() -> jjtlg_FundusProfile {
         let p = jjtlg_FundusProfile {
+            alias: "jjfu-full-cerebro".to_string(),
             host: JJTLG_HOST_CEREBRO.to_string(),
             user: JJTLG_ACCOUNT_FULL.to_string(),
             reldir: JJTLG_RELDIR.to_string(),
@@ -683,8 +691,7 @@ mod nokey {
         let officium = jjtlg_TestOfficium::new("nokey");
         let (code, output) = jjrlg_run_bind(
             jjrlg_BindArgs {
-                host,
-                user: JJTLG_ACCOUNT_NOKEY.to_string(),
+                alias: JJTLG_ALIAS_NOKEY.to_string(),
                 reldir: JJTLG_RELDIR.to_string(),
             },
             &officium.id,
@@ -715,8 +722,7 @@ mod norepo {
         let officium = jjtlg_TestOfficium::new("norepo");
         let (code, output) = jjrlg_run_bind(
             jjrlg_BindArgs {
-                host,
-                user: JJTLG_ACCOUNT_NOREPO.to_string(),
+                alias: JJTLG_ALIAS_NOREPO.to_string(),
                 reldir: JJTLG_RELDIR.to_string(),
             },
             &officium.id,
@@ -739,6 +745,7 @@ mod nogit {
     fn profile() -> jjtlg_FundusProfile {
         let host = JJTLG_HOST_LOCALHOST.to_string();
         let p = jjtlg_FundusProfile {
+            alias: JJTLG_ALIAS_NOGIT.to_string(),
             host,
             user: JJTLG_ACCOUNT_NOGIT.to_string(),
             reldir: JJTLG_RELDIR.to_string(),
@@ -769,8 +776,7 @@ mod nogit {
         let officium = jjtlg_TestOfficium::new("nogit-bind");
         let (code, output) = jjrlg_run_bind(
             jjrlg_BindArgs {
-                host: p.host,
-                user: p.user,
+                alias: p.alias,
                 reldir: p.reldir,
             },
             &officium.id,

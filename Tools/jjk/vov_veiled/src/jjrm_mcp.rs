@@ -373,8 +373,7 @@ pub struct jjrm_LandingParams {
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_BindParams {
-    pub host: String,
-    pub user: String,
+    pub alias: String,
     pub reldir: String,
 }
 
@@ -1012,8 +1011,7 @@ impl jjrm_McpServer {
                 let p = deser!(jjrm_BindParams);
                 jjrm_result(crate::jjrlg_legatio::jjrlg_run_bind(
                     crate::jjrlg_legatio::jjrlg_BindArgs {
-                        host: p.host,
-                        user: p.user,
+                        alias: p.alias,
                         reldir: p.reldir,
                     },
                     officium_id,
