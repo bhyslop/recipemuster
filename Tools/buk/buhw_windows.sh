@@ -298,14 +298,27 @@ buhw_top() {
   buh_t        "Generic Windows mechanisms — SSH access, WSL, and Cygwin."
   buh_t        "These procedures are OS-level and project-independent."
   buh_e
-  buh_section  "Access Procedures:"
-  buh_tT       "  1. OpenSSH server install & lockdown:  " "buw-HWab"
-  buh_tT       "  2. SSH client key & host config:       " "buw-HWar"
-  buh_tT       "  3. SSH entrypoint routing (command=):  " "buw-HWax"
+  buh_section  "BURH Profile Constructors:"
+  buh_tTc      "  Linux:      " "buw-rhcl" " <host> <user> <moniker>"
+  buh_tTc      "  macOS:      " "buw-rhcm" " <host> <user> <moniker>"
+  buh_tTc      "  Cygwin:     " "buw-rhcc" " <host> <user> <moniker>"
+  buh_tTc      "  WSL:        " "buw-rhcw" " <host> <user> <moniker>"
+  buh_tTc      "  PowerShell: " "buw-rhcp" " <host> <user> <moniker>"
+  buh_tTc      "  Localhost:  " "buw-rhcx" " <user> <moniker>"
+  buh_e
+  buh_section  "SSH Automation:"
+  buh_tT       "  Write SSH config:       " "buw-HWsc"
+  buh_tTc      "  Verify SSH connection:  " "buw-HWvs" " <alias>"
+  buh_tT       "  Bootstrap sshd (WSL):   " "buw-HWbs"
+  buh_e
+  buh_section  "Handbook Procedures (manual steps):"
+  buh_tT       "  OpenSSH server install:                " "buw-HWab"
+  buh_tT       "  SSH client key & host config:          " "buw-HWar"
+  buh_tT       "  SSH entrypoint routing (command=):     " "buw-HWax"
   buh_e
   buh_section  "Environment Procedures:"
-  buh_tT       "  4. WSL distribution setup:             " "buw-HWew"
-  buh_tT       "  5. Cygwin installation:                " "buw-HWec"
+  buh_tT       "  WSL distribution setup:                " "buw-HWew"
+  buh_tT       "  Cygwin installation:                   " "buw-HWec"
 
 }
 

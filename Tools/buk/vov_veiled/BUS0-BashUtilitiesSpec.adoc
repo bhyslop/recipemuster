@@ -771,7 +771,8 @@ Used by handbook procedures to render `authorized_keys` entries and `ssh-keygen`
 //axvr_variable axd_required axtu_string
 {burh_command}::
 Shell command for `command=` routing in SSH `authorized_keys`.
-Determines which shell or environment the connection launches
+Empty for direct-shell connections (Linux, macOS, localhost — no routing needed).
+When set, determines which shell or environment the connection launches
 (e.g., `C:\cygwin64\bin\bash.exe -l` for Cygwin, `wsl.exe -d Ubuntu` for WSL).
 
 === BURD Regime

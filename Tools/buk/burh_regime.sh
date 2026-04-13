@@ -49,7 +49,7 @@ zburh_kindle() {
   buv_string_enroll  BURH_SSH_PUBKEY  20 1024  "Full public key line (e.g., ssh-ed25519 AAAA... user@host)"
 
   buv_group_enroll "Session Routing"
-  buv_string_enroll  BURH_COMMAND      1  512  "Shell command for command= routing in authorized_keys"
+  buv_string_enroll  BURH_COMMAND      0  512  "Shell command for command= routing in authorized_keys (empty for direct shell)"
 
   # Guard against unexpected BURH_ variables not in enrollment
   buv_scope_sentinel BURH BURH_

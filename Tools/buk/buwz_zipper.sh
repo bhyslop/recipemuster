@@ -75,6 +75,18 @@ zbuwz_kindle() {
   z_mod="butt_testbench.sh"
   buz_enroll BUWZ_SELF_TEST "buw-st" "${z_mod}" "buw-st"  ""  "BUK self-test (kick-tires + bure-tweak)"
 
+  # Host Regime — constructors + SSH automation (burh_cli.sh)
+  z_mod="burh_cli.sh"
+  buz_enroll BUWZ_RHC_LINUX      "buw-rhcl"  "${z_mod}" "burh_construct_linux"      ""        "Construct BURH profile: Linux"
+  buz_enroll BUWZ_RHC_MAC        "buw-rhcm"  "${z_mod}" "burh_construct_mac"        ""        "Construct BURH profile: macOS"
+  buz_enroll BUWZ_RHC_CYGWIN     "buw-rhcc"  "${z_mod}" "burh_construct_cygwin"     ""        "Construct BURH profile: Cygwin"
+  buz_enroll BUWZ_RHC_WSL        "buw-rhcw"  "${z_mod}" "burh_construct_wsl"        ""        "Construct BURH profile: WSL"
+  buz_enroll BUWZ_RHC_POWERSHELL "buw-rhcp"  "${z_mod}" "burh_construct_powershell" ""        "Construct BURH profile: PowerShell"
+  buz_enroll BUWZ_RHC_LOCALHOST  "buw-rhcx"  "${z_mod}" "burh_construct_localhost"  ""        "Construct BURH profile: localhost"
+  buz_enroll BUWZ_HW_SSH_CONFIG  "buw-HWsc"  "${z_mod}" "burh_ssh_config"           ""        "Write SSH config from BURH profiles"
+  buz_enroll BUWZ_HW_VERIFY_SSH  "buw-HWvs"  "${z_mod}" "burh_verify_ssh"           "param1"  "Verify SSH to BURH profile"
+  buz_enroll BUWZ_HW_BOOTSTRAP   "buw-HWbs"  "${z_mod}" "burh_bootstrap_sshd"       ""        "Bootstrap sshd on Windows (WSL)"
+
   # Handbook — top index + Windows OS procedures (buhw_cli.sh)
   z_mod="buhw_cli.sh"
   buz_enroll BUWZ_H0_TOP            "buw-h0"    "${z_mod}" "buhw_handbook_top"        ""        "BUK top-level handbook index"
