@@ -1216,8 +1216,8 @@ rbho_crash_course() {
   buh_section "  Step 3 — View your personal station"
   buh_e
   buh_tlt "  " "BURS" "${z_docs}#BURS" " is your per-developer station file: local, gitignored,"
-  buh_t   "  holds things that vary per machine. You created this file to get"
-  buh_t   "  here — the launcher told you what was missing. Run the renderer:"
+  buh_t   "  holds things that vary per machine. Most tabtargets require it —"
+  buh_t   "  the launcher will tell you what's missing if it's absent. Run the renderer:"
   buh_e
   buh_tT  "      " "${BUWZ_RS_RENDER}"
   buh_e
@@ -1267,10 +1267,10 @@ rbho_crash_course() {
   # --- Step 6: Check your logs ---
   buh_section "  Step 6 — Check your logs"
   buh_e
-  buh_t   "  The repo regime validator you just ran created a log file in your"
-  buh_t   "  \`BURS_LOG_DIR\` directory. Check it:"
-  buh_e
-  buh_t   "      ls \$(grep BURS_LOG_DIR ${BURD_STATION_FILE} | cut -d= -f2)"
+  buh_t   "  When you ran the validator, it printed log file paths at the top"
+  buh_t   "  of its output. Open one — you'll find the full validation results"
+  buh_t   "  captured there. Logs land in the directory you set as \`BURS_LOG_DIR\`"
+  buh_t   "  in your station file."
   buh_e
   buh_t   "  State-changing commands and validators log their output. Handbook"
   buh_t   "  display commands (like this one) do not — teaching output is"
