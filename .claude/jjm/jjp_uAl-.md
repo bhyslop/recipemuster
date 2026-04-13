@@ -1,6 +1,6 @@
 ## Context
 
-Windows test infrastructure for Recipe Bottle. Goal: run RB's container isolation tests on a Windows host with WSL, Cygwin, and dual Docker daemons. The setup is largely manual (OpenSSH config, Windows Settings, installer GUIs), so it needs handbook procedures — colored `buh_*` combinator output guiding a human through each step.
+Windows test infrastructure for Recipe Bottle. Goal: run RB's container isolation tests on a Windows host with WSL, Cygwin, and dual Docker daemons. Setup splits into automation tabtargets (SSH keys, sshd config, authorized_keys, connectivity verification) and handbook residue for irreducibly manual steps (WSL install, Cygwin install, Docker Desktop install).
 
 Raw draft captured in `Memos/memo-20260412-windows-handbook-draft.md` (9 procedures from an earlier agent session, uses placeholder names and wrong prefix `RBWH`).
 
@@ -67,10 +67,30 @@ Single-quoted values for Windows backslashes. Git-safe: no private key material.
 
 `BURS_USER` addition: station regime gets a new field identifying the local developer. Routes to the correct `.buk/users/` subdirectory.
 
-**Impact on handbook procedures:**
-- `buw-HWar` (AccessRemote): kindles BURH profile instead of taking 4 params. Renders exact `ssh-keygen` and `~/.ssh/config` entries.
-- `buw-HWax` (AccessEntrypoints): kindles all BURH profiles for a host, renders complete `authorized_keys` lines with real pubkey material and `command=` prefixes. No more `AAAA... replace me`.
-- `rbw-hw` (orchestrator): renders exact invocations per profile instead of generic tabtarget links.
+**Architectural pivot — handbooks → automation with handbook residue:**
+
+BURH profiles make most SSH setup automatable. Rather than handbooks that display commands for humans to copy, tabtargets execute directly. Two-phase connectivity model:
+
+| Phase | Boundary | How tabtargets run |
+|-------|----------|-------------------|
+| Bootstrap | No SSH yet — human at Windows console, WSL available | Run tabtargets directly in WSL terminal |
+| Operational | SSH works | Relay from Mac via `jjx_bind`/`jjx_relay` |
+
+The bootstrap tabtarget's job is to get from phase 1 to phase 2.
+
+**PowerShell-from-WSL pattern** (BCG-compliant):
+
+`powershell.exe` is callable from WSL bash as a plain external command. No subshells needed — BCG's standard temp-file capture and `|| buc_die` patterns apply directly:
+```bash
+powershell.exe -Command "Get-Service sshd" > "${Z_MODULE_TEMP1}" || buc_die "Failed"
+```
+Bash owns control flow, error handling, and output. PowerShell is just the syscall layer for Windows operations. Complex PowerShell avoided entirely — one atomic command per call.
+
+**Impact — handbook procedures absorbed into tabtargets:**
+- `buw-HWab` (AccessBase) → absorbed into `buw-HWbs` (BootstrapSshd) steps 1-6
+- `buw-HWar` (AccessRemote) → absorbed into `buw-HWkg` (KeyGenerate) + `buw-HWsc` (SshConfig)
+- `buw-HWax` (AccessEntrypoints) → absorbed into `buw-HWbs` step 4 (authorized_keys from BURH)
+- Original handbook files become thin wrappers: "run this tabtarget" + context for remaining manual steps
 
 **Step auto-numbering** (`buh_step1`/`buh_step2`):
 
@@ -87,20 +107,26 @@ Discovered during AccessBase practice that hardcoded step numbers cause renumber
 
 **Style rule**: Use `buh_*` combinators exclusively. The `rbhp_establish` function is the template (new style). Do NOT follow `rbhp_refresh` or `rbhp_quota_build`'s old-style `zrbhp_show()` private color variables.
 
-**Handbook/tabtarget separation**: Handbooks display, tabtargets do. Following the `rbho_onboarding.sh` pattern.
+**Handbook/tabtarget separation**: Handbooks display, tabtargets do — but BURH sharpens this: most "display" handbooks become "run this tabtarget" wrappers. The `rbho_onboarding.sh` pattern still holds for irreducibly manual steps (GUI installs).
 
-**Verification tabtargets**: Deferred to after practice walkthroughs.
+**Verification tabtargets**: SSH verify (`buw-HWvs`) built in ₢A-AAL. Post-SSH health probes (WSL, fundus, Docker) deferred to ₢A-AAH after practice walkthroughs.
 
 **Fundus capability registry**: `Tools/rbk/vov_veiled/RBSFR-FundusRegistry.md` — agent-interpreted inventory of all test targets. Prototype, not program-readable. TBD fields fill in as practice paces complete.
 
 ## Tabtarget Inventory
 
 ```
-BUK:
+BUK — Automation (new, from ₢A-AAL):
+  tt/buw-HWkg.KeyGenerate.sh            — kindle BURH, ssh-keygen, capture pubkey back (Mac-side)
+  tt/buw-HWsc.SshConfig.sh              — kindle all BURH profiles, write ~/.ssh/config (Mac-side)
+  tt/buw-HWvs.VerifySsh.sh              — kindle BURH, ssh test (Mac-side)
+  tt/buw-HWbs.BootstrapSshd.sh          — idempotent sshd setup via PowerShell (WSL-side)
+
+BUK — Handbooks (existing, becoming thin wrappers):
   tt/buw-hw.HandbookWindows.sh           — BUK-level top checklist (generic OS procedures)
-  tt/buw-HWab.AccessBase.sh             — OpenSSH server install + lockdown
-  tt/buw-HWar.AccessRemote.sh           — client key gen + ssh config (kindles BURH profile)
-  tt/buw-HWax.AccessEntrypoints.sh      — command= routing from BURH profiles
+  tt/buw-HWab.AccessBase.sh             — handbook residue: context for buw-HWbs
+  tt/buw-HWar.AccessRemote.sh           — handbook residue: context for buw-HWkg + buw-HWsc
+  tt/buw-HWax.AccessEntrypoints.sh      — handbook residue: context for buw-HWbs step 4
   tt/buw-HWew.EnvironmentWSL.sh         — WSL distro creation (param: distro-name)
   tt/buw-HWec.EnvironmentCygwin.sh      — Cygwin install (verification: bash >= 3.2)
 
