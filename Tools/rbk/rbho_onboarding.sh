@@ -1307,10 +1307,8 @@ rbho_crash_course() {
 # path, points to auth regime validator.
 
 zrbho_credential_install() {
-  local -r z_role_display="${1}"
-  local -r z_role_constant="${2}"
-  local -r z_knight_constant="${3}"
-  local -r z_role_description="${4}"
+  local -r z_role_constant="${1}"
+  local -r z_knight_constant="${2}"
   local -r z_docs="${RBRR_PUBLIC_DOCS_URL}"
 
   # --- Probes ---
@@ -1325,11 +1323,6 @@ zrbho_credential_install() {
     z_cred_present=1
   fi
 
-  # --- Header ---
-  buh_section "Install ${z_role_display} Credentials"
-  buh_e
-  buh_t   "${z_role_description}"
-  buh_e
   buh_step_style "Step " " — "
 
   # --- Step 1: Get the key file ---
@@ -1339,8 +1332,8 @@ zrbho_credential_install() {
   buh_e
   buh_tT  "   " "${z_knight_constant}"
   buh_e
-  buh_t   "The output is a JSON key file. The governor hands it to you"
-  buh_t   "out-of-band — this is a secret, not committed to the repo."
+  buh_tlt "The output is an " "RBRA" "${z_docs}#RBRA" " credential file. The governor hands"
+  buh_t   "it to you out-of-band — this is a secret, not committed to the repo."
   buh_e
 
   # --- Step 2: Install the key file ---
@@ -1389,12 +1382,15 @@ zrbho_credential_install() {
 rbho_credential_retriever() {
   buc_doc_brief "Install retriever credentials — place RBRA key, validate, confirm pull access"
   buc_doc_shown || return 0
+  local -r z_docs="${RBRR_PUBLIC_DOCS_URL}"
 
-  zrbho_credential_install \
-    "Retriever" \
-    "${RBCC_role_retriever}" \
-    "${RBZ_CHARTER_RETRIEVER}" \
-    "A retriever pulls container images from the depot — read-only access to what others have built."
+  buh_section "Install Retriever Credentials"
+  buh_e
+  buh_tlt "A " "Retriever" "${z_docs}#Retriever" " pulls container images from the"
+  buh_tlt "  " "Depot" "${z_docs}#Depot" " — read-only access to what others have built."
+  buh_e
+
+  zrbho_credential_install "${RBCC_role_retriever}" "${RBZ_CHARTER_RETRIEVER}"
 }
 
 ######################################################################
@@ -1403,12 +1399,15 @@ rbho_credential_retriever() {
 rbho_credential_director() {
   buc_doc_brief "Install director credentials — place RBRA key, validate, confirm build access"
   buc_doc_shown || return 0
+  local -r z_docs="${RBRR_PUBLIC_DOCS_URL}"
 
-  zrbho_credential_install \
-    "Director" \
-    "${RBCC_role_director}" \
-    "${RBZ_KNIGHT_DIRECTOR}" \
-    "A director builds and publishes container images to the depot — write access to the registry."
+  buh_section "Install Director Credentials"
+  buh_e
+  buh_tlt "A " "Director" "${z_docs}#Director" " builds and publishes container images to the"
+  buh_tlt "  " "Depot" "${z_docs}#Depot" " — write access to the registry."
+  buh_e
+
+  zrbho_credential_install "${RBCC_role_director}" "${RBZ_KNIGHT_DIRECTOR}"
 }
 
 # eof
