@@ -1159,25 +1159,12 @@ rbho_crash_course() {
   # --- Header ---
   buh_section "Recipe Bottle — Configure your Repo's Environment"
   buh_e
-  buh_tlt "  " "Recipe Bottle" "${z_docs}" " builds container images with supply-chain provenance"
-  buh_t   "  and runs untrusted containers behind enforced network isolation."
-  buh_e
-  buh_t   "  This handbook walks you through the configuration files that control"
-  buh_t   "  the project's tooling. Each step asks you to run a command and read"
-  buh_t   "  what it tells you."
-  buh_e
 
   # --- Step 1: What you ran to get here ---
   buh_section "  Step 1 — What you ran to get here"
   buh_e
   buh_tlt "  The command you just ran is a " "Tabtarget" "${z_docs}#Tabtarget" " — a launcher script"
-  buh_t   "  in the tt/ directory. Its filename encodes what it does:"
-  buh_e
-  buh_t   "      tt/rbw-Occ.OnboardingCrashCourse.sh"
-  buh_t   "         \`rbw-Occ\` is the colophon (routes to the right handler)"
-  buh_t   "         \`OnboardingCrashCourse\` is the frontispiece (what it does)"
-  buh_e
-  buh_t   "  Tab completion narrows by prefix: type \`tt/rbw-<TAB>\` to see every"
+  buh_t   "  in the tt/ directory. Tab completion narrows by prefix: type \`tt/rbw-<TAB>\` to see every"
   buh_tlt "  " "Recipe Bottle" "${z_docs}" " command."
   buh_e
 
@@ -1198,8 +1185,7 @@ rbho_crash_course() {
   buh_section "  Step 3 — View your personal station"
   buh_e
   buh_tlt "  " "BURS" "${z_docs}#BURS" " is your per-developer station file: local, gitignored,"
-  buh_t   "  holds things that vary per machine. Most tabtargets require it —"
-  buh_t   "  the launcher will tell you what's missing if it's absent. Run the renderer:"
+  buh_t   "  holds things that vary per machine. Run the renderer:"
   buh_e
   buh_tT  "      " "${BUWZ_RS_RENDER}"
   buh_e
@@ -1211,13 +1197,14 @@ rbho_crash_course() {
   buh_section "  Step 4 — Validate your station"
   buh_e
   buh_t   "  Every regime has a validate tabtarget that checks the file against"
-  buh_t   "  its schema. Run it:"
+  buh_t   "  its schema. This may fail if your station file is missing fields"
+  buh_t   "  beyond the minimum the launcher required — that is expected."
+  buh_t   "  Run it:"
   buh_e
   buh_tT  "      " "${BUWZ_RS_VALIDATE}"
   buh_e
-  buh_t   "  NOTE: This may fail if your station file is missing fields beyond"
-  buh_t   "  the minimum the launcher required. That is expected — read the"
-  buh_t   "  error, it names the field and tells you what to fill in."
+  buh_t   "  Read the error if it fails — it names the field and tells you"
+  buh_t   "  what to fill in."
   buh_e
   if test "${z_station_present}" = "1"; then
     zrbho_po_status 1 "  Station file present at ${BURD_STATION_FILE}"
