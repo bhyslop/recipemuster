@@ -118,17 +118,24 @@ Probe executed before running a
 test.
 If preconditions are not met, the test fails with a diagnostic message directing the operator to provision accounts.
 Tests must never silently pass when preconditions are absent — a passing test means the assertion was actually exercised.
++
+Each profile requires a corresponding {xref_BURH} on the
+{jjdxr_curia}.
+The BURH alias is the addressing handle — preflight probes connect via the alias, not raw `user@host`.
+Test account BURH profiles carry `BURH_COMMAND` appropriate to the target platform (empty for Linux/macOS default shell, platform-specific for Windows subsystems).
 
 *{jjdxf_full} profile:*
 
-. SSH connection: `ssh -o ConnectTimeout=5 -o BatchMode=yes jjfu_full@<host> exit 0`
-. {jjdt_reldir} existence: `ssh jjfu_full@<host> test -d $HOME/RELDIR`
-. BUK installation: `ssh jjfu_full@<host> test -f $HOME/RELDIR/.buk/burc.env`
+. BURH resolution: kindle `jjfu_full-<suffix>/burh.env`, extract alias
+. SSH connection: `ssh -o ConnectTimeout=5 -o BatchMode=yes <BURH_ALIAS> exit 0`
+. {jjdt_reldir} existence: `ssh <BURH_ALIAS> test -d $HOME/RELDIR`
+. BUK installation: `ssh <BURH_ALIAS> test -f $HOME/RELDIR/.buk/burc.env`
 . Any step fails -> test fails with provisioning instructions
 
 *Failure-mode profiles* ({jjdxf_nokey}, {jjdxf_norepo}, {jjdxf_nogit}):
 
-. Profile-specific precondition check (account existence, SSH reachability, directory state)
+. BURH profile must exist for the account (provides alias and host coordinates)
+. Profile-specific precondition check via BURH alias (SSH reachability, directory state)
 . Missing precondition -> test fails with provisioning instructions
 . These profiles deliberately fail at different stages — the
 {jjdxf_preflight}
