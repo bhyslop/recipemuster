@@ -1160,9 +1160,10 @@ rbho_crash_course() {
     test -n "${z_rbrr_project}" && z_rbrr_populated=1
   fi
 
-  local z_station_present=0
+  local z_station_present=0 z_log_dir=""
   if test -n "${BURD_STATION_FILE:-}" && test -f "${BURD_STATION_FILE}"; then
     z_station_present=1
+    z_log_dir=$(zrbho_po_extract_capture "${BURD_STATION_FILE}" "BURS_LOG_DIR") || z_log_dir=""
   fi
 
   # --- Header ---
@@ -1216,7 +1217,7 @@ rbho_crash_course() {
   buh_t   "what to fill in."
   buh_e
   if test "${z_station_present}" = "1"; then
-    zrbho_po_status 1 "Station file present at ${BURD_STATION_FILE}"
+    buh_tctct "" " [*] " " Station file present at " "${BURD_STATION_FILE}" ""
   else
     zrbho_po_status 0 "Station file not found"
   fi
@@ -1247,11 +1248,16 @@ rbho_crash_course() {
   buh_step1 "Check your logs"
   buh_e
   buh_t   "When you ran the validator, it printed file paths at the top"
-  buh_t   "of its output. Every state-changing command writes three"
-  buh_tltlt "" "Log" "${z_docs}#Log" " files to \`" "BURS" "${z_docs}#BURS" "_LOG_DIR\`: a stable-name file (always the same"
-  buh_t   "path — easy for tooling to find the latest run), a per-command file"
-  buh_t   "(same name across runs — diff between executions), and a timestamped"
-  buh_t   "historical file. Disk space is cheap; log unconditionally."
+  buh_tlt "of its output. Every state-changing command writes three " "Log" "${z_docs}#Log" ""
+  buh_tlt "files to " "BURS" "${z_docs}#BURS" "_LOG_DIR:"
+  buh_e
+  if test -n "${z_log_dir}"; then
+    buh_tct "   stable    " "${z_log_dir}/${BURC_LOG_LAST}.${BURC_LOG_EXT}" "  (always the same path)"
+  else
+    buh_t   "   stable    always the same path — tooling reads this one"
+  fi
+  buh_t   "   per-cmd   same filename across runs — diff between executions"
+  buh_t   "   history   timestamped — permanent record, never overwritten"
   buh_e
   buh_tlt "Orchestration commands also write a " "Transcript" "${z_docs}#Transcript" " — a single file"
   buh_t   "capturing key decision points and state transitions. When a multi-step"
