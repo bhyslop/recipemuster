@@ -159,12 +159,7 @@ zrbob_furnish() {
 
   # Differential kindle: foundry modules for kludge/ordain commands
   case "${z_command}" in
-    rbob_kludge|rbob_kludge_bottle)
-      zrbfc_kindle
-      zrbfd_kindle
-      ;;
-    rbob_ordain)
-      zrbfc_kindle
+    rbob_kludge|rbob_kludge_bottle|rbob_ordain)
       zrbfd_kindle
       ;;
   esac
