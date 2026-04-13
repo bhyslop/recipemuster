@@ -85,7 +85,11 @@ zbuwz_kindle() {
   buz_enroll BUWZ_RHC_LOCALHOST  "buw-rhcx"  "${z_mod}" "burh_construct_localhost"  ""        "Construct BURH profile: localhost"
   buz_enroll BUWZ_HW_SSH_CONFIG  "buw-HWsc"  "${z_mod}" "burh_ssh_config"           ""        "Write SSH config from BURH profiles"
   buz_enroll BUWZ_HW_VERIFY_SSH  "buw-HWvs"  "${z_mod}" "burh_verify_ssh"           "param1"  "Verify SSH to BURH profile"
-  buz_enroll BUWZ_HW_BOOTSTRAP   "buw-HWbs"  "${z_mod}" "burh_bootstrap_sshd"       ""        "Bootstrap sshd on Windows (WSL)"
+  buz_enroll BUWZ_RH_INSTALL_KEY "buw-rhk"   "${z_mod}" "burh_install_key"          "param1"  "Install BURH key into authorized_keys"
+
+  # Windows Commands (buwc_cli.sh)
+  z_mod="buwc_cli.sh"
+  buz_enroll BUWZ_WC_BOOTSTRAP   "buw-wcb"   "${z_mod}" "buwc_bootstrap_sshd"       ""        "Provision sshd on Windows (WSL)"
 
   # Handbook — top index + Windows OS procedures (buhw_cli.sh)
   z_mod="buhw_cli.sh"

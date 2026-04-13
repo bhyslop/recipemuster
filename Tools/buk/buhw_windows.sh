@@ -309,7 +309,10 @@ buhw_top() {
   buh_section  "SSH Automation:"
   buh_tT       "  Write SSH config:       " "buw-HWsc"
   buh_tTc      "  Verify SSH connection:  " "buw-HWvs" " <alias>"
-  buh_tT       "  Bootstrap sshd (WSL):   " "buw-HWbs"
+  buh_tTc      "  Install BURH key:       " "buw-rhk" " <alias>"
+  buh_e
+  buh_section  "Windows Commands:"
+  buh_tT       "  Bootstrap sshd (WSL):   " "buw-wcb"
   buh_e
   buh_section  "Handbook Procedures (manual steps):"
   buh_tT       "  OpenSSH server install:                " "buw-HWab"
