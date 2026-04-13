@@ -16,6 +16,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install SSH server and Claude Code operational dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     openssh-server  \
+    ca-certificates \
     curl            \
     git             \
     && rm -rf /var/lib/apt/lists/*
