@@ -37,6 +37,7 @@
         "₢A-AAK",
         "₢A-AAM",
         "₢A-AAN",
+        "₢A-AAO",
         "₢A-AAL",
         "₢A-AAC",
         "₢A-AAD",
@@ -46,7 +47,7 @@
         "₢A-AAI",
         "₢A-AAJ"
       ],
-      "next_pace_seed": "AAO",
+      "next_pace_seed": "AAP",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -256,6 +257,17 @@
               "text": "## Character\nRust implementation + mechanical provisioning. Standard dev work with clear spec to follow.\n\n## Docket\nImplement BURH-based bind in Rust and provision fundus test profiles.\n\nRust changes in `Tools/jjk/vov_veiled/src/jjrlg_legatio.rs`:\n- Change `jjrlg_BindArgs` from `{host, user, reldir}` to `{alias, reldir}`\n- Add BURH profile reading: parse `.buk/users/${BURS_USER}/${alias}/burh.env` on curia\n- Change `zjjrlg_ssh_exec` to use BURH_ALIAS instead of constructing `user@host`\n- Update `jjrlg_LegatioState` to include alias (host/user still stored for display/logging)\n- All downstream ops (send, plant, fetch, relay, check) use alias for SSH\n- Update MCP param handling in `jjrm_mcp.rs`\n\nProvisioning:\n- Create BURH profiles for localhost fundus test accounts: `jjfu-full`, `jjfu-nokey`, `jjfu-norepo`, `jjfu-nogit` in `.buk/users/bhyslop/`\n- Add corresponding `~/.ssh/config` entries (or document manual step)\n\nBuild: `tt/vow-b.Build.sh`\n\nDepends on ₢A-AAM (spec) defining the exact behavior.",
               "silks": "jjk-implement-burh-bind",
               "commit": "97d6e0e"
+            }
+          ]
+        },
+        "₢A-AAO": {
+          "tacks": [
+            {
+              "ts": "260413-0955",
+              "state": "rough",
+              "text": "## Character\nTest execution — run, diagnose, fix. Iterative until green.\n\n## Docket\nRun the full fundus scenario test suite against localhost to validate the BURH-based bind change.\n\nExecute: `tt/jjw-tfs.TestFundusScenario.localhost.sh`\n\nExpected coverage:\n- `jjfu_full` profile: bind, send, plant, relay+check, fetch — all via BURH alias\n- `jjfu_nokey` profile: bind fails with auth error\n- `jjfu_norepo` profile: bind fails at Layer 3 probe\n- `jjfu_nogit` profile: bind succeeds, send works, plant fails\n\nFix any failures from the bind signature change. May require iteration between this pace and ₢A-AAN (implement) if issues surface.\n\nDepends on ₢A-AAN (implement) completing the Rust changes and BURH profile provisioning.",
+              "silks": "jjk-validate-fundus-scenarios",
+              "commit": "6da24c0"
             }
           ]
         }
