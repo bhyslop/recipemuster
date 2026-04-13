@@ -47,6 +47,8 @@ Handbooks don't [Log](#Log) — teaching output is ephemeral.
 <a id="Transcript"></a>A [Transcript](#Transcript) is a single file capturing key decision points and state transitions within a [Tabtarget's](#Tabtarget) execution.
 Where [Logs](#Log) preserve full terminal output, a [Transcript](#Transcript) records the structured progress of sophisticated orchestration commands — the first thing to read when debugging a multi-step failure.
 
+<a id="Output"></a>The [Output](#Output) directory is a fixed-path staging area cleared and recreated before each [Tabtarget](#Tabtarget) runs. Commands that produce artifacts write them here. Concurrent bash sessions share this path, so parallel commands can overwrite each other's [Output](#Output).
+
 To begin, run the onboarding walkthrough:
 
 ```

@@ -1264,14 +1264,22 @@ rbho_crash_course() {
   # --- Step 7: The pattern ---
   buh_step1 "The pattern"
   buh_e
-  buh_tlt "Every " "Regime" "${z_docs}#Regime" " follows the same tabtarget pattern:"
+  buh_tlt "Every " "Regime" "${z_docs}#Regime" " has a render and a validate tabtarget."
+  buh_t   "The letter after \`r\` is all that changes:"
   buh_e
-  buh_t   "   ${BURC_TABTARGET_DIR}/{W}-r{L}r.Render{R}Regime.sh   — show current values"
-  buh_t   "   ${BURC_TABTARGET_DIR}/{W}-r{L}v.Validate{R}Regime.sh — check against rules"
+  buh_tltTtT "   c  " "BURC" "${z_docs}#BURC" "  " "${BUWZ_RC_RENDER}" "  " "${BUWZ_RC_VALIDATE}" ""
+  buh_tltTtT "   s  " "BURS" "${z_docs}#BURS" "  " "${BUWZ_RS_RENDER}" "  " "${BUWZ_RS_VALIDATE}" ""
+  buh_tltTtT "   r  " "RBRR" "${z_docs}#RBRR" "  " "${RBZ_RENDER_REPO}" "  " "${RBZ_VALIDATE_REPO}" ""
+  buh_tltTtT "   p  " "RBRP" "${z_docs}#RBRP" "  " "${RBZ_RENDER_PAYOR}" "  " "${RBZ_VALIDATE_PAYOR}" ""
+  buh_tltTtT "   o  " "RBRO" "${z_docs}#RBRO" "  " "${RBZ_RENDER_OAUTH}" "  " "${RBZ_VALIDATE_OAUTH}" ""
   buh_e
-  buh_t   "\`{W}\` is the workbench (\`buw\` for BUK, \`rbw\` for Recipe Bottle)."
-  buh_tltltlt "\`{L}\` is the regime letter (\`c\` for " "BURC" "${z_docs}#BURC" ", \`s\` for " "BURS" "${z_docs}#BURS" ", \`r\` for " "RBRR" "${z_docs}#RBRR" ")."
-  buh_t   "Learn the pattern — you can find any regime's tools from two letters."
+  buh_t   "These take a target name (vessel, nameplate, or role):"
+  buh_e
+  buh_tltTtT "   v  " "RBRV" "${z_docs}#RBRV" "  " "${RBZ_RENDER_VESSEL}" "  " "${RBZ_VALIDATE_VESSEL}" ""
+  buh_tltTtT "   n  " "RBRN" "${z_docs}#RBRN" "  " "${RBZ_RENDER_NAMEPLATE}" "  " "${RBZ_VALIDATE_NAMEPLATE}" ""
+  buh_tltTtT "   a  " "RBRA" "${z_docs}#RBRA" "  " "${RBZ_RENDER_AUTH}" "  " "${RBZ_VALIDATE_AUTH}" ""
+  buh_e
+  buh_t   "Learn the letter — you can find any regime's tools from it."
   buh_e
 
   # --- Step 8: Next steps ---
