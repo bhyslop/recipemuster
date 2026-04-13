@@ -1065,17 +1065,17 @@ rbho_start_here() {
   buh_section "Foundation"
   buh_e
   buh_t   "    Configure your Repo's Environment"
-  buh_tT  "      Run: " "${RBZ_ONBOARD_CRASH_COURSE}"
+  buh_tT  "      " "${RBZ_ONBOARD_CRASH_COURSE}"
   buh_tltlt "      Universal prerequisite. " "Tabtargets" "${z_docs}#Tabtarget" ", " "Regimes" "${z_docs}#Regime" ","
   buh_tltlt "      " "Station" "${z_docs}#Station" " setup, validation, " "Logs" "${z_docs}#Log" ". Local-only, no cloud."
   buh_e
-  buh_tlt "    User installs " "Retriever" "${z_docs}#Retriever" " credentials"
-  buh_tlt "      If joining an existing project: place your " "RBRA" "${z_docs}#RBRA" " credential file,"
-  buh_t   "      verify via access probe, confirm you can pull images."
+  buh_tlt "    Install " "Retriever" "${z_docs}#Retriever" " credentials"
+  buh_tT  "      " "${RBZ_ONBOARD_CRED_RETRIEVER}"
+  buh_tlt "      Place your " "RBRA" "${z_docs}#RBRA" " credential file, verify, confirm you can pull images."
   buh_e
-  buh_tlt "    User installs " "Director" "${z_docs}#Director" " credentials"
-  buh_tlt "      Place your " "RBRA" "${z_docs}#RBRA" " credential file, verify via access probe, confirm"
-  buh_t   "      you can build and publish images."
+  buh_tlt "    Install " "Director" "${z_docs}#Director" " credentials"
+  buh_tT  "      " "${RBZ_ONBOARD_CRED_DIRECTOR}"
+  buh_tlt "      Place your " "RBRA" "${z_docs}#RBRA" " credential file, verify, confirm you can build and publish."
   buh_e
   buh_tlt "    User sets up " "Crucible" "${z_docs}#Crucible" " with local builds"
   buh_tltlt "      Local sandbox with " "Kludged" "${z_docs}#Kludge" " " "Hallmarks" "${z_docs}#Hallmark" ". The tightest feedback loop"
@@ -1297,6 +1297,118 @@ rbho_crash_course() {
   buh_t  "Return to the start menu for what to do next:"
   buh_tT "   " "${RBZ_ONBOARD_START_HERE}"
   buh_e
+}
+
+######################################################################
+# Credential installation — shared utility for retriever/director
+#
+# Args: role_display  role_constant  knight_tabtarget_constant  role_description
+# Probes RBRR for secrets dir, checks credential file, shows install
+# path, points to auth regime validator.
+
+zrbho_credential_install() {
+  local -r z_role_display="${1}"
+  local -r z_role_constant="${2}"
+  local -r z_knight_constant="${3}"
+  local -r z_role_description="${4}"
+  local -r z_docs="${RBRR_PUBLIC_DOCS_URL}"
+
+  # --- Probes ---
+  local z_secrets_dir=""
+  if test -f "${RBBC_rbrr_file}"; then
+    z_secrets_dir=$(zrbho_po_extract_capture "${RBBC_rbrr_file}" "RBRR_SECRETS_DIR") || z_secrets_dir=""
+  fi
+
+  local z_cred_present=0
+  if test -n "${z_secrets_dir}" \
+     && test -f "${z_secrets_dir}/${z_role_constant}/${RBCC_rbra_file}"; then
+    z_cred_present=1
+  fi
+
+  # --- Header ---
+  buh_section "Install ${z_role_display} Credentials"
+  buh_e
+  buh_t   "${z_role_description}"
+  buh_e
+  buh_step_style "Step " " — "
+
+  # --- Step 1: Get the key file ---
+  buh_step1 "Get the key file"
+  buh_e
+  buh_tlt "Your " "Governor" "${z_docs}#Governor" " creates a service account key by running:"
+  buh_e
+  buh_tT  "   " "${z_knight_constant}"
+  buh_e
+  buh_t   "The output is a JSON key file. The governor hands it to you"
+  buh_t   "out-of-band — this is a secret, not committed to the repo."
+  buh_e
+
+  # --- Step 2: Install the key file ---
+  buh_step1 "Install the key file"
+  buh_e
+  if test -n "${z_secrets_dir}"; then
+    buh_tlt "Place the file at the path derived from " "RBRR" "${z_docs}#RBRR" ":"
+    buh_e
+    buh_c   "   ${z_secrets_dir}/${z_role_constant}/${RBCC_rbra_file}"
+    buh_e
+    buh_t   "Create the directory if it does not exist."
+  else
+    buh_tW  "" "RBRR not populated — cannot determine credential path."
+    buh_tlt "Run " "Configure your Repo's Environment" "${z_docs}#BURC" " first."
+  fi
+  buh_e
+  if test "${z_cred_present}" = "1"; then
+    zrbho_po_status 1 "Credential file present"
+  else
+    zrbho_po_status 0 "Credential file not found"
+  fi
+  buh_e
+
+  # --- Step 3: Validate ---
+  buh_step1 "Validate"
+  buh_e
+  buh_tlt "Run the " "RBRA" "${z_docs}#RBRA" " validator for your role:"
+  buh_e
+  buh_tTc "   " "${RBZ_VALIDATE_AUTH}" " ${z_role_constant}"
+  buh_e
+  buh_t   "Read the output — it checks the file format and reports"
+  buh_t   "what the credential grants."
+  buh_e
+
+  # --- Step 4: Next steps ---
+  buh_step1 "Next steps"
+  buh_e
+  buh_t  "Return to the start menu:"
+  buh_tT "   " "${RBZ_ONBOARD_START_HERE}"
+  buh_e
+}
+
+######################################################################
+# Install Retriever Credentials
+
+rbho_credential_retriever() {
+  buc_doc_brief "Install retriever credentials — place RBRA key, validate, confirm pull access"
+  buc_doc_shown || return 0
+
+  zrbho_credential_install \
+    "Retriever" \
+    "${RBCC_role_retriever}" \
+    "${RBZ_CHARTER_RETRIEVER}" \
+    "A retriever pulls container images from the depot — read-only access to what others have built."
+}
+
+######################################################################
+# Install Director Credentials
+
+rbho_credential_director() {
+  buc_doc_brief "Install director credentials — place RBRA key, validate, confirm build access"
+  buc_doc_shown || return 0
+
+  zrbho_credential_install \
+    "Director" \
+    "${RBCC_role_director}" \
+    "${RBZ_KNIGHT_DIRECTOR}" \
+    "A director builds and publishes container images to the depot — write access to the registry."
 }
 
 # eof

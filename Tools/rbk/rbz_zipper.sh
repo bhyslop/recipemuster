@@ -87,8 +87,10 @@ zrbz_kindle() {
   # Onboarding — handbook restart (rbw-o terminal + rbw-O* family, see ₣A6 paddock)
   buz_group RBZ__GROUP_ONBOARDING "rbw-o"   "Onboarding — Handbook restart"
   z_mod="rbho_cli.sh"
-  buz_enroll RBZ_ONBOARD_START_HERE    "rbw-o"   "${z_mod}" "rbho_start_here"   ""  "Onboarding start — probe-aware menu into handbook tracks"
-  buz_enroll RBZ_ONBOARD_CRASH_COURSE  "rbw-Occ" "${z_mod}" "rbho_crash_course" ""  "Crash Course — universal prerequisite: tabtargets, regimes, diagnostic failure"
+  buz_enroll RBZ_ONBOARD_START_HERE    "rbw-o"   "${z_mod}" "rbho_start_here"            ""  "Onboarding start — probe-aware menu into handbook tracks"
+  buz_enroll RBZ_ONBOARD_CRASH_COURSE  "rbw-Occ" "${z_mod}" "rbho_crash_course"          ""  "Crash Course — universal prerequisite: tabtargets, regimes, diagnostic failure"
+  buz_enroll RBZ_ONBOARD_CRED_RETRIEVER "rbw-Ocr" "${z_mod}" "rbho_credential_retriever" ""  "Install retriever credentials — place RBRA key file"
+  buz_enroll RBZ_ONBOARD_CRED_DIRECTOR  "rbw-Ocd" "${z_mod}" "rbho_credential_director"  ""  "Install director credentials — place RBRA key file"
 
   # Foundry — registry artifact lifecycle (rbw-f, UPPER=mutates GAR, lower=read/local)
   buz_group RBZ__GROUP_FOUNDRY    "rbw-f"   "Foundry — Registry artifact lifecycle"

@@ -64,8 +64,10 @@ The Folio column shows how each tabtarget receives it:
 
 | Colophon | Frontispiece | Folio | Purpose |
 |----------|-------------|-------|---------|
-| `rbw-o` | OnboardingStartHere | — | Onboarding start — probe-aware menu into handbook tracks |
-| `rbw-Occ` | OnboardingCrashCourse | — | Crash Course — universal prerequisite: tabtargets, regimes, diagnostic failure |
+| `rbw-o` | ONBOARDING | — | Onboarding start — probe-aware menu into handbook tracks |
+| `rbw-Occ` | OnboardingConfigureEnvironment | — | Crash Course — universal prerequisite: tabtargets, regimes, diagnostic failure |
+| `rbw-Ocr` | OnboardingCredentialRetriever | — | Install retriever credentials — place RBRA key file |
+| `rbw-Ocd` | OnboardingCredentialDirector | — | Install director credentials — place RBRA key file |
 
 ### Foundry — Registry artifact lifecycle (`rbw-f`)
 
