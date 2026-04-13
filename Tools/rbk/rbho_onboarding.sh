@@ -1267,17 +1267,17 @@ rbho_crash_course() {
   buh_tlt "Every " "Regime" "${z_docs}#Regime" " has a render and a validate tabtarget."
   buh_t   "The letter after \`r\` is all that changes:"
   buh_e
-  buh_tltTtT "   c  " "BURC" "${z_docs}#BURC" "  " "${BUWZ_RC_RENDER}" "  " "${BUWZ_RC_VALIDATE}" ""
+  buh_tltTtT "   c  " "BURC" "${z_docs}#BURC" "  " "${BUWZ_RC_RENDER}" "   " "${BUWZ_RC_VALIDATE}" ""
   buh_tltTtT "   s  " "BURS" "${z_docs}#BURS" "  " "${BUWZ_RS_RENDER}" "  " "${BUWZ_RS_VALIDATE}" ""
-  buh_tltTtT "   r  " "RBRR" "${z_docs}#RBRR" "  " "${RBZ_RENDER_REPO}" "  " "${RBZ_VALIDATE_REPO}" ""
-  buh_tltTtT "   p  " "RBRP" "${z_docs}#RBRP" "  " "${RBZ_RENDER_PAYOR}" "  " "${RBZ_VALIDATE_PAYOR}" ""
-  buh_tltTtT "   o  " "RBRO" "${z_docs}#RBRO" "  " "${RBZ_RENDER_OAUTH}" "  " "${RBZ_VALIDATE_OAUTH}" ""
+  buh_tltTtT "   r  " "RBRR" "${z_docs}#RBRR" "  " "${RBZ_RENDER_REPO}" "     " "${RBZ_VALIDATE_REPO}" ""
+  buh_tltTtT "   p  " "RBRP" "${z_docs}#RBRP" "  " "${RBZ_RENDER_PAYOR}" "    " "${RBZ_VALIDATE_PAYOR}" ""
+  buh_tltTtT "   o  " "RBRO" "${z_docs}#RBRO" "  " "${RBZ_RENDER_OAUTH}" "    " "${RBZ_VALIDATE_OAUTH}" ""
   buh_e
   buh_t   "These take a target name (vessel, nameplate, or role):"
   buh_e
-  buh_tltTtT "   v  " "RBRV" "${z_docs}#RBRV" "  " "${RBZ_RENDER_VESSEL}" "  " "${RBZ_VALIDATE_VESSEL}" ""
+  buh_tltTtT "   v  " "RBRV" "${z_docs}#RBRV" "  " "${RBZ_RENDER_VESSEL}" "     " "${RBZ_VALIDATE_VESSEL}" ""
   buh_tltTtT "   n  " "RBRN" "${z_docs}#RBRN" "  " "${RBZ_RENDER_NAMEPLATE}" "  " "${RBZ_VALIDATE_NAMEPLATE}" ""
-  buh_tltTtT "   a  " "RBRA" "${z_docs}#RBRA" "  " "${RBZ_RENDER_AUTH}" "  " "${RBZ_VALIDATE_AUTH}" ""
+  buh_tltTtT "   a  " "RBRA" "${z_docs}#RBRA" "  " "${RBZ_RENDER_AUTH}" "       " "${RBZ_VALIDATE_AUTH}" ""
   buh_e
   buh_t   "Learn the letter — you can find any regime's tools from it."
   buh_e
