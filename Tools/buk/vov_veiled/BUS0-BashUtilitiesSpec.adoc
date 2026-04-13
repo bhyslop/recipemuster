@@ -63,6 +63,7 @@
 
 // BUK Regime Prefixes
 :burc_prefix:                      <<burc_prefix,BURC_>>
+:burh_prefix:                      <<burh_prefix,BURH_>>
 :burs_prefix:                      <<burs_prefix,BURS_>>
 
 // BURC Regime: Configuration (project-level BUK settings)
@@ -78,8 +79,17 @@
 :burc_log_last:                    <<burc_log_last,BURC_LOG_LAST>>
 :burc_log_ext:                     <<burc_log_ext,BURC_LOG_EXT>>
 
+// BURH Regime: Host (per-user SSH connection profiles)
+:burh_regime:                      <<burh_regime,BURH Regime>>
+:burh_host:                        <<burh_host,BURH_HOST>>
+:burh_user:                        <<burh_user,BURH_USER>>
+:burh_alias:                       <<burh_alias,BURH_ALIAS>>
+:burh_ssh_pubkey:                  <<burh_ssh_pubkey,BURH_SSH_PUBKEY>>
+:burh_command:                     <<burh_command,BURH_COMMAND>>
+
 // BURS Regime: Station (developer-level BUK settings)
 :burs_regime:                      <<burs_regime,BURS Regime>>
+:burs_user:                        <<burs_user,BURS_USER>>
 :burs_log_dir:                     <<burs_log_dir,BURS_LOG_DIR>>
 
 // BURD Regime: Dispatch Runtime (ephemeral dispatch state)
@@ -602,6 +612,11 @@ Bash Utility Configuration Regime
 {burs_prefix}::
 Bash Utility Station Regime
 
+[[burh_prefix]]
+//axl_voices axrg_prefix
+{burh_prefix}::
+Bash Utility Host Regime
+
 [[bure_prefix]]
 //axl_voices axrg_prefix
 {bure_prefix}::
@@ -704,10 +719,60 @@ File extension for log files, without leading dot.
 Configuration regime for developer-level BUK settings.
 BURS assignment files are personal to each developer and not committed to version control.
 
+[[burs_user]]
+//axvr_variable axd_required axtu_xname
+{burs_user}::
+Local developer username.
+Routes to the correct `.buk/users/` subdirectory for
+{burh_regime}
+profiles.
+
 [[burs_log_dir]]
 //axvr_variable axd_required axtu_path
 {burs_log_dir}::
 Directory where this developer stores BUK operation logs.
+
+=== BURH Regime
+
+[[burh_regime]]
+//axvr_regime axf_bash axrd_file_sourced
+{burh_regime}::
+Per-user, per-connection-profile regime for SSH access to remote hosts.
+Unlike singleton regimes, BURH is multi-instance: one assignment file per SSH connection,
+stored at `.buk/users/{burs_user}/<alias>/burh.env`.
+Each profile describes one SSH connection — one key, one alias, one entry point.
+
+[[burh_host]]
+//axvr_variable axd_required axtu_string
+{burh_host}::
+IP address or hostname of the remote machine.
+
+[[burh_user]]
+//axvr_variable axd_required axtu_xname
+{burh_user}::
+Username on the remote host.
+May differ from the local
+{burs_user}.
+
+[[burh_alias]]
+//axvr_variable axd_required axtu_xname
+{burh_alias}::
+SSH alias and key filename.
+Must match the directory name containing this profile's assignment file.
+
+[[burh_ssh_pubkey]]
+//axvr_variable axd_required axtu_string
+{burh_ssh_pubkey}::
+Full SSH public key line (e.g., `ssh-ed25519 AAAA... user@host`).
+Git-transported: no private key material.
+Used by handbook procedures to render `authorized_keys` entries and `ssh-keygen` commands.
+
+[[burh_command]]
+//axvr_variable axd_required axtu_string
+{burh_command}::
+Shell command for `command=` routing in SSH `authorized_keys`.
+Determines which shell or environment the connection launches
+(e.g., `C:\cygwin64\bin\bash.exe -l` for Cygwin, `wsl.exe -d Ubuntu` for WSL).
 
 === BURD Regime
 

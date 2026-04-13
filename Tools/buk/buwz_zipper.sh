@@ -57,6 +57,12 @@ zbuwz_kindle() {
   buz_enroll BUWZ_RE_VALIDATE "buw-rev" "${z_mod}" "bure_validate"  ""  "Validate BURE regime"
   buz_enroll BUWZ_RE_RENDER   "buw-rer" "${z_mod}" "bure_render"    ""  "Render BURE regime"
 
+  # Host Regime subsystem (burh_cli.sh)
+  z_mod="burh_cli.sh"
+  buz_enroll BUWZ_RH_VALIDATE "buw-rhv" "${z_mod}" "burh_validate" "param1" "Validate BURH profile"
+  buz_enroll BUWZ_RH_RENDER   "buw-rhr" "${z_mod}" "burh_render"   "param1" "Render BURH profile"
+  buz_enroll BUWZ_RH_LIST     "buw-rhl" "${z_mod}" "burh_list"     ""       "List BURH profiles"
+
   # Qualification subsystem (buq_cli.sh)
   z_mod="buq_cli.sh"
   buz_enroll BUWZ_QUALIFY_SHELLCHECK "buw-qsc" "${z_mod}" "buq_shellcheck"  ""  "Run shellcheck on all tools"
