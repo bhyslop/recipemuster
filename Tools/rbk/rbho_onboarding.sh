@@ -1199,14 +1199,13 @@ rbho_crash_course() {
   buh_e
   buh_tT  "   " "${BUWZ_RS_RENDER}"
   buh_e
-  buh_t   "The repo-vs-personal split is deliberate: BURC travels with the code;"
-  buh_t   "BURS stays on your machine."
+  buh_tltlt "The repo-vs-personal split is deliberate: " "BURC" "${z_docs}#BURC" " travels with the code; " "BURS" "${z_docs}#BURS" " stays on your machine."
   buh_e
 
   # --- Step 4: Validate your station ---
   buh_step1 "Validate your station"
   buh_e
-  buh_t   "Every regime has a validate tabtarget that checks the file against"
+  buh_tlt "Every " "Regime" "${z_docs}#Regime" " has a validate tabtarget that checks the file against"
   buh_t   "its schema. This may fail if your station file is missing fields"
   buh_t   "beyond the minimum the launcher required — that is expected."
   buh_t   "Run it:"
@@ -1232,7 +1231,8 @@ rbho_crash_course() {
   buh_e
   buh_tT  "   " "${RBZ_VALIDATE_REPO}"
   buh_e
-  buh_t   "On a bare fork, RBRR fields are blank and validation will fail."
+  buh_tlt "On a bare fork, " "RBRR" "${z_docs}#RBRR" " fields are blank and validation will fail —"
+  buh_tltlt "you need a " "Payor" "${z_docs}#Payor" " account and a " "Depot" "${z_docs}#Depot" " to populate them."
   buh_t   "On a team repo, they are already populated and validation passes."
   buh_t   "Either way, read the output — it tells you exactly what state you're in."
   buh_e
@@ -1248,7 +1248,7 @@ rbho_crash_course() {
   buh_e
   buh_t   "When you ran the validator, it printed file paths at the top"
   buh_t   "of its output. Every state-changing command writes three"
-  buh_tlt "" "Log" "${z_docs}#Log" " files to \`BURS_LOG_DIR\`: a stable-name file (always the same"
+  buh_tltlt "" "Log" "${z_docs}#Log" " files to \`" "BURS" "${z_docs}#BURS" "_LOG_DIR\`: a stable-name file (always the same"
   buh_t   "path — easy for tooling to find the latest run), a per-command file"
   buh_t   "(same name across runs — diff between executions), and a timestamped"
   buh_t   "historical file. Disk space is cheap; log unconditionally."
@@ -1270,7 +1270,7 @@ rbho_crash_course() {
   buh_t   "   ${BURC_TABTARGET_DIR}/{W}-r{L}v.Validate{R}Regime.sh — check against rules"
   buh_e
   buh_t   "\`{W}\` is the workbench (\`buw\` for BUK, \`rbw\` for Recipe Bottle)."
-  buh_t   "\`{L}\` is the regime letter (\`c\` for BURC, \`s\` for BURS, \`r\` for RBRR)."
+  buh_tltltlt "\`{L}\` is the regime letter (\`c\` for " "BURC" "${z_docs}#BURC" ", \`s\` for " "BURS" "${z_docs}#BURS" ", \`r\` for " "RBRR" "${z_docs}#RBRR" ")."
   buh_t   "Learn the pattern — you can find any regime's tools from two letters."
   buh_e
 
