@@ -509,6 +509,9 @@ rbho_retriever() {
       buh_tlt "  " "Summon" "${z_docs}#Summon" " pulls a hallmark image from the depot to your local machine:"
       buh_tT  "    " "${RBZ_SUMMON_HALLMARK}"
       buh_e
+      buh_tlt "  If something fails, check the " "Log" "${z_docs}#Log" " — the file paths are printed at the"
+      buh_t   "  top of the command output."
+      buh_e
       buh_t   "  After summoning, inspect the artifact's provenance:"
       buh_tT  "    " "${RBZ_PLUMB_FULL}"
       buh_tT  "    " "${RBZ_PLUMB_COMPACT}"
@@ -677,6 +680,9 @@ rbho_director() {
       buh_t   "  Enshrine base images for the sentry vessel:"
       buh_tT  "    " "${RBZ_ENSHRINE_VESSEL}"
       buh_e
+      buh_tlt "  Both are multi-step orchestrations. The " "Transcript" "${z_docs}#Transcript" " captures each"
+      buh_tlt "  decision point; the " "Log" "${z_docs}#Log" " captures full output. Check them if a step fails."
+      buh_e
       buh_t   "  Reliquary provides the tools; enshrine provides the foundations."
       buh_tltlt "  Both must be in place before " "conjure" "${z_docs}#Conjure" " or " "bind" "${z_docs}#Bind" "."
       buh_e
@@ -700,7 +706,8 @@ rbho_director() {
       buh_t   "  info), and vouch (DSSE signature verification)."
       buh_e
       buh_t   "  This is the same vessel you kludged locally — now Cloud Build creates it"
-      buh_t   "  with full SLSA provenance:"
+      buh_tlt "  with full SLSA provenance. The " "Transcript" "${z_docs}#Transcript" " tracks build submission,"
+      buh_t   "  polling, and attestation steps:"
       buh_tT  "    " "${RBZ_ORDAIN_HALLMARK}"
       buh_e
       buh_tlt "  Verify with " "vouch" "${z_docs}#Vouch" " (cryptographic attestation) and"
@@ -862,7 +869,8 @@ rbho_governor() {
       buh_tT  "    " "${RBZ_KNIGHT_DIRECTOR}"
       buh_e
       buh_t   "  Each command creates the service account and applies the IAM grants it needs."
-      buh_t   "  The output is an RBRA key file — hand it to the retriever or director user."
+      buh_tlt "  The output is an RBRA key file — hand it to the retriever or director user. "  "Log" "${z_docs}#Log" ""
+      buh_t   "  files capture the full provisioning details."
       buh_e
       buh_t   "  List issued service accounts:"
       buh_tT  "    " "${RBZ_LIST_SERVICE_ACCOUNTS}"
@@ -986,7 +994,8 @@ rbho_payor() {
       buh_tT  "    " "${RBZ_LEVY_DEPOT}"
       buh_e
       buh_t   "  This enables APIs, creates the Artifact Registry repository and Cloud Storage"
-      buh_t   "  bucket, and configures Cloud Build. The depot is now ready for use."
+      buh_tlt "  bucket, and configures Cloud Build. The " "Transcript" "${z_docs}#Transcript" " tracks each"
+      buh_t   "  provisioning step. The depot is now ready for use."
       buh_e
       buh_t   "  List your depots to verify:"
       buh_tT  "    " "${RBZ_LIST_DEPOT}"
