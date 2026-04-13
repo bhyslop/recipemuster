@@ -40,6 +40,7 @@
         "₢A-AAN",
         "₢A-AAO",
         "₢A-AAC",
+        "₢A-AAQ",
         "₢A-AAD",
         "₢A-AAE",
         "₢A-AAF",
@@ -48,7 +49,7 @@
         "₢A-AAJ",
         "₢A-AAP"
       ],
-      "next_pace_seed": "AAQ",
+      "next_pace_seed": "AAR",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -357,6 +358,17 @@
               "text": "## Character\nTest execution — regression check after practice-driven amendments.\n\n## Docket\nRe-run the full fundus scenario test suite (`tt/jjw-tfs.TestFundusScenario.localhost.sh`) to confirm that any code changes made during practice paces (AAC–AAF) haven't broken the BURH-based bind path.\n\nSame coverage as ₢A-AAO but exercised after practice amendments have landed. If failures surface, fix and iterate.",
               "silks": "retest-fundus-after-practice",
               "commit": "35cb301"
+            }
+          ]
+        },
+        "₢A-AAQ": {
+          "tacks": [
+            {
+              "ts": "260413-1551",
+              "state": "rough",
+              "text": "## Character\nSpec writing — studying three existing concept model documents, then applying the patterns to produce two new BUS0 subdocuments. Requires a design decision before spec work begins.\n\n## Docket\n\nWrite BUS0 subdocuments for the two new BUK commands: `buwc_bootstrap_sshd` (Windows sshd provisioning) and `burh_install_key` (per-profile authorized_keys management).\n\n**Phase 1 — Study (read-only):**\nRead these three documents for patterns:\n- RBS0 (`Tools/rbk/vov_veiled/RBS0-SpecTop.adoc`) — how RBK structures its command specs with include files\n- AXLA (`Tools/cmk/vov_veiled/AXLA-Lexicon.adoc`) — motif vocabulary and voicing annotations\n- MCM (`Tools/cmk/vov_veiled/MCM-MetaConceptModel.adoc`) — linked term structure: mapping section, anchors, definition sites\n\nAlso read BUSD-DispatchRuntime.adoc as the existing BUS0 subdocument precedent.\n\n**Phase 2 — Resolve open issue BEFORE writing specs:**\n`burh_install_key` currently targets `${HOME}/.ssh/authorized_keys`. On Windows with admin users, the correct target is `C:/ProgramData/ssh/administrators_authorized_keys`. The spec must define how the target path is determined — regime variable, platform detection, or explicit parameter. Present options and get human decision before proceeding.\n\n**Phase 3 — Write two subdocuments (one command per file):**\n- `BUSWC-BootstrapSshd.adoc` — `buwc_bootstrap_sshd` contract (platform gate, require gate, sshd_config template, ownership boundary)\n- `BUSRK-InstallKey.adoc` — `burh_install_key` contract (marker wire format `# BURH:<alias>`, idempotency guarantee, coexistence with hand-added keys, authorized_keys target path)\n\nAdd `include::` lines to BUS0 at appropriate positions.\n\n**Constraint:** One command per include file. Follow MCM patterns for linked terms — mapping section entries, anchors, definition sites, annotations. Use existing BUS0 category prefixes where they fit; mint new ones only if needed.",
+              "silks": "specify-new-buk-commands-in-bus0",
+              "commit": "dd117ea"
             }
           ]
         }
