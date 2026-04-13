@@ -1108,11 +1108,11 @@ rbho_start_here() {
   buh_section "Director subtracks"
   buh_e
   buh_tltlt   "    Your First Cloud Build       — " "Ordain" "${z_docs}#Ordain" " one " "Vessel" "${z_docs}#Vessel" ""
-  buh_tlt     "    Mirror Upstream Base Images   — " "Enshrine" "${z_docs}#Enshrine" " the Ancestors"
-  buh_tlt     "    Provision Builder Toolchain   — inscribe the " "Reliquary" "${z_docs}#Reliquary" ""
-  buh_tlt     "    Build With Internet Access    — " "Tethered" "${z_docs}#Tethered" " cloud builds"
-  buh_tlt     "    Build Without Internet        — " "Airgap" "${z_docs}#Airgap" " cloud builds"
-  buh_tltlt   "    Build " "Crucible" "${z_docs}#Crucible" " Test Images  — " "Ordain" "${z_docs}#Ordain" " for crucibles"
+  buh_tlt     "    Mirror Upstream Base Images  — " "Enshrine" "${z_docs}#Enshrine" " the Ancestors"
+  buh_tlt     "    Provision Builder Toolchain  — inscribe the " "Reliquary" "${z_docs}#Reliquary" ""
+  buh_tlt     "    Build With Internet Access   — " "Tethered" "${z_docs}#Tethered" " cloud builds"
+  buh_tlt     "    Build Without Internet       — " "Airgap" "${z_docs}#Airgap" " cloud builds"
+  buh_tltlt   "    Build " "Crucible" "${z_docs}#Crucible" " Test Images   — " "Ordain" "${z_docs}#Ordain" " for crucibles"
   buh_e
 
   # --- Evaluation ---
