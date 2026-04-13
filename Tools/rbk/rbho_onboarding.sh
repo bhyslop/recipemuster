@@ -1259,8 +1259,8 @@ rbho_crash_course() {
   buh_t   "   per-cmd   same filename across runs — diff between executions"
   buh_t   "   history   timestamped — permanent record, never overwritten"
   buh_e
-  buh_tlt "Orchestration commands also write a " "Transcript" "${z_docs}#Transcript" " — a single file"
-  buh_t   "capturing key decision points and state transitions. When a multi-step"
+  buh_tlt "Some commands also write a " "Transcript" "${z_docs}#Transcript" " — a single file"
+  buh_t   "capturing key decision points and state transitions. When a"
   buh_t   "command fails, the transcript is the first thing to read."
   buh_e
   buh_t   "Handbook display commands (like this one) do not log — teaching"
