@@ -1078,9 +1078,10 @@ rbho_start_here() {
   buh_tlt "      Place your " "RBRA" "${z_docs}#RBRA" " credential file, verify, confirm you can build and publish."
   buh_e
   buh_tlt "    Start a " "Crucible" "${z_docs}#Crucible" " Using Local Builds"
-  buh_tlt "      The ccyolo " "Bottle" "${z_docs}#Bottle" " runs Claude Code in a container that can"
+  buh_tlt "      The ccyolo " "Crucible" "${z_docs}#Crucible" " runs Claude Code in a container that can"
   buh_t   "      only reach Anthropic. Requires a Claude OAuth subscription."
   buh_tltltltlt "        Build images locally      — " "Kludge" "${z_docs}#Kludge" " " "Sentry" "${z_docs}#Sentry" "/" "Pentacle" "${z_docs}#Pentacle" " and " "Bottle" "${z_docs}#Bottle" ""
+  buh_tltlt   "        Configure local network   — amend " "Nameplate" "${z_docs}#Nameplate" " " "RBRN" "${z_docs}#RBRN" " file"
   buh_tltlt   "        Start the sandbox         — " "Charge" "${z_docs}#Charge" " the " "Crucible" "${z_docs}#Crucible" ""
   buh_tlt     "        Shell into the container  — rack the " "Bottle" "${z_docs}#Bottle" ""
   buh_t   "      No cloud, no credentials beyond your own."
@@ -1412,6 +1413,19 @@ rbho_credential_director() {
   buh_e
 
   zrbho_credential_install "${RBCC_role_director}" "${RBZ_KNIGHT_DIRECTOR}"
+}
+
+######################################################################
+# First Crucible — local builds onboarding
+
+rbho_first_crucible() {
+  buc_doc_brief "Start a Crucible using local builds — kludge, charge, rack"
+  buc_doc_shown || return 0
+
+  buh_section "Start a Crucible Using Local Builds"
+  buh_e
+  buh_t "  [planned] — this handbook track is not yet implemented."
+  buh_e
 }
 
 # eof
