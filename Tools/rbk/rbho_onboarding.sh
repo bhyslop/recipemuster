@@ -1042,32 +1042,6 @@ rbho_start_here() {
 
   local -r z_docs="${RBRR_PUBLIC_DOCS_URL}"
 
-  # --- Probe repo state ---
-  local z_has_payor z_has_governor z_has_director z_has_retriever z_secrets_dir
-  zrbho_probe_role_credentials
-
-  local z_rbrr_populated=0
-  if test -f "${RBBC_rbrr_file}"; then
-    local z_rbrr_project=""
-    z_rbrr_project=$(zrbho_po_extract_capture "${RBBC_rbrr_file}" "RBRR_DEPOT_PROJECT_ID") || z_rbrr_project=""
-    test -n "${z_rbrr_project}" && z_rbrr_populated=1
-  fi
-
-  local z_has_any_rbra=0
-  if test "${z_has_payor}" = "1" || test "${z_has_governor}" = "1" \
-     || test "${z_has_director}" = "1" || test "${z_has_retriever}" = "1"; then
-    z_has_any_rbra=1
-  fi
-
-  # --- Compute highlight arrows (foundation actions only) ---
-  # Cold start  (no RBRR)                 → Configure Env + Payor creates Depot
-  # Ready       (RBRR pop)                → Configure Env only
-  local z_arrow_cc="→ "
-  local z_arrow_etd="  "
-  if test "${z_rbrr_populated}" = "0"; then
-    z_arrow_etd="→ "
-  fi
-
   # --- Preamble ---
   buh_section "Recipe Bottle — Onboarding Start"
   buh_e
@@ -1076,16 +1050,23 @@ rbho_start_here() {
   buh_e
   buh_t   "  This menu points you at handbook tracks — self-describing teaching"
   buh_t   "  documents that explain concepts and show you live probe status."
-  buh_t   "  Arrows (→) mark suggested next actions based on what's been configured."
   buh_e
 
   # --- Foundation ---
   buh_section "Foundation"
   buh_e
-  buh_t   "  ${z_arrow_cc}Configure your Repo's Environment"
+  buh_t   "    Configure your Repo's Environment"
   buh_tT  "      Run: " "${RBZ_ONBOARD_CRASH_COURSE}"
   buh_tltlt "      Universal prerequisite. " "Tabtargets" "${z_docs}#Tabtarget" ", " "Regimes" "${z_docs}#Regime" ","
   buh_tlt "      " "Station" "${z_docs}#Station" " setup, validation, logs. Local-only, no cloud."
+  buh_e
+  buh_tlt "    User installs " "Retriever" "${z_docs}#Retriever" " credentials"
+  buh_tlt "      If joining an existing project: place your " "RBRA" "${z_docs}#RBRA" " credential file,"
+  buh_t   "      verify via access probe, confirm you can pull images."
+  buh_e
+  buh_tlt "    User installs " "Director" "${z_docs}#Director" " credentials"
+  buh_tlt "      Place your " "RBRA" "${z_docs}#RBRA" " credential file, verify via access probe, confirm"
+  buh_t   "      you can build and publish images."
   buh_e
 
   # --- Role-intent tracks ---
@@ -1095,7 +1076,11 @@ rbho_start_here() {
   buh_tltlt "      Local sandbox with " "Kludged" "${z_docs}#Kludge" " " "Hallmarks" "${z_docs}#Hallmark" ". The tightest feedback loop"
   buh_t   "      in the system. No cloud."
   buh_e
-  buh_tltltlt "  ${z_arrow_etd}" "Payor" "${z_docs}#Payor" " creates the " "Depot" "${z_docs}#Depot" " and its " "Governor" "${z_docs}#Governor" ""
+  buh_tlt "    User creates " "Payor" "${z_docs}#Payor" " account"
+  buh_t   "      Human setup: create a GCP account, attach a credit card, configure"
+  buh_t   "      OAuth consent screen. Required before any cloud operations."
+  buh_e
+  buh_tltltlt "    " "Payor" "${z_docs}#Payor" " creates the " "Depot" "${z_docs}#Depot" " and its " "Governor" "${z_docs}#Governor" ""
   buh_t   "      ~15 minutes: GCP project, OAuth consent screen, billing, RBRR"
   buh_tlt "      initial population. The " "Depot" "${z_docs}#Depot" " is the facility where the team's"
   buh_t   "      container images are built and stored — the ground truth other"
@@ -1103,10 +1088,6 @@ rbho_start_here() {
   buh_e
   buh_tltltlt "    " "Governor" "${z_docs}#Governor" " administers " "Directors" "${z_docs}#Director" " and " "Retrievers" "${z_docs}#Retriever" ""
   buh_t   "      Create service accounts, issue credentials, distribute securely."
-  buh_e
-  buh_tltlt "    User installs " "Director" "${z_docs}#Director" "/" "Retriever" "${z_docs}#Retriever" " credentials"
-  buh_t   "      Place your credential file, verify via access probe, understand"
-  buh_t   "      sensitivity."
   buh_e
 
   # --- Director subtracks ---
