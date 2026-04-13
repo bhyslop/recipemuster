@@ -65,8 +65,8 @@ burh_list() {
 # Internal: Constructor Helper
 #
 # Shared logic for all platform constructors.
-# Args: host user moniker suffix command_value
-# command_value may be empty (Linux, macOS, localhost).
+# Args: host user moniker suffix command_value key_file
+# command_value and key_file may be empty.
 
 zburh_construct() {
   local z_host="${1:-}"
@@ -74,6 +74,7 @@ zburh_construct() {
   local z_moniker="${3:-}"
   local z_suffix="${4:-}"
   local z_command="${5:-}"
+  local z_key_file="${6:-}"
 
   test -n "${z_host}"    || buc_die "host required (arg 1)"
   test -n "${z_user}"    || buc_die "user required (arg 2)"
@@ -100,6 +101,7 @@ zburh_construct() {
   printf '%s\n' "BURH_USER=${z_user}"            >> "${z_profile_file}"
   printf '%s\n' "BURH_ALIAS=${z_alias}"          >> "${z_profile_file}"
   printf '%s\n' "BURH_SSH_PUBKEY='${z_pubkey}'"  >> "${z_profile_file}"
+  printf '%s\n' "BURH_KEY_FILE=${z_key_file}"    >> "${z_profile_file}"
   printf '%s\n' "BURH_COMMAND='${z_command}'"    >> "${z_profile_file}"
 
   buc_step "BURH profile written: ${z_profile_file}"
@@ -176,7 +178,7 @@ burh_construct_localhost() {
   buc_doc_param "moniker" "Short name (alias = moniker-local)"
   buc_doc_shown || return 0
 
-  zburh_construct "localhost" "${1:-}" "${2:-}" "local" ""
+  zburh_construct "localhost" "${1:-}" "${2:-}" "local" "" "id_ed25519"
 }
 
 ######################################################################
@@ -204,10 +206,11 @@ burh_ssh_config() {
     # Source directly — BURH not kindled, no readonly conflict
     source "${z_profile}"
     z_section+=$'\n'
+    local z_key="${BURH_KEY_FILE:-${BURH_ALIAS}}"
     z_section+="Host ${BURH_ALIAS}"$'\n'
     z_section+="  HostName ${BURH_HOST}"$'\n'
     z_section+="  User ${BURH_USER}"$'\n'
-    z_section+="  IdentityFile ~/.ssh/${BURH_ALIAS}"$'\n'
+    z_section+="  IdentityFile ~/.ssh/${z_key}"$'\n'
   done
 
   z_section+="${z_end}"$'\n'

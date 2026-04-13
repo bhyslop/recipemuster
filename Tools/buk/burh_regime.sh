@@ -47,6 +47,7 @@ zburh_kindle() {
 
   buv_group_enroll "Authentication"
   buv_string_enroll  BURH_SSH_PUBKEY  20 1024  "Full public key line (e.g., ssh-ed25519 AAAA... user@host)"
+  buv_string_enroll  BURH_KEY_FILE     0  256  "SSH private key filename in ~/.ssh/ (empty defaults to alias)"
 
   buv_group_enroll "Session Routing"
   buv_string_enroll  BURH_COMMAND      0  512  "Shell command for command= routing in authorized_keys (empty for direct shell)"

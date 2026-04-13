@@ -85,6 +85,7 @@
 :burh_user:                        <<burh_user,BURH_USER>>
 :burh_alias:                       <<burh_alias,BURH_ALIAS>>
 :burh_ssh_pubkey:                  <<burh_ssh_pubkey,BURH_SSH_PUBKEY>>
+:burh_key_file:                    <<burh_key_file,BURH_KEY_FILE>>
 :burh_command:                     <<burh_command,BURH_COMMAND>>
 
 // BURS Regime: Station (developer-level BUK settings)
@@ -766,6 +767,13 @@ Must match the directory name containing this profile's assignment file.
 Full SSH public key line (e.g., `ssh-ed25519 AAAA... user@host`).
 Git-transported: no private key material.
 Used by handbook procedures to render `authorized_keys` entries and `ssh-keygen` commands.
+
+[[burh_key_file]]
+//axvr_variable axd_optional axtu_string
+{burh_key_file}::
+SSH private key filename within `~/.ssh/`.
+Empty defaults to {burh_alias} (one key per connection).
+Localhost profiles set `id_ed25519` to share the invoking user's default key.
 
 [[burh_command]]
 //axvr_variable axd_required axtu_string
