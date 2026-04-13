@@ -107,6 +107,13 @@
         "₢A-AAC": {
           "tacks": [
             {
+              "ts": "260413-0926",
+              "state": "rough",
+              "text": "## Character\nHuman-driven with agent amending — discovery through real execution.\n\n## Docket\nAccessBase practice is complete (steps 1-7 all executed on Windows host).\n\nRemaining: practice AccessRemote and AccessEntrypoints on the actual Windows host, now using BURH profiles (₢A-AAK and ₢A-AAL must be complete first).\n\n- `buw-HWar` per profile — generate keys, populate BURH_SSH_PUBKEY, create ~/.ssh/config entries\n- `buw-HWax` — install authorized_keys with command= routing from BURH profiles\n- Verify: ssh via each alias lands in correct environment\n\nAgent amends handbook text for any issues discovered during practice.",
+              "silks": "practice-access-procedures",
+              "commit": "4efb6e8"
+            },
+            {
               "ts": "260412-0931",
               "state": "rough",
               "text": "## Character\nHuman-driven with agent amending — discovery through real execution.\n\n## Docket\nUser executes Access procedures on actual Windows host:\n- `buw-HWab` — OpenSSH install + lockdown\n- `buw-HWar` — client key gen + ssh config\n- `buw-HWax` — key→environment routing via command= in authorized_keys\n\nAgent monitors progress, amends handbook text for any issues discovered during first practice (wrong syntax, missing steps, unclear instructions). Goal: SSH works end-to-end with key-based auth routing to correct environments.",
