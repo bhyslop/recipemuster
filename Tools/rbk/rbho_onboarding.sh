@@ -1058,7 +1058,7 @@ rbho_start_here() {
   buh_t   "    Configure your Repo's Environment"
   buh_tT  "      Run: " "${RBZ_ONBOARD_CRASH_COURSE}"
   buh_tltlt "      Universal prerequisite. " "Tabtargets" "${z_docs}#Tabtarget" ", " "Regimes" "${z_docs}#Regime" ","
-  buh_tlt "      " "Station" "${z_docs}#Station" " setup, validation, logs. Local-only, no cloud."
+  buh_tltlt "      " "Station" "${z_docs}#Station" " setup, validation, " "Logs" "${z_docs}#Log" ". Local-only, no cloud."
   buh_e
   buh_tlt "    User installs " "Retriever" "${z_docs}#Retriever" " credentials"
   buh_tlt "      If joining an existing project: place your " "RBRA" "${z_docs}#RBRA" " credential file,"
@@ -1236,14 +1236,19 @@ rbho_crash_course() {
   # --- Step 6: Check your logs ---
   buh_section "  Step 6 — Check your logs"
   buh_e
-  buh_t   "  When you ran the validator, it printed log file paths at the top"
-  buh_t   "  of its output. Open one — you'll find the full validation results"
-  buh_t   "  captured there. Logs land in the directory you set as \`BURS_LOG_DIR\`"
-  buh_t   "  in your station file."
+  buh_t   "  When you ran the validator, it printed file paths at the top"
+  buh_t   "  of its output. Every state-changing command writes three"
+  buh_tlt "  " "Log" "${z_docs}#Log" " files to \`BURS_LOG_DIR\`: a stable-name file (always the same"
+  buh_t   "  path — easy for tooling to find the latest run), a per-command file"
+  buh_t   "  (same name across runs — diff between executions), and a timestamped"
+  buh_t   "  historical file. Disk space is cheap; log unconditionally."
   buh_e
-  buh_t   "  State-changing commands and validators log their output. Handbook"
-  buh_t   "  display commands (like this one) do not — teaching output is"
-  buh_t   "  ephemeral by design."
+  buh_tlt "  Orchestration commands also write a " "Transcript" "${z_docs}#Transcript" " — a single file"
+  buh_t   "  capturing key decision points and state transitions. When a multi-step"
+  buh_t   "  command fails, the transcript is the first thing to read."
+  buh_e
+  buh_t   "  Handbook display commands (like this one) do not log — teaching"
+  buh_t   "  output is ephemeral by design."
   buh_e
 
   # --- Step 7: The pattern ---
@@ -1263,7 +1268,7 @@ rbho_crash_course() {
   buh_section "  Step 8 — Next steps"
   buh_e
   buh_t  "  Your repo environment is configured. The tools work, errors explain"
-  buh_t  "  themselves, and logs land where you told them to."
+  buh_tlt "  themselves, and " "Logs" "${z_docs}#Log" " land where you told them to."
   buh_e
   buh_t  "  Return to the start menu for what to do next:"
   buh_tT "    " "${RBZ_ONBOARD_START_HERE}"
