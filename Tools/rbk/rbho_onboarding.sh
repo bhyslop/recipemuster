@@ -1091,7 +1091,7 @@ rbho_start_here() {
   buh_tlt "      Universal prerequisite. " "Tabtargets" "${z_docs}#Tabtarget" ","
   buh_tltlt "      " "Regimes" "${z_docs}#Regime" ", the " "Diagnostic Failure" "${z_docs}#DiagnosticFailure" " pattern. Local-only, no cloud."
   buh_e
-  buh_t   "  ${z_arrow_tys}Take Your Station  [planned]"
+  buh_t   "  ${z_arrow_tys}Take Your Station"
   buh_t   "      Joining an existing configured project. Verify your credential file"
   buh_t   "      placement, run access probes, confirm you can operate in your role(s)."
   buh_e
@@ -1099,23 +1099,23 @@ rbho_start_here() {
   # --- Role-intent tracks ---
   buh_section "Role-intent tracks"
   buh_e
-  buh_tlt "    Your First " "Crucible" "${z_docs}#Crucible" "  [planned]"
+  buh_tlt "    Your First " "Crucible" "${z_docs}#Crucible" ""
   buh_tlt "      " "Crucible" "${z_docs}#Crucible" " explorer — local sandbox with"
   buh_tltlt "      " "Kludged" "${z_docs}#Kludge" " " "Hallmarks" "${z_docs}#Hallmark" ". The tightest feedback loop"
   buh_t   "      in the system. No cloud."
   buh_e
-  buh_tlt "  ${z_arrow_etd}Establish the " "Depot" "${z_docs}#Depot" "  [planned]"
+  buh_tlt "  ${z_arrow_etd}Establish the " "Depot" "${z_docs}#Depot" ""
   buh_tlt "      " "Payor" "${z_docs}#Payor" " ceremony (~15 minutes): GCP project, OAuth consent screen,"
   buh_tlt "      billing, RBRR initial population. A " "Depot" "${z_docs}#Depot" " is the facility where the"
   buh_t   "      team's container images are built and stored — the ground truth other"
   buh_t   "      tracks rest on."
   buh_e
-  buh_tlt "    " "Knight" "${z_docs}#Knight" " the Realm  [planned]"
+  buh_tlt "    " "Knight" "${z_docs}#Knight" " the Realm"
   buh_tlt "      " "Governor" "${z_docs}#Governor" " track: administer the full role ladder. Create"
   buh_tltlt "      " "Director" "${z_docs}#Director" " and " "Retriever" "${z_docs}#Retriever" " service accounts, issue"
   buh_t   "      credentials, distribute securely."
   buh_e
-  buh_tlt "    Receive Your " "Knighthood" "${z_docs}#Knight" "  [planned]"
+  buh_tlt "    Receive Your " "Knighthood" "${z_docs}#Knight" ""
   buh_tltlt "      " "Director" "${z_docs}#Director" "/" "Retriever" "${z_docs}#Retriever" ": place your credential file, verify"
   buh_t   "      via access probe, understand sensitivity."
   buh_e
@@ -1123,18 +1123,18 @@ rbho_start_here() {
   # --- Director subtracks ---
   buh_section "Director subtracks"
   buh_e
-  buh_tltltlt "    Your First " "Ordination" "${z_docs}#Ordain" "    [planned]  — one " "Vessel" "${z_docs}#Vessel" ", one " "Ordain" "${z_docs}#Ordain" " mode"
-  buh_tlt     "    " "Enshrine" "${z_docs}#Enshrine" " the Ancestors   [planned]  — base image enshrinement"
-  buh_t       "    Inscribe the Reliquary   [planned]  — reliquary management"
-  buh_t       "    Tethered Cloud Builds    [planned]  — cloud build from workstation"
-  buh_tlt     "    Airgap Your Builds       [planned]  — most restrictive " "Ordain" "${z_docs}#Ordain" " mode"
-  buh_tlt     "    Building for " "Crucibles" "${z_docs}#Crucible" "   [planned]  — build crucible test targets"
+  buh_tltltlt "    Your First " "Ordination" "${z_docs}#Ordain" "    — one " "Vessel" "${z_docs}#Vessel" ", one " "Ordain" "${z_docs}#Ordain" " mode"
+  buh_tlt     "    " "Enshrine" "${z_docs}#Enshrine" " the Ancestors   — base image enshrinement"
+  buh_t       "    Inscribe the Reliquary   — reliquary management"
+  buh_t       "    Tethered Cloud Builds    — cloud build from workstation"
+  buh_tlt     "    Airgap Your Builds       — most restrictive " "Ordain" "${z_docs}#Ordain" " mode"
+  buh_tlt     "    Building for " "Crucibles" "${z_docs}#Crucible" "   — build crucible test targets"
   buh_e
 
   # --- Evaluation ---
   buh_section "Evaluation"
   buh_e
-  buh_t   "    Assay the Realm  [planned]"
+  buh_t   "    Assay the Realm"
   buh_tltlt "      Enterprise evaluator — tour of " "Ordain" "${z_docs}#Ordain" " modes, " "Enshrinement" "${z_docs}#Enshrine" ","
   buh_t   "      reliquaries, airgap. Breadth over depth."
   buh_e
