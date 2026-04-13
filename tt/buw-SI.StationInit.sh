@@ -25,6 +25,9 @@ z_project_root="${z_script_dir}/.."
 z_station_path="${z_project_root}/${z_station_file}"
 
 mkdir -p "$(dirname "${z_station_path}")"
-echo 'BURS_LOG_DIR=../logs-buk' > "${z_station_path}"
+
+# Subshell $(whoami) permitted: BUK environment not available in bootstrap tabtarget
+printf '%s\n' "BURS_USER=$(whoami)" > "${z_station_path}"
+printf '%s\n' 'BURS_LOG_DIR=../logs-buk' >> "${z_station_path}"
 
 echo "Station regime created: ${z_station_path}"
