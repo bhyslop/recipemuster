@@ -216,6 +216,14 @@ buv_string_enroll() {
   zbuv_enroll "${z_varname}" "string" "${z_p1}" "${z_p2}" "${z_desc}"
 }
 
+buv_secret_enroll() {
+  local z_varname="${1:-}"
+  local z_p1="${2:-}"
+  local z_p2="${3:-}"
+  local z_desc="${4:-}"
+  zbuv_enroll "${z_varname}" "secret" "${z_p1}" "${z_p2}" "${z_desc}"
+}
+
 buv_xname_enroll() {
   local z_varname="${1:-}"
   local z_p1="${2:-}"
@@ -342,7 +350,7 @@ zbuv_check_capture() {
   # Unset detection — distinguish "not set" from "set but empty"
   if test -z "${!z_varname+x}"; then
     case "${z_type}" in
-      string|gname)
+      string|secret|gname)
         if test "${z_p1}" = "0"; then return 0; fi ;;
       list_string|list_ipv4|list_gname|list_cidr|list_domain)
         return 0 ;;
@@ -355,7 +363,7 @@ zbuv_check_capture() {
 
   case "${z_type}" in
 
-    string)
+    string|secret)
       if test "${z_p1}" = "0" && test -z "${z_val}"; then
         return 0
       fi
@@ -722,13 +730,19 @@ buv_report() {
     local z_val="${!z_varname:-}"
     local z_err
 
+    # Secret redaction — replace display value before PASS/FAIL output
+    local z_display_val="${z_val}"
+    if test "${z_type}" = "secret" && test -n "${z_val}"; then
+      z_display_val="(redacted — ${#z_val} chars)"
+    fi
+
     z_err=$(zbuv_check_capture "${z_i}")
     if test -z "${z_err}"; then
-      buc_step "  PASS  ${z_varname}=${z_val} [${z_type}]"
+      buc_step "  PASS  ${z_varname}=${z_display_val} [${z_type}]"
     elif test "${z_err}" = "${BUV_check_gated}"; then
       buc_step "  SKIP  ${z_varname} (gated)"
     else
-      buc_step "  FAIL  ${z_varname}=${z_val} [${z_type}]: ${z_err#"${BUV_check_fail}"}"
+      buc_step "  FAIL  ${z_varname}=${z_display_val} [${z_type}]: ${z_err#"${BUV_check_fail}"}"
       z_any_failed=1
     fi
   done

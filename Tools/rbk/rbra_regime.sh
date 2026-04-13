@@ -42,7 +42,7 @@ zrbra_kindle() {
 
   buv_group_enroll "Service Account Credentials"
   buv_string_enroll   RBRA_CLIENT_EMAIL        1   256  "Service account email address"
-  buv_string_enroll   RBRA_PRIVATE_KEY         1  4096  "PEM-encoded private key material"
+  buv_secret_enroll   RBRA_PRIVATE_KEY         1  4096  "PEM-encoded private key material"
   buv_string_enroll   RBRA_PROJECT_ID          1    64  "GCP project owning the service account"
   buv_decimal_enroll  RBRA_TOKEN_LIFETIME_SEC  300  3600  "OAuth token lifetime in seconds"
 

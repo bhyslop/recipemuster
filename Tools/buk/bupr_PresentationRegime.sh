@@ -151,6 +151,11 @@ zbupr_render_field() {
   local z_desc="$4"
   local z_value=${!z_varname:-}
 
+  # Secret redaction — replace value before any rendering
+  if test "${z_type}" = "secret" && test -n "${z_value}"; then
+    z_value="(redacted — ${#z_value} chars)"
+  fi
+
   # Name color: green when set, yellow when not set
   local z_nc
   if test -n "${z_value}"; then
