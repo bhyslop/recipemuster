@@ -1403,7 +1403,7 @@ rbho_credential_director() {
 
   buh_section "Install Director Credentials"
   buh_e
-  buh_tlt "A " "Director" "${z_docs}#Director" " builds and publishes container images to the"
+  buh_tlt "A " "Director" "${z_docs}#Director" " causes cloud builds and publishes container images to the"
   buh_tlt "  " "Depot" "${z_docs}#Depot" " — write access to the registry."
   buh_e
 
