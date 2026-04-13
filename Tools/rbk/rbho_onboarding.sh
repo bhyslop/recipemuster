@@ -1252,7 +1252,7 @@ rbho_crash_course() {
   buh_tlt "files to " "BURS" "${z_docs}#BURS" "_LOG_DIR:"
   buh_e
   if test -n "${z_log_dir}"; then
-    buh_tct "   stable    " "${z_log_dir}/${BURC_LOG_LAST}.${BURC_LOG_EXT}" "  (always the same path)"
+    buh_tct "   stable    " "${z_log_dir}/${BURC_LOG_LAST}.${BURC_LOG_EXT}" "  (always the same path, great for Claude)"
   else
     buh_t   "   stable    always the same path — tooling reads this one"
   fi
