@@ -120,6 +120,7 @@ zrbz_kindle() {
   buz_group RBZ__GROUP_IMAGE      "rbw-i"   "Image — Container image operations"
   z_mod="rbfl_cli.sh"
   buz_enroll RBZ_JETTISON_IMAGE         "rbw-iJ"  "${z_mod}" "rbfl_jettison"  ""  "Jettison a specific image tag from registry"
+  buz_enroll RBZ_REKON_IMAGE            "rbw-ir"  "${z_mod}" "rbfl_rekon"     ""  "Raw GAR tag listing for a vessel package"
   z_mod="rbfr_cli.sh"
   buz_enroll RBZ_WREST_IMAGE            "rbw-iw"  "${z_mod}" "rbfr_wrest"     ""  "Wrest a specific image from registry"
 

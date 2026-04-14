@@ -16,7 +16,8 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle Foundry Ledger - inscribe, jettison, abjure, and tally operations (director credentials)
+# Recipe Bottle Foundry Ledger - inscribe, jettison, abjure, rekon, and tally operations
+# Director credentials for inscribe, jettison, abjure, rekon; retriever credentials for tally
 
 set -euo pipefail
 
@@ -623,9 +624,10 @@ rbfl_tally() {
   local z_sigils
   z_sigils=$(rbrv_list_capture) || buc_die "No vessels found"
 
-  buc_step "Fetching OAuth token (Director)"
+  buc_step "Authenticating as Retriever"
+  test -f "${RBDC_RETRIEVER_RBRA_FILE}" || buc_die "Retriever credential not found: ${RBDC_RETRIEVER_RBRA_FILE}"
   local z_token
-  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
+  z_token=$(rbgo_get_token_capture "${RBDC_RETRIEVER_RBRA_FILE}") || buc_die "Failed to get OAuth token"
 
   local z_any_pending=0
   local z_any_incomplete=0
@@ -766,6 +768,57 @@ rbfl_tally() {
   fi
 
   buc_success "Hallmark check complete"
+}
+
+rbfl_rekon() {
+  zrbfl_sentinel
+
+  local z_moniker="${1:-}"
+
+  buc_doc_brief "List all tags for a vessel package in the registry"
+  buc_doc_param "moniker" "Vessel moniker (e.g., rbev-sentry-debian-slim)"
+  buc_doc_shown || return 0
+
+  test -n "${z_moniker}" || buc_die "Vessel moniker parameter required"
+
+  buc_step "Authenticating as Director"
+  local z_token
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
+
+  buc_step "Fetching tags for ${z_moniker}"
+  local z_tags_file="${BURD_TEMP_DIR}/rbfl_rekon_tags.json"
+  local z_stderr_file="${BURD_TEMP_DIR}/rbfl_rekon_stderr.txt"
+  curl -sL \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+    -H "Authorization: Bearer ${z_token}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${z_moniker}/tags/list" \
+    > "${z_tags_file}" 2>"${z_stderr_file}" \
+    || buc_die "Failed to fetch tags for ${z_moniker} — see ${z_stderr_file}"
+
+  if jq -e '.errors' "${z_tags_file}" >/dev/null 2>&1; then
+    local z_err
+    jq -r '.errors[0].message // "Unknown error"' "${z_tags_file}" > "${ZRBFC_SCRATCH_FILE}" \
+      || buc_die "Failed to extract error message from registry response"
+    z_err=$(<"${ZRBFC_SCRATCH_FILE}")
+    buc_die "Registry API error for ${z_moniker}: ${z_err}"
+  fi
+
+  local z_all_tags_file="${BURD_TEMP_DIR}/rbfl_rekon_all_tags.txt"
+  jq -r '.tags[]? // empty' "${z_tags_file}" > "${z_all_tags_file}" \
+    || buc_die "Failed to extract tags"
+
+  local z_count
+  z_count=$(wc -l < "${z_all_tags_file}" | tr -d ' ')
+
+  printf "\nVessel: %s  (%s tags)\n\n" "${z_moniker}" "${z_count}"
+  if test -s "${z_all_tags_file}"; then
+    sort "${z_all_tags_file}"
+  else
+    echo "  (no tags)"
+  fi
+
+  buc_success "Rekon complete"
 }
 
 

@@ -16,7 +16,8 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle Foundry Retriever - wrest and summon operations (retriever credentials only)
+# Recipe Bottle Foundry Retriever - wrest and summon operations
+# Director credentials for wrest; retriever credentials for summon
 
 set -euo pipefail
 
@@ -73,13 +74,13 @@ rbfr_wrest() {
   test -n "${z_moniker}" || buc_die "Moniker is empty in locator"
   test -n "${z_tag}" || buc_die "Tag is empty in locator"
 
-  buc_step "Authenticating as Retriever"
+  buc_step "Authenticating as Director"
 
-  test -f "${RBDC_RETRIEVER_RBRA_FILE}" || buc_die "Retriever credential not found: ${RBDC_RETRIEVER_RBRA_FILE}"
+  test -f "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Director credential not found: ${RBDC_DIRECTOR_RBRA_FILE}"
 
   # Get OAuth token
   local z_token
-  z_token=$(rbgo_get_token_capture "${RBDC_RETRIEVER_RBRA_FILE}") || buc_die "Failed to get OAuth token"
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
 
   buc_step "Logging into container registry"
 

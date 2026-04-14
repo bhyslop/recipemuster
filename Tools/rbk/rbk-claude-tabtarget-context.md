@@ -78,7 +78,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-fO` | DirectorOrdainsHallmark | — | Ordain hallmark: conjure, bind, or graft based on vessel mode |
 | `rbw-fk` | LocalKludge | — | Kludge a vessel image locally for development |
 | `rbw-fA` | DirectorAbjuresHallmark | — | Abjure a hallmark (delete artifacts from GAR) |
-| `rbw-ft` | DirectorTalliesHallmarks | — | Tally hallmarks by health state |
+| `rbw-ft` | RetrieverTalliesHallmarks | — | Tally hallmarks by health state |
 | `rbw-fV` | DirectorVouchesHallmarks | — | Mode-aware vouch: SLSA (conjure), digest-pin (bind), GRAFTED (graft) |
 | `rbw-fs` | RetrieverSummonsHallmark | — | Summon vouched hallmark image locally |
 | `rbw-fpf` | RetrieverPlumbsFull | — | Full provenance display (SBOM, build info, Dockerfile) |
@@ -96,7 +96,8 @@ The Folio column shows how each tabtarget receives it:
 | Colophon | Frontispiece | Folio | Purpose |
 |----------|-------------|-------|---------|
 | `rbw-iJ` | DirectorJettisonsImage | — | Jettison a specific image tag from registry |
-| `rbw-iw` | RetrieverWrestsImage | — | Wrest a specific image from registry |
+| `rbw-ir` | DirectorRekonsImages | — | Raw GAR tag listing for a vessel package |
+| `rbw-iw` | DirectorWrestsImage | — | Wrest a specific image from registry |
 
 ### Marshal — Lifecycle (`rbw-M`)
 
