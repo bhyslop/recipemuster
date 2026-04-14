@@ -1697,7 +1697,7 @@ rbho_first_crucible() {
   # =================================================================
   buh_step1 "Verify network containment"
   buh_e
-  buh_t   "From inside the bottle (while SSH'd in), test what's reachable."
+  buh_tlt "From inside the " "Bottle" "${z_docs}#Bottle" " (while SSH'd in), you can test what's reachable."
   buh_tlt "The " "ccyolo" "${z_docs}#ccyolo" " nameplate allows Anthropic and example.com (a test"
   buh_t   "target). Everything else is blocked."
   buh_e
