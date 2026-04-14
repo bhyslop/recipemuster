@@ -70,6 +70,8 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-Ocr` | OnboardingCredentialRetriever | — | Install retriever credentials — place RBRA key file |
 | `rbw-Ocd` | OnboardingCredentialDirector | — | Install director credentials — place RBRA key file |
 | `rbw-Ofc` | OnboardingFirstCrucible | — | Start a Crucible using local builds — kludge, charge, rack |
+| `rbw-Op` | OnboardingPayor | — | Payor — create GCP project, billing, OAuth, and provision the depot |
+| `rbw-Og` | OnboardingGovernor | — | Governor — administer service accounts for directors and retrievers |
 
 ### Foundry — Registry artifact lifecycle (`rbw-f`)
 
