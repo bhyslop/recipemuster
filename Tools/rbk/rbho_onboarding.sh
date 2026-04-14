@@ -1364,23 +1364,24 @@ rbho_director_first_build() {
 
   buh_step1 "Summon the hallmark"
   buh_e
-  buh_tlt "" "Summon" "${z_docs}#Summon" " pulls a vouched hallmark image to your local"
-  buh_t   "Docker daemon:"
+  buh_tlt "" "Summon" "${z_docs}#Summon" " pulls a set of images affiliated with a"
+  buh_tltlt "" "Hallmark" "${z_docs}#Hallmark" " that has been " "Vouched" "${z_docs}#Vouch" " to your local"
+  buh_t   "Docker image cache:"
   buh_e
   buh_tTc "   " "${RBZ_SUMMON_HALLMARK}" ' ${ONBOARD_VESSEL} ${ONBOARD_HALLMARK}'
   buh_e
   buh_tc  "   {hallmark}" "${RBGC_ARK_SUFFIX_IMAGE}"
   buh_t   "   is a multiplatform manifest list."
   buh_t   "   Docker resolves it to the image matching your host"
-  buh_t   "   architecture — the same image that Charge uses when"
-  buh_tlt "   starting a " "Crucible" "${z_docs}#Crucible" " from cloud-built hallmarks."
+  buh_tlt "   architecture — the same image that " "Charge" "${z_docs}#Charge" " uses when"
+  buh_tltlt "   starting a " "Crucible" "${z_docs}#Crucible" " from cloud-built " "Hallmarks" "${z_docs}#Hallmark" "."
   buh_e
 
   # Summoned probe
   if test "${z_conjure_summoned}" = "1"; then
     buh_ct  " [*] " "Conjured sentry image found locally (summoned from GAR)"
   else
-    buh_t   " [ ] No conjured sentry image found locally — run Summon above"
+    buh_tlt " [ ] No conjured sentry image found locally — run " "Summon" "${z_docs}#Summon" " above"
   fi
   buh_e
 
