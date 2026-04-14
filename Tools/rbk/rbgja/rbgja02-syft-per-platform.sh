@@ -6,10 +6,9 @@
 #                _RBGA_ARK_SUFFIX_IMAGE
 #
 # Scans each platform of -image via registry: transport.
-# Three scan modes based on vessel mode and platform count:
+# Two scan modes based on platform count:
 #   Single-platform: scan main -image tag directly
-#   Multi-platform conjure: scan per-platform tags (-image-amd64, -image-arm64)
-#   Multi-platform bind/graft: scan via @digest from manifest list
+#   Multi-platform: scan via @digest from manifest list (all modes)
 # Auth via GCB metadata server OAuth2 token — no Docker daemon coupling.
 # Produces one SBOM per platform: sbom-{arch}{variant}.json
 
@@ -49,7 +48,7 @@ IFS=',' read -ra SUFFIXES <<< "$(cat platform_suffixes.txt)"
 test "${#PLATFORMS[@]}" -eq "${#SUFFIXES[@]}" \
   || { echo "Platform/suffix count mismatch" >&2; exit 1; }
 
-# Load per-platform digests (for bind/graft multi-platform scanning)
+# Load per-platform digests (for multi-platform scanning via @digest pinning)
 declare -A DIGEST_MAP
 if test -f platform_digests.txt; then
   while IFS=' ' read -r D_SUFFIX D_DIGEST; do
@@ -64,17 +63,13 @@ for IDX in "${!PLATFORMS[@]}"; do
   SBOM_LABEL="${SUFFIX#-}"
   SBOM_FILE="sbom-${SBOM_LABEL}.json"
 
-  # Determine scan target based on mode and platform count.
-  # Bind/graft always use @digest pinning: OCI indexes may contain attestation
-  # manifests (unknown/unknown platform) that cause syft to fail on auto-selection.
-  if test "${_RBGA_VESSEL_MODE}" = "conjure"; then
-    if test "${PLATFORM_COUNT}" = "1"; then
-      SCAN_TARGET="registry:${IMAGE_BASE}:${IMAGE_TAG}"
-    else
-      SCAN_TARGET="registry:${IMAGE_BASE}:${IMAGE_TAG}${SUFFIX}"
-    fi
+  # Determine scan target based on platform count.
+  # Multi-platform uses @digest pinning for all modes: OCI indexes may contain
+  # attestation manifests (unknown/unknown platform) that cause syft to fail on
+  # auto-selection. platform_digests.txt is always written by discover-platforms.
+  if test "${PLATFORM_COUNT}" = "1"; then
+    SCAN_TARGET="registry:${IMAGE_BASE}:${IMAGE_TAG}"
   else
-    # Bind/graft: always pin to per-platform digest
     DIGEST="${DIGEST_MAP[${SUFFIX}]:-}"
     test -n "${DIGEST}" || { echo "No digest found for suffix ${SUFFIX}" >&2; exit 1; }
     SCAN_TARGET="registry:${IMAGE_BASE}:${IMAGE_TAG}@${DIGEST}"
