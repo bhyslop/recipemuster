@@ -115,6 +115,7 @@
 :rbtgo_director_vouch:            <<rbtgo_director_vouch,rbfv_batch_vouch>>
 :rbtgo_governor_mantle:            <<rbtgo_governor_mantle,rbgp_governor_mantle>>
 :rbtgo_image_delete:              <<rbtgo_image_delete,rbfl_jettison>>
+:rbtgo_image_rekon:               <<rbtgo_image_rekon,rbfl_rekon>>
 :rbtgo_image_retrieve:            <<rbtgo_image_retrieve,rbfr_wrest>>
 :rbtgo_payor_establish:           <<rbtgo_payor_establish,rbhp_establish>>
 :rbtgo_payor_install:             <<rbtgo_payor_install,rbgp_payor_install>>
@@ -1076,6 +1077,29 @@ artifacts
 
 include::RBSIJ-image_jettison.adoc[]
 
+[[rbtgo_image_retrieve]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_image_retrieve}
+
+Wrests
+{rbtgi_image}
+artifacts
+({rbtgog_image}).
+
+include::RBSIW-image_wrest.adoc[]
+
+[[rbtgo_image_rekon]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_image_rekon}
+
+Lists all tags for a
+{rbtga_vessel}
+package in
+{rbtgi_repository}
+({rbtgog_image}).
+
+include::RBSIR-image_rekon.adoc[]
+
 [[rbtgo_ark_abjure]]
 //axvo_method axd_transient axd_grouped
 === {rbtgo_ark_abjure}
@@ -1087,18 +1111,6 @@ from the repository
 removing its image, about, and vouch artifacts as a coherent unit.
 
 include::RBSAA-ark_abjure.adoc[]
-
-[[rbtgo_hallmark_tally]]
-//axvo_method axd_transient axd_grouped
-=== {rbtgo_hallmark_tally}
-
-Enumerates
-{rbtga_ark}
-hallmarks across all regime vessels
-({rbtgog_ark}),
-classifying each by artifact completeness and vouch status.
-
-include::RBSCL-consecration_tally.adoc[]
 
 [[rbtgo_ark_ordain]]
 //axvo_method axd_transient axd_grouped
@@ -1205,16 +1217,17 @@ include::RBSDV-director_vouch.adoc[]
 
 == {rbtr_retriever} Operations
 
-[[rbtgo_image_retrieve]]
+[[rbtgo_hallmark_tally]]
 //axvo_method axd_transient axd_grouped
-=== {rbtgo_image_retrieve}
+=== {rbtgo_hallmark_tally}
 
-Wrests
-{rbtgi_image}
-artifacts
-({rbtgog_image}).
+Enumerates
+{rbtga_ark}
+hallmarks across all regime vessels
+({rbtgog_ark}),
+classifying each by artifact completeness and vouch status.
 
-include::RBSIW-image_wrest.adoc[]
+include::RBSCL-consecration_tally.adoc[]
 
 [[rbtgo_ark_summon]]
 //axvo_method axd_transient axd_grouped

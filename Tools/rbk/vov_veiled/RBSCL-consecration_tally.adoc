@@ -15,7 +15,7 @@ Uses local regime vessel list for enumeration, queries
 Docker Registry HTTP API V2 for tag data.
 
 The
-{rbtr_director}
+{rbtr_retriever}
 tallies hallmarks:
 
 //axhos_step
@@ -27,11 +27,11 @@ local regime vessel list via `rbrv_list_capture`
 
 //axhos_step
 . *Authenticate as
-{rbtr_director}*:
+{rbtr_retriever}*:
 .. Execute
-{rbtoe_director_authenticate}
+{rbtoe_retriever_authenticate}
 .. {rbbc_store}
-`«DIRECTOR_TOKEN»` for subsequent API calls
+`«RETRIEVER_TOKEN»` for subsequent API calls
 
 //axhos_step
 . *Fetch Tags Per Vessel*:

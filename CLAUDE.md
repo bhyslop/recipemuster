@@ -73,6 +73,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBSII** → `rbk/vov_veiled/RBSII-iptables_init.adoc`
 - **RBSIJ** → `rbk/vov_veiled/RBSIJ-image_jettison.adoc`
 - **RBSIP** → `rbk/vov_veiled/RBSIP-ifrit_pentester.adoc` (Ifrit Pentester — adversarial AI escape testing framework)
+- **RBSIR** → `rbk/vov_veiled/RBSIR-image_rekon.adoc` (Image Rekon — director-only raw GAR tag listing)
 - **RBSIW** → `rbk/vov_veiled/RBSIW-image_wrest.adoc`
 - **RBSNC** → `rbk/vov_veiled/RBSNC-network_create.adoc`
 - **RBSNX** → `rbk/vov_veiled/RBSNX-network_connect.adoc`
