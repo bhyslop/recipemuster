@@ -1128,6 +1128,294 @@ rbho_first_crucible() {
 }
 
 ######################################################################
+# Director First Cloud Build — inscribe, conjure, tour, summon, abjure
+#
+# Frame 4-refined handbook: teaching prose + probes + tabtarget refs.
+# Target learner: director doing their first cloud build.
+#
+# Vessel: rbev-sentry-debian-slim (conjure mode, tethered)
+# Teaches: full conjure lifecycle from reliquary through cleanup.
+#
+# ₢A6AAU — Director subtracks, first cloud build track.
+
+rbho_director_first_build() {
+  buc_doc_brief "Your First Cloud Build — inscribe, conjure, tour, summon, abjure"
+  buc_doc_shown || return 0
+
+  local -r z_docs="${RBRR_PUBLIC_DOCS_URL}"
+  local -r z_vessel="rbev-sentry-debian-slim"
+
+  # --- Probes ---
+
+  # Director credential present
+  local z_has_director=0 z_secrets_dir=""
+  if test -f "${RBBC_rbrr_file}"; then
+    z_secrets_dir=$(zrbho_po_extract_capture "${RBBC_rbrr_file}" "RBRR_SECRETS_DIR") || z_secrets_dir=""
+  fi
+  if test -n "${z_secrets_dir}" && \
+     test -f "${z_secrets_dir}/${RBCC_role_director}/${RBCC_rbra_file}"; then
+    z_has_director=1
+  fi
+
+  # Depot configured
+  local z_has_depot=0
+  if test -f "${RBBC_rbrr_file}"; then
+    local z_line=""
+    while IFS= read -r z_line; do
+      case "${z_line}" in RBRR_DEPOT_PROJECT_ID=?*) z_has_depot=1; break ;; esac
+    done < "${RBBC_rbrr_file}"
+  fi
+
+  # Conjured sentry image summoned locally (c-prefixed hallmark from GAR)
+  local z_conjure_summoned=0
+  if command -v docker >/dev/null 2>&1; then
+    local z_project_id="" z_region=""
+    if test -f "${RBBC_rbrr_file}"; then
+      z_project_id=$(zrbho_po_extract_capture "${RBBC_rbrr_file}" "RBRR_DEPOT_PROJECT_ID") || z_project_id=""
+      z_region=$(zrbho_po_extract_capture "${RBBC_rbrr_file}" "RBRR_GCP_REGION") || z_region=""
+    fi
+    if test -n "${z_region}" && test -n "${z_project_id}"; then
+      if docker images --format "{{.Repository}}:{{.Tag}}" 2>/dev/null \
+         | grep -q "${z_region}${RBGC_GAR_HOST_SUFFIX}/${z_project_id}/.*${z_vessel}:c[0-9]"; then
+        z_conjure_summoned=1
+      fi
+    fi
+  fi
+
+  # --- Header ---
+  buh_section "Your First Cloud Build"
+  buh_e
+  buh_tlt "This track walks you through the complete " "Conjure" "${z_docs}#Conjure" " lifecycle:"
+  buh_tlt "provision the builder toolchain, " "Ordain" "${z_docs}#Ordain" " your first vessel via"
+  buh_t   "Cloud Build, inspect the result, pull it locally, and clean up."
+  buh_e
+  buh_tlt "You will build " "rbev-sentry-debian-slim" "${z_docs}#Vessel" " — the same sentry you"
+  buh_tlt "already know from the " "Crucible" "${z_docs}#Crucible" " track, but this time built by"
+  buh_t   "Google Cloud Build with full SLSA provenance."
+  buh_e
+
+  # Prerequisite probes
+  buh_t   "Prerequisites:"
+  buh_e
+  if test "${z_has_director}" = "1"; then
+    buh_ct  " [*] " "Director credential installed"
+  else
+    buh_tEt " [ ] " "Director credential missing" " — run:"
+    buh_tT  "      " "${RBZ_ONBOARD_CRED_DIRECTOR}"
+  fi
+  if test "${z_has_depot}" = "1"; then
+    buh_ct  " [*] " "Depot configured (RBRR_DEPOT_PROJECT_ID populated)"
+  else
+    buh_tEt " [ ] " "Depot not configured" " — the Payor must establish the Depot first:"
+    buh_tT  "      " "${RBZ_ONBOARD_PAYOR_HB}"
+  fi
+  buh_e
+
+  if test "${z_has_director}" = "0" || test "${z_has_depot}" = "0"; then
+    buh_E   "Complete the prerequisites above before continuing."
+    buh_e
+    buh_tT  "Return to start: " "${RBZ_ONBOARD_START_HERE}"
+    buh_e
+    return 0
+  fi
+
+  buh_step_style "Step " " — "
+
+  # =================================================================
+  # Step 1: Inscribe the Reliquary
+  # =================================================================
+  buh_step1 "Inscribe the Reliquary"
+  buh_e
+  buh_tlt "The " "Reliquary" "${z_docs}#Reliquary" " is a set of builder tool images (skopeo,"
+  buh_t   "docker, gcloud, syft) that Cloud Build uses during vessel"
+  buh_t   "construction. Without it, conjure's preflight check fails."
+  buh_e
+  buh_t   "Think of it as installing the toolchain before your first build."
+  buh_t   "This is a one-time operation — once inscribed, the reliquary"
+  buh_t   "stays in the Depot until you choose to refresh it."
+  buh_e
+  buh_t   "Inscribe:"
+  buh_e
+  buh_tT  "   " "${RBZ_INSCRIBE_RELIQUARY}"
+  buh_e
+  buh_t   "This mirrors four tool images from upstream into your Depot's"
+  buh_t   "GAR. Takes 2-5 minutes depending on network speed."
+  buh_e
+
+  # =================================================================
+  # Step 2: Conjure the sentry (tethered)
+  # =================================================================
+  buh_step1 "Conjure the sentry"
+  buh_e
+  buh_tlt "" "Conjure" "${z_docs}#Conjure" " is the build mode where Cloud Build constructs a"
+  buh_t   "vessel image from the project's Dockerfile and build context."
+  buh_e
+  buh_tlt "" "Ordain" "${z_docs}#Ordain" " is the command that triggers the full pipeline —"
+  buh_tlt "it reads the vessel's " "RBRV" "${z_docs}#RBRV" " regime to determine the mode"
+  buh_t   "(conjure, bind, or graft) and acts accordingly:"
+  buh_e
+  buh_tTc "   " "${RBZ_ORDAIN_HALLMARK}" " ${z_vessel}"
+  buh_e
+  buh_tlt "This builds on the " "Tethered" "${z_docs}#Tethered" " pool — Cloud Build has"
+  buh_t   "public internet access and pulls base images from upstream"
+  buh_tlt "registries during the build. (The " "Airgap" "${z_docs}#Airgap" " track removes"
+  buh_t   "that dependency.)"
+  buh_e
+  buh_t   "The pipeline:"
+  buh_e
+  buh_tlt "  1. The host mints a " "Hallmark" "${z_docs}#Hallmark" " — a timestamped tag"
+  buh_t   "     identifying this build"
+  buh_tlt "  2. A " "Pouch" "${z_docs}#Pouch" " (build context archive) is pushed to GAR"
+  buh_t   "  3. Cloud Build constructs the image across platforms"
+  buh_t   "  4. SLSA provenance is generated per platform digest"
+  buh_tlt "  5. " "Vouch" "${z_docs}#Vouch" " verifies the provenance chain"
+  buh_e
+  buh_tW  "" "Wall-clock: ~15-20 minutes for a 3-platform build."
+  buh_t   "The command blocks until Cloud Build finishes. Use the time"
+  buh_t   "to read ahead — the next steps explain what to look for."
+  buh_e
+
+  # =================================================================
+  # Step 3: Tour the hallmark artifacts
+  # =================================================================
+  buh_step1 "Tour the hallmark artifacts"
+  buh_e
+  buh_tlt "Every conjured " "Hallmark" "${z_docs}#Hallmark" " produces a set of tagged"
+  buh_t   "artifacts in GAR. Each suffix serves a specific role:"
+  buh_e
+  buh_tc  "   {hallmark}" "${RBGC_ARK_SUFFIX_IMAGE}"
+  buh_t   "      The consumer image — a multiplatform manifest list."
+  buh_t   "      This is what you pull and run."
+  buh_e
+  buh_tc  "   {hallmark}" "${RBGC_ARK_SUFFIX_ABOUT}"
+  buh_t   "      SBOM (software bill of materials) + build info."
+  buh_e
+  buh_tc  "   {hallmark}" "${RBGC_ARK_SUFFIX_VOUCH}"
+  buh_t   "      SLSA provenance verification record."
+  buh_e
+  buh_tc  "   {hallmark}" "${RBGC_ARK_SUFFIX_POUCH}"
+  buh_t   "      Build context archive — what was sent to Cloud Build."
+  buh_e
+  buh_tc  "   {hallmark}" "${RBGC_ARK_SUFFIX_DIAGS}"
+  buh_t   "      Diagnostics from the build."
+  buh_e
+  buh_t   "Inspect them:"
+  buh_e
+
+  # --- Substep 3a: Tally ---
+  buh_step2 "Tally"
+  buh_e
+  buh_tlt "" "Tally" "${z_docs}#Tally" " lists all hallmarks and their health state:"
+  buh_e
+  buh_tT  "   " "${RBZ_TALLY_HALLMARKS}"
+  buh_e
+  buh_t   "Look for your hallmark with health state 'vouched' — that"
+  buh_t   "means SLSA provenance was verified."
+  buh_e
+
+  # --- Substep 3b: Vouch ---
+  buh_step2 "Vouch"
+  buh_e
+  buh_tlt "" "Vouch" "${z_docs}#Vouch" " verifies SLSA provenance for each platform"
+  buh_t   "digest in the hallmark. The ordain pipeline runs vouch"
+  buh_t   "automatically, but you can re-run it to see the output:"
+  buh_e
+  buh_tT  "   " "${RBZ_VOUCH_HALLMARKS}"
+  buh_e
+  buh_t   "The conjure verdict is full SLSA — Cloud Build produced"
+  buh_t   "this image, and the provenance chain proves it."
+  buh_e
+
+  # --- Substep 3c: Plumb ---
+  buh_step2 "Plumb"
+  buh_e
+  buh_tlt "" "Plumb" "${z_docs}#Plumb" " displays the SBOM, build info, and Dockerfile"
+  buh_t   "that produced the hallmark. Two modes:"
+  buh_e
+  buh_tT  "   " "${RBZ_PLUMB_FULL}"
+  buh_t   "   Full provenance display — SBOM packages, build parameters,"
+  buh_t   "   Dockerfile content."
+  buh_e
+  buh_tT  "   " "${RBZ_PLUMB_COMPACT}"
+  buh_t   "   Compact summary — one-line-per-artifact overview."
+  buh_e
+
+  # =================================================================
+  # Step 4: Summon the hallmark
+  # =================================================================
+  buh_step1 "Summon the hallmark"
+  buh_e
+  buh_tlt "" "Summon" "${z_docs}#Summon" " pulls a vouched hallmark image to your local"
+  buh_t   "Docker daemon:"
+  buh_e
+  buh_tT  "   " "${RBZ_SUMMON_HALLMARK}"
+  buh_e
+  buh_tc  "   {hallmark}" "${RBGC_ARK_SUFFIX_IMAGE}"
+  buh_t   "   is a multiplatform manifest list."
+  buh_t   "   Docker resolves it to the image matching your host"
+  buh_t   "   architecture — the same image that Charge uses when"
+  buh_tlt "   starting a " "Crucible" "${z_docs}#Crucible" " from cloud-built hallmarks."
+  buh_e
+
+  # Summoned probe
+  if test "${z_conjure_summoned}" = "1"; then
+    buh_ct  " [*] " "Conjured sentry image found locally (summoned from GAR)"
+  else
+    buh_t   " [ ] No conjured sentry image found locally — run Summon above"
+  fi
+  buh_e
+
+  # =================================================================
+  # Step 5: Abjure and Rekon — hallmark lifecycle
+  # =================================================================
+  buh_step1 "Abjure and Rekon — hallmark lifecycle"
+  buh_e
+  buh_tlt "" "Rekon" "${z_docs}#Rekon" " lists the raw tags for a vessel package in GAR."
+  buh_t   "Run it before and after abjure to see the full lifecycle:"
+  buh_e
+  buh_tTc "   " "${RBZ_REKON_IMAGE}" " ${z_vessel}"
+  buh_e
+  buh_t   "You should see all five durable tags for your hallmark:"
+  buh_tc  "   " "${RBGC_ARK_SUFFIX_IMAGE}, ${RBGC_ARK_SUFFIX_ABOUT}, ${RBGC_ARK_SUFFIX_VOUCH}, ${RBGC_ARK_SUFFIX_POUCH}, ${RBGC_ARK_SUFFIX_DIAGS}"
+  buh_e
+  buh_tlt "" "Abjure" "${z_docs}#Abjure" " removes all artifacts for a hallmark from GAR."
+  buh_t   "This is permanent — the hallmark and all its tags are deleted:"
+  buh_e
+  buh_tT  "   " "${RBZ_ABJURE_HALLMARK}"
+  buh_e
+  buh_t   "After abjure, run Rekon again:"
+  buh_e
+  buh_tTc "   " "${RBZ_REKON_IMAGE}" " ${z_vessel}"
+  buh_e
+  buh_t   "The tags for your hallmark should be gone. The image is no"
+  buh_t   "longer in the Depot."
+  buh_e
+
+  # =================================================================
+  # What you learned
+  # =================================================================
+  buh_section "What you learned"
+  buh_e
+  buh_t   "You just completed the full conjure lifecycle:"
+  buh_e
+  buh_tlt "  1. " "Reliquary" "${z_docs}#Reliquary" " — builder toolchain provisioned"
+  buh_tlt "  2. " "Conjure" "${z_docs}#Conjure" " — vessel built by Cloud Build with SLSA provenance"
+  buh_tltlt "  3. " "Tally" "${z_docs}#Tally" "/" "Vouch" "${z_docs}#Vouch" " — health and provenance verified"
+  buh_tlt "  4. " "Plumb" "${z_docs}#Plumb" " — SBOM and build info inspected"
+  buh_tlt "  5. " "Summon" "${z_docs}#Summon" " — consumer image pulled locally"
+  buh_tltlt "  6. " "Abjure" "${z_docs}#Abjure" "/" "Rekon" "${z_docs}#Rekon" " — lifecycle cleanup"
+  buh_e
+  buh_tlt "This was a " "Tethered" "${z_docs}#Tethered" " build — Cloud Build had"
+  buh_t   "internet access. The next track teaches you to remove"
+  buh_t   "that dependency entirely."
+  buh_e
+
+  # --- Return to start ---
+  buh_tT  "Return to start: " "${RBZ_ONBOARD_START_HERE}"
+  buh_e
+}
+
+######################################################################
 # Payor handbook — establish a Manor and provision the Depot
 #
 # Linear step sequence, no conditional probes. The payor owns the GCP

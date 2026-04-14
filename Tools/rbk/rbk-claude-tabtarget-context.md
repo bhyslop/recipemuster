@@ -54,12 +54,6 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-gPE` | PayorEstablish | — | Guided Manor establishment — GCP project + OAuth consent screen |
 | `rbw-gPR` | PayorRefresh | — | Refresh expired OAuth tokens |
 | `rbw-gq` | QuotaBuild | — | Display Cloud Build capacity review procedure |
-| `rbw-go` | OnboardMAIN | — | Triage — detect roles, route to per-role walkthrough |
-| `rbw-gOR` | OnboardRetriever | — | Retriever walkthrough — pull and run vessel images |
-| `rbw-gOD` | OnboardDirector | — | Director walkthrough — build and publish vessel images |
-| `rbw-gOG` | OnboardGovernor | — | Governor walkthrough — manage service accounts and access |
-| `rbw-gOP` | OnboardPayor | — | Payor walkthrough — GCP project, billing, and OAuth setup |
-| `rbw-gOr` | OnboardReference | — | Reference — all roles, all units, single health dashboard |
 
 ### Onboarding — Handbook restart (`rbw-o`)
 
@@ -70,6 +64,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-Ocr` | OnboardingCredentialRetriever | — | Install retriever credentials — place RBRA key file |
 | `rbw-Ocd` | OnboardingCredentialDirector | — | Install director credentials — place RBRA key file |
 | `rbw-Ofc` | OnboardingFirstCrucible | — | Start a Crucible using local builds — kludge, charge, rack |
+| `rbw-Odf` | OnboardingDirectorFirstBuild | — | Your First Cloud Build — inscribe, conjure, tour, summon, abjure |
 | `rbw-Op` | OnboardingPayor | — | Payor — establish a Manor and provision the Depot |
 | `rbw-Og` | OnboardingGovernor | — | Governor — administer service accounts for directors and retrievers |
 
