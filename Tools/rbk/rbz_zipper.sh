@@ -77,15 +77,7 @@ zrbz_kindle() {
   buz_enroll RBZ_PAYOR_ESTABLISH        "rbw-gPE" "${z_mod}" "rbhp_establish"       ""  "Guided Manor establishment — GCP project + OAuth consent screen"
   buz_enroll RBZ_PAYOR_REFRESH          "rbw-gPR" "${z_mod}" "rbhp_refresh"         ""  "Refresh expired OAuth tokens"
   buz_enroll RBZ_QUOTA_BUILD            "rbw-gq"  "${z_mod}" "rbhp_quota_build"     ""  "Display Cloud Build capacity review procedure"
-  z_mod="rbho_cli.sh"
-  buz_enroll RBZ_ONBOARD_TRIAGE        "rbw-go"  "${z_mod}" "rbho_triage"     ""  "Triage — detect roles, route to per-role walkthrough"
-  buz_enroll RBZ_ONBOARD_RETRIEVER     "rbw-gOR" "${z_mod}" "rbho_retriever"  ""  "Retriever walkthrough — pull and run vessel images"
-  buz_enroll RBZ_ONBOARD_DIRECTOR      "rbw-gOD" "${z_mod}" "rbho_director"   ""  "Director walkthrough — build and publish vessel images"
-  buz_enroll RBZ_ONBOARD_GOVERNOR      "rbw-gOG" "${z_mod}" "rbho_governor"   ""  "Governor walkthrough — manage service accounts and access"
-  buz_enroll RBZ_ONBOARD_PAYOR         "rbw-gOP" "${z_mod}" "rbho_payor"      ""  "Payor walkthrough — GCP project, billing, and OAuth setup"
-  buz_enroll RBZ_ONBOARD_REFERENCE     "rbw-gOr" "${z_mod}" "rbho_reference"  ""  "Reference — all roles, all units, single health dashboard"
-
-  # Onboarding — handbook restart (rbw-o terminal + rbw-O* family, see ₣A6 paddock)
+  # Onboarding — handbook tracks (rbw-o terminal + rbw-O* family, see ₣A6 paddock)
   buz_group RBZ__GROUP_ONBOARDING "rbw-o"   "Onboarding — Handbook restart"
   z_mod="rbho_cli.sh"
   buz_enroll RBZ_ONBOARD_START_HERE    "rbw-o"   "${z_mod}" "rbho_start_here"            ""  "Onboarding start — probe-aware menu into handbook tracks"
