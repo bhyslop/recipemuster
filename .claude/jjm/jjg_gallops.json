@@ -551,6 +551,7 @@
         "₢A6AAB",
         "₢A6AAC",
         "₢A6AAD",
+        "₢A6AAN",
         "₢A6AAH",
         "₢A6AAI",
         "₢A6AAJ",
@@ -560,7 +561,7 @@
         "₢A6AAM",
         "₢A6AAA"
       ],
-      "next_pace_seed": "AAN",
+      "next_pace_seed": "AAO",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
       "paces": {
         "₢A6AAA": {
@@ -857,6 +858,17 @@
               "text": "## Character\n\nEvaluation design pace. Produce a minimal eval artifact that tests whether handbook output actually teaches — can a model with no prior Recipe Bottle knowledge, constrained to reason only from what the handbook says, correctly answer application questions?\n\n## Docket\n\nCreate `Tools/rbk/vov_veiled/A6-prototype-eval.md` containing:\n\n- Anti-inference system prompt constraining the model to handbook-only reasoning\n- 3–5 application-focused scenario questions (not recall)\n- Differential test design: full handbook output vs stripped variant (teaching prose removed), compare scores\n- Goodhart mitigation note\n\nThen run the eval against at least the Crash Course output. Report whether the teaching prose carries measurable weight.\n\n### Out of scope\n\n- Full eval harness or automation\n- Release-gate mechanics",
               "silks": "agent-learner-eval-prototype",
               "commit": "e38dbd3"
+            }
+          ]
+        },
+        "₢A6AAN": {
+          "tacks": [
+            {
+              "ts": "260413-1802",
+              "state": "rough",
+              "text": "## Character\n\nSmall handbook track implementation. Add the retriever credential installation onboarding sequence — place RBRA file, verify, confirm you can list images. Only relevant if you are not the Payor (payors already have depot access). Includes building the \"list images\" verification step into the onboarding subscript.\n\n## Docket\n\nImplement `tt/rbw-Ocr.OnboardingCredentialRetriever.sh` — the retriever credential installation handbook track.\n\n### Teaching content\n\n- Place your RBRA credential file (retriever role)\n- Verify the credential is recognized\n- Confirm you can list images (not pull — just list, as a fast depot access check)\n- Clarify this track is only needed if you are not the Payor\n\n### Implementation\n\n- Add zipper enrollment, thin dispatcher, sequence function following the Crash Course pattern\n- Build \"list images\" verification into the onboarding subscript as a concrete confirmation step\n\n### Out of scope\n\n- Director credential installation (separate pace)\n- Payor credential flow",
+              "silks": "onboarding-credential-retriever",
+              "commit": "93defee"
             }
           ]
         }
