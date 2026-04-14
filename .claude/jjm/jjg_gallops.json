@@ -552,6 +552,7 @@
         "₢A6AAC",
         "₢A6AAD",
         "₢A6AAN",
+        "₢A6AAO",
         "₢A6AAH",
         "₢A6AAI",
         "₢A6AAJ",
@@ -561,7 +562,7 @@
         "₢A6AAM",
         "₢A6AAA"
       ],
-      "next_pace_seed": "AAO",
+      "next_pace_seed": "AAP",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
       "paces": {
         "₢A6AAA": {
@@ -869,6 +870,17 @@
               "text": "## Character\n\nSmall handbook track implementation. Add the retriever credential installation onboarding sequence — place RBRA file, verify, confirm you can list images. Only relevant if you are not the Payor (payors already have depot access). Includes building the \"list images\" verification step into the onboarding subscript.\n\n## Docket\n\nImplement `tt/rbw-Ocr.OnboardingCredentialRetriever.sh` — the retriever credential installation handbook track.\n\n### Teaching content\n\n- Place your RBRA credential file (retriever role)\n- Verify the credential is recognized\n- Confirm you can list images (not pull — just list, as a fast depot access check)\n- Clarify this track is only needed if you are not the Payor\n\n### Implementation\n\n- Add zipper enrollment, thin dispatcher, sequence function following the Crash Course pattern\n- Build \"list images\" verification into the onboarding subscript as a concrete confirmation step\n\n### Out of scope\n\n- Director credential installation (separate pace)\n- Payor credential flow",
               "silks": "onboarding-credential-retriever",
               "commit": "93defee"
+            }
+          ]
+        },
+        "₢A6AAO": {
+          "tacks": [
+            {
+              "ts": "260413-1804",
+              "state": "rough",
+              "text": "## Character\n\nSmall handbook track implementation. Add the director credential installation onboarding sequence — place RBRA file, verify, confirm depot access via hallmark tally (`rbw-ft`). Only relevant if you are not the Payor. Tally is read-only and fast — no Cloud Build needed, just confirms the director can query GAR.\n\n## Docket\n\nImplement `tt/rbw-Ocd.OnboardingCredentialDirector.sh` — the director credential installation handbook track.\n\n### Teaching content\n\n- Place your RBRA credential file (director role)\n- Verify the credential is recognized\n- Confirm depot access via `tt/rbw-ft.DirectorTalliesHallmarks.sh` (fast, read-only GAR query)\n- Clarify this track is only needed if you are not the Payor\n\n### Implementation\n\n- Add zipper enrollment, thin dispatcher, sequence function following the Crash Course pattern\n- Use tally as the concrete confirmation step (not a full build)\n\n### Out of scope\n\n- Retriever credential installation (₢A6AAN)\n- Full build/ordain verification\n- Payor credential flow",
+              "silks": "onboarding-credential-director",
+              "commit": "a978f00"
             }
           ]
         }
