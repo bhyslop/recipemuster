@@ -779,7 +779,19 @@ rbfl_rekon() {
   buc_doc_param "moniker" "Vessel moniker (e.g., rbev-sentry-debian-slim)"
   buc_doc_shown || return 0
 
-  test -n "${z_moniker}" || buc_die "Vessel moniker parameter required"
+  if test -z "${z_moniker}"; then
+    local z_sigils
+    z_sigils=$(rbrv_list_capture 2>/dev/null) || true
+    buc_warn "Vessel moniker parameter required"
+    if test -n "${z_sigils}"; then
+      buc_bare "  Available vessels:"
+      local z_s=""
+      for z_s in ${z_sigils}; do
+        buc_bare "    ${z_s}"
+      done
+    fi
+    buc_die "Usage: rbw-ir <vessel-moniker>"
+  fi
 
   buc_step "Authenticating as Director"
   local z_token
