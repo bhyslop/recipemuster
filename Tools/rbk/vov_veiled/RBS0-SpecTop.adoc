@@ -68,7 +68,7 @@
 :rbtgi_payor_project:        <<rbtgi_payor_project,RB Payor Project>>
 :rbtgi_rbra_file:            <<rbtgi_rbra_file,RBRA File>>
 :rbtgi_rbra_file_s:          <<rbtgi_rbra_file,RBRA Files>>
-// CB v2 Connection and Repository eliminated (₣Av) — builds.create + pouch replaces triggers
+// CB v2 Connection and Repository eliminated (₣Av) — builds.create + ark pouch replaces triggers
 :rbtgi_cbv2_connection:   CB v2 Connection (eliminated)
 :rbtgi_cbv2_repository:  CB v2 Repository (eliminated)
 
@@ -79,6 +79,8 @@
 :rbtga_ark_image:            <<rbtga_ark_image,Ark Image Artifact>>
 :rbtga_ark_about:            <<rbtga_ark_about,Ark About Artifact>>
 :rbtga_ark_vouch:            <<rbtga_ark_vouch,Ark Vouch Artifact>>
+:rbtga_ark_pouch:            <<rbtga_ark_pouch,Ark Pouch Artifact>>
+:rbtga_ark_diags:            <<rbtga_ark_diags,Ark Diags Artifact>>
 :rbtga_vessel:               <<rbtga_vessel,Vessel>>
 :rbtga_vessel_s:             <<rbtga_vessel,Vessels>>
 
@@ -1060,8 +1062,8 @@ include::RBSDK-director_knight.adoc[]
 === {rbtgo_trigger_build}
 
 ELIMINATED (₣Av): Trigger dispatch replaced by direct `builds.create` API submission.
-Build context delivered via pouch (FROM SCRATCH OCI image in GAR).
-Hallmark minted locally by the Director before submission.
+Build context delivered via {rbtga_ark_pouch} (FROM SCRATCH OCI image in GAR).
+Hallmark minted on the host before submission, passed to Cloud Build via `_RBGY_HALLMARK` substitution variable.
 
 // include::RBSTB-trigger_build.adoc[]
 
@@ -1131,7 +1133,7 @@ Conjures an
 by building a container image
 ({rbtgog_ark})
 from a vessel specification.
-Build context delivered via pouch (FROM SCRATCH OCI image in GAR), submitted via `builds.create` API. The combined job produces both `-image` and `-about` (about steps embedded via stitch). Vouch is a separate Cloud Build job using DSSE envelope signature verification.
+Build context delivered via {rbtga_ark_pouch}, submitted via `builds.create` API. The combined job produces both `-image` and `-about` (about steps embedded via stitch). Vouch is a separate Cloud Build job using DSSE envelope signature verification.
 
 include::RBSAC-ark_conjure.adoc[]
 
@@ -1610,13 +1612,17 @@ An ark comprises the
 {rbtga_ark_image}
 (`-image` suffix) containing the container image, the
 {rbtga_ark_about}
-(`-about` suffix) containing build metadata and SBOM, and the
+(`-about` suffix) containing build metadata and SBOM, the
 {rbtga_ark_vouch}
-(`-vouch` suffix) containing verification results.
+(`-vouch` suffix) containing verification results, the
+{rbtga_ark_pouch}
+(`-pouch` suffix) containing the build context, and the
+{rbtga_ark_diags}
+(`-diags` suffix) containing build diagnostics.
 +
 An ark reaches the repository through one of three arrival paths:
 +
-* *Conjure*: A single `builds.create` {gcb_service} job builds the image (context delivered via pouch) and embeds about steps (via stitch), producing both `-image` and `-about`. Then {rbtgo_ark_vouch} verifies SLSA provenance via DSSE envelope signature verification in a separate Cloud Build job.
+* *Conjure*: A single `builds.create` {gcb_service} job builds the image (context delivered via {rbtga_ark_pouch}) and embeds about steps (via stitch), producing both `-image` and `-about`. Then {rbtgo_ark_vouch} verifies SLSA provenance via DSSE envelope signature verification in a separate Cloud Build job.
 * *Bind*: A single `builds.create` {gcb_service} job copies the pinned upstream image and runs about steps, producing both `-image` and `-about`. Then {rbtgo_ark_vouch} records a digest-pin verdict in a separate Cloud Build job.
 * *Graft*: Local docker/podman push places the image as `-image`. Then a single `builds.create` {gcb_service} job runs about steps followed by vouch steps, producing both `-about` and `-vouch` in one submission.
 +
@@ -1628,20 +1634,20 @@ Arks are abjured atomically by
 [[rbtga_hallmark]]
 //axl_voices axtg_timestamp
 {rbtga_hallmark}::
-The dual-timestamp identifier marking when a vessel was hallmarked into an
+The identifier marking when a vessel was hallmarked into an
 {rbtga_ark}.
-Format: `«MODE»YYMMDDHHMMSS-rYYMMDDHHMMSS` where `«MODE»` is a single character encoding the vessel mode.
+Minted on the host before submission — the host passes the hallmark to Cloud Build via the `_RBGY_HALLMARK` substitution variable.
 +
-Mode prefixes:
+Mode prefixes and formats:
 +
-* `c` — conjure (Cloud Build build from Dockerfile)
-* `b` — bind (mirror pinned upstream image)
-* `g` — graft (local build pushed to GAR)
+* `c` — conjure (Cloud Build build from Dockerfile): `c«YYMMDDHHMMSS»-r«YYMMDDHHMMSS»`
+* `b` — bind (mirror pinned upstream image): `b«YYMMDDHHMMSS»-r«YYMMDDHHMMSS»`
+* `g` — graft (local build pushed to GAR): `g«YYMMDDHHMMSS»-r«YYMMDDHHMMSS»`
+* `k` — kludge (local build for development): `k«YYMMDDHHMMSS»-«GIT_CONTEXT»`
 +
-The `r` prefix on the second timestamp means "realized" — the moment the image materialized in GAR.
-+
-Example: `c260224153022-r260224160530` (27 characters).
+For conjure, bind, and graft: `«MODE»YYMMDDHHMMSS-rYYMMDDHHMMSS` where the `r` prefix means "realized" — the moment the image materialized in GAR.
 Regex: `[cbg]\d{12}-r\d{12}`.
+Example: `c260224153022-r260224160530` (27 characters).
 +
 T1 (mode-prefixed): when the operation was initiated — inscribe for conjure, mirror for bind, OCI image creation time for graft.
 T2 (r-prefixed): when the image landed in GAR.
@@ -1649,19 +1655,45 @@ T2 (r-prefixed): when the image landed in GAR.
 For graft, T1 is an intrinsic fact about the image (its `created` metadata), not an operational timestamp.
 Reproducible builds may produce `T1=700101000000` — this is a true statement, not an error.
 +
-Combined with vessel to form complete artifact tags.
-All persistent artifact tags use the full hallmark:
-per-platform image tags as `«VESSEL»:«HALLMARK»-image-amd64`, `«VESSEL»:«HALLMARK»-image-arm64`;
-consumer-facing manifest list as `«VESSEL»:«HALLMARK»-image`;
-about as `«VESSEL»:«HALLMARK»-about`;
-vouch as `«VESSEL»:«HALLMARK»-vouch`.
-Platform suffix is derived from the OCI platform (e.g., `linux/amd64` -> `-amd64`, `linux/arm64` -> `-arm64`, `linux/arm/v7` -> `-armv7`).
-Multiple conjures of the same inscription produce distinct hallmarks (unique realized timestamps) with independently-attested images.
+For kludge, the hallmark uses a git-context suffix instead of a realized timestamp, since no GAR push occurs.
+Kludge hallmarks are local-only and never appear in the {rbtgi_repository}.
 +
-For conjure, SLSA provenance is generated via the {rbtgr_build_json} `images:` field, which lists inscribe-time-predictable alias tags (`«VESSEL»:«INSCRIBE_TS»-image-«SUFFIX»`).
-These alias tags exist in the local Docker daemon (created during pullback) so that {gcb_service} can push and attest them.
-Provenance is bound to image digests, not tags — the hallmark-tagged copies share the same digests and inherit the attestations.
-Alias tags are ephemeral; re-conjure overwrites them in the registry. Hallmark-tagged artifacts persist.
+Combined with vessel to form complete artifact tags:
++
+[cols="3,1,5"]
+|===
+|Tag |Lifecycle |Purpose
+
+|`«VESSEL»:«HALLMARK»-image`
+|Durable
+|Consumer multiplatform manifest list (from `buildx --push`), or single-platform image
+
+|`«VESSEL»:«HALLMARK»-about`
+|Durable
+|SBOM + build info
+
+|`«VESSEL»:«HALLMARK»-vouch`
+|Durable
+|SLSA verification record
+
+|`«VESSEL»:«HALLMARK»-diags`
+|Durable
+|Build diagnostics
+
+|`«VESSEL»:«HALLMARK»-pouch`
+|Durable
+|Build context (FROM SCRATCH OCI image in GAR)
+
+|`«VESSEL»:«HALLMARK»-attest-«ARCH»`
+|Ephemeral
+|SLSA attestation scaffolding; swept post-vouch by ordain pipeline
+|===
++
+Ephemeral `-attest-«ARCH»` tags exist solely to satisfy the {rbtgr_build_json} `images:` field for SLSA provenance generation.
+Provenance is keyed by digest in the Container Analysis API, not by tag — deleting `-attest-«ARCH»` tags does not delete provenance.
+The host sweeps these tags after vouch completes using {rbtr_director} credentials (repoAdmin); the {rbtr_mason} lacks delete permission.
++
+Multiple conjures produce distinct hallmarks (unique realized timestamps) with independently-attested images.
 
 [[rbtga_ark_image]]
 //axl_voices axig_container_image
@@ -1677,9 +1709,9 @@ Contains the executable container layers, regardless of how the image arrived in
 +
 **Single-arch vessels**: a single-platform image. For conjure, pushed via the `images:` field with SLSA provenance.
 +
-**Multi-platform vessels** (conjure only): the consumer-facing `-image` tag is a multi-platform manifest list assembled by `imagetools create` from per-platform tags (e.g., `-image-amd64`, `-image-arm64`, `-image-armv7`).
-Per-platform tags are internal build plumbing with independent SLSA v1.0 Level 3 provenance sharing a common `buildInvocationId`.
-The combined manifest list has `slsa_build_level: unknown` (expected — Cloud Build did not build the manifest list); consumers pulling the combined tag get transparent platform resolution to attested per-platform images.
+**Multi-platform vessels** (conjure only): the consumer-facing `-image` tag is the multi-platform manifest list produced directly by `buildx --push`.
+SLSA provenance is generated per platform via ephemeral `-attest-«ARCH»` tags in the {rbtgr_build_json} `images:` field; these tags are swept after vouch completes.
+The manifest list itself has `slsa_build_level: unknown` (expected — Cloud Build did not build the manifest list artifact); consumers pulling the `-image` tag get transparent platform resolution to attested per-platform digests with full SLSA Level 3.
 Bind vessels may be multi-platform (upstream images often are; crane copy preserves the manifest list).
 Graft vessels are typically single-platform.
 
@@ -1766,9 +1798,35 @@ For graft, the GRAFTED stamp is always identical.
 A mismatch for conjure/bind indicates provenance change or tampering and must produce a loud alarm.
 If determinism proves unreliable in practice, narrow the comparison to verification verdict, digests, and builder identity.
 +
-**Abjure**: {rbtgo_ark_abjure} checks for and deletes the `-vouch` artifact alongside `-image` and `-about`.
+**Attestation sweep**: The ordain pipeline sweeps ephemeral `-attest-«ARCH»` tags after vouch completes.
+Vouch verifies by digest via the `-image` manifest list, not by per-platform tag — the `-attest-«ARCH»` tags are no longer needed once provenance is recorded.
+The sweep uses {rbtr_director} credentials (repoAdmin); the {rbtr_mason} lacks delete permission.
++
+**Abjure**: {rbtgo_ark_abjure} checks for and deletes the `-vouch` artifact alongside `-image`, `-about`, `-pouch`, and `-diags`.
 +
 **Display**: {rbtgo_hallmark_tally} includes a Vouch column showing `yes`/`no` per hallmark, detected by matching the `-vouch` tag suffix in the GAR tag list.
+
+[[rbtga_ark_pouch]]
+//axl_voices axig_build_context
+{rbtga_ark_pouch}::
+The build context artifact within an
+{rbtga_ark},
+tagged with the `-pouch` suffix.
+A FROM SCRATCH OCI image in GAR containing the Dockerfile, step scripts, and regime-derived configuration needed to reproduce the build.
+Submitted as the `source` for `builds.create` API calls.
++
+The pouch is assembled on the host by the ordain pipeline and pushed to GAR before the Cloud Build job is submitted.
+Its content is deterministic given the vessel regime and git state — the same inputs produce the same pouch.
+Conjure and bind modes create a pouch; graft mode does not (the image arrives via local push, not Cloud Build).
+
+[[rbtga_ark_diags]]
+//axl_voices axig_generic_artifact
+{rbtga_ark_diags}::
+The diagnostics artifact within an
+{rbtga_ark},
+tagged with the `-diags` suffix.
+Contains build-time diagnostic output (step timings, builder versions, platform details) for troubleshooting.
+Pushed as a dedicated step in the build pipeline.
 
 [[rbtga_vessel]]
 //axl_voices axig_build_specification
@@ -1832,7 +1890,8 @@ in
 {rbtgr_rubric}::
 The per-vessel build definition comprising a generated
 {rbtgr_build_json}
-and build context delivered via pouch (FROM SCRATCH OCI image in GAR).
+and build context delivered via
+{rbtga_ark_pouch}.
 Builds submitted directly via `builds.create` API.
 
 [[rbtgr_build_json]]
@@ -1840,7 +1899,7 @@ Builds submitted directly via `builds.create` API.
 {rbtgr_build_json}::
 The generated `cloudbuild.json` for a vessel, produced from step scripts and regime pins by the stitch function.
 All values resolved directly at stitch time — no placeholders, no post-processing.
-Submitted via `builds.create` API. Build context delivered via pouch (FROM SCRATCH OCI image in GAR).
+Submitted via `builds.create` API. Build context delivered via {rbtga_ark_pouch}.
 See <<rbscj_trade_study>>.
 
 [[rbtgr_provenance]]
@@ -1861,7 +1920,7 @@ Verified on builds.create submissions — rbev-busybox on depot10030 (3 platform
 +
 **Single-arch pipeline** (3 steps + `images:` push, single build invocation):
 +
-  1. `derive-tag-base` — compute {rbtga_hallmark} from inscribe + realized timestamps; writes to `/builder/outputs/output` for strong-tie discovery via `results.buildStepOutputs[0]`
+  1. `derive-tag-base` — receive host-minted {rbtga_hallmark} via `_RBGY_HALLMARK`, write to `.hallmark` + `/builder/outputs/output`
   2. `qemu-binfmt` — register cross-architecture emulation (skipped if native platform)
   3. `build-and-load` — `buildx --load` into local Docker daemon (single platform)
 +
@@ -1869,18 +1928,22 @@ About assembly (syft, build_info, metadata push) uses reusable {rbtgo_ark_about}
 +
 **Multi-platform vessels**: production-validated architecture.
 Docker's local store (classic image store on CB workers, Docker 20.10.24) is single-platform only — `buildx --load` cannot load multi-platform images.
-The validated approach uses per-platform pullback:
-`buildx --push` builds all platforms and pushes a multi-platform manifest to GAR;
-`docker pull --platform <arch>` pulls each platform variant back to the local daemon (requires Experimental: true, confirmed on CB workers);
-each pulled image is tagged with a per-platform tag (e.g., `:TAG-amd64`, `:TAG-arm64`);
-the `images:` field declares all per-platform tags — Cloud Build pushes each and generates independent SLSA v1.0 Level 3 provenance with the same `buildInvocationId`, proving single-build origin;
-`docker buildx imagetools create` then reassembles a multi-platform manifest list from the per-platform tags.
+The validated approach uses per-platform pullback after `buildx --push`:
+`buildx --push` builds all platforms and pushes the consumer-facing `-image` manifest list directly to GAR;
+`docker pull --platform «ARCH»` pulls each platform variant back to the local daemon (requires Experimental: true, confirmed on CB workers);
+each pulled image is tagged as `«HALLMARK»-attest-«ARCH»`;
+the `images:` field declares all `-attest-«ARCH»` tags — Cloud Build pushes each and generates independent SLSA v1.0 Level 3 provenance with the same `buildInvocationId`, proving single-build origin.
++
+The `-attest-«ARCH»` tags are **ephemeral attestation scaffolding**: they exist solely to bridge `buildx --push` output to the `images:` field for SLSA provenance generation.
+Cloud Build has no awareness of the `buildx --push` to GAR — the `images:` field is CB's only mechanism for pushing and attesting images.
+Provenance is keyed by digest in the Container Analysis API, not by tag.
+The host sweeps `-attest-«ARCH»` tags after vouch completes using {rbtr_director} credentials (repoAdmin); the {rbtr_mason} lacks delete permission.
+Deleting these tags does not delete provenance — the digests referenced by the `-image` manifest list retain their attestations.
 +
 Validated in experiments and production on depot `demo1025`:
 per-platform provenance (`b3fd60c7`) — all 3 platforms (amd64, arm64, armv7) achieved SLSA Level 3 with shared `buildInvocationId`;
-manifest reassembly (`8cd7b713`) — `imagetools create` produced a combined manifest list, per-platform provenance preserved;
-production e2e (`2e172ce0`) — trigger-dispatched build of `rbev-busybox` (3 platforms) achieved SLSA Level 3 on all per-platform images with shared `buildInvocationId`, consumer-facing manifest list resolved correctly.
-The combined manifest list itself has `slsa_build_level: unknown` (expected — Cloud Build did not build the manifest list artifact), but consumers pulling the combined tag get transparent platform resolution to attested per-platform images with full SLSA Level 3.
+production e2e (`2e172ce0`) — build of `rbev-busybox` (3 platforms) achieved SLSA Level 3 on all per-platform images with shared `buildInvocationId`, consumer-facing manifest list resolved correctly.
+The manifest list itself has `slsa_build_level: unknown` (expected — Cloud Build did not build the manifest list artifact), but consumers pulling the `-image` tag get transparent platform resolution to attested per-platform digests with full SLSA Level 3.
 +
 Implementation notes:
 `docker pull --platform` works on CB workers (Docker 20.10.24, Experimental: true);
@@ -1888,20 +1951,20 @@ Implementation notes:
 `jq` is not available in `gcr.io/cloud-builders/docker` — the `--platform` flag approach avoids JSON manifest parsing entirely.
 See `Memos/memo-20260305-provenance-architecture-gap.md` for full experiment details.
 +
-**Target multi-platform pipeline** (6 steps + `images:` push, single build invocation — validated by experiment 6, build `6661d0cd`):
+**Multi-platform pipeline** (6 steps + `images:` push, single build invocation):
 +
-  1. `derive-tag-base` — compute {rbtga_hallmark} from inscribe + realized timestamps
-  2. `qemu-binfmt` — register cross-architecture emulation
-  3. `buildx --push` — build all platforms, push intermediate `-multi` tag to GAR
-  4. `per-platform-pullback` — `docker pull --platform <arch>` for each platform, `docker tag` to hallmark-tagged and inscribe-time alias tags
-  5. `docker push` — pre-push each hallmark-tagged per-platform image to registry (enables in-build `imagetools create`)
-  6. `imagetools create` — assemble consumer-facing multi-platform manifest list from per-platform tags (in-build step, not post-build)
+  1. `derive-tag-base` — receive host-minted {rbtga_hallmark} via `_RBGY_HALLMARK`, write to `.hallmark` + `/builder/outputs/output`
+  2. `qemu-binfmt` — register cross-architecture emulation (if needed)
+  3. `buildx --push` — build all platforms, push consumer-facing `-image` manifest list to GAR
+  4. `per-platform-pullback` — `docker pull --platform «ARCH»` from `-image`, `docker tag` to `«HALLMARK»-attest-«ARCH»`
+  5. `push-per-platform` — push `«HALLMARK»-attest-«ARCH»` tags to GAR
+  6. `push-diags` — diagnostics artifact
 +
 About assembly (syft, build_info, metadata push) uses reusable {rbtgo_ark_about} scripts (`rbgja/`) embedded in the stitched JSON alongside the build steps.
 +
-`images:` lists all per-platform tags — Cloud Build re-pushes each (idempotent, same digest) and generates SLSA provenance.
+`images:` lists `«HALLMARK»-attest-«ARCH»` tags — Cloud Build pushes each (idempotent if already present from step 5) and generates SLSA provenance.
 `options.requestedVerifyOption: VERIFIED` ensures build fails if provenance cannot be generated.
-Per-platform tags are internal build plumbing; the consumer-facing tag (assembled by `imagetools create`) is platform-transparent, identical to single-arch.
+The consumer-facing `-image` tag (produced by `buildx --push` in step 3) is platform-transparent, identical to single-arch.
 
 === Support Infrastructure Definitions
 
