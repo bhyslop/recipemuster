@@ -1756,7 +1756,8 @@ rbho_first_crucible() {
   buh_tlt   "  4. Commit the " "Hallmark" "${z_docs}#Hallmark" " change (Kludge drove it into rbrn.env)"
   buh_tlt   "  5. " "Charge" "${z_docs}#Charge" ":"
   buh_tI    "     " "${RBZ_CRUCIBLE_CHARGE}" "${z_moniker}"
-  buh_tc    "  6. SSH in: " "${z_ssh_tabtarget}"
+  buh_t     "  6. SSH in:"
+  buh_tc    "     " "${z_ssh_tabtarget}"
   buh_t     "  7. Test your changes"
   buh_e
   buh_tlt "" "Charge" "${z_docs}#Charge" " tears down any prior state before starting, so you"
