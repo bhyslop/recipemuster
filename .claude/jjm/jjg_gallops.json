@@ -40,6 +40,7 @@
         "₢A-AAN",
         "₢A-AAO",
         "₢A-AAC",
+        "₢A-AAR",
         "₢A-AAQ",
         "₢A-AAD",
         "₢A-AAE",
@@ -49,7 +50,7 @@
         "₢A-AAJ",
         "₢A-AAP"
       ],
-      "next_pace_seed": "AAR",
+      "next_pace_seed": "AAS",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -376,6 +377,17 @@
               "text": "## Character\nSpec writing — studying three existing concept model documents, then applying the patterns to produce two new BUS0 subdocuments. Requires a design decision before spec work begins.\n\n## Docket\n\nWrite BUS0 subdocuments for the two new BUK commands: `buwc_bootstrap_sshd` (Windows sshd provisioning) and `burh_install_key` (per-profile authorized_keys management).\n\n**Phase 1 — Study (read-only):**\nRead these three documents for patterns:\n- RBS0 (`Tools/rbk/vov_veiled/RBS0-SpecTop.adoc`) — how RBK structures its command specs with include files\n- AXLA (`Tools/cmk/vov_veiled/AXLA-Lexicon.adoc`) — motif vocabulary and voicing annotations\n- MCM (`Tools/cmk/vov_veiled/MCM-MetaConceptModel.adoc`) — linked term structure: mapping section, anchors, definition sites\n\nAlso read BUSD-DispatchRuntime.adoc as the existing BUS0 subdocument precedent.\n\n**Phase 2 — Resolve open issue BEFORE writing specs:**\n`burh_install_key` currently targets `${HOME}/.ssh/authorized_keys`. On Windows with admin users, the correct target is `C:/ProgramData/ssh/administrators_authorized_keys`. The spec must define how the target path is determined — regime variable, platform detection, or explicit parameter. Present options and get human decision before proceeding.\n\n**Phase 3 — Write two subdocuments (one command per file):**\n- `BUSWC-BootstrapSshd.adoc` — `buwc_bootstrap_sshd` contract (platform gate, require gate, sshd_config template, ownership boundary)\n- `BUSRK-InstallKey.adoc` — `burh_install_key` contract (marker wire format `# BURH:<alias>`, idempotency guarantee, coexistence with hand-added keys, authorized_keys target path)\n\nAdd `include::` lines to BUS0 at appropriate positions.\n\n**Constraint:** One command per include file. Follow MCM patterns for linked terms — mapping section entries, anchors, definition sites, annotations. Use existing BUS0 category prefixes where they fit; mint new ones only if needed.",
               "silks": "specify-new-buk-commands-in-bus0",
               "commit": "dd117ea"
+            }
+          ]
+        },
+        "₢A-AAR": {
+          "tacks": [
+            {
+              "ts": "260413-1724",
+              "state": "rough",
+              "text": "## Character\nSpec writing — adding infrastructure-level definitions to BUS0. Mechanical once patterns are understood from the study phase in ₢A-AAQ.\n\n## Docket\n\nAdd two infrastructure-level specifications to BUS0:\n\n**1. BUWC Module Declaration**\nDefine the Windows Commands module as a category in BUS0, parallel to how BURH Regime is declared. Scope: Windows-specific commands that alter system configuration, executed from WSL via PowerShell. Consumes ZBUHW tinder constants from `buhw_windows.sh`. Module file: `buwc_windows.sh`, CLI: `buwc_cli.sh`, function prefix: `buwc_*`, colophon family: `buw-wc*`.\n\n**2. Key Line Builder Contract (`zburh_build_key_line`)**\nSpecify the shared key-line builder in `burh_regime.sh`. This is the wire format contract between all key-install commands:\n- Marker format: `# BURH:<alias>` suffix — the idempotency tag\n- Output variables: `ZBURH_KEY_LINE` (full authorized_keys line), `ZBURH_KEY_MARKER` (grep target)\n- Line format with command= routing: `command=\"<BURH_COMMAND>\" <BURH_SSH_PUBKEY> # BURH:<BURH_ALIAS>`\n- Line format without routing: `<BURH_SSH_PUBKEY> # BURH:<BURH_ALIAS>`\n- Pure function — no I/O, callers handle file operations per platform\n\nThis is the shared contract that both `burh_install_key` (Unix) and `buwc_install_key` (Windows) depend on. Changes to the marker format break idempotency across both platforms.\n\nPrerequisite: complete study phase from ₢A-AAQ (same reference documents apply).",
+              "silks": "specify-bus0-buwc-module-and-key-builder",
+              "commit": "a0d14fa"
             }
           ]
         }
