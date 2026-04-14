@@ -1186,10 +1186,10 @@ rbho_director_first_build() {
   buh_section "Your First Cloud Build"
   buh_e
   buh_tlt "This track walks you through the complete " "Conjure" "${z_docs}#Conjure" " lifecycle:"
-  buh_tlt "provision the builder toolchain, " "Ordain" "${z_docs}#Ordain" " your first vessel via"
+  buh_tltlt "provision the builder toolchain, " "Ordain" "${z_docs}#Ordain" " your first " "Vessel" "${z_docs}#Vessel" " via"
   buh_t   "Cloud Build, inspect the result, pull it locally, and clean up."
   buh_e
-  buh_tlt "You will build " "rbev-sentry-debian-slim" "${z_docs}#Vessel" " — the same sentry you"
+  buh_tltlt "You will build " "rbev-sentry-debian-slim" "${z_docs}#Vessel" " — the same " "Sentry" "${z_docs}#Sentry" " you"
   buh_tlt "already know from the " "Crucible" "${z_docs}#Crucible" " track, but this time built by"
   buh_t   "Google Cloud Build with full SLSA provenance."
   buh_e
@@ -1227,12 +1227,16 @@ rbho_director_first_build() {
   buh_step1 "Inscribe the Reliquary"
   buh_e
   buh_tlt "The " "Reliquary" "${z_docs}#Reliquary" " is a set of builder tool images (skopeo,"
-  buh_t   "docker, gcloud, syft) that Cloud Build uses during vessel"
+  buh_tlt "docker, gcloud, syft) that Cloud Build uses during " "Vessel" "${z_docs}#Vessel" ""
   buh_t   "construction. Without it, conjure's preflight check fails."
   buh_e
   buh_t   "Think of it as installing the toolchain before your first build."
   buh_t   "This is a one-time operation — once inscribed, the reliquary"
-  buh_t   "stays in the Depot until you choose to refresh it."
+  buh_tlt "stays in the " "Depot" "${z_docs}#Depot" " until you choose to refresh it."
+  buh_e
+  buh_tlt "Periodically re-inscribe to pick up newer tool versions. All " "Vessels" "${z_docs}#Vessel" ""
+  buh_tlt "share the same " "Reliquary" "${z_docs}#Reliquary" " — one inscribe updates the toolchain"
+  buh_t   "for every build."
   buh_e
   buh_t   "Inscribe:"
   buh_e
@@ -1240,6 +1244,15 @@ rbho_director_first_build() {
   buh_e
   buh_t   "This mirrors four tool images from upstream into your Depot's"
   buh_t   "GAR. Takes 2-5 minutes depending on network speed."
+  buh_e
+  buh_t   "When inscribe completes, it prints a reliquary datestamp"
+  buh_tct "(e.g., " "r260324193326" "). Every vessel that uses Cloud Build"
+  buh_t   "needs this value in its regime file:"
+  buh_e
+  buh_c   "   RBRV_RELIQUARY=<datestamp>"
+  buh_e
+  buh_tct "Open " "rbev-sentry-debian-slim/rbrv.env" " and set the field,"
+  buh_t   "then commit the change."
   buh_e
 
   # =================================================================
