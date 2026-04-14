@@ -1718,12 +1718,12 @@ rbho_first_crucible() {
   buh_c   "   curl -s -o /dev/null -w '%{http_code}' --max-time 5 https://registry.npmjs.org"
   buh_t   "   Expected: 000 or timeout (blocked)"
   buh_e
-  buh_tlt "The " "sentry" "${z_docs}#Sentry" " enforces this with two layers:"
+  buh_tlt "The " "Sentry" "${z_docs}#Sentry" " enforces this with two layers:"
   buh_t   "dnsmasq resolves only whitelisted domains; iptables drops"
   buh_t   "packets to any IP not in the CIDR allowlist. Both layers"
   buh_t   "must agree for traffic to pass."
   buh_e
-  buh_tlt "example.com is included in the " "ccyolo" "${z_docs}#ccyolo" " nameplate specifically"
+  buh_tltlt "example.com is included in the " "ccyolo" "${z_docs}#ccyolo" " " "Nameplate" "${z_docs}#Nameplate" " specifically"
   buh_t   "for this verification step — it proves the allowlist works"
   buh_t   "for a non-Anthropic domain."
   buh_e
