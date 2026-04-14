@@ -1866,15 +1866,15 @@ rbho_payor_handbook() {
   # =================================================================
   buh_step1 "Install OAuth credentials"
   buh_e
-  buh_t   "Download an OAuth client secret JSON file from your GCP project's"
-  buh_t   "API credentials page, then ingest it:"
+  buh_t   "Step 1 ended with downloading a JSON client secret file from the"
+  buh_t   "OAuth client you just created. Install it:"
   buh_e
   buh_tTc "  " "${RBZ_PAYOR_INSTALL}" " \${HOME}/Downloads/client_secret_*.json"
   buh_e
   buh_t   "This walks you through the OAuth authorization flow and stores"
   buh_t   "the credential securely."
   buh_e
-  buh_t   "If you have an existing credential that has expired:"
+  buh_t   "If you are refreshing an existing credential that has expired:"
   buh_tT  "  " "${RBZ_PAYOR_REFRESH}"
   buh_e
 
