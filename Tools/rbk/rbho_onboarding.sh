@@ -1389,7 +1389,7 @@ rbho_director_first_build() {
   # =================================================================
   buh_step1 "Abjure and Rekon — hallmark lifecycle"
   buh_e
-  buh_tlt "" "Rekon" "${z_docs}#Rekon" " lists the raw tags for a " "Vessel" "${z_docs}#Vessel" ""
+  buh_tltlt "" "Rekon" "${z_docs}#Rekon" " lists the raw tags for a " "Vessel" "${z_docs}#Vessel" ""
   buh_tlt "package in GAR. Run it before and after " "Abjure" "${z_docs}#Abjure" " to see"
   buh_t   "the full lifecycle:"
   buh_e
@@ -1398,7 +1398,7 @@ rbho_director_first_build() {
   buh_tlt "You should see all five durable tags for your " "Hallmark" "${z_docs}#Hallmark" ":"
   buh_tc  "   " "${RBGC_ARK_SUFFIX_IMAGE}, ${RBGC_ARK_SUFFIX_ABOUT}, ${RBGC_ARK_SUFFIX_VOUCH}, ${RBGC_ARK_SUFFIX_POUCH}, ${RBGC_ARK_SUFFIX_DIAGS}"
   buh_e
-  buh_tlt "" "Abjure" "${z_docs}#Abjure" " removes all artifacts for a " "Hallmark" "${z_docs}#Hallmark" ""
+  buh_tltlt "" "Abjure" "${z_docs}#Abjure" " removes all artifacts for a " "Hallmark" "${z_docs}#Hallmark" ""
   buh_t   "from GAR. This is permanent — the hallmark and all its"
   buh_t   "tags are deleted:"
   buh_e
