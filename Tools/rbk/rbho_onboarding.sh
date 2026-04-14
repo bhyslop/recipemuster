@@ -1879,15 +1879,15 @@ rbho_payor_handbook() {
   buh_e
 
   # =================================================================
-  # Step 3: Provision the depot
+  # Step 3: Provision the Depot
   # =================================================================
   buh_step1 "Provision the Depot"
   buh_e
   buh_tlt "A " "Depot" "${z_docs}#Depot" " is the facility where container images are built and"
-  buh_t   "stored — it has its own GCP project with a registry, storage bucket,"
-  buh_tlt "and build infrastructure, funded under the " "Manor's" "${z_docs}#Manor" " billing account."
+  buh_t   "stored — a GCP project with a registry, storage bucket, and build"
+  buh_tlt "infrastructure, funded under the " "Manor's" "${z_docs}#Manor" " billing account."
   buh_e
-  buh_tlt "To " "Levy" "${z_docs}#Levy" " a Depot is to provision this infrastructure:"
+  buh_t   "Create the Depot:"
   buh_tT  "  " "${RBZ_LEVY_DEPOT}"
   buh_e
   buh_t   "This enables APIs, creates the Artifact Registry repository and"
@@ -1896,18 +1896,10 @@ rbho_payor_handbook() {
   buh_t   "List your depots to verify:"
   buh_tT  "  " "${RBZ_LIST_DEPOT}"
   buh_e
-
-  # =================================================================
-  # Step 4: Create the governor service account
-  # =================================================================
-  buh_step1 "Create the governor service account"
-  buh_e
   buh_tltlt "A " "Governor" "${z_docs}#Governor" " administers a " "Depot" "${z_docs}#Depot" " — creating service accounts"
   buh_t   "and managing access for those who build and run container images."
-  buh_e
-  buh_tltlt "The " "Payor" "${z_docs}#Payor" " funds the infrastructure; the " "Governor" "${z_docs}#Governor" " operates it."
-  buh_tltlt "After this handoff, the " "Governor" "${z_docs}#Governor" " can " "Charter" "${z_docs}#Charter" ""
-  buh_tltlt "" "Retrievers" "${z_docs}#Retriever" " and " "Knight" "${z_docs}#Knight" " Directors independently."
+  buh_tlt "After this handoff, the " "Governor" "${z_docs}#Governor" " can create"
+  buh_tltlt "" "Retriever" "${z_docs}#Retriever" " and " "Director" "${z_docs}#Director" " accounts independently."
   buh_e
   buh_tT  "  " "${RBZ_MANTLE_GOVERNOR}"
   buh_e
