@@ -557,9 +557,10 @@
         "₢A6AAE",
         "₢A6AAF",
         "₢A6AAL",
+        "₢A6AAM",
         "₢A6AAA"
       ],
-      "next_pace_seed": "AAM",
+      "next_pace_seed": "AAN",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
       "paces": {
         "₢A6AAA": {
@@ -831,6 +832,17 @@
               "text": "## Character\n\nCollaborative pair-programming pace. User drives step by step through adding new tabtargets and building out track text for all items in the StartHere onboarding menu. Pattern replication from the Crash Course implementation — zipper enrollment, thin dispatcher, sequence function, `buh_*` teaching content.\n\n## Docket\n\nUser-driven walkthrough: for each track in the StartHere menu, add the tabtarget infrastructure (zipper enrollment, dispatcher, function skeleton) and write the track teaching content. User decides ordering, scope per track, and when to move on.\n\n### Inputs\n\n- Working `rbho_start_here()` menu as the track inventory\n- Working `rbho_crash_course()` as the pattern to replicate\n- ccyolo vessel and nameplate from ₢A6AAG as hands-on infrastructure\n\n### Per-track steps (user drives sequence)\n\n1. Add zipper enrollment in `rbz_zipper.sh`\n2. Create thin dispatcher tabtarget in `tt/`\n3. Add sequence function skeleton in `rbho_onboarding.sh`\n4. Write teaching content using `buh_*` primitives\n5. Run `tt/rbw-MG.MarshalGenerate.sh` to regenerate context\n6. Smoke test the new tabtarget\n7. Notch\n\n### Out of scope\n\n- Designing the track roster (already in paddock)\n- Agent-learner eval (separate pace)",
               "silks": "guided-track-buildout",
               "commit": "91d9cb9"
+            }
+          ]
+        },
+        "₢A6AAM": {
+          "tacks": [
+            {
+              "ts": "260413-1752",
+              "state": "rough",
+              "text": "## Character\n\nEvaluation design pace. Produce a minimal eval artifact that tests whether handbook output actually teaches — can a model with no prior Recipe Bottle knowledge, constrained to reason only from what the handbook says, correctly answer application questions?\n\n## Docket\n\nCreate `Tools/rbk/vov_veiled/A6-prototype-eval.md` containing:\n\n- Anti-inference system prompt constraining the model to handbook-only reasoning\n- 3–5 application-focused scenario questions (not recall)\n- Differential test design: full handbook output vs stripped variant (teaching prose removed), compare scores\n- Goodhart mitigation note\n\nThen run the eval against at least the Crash Course output. Report whether the teaching prose carries measurable weight.\n\n### Out of scope\n\n- Full eval harness or automation\n- Release-gate mechanics",
+              "silks": "agent-learner-eval-prototype",
+              "commit": "e38dbd3"
             }
           ]
         }
