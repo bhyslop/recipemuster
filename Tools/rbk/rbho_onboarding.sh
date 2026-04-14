@@ -1935,10 +1935,6 @@ rbho_governor_handbook() {
   buh_tltlt "A " "Governor" "${z_docs}#Governor" " administers a " "Depot" "${z_docs}#Depot" " — creating service accounts"
   buh_t   "and managing access for those who build and run container images."
   buh_e
-  buh_tltlt "The " "Governor" "${z_docs}#Governor" " works within a " "Depot" "${z_docs}#Depot" " provisioned under"
-  buh_tltlt "the " "Payor's" "${z_docs}#Payor" " " "Manor" "${z_docs}#Manor" ". If no Depot exists yet, that is a Payor responsibility:"
-  buh_tT  "  " "${RBZ_ONBOARD_PAYOR_HB}"
-  buh_e
 
   buh_step_style "Step " " — "
 
@@ -1947,9 +1943,12 @@ rbho_governor_handbook() {
   # =================================================================
   buh_step1 "Install governor credentials"
   buh_e
-  buh_tlt "To administer a " "Depot" "${z_docs}#Depot" ", you need a Governor service account key."
-  buh_tlt "Your " "Payor" "${z_docs}#Payor" " creates one by running:"
+  buh_tltlt "The " "Governor" "${z_docs}#Governor" " works within a " "Depot" "${z_docs}#Depot" " provisioned under the"
+  buh_tltlt "" "Payor's" "${z_docs}#Payor" " " "Manor" "${z_docs}#Manor" ". Your Payor creates your credential by running:"
   buh_tT  "  " "${RBZ_MANTLE_GOVERNOR}"
+  buh_e
+  buh_tltlt "If no " "Depot" "${z_docs}#Depot" " exists yet, the " "Payor" "${z_docs}#Payor" " establishes one first:"
+  buh_tT  "  " "${RBZ_ONBOARD_PAYOR_HB}"
   buh_e
   buh_t   "Install the resulting key file into the secrets directory under"
   buh_t   "the governor role subdirectory. The path is derived from your"
@@ -1968,10 +1967,10 @@ rbho_governor_handbook() {
   buh_tlt "A " "Director" "${z_docs}#Director" " has build and publish access — they create container"
   buh_t   "images and push them to the registry."
   buh_e
-  buh_tlt "" "Charter" "${z_docs}#Charter" " creates a retriever service account with read access:"
+  buh_tlt "Create a " "Retriever" "${z_docs}#Retriever" " with read access:"
   buh_tT  "  " "${RBZ_CHARTER_RETRIEVER}"
   buh_e
-  buh_tlt "" "Knight" "${z_docs}#Knight" " creates a director service account with build access:"
+  buh_tlt "Create a " "Director" "${z_docs}#Director" " with build access:"
   buh_tT  "  " "${RBZ_KNIGHT_DIRECTOR}"
   buh_e
   buh_t   "Each command creates the service account and applies the IAM"
