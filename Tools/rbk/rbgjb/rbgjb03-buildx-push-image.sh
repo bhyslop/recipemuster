@@ -1,9 +1,9 @@
 #!/bin/bash
-# RBGJBM Step 03: Build all platforms and push intermediate -multi tag to GAR
+# RBGJB Step 03: Build all platforms and push consumer-facing -image manifest list to GAR
 # Builder: gcr.io/cloud-builders/docker
 # Substitutions: _RBGY_DOCKERFILE, _RBGY_MONIKER, _RBGY_PLATFORMS,
 #                _RBGY_GAR_LOCATION, _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY,
-#                _RBGY_GAR_HOST_SUFFIX, _RBGY_INSCRIBE_TIMESTAMP,
+#                _RBGY_GAR_HOST_SUFFIX, _RBGY_HALLMARK, _RBGY_ARK_SUFFIX_IMAGE,
 #                _RBGY_GIT_COMMIT, _RBGY_GIT_BRANCH,
 #                _RBGY_IMAGE_1, _RBGY_IMAGE_2, _RBGY_IMAGE_3 (optional base image refs)
 #
@@ -11,8 +11,8 @@
 # Docker credentials in the host daemon; buildx inherits them via the
 # docker-container driver's config propagation.
 #
-# The -multi tag is an intermediate artifact: per-platform pullback (step 04)
-# extracts individual platform images from it.
+# The -image tag is the consumer-facing manifest list: buildx output IS the
+# consumer manifest. No imagetools reassembly needed.
 
 set -euo pipefail
 
@@ -23,7 +23,8 @@ test -n "${_RBGY_PLATFORMS}"           || (echo "_RBGY_PLATFORMS missing"       
 test -n "${_RBGY_GAR_LOCATION}"        || (echo "_RBGY_GAR_LOCATION missing"        >&2; exit 1)
 test -n "${_RBGY_GAR_PROJECT}"         || (echo "_RBGY_GAR_PROJECT missing"         >&2; exit 1)
 test -n "${_RBGY_GAR_REPOSITORY}"      || (echo "_RBGY_GAR_REPOSITORY missing"      >&2; exit 1)
-test -n "${_RBGY_INSCRIBE_TIMESTAMP}"  || (echo "_RBGY_INSCRIBE_TIMESTAMP missing"  >&2; exit 1)
+test -n "${_RBGY_HALLMARK}"            || (echo "_RBGY_HALLMARK missing"            >&2; exit 1)
+test -n "${_RBGY_ARK_SUFFIX_IMAGE}"    || (echo "_RBGY_ARK_SUFFIX_IMAGE missing"    >&2; exit 1)
 test -n "${_RBGY_GIT_COMMIT}"          || (echo "_RBGY_GIT_COMMIT missing"          >&2; exit 1)
 test -n "${_RBGY_GIT_BRANCH}"          || (echo "_RBGY_GIT_BRANCH missing"          >&2; exit 1)
 
@@ -33,7 +34,10 @@ test -z "${_RBGY_IMAGE_1}" || BUILD_ARGS="${BUILD_ARGS} --build-arg RBF_IMAGE_1=
 test -z "${_RBGY_IMAGE_2}" || BUILD_ARGS="${BUILD_ARGS} --build-arg RBF_IMAGE_2=${_RBGY_IMAGE_2}"
 test -z "${_RBGY_IMAGE_3}" || BUILD_ARGS="${BUILD_ARGS} --build-arg RBF_IMAGE_3=${_RBGY_IMAGE_3}"
 
-MULTI_URI="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${_RBGY_INSCRIBE_TIMESTAMP}-multi"
+test -s .hallmark || (echo "hallmark not derived" >&2; exit 1)
+HALLMARK="$(cat .hallmark)"
+
+IMAGE_URI="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${HALLMARK}${_RBGY_ARK_SUFFIX_IMAGE}"
 
 docker buildx version
 docker version
@@ -53,13 +57,13 @@ echo "cache_before.json written ($(wc -c < cache_before.json | tr -d ' ') bytes)
 # Create docker-container driver for multi-platform builds (QEMU emulation)
 docker buildx create --driver docker-container --name rb-builder --use
 
-# Build all platforms and push intermediate -multi tag
+# Build all platforms and push consumer-facing -image manifest list
 # --metadata-file captures BuildKit's resolved base image references, digests,
 # and build parameters for base image provenance in inspect.
 docker buildx build \
   --push \
   --platform="${_RBGY_PLATFORMS}" \
-  --tag "${MULTI_URI}" \
+  --tag "${IMAGE_URI}" \
   --metadata-file buildkit_metadata.json \
   --label "moniker=${_RBGY_MONIKER}" \
   --label "git.commit=${_RBGY_GIT_COMMIT}" \
@@ -68,4 +72,4 @@ docker buildx build \
   -f "${_RBGY_DOCKERFILE}" \
   .
 
-echo "Multi-platform push complete: ${MULTI_URI}"
+echo "Consumer manifest push complete: ${IMAGE_URI}"

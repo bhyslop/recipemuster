@@ -1,5 +1,5 @@
 #!/bin/bash
-# RBGJBM Step 07: Push diagnostic files as -diags registry artifact
+# RBGJB Step 06: Push diagnostic files as -diags registry artifact
 # Builder: gcr.io/cloud-builders/docker
 # Substitutions: _RBGY_DOCKERFILE, _RBGY_MONIKER,
 #                _RBGY_GAR_LOCATION, _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY,

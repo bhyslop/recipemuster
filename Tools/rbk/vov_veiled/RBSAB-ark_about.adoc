@@ -46,7 +46,7 @@ platform count for subsequent step branching
 Docker Registry API: HEAD manifests for `«HALLMARK»-diags`
 ... If HTTP 200: fetch manifest, iterate layer blobs, extract diagnostic files (`buildkit_metadata.json`, `cache_before.json`, `cache_after.json`, `recipe.txt`) to `/workspace`
 ... If HTTP 404 or error: skip gracefully (expected for bind/graft — no `-diags` artifact exists)
-.. NOTE: The `-diags` artifact is pushed by conjure step 07 (`rbgjb07-push-diags.sh`) and contains build-time diagnostics that cannot be conveyed via Cloud Build substitution variables (Dockerfile content exceeding the ~4KB limit, BuildKit metadata, Docker daemon cache snapshots).
+.. NOTE: The `-diags` artifact is pushed by conjure step 06 (`rbgjb06-push-diags.sh`) and contains build-time diagnostics that cannot be conveyed via Cloud Build substitution variables (Dockerfile content exceeding the ~4KB limit, BuildKit metadata, Docker daemon cache snapshots).
 
 //axhos_step
 . *Cloud Build Step 2: Syft SBOM Generation*:

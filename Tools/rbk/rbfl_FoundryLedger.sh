@@ -281,10 +281,6 @@ rbfl_abjure() {
   # Validate remaining parameters
   test -n "${z_hallmark}" || buc_die "Hallmark parameter required"
 
-  # Derive inscribe timestamp from full hallmark (needed for -multi intermediate tag)
-  local -r z_inscribe_ts="${z_hallmark%%-r*}"
-  test -n "${z_inscribe_ts}" || buc_die "Failed to derive inscribe timestamp from hallmark"
-
   # Check for --force flag
   local z_skip_confirm=false
   if test "${z_force}" = "--force"; then
@@ -303,7 +299,8 @@ rbfl_abjure() {
     # Bind and graft vessels have a single image tag (no per-platform suffixes)
     z_image_tags+=("${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}")
   else
-    # Conjure vessels have per-platform suffixed tags + consumer-facing + intermediate
+    # Conjure vessels: consumer-facing -image tag + ephemeral -attest-{arch} tags (safety net)
+    z_image_tags+=("${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}")
     local z_platforms="${RBRV_CONJURE_PLATFORMS// /,}"
     local z_platform_suffixes=()
     local z_remaining_plats="${z_platforms}"
@@ -318,14 +315,11 @@ rbfl_abjure() {
       z_remaining_plats="${z_remaining_plats#*,}"
     done
 
+    # -attest-{arch} tags as safety net (normally swept by ordain, but may survive if sweep failed)
     local z_idx=0
     for z_idx in "${!z_platform_suffixes[@]}"; do
-      z_image_tags+=("${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}${z_platform_suffixes[$z_idx]}")
+      z_image_tags+=("${z_hallmark}${RBGC_ARK_SUFFIX_ATTEST}${z_platform_suffixes[$z_idx]}")
     done
-    if test "${#z_platform_suffixes[@]}" -gt 1; then
-      z_image_tags+=("${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}")
-      z_image_tags+=("${z_inscribe_ts}-multi")
-    fi
   fi
 
   # About, vouch, and diags tags use full hallmark
@@ -673,13 +667,14 @@ rbfl_tally() {
       fi
 
       case "${z_tag}" in
-        *"${RBGC_ARK_SUFFIX_IMAGE}"-*|*"${RBGC_ARK_SUFFIX_IMAGE}")
-          local z_suffix="${z_tag#*"${RBGC_ARK_SUFFIX_IMAGE}"}"
-          if test -z "${z_suffix}"; then
-            echo "${z_consec}|image|consumer" >> "${z_tag_data_file}"
-          else
-            echo "${z_consec}|image|${z_suffix#-}" >> "${z_tag_data_file}"
-          fi
+        *"${RBGC_ARK_SUFFIX_ATTEST}"-*)
+          # Ephemeral -attest-{arch} tags — presence means ordain sweep didn't complete
+          local z_attest_suffix="${z_tag#*"${RBGC_ARK_SUFFIX_ATTEST}"}"
+          echo "${z_consec}|attest|${z_attest_suffix#-}" >> "${z_tag_data_file}"
+          echo "${z_consec}" >> "${z_consec_file}"
+          ;;
+        *"${RBGC_ARK_SUFFIX_IMAGE}")
+          echo "${z_consec}|image|consumer" >> "${z_tag_data_file}"
           echo "${z_consec}" >> "${z_consec_file}"
           ;;
         *"${RBGC_ARK_SUFFIX_VOUCH}")

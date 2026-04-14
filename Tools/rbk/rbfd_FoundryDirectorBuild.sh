@@ -327,7 +327,7 @@ zrbfd_stitch_build_json() {
   zrbfd_sentinel
 
   local -r z_output_path="${1:?Output path required}"
-  local -r z_inscribe_ts="${2:?Inscribe timestamp required}"
+  local -r z_hallmark="${2:?Hallmark required}"
   local -r z_context_tag="${3:?Context image tag required}"
 
   buc_log_args "Stitching builds.create JSON to ${z_output_path}"
@@ -426,11 +426,10 @@ zrbfd_stitch_build_json() {
     z_step_defs+=("rbgjb02-qemu-binfmt.sh|${ZRBFC_TOOL_DOCKER}|bash|qemu-binfmt")
   fi
   z_step_defs+=(
-    "rbgjb03-buildx-push-multi.sh|${ZRBFC_TOOL_DOCKER}|bash|buildx-push-multi"
+    "rbgjb03-buildx-push-image.sh|${ZRBFC_TOOL_DOCKER}|bash|buildx-push-image"
     "rbgjb04-per-platform-pullback.sh|${ZRBFC_TOOL_DOCKER}|bash|per-platform-pullback"
     "rbgjb05-push-per-platform.sh|${ZRBFC_TOOL_DOCKER}|bash|push-per-platform"
-    "rbgjb06-imagetools-create.sh|${ZRBFC_TOOL_DOCKER}|bash|imagetools-create"
-    "rbgjb07-push-diags.sh|${ZRBFC_TOOL_DOCKER}|bash|push-diags"
+    "rbgjb06-push-diags.sh|${ZRBFC_TOOL_DOCKER}|bash|push-diags"
   )
 
   # Compute platform suffixes (used in images: field and substitutions)
@@ -591,7 +590,8 @@ zrbfd_stitch_build_json() {
   jq -s '.[0] + .[1]' <(jq -s '.' "${z_extract_step_file}") "${z_accumulator_file}" \
     > "${z_all_steps_file}" || buc_die "Failed to prepend context extraction step"
 
-  # images: field — one entry per platform for SLSA provenance via CB images: push
+  # images: field — one -attest-{arch} entry per platform for SLSA provenance via CB images: push
+  # These are ephemeral attestation scaffolding tags; swept by host after vouch completes.
   local z_images_file="${ZRBFD_STITCH_PREFIX}images.json"
   local z_image_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${z_sigil}"
   local z_remaining_suffixes="${z_platform_suffixes_csv}"
@@ -599,7 +599,7 @@ zrbfd_stitch_build_json() {
   echo "[]" > "${z_images_file}" || buc_die "Failed to initialize images JSON"
   while test -n "${z_remaining_suffixes}"; do
     z_img_suffix="${z_remaining_suffixes%%,*}"
-    jq --arg uri "${z_image_base}:${z_inscribe_ts}-image${z_img_suffix}" \
+    jq --arg uri "${z_image_base}:${z_hallmark}${RBGC_ARK_SUFFIX_ATTEST}${z_img_suffix}" \
       '. + [$uri]' "${z_images_file}" > "${z_images_file}.tmp" \
       || buc_die "Failed to append image URI"
     mv "${z_images_file}.tmp" "${z_images_file}" \
@@ -633,9 +633,11 @@ zrbfd_stitch_build_json() {
     --arg zjq_git_branch     "${z_git_branch}" \
     --arg zjq_git_repo       "${z_git_repo}" \
     --arg zjq_gar_host_suffix  "${RBGC_GAR_HOST_SUFFIX}" \
-    --arg zjq_ark_suffix_image "${RBGC_ARK_SUFFIX_IMAGE}" \
-    --arg zjq_ark_suffix_diags "${RBGC_ARK_SUFFIX_DIAGS}" \
-    --arg zjq_inscribe_ts      "${z_inscribe_ts}" \
+    --arg zjq_ark_suffix_image  "${RBGC_ARK_SUFFIX_IMAGE}" \
+    --arg zjq_ark_suffix_attest "${RBGC_ARK_SUFFIX_ATTEST}" \
+    --arg zjq_ark_suffix_diags  "${RBGC_ARK_SUFFIX_DIAGS}" \
+    --arg zjq_hallmark          "${z_hallmark}" \
+    --arg zjq_inscribe_ts       "${z_hallmark%%-r*}" \
     --arg zjq_pool   "${z_conjure_pool}" \
     --arg zjq_timeout "${RBRR_GCB_TIMEOUT}" \
     --arg zjq_mason_sa         "${z_mason_sa}" \
@@ -666,9 +668,10 @@ zrbfd_stitch_build_json() {
         _RBGY_GIT_COMMIT:          $zjq_git_commit,
         _RBGY_GIT_BRANCH:          $zjq_git_branch,
         _RBGY_GAR_HOST_SUFFIX:     $zjq_gar_host_suffix,
+        _RBGY_HALLMARK:            $zjq_hallmark,
         _RBGY_ARK_SUFFIX_IMAGE:    $zjq_ark_suffix_image,
+        _RBGY_ARK_SUFFIX_ATTEST:   $zjq_ark_suffix_attest,
         _RBGY_ARK_SUFFIX_DIAGS:    $zjq_ark_suffix_diags,
-        _RBGY_INSCRIBE_TIMESTAMP:  $zjq_inscribe_ts,
         _RBGY_IMAGE_1:             $zjq_image_1,
         _RBGY_IMAGE_2:             $zjq_image_2,
         _RBGY_IMAGE_3:             $zjq_image_3,
@@ -970,6 +973,61 @@ zrbfd_enshrine_extract_anchors() {
   done
 }
 
+# Sweep ephemeral -attest-{arch} tags after vouch completes.
+# Director credentials (repoAdmin) required — mason lacks delete permission.
+# Tolerates 404 (tags may already be gone from a prior sweep or abjure).
+zrbfd_sweep_attest_tags() {
+  zrbfd_sentinel
+
+  local -r z_vessel_dir="${1:?Vessel dir required}"
+  local -r z_hallmark="${2:?Hallmark required}"
+  local -r z_token="${3:?Token required}"
+
+  buc_step "Sweeping ephemeral -attest-{arch} tags"
+
+  # Load vessel to get platforms
+  local z_platforms=""
+  local z_plat_line=""
+  while IFS= read -r z_plat_line || test -n "${z_plat_line}"; do
+    case "${z_plat_line}" in
+      RBRV_CONJURE_PLATFORMS=*) z_platforms="${z_plat_line#RBRV_CONJURE_PLATFORMS=}"; break ;;
+    esac
+  done < "${z_vessel_dir}/rbrv.env"
+  test -n "${z_platforms}" || return 0  # No platforms = nothing to sweep
+
+  local z_remaining_plats="${z_platforms// /,}"
+  local z_plat=""
+  local z_suffix=""
+  local z_attest_tag=""
+  local z_http_code=""
+  local -r z_sweep_stderr="${BURD_TEMP_DIR}/rbfd_sweep_stderr.txt"
+
+  while test -n "${z_remaining_plats}"; do
+    z_plat="${z_remaining_plats%%,*}"
+    z_suffix="${z_plat#linux/}"
+    z_suffix="${z_suffix//\//}"
+    z_attest_tag="${z_hallmark}${RBGC_ARK_SUFFIX_ATTEST}-${z_suffix}"
+
+    buc_log_args "Sweeping: ${RBRV_SIGIL}:${z_attest_tag}"
+    z_http_code=$(curl -s -o /dev/null -w '%{http_code}' \
+      -X DELETE \
+      -H "Authorization: Bearer ${z_token}" \
+      "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_attest_tag}" \
+      2>"${z_sweep_stderr}") || z_http_code="000"
+
+    case "${z_http_code}" in
+      200|202) buc_log_args "Swept: ${z_attest_tag}" ;;
+      404)     buc_log_args "Already absent: ${z_attest_tag}" ;;
+      *)       buc_warn "Sweep ${z_attest_tag} returned HTTP ${z_http_code} — see ${z_sweep_stderr}" ;;
+    esac
+
+    test "${z_remaining_plats}" != "${z_plat}" || break
+    z_remaining_plats="${z_remaining_plats#*,}"
+  done
+
+  buc_info "Attest tag sweep complete"
+}
+
 rbfd_ordain() {
   zrbfd_sentinel
 
@@ -1012,6 +1070,11 @@ rbfd_ordain() {
     conjure)
       buc_info "About produced by combined conjure job — proceeding to vouch"
       rbfv_vouch "${z_vessel_dir}" "${z_hallmark}"
+      # Sweep ephemeral -attest-{arch} tags (director credentials, post-vouch)
+      local z_sweep_token
+      z_sweep_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+        || buc_die "Failed to get Director token for attest tag sweep"
+      zrbfd_sweep_attest_tags "${z_vessel_dir}" "${z_hallmark}" "${z_sweep_token}"
       ;;
     graft)
       zrbfv_graft_metadata_submit "${z_vessel_dir}" "${z_hallmark}"
@@ -1103,13 +1166,21 @@ rbfd_build() {
   z_context_tag=$(<"${ZRBFD_CONTEXT_PREFIX}tag.txt")
   test -n "${z_context_tag}" || buc_die "Empty context image tag after push"
 
+  # Mint hallmark on host — same pattern as bind/graft: inscribe + realized
+  buc_step "Minting hallmark on host"
+  local -r z_inscribe_ts="c${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
+  local -r z_realized_ts_file="${BURD_TEMP_DIR}/rbfd_realized_ts.txt"
+  date -u +%y%m%d%H%M%S > "${z_realized_ts_file}" \
+    || buc_die "Failed to generate realized timestamp"
+  local -r z_realized_ts=$(<"${z_realized_ts_file}")
+  test -n "${z_realized_ts}" || buc_die "Empty realized timestamp"
+  local -r z_hallmark="${z_inscribe_ts}-r${z_realized_ts}"
+  buc_info "Host-minted hallmark: ${z_hallmark}"
+
   # Stitch build JSON — generates complete builds.create resource directly
   buc_step "Stitching build JSON"
   local -r z_build_file="${ZRBFD_CONTEXT_PREFIX}build.json"
-  local -r z_inscribe_ts="c${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
-  zrbfd_stitch_build_json "${z_build_file}" "${z_inscribe_ts}" "${z_context_tag}"
-
-  buc_info "Inscribe timestamp: ${z_inscribe_ts}"
+  zrbfd_stitch_build_json "${z_build_file}" "${z_hallmark}" "${z_context_tag}"
 
   # Submit via builds.create (no source — context delivered via GAR image)
   buc_step "Submitting build via builds.create"
@@ -1129,49 +1200,49 @@ rbfd_build() {
 
   zrbfc_wait_build_completion 960 "Conjure"  # 80 minutes at 5s intervals
 
-  # Discover hallmark from build step output (strong tie — no GAR scanning)
-  # Step[0] is extract-context (no output).  Step[1] is derive-tag-base which
-  # writes hallmark to /builder/outputs/output (base64-encoded in buildStepOutputs[1]).
-  buc_step "Discovering hallmark from build step output"
+  # Consistency assert: verify Cloud Build echoed back the same hallmark we minted
+  buc_step "Verifying hallmark consistency"
 
   local z_step_output=""
   jq -r '.results.buildStepOutputs[1] // empty' "${ZRBFC_BUILD_STATUS_FILE}" > "${ZRBFC_SCRATCH_FILE}" \
     || buc_die "Failed to extract buildStepOutputs[1] from build response"
   z_step_output=$(<"${ZRBFC_SCRATCH_FILE}")
-  test -n "${z_step_output}" || buc_die "Build step 1 output empty — derive-tag-base may not have written to /builder/outputs/output"
-
-  local -r z_step_b64_file="${BURD_TEMP_DIR}/rbfd_step_b64.txt"
-  local -r z_step_decoded_file="${BURD_TEMP_DIR}/rbfd_step_decoded.txt"
-  printf '%s\n' "${z_step_output}" > "${z_step_b64_file}" \
-    || buc_die "Failed to write step output for decoding"
-  openssl enc -base64 -d < "${z_step_b64_file}" > "${z_step_decoded_file}" \
-    || buc_die "Failed to base64-decode build step output"
-  local z_found_hallmark=""
-  z_found_hallmark=$(<"${z_step_decoded_file}")
-  test -n "${z_found_hallmark}" || buc_die "Decoded hallmark is empty"
-  buc_info "Discovered hallmark: ${z_found_hallmark}"
+  if test -n "${z_step_output}"; then
+    local -r z_step_b64_file="${BURD_TEMP_DIR}/rbfd_step_b64.txt"
+    local -r z_step_decoded_file="${BURD_TEMP_DIR}/rbfd_step_decoded.txt"
+    printf '%s\n' "${z_step_output}" > "${z_step_b64_file}" \
+      || buc_die "Failed to write step output for decoding"
+    openssl enc -base64 -d < "${z_step_b64_file}" > "${z_step_decoded_file}" \
+      || buc_die "Failed to base64-decode build step output"
+    local -r z_found_hallmark=$(<"${z_step_decoded_file}")
+    test "${z_found_hallmark}" = "${z_hallmark}" \
+      || buc_die "Hallmark mismatch: host minted '${z_hallmark}' but build returned '${z_found_hallmark}'"
+    buc_info "Hallmark consistency verified: ${z_hallmark}"
+  else
+    buc_warn "Build step output empty — skipping consistency check (hallmark trusted from host)"
+  fi
 
   # Persist to output directory for test harness consumption
   echo "${z_vessel_dir}" > "${ZRBFC_OUTPUT_VESSEL_DIR}" \
     || buc_die "Failed to write vessel dir to output"
-  buf_write_fact "${RBF_FACT_HALLMARK}" "${z_found_hallmark}"
+  buf_write_fact "${RBF_FACT_HALLMARK}" "${z_hallmark}"
 
   # Write GAR root fact file (registry prefix for composing full refs)
   buf_write_fact "${RBF_FACT_GAR_ROOT}" "${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}"
 
   # Write ark stem fact file (sigil:hallmark base for composing artifact refs)
-  buf_write_fact "${RBF_FACT_ARK_STEM}" "${RBRV_SIGIL}:${z_found_hallmark}"
+  buf_write_fact "${RBF_FACT_ARK_STEM}" "${RBRV_SIGIL}:${z_hallmark}"
 
-  # Write per-platform yield fact files
+  # Write per-platform yield fact files (attest tags — ephemeral, for test harness consumption)
   local z_plat=""
   local z_plat_suffix=""
   local z_yield_tag=""
   for z_plat in ${RBRV_CONJURE_PLATFORMS//,/ }; do
     z_plat_suffix="${z_plat#linux/}"
     z_plat_suffix="${z_plat_suffix//\//}"
-    z_yield_tag="${z_found_hallmark}${RBGC_ARK_SUFFIX_IMAGE}-${z_plat_suffix}"
-    buf_write_fact "${RBF_FACT_ARK_YIELD}${RBGC_ARK_SUFFIX_IMAGE}-${z_plat_suffix}" "${RBRV_SIGIL}:${z_yield_tag}"
-    buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_YIELD}${RBGC_ARK_SUFFIX_IMAGE}-${z_plat_suffix}"
+    z_yield_tag="${z_hallmark}${RBGC_ARK_SUFFIX_ATTEST}-${z_plat_suffix}"
+    buf_write_fact "${RBF_FACT_ARK_YIELD}${RBGC_ARK_SUFFIX_ATTEST}-${z_plat_suffix}" "${RBRV_SIGIL}:${z_yield_tag}"
+    buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_YIELD}${RBGC_ARK_SUFFIX_ATTEST}-${z_plat_suffix}"
   done
 
   # Write build ID fact file (dispatched build ID for cross-check with vouch provenance)
