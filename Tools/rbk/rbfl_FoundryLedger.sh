@@ -322,10 +322,11 @@ rbfl_abjure() {
     done
   fi
 
-  # About, vouch, and diags tags use full hallmark
+  # About, vouch, diags, and pouch tags use full hallmark
   local -r z_about_tag="${z_hallmark}${RBGC_ARK_SUFFIX_ABOUT}"
   local -r z_vouch_tag="${z_hallmark}${RBGC_ARK_SUFFIX_VOUCH}"
   local -r z_diags_tag="${z_hallmark}${RBGC_ARK_SUFFIX_DIAGS}"
+  local -r z_pouch_tag="${z_hallmark}${RBGC_ARK_SUFFIX_POUCH}"
 
   buc_step "Verifying ark existence"
 
@@ -434,6 +435,31 @@ rbfl_abjure() {
     buc_die "Unexpected HTTP status ${z_diags_http_code} when checking -diags artifact"
   fi
 
+  # Check if pouch artifact exists (optional — conjure/bind only, absent for graft)
+  local z_pouch_status_file="${ZRBFL_DELETE_PREFIX}pouch_status.txt"
+  local z_pouch_response_file="${ZRBFL_DELETE_PREFIX}pouch_response.json"
+
+  curl --head -s                                     \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}"           \
+    -H "Authorization: Bearer ${z_token}"           \
+    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}"     \
+    -w "%{http_code}"                               \
+    -o "${z_pouch_response_file}"                   \
+    "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_pouch_tag}" \
+    > "${z_pouch_status_file}" || buc_die "HEAD request failed for ${RBGC_ARK_SUFFIX_POUCH} artifact"
+
+  local z_pouch_http_code
+  z_pouch_http_code=$(<"${z_pouch_status_file}")
+  test -n "${z_pouch_http_code}" || buc_die "HTTP status code is empty for ${RBGC_ARK_SUFFIX_POUCH}"
+
+  local z_pouch_exists=false
+  if test "${z_pouch_http_code}" = "200"; then
+    z_pouch_exists=true
+  elif test "${z_pouch_http_code}" != "404"; then
+    buc_die "Unexpected HTTP status ${z_pouch_http_code} when checking ${RBGC_ARK_SUFFIX_POUCH} artifact"
+  fi
+
   # Evaluate ark state
   if test "${#z_existing_image_tags[@]}" -eq 0 && test "${z_about_exists}" = "false"; then
     buc_die "Hallmark not found: no image tags and no -about exists for ${RBRV_SIGIL}/${z_hallmark}"
@@ -461,6 +487,9 @@ rbfl_abjure() {
     fi
     if test "${z_diags_exists}" = "true"; then
       z_confirm_msg="${z_confirm_msg}\n  - ${RBRV_SIGIL}:${z_diags_tag}"
+    fi
+    if test "${z_pouch_exists}" = "true"; then
+      z_confirm_msg="${z_confirm_msg}\n  - ${RBRV_SIGIL}:${z_pouch_tag}"
     fi
     buc_require "${z_confirm_msg}" "yes"
   fi
@@ -589,6 +618,36 @@ rbfl_abjure() {
     buc_info "Deleted: ${RBRV_SIGIL}:${z_diags_tag}"
   fi
 
+  # Delete pouch artifact if exists (optional — conjure/bind only)
+  if test "${z_pouch_exists}" = "true"; then
+    buc_step "Deleting ${RBGC_ARK_SUFFIX_POUCH} artifact"
+
+    local z_delete_pouch_status="${ZRBFL_DELETE_PREFIX}delete_pouch_status.txt"
+    local z_delete_pouch_response="${ZRBFL_DELETE_PREFIX}delete_pouch_response.json"
+
+    curl -X DELETE -s                                   \
+      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+      --max-time "${RBCC_CURL_MAX_TIME_SEC}"             \
+      -H "Authorization: Bearer ${z_token}"             \
+      -w "%{http_code}"                                 \
+      -o "${z_delete_pouch_response}"                   \
+      "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_pouch_tag}" \
+      > "${z_delete_pouch_status}" || buc_die "DELETE request failed for ${RBGC_ARK_SUFFIX_POUCH}"
+
+    local z_delete_pouch_code
+    z_delete_pouch_code=$(<"${z_delete_pouch_status}")
+    test -n "${z_delete_pouch_code}" || buc_die "HTTP status code is empty for ${RBGC_ARK_SUFFIX_POUCH} delete"
+
+    if test "${z_delete_pouch_code}" != "202" && test "${z_delete_pouch_code}" != "204"; then
+      local z_body="empty"
+      if test -f "${z_delete_pouch_response}"; then z_body=$(<"${z_delete_pouch_response}"); fi
+      buc_warn "Response body: ${z_body}"
+      buc_die "Failed to delete ${RBGC_ARK_SUFFIX_POUCH} artifact (HTTP ${z_delete_pouch_code})"
+    fi
+
+    buc_info "Deleted: ${RBRV_SIGIL}:${z_pouch_tag}"
+  fi
+
   # Display results
   echo ""
   buc_success "Hallmark abjured: ${RBRV_SIGIL}/${z_hallmark}"
@@ -605,6 +664,9 @@ rbfl_abjure() {
   fi
   if test "${z_diags_exists}" = "true"; then
     echo "  - ${RBRV_SIGIL}:${z_diags_tag} deleted"
+  fi
+  if test "${z_pouch_exists}" = "true"; then
+    echo "  - ${RBRV_SIGIL}:${z_pouch_tag} deleted"
   fi
 }
 
@@ -687,6 +749,10 @@ rbfl_tally() {
           ;;
         *"${RBGC_ARK_SUFFIX_DIAGS}")
           echo "${z_consec}|diags|" >> "${z_tag_data_file}"
+          echo "${z_consec}" >> "${z_consec_file}"
+          ;;
+        *"${RBGC_ARK_SUFFIX_POUCH}")
+          echo "${z_consec}|pouch|" >> "${z_tag_data_file}"
           echo "${z_consec}" >> "${z_consec_file}"
           ;;
       esac

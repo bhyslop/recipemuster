@@ -709,11 +709,11 @@ zrbfd_stitch_build_json() {
 
 
 
-# Push vessel build context to GAR as a FROM SCRATCH OCI image.
-# The context image carries the Dockerfile and supporting files that GCB
+# Push vessel build context to GAR as a FROM SCRATCH OCI image (the pouch).
+# The pouch carries the Dockerfile and supporting files that GCB
 # needs in /workspace during the build.
 #
-# Args: token  sigil  build_context_path
+# Args: token  sigil  build_context_path  hallmark
 # Side-effect: writes context image tag to ${ZRBFD_CONTEXT_PREFIX}tag.txt
 zrbfd_push_build_context() {
   zrbfd_sentinel
@@ -721,21 +721,16 @@ zrbfd_push_build_context() {
   local -r z_token="$1"
   local -r z_sigil="$2"
   local -r z_bldctx="$3"
+  local -r z_hallmark="$4"
 
   test -d "${z_bldctx}" || buc_die "Build context directory not found: ${z_bldctx}"
+  test -n "${z_hallmark}" || buc_die "Hallmark required for pouch tag"
 
   local -r z_gar_host="${ZRBFC_REGISTRY_HOST}"
   local -r z_context_tag_file="${ZRBFD_CONTEXT_PREFIX}tag.txt"
   local -r z_context_dockerfile="${ZRBFD_CONTEXT_PREFIX}Dockerfile"
 
-  # Generate context timestamp
-  local -r z_ctx_ts_file="${ZRBFD_CONTEXT_PREFIX}ts.txt"
-  date -u +'%y%m%d%H%M%S' > "${z_ctx_ts_file}" || buc_die "Failed to generate context timestamp"
-  local z_ctx_ts=""
-  z_ctx_ts=$(<"${z_ctx_ts_file}")
-  test -n "${z_ctx_ts}" || buc_die "Empty context timestamp"
-
-  local -r z_context_tag="${z_gar_host}/${ZRBFC_REGISTRY_PATH}/${z_sigil}:context-${z_ctx_ts}"
+  local -r z_context_tag="${z_gar_host}/${ZRBFC_REGISTRY_PATH}/${z_sigil}:${z_hallmark}${RBGC_ARK_SUFFIX_POUCH}"
 
   # Build FROM SCRATCH image containing build context
   buc_step "Building context image for ${z_sigil}"
@@ -1160,12 +1155,6 @@ rbfd_build() {
     > "${ZRBFC_GIT_INFO_FILE}" || buc_die "Failed to write git info JSON for stitch"
   buc_info "Git: ${z_git_commit:0:8} on ${z_git_branch}"
 
-  # Push build context to GAR as FROM SCRATCH image
-  zrbfd_push_build_context "${z_token}" "${RBRV_SIGIL}" "${RBRV_CONJURE_BLDCONTEXT}"
-  local z_context_tag=""
-  z_context_tag=$(<"${ZRBFD_CONTEXT_PREFIX}tag.txt")
-  test -n "${z_context_tag}" || buc_die "Empty context image tag after push"
-
   # Mint hallmark on host — same pattern as bind/graft: inscribe + realized
   buc_step "Minting hallmark on host"
   local -r z_inscribe_ts="c${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
@@ -1176,6 +1165,12 @@ rbfd_build() {
   test -n "${z_realized_ts}" || buc_die "Empty realized timestamp"
   local -r z_hallmark="${z_inscribe_ts}-r${z_realized_ts}"
   buc_info "Host-minted hallmark: ${z_hallmark}"
+
+  # Push build context (pouch) to GAR as FROM SCRATCH image
+  zrbfd_push_build_context "${z_token}" "${RBRV_SIGIL}" "${RBRV_CONJURE_BLDCONTEXT}" "${z_hallmark}"
+  local z_context_tag=""
+  z_context_tag=$(<"${ZRBFD_CONTEXT_PREFIX}tag.txt")
+  test -n "${z_context_tag}" || buc_die "Empty context image tag after push"
 
   # Stitch build JSON — generates complete builds.create resource directly
   buc_step "Stitching build JSON"
