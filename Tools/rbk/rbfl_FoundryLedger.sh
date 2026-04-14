@@ -781,12 +781,12 @@ rbfl_tally() {
         test "${z_c}" = "${z_hallmark}" || continue
         if test "${z_type}" = "image"; then
           z_has_image="yes"
-          if test "${z_detail}" != "consumer"; then
-            if test -n "${z_consec_platforms}"; then
-              z_consec_platforms="${z_consec_platforms},${z_detail}"
-            else
-              z_consec_platforms="${z_detail}"
-            fi
+        elif test "${z_type}" = "attest"; then
+          z_has_image="yes"
+          if test -n "${z_consec_platforms}"; then
+            z_consec_platforms="${z_consec_platforms},${z_detail}"
+          else
+            z_consec_platforms="${z_detail}"
           fi
         elif test "${z_type}" = "about"; then
           z_has_about="yes"
