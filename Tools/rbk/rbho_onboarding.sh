@@ -828,7 +828,7 @@ rbho_first_crucible() {
   # --- Header ---
   buh_section "Start a Crucible Using Local Builds"
   buh_e
-  buh_tlt "A " "crucible" "${z_docs}#Crucible" " is a sandboxed container environment with enforced"
+  buh_tlt "A " "Crucible" "${z_docs}#Crucible" " is a sandboxed container environment with enforced"
   buh_t   "network isolation. You are going to build one on your workstation"
   buh_t   "and run Claude Code inside it — no cloud account, no credentials"
   buh_t   "beyond your own Claude subscription."
@@ -858,8 +858,8 @@ rbho_first_crucible() {
   # =================================================================
   buh_step1 "Build images locally"
   buh_e
-  buh_tlt "A " "vessel" "${z_docs}#Vessel" " is a specification for a container image — a Dockerfile"
-  buh_tlt "and build context. A " "hallmark" "${z_docs}#Hallmark" " is a specific build instance,"
+  buh_tlt "A " "Vessel" "${z_docs}#Vessel" " is a specification for a container image — a Dockerfile"
+  buh_tlt "and build context. A " "Hallmark" "${z_docs}#Hallmark" " is a specific build instance,"
   buh_t   "identified by a timestamp tag."
   buh_e
   buh_tlt "" "Kludge" "${z_docs}#Kludge" " builds a vessel image locally using Docker — no cloud, no"
@@ -870,7 +870,7 @@ rbho_first_crucible() {
   # --- Substep 1a: Kludge the sentry ---
   buh_step2 "Kludge the sentry"
   buh_e
-  buh_tlt "The " "sentry" "${z_docs}#Sentry" " is the gatekeeper container. It runs iptables"
+  buh_tlt "The " "Sentry" "${z_docs}#Sentry" " is the gatekeeper container. It runs iptables"
   buh_t   "and dnsmasq to enforce network policy — only domains you whitelist"
   buh_t   "are reachable from inside."
   buh_e
@@ -899,11 +899,11 @@ rbho_first_crucible() {
   # --- Substep 1b: Kludge the bottle ---
   buh_step2 "Kludge the bottle"
   buh_e
-  buh_tlt "The " "bottle" "${z_docs}#Bottle" " is your workload container — where Claude Code"
+  buh_tlt "The " "Bottle" "${z_docs}#Bottle" " is your workload container — where Claude Code"
   buh_tlt "runs. The " "ccyolo" "${z_docs}#ccyolo" " bottle includes SSH, node, and the Claude CLI."
   buh_e
   buh_t   "This command is different from the sentry kludge. It builds the"
-  buh_tlt "bottle AND drives the " "hallmark" "${z_docs}#Hallmark" " into the nameplate"
+  buh_tlt "bottle AND drives the " "Hallmark" "${z_docs}#Hallmark" " into the nameplate"
   buh_t   "automatically:"
   buh_e
   buh_tTc "   " "${RBZ_CRUCIBLE_KLUDGE_BOTTLE}" " ${z_moniker}"
@@ -930,7 +930,7 @@ rbho_first_crucible() {
   # =================================================================
   buh_step1 "Drive sentry hallmark into the nameplate"
   buh_e
-  buh_tlt "A " "nameplate" "${z_docs}#Nameplate" " is the file that ties a sentry and bottle"
+  buh_tlt "A " "Nameplate" "${z_docs}#Nameplate" " is the file that ties a sentry and bottle"
   buh_t   "together into a runnable unit. It lives at:"
   buh_e
   buh_c   "   ${z_nameplate_file}"
@@ -1327,7 +1327,7 @@ rbho_director_first_build() {
   buh_e
   buh_tT  "   " "${RBZ_TALLY_HALLMARKS}"
   buh_e
-  buh_tlt "Look for your " "hallmark" "${z_docs}#Hallmark" " with health state 'vouched' — that"
+  buh_tlt "Look for your " "Hallmark" "${z_docs}#Hallmark" " with health state 'vouched' — that"
   buh_t   "means SLSA provenance was verified."
   buh_e
 
@@ -1335,13 +1335,13 @@ rbho_director_first_build() {
   buh_step2 "Vouch"
   buh_e
   buh_tlt "" "Vouch" "${z_docs}#Vouch" " verifies SLSA provenance for each platform"
-  buh_tlt "digest in the " "hallmark" "${z_docs}#Hallmark" ". The ordain pipeline runs vouch"
+  buh_tlt "digest in the " "Hallmark" "${z_docs}#Hallmark" ". The ordain pipeline runs vouch"
   buh_t   "automatically. If a build was interrupted before vouch"
   buh_t   "completed, run this to vouch all unvouched hallmarks:"
   buh_e
   buh_tT  "   " "${RBZ_VOUCH_HALLMARKS}"
   buh_e
-  buh_tlt "The " "conjure" "${z_docs}#Conjure" " verdict is full SLSA — Cloud Build produced"
+  buh_tlt "The " "Conjure" "${z_docs}#Conjure" " verdict is full SLSA — Cloud Build produced"
   buh_t   "this image, and the provenance chain proves it."
   buh_e
 
@@ -1389,16 +1389,16 @@ rbho_director_first_build() {
   # =================================================================
   buh_step1 "Abjure and Rekon — hallmark lifecycle"
   buh_e
-  buh_tlt "" "Rekon" "${z_docs}#Rekon" " lists the raw tags for a " "vessel" "${z_docs}#Vessel" ""
-  buh_tlt "package in GAR. Run it before and after " "abjure" "${z_docs}#Abjure" " to see"
+  buh_tlt "" "Rekon" "${z_docs}#Rekon" " lists the raw tags for a " "Vessel" "${z_docs}#Vessel" ""
+  buh_tlt "package in GAR. Run it before and after " "Abjure" "${z_docs}#Abjure" " to see"
   buh_t   "the full lifecycle:"
   buh_e
   buh_tTc "   " "${RBZ_REKON_IMAGE}" " ${z_vessel}"
   buh_e
-  buh_tlt "You should see all five durable tags for your " "hallmark" "${z_docs}#Hallmark" ":"
+  buh_tlt "You should see all five durable tags for your " "Hallmark" "${z_docs}#Hallmark" ":"
   buh_tc  "   " "${RBGC_ARK_SUFFIX_IMAGE}, ${RBGC_ARK_SUFFIX_ABOUT}, ${RBGC_ARK_SUFFIX_VOUCH}, ${RBGC_ARK_SUFFIX_POUCH}, ${RBGC_ARK_SUFFIX_DIAGS}"
   buh_e
-  buh_tlt "" "Abjure" "${z_docs}#Abjure" " removes all artifacts for a " "hallmark" "${z_docs}#Hallmark" ""
+  buh_tlt "" "Abjure" "${z_docs}#Abjure" " removes all artifacts for a " "Hallmark" "${z_docs}#Hallmark" ""
   buh_t   "from GAR. This is permanent — the hallmark and all its"
   buh_t   "tags are deleted:"
   buh_e
@@ -1408,7 +1408,7 @@ rbho_director_first_build() {
   buh_e
   buh_tTc "   " "${RBZ_REKON_IMAGE}" " ${z_vessel}"
   buh_e
-  buh_tlt "The tags for your " "hallmark" "${z_docs}#Hallmark" " should be gone. The image is no"
+  buh_tlt "The tags for your " "Hallmark" "${z_docs}#Hallmark" " should be gone. The image is no"
   buh_tlt "longer in the " "Depot" "${z_docs}#Depot" "."
   buh_e
 
