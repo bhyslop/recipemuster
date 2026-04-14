@@ -92,7 +92,7 @@ The [Governor](#Governor) [Knights](#Knight) [Directors](#Director) for build ac
 
 Builds and publishes [Vessel](#Vessel) images into a [Depot](#Depot).
 Each [Director](#Director) credential is scoped to one [Depot](#Depot).
-The [Director](#Director) manages the image lifecycle: [Ordain](#Ordain) a build, [Tally](#Tally) registry health, [Vouch](#Vouch) provenance, [Abjure](#Abjure) superseded artifacts, and [Jettison](#Jettison) individual tags.
+The [Director](#Director) manages the image lifecycle: [Ordain](#Ordain) a build, [Tally](#Tally) registry health, [Rekon](#Rekon) raw tags, [Vouch](#Vouch) provenance, [Abjure](#Abjure) superseded artifacts, and [Jettison](#Jettison) individual tags.
 
 ### <a id="Retriever"></a>Retriever
 
@@ -292,6 +292,10 @@ This is the security boundary between workstation and build infrastructure.
 <a id="Tally"></a>**[Tally](#Tally)** — Inventory [Hallmarks](#Hallmark) in the [Depot](#Depot) registry by health status.
 [Tallying](#Tally) shows which builds succeeded, which are pending, and which failed.
 The [Director](#Director) [Tallies](#Tally) before [Vouching](#Vouch) to confirm build completion.
+
+<a id="Rekon"></a>**[Rekon](#Rekon)** — Raw listing of image tags in the [Depot](#Depot) registry for a [Vessel](#Vessel) package.
+[Rekon](#Rekon) is a [Director](#Director)-only diagnostic that shows exactly what exists in the registry without health interpretation.
+Where [Tally](#Tally) groups [Hallmarks](#Hallmark) by status, [Rekon](#Rekon) shows the unprocessed tag inventory.
 
 <a id="Vouch"></a>**[Vouch](#Vouch)** — Cryptographic attestation proving a [Hallmark](#Hallmark) was built by trusted infrastructure.
 The [Vouch](#Vouch) verdict is mode-aware: [Conjure](#Conjure) builds receive full SLSA provenance verification, [Bind](#Bind) builds receive digest-pin verification, and [Graft](#Graft) builds receive a GRAFTED verdict with no provenance chain.

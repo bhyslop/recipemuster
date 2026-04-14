@@ -1428,7 +1428,7 @@ rbho_credential_director() {
   # --- Step 4: Confirm live access ---
   buh_step1 "Confirm live access"
   buh_e
-  buh_t   "Run rekon to list raw image tags in the registry"
+  buh_tlt "Run " "Rekon" "${z_docs}#Rekon" " to list raw image tags in the registry"
   buh_t   "using your director credential:"
   buh_e
   buh_tT  "   " "${RBZ_REKON_IMAGE}"
