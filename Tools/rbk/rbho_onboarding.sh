@@ -1678,6 +1678,12 @@ rbho_first_crucible() {
   buh_t   "copy it to your workstation browser, sign in with your Claude"
   buh_t   "subscription, and paste the code back into the terminal."
   buh_e
+  buh_tW  "" "The ccyolo bottle pins Claude Code to a specific version."
+  buh_t   "Versions after v2.1.89 have a regression where paste does not"
+  buh_t   "work in the OAuth input prompt through SSH or docker exec"
+  buh_t   "(github.com/anthropics/claude-code/issues/47745). If you"
+  buh_t   "update the pin and paste stops working, type the code manually."
+  buh_e
   buh_t   "Once authenticated, Claude Code starts in full autonomy mode —"
   buh_t   "no permission prompts. Inside a network-contained crucible,"
   buh_t   "this is the correct posture: the sentry enforces the real"
