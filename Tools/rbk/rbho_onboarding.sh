@@ -1337,7 +1337,7 @@ rbho_director_first_build() {
   buh_tlt "" "Vouch" "${z_docs}#Vouch" " verifies SLSA provenance for each platform"
   buh_tltlt "digest in the " "Hallmark" "${z_docs}#Hallmark" ". The ordain pipeline runs " "Vouch" "${z_docs}#Vouch" ""
   buh_tlt "automatically. If a build was interrupted before " "Vouch" "${z_docs}#Vouch" ""
-  buh_tlt "completed, run this to " "Vouch" "${z_docs}#Vouch" " all unvouched hallmarks:"
+  buh_tltlt "completed, run this to reattempt " "Vouch" "${z_docs}#Vouch" " on untreated " "Hallmarks" "${z_docs}#Hallmark" ":"
   buh_e
   buh_tT  "   " "${RBZ_VOUCH_HALLMARKS}"
   buh_e
