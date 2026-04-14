@@ -1886,26 +1886,25 @@ rbho_payor_handbook() {
   buh_tlt "A " "Depot" "${z_docs}#Depot" " is the facility where container images are built and"
   buh_t   "stored — a GCP project with a registry, storage bucket, and build"
   buh_tlt "infrastructure, funded under the " "Manor's" "${z_docs}#Manor" " billing account."
+  buh_tltlt "A " "Governor" "${z_docs}#Governor" " administers the " "Depot" "${z_docs}#Depot" " — creating"
+  buh_tltlt "" "Retriever" "${z_docs}#Retriever" " and " "Director" "${z_docs}#Director" " accounts for those who build and"
+  buh_t   "retrieve container images."
   buh_e
-  buh_t   "Create the Depot:"
+  buh_tlt "" "Payor" "${z_docs}#Payor" " creates the Depot:"
   buh_tT  "  " "${RBZ_LEVY_DEPOT}"
   buh_e
   buh_t   "This enables APIs, creates the Artifact Registry repository and"
   buh_t   "Cloud Storage bucket, and configures Cloud Build."
   buh_e
-  buh_t   "List your depots to verify:"
+  buh_tlt "" "Payor" "${z_docs}#Payor" " can list Depots for verification:"
   buh_tT  "  " "${RBZ_LIST_DEPOT}"
   buh_e
-  buh_tltlt "A " "Governor" "${z_docs}#Governor" " administers a " "Depot" "${z_docs}#Depot" " — creating service accounts"
-  buh_t   "and managing access for those who build and run container images."
-  buh_tlt "After this handoff, the " "Governor" "${z_docs}#Governor" " can create"
-  buh_tltlt "" "Retriever" "${z_docs}#Retriever" " and " "Director" "${z_docs}#Director" " accounts independently."
-  buh_e
+  buh_tlt "" "Payor" "${z_docs}#Payor" " creates the Governor service account:"
   buh_tT  "  " "${RBZ_MANTLE_GOVERNOR}"
   buh_e
-  buh_tlt "This creates the " "Governor" "${z_docs}#Governor" " service account with administrative"
-  buh_tlt "permissions over the " "Depot" "${z_docs}#Depot" ". Hand the resulting key file to the"
-  buh_t   "person who will administer this Depot."
+  buh_t   "Hand the resulting key file to the person who will administer"
+  buh_tlt "this " "Depot" "${z_docs}#Depot" ". After this handoff, the " "Governor" "${z_docs}#Governor" " can create"
+  buh_tltlt "" "Retriever" "${z_docs}#Retriever" " and " "Director" "${z_docs}#Director" " accounts independently."
   buh_e
   buh_tltlt "The " "Payor's" "${z_docs}#Payor" " job for this " "Depot" "${z_docs}#Depot" " is done unless billing or"
   buh_t   "project-level changes are needed."
