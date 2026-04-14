@@ -1751,19 +1751,19 @@ rbho_first_crucible() {
   buh_e
   buh_t   "  1. Edit the Dockerfile or entrypoint"
   buh_t   "  2. Commit your changes (kludge needs a clean tree)"
-  buh_tTc "  3. Kludge the bottle: " "${RBZ_CRUCIBLE_KLUDGE_BOTTLE}" " ${z_moniker}"
-  buh_t   "  4. Commit the hallmark change (kludge drove it into rbrn.env)"
-  buh_tI  "  5. Charge: " "${RBZ_CRUCIBLE_CHARGE}" "${z_moniker}"
-  buh_tc  "  6. SSH in: " "${z_ssh_tabtarget}"
-  buh_t   "  7. Test your changes"
-  buh_tI  "  8. Quench: " "${RBZ_CRUCIBLE_QUENCH}" "${z_moniker}"
+  buh_tltlt "  3. " "Kludge" "${z_docs}#Kludge" " the " "Bottle" "${z_docs}#Bottle" ":"
+  buh_tTc   "     " "${RBZ_CRUCIBLE_KLUDGE_BOTTLE}" " ${z_moniker}"
+  buh_tlt   "  4. Commit the " "Hallmark" "${z_docs}#Hallmark" " change (Kludge drove it into rbrn.env)"
+  buh_tlt   "  5. " "Charge" "${z_docs}#Charge" ":"
+  buh_tI    "     " "${RBZ_CRUCIBLE_CHARGE}" "${z_moniker}"
+  buh_tc    "  6. SSH in: " "${z_ssh_tabtarget}"
+  buh_t     "  7. Test your changes"
+  buh_tlt   "  8. " "Quench" "${z_docs}#Quench" ":"
+  buh_tI    "     " "${RBZ_CRUCIBLE_QUENCH}" "${z_moniker}"
   buh_e
-  buh_t   "Steps 3-8 take under a minute. The sentry rarely changes, so"
-  buh_t   "you almost never re-kludge it — the bottle is your iteration"
+  buh_tlt "Steps 3-8 take under a minute. The " "Sentry" "${z_docs}#Sentry" " rarely changes, so"
+  buh_tlt "you almost never re-kludge it — the " "Bottle" "${z_docs}#Bottle" " is your iteration"
   buh_t   "target."
-  buh_e
-  buh_t   "This track never touches cloud infrastructure. Everything here"
-  buh_t   "runs on your workstation with Docker."
   buh_e
 
   # --- Return to start ---
