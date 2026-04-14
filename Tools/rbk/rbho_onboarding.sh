@@ -417,6 +417,7 @@ rbho_start_here() {
   buh_tlt "        * " "Summon" "${z_docs}#Summon" " — pull the hallmark locally"
   buh_tltlt "        * " "Abjure" "${z_docs}#Abjure" " and " "Rekon" "${z_docs}#Rekon" " — hallmark lifecycle"
   buh_t   "      Requires: Director credentials and a provisioned Depot."
+  buh_tT  "        " "${RBZ_ONBOARD_DIR_FIRST_BUILD}"
   buh_e
   buh_tlt "    " "Airgap" "${z_docs}#Airgap" " Cloud Build"
   buh_tlt "      Build with zero upstream access. " "Enshrine" "${z_docs}#Enshrine" " mirrors base images"
