@@ -1095,7 +1095,7 @@ rbho_start_here() {
   buh_t   "  built and stored — the ground truth other tracks rest on."
   buh_e
   buh_tlt "    " "Payor" "${z_docs}#Payor" " — create GCP project, billing, OAuth, and provision the depot"
-  buh_tT  "        " "${RBZ_ONBOARD_PAYOR}"
+  buh_tT  "        " "${RBZ_ONBOARD_PAYOR_HB}"
   buh_e
   buh_tlt "    " "Governor" "${z_docs}#Governor" " — administer service accounts for directors and retrievers"
   buh_tT  "        " "${RBZ_ONBOARD_GOVERNOR}"
@@ -1309,7 +1309,6 @@ rbho_crash_course() {
 
 zrbho_credential_install() {
   local -r z_role_constant="${1}"
-  local -r z_knight_constant="${2}"
   local -r z_docs="${RBRR_PUBLIC_DOCS_URL}"
 
   # --- Probes ---
@@ -1329,12 +1328,9 @@ zrbho_credential_install() {
   # --- Step 1: Get the key file ---
   buh_step1 "Get the key file"
   buh_e
-  buh_tlt "Your " "Governor" "${z_docs}#Governor" " creates a service account key by running:"
-  buh_e
-  buh_tT  "   " "${z_knight_constant}"
-  buh_e
-  buh_tlt "The output is an " "RBRA" "${z_docs}#RBRA" " credential file. The governor hands"
-  buh_t   "it to you out-of-band — this is a secret, not committed to the repo."
+  buh_tltltltlt "A " "Governor" "${z_docs}#Governor" " produces " "RBRA" "${z_docs}#RBRA" " credential files for " "Directors" "${z_docs}#Director" " and " "Retrievers" "${z_docs}#Retriever" "."
+  buh_tlt "Your " "Governor" "${z_docs}#Governor" " hands you this file out-of-band — it is a"
+  buh_t   "secret, never committed to the repo."
   buh_e
 
   # --- Step 2: Install the key file ---
@@ -1386,18 +1382,16 @@ rbho_credential_retriever() {
   buh_tlt "  " "Depot" "${z_docs}#Depot" " — read-only access to what others have built."
   buh_e
 
-  zrbho_credential_install "${RBCC_role_retriever}" "${RBZ_CHARTER_RETRIEVER}"
+  zrbho_credential_install "${RBCC_role_retriever}"
 
   # --- Step 4: Confirm live access ---
   buh_step1 "Confirm live access"
   buh_e
-  buh_tlt "Run " "Tally" "${z_docs}#Tally" " to list"
-  buh_tlt "  " "Hallmarks" "${z_docs}#Hallmark" " in the registry using your retriever credential:"
+  buh_tltlt "Run " "Tally" "${z_docs}#Tally" " to list " "Hallmarks" "${z_docs}#Hallmark" " in the registry using your retriever credential:"
   buh_e
   buh_tT  "   " "${RBZ_TALLY_HALLMARKS}"
   buh_e
-  buh_t   "If the command succeeds you have working pull access to the"
-  buh_tlt "  " "Depot" "${z_docs}#Depot" "."
+  buh_tlt "If the command succeeds you have working pull access to the " "Depot" "${z_docs}#Depot" "."
   buh_t   "If it fails, re-check the file placement in Step 2."
   buh_e
 
@@ -1423,7 +1417,7 @@ rbho_credential_director() {
   buh_tlt "  " "Depot" "${z_docs}#Depot" " — write access to the registry."
   buh_e
 
-  zrbho_credential_install "${RBCC_role_director}" "${RBZ_KNIGHT_DIRECTOR}"
+  zrbho_credential_install "${RBCC_role_director}"
 
   # --- Step 4: Confirm live access ---
   buh_step1 "Confirm live access"
@@ -1813,6 +1807,112 @@ rbho_first_crucible() {
   buh_tlt "Steps 3-7 take under a minute. The " "Sentry" "${z_docs}#Sentry" " rarely changes, so"
   buh_tlt "you almost never re-kludge it — the " "Bottle" "${z_docs}#Bottle" " is your iteration"
   buh_t   "target."
+  buh_e
+
+  # --- Return to start ---
+  buh_tT  "Return to start: " "${RBZ_ONBOARD_START_HERE}"
+  buh_e
+}
+
+######################################################################
+# Payor handbook — create GCP project, billing, OAuth, provision depot
+#
+# Linear step sequence, no conditional probes. The payor owns the GCP
+# project and funds it. This handbook walks through the full ceremony:
+# OAuth credentials, project setup, depot provisioning, governor handoff.
+
+rbho_payor_handbook() {
+  buc_doc_brief "Payor — create GCP project, billing, OAuth, and provision the depot"
+  buc_doc_shown || return 0
+
+  local -r z_docs="${RBRR_PUBLIC_DOCS_URL}"
+
+  # --- Header ---
+  buh_section "Payor — Create GCP Project and Provision the Depot"
+  buh_e
+  buh_tlt "The " "payor" "${z_docs}#Payor" " owns the GCP project and funds it. Unlike other"
+  buh_t   "roles that use service account keys, the payor authenticates via"
+  buh_t   "OAuth — representing the human project owner."
+  buh_e
+  buh_tlt "By the end of this handbook you will have a functioning " "depot" "${z_docs}#Depot" ""
+  buh_tlt "and a " "governor" "${z_docs}#Governor" " service account ready to administer it."
+  buh_e
+
+  buh_step_style "Step " " — "
+
+  # =================================================================
+  # Step 1: Install OAuth credentials
+  # =================================================================
+  buh_step1 "Install OAuth credentials"
+  buh_e
+  buh_t   "Download an OAuth client secret JSON file from your GCP project's"
+  buh_t   "API credentials page, then ingest it:"
+  buh_e
+  buh_tTc "  " "${RBZ_PAYOR_INSTALL}" " \${HOME}/Downloads/client_secret_*.json"
+  buh_e
+  buh_t   "This walks you through the OAuth authorization flow and stores"
+  buh_t   "the credential securely."
+  buh_e
+  buh_t   "If you have an existing credential that has expired:"
+  buh_tT  "  " "${RBZ_PAYOR_REFRESH}"
+  buh_e
+
+  # =================================================================
+  # Step 2: Create GCP project and configure OAuth consent screen
+  # =================================================================
+  buh_step1 "Create GCP project and configure OAuth consent screen"
+  buh_e
+  buh_t   "A funded GCP project is required before any infrastructure can be"
+  buh_t   "provisioned. The project must have billing enabled and the OAuth"
+  buh_t   "consent screen configured."
+  buh_e
+  buh_t   "Run the guided setup:"
+  buh_tT  "  " "${RBZ_PAYOR_ESTABLISH}"
+  buh_e
+  buh_t   "This guides you through project creation, billing enablement, and"
+  buh_tlt "consent screen configuration. The project ID is recorded in " "RBRR" "${z_docs}#RBRR" ""
+  buh_t   "and becomes the identity for all depot operations."
+  buh_e
+
+  # =================================================================
+  # Step 3: Provision the depot
+  # =================================================================
+  buh_step1 "Provision the depot"
+  buh_e
+  buh_tlt "A " "depot" "${z_docs}#Depot" " is the facility where container images are built and"
+  buh_t   "stored — a GCP project with a registry, storage bucket, and build"
+  buh_t   "infrastructure."
+  buh_e
+  buh_tlt "To " "levy" "${z_docs}#Levy" " a depot is to provision this infrastructure:"
+  buh_tT  "  " "${RBZ_LEVY_DEPOT}"
+  buh_e
+  buh_t   "This enables APIs, creates the Artifact Registry repository and"
+  buh_t   "Cloud Storage bucket, and configures Cloud Build."
+  buh_e
+  buh_t   "List your depots to verify:"
+  buh_tT  "  " "${RBZ_LIST_DEPOT}"
+  buh_e
+
+  # =================================================================
+  # Step 4: Create the governor service account
+  # =================================================================
+  buh_step1 "Create the governor service account"
+  buh_e
+  buh_tlt "A " "governor" "${z_docs}#Governor" " administers a depot — creating service accounts"
+  buh_t   "and managing access for those who build and run container images."
+  buh_e
+  buh_t   "The payor funds the infrastructure; the governor operates it."
+  buh_t   "After this handoff, the governor can charter retrievers and knight"
+  buh_t   "directors independently."
+  buh_e
+  buh_tT  "  " "${RBZ_MANTLE_GOVERNOR}"
+  buh_e
+  buh_t   "This creates the governor service account with administrative"
+  buh_t   "permissions over the depot. Hand the resulting key file to the"
+  buh_t   "person who will administer this depot."
+  buh_e
+  buh_t   "The payor's job for this depot is done unless billing or"
+  buh_t   "project-level changes are needed."
   buh_e
 
   # --- Return to start ---
