@@ -1661,21 +1661,35 @@ rbho_first_crucible() {
   buh_e
 
   # =================================================================
-  # Step 4: Enter the container via SSH
+  # Step 4: Enter the container and run Claude Code
   # =================================================================
-  buh_step1 "Enter the container"
+  buh_step1 "Enter the container and run Claude Code"
   buh_e
   buh_t   "SSH into the bottle:"
   buh_e
   buh_tc  "   " "${z_ssh_tabtarget}"
   buh_e
-  buh_t   "You land as the claude user. Run Claude Code:"
+  buh_t   "You land as the claude user in ~/workspace, which contains"
+  buh_t   "a small sample project. Run Claude Code:"
   buh_e
   buh_c   "   claude"
   buh_e
   buh_t   "Claude Code will prompt you to authenticate. It opens a URL —"
   buh_t   "copy it to your workstation browser, sign in with your Claude"
   buh_t   "subscription, and paste the code back into the terminal."
+  buh_e
+  buh_t   "Once authenticated, Claude Code starts in full autonomy mode —"
+  buh_t   "no permission prompts. Inside a network-contained crucible,"
+  buh_t   "this is the correct posture: the sentry enforces the real"
+  buh_t   "security boundary, not the tool permission system."
+  buh_e
+  buh_t   "Try your first interaction:"
+  buh_e
+  buh_c   "   The count_words.sh script has bugs — can you find and fix them?"
+  buh_e
+  buh_t   "Watch Claude read the files, identify issues, and edit the code."
+  buh_t   "The workspace persists across charge/quench cycles — your changes"
+  buh_t   "survive restarts."
   buh_e
   buh_t   "Why SSH instead of docker exec?"
   buh_e

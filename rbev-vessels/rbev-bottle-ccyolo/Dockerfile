@@ -45,6 +45,18 @@ RUN sed -i 's/@include common-auth/#@include common-auth/' /etc/pam.d/sshd && \
 # Ensure PATH includes npm global bin for SSH sessions
 RUN echo 'export PATH="/usr/local/bin:$PATH"' >> /etc/bash.bashrc
 
+# Preconfigure Claude Code for full autonomy (yolo mode).
+# Inside a network-contained crucible, bypassing permission prompts is
+# the correct posture — the sentry enforces the real security boundary.
+RUN mkdir -p /home/claude/.claude && \
+    echo '{"permissions":{"defaultMode":"bypassPermissions"}}' \
+      > /home/claude/.claude/settings.json && \
+    chown -R claude:claude /home/claude/.claude
+
+# Stage sample project as a template — the entrypoint seeds the
+# persistent workspace volume on first boot.
+COPY sample-project/ /opt/ccyolo-sample/
+
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 

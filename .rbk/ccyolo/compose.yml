@@ -14,3 +14,9 @@ services:
       - DISABLE_TELEMETRY=1
       - DISABLE_ERROR_REPORTING=1
       - CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
+    volumes:
+      - ccyolo_workspace:/home/claude/workspace:rw
+
+volumes:
+  ccyolo_workspace:
+    driver: local
