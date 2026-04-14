@@ -556,9 +556,10 @@
         "₢A6AAD",
         "₢A6AAE",
         "₢A6AAF",
+        "₢A6AAL",
         "₢A6AAA"
       ],
-      "next_pace_seed": "AAL",
+      "next_pace_seed": "AAM",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
       "paces": {
         "₢A6AAA": {
@@ -819,6 +820,17 @@
               "text": "## Character\n\nSmall, mechanical BUK infrastructure addition. Three files, one new type, one conditional. No design ambiguity — the approach is fully specified from the A6AAA assessment.\n\n## Deliverable\n\nAdd `buv_secret_enroll` type to the BUK validation/presentation stack so that secret fields (like `RBRA_PRIVATE_KEY`) are validated normally but redacted in render and validate output (terminal and logs).\n\n### Files to change\n\n1. **`Tools/buk/buv_validation.sh`** — Add `buv_secret_enroll()` function, parallel to `buv_string_enroll`. Delegates to `zbuv_enroll` with type `\"secret\"`. Validation behavior identical to `string` (min/max length).\n\n2. **`Tools/buk/bupr_PresentationRegime.sh`** — In `zbupr_render_field`, add a conditional: if `z_type` is `\"secret\"`, replace `z_value` with `\"(redacted — ${#z_value} chars)\"` before rendering. Both single-line and narrow layouts covered by one early substitution.\n\n3. **`Tools/rbk/rbra_regime.sh`** — Change line 45 from `buv_string_enroll RBRA_PRIVATE_KEY ...` to `buv_secret_enroll RBRA_PRIVATE_KEY ...`. No other changes.\n\n### Verification\n\n- `tt/rbw-rar.RenderAuthRegime.sh retriever` — RBRA_PRIVATE_KEY shows `(redacted — N chars)` instead of PEM material\n- `tt/rbw-rav.ValidateAuthRegime.sh retriever` — same redaction, validation still passes\n- Log files contain redacted output, not key material\n- `tt/rbw-tf.QualifyFast.sh` — passes\n- `tt/buw-st.BukSelfTest.sh` — passes (no existing test cases exercise secret type, but no regressions)\n\n## Out of Scope\n\n- Adding secret enrollment to any other regime (future paces can adopt it)\n- Retroactive log scrubbing (existing logs with leaked keys are a user concern)\n- BUS0 spec update for the new type (worth doing but separate)\n\n## References\n\n- `Tools/buk/buv_validation.sh` — enrollment functions, `zbuv_enroll` internal\n- `Tools/buk/bupr_PresentationRegime.sh` — `zbupr_render_field` display logic\n- `Tools/rbk/rbra_regime.sh` — RBRA field enrollments\n- Assessment from ₢A6AAA session ☉260413-1007",
               "silks": "buv-secret-enroll-type",
               "commit": "1eb8665"
+            }
+          ]
+        },
+        "₢A6AAL": {
+          "tacks": [
+            {
+              "ts": "260413-1752",
+              "state": "rough",
+              "text": "## Character\n\nCollaborative pair-programming pace. User drives step by step through adding new tabtargets and building out track text for all items in the StartHere onboarding menu. Pattern replication from the Crash Course implementation — zipper enrollment, thin dispatcher, sequence function, `buh_*` teaching content.\n\n## Docket\n\nUser-driven walkthrough: for each track in the StartHere menu, add the tabtarget infrastructure (zipper enrollment, dispatcher, function skeleton) and write the track teaching content. User decides ordering, scope per track, and when to move on.\n\n### Inputs\n\n- Working `rbho_start_here()` menu as the track inventory\n- Working `rbho_crash_course()` as the pattern to replicate\n- ccyolo vessel and nameplate from ₢A6AAG as hands-on infrastructure\n\n### Per-track steps (user drives sequence)\n\n1. Add zipper enrollment in `rbz_zipper.sh`\n2. Create thin dispatcher tabtarget in `tt/`\n3. Add sequence function skeleton in `rbho_onboarding.sh`\n4. Write teaching content using `buh_*` primitives\n5. Run `tt/rbw-MG.MarshalGenerate.sh` to regenerate context\n6. Smoke test the new tabtarget\n7. Notch\n\n### Out of scope\n\n- Designing the track roster (already in paddock)\n- Agent-learner eval (separate pace)",
+              "silks": "guided-track-buildout",
+              "commit": "91d9cb9"
             }
           ]
         }
