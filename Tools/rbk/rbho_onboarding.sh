@@ -1296,20 +1296,25 @@ rbho_director_first_build() {
   buh_tlt "Every conjured " "Hallmark" "${z_docs}#Hallmark" " produces a set of tagged"
   buh_t   "artifacts in GAR. Each suffix serves a specific role:"
   buh_e
-  buh_tc  "   {hallmark}" "${RBGC_ARK_SUFFIX_IMAGE}"
+  buh_tc  "   " "{hallmark}${RBGC_ARK_SUFFIX_IMAGE}"
   buh_t   "      The consumer image — a multiplatform manifest list."
   buh_t   "      This is what you pull and run."
   buh_e
-  buh_tc  "   {hallmark}" "${RBGC_ARK_SUFFIX_ABOUT}"
+  buh_tc  "   " "{hallmark}${RBGC_ARK_SUFFIX_ATTEST}-{arch}"
+  buh_t   "      Per-platform provenance-carrying image (one per platform)."
+  buh_t   "      Shares all layers with -image — only the manifest differs."
+  buh_t   "      These carry the GCB-attested digests used by vouch."
+  buh_e
+  buh_tc  "   " "{hallmark}${RBGC_ARK_SUFFIX_ABOUT}"
   buh_t   "      SBOM (software bill of materials) + build info."
   buh_e
-  buh_tc  "   {hallmark}" "${RBGC_ARK_SUFFIX_VOUCH}"
+  buh_tc  "   " "{hallmark}${RBGC_ARK_SUFFIX_VOUCH}"
   buh_t   "      SLSA provenance verification record."
   buh_e
-  buh_tc  "   {hallmark}" "${RBGC_ARK_SUFFIX_POUCH}"
+  buh_tc  "   " "{hallmark}${RBGC_ARK_SUFFIX_POUCH}"
   buh_t   "      Build context archive — what was sent to Cloud Build."
   buh_e
-  buh_tc  "   {hallmark}" "${RBGC_ARK_SUFFIX_DIAGS}"
+  buh_tc  "   " "{hallmark}${RBGC_ARK_SUFFIX_DIAGS}"
   buh_t   "      Diagnostics from the build."
   buh_e
   buh_t   "Inspect them:"
@@ -1331,7 +1336,8 @@ rbho_director_first_build() {
   buh_e
   buh_tlt "" "Vouch" "${z_docs}#Vouch" " verifies SLSA provenance for each platform"
   buh_t   "digest in the hallmark. The ordain pipeline runs vouch"
-  buh_t   "automatically, but you can re-run it to see the output:"
+  buh_t   "automatically. If a build was interrupted before vouch"
+  buh_t   "completed, run this to vouch all unvouched hallmarks:"
   buh_e
   buh_tT  "   " "${RBZ_VOUCH_HALLMARKS}"
   buh_e
