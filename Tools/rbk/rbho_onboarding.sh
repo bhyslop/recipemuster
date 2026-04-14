@@ -1679,12 +1679,9 @@ rbho_first_crucible() {
   buh_e
   buh_t   "Why SSH instead of docker exec?"
   buh_e
-  buh_t   "Docker exec allocates a pseudo-TTY but does not propagate"
-  buh_t   "SIGWINCH — when you resize your terminal window, the container"
-  buh_t   "does not learn the new dimensions. Claude Code's interactive"
-  buh_t   "display breaks. This is a long-standing Docker limitation."
-  buh_t   "SSH provides a proper login session with full terminal"
-  buh_t   "negotiation."
+  buh_t   "Docker exec is laggy and breaks terminal resize — Claude Code's"
+  buh_t   "interactive display needs correct dimensions. SSH gives a proper"
+  buh_t   "login session with full terminal negotiation."
   buh_e
   buh_tlt "If SSH fails, " "Rack" "${z_docs}#Rack" " is the diagnostic fallback —"
   buh_t   "docker exec into the bottle to inspect state:"
