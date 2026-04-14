@@ -1079,7 +1079,7 @@ rbho_start_here() {
   buh_e
   buh_tlt "    Start a " "Crucible" "${z_docs}#Crucible" " Using Local Builds"
   buh_tT  "        " "${RBZ_ONBOARD_FIRST_CRUCIBLE}"
-  buh_tlt "      The ccyolo " "Crucible" "${z_docs}#Crucible" " runs Claude Code in a container that can"
+  buh_tltlt "      The " "ccyolo" "${z_docs}#ccyolo" " " "Crucible" "${z_docs}#Crucible" " runs Claude Code in a container that can"
   buh_t   "      only reach Anthropic. Requires a Claude OAuth subscription."
   buh_tltltltlt "        Build images locally      — " "Kludge" "${z_docs}#Kludge" " " "Sentry" "${z_docs}#Sentry" "/" "Pentacle" "${z_docs}#Pentacle" " and " "Bottle" "${z_docs}#Bottle" ""
   buh_tltlt   "        Configure local network   — amend " "Nameplate" "${z_docs}#Nameplate" " " "RBRN" "${z_docs}#RBRN" " file"
@@ -1563,7 +1563,7 @@ rbho_first_crucible() {
   buh_step2 "Kludge the bottle"
   buh_e
   buh_tlt "The " "bottle" "${z_docs}#Bottle" " is your workload container — where Claude Code"
-  buh_t   "runs. The ccyolo bottle includes SSH, node, and the Claude CLI."
+  buh_tlt "runs. The " "ccyolo" "${z_docs}#ccyolo" " bottle includes SSH, node, and the Claude CLI."
   buh_e
   buh_t   "This command is different from the sentry kludge. It builds the"
   buh_tlt "bottle AND drives the " "hallmark" "${z_docs}#Hallmark" " into the nameplate"
@@ -1723,7 +1723,7 @@ rbho_first_crucible() {
   buh_t   "packets to any IP not in the CIDR allowlist. Both layers"
   buh_t   "must agree for traffic to pass."
   buh_e
-  buh_t   "example.com is included in the ccyolo nameplate specifically"
+  buh_tlt "example.com is included in the " "ccyolo" "${z_docs}#ccyolo" " nameplate specifically"
   buh_t   "for this verification step — it proves the allowlist works"
   buh_t   "for a non-Anthropic domain."
   buh_e
