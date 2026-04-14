@@ -118,6 +118,31 @@ zrbfc_resolve_tool_images() {
   buc_log_args "Tool images resolved from reliquary: ${z_reliquary}"
 }
 
+# Validate that a vessel sigil is non-empty and corresponds to a known vessel.
+# On missing or invalid sigil, lists available vessels and dies.
+# Does NOT resolve to a directory — use zrbfc_resolve_vessel for that.
+rbfc_require_vessel_sigil() {
+  zrbfc_sentinel
+
+  local -r z_sigil="${1:-}"
+
+  if test -n "${z_sigil}" && test -d "${RBRR_VESSEL_DIR}/${z_sigil}" && test -f "${RBRR_VESSEL_DIR}/${z_sigil}/rbrv.env"; then
+    return 0
+  fi
+
+  local z_sigils=""
+  z_sigils=$(rbrv_list_capture) || buc_die "No vessels found"
+  buc_step "Available vessels:"
+  local z_s=""
+  for z_s in ${z_sigils}; do
+    buc_bare "        ${z_s}"
+  done
+  if test -z "${z_sigil}"; then
+    buc_die "Vessel parameter required"
+  fi
+  buc_die "Vessel not found: ${z_sigil}"
+}
+
 # Resolve vessel argument: accepts a sigil (e.g., rbev-sentry-debian-slim) or a path
 # (e.g., rbev-vessels/rbev-sentry-debian-slim).  On no-arg or invalid arg, lists
 # available vessels and dies.  On success, writes resolved path to ZRBFC_VESSEL_RESOLVED_DIR_FILE.
@@ -495,7 +520,7 @@ zrbfc_plumb_core() {
   local -r z_hallmark="${2:-}"
   local -r z_mode="${3}"
 
-  test -n "${z_vessel}"       || buc_die "Vessel parameter required"
+  rbfc_require_vessel_sigil "${z_vessel}"
   test -n "${z_hallmark}" || buc_die "Hallmark parameter required"
 
   # Load vessel config (sets RBRV_VESSEL_MODE, RBRV_BIND_IMAGE, etc.)

@@ -124,7 +124,7 @@ rbfr_summon() {
   buc_doc_shown || return 0
 
   buc_log_args "Validate parameters"
-  test -n "${z_vessel}" || buc_die "Vessel parameter required"
+  rbfc_require_vessel_sigil "${z_vessel}"
   test -n "${z_hallmark}" || buc_die "Hallmark parameter required"
 
   buc_step "Authenticating for retrieval"
