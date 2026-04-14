@@ -125,15 +125,47 @@ rbfr_summon() {
 
   buc_log_args "Validate parameters"
   rbfc_require_vessel_sigil "${z_vessel}"
-  test -n "${z_hallmark}" || buc_die "Hallmark parameter required"
 
   buc_step "Authenticating for retrieval"
-
   test -f "${RBDC_RETRIEVER_RBRA_FILE}" || buc_die "Retriever credential not found: ${RBDC_RETRIEVER_RBRA_FILE}"
-
-  # Get OAuth token
   local z_token
   z_token=$(rbgo_get_token_capture "${RBDC_RETRIEVER_RBRA_FILE}") || buc_die "Failed to get OAuth token"
+
+  # List vouched hallmarks when hallmark parameter is missing
+  if test -z "${z_hallmark}"; then
+    local -r z_tags_file="${ZRBFR_TEMP_PREFIX}summon_tags.json"
+    local -r z_stderr_file="${ZRBFR_TEMP_PREFIX}summon_tags_stderr.txt"
+    curl -sL \
+      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+      --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+      -H "Authorization: Bearer ${z_token}" \
+      "${ZRBFC_REGISTRY_API_BASE}/${z_vessel}/tags/list" \
+      > "${z_tags_file}" 2>"${z_stderr_file}" \
+      || buc_die "Failed to fetch tags for ${z_vessel} — see ${z_stderr_file}"
+    local -r z_all_tags_file="${ZRBFR_TEMP_PREFIX}summon_all_tags.txt"
+    jq -r '.tags[]? // empty' "${z_tags_file}" > "${z_all_tags_file}" \
+      || buc_die "Failed to extract tags for ${z_vessel}"
+    local -r z_vouched_file="${ZRBFR_TEMP_PREFIX}summon_vouched.txt"
+    : > "${z_vouched_file}"
+    local -r z_suffix="${RBGC_ARK_SUFFIX_VOUCH}"
+    while IFS= read -r z_tag || test -n "${z_tag}"; do
+      case "${z_tag}" in
+        *"${z_suffix}") printf '%s\n' "${z_tag%"${z_suffix}"}" >> "${z_vouched_file}" ;;
+      esac
+    done < "${z_all_tags_file}"
+    local -r z_sorted_file="${ZRBFR_TEMP_PREFIX}summon_vouched_sorted.txt"
+    sort -r "${z_vouched_file}" > "${z_sorted_file}" \
+      || buc_die "Failed to sort vouched hallmarks"
+    if test -s "${z_sorted_file}"; then
+      buc_step "Vouched hallmarks for ${z_vessel}:"
+      while IFS= read -r z_h || test -n "${z_h}"; do
+        buc_bare "        ${z_h}"
+      done < "${z_sorted_file}"
+    else
+      buc_step "No vouched hallmarks found for ${z_vessel}"
+    fi
+    buc_die "Hallmark parameter required"
+  fi
 
   # Construct ark tags — all use full hallmark
   local z_image_tag="${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}"
