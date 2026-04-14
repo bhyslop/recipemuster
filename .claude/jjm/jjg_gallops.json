@@ -560,6 +560,7 @@
         "₢A6AAO",
         "₢A6AAU",
         "₢A6AAV",
+        "₢A6AAW",
         "₢A6AAH",
         "₢A6AAI",
         "₢A6AAJ",
@@ -569,7 +570,7 @@
         "₢A6AAM",
         "₢A6AAA"
       ],
-      "next_pace_seed": "AAW",
+      "next_pace_seed": "AAX",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
       "paces": {
         "₢A6AAA": {
@@ -1091,6 +1092,17 @@
               "text": "## Character\n\nHandbook track implementation — airgap cloud builds with zero upstream access. Pattern replication from `tt/rbw-Ofc.OnboardingFirstCrucible.sh`. Builds on the tethered build track (₢A6AAU / rbw-Odf) — the learner already knows the conjure lifecycle; this track teaches isolation.\n\n**Depends on**: ₢A6AAU (onboarding-director-first-cloud-build) — reliquary must already be inscribed, learner must have completed a tethered build.\n\n## Docket\n\nImplement `tt/rbw-Oda.OnboardingDirectorAirgap.sh` — the airgap cloud build handbook track.\n\n### Teaching arc\n\n1. **Enshrine base images** — mirror upstream base images into GAR with content-addressed anchors for all shipped conjure vessels (sentry-debian-slim, bottle-ccyolo, bottle-ifrit). Teach: supply-chain independence, anchor scheme (`RBRV_IMAGE_n_ANCHOR`), air-gap readiness, concrete scope of upstream dependencies the project carries.\n2. **Conjure Sentry airgapped** — same vessel (sentry-debian-slim), now built on the airgap pool with no public internet. All dependencies pre-enshrined in GAR. Teach: most restrictive build mode, full isolation, the enshrined bases make this possible.\n3. **Compare Plumb output** — tethered vs airgap side by side. Teach: the images are functionally identical; the difference is in the supply-chain properties (airgap has no upstream pull during build). Both have SLSA provenance.\n\n### Probes\n\n- Reliquary inscribed (prerequisite from previous track)\n- Base images enshrined (monotonic)\n- Airgap hallmark exists and is vouched\n- Tethered hallmark still present for comparison\n\n### Implementation\n\n- Zipper enrollment in `rbz_zipper.sh` (colophon `rbw-Oda`, group `RBZ__GROUP_ONBOARDING`)\n- Thin dispatcher tabtarget `tt/rbw-Oda.OnboardingDirectorAirgap.sh`\n- Sequence function `rbho_director_airgap()` in `rbho_onboarding.sh`\n- Teaching content using `buh_*` primitives\n\n### Requires\n\n- Previous subtrack completed (reliquary inscribed, tethered build done)\n- Director credentials, provisioned depot\n\n### Out of scope\n\n- Reliquary inscription (covered in rbw-Odf)\n- Bind or graft modes\n- Ifrit airgap feasibility (₢A6AAI decides whether ifrit goes airgap — this track uses sentry regardless)",
               "silks": "onboarding-director-airgap",
               "commit": "754e768"
+            }
+          ]
+        },
+        "₢A6AAW": {
+          "tacks": [
+            {
+              "ts": "260414-1312",
+              "state": "rough",
+              "text": "## Character\n\nHandbook track implementation — bind mode: pin an upstream image by digest with zero build. Pattern replication from `tt/rbw-Ofc.OnboardingFirstCrucible.sh`. Teaches the simplest ordain mode — no Dockerfile, no build context, no pouch. The learner sees a different vouch verdict (digest-pin, no SLSA) and understands why.\n\nUses `rbev-bottle-plantuml` as the teaching vessel — a real upstream image that renders diagrams but whose Docker Hub source could phone home. Bind pins it; the Sentry blocks all egress.\n\n## Docket\n\nImplement `tt/rbw-Odb.OnboardingDirectorBind.sh` — the bind mode handbook track.\n\n### Teaching arc\n\n1. **Bind PlantUML** — pin upstream image by digest into GAR. No Dockerfile in the project, no build. Teach: bind mode mirrors an upstream image by digest, the director trusts the upstream publisher, the depot gets an immutable copy. Contrast with conjure (project builds the image) and graft (local machine builds the image).\n2. **Inspect Vouch verdict** — digest-pin, no SLSA. Teach: SLSA provenance requires Cloud Build — bind bypasses Cloud Build entirely, so the vouch verdict honestly reports \"digest-pin.\" The image is exactly what upstream published, pinned by content hash, but the project didn't build it.\n3. **Charge the pluml Crucible** — render a diagram, observe blocked egress. Teach: the Sentry enforces network isolation regardless of image provenance. The PlantUML image might phone home if run naked; inside the crucible it cannot. You get the tool without the risk.\n\n### Probes\n\n- Director RBRA present and valid\n- Depot provisioned\n- PlantUML hallmark exists and is vouched (digest-pin)\n- pluml crucible chargeable\n\n### Implementation\n\n- Zipper enrollment in `rbz_zipper.sh` (colophon `rbw-Odb`, group `RBZ__GROUP_ONBOARDING`)\n- Thin dispatcher tabtarget `tt/rbw-Odb.OnboardingDirectorBind.sh`\n- Sequence function `rbho_director_bind()` in `rbho_onboarding.sh`\n- Teaching content using `buh_*` primitives\n\n### Requires\n\n- Director credentials, provisioned depot\n- `rbev-bottle-plantuml` vessel and `pluml` nameplate (already shipped)\n\n### Out of scope\n\n- Conjure or graft modes\n- Reliquary inscription (bind doesn't use Cloud Build)\n- PlantUML vessel creation (already exists)",
+              "silks": "onboarding-director-bind",
+              "commit": "c27d8ce"
             }
           ]
         }
