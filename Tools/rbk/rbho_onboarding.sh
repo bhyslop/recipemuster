@@ -1114,7 +1114,7 @@ rbho_start_here() {
   buh_tlt     "    Provision Builder Toolchain  — inscribe the " "Reliquary" "${z_docs}#Reliquary" ""
   buh_tlt     "    Cloud Build using Internet   — " "Tethered" "${z_docs}#Tethered" " cloud builds"
   buh_tlt     "    Cloud Build Without Internet — " "Airgap" "${z_docs}#Airgap" " cloud builds"
-  buh_tltl    "    Build other Test Images      — " "Ordain" "${z_docs}#Ordain" " for" "Crucibles" "${z_docs}#Crucible"
+  buh_tltlt   "    Build other Test Images      — " "Ordain" "${z_docs}#Ordain" " for " "Crucibles" "${z_docs}#Crucible" ""
   buh_e
 
   # --- Evaluation ---
