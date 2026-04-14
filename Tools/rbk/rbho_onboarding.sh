@@ -1830,18 +1830,38 @@ rbho_payor_handbook() {
   # --- Header ---
   buh_section "Payor — Create GCP Project and Provision the Depot"
   buh_e
-  buh_tlt "The " "payor" "${z_docs}#Payor" " owns the GCP project and funds it. Unlike other"
+  buh_tlt "The " "Payor" "${z_docs}#Payor" " owns the GCP project and funds it. Unlike other"
   buh_t   "roles that use service account keys, the payor authenticates via"
   buh_t   "OAuth — representing the human project owner."
   buh_e
-  buh_tlt "By the end of this handbook you will have a functioning " "depot" "${z_docs}#Depot" ""
-  buh_tlt "and a " "governor" "${z_docs}#Governor" " service account ready to administer it."
+  buh_tlt "By the end of this handbook you will have a functioning " "Depot" "${z_docs}#Depot" ""
+  buh_tlt "and a " "Governor" "${z_docs}#Governor" " service account ready to administer it."
+  buh_e
+
+  buh_t   "This ceremony takes about 15 minutes."
   buh_e
 
   buh_step_style "Step " " — "
 
   # =================================================================
-  # Step 1: Install OAuth credentials
+  # Step 1: Create GCP project and configure OAuth consent screen
+  # =================================================================
+  buh_step1 "Create GCP project and configure OAuth consent screen"
+  buh_e
+  buh_t   "A funded GCP project is required before any infrastructure can be"
+  buh_t   "provisioned. The project must have billing enabled and the OAuth"
+  buh_t   "consent screen configured."
+  buh_e
+  buh_t   "Run the guided setup:"
+  buh_tT  "  " "${RBZ_PAYOR_ESTABLISH}"
+  buh_e
+  buh_t   "This guides you through project creation, billing enablement, and"
+  buh_tlt "consent screen configuration. The project ID is recorded in " "RBRR" "${z_docs}#RBRR" ""
+  buh_tlt "and becomes the identity for all " "Depot" "${z_docs}#Depot" " operations."
+  buh_e
+
+  # =================================================================
+  # Step 2: Install OAuth credentials
   # =================================================================
   buh_step1 "Install OAuth credentials"
   buh_e
@@ -1858,32 +1878,15 @@ rbho_payor_handbook() {
   buh_e
 
   # =================================================================
-  # Step 2: Create GCP project and configure OAuth consent screen
-  # =================================================================
-  buh_step1 "Create GCP project and configure OAuth consent screen"
-  buh_e
-  buh_t   "A funded GCP project is required before any infrastructure can be"
-  buh_t   "provisioned. The project must have billing enabled and the OAuth"
-  buh_t   "consent screen configured."
-  buh_e
-  buh_t   "Run the guided setup:"
-  buh_tT  "  " "${RBZ_PAYOR_ESTABLISH}"
-  buh_e
-  buh_t   "This guides you through project creation, billing enablement, and"
-  buh_tlt "consent screen configuration. The project ID is recorded in " "RBRR" "${z_docs}#RBRR" ""
-  buh_t   "and becomes the identity for all depot operations."
-  buh_e
-
-  # =================================================================
   # Step 3: Provision the depot
   # =================================================================
   buh_step1 "Provision the depot"
   buh_e
-  buh_tlt "A " "depot" "${z_docs}#Depot" " is the facility where container images are built and"
+  buh_tlt "A " "Depot" "${z_docs}#Depot" " is the facility where container images are built and"
   buh_t   "stored — a GCP project with a registry, storage bucket, and build"
   buh_t   "infrastructure."
   buh_e
-  buh_tlt "To " "levy" "${z_docs}#Levy" " a depot is to provision this infrastructure:"
+  buh_tlt "To " "Levy" "${z_docs}#Levy" " a Depot is to provision this infrastructure:"
   buh_tT  "  " "${RBZ_LEVY_DEPOT}"
   buh_e
   buh_t   "This enables APIs, creates the Artifact Registry repository and"
@@ -1898,20 +1901,20 @@ rbho_payor_handbook() {
   # =================================================================
   buh_step1 "Create the governor service account"
   buh_e
-  buh_tlt "A " "governor" "${z_docs}#Governor" " administers a depot — creating service accounts"
+  buh_tltlt "A " "Governor" "${z_docs}#Governor" " administers a " "Depot" "${z_docs}#Depot" " — creating service accounts"
   buh_t   "and managing access for those who build and run container images."
   buh_e
-  buh_t   "The payor funds the infrastructure; the governor operates it."
-  buh_t   "After this handoff, the governor can charter retrievers and knight"
-  buh_t   "directors independently."
+  buh_tltlt "The " "Payor" "${z_docs}#Payor" " funds the infrastructure; the " "Governor" "${z_docs}#Governor" " operates it."
+  buh_tltlt "After this handoff, the " "Governor" "${z_docs}#Governor" " can " "Charter" "${z_docs}#Charter" ""
+  buh_tltlt "" "Retrievers" "${z_docs}#Retriever" " and " "Knight" "${z_docs}#Knight" " Directors independently."
   buh_e
   buh_tT  "  " "${RBZ_MANTLE_GOVERNOR}"
   buh_e
-  buh_t   "This creates the governor service account with administrative"
-  buh_t   "permissions over the depot. Hand the resulting key file to the"
-  buh_t   "person who will administer this depot."
+  buh_tlt "This creates the " "Governor" "${z_docs}#Governor" " service account with administrative"
+  buh_tlt "permissions over the " "Depot" "${z_docs}#Depot" ". Hand the resulting key file to the"
+  buh_t   "person who will administer this Depot."
   buh_e
-  buh_t   "The payor's job for this depot is done unless billing or"
+  buh_tltlt "The " "Payor's" "${z_docs}#Payor" " job for this " "Depot" "${z_docs}#Depot" " is done unless billing or"
   buh_t   "project-level changes are needed."
   buh_e
 
@@ -1937,11 +1940,11 @@ rbho_governor_handbook() {
   # --- Header ---
   buh_section "Governor — Administer Service Accounts"
   buh_e
-  buh_tlt "A " "governor" "${z_docs}#Governor" " administers a depot — creating service accounts"
+  buh_tltlt "A " "Governor" "${z_docs}#Governor" " administers a " "Depot" "${z_docs}#Depot" " — creating service accounts"
   buh_t   "and managing access for those who build and run container images."
   buh_e
-  buh_t   "The governor works within a depot that the payor created. If no"
-  buh_t   "depot exists yet, that is a payor responsibility:"
+  buh_tltlt "The " "Governor" "${z_docs}#Governor" " works within a " "Depot" "${z_docs}#Depot" " that the"
+  buh_tlt "" "Payor" "${z_docs}#Payor" " created. If no Depot exists yet, that is a Payor responsibility:"
   buh_tT  "  " "${RBZ_ONBOARD_PAYOR_HB}"
   buh_e
 
@@ -1952,8 +1955,8 @@ rbho_governor_handbook() {
   # =================================================================
   buh_step1 "Install governor credentials"
   buh_e
-  buh_t   "To administer a depot, you need a governor service account key."
-  buh_t   "Your payor creates one by running:"
+  buh_tlt "To administer a " "Depot" "${z_docs}#Depot" ", you need a Governor service account key."
+  buh_tlt "Your " "Payor" "${z_docs}#Payor" " creates one by running:"
   buh_tT  "  " "${RBZ_MANTLE_GOVERNOR}"
   buh_e
   buh_t   "Install the resulting key file into the secrets directory under"
@@ -1968,9 +1971,9 @@ rbho_governor_handbook() {
   buh_e
   buh_t   "The governor provisions access for two downstream roles:"
   buh_e
-  buh_tlt "A " "retriever" "${z_docs}#Retriever" " has read access to the depot — they pull and run"
+  buh_tltlt "A " "Retriever" "${z_docs}#Retriever" " has read access to the " "Depot" "${z_docs}#Depot" " — they pull and run"
   buh_t   "container images that others have built."
-  buh_tlt "A " "director" "${z_docs}#Director" " has build and publish access — they create container"
+  buh_tlt "A " "Director" "${z_docs}#Director" " has build and publish access — they create container"
   buh_t   "images and push them to the registry."
   buh_e
   buh_tlt "" "Charter" "${z_docs}#Charter" " creates a retriever service account with read access:"
@@ -1980,8 +1983,8 @@ rbho_governor_handbook() {
   buh_tT  "  " "${RBZ_KNIGHT_DIRECTOR}"
   buh_e
   buh_t   "Each command creates the service account and applies the IAM"
-  buh_t   "grants it needs. The output is an RBRA key file — hand it to"
-  buh_t   "the retriever or director user."
+  buh_tlt "grants it needs. The output is an " "RBRA" "${z_docs}#RBRA" " key file — hand it to"
+  buh_t   "the Retriever or Director user."
   buh_e
   buh_t   "List issued service accounts:"
   buh_tT  "  " "${RBZ_LIST_SERVICE_ACCOUNTS}"
@@ -2002,8 +2005,8 @@ rbho_governor_handbook() {
   buh_tT  "  " "${RBZ_ONBOARD_CRED_RETRIEVER}"
   buh_tT  "  " "${RBZ_ONBOARD_CRED_DIRECTOR}"
   buh_e
-  buh_t   "If the retriever can pull from the depot and the director can"
-  buh_t   "see the registry, your grants are correct."
+  buh_tltlt "If the " "Retriever" "${z_docs}#Retriever" " can pull from the " "Depot" "${z_docs}#Depot" " and the"
+  buh_tlt "" "Director" "${z_docs}#Director" " can see the registry, your grants are correct."
   buh_e
 
   # --- Return to start ---
