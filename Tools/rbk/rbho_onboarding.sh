@@ -1094,16 +1094,11 @@ rbho_start_here() {
   buh_tlt "  A " "Depot" "${z_docs}#Depot" " is the facility where the team's container images are"
   buh_t   "  built and stored — the ground truth other tracks rest on."
   buh_e
-  buh_tlt "    User creates " "Payor" "${z_docs}#Payor" " account"
-  buh_t   "      ~15 minutes: create a GCP account, attach a credit card, configure"
-  buh_tlt "      OAuth consent screen, initial " "RBRR" "${z_docs}#RBRR" " population. Required before any"
-  buh_t   "      cloud operations."
+  buh_tlt "    " "Payor" "${z_docs}#Payor" " — create GCP project, billing, OAuth, and provision the depot"
+  buh_tT  "        " "${RBZ_ONBOARD_PAYOR}"
   buh_e
-  buh_tltltlt "    " "Payor" "${z_docs}#Payor" " creates the " "Depot" "${z_docs}#Depot" " and its " "Governor" "${z_docs}#Governor" ""
-  buh_t   "      GCP project provisioning, billing linkage, service account creation."
-  buh_e
-  buh_tltltlt "    " "Governor" "${z_docs}#Governor" " administers " "Directors" "${z_docs}#Director" " and " "Retrievers" "${z_docs}#Retriever" ""
-  buh_t   "      Create service accounts, issue credentials, distribute securely."
+  buh_tlt "    " "Governor" "${z_docs}#Governor" " — administer service accounts for directors and retrievers"
+  buh_tT  "        " "${RBZ_ONBOARD_GOVERNOR}"
   buh_e
 
   # --- Director subtracks ---
@@ -1374,12 +1369,7 @@ zrbho_credential_install() {
   buh_t   "what the credential grants."
   buh_e
 
-  # --- Step 4: Next steps ---
-  buh_step1 "Next steps"
-  buh_e
-  buh_t  "Return to the start menu:"
-  buh_tT "   " "${RBZ_ONBOARD_START_HERE}"
-  buh_e
+  # Callers append role-specific verification and closing steps
 }
 
 ######################################################################
@@ -1397,6 +1387,26 @@ rbho_credential_retriever() {
   buh_e
 
   zrbho_credential_install "${RBCC_role_retriever}" "${RBZ_CHARTER_RETRIEVER}"
+
+  # --- Step 4: Confirm live access ---
+  buh_step1 "Confirm live access"
+  buh_e
+  buh_tlt "Run " "Tally" "${z_docs}#Tally" " to list"
+  buh_tlt "  " "Hallmarks" "${z_docs}#Hallmark" " in the registry using your retriever credential:"
+  buh_e
+  buh_tT  "   " "${RBZ_TALLY_HALLMARKS}"
+  buh_e
+  buh_t   "If the command succeeds you have working pull access to the"
+  buh_tlt "  " "Depot" "${z_docs}#Depot" "."
+  buh_t   "If it fails, re-check the file placement in Step 2."
+  buh_e
+
+  # --- Step 5: Next steps ---
+  buh_step1 "Next steps"
+  buh_e
+  buh_t  "Return to the start menu:"
+  buh_tT "   " "${RBZ_ONBOARD_START_HERE}"
+  buh_e
 }
 
 ######################################################################
@@ -1414,6 +1424,26 @@ rbho_credential_director() {
   buh_e
 
   zrbho_credential_install "${RBCC_role_director}" "${RBZ_KNIGHT_DIRECTOR}"
+
+  # --- Step 4: Confirm live access ---
+  buh_step1 "Confirm live access"
+  buh_e
+  buh_t   "Run rekon to list raw image tags in the registry"
+  buh_t   "using your director credential:"
+  buh_e
+  buh_tT  "   " "${RBZ_REKON_IMAGE}"
+  buh_e
+  buh_t   "If the command succeeds you have working build access to the"
+  buh_tlt "  " "Depot" "${z_docs}#Depot" "."
+  buh_t   "If it fails, re-check the file placement in Step 2."
+  buh_e
+
+  # --- Step 5: Next steps ---
+  buh_step1 "Next steps"
+  buh_e
+  buh_t  "Return to the start menu:"
+  buh_tT "   " "${RBZ_ONBOARD_START_HERE}"
+  buh_e
 }
 
 ######################################################################
