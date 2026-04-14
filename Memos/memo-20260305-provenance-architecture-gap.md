@@ -766,3 +766,124 @@ dispatches, Cloud Build executes — no local environment in the provenance chai
 - [Docker image attestation storage](https://docs.docker.com/build/metadata/attestations/attestation-storage/)
 - [docker pull --platform fallback issue](https://github.com/docker/for-mac/issues/5625)
 - [Docker roadmap: multi-platform image store](https://github.com/docker/roadmap/issues/371)
+
+## Digest Identity Gap (₣A6, 2026-04-14)
+
+### Discovery
+
+During ₢A6AAS smoke test of the refactored conjure pipeline. Conjure build
+succeeded (build `3c8f5b0c`, depot `depot10041`). About pipeline succeeded.
+Vouch build failed (build `090b45c1`) with:
+
+```
+FATAL: No v1.0 envelope for amd64
+```
+
+The vouch verifier (`rbgjv02-verify-provenance.py`) fetched the `-image`
+manifest list, extracted the per-platform digests from the OCI index, and
+queried `gcloud artifacts docker images describe IMAGE@DIGEST --show-provenance`.
+No provenance was found on any per-platform digest from the `-image` manifest.
+
+Provenance WAS present on the `-attest-{arch}` tags (confirmed via `gcloud
+artifacts docker images describe ...attest-amd64 --show-provenance` — returned
+`intoto_slsa_v1` note).
+
+### Root Cause
+
+The classic Docker image store (Docker 20.10.24 on Cloud Build workers) does
+not preserve manifest identity through pull/push round-trips. The digest
+mismatch is expected and fundamental, not a code bug.
+
+**The chain:**
+
+1. `buildx --push` pushes an OCI image index directly to GAR via BuildKit.
+   Per-platform child manifests get native OCI digests (D1, D2, D3).
+
+2. `docker pull --platform linux/amd64` materializes a single-platform
+   representation in the classic image store. The classic store does not
+   support OCI image indices, manifest lists, or attestation manifests as
+   first-class local objects. The pull creates a local image representation,
+   not a byte-for-byte copy of the registry manifest.
+
+3. `docker tag` + `docker push` emits a fresh registry manifest from the
+   daemon's local representation. Because an image digest is the SHA-256 of
+   the manifest bytes, any re-serialization (OCI ↔ Docker V2, config format
+   changes, media type changes) produces a different digest.
+
+4. Cloud Build's `images:` field pushes the daemon-held images post-steps
+   and generates SLSA provenance. Provenance attaches to the **daemon-pushed
+   digests** — which are the `-attest-{arch}` tag digests.
+
+5. The `-image` manifest list's per-platform digests (D1, D2, D3) have
+   **zero GCB provenance**. They are buildx-native OCI manifests that never
+   passed through the `images:` push path.
+
+This was already implicit in Experiment 3 (line 316-317): the `images:` push
+produced `sha256:ae13bcc...` while the buildx manifest was `sha256:45b0dad...`.
+The consequence for the multi-platform architecture was not fully surfaced
+until the vouch verifier tried to look up provenance on the buildx digests.
+
+### Confirmed: Layer Storage is Shared
+
+The `-attest-{arch}` tags share all layer blobs with the `-image` manifest.
+Evidence from build logs (both Experiment 3 and the ₢A6AAS test):
+
+```
+23f74b8f7b68: Layer already exists
+7e9dfc5b4c68: Layer already exists
+```
+
+GAR is content-addressed: identical layer content (same compressed tarball
+bytes) resolves to the same blob regardless of which tag references it.
+The only new storage per `-attest-{arch}` tag is the manifest document
+itself (~1-2KB JSON). For a 3-platform vessel, total overhead is ~6KB per
+hallmark.
+
+### Architectural Decision: Keep `-attest-{arch}` as Durable Tags
+
+Given that:
+
+- `-attest-{arch}` tags are the **only objects carrying GCB provenance**
+- They share layers with `-image` (negligible storage: ~2KB manifest per platform)
+- The vouch verifier must resolve them for provenance verification
+- Any future provenance consumer needs them
+- The sweep function (deleting them post-vouch) was destroying the only
+  provenance-carrying artifacts for ~6KB savings
+
+**Decision:** `-attest-{arch}` tags are durable ark artifacts, not ephemeral
+scaffolding. They persist alongside `-image`, `-about`, `-vouch`, `-pouch`,
+`-diags` as part of the complete ark. Abjure deletes them alongside all other
+artifacts.
+
+The sweep function (`zrbfd_sweep_attest_tags`) is removed from the ordain
+pipeline. No post-vouch cleanup occurs.
+
+### Impact on Vouch Verification
+
+The vouch verifier must resolve per-platform digests from `-attest-{arch}`
+tags (HEAD request to registry API, read `Docker-Content-Digest` header)
+rather than extracting digests from the `-image` manifest index. This ensures
+provenance lookups target the GCB-attested digests.
+
+For the vouch summary, the recorded digests are the `-attest-{arch}` digests
+(provenance-carrying), not the `-image` manifest digests (buildx-native).
+
+### Future: Containerd Image Store
+
+If Google upgrades Cloud Build workers to use the containerd image store
+(Docker 24+ with `--feature containerd-snapshotter`), the classic-store
+manifest re-serialization would likely be eliminated. The `-attest-{arch}`
+digests would then match the `-image` manifest's per-platform digests, and
+the entire `-attest-{arch}` tag scheme could potentially be simplified.
+
+Until then, the dual-digest architecture (buildx-native in `-image`,
+daemon-pushed in `-attest-{arch}`) is the correct model for the classic
+store constraint.
+
+### References
+
+- [docker/cli#3969 — docker manifest push generates different digest](https://github.com/docker/cli/issues/3969)
+- [docker/build-push-action#770 — Digest mismatch](https://github.com/docker/build-push-action/issues/770)
+- [Docker Build Attestations](https://docs.docker.com/build/metadata/attestations/)
+- Experiment 3 (above) — first evidence of digest divergence (line 316-317)
+- ₢A6AAS smoke test — vouch failure exposing the gap in the multi-platform path
