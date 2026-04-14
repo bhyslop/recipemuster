@@ -546,6 +546,7 @@
       "creation_time": "260409",
       "status": "racing",
       "order": [
+        "₢A6AAQ",
         "₢A6AAG",
         "₢A6AAK",
         "₢A6AAB",
@@ -563,7 +564,7 @@
         "₢A6AAM",
         "₢A6AAA"
       ],
-      "next_pace_seed": "AAQ",
+      "next_pace_seed": "AAR",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
       "paces": {
         "₢A6AAA": {
@@ -949,6 +950,17 @@
               "text": "## Character\n\nSmall infrastructure refactor with spec changes. Clarifies the credential boundaries between retriever and director for foundry/image operations. Mechanical in code (credential variable swaps), but requires spec updates in RBS0 and the relevant operation adoc files.\n\n## Docket\n\nThree changes to the foundry/image credential model:\n\n### 1. Add `rbw-ir` Rekon — director-only image-level listing\n\nNew image-group operation: raw GAR tag listing authenticated as director. Colophon `rbw-ir` (lowercase — read-only). This is the director's credential smoke test.\n\n- Add function in `rbfl_FoundryLedger.sh` (or appropriate file)\n- Add zipper enrollment in `rbz_zipper.sh` under `RBZ__GROUP_IMAGE`\n- Add thin dispatcher `tt/rbw-ir.DirectorRekonsImages.sh`\n- Add operation spec (new adoc file, included from RBS0)\n- Run `tt/rbw-MG.MarshalGenerate.sh`\n\n### 2. Move `rbw-iw` Wrest to director credentials\n\nChange `rbfr_wrest()` to authenticate via `RBDC_DIRECTOR_RBRA_FILE` instead of `RBDC_RETRIEVER_RBRA_FILE`. Directors are also retrievers — no capability loss. Wrest becomes a director power operation (raw image pull by arbitrary tag).\n\n- Update `Tools/rbk/rbfr_FoundryRetriever.sh` (or relocate function to director/ledger file)\n- Update spec `RBSIW-image_wrest.adoc` to reflect director credential\n- Update RBS0 if the operation's role attribution changes\n\n### 3. Move `rbw-ft` Tally to retriever credentials\n\nChange `rbfl_tally()` to authenticate via `RBDC_RETRIEVER_RBRA_FILE` instead of `RBDC_DIRECTOR_RBRA_FILE`. Tally becomes the retriever's credential smoke test — hallmark-level inventory with health status.\n\n- Update `Tools/rbk/rbfl_FoundryLedger.sh` line 628\n- Update spec `RBSCL-consecration_tally.adoc` to reflect retriever credential\n- Update RBS0 role attribution (currently says \"The {rbtr_director} tallies hallmarks\")\n\n### Result\n\n| Group | Command | Verb | Role | Operation |\n|-------|---------|------|------|-----------|\n| foundry | `rbw-ft` | Tally | retriever | Hallmark inventory with health (credential check) |\n| foundry | `rbw-fs` | Summon | retriever | Pull vouched hallmark unit |\n| foundry | `rbw-fp*` | Plumb | retriever | Read provenance |\n| image | `rbw-ir` | Rekon | director | Raw GAR tag listing (credential check) |\n| image | `rbw-iw` | Wrest | director | Pull single image by tag |\n| image | `rbw-iJ` | Jettison | director | Delete single image tag |\n\nImage group is entirely director-only. Tally is the retriever credential check. Rekon is the director credential check.\n\n### Verification\n\n- Run `tt/rbw-ft.DirectorTalliesHallmarks.sh` with retriever credentials — confirm it works\n- Run `tt/rbw-ir.DirectorRekonsImages.sh` with director credentials — confirm it works\n- Run `tt/rbw-iw.RetrieverWrestsImage.sh` with director credentials — confirm it works\n- Run fast qualify: `tt/rbw-tf.QualifyFast.sh`\n\n### Out of scope\n\n- Onboarding track content (₢A6AAN, ₢A6AAO)\n- Dual-credential fallback logic\n- Changes to summon, plumb, ordain, vouch, abjure, kludge, or jettison",
               "silks": "foundry-image-credential-refactor",
               "commit": "6c890f9"
+            }
+          ]
+        },
+        "₢A6AAQ": {
+          "tacks": [
+            {
+              "ts": "260414-1209",
+              "state": "rough",
+              "text": "## Character\n\nMechanical refactoring — rename the build context tag from `context-{timestamp}` to `{inscribe_ts}-pouch`, add `RBGC_ARK_SUFFIX_POUCH` constant, and plumb pouch awareness into tally and abjure. Straightforward constant discipline work.\n\n## Docket\n\nRename the conjure build context GAR tag from `context-{timestamp}` to `{inscribe_ts}{RBGC_ARK_SUFFIX_POUCH}` so the pouch is hallmark-affiliated and follows the same suffix constant discipline as `-image`, `-about`, `-vouch`, `-diags`.\n\n### Add constant\n\n- `Tools/rbk/rbgc_Constants.sh`: add `RBGC_ARK_SUFFIX_POUCH=\"-pouch\"` alongside the existing ark suffix family\n\n### Refactor producer\n\n- `Tools/rbk/rbfd_FoundryDirectorBuild.sh`:\n  - Move `z_inscribe_ts` computation above `zrbfd_push_build_context` call so it's available as a parameter\n  - Add 4th param `inscribe_ts` to `zrbfd_push_build_context()`\n  - Replace `context-${z_ctx_ts}` tag with `${inscribe_ts}${RBGC_ARK_SUFFIX_POUCH}`\n  - Delete independent `date -u` timestamp generation (lines ~728-733)\n  - Update call site to pass `z_inscribe_ts`\n\n### Plumb into tally classifier\n\n- `Tools/rbk/rbfl_FoundryLedger.sh` tally tag classifier: add `-pouch` case using `RBGC_ARK_SUFFIX_POUCH` so tally can report pouch presence per hallmark\n\n### Plumb into abjure\n\n- `Tools/rbk/rbfl_FoundryLedger.sh` abjure tag list: add pouch tag to deletion set alongside image/about/vouch/diags. Uses `z_inscribe_ts` (already derived from hallmark at abjure line ~285)\n\n### Update spec prose\n\n- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc`: add `-pouch` to hallmark artifact tag inventory (~1654 area), refine \"via pouch\" references to cite formal `{hallmark}-pouch` naming\n\n### Out of scope\n\n- `-multi` suffix constant treatment (separate concern)\n- Cleanup of legacy `context-*` tags in GAR (operational, not blocking)\n- Cloud build step script changes (GCB receives full tag URI, doesn't parse the name)",
+              "silks": "context-to-pouch-rename",
+              "commit": "0cbedf8"
             }
           ]
         }
