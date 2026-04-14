@@ -22,7 +22,10 @@ The
 The
 {rbtga_ark_vouch}
 (`-vouch`) contains verification results.
-A fourth artifact, `-diags`, is present for conjure arks only (build-time diagnostics forwarded to the about pipeline).
+The
+{rbtga_ark_pouch}
+(`-pouch`) contains the build context (conjure/bind only, absent for graft).
+A fifth artifact, `-diags`, is present for conjure arks only (build-time diagnostics forwarded to the about pipeline).
 Abjuring an ark removes all existing artifacts as a single logical operation.
 
 The
@@ -75,6 +78,8 @@ if malformed: "Hallmark format invalid"
 .. {rbbc_store}
 `«VOUCH_TAG»` as `«INPUT_VESSEL»:«INPUT_HALLMARK»-vouch`
 .. {rbbc_store}
+`«POUCH_TAG»` as `«INPUT_VESSEL»:«INPUT_HALLMARK»-pouch`
+.. {rbbc_store}
 `«DIAGS_TAG»` as `«INPUT_VESSEL»:«INPUT_HALLMARK»-diags`
 
 //axhos_step
@@ -97,6 +102,11 @@ same HEAD request for `«VOUCH_TAG»`:
 ... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_HALLMARK»-vouch`
 .. {rbbc_store}
 `«VOUCH_EXISTS»` as true if HTTP 200, false if HTTP 404
+.. {rbbc_call}
+same HEAD request for `«POUCH_TAG»`:
+... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_HALLMARK»-pouch`
+.. {rbbc_store}
+`«POUCH_EXISTS»` as true if HTTP 200, false if HTTP 404 (optional — conjure/bind only, absent for graft)
 .. {rbbc_call}
 same HEAD request for `«DIAGS_TAG»`:
 ... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_HALLMARK»-diags`
@@ -164,6 +174,19 @@ Docker Registry API: DELETE manifests with:
 HTTP 202 (Accepted) or 204 (No Content) response
 ... {rbbc_fatal}
 if delete fails: "Failed to delete -vouch artifact (HTTP «STATUS_CODE»)"
+
+//axhos_step
+. *Delete Pouch Artifact* (if exists):
+.. If `«POUCH_EXISTS»`:
+... {rbbc_call}
+Docker Registry API: DELETE manifests with:
+.... method: `DELETE`
+.... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_HALLMARK»-pouch`
+.... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
+... {rbbc_require}
+HTTP 202 (Accepted) or 204 (No Content) response
+... {rbbc_fatal}
+if delete fails: "Failed to delete -pouch artifact (HTTP «STATUS_CODE»)"
 
 //axhos_step
 . *Delete Diags Artifact* (if exists):

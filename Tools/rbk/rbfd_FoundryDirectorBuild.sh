@@ -994,8 +994,7 @@ zrbfd_sweep_attest_tags() {
   local z_plat=""
   local z_suffix=""
   local z_attest_tag=""
-  local z_http_code=""
-  local -r z_sweep_stderr="${BURD_TEMP_DIR}/rbfd_sweep_stderr.txt"
+  local z_sweep_index=0
 
   while test -n "${z_remaining_plats}"; do
     z_plat="${z_remaining_plats%%,*}"
@@ -1003,12 +1002,20 @@ zrbfd_sweep_attest_tags() {
     z_suffix="${z_suffix//\//}"
     z_attest_tag="${z_hallmark}${RBGC_ARK_SUFFIX_ATTEST}-${z_suffix}"
 
+    local z_sweep_status="${BURD_TEMP_DIR}/rbfd_sweep_${z_sweep_index}_status.txt"
+    local z_sweep_stderr="${BURD_TEMP_DIR}/rbfd_sweep_${z_sweep_index}_stderr.txt"
+
     buc_log_args "Sweeping: ${RBRV_SIGIL}:${z_attest_tag}"
-    z_http_code=$(curl -s -o /dev/null -w '%{http_code}' \
+    curl -s -o /dev/null -w '%{http_code}' \
       -X DELETE \
       -H "Authorization: Bearer ${z_token}" \
       "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_attest_tag}" \
-      2>"${z_sweep_stderr}") || z_http_code="000"
+      2>"${z_sweep_stderr}" \
+      > "${z_sweep_status}" || buc_die "DELETE request failed for ${RBGC_ARK_SUFFIX_ATTEST}-${z_suffix} — see ${z_sweep_stderr}"
+
+    local z_http_code=""
+    z_http_code=$(<"${z_sweep_status}")
+    test -n "${z_http_code}" || buc_die "HTTP status code is empty for ${RBGC_ARK_SUFFIX_ATTEST}-${z_suffix} sweep"
 
     case "${z_http_code}" in
       200|202) buc_log_args "Swept: ${z_attest_tag}" ;;
@@ -1016,6 +1023,7 @@ zrbfd_sweep_attest_tags() {
       *)       buc_warn "Sweep ${z_attest_tag} returned HTTP ${z_http_code} — see ${z_sweep_stderr}" ;;
     esac
 
+    z_sweep_index=$((z_sweep_index + 1))
     test "${z_remaining_plats}" != "${z_plat}" || break
     z_remaining_plats="${z_remaining_plats#*,}"
   done
