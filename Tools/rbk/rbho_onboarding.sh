@@ -329,108 +329,10 @@ zrbho_triage_role() {
   fi
 }
 
-rbho_triage() {
-  # No sentinel — works pre-kindle (probes filesystem only)
-
-  buc_doc_brief "Detect credential roles and route to per-role onboarding walkthrough"
-  buc_doc_shown || return 0
-
-  local z_has_payor z_has_governor z_has_director z_has_retriever z_secrets_dir
-  zrbho_probe_role_credentials
-
-  local -r z_docs="${RBRR_PUBLIC_DOCS_URL}"
-
-  buh_section "Recipe Bottle Onboarding"
-  buh_e
-  buh_tlt "  " "Recipe Bottle" "${z_docs}" " builds container images with supply-chain provenance"
-  buh_t   "  and runs untrusted containers behind enforced network isolation."
-  buh_e
-
-  # Each role: detected → walkthrough tabtarget, absent → docs link
-  zrbho_triage_role "${z_has_retriever}" "Retriever" "${RBZ_ONBOARD_RETRIEVER}"
-  zrbho_triage_role "${z_has_director}"  "Director"  "${RBZ_ONBOARD_DIRECTOR}"
-  zrbho_triage_role "${z_has_governor}"  "Governor"  "${RBZ_ONBOARD_GOVERNOR}"
-  zrbho_triage_role "${z_has_payor}"     "Payor"     "${RBZ_ONBOARD_PAYOR}"
-
-  buh_e
-  buh_t  "  For a full health dashboard across all roles:"
-  buh_tT "    " "${RBZ_ONBOARD_REFERENCE}"
-
-}
-
 ######################################################################
-# Onboarding reference — all roles, all units, single health dashboard
-
-rbho_reference() {
-  # No sentinel — works pre-kindle (probes filesystem only)
-
-  buc_doc_brief "Reference dashboard — all roles, all units, current probe status"
-  buc_doc_shown || return 0
-
-  local z_has_payor z_has_governor z_has_director z_has_retriever z_secrets_dir
-  zrbho_probe_role_credentials
-
-  buh_section "Recipe Bottle — Onboarding Reference"
-  buh_e
-  buh_t  "  Health dashboard across all roles. Re-run anytime to check status."
-  buh_e
-
-  # Retriever — full per-unit probes
-  buh_section "Retriever"
-  local z_ru1 z_ru2 z_ru3 z_ru4
-  zrbho_probe_retriever_units
-  zrbho_po_status "${z_ru1}" "  Credential gate — SA key installed"
-  zrbho_po_status "${z_ru2}" "  First artifact — hallmark summoned locally"
-  zrbho_po_status "${z_ru3}" "  Container runtime — crucible charged"
-  zrbho_po_status "${z_ru4}" "  Local experimentation — kludge image present"
-  buh_tT "  Walkthrough: " "${RBZ_ONBOARD_RETRIEVER}"
-  buh_e
-
-  # Director — full per-unit probes
-  buh_section "Director"
-  local z_du1=0
-  local z_du2=0
-  local z_du3=0
-  local z_du4=0
-  local z_du5=0
-  local z_du6=0
-  local z_du7=0
-  zrbho_probe_director_units
-  zrbho_po_status "${z_du1}" "  Credential gate — director SA key installed"
-  zrbho_po_status "${z_du2}" "  Local build — kludge image present"
-  zrbho_po_status "${z_du3}" "  Depot foundation — base images enshrined"
-  zrbho_po_status "${z_du4}" "  Conjure — production build image present"
-  zrbho_po_status "${z_du5}" "  Bind — pinned upstream image present"
-  zrbho_po_status "${z_du6}" "  Graft — locally-built image pushed"
-  zrbho_po_status "${z_du7}" "  Full ark — all three modes compared"
-  buh_tT "  Walkthrough: " "${RBZ_ONBOARD_DIRECTOR}"
-  buh_e
-
-  # Governor — full per-unit probes
-  buh_section "Governor"
-  local z_gu1 z_gu2 z_gu3
-  zrbho_probe_governor_units
-  zrbho_po_status "${z_gu1}" "  Project access — governor credentials installed"
-  zrbho_po_status "${z_gu2}" "  Service accounts — retriever and director SAs provisioned"
-  zrbho_po_status "${z_gu3}" "  Verification — downstream roles can access the depot"
-  buh_tT "  Walkthrough: " "${RBZ_ONBOARD_GOVERNOR}"
-  buh_e
-
-  # Payor — full per-unit probes
-  buh_section "Payor"
-  local z_pu1=0
-  local z_pu2=0
-  local z_pu3=0
-  local z_pu4=0
-  zrbho_probe_payor_units
-  zrbho_po_status "${z_pu1}" "  OAuth bootstrap — credentials installed"
-  zrbho_po_status "${z_pu2}" "  Project setup — GCP project configured"
-  zrbho_po_status "${z_pu3}" "  Depot provisioning — infrastructure levied"
-  zrbho_po_status "${z_pu4}" "  Governor handoff — governor SA created"
-  buh_tT "  Walkthrough: " "${RBZ_ONBOARD_PAYOR}"
-  buh_e
-
-}
+# Legacy role-track functions (triage, reference, retriever, director,
+# governor, payor) removed — replaced by intent-organized handbook
+# tracks below. See ₣A6 paddock "Context — The Malformation".
 
 ######################################################################
 # Onboarding role walkthroughs — dual-mode rendering
@@ -1065,27 +967,30 @@ rbho_start_here() {
   buh_section "Foundation"
   buh_e
   buh_t   "    Configure your Repo's Environment"
-  buh_tT  "        " "${RBZ_ONBOARD_CRASH_COURSE}"
   buh_tltlt "      Universal prerequisite. " "Tabtargets" "${z_docs}#Tabtarget" ", " "Regimes" "${z_docs}#Regime" ","
-  buh_tltlt "      " "Station" "${z_docs}#Station" " setup, validation, " "Logs" "${z_docs}#Log" ". Local-only, no cloud."
+  buh_tltlt "      " "BURS" "${z_docs}#BURS" " setup, validation, " "Logs" "${z_docs}#Log" ". Local-only, no cloud."
+  buh_tT  "        " "${RBZ_ONBOARD_CRASH_COURSE}"
   buh_e
   buh_tlt "    Install " "Retriever" "${z_docs}#Retriever" " Credentials"
-  buh_tT  "        " "${RBZ_ONBOARD_CRED_RETRIEVER}"
+  buh_t   "      For joining an established project."
   buh_tlt "      Place your " "RBRA" "${z_docs}#RBRA" " credential file, verify, confirm you can pull images."
+  buh_tT  "        " "${RBZ_ONBOARD_CRED_RETRIEVER}"
   buh_e
   buh_tlt "    Install " "Director" "${z_docs}#Director" " Credentials"
-  buh_tT  "        " "${RBZ_ONBOARD_CRED_DIRECTOR}"
+  buh_t   "      For joining an established project."
   buh_tlt "      Place your " "RBRA" "${z_docs}#RBRA" " credential file, verify, confirm you can build and publish."
+  buh_tT  "        " "${RBZ_ONBOARD_CRED_DIRECTOR}"
   buh_e
   buh_tlt "    Start a " "Crucible" "${z_docs}#Crucible" " Using Local Builds"
-  buh_tT  "        " "${RBZ_ONBOARD_FIRST_CRUCIBLE}"
   buh_tltlt "      The " "ccyolo" "${z_docs}#ccyolo" " " "Crucible" "${z_docs}#Crucible" " runs Claude Code in a container that can"
   buh_t   "      only reach Anthropic. Requires a Claude OAuth subscription."
-  buh_tltltltlt "        Build images locally      — " "Kludge" "${z_docs}#Kludge" " " "Sentry" "${z_docs}#Sentry" "/" "Pentacle" "${z_docs}#Pentacle" " and " "Bottle" "${z_docs}#Bottle" ""
-  buh_tltlt   "        Configure local network   — amend " "Nameplate" "${z_docs}#Nameplate" " " "RBRN" "${z_docs}#RBRN" " file"
-  buh_tltlt   "        Start the sandbox         — " "Charge" "${z_docs}#Charge" " the " "Crucible" "${z_docs}#Crucible" ""
-  buh_tltlt   "        Shell into the container  — " "Rack" "${z_docs}#Rack" " the " "Bottle" "${z_docs}#Bottle" ""
+  buh_t   "      Steps:"
+  buh_tltltltlt "        * Build images locally      — " "Kludge" "${z_docs}#Kludge" " " "Sentry" "${z_docs}#Sentry" "/" "Pentacle" "${z_docs}#Pentacle" " and " "Bottle" "${z_docs}#Bottle" ""
+  buh_tltlt   "        * Configure local network   — amend " "Nameplate" "${z_docs}#Nameplate" " " "RBRN" "${z_docs}#RBRN" " file"
+  buh_tltlt   "        * Start the sandbox         — " "Charge" "${z_docs}#Charge" " the " "Crucible" "${z_docs}#Crucible" ""
+  buh_tltlt   "        * Shell into the container  — " "Rack" "${z_docs}#Rack" " the " "Bottle" "${z_docs}#Bottle" ""
   buh_t   "      No cloud, no credentials beyond your own."
+  buh_tT  "        " "${RBZ_ONBOARD_FIRST_CRUCIBLE}"
   buh_e
 
   # --- Create Payor and Depot ---
@@ -1094,10 +999,10 @@ rbho_start_here() {
   buh_tlt "  A " "Depot" "${z_docs}#Depot" " is the facility where the team's container images are"
   buh_t   "  built and stored — the ground truth other tracks rest on."
   buh_e
-  buh_tltlt "    " "Payor" "${z_docs}#Payor" " — establish a " "Manor" "${z_docs}#Manor" " and provision the Depot"
+  buh_tltltlt "    " "Payor" "${z_docs}#Payor" " — establish a " "Manor" "${z_docs}#Manor" " and provision the " "Depot" "${z_docs}#Depot" ""
   buh_tT  "        " "${RBZ_ONBOARD_PAYOR_HB}"
   buh_e
-  buh_tlt "    " "Governor" "${z_docs}#Governor" " — administer service accounts for directors and retrievers"
+  buh_tltltlt "    " "Governor" "${z_docs}#Governor" " — administer service accounts for " "Directors" "${z_docs}#Director" " and " "Retrievers" "${z_docs}#Retriever" ""
   buh_tT  "        " "${RBZ_ONBOARD_GOVERNOR_HB}"
   buh_e
 
@@ -1112,31 +1017,6 @@ rbho_start_here() {
   buh_tltlt   "    Build other Test Images      — " "Ordain" "${z_docs}#Ordain" " for " "Crucibles" "${z_docs}#Crucible" ""
   buh_e
 
-  # --- Evaluation ---
-  buh_section "Evaluation"
-  buh_e
-  buh_t   "    Assay the Realm"
-  buh_tltlt "      Enterprise evaluator — tour of " "Ordain" "${z_docs}#Ordain" " modes, " "Enshrinement" "${z_docs}#Enshrine" ","
-  buh_t   "      reliquaries, airgap. Breadth over depth."
-  buh_e
-
-  # --- Reference ---
-  buh_section "Reference"
-  buh_e
-  buh_tT  "    Realm Dashboard: " "${RBZ_ONBOARD_REFERENCE}"
-  buh_t   "      Current health of all roles and units, reference format."
-  buh_e
-
-  # --- Find your role / legacy fallback ---
-  buh_section "Find your role"
-  buh_e
-  buh_t   "  If you don't know which path to pick: run the Crash Course first."
-  buh_t   "  It explains the apparatus and points you forward."
-  buh_e
-  buh_t   "  A legacy role-organized triage is preserved during this heat as a"
-  buh_t   "  fallback for anyone who already knows their role:"
-  buh_tT  "    " "${RBZ_ONBOARD_TRIAGE}"
-  buh_e
 }
 
 ######################################################################
@@ -1967,10 +1847,10 @@ rbho_governor_handbook() {
   buh_tlt "A " "Director" "${z_docs}#Director" " has build and publish access — they create container"
   buh_t   "images and push them to the registry."
   buh_e
-  buh_tlt "Create a " "Retriever" "${z_docs}#Retriever" " with read access:"
+  buh_tltlt "Create a " "Retriever" "${z_docs}#Retriever" " with read access (" "Charter" "${z_docs}#Charter" "):"
   buh_tT  "  " "${RBZ_CHARTER_RETRIEVER}"
   buh_e
-  buh_tlt "Create a " "Director" "${z_docs}#Director" " with build access:"
+  buh_tltlt "Create a " "Director" "${z_docs}#Director" " with build access (" "Knight" "${z_docs}#Knight" "):"
   buh_tT  "  " "${RBZ_KNIGHT_DIRECTOR}"
   buh_e
   buh_t   "Each command creates the service account and applies the IAM"
