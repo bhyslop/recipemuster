@@ -81,6 +81,11 @@ if malformed: "Hallmark format invalid"
 `«POUCH_TAG»` as `«INPUT_VESSEL»:«INPUT_HALLMARK»-pouch`
 .. {rbbc_store}
 `«DIAGS_TAG»` as `«INPUT_VESSEL»:«INPUT_HALLMARK»-diags`
+.. If vessel mode is conjure:
+... For each platform in `RBRV_CONJURE_PLATFORMS`:
+.... Derive `«ARCH_SUFFIX»` from platform (e.g., `linux/amd64` → `amd64`, `linux/arm/v7` → `armv7`)
+.... {rbbc_store}
+`«ATTEST_TAG_n»` as `«INPUT_VESSEL»:«INPUT_HALLMARK»-attest-«ARCH_SUFFIX»`
 
 //axhos_step
 . *Verify Ark Existence*:
@@ -112,6 +117,13 @@ same HEAD request for `«DIAGS_TAG»`:
 ... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_HALLMARK»-diags`
 .. {rbbc_store}
 `«DIAGS_EXISTS»` as true if HTTP 200, false if HTTP 404 (optional — conjure-only, absent for bind/graft)
+.. If `«ATTEST_TAG_n»` tags were constructed (conjure vessels):
+... For each `«ATTEST_TAG_n»`:
+.... {rbbc_call}
+same HEAD request:
+..... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_HALLMARK»-attest-«ARCH_SUFFIX»`
+.... {rbbc_store}
+`«ATTEST_n_EXISTS»` as true if HTTP 200, false if HTTP 404
 
 //axhos_step
 . *Evaluate Ark State*:
@@ -200,6 +212,19 @@ Docker Registry API: DELETE manifests with:
 HTTP 202 (Accepted) or 204 (No Content) response
 ... {rbbc_fatal}
 if delete fails: "Failed to delete -diags artifact (HTTP «STATUS_CODE»)"
+
+//axhos_step
+. *Delete Attest Artifacts* (conjure vessels, if exist):
+.. For each `«ATTEST_TAG_n»` where `«ATTEST_n_EXISTS»`:
+... {rbbc_call}
+Docker Registry API: DELETE manifests with:
+.... method: `DELETE`
+.... endpoint: `«REGISTRY_BASE»/«INPUT_VESSEL»/manifests/«INPUT_HALLMARK»-attest-«ARCH_SUFFIX»`
+.... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
+... {rbbc_require}
+HTTP 202 (Accepted) or 204 (No Content) response
+... {rbbc_fatal}
+if delete fails: "Failed to delete -attest-«ARCH_SUFFIX» artifact (HTTP «STATUS_CODE»)"
 
 //axhoot_typed_output
 {rbtga_ark}

@@ -299,7 +299,7 @@ rbfl_abjure() {
     # Bind and graft vessels have a single image tag (no per-platform suffixes)
     z_image_tags+=("${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}")
   else
-    # Conjure vessels: consumer-facing -image tag + ephemeral -attest-{arch} tags (safety net)
+    # Conjure vessels: consumer-facing -image tag + durable -attest-{arch} tags (provenance-carrying)
     z_image_tags+=("${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}")
     local z_platforms="${RBRV_CONJURE_PLATFORMS// /,}"
     local z_platform_suffixes=()
@@ -315,7 +315,7 @@ rbfl_abjure() {
       z_remaining_plats="${z_remaining_plats#*,}"
     done
 
-    # -attest-{arch} tags as safety net (normally swept by ordain, but may survive if sweep failed)
+    # -attest-{arch} tags — durable provenance-carrying artifacts, deleted by abjure
     local z_idx=0
     for z_idx in "${!z_platform_suffixes[@]}"; do
       z_image_tags+=("${z_hallmark}${RBGC_ARK_SUFFIX_ATTEST}${z_platform_suffixes[$z_idx]}")
@@ -730,7 +730,7 @@ rbfl_tally() {
 
       case "${z_tag}" in
         *"${RBGC_ARK_SUFFIX_ATTEST}"-*)
-          # Ephemeral -attest-{arch} tags — presence means ordain sweep didn't complete
+          # Durable -attest-{arch} tags — provenance-carrying artifacts
           local z_attest_suffix="${z_tag#*"${RBGC_ARK_SUFFIX_ATTEST}"}"
           echo "${z_consec}|attest|${z_attest_suffix#-}" >> "${z_tag_data_file}"
           echo "${z_consec}" >> "${z_consec_file}"

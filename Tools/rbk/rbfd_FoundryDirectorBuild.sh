@@ -591,7 +591,7 @@ zrbfd_stitch_build_json() {
     > "${z_all_steps_file}" || buc_die "Failed to prepend context extraction step"
 
   # images: field — one -attest-{arch} entry per platform for SLSA provenance via CB images: push
-  # These are ephemeral attestation scaffolding tags; swept by host after vouch completes.
+  # These are durable provenance-carrying tags; deleted only by abjure.
   local z_images_file="${ZRBFD_STITCH_PREFIX}images.json"
   local z_image_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${z_sigil}"
   local z_remaining_suffixes="${z_platform_suffixes_csv}"
@@ -968,69 +968,6 @@ zrbfd_enshrine_extract_anchors() {
   done
 }
 
-# Sweep ephemeral -attest-{arch} tags after vouch completes.
-# Director credentials (repoAdmin) required — mason lacks delete permission.
-# Tolerates 404 (tags may already be gone from a prior sweep or abjure).
-zrbfd_sweep_attest_tags() {
-  zrbfd_sentinel
-
-  local -r z_vessel_dir="${1:?Vessel dir required}"
-  local -r z_hallmark="${2:?Hallmark required}"
-  local -r z_token="${3:?Token required}"
-
-  buc_step "Sweeping ephemeral -attest-{arch} tags"
-
-  # Load vessel to get platforms
-  local z_platforms=""
-  local z_plat_line=""
-  while IFS= read -r z_plat_line || test -n "${z_plat_line}"; do
-    case "${z_plat_line}" in
-      RBRV_CONJURE_PLATFORMS=*) z_platforms="${z_plat_line#RBRV_CONJURE_PLATFORMS=}"; break ;;
-    esac
-  done < "${z_vessel_dir}/rbrv.env"
-  test -n "${z_platforms}" || return 0  # No platforms = nothing to sweep
-
-  local z_remaining_plats="${z_platforms// /,}"
-  local z_plat=""
-  local z_suffix=""
-  local z_attest_tag=""
-  local z_sweep_index=0
-
-  while test -n "${z_remaining_plats}"; do
-    z_plat="${z_remaining_plats%%,*}"
-    z_suffix="${z_plat#linux/}"
-    z_suffix="${z_suffix//\//}"
-    z_attest_tag="${z_hallmark}${RBGC_ARK_SUFFIX_ATTEST}-${z_suffix}"
-
-    local z_sweep_status="${BURD_TEMP_DIR}/rbfd_sweep_${z_sweep_index}_status.txt"
-    local z_sweep_stderr="${BURD_TEMP_DIR}/rbfd_sweep_${z_sweep_index}_stderr.txt"
-
-    buc_log_args "Sweeping: ${RBRV_SIGIL}:${z_attest_tag}"
-    curl -s -o /dev/null -w '%{http_code}' \
-      -X DELETE \
-      -H "Authorization: Bearer ${z_token}" \
-      "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_attest_tag}" \
-      2>"${z_sweep_stderr}" \
-      > "${z_sweep_status}" || buc_die "DELETE request failed for ${RBGC_ARK_SUFFIX_ATTEST}-${z_suffix} — see ${z_sweep_stderr}"
-
-    local z_http_code=""
-    z_http_code=$(<"${z_sweep_status}")
-    test -n "${z_http_code}" || buc_die "HTTP status code is empty for ${RBGC_ARK_SUFFIX_ATTEST}-${z_suffix} sweep"
-
-    case "${z_http_code}" in
-      200|202) buc_log_args "Swept: ${z_attest_tag}" ;;
-      404)     buc_log_args "Already absent: ${z_attest_tag}" ;;
-      *)       buc_warn "Sweep ${z_attest_tag} returned HTTP ${z_http_code} — see ${z_sweep_stderr}" ;;
-    esac
-
-    z_sweep_index=$((z_sweep_index + 1))
-    test "${z_remaining_plats}" != "${z_plat}" || break
-    z_remaining_plats="${z_remaining_plats#*,}"
-  done
-
-  buc_info "Attest tag sweep complete"
-}
-
 rbfd_ordain() {
   zrbfd_sentinel
 
@@ -1073,11 +1010,6 @@ rbfd_ordain() {
     conjure)
       buc_info "About produced by combined conjure job — proceeding to vouch"
       rbfv_vouch "${z_vessel_dir}" "${z_hallmark}"
-      # Sweep ephemeral -attest-{arch} tags (director credentials, post-vouch)
-      local z_sweep_token
-      z_sweep_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
-        || buc_die "Failed to get Director token for attest tag sweep"
-      zrbfd_sweep_attest_tags "${z_vessel_dir}" "${z_hallmark}" "${z_sweep_token}"
       ;;
     graft)
       zrbfv_graft_metadata_submit "${z_vessel_dir}" "${z_hallmark}"
@@ -1236,7 +1168,7 @@ rbfd_build() {
   # Write ark stem fact file (sigil:hallmark base for composing artifact refs)
   buf_write_fact "${RBF_FACT_ARK_STEM}" "${RBRV_SIGIL}:${z_hallmark}"
 
-  # Write per-platform yield fact files (attest tags — ephemeral, for test harness consumption)
+  # Write per-platform yield fact files (attest tags — durable provenance-carrying artifacts)
   local z_plat=""
   local z_plat_suffix=""
   local z_yield_tag=""

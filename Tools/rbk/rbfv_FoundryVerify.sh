@@ -725,6 +725,7 @@ zrbfv_vouch_submit() {
     --arg zjq_bind_source       "${z_bind_source}" \
     --arg zjq_graft_source      "${z_graft_source}" \
     --arg zjq_ark_suffix_image  "${RBGC_ARK_SUFFIX_IMAGE}" \
+    --arg zjq_ark_suffix_attest "${RBGC_ARK_SUFFIX_ATTEST}" \
     --arg zjq_ark_suffix_vouch  "${RBGC_ARK_SUFFIX_VOUCH}" \
     --arg zjq_vi_ref_1          "${z_vi_ref_1}" \
     --arg zjq_vi_prov_1         "${z_vi_prov_1}" \
@@ -745,6 +746,7 @@ zrbfv_vouch_submit() {
         _RBGV_BIND_SOURCE:       $zjq_bind_source,
         _RBGV_GRAFT_SOURCE:      $zjq_graft_source,
         _RBGV_ARK_SUFFIX_IMAGE:  $zjq_ark_suffix_image,
+        _RBGV_ARK_SUFFIX_ATTEST: $zjq_ark_suffix_attest,
         _RBGV_ARK_SUFFIX_VOUCH:  $zjq_ark_suffix_vouch,
         _RBGV_IMAGE_1:           $zjq_vi_ref_1,
         _RBGV_IMAGE_1_PROVENANCE: $zjq_vi_prov_1,

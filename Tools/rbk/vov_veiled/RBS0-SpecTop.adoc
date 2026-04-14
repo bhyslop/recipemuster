@@ -1685,13 +1685,13 @@ Combined with vessel to form complete artifact tags:
 |Build context (FROM SCRATCH OCI image in GAR)
 
 |`«VESSEL»:«HALLMARK»-attest-«ARCH»`
-|Ephemeral
-|SLSA attestation scaffolding; swept post-vouch by ordain pipeline
+|Durable
+|Per-platform provenance-carrying images pushed via CB `images:` field
 |===
 +
-Ephemeral `-attest-«ARCH»` tags exist solely to satisfy the {rbtgr_build_json} `images:` field for SLSA provenance generation.
-Provenance is keyed by digest in the Container Analysis API, not by tag — deleting `-attest-«ARCH»` tags does not delete provenance.
-The host sweeps these tags after vouch completes using {rbtr_director} credentials (repoAdmin); the {rbtr_mason} lacks delete permission.
+The `-attest-«ARCH»` tags satisfy the {rbtgr_build_json} `images:` field for SLSA provenance generation.
+Provenance is keyed by digest in the Container Analysis API, but the `-attest-«ARCH»` tags are the only objects carrying those digests — the classic Docker image store re-serializes manifests on pull/push, producing different digests than the buildx-native manifests in `-image`.
+The tags are durable ark artifacts, persisting alongside `-image`, `-about`, `-vouch`, `-pouch`, and `-diags`.
 +
 Multiple conjures produce distinct hallmarks (unique realized timestamps) with independently-attested images.
 
@@ -1710,8 +1710,9 @@ Contains the executable container layers, regardless of how the image arrived in
 **Single-arch vessels**: a single-platform image. For conjure, pushed via the `images:` field with SLSA provenance.
 +
 **Multi-platform vessels** (conjure only): the consumer-facing `-image` tag is the multi-platform manifest list produced directly by `buildx --push`.
-SLSA provenance is generated per platform via ephemeral `-attest-«ARCH»` tags in the {rbtgr_build_json} `images:` field; these tags are swept after vouch completes.
-The manifest list itself has `slsa_build_level: unknown` (expected — Cloud Build did not build the manifest list artifact); consumers pulling the `-image` tag get transparent platform resolution to attested per-platform digests with full SLSA Level 3.
+SLSA provenance is generated per platform via durable `-attest-«ARCH»` tags in the {rbtgr_build_json} `images:` field.
+The manifest list itself has `slsa_build_level: unknown` (expected — Cloud Build did not build the manifest list artifact); consumers pulling the `-image` tag get transparent platform resolution.
+The `-attest-«ARCH»` tags carry the only digests with GCB provenance (classic Docker image store re-serializes manifests, producing different digests than buildx-native).
 Bind vessels may be multi-platform (upstream images often are; crane copy preserves the manifest list).
 Graft vessels are typically single-platform.
 
@@ -1798,11 +1799,10 @@ For graft, the GRAFTED stamp is always identical.
 A mismatch for conjure/bind indicates provenance change or tampering and must produce a loud alarm.
 If determinism proves unreliable in practice, narrow the comparison to verification verdict, digests, and builder identity.
 +
-**Attestation sweep**: The ordain pipeline sweeps ephemeral `-attest-«ARCH»` tags after vouch completes.
-Vouch verifies by digest via the `-image` manifest list, not by per-platform tag — the `-attest-«ARCH»` tags are no longer needed once provenance is recorded.
-The sweep uses {rbtr_director} credentials (repoAdmin); the {rbtr_mason} lacks delete permission.
+**Vouch provenance resolution**: The vouch verifier resolves per-platform digests from `-attest-«ARCH»` tags (HEAD request per tag) rather than from the `-image` manifest index.
+The `-attest-«ARCH»` digests are the GCB-attested digests; the `-image` manifest's per-platform digests are buildx-native and carry no GCB provenance.
 +
-**Abjure**: {rbtgo_ark_abjure} checks for and deletes the `-vouch` artifact alongside `-image`, `-about`, `-pouch`, and `-diags`.
+**Abjure**: {rbtgo_ark_abjure} checks for and deletes the `-vouch` artifact alongside `-image`, `-about`, `-pouch`, `-diags`, and (for conjure vessels) `-attest-«ARCH»` tags.
 +
 **Display**: {rbtgo_hallmark_tally} includes a Vouch column showing `yes`/`no` per hallmark, detected by matching the `-vouch` tag suffix in the GAR tag list.
 

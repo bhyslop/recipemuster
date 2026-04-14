@@ -6,6 +6,7 @@
 # Substitutions (GCB anchors — automapSubstitutions provides as env vars):
 #   ${_RBGV_GAR_HOST} ${_RBGV_GAR_PATH} ${_RBGV_VESSEL}
 #   ${_RBGV_HALLMARK} ${_RBGV_VESSEL_MODE} ${_RBGV_ARK_SUFFIX_IMAGE}
+#   ${_RBGV_ARK_SUFFIX_ATTEST} (conjure only)
 #   ${_RBGV_IMAGE_1} ${_RBGV_IMAGE_2} ${_RBGV_IMAGE_3}
 #   ${_RBGV_IMAGE_1_PROVENANCE} ${_RBGV_IMAGE_2_PROVENANCE} ${_RBGV_IMAGE_3_PROVENANCE}
 #   ${_RBGV_BIND_SOURCE} ${_RBGV_GRAFT_SOURCE}
@@ -149,19 +150,34 @@ def _verify_conjure(manifest, is_index, config, full_image, token,
     expected_keyid = ("projects/verified-builder/locations/global/keyRings/"
                       "attestor/cryptoKeys/google-hosted-worker/cryptoKeyVersions/1")
 
+    ark_suffix_attest = require_env("_RBGV_ARK_SUFFIX_ATTEST")
+
     # Build platform entries: [(digest, arch, variant), ...]
+    # Resolve provenance-carrying digests from -attest-{arch} tags (HEAD request),
+    # NOT from the -image manifest index (those are buildx-native digests with no GCB provenance).
     entries = []
     if is_index:
         for m in manifest.get("manifests", []):
             p = m.get("platform", {})
             if p.get("os") == "unknown" and p.get("architecture") == "unknown":
                 continue
-            entries.append((m["digest"], p["architecture"], p.get("variant", "")))
+            arch = p["architecture"]
+            variant = p.get("variant", "")
+            ps = f"{arch}{variant}"
+            at = f"{hallmark}{ark_suffix_attest}-{ps}"
+            try:
+                resp = gar_fetch(f"{registry_base}/manifests/{at}", token, ACCEPT_ALL, method="HEAD")
+                ad = resp.headers.get("Docker-Content-Digest", "")
+            except Exception:
+                die(f"HEAD for {at} failed")
+            if not ad:
+                die(f"No digest for {at}")
+            entries.append((ad, arch, variant))
     else:
         arch = config["architecture"]
         variant = config.get("variant", "")
         ps = f"{arch}{variant}"
-        at = f"{hallmark}{ark_suffix_img}-{ps}"
+        at = f"{hallmark}{ark_suffix_attest}-{ps}"
         try:
             resp = gar_fetch(f"{registry_base}/manifests/{at}", token, ACCEPT_ALL, method="HEAD")
             ad = resp.headers.get("Docker-Content-Digest", "")
