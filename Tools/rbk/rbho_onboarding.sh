@@ -1752,7 +1752,7 @@ rbho_first_crucible() {
   buh_t   "  1. Edit the Dockerfile or entrypoint"
   buh_t   "  2. Commit your changes (kludge needs a clean tree)"
   buh_tTc "  3. Kludge the bottle: " "${RBZ_CRUCIBLE_KLUDGE_BOTTLE}" " ${z_moniker}"
-  buh_t   "  4. Commit the hallmark drive (auto-committed by kludge bottle)"
+  buh_t   "  4. Commit the hallmark change (kludge drove it into rbrn.env)"
   buh_tI  "  5. Charge: " "${RBZ_CRUCIBLE_CHARGE}" "${z_moniker}"
   buh_tc  "  6. SSH in: " "${z_ssh_tabtarget}"
   buh_t   "  7. Test your changes"
