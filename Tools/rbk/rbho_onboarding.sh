@@ -1884,8 +1884,8 @@ rbho_payor_handbook() {
   buh_step1 "Provision the Depot"
   buh_e
   buh_tlt "A " "Depot" "${z_docs}#Depot" " is the facility where container images are built and"
-  buh_t   "stored — a GCP project with a registry, storage bucket, and build"
-  buh_tlt "infrastructure, funded under the " "Manor's" "${z_docs}#Manor" " billing account."
+  buh_t   "stored — a GCP project with a container repository, storage bucket,"
+  buh_tlt "and build infrastructure, funded under the " "Manor's" "${z_docs}#Manor" " billing account."
   buh_tltlt "A " "Governor" "${z_docs}#Governor" " administers the " "Depot" "${z_docs}#Depot" " — creating"
   buh_tltlt "" "Retriever" "${z_docs}#Retriever" " and " "Director" "${z_docs}#Director" " accounts for those who build and"
   buh_t   "retrieve container images."
@@ -1903,8 +1903,8 @@ rbho_payor_handbook() {
   buh_tT  "  " "${RBZ_MANTLE_GOVERNOR}"
   buh_e
   buh_t   "Hand the resulting key file to the person who will administer"
-  buh_tlt "this " "Depot" "${z_docs}#Depot" ". After this handoff, the " "Governor" "${z_docs}#Governor" " can create"
-  buh_tltlt "" "Retriever" "${z_docs}#Retriever" " and " "Director" "${z_docs}#Director" " accounts independently."
+  buh_tltltlt "this " "Depot" "${z_docs}#Depot" ". After this handoff, the " "Governor" "${z_docs}#Governor" " can create"
+  "" "Retriever" "${z_docs}#Retriever" " and " "Director" "${z_docs}#Director" " accounts independently."
   buh_e
   buh_tltlt "The " "Payor's" "${z_docs}#Payor" " job for this " "Depot" "${z_docs}#Depot" " is done unless billing or"
   buh_t   "project-level changes are needed."
