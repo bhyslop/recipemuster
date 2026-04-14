@@ -413,7 +413,7 @@ rbho_start_here() {
   buh_t   "      Steps:"
   buh_tlt "        * Inscribe the " "Reliquary" "${z_docs}#Reliquary" " — provision builder tool images"
   buh_tltlt "        * " "Conjure" "${z_docs}#Conjure" " " "Sentry" "${z_docs}#Sentry" " — first tethered cloud build"
-  buh_tltltltlt "        * Tour: " "Tally" "${z_docs}#Tally" ", " "Vouch" "${z_docs}#Vouch" ", " "Plumb" "${z_docs}#Plumb" ", " "Pouch" "${z_docs}#Pouch" " — inspect SLSA provenance"
+  buh_tltltltlt "        * Tour: " "Tally" "${z_docs}#Tally" ", " "Vouch" "${z_docs}#Vouch" ", " "Plumb" "${z_docs}#Plumb" ", " "Pouch" "${z_docs}#Pouch" " — inspect images and SLSA"
   buh_tlt "        * " "Summon" "${z_docs}#Summon" " — pull the hallmark locally"
   buh_tltlt "        * " "Abjure" "${z_docs}#Abjure" " and " "Rekon" "${z_docs}#Rekon" " — hallmark lifecycle"
   buh_t   "      Requires: Director credentials and a provisioned Depot."
