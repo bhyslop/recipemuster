@@ -22,7 +22,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Claude Code globally via npm (node and npm provided by base image)
-RUN npm install -g @anthropic-ai/claude-code
+# Pin version — v2.1.105+ has a bracketed paste regression that breaks
+# OAuth code entry through SSH/docker-exec terminals.
+RUN npm install -g @anthropic-ai/claude-code@2.1.89
 
 # Create unprivileged claude user with empty password
 RUN useradd -m -s /bin/bash claude && \
