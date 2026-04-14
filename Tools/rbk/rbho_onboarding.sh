@@ -1289,7 +1289,21 @@ rbho_director_first_build() {
   buh_e
 
   # =================================================================
-  # Step 3: Tour the hallmark artifacts
+  # Step 3: Capture the hallmark
+  # =================================================================
+  buh_step1 "Capture the hallmark"
+  buh_e
+  buh_tlt "When " "Ordain" "${z_docs}#Ordain" " completes, it prints the " "Hallmark" "${z_docs}#Hallmark" ""
+  buh_t   "— a timestamped tag identifying this build. Set these"
+  buh_t   "environment variables so you can copy-paste the commands"
+  buh_t   "in the remaining steps:"
+  buh_e
+  buh_c   "   export ONBOARD_VESSEL=${z_vessel}"
+  buh_c   "   export ONBOARD_HALLMARK=<paste hallmark from ordain output>"
+  buh_e
+
+  # =================================================================
+  # Step 4: Tour the hallmark artifacts
   # =================================================================
   buh_step1 "Tour the hallmark artifacts"
   buh_e
@@ -1355,23 +1369,23 @@ rbho_director_first_build() {
   buh_tlt "" "Plumb" "${z_docs}#Plumb" " displays the SBOM, build info, and Dockerfile"
   buh_t   "that produced the hallmark. Two modes:"
   buh_e
-  buh_tT  "   " "${RBZ_PLUMB_FULL}"
+  buh_tTc "   " "${RBZ_PLUMB_FULL}" ' ${ONBOARD_VESSEL} ${ONBOARD_HALLMARK}'
   buh_t   "   Full provenance display — SBOM packages, build parameters,"
   buh_t   "   Dockerfile content."
   buh_e
-  buh_tT  "   " "${RBZ_PLUMB_COMPACT}"
+  buh_tTc "   " "${RBZ_PLUMB_COMPACT}" ' ${ONBOARD_VESSEL} ${ONBOARD_HALLMARK}'
   buh_t   "   Compact summary — one-line-per-artifact overview."
   buh_e
 
   # =================================================================
-  # Step 4: Summon the hallmark
+  # Step 5: Summon the hallmark
   # =================================================================
   buh_step1 "Summon the hallmark"
   buh_e
   buh_tlt "" "Summon" "${z_docs}#Summon" " pulls a vouched hallmark image to your local"
   buh_t   "Docker daemon:"
   buh_e
-  buh_tT  "   " "${RBZ_SUMMON_HALLMARK}"
+  buh_tTc "   " "${RBZ_SUMMON_HALLMARK}" ' ${ONBOARD_VESSEL} ${ONBOARD_HALLMARK}'
   buh_e
   buh_tc  "   {hallmark}" "${RBGC_ARK_SUFFIX_IMAGE}"
   buh_t   "   is a multiplatform manifest list."
@@ -1389,7 +1403,7 @@ rbho_director_first_build() {
   buh_e
 
   # =================================================================
-  # Step 5: Abjure and Rekon — hallmark lifecycle
+  # Step 6: Abjure and Rekon — hallmark lifecycle
   # =================================================================
   buh_step1 "Abjure and Rekon — hallmark lifecycle"
   buh_e
@@ -1406,7 +1420,7 @@ rbho_director_first_build() {
   buh_t   "from GAR. This is permanent — the hallmark and all its"
   buh_t   "tags are deleted:"
   buh_e
-  buh_tT  "   " "${RBZ_ABJURE_HALLMARK}"
+  buh_tTc "   " "${RBZ_ABJURE_HALLMARK}" ' ${ONBOARD_VESSEL} ${ONBOARD_HALLMARK}'
   buh_e
   buh_t   "After abjure, run Rekon again:"
   buh_e
