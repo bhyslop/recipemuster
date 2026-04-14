@@ -561,6 +561,7 @@
         "₢A6AAU",
         "₢A6AAV",
         "₢A6AAW",
+        "₢A6AAX",
         "₢A6AAH",
         "₢A6AAI",
         "₢A6AAJ",
@@ -570,7 +571,7 @@
         "₢A6AAM",
         "₢A6AAA"
       ],
-      "next_pace_seed": "AAX",
+      "next_pace_seed": "AAY",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
       "paces": {
         "₢A6AAA": {
@@ -1103,6 +1104,17 @@
               "text": "## Character\n\nHandbook track implementation — bind mode: pin an upstream image by digest with zero build. Pattern replication from `tt/rbw-Ofc.OnboardingFirstCrucible.sh`. Teaches the simplest ordain mode — no Dockerfile, no build context, no pouch. The learner sees a different vouch verdict (digest-pin, no SLSA) and understands why.\n\nUses `rbev-bottle-plantuml` as the teaching vessel — a real upstream image that renders diagrams but whose Docker Hub source could phone home. Bind pins it; the Sentry blocks all egress.\n\n## Docket\n\nImplement `tt/rbw-Odb.OnboardingDirectorBind.sh` — the bind mode handbook track.\n\n### Teaching arc\n\n1. **Bind PlantUML** — pin upstream image by digest into GAR. No Dockerfile in the project, no build. Teach: bind mode mirrors an upstream image by digest, the director trusts the upstream publisher, the depot gets an immutable copy. Contrast with conjure (project builds the image) and graft (local machine builds the image).\n2. **Inspect Vouch verdict** — digest-pin, no SLSA. Teach: SLSA provenance requires Cloud Build — bind bypasses Cloud Build entirely, so the vouch verdict honestly reports \"digest-pin.\" The image is exactly what upstream published, pinned by content hash, but the project didn't build it.\n3. **Charge the pluml Crucible** — render a diagram, observe blocked egress. Teach: the Sentry enforces network isolation regardless of image provenance. The PlantUML image might phone home if run naked; inside the crucible it cannot. You get the tool without the risk.\n\n### Probes\n\n- Director RBRA present and valid\n- Depot provisioned\n- PlantUML hallmark exists and is vouched (digest-pin)\n- pluml crucible chargeable\n\n### Implementation\n\n- Zipper enrollment in `rbz_zipper.sh` (colophon `rbw-Odb`, group `RBZ__GROUP_ONBOARDING`)\n- Thin dispatcher tabtarget `tt/rbw-Odb.OnboardingDirectorBind.sh`\n- Sequence function `rbho_director_bind()` in `rbho_onboarding.sh`\n- Teaching content using `buh_*` primitives\n\n### Requires\n\n- Director credentials, provisioned depot\n- `rbev-bottle-plantuml` vessel and `pluml` nameplate (already shipped)\n\n### Out of scope\n\n- Conjure or graft modes\n- Reliquary inscription (bind doesn't use Cloud Build)\n- PlantUML vessel creation (already exists)",
               "silks": "onboarding-director-bind",
               "commit": "c27d8ce"
+            }
+          ]
+        },
+        "₢A6AAX": {
+          "tacks": [
+            {
+              "ts": "260414-1313",
+              "state": "rough",
+              "text": "## Character\n\nHandbook track implementation — graft mode: push a locally-built image to the depot. Pattern replication from `tt/rbw-Ofc.OnboardingFirstCrucible.sh`. Teaches the least-trusted ordain mode — the user owns the entire build, SLSA cannot vouch for this image. Vouch verdict is GRAFTED: an explicit signal that provenance stops at the local machine.\n\nUses `rbev-bottle-graft-demo` (created by ₢A6AAH) as the teaching vessel.\n\n## Docket\n\nImplement `tt/rbw-Odg.OnboardingDirectorGraft.sh` — the graft mode handbook track.\n\n### Teaching arc\n\n1. **Kludge a vessel image locally** — `docker build` a trivial image (alpine + socat or similar) using the graft-demo vessel configuration. Teach: graft vessels have no project-side Dockerfile in GAR — the image is built entirely on the local machine. This is the development/prototyping workflow, not the production supply chain.\n2. **Graft** — push local image to the depot. Teach: graft pushes a locally-built image to GAR. The director takes responsibility for what's in the image. No Cloud Build involvement, no pouch, no SBOM from the project's pipeline.\n3. **Inspect Vouch verdict** — GRAFTED, no provenance chain. Teach: the vouch verdict honestly reports \"GRAFTED.\" SLSA provenance requires Cloud Build; graft bypasses it entirely. The verdict is not a failure — it's an explicit signal about trust level. Compare with conjure (full SLSA) and bind (digest-pin). The trust hierarchy across modes is the central lesson.\n\n### Probes\n\n- Director RBRA present and valid\n- Depot provisioned\n- graft-demo vessel exists (`rbev-bottle-graft-demo/rbrv.env` with `RBRV_VESSEL_MODE=graft`)\n- Grafted hallmark exists and is vouched (GRAFTED)\n\n### Implementation\n\n- Zipper enrollment in `rbz_zipper.sh` (colophon `rbw-Odg`, group `RBZ__GROUP_ONBOARDING`)\n- Thin dispatcher tabtarget `tt/rbw-Odg.OnboardingDirectorGraft.sh`\n- Sequence function `rbho_director_graft()` in `rbho_onboarding.sh`\n- Teaching content using `buh_*` primitives\n\n### Requires\n\n- Director credentials, provisioned depot\n- ₢A6AAH (graft-demo-vessel) must be wrapped — provides `rbev-bottle-graft-demo/`\n\n### Out of scope\n\n- Conjure or bind modes\n- Graft-demo vessel creation (₢A6AAH)\n- Nameplate or crucible integration for graft-demo (graft-demo has no nameplate by design)",
+              "silks": "onboarding-director-graft",
+              "commit": "7a63e3d"
             }
           ]
         }
