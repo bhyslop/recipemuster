@@ -345,7 +345,7 @@ rbob_hail() {
 rbob_ssh() {
   zrbob_sentinel
   buc_step "SSH to bottle via port ${RBRN_ENTRY_PORT_WORKSTATION}"
-  exec ssh -p "${RBRN_ENTRY_PORT_WORKSTATION}" \
+  exec ssh -t -p "${RBRN_ENTRY_PORT_WORKSTATION}" \
     -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
     claude@localhost
 }
