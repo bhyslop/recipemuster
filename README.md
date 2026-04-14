@@ -2,7 +2,7 @@
 
 [Recipe Bottle](#RecipeBottle) provides two independent container image capabilities:
 
-- **[Foundry](#Foundry)**: orchestrate Google Cloud Build to produce, fetch, retain, and serve images using a role-managed private cloud registry — even can coordinate egress-locked builds with full supply-chain provenance
+- **[Foundry](#Foundry)**: orchestrate Google Cloud Build to produce multiplatform container images (x86 + ARM), fetch, retain, and serve them using a role-managed private cloud registry — with optional egress-locked builds and supply-chain provenance
 - **[Crucible](#Crucible)**: run untrusted containers behind enforced network isolation — DNS filtering and IP filtering — even using images unmodified from "in the wild"
 
 > [!IMPORTANT]
@@ -14,7 +14,7 @@
 >
 > If you evaluate or deploy this, you are contributing to its hardening. Security-focused contributors and responsible disclosure are especially valued.
 
-[Recipe Bottle](#RecipeBottle) is a set of bash scripts designed for incorporation into arbitrary projects.
+[Recipe Bottle](#RecipeBottle) is a set of bash scripts enabling enterprise grade container image management intended for incorporation into any project.
 The dependency footprint is deliberately narrow — `bash 3.2` and a handful of standard tools — with no Python runtime, no language-specific package manager, and no `gcloud` CLI.
 After initial manual setup, all cloud API calls use `openssl` + `curl`.
 A small team can stand up a hardened build pipeline and a sandboxed runtime without specialized DevOps expertise.
@@ -58,7 +58,7 @@ tt/rbw-o.OnboardingStartHere.sh
 ## <a id="Foundry"></a>Foundry
 
 [Recipe Bottle's](#RecipeBottle) remote build orchestration system for producing, attesting, and distributing container images via Google Cloud Build and Google Artifact Registry.
-The [Foundry](#Foundry) encompasses [Depots](#Depot), [Vessels](#Vessel), [Hallmark](#Hallmark) tracking, and build definitions.
+The [Foundry](#Foundry) manages [Depot](#Depot) access, [Vessels](#Vessel) choreography, [Hallmark](#Hallmark) tracking, and build definitions.
 Three [Vessel](#Vessel) modes determine how images enter the [Depot](#Depot): [Conjure](#Conjure) (egress-locked build from source with SLSA provenance), [Bind](#Bind) (digest-pinned upstream mirror), and [Graft](#Graft) (local push).
 Peer to [Crucible](#Crucible), which handles local runtime containment.
 
@@ -71,10 +71,10 @@ The facility where container images are built and stored — has its own GCP pro
 The [Payor](#Payor) [Levies](#Levy) a [Depot](#Depot), and the [Governor](#Governor) administers access to it.
 Each [Depot](#Depot) operates as an independent supply-chain boundary with its own credentials, builds, and registry.
 
-Each [Depot](#Depot) operates in one of two build egress profiles:
+Each [Depot](#Depot) supports two build egress profiles:
 
-- <a id="Tethered"></a>**[Tethered](#Tethered)** — Build egress mode allowing public internet access during Cloud Build. [Tethered](#Tethered) builds pull base images from upstream registries at build time — simpler to set up, but dependent on upstream availability. Compare with [Airgap](#Airgap).
-- <a id="Airgap"></a>**[Airgap](#Airgap)** — Build egress mode with no public internet access during Cloud Build. [Airgap](#Airgap) builds draw all dependencies from [Enshrined](#Enshrine) images in the [Depot's](#Depot) registry — fully self-contained, independent of upstream availability. Requires [Enshrining](#Enshrine) base images before the first build. Compare with [Tethered](#Tethered).
+- <a id="Tethered"></a>**[Tethered](#Tethered)** — Build egress mode allowing public internet access during Cloud Build. [Tethered](#Tethered) builds pull base images from upstream registries at build time — simpler to set up, but dependent on upstream availability.
+- <a id="Airgap"></a>**[Airgap](#Airgap)** — Build egress mode with no public internet access during Cloud Build. [Airgap](#Airgap) builds draw all dependencies from [Enshrined](#Enshrine) images in the [Depot's](#Depot) registry — fully self-contained, independent of upstream availability. Requires [Enshrining](#Enshrine) base images before the first build.
 
 ### <a id="Manor"></a>Manor
 
