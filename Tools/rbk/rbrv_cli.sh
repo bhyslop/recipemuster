@@ -31,7 +31,10 @@ rbrv_validate() {
   buc_doc_brief "Validate RBRV vessel regime configuration via enrollment report"
   buc_doc_shown || return 0
 
-  test -n "${BUZ_FOLIO:-}" || buc_die "Vessel sigil required (e.g., tadmor-sentry)"
+  if test -z "${BUZ_FOLIO:-}"; then
+    rbrv_list
+    buc_die "Vessel sigil required"
+  fi
   buc_step "Validating RBRV vessel regime"
   buv_report RBRV "Vessel Regime"
   buc_step "RBRV vessel valid"
@@ -42,7 +45,10 @@ rbrv_render() {
   buc_doc_brief "Display diagnostic view of RBRV vessel regime configuration"
   buc_doc_shown || return 0
 
-  test -n "${BUZ_FOLIO:-}" || buc_die "Vessel sigil required (e.g., tadmor-sentry)"
+  if test -z "${BUZ_FOLIO:-}"; then
+    rbrv_list
+    buc_die "Vessel sigil required"
+  fi
   buv_render RBRV "RBRV - Recipe Bottle Regime Vessel"
 }
 
