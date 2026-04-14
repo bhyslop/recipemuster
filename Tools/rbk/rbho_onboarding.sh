@@ -1094,7 +1094,7 @@ rbho_start_here() {
   buh_tlt "  A " "Depot" "${z_docs}#Depot" " is the facility where the team's container images are"
   buh_t   "  built and stored — the ground truth other tracks rest on."
   buh_e
-  buh_tlt "    " "Payor" "${z_docs}#Payor" " — create GCP project, billing, OAuth, and provision the depot"
+  buh_tltlt "    " "Payor" "${z_docs}#Payor" " — establish a " "Manor" "${z_docs}#Manor" " and provision the Depot"
   buh_tT  "        " "${RBZ_ONBOARD_PAYOR_HB}"
   buh_e
   buh_tlt "    " "Governor" "${z_docs}#Governor" " — administer service accounts for directors and retrievers"
@@ -1815,27 +1815,28 @@ rbho_first_crucible() {
 }
 
 ######################################################################
-# Payor handbook — create GCP project, billing, OAuth, provision depot
+# Payor handbook — establish a Manor and provision the Depot
 #
 # Linear step sequence, no conditional probes. The payor owns the GCP
 # project and funds it. This handbook walks through the full ceremony:
 # OAuth credentials, project setup, depot provisioning, governor handoff.
 
 rbho_payor_handbook() {
-  buc_doc_brief "Payor — create GCP project, billing, OAuth, and provision the depot"
+  buc_doc_brief "Payor — establish a Manor and provision the Depot"
   buc_doc_shown || return 0
 
   local -r z_docs="${RBRR_PUBLIC_DOCS_URL}"
 
   # --- Header ---
-  buh_section "Payor — Create GCP Project and Provision the Depot"
+  buh_section "Payor — Establish a Manor and Provision the Depot"
   buh_e
-  buh_tlt "The " "Payor" "${z_docs}#Payor" " owns the GCP project and funds it. Unlike other"
-  buh_t   "roles that use service account keys, the payor authenticates via"
-  buh_t   "OAuth — representing the human project owner."
+  buh_tltlt "The " "Payor" "${z_docs}#Payor" " establishes a " "Manor" "${z_docs}#Manor" " — an administrative seat"
+  buh_t   "holding the billing account, OAuth client, and operator identity."
+  buh_tlt "Unlike other roles that use service account keys, the " "Payor" "${z_docs}#Payor" ""
+  buh_t   "authenticates via OAuth — representing the human project owner."
   buh_e
-  buh_tlt "By the end of this handbook you will have a functioning " "Depot" "${z_docs}#Depot" ""
-  buh_tlt "and a " "Governor" "${z_docs}#Governor" " service account ready to administer it."
+  buh_tltlt "By the end of this handbook you will have a " "Manor" "${z_docs}#Manor" ", a " "Depot" "${z_docs}#Depot" ""
+  buh_tlt "funded under it, and a " "Governor" "${z_docs}#Governor" " service account ready to administer it."
   buh_e
 
   buh_t   "This ceremony takes about 15 minutes."
@@ -1844,20 +1845,20 @@ rbho_payor_handbook() {
   buh_step_style "Step " " — "
 
   # =================================================================
-  # Step 1: Create GCP project and configure OAuth consent screen
+  # Step 1: Establish the Manor
   # =================================================================
-  buh_step1 "Create GCP project and configure OAuth consent screen"
+  buh_step1 "Establish the Manor"
   buh_e
-  buh_t   "A funded GCP project is required before any infrastructure can be"
-  buh_t   "provisioned. The project must have billing enabled and the OAuth"
-  buh_t   "consent screen configured."
+  buh_tlt "The " "Manor's" "${z_docs}#Manor" " GCP project hosts the OAuth client and billing"
+  buh_t   "account. It must be created before any infrastructure can be"
+  buh_t   "provisioned."
   buh_e
   buh_t   "Run the guided setup:"
   buh_tT  "  " "${RBZ_PAYOR_ESTABLISH}"
   buh_e
-  buh_t   "This guides you through project creation, billing enablement, and"
-  buh_tlt "consent screen configuration. The project ID is recorded in " "RBRR" "${z_docs}#RBRR" ""
-  buh_tlt "and becomes the identity for all " "Depot" "${z_docs}#Depot" " operations."
+  buh_tlt "This guides you through creating the " "Manor's" "${z_docs}#Manor" " GCP project,"
+  buh_tlt "enabling billing, and configuring the OAuth consent screen. The " "Manor" "${z_docs}#Manor" ""
+  buh_tlt "identity is recorded in " "RBRP" "${z_docs}#RBRP" "."
   buh_e
 
   # =================================================================
@@ -1880,11 +1881,11 @@ rbho_payor_handbook() {
   # =================================================================
   # Step 3: Provision the depot
   # =================================================================
-  buh_step1 "Provision the depot"
+  buh_step1 "Provision the Depot"
   buh_e
   buh_tlt "A " "Depot" "${z_docs}#Depot" " is the facility where container images are built and"
-  buh_t   "stored — a GCP project with a registry, storage bucket, and build"
-  buh_t   "infrastructure."
+  buh_t   "stored — it has its own GCP project with a registry, storage bucket,"
+  buh_tlt "and build infrastructure, funded under the " "Manor's" "${z_docs}#Manor" " billing account."
   buh_e
   buh_tlt "To " "Levy" "${z_docs}#Levy" " a Depot is to provision this infrastructure:"
   buh_tT  "  " "${RBZ_LEVY_DEPOT}"
@@ -1943,8 +1944,8 @@ rbho_governor_handbook() {
   buh_tltlt "A " "Governor" "${z_docs}#Governor" " administers a " "Depot" "${z_docs}#Depot" " — creating service accounts"
   buh_t   "and managing access for those who build and run container images."
   buh_e
-  buh_tltlt "The " "Governor" "${z_docs}#Governor" " works within a " "Depot" "${z_docs}#Depot" " that the"
-  buh_tlt "" "Payor" "${z_docs}#Payor" " created. If no Depot exists yet, that is a Payor responsibility:"
+  buh_tltlt "The " "Governor" "${z_docs}#Governor" " works within a " "Depot" "${z_docs}#Depot" " provisioned under"
+  buh_tltlt "the " "Payor's" "${z_docs}#Payor" " " "Manor" "${z_docs}#Manor" ". If no Depot exists yet, that is a Payor responsibility:"
   buh_tT  "  " "${RBZ_ONBOARD_PAYOR_HB}"
   buh_e
 

@@ -67,7 +67,7 @@ Builds run in an egress-locked configuration, drawing from upstream base images 
 
 ### <a id="Depot"></a>Depot
 
-The facility where container images are built and stored — a GCP project with an artifact registry and a storage bucket.
+The facility where container images are built and stored — has its own GCP project with an artifact registry and a storage bucket, funded under the [Manor's](#Manor) billing account.
 The [Payor](#Payor) [Levies](#Levy) a [Depot](#Depot), and the [Governor](#Governor) administers access to it.
 Each [Depot](#Depot) operates as an independent supply-chain boundary with its own credentials, builds, and registry.
 
@@ -76,10 +76,16 @@ Each [Depot](#Depot) operates in one of two build egress profiles:
 - <a id="Tethered"></a>**[Tethered](#Tethered)** — Build egress mode allowing public internet access during Cloud Build. [Tethered](#Tethered) builds pull base images from upstream registries at build time — simpler to set up, but dependent on upstream availability. Compare with [Airgap](#Airgap).
 - <a id="Airgap"></a>**[Airgap](#Airgap)** — Build egress mode with no public internet access during Cloud Build. [Airgap](#Airgap) builds draw all dependencies from [Enshrined](#Enshrine) images in the [Depot's](#Depot) registry — fully self-contained, independent of upstream availability. Requires [Enshrining](#Enshrine) base images before the first build. Compare with [Tethered](#Tethered).
 
+### <a id="Manor"></a>Manor
+
+The [Payor's](#Payor) administrative seat — holds the billing account, OAuth client, and operator identity.
+[Depot](#Depot) projects are created and funded under the [Manor's](#Manor) authority.
+The [Manor](#Manor) has its own GCP project, distinct from any [Depot](#Depot) project.
+
 ### <a id="Payor"></a>Payor
 
-Owns the GCP project and funds it; authenticates via OAuth.
-The [Payor](#Payor) is the only role requiring manual Google Cloud Console interaction — [Establishing](#Establish) the project, configuring OAuth, and [Installing](#Install) credentials via browser flow.
+[Establishes](#Establish) a [Manor](#Manor) and funds [Depot](#Depot) projects through it; authenticates via OAuth.
+The [Payor](#Payor) is the only role requiring manual Google Cloud Console interaction — [Establishing](#Establish) the [Manor](#Manor), configuring OAuth, and [Installing](#Install) credentials via browser flow.
 All other roles descend from credentials the [Payor's](#Payor) infrastructure creates.
 
 ### <a id="Governor"></a>Governor
@@ -212,7 +218,7 @@ Formal definitions for all [Foundry](#Foundry) operations, organized by lifecycl
 
 ### Infrastructure
 
-<a id="Establish"></a>**[Establish](#Establish)** — Guided setup of a new GCP project and OAuth consent screen through the Google Cloud Console.
+<a id="Establish"></a>**[Establish](#Establish)** — Guided setup of a new [Manor](#Manor) — creates the [Manor's](#Manor) GCP project and configures the OAuth consent screen through the Google Cloud Console.
 [Establishing](#Establish) walks the [Payor](#Payor) through project creation, API enablement, and consent screen configuration — the manual prerequisites before any automated operations can run.
 
 <a id="Install"></a>**[Install](#Install)** — Ingest OAuth client credentials from a downloaded JSON key file.
@@ -443,7 +449,7 @@ Log directory, station paths.
 
 <a id="RBRR"></a>**[RBRR](#RBRR)** — [Depot](#Depot) identity and build configuration — populated during [Levy](#Levy), consumed by [Director](#Director) and [Retriever](#Retriever) operations.
 
-<a id="RBRP"></a>**[RBRP](#RBRP)** — [Payor](#Payor) administrative identity — GCP project, billing account, OAuth client ID, operator email.
+<a id="RBRP"></a>**[RBRP](#RBRP)** — [Manor](#Manor) identity — billing account, OAuth client ID, operator email, and the [Manor's](#Manor) GCP project.
 In the repo.
 
 <a id="RBRO"></a>**[RBRO](#RBRO)** — [Payor](#Payor) OAuth credentials — client secret and refresh token.

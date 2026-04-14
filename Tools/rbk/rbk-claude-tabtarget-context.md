@@ -51,7 +51,7 @@ The Folio column shows how each tabtarget receives it:
 | Colophon | Frontispiece | Folio | Purpose |
 |----------|-------------|-------|---------|
 | `rbw-gPI` | PayorInstall | — | Ingest OAuth credentials from JSON key file |
-| `rbw-gPE` | PayorEstablish | — | Guided GCP project + OAuth consent screen setup |
+| `rbw-gPE` | PayorEstablish | — | Guided Manor establishment — GCP project + OAuth consent screen |
 | `rbw-gPR` | PayorRefresh | — | Refresh expired OAuth tokens |
 | `rbw-gq` | QuotaBuild | — | Display Cloud Build capacity review procedure |
 | `rbw-go` | OnboardMAIN | — | Triage — detect roles, route to per-role walkthrough |
@@ -70,7 +70,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-Ocr` | OnboardingCredentialRetriever | — | Install retriever credentials — place RBRA key file |
 | `rbw-Ocd` | OnboardingCredentialDirector | — | Install director credentials — place RBRA key file |
 | `rbw-Ofc` | OnboardingFirstCrucible | — | Start a Crucible using local builds — kludge, charge, rack |
-| `rbw-Op` | OnboardingPayor | — | Payor — create GCP project, billing, OAuth, and provision the depot |
+| `rbw-Op` | OnboardingPayor | — | Payor — establish a Manor and provision the Depot |
 | `rbw-Og` | OnboardingGovernor | — | Governor — administer service accounts for directors and retrievers |
 
 ### Foundry — Registry artifact lifecycle (`rbw-f`)
