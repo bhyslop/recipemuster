@@ -1296,6 +1296,13 @@ rbho_director_first_build() {
   buh_tlt "Every conjured " "Hallmark" "${z_docs}#Hallmark" " produces a set of tagged"
   buh_t   "artifacts in GAR. Each suffix serves a specific role:"
   buh_e
+  buh_tc  "   " "{hallmark}${RBGC_ARK_SUFFIX_POUCH}"
+  buh_t   "      A FROM SCRATCH OCI image pushed from host to GAR before"
+  buh_t   "      the build. Contains the Dockerfile, scripts, and"
+  buh_t   "      configuration Cloud Build needs. Identical for tethered"
+  buh_t   "      and airgapped builds — the pool determines network"
+  buh_t   "      access, not the pouch."
+  buh_e
   buh_tc  "   " "{hallmark}${RBGC_ARK_SUFFIX_IMAGE}"
   buh_t   "      The consumer image — a multiplatform manifest list."
   buh_t   "      This is what you pull and run."
@@ -1310,9 +1317,6 @@ rbho_director_first_build() {
   buh_e
   buh_tc  "   " "{hallmark}${RBGC_ARK_SUFFIX_VOUCH}"
   buh_t   "      SLSA provenance verification record."
-  buh_e
-  buh_tc  "   " "{hallmark}${RBGC_ARK_SUFFIX_POUCH}"
-  buh_t   "      Build context archive — what was sent to Cloud Build."
   buh_e
   buh_tc  "   " "{hallmark}${RBGC_ARK_SUFFIX_DIAGS}"
   buh_t   "      Diagnostics from the build."
