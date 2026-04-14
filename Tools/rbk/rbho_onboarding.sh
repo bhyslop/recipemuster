@@ -1098,7 +1098,7 @@ rbho_start_here() {
   buh_tT  "        " "${RBZ_ONBOARD_PAYOR_HB}"
   buh_e
   buh_tlt "    " "Governor" "${z_docs}#Governor" " — administer service accounts for directors and retrievers"
-  buh_tT  "        " "${RBZ_ONBOARD_GOVERNOR}"
+  buh_tT  "        " "${RBZ_ONBOARD_GOVERNOR_HB}"
   buh_e
 
   # --- Director subtracks ---
@@ -1913,6 +1913,97 @@ rbho_payor_handbook() {
   buh_e
   buh_t   "The payor's job for this depot is done unless billing or"
   buh_t   "project-level changes are needed."
+  buh_e
+
+  # --- Return to start ---
+  buh_tT  "Return to start: " "${RBZ_ONBOARD_START_HERE}"
+  buh_e
+}
+
+######################################################################
+# Governor handbook — administer service accounts for directors and
+# retrievers.
+#
+# Linear step sequence, no conditional probes. The governor operates
+# within a depot the payor created: installs governor credentials,
+# provisions downstream SAs, verifies the chain.
+
+rbho_governor_handbook() {
+  buc_doc_brief "Governor — administer service accounts for directors and retrievers"
+  buc_doc_shown || return 0
+
+  local -r z_docs="${RBRR_PUBLIC_DOCS_URL}"
+
+  # --- Header ---
+  buh_section "Governor — Administer Service Accounts"
+  buh_e
+  buh_tlt "A " "governor" "${z_docs}#Governor" " administers a depot — creating service accounts"
+  buh_t   "and managing access for those who build and run container images."
+  buh_e
+  buh_t   "The governor works within a depot that the payor created. If no"
+  buh_t   "depot exists yet, that is a payor responsibility:"
+  buh_tT  "  " "${RBZ_ONBOARD_PAYOR_HB}"
+  buh_e
+
+  buh_step_style "Step " " — "
+
+  # =================================================================
+  # Step 1: Install governor credentials
+  # =================================================================
+  buh_step1 "Install governor credentials"
+  buh_e
+  buh_t   "To administer a depot, you need a governor service account key."
+  buh_t   "Your payor creates one by running:"
+  buh_tT  "  " "${RBZ_MANTLE_GOVERNOR}"
+  buh_e
+  buh_t   "Install the resulting key file into the secrets directory under"
+  buh_t   "the governor role subdirectory. The path is derived from your"
+  buh_tlt "" "RBRR" "${z_docs}#RBRR" " configuration — check RBRR_SECRETS_DIR for the location."
+  buh_e
+
+  # =================================================================
+  # Step 2: Provision downstream service accounts
+  # =================================================================
+  buh_step1 "Provision downstream service accounts"
+  buh_e
+  buh_t   "The governor provisions access for two downstream roles:"
+  buh_e
+  buh_tlt "A " "retriever" "${z_docs}#Retriever" " has read access to the depot — they pull and run"
+  buh_t   "container images that others have built."
+  buh_tlt "A " "director" "${z_docs}#Director" " has build and publish access — they create container"
+  buh_t   "images and push them to the registry."
+  buh_e
+  buh_tlt "" "Charter" "${z_docs}#Charter" " creates a retriever service account with read access:"
+  buh_tT  "  " "${RBZ_CHARTER_RETRIEVER}"
+  buh_e
+  buh_tlt "" "Knight" "${z_docs}#Knight" " creates a director service account with build access:"
+  buh_tT  "  " "${RBZ_KNIGHT_DIRECTOR}"
+  buh_e
+  buh_t   "Each command creates the service account and applies the IAM"
+  buh_t   "grants it needs. The output is an RBRA key file — hand it to"
+  buh_t   "the retriever or director user."
+  buh_e
+  buh_t   "List issued service accounts:"
+  buh_tT  "  " "${RBZ_LIST_SERVICE_ACCOUNTS}"
+  buh_e
+
+  # =================================================================
+  # Step 3: Verify the chain
+  # =================================================================
+  buh_step1 "Verify the chain"
+  buh_e
+  buh_t   "The service accounts you created include IAM grants — each SA"
+  buh_t   "gets exactly the permissions its role requires, no more."
+  buh_tlt "" "Retriever" "${z_docs}#Retriever" " gets read access."
+  buh_tlt "" "Director" "${z_docs}#Director" " gets read, write, and build trigger access."
+  buh_e
+  buh_t   "Verify the complete chain works by installing both credentials"
+  buh_t   "locally and running the credential handbook tracks:"
+  buh_tT  "  " "${RBZ_ONBOARD_CRED_RETRIEVER}"
+  buh_tT  "  " "${RBZ_ONBOARD_CRED_DIRECTOR}"
+  buh_e
+  buh_t   "If the retriever can pull from the depot and the director can"
+  buh_t   "see the registry, your grants are correct."
   buh_e
 
   # --- Return to start ---

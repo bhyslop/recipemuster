@@ -93,6 +93,8 @@ zrbz_kindle() {
   buz_enroll RBZ_ONBOARD_CRED_RETRIEVER "rbw-Ocr" "${z_mod}" "rbho_credential_retriever" ""  "Install retriever credentials — place RBRA key file"
   buz_enroll RBZ_ONBOARD_CRED_DIRECTOR  "rbw-Ocd" "${z_mod}" "rbho_credential_director"  ""  "Install director credentials — place RBRA key file"
   buz_enroll RBZ_ONBOARD_FIRST_CRUCIBLE "rbw-Ofc" "${z_mod}" "rbho_first_crucible"       ""  "Start a Crucible using local builds — kludge, charge, rack"
+  buz_enroll RBZ_ONBOARD_PAYOR_HB      "rbw-Op"  "${z_mod}" "rbho_payor_handbook"       ""  "Payor — create GCP project, billing, OAuth, and provision the depot"
+  buz_enroll RBZ_ONBOARD_GOVERNOR_HB   "rbw-Og"  "${z_mod}" "rbho_governor_handbook"    ""  "Governor — administer service accounts for directors and retrievers"
 
   # Foundry — registry artifact lifecycle (rbw-f, UPPER=mutates GAR, lower=read/local)
   buz_group RBZ__GROUP_FOUNDRY    "rbw-f"   "Foundry — Registry artifact lifecycle"
