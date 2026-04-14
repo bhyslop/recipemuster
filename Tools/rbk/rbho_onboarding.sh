@@ -1327,7 +1327,7 @@ rbho_director_first_build() {
   buh_e
   buh_tT  "   " "${RBZ_TALLY_HALLMARKS}"
   buh_e
-  buh_t   "Look for your hallmark with health state 'vouched' — that"
+  buh_tlt "Look for your " "hallmark" "${z_docs}#Hallmark" " with health state 'vouched' — that"
   buh_t   "means SLSA provenance was verified."
   buh_e
 
@@ -1335,13 +1335,13 @@ rbho_director_first_build() {
   buh_step2 "Vouch"
   buh_e
   buh_tlt "" "Vouch" "${z_docs}#Vouch" " verifies SLSA provenance for each platform"
-  buh_t   "digest in the hallmark. The ordain pipeline runs vouch"
+  buh_tlt "digest in the " "hallmark" "${z_docs}#Hallmark" ". The ordain pipeline runs vouch"
   buh_t   "automatically. If a build was interrupted before vouch"
   buh_t   "completed, run this to vouch all unvouched hallmarks:"
   buh_e
   buh_tT  "   " "${RBZ_VOUCH_HALLMARKS}"
   buh_e
-  buh_t   "The conjure verdict is full SLSA — Cloud Build produced"
+  buh_tlt "The " "conjure" "${z_docs}#Conjure" " verdict is full SLSA — Cloud Build produced"
   buh_t   "this image, and the provenance chain proves it."
   buh_e
 
