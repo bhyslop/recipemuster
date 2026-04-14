@@ -192,6 +192,20 @@ Each [Nameplate](#Nameplate) declares its [Vessel](#Vessel) selections, [Hallmar
 When finished, [Quench](#Quench) the [Crucible](#Crucible) to stop and clean up all three containers.
 To inspect an image's supply chain, [Plumb](#Plumb) its provenance — the full view shows the SBOM, build info, and Dockerfile; the compact view summarizes the attestation chain.
 
+### Reference Nameplates
+
+Shipped [Nameplates](#Nameplate) demonstrating different [Crucible](#Crucible) configurations.
+Each pairs a [Sentry](#Sentry) with a [Bottle](#Bottle) [Vessel](#Vessel) and defines the network policy for that deployment target.
+
+<a id="ccyolo"></a>**[ccyolo](#ccyolo)** — Claude Code sandbox for network-contained AI development.
+The [ccyolo](#ccyolo) [Crucible](#Crucible) runs Claude Code inside a [Bottle](#Bottle) that can only reach Anthropic — SSH entry from the workstation, OAuth authentication via copy/paste, everything else blocked.
+[Kludge](#Kludge)-only development target: no cloud account, no service account credentials, fully self-contained on the developer's workstation.
+The onboarding handbook's first hands-on track teaches the full [Crucible](#Crucible) lifecycle using [ccyolo](#ccyolo).
+
+<a id="tadmor"></a>**[tadmor](#tadmor)** — Adversarial security testing [Crucible](#Crucible).
+The [tadmor](#tadmor) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with the [Ifrit](#Ifrit) attack [Vessel](#Vessel) under a restrictive network allowlist.
+The [Theurge](#Theurge) test orchestrator [Charges](#Charge) [tadmor](#tadmor) and dispatches curated escape attempts to validate that the [Sentry's](#Sentry) containment holds under adversarial conditions.
+
 ## Appendix: Foundry Operations
 
 Formal definitions for all [Foundry](#Foundry) operations, organized by lifecycle phase.
@@ -387,7 +401,9 @@ The annotated tree below maps its files to the concepts defined above.
 | `├── .rbk/` | [Regime](#Regime) configuration root |
 | `│   ��── rbrp.env` | [RBRP](#RBRP) — [Payor](#Payor) identity for this [Depot](#Depot) |
 | `│   ├── rbrr.env` | [RBRR](#RBRR) — [Depot](#Depot) identity and build configuration |
-| `│   ├── tadmor/` | [Nameplate](#Nameplate) — adversarial testing [Crucible](#Crucible) |
+| `│   ├── ccyolo/` | [Nameplate](#Nameplate) — [ccyolo](#ccyolo) Claude Code sandbox [Crucible](#Crucible) |
+| `│   │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + Claude Code, Anthropic-only allowlist |
+| `│   ├── tadmor/` | [Nameplate](#Nameplate) — [tadmor](#tadmor) adversarial testing [Crucible](#Crucible) |
 | `│   │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + [Ifrit](#Ifrit), restrictive allowlist |
 | `│   ├── srjcl/` | [Nameplate](#Nameplate) — Jupyter notebook [Crucible](#Crucible) |
 | `│   │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + Jupyter, academic-domain allowlist |
@@ -398,6 +414,9 @@ The annotated tree below maps its files to the concepts defined above.
 | `    │   ├── Dockerfile` | debian-slim + iptables + dnsmasq |
 | `    │   ├── rbjs_sentry.sh` | [Sentry](#Sentry) runtime — policy engine |
 | `    │   ├── rbjp_pentacle.sh` | [Pentacle](#Pentacle) runtime — namespace setup |
+| `    │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode |
+| `    ├── rbev-bottle-ccyolo/` | [Conjure](#Conjure) — [ccyolo](#ccyolo) Claude Code sandbox |
+| `    │   ├── Dockerfile` | node:22-slim + SSH + Claude Code |
 | `    │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode |
 | `    ├── rbev-bottle-ifrit/` | [Conjure](#Conjure) — [Ifrit](#Ifrit) attack binary |
 | `    │   ├── Dockerfile` | Rust binary + scapy + strace |

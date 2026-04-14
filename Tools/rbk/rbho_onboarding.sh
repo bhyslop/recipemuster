@@ -1496,8 +1496,8 @@ rbho_first_crucible() {
   buh_t   "and run Claude Code inside it — no cloud account, no credentials"
   buh_t   "beyond your own Claude subscription."
   buh_e
-  buh_t   "This track uses the ccyolo nameplate: a Claude Code sandbox that"
-  buh_tlt "can only reach " "Anthropic" "${z_docs}" ". Everything else is blocked."
+  buh_tltlt "This track uses the " "ccyolo" "${z_docs}#ccyolo" " nameplate: a Claude Code sandbox that can only reach " "Anthropic" "${z_docs}" "."
+  buh_t   "Everything else is blocked."
   buh_e
 
   # Docker gate
@@ -1698,7 +1698,7 @@ rbho_first_crucible() {
   buh_step1 "Verify network containment"
   buh_e
   buh_t   "From inside the bottle (while SSH'd in), test what's reachable."
-  buh_t   "The ccyolo nameplate allows Anthropic and example.com (a test"
+  buh_tlt "The " "ccyolo" "${z_docs}#ccyolo" " nameplate allows Anthropic and example.com (a test"
   buh_t   "target). Everything else is blocked."
   buh_e
   buh_t   "Run these curl commands inside the bottle:"
