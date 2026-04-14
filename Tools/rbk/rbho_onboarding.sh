@@ -1758,10 +1758,11 @@ rbho_first_crucible() {
   buh_tI    "     " "${RBZ_CRUCIBLE_CHARGE}" "${z_moniker}"
   buh_tc    "  6. SSH in: " "${z_ssh_tabtarget}"
   buh_t     "  7. Test your changes"
-  buh_tlt   "  8. " "Quench" "${z_docs}#Quench" ":"
-  buh_tI    "     " "${RBZ_CRUCIBLE_QUENCH}" "${z_moniker}"
   buh_e
-  buh_tlt "Steps 3-8 take under a minute. The " "Sentry" "${z_docs}#Sentry" " rarely changes, so"
+  buh_tlt "" "Charge" "${z_docs}#Charge" " tears down any prior state before starting, so you"
+  buh_t   "don't need to Quench between iterations — just Charge again."
+  buh_e
+  buh_tlt "Steps 3-7 take under a minute. The " "Sentry" "${z_docs}#Sentry" " rarely changes, so"
   buh_tlt "you almost never re-kludge it — the " "Bottle" "${z_docs}#Bottle" " is your iteration"
   buh_t   "target."
   buh_e
