@@ -559,6 +559,7 @@
         "₢A6AAN",
         "₢A6AAO",
         "₢A6AAU",
+        "₢A6AAV",
         "₢A6AAH",
         "₢A6AAI",
         "₢A6AAJ",
@@ -568,7 +569,7 @@
         "₢A6AAM",
         "₢A6AAA"
       ],
-      "next_pace_seed": "AAV",
+      "next_pace_seed": "AAW",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
       "paces": {
         "₢A6AAA": {
@@ -1079,6 +1080,17 @@
               "text": "## Character\n\nHandbook track implementation — the director's first hands-on cloud build experience. Pattern replication from `tt/rbw-Ofc.OnboardingFirstCrucible.sh`: zipper enrollment, thin dispatcher, sequence function with `buh_*` teaching content. Substantial teaching scope — covers the full conjure lifecycle from reliquary inscription through hallmark cleanup.\n\n**Depends on**: Refactored conjure pipeline (₢A6AAT/R/Q/S all wrapped) — teaches the new tag inventory (`-image`, `-attest-{arch}` ephemeral, `-pouch`). Also depends on ₢A6AAO (director credential onboarding) being available as a prerequisite reference.\n\n## Docket\n\nImplement `tt/rbw-Odf.OnboardingDirectorFirstBuild.sh` — the director's first cloud build handbook track.\n\n### Teaching arc\n\nWalk a director through the complete conjure lifecycle using `rbev-sentry-debian-slim` (the vessel they already know from the crucible track):\n\n1. **Inscribe the Reliquary** — provision builder tool images (skopeo, docker, gcloud, syft) into GAR. Prerequisite for all Cloud Build operations. Teach: reliquary as co-versioned toolchain, `RBRV_RELIQUARY` in vessel regime, why conjure preflight fails without it.\n2. **Conjure Sentry** — first tethered cloud build. Tether pool has public internet; base images pulled from upstream during build. Teach: ordain pipeline shape (pouch → Cloud Build → image + about + vouch), tethered vs airgap fork, wall-clock expectations (~20 min).\n3. **Tour: Tally, Vouch, Plumb, Pouch** — inspect the results. Tally shows hallmark health (vouched). Vouch shows SLSA verification. Plumb shows SBOM + build info. Pouch is the build context archived in GAR. Teach: the hallmark artifact inventory, what each suffix means, how provenance is stored by digest.\n4. **Summon** — pull the hallmark locally. Teach: `-image` manifest list resolves to host platform, consumer workflow.\n5. **Abjure and Rekon** — hallmark lifecycle. Abjure removes all artifacts. Rekon confirms cleanup. Teach: lifecycle management, tag inventory before/after.\n\n### Probes\n\n- Reliquary inscribed (monotonic — once green, stays green)\n- Director RBRA present and valid\n- Depot provisioned (RBRR populated)\n- Latest hallmark health state\n\n### Implementation\n\n- Zipper enrollment in `rbz_zipper.sh` (colophon `rbw-Odf`, group `RBZ__GROUP_ONBOARDING`)\n- Thin dispatcher tabtarget `tt/rbw-Odf.OnboardingDirectorFirstBuild.sh`\n- Sequence function `rbho_director_first_build()` in `rbho_onboarding.sh`\n- Teaching content using `buh_*` primitives, `buh_tlt` for vocabulary-first term introduction\n- Run `tt/rbw-MG.MarshalGenerate.sh` to regenerate context\n\n### Requires\n\n- Director credentials and a provisioned Depot\n- Refactored conjure pipeline landed (₢A6AAT/R/Q/S)\n\n### Out of scope\n\n- Airgap builds (separate subtrack: rbw-Oda)\n- Bind or graft modes\n- Credential installation (₢A6AAO)\n- Pipeline refactoring (already done)",
               "silks": "onboarding-director-first-cloud-build",
               "commit": "9c0d1f4"
+            }
+          ]
+        },
+        "₢A6AAV": {
+          "tacks": [
+            {
+              "ts": "260414-1312",
+              "state": "rough",
+              "text": "## Character\n\nHandbook track implementation — airgap cloud builds with zero upstream access. Pattern replication from `tt/rbw-Ofc.OnboardingFirstCrucible.sh`. Builds on the tethered build track (₢A6AAU / rbw-Odf) — the learner already knows the conjure lifecycle; this track teaches isolation.\n\n**Depends on**: ₢A6AAU (onboarding-director-first-cloud-build) — reliquary must already be inscribed, learner must have completed a tethered build.\n\n## Docket\n\nImplement `tt/rbw-Oda.OnboardingDirectorAirgap.sh` — the airgap cloud build handbook track.\n\n### Teaching arc\n\n1. **Enshrine base images** — mirror upstream base images into GAR with content-addressed anchors for all shipped conjure vessels (sentry-debian-slim, bottle-ccyolo, bottle-ifrit). Teach: supply-chain independence, anchor scheme (`RBRV_IMAGE_n_ANCHOR`), air-gap readiness, concrete scope of upstream dependencies the project carries.\n2. **Conjure Sentry airgapped** — same vessel (sentry-debian-slim), now built on the airgap pool with no public internet. All dependencies pre-enshrined in GAR. Teach: most restrictive build mode, full isolation, the enshrined bases make this possible.\n3. **Compare Plumb output** — tethered vs airgap side by side. Teach: the images are functionally identical; the difference is in the supply-chain properties (airgap has no upstream pull during build). Both have SLSA provenance.\n\n### Probes\n\n- Reliquary inscribed (prerequisite from previous track)\n- Base images enshrined (monotonic)\n- Airgap hallmark exists and is vouched\n- Tethered hallmark still present for comparison\n\n### Implementation\n\n- Zipper enrollment in `rbz_zipper.sh` (colophon `rbw-Oda`, group `RBZ__GROUP_ONBOARDING`)\n- Thin dispatcher tabtarget `tt/rbw-Oda.OnboardingDirectorAirgap.sh`\n- Sequence function `rbho_director_airgap()` in `rbho_onboarding.sh`\n- Teaching content using `buh_*` primitives\n\n### Requires\n\n- Previous subtrack completed (reliquary inscribed, tethered build done)\n- Director credentials, provisioned depot\n\n### Out of scope\n\n- Reliquary inscription (covered in rbw-Odf)\n- Bind or graft modes\n- Ifrit airgap feasibility (₢A6AAI decides whether ifrit goes airgap — this track uses sentry regardless)",
+              "silks": "onboarding-director-airgap",
+              "commit": "754e768"
             }
           ]
         }
