@@ -94,7 +94,7 @@ zrbho_probe_role_credentials() {
   fi
 
   if test -n "${z_secrets_dir}"; then
-    test -f "${z_secrets_dir}/rbro-payor.env"                          && z_has_payor=1
+    test -f "${z_secrets_dir}/${RBCC_rbro_file}"                                && z_has_payor=1
     test -f "${z_secrets_dir}/${RBCC_role_governor}/${RBCC_rbra_file}"  && z_has_governor=1
     test -f "${z_secrets_dir}/${RBCC_role_director}/${RBCC_rbra_file}"  && z_has_director=1
     test -f "${z_secrets_dir}/${RBCC_role_retriever}/${RBCC_rbra_file}" && z_has_retriever=1
@@ -271,7 +271,7 @@ zrbho_probe_governor_units() {
 # Probe payor walkthrough units — sets caller-scope z_pu1..z_pu4
 # Requires: z_secrets_dir already set.
 #
-# Unit 1: OAuth credential present (rbro-payor.env in secrets dir)
+# Unit 1: OAuth credential present (RBCC_rbro_file in secrets dir)
 # Unit 2: Payor project configured (RBRP_PAYOR_PROJECT_ID non-empty)
 # Unit 3: Depot provisioned (RBRR_DEPOT_PROJECT_ID non-empty)
 # Unit 4: Governor SA exists (governor credential file present)
@@ -284,7 +284,7 @@ zrbho_probe_payor_units() {
 
   # Unit 1: OAuth credential present
   if test -n "${z_secrets_dir}" && \
-     test -f "${z_secrets_dir}/rbro-payor.env"; then
+     test -f "${z_secrets_dir}/${RBCC_rbro_file}"; then
     z_pu1=1
   fi
 

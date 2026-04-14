@@ -2585,7 +2585,7 @@ Path to the
 credentials file for OAuth operations.
 Derived from
 {rbrr_secrets_dir}
-as `rbro-payor.env`.
+as `rbro.env`.
 
 [[rbrr_bottle_workspace]]
 //axvr_variable axd_required rbst_path

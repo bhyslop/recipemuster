@@ -32,6 +32,7 @@ source "${BURD_CONFIG_DIR}/rbbc_constants.sh" || buc_die "Failed to source rbbc_
 RBCC_rbrs_file="../station-files/rbrs.env"
 RBCC_rbrn_file="rbrn.env"
 RBCC_rbra_file="rbra.env"
+RBCC_rbro_file="rbro.env"
 RBCC_role_governor="governor"
 RBCC_role_retriever="retriever"
 RBCC_role_director="director"
