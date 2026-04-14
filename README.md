@@ -420,11 +420,14 @@ The annotated tree below maps its files to the concepts defined above.
 | `│   └── pluml/` | [Nameplate](#Nameplate) — PlantUML diagram server [Crucible](#Crucible) |
 | `│       └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + PlantUML, no-egress allowlist |
 | `└── rbev-vessels/` | [Vessel](#Vessel) definitions |
-| `    ├── rbev-sentry-debian-slim/` | [Conjure](#Conjure) — the [Sentry](#Sentry)/[Pentacle](#Pentacle) image |
+| `    ├── common-sentry-context/` | Shared [Sentry](#Sentry)/[Pentacle](#Pentacle) build context |
 | `    │   ├── Dockerfile` | debian-slim + iptables + dnsmasq |
 | `    │   ├── rbjs_sentry.sh` | [Sentry](#Sentry) runtime — policy engine |
-| `    │   ├── rbjp_pentacle.sh` | [Pentacle](#Pentacle) runtime — namespace setup |
-| `    │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode |
+| `    │   └── rbjp_pentacle.sh` | [Pentacle](#Pentacle) runtime — namespace setup |
+| `    ├── rbev-sentry-deb-tether/` | [Conjure](#Conjure) — [Sentry](#Sentry) (tethered, upstream pull) |
+| `    │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode, tether egress |
+| `    ├── rbev-sentry-deb-airgap/` | [Conjure](#Conjure) — [Sentry](#Sentry) (airgapped, enshrined bases) |
+| `    │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode, airgap egress |
 | `    ├── rbev-bottle-ccyolo/` | [Conjure](#Conjure) — [ccyolo](#ccyolo) Claude Code sandbox |
 | `    │   ├── Dockerfile` | node:22-slim + SSH + Claude Code |
 | `    │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode |

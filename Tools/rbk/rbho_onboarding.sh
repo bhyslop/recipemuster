@@ -147,7 +147,7 @@ zrbho_probe_retriever_units() {
 # Requires: z_secrets_dir already set.
 #
 # Vessel assignments per docket:
-#   Unit 2,4,6: rbev-sentry-debian-slim (conjure vessel)
+#   Unit 2,4,6: rbev-sentry-deb-tether (conjure vessel)
 #   Unit 5:     rbev-bottle-plantuml    (bind vessel)
 #
 # Probes use local filesystem + docker only (no GAR API, no gcloud).
@@ -206,10 +206,10 @@ zrbho_probe_director_units() {
   local z_i=0
   for z_i in "${!z_depot_images[@]}"; do
     case "${z_depot_images[$z_i]}" in
-      *"rbev-sentry-debian-slim:k"[0-9]*) z_du2=1 ;;
-      *"rbev-sentry-debian-slim:c"[0-9]*) z_conjure_found=1 ;;
+      *"rbev-sentry-deb-tether:k"[0-9]*) z_du2=1 ;;
+      *"rbev-sentry-deb-tether:c"[0-9]*) z_conjure_found=1 ;;
       *"rbev-bottle-plantuml:b"[0-9]*)    z_du5=1 ;;
-      *"rbev-sentry-debian-slim:g"[0-9]*) z_du6=1 ;;
+      *"rbev-sentry-deb-tether:g"[0-9]*) z_du6=1 ;;
     esac
   done
 
@@ -761,7 +761,7 @@ rbho_credential_director() {
 # iteration for security exploration. Zero registry, zero SA credentials.
 #
 # Nameplate: ccyolo  (Claude Code sandbox, Anthropic-only network)
-# Vessels:   rbev-sentry-debian-slim (sentry), rbev-bottle-ccyolo (bottle)
+# Vessels:   rbev-sentry-deb-tether (sentry), rbev-bottle-ccyolo (bottle)
 #
 # ₢A6AAC DRAFT — content ready for implementation review.
 # Infrastructure gaps are marked with [INFRA-NEEDED] comments.
@@ -775,7 +775,7 @@ rbho_first_crucible() {
 
   # Hardcoded for this track — ccyolo is the teaching nameplate
   local -r z_moniker="ccyolo"
-  local -r z_sentry_vessel="rbev-sentry-debian-slim"
+  local -r z_sentry_vessel="rbev-sentry-deb-tether"
   local -r z_bottle_vessel="rbev-bottle-ccyolo"
   local -r z_nameplate_file="${RBBC_dot_dir}/${z_moniker}/${RBCC_rbrn_file}"
   local -r z_ssh_tabtarget="tt/rbw-cS.SshTo.${z_moniker}.sh"
@@ -1133,7 +1133,7 @@ rbho_first_crucible() {
 # Frame 4-refined handbook: teaching prose + probes + tabtarget refs.
 # Target learner: director doing their first cloud build.
 #
-# Vessel: rbev-sentry-debian-slim (conjure mode, tethered)
+# Vessel: rbev-sentry-deb-tether (conjure mode, tethered)
 # Teaches: full conjure lifecycle from reliquary through cleanup.
 #
 # ₢A6AAU — Director subtracks, first cloud build track.
@@ -1143,7 +1143,7 @@ rbho_director_first_build() {
   buc_doc_shown || return 0
 
   local -r z_docs="${RBRR_PUBLIC_DOCS_URL}"
-  local -r z_vessel="rbev-sentry-debian-slim"
+  local -r z_vessel="rbev-sentry-deb-tether"
 
   # --- Probes ---
 
@@ -1189,7 +1189,7 @@ rbho_director_first_build() {
   buh_tltlt "provision the builder toolchain, " "Ordain" "${z_docs}#Ordain" " your first " "Vessel" "${z_docs}#Vessel" " via"
   buh_t   "Cloud Build, inspect the result, pull it locally, and clean up."
   buh_e
-  buh_tltlt "You will build " "rbev-sentry-debian-slim" "${z_docs}#Vessel" " — the same " "Sentry" "${z_docs}#Sentry" " you"
+  buh_tltlt "You will build " "rbev-sentry-deb-tether" "${z_docs}#Vessel" " — the same " "Sentry" "${z_docs}#Sentry" " you"
   buh_tlt "already know from the " "Crucible" "${z_docs}#Crucible" " track, but this time built by"
   buh_t   "Google Cloud Build with full SLSA provenance."
   buh_e
@@ -1251,7 +1251,7 @@ rbho_director_first_build() {
   buh_e
   buh_c   "   RBRV_RELIQUARY=<datestamp>"
   buh_e
-  buh_tct "Open " "rbev-sentry-debian-slim/rbrv.env" " and set the field,"
+  buh_tct "Open " "rbev-sentry-deb-tether/rbrv.env" " and set the field,"
   buh_t   "then commit the change."
   buh_e
 

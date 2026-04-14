@@ -837,7 +837,7 @@ rbfl_rekon() {
   local z_moniker="${1:-}"
 
   buc_doc_brief "List all tags for a vessel package in the registry"
-  buc_doc_param "moniker" "Vessel moniker (e.g., rbev-sentry-debian-slim)"
+  buc_doc_param "moniker" "Vessel moniker (e.g., rbev-sentry-deb-tether)"
   buc_doc_shown || return 0
 
   if test -z "${z_moniker}"; then
