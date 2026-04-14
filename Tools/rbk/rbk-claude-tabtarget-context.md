@@ -26,6 +26,7 @@ The Folio column shows how each tabtarget receives it:
 |----------|-------------|-------|---------|
 | `rbw-cC` | Charge | imprint | Charge crucible (sentry + pentacle + bottle containers) |
 | `rbw-cQ` | Quench | imprint | Quench crucible |
+| `rbw-cS` | SshTo | imprint | SSH into the bottle container |
 | `rbw-ch` | Hail | param1 | Shell into the sentry container |
 | `rbw-cr` | Rack | param1 | Shell into the bottle container |
 | `rbw-cs` | Scry | param1 | Observe network traffic on crucible containers |
