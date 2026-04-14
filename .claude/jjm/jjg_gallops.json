@@ -546,6 +546,7 @@
       "creation_time": "260409",
       "status": "racing",
       "order": [
+        "₢A6AAR",
         "₢A6AAQ",
         "₢A6AAG",
         "₢A6AAK",
@@ -564,7 +565,7 @@
         "₢A6AAM",
         "₢A6AAA"
       ],
-      "next_pace_seed": "AAR",
+      "next_pace_seed": "AAS",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
       "paces": {
         "₢A6AAA": {
@@ -961,6 +962,17 @@
               "text": "## Character\n\nMechanical refactoring — rename the build context tag from `context-{timestamp}` to `{inscribe_ts}-pouch`, add `RBGC_ARK_SUFFIX_POUCH` constant, and plumb pouch awareness into tally and abjure. Straightforward constant discipline work.\n\n## Docket\n\nRename the conjure build context GAR tag from `context-{timestamp}` to `{inscribe_ts}{RBGC_ARK_SUFFIX_POUCH}` so the pouch is hallmark-affiliated and follows the same suffix constant discipline as `-image`, `-about`, `-vouch`, `-diags`.\n\n### Add constant\n\n- `Tools/rbk/rbgc_Constants.sh`: add `RBGC_ARK_SUFFIX_POUCH=\"-pouch\"` alongside the existing ark suffix family\n\n### Refactor producer\n\n- `Tools/rbk/rbfd_FoundryDirectorBuild.sh`:\n  - Move `z_inscribe_ts` computation above `zrbfd_push_build_context` call so it's available as a parameter\n  - Add 4th param `inscribe_ts` to `zrbfd_push_build_context()`\n  - Replace `context-${z_ctx_ts}` tag with `${inscribe_ts}${RBGC_ARK_SUFFIX_POUCH}`\n  - Delete independent `date -u` timestamp generation (lines ~728-733)\n  - Update call site to pass `z_inscribe_ts`\n\n### Plumb into tally classifier\n\n- `Tools/rbk/rbfl_FoundryLedger.sh` tally tag classifier: add `-pouch` case using `RBGC_ARK_SUFFIX_POUCH` so tally can report pouch presence per hallmark\n\n### Plumb into abjure\n\n- `Tools/rbk/rbfl_FoundryLedger.sh` abjure tag list: add pouch tag to deletion set alongside image/about/vouch/diags. Uses `z_inscribe_ts` (already derived from hallmark at abjure line ~285)\n\n### Update spec prose\n\n- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc`: add `-pouch` to hallmark artifact tag inventory (~1654 area), refine \"via pouch\" references to cite formal `{hallmark}-pouch` naming\n\n### Out of scope\n\n- `-multi` suffix constant treatment (separate concern)\n- Cleanup of legacy `context-*` tags in GAR (operational, not blocking)\n- Cloud build step script changes (GCB receives full tag URI, doesn't parse the name)",
               "silks": "context-to-pouch-rename",
               "commit": "0cbedf8"
+            }
+          ]
+        },
+        "₢A6AAR": {
+          "tacks": [
+            {
+              "ts": "260414-1216",
+              "state": "rough",
+              "text": "## Character\n\nArchitectural refactoring — move conjure hallmark minting from inside Cloud Build to the host (director's machine), making conjure consistent with bind, graft, and kludge. Also promote `-multi` to a constant. Moderate risk surface: touches GCB step scripts, stitch substitutions, `images:` field construction, and post-build discovery logic.\n\n## Docket\n\nMove conjure hallmark minting to host side so the full hallmark is known before build submission, then promote `-multi` to a constant.\n\n### Move hallmark minting to host\n\nCurrently `rbgjb01-derive-tag-base.sh` runs `date -u` inside Cloud Build to produce the realized timestamp. Instead:\n\n- Mint the full hallmark on the host in `rbfd_FoundryDirectorBuild.sh` before `zrbfd_push_build_context`, using the same `{inscribe_ts}-r{date -u}` pattern that bind and graft use\n- Pass the full hallmark into Cloud Build via a new substitution variable (e.g., `_RBGY_HALLMARK`)\n- Simplify or eliminate `rbgjb01-derive-tag-base.sh` — it no longer needs to derive anything, just receive the hallmark and write it to `.hallmark` + `/builder/outputs/output`\n- Update `images:` field construction in stitch to use full hallmark instead of inscribe-only timestamp\n- Simplify post-build hallmark discovery (line ~1132-1151) — the host already knows the hallmark, so discovery becomes a consistency check rather than the source of truth\n\n### Promote `-multi` to constant\n\n- `Tools/rbk/rbgc_Constants.sh`: add `RBGC_ARK_SUFFIX_MULTI=\"-multi\"`\n- `Tools/rbk/rbfd_FoundryDirectorBuild.sh`: use constant in stitch\n- `Tools/rbk/rbgjb/rbgjb03-buildx-push-multi.sh`: use substitution variable instead of hardcoded `-multi`\n- `Tools/rbk/rbgjb/rbgjb04-per-platform-pullback.sh`: same\n- `Tools/rbk/rbfl_FoundryLedger.sh` abjure (line ~327): use constant\n\n### Update downstream consumers\n\n- The `images:` field currently uses `{inscribe_ts}-image-{arch}` — update to `{hallmark}-image-{arch}`\n- Per-platform pullback step uses inscribe_ts for intermediate tags — update to hallmark\n- `imagetools create` step assembles consumer manifest from per-platform tags — verify tag names align\n- Post-build yield fact writes should still work (already use discovered hallmark, which now matches host-minted)\n\n### Verify SLSA provenance still attaches\n\n- Cloud Build generates SLSA provenance for images listed in the `images:` field\n- Changing the tag names shouldn't affect attestation — CB attests whatever it pushes\n- Validate: build a test vessel, verify `cosign verify-attestation` still works on per-platform tags\n\n### Out of scope\n\n- Pouch rename (₢A6AAQ — depends on this pace)\n- Cleanup of legacy inscribe-only tags in GAR\n- Changing the hallmark format itself",
+              "silks": "host-side-conjure-hallmark",
+              "commit": "038fbef"
             }
           ]
         }
