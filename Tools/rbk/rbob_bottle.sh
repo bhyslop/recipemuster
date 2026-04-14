@@ -148,6 +148,15 @@ zrbob_kindle() {
   export RBRR_DNS_SERVER
   export RBRR_BOTTLE_WORKSPACE
 
+  # Load bottle vessel user for compose and SSH (optional — empty means image default)
+  local z_bottle_rbrv="${RBRR_VESSEL_DIR}/${RBRN_BOTTLE_VESSEL}/rbrv.env"
+  local z_bottle_user=""
+  if test -f "${z_bottle_rbrv}"; then
+    z_bottle_user=$(grep '^RBRV_USER=' "${z_bottle_rbrv}" | head -1 | cut -d= -f2) || true
+  fi
+  readonly ZRBOB_BOTTLE_USER="${z_bottle_user}"
+  export RBRV_USER="${z_bottle_user}"
+
   readonly ZRBOB_DRIVE_PREFIX="${BURD_TEMP_DIR}/rbob_drive_"
 
   readonly ZRBOB_KINDLED=1
@@ -344,10 +353,11 @@ rbob_hail() {
 # SSH into bottle — proper terminal session via sentry DNAT
 rbob_ssh() {
   zrbob_sentinel
-  buc_step "SSH to bottle via port ${RBRN_ENTRY_PORT_WORKSTATION}"
+  local z_ssh_user="${ZRBOB_BOTTLE_USER:-root}"
+  buc_step "SSH to bottle via port ${RBRN_ENTRY_PORT_WORKSTATION} as ${z_ssh_user}"
   exec ssh -t -p "${RBRN_ENTRY_PORT_WORKSTATION}" \
     -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-    claude@localhost
+    "${z_ssh_user}@localhost"
 }
 
 # Rack bottle — compel the demon to reveal state (interactive shell)

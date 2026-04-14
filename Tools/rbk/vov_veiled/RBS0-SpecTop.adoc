@@ -371,6 +371,7 @@
 :rbrv_conjure_platforms:     <<rbrv_conjure_platforms,RBRV_CONJURE_PLATFORMS>>
 :rbrv_group_conjuring:       <<rbrv_group_conjuring,Conjuring Group>>
 :rbrv_description:           <<rbrv_description,RBRV_DESCRIPTION>>
+:rbrv_user:                  <<rbrv_user,RBRV_USER>>
 :rbrv_sigil:                 <<rbrv_sigil,RBRV_SIGIL>>
 :rbrv_sigil_s:               <<rbrv_sigil,RBRV_SIGILs>>
 :rbrv_vessel_mode:           <<rbrv_vessel_mode,RBRV_VESSEL_MODE>>
@@ -2954,6 +2955,16 @@ basis for directory and ark naming.
 {rbrv_description}::
 Human-readable documentation for
 {rbrv_regime}.
+
+[[rbrv_user]]
+//axvr_variable axd_optional rbst_username
+{rbrv_user}::
+Runtime user for
+{rbrv_regime}
+containers.
+When set, downstream consumers (compose, SSH, rack) use this as the container user identity.
+When unset, the container uses its image default (typically root).
+Applies across all vessel modes — conjure vessels create the user in their Dockerfile, bind and graft vessels declare a user that already exists in the image.
 
 [[rbrv_vessel_mode]]
 //axvr_variable axd_required axt_enumeration

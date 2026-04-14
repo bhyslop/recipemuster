@@ -40,6 +40,7 @@ zrbrv_kindle() {
   buv_group_enroll "Core Vessel Identity"
   buv_xname_enroll  RBRV_SIGIL             1   64  "Unique identifier (must match directory name)"
   buv_string_enroll RBRV_DESCRIPTION       0  512  "Human-readable description"
+  buv_string_enroll RBRV_USER              0   64  "Container runtime user (unset means image default)"
   buv_enum_enroll   RBRV_VESSEL_MODE               "Operation mode: bind, conjure, or graft" \
                     bind conjure graft
 

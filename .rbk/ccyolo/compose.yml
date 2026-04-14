@@ -15,7 +15,7 @@ services:
       - DISABLE_ERROR_REPORTING=1
       - CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
     volumes:
-      - ccyolo_workspace:/home/claude/workspace:rw
+      - ccyolo_workspace:/home/${RBRV_USER}/workspace:rw
 
 volumes:
   ccyolo_workspace:

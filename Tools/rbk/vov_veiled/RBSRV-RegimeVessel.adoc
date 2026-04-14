@@ -21,6 +21,15 @@ Human-readable description of the vessel purpose.
 Optional; 0-512 characters.
 
 //axhrv_variable
+{rbrv_user}
+
+Runtime user for the vessel container.
+Optional; 0-64 characters.
+When set, declares the non-root user that downstream orchestration (compose user directive, SSH authentication, exec sessions) should target.
+When unset, the container runs as its image default.
+Applies across all vessel modes: conjure vessels create the user in their Dockerfile; bind and graft vessels declare a user that already exists in the image.
+
+//axhrv_variable
 {rbrv_vessel_mode}
 
 Selects vessel provisioning strategy.
