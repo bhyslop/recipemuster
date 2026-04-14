@@ -1221,9 +1221,6 @@ rbho_director_first_build() {
 
   buh_step_style "Step " " — "
 
-  # =================================================================
-  # Step 1: Inscribe the Reliquary
-  # =================================================================
   buh_step1 "Inscribe the Reliquary"
   buh_e
   buh_tlt "The " "Reliquary" "${z_docs}#Reliquary" " is a set of builder tool images (skopeo,"
@@ -1255,9 +1252,6 @@ rbho_director_first_build() {
   buh_t   "then commit the change."
   buh_e
 
-  # =================================================================
-  # Step 2: Conjure the sentry (tethered)
-  # =================================================================
   buh_step1 "Conjure the sentry"
   buh_e
   buh_tlt "" "Conjure" "${z_docs}#Conjure" " is the build mode where Cloud Build constructs a"
@@ -1288,9 +1282,6 @@ rbho_director_first_build() {
   buh_t   "to read ahead — the next steps explain what to look for."
   buh_e
 
-  # =================================================================
-  # Step 3: Capture the hallmark
-  # =================================================================
   buh_step1 "Capture the hallmark"
   buh_e
   buh_tlt "When " "Ordain" "${z_docs}#Ordain" " completes, it prints the " "Hallmark" "${z_docs}#Hallmark" ""
@@ -1302,9 +1293,6 @@ rbho_director_first_build() {
   buh_c   "   export ONBOARD_HALLMARK=<paste hallmark from ordain output>"
   buh_e
 
-  # =================================================================
-  # Step 4: Tour the hallmark artifacts
-  # =================================================================
   buh_step1 "Tour the hallmark artifacts"
   buh_e
   buh_tlt "Every conjured " "Hallmark" "${z_docs}#Hallmark" " produces a set of tagged"
@@ -1338,7 +1326,6 @@ rbho_director_first_build() {
   buh_t   "Inspect them:"
   buh_e
 
-  # --- Substep 3a: Tally ---
   buh_step2 "Tally"
   buh_e
   buh_tlt "" "Tally" "${z_docs}#Tally" " lists all hallmarks and their health state:"
@@ -1349,7 +1336,6 @@ rbho_director_first_build() {
   buh_t   "means SLSA provenance was verified."
   buh_e
 
-  # --- Substep 3b: Vouch ---
   buh_step2 "Vouch"
   buh_e
   buh_tlt "" "Vouch" "${z_docs}#Vouch" " verifies SLSA provenance for each platform"
@@ -1363,7 +1349,6 @@ rbho_director_first_build() {
   buh_t   "this image, and the provenance chain proves it."
   buh_e
 
-  # --- Substep 3c: Plumb ---
   buh_step2 "Plumb"
   buh_e
   buh_tlt "" "Plumb" "${z_docs}#Plumb" " displays the SBOM, build info, and Dockerfile"
@@ -1377,9 +1362,6 @@ rbho_director_first_build() {
   buh_t   "   Compact summary — one-line-per-artifact overview."
   buh_e
 
-  # =================================================================
-  # Step 5: Summon the hallmark
-  # =================================================================
   buh_step1 "Summon the hallmark"
   buh_e
   buh_tlt "" "Summon" "${z_docs}#Summon" " pulls a vouched hallmark image to your local"
@@ -1402,9 +1384,6 @@ rbho_director_first_build() {
   fi
   buh_e
 
-  # =================================================================
-  # Step 6: Abjure and Rekon — hallmark lifecycle
-  # =================================================================
   buh_step1 "Abjure and Rekon — hallmark lifecycle"
   buh_e
   buh_tltlt "" "Rekon" "${z_docs}#Rekon" " lists the raw tags for a " "Vessel" "${z_docs}#Vessel" ""
@@ -1430,9 +1409,6 @@ rbho_director_first_build() {
   buh_tlt "longer in the " "Depot" "${z_docs}#Depot" "."
   buh_e
 
-  # =================================================================
-  # What you learned
-  # =================================================================
   buh_section "What you learned"
   buh_e
   buh_t   "You just completed the full conjure lifecycle:"
