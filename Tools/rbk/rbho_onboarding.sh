@@ -540,7 +540,7 @@ rbho_crash_course() {
   # --- Step 5: Validate the repo regime ---
   buh_step1 "Validate the repo regime"
   buh_e
-  buh_tlt "The repository regime (" "RBRR" "${z_docs}#RBRR" ") holds your team's " "Depot" "${z_docs}#Depot" ""
+  buh_tltlt "The repository regime (" "RBRR" "${z_docs}#RBRR" ") holds your team's " "Depot" "${z_docs}#Depot" ""
   buh_t   "identity — the GCP project where container images are built and stored."
   buh_t   "Run the validator:"
   buh_e
@@ -1335,9 +1335,9 @@ rbho_director_first_build() {
   buh_step2 "Vouch"
   buh_e
   buh_tlt "" "Vouch" "${z_docs}#Vouch" " verifies SLSA provenance for each platform"
-  buh_tlt "digest in the " "Hallmark" "${z_docs}#Hallmark" ". The ordain pipeline runs vouch"
-  buh_t   "automatically. If a build was interrupted before vouch"
-  buh_t   "completed, run this to vouch all unvouched hallmarks:"
+  buh_tltlt "digest in the " "Hallmark" "${z_docs}#Hallmark" ". The ordain pipeline runs " "Vouch" "${z_docs}#Vouch" ""
+  buh_tlt "automatically. If a build was interrupted before " "Vouch" "${z_docs}#Vouch" ""
+  buh_tlt "completed, run this to " "Vouch" "${z_docs}#Vouch" " all unvouched hallmarks:"
   buh_e
   buh_tT  "   " "${RBZ_VOUCH_HALLMARKS}"
   buh_e
