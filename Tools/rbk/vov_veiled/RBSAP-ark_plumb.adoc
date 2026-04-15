@@ -19,7 +19,7 @@ NOTE: Two entry points provide different detail levels:
 
 NOTE: Two invocation modes:
 Vessel+hallmark (both arguments) fetches directly from the vessel package.
-Hallmark-only (single argument) resolves the vessel via the VOUCHES superdirectory.
+Hallmark-only (single argument) resolves the vessel via the vouches superdirectory.
 
 The plumb operation:
 
@@ -27,7 +27,7 @@ The plumb operation:
 {rbtga_ark}
 . *Validate Input Parameters*:
 .. If two arguments: vessel and hallmark
-.. If one argument: hallmark only (vessel resolved via VOUCHES lookup)
+.. If one argument: hallmark only (vessel resolved via vouches lookup)
 
 //axhos_step
 . *Authenticate as
@@ -42,9 +42,9 @@ Retriever credential file present (`RBDC_RETRIEVER_RBRA_FILE`)
 //axhos_step
 . *Resolve Vessel (hallmark-only mode)*:
 .. {rbbc_call}
-Registry API: extract vouch artifact from `VOUCHES:«HALLMARK»-vouch`
+Registry API: extract vouch artifact from `vouches:«HALLMARK»-vouch`
 .. {rbbc_require}
-hallmark exists in VOUCHES superdirectory
+hallmark exists in vouches superdirectory
 .. {rbbc_store}
 vessel name from `vouch_summary.json` `.vessel` field
 .. {rbbc_store}
@@ -64,7 +64,7 @@ Registry API: extract from `«VESSEL»:«HALLMARK»-about`
 .. Graceful degradation: absence of optional files does not affect output
 
 //axhos_step
-. *Fetch Vouch Artifact from GAR* (if not already from VOUCHES):
+. *Fetch Vouch Artifact from GAR* (if not already from vouches):
 .. {rbbc_call}
 Registry API: extract from `«VESSEL»:«HALLMARK»-vouch`
 .. Extract `vouch_summary.json` and per-platform verification files
@@ -117,8 +117,8 @@ using OAuth credentials.
 *GAR-direct extraction*: Artifacts are fetched via Registry API manifest and blob endpoints.
 Multi-platform manifest lists are resolved to a single platform (first entry) since artifact content (JSON metadata) is architecture-independent.
 +
-*VOUCHES hallmark-only mode*: When invoked with only a hallmark, plumb resolves the vessel by looking up the hallmark in the VOUCHES superdirectory package.
-The VOUCHES package aggregates all vouch artifacts across all vessels, enabling reverse mapping from hallmark to vessel.
+*vouches hallmark-only mode*: When invoked with only a hallmark, plumb resolves the vessel by looking up the hallmark in the vouches superdirectory package.
+The vouches package aggregates all vouch artifacts across all vessels, enabling reverse mapping from hallmark to vessel.
 +
 *Mode-aware display*: The plumb output adapts to vessel mode.
 Bind and graft vessels display clear trust boundary statements rather than attempting to show provenance data that does not exist.

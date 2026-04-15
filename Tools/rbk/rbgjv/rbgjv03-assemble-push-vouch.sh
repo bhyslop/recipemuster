@@ -27,7 +27,7 @@ VOUCH_TAG="${_RBGV_GAR_HOST}/${_RBGV_GAR_PATH}/${_RBGV_VESSEL}:${_RBGV_HALLMARK}
 VOUCHES_TAG="${_RBGV_GAR_HOST}/${_RBGV_GAR_PATH}/${_RBGV_VOUCHES_PACKAGE}:${_RBGV_HALLMARK}${_RBGV_ARK_SUFFIX_VOUCH}"
 echo "Platforms: ${PLATFORMS}"
 echo "Target (vessel): ${VOUCH_TAG}"
-echo "Target (VOUCHES): ${VOUCHES_TAG}"
+echo "Target (vouches): ${VOUCHES_TAG}"
 
 mkdir -p /workspace/vouch_ctx
 cp /workspace/vouch_summary.json /workspace/vouch_ctx/

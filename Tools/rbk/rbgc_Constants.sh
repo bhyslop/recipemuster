@@ -128,7 +128,7 @@ zrbgc_kindle() {
 
   # VOUCHES superdirectory — single GAR package aggregating all vouch artifacts
   # across all vessels, enabling hallmark-only lookup without knowing the vessel.
-  readonly RBGC_VOUCHES_PACKAGE="VOUCHES"
+  readonly RBGC_VOUCHES_PACKAGE="vouches"
 
   # Fact-file filenames (written to BURD_OUTPUT_DIR by producers, read by tests)
   readonly RBF_FACT_HALLMARK="rbf_fact_hallmark"

@@ -137,8 +137,8 @@ Docker Registry API: HEAD manifests for `«HALLMARK»-image`
 .. Create buildx builder instance (inspect-or-create pattern, same as conjure)
 .. Build multi-platform `FROM scratch` container with summary and per-platform verification files as layers
 .. Platforms: read from `/workspace/vouch_platforms.txt` (written by step 2 for all modes)
-.. Push to registry tagged `«VESSEL»:«HALLMARK»-vouch` and `VOUCHES:«HALLMARK»-vouch` via `docker buildx build --push --tag ... --tag ...`
-.. The VOUCHES tag enables hallmark-only lookup by {rbtgo_ark_inspect} without knowing the vessel
+.. Push to registry tagged `«VESSEL»:«HALLMARK»-vouch` and `vouches:«HALLMARK»-vouch` via `docker buildx build --push --tag ... --tag ...`
+.. The vouches tag enables hallmark-only lookup by {rbtgo_ark_inspect} without knowing the vessel
 .. Since GAR is content-addressable, dual-tagging is a pointer operation — no blob duplication
 .. {rbbc_require}
 push succeeds
@@ -163,7 +163,7 @@ verdict type: `DSSE_VERIFIED` (conjure), `DIGEST_PIN_VERIFIED` (bind), or `GRAFT
 //axhoc_completion
 Successful execution creates a
 {rbtga_ark_vouch}
-artifact in the registry tagged as `«VESSEL»:«HALLMARK»-vouch` and additionally tagged into the VOUCHES superdirectory as `VOUCHES:«HALLMARK»-vouch`.
+artifact in the registry tagged as `«VESSEL»:«HALLMARK»-vouch` and additionally tagged into the vouches superdirectory as `vouches:«HALLMARK»-vouch`.
 The vouch artifact is a multi-platform container (verification results are architecture-independent metadata; multi-platform is for pull ergonomics so arm64 hosts receive no platform mismatch warning).
 +
 *DSSE verification* (conjure only): Provenance is fetched via `gcloud artifacts docker images describe --show-provenance` as a DSSE envelope.
@@ -189,7 +189,7 @@ All `_RBGV_*` substitution variables are passed in the `builds.create` request b
 | `_RBGV_VESSEL` | Vessel sigil. Source: loaded vessel configuration.
 | `_RBGV_HALLMARK` | Full hallmark string. Source: input parameter.
 | `_RBGV_VESSEL_MODE` | Vessel mode (`conjure`, `bind`, or `graft`). Source: loaded vessel configuration.
-| `_RBGV_VOUCHES_PACKAGE` | VOUCHES superdirectory package name. Source: `RBGC_VOUCHES_PACKAGE` constant.
+| `_RBGV_VOUCHES_PACKAGE` | vouches superdirectory package name. Source: `RBGC_VOUCHES_PACKAGE` constant.
 |===
 
 NOTE: Platform list is discovered by step 2 and written to `/workspace/vouch_platforms.txt`, not passed as a substitution variable.

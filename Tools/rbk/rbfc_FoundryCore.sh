@@ -619,7 +619,7 @@ zrbfc_gar_extract_artifact() {
 
 # Internal: core plumb logic shared by full and compact modes.
 # Queries GAR directly via Registry API — no local docker required.
-# Authenticates as Retriever. Supports hallmark-only mode via VOUCHES lookup.
+# Authenticates as Retriever. Supports hallmark-only mode via vouches lookup.
 # Args: vessel hallmark mode
 zrbfc_plumb_core() {
   zrbfc_sentinel
@@ -644,14 +644,14 @@ zrbfc_plumb_core() {
   local z_has_about=false
   local z_has_vouch=false
 
-  # Hallmark-only mode: resolve vessel via VOUCHES superdirectory
+  # Hallmark-only mode: resolve vessel via vouches superdirectory
   if test -z "${z_vessel}"; then
-    buc_step "Looking up hallmark in VOUCHES superdirectory"
+    buc_step "Looking up hallmark in vouches superdirectory"
     local -r z_vouches_dir="${BURD_TEMP_DIR}/plumb_vouches"
-    if zrbfc_gar_extract_artifact "${z_token}" "${RBGC_VOUCHES_PACKAGE}" \
+    if zrbfc_gar_extract_artifact "${z_token}" "${RBGC_vouches_PACKAGE}" \
          "${z_hallmark}${RBGC_ARK_SUFFIX_VOUCH}" "${z_vouches_dir}"; then
       test -f "${z_vouches_dir}/vouch_summary.json" \
-        || buc_die "vouch_summary.json not found in VOUCHES artifact"
+        || buc_die "vouch_summary.json not found in vouches artifact"
       local -r z_vessel_file="${BURD_TEMP_DIR}/plumb_vessel.txt"
       jq -r '.vessel // empty' "${z_vouches_dir}/vouch_summary.json" \
         > "${z_vessel_file}" \
@@ -662,7 +662,7 @@ zrbfc_plumb_core() {
       cp "${z_vouches_dir}"/* "${z_extract}/" 2>/dev/null || true
       z_has_vouch=true
     else
-      buc_die "Hallmark not found in VOUCHES superdirectory: ${z_hallmark}"
+      buc_die "Hallmark not found in vouches superdirectory: ${z_hallmark}"
     fi
   fi
 
@@ -681,7 +681,7 @@ zrbfc_plumb_core() {
     cp "${z_about_dir}"/* "${z_extract}/" 2>/dev/null || true
   fi
 
-  # Fetch -vouch artifact from vessel package (skip if already resolved via VOUCHES)
+  # Fetch -vouch artifact from vessel package (skip if already resolved via vouches)
   if test "${z_has_vouch}" = "false"; then
     buc_step "Fetching -vouch artifact from GAR"
     local -r z_vouch_dir="${BURD_TEMP_DIR}/plumb_vouch"
@@ -1264,14 +1264,14 @@ rbfc_plumb_full() {
   local z_vessel="${1:-}"
   local z_hallmark="${2:-}"
 
-  # Single-arg: hallmark-only mode (lookup vessel via VOUCHES superdirectory)
+  # Single-arg: hallmark-only mode (lookup vessel via vouches superdirectory)
   if test -n "${z_vessel}" && test -z "${z_hallmark}"; then
     z_hallmark="${z_vessel}"
     z_vessel=""
   fi
 
   buc_doc_brief "Plumb a hallmark's trust posture (full detail)"
-  buc_doc_param "vessel" "Vessel name (omit for hallmark-only lookup via VOUCHES)"
+  buc_doc_param "vessel" "Vessel name (omit for hallmark-only lookup via vouches)"
   buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"
   buc_doc_shown || return 0
 
@@ -1284,14 +1284,14 @@ rbfc_plumb_compact() {
   local z_vessel="${1:-}"
   local z_hallmark="${2:-}"
 
-  # Single-arg: hallmark-only mode (lookup vessel via VOUCHES superdirectory)
+  # Single-arg: hallmark-only mode (lookup vessel via vouches superdirectory)
   if test -n "${z_vessel}" && test -z "${z_hallmark}"; then
     z_hallmark="${z_vessel}"
     z_vessel=""
   fi
 
   buc_doc_brief "Plumb a hallmark's trust posture (compact summary)"
-  buc_doc_param "vessel" "Vessel name (omit for hallmark-only lookup via VOUCHES)"
+  buc_doc_param "vessel" "Vessel name (omit for hallmark-only lookup via vouches)"
   buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"
   buc_doc_shown || return 0
 
