@@ -111,14 +111,16 @@ zbuym_kindle() {
   # --- Diastema markers (non-printing byte sequences) ---
   # Each marker is a unique non-printing sequence that yelp yawp functions
   # stamp into strings.  buyf_format_yawp resolves them at display time.
-  readonly ZBUYM_DIASTEMA_CMD=$'\x01\x11'
-  readonly ZBUYM_DIASTEMA_UI=$'\x01\x12'
-  readonly ZBUYM_DIASTEMA_HREF_URL=$'\x01\x13'
-  readonly ZBUYM_DIASTEMA_HREF_TEXT=$'\x01\x14'
-  readonly ZBUYM_DIASTEMA_LINK_URL=$'\x01\x15'
-  readonly ZBUYM_DIASTEMA_LINK_TEXT=$'\x01\x16'
-  readonly ZBUYM_DIASTEMA_TT=$'\x01\x17'
-  readonly ZBUYM_DIASTEMA_END=$'\x01\x18'
+  # Prefix byte is \x02 (STX) — \x01 (SOH) is reserved by bash internally
+  # for BASH_REMATCH group delimiting and gets silently dropped from matches.
+  readonly ZBUYM_DIASTEMA_CMD=$'\x02\x11'
+  readonly ZBUYM_DIASTEMA_UI=$'\x02\x12'
+  readonly ZBUYM_DIASTEMA_HREF_URL=$'\x02\x13'
+  readonly ZBUYM_DIASTEMA_HREF_TEXT=$'\x02\x14'
+  readonly ZBUYM_DIASTEMA_LINK_URL=$'\x02\x15'
+  readonly ZBUYM_DIASTEMA_LINK_TEXT=$'\x02\x16'
+  readonly ZBUYM_DIASTEMA_TT=$'\x02\x17'
+  readonly ZBUYM_DIASTEMA_END=$'\x02\x18'
 
   # --- Mutable kindle state for yawp groups ---
   z_buym_yelp=""
@@ -281,7 +283,7 @@ buyf_format_yawp() {
 
   # If string has no diastema markers, fast path
   case "${z_str}" in
-    *$'\x01'*) ;;
+    *$'\x02'*) ;;
     *)
       z_buym_format="${z_ambient}${z_str}${BUYC_RESET}"
       return 0

@@ -1147,7 +1147,6 @@ rbho_director_first_build() {
   buc_doc_brief "Your First Cloud Build — inscribe, conjure, tour, summon, abjure"
   buc_doc_shown || return 0
 
-  local -r z_docs="${RBRR_PUBLIC_DOCS_URL}"
   local -r z_vessel="rbev-sentry-deb-tether"
 
   # --- Probes ---
@@ -1189,7 +1188,7 @@ rbho_director_first_build() {
 
   # --- Function-specific yelp captures (not in RBYC vocabulary) ---
 
-  buyy_link_yawp "${z_docs}" "Vessel" "rbev-sentry-deb-tether"
+  buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel" "rbev-sentry-deb-tether"
   local -r z_lk_vessel_name="${z_buym_yelp}"
 
   local z_tt=""

@@ -655,7 +655,7 @@ Five yawp functions exist: `buyy_cmd_yawp` (command), `buyy_ui_yawp` (UI element
 [[busy_diastema]]
 //axl_voices axo_entity
 {busy_diastema}::
-A non-printing byte sequence (`\x01\x1N`) embedded in a
+A non-printing byte sequence (`\x02\x1N`) embedded in a
 {busy_yelp}
 by a
 {busy_yawp}
