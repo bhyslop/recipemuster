@@ -4020,9 +4020,10 @@
         "₢A_AAB",
         "₢A_AAC",
         "₢A_AAD",
-        "₢A_AAE"
+        "₢A_AAE",
+        "₢A_AAF"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_uAl_.md",
       "paces": {
         "₢A_AAA": {
@@ -4091,6 +4092,17 @@
               "text": "## Character\nOperational — live GCP infrastructure change, requires payor credentials.\n\n## Work\nRun depot unmake + depot levy to regenerate the depot with the new prefix-aware configuration. Verify GAR repository is created, worker pools are provisioned, and the prefixed image namespace is functional. Confirm enshrine and inscribe operations work against the fresh depot.",
               "silks": "regenerate-depot",
               "commit": "08cc819"
+            }
+          ]
+        },
+        "₢A_AAF": {
+          "tacks": [
+            {
+              "ts": "260415-1505",
+              "state": "rough",
+              "text": "## Character\nValidation — patience and diagnostic attention. Failures are the point.\n\n## Work\nRun `tt/rbtd-s.TestSuite.complete.sh` — the full 122-case suite covering enrollment-validation, regime-validation, regime-smoke, access-probe, four-mode, tadmor-security, srjcl-jupyter, and pluml-diagram. All container names and image references should now carry the configured prefixes. Diagnose and fix any failures caused by the prefix wiring.",
+              "silks": "run-complete-test-suite",
+              "commit": "10e0c95"
             }
           ]
         }
