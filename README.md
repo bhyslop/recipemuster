@@ -116,7 +116,7 @@ A fourth mode, [Kludge](#Kludge), builds locally for development without involvi
 
 A specific build instance of a [Vessel](#Vessel), identified by timestamp.
 [Hallmarks](#Hallmark) are the unit of [provenance](#Provenance) tracking — each one records when and how the image was produced.
-Each [Hallmark](#Hallmark) produces three tagged artifacts in the [Depot](#Depot) registry: the container image (`-image`), the software bill of materials ([`-about`](#About)), and the cryptographic attestation ([`-vouch`](#Vouch)).
+Each [Hallmark](#Hallmark) produces three tagged artifacts in the [Depot](#Depot) registry: the container image (`-image`), the [software bill of materials](#SBOM) ([`-about`](#About)), and the cryptographic attestation ([`-vouch`](#Vouch)).
 [Hallmark](#Hallmark) values are recorded into [Nameplate](#Nameplate) [Regime](#Regime) files to pin a [Crucible](#Crucible) to specific image versions.
 
 ### Foundry Lifecycle
@@ -161,7 +161,7 @@ The [Retriever](#Retriever) [Summons](#Summon) [Vouched](#Vouch) images locally 
 - Isolated build environments using Google-curated Cloud Build builder images
 - Multi-architecture support via `docker buildx` with binfmt emulation
 - [SLSA provenance](#Provenance) attestation and verification
-- Software Bills of Material (SBOM) for every build
+- [Software Bills of Material (SBOM)](#SBOM) for every build
 - Full build transcripts captured as auxiliary metadata artifacts
 - Upstream base images [Enshrined](#Enshrine) into the [Depot's](#Depot) registry, so builds do not depend on third-party registry availability at build time
 - `gcloud` never runs on the workstation — REST calls via `curl` and `jq` drive all remote operations, and the Google-supplied `gcloud` binary is confined to Cloud Build step containers on the server side
@@ -196,7 +196,7 @@ Each [Nameplate](#Nameplate) declares its [Vessel](#Vessel) selections, [Hallmar
 [Charge](#Charge) the [Crucible](#Crucible) for a [Nameplate](#Nameplate) to start the [Sentry](#Sentry), [Pentacle](#Pentacle), and [Bottle](#Bottle) together — the [Bottle](#Bottle) is ready for interactive use immediately.
 [Rack](#Rack) the [Bottle](#Bottle) to shell in, [Hail](#Hail) the [Sentry](#Sentry) to inspect the gateway, or [Scry](#Scry) the network to observe traffic across [Crucible](#Crucible) containers.
 When finished, [Quench](#Quench) the [Crucible](#Crucible) to stop and clean up all three containers.
-To inspect an image's supply chain, [Plumb](#Plumb) its [provenance](#Provenance) — the full view shows the SBOM, build info, and Dockerfile; the compact view summarizes the attestation chain.
+To inspect an image's supply chain, [Plumb](#Plumb) its [provenance](#Provenance) — the full view shows the [SBOM](#SBOM), build info, and Dockerfile; the compact view summarizes the attestation chain.
 
 ### Reference Nameplates
 
@@ -274,7 +274,7 @@ The [Director](#Director) inscribes a [Reliquary](#Reliquary) before any [Ordain
 Each [Ordain](#Ordain) produces an image in the [Depot](#Depot) registry with associated [provenance](#Provenance) metadata.
 
 <a id="Conjure"></a>**[Conjure](#Conjure)** — Cloud Build creates the image from source.
-[Conjure](#Conjure) builds run in an egress-locked environment with digest-pinned toolchains, producing full [SLSA](#Provenance) attestation and SBOMs.
+[Conjure](#Conjure) builds run in an egress-locked environment with digest-pinned toolchains, producing full [SLSA](#Provenance) attestation and [SBOMs](#SBOM).
 This is the highest-trust build mode.
 
 <a id="Bind"></a>**[Bind](#Bind)** — Mirror an upstream image pinned by digest.
@@ -307,13 +307,13 @@ Where [Tally](#Tally) groups [Hallmarks](#Hallmark) by status, [Rekon](#Rekon) s
 The [Vouch](#Vouch) verdict is mode-aware: [Conjure](#Conjure) builds receive full [SLSA provenance](#Provenance) verification, [Bind](#Bind) builds receive digest-pin verification, and [Graft](#Graft) builds receive a GRAFTED verdict with no [provenance](#Provenance) chain.
 The [Director](#Director) [Vouches](#Vouch) [Hallmarks](#Hallmark) after [Tallying](#Tally) their build status.
 
-<a id="About"></a>**[About](#About)** — Build metadata and software bill of materials for a [Hallmark](#Hallmark).
-The [About](#About) artifact (`-about` tag) contains the SBOM, build transcript, build configuration snapshot, and key package summaries — bundled as a compressed archive and stored as a Generic Artifact in GAR.
+<a id="About"></a>**[About](#About)** — Build metadata and [software bill of materials](#SBOM) for a [Hallmark](#Hallmark).
+The [About](#About) artifact (`-about` tag) contains the [SBOM](#SBOM), build transcript, build configuration snapshot, and key package summaries — bundled as a compressed archive and stored as a Generic Artifact in GAR.
 Every [Ordain](#Ordain) produces an [About](#About) alongside the image.
 
-<a id="Plumb"></a>**[Plumb](#Plumb)** — Inspect an artifact's [provenance](#Provenance) — SBOM, build info, and [Vouch](#Vouch) chain.
+<a id="Plumb"></a>**[Plumb](#Plumb)** — Inspect an artifact's [provenance](#Provenance) — [SBOM](#SBOM), build info, and [Vouch](#Vouch) chain.
 [Plumbing](#Plumb) provides full transparency into how an image was built and what it contains.
-Two views are available: full (SBOM, build info, Dockerfile) and compact (attestation summary).
+Two views are available: full ([SBOM](#SBOM), build info, Dockerfile) and compact (attestation summary).
 
 ### Distribution
 
@@ -397,6 +397,22 @@ Provenance guarantees are mode-aware:
 
 Deliberately excluded: no `slsa-verifier` binary, no `gcloud` CLI on the workstation, no `jq` in the verification path.
 The [Vouch](#Vouch) verifier reconstructs Pre-Authenticated Encoding (PAE), decodes the base64url payload and signature, and verifies via `openssl dgst` against embedded attestor keys — a minimal, auditable trust chain.
+
+## <a id="SBOM"></a>Appendix: Software Bill of Materials
+
+A Software Bill of Materials ([SBOM](#SBOM)) is a machine-readable inventory of every component inside a container image — every OS package, every library, every binary, with versions.
+Without one, a container image is an opaque filesystem whose contents you discover by running it, which is exactly the wrong time to find out it ships a vulnerable dependency.
+
+[Recipe Bottle](#RecipeBottle) generates an [SBOM](#SBOM) for every build using [Syft](https://github.com/anchore/syft), scanning each per-platform image during the [About](#About) assembly step.
+Each architecture gets its own [SBOM](#SBOM), bundled alongside the build transcript and configuration snapshot in the `-about` artifact stored as a Generic Artifact in GAR.
+
+An [SBOM](#SBOM) enables three hygiene practices that opaque images cannot support:
+
+- **CVE triage before deployment** — when a vulnerability is announced, search your [SBOMs](#SBOM) rather than scanning running containers
+- **Pre-deployment audit** — know what you are granting network access to before a [Crucible](#Crucible) is [Charged](#Charge)
+- **Build-over-build drift detection** — compare [SBOMs](#SBOM) across [Hallmarks](#Hallmark) to see what changed between builds
+
+The [Plumb](#Plumb) command surfaces [SBOM](#SBOM) contents: the full view shows package inventories; the compact view summarizes key components.
 
 ## Appendix: Roadmap
 
