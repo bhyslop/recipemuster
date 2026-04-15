@@ -4019,9 +4019,10 @@
         "₢A_AAA",
         "₢A_AAB",
         "₢A_AAC",
-        "₢A_AAD"
+        "₢A_AAD",
+        "₢A_AAE"
       ],
-      "next_pace_seed": "AAE",
+      "next_pace_seed": "AAF",
       "paddock_file": ".claude/jjm/jjp_uAl_.md",
       "paces": {
         "₢A_AAA": {
@@ -4079,6 +4080,17 @@
               "text": "## Character\nMechanical refactoring with a migration shim — straightforward path surgery plus a tinder constant mint, verified by existing test suites.\n\n## Docket\nMove `rbro.env` from flat `RBRR_SECRETS_DIR/rbro.env` into `RBRR_SECRETS_DIR/payor/rbro.env` to match the established `{role}/` subdirectory pattern used by RBRA credentials (governor, retriever, director each have their own subdirectory).\n\n### Mint tinder constant\nAdd `RBCC_role_payor=\"payor\"` to `Tools/rbk/rbcc_Constants.sh` alongside the existing `RBCC_role_governor`, `RBCC_role_retriever`, `RBCC_role_director` tinder constants.\n\n### Path change\nIn `Tools/rbk/rbdc_DerivedConstants.sh`, change:\n```\nreadonly RBDC_PAYOR_RBRO_FILE=\"${RBRR_SECRETS_DIR}/${RBCC_rbro_file}\"\n```\nto:\n```\nreadonly RBDC_PAYOR_RBRO_FILE=\"${RBRR_SECRETS_DIR}/${RBCC_role_payor}/${RBCC_rbro_file}\"\n```\n\n### One-shot migration\nAdd a migration block in `zrbdc_kindle()` (parallel to the existing RBRA migration at lines 40-56) that moves `RBRR_SECRETS_DIR/rbro.env` → `RBRR_SECRETS_DIR/payor/rbro.env` if the old path exists and the new path does not.\n\n### Ensure payor directory creation\nAdd `${RBCC_role_payor}` to the `mkdir -p` block that already creates governor/retriever/director subdirectories.\n\n### Doc/spec updates\nUpdate literal `~/.rbw/rbro.env` references to `~/.rbw/payor/rbro.env` in:\n- `RBSRO-RegimeOauth.adoc`\n- `RBSGS-GettingStarted.adoc`\n- `RBSPI-payor_install.adoc`\n- `RBS0-SpecTop.adoc` (prose references to the file path)\n- `CLAUDE.consumer.md`\n- `rbhpr_refresh.sh` (handbook display text)\n- `rblm_cli.sh` (marshal display text)\n\n### Verification\n- `tt/rbtd-s.TestSuite.fast.sh` — 75/75 green (regime validation exercises RBDC paths)",
               "silks": "rbro-payor-subdirectory-migration",
               "commit": "3b11c75"
+            }
+          ]
+        },
+        "₢A_AAE": {
+          "tacks": [
+            {
+              "ts": "260415-1504",
+              "state": "rough",
+              "text": "## Character\nOperational — live GCP infrastructure change, requires payor credentials.\n\n## Work\nRun depot unmake + depot levy to regenerate the depot with the new prefix-aware configuration. Verify GAR repository is created, worker pools are provisioned, and the prefixed image namespace is functional. Confirm enshrine and inscribe operations work against the fresh depot.",
+              "silks": "regenerate-depot",
+              "commit": "08cc819"
             }
           ]
         }
