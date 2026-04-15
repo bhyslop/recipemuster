@@ -547,6 +547,7 @@
       "status": "racing",
       "order": [
         "₢A6AAd",
+        "₢A6AAe",
         "₢A6AAa",
         "₢A6AAc",
         "₢A6AAb",
@@ -577,7 +578,7 @@
         "₢A6AAM",
         "₢A6AAA"
       ],
-      "next_pace_seed": "AAe",
+      "next_pace_seed": "AAf",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
       "paces": {
         "₢A6AAA": {
@@ -1306,6 +1307,17 @@
               "text": "## Character\n\nMechanical sweep — convert all remaining combinator calls in `rbho_onboarding.sh` to yawp + semantic line functions. Pattern is established by ₢A6AAc's conversion of `rbho_director_first_build`. Volume work across ~10 functions, each following the same recipe: replace `buh_tlt`/`buh_ct`/`buh_tT`/etc. with RBYC_* interpolation + `buyy_cmd_yawp`/`buyy_tt_yawp` + `buh_line`/`buh_code`/`buh_warn`/`buh_error`. Replace `buy_cmd_capture` with `buyy_cmd_yawp`. After conversion, remove legacy capture API from `buym_yelp.sh`.\n\n## Docket\n\nConvert all remaining combinator-style handbook functions in `Tools/rbk/rbho_onboarding.sh` to pure yelp style. Functions to convert: `rbho_start_here`, `rbho_crash_course`, `rbho_credential_retriever`, `rbho_credential_director`, `rbho_first_crucible`, `rbho_payor_handbook_stub`, `rbho_governor_handbook_stub`, and any other `rbho_*` functions still using combinators. After all consumers are migrated, remove legacy `buy_*_capture` functions, `zbuy_*` aliases, and `ZBUY_*` compatibility constants from `buym_yelp.sh`. Run BUK self-test suite to confirm no regressions.",
               "silks": "onboarding-handbook-yelp-conversion",
               "commit": "a842ed4"
+            }
+          ]
+        },
+        "₢A6AAe": {
+          "tacks": [
+            {
+              "ts": "260415-1127",
+              "state": "rough",
+              "text": "## Character\n\nFocused conversion of a single file with a distinct yelp vocabulary need. The payor handbook exercises `buyy_href_yawp` heavily (15 Google Console URLs) — the HREF diastema path that the onboarding conversion doesn't touch. Good validation of the HREF pipeline end-to-end.\n\n## Docket\n\nConvert `Tools/rbk/rbhp_payor.sh` from combinator style (`buh_tu`/`buh_tc`/`buh_tut`/`buh_link`) to pure yelp style. The 15 `buh_link` calls become `buyy_href_yawp` captures — the first real exercise of the HREF diastema markers in production code. Vocabulary links use RBYC_* constants. Verify via handbook tabtarget execution. Consider adding HREF-specific test cases to the buym-yelp fixture if the conversion reveals edge cases.",
+              "silks": "payor-handbook-yelp-conversion",
+              "commit": "a998119"
             }
           ]
         }
