@@ -77,15 +77,12 @@ exactly one trigger matches
 .. {rbbc_store}
 `«TRIGGER_ID»` from matching trigger resource
 .. {rbbc_fatal}
-if not found: "Vessel trigger not found — run {rbtgo_rubric_inscribe} first"
+if not found: "Vessel trigger not found"
 
 //axhos_step
 . *Dispatch Build via Trigger*:
 .. {rbbc_store}
-`«RUBRIC_COMMIT»` as HEAD of
-{rbtgr_rubric_repo}
-(recorded by most recent
-{rbtgo_rubric_inscribe})
+`«RUBRIC_COMMIT»` as HEAD of the build definition repository
 .. {rbbc_submit}
 link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.triggers/run[cloudbuild.triggers.run] with:
 ... project:
@@ -169,8 +166,7 @@ to verify provenance.
 
 All `_RBGY_*` substitution variables are baked into
 {rbtgr_build_json}
-at inscribe time by
-{rbtgo_rubric_inscribe}.
+at inscribe time.
 Cloud Build resolves these from the committed JSON — no values are overridden at dispatch.
 
 *Vessel identity*::
@@ -198,8 +194,8 @@ Cloud Build resolves these from the committed JSON — no values are overridden 
 | `_RBGY_GIT_COMMIT` | Main repo HEAD SHA. Placeholder in generated JSON; filled at inscribe time.
 | `_RBGY_GIT_BRANCH` | Main repo branch at inscribe time.
 | `_RBGY_GIT_REPO` | Main repo identifier (owner/repo).
-| `_RBGY_RUBRIC_REPO` | {rbtgr_rubric_repo} URL. Placeholder in generated JSON; filled at inscribe time.
-| `_RBGY_RUBRIC_COMMIT` | {rbtgr_rubric_repo} HEAD SHA after push. Placeholder in generated JSON; filled at inscribe time.
+| `_RBGY_RUBRIC_REPO` | Build definition repository URL. Placeholder in generated JSON; filled at inscribe time.
+| `_RBGY_RUBRIC_COMMIT` | Build definition repository HEAD SHA after push. Placeholder in generated JSON; filled at inscribe time.
 | `_RBGY_INSCRIBE_TIMESTAMP` | Inscribe timestamp (`YYMMDDHHMMSS`). Placeholder in generated JSON; filled at inscribe time. Used by rbgjb01 to construct {rbtga_hallmark}.
 |===
 
@@ -209,16 +205,12 @@ These are inlined directly into JSON — not expressed as substitution variables
 ==== Script Inlining
 
 Step scripts (`rbgjb/*.sh`) are the source of truth for build logic.
-At inscribe time,
-{rbtgo_rubric_inscribe}
-reads each script and inlines its content into the corresponding JSON `args` array.
+At stitch time, each script is read and inlined into the corresponding JSON `args` array of
+{rbtgr_build_json}.
 
-Developers edit `rbgjb/*.sh` in the main repo, then run
-{rbtgo_rubric_inscribe}
-to generate
+Developers edit `rbgjb/*.sh` in the main repo, then run the stitch function to regenerate
 {rbtgr_build_json}
-with the updated content directly into the
-{rbtgr_rubric_repo}.
+with the updated content.
 
 ==== Tag Construction
 

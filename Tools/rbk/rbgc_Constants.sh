@@ -136,6 +136,7 @@ zrbgc_kindle() {
   readonly RBF_FACT_GAR_ROOT="rbf_fact_gar_root"
   readonly RBF_FACT_ARK_STEM="rbf_fact_ark_stem"
   readonly RBF_FACT_ARK_YIELD="rbf_fact_ark_yield"
+  readonly RBF_FACT_RELIQUARY="rbf_fact_reliquary"
 
   # Artifact Registry (GAR) Composition
   readonly RBGC_GAR_HOST_SUFFIX="-docker.pkg.dev"

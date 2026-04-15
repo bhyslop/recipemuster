@@ -90,12 +90,11 @@
 :rbf_fact_gar_root:          <<rbf_fact_gar_root,RBF_FACT_GAR_ROOT>>
 :rbf_fact_ark_stem:          <<rbf_fact_ark_stem,RBF_FACT_ARK_STEM>>
 :rbf_fact_ark_yield:         <<rbf_fact_ark_yield,RBF_FACT_ARK_YIELD>>
+:rbf_fact_reliquary:         <<rbf_fact_reliquary,RBF_FACT_RELIQUARY>>
 
 // Recipe Bottle Common Fact Maps (dynamic output contract identifiers)
 :rbcc_fact_consec_infix:     <<rbcc_fact_consec_infix,RBCC_FACT_CONSEC_INFIX>>
 // Recipe Bottle Term Google Build Definitions
-:rbtgr_rubric:              <<rbtgr_rubric,RB Rubric>>
-:rbtgr_rubric_s:            <<rbtgr_rubric,RB Rubrics>>
 :rbtgr_build_json:          <<rbtgr_build_json,cloudbuild.json>>
 :rbtgr_provenance:          <<rbtgr_provenance,Rubric Provenance>>
 
@@ -113,6 +112,7 @@
 :rbtgo_depot_levy:                <<rbtgo_depot_levy,rbgp_depot_levy>>
 :rbtgo_depot_unmake:              <<rbtgo_depot_unmake,rbgp_depot_unmake>>
 :rbtgo_depot_list:                <<rbtgo_depot_list,rbgp_depot_list>>
+:rbtgo_depot_inscribe:            <<rbtgo_depot_inscribe,rbfl_inscribe>>
 :rbtgo_director_knight:           <<rbtgo_director_knight,rbgg_knight_director>>
 :rbtgo_director_vouch:            <<rbtgo_director_vouch,rbfv_batch_vouch>>
 :rbtgo_governor_mantle:            <<rbtgo_governor_mantle,rbgp_governor_mantle>>
@@ -1069,6 +1069,17 @@ Hallmark minted on the host before submission, passed to Cloud Build via `_RBGY_
 
 NOTE: For multi-platform build authentication challenges and research findings, see link:RBWMBX-BuildxMultiPlatformAuth.adoc[RBWMBX: Buildx Multi-Platform Authentication Memo].
 
+[[rbtgo_depot_inscribe]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_depot_inscribe}
+
+Inscribes a reliquary into the
+{rbtgi_depot}:
+mirrors upstream tool images into a datestamped GAR namespace
+({rbtgog_depot}).
+
+include::RBSDI-depot_inscribe.adoc[]
+
 [[rbtgo_image_delete]]
 //axvo_method axd_transient axd_grouped
 === {rbtgo_image_delete}
@@ -1882,6 +1893,12 @@ Ark stem (vessel:hallmark).
 {rbf_fact_ark_yield}::
 Per-platform image reference.
 
+[[rbf_fact_reliquary]]
+//axpof_fact
+{rbf_fact_reliquary}::
+Reliquary datestamp (`r` + `YYMMDDHHMMSS`).
+Written by {rbtgo_depot_inscribe} on successful Cloud Build submission.
+
 ==== Hallmark Check Fact Map
 
 [[rbcc_fact_consec_infix]]
@@ -1893,17 +1910,6 @@ One file per discovered
 {rbtga_hallmark}
 in
 {rbtgi_repository}.
-
-=== Rubric Definitions
-
-[[rbtgr_rubric]]
-//axl_voices axig_build_config
-{rbtgr_rubric}::
-The per-vessel build definition comprising a generated
-{rbtgr_build_json}
-and build context delivered via
-{rbtga_ark_pouch}.
-Builds submitted directly via `builds.create` API.
 
 [[rbtgr_build_json]]
 //axl_voices axig_build_config
@@ -2176,7 +2182,7 @@ required on the
 [[at_foundry]]
 {at_foundry}::
 Recipe Bottle's remote build orchestration system for producing, attesting, and distributing container images via {gcb_service} and {gar_service}.
-The {at_foundry} encompasses {rbtgi_depot_s}, {rbtga_vessel_s}, {rbtga_hallmark} tracking, and {rbtgr_rubric_s}.
+The {at_foundry} encompasses {rbtgi_depot_s}, {rbtga_vessel_s}, and {rbtga_hallmark} tracking.
 Three vessel modes determine how images enter the {rbtgi_depot}: conjure (egress-locked build from source with SLSA provenance), bind (digest-pinned upstream mirror), and graft (local push).
 Peer to {rbsc_crucible}, which handles local runtime containment.
 

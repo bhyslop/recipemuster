@@ -1,0 +1,65 @@
+//axhob_operation
+{rbtgo_depot_inscribe}
+
+NOTE: This operation mirrors upstream tool images (gcloud, docker, alpine, syft, binfmt, skopeo) into a datestamped GAR namespace within the
+{rbtgi_depot}.
+The resulting reliquary is referenced by vessel regimes via `RBRV_RELIQUARY` and consumed at conjure time as the toolchain source.
+
+The
+{rbtr_director}
+inscribes a reliquary:
+
+//axhos_step
+. *Authenticate as
+{rbtr_director}*:
+.. Execute
+{rbtoe_director_authenticate}
+.. {rbbc_store}
+`«DIRECTOR_TOKEN»` for subsequent API calls
+
+//axhos_step
+. *Derive Reliquary Datestamp*:
+.. {rbbc_store}
+`«RELIQUARY»` as `r` + `YYMMDDHHMMSS` from current time
+.. Example: `r260415120000`
+
+//axhos_step
+. *Submit Inscribe Cloud Build*:
+.. Construct Build resource JSON with:
+... step image: `gcr.io/cloud-builders/docker` (Google-hosted, always pullable)
+... step script: `rbgji01-inscribe-mirror.sh` (docker pull/tag/push per tool image)
+... substitutions: `_RBGN_GAR_HOST`, `_RBGN_GAR_PATH`, `_RBGN_RELIQUARY`
+... serviceAccount:
+{rbtr_mason}
+... pool: tethered (upstream pull requires public egress)
+.. {rbbc_submit}
+link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.builds/create[builds.create] with:
+... project:
+{rbrr_depot_project_id}
+... location:
+{rbrr_gcp_region}
+.. {rbbc_store}
+`«BUILD_ID»` from response `.metadata.build.id`
+.. {rbbc_show}
+build dispatched with `«BUILD_ID»`
+.. {rbbc_show}
+Cloud Console URL for build monitoring
+
+//axhos_step
+. *Wait for Build Completion*:
+.. {rbbc_poll}
+link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.builds/get[cloudbuild.builds.get] for `«BUILD_ID»`
+.. Poll at 5-second intervals for up to 120 attempts (~10 minutes)
+.. {rbbc_require}
+final status is `SUCCESS`
+
+//axhoot_typed_output
+{rbf_fact_reliquary}
+. *Write Fact File*:
+.. {rbbc_store}
+{rbf_fact_reliquary}
+with value `«RELIQUARY»`
+
+//axhoc_completion
+Successful execution mirrors all tool images into the reliquary namespace.
+Set `RBRV_RELIQUARY=«RELIQUARY»` in vessel `rbrv.env` files to use this reliquary for subsequent conjure operations.

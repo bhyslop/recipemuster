@@ -29,6 +29,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBJS** → `rbk/rbjs_sentry.sh` (Jailer Sentry - container security setup: iptables, dnsmasq, enclave network)
 - **RBLM** → `rbk/rblm_cli.sh` (Lifecycle Marshal - zero regime to blank template, proof repo for release testing)
 - **RBOB** → `rbk/rbob_bottle.sh`
+- **RBYC** → `rbk/rbyc_common.sh` (Common vocabulary — linked term constants for handbook yelp fragments)
 - **RBQ**  → `rbk/rbq_Qualify.sh` (Qualification orchestrator - tabtarget/colophon/nameplate health)
 - **RBTD** → `rbk/rbtd/` (Theurge — crucible test orchestrator)
 - **RBTW** → `rbk/rbtd/rbtw_workbench.sh` (Theurge workbench — build/test routing, orthogonal from VOW)
@@ -59,6 +60,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBSCO** → `rbk/vov_veiled/RBSCO-CosmologyIntro.adoc`
 - **RBSCTD** → `rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc`
 - **RBSDE** → `rbk/vov_veiled/RBSDE-depot_levy.adoc`
+- **RBSDI** → `rbk/vov_veiled/RBSDI-depot_inscribe.adoc` (Reliquary creation — director mirrors tool images to datestamped GAR namespace)
 - **RBSDK** → `rbk/vov_veiled/RBSDK-director_knight.adoc`
 - **RBSDL** → `rbk/vov_veiled/RBSDL-depot_list.adoc`
 - **RBSDN** → `rbk/vov_veiled/RBSDN-depot_initialize.adoc`
@@ -107,6 +109,7 @@ Full read and edit access is pre-approved for all files in:
 - **BUD**  → `buk/bud_dispatch.sh` (dispatch utilities, zbud_* functions)
 - **BUH**  → `buk/buh_handbook.sh` (handbook utilities, buh_* functions - always-visible user interaction)
 - **BUT**  → `buk/but_test.sh` (test utilities, but_* functions)
+- **BUY**  → `buk/buy_yelp.sh` (yelp utilities, buy_* functions — formatted string capture for subshell assignment)
 - **BUV**  → `buk/buv_validation.sh` (validation utilities, buv_* functions)
 - **BUW**  → `buk/buw_workbench.sh` (workbench utilities, buw_* functions)
 - **BUTT** → `buk/butt_testbench.sh` (BUK test framework self-test — kick-tires + bure-tweak, 9 cases)
