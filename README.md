@@ -2,13 +2,13 @@
 
 [Recipe Bottle](#RecipeBottle) provides two independent container image capabilities:
 
-- **[Foundry](#Foundry)**: orchestrate Google Cloud Build to produce multiplatform container images (x86 + ARM), fetch, retain, and serve them using a role-managed private cloud registry — with optional egress-locked builds and supply-chain provenance
+- **[Foundry](#Foundry)**: orchestrate Google Cloud Build to produce multiplatform container images (x86 + ARM), fetch, retain, and serve them using a role-managed private cloud registry — with optional egress-locked builds and supply-chain [provenance](#Provenance)
 - **[Crucible](#Crucible)**: run untrusted containers behind enforced network isolation — DNS filtering and IP filtering — even using images unmodified from "in the wild"
 
 > [!IMPORTANT]
 > **Early-stage project — security review welcome in both domains**
 >
-> The [Foundry's](#Foundry) egress-locked Cloud Build configuration — including the SLSA attestation chain, build isolation, and digest-pinned toolchains — has not yet had broad independent review.
+> The [Foundry's](#Foundry) egress-locked Cloud Build configuration — including the [SLSA](#Provenance) attestation chain, build isolation, and digest-pinned toolchains — has not yet had broad independent review.
 >
 > The [Crucible](#Crucible) runtime containment — a multi-container apparatus where the workload runs unprivileged in a network namespace it does not control — has also not had broad review, particularly the network isolation rules, privileged namespace setup, and egress enforcement.
 >
@@ -28,7 +28,7 @@ A small team can stand up a hardened build pipeline and a sandboxed runtime with
 
 ## Environment
 
-[Recipe Bottle](#RecipeBottle) is organized around two independent capabilities: the [Foundry](#Foundry) builds container images with verifiable provenance, and the [Crucible](#Crucible) runs untrusted images with enforced network isolation.
+[Recipe Bottle](#RecipeBottle) is organized around two independent capabilities: the [Foundry](#Foundry) builds container images with verifiable [provenance](#Provenance), and the [Crucible](#Crucible) runs untrusted images with enforced network isolation.
 The two compose but neither requires the other.
 
 <a id="Regime"></a>All configuration flows through [Regimes](#Regime) — structured `.env` files with typed validation, each with its own render and validate commands.
@@ -59,10 +59,10 @@ tt/rbw-o.OnboardingStartHere.sh
 
 [Recipe Bottle's](#RecipeBottle) remote build orchestration system for producing, attesting, and distributing container images via Google Cloud Build and Google Artifact Registry.
 The [Foundry](#Foundry) manages [Depot](#Depot) access, [Vessels](#Vessel) choreography, [Hallmark](#Hallmark) tracking, and build definitions.
-Three [Vessel](#Vessel) modes determine how images enter the [Depot](#Depot): [Conjure](#Conjure) (egress-locked build from source with SLSA provenance), [Bind](#Bind) (digest-pinned upstream mirror), and [Graft](#Graft) (local push).
+Three [Vessel](#Vessel) modes determine how images enter the [Depot](#Depot): [Conjure](#Conjure) (egress-locked build from source with [SLSA provenance](#Provenance)), [Bind](#Bind) (digest-pinned upstream mirror), and [Graft](#Graft) (local push).
 Peer to [Crucible](#Crucible), which handles local runtime containment.
 
-The [Foundry](#Foundry) orchestrates Google Cloud Build to produce container images with SLSA attestation, software bills of material, reproducible multi-architecture builds, and digest-pinned toolchains — so every image has a verifiable origin story.
+The [Foundry](#Foundry) orchestrates Google Cloud Build to produce container images with [SLSA](#Provenance) attestation, software bills of material, reproducible multi-architecture builds, and digest-pinned toolchains — so every image has a verifiable origin story.
 Builds run in an egress-locked configuration, drawing from upstream base images mirrored into a project-owned [Depot](#Depot) registry — a fixed, self-contained supply chain independent of third-party registry availability.
 
 ### <a id="Depot"></a>Depot
@@ -98,13 +98,13 @@ The [Governor](#Governor) [Knights](#Knight) [Directors](#Director) for build ac
 
 Builds and publishes [Vessel](#Vessel) images into a [Depot](#Depot).
 Each [Director](#Director) credential is scoped to one [Depot](#Depot).
-The [Director](#Director) manages the image lifecycle: [Ordain](#Ordain) a build, [Tally](#Tally) registry health, [Rekon](#Rekon) raw tags, [Vouch](#Vouch) provenance, [Abjure](#Abjure) superseded artifacts, and [Jettison](#Jettison) individual tags.
+The [Director](#Director) manages the image lifecycle: [Ordain](#Ordain) a build, [Tally](#Tally) registry health, [Rekon](#Rekon) raw tags, [Vouch](#Vouch) [provenance](#Provenance), [Abjure](#Abjure) superseded artifacts, and [Jettison](#Jettison) individual tags.
 
 ### <a id="Retriever"></a>Retriever
 
 Pulls and runs [Vessel](#Vessel) images from a [Depot](#Depot).
 This is the most constrained role — read-only access to the [Depot](#Depot) registry.
-The [Retriever](#Retriever) [Summons](#Summon) [Vouched](#Vouch) images for local use, [Plumbs](#Plumb) their provenance, or [Wrests](#Wrest) a specific image directly.
+The [Retriever](#Retriever) [Summons](#Summon) [Vouched](#Vouch) images for local use, [Plumbs](#Plumb) their [provenance](#Provenance), or [Wrests](#Wrest) a specific image directly.
 
 ### <a id="Vessel"></a>Vessel
 
@@ -115,7 +115,7 @@ A fourth mode, [Kludge](#Kludge), builds locally for development without involvi
 ### <a id="Hallmark"></a>Hallmark
 
 A specific build instance of a [Vessel](#Vessel), identified by timestamp.
-[Hallmarks](#Hallmark) are the unit of provenance tracking — each one records when and how the image was produced.
+[Hallmarks](#Hallmark) are the unit of [provenance](#Provenance) tracking — each one records when and how the image was produced.
 Each [Hallmark](#Hallmark) produces three tagged artifacts in the [Depot](#Depot) registry: the container image (`-image`), the software bill of materials ([`-about`](#About)), and the cryptographic attestation ([`-vouch`](#Vouch)).
 [Hallmark](#Hallmark) values are recorded into [Nameplate](#Nameplate) [Regime](#Regime) files to pin a [Crucible](#Crucible) to specific image versions.
 
@@ -127,7 +127,7 @@ Each [Hallmark](#Hallmark) produces three tagged artifacts in the [Depot](#Depot
 |------|-------------------|---------|
 | [**Payor**](#Payor) | OAuth (browser flow) | Creates/funds GCP infrastructure, manages [Governor](#Governor) lifecycle |
 | [**Governor**](#Governor) | Service account credential | Administers [Director](#Director) and [Retriever](#Retriever) credentials within a [Depot](#Depot) |
-| [**Director**](#Director) | Service account credential | Submits builds, manages images, verifies provenance |
+| [**Director**](#Director) | Service account credential | Submits builds, manages images, verifies [provenance](#Provenance) |
 | [**Retriever**](#Retriever) | Service account credential | Pulls images for local use |
 
 The [Payor](#Payor) stands apart — it requires manual Google Cloud Console work and OAuth authentication.
@@ -151,7 +151,7 @@ Each credential is scoped to a single role within a single [Depot](#Depot).
 #### Build and Retrieve
 
 The [Director](#Director) [Ordains](#Ordain) [Hallmarks](#Hallmark) for each [Vessel](#Vessel) — [Conjuring](#Conjure) from source, [Binding](#Bind) from upstream, or [Grafting](#Graft) from local builds.
-After builds complete, the [Director](#Director) [Tallies](#Tally) [Hallmarks](#Hallmark) by health status and [Vouches](#Vouch) their provenance.
+After builds complete, the [Director](#Director) [Tallies](#Tally) [Hallmarks](#Hallmark) by health status and [Vouches](#Vouch) their [provenance](#Provenance).
 [Hallmark](#Hallmark) values from the [Tally](#Tally) are recorded into [Nameplate](#Nameplate) [Regime](#Regime) files, completing the chain from build to runtime.
 
 The [Retriever](#Retriever) [Summons](#Summon) [Vouched](#Vouch) images locally for use.
@@ -160,7 +160,7 @@ The [Retriever](#Retriever) [Summons](#Summon) [Vouched](#Vouch) images locally 
 
 - Isolated build environments using Google-curated Cloud Build builder images
 - Multi-architecture support via `docker buildx` with binfmt emulation
-- SLSA provenance attestation and verification
+- [SLSA provenance](#Provenance) attestation and verification
 - Software Bills of Material (SBOM) for every build
 - Full build transcripts captured as auxiliary metadata artifacts
 - Upstream base images [Enshrined](#Enshrine) into the [Depot's](#Depot) registry, so builds do not depend on third-party registry availability at build time
@@ -170,7 +170,7 @@ Each build's source context is packaged as a [Pouch](#Pouch) — the security bo
 
 ## <a id="Crucible"></a>Crucible
 
-The distinctive case [Recipe Bottle](#RecipeBottle) addresses is *running untrusted code*: third-party tooling, experimental packages, binaries with uncertain provenance.
+The distinctive case [Recipe Bottle](#RecipeBottle) addresses is *running untrusted code*: third-party tooling, experimental packages, binaries with uncertain [provenance](#Provenance).
 Containers excel at packaging known applications, but running unvetted code poses security risks that ordinary container deployment does not solve.
 [Recipe Bottle](#RecipeBottle) assembles a [Crucible](#Crucible) — three cooperating containers where a [Sentry](#Sentry) enforces network policy — without requiring modifications to existing container images.
 The [Bottle](#Bottle) container runs unmodified, in a network namespace prepared by a privileged [Pentacle](#Pentacle), with all egress flowing through the [Sentry](#Sentry) gateway.
@@ -196,7 +196,7 @@ Each [Nameplate](#Nameplate) declares its [Vessel](#Vessel) selections, [Hallmar
 [Charge](#Charge) the [Crucible](#Crucible) for a [Nameplate](#Nameplate) to start the [Sentry](#Sentry), [Pentacle](#Pentacle), and [Bottle](#Bottle) together — the [Bottle](#Bottle) is ready for interactive use immediately.
 [Rack](#Rack) the [Bottle](#Bottle) to shell in, [Hail](#Hail) the [Sentry](#Sentry) to inspect the gateway, or [Scry](#Scry) the network to observe traffic across [Crucible](#Crucible) containers.
 When finished, [Quench](#Quench) the [Crucible](#Crucible) to stop and clean up all three containers.
-To inspect an image's supply chain, [Plumb](#Plumb) its provenance — the full view shows the SBOM, build info, and Dockerfile; the compact view summarizes the attestation chain.
+To inspect an image's supply chain, [Plumb](#Plumb) its [provenance](#Provenance) — the full view shows the SBOM, build info, and Dockerfile; the compact view summarizes the attestation chain.
 
 ### Reference Nameplates
 
@@ -271,15 +271,15 @@ The [Director](#Director) inscribes a [Reliquary](#Reliquary) before any [Ordain
 
 <a id="Ordain"></a>**[Ordain](#Ordain)** — Create a [Hallmark](#Hallmark) with full attestation — the production build operation.
 [Ordaining](#Ordain) is mode-aware: it [Conjures](#Conjure), [Binds](#Bind), or [Grafts](#Graft) depending on the [Vessel's](#Vessel) configuration.
-Each [Ordain](#Ordain) produces an image in the [Depot](#Depot) registry with associated provenance metadata.
+Each [Ordain](#Ordain) produces an image in the [Depot](#Depot) registry with associated [provenance](#Provenance) metadata.
 
 <a id="Conjure"></a>**[Conjure](#Conjure)** — Cloud Build creates the image from source.
-[Conjure](#Conjure) builds run in an egress-locked environment with digest-pinned toolchains, producing full SLSA attestation and SBOMs.
+[Conjure](#Conjure) builds run in an egress-locked environment with digest-pinned toolchains, producing full [SLSA](#Provenance) attestation and SBOMs.
 This is the highest-trust build mode.
 
 <a id="Bind"></a>**[Bind](#Bind)** — Mirror an upstream image pinned by digest.
 [Binding](#Bind) captures an external image at a specific digest into the [Depot's](#Depot) registry.
-Trust is established through digest-pin verification rather than build provenance.
+Trust is established through digest-pin verification rather than build [provenance](#Provenance).
 
 <a id="Graft"></a>**[Graft](#Graft)** — Push a locally-built image to the [Depot](#Depot) registry.
 [Grafting](#Graft) uploads a local image to GAR via docker push — no Cloud Build for the image itself, though [About](#About) and [Vouch](#Vouch) metadata still run in Cloud Build.
@@ -304,14 +304,14 @@ The [Director](#Director) [Tallies](#Tally) before [Vouching](#Vouch) to confirm
 Where [Tally](#Tally) groups [Hallmarks](#Hallmark) by status, [Rekon](#Rekon) shows the unprocessed tag inventory.
 
 <a id="Vouch"></a>**[Vouch](#Vouch)** — Cryptographic attestation proving a [Hallmark](#Hallmark) was built by trusted infrastructure.
-The [Vouch](#Vouch) verdict is mode-aware: [Conjure](#Conjure) builds receive full SLSA provenance verification, [Bind](#Bind) builds receive digest-pin verification, and [Graft](#Graft) builds receive a GRAFTED verdict with no provenance chain.
+The [Vouch](#Vouch) verdict is mode-aware: [Conjure](#Conjure) builds receive full [SLSA provenance](#Provenance) verification, [Bind](#Bind) builds receive digest-pin verification, and [Graft](#Graft) builds receive a GRAFTED verdict with no [provenance](#Provenance) chain.
 The [Director](#Director) [Vouches](#Vouch) [Hallmarks](#Hallmark) after [Tallying](#Tally) their build status.
 
 <a id="About"></a>**[About](#About)** — Build metadata and software bill of materials for a [Hallmark](#Hallmark).
 The [About](#About) artifact (`-about` tag) contains the SBOM, build transcript, build configuration snapshot, and key package summaries — bundled as a compressed archive and stored as a Generic Artifact in GAR.
 Every [Ordain](#Ordain) produces an [About](#About) alongside the image.
 
-<a id="Plumb"></a>**[Plumb](#Plumb)** — Inspect an artifact's provenance — SBOM, build info, and [Vouch](#Vouch) chain.
+<a id="Plumb"></a>**[Plumb](#Plumb)** — Inspect an artifact's [provenance](#Provenance) — SBOM, build info, and [Vouch](#Vouch) chain.
 [Plumbing](#Plumb) provides full transparency into how an image was built and what it contains.
 Two views are available: full (SBOM, build info, Dockerfile) and compact (attestation summary).
 
@@ -379,6 +379,24 @@ The escape tests were developed through adversarial Claude Code sessions with fu
 The [Ifrit](#Ifrit) [Vessel](#Vessel) is the delivery vehicle; the intelligence came from the authoring process.
 Every test that passes is evidence the containment holds — not proof.
 The test suite grows as new attack surfaces are identified.
+
+## <a id="Provenance"></a>Appendix: Supply Chain Provenance
+
+Supply chain provenance is a cryptographically signed record of how a container image was produced — what source, what builder, what steps — so that consumers can verify an image came from trusted infrastructure and was not tampered with in transit or at rest.
+
+[Recipe Bottle](#RecipeBottle) achieves [SLSA](https://slsa.dev) v1.0 Build Level 3 for [Conjure](#Conjure) builds, auto-generated by Google Cloud Build.
+The [Vouch](#Vouch) step independently verifies each build's DSSE envelope signature against Google's attestor public keys from `projects/verified-builder` KMS — using Python standard library and `openssl` only, with no third-party verifier.
+
+Provenance guarantees are mode-aware:
+
+| [Vessel](#Vessel) Mode | Trust Basis | [Vouch](#Vouch) Verdict |
+|------|-------------|------|
+| [**Conjure**](#Conjure) | Full SLSA v1.0 Level 3 — signed build provenance from GCB | DSSE envelope signature verification |
+| [**Bind**](#Bind) | Digest-pin comparison — image in GAR matches pinned upstream reference | Digest-pin match |
+| [**Graft**](#Graft) | Locally built and pushed — no cloud build involvement | GRAFTED (explicit no-provenance marker) |
+
+Deliberately excluded: no `slsa-verifier` binary, no `gcloud` CLI on the workstation, no `jq` in the verification path.
+The [Vouch](#Vouch) verifier reconstructs Pre-Authenticated Encoding (PAE), decodes the base64url payload and signature, and verifies via `openssl dgst` against embedded attestor keys — a minimal, auditable trust chain.
 
 ## Appendix: Roadmap
 
