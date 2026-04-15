@@ -738,7 +738,7 @@ rbho_credential_director() {
   buh_tlt "Run " "Rekon" "${z_docs}#Rekon" " to list raw image tags in the registry"
   buh_t   "using your director credential:"
   buh_e
-  buh_tT  "   " "${RBZ_REKON_IMAGE}"
+  buh_tTc "   " "${RBZ_REKON_IMAGE}" " rbev-busybox"
   buh_e
   buh_t   "If the command succeeds you have working build access to the"
   buh_tlt "  " "Depot" "${z_docs}#Depot" "."
