@@ -127,8 +127,8 @@
 :rbtgo_sa_list:                   <<rbtgo_sa_list,rbgg_list_service_accounts>>
 :rbtgo_quota_build:               <<rbtgo_quota_build,rbhp_quota_build>>
 :rbtgo_trigger_build:             <<rbtgo_trigger_build,rbfd_build>>
-:rbtgo_access_jwt_probe:          <<rbtgo_access_jwt_probe,rbap_jwt_sa_probe>>
-:rbtgo_access_oauth_probe:        <<rbtgo_access_oauth_probe,rbap_payor_oauth_probe>>
+:rbtgo_access_jwt_probe:          <<rbtgo_access_jwt_probe,rbgv_jwt_sa_probe>>
+:rbtgo_access_oauth_probe:        <<rbtgo_access_oauth_probe,rbgv_payor_oauth_probe>>
 
 // Recipe Bottle Term Google Operation Groups
 :rbtgog_access:                   <<rbtgog_access,Access Probe Group>>

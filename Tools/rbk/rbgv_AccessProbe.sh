@@ -16,19 +16,19 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle Access Probe - JWT SA and Payor OAuth access verification
+# Recipe Bottle Google Verification - JWT SA and Payor OAuth access verification
 
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBAP_SOURCED:-}" || buc_die "Module rbap multiply sourced - check sourcing hierarchy"
-ZRBAP_SOURCED=1
+test -z "${ZRBGV_SOURCED:-}" || buc_die "Module rbgv multiply sourced - check sourcing hierarchy"
+ZRBGV_SOURCED=1
 
 ######################################################################
-# Internal Functions (zrbap_*)
+# Internal Functions (zrbgv_*)
 
-zrbap_kindle() {
-  test -z "${ZRBAP_KINDLED:-}" || buc_die "Module rbap already kindled"
+zrbgv_kindle() {
+  test -z "${ZRBGV_KINDLED:-}" || buc_die "Module rbgv already kindled"
 
   buc_log_args "Ensure dependencies are kindled first"
   zrbgc_sentinel
@@ -37,23 +37,23 @@ zrbap_kindle() {
   zrbgp_sentinel
 
   # Kindle-constant temp file paths for forensic visibility
-  readonly ZRBAP_AR_RESP_FILE="${BURD_TEMP_DIR}/rbap_ar_resp.json"
-  readonly ZRBAP_AR_CODE_FILE="${BURD_TEMP_DIR}/rbap_ar_code.txt"
-  readonly ZRBAP_AR_STDERR_FILE="${BURD_TEMP_DIR}/rbap_ar_stderr.txt"
-  readonly ZRBAP_CRM_RESP_FILE="${BURD_TEMP_DIR}/rbap_crm_resp.json"
-  readonly ZRBAP_CRM_CODE_FILE="${BURD_TEMP_DIR}/rbap_crm_code.txt"
-  readonly ZRBAP_CRM_STDERR_FILE="${BURD_TEMP_DIR}/rbap_crm_stderr.txt"
+  readonly ZRBGV_AR_RESP_FILE="${BURD_TEMP_DIR}/rbgv_ar_resp.json"
+  readonly ZRBGV_AR_CODE_FILE="${BURD_TEMP_DIR}/rbgv_ar_code.txt"
+  readonly ZRBGV_AR_STDERR_FILE="${BURD_TEMP_DIR}/rbgv_ar_stderr.txt"
+  readonly ZRBGV_CRM_RESP_FILE="${BURD_TEMP_DIR}/rbgv_crm_resp.json"
+  readonly ZRBGV_CRM_CODE_FILE="${BURD_TEMP_DIR}/rbgv_crm_code.txt"
+  readonly ZRBGV_CRM_STDERR_FILE="${BURD_TEMP_DIR}/rbgv_crm_stderr.txt"
 
-  readonly ZRBAP_KINDLED=1
+  readonly ZRBGV_KINDLED=1
 }
 
-zrbap_sentinel() {
-  test "${ZRBAP_KINDLED:-}" = "1" || buc_die "Module rbap not kindled - call zrbap_kindle first"
+zrbgv_sentinel() {
+  test "${ZRBGV_KINDLED:-}" = "1" || buc_die "Module rbgv not kindled - call zrbgv_kindle first"
 }
 
 # Convert milliseconds to a decimal seconds string suitable for sleep
-zrbap_ms_to_sleep_capture() {
-  zrbap_sentinel
+zrbgv_ms_to_sleep_capture() {
+  zrbgv_sentinel
 
   local z_ms="${1}"
 
@@ -69,8 +69,8 @@ zrbap_ms_to_sleep_capture() {
 
 # Resolve the RBRA file path for a given role name
 # Role names: governor | director | retriever
-zrbap_role_rbra_file_capture() {
-  zrbap_sentinel
+zrbgv_role_rbra_file_capture() {
+  zrbgv_sentinel
 
   local z_role="${1}"
 
@@ -94,10 +94,10 @@ zrbap_role_rbra_file_capture() {
 }
 
 # Execute one Artifact Registry packages.list probe iteration for a JWT SA role.
-# Writes response to ZRBAP_AR_RESP_FILE, HTTP code to ZRBAP_AR_CODE_FILE,
-# and stderr to ZRBAP_AR_STDERR_FILE (kindle-constant paths for forensic visibility).
-zrbap_jwt_ar_probe_once() {
-  zrbap_sentinel
+# Writes response to ZRBGV_AR_RESP_FILE, HTTP code to ZRBGV_AR_CODE_FILE,
+# and stderr to ZRBGV_AR_STDERR_FILE (kindle-constant paths for forensic visibility).
+zrbgv_jwt_ar_probe_once() {
+  zrbgv_sentinel
 
   local z_role="${1}"
   local z_iteration="${2}"
@@ -106,7 +106,7 @@ zrbap_jwt_ar_probe_once() {
 
   buc_log_args "Resolve RBRA file for role"
   local z_rbra_file
-  z_rbra_file=$(zrbap_role_rbra_file_capture "${z_role}") || return 1
+  z_rbra_file=$(zrbgv_role_rbra_file_capture "${z_role}") || return 1
 
   buc_log_args "Validate RBRA file exists"
   test -f "${z_rbra_file}" || buc_die "RBRA file not found for role ${z_role}: ${z_rbra_file}"
@@ -131,21 +131,21 @@ zrbap_jwt_ar_probe_once() {
       -X GET                                        \
       -H "Authorization: Bearer ${z_token}"         \
       -H "Accept: application/json"                 \
-      -o "${ZRBAP_AR_RESP_FILE}"                    \
+      -o "${ZRBGV_AR_RESP_FILE}"                    \
       -w "%{http_code}"                             \
       --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
       --max-time "${RBCC_CURL_MAX_TIME_SEC}"        \
-      "${z_ar_url}" > "${ZRBAP_AR_CODE_FILE}"       \
-                   2> "${ZRBAP_AR_STDERR_FILE}"     \
+      "${z_ar_url}" > "${ZRBGV_AR_CODE_FILE}"       \
+                   2> "${ZRBGV_AR_STDERR_FILE}"     \
     || z_curl_status=$?
 
   buc_log_args "AR curl exit status: ${z_curl_status}"
-  buc_log_pipe < "${ZRBAP_AR_STDERR_FILE}"
+  buc_log_pipe < "${ZRBGV_AR_STDERR_FILE}"
 
   test "${z_curl_status}" -eq 0 || buc_die "AR packages.list curl failed (network/SSL/DNS) for role ${z_role} iteration ${z_iteration}"
 
   local z_code
-  z_code=$(<"${ZRBAP_AR_CODE_FILE}") || buc_die "Failed to read AR HTTP code file"
+  z_code=$(<"${ZRBGV_AR_CODE_FILE}") || buc_die "Failed to read AR HTTP code file"
   test -n "${z_code}"                || buc_die "Empty HTTP code from AR curl"
 
   buc_log_args "AR packages.list HTTP ${z_code} for role ${z_role} iteration ${z_iteration}"
@@ -159,8 +159,8 @@ zrbap_jwt_ar_probe_once() {
       ;;
     *)
       local z_err=""
-      if jq -e . "${ZRBAP_AR_RESP_FILE}" >/dev/null 2>&1; then
-        z_err=$(jq -r '.error.message // "Unknown error"' "${ZRBAP_AR_RESP_FILE}" 2>/dev/null) || z_err="Unknown error"
+      if jq -e . "${ZRBGV_AR_RESP_FILE}" >/dev/null 2>&1; then
+        z_err=$(jq -r '.error.message // "Unknown error"' "${ZRBGV_AR_RESP_FILE}" 2>/dev/null) || z_err="Unknown error"
       else
         z_err="Non-JSON response (HTTP ${z_code})"
       fi
@@ -170,10 +170,10 @@ zrbap_jwt_ar_probe_once() {
 }
 
 # Execute one CRM projects.get probe iteration for the Payor OAuth flow.
-# Writes response to ZRBAP_CRM_RESP_FILE, HTTP code to ZRBAP_CRM_CODE_FILE,
-# and stderr to ZRBAP_CRM_STDERR_FILE (kindle-constant paths for forensic visibility).
-zrbap_payor_crm_probe_once() {
-  zrbap_sentinel
+# Writes response to ZRBGV_CRM_RESP_FILE, HTTP code to ZRBGV_CRM_CODE_FILE,
+# and stderr to ZRBGV_CRM_STDERR_FILE (kindle-constant paths for forensic visibility).
+zrbgv_payor_crm_probe_once() {
+  zrbgv_sentinel
 
   local z_iteration="${1}"
 
@@ -197,21 +197,21 @@ zrbap_payor_crm_probe_once() {
       -X GET                                         \
       -H "Authorization: Bearer ${z_token}"          \
       -H "Accept: application/json"                  \
-      -o "${ZRBAP_CRM_RESP_FILE}"                    \
+      -o "${ZRBGV_CRM_RESP_FILE}"                    \
       -w "%{http_code}"                              \
       --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
       --max-time "${RBCC_CURL_MAX_TIME_SEC}"         \
-      "${z_crm_url}" > "${ZRBAP_CRM_CODE_FILE}"      \
-                    2> "${ZRBAP_CRM_STDERR_FILE}"    \
+      "${z_crm_url}" > "${ZRBGV_CRM_CODE_FILE}"      \
+                    2> "${ZRBGV_CRM_STDERR_FILE}"    \
     || z_curl_status=$?
 
   buc_log_args "CRM curl exit status: ${z_curl_status}"
-  buc_log_pipe < "${ZRBAP_CRM_STDERR_FILE}"
+  buc_log_pipe < "${ZRBGV_CRM_STDERR_FILE}"
 
   test "${z_curl_status}" -eq 0 || buc_die "CRM projects.get curl failed (network/SSL/DNS) for Payor iteration ${z_iteration}"
 
   local z_code
-  z_code=$(<"${ZRBAP_CRM_CODE_FILE}") || buc_die "Failed to read CRM HTTP code file"
+  z_code=$(<"${ZRBGV_CRM_CODE_FILE}") || buc_die "Failed to read CRM HTTP code file"
   test -n "${z_code}"                 || buc_die "Empty HTTP code from CRM curl"
 
   buc_log_args "CRM projects.get HTTP ${z_code} for Payor iteration ${z_iteration}"
@@ -225,8 +225,8 @@ zrbap_payor_crm_probe_once() {
       ;;
     *)
       local z_err=""
-      if jq -e . "${ZRBAP_CRM_RESP_FILE}" >/dev/null 2>&1; then
-        z_err=$(jq -r '.error.message // "Unknown error"' "${ZRBAP_CRM_RESP_FILE}" 2>/dev/null) || z_err="Unknown error"
+      if jq -e . "${ZRBGV_CRM_RESP_FILE}" >/dev/null 2>&1; then
+        z_err=$(jq -r '.error.message // "Unknown error"' "${ZRBGV_CRM_RESP_FILE}" 2>/dev/null) || z_err="Unknown error"
       else
         z_err="Non-JSON response (HTTP ${z_code})"
       fi
@@ -236,7 +236,7 @@ zrbap_payor_crm_probe_once() {
 }
 
 ######################################################################
-# External Functions (rbap_*)
+# External Functions (rbgv_*)
 
 # Probe 1: JWT SA Access Probe
 #
@@ -249,8 +249,8 @@ zrbap_payor_crm_probe_once() {
 #   Governor  = Owner
 #   Director  = repoAdmin
 #   Retriever = reader
-rbap_jwt_sa_probe() {
-  zrbap_sentinel
+rbgv_jwt_sa_probe() {
+  zrbgv_sentinel
 
   local z_role="${1:-}"
   local z_count="${2:-1}"
@@ -271,11 +271,11 @@ rbap_jwt_sa_probe() {
   while test "${z_iter}" -le "${z_count}"; do
     buc_step "JWT SA probe [${z_role}] iteration ${z_iter}/${z_count}"
 
-    zrbap_jwt_ar_probe_once "${z_role}" "${z_iter}"
+    zrbgv_jwt_ar_probe_once "${z_role}" "${z_iter}"
 
     if test "${z_iter}" -lt "${z_count}" && test "${z_delay_ms}" -gt 0; then
       local z_sleep
-      z_sleep=$(zrbap_ms_to_sleep_capture "${z_delay_ms}")
+      z_sleep=$(zrbgv_ms_to_sleep_capture "${z_delay_ms}")
       buc_log_args "Sleeping ${z_sleep}s (${z_delay_ms}ms) before next iteration"
       sleep "${z_sleep}"
     fi
@@ -292,8 +292,8 @@ rbap_jwt_sa_probe() {
 #   1. Authenticate via zrbgp_authenticate_capture (RBRO refresh token -> access token)
 #   2. Call CRM projects.get on payor project to verify token works
 #   3. Sleep for configured delay
-rbap_payor_oauth_probe() {
-  zrbap_sentinel
+rbgv_payor_oauth_probe() {
+  zrbgv_sentinel
 
   local z_count="${1:-1}"
   local z_delay_ms="${2:-0}"
@@ -311,11 +311,11 @@ rbap_payor_oauth_probe() {
   while test "${z_iter}" -le "${z_count}"; do
     buc_step "Payor OAuth probe iteration ${z_iter}/${z_count}"
 
-    zrbap_payor_crm_probe_once "${z_iter}"
+    zrbgv_payor_crm_probe_once "${z_iter}"
 
     if test "${z_iter}" -lt "${z_count}" && test "${z_delay_ms}" -gt 0; then
       local z_sleep
-      z_sleep=$(zrbap_ms_to_sleep_capture "${z_delay_ms}")
+      z_sleep=$(zrbgv_ms_to_sleep_capture "${z_delay_ms}")
       buc_log_args "Sleeping ${z_sleep}s (${z_delay_ms}ms) before next iteration"
       sleep "${z_sleep}"
     fi

@@ -21,6 +21,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBGO** → `rbk/rbgo_OAuth.sh`
 - **RBGP** → `rbk/rbgp_Payor.sh`
 - **RBGU** → `rbk/rbgu_Utility.sh`
+- **RBGV** → `rbk/rbgv_AccessProbe.sh` (Google Verification — JWT SA and Payor OAuth access probes)
 - **RBH0** → `rbk/rbh0/` (Handbook directory — decomposed one-function-per-file)
   - `rbh*` is the Handbook family (human-facing procedures), parallel to `rbg*` (Google machinery). Three groups: `RBHO` onboarding, `RBHP` payor, `RBHW` windows. Colophon pattern: `rbw-h0` (HandbookTOP index), `rbw-h{o,p,w}` (group tops), `rbw-H{O,P,W}*` (subordinate procedures).
   - **RBHO0** → `rbk/rbh0/rbho0_cli.sh` (Onboarding CLI — thin furnish, probe-only dependencies)

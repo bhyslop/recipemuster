@@ -57,7 +57,7 @@ zrbte_furnish_probe() {
   source "${z_rbk}/rbgu_Utility.sh"
   source "${z_rbk}/rbgi_IAM.sh"
   source "${z_rbk}/rbgp_Payor.sh"
-  source "${z_rbk}/rbap_AccessProbe.sh"
+  source "${z_rbk}/rbgv_AccessProbe.sh"
 
   source "${RBBC_rbrr_file}" || buc_die "Failed to source ${RBBC_rbrr_file}"
   zrbrr_kindle
@@ -69,7 +69,7 @@ zrbte_furnish_probe() {
   zrbgu_kindle
   zrbgi_kindle
   zrbgp_kindle
-  zrbap_kindle
+  zrbgv_kindle
 }
 
 ######################################################################

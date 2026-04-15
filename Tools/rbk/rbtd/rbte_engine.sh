@@ -161,7 +161,7 @@ rbte_probe() {
   case "${z_role}" in
     governor|director|retriever)
       buc_step "JWT SA access probe: ${z_role}"
-      rbap_jwt_sa_probe "${z_role}" "${z_iterations}" "${z_delay_ms}"
+      rbgv_jwt_sa_probe "${z_role}" "${z_iterations}" "${z_delay_ms}"
       buc_success "${z_role} JWT access probe passed"
       ;;
     payor)
@@ -169,7 +169,7 @@ rbte_probe() {
       source "${RBBC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBBC_rbrp_file}"
       zrbrp_kindle
       zrbrp_enforce
-      rbap_payor_oauth_probe "${z_iterations}" "${z_delay_ms}"
+      rbgv_payor_oauth_probe "${z_iterations}" "${z_delay_ms}"
       buc_success "Payor OAuth access probe passed"
       ;;
     *)
