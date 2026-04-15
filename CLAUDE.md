@@ -21,9 +21,14 @@ Full read and edit access is pre-approved for all files in:
 - **RBGO** → `rbk/rbgo_OAuth.sh`
 - **RBGP** → `rbk/rbgp_Payor.sh`
 - **RBGU** → `rbk/rbgu_Utility.sh`
-- **RBHO** → `rbk/rbho_onboarding.sh` (Handbook — cross-role onboarding walkthroughs)
-- **RBHP** → `rbk/rbhp_payor.sh` (Handbook — payor-only ceremonies: establish, refresh, quota)
+- **RBH0** → `rbk/rbh0/` (Handbook directory — decomposed one-function-per-file)
   - `rbh*` is the Handbook family (human-facing procedures), parallel to `rbg*` (Google machinery). Three groups: `RBHO` onboarding, `RBHP` payor, `RBHW` windows. Colophon pattern: `rbw-h0` (HandbookTOP index), `rbw-h{o,p,w}` (group tops), `rbw-H{O,P,W}*` (subordinate procedures).
+  - **RBHO0** → `rbk/rbh0/rbho0_cli.sh` (Onboarding CLI — thin furnish, probe-only dependencies)
+  - **RBHOB** → `rbk/rbh0/rbhob_base.sh` (Onboarding base — kindle, sentinel, probes, shared helpers)
+  - **RBHP0** → `rbk/rbh0/rbhp0_cli.sh` (Payor CLI — full regime + OAuth + IAM dependencies)
+  - **RBHPB** → `rbk/rbh0/rbhpb_base.sh` (Payor base — kindle, sentinel, enforce)
+  - **RBHW0** → `rbk/rbh0/rbhw0_cli.sh` (Windows CLI — handbook display + zipper dependencies)
+  - **RBHWB** → `rbk/rbh0/rbhwb_base.sh` (Windows base — kindle, sentinel)
 - **RBID** → `rbev-vessels/rbev-bottle-ifrit/` (Ifrit — in-bottle attack binary for crucible testing)
 - **RBJ**  → Jailer prefix (non-terminal: children rbjs, rbjp, rbje, rbjh)
 - **RBJS** → `rbk/rbjs_sentry.sh` (Jailer Sentry - container security setup: iptables, dnsmasq, enclave network)

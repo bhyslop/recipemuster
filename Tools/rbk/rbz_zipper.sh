@@ -73,13 +73,13 @@ zrbz_kindle() {
   buz_group RBZ__GROUP_GUIDE      "rbw-g"   "Guide — Human-directed procedures"
   z_mod="rbgp_cli.sh"
   buz_enroll RBZ_PAYOR_INSTALL          "rbw-gPI" "${z_mod}" "rbgp_payor_install"   ""  "Ingest OAuth credentials from JSON key file"
-  z_mod="rbhp_cli.sh"
+  z_mod="rbh0/rbhp0_cli.sh"
   buz_enroll RBZ_PAYOR_ESTABLISH        "rbw-gPE" "${z_mod}" "rbhp_establish"       ""  "Guided Manor establishment — GCP project + OAuth consent screen"
   buz_enroll RBZ_PAYOR_REFRESH          "rbw-gPR" "${z_mod}" "rbhp_refresh"         ""  "Refresh expired OAuth tokens"
   buz_enroll RBZ_QUOTA_BUILD            "rbw-gq"  "${z_mod}" "rbhp_quota_build"     ""  "Display Cloud Build capacity review procedure"
   # Onboarding — handbook tracks (rbw-o terminal + rbw-O* family, see ₣A6 paddock)
   buz_group RBZ__GROUP_ONBOARDING "rbw-o"   "Onboarding — Handbook restart"
-  z_mod="rbho_cli.sh"
+  z_mod="rbh0/rbho0_cli.sh"
   buz_enroll RBZ_ONBOARD_START_HERE    "rbw-o"   "${z_mod}" "rbho_start_here"            ""  "Onboarding start — probe-aware menu into handbook tracks"
   buz_enroll RBZ_ONBOARD_CRASH_COURSE  "rbw-Occ" "${z_mod}" "rbho_crash_course"          ""  "Crash Course — universal prerequisite: tabtargets, regimes, diagnostic failure"
   buz_enroll RBZ_ONBOARD_CRED_RETRIEVER "rbw-Ocr" "${z_mod}" "rbho_credential_retriever" ""  "Install retriever credentials — place RBRA key file"
@@ -169,7 +169,7 @@ zrbz_kindle() {
 
   # Handbook — human-facing procedures (rbw-h0 index, rbw-hw/HW* windows)
   buz_group RBZ__GROUP_HANDBOOK   "rbw-HW"  "Handbook — Human-facing procedures"
-  z_mod="rbhw_cli.sh"
+  z_mod="rbh0/rbhw0_cli.sh"
   buz_enroll RBZ_HANDBOOK_TOP           "rbw-h0"    "${z_mod}" "rbhw_handbook_top"              ""        "Top-level handbook index across all groups"
   buz_enroll RBZ_HANDBOOK_WINDOWS       "rbw-hw"    "${z_mod}" "rbhw_top"                       ""        "Windows test infrastructure orchestrator"
   buz_enroll RBZ_HW_DOCKER_DESKTOP     "rbw-HWdd"  "${z_mod}" "rbhw_docker_desktop"            ""        "Docker Desktop install"

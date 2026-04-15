@@ -58,7 +58,15 @@ zrbho_furnish() {
   # (filesystem gates for vessel/secrets dirs), blocking onboarding entry.
   zrbrr_kindle
   zrbyc_kindle
-  source "${z_rbk_kit_dir}/rbho_onboarding.sh"       || buc_die "Failed to source rbho_onboarding.sh"
+  source "${z_rbk_kit_dir}/rbh0/rbhob_base.sh"               || buc_die "Failed to source rbhob_base.sh"
+  source "${z_rbk_kit_dir}/rbh0/rbho0_start_here.sh"         || buc_die "Failed to source rbho0_start_here.sh"
+  source "${z_rbk_kit_dir}/rbh0/rbhocc_crash_course.sh"      || buc_die "Failed to source rbhocc_crash_course.sh"
+  source "${z_rbk_kit_dir}/rbh0/rbhocr_credential_retriever.sh" || buc_die "Failed to source rbhocr_credential_retriever.sh"
+  source "${z_rbk_kit_dir}/rbh0/rbhocd_credential_director.sh"  || buc_die "Failed to source rbhocd_credential_director.sh"
+  source "${z_rbk_kit_dir}/rbh0/rbhofc_first_crucible.sh"    || buc_die "Failed to source rbhofc_first_crucible.sh"
+  source "${z_rbk_kit_dir}/rbh0/rbhodf_director_first_build.sh" || buc_die "Failed to source rbhodf_director_first_build.sh"
+  source "${z_rbk_kit_dir}/rbh0/rbhopw_payor_wrapper.sh"     || buc_die "Failed to source rbhopw_payor_wrapper.sh"
+  source "${z_rbk_kit_dir}/rbh0/rbhogw_governor_wrapper.sh"  || buc_die "Failed to source rbhogw_governor_wrapper.sh"
   zrbho_kindle
 }
 
