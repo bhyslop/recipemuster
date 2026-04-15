@@ -581,9 +581,10 @@
         "₢A6AAJ",
         "₢A6AAE",
         "₢A6AAF",
-        "₢A6AAL"
+        "₢A6AAL",
+        "₢A6AAm"
       ],
-      "next_pace_seed": "AAm",
+      "next_pace_seed": "AAn",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
       "paces": {
         "₢A6AAA": {
@@ -1458,6 +1459,38 @@
               "text": "## Character\nCode readability audit — find-and-discuss, not mechanical bulk replace. Each instance may reveal a missing accessor.\n\n## Docket\nAudit all call sites where `buh_line` and `_yawp` functions are composed on a single line. These one-liners are hard to read and suggest the yelp/handbook API lacks the right higher-level accessors for those use cases.\n\nFor each instance:\n1. Identify what the call site is trying to express\n2. Determine whether an existing accessor already handles it\n3. If not, propose a new accessor that would make the intent clear\n4. Discuss with user before changing — some may be intentional\n\nScope: all `Tools/` shell scripts. Start with `buh_handbook.sh` and `buym_yelp.sh` consumers.",
               "silks": "eliminate-buh-line-yawp-one-liners",
               "commit": "4532f8e"
+            }
+          ]
+        },
+        "₢A6AAm": {
+          "tacks": [
+            {
+              "ts": "260415-1507",
+              "state": "rough",
+              "text": "Drafted from ₢A_AAH in ₣A_.\n\nDrafted from ₢A6AAk in ₣A6.\n\n## Character\nVerification-only remainder — the fix is landed, just needs a clean-tree retest.\n\n## Docket\n`RBGC_VOUCHES_PACKAGE` was uppercase `\"VOUCHES\"` — OCI registries reject uppercase package names. The vouch pipeline's `assemble-push-vouch` step constructed `...repository/VOUCHES:hallmark-vouch` which GAR rejected with `repository name must be lowercase`.\n\n### What was done\n- `Tools/rbk/rbgc_Constants.sh` — changed `RBGC_VOUCHES_PACKAGE` from `\"VOUCHES\"` to `\"vouches\"`\n- `Tools/rbk/rbfc_FoundryCore.sh` — updated all `VOUCHES` references in comments/strings to `vouches`\n- `Tools/rbk/rbgjv/rbgjv03-assemble-push-vouch.sh` — updated echo label\n- Spec/doc references updated in `RBS0-SpecTop.adoc`, `RBSAV-ark_vouch.adoc`, `RBSAP-ark_plumb.adoc`, `RBSGS-GettingStarted.adoc`\n- Conjure vouch step confirmed passing (service suite: conjure succeeded, bind failed only due to dirty working tree)\n\n### Remaining\nRun `tt/rbtd-s.TestSuite.service.sh` from a fully committed and pushed working tree. The four-mode-integration test requires a clean tree for the ordain (bind) step. Conjure vouch already verified green.",
+              "silks": "vouches-package-lowercase",
+              "commit": "e268c4b"
+            },
+            {
+              "ts": "260415-1507",
+              "state": "rough",
+              "text": "Drafted from ₢A6AAk in ₣A6.\n\n## Character\nVerification-only remainder — the fix is landed, just needs a clean-tree retest.\n\n## Docket\n`RBGC_VOUCHES_PACKAGE` was uppercase `\"VOUCHES\"` — OCI registries reject uppercase package names. The vouch pipeline's `assemble-push-vouch` step constructed `...repository/VOUCHES:hallmark-vouch` which GAR rejected with `repository name must be lowercase`.\n\n### What was done\n- `Tools/rbk/rbgc_Constants.sh` — changed `RBGC_VOUCHES_PACKAGE` from `\"VOUCHES\"` to `\"vouches\"`\n- `Tools/rbk/rbfc_FoundryCore.sh` — updated all `VOUCHES` references in comments/strings to `vouches`\n- `Tools/rbk/rbgjv/rbgjv03-assemble-push-vouch.sh` — updated echo label\n- Spec/doc references updated in `RBS0-SpecTop.adoc`, `RBSAV-ark_vouch.adoc`, `RBSAP-ark_plumb.adoc`, `RBSGS-GettingStarted.adoc`\n- Conjure vouch step confirmed passing (service suite: conjure succeeded, bind failed only due to dirty working tree)\n\n### Remaining\nRun `tt/rbtd-s.TestSuite.service.sh` from a fully committed and pushed working tree. The four-mode-integration test requires a clean tree for the ordain (bind) step. Conjure vouch already verified green.",
+              "silks": "vouches-package-lowercase",
+              "commit": "a4c1185"
+            },
+            {
+              "ts": "260415-1456",
+              "state": "rough",
+              "text": "## Character\nVerification-only remainder — the fix is landed, just needs a clean-tree retest.\n\n## Docket\n`RBGC_VOUCHES_PACKAGE` was uppercase `\"VOUCHES\"` — OCI registries reject uppercase package names. The vouch pipeline's `assemble-push-vouch` step constructed `...repository/VOUCHES:hallmark-vouch` which GAR rejected with `repository name must be lowercase`.\n\n### What was done\n- `Tools/rbk/rbgc_Constants.sh` — changed `RBGC_VOUCHES_PACKAGE` from `\"VOUCHES\"` to `\"vouches\"`\n- `Tools/rbk/rbfc_FoundryCore.sh` — updated all `VOUCHES` references in comments/strings to `vouches`\n- `Tools/rbk/rbgjv/rbgjv03-assemble-push-vouch.sh` — updated echo label\n- Spec/doc references updated in `RBS0-SpecTop.adoc`, `RBSAV-ark_vouch.adoc`, `RBSAP-ark_plumb.adoc`, `RBSGS-GettingStarted.adoc`\n- Conjure vouch step confirmed passing (service suite: conjure succeeded, bind failed only due to dirty working tree)\n\n### Remaining\nRun `tt/rbtd-s.TestSuite.service.sh` from a fully committed and pushed working tree. The four-mode-integration test requires a clean tree for the ordain (bind) step. Conjure vouch already verified green.",
+              "silks": "vouches-package-lowercase",
+              "commit": "d67a8ed"
+            },
+            {
+              "ts": "260415-1443",
+              "state": "rough",
+              "text": "## Character\nSurgical constant fix with cascading doc updates — mechanically straightforward but must be verified end-to-end through a real Cloud Build vouch cycle.\n\n## Docket\n`RBGC_VOUCHES_PACKAGE` is set to uppercase `\"VOUCHES\"` in `Tools/rbk/rbgc_Constants.sh:131`. OCI registries require lowercase repository/package names. The vouch pipeline's `assemble-push-vouch` step (`Tools/rbk/rbgjv/rbgjv03-assemble-push-vouch.sh`) constructs a tag like `...repository/VOUCHES:hallmark-vouch` which is rejected by GAR with: `repository name must be lowercase`.\n\nThis breaks the four-mode-integration test case (`rbtdrc_four_mode_supply_chain`) at the vouch step of every conjure.\n\n### Fix\n1. `Tools/rbk/rbgc_Constants.sh` — change `RBGC_VOUCHES_PACKAGE` from `\"VOUCHES\"` to `\"vouches\"`\n2. Spec/doc references in `RBS0-SpecTop.adoc`, `RBSAV-ark_vouch.adoc`, `RBSAP-ark_plumb.adoc`, `RBSGS-GettingStarted.adoc` — update tag table and prose references from `VOUCHES` to `vouches` where they appear as literal GAR package names\n3. Code comments in `rbfc_FoundryCore.sh`, `rbfv_FoundryVerify.sh` — update any literal `VOUCHES` references that describe the package name (not the concept)\n\n### Distinguish: package name vs concept name\nThe word \"VOUCHES\" appears in two roles: (a) as the literal GAR package name in tags/code, and (b) as a concept name in prose (\"the VOUCHES superdirectory\"). Only (a) must change to lowercase. Prose references to the concept (\"the VOUCHES superdirectory\") may retain caps for readability — use judgment per instance.\n\n### Verification\n- Run `tt/rbtd-s.TestSuite.service.sh` — four-mode-integration must pass (vouch step succeeds)\n- Confirm no orphaned uppercase artifacts need cleanup (they were from failed builds)",
+              "silks": "vouches-package-lowercase",
+              "commit": "b8745ff"
             }
           ]
         }
@@ -3985,7 +4018,6 @@
         "₢A_AAE",
         "₢A_AAF",
         "₢A_AAG",
-        "₢A_AAH",
         "₢A_AAI"
       ],
       "next_pace_seed": "AAJ",
@@ -4079,31 +4111,6 @@
               "text": "## Character\nEnd-to-end validation — user perspective. Every handbook track must complete cleanly.\n\n## Work\nWalk every onboarding track in sequence: Crash Course, Credential Retriever, Credential Director, First Crucible, Director First Cloud Build, Payor, Governor. Verify all handbook windows render correctly with prefixed resource names. Confirm probe outputs show the correct prefixed container/image identifiers. Fix any display or functional issues.",
               "silks": "run-all-onboarding-tracks",
               "commit": "51b0838"
-            }
-          ]
-        },
-        "₢A_AAH": {
-          "tacks": [
-            {
-              "ts": "260415-1507",
-              "state": "rough",
-              "text": "Drafted from ₢A6AAk in ₣A6.\n\n## Character\nVerification-only remainder — the fix is landed, just needs a clean-tree retest.\n\n## Docket\n`RBGC_VOUCHES_PACKAGE` was uppercase `\"VOUCHES\"` — OCI registries reject uppercase package names. The vouch pipeline's `assemble-push-vouch` step constructed `...repository/VOUCHES:hallmark-vouch` which GAR rejected with `repository name must be lowercase`.\n\n### What was done\n- `Tools/rbk/rbgc_Constants.sh` — changed `RBGC_VOUCHES_PACKAGE` from `\"VOUCHES\"` to `\"vouches\"`\n- `Tools/rbk/rbfc_FoundryCore.sh` — updated all `VOUCHES` references in comments/strings to `vouches`\n- `Tools/rbk/rbgjv/rbgjv03-assemble-push-vouch.sh` — updated echo label\n- Spec/doc references updated in `RBS0-SpecTop.adoc`, `RBSAV-ark_vouch.adoc`, `RBSAP-ark_plumb.adoc`, `RBSGS-GettingStarted.adoc`\n- Conjure vouch step confirmed passing (service suite: conjure succeeded, bind failed only due to dirty working tree)\n\n### Remaining\nRun `tt/rbtd-s.TestSuite.service.sh` from a fully committed and pushed working tree. The four-mode-integration test requires a clean tree for the ordain (bind) step. Conjure vouch already verified green.",
-              "silks": "vouches-package-lowercase",
-              "commit": "a4c1185"
-            },
-            {
-              "ts": "260415-1456",
-              "state": "rough",
-              "text": "## Character\nVerification-only remainder — the fix is landed, just needs a clean-tree retest.\n\n## Docket\n`RBGC_VOUCHES_PACKAGE` was uppercase `\"VOUCHES\"` — OCI registries reject uppercase package names. The vouch pipeline's `assemble-push-vouch` step constructed `...repository/VOUCHES:hallmark-vouch` which GAR rejected with `repository name must be lowercase`.\n\n### What was done\n- `Tools/rbk/rbgc_Constants.sh` — changed `RBGC_VOUCHES_PACKAGE` from `\"VOUCHES\"` to `\"vouches\"`\n- `Tools/rbk/rbfc_FoundryCore.sh` — updated all `VOUCHES` references in comments/strings to `vouches`\n- `Tools/rbk/rbgjv/rbgjv03-assemble-push-vouch.sh` — updated echo label\n- Spec/doc references updated in `RBS0-SpecTop.adoc`, `RBSAV-ark_vouch.adoc`, `RBSAP-ark_plumb.adoc`, `RBSGS-GettingStarted.adoc`\n- Conjure vouch step confirmed passing (service suite: conjure succeeded, bind failed only due to dirty working tree)\n\n### Remaining\nRun `tt/rbtd-s.TestSuite.service.sh` from a fully committed and pushed working tree. The four-mode-integration test requires a clean tree for the ordain (bind) step. Conjure vouch already verified green.",
-              "silks": "vouches-package-lowercase",
-              "commit": "d67a8ed"
-            },
-            {
-              "ts": "260415-1443",
-              "state": "rough",
-              "text": "## Character\nSurgical constant fix with cascading doc updates — mechanically straightforward but must be verified end-to-end through a real Cloud Build vouch cycle.\n\n## Docket\n`RBGC_VOUCHES_PACKAGE` is set to uppercase `\"VOUCHES\"` in `Tools/rbk/rbgc_Constants.sh:131`. OCI registries require lowercase repository/package names. The vouch pipeline's `assemble-push-vouch` step (`Tools/rbk/rbgjv/rbgjv03-assemble-push-vouch.sh`) constructs a tag like `...repository/VOUCHES:hallmark-vouch` which is rejected by GAR with: `repository name must be lowercase`.\n\nThis breaks the four-mode-integration test case (`rbtdrc_four_mode_supply_chain`) at the vouch step of every conjure.\n\n### Fix\n1. `Tools/rbk/rbgc_Constants.sh` — change `RBGC_VOUCHES_PACKAGE` from `\"VOUCHES\"` to `\"vouches\"`\n2. Spec/doc references in `RBS0-SpecTop.adoc`, `RBSAV-ark_vouch.adoc`, `RBSAP-ark_plumb.adoc`, `RBSGS-GettingStarted.adoc` — update tag table and prose references from `VOUCHES` to `vouches` where they appear as literal GAR package names\n3. Code comments in `rbfc_FoundryCore.sh`, `rbfv_FoundryVerify.sh` — update any literal `VOUCHES` references that describe the package name (not the concept)\n\n### Distinguish: package name vs concept name\nThe word \"VOUCHES\" appears in two roles: (a) as the literal GAR package name in tags/code, and (b) as a concept name in prose (\"the VOUCHES superdirectory\"). Only (a) must change to lowercase. Prose references to the concept (\"the VOUCHES superdirectory\") may retain caps for readability — use judgment per instance.\n\n### Verification\n- Run `tt/rbtd-s.TestSuite.service.sh` — four-mode-integration must pass (vouch step succeeds)\n- Confirm no orphaned uppercase artifacts need cleanup (they were from failed builds)",
-              "silks": "vouches-package-lowercase",
-              "commit": "b8745ff"
             }
           ]
         },
