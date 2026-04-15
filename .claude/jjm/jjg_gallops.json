@@ -546,6 +546,7 @@
       "creation_time": "260409",
       "status": "racing",
       "order": [
+        "₢A6AAd",
         "₢A6AAa",
         "₢A6AAc",
         "₢A6AAb",
@@ -576,7 +577,7 @@
         "₢A6AAM",
         "₢A6AAA"
       ],
-      "next_pace_seed": "AAd",
+      "next_pace_seed": "AAe",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
       "paces": {
         "₢A6AAA": {
@@ -1294,6 +1295,17 @@
               "text": "## Character\n\nInfrastructure build — extends the yelp architecture with the sentinel/format_capture pattern, then validates by converting `rbho_director_first_build` to pure yelp style (no legacy combinators). Mechanical implementation of a design refined through conversation; the sentinel concept and `buy_format_capture` API are decided.\n\n## Docket\n\n### Problem\n\nThe yelp infrastructure from ₢A6AAa introduced `buh_line` for vocabulary-in-prose, but handbook functions still intermingle old positional-color combinators (`buh_tTc`, `buh_ct`, `buh_tW`, etc.) with the new pattern. The combinators cannot express \"return to line default color after a yelp\" — they hard-reset to terminal default. This prevents yelp-aware semantic line functions (`buh_code`, `buh_warn`, `buh_error`) from maintaining their default color through embedded yelps.\n\n### Design (decided)\n\n**Sentinel constant** — `ZBUY_RSTL`: a non-printing byte sequence (e.g., `$'\\x01\\x1F\\x01'`) defined at buy kindle time. All `buy_*_capture` functions end their output with `ZBUY_RSTL` instead of hard reset. The sentinel means \"return to whatever the line function considers default.\"\n\n**buy_format_capture(default_style, string)** — the single interface between buy and buh. Replaces all `ZBUY_RSTL` occurrences with `default_style`, prepends `default_style`, appends hard reset. Returns the resolved string on stdout.\n\n**Semantic line functions** in `buh_handbook.sh`:\n- `buh_line` — prose (default = reset)\n- `buh_code` — command/code (default = cyan)\n- `buh_warn` — warning (default = bright yellow)\n- `buh_error` — error (default = bright red)\n\nEach is a thin wrapper: indent + `buy_format_capture(ZBUY_style, content)` + newline to stderr.\n\n**buy_tt_capture extension** — optional second arg for imprint resolution (replaces `buh_tI` combinator).\n\n### Validation\n\nConvert `rbho_director_first_build()` from mixed combinator+yelp style to pure yelp style. This function has heavy combinator usage across all semantic categories (prose, commands, probes, warnings). No legacy combinators should remain in the converted function.\n\n### Implementation files\n\n- `Tools/buk/buy_yelp.sh` — add `ZBUY_RSTL` sentinel, `buy_format_capture`, update all capture functions to use sentinel, extend `buy_tt_capture` with imprint\n- `Tools/buk/buh_handbook.sh` — add `buh_code`, `buh_warn`, `buh_error`; update `buh_line` to use `buy_format_capture`\n- `Tools/rbk/rbho_onboarding.sh` — convert `rbho_director_first_build()` to pure yelp style\n- `Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc` — update yelp quoin with sentinel, add format_capture\n\n### Open questions\n\n- **Color constant consolidation**: Currently `ZBUH_C`/`ZBUH_R`/etc. in buh and `ZBUY_C`/`ZBUY_R`/etc. in buy define the same ANSI sequences independently. The sentinel architecture has buh referencing `ZBUY_*` constants in its line wrappers, which naturally makes buy the single source of truth for color definitions. Should buh's color constants be retired in favor of buy's? This would make buh depend on buy being kindled first — acceptable for handbook output but may affect non-handbook buh consumers.\n- **No-color mode**: When `ZBUY_USE_HYPERLINKS=0`, the sentinel should resolve to empty string (no ANSI). Verify this works through `buy_format_capture`.\n\n### Out of scope\n\n- Removing legacy combinators from `buh_handbook.sh` (coexist indefinitely)\n- Converting other handbook functions beyond `rbho_director_first_build`\n- Converting non-handbook consumers of `buh_*` combinators",
               "silks": "sentinel-format-and-legacy-elimination",
               "commit": "bd9d484"
+            }
+          ]
+        },
+        "₢A6AAd": {
+          "tacks": [
+            {
+              "ts": "260415-1126",
+              "state": "rough",
+              "text": "## Character\n\nMechanical sweep — convert all remaining combinator calls in `rbho_onboarding.sh` to yawp + semantic line functions. Pattern is established by ₢A6AAc's conversion of `rbho_director_first_build`. Volume work across ~10 functions, each following the same recipe: replace `buh_tlt`/`buh_ct`/`buh_tT`/etc. with RBYC_* interpolation + `buyy_cmd_yawp`/`buyy_tt_yawp` + `buh_line`/`buh_code`/`buh_warn`/`buh_error`. Replace `buy_cmd_capture` with `buyy_cmd_yawp`. After conversion, remove legacy capture API from `buym_yelp.sh`.\n\n## Docket\n\nConvert all remaining combinator-style handbook functions in `Tools/rbk/rbho_onboarding.sh` to pure yelp style. Functions to convert: `rbho_start_here`, `rbho_crash_course`, `rbho_credential_retriever`, `rbho_credential_director`, `rbho_first_crucible`, `rbho_payor_handbook_stub`, `rbho_governor_handbook_stub`, and any other `rbho_*` functions still using combinators. After all consumers are migrated, remove legacy `buy_*_capture` functions, `zbuy_*` aliases, and `ZBUY_*` compatibility constants from `buym_yelp.sh`. Run BUK self-test suite to confirm no regressions.",
+              "silks": "onboarding-handbook-yelp-conversion",
+              "commit": "a842ed4"
             }
           ]
         }
