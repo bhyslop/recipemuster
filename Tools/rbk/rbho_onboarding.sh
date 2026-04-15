@@ -1538,21 +1538,19 @@ rbho_payor_handbook() {
   buc_doc_brief "Payor — establish a Manor and provision the Depot"
   buc_doc_shown || return 0
 
-  local -r z_docs="${RBRR_PUBLIC_DOCS_URL}"
-
   # --- Header ---
   buh_section "Payor — Establish a Manor and Provision the Depot"
   buh_e
-  buh_tltlt "The " "Payor" "${z_docs}#Payor" " establishes a " "Manor" "${z_docs}#Manor" " — an administrative seat"
-  buh_t   "holding the billing account, OAuth client, and operator identity."
-  buh_tlt "Unlike other roles that use service account keys, the " "Payor" "${z_docs}#Payor" ""
-  buh_t   "authenticates via OAuth — representing the human project owner."
+  buh_line "The ${RBYC_PAYOR} establishes a ${RBYC_MANOR} — an administrative seat"
+  buh_line "holding the billing account, OAuth client, and operator identity."
+  buh_line "Unlike other roles that use service account keys, the ${RBYC_PAYOR}"
+  buh_line "authenticates via OAuth — representing the human project owner."
   buh_e
-  buh_tltlt "By the end of this handbook you will have a " "Manor" "${z_docs}#Manor" ", a " "Depot" "${z_docs}#Depot" ""
-  buh_tlt "funded under it, and a " "Governor" "${z_docs}#Governor" " service account ready to administer it."
+  buh_line "By the end of this handbook you will have a ${RBYC_MANOR}, a ${RBYC_DEPOT}"
+  buh_line "funded under it, and a ${RBYC_GOVERNOR} service account ready to administer it."
   buh_e
 
-  buh_t   "This ceremony takes about 15 minutes."
+  buh_line "This ceremony takes about 15 minutes."
   buh_e
 
   buh_step_style "Step " " — "
@@ -1562,16 +1560,16 @@ rbho_payor_handbook() {
   # =================================================================
   buh_step1 "Establish the Manor"
   buh_e
-  buh_tlt "The " "Manor's" "${z_docs}#Manor" " GCP project hosts the OAuth client and billing"
-  buh_t   "account. It must be created before any infrastructure can be"
-  buh_t   "provisioned."
+  buh_line "The ${RBYC_MANORS} GCP project hosts the OAuth client and billing"
+  buh_line "account. It must be created before any infrastructure can be"
+  buh_line "provisioned."
   buh_e
-  buh_t   "Run the guided setup:"
-  buh_tT  "  " "${RBZ_PAYOR_ESTABLISH}"
+  buh_line "Run the guided setup:"
+  buh_tt  "  " "${RBZ_PAYOR_ESTABLISH}"
   buh_e
-  buh_tlt "This guides you through creating the " "Manor's" "${z_docs}#Manor" " GCP project,"
-  buh_tlt "enabling billing, and configuring the OAuth consent screen. The " "Manor" "${z_docs}#Manor" ""
-  buh_tlt "identity is recorded in " "RBRP" "${z_docs}#RBRP" "."
+  buh_line "This guides you through creating the ${RBYC_MANORS} GCP project,"
+  buh_line "enabling billing, and configuring the OAuth consent screen. The ${RBYC_MANOR}"
+  buh_line "identity is recorded in ${RBYC_RBRP}."
   buh_e
 
   # =================================================================
@@ -1579,16 +1577,16 @@ rbho_payor_handbook() {
   # =================================================================
   buh_step1 "Install OAuth credentials"
   buh_e
-  buh_t   "Step 1 ended with downloading a JSON client secret file from the"
-  buh_t   "OAuth client you just created. Install it:"
+  buh_line "Step 1 ended with downloading a JSON client secret file from the"
+  buh_line "OAuth client you just created. Install it:"
   buh_e
-  buh_tTc "  " "${RBZ_PAYOR_INSTALL}" " \${HOME}/Downloads/client_secret_*.json"
+  buh_tt  "  " "${RBZ_PAYOR_INSTALL}" "" " \${HOME}/Downloads/client_secret_*.json"
   buh_e
-  buh_t   "This walks you through the OAuth authorization flow and stores"
-  buh_t   "the credential securely."
+  buh_line "This walks you through the OAuth authorization flow and stores"
+  buh_line "the credential securely."
   buh_e
-  buh_t   "If you are refreshing an existing credential that has expired:"
-  buh_tT  "  " "${RBZ_PAYOR_REFRESH}"
+  buh_line "If you are refreshing an existing credential that has expired:"
+  buh_tt  "  " "${RBZ_PAYOR_REFRESH}"
   buh_e
 
   # =================================================================
@@ -1596,35 +1594,35 @@ rbho_payor_handbook() {
   # =================================================================
   buh_step1 "Provision the Depot"
   buh_e
-  buh_tlt "A " "Depot" "${z_docs}#Depot" " is the facility where container images are built and"
-  buh_t   "stored — a GCP project with a container repository, storage bucket,"
-  buh_tlt "and build infrastructure, funded under the " "Manor's" "${z_docs}#Manor" " billing account."
-  buh_tltlt "A " "Governor" "${z_docs}#Governor" " administers the " "Depot" "${z_docs}#Depot" " — creating"
-  buh_tltlt "" "Retriever" "${z_docs}#Retriever" " and " "Director" "${z_docs}#Director" " accounts for those who build and"
-  buh_t   "retrieve container images."
+  buh_line "A ${RBYC_DEPOT} is the facility where container images are built and"
+  buh_line "stored — a GCP project with a container repository, storage bucket,"
+  buh_line "and build infrastructure, funded under the ${RBYC_MANORS} billing account."
+  buh_line "A ${RBYC_GOVERNOR} administers the ${RBYC_DEPOT} — creating"
+  buh_line "${RBYC_RETRIEVER} and ${RBYC_DIRECTOR} accounts for those who build and"
+  buh_line "retrieve container images."
   buh_e
-  buh_tlt "" "Payor" "${z_docs}#Payor" " creates the Depot:"
-  buh_tT  "  " "${RBZ_LEVY_DEPOT}"
+  buh_line "${RBYC_PAYOR} creates the Depot:"
+  buh_tt  "  " "${RBZ_LEVY_DEPOT}"
   buh_e
-  buh_t   "This enables APIs, creates the Artifact Registry repository and"
-  buh_t   "Cloud Storage bucket, and configures Cloud Build."
+  buh_line "This enables APIs, creates the Artifact Registry repository and"
+  buh_line "Cloud Storage bucket, and configures Cloud Build."
   buh_e
-  buh_tlt "" "Payor" "${z_docs}#Payor" " can list Depots for verification:"
-  buh_tT  "  " "${RBZ_LIST_DEPOT}"
+  buh_line "${RBYC_PAYOR} can list Depots for verification:"
+  buh_tt  "  " "${RBZ_LIST_DEPOT}"
   buh_e
-  buh_tlt "" "Payor" "${z_docs}#Payor" " creates the Governor service account:"
-  buh_tT  "  " "${RBZ_MANTLE_GOVERNOR}"
+  buh_line "${RBYC_PAYOR} creates the Governor service account:"
+  buh_tt  "  " "${RBZ_MANTLE_GOVERNOR}"
   buh_e
-  buh_t   "Hand the resulting key file to the person who will administer"
-  buh_tltltlt "this " "Depot" "${z_docs}#Depot" ". After this handoff, the " "Governor" "${z_docs}#Governor" " can create"
-  "" "Retriever" "${z_docs}#Retriever" " and " "Director" "${z_docs}#Director" " accounts independently."
+  buh_line "Hand the resulting key file to the person who will administer"
+  buh_line "this ${RBYC_DEPOT}. After this handoff, the ${RBYC_GOVERNOR} can create"
+  buh_line "${RBYC_RETRIEVER} and ${RBYC_DIRECTOR} accounts independently."
   buh_e
-  buh_tltlt "The " "Payor's" "${z_docs}#Payor" " job for this " "Depot" "${z_docs}#Depot" " is done unless billing or"
-  buh_t   "project-level changes are needed."
+  buh_line "The ${RBYC_PAYORS} job for this ${RBYC_DEPOT} is done unless billing or"
+  buh_line "project-level changes are needed."
   buh_e
 
   # --- Return to start ---
-  buh_tT  "Return to start: " "${RBZ_ONBOARD_START_HERE}"
+  buh_tt  "Return to start: " "${RBZ_ONBOARD_START_HERE}"
   buh_e
 }
 
@@ -1640,13 +1638,11 @@ rbho_governor_handbook() {
   buc_doc_brief "Governor — administer service accounts for directors and retrievers"
   buc_doc_shown || return 0
 
-  local -r z_docs="${RBRR_PUBLIC_DOCS_URL}"
-
   # --- Header ---
   buh_section "Governor — Administer Service Accounts"
   buh_e
-  buh_tltlt "A " "Governor" "${z_docs}#Governor" " administers a " "Depot" "${z_docs}#Depot" " — creating service accounts"
-  buh_t   "and managing access for those who build and run container images."
+  buh_line "A ${RBYC_GOVERNOR} administers a ${RBYC_DEPOT} — creating service accounts"
+  buh_line "and managing access for those who build and run container images."
   buh_e
 
   buh_step_style "Step " " — "
@@ -1656,16 +1652,16 @@ rbho_governor_handbook() {
   # =================================================================
   buh_step1 "Install governor credentials"
   buh_e
-  buh_tltlt "The " "Governor" "${z_docs}#Governor" " works within a " "Depot" "${z_docs}#Depot" " provisioned under the"
-  buh_tltlt "" "Payor's" "${z_docs}#Payor" " " "Manor" "${z_docs}#Manor" ". Your Payor creates your credential by running:"
-  buh_tT  "  " "${RBZ_MANTLE_GOVERNOR}"
+  buh_line "The ${RBYC_GOVERNOR} works within a ${RBYC_DEPOT} provisioned under the"
+  buh_line "${RBYC_PAYORS} ${RBYC_MANOR}. Your Payor creates your credential by running:"
+  buh_tt  "  " "${RBZ_MANTLE_GOVERNOR}"
   buh_e
-  buh_tltlt "If no " "Depot" "${z_docs}#Depot" " exists yet, the " "Payor" "${z_docs}#Payor" " establishes one first:"
-  buh_tT  "  " "${RBZ_ONBOARD_PAYOR_HB}"
+  buh_line "If no ${RBYC_DEPOT} exists yet, the ${RBYC_PAYOR} establishes one first:"
+  buh_tt  "  " "${RBZ_ONBOARD_PAYOR_HB}"
   buh_e
-  buh_t   "Install the resulting key file into the secrets directory under"
-  buh_t   "the governor role subdirectory. The path is derived from your"
-  buh_tlt "" "RBRR" "${z_docs}#RBRR" " configuration — check RBRR_SECRETS_DIR for the location."
+  buh_line "Install the resulting key file into the secrets directory under"
+  buh_line "the governor role subdirectory. The path is derived from your"
+  buh_line "${RBYC_RBRR} configuration — check RBRR_SECRETS_DIR for the location."
   buh_e
 
   # =================================================================
@@ -1673,25 +1669,25 @@ rbho_governor_handbook() {
   # =================================================================
   buh_step1 "Provision downstream service accounts"
   buh_e
-  buh_t   "The governor provisions access for two downstream roles:"
+  buh_line "The governor provisions access for two downstream roles:"
   buh_e
-  buh_tltlt "A " "Retriever" "${z_docs}#Retriever" " has read access to the " "Depot" "${z_docs}#Depot" " — they pull and run"
-  buh_t   "container images that others have built."
-  buh_tlt "A " "Director" "${z_docs}#Director" " has build and publish access — they create container"
-  buh_t   "images and push them to the registry."
+  buh_line "A ${RBYC_RETRIEVER} has read access to the ${RBYC_DEPOT} — they pull and run"
+  buh_line "container images that others have built."
+  buh_line "A ${RBYC_DIRECTOR} has build and publish access — they create container"
+  buh_line "images and push them to the registry."
   buh_e
-  buh_tltlt "Create a " "Retriever" "${z_docs}#Retriever" " with read access (" "Charter" "${z_docs}#Charter" "):"
-  buh_tT  "  " "${RBZ_CHARTER_RETRIEVER}"
+  buh_line "Create a ${RBYC_RETRIEVER} with read access (${RBYC_CHARTER}):"
+  buh_tt  "  " "${RBZ_CHARTER_RETRIEVER}"
   buh_e
-  buh_tltlt "Create a " "Director" "${z_docs}#Director" " with build access (" "Knight" "${z_docs}#Knight" "):"
-  buh_tT  "  " "${RBZ_KNIGHT_DIRECTOR}"
+  buh_line "Create a ${RBYC_DIRECTOR} with build access (${RBYC_KNIGHT}):"
+  buh_tt  "  " "${RBZ_KNIGHT_DIRECTOR}"
   buh_e
-  buh_t   "Each command creates the service account and applies the IAM"
-  buh_tlt "grants it needs. The output is an " "RBRA" "${z_docs}#RBRA" " key file — hand it to"
-  buh_t   "the Retriever or Director user."
+  buh_line "Each command creates the service account and applies the IAM"
+  buh_line "grants it needs. The output is an ${RBYC_RBRA} key file — hand it to"
+  buh_line "the Retriever or Director user."
   buh_e
-  buh_t   "List issued service accounts:"
-  buh_tT  "  " "${RBZ_LIST_SERVICE_ACCOUNTS}"
+  buh_line "List issued service accounts:"
+  buh_tt  "  " "${RBZ_LIST_SERVICE_ACCOUNTS}"
   buh_e
 
   # =================================================================
@@ -1699,22 +1695,22 @@ rbho_governor_handbook() {
   # =================================================================
   buh_step1 "Verify the chain"
   buh_e
-  buh_t   "The service accounts you created include IAM grants — each SA"
-  buh_t   "gets exactly the permissions its role requires, no more."
-  buh_tlt "" "Retriever" "${z_docs}#Retriever" " gets read access."
-  buh_tlt "" "Director" "${z_docs}#Director" " gets read, write, and build trigger access."
+  buh_line "The service accounts you created include IAM grants — each SA"
+  buh_line "gets exactly the permissions its role requires, no more."
+  buh_line "${RBYC_RETRIEVER} gets read access."
+  buh_line "${RBYC_DIRECTOR} gets read, write, and build trigger access."
   buh_e
-  buh_t   "Verify the complete chain works by installing both credentials"
-  buh_t   "locally and running the credential handbook tracks:"
-  buh_tT  "  " "${RBZ_ONBOARD_CRED_RETRIEVER}"
-  buh_tT  "  " "${RBZ_ONBOARD_CRED_DIRECTOR}"
+  buh_line "Verify the complete chain works by installing both credentials"
+  buh_line "locally and running the credential handbook tracks:"
+  buh_tt  "  " "${RBZ_ONBOARD_CRED_RETRIEVER}"
+  buh_tt  "  " "${RBZ_ONBOARD_CRED_DIRECTOR}"
   buh_e
-  buh_tltlt "If the " "Retriever" "${z_docs}#Retriever" " can pull from the " "Depot" "${z_docs}#Depot" " and the"
-  buh_tlt "" "Director" "${z_docs}#Director" " can see the registry, your grants are correct."
+  buh_line "If the ${RBYC_RETRIEVER} can pull from the ${RBYC_DEPOT} and the"
+  buh_line "${RBYC_DIRECTOR} can see the registry, your grants are correct."
   buh_e
 
   # --- Return to start ---
-  buh_tT  "Return to start: " "${RBZ_ONBOARD_START_HERE}"
+  buh_tt  "Return to start: " "${RBZ_ONBOARD_START_HERE}"
   buh_e
 }
 
