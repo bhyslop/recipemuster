@@ -53,6 +53,9 @@ ZBUH_INCLUDED=1
 zbuh_kindle() {
   test -z "${ZBUH_KINDLED:-}" || return 0
 
+  # Ensure yelp module is kindled — buh_section/buh_line/buh_code use BUYC_* constants
+  zbuym_sentinel
+
   # Color support detection
   local z_use_color=0
   if test -z "${NO_COLOR:-}" && test -n "${TERM:-}" && test "${TERM}" != "dumb"; then
