@@ -12,7 +12,8 @@
 >
 > The [Crucible](#Crucible) runtime containment — a multi-container apparatus where the workload runs unprivileged in a network namespace it does not control — has also not had broad review, particularly the network isolation rules, privileged namespace setup, and egress enforcement.
 >
-> If you evaluate or deploy this, you are contributing to its hardening. Security-focused contributors and responsible disclosure are especially valued.
+> If you evaluate or deploy this, you are contributing to its hardening.
+> Security-focused contributors and responsible disclosure are especially valued.
 
 [Recipe Bottle](#RecipeBottle) is a set of bash scripts enabling enterprise grade container image management intended for incorporation into any project.
 The dependency footprint is deliberately narrow — `bash 3.2` and a handful of standard tools — with no Python runtime, no language-specific package manager, and no `gcloud` CLI.
@@ -47,7 +48,9 @@ Handbooks don't [Log](#Log) — teaching output is ephemeral.
 <a id="Transcript"></a>A [Transcript](#Transcript) is a single file capturing key decision points and state transitions within a [Tabtarget's](#Tabtarget) execution.
 Where [Logs](#Log) preserve full terminal output, a [Transcript](#Transcript) records the structured progress of sophisticated orchestration commands — the first thing to read when debugging a multi-step failure.
 
-<a id="Output"></a>The [Output](#Output) directory is a fixed-path staging area cleared and recreated before each [Tabtarget](#Tabtarget) runs. Commands that produce artifacts write them here. Concurrent bash sessions share this path, so parallel commands can overwrite each other's [Output](#Output).
+<a id="Output"></a>The [Output](#Output) directory is a fixed-path staging area cleared and recreated before each [Tabtarget](#Tabtarget) runs.
+Commands that produce artifacts write them here.
+Concurrent bash sessions share this path, so parallel commands can overwrite each other's [Output](#Output).
 
 To begin, run the onboarding walkthrough:
 
@@ -74,7 +77,9 @@ Each [Depot](#Depot) operates as an independent supply-chain boundary with its o
 Each [Depot](#Depot) supports two build egress profiles:
 
 - <a id="Tethered"></a>**[Tethered](#Tethered)** — Build egress mode allowing public internet access during Cloud Build. [Tethered](#Tethered) builds pull base images from upstream registries at build time — simpler to set up, but dependent on upstream availability.
-- <a id="Airgap"></a>**[Airgap](#Airgap)** — Build egress mode with no public internet access during Cloud Build. [Airgap](#Airgap) builds draw all dependencies from [Enshrined](#Enshrine) images in the [Depot's](#Depot) registry — fully self-contained, independent of upstream availability. Requires [Enshrining](#Enshrine) base images before the first build.
+- <a id="Airgap"></a>**[Airgap](#Airgap)** — Build egress mode with no public internet access during Cloud Build.
+[Airgap](#Airgap) builds draw all dependencies from [Enshrined](#Enshrine) images in the [Depot's](#Depot) registry — fully self-contained, independent of upstream availability.
+Requires [Enshrining](#Enshrine) base images before the first build.
 See [Build Isolation](#BuildIsolation) for the security rationale behind these profiles.
 
 ### <a id="Manor"></a>Manor
@@ -188,9 +193,15 @@ Each [Nameplate](#Nameplate) declares its [Vessel](#Vessel) selections, [Hallmar
 
 ### Containers
 
-- <a id="Sentry"></a>**[Sentry](#Sentry)** — Security container enforcing network policies via `iptables` and `dnsmasq`. The [Sentry](#Sentry) applies two layers of egress policy: DNS-level filtering (only allowed domain names resolve) and IP-level filtering (only allowed CIDR ranges pass). A compromised [Bottle](#Bottle) cannot bypass either layer — the [Sentry](#Sentry) is the sole gateway between the [Bottle](#Bottle) and the outside network.
-- <a id="Pentacle"></a>**[Pentacle](#Pentacle)** — Privileged container establishing the network namespace shared with the [Bottle](#Bottle). The [Pentacle](#Pentacle) runs briefly with elevated privileges to create the network topology, then remains as the namespace anchor. Security policies are enforced from the first packet because the [Sentry](#Sentry) configures the namespace before the [Bottle](#Bottle) starts.
-- <a id="Bottle"></a>**[Bottle](#Bottle)** — Your workload container, running unmodified in a controlled network environment. The [Bottle](#Bottle) has no direct network access — all traffic routes through the [Sentry](#Sentry) gateway in a namespace prepared by the [Pentacle](#Pentacle). Any existing container image can run as a [Bottle](#Bottle) without modification.
+- <a id="Sentry"></a>**[Sentry](#Sentry)** — Security container enforcing network policies via `iptables` and `dnsmasq`.
+The [Sentry](#Sentry) applies two layers of egress policy: DNS-level filtering (only allowed domain names resolve) and IP-level filtering (only allowed CIDR ranges pass).
+A compromised [Bottle](#Bottle) cannot bypass either layer — the [Sentry](#Sentry) is the sole gateway between the [Bottle](#Bottle) and the outside network.
+- <a id="Pentacle"></a>**[Pentacle](#Pentacle)** — Privileged container establishing the network namespace shared with the [Bottle](#Bottle).
+The [Pentacle](#Pentacle) runs briefly with elevated privileges to create the network topology, then remains as the namespace anchor.
+Security policies are enforced from the first packet because the [Sentry](#Sentry) configures the namespace before the [Bottle](#Bottle) starts.
+- <a id="Bottle"></a>**[Bottle](#Bottle)** — Your workload container, running unmodified in a controlled network environment.
+The [Bottle](#Bottle) has no direct network access — all traffic routes through the [Sentry](#Sentry) gateway in a namespace prepared by the [Pentacle](#Pentacle).
+Any existing container image can run as a [Bottle](#Bottle) without modification.
 
 ### Crucible Lifecycle
 
@@ -373,8 +384,12 @@ Formal definitions for all [Crucible](#Crucible) operations.
 
 The [Crucible's](#Crucible) containment is validated through coordinated escape testing using two components:
 
-- <a id="Ifrit"></a>**[Ifrit](#Ifrit)** — Adversarial attack [Vessel](#Vessel) purpose-built to run inside a [Bottle](#Bottle), seeking escape. The [Ifrit](#Ifrit) carries scapy (arbitrary packet construction), strace (syscall boundary probing), and a minimal footprint — tools chosen to probe every surface the [Sentry's](#Sentry) containment exposes. Named for the djinn imprisoned in a bottle.
-- <a id="Theurge"></a>**[Theurge](#Theurge)** — Test orchestrator running on the host, outside the [Crucible](#Crucible). The [Theurge](#Theurge) [Charges](#Charge) a [Crucible](#Crucible) with the [Ifrit](#Ifrit) as its [Bottle](#Bottle), then dispatches curated, reproducible, version-controlled attack scripts targeting specific surfaces: DNS exfiltration, ICMP covert channels, cloud metadata probing, namespace breakout, and direct IP bypass attempts. Each attack runs inside the [Bottle](#Bottle) while the [Theurge](#Theurge) simultaneously observes the [Sentry's](#Sentry) network from outside — confirming that blocked traffic is actually blocked, not merely unrequested.
+- <a id="Ifrit"></a>**[Ifrit](#Ifrit)** — Adversarial attack [Vessel](#Vessel) purpose-built to run inside a [Bottle](#Bottle), seeking escape.
+The [Ifrit](#Ifrit) carries scapy (arbitrary packet construction), strace (syscall boundary probing), and a minimal footprint — tools chosen to probe every surface the [Sentry's](#Sentry) containment exposes.
+Named for the djinn imprisoned in a bottle.
+- <a id="Theurge"></a>**[Theurge](#Theurge)** — Test orchestrator running on the host, outside the [Crucible](#Crucible).
+The [Theurge](#Theurge) [Charges](#Charge) a [Crucible](#Crucible) with the [Ifrit](#Ifrit) as its [Bottle](#Bottle), then dispatches curated, reproducible, version-controlled attack scripts targeting specific surfaces: DNS exfiltration, ICMP covert channels, cloud metadata probing, namespace breakout, and direct IP bypass attempts.
+Each attack runs inside the [Bottle](#Bottle) while the [Theurge](#Theurge) simultaneously observes the [Sentry's](#Sentry) network from outside — confirming that blocked traffic is actually blocked, not merely unrequested.
 
 The escape tests were developed through adversarial Claude Code sessions with full visibility into the [Sentry's](#Sentry) source, configuration, and the [Recipe Bottle](#RecipeBottle) specification.
 The [Ifrit](#Ifrit) [Vessel](#Vessel) is the delivery vehicle; the intelligence came from the authoring process.
@@ -442,15 +457,31 @@ No framework mandates build-time network blocking by name, but egress-locked bui
 
 The following features are not yet implemented but are under consideration:
 
-- **VPC Service Controls** - Google Cloud security perimeters that prevent data from being copied out of a project even if an attacker holds valid credentials. [Recipe Bottle's](#RecipeBottle) Cloud Build architecture uses private pools, which are the prerequisite for VPC enforcement; enabling the controls themselves is deferred until organizational policy or external distribution requires them.
+- **Crucible conduit for cloud services** - Encrypted tunnel from the [Sentry](#Sentry) to a VPC hosting PrivateLink endpoints, enabling [Bottles](#Bottle) to reach cloud AI services (AWS Bedrock, Vertex AI, Azure OpenAI) without exposing floating cloud IP ranges in the CIDR allowlist.
+WireGuard terminated at the [Sentry](#Sentry) replaces per-service IP tracking with a single stable VPC CIDR.
+Near-term, allowlist-only [Nameplates](#Nameplate) targeting specific service CIDRs and domains work today with existing [Sentry](#Sentry) machinery.
+The tunnel adds defense-in-depth for PrivateLink-capable services; SaaS endpoints without PrivateLink (GitHub.com, GitLab.com) remain served by CIDR/domain allowlisting.
 
-- **Cosign container signing** - Cryptographic image signatures independent of registry trust. Deferred alongside VPC Service Controls until external distribution triggers the need.
+- **Credential confinement** - Move cloud service credentials (API keys, IAM keys, SSH keys) from the operator's workstation into the [Crucible](#Crucible), injected via [Nameplate](#Nameplate) [Regime](#Regime) configuration.
+The workstation starts the [Crucible](#Crucible) but never holds service credentials — reducing the attack surface from "everything on the workstation" to "one minimal container."
+Naturally paired with conduit work: credentials and network access are configured together.
 
-- **CDN-aware IP gating** - When allowed domains are CDN-hosted (e.g. Cloudflare), the [Sentry's](#Sentry) CIDR allowlist becomes coarse: DNS-level gating remains precise, but IP-level gating is porous across shared CDN address ranges. A tighter mechanism is recognized but not yet designed.
+- **VPC Service Controls** - Google Cloud security perimeters that prevent data from being copied out of a project even if an attacker holds valid credentials.
+[Recipe Bottle's](#RecipeBottle) Cloud Build architecture uses private pools, which are the prerequisite for VPC enforcement; enabling the controls themselves is deferred until organizational policy or external distribution requires them.
+If a VPC is stood up for the crucible conduit architecture, the VPC-SC perimeter should serve both Cloud Build [egress lockdown](#BuildIsolation) and [Bottle](#Bottle) conduit consumers.
 
-- **Podman support** - The spec accommodates Podman as an alternative container runtime, but support is deferred. On macOS, both Docker and Podman run Linux containers inside a hidden Linux VM — there is no native container runtime on Darwin. Podman support would require managing that VM's lifecycle within the customer's [Depot](#Depot), adding infrastructure complexity with no architectural advantage over Docker Desktop.
+- **Cosign container signing** - Cryptographic image signatures independent of registry trust.
+Deferred alongside VPC Service Controls until external distribution triggers the need.
 
-- **[Crucible](#Crucible)-to-[Crucible](#Crucible) networking** - Under the current [Sentry](#Sentry) model, [Bottles](#Bottle) have no direct network path to each other; any inter-[Bottle](#Bottle) communication would route through their respective [Sentries](#Sentry). The plumbing is feasible but not implemented, pending a concrete use case.
+- **CDN-aware IP gating** - When allowed domains are CDN-hosted (e.g. Cloudflare), the [Sentry's](#Sentry) CIDR allowlist becomes coarse: DNS-level gating remains precise, but IP-level gating is porous across shared CDN address ranges.
+A tighter mechanism is recognized but not yet designed.
+
+- **Podman support** - The spec accommodates Podman as an alternative container runtime, but support is deferred.
+On macOS, both Docker and Podman run Linux containers inside a hidden Linux VM — there is no native container runtime on Darwin.
+Podman support would require managing that VM's lifecycle within the customer's [Depot](#Depot), adding infrastructure complexity with no architectural advantage over Docker Desktop.
+
+- **[Crucible](#Crucible)-to-[Crucible](#Crucible) networking** - Under the current [Sentry](#Sentry) model, [Bottles](#Bottle) have no direct network path to each other; any inter-[Bottle](#Bottle) communication would route through their respective [Sentries](#Sentry).
+The plumbing is feasible but not implemented, pending a concrete use case.
 
 ## Appendix: Reference Project
 
