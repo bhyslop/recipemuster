@@ -33,7 +33,8 @@ rbhw_docker_wsl_native() {
   test -n "${z_distro}" || buc_die "rbhw_docker_wsl_native: distro-name required"
 
   buh_section  "Native Docker Daemon in WSL"
-  buyy_cmd_yawp "${z_distro}"; buh_line "Install and run dockerd natively inside WSL distro ${z_buym_yelp}."
+  buyy_cmd_yawp "${z_distro}"; local -r z_distro_yelp="${z_buym_yelp}"
+  buh_line "Install and run dockerd natively inside WSL distro ${z_distro_yelp}."
   buh_e
   buh_step1    "Enter the Distribution:"
   buh_code     "wsl -d ${z_distro}"

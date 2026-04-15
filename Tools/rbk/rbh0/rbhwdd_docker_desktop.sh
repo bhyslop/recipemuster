@@ -36,8 +36,10 @@ rbhw_docker_desktop() {
   buh_link     "" "Docker Desktop for Windows" "https://www.docker.com/products/docker-desktop/"
   buh_e
   buh_step1    "Enable WSL Integration:"
-  buyy_ui_yawp "WSL Integration"; buh_line "In Docker Desktop Settings > Resources > ${z_buym_yelp}"
-  buyy_ui_yawp "Enable integration with my default WSL distro"; buh_line "Enable ${z_buym_yelp}"
+  buyy_ui_yawp "WSL Integration"; local -r z_wsl_int="${z_buym_yelp}"
+  buh_line "In Docker Desktop Settings > Resources > ${z_wsl_int}"
+  buyy_ui_yawp "Enable integration with my default WSL distro"; local -r z_wsl_distro="${z_buym_yelp}"
+  buh_line "Enable ${z_wsl_distro}"
   buh_e
   buh_step1    "Start Docker Desktop:"
   buh_line     "Launch Docker Desktop from the Start menu or system tray."

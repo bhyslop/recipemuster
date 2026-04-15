@@ -32,7 +32,8 @@
 #
 # Callers compose lines from yelp yawp captures (buyy_*_yawp)
 # and pass the pre-rendered string to buh_line:
-#   buyy_cmd_yawp "gcloud"; buh_line "Run ${z_buym_yelp} to authenticate."
+#   buyy_cmd_yawp "gcloud"; local -r z_cmd="${z_buym_yelp}"
+#   buh_line "Run ${z_cmd} to authenticate."
 
 set -euo pipefail
 

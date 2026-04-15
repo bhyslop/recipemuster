@@ -83,7 +83,8 @@ buhw_access_base() {
   buh_code     "New-NetFirewallRule -Name ${ZBUHW_FW_RULE_NAME} -DisplayName \"${ZBUHW_FW_DISPLAY_NAME}\" -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort ${ZBUHW_SSH_PORT}"
   buh_e
   buh_step1    "Configure sshd_config:"
-  buyy_cmd_yawp "${ZBUHW_SSHD_CONFIG}"; buh_line "File: ${z_buym_yelp}"
+  buyy_cmd_yawp "${ZBUHW_SSHD_CONFIG}"; local -r z_sshd_config_yelp="${z_buym_yelp}"
+  buh_line     "File: ${z_sshd_config_yelp}"
   buh_line     "This file is SYSTEM-owned. Edit a temp copy, then replace."
   buh_e
   buh_step2    "Copy to editable location:"
@@ -141,16 +142,21 @@ buhw_access_remote() {
   buh_line     "Provision client with a dedicated key and deterministic host config."
   buh_e
   buh_section  "Parameters:"
-  buyy_cmd_yawp "${z_host}"; buh_line "  Host:     ${z_buym_yelp}"
-  buyy_cmd_yawp "${z_user}"; buh_line "  User:     ${z_buym_yelp}"
-  buyy_cmd_yawp "${z_key_name}"; buh_line "  Key name: ${z_buym_yelp}"
-  buyy_cmd_yawp "${z_alias}"; buh_line "  Alias:    ${z_buym_yelp}"
+  buyy_cmd_yawp "${z_host}"; local -r z_host_yelp="${z_buym_yelp}"
+  buh_line     "  Host:     ${z_host_yelp}"
+  buyy_cmd_yawp "${z_user}"; local -r z_user_yelp="${z_buym_yelp}"
+  buh_line     "  User:     ${z_user_yelp}"
+  buyy_cmd_yawp "${z_key_name}"; local -r z_key_name_yelp="${z_buym_yelp}"
+  buh_line     "  Key name: ${z_key_name_yelp}"
+  buyy_cmd_yawp "${z_alias}"; local -r z_alias_yelp="${z_buym_yelp}"
+  buh_line     "  Alias:    ${z_alias_yelp}"
   buh_e
   buh_step1    "Generate Key:"
   buh_code     "ssh-keygen -t ed25519 -f ~/.ssh/${z_key_name}"
   buh_e
   buh_step1    "Create SSH Config Entry:"
-  buyy_cmd_yawp "~/.ssh/config"; buh_line "Add to ${z_buym_yelp}"
+  buyy_cmd_yawp "~/.ssh/config"; local -r z_ssh_config_yelp="${z_buym_yelp}"
+  buh_line     "Add to ${z_ssh_config_yelp}"
   buh_e
   buh_code     "Host ${z_alias}"
   buh_code     "  HostName ${z_host}"
@@ -159,7 +165,8 @@ buhw_access_remote() {
   buh_e
   buh_step1    "Copy Public Key to Host:"
   buh_line     "The public key must be added to the host's authorized_keys."
-  buyy_cmd_yawp "cat ~/.ssh/${z_key_name}.pub"; buh_line "Display the key: ${z_buym_yelp}"
+  buyy_cmd_yawp "cat ~/.ssh/${z_key_name}.pub"; local -r z_pubkey_cmd_yelp="${z_buym_yelp}"
+  buh_line     "Display the key: ${z_pubkey_cmd_yelp}"
   buh_line     "Copy the output for use in the entrypoints procedure."
   buh_e
   buh_section  "Verification:"
@@ -183,15 +190,18 @@ buhw_access_entrypoints() {
   buh_line     "- Public keys available from access-remote"
   buh_e
   buh_step1    "Edit Administrators Authorized Keys:"
-  buyy_cmd_yawp "${ZBUHW_ADMIN_AUTH_KEYS}"; buh_line "File: ${z_buym_yelp}"
+  buyy_cmd_yawp "${ZBUHW_ADMIN_AUTH_KEYS}"; local -r z_admin_auth_keys_yelp="${z_buym_yelp}"
+  buh_line     "File: ${z_admin_auth_keys_yelp}"
   buh_line     "Add one line per environment, prefixed with command= directive:"
   buh_e
   buh_code     "command=\"${ZBUHW_CYGWIN_BASH} -l\" ssh-ed25519 AAAA... cygwin"
   buh_code     "command=\"wsl.exe -d DISTRO\"        ssh-ed25519 BBBB... wsl"
   buh_code     "command=\"powershell.exe\"            ssh-ed25519 CCCC... windows"
   buh_e
-  buyy_ui_yawp "DISTRO"; buh_line "Replace ${z_buym_yelp} with your WSL distribution name."
-  buyy_ui_yawp "AAAA.../BBBB.../CCCC..."; buh_line "Replace ${z_buym_yelp} with actual public key content."
+  buyy_ui_yawp "DISTRO"; local -r z_distro_placeholder_yelp="${z_buym_yelp}"
+  buh_line     "Replace ${z_distro_placeholder_yelp} with your WSL distribution name."
+  buyy_ui_yawp "AAAA.../BBBB.../CCCC..."; local -r z_key_placeholders_yelp="${z_buym_yelp}"
+  buh_line     "Replace ${z_key_placeholders_yelp} with actual public key content."
   buh_e
   buh_step1    "Set File Permissions:"
   buh_line     "Run in an elevated PowerShell:"
@@ -216,7 +226,8 @@ buhw_environment_wsl() {
   test -n "${z_distro}" || buc_die "buhw_environment_wsl: distro-name required"
 
   buh_section  "WSL Distribution Setup"
-  buyy_cmd_yawp "${z_distro}"; buh_line "Create canonical Linux environment: ${z_buym_yelp}"
+  buyy_cmd_yawp "${z_distro}"; local -r z_distro_create_yelp="${z_buym_yelp}"
+  buh_line     "Create canonical Linux environment: ${z_distro_create_yelp}"
   buh_e
   buh_step1    "Enable WSL (if not already):"
   buh_line     "Run in an elevated PowerShell:"
@@ -230,7 +241,8 @@ buhw_environment_wsl() {
   buh_code     "wsl --import ${z_distro} C:\\\\WSL\\\\${z_distro} ubuntu.tar"
   buh_e
   buh_step1    "Enable systemd:"
-  buyy_cmd_yawp "${z_distro}"; buh_line "Inside the distro (wsl -d ${z_buym_yelp}):"
+  buyy_cmd_yawp "${z_distro}"; local -r z_distro_inside_yelp="${z_buym_yelp}"
+  buh_line     "Inside the distro (wsl -d ${z_distro_inside_yelp}):"
   buh_code     "sudo nano /etc/wsl.conf"
   buh_line     "Add:"
   buh_code     "[boot]"
@@ -256,7 +268,8 @@ buhw_environment_cygwin() {
   buh_e
   buh_step1    "Download and Run Cygwin Installer:"
   buh_link     "" "Cygwin Setup (64-bit)" "https://cygwin.com/setup-x86_64.exe"
-  buyy_cmd_yawp "${ZBUHW_CYGWIN_ROOT}"; buh_line "Install to: ${z_buym_yelp}"
+  buyy_cmd_yawp "${ZBUHW_CYGWIN_ROOT}"; local -r z_cygwin_root_yelp="${z_buym_yelp}"
+  buh_line     "Install to: ${z_cygwin_root_yelp}"
   buh_e
   buh_step1    "Required Packages:"
   buh_line     "Select these during installation:"

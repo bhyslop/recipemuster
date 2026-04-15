@@ -31,8 +31,10 @@ rbhw_top() {
 
   buh_section  "Windows Test Infrastructure Setup"
   buh_line     "Complete setup sequence for running Recipe Bottle tests on a Windows host."
-  buyy_cmd_yawp "${ZRBHW_WSL_DISTRO}"; buh_line "   Target WSL distro: ${z_buym_yelp}"
-  buyy_cmd_yawp "${ZRBHW_DOCKER_CONTEXT}"; buh_line "   Docker context:    ${z_buym_yelp}"
+  buyy_cmd_yawp "${ZRBHW_WSL_DISTRO}"; local -r z_wsl_distro_yelp="${z_buym_yelp}"
+  buh_line "   Target WSL distro: ${z_wsl_distro_yelp}"
+  buyy_cmd_yawp "${ZRBHW_DOCKER_CONTEXT}"; local -r z_docker_context_yelp="${z_buym_yelp}"
+  buh_line "   Docker context:    ${z_docker_context_yelp}"
   buh_e
   buh_section  "Phase 1: SSH Access (BUK — generic OS)"
   buh_tt       "  1. OpenSSH server install & lockdown:  " "${BUWZ_HW_ACCESS_BASE}"
@@ -41,7 +43,8 @@ rbhw_top() {
   buh_e
   buh_section  "Phase 2: Environments (BUK — generic OS)"
   buh_tt       "  4. WSL distribution setup:             " "${BUWZ_HW_ENV_WSL}"
-  buyy_cmd_yawp "${ZRBHW_WSL_DISTRO}"; buh_line "     Pass distro name: ${z_buym_yelp}"
+  buyy_cmd_yawp "${ZRBHW_WSL_DISTRO}"; local -r z_wsl_distro_env_yelp="${z_buym_yelp}"
+  buh_line "     Pass distro name: ${z_wsl_distro_env_yelp}"
   buh_tt       "  5. Cygwin installation:                " "${BUWZ_HW_ENV_CYGWIN}"
   buh_e
   buh_section  "Phase 3: User Provisioning (JJK — fundus accounts)"
@@ -52,7 +55,8 @@ rbhw_top() {
   buh_section  "Phase 4: Docker (RBK — project-specific)"
   buh_tt       "  7. Docker Desktop install:             " "${RBZ_HW_DOCKER_DESKTOP}"
   buh_tt       "  8. Native dockerd in WSL:              " "${RBZ_HW_DOCKER_WSL_NATIVE}"
-  buyy_cmd_yawp "${ZRBHW_WSL_DISTRO}"; buh_line "     Pass distro name: ${z_buym_yelp}"
+  buyy_cmd_yawp "${ZRBHW_WSL_DISTRO}"; local -r z_wsl_distro_docker_yelp="${z_buym_yelp}"
+  buh_line "     Pass distro name: ${z_wsl_distro_docker_yelp}"
   buh_tt       "  9. Docker context discipline:          " "${RBZ_HW_DOCKER_CONTEXT}"
 
 }
