@@ -549,6 +549,7 @@
       "order": [
         "₢A6AAn",
         "₢A6AAo",
+        "₢A6AAp",
         "₢A6AAd",
         "₢A6AAe",
         "₢A6AAf",
@@ -586,7 +587,7 @@
         "₢A6AAF",
         "₢A6AAL"
       ],
-      "next_pace_seed": "AAp",
+      "next_pace_seed": "AAq",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
       "paces": {
         "₢A6AAA": {
@@ -1522,6 +1523,17 @@
               "text": "## Character\nPure deletion — grep-confirm zero callers, then remove. No judgment needed.\n\n## Docket\nDelete 6 unreachable legacy role-track functions from `Tools/rbk/rbh0/rbhob_base.sh`:\n\n- `zrbho_probe_role_credentials` (~line 80)\n- `zrbho_probe_retriever_units` (~line 104)\n- `zrbho_probe_director_units` (~line 154)\n- `zrbho_probe_governor_units` (~line 232)\n- `zrbho_probe_payor_units` (~line 274)\n- `zrbho_triage_role` (~line 313)\n\nAlso confirm `zrbho_credential_install` has zero callers and delete if so.\n\nThese are remnants of the pre-decomposition role-track approach. The audit confirmed zero callers across the entire codebase.\n\n### Verification\n- `grep -r` each function name across all `.sh` files — only the definition site should appear\n- Source guard and kindle/sentinel still intact after deletion",
               "silks": "repair-bcg-dead-function-sweep",
               "commit": "52458f7"
+            }
+          ]
+        },
+        "₢A6AAp": {
+          "tacks": [
+            {
+              "ts": "260415-1525",
+              "state": "rough",
+              "text": "## Character\nModerate mechanical — replicate an existing correct pattern to 8 call sites. Requires temp file naming decisions.\n\n## Docket\nConvert 8 `docker ... 2>/dev/null | grep -q` probe patterns in onboarding to BCG-compliant temp-file stderr capture.\n\n### Sites\n- `rbhob_base.sh:124` — `docker images ... 2>/dev/null | grep -q` (inside `zrbho_probe_retriever_units`)\n- `rbhob_base.sh:130` — `docker ps ... 2>/dev/null | grep -q`\n- `rbhob_base.sh:135` — `docker images ... 2>/dev/null | grep -q`\n- `rbhob_base.sh:259` — `docker images ... 2>/dev/null | grep -q` (inside `zrbho_probe_governor_units`)\n- `rbhofc_first_crucible.sh:83` — `docker images ... 2>/dev/null`\n- `rbhofc_first_crucible.sh:87` — `docker images ... 2>/dev/null`\n- `rbhofc_first_crucible.sh:99` — `docker ps ... 2>/dev/null`\n- `rbhodf_director_first_build.sh:73` — `docker images ... 2>/dev/null`\n\n### Reference pattern\n`zrbho_probe_director_units` (rbhob_base.sh ~line 186) already demonstrates the correct BCG pattern: temp file + stderr redirect + explicit error handling. Replicate this approach.\n\n### Temp file naming\nUse kindle `_PREFIX` constants with integer discriminators per BCG stderr capture convention. May need to add kindle constants to `zrbho_kindle` in `rbhob_base.sh`.\n\n### Verification\n- No `2>/dev/null` remains on any docker command in `rbh0/`\n- Probes still function correctly (return 0/1 based on docker state)",
+              "silks": "repair-bcg-stderr-to-tempfile",
+              "commit": "b78fde2"
             }
           ]
         }
