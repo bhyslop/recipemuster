@@ -2,13 +2,13 @@
 
 [Recipe Bottle](#RecipeBottle) provides two independent container image capabilities:
 
-- **[Foundry](#Foundry)**: orchestrate Google Cloud Build to produce multiplatform container images (x86 + ARM), fetch, retain, and serve them using a role-managed private cloud registry — with optional egress-locked builds and supply-chain [provenance](#Provenance)
+- **[Foundry](#Foundry)**: orchestrate Google Cloud Build to produce multiplatform container images (x86 + ARM), fetch, retain, and serve them using a role-managed private cloud registry — with optional [egress-locked](#BuildIsolation) builds and supply-chain [provenance](#Provenance)
 - **[Crucible](#Crucible)**: run untrusted containers behind enforced network isolation — DNS filtering and IP filtering — even using images unmodified from "in the wild"
 
 > [!IMPORTANT]
 > **Early-stage project — security review welcome in both domains**
 >
-> The [Foundry's](#Foundry) egress-locked Cloud Build configuration — including the [SLSA](#Provenance) attestation chain, build isolation, and digest-pinned toolchains — has not yet had broad independent review.
+> The [Foundry's](#Foundry) egress-locked Cloud Build configuration — including the [SLSA](#Provenance) attestation chain, [build isolation](#BuildIsolation), and digest-pinned toolchains — has not yet had broad independent review.
 >
 > The [Crucible](#Crucible) runtime containment — a multi-container apparatus where the workload runs unprivileged in a network namespace it does not control — has also not had broad review, particularly the network isolation rules, privileged namespace setup, and egress enforcement.
 >
@@ -59,11 +59,11 @@ tt/rbw-o.OnboardingStartHere.sh
 
 [Recipe Bottle's](#RecipeBottle) remote build orchestration system for producing, attesting, and distributing container images via Google Cloud Build and Google Artifact Registry.
 The [Foundry](#Foundry) manages [Depot](#Depot) access, [Vessels](#Vessel) choreography, [Hallmark](#Hallmark) tracking, and build definitions.
-Three [Vessel](#Vessel) modes determine how images enter the [Depot](#Depot): [Conjure](#Conjure) (egress-locked build from source with [SLSA provenance](#Provenance)), [Bind](#Bind) (digest-pinned upstream mirror), and [Graft](#Graft) (local push).
+Three [Vessel](#Vessel) modes determine how images enter the [Depot](#Depot): [Conjure](#Conjure) ([egress-locked](#BuildIsolation) build from source with [SLSA provenance](#Provenance)), [Bind](#Bind) (digest-pinned upstream mirror), and [Graft](#Graft) (local push).
 Peer to [Crucible](#Crucible), which handles local runtime containment.
 
 The [Foundry](#Foundry) orchestrates Google Cloud Build to produce container images with [SLSA](#Provenance) attestation, software bills of material, reproducible multi-architecture builds, and digest-pinned toolchains — so every image has a verifiable origin story.
-Builds run in an egress-locked configuration, drawing from upstream base images mirrored into a project-owned [Depot](#Depot) registry — a fixed, self-contained supply chain independent of third-party registry availability.
+Builds run in an [egress-locked](#BuildIsolation) configuration, drawing from upstream base images mirrored into a project-owned [Depot](#Depot) registry — a fixed, self-contained supply chain independent of third-party registry availability.
 
 ### <a id="Depot"></a>Depot
 
@@ -75,6 +75,7 @@ Each [Depot](#Depot) supports two build egress profiles:
 
 - <a id="Tethered"></a>**[Tethered](#Tethered)** — Build egress mode allowing public internet access during Cloud Build. [Tethered](#Tethered) builds pull base images from upstream registries at build time — simpler to set up, but dependent on upstream availability.
 - <a id="Airgap"></a>**[Airgap](#Airgap)** — Build egress mode with no public internet access during Cloud Build. [Airgap](#Airgap) builds draw all dependencies from [Enshrined](#Enshrine) images in the [Depot's](#Depot) registry — fully self-contained, independent of upstream availability. Requires [Enshrining](#Enshrine) base images before the first build.
+See [Build Isolation](#BuildIsolation) for the security rationale behind these profiles.
 
 ### <a id="Manor"></a>Manor
 
@@ -274,7 +275,7 @@ The [Director](#Director) inscribes a [Reliquary](#Reliquary) before any [Ordain
 Each [Ordain](#Ordain) produces an image in the [Depot](#Depot) registry with associated [provenance](#Provenance) metadata.
 
 <a id="Conjure"></a>**[Conjure](#Conjure)** — Cloud Build creates the image from source.
-[Conjure](#Conjure) builds run in an egress-locked environment with digest-pinned toolchains, producing full [SLSA](#Provenance) attestation and [SBOMs](#SBOM).
+[Conjure](#Conjure) builds run in an [egress-locked](#BuildIsolation) environment with digest-pinned toolchains, producing full [SLSA](#Provenance) attestation and [SBOMs](#SBOM).
 This is the highest-trust build mode.
 
 <a id="Bind"></a>**[Bind](#Bind)** — Mirror an upstream image pinned by digest.
@@ -413,6 +414,29 @@ An [SBOM](#SBOM) enables three hygiene practices that opaque images cannot suppo
 - **Build-over-build drift detection** — compare [SBOMs](#SBOM) across [Hallmarks](#Hallmark) to see what changed between builds
 
 The [Plumb](#Plumb) command surfaces [SBOM](#SBOM) contents: the full view shows package inventories; the compact view summarizes key components.
+
+## <a id="BuildIsolation"></a>Appendix: Build Isolation
+
+[Recipe Bottle](#RecipeBottle) supports two build egress profiles — [Tethered](#Tethered) and [Airgap](#Airgap) — that determine whether a Cloud Build job can reach the public internet.
+The distinction is not primarily about availability; it is a security boundary that controls what can enter and exit the build environment.
+
+**What [Airgap](#Airgap) protects: exfiltration and supply chain injection.**
+If a compromised dependency, build plugin, or Dockerfile instruction executes during your build, an [Airgapped](#Airgap) build cannot phone home — it cannot transmit source code, secrets, or intermediate artifacts to an external endpoint, and it cannot silently fetch malicious payloads.
+This is defense-in-depth for proprietary code: even if a build step is compromised, the network is not available as an exfiltration channel.
+
+**The curated gate principle.**
+[Airgap](#Airgap) does not mean "nothing external." It means all external content enters through a single auditable gate — the [Enshrine](#Enshrine) ceremony — rather than ad-hoc network fetches during build.
+The attack surface collapses from "any URL a Dockerfile mentions" to "the specific digests the [Director](#Director) [Enshrined](#Enshrine)."
+Builder tool images enter through a parallel gate: the [Reliquary](#Reliquary), inscribed once and pinned by digest for all subsequent builds.
+
+**What [Airgap](#Airgap) does not protect: the base image contents.**
+Base images like `debian-slim` were themselves built with full internet access — `apt-get install` already ran inside them.
+The [Airgap](#Airgap) protects *your* build steps on top of those bases, not the base image contents themselves.
+Base images are vetted separately: digest-pinned at [Enshrine](#Enshrine) time, inspectable via [SBOM](#SBOM), and stored as project-owned copies in the [Depot's](#Depot) registry.
+A [Tethered](#Tethered) build of the base image followed by an [Airgapped](#Airgap) build of your application is the expected pattern — the base image is a known input, your proprietary layers are the protected output.
+
+**Regulatory alignment.**
+No framework mandates build-time network blocking by name, but egress-locked builds are the simplest way to evidence several common controls: FedRAMP CM-7 (least functionality) and SC-7 (boundary protection), SOC 2 CC6.1 (logical access) and CC8.1 (change management), and SLSA Level 3's hermetic build requirement.
 
 ## Appendix: Roadmap
 
