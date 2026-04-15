@@ -4057,6 +4057,13 @@
         "₢A_AAA": {
           "tacks": [
             {
+              "ts": "260415-1525",
+              "state": "rough",
+              "text": "## Character\nMechanical plumbing — add two new RBRR variables and wire through kindle/validate/render.\n\n## Docket\nAdd `RBRR_CLOUD_PREFIX` and `RBRR_RUNTIME_PREFIX` to RBRR regime.\n\n**`RBRR_CLOUD_PREFIX`** — prepended to all cloud-visible resource names: GAR image paths, vessel package names, Cloud Build substitutions, depot-scoped identifiers. Everything that lives in the GCP project.\n\n**`RBRR_RUNTIME_PREFIX`** — prepended to local container names, Docker network names, and other machine-local resources. Enables multi-regime isolation on a single developer workstation.\n\nUpdate RBSRR spec with variable definitions. Wire through `rbkro_kindle` (default to empty string), `rbkro_validate` (xname format, max 6 chars, must end with hyphen if non-empty), `rbkro_render` (display in Container Runtime Configuration section). Add to ZRBRR_ROLLUP serialization.",
+              "silks": "rbrr-image-and-runtime-prefix-variables",
+              "commit": "b05bcb4"
+            },
+            {
               "ts": "260415-1504",
               "state": "rough",
               "text": "## Character\nMechanical plumbing — add two new RBRR variables and wire through kindle/validate/render.\n\n## Work\nAdd `RBRR_IMAGE_PREFIX` and `RBRR_RUNTIME_PREFIX` to RBRR regime. Update RBSRR spec with variable definitions. Wire through `rbkro_kindle` (default to empty string), `rbkro_validate` (xname format, max 6 chars, must end with hyphen if non-empty), `rbkro_render` (display in Container Runtime Configuration section). Add to ZRBRR_ROLLUP serialization.",
@@ -4067,6 +4074,13 @@
         },
         "₢A_AAB": {
           "tacks": [
+            {
+              "ts": "260415-1525",
+              "state": "rough",
+              "text": "## Character\nMechanical — trace every consumer of container names, network names, and image paths.\n\n## Docket\nUpdate RBDC derived constants to prepend `RBRR_RUNTIME_PREFIX` to container/network name bases. Update RBOB (bottle kindle) so `ZRBOB_SENTRY`, `ZRBOB_PENTACLE`, `ZRBOB_BOTTLE`, `ZRBOB_NETWORK` incorporate the runtime prefix. Update image path construction in RBOB and foundry to prepend `RBRR_CLOUD_PREFIX` to vessel package names and GAR image references. Verify compose.yml interpolation still works. Grep for any hardcoded container/network/image name patterns that bypass the prefixed variables.",
+              "silks": "derived-constants-and-consumer-wiring",
+              "commit": "b05bcb4"
+            },
             {
               "ts": "260415-1504",
               "state": "rough",
