@@ -122,7 +122,7 @@ zbuh_link_fragment() {
 ######################################################################
 # Public: Section headers and numbered steps
 
-buh_section() { zbuh_sentinel; z_buh_body_indent=""; printf '%b\n' "${ZBUH_S}${1}${ZBUH_R}" >&2; }
+buh_section() { zbuh_sentinel; z_buh_body_indent=""; buyf_format_yawp "${BUYC_BRIGHT_WHITE}" "${1:-}"; printf '%b\n' "${z_buym_format}" >&2; }
 buh_e()       { echo "" >&2; }
 
 buh_step_style() {
@@ -136,14 +136,16 @@ buh_step1() {
   z_buh_step1_n=$((z_buh_step1_n + 1))
   z_buh_step2_n=0
   z_buh_body_indent="   "
-  printf '%b\n' "${ZBUH_S}${z_buh_step_prefix}${z_buh_step1_n}${z_buh_step_separator}${1}${ZBUH_R}" >&2
+  buyf_format_yawp "${BUYC_BRIGHT_WHITE}" "${1:-}"
+  printf '%b\n' "${ZBUH_S}${z_buh_step_prefix}${z_buh_step1_n}${z_buh_step_separator}${z_buym_format}" >&2
 }
 
 buh_step2() {
   zbuh_sentinel
   z_buh_step2_n=$((z_buh_step2_n + 1))
   z_buh_body_indent="      "
-  printf '%b\n' "   ${ZBUH_S}${z_buh_step_prefix}${z_buh_step1_n}.${z_buh_step2_n}${z_buh_step_separator}${1}${ZBUH_R}" >&2
+  buyf_format_yawp "${BUYC_BRIGHT_WHITE}" "${1:-}"
+  printf '%b\n' "   ${ZBUH_S}${z_buh_step_prefix}${z_buh_step1_n}.${z_buh_step2_n}${z_buh_step_separator}${z_buym_format}" >&2
 }
 
 ######################################################################

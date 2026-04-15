@@ -1279,7 +1279,7 @@ rbho_director_first_build() {
   buh_line "then commit the change."
   buh_e
 
-  buh_step1 "Conjure the sentry"
+  buh_step1 "${RBYC_CONJURE} the ${RBYC_SENTRY}"
   buh_e
   buh_line "${RBYC_CONJURE} is the build mode where Cloud Build constructs a"
   buh_line "vessel image from the project's Dockerfile and build context."
