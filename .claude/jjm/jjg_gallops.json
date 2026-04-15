@@ -547,7 +547,6 @@
       "creation_time": "260409",
       "status": "racing",
       "order": [
-        "₢A6AAl",
         "₢A6AAk",
         "₢A6AAd",
         "₢A6AAe",
@@ -1497,24 +1496,6 @@
               "text": "## Character\nSurgical constant fix with cascading doc updates — mechanically straightforward but must be verified end-to-end through a real Cloud Build vouch cycle.\n\n## Docket\n`RBGC_VOUCHES_PACKAGE` is set to uppercase `\"VOUCHES\"` in `Tools/rbk/rbgc_Constants.sh:131`. OCI registries require lowercase repository/package names. The vouch pipeline's `assemble-push-vouch` step (`Tools/rbk/rbgjv/rbgjv03-assemble-push-vouch.sh`) constructs a tag like `...repository/VOUCHES:hallmark-vouch` which is rejected by GAR with: `repository name must be lowercase`.\n\nThis breaks the four-mode-integration test case (`rbtdrc_four_mode_supply_chain`) at the vouch step of every conjure.\n\n### Fix\n1. `Tools/rbk/rbgc_Constants.sh` — change `RBGC_VOUCHES_PACKAGE` from `\"VOUCHES\"` to `\"vouches\"`\n2. Spec/doc references in `RBS0-SpecTop.adoc`, `RBSAV-ark_vouch.adoc`, `RBSAP-ark_plumb.adoc`, `RBSGS-GettingStarted.adoc` — update tag table and prose references from `VOUCHES` to `vouches` where they appear as literal GAR package names\n3. Code comments in `rbfc_FoundryCore.sh`, `rbfv_FoundryVerify.sh` — update any literal `VOUCHES` references that describe the package name (not the concept)\n\n### Distinguish: package name vs concept name\nThe word \"VOUCHES\" appears in two roles: (a) as the literal GAR package name in tags/code, and (b) as a concept name in prose (\"the VOUCHES superdirectory\"). Only (a) must change to lowercase. Prose references to the concept (\"the VOUCHES superdirectory\") may retain caps for readability — use judgment per instance.\n\n### Verification\n- Run `tt/rbtd-s.TestSuite.service.sh` — four-mode-integration must pass (vouch step succeeds)\n- Confirm no orphaned uppercase artifacts need cleanup (they were from failed builds)",
               "silks": "vouches-package-lowercase",
               "commit": "b8745ff"
-            }
-          ]
-        },
-        "₢A6AAl": {
-          "tacks": [
-            {
-              "ts": "260415-1457",
-              "state": "rough",
-              "text": "## Character\nMechanical refactoring with a migration shim — straightforward path surgery plus a tinder constant mint, verified end-to-end through governor reset proving payor operations survive the move.\n\n## Docket\nMove `rbro.env` from flat `RBRR_SECRETS_DIR/rbro.env` into `RBRR_SECRETS_DIR/payor/rbro.env` to match the established `{role}/` subdirectory pattern used by RBRA credentials (governor, retriever, director each have their own subdirectory).\n\n### Mint tinder constant\nAdd `RBCC_role_payor=\"payor\"` to `Tools/rbk/rbcc_Constants.sh` alongside the existing `RBCC_role_governor`, `RBCC_role_retriever`, `RBCC_role_director` tinder constants.\n\n### Path change\nIn `Tools/rbk/rbdc_DerivedConstants.sh`, change:\n```\nreadonly RBDC_PAYOR_RBRO_FILE=\"${RBRR_SECRETS_DIR}/${RBCC_rbro_file}\"\n```\nto:\n```\nreadonly RBDC_PAYOR_RBRO_FILE=\"${RBRR_SECRETS_DIR}/${RBCC_role_payor}/${RBCC_rbro_file}\"\n```\n\n### One-shot migration\nAdd a migration block in `zrbdc_kindle()` (parallel to the existing RBRA migration at lines 40-56) that moves `RBRR_SECRETS_DIR/rbro.env` → `RBRR_SECRETS_DIR/payor/rbro.env` if the old path exists and the new path does not.\n\n### Ensure payor directory creation\nAdd `${RBCC_role_payor}` to the `mkdir -p` block that already creates governor/retriever/director subdirectories.\n\n### Doc/spec updates\nUpdate literal `~/.rbw/rbro.env` references to `~/.rbw/payor/rbro.env` in:\n- `RBSRO-RegimeOauth.adoc`\n- `RBSGS-GettingStarted.adoc`\n- `RBSPI-payor_install.adoc`\n- `RBS0-SpecTop.adoc` (prose references to the file path)\n- `CLAUDE.consumer.md`\n- `rbhpr_refresh.sh` (handbook display text)\n- `rblm_cli.sh` (marshal display text)\n\n### Verification — governor reset cycle\nAfter code changes, prove payor operations survive the migration by running a governor reset cycle:\n1. `tt/rbtd-s.TestSuite.fast.sh` — 75/75 green (regime validation exercises RBDC paths)\n2. `tt/rbw-aM.PayorMantlesGovernor.sh` — reset governor SA\n3. `tt/rbw-aC.GovernorChartersRetriever.sh` — re-issue retriever RBRA\n4. `tt/rbw-aK.GovernorKnightsDirector.sh` — re-issue director RBRA\n5. Confirm all three RBRA files land in their role subdirectories and payor OAuth (`payor/rbro.env`) is still functional throughout",
-              "silks": "rbro-payor-subdirectory-migration",
-              "commit": "63ae0f0"
-            },
-            {
-              "ts": "260415-1451",
-              "state": "rough",
-              "text": "## Character\nMechanical refactoring with a migration shim — straightforward path surgery plus a tinder constant mint, verified by existing test suites.\n\n## Docket\nMove `rbro.env` from flat `RBRR_SECRETS_DIR/rbro.env` into `RBRR_SECRETS_DIR/payor/rbro.env` to match the established `{role}/` subdirectory pattern used by RBRA credentials (governor, retriever, director each have their own subdirectory).\n\n### Mint tinder constant\nAdd `RBCC_role_payor=\"payor\"` to `Tools/rbk/rbcc_Constants.sh` alongside the existing `RBCC_role_governor`, `RBCC_role_retriever`, `RBCC_role_director` tinder constants.\n\n### Path change\nIn `Tools/rbk/rbdc_DerivedConstants.sh`, change:\n```\nreadonly RBDC_PAYOR_RBRO_FILE=\"${RBRR_SECRETS_DIR}/${RBCC_rbro_file}\"\n```\nto:\n```\nreadonly RBDC_PAYOR_RBRO_FILE=\"${RBRR_SECRETS_DIR}/${RBCC_role_payor}/${RBCC_rbro_file}\"\n```\n\n### One-shot migration\nAdd a migration block in `zrbdc_kindle()` (parallel to the existing RBRA migration at lines 40-56) that moves `RBRR_SECRETS_DIR/rbro.env` → `RBRR_SECRETS_DIR/payor/rbro.env` if the old path exists and the new path does not.\n\n### Ensure payor directory creation\nAdd `${RBCC_role_payor}` to the `mkdir -p` block that already creates governor/retriever/director subdirectories.\n\n### Doc/spec updates\nUpdate literal `~/.rbw/rbro.env` references to `~/.rbw/payor/rbro.env` in:\n- `RBSRO-RegimeOauth.adoc`\n- `RBSGS-GettingStarted.adoc`\n- `RBSPI-payor_install.adoc`\n- `RBS0-SpecTop.adoc` (prose references to the file path)\n- `CLAUDE.consumer.md`\n- `rbhpr_refresh.sh` (handbook display text)\n- `rblm_cli.sh` (marshal display text)\n\n### Verification\n- `tt/rbtd-s.TestSuite.fast.sh` — 75/75 green (regime validation exercises RBDC paths)",
-              "silks": "rbro-payor-subdirectory-migration",
-              "commit": "3b11c75"
             }
           ]
         }
@@ -4037,9 +4018,10 @@
       "order": [
         "₢A_AAA",
         "₢A_AAB",
-        "₢A_AAC"
+        "₢A_AAC",
+        "₢A_AAD"
       ],
-      "next_pace_seed": "AAD",
+      "next_pace_seed": "AAE",
       "paddock_file": ".claude/jjm/jjp_uAl_.md",
       "paces": {
         "₢A_AAA": {
@@ -4072,6 +4054,31 @@
               "text": "## Character\nSmall and mechanical — one function edit.\n\n## Work\nUpdate RBLM marshal zeroes to clear both `RBRR_IMAGE_PREFIX` and `RBRR_RUNTIME_PREFIX` to empty string in the blank template. Verify the zeroed rbrr.env passes validation (empty prefix is valid).",
               "silks": "marshal-release-zeroes-prefixes",
               "commit": "4a306c5"
+            }
+          ]
+        },
+        "₢A_AAD": {
+          "tacks": [
+            {
+              "ts": "260415-1504",
+              "state": "rough",
+              "text": "Drafted from ₢A6AAl in ₣A6.\n\n## Character\nMechanical refactoring with a migration shim — straightforward path surgery plus a tinder constant mint, verified end-to-end through governor reset proving payor operations survive the move.\n\n## Docket\nMove `rbro.env` from flat `RBRR_SECRETS_DIR/rbro.env` into `RBRR_SECRETS_DIR/payor/rbro.env` to match the established `{role}/` subdirectory pattern used by RBRA credentials (governor, retriever, director each have their own subdirectory).\n\n### Mint tinder constant\nAdd `RBCC_role_payor=\"payor\"` to `Tools/rbk/rbcc_Constants.sh` alongside the existing `RBCC_role_governor`, `RBCC_role_retriever`, `RBCC_role_director` tinder constants.\n\n### Path change\nIn `Tools/rbk/rbdc_DerivedConstants.sh`, change:\n```\nreadonly RBDC_PAYOR_RBRO_FILE=\"${RBRR_SECRETS_DIR}/${RBCC_rbro_file}\"\n```\nto:\n```\nreadonly RBDC_PAYOR_RBRO_FILE=\"${RBRR_SECRETS_DIR}/${RBCC_role_payor}/${RBCC_rbro_file}\"\n```\n\n### One-shot migration\nAdd a migration block in `zrbdc_kindle()` (parallel to the existing RBRA migration at lines 40-56) that moves `RBRR_SECRETS_DIR/rbro.env` → `RBRR_SECRETS_DIR/payor/rbro.env` if the old path exists and the new path does not.\n\n### Ensure payor directory creation\nAdd `${RBCC_role_payor}` to the `mkdir -p` block that already creates governor/retriever/director subdirectories.\n\n### Doc/spec updates\nUpdate literal `~/.rbw/rbro.env` references to `~/.rbw/payor/rbro.env` in:\n- `RBSRO-RegimeOauth.adoc`\n- `RBSGS-GettingStarted.adoc`\n- `RBSPI-payor_install.adoc`\n- `RBS0-SpecTop.adoc` (prose references to the file path)\n- `CLAUDE.consumer.md`\n- `rbhpr_refresh.sh` (handbook display text)\n- `rblm_cli.sh` (marshal display text)\n\n### Verification — governor reset cycle\nAfter code changes, prove payor operations survive the migration by running a governor reset cycle:\n1. `tt/rbtd-s.TestSuite.fast.sh` — 75/75 green (regime validation exercises RBDC paths)\n2. `tt/rbw-aM.PayorMantlesGovernor.sh` — reset governor SA\n3. `tt/rbw-aC.GovernorChartersRetriever.sh` — re-issue retriever RBRA\n4. `tt/rbw-aK.GovernorKnightsDirector.sh` — re-issue director RBRA\n5. Confirm all three RBRA files land in their role subdirectories and payor OAuth (`payor/rbro.env`) is still functional throughout",
+              "silks": "rbro-payor-subdirectory-migration",
+              "commit": "1de474a"
+            },
+            {
+              "ts": "260415-1457",
+              "state": "rough",
+              "text": "## Character\nMechanical refactoring with a migration shim — straightforward path surgery plus a tinder constant mint, verified end-to-end through governor reset proving payor operations survive the move.\n\n## Docket\nMove `rbro.env` from flat `RBRR_SECRETS_DIR/rbro.env` into `RBRR_SECRETS_DIR/payor/rbro.env` to match the established `{role}/` subdirectory pattern used by RBRA credentials (governor, retriever, director each have their own subdirectory).\n\n### Mint tinder constant\nAdd `RBCC_role_payor=\"payor\"` to `Tools/rbk/rbcc_Constants.sh` alongside the existing `RBCC_role_governor`, `RBCC_role_retriever`, `RBCC_role_director` tinder constants.\n\n### Path change\nIn `Tools/rbk/rbdc_DerivedConstants.sh`, change:\n```\nreadonly RBDC_PAYOR_RBRO_FILE=\"${RBRR_SECRETS_DIR}/${RBCC_rbro_file}\"\n```\nto:\n```\nreadonly RBDC_PAYOR_RBRO_FILE=\"${RBRR_SECRETS_DIR}/${RBCC_role_payor}/${RBCC_rbro_file}\"\n```\n\n### One-shot migration\nAdd a migration block in `zrbdc_kindle()` (parallel to the existing RBRA migration at lines 40-56) that moves `RBRR_SECRETS_DIR/rbro.env` → `RBRR_SECRETS_DIR/payor/rbro.env` if the old path exists and the new path does not.\n\n### Ensure payor directory creation\nAdd `${RBCC_role_payor}` to the `mkdir -p` block that already creates governor/retriever/director subdirectories.\n\n### Doc/spec updates\nUpdate literal `~/.rbw/rbro.env` references to `~/.rbw/payor/rbro.env` in:\n- `RBSRO-RegimeOauth.adoc`\n- `RBSGS-GettingStarted.adoc`\n- `RBSPI-payor_install.adoc`\n- `RBS0-SpecTop.adoc` (prose references to the file path)\n- `CLAUDE.consumer.md`\n- `rbhpr_refresh.sh` (handbook display text)\n- `rblm_cli.sh` (marshal display text)\n\n### Verification — governor reset cycle\nAfter code changes, prove payor operations survive the migration by running a governor reset cycle:\n1. `tt/rbtd-s.TestSuite.fast.sh` — 75/75 green (regime validation exercises RBDC paths)\n2. `tt/rbw-aM.PayorMantlesGovernor.sh` — reset governor SA\n3. `tt/rbw-aC.GovernorChartersRetriever.sh` — re-issue retriever RBRA\n4. `tt/rbw-aK.GovernorKnightsDirector.sh` — re-issue director RBRA\n5. Confirm all three RBRA files land in their role subdirectories and payor OAuth (`payor/rbro.env`) is still functional throughout",
+              "silks": "rbro-payor-subdirectory-migration",
+              "commit": "63ae0f0"
+            },
+            {
+              "ts": "260415-1451",
+              "state": "rough",
+              "text": "## Character\nMechanical refactoring with a migration shim — straightforward path surgery plus a tinder constant mint, verified by existing test suites.\n\n## Docket\nMove `rbro.env` from flat `RBRR_SECRETS_DIR/rbro.env` into `RBRR_SECRETS_DIR/payor/rbro.env` to match the established `{role}/` subdirectory pattern used by RBRA credentials (governor, retriever, director each have their own subdirectory).\n\n### Mint tinder constant\nAdd `RBCC_role_payor=\"payor\"` to `Tools/rbk/rbcc_Constants.sh` alongside the existing `RBCC_role_governor`, `RBCC_role_retriever`, `RBCC_role_director` tinder constants.\n\n### Path change\nIn `Tools/rbk/rbdc_DerivedConstants.sh`, change:\n```\nreadonly RBDC_PAYOR_RBRO_FILE=\"${RBRR_SECRETS_DIR}/${RBCC_rbro_file}\"\n```\nto:\n```\nreadonly RBDC_PAYOR_RBRO_FILE=\"${RBRR_SECRETS_DIR}/${RBCC_role_payor}/${RBCC_rbro_file}\"\n```\n\n### One-shot migration\nAdd a migration block in `zrbdc_kindle()` (parallel to the existing RBRA migration at lines 40-56) that moves `RBRR_SECRETS_DIR/rbro.env` → `RBRR_SECRETS_DIR/payor/rbro.env` if the old path exists and the new path does not.\n\n### Ensure payor directory creation\nAdd `${RBCC_role_payor}` to the `mkdir -p` block that already creates governor/retriever/director subdirectories.\n\n### Doc/spec updates\nUpdate literal `~/.rbw/rbro.env` references to `~/.rbw/payor/rbro.env` in:\n- `RBSRO-RegimeOauth.adoc`\n- `RBSGS-GettingStarted.adoc`\n- `RBSPI-payor_install.adoc`\n- `RBS0-SpecTop.adoc` (prose references to the file path)\n- `CLAUDE.consumer.md`\n- `rbhpr_refresh.sh` (handbook display text)\n- `rblm_cli.sh` (marshal display text)\n\n### Verification\n- `tt/rbtd-s.TestSuite.fast.sh` — 75/75 green (regime validation exercises RBDC paths)",
+              "silks": "rbro-payor-subdirectory-migration",
+              "commit": "3b11c75"
             }
           ]
         }
