@@ -60,7 +60,8 @@ zrbho_po_status() {
   local -r z_text="${2:-}"
   if test "${z_flag}" = "1"; then
     buyy_cmd_yawp " [*] "
-    buh_line "${z_buym_yelp}${z_text}"
+    local -r z_mark="${z_buym_yelp}"
+    buh_line "${z_mark}${z_text}"
   else
     buh_line " [ ] ${z_text}"
   fi
@@ -326,7 +327,8 @@ zrbho_triage_role() {
   printf -v z_pad '%*s' $((13 - ${#z_name})) ''
   if test "${z_detected}" = "1"; then
     buyy_tt_yawp "${z_colophon}"
-    buh_line " [*] ${z_link}${z_pad}${z_buym_yelp}"
+    local -r z_tt="${z_buym_yelp}"
+    buh_line " [*] ${z_link}${z_pad}${z_tt}"
   else
     buh_line " [ ] ${z_link}"
   fi
@@ -370,20 +372,17 @@ rbho_start_here() {
   buh_line "    Configure your Repo's Environment"
   buh_line "      Universal prerequisite. ${RBYC_TABTARGETS}, ${RBYC_REGIMES},"
   buh_line "      ${RBYC_BURS} setup, validation, ${RBYC_LOGS}. Local-only, no cloud."
-  buyy_tt_yawp "${RBZ_ONBOARD_CRASH_COURSE}"
-  buh_line "        ${z_buym_yelp}"
+  buh_tt   "        " "${RBZ_ONBOARD_CRASH_COURSE}"
   buh_e
   buh_line "    Install ${RBYC_RETRIEVER} Credentials"
   buh_line "      For joining an established project."
   buh_line "      Place your ${RBYC_RBRA} credential file, verify, confirm you can pull images."
-  buyy_tt_yawp "${RBZ_ONBOARD_CRED_RETRIEVER}"
-  buh_line "        ${z_buym_yelp}"
+  buh_tt   "        " "${RBZ_ONBOARD_CRED_RETRIEVER}"
   buh_e
   buh_line "    Install ${RBYC_DIRECTOR} Credentials"
   buh_line "      For joining an established project."
   buh_line "      Place your ${RBYC_RBRA} credential file, verify, confirm you can build and publish."
-  buyy_tt_yawp "${RBZ_ONBOARD_CRED_DIRECTOR}"
-  buh_line "        ${z_buym_yelp}"
+  buh_tt   "        " "${RBZ_ONBOARD_CRED_DIRECTOR}"
   buh_e
   buh_line "    Start a ${RBYC_CRUCIBLE} Using Local Builds"
   buh_line "      The ${RBYC_CCYOLO} ${RBYC_CRUCIBLE} runs Claude Code in a container that can"
@@ -394,8 +393,7 @@ rbho_start_here() {
   buh_line "        * Start the sandbox         — ${RBYC_CHARGE} the ${RBYC_CRUCIBLE}"
   buh_line "        * Shell into the container  — ${RBYC_RACK} the ${RBYC_BOTTLE}"
   buh_line "      No cloud, no credentials beyond your own."
-  buyy_tt_yawp "${RBZ_ONBOARD_FIRST_CRUCIBLE}"
-  buh_line "        ${z_buym_yelp}"
+  buh_tt   "        " "${RBZ_ONBOARD_FIRST_CRUCIBLE}"
   buh_e
 
   # --- Create Payor and Depot ---
@@ -405,12 +403,10 @@ rbho_start_here() {
   buh_line "  built and stored — the ground truth other tracks rest on."
   buh_e
   buh_line "    ${RBYC_PAYOR} — establish a ${RBYC_MANOR} and provision the ${RBYC_DEPOT}"
-  buyy_tt_yawp "${RBZ_ONBOARD_PAYOR_HB}"
-  buh_line "        ${z_buym_yelp}"
+  buh_tt   "        " "${RBZ_ONBOARD_PAYOR_HB}"
   buh_e
   buh_line "    ${RBYC_GOVERNOR} — administer service accounts for ${RBYC_DIRECTORS} and ${RBYC_RETRIEVERS}"
-  buyy_tt_yawp "${RBZ_ONBOARD_GOVERNOR_HB}"
-  buh_line "        ${z_buym_yelp}"
+  buh_tt   "        " "${RBZ_ONBOARD_GOVERNOR_HB}"
   buh_e
 
   # --- Director subtracks ---
@@ -426,8 +422,7 @@ rbho_start_here() {
   buh_line "        * ${RBYC_SUMMON} — pull the hallmark locally"
   buh_line "        * ${RBYC_ABJURE} and ${RBYC_REKON} — hallmark lifecycle"
   buh_line "      Requires: Director credentials and a provisioned Depot."
-  buyy_tt_yawp "${RBZ_ONBOARD_DIR_FIRST_BUILD}"
-  buh_line "        ${z_buym_yelp}"
+  buh_tt   "        " "${RBZ_ONBOARD_DIR_FIRST_BUILD}"
   buh_e
   buh_line "    ${RBYC_AIRGAP} Cloud Build"
   buh_line "      Build with zero upstream access. ${RBYC_ENSHRINE} mirrors base images"
@@ -444,10 +439,12 @@ rbho_start_here() {
   buh_line "      phone home. Bind pins it; the Sentry blocks all egress."
   buh_line "      Steps:"
   buyy_link_yawp "${z_docs}" "Bind" "PlantUML"
-  buh_line "        * ${RBYC_BIND} ${z_buym_yelp} — pin upstream image by digest"
+  local -r z_plantuml="${z_buym_yelp}"
+  buh_line "        * ${RBYC_BIND} ${z_plantuml} — pin upstream image by digest"
   buh_line "        * Inspect ${RBYC_VOUCH} verdict — digest-pin, no SLSA (image not built here)"
   buyy_link_yawp "${z_docs}" "Nameplate" "pluml"
-  buh_line "        * ${RBYC_CHARGE} the ${z_buym_yelp} ${RBYC_CRUCIBLE} — render a diagram, observe blocked egress"
+  local -r z_pluml="${z_buym_yelp}"
+  buh_line "        * ${RBYC_CHARGE} the ${z_pluml} ${RBYC_CRUCIBLE} — render a diagram, observe blocked egress"
   buh_line "      You get the tool without the risk."
   buh_e
   buh_line "    ${RBYC_GRAFT} — Local Image Publishing"
@@ -490,8 +487,6 @@ rbho_crash_course() {
     z_log_dir=$(zrbho_po_extract_capture "${BURD_STATION_FILE}" "BURS_LOG_DIR") || z_log_dir=""
   fi
 
-  local z_tt=""
-
   # --- Header ---
   buh_section "Recipe Bottle — Configure your Repo's Environment"
   buh_e
@@ -511,8 +506,7 @@ rbho_crash_course() {
   buh_line "A ${RBYC_REGIME} is a configuration file with a schema, a renderer,"
   buh_line "and a validator. Run the renderer for the project config regime:"
   buh_e
-  buyy_tt_yawp "${BUWZ_RC_RENDER}"
-  buh_line "   ${z_buym_yelp}"
+  buh_tt   "   " "${BUWZ_RC_RENDER}"
   buh_e
   buh_line "${RBYC_BURC} is checked into git — shared project settings that every"
   buh_line "clone gets. It tells the launcher where to find tools and where"
@@ -525,8 +519,7 @@ rbho_crash_course() {
   buh_line "${RBYC_BURS} is your per-developer station file: local, gitignored,"
   buh_line "holds things that vary per machine. Run the renderer:"
   buh_e
-  buyy_tt_yawp "${BUWZ_RS_RENDER}"
-  buh_line "   ${z_buym_yelp}"
+  buh_tt   "   " "${BUWZ_RS_RENDER}"
   buh_e
   buh_line "The repo-vs-personal split is deliberate: ${RBYC_BURC} travels with the code; ${RBYC_BURS} stays on your machine."
   buh_e
@@ -539,17 +532,17 @@ rbho_crash_course() {
   buh_line "beyond the minimum the launcher required — that is expected."
   buh_line "Run it:"
   buh_e
-  buyy_tt_yawp "${BUWZ_RS_VALIDATE}"
-  buh_line "   ${z_buym_yelp}"
+  buh_tt   "   " "${BUWZ_RS_VALIDATE}"
   buh_e
   buh_line "Read the error if it fails — it names the field and tells you"
   buh_line "what to fill in."
   buh_e
   if test "${z_station_present}" = "1"; then
     buyy_cmd_yawp " [*] "
-    z_tt="${z_buym_yelp}"
+    local -r z_mark="${z_buym_yelp}"
     buyy_cmd_yawp "${BURD_STATION_FILE}"
-    buh_line "${z_tt} Station file present at ${z_buym_yelp}"
+    local -r z_path="${z_buym_yelp}"
+    buh_line "${z_mark} Station file present at ${z_path}"
   else
     zrbho_po_status 0 "Station file not found"
   fi
@@ -562,8 +555,7 @@ rbho_crash_course() {
   buh_line "identity — the GCP project where container images are built and stored."
   buh_line "Run the validator:"
   buh_e
-  buyy_tt_yawp "${RBZ_VALIDATE_REPO}"
-  buh_line "   ${z_buym_yelp}"
+  buh_tt   "   " "${RBZ_VALIDATE_REPO}"
   buh_e
   buh_line "On a bare fork, ${RBYC_RBRR} fields are blank and validation will fail —"
   buh_line "you need a ${RBYC_PAYOR} account and a ${RBYC_DEPOT} to populate them."
@@ -586,7 +578,8 @@ rbho_crash_course() {
   buh_e
   if test -n "${z_log_dir}"; then
     buyy_cmd_yawp "${z_log_dir}/${BURC_LOG_LAST}.${BURC_LOG_EXT}"
-    buh_line "   stable    ${z_buym_yelp}  (always the same path, great for Claude)"
+    local -r z_log_path="${z_buym_yelp}"
+    buh_line "   stable    ${z_log_path}  (always the same path, great for Claude)"
   else
     buh_line "   stable    always the same path — tooling reads this one"
   fi
@@ -607,25 +600,33 @@ rbho_crash_course() {
   buh_line "Every ${RBYC_REGIME} has a render and a validate tabtarget."
   buh_line "The letter after \`r\` is all that changes:"
   buh_e
-  buyy_tt_yawp "${BUWZ_RC_RENDER}";    z_tt="${z_buym_yelp}"
-  buyy_tt_yawp "${BUWZ_RC_VALIDATE}";   buh_line "   c  ${RBYC_BURC}  ${z_tt}   ${z_buym_yelp}"
-  buyy_tt_yawp "${BUWZ_RS_RENDER}";     z_tt="${z_buym_yelp}"
-  buyy_tt_yawp "${BUWZ_RS_VALIDATE}";   buh_line "   s  ${RBYC_BURS}  ${z_tt}  ${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_RENDER_REPO}";    z_tt="${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_VALIDATE_REPO}";  buh_line "   r  ${RBYC_RBRR}  ${z_tt}     ${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_RENDER_PAYOR}";   z_tt="${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_VALIDATE_PAYOR}"; buh_line "   p  ${RBYC_RBRP}  ${z_tt}    ${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_RENDER_OAUTH}";   z_tt="${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_VALIDATE_OAUTH}"; buh_line "   o  ${RBYC_RBRO}  ${z_tt}    ${z_buym_yelp}"
+  buyy_tt_yawp "${BUWZ_RC_RENDER}";       local -r z_rc_r="${z_buym_yelp}"
+  buyy_tt_yawp "${BUWZ_RC_VALIDATE}";      local -r z_rc_v="${z_buym_yelp}"
+  buyy_tt_yawp "${BUWZ_RS_RENDER}";        local -r z_rs_r="${z_buym_yelp}"
+  buyy_tt_yawp "${BUWZ_RS_VALIDATE}";      local -r z_rs_v="${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_RENDER_REPO}";       local -r z_rr_r="${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_VALIDATE_REPO}";     local -r z_rr_v="${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_RENDER_PAYOR}";      local -r z_rp_r="${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_VALIDATE_PAYOR}";    local -r z_rp_v="${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_RENDER_OAUTH}";      local -r z_ro_r="${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_VALIDATE_OAUTH}";    local -r z_ro_v="${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_RENDER_VESSEL}";     local -r z_rv_r="${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_VALIDATE_VESSEL}";   local -r z_rv_v="${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_RENDER_NAMEPLATE}";  local -r z_rn_r="${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_VALIDATE_NAMEPLATE}";local -r z_rn_v="${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_RENDER_AUTH}";       local -r z_ra_r="${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_VALIDATE_AUTH}";     local -r z_ra_v="${z_buym_yelp}"
+  buh_line "   c  ${RBYC_BURC}  ${z_rc_r}   ${z_rc_v}"
+  buh_line "   s  ${RBYC_BURS}  ${z_rs_r}  ${z_rs_v}"
+  buh_line "   r  ${RBYC_RBRR}  ${z_rr_r}     ${z_rr_v}"
+  buh_line "   p  ${RBYC_RBRP}  ${z_rp_r}    ${z_rp_v}"
+  buh_line "   o  ${RBYC_RBRO}  ${z_ro_r}    ${z_ro_v}"
   buh_e
   buh_line "These take a target name (vessel, nameplate, or role):"
   buh_e
-  buyy_tt_yawp "${RBZ_RENDER_VESSEL}";      z_tt="${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_VALIDATE_VESSEL}";     buh_line "   v  ${RBYC_RBRV}  ${z_tt}     ${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_RENDER_NAMEPLATE}";    z_tt="${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_VALIDATE_NAMEPLATE}";  buh_line "   n  ${RBYC_RBRN}  ${z_tt}  ${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_RENDER_AUTH}";         z_tt="${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_VALIDATE_AUTH}";       buh_line "   a  ${RBYC_RBRA}  ${z_tt}       ${z_buym_yelp}"
+  buh_line "   v  ${RBYC_RBRV}  ${z_rv_r}     ${z_rv_v}"
+  buh_line "   n  ${RBYC_RBRN}  ${z_rn_r}  ${z_rn_v}"
+  buh_line "   a  ${RBYC_RBRA}  ${z_ra_r}       ${z_ra_v}"
   buh_e
   buh_line "Learn the letter — you can find any regime's tools from it."
   buh_e
@@ -637,8 +638,7 @@ rbho_crash_course() {
   buh_line "themselves, and ${RBYC_LOGS} land where you told them to."
   buh_e
   buh_line "Return to the start menu for what to do next:"
-  buyy_tt_yawp "${RBZ_ONBOARD_START_HERE}"
-  buh_line "   ${z_buym_yelp}"
+  buh_tt   "   " "${RBZ_ONBOARD_START_HERE}"
   buh_e
 }
 
@@ -686,7 +686,8 @@ zrbho_credential_install() {
   else
     buh_warn "RBRR not populated — cannot determine credential path."
     buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "BURC" "Configure your Repo's Environment"
-    buh_line "Run ${z_buym_yelp} first."
+    local -r z_env_link="${z_buym_yelp}"
+    buh_line "Run ${z_env_link} first."
   fi
   buh_e
   if test "${z_cred_present}" = "1"; then
@@ -701,10 +702,7 @@ zrbho_credential_install() {
   buh_e
   buh_line "Run the ${RBYC_RBRA} validator for your role:"
   buh_e
-  buyy_tt_yawp "${RBZ_VALIDATE_AUTH}"
-  local z_tt="${z_buym_yelp}"
-  buyy_cmd_yawp " ${z_role_constant}"
-  buh_line "   ${z_tt}${z_buym_yelp}"
+  buh_tt   "   " "${RBZ_VALIDATE_AUTH}" "" " ${z_role_constant}"
   buh_e
   buh_line "Read the output — it checks the file format and reports"
   buh_line "what the credential grants."
@@ -733,8 +731,7 @@ rbho_credential_retriever() {
   buh_e
   buh_line "Run ${RBYC_TALLY} to list ${RBYC_HALLMARKS} in the registry using your retriever credential:"
   buh_e
-  buyy_tt_yawp "${RBZ_TALLY_HALLMARKS}"
-  buh_line "   ${z_buym_yelp}"
+  buh_tt   "   " "${RBZ_TALLY_HALLMARKS}"
   buh_e
   buh_line "If the command succeeds you have working pull access to the ${RBYC_DEPOT}."
   buh_line "If it fails, re-check the file placement in Step 2."
@@ -744,8 +741,7 @@ rbho_credential_retriever() {
   buh_step1 "Next steps"
   buh_e
   buh_line "Return to the start menu:"
-  buyy_tt_yawp "${RBZ_ONBOARD_START_HERE}"
-  buh_line "   ${z_buym_yelp}"
+  buh_tt   "   " "${RBZ_ONBOARD_START_HERE}"
   buh_e
 }
 
@@ -770,10 +766,7 @@ rbho_credential_director() {
   buh_line "Run ${RBYC_REKON} to list raw image tags in the registry"
   buh_line "using your director credential:"
   buh_e
-  buyy_tt_yawp "${RBZ_REKON_IMAGE}"
-  local z_tt="${z_buym_yelp}"
-  buyy_cmd_yawp " rbev-busybox"
-  buh_line "   ${z_tt}${z_buym_yelp}"
+  buh_tt   "   " "${RBZ_REKON_IMAGE}" "" " rbev-busybox"
   buh_e
   buh_line "If the command succeeds you have working build access to the"
   buh_line "  ${RBYC_DEPOT}."
@@ -784,8 +777,7 @@ rbho_credential_director() {
   buh_step1 "Next steps"
   buh_e
   buh_line "Return to the start menu:"
-  buyy_tt_yawp "${RBZ_ONBOARD_START_HERE}"
-  buh_line "   ${z_buym_yelp}"
+  buh_tt   "   " "${RBZ_ONBOARD_START_HERE}"
   buh_e
 }
 

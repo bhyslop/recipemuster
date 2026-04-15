@@ -313,6 +313,20 @@ buh_tlT()     { zbuh_link_fragment "${2}" "${3}"; zbuh_tabtarget_fragment "${4}"
 buh_tltT()    { zbuh_link_fragment "${2}" "${3}"; zbuh_tabtarget_fragment "${5}"; zbuh_show "${1}${ZBUH_LINK_FRAG}${4}${ZBUH_TT_FRAG}"; }
 
 ######################################################################
+# Public: Yelp-aware tabtarget display
+#
+# buh_tt prefix colophon [imprint] [args]
+#   Resolves tabtarget via yawp, displays with prefix.
+#   Replaces buh_tT, buh_tTc, buh_tI, buh_tIc combinators.
+
+buh_tt() {
+  zbuh_sentinel
+  buyy_tt_yawp "${2:-}" "${3:-}" "${4:-}"
+  local -r z_tt="${z_buym_yelp}"
+  buh_line "${1:-}${z_tt}"
+}
+
+######################################################################
 # Public: Index renderers
 #
 # Group-level handbook indexes shared across kits.

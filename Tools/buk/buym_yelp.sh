@@ -255,7 +255,7 @@ buyy_link_yawp() {
   z_buym_yelp="${ZBUYM_DIASTEMA_LINK_URL}${z_url}${ZBUYM_DIASTEMA_LINK_TEXT}${z_display}${ZBUYM_DIASTEMA_END}"
 }
 
-# buyy_tt_yawp colophon [imprint] — resolves tabtarget, stamps TT region
+# buyy_tt_yawp colophon [imprint] [args] — resolves tabtarget, stamps TT region
 # → local -r z_tt="${z_buym_yelp}"
 buyy_tt_yawp() {
   zbuym_sentinel
@@ -268,7 +268,7 @@ buyy_tt_yawp() {
     local z_matches=("${BURD_TABTARGET_DIR}"/${z_colophon}.*)
     test -e "${z_matches[0]}" && z_path="${z_matches[0]}" || z_path="??${z_colophon}??"
   fi
-  z_buym_yelp="${ZBUYM_DIASTEMA_TT}${z_path}${ZBUYM_DIASTEMA_END}"
+  z_buym_yelp="${ZBUYM_DIASTEMA_TT}${z_path}${3:-}${ZBUYM_DIASTEMA_END}"
 }
 
 ######################################################################
