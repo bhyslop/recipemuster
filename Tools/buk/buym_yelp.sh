@@ -93,6 +93,8 @@ zbuym_kindle() {
     readonly BUYC_BRIGHT_WHITE="\033[1;37m"
     readonly BUYC_LINK="\033[34;4m"
     readonly BUYC_HREF="\033[34;4m"
+    readonly BUYC_GREEN="\033[32m"
+    readonly BUYC_ORANGE="\033[33m"
   else
     readonly BUYC_RESET=""
     readonly BUYC_CYAN=""
@@ -102,6 +104,8 @@ zbuym_kindle() {
     readonly BUYC_BRIGHT_WHITE=""
     readonly BUYC_LINK=""
     readonly BUYC_HREF=""
+    readonly BUYC_GREEN=""
+    readonly BUYC_ORANGE=""
   fi
 
   # --- Hyperlink mode ---
@@ -124,6 +128,9 @@ zbuym_kindle() {
   readonly ZBUYM_DIASTEMA_LINK_TEXT=$'\x02\x16'
   readonly ZBUYM_DIASTEMA_TT=$'\x02\x17'
   readonly ZBUYM_DIASTEMA_END=$'\x02\x18'
+  readonly ZBUYM_DIASTEMA_PASS=$'\x02\x19'
+  readonly ZBUYM_DIASTEMA_WARN=$'\x02\x1a'
+  readonly ZBUYM_DIASTEMA_FAIL=$'\x02\x1b'
 
   # --- Mutable kindle state for yawp groups ---
   z_buym_yelp=""
@@ -271,6 +278,27 @@ buyy_tt_yawp() {
   z_buym_yelp="${ZBUYM_DIASTEMA_TT}${z_path}${3:-}${ZBUYM_DIASTEMA_END}"
 }
 
+# buyy_pass_yawp text — stamps PASS region (green)
+# → local -r z_pass="${z_buym_yelp}"
+buyy_pass_yawp() {
+  zbuym_sentinel
+  z_buym_yelp="${ZBUYM_DIASTEMA_PASS}${1:-}${ZBUYM_DIASTEMA_END}"
+}
+
+# buyy_warn_yawp text — stamps WARN region (orange)
+# → local -r z_warn="${z_buym_yelp}"
+buyy_warn_yawp() {
+  zbuym_sentinel
+  z_buym_yelp="${ZBUYM_DIASTEMA_WARN}${1:-}${ZBUYM_DIASTEMA_END}"
+}
+
+# buyy_fail_yawp text — stamps FAIL region (red)
+# → local -r z_fail="${z_buym_yelp}"
+buyy_fail_yawp() {
+  zbuym_sentinel
+  z_buym_yelp="${ZBUYM_DIASTEMA_FAIL}${1:-}${ZBUYM_DIASTEMA_END}"
+}
+
 ######################################################################
 # Format yawp (buyf_*)
 #
@@ -341,6 +369,9 @@ buyf_format_yawp() {
   z_str="${z_str//${ZBUYM_DIASTEMA_CMD}/${BUYC_CYAN}}"
   z_str="${z_str//${ZBUYM_DIASTEMA_UI}/${BUYC_MAGENTA}}"
   z_str="${z_str//${ZBUYM_DIASTEMA_TT}/${BUYC_CYAN}}"
+  z_str="${z_str//${ZBUYM_DIASTEMA_PASS}/${BUYC_GREEN}}"
+  z_str="${z_str//${ZBUYM_DIASTEMA_WARN}/${BUYC_ORANGE}}"
+  z_str="${z_str//${ZBUYM_DIASTEMA_FAIL}/${BUYC_BRIGHT_RED}}"
   z_str="${z_str//${ZBUYM_DIASTEMA_END}/${z_ambient}}"
 
   z_buym_format="${z_ambient}${z_str}${BUYC_RESET}"

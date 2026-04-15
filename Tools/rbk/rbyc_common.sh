@@ -135,6 +135,11 @@ zrbyc_kindle() {
   zrbyc_yk RBYC_PAYORS     "${z_docs}" "Payor"      "Payor's"
   zrbyc_yk RBYC_VOUCHED    "${z_docs}" "Vouch"      "Vouched"
 
+  # --- Probe markers (pass/warn for handbook status probes) ---
+
+  buyy_pass_yawp " [*] "; readonly RBYC_PROBE_YES="${z_buym_yelp}"
+  buyy_warn_yawp " [ ] "; readonly RBYC_PROBE_NO="${z_buym_yelp}"
+
   unset -f zrbyc_yk
   readonly ZRBYC_KINDLED=1
 }
