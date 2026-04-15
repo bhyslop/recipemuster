@@ -84,9 +84,9 @@ butt_kindle() {
 
   # buh-link fixture (3 cases)
   butr_fixture_enroll "buh-link" "" "zbutt_noop_baste"
-  butr_case_enroll "buh-link" butclc_tlt_osc8_tcase
-  butr_case_enroll "buh-link" butclc_tlt_fallback_tcase
-  butr_case_enroll "buh-link" butclc_all_combinators_tcase
+  butr_case_enroll "buh-link" butclc_link_osc8_tcase
+  butr_case_enroll "buh-link" butclc_link_fallback_tcase
+  butr_case_enroll "buh-link" butclc_link_variants_tcase
 
   # buym-yelp fixture (7 cases)
   butr_fixture_enroll "buym-yelp" "" "zbutt_noop_baste"

@@ -54,24 +54,24 @@ rbhw_handbook_top() {
   buc_doc_shown || return 0
 
   buh_section  "Recipe Bottle Handbook"
-  buh_t        "Three handbook groups covering setup, operations, and maintenance."
+  buh_line     "Three handbook groups covering setup, operations, and maintenance."
   buh_e
   buh_index_buk
   buh_e
   buh_section  "Onboarding — role-based walkthroughs"
-  buh_t        "  Per-role setup guides with health probes."
-  buh_tT       "  Start here:   " "rbw-o"
-  buh_tT       "  Crash course: " "rbw-Occ"
+  buh_line     "  Per-role setup guides with health probes."
+  buh_tt       "  Start here:   " "${RBZ_ONBOARD_START_HERE}"
+  buh_tt       "  Crash course: " "${RBZ_ONBOARD_CRASH_COURSE}"
   buh_e
   buh_section  "Payor — billing and OAuth ceremonies"
-  buh_t        "  GCP project ownership, OAuth consent, credential refresh."
-  buh_tT       "  Establish: " "rbw-gPE"
-  buh_tT       "  Refresh:   " "rbw-gPR"
-  buh_tT       "  Quota:     " "rbw-gq"
+  buh_line     "  GCP project ownership, OAuth consent, credential refresh."
+  buh_tt       "  Establish: " "${RBZ_PAYOR_ESTABLISH}"
+  buh_tt       "  Refresh:   " "${RBZ_PAYOR_REFRESH}"
+  buh_tt       "  Quota:     " "${RBZ_QUOTA_BUILD}"
   buh_e
   buh_section  "Windows — test infrastructure"
-  buh_t        "  SSH access, WSL, Cygwin, Docker for Windows-hosted testing."
-  buh_tT       "  Full setup: " "rbw-hw"
+  buh_line     "  SSH access, WSL, Cygwin, Docker for Windows-hosted testing."
+  buh_tt       "  Full setup: " "${RBZ_HANDBOOK_WINDOWS}"
 
 }
 
@@ -82,22 +82,22 @@ rbhw_docker_desktop() {
   buc_doc_shown || return 0
 
   buh_section  "Docker Desktop Installation"
-  buh_t        "Provide Windows-hosted Docker daemon for Windows and Cygwin environments."
+  buh_line     "Provide Windows-hosted Docker daemon for Windows and Cygwin environments."
   buh_e
   buh_step1    "Download and Install Docker Desktop:"
   buh_link     "" "Docker Desktop for Windows" "https://www.docker.com/products/docker-desktop/"
   buh_e
   buh_step1    "Enable WSL Integration:"
-  buh_tu       "In Docker Desktop Settings > Resources > " "WSL Integration"
-  buh_tu       "Enable " "Enable integration with my default WSL distro"
+  buyy_ui_yawp "WSL Integration"; buh_line "In Docker Desktop Settings > Resources > ${z_buym_yelp}"
+  buyy_ui_yawp "Enable integration with my default WSL distro"; buh_line "Enable ${z_buym_yelp}"
   buh_e
   buh_step1    "Start Docker Desktop:"
-  buh_t        "Launch Docker Desktop from the Start menu or system tray."
+  buh_line     "Launch Docker Desktop from the Start menu or system tray."
   buh_e
   buh_section  "Verification:"
-  buh_t        "In a Windows PowerShell:"
-  buh_c        "docker ps"
-  buh_t        "Expect: empty container list (no errors)."
+  buh_line     "In a Windows PowerShell:"
+  buh_code     "docker ps"
+  buh_line     "Expect: empty container list (no errors)."
 
 }
 
@@ -111,24 +111,24 @@ rbhw_docker_wsl_native() {
   test -n "${z_distro}" || buc_die "rbhw_docker_wsl_native: distro-name required"
 
   buh_section  "Native Docker Daemon in WSL"
-  buh_tct      "Install and run dockerd natively inside WSL distro " "${z_distro}" "."
+  buyy_cmd_yawp "${z_distro}"; buh_line "Install and run dockerd natively inside WSL distro ${z_buym_yelp}."
   buh_e
   buh_step1    "Enter the Distribution:"
-  buh_c        "wsl -d ${z_distro}"
+  buh_code     "wsl -d ${z_distro}"
   buh_e
   buh_step1    "Install Docker Engine:"
-  buh_c        "sudo apt update"
-  buh_c        "sudo apt install -y docker.io"
-  buh_c        "sudo systemctl enable --now docker"
+  buh_code     "sudo apt update"
+  buh_code     "sudo apt install -y docker.io"
+  buh_code     "sudo systemctl enable --now docker"
   buh_e
   buh_step1    "Grant Docker Access to Users:"
-  buh_t        "Add each user that needs Docker access to the docker group:"
-  buh_c        "sudo usermod -aG docker USERNAME"
-  buh_t        "Replace USERNAME with each fundus user account."
+  buh_line     "Add each user that needs Docker access to the docker group:"
+  buh_code     "sudo usermod -aG docker USERNAME"
+  buh_line     "Replace USERNAME with each fundus user account."
   buh_e
   buh_section  "Verification:"
-  buh_c        "docker ps"
-  buh_t        "Expect: empty container list (no errors)."
+  buh_code     "docker ps"
+  buh_line     "Expect: empty container list (no errors)."
 
 }
 
@@ -139,29 +139,29 @@ rbhw_docker_context_discipline() {
   buc_doc_shown || return 0
 
   buh_section  "Docker Context Discipline"
-  buh_t        "Ensure deterministic daemon selection across environments."
+  buh_line     "Ensure deterministic daemon selection across environments."
   buh_e
   buh_section  "Preconditions:"
-  buh_t        "- Docker Desktop installed (docker-desktop procedure)"
-  buh_t        "- Native dockerd in WSL (docker-wsl-native procedure)"
+  buh_line     "- Docker Desktop installed (docker-desktop procedure)"
+  buh_line     "- Native dockerd in WSL (docker-wsl-native procedure)"
   buh_e
   buh_step1    "Inside WSL — Create Named Context:"
-  buh_tct      "Create context " "${ZRBHW_DOCKER_CONTEXT}" " for the native daemon:"
-  buh_c        "docker context create ${ZRBHW_DOCKER_CONTEXT} --docker \"host=unix:///var/run/docker.sock\""
-  buh_c        "docker context use ${ZRBHW_DOCKER_CONTEXT}"
+  buyy_cmd_yawp "${ZRBHW_DOCKER_CONTEXT}"; buh_line "Create context ${z_buym_yelp} for the native daemon:"
+  buh_code     "docker context create ${ZRBHW_DOCKER_CONTEXT} --docker \"host=unix:///var/run/docker.sock\""
+  buh_code     "docker context use ${ZRBHW_DOCKER_CONTEXT}"
   buh_e
   buh_step1    "On Windows (PowerShell) — Confirm Default Context:"
-  buh_t        "Ensure the default context is active (Docker Desktop):"
-  buh_c        "docker context use default"
+  buh_line     "Ensure the default context is active (Docker Desktop):"
+  buh_code     "docker context use default"
   buh_e
   buh_section  "Result:"
-  buh_t        "- WSL shells use native daemon (via context)"
-  buh_t        "- Windows and Cygwin use Docker Desktop daemon (default)"
+  buh_line     "- WSL shells use native daemon (via context)"
+  buh_line     "- Windows and Cygwin use Docker Desktop daemon (default)"
   buh_e
   buh_section  "Verification:"
-  buh_c        "docker context ls"
-  buh_c        "docker info | grep \"Server\""
-  buh_t        "Expect: active context matches the environment."
+  buh_code     "docker context ls"
+  buh_code     "docker info | grep \"Server\""
+  buh_line     "Expect: active context matches the environment."
 
 }
 
@@ -172,30 +172,30 @@ rbhw_top() {
   buc_doc_shown || return 0
 
   buh_section  "Windows Test Infrastructure Setup"
-  buh_t        "Complete setup sequence for running Recipe Bottle tests on a Windows host."
-  buh_tc       "   Target WSL distro: " "${ZRBHW_WSL_DISTRO}"
-  buh_tc       "   Docker context:    " "${ZRBHW_DOCKER_CONTEXT}"
+  buh_line     "Complete setup sequence for running Recipe Bottle tests on a Windows host."
+  buyy_cmd_yawp "${ZRBHW_WSL_DISTRO}"; buh_line "   Target WSL distro: ${z_buym_yelp}"
+  buyy_cmd_yawp "${ZRBHW_DOCKER_CONTEXT}"; buh_line "   Docker context:    ${z_buym_yelp}"
   buh_e
   buh_section  "Phase 1: SSH Access (BUK — generic OS)"
-  buh_tT       "  1. OpenSSH server install & lockdown:  " "buw-HWab"
-  buh_tT       "  2. SSH client key & host config:       " "buw-HWar"
-  buh_tT       "  3. SSH entrypoint routing (command=):  " "buw-HWax"
+  buh_tt       "  1. OpenSSH server install & lockdown:  " "${BUWZ_HW_ACCESS_BASE}"
+  buh_tt       "  2. SSH client key & host config:       " "${BUWZ_HW_ACCESS_REMOTE}"
+  buh_tt       "  3. SSH entrypoint routing (command=):  " "${BUWZ_HW_ACCESS_ENTRY}"
   buh_e
   buh_section  "Phase 2: Environments (BUK — generic OS)"
-  buh_tT       "  4. WSL distribution setup:             " "buw-HWew"
-  buh_tc       "     Pass distro name: " "${ZRBHW_WSL_DISTRO}"
-  buh_tT       "  5. Cygwin installation:                " "buw-HWec"
+  buh_tt       "  4. WSL distribution setup:             " "${BUWZ_HW_ENV_WSL}"
+  buyy_cmd_yawp "${ZRBHW_WSL_DISTRO}"; buh_line "     Pass distro name: ${z_buym_yelp}"
+  buh_tt       "  5. Cygwin installation:                " "${BUWZ_HW_ENV_CYGWIN}"
   buh_e
   buh_section  "Phase 3: User Provisioning (JJK — fundus accounts)"
-  buh_t        "  6. Fundus user provisioning runs inside WSL:"
-  buh_tT       "     Phase 1 (create users):             " "jjw-tfP1"
-  buh_t        "     Phase 2 (clone repos):              tt/jjw-tfP2.ProvisionPhase2.{host}.sh"
+  buh_line     "  6. Fundus user provisioning runs inside WSL:"
+  buh_tt       "     Phase 1 (create users):             " "${JJZ_FUNDUS_PHASE1}"
+  buh_line     "     Phase 2 (clone repos):              tt/jjw-tfP2.ProvisionPhase2.{host}.sh"
   buh_e
   buh_section  "Phase 4: Docker (RBK — project-specific)"
-  buh_tT       "  7. Docker Desktop install:             " "rbw-HWdd"
-  buh_tT       "  8. Native dockerd in WSL:              " "rbw-HWdw"
-  buh_tc       "     Pass distro name: " "${ZRBHW_WSL_DISTRO}"
-  buh_tT       "  9. Docker context discipline:          " "rbw-HWdc"
+  buh_tt       "  7. Docker Desktop install:             " "${RBZ_HW_DOCKER_DESKTOP}"
+  buh_tt       "  8. Native dockerd in WSL:              " "${RBZ_HW_DOCKER_WSL_NATIVE}"
+  buyy_cmd_yawp "${ZRBHW_WSL_DISTRO}"; buh_line "     Pass distro name: ${z_buym_yelp}"
+  buh_tt       "  9. Docker context discipline:          " "${RBZ_HW_DOCKER_CONTEXT}"
 
 }
 

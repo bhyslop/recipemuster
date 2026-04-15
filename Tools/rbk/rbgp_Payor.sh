@@ -445,13 +445,13 @@ rbgp_payor_install() {
   buh_e
   buh_link "Open this URL in your browser: " "Google OAuth Authorization" "${z_auth_url}"
   buh_e
-  buh_t  "You will see three or four screens:"
-  buh_tut "  1. " "Choose an account" " - Select the Google account for this payor"
-  buh_tut "  2. If screen says " "Google hasn't verified this app" ", click Continue"
-  buh_t   "     Otherwise, proceed to next step"
-  buh_tut "  3. " "Recipe Bottle Payor wants access" " - Review the requested permissions"
-  buh_tu  "     Check the permission checkboxes to grant access, then click " "Continue"
-  buh_t   "  4. Authorization code will be displayed"
+  buh_line "You will see three or four screens:"
+  buyy_ui_yawp "Choose an account"; buh_line "  1. ${z_buym_yelp} - Select the Google account for this payor"
+  buyy_ui_yawp "Google hasn't verified this app"; buh_line "  2. If screen says ${z_buym_yelp}, click Continue"
+  buh_line "     Otherwise, proceed to next step"
+  buyy_ui_yawp "Recipe Bottle Payor wants access"; buh_line "  3. ${z_buym_yelp} - Review the requested permissions"
+  buyy_ui_yawp "Continue"; buh_line "     Check the permission checkboxes to grant access, then click ${z_buym_yelp}"
+  buh_line "  4. Authorization code will be displayed"
   buh_e
   local z_auth_code
   z_auth_code=$(buh_prompt "Copy the authorization code and paste here: ")

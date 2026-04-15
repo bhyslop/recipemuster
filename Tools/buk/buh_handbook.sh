@@ -22,24 +22,17 @@
 # the user MUST see the output to proceed (OAuth flows, manual steps, etc).
 # All output goes to stderr and is NOT subject to verbosity control.
 #
-# Function naming convention encodes color sequence for positional args:
-#   t = text (default color)
-#   c = command/code (cyan)
-#   u = UI element (magenta) - text user sees on screen
-#   W = warning (yellow) - uppercase for visual pop
-#   E = error (red) - uppercase for visual pop
-#   l = link (blue underline, OSC-8 hyperlink) - consumes TWO args
+# All display is routed through yelp-aware functions:
+#   buh_line   — prose (BUYC_RESET ambient)
+#   buh_code   — command/code (BUYC_CYAN ambient)
+#   buh_warn   — warning (BUYC_BRIGHT_YELLOW ambient)
+#   buh_error  — error (BUYC_BRIGHT_RED ambient)
+#   buh_link   — OSC-8 hyperlink with prefix/suffix
+#   buh_tt     — resolved tabtarget display
 #
-# Each letter consumes one positional argument, except 'l' which consumes
-# two (display_text then url). This is the only multi-arg letter.
-#
-# Example: buh_tut "Click the " "Save" " button"
-#   Renders: "Click the " + magenta("Save") + " button"
-#
-# Link arg mapping example for buh_tlt:
-#   buh_tlt  "A "  "hallmark"  "https://...#hallmark"  " is a named artifact."
-#            ^^^^  ^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^   ^^^^^^^^^^^^^^^^^^^^^^^^
-#            t(1)  l(1:text)   l(2:url)                t(1)
+# Callers compose lines from yelp yawp captures (buyy_*_yawp)
+# and pass the pre-rendered string to buh_line:
+#   buyy_cmd_yawp "gcloud"; buh_line "Run ${z_buym_yelp} to authenticate."
 
 set -euo pipefail
 
@@ -64,22 +57,12 @@ zbuh_kindle() {
 
   if test "${z_use_color}" = "1"; then
     readonly ZBUH_R="\033[0m"          # Reset
-    readonly ZBUH_T=""                 # Text (default - no color change)
-    readonly ZBUH_C="\033[36m"         # Command (cyan)
-    readonly ZBUH_U="\033[35m"         # UI element (magenta)
-    readonly ZBUH_W="\033[1;33m"       # Warning (bright yellow)
     readonly ZBUH_E="\033[1;31m"       # Error (bright red)
     readonly ZBUH_S="\033[1;37m"       # Section (bright white)
-    readonly ZBUH_L="\033[34;4m"       # Link (blue + underline)
   else
     readonly ZBUH_R=""
-    readonly ZBUH_T=""
-    readonly ZBUH_C=""
-    readonly ZBUH_U=""
-    readonly ZBUH_W=""
     readonly ZBUH_E=""
     readonly ZBUH_S=""
-    readonly ZBUH_L=""
   fi
 
   # Mutable kindle state — step counters, body indent, step format
@@ -94,32 +77,6 @@ zbuh_kindle() {
 
 zbuh_sentinel() {
   test "${ZBUH_KINDLED:-}" = "1" || { zbuh_kindle; }
-}
-
-######################################################################
-# Internal: Core output
-
-zbuh_show() {
-  zbuh_sentinel
-  printf '%b\n' "${z_buh_body_indent}${1:-}" >&2
-}
-
-######################################################################
-# Internal: Link fragment builder
-#
-# Sets ZBUH_LINK_FRAG to a formatted link fragment for embedding in
-# combinator output.  Respects BURD_NO_HYPERLINKS fallback.
-# Args: display_text url
-
-zbuh_link_fragment() {
-  zbuh_sentinel
-  local -r z_text="${1:-}"
-  local -r z_url="${2:-}"
-  if test -n "${BURD_NO_HYPERLINKS:-}"; then
-    ZBUH_LINK_FRAG="${ZBUH_L}${z_text}${ZBUH_R} <${z_url}>"
-  else
-    ZBUH_LINK_FRAG="${ZBUH_L}\033]8;;${z_url}\033\\\\${z_text}\033]8;;\033\\\\${ZBUH_R}"
-  fi
 }
 
 ######################################################################
@@ -152,47 +109,6 @@ buh_step2() {
 }
 
 ######################################################################
-# Public: Text combinators
-#
-# Naming: sequence of t/c/u/W/E describes positional arg colors
-# Each letter consumes one positional argument
-
-# Single element (sorted)
-buh_c()       { zbuh_show "${ZBUH_C}${1}${ZBUH_R}"; }
-buh_E()       { zbuh_show "${ZBUH_E}${1}${ZBUH_R}"; }
-buh_t()       { zbuh_show "${1}"; }
-buh_u()       { zbuh_show "${ZBUH_U}${1}${ZBUH_R}"; }
-buh_W()       { zbuh_show "${ZBUH_W}${1}${ZBUH_R}"; }
-
-# Two elements (sorted)
-buh_ct()      { zbuh_show "${ZBUH_C}${1}${ZBUH_R}${2}"; }
-buh_tc()      { zbuh_show "${1}${ZBUH_C}${2}${ZBUH_R}"; }
-buh_tE()      { zbuh_show "${1}${ZBUH_E}${2}${ZBUH_R}"; }
-buh_tu()      { zbuh_show "${1}${ZBUH_U}${2}${ZBUH_R}"; }
-buh_tW()      { zbuh_show "${1}${ZBUH_W}${2}${ZBUH_R}"; }
-buh_ut()      { zbuh_show "${ZBUH_U}${1}${ZBUH_R}${2}"; }
-
-# Three elements (sorted)
-buh_tct()     { zbuh_show "${1}${ZBUH_C}${2}${ZBUH_R}${3}"; }
-buh_tcu()     { zbuh_show "${1}${ZBUH_C}${2}${ZBUH_R}${ZBUH_U}${3}${ZBUH_R}"; }
-buh_tEt()     { zbuh_show "${1}${ZBUH_E}${2}${ZBUH_R}${3}"; }
-buh_tuc()     { zbuh_show "${1}${ZBUH_U}${2}${ZBUH_R}${ZBUH_C}${3}${ZBUH_R}"; }
-buh_tut()     { zbuh_show "${1}${ZBUH_U}${2}${ZBUH_R}${3}"; }
-buh_tWt()     { zbuh_show "${1}${ZBUH_W}${2}${ZBUH_R}${3}"; }
-
-# Four elements (sorted)
-buh_tctc()    { zbuh_show "${1}${ZBUH_C}${2}${ZBUH_R}${3}${ZBUH_C}${4}${ZBUH_R}"; }
-buh_tctu()    { zbuh_show "${1}${ZBUH_C}${2}${ZBUH_R}${3}${ZBUH_U}${4}${ZBUH_R}"; }
-buh_tcut()    { zbuh_show "${1}${ZBUH_C}${2}${ZBUH_R}${ZBUH_U}${3}${ZBUH_R}${4}"; }
-buh_tuct()    { zbuh_show "${1}${ZBUH_U}${2}${ZBUH_R}${ZBUH_C}${3}${ZBUH_R}${4}"; }
-buh_tutE()    { zbuh_show "${1}${ZBUH_U}${2}${ZBUH_R}${3}${ZBUH_E}${4}${ZBUH_R}"; }
-buh_tutu()    { zbuh_show "${1}${ZBUH_U}${2}${ZBUH_R}${3}${ZBUH_U}${4}${ZBUH_R}"; }
-
-# Five elements (sorted)
-buh_tctct()   { zbuh_show "${1}${ZBUH_C}${2}${ZBUH_R}${3}${ZBUH_C}${4}${ZBUH_R}${5}"; }
-buh_tutut()   { zbuh_show "${1}${ZBUH_U}${2}${ZBUH_R}${3}${ZBUH_U}${4}${ZBUH_R}${5}"; }
-
-######################################################################
 # Public: Hyperlinks
 #
 # buh_link "prefix text" "link text" "url" "suffix text"
@@ -220,107 +136,10 @@ buh_link() {
 }
 
 ######################################################################
-# Public: Link combinators
-#
-# The 'l' letter consumes TWO positional args (display_text, url) and
-# renders an OSC-8 terminal hyperlink.  All other letters consume one.
-#
-# Arg mapping example for buh_tlt:
-#   buh_tlt  "A "  "hallmark"  "https://...#hallmark"  " is a named artifact."
-#            ^^^^  ^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^   ^^^^^^^^^^^^^^^^^^^^^^^^
-#            t(1)  l(1:text)   l(2:url)                t(1)
-
-buh_lt()      { zbuh_link_fragment "${1}" "${2}"; zbuh_show "${ZBUH_LINK_FRAG}${3}"; }
-buh_tl()      { zbuh_link_fragment "${2}" "${3}"; zbuh_show "${1}${ZBUH_LINK_FRAG}"; }
-buh_tlt()     { zbuh_link_fragment "${2}" "${3}"; zbuh_show "${1}${ZBUH_LINK_FRAG}${4}"; }
-buh_tlc()     { zbuh_link_fragment "${2}" "${3}"; zbuh_show "${1}${ZBUH_LINK_FRAG}${ZBUH_C}${4}${ZBUH_R}"; }
-
-buh_tltlt() {
-  zbuh_link_fragment "${2}" "${3}"
-  local -r z_frag1="${ZBUH_LINK_FRAG}"
-  zbuh_link_fragment "${5}" "${6}"
-  zbuh_show "${1}${z_frag1}${4}${ZBUH_LINK_FRAG}${7}"
-}
-
-buh_tltltlt() {
-  zbuh_link_fragment "${2}" "${3}"
-  local -r z_frag1="${ZBUH_LINK_FRAG}"
-  zbuh_link_fragment "${5}" "${6}"
-  local -r z_frag2="${ZBUH_LINK_FRAG}"
-  zbuh_link_fragment "${8}" "${9}"
-  zbuh_show "${1}${z_frag1}${4}${z_frag2}${7}${ZBUH_LINK_FRAG}${10}"
-}
-
-buh_tltltltlt() {
-  zbuh_link_fragment "${2}" "${3}"
-  local -r z_frag1="${ZBUH_LINK_FRAG}"
-  zbuh_link_fragment "${5}" "${6}"
-  local -r z_frag2="${ZBUH_LINK_FRAG}"
-  zbuh_link_fragment "${8}" "${9}"
-  local -r z_frag3="${ZBUH_LINK_FRAG}"
-  zbuh_link_fragment "${11}" "${12}"
-  zbuh_show "${1}${z_frag1}${4}${z_frag2}${7}${z_frag3}${10}${ZBUH_LINK_FRAG}${13}"
-}
-
-buh_tltTtT() {
-  zbuh_link_fragment "${2}" "${3}"
-  local -r z_frag1="${ZBUH_LINK_FRAG}"
-  zbuh_tabtarget_fragment "${5}"
-  local -r z_frag2="${ZBUH_TT_FRAG}"
-  zbuh_tabtarget_fragment "${7}"
-  zbuh_show "${1}${z_frag1}${4}${z_frag2}${6}${ZBUH_TT_FRAG}${8}"
-}
-
-######################################################################
-# Internal: Tabtarget fragment builder
-#
-# Sets ZBUH_TT_FRAG to a resolved tabtarget path in cyan for embedding
-# in combinator output.  Resolves colophon via glob.
-# Args: colophon
-
-zbuh_tabtarget_fragment() {
-  zbuh_sentinel
-  local z_matches=("${BURD_TABTARGET_DIR}"/${1}.*)
-  test -e "${z_matches[0]}" || buc_die "buh: no tabtarget for colophon '${1}'"
-  ZBUH_TT_FRAG="${ZBUH_C}${z_matches[0]}${ZBUH_R}"
-}
-
-# Imprint tabtarget fragment: resolves colophon + imprint to a specific
-# imprint tabtarget.  Glob: ${colophon}.*.${imprint}.sh
-# Args: colophon imprint
-
-zbuh_imprint_fragment() {
-  zbuh_sentinel
-  local z_matches=("${BURD_TABTARGET_DIR}"/${1}.*.${2}.sh)
-  test -e "${z_matches[0]}" || buc_die "buh: no tabtarget for colophon '${1}' imprint '${2}'"
-  ZBUH_TT_FRAG="${ZBUH_C}${z_matches[0]}${ZBUH_R}"
-}
-
-######################################################################
-# Public: Tabtarget combinators
-#
-# T consumes one positional arg (colophon), resolves to tabtarget path,
-# renders in cyan.  Parallel to l (link) combinator.
-# I consumes two positional args (colophon, imprint), resolves to a
-# specific imprint tabtarget.
-# Trailing c after T or I appends cyan text (arguments) to the resolved
-# path, keeping the whole command visually unified.
-
-buh_T()       { zbuh_tabtarget_fragment "${1}"; zbuh_show "${ZBUH_TT_FRAG}"; }
-buh_tT()      { zbuh_tabtarget_fragment "${2}"; zbuh_show "${1}${ZBUH_TT_FRAG}"; }
-buh_tTc()     { zbuh_tabtarget_fragment "${2}"; zbuh_show "${1}${ZBUH_TT_FRAG}${ZBUH_C}${3}${ZBUH_R}"; }
-buh_tI()      { zbuh_imprint_fragment "${2}" "${3}"; zbuh_show "${1}${ZBUH_TT_FRAG}"; }
-buh_tIc()     { zbuh_imprint_fragment "${2}" "${3}"; zbuh_show "${1}${ZBUH_TT_FRAG}${ZBUH_C}${4}${ZBUH_R}"; }
-buh_cT()      { zbuh_tabtarget_fragment "${2}"; zbuh_show "${ZBUH_C}${1}${ZBUH_R}${ZBUH_TT_FRAG}"; }
-buh_tlT()     { zbuh_link_fragment "${2}" "${3}"; zbuh_tabtarget_fragment "${4}"; zbuh_show "${1}${ZBUH_LINK_FRAG} ${ZBUH_TT_FRAG}"; }
-buh_tltT()    { zbuh_link_fragment "${2}" "${3}"; zbuh_tabtarget_fragment "${5}"; zbuh_show "${1}${ZBUH_LINK_FRAG}${4}${ZBUH_TT_FRAG}"; }
-
-######################################################################
 # Public: Yelp-aware tabtarget display
 #
 # buh_tt prefix colophon [imprint] [args]
 #   Resolves tabtarget via yawp, displays with prefix.
-#   Replaces buh_tT, buh_tTc, buh_tI, buh_tIc combinators.
 
 buh_tt() {
   zbuh_sentinel
@@ -337,8 +156,8 @@ buh_tt() {
 
 buh_index_buk() {
   buh_section  "Generic OS Procedures (Bash Utility Kit)"
-  buh_t        "  Project-independent OS-level mechanisms."
-  buh_tT       "  Windows:  " "buw-hw"
+  buh_line     "  Project-independent OS-level mechanisms."
+  buh_tt       "  Windows:  " "${BUWZ_HW_TOP}"
 }
 
 ######################################################################
@@ -406,7 +225,7 @@ buh_prompt_required() {
   local z_input
   z_input=$(buh_prompt "${1:-}")
   if test -z "${z_input}"; then
-    zbuh_show "${ZBUH_E}ERROR:${ZBUH_R} ${2:-Input required}"
+    printf '%b\n' "${z_buh_body_indent}${ZBUH_E}ERROR:${ZBUH_R} ${2:-Input required}" >&2
     return 1
   fi
   printf '%s' "${z_input}"
@@ -417,11 +236,11 @@ buh_prompt_required() {
 
 buh_critical() {
   zbuh_sentinel
-  zbuh_show ""
-  zbuh_show "${ZBUH_E}===============================================${ZBUH_R}"
-  zbuh_show "${ZBUH_E}  CRITICAL: ${1}${ZBUH_R}"
-  zbuh_show "${ZBUH_E}===============================================${ZBUH_R}"
-  zbuh_show ""
+  printf '\n' >&2
+  printf '%b\n' "${z_buh_body_indent}${ZBUH_E}===============================================${ZBUH_R}" >&2
+  printf '%b\n' "${z_buh_body_indent}${ZBUH_E}  CRITICAL: ${1}${ZBUH_R}" >&2
+  printf '%b\n' "${z_buh_body_indent}${ZBUH_E}===============================================${ZBUH_R}" >&2
+  printf '\n' >&2
 }
 
 # eof

@@ -110,12 +110,12 @@ zburh_construct() {
   if test "${z_has_pubkey}" = "0"; then
     buh_e
     buh_section "SSH Key Required"
-    buh_tct    "No public key at " "${z_pubkey_file}" "."
-    buh_t      "Generate one:"
+    buyy_cmd_yawp "${z_pubkey_file}"; buh_line "No public key at ${z_buym_yelp}."
+    buh_line   "Generate one:"
     buh_e
-    buh_c      "ssh-keygen -t ed25519 -f ~/.ssh/${z_alias}"
+    buh_code   "ssh-keygen -t ed25519 -f ~/.ssh/${z_alias}"
     buh_e
-    buh_t      "Then re-run this constructor to populate the public key."
+    buh_line   "Then re-run this constructor to populate the public key."
   fi
 }
 
