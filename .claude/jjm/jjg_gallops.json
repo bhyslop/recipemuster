@@ -4036,9 +4036,10 @@
       "status": "stabled",
       "order": [
         "₢A_AAA",
-        "₢A_AAB"
+        "₢A_AAB",
+        "₢A_AAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paddock_file": ".claude/jjm/jjp_uAl_.md",
       "paces": {
         "₢A_AAA": {
@@ -4060,6 +4061,17 @@
               "text": "## Character\nMechanical — trace every consumer of container names, network names, and image paths.\n\n## Work\nUpdate RBDC derived constants to prepend `RBRR_RUNTIME_PREFIX` to container/network name bases. Update RBOB (bottle kindle) so `ZRBOB_SENTRY`, `ZRBOB_PENTACLE`, `ZRBOB_BOTTLE`, `ZRBOB_NETWORK` incorporate the runtime prefix. Update image path construction in RBOB and foundry to prepend `RBRR_IMAGE_PREFIX` to vessel package names. Verify compose.yml interpolation still works. Grep for any hardcoded container/network/image name patterns that bypass the prefixed variables.",
               "silks": "derived-constants-and-consumer-wiring",
               "commit": "327e2bc"
+            }
+          ]
+        },
+        "₢A_AAC": {
+          "tacks": [
+            {
+              "ts": "260415-1504",
+              "state": "rough",
+              "text": "## Character\nSmall and mechanical — one function edit.\n\n## Work\nUpdate RBLM marshal zeroes to clear both `RBRR_IMAGE_PREFIX` and `RBRR_RUNTIME_PREFIX` to empty string in the blank template. Verify the zeroed rbrr.env passes validation (empty prefix is valid).",
+              "silks": "marshal-release-zeroes-prefixes",
+              "commit": "4a306c5"
             }
           ]
         }
