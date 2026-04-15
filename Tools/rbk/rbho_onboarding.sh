@@ -59,9 +59,10 @@ zrbho_po_status() {
   local -r z_flag="${1:-}"
   local -r z_text="${2:-}"
   if test "${z_flag}" = "1"; then
-    buh_ct " [*] " "${z_text}"
+    buyy_cmd_yawp " [*] "
+    buh_line "${z_buym_yelp}${z_text}"
   else
-    buh_t " [ ] ${z_text}"
+    buh_line " [ ] ${z_text}"
   fi
 }
 
@@ -317,15 +318,17 @@ zrbho_probe_payor_units() {
 # Args: detected(0|1) role_name colophon
 zrbho_triage_role() {
   local -r z_detected="${1}" z_name="${2}" z_colophon="${3}"
-  local -r z_url="${RBRR_PUBLIC_DOCS_URL}#${z_name}"
+  buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "${z_name}"
+  local -r z_link="${z_buym_yelp}"
   # Column pad lives OUTSIDE the link envelope so the underline/OSC-8 stop
   # at the end of the role name.  Width 13 = 12-char column + 1 separator.
   local z_pad=""
   printf -v z_pad '%*s' $((13 - ${#z_name})) ''
   if test "${z_detected}" = "1"; then
-    buh_tltT " [*] " "${z_name}" "${z_url}" "${z_pad}" "${z_colophon}"
+    buyy_tt_yawp "${z_colophon}"
+    buh_line " [*] ${z_link}${z_pad}${z_buym_yelp}"
   else
-    buh_tl   " [ ] " "${z_name}" "${z_url}"
+    buh_line " [ ] ${z_link}"
   fi
 }
 
@@ -354,100 +357,109 @@ rbho_start_here() {
   # --- Preamble ---
   buh_section "Recipe Bottle — Onboarding Start"
   buh_e
-  buh_tlt "  " "Recipe Bottle" "${z_docs}" " builds container images with supply-chain provenance"
-  buh_t   "  and runs untrusted containers behind enforced network isolation."
+  buh_line "  ${RBYC_RECIPE_BOTTLE} builds container images with supply-chain provenance"
+  buh_line "  and runs untrusted containers behind enforced network isolation."
   buh_e
-  buh_t   "  This menu points you at handbook tracks — self-describing teaching"
-  buh_t   "  documents that explain concepts and show you live probe status."
+  buh_line "  This menu points you at handbook tracks — self-describing teaching"
+  buh_line "  documents that explain concepts and show you live probe status."
   buh_e
 
   # --- Foundation ---
   buh_section "Foundation"
   buh_e
-  buh_t   "    Configure your Repo's Environment"
-  buh_tltlt "      Universal prerequisite. " "Tabtargets" "${z_docs}#Tabtarget" ", " "Regimes" "${z_docs}#Regime" ","
-  buh_tltlt "      " "BURS" "${z_docs}#BURS" " setup, validation, " "Logs" "${z_docs}#Log" ". Local-only, no cloud."
-  buh_tT  "        " "${RBZ_ONBOARD_CRASH_COURSE}"
+  buh_line "    Configure your Repo's Environment"
+  buh_line "      Universal prerequisite. ${RBYC_TABTARGETS}, ${RBYC_REGIMES},"
+  buh_line "      ${RBYC_BURS} setup, validation, ${RBYC_LOGS}. Local-only, no cloud."
+  buyy_tt_yawp "${RBZ_ONBOARD_CRASH_COURSE}"
+  buh_line "        ${z_buym_yelp}"
   buh_e
-  buh_tlt "    Install " "Retriever" "${z_docs}#Retriever" " Credentials"
-  buh_t   "      For joining an established project."
-  buh_tlt "      Place your " "RBRA" "${z_docs}#RBRA" " credential file, verify, confirm you can pull images."
-  buh_tT  "        " "${RBZ_ONBOARD_CRED_RETRIEVER}"
+  buh_line "    Install ${RBYC_RETRIEVER} Credentials"
+  buh_line "      For joining an established project."
+  buh_line "      Place your ${RBYC_RBRA} credential file, verify, confirm you can pull images."
+  buyy_tt_yawp "${RBZ_ONBOARD_CRED_RETRIEVER}"
+  buh_line "        ${z_buym_yelp}"
   buh_e
-  buh_tlt "    Install " "Director" "${z_docs}#Director" " Credentials"
-  buh_t   "      For joining an established project."
-  buh_tlt "      Place your " "RBRA" "${z_docs}#RBRA" " credential file, verify, confirm you can build and publish."
-  buh_tT  "        " "${RBZ_ONBOARD_CRED_DIRECTOR}"
+  buh_line "    Install ${RBYC_DIRECTOR} Credentials"
+  buh_line "      For joining an established project."
+  buh_line "      Place your ${RBYC_RBRA} credential file, verify, confirm you can build and publish."
+  buyy_tt_yawp "${RBZ_ONBOARD_CRED_DIRECTOR}"
+  buh_line "        ${z_buym_yelp}"
   buh_e
-  buh_tlt "    Start a " "Crucible" "${z_docs}#Crucible" " Using Local Builds"
-  buh_tltlt "      The " "ccyolo" "${z_docs}#ccyolo" " " "Crucible" "${z_docs}#Crucible" " runs Claude Code in a container that can"
-  buh_t   "      only reach Anthropic. Requires a Claude OAuth subscription."
-  buh_t   "      Steps:"
-  buh_tltltltlt "        * Build images locally      — " "Kludge" "${z_docs}#Kludge" " " "Sentry" "${z_docs}#Sentry" "/" "Pentacle" "${z_docs}#Pentacle" " and " "Bottle" "${z_docs}#Bottle" ""
-  buh_tltlt   "        * Configure local network   — amend " "Nameplate" "${z_docs}#Nameplate" " " "RBRN" "${z_docs}#RBRN" " file"
-  buh_tltlt   "        * Start the sandbox         — " "Charge" "${z_docs}#Charge" " the " "Crucible" "${z_docs}#Crucible" ""
-  buh_tltlt   "        * Shell into the container  — " "Rack" "${z_docs}#Rack" " the " "Bottle" "${z_docs}#Bottle" ""
-  buh_t   "      No cloud, no credentials beyond your own."
-  buh_tT  "        " "${RBZ_ONBOARD_FIRST_CRUCIBLE}"
+  buh_line "    Start a ${RBYC_CRUCIBLE} Using Local Builds"
+  buh_line "      The ${RBYC_CCYOLO} ${RBYC_CRUCIBLE} runs Claude Code in a container that can"
+  buh_line "      only reach Anthropic. Requires a Claude OAuth subscription."
+  buh_line "      Steps:"
+  buh_line "        * Build images locally      — ${RBYC_KLUDGE} ${RBYC_SENTRY}/${RBYC_PENTACLE} and ${RBYC_BOTTLE}"
+  buh_line "        * Configure local network   — amend ${RBYC_NAMEPLATE} ${RBYC_RBRN} file"
+  buh_line "        * Start the sandbox         — ${RBYC_CHARGE} the ${RBYC_CRUCIBLE}"
+  buh_line "        * Shell into the container  — ${RBYC_RACK} the ${RBYC_BOTTLE}"
+  buh_line "      No cloud, no credentials beyond your own."
+  buyy_tt_yawp "${RBZ_ONBOARD_FIRST_CRUCIBLE}"
+  buh_line "        ${z_buym_yelp}"
   buh_e
 
   # --- Create Payor and Depot ---
   buh_section "Create Payor and Depot"
   buh_e
-  buh_tlt "  A " "Depot" "${z_docs}#Depot" " is the facility where the team's container images are"
-  buh_t   "  built and stored — the ground truth other tracks rest on."
+  buh_line "  A ${RBYC_DEPOT} is the facility where the team's container images are"
+  buh_line "  built and stored — the ground truth other tracks rest on."
   buh_e
-  buh_tltltlt "    " "Payor" "${z_docs}#Payor" " — establish a " "Manor" "${z_docs}#Manor" " and provision the " "Depot" "${z_docs}#Depot" ""
-  buh_tT  "        " "${RBZ_ONBOARD_PAYOR_HB}"
+  buh_line "    ${RBYC_PAYOR} — establish a ${RBYC_MANOR} and provision the ${RBYC_DEPOT}"
+  buyy_tt_yawp "${RBZ_ONBOARD_PAYOR_HB}"
+  buh_line "        ${z_buym_yelp}"
   buh_e
-  buh_tltltlt "    " "Governor" "${z_docs}#Governor" " — administer service accounts for " "Directors" "${z_docs}#Director" " and " "Retrievers" "${z_docs}#Retriever" ""
-  buh_tT  "        " "${RBZ_ONBOARD_GOVERNOR_HB}"
+  buh_line "    ${RBYC_GOVERNOR} — administer service accounts for ${RBYC_DIRECTORS} and ${RBYC_RETRIEVERS}"
+  buyy_tt_yawp "${RBZ_ONBOARD_GOVERNOR_HB}"
+  buh_line "        ${z_buym_yelp}"
   buh_e
 
   # --- Director subtracks ---
   buh_section "Director Subtracks"
   buh_e
-  buh_t   "    Your First Cloud Build"
-  buh_tlt "      Provision the builder toolchain, " "Ordain" "${z_docs}#Ordain" " your first"
-  buh_tlt "      " "Vessel" "${z_docs}#Vessel" " via Cloud Build, and tour the result."
-  buh_t   "      Steps:"
-  buh_tlt "        * Inscribe the " "Reliquary" "${z_docs}#Reliquary" " — provision builder tool images"
-  buh_tltlt "        * " "Conjure" "${z_docs}#Conjure" " " "Sentry" "${z_docs}#Sentry" " — first tethered cloud build"
-  buh_tltltltlt "        * Tour: " "Tally" "${z_docs}#Tally" ", " "Vouch" "${z_docs}#Vouch" ", " "Plumb" "${z_docs}#Plumb" ", " "Pouch" "${z_docs}#Pouch" " — inspect images and SLSA"
-  buh_tlt "        * " "Summon" "${z_docs}#Summon" " — pull the hallmark locally"
-  buh_tltlt "        * " "Abjure" "${z_docs}#Abjure" " and " "Rekon" "${z_docs}#Rekon" " — hallmark lifecycle"
-  buh_t   "      Requires: Director credentials and a provisioned Depot."
-  buh_tT  "        " "${RBZ_ONBOARD_DIR_FIRST_BUILD}"
+  buh_line "    Your First Cloud Build"
+  buh_line "      Provision the builder toolchain, ${RBYC_ORDAIN} your first"
+  buh_line "      ${RBYC_VESSEL} via Cloud Build, and tour the result."
+  buh_line "      Steps:"
+  buh_line "        * Inscribe the ${RBYC_RELIQUARY} — provision builder tool images"
+  buh_line "        * ${RBYC_CONJURE} ${RBYC_SENTRY} — first tethered cloud build"
+  buh_line "        * Tour: ${RBYC_TALLY}, ${RBYC_VOUCH}, ${RBYC_PLUMB}, ${RBYC_POUCH} — inspect images and SLSA"
+  buh_line "        * ${RBYC_SUMMON} — pull the hallmark locally"
+  buh_line "        * ${RBYC_ABJURE} and ${RBYC_REKON} — hallmark lifecycle"
+  buh_line "      Requires: Director credentials and a provisioned Depot."
+  buyy_tt_yawp "${RBZ_ONBOARD_DIR_FIRST_BUILD}"
+  buh_line "        ${z_buym_yelp}"
   buh_e
-  buh_tlt "    " "Airgap" "${z_docs}#Airgap" " Cloud Build"
-  buh_tlt "      Build with zero upstream access. " "Enshrine" "${z_docs}#Enshrine" " mirrors base images"
-  buh_t   "      into the Depot so Cloud Build never reaches the internet."
-  buh_t   "      Steps:"
-  buh_tlt "        * " "Enshrine" "${z_docs}#Enshrine" " base images — mirror upstream into the Depot"
-  buh_tltlt "        * " "Conjure" "${z_docs}#Conjure" " " "Sentry" "${z_docs}#Sentry" " airgapped — same vessel, full isolation"
-  buh_tlt "        * Compare " "Plumb" "${z_docs}#Plumb" " output — tethered vs airgap side by side"
-  buh_t   "      Requires: Reliquary inscribed (previous track)."
+  buh_line "    ${RBYC_AIRGAP} Cloud Build"
+  buh_line "      Build with zero upstream access. ${RBYC_ENSHRINE} mirrors base images"
+  buh_line "      into the Depot so Cloud Build never reaches the internet."
+  buh_line "      Steps:"
+  buh_line "        * ${RBYC_ENSHRINE} base images — mirror upstream into the Depot"
+  buh_line "        * ${RBYC_CONJURE} ${RBYC_SENTRY} airgapped — same vessel, full isolation"
+  buh_line "        * Compare ${RBYC_PLUMB} output — tethered vs airgap side by side"
+  buh_line "      Requires: Reliquary inscribed (previous track)."
   buh_e
-  buh_tlt "    " "Bind" "${z_docs}#Bind" " — Safe PlantUML Container"
-  buh_t   "      Mirror an upstream image by digest — no Dockerfile, no build."
-  buh_t   "      PlantUML renders diagrams but its Docker Hub image could"
-  buh_t   "      phone home. Bind pins it; the Sentry blocks all egress."
-  buh_t   "      Steps:"
-  buh_tltlt "        * " "Bind" "${z_docs}#Bind" " " "PlantUML" "${z_docs}#Bind" " — pin upstream image by digest"
-  buh_tlt "        * Inspect " "Vouch" "${z_docs}#Vouch" " verdict — digest-pin, no SLSA (image not built here)"
-  buh_tltlt "        * " "Charge" "${z_docs}#Charge" " the " "pluml" "${z_docs}#Nameplate" " Crucible — render a diagram, observe blocked egress"
-  buh_t   "      You get the tool without the risk."
+  buh_line "    ${RBYC_BIND} — Safe PlantUML Container"
+  buh_line "      Mirror an upstream image by digest — no Dockerfile, no build."
+  buh_line "      PlantUML renders diagrams but its Docker Hub image could"
+  buh_line "      phone home. Bind pins it; the Sentry blocks all egress."
+  buh_line "      Steps:"
+  buyy_link_yawp "${z_docs}" "Bind" "PlantUML"
+  buh_line "        * ${RBYC_BIND} ${z_buym_yelp} — pin upstream image by digest"
+  buh_line "        * Inspect ${RBYC_VOUCH} verdict — digest-pin, no SLSA (image not built here)"
+  buyy_link_yawp "${z_docs}" "Nameplate" "pluml"
+  buh_line "        * ${RBYC_CHARGE} the ${z_buym_yelp} ${RBYC_CRUCIBLE} — render a diagram, observe blocked egress"
+  buh_line "      You get the tool without the risk."
   buh_e
-  buh_tlt "    " "Graft" "${z_docs}#Graft" " — Local Image Publishing"
-  buh_t   "      Push a locally-built image to the Depot. The user owns the"
-  buh_t   "      entire build — SLSA cannot vouch for this image. Vouch verdict"
-  buh_t   "      is GRAFTED: an explicit signal that provenance stops at the"
-  buh_t   "      local machine. Not the enterprise path for safe image creation."
-  buh_t   "      Steps:"
-  buh_tlt "        * " "Kludge" "${z_docs}#Kludge" " a vessel image locally"
-  buh_tlt "        * " "Graft" "${z_docs}#Graft" " — push local image to the Depot"
-  buh_tlt "        * Inspect " "Vouch" "${z_docs}#Vouch" " verdict — GRAFTED, no provenance chain"
-  buh_t   "      Development and prototyping workflow, not production supply chain."
+  buh_line "    ${RBYC_GRAFT} — Local Image Publishing"
+  buh_line "      Push a locally-built image to the Depot. The user owns the"
+  buh_line "      entire build — SLSA cannot vouch for this image. Vouch verdict"
+  buh_line "      is GRAFTED: an explicit signal that provenance stops at the"
+  buh_line "      local machine. Not the enterprise path for safe image creation."
+  buh_line "      Steps:"
+  buh_line "        * ${RBYC_KLUDGE} a vessel image locally"
+  buh_line "        * ${RBYC_GRAFT} — push local image to the Depot"
+  buh_line "        * Inspect ${RBYC_VOUCH} verdict — GRAFTED, no provenance chain"
+  buh_line "      Development and prototyping workflow, not production supply chain."
   buh_e
 
 }
@@ -465,8 +477,6 @@ rbho_crash_course() {
   buc_doc_brief "Configure your Repo's Environment — tabtargets, regimes, station setup, logs"
   buc_doc_shown || return 0
 
-  local -r z_docs="${RBRR_PUBLIC_DOCS_URL}"
-
   # --- Probes ---
   local z_rbrr_project="" z_rbrr_populated=0
   if test -f "${RBBC_rbrr_file}"; then
@@ -480,6 +490,8 @@ rbho_crash_course() {
     z_log_dir=$(zrbho_po_extract_capture "${BURD_STATION_FILE}" "BURS_LOG_DIR") || z_log_dir=""
   fi
 
+  local z_tt=""
+
   # --- Header ---
   buh_section "Recipe Bottle — Configure your Repo's Environment"
   buh_e
@@ -488,50 +500,56 @@ rbho_crash_course() {
   # --- Step 1: What you ran to get here ---
   buh_step1 "What you ran to get here"
   buh_e
-  buh_tlt "The command you just ran is a " "Tabtarget" "${z_docs}#Tabtarget" " — a launcher script"
-  buh_t   "in the ${BURC_TABTARGET_DIR}/ directory. Tab completion narrows by prefix: type \`${BURC_TABTARGET_DIR}/rbw-<TAB>\` to see every"
-  buh_tlt "" "Recipe Bottle" "${z_docs}" " command."
+  buh_line "The command you just ran is a ${RBYC_TABTARGET} — a launcher script"
+  buh_line "in the ${BURC_TABTARGET_DIR}/ directory. Tab completion narrows by prefix: type \`${BURC_TABTARGET_DIR}/rbw-<TAB>\` to see every"
+  buh_line "${RBYC_RECIPE_BOTTLE} command."
   buh_e
 
   # --- Step 2: View the project config (BURC) ---
   buh_step1 "View the project config"
   buh_e
-  buh_tlt "A " "Regime" "${z_docs}#Regime" " is a configuration file with a schema, a renderer,"
-  buh_t   "and a validator. Run the renderer for the project config regime:"
+  buh_line "A ${RBYC_REGIME} is a configuration file with a schema, a renderer,"
+  buh_line "and a validator. Run the renderer for the project config regime:"
   buh_e
-  buh_tT  "   " "${BUWZ_RC_RENDER}"
+  buyy_tt_yawp "${BUWZ_RC_RENDER}"
+  buh_line "   ${z_buym_yelp}"
   buh_e
-  buh_tlt "" "BURC" "${z_docs}#BURC" " is checked into git — shared project settings that every"
-  buh_t   "clone gets. It tells the launcher where to find tools and where"
-  buh_t   "to look for your personal station file."
+  buh_line "${RBYC_BURC} is checked into git — shared project settings that every"
+  buh_line "clone gets. It tells the launcher where to find tools and where"
+  buh_line "to look for your personal station file."
   buh_e
 
   # --- Step 3: View your station (BURS) ---
   buh_step1 "View your personal station"
   buh_e
-  buh_tlt "" "BURS" "${z_docs}#BURS" " is your per-developer station file: local, gitignored,"
-  buh_t   "holds things that vary per machine. Run the renderer:"
+  buh_line "${RBYC_BURS} is your per-developer station file: local, gitignored,"
+  buh_line "holds things that vary per machine. Run the renderer:"
   buh_e
-  buh_tT  "   " "${BUWZ_RS_RENDER}"
+  buyy_tt_yawp "${BUWZ_RS_RENDER}"
+  buh_line "   ${z_buym_yelp}"
   buh_e
-  buh_tltlt "The repo-vs-personal split is deliberate: " "BURC" "${z_docs}#BURC" " travels with the code; " "BURS" "${z_docs}#BURS" " stays on your machine."
+  buh_line "The repo-vs-personal split is deliberate: ${RBYC_BURC} travels with the code; ${RBYC_BURS} stays on your machine."
   buh_e
 
   # --- Step 4: Validate your station ---
   buh_step1 "Validate your station"
   buh_e
-  buh_tlt "Every " "Regime" "${z_docs}#Regime" " has a validate tabtarget that checks the file against"
-  buh_t   "its schema. This may fail if your station file is missing fields"
-  buh_t   "beyond the minimum the launcher required — that is expected."
-  buh_t   "Run it:"
+  buh_line "Every ${RBYC_REGIME} has a validate tabtarget that checks the file against"
+  buh_line "its schema. This may fail if your station file is missing fields"
+  buh_line "beyond the minimum the launcher required — that is expected."
+  buh_line "Run it:"
   buh_e
-  buh_tT  "   " "${BUWZ_RS_VALIDATE}"
+  buyy_tt_yawp "${BUWZ_RS_VALIDATE}"
+  buh_line "   ${z_buym_yelp}"
   buh_e
-  buh_t   "Read the error if it fails — it names the field and tells you"
-  buh_t   "what to fill in."
+  buh_line "Read the error if it fails — it names the field and tells you"
+  buh_line "what to fill in."
   buh_e
   if test "${z_station_present}" = "1"; then
-    buh_tctct "" " [*] " " Station file present at " "${BURD_STATION_FILE}" ""
+    buyy_cmd_yawp " [*] "
+    z_tt="${z_buym_yelp}"
+    buyy_cmd_yawp "${BURD_STATION_FILE}"
+    buh_line "${z_tt} Station file present at ${z_buym_yelp}"
   else
     zrbho_po_status 0 "Station file not found"
   fi
@@ -540,16 +558,17 @@ rbho_crash_course() {
   # --- Step 5: Validate the repo regime ---
   buh_step1 "Validate the repo regime"
   buh_e
-  buh_tltlt "The repository regime (" "RBRR" "${z_docs}#RBRR" ") holds your team's " "Depot" "${z_docs}#Depot" ""
-  buh_t   "identity — the GCP project where container images are built and stored."
-  buh_t   "Run the validator:"
+  buh_line "The repository regime (${RBYC_RBRR}) holds your team's ${RBYC_DEPOT}"
+  buh_line "identity — the GCP project where container images are built and stored."
+  buh_line "Run the validator:"
   buh_e
-  buh_tT  "   " "${RBZ_VALIDATE_REPO}"
+  buyy_tt_yawp "${RBZ_VALIDATE_REPO}"
+  buh_line "   ${z_buym_yelp}"
   buh_e
-  buh_tlt "On a bare fork, " "RBRR" "${z_docs}#RBRR" " fields are blank and validation will fail —"
-  buh_tltlt "you need a " "Payor" "${z_docs}#Payor" " account and a " "Depot" "${z_docs}#Depot" " to populate them."
-  buh_t   "On a team repo, they are already populated and validation passes."
-  buh_t   "Either way, read the output — it tells you exactly what state you're in."
+  buh_line "On a bare fork, ${RBYC_RBRR} fields are blank and validation will fail —"
+  buh_line "you need a ${RBYC_PAYOR} account and a ${RBYC_DEPOT} to populate them."
+  buh_line "On a team repo, they are already populated and validation passes."
+  buh_line "Either way, read the output — it tells you exactly what state you're in."
   buh_e
   if test "${z_rbrr_populated}" = "1"; then
     zrbho_po_status 1 "RBRR populated — depot project: ${z_rbrr_project}"
@@ -561,55 +580,65 @@ rbho_crash_course() {
   # --- Step 6: Check your logs ---
   buh_step1 "Check your logs"
   buh_e
-  buh_t   "When you ran the validator, it printed file paths at the top"
-  buh_tlt "of its output. Every state-changing command writes three " "Log" "${z_docs}#Log" ""
-  buh_tlt "files to " "BURS" "${z_docs}#BURS" "_LOG_DIR:"
+  buh_line "When you ran the validator, it printed file paths at the top"
+  buh_line "of its output. Every state-changing command writes three ${RBYC_LOG}"
+  buh_line "files to ${RBYC_BURS}_LOG_DIR:"
   buh_e
   if test -n "${z_log_dir}"; then
-    buh_tct "   stable    " "${z_log_dir}/${BURC_LOG_LAST}.${BURC_LOG_EXT}" "  (always the same path, great for Claude)"
+    buyy_cmd_yawp "${z_log_dir}/${BURC_LOG_LAST}.${BURC_LOG_EXT}"
+    buh_line "   stable    ${z_buym_yelp}  (always the same path, great for Claude)"
   else
-    buh_t   "   stable    always the same path — tooling reads this one"
+    buh_line "   stable    always the same path — tooling reads this one"
   fi
-  buh_t   "   per-cmd   same filename across runs — diff between executions"
-  buh_t   "   history   timestamped — permanent record, never overwritten"
+  buh_line "   per-cmd   same filename across runs — diff between executions"
+  buh_line "   history   timestamped — permanent record, never overwritten"
   buh_e
-  buh_tlt "Some commands also write a " "Transcript" "${z_docs}#Transcript" " — a single file"
-  buh_t   "capturing key decision points and state transitions. When a"
-  buh_t   "command fails, the transcript is the first thing to read."
+  buh_line "Some commands also write a ${RBYC_TRANSCRIPT} — a single file"
+  buh_line "capturing key decision points and state transitions. When a"
+  buh_line "command fails, the transcript is the first thing to read."
   buh_e
-  buh_t   "Handbook display commands (like this one) do not log — teaching"
-  buh_t   "output is ephemeral by design."
+  buh_line "Handbook display commands (like this one) do not log — teaching"
+  buh_line "output is ephemeral by design."
   buh_e
 
   # --- Step 7: The pattern ---
   buh_step1 "The pattern"
   buh_e
-  buh_tlt "Every " "Regime" "${z_docs}#Regime" " has a render and a validate tabtarget."
-  buh_t   "The letter after \`r\` is all that changes:"
+  buh_line "Every ${RBYC_REGIME} has a render and a validate tabtarget."
+  buh_line "The letter after \`r\` is all that changes:"
   buh_e
-  buh_tltTtT "   c  " "BURC" "${z_docs}#BURC" "  " "${BUWZ_RC_RENDER}" "   " "${BUWZ_RC_VALIDATE}" ""
-  buh_tltTtT "   s  " "BURS" "${z_docs}#BURS" "  " "${BUWZ_RS_RENDER}" "  " "${BUWZ_RS_VALIDATE}" ""
-  buh_tltTtT "   r  " "RBRR" "${z_docs}#RBRR" "  " "${RBZ_RENDER_REPO}" "     " "${RBZ_VALIDATE_REPO}" ""
-  buh_tltTtT "   p  " "RBRP" "${z_docs}#RBRP" "  " "${RBZ_RENDER_PAYOR}" "    " "${RBZ_VALIDATE_PAYOR}" ""
-  buh_tltTtT "   o  " "RBRO" "${z_docs}#RBRO" "  " "${RBZ_RENDER_OAUTH}" "    " "${RBZ_VALIDATE_OAUTH}" ""
+  buyy_tt_yawp "${BUWZ_RC_RENDER}";    z_tt="${z_buym_yelp}"
+  buyy_tt_yawp "${BUWZ_RC_VALIDATE}";   buh_line "   c  ${RBYC_BURC}  ${z_tt}   ${z_buym_yelp}"
+  buyy_tt_yawp "${BUWZ_RS_RENDER}";     z_tt="${z_buym_yelp}"
+  buyy_tt_yawp "${BUWZ_RS_VALIDATE}";   buh_line "   s  ${RBYC_BURS}  ${z_tt}  ${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_RENDER_REPO}";    z_tt="${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_VALIDATE_REPO}";  buh_line "   r  ${RBYC_RBRR}  ${z_tt}     ${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_RENDER_PAYOR}";   z_tt="${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_VALIDATE_PAYOR}"; buh_line "   p  ${RBYC_RBRP}  ${z_tt}    ${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_RENDER_OAUTH}";   z_tt="${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_VALIDATE_OAUTH}"; buh_line "   o  ${RBYC_RBRO}  ${z_tt}    ${z_buym_yelp}"
   buh_e
-  buh_t   "These take a target name (vessel, nameplate, or role):"
+  buh_line "These take a target name (vessel, nameplate, or role):"
   buh_e
-  buh_tltTtT "   v  " "RBRV" "${z_docs}#RBRV" "  " "${RBZ_RENDER_VESSEL}" "     " "${RBZ_VALIDATE_VESSEL}" ""
-  buh_tltTtT "   n  " "RBRN" "${z_docs}#RBRN" "  " "${RBZ_RENDER_NAMEPLATE}" "  " "${RBZ_VALIDATE_NAMEPLATE}" ""
-  buh_tltTtT "   a  " "RBRA" "${z_docs}#RBRA" "  " "${RBZ_RENDER_AUTH}" "       " "${RBZ_VALIDATE_AUTH}" ""
+  buyy_tt_yawp "${RBZ_RENDER_VESSEL}";      z_tt="${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_VALIDATE_VESSEL}";     buh_line "   v  ${RBYC_RBRV}  ${z_tt}     ${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_RENDER_NAMEPLATE}";    z_tt="${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_VALIDATE_NAMEPLATE}";  buh_line "   n  ${RBYC_RBRN}  ${z_tt}  ${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_RENDER_AUTH}";         z_tt="${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_VALIDATE_AUTH}";       buh_line "   a  ${RBYC_RBRA}  ${z_tt}       ${z_buym_yelp}"
   buh_e
-  buh_t   "Learn the letter — you can find any regime's tools from it."
+  buh_line "Learn the letter — you can find any regime's tools from it."
   buh_e
 
   # --- Step 8: Next steps ---
   buh_step1 "Next steps"
   buh_e
-  buh_t  "Your repo environment is configured. The tools work, errors explain"
-  buh_tlt "themselves, and " "Logs" "${z_docs}#Log" " land where you told them to."
+  buh_line "Your repo environment is configured. The tools work, errors explain"
+  buh_line "themselves, and ${RBYC_LOGS} land where you told them to."
   buh_e
-  buh_t  "Return to the start menu for what to do next:"
-  buh_tT "   " "${RBZ_ONBOARD_START_HERE}"
+  buh_line "Return to the start menu for what to do next:"
+  buyy_tt_yawp "${RBZ_ONBOARD_START_HERE}"
+  buh_line "   ${z_buym_yelp}"
   buh_e
 }
 
@@ -622,7 +651,6 @@ rbho_crash_course() {
 
 zrbho_credential_install() {
   local -r z_role_constant="${1}"
-  local -r z_docs="${RBRR_PUBLIC_DOCS_URL}"
 
   # --- Probes ---
   local z_secrets_dir=""
@@ -641,23 +669,24 @@ zrbho_credential_install() {
   # --- Step 1: Get the key file ---
   buh_step1 "Get the key file"
   buh_e
-  buh_tltltltlt "A " "Governor" "${z_docs}#Governor" " produces " "RBRA" "${z_docs}#RBRA" " credential files for " "Directors" "${z_docs}#Director" " and " "Retrievers" "${z_docs}#Retriever" "."
-  buh_tlt "Your " "Governor" "${z_docs}#Governor" " hands you this file out-of-band — it is a"
-  buh_t   "secret, never committed to the repo."
+  buh_line "A ${RBYC_GOVERNOR} produces ${RBYC_RBRA} credential files for ${RBYC_DIRECTORS} and ${RBYC_RETRIEVERS}."
+  buh_line "Your ${RBYC_GOVERNOR} hands you this file out-of-band — it is a"
+  buh_line "secret, never committed to the repo."
   buh_e
 
   # --- Step 2: Install the key file ---
   buh_step1 "Install the key file"
   buh_e
   if test -n "${z_secrets_dir}"; then
-    buh_tlt "Place the file at the path derived from " "RBRR" "${z_docs}#RBRR" ":"
+    buh_line "Place the file at the path derived from ${RBYC_RBRR}:"
     buh_e
-    buh_c   "   ${z_secrets_dir}/${z_role_constant}/${RBCC_rbra_file}"
+    buh_code "   ${z_secrets_dir}/${z_role_constant}/${RBCC_rbra_file}"
     buh_e
-    buh_t   "Create the directory if it does not exist."
+    buh_line "Create the directory if it does not exist."
   else
-    buh_tW  "" "RBRR not populated — cannot determine credential path."
-    buh_tlt "Run " "Configure your Repo's Environment" "${z_docs}#BURC" " first."
+    buh_warn "RBRR not populated — cannot determine credential path."
+    buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "BURC" "Configure your Repo's Environment"
+    buh_line "Run ${z_buym_yelp} first."
   fi
   buh_e
   if test "${z_cred_present}" = "1"; then
@@ -670,12 +699,15 @@ zrbho_credential_install() {
   # --- Step 3: Validate ---
   buh_step1 "Validate"
   buh_e
-  buh_tlt "Run the " "RBRA" "${z_docs}#RBRA" " validator for your role:"
+  buh_line "Run the ${RBYC_RBRA} validator for your role:"
   buh_e
-  buh_tTc "   " "${RBZ_VALIDATE_AUTH}" " ${z_role_constant}"
+  buyy_tt_yawp "${RBZ_VALIDATE_AUTH}"
+  local z_tt="${z_buym_yelp}"
+  buyy_cmd_yawp " ${z_role_constant}"
+  buh_line "   ${z_tt}${z_buym_yelp}"
   buh_e
-  buh_t   "Read the output — it checks the file format and reports"
-  buh_t   "what the credential grants."
+  buh_line "Read the output — it checks the file format and reports"
+  buh_line "what the credential grants."
   buh_e
 
   # Callers append role-specific verification and closing steps
@@ -687,12 +719,11 @@ zrbho_credential_install() {
 rbho_credential_retriever() {
   buc_doc_brief "Install retriever credentials — place RBRA key, validate, confirm pull access"
   buc_doc_shown || return 0
-  local -r z_docs="${RBRR_PUBLIC_DOCS_URL}"
 
   buh_section "Install Retriever Credentials"
   buh_e
-  buh_tlt "A " "Retriever" "${z_docs}#Retriever" " pulls container images from the"
-  buh_tlt "  " "Depot" "${z_docs}#Depot" " — read-only access to what others have built."
+  buh_line "A ${RBYC_RETRIEVER} pulls container images from the"
+  buh_line "  ${RBYC_DEPOT} — read-only access to what others have built."
   buh_e
 
   zrbho_credential_install "${RBCC_role_retriever}"
@@ -700,19 +731,21 @@ rbho_credential_retriever() {
   # --- Step 4: Confirm live access ---
   buh_step1 "Confirm live access"
   buh_e
-  buh_tltlt "Run " "Tally" "${z_docs}#Tally" " to list " "Hallmarks" "${z_docs}#Hallmark" " in the registry using your retriever credential:"
+  buh_line "Run ${RBYC_TALLY} to list ${RBYC_HALLMARKS} in the registry using your retriever credential:"
   buh_e
-  buh_tT  "   " "${RBZ_TALLY_HALLMARKS}"
+  buyy_tt_yawp "${RBZ_TALLY_HALLMARKS}"
+  buh_line "   ${z_buym_yelp}"
   buh_e
-  buh_tlt "If the command succeeds you have working pull access to the " "Depot" "${z_docs}#Depot" "."
-  buh_t   "If it fails, re-check the file placement in Step 2."
+  buh_line "If the command succeeds you have working pull access to the ${RBYC_DEPOT}."
+  buh_line "If it fails, re-check the file placement in Step 2."
   buh_e
 
   # --- Step 5: Next steps ---
   buh_step1 "Next steps"
   buh_e
-  buh_t  "Return to the start menu:"
-  buh_tT "   " "${RBZ_ONBOARD_START_HERE}"
+  buh_line "Return to the start menu:"
+  buyy_tt_yawp "${RBZ_ONBOARD_START_HERE}"
+  buh_line "   ${z_buym_yelp}"
   buh_e
 }
 
@@ -722,12 +755,11 @@ rbho_credential_retriever() {
 rbho_credential_director() {
   buc_doc_brief "Install director credentials — place RBRA key, validate, confirm build access"
   buc_doc_shown || return 0
-  local -r z_docs="${RBRR_PUBLIC_DOCS_URL}"
 
   buh_section "Install Director Credentials"
   buh_e
-  buh_tlt "A " "Director" "${z_docs}#Director" " causes cloud builds and publishes container images to the"
-  buh_tlt "  " "Depot" "${z_docs}#Depot" " — write access to the registry."
+  buh_line "A ${RBYC_DIRECTOR} causes cloud builds and publishes container images to the"
+  buh_line "  ${RBYC_DEPOT} — write access to the registry."
   buh_e
 
   zrbho_credential_install "${RBCC_role_director}"
@@ -735,21 +767,25 @@ rbho_credential_director() {
   # --- Step 4: Confirm live access ---
   buh_step1 "Confirm live access"
   buh_e
-  buh_tlt "Run " "Rekon" "${z_docs}#Rekon" " to list raw image tags in the registry"
-  buh_t   "using your director credential:"
+  buh_line "Run ${RBYC_REKON} to list raw image tags in the registry"
+  buh_line "using your director credential:"
   buh_e
-  buh_tTc "   " "${RBZ_REKON_IMAGE}" " rbev-busybox"
+  buyy_tt_yawp "${RBZ_REKON_IMAGE}"
+  local z_tt="${z_buym_yelp}"
+  buyy_cmd_yawp " rbev-busybox"
+  buh_line "   ${z_tt}${z_buym_yelp}"
   buh_e
-  buh_t   "If the command succeeds you have working build access to the"
-  buh_tlt "  " "Depot" "${z_docs}#Depot" "."
-  buh_t   "If it fails, re-check the file placement in Step 2."
+  buh_line "If the command succeeds you have working build access to the"
+  buh_line "  ${RBYC_DEPOT}."
+  buh_line "If it fails, re-check the file placement in Step 2."
   buh_e
 
   # --- Step 5: Next steps ---
   buh_step1 "Next steps"
   buh_e
-  buh_t  "Return to the start menu:"
-  buh_tT "   " "${RBZ_ONBOARD_START_HERE}"
+  buh_line "Return to the start menu:"
+  buyy_tt_yawp "${RBZ_ONBOARD_START_HERE}"
+  buh_line "   ${z_buym_yelp}"
   buh_e
 }
 
@@ -779,10 +815,14 @@ rbho_first_crucible() {
   local -r z_ssh_tabtarget="tt/rbw-cS.SshTo.${z_moniker}.sh"
 
   # Inline yelps (not worth kindle constants — track-specific)
-  local -r z_cmd_rbw_fk=$(buy_cmd_capture "rbw-fk")
-  local -r z_cmd_rbw_cKB=$(buy_cmd_capture "rbw-cKB")
-  local -r z_cmd_sentry_hallmark=$(buy_cmd_capture "RBRN_SENTRY_HALLMARK=")
-  local -r z_cmd_ssh=$(buy_cmd_capture "${z_ssh_tabtarget}")
+  buyy_cmd_yawp "rbw-fk"
+  local -r z_cmd_rbw_fk="${z_buym_yelp}"
+  buyy_cmd_yawp "rbw-cKB"
+  local -r z_cmd_rbw_cKB="${z_buym_yelp}"
+  buyy_cmd_yawp "RBRN_SENTRY_HALLMARK="
+  local -r z_cmd_sentry_hallmark="${z_buym_yelp}"
+  buyy_cmd_yawp "${z_ssh_tabtarget}"
+  local -r z_cmd_ssh="${z_buym_yelp}"
 
   # --- Probes ---
 

@@ -888,15 +888,15 @@ z_target=$(«prefix»_target_recite "alpha") || buc_die "not found"
 Named for Whitman's "barbaric yawp" — a loud, unmistakeable declaration into a known place. Yawp functions solve the high-frequency value-production problem: when dozens of calls per function each need a computed string, `$()` subshell overhead and the two-line capture ceremony are disproportionate to the work being done.
 
 ```bash
+# «prefix»_«name»_yawp arg1 [arg2] — what it stamps
+# → local -r z_name="${z_«module»_«group»}"
 «prefix»_«name»_yawp() {
   z«module»_sentinel
   z_«module»_«group»="${ZMOD_PREFIX}${1:-}${ZMOD_SUFFIX}"
 }
-
-# Caller reads immediately
-«prefix»_«name»_yawp "argument"
-local -r z_result="${z_«module»_«group»}"
 ```
+
+The two-line comment is the per-function template: signature on line 1, mandatory capture pattern on line 2. The `→` arrow is a visual reminder that the caller must act.
 
 **Return variable**: `z_«module»_«group»` — mutable kindle state, initialized in kindle. One per function group. All `_yawp` functions in a group share the same return variable. The value is valid until the next `_yawp` call in the same group.
 
@@ -920,12 +920,34 @@ local -r z_ui="${z_«module»_«group»}"
 
 **Contract:**
 - Sets `z_«module»_«group»` (mutable kindle state, initialized in kindle)
-- Caller reads immediately; value valid until next `_yawp` call in same group
+- **Caller MUST capture to `local -r` immediately** — value is destroyed by the next `_yawp` call in the same group
 - Pure bash builtins only — no external commands, no process spawning
 - Cannot fail — no `|| buc_die` needed at call site
 - Never uses `buc_die` internally
 - No stdout, no stderr
 - First line: sentinel check
+
+**Capture discipline — the return variable is a transient slot, not a durable value:**
+
+```bash
+# CORRECT — capture to local -r, compose from captured locals
+«prefix»_cmd_yawp "git status"
+local -r z_cmd="${z_«module»_«group»}"
+«prefix»_tt_yawp "rbw-rrv"
+local -r z_tt="${z_«module»_«group»}"
+buh_line "Run ${z_cmd} to validate: ${z_tt}"
+
+# WRONG — z_«group» used directly in output (fragile, unreadable)
+«prefix»_cmd_yawp "git status"
+buh_line "Run ${z_«module»_«group»}"
+
+# WRONG — two yawps before capture (first value lost)
+«prefix»_cmd_yawp "git status"
+«prefix»_tt_yawp "rbw-rrv"
+buh_line "${z_«module»_«group»}"  # only has tt, cmd is gone
+```
+
+The one-yawp-one-capture rhythm is the invariant. Pre-captured constants (e.g., `RBYC_*` from `zrbyc_kindle`) are safe to interpolate directly because they were captured at kindle time — the discipline applies at the yawp call site, not at the interpolation site.
 
 **Use yawp functions for:**
 - Pure string assembly (concatenation, marker stamping)
@@ -1632,7 +1654,8 @@ buc_warn    # Instead of echo >&2
 - [ ] `_yawp` functions use pure bash builtins only — no external commands
 - [ ] Return variable `z_«module»_«group»` initialized in kindle as mutable kindle state
 - [ ] All `_yawp` functions in a group share one return variable
-- [ ] Callers read return variable immediately after call
+- [ ] Every yawp call immediately followed by `local -r z_name="${z_«module»_«group»}"` — no exceptions
+- [ ] Return variable never appears directly in output calls (`buh_line`, `printf`, etc.)
 - [ ] No `|| buc_die` at call site (cannot fail)
 - [ ] No `buc_die` internally
 - [ ] No stdout or stderr output

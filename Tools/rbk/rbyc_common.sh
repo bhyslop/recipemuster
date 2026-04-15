@@ -106,8 +106,11 @@ zrbyc_kindle() {
   zrbyc_yk RBYC_RBRV      "${z_docs}" "RBRV"
   zrbyc_yk RBYC_BURC      "${z_docs}" "BURC"
   zrbyc_yk RBYC_BURS      "${z_docs}" "BURS"
+  zrbyc_yk RBYC_RBRO      "${z_docs}" "RBRO"
 
   # --- Additional anchors used in handbooks ---
+
+  zrbyc_yk RBYC_RECIPE_BOTTLE "${z_docs}" "" "Recipe Bottle"
 
   zrbyc_yk RBYC_RACK      "${z_docs}" "Rack"
   zrbyc_yk RBYC_MANOR     "${z_docs}" "Manor"

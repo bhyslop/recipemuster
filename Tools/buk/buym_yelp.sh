@@ -33,12 +33,15 @@
 #   buyf_  — format yawp (set z_buym_format)
 #   buym_  — module infrastructure (kindle, sentinel)
 #
-# Usage pattern:
+# Usage pattern — yawp then IMMEDIATELY capture to local -r:
 #   buyy_cmd_yawp "git status"
-#   local -r z_cmd="${z_buym_yelp}"
+#   local -r z_cmd="${z_buym_yelp}"        # capture before next yawp
 #   buyy_link_yawp "${z_docs}" "Depot"
-#   local -r z_depot="${z_buym_yelp}"
+#   local -r z_depot="${z_buym_yelp}"       # capture before next yawp
 #   buh_line "Run ${z_cmd} to see your ${z_depot} status."
+#
+# Never use z_buym_yelp directly in buh_line — it is a transient
+# return slot, not a durable value.  See buyy_* section for details.
 
 set -euo pipefail
 
@@ -218,28 +221,33 @@ zbuy_kindle() { zbuym_kindle; }
 ######################################################################
 # Yelp yawp functions (buyy_*)
 #
-# All set z_buym_yelp via pure assignment.  No stdout, no stderr,
-# no process spawning.  Cannot fail.
+# Pure assignment to z_buym_yelp.  No stdout, no stderr, cannot fail.
+# Caller MUST capture to local -r immediately — next yawp overwrites.
+# See module header for usage pattern, BCG for full contract.
 
 # buyy_cmd_yawp text — stamps CMD region
+# → local -r z_cmd="${z_buym_yelp}"
 buyy_cmd_yawp() {
   zbuym_sentinel
   z_buym_yelp="${ZBUYM_DIASTEMA_CMD}${1:-}${ZBUYM_DIASTEMA_END}"
 }
 
 # buyy_ui_yawp text — stamps UI region
+# → local -r z_ui="${z_buym_yelp}"
 buyy_ui_yawp() {
   zbuym_sentinel
   z_buym_yelp="${ZBUYM_DIASTEMA_UI}${1:-}${ZBUYM_DIASTEMA_END}"
 }
 
 # buyy_href_yawp url display — stamps HREF region with raw URL
+# → local -r z_href="${z_buym_yelp}"
 buyy_href_yawp() {
   zbuym_sentinel
   z_buym_yelp="${ZBUYM_DIASTEMA_HREF_URL}${1:-}${ZBUYM_DIASTEMA_HREF_TEXT}${2:-}${ZBUYM_DIASTEMA_END}"
 }
 
 # buyy_link_yawp base_url anchor [display] — stamps LINK region
+# → local -r z_link="${z_buym_yelp}"
 buyy_link_yawp() {
   zbuym_sentinel
   local -r z_url="${1:-}#${2:-}"
@@ -248,6 +256,7 @@ buyy_link_yawp() {
 }
 
 # buyy_tt_yawp colophon [imprint] — resolves tabtarget, stamps TT region
+# → local -r z_tt="${z_buym_yelp}"
 buyy_tt_yawp() {
   zbuym_sentinel
   local -r z_colophon="${1:-}"
