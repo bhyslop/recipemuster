@@ -1370,6 +1370,13 @@
         "₢A6AAf": {
           "tacks": [
             {
+              "ts": "260415-1352",
+              "state": "complete",
+              "text": "## Character\n\nCleanup sweep — mechanical elimination of legacy combinators after all handbook functions are converted to yelp style. Depends on ₢A6AAd (onboarding conversion) and ₢A6AAe (payor conversion) completing first.\n\n## Docket\n\nSweep all remaining `buh_t` → `buh_line`, `buh_e` → `buh_line \"\"`, `buh_c` → `buh_code`, `buh_E` → `buh_error`, `buh_W` → `buh_warn` calls across converted functions. Then delete all dead combinators from `Tools/buk/buh_handbook.sh`: the single-element (`buh_t`, `buh_c`, `buh_u`, `buh_E`, `buh_W`), multi-element (`buh_ct`, `buh_tc`, `buh_tct`, etc.), link (`buh_tlt`, `buh_tltlt`, etc.), and tabtarget (`buh_tT`, `buh_tTc`, `buh_tI`, etc.) families. Also delete `zbuh_show`, `zbuh_link_fragment`, `zbuh_tabtarget_fragment`, `zbuh_imprint_fragment` and their associated `ZBUH_LINK_FRAG`/`ZBUH_TT_FRAG` state. Retain `buh_section`, `buh_step1`, `buh_step2`, `buh_step_style`, `buh_e`, `buh_line`, `buh_code`, `buh_warn`, `buh_error`, `buh_link` (if still needed), `buh_critical`, `buh_prompt`, `buh_prompt_required`, `buh_index_buk`. Run BUK self-test suite — update or remove the `buh-link` fixture which tests legacy combinators.",
+              "silks": "combinator-sweep-and-deletion",
+              "commit": "7a72f23"
+            },
+            {
               "ts": "260415-1132",
               "state": "rough",
               "text": "## Character\n\nCleanup sweep — mechanical elimination of legacy combinators after all handbook functions are converted to yelp style. Depends on ₢A6AAd (onboarding conversion) and ₢A6AAe (payor conversion) completing first.\n\n## Docket\n\nSweep all remaining `buh_t` → `buh_line`, `buh_e` → `buh_line \"\"`, `buh_c` → `buh_code`, `buh_E` → `buh_error`, `buh_W` → `buh_warn` calls across converted functions. Then delete all dead combinators from `Tools/buk/buh_handbook.sh`: the single-element (`buh_t`, `buh_c`, `buh_u`, `buh_E`, `buh_W`), multi-element (`buh_ct`, `buh_tc`, `buh_tct`, etc.), link (`buh_tlt`, `buh_tltlt`, etc.), and tabtarget (`buh_tT`, `buh_tTc`, `buh_tI`, etc.) families. Also delete `zbuh_show`, `zbuh_link_fragment`, `zbuh_tabtarget_fragment`, `zbuh_imprint_fragment` and their associated `ZBUH_LINK_FRAG`/`ZBUH_TT_FRAG` state. Retain `buh_section`, `buh_step1`, `buh_step2`, `buh_step_style`, `buh_e`, `buh_line`, `buh_code`, `buh_warn`, `buh_error`, `buh_link` (if still needed), `buh_critical`, `buh_prompt`, `buh_prompt_required`, `buh_index_buk`. Run BUK self-test suite — update or remove the `buh-link` fixture which tests legacy combinators.",
