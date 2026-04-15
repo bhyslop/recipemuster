@@ -144,6 +144,61 @@ threat model requires preventing lateral reachability within a CDN range.
 _Reference_: rbjs_sentry.sh (Phase 3 CIDR rules); .rbk/tadmor/rbrn.env
 (current CIDR configuration); ₣A1 heat ₢A1AAj (discovery context).
 
+===== Crucible Conduit Architecture
+
+**Encrypted tunnel conduit (WireGuard in sentry).**
+Add WireGuard to the sentry image so the sentry terminates an encrypted
+tunnel directly to a VPC hosting PrivateLink endpoints for cloud services.
+The bottle's traffic routes through a `wg0` interface on the sentry —
+one stable VPC CIDR replaces floating cloud-provider IP ranges.  WireGuard
+is ~400KB on Alpine, uses static keypair exchange (no PKI/CA), and fits
+naturally into the sentry's existing privileged-container, explicit-routing
+architecture.  New nameplate fields: tunnel mode, peer endpoint, public
+keys, allowed IPs.  VPC side requires a small WireGuard peer instance and
+PrivateLink endpoints for target services.
+_Trigger_: when a bottle needs to reach a cloud service that supports
+PrivateLink (AWS Bedrock is the known first case; survey should include
+Vertex AI, Azure OpenAI, GitLab Dedicated, SageMaker, and others as they
+emerge).
+_Reference_: `Memos/memo-20260415-crucible-conduit-architecture.md`
+(full design exploration, approach comparison, service compatibility survey).
+
+**Cloud service conduit nameplate.**
+A nameplate configuration pattern for bottles that access cloud services
+at runtime.  Near-term: allowlist-only nameplate targeting specific service
+CIDRs and domains (works today with existing sentry machinery, no
+development needed).  Longer-term: tunnel-mode nameplate using WireGuard
+conduit (above).  AWS Bedrock is the known requirement; the pattern should
+be researched broadly across cloud AI inference services, managed Git
+hosting, and other PrivateLink-capable endpoints.
+_Trigger_: immediate — Bedrock access is a current need.  Allowlist-only
+nameplate can be created now; tunnel-mode nameplate follows WireGuard
+sentry work.
+_Reference_: `Memos/memo-20260415-crucible-conduit-architecture.md`
+(approach A for allowlist-only, approach C for tunnel mode).
+
+**Credential confinement to crucible.**
+Move cloud service credentials (AWS IAM keys, API tokens, SSH keys) from
+the operator's workstation into the crucible, injected via nameplate/regime
+configuration.  The workstation starts the crucible but never holds service
+credentials.  The existing RBRA file pattern provides a model; extending to
+tunnel keys and cloud service credentials follows the same regime path
+approach.  Reduces the attack surface from "everything on the workstation"
+to "one minimal container."
+_Trigger_: alongside the conduit nameplate work — credentials and network
+access are naturally paired.
+_Reference_: `Memos/memo-20260415-crucible-conduit-architecture.md`
+(Credential Confinement section, threat model table).
+
+NOTE: For SaaS services without PrivateLink (GitHub.com, GitLab.com),
+the sentry CIDR/domain allowlist + TLS remains the realistic ceiling.
+The sentry still provides the core value: the bottle cannot reach anything
+the sentry doesn't allow, and the workstation is cut out of the data path.
+The tunnel adds defense-in-depth only for PrivateLink-capable services.
+Cross-reference: the existing "CIDR allowlist granularity vs CDN-hosted
+domains" item (Network Security Model) remains relevant for SaaS-only
+services where the tunnel cannot help.
+
 ===== Build Pipeline Security
 
 Items below are evaluated and consciously deferred.  Full analysis with
@@ -162,6 +217,9 @@ and verification of every GCP API call in the pipeline.
 _Trigger_: organizational security policy mandating VPC-SC, or data
 exfiltration risk assessment.
 _Reference_: RBSCB-CloudBuildPosture.adoc (Potential Hardening: VPC Service Controls).
+Cross-reference: if a VPC is stood up for the crucible conduit architecture
+(above), design the VPC-SC perimeter to serve both Cloud Build egress and
+bottle conduit consumers.
 
 **Cosign image signing.**
 Cryptographic signatures on images, verifiable by downstream consumers.
