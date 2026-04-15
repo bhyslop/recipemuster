@@ -39,6 +39,7 @@ zrbho_furnish() {
   local z_rbk_kit_dir="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}"
 
   source "${BURD_BUK_DIR}/buh_handbook.sh"           || buc_die "Failed to source buh_handbook.sh"
+  source "${BURD_BUK_DIR}/buy_yelp.sh"              || buc_die "Failed to source buy_yelp.sh"
   source "${BURD_BUK_DIR}/buv_validation.sh"         || buc_die "Failed to source buv_validation.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh"             || buc_die "Failed to source buz_zipper.sh"
   source "${BURD_BUK_DIR}/buwz_zipper.sh"            || buc_die "Failed to source buwz_zipper.sh"
@@ -46,6 +47,7 @@ zrbho_furnish() {
   source "${z_rbk_kit_dir}/rbgc_Constants.sh"        || buc_die "Failed to source rbgc_Constants.sh"
   source "${z_rbk_kit_dir}/rbrr_regime.sh"           || buc_die "Failed to source rbrr_regime.sh"
   source "${RBBC_rbrr_file}"                         || buc_die "Failed to source ${RBBC_rbrr_file}"
+  source "${z_rbk_kit_dir}/rbyc_common.sh"            || buc_die "Failed to source rbyc_common.sh"
   source "${z_rbk_kit_dir}/rbz_zipper.sh"            || buc_die "Failed to source rbz_zipper.sh"
   zbuv_kindle
   zrbgc_kindle
@@ -55,6 +57,7 @@ zrbho_furnish() {
   # RBRR kindle only — thin-deps concession: enforce would fail on fresh installs
   # (filesystem gates for vessel/secrets dirs), blocking onboarding entry.
   zrbrr_kindle
+  zrbyc_kindle
   source "${z_rbk_kit_dir}/rbho_onboarding.sh"       || buc_die "Failed to source rbho_onboarding.sh"
   zrbho_kindle
 }
