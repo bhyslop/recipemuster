@@ -4035,9 +4035,10 @@
       "creation_time": "260415",
       "status": "stabled",
       "order": [
-        "₢A_AAA"
+        "₢A_AAA",
+        "₢A_AAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_uAl_.md",
       "paces": {
         "₢A_AAA": {
@@ -4048,6 +4049,17 @@
               "text": "## Character\nMechanical plumbing — add two new RBRR variables and wire through kindle/validate/render.\n\n## Work\nAdd `RBRR_IMAGE_PREFIX` and `RBRR_RUNTIME_PREFIX` to RBRR regime. Update RBSRR spec with variable definitions. Wire through `rbkro_kindle` (default to empty string), `rbkro_validate` (xname format, max 6 chars, must end with hyphen if non-empty), `rbkro_render` (display in Container Runtime Configuration section). Add to ZRBRR_ROLLUP serialization.",
               "silks": "rbrr-image-and-runtime-prefix-variables",
               "commit": "670931b"
+            }
+          ]
+        },
+        "₢A_AAB": {
+          "tacks": [
+            {
+              "ts": "260415-1504",
+              "state": "rough",
+              "text": "## Character\nMechanical — trace every consumer of container names, network names, and image paths.\n\n## Work\nUpdate RBDC derived constants to prepend `RBRR_RUNTIME_PREFIX` to container/network name bases. Update RBOB (bottle kindle) so `ZRBOB_SENTRY`, `ZRBOB_PENTACLE`, `ZRBOB_BOTTLE`, `ZRBOB_NETWORK` incorporate the runtime prefix. Update image path construction in RBOB and foundry to prepend `RBRR_IMAGE_PREFIX` to vessel package names. Verify compose.yml interpolation still works. Grep for any hardcoded container/network/image name patterns that bypass the prefixed variables.",
+              "silks": "derived-constants-and-consumer-wiring",
+              "commit": "327e2bc"
             }
           ]
         }
