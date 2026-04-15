@@ -548,6 +548,7 @@
       "order": [
         "₢A6AAd",
         "₢A6AAe",
+        "₢A6AAf",
         "₢A6AAa",
         "₢A6AAc",
         "₢A6AAb",
@@ -578,7 +579,7 @@
         "₢A6AAM",
         "₢A6AAA"
       ],
-      "next_pace_seed": "AAf",
+      "next_pace_seed": "AAg",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
       "paces": {
         "₢A6AAA": {
@@ -1318,6 +1319,17 @@
               "text": "## Character\n\nFocused conversion of a single file with a distinct yelp vocabulary need. The payor handbook exercises `buyy_href_yawp` heavily (15 Google Console URLs) — the HREF diastema path that the onboarding conversion doesn't touch. Good validation of the HREF pipeline end-to-end.\n\n## Docket\n\nConvert `Tools/rbk/rbhp_payor.sh` from combinator style (`buh_tu`/`buh_tc`/`buh_tut`/`buh_link`) to pure yelp style. The 15 `buh_link` calls become `buyy_href_yawp` captures — the first real exercise of the HREF diastema markers in production code. Vocabulary links use RBYC_* constants. Verify via handbook tabtarget execution. Consider adding HREF-specific test cases to the buym-yelp fixture if the conversion reveals edge cases.",
               "silks": "payor-handbook-yelp-conversion",
               "commit": "a998119"
+            }
+          ]
+        },
+        "₢A6AAf": {
+          "tacks": [
+            {
+              "ts": "260415-1132",
+              "state": "rough",
+              "text": "## Character\n\nCleanup sweep — mechanical elimination of legacy combinators after all handbook functions are converted to yelp style. Depends on ₢A6AAd (onboarding conversion) and ₢A6AAe (payor conversion) completing first.\n\n## Docket\n\nSweep all remaining `buh_t` → `buh_line`, `buh_e` → `buh_line \"\"`, `buh_c` → `buh_code`, `buh_E` → `buh_error`, `buh_W` → `buh_warn` calls across converted functions. Then delete all dead combinators from `Tools/buk/buh_handbook.sh`: the single-element (`buh_t`, `buh_c`, `buh_u`, `buh_E`, `buh_W`), multi-element (`buh_ct`, `buh_tc`, `buh_tct`, etc.), link (`buh_tlt`, `buh_tltlt`, etc.), and tabtarget (`buh_tT`, `buh_tTc`, `buh_tI`, etc.) families. Also delete `zbuh_show`, `zbuh_link_fragment`, `zbuh_tabtarget_fragment`, `zbuh_imprint_fragment` and their associated `ZBUH_LINK_FRAG`/`ZBUH_TT_FRAG` state. Retain `buh_section`, `buh_step1`, `buh_step2`, `buh_step_style`, `buh_e`, `buh_line`, `buh_code`, `buh_warn`, `buh_error`, `buh_link` (if still needed), `buh_critical`, `buh_prompt`, `buh_prompt_required`, `buh_index_buk`. Run BUK self-test suite — update or remove the `buh-link` fixture which tests legacy combinators.",
+              "silks": "combinator-sweep-and-deletion",
+              "commit": "4ba7c62"
             }
           ]
         }
