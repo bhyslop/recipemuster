@@ -546,6 +546,7 @@
       "creation_time": "260409",
       "status": "racing",
       "order": [
+        "₢A6AAZ",
         "₢A6AAT",
         "₢A6AAR",
         "₢A6AAQ",
@@ -572,7 +573,7 @@
         "₢A6AAM",
         "₢A6AAA"
       ],
-      "next_pace_seed": "AAZ",
+      "next_pace_seed": "AAa",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
       "paces": {
         "₢A6AAA": {
@@ -1197,6 +1198,17 @@
               "text": "## Character\n\nRepair pace — fix an architectural misunderstanding surfaced by the first smoke test. The `-attest-{arch}` tags are the only objects carrying GCB provenance; the `-image` manifest's per-platform digests have zero provenance. This is a fundamental property of the classic-store pullback pattern (Docker 20.10 re-serializes manifests on pull/push), not a bug. The tags cost negligible storage (shared layers, ~2KB manifest each) and must be kept as durable artifacts. The vouch verifier must resolve provenance-carrying digests from `-attest-{arch}` tags, not from the `-image` manifest.\n\nDiscovered during ₢A6AAS smoke test: conjure succeeded, about succeeded, vouch failed with \"No v1.0 envelope for amd64\" because the verifier queried provenance on buildx-pushed digests (from `-image` manifest) which have no GCB provenance.\n\n## Docket\n\nThree areas: specification, code, and memo.\n\n### Specification (RBS0-SpecTop.adoc)\n\n1. **Tag inventory table** (~1687): Change `-attest-{arch}` lifecycle from \"Ephemeral\" to \"Durable\". Remove \"swept post-vouch by ordain pipeline\" from Purpose.\n2. **Multi-platform pipeline narrative**: Remove sweep references from the attestation scaffolding explanation.\n3. **Vouch attestation sweep paragraph** (~1801): Remove entirely — no sweep occurs.\n4. **Vouch verification description**: Fix \"verifies by digest via the `-image` manifest list\" → verifies via `-attest-{arch}` tag digests, which carry GCB provenance.\n5. **RBSAA-ark_abjure.adoc**: Add `-attest-{arch}` tag construction and deletion steps (parallel to existing per-suffix patterns).\n\n### Code\n\n1. **Remove sweep function**: Delete `zrbfd_sweep_attest_tags` from `rbfd_FoundryDirectorBuild.sh`.\n2. **Remove sweep call**: Remove sweep invocation in `rbfd_ordain` conjure path (after vouch).\n3. **Fix vouch verifier** (`rbgjv02-verify-provenance.py`): For conjure mode, resolve per-platform digests from `-attest-{arch}` tags (HEAD request per tag) instead of extracting digests from the `-image` manifest index. Single-platform conjure: resolve `-attest-{arch}` tag directly. Multi-platform: iterate platforms, resolve each `-attest-{arch}` tag.\n4. **Add `_RBGV_ARK_SUFFIX_ATTEST`** to vouch substitutions in `rbfv_FoundryVerify.sh` so the verifier script can construct attest tag names.\n5. **Update abjure comments**: In `rbfl_FoundryLedger.sh`, change \"safety net\" language to primary cleanup path for `-attest-{arch}` tags.\n\n### Memo\n\nAdd a \"Digest Identity Gap\" section to `Memos/memo-20260305-provenance-architecture-gap.md` documenting:\n- Classic-store pull/push re-serializes manifests → different digest\n- GCB provenance attaches to daemon-pushed digests only\n- `-attest-{arch}` tags are the provenance-carrying objects\n- Decision to keep them as durable (shared layers, ~2KB manifest overhead)\n- Reference to smoke test failure (build 090b45c1, \"No v1.0 envelope for amd64\")\n\n### Out of scope\n\n- Bind/graft vouch paths (different code, not affected)\n- Single-platform pipeline changes (same principle applies but separate concern)\n- Cleanup of existing `-attest-{arch}` tags in GAR from failed test (operational)",
               "silks": "attest-digest-identity-repair",
               "commit": "131c626"
+            }
+          ]
+        },
+        "₢A6AAZ": {
+          "tacks": [
+            {
+              "ts": "260415-0638",
+              "state": "rough",
+              "text": "## Character\nDesign + implementation — new GAR structural concept (VOUCHES superdirectory), rewrite plumb from local-only to GAR-direct, update vouch to populate the new namespace.\n\n## Docket\n\n### Problem\nPlumb currently requires `summon` (local pull) before it can display provenance. This is unnecessarily heavy for a read-only inspection. Additionally, there is no way to reverse-map a hallmark to its vessel without iterating all vessel packages.\n\n### Design\n\nIntroduce a VOUCHES superdirectory in GAR — a single package where every vouch artifact is additionally tagged. Since GAR is content-addressable, this is a tag pointer, not data duplication.\n\n- **`RBGC_VOUCHES_PACKAGE`** — new constant in `rbgc_Constants.sh` alongside the `RBGC_ARK_SUFFIX_*` family\n- Vouch step additionally tags into `VOUCHES/{hallmark}-vouch` after pushing to `{vessel}:{hallmark}-vouch`\n- Plumb queries GAR directly via Retriever credentials (curl), never touches local docker\n\n### Plumb conversion\n\n- Remove all `docker image inspect` / `docker create` / `docker cp` logic\n- Authenticate as Retriever (new requirement — plumb was previously unauthenticated)\n- Fetch `-about` and `-vouch` manifests via Registry API, extract JSON layers via blob API\n- New hallmark-only mode: look up in VOUCHES, read `vouch_summary.json` to discover vessel, then fetch about from the vessel package\n- Vessel+hallmark mode still works (skips VOUCHES lookup)\n\n### Vouch amendment\n\n- After pushing vouch artifact to `{vessel}:{hallmark}-vouch`, additionally tag into VOUCHES package\n- This is a registry-side tag operation (no re-push of blobs)\n\n### Spec documents to update\n\n| Document | Changes |\n|----------|---------|\n| **RBSAP** (ark_plumb) | Complete rewrite: GAR-direct, Retriever auth, hallmark-only mode via VOUCHES |\n| **RBSAV** (ark_vouch) | New step: tag vouch artifact into VOUCHES superdirectory |\n| **RBS0** (SpecTop) | New `RBGC_VOUCHES_PACKAGE` constant definition |\n| **RBSGS** (GettingStarted) | Remove \"summon first\" prerequisite for plumb |\n\n### Implementation files\n\n- `rbgc_Constants.sh` — add `RBGC_VOUCHES_PACKAGE`\n- `rbfc_FoundryCore.sh` — rewrite `zrbfc_plumb_core`, `rbfc_plumb_full`, `rbfc_plumb_compact`\n- `rbfv_FoundryVerify.sh` — amend `rbfv_vouch` / vouch Cloud Build to tag into VOUCHES\n- `rbgjv03-assemble-push-vouch.sh` — additional tag push\n- `rbfr_FoundryRetriever.sh` — plumb no longer needs summon; update any coupling",
+              "silks": "plumb-goes-remote-with-vouches-superdirectory",
+              "commit": "8d97b93"
             }
           ]
         }
