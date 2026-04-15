@@ -1687,6 +1687,10 @@ Combined with vessel to form complete artifact tags:
 |`«VESSEL»:«HALLMARK»-attest-«ARCH»`
 |Durable
 |Per-platform provenance-carrying images pushed via CB `images:` field
+
+|`VOUCHES:«HALLMARK»-vouch`
+|Durable
+|Cross-vessel vouch index — same content as `«VESSEL»:«HALLMARK»-vouch` (GAR deduplicates blobs)
 |===
 +
 The `-attest-«ARCH»` tags satisfy the {rbtgr_build_json} `images:` field for SLSA provenance generation.
@@ -1694,6 +1698,13 @@ Provenance is keyed by digest in the Container Analysis API, but the `-attest-«
 The tags are durable ark artifacts, persisting alongside `-image`, `-about`, `-vouch`, `-pouch`, and `-diags`.
 +
 Multiple conjures produce distinct hallmarks (unique realized timestamps) with independently-attested images.
++
+The `VOUCHES` row in the tag table is the VOUCHES superdirectory — a single GAR package (`RBGC_VOUCHES_PACKAGE`) that aggregates all vouch artifacts across all vessels.
+{rbtgo_ark_vouch} pushes each vouch artifact into both the vessel package and the VOUCHES package.
+Since GAR is content-addressable, dual-tagging shares blobs — the VOUCHES tag is a pointer, not a copy.
+The VOUCHES package enables
+{rbtgo_ark_inspect}
+to accept a hallmark without knowing its vessel: look up `VOUCHES:«HALLMARK»-vouch`, read `vouch_summary.json` to discover the vessel, then fetch about from the vessel package.
 
 [[rbtga_ark_image]]
 //axl_voices axig_container_image

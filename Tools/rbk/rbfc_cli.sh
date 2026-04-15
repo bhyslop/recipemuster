@@ -38,6 +38,7 @@ zrbfc_furnish() {
   source "${z_rbk_kit_dir}/rbrr_regime.sh"
   source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
   source "${RBBC_rbrr_file}"
+  source "${z_rbk_kit_dir}/rbgo_OAuth.sh"
   source "${z_rbk_kit_dir}/rbfc_FoundryCore.sh"
 
   zbuv_kindle
@@ -56,6 +57,7 @@ zrbfc_furnish() {
   buc_log_args 'Kindle modules in dependency order'
   zrbgc_kindle
   zrbgd_kindle
+  zrbgo_kindle
   zrbfc_kindle
 }
 

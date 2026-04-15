@@ -3,27 +3,52 @@
 
 NOTE: This operation plumbs an
 {rbtga_ark}
-locally, displaying trust posture from the
+by querying GAR directly via the Docker Registry API.
+Artifacts are fetched from the
 {rbtga_ark_about}
 and
 {rbtga_ark_vouch}
-artifacts that were previously summoned by
-{rbtgo_ark_summon}.
-No remote API calls are made; all data is read from locally-present container images.
+packages in the registry.
+No local container runtime is required.
+Authenticates as
+{rbtr_retriever}.
 
 NOTE: Two entry points provide different detail levels:
 {rbtc_plumb_full} for complete diagnostic output and
 {rbtc_plumb_compact} for a trust posture summary.
+
+NOTE: Two invocation modes:
+Vessel+hallmark (both arguments) fetches directly from the vessel package.
+Hallmark-only (single argument) resolves the vessel via the VOUCHES superdirectory.
 
 The plumb operation:
 
 //axhopt_typed_parameter
 {rbtga_ark}
 . *Validate Input Parameters*:
+.. If two arguments: vessel and hallmark
+.. If one argument: hallmark only (vessel resolved via VOUCHES lookup)
+
+//axhos_step
+. *Authenticate as
+{rbtr_retriever}*:
 .. {rbbc_require}
-vessel provided as first argument
+Retriever credential file present (`RBDC_RETRIEVER_RBRA_FILE`)
+.. Execute
+{rbtoe_jwt_oauth_exchange}
+.. {rbbc_store}
+`«RETRIEVER_TOKEN»` for subsequent API calls
+
+//axhos_step
+. *Resolve Vessel (hallmark-only mode)*:
+.. {rbbc_call}
+Registry API: extract vouch artifact from `VOUCHES:«HALLMARK»-vouch`
 .. {rbbc_require}
-hallmark provided as second argument
+hallmark exists in VOUCHES superdirectory
+.. {rbbc_store}
+vessel name from `vouch_summary.json` `.vessel` field
+.. {rbbc_store}
+vouch artifact contents for display
 
 //axhos_step
 . *Load Vessel Configuration*:
@@ -31,19 +56,18 @@ hallmark provided as second argument
 vessel mode (conjure, bind, or graft) from vessel regime
 
 //axhos_step
-. *Verify Local Artifact Presence*:
-.. {rbbc_require}
-`-about` artifact locally present (run {rbtgo_ark_summon} first)
-.. {rbbc_store}
-`-vouch` artifact availability
+. *Fetch About Artifact from GAR*:
+.. {rbbc_call}
+Registry API: extract from `«VESSEL»:«HALLMARK»-about`
+.. Resolve multi-platform manifest to single platform (content is architecture-independent)
+.. Fetch layer blob and extract: `build_info.json`, `sbom.json`, `recipe.txt`, `buildkit_metadata.json`, `cache_before.json`, `cache_after.json`
+.. Graceful degradation: absence of optional files does not affect output
 
 //axhos_step
-. *Extract About Artifact Contents*:
-.. Create temporary container from `-about` image
-.. Extract `build_info.json`, `sbom.json`
-.. Extract `recipe.txt` if present (available for any mode when the Dockerfile path was configured)
-.. Extract `buildkit_metadata.json`, `cache_before.json`, `cache_after.json` if present (conjure only — forwarded from `-diags` via the about pipeline; absent for bind/graft). Graceful degradation: absence of these files does not affect inspect output.
-.. If `-vouch` locally present: extract `vouch_summary.json`
+. *Fetch Vouch Artifact from GAR* (if not already from VOUCHES):
+.. {rbbc_call}
+Registry API: extract from `«VESSEL»:«HALLMARK»-vouch`
+.. Extract `vouch_summary.json` and per-platform verification files
 
 //axhos_step
 . *Display Mode-Aware Sections* (both detail levels):
@@ -84,9 +108,17 @@ vessel mode (conjure, bind, or graft) from vessel regime
 trust posture for the specified hallmark
 
 //axhoc_completion
-Plumb is a read-only local operation.
-It does not modify artifacts, contact remote registries, or require authentication.
-All data is extracted from container images already present in the local container runtime.
+Plumb is a read-only operation that queries GAR via the Docker Registry API.
+It does not modify artifacts or require a local container runtime.
+Authenticates as
+{rbtr_retriever}
+using OAuth credentials.
++
+*GAR-direct extraction*: Artifacts are fetched via Registry API manifest and blob endpoints.
+Multi-platform manifest lists are resolved to a single platform (first entry) since artifact content (JSON metadata) is architecture-independent.
++
+*VOUCHES hallmark-only mode*: When invoked with only a hallmark, plumb resolves the vessel by looking up the hallmark in the VOUCHES superdirectory package.
+The VOUCHES package aggregates all vouch artifacts across all vessels, enabling reverse mapping from hallmark to vessel.
 +
 *Mode-aware display*: The plumb output adapts to vessel mode.
 Bind and graft vessels display clear trust boundary statements rather than attempting to show provenance data that does not exist.

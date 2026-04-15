@@ -126,6 +126,10 @@ zrbgc_kindle() {
   readonly RBGC_ARK_SUFFIX_ATTEST="-attest"
   readonly RBGC_ARK_SUFFIX_POUCH="-pouch"
 
+  # VOUCHES superdirectory — single GAR package aggregating all vouch artifacts
+  # across all vessels, enabling hallmark-only lookup without knowing the vessel.
+  readonly RBGC_VOUCHES_PACKAGE="VOUCHES"
+
   # Fact-file filenames (written to BURD_OUTPUT_DIR by producers, read by tests)
   readonly RBF_FACT_HALLMARK="rbf_fact_hallmark"
   readonly RBF_FACT_BUILD_ID="rbf_fact_build_id"

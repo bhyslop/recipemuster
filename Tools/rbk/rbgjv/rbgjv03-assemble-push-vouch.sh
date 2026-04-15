@@ -3,7 +3,8 @@
 # Builder: docker (from reliquary)
 # Entrypoint: bash
 # Substitutions: _RBGV_GAR_HOST, _RBGV_GAR_PATH, _RBGV_VESSEL,
-#                _RBGV_HALLMARK, _RBGV_ARK_SUFFIX_VOUCH
+#                _RBGV_HALLMARK, _RBGV_ARK_SUFFIX_VOUCH,
+#                _RBGV_VOUCHES_PACKAGE
 #
 # Note: The Dockerfile heredoc below is intentional — this script runs inside
 # a Cloud Build container, not under BCG module discipline.
@@ -23,8 +24,10 @@ PLATFORMS=$(cat /workspace/vouch_platforms.txt)
 test -n "${PLATFORMS}" || { echo "FATAL: vouch_platforms.txt is empty" >&2; exit 1; }
 
 VOUCH_TAG="${_RBGV_GAR_HOST}/${_RBGV_GAR_PATH}/${_RBGV_VESSEL}:${_RBGV_HALLMARK}${_RBGV_ARK_SUFFIX_VOUCH}"
+VOUCHES_TAG="${_RBGV_GAR_HOST}/${_RBGV_GAR_PATH}/${_RBGV_VOUCHES_PACKAGE}:${_RBGV_HALLMARK}${_RBGV_ARK_SUFFIX_VOUCH}"
 echo "Platforms: ${PLATFORMS}"
-echo "Target: ${VOUCH_TAG}"
+echo "Target (vessel): ${VOUCH_TAG}"
+echo "Target (VOUCHES): ${VOUCHES_TAG}"
 
 mkdir -p /workspace/vouch_ctx
 cp /workspace/vouch_summary.json /workspace/vouch_ctx/
@@ -49,6 +52,8 @@ docker buildx build \
   --push \
   --platform="${PLATFORMS}" \
   --tag "${VOUCH_TAG}" \
+  --tag "${VOUCHES_TAG}" \
   /workspace/vouch_ctx
 
 echo "Vouch artifact pushed: ${VOUCH_TAG}"
+echo "Vouch artifact tagged: ${VOUCHES_TAG}"

@@ -508,9 +508,118 @@ zrbfc_assemble_vouch_steps() {
 }
 
 ######################################################################
+# GAR Artifact Extraction (Registry API — no docker required)
+
+# Internal: extract files from a FROM-scratch artifact in GAR to a local directory.
+# Handles multi-platform manifest lists by picking the first platform (content is
+# identical for architecture-independent artifacts like -about and -vouch).
+# Args: token package tag extract_dir
+# Returns: 0 if extraction succeeded, 1 if artifact not found in registry.
+# Infrastructure failures (curl, jq, tar) are fatal via buc_die.
+zrbfc_gar_extract_artifact() {
+  zrbfc_sentinel
+
+  local -r z_token="$1"
+  local -r z_package="$2"
+  local -r z_tag="$3"
+  local -r z_extract_dir="$4"
+
+  local -r z_safe_pkg="${z_package//\//_}"
+  local -r z_prefix="${BURD_TEMP_DIR}/gar_${z_safe_pkg}_${z_tag}_"
+
+  # HEAD check — does the artifact exist?
+  local -r z_head_status="${z_prefix}head_status.txt"
+  local -r z_head_response="${z_prefix}head_response.txt"
+  local -r z_head_stderr="${z_prefix}head_stderr.txt"
+  curl --head -s \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+    -H "Authorization: Bearer ${z_token}" \
+    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
+    -w "%{http_code}" \
+    -o "${z_head_response}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${z_package}/manifests/${z_tag}" \
+    > "${z_head_status}" 2>"${z_head_stderr}" \
+    || buc_die "HEAD request failed for ${z_package}:${z_tag} — see ${z_head_stderr}"
+
+  local -r z_http_code=$(<"${z_head_status}")
+  test "${z_http_code}" = "200" || return 1
+
+  # GET manifest (may be manifest list/index or single-platform manifest)
+  local -r z_manifest="${z_prefix}manifest.json"
+  local -r z_manifest_stderr="${z_prefix}manifest_stderr.txt"
+  curl -sL \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+    -H "Authorization: Bearer ${z_token}" \
+    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${z_package}/manifests/${z_tag}" \
+    > "${z_manifest}" 2>"${z_manifest_stderr}" \
+    || buc_die "GET manifest failed for ${z_package}:${z_tag} — see ${z_manifest_stderr}"
+
+  # Resolve to a single-platform manifest
+  local z_single_manifest="${z_manifest}"
+  local -r z_media_type_file="${z_prefix}media_type.txt"
+  jq -r '.mediaType // empty' "${z_manifest}" > "${z_media_type_file}" 2>/dev/null || true
+  local -r z_media_type=$(<"${z_media_type_file}")
+
+  case "${z_media_type}" in
+    *manifest.list*|*image.index*)
+      # Multi-platform manifest list — pick first platform's manifest
+      local -r z_digest_file="${z_prefix}platform_digest.txt"
+      jq -r '.manifests[0].digest // empty' "${z_manifest}" \
+        > "${z_digest_file}" 2>/dev/null \
+        || buc_die "Failed to extract platform digest from manifest list"
+      local -r z_platform_digest=$(<"${z_digest_file}")
+      test -n "${z_platform_digest}" || buc_die "Empty platform digest in manifest list"
+
+      local -r z_plat_manifest="${z_prefix}plat_manifest.json"
+      local -r z_plat_stderr="${z_prefix}plat_manifest_stderr.txt"
+      curl -sL \
+        --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+        --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+        -H "Authorization: Bearer ${z_token}" \
+        -H "Accept: application/vnd.docker.distribution.manifest.v2+json,application/vnd.oci.image.manifest.v1+json" \
+        "${ZRBFC_REGISTRY_API_BASE}/${z_package}/manifests/${z_platform_digest}" \
+        > "${z_plat_manifest}" 2>"${z_plat_stderr}" \
+        || buc_die "GET platform manifest failed for ${z_package} — see ${z_plat_stderr}"
+      z_single_manifest="${z_plat_manifest}"
+      ;;
+  esac
+
+  # Extract first layer digest (FROM-scratch images have one layer with all COPY'd files)
+  local -r z_layer_file="${z_prefix}layer_digest.txt"
+  jq -r '.layers[0].digest // empty' "${z_single_manifest}" \
+    > "${z_layer_file}" 2>/dev/null \
+    || buc_die "Failed to extract layer digest from manifest"
+  local -r z_layer_digest=$(<"${z_layer_file}")
+  test -n "${z_layer_digest}" || buc_die "No layer digest in manifest for ${z_package}:${z_tag}"
+
+  # Fetch layer blob and extract
+  local -r z_blob_file="${z_prefix}blob.tar.gz"
+  local -r z_blob_stderr="${z_prefix}blob_stderr.txt"
+  curl -sL \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+    -H "Authorization: Bearer ${z_token}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${z_package}/blobs/${z_layer_digest}" \
+    > "${z_blob_file}" 2>"${z_blob_stderr}" \
+    || buc_die "GET blob failed for ${z_package} layer ${z_layer_digest} — see ${z_blob_stderr}"
+
+  mkdir -p "${z_extract_dir}" || buc_die "Failed to create extraction directory: ${z_extract_dir}"
+  local -r z_tar_stderr="${z_prefix}tar_stderr.txt"
+  tar -xzf "${z_blob_file}" -C "${z_extract_dir}" 2>"${z_tar_stderr}" \
+    || buc_die "Failed to extract layer blob for ${z_package}:${z_tag} — see ${z_tar_stderr}"
+
+  return 0
+}
+
+######################################################################
 # Plumb (rbw-fpf / rbw-fpc)
 
-# Internal: core plumb logic shared by full and compact modes
+# Internal: core plumb logic shared by full and compact modes.
+# Queries GAR directly via Registry API — no local docker required.
+# Authenticates as Retriever. Supports hallmark-only mode via VOUCHES lookup.
 # Args: vessel hallmark mode
 zrbfc_plumb_core() {
   zrbfc_sentinel
@@ -520,62 +629,78 @@ zrbfc_plumb_core() {
   local -r z_hallmark="${2:-}"
   local -r z_mode="${3}"
 
-  rbfc_require_vessel_sigil "${z_vessel}"
   test -n "${z_hallmark}" || buc_die "Hallmark parameter required"
+
+  # Authenticate as Retriever
+  buc_step "Authenticating as Retriever"
+  test -f "${RBDC_RETRIEVER_RBRA_FILE}" \
+    || buc_die "Retriever credential not found: ${RBDC_RETRIEVER_RBRA_FILE}"
+  local z_token=""
+  z_token=$(rbgo_get_token_capture "${RBDC_RETRIEVER_RBRA_FILE}") \
+    || buc_die "Failed to get Retriever OAuth token"
+
+  local -r z_extract="${BURD_TEMP_DIR}/plumb"
+  mkdir -p "${z_extract}" || buc_die "Failed to create extraction directory"
+  local z_has_about=false
+  local z_has_vouch=false
+
+  # Hallmark-only mode: resolve vessel via VOUCHES superdirectory
+  if test -z "${z_vessel}"; then
+    buc_step "Looking up hallmark in VOUCHES superdirectory"
+    local -r z_vouches_dir="${BURD_TEMP_DIR}/plumb_vouches"
+    if zrbfc_gar_extract_artifact "${z_token}" "${RBGC_VOUCHES_PACKAGE}" \
+         "${z_hallmark}${RBGC_ARK_SUFFIX_VOUCH}" "${z_vouches_dir}"; then
+      test -f "${z_vouches_dir}/vouch_summary.json" \
+        || buc_die "vouch_summary.json not found in VOUCHES artifact"
+      local -r z_vessel_file="${BURD_TEMP_DIR}/plumb_vessel.txt"
+      jq -r '.vessel // empty' "${z_vouches_dir}/vouch_summary.json" \
+        > "${z_vessel_file}" \
+        || buc_die "Failed to read vessel from vouch_summary.json"
+      z_vessel=$(<"${z_vessel_file}")
+      test -n "${z_vessel}" || buc_die "Vessel field empty in vouch_summary.json"
+      buc_info "Resolved hallmark to vessel: ${z_vessel}"
+      cp "${z_vouches_dir}"/* "${z_extract}/" 2>/dev/null || true
+      z_has_vouch=true
+    else
+      buc_die "Hallmark not found in VOUCHES superdirectory: ${z_hallmark}"
+    fi
+  fi
+
+  rbfc_require_vessel_sigil "${z_vessel}"
 
   # Load vessel config (sets RBRV_VESSEL_MODE, RBRV_BIND_IMAGE, etc.)
   local -r z_vessel_dir="${RBRR_VESSEL_DIR}/${z_vessel}"
   zrbfc_load_vessel "${z_vessel_dir}"
 
-  # Construct local image references (as tagged by docker pull / summon)
-  local -r z_about_tag="${z_hallmark}${RBGC_ARK_SUFFIX_ABOUT}"
-  local -r z_vouch_tag="${z_hallmark}${RBGC_ARK_SUFFIX_VOUCH}"
-  local -r z_about_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${z_vessel}:${z_about_tag}"
-  local -r z_vouch_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${z_vessel}:${z_vouch_tag}"
+  # Fetch -about artifact from GAR
+  buc_step "Fetching -about artifact from GAR"
+  local -r z_about_dir="${BURD_TEMP_DIR}/plumb_about"
+  if zrbfc_gar_extract_artifact "${z_token}" "${z_vessel}" \
+       "${z_hallmark}${RBGC_ARK_SUFFIX_ABOUT}" "${z_about_dir}"; then
+    z_has_about=true
+    cp "${z_about_dir}"/* "${z_extract}/" 2>/dev/null || true
+  fi
 
-  # Check local availability of artifacts
-  local z_has_about=false z_has_vouch=false
-  docker image inspect "${z_about_ref}" >/dev/null 2>&1 && z_has_about=true
-  docker image inspect "${z_vouch_ref}" >/dev/null 2>&1 && z_has_vouch=true
-
-  # Bind vessels: use -about if available, fallback to static display
-  if test "${RBRV_VESSEL_MODE}" = "bind"; then
-    if test "${z_has_about}" = "false"; then
-      zrbfc_plumb_show_bind "${z_vessel}" "${z_hallmark}" "${z_mode}"
-      return 0
+  # Fetch -vouch artifact from vessel package (skip if already resolved via VOUCHES)
+  if test "${z_has_vouch}" = "false"; then
+    buc_step "Fetching -vouch artifact from GAR"
+    local -r z_vouch_dir="${BURD_TEMP_DIR}/plumb_vouch"
+    if zrbfc_gar_extract_artifact "${z_token}" "${z_vessel}" \
+         "${z_hallmark}${RBGC_ARK_SUFFIX_VOUCH}" "${z_vouch_dir}"; then
+      z_has_vouch=true
+      cp "${z_vouch_dir}"/* "${z_extract}/" 2>/dev/null || true
     fi
-    # Bind vessel with -about: fall through to shared extract+display path
   fi
 
-  # Require -about locally present (summon must have been run)
+  # Bind vessels: fallback to static display if no -about
+  if test "${RBRV_VESSEL_MODE}" = "bind" && test "${z_has_about}" = "false"; then
+    zrbfc_plumb_show_bind "${z_vessel}" "${z_hallmark}" "${z_mode}"
+    return 0
+  fi
+
+  # Require -about for non-bind vessels
   if test "${z_has_about}" = "false"; then
-    buc_die "About artifact not locally present — run summon first"
-  fi
-
-  # Extract -about contents into temp directory
-  buc_step "Extracting -about artifact"
-  local -r z_extract="${BURD_TEMP_DIR}/plumb"
-  mkdir -p "${z_extract}" || buc_die "Failed to create extraction directory: ${z_extract}"
-  local z_cid=""
-  docker create "${z_about_ref}" x > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null \
-    || buc_die "Failed to create container from -about artifact"
-  z_cid=$(<"${ZRBFC_SCRATCH_FILE}")
-  docker cp "${z_cid}:/build_info.json"          "${z_extract}/" 2>/dev/null || true
-  docker cp "${z_cid}:/sbom.json"                "${z_extract}/" 2>/dev/null || true
-  docker cp "${z_cid}:/recipe.txt"               "${z_extract}/" 2>/dev/null || true
-  docker cp "${z_cid}:/buildkit_metadata.json"   "${z_extract}/" 2>/dev/null || true
-  docker cp "${z_cid}:/cache_before.json"        "${z_extract}/" 2>/dev/null || true
-  docker cp "${z_cid}:/cache_after.json"         "${z_extract}/" 2>/dev/null || true
-  docker rm "${z_cid}" >/dev/null 2>&1
-
-  # Extract -vouch contents if locally present
-  if test "${z_has_vouch}" = "true"; then
-    buc_step "Extracting -vouch artifact"
-    docker create "${z_vouch_ref}" x > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null \
-      || buc_die "Failed to create container from -vouch artifact"
-    z_cid=$(<"${ZRBFC_SCRATCH_FILE}")
-    docker cp "${z_cid}:/vouch_summary.json" "${z_extract}/" 2>/dev/null || true
-    docker rm "${z_cid}" >/dev/null 2>&1
+    buc_die "About artifact not found in GAR for ${z_vessel}:${z_hallmark}${RBGC_ARK_SUFFIX_ABOUT}"
   fi
 
   # Display results
@@ -989,7 +1114,7 @@ zrbfc_plumb_show_sections() {
       echo "  Timestamp:   ${z_vf_ts}"
       echo "  Source:      ${z_vf_source}"
     else
-      echo "  Vouch artifact not locally present — run summon to retrieve"
+      echo "  Vouch artifact not found in GAR"
     fi
   elif test "${z_vessel_mode}" = "graft"; then
     echo "  Graft acknowledgment: no provenance chain — GRAFTED verdict"
@@ -1009,7 +1134,7 @@ zrbfc_plumb_show_sections() {
       echo "  Method:      ${z_gf_method}"
       echo "  Source:      ${z_gf_source}"
     else
-      echo "  Vouch artifact not locally present — run summon to retrieve"
+      echo "  Vouch artifact not found in GAR"
     fi
   else
     echo "  Independent SLSA verification: did this image pass provenance checks?"
@@ -1027,7 +1152,7 @@ zrbfc_plumb_show_sections() {
       jq -r '.platforms[]? | "    \(.platform): \(.verdict)"' "${z_vs}" 2>/dev/null \
         || echo "    (unable to parse)"
     else
-      echo "  Vouch artifact not locally present — run summon to retrieve"
+      echo "  Vouch artifact not found in GAR"
     fi
   fi
 }
@@ -1139,8 +1264,14 @@ rbfc_plumb_full() {
   local z_vessel="${1:-}"
   local z_hallmark="${2:-}"
 
+  # Single-arg: hallmark-only mode (lookup vessel via VOUCHES superdirectory)
+  if test -n "${z_vessel}" && test -z "${z_hallmark}"; then
+    z_hallmark="${z_vessel}"
+    z_vessel=""
+  fi
+
   buc_doc_brief "Plumb a hallmark's trust posture (full detail)"
-  buc_doc_param "vessel" "Vessel name (e.g., rbev-busybox)"
+  buc_doc_param "vessel" "Vessel name (omit for hallmark-only lookup via VOUCHES)"
   buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"
   buc_doc_shown || return 0
 
@@ -1153,8 +1284,14 @@ rbfc_plumb_compact() {
   local z_vessel="${1:-}"
   local z_hallmark="${2:-}"
 
+  # Single-arg: hallmark-only mode (lookup vessel via VOUCHES superdirectory)
+  if test -n "${z_vessel}" && test -z "${z_hallmark}"; then
+    z_hallmark="${z_vessel}"
+    z_vessel=""
+  fi
+
   buc_doc_brief "Plumb a hallmark's trust posture (compact summary)"
-  buc_doc_param "vessel" "Vessel name (e.g., rbev-busybox)"
+  buc_doc_param "vessel" "Vessel name (omit for hallmark-only lookup via VOUCHES)"
   buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"
   buc_doc_shown || return 0
 
