@@ -32,7 +32,10 @@
 # Usage pattern:
 #   local z_depot=$(buy_link_capture "$url" "Depot")
 #   local z_cmd=$(buy_cmd_capture "git status")
-#   buh_line "A %b is where images live." "$z_depot"
+#   buh_line "A ${z_depot} is where images live."
+#
+# Yelp content must not contain literal % characters.  This premise
+# allows safe direct interpolation into printf format strings.
 #
 # All capture functions write to stdout.  They do NOT write to stderr.
 # They produce fragments, not lines.

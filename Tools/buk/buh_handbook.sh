@@ -325,21 +325,18 @@ buh_index_buk() {
 ######################################################################
 # Public: Pre-composed line output
 #
-# buh_line format_string [args...]
+# buh_line string
 #   Indent-aware (respects z_buh_body_indent from step context).
-#   Interprets %b escapes — designed for lines pre-composed from
-#   yelp capture fragments:
-#     buh_line "A %b is where images live." "${RBYC_DEPOT}"
+#   Designed for lines pre-composed from yelp capture fragments
+#   via direct bash variable interpolation:
+#     buh_line "A ${RBYC_DEPOT} is where images live."
+#   Yelps are pre-rendered (literal ESC bytes) and must not contain %.
 
 buh_line() {
   zbuh_sentinel
-  local z_fmt="${z_buh_body_indent}${1}"
-  # Yelp fragments are pre-rendered (literal ESC bytes, not \033 strings).
-  # Map %b → %s to avoid double-interpretation — printf %b would misread
-  # the OSC-8 ST sequence's \ followed by content (e.g., \c = cease output).
-  z_fmt="${z_fmt//%b/%s}"
-  # shellcheck disable=SC2059
-  printf "${z_fmt}\n" "${@:2}" >&2
+  # Yelps are pre-rendered (literal ESC bytes) and must not contain %.
+  # Direct interpolation via bash variable expansion is always safe.
+  printf '%s\n' "${z_buh_body_indent}${1}" >&2
 }
 
 ######################################################################

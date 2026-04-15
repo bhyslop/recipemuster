@@ -22,6 +22,7 @@
 // busx_:  Case Boundary (test case isolation runner)
 // busff_: Fact-File (inter-step communication via output files)
 // buf_:   Fact Module (dual-write fact-file primitives)
+// busy_:  Yelp (pre-rendered formatted string capture)
 // burx_:  Exchange Regime (cross-project dispatch state)
 //
 // Variant patterns:
@@ -164,6 +165,12 @@
 // Fact Module
 :buf_write_fact:                  <<buf_write_fact,buf_write_fact>>
 :buf_burx_env:                    <<buf_burx_env,BUF_burx_env>>
+
+// Yelp
+:busy_yelp:                       <<busy_yelp,Yelp>>
+:busy_yelp_s:                     <<busy_yelp,Yelps>>
+:busy_capture:                    <<busy_capture,Capture Function>>
+:busy_capture_s:                  <<busy_capture,Capture Functions>>
 
 // BURX Regime: Exchange (cross-project dispatch state)
 :burx_prefix:                     <<burx_prefix,BURX_>>
@@ -590,6 +597,33 @@ fact-file (`burx.env`).
 Written by bud_dispatch.sh via
 {buf_write_fact}
 at dispatch start, with terminal fields appended at completion.
+
+=== Yelp Pattern
+
+[[busy_yelp]]
+//axl_voices axk_premise
+{busy_yelp}::
+A pre-rendered formatted string fragment produced by a
+{busy_capture}
+for `$()` subshell assignment into a local variable.
+A yelp contains literal ANSI/OSC-8 bytes — escape sequences are resolved at capture time, not at display time.
++
+Yelp content **must not contain literal `%` characters**.
+This premise allows yelps to be interpolated directly into `printf` format strings via bash variable expansion (`"text ${RBYC_TERM} more text"`) without risking misinterpretation as format specifiers.
+The constraint matches the domain: anchor names, colophon identifiers, UI labels, and tabtarget paths never contain `%`.
++
+Yelps are the vocabulary-first primitive for handbook output.
+A kit defines vocabulary constants at kindle time by capturing yelps into readonly globals (e.g., `RBYC_DEPOT`, `RBYC_HALLMARK`).
+Call sites compose lines by interpolating these constants into `buh_line` strings.
+
+[[busy_capture]]
+//axl_voices axo_entity
+{busy_capture}::
+A `buy_*` function in `buy_yelp.sh` that produces a
+{busy_yelp}
+on stdout for `$()` capture.
+Four capture functions exist: `buy_link_capture` (OSC-8 hyperlink), `buy_cmd_capture` (command styling), `buy_ui_capture` (UI element styling), `buy_tt_capture` (resolved tabtarget path).
+All are dispatch-aware via configurators that control formatting behavior at kindle time.
 
 == Regime Configuration
 
