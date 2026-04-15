@@ -705,9 +705,9 @@ This table defines scope: «prefix»_* is public, z«prefix»_* is internal.
 | Capture   | `[z]«prefix»_«name»_capture`   | `z«prefix»_sentinel` | stdout once at end or exit 1 | No (use buc_log_«source») | Clean error handling, single return |
 | Enroll    | `[z]«prefix»_[«scope»_]enroll` | `z«prefix»_sentinel` | `z_«funcname»_«retval»` vars | No (use buc_log_«source») | Mutates rolls (parallel arrays) in kindle only; returns via variables |
 | Recite    | `[z]«prefix»_«what»_recite`    | `z«prefix»_sentinel` | stdout or exit 1             | No (use buc_log_«source») | Read-only access to rolls; never mutates |
-| Litmus predicate | `z«tb»_«name»_litmus_predicate` | —              | 0=proceed, 1=skip            | No                        | Reusable, composable; never dies, no output |
 | Fixture baste | `z«tb»_«name»_baste`         | —                   | — (side effects only)        | Optional                  | Fixture subshell; kindle, source, configure |
 | Tcase     | `«tc»_«name»_tcase`           | —                    | — (exit status to suite)     | No                        | Case subshell; assertions, verification |
+| Yawp      | `[z]«prefix»_«name»_yawp`     | `z«module»_sentinel` | `z_«module»_«group»` var    | No                        | Pure assignment, cannot fail, no output |
 
 ---
 
@@ -881,6 +881,64 @@ z_target=$(«prefix»_target_recite "alpha") || buc_die "not found"
 - Caller decides error handling: `|| buc_die` or conditional
 - Usable anywhere after kindle completes (not restricted to kindle)
 
+#### Yawp Functions (pure-computation group return)
+
+**Purpose: Produce a value into a shared group return variable via pure bash assignment. No subshells, no stdout, no stderr.**
+
+Named for Whitman's "barbaric yawp" — a loud, unmistakeable declaration into a known place. Yawp functions solve the high-frequency value-production problem: when dozens of calls per function each need a computed string, `$()` subshell overhead and the two-line capture ceremony are disproportionate to the work being done.
+
+```bash
+«prefix»_«name»_yawp() {
+  z«module»_sentinel
+  z_«module»_«group»="${ZMOD_PREFIX}${1:-}${ZMOD_SUFFIX}"
+}
+
+# Caller reads immediately
+«prefix»_«name»_yawp "argument"
+local -r z_result="${z_«module»_«group»}"
+```
+
+**Return variable**: `z_«module»_«group»` — mutable kindle state, initialized in kindle. One per function group. All `_yawp` functions in a group share the same return variable. The value is valid until the next `_yawp` call in the same group.
+
+```bash
+# In kindle — initialize mutable kindle state for yawp group
+z_«module»_«group»=""
+
+# In function — pure assignment, no process spawning
+«prefix»_cmd_yawp() {
+  z«module»_sentinel
+  z_«module»_«group»="${ZMOD_MARKER_CMD}${1:-}${ZMOD_MARKER_END}"
+}
+
+# Caller pattern — read immediately after call
+«prefix»_cmd_yawp "git status"
+local -r z_cmd="${z_«module»_«group»}"
+
+«prefix»_ui_yawp "Save"
+local -r z_ui="${z_«module»_«group»}"
+```
+
+**Contract:**
+- Sets `z_«module»_«group»` (mutable kindle state, initialized in kindle)
+- Caller reads immediately; value valid until next `_yawp` call in same group
+- Pure bash builtins only — no external commands, no process spawning
+- Cannot fail — no `|| buc_die` needed at call site
+- Never uses `buc_die` internally
+- No stdout, no stderr
+- First line: sentinel check
+
+**Use yawp functions for:**
+- Pure string assembly (concatenation, marker stamping)
+- Value production where `$()` subshell overhead is unnecessary
+- High-frequency call sites (dozens of calls per function)
+- Any computed value that uses only bash builtins and cannot fail
+
+**Do NOT use yawp functions for:**
+- Functions that can fail → use `_capture`
+- Functions with side effects beyond the return variable → use regular functions
+- Functions that mutate rolls → use `_enroll`
+- Functions that call external commands → use `_capture` or temp files
+
 ---
 
 ## When to Use Special Functions
@@ -889,9 +947,9 @@ z_target=$(«prefix»_target_recite "alpha") || buc_die "not found"
 - **_predicate**: Need true/false for conditional logic without dying
 - **_enroll**: Populate parallel-array registries (rolls) during kindle with validated inputs and return values
 - **_recite**: Read-only access to roll arrays populated by enroll functions
-- **_litmus_predicate**: Fixture precondition check in parent shell (0=proceed, 1=skip); reusable, composable
 - **_baste**: Fixture preparation inside fixture subshell (kindle, source, configure)
 - **_tcase**: Test case verification function inside `_tcase` subshell
+- **_yawp**: Pure-computation value production via group return variable. High-frequency call sites where `$()` overhead is disproportionate. String assembly, marker stamping, path construction.
 - **Neither**: Use temp files for multi-step pipelines, direct `|| buc_die` for simple failures
 
 ## Naming Convention Patterns
@@ -921,9 +979,11 @@ z_target=$(«prefix»_target_recite "alpha") || buc_die "not found"
 | Enroll return vars           | `z_«funcname»_«retval»`      | `z_«prefix»_enroll_name`     | Impl     | snake_case (func name verbatim)|
 | Testbench file               | `«prefix»tb_testbench.sh`    | `rbtb_testbench.sh`          | N/A      | fixed name                    |
 | Test case file               | `«prefix»tc«xx»_«Name».sh`  | `rbtckk_KickTires.sh`        | N/A      | PascalCase name               |
-| Litmus predicate             | `z«tb»_«name»_litmus_predicate` | `zrbtb_container_runtime_litmus_predicate` | Testbench| snake_case, parent layer |
 | Fixture baste function       | `z«tb»_«name»_baste`        | `zrbtb_ark_baste`            | Testbench| snake_case, fixture layer     |
 | Case function                | `«tc»_«name»_tcase`         | `rbtckk_false_tcase`         | Test case| snake_case, case layer        |
+| Yawp function (public)       | `«prefix»_«name»_yawp`      | `buyy_cmd_yawp`              | Impl     | snake_case                    |
+| Yawp function (internal)     | `z«prefix»_«name»_yawp`     | `zbuyf_resolve_yawp`         | Impl     | snake_case                    |
+| Yawp return variable         | `z_«module»_«group»`        | `z_buym_yelp`                | Impl     | snake_case, mutable kindle state |
 
 ---
 
@@ -1212,6 +1272,7 @@ The error handling suffix depends on the function type:
 | Regular/enroll   | `\|\| buc_die`       | Enroll validates invariants; violations are fatal |
 | Predicate        | `\|\| return 1`      | Never dies, status only                          |
 | Capture/recite   | `\|\| return 1`      | Never dies, caller decides                       |
+| Yawp             | N/A                  | Cannot fail — pure builtins only                 |
 | Flow control     | `\|\| continue`      | Intentional skip to next iteration               |
 
 ### ❌ Test-and-control-flow with `&&`
@@ -1565,6 +1626,16 @@ buc_warn    # Instead of echo >&2
 - [ ] `$(<file)` always followed by validation
 - [ ] Temp files for all external command output capture
 - [ ] `_capture` and `_recite` functions properly named with suffix
+- [ ] `_yawp` functions properly named with suffix
+
+### Yawp Functions (when applicable)
+- [ ] `_yawp` functions use pure bash builtins only — no external commands
+- [ ] Return variable `z_«module»_«group»` initialized in kindle as mutable kindle state
+- [ ] All `_yawp` functions in a group share one return variable
+- [ ] Callers read return variable immediately after call
+- [ ] No `|| buc_die` at call site (cannot fail)
+- [ ] No `buc_die` internally
+- [ ] No stdout or stderr output
 
 ### Loop Safety
 - [ ] All while-read loops use load-then-iterate pattern
@@ -1656,7 +1727,6 @@ Test execution uses three layers separated by two subshell boundaries:
 
 ```
 Parent Shell (runner layer)
- ├─ _litmus_predicate — precondition check (0=proceed, 1=skip)
  ├─ Fixture iteration and status tracking
  └─ Reporting (pass/fail/skip counts)
      │
@@ -1676,7 +1746,6 @@ Parent Shell (runner layer)
 **Fixture boundary** — the fixture isolation boundary:
 - Runs in a subshell (state dies at boundary)
 - Baste runs inside (visible to cases, dies with fixture)
-- Litmus runs outside (parent decides whether to enter)
 - Communicates only exit status to the runner
 - Kindle guards catch double-kindle within a fixture; subshell boundary prevents cross-fixture contamination
 
@@ -1685,13 +1754,6 @@ Parent Shell (runner layer)
 - Inherits baste state, cannot mutate sibling state
 - Communicates only exit status and stdio
 - Each case gets isolated temp dir and BURV root
-
-**`_litmus_predicate`** — fixture precondition (parent layer):
-- Runs in parent shell, outside the fixture boundary
-- Returns 0 to proceed, 1 to skip fixture
-- Must not kindle or source modules — state would persist to next fixture
-- Reusable: multiple fixtures share one litmus; composable: one litmus calls others
-- Registered as second argument to `butr_fixture_enroll`
 
 **`_baste`** — fixture preparation function (fixture layer):
 - Runs inside the fixture subshell
@@ -1703,7 +1765,6 @@ Parent Shell (runner layer)
 
 | Operation | Parent | Fixture | `_tcase` |
 |-----------|--------|---------|----------|
-| Litmus predicate check | ✅ | — | — |
 | `z«prefix»_kindle` | — | ✅ | — |
 | `source` module files | — | ✅ | — |
 | Baste configuration | — | ✅ | — |
@@ -1726,7 +1787,6 @@ Parent Shell (runner layer)
 |---------|---------|---------|
 | Testbench file | `«prefix»tb_testbench.sh` | `rbtb_testbench.sh` |
 | Test case file | `«prefix»tc«xx»_«Name».sh` | `rbtckk_KickTires.sh` |
-| Litmus predicate | `z«tb»_«name»_litmus_predicate` | `zrbtb_container_runtime_litmus_predicate` |
 | Baste function | `z«tb»_«name»_baste` | `zrbtb_ark_baste` |
 | Case function | `«tc»_«name»_tcase` | `rbtckk_false_tcase` |
 | Fixture enrollment | `butr_fixture_enroll` | — |
@@ -1738,16 +1798,13 @@ Parent Shell (runner layer)
 The naming conventions enable grep-based auditing:
 
 ```bash
-# Find all litmus predicates
-grep -rn '_litmus_predicate' Tools/
-
 # Find all baste functions
 grep -rn '_baste' Tools/
 
 # Find all case functions
 grep -rn '_tcase' Tools/
 
-# Verify enrollment matches naming — litmus/baste/case functions should
+# Verify enrollment matches naming — baste/case functions should
 # appear both in enrollment calls and as function definitions
 grep -rn 'butr_fixture_enroll\|butr_case_enroll' Tools/
 ```
