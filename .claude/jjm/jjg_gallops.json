@@ -4021,9 +4021,10 @@
         "₢A_AAC",
         "₢A_AAD",
         "₢A_AAE",
-        "₢A_AAF"
+        "₢A_AAF",
+        "₢A_AAG"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paddock_file": ".claude/jjm/jjp_uAl_.md",
       "paces": {
         "₢A_AAA": {
@@ -4103,6 +4104,17 @@
               "text": "## Character\nValidation — patience and diagnostic attention. Failures are the point.\n\n## Work\nRun `tt/rbtd-s.TestSuite.complete.sh` — the full 122-case suite covering enrollment-validation, regime-validation, regime-smoke, access-probe, four-mode, tadmor-security, srjcl-jupyter, and pluml-diagram. All container names and image references should now carry the configured prefixes. Diagnose and fix any failures caused by the prefix wiring.",
               "silks": "run-complete-test-suite",
               "commit": "10e0c95"
+            }
+          ]
+        },
+        "₢A_AAG": {
+          "tacks": [
+            {
+              "ts": "260415-1505",
+              "state": "rough",
+              "text": "## Character\nEnd-to-end validation — user perspective. Every handbook track must complete cleanly.\n\n## Work\nWalk every onboarding track in sequence: Crash Course, Credential Retriever, Credential Director, First Crucible, Director First Cloud Build, Payor, Governor. Verify all handbook windows render correctly with prefixed resource names. Confirm probe outputs show the correct prefixed container/image identifiers. Fix any display or functional issues.",
+              "silks": "run-all-onboarding-tracks",
+              "commit": "51b0838"
             }
           ]
         }
