@@ -150,8 +150,8 @@ Evaluators arrive with specific concerns, not a desire to tour everything. Three
 
 ### Remaining gaps
 
-- **Graft demo vessel creation**: `rbev-bottle-graft-demo` needs to be created — a minimal image (alpine + socat or similar) with a graft-mode `rbrv.env`, no Dockerfile in the project, no nameplate. Used only in Assay: Supply Chain (track 13). Needs a pace or folded into an existing one.
-- **Ifrit airgap feasibility** (track 12): Building for Crucibles proposes airgapped bottle-ifrit. Ifrit has heavy dependencies (nodejs, npm, scapy, strace). If its Dockerfile can't realistically go airgapped (apt-get installs at build time), keep ifrit tethered and teach the distinction: "this vessel needs upstream access at build time because of X."
+- **Graft demo vessel**: ₢A6AAH enrolled — creates `rbev-graft-demo/` with graft-mode `rbrv.env`.
+- **Ifrit airgap feasibility**: ₢A6AAI enrolled — investigation with binary outcome, decision recorded here when wrapped.
 - **Bind mode hands-on**: No director subtrack teaches bind explicitly. Bind is covered conceptually (track 7) and demonstrated in Assay: Supply Chain (track 13). Bind is simple enough (no Dockerfile, no build, just a digest pin in rbrv.env) that the conceptual + eval coverage likely suffices. Revisit if learner feedback says otherwise.
 
 ## README Anchor Inventory
@@ -206,9 +206,34 @@ This heat runs on interview-implement-interview cycles, not linear execution.
 
 Interview paces are a **first-class pace type**, not preamble. Each interview pace unblocks N implementation paces; each implementation pace generates questions for the next interview.
 
-**First implementation target: Kindle Your First Crucible.** Rationale: local-only, zero cloud flakiness, tightest feedback loop, smallest scope. Lessons about how to write handbooks in Frame 4-refined format will generalize to harder tracks.
+**Foundation tracks landed**: First Crucible and Crash Course are implemented and working. The cycle has shifted to infrastructure paces (yelp migration, decomposition) that prepare the codebase for parallel director subtrack implementation.
 
-**Second implementation candidates** (after first is stable): Crash Course (universal foundation) or Take Your Station (shortest path, probe-heavy, exercises the monotonic-probe side of the framing).
+## Implementation Progress
+
+### Display Layer Migration — Complete
+
+Handbook display converted from BUK combinator style to pure yelp style. Canonical idiom (in BCG §Semicolon Sequencing):
+```bash
+buyy_text_yawp "  A depot is the ..."; z_depot=$BUYY_CAPTURE
+```
+Legacy capture API deleted from `buym_yelp.sh` — zero consumers remained. BUS0 yawp count corrected to 8.
+
+**Remaining**: ₢A6AAe converts payor handbook (HREF diastema path), then ₢A6AAf sweeps dead combinators from `buh_handbook.sh`.
+
+### Decomposition Plan
+
+After yelp cleanup, the monolithic handbook files decompose into one-function-per-file under `Tools/rbk/rbh0/` (₢A6AAh). Enables parallel officia on independent handbook tracks without merge conflicts. Positioned after AAe/AAf/AAg/AAA — sweep, clean, audit, and validate the monolith before extraction.
+
+### Critical Path
+
+```
+AAe (payor yelp) → AAf (combinator sweep) → AAg (BCG review)
+  → AAA (menu cleanup) → AAh (decompose)
+                            ↓ parallel-capable
+              AAI, AAU→AAV, AAW, AAH→AAX, AAZ, AAM
+                            ↓ all wrapped
+              AAF (final docs hygiene — always last)
+```
 
 ## Open Questions
 
@@ -222,28 +247,12 @@ Interview paces are a **first-class pace type**, not preamble. Each interview pa
 
 ## Provenance
 
-Interview conducted in a prior chat session whose jjk officium identity was `☉260409-1001`. **No retrievable transcript exists** — officia record identity, not conversation content. This paddock is the authoritative digest of the interview.
-
-### Key turning points from the interview
-
-- User articulated that role tracks are a malformation — authorization ≠ intent
-- User articulated concern for teaching NOVEL vocabulary specifically (not general containers/GCP)
-- User proposed probe-aware handbook with checkmark redisplay, refining interviewer's Frame 4 into Frame 4-refined
-- User initially confirmed `tt/rbw-h?` as the new tabtarget prefix family (corrected post-interview — see Mounting corrections below)
-- User identified implementation burden (not learner burden) as reason to drop step recording
-- User surfaced additional learner profiles through the interview exercise ("crumbs I forgot")
-- User asked for intimate track names distinct from prior role placeholders
-
-### Mounting corrections caught in `₢A6AAA`
-
-**Prefix collision**: `rbw-h?` (initially confirmed during interview) collided with the existing `rbw-h` Hallmark family — 8 tabtargets: `rbw-hO` DirectorOrdainsHallmark, `rbw-hk` LocalKludge, `rbw-hA` DirectorAbjuresHallmark, `rbw-ht` DirectorTalliesHallmarks, `rbw-hV` DirectorVouchesHallmarks, `rbw-hs` RetrieverSummonsHallmark, `rbw-hpf` RetrieverPlumbsFull, `rbw-hpc` RetrieverPlumbsCompact. Corrected to the two-colophon scheme: `rbw-o` (lowercase, terminal) for `OnboardingStartHere` + `rbw-O*` (uppercase family) for individual handbook tracks (`rbw-Occ` for Crash Course, etc.). Case-split family chosen deliberately for starting-letter clarity.
-
-**Transcript phantom**: The original docket and this Provenance section referenced "interview transcript" as if the officium were a retrievable archive. It is not — officia record identity only; conversation content is not persisted. Only jjk commands that write to paddocks, dockets, or gazette files leave durable traces. Docket and this paddock updated accordingly; this paddock is the authoritative digest.
+Interview origin: `☉260409-1001`. This paddock is the authoritative digest — officia record identity only, not conversation content.
 
 ### Lessons
 
-- **Mint-time namespace verification** must sweep the existing tabtarget tree (`ls tt/`), not only the paddock's own proposals — a project-prefix check against CLAUDE.md's registry is insufficient when prefixes have families with reserved subfunction letters.
-- **Officium identity ≠ officium archive**. Treat `☉` references as provenance markers, not as fetchable artifacts. If a prior session's conversation content matters beyond the committed paddock/docket state, capture it explicitly at the time — a memo, a paddock section, a design-note commit. Retroactive archaeology is not available.
+- **Mint-time namespace verification** must sweep the existing tabtarget tree (`ls tt/`), not only the paddock's own proposals — a project-prefix check against CLAUDE.md's registry is insufficient when prefixes have families with reserved subfunction letters. (Caught the `rbw-h?` → Hallmark collision; corrected to two-colophon `rbw-o`/`rbw-O*` scheme.)
+- **Officium identity ≠ officium archive**. Treat `☉` references as provenance markers, not as fetchable artifacts. Capture session content explicitly at the time if it matters beyond committed state.
 
 ## References
 
