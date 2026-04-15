@@ -833,8 +833,8 @@ rbho_first_crucible() {
   buh_t   "and run Claude Code inside it — no cloud account, no credentials"
   buh_t   "beyond your own Claude subscription."
   buh_e
-  buh_tltlt "This track uses the " "ccyolo" "${z_docs}#ccyolo" " nameplate: a Claude Code sandbox that can only reach " "Anthropic" "${z_docs}" "."
-  buh_t   "Everything else is blocked."
+  buh_tltlt "This track uses the " "ccyolo" "${z_docs}#ccyolo" " " "Nameplate" "${z_docs}#Nameplate" ": a Claude Code sandbox that can"
+  buh_t   "only reach Anthropic. Everything else is blocked."
   buh_e
 
   # Docker gate
@@ -864,7 +864,7 @@ rbho_first_crucible() {
   buh_e
   buh_tlt "" "Kludge" "${z_docs}#Kludge" " builds a vessel image locally using Docker — no cloud, no"
   buh_t   "registry, no credentials. The fastest path from Dockerfile to running"
-  buh_t   "container."
+  buh_t   "container without cloud image backup."
   buh_e
 
   # --- Substep 1a: Kludge the sentry ---
@@ -892,8 +892,8 @@ rbho_first_crucible() {
   buh_e
 
   buh_tW  "" "Kludge requires a clean git tree."
-  buh_t   "If you have uncommitted changes, commit them first."
-  buh_t   "This is by design — the hallmark tag encodes the commit hash."
+  buh_t   "If you have uncommitted changes, commit them first.  This is by"
+  buh_t   "design — container images not backed by git commits easy to confuse."
   buh_e
 
   # --- Substep 1b: Kludge the bottle ---
@@ -930,8 +930,9 @@ rbho_first_crucible() {
   # =================================================================
   buh_step1 "Drive sentry hallmark into the nameplate"
   buh_e
-  buh_tlt "A " "Nameplate" "${z_docs}#Nameplate" " is the file that ties a sentry and bottle"
-  buh_t   "together into a runnable unit. It lives at:"
+  buh_tlt "A " "Nameplate" "${z_docs}#Nameplate" " is the file that defines a Crucible — it specifies"
+  buh_tltltlt "what " "Hallmark" "${z_docs}#Hallmark" " to use for " "Sentry" "${z_docs}#Sentry" ", " "Pentacle" "${z_docs}#Pentacle" ", and"
+  buh_tl  "" "Bottle" "${z_docs}#Bottle" " containers. It lives at:"
   buh_e
   buh_c   "   ${z_nameplate_file}"
   buh_e
@@ -942,8 +943,8 @@ rbho_first_crucible() {
   buh_t   "Open the nameplate file and paste the sentry hallmark from Step 1.1"
   buh_tc  "into the " "RBRN_SENTRY_HALLMARK=" " field."
   buh_e
-  buh_t   "This is deliberately manual — it teaches you what hallmarks are and"
-  buh_t   "where they live. You just saw the automated version with the bottle;"
+  buh_tlt "This is deliberately manual — it teaches you what " "Hallmarks" "${z_docs}#Hallmark" " are and"
+  buh_tlt "where they live. You just saw the automated version with the " "Bottle" "${z_docs}#Bottle" ";"
   buh_t   "now you see the mechanism underneath."
   buh_e
 
@@ -960,7 +961,7 @@ rbho_first_crucible() {
   fi
   buh_e
 
-  buh_t   "After editing, commit the change — the next kludge will need a"
+  buh_tlt "After editing, commit the change — the next " "Kludge" "${z_docs}#Kludge" " will need a"
   buh_t   "clean tree:"
   buh_e
   buh_c   "   git add ${z_nameplate_file}"
