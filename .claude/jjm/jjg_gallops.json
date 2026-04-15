@@ -579,9 +579,10 @@
         "₢A6AAJ",
         "₢A6AAE",
         "₢A6AAF",
-        "₢A6AAL"
+        "₢A6AAL",
+        "₢A6AAi"
       ],
-      "next_pace_seed": "AAi",
+      "next_pace_seed": "AAj",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
       "paces": {
         "₢A6AAA": {
@@ -1396,6 +1397,17 @@
               "text": "## Character\nStructural decomposition — mechanical extraction with minting discipline. Requires careful attention to sourcing hierarchy, workbench wiring, and zipper enrollment, but no design judgment.\n\n## Docket\nDecompose the three monolithic handbook files into one-function-per-file under a new `Tools/rbk/rbh0/` directory.\n\n### Source files to decompose\n- `Tools/rbk/rbho_onboarding.sh` (1717 lines, 8 public functions + probes)\n- `Tools/rbk/rbhp_payor.sh` (320 lines, 3 public functions + kindle/sentinel)\n- `Tools/rbk/rbhw_windows.sh` (202 lines, 5 public functions + kindle/sentinel)\n- `Tools/rbk/rbhp_cli.sh` and `Tools/rbk/rbhw_cli.sh` (workbench wiring — move into rbh0/)\n\n### Naming convention\nEach file gets a minting-compliant subprefix. `0` suffix = collective orchestrator (sorts first).\n\n```\nTools/rbk/rbh0/\n├── rbhob_base.sh           — shared probes, kindle/sentinel, constants\n├── rbho0_start_here.sh     — hub menu (uses probes) — the 0 orchestrator\n├── rbhocc_crash_course.sh\n├── rbhocr_credential_retriever.sh\n├── rbhocd_credential_director.sh\n├── rbhofc_first_crucible.sh\n├── rbhodf_director_first_build.sh\n├── rbhopw_payor_wrapper.sh\n├── rbhogw_governor_wrapper.sh\n├── rbhpb_base.sh           — payor kindle/sentinel/enforce\n├── rbhpe_establish.sh\n├── rbhpr_refresh.sh\n├── rbhpq_quota_build.sh\n├── rbhwb_base.sh           — windows kindle/sentinel\n├── rbhw0_top.sh            — windows orchestrator\n├── rbhwht_handbook_top.sh  — cross-group index\n├── rbhwdd_docker_desktop.sh\n├── rbhwdn_docker_wsl_native.sh\n├── rbhwcd_docker_context_discipline.sh\n├── rbhp_cli.sh             — workbench wiring (moved)\n├── rbhw_cli.sh             — workbench wiring (moved)\n```\n\n### Deliverables\n1. Create `Tools/rbk/rbh0/` directory\n2. Extract each function into its own file with proper header, set -euo, source guard\n3. Base files (`rbhob`, `rbhpb`, `rbhwb`) hold shared private helpers (zrbho_*, zrbhp_*, zrbhw_*)\n4. Update sourcing hierarchy — workbench sources base files, base files don't source each other\n5. Move cli files into rbh0/\n6. Delete original monolithic files\n7. Update CLAUDE.md acronym mappings for new file locations\n8. Verify all tabtargets still work (run rbw-o, rbw-gPE, rbw-hw at minimum)\n9. Run fast test suite to confirm no regressions",
               "silks": "decompose-rbh-into-rbh0-directory",
               "commit": "76254dc"
+            }
+          ]
+        },
+        "₢A6AAi": {
+          "tacks": [
+            {
+              "ts": "260415-1316",
+              "state": "rough",
+              "text": "## Character\nMechanical rename — straightforward but touches many files. Grep-driven, no design judgment needed.\n\n## Docket\nRename `rbap` (Access Probe) to `rbgv` (Google Verification) to free the `rba` prefix for future Amazon features.\n\n### What moves\n- `Tools/rbk/rbap_AccessProbe.sh` → `Tools/rbk/rbgv_AccessProbe.sh`\n- All public functions: `rbap_*` → `rbgv_*`\n- All private functions: `zrbap_*` → `zrbgv_*`\n- All constants: `ZRBAP_*` → `ZRBGV_*`\n- Source guard variable: `ZRBAP_SOURCED` → `ZRBGV_SOURCED`\n- Kindle guard: `ZRBAP_KINDLED` → `ZRBGV_KINDLED`\n\n### Scope of changes\n1. The file itself (rename + all internal references)\n2. CLI file that sources it (find via grep for `rbap`)\n3. Workbench/zipper enrollment referencing `rbap`\n4. Any tabtargets referencing `rbap` functions\n5. Spec documents (`vov_veiled/RBSAJ-*.adoc`, `RBSAO-*.adoc`) if they reference `rbap` identifiers\n6. CLAUDE.md acronym mappings — remove RBAP, add RBGV\n7. Grep entire repo for `rbap` / `RBAP` / `zrbap` / `ZRBAP` to catch stragglers\n\n### Verification\n- Run `tt/rbw-rav.ValidateAuthRegime.sh` (or equivalent) to confirm probes still work\n- Run fast test suite",
+              "silks": "rename-rbap-to-rbgv",
+              "commit": "100343d"
             }
           ]
         }
