@@ -550,6 +550,7 @@
         "₢A6AAn",
         "₢A6AAo",
         "₢A6AAp",
+        "₢A6AAq",
         "₢A6AAd",
         "₢A6AAe",
         "₢A6AAf",
@@ -587,7 +588,7 @@
         "₢A6AAF",
         "₢A6AAL"
       ],
-      "next_pace_seed": "AAq",
+      "next_pace_seed": "AAr",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
       "paces": {
         "₢A6AAA": {
@@ -1534,6 +1535,17 @@
               "text": "## Character\nModerate mechanical — replicate an existing correct pattern to 8 call sites. Requires temp file naming decisions.\n\n## Docket\nConvert 8 `docker ... 2>/dev/null | grep -q` probe patterns in onboarding to BCG-compliant temp-file stderr capture.\n\n### Sites\n- `rbhob_base.sh:124` — `docker images ... 2>/dev/null | grep -q` (inside `zrbho_probe_retriever_units`)\n- `rbhob_base.sh:130` — `docker ps ... 2>/dev/null | grep -q`\n- `rbhob_base.sh:135` — `docker images ... 2>/dev/null | grep -q`\n- `rbhob_base.sh:259` — `docker images ... 2>/dev/null | grep -q` (inside `zrbho_probe_governor_units`)\n- `rbhofc_first_crucible.sh:83` — `docker images ... 2>/dev/null`\n- `rbhofc_first_crucible.sh:87` — `docker images ... 2>/dev/null`\n- `rbhofc_first_crucible.sh:99` — `docker ps ... 2>/dev/null`\n- `rbhodf_director_first_build.sh:73` — `docker images ... 2>/dev/null`\n\n### Reference pattern\n`zrbho_probe_director_units` (rbhob_base.sh ~line 186) already demonstrates the correct BCG pattern: temp file + stderr redirect + explicit error handling. Replicate this approach.\n\n### Temp file naming\nUse kindle `_PREFIX` constants with integer discriminators per BCG stderr capture convention. May need to add kindle constants to `zrbho_kindle` in `rbhob_base.sh`.\n\n### Verification\n- No `2>/dev/null` remains on any docker command in `rbh0/`\n- Probes still function correctly (return 0/1 based on docker state)",
               "silks": "repair-bcg-stderr-to-tempfile",
               "commit": "b78fde2"
+            }
+          ]
+        },
+        "₢A6AAq": {
+          "tacks": [
+            {
+              "ts": "260415-1526",
+              "state": "rough",
+              "text": "## Character\nWide but shallow — every fix is a 1-line edit with zero design judgment. Mechanical compliance pass.\n\n## Docket\nFix all remaining small BCG violations across all three handbook groups.\n\n### Multi-var declarations → one-per-line (13 sites)\n- `rbhob_base.sh:117,252,314`\n- `rbhocc_crash_course.sh:40,46`\n- `rbhofc_first_crucible.sh:71,72,81`\n- `rbhodf_director_first_build.sh:46,67`\n- `rbhpe_establish.sh:32`\n- `rbhpr_refresh.sh:32`\n- `rbhpq_quota_build.sh:32`\n\n### Missing `local -r` on non-mutated locals (3 sites)\n- `rbho0_cli.sh:39` — `z_rbk_kit_dir`\n- `rbhp0_cli.sh:38` — `z_rbk_kit_dir`\n- `rbhw0_cli.sh:36` — `z_rbk_kit_dir`\n\n### `$()` on external command (1 site)\n- `rbhpb_base.sh:34` — `case \"$(uname -s)\" in` — replace with temp file pattern\n\n### Missing `|| buc_die` on source commands (18 sites)\n- `rbhp0_cli.sh:40-59` — add `|| buc_die \"Failed to source ...\"` to each\n\n### Missing sentinel calls in onboarding leaf files (8 sites)\n- `rbho0_start_here.sh`, `rbhocc_crash_course.sh`, `rbhocr_credential_retriever.sh`, `rbhocd_credential_director.sh`, `rbhofc_first_crucible.sh`, `rbhodf_director_first_build.sh`, `rbhopw_payor_wrapper.sh`, `rbhogw_governor_wrapper.sh`\n- Add `zrbho_sentinel` as first line of each public function\n\n### Redundant enforce check (1 site)\n- `rbhpb_base.sh:51-52` — remove the `test ${#...} -gt 0` line (non-load-bearing, `test -n` already covers it)\n\n### Verification\n- `grep -rn 'local.*=.*=.*' Tools/rbk/rbh0/` finds no multi-var declarations\n- All public functions start with sentinel call\n- All source commands in payor CLI have error guards",
+              "silks": "repair-bcg-mechanical-sweep",
+              "commit": "970dbf1"
             }
           ]
         }
