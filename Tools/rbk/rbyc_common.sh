@@ -20,7 +20,7 @@
 #
 # Kindled after regime loads (needs RBRR_PUBLIC_DOCS_URL).  Does not
 # source or kindle anything itself — the consuming _cli.sh is responsible
-# for sourcing buy_yelp.sh and this file, then calling zrbyc_kindle.
+# for sourcing buym_yelp.sh and this file, then calling zrbyc_kindle.
 #
 # Each constant is a pre-formatted yelp fragment suitable for
 # interpolation into buh_line calls:

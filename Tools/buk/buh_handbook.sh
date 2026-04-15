@@ -334,9 +334,38 @@ buh_index_buk() {
 
 buh_line() {
   zbuh_sentinel
-  # Yelps are pre-rendered (literal ESC bytes) and must not contain %.
-  # Direct interpolation via bash variable expansion is always safe.
-  printf '%s\n' "${z_buh_body_indent}${1}" >&2
+  buyf_format_yawp "${BUYC_RESET}" "${1:-}"
+  printf '%b\n' "${z_buh_body_indent}${z_buym_format}" >&2
+}
+
+######################################################################
+# Public: Semantic line functions
+#
+# Each routes through buyf_format_yawp with a BUYC_* ambient color,
+# then prints via indent-aware printf.  Diastema markers in the string
+# are resolved to ANSI/OSC-8 at display time.
+#
+# buh_line   — prose default (BUYC_RESET ambient)
+# buh_code   — command/code (BUYC_CYAN ambient)
+# buh_warn   — warning (BUYC_BRIGHT_YELLOW ambient)
+# buh_error  — error (BUYC_BRIGHT_RED ambient)
+
+buh_code() {
+  zbuh_sentinel
+  buyf_format_yawp "${BUYC_CYAN}" "${1:-}"
+  printf '%b\n' "${z_buh_body_indent}${z_buym_format}" >&2
+}
+
+buh_warn() {
+  zbuh_sentinel
+  buyf_format_yawp "${BUYC_BRIGHT_YELLOW}" "${1:-}"
+  printf '%b\n' "${z_buh_body_indent}${z_buym_format}" >&2
+}
+
+buh_error() {
+  zbuh_sentinel
+  buyf_format_yawp "${BUYC_BRIGHT_RED}" "${1:-}"
+  printf '%b\n' "${z_buh_body_indent}${z_buym_format}" >&2
 }
 
 ######################################################################

@@ -39,7 +39,7 @@ zrbho_furnish() {
   local z_rbk_kit_dir="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}"
 
   source "${BURD_BUK_DIR}/buh_handbook.sh"           || buc_die "Failed to source buh_handbook.sh"
-  source "${BURD_BUK_DIR}/buy_yelp.sh"              || buc_die "Failed to source buy_yelp.sh"
+  source "${BURD_BUK_DIR}/buym_yelp.sh"             || buc_die "Failed to source buym_yelp.sh"
   source "${BURD_BUK_DIR}/buv_validation.sh"         || buc_die "Failed to source buv_validation.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh"             || buc_die "Failed to source buz_zipper.sh"
   source "${BURD_BUK_DIR}/buwz_zipper.sh"            || buc_die "Failed to source buwz_zipper.sh"

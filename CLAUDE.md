@@ -109,7 +109,7 @@ Full read and edit access is pre-approved for all files in:
 - **BUD**  → `buk/bud_dispatch.sh` (dispatch utilities, zbud_* functions)
 - **BUH**  → `buk/buh_handbook.sh` (handbook utilities, buh_* functions - always-visible user interaction)
 - **BUT**  → `buk/but_test.sh` (test utilities, but_* functions)
-- **BUY**  → `buk/buy_yelp.sh` (yelp utilities, buy_* functions — formatted string capture for subshell assignment)
+- **BUYM** → `buk/buym_yelp.sh` (yelp module — diastema wire format, yawp functions, format resolver, legacy captures)
 - **BUV**  → `buk/buv_validation.sh` (validation utilities, buv_* functions)
 - **BUW**  → `buk/buw_workbench.sh` (workbench utilities, buw_* functions)
 - **BUTT** → `buk/butt_testbench.sh` (BUK test framework self-test — kick-tires + bure-tweak, 9 cases)

@@ -171,6 +171,13 @@
 :busy_yelp_s:                     <<busy_yelp,Yelps>>
 :busy_capture:                    <<busy_capture,Capture Function>>
 :busy_capture_s:                  <<busy_capture,Capture Functions>>
+:busy_yawp:                       <<busy_yawp,Yawp Function>>
+:busy_yawp_s:                     <<busy_yawp,Yawp Functions>>
+:busy_diastema:                   <<busy_diastema,Diastema>>
+:busy_diastema_s:                 <<busy_diastema,Diastemata>>
+:busy_format_yawp:                <<busy_format_yawp,Format Yawp>>
+:busy_configurator:               <<busy_configurator,Configurator>>
+:busy_configurator_s:             <<busy_configurator,Configurators>>
 
 // BURX Regime: Exchange (cross-project dispatch state)
 :burx_prefix:                     <<burx_prefix,BURX_>>
@@ -603,14 +610,17 @@ at dispatch start, with terminal fields appended at completion.
 [[busy_yelp]]
 //axl_voices axk_premise
 {busy_yelp}::
-A pre-rendered formatted string fragment produced by a
-{busy_capture}
-for `$()` subshell assignment into a local variable.
-A yelp contains literal ANSI/OSC-8 bytes — escape sequences are resolved at capture time, not at display time.
+A formatted string fragment for interpolation into `buh_line` calls.
+Yelp content **must not contain literal `%` characters** — this premise allows safe interpolation into `printf` format strings via bash variable expansion.
 +
-Yelp content **must not contain literal `%` characters**.
-This premise allows yelps to be interpolated directly into `printf` format strings via bash variable expansion (`"text ${RBYC_TERM} more text"`) without risking misinterpretation as format specifiers.
-The constraint matches the domain: anchor names, colophon identifiers, UI labels, and tabtarget paths never contain `%`.
+Two production methods exist: legacy
+{busy_capture_s}
+(subshell, pre-rendered ANSI) and
+{busy_yawp_s}
+(pure assignment, inert
+{busy_diastema}
+markers resolved at display time by
+{busy_format_yawp}).
 +
 Yelps are the vocabulary-first primitive for handbook output.
 A kit defines vocabulary constants at kindle time by capturing yelps into readonly globals (e.g., `RBYC_DEPOT`, `RBYC_HALLMARK`).
@@ -619,11 +629,57 @@ Call sites compose lines by interpolating these constants into `buh_line` string
 [[busy_capture]]
 //axl_voices axo_entity
 {busy_capture}::
-A `buy_*` function in `buy_yelp.sh` that produces a
+A legacy `buy_*` function in `buym_yelp.sh` that produces a
 {busy_yelp}
-on stdout for `$()` capture.
-Four capture functions exist: `buy_link_capture` (OSC-8 hyperlink), `buy_cmd_capture` (command styling), `buy_ui_capture` (UI element styling), `buy_tt_capture` (resolved tabtarget path).
-All are dispatch-aware via configurators that control formatting behavior at kindle time.
+on stdout for `$()` subshell capture.
+Captures resolve ANSI/OSC-8 at production time — the yelp contains literal escape bytes.
+Four capture functions exist: `buy_link_capture`, `buy_cmd_capture`, `buy_ui_capture`, `buy_tt_capture`.
+Retained for backward compatibility with `rbyc_common.sh` vocabulary constants.
+
+[[busy_yawp]]
+//axl_voices axo_entity
+{busy_yawp}::
+A `buyy_*_yawp` function in `buym_yelp.sh` that produces a
+{busy_yelp}
+via pure bash assignment into the group return variable `z_buym_yelp`.
+No subshells, no stdout, no process spawning — cannot fail.
++
+Yawp functions stamp inert
+{busy_diastema}
+markers into strings.
+All terminal capability decisions are deferred to
+{busy_format_yawp}
+at display time.
+Five yawp functions exist: `buyy_cmd_yawp` (command), `buyy_ui_yawp` (UI element), `buyy_href_yawp` (web hyperlink), `buyy_link_yawp` (vocabulary link), `buyy_tt_yawp` (resolved tabtarget).
+
+[[busy_diastema]]
+//axl_voices axo_entity
+{busy_diastema}::
+A non-printing byte sequence (`\x01\x1N`) embedded in a
+{busy_yelp}
+by a
+{busy_yawp}
+to delimit styled regions.
+Eight markers form the diastema family: CMD, UI, HREF_URL, HREF_TEXT, LINK_URL, LINK_TEXT, TT, and END.
+Openers identify the region type; END returns to the ambient color.
+HREF and LINK have separate markers because vocabulary links (teaching terms) and web links (external references) serve different pedagogical purposes and carry independent palette slots.
+
+[[busy_format_yawp]]
+//axl_voices axo_entity
+{busy_format_yawp}::
+The single intelligence point for yelp display: `buyf_format_yawp(color, string)`.
+Takes a `BUYC_*` ambient color constant and a
+{busy_diastema}-marked
+string, resolves all markers into ANSI color sequences and OSC-8 hyperlinks, and sets `z_buym_format`.
++
+Resolution order: structured markers (HREF, LINK) via BASH_REMATCH extraction, then simple markers (CMD, UI, TT) via string replacement, then END markers replaced with the ambient color.
+
+[[busy_configurator]]
+//axl_voices axo_entity
+{busy_configurator}::
+A `buyc_*` function called before kindle to set the formatting mode flag.
+Three configurators exist: `buyc_dispatch` (probe TERM/NO_COLOR/BURD_*), `buyc_unconditional` (always color), `buyc_plain` (never color).
+Kindle reads the mode flag and defines the readonly `BUYC_*` public color palette and hyperlink mode.
 
 == Regime Configuration
 
