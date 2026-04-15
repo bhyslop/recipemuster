@@ -1187,68 +1187,22 @@ rbho_director_first_build() {
     fi
   fi
 
-  # --- Yelp vocabulary ---
+  # --- Function-specific yelp captures (not in RBYC vocabulary) ---
 
-  buyy_link_yawp "${z_docs}" "Conjure"
-  local -r z_lk_conjure="${z_buym_yelp}"
-  buyy_link_yawp "${z_docs}" "Ordain"
-  local -r z_lk_ordain="${z_buym_yelp}"
-  buyy_link_yawp "${z_docs}" "Vessel"
-  local -r z_lk_vessel="${z_buym_yelp}"
-  buyy_link_yawp "${z_docs}" "Vessel" "Vessels"
-  local -r z_lk_vessels="${z_buym_yelp}"
   buyy_link_yawp "${z_docs}" "Vessel" "rbev-sentry-deb-tether"
   local -r z_lk_vessel_name="${z_buym_yelp}"
-  buyy_link_yawp "${z_docs}" "Sentry"
-  local -r z_lk_sentry="${z_buym_yelp}"
-  buyy_link_yawp "${z_docs}" "Crucible"
-  local -r z_lk_crucible="${z_buym_yelp}"
-  buyy_link_yawp "${z_docs}" "Reliquary"
-  local -r z_lk_reliquary="${z_buym_yelp}"
-  buyy_link_yawp "${z_docs}" "Depot"
-  local -r z_lk_depot="${z_buym_yelp}"
-  buyy_link_yawp "${z_docs}" "RBRV"
-  local -r z_lk_rbrv="${z_buym_yelp}"
-  buyy_link_yawp "${z_docs}" "Tethered"
-  local -r z_lk_tethered="${z_buym_yelp}"
-  buyy_link_yawp "${z_docs}" "Airgap"
-  local -r z_lk_airgap="${z_buym_yelp}"
-  buyy_link_yawp "${z_docs}" "Hallmark"
-  local -r z_lk_hallmark="${z_buym_yelp}"
-  buyy_link_yawp "${z_docs}" "Hallmark" "Hallmarks"
-  local -r z_lk_hallmarks="${z_buym_yelp}"
-  buyy_link_yawp "${z_docs}" "Pouch"
-  local -r z_lk_pouch="${z_buym_yelp}"
-  buyy_link_yawp "${z_docs}" "Vouch"
-  local -r z_lk_vouch="${z_buym_yelp}"
-  buyy_link_yawp "${z_docs}" "Vouch" "Vouched"
-  local -r z_lk_vouched="${z_buym_yelp}"
-  buyy_link_yawp "${z_docs}" "Tally"
-  local -r z_lk_tally="${z_buym_yelp}"
-  buyy_link_yawp "${z_docs}" "Plumb"
-  local -r z_lk_plumb="${z_buym_yelp}"
-  buyy_link_yawp "${z_docs}" "Summon"
-  local -r z_lk_summon="${z_buym_yelp}"
-  buyy_link_yawp "${z_docs}" "Charge"
-  local -r z_lk_charge="${z_buym_yelp}"
-  buyy_link_yawp "${z_docs}" "Rekon"
-  local -r z_lk_rekon="${z_buym_yelp}"
-  buyy_link_yawp "${z_docs}" "Abjure"
-  local -r z_lk_abjure="${z_buym_yelp}"
-  buyy_link_yawp "${z_docs}" "Output"
-  local -r z_lk_output="${z_buym_yelp}"
 
   local z_tt=""
 
   # --- Header ---
   buh_section "Your First Cloud Build"
   buh_e
-  buh_line "This track walks you through the complete ${z_lk_conjure} lifecycle:"
-  buh_line "provision the builder toolchain, ${z_lk_ordain} your first ${z_lk_vessel} via"
+  buh_line "This track walks you through the complete ${RBYC_CONJURE} lifecycle:"
+  buh_line "provision the builder toolchain, ${RBYC_ORDAIN} your first ${RBYC_VESSEL} via"
   buh_line "Cloud Build, inspect the result, pull it locally, and clean up."
   buh_e
-  buh_line "You will build ${z_lk_vessel_name} — the same ${z_lk_sentry} you"
-  buh_line "already know from the ${z_lk_crucible} track, but this time built by"
+  buh_line "You will build ${z_lk_vessel_name} — the same ${RBYC_SENTRY} you"
+  buh_line "already know from the ${RBYC_CRUCIBLE} track, but this time built by"
   buh_line "Google Cloud Build with full SLSA provenance."
   buh_e
 
@@ -1294,16 +1248,16 @@ rbho_director_first_build() {
 
   buh_step1 "Inscribe the Reliquary"
   buh_e
-  buh_line "The ${z_lk_reliquary} is a set of builder tool images (skopeo,"
-  buh_line "docker, gcloud, syft) that Cloud Build uses during ${z_lk_vessel}"
+  buh_line "The ${RBYC_RELIQUARY} is a set of builder tool images (skopeo,"
+  buh_line "docker, gcloud, syft) that Cloud Build uses during ${RBYC_VESSEL}"
   buh_line "construction. Without it, conjure's preflight check fails."
   buh_e
   buh_line "Think of it as installing the toolchain before your first build."
   buh_line "This is a one-time operation — once inscribed, the reliquary"
-  buh_line "stays in the ${z_lk_depot} until you choose to refresh it."
+  buh_line "stays in the ${RBYC_DEPOT} until you choose to refresh it."
   buh_e
-  buh_line "Periodically re-inscribe to pick up newer tool versions. All ${z_lk_vessels}"
-  buh_line "share the same ${z_lk_reliquary} — one inscribe updates the toolchain"
+  buh_line "Periodically re-inscribe to pick up newer tool versions. All ${RBYC_VESSELS}"
+  buh_line "share the same ${RBYC_RELIQUARY} — one inscribe updates the toolchain"
   buh_line "for every build."
   buh_e
   buh_line "Inscribe:"
@@ -1328,11 +1282,11 @@ rbho_director_first_build() {
 
   buh_step1 "Conjure the sentry"
   buh_e
-  buh_line "${z_lk_conjure} is the build mode where Cloud Build constructs a"
+  buh_line "${RBYC_CONJURE} is the build mode where Cloud Build constructs a"
   buh_line "vessel image from the project's Dockerfile and build context."
   buh_e
-  buh_line "${z_lk_ordain} is the command that triggers the full pipeline —"
-  buh_line "it reads the vessel's ${z_lk_rbrv} regime to determine the mode"
+  buh_line "${RBYC_ORDAIN} is the command that triggers the full pipeline —"
+  buh_line "it reads the vessel's ${RBYC_RBRV} regime to determine the mode"
   buh_line "(conjure, bind, or graft) and acts accordingly:"
   buh_e
   buyy_tt_yawp "${RBZ_ORDAIN_HALLMARK}"
@@ -1340,19 +1294,19 @@ rbho_director_first_build() {
   buyy_cmd_yawp ' ${ONBOARD_VESSEL}'
   buh_line "   ${z_tt}${z_buym_yelp}"
   buh_e
-  buh_line "This builds on the ${z_lk_tethered} pool — Cloud Build has"
+  buh_line "This builds on the ${RBYC_TETHERED} pool — Cloud Build has"
   buh_line "public internet access and pulls base images from upstream"
-  buh_line "registries during the build. (The ${z_lk_airgap} track removes"
+  buh_line "registries during the build. (The ${RBYC_AIRGAP} track removes"
   buh_line "that dependency.)"
   buh_e
   buh_line "The pipeline:"
   buh_e
-  buh_line "  1. The host mints a ${z_lk_hallmark} — a timestamped tag"
+  buh_line "  1. The host mints a ${RBYC_HALLMARK} — a timestamped tag"
   buh_line "     identifying this build"
-  buh_line "  2. A ${z_lk_pouch} (build context archive) is pushed to GAR"
+  buh_line "  2. A ${RBYC_POUCH} (build context archive) is pushed to GAR"
   buh_line "  3. Cloud Build constructs the image across platforms"
   buh_line "  4. SLSA provenance is generated per platform digest"
-  buh_line "  5. ${z_lk_vouch} verifies the provenance chain"
+  buh_line "  5. ${RBYC_VOUCH} verifies the provenance chain"
   buh_e
   buh_warn "Wall-clock: ~15-20 minutes for a 3-platform build."
   buh_line "The command blocks until Cloud Build finishes. Use the time"
@@ -1361,8 +1315,8 @@ rbho_director_first_build() {
 
   buh_step1 "Capture the hallmark"
   buh_e
-  buh_line "When ${z_lk_ordain} completes, it writes the ${z_lk_hallmark}"
-  buh_line "to the ${z_lk_output} directory — a fixed-path staging area"
+  buh_line "When ${RBYC_ORDAIN} completes, it writes the ${RBYC_HALLMARK}"
+  buh_line "to the ${RBYC_OUTPUT} directory — a fixed-path staging area"
   buh_line "that each tabtarget clears and recreates on entry."
   buh_line "Read the hallmark from the fact file and export it so"
   buh_line "you can copy-paste the commands in the remaining steps:"
@@ -1372,7 +1326,7 @@ rbho_director_first_build() {
 
   buh_step1 "Tour the hallmark artifacts"
   buh_e
-  buh_line "Every conjured ${z_lk_hallmark} produces a set of tagged"
+  buh_line "Every conjured ${RBYC_HALLMARK} produces a set of tagged"
   buh_line "artifacts in GAR. Each suffix serves a specific role:"
   buh_e
   buyy_cmd_yawp "{hallmark}${RBGC_ARK_SUFFIX_POUCH}"
@@ -1411,32 +1365,32 @@ rbho_director_first_build() {
 
   buh_step2 "Tally"
   buh_e
-  buh_line "${z_lk_tally} lists all hallmarks and their health state:"
+  buh_line "${RBYC_TALLY} lists all hallmarks and their health state:"
   buh_e
   buyy_tt_yawp "${RBZ_TALLY_HALLMARKS}"
   buh_line "   ${z_buym_yelp}"
   buh_e
-  buh_line "Look for your ${z_lk_hallmark} with health state 'vouched' — that"
+  buh_line "Look for your ${RBYC_HALLMARK} with health state 'vouched' — that"
   buh_line "means SLSA provenance was verified."
   buh_e
 
   buh_step2 "Vouch"
   buh_e
-  buh_line "${z_lk_vouch} verifies SLSA provenance for each platform"
-  buh_line "digest in the ${z_lk_hallmark}. The ordain pipeline runs ${z_lk_vouch}"
-  buh_line "automatically. If a build was interrupted before ${z_lk_vouch}"
-  buh_line "completed, run this to reattempt ${z_lk_vouch} on untreated ${z_lk_hallmarks}:"
+  buh_line "${RBYC_VOUCH} verifies SLSA provenance for each platform"
+  buh_line "digest in the ${RBYC_HALLMARK}. The ordain pipeline runs ${RBYC_VOUCH}"
+  buh_line "automatically. If a build was interrupted before ${RBYC_VOUCH}"
+  buh_line "completed, run this to reattempt ${RBYC_VOUCH} on untreated ${RBYC_HALLMARKS}:"
   buh_e
   buyy_tt_yawp "${RBZ_VOUCH_HALLMARKS}"
   buh_line "   ${z_buym_yelp}"
   buh_e
-  buh_line "The ${z_lk_conjure} verdict is full SLSA — Cloud Build produced"
+  buh_line "The ${RBYC_CONJURE} verdict is full SLSA — Cloud Build produced"
   buh_line "this image, and the provenance chain proves it."
   buh_e
 
   buh_step2 "Plumb"
   buh_e
-  buh_line "${z_lk_plumb} displays the SBOM, build info, and Dockerfile"
+  buh_line "${RBYC_PLUMB} displays the SBOM, build info, and Dockerfile"
   buh_line "that produced the hallmark. Two modes:"
   buh_e
   buyy_tt_yawp "${RBZ_PLUMB_FULL}"
@@ -1455,8 +1409,8 @@ rbho_director_first_build() {
 
   buh_step1 "Summon the hallmark"
   buh_e
-  buh_line "${z_lk_summon} pulls a set of images affiliated with a"
-  buh_line "${z_lk_hallmark} that has been ${z_lk_vouched} to your local"
+  buh_line "${RBYC_SUMMON} pulls a set of images affiliated with a"
+  buh_line "${RBYC_HALLMARK} that has been ${RBYC_VOUCHED} to your local"
   buh_line "Docker image cache:"
   buh_e
   buyy_tt_yawp "${RBZ_SUMMON_HALLMARK}"
@@ -1468,8 +1422,8 @@ rbho_director_first_build() {
   buh_line "   ${z_buym_yelp}"
   buh_line "   is a multiplatform manifest list."
   buh_line "   Docker resolves it to the image matching your host"
-  buh_line "   architecture — the same image that ${z_lk_charge} uses when"
-  buh_line "   starting a ${z_lk_crucible} from cloud-built ${z_lk_hallmarks}."
+  buh_line "   architecture — the same image that ${RBYC_CHARGE} uses when"
+  buh_line "   starting a ${RBYC_CRUCIBLE} from cloud-built ${RBYC_HALLMARKS}."
   buh_e
 
   # Summoned probe
@@ -1477,14 +1431,14 @@ rbho_director_first_build() {
     buyy_cmd_yawp "[*]"
     buh_line " ${z_buym_yelp} Conjured sentry image found locally (summoned from GAR)"
   else
-    buh_line " [ ] No conjured sentry image found locally — run ${z_lk_summon} above"
+    buh_line " [ ] No conjured sentry image found locally — run ${RBYC_SUMMON} above"
   fi
   buh_e
 
   buh_step1 "Abjure and Rekon — hallmark lifecycle"
   buh_e
-  buh_line "${z_lk_rekon} lists the raw tags for a ${z_lk_vessel}"
-  buh_line "package in GAR. Run it before and after ${z_lk_abjure} to see"
+  buh_line "${RBYC_REKON} lists the raw tags for a ${RBYC_VESSEL}"
+  buh_line "package in GAR. Run it before and after ${RBYC_ABJURE} to see"
   buh_line "the full lifecycle:"
   buh_e
   buyy_tt_yawp "${RBZ_REKON_IMAGE}"
@@ -1492,11 +1446,11 @@ rbho_director_first_build() {
   buyy_cmd_yawp ' ${ONBOARD_VESSEL}'
   buh_line "   ${z_tt}${z_buym_yelp}"
   buh_e
-  buh_line "You should see all five durable tags for your ${z_lk_hallmark}:"
+  buh_line "You should see all five durable tags for your ${RBYC_HALLMARK}:"
   buyy_cmd_yawp "${RBGC_ARK_SUFFIX_IMAGE}, ${RBGC_ARK_SUFFIX_ABOUT}, ${RBGC_ARK_SUFFIX_VOUCH}, ${RBGC_ARK_SUFFIX_POUCH}, ${RBGC_ARK_SUFFIX_DIAGS}"
   buh_line "   ${z_buym_yelp}"
   buh_e
-  buh_line "${z_lk_abjure} removes all artifacts for a ${z_lk_hallmark}"
+  buh_line "${RBYC_ABJURE} removes all artifacts for a ${RBYC_HALLMARK}"
   buh_line "from GAR. This is permanent — the hallmark and all its"
   buh_line "tags are deleted:"
   buh_e
@@ -1512,22 +1466,22 @@ rbho_director_first_build() {
   buyy_cmd_yawp ' ${ONBOARD_VESSEL}'
   buh_line "   ${z_tt}${z_buym_yelp}"
   buh_e
-  buh_line "The tags for your ${z_lk_hallmark} should be gone. The image is no"
-  buh_line "longer in the ${z_lk_depot}."
+  buh_line "The tags for your ${RBYC_HALLMARK} should be gone. The image is no"
+  buh_line "longer in the ${RBYC_DEPOT}."
   buh_e
 
   buh_section "What you learned"
   buh_e
   buh_line "You just completed the full conjure lifecycle:"
   buh_e
-  buh_line "  1. ${z_lk_reliquary} — builder toolchain provisioned"
-  buh_line "  2. ${z_lk_conjure} — vessel built by Cloud Build with SLSA provenance"
-  buh_line "  3. ${z_lk_tally}/${z_lk_vouch} — health and provenance verified"
-  buh_line "  4. ${z_lk_plumb} — SBOM and build info inspected"
-  buh_line "  5. ${z_lk_summon} — consumer image pulled locally"
-  buh_line "  6. ${z_lk_abjure}/${z_lk_rekon} — lifecycle cleanup"
+  buh_line "  1. ${RBYC_RELIQUARY} — builder toolchain provisioned"
+  buh_line "  2. ${RBYC_CONJURE} — vessel built by Cloud Build with SLSA provenance"
+  buh_line "  3. ${RBYC_TALLY}/${RBYC_VOUCH} — health and provenance verified"
+  buh_line "  4. ${RBYC_PLUMB} — SBOM and build info inspected"
+  buh_line "  5. ${RBYC_SUMMON} — consumer image pulled locally"
+  buh_line "  6. ${RBYC_ABJURE}/${RBYC_REKON} — lifecycle cleanup"
   buh_e
-  buh_line "This was a ${z_lk_tethered} build — Cloud Build had"
+  buh_line "This was a ${RBYC_TETHERED} build — Cloud Build had"
   buh_line "internet access. The next track teaches you to remove"
   buh_line "that dependency entirely."
   buh_e
