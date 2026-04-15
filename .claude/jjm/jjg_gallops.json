@@ -4034,10 +4034,24 @@
       "silks": "rbk-mvp-3-resource-prefix-and-depot-regen",
       "creation_time": "260415",
       "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢A_AAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_uAl_.md",
-      "paces": {}
+      "paces": {
+        "₢A_AAA": {
+          "tacks": [
+            {
+              "ts": "260415-1504",
+              "state": "rough",
+              "text": "## Character\nMechanical plumbing — add two new RBRR variables and wire through kindle/validate/render.\n\n## Work\nAdd `RBRR_IMAGE_PREFIX` and `RBRR_RUNTIME_PREFIX` to RBRR regime. Update RBSRR spec with variable definitions. Wire through `rbkro_kindle` (default to empty string), `rbkro_validate` (xname format, max 6 chars, must end with hyphen if non-empty), `rbkro_render` (display in Container Runtime Configuration section). Add to ZRBRR_ROLLUP serialization.",
+              "silks": "rbrr-image-and-runtime-prefix-variables",
+              "commit": "670931b"
+            }
+          ]
+        }
+      }
     },
     "₣Aa": {
       "silks": "rbw-test-improvement-ideas",
