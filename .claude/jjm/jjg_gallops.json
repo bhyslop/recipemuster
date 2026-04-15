@@ -551,6 +551,7 @@
         "₢A6AAo",
         "₢A6AAp",
         "₢A6AAq",
+        "₢A6AAr",
         "₢A6AAd",
         "₢A6AAe",
         "₢A6AAf",
@@ -588,7 +589,7 @@
         "₢A6AAF",
         "₢A6AAL"
       ],
-      "next_pace_seed": "AAr",
+      "next_pace_seed": "AAs",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
       "paces": {
         "₢A6AAA": {
@@ -1546,6 +1547,17 @@
               "text": "## Character\nWide but shallow — every fix is a 1-line edit with zero design judgment. Mechanical compliance pass.\n\n## Docket\nFix all remaining small BCG violations across all three handbook groups.\n\n### Multi-var declarations → one-per-line (13 sites)\n- `rbhob_base.sh:117,252,314`\n- `rbhocc_crash_course.sh:40,46`\n- `rbhofc_first_crucible.sh:71,72,81`\n- `rbhodf_director_first_build.sh:46,67`\n- `rbhpe_establish.sh:32`\n- `rbhpr_refresh.sh:32`\n- `rbhpq_quota_build.sh:32`\n\n### Missing `local -r` on non-mutated locals (3 sites)\n- `rbho0_cli.sh:39` — `z_rbk_kit_dir`\n- `rbhp0_cli.sh:38` — `z_rbk_kit_dir`\n- `rbhw0_cli.sh:36` — `z_rbk_kit_dir`\n\n### `$()` on external command (1 site)\n- `rbhpb_base.sh:34` — `case \"$(uname -s)\" in` — replace with temp file pattern\n\n### Missing `|| buc_die` on source commands (18 sites)\n- `rbhp0_cli.sh:40-59` — add `|| buc_die \"Failed to source ...\"` to each\n\n### Missing sentinel calls in onboarding leaf files (8 sites)\n- `rbho0_start_here.sh`, `rbhocc_crash_course.sh`, `rbhocr_credential_retriever.sh`, `rbhocd_credential_director.sh`, `rbhofc_first_crucible.sh`, `rbhodf_director_first_build.sh`, `rbhopw_payor_wrapper.sh`, `rbhogw_governor_wrapper.sh`\n- Add `zrbho_sentinel` as first line of each public function\n\n### Redundant enforce check (1 site)\n- `rbhpb_base.sh:51-52` — remove the `test ${#...} -gt 0` line (non-load-bearing, `test -n` already covers it)\n\n### Verification\n- `grep -rn 'local.*=.*=.*' Tools/rbk/rbh0/` finds no multi-var declarations\n- All public functions start with sentinel call\n- All source commands in payor CLI have error guards",
               "silks": "repair-bcg-mechanical-sweep",
               "commit": "970dbf1"
+            }
+          ]
+        },
+        "₢A6AAr": {
+          "tacks": [
+            {
+              "ts": "260415-1526",
+              "state": "rough",
+              "text": "## Character\nLargest change count, most mechanical. Every edit follows the same transformation: mutable reassignment → `local -r` with unique name.\n\n## Docket\nConvert 104 mutable-reuse yawp captures in the three payor ceremony files to BCG-compliant `local -r` with unique names per capture.\n\n### Files\n- `rbhpe_establish.sh` — 70 yawp calls\n- `rbhpr_refresh.sh` — 6 yawp calls\n- `rbhpq_quota_build.sh` — 28 yawp calls\n\n### Transformation pattern\n```bash\n## Before (mutable reuse — BCG violation)\nlocal z_ui z_cmd z_href        # multi-var declaration at top\n...\nbuyy_ui_yawp \"some text\"; z_ui=\"${z_buym_yelp}\"\nbuyy_cmd_yawp \"some cmd\"; z_cmd=\"${z_buym_yelp}\"\n\n## After (BCG compliant — local -r per capture)\nbuyy_ui_yawp \"some text\"; local -r z_intro=\"${z_buym_yelp}\"\nbuyy_cmd_yawp \"some cmd\"; local -r z_validate_cmd=\"${z_buym_yelp}\"\n```\n\nEach capture needs a unique descriptive name since `local -r` prevents reassignment. Name each capture to reflect what it holds (e.g., `z_depot_intro`, `z_validate_cmd`, `z_consent_href`).\n\n### Also remove\nThe mutable `local z_ui z_cmd z_href` (etc.) declarations at the top of each function — they become unnecessary once every yawp has its own `local -r`.\n\n### Verification\n- No mutable yawp captures remain (`grep` for yawp calls without `local -r`)\n- No multi-var declarations remain at function tops\n- Functions still render identical output (the variable names changed but the values didn't)",
+              "silks": "repair-bcg-payor-yawp-capture",
+              "commit": "0658470"
             }
           ]
         }
