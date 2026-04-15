@@ -547,7 +547,6 @@
       "creation_time": "260409",
       "status": "racing",
       "order": [
-        "₢A6AAk",
         "₢A6AAd",
         "₢A6AAe",
         "₢A6AAf",
@@ -582,8 +581,7 @@
         "₢A6AAJ",
         "₢A6AAE",
         "₢A6AAF",
-        "₢A6AAL",
-        "₢A6AAi"
+        "₢A6AAL"
       ],
       "next_pace_seed": "AAm",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
@@ -1445,24 +1443,6 @@
             }
           ]
         },
-        "₢A6AAi": {
-          "tacks": [
-            {
-              "ts": "260415-1318",
-              "state": "rough",
-              "text": "## Character\nMechanical rename — straightforward but touches many files. Grep-driven, no design judgment needed.\n\n## Docket\nRename `rbap` (Access Probe) to `rbgv` (Google Verification) to free the `rba` prefix for future Amazon features.\n\n### BCG naming contract (all must transform)\n\n| Element | BCG Pattern | Old | New |\n|---------|------------|-----|-----|\n| Implementation file | `«prefix»_«name».sh` | `rbap_AccessProbe.sh` | `rbgv_AccessProbe.sh` |\n| Source guard | `Z«PREFIX»_SOURCED` | `ZRBAP_SOURCED` | `ZRBGV_SOURCED` |\n| Kindle guard | `Z«PREFIX»_KINDLED` | `ZRBAP_KINDLED` | `ZRBGV_KINDLED` |\n| Kindle function | `z«prefix»_kindle()` | `zrbap_kindle()` | `zrbgv_kindle()` |\n| Sentinel function | `z«prefix»_sentinel()` | `zrbap_sentinel()` | `zrbgv_sentinel()` |\n| Public functions | `«prefix»_*()` | `rbap_*()` | `rbgv_*()` |\n| Internal functions | `z«prefix»_*()` | `zrbap_*()` | `zrbgv_*()` |\n| Internal constants | `Z«PREFIX»_*` | `ZRBAP_*` | `ZRBGV_*` |\n| Temp file paths | `«prefix»_*` in strings | `rbap_` | `rbgv_` |\n\n### Note: no standalone CLI\n`rbap` has no `rbap_cli.sh` — it is a library module sourced by `rbte_cli.sh` (theurge test engine). No CLI file to rename. The `rbte_cli.sh` furnish sources it directly and calls `zrbap_kindle` — both references must update.\n\n### Files to modify (exhaustive)\n1. `Tools/rbk/rbap_AccessProbe.sh` — rename file, transform all internals per table above\n2. `Tools/rbk/rbtd/rbte_cli.sh` — update source path and `zrbap_kindle` call\n3. `Tools/rbk/rbtd/rbte_engine.sh` — update `rbap_jwt_sa_probe` and `rbap_payor_oauth_probe` calls\n4. `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc` — update linked term display text referencing `rbap_*` function names\n5. `CLAUDE.md` — no RBAP entry exists today; add RBGV entry to acronym mappings\n\n### Verification\n- Grep entire repo for any remaining `rbap` / `RBAP` / `zrbap` / `ZRBAP` (retired heat files in `.claude/jjm/retired/` are historical and do not need updating)\n- Run fast test suite to confirm no regressions",
-              "silks": "rename-rbap-to-rbgv",
-              "commit": "ec05c33"
-            },
-            {
-              "ts": "260415-1316",
-              "state": "rough",
-              "text": "## Character\nMechanical rename — straightforward but touches many files. Grep-driven, no design judgment needed.\n\n## Docket\nRename `rbap` (Access Probe) to `rbgv` (Google Verification) to free the `rba` prefix for future Amazon features.\n\n### What moves\n- `Tools/rbk/rbap_AccessProbe.sh` → `Tools/rbk/rbgv_AccessProbe.sh`\n- All public functions: `rbap_*` → `rbgv_*`\n- All private functions: `zrbap_*` → `zrbgv_*`\n- All constants: `ZRBAP_*` → `ZRBGV_*`\n- Source guard variable: `ZRBAP_SOURCED` → `ZRBGV_SOURCED`\n- Kindle guard: `ZRBAP_KINDLED` → `ZRBGV_KINDLED`\n\n### Scope of changes\n1. The file itself (rename + all internal references)\n2. CLI file that sources it (find via grep for `rbap`)\n3. Workbench/zipper enrollment referencing `rbap`\n4. Any tabtargets referencing `rbap` functions\n5. Spec documents (`vov_veiled/RBSAJ-*.adoc`, `RBSAO-*.adoc`) if they reference `rbap` identifiers\n6. CLAUDE.md acronym mappings — remove RBAP, add RBGV\n7. Grep entire repo for `rbap` / `RBAP` / `zrbap` / `ZRBAP` to catch stragglers\n\n### Verification\n- Run `tt/rbw-rav.ValidateAuthRegime.sh` (or equivalent) to confirm probes still work\n- Run fast test suite",
-              "silks": "rename-rbap-to-rbgv",
-              "commit": "100343d"
-            }
-          ]
-        },
         "₢A6AAj": {
           "tacks": [
             {
@@ -1478,24 +1458,6 @@
               "text": "## Character\nCode readability audit — find-and-discuss, not mechanical bulk replace. Each instance may reveal a missing accessor.\n\n## Docket\nAudit all call sites where `buh_line` and `_yawp` functions are composed on a single line. These one-liners are hard to read and suggest the yelp/handbook API lacks the right higher-level accessors for those use cases.\n\nFor each instance:\n1. Identify what the call site is trying to express\n2. Determine whether an existing accessor already handles it\n3. If not, propose a new accessor that would make the intent clear\n4. Discuss with user before changing — some may be intentional\n\nScope: all `Tools/` shell scripts. Start with `buh_handbook.sh` and `buym_yelp.sh` consumers.",
               "silks": "eliminate-buh-line-yawp-one-liners",
               "commit": "4532f8e"
-            }
-          ]
-        },
-        "₢A6AAk": {
-          "tacks": [
-            {
-              "ts": "260415-1456",
-              "state": "rough",
-              "text": "## Character\nVerification-only remainder — the fix is landed, just needs a clean-tree retest.\n\n## Docket\n`RBGC_VOUCHES_PACKAGE` was uppercase `\"VOUCHES\"` — OCI registries reject uppercase package names. The vouch pipeline's `assemble-push-vouch` step constructed `...repository/VOUCHES:hallmark-vouch` which GAR rejected with `repository name must be lowercase`.\n\n### What was done\n- `Tools/rbk/rbgc_Constants.sh` — changed `RBGC_VOUCHES_PACKAGE` from `\"VOUCHES\"` to `\"vouches\"`\n- `Tools/rbk/rbfc_FoundryCore.sh` — updated all `VOUCHES` references in comments/strings to `vouches`\n- `Tools/rbk/rbgjv/rbgjv03-assemble-push-vouch.sh` — updated echo label\n- Spec/doc references updated in `RBS0-SpecTop.adoc`, `RBSAV-ark_vouch.adoc`, `RBSAP-ark_plumb.adoc`, `RBSGS-GettingStarted.adoc`\n- Conjure vouch step confirmed passing (service suite: conjure succeeded, bind failed only due to dirty working tree)\n\n### Remaining\nRun `tt/rbtd-s.TestSuite.service.sh` from a fully committed and pushed working tree. The four-mode-integration test requires a clean tree for the ordain (bind) step. Conjure vouch already verified green.",
-              "silks": "vouches-package-lowercase",
-              "commit": "d67a8ed"
-            },
-            {
-              "ts": "260415-1443",
-              "state": "rough",
-              "text": "## Character\nSurgical constant fix with cascading doc updates — mechanically straightforward but must be verified end-to-end through a real Cloud Build vouch cycle.\n\n## Docket\n`RBGC_VOUCHES_PACKAGE` is set to uppercase `\"VOUCHES\"` in `Tools/rbk/rbgc_Constants.sh:131`. OCI registries require lowercase repository/package names. The vouch pipeline's `assemble-push-vouch` step (`Tools/rbk/rbgjv/rbgjv03-assemble-push-vouch.sh`) constructs a tag like `...repository/VOUCHES:hallmark-vouch` which is rejected by GAR with: `repository name must be lowercase`.\n\nThis breaks the four-mode-integration test case (`rbtdrc_four_mode_supply_chain`) at the vouch step of every conjure.\n\n### Fix\n1. `Tools/rbk/rbgc_Constants.sh` — change `RBGC_VOUCHES_PACKAGE` from `\"VOUCHES\"` to `\"vouches\"`\n2. Spec/doc references in `RBS0-SpecTop.adoc`, `RBSAV-ark_vouch.adoc`, `RBSAP-ark_plumb.adoc`, `RBSGS-GettingStarted.adoc` — update tag table and prose references from `VOUCHES` to `vouches` where they appear as literal GAR package names\n3. Code comments in `rbfc_FoundryCore.sh`, `rbfv_FoundryVerify.sh` — update any literal `VOUCHES` references that describe the package name (not the concept)\n\n### Distinguish: package name vs concept name\nThe word \"VOUCHES\" appears in two roles: (a) as the literal GAR package name in tags/code, and (b) as a concept name in prose (\"the VOUCHES superdirectory\"). Only (a) must change to lowercase. Prose references to the concept (\"the VOUCHES superdirectory\") may retain caps for readability — use judgment per instance.\n\n### Verification\n- Run `tt/rbtd-s.TestSuite.service.sh` — four-mode-integration must pass (vouch step succeeds)\n- Confirm no orphaned uppercase artifacts need cleanup (they were from failed builds)",
-              "silks": "vouches-package-lowercase",
-              "commit": "b8745ff"
             }
           ]
         }
@@ -4022,9 +3984,11 @@
         "₢A_AAD",
         "₢A_AAE",
         "₢A_AAF",
-        "₢A_AAG"
+        "₢A_AAG",
+        "₢A_AAH",
+        "₢A_AAI"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_uAl_.md",
       "paces": {
         "₢A_AAA": {
@@ -4115,6 +4079,56 @@
               "text": "## Character\nEnd-to-end validation — user perspective. Every handbook track must complete cleanly.\n\n## Work\nWalk every onboarding track in sequence: Crash Course, Credential Retriever, Credential Director, First Crucible, Director First Cloud Build, Payor, Governor. Verify all handbook windows render correctly with prefixed resource names. Confirm probe outputs show the correct prefixed container/image identifiers. Fix any display or functional issues.",
               "silks": "run-all-onboarding-tracks",
               "commit": "51b0838"
+            }
+          ]
+        },
+        "₢A_AAH": {
+          "tacks": [
+            {
+              "ts": "260415-1507",
+              "state": "rough",
+              "text": "Drafted from ₢A6AAk in ₣A6.\n\n## Character\nVerification-only remainder — the fix is landed, just needs a clean-tree retest.\n\n## Docket\n`RBGC_VOUCHES_PACKAGE` was uppercase `\"VOUCHES\"` — OCI registries reject uppercase package names. The vouch pipeline's `assemble-push-vouch` step constructed `...repository/VOUCHES:hallmark-vouch` which GAR rejected with `repository name must be lowercase`.\n\n### What was done\n- `Tools/rbk/rbgc_Constants.sh` — changed `RBGC_VOUCHES_PACKAGE` from `\"VOUCHES\"` to `\"vouches\"`\n- `Tools/rbk/rbfc_FoundryCore.sh` — updated all `VOUCHES` references in comments/strings to `vouches`\n- `Tools/rbk/rbgjv/rbgjv03-assemble-push-vouch.sh` — updated echo label\n- Spec/doc references updated in `RBS0-SpecTop.adoc`, `RBSAV-ark_vouch.adoc`, `RBSAP-ark_plumb.adoc`, `RBSGS-GettingStarted.adoc`\n- Conjure vouch step confirmed passing (service suite: conjure succeeded, bind failed only due to dirty working tree)\n\n### Remaining\nRun `tt/rbtd-s.TestSuite.service.sh` from a fully committed and pushed working tree. The four-mode-integration test requires a clean tree for the ordain (bind) step. Conjure vouch already verified green.",
+              "silks": "vouches-package-lowercase",
+              "commit": "a4c1185"
+            },
+            {
+              "ts": "260415-1456",
+              "state": "rough",
+              "text": "## Character\nVerification-only remainder — the fix is landed, just needs a clean-tree retest.\n\n## Docket\n`RBGC_VOUCHES_PACKAGE` was uppercase `\"VOUCHES\"` — OCI registries reject uppercase package names. The vouch pipeline's `assemble-push-vouch` step constructed `...repository/VOUCHES:hallmark-vouch` which GAR rejected with `repository name must be lowercase`.\n\n### What was done\n- `Tools/rbk/rbgc_Constants.sh` — changed `RBGC_VOUCHES_PACKAGE` from `\"VOUCHES\"` to `\"vouches\"`\n- `Tools/rbk/rbfc_FoundryCore.sh` — updated all `VOUCHES` references in comments/strings to `vouches`\n- `Tools/rbk/rbgjv/rbgjv03-assemble-push-vouch.sh` — updated echo label\n- Spec/doc references updated in `RBS0-SpecTop.adoc`, `RBSAV-ark_vouch.adoc`, `RBSAP-ark_plumb.adoc`, `RBSGS-GettingStarted.adoc`\n- Conjure vouch step confirmed passing (service suite: conjure succeeded, bind failed only due to dirty working tree)\n\n### Remaining\nRun `tt/rbtd-s.TestSuite.service.sh` from a fully committed and pushed working tree. The four-mode-integration test requires a clean tree for the ordain (bind) step. Conjure vouch already verified green.",
+              "silks": "vouches-package-lowercase",
+              "commit": "d67a8ed"
+            },
+            {
+              "ts": "260415-1443",
+              "state": "rough",
+              "text": "## Character\nSurgical constant fix with cascading doc updates — mechanically straightforward but must be verified end-to-end through a real Cloud Build vouch cycle.\n\n## Docket\n`RBGC_VOUCHES_PACKAGE` is set to uppercase `\"VOUCHES\"` in `Tools/rbk/rbgc_Constants.sh:131`. OCI registries require lowercase repository/package names. The vouch pipeline's `assemble-push-vouch` step (`Tools/rbk/rbgjv/rbgjv03-assemble-push-vouch.sh`) constructs a tag like `...repository/VOUCHES:hallmark-vouch` which is rejected by GAR with: `repository name must be lowercase`.\n\nThis breaks the four-mode-integration test case (`rbtdrc_four_mode_supply_chain`) at the vouch step of every conjure.\n\n### Fix\n1. `Tools/rbk/rbgc_Constants.sh` — change `RBGC_VOUCHES_PACKAGE` from `\"VOUCHES\"` to `\"vouches\"`\n2. Spec/doc references in `RBS0-SpecTop.adoc`, `RBSAV-ark_vouch.adoc`, `RBSAP-ark_plumb.adoc`, `RBSGS-GettingStarted.adoc` — update tag table and prose references from `VOUCHES` to `vouches` where they appear as literal GAR package names\n3. Code comments in `rbfc_FoundryCore.sh`, `rbfv_FoundryVerify.sh` — update any literal `VOUCHES` references that describe the package name (not the concept)\n\n### Distinguish: package name vs concept name\nThe word \"VOUCHES\" appears in two roles: (a) as the literal GAR package name in tags/code, and (b) as a concept name in prose (\"the VOUCHES superdirectory\"). Only (a) must change to lowercase. Prose references to the concept (\"the VOUCHES superdirectory\") may retain caps for readability — use judgment per instance.\n\n### Verification\n- Run `tt/rbtd-s.TestSuite.service.sh` — four-mode-integration must pass (vouch step succeeds)\n- Confirm no orphaned uppercase artifacts need cleanup (they were from failed builds)",
+              "silks": "vouches-package-lowercase",
+              "commit": "b8745ff"
+            }
+          ]
+        },
+        "₢A_AAI": {
+          "tacks": [
+            {
+              "ts": "260415-1507",
+              "state": "rough",
+              "text": "Drafted from ₢A6AAi in ₣A6.\n\n## Character\nMechanical rename — straightforward but touches many files. Grep-driven, no design judgment needed.\n\n## Docket\nRename `rbap` (Access Probe) to `rbgv` (Google Verification) to free the `rba` prefix for future Amazon features.\n\n### BCG naming contract (all must transform)\n\n| Element | BCG Pattern | Old | New |\n|---------|------------|-----|-----|\n| Implementation file | `«prefix»_«name».sh` | `rbap_AccessProbe.sh` | `rbgv_AccessProbe.sh` |\n| Source guard | `Z«PREFIX»_SOURCED` | `ZRBAP_SOURCED` | `ZRBGV_SOURCED` |\n| Kindle guard | `Z«PREFIX»_KINDLED` | `ZRBAP_KINDLED` | `ZRBGV_KINDLED` |\n| Kindle function | `z«prefix»_kindle()` | `zrbap_kindle()` | `zrbgv_kindle()` |\n| Sentinel function | `z«prefix»_sentinel()` | `zrbap_sentinel()` | `zrbgv_sentinel()` |\n| Public functions | `«prefix»_*()` | `rbap_*()` | `rbgv_*()` |\n| Internal functions | `z«prefix»_*()` | `zrbap_*()` | `zrbgv_*()` |\n| Internal constants | `Z«PREFIX»_*` | `ZRBAP_*` | `ZRBGV_*` |\n| Temp file paths | `«prefix»_*` in strings | `rbap_` | `rbgv_` |\n\n### Note: no standalone CLI\n`rbap` has no `rbap_cli.sh` — it is a library module sourced by `rbte_cli.sh` (theurge test engine). No CLI file to rename. The `rbte_cli.sh` furnish sources it directly and calls `zrbap_kindle` — both references must update.\n\n### Files to modify (exhaustive)\n1. `Tools/rbk/rbap_AccessProbe.sh` — rename file, transform all internals per table above\n2. `Tools/rbk/rbtd/rbte_cli.sh` — update source path and `zrbap_kindle` call\n3. `Tools/rbk/rbtd/rbte_engine.sh` — update `rbap_jwt_sa_probe` and `rbap_payor_oauth_probe` calls\n4. `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc` — update linked term display text referencing `rbap_*` function names\n5. `CLAUDE.md` — no RBAP entry exists today; add RBGV entry to acronym mappings\n\n### Verification\n- Grep entire repo for any remaining `rbap` / `RBAP` / `zrbap` / `ZRBAP` (retired heat files in `.claude/jjm/retired/` are historical and do not need updating)\n- Run fast test suite to confirm no regressions",
+              "silks": "rename-rbap-to-rbgv",
+              "commit": "a4c1185"
+            },
+            {
+              "ts": "260415-1318",
+              "state": "rough",
+              "text": "## Character\nMechanical rename — straightforward but touches many files. Grep-driven, no design judgment needed.\n\n## Docket\nRename `rbap` (Access Probe) to `rbgv` (Google Verification) to free the `rba` prefix for future Amazon features.\n\n### BCG naming contract (all must transform)\n\n| Element | BCG Pattern | Old | New |\n|---------|------------|-----|-----|\n| Implementation file | `«prefix»_«name».sh` | `rbap_AccessProbe.sh` | `rbgv_AccessProbe.sh` |\n| Source guard | `Z«PREFIX»_SOURCED` | `ZRBAP_SOURCED` | `ZRBGV_SOURCED` |\n| Kindle guard | `Z«PREFIX»_KINDLED` | `ZRBAP_KINDLED` | `ZRBGV_KINDLED` |\n| Kindle function | `z«prefix»_kindle()` | `zrbap_kindle()` | `zrbgv_kindle()` |\n| Sentinel function | `z«prefix»_sentinel()` | `zrbap_sentinel()` | `zrbgv_sentinel()` |\n| Public functions | `«prefix»_*()` | `rbap_*()` | `rbgv_*()` |\n| Internal functions | `z«prefix»_*()` | `zrbap_*()` | `zrbgv_*()` |\n| Internal constants | `Z«PREFIX»_*` | `ZRBAP_*` | `ZRBGV_*` |\n| Temp file paths | `«prefix»_*` in strings | `rbap_` | `rbgv_` |\n\n### Note: no standalone CLI\n`rbap` has no `rbap_cli.sh` — it is a library module sourced by `rbte_cli.sh` (theurge test engine). No CLI file to rename. The `rbte_cli.sh` furnish sources it directly and calls `zrbap_kindle` — both references must update.\n\n### Files to modify (exhaustive)\n1. `Tools/rbk/rbap_AccessProbe.sh` — rename file, transform all internals per table above\n2. `Tools/rbk/rbtd/rbte_cli.sh` — update source path and `zrbap_kindle` call\n3. `Tools/rbk/rbtd/rbte_engine.sh` — update `rbap_jwt_sa_probe` and `rbap_payor_oauth_probe` calls\n4. `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc` — update linked term display text referencing `rbap_*` function names\n5. `CLAUDE.md` — no RBAP entry exists today; add RBGV entry to acronym mappings\n\n### Verification\n- Grep entire repo for any remaining `rbap` / `RBAP` / `zrbap` / `ZRBAP` (retired heat files in `.claude/jjm/retired/` are historical and do not need updating)\n- Run fast test suite to confirm no regressions",
+              "silks": "rename-rbap-to-rbgv",
+              "commit": "ec05c33"
+            },
+            {
+              "ts": "260415-1316",
+              "state": "rough",
+              "text": "## Character\nMechanical rename — straightforward but touches many files. Grep-driven, no design judgment needed.\n\n## Docket\nRename `rbap` (Access Probe) to `rbgv` (Google Verification) to free the `rba` prefix for future Amazon features.\n\n### What moves\n- `Tools/rbk/rbap_AccessProbe.sh` → `Tools/rbk/rbgv_AccessProbe.sh`\n- All public functions: `rbap_*` → `rbgv_*`\n- All private functions: `zrbap_*` → `zrbgv_*`\n- All constants: `ZRBAP_*` → `ZRBGV_*`\n- Source guard variable: `ZRBAP_SOURCED` → `ZRBGV_SOURCED`\n- Kindle guard: `ZRBAP_KINDLED` → `ZRBGV_KINDLED`\n\n### Scope of changes\n1. The file itself (rename + all internal references)\n2. CLI file that sources it (find via grep for `rbap`)\n3. Workbench/zipper enrollment referencing `rbap`\n4. Any tabtargets referencing `rbap` functions\n5. Spec documents (`vov_veiled/RBSAJ-*.adoc`, `RBSAO-*.adoc`) if they reference `rbap` identifiers\n6. CLAUDE.md acronym mappings — remove RBAP, add RBGV\n7. Grep entire repo for `rbap` / `RBAP` / `zrbap` / `ZRBAP` to catch stragglers\n\n### Verification\n- Run `tt/rbw-rav.ValidateAuthRegime.sh` (or equivalent) to confirm probes still work\n- Run fast test suite",
+              "silks": "rename-rbap-to-rbgv",
+              "commit": "100343d"
             }
           ]
         }
