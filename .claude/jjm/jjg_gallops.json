@@ -1,6 +1,6 @@
 {
   "schema_version": 4,
-  "next_heat_seed": "A_",
+  "next_heat_seed": "BA",
   "heat_order": [
     "₣A-",
     "₣A9",
@@ -23,7 +23,8 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au"
+    "₣Au",
+    "₣A_"
   ],
   "heats": {
     "₣A-": {
@@ -4027,6 +4028,15 @@
       "order": [],
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_uAuZ.md",
+      "paces": {}
+    },
+    "₣A_": {
+      "silks": "rbk-mvp-3-resource-prefix-and-depot-regen",
+      "creation_time": "260415",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uAl_.md",
       "paces": {}
     },
     "₣Aa": {
