@@ -963,6 +963,13 @@
         "₢A6AAO": {
           "tacks": [
             {
+              "ts": "260415-0631",
+              "state": "complete",
+              "text": "## Character\n\nSmall handbook track implementation. Add the director credential installation onboarding sequence — place RBRA file, verify, confirm access via image rekon (`rbw-ir`). Only relevant if you are not the Payor. Depends on ₢A6AAP having created the rekon operation.\n\n## Docket\n\nImplement `tt/rbw-Ocd.OnboardingCredentialDirector.sh` — the director credential installation handbook track.\n\n### Teaching content\n\n- Place your RBRA credential file (director role)\n- Verify the credential is recognized\n- Confirm access via `tt/rbw-ir.DirectorRekonsImages.sh` (rekon — raw GAR tag listing, director-authenticated)\n- Clarify this track is only needed if you are not the Payor\n\n### Implementation\n\n- Add zipper enrollment, thin dispatcher, sequence function following the Crash Course pattern\n\n### Out of scope\n\n- Retriever credential installation (₢A6AAN)\n- Payor credential flow\n- Credential refactoring (₢A6AAP)",
+              "silks": "onboarding-credential-director",
+              "commit": "08535ba"
+            },
+            {
               "ts": "260414-0706",
               "state": "rough",
               "text": "## Character\n\nSmall handbook track implementation. Add the director credential installation onboarding sequence — place RBRA file, verify, confirm access via image rekon (`rbw-ir`). Only relevant if you are not the Payor. Depends on ₢A6AAP having created the rekon operation.\n\n## Docket\n\nImplement `tt/rbw-Ocd.OnboardingCredentialDirector.sh` — the director credential installation handbook track.\n\n### Teaching content\n\n- Place your RBRA credential file (director role)\n- Verify the credential is recognized\n- Confirm access via `tt/rbw-ir.DirectorRekonsImages.sh` (rekon — raw GAR tag listing, director-authenticated)\n- Clarify this track is only needed if you are not the Payor\n\n### Implementation\n\n- Add zipper enrollment, thin dispatcher, sequence function following the Crash Course pattern\n\n### Out of scope\n\n- Retriever credential installation (₢A6AAN)\n- Payor credential flow\n- Credential refactoring (₢A6AAP)",
