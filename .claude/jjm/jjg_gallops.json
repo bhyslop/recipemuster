@@ -2467,6 +2467,7 @@
       "creation_time": "260131",
       "status": "racing",
       "order": [
+        "₢AUAA3",
         "₢AUAAx",
         "₢AUAAv",
         "₢AUAAw",
@@ -2518,7 +2519,7 @@
         "₢AUAA1",
         "₢AUAA2"
       ],
-      "next_pace_seed": "AA3",
+      "next_pace_seed": "AA4",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAA0": {
@@ -2551,6 +2552,17 @@
               "text": "## Character\n\nResearch pace — survey how other projects name their local configuration directories, then propose a pattern for replacing `.buk/` and `.rbk/` with something visible and unsurprising. The hidden-dot semantic actively hinders discoverability, which conflicts with the handbook's teaching goals. No code changes — just research and a recommendation.\n\n## Docket\n\n### Problem\n\n`.buk/` and `.rbk/` use the Unix dot-prefix convention to hide directories from `ls`. This made sense when they were implementation details, but the handbook explicitly teaches learners to find and read these files (RBRR, RBRN, BURC). Hiding them contradicts discoverability.\n\n### Research\n\nSurvey configuration directory naming conventions across well-known projects:\n\n- How do Rust, Node, Python, Go, Ruby projects name their config dirs?\n- What do tools like `.github/`, `.vscode/`, `.cargo/`, `.npm/` do — and do any visible-directory conventions exist?\n- Are there projects that deliberately chose visible config directories? What pattern did they use?\n- What does `config/` vs `conf/` vs `cfg/` vs project-prefixed (`config_buk/`) look like in practice?\n- How do monorepo tools handle per-tool config directories?\n\n### Evaluate candidates\n\nFor each candidate pattern, assess:\n- Discoverability: does `ls` show it without flags?\n- Sort position: does it cluster with related dirs or scatter?\n- Collision risk: could it conflict with common directory names?\n- Familiarity: would a new contributor guess the convention?\n- Grep/glob friendliness: does the prefix pattern work well for searching?\n\n### Propose\n\nRecommend a naming pattern with rationale. Include:\n- Proposed names for both BUK and RBK config dirs\n- Migration considerations (what references need updating)\n- Whether the pattern extends to other kits (JJK, CMK, etc.)\n\n### Out of scope\n\n- Actually renaming anything\n- Writing migration scripts\n- Updating code references",
               "silks": "research-config-directory-naming",
               "commit": "135d478"
+            }
+          ]
+        },
+        "₢AUAA3": {
+          "tacks": [
+            {
+              "ts": "260415-0630",
+              "state": "rough",
+              "text": "## Character\nDesign + mechanical — introduce a new regime constant, thread it through all GAR image reference construction.\n\n## Docket\n\nAdd `RBRR_DEPOT_PREFIX` to the repo regime. This prefix gets prepended to every GAR image path, giving all images a common namespace root that can be used for global lookups (e.g., reverse-mapping a hallmark to its vessel without iterating all vessel packages).\n\n### Changes required\n\n- **RBRR regime**: Add `RBRR_DEPOT_PREFIX` constant (repo regime enrollment + render)\n- **RBS0 / RBSRR**: Spec the new field — what it is, why it exists, how it composes with existing GAR path construction\n- **GAR path construction**: Every site that builds `${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}` or similar must incorporate the prefix. Audit all six vessel+hallmark commands plus tally, rekon, inscribe, etc.\n- **Cloud Build substitutions**: `_RBGV_GAR_PATH` may need to incorporate the prefix\n- **Derived constants**: `RBDC` or `ZRBFC` path assembly\n\n### Design questions to resolve during execution\n\n- Does the prefix go between the GAR repository and the vessel sigil (e.g., `repo/PREFIX/vessel:tag`), or is it a prefix on the vessel sigil itself (e.g., `repo/PREFIX-vessel:tag`)?\n- What is the default value? Empty string (backward compatible) or a meaningful default?\n- Does this affect enshrined tool images or only vessel images?",
+              "silks": "emplace-depot-prefix-on-gar-images",
+              "commit": "c00c111"
             }
           ]
         },
