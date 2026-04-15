@@ -207,6 +207,22 @@ buh_error() {
 }
 
 ######################################################################
+# Public: Conditional display
+#
+# buh_ternary condition yelp-string-if-true yelp-string-if-false
+#   Displays one of two pre-composed yelp strings based on condition.
+#   Condition follows test semantics: "1" is true, anything else is false.
+
+buh_ternary() {
+  zbuh_sentinel
+  if test "${1:-}" = "1"; then
+    buh_line "${2:-}"
+  else
+    buh_line "${3:-}"
+  fi
+}
+
+######################################################################
 # Public: User prompts
 
 # buh_prompt "prompt text"

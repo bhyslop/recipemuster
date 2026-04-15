@@ -81,8 +81,6 @@ rbho_director_first_build() {
 
   buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel" "rbev-sentry-deb-tether"; local -r z_lk_vessel_name="${z_buym_yelp}"
 
-  local z_tt=""
-
   # --- Header ---
   buh_section "Your First Cloud Build"
   buh_e
@@ -98,29 +96,24 @@ rbho_director_first_build() {
   # Prerequisite probes
   buh_line "Prerequisites:"
   buh_e
-  if test "${z_has_director}" = "1"; then
-    buyy_cmd_yawp "[*]"
-    buh_line " ${z_buym_yelp} Director credential installed"
-  else
-    buh_error " [ ] Director credential missing — run:"
-    buyy_tt_yawp "${RBZ_ONBOARD_CRED_DIRECTOR}"
-    buh_line "      ${z_buym_yelp}"
+  buyy_pass_yawp "[*] Director credential installed";          local -r z_dir_pass="${z_buym_yelp}"
+  buyy_fail_yawp "[ ] Director credential missing — run:";    local -r z_dir_fail="${z_buym_yelp}"
+  buh_ternary "${z_has_director}" " ${z_dir_pass}" " ${z_dir_fail}"
+  if test "${z_has_director}" = "0"; then
+    buh_tt "      " "${RBZ_ONBOARD_CRED_DIRECTOR}"
   fi
-  if test "${z_has_depot}" = "1"; then
-    buyy_cmd_yawp "[*]"
-    buh_line " ${z_buym_yelp} Depot configured (RBRR_DEPOT_PROJECT_ID populated)"
-  else
-    buh_error " [ ] Depot not configured — the Payor must establish the Depot first:"
-    buyy_tt_yawp "${RBZ_ONBOARD_PAYOR_HB}"
-    buh_line "      ${z_buym_yelp}"
+  buyy_pass_yawp "[*] Depot configured (RBRR_DEPOT_PROJECT_ID populated)";          local -r z_dep_pass="${z_buym_yelp}"
+  buyy_fail_yawp "[ ] Depot not configured — the Payor must establish the Depot:";  local -r z_dep_fail="${z_buym_yelp}"
+  buh_ternary "${z_has_depot}" " ${z_dep_pass}" " ${z_dep_fail}"
+  if test "${z_has_depot}" = "0"; then
+    buh_tt "      " "${RBZ_ONBOARD_PAYOR_HB}"
   fi
   buh_e
 
   if test "${z_has_director}" = "0" || test "${z_has_depot}" = "0"; then
     buh_error "Complete the prerequisites above before continuing."
     buh_e
-    buyy_tt_yawp "${RBZ_ONBOARD_START_HERE}"
-    buh_line "Return to start: ${z_buym_yelp}"
+    buh_tt "Return to start: " "${RBZ_ONBOARD_START_HERE}"
     buh_e
     return 0
   fi
@@ -151,21 +144,20 @@ rbho_director_first_build() {
   buh_e
   buh_line "Inscribe:"
   buh_e
-  buyy_tt_yawp "${RBZ_INSCRIBE_RELIQUARY}"
-  buh_line "   ${z_buym_yelp}"
+  buh_tt "   " "${RBZ_INSCRIBE_RELIQUARY}"
   buh_e
   buh_line "This mirrors four tool images from upstream into your Depot's"
   buh_line "GAR. Takes 2-5 minutes depending on network speed."
   buh_e
-  buyy_cmd_yawp "r260324193326"
+  buyy_cmd_yawp "r260324193326";                   local -r z_ds_example="${z_buym_yelp}"
   buh_line "When inscribe completes, it prints a reliquary datestamp"
-  buh_line "(e.g., ${z_buym_yelp}). Every vessel that uses Cloud Build"
+  buh_line "(e.g., ${z_ds_example}). Every vessel that uses Cloud Build"
   buh_line "needs this value in its regime file:"
   buh_e
   buh_code "   RBRV_RELIQUARY=<datestamp>"
   buh_e
-  buyy_cmd_yawp "rbev-sentry-deb-tether/rbrv.env"
-  buh_line "Open ${z_buym_yelp} and set the field,"
+  buyy_cmd_yawp "rbev-sentry-deb-tether/rbrv.env"; local -r z_rbrv_file="${z_buym_yelp}"
+  buh_line "Open ${z_rbrv_file} and set the field,"
   buh_line "then commit the change."
   buh_e
 
@@ -178,10 +170,7 @@ rbho_director_first_build() {
   buh_line "it reads the vessel's ${RBYC_RBRV} regime to determine the mode"
   buh_line "(conjure, bind, or graft) and acts accordingly:"
   buh_e
-  buyy_tt_yawp "${RBZ_ORDAIN_HALLMARK}"
-  z_tt="${z_buym_yelp}"
-  buyy_cmd_yawp ' ${ONBOARD_VESSEL}'
-  buh_line "   ${z_tt}${z_buym_yelp}"
+  buh_tt "   " "${RBZ_ORDAIN_HALLMARK}" "" ' ${ONBOARD_VESSEL}'
   buh_e
   buh_line "This builds on the ${RBYC_TETHERED} pool — Cloud Build has"
   buh_line "public internet access and pulls base images from upstream"
@@ -218,35 +207,35 @@ rbho_director_first_build() {
   buh_line "Every conjured ${RBYC_HALLMARK} produces a set of tagged"
   buh_line "artifacts in GAR. Each suffix serves a specific role:"
   buh_e
-  buyy_cmd_yawp "{hallmark}${RBGC_ARK_SUFFIX_POUCH}"
-  buh_line "   ${z_buym_yelp}"
+  buyy_cmd_yawp "{hallmark}${RBGC_ARK_SUFFIX_POUCH}";        local -r z_sfx_pouch="${z_buym_yelp}"
+  buyy_cmd_yawp "{hallmark}${RBGC_ARK_SUFFIX_IMAGE}";        local -r z_sfx_image="${z_buym_yelp}"
+  buyy_cmd_yawp "{hallmark}${RBGC_ARK_SUFFIX_ATTEST}-{arch}"; local -r z_sfx_attest="${z_buym_yelp}"
+  buyy_cmd_yawp "{hallmark}${RBGC_ARK_SUFFIX_ABOUT}";        local -r z_sfx_about="${z_buym_yelp}"
+  buyy_cmd_yawp "{hallmark}${RBGC_ARK_SUFFIX_VOUCH}";        local -r z_sfx_vouch="${z_buym_yelp}"
+  buyy_cmd_yawp "{hallmark}${RBGC_ARK_SUFFIX_DIAGS}";        local -r z_sfx_diags="${z_buym_yelp}"
+  buh_line "   ${z_sfx_pouch}"
   buh_line "      A FROM SCRATCH OCI image pushed from host to GAR before"
   buh_line "      the build. Contains the Dockerfile, scripts, and"
   buh_line "      configuration Cloud Build needs. Identical for tethered"
   buh_line "      and airgapped builds — the pool determines network"
   buh_line "      access, not the pouch."
   buh_e
-  buyy_cmd_yawp "{hallmark}${RBGC_ARK_SUFFIX_IMAGE}"
-  buh_line "   ${z_buym_yelp}"
+  buh_line "   ${z_sfx_image}"
   buh_line "      The consumer image — a multiplatform manifest list."
   buh_line "      This is what you pull and run."
   buh_e
-  buyy_cmd_yawp "{hallmark}${RBGC_ARK_SUFFIX_ATTEST}-{arch}"
-  buh_line "   ${z_buym_yelp}"
+  buh_line "   ${z_sfx_attest}"
   buh_line "      Per-platform provenance-carrying image (one per platform)."
   buh_line "      Shares all layers with -image — only the manifest differs."
   buh_line "      These carry the GCB-attested digests used by vouch."
   buh_e
-  buyy_cmd_yawp "{hallmark}${RBGC_ARK_SUFFIX_ABOUT}"
-  buh_line "   ${z_buym_yelp}"
+  buh_line "   ${z_sfx_about}"
   buh_line "      SBOM (software bill of materials) + build info."
   buh_e
-  buyy_cmd_yawp "{hallmark}${RBGC_ARK_SUFFIX_VOUCH}"
-  buh_line "   ${z_buym_yelp}"
+  buh_line "   ${z_sfx_vouch}"
   buh_line "      SLSA provenance verification record."
   buh_e
-  buyy_cmd_yawp "{hallmark}${RBGC_ARK_SUFFIX_DIAGS}"
-  buh_line "   ${z_buym_yelp}"
+  buh_line "   ${z_sfx_diags}"
   buh_line "      Diagnostics from the build."
   buh_e
   buh_line "Inspect them:"
@@ -256,8 +245,7 @@ rbho_director_first_build() {
   buh_e
   buh_line "${RBYC_TALLY} lists all hallmarks and their health state:"
   buh_e
-  buyy_tt_yawp "${RBZ_TALLY_HALLMARKS}"
-  buh_line "   ${z_buym_yelp}"
+  buh_tt "   " "${RBZ_TALLY_HALLMARKS}"
   buh_e
   buh_line "Look for your ${RBYC_HALLMARK} with health state 'vouched' — that"
   buh_line "means SLSA provenance was verified."
@@ -270,8 +258,7 @@ rbho_director_first_build() {
   buh_line "automatically. If a build was interrupted before ${RBYC_VOUCH}"
   buh_line "completed, run this to reattempt ${RBYC_VOUCH} on untreated ${RBYC_HALLMARKS}:"
   buh_e
-  buyy_tt_yawp "${RBZ_VOUCH_HALLMARKS}"
-  buh_line "   ${z_buym_yelp}"
+  buh_tt "   " "${RBZ_VOUCH_HALLMARKS}"
   buh_e
   buh_line "The ${RBYC_CONJURE} verdict is full SLSA — Cloud Build produced"
   buh_line "this image, and the provenance chain proves it."
@@ -282,17 +269,11 @@ rbho_director_first_build() {
   buh_line "${RBYC_PLUMB} displays the SBOM, build info, and Dockerfile"
   buh_line "that produced the hallmark. Two modes:"
   buh_e
-  buyy_tt_yawp "${RBZ_PLUMB_FULL}"
-  z_tt="${z_buym_yelp}"
-  buyy_cmd_yawp ' ${ONBOARD_VESSEL} ${ONBOARD_HALLMARK}'
-  buh_line "   ${z_tt}${z_buym_yelp}"
+  buh_tt "   " "${RBZ_PLUMB_FULL}" "" ' ${ONBOARD_VESSEL} ${ONBOARD_HALLMARK}'
   buh_line "   Full provenance display — SBOM packages, build parameters,"
   buh_line "   Dockerfile content."
   buh_e
-  buyy_tt_yawp "${RBZ_PLUMB_COMPACT}"
-  z_tt="${z_buym_yelp}"
-  buyy_cmd_yawp ' ${ONBOARD_VESSEL} ${ONBOARD_HALLMARK}'
-  buh_line "   ${z_tt}${z_buym_yelp}"
+  buh_tt "   " "${RBZ_PLUMB_COMPACT}" "" ' ${ONBOARD_VESSEL} ${ONBOARD_HALLMARK}'
   buh_line "   Compact summary — one-line-per-artifact overview."
   buh_e
 
@@ -302,13 +283,10 @@ rbho_director_first_build() {
   buh_line "${RBYC_HALLMARK} that has been ${RBYC_VOUCHED} to your local"
   buh_line "Docker image cache:"
   buh_e
-  buyy_tt_yawp "${RBZ_SUMMON_HALLMARK}"
-  z_tt="${z_buym_yelp}"
-  buyy_cmd_yawp ' ${ONBOARD_VESSEL} ${ONBOARD_HALLMARK}'
-  buh_line "   ${z_tt}${z_buym_yelp}"
+  buh_tt "   " "${RBZ_SUMMON_HALLMARK}" "" ' ${ONBOARD_VESSEL} ${ONBOARD_HALLMARK}'
   buh_e
-  buyy_cmd_yawp "{hallmark}${RBGC_ARK_SUFFIX_IMAGE}"
-  buh_line "   ${z_buym_yelp}"
+  buyy_cmd_yawp "{hallmark}${RBGC_ARK_SUFFIX_IMAGE}"; local -r z_sfx_img2="${z_buym_yelp}"
+  buh_line "   ${z_sfx_img2}"
   buh_line "   is a multiplatform manifest list."
   buh_line "   Docker resolves it to the image matching your host"
   buh_line "   architecture — the same image that ${RBYC_CHARGE} uses when"
@@ -316,12 +294,9 @@ rbho_director_first_build() {
   buh_e
 
   # Summoned probe
-  if test "${z_conjure_summoned}" = "1"; then
-    buyy_cmd_yawp "[*]"
-    buh_line " ${z_buym_yelp} Conjured sentry image found locally (summoned from GAR)"
-  else
-    buh_line " [ ] No conjured sentry image found locally — run ${RBYC_SUMMON} above"
-  fi
+  buyy_pass_yawp "[*] Conjured sentry image found locally (summoned from GAR)";       local -r z_sum_pass="${z_buym_yelp}"
+  buyy_fail_yawp "[ ] No conjured sentry image found locally — run ${RBYC_SUMMON} above"; local -r z_sum_fail="${z_buym_yelp}"
+  buh_ternary "${z_conjure_summoned}" " ${z_sum_pass}" " ${z_sum_fail}"
   buh_e
 
   buh_step1 "Abjure and Rekon — hallmark lifecycle"
@@ -330,30 +305,21 @@ rbho_director_first_build() {
   buh_line "package in GAR. Run it before and after ${RBYC_ABJURE} to see"
   buh_line "the full lifecycle:"
   buh_e
-  buyy_tt_yawp "${RBZ_REKON_IMAGE}"
-  z_tt="${z_buym_yelp}"
-  buyy_cmd_yawp ' ${ONBOARD_VESSEL}'
-  buh_line "   ${z_tt}${z_buym_yelp}"
+  buh_tt "   " "${RBZ_REKON_IMAGE}" "" ' ${ONBOARD_VESSEL}'
   buh_e
   buh_line "You should see all five durable tags for your ${RBYC_HALLMARK}:"
-  buyy_cmd_yawp "${RBGC_ARK_SUFFIX_IMAGE}, ${RBGC_ARK_SUFFIX_ABOUT}, ${RBGC_ARK_SUFFIX_VOUCH}, ${RBGC_ARK_SUFFIX_POUCH}, ${RBGC_ARK_SUFFIX_DIAGS}"
-  buh_line "   ${z_buym_yelp}"
+  buyy_cmd_yawp "${RBGC_ARK_SUFFIX_IMAGE}, ${RBGC_ARK_SUFFIX_ABOUT}, ${RBGC_ARK_SUFFIX_VOUCH}, ${RBGC_ARK_SUFFIX_POUCH}, ${RBGC_ARK_SUFFIX_DIAGS}"; local -r z_sfx_list="${z_buym_yelp}"
+  buh_line "   ${z_sfx_list}"
   buh_e
   buh_line "${RBYC_ABJURE} removes all artifacts for a ${RBYC_HALLMARK}"
   buh_line "from GAR. This is permanent — the hallmark and all its"
   buh_line "tags are deleted:"
   buh_e
-  buyy_tt_yawp "${RBZ_ABJURE_HALLMARK}"
-  z_tt="${z_buym_yelp}"
-  buyy_cmd_yawp ' ${ONBOARD_VESSEL} ${ONBOARD_HALLMARK}'
-  buh_line "   ${z_tt}${z_buym_yelp}"
+  buh_tt "   " "${RBZ_ABJURE_HALLMARK}" "" ' ${ONBOARD_VESSEL} ${ONBOARD_HALLMARK}'
   buh_e
   buh_line "After abjure, run Rekon again:"
   buh_e
-  buyy_tt_yawp "${RBZ_REKON_IMAGE}"
-  z_tt="${z_buym_yelp}"
-  buyy_cmd_yawp ' ${ONBOARD_VESSEL}'
-  buh_line "   ${z_tt}${z_buym_yelp}"
+  buh_tt "   " "${RBZ_REKON_IMAGE}" "" ' ${ONBOARD_VESSEL}'
   buh_e
   buh_line "The tags for your ${RBYC_HALLMARK} should be gone. The image is no"
   buh_line "longer in the ${RBYC_DEPOT}."
@@ -376,8 +342,7 @@ rbho_director_first_build() {
   buh_e
 
   # --- Return to start ---
-  buyy_tt_yawp "${RBZ_ONBOARD_START_HERE}"
-  buh_line "Return to start: ${z_buym_yelp}"
+  buh_tt "Return to start: " "${RBZ_ONBOARD_START_HERE}"
   buh_e
 }
 
