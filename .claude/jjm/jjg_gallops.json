@@ -546,6 +546,7 @@
       "creation_time": "260409",
       "status": "racing",
       "order": [
+        "₢A6AAl",
         "₢A6AAk",
         "₢A6AAd",
         "₢A6AAe",
@@ -582,8 +583,7 @@
         "₢A6AAE",
         "₢A6AAF",
         "₢A6AAL",
-        "₢A6AAi",
-        "₢A6AAl"
+        "₢A6AAi"
       ],
       "next_pace_seed": "AAm",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
