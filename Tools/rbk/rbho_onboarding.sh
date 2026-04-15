@@ -317,15 +317,13 @@ zrbho_probe_payor_units() {
 # Args: detected(0|1) role_name colophon
 zrbho_triage_role() {
   local -r z_detected="${1}" z_name="${2}" z_colophon="${3}"
-  buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "${z_name}"
-  local -r z_link="${z_buym_yelp}"
+  buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "${z_name}"; local -r z_link="${z_buym_yelp}"
   # Column pad lives OUTSIDE the link envelope so the underline/OSC-8 stop
   # at the end of the role name.  Width 13 = 12-char column + 1 separator.
   local z_pad=""
   printf -v z_pad '%*s' $((13 - ${#z_name})) ''
   if test "${z_detected}" = "1"; then
-    buyy_tt_yawp "${z_colophon}"
-    local -r z_tt="${z_buym_yelp}"
+    buyy_tt_yawp "${z_colophon}"; local -r z_tt="${z_buym_yelp}"
     buh_line " [*] ${z_link}${z_pad}${z_tt}"
   else
     buh_line " [ ] ${z_link}"
@@ -436,12 +434,10 @@ rbho_start_here() {
   buh_line "      PlantUML renders diagrams but its Docker Hub image could"
   buh_line "      phone home. Bind pins it; the Sentry blocks all egress."
   buh_line "      Steps:"
-  buyy_link_yawp "${z_docs}" "Bind" "PlantUML"
-  local -r z_plantuml="${z_buym_yelp}"
+  buyy_link_yawp "${z_docs}" "Bind" "PlantUML"; local -r z_plantuml="${z_buym_yelp}"
   buh_line "        * ${RBYC_BIND} ${z_plantuml} — pin upstream image by digest"
   buh_line "        * Inspect ${RBYC_VOUCH} verdict — digest-pin, no SLSA (image not built here)"
-  buyy_link_yawp "${z_docs}" "Nameplate" "pluml"
-  local -r z_pluml="${z_buym_yelp}"
+  buyy_link_yawp "${z_docs}" "Nameplate" "pluml"; local -r z_pluml="${z_buym_yelp}"
   buh_line "        * ${RBYC_CHARGE} the ${z_pluml} ${RBYC_CRUCIBLE} — render a diagram, observe blocked egress"
   buh_line "      You get the tool without the risk."
   buh_e
@@ -536,10 +532,8 @@ rbho_crash_course() {
   buh_line "what to fill in."
   buh_e
   if test "${z_station_present}" = "1"; then
-    buyy_cmd_yawp " [*] "
-    local -r z_mark="${z_buym_yelp}"
-    buyy_cmd_yawp "${BURD_STATION_FILE}"
-    local -r z_path="${z_buym_yelp}"
+    buyy_cmd_yawp " [*] ";              local -r z_mark="${z_buym_yelp}"
+    buyy_cmd_yawp "${BURD_STATION_FILE}"; local -r z_path="${z_buym_yelp}"
     buh_line "${z_mark} Station file present at ${z_path}"
   else
     zrbho_po_status 0 "Station file not found"
@@ -575,8 +569,7 @@ rbho_crash_course() {
   buh_line "files to ${RBYC_BURS}_LOG_DIR:"
   buh_e
   if test -n "${z_log_dir}"; then
-    buyy_cmd_yawp "${z_log_dir}/${BURC_LOG_LAST}.${BURC_LOG_EXT}"
-    local -r z_log_path="${z_buym_yelp}"
+    buyy_cmd_yawp "${z_log_dir}/${BURC_LOG_LAST}.${BURC_LOG_EXT}"; local -r z_log_path="${z_buym_yelp}"
     buh_line "   stable    ${z_log_path}  (always the same path, great for Claude)"
   else
     buh_line "   stable    always the same path — tooling reads this one"
@@ -683,8 +676,7 @@ zrbho_credential_install() {
     buh_line "Create the directory if it does not exist."
   else
     buh_warn "RBRR not populated — cannot determine credential path."
-    buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "BURC" "Configure your Repo's Environment"
-    local -r z_env_link="${z_buym_yelp}"
+    buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "BURC" "Configure your Repo's Environment"; local -r z_env_link="${z_buym_yelp}"
     buh_line "Run ${z_env_link} first."
   fi
   buh_e
@@ -805,20 +797,13 @@ rbho_first_crucible() {
   local -r z_ssh_tabtarget="tt/rbw-cS.SshTo.${z_moniker}.sh"
 
   # Inline yelps (not worth kindle constants — track-specific)
-  buyy_cmd_yawp "rbw-fk"
-  local -r z_cmd_rbw_fk="${z_buym_yelp}"
-  buyy_cmd_yawp "rbw-cKB"
-  local -r z_cmd_rbw_cKB="${z_buym_yelp}"
-  buyy_cmd_yawp "RBRN_SENTRY_HALLMARK="
-  local -r z_cmd_sentry_hallmark="${z_buym_yelp}"
-  buyy_cmd_yawp "${z_ssh_tabtarget}"
-  local -r z_cmd_ssh="${z_buym_yelp}"
-  buyy_cmd_yawp "RBRN_SENTRY_HALLMARK"
-  local -r z_code_sentry_field="${z_buym_yelp}"
-  buyy_cmd_yawp "RBRN_BOTTLE_HALLMARK"
-  local -r z_code_bottle_field="${z_buym_yelp}"
-  buyy_cmd_yawp "k260413155458-f9dcb6d9"
-  local -r z_example_tag="${z_buym_yelp}"
+  buyy_cmd_yawp "rbw-fk";                local -r z_cmd_rbw_fk="${z_buym_yelp}"
+  buyy_cmd_yawp "rbw-cKB";               local -r z_cmd_rbw_cKB="${z_buym_yelp}"
+  buyy_cmd_yawp "RBRN_SENTRY_HALLMARK=";  local -r z_cmd_sentry_hallmark="${z_buym_yelp}"
+  buyy_cmd_yawp "${z_ssh_tabtarget}";     local -r z_cmd_ssh="${z_buym_yelp}"
+  buyy_cmd_yawp "RBRN_SENTRY_HALLMARK";   local -r z_code_sentry_field="${z_buym_yelp}"
+  buyy_cmd_yawp "RBRN_BOTTLE_HALLMARK";   local -r z_code_bottle_field="${z_buym_yelp}"
+  buyy_cmd_yawp "k260413155458-f9dcb6d9"; local -r z_example_tag="${z_buym_yelp}"
 
   # --- Probes ---
 
@@ -1224,8 +1209,7 @@ rbho_director_first_build() {
 
   # --- Function-specific yelp captures (not in RBYC vocabulary) ---
 
-  buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel" "rbev-sentry-deb-tether"
-  local -r z_lk_vessel_name="${z_buym_yelp}"
+  buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel" "rbev-sentry-deb-tether"; local -r z_lk_vessel_name="${z_buym_yelp}"
 
   local z_tt=""
 

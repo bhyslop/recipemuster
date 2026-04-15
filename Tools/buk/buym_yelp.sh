@@ -33,15 +33,14 @@
 #   buyf_  — format yawp (set z_buym_format)
 #   buym_  — module infrastructure (kindle, sentinel)
 #
-# Usage pattern — yawp then IMMEDIATELY capture to local -r:
-#   buyy_cmd_yawp "git status"
-#   local -r z_cmd="${z_buym_yelp}"        # capture before next yawp
-#   buyy_link_yawp "${z_docs}" "Depot"
-#   local -r z_depot="${z_buym_yelp}"       # capture before next yawp
+# Usage pattern — yawp+capture on one line via semicolon:
+#   buyy_cmd_yawp "git status";            local -r z_cmd="${z_buym_yelp}"
+#   buyy_link_yawp "${z_docs}" "Depot";    local -r z_depot="${z_buym_yelp}"
 #   buh_line "Run ${z_cmd} to see your ${z_depot} status."
 #
-# Never use z_buym_yelp directly in buh_line — it is a transient
-# return slot, not a durable value.  See buyy_* section for details.
+# Never use z_buym_yelp directly in buh_line — the semicolon form
+# captures immediately, but the slot is still overwritten by the
+# next yawp.  See buyy_* section for details.
 
 set -euo pipefail
 
@@ -148,32 +147,28 @@ zbuym_sentinel() {
 # Yelp yawp functions (buyy_*)
 #
 # Pure assignment to z_buym_yelp.  No stdout, no stderr, cannot fail.
-# Caller MUST capture to local -r immediately — next yawp overwrites.
-# See module header for usage pattern, BCG for full contract.
+# Caller MUST capture on the same line via semicolon — next yawp
+# overwrites the slot.  See module header for usage pattern.
 
-# buyy_cmd_yawp text — stamps CMD region
-# → local -r z_cmd="${z_buym_yelp}"
+# buyy_cmd_yawp text;  local -r z_cmd="${z_buym_yelp}"
 buyy_cmd_yawp() {
   zbuym_sentinel
   z_buym_yelp="${ZBUYM_DIASTEMA_CMD}${1:-}${ZBUYM_DIASTEMA_END}"
 }
 
-# buyy_ui_yawp text — stamps UI region
-# → local -r z_ui="${z_buym_yelp}"
+# buyy_ui_yawp text;  local -r z_ui="${z_buym_yelp}"
 buyy_ui_yawp() {
   zbuym_sentinel
   z_buym_yelp="${ZBUYM_DIASTEMA_UI}${1:-}${ZBUYM_DIASTEMA_END}"
 }
 
-# buyy_href_yawp url display — stamps HREF region with raw URL
-# → local -r z_href="${z_buym_yelp}"
+# buyy_href_yawp url display;  local -r z_href="${z_buym_yelp}"
 buyy_href_yawp() {
   zbuym_sentinel
   z_buym_yelp="${ZBUYM_DIASTEMA_HREF_URL}${1:-}${ZBUYM_DIASTEMA_HREF_TEXT}${2:-}${ZBUYM_DIASTEMA_END}"
 }
 
-# buyy_link_yawp base_url anchor [display] — stamps LINK region
-# → local -r z_link="${z_buym_yelp}"
+# buyy_link_yawp base_url anchor [display];  local -r z_link="${z_buym_yelp}"
 buyy_link_yawp() {
   zbuym_sentinel
   local -r z_url="${1:-}#${2:-}"
@@ -181,8 +176,7 @@ buyy_link_yawp() {
   z_buym_yelp="${ZBUYM_DIASTEMA_LINK_URL}${z_url}${ZBUYM_DIASTEMA_LINK_TEXT}${z_display}${ZBUYM_DIASTEMA_END}"
 }
 
-# buyy_tt_yawp colophon [imprint] [args] — resolves tabtarget, stamps TT region
-# → local -r z_tt="${z_buym_yelp}"
+# buyy_tt_yawp colophon [imprint] [args];  local -r z_tt="${z_buym_yelp}"
 buyy_tt_yawp() {
   zbuym_sentinel
   local -r z_colophon="${1:-}"
@@ -197,22 +191,19 @@ buyy_tt_yawp() {
   z_buym_yelp="${ZBUYM_DIASTEMA_TT}${z_path}${3:-}${ZBUYM_DIASTEMA_END}"
 }
 
-# buyy_pass_yawp text — stamps PASS region (green)
-# → local -r z_pass="${z_buym_yelp}"
+# buyy_pass_yawp text;  local -r z_pass="${z_buym_yelp}"
 buyy_pass_yawp() {
   zbuym_sentinel
   z_buym_yelp="${ZBUYM_DIASTEMA_PASS}${1:-}${ZBUYM_DIASTEMA_END}"
 }
 
-# buyy_warn_yawp text — stamps WARN region (orange)
-# → local -r z_warn="${z_buym_yelp}"
+# buyy_warn_yawp text;  local -r z_warn="${z_buym_yelp}"
 buyy_warn_yawp() {
   zbuym_sentinel
   z_buym_yelp="${ZBUYM_DIASTEMA_WARN}${1:-}${ZBUYM_DIASTEMA_END}"
 }
 
-# buyy_fail_yawp text — stamps FAIL region (red)
-# → local -r z_fail="${z_buym_yelp}"
+# buyy_fail_yawp text;  local -r z_fail="${z_buym_yelp}"
 buyy_fail_yawp() {
   zbuym_sentinel
   z_buym_yelp="${ZBUYM_DIASTEMA_FAIL}${1:-}${ZBUYM_DIASTEMA_END}"

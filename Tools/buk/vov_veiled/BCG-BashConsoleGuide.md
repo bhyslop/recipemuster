@@ -885,7 +885,7 @@ z_target=$(«prefix»_target_recite "alpha") || buc_die "not found"
 
 **Purpose: Produce a value into a shared group return variable via pure bash assignment. No subshells, no stdout, no stderr.**
 
-Named for Whitman's "barbaric yawp" — a loud, unmistakeable declaration into a known place. Yawp functions solve the high-frequency value-production problem: when dozens of calls per function each need a computed string, `$()` subshell overhead and the two-line capture ceremony are disproportionate to the work being done.
+Named for Whitman's "barbaric yawp" — a loud, unmistakeable declaration into a known place. Yawp functions solve the high-frequency value-production problem: when dozens of calls per function each need a computed string, `$()` subshell overhead is disproportionate to the work being done.
 
 ```bash
 # «prefix»_«name»_yawp arg1 [arg2] — what it stamps
@@ -896,7 +896,7 @@ Named for Whitman's "barbaric yawp" — a loud, unmistakeable declaration into a
 }
 ```
 
-The two-line comment is the per-function template: signature on line 1, mandatory capture pattern on line 2. The `→` arrow is a visual reminder that the caller must act.
+The two-line comment is the per-function template: signature on line 1, mandatory capture pattern on line 2. The `→` arrow is a visual reminder that the caller must capture on the same line.
 
 **Return variable**: `z_«module»_«group»` — mutable kindle state, initialized in kindle. One per function group. All `_yawp` functions in a group share the same return variable. The value is valid until the next `_yawp` call in the same group.
 
@@ -910,17 +910,14 @@ z_«module»_«group»=""
   z_«module»_«group»="${ZMOD_MARKER_CMD}${1:-}${ZMOD_MARKER_END}"
 }
 
-# Caller pattern — read immediately after call
-«prefix»_cmd_yawp "git status"
-local -r z_cmd="${z_«module»_«group»}"
-
-«prefix»_ui_yawp "Save"
-local -r z_ui="${z_«module»_«group»}"
+# Caller pattern — semicolon capture on same line
+«prefix»_cmd_yawp "git status";  local -r z_cmd="${z_«module»_«group»}"
+«prefix»_ui_yawp "Save";         local -r z_ui="${z_«module»_«group»}"
 ```
 
 **Contract:**
 - Sets `z_«module»_«group»` (mutable kindle state, initialized in kindle)
-- **Caller MUST capture to `local -r` immediately** — value is destroyed by the next `_yawp` call in the same group
+- **Caller MUST capture to `local -r` on the same line** — semicolon-separated, value is destroyed by the next `_yawp` call in the same group
 - Pure bash builtins only — no external commands, no process spawning
 - Cannot fail — no `|| buc_die` needed at call site
 - Never uses `buc_die` internally
@@ -930,12 +927,16 @@ local -r z_ui="${z_«module»_«group»}"
 **Capture discipline — the return variable is a transient slot, not a durable value:**
 
 ```bash
-# CORRECT — capture to local -r, compose from captured locals
+# CORRECT — semicolon capture on same line, compose from captured locals
+«prefix»_cmd_yawp "git status";  local -r z_cmd="${z_«module»_«group»}"
+«prefix»_tt_yawp "rbw-rrv";      local -r z_tt="${z_«module»_«group»}"
+buh_line "Run ${z_cmd} to validate: ${z_tt}"
+
+# AVOID — two-line form works but doesn't enforce discipline
 «prefix»_cmd_yawp "git status"
 local -r z_cmd="${z_«module»_«group»}"
-«prefix»_tt_yawp "rbw-rrv"
-local -r z_tt="${z_«module»_«group»}"
-buh_line "Run ${z_cmd} to validate: ${z_tt}"
+# ↑ Nothing prevents inserting code between yawp and capture.
+# The semicolon form makes interleaving structurally impossible.
 
 # WRONG — z_«group» used directly in output (fragile, unreadable)
 «prefix»_cmd_yawp "git status"
@@ -946,6 +947,8 @@ buh_line "Run ${z_«module»_«group»}"
 «prefix»_tt_yawp "rbw-rrv"
 buh_line "${z_«module»_«group»}"  # only has tt, cmd is gone
 ```
+
+The semicolon makes the capture discipline visually self-enforcing — you cannot accidentally insert code between the yawp and its capture. The two-line form invited interleaving mistakes; the one-line form eliminates them structurally.
 
 The one-yawp-one-capture rhythm is the invariant. Pre-captured constants (e.g., `RBYC_*` from `zrbyc_kindle`) are safe to interpolate directly because they were captured at kindle time — the discipline applies at the yawp call site, not at the interpolation site.
 
