@@ -1352,6 +1352,13 @@
         "₢A6AAe": {
           "tacks": [
             {
+              "ts": "260415-1332",
+              "state": "complete",
+              "text": "## Character\n\nFocused conversion of a single file with a distinct yelp vocabulary need. The payor handbook exercises `buyy_href_yawp` heavily (15 Google Console URLs) — the HREF diastema path that the onboarding conversion doesn't touch. Good validation of the HREF pipeline end-to-end.\n\n## Docket\n\nConvert `Tools/rbk/rbhp_payor.sh` from combinator style (`buh_tu`/`buh_tc`/`buh_tut`/`buh_link`) to pure yelp style. The 15 `buh_link` calls become `buyy_href_yawp` captures — the first real exercise of the HREF diastema markers in production code. Vocabulary links use RBYC_* constants. Verify via handbook tabtarget execution. Consider adding HREF-specific test cases to the buym-yelp fixture if the conversion reveals edge cases.",
+              "silks": "payor-handbook-yelp-conversion",
+              "commit": "4f1543c"
+            },
+            {
               "ts": "260415-1127",
               "state": "rough",
               "text": "## Character\n\nFocused conversion of a single file with a distinct yelp vocabulary need. The payor handbook exercises `buyy_href_yawp` heavily (15 Google Console URLs) — the HREF diastema path that the onboarding conversion doesn't touch. Good validation of the HREF pipeline end-to-end.\n\n## Docket\n\nConvert `Tools/rbk/rbhp_payor.sh` from combinator style (`buh_tu`/`buh_tc`/`buh_tut`/`buh_link`) to pure yelp style. The 15 `buh_link` calls become `buyy_href_yawp` captures — the first real exercise of the HREF diastema markers in production code. Vocabulary links use RBYC_* constants. Verify via handbook tabtarget execution. Consider adding HREF-specific test cases to the buym-yelp fixture if the conversion reveals edge cases.",
