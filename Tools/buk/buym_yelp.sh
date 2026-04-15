@@ -306,7 +306,7 @@ buyf_format_yawp() {
     else
       z_href_replacement="${z_href_text}"
     fi
-    z_str="${z_str/"${z_href_full}"/"${z_href_replacement}"}"
+    z_str="${z_str/${z_href_full}/${z_href_replacement}}"
   done
 
   # Process LINK markers
@@ -323,14 +323,14 @@ buyf_format_yawp() {
     else
       z_link_replacement="${z_link_text}"
     fi
-    z_str="${z_str/"${z_link_full}"/"${z_link_replacement}"}"
+    z_str="${z_str/${z_link_full}/${z_link_replacement}}"
   done
 
   # --- Resolve simple markers ---
-  z_str="${z_str//"${ZBUYM_DIASTEMA_CMD}"/"${BUYC_CYAN}"}"
-  z_str="${z_str//"${ZBUYM_DIASTEMA_UI}"/"${BUYC_MAGENTA}"}"
-  z_str="${z_str//"${ZBUYM_DIASTEMA_TT}"/"${BUYC_CYAN}"}"
-  z_str="${z_str//"${ZBUYM_DIASTEMA_END}"/"${z_ambient}"}"
+  z_str="${z_str//${ZBUYM_DIASTEMA_CMD}/${BUYC_CYAN}}"
+  z_str="${z_str//${ZBUYM_DIASTEMA_UI}/${BUYC_MAGENTA}}"
+  z_str="${z_str//${ZBUYM_DIASTEMA_TT}/${BUYC_CYAN}}"
+  z_str="${z_str//${ZBUYM_DIASTEMA_END}/${z_ambient}}"
 
   z_buym_format="${z_ambient}${z_str}${BUYC_RESET}"
 }
