@@ -691,7 +691,7 @@ rbfl_tally() {
   local z_sigil=""
   for z_sigil in ${z_sigils}; do
 
-    buc_step "Querying GAR tags for ${z_sigil}"
+    buc_debug "Querying GAR tags for ${z_sigil}"
     local z_tags_file="${BURD_TEMP_DIR}/rbfl_dc_${z_sigil}_tags.json"
     local z_stderr_file="${BURD_TEMP_DIR}/rbfl_dc_${z_sigil}_stderr.txt"
     curl -sL \
@@ -763,7 +763,7 @@ rbfl_tally() {
       || buc_die "Failed to sort hallmarks for ${z_sigil}"
 
     if ! test -s "${z_unique_file}"; then
-      buc_info "No hallmarks found for ${z_sigil}"
+      buc_debug "No hallmarks found for ${z_sigil}"
       continue
     fi
 
