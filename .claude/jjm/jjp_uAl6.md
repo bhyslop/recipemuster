@@ -267,7 +267,7 @@ Interview origin: `☉260409-1001`. This paddock is the authoritative digest —
 - `.rbk/rbrr.env` — concrete RBRR example
 - `.buk/burc.env` — concrete BURC example
 - `Tools/rbk/rbrp_regime.sh` — RBRP validator (reveals payor identity field shape)
-- `Tools/rbk/rbap_AccessProbe.sh` — RBRA consumer (reveals per-role credential file usage)
+- `Tools/rbk/rbgv_AccessProbe.sh` — RBRA consumer (reveals per-role credential file usage)
 
 ### Specifications
 - `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc` §Configuration Regimes — regime catalog
