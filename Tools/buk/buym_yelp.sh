@@ -136,22 +136,6 @@ zbuym_kindle() {
   z_buym_yelp=""
   z_buym_format=""
 
-  # --- Legacy capture compatibility constants ---
-  # buy_yelp.sh consumers (rbyc_common.sh) still use capture functions.
-  # These constants replicate ZBUY_* so the old API continues to work
-  # until rbyc migrates to yawp.
-  readonly ZBUY_R="${BUYC_RESET}"
-  readonly ZBUY_C="${BUYC_CYAN}"
-  readonly ZBUY_U="${BUYC_MAGENTA}"
-  readonly ZBUY_L="${BUYC_LINK}"
-  readonly ZBUY_USE_HYPERLINKS="${z_use_color}"
-  if test -n "${BURD_NO_HYPERLINKS:-}"; then
-    readonly ZBUY_NO_HYPERLINKS=1
-  else
-    readonly ZBUY_NO_HYPERLINKS=0
-  fi
-  readonly ZBUY_KINDLED=1
-
   readonly ZBUYM_KINDLED=1
 }
 
@@ -159,71 +143,6 @@ zbuym_sentinel() {
   test "${ZBUYM_KINDLED:-}" = "1" || { zbuym_kindle; }
 }
 
-# Legacy sentinel alias — rbyc_common.sh calls zbuy_sentinel
-zbuy_sentinel() { zbuym_sentinel; }
-
-######################################################################
-# Legacy capture functions
-#
-# These replicate buy_yelp.sh's public API so existing consumers
-# (rbyc_common.sh) continue to work without modification.
-# They produce stdout for $() capture — the old pattern.
-
-buy_link_capture() {
-  zbuym_sentinel
-  local -r z_base="${1:-}"
-  local -r z_anchor="${2:-}"
-  local -r z_display="${3:-${z_anchor}}"
-  local -r z_url="${z_base}#${z_anchor}"
-
-  if test "${ZBUY_USE_HYPERLINKS}" = "1" && test "${ZBUY_NO_HYPERLINKS}" = "0"; then
-    printf '%b' "${ZBUY_L}\033]8;;${z_url}\033\\\\${z_display}\033]8;;\033\\\\${ZBUY_R}"
-  elif test "${ZBUY_USE_HYPERLINKS}" = "1"; then
-    printf '%b' "${ZBUY_L}${z_display}${ZBUY_R} <${z_url}>"
-  else
-    printf '%s' "${z_display}"
-  fi
-}
-
-buy_cmd_capture() {
-  zbuym_sentinel
-  local -r z_text="${1:-}"
-  if test -n "${ZBUY_C}"; then
-    printf '%b' "${ZBUY_C}${z_text}${ZBUY_R}"
-  else
-    printf '%s' "${z_text}"
-  fi
-}
-
-buy_ui_capture() {
-  zbuym_sentinel
-  local -r z_text="${1:-}"
-  if test -n "${ZBUY_U}"; then
-    printf '%b' "${ZBUY_U}${z_text}${ZBUY_R}"
-  else
-    printf '%s' "${z_text}"
-  fi
-}
-
-buy_tt_capture() {
-  zbuym_sentinel
-  local -r z_colophon="${1:-}"
-  local z_matches=("${BURD_TABTARGET_DIR}"/${z_colophon}.*)
-  test -e "${z_matches[0]}" || { printf '%s' "??${z_colophon}??"; return 0; }
-  if test -n "${ZBUY_C}"; then
-    printf '%b' "${ZBUY_C}${z_matches[0]}${ZBUY_R}"
-  else
-    printf '%s' "${z_matches[0]}"
-  fi
-}
-
-# Legacy configurator aliases
-buy_configure_dispatch()      { buyc_dispatch; }
-buy_configure_unconditional() { buyc_unconditional; }
-buy_configure_plain()         { buyc_plain; }
-
-# Legacy kindle alias
-zbuy_kindle() { zbuym_kindle; }
 
 ######################################################################
 # Yelp yawp functions (buyy_*)

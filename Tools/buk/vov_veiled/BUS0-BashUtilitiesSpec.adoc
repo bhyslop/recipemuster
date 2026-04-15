@@ -169,8 +169,6 @@
 // Yelp
 :busy_yelp:                       <<busy_yelp,Yelp>>
 :busy_yelp_s:                     <<busy_yelp,Yelps>>
-:busy_capture:                    <<busy_capture,Capture Function>>
-:busy_capture_s:                  <<busy_capture,Capture Functions>>
 :busy_yawp:                       <<busy_yawp,Yawp Function>>
 :busy_yawp_s:                     <<busy_yawp,Yawp Functions>>
 :busy_diastema:                   <<busy_diastema,Diastema>>
@@ -613,28 +611,16 @@ at dispatch start, with terminal fields appended at completion.
 A formatted string fragment for interpolation into `buh_line` calls.
 Yelp content **must not contain literal `%` characters** — this premise allows safe interpolation into `printf` format strings via bash variable expansion.
 +
-Two production methods exist: legacy
-{busy_capture_s}
-(subshell, pre-rendered ANSI) and
+Produced by
 {busy_yawp_s}
-(pure assignment, inert
+via pure assignment of inert
 {busy_diastema}
-markers resolved at display time by
-{busy_format_yawp}).
+markers, resolved at display time by
+{busy_format_yawp}.
 +
 Yelps are the vocabulary-first primitive for handbook output.
 A kit defines vocabulary constants at kindle time by capturing yelps into readonly globals (e.g., `RBYC_DEPOT`, `RBYC_HALLMARK`).
 Call sites compose lines by interpolating these constants into `buh_line` strings.
-
-[[busy_capture]]
-//axl_voices axo_entity
-{busy_capture}::
-A legacy `buy_*` function in `buym_yelp.sh` that produces a
-{busy_yelp}
-on stdout for `$()` subshell capture.
-Captures resolve ANSI/OSC-8 at production time — the yelp contains literal escape bytes.
-Four capture functions exist: `buy_link_capture`, `buy_cmd_capture`, `buy_ui_capture`, `buy_tt_capture`.
-Retained for backward compatibility with `rbyc_common.sh` vocabulary constants.
 
 [[busy_yawp]]
 //axl_voices axo_entity
@@ -650,7 +636,7 @@ markers into strings.
 All terminal capability decisions are deferred to
 {busy_format_yawp}
 at display time.
-Five yawp functions exist: `buyy_cmd_yawp` (command), `buyy_ui_yawp` (UI element), `buyy_href_yawp` (web hyperlink), `buyy_link_yawp` (vocabulary link), `buyy_tt_yawp` (resolved tabtarget).
+Eight yawp functions exist: `buyy_cmd_yawp` (command), `buyy_ui_yawp` (UI element), `buyy_href_yawp` (web hyperlink), `buyy_link_yawp` (vocabulary link), `buyy_tt_yawp` (resolved tabtarget), `buyy_pass_yawp` (pass/green), `buyy_warn_yawp` (warn/orange), `buyy_fail_yawp` (fail/red).
 
 [[busy_diastema]]
 //axl_voices axo_entity
