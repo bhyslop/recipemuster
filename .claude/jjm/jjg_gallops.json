@@ -548,6 +548,7 @@
       "status": "racing",
       "order": [
         "₢A6AAn",
+        "₢A6AAo",
         "₢A6AAd",
         "₢A6AAe",
         "₢A6AAf",
@@ -585,7 +586,7 @@
         "₢A6AAF",
         "₢A6AAL"
       ],
-      "next_pace_seed": "AAo",
+      "next_pace_seed": "AAp",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
       "paces": {
         "₢A6AAA": {
@@ -1510,6 +1511,17 @@
               "text": "## Character\nSmall, critical fix — one file, clear failure mode, quick verification.\n\n## Docket\nFix the functional bug in `Tools/rbk/rbh0/rbhw0_top.sh` and clean up the Windows group.\n\n### Crash fix\n- Lines 52-53 reference `${JJZ_FUNDUS_PHASE1}` and `JJZ_FUNDUS_PHASE2` but the Windows CLI (`rbhw0_cli.sh`) never sources `jjz_zipper.sh`. Under `set -euo pipefail`, `tt/rbw-hw.Windows.sh` crashes on unbound variable.\n- Decision needed: either source the dependency in the CLI furnish, or remove the JJZ references if this content doesn't belong in the Windows handbook.\n\n### Additional Windows cleanup\n- Line 53: hardcoded `\"tt/jjw-tfP2.ProvisionPhase2.{host}.sh\"` — replace with proper `buh_tt` call using zipper constant (once dependency is resolved).\n- Lines 34,46,58: three identical `buyy_cmd_yawp \"${ZRBHW_WSL_DISTRO}\"` calls producing three separate captures — collapse to one capture at first use.\n- `rbhw0_cli.sh`: `buv_validation.sh`, `rbcc_Constants.sh`, `rbgc_Constants.sh` sourced/kindled but never referenced by any `rbhw*` file — remove if confirmed unnecessary.\n\n### Verification\n- Run `tt/rbw-hw.Windows.sh` (or confirm it doesn't crash on the JJZ line)",
               "silks": "repair-bcg-windows-crash",
               "commit": "3d7084b"
+            }
+          ]
+        },
+        "₢A6AAo": {
+          "tacks": [
+            {
+              "ts": "260415-1525",
+              "state": "rough",
+              "text": "## Character\nPure deletion — grep-confirm zero callers, then remove. No judgment needed.\n\n## Docket\nDelete 6 unreachable legacy role-track functions from `Tools/rbk/rbh0/rbhob_base.sh`:\n\n- `zrbho_probe_role_credentials` (~line 80)\n- `zrbho_probe_retriever_units` (~line 104)\n- `zrbho_probe_director_units` (~line 154)\n- `zrbho_probe_governor_units` (~line 232)\n- `zrbho_probe_payor_units` (~line 274)\n- `zrbho_triage_role` (~line 313)\n\nAlso confirm `zrbho_credential_install` has zero callers and delete if so.\n\nThese are remnants of the pre-decomposition role-track approach. The audit confirmed zero callers across the entire codebase.\n\n### Verification\n- `grep -r` each function name across all `.sh` files — only the definition site should appear\n- Source guard and kindle/sentinel still intact after deletion",
+              "silks": "repair-bcg-dead-function-sweep",
+              "commit": "52458f7"
             }
           ]
         }
