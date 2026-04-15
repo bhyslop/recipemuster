@@ -938,6 +938,13 @@
         "₢A6AAN": {
           "tacks": [
             {
+              "ts": "260415-0624",
+              "state": "complete",
+              "text": "## Character\n\nSmall handbook track implementation. Add the retriever credential installation onboarding sequence — place RBRA file, verify, confirm access via hallmark tally (`rbw-ft`). Only relevant if you are not the Payor. Depends on ₢A6AAP having moved tally to retriever credentials.\n\n## Docket\n\nImplement `tt/rbw-Ocr.OnboardingCredentialRetriever.sh` — the retriever credential installation handbook track.\n\n### Teaching content\n\n- Place your RBRA credential file (retriever role)\n- Verify the credential is recognized\n- Confirm access via `tt/rbw-ft.DirectorTalliesHallmarks.sh` (tally — hallmark inventory, now retriever-authenticated after ₢A6AAP)\n- Clarify this track is only needed if you are not the Payor\n\n### Implementation\n\n- Add zipper enrollment, thin dispatcher, sequence function following the Crash Course pattern\n\n### Out of scope\n\n- Director credential installation (₢A6AAO)\n- Payor credential flow\n- Credential refactoring (₢A6AAP)",
+              "silks": "onboarding-credential-retriever",
+              "commit": "2c0cfc8"
+            },
+            {
               "ts": "260414-0706",
               "state": "rough",
               "text": "## Character\n\nSmall handbook track implementation. Add the retriever credential installation onboarding sequence — place RBRA file, verify, confirm access via hallmark tally (`rbw-ft`). Only relevant if you are not the Payor. Depends on ₢A6AAP having moved tally to retriever credentials.\n\n## Docket\n\nImplement `tt/rbw-Ocr.OnboardingCredentialRetriever.sh` — the retriever credential installation handbook track.\n\n### Teaching content\n\n- Place your RBRA credential file (retriever role)\n- Verify the credential is recognized\n- Confirm access via `tt/rbw-ft.DirectorTalliesHallmarks.sh` (tally — hallmark inventory, now retriever-authenticated after ₢A6AAP)\n- Clarify this track is only needed if you are not the Payor\n\n### Implementation\n\n- Add zipper enrollment, thin dispatcher, sequence function following the Crash Course pattern\n\n### Out of scope\n\n- Director credential installation (₢A6AAO)\n- Payor credential flow\n- Credential refactoring (₢A6AAP)",
