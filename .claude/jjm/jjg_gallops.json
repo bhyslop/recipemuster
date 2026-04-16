@@ -586,6 +586,7 @@
         "₢A6AAg",
         "₢A6AAA",
         "₢A6AAI",
+        "₢A6AAv",
         "₢A6AAa",
         "₢A6AAc",
         "₢A6AAb",
@@ -616,7 +617,7 @@
         "₢A6AAL",
         "₢A6AAs"
       ],
-      "next_pace_seed": "AAv",
+      "next_pace_seed": "AAw",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
       "paces": {
         "₢A6AAA": {
@@ -1723,6 +1724,17 @@
               "text": "## Character\n\nInteractive debug pace. No pre-written docket — work proceeds by running the existing First Kludge onboarding track, observing output with the user, and iterating on issues as they surface. Cognitive posture: responsive, hands-on, driven by user judgment at each step.\n\n## Docket\n\nRe-review the existing onboarding-director-first-kludge handbook track. Interactive debug until the user is satisfied.",
               "silks": "review-onboarding-director-first-kludge",
               "commit": "e311078"
+            }
+          ]
+        },
+        "₢A6AAv": {
+          "tacks": [
+            {
+              "ts": "260416-1027",
+              "state": "rough",
+              "text": "## Character\n\nPure mechanical rename for symmetry — wide but shallow. No new features, no design judgment. Establishes a clean tether-only baseline for subsequent airgap additions in `₢A6AAV`. The whole pace is grep-then-sed plus one `git mv`; verification is \"does the existing tadmor security suite still pass identically.\"\n\n## Docket\n\nRename `rbev-bottle-ifrit` → `rbev-bottle-ifrit-tether` and migrate its build artifacts into a shared `common-ifrit-context/` directory. Mirrors the existing `common-sentry-context/` pattern. Decision recorded in `₢A6AAI`.\n\n### Steps\n\n1. Create `rbev-vessels/common-ifrit-context/` directory.\n2. Move source artifacts into the shared context:\n   - `rbev-vessels/rbev-bottle-ifrit/src/` → `rbev-vessels/common-ifrit-context/src/`\n   - `rbev-vessels/rbev-bottle-ifrit/Cargo.toml` → `rbev-vessels/common-ifrit-context/Cargo.toml`\n   - `rbev-vessels/rbev-bottle-ifrit/Cargo.lock` → `rbev-vessels/common-ifrit-context/Cargo.lock`\n3. Write `rbev-vessels/common-ifrit-context/Dockerfile.tether` — current ifrit Dockerfile content. Build logic byte-identical aside from preamble comments updated to reference the shared-context layout.\n4. Rename directory `rbev-vessels/rbev-bottle-ifrit/` → `rbev-vessels/rbev-bottle-ifrit-tether/` (use `git mv` to preserve history).\n5. Rewrite `rbev-vessels/rbev-bottle-ifrit-tether/rbrv.env`:\n   - `RBRV_SIGIL=rbev-bottle-ifrit-tether`\n   - `RBRV_DESCRIPTION` updated to mention \"(tethered)\"\n   - `RBRV_CONJURE_DOCKERFILE=${RBRR_VESSEL_DIR}/common-ifrit-context/Dockerfile.tether`\n   - `RBRV_CONJURE_BLDCONTEXT=${RBRR_VESSEL_DIR}/common-ifrit-context`\n   - All other fields preserved (mode, egress, reliquary, image origin/anchor, platforms)\n6. Update `.rbk/tadmor/rbrn.env`: `RBRN_BOTTLE_VESSEL=rbev-bottle-ifrit-tether`. Hallmark fields preserved (existing tether hallmark remains valid since the underlying image is unchanged — only the vessel name moves).\n7. Grep sweep for whole-word `rbev-bottle-ifrit` across `Tools/`, `*.adoc`, `*.md`, `.rbk/`, `tt/`, `rbev-vessels/`. Update each occurrence to `rbev-bottle-ifrit-tether`. Anticipated touch sites:\n   - Rust source: `Tools/rbk/rbtd/src/rbtdrc_crucible.rs`, possibly `rbtdri_*` infrastructure files\n   - Specs: `Tools/rbk/vov_veiled/RBSFR-FundusRegistry.md`, possibly `RBSCC-crucible_charge.adoc`, `RBSIP-ifrit_pentester.adoc`\n   - Tabtargets and zipper files (verify any vessel-name parameterized lookups)\n   - Paddock A6 vessel table row — defer; will be rewritten at AAI wrap\n8. Verify (in this order):\n   - `tt/rbw-cKB.KludgeBottle.tadmor.sh` succeeds — local kludge path unbroken\n   - `tt/rbw-cC.Charge.tadmor.sh` charges cleanly with renamed vessel\n   - `tt/rbtd-r.Run.tadmor.sh` passes the security suite — case count and outcomes identical to pre-rename baseline\n   - `tt/rbtd-s.TestSuite.fast.sh` green\n   - `grep -rn \"rbev-bottle-ifrit\\b\" --include=\"*.sh\" --include=\"*.env\" --include=\"*.rs\" --include=\"*.md\" --include=\"*.adoc\"` returns zero hits (no orphaned old name)\n\n### Requires\n\n- `₢A6AAI` wrapped (decision recorded — provides the architectural rationale for the rename)\n\n### Out of scope\n\n- Forge vessel creation (`₢A6AAV` Phase 1)\n- Airgap-ifrit vessel creation (`₢A6AAV` Phase 1)\n- `Dockerfile.airgap` creation (`₢A6AAV` Phase 1)\n- Moriah nameplate (`₢A6AAV` Phase 1)\n- Theurge fixture additions (`₢A6AAV` Phase 1)\n- Any change to `Dockerfile.tether` build logic — must be byte-equivalent to current ifrit Dockerfile (preamble comments excepted)\n- Paddock vessel/nameplate table rewrites — happen at AAI wrap",
+              "silks": "ifrit-symmetric-rename",
+              "commit": "f3cec28"
             }
           ]
         }
