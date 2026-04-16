@@ -36,6 +36,13 @@ zrbho_kindle() {
   zrbgc_sentinel
   zbuz_sentinel
   zrbz_sentinel
+
+  # BCG stderr-capture prefixes for docker probes — discriminator appended at use site.
+  # BURD_TEMP_DIR is dispatcher-provided (rbho is thin furnish — does not kindle burd).
+  readonly ZRBHO_DOCKER_IMAGES_PREFIX="${BURD_TEMP_DIR}/zrbho_docker_images_"
+  readonly ZRBHO_DOCKER_PS_PREFIX="${BURD_TEMP_DIR}/zrbho_docker_ps_"
+  readonly ZRBHO_DOCKER_STDERR_PREFIX="${BURD_TEMP_DIR}/zrbho_docker_stderr_"
+
   readonly ZRBHO_KINDLED=1
 }
 
@@ -113,6 +120,8 @@ zrbho_probe_retriever_units() {
   # Units 2-4 require Docker
   if ! command -v docker >/dev/null 2>&1; then return 0; fi
 
+  local z_line=""
+
   # Unit 2: Any image from this depot's GAR exists locally
   local z_project_id="" z_region=""
   if test -f "${RBBC_rbrr_file}"; then
@@ -120,20 +129,32 @@ zrbho_probe_retriever_units() {
     z_region=$(zrbho_po_extract_capture "${RBBC_rbrr_file}" "RBRR_GCP_REGION") || z_region=""
   fi
   if test -n "${z_region}" && test -n "${z_project_id}"; then
-    local z_gar_prefix="${z_region}${RBGC_GAR_HOST_SUFFIX}/${z_project_id}/"
-    if docker images --format "{{.Repository}}" 2>/dev/null | grep -q "^${z_gar_prefix}"; then
-      z_ru2=1
+    local -r z_gar_prefix="${z_region}${RBGC_GAR_HOST_SUFFIX}/${z_project_id}/"
+    local -r z_ru2_out="${ZRBHO_DOCKER_IMAGES_PREFIX}1_repo.txt"
+    local -r z_ru2_err="${ZRBHO_DOCKER_STDERR_PREFIX}1_repo.txt"
+    if docker images --format "{{.Repository}}" > "${z_ru2_out}" 2>"${z_ru2_err}"; then
+      while IFS= read -r z_line || test -n "${z_line}"; do
+        case "${z_line}" in "${z_gar_prefix}"*) z_ru2=1; break ;; esac
+      done < "${z_ru2_out}"
     fi
   fi
 
   # Unit 3: Any crucible is charged (bottle container running)
-  if docker ps --format "{{.Names}}" 2>/dev/null | grep -q -- "-bottle$"; then
-    z_ru3=1
+  local -r z_ru3_out="${ZRBHO_DOCKER_PS_PREFIX}1_names.txt"
+  local -r z_ru3_err="${ZRBHO_DOCKER_STDERR_PREFIX}2_ps.txt"
+  if docker ps --format "{{.Names}}" > "${z_ru3_out}" 2>"${z_ru3_err}"; then
+    while IFS= read -r z_line || test -n "${z_line}"; do
+      case "${z_line}" in *-bottle) z_ru3=1; break ;; esac
+    done < "${z_ru3_out}"
   fi
 
   # Unit 4: Kludge-tagged image exists (k-prefixed hallmark)
-  if docker images --format "{{.Tag}}" 2>/dev/null | grep -q "^k[0-9]"; then
-    z_ru4=1
+  local -r z_ru4_out="${ZRBHO_DOCKER_IMAGES_PREFIX}2_tag.txt"
+  local -r z_ru4_err="${ZRBHO_DOCKER_STDERR_PREFIX}3_tag.txt"
+  if docker images --format "{{.Tag}}" > "${z_ru4_out}" 2>"${z_ru4_err}"; then
+    while IFS= read -r z_line || test -n "${z_line}"; do
+      case "${z_line}" in k[0-9]*) z_ru4=1; break ;; esac
+    done < "${z_ru4_out}"
   fi
 }
 
@@ -255,9 +276,14 @@ zrbho_probe_governor_units() {
     z_region=$(zrbho_po_extract_capture "${RBBC_rbrr_file}" "RBRR_GCP_REGION") || z_region=""
   fi
   if test -n "${z_region}" && test -n "${z_project_id}"; then
-    local z_gar_prefix="${z_region}${RBGC_GAR_HOST_SUFFIX}/${z_project_id}/"
-    if docker images --format "{{.Repository}}" 2>/dev/null | grep -q "^${z_gar_prefix}"; then
-      z_gu3=1
+    local -r z_gar_prefix="${z_region}${RBGC_GAR_HOST_SUFFIX}/${z_project_id}/"
+    local -r z_gu3_out="${ZRBHO_DOCKER_IMAGES_PREFIX}3_repo.txt"
+    local -r z_gu3_err="${ZRBHO_DOCKER_STDERR_PREFIX}4_repo.txt"
+    if docker images --format "{{.Repository}}" > "${z_gu3_out}" 2>"${z_gu3_err}"; then
+      local z_line=""
+      while IFS= read -r z_line || test -n "${z_line}"; do
+        case "${z_line}" in "${z_gar_prefix}"*) z_gu3=1; break ;; esac
+      done < "${z_gu3_out}"
     fi
   fi
 }

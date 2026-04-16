@@ -79,14 +79,18 @@ rbho_first_crucible() {
 
   # Kludge-tagged images exist locally (k-prefixed hallmarks)
   local z_sentry_image_exists=0 z_bottle_image_exists=0
+  local z_line=""
   if test "${z_has_docker}" = "1"; then
-    if docker images --format "{{.Repository}}:{{.Tag}}" 2>/dev/null \
-       | grep -q "${z_sentry_vessel}:k[0-9]"; then
-      z_sentry_image_exists=1
-    fi
-    if docker images --format "{{.Repository}}:{{.Tag}}" 2>/dev/null \
-       | grep -q "${z_bottle_vessel}:k[0-9]"; then
-      z_bottle_image_exists=1
+    local -r z_fc_images_out="${ZRBHO_DOCKER_IMAGES_PREFIX}4_repotag.txt"
+    local -r z_fc_images_err="${ZRBHO_DOCKER_STDERR_PREFIX}5_repotag.txt"
+    if docker images --format "{{.Repository}}:{{.Tag}}" \
+         > "${z_fc_images_out}" 2>"${z_fc_images_err}"; then
+      while IFS= read -r z_line || test -n "${z_line}"; do
+        case "${z_line}" in
+          *"${z_sentry_vessel}:k"[0-9]*) z_sentry_image_exists=1 ;;
+          *"${z_bottle_vessel}:k"[0-9]*) z_bottle_image_exists=1 ;;
+        esac
+      done < "${z_fc_images_out}"
     fi
   fi
 
@@ -96,9 +100,12 @@ rbho_first_crucible() {
   # running the full dispatch. For now, check docker containers directly.
   local z_crucible_charged=0
   if test "${z_has_docker}" = "1"; then
-    if docker ps --format "{{.Names}}" 2>/dev/null \
-       | grep -q "^${z_moniker}-bottle\$"; then
-      z_crucible_charged=1
+    local -r z_fc_ps_out="${ZRBHO_DOCKER_PS_PREFIX}2_names.txt"
+    local -r z_fc_ps_err="${ZRBHO_DOCKER_STDERR_PREFIX}6_ps.txt"
+    if docker ps --format "{{.Names}}" > "${z_fc_ps_out}" 2>"${z_fc_ps_err}"; then
+      while IFS= read -r z_line || test -n "${z_line}"; do
+        case "${z_line}" in "${z_moniker}-bottle") z_crucible_charged=1; break ;; esac
+      done < "${z_fc_ps_out}"
     fi
   fi
 

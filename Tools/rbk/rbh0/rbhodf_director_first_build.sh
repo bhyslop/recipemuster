@@ -70,9 +70,17 @@ rbho_director_first_build() {
       z_region=$(zrbho_po_extract_capture "${RBBC_rbrr_file}" "RBRR_GCP_REGION") || z_region=""
     fi
     if test -n "${z_region}" && test -n "${z_project_id}"; then
-      if docker images --format "{{.Repository}}:{{.Tag}}" 2>/dev/null \
-         | grep -q "${z_region}${RBGC_GAR_HOST_SUFFIX}/${z_project_id}/.*${z_vessel}:c[0-9]"; then
-        z_conjure_summoned=1
+      local -r z_gar_prefix="${z_region}${RBGC_GAR_HOST_SUFFIX}/${z_project_id}/"
+      local -r z_df_out="${ZRBHO_DOCKER_IMAGES_PREFIX}5_repotag.txt"
+      local -r z_df_err="${ZRBHO_DOCKER_STDERR_PREFIX}7_repotag.txt"
+      if docker images --format "{{.Repository}}:{{.Tag}}" \
+           > "${z_df_out}" 2>"${z_df_err}"; then
+        local z_line=""
+        while IFS= read -r z_line || test -n "${z_line}"; do
+          case "${z_line}" in
+            "${z_gar_prefix}"*"${z_vessel}:c"[0-9]*) z_conjure_summoned=1; break ;;
+          esac
+        done < "${z_df_out}"
       fi
     fi
   fi
