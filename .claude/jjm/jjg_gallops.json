@@ -2912,8 +2912,7 @@
         "₢AUAAy",
         "₢AUAAz",
         "₢AUAA0",
-        "₢AUAA1",
-        "₢AUAA2"
+        "₢AUAA1"
       ],
       "next_pace_seed": "AA4",
       "paddock_file": ".claude/jjm/jjp_uAuU.md",
@@ -2944,17 +2943,6 @@
               "text": "## Character\nMechanical with some judgment — find the right home, move the file, update all references.\n\n## Docket\nMove `.rbk/rbje_compose_probe.env` out of the `.rbk/` runtime config directory into somewhere inside `Tools/rbk/`. This file is a sentinel/test fixture (compose env-file quoting probe), not a regime assignment — it doesn't belong alongside `rbrp.env` and `rbrr.env`.\n\nPrecise destination TBD during execution. Candidates: `Tools/rbk/` root, a test-fixtures subdirectory, or alongside sentry code that reads it. Need to trace all references (compose files, sentry startup, any sourcing) and update paths.",
               "silks": "relocate-compose-probe-env",
               "commit": "47f885d"
-            }
-          ]
-        },
-        "₢AUAA2": {
-          "tacks": [
-            {
-              "ts": "260414-0711",
-              "state": "rough",
-              "text": "## Character\n\nResearch pace — survey how other projects name their local configuration directories, then propose a pattern for replacing `.buk/` and `.rbk/` with something visible and unsurprising. The hidden-dot semantic actively hinders discoverability, which conflicts with the handbook's teaching goals. No code changes — just research and a recommendation.\n\n## Docket\n\n### Problem\n\n`.buk/` and `.rbk/` use the Unix dot-prefix convention to hide directories from `ls`. This made sense when they were implementation details, but the handbook explicitly teaches learners to find and read these files (RBRR, RBRN, BURC). Hiding them contradicts discoverability.\n\n### Research\n\nSurvey configuration directory naming conventions across well-known projects:\n\n- How do Rust, Node, Python, Go, Ruby projects name their config dirs?\n- What do tools like `.github/`, `.vscode/`, `.cargo/`, `.npm/` do — and do any visible-directory conventions exist?\n- Are there projects that deliberately chose visible config directories? What pattern did they use?\n- What does `config/` vs `conf/` vs `cfg/` vs project-prefixed (`config_buk/`) look like in practice?\n- How do monorepo tools handle per-tool config directories?\n\n### Evaluate candidates\n\nFor each candidate pattern, assess:\n- Discoverability: does `ls` show it without flags?\n- Sort position: does it cluster with related dirs or scatter?\n- Collision risk: could it conflict with common directory names?\n- Familiarity: would a new contributor guess the convention?\n- Grep/glob friendliness: does the prefix pattern work well for searching?\n\n### Propose\n\nRecommend a naming pattern with rationale. Include:\n- Proposed names for both BUK and RBK config dirs\n- Migration considerations (what references need updating)\n- Whether the pattern extends to other kits (JJK, CMK, etc.)\n\n### Out of scope\n\n- Actually renaming anything\n- Writing migration scripts\n- Updating code references",
-              "silks": "research-config-directory-naming",
-              "commit": "135d478"
             }
           ]
         },
@@ -4127,9 +4115,10 @@
         "₢A_AAD",
         "₢A_AAE",
         "₢A_AAF",
-        "₢A_AAG"
+        "₢A_AAG",
+        "₢A_AAJ"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_uAl_.md",
       "paces": {
         "₢A_AAA": {
@@ -4259,6 +4248,24 @@
               "text": "## Character\nMechanical rename — straightforward but touches many files. Grep-driven, no design judgment needed.\n\n## Docket\nRename `rbap` (Access Probe) to `rbgv` (Google Verification) to free the `rba` prefix for future Amazon features.\n\n### What moves\n- `Tools/rbk/rbap_AccessProbe.sh` → `Tools/rbk/rbgv_AccessProbe.sh`\n- All public functions: `rbap_*` → `rbgv_*`\n- All private functions: `zrbap_*` → `zrbgv_*`\n- All constants: `ZRBAP_*` → `ZRBGV_*`\n- Source guard variable: `ZRBAP_SOURCED` → `ZRBGV_SOURCED`\n- Kindle guard: `ZRBAP_KINDLED` → `ZRBGV_KINDLED`\n\n### Scope of changes\n1. The file itself (rename + all internal references)\n2. CLI file that sources it (find via grep for `rbap`)\n3. Workbench/zipper enrollment referencing `rbap`\n4. Any tabtargets referencing `rbap` functions\n5. Spec documents (`vov_veiled/RBSAJ-*.adoc`, `RBSAO-*.adoc`) if they reference `rbap` identifiers\n6. CLAUDE.md acronym mappings — remove RBAP, add RBGV\n7. Grep entire repo for `rbap` / `RBAP` / `zrbap` / `ZRBAP` to catch stragglers\n\n### Verification\n- Run `tt/rbw-rav.ValidateAuthRegime.sh` (or equivalent) to confirm probes still work\n- Run fast test suite",
               "silks": "rename-rbap-to-rbgv",
               "commit": "100343d"
+            }
+          ]
+        },
+        "₢A_AAJ": {
+          "tacks": [
+            {
+              "ts": "260416-0746",
+              "state": "rough",
+              "text": "Drafted from ₢AUAA2 in ₣AU.\n\n## Character\n\nResearch pace — survey how other projects name their local configuration directories, then propose a pattern for replacing `.buk/` and `.rbk/` with something visible and unsurprising. The hidden-dot semantic actively hinders discoverability, which conflicts with the handbook's teaching goals. No code changes — just research and a recommendation.\n\n## Docket\n\n### Problem\n\n`.buk/` and `.rbk/` use the Unix dot-prefix convention to hide directories from `ls`. This made sense when they were implementation details, but the handbook explicitly teaches learners to find and read these files (RBRR, RBRN, BURC). Hiding them contradicts discoverability.\n\n### Research\n\nSurvey configuration directory naming conventions across well-known projects:\n\n- How do Rust, Node, Python, Go, Ruby projects name their config dirs?\n- What do tools like `.github/`, `.vscode/`, `.cargo/`, `.npm/` do — and do any visible-directory conventions exist?\n- Are there projects that deliberately chose visible config directories? What pattern did they use?\n- What does `config/` vs `conf/` vs `cfg/` vs project-prefixed (`config_buk/`) look like in practice?\n- How do monorepo tools handle per-tool config directories?\n\n### Evaluate candidates\n\nFor each candidate pattern, assess:\n- Discoverability: does `ls` show it without flags?\n- Sort position: does it cluster with related dirs or scatter?\n- Collision risk: could it conflict with common directory names?\n- Familiarity: would a new contributor guess the convention?\n- Grep/glob friendliness: does the prefix pattern work well for searching?\n\n### Propose\n\nRecommend a naming pattern with rationale. Include:\n- Proposed names for both BUK and RBK config dirs\n- Migration considerations (what references need updating)\n- Whether the pattern extends to other kits (JJK, CMK, etc.)\n\n### Out of scope\n\n- Actually renaming anything\n- Writing migration scripts\n- Updating code references",
+              "silks": "research-config-directory-naming",
+              "commit": "e86e5a7"
+            },
+            {
+              "ts": "260414-0711",
+              "state": "rough",
+              "text": "## Character\n\nResearch pace — survey how other projects name their local configuration directories, then propose a pattern for replacing `.buk/` and `.rbk/` with something visible and unsurprising. The hidden-dot semantic actively hinders discoverability, which conflicts with the handbook's teaching goals. No code changes — just research and a recommendation.\n\n## Docket\n\n### Problem\n\n`.buk/` and `.rbk/` use the Unix dot-prefix convention to hide directories from `ls`. This made sense when they were implementation details, but the handbook explicitly teaches learners to find and read these files (RBRR, RBRN, BURC). Hiding them contradicts discoverability.\n\n### Research\n\nSurvey configuration directory naming conventions across well-known projects:\n\n- How do Rust, Node, Python, Go, Ruby projects name their config dirs?\n- What do tools like `.github/`, `.vscode/`, `.cargo/`, `.npm/` do — and do any visible-directory conventions exist?\n- Are there projects that deliberately chose visible config directories? What pattern did they use?\n- What does `config/` vs `conf/` vs `cfg/` vs project-prefixed (`config_buk/`) look like in practice?\n- How do monorepo tools handle per-tool config directories?\n\n### Evaluate candidates\n\nFor each candidate pattern, assess:\n- Discoverability: does `ls` show it without flags?\n- Sort position: does it cluster with related dirs or scatter?\n- Collision risk: could it conflict with common directory names?\n- Familiarity: would a new contributor guess the convention?\n- Grep/glob friendliness: does the prefix pattern work well for searching?\n\n### Propose\n\nRecommend a naming pattern with rationale. Include:\n- Proposed names for both BUK and RBK config dirs\n- Migration considerations (what references need updating)\n- Whether the pattern extends to other kits (JJK, CMK, etc.)\n\n### Out of scope\n\n- Actually renaming anything\n- Writing migration scripts\n- Updating code references",
+              "silks": "research-config-directory-naming",
+              "commit": "135d478"
             }
           ]
         }
