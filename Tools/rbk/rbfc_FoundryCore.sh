@@ -244,13 +244,15 @@ zrbfc_wait_build_completion() {
     test "${z_polls}" -le "${z_max_polls}" || buc_die "${z_label}: Build timeout after ${z_max_polls} polls"
 
     buc_log_args "Fetch build status (poll ${z_polls}/${z_max_polls})"
+    local z_curl_rc=0
     curl -s                                                \
          --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
          --max-time "${RBCC_CURL_MAX_TIME_SEC}"             \
          -H "Authorization: Bearer ${z_token}"             \
          "${ZRBFC_GCB_PROJECT_BUILDS_URL}/${z_build_id}"    \
-         > "${ZRBFC_BUILD_STATUS_FILE}"
-    if test $? -ne 0; then
+         > "${ZRBFC_BUILD_STATUS_FILE}"                     \
+         || z_curl_rc=$?
+    if test "${z_curl_rc}" -ne 0; then
       z_consecutive_failures=$((z_consecutive_failures + 1))
       buc_warn "Curl failed (${z_consecutive_failures}/${z_max_consecutive_failures} consecutive)"
       test ${z_consecutive_failures} -ge ${z_max_consecutive_failures} \
