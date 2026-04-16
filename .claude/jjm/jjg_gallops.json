@@ -603,6 +603,7 @@
         "₢A6AAN",
         "₢A6AAO",
         "₢A6AAU",
+        "₢A6AAu",
         "₢A6AAV",
         "₢A6AAW",
         "₢A6AAH",
@@ -615,7 +616,7 @@
         "₢A6AAL",
         "₢A6AAs"
       ],
-      "next_pace_seed": "AAu",
+      "next_pace_seed": "AAv",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
       "paces": {
         "₢A6AAA": {
@@ -1683,6 +1684,17 @@
               "text": "## Character\nInfrastructure build. Pure addition — new Rust fixture in Theurge plus a tabtarget. No production bash touched. Lands durable regression coverage for every handbook display before any repair work begins. Cognitive posture: mechanical execution against the design crystallized in the predecessor design conversation; pattern is well-established (mirror existing fast-suite fixtures).\n\n## Docket\nAdd a `handbook-render` fixture to Theurge that exercises every handbook display tabtarget and reports per-case pass/fail. Wire into the fast suite. Run the baseline; communicate per-handbook results to the user; those results inform the reslated `₢A6AAn`'s ceiling.\n\n### Implementation\n- **`Tools/rbk/rbtd/src/rbtdrm_manifest.rs`** — add `pub const RBTDRM_COLOPHON_*` for each of the 16 handbook colophons (one symbolic ref per `RBZ_*` zipper constant); add `pub const RBTDRM_FIXTURE_HANDBOOK_RENDER: &str = \"handbook-render\"`; extend `rbtdrm_required_colophons()` arm so manifest verification covers the new fixture.\n- **`Tools/rbk/rbtd/src/rbtdrf_handbook.rs`** (new file) — one case per colophon. Each case shells out to its tabtarget (via the existing `rbtdrf_run_bash` pattern or equivalent) and returns `Verdict::Pass` iff exit 0. Section assembled and exposed (e.g. `RBTDRF_SECTIONS_HANDBOOK_RENDER`) parallel to `RBTDRF_SECTIONS_REGIME_SMOKE`.\n- **`Tools/rbk/rbtd/src/rbtdrc_crucible.rs`** dispatch arm — add `RBTDRM_FIXTURE_HANDBOOK_RENDER => crate::rbtdrf_handbook::RBTDRF_SECTIONS_HANDBOOK_RENDER` to the section selector match.\n- **`Tools/rbk/rbtd/src/lib.rs`** — register the new module (`pub mod rbtdrf_handbook;`).\n- **`tt/rbtd-r.Run.handbook-render.sh`** (new tabtarget) — byte-for-byte copy of any existing `rbtd-r.Run.*.sh`; imprint `handbook-render` comes from the filename.\n- **`Tools/rbk/rbtd/rbte_engine.sh`** — add `\"handbook-render\"` to `ZRBTE_SUITE_FAST` so the fast suite includes it. Standalone tabtarget invocation continues to work independently.\n\n### Covered colophons (sync discipline — when adding handbooks to rbz_zipper.sh, add a const here)\n- Onboarding (8): `RBZ_ONBOARD_START_HERE`, `RBZ_ONBOARD_CRASH_COURSE`, `RBZ_ONBOARD_CRED_RETRIEVER`, `RBZ_ONBOARD_CRED_DIRECTOR`, `RBZ_ONBOARD_FIRST_CRUCIBLE`, `RBZ_ONBOARD_DIR_FIRST_BUILD`, `RBZ_ONBOARD_PAYOR_HB`, `RBZ_ONBOARD_GOVERNOR_HB`\n- Windows (5): `RBZ_HANDBOOK_TOP`, `RBZ_HANDBOOK_WINDOWS`, `RBZ_HW_DOCKER_DESKTOP`, `RBZ_HW_DOCKER_WSL_NATIVE`, `RBZ_HW_DOCKER_CONTEXT`\n- Payor (3): `RBZ_PAYOR_ESTABLISH`, `RBZ_PAYOR_REFRESH`, `RBZ_QUOTA_BUILD`\n\n### Sync mechanism (free, already-existing pattern)\nBash `rbz_zipper.sh:179` exports `ZRBZ_COLOPHON_MANIFEST` (space-separated colophon string). Theurge's `rbtdrm_verify` checks each `RBTDRM_COLOPHON_*` const value appears in that manifest at startup. Renaming a colophon in `rbz_zipper.sh` without updating the corresponding Rust const causes loud failure at theurge startup — no silent drift.\n\n### Baseline run + report\nAfter fixture builds and wires:\n- Run `tt/rbtd-r.Run.handbook-render.sh` standalone\n- Capture per-case pass/fail\n- Report results to the user; those results populate the \"Baseline ceiling\" section of reslated `₢A6AAn`'s docket\n\n### Wrap criterion\n- Fixture compiles\n- Theurge's `rbtdrm_verify` passes for handbook-render fixture\n- Standalone tabtarget runs and reports per-case results\n- Fast suite continues to run (handbook-render included alongside enrollment-validation, regime-validation, regime-smoke)\n- Non-zero exit due to known JJZ crash is **expected and not a wrap blocker** — the fixture doing its job IS the wrap criterion, not all cases passing\n- Per-handbook results communicated to user",
               "silks": "handbook-render-fixture",
               "commit": "d903783"
+            }
+          ]
+        },
+        "₢A6AAu": {
+          "tacks": [
+            {
+              "ts": "260416-0947",
+              "state": "rough",
+              "text": "## Character\n\nInteractive debug pace. No pre-written docket — work proceeds by running the existing First Kludge onboarding track, observing output with the user, and iterating on issues as they surface. Cognitive posture: responsive, hands-on, driven by user judgment at each step.\n\n## Docket\n\nRe-review the existing onboarding-director-first-kludge handbook track. Interactive debug until the user is satisfied.",
+              "silks": "review-onboarding-director-first-kludge",
+              "commit": "e311078"
             }
           ]
         }
