@@ -41,6 +41,26 @@ pub const RBTDRM_COLOPHON_CRUCIBLE_ACTIVE: &str = "rbw-cic";
 // Access probe colophon (imprint-scoped by role)
 pub const RBTDRM_COLOPHON_ACCESS_PROBE: &str = "rbtd-ap";
 
+// Handbook display colophons — one symbolic ref per RBZ_* zipper constant.
+// Onboarding group (8)
+pub const RBTDRM_COLOPHON_ONBOARD_START_HERE: &str = "rbw-o";
+pub const RBTDRM_COLOPHON_ONBOARD_CRASH_COURSE: &str = "rbw-Occ";
+pub const RBTDRM_COLOPHON_ONBOARD_CRED_RETRIEVER: &str = "rbw-Ocr";
+pub const RBTDRM_COLOPHON_ONBOARD_CRED_DIRECTOR: &str = "rbw-Ocd";
+pub const RBTDRM_COLOPHON_ONBOARD_FIRST_CRUCIBLE: &str = "rbw-Ofc";
+pub const RBTDRM_COLOPHON_ONBOARD_DIR_FIRST_BUILD: &str = "rbw-Odf";
+pub const RBTDRM_COLOPHON_ONBOARD_PAYOR_HB: &str = "rbw-Op";
+pub const RBTDRM_COLOPHON_ONBOARD_GOVERNOR_HB: &str = "rbw-Og";
+// Windows group (4 of 5 — rbw-HWdw uses param1 channel, deferred to ₢A-AAS)
+pub const RBTDRM_COLOPHON_HANDBOOK_TOP: &str = "rbw-h0";
+pub const RBTDRM_COLOPHON_HANDBOOK_WINDOWS: &str = "rbw-hw";
+pub const RBTDRM_COLOPHON_HW_DOCKER_DESKTOP: &str = "rbw-HWdd";
+pub const RBTDRM_COLOPHON_HW_DOCKER_CONTEXT: &str = "rbw-HWdc";
+// Payor group (3)
+pub const RBTDRM_COLOPHON_PAYOR_ESTABLISH: &str = "rbw-gPE";
+pub const RBTDRM_COLOPHON_PAYOR_REFRESH: &str = "rbw-gPR";
+pub const RBTDRM_COLOPHON_QUOTA_BUILD: &str = "rbw-gq";
+
 // Fixture name consts — single definition per String Boundary Discipline.
 // Crucible fixtures (charge/quench lifecycle)
 pub const RBTDRM_FIXTURE_TADMOR: &str = "tadmor";
@@ -53,6 +73,7 @@ pub const RBTDRM_FIXTURE_ACCESS_PROBE: &str = "access-probe";
 pub const RBTDRM_FIXTURE_ENROLLMENT_VALIDATION: &str = "enrollment-validation";
 pub const RBTDRM_FIXTURE_REGIME_VALIDATION: &str = "regime-validation";
 pub const RBTDRM_FIXTURE_REGIME_SMOKE: &str = "regime-smoke";
+pub const RBTDRM_FIXTURE_HANDBOOK_RENDER: &str = "handbook-render";
 
 /// Per-fixture required colophons. Returns None for unknown fixtures.
 pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str]> {
@@ -76,6 +97,23 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         RBTDRM_FIXTURE_ENROLLMENT_VALIDATION
         | RBTDRM_FIXTURE_REGIME_VALIDATION
         | RBTDRM_FIXTURE_REGIME_SMOKE => Some(&[]),
+        RBTDRM_FIXTURE_HANDBOOK_RENDER => Some(&[
+            RBTDRM_COLOPHON_ONBOARD_START_HERE,
+            RBTDRM_COLOPHON_ONBOARD_CRASH_COURSE,
+            RBTDRM_COLOPHON_ONBOARD_CRED_RETRIEVER,
+            RBTDRM_COLOPHON_ONBOARD_CRED_DIRECTOR,
+            RBTDRM_COLOPHON_ONBOARD_FIRST_CRUCIBLE,
+            RBTDRM_COLOPHON_ONBOARD_DIR_FIRST_BUILD,
+            RBTDRM_COLOPHON_ONBOARD_PAYOR_HB,
+            RBTDRM_COLOPHON_ONBOARD_GOVERNOR_HB,
+            RBTDRM_COLOPHON_HANDBOOK_TOP,
+            RBTDRM_COLOPHON_HANDBOOK_WINDOWS,
+            RBTDRM_COLOPHON_HW_DOCKER_DESKTOP,
+            RBTDRM_COLOPHON_HW_DOCKER_CONTEXT,
+            RBTDRM_COLOPHON_PAYOR_ESTABLISH,
+            RBTDRM_COLOPHON_PAYOR_REFRESH,
+            RBTDRM_COLOPHON_QUOTA_BUILD,
+        ]),
         _ => None,
     }
 }

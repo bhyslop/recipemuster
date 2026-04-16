@@ -2018,6 +2018,7 @@ pub fn rbtdrc_sections_for_fixture(fixture: &str) -> &'static [rbtdre_Section] {
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_ENROLLMENT_VALIDATION => crate::rbtdrf_fast::RBTDRF_SECTIONS_ENROLLMENT_VALIDATION,
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_REGIME_VALIDATION => crate::rbtdrf_fast::RBTDRF_SECTIONS_REGIME_VALIDATION,
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_REGIME_SMOKE => crate::rbtdrf_fast::RBTDRF_SECTIONS_REGIME_SMOKE,
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_HANDBOOK_RENDER => crate::rbtdrf_handbook::RBTDRF_SECTIONS_HANDBOOK_RENDER,
         _ => {
             eprintln!(
                 "rbtdrc: no sections defined for fixture '{}' — running empty",

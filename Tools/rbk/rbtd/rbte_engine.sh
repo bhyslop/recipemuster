@@ -45,7 +45,7 @@ zrbte_kindle() {
   readonly ZRBTE_FULL_MANIFEST="${ZRBZ_COLOPHON_MANIFEST} ${ZRBTE_COLOPHONS}"
 
   # Suite-to-fixture mappings
-  ZRBTE_SUITE_FAST=("enrollment-validation" "regime-validation" "regime-smoke")
+  ZRBTE_SUITE_FAST=("enrollment-validation" "regime-validation" "regime-smoke" "handbook-render")
   ZRBTE_SUITE_SERVICE=("${ZRBTE_SUITE_FAST[@]}" "access-probe" "four-mode")
   ZRBTE_SUITE_CRUCIBLE=("${ZRBTE_SUITE_FAST[@]}" "tadmor" "srjcl" "pluml")
   ZRBTE_SUITE_COMPLETE=("${ZRBTE_SUITE_FAST[@]}" "access-probe" "four-mode" "tadmor" "srjcl" "pluml")

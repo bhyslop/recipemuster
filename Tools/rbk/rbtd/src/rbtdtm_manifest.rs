@@ -81,3 +81,17 @@ fn rbtdtm_accepts_fast_fixtures() {
     assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_REGIME_VALIDATION).is_ok());
     assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_REGIME_SMOKE).is_ok());
 }
+
+#[test]
+fn rbtdtm_accepts_valid_handbook_render_manifest() {
+    let manifest = rbtdtm_manifest_for(RBTDRM_FIXTURE_HANDBOOK_RENDER);
+    assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_HANDBOOK_RENDER).is_ok());
+}
+
+#[test]
+fn rbtdtm_handbook_render_rejects_missing_colophon() {
+    // Manifest with only the onboarding start-here colophon — missing the other 14
+    let manifest = RBTDRM_COLOPHON_ONBOARD_START_HERE;
+    let err = rbtdrm_verify(manifest, RBTDRM_FIXTURE_HANDBOOK_RENDER).unwrap_err();
+    assert!(err.contains(RBTDRM_COLOPHON_ONBOARD_CRASH_COURSE));
+}

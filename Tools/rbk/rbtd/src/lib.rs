@@ -24,6 +24,7 @@ pub mod rbtdrc_crucible;
 pub mod rbtdrd_dummy;
 pub mod rbtdre_engine;
 pub mod rbtdrf_fast;
+pub mod rbtdrf_handbook;
 pub mod rbtdri_invocation;
 pub mod rbtdrm_manifest;
 
