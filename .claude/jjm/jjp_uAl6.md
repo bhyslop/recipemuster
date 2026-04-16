@@ -88,17 +88,21 @@ Working titles, evocative and distinct from the prior role placeholders. **All n
 
 | Vessel | Mode | Teaching role |
 |--------|------|---------------|
-| `rbev-sentry-debian-slim` | conjure | Shared sentry for all nameplates; director subtrack build target |
+| `rbev-sentry-deb-tether` | conjure (tether) | Sentry firewall image, daily-iteration variant; shared `common-sentry-context/` Dockerfile |
+| `rbev-sentry-deb-airgap` | conjure (airgap) | Sentry firewall image, airgap-built variant; same shared sentry context |
 | `rbev-bottle-ccyolo` | conjure | First crucible experience — Claude Code in a sandbox (₢A6AAG creates this) |
-| `rbev-bottle-ifrit` | conjure | Adversarial testing vessel — teaches that containment is actively validated |
+| `rbev-bottle-ifrit-tether` | conjure (tether) | Adversarial testing vessel — daily-iteration variant, kludge-friendly (`common-ifrit-context/Dockerfile.tether`) |
+| `rbev-bottle-ifrit-airgap` | conjure (airgap) | Adversarial testing vessel — airgap-built variant, supply-chain disciplined (`common-ifrit-context/Dockerfile.airgap`, FROM forge) |
+| `rbev-bottle-ifrit-forge` | conjure (tether) | Build-time fixture: warms cargo cache + apt deps for airgap-ifrit; consumed input, not a runtime image |
 | `rbev-bottle-plantuml` | bind | Upstream image pinned by digest — teaches bind mode |
 | `rbev-bottle-graft-demo` | graft | Teaching-only graft vessel — local image pushed to GAR, no Dockerfile in project, no nameplate |
 
 | Nameplate | Sentry | Bottle | Teaching role |
 |-----------|--------|--------|---------------|
-| `ccyolo` | sentry-debian-slim | bottle-ccyolo | First crucible, kludge-only, Claude OAuth subscription required |
-| `tadmor` | sentry-debian-slim | bottle-ifrit | Adversarial security testing, Building for Crucibles |
-| `pluml` | sentry-debian-slim | bottle-plantuml | Bind mode demonstration |
+| `ccyolo` | sentry-deb-tether | bottle-ccyolo | First crucible, kludge-only, Claude OAuth subscription required |
+| `tadmor` | sentry-deb-tether | bottle-ifrit-tether | Daily security test authoring, kludge-friendly iteration |
+| `moriah` | sentry-deb-airgap | bottle-ifrit-airgap | Airgap chain demonstration target (Building for Crucibles); cloud-built hallmarks; same security suite as tadmor |
+| `pluml` | sentry-deb-tether | bottle-plantuml | Bind mode demonstration |
 
 ### Foundation (everyone)
 
@@ -130,7 +134,7 @@ The director subtracks follow a strict dependency chain: inscribe → tethered �
 
 11. **Airgap Your Builds** — hands-on, airgap pool with no public internet. All dependencies pre-enshrined in GAR. Most restrictive build mode, full isolation. Requires: enshrined base images. **Vessel: `rbev-sentry-debian-slim`** (rebuild the same vessel from track 9, now airgapped — proving the enshrined bases work).
 
-12. **Building for Crucibles** — ordain the vessels needed to charge a crucible from cloud-built hallmarks instead of kludged ones. The learner ordains **bottle-ifrit** (airgapped, completing the full chain), drives the hallmark into the tadmor nameplate, charges, and runs the adversarial test suite. Closes the loop: the learner built the security testing infrastructure themselves. **Nameplate: `tadmor`** (sentry + ifrit).
+12. **Building for Crucibles** — ordain the vessels needed to charge a crucible from cloud-built hallmarks instead of kludged ones. The learner ordains the **ifrit forge** tethered (warming a cargo cache + pre-staging apt deps), then ordains **bottle-ifrit-airgap** on the airgap pool from the enshrined forge, drives the airgap hallmark into the **moriah** nameplate, charges, and runs the adversarial test suite — the same suite that runs against tadmor with kludged hallmarks. Closes the loop: the learner built the airgap security testing infrastructure themselves and validated containment against the same attacks. **Nameplate: `moriah`** (sentry-deb-airgap + bottle-ifrit-airgap). Tadmor remains the daily-iteration nameplate; it is not touched by this track.
 
 ### Evaluation tracks (split by concern)
 
@@ -151,7 +155,7 @@ Evaluators arrive with specific concerns, not a desire to tour everything. Three
 ### Remaining gaps
 
 - **Graft demo vessel**: ₢A6AAH enrolled — creates `rbev-graft-demo/` with graft-mode `rbrv.env`.
-- **Ifrit airgap feasibility**: ₢A6AAI enrolled — investigation with binary outcome, decision recorded here when wrapped.
+- **Ifrit airgap pattern**: decided in ₢A6AAI — shared `common-ifrit-context/` with `Dockerfile.tether` and `Dockerfile.airgap`; three-vessel split (tether/airgap/forge); nameplate symmetry with new `moriah` for the airgap chain. Implementation gated on ₢A6AAv (`ifrit-symmetric-rename` — preconditioning rename sweep) → ₢A6AAV (forge + airgap + moriah + theurge fixture). Trajectory: tether variant retires when kludge cycle tolerates the forge dependency; no ETA.
 - **Bind mode hands-on**: No director subtrack teaches bind explicitly. Bind is covered conceptually (track 7) and demonstrated in Assay: Supply Chain (track 13). Bind is simple enough (no Dockerfile, no build, just a digest pin in rbrv.env) that the conceptual + eval coverage likely suffices. Revisit if learner feedback says otherwise.
 
 ## README Anchor Inventory
@@ -230,9 +234,12 @@ After yelp cleanup, the monolithic handbook files decompose into one-function-pe
 AAe (payor yelp) → AAf (combinator sweep) → AAg (BCG review)
   → AAA (menu cleanup) → AAh (decompose)
                             ↓ parallel-capable
-              AAI, AAU→AAV, AAW, AAH→AAX, AAZ, AAM
+              AAI→AAv→AAV, AAU→AAV, AAW, AAH→AAX, AAZ, AAM
                             ↓ all wrapped
               AAF (final docs hygiene — always last)
+
+(AAv `ifrit-symmetric-rename`: preconditioning rename sweep between AAI's
+ design record and AAV's airgap implementation. Parallel-capable with AAU.)
 ```
 
 ## Open Questions
