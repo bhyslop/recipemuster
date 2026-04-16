@@ -49,9 +49,10 @@
         "₢A-AAH",
         "₢A-AAI",
         "₢A-AAJ",
-        "₢A-AAP"
+        "₢A-AAP",
+        "₢A-AAS"
       ],
-      "next_pace_seed": "AAS",
+      "next_pace_seed": "AAT",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -389,6 +390,17 @@
               "text": "## Character\nSpec writing — adding infrastructure-level definitions to BUS0. Mechanical once patterns are understood from the study phase in ₢A-AAQ.\n\n## Docket\n\nAdd two infrastructure-level specifications to BUS0:\n\n**1. BUWC Module Declaration**\nDefine the Windows Commands module as a category in BUS0, parallel to how BURH Regime is declared. Scope: Windows-specific commands that alter system configuration, executed from WSL via PowerShell. Consumes ZBUHW tinder constants from `buhw_windows.sh`. Module file: `buwc_windows.sh`, CLI: `buwc_cli.sh`, function prefix: `buwc_*`, colophon family: `buw-wc*`.\n\n**2. Key Line Builder Contract (`zburh_build_key_line`)**\nSpecify the shared key-line builder in `burh_regime.sh`. This is the wire format contract between all key-install commands:\n- Marker format: `# BURH:<alias>` suffix — the idempotency tag\n- Output variables: `ZBURH_KEY_LINE` (full authorized_keys line), `ZBURH_KEY_MARKER` (grep target)\n- Line format with command= routing: `command=\"<BURH_COMMAND>\" <BURH_SSH_PUBKEY> # BURH:<BURH_ALIAS>`\n- Line format without routing: `<BURH_SSH_PUBKEY> # BURH:<BURH_ALIAS>`\n- Pure function — no I/O, callers handle file operations per platform\n\nThis is the shared contract that both `burh_install_key` (Unix) and `buwc_install_key` (Windows) depend on. Changes to the marker format break idempotency across both platforms.\n\nPrerequisite: complete study phase from ₢A-AAQ (same reference documents apply).",
               "silks": "specify-bus0-buwc-module-and-key-builder",
               "commit": "a0d14fa"
+            }
+          ]
+        },
+        "₢A-AAS": {
+          "tacks": [
+            {
+              "ts": "260416-0907",
+              "state": "rough",
+              "text": "## Character\nFuture follow-up to the handbook-render fixture landed in ₣A6 (₢A6AAt). Design decision pace — likely requires some discussion of how to represent per-colophon parameterization in Theurge's test fixtures before any code moves.\n\n## Docket\nThe handbook-render fixture in ₣A6 exercises 15 of the 16 handbook colophons. The one skipped is `rbw-HWdw` (`RBZ_HW_DOCKER_WSL_NATIVE`), which uses the `param1` channel — it requires a WSL-target argument to run, and the fixture's uniform \"invoke and check exit 0\" pattern does not supply one.\n\nDecide how the handbook-render fixture should handle this (and any future param1-channel handbooks). Candidate directions:\n\n- **Per-colophon argument lookup**: extend the Rust-side handbook colophon registry with a `default_args` slice per entry. Most entries get `&[]`; `rbw-HWdw` gets a known-safe dummy. Keeps the case loop uniform, localizes the exception.\n- **Dedicated subsection in the fixture**: a second section listing only param1 handbooks with their dummy values. Preserves the \"one case per colophon\" symmetry without threading argument tables through the uniform case.\n- **Split fixture**: `handbook-render-simple` (no args) + `handbook-render-parameterized` (args explicit). Heavier and probably not worth it for one offender.\n\nThis pace picks a direction, implements it, and extends handbook-render coverage to `rbw-HWdw`.\n\n### Prerequisites\n- ₢A6AAt (handbook-render-fixture) must be complete — this pace patches a known scope deferral from that work.\n\n### Wrap criterion\n- handbook-render fixture exercises all 16 handbook colophons (including `rbw-HWdw`)\n- Pattern generalizes to any future param1 handbooks added via `rbz_zipper.sh`\n- Test asserts the chosen dummy param1 value(s) produce a rendering exit (not an argument-missing exit)\n\n### Notes\n- Known exit 0 is not the only valid verdict here. The test's purpose is to catch display breakage in handbook rendering — the dummy argument must steer toward a rendered output path, not an early-exit-due-to-bad-arg path.\n- `rbw-HWdw` is currently the only param1 handbook. If a second one lands before this pace runs, reassess whether an inline table is still the right shape.",
+              "silks": "handbook-render-param1-coverage",
+              "commit": "a4c69a4"
             }
           ]
         }
