@@ -7,7 +7,7 @@ Read this file when working on theurge (test orchestrator), ifrit (attack binary
 Two Rust binaries with completely different roles and build targets:
 
 - **Theurge** (`Tools/rbk/rbtd/`) — test orchestrator, runs on the **host** (macOS/Linux). Charges a crucible (sentry + pentacle + bottle containers), invokes attacks, observes results, produces verdicts. Built via `tt/rbtd-b.Build.sh`.
-- **Ifrit** (`rbev-vessels/rbev-bottle-ifrit/`) — attack binary, runs **inside the bottle container**. Probes network security boundaries from the attacker's perspective. Built inside the Docker image during `docker build` — there is no host-side compilation, no cross-compile, no `cargo check` on macOS. The Dockerfile IS the build system.
+- **Ifrit** (`rbev-vessels/common-ifrit-context/`) — attack binary, runs **inside the bottle container**. Probes network security boundaries from the attacker's perspective. Source lives in the shared build context consumed by `rbev-bottle-ifrit-tether` (and the forthcoming airgap variant). Built inside the Docker image during `docker build` — there is no host-side compilation, no cross-compile, no `cargo check` on macOS. The Dockerfile IS the build system.
 
 **Coordinated tests** are the distinctive capability: theurge simultaneously observes from outside (via sentry writ/fiat commands) while ifrit attacks from inside. Neither binary alone can do this.
 
@@ -28,7 +28,7 @@ This applies to **all** crucible verification: new tests, bug fixes, refactors. 
 
 #### Full run (charge + all cases + quench in one command)
 
-1. Edit ifrit source (`rbev-vessels/rbev-bottle-ifrit/src/`) or theurge source (`Tools/rbk/rbtd/src/`)
+1. Edit ifrit source (`rbev-vessels/common-ifrit-context/src/`) or theurge source (`Tools/rbk/rbtd/src/`)
 2. If ifrit changed: kludge-rebuild the bottle image
    ```
    tt/rbw-cKB.KludgeBottle.sh tadmor
@@ -66,11 +66,11 @@ Kludge builds are for rapid local iteration. Once all tests pass with the kludge
 
 1. Ordain the vessel:
    ```
-   tt/rbw-fO.DirectorOrdainsHallmark.sh rbev-bottle-ifrit
+   tt/rbw-fO.DirectorOrdainsHallmark.sh rbev-bottle-ifrit-tether
    ```
 2. Summon the ordained hallmark locally:
    ```
-   tt/rbw-fs.RetrieverSummonsHallmark.sh rbev-bottle-ifrit <hallmark>
+   tt/rbw-fs.RetrieverSummonsHallmark.sh rbev-bottle-ifrit-tether <hallmark>
    ```
 3. Drive the ordained hallmark into the nameplate (edit `RBRN_BOTTLE_HALLMARK` in `.rbk/tadmor/rbrn.env`), commit, and re-run the full fixture to verify.
 

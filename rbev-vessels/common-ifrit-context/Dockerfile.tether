@@ -1,10 +1,12 @@
-# Ifrit — in-bottle attack binary for Recipe Bottle crucible testing
+# Ifrit (tether variant) — in-bottle attack binary for Recipe Bottle crucible testing
 #
 # Single-stage build: Rust toolchain stays in image (test vessel, size
 # irrelevant, iteration speed matters). Layer-cached dependency compilation
 # means source-only changes rebuild just the ifrit crate.
 #
-# Build context: rbev-vessels/rbev-bottle-ifrit/ (co-located with Dockerfile)
+# Build context: rbev-vessels/common-ifrit-context/ (shared between tether and
+# airgap variants — companion Dockerfile.airgap builds FROM a pre-warmed forge
+# image to satisfy airgap egress discipline).
 
 ARG RBF_IMAGE_1
 FROM ${RBF_IMAGE_1}

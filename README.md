@@ -220,9 +220,13 @@ The [ccyolo](#ccyolo) [Crucible](#Crucible) runs Claude Code inside a [Bottle](#
 [Kludge](#Kludge)-only development target: no cloud account, no service account credentials, fully self-contained on the developer's workstation.
 The onboarding handbook's first hands-on track teaches the full [Crucible](#Crucible) lifecycle using [ccyolo](#ccyolo).
 
-<a id="tadmor"></a>**[tadmor](#tadmor)** — Adversarial security testing [Crucible](#Crucible).
-The [tadmor](#tadmor) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with the [Ifrit](#Ifrit) attack [Vessel](#Vessel) under a restrictive network allowlist.
+<a id="tadmor"></a>**[tadmor](#tadmor)** — Adversarial security testing [Crucible](#Crucible) for daily iteration.
+The [tadmor](#tadmor) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with the [Ifrit](#Ifrit) attack [Vessel](#Vessel) under a restrictive network allowlist, consuming [Kludged](#Kludge) [Hallmarks](#Hallmark) for fast author-test-iterate cycles.
 The [Theurge](#Theurge) test orchestrator [Charges](#Charge) [tadmor](#tadmor) and dispatches curated escape attempts to validate that the [Sentry's](#Sentry) containment holds under adversarial conditions.
+
+<a id="moriah"></a>**[moriah](#moriah)** — Adversarial security testing [Crucible](#Crucible) for the airgap supply chain.
+The [moriah](#moriah) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with the [Ifrit](#Ifrit) attack [Vessel](#Vessel) under the same restrictive network allowlist as [tadmor](#tadmor), consuming [Hallmarks](#Hallmark) [Ordained](#Ordain) end-to-end on the [Airgap](#Airgap) pool.
+The [Theurge](#Theurge) runs the same escape attempts against [moriah](#moriah) as against [tadmor](#tadmor) — the cloud-built variant validating that containment holds identically when the supply chain produces the inputs.
 
 ## Appendix: Foundry Operations
 
@@ -504,6 +508,8 @@ The annotated tree below maps its files to the concepts defined above.
 | `│   │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + Claude Code, Anthropic-only allowlist |
 | `│   ├── tadmor/` | [Nameplate](#Nameplate) — [tadmor](#tadmor) adversarial testing [Crucible](#Crucible) |
 | `│   │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + [Ifrit](#Ifrit), restrictive allowlist |
+| `│   ├── moriah/` | [Nameplate](#Nameplate) — [moriah](#moriah) airgap-built adversarial testing [Crucible](#Crucible) |
+| `│   │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + [Ifrit](#Ifrit), restrictive allowlist |
 | `│   ├── srjcl/` | [Nameplate](#Nameplate) — Jupyter notebook [Crucible](#Crucible) |
 | `│   │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + Jupyter, academic-domain allowlist |
 | `│   └── pluml/` | [Nameplate](#Nameplate) — PlantUML diagram server [Crucible](#Crucible) |
@@ -520,9 +526,19 @@ The annotated tree below maps its files to the concepts defined above.
 | `    ├── rbev-bottle-ccyolo/` | [Conjure](#Conjure) — [ccyolo](#ccyolo) Claude Code sandbox |
 | `    │   ├── Dockerfile` | node:22-slim + SSH + Claude Code |
 | `    │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode |
-| `    ├── rbev-bottle-ifrit/` | [Conjure](#Conjure) — [Ifrit](#Ifrit) attack binary |
-| `    │   ├── Dockerfile` | Rust binary + scapy + strace |
-| `    │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode |
+| `    ├── common-ifrit-context/` | Shared [Ifrit](#Ifrit) build context (tether + airgap variants) |
+| `    │   ├── Dockerfile.tether` | Rust binary + network attack tools (tether build) |
+| `    │   ├── Dockerfile.airgap` | Same image built `FROM` the forge ([Airgap](#Airgap) build, no upstream pull) |
+| `    │   ├── Cargo.toml` | Ifrit crate manifest |
+| `    │   └── src/` | Ifrit source (rbid binary) |
+| `    ├── common-ifrit-forge-context/` | Build context for the [Ifrit](#Ifrit) forge — warms cargo cache + pre-stages apt deps |
+| `    │   └── Dockerfile` | Forge image; consumed by `Dockerfile.airgap` as its base |
+| `    ├── rbev-bottle-ifrit-tether/` | [Conjure](#Conjure) (tether) — [Ifrit](#Ifrit) attack binary |
+| `    │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode, tether egress |
+| `    ├── rbev-bottle-ifrit-airgap/` | [Conjure](#Conjure) ([Airgap](#Airgap)) — [Ifrit](#Ifrit) attack binary, [Ordained](#Ordain) without upstream pull |
+| `    │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode, airgap egress |
+| `    ├── rbev-bottle-ifrit-forge/` | [Conjure](#Conjure) (tether) — Build-time forge fixture for [Airgap](#Airgap) [Ifrit](#Ifrit) |
+| `    │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode, tether egress |
 | `    ├── rbev-bottle-plantuml/` | [Bind](#Bind) — upstream image pinned by digest |
 | `    │   └── rbrv.env` | [RBRV](#RBRV) — [Bind](#Bind) mode, digest reference |
 | `    ├── rbev-bottle-anthropic-jupyter/` | [Conjure](#Conjure) — Jupyter notebook server |

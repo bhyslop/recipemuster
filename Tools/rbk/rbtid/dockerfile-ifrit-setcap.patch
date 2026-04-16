@@ -1,5 +1,5 @@
---- a/rbev-vessels/rbev-bottle-ifrit/Dockerfile
-+++ b/rbev-vessels/rbev-bottle-ifrit/Dockerfile
+--- a/rbev-vessels/common-ifrit-context/Dockerfile.tether
++++ b/rbev-vessels/common-ifrit-context/Dockerfile.tether
 @@ -29,7 +29,15 @@
      dnsutils        \
      netcat-openbsd  \

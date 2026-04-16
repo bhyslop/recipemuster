@@ -30,7 +30,7 @@ Full read and edit access is pre-approved for all files in:
   - **RBHPB** → `rbk/rbh0/rbhpb_base.sh` (Payor base — kindle, sentinel, enforce)
   - **RBHW0** → `rbk/rbh0/rbhw0_cli.sh` (Windows CLI — handbook display + zipper dependencies)
   - **RBHWB** → `rbk/rbh0/rbhwb_base.sh` (Windows base — kindle, sentinel)
-- **RBID** → `rbev-vessels/rbev-bottle-ifrit/` (Ifrit — in-bottle attack binary for crucible testing)
+- **RBID** → `rbev-vessels/common-ifrit-context/` (Ifrit — in-bottle attack binary for crucible testing; shared source across tether/airgap variants)
 - **RBJ**  → Jailer prefix (non-terminal: children rbjs, rbjp, rbje, rbjh)
 - **RBJS** → `rbk/rbjs_sentry.sh` (Jailer Sentry - container security setup: iptables, dnsmasq, enclave network)
 - **RBLM** → `rbk/rblm_cli.sh` (Lifecycle Marshal - zero regime to blank template, proof repo for release testing)
