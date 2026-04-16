@@ -35,6 +35,8 @@ ZRBHODF_SOURCED=1
 # ₢A6AAU — Director subtracks, first cloud build track.
 
 rbho_director_first_build() {
+  zrbho_sentinel
+
   buc_doc_brief "Your First Cloud Build — inscribe, conjure, tour, summon, abjure"
   buc_doc_shown || return 0
 
@@ -43,7 +45,8 @@ rbho_director_first_build() {
   # --- Probes ---
 
   # Director credential present
-  local z_has_director=0 z_secrets_dir=""
+  local z_has_director=0
+  local z_secrets_dir=""
   if test -f "${RBBC_rbrr_file}"; then
     z_secrets_dir=$(zrbho_po_extract_capture "${RBBC_rbrr_file}" "RBRR_SECRETS_DIR") || z_secrets_dir=""
   fi
@@ -64,7 +67,8 @@ rbho_director_first_build() {
   # Conjured sentry image summoned locally (c-prefixed hallmark from GAR)
   local z_conjure_summoned=0
   if command -v docker >/dev/null 2>&1; then
-    local z_project_id="" z_region=""
+    local z_project_id=""
+    local z_region=""
     if test -f "${RBBC_rbrr_file}"; then
       z_project_id=$(zrbho_po_extract_capture "${RBBC_rbrr_file}" "RBRR_DEPOT_PROJECT_ID") || z_project_id=""
       z_region=$(zrbho_po_extract_capture "${RBBC_rbrr_file}" "RBRR_GCP_REGION") || z_region=""

@@ -38,6 +38,8 @@ ZRBHOFC_SOURCED=1
 # Assumptions are marked with [ASSUMPTION].
 
 rbho_first_crucible() {
+  zrbho_sentinel
+
   buc_doc_brief "Start a Crucible using local builds — kludge, charge, SSH, verify containment"
   buc_doc_shown || return 0
 
@@ -68,8 +70,10 @@ rbho_first_crucible() {
   test -f "${z_nameplate_file}" && z_nameplate_exists=1
 
   # Hallmarks populated in nameplate
-  local z_sentry_hallmark="" z_bottle_hallmark=""
-  local z_sentry_hallmark_present=0 z_bottle_hallmark_present=0
+  local z_sentry_hallmark=""
+  local z_bottle_hallmark=""
+  local z_sentry_hallmark_present=0
+  local z_bottle_hallmark_present=0
   if test "${z_nameplate_exists}" = "1"; then
     z_sentry_hallmark=$(zrbho_po_extract_capture "${z_nameplate_file}" "RBRN_SENTRY_HALLMARK") || z_sentry_hallmark=""
     z_bottle_hallmark=$(zrbho_po_extract_capture "${z_nameplate_file}" "RBRN_BOTTLE_HALLMARK") || z_bottle_hallmark=""
@@ -78,7 +82,8 @@ rbho_first_crucible() {
   fi
 
   # Kludge-tagged images exist locally (k-prefixed hallmarks)
-  local z_sentry_image_exists=0 z_bottle_image_exists=0
+  local z_sentry_image_exists=0
+  local z_bottle_image_exists=0
   local z_line=""
   if test "${z_has_docker}" = "1"; then
     local -r z_fc_images_out="${ZRBHO_DOCKER_IMAGES_PREFIX}4_repotag.txt"

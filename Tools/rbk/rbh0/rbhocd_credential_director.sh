@@ -27,6 +27,8 @@ ZRBHOCD_SOURCED=1
 # Install Director Credentials
 
 rbho_credential_director() {
+  zrbho_sentinel
+
   buc_doc_brief "Install director credentials — place RBRA key, validate, confirm build access"
   buc_doc_shown || return 0
 

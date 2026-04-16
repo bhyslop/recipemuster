@@ -33,7 +33,7 @@ ZRBHO0_SOURCED=1
 # present. Highlighting only arrows foundation actions based on repo
 # state; it does not infer intent from detected roles.
 rbho_start_here() {
-  # No sentinel — works pre-kindle (probes filesystem only)
+  zrbho_sentinel
 
   buc_doc_brief "Probe-aware menu — route learner into the handbook track that fits their state"
   buc_doc_shown || return 0

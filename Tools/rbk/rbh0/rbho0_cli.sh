@@ -36,7 +36,7 @@ zrbho_furnish() {
 
   # Light sources (always)
   source "${BURD_CONFIG_DIR}/rbbc_constants.sh"  || buc_die "Failed to source rbbc_constants.sh"
-  local z_rbk_kit_dir="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}"
+  local -r z_rbk_kit_dir="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}"
 
   source "${BURD_BUK_DIR}/buh_handbook.sh"           || buc_die "Failed to source buh_handbook.sh"
   source "${BURD_BUK_DIR}/buym_yelp.sh"             || buc_die "Failed to source buym_yelp.sh"

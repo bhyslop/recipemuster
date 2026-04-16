@@ -31,6 +31,8 @@ ZRBHOPW_SOURCED=1
 # OAuth credentials, project setup, depot provisioning, governor handoff.
 
 rbho_payor_handbook() {
+  zrbho_sentinel
+
   buc_doc_brief "Payor — establish a Manor and provision the Depot"
   buc_doc_shown || return 0
 

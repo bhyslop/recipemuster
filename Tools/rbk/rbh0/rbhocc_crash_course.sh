@@ -31,19 +31,21 @@ ZRBHOCC_SOURCED=1
 # understands tabtargets, regimes, and the render/validate pattern.
 
 rbho_crash_course() {
-  # No sentinel — works pre-kindle (probes filesystem only)
+  zrbho_sentinel
 
   buc_doc_brief "Configure your Repo's Environment — tabtargets, regimes, station setup, logs"
   buc_doc_shown || return 0
 
   # --- Probes ---
-  local z_rbrr_project="" z_rbrr_populated=0
+  local z_rbrr_project=""
+  local z_rbrr_populated=0
   if test -f "${RBBC_rbrr_file}"; then
     z_rbrr_project=$(zrbho_po_extract_capture "${RBBC_rbrr_file}" "RBRR_DEPOT_PROJECT_ID") || z_rbrr_project=""
     test -n "${z_rbrr_project}" && z_rbrr_populated=1
   fi
 
-  local z_station_present=0 z_log_dir=""
+  local z_station_present=0
+  local z_log_dir=""
   if test -n "${BURD_STATION_FILE:-}" && test -f "${BURD_STATION_FILE}"; then
     z_station_present=1
     z_log_dir=$(zrbho_po_extract_capture "${BURD_STATION_FILE}" "BURS_LOG_DIR") || z_log_dir=""

@@ -27,6 +27,8 @@ ZRBHOCR_SOURCED=1
 # Install Retriever Credentials
 
 rbho_credential_retriever() {
+  zrbho_sentinel
+
   buc_doc_brief "Install retriever credentials — place RBRA key, validate, confirm pull access"
   buc_doc_shown || return 0
 

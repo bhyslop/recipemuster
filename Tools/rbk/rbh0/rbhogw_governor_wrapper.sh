@@ -32,6 +32,8 @@ ZRBHOGW_SOURCED=1
 # provisions downstream SAs, verifies the chain.
 
 rbho_governor_handbook() {
+  zrbho_sentinel
+
   buc_doc_brief "Governor — administer service accounts for directors and retrievers"
   buc_doc_shown || return 0
 
