@@ -137,6 +137,7 @@ zrbyc_kindle() {
   zrbyc_yk RBYC_LOGS       "${z_docs}" "Log"        "Logs"
   zrbyc_yk RBYC_MANORS     "${z_docs}" "Manor"      "Manor's"
   zrbyc_yk RBYC_PAYORS     "${z_docs}" "Payor"      "Payor's"
+  zrbyc_yk RBYC_CONJURED   "${z_docs}" "Conjure"    "Conjured"
   zrbyc_yk RBYC_VOUCHED    "${z_docs}" "Vouch"      "Vouched"
 
   # --- Probe markers (pass/warn for handbook status probes) ---

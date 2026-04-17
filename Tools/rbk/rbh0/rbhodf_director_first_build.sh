@@ -108,16 +108,16 @@ rbho_director_first_build() {
   # Prerequisite probes
   buh_line "Prerequisites:"
   buh_e
-  buyy_pass_yawp "[*] Director credential installed";       local -r z_dir_pass="${z_buym_yelp}"
-  buyy_fail_yawp "[ ] Director credential missing — run:";  local -r z_dir_fail="${z_buym_yelp}"
-  buh_ternary "${z_has_director}" " ${z_dir_pass}" " ${z_dir_fail}"
-  if test "${z_has_director}" = "0"; then
+  if test "${z_has_director}" = "1"; then
+    buh_line "${RBYC_PROBE_YES}${RBYC_DIRECTOR} credential installed"
+  else
+    buh_line "${RBYC_PROBE_NO}${RBYC_DIRECTOR} credential missing — run:"
     buh_tt "      " "${RBZ_ONBOARD_CRED_DIRECTOR}"
   fi
-  buyy_pass_yawp "[*] Depot configured (RBRR_DEPOT_PROJECT_ID populated)";          local -r z_dep_pass="${z_buym_yelp}"
-  buyy_fail_yawp "[ ] Depot not configured — the Payor must establish the Depot:";  local -r z_dep_fail="${z_buym_yelp}"
-  buh_ternary "${z_has_depot}" " ${z_dep_pass}" " ${z_dep_fail}"
-  if test "${z_has_depot}" = "0"; then
+  if test "${z_has_depot}" = "1"; then
+    buh_line "${RBYC_PROBE_YES}${RBYC_DEPOT} configured (RBRR_DEPOT_PROJECT_ID populated)"
+  else
+    buh_line "${RBYC_PROBE_NO}${RBYC_DEPOT} not configured — the ${RBYC_PAYOR} must establish the ${RBYC_DEPOT}:"
     buh_tt "      " "${RBZ_ONBOARD_PAYOR_HB}"
   fi
   buh_e
@@ -134,20 +134,20 @@ rbho_director_first_build() {
   buh_e
   buh_code "   export ONBOARD_VESSEL=${z_vessel}"
   buh_e
-  buh_line "This sets the vessel you will build throughout the track."
+  buh_line "This sets the ${RBYC_VESSEL} you will build throughout the track."
   buh_line "The remaining steps reference it by name."
   buh_e
 
   buh_step_style "Step " " — "
 
-  buh_step1 "Inscribe the Reliquary"
+  buh_step1 "Inscribe the ${RBYC_RELIQUARY}"
   buh_e
   buh_line "The ${RBYC_RELIQUARY} is a set of builder tool images (skopeo,"
   buh_line "docker, gcloud, syft) that Cloud Build uses during ${RBYC_VESSEL}"
-  buh_line "construction. Without it, conjure's preflight check fails."
+  buh_line "construction. Without it, the ${RBYC_CONJURE} preflight check fails."
   buh_e
   buh_line "Think of it as installing the toolchain before your first build."
-  buh_line "This is a one-time operation — once inscribed, the reliquary"
+  buh_line "This is a one-time operation — once inscribed, the ${RBYC_RELIQUARY}"
   buh_line "stays in the ${RBYC_DEPOT} until you choose to refresh it."
   buh_e
   buh_line "Periodically re-inscribe to pick up newer tool versions. All ${RBYC_VESSELS}"
@@ -158,13 +158,13 @@ rbho_director_first_build() {
   buh_e
   buh_tt "   " "${RBZ_INSCRIBE_RELIQUARY}"
   buh_e
-  buh_line "This mirrors four tool images from upstream into your Depot's"
-  buh_line "GAR. Takes 2-5 minutes depending on network speed."
+  buh_line "This mirrors four tool images from upstream into the ${RBYC_DEPOT}"
+  buh_line "GAR namespace. Takes 2-5 minutes depending on network speed."
   buh_e
   buyy_cmd_yawp "r260324193326";                   local -r z_ds_example="${z_buym_yelp}"
-  buh_line "When inscribe completes, it prints a reliquary datestamp"
-  buh_line "(e.g., ${z_ds_example}). Every vessel that uses Cloud Build"
-  buh_line "needs this value in its regime file:"
+  buh_line "When inscribe completes, it prints a ${RBYC_RELIQUARY} datestamp"
+  buh_line "(e.g., ${z_ds_example}). Every ${RBYC_VESSEL} that uses Cloud Build"
+  buh_line "needs this value in its ${RBYC_REGIME} file:"
   buh_e
   buh_code "   RBRV_RELIQUARY=<datestamp>"
   buh_e
@@ -176,11 +176,11 @@ rbho_director_first_build() {
   buh_step1 "${RBYC_CONJURE} the ${RBYC_SENTRY}"
   buh_e
   buh_line "${RBYC_CONJURE} is the build mode where Cloud Build constructs a"
-  buh_line "vessel image from the project's Dockerfile and build context."
+  buh_line "${RBYC_VESSEL} image from the project's Dockerfile and build context."
   buh_e
   buh_line "${RBYC_ORDAIN} is the command that triggers the full pipeline —"
-  buh_line "it reads the vessel's ${RBYC_RBRV} regime to determine the mode"
-  buh_line "(conjure, bind, or graft) and acts accordingly:"
+  buh_line "it reads the ${RBYC_VESSEL} ${RBYC_RBRV} ${RBYC_REGIME} to determine the mode"
+  buh_line "(${RBYC_CONJURE}, ${RBYC_BIND}, or ${RBYC_GRAFT}) and acts accordingly:"
   buh_e
   buh_tt "   " "${RBZ_ORDAIN_HALLMARK}" "" ' ${ONBOARD_VESSEL}'
   buh_e
@@ -203,20 +203,20 @@ rbho_director_first_build() {
   buh_line "to read ahead — the next steps explain what to look for."
   buh_e
 
-  buh_step1 "Capture the hallmark"
+  buh_step1 "Capture the ${RBYC_HALLMARK}"
   buh_e
   buh_line "When ${RBYC_ORDAIN} completes, it writes the ${RBYC_HALLMARK}"
   buh_line "to the ${RBYC_OUTPUT} directory — a fixed-path staging area"
-  buh_line "that each tabtarget clears and recreates on entry."
-  buh_line "Read the hallmark from the fact file and export it so"
+  buh_line "that each ${RBYC_TABTARGET} clears and recreates on entry."
+  buh_line "Read the ${RBYC_HALLMARK} from the fact file and export it so"
   buh_line "you can copy-paste the commands in the remaining steps:"
   buh_e
   buh_code "   export ONBOARD_HALLMARK=\$(cat ${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK})"
   buh_e
 
-  buh_step1 "Tour the hallmark artifacts"
+  buh_step1 "Tour the ${RBYC_HALLMARK} artifacts"
   buh_e
-  buh_line "Every conjured ${RBYC_HALLMARK} produces a set of tagged"
+  buh_line "Every ${RBYC_CONJURED} ${RBYC_HALLMARK} produces a set of tagged"
   buh_line "artifacts in GAR. Each suffix serves a specific role:"
   buh_e
   buyy_cmd_yawp "{hallmark}${RBGC_ARK_SUFFIX_POUCH}";        local -r z_sfx_pouch="${z_buym_yelp}"
@@ -228,9 +228,9 @@ rbho_director_first_build() {
   buh_line "   ${z_sfx_pouch}"
   buh_line "      A FROM SCRATCH OCI image pushed from host to GAR before"
   buh_line "      the build. Contains the Dockerfile, scripts, and"
-  buh_line "      configuration Cloud Build needs. Identical for tethered"
-  buh_line "      and airgapped builds — the pool determines network"
-  buh_line "      access, not the pouch."
+  buh_line "      configuration Cloud Build needs. Identical for ${RBYC_TETHERED}"
+  buh_line "      and ${RBYC_AIRGAP} builds — the pool determines network"
+  buh_line "      access, not the ${RBYC_POUCH}."
   buh_e
   buh_line "   ${z_sfx_image}"
   buh_line "      The consumer image — a multiplatform manifest list."
@@ -239,7 +239,7 @@ rbho_director_first_build() {
   buh_line "   ${z_sfx_attest}"
   buh_line "      Per-platform provenance-carrying image (one per platform)."
   buh_line "      Shares all layers with -image — only the manifest differs."
-  buh_line "      These carry the GCB-attested digests used by vouch."
+  buh_line "      These carry the GCB-attested digests used by ${RBYC_VOUCH}."
   buh_e
   buh_line "   ${z_sfx_about}"
   buh_line "      SBOM (software bill of materials) + build info."
@@ -253,9 +253,9 @@ rbho_director_first_build() {
   buh_line "Inspect them:"
   buh_e
 
-  buh_step2 "Tally"
+  buh_step2 "${RBYC_TALLY}"
   buh_e
-  buh_line "${RBYC_TALLY} lists all hallmarks and their health state:"
+  buh_line "${RBYC_TALLY} lists all ${RBYC_HALLMARKS} and their health state:"
   buh_e
   buh_tt "   " "${RBZ_TALLY_HALLMARKS}"
   buh_e
@@ -263,10 +263,10 @@ rbho_director_first_build() {
   buh_line "means SLSA provenance was verified."
   buh_e
 
-  buh_step2 "Vouch"
+  buh_step2 "${RBYC_VOUCH}"
   buh_e
   buh_line "${RBYC_VOUCH} verifies SLSA provenance for each platform"
-  buh_line "digest in the ${RBYC_HALLMARK}. The ordain pipeline runs ${RBYC_VOUCH}"
+  buh_line "digest in the ${RBYC_HALLMARK}. The ${RBYC_ORDAIN} pipeline runs ${RBYC_VOUCH}"
   buh_line "automatically. If a build was interrupted before ${RBYC_VOUCH}"
   buh_line "completed, run this to reattempt ${RBYC_VOUCH} on untreated ${RBYC_HALLMARKS}:"
   buh_e
@@ -276,10 +276,10 @@ rbho_director_first_build() {
   buh_line "this image, and the provenance chain proves it."
   buh_e
 
-  buh_step2 "Plumb"
+  buh_step2 "${RBYC_PLUMB}"
   buh_e
   buh_line "${RBYC_PLUMB} displays the SBOM, build info, and Dockerfile"
-  buh_line "that produced the hallmark. Two modes:"
+  buh_line "that produced the ${RBYC_HALLMARK}. Two modes:"
   buh_e
   buh_tt "   " "${RBZ_PLUMB_FULL}" "" ' ${ONBOARD_VESSEL} ${ONBOARD_HALLMARK}'
   buh_line "   Full provenance display — SBOM packages, build parameters,"
@@ -289,7 +289,7 @@ rbho_director_first_build() {
   buh_line "   Compact summary — one-line-per-artifact overview."
   buh_e
 
-  buh_step1 "Summon the hallmark"
+  buh_step1 "${RBYC_SUMMON} the ${RBYC_HALLMARK}"
   buh_e
   buh_line "${RBYC_SUMMON} pulls a set of images affiliated with a"
   buh_line "${RBYC_HALLMARK} that has been ${RBYC_VOUCHED} to your local"
@@ -306,12 +306,14 @@ rbho_director_first_build() {
   buh_e
 
   # Summoned probe
-  buyy_pass_yawp "[*] Conjured sentry image found locally (summoned from GAR)";       local -r z_sum_pass="${z_buym_yelp}"
-  buyy_fail_yawp "[ ] No conjured sentry image found locally — run ${RBYC_SUMMON} above"; local -r z_sum_fail="${z_buym_yelp}"
-  buh_ternary "${z_conjure_summoned}" " ${z_sum_pass}" " ${z_sum_fail}"
+  if test "${z_conjure_summoned}" = "1"; then
+    buh_line "${RBYC_PROBE_YES}${RBYC_CONJURED} ${RBYC_SENTRY} image found locally (via ${RBYC_SUMMON})"
+  else
+    buh_line "${RBYC_PROBE_NO}No ${RBYC_CONJURED} ${RBYC_SENTRY} image found locally — run ${RBYC_SUMMON} above"
+  fi
   buh_e
 
-  buh_step1 "Abjure and Rekon — hallmark lifecycle"
+  buh_step1 "${RBYC_ABJURE} and ${RBYC_REKON} — ${RBYC_HALLMARK} lifecycle"
   buh_e
   buh_line "${RBYC_REKON} lists the raw tags for a ${RBYC_VESSEL}"
   buh_line "package in GAR. Run it before and after ${RBYC_ABJURE} to see"
@@ -324,12 +326,12 @@ rbho_director_first_build() {
   buh_line "   ${z_sfx_list}"
   buh_e
   buh_line "${RBYC_ABJURE} removes all artifacts for a ${RBYC_HALLMARK}"
-  buh_line "from GAR. This is permanent — the hallmark and all its"
+  buh_line "from GAR. This is permanent — the ${RBYC_HALLMARK} and all its"
   buh_line "tags are deleted:"
   buh_e
   buh_tt "   " "${RBZ_ABJURE_HALLMARK}" "" ' ${ONBOARD_VESSEL} ${ONBOARD_HALLMARK}'
   buh_e
-  buh_line "After abjure, run Rekon again:"
+  buh_line "After ${RBYC_ABJURE}, run ${RBYC_REKON} again:"
   buh_e
   buh_tt "   " "${RBZ_REKON_IMAGE}" "" ' ${ONBOARD_VESSEL}'
   buh_e
@@ -339,10 +341,10 @@ rbho_director_first_build() {
 
   buh_section "What you learned"
   buh_e
-  buh_line "You just completed the full conjure lifecycle:"
+  buh_line "You just completed the full ${RBYC_CONJURE} lifecycle:"
   buh_e
   buh_line "  1. ${RBYC_RELIQUARY} — builder toolchain provisioned"
-  buh_line "  2. ${RBYC_CONJURE} — vessel built by Cloud Build with SLSA provenance"
+  buh_line "  2. ${RBYC_CONJURE} — ${RBYC_VESSEL} built by Cloud Build with SLSA provenance"
   buh_line "  3. ${RBYC_TALLY}/${RBYC_VOUCH} — health and provenance verified"
   buh_line "  4. ${RBYC_PLUMB} — SBOM and build info inspected"
   buh_line "  5. ${RBYC_SUMMON} — consumer image pulled locally"
