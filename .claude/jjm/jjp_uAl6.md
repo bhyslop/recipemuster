@@ -162,7 +162,7 @@ Evaluators arrive with specific concerns, not a desire to tour everything. Three
 
 Handbook sequences link into `${RBGC_PUBLIC_DOCS_URL}#{Anchor}` via `buh_tlt`. All anchors below are live in `README.md` as of `6c266d09`.
 
-`Vessel`, `Hallmark`, `Vouch`, `Depot`, `Ordain`, `Conjure`, `Bind`, `Graft`, `Kludge`, `Enshrine`, `Reliquary`, `Pouch`, `Tethered`, `Airgap`, `Summon`, `Plumb`, `Tally`, `Levy`, `Payor`, `Governor`, `Director`, `Retriever`, `Charter`, `Knight`, `Nameplate`, `Enclave`, `Sentry`, `Pentacle`, `Bottle`, `Crucible`, `Charge`, `Quench`, `Tabtarget`, `Regime`, `RBRP`, `RBRR`, `RBRN`, `RBRV`, `BURC`, `BURS`
+`Vessel`, `Hallmark`, `Vouch`, `Depot`, `Ordain`, `Conjure`, `Bind`, `Graft`, `Kludge`, `Enshrine`, `Reliquary`, `Pouch`, `Tethered`, `Airgap`, `Summon`, `Plumb`, `Tally`, `Levy`, `Payor`, `Governor`, `Director`, `Retriever`, `Charter`, `Knight`, `Nameplate`, `Enclave`, `Sentry`, `Pentacle`, `Bottle`, `Crucible`, `Charge`, `Quench`, `Tabtarget`, `Regime`, `Provenance`, `SBOM`, `RBRP`, `RBRR`, `RBRN`, `RBRV`, `BURC`, `BURS`
 
 The `-image`, `-about`, and `-vouch` artifact suffixes are described within the `Hallmark` entry (plain English, no separate anchors).
 

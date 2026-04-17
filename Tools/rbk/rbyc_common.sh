@@ -121,9 +121,11 @@ zrbyc_kindle() {
   zrbyc_yk RBYC_CCYOLO    "${z_docs}" "ccyolo"
   zrbyc_yk RBYC_ABJURE    "${z_docs}" "Abjure"
   zrbyc_yk RBYC_REKON     "${z_docs}" "Rekon"
-  zrbyc_yk RBYC_LOG       "${z_docs}" "Log"
+  zrbyc_yk RBYC_LOG        "${z_docs}" "Log"
   zrbyc_yk RBYC_TRANSCRIPT "${z_docs}" "Transcript"
-  zrbyc_yk RBYC_OUTPUT    "${z_docs}" "Output"
+  zrbyc_yk RBYC_OUTPUT     "${z_docs}" "Output"
+  zrbyc_yk RBYC_PROVENANCE "${z_docs}" "Provenance"
+  zrbyc_yk RBYC_SBOM       "${z_docs}" "SBOM"
 
   # --- Variant forms (plural, possessive) ---
 

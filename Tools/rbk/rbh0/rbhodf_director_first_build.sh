@@ -102,7 +102,7 @@ rbho_director_first_build() {
   buh_e
   buh_line "You will build ${z_lk_vessel_name} — the same ${RBYC_SENTRY} you"
   buh_line "already know from the ${RBYC_CRUCIBLE} track, but this time built by"
-  buh_line "Google Cloud Build with full SLSA provenance."
+  buh_line "Google Cloud Build with full SLSA ${RBYC_PROVENANCE}."
   buh_e
 
   # Prerequisite probes
@@ -195,8 +195,8 @@ rbho_director_first_build() {
   buh_line "     identifying this build"
   buh_line "  2. A ${RBYC_POUCH} (build context archive) is pushed to GAR"
   buh_line "  3. Cloud Build constructs the image across platforms"
-  buh_line "  4. SLSA provenance is generated per platform digest"
-  buh_line "  5. ${RBYC_VOUCH} verifies the provenance chain"
+  buh_line "  4. SLSA ${RBYC_PROVENANCE} is generated per platform digest"
+  buh_line "  5. ${RBYC_VOUCH} verifies the ${RBYC_PROVENANCE} chain"
   buh_e
   buh_warn "Wall-clock: ~15-20 minutes for a 3-platform build."
   buh_line "The command blocks until Cloud Build finishes. Use the time"
@@ -237,15 +237,15 @@ rbho_director_first_build() {
   buh_line "      This is what you pull and run."
   buh_e
   buh_line "   ${z_sfx_attest}"
-  buh_line "      Per-platform provenance-carrying image (one per platform)."
+  buh_line "      Per-platform ${RBYC_PROVENANCE}-carrying image (one per platform)."
   buh_line "      Shares all layers with -image — only the manifest differs."
   buh_line "      These carry the GCB-attested digests used by ${RBYC_VOUCH}."
   buh_e
   buh_line "   ${z_sfx_about}"
-  buh_line "      SBOM (software bill of materials) + build info."
+  buh_line "      ${RBYC_SBOM} (software bill of materials) + build info."
   buh_e
   buh_line "   ${z_sfx_vouch}"
-  buh_line "      SLSA provenance verification record."
+  buh_line "      SLSA ${RBYC_PROVENANCE} verification record."
   buh_e
   buh_line "   ${z_sfx_diags}"
   buh_line "      Diagnostics from the build."
@@ -260,12 +260,12 @@ rbho_director_first_build() {
   buh_tt "   " "${RBZ_TALLY_HALLMARKS}"
   buh_e
   buh_line "Look for your ${RBYC_HALLMARK} with health state 'vouched' — that"
-  buh_line "means SLSA provenance was verified."
+  buh_line "means SLSA ${RBYC_PROVENANCE} was verified."
   buh_e
 
   buh_step2 "${RBYC_VOUCH}"
   buh_e
-  buh_line "${RBYC_VOUCH} verifies SLSA provenance for each platform"
+  buh_line "${RBYC_VOUCH} verifies SLSA ${RBYC_PROVENANCE} for each platform"
   buh_line "digest in the ${RBYC_HALLMARK}. The ${RBYC_ORDAIN} pipeline runs ${RBYC_VOUCH}"
   buh_line "automatically. If a build was interrupted before ${RBYC_VOUCH}"
   buh_line "completed, run this to reattempt ${RBYC_VOUCH} on untreated ${RBYC_HALLMARKS}:"
@@ -273,16 +273,16 @@ rbho_director_first_build() {
   buh_tt "   " "${RBZ_VOUCH_HALLMARKS}"
   buh_e
   buh_line "The ${RBYC_CONJURE} verdict is full SLSA — Cloud Build produced"
-  buh_line "this image, and the provenance chain proves it."
+  buh_line "this image, and the ${RBYC_PROVENANCE} chain proves it."
   buh_e
 
   buh_step2 "${RBYC_PLUMB}"
   buh_e
-  buh_line "${RBYC_PLUMB} displays the SBOM, build info, and Dockerfile"
+  buh_line "${RBYC_PLUMB} displays the ${RBYC_SBOM}, build info, and Dockerfile"
   buh_line "that produced the ${RBYC_HALLMARK}. Two modes:"
   buh_e
   buh_tt "   " "${RBZ_PLUMB_FULL}" "" ' ${ONBOARD_VESSEL} ${ONBOARD_HALLMARK}'
-  buh_line "   Full provenance display — SBOM packages, build parameters,"
+  buh_line "   Full ${RBYC_PROVENANCE} display — ${RBYC_SBOM} packages, build parameters,"
   buh_line "   Dockerfile content."
   buh_e
   buh_tt "   " "${RBZ_PLUMB_COMPACT}" "" ' ${ONBOARD_VESSEL} ${ONBOARD_HALLMARK}'
@@ -344,9 +344,9 @@ rbho_director_first_build() {
   buh_line "You just completed the full ${RBYC_CONJURE} lifecycle:"
   buh_e
   buh_line "  1. ${RBYC_RELIQUARY} — builder toolchain provisioned"
-  buh_line "  2. ${RBYC_CONJURE} — ${RBYC_VESSEL} built by Cloud Build with SLSA provenance"
-  buh_line "  3. ${RBYC_TALLY}/${RBYC_VOUCH} — health and provenance verified"
-  buh_line "  4. ${RBYC_PLUMB} — SBOM and build info inspected"
+  buh_line "  2. ${RBYC_CONJURE} — ${RBYC_VESSEL} built by Cloud Build with SLSA ${RBYC_PROVENANCE}"
+  buh_line "  3. ${RBYC_TALLY}/${RBYC_VOUCH} — health and ${RBYC_PROVENANCE} verified"
+  buh_line "  4. ${RBYC_PLUMB} — ${RBYC_SBOM} and build info inspected"
   buh_line "  5. ${RBYC_SUMMON} — consumer image pulled locally"
   buh_line "  6. ${RBYC_ABJURE}/${RBYC_REKON} — lifecycle cleanup"
   buh_e
