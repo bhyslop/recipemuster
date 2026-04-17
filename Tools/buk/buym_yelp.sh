@@ -82,18 +82,25 @@ zbuym_kindle() {
       ;;
   esac
 
+  # --- ESC byte constant (ANSI-C quoting) ---
+  # Real ESC byte (0x1B) via $'\033'.  Avoids "\033" literal strings that
+  # break under bash 5.2+ where ${var/pat/rep} interprets \\ in the
+  # replacement, collapsing adjacent backslashes and corrupting ANSI
+  # sequences that follow OSC-8 String Terminators.
+  readonly ZBUYM_ESC=$'\033'
+
   # --- Public color constants (BUYC_*) ---
   if test "${z_use_color}" = "1"; then
-    readonly BUYC_RESET="\033[0m"
-    readonly BUYC_CYAN="\033[36m"
-    readonly BUYC_MAGENTA="\033[35m"
-    readonly BUYC_BRIGHT_YELLOW="\033[1;33m"
-    readonly BUYC_BRIGHT_RED="\033[1;31m"
-    readonly BUYC_BRIGHT_WHITE="\033[1;37m"
-    readonly BUYC_LINK="\033[97;4m"
-    readonly BUYC_HREF="\033[34;4m"
-    readonly BUYC_GREEN="\033[32m"
-    readonly BUYC_ORANGE="\033[33m"
+    readonly BUYC_RESET="${ZBUYM_ESC}[0m"
+    readonly BUYC_CYAN="${ZBUYM_ESC}[36m"
+    readonly BUYC_MAGENTA="${ZBUYM_ESC}[35m"
+    readonly BUYC_BRIGHT_YELLOW="${ZBUYM_ESC}[1;33m"
+    readonly BUYC_BRIGHT_RED="${ZBUYM_ESC}[1;31m"
+    readonly BUYC_BRIGHT_WHITE="${ZBUYM_ESC}[1;37m"
+    readonly BUYC_LINK="${ZBUYM_ESC}[97;4m"
+    readonly BUYC_HREF="${ZBUYM_ESC}[34;4m"
+    readonly BUYC_GREEN="${ZBUYM_ESC}[32m"
+    readonly BUYC_ORANGE="${ZBUYM_ESC}[33m"
   else
     readonly BUYC_RESET=""
     readonly BUYC_CYAN=""
@@ -249,7 +256,7 @@ buyf_format_yawp() {
     local z_href_full="${BASH_REMATCH[0]}"
     local z_href_replacement=""
     if test "${ZBUYM_USE_HYPERLINKS}" = "1"; then
-      z_href_replacement="${BUYC_HREF}\033]8;;${z_href_url}\033\\\\${z_href_text}\033]8;;\033\\\\${BUYC_RESET}${z_ambient}"
+      z_href_replacement="${BUYC_HREF}${ZBUYM_ESC}]8;;${z_href_url}${ZBUYM_ESC}\\${z_href_text}${ZBUYM_ESC}]8;;${ZBUYM_ESC}\\${BUYC_RESET}${z_ambient}"
     elif test -n "${BUYC_HREF}"; then
       z_href_replacement="${BUYC_HREF}${z_href_text}${BUYC_RESET}${z_ambient} <${z_href_url}>"
     else
@@ -266,7 +273,7 @@ buyf_format_yawp() {
     local z_link_full="${BASH_REMATCH[0]}"
     local z_link_replacement=""
     if test "${ZBUYM_USE_HYPERLINKS}" = "1"; then
-      z_link_replacement="${BUYC_LINK}\033]8;;${z_link_url}\033\\\\${z_link_text}\033]8;;\033\\\\${BUYC_RESET}${z_ambient}"
+      z_link_replacement="${BUYC_LINK}${ZBUYM_ESC}]8;;${z_link_url}${ZBUYM_ESC}\\${z_link_text}${ZBUYM_ESC}]8;;${ZBUYM_ESC}\\${BUYC_RESET}${z_ambient}"
     elif test -n "${BUYC_LINK}"; then
       z_link_replacement="${BUYC_LINK}${z_link_text}${BUYC_RESET}${z_ambient} <${z_link_url}>"
     else

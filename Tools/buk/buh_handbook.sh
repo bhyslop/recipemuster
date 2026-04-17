@@ -57,9 +57,9 @@ zbuh_kindle() {
   fi
 
   if test "${z_use_color}" = "1"; then
-    readonly ZBUH_R="\033[0m"          # Reset
-    readonly ZBUH_E="\033[1;31m"       # Error (bright red)
-    readonly ZBUH_S="\033[1;37m"       # Section (bright white)
+    readonly ZBUH_R="${ZBUYM_ESC}[0m"          # Reset
+    readonly ZBUH_E="${ZBUYM_ESC}[1;31m"       # Error (bright red)
+    readonly ZBUH_S="${ZBUYM_ESC}[1;37m"       # Section (bright white)
   else
     readonly ZBUH_R=""
     readonly ZBUH_E=""
@@ -83,7 +83,7 @@ zbuh_sentinel() {
 ######################################################################
 # Public: Section headers and numbered steps
 
-buh_section() { zbuh_sentinel; z_buh_body_indent=""; buyf_format_yawp "${BUYC_BRIGHT_WHITE}" "${1:-}"; printf '%b\n' "${z_buym_format}" >&2; }
+buh_section() { zbuh_sentinel; z_buh_body_indent=""; buyf_format_yawp "${BUYC_BRIGHT_WHITE}" "${1:-}"; printf '%s\n' "${z_buym_format}" >&2; }
 buh_e()       { echo "" >&2; }
 
 buh_step_style() {
@@ -98,7 +98,7 @@ buh_step1() {
   z_buh_step2_n=0
   z_buh_body_indent="   "
   buyf_format_yawp "${BUYC_BRIGHT_WHITE}" "${1:-}"
-  printf '%b\n' "${ZBUH_S}${z_buh_step_prefix}${z_buh_step1_n}${z_buh_step_separator}${z_buym_format}" >&2
+  printf '%s\n' "${ZBUH_S}${z_buh_step_prefix}${z_buh_step1_n}${z_buh_step_separator}${z_buym_format}" >&2
 }
 
 buh_step2() {
@@ -106,7 +106,7 @@ buh_step2() {
   z_buh_step2_n=$((z_buh_step2_n + 1))
   z_buh_body_indent="      "
   buyf_format_yawp "${BUYC_BRIGHT_WHITE}" "${1:-}"
-  printf '%b\n' "   ${ZBUH_S}${z_buh_step_prefix}${z_buh_step1_n}.${z_buh_step2_n}${z_buh_step_separator}${z_buym_format}" >&2
+  printf '%s\n' "   ${ZBUH_S}${z_buh_step_prefix}${z_buh_step1_n}.${z_buh_step2_n}${z_buh_step_separator}${z_buym_format}" >&2
 }
 
 ######################################################################
@@ -123,15 +123,15 @@ buh_link() {
   local z_suffix="${4:-}"
 
   # Blue + underline style
-  local z_link_style="\033[34;4m"
+  local z_link_style="${ZBUYM_ESC}[34;4m"
 
   if test -n "${BURD_NO_HYPERLINKS:-}"; then
     # Fallback: styled text with URL in angle brackets
-    printf '%s%s%b%s%b <%s>%s\n' \
+    printf '%s%s%s%s%s <%s>%s\n' \
       "${z_buh_body_indent}" "${z_prefix}" "${z_link_style}" "${z_text}" "${ZBUH_R}" "${z_url}" "${z_suffix}" >&2
   else
     # OSC-8 hyperlink with styling
-    printf '%s%s%b\033]8;;%s\033\\%s\033]8;;\033\\%b%s\n' \
+    printf '%s%s%s\033]8;;%s\033\\%s\033]8;;\033\\%s%s\n' \
       "${z_buh_body_indent}" "${z_prefix}" "${z_link_style}" "${z_url}" "${z_text}" "${ZBUH_R}" "${z_suffix}" >&2
   fi
 }
@@ -174,7 +174,7 @@ buh_index_buk() {
 buh_line() {
   zbuh_sentinel
   buyf_format_yawp "${BUYC_RESET}" "${1:-}"
-  printf '%b\n' "${z_buh_body_indent}${z_buym_format}" >&2
+  printf '%s\n' "${z_buh_body_indent}${z_buym_format}" >&2
 }
 
 ######################################################################
@@ -192,19 +192,19 @@ buh_line() {
 buh_code() {
   zbuh_sentinel
   buyf_format_yawp "${BUYC_CYAN}" "${1:-}"
-  printf '%b\n' "${z_buh_body_indent}${z_buym_format}" >&2
+  printf '%s\n' "${z_buh_body_indent}${z_buym_format}" >&2
 }
 
 buh_warn() {
   zbuh_sentinel
   buyf_format_yawp "${BUYC_BRIGHT_YELLOW}" "${1:-}"
-  printf '%b\n' "${z_buh_body_indent}${z_buym_format}" >&2
+  printf '%s\n' "${z_buh_body_indent}${z_buym_format}" >&2
 }
 
 buh_error() {
   zbuh_sentinel
   buyf_format_yawp "${BUYC_BRIGHT_RED}" "${1:-}"
-  printf '%b\n' "${z_buh_body_indent}${z_buym_format}" >&2
+  printf '%s\n' "${z_buh_body_indent}${z_buym_format}" >&2
 }
 
 ######################################################################
@@ -242,7 +242,7 @@ buh_prompt_required() {
   local z_input
   z_input=$(buh_prompt "${1:-}")
   if test -z "${z_input}"; then
-    printf '%b\n' "${z_buh_body_indent}${ZBUH_E}ERROR:${ZBUH_R} ${2:-Input required}" >&2
+    printf '%s\n' "${z_buh_body_indent}${ZBUH_E}ERROR:${ZBUH_R} ${2:-Input required}" >&2
     return 1
   fi
   printf '%s' "${z_input}"
@@ -254,9 +254,9 @@ buh_prompt_required() {
 buh_critical() {
   zbuh_sentinel
   printf '\n' >&2
-  printf '%b\n' "${z_buh_body_indent}${ZBUH_E}===============================================${ZBUH_R}" >&2
-  printf '%b\n' "${z_buh_body_indent}${ZBUH_E}  CRITICAL: ${1}${ZBUH_R}" >&2
-  printf '%b\n' "${z_buh_body_indent}${ZBUH_E}===============================================${ZBUH_R}" >&2
+  printf '%s\n' "${z_buh_body_indent}${ZBUH_E}===============================================${ZBUH_R}" >&2
+  printf '%s\n' "${z_buh_body_indent}${ZBUH_E}  CRITICAL: ${1}${ZBUH_R}" >&2
+  printf '%s\n' "${z_buh_body_indent}${ZBUH_E}===============================================${ZBUH_R}" >&2
   printf '\n' >&2
 }
 
