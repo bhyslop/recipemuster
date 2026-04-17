@@ -3447,7 +3447,7 @@ Each element follows `address/prefix` format (e.g., `10.0.0.0/8 172.16.0.0/12`).
 //axl_voices axtu_string axd_list
 {rbst_domain_list}::
 Space-delimited list of fully-qualified domain names.
-Each element is a valid DNS domain (e.g., `api.example.com registry.example.com`).
+Each element is a valid DNS domain (e.g., `api.anthropic.com www.internic.net`).
 
 [[rbst_volume_mount_list]]
 //axl_voices axtu_string axd_list
