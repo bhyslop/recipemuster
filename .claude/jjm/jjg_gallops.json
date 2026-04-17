@@ -617,9 +617,10 @@
         "₢A6AAE",
         "₢A6AAs",
         "₢A6AAF",
-        "₢A6AAL"
+        "₢A6AAL",
+        "₢A6AAy"
       ],
-      "next_pace_seed": "AAy",
+      "next_pace_seed": "AAz",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
       "paces": {
         "₢A6AAA": {
@@ -1780,6 +1781,17 @@
               "text": "## Character\n\nInteractive debug pace. No pre-written docket — work proceeds by running the newly-landed airgap onboarding track, observing output with the user, and iterating on issues as they surface. Mirrors `₢A6AAu`'s relationship to the first-kludge track: implementation lands in `₢A6AAV`, then this pace absorbs user review feedback. Cognitive posture: responsive, hands-on, driven by user judgment at each step.\n\n## Docket\n\nRe-review the airgap onboarding handbook track produced by `₢A6AAV`. Interactive debug until the user is satisfied.\n\n### Requires\n\n- `₢A6AAV` wrapped — handbook track landed, vessels conjured cleanly, moriah charging, security suite passing\n\n### Out of scope\n\n- Vessel / nameplate / fixture creation (handled by `₢A6AAV` Phase 1)\n- Teaching arc authoring (handled by `₢A6AAV` Phase 2)\n- Moriah docs/anchor introduction (handled by `₢A6AAw`)\n- Final docs hygiene sweep (handled by `₢A6AAF`)",
               "silks": "review-onboarding-director-airgap",
               "commit": "04f2100"
+            }
+          ]
+        },
+        "₢A6AAy": {
+          "tacks": [
+            {
+              "ts": "260417-0550",
+              "state": "rough",
+              "text": "## Character\n\nDiagnostic investigation — narrow, focused, may require interactive crucible probing. The 3 failing cases (`rbtdrc_tcp443_allow_example`, `rbtdrc_cidr_all_ports_allowed`, `rbtdrc_sortie_http_end_to_end`) all hit the same root cause: TCP connect to `172.66.147.243` (Cloudflare IP for example.com) times out from inside the bottle. DNS resolves fine (ifrit DNS tests pass), iptables allows the CIDR (`93.184.216.0/24 104.16.0.0/12`), but the resolved IP `172.66.147.243` falls in `172.66.0.0/16` which is NOT in the allowed CIDR list. This may be a Cloudflare CDN rotation that moved example.com out of the previously-allowed ranges — or a sentry NAT/masquerade issue.\n\n## Docket\n\nDebug the TCP timeout affecting 3 tadmor security suite cases.\n\n### Observed\n\n- All 3 cases connect to `172.66.147.243` on ports 80 or 443\n- DNS resolution succeeds (dig works, ifrit DNS tests all pass)\n- Error: `nc: connect to 172.66.147.243 port 443 (tcp) timed out`\n- Ifrit verdict: `FAIL BREACH` — ifrit interprets timeout as blocked traffic that should be allowed\n\n### Hypotheses (ordered by likelihood)\n\n1. **CIDR mismatch**: example.com now resolves to `172.66.147.243` which is in `172.66.0.0/16`, outside the tadmor allowlist CIDRs `93.184.216.0/24` and `104.16.0.0/12`. The IP rotated via Cloudflare CDN. Fix: update `RBRN_UPLINK_ALLOWED_CIDRS` in tadmor rbrn.env.\n2. **NAT masquerade path broken**: sentry masquerade rule not applying to this IP range. Investigate iptables nat table.\n3. **Host-side network issue**: Docker Desktop routing problem for this specific IP range. Test from host to confirm reachability.\n\n### Steps\n\n1. From host: `curl -sI https://example.com` and `dig +short example.com` — confirm current IP and reachability\n2. Charge tadmor, shell into sentry (`rbw-ch`), inspect iptables nat/filter rules for the resolved IP\n3. Shell into bottle (`rbw-cr`), attempt `nc -zv <resolved-ip> 443` manually\n4. If hypothesis 1 confirmed: update `RBRN_UPLINK_ALLOWED_CIDRS` to cover new range, re-test\n5. If hypothesis 2: trace iptables counters for the specific connection\n6. Run the 3 failing cases via SingleCase to confirm fix",
+              "silks": "tadmor-tcp-timeout-debug",
+              "commit": "ab576d5"
             }
           ]
         }
