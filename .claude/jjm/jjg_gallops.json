@@ -2177,11 +2177,12 @@
         "₢A9AAI",
         "₢A9AAJ",
         "₢A9AAK",
+        "₢A9AAP",
         "₢A9AAL",
         "₢A9AAM",
         "₢A9AAN"
       ],
-      "next_pace_seed": "AAP",
+      "next_pace_seed": "AAQ",
       "paddock_file": ".claude/jjm/jjp_uAl9.md",
       "paces": {
         "₢A9AAA": {
@@ -2486,6 +2487,17 @@
               "text": "## Character\n\nFocused build-out of a new binary and its tabtarget integration. Mechanical Rust + BUK wiring — the detection engine and parser already exist as library functions. No design ambiguity; the format decisions are made.\n\n## Deliverables\n\nNew binary `apcab` (App Batch): reads `*.html` files from an input directory, runs the parse and detection pipeline (apcrp + apcre), writes one `{stem}.assay.txt` per input file to `BURD_OUTPUT_DIR`.\n\nAssay output format — guillemet-delimited elision markers with PHI flowing through:\n```\nPatient: ‹RED:PATIENT Margaret Thornton›\nDOB: ‹RED:DOB 03/15/1952›\n...presented to ‹YELLOW:FACILITY Maine Medical Center› with...\n```\nUnelided text passes through verbatim. Unamended classification — no toggle logic, pure engine output.\n\n## Implementation\n\n- `Tools/apck/apcd/src/apcab_main.rs` — new binary entry point\n  - Accept input directory as CLI argument\n  - Glob `*.html`, parse each, run detection engine, render assay text\n  - Write `{stem}.assay.txt` to `BURD_OUTPUT_DIR`\n  - No Tauri dependency — library crates only (apcrp, apcre, apcrm, apcrd)\n- Register `apcab` in `Cargo.toml` as a `[[bin]]` entry\n- Tabtarget `tt/apcw-ba.BatchAssay.sh` — folio via param1 (input directory path)\n- Enroll colophon `apcw-ba` in zipper, wire through workbench\n- Update `apck-claude-context.md` prefix tree and file mappings\n\n## Default invocation\n\n```\ntt/apcw-ba.BatchAssay.sh Tools/apck/test_fixtures/\n```\n\nEmits `epic_progress_note.assay.txt` and `epic_geriatric_consult.assay.txt` to `BURD_OUTPUT_DIR`.\n\n## Exit Criteria\n\nBoth fixture HTML files produce assay output. Elision markers present for known PHI in each fixture. Output is readable as a document with classifications visible inline.",
               "silks": "batch-assay-mode",
               "commit": "36cbf34"
+            }
+          ]
+        },
+        "₢A9AAP": {
+          "tacks": [
+            {
+              "ts": "260417-1023",
+              "state": "rough",
+              "text": "## Character\n\nFocused refactoring with a policy enforcement dimension. Mechanically moving rendering logic from JS to Rust string-building — the HTML structure and CSS stay, only the generation language changes. The policy part (documenting the no-JS rule) is small but must not be forgotten.\n\n## Problem\n\nThe JS frontend creates a language boundary (Rust ↔ JS) that produces gratuitous bugs like the byte-vs-char offset mismatch fixed in ₢A9AAK. JavaScript adds a second type system, a second set of string semantics, and a serialization boundary that exists only because the prototype chose the path of least resistance. For a HIPAA-adjacent tool that processes PHI, minimizing boundary surface is a correctness concern, not just aesthetics.\n\n## Approach — Option A (Tauri + Rust-rendered HTML)\n\nKeep Tauri's webview as a dumb renderer. Generate complete HTML in Rust for every state change. Remove all JS files.\n\n1. **Move focus handling to Rust**: Use Tauri's `WindowEvent::Focused` on the Rust side instead of JS `window.addEventListener(\"focus\")`. On focus, run the existing `consume_clipboard` logic, then push rendered HTML to the webview.\n2. **Build HTML renderer in Rust**: Port the 5 JS rendering functions (`zapcapHandleResult`, `zapcapShowTriage`, `zapcapShowNonClinical`, `zapcapRenderPreview`, `zapcapRenderFindings`) into Rust functions that produce complete HTML strings. The byte offsets from the engine are consumed directly — no char-offset conversion needed. Delete `zapcap_byte_to_char_offsets`.\n3. **Handle toggle state in Rust**: Toggle clicks invoke a Tauri command (e.g., `toggle_finding(index)`) that flips state in Rust and pushes re-rendered HTML. Minimal IPC: just an index integer.\n4. **Handle copy in Rust**: `copy_anonymized` command already exists; the button just needs to call it (one tiny inline `onclick` handler calling `window.__TAURI__.core.invoke` is acceptable as a Tauri webview primitive, or use Tauri's event system).\n5. **Delete JS**: Remove `app.js` entirely. `index.html` becomes a minimal shell that receives rendered content. `style.css` stays.\n\n## Policy Documentation Updates\n\nUpdate these locations to prohibit JavaScript in the APCK codebase:\n\n- **APCPS (Prototype Specification)** — Add a premise: \"No JavaScript. All rendering logic is Rust. The webview is a passive display surface.\" This is the authoritative technical constraint.\n- **apck-claude-context.md** — Add to the conventions section so future Claude sessions see it immediately.\n- **APCS (Product Specification)** — Note in the tech stack section that the frontend is Rust-rendered HTML, not a JS application.\n- **Heat paddock** — Note the rationale (byte/char boundary bug class elimination) so it's visible during this heat's remaining work.\n\n## Exit Criteria\n\n- `app.js` deleted from the repository\n- All three UI states (instruction, non-clinical, triage) render correctly from Rust\n- Toggle buttons work via Tauri command → Rust state → re-render cycle\n- Copy Anonymized works as before\n- `zapcap_byte_to_char_offsets` deleted (no longer needed)\n- All four documents updated with no-JS policy\n- Existing tests pass (`tt/apcw-t.Test.sh`)",
+              "silks": "eliminate-javascript-frontend",
+              "commit": "f15ecde"
             }
           ]
         }
