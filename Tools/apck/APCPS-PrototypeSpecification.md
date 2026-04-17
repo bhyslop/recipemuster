@@ -10,6 +10,7 @@ This is a living document. The pipeline will evolve rapidly during prototype dev
 
 The prototype deliberately excludes:
 
+- **No JavaScript** — All rendering logic is Rust. The Tauri webview is a passive display surface receiving complete HTML from the Rust backend. Inline `onclick` attributes use the Tauri bridge primitive (`window.__TAURI__.core.invoke`) for command dispatch only — no `.js` files, no JS application logic, no JS state management. This eliminates the language-boundary bug class (e.g., byte-offset vs char-offset mismatch at the Rust-JS serialization boundary).
 - **No persistence** — no logs, no audit trail, no history of anonymized notes
 - **One patient at a time** — no batch processing, no queue
 - **No configuration** — no custom blacklists, no user preferences, no settings UI
@@ -25,10 +26,10 @@ The prototype deliberately excludes:
 | Dictionary matching | `aho-corasick` | latest | MIT/Unlicense | Single-pass multi-pattern O(n) regardless of dictionary size |
 | Pattern matching | `regex` | latest | MIT/Apache | Structural PHI patterns |
 | Word boundaries | `unicode-segmentation` | latest | MIT/Apache | UAX#29 compliant word boundary detection |
-| GUI shell | `tauri` | 2.x | MIT | HTML/CSS/JS frontend, Rust backend, system webview |
+| GUI shell | `tauri` | 2.x | MIT | Rust-rendered HTML/CSS frontend, system webview as passive display |
 | File watching | `notify` | latest | MIT/Apache | FSEvents on macOS, ReadDirectoryChanges on Windows |
 
-All engine crates are pure Rust, fully Cargo-lockable on macOS and Windows. Tauri requires the system webview (WebKit on macOS, WebView2 on Windows — both ship with the OS).
+All crates are pure Rust, fully Cargo-lockable on macOS and Windows. Tauri requires the system webview (WebKit on macOS, WebView2 on Windows — both ship with the OS). The webview receives pre-rendered HTML from Rust on every state change; no JavaScript application code exists in the project.
 
 ### Tauri CLI cwd Constraint
 
@@ -255,7 +256,6 @@ Tools/apck/
     ui/
       index.html
       style.css
-      app.js
     dictionaries/
       surnames.txt
       firstnames.txt

@@ -10,7 +10,7 @@ No clipboard-level tool exists to automate this triage.
 
 ## Product Vision
 
-Ann's PHI Clipbuddy is a desktop companion application that sits between Epic and Open Evidence, intercepting clipboard content and automating PHI detection, triage, and anonymization.
+Ann's PHI Clipbuddy is a desktop companion application that sits between Epic and Open Evidence, intercepting clipboard content and automating PHI detection, triage, and anonymization. Built in Rust with Tauri — the webview renders Rust-generated HTML/CSS with no JavaScript application code.
 
 The clinician's workflow becomes:
 

@@ -28,9 +28,11 @@ APCK is a Tauri desktop app that intercepts clipboard content from Epic EHR, det
 | `apcru_update.rs` | `apcru` | — | — | Self-update watcher (no unit tests — I/O + process) |
 
 **Other key paths:**
-- `Tools/apck/apcd/ui/` — Frontend (HTML/CSS/JS)
+- `Tools/apck/apcd/ui/` — Frontend (HTML/CSS only — no JavaScript)
 - `Tools/apck/apcd/dictionaries/` — Blacklist/whitelist data files
 - `Tools/apck/test_fixtures/` — Synthetic Epic clipboard data
+
+**No JavaScript rule:** All rendering logic lives in Rust. The Tauri webview is a passive display surface — Rust pushes complete HTML on every state change via `eval()`. Inline `onclick` attributes use the Tauri bridge primitive (`window.__TAURI__.core.invoke`) for command dispatch. No `.js` files, no JS application logic. This eliminates the Rust-JS language boundary as a bug class.
 
 **Rust conventions:** Follow RCG (`Tools/vok/vov_veiled/RCG-RustCodingGuide.md`). Source prefix: `apcr{classifier}_{name}.rs`. Test prefix: `apct{classifier}_{name}.rs`. Classifier matches between source and test.
 
