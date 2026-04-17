@@ -269,9 +269,9 @@ rbho_first_crucible() {
   buh_tt  "   " "${RBZ_CRUCIBLE_CHARGE}" "${z_moniker}"
   buh_e
   buh_line "Charge takes 10-30 seconds. It pulls the images from your local"
-  buh_line "Docker, creates the enclave network, starts the containers, waits"
-  buh_line "for the sentry to confirm its iptables rules are applied, then"
-  buh_line "starts the bottle."
+  buh_line "Docker, creates the ${RBYC_ENCLAVE} network, starts the containers,"
+  buh_line "waits for the ${RBYC_SENTRY} to confirm its iptables rules are"
+  buh_line "applied, then starts the ${RBYC_BOTTLE}."
   buh_e
 
   # Charged probe
@@ -375,7 +375,7 @@ rbho_first_crucible() {
   buh_step1 "Quench the crucible"
   buh_e
   buh_line "${RBYC_QUENCH} stops and removes all three containers and the"
-  buh_line "enclave network:"
+  buh_line "${RBYC_ENCLAVE} network:"
   buh_e
   buh_tt  "   " "${RBZ_CRUCIBLE_QUENCH}" "${z_moniker}"
   buh_e

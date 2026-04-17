@@ -83,6 +83,7 @@ zrbyc_kindle() {
 
   # Crucible components
   zrbyc_yk RBYC_CRUCIBLE  "${z_docs}" "Crucible"
+  zrbyc_yk RBYC_ENCLAVE   "${z_docs}" "Enclave"
   zrbyc_yk RBYC_SENTRY    "${z_docs}" "Sentry"
   zrbyc_yk RBYC_SENTRY_S  "${z_docs}" "Sentry" "Sentries"
   zrbyc_yk RBYC_SENTRY_P  "${z_docs}" "Sentry" "Sentry's"
