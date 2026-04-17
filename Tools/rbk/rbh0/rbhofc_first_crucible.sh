@@ -59,6 +59,8 @@ rbho_first_crucible() {
   buyy_cmd_yawp "RBRN_BOTTLE_HALLMARK";   local -r z_code_bottle_field="${z_buym_yelp}"
   buyy_cmd_yawp "k260413155458-f9dcb6d9"; local -r z_example_tag="${z_buym_yelp}"
 
+  local -r z_test_domain="www.internic.net"
+
   # --- Probes ---
 
   # Docker runtime
@@ -115,7 +117,7 @@ rbho_first_crucible() {
   fi
 
   # --- Header ---
-  buh_section "Start a Crucible Using Local Builds"
+  buh_section "Start a ${RBYC_CRUCIBLE} Using Local Builds"
   buh_e
   buh_line "A ${RBYC_CRUCIBLE} is a sandboxed container environment with enforced"
   buh_line "network isolation. You are going to build one on your workstation"
@@ -148,7 +150,7 @@ rbho_first_crucible() {
   buh_line "and build context. A ${RBYC_HALLMARK} is a specific build instance,"
   buh_line "identified by a timestamp tag."
   buh_e
-  buh_line "${RBYC_KLUDGE} builds a vessel image locally using Docker — no cloud, no"
+  buh_line "${RBYC_KLUDGE} builds a ${RBYC_VESSEL} image locally using Docker — no cloud, no"
   buh_line "registry, no credentials. The fastest path from Dockerfile to running"
   buh_line "container without cloud build involvement.  Note this only builds for the"
   buh_line "host platform."
@@ -164,19 +166,19 @@ rbho_first_crucible() {
   buh_e
   buh_tt  "   " "${RBZ_KLUDGE_VESSEL}" "" " ${z_sentry_vessel}"
   buh_e
-  buh_line "The output prints a hallmark tag — something like"
+  buh_line "The output prints a ${RBYC_HALLMARK} tag — something like"
   buh_line "  ${z_example_tag}"
-  buh_line "Copy it. You will paste it into the nameplate in Step 2."
+  buh_line "Copy it. You will paste it into the ${RBYC_NAMEPLATE} in Step 2."
   buh_e
 
   if test "${z_sentry_image_exists}" = "1"; then
-    buh_line "${RBYC_PROBE_YES}Kludge-tagged sentry image found locally"
+    buh_line "${RBYC_PROBE_YES}${RBYC_KLUDGE}-tagged ${RBYC_SENTRY} image found locally"
   else
-    buh_line "${RBYC_PROBE_NO}No kludge-tagged sentry image found"
+    buh_line "${RBYC_PROBE_NO}No ${RBYC_KLUDGE}-tagged ${RBYC_SENTRY} image found"
   fi
   buh_e
 
-  buh_warn "Kludge requires a clean git tree."
+  buh_warn "${RBYC_KLUDGE} requires a clean git tree."
   buh_line "If you have uncommitted changes, commit them first.  This is by"
   buh_line "design — container images not backed by git commits easy to confuse."
   buh_e
@@ -184,47 +186,47 @@ rbho_first_crucible() {
   buh_step2 "${RBYC_KLUDGE} the ${RBYC_BOTTLE}"
   buh_e
   buh_line "The ${RBYC_BOTTLE} is your workload container — where Claude Code"
-  buh_line "runs. The ${RBYC_CCYOLO} bottle includes SSH, node, and the Claude CLI."
+  buh_line "runs. The ${RBYC_CCYOLO} ${RBYC_BOTTLE} includes SSH, node, and the Claude CLI."
   buh_e
-  buh_line "This command is different from the sentry kludge. It builds the"
-  buh_line "bottle AND drives the ${RBYC_HALLMARK} into the nameplate"
+  buh_line "This command is different from the ${RBYC_SENTRY} ${RBYC_KLUDGE}. It builds the"
+  buh_line "${RBYC_BOTTLE} AND drives the ${RBYC_HALLMARK} into the ${RBYC_NAMEPLATE}"
   buh_line "automatically:"
   buh_e
   buh_tt  "   " "${RBZ_CRUCIBLE_KLUDGE_BOTTLE}" "" " ${z_moniker}"
   buh_e
   buh_line "Two ${RBYC_KLUDGE} commands, two different jobs:"
-  buh_line "  ${z_cmd_rbw_fk}  — standalone vessel kludge. Produces a hallmark, touches nothing else."
-  buh_line "  ${z_cmd_rbw_cKB} — nameplate-aware bottle kludge. Builds AND installs the hallmark."
+  buh_line "  ${z_cmd_rbw_fk}  — standalone ${RBYC_VESSEL} ${RBYC_KLUDGE}. Produces a ${RBYC_HALLMARK}, touches nothing else."
+  buh_line "  ${z_cmd_rbw_cKB} — ${RBYC_NAMEPLATE}-aware ${RBYC_BOTTLE} ${RBYC_KLUDGE}. Builds AND installs the ${RBYC_HALLMARK}."
   buh_e
-  buh_line "The sentry is shared across nameplates, so you kludge it standalone"
-  buh_line "and drive the hallmark yourself. The bottle belongs to one nameplate,"
+  buh_line "The ${RBYC_SENTRY} is shared across ${RBYC_NAMEPLATES}, so you ${RBYC_KLUDGE} it standalone"
+  buh_line "and drive the ${RBYC_HALLMARK} yourself. The ${RBYC_BOTTLE} belongs to one ${RBYC_NAMEPLATE},"
   buh_line "so the tool does the driving for you."
   buh_e
 
   # Bottle kludge image probe
   if test "${z_bottle_image_exists}" = "1"; then
-    buh_line "${RBYC_PROBE_YES}Kludge-tagged bottle image found locally"
+    buh_line "${RBYC_PROBE_YES}${RBYC_KLUDGE}-tagged ${RBYC_BOTTLE} image found locally"
   else
-    buh_line "${RBYC_PROBE_NO}No kludge-tagged bottle image found"
+    buh_line "${RBYC_PROBE_NO}No ${RBYC_KLUDGE}-tagged ${RBYC_BOTTLE} image found"
   fi
   buh_e
 
   # =================================================================
   # Step 2: Drive sentry hallmark into the nameplate
   # =================================================================
-  buh_step1 "Drive sentry hallmark into the nameplate"
+  buh_step1 "Drive ${RBYC_SENTRY} ${RBYC_HALLMARK} into the ${RBYC_NAMEPLATE}"
   buh_e
-  buh_line "A ${RBYC_NAMEPLATE} is the file that defines a Crucible — it specifies"
+  buh_line "A ${RBYC_NAMEPLATE} is the file that defines a ${RBYC_CRUCIBLE} — it specifies"
   buh_line "what ${RBYC_HALLMARK} to use for ${RBYC_SENTRY}, ${RBYC_PENTACLE}, and"
   buh_line "${RBYC_BOTTLE} containers. It lives at:"
   buh_e
   buh_code "   ${z_nameplate_file}"
   buh_e
-  buh_line "The ${RBYC_RBRN} file has two hallmark fields — one for the sentry"
-  buh_line "and one for the bottle. The bottle kludge (Step 1.2) already drove"
-  buh_line "its hallmark. Now you drive the sentry hallmark by hand."
+  buh_line "The ${RBYC_RBRN} file has two ${RBYC_HALLMARK} fields — one for the ${RBYC_SENTRY}"
+  buh_line "and one for the ${RBYC_BOTTLE}. The ${RBYC_BOTTLE} ${RBYC_KLUDGE} (Step 1.2) already drove"
+  buh_line "its ${RBYC_HALLMARK}. Now you drive the ${RBYC_SENTRY} ${RBYC_HALLMARK} by hand."
   buh_e
-  buh_line "Open the nameplate file and paste the sentry hallmark from Step 1.1"
+  buh_line "Open the ${RBYC_NAMEPLATE} file and paste the ${RBYC_SENTRY} ${RBYC_HALLMARK} from Step 1.1"
   buh_line "into the ${z_cmd_sentry_hallmark} field."
   buh_e
   buh_line "This is deliberately manual — it teaches you what ${RBYC_HALLMARKS} are and"
@@ -236,12 +238,12 @@ rbho_first_crucible() {
   if test "${z_sentry_hallmark_present}" = "1"; then
     buh_line " [*] ${z_code_sentry_field} = ${z_sentry_hallmark}"
   else
-    buh_line "${RBYC_PROBE_NO}RBRN_SENTRY_HALLMARK is empty — paste the sentry hallmark from Step 1.1"
+    buh_line "${RBYC_PROBE_NO}RBRN_SENTRY_HALLMARK is empty — paste the ${RBYC_SENTRY} ${RBYC_HALLMARK} from Step 1.1"
   fi
   if test "${z_bottle_hallmark_present}" = "1"; then
     buh_line " [*] ${z_code_bottle_field} = ${z_bottle_hallmark}"
   else
-    buh_line "${RBYC_PROBE_NO}RBRN_BOTTLE_HALLMARK is empty — run Step 1.2 (bottle kludge)"
+    buh_line "${RBYC_PROBE_NO}RBRN_BOTTLE_HALLMARK is empty — run Step 1.2 (${RBYC_BOTTLE} ${RBYC_KLUDGE})"
   fi
   buh_e
 
@@ -255,20 +257,20 @@ rbho_first_crucible() {
   # =================================================================
   # Step 3: Charge the crucible
   # =================================================================
-  buh_step1 "Charge the crucible"
+  buh_step1 "${RBYC_CHARGE} the ${RBYC_CRUCIBLE}"
   buh_e
-  buh_line "${RBYC_CHARGE} starts three containers from your nameplate:"
+  buh_line "${RBYC_CHARGE} starts three containers from your ${RBYC_NAMEPLATE}:"
   buh_e
   buh_line "  ${RBYC_SENTRY}    — runs iptables + dnsmasq, enforces the network allowlist"
-  buh_line "  ${RBYC_PENTACLE}  — establishes the network namespace shared with the bottle"
+  buh_line "  ${RBYC_PENTACLE}  — establishes the network namespace shared with the ${RBYC_BOTTLE}"
   buh_line "  ${RBYC_BOTTLE}    — your workload container (Claude Code lives here)"
   buh_e
-  buh_line "The ${RBYC_SENTRY} mediates all traffic. The bottle never touches the"
+  buh_line "The ${RBYC_SENTRY} mediates all traffic. The ${RBYC_BOTTLE} never touches the"
   buh_line "network directly — everything routes through the ${RBYC_SENTRY_P} rules."
   buh_e
   buh_tt  "   " "${RBZ_CRUCIBLE_CHARGE}" "${z_moniker}"
   buh_e
-  buh_line "Charge takes 10-30 seconds. It pulls the images from your local"
+  buh_line "${RBYC_CHARGE} takes 10-30 seconds. It pulls the images from your local"
   buh_line "Docker, creates the ${RBYC_ENCLAVE} network, starts the containers,"
   buh_line "waits for the ${RBYC_SENTRY} to confirm its iptables rules are"
   buh_line "applied, then starts the ${RBYC_BOTTLE}."
@@ -276,9 +278,9 @@ rbho_first_crucible() {
 
   # Charged probe
   if test "${z_crucible_charged}" = "1"; then
-    buh_line "${RBYC_PROBE_YES}Crucible ${z_moniker} is charged (bottle container running)"
+    buh_line "${RBYC_PROBE_YES}${RBYC_CRUCIBLE} ${z_moniker} is charged (${RBYC_BOTTLE} container running)"
   else
-    buh_line "${RBYC_PROBE_NO}Crucible ${z_moniker} is not charged"
+    buh_line "${RBYC_PROBE_NO}${RBYC_CRUCIBLE} ${z_moniker} is not charged"
   fi
   buh_e
 
@@ -287,7 +289,7 @@ rbho_first_crucible() {
   # =================================================================
   buh_step1 "Enter the container and run Claude Code"
   buh_e
-  buh_line "SSH into the bottle:"
+  buh_line "SSH into the ${RBYC_BOTTLE}:"
   buh_e
   buh_line "   ${z_cmd_ssh}"
   buh_e
@@ -300,15 +302,15 @@ rbho_first_crucible() {
   buh_line "copy it to your workstation browser, sign in with your Claude"
   buh_line "subscription, and paste the code back into the terminal."
   buh_e
-  buh_warn "The ccyolo bottle pins Claude Code to a specific version."
+  buh_warn "The ${RBYC_CCYOLO} ${RBYC_BOTTLE} pins Claude Code to a specific version."
   buh_line "Versions after v2.1.89 have a regression where paste does not"
   buh_line "work in the OAuth input prompt through SSH or docker exec"
   buh_line "(github.com/anthropics/claude-code/issues/47745). If you"
   buh_line "update the pin and paste stops working, type the code manually."
   buh_e
   buh_line "Once authenticated, Claude Code starts in full autonomy mode —"
-  buh_line "no permission prompts. Inside a network-contained crucible,"
-  buh_line "this is the correct posture: the sentry enforces the real"
+  buh_line "no permission prompts. Inside a network-contained ${RBYC_CRUCIBLE},"
+  buh_line "this is the correct posture: the ${RBYC_SENTRY} enforces the real"
   buh_line "security boundary, not the tool permission system."
   buh_e
   buh_line "Try your first interaction:"
@@ -316,9 +318,9 @@ rbho_first_crucible() {
   buh_code "   The count_words.sh script has bugs — can you find and fix them?"
   buh_e
   buh_line "Watch Claude read the files, identify issues, and edit the code."
-  buh_line "The workspace is a bind mount — edits inside the bottle are"
+  buh_line "The workspace is a bind mount — edits inside the ${RBYC_BOTTLE} are"
   buh_line "visible on the host filesystem, and vice versa. Your repo"
-  buh_line "working tree gets dirty when you work inside the bottle,"
+  buh_line "working tree gets dirty when you work inside the ${RBYC_BOTTLE},"
   buh_line "and that is the point."
   buh_e
   buh_line "Why SSH instead of docker exec?"
@@ -328,7 +330,7 @@ rbho_first_crucible() {
   buh_line "login session with full terminal negotiation."
   buh_e
   buh_line "If SSH fails, ${RBYC_RACK} is the diagnostic fallback —"
-  buh_line "docker exec into the bottle to inspect state:"
+  buh_line "docker exec into the ${RBYC_BOTTLE} to inspect state:"
   buh_e
   buh_tt  "   " "${RBZ_CRUCIBLE_RACK}" "" " ${z_moniker}"
   buh_e
@@ -339,10 +341,10 @@ rbho_first_crucible() {
   buh_step1 "Verify network containment"
   buh_e
   buh_line "From inside the ${RBYC_BOTTLE} (while SSH'd in), you can test what's reachable."
-  buh_line "The ${RBYC_CCYOLO} nameplate allows Anthropic and www.internic.net (a test"
+  buh_line "The ${RBYC_CCYOLO} ${RBYC_NAMEPLATE} allows Anthropic and ${z_test_domain} (a test"
   buh_line "target — ICANN-owned, stable). Everything else is blocked."
   buh_e
-  buh_line "Run these curl commands inside the bottle:"
+  buh_line "Run these curl commands inside the ${RBYC_BOTTLE}:"
   buh_e
   buh_code "   curl -s -o /dev/null -w '%{http_code}' https://api.anthropic.com"
   buh_line "   Expected: 404 (API wants auth, not bare GET)"
@@ -350,7 +352,7 @@ rbho_first_crucible() {
   buh_code "   curl -s -o /dev/null -w '%{http_code}' https://claude.ai"
   buh_line "   Expected: 403 (web app)"
   buh_e
-  buh_code "   curl -s -o /dev/null -w '%{http_code}' http://www.internic.net"
+  buh_code "   curl -s -o /dev/null -w '%{http_code}' http://${z_test_domain}"
   buh_line "   Expected: 200 (test target on allowlist)"
   buh_e
   buh_code "   curl -s -o /dev/null -w '%{http_code}' --max-time 5 https://google.com"
@@ -364,7 +366,7 @@ rbho_first_crucible() {
   buh_line "packets to any IP not in the CIDR allowlist. Both layers"
   buh_line "must agree for traffic to pass."
   buh_e
-  buh_line "www.internic.net is included in the ${RBYC_CCYOLO} ${RBYC_NAMEPLATE}"
+  buh_line "${z_test_domain} is included in the ${RBYC_CCYOLO} ${RBYC_NAMEPLATE}"
   buh_line "specifically for this verification step — it proves the"
   buh_line "allowlist works for a non-Anthropic domain."
   buh_e
@@ -372,14 +374,14 @@ rbho_first_crucible() {
   # =================================================================
   # Step 6: Quench the crucible
   # =================================================================
-  buh_step1 "Quench the crucible"
+  buh_step1 "${RBYC_QUENCH} the ${RBYC_CRUCIBLE}"
   buh_e
   buh_line "${RBYC_QUENCH} stops and removes all three containers and the"
   buh_line "${RBYC_ENCLAVE} network:"
   buh_e
   buh_tt  "   " "${RBZ_CRUCIBLE_QUENCH}" "${z_moniker}"
   buh_e
-  buh_line "Clean shutdown. The images stay cached locally — your next charge"
+  buh_line "Clean shutdown. The images stay cached locally — your next ${RBYC_CHARGE}"
   buh_line "reuses them instantly."
   buh_e
 
@@ -402,10 +404,10 @@ rbho_first_crucible() {
   buh_line  "  7. Test your changes"
   buh_e
   buh_line "${RBYC_CHARGE} tears down any prior state before starting, so you"
-  buh_line "don't need to Quench between iterations — just Charge again."
+  buh_line "don't need to ${RBYC_QUENCH} between iterations — just ${RBYC_CHARGE} again."
   buh_e
   buh_line "Steps 3-7 take under a minute. The ${RBYC_SENTRY} rarely changes, so"
-  buh_line "you almost never re-kludge it — the ${RBYC_BOTTLE} is your iteration"
+  buh_line "you almost never re-${RBYC_KLUDGE} it — the ${RBYC_BOTTLE} is your iteration"
   buh_line "target."
   buh_e
 

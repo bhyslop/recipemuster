@@ -127,8 +127,9 @@ zrbyc_kindle() {
 
   # --- Variant forms (plural, possessive) ---
 
-  zrbyc_yk RBYC_HALLMARKS  "${z_docs}" "Hallmark"   "Hallmarks"
-  zrbyc_yk RBYC_VESSELS    "${z_docs}" "Vessel"     "Vessels"
+  zrbyc_yk RBYC_HALLMARKS   "${z_docs}" "Hallmark"   "Hallmarks"
+  zrbyc_yk RBYC_NAMEPLATES  "${z_docs}" "Nameplate"  "Nameplates"
+  zrbyc_yk RBYC_VESSELS     "${z_docs}" "Vessel"     "Vessels"
   zrbyc_yk RBYC_DIRECTORS  "${z_docs}" "Director"   "Directors"
   zrbyc_yk RBYC_RETRIEVERS "${z_docs}" "Retriever"  "Retrievers"
   zrbyc_yk RBYC_TABTARGETS "${z_docs}" "Tabtarget"  "Tabtargets"

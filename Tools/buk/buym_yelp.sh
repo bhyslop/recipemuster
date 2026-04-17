@@ -249,9 +249,9 @@ buyf_format_yawp() {
     local z_href_full="${BASH_REMATCH[0]}"
     local z_href_replacement=""
     if test "${ZBUYM_USE_HYPERLINKS}" = "1"; then
-      z_href_replacement="${BUYC_HREF}\033]8;;${z_href_url}\033\\\\${z_href_text}\033]8;;\033\\\\${z_ambient}"
+      z_href_replacement="${BUYC_HREF}\033]8;;${z_href_url}\033\\\\${z_href_text}\033]8;;\033\\\\${BUYC_RESET}${z_ambient}"
     elif test -n "${BUYC_HREF}"; then
-      z_href_replacement="${BUYC_HREF}${z_href_text}${z_ambient} <${z_href_url}>"
+      z_href_replacement="${BUYC_HREF}${z_href_text}${BUYC_RESET}${z_ambient} <${z_href_url}>"
     else
       z_href_replacement="${z_href_text}"
     fi
@@ -266,9 +266,9 @@ buyf_format_yawp() {
     local z_link_full="${BASH_REMATCH[0]}"
     local z_link_replacement=""
     if test "${ZBUYM_USE_HYPERLINKS}" = "1"; then
-      z_link_replacement="${BUYC_LINK}\033]8;;${z_link_url}\033\\\\${z_link_text}\033]8;;\033\\\\${z_ambient}"
+      z_link_replacement="${BUYC_LINK}\033]8;;${z_link_url}\033\\\\${z_link_text}\033]8;;\033\\\\${BUYC_RESET}${z_ambient}"
     elif test -n "${BUYC_LINK}"; then
-      z_link_replacement="${BUYC_LINK}${z_link_text}${z_ambient} <${z_link_url}>"
+      z_link_replacement="${BUYC_LINK}${z_link_text}${BUYC_RESET}${z_ambient} <${z_link_url}>"
     else
       z_link_replacement="${z_link_text}"
     fi
