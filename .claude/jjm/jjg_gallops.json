@@ -2165,6 +2165,7 @@
       "creation_time": "260410",
       "status": "racing",
       "order": [
+        "₢A9AAO",
         "₢A9AAA",
         "₢A9AAB",
         "₢A9AAC",
@@ -2180,7 +2181,7 @@
         "₢A9AAM",
         "₢A9AAN"
       ],
-      "next_pace_seed": "AAO",
+      "next_pace_seed": "AAP",
       "paddock_file": ".claude/jjm/jjp_uAl9.md",
       "paces": {
         "₢A9AAA": {
@@ -2474,6 +2475,17 @@
               "text": "## Character\n\nFocused detection enhancement. Mechanical implementation following established Tier 2/3 patterns — no design ambiguity. The aho-corasick infrastructure already exists for Tier 3; this reuses it with a dynamic phrase dictionary built per-document.\n\n## Problem\n\nTier 2 (label-anchored) identifies entities like \"Maine Medical Center\" from the `Facility:` field, but when the same phrase appears in narrative text, no tier catches it. Tier 3 (dictionary) operates on individual words, and common words like \"Medical\" and \"Center\" are whitelisted. The identifying unit is the multi-word phrase, not the individual tokens.\n\n## Approach\n\nAdd entity propagation between Tier 2 and Tier 3 in `apcre_engine.rs`:\n\n1. After `apcrm_scan_anchored` completes, collect the full multi-word values from labeled field spans (Facility, Patient, Attending, Provider, Referring, etc.)\n2. Build a case-insensitive aho-corasick automaton from those phrases\n3. Scan `plain_text` for matches — emit RED findings with a new `Propagated` mechanism variant\n4. Existing merge logic (`zapcre_merge_findings`) handles overlap with Tier 2's original findings\n\n**Whitespace normalization**: Already handled by the parser (`zapcrp_normalize_whitespace`) — both `plain_text` and span values are single-space-normalized. No additional normalization needed.\n\n**Category**: Inherit the category from the originating Tier 2 finding (Facility stays Facility, Provider stays Provider, etc.)\n\n## Scope\n\n- Modify `apcrm_match.rs`: add `Propagated` to `apcrm_Mechanism` enum\n- Modify `apcre_engine.rs`: add propagation scan between Tier 2 and Tier 3 calls\n- Add unit tests for propagation (facility in narrative, provider in signature block)\n- No frontend changes needed — findings render the same regardless of mechanism",
               "silks": "entity-propagation-tier",
               "commit": "ea2eead"
+            }
+          ]
+        },
+        "₢A9AAO": {
+          "tacks": [
+            {
+              "ts": "260417-1010",
+              "state": "rough",
+              "text": "## Character\n\nFocused build-out of a new binary and its tabtarget integration. Mechanical Rust + BUK wiring — the detection engine and parser already exist as library functions. No design ambiguity; the format decisions are made.\n\n## Deliverables\n\nNew binary `apcab` (App Batch): reads `*.html` files from an input directory, runs the parse and detection pipeline (apcrp + apcre), writes one `{stem}.assay.txt` per input file to `BURD_OUTPUT_DIR`.\n\nAssay output format — guillemet-delimited elision markers with PHI flowing through:\n```\nPatient: ‹RED:PATIENT Margaret Thornton›\nDOB: ‹RED:DOB 03/15/1952›\n...presented to ‹YELLOW:FACILITY Maine Medical Center› with...\n```\nUnelided text passes through verbatim. Unamended classification — no toggle logic, pure engine output.\n\n## Implementation\n\n- `Tools/apck/apcd/src/apcab_main.rs` — new binary entry point\n  - Accept input directory as CLI argument\n  - Glob `*.html`, parse each, run detection engine, render assay text\n  - Write `{stem}.assay.txt` to `BURD_OUTPUT_DIR`\n  - No Tauri dependency — library crates only (apcrp, apcre, apcrm, apcrd)\n- Register `apcab` in `Cargo.toml` as a `[[bin]]` entry\n- Tabtarget `tt/apcw-ba.BatchAssay.sh` — folio via param1 (input directory path)\n- Enroll colophon `apcw-ba` in zipper, wire through workbench\n- Update `apck-claude-context.md` prefix tree and file mappings\n\n## Default invocation\n\n```\ntt/apcw-ba.BatchAssay.sh Tools/apck/test_fixtures/\n```\n\nEmits `epic_progress_note.assay.txt` and `epic_geriatric_consult.assay.txt` to `BURD_OUTPUT_DIR`.\n\n## Exit Criteria\n\nBoth fixture HTML files produce assay output. Elision markers present for known PHI in each fixture. Output is readable as a document with classifications visible inline.",
+              "silks": "batch-assay-mode",
+              "commit": "36cbf34"
             }
           ]
         }
