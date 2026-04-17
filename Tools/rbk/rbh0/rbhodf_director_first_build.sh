@@ -108,8 +108,8 @@ rbho_director_first_build() {
   # Prerequisite probes
   buh_line "Prerequisites:"
   buh_e
-  buyy_pass_yawp "[*] Director credential installed";          local -r z_dir_pass="${z_buym_yelp}"
-  buyy_fail_yawp "[ ] Director credential missing — run:";    local -r z_dir_fail="${z_buym_yelp}"
+  buyy_pass_yawp "[*] Director credential installed";       local -r z_dir_pass="${z_buym_yelp}"
+  buyy_fail_yawp "[ ] Director credential missing — run:";  local -r z_dir_fail="${z_buym_yelp}"
   buh_ternary "${z_has_director}" " ${z_dir_pass}" " ${z_dir_fail}"
   if test "${z_has_director}" = "0"; then
     buh_tt "      " "${RBZ_ONBOARD_CRED_DIRECTOR}"

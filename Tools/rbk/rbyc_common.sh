@@ -26,7 +26,7 @@
 # interpolation into buh_line calls:
 #   buh_line "A ${RBYC_DEPOT} is where images live."
 #
-# Variant forms (_S plural, _POSS possessive) link to the base anchor
+# Variant forms (_S plural, _P possessive) link to the base anchor
 # with alternate display text.
 
 set -euo pipefail
@@ -84,6 +84,8 @@ zrbyc_kindle() {
   # Crucible components
   zrbyc_yk RBYC_CRUCIBLE  "${z_docs}" "Crucible"
   zrbyc_yk RBYC_SENTRY    "${z_docs}" "Sentry"
+  zrbyc_yk RBYC_SENTRY_S  "${z_docs}" "Sentry" "Sentries"
+  zrbyc_yk RBYC_SENTRY_P  "${z_docs}" "Sentry" "Sentry's"
   zrbyc_yk RBYC_PENTACLE  "${z_docs}" "Pentacle"
   zrbyc_yk RBYC_BOTTLE    "${z_docs}" "Bottle"
 

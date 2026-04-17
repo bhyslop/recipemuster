@@ -51,8 +51,8 @@ rbho_first_crucible() {
   local -r z_ssh_tabtarget="tt/rbw-cS.SshTo.${z_moniker}.sh"
 
   # Inline yelps (not worth kindle constants — track-specific)
-  buyy_cmd_yawp "rbw-fk";                local -r z_cmd_rbw_fk="${z_buym_yelp}"
-  buyy_cmd_yawp "rbw-cKB";               local -r z_cmd_rbw_cKB="${z_buym_yelp}"
+  buyy_cmd_yawp "rbw-fk";                 local -r z_cmd_rbw_fk="${z_buym_yelp}"
+  buyy_cmd_yawp "rbw-cKB";                local -r z_cmd_rbw_cKB="${z_buym_yelp}"
   buyy_cmd_yawp "RBRN_SENTRY_HALLMARK=";  local -r z_cmd_sentry_hallmark="${z_buym_yelp}"
   buyy_cmd_yawp "${z_ssh_tabtarget}";     local -r z_cmd_ssh="${z_buym_yelp}"
   buyy_cmd_yawp "RBRN_SENTRY_HALLMARK";   local -r z_code_sentry_field="${z_buym_yelp}"
@@ -142,9 +142,6 @@ rbho_first_crucible() {
 
   buh_step_style "Step " " — "
 
-  # =================================================================
-  # Step 1: Build images locally
-  # =================================================================
   buh_step1 "Build images locally"
   buh_e
   buh_line "A ${RBYC_VESSEL} is a specification for a container image — a Dockerfile"
@@ -153,26 +150,25 @@ rbho_first_crucible() {
   buh_e
   buh_line "${RBYC_KLUDGE} builds a vessel image locally using Docker — no cloud, no"
   buh_line "registry, no credentials. The fastest path from Dockerfile to running"
-  buh_line "container without cloud image backup."
+  buh_line "container without cloud build involvement.  Note this only builds for the"
+  buh_line "host platform."
   buh_e
 
-  # --- Substep 1a: Kludge the sentry ---
-  buh_step2 "Kludge the sentry"
+  buh_step2 "${RBYC_KLUDGE} the ${RBYC_SENTRY}"
   buh_e
   buh_line "The ${RBYC_SENTRY} is the gatekeeper container. It runs iptables"
   buh_line "and dnsmasq to enforce network policy — only domains you whitelist"
   buh_line "are reachable from inside."
   buh_e
-  buh_line "Kludge it:"
+  buh_line "Build it:"
   buh_e
   buh_tt  "   " "${RBZ_KLUDGE_VESSEL}" "" " ${z_sentry_vessel}"
   buh_e
   buh_line "The output prints a hallmark tag — something like"
-  buh_line "${z_example_tag}"
+  buh_line "  ${z_example_tag}"
   buh_line "Copy it. You will paste it into the nameplate in Step 2."
   buh_e
 
-  # Sentry kludge image probe
   if test "${z_sentry_image_exists}" = "1"; then
     buh_line "${RBYC_PROBE_YES}Kludge-tagged sentry image found locally"
   else
@@ -185,8 +181,7 @@ rbho_first_crucible() {
   buh_line "design — container images not backed by git commits easy to confuse."
   buh_e
 
-  # --- Substep 1b: Kludge the bottle ---
-  buh_step2 "Kludge the bottle"
+  buh_step2 "${RBYC_KLUDGE} the ${RBYC_BOTTLE}"
   buh_e
   buh_line "The ${RBYC_BOTTLE} is your workload container — where Claude Code"
   buh_line "runs. The ${RBYC_CCYOLO} bottle includes SSH, node, and the Claude CLI."
@@ -197,7 +192,7 @@ rbho_first_crucible() {
   buh_e
   buh_tt  "   " "${RBZ_CRUCIBLE_KLUDGE_BOTTLE}" "" " ${z_moniker}"
   buh_e
-  buh_line "Two kludge commands, two different jobs:"
+  buh_line "Two ${RBYC_KLUDGE} commands, two different jobs:"
   buh_line "  ${z_cmd_rbw_fk}  — standalone vessel kludge. Produces a hallmark, touches nothing else."
   buh_line "  ${z_cmd_rbw_cKB} — nameplate-aware bottle kludge. Builds AND installs the hallmark."
   buh_e
@@ -264,12 +259,12 @@ rbho_first_crucible() {
   buh_e
   buh_line "${RBYC_CHARGE} starts three containers from your nameplate:"
   buh_e
-  buh_line "  ${RBYC_SENTRY}   — runs iptables + dnsmasq, enforces the network allowlist"
+  buh_line "  ${RBYC_SENTRY}    — runs iptables + dnsmasq, enforces the network allowlist"
   buh_line "  ${RBYC_PENTACLE}  — establishes the network namespace shared with the bottle"
   buh_line "  ${RBYC_BOTTLE}    — your workload container (Claude Code lives here)"
   buh_e
-  buh_line "The sentry mediates all traffic. The bottle never touches the"
-  buh_line "network directly — everything routes through the sentry's rules."
+  buh_line "The ${RBYC_SENTRY} mediates all traffic. The bottle never touches the"
+  buh_line "network directly — everything routes through the ${RBYC_SENTRY_P} rules."
   buh_e
   buh_tt  "   " "${RBZ_CRUCIBLE_CHARGE}" "${z_moniker}"
   buh_e

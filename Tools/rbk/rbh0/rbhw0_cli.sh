@@ -34,14 +34,14 @@ zrbhw_furnish() {
 
   source "${BURD_CONFIG_DIR}/rbbc_constants.sh"  || buc_die "Failed to source rbbc_constants.sh"
   local -r z_rbk_kit_dir="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}"
-  local z_jjk_kit_dir="${BURD_TOOLS_DIR}/jjk"
+  local -r z_jjk_kit_dir="${BURD_TOOLS_DIR}/jjk"
 
-  source "${BURD_BUK_DIR}/buym_yelp.sh"                                 || buc_die "Failed to source buym_yelp.sh"
-  source "${BURD_BUK_DIR}/buh_handbook.sh"                              || buc_die "Failed to source buh_handbook.sh"
-  source "${BURD_BUK_DIR}/buz_zipper.sh"                                || buc_die "Failed to source buz_zipper.sh"
-  source "${BURD_BUK_DIR}/buwz_zipper.sh"                               || buc_die "Failed to source buwz_zipper.sh"
-  source "${z_rbk_kit_dir}/rbz_zipper.sh"                                || buc_die "Failed to source rbz_zipper.sh"
-  source "${z_jjk_kit_dir}/jjz_zipper.sh"                                || buc_die "Failed to source jjz_zipper.sh"
+  source "${BURD_BUK_DIR}/buym_yelp.sh"                                || buc_die "Failed to source buym_yelp.sh"
+  source "${BURD_BUK_DIR}/buh_handbook.sh"                             || buc_die "Failed to source buh_handbook.sh"
+  source "${BURD_BUK_DIR}/buz_zipper.sh"                               || buc_die "Failed to source buz_zipper.sh"
+  source "${BURD_BUK_DIR}/buwz_zipper.sh"                              || buc_die "Failed to source buwz_zipper.sh"
+  source "${z_rbk_kit_dir}/rbz_zipper.sh"                              || buc_die "Failed to source rbz_zipper.sh"
+  source "${z_jjk_kit_dir}/jjz_zipper.sh"                              || buc_die "Failed to source jjz_zipper.sh"
   zbuz_kindle
   zbuwz_kindle
   zrbz_kindle
