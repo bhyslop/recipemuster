@@ -321,8 +321,10 @@ rbho_first_crucible() {
   buh_code "   The count_words.sh script has bugs — can you find and fix them?"
   buh_e
   buh_line "Watch Claude read the files, identify issues, and edit the code."
-  buh_line "The workspace persists across charge/quench cycles — your changes"
-  buh_line "survive restarts."
+  buh_line "The workspace is a bind mount — edits inside the bottle are"
+  buh_line "visible on the host filesystem, and vice versa. Your repo"
+  buh_line "working tree gets dirty when you work inside the bottle,"
+  buh_line "and that is the point."
   buh_e
   buh_line "Why SSH instead of docker exec?"
   buh_e

@@ -5,7 +5,7 @@
 # User SSHs in as "claude" (empty password, PAM-permissive),
 # then runs `claude` to authenticate via OAuth copy/paste flow.
 #
-# Build context: rbev-vessels/rbev-bottle-ccyolo/ (co-located with Dockerfile)
+# Build context: rbev-vessels/rbev-bottle-ccyolo/build-context/
 
 ARG RBF_IMAGE_1
 FROM ${RBF_IMAGE_1}
@@ -54,10 +54,6 @@ RUN mkdir -p /home/claude/.claude && \
     echo '{"permissions":{"defaultMode":"bypassPermissions"}}' \
       > /home/claude/.claude/settings.json && \
     chown -R claude:claude /home/claude/.claude
-
-# Stage sample project as a template — the entrypoint seeds the
-# persistent workspace volume on first boot.
-COPY sample-project/ /opt/ccyolo-sample/
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh

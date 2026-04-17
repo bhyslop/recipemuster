@@ -148,6 +148,19 @@ zrbob_kindle() {
   export RBRR_DNS_SERVER
   export RBRR_BOTTLE_WORKSPACE
 
+  # Host UID/GID for bind-mount ownership alignment.
+  # The person running charge IS the host identity — no configuration needed.
+  local z_uid_file="${BURD_TEMP_DIR}/rbob_host_uid"
+  local z_gid_file="${BURD_TEMP_DIR}/rbob_host_gid"
+  id -u > "${z_uid_file}" || buc_die "Failed to determine host UID"
+  id -g > "${z_gid_file}" || buc_die "Failed to determine host GID"
+  local z_host_uid=""
+  z_host_uid=$(<"${z_uid_file}")
+  local z_host_gid=""
+  z_host_gid=$(<"${z_gid_file}")
+  export RBOB_HOST_UID="${z_host_uid}"
+  export RBOB_HOST_GID="${z_host_gid}"
+
   # Load bottle vessel user for compose and SSH (optional — empty means image default)
   local z_bottle_rbrv="${RBRR_VESSEL_DIR}/${RBRN_BOTTLE_VESSEL}/rbrv.env"
   local z_bottle_user=""

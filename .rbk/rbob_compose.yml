@@ -81,6 +81,10 @@ services:
       - label:disable
     cap_drop:
       - NET_RAW
+    environment:
+      - RBOB_HOST_UID
+      - RBOB_HOST_GID
+      - RBRV_USER
     depends_on:
       pentacle:
         condition: service_healthy
