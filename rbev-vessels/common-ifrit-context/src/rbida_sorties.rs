@@ -2604,8 +2604,8 @@ pub fn sortie_http_end_to_end(_extra_args: &[&str]) -> rbida_Verdict {
     let _ = stream.set_read_timeout(Some(timeout));
     let _ = stream.set_write_timeout(Some(timeout));
 
-    // Send HTTP/1.0 GET with Host header for connectivity domain
-    let request = format!("GET / HTTP/1.0\r\nHost: {}\r\n\r\n", RBIDA_CONNECTIVITY_DOMAIN);
+    // Send HTTP/1.1 GET with Connection: close (server closes after response)
+    let request = format!("GET / HTTP/1.1\r\nHost: {}\r\nConnection: close\r\n\r\n", RBIDA_CONNECTIVITY_DOMAIN);
     if let Err(e) = IoWrite::write_all(&mut stream, request.as_bytes()) {
         return fail(format!("ERROR: write failed to {}:80 — {}", ip, e));
     }
