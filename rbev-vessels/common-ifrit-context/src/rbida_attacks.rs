@@ -24,6 +24,11 @@ use std::process::Command;
 
 use crate::rbida_sorties;
 
+// ── Domain constants (RCG String Boundary Discipline) ──
+
+/// Test connectivity target — ICANN-owned, stable single /20 CIDR (192.0.32.0/20)
+pub const RBIDA_CONNECTIVITY_DOMAIN: &str = "www.internic.net";
+
 // ── Selector constants (Single Definition Rule — RCG String Boundary Discipline) ──
 
 const RBIDA_SEL_DNS_ALLOWED_EXAMPLE: &str = "dns-allowed-example";
@@ -78,7 +83,7 @@ const RBIDA_SEL_SENTRY_UDP_NON_DNS: &str = "sentry-udp-non-dns";
 /// Security boundary attack. Each variant probes one aspect of the
 /// sentry's network security posture from inside the bottle.
 pub enum rbida_Attack {
-    /// DNS resolution of example.com should succeed (allowed domain)
+    /// DNS resolution of www.internic.net should succeed (allowed domain)
     DnsAllowedExample,
     /// DNS resolution of example.org should succeed (second allowed domain — exercises list treatment)
     DnsAllowedExampleOrg,
@@ -171,7 +176,7 @@ pub enum rbida_Attack {
     /// TCP RST connection hijack — forge RST packets targeting sentry DNS connection
     TcpRstHijack,
     // ── Network path verification ──
-    /// Full HTTP GET from bottle to example.com — proves NAT masquerade returns actual data
+    /// Full HTTP GET from bottle to www.internic.net — proves NAT masquerade returns actual data
     HttpEndToEnd,
     /// Spoofed ACK without prior SYN — conntrack RELATED,ESTABLISHED should drop it
     ConntrackSpoofedAck,
@@ -358,8 +363,8 @@ pub fn rbida_run(attack: &rbida_Attack, extra_args: &[&str]) -> rbida_Verdict {
     match attack {
         rbida_Attack::DnsAllowedExample => rbida_expect_command_succeeds(
             "getent",
-            &["hosts", "example.com"],
-            "DNS resolution of example.com (allowed domain)",
+            &["hosts", RBIDA_CONNECTIVITY_DOMAIN],
+            &format!("DNS resolution of {} (allowed domain)", RBIDA_CONNECTIVITY_DOMAIN),
         ),
         rbida_Attack::DnsAllowedExampleOrg => rbida_expect_command_succeeds(
             "getent",
@@ -383,46 +388,46 @@ pub fn rbida_run(attack: &rbida_Attack, extra_args: &[&str]) -> rbida_Verdict {
         ),
         rbida_Attack::DnsTcp => rbida_expect_command_succeeds(
             "dig",
-            &["+tcp", "example.com"],
-            "DNS over TCP for example.com (allowed domain)",
+            &["+tcp", RBIDA_CONNECTIVITY_DOMAIN],
+            &format!("DNS over TCP for {} (allowed domain)", RBIDA_CONNECTIVITY_DOMAIN),
         ),
         rbida_Attack::DnsUdp => rbida_expect_command_succeeds(
             "dig",
-            &["+notcp", "example.com"],
-            "DNS over UDP for example.com (allowed domain)",
+            &["+notcp", RBIDA_CONNECTIVITY_DOMAIN],
+            &format!("DNS over UDP for {} (allowed domain)", RBIDA_CONNECTIVITY_DOMAIN),
         ),
         rbida_Attack::DnsBlockDirect => rbida_expect_all_fail(
             &[
-                ("dig", &["@8.8.8.8", "example.com"] as &[&str]),
+                ("dig", &["@8.8.8.8", RBIDA_CONNECTIVITY_DOMAIN] as &[&str]),
                 ("nc", &["-w", "2", "-zv", "8.8.8.8", "53"]),
             ],
             "direct external DNS query bypass (dig @8.8.8.8 and nc 8.8.8.8:53)",
         ),
         rbida_Attack::DnsBlockAltport => rbida_expect_all_fail(
             &[
-                ("dig", &["@8.8.8.8", "-p", "5353", "example.com"] as &[&str]),
-                ("dig", &["@8.8.8.8", "-p", "443", "example.com"]),
+                ("dig", &["@8.8.8.8", "-p", "5353", RBIDA_CONNECTIVITY_DOMAIN] as &[&str]),
+                ("dig", &["@8.8.8.8", "-p", "443", RBIDA_CONNECTIVITY_DOMAIN]),
             ],
             "alternate DNS port bypass (ports 5353 and 443)",
         ),
         rbida_Attack::DnsBlockCloudflare => rbida_expect_command_fails(
             "dig",
-            &["@1.1.1.1", "example.com"],
+            &["@1.1.1.1", RBIDA_CONNECTIVITY_DOMAIN],
             "Cloudflare DNS bypass (1.1.1.1)",
         ),
         rbida_Attack::DnsBlockQuad9 => rbida_expect_command_fails(
             "dig",
-            &["@9.9.9.9", "example.com"],
+            &["@9.9.9.9", RBIDA_CONNECTIVITY_DOMAIN],
             "Quad9 DNS bypass (9.9.9.9)",
         ),
         rbida_Attack::DnsBlockZonetransfer => rbida_expect_command_fails(
             "dig",
-            &["@8.8.8.8", "example.com", "AXFR"],
+            &["@8.8.8.8", RBIDA_CONNECTIVITY_DOMAIN, "AXFR"],
             "DNS zone transfer attempt",
         ),
         rbida_Attack::DnsBlockIpv6 => rbida_expect_command_fails(
             "dig",
-            &["@2001:4860:4860::8888", "example.com"],
+            &["@2001:4860:4860::8888", RBIDA_CONNECTIVITY_DOMAIN],
             "IPv6 DNS server bypass (2001:4860:4860::8888)",
         ),
         rbida_Attack::DnsBlockMulticast => rbida_expect_command_fails(
@@ -432,7 +437,7 @@ pub fn rbida_run(attack: &rbida_Attack, extra_args: &[&str]) -> rbida_Verdict {
         ),
         rbida_Attack::DnsBlockSpoofing => rbida_expect_command_fails(
             "dig",
-            &["@8.8.8.8", "+nsid", "example.com", "-b", "192.168.1.2"],
+            &["@8.8.8.8", "+nsid", RBIDA_CONNECTIVITY_DOMAIN, "-b", "192.168.1.2"],
             "DNS spoofing source IP bypass",
         ),
         rbida_Attack::DnsBlockTunneling => rbida_expect_command_fails(

@@ -344,8 +344,8 @@ rbho_first_crucible() {
   buh_step1 "Verify network containment"
   buh_e
   buh_line "From inside the ${RBYC_BOTTLE} (while SSH'd in), you can test what's reachable."
-  buh_line "The ${RBYC_CCYOLO} nameplate allows Anthropic and example.com (a test"
-  buh_line "target). Everything else is blocked."
+  buh_line "The ${RBYC_CCYOLO} nameplate allows Anthropic and www.internic.net (a test"
+  buh_line "target — ICANN-owned, stable). Everything else is blocked."
   buh_e
   buh_line "Run these curl commands inside the bottle:"
   buh_e
@@ -355,7 +355,7 @@ rbho_first_crucible() {
   buh_code "   curl -s -o /dev/null -w '%{http_code}' https://claude.ai"
   buh_line "   Expected: 403 (web app)"
   buh_e
-  buh_code "   curl -s -o /dev/null -w '%{http_code}' https://example.com"
+  buh_code "   curl -s -o /dev/null -w '%{http_code}' http://www.internic.net"
   buh_line "   Expected: 200 (test target on allowlist)"
   buh_e
   buh_code "   curl -s -o /dev/null -w '%{http_code}' --max-time 5 https://google.com"
@@ -369,9 +369,9 @@ rbho_first_crucible() {
   buh_line "packets to any IP not in the CIDR allowlist. Both layers"
   buh_line "must agree for traffic to pass."
   buh_e
-  buh_line "example.com is included in the ${RBYC_CCYOLO} ${RBYC_NAMEPLATE} specifically"
-  buh_line "for this verification step — it proves the allowlist works"
-  buh_line "for a non-Anthropic domain."
+  buh_line "www.internic.net is included in the ${RBYC_CCYOLO} ${RBYC_NAMEPLATE}"
+  buh_line "specifically for this verification step — it proves the"
+  buh_line "allowlist works for a non-Anthropic domain."
   buh_e
 
   # =================================================================

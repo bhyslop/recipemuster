@@ -42,6 +42,9 @@ use crate::rbtdrm_manifest::{
 /// Ifrit binary name inside the bottle container.
 const RBTDRC_IFRIT_BINARY: &str = "rbid";
 
+/// Test connectivity target — ICANN-owned, stable single /20 CIDR (192.0.32.0/20)
+const RBTDRC_CONNECTIVITY_DOMAIN: &str = "www.internic.net";
+
 thread_local! {
     static RBTDRC_CTX: RefCell<Option<rbtdri_Context>> = RefCell::new(None);
 }
@@ -214,7 +217,7 @@ fn rbtdrc_pentacle_dnsmasq_responds(dir: &Path) -> rbtdre_Verdict {
 
         let output = match rbtdrc_fiat(
             ctx,
-            &["dig", "+short", &format!("@{}", sentry_ip), "example.com"],
+            &["dig", "+short", &format!("@{}", sentry_ip), RBTDRC_CONNECTIVITY_DOMAIN],
         ) {
             Ok(o) => o,
             Err(e) => return rbtdre_Verdict::Fail(format!("fiat dig error: {}", e)),
@@ -223,8 +226,8 @@ fn rbtdrc_pentacle_dnsmasq_responds(dir: &Path) -> rbtdre_Verdict {
 
         if output.trim().is_empty() {
             return rbtdre_Verdict::Fail(format!(
-                "dnsmasq on sentry {} returned empty response for example.com",
-                sentry_ip
+                "dnsmasq on sentry {} returned empty response for {}",
+                sentry_ip, RBTDRC_CONNECTIVITY_DOMAIN
             ));
         }
         rbtdre_Verdict::Pass
@@ -388,9 +391,9 @@ fn rbtdrc_dns_blocked_with_observation(dir: &Path) -> rbtdre_Verdict {
 
 fn rbtdrc_tcp443_allow_example(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
-        let ip = match rbtdrc_resolve_via_writ(ctx, "example.com") {
+        let ip = match rbtdrc_resolve_via_writ(ctx, RBTDRC_CONNECTIVITY_DOMAIN) {
             Ok(ip) => ip,
-            Err(e) => return rbtdre_Verdict::Fail(format!("writ resolve example.com: {}", e)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("writ resolve {}: {}", RBTDRC_CONNECTIVITY_DOMAIN, e)),
         };
         let _ = std::fs::write(dir.join("resolved-ip.txt"), &ip);
         rbtdrc_invoke_ifrit_with_args(ctx, "tcp443-connect", &[&ip], dir)
@@ -566,16 +569,16 @@ fn rbtdrc_coordinated_sentry_egress_lockdown(dir: &Path) -> rbtdre_Verdict {
             );
         }
 
-        // Positive control: dig @8.8.8.8 example.com from sentry must succeed
+        // Positive control: dig @8.8.8.8 connectivity domain from sentry must succeed
         // (proves dnsmasq's egress path works — specific OUTPUT ACCEPT for DNS)
         let dig_result = match rbtdrc_writ(
             ctx,
-            &["dig", "+short", "@8.8.8.8", "example.com"],
+            &["dig", "+short", "@8.8.8.8", RBTDRC_CONNECTIVITY_DOMAIN],
         ) {
             Ok(o) => o,
             Err(e) => {
                 return rbtdre_Verdict::Fail(format!(
-                    "positive control failed: dig @8.8.8.8 example.com from sentry: {}",
+                    "positive control failed: dig @8.8.8.8 {} from sentry: {}", RBTDRC_CONNECTIVITY_DOMAIN,
                     e
                 ))
             }
@@ -587,7 +590,7 @@ fn rbtdrc_coordinated_sentry_egress_lockdown(dir: &Path) -> rbtdre_Verdict {
             .any(|l| rbtdrc_looks_like_ip(l.trim()));
         if !has_ip {
             return rbtdre_Verdict::Fail(format!(
-                "positive control: dig @8.8.8.8 example.com returned no IP:\n{}",
+                "positive control: dig @8.8.8.8 {} returned no IP:\n{}", RBTDRC_CONNECTIVITY_DOMAIN,
                 dig_result
             ));
         }
@@ -646,13 +649,13 @@ fn rbtdrc_coordinated_dnsmasq_query_audit(dir: &Path) -> rbtdre_Verdict {
         // Filter to actual log lines (strip BUK headers)
         let log_content = rbtdrc_filter_writ_output(&log_output);
 
-        // Verify example.com query appears in log
+        // Verify connectivity domain query appears in log
         let has_example = log_content
             .lines()
-            .any(|l| l.contains("example.com"));
+            .any(|l| l.contains(RBTDRC_CONNECTIVITY_DOMAIN));
         if !has_example {
             return rbtdre_Verdict::Fail(
-                "dnsmasq log missing example.com query — audit trail incomplete".to_string(),
+                format!("dnsmasq log missing {} query — audit trail incomplete", RBTDRC_CONNECTIVITY_DOMAIN),
             );
         }
 
@@ -668,7 +671,7 @@ fn rbtdrc_coordinated_dnsmasq_query_audit(dir: &Path) -> rbtdre_Verdict {
 
         let _ = std::fs::write(
             dir.join("observation.txt"),
-            "dnsmasq audit verified: both allowed (example.com) and blocked (google.com) queries logged",
+            format!("dnsmasq audit verified: both allowed ({}) and blocked (google.com) queries logged", RBTDRC_CONNECTIVITY_DOMAIN),
         );
         rbtdre_Verdict::Pass
     })
@@ -687,10 +690,10 @@ fn rbtdrc_coordinated_tcp_rst_hijack(dir: &Path) -> rbtdre_Verdict {
         // Pre-snapshot: verify DNS works on sentry before attack
         let pre_resolve = match rbtdrc_writ(
             ctx,
-            &["dig", "+short", &dig_server, "example.com"],
+            &["dig", "+short", &dig_server, RBTDRC_CONNECTIVITY_DOMAIN],
         ) {
             Ok(o) => o,
-            Err(e) => return rbtdre_Verdict::Fail(format!("pre dig example.com: {}", e)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("pre dig {}: {}", RBTDRC_CONNECTIVITY_DOMAIN, e)),
         };
         let _ = std::fs::write(dir.join("pre-resolve.txt"), &pre_resolve);
 
@@ -702,7 +705,7 @@ fn rbtdrc_coordinated_tcp_rst_hijack(dir: &Path) -> rbtdre_Verdict {
             .to_string();
         if pre_ip.is_empty() {
             return rbtdre_Verdict::Fail(
-                "pre-snapshot: example.com did not resolve — DNS not working before attack".to_string(),
+                format!("pre-snapshot: {} did not resolve — DNS not working before attack", RBTDRC_CONNECTIVITY_DOMAIN),
             );
         }
 
@@ -724,10 +727,10 @@ fn rbtdrc_coordinated_tcp_rst_hijack(dir: &Path) -> rbtdre_Verdict {
         // Post-snapshot: verify DNS still works on sentry after attack
         let post_resolve = match rbtdrc_writ(
             ctx,
-            &["dig", "+short", &dig_server, "example.com"],
+            &["dig", "+short", &dig_server, RBTDRC_CONNECTIVITY_DOMAIN],
         ) {
             Ok(o) => o,
-            Err(e) => return rbtdre_Verdict::Fail(format!("post dig example.com: {}", e)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("post dig {}: {}", RBTDRC_CONNECTIVITY_DOMAIN, e)),
         };
         let _ = std::fs::write(dir.join("post-resolve.txt"), &post_resolve);
 
@@ -754,7 +757,8 @@ fn rbtdrc_coordinated_tcp_rst_hijack(dir: &Path) -> rbtdre_Verdict {
         let _ = std::fs::write(
             dir.join("observation.txt"),
             format!(
-                "TCP RST hijack defense verified:\n  example.com: {} → {} (stable)\n  ifrit exit: {}\n  ifrit output: {}\n",
+                "TCP RST hijack defense verified:\n  {}: {} → {} (stable)\n  ifrit exit: {}\n  ifrit output: {}\n",
+                RBTDRC_CONNECTIVITY_DOMAIN,
                 pre_ip, post_ip, result.exit_code, result.stdout.trim()
             ),
         );
@@ -1194,14 +1198,14 @@ fn rbtdrc_coordinated_dns_cache_integrity(dir: &Path) -> rbtdre_Verdict {
         let _ = std::fs::write(dir.join("sentry-ip.txt"), &sentry_ip);
         let dig_server = format!("@{}", sentry_ip);
 
-        // Pre-snapshot: query example.com via sentry's dnsmasq (allowed, should resolve)
+        // Pre-snapshot: query connectivity domain via sentry's dnsmasq (allowed, should resolve)
         let pre_example = match rbtdrc_writ(
             ctx,
-            &["dig", "+short", &dig_server, "example.com"],
+            &["dig", "+short", &dig_server, RBTDRC_CONNECTIVITY_DOMAIN],
         ) {
             Ok(o) => o,
             Err(e) => {
-                return rbtdre_Verdict::Fail(format!("pre dig example.com: {}", e))
+                return rbtdre_Verdict::Fail(format!("pre dig {}: {}", RBTDRC_CONNECTIVITY_DOMAIN, e))
             }
         };
         let _ = std::fs::write(dir.join("pre-example.txt"), &pre_example);
@@ -1232,14 +1236,14 @@ fn rbtdrc_coordinated_dns_cache_integrity(dir: &Path) -> rbtdre_Verdict {
 
         std::thread::sleep(std::time::Duration::from_millis(500));
 
-        // Post-snapshot: query example.com again
+        // Post-snapshot: query connectivity domain again
         let post_example = match rbtdrc_writ(
             ctx,
-            &["dig", "+short", &dig_server, "example.com"],
+            &["dig", "+short", &dig_server, RBTDRC_CONNECTIVITY_DOMAIN],
         ) {
             Ok(o) => o,
             Err(e) => {
-                return rbtdre_Verdict::Fail(format!("post dig example.com: {}", e))
+                return rbtdre_Verdict::Fail(format!("post dig {}: {}", RBTDRC_CONNECTIVITY_DOMAIN, e))
             }
         };
         let _ = std::fs::write(dir.join("post-example.txt"), &post_example);
@@ -1256,7 +1260,7 @@ fn rbtdrc_coordinated_dns_cache_integrity(dir: &Path) -> rbtdre_Verdict {
         };
         let _ = std::fs::write(dir.join("post-google.txt"), &post_google);
 
-        // Verify: example.com resolution unchanged
+        // Verify: connectivity domain resolution unchanged
         let pre_example_ip = pre_example
             .lines()
             .find(|l| rbtdrc_looks_like_ip(l.trim()))
@@ -1270,12 +1274,12 @@ fn rbtdrc_coordinated_dns_cache_integrity(dir: &Path) -> rbtdre_Verdict {
 
         if pre_example_ip.is_empty() {
             return rbtdre_Verdict::Fail(
-                "pre-snapshot: example.com did not resolve (expected frozen record)".to_string(),
+                format!("pre-snapshot: {} did not resolve (expected frozen record)", RBTDRC_CONNECTIVITY_DOMAIN),
             );
         }
         if pre_example_ip != post_example_ip {
             return rbtdre_Verdict::Fail(format!(
-                "BREACH: example.com resolution changed: {} → {}",
+                "BREACH: {} resolution changed: {} → {}", RBTDRC_CONNECTIVITY_DOMAIN,
                 pre_example_ip, post_example_ip
             ));
         }
@@ -1290,7 +1294,8 @@ fn rbtdrc_coordinated_dns_cache_integrity(dir: &Path) -> rbtdre_Verdict {
         let _ = std::fs::write(
             dir.join("observation.txt"),
             format!(
-                "DNS cache integrity verified:\n  example.com: {} → {} (stable)\n  google.com: forged 1.2.3.4 response ignored\n  ifrit exit: {}\n",
+                "DNS cache integrity verified:\n  {}: {} → {} (stable)\n  google.com: forged 1.2.3.4 response ignored\n  ifrit exit: {}\n",
+                RBTDRC_CONNECTIVITY_DOMAIN,
                 pre_example_ip, post_example_ip, result.exit_code
             ),
         );

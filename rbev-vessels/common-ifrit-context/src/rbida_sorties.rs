@@ -30,7 +30,9 @@ use std::os::unix::io::AsRawFd;
 use std::process::Command;
 use std::time::{Duration, Instant};
 
-use crate::rbida_attacks::rbida_Verdict;
+use crate::rbida_attacks::{rbida_Verdict, RBIDA_CONNECTIVITY_DOMAIN};
+
+const RBIDA_HTTP_BODY_MARKER_INTERNIC: &str = "InterNIC";
 
 // ── Helpers ──────────────────────────────────────────────────
 
@@ -755,7 +757,7 @@ pub fn sortie_net_forbidden_cidr(_extra_args: &[&str]) -> rbida_Verdict {
     let forbidden_tcp: &[(&str, u16, &str)] = &[
         ("8.8.8.8", 53, "Google DNS"),
         ("1.1.1.1", 443, "Cloudflare"),
-        ("93.184.216.34", 80, "example.com"),
+        ("93.184.216.34", 80, "IANA example block"),
         ("140.82.121.4", 443, "GitHub"),
     ];
     for (host, port, label) in forbidden_tcp {
@@ -2521,17 +2523,17 @@ pub fn sortie_udp_non_dns_blocked(_extra_args: &[&str]) -> rbida_Verdict {
 pub fn sortie_cidr_all_ports_allowed(_extra_args: &[&str]) -> rbida_Verdict {
     let timeout = Duration::from_secs(5);
 
-    // Resolve example.com — it's on the allowed CIDR list.
+    // Resolve connectivity domain — it's on the allowed CIDR list.
     // Use getent (same resolver as other ifrit attacks).
     let resolve_output = match std::process::Command::new("getent")
-        .args(["hosts", "example.com"])
+        .args(["hosts", RBIDA_CONNECTIVITY_DOMAIN])
         .output()
     {
         Ok(o) => o,
         Err(e) => return fail(format!("ERROR: getent failed: {}", e)),
     };
     if !resolve_output.status.success() {
-        return fail("ERROR: cannot resolve example.com (DNS blocked?)".to_string());
+        return fail(format!("ERROR: cannot resolve {} (DNS blocked?)", RBIDA_CONNECTIVITY_DOMAIN));
     }
     let stdout = String::from_utf8_lossy(&resolve_output.stdout);
     let ip = match stdout.split_whitespace().next() {
@@ -2568,16 +2570,16 @@ pub fn sortie_cidr_all_ports_allowed(_extra_args: &[&str]) -> rbida_Verdict {
 pub fn sortie_http_end_to_end(_extra_args: &[&str]) -> rbida_Verdict {
     let timeout = Duration::from_secs(10);
 
-    // Resolve example.com via getent to get IP (same as other ifrit attacks)
+    // Resolve connectivity domain via getent to get IP (same as other ifrit attacks)
     let resolve_output = match Command::new("getent")
-        .args(["hosts", "example.com"])
+        .args(["hosts", RBIDA_CONNECTIVITY_DOMAIN])
         .output()
     {
         Ok(o) => o,
         Err(e) => return fail(format!("ERROR: getent failed: {}", e)),
     };
     if !resolve_output.status.success() {
-        return fail("ERROR: cannot resolve example.com (DNS blocked?)".to_string());
+        return fail(format!("ERROR: cannot resolve {} (DNS blocked?)", RBIDA_CONNECTIVITY_DOMAIN));
     }
     let stdout = String::from_utf8_lossy(&resolve_output.stdout);
     let ip = match stdout.split_whitespace().next() {
@@ -2602,8 +2604,8 @@ pub fn sortie_http_end_to_end(_extra_args: &[&str]) -> rbida_Verdict {
     let _ = stream.set_read_timeout(Some(timeout));
     let _ = stream.set_write_timeout(Some(timeout));
 
-    // Send HTTP/1.0 GET with Host header for example.com
-    let request = format!("GET / HTTP/1.0\r\nHost: example.com\r\n\r\n");
+    // Send HTTP/1.0 GET with Host header for connectivity domain
+    let request = format!("GET / HTTP/1.0\r\nHost: {}\r\n\r\n", RBIDA_CONNECTIVITY_DOMAIN);
     if let Err(e) = IoWrite::write_all(&mut stream, request.as_bytes()) {
         return fail(format!("ERROR: write failed to {}:80 — {}", ip, e));
     }
@@ -2633,19 +2635,17 @@ pub fn sortie_http_end_to_end(_extra_args: &[&str]) -> rbida_Verdict {
         ));
     }
 
-    // Verify body contains "Example Domain"
-    if !response_str.contains("Example Domain") {
+    // Verify body contains expected marker from connectivity domain
+    if !response_str.contains(RBIDA_HTTP_BODY_MARKER_INTERNIC) {
         return fail(format!(
-            "BREACH: HTTP 200 from {}:80 but body missing 'Example Domain' — response truncated or wrong host (body length: {} bytes)",
-            ip,
-            response.len()
+            "BREACH: HTTP 200 from {}:80 but body missing '{}' — response truncated or wrong host (body length: {} bytes)",
+            ip, RBIDA_HTTP_BODY_MARKER_INTERNIC, response.len()
         ));
     }
 
     pass(format!(
-        "SECURE: HTTP GET to example.com ({}) returned 200 with 'Example Domain' in body ({} bytes)",
-        ip,
-        response.len()
+        "SECURE: HTTP GET to {} ({}) returned 200 with '{}' in body ({} bytes)",
+        RBIDA_CONNECTIVITY_DOMAIN, ip, RBIDA_HTTP_BODY_MARKER_INTERNIC, response.len()
     ))
 }
 
@@ -2680,23 +2680,22 @@ pub fn sortie_sentry_udp_non_dns(_extra_args: &[&str]) -> rbida_Verdict {
 
     // Positive control: UDP 53 (DNS) to sentry should work
     let dig_output = Command::new("dig")
-        .args(["+short", &format!("@{}", sentry_ip), "example.com"])
+        .args(["+short", &format!("@{}", sentry_ip), RBIDA_CONNECTIVITY_DOMAIN])
         .output();
     match dig_output {
         Ok(o) if o.status.success() => {
             let stdout = String::from_utf8_lossy(&o.stdout);
             if stdout.trim().is_empty() {
                 return fail(format!(
-                    "ERROR: dig @{} example.com returned empty — DNS not working",
-                    sentry_ip
+                    "ERROR: dig @{} {} returned empty — DNS not working",
+                    sentry_ip, RBIDA_CONNECTIVITY_DOMAIN
                 ));
             }
         }
         Ok(o) => {
             return fail(format!(
-                "ERROR: dig @{} example.com failed (exit {}) — positive control broken",
-                sentry_ip,
-                o.status.code().unwrap_or(-1)
+                "ERROR: dig @{} {} failed (exit {}) — positive control broken",
+                sentry_ip, RBIDA_CONNECTIVITY_DOMAIN, o.status.code().unwrap_or(-1)
             ));
         }
         Err(e) => {
@@ -2724,16 +2723,16 @@ pub fn sortie_conntrack_spoofed_ack(_extra_args: &[&str]) -> rbida_Verdict {
         Err(e) => return fail(format!("ERROR: {}", e)),
     };
 
-    // Resolve example.com via getent to get an allowed-CIDR IP
+    // Resolve connectivity domain via getent to get an allowed-CIDR IP
     let resolve_output = match Command::new("getent")
-        .args(["hosts", "example.com"])
+        .args(["hosts", RBIDA_CONNECTIVITY_DOMAIN])
         .output()
     {
         Ok(o) => o,
         Err(e) => return fail(format!("ERROR: getent failed: {}", e)),
     };
     if !resolve_output.status.success() {
-        return fail("ERROR: cannot resolve example.com (DNS blocked?)".to_string());
+        return fail(format!("ERROR: cannot resolve {} (DNS blocked?)", RBIDA_CONNECTIVITY_DOMAIN));
     }
     let stdout = String::from_utf8_lossy(&resolve_output.stdout);
     let dst_ip = match stdout.split_whitespace().next() {
