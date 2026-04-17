@@ -21,6 +21,10 @@ path = "src/apcal_main.rs"
 name = "apcad"
 path = "src/apcad_main.rs"
 
+[[bin]]
+name = "apcab"
+path = "src/apcab_main.rs"
+
 [dependencies]
 tauri = { version = "2", features = [] }
 serde = { version = "1", features = ["derive"] }

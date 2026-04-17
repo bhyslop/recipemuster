@@ -41,6 +41,7 @@ zapcz_kindle() {
   buz_enroll APCZ_FIXTURE_LOAD   "apcw-fl" "apcc_cli.sh" "apcc_fixture_load"  "imprint"  "Run apcal to load fixture HTML onto clipboard"
   buz_enroll APCZ_TEST           "apcw-t"  "apcc_cli.sh" "apcc_test"          ""  "cargo test in apcd/"
   buz_enroll APCZ_DICT_REFRESH  "apcw-dr" "apcc_cli.sh" "apcc_dictionary_refresh" "" "Refresh dictionaries from public sources"
+  buz_enroll APCZ_BATCH_ASSAY  "apcw-ba" "apcc_cli.sh" "apcc_batch_assay"       "param1" "Batch assay — run detection pipeline on HTML directory"
 
   readonly ZAPCZ_KINDLED=1
 }

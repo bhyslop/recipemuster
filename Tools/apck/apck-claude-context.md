@@ -14,6 +14,7 @@ APCK is a Tauri desktop app that intercepts clipboard content from Epic EHR, det
 | **APCAP** | `apck/apcd/src/apcap_main.rs` | Tauri app entry point |
 | **APCAL** | `apck/apcd/src/apcal_main.rs` | Fixture loader (clipboard writer) |
 | **APCAD** | `apck/apcd/src/apcad_main.rs` | Dictionary refresh (downloads public sources, regenerates dictionaries) |
+| **APCAB** | `apck/apcd/src/apcab_main.rs` | Batch assay (run detection pipeline on HTML directory, write assay output) |
 
 **Source modules:**
 
@@ -43,12 +44,14 @@ APCK is a Tauri desktop app that intercepts clipboard content from Epic EHR, det
 | `tt/apcw-fl.FixtureLoad.sh` | `apcw-fl` | Run `apcal` to load fixture HTML onto clipboard |
 | `tt/apcw-t.Test.sh` | `apcw-t` | `cargo test` in `apcd/` |
 | `tt/apcw-dr.DictionaryRefresh.sh` | `apcw-dr` | `cargo run --bin apcad` (refresh dictionaries from public sources) |
+| `tt/apcw-ba.BatchAssay.sh` | `apcw-ba` | `cargo run --bin apcab` (batch assay on HTML directory) |
 
 ### Prefix Tree
 
 ```
 apc  (non-terminal)
 ├── apca   (non-terminal)
+│   ├── apcab  — App Batch binary (assay — detection pipeline on HTML files)
 │   ├── apcad  — App Dictionary binary (refresh from public sources)
 │   ├── apcal  — App Loader binary (fixture clipboard tool)
 │   └── apcap  — App Prototype binary (Tauri main)

@@ -110,6 +110,13 @@ apcc_dictionary_refresh() {
     || buc_die "cargo run apcad failed"
 }
 
+apcc_batch_assay() {
+  local z_folio="${BUZ_FOLIO:?input directory required}"
+  buc_step "Running batch assay on ${z_folio}"
+  cargo run --bin apcab --manifest-path "${ZAPCC_MANIFEST}" -- "${z_folio}" \
+    || buc_die "cargo run apcab failed"
+}
+
 ######################################################################
 # Furnish and dispatch
 
