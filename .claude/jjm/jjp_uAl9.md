@@ -19,7 +19,7 @@ Ann's PHI Clipbuddy (`apcap`) — a Tauri desktop app (macOS, later Windows) tha
 
 ## Key Design Decisions
 
-- **No JavaScript**: All rendering logic is Rust. The webview is a passive display surface. Decided during ₢A9AAP after the byte-vs-char offset mismatch bug (₢A9AAK) demonstrated the cost of a two-language boundary in a HIPAA-adjacent tool. Policy documented in APCPS scope boundaries, APCS product vision, and apck-claude-context.md.
+- **No JavaScript**: All rendering logic is Rust. The webview is a passive display surface. Decided during ₢A9AAP after the byte-vs-char offset mismatch bug (₢A9AAK) demonstrated the cost of a two-language boundary in a HIPAA-adjacent tool. Policy documented in APCPS scope boundaries, APCAS product vision, and apck-claude-context.md.
 - **Anchored vs Matched**: Tier 2 (label position) and Tier 3 (dictionary identity) are independent mechanisms with distinct vocabulary — see APCPS
 - **Case-insensitive**: All dictionary lookups normalize to lowercase; original case preserved in display
 - **Per-word anchoring**: No multi-word merge — each word individually classified
@@ -32,7 +32,7 @@ Ann's PHI Clipbuddy (`apcap`) — a Tauri desktop app (macOS, later Windows) tha
 
 | Document | Owns | Path |
 |----------|------|------|
-| Product Spec (APCS) | UX plan, workflow, deployment, HIPAA context | `Tools/apck/APCS-Specification.md` |
+| Application Spec (APCAS) | UX plan, workflow, deployment, HIPAA context | `Tools/apck/APCAS-Specification.md` |
 | Prototype Spec (APCPS) | Detection pipeline, tech stack, dictionaries, project structure, scope boundaries | `Tools/apck/APCPS-PrototypeSpecification.md` |
 | Claude Context | Build/run/deploy instructions, file mappings, prefix tree, tabtargets | `Tools/apck/apck-claude-context.md` |
 | Rust Coding Guide (RCG) | Naming conventions, test patterns, disciplines | `Tools/vok/vov_veiled/RCG-RustCodingGuide.md` |
