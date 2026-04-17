@@ -1,0 +1,458 @@
+= Ann's PHI Clipbuddy — Detection Pipeline Specification
+:toc:
+:toc-title: Table of Contents
+:sectnums:
+
+// tag::mapping-section[]
+//
+// Category declarations:
+// apcs_: APCK Specification (detection pipeline concepts)
+//
+// Variant patterns:
+//   _s: plural form
+//   _p: possessive form
+//   _ed: past tense (verbs)
+//   _ing: progressive form (verbs)
+
+// Input
+:apcs_clipboard_content:           <<apcs_clipboard_content,Clipboard Content>>
+:apcs_epic_html:                   <<apcs_epic_html,Epic HTML>>
+:apcs_clinical_gate:               <<apcs_clinical_gate,Clinical Gate>>
+
+// Parsed structure
+:apcs_document:                    <<apcs_document,Parsed Document>>
+:apcs_plain_text:                  <<apcs_plain_text,Plain Text>>
+:apcs_span:                        <<apcs_span,Span>>
+:apcs_span_s:                      <<apcs_span,Spans>>
+:apcs_labeled_field:               <<apcs_labeled_field,Labeled Field>>
+:apcs_labeled_field_s:             <<apcs_labeled_field,Labeled Fields>>
+:apcs_section_header:              <<apcs_section_header,Section Header>>
+:apcs_section_header_s:            <<apcs_section_header,Section Headers>>
+:apcs_narrative:                   <<apcs_narrative,Narrative>>
+
+// Detection resources — registries and dictionaries
+:apcs_label_registry:              <<apcs_label_registry,Label Registry>>
+:apcs_regex_table:                 <<apcs_regex_table,Regex Table>>
+:apcs_surname_dictionary:          <<apcs_surname_dictionary,Surname Dictionary>>
+:apcs_firstname_dictionary:        <<apcs_firstname_dictionary,Firstname Dictionary>>
+:apcs_city_dictionary:             <<apcs_city_dictionary,City Dictionary>>
+:apcs_blacklist:                   <<apcs_blacklist,Blacklist>>
+:apcs_blacklist_s:                 <<apcs_blacklist,Blacklists>>
+:apcs_english_whitelist:           <<apcs_english_whitelist,English Whitelist>>
+:apcs_medical_whitelist:           <<apcs_medical_whitelist,Medical Whitelist>>
+:apcs_whitelist:                   <<apcs_whitelist,Whitelist>>
+:apcs_whitelist_s:                 <<apcs_whitelist,Whitelists>>
+
+// Finding anatomy
+:apcs_finding:                     <<apcs_finding,Finding>>
+:apcs_finding_s:                   <<apcs_finding,Findings>>
+:apcs_severity:                    <<apcs_severity,Severity>>
+:apcs_red:                         <<apcs_red,RED>>
+:apcs_yellow:                      <<apcs_yellow,YELLOW>>
+:apcs_pass:                        <<apcs_pass,PASS>>
+:apcs_phi_category:                <<apcs_phi_category,PHI Category>>
+:apcs_phi_category_ies:            <<apcs_phi_category,PHI Categories>>
+
+// Pipeline steps
+:apcs_parse:                       <<apcs_parse,Parse>>
+:apcs_regex_scan:                  <<apcs_regex_scan,Regex Scan>>
+:apcs_label_scan:                  <<apcs_label_scan,Label Scan>>
+:apcs_dictionary_scan:             <<apcs_dictionary_scan,Dictionary Scan>>
+:apcs_merge:                       <<apcs_merge,Merge>>
+
+// Output projections
+:apcs_anonymized_text:             <<apcs_anonymized_text,Anonymized Text>>
+:apcs_assay:                       <<apcs_assay,Assay>>
+:apcs_elision_marker:              <<apcs_elision_marker,Elision Marker>>
+:apcs_elision_marker_s:            <<apcs_elision_marker,Elision Markers>>
+:apcs_placeholder:                 <<apcs_placeholder,Placeholder>>
+:apcs_placeholder_s:               <<apcs_placeholder,Placeholders>>
+
+// end::mapping-section[]
+
+
+== Overview
+
+This document defines the formal vocabulary for the detection pipeline in Ann's PHI Clipbuddy.
+It specifies the concrete entities the algorithm operates on, the resources it consults, and the steps it performs.
+
+The application specification (APCAS) owns the user experience.
+The prototype specification (APCPS) owns implementation details, tech stack, and data sources.
+This document owns the detection algorithm's conceptual structure — the terms that must be precise for the pipeline to be reasoned about correctly.
+
+
+== Input
+
+[[apcs_clipboard_content]]
+{apcs_clipboard_content}::
+Raw content read from the system clipboard on window focus.
+May be HTML or plain text.
+Consumed once, then the system clipboard is cleared.
+
+[[apcs_epic_html]]
+{apcs_epic_html}::
+HTML produced by Epic's "Copy All" function.
+Semi-structured: bold labels for demographics, section headers for clinical categories, narrative freetext for clinical prose, signature blocks for provider attribution.
+The structural formatting is the primary advantage over plain text — labels anchor PHI detection with high precision.
+
+[[apcs_clinical_gate]]
+{apcs_clinical_gate}::
+A heuristic that decides whether
+{apcs_clipboard_content}
+is clinical.
+Scans for known label patterns (Patient:, DOB:, MRN:, etc.).
+Acceptance threshold: two or more recognized labels present.
+Content that fails the
+{apcs_clinical_gate}
+is not processed; the triage view clears.
+
+
+== Parsed Structure
+
+[[apcs_document]]
+{apcs_document}::
+The result of parsing
+{apcs_epic_html}.
+Contains a sequence of typed
+{apcs_span_s}
+and the derived
+{apcs_plain_text}.
+
+[[apcs_plain_text]]
+{apcs_plain_text}::
+A single string derived from the
+{apcs_document}
+by stripping HTML markup, normalizing whitespace, and concatenating span contributions with structural line breaks.
+All detection scans operate against
+{apcs_plain_text}.
+Offsets in
+{apcs_finding_s}
+are byte positions within this string.
+
+[[apcs_span]]
+{apcs_span}::
+A typed region within the
+{apcs_document}.
+Each
+{apcs_span}
+has a kind, an optional label, text content, and a byte offset into
+{apcs_plain_text}.
+Three kinds:
+{apcs_labeled_field},
+{apcs_section_header},
+{apcs_narrative}.
+
+[[apcs_labeled_field]]
+{apcs_labeled_field}::
+A
+{apcs_span}
+produced by a bold label followed by a value (e.g., `Patient: Margaret J. Thornton`).
+The label is the bold text before the colon.
+The value is the text after the colon, extending to the next structural boundary (another label, line break, or HTML element boundary).
+
+[[apcs_section_header]]
+{apcs_section_header}::
+A
+{apcs_span}
+produced by a bold label matching a known clinical section name (Chief Complaint, History of Present Illness, Assessment/Plan, etc.).
+Contributes the header text to
+{apcs_plain_text}
+but carries no value — the section body follows as subsequent
+{apcs_span_s}.
+
+[[apcs_narrative]]
+{apcs_narrative}::
+A
+{apcs_span}
+containing freetext not attached to a label.
+Clinical prose, family history details, plan items.
+PHI in
+{apcs_narrative}
+{apcs_span_s}
+lacks positional anchoring and must be detected by the
+{apcs_regex_scan}
+or
+{apcs_dictionary_scan}.
+
+
+== Detection Resources
+
+=== Registries
+
+[[apcs_label_registry]]
+{apcs_label_registry}::
+The enumerated set of
+{apcs_labeled_field}
+labels that trigger per-word PHI extraction in the
+{apcs_label_scan}.
+Each entry specifies the label text (case-insensitive match) and the
+{apcs_phi_category}
+assigned to extracted words.
++
+[cols="2,1"]
+|===
+| Label | Category
+
+| Patient:           | NAME
+| Attending:         | PROVIDER
+| Provider:          | PROVIDER
+| Referring:         | PROVIDER
+| Facility:          | FACILITY
+| Electronically signed by: | PROVIDER
+| Emergency Contact  | NAME
+| Primary Care Physician | PROVIDER
+|===
+
+[[apcs_regex_table]]
+{apcs_regex_table}::
+The enumerated set of regular expression patterns that detect structurally identifiable PHI in the
+{apcs_regex_scan}.
+Each entry specifies a pattern, a
+{apcs_phi_category},
+and a capture group index.
+All matches produce
+{apcs_red}
+{apcs_finding_s}.
+See APCPS for the full pattern table.
+
+=== Dictionaries
+
+[[apcs_blacklist]]
+{apcs_blacklist}::
+A word list whose members are flagged as potential PHI during the
+{apcs_dictionary_scan}.
+Three named
+{apcs_blacklist_s}
+are combined into a single lookup automaton:
+
+[[apcs_surname_dictionary]]
+{apcs_surname_dictionary}::
+US Census 2010 surnames, top 1,000 by frequency.
+Source: public domain.
+
+[[apcs_firstname_dictionary]]
+{apcs_firstname_dictionary}::
+SSA baby names, top 1,000 by aggregate frequency.
+Source: public domain.
+
+[[apcs_city_dictionary]]
+{apcs_city_dictionary}::
+US state capitals plus top 100 cities by population.
+Source: public domain.
+
+[[apcs_whitelist]]
+{apcs_whitelist}::
+A word list whose members are common English or medical terms.
+Membership in a
+{apcs_whitelist}
+does not prevent a
+{apcs_finding} —
+a word in both a
+{apcs_blacklist}
+and a
+{apcs_whitelist}
+is classified
+{apcs_yellow}.
+Two named
+{apcs_whitelist_s}:
+
+[[apcs_english_whitelist]]
+{apcs_english_whitelist}::
+Top 5,000 common English words (Norvig/Google n-grams).
+Source: public domain.
+
+[[apcs_medical_whitelist]]
+{apcs_medical_whitelist}::
+Hand-curated medications, lab tests, diagnoses, anatomy, abbreviations.
+Source: original curation.
+
+
+== Finding Anatomy
+
+[[apcs_finding]]
+{apcs_finding}::
+A classified region of
+{apcs_plain_text}.
+Produced by one of the three detection scans.
+Each
+{apcs_finding}
+carries: the matched text, a byte offset and length in
+{apcs_plain_text},
+a
+{apcs_severity},
+a
+{apcs_phi_category},
+and a replacement string for anonymization.
+
+[[apcs_severity]]
+{apcs_severity}::
+The confidence level of a
+{apcs_finding}.
+Determines default elision behavior and visual presentation.
+Three levels:
+
+[[apcs_red]]
+{apcs_red}::
+Definite PHI.
+Produced by the
+{apcs_regex_scan}
+(structural match) or the
+{apcs_label_scan}
+(positional authority).
+Default: elide.
+
+[[apcs_yellow]]
+{apcs_yellow}::
+Possible PHI.
+Produced by the
+{apcs_dictionary_scan}
+when a word appears in a
+{apcs_blacklist}.
+Default: elide.
+
+[[apcs_pass]]
+{apcs_pass}::
+Not PHI.
+A word appearing only in a
+{apcs_whitelist}
+and not in any
+{apcs_blacklist}.
+No
+{apcs_finding}
+is emitted for
+{apcs_pass}
+words.
+
+[[apcs_phi_category]]
+{apcs_phi_category}::
+The HIPAA Safe Harbor category of a
+{apcs_finding}.
+Determines the
+{apcs_placeholder}
+text used in
+{apcs_anonymized_text}.
+Enumerated: NAME, PROVIDER, FACILITY, DATE, DOB, PHONE, EMAIL, SSN, MRN, ACCOUNT, ENCOUNTER_ID, ADDRESS, HEALTH_PLAN_ID, DEVICE_ID, NPI, DEA, URL, IP_ADDRESS.
+
+
+== Pipeline Steps
+
+The detection pipeline executes five steps in fixed order.
+Each step either transforms input or produces
+{apcs_finding_s}.
+
+[[apcs_parse]]
+{apcs_parse}::
+Transform
+{apcs_epic_html}
+into a
+{apcs_document}:
+a sequence of typed
+{apcs_span_s}
+and derived
+{apcs_plain_text}.
+HTML structure is consumed; output is position-mapped text.
+
+[[apcs_regex_scan]]
+{apcs_regex_scan}::
+Scan
+{apcs_plain_text}
+against every pattern in the
+{apcs_regex_table}.
+Each match emits a
+{apcs_red}
+{apcs_finding}
+with the
+{apcs_phi_category}
+specified by the pattern.
+
+[[apcs_label_scan]]
+{apcs_label_scan}::
+For each
+{apcs_labeled_field}
+whose label appears in the
+{apcs_label_registry}:
+extract the value text, segment into words, and emit one
+{apcs_red}
+{apcs_finding}
+per word with the
+{apcs_phi_category}
+specified by the registry entry.
+
+[[apcs_dictionary_scan]]
+{apcs_dictionary_scan}::
+Scan
+{apcs_plain_text}
+against the combined
+{apcs_blacklist}
+automaton.
+For each hit, check
+{apcs_whitelist}
+membership.
+Emit a
+{apcs_yellow}
+{apcs_finding}
+if the word is in any
+{apcs_blacklist}
+(regardless of
+{apcs_whitelist}
+membership).
+Words in a
+{apcs_whitelist}
+only receive no
+{apcs_finding}.
+
+[[apcs_merge]]
+{apcs_merge}::
+Combine all
+{apcs_finding_s}
+from the three scans.
+When multiple
+{apcs_finding_s}
+occupy the same byte range, retain only the one with highest
+{apcs_severity}
+({apcs_red} > {apcs_yellow} > {apcs_pass}).
+
+
+== Output Projections
+
+[[apcs_anonymized_text]]
+{apcs_anonymized_text}::
+{apcs_plain_text}
+with elided
+{apcs_finding_s}
+replaced by their
+{apcs_placeholder_s}.
+Findings toggled to
+{apcs_pass}
+by the clinician pass through with original text.
+The output format for pasting into Open Evidence.
+
+[[apcs_placeholder]]
+{apcs_placeholder}::
+A category-specific substitution string used in
+{apcs_anonymized_text}.
+Format: `[CATEGORY]` (e.g., `[NAME]`, `[PHONE]`, `[ADDRESS]`).
+Exception: DOB emits `Age: NN` (computed from date of birth and current date; ages over 89 emit `Age: 90+` per HIPAA Safe Harbor).
+
+[[apcs_assay]]
+{apcs_assay}::
+{apcs_plain_text}
+with
+{apcs_finding_s}
+annotated inline using
+{apcs_elision_marker_s}.
+A diagnostic projection — shows the detection decisions within the document for review.
+Not user-facing; used for pipeline quality assessment.
+
+[[apcs_elision_marker]]
+{apcs_elision_marker}::
+The annotation unit in an
+{apcs_assay}.
+Format: `‹SEVERITY:CATEGORY matched text›` (guillemet-delimited).
+Shows the
+{apcs_severity},
+{apcs_phi_category},
+and original text of each
+{apcs_finding}
+inline with surrounding
+{apcs_plain_text}.

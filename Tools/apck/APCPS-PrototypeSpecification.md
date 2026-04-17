@@ -2,7 +2,7 @@
 
 ## Scope
 
-This document specifies the engineering pipeline for the proof-of-life prototype. It covers detection algorithms, tech stack, data sources, project structure, and scope boundaries. It does NOT cover the user experience — see [APCS-Specification.md](APCS-Specification.md) for the UX plan.
+This document specifies the engineering pipeline for the proof-of-life prototype. It covers detection algorithms, tech stack, data sources, project structure, and scope boundaries. It does NOT cover the user experience — see [APCAS-Specification.md](APCAS-Specification.md) for the UX plan.
 
 This is a living document. The pipeline will evolve rapidly during prototype development. Changes here do not require parallel updates to the product spec.
 
@@ -232,7 +232,7 @@ No confirmation dialog. The watcher runs on a background thread independent of t
 ```
 Tools/apck/
   apck-claude-context.md          # Build/run/deploy instructions (RCG reference)
-  APCS-Specification.md           # Product spec (UX vision)
+  APCAS-Specification.md          # Application spec (UX vision)
   APCPS-PrototypeSpecification.md # This document (pipeline engineering)
   apcw_workbench.sh               # Bash workbench
   apcz_zipper.sh                  # Zipper enrollment
@@ -269,12 +269,18 @@ Tools/apck/
 ```
 apc  (non-terminal)
 ├── apca   (non-terminal)
+│   ├── apcab  — App Batch binary (assay — detection pipeline on HTML files)
+│   ├── apcad  — App Dictionary binary (refresh from public sources)
 │   ├── apcal  — App Loader binary (fixture clipboard tool)
-│   └── apcap  — App Prototype binary (Tauri main)
+│   ├── apcap  — App Prototype binary (Tauri main)
+│   └── apcas  — application specification document (UX, workflow)
+├── apcc   — CLI command implementations
 ├── apcd   — Rust/Tauri source directory
+│   └── apcrl  — Logging macros (info, error, fatal with file/line)
 ├── apck   — kit directory
 ├── apcps  — prototype specification document
-├── apcs   — product specification document
+├── apcs   (non-terminal)
+│   └── apcs0  — detection pipeline specification (MCM concept model)
 ├── apcu   (non-terminal)
 │   └── apcua — update staging directory (/Users/Shared/apcua/)
 ├── apcw   — workbench

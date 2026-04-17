@@ -6,8 +6,9 @@ APCK is a Tauri desktop app that intercepts clipboard content from Epic EHR, det
 
 | Acronym | File | Description |
 |---------|------|-------------|
-| **APCS** | `apck/APCS-Specification.md` | Product spec — UX, workflow, deployment |
-| **APCPS** | `apck/APCPS-PrototypeSpecification.md` | Prototype spec — detection pipeline, tech stack |
+| **APCAS** | `apck/APCAS-Specification.md` | Application spec — UX, workflow, deployment |
+| **APCS0** | `apck/APCS0-SpecTop.adoc` | Detection pipeline spec — formal vocabulary (MCM concept model) |
+| **APCPS** | `apck/APCPS-PrototypeSpecification.md` | Prototype spec — tech stack, data sources, project structure |
 | **APCW** | `apck/apcw_workbench.sh` | Workbench |
 | **APCZ** | `apck/apcz_zipper.sh` | Zipper enrollment |
 | **APCC** | `apck/apcc_cli.sh` | CLI command implementations |
@@ -56,13 +57,15 @@ apc  (non-terminal)
 │   ├── apcab  — App Batch binary (assay — detection pipeline on HTML files)
 │   ├── apcad  — App Dictionary binary (refresh from public sources)
 │   ├── apcal  — App Loader binary (fixture clipboard tool)
-│   └── apcap  — App Prototype binary (Tauri main)
+│   ├── apcap  — App Prototype binary (Tauri main)
+│   └── apcas  — application specification document (UX, workflow)
 ├── apcc   — CLI command implementations
 ├── apcd   — Rust/Tauri source directory
 │   └── apcrl  — Logging macros (info, error, fatal with file/line)
 ├── apck   — kit directory
 ├── apcps  — prototype specification document
-├── apcs   — product specification document
+├── apcs   (non-terminal)
+│   └── apcs0  — detection pipeline specification (MCM concept model)
 ├── apcu   (non-terminal)
 │   └── apcua — update staging directory (/Users/Shared/apcua/)
 ├── apcw   — workbench
