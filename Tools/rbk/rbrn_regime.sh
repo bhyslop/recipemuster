@@ -214,12 +214,14 @@ rbrn_preflight() {
       z_ws_port_keys+=("${z_ws}")
       z_ws_port_vals+=("${z_mon}")
 
+      # Enclave ports are scoped to their Docker network — key on base_ip:port
+      local z_enc_key="${z_base}:${z_enc}"
       for z_i in "${!z_enc_port_keys[@]}"; do
-        if test "${z_enc_port_keys[$z_i]}" = "${z_enc}"; then
-          buc_die "Port conflict: RBRN_ENTRY_PORT_ENCLAVE=${z_enc} claimed by both ${z_enc_port_vals[$z_i]} and ${z_mon}"
+        if test "${z_enc_port_keys[$z_i]}" = "${z_enc_key}"; then
+          buc_die "Port conflict: RBRN_ENTRY_PORT_ENCLAVE=${z_enc} on network ${z_base} claimed by both ${z_enc_port_vals[$z_i]} and ${z_mon}"
         fi
       done
-      z_enc_port_keys+=("${z_enc}")
+      z_enc_port_keys+=("${z_enc_key}")
       z_enc_port_vals+=("${z_mon}")
     fi
 
