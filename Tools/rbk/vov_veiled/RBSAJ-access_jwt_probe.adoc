@@ -99,6 +99,11 @@ link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.
 .... If `«HTTP_STATUS»` is 401:
 ..... {rbbc_fatal}
 "Iteration «I»: «ROLE_DISPLAY» token rejected — HTTP 401 (token exchange succeeded but token is invalid)"
+.... If `«HTTP_STATUS»` is one of 500, 502, 503, or 504 (transient server-side error):
+..... Re-execute the {rbbc_call} up to 3 total attempts, sleeping with exponential backoff between attempts (2s, then 4s)
+..... On any non-5xx response within the retry window, re-enter *Evaluate Response* with that status
+..... {rbbc_fatal}
+if all 3 attempts return a 5xx status: "Iteration «I»: «ROLE_DISPLAY» repeated transient HTTP «HTTP_STATUS» after 3 attempts"
 .... Otherwise:
 ..... {rbbc_fatal}
 "Iteration «I»: «ROLE_DISPLAY» unexpected HTTP «HTTP_STATUS»: «RESPONSE_BODY»"

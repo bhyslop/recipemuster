@@ -44,6 +44,10 @@ zrbgv_kindle() {
   readonly ZRBGV_CRM_CODE_FILE="${BURD_TEMP_DIR}/rbgv_crm_code.txt"
   readonly ZRBGV_CRM_STDERR_FILE="${BURD_TEMP_DIR}/rbgv_crm_stderr.txt"
 
+  # Transient-5xx retry policy: 3 attempts with initial 2s backoff doubling each retry (worst-case +6s)
+  readonly ZRBGV_HTTP_RETRY_ATTEMPTS=3
+  readonly ZRBGV_HTTP_RETRY_INITIAL_DELAY_SEC=2
+
   readonly ZRBGV_KINDLED=1
 }
 
@@ -93,6 +97,69 @@ zrbgv_role_rbra_file_capture() {
   esac
 }
 
+# HTTP GET with bounded exponential-backoff retry on transient 5xx responses.
+# On any non-5xx response (including auth errors), populates z_code_file and returns.
+# On curl-network failure or exhausted 5xx retries, buc_die. The caller evaluates
+# the final HTTP status via its own case-switch on the populated z_code_file.
+zrbgv_http_get_with_5xx_retry() {
+  zrbgv_sentinel
+
+  local -r z_label="${1}"
+  local -r z_url="${2}"
+  local -r z_token="${3}"
+  local -r z_resp_file="${4}"
+  local -r z_code_file="${5}"
+  local -r z_stderr_file="${6}"
+
+  local z_attempt=1
+  local z_delay="${ZRBGV_HTTP_RETRY_INITIAL_DELAY_SEC}"
+  local z_curl_status=0
+  local z_code=""
+
+  while test "${z_attempt}" -le "${ZRBGV_HTTP_RETRY_ATTEMPTS}"; do
+    buc_log_args "${z_label}: HTTP GET attempt ${z_attempt}/${ZRBGV_HTTP_RETRY_ATTEMPTS}"
+
+    z_curl_status=0
+    curl                                                     \
+        -sS                                                  \
+        -X GET                                               \
+        -H "Authorization: Bearer ${z_token}"                \
+        -H "Accept: application/json"                        \
+        -o "${z_resp_file}"                                  \
+        -w "%{http_code}"                                    \
+        --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+        --max-time "${RBCC_CURL_MAX_TIME_SEC}"               \
+        "${z_url}" > "${z_code_file}"                        \
+                   2> "${z_stderr_file}"                     \
+      || z_curl_status=$?
+
+    buc_log_args "${z_label}: curl exit status ${z_curl_status}"
+    buc_log_pipe < "${z_stderr_file}"
+
+    test "${z_curl_status}" -eq 0 \
+      || buc_die "${z_label}: curl failed (network/SSL/DNS) — see ${z_stderr_file}"
+
+    z_code=$(<"${z_code_file}") || buc_die "${z_label}: failed to read HTTP code file"
+    test -n "${z_code}" || buc_die "${z_label}: empty HTTP code from curl"
+
+    case "${z_code}" in
+      500|502|503|504)
+        if test "${z_attempt}" -lt "${ZRBGV_HTTP_RETRY_ATTEMPTS}"; then
+          buc_step "${z_label}: transient HTTP ${z_code}, retrying in ${z_delay}s (attempt ${z_attempt}/${ZRBGV_HTTP_RETRY_ATTEMPTS})"
+          sleep "${z_delay}"
+          z_delay=$(( z_delay * 2 ))
+          z_attempt=$(( z_attempt + 1 ))
+        else
+          buc_die "${z_label}: repeated transient HTTP ${z_code} after ${ZRBGV_HTTP_RETRY_ATTEMPTS} attempts — see ${z_resp_file}"
+        fi
+        ;;
+      *)
+        return 0
+        ;;
+    esac
+  done
+}
+
 # Execute one Artifact Registry packages.list probe iteration for a JWT SA role.
 # Writes response to ZRBGV_AR_RESP_FILE, HTTP code to ZRBGV_AR_CODE_FILE,
 # and stderr to ZRBGV_AR_STDERR_FILE (kindle-constant paths for forensic visibility).
@@ -122,27 +189,17 @@ zrbgv_jwt_ar_probe_once() {
   test -n "${RBRR_GCP_REGION:-}"       || buc_die "RBRR_GCP_REGION is not set"
   test -n "${RBRR_GAR_REPOSITORY:-}"   || buc_die "RBRR_GAR_REPOSITORY is not set"
 
-  local z_ar_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBRR_DEPOT_PROJECT_ID}/locations/${RBRR_GCP_REGION}/repositories/${RBRR_GAR_REPOSITORY}/packages"
+  local -r z_ar_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBRR_DEPOT_PROJECT_ID}/locations/${RBRR_GCP_REGION}/repositories/${RBRR_GAR_REPOSITORY}/packages"
+  local -r z_ar_label="JWT SA probe [${z_role}] iteration ${z_iteration}"
 
-  buc_log_args "Call Artifact Registry packages.list"
-  local z_curl_status=0
-  curl                                              \
-      -sS                                           \
-      -X GET                                        \
-      -H "Authorization: Bearer ${z_token}"         \
-      -H "Accept: application/json"                 \
-      -o "${ZRBGV_AR_RESP_FILE}"                    \
-      -w "%{http_code}"                             \
-      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-      --max-time "${RBCC_CURL_MAX_TIME_SEC}"        \
-      "${z_ar_url}" > "${ZRBGV_AR_CODE_FILE}"       \
-                   2> "${ZRBGV_AR_STDERR_FILE}"     \
-    || z_curl_status=$?
-
-  buc_log_args "AR curl exit status: ${z_curl_status}"
-  buc_log_pipe < "${ZRBGV_AR_STDERR_FILE}"
-
-  test "${z_curl_status}" -eq 0 || buc_die "AR packages.list curl failed (network/SSL/DNS) for role ${z_role} iteration ${z_iteration}"
+  buc_log_args "Call Artifact Registry packages.list (with transient-5xx retry)"
+  zrbgv_http_get_with_5xx_retry \
+    "${z_ar_label}"             \
+    "${z_ar_url}"               \
+    "${z_token}"                \
+    "${ZRBGV_AR_RESP_FILE}"     \
+    "${ZRBGV_AR_CODE_FILE}"     \
+    "${ZRBGV_AR_STDERR_FILE}"
 
   local z_code
   z_code=$(<"${ZRBGV_AR_CODE_FILE}") || buc_die "Failed to read AR HTTP code file"
@@ -188,27 +245,17 @@ zrbgv_payor_crm_probe_once() {
   buc_log_args "Build CRM projects.get URL"
   test -n "${RBRP_PAYOR_PROJECT_ID:-}" || buc_die "RBRP_PAYOR_PROJECT_ID is not set"
 
-  local z_crm_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${RBRP_PAYOR_PROJECT_ID}"
+  local -r z_crm_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${RBRP_PAYOR_PROJECT_ID}"
+  local -r z_crm_label="Payor OAuth probe iteration ${z_iteration}"
 
-  buc_log_args "Call CRM projects.get on payor project"
-  local z_curl_status=0
-  curl                                               \
-      -sS                                            \
-      -X GET                                         \
-      -H "Authorization: Bearer ${z_token}"          \
-      -H "Accept: application/json"                  \
-      -o "${ZRBGV_CRM_RESP_FILE}"                    \
-      -w "%{http_code}"                              \
-      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-      --max-time "${RBCC_CURL_MAX_TIME_SEC}"         \
-      "${z_crm_url}" > "${ZRBGV_CRM_CODE_FILE}"      \
-                    2> "${ZRBGV_CRM_STDERR_FILE}"    \
-    || z_curl_status=$?
-
-  buc_log_args "CRM curl exit status: ${z_curl_status}"
-  buc_log_pipe < "${ZRBGV_CRM_STDERR_FILE}"
-
-  test "${z_curl_status}" -eq 0 || buc_die "CRM projects.get curl failed (network/SSL/DNS) for Payor iteration ${z_iteration}"
+  buc_log_args "Call CRM projects.get on payor project (with transient-5xx retry)"
+  zrbgv_http_get_with_5xx_retry \
+    "${z_crm_label}"            \
+    "${z_crm_url}"              \
+    "${z_token}"                \
+    "${ZRBGV_CRM_RESP_FILE}"    \
+    "${ZRBGV_CRM_CODE_FILE}"    \
+    "${ZRBGV_CRM_STDERR_FILE}"
 
   local z_code
   z_code=$(<"${ZRBGV_CRM_CODE_FILE}") || buc_die "Failed to read CRM HTTP code file"
