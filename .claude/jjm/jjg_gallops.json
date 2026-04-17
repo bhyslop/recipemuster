@@ -608,6 +608,7 @@
         "₢A6AAV",
         "₢A6AAx",
         "₢A6AAU",
+        "₢A6AA1",
         "₢A6AAu",
         "₢A6AAW",
         "₢A6AAH",
@@ -622,7 +623,7 @@
         "₢A6AAy",
         "₢A6AAz"
       ],
-      "next_pace_seed": "AA1",
+      "next_pace_seed": "AA2",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
       "paces": {
         "₢A6AA0": {
@@ -640,6 +641,17 @@
               "text": "## Character\n\nMechanical infrastructure fix with one system-wide enhancement (UID injection). The vessel restructure and compose change are straightforward file moves. The UID/GID alignment touches `rbob_bottle.sh` and `rbob_compose.yml` — shared infrastructure, so verify no regression on tadmor/other nameplates. Onboarding prose update is a light edit. Cognitive posture: careful plumbing, test from both sides.\n\n## Docket\n\nFix ccyolo workspace architecture: replace the Docker named volume (opaque to the host) with a bind mount to a host-visible directory, and add system-wide UID/GID alignment so bind mounts work without per-developer configuration.\n\n### 1. Vessel directory restructure\n\nSplit `rbev-vessels/rbev-bottle-ccyolo/` into two subdirectories:\n\n- `build-context/` — Dockerfile, entrypoint.sh (build-time artifacts)\n- `workspace/` — count_words.sh, sample.txt (runtime content, bind-mounted)\n\nMove files accordingly. `rbrv.env` stays at vessel root.\n\nUpdate `rbrv.env`:\n- `RBRV_CONJURE_DOCKERFILE=${RBRR_VESSEL_DIR}/${RBRV_SIGIL}/build-context/Dockerfile`\n- `RBRV_CONJURE_BLDCONTEXT=${RBRR_VESSEL_DIR}/${RBRV_SIGIL}/build-context`\n\n### 2. Compose bind mount\n\nIn `.rbk/ccyolo/compose.yml`:\n- Replace `ccyolo_workspace:/home/${RBRV_USER}/workspace:rw` with a bind mount pointing to the vessel's `workspace/` directory\n- Delete the top-level `volumes:` declaration for `ccyolo_workspace`\n\n### 3. UID/GID alignment — system-wide\n\n**`rbob_bottle.sh`**: Export `RBOB_HOST_UID=$(id -u)` and `RBOB_HOST_GID=$(id -g)` before compose up. The person running charge IS the host identity — no configuration needed.\n\n**`rbob_compose.yml`**: Add to the bottle service's `environment:` section:\n- `RBOB_HOST_UID`\n- `RBOB_HOST_GID`\n- `RBRV_USER`\n\nEvery bottle gets these automatically. Vessels that don't use bind mounts ignore them.\n\n**ccyolo entrypoint**: Add UID/GID alignment before sshd start:\n```\nif [ -n \"${RBOB_HOST_UID}\" ]; then\n  usermod -o -u \"${RBOB_HOST_UID}\" \"${RBRV_USER}\"\n  groupmod -o -g \"${RBOB_HOST_GID}\" \"${RBRV_USER}\"\nfi\n```\n\n### 4. Entrypoint cleanup\n\nRemove the lazy-copy logic (lines 7-13 of current entrypoint.sh) — workspace is bind-mounted, files are already present via the host directory. Keep `chown` and sshd startup.\n\n### 5. Dockerfile cleanup\n\nRemove `COPY sample-project/ /opt/ccyolo-sample/` — the sample project is no longer baked into the image. It lives in `workspace/` and arrives via bind mount at runtime.\n\n### 6. Onboarding content update\n\nAdjust first-kludge handbook prose (`rbhofc_first_crucible.sh` or equivalent) to note that workspace edits inside the bottle are visible from the host filesystem — the repo working tree gets dirty when the learner works, and that's the point.\n\n### 7. Verification\n\n- Kludge ccyolo bottle, charge crucible\n- SSH in, confirm `count_words.sh` and `sample.txt` present in `/home/claude/workspace/`\n- Edit a file from inside the bottle, confirm change visible on host\n- Edit a file from host, confirm change visible inside bottle\n- Confirm `id claude` inside container matches host UID\n- Charge tadmor (no bind mounts) — confirm no regression from `rbob_compose.yml` changes\n- Run `tt/rbtd-s.TestSuite.fast.sh` — confirm no regime validation breakage\n\n### Out of scope\n\n- Theurge fixture for ccyolo\n- Other vessel bind mount conversions (this pace establishes the pattern; future vessels adopt it)\n- New RBRN/RBRV regime variables (UID injection is runtime, not configuration)",
               "silks": "ccyolo-workspace-bind-mount",
               "commit": "6b61560"
+            }
+          ]
+        },
+        "₢A6AA1": {
+          "tacks": [
+            {
+              "ts": "260417-0849",
+              "state": "rough",
+              "text": "## Character\n\nVoice-driven pedagogical writing, modeled on `rbhodf_director_first_build.sh` and `rbhofc_first_crucible.sh`. The infrastructure (forge vessel, airgap-ifrit vessel, moriah nameplate, tabtargets, theurge fixture) is landed by `₢A6AAV`. This pace writes the teaching content.\n\n**Depends on**: `₢A6AAV` (infrastructure landed), `₢A6AAU` (first cloud build handbook finalized — the airgap track is the next step in the director learning sequence).\n\n## Docket\n\nImplement `tt/rbw-Oda.OnboardingDirectorAirgap.sh` — the airgap cloud build handbook track.\n\n### Teaching arc (5 units, Frame 4-refined)\n\n1. **Enshrine upstream base** — `rust:slim-bookworm` for the forge. Teach: airgap requires a pre-staged supply chain.\n2. **Conjure forge tethered, then enshrine** — build a project-authored base image that pre-stages apt packages and warms the cargo cache. Teach: forge as customer-controlled toolchain image; layered enshrinement.\n3. **Conjure airgap-ifrit airgapped from enshrined forge** — zero network during the airgap build. Teach: customer code never exposed to internet during build.\n4. **Charge moriah, run security suite** — drive the cloud-built airgap hallmark into the moriah nameplate, run `tt/rbtd-r.Run.moriah.sh`, watch the same attack tests pass against the airgap-built bottle. Teach: the learner has built validated security infrastructure end-to-end.\n5. **Compare Plumb output** — tethered ifrit (tadmor) vs airgap ifrit (moriah) side-by-side. Teach: functionally equivalent images, distinguished by supply-chain properties; both carry SLSA provenance.\n\n### Implementation\n\n- Zipper enrollment in `rbz_zipper.sh` — colophon `rbw-Oda`, group `RBZ__GROUP_ONBOARDING`\n- Thin dispatcher tabtarget `tt/rbw-Oda.OnboardingDirectorAirgap.sh` (nolog launcher pattern)\n- Sequence function `rbho_director_airgap()` in `Tools/rbk/rbh0/rbhoda_director_airgap.sh`\n- Teaching content using `buh_*` primitives, vocabulary-first via `buh_tlt`\n- Probes: reliquary inscribed, rust:slim-bookworm enshrined, forge hallmark exists, airgap ifrit vouched, moriah chargeable, tethered ifrit present (for plumb comparison)\n\n### Model\n\nFollow the patterns in `rbhodf_director_first_build.sh` (probe structure, teaching unit layout, `buc_doc_brief`/`buc_doc_shown` gate, yelp capture idiom) and `rbhofc_first_crucible.sh` (crucible-oriented teaching).\n\n### Out of scope\n\n- Infrastructure creation (₢A6AAV)\n- Reliquary inscription (₢A6AAU)\n- Bind or graft modes (₢A6AAW, ₢A6AAX)",
+              "silks": "airgap-handbook-draft",
+              "commit": "4ea7a0d"
             }
           ]
         },
