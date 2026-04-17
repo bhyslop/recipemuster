@@ -90,7 +90,7 @@ zbuym_kindle() {
     readonly BUYC_BRIGHT_YELLOW="\033[1;33m"
     readonly BUYC_BRIGHT_RED="\033[1;31m"
     readonly BUYC_BRIGHT_WHITE="\033[1;37m"
-    readonly BUYC_LINK="\033[34;4m"
+    readonly BUYC_LINK="\033[97;4m"
     readonly BUYC_HREF="\033[34;4m"
     readonly BUYC_GREEN="\033[32m"
     readonly BUYC_ORANGE="\033[33m"
