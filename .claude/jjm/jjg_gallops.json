@@ -5225,9 +5225,10 @@
         "₢AmAAG",
         "₢AmAAH",
         "₢AmAAI",
-        "₢AmAAK"
+        "₢AmAAK",
+        "₢AmAAL"
       ],
-      "next_pace_seed": "AAL",
+      "next_pace_seed": "AAM",
       "paddock_file": ".claude/jjm/jjp_uAlm.md",
       "paces": {
         "₢AmAAA": {
@@ -5449,6 +5450,17 @@
               "text": "## Character\nMechanical — single file edit, clear target.\n\n## Docket\nThe `furlough` verb in `jjk-claude-context.md` maps to `jjx_alter` but doesn't convey that it covers both directions (racing→stabled and stabled→racing) plus silks rename. An agent reading the verb table naturally assumes furlough = stable, missing the bidirectional nature.\n\nAdd a parenthetical to the verb table entry: `furlough | heat | jjx_alter` → `furlough | heat/status | jjx_alter` or similar, so the verb's scope is clear without needing to read JJS0.",
               "silks": "clarify-furlough-verb-in-claude-context",
               "commit": "82f0caa"
+            }
+          ]
+        },
+        "₢AmAAL": {
+          "tacks": [
+            {
+              "ts": "260418-0932",
+              "state": "rough",
+              "text": "## Character\n\nImplementation with settled spec. Design decisions pinned down in chat ☉260418-1002; this pace codifies them.\n\n## Goal\n\nOn `jjx_open`, create an empty git commit whose message carries both officium ID and Claude Code session UUID as trailers. Future `git log --grep='Officium:'` (or `Session:`) then retrieves every commit affiliated with a given chat session or officium.\n\n## Why\n\nOfficium directories are gitignored (`.gitignore:58`). They don't persist across machines or fresh clones, so they can't serve as a durable coronet → chat anchor. Stamping both IDs into a git commit at officium creation time puts the mapping into git history itself, which is durable.\n\n## Shape\n\n`jjx_open` (MCP server, vvx):\n\n1. Create officium directory as today.\n2. Resolve session UUID server-side:\n   - Compute encoded project dir from `cwd`: replace both `/` and `_` with `-`.\n   - List `~/.claude/projects/<encoded-cwd>/*.jsonl`, pick newest by mtime.\n   - Extract UUID from filename (strip `.jsonl`).\n3. **If resolution fails, fail the command.** No silent fallback to an officium-only trailer. Cases that must fail: encoded-cwd dir missing, zero `.jsonl` files present, mtime tie between two transcripts. User gets a loud error and investigates.\n4. Create empty commit (`git commit --allow-empty`) with trailers:\n   ```\n   Officium: ☉YYMMDD-HHMM\n   Session: <uuid>\n   ```\n   Subject line to be finalized during implementation — keep terse; trailers are load-bearing.\n\n## Recall workflow (document in spec)\n\n- `git log --grep='Officium: ☉260418-1002'` → all commits from that officium\n- `git log --grep='Session: 1649a554-'` → all commits from that chat\n\n## Anticipated hazards\n\n- **Resumed sessions** (`--resume`): GitHub issue #12235 reports session UUID changes on resume. Implementation should verify whether the newest-mtime heuristic lands on the active session in the resume case; document whatever behavior the filesystem exposes.\n- **Parallel sessions in same cwd**: two Claude Code sessions opened near-simultaneously can produce ambiguous mtimes. Loud failure on ties is safer than silently picking the wrong one.\n- **Encoding completeness**: current understanding is `/` → `-` and `_` → `-`. Verify against real encoded paths during implementation in case other characters (spaces, dots) have rules.\n\n## Out of scope\n\n- Reading session UUID from `CLAUDE_SESSION_ID` env var — doesn't exist yet (Anthropic issues #25642, #17188, #44607). When it ships, a future pace can simplify this to an env-read and retire the filesystem heuristic.\n- SessionStart hooks — explicitly avoided to keep moving parts minimal.",
+              "silks": "capture-session-and-officium-in-git-trailer",
+              "commit": "a1b7344"
             }
           ]
         }
