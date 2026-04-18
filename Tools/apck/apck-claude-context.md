@@ -9,6 +9,7 @@ APCK is a Tauri desktop app that intercepts clipboard content from Epic EHR, det
 | **APCAS** | `apck/APCAS-Specification.md` | Application spec — UX, workflow, deployment |
 | **APCS0** | `apck/APCS0-SpecTop.adoc` | Detection pipeline spec — formal vocabulary (MCM concept model) |
 | **APCPS** | `apck/APCPS-PrototypeSpecification.md` | Prototype spec — tech stack, data sources, project structure |
+| **APCNS0** | `apck/APCNS0-NeuralStanford.md` | Neural Stanford spike doc — model card, export procedure, observations |
 | **APCW** | `apck/apcw_workbench.sh` | Workbench |
 | **APCZ** | `apck/apcz_zipper.sh` | Zipper enrollment |
 | **APCC** | `apck/apcc_cli.sh` | CLI command implementations |
@@ -16,6 +17,7 @@ APCK is a Tauri desktop app that intercepts clipboard content from Epic EHR, det
 | **APCAL** | `apck/apcd/src/apcal_main.rs` | Fixture loader (clipboard writer) |
 | **APCAD** | `apck/apcd/src/apcad_main.rs` | Dictionary refresh (downloads public sources, regenerates dictionaries) |
 | **APCAB** | `apck/apcd/src/apcab_main.rs` | Batch assay (run detection pipeline on HTML directory, write assay output) |
+| **APCNSA** | `apck/apcd/src/apcnsa_main.rs` | Neural Stanford assay — spike binary running StanfordAIMI/stanford-deidentifier-base via ONNX Runtime |
 
 **Source modules:**
 
@@ -48,6 +50,9 @@ APCK is a Tauri desktop app that intercepts clipboard content from Epic EHR, det
 | `tt/apcw-t.Test.sh` | `apcw-t` | `cargo test` in `apcd/` |
 | `tt/apcw-dr.DictionaryRefresh.sh` | `apcw-dr` | `cargo run --bin apcad` (refresh dictionaries from public sources) |
 | `tt/apcw-ba.BatchAssay.sh` | `apcw-ba` | `cargo run --bin apcab` (batch assay on HTML directory) |
+| `tt/apcw-nsx.NeuralStanfordExport.sh` | `apcw-nsx` | Neural Stanford spike — create venv, install optimum-cli, export ONNX (idempotent) |
+| `tt/apcw-nsZ.NeuralStanfordZap.sh` | `apcw-nsZ` | Neural Stanford spike — remove model dir (venv + artifacts) and re-export |
+| `tt/apcw-nsa.NeuralStanfordAssay.sh` | `apcw-nsa` | Neural Stanford spike — `cargo run --bin apcnsa` on HTML directory |
 
 ### Prefix Tree
 
@@ -63,6 +68,10 @@ apc  (non-terminal)
 ├── apcd   — Rust/Tauri source directory
 │   └── apcrl  — Logging macros (info, error, fatal with file/line)
 ├── apck   — kit directory
+├── apcn   (non-terminal — neural)
+│   └── apcns  (non-terminal — neural stanford)
+│       ├── apcns0  — Neural Stanford spike documentation (APCNS0-NeuralStanford.md)
+│       └── apcnsa  — App Neural Stanford Assay binary (ONNX Runtime + stanford-deidentifier-base)
 ├── apcps  — prototype specification document
 ├── apcs   (non-terminal)
 │   └── apcs0  — detection pipeline specification (MCM concept model)

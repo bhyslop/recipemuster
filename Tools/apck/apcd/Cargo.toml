@@ -25,9 +25,14 @@ path = "src/apcad_main.rs"
 name = "apcab"
 path = "src/apcab_main.rs"
 
+[[bin]]
+name = "apcnsa"
+path = "src/apcnsa_main.rs"
+
 [dependencies]
 tauri = { version = "2", features = [] }
 serde = { version = "1", features = ["derive"] }
+serde_json = "1"
 arboard = "3"
 scraper = "0.21"
 aho-corasick = "1"
@@ -38,6 +43,8 @@ notify = "6"
 csv = "1"
 zip = "2"
 ureq = "2"
+ort = { version = "2.0.0-rc.10", features = ["download-binaries"] }
+tokenizers = "0.15"
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
