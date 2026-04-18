@@ -76,7 +76,7 @@ fn main() {
     for p in [&model_path, &tokenizer_path, &config_path] {
         if !p.exists() {
             apcd::apcrl_fatal_now!(
-                "missing artifact: {} (run apcw-nsx to populate {})",
+                "missing artifact: {} (run apcw-nsi to populate {})",
                 p.display(), model_dir.display()
             );
         }

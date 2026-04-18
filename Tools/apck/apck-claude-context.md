@@ -50,8 +50,7 @@ APCK is a Tauri desktop app that intercepts clipboard content from Epic EHR, det
 | `tt/apcw-t.Test.sh` | `apcw-t` | `cargo test` in `apcd/` |
 | `tt/apcw-dr.DictionaryRefresh.sh` | `apcw-dr` | `cargo run --bin apcad` (refresh dictionaries from public sources) |
 | `tt/apcw-ba.BatchAssay.sh` | `apcw-ba` | `cargo run --bin apcab` (batch assay on HTML directory) |
-| `tt/apcw-nsx.NeuralStanfordExport.sh` | `apcw-nsx` | Neural Stanford spike — create venv, install optimum-cli, export ONNX (idempotent) |
-| `tt/apcw-nsZ.NeuralStanfordZap.sh` | `apcw-nsZ` | Neural Stanford spike — remove model dir (venv + artifacts) and re-export |
+| `tt/apcw-nsi.NeuralStanfordInstall.sh` | `apcw-nsi` | Neural Stanford spike — convergent install: create venv, install optimum + optimum-onnx + onnxruntime if needed, clear any prior artifacts, re-export ONNX. Always reaches a working state. |
 | `tt/apcw-nsa.NeuralStanfordAssay.sh` | `apcw-nsa` | Neural Stanford spike — `cargo run --bin apcnsa` on HTML directory |
 
 ### Prefix Tree

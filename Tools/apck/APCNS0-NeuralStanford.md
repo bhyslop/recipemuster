@@ -31,34 +31,34 @@ Contents after export:
 └── vocab.txt
 ```
 
-Rationale for colocating the venv with the model: zapping the model directory also removes the exporter toolchain, keeping the project tree free of Python artifacts. The whole spike's external footprint lives under one path.
+Rationale for colocating the venv with the model: all of the spike's external artifacts live under one path, and the install command can heal the model dir without touching the project tree.
 
 ## Setup on a Fresh Machine
 
 1. Ensure `python3` is on PATH (any 3.10+).
-2. Run `tt/apcw-nsx.NeuralStanfordExport.sh`. This:
+2. Run `tt/apcw-nsi.NeuralStanfordInstall.sh`. This is the **single convergent install command** — it always reaches a working state:
    - Creates `/Users/bhyslop/models/stanford-deidentifier/` if absent.
-   - Creates a venv at `{model_dir}/.venv/`.
-   - `pip install "optimum[exporters]"` into the venv (brings `transformers`, `onnx`, `onnxruntime`).
-   - Runs `optimum-cli export onnx --model StanfordAIMI/stanford-deidentifier-base --task token-classification` into the model dir.
-   - Idempotent: skips export if `model.onnx`, `tokenizer.json`, `config.json` are all present.
+   - Creates a venv at `{model_dir}/.venv/` if absent.
+   - Installs `optimum + optimum-onnx + onnxruntime` into the venv if the `onnx` subcommand isn't registered.
+   - Clears any prior model artifacts (preserving the venv) and re-exports from scratch.
 3. Run `tt/apcw-nsa.NeuralStanfordAssay.sh Tools/apck/test_fixtures` to produce `{stem}.stanford.assay.txt` files in `BURD_OUTPUT_DIR`.
 
-Nuclear reset: `tt/apcw-nsZ.NeuralStanfordZap.sh` — removes the whole model dir (venv + artifacts) and re-exports.
+Re-running `apcw-nsi` heals any partial or corrupt state. There is no separate "zap" command — the install command itself is the reset.
 
-## Export Procedure (what `apcw-nsx` runs)
+## Install Procedure (what `apcw-nsi` runs)
 
 ```
 python3 -m venv /Users/bhyslop/models/stanford-deidentifier/.venv
 /Users/bhyslop/models/stanford-deidentifier/.venv/bin/python -m pip install --upgrade pip
-/Users/bhyslop/models/stanford-deidentifier/.venv/bin/python -m pip install "optimum[exporters]"
+/Users/bhyslop/models/stanford-deidentifier/.venv/bin/python -m pip install optimum optimum-onnx onnxruntime
+find /Users/bhyslop/models/stanford-deidentifier -mindepth 1 -maxdepth 1 ! -name '.venv' -exec rm -rf {} +
 /Users/bhyslop/models/stanford-deidentifier/.venv/bin/optimum-cli export onnx \
     --model StanfordAIMI/stanford-deidentifier-base \
     --task token-classification \
     /Users/bhyslop/models/stanford-deidentifier/
 ```
 
-The first `pip install` pulls ~2 GB of dependencies (PyTorch + transformers); the export downloads the ~440 MB base model.
+First run: `pip install` pulls ~2 GB of dependencies (PyTorch + transformers + optimum + onnxruntime); the export downloads the ~440 MB base model from HuggingFace. Subsequent runs skip the pip install, and the export step re-uses the HuggingFace cache at `~/.cache/huggingface/` so only the ONNX trace is re-computed (seconds).
 
 ## Runtime Architecture
 
@@ -182,7 +182,7 @@ If pursued as a Tier 4:
 
 **If the recommendation is to proceed**, the next pace would be a Tier 4 integration spike that measures: (1) RED precision/recall lift from neural-assisted disambiguation; (2) end-to-end p99 latency on the interactive path; (3) bundle size impact after quantization to INT8. Until those three numbers are known, the current 3-tier engine remains the right production path.
 
-**If the recommendation is to abandon**, the artifacts stage at a hardcoded path outside the repo — removal is `tt/apcw-nsZ.NeuralStanfordZap.sh` and then deleting this binary, the three tabtargets, the Cargo deps, and this document.
+**If the recommendation is to abandon**, the artifacts stage at a hardcoded path outside the repo — `rm -rf /Users/bhyslop/models/stanford-deidentifier/` clears them, then delete this binary, the two tabtargets, the Cargo deps, and this document.
 
 ## Out of Scope
 

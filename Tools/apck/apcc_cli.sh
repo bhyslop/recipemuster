@@ -126,7 +126,7 @@ apcc_batch_assay() {
 ######################################################################
 # Neural Stanford spike
 
-apcc_neural_stanford_export() {
+apcc_neural_stanford_install() {
   command -v python3 >/dev/null \
     || buc_die "python3 not found on PATH — required for optimum-cli export"
 
@@ -157,12 +157,13 @@ apcc_neural_stanford_export() {
       || buc_die "pip install optimum optimum-onnx onnxruntime failed"
   fi
 
-  if [[ -f "${z_model_dir}/model.onnx" \
-     && -f "${z_model_dir}/tokenizer.json" \
-     && -f "${z_model_dir}/config.json" ]]; then
-    buc_step "Model artifacts already present at ${z_model_dir} — skipping export"
-    return 0
-  fi
+  # Convergent install: clear any prior model artifacts (preserving the venv)
+  # and re-export from scratch. Each invocation yields a fresh, valid model dir.
+  # The HuggingFace cache at ~/.cache/huggingface/ keeps the weight download fast
+  # on repeat runs; the ONNX trace is the only re-computed step.
+  buc_step "Clearing prior model artifacts from ${z_model_dir}"
+  find "${z_model_dir}" -mindepth 1 -maxdepth 1 ! -name '.venv' -exec rm -rf {} + \
+    || buc_die "Failed to clear ${z_model_dir}"
 
   buc_step "Exporting ${ZAPCC_STANFORD_MODEL_ID} to ${z_model_dir}"
   "${z_optimum_cli}" export onnx \
@@ -171,19 +172,8 @@ apcc_neural_stanford_export() {
       "${z_model_dir}" \
     || buc_die "optimum-cli export onnx failed"
 
-  buc_step "Export complete"
+  buc_step "Install complete"
   ls -la "${z_model_dir}" || true
-}
-
-apcc_neural_stanford_zap() {
-  local -r z_model_dir="${ZAPCC_STANFORD_DIR}"
-  if [[ -d "${z_model_dir}" ]]; then
-    buc_step "Removing ${z_model_dir}"
-    rm -rf "${z_model_dir}" || buc_die "Failed to remove ${z_model_dir}"
-  else
-    buc_step "No artifacts to remove at ${z_model_dir}"
-  fi
-  apcc_neural_stanford_export
 }
 
 apcc_neural_stanford_assay() {
@@ -191,7 +181,7 @@ apcc_neural_stanford_assay() {
   local -r z_model_dir="${ZAPCC_STANFORD_DIR}"
   for z_file in model.onnx tokenizer.json config.json; do
     test -f "${z_model_dir}/${z_file}" \
-      || buc_die "Missing ${z_model_dir}/${z_file} — run apcw-nsx first"
+      || buc_die "Missing ${z_model_dir}/${z_file} — run apcw-nsi first"
   done
   buc_step "Running neural stanford assay on ${z_folio}"
   APCNSA_MODEL_DIR="${z_model_dir}" \
