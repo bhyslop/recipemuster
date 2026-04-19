@@ -27,6 +27,7 @@ Ann's PHI Clipbuddy (`apcap`) — a Tauri desktop app (macOS, later Windows) tha
 - **Provider/facility names**: Treated as PHI (re-identifying in combination with clinical details)
 - **Clipboard always cleared** after consumption
 - **Clinical content heuristic** gates processing; non-clinical clipboard shows diagnostic and clears triage
+- **Self-update watcher dormant for prototype** (₢A9AAS): `apcru_start_watcher()` is commented out in `apcap_main.rs::main()`; `apcru_update.rs` source retained for trivial revert. Ann's deploy ceremony is manual quit + relaunch of `Apcap.app` from `/Users/Shared/apcua/`. The seamless hot-swap-during-active-session problem is not one Ann has today. `tt/apcw-d.Deploy.sh` emits a `=== Forward to Ann ===` … `=== End ===` block with the launch instructions after each successful deploy — single source of truth for the ceremony.
 
 ## Authoritative Documents
 
