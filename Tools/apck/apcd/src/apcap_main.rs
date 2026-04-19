@@ -60,6 +60,21 @@ fn zapcap_handle_focus(window: &tauri::WebviewWindow) -> Result<(), String> {
 
     match apcd::apcre_engine::apcre_analyze(&content, dicts) {
         apcd::apcre_engine::apcre_Result::Clinical { findings, plain_text } => {
+            // Harvest every arboard-accessible flavor before the clipboard
+            // zero-out. Failure logs and continues — triage is authoritative.
+            match std::env::var("HOME") {
+                Ok(home) => {
+                    let harvest_dir = std::path::PathBuf::from(home)
+                        .join(apcd::apcrh_harvest::APCRH_HARVEST_DIR_NAME);
+                    if let Err(e) = apcd::apcrh_harvest::apcrh_capture_all_flavors(&harvest_dir) {
+                        apcd::apcrl_error_now!("harvest capture failed: {}", e);
+                    }
+                }
+                Err(e) => {
+                    apcd::apcrl_error_now!("harvest skipped: HOME not set: {}", e);
+                }
+            }
+
             // Clear system clipboard after consuming clinical content
             let _ = clipboard.set_text(String::new());
 

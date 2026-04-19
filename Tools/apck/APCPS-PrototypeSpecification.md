@@ -70,6 +70,29 @@ This heuristic will be refined when tested against real Epic output. The initial
 
 On window focus, the engine compares the current clipboard content (byte-for-byte string comparison) against the last successfully consumed content. If identical, the existing triage state is preserved — no reprocessing. If different, the clinical content heuristic runs on the new content. Clinical notes are a few KB; storing the last consumed string for comparison has negligible memory cost at prototype scale.
 
+## Clipboard Harvest
+
+**Purpose.** Preserve verbatim real-world clipboard contents on Clinical-branch detection so the fixture library can grow from real traffic and so Epic's actual flavor structure can be studied. The prototype currently ships with synthetic fixtures only; harvest is the bridge from lab to field without relying on the clinician to remember to save.
+
+**Trigger.** The Clinical branch of clipboard analysis — executed before the system-clipboard zero-out. Non-clinical content is never harvested.
+
+**Storage.** `$HOME/apck_harvest/` — outside any repo tree. The directory is created lazily on first capture. The path uses no dotfile prefix so captures are visible when the user navigates to the directory to promote a file. A `.gitignore` entry for `apck_harvest/` is present as belt-and-suspenders against a misdirected `$HOME` resolution that lands in-tree.
+
+**Naming.** `{N}.{ext}` where `N` seeds at 10000 for an empty directory, otherwise `max_existing_numeric_stem + 1`. Files with the same `N` group all flavors of one capture (e.g., `10000.txt` and `10000.html` are the two flavors of capture 10000). Gaps in the numeric sequence are not filled — the scan advances past the current maximum. Non-numeric filenames are ignored in the max calculation, so user-placed `README`, `notes`, or similar co-exist without perturbing indexing.
+
+**Flavors.** Every flavor the `arboard` abstraction exposes at the time of capture:
+
+| Flavor | Extension | Present when |
+|--------|-----------|--------------|
+| Plain text (`get_text`) | `.txt` | Always — required for Clinical branch entry |
+| HTML (`get().html()`) | `.html` | Epic "Copy All" places HTML; absence is possible and non-fatal |
+
+RTF and image flavors are documented gaps: `arboard` 3.x does not surface RTF, and image capture requires the `image-data` feature which this project does not enable. Dropping to platform-specific pasteboard APIs to close these gaps is explicitly out of scope for the prototype.
+
+**Failure mode.** A capture failure logs via the standard error channel (`apcrl_error_now!`) and does not abort triage. User-visible behavior is unchanged whether harvest succeeds or fails — the triage pipeline is authoritative.
+
+**Privacy posture.** PHI-at-rest stays outside the repo. Captures are never auto-committed, auto-uploaded, or auto-anonymized. Anonymization and promotion to `test_fixtures/` are manual, out-of-band operations. The clinician-developer coordinates capture review separately.
+
 ## Detection Pipeline
 
 ### Overview
@@ -276,6 +299,7 @@ apc  (non-terminal)
 │   └── apcas  — application specification document (UX, workflow)
 ├── apcc   — CLI command implementations
 ├── apcd   — Rust/Tauri source directory
+│   ├── apcrh  — Clipboard harvest module ($HOME/apck_harvest/ capture)
 │   └── apcrl  — Logging macros (info, error, fatal with file/line)
 ├── apck   — kit directory
 ├── apcps  — prototype specification document
@@ -296,11 +320,13 @@ pub mod apcrp_parse;
 pub mod apcrm_match;
 pub mod apcrd_dictionaries;
 pub mod apcru_update;
+pub mod apcrh_harvest;
 
 #[cfg(test)] mod apcte_engine;
 #[cfg(test)] mod apctp_parse;
 #[cfg(test)] mod apctm_match;
 #[cfg(test)] mod apctd_dictionaries;
+#[cfg(test)] mod apcth_harvest;
 ```
 
 ## Tabtargets

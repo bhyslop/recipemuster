@@ -29,6 +29,7 @@ APCK is a Tauri desktop app that intercepts clipboard content from Epic EHR, det
 | `apcrm_match.rs` | `apcrm` | `apctm_match.rs` | `apctm` | Dictionary/regex matching |
 | `apcrd_dictionaries.rs` | `apcrd` | `apctd_dictionaries.rs` | `apctd` | Dictionary loading |
 | `apcru_update.rs` | `apcru` | — | — | Self-update watcher (no unit tests — I/O + process) |
+| `apcrh_harvest.rs` | `apcrh` | `apcth_harvest.rs` | `apcth` | Clipboard harvest — capture arboard flavors to `$HOME/apck_harvest/` on Clinical branch before zero-out |
 
 **Other key paths:**
 - `Tools/apck/apcd/ui/` — Frontend (HTML/CSS only — no JavaScript)
@@ -65,6 +66,7 @@ apc  (non-terminal)
 │   └── apcas  — application specification document (UX, workflow)
 ├── apcc   — CLI command implementations
 ├── apcd   — Rust/Tauri source directory
+│   ├── apcrh  — Clipboard harvest module ($HOME/apck_harvest/ capture)
 │   └── apcrl  — Logging macros (info, error, fatal with file/line)
 ├── apck   — kit directory
 ├── apcn   (non-terminal — neural)
