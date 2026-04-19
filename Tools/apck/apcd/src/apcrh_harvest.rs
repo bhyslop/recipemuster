@@ -13,9 +13,11 @@
 // limitations under the License.
 
 //! Clipboard harvest — capture every arboard-accessible clipboard flavor
-//! verbatim to `{N}-in.{ext}` files in the journal directory (typically
-//! `$HOME/apcjd/`) on the Clinical branch, before the system-clipboard
-//! zero-out. The focus handler pairs each `{N}-in.{ext}` with a
+//! verbatim to `{N}-in.{tag}.{ext}` files in the journal directory
+//! (typically `$HOME/apcjd/`) on every focus with changed content. The `tag`
+//! is the classifier's verdict (`clinical` or `nonclinical`); the full
+//! filename is e.g. `10000-in.clinical.txt`, `10000-in.nonclinical.html`.
+//! On the Clinical branch, the focus handler pairs each capture with a
 //! `{N}-out.txt` anonymized copy written by `apcap_main`. PHI-at-rest stays
 //! outside the repo; anonymization and promotion to test fixtures are
 //! manual. The destination is supplied by the caller; see
@@ -28,30 +30,54 @@ use std::path::Path;
 
 pub const APCRH_HARVEST_SEED_INDEX: u32 = 10000;
 
-/// Capture every arboard-accessible clipboard flavor into `{N}-in.{ext}`
-/// files in `dir`. Returns the N used. N seeds at
+/// Classifier verdict used to tag harvest filenames. The tag is decided by
+/// the caller *before* harvest runs, not inferred from filename later.
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum apcrh_Classification {
+    Clinical,
+    NonClinical,
+}
+
+impl apcrh_Classification {
+    /// Filename infix written between `-in.` and the extension.
+    pub fn apcrh_tag(self) -> &'static str {
+        match self {
+            apcrh_Classification::Clinical    => "clinical",
+            apcrh_Classification::NonClinical => "nonclinical",
+        }
+    }
+}
+
+/// Capture every arboard-accessible clipboard flavor into
+/// `{N}-in.{tag}.{ext}` files in `dir`, where `tag` is `classification`'s
+/// filename infix. Returns the N used. N seeds at
 /// `APCRH_HARVEST_SEED_INDEX` when `dir` is empty, otherwise
 /// `max_leading_digit_run + 1` across any filenames that begin with digits
-/// (bare `{N}.{ext}`, `{N}-in.{ext}`, `{N}-out.{ext}` all count). The
-/// directory is created lazily. Text is required; HTML is opportunistic —
-/// absence of HTML on the clipboard is not an error.
-pub fn apcrh_capture_all_flavors(dir: &Path) -> Result<u32, String> {
+/// (legacy bare `{N}.{ext}`, prior `{N}-in.{ext}`, `{N}-out.{ext}`, and new
+/// `{N}-in.{tag}.{ext}` all count). The directory is created lazily. Text
+/// is required; HTML is opportunistic — absence of HTML on the clipboard is
+/// not an error.
+pub fn apcrh_capture_all_flavors(
+    dir: &Path,
+    classification: apcrh_Classification,
+) -> Result<u32, String> {
     fs::create_dir_all(dir)
         .map_err(|e| format!("create harvest dir {}: {}", dir.display(), e))?;
 
     let index = zapcrh_scan_next_index(dir)?;
+    let tag = classification.apcrh_tag();
 
     let mut clipboard = arboard::Clipboard::new()
         .map_err(|e| format!("clipboard open: {}", e))?;
 
     let text = clipboard.get_text()
         .map_err(|e| format!("clipboard get_text: {}", e))?;
-    zapcrh_write_text(dir, index, &text)?;
+    zapcrh_write_text(dir, index, tag, &text)?;
 
     // HTML is opportunistic — absence on the clipboard is expected for some
     // sources, not an error. Capture when present, skip otherwise.
     if let Ok(html) = clipboard.get().html() {
-        zapcrh_write_html(dir, index, &html)?;
+        zapcrh_write_html(dir, index, tag, &html)?;
     }
 
     Ok(index)
@@ -62,8 +88,8 @@ pub fn apcrh_capture_all_flavors(dir: &Path) -> Result<u32, String> {
 /// name does not start with a digit (e.g. `apcap.log`, `README`) are
 /// ignored, as are subdirectories. Gaps are not filled — the scan advances
 /// past the current maximum. The leading-digit parse makes mixed naming
-/// styles — bare `{N}.{ext}`, `{N}-in.{ext}`, `{N}-out.{ext}` — all count
-/// toward the same index space.
+/// styles — legacy bare `{N}.{ext}`, prior `{N}-in.{ext}`, `{N}-out.{ext}`,
+/// and new `{N}-in.{tag}.{ext}` — all count toward the same index space.
 pub(crate) fn zapcrh_scan_next_index(dir: &Path) -> Result<u32, String> {
     let entries = fs::read_dir(dir)
         .map_err(|e| format!("read harvest dir {}: {}", dir.display(), e))?;
@@ -95,9 +121,9 @@ pub(crate) fn zapcrh_scan_next_index(dir: &Path) -> Result<u32, String> {
     })
 }
 
-/// Write the text flavor to `{index}-in.txt` in `dir`.
-pub(crate) fn zapcrh_write_text(dir: &Path, index: u32, text: &str) -> Result<(), String> {
-    let path = dir.join(format!("{}-in.txt", index));
+/// Write the text flavor to `{index}-in.{tag}.txt` in `dir`.
+pub(crate) fn zapcrh_write_text(dir: &Path, index: u32, tag: &str, text: &str) -> Result<(), String> {
+    let path = dir.join(format!("{}-in.{}.txt", index, tag));
     let mut file = fs::File::create(&path)
         .map_err(|e| format!("create {}: {}", path.display(), e))?;
     file.write_all(text.as_bytes())
@@ -105,9 +131,9 @@ pub(crate) fn zapcrh_write_text(dir: &Path, index: u32, text: &str) -> Result<()
     Ok(())
 }
 
-/// Write the HTML flavor to `{index}-in.html` in `dir`.
-pub(crate) fn zapcrh_write_html(dir: &Path, index: u32, html: &str) -> Result<(), String> {
-    let path = dir.join(format!("{}-in.html", index));
+/// Write the HTML flavor to `{index}-in.{tag}.html` in `dir`.
+pub(crate) fn zapcrh_write_html(dir: &Path, index: u32, tag: &str, html: &str) -> Result<(), String> {
+    let path = dir.join(format!("{}-in.{}.html", index, tag));
     let mut file = fs::File::create(&path)
         .map_err(|e| format!("create {}: {}", path.display(), e))?;
     file.write_all(html.as_bytes())

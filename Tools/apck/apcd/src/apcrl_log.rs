@@ -18,7 +18,11 @@
 //! comparison variants. No naked `println!`/`eprintln!` elsewhere in the codebase.
 //!
 //! Output is line-oriented to stdout. Format:
-//!   `[LEVEL] [file:line] message`
+//!   `[LEVEL] [YYYY-MM-DD HH:MM:SS.mmm] [file:line] message`
+//!
+//! The timestamp is local wall-clock with millisecond precision, captured at
+//! emit time by `chrono::Local::now()`. Level, timestamp, and file:line flow
+//! through a single formatter so stdout and the tee sink never drift.
 //!
 //! An optional file-tee sink can be installed via `apcrl_tee_init` once at
 //! application startup. When present, every emission is appended to the tee
@@ -68,16 +72,21 @@ fn zapcrl_tee_write(line: &str) {
     }
 }
 
+fn zapcrl_format(level: &str, file: &str, line: u32, msg: &str) -> String {
+    let ts = chrono::Local::now().format("%Y-%m-%d %H:%M:%S%.3f");
+    format!("{} [{}] [{}:{}] {}", level, ts, file, line, msg)
+}
+
 #[doc(hidden)]
 pub fn zapcrl_emit(level: &str, file: &str, line: u32, msg: &str) {
-    let formatted = format!("{} [{}:{}] {}", level, file, line, msg);
+    let formatted = zapcrl_format(level, file, line, msg);
     println!("{}", formatted);
     zapcrl_tee_write(&formatted);
 }
 
 #[doc(hidden)]
 pub fn zapcrl_emit_fatal(file: &str, line: u32, msg: &str) -> ! {
-    let formatted = format!("{} [{}:{}] {}", APCRL_LEVEL_FATAL, file, line, msg);
+    let formatted = zapcrl_format(APCRL_LEVEL_FATAL, file, line, msg);
     println!("{}", formatted);
     zapcrl_tee_write(&formatted);
     std::process::exit(1);

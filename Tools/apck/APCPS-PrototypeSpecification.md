@@ -72,7 +72,7 @@ On window focus, the engine compares the current clipboard content (byte-for-byt
 
 ## Journal Directory
 
-**Purpose.** One place on disk that accumulates runtime artifacts produced by the app: verbatim clipboard harvests on the Clinical branch, and a running log of every `apcrl_*` emission teed from stdout. A single location keeps the mental model honest — one `ls` answers both "what did the app capture?" and "what did the app report?".
+**Purpose.** One place on disk that accumulates runtime artifacts produced by the app: verbatim clipboard harvests from every focus with changed content (clinical and non-clinical alike), and a running log of every `apcrl_*` emission teed from stdout. A single location keeps the mental model honest — one `ls` answers both "what did the app capture?" and "what did the app report?".
 
 **Path.** `$HOME/apcjd/` — outside any repo tree. The directory is created lazily at application startup (for the log tee) or on first capture (for harvests), whichever comes first. A `.gitignore` entry for `apcjd/` is present as belt-and-suspenders against a misdirected `$HOME` resolution that lands in-tree.
 
@@ -80,34 +80,36 @@ On window focus, the engine compares the current clipboard content (byte-for-byt
 
 | Artifact | Producer | Shape |
 |----------|----------|-------|
-| Harvest captures | `apcrh_harvest` on Clinical branch | `{N}-in.{ext}` (see Clipboard Harvest) |
+| Harvest captures | `apcrh_harvest` on every focus with changed content | `{N}-in.{tag}.{ext}` where `{tag}` is `clinical` or `nonclinical` (see Clipboard Harvest) |
 | Anonymized outputs | `apcap_main` focus handler on Clinical branch | `{N}-out.txt` (see Clipboard Harvest) |
 | Observability log | `apcrl_log` file-tee sink | `apcap.log` (see Observability Log) |
 
 ## Clipboard Harvest
 
-**Purpose.** Preserve verbatim real-world clipboard contents on Clinical-branch detection so the fixture library can grow from real traffic and so Epic's actual flavor structure can be studied. The prototype currently ships with synthetic fixtures only; harvest is the bridge from lab to field without relying on the clinician to remember to save.
+**Purpose.** Preserve verbatim real-world clipboard contents from every focus with changed content so the fixture library can grow from real traffic, so Epic's actual flavor structure can be studied, and so a classifier misfire still leaves an artifact on disk to post-mortem. The prototype currently ships with synthetic fixtures only; harvest is the bridge from lab to field without relying on the clinician to remember to save.
 
-**Trigger.** The Clinical branch of clipboard analysis — executed before the system-clipboard zero-out. Non-clinical content is never harvested.
+**Trigger.** Every focus with changed clipboard content — executed after the classifier runs so the verdict can be tagged into the filename, but before any Clinical-branch clipboard zero-out. The same-as-last short-circuit at the top of the focus handler still applies: re-focusing with unchanged content does not re-harvest.
 
 **Storage.** The journal directory (`$HOME/apcjd/`, see above).
 
-**Naming.** Inputs are written as `{N}-in.{ext}`; the anonymized output that pairs with each capture is written as `{N}-out.txt`. `N` seeds at 10000 for an empty directory, otherwise `max_leading_digit_run + 1` across every filename whose name begins with digits. Files sharing the same `N` group all artifacts of one capture — e.g., `10000-in.txt`, `10000-in.html`, and `10000-out.txt` are three artifacts of capture 10000. Gaps in the numeric sequence are not filled — the scan advances past the current maximum. Filenames that do not begin with a digit are ignored in the max calculation, so `apcap.log` and any user-placed `README` or `notes` co-exist without perturbing indexing. The scan parses the leading digit run, not the full stem, so legacy bare `{N}.{ext}` files from earlier prototype runs still count toward index advancement.
+**Naming.** Inputs are written as `{N}-in.{tag}.{ext}` where `{tag}` is `clinical` or `nonclinical` — the classifier's verdict at the moment of capture. Clinical captures additionally pair with an anonymized output written as `{N}-out.txt`. `N` seeds at 10000 for an empty directory, otherwise `max_leading_digit_run + 1` across every filename whose name begins with digits. Files sharing the same `N` group all artifacts of one capture — e.g., `10000-in.clinical.txt`, `10000-in.clinical.html`, and `10000-out.txt` are three artifacts of clinical capture 10000; `10001-in.nonclinical.txt` is the lone artifact of non-clinical capture 10001. Gaps in the numeric sequence are not filled — the scan advances past the current maximum. Filenames that do not begin with a digit are ignored in the max calculation, so `apcap.log` and any user-placed `README` or `notes` co-exist without perturbing indexing. The scan parses the leading digit run, not the full stem, so legacy bare `{N}.{ext}` and prior untagged `{N}-in.{ext}` files from earlier prototype runs still count toward index advancement — all styles share one index space.
 
 **Flavors.** Every flavor the `arboard` abstraction exposes at the time of capture:
 
 | Flavor | Filename | Present when |
 |--------|----------|--------------|
-| Plain text (`get_text`) | `{N}-in.txt` | Always — required for Clinical branch entry |
-| HTML (`get().html()`) | `{N}-in.html` | Epic "Copy All" places HTML; absence is possible and non-fatal |
+| Plain text (`get_text`) | `{N}-in.{tag}.txt` | Always — required for any focus handler entry |
+| HTML (`get().html()`) | `{N}-in.{tag}.html` | Epic "Copy All" places HTML; absence is possible and non-fatal |
 
 RTF and image flavors are documented gaps: `arboard` 3.x does not surface RTF, and image capture requires the `image-data` feature which this project does not enable. Dropping to platform-specific pasteboard APIs to close these gaps is explicitly out of scope for the prototype.
 
-**Anonymized output.** On every Clinical-branch focus, after the input harvest succeeds, the focus handler also writes `{N}-out.txt`: the anonymizer's output with default-elide toggle states (every finding elided). The point is a legible input/output pairing on disk — Brad can diff `{N}-in.txt` against `{N}-out.txt` to review what clipbuddy produced for Ann, without relying on her to paste-and-save. This output is captured *at focus time*, not on copy. Updating `{N}-out.txt` as Ann toggles findings or re-copies is deferred UX; the current snapshot is always the default-elide baseline. Write failure is non-fatal — triage continues, and the failure is logged via `apcrl_error_now!`. An HTML-preserving anonymized output (`{N}-out.html`) is out of scope — the current anonymizer is plain-text only.
+**Anonymized output.** On every Clinical-branch focus, after the input harvest succeeds, the focus handler also writes `{N}-out.txt`: the anonymizer's output with default-elide toggle states (every finding elided). The point is a legible input/output pairing on disk — Brad can diff `{N}-in.clinical.txt` against `{N}-out.txt` to review what clipbuddy produced for Ann, without relying on her to paste-and-save. This output is captured *at focus time*, not on copy. Updating `{N}-out.txt` as Ann toggles findings or re-copies is deferred UX; the current snapshot is always the default-elide baseline. Write failure is non-fatal — triage continues, and the failure is logged via `apcrl_error_now!`. An HTML-preserving anonymized output (`{N}-out.html`) is out of scope — the current anonymizer is plain-text only. Non-clinical captures do not pair with an anonymized output; there is nothing to anonymize because no findings are produced.
 
-**Failure mode.** A capture failure logs via `apcrl_error_now!` (stdout + tee) and does not abort triage. User-visible behavior is unchanged whether harvest succeeds or fails — the triage pipeline is authoritative. The same holds for the anonymized-output write.
+**Failure mode.** A capture failure logs via `apcrl_error_now!` (stdout + tee) and does not abort triage. User-visible behavior is unchanged whether harvest succeeds or fails — the triage pipeline is authoritative. The same holds for the anonymized-output write. System-clipboard zero-out happens only on the Clinical branch; a non-clinical capture leaves Ann's clipboard untouched.
 
-**Privacy posture.** PHI-at-rest stays outside the repo. Captures are never auto-committed, auto-uploaded, or auto-anonymized. Anonymization and promotion to `test_fixtures/` are manual, out-of-band operations. The clinician-developer coordinates capture review separately.
+**Privacy posture.** PHI-at-rest stays outside the repo. The journal directory is PHI-permissive by design — harvests, the anonymized-output pairings, and the observability log all share the same on-device-only posture: nothing in `$HOME/apcjd/` is auto-committed, auto-uploaded, or auto-anonymized. Review and promotion of any artifact to an out-of-site context is a manual act.
+
+The always-harvest posture is a deliberate scope expansion over earlier prototype behavior, which only captured on the Clinical branch. Today's compact is "clipbuddy captures every clipboard it sees during a session" — not only clinical notes. When Brad reviews a session's journal directory he will observe Ann's non-clinical clipboard activity too: passwords she copied, personal email snippets, URLs, anything at all that hit her pasteboard while Ann's PHI Clipbuddy had focus in the background. This is not a new *kind* of risk — the journal directory was already PHI-permissive on-device, and nothing leaves the device automatically — but the *scope* of what a reviewer sees is broader, and naming that here means the posture is not discovered by surprise. A debug-mode or opt-out flag for non-clinical capture is deliberately not provided at prototype scale; revisit if Ann or Brad flags the scope as too broad in practice.
 
 ## Observability Log
 
@@ -115,7 +117,7 @@ RTF and image flavors are documented gaps: `arboard` 3.x does not surface RTF, a
 
 **Mechanism.** `apcrl_log` exposes an optional file-tee sink: `apcrl_tee_init(path)` installs a once-only append-open handle. Every subsequent `apcrl_*_now!`, `_if!`, and comparison-variant emission is written twice — once to stdout (verbatim) and once to the tee file (same format, same line). One format, two sinks.
 
-**Format.** Exactly what stdout receives: `[LEVEL] [file:line] message`. Single emission path means no format drift between modalities — an engineer debugging a remote bundle and an engineer running `cargo run` read the same lines.
+**Format.** Exactly what stdout receives: `[LEVEL] [YYYY-MM-DD HH:MM:SS.mmm] [file:line] message`. The timestamp is local wall-clock with millisecond precision, captured at emit time via `chrono::Local::now()`. Single emission path means no format drift between modalities — an engineer debugging a remote bundle and an engineer running `cargo run` read the same lines. The clock lets Ann's "it stopped working around 2pm" kind of report meet the log without re-running under a stopwatch.
 
 **Location.** `$HOME/apcjd/apcap.log`. Filename matches the binary name (`apcap`) as an engineer mnemonic. Append-only — no rotation at prototype scale; a clinical session produces tens of lines, a year of use produces thousands.
 

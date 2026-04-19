@@ -61,43 +61,70 @@ fn zapcap_handle_focus(window: &tauri::WebviewWindow) -> Result<(), String> {
 
     let dicts = ZAPCAP_DICTS.get_or_init(apcd::apcrd_dictionaries::apcrd_Dictionaries::apcrd_load);
 
-    match apcd::apcre_engine::apcre_analyze(&content, dicts) {
+    let result = apcd::apcre_engine::apcre_analyze(&content, dicts);
+
+    // Classification is decided before harvest runs — the tag in the
+    // filename records what the classifier said at the moment of capture,
+    // not some later inference.
+    let classification = match &result {
+        apcd::apcre_engine::apcre_Result::Clinical { .. } =>
+            apcd::apcrh_harvest::apcrh_Classification::Clinical,
+        apcd::apcre_engine::apcre_Result::NonClinical { .. } =>
+            apcd::apcrh_harvest::apcrh_Classification::NonClinical,
+    };
+
+    // Harvest runs for every focus with changed content. Non-clinical
+    // captures land alongside clinical ones in the journal so a
+    // classification failure still leaves an artifact to post-mortem.
+    let journal_dir = apcd::apcrj_journal::apcrj_journal_path();
+    let harvest_index: Option<u32> = match &journal_dir {
+        Some(dir) => {
+            match apcd::apcrh_harvest::apcrh_capture_all_flavors(dir, classification) {
+                Ok(n) => {
+                    apcd::apcrl_info_now!("harvest captured as {}", n);
+                    Some(n)
+                }
+                Err(e) => {
+                    apcd::apcrl_error_now!("harvest capture failed: {}", e);
+                    None
+                }
+            }
+        }
+        None => {
+            apcd::apcrl_error_now!("harvest skipped: HOME not set");
+            None
+        }
+    };
+
+    match result {
         apcd::apcre_engine::apcre_Result::Clinical { findings, plain_text } => {
             apcd::apcrl_info_now!("clinical: {} findings", findings.len());
-            // Harvest every arboard-accessible flavor before the clipboard
-            // zero-out, then pair the input with a default-elide anonymized
-            // output. Output-at-focus uses an empty toggle-states slice —
+
+            // Pair the input capture with a default-elide anonymized output.
+            // Output-at-focus uses an empty toggle-states slice —
             // apcre_anonymize defaults to elide for missing entries —
             // producing what Ann would get if she copied without touching
             // any toggles. Per-toggle refresh of the output file is a
             // deferred UX pace; this pairing is about legible debug signal.
-            match apcd::apcrj_journal::apcrj_journal_path() {
-                Some(journal_dir) => {
-                    match apcd::apcrh_harvest::apcrh_capture_all_flavors(&journal_dir) {
-                        Ok(n) => {
-                            apcd::apcrl_info_now!("harvest captured as {}", n);
-                            let anonymized = apcd::apcre_engine::apcre_anonymize(
-                                &plain_text, &findings, &[],
-                            );
-                            let out_path = journal_dir.join(format!("{}-out.txt", n));
-                            match std::fs::write(&out_path, &anonymized) {
-                                Ok(()) => apcd::apcrl_info_now!(
-                                    "anonymized written as {}-out.txt", n
-                                ),
-                                Err(e) => apcd::apcrl_error_now!(
-                                    "anonymized write failed: {}", e
-                                ),
-                            }
-                        }
-                        Err(e) => apcd::apcrl_error_now!("harvest capture failed: {}", e),
-                    }
-                }
-                None => {
-                    apcd::apcrl_error_now!("harvest skipped: HOME not set");
+            // If harvest failed, we have no N to pair with — skip the out
+            // write rather than invent an index.
+            if let (Some(dir), Some(n)) = (journal_dir.as_ref(), harvest_index) {
+                let anonymized = apcd::apcre_engine::apcre_anonymize(
+                    &plain_text, &findings, &[],
+                );
+                let out_path = dir.join(format!("{}-out.txt", n));
+                match std::fs::write(&out_path, &anonymized) {
+                    Ok(()) => apcd::apcrl_info_now!(
+                        "anonymized written as {}-out.txt", n
+                    ),
+                    Err(e) => apcd::apcrl_error_now!(
+                        "anonymized write failed: {}", e
+                    ),
                 }
             }
 
-            // Clear system clipboard after consuming clinical content
+            // Clear system clipboard only after consuming clinical content.
+            // Non-clinical captures do not disturb Ann's clipboard state.
             let _ = clipboard.set_text(String::new());
 
             {
