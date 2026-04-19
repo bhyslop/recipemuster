@@ -77,7 +77,9 @@ apcc_deploy() {
   local -r z_bundle_size="${z_size_raw%%$'\t'*}"
 
   buc_step "Deploying to anns-macbook-air:/Users/Shared/apcua/"
-  ssh anns-macbook-air 'rm -rf /Users/Shared/apcua/*.app' 2>"${z_ssh_stderr}" \
+  # find (not rm *.app) because Ann's remote shell is zsh, which errors on
+  # empty glob match (NOMATCH) — breaks the first-deploy case when the dir is empty.
+  ssh anns-macbook-air 'mkdir -p /Users/Shared/apcua && find /Users/Shared/apcua -maxdepth 1 -name "*.app" -exec rm -rf {} +' 2>"${z_ssh_stderr}" \
     || buc_die "Failed to clean staging dir — see ${z_ssh_stderr}"
   scp -r "${z_app_name}" anns-macbook-air:/Users/Shared/apcua/ 2>"${z_scp_stderr}" \
     || buc_die "Failed to deploy bundle — see ${z_scp_stderr}"
@@ -95,7 +97,7 @@ apcc_deploy() {
                 "     Double-click ${z_app_basename}" \
                 '' \
                 '  Or from Terminal:' \
-                "    open /Users/Shared/apcua/${z_app_basename}" \
+                "    open \"/Users/Shared/apcua/${z_app_basename}\"" \
                 '' \
                 '=== End ==='
 }
