@@ -47,11 +47,14 @@ fn zapcap_handle_focus(window: &tauri::WebviewWindow) -> Result<(), String> {
     let content = clipboard.get_text()
         .map_err(|e| format!("clipboard error: {}", e))?;
 
+    apcd::apcrl_info_now!("focus: {} bytes", content.len());
+
     // Change detection — same content as last invocation → preserve UI state
     {
         let last = ZAPCAP_LAST_CLIPBOARD.lock()
             .map_err(|e| format!("lock error: {}", e))?;
         if last.as_deref() == Some(content.as_str()) {
+            apcd::apcrl_info_now!("focus: unchanged");
             return Ok(());
         }
     }
@@ -60,6 +63,7 @@ fn zapcap_handle_focus(window: &tauri::WebviewWindow) -> Result<(), String> {
 
     match apcd::apcre_engine::apcre_analyze(&content, dicts) {
         apcd::apcre_engine::apcre_Result::Clinical { findings, plain_text } => {
+            apcd::apcrl_info_now!("clinical: {} findings", findings.len());
             // Harvest every arboard-accessible flavor before the clipboard
             // zero-out. Success and failure both log — the journal log is
             // a confirmation mechanism, not just an error record.
@@ -99,6 +103,7 @@ fn zapcap_handle_focus(window: &tauri::WebviewWindow) -> Result<(), String> {
             zapcap_push_triage(window)
         }
         apcd::apcre_engine::apcre_Result::NonClinical { content_length, content_type, preview } => {
+            apcd::apcrl_info_now!("non-clinical: {} ({} bytes)", content_type, content_length);
             {
                 let mut last = ZAPCAP_LAST_CLIPBOARD.lock()
                     .map_err(|e| format!("lock error: {}", e))?;
