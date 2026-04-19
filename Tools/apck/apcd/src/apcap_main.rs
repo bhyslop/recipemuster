@@ -62,16 +62,14 @@ fn zapcap_handle_focus(window: &tauri::WebviewWindow) -> Result<(), String> {
         apcd::apcre_engine::apcre_Result::Clinical { findings, plain_text } => {
             // Harvest every arboard-accessible flavor before the clipboard
             // zero-out. Failure logs and continues — triage is authoritative.
-            match std::env::var("HOME") {
-                Ok(home) => {
-                    let harvest_dir = std::path::PathBuf::from(home)
-                        .join(apcd::apcrh_harvest::APCRH_HARVEST_DIR_NAME);
-                    if let Err(e) = apcd::apcrh_harvest::apcrh_capture_all_flavors(&harvest_dir) {
+            match apcd::apcrj_journal::apcrj_journal_path() {
+                Some(journal_dir) => {
+                    if let Err(e) = apcd::apcrh_harvest::apcrh_capture_all_flavors(&journal_dir) {
                         apcd::apcrl_error_now!("harvest capture failed: {}", e);
                     }
                 }
-                Err(e) => {
-                    apcd::apcrl_error_now!("harvest skipped: HOME not set: {}", e);
+                None => {
+                    apcd::apcrl_error_now!("harvest skipped: HOME not set");
                 }
             }
 
@@ -423,7 +421,29 @@ fn zapcap_js_string_literal(s: &str) -> String {
 // Entry point
 // ---------------------------------------------------------------------------
 
+fn zapcap_init_log_tee() {
+    let log_path = match apcd::apcrj_journal::apcrj_log_path() {
+        Some(p) => p,
+        None    => {
+            apcd::apcrl_error_now!("log tee skipped: HOME not set");
+            return;
+        }
+    };
+    if let Some(parent) = log_path.parent() {
+        if let Err(e) = std::fs::create_dir_all(parent) {
+            apcd::apcrl_error_now!(
+                "create journal dir {}: {}", parent.display(), e
+            );
+            return;
+        }
+    }
+    if let Err(e) = apcd::apcrl_log::apcrl_tee_init(&log_path) {
+        apcd::apcrl_error_now!("log tee init failed: {}", e);
+    }
+}
+
 fn main() {
+    zapcap_init_log_tee();
     apcd::apcrl_info_now!("starting Ann's PHI Clipbuddy");
     apcd::apcru_update::apcru_start_watcher();
     tauri::Builder::default()

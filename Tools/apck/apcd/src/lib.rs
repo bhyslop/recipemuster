@@ -23,6 +23,7 @@ pub mod apcrm_match;
 pub mod apcrd_dictionaries;
 pub mod apcru_update;
 pub mod apcrh_harvest;
+pub mod apcrj_journal;
 
 #[cfg(test)] mod apcte_engine;
 #[cfg(test)] mod apctp_parse;

@@ -50,9 +50,10 @@ Tools/vvk/bin/vvx-*
 # Dictionary refresh staging (manual SSA download)
 Tools/apck/apcd/dictionaries/.ssa_names_staging.zip
 
-# APCK clipboard harvest — PHI-at-rest belongs outside any repo tree; this
-# guard catches a misdirected $HOME resolution that lands in-tree.
-apck_harvest/
+# APCK journal directory — runtime captures + tee'd apcap.log belong
+# outside any repo tree; this guard catches a misdirected $HOME resolution
+# that lands in-tree.
+apcjd/
 
 # Rust build artifacts
 **/target/

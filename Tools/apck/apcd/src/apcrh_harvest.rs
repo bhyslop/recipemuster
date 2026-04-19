@@ -13,9 +13,11 @@
 // limitations under the License.
 
 //! Clipboard harvest — capture every arboard-accessible clipboard flavor
-//! verbatim to `{N}.{ext}` files in `$HOME/apck_harvest/` on the Clinical
-//! branch, before the system-clipboard zero-out. PHI-at-rest stays outside
-//! the repo; anonymization and promotion to test fixtures are manual.
+//! verbatim to `{N}.{ext}` files in the journal directory (typically
+//! `$HOME/apcjd/`) on the Clinical branch, before the system-clipboard
+//! zero-out. PHI-at-rest stays outside the repo; anonymization and
+//! promotion to test fixtures are manual. The destination is supplied by
+//! the caller; see `apcrj_journal::apcrj_journal_path`.
 
 // RCG output discipline: all emission via apcrl_*! — no direct println!/eprintln!
 
@@ -24,7 +26,6 @@ use std::io::Write;
 use std::path::Path;
 
 pub const APCRH_HARVEST_SEED_INDEX: u32 = 10000;
-pub const APCRH_HARVEST_DIR_NAME:  &str = "apck_harvest";
 
 /// Capture every arboard-accessible clipboard flavor into `{N}.{ext}` files
 /// in `dir`. Returns the N used. N seeds at `APCRH_HARVEST_SEED_INDEX` when

@@ -70,15 +70,28 @@ This heuristic will be refined when tested against real Epic output. The initial
 
 On window focus, the engine compares the current clipboard content (byte-for-byte string comparison) against the last successfully consumed content. If identical, the existing triage state is preserved — no reprocessing. If different, the clinical content heuristic runs on the new content. Clinical notes are a few KB; storing the last consumed string for comparison has negligible memory cost at prototype scale.
 
+## Journal Directory
+
+**Purpose.** One place on disk that accumulates runtime artifacts produced by the app: verbatim clipboard harvests on the Clinical branch, and a running log of every `apcrl_*` emission teed from stdout. A single location keeps the mental model honest — one `ls` answers both "what did the app capture?" and "what did the app report?".
+
+**Path.** `$HOME/apcjd/` — outside any repo tree. The directory is created lazily at application startup (for the log tee) or on first capture (for harvests), whichever comes first. A `.gitignore` entry for `apcjd/` is present as belt-and-suspenders against a misdirected `$HOME` resolution that lands in-tree.
+
+**Contents.** Two independent features share this directory:
+
+| Artifact | Producer | Shape |
+|----------|----------|-------|
+| Harvest captures | `apcrh_harvest` on Clinical branch | `{N}.{ext}` (see Clipboard Harvest) |
+| Observability log | `apcrl_log` file-tee sink | `apcap.log` (see Observability Log) |
+
 ## Clipboard Harvest
 
 **Purpose.** Preserve verbatim real-world clipboard contents on Clinical-branch detection so the fixture library can grow from real traffic and so Epic's actual flavor structure can be studied. The prototype currently ships with synthetic fixtures only; harvest is the bridge from lab to field without relying on the clinician to remember to save.
 
 **Trigger.** The Clinical branch of clipboard analysis — executed before the system-clipboard zero-out. Non-clinical content is never harvested.
 
-**Storage.** `$HOME/apck_harvest/` — outside any repo tree. The directory is created lazily on first capture. The path uses no dotfile prefix so captures are visible when the user navigates to the directory to promote a file. A `.gitignore` entry for `apck_harvest/` is present as belt-and-suspenders against a misdirected `$HOME` resolution that lands in-tree.
+**Storage.** The journal directory (`$HOME/apcjd/`, see above).
 
-**Naming.** `{N}.{ext}` where `N` seeds at 10000 for an empty directory, otherwise `max_existing_numeric_stem + 1`. Files with the same `N` group all flavors of one capture (e.g., `10000.txt` and `10000.html` are the two flavors of capture 10000). Gaps in the numeric sequence are not filled — the scan advances past the current maximum. Non-numeric filenames are ignored in the max calculation, so user-placed `README`, `notes`, or similar co-exist without perturbing indexing.
+**Naming.** `{N}.{ext}` where `N` seeds at 10000 for an empty directory, otherwise `max_existing_numeric_stem + 1`. Files with the same `N` group all flavors of one capture (e.g., `10000.txt` and `10000.html` are the two flavors of capture 10000). Gaps in the numeric sequence are not filled — the scan advances past the current maximum. Non-numeric filenames are ignored in the max calculation, so `apcap.log` and any user-placed `README` or `notes` co-exist without perturbing indexing.
 
 **Flavors.** Every flavor the `arboard` abstraction exposes at the time of capture:
 
@@ -89,9 +102,25 @@ On window focus, the engine compares the current clipboard content (byte-for-byt
 
 RTF and image flavors are documented gaps: `arboard` 3.x does not surface RTF, and image capture requires the `image-data` feature which this project does not enable. Dropping to platform-specific pasteboard APIs to close these gaps is explicitly out of scope for the prototype.
 
-**Failure mode.** A capture failure logs via the standard error channel (`apcrl_error_now!`) and does not abort triage. User-visible behavior is unchanged whether harvest succeeds or fails — the triage pipeline is authoritative.
+**Failure mode.** A capture failure logs via `apcrl_error_now!` (stdout + tee) and does not abort triage. User-visible behavior is unchanged whether harvest succeeds or fails — the triage pipeline is authoritative.
 
 **Privacy posture.** PHI-at-rest stays outside the repo. Captures are never auto-committed, auto-uploaded, or auto-anonymized. Anonymization and promotion to `test_fixtures/` are manual, out-of-band operations. The clinician-developer coordinates capture review separately.
+
+## Observability Log
+
+**Purpose.** Give the clinician-developer and the engineer a shared, persistent view of what the app did across runs. The `.app` bundle on macOS captures stdout where a non-technical user won't look for it; a file in the journal directory is where both humans already know to peek.
+
+**Mechanism.** `apcrl_log` exposes an optional file-tee sink: `apcrl_tee_init(path)` installs a once-only append-open handle. Every subsequent `apcrl_*_now!`, `_if!`, and comparison-variant emission is written twice — once to stdout (verbatim) and once to the tee file (same format, same line). One format, two sinks.
+
+**Format.** Exactly what stdout receives: `[LEVEL] [file:line] message`. Single emission path means no format drift between modalities — an engineer debugging a remote bundle and an engineer running `cargo run` read the same lines.
+
+**Location.** `$HOME/apcjd/apcap.log`. Filename matches the binary name (`apcap`) as an engineer mnemonic. Append-only — no rotation at prototype scale; a clinical session produces tens of lines, a year of use produces thousands.
+
+**Init.** At `main()` startup, before any other log emission. Failure to install the tee (missing HOME, disk full, permissions) logs to stdout and proceeds — the app starts and stdout remains authoritative.
+
+**Failure mode.** Tee write failures are silently swallowed inside the emitter to avoid recursive-logging hazards (a failing log should not generate more log traffic). Stdout is the authoritative sink; tee is best-effort.
+
+**Privacy posture.** The log never receives clipboard content. `apcrh_harvest` writes captures directly to disk via its own file handles; it does not pass clipboard strings through `apcrl_*`. The log carries metadata about harvest events (index, success/failure) but never the captured bytes themselves. This discipline is load-bearing — breaking it would route PHI into a file that might otherwise be treated as unclassified logs.
 
 ## Detection Pipeline
 
@@ -299,8 +328,11 @@ apc  (non-terminal)
 │   └── apcas  — application specification document (UX, workflow)
 ├── apcc   — CLI command implementations
 ├── apcd   — Rust/Tauri source directory
-│   ├── apcrh  — Clipboard harvest module ($HOME/apck_harvest/ capture)
-│   └── apcrl  — Logging macros (info, error, fatal with file/line)
+│   ├── apcrh  — Clipboard harvest module (writes to journal directory)
+│   ├── apcrj  — Journal directory path resolver
+│   └── apcrl  — Logging macros (info, error, fatal with file/line) + file-tee sink
+├── apcj   (non-terminal — journal)
+│   └── apcjd  — journal directory ($HOME/apcjd/) holding harvests + apcap.log
 ├── apck   — kit directory
 ├── apcps  — prototype specification document
 ├── apcs   (non-terminal)
@@ -321,6 +353,7 @@ pub mod apcrm_match;
 pub mod apcrd_dictionaries;
 pub mod apcru_update;
 pub mod apcrh_harvest;
+pub mod apcrj_journal;
 
 #[cfg(test)] mod apcte_engine;
 #[cfg(test)] mod apctp_parse;

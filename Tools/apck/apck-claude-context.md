@@ -23,13 +23,14 @@ APCK is a Tauri desktop app that intercepts clipboard content from Epic EHR, det
 
 | Source | Prefix | Test | Prefix | Purpose |
 |--------|--------|------|--------|---------|
-| `apcrl_log.rs` | `apcrl` | — | — | Logging macros (`apcrl_info!`, `apcrl_error!`, `apcrl_fatal!`) |
+| `apcrl_log.rs` | `apcrl` | — | — | Logging macros (`apcrl_info!`, `apcrl_error!`, `apcrl_fatal!`) + optional file-tee sink via `apcrl_tee_init` |
 | `apcre_engine.rs` | `apcre` | `apcte_engine.rs` | `apcte` | PHI detection orchestrator |
 | `apcrp_parse.rs` | `apcrp` | `apctp_parse.rs` | `apctp` | HTML clipboard parsing |
 | `apcrm_match.rs` | `apcrm` | `apctm_match.rs` | `apctm` | Dictionary/regex matching |
 | `apcrd_dictionaries.rs` | `apcrd` | `apctd_dictionaries.rs` | `apctd` | Dictionary loading |
 | `apcru_update.rs` | `apcru` | — | — | Self-update watcher (no unit tests — I/O + process) |
-| `apcrh_harvest.rs` | `apcrh` | `apcth_harvest.rs` | `apcth` | Clipboard harvest — capture arboard flavors to `$HOME/apck_harvest/` on Clinical branch before zero-out |
+| `apcrh_harvest.rs` | `apcrh` | `apcth_harvest.rs` | `apcth` | Clipboard harvest — capture arboard flavors to the journal directory on Clinical branch before zero-out |
+| `apcrj_journal.rs` | `apcrj` | — | — | Journal directory path resolver — `$HOME/apcjd/` holds harvests + `apcap.log` |
 
 **Other key paths:**
 - `Tools/apck/apcd/ui/` — Frontend (HTML/CSS only — no JavaScript)
@@ -66,8 +67,11 @@ apc  (non-terminal)
 │   └── apcas  — application specification document (UX, workflow)
 ├── apcc   — CLI command implementations
 ├── apcd   — Rust/Tauri source directory
-│   ├── apcrh  — Clipboard harvest module ($HOME/apck_harvest/ capture)
-│   └── apcrl  — Logging macros (info, error, fatal with file/line)
+│   ├── apcrh  — Clipboard harvest module (writes to journal directory)
+│   ├── apcrj  — Journal directory path resolver
+│   └── apcrl  — Logging macros (info, error, fatal with file/line) + file-tee sink
+├── apcj   (non-terminal — journal)
+│   └── apcjd  — journal directory ($HOME/apcjd/) holding harvests + apcap.log
 ├── apck   — kit directory
 ├── apcn   (non-terminal — neural)
 │   └── apcns  (non-terminal — neural stanford)

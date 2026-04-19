@@ -20,25 +20,66 @@
 //! Output is line-oriented to stdout. Format:
 //!   `[LEVEL] [file:line] message`
 //!
+//! An optional file-tee sink can be installed via `apcrl_tee_init` once at
+//! application startup. When present, every emission is appended to the tee
+//! file in the exact format that goes to stdout — one format, two sinks. Tee
+//! write failures are swallowed to avoid recursive-logging hazards; stdout
+//! remains authoritative.
+//!
 //! Suffix families:
 //!   `_now`  — unconditional emission
 //!   `_if`   — boolean conditional, returns the bool
 //!   `_eq`, `_ne`, `_lt`, `_gt`, `_le`, `_ge` — comparison conditional,
 //!            stringifies arguments, returns the bool
 
+use std::fs::{File, OpenOptions};
+use std::io::Write;
+use std::path::Path;
+use std::sync::{Mutex, OnceLock};
+
 pub const APCRL_LEVEL_TRACE: &str = "[TRACE]";
 pub const APCRL_LEVEL_INFO:  &str = "[INFO]";
 pub const APCRL_LEVEL_ERROR: &str = "[ERROR]";
 pub const APCRL_LEVEL_FATAL: &str = "[FATAL]";
 
+static ZAPCRL_TEE: OnceLock<Mutex<File>> = OnceLock::new();
+
+/// Install a file-tee sink. Every subsequent `apcrl_*` emission is appended
+/// to `path` in the exact format that goes to stdout. The file is opened in
+/// append-create mode. Call once from application startup; subsequent calls
+/// return `Err` without disturbing the active sink.
+pub fn apcrl_tee_init(path: &Path) -> Result<(), String> {
+    let file = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(path)
+        .map_err(|e| format!("open tee file {}: {}", path.display(), e))?;
+    ZAPCRL_TEE.set(Mutex::new(file))
+        .map_err(|_| "tee already initialized".to_string())?;
+    Ok(())
+}
+
+fn zapcrl_tee_write(line: &str) {
+    if let Some(mtx) = ZAPCRL_TEE.get() {
+        if let Ok(mut f) = mtx.lock() {
+            let _ = writeln!(f, "{}", line);
+            let _ = f.flush();
+        }
+    }
+}
+
 #[doc(hidden)]
 pub fn zapcrl_emit(level: &str, file: &str, line: u32, msg: &str) {
-    println!("{} [{}:{}] {}", level, file, line, msg);
+    let formatted = format!("{} [{}:{}] {}", level, file, line, msg);
+    println!("{}", formatted);
+    zapcrl_tee_write(&formatted);
 }
 
 #[doc(hidden)]
 pub fn zapcrl_emit_fatal(file: &str, line: u32, msg: &str) -> ! {
-    println!("{} [{}:{}] {}", APCRL_LEVEL_FATAL, file, line, msg);
+    let formatted = format!("{} [{}:{}] {}", APCRL_LEVEL_FATAL, file, line, msg);
+    println!("{}", formatted);
+    zapcrl_tee_write(&formatted);
     std::process::exit(1);
 }
 
