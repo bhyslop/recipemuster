@@ -2166,6 +2166,7 @@
       "status": "racing",
       "order": [
         "₢A9AAS",
+        "₢A9AAT",
         "₢A9AAO",
         "₢A9AAA",
         "₢A9AAB",
@@ -2185,7 +2186,7 @@
         "₢A9AAM",
         "₢A9AAN"
       ],
-      "next_pace_seed": "AAT",
+      "next_pace_seed": "AAU",
       "paddock_file": ".claude/jjm/jjp_uAl9.md",
       "paces": {
         "₢A9AAA": {
@@ -2569,6 +2570,17 @@
               "text": "## Character\n\nInfrastructure work with one design disposition (self-update watcher off). Mostly shell-script modification to the existing deploy tabtarget plus a one-line disable in `main()`. Low ambiguity.\n\n## Problem\n\nAnn has no way to run clipbuddy today. `tt/apcw-d.Deploy.sh` exists but (a) doesn't emit forwarding instructions Brad can relay to Ann, and (b) depends on a self-update watcher that's premature complexity — the \"seamless hot-swap during active session\" problem isn't one Ann has at this stage.\n\n## Solution\n\nTreat Ann's workflow as manual quit + relaunch. The deploy tabtarget emits a formatted instruction block Brad copy-pastes to Ann after each deploy. The self-update watcher goes dormant — source stays intact for trivial revert if we ever want it back.\n\n## Deliverables\n\n- `tt/apcw-d.Deploy.sh`: after successful build + scp, emit a formatted block bracketed by `=== Forward to Ann ===` and `=== End ===` lines (easy visual selection for copy-paste). Instructions cover quit-if-running, launch Apcap.app from `/Users/Shared/apcua/` (Finder double-click or Terminal `open` command).\n- `apcap_main.rs::main()`: comment out `apcru_start_watcher()` call with a brief inline note explaining the disposition (\"disabled for prototype — manual quit + relaunch via Shared/apcua/Apcap.app is the current deploy workflow\").\n- Paddock note: self-update watcher dormant pending real need; Ann's deploy ceremony is manual.\n\n## Constraints\n\n- Keep `apcru_update.rs` source intact — revert is a one-line uncomment.\n- Deploy tabtarget remains a single invocation — no additional manual steps for Brad.\n- Instruction block is the sole source of truth for Ann's ceremony (no paddock copy, no separate doc).\n\n## Exit Criteria\n\n- `tt/apcw-d.Deploy.sh` runs cleanly against Ann's machine (scp succeeds).\n- Printed instruction block is copy-paste-ready.\n- Ann launches the deployed app via the printed instructions (Brad verifies in person or via screen-share).\n- `~/apcjd/` is created on Ann's machine on first focus event (triggered during verification).\n- `apcap.log` on Ann's machine does NOT contain `\"watching /Users/Shared/apcua for updates\"` — confirming the watcher is dormant.\n\n## Out of Scope\n\n- Onboarding documentation beyond the printed block.\n- Dock icon / LaunchPad integration for Ann.\n- Removing `apcru_update.rs` (disable-only; removal is a later cleanup concern).\n- ssh error handling beyond what scp produces.",
               "silks": "deploy-to-anns-machine",
               "commit": "cbec124"
+            }
+          ]
+        },
+        "₢A9AAT": {
+          "tacks": [
+            {
+              "ts": "260419-0939",
+              "state": "rough",
+              "text": "## Character\n\nMechanical filename refactor + new persistence path. Design pattern decided in planning: `{N}-in.{ext}` for inputs, `{N}-out.txt` for anonymized outputs. Low ambiguity.\n\n## Problem\n\nHarvest captures inputs but anonymized outputs are ephemeral — they exist only on the clipboard after Ann clicks copy. Brad can see what Ann captured but not what clipbuddy produced as anonymized text. This halves the debugging signal when reviewing Ann's sessions.\n\n## Solution\n\nRename harvest outputs from `{N}.{ext}` to `{N}-in.{ext}`. Add anonymized output write at focus time (same trigger as harvest), produced with default toggle states (all elided). Output file is `{N}-out.txt`. Final UX — updating the file when Ann toggles findings or re-copies — is deferred; the point now is a legible input/output pairing on disk for debugging.\n\n## Deliverables — Code\n\n- `apcrh_harvest.rs`: writer helpers emit `{N}-in.txt` and `{N}-in.html`.\n- `apcrh_harvest.rs::zapcrh_scan_next_index`: parse leading-digit run from filename rather than full stem as `u32`. Handles `10000-in.txt`, `10000-out.txt`, and legacy bare `{N}.{ext}` correctly. Skips `apcap.log`, `README`, and other non-numeric-prefixed entries.\n- `apcap_main.rs::zapcap_handle_focus` Clinical arm: after harvest returns `Ok(n)`, compute anonymized text using default-elide toggle states via `apcre_anonymize`, write to `{journal}/{n}-out.txt`, log success (`[INFO] anonymized written as {n}-out.txt`) or failure (`[ERROR] anonymized write failed: ...`). Write failure is non-fatal — triage continues.\n- `apcth_harvest.rs`: update the 4 existing tests to use `{N}-in.{ext}`; add one test for the scanner's leading-digit parse with mixed styles (bare `{N}.ext`, `{N}-in.ext`, `{N}-out.ext`).\n\n## Deliverables — Spec\n\n- APCPS \"Clipboard Harvest\" section: update Naming paragraph to describe `{N}-in.{ext}` inputs and `{N}-out.txt` outputs.\n- APCPS: brief note on output-at-focus behavior using default-elide toggle states; flag that per-toggle-change refresh is deferred.\n\n## Constraints\n\n- Scanner stays simple — leading-digit parse, no regex.\n- Output write failure is non-fatal.\n- Scanner remains backwards-compatible: legacy bare `{N}.{ext}` files still count toward index advancement.\n\n## Exit Criteria\n\n- `tt/apcw-t.Test.sh` passes including updated + new scanner tests.\n- Fixture-load + focus on a Clinical clipboard produces `{N}-in.txt`, `{N}-in.html`, and `{N}-out.txt` in the journal directory.\n- Second fixture load increments cleanly to `{N+1}`.\n- `apcap.log` records the harvest-captured and anonymized-written info lines at the correct indices.\n- APCPS updated and proofread before wrap.\n\n## Out of Scope\n\n- Output file refresh when Ann toggles findings or re-copies (deferred UX pace).\n- HTML-preserving anonymization (`{N}-out.html`) — current anonymizer is plain-text only.\n- Per-transaction metadata files (`{N}-meta.json`) — deferred until we have a concrete use.",
+              "silks": "paired-input-output-files",
+              "commit": "fb32c9d"
             }
           ]
         }
