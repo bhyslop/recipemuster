@@ -15,9 +15,7 @@
 //! APCK journal directory — one place on disk that accumulates runtime
 //! artifacts: verbatim clipboard harvests on the Clinical branch, and a
 //! running log of every `apcrl_*` emission teed from stdout. Resolved under
-//! `$HOME/apcjd/`.
-
-// RCG output discipline: all emission via apcrl_*! — no direct println!/eprintln!
+//! `$HOME/apcjd/`. This module does not emit — it resolves paths only.
 
 use std::path::PathBuf;
 

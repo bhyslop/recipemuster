@@ -31,6 +31,8 @@
 //!   APCNSA_MODEL_DIR   — directory holding model.onnx, tokenizer.json, config.json
 //!   BURD_OUTPUT_DIR    — where to write {stem}.stanford.assay.txt
 
+// RCG output discipline: all emission via apcrl_*! — no direct println!/eprintln!
+
 use apcd::apcrp_parse::apcrp_parse;
 
 use ort::session::{builder::GraphOptimizationLevel, Session};

@@ -17,9 +17,8 @@
 //! `$HOME/apcjd/`) on the Clinical branch, before the system-clipboard
 //! zero-out. PHI-at-rest stays outside the repo; anonymization and
 //! promotion to test fixtures are manual. The destination is supplied by
-//! the caller; see `apcrj_journal::apcrj_journal_path`.
-
-// RCG output discipline: all emission via apcrl_*! — no direct println!/eprintln!
+//! the caller; see `apcrj_journal::apcrj_journal_path`. This module does
+//! not emit — errors are returned to the caller for routing via `apcrl_*`.
 
 use std::fs;
 use std::io::Write;
