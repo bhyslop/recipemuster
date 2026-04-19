@@ -46,5 +46,13 @@ ureq = "2"
 ort = { version = "2.0.0-rc.10", features = ["download-binaries"] }
 tokenizers = "0.15"
 
+# macOS NSPasteboard FFI — apcrb_pasteboard enumerates declared UTIs.
+# Versions pinned to whatever Tauri already pulls transitively so there is
+# no second resolution of the objc2 tree.
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2             = "0.6.4"
+objc2-foundation  = "0.3.2"
+objc2-app-kit     = { version = "0.3.2", features = ["NSPasteboard", "NSPasteboardItem"] }
+
 [build-dependencies]
 tauri-build = { version = "2", features = [] }

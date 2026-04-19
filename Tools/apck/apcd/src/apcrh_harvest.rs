@@ -12,20 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! Clipboard harvest — capture every arboard-accessible clipboard flavor
+//! Clipboard harvest — capture every **declared** clipboard flavor
 //! verbatim to `{N}-in.{tag}.{ext}` files in the journal directory
-//! (typically `$HOME/apcjd/`) on every focus with changed content. The `tag`
-//! is the classifier's verdict (`clinical` or `nonclinical`); the full
-//! filename is e.g. `10000-in.clinical.txt`, `10000-in.nonclinical.html`.
+//! (typically `$HOME/apcjd/`) on every focus with changed content. The
+//! `tag` is the classifier's verdict (`clinical` or `nonclinical`); the
+//! full filename is e.g. `10000-in.clinical.rtf`,
+//! `10000-in.clinical.utf8.txt`, `10000-in.nonclinical.utf8.txt`.
+//!
+//! Enumeration is delegated to `apcrb_pasteboard`
+//! (`apcrb_capture_declared_flavors`), which reads NSPasteboard directly
+//! on macOS. There is no alternate capture path — a failure in `apcrb`
+//! (FFI error, non-macOS build, empty pasteboard) surfaces as an `Err`
+//! that the caller logs via `apcrl_error_now!` and leaves the focus
+//! cycle without an artifact on disk. Making failure visible beats
+//! silently duplicating arboard work the classifier already did.
+//!
 //! On the Clinical branch, the focus handler pairs each capture with a
-//! `{N}-out.txt` anonymized copy written by `apcap_main`. PHI-at-rest stays
-//! outside the repo; anonymization and promotion to test fixtures are
-//! manual. The destination is supplied by the caller; see
-//! `apcrj_journal::apcrj_journal_path`. This module does not emit — errors
-//! are returned to the caller for routing via `apcrl_*`.
+//! `{N}-out.txt` anonymized copy written by `apcap_main`. PHI-at-rest
+//! stays outside the repo; anonymization and promotion to test fixtures
+//! are manual. The destination is supplied by the caller; see
+//! `apcrj_journal::apcrj_journal_path`. This module does not emit —
+//! errors are returned to the caller for routing via `apcrl_*`;
+//! `apcrb_pasteboard` logs its own FFI diagnostics at the boundary.
 
 use std::fs;
-use std::io::Write;
 use std::path::Path;
 
 pub const APCRH_HARVEST_SEED_INDEX: u32 = 10000;
@@ -48,15 +58,20 @@ impl apcrh_Classification {
     }
 }
 
-/// Capture every arboard-accessible clipboard flavor into
-/// `{N}-in.{tag}.{ext}` files in `dir`, where `tag` is `classification`'s
-/// filename infix. Returns the N used. N seeds at
-/// `APCRH_HARVEST_SEED_INDEX` when `dir` is empty, otherwise
-/// `max_leading_digit_run + 1` across any filenames that begin with digits
-/// (legacy bare `{N}.{ext}`, prior `{N}-in.{ext}`, `{N}-out.{ext}`, and new
-/// `{N}-in.{tag}.{ext}` all count). The directory is created lazily. Text
-/// is required; HTML is opportunistic — absence of HTML on the clipboard is
-/// not an error.
+/// Capture every **declared** clipboard flavor into `{N}-in.{tag}.{ext}`
+/// files in `dir`, where `tag` is `classification`'s filename infix.
+/// Returns the N used. N seeds at `APCRH_HARVEST_SEED_INDEX` when `dir` is
+/// empty, otherwise `max_leading_digit_run + 1` across any filenames that
+/// begin with digits (legacy bare `{N}.{ext}`, prior `{N}-in.{ext}`,
+/// `{N}-out.{ext}`, new `{N}-in.{tag}.{ext}`, and multi-flavor
+/// `{N}-in.{tag}.rtf` / `{N}-in.{tag}.utf8.txt` all count). The directory
+/// is created lazily.
+///
+/// Enumeration is delegated to `apcrb_pasteboard`. An error from `apcrb`
+/// is propagated — harvest does not synthesize a fallback capture. The
+/// caller (`apcap_main`) logs the failure and continues triage; absence
+/// of a `{N}-in.{tag}.*` file on disk is the visible signal that the
+/// NSPasteboard path failed.
 pub fn apcrh_capture_all_flavors(
     dir: &Path,
     classification: apcrh_Classification,
@@ -65,20 +80,10 @@ pub fn apcrh_capture_all_flavors(
         .map_err(|e| format!("create harvest dir {}: {}", dir.display(), e))?;
 
     let index = zapcrh_scan_next_index(dir)?;
-    let tag = classification.apcrh_tag();
 
-    let mut clipboard = arboard::Clipboard::new()
-        .map_err(|e| format!("clipboard open: {}", e))?;
-
-    let text = clipboard.get_text()
-        .map_err(|e| format!("clipboard get_text: {}", e))?;
-    zapcrh_write_text(dir, index, tag, &text)?;
-
-    // HTML is opportunistic — absence on the clipboard is expected for some
-    // sources, not an error. Capture when present, skip otherwise.
-    if let Ok(html) = clipboard.get().html() {
-        zapcrh_write_html(dir, index, tag, &html)?;
-    }
+    crate::apcrb_pasteboard::apcrb_capture_declared_flavors(
+        dir, classification, index,
+    )?;
 
     Ok(index)
 }
@@ -121,22 +126,3 @@ pub(crate) fn zapcrh_scan_next_index(dir: &Path) -> Result<u32, String> {
     })
 }
 
-/// Write the text flavor to `{index}-in.{tag}.txt` in `dir`.
-pub(crate) fn zapcrh_write_text(dir: &Path, index: u32, tag: &str, text: &str) -> Result<(), String> {
-    let path = dir.join(format!("{}-in.{}.txt", index, tag));
-    let mut file = fs::File::create(&path)
-        .map_err(|e| format!("create {}: {}", path.display(), e))?;
-    file.write_all(text.as_bytes())
-        .map_err(|e| format!("write {}: {}", path.display(), e))?;
-    Ok(())
-}
-
-/// Write the HTML flavor to `{index}-in.{tag}.html` in `dir`.
-pub(crate) fn zapcrh_write_html(dir: &Path, index: u32, tag: &str, html: &str) -> Result<(), String> {
-    let path = dir.join(format!("{}-in.{}.html", index, tag));
-    let mut file = fs::File::create(&path)
-        .map_err(|e| format!("create {}: {}", path.display(), e))?;
-    file.write_all(html.as_bytes())
-        .map_err(|e| format!("write {}: {}", path.display(), e))?;
-    Ok(())
-}

@@ -24,9 +24,11 @@ pub mod apcrd_dictionaries;
 pub mod apcru_update;
 pub mod apcrh_harvest;
 pub mod apcrj_journal;
+pub mod apcrb_pasteboard;
 
 #[cfg(test)] mod apcte_engine;
 #[cfg(test)] mod apctp_parse;
 #[cfg(test)] mod apctm_match;
 #[cfg(test)] mod apctd_dictionaries;
 #[cfg(test)] mod apcth_harvest;
+#[cfg(test)] mod apctb_pasteboard;
