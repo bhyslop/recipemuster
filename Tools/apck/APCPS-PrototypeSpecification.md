@@ -120,7 +120,7 @@ RTF and image flavors are documented gaps: `arboard` 3.x does not surface RTF, a
 
 **Failure mode.** Tee write failures are silently swallowed inside the emitter to avoid recursive-logging hazards (a failing log should not generate more log traffic). Stdout is the authoritative sink; tee is best-effort.
 
-**Privacy posture.** The log never receives clipboard content. `apcrh_harvest` writes captures directly to disk via its own file handles; it does not pass clipboard strings through `apcrl_*`. The log carries metadata about harvest events (index, success/failure) but never the captured bytes themselves. This discipline is load-bearing — breaking it would route PHI into a file that might otherwise be treated as unclassified logs.
+**Privacy posture.** The log lives alongside harvests in the journal directory and inherits the same posture — the whole directory is PHI-permissive by design. The log may carry clipboard content, PHI-adjacent details, or anything else useful to diagnose behavior on the clinician's machine. The discipline that matters is not "keep the log PHI-free" but "keep the journal directory on the doctor's computer" — nothing in `$HOME/apcjd/` is auto-uploaded, auto-committed, or transmitted off-device. Review and promotion of any artifact (capture or log line) to an out-of-site context is a manual act.
 
 ## Detection Pipeline
 

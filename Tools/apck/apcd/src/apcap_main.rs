@@ -61,11 +61,13 @@ fn zapcap_handle_focus(window: &tauri::WebviewWindow) -> Result<(), String> {
     match apcd::apcre_engine::apcre_analyze(&content, dicts) {
         apcd::apcre_engine::apcre_Result::Clinical { findings, plain_text } => {
             // Harvest every arboard-accessible flavor before the clipboard
-            // zero-out. Failure logs and continues — triage is authoritative.
+            // zero-out. Success and failure both log — the journal log is
+            // a confirmation mechanism, not just an error record.
             match apcd::apcrj_journal::apcrj_journal_path() {
                 Some(journal_dir) => {
-                    if let Err(e) = apcd::apcrh_harvest::apcrh_capture_all_flavors(&journal_dir) {
-                        apcd::apcrl_error_now!("harvest capture failed: {}", e);
+                    match apcd::apcrh_harvest::apcrh_capture_all_flavors(&journal_dir) {
+                        Ok(n)  => apcd::apcrl_info_now!("harvest captured as {}", n),
+                        Err(e) => apcd::apcrl_error_now!("harvest capture failed: {}", e),
                     }
                 }
                 None => {
