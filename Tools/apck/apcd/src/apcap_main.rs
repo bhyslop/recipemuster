@@ -447,7 +447,9 @@ fn zapcap_init_log_tee() {
 fn main() {
     zapcap_init_log_tee();
     apcd::apcrl_info_now!("starting Ann's PHI Clipbuddy");
-    apcd::apcru_update::apcru_start_watcher();
+    // Self-update watcher disabled for prototype — manual quit + relaunch
+    // via /Users/Shared/apcua/Apcap.app is the current deploy workflow.
+    // apcd::apcru_update::apcru_start_watcher();
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![toggle_finding, copy_anonymized])
         .setup(|app| {

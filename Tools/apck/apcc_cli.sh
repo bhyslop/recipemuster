@@ -82,6 +82,22 @@ apcc_deploy() {
   scp -r "${z_app_name}" anns-macbook-air:/Users/Shared/apcua/ 2>"${z_scp_stderr}" \
     || buc_die "Failed to deploy bundle — see ${z_scp_stderr}"
   buc_step "Deploy complete: ${z_app_name##*/} (${z_bundle_size}) → anns-macbook-air:/Users/Shared/apcua/"
+
+  local -r z_app_basename="${z_app_name##*/}"
+  printf '%s\n' '' \
+                '=== Forward to Ann ===' \
+                '' \
+                'A new Clipbuddy build is staged on your Mac.' \
+                '' \
+                'To run it:' \
+                '  1. If Clipbuddy is already running, quit it (Cmd-Q).' \
+                "  2. In Finder: Go → Go to Folder… → /Users/Shared/apcua/" \
+                "     Double-click ${z_app_basename}" \
+                '' \
+                '  Or from Terminal:' \
+                "    open /Users/Shared/apcua/${z_app_basename}" \
+                '' \
+                '=== End ==='
 }
 
 apcc_fixture_load() {
