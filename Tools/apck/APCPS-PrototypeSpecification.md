@@ -80,7 +80,8 @@ On window focus, the engine compares the current clipboard content (byte-for-byt
 
 | Artifact | Producer | Shape |
 |----------|----------|-------|
-| Harvest captures | `apcrh_harvest` on Clinical branch | `{N}.{ext}` (see Clipboard Harvest) |
+| Harvest captures | `apcrh_harvest` on Clinical branch | `{N}-in.{ext}` (see Clipboard Harvest) |
+| Anonymized outputs | `apcap_main` focus handler on Clinical branch | `{N}-out.txt` (see Clipboard Harvest) |
 | Observability log | `apcrl_log` file-tee sink | `apcap.log` (see Observability Log) |
 
 ## Clipboard Harvest
@@ -91,18 +92,20 @@ On window focus, the engine compares the current clipboard content (byte-for-byt
 
 **Storage.** The journal directory (`$HOME/apcjd/`, see above).
 
-**Naming.** `{N}.{ext}` where `N` seeds at 10000 for an empty directory, otherwise `max_existing_numeric_stem + 1`. Files with the same `N` group all flavors of one capture (e.g., `10000.txt` and `10000.html` are the two flavors of capture 10000). Gaps in the numeric sequence are not filled — the scan advances past the current maximum. Non-numeric filenames are ignored in the max calculation, so `apcap.log` and any user-placed `README` or `notes` co-exist without perturbing indexing.
+**Naming.** Inputs are written as `{N}-in.{ext}`; the anonymized output that pairs with each capture is written as `{N}-out.txt`. `N` seeds at 10000 for an empty directory, otherwise `max_leading_digit_run + 1` across every filename whose name begins with digits. Files sharing the same `N` group all artifacts of one capture — e.g., `10000-in.txt`, `10000-in.html`, and `10000-out.txt` are three artifacts of capture 10000. Gaps in the numeric sequence are not filled — the scan advances past the current maximum. Filenames that do not begin with a digit are ignored in the max calculation, so `apcap.log` and any user-placed `README` or `notes` co-exist without perturbing indexing. The scan parses the leading digit run, not the full stem, so legacy bare `{N}.{ext}` files from earlier prototype runs still count toward index advancement.
 
 **Flavors.** Every flavor the `arboard` abstraction exposes at the time of capture:
 
-| Flavor | Extension | Present when |
-|--------|-----------|--------------|
-| Plain text (`get_text`) | `.txt` | Always — required for Clinical branch entry |
-| HTML (`get().html()`) | `.html` | Epic "Copy All" places HTML; absence is possible and non-fatal |
+| Flavor | Filename | Present when |
+|--------|----------|--------------|
+| Plain text (`get_text`) | `{N}-in.txt` | Always — required for Clinical branch entry |
+| HTML (`get().html()`) | `{N}-in.html` | Epic "Copy All" places HTML; absence is possible and non-fatal |
 
 RTF and image flavors are documented gaps: `arboard` 3.x does not surface RTF, and image capture requires the `image-data` feature which this project does not enable. Dropping to platform-specific pasteboard APIs to close these gaps is explicitly out of scope for the prototype.
 
-**Failure mode.** A capture failure logs via `apcrl_error_now!` (stdout + tee) and does not abort triage. User-visible behavior is unchanged whether harvest succeeds or fails — the triage pipeline is authoritative.
+**Anonymized output.** On every Clinical-branch focus, after the input harvest succeeds, the focus handler also writes `{N}-out.txt`: the anonymizer's output with default-elide toggle states (every finding elided). The point is a legible input/output pairing on disk — Brad can diff `{N}-in.txt` against `{N}-out.txt` to review what clipbuddy produced for Ann, without relying on her to paste-and-save. This output is captured *at focus time*, not on copy. Updating `{N}-out.txt` as Ann toggles findings or re-copies is deferred UX; the current snapshot is always the default-elide baseline. Write failure is non-fatal — triage continues, and the failure is logged via `apcrl_error_now!`. An HTML-preserving anonymized output (`{N}-out.html`) is out of scope — the current anonymizer is plain-text only.
+
+**Failure mode.** A capture failure logs via `apcrl_error_now!` (stdout + tee) and does not abort triage. User-visible behavior is unchanged whether harvest succeeds or fails — the triage pipeline is authoritative. The same holds for the anonymized-output write.
 
 **Privacy posture.** PHI-at-rest stays outside the repo. Captures are never auto-committed, auto-uploaded, or auto-anonymized. Anonymization and promotion to `test_fixtures/` are manual, out-of-band operations. The clinician-developer coordinates capture review separately.
 

@@ -57,8 +57,9 @@ fn apcth_scan_empty_dir_returns_seed() {
 #[test]
 fn apcth_scan_same_index_group_counts_once() {
     let td = zapcth_TempDir::zapcth_new("group");
-    fs::write(td.path.join("10000.html"), "<html/>").unwrap();
-    fs::write(td.path.join("10000.txt"),  "text").unwrap();
+    fs::write(td.path.join("10000-in.html"), "<html/>").unwrap();
+    fs::write(td.path.join("10000-in.txt"),  "text").unwrap();
+    fs::write(td.path.join("10000-out.txt"), "anon").unwrap();
     let next = zapcrh_scan_next_index(&td.path).unwrap();
     assert_eq!(next, 10001);
 }
@@ -68,7 +69,8 @@ fn apcth_scan_ignores_non_numeric_stems() {
     let td = zapcth_TempDir::zapcth_new("alpha");
     fs::write(td.path.join("README.md"),     "docs").unwrap();
     fs::write(td.path.join("notes.txt"),     "notes").unwrap();
-    fs::write(td.path.join("10005.txt"),     "five").unwrap();
+    fs::write(td.path.join("apcap.log"),     "log").unwrap();
+    fs::write(td.path.join("10005-in.txt"),  "five").unwrap();
     fs::write(td.path.join("garbage.html"),  "<p/>").unwrap();
     let next = zapcrh_scan_next_index(&td.path).unwrap();
     assert_eq!(next, 10006);
@@ -77,9 +79,27 @@ fn apcth_scan_ignores_non_numeric_stems() {
 #[test]
 fn apcth_scan_gaps_do_not_fill() {
     let td = zapcth_TempDir::zapcth_new("gaps");
-    fs::write(td.path.join("10000.txt"), "a").unwrap();
-    fs::write(td.path.join("10003.txt"), "b").unwrap();
-    fs::write(td.path.join("10007.txt"), "c").unwrap();
+    fs::write(td.path.join("10000-in.txt"), "a").unwrap();
+    fs::write(td.path.join("10003-in.txt"), "b").unwrap();
+    fs::write(td.path.join("10007-in.txt"), "c").unwrap();
     let next = zapcrh_scan_next_index(&td.path).unwrap();
     assert_eq!(next, 10008);
+}
+
+#[test]
+fn apcth_scan_mixed_styles_share_index_space() {
+    // Legacy bare {N}.ext alongside new {N}-in.ext / {N}-out.ext — the
+    // scanner parses the leading digit run from each filename, so all three
+    // styles count toward the same max.
+    let td = zapcth_TempDir::zapcth_new("mixed");
+    fs::write(td.path.join("10000.txt"),      "legacy").unwrap();
+    fs::write(td.path.join("10001.html"),     "<p/>").unwrap();
+    fs::write(td.path.join("10002-in.txt"),   "new in").unwrap();
+    fs::write(td.path.join("10002-in.html"),  "<p/>").unwrap();
+    fs::write(td.path.join("10002-out.txt"),  "new out").unwrap();
+    fs::write(td.path.join("10004-out.txt"),  "highest").unwrap();
+    fs::write(td.path.join("README"),         "skip").unwrap();
+    fs::write(td.path.join("apcap.log"),      "skip").unwrap();
+    let next = zapcrh_scan_next_index(&td.path).unwrap();
+    assert_eq!(next, 10005);
 }

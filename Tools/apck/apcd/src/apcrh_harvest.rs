@@ -13,12 +13,14 @@
 // limitations under the License.
 
 //! Clipboard harvest — capture every arboard-accessible clipboard flavor
-//! verbatim to `{N}.{ext}` files in the journal directory (typically
+//! verbatim to `{N}-in.{ext}` files in the journal directory (typically
 //! `$HOME/apcjd/`) on the Clinical branch, before the system-clipboard
-//! zero-out. PHI-at-rest stays outside the repo; anonymization and
-//! promotion to test fixtures are manual. The destination is supplied by
-//! the caller; see `apcrj_journal::apcrj_journal_path`. This module does
-//! not emit — errors are returned to the caller for routing via `apcrl_*`.
+//! zero-out. The focus handler pairs each `{N}-in.{ext}` with a
+//! `{N}-out.txt` anonymized copy written by `apcap_main`. PHI-at-rest stays
+//! outside the repo; anonymization and promotion to test fixtures are
+//! manual. The destination is supplied by the caller; see
+//! `apcrj_journal::apcrj_journal_path`. This module does not emit — errors
+//! are returned to the caller for routing via `apcrl_*`.
 
 use std::fs;
 use std::io::Write;
@@ -26,11 +28,13 @@ use std::path::Path;
 
 pub const APCRH_HARVEST_SEED_INDEX: u32 = 10000;
 
-/// Capture every arboard-accessible clipboard flavor into `{N}.{ext}` files
-/// in `dir`. Returns the N used. N seeds at `APCRH_HARVEST_SEED_INDEX` when
-/// `dir` is empty, otherwise `max_existing_numeric_stem + 1`. The directory
-/// is created lazily. Text is required; HTML is opportunistic — absence of
-/// HTML on the clipboard is not an error.
+/// Capture every arboard-accessible clipboard flavor into `{N}-in.{ext}`
+/// files in `dir`. Returns the N used. N seeds at
+/// `APCRH_HARVEST_SEED_INDEX` when `dir` is empty, otherwise
+/// `max_leading_digit_run + 1` across any filenames that begin with digits
+/// (bare `{N}.{ext}`, `{N}-in.{ext}`, `{N}-out.{ext}` all count). The
+/// directory is created lazily. Text is required; HTML is opportunistic —
+/// absence of HTML on the clipboard is not an error.
 pub fn apcrh_capture_all_flavors(dir: &Path) -> Result<u32, String> {
     fs::create_dir_all(dir)
         .map_err(|e| format!("create harvest dir {}: {}", dir.display(), e))?;
@@ -53,10 +57,13 @@ pub fn apcrh_capture_all_flavors(dir: &Path) -> Result<u32, String> {
     Ok(index)
 }
 
-/// Scan `dir` for numeric file stems and return `max+1`, or
-/// `APCRH_HARVEST_SEED_INDEX` when none are found. Non-numeric stems and
-/// subdirectories are ignored. Gaps are not filled — the scan advances past
-/// the current maximum.
+/// Scan `dir` for files whose name begins with a digit run and return
+/// `max+1`, or `APCRH_HARVEST_SEED_INDEX` when none are found. Files whose
+/// name does not start with a digit (e.g. `apcap.log`, `README`) are
+/// ignored, as are subdirectories. Gaps are not filled — the scan advances
+/// past the current maximum. The leading-digit parse makes mixed naming
+/// styles — bare `{N}.{ext}`, `{N}-in.{ext}`, `{N}-out.{ext}` — all count
+/// toward the same index space.
 pub(crate) fn zapcrh_scan_next_index(dir: &Path) -> Result<u32, String> {
     let entries = fs::read_dir(dir)
         .map_err(|e| format!("read harvest dir {}: {}", dir.display(), e))?;
@@ -69,11 +76,15 @@ pub(crate) fn zapcrh_scan_next_index(dir: &Path) -> Result<u32, String> {
             continue;
         }
         let path = entry.path();
-        let stem = match path.file_stem().and_then(|s| s.to_str()) {
+        let name = match path.file_name().and_then(|s| s.to_str()) {
             Some(s) => s,
             None    => continue,
         };
-        if let Ok(n) = stem.parse::<u32>() {
+        let digits: String = name.chars().take_while(|c| c.is_ascii_digit()).collect();
+        if digits.is_empty() {
+            continue;
+        }
+        if let Ok(n) = digits.parse::<u32>() {
             max = Some(max.map_or(n, |m| m.max(n)));
         }
     }
@@ -84,9 +95,9 @@ pub(crate) fn zapcrh_scan_next_index(dir: &Path) -> Result<u32, String> {
     })
 }
 
-/// Write the text flavor to `{index}.txt` in `dir`.
+/// Write the text flavor to `{index}-in.txt` in `dir`.
 pub(crate) fn zapcrh_write_text(dir: &Path, index: u32, text: &str) -> Result<(), String> {
-    let path = dir.join(format!("{}.txt", index));
+    let path = dir.join(format!("{}-in.txt", index));
     let mut file = fs::File::create(&path)
         .map_err(|e| format!("create {}: {}", path.display(), e))?;
     file.write_all(text.as_bytes())
@@ -94,9 +105,9 @@ pub(crate) fn zapcrh_write_text(dir: &Path, index: u32, text: &str) -> Result<()
     Ok(())
 }
 
-/// Write the HTML flavor to `{index}.html` in `dir`.
+/// Write the HTML flavor to `{index}-in.html` in `dir`.
 pub(crate) fn zapcrh_write_html(dir: &Path, index: u32, html: &str) -> Result<(), String> {
-    let path = dir.join(format!("{}.html", index));
+    let path = dir.join(format!("{}-in.html", index));
     let mut file = fs::File::create(&path)
         .map_err(|e| format!("create {}: {}", path.display(), e))?;
     file.write_all(html.as_bytes())

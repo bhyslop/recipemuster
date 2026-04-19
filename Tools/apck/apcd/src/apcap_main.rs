@@ -65,12 +65,30 @@ fn zapcap_handle_focus(window: &tauri::WebviewWindow) -> Result<(), String> {
         apcd::apcre_engine::apcre_Result::Clinical { findings, plain_text } => {
             apcd::apcrl_info_now!("clinical: {} findings", findings.len());
             // Harvest every arboard-accessible flavor before the clipboard
-            // zero-out. Success and failure both log — the journal log is
-            // a confirmation mechanism, not just an error record.
+            // zero-out, then pair the input with a default-elide anonymized
+            // output. Output-at-focus uses an empty toggle-states slice —
+            // apcre_anonymize defaults to elide for missing entries —
+            // producing what Ann would get if she copied without touching
+            // any toggles. Per-toggle refresh of the output file is a
+            // deferred UX pace; this pairing is about legible debug signal.
             match apcd::apcrj_journal::apcrj_journal_path() {
                 Some(journal_dir) => {
                     match apcd::apcrh_harvest::apcrh_capture_all_flavors(&journal_dir) {
-                        Ok(n)  => apcd::apcrl_info_now!("harvest captured as {}", n),
+                        Ok(n) => {
+                            apcd::apcrl_info_now!("harvest captured as {}", n);
+                            let anonymized = apcd::apcre_engine::apcre_anonymize(
+                                &plain_text, &findings, &[],
+                            );
+                            let out_path = journal_dir.join(format!("{}-out.txt", n));
+                            match std::fs::write(&out_path, &anonymized) {
+                                Ok(()) => apcd::apcrl_info_now!(
+                                    "anonymized written as {}-out.txt", n
+                                ),
+                                Err(e) => apcd::apcrl_error_now!(
+                                    "anonymized write failed: {}", e
+                                ),
+                            }
+                        }
                         Err(e) => apcd::apcrl_error_now!("harvest capture failed: {}", e),
                     }
                 }
