@@ -28,8 +28,9 @@ The prototype deliberately excludes:
 | Word boundaries | `unicode-segmentation` | latest | MIT/Apache | UAX#29 compliant word boundary detection |
 | GUI shell | `tauri` | 2.x | MIT | Rust-rendered HTML/CSS frontend, system webview as passive display |
 | File watching | `notify` | latest | MIT/Apache | FSEvents on macOS, ReadDirectoryChanges on Windows |
+| NSPasteboard FFI (macOS) | `objc2` + `objc2-foundation` + `objc2-app-kit` | 0.6.4 / 0.3.2 / 0.3.2 | MIT | Declared-UTI enumeration for multi-flavor clipboard harvest. Versions pinned to match whatever Tauri already pulls transitively (single objc2 tree resolution). Gated `[target.'cfg(target_os = "macos")'.dependencies]`. |
 
-All crates are pure Rust, fully Cargo-lockable on macOS and Windows. Tauri requires the system webview (WebKit on macOS, WebView2 on Windows — both ship with the OS). The webview receives pre-rendered HTML from Rust on every state change; no JavaScript application code exists in the project.
+All crates are pure Rust, fully Cargo-lockable on macOS and Windows. Tauri requires the system webview (WebKit on macOS, WebView2 on Windows — both ship with the OS). The webview receives pre-rendered HTML from Rust on every state change; no JavaScript application code exists in the project. The objc2 family is macOS-only and used exclusively by `apcrb_pasteboard` for declared-flavor enumeration — not by the detection pipeline. On non-macOS builds `apcrb` reduces to a stub returning an honest error; cross-platform compilation is preserved.
 
 ### Tauri CLI cwd Constraint
 
@@ -92,16 +93,26 @@ On window focus, the engine compares the current clipboard content (byte-for-byt
 
 **Storage.** The journal directory (`$HOME/apcjd/`, see above).
 
-**Naming.** Inputs are written as `{N}-in.{tag}.{ext}` where `{tag}` is `clinical` or `nonclinical` — the classifier's verdict at the moment of capture. Clinical captures additionally pair with an anonymized output written as `{N}-out.txt`. `N` seeds at 10000 for an empty directory, otherwise `max_leading_digit_run + 1` across every filename whose name begins with digits. Files sharing the same `N` group all artifacts of one capture — e.g., `10000-in.clinical.txt`, `10000-in.clinical.html`, and `10000-out.txt` are three artifacts of clinical capture 10000; `10001-in.nonclinical.txt` is the lone artifact of non-clinical capture 10001. Gaps in the numeric sequence are not filled — the scan advances past the current maximum. Filenames that do not begin with a digit are ignored in the max calculation, so `apcap.log` and any user-placed `README` or `notes` co-exist without perturbing indexing. The scan parses the leading digit run, not the full stem, so legacy bare `{N}.{ext}` and prior untagged `{N}-in.{ext}` files from earlier prototype runs still count toward index advancement — all styles share one index space.
+**Naming.** Inputs are written as `{N}-in.{tag}.{ext}` where `{tag}` is `clinical` or `nonclinical` — the classifier's verdict at the moment of capture. Clinical captures additionally pair with an anonymized output written as `{N}-out.txt`. `N` seeds at 10000 for an empty directory, otherwise `max_leading_digit_run + 1` across every filename whose name begins with digits. Files sharing the same `N` group all artifacts of one capture — e.g., `10000-in.clinical.rtf`, `10000-in.clinical.utf8.txt`, `10000-in.clinical.utf16.txt`, and `10000-out.txt` are four artifacts of clinical capture 10000; `10001-in.nonclinical.utf8.txt` is the lone artifact of non-clinical capture 10001. Gaps in the numeric sequence are not filled — the scan advances past the current maximum. Filenames that do not begin with a digit are ignored in the max calculation, so `apcap.log` and any user-placed `README` or `notes` co-exist without perturbing indexing. The scan parses the leading digit run, not the full stem, so legacy bare `{N}.{ext}` and prior untagged `{N}-in.{ext}` files from earlier prototype runs still count toward index advancement — all styles share one index space.
 
-**Flavors.** Every flavor the `arboard` abstraction exposes at the time of capture:
+The `{ext}` portion is derived from the declared UTI via a data-driven table in `apcrb_pasteboard::apcrb_extension_for_uti`. Known public UTIs receive human-readable extensions (see Flavors below); any UTI not in the table — including legacy NSPasteboard names like `Unicode text` or a third-party `com.example.thing` — falls through `zapcrb_sanitize_uti` to `{sanitized}.bin`, where dots, slashes, whitespace, and punctuation collapse to single hyphens, leading/trailing hyphens are trimmed, and empty input yields `flavor`. The sanitized form is always filename-safe; extension of the flavor space to new producers requires no code change.
 
-| Flavor | Filename | Present when |
-|--------|----------|--------------|
-| Plain text (`get_text`) | `{N}-in.{tag}.txt` | Always — required for any focus handler entry |
-| HTML (`get().html()`) | `{N}-in.{tag}.html` | Epic "Copy All" places HTML; absence is possible and non-fatal |
+**Flavors.** Every flavor the producer **declared** on the pasteboard — enumerated via `NSPasteboardItem::types` on the general pasteboard's first item and fetched via `dataForType:`. Declared flavors are the set the producer actually wrote; macOS may synthesize additional derived types on read (the same board can report 15+ types once AppKit's conversion engine is asked). Synthesized types are deliberately skipped — the parity target is `osascript -e 'clipboard info'`, which reports declared types only, and matching that output is how we know we have captured *what the producer intended to publish*, not *what AppKit could manufacture on request*.
 
-RTF and image flavors are documented gaps: `arboard` 3.x does not surface RTF, and image capture requires the `image-data` feature which this project does not enable. Dropping to platform-specific pasteboard APIs to close these gaps is explicitly out of scope for the prototype.
+The table below is illustrative — actual flavors present depend on the producer (Epic Copy All, a browser, Word, a password manager, any app that writes to the pasteboard while Clipbuddy has focus in the background). Known UTI → extension mappings:
+
+| UTI | Filename | Typical producer |
+|-----|----------|------------------|
+| `public.rtf` | `{N}-in.{tag}.rtf` | Epic Copy All, Word |
+| `public.utf8-plain-text` | `{N}-in.{tag}.utf8.txt` | Almost everything |
+| `public.utf16-plain-text` | `{N}-in.{tag}.utf16.txt` | Epic Copy All, many Cocoa apps |
+| `public.plain-text` | `{N}-in.{tag}.txt` | Legacy / ambiguous encoding |
+| `public.html` | `{N}-in.{tag}.html` | Browsers; absent from Epic Copy All |
+| `public.tiff` / `public.png` / `public.jpeg` | `{N}-in.{tag}.{ext}` | Image copy |
+| `public.url` / `public.file-url` | `{N}-in.{tag}.url` / `.fileurl` | URL bar / Finder copy |
+| anything else | `{N}-in.{tag}.{sanitized-uti}.bin` | Legacy NSPasteboard names, third-party UTIs |
+
+arboard remains on the classifier's `get_text()` path. The separation is load-bearing: arboard is a simple, stable, cross-platform read of the UTF-8 flavor and is what the detection pipeline consumes; `apcrb_pasteboard` is lower-level, Mac-only, riskier FFI code and owns enumeration + multi-flavor capture for disk. A break in `apcrb` (FFI error, empty pasteboard, non-macOS build) surfaces as an absent `{N}-in.{tag}.*` artifact and an `apcrl_error_now!` line in the log — it does not cascade into the classifier, which continues to read via arboard. Conversely, the classifier's verdict drives the filename `tag` regardless of which flavors `apcrb` manages to write. Two consumers of the same pasteboard, independently correct.
 
 **Anonymized output.** On every Clinical-branch focus, after the input harvest succeeds, the focus handler also writes `{N}-out.txt`: the anonymizer's output with default-elide toggle states (every finding elided). The point is a legible input/output pairing on disk — Brad can diff `{N}-in.clinical.txt` against `{N}-out.txt` to review what clipbuddy produced for Ann, without relying on her to paste-and-save. This output is captured *at focus time*, not on copy. Updating `{N}-out.txt` as Ann toggles findings or re-copies is deferred UX; the current snapshot is always the default-elide baseline. Write failure is non-fatal — triage continues, and the failure is logged via `apcrl_error_now!`. An HTML-preserving anonymized output (`{N}-out.html`) is out of scope — the current anonymizer is plain-text only. Non-clinical captures do not pair with an anonymized output; there is nothing to anonymize because no findings are produced.
 
@@ -310,6 +321,12 @@ Tools/apck/
       apcrd_dictionaries.rs       # Dictionary loading
       apctd_dictionaries.rs       # Tests for dictionaries
       apcru_update.rs             # Directory watcher + self-update (no unit tests)
+      apcrh_harvest.rs            # Clipboard harvest orchestrator (index scan + delegate)
+      apcth_harvest.rs            # Tests for harvest
+      apcrj_journal.rs            # Journal directory path resolver
+      apcrl_log.rs                # Logging macros + file-tee sink
+      apcrb_pasteboard.rs         # macOS NSPasteboard FFI — declared-UTI enumeration
+      apctb_pasteboard.rs         # Tests for pasteboard (UTI → ext + sanitization)
     ui/
       index.html
       style.css
@@ -333,7 +350,8 @@ apc  (non-terminal)
 │   └── apcas  — application specification document (UX, workflow)
 ├── apcc   — CLI command implementations
 ├── apcd   — Rust/Tauri source directory
-│   ├── apcrh  — Clipboard harvest module (writes to journal directory)
+│   ├── apcrb  — macOS NSPasteboard FFI — declared-UTI enumeration for harvest
+│   ├── apcrh  — Clipboard harvest orchestrator (delegates enumeration to apcrb)
 │   ├── apcrj  — Journal directory path resolver
 │   └── apcrl  — Logging macros (info, error, fatal with file/line) + file-tee sink
 ├── apcj   (non-terminal — journal)
@@ -352,6 +370,7 @@ Rust source file prefixes follow RCG: `{cipher}r{classifier}_{name}.rs` where ci
 
 `lib.rs` wiring:
 ```rust
+pub mod apcrl_log;
 pub mod apcre_engine;
 pub mod apcrp_parse;
 pub mod apcrm_match;
@@ -359,12 +378,14 @@ pub mod apcrd_dictionaries;
 pub mod apcru_update;
 pub mod apcrh_harvest;
 pub mod apcrj_journal;
+pub mod apcrb_pasteboard;
 
 #[cfg(test)] mod apcte_engine;
 #[cfg(test)] mod apctp_parse;
 #[cfg(test)] mod apctm_match;
 #[cfg(test)] mod apctd_dictionaries;
 #[cfg(test)] mod apcth_harvest;
+#[cfg(test)] mod apctb_pasteboard;
 ```
 
 ## Tabtargets

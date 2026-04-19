@@ -29,8 +29,9 @@ APCK is a Tauri desktop app that intercepts clipboard content from Epic EHR, det
 | `apcrm_match.rs` | `apcrm` | `apctm_match.rs` | `apctm` | Dictionary/regex matching |
 | `apcrd_dictionaries.rs` | `apcrd` | `apctd_dictionaries.rs` | `apctd` | Dictionary loading |
 | `apcru_update.rs` | `apcru` | — | — | Self-update watcher (no unit tests — I/O + process) |
-| `apcrh_harvest.rs` | `apcrh` | `apcth_harvest.rs` | `apcth` | Clipboard harvest — capture arboard flavors to the journal directory on Clinical branch before zero-out |
+| `apcrh_harvest.rs` | `apcrh` | `apcth_harvest.rs` | `apcth` | Clipboard harvest orchestrator — creates journal dir, scans next index, delegates flavor enumeration to `apcrb_pasteboard` |
 | `apcrj_journal.rs` | `apcrj` | — | — | Journal directory path resolver — `$HOME/apcjd/` holds harvests + `apcap.log` |
+| `apcrb_pasteboard.rs` | `apcrb` | `apctb_pasteboard.rs` | `apctb` | macOS NSPasteboard FFI — enumerates the first item's declared UTIs via `objc2-app-kit`, writes each `dataForType` payload to `{N}-in.{tag}.{ext}`; non-macOS stub returns an honest error |
 
 **Other key paths:**
 - `Tools/apck/apcd/ui/` — Frontend (HTML/CSS only — no JavaScript)
@@ -67,7 +68,8 @@ apc  (non-terminal)
 │   └── apcas  — application specification document (UX, workflow)
 ├── apcc   — CLI command implementations
 ├── apcd   — Rust/Tauri source directory
-│   ├── apcrh  — Clipboard harvest module (writes to journal directory)
+│   ├── apcrb  — macOS NSPasteboard FFI — declared-UTI enumeration for harvest
+│   ├── apcrh  — Clipboard harvest orchestrator (delegates enumeration to apcrb)
 │   ├── apcrj  — Journal directory path resolver
 │   └── apcrl  — Logging macros (info, error, fatal with file/line) + file-tee sink
 ├── apcj   (non-terminal — journal)
