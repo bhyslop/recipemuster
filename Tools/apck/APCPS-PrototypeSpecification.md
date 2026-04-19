@@ -368,6 +368,6 @@ pub mod apcrj_journal;
 |-----------|----------|---------|
 | `tt/apcw-b.Build.sh` | `apcw-b` | `cargo tauri build` (release) |
 | `tt/apcw-r.Run.sh` | `apcw-r` | `cargo tauri dev` (local development) |
-| `tt/apcw-d.Deploy.sh` | `apcw-d` | Build + scp to `anns-macbook-air:/Users/Shared/apcua/` |
+| `tt/apcw-D.Deploy.sh` | `apcw-D` | Build + scp to `anns-macbook-air:/Users/Shared/apcua/` |
 | `tt/apcw-fl.FixtureLoad.sh` | `apcw-fl` | Run `apcal` to load fixture HTML onto clipboard |
 | `tt/apcw-t.Test.sh` | `apcw-t` | `cargo test` in `apcd/` |

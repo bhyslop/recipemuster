@@ -37,7 +37,7 @@ zapcz_kindle() {
   buz_group APCZ__GROUP_BUILD   "apcw-"   "Build — Tauri build and development"
   buz_enroll APCZ_BUILD          "apcw-b"  "apcc_cli.sh" "apcc_build"         ""  "cargo tauri build (release)"
   buz_enroll APCZ_RUN            "apcw-r"  "apcc_cli.sh" "apcc_run"           ""  "cargo tauri dev (local development)"
-  buz_enroll APCZ_DEPLOY         "apcw-d"  "apcc_cli.sh" "apcc_deploy"        ""  "Build + scp to anns-macbook-air"
+  buz_enroll APCZ_DEPLOY         "apcw-D"  "apcc_cli.sh" "apcc_deploy"        ""  "Build + scp to anns-macbook-air"
   buz_enroll APCZ_FIXTURE_LOAD   "apcw-fl" "apcc_cli.sh" "apcc_fixture_load"  "imprint"  "Run apcal to load fixture HTML onto clipboard"
   buz_enroll APCZ_TEST           "apcw-t"  "apcc_cli.sh" "apcc_test"          ""  "cargo test in apcd/"
   buz_enroll APCZ_DICT_REFRESH  "apcw-dr" "apcc_cli.sh" "apcc_dictionary_refresh" "" "Refresh dictionaries from public sources"

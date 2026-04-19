@@ -47,7 +47,7 @@ APCK is a Tauri desktop app that intercepts clipboard content from Epic EHR, det
 |-----------|----------|---------|
 | `tt/apcw-b.Build.sh` | `apcw-b` | `cargo tauri build` (release) |
 | `tt/apcw-r.Run.sh` | `apcw-r` | `cargo run --bin apcap` (local development) |
-| `tt/apcw-d.Deploy.sh` | `apcw-d` | Build + scp to `anns-macbook-air:/Users/Shared/apcua/` |
+| `tt/apcw-D.Deploy.sh` | `apcw-D` | Build + scp to `anns-macbook-air:/Users/Shared/apcua/` |
 | `tt/apcw-fl.FixtureLoad.sh` | `apcw-fl` | Run `apcal` to load fixture HTML onto clipboard |
 | `tt/apcw-t.Test.sh` | `apcw-t` | `cargo test` in `apcd/` |
 | `tt/apcw-dr.DictionaryRefresh.sh` | `apcw-dr` | `cargo run --bin apcad` (refresh dictionaries from public sources) |
@@ -96,5 +96,5 @@ Three tiers, merged by highest severity:
 ### Deploy Workflow
 
 1. `tt/apcw-b.Build.sh` — produces `.app` bundle
-2. `tt/apcw-d.Deploy.sh` — scp to Ann's machine at `/Users/Shared/apcua/`
+2. `tt/apcw-D.Deploy.sh` — scp to Ann's machine at `/Users/Shared/apcua/`
 3. App self-updates: watches staging directory, copies new bundle over self, relaunches
