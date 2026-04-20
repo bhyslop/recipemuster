@@ -45,6 +45,13 @@ zapcz_kindle() {
   buz_enroll APCZ_NS_INSTALL   "apcw-nsi" "apcc_cli.sh" "apcc_neural_stanford_install" "" "Neural Stanford install — convergent venv + ONNX export (always reaches a working state)"
   buz_enroll APCZ_NS_ASSAY     "apcw-nsa" "apcc_cli.sh" "apcc_neural_stanford_assay"  "param1" "Neural Stanford assay — run apcnsa on HTML directory"
 
+  # Container — Python NLP discerner image lifecycle (apcw-c*)
+  buz_group APCZ__GROUP_CONTAINER "apcw-c" "Container — Python NLP discerner image lifecycle"
+  buz_enroll APCZ_CONTAINER_BUILD  "apcw-cb" "apcc_cli.sh" "apcc_container_build"  "" "docker build of the apck-container image (first build pulls ML models)"
+  buz_enroll APCZ_CONTAINER_START  "apcw-cs" "apcc_cli.sh" "apcc_container_start"  "" "Truncate container-log.txt then docker run the container with security flags"
+  buz_enroll APCZ_CONTAINER_STOP   "apcw-cx" "apcc_cli.sh" "apcc_container_stop"   "" "docker stop + docker rm the container"
+  buz_enroll APCZ_CONTAINER_STATUS "apcw-ci" "apcc_cli.sh" "apcc_container_status" "" "Container running state, image tag, bind-mount reachability"
+
   readonly ZAPCZ_KINDLED=1
 }
 

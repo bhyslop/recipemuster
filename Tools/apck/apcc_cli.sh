@@ -31,6 +31,14 @@ ZAPCC_STANFORD_DIR="/Users/bhyslop/models/stanford-deidentifier"
 ZAPCC_STANFORD_VENV="${ZAPCC_STANFORD_DIR}/.venv"
 ZAPCC_STANFORD_MODEL_ID="StanfordAIMI/stanford-deidentifier-base"
 
+# Container build context + runtime constants. Bind-mount target lives under
+# $HOME so the container writes land in the same journal directory the Tauri
+# app reads from (apcrj_journal_path()).
+ZAPCC_CONTAINER_DIR="${BASH_SOURCE[0]%/*}/apcd/container"
+ZAPCC_CONTAINER_IMAGE="apck-container:local"
+ZAPCC_CONTAINER_NAME="apck-container"
+ZAPCC_CONTAINER_BINDMOUNT="/work/apcjd"
+
 ######################################################################
 # Commands
 
@@ -205,6 +213,93 @@ apcc_neural_stanford_assay() {
   APCNSA_MODEL_DIR="${z_model_dir}" \
     cargo run --bin apcnsa --manifest-path "${ZAPCC_MANIFEST}" -- "${z_folio}" \
     || buc_die "cargo run apcnsa failed"
+}
+
+######################################################################
+# Container lifecycle
+
+apcc_container_build() {
+  command -v docker >/dev/null \
+    || buc_die "docker not found on PATH"
+  test -f "${ZAPCC_CONTAINER_DIR}/Dockerfile" \
+    || buc_die "Dockerfile not found at ${ZAPCC_CONTAINER_DIR}"
+
+  buc_step "Building ${ZAPCC_CONTAINER_IMAGE} (first build pulls ML models — ~5-10 min)"
+  docker build -t "${ZAPCC_CONTAINER_IMAGE}" "${ZAPCC_CONTAINER_DIR}" \
+    || buc_die "docker build failed"
+  buc_step "Build complete"
+}
+
+apcc_container_start() {
+  command -v docker >/dev/null \
+    || buc_die "docker not found on PATH"
+
+  local -r z_journal_dir="${HOME}/apcjd"
+  mkdir -p "${z_journal_dir}" \
+    || buc_die "Failed to create journal dir ${z_journal_dir}"
+
+  # Truncate container log so each session starts with a clean journal.
+  : > "${z_journal_dir}/container-log.txt" \
+    || buc_die "Failed to truncate ${z_journal_dir}/container-log.txt"
+
+  # Best-effort cleanup of any stopped predecessor.
+  docker rm -f "${ZAPCC_CONTAINER_NAME}" >/dev/null 2>&1 || true
+
+  buc_step "Starting ${ZAPCC_CONTAINER_NAME} (--network=none, --cap-drop=all, --read-only, non-root)"
+  docker run -d \
+    --name "${ZAPCC_CONTAINER_NAME}" \
+    --network=none \
+    --cap-drop=all \
+    --read-only \
+    --tmpfs /tmp \
+    --user nobody:nogroup \
+    -v "${z_journal_dir}:${ZAPCC_CONTAINER_BINDMOUNT}" \
+    -e "APCS_BINDMOUNT=${ZAPCC_CONTAINER_BINDMOUNT}" \
+    "${ZAPCC_CONTAINER_IMAGE}" \
+    || buc_die "docker run failed"
+  buc_step "Container started — model load runs for ~30-90s before discerners are ready"
+}
+
+apcc_container_stop() {
+  command -v docker >/dev/null \
+    || buc_die "docker not found on PATH"
+
+  if docker inspect "${ZAPCC_CONTAINER_NAME}" >/dev/null 2>&1; then
+    buc_step "Stopping ${ZAPCC_CONTAINER_NAME}"
+    docker stop "${ZAPCC_CONTAINER_NAME}" >/dev/null \
+      || buc_die "docker stop failed"
+    docker rm "${ZAPCC_CONTAINER_NAME}" >/dev/null \
+      || buc_die "docker rm failed"
+    buc_step "Container stopped and removed"
+  else
+    buc_step "Container ${ZAPCC_CONTAINER_NAME} not present — nothing to stop"
+  fi
+}
+
+apcc_container_status() {
+  command -v docker >/dev/null \
+    || buc_die "docker not found on PATH"
+
+  buc_step "Container status"
+  docker ps --all --filter "name=^/${ZAPCC_CONTAINER_NAME}$" \
+        --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}' \
+    || buc_die "docker ps failed"
+
+  buc_step "Bind-mount reachability"
+  local -r z_journal_dir="${HOME}/apcjd"
+  if test -d "${z_journal_dir}"; then
+    echo "journal-dir: ${z_journal_dir} present"
+  else
+    echo "journal-dir: ${z_journal_dir} ABSENT"
+  fi
+  local -r z_log="${z_journal_dir}/container-log.txt"
+  if test -r "${z_log}"; then
+    echo "container-log.txt: $(wc -l < "${z_log}") lines"
+    echo "--- last 5 log lines ---"
+    tail -n 5 "${z_log}" || true
+  else
+    echo "container-log.txt: not readable (container may not have started yet)"
+  fi
 }
 
 ######################################################################

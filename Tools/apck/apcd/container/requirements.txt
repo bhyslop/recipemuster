@@ -1,0 +1,22 @@
+# APCK container — Python NLP discerner stack.
+#
+# Pinned to a known-good combination. scispacy must match the spaCy major it
+# was built against. Stanza is loosely versioned — its model bundle is what
+# carries the heavy weight, not the library API.
+
+# CPU-only PyTorch wheel installed separately in Dockerfile via --index-url.
+
+transformers==4.46.3
+tokenizers==0.20.3
+
+# scispaCy 0.5.5 was built against spaCy 3.7.x. The en_core_sci_md wheel for
+# 0.5.5 is published at the URL pinned in the Dockerfile.
+spacy==3.7.5
+scispacy==0.5.5
+
+stanza==1.9.2
+
+# Stanford de-identifier model + scispaCy + Stanza pull these in transitively
+# but pinning them here keeps the resolver deterministic.
+numpy==1.26.4
+huggingface-hub==0.26.5
