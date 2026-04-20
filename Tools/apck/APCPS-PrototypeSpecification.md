@@ -2,7 +2,7 @@
 
 ## Scope
 
-This document specifies the engineering pipeline for the proof-of-life prototype. It covers detection algorithms, tech stack, data sources, project structure, and scope boundaries. It does NOT cover the user experience — see [APCAS-Specification.md](APCAS-Specification.md) for the UX plan.
+This document specifies the engineering pipeline for the proof-of-life prototype. It covers detection algorithms, tech stack, data sources, wire-format JSON schemas, the container image, project structure, and scope boundaries. It does NOT cover the user experience — see [APCAS-Specification.md](APCAS-Specification.md) for the UX plan — nor the detection pipeline's conceptual vocabulary, which lives in [APCS0-SpecTop.adoc](APCS0-SpecTop.adoc).
 
 This is a living document. The pipeline will evolve rapidly during prototype development. Changes here do not require parallel updates to the product spec.
 
@@ -11,13 +11,15 @@ This is a living document. The pipeline will evolve rapidly during prototype dev
 The prototype deliberately excludes:
 
 - **No JavaScript** — All rendering logic is Rust. The Tauri webview is a passive display surface receiving complete HTML from the Rust backend. Inline `onclick` attributes use the Tauri bridge primitive (`window.__TAURI__.core.invoke`) for command dispatch only — no `.js` files, no JS application logic, no JS state management. This eliminates the language-boundary bug class (e.g., byte-offset vs char-offset mismatch at the Rust-JS serialization boundary).
-- **No persistence** — no logs, no audit trail, no history of anonymized notes
-- **One patient at a time** — no batch processing, no queue
+- **No persistence** — no audit trail, no history of anonymized notes beyond the journal directory artifacts
+- **One patient at a time** — no batch processing in the interactive path; batch assay (`apcab`) is dev-only
 - **No configuration** — no custom blacklists, no user preferences, no settings UI
 - **No click-to-highlight** — clicking a finding does not scroll/highlight in the document preview (future feature)
-- **No multi-word merge** — adjacent name hits are individually flagged, not merged into a single token
+- **No multi-word merge in Rust-side scans** — adjacent name hits from the dictionary scans are individually flagged, not merged; container-side NER discerners (Stanford, Stanza, spaCy) may produce multi-token spans natively
 
 ## Tech Stack
+
+### Rust Application
 
 | Layer | Crate | Version | License | Rationale |
 |-------|-------|---------|---------|-----------|
@@ -29,8 +31,25 @@ The prototype deliberately excludes:
 | GUI shell | `tauri` | 2.x | MIT | Rust-rendered HTML/CSS frontend, system webview as passive display |
 | File watching | `notify` | latest | MIT/Apache | FSEvents on macOS, ReadDirectoryChanges on Windows |
 | NSPasteboard FFI (macOS) | `objc2` + `objc2-foundation` + `objc2-app-kit` | 0.6.4 / 0.3.2 / 0.3.2 | MIT | Declared-UTI enumeration for multi-flavor clipboard harvest. Versions pinned to match whatever Tauri already pulls transitively (single objc2 tree resolution). Gated `[target.'cfg(target_os = "macos")'.dependencies]`. |
+| JSON deserialization | `serde` + `serde_json` | 1.x | MIT/Apache | Read container's consolidated findings file |
 
-All crates are pure Rust, fully Cargo-lockable on macOS and Windows. Tauri requires the system webview (WebKit on macOS, WebView2 on Windows — both ship with the OS). The webview receives pre-rendered HTML from Rust on every state change; no JavaScript application code exists in the project. The objc2 family is macOS-only and used exclusively by `apcrb_pasteboard` for declared-flavor enumeration — not by the detection pipeline. On non-macOS builds `apcrb` reduces to a stub returning an honest error; cross-platform compilation is preserved.
+All Rust crates are pure Rust, fully Cargo-lockable on macOS and Windows. Tauri requires the system webview (WebKit on macOS, WebView2 on Windows — both ship with the OS). The webview receives pre-rendered HTML from Rust on every state change; no JavaScript application code exists in the project.
+
+ONNX Runtime (`ort` crate), previously used by the Stanford spike binary `apcnsa`, is no longer used by the production pipeline — all neural inference now runs inside the container. The `apcnsa` spike binary retains the `ort` dependency for its own offline assay runs; see "Historical spike" note under Container Discerners.
+
+### Container Image
+
+| Layer | Package | Rationale |
+|-------|---------|-----------|
+| Base image | `python:3.11-slim` (or pinned equivalent) | Minimal Python 3.11 footprint |
+| Neural inference | `transformers`, `torch` (CPU-only wheel) | Native PyTorch runtime for `StanfordAIMI/stanford-deidentifier-base` |
+| Tokenization | `tokenizers` | HuggingFace fast tokenizer (bundled transitively) |
+| Biomedical NLP | `scispacy`, `spacy`, model `en_core_sci_md` | Clinical-domain spaCy pipeline — POS, dependency parse, biomedical NER |
+| General NLP | `stanza` (English UD package) | POS, morphological features, dependency parse, OntoNotes-style NER as a second independent NER signal |
+
+`scispacy` is layered on `spacy` and tracks upstream spaCy releases with occasional lag; the Dockerfile pins both to a compatible pair. Torch is installed as the CPU-only wheel explicitly — GPU wheels are unusable inside a Linux container on macOS (Metal/MPS does not pass through) and would only bloat the image.
+
+Expected image size: ~1.5–2 GB. One-time pull per deploy target.
 
 ### Tauri CLI cwd Constraint
 
@@ -63,7 +82,7 @@ Before processing, the engine checks whether clipboard content appears to be cli
 
 If clinical content is detected, the engine proceeds to the detection pipeline and clears the system clipboard (writes empty string via `arboard::set_text("")`).
 
-If clinical content is NOT detected, the app clears any previous triage state and returns to the initial instruction view. The app displays a brief diagnostic line showing: clipboard content length, content type (HTML/plain text), and the first ~100 characters of content. This diagnostic aids debugging when real Epic data fails the heuristic — the developer can see what was on the clipboard and update the label list accordingly.
+If clinical content is NOT detected, the app clears any previous triage state and returns to the initial instruction view. The app displays a brief diagnostic line showing: clipboard content length, content type (HTML/plain text), and the first ~100 characters of content.
 
 This heuristic will be refined when tested against real Epic output. The initial label list is calibrated to pass the synthetic test fixture.
 
@@ -73,33 +92,40 @@ On window focus, the engine compares the current clipboard content (byte-for-byt
 
 ## Journal Directory
 
-**Purpose.** One place on disk that accumulates runtime artifacts produced by the app: verbatim clipboard harvests from every focus with changed content (clinical and non-clinical alike), and a running log of every `apcrl_*` emission teed from stdout. A single location keeps the mental model honest — one `ls` answers both "what did the app capture?" and "what did the app report?".
+**Purpose.** One place on disk that accumulates runtime artifacts produced by the app AND the container: verbatim clipboard harvests from every focus with changed content, the normalized-text input that the container consumes, the container's consolidated findings output, the anonymized output, the container's own log, and a running log of every `apcrl_*` emission teed from stdout. A single flat location keeps the mental model honest — one `ls` answers everything.
 
-**Path.** `$HOME/apcjd/` — outside any repo tree. The directory is created lazily at application startup (for the log tee) or on first capture (for harvests), whichever comes first. A `.gitignore` entry for `apcjd/` is present as belt-and-suspenders against a misdirected `$HOME` resolution that lands in-tree.
+**Path.** `$HOME/apcjd/` — outside any repo tree. The directory is created lazily at application startup (for the log tee) or on first capture (for harvests), whichever comes first. It is simultaneously the bind-mount target for the container. A `.gitignore` entry for `apcjd/` is present as belt-and-suspenders against a misdirected `$HOME` resolution that lands in-tree.
 
-**Contents.** Two independent features share this directory:
+**Contents.** Five independent producers share this flat directory:
 
 | Artifact | Producer | Shape |
 |----------|----------|-------|
-| Harvest captures | `apcrh_harvest` on every focus with changed content | `{N}-in.{tag}.{ext}` where `{tag}` is `clinical` or `nonclinical` (see Clipboard Harvest) |
-| Anonymized outputs | `apcap_main` focus handler on Clinical branch | `{N}-out.txt` (see Clipboard Harvest) |
-| Observability log | `apcrl_log` file-tee sink | `apcap.log` (see Observability Log) |
+| Raw harvest captures | `apcrh_harvest` on every focus with changed content | `{N}-in.{tag}.{ext}` where `{tag}` is `clinical` or `nonclinical` |
+| Normalized text | `apcrh_harvest` (Clinical branch only) | `{N}-in.txt` — plain UTF-8 after HTML strip / whitespace collapse; the container's input |
+| Container findings | `apcs_container` on completion | `{N}.json` — consolidated output of all three container discerners (published atomically via `{N}.json.tmp` → rename) |
+| Anonymized outputs | `apcap_main` focus handler on Clinical branch | `{N}-out.txt` |
+| Observability log (app) | `apcrl_log` file-tee sink | `apcap.log` |
+| Observability log (container) | container runtime | `container-log.txt` (truncated on each container restart by the start-container tabtarget) |
+
+All files sharing the same leading digit run `{N}` belong to the same capture.
 
 ## Clipboard Harvest
 
-**Purpose.** Preserve verbatim real-world clipboard contents from every focus with changed content so the fixture library can grow from real traffic, so Epic's actual flavor structure can be studied, and so a classifier misfire still leaves an artifact on disk to post-mortem. The prototype currently ships with synthetic fixtures only; harvest is the bridge from lab to field without relying on the clinician to remember to save.
+**Purpose.** Preserve verbatim real-world clipboard contents from every focus with changed content so the fixture library can grow from real traffic, so Epic's actual flavor structure can be studied, and so a classifier misfire still leaves an artifact on disk to post-mortem.
 
 **Trigger.** Every focus with changed clipboard content — executed after the classifier runs so the verdict can be tagged into the filename, but before any Clinical-branch clipboard zero-out. The same-as-last short-circuit at the top of the focus handler still applies: re-focusing with unchanged content does not re-harvest.
 
-**Storage.** The journal directory (`$HOME/apcjd/`, see above).
+**Storage.** The journal directory (`$HOME/apcjd/`).
 
-**Naming.** Inputs are written as `{N}-in.{tag}.{ext}` where `{tag}` is `clinical` or `nonclinical` — the classifier's verdict at the moment of capture. Clinical captures additionally pair with an anonymized output written as `{N}-out.txt`. `N` seeds at 10000 for an empty directory, otherwise `max_leading_digit_run + 1` across every filename whose name begins with digits. Files sharing the same `N` group all artifacts of one capture — e.g., `10000-in.clinical.rtf`, `10000-in.clinical.utf8.txt`, `10000-in.clinical.utf16.txt`, and `10000-out.txt` are four artifacts of clinical capture 10000; `10001-in.nonclinical.utf8.txt` is the lone artifact of non-clinical capture 10001. Gaps in the numeric sequence are not filled — the scan advances past the current maximum. Filenames that do not begin with a digit are ignored in the max calculation, so `apcap.log` and any user-placed `README` or `notes` co-exist without perturbing indexing. The scan parses the leading digit run, not the full stem, so legacy bare `{N}.{ext}` and prior untagged `{N}-in.{ext}` files from earlier prototype runs still count toward index advancement — all styles share one index space.
+**Naming — raw harvest.** Raw captures are written as `{N}-in.{tag}.{ext}` where `{tag}` is `clinical` or `nonclinical` — the classifier's verdict at the moment of capture. `N` seeds at 10000 for an empty directory, otherwise `max_leading_digit_run + 1` across every filename whose name begins with digits. Files sharing the same `N` group all artifacts of one capture — e.g., `10000-in.clinical.rtf`, `10000-in.clinical.utf8.txt`, `10000-in.clinical.utf16.txt`, `10000-in.txt`, `10000-out.txt`, and `10000.json` are six artifacts of clinical capture 10000. Gaps in the numeric sequence are not filled — the scan advances past the current maximum. Filenames that do not begin with a digit are ignored in the max calculation, so `apcap.log`, `container-log.txt`, and any user-placed `README` or `notes` co-exist without perturbing indexing.
 
-The `{ext}` portion is derived from the declared UTI via a data-driven table in `apcrb_pasteboard::apcrb_extension_for_uti`. Known public UTIs receive human-readable extensions (see Flavors below); any UTI not in the table — including legacy NSPasteboard names like `Unicode text` or a third-party `com.example.thing` — falls through `zapcrb_sanitize_uti` to `{sanitized}.bin`, where dots, slashes, whitespace, and punctuation collapse to single hyphens, leading/trailing hyphens are trimmed, and empty input yields `flavor`. The sanitized form is always filename-safe; extension of the flavor space to new producers requires no code change.
+**Naming — normalized text.** On every Clinical-branch focus, after the raw captures are written, `apcrh_harvest` also writes `{N}-in.txt`: the `apcs_normalized_text` (plain UTF-8 after HTML strip, whitespace collapse, encoding normalization as described in APCS0). This file is the container's input — the container reads the highest-indexed `{N}-in.txt` it finds in the bind-mounted directory, runs its three discerners, and writes `{N}.json`. The bare `{N}-in.txt` name (no `{tag}` infix, no UTI-derived suffix) distinguishes the pipeline-input file from the raw-flavor captures. `{N}-in.txt` is written only for clinical captures — non-clinical captures produce no normalized text because no detection pipeline runs.
 
-**Flavors.** Every flavor the producer **declared** on the pasteboard — enumerated via `NSPasteboardItem::types` on the general pasteboard's first item and fetched via `dataForType:`. Declared flavors are the set the producer actually wrote; macOS may synthesize additional derived types on read (the same board can report 15+ types once AppKit's conversion engine is asked). Synthesized types are deliberately skipped — the parity target is `osascript -e 'clipboard info'`, which reports declared types only, and matching that output is how we know we have captured *what the producer intended to publish*, not *what AppKit could manufacture on request*.
+**Naming — UTI-derived extensions.** The `{ext}` portion of raw captures is derived from the declared UTI via a data-driven table in `apcrb_pasteboard::apcrb_extension_for_uti`. Known public UTIs receive human-readable extensions (see Flavors below); any UTI not in the table — including legacy NSPasteboard names like `Unicode text` or a third-party `com.example.thing` — falls through `zapcrb_sanitize_uti` to `{sanitized}.bin`.
 
-The table below is illustrative — actual flavors present depend on the producer (Epic Copy All, a browser, Word, a password manager, any app that writes to the pasteboard while Clipbuddy has focus in the background). Known UTI → extension mappings:
+**Flavors.** Every flavor the producer **declared** on the pasteboard — enumerated via `NSPasteboardItem::types` on the general pasteboard's first item and fetched via `dataForType:`. Declared flavors are the set the producer actually wrote; macOS may synthesize additional derived types on read. Synthesized types are deliberately skipped — the parity target is `osascript -e 'clipboard info'`, which reports declared types only.
+
+Known UTI → extension mappings:
 
 | UTI | Filename | Typical producer |
 |-----|----------|------------------|
@@ -112,59 +138,72 @@ The table below is illustrative — actual flavors present depend on the produce
 | `public.url` / `public.file-url` | `{N}-in.{tag}.url` / `.fileurl` | URL bar / Finder copy |
 | anything else | `{N}-in.{tag}.{sanitized-uti}.bin` | Legacy NSPasteboard names, third-party UTIs |
 
-arboard remains on the classifier's `get_text()` path. The separation is load-bearing: arboard is a simple, stable, cross-platform read of the UTF-8 flavor and is what the detection pipeline consumes; `apcrb_pasteboard` is lower-level, Mac-only, riskier FFI code and owns enumeration + multi-flavor capture for disk. A break in `apcrb` (FFI error, empty pasteboard, non-macOS build) surfaces as an absent `{N}-in.{tag}.*` artifact and an `apcrl_error_now!` line in the log — it does not cascade into the classifier, which continues to read via arboard. Conversely, the classifier's verdict drives the filename `tag` regardless of which flavors `apcrb` manages to write. Two consumers of the same pasteboard, independently correct.
+arboard remains on the classifier's `get_text()` path. The separation is load-bearing: arboard is a simple, stable, cross-platform read of the UTF-8 flavor used to feed the clinical-gate heuristic; `apcrb_pasteboard` is lower-level, Mac-only, riskier FFI code and owns enumeration + multi-flavor capture for disk. A break in `apcrb` (FFI error, empty pasteboard, non-macOS build) surfaces as an absent `{N}-in.{tag}.*` artifact and an `apcrl_error_now!` line in the log — it does not cascade into the classifier.
 
-**Anonymized output.** On every Clinical-branch focus, after the input harvest succeeds, the focus handler also writes `{N}-out.txt`: the anonymizer's output with default-elide toggle states (every finding elided). The point is a legible input/output pairing on disk — Brad can diff `{N}-in.clinical.txt` against `{N}-out.txt` to review what clipbuddy produced for Ann, without relying on her to paste-and-save. This output is captured *at focus time*, not on copy. Updating `{N}-out.txt` as Ann toggles findings or re-copies is deferred UX; the current snapshot is always the default-elide baseline. Write failure is non-fatal — triage continues, and the failure is logged via `apcrl_error_now!`. An HTML-preserving anonymized output (`{N}-out.html`) is out of scope — the current anonymizer is plain-text only. Non-clinical captures do not pair with an anonymized output; there is nothing to anonymize because no findings are produced.
+**Anonymized output.** On every Clinical-branch focus, after the input harvest succeeds, the focus handler also writes `{N}-out.txt`: the anonymizer's output with default-elide toggle states (every finding elided). Because combining is currently deferred, the prototype's anonymized output is derived from Rust-only findings — the combining-aware version will land when combining is spec'd and implemented. Write failure is non-fatal.
 
-**Failure mode.** A capture failure logs via `apcrl_error_now!` (stdout + tee) and does not abort triage. User-visible behavior is unchanged whether harvest succeeds or fails — the triage pipeline is authoritative. The same holds for the anonymized-output write. System-clipboard zero-out happens only on the Clinical branch; a non-clinical capture leaves Ann's clipboard untouched.
+**Failure mode.** A capture failure logs via `apcrl_error_now!` (stdout + tee) and does not abort triage. User-visible behavior is unchanged whether harvest succeeds or fails.
 
-**Privacy posture.** PHI-at-rest stays outside the repo. The journal directory is PHI-permissive by design — harvests, the anonymized-output pairings, and the observability log all share the same on-device-only posture: nothing in `$HOME/apcjd/` is auto-committed, auto-uploaded, or auto-anonymized. Review and promotion of any artifact to an out-of-site context is a manual act.
-
-The always-harvest posture is a deliberate scope expansion over earlier prototype behavior, which only captured on the Clinical branch. Today's compact is "clipbuddy captures every clipboard it sees during a session" — not only clinical notes. When Brad reviews a session's journal directory he will observe Ann's non-clinical clipboard activity too: passwords she copied, personal email snippets, URLs, anything at all that hit her pasteboard while Ann's PHI Clipbuddy had focus in the background. This is not a new *kind* of risk — the journal directory was already PHI-permissive on-device, and nothing leaves the device automatically — but the *scope* of what a reviewer sees is broader, and naming that here means the posture is not discovered by surprise. A debug-mode or opt-out flag for non-clinical capture is deliberately not provided at prototype scale; revisit if Ann or Brad flags the scope as too broad in practice.
+**Privacy posture.** PHI-at-rest stays outside the repo. The journal directory is PHI-permissive by design — every artifact in `$HOME/apcjd/` (raw harvests, normalized inputs, container outputs, anonymized pairings, app log, container log) shares the same on-device-only posture: nothing is auto-committed, auto-uploaded, or auto-anonymized. Review and promotion of any artifact to an out-of-site context is a manual act. The container's zero-network posture strengthens this: inference cannot leak PHI over the network because there is no network.
 
 ## Observability Log
 
 **Purpose.** Give the clinician-developer and the engineer a shared, persistent view of what the app did across runs. The `.app` bundle on macOS captures stdout where a non-technical user won't look for it; a file in the journal directory is where both humans already know to peek.
 
-**Mechanism.** `apcrl_log` exposes an optional file-tee sink: `apcrl_tee_init(path)` installs a once-only append-open handle. Every subsequent `apcrl_*_now!`, `_if!`, and comparison-variant emission is written twice — once to stdout (verbatim) and once to the tee file (same format, same line). One format, two sinks.
+**Mechanism.** `apcrl_log` exposes an optional file-tee sink: `apcrl_tee_init(path)` installs a once-only append-open handle. Every subsequent `apcrl_*_now!`, `_if!`, and comparison-variant emission is written twice — once to stdout (verbatim) and once to the tee file (same format, same line).
 
-**Format.** Exactly what stdout receives: `[LEVEL] [YYYY-MM-DD HH:MM:SS.mmm] [file:line] message`. The timestamp is local wall-clock with millisecond precision, captured at emit time via `chrono::Local::now()`. Single emission path means no format drift between modalities — an engineer debugging a remote bundle and an engineer running `cargo run` read the same lines. The clock lets Ann's "it stopped working around 2pm" kind of report meet the log without re-running under a stopwatch.
+**Format.** Exactly what stdout receives: `[LEVEL] [YYYY-MM-DD HH:MM:SS.mmm] [file:line] message`. The timestamp is local wall-clock with millisecond precision, captured at emit time via `chrono::Local::now()`.
 
-**Location.** `$HOME/apcjd/apcap.log`. Filename matches the binary name (`apcap`) as an engineer mnemonic. Append-only — no rotation at prototype scale; a clinical session produces tens of lines, a year of use produces thousands.
+**Location.** `$HOME/apcjd/apcap.log`. Filename matches the binary name (`apcap`) as an engineer mnemonic. Append-only — no rotation at prototype scale.
+
+**Container log.** Separate from `apcap.log`. The container writes all of its own diagnostic output to `$HOME/apcjd/container-log.txt`. This log is cleared (truncated to zero) by the start-container tabtarget on each container start — so a log inspection after a session reflects only that session's container activity. The app never reads or writes this file.
 
 **Init.** At `main()` startup, before any other log emission. Failure to install the tee (missing HOME, disk full, permissions) logs to stdout and proceeds — the app starts and stdout remains authoritative.
 
-**Failure mode.** Tee write failures are silently swallowed inside the emitter to avoid recursive-logging hazards (a failing log should not generate more log traffic). Stdout is the authoritative sink; tee is best-effort.
+**Failure mode.** Tee write failures are silently swallowed inside the emitter to avoid recursive-logging hazards.
 
-**Privacy posture.** The log lives alongside harvests in the journal directory and inherits the same posture — the whole directory is PHI-permissive by design. The log may carry clipboard content, PHI-adjacent details, or anything else useful to diagnose behavior on the clinician's machine. The discipline that matters is not "keep the log PHI-free" but "keep the journal directory on the doctor's computer" — nothing in `$HOME/apcjd/` is auto-uploaded, auto-committed, or transmitted off-device. Review and promotion of any artifact (capture or log line) to an out-of-site context is a manual act.
+**Privacy posture.** All logs in the journal directory inherit the PHI-permissive on-device posture.
 
 ## Detection Pipeline
 
+The conceptual vocabulary lives in [APCS0-SpecTop.adoc](APCS0-SpecTop.adoc). This section documents each discerner's concrete parameterization — regex patterns, label registry, dictionary sources, container model pinning.
+
 ### Overview
 
-Three tiers execute in sequence. Results merge by highest severity — if a token is flagged by multiple tiers, the most severe classification wins.
+Ten discerners, seven running inside the Rust application and three inside the container, each a pure function of `apcs_normalized_text`. Each emits an intimately-typed finding into the evidence pool. Combining rules are deferred; the prototype currently uses a stand-in that treats Rust-side findings only, and the anonymized output `{N}-out.txt` reflects that stand-in. Full combining is a later pace once empirical evidence from real clinical text has flowed through all ten discerners.
 
 ```
-Input: Epic HTML clipboard content
-         |
-    Parse HTML → typed spans with labels and positions
-         |
-    Tier 1: Regex scan → RED
-         |
-    Tier 2: Label-anchored extraction → RED
-         |
-    Tier 3: Dictionary blacklist/whitelist scan → YELLOW or PASS
-         |
-    Merge by highest severity
-         |
-    Output: classified token stream → frontend
+                                 apcs_clipboard_content
+                                          |
+                                      Clinical gate
+                                          |
+                                   apcs_normalization  (Rust)
+                                          |
+                                 apcs_normalized_text  (= {N}-in.txt)
+                                          |
+            +-----------------------------+-----------------------------+
+            |                             |                             |
+    Rust-application discerners      container discerners         (container reads {N}-in.txt,
+    (7; in-process emits)            (3; via {N}.json)             writes {N}.json atomically)
+            |                             |
+            +--------------+--------------+
+                           |
+                     apcs_evidence
+                           |
+                     apcs_combining  (DEFERRED)
+                           |
+                 apcs_unified_finding_s
+                           |
+                    apcs_anonymization  (Rust)
+                           |
+                    apcs_anonymized_text  (= {N}-out.txt)
 ```
 
-### Tier 1 — Regex Patterns (→ RED)
+### Regex Scan — parameterization
 
-Structural patterns with low false positive rate. No database dependency.
+Structural patterns with low false-positive rate. No model dependency. Runs in the Rust application.
 
-**Known ambiguities:** The zip code regex (`\d{5}`) can match 5-digit lab values, identifiers, or dosage amounts. The date regex can match version numbers or other formatted numerics. The street address regex can match non-address text with number-word-suffix patterns. These are accepted risks for the prototype — the conservative bias (false positive > false negative) means these appear as RED items the clinician can review. Context-aware refinement is deferred.
+**Known ambiguities.** The zip code regex (`\d{5}`) can match 5-digit lab values or dosage amounts. The date regex can match version numbers. The street address regex can match non-address text. These are accepted risks for the prototype — the conservative bias (false positive > false negative) means these appear as findings the clinician can toggle. Context-aware refinement is a combining concern.
 
 | Pattern | Category | Regex (representative) | Notes |
 |---------|----------|----------------------|-------|
@@ -180,9 +219,9 @@ Structural patterns with low false positive rate. No database dependency.
 
 Dates receive special handling: when a date follows a `DOB:` label, the engine computes age from the current date and emits `Age: NN` instead of `[DATE]` in the anonymized output. Per HIPAA Safe Harbor (45 CFR 164.514(b)(2)(i)(C)), ages over 89 are aggregated: computed age >89 emits `Age: 90+`.
 
-### Tier 2 — Label-Anchored Extraction (→ RED)
+### Label Scan — parameterization
 
-Words immediately following known Epic labels are PHI regardless of dictionary membership. The label is authoritative — if Epic says `Patient: Xylophone McZephyr`, that's a name even if no database contains it.
+Words immediately following known Epic labels. Label matching is case-insensitive. Value extraction extends to the next structural boundary. Per-word anchoring — each word is individually flagged. Runs in the Rust application.
 
 | Label Pattern | Category | Extraction Rule |
 |--------------|----------|-----------------|
@@ -192,53 +231,214 @@ Words immediately following known Epic labels are PHI regardless of dictionary m
 | `Referring:` | `[PROVIDER]` | All text until next label or line break |
 | `Facility:` | `[FACILITY]` | All text until next label or line break |
 | `Electronically signed by:` | `[PROVIDER]` | All text until next label or line break |
-| `Emergency contact` | `[NAME]` | Name portion, phone extracted by Tier 1 |
+| `Emergency contact` | `[NAME]` | Name portion, phone extracted by regex scan |
 | `primary care physician` | `[PROVIDER]` | Following name (e.g., "Dr. Susan Chen") |
 
-Label matching is case-insensitive on the label text. Value extraction extends to the next structural boundary (label, line break, or HTML element boundary).
+### Dictionary Scans — parameterization
 
-**Per-word anchoring:** Each word in the extracted value is individually flagged as RED. "Margaret J. Thornton" after `Patient:` produces three separate **anchored** items, each classified `[NAME]`. In anonymized output: `[NAME] [NAME] [NAME]`. No multi-word merge is attempted.
+Five separate scans, each parameterized by one dictionary, each emitting its own intimate finding type. All case-insensitive; all use aho-corasick automata built from lowercase entries; all scan the lowercased `apcs_normalized_text` while preserving original case for display. All unconditional — every match emits a finding regardless of whitelist membership, and combining is responsible for interpreting overlaps. All run in the Rust application.
 
-Items caught by Tier 2 are **anchored** — their RED classification is final. They are not subsequently dictionary-checked. If a word is both anchored (Tier 2) and matched (Tier 3), the anchored classification takes precedence.
+| Scan | Dictionary | Implied category | Role |
+|------|-----------|------------------|------|
+| `apcs_surname_scan` | surnames.txt | NAME | PHI candidate — emit on match |
+| `apcs_firstname_scan` | firstnames.txt | NAME | PHI candidate — emit on match |
+| `apcs_city_scan` | cities.txt | ADDRESS | PHI candidate (may remap to FACILITY under combining) — emit on match |
+| `apcs_english_scan` | english_whitelist.txt | (none) | Suppression evidence — emit on match |
+| `apcs_medical_scan` | medical_whitelist.txt | (none) | Suppression evidence — emit on match |
 
-### Vocabulary: Anchored vs. Matched
+The five scans, together, replace the single Tier-3 "dictionary scan" of earlier drafts. The whitelist scans (`english`, `medical`) previously existed only as flags on dictionary findings; promoting them to first-class discerners makes their evidence addressable by combining rules on equal footing with the name/location scans.
 
-Two independent mechanisms flag words as potential PHI. To avoid confusion, the spec distinguishes:
+### Container Discerners — parameterization
 
-- **Anchored**: Flagged by Tier 2 because of *position* — the word follows a known label. Always RED. Independent of any dictionary.
-- **Matched**: Flagged by Tier 3 because of *identity* — the word appears in a name/location dictionary. YELLOW (unless also anchored, in which case RED wins).
+All three run inside `apcs_container` (see Container Architecture below). Each consumes `{N}-in.txt` (the normalized text) and contributes a key to the consolidated `{N}.json`.
 
-A word can be both anchored and matched (e.g., "Thornton" after `Patient:` AND in the Census surname list). Anchored always takes precedence. The term "blacklist" in this spec refers specifically to the Tier 3 name/location dictionaries; Tier 2 label-anchored extraction is a separate mechanism.
+| Discerner | Model | Placement | Primary output signal |
+|-----------|-------|-----------|----------------------|
+| `apcs_stanford_scan` | `StanfordAIMI/stanford-deidentifier-base` (HuggingFace transformers, PyTorch CPU) | container | PHI named entities with native 8-label taxonomy |
+| `apcs_spacy_scan` | scispaCy `en_core_sci_md` | container | POS tags, morphological features, dependency parse, biomedical NER |
+| `apcs_stanza_scan` | Stanza English UD pipeline (default English package) | container | POS (UD + language-specific), morphological features, lemma, dependency parse, OntoNotes-style NER |
 
-### Tier 3 — Dictionary Blacklist/Whitelist (→ YELLOW or PASS)
+**Stanford taxonomy.** The `StanfordAIMI/stanford-deidentifier-base` model uses a **flat 8-label** taxonomy (no BIO prefix):
 
-Catches names and locations in narrative text that lack label anchors (e.g., "her husband Robert Thornton called 911").
+```
+O, VENDOR, DATE, HCW, HOSPITAL, ID, PATIENT, PHONE
+```
 
-**Case handling:** All dictionary lookups are case-insensitive. The aho-corasick automaton is built from lowercase dictionary entries. Input tokens are lowercased before matching. Original case is preserved in display and anonymized output.
+Runs of identical labels form a single entity. This taxonomy is read from `config.json:id2label` at container image build time — no hardcoded mapping on the Rust side. Mapping these native labels to `apcs_phi_category` is a combining concern (deferred).
 
-**Process:**
-1. Segment text into words using `unicode-segmentation` (UAX#29 boundaries)
-2. Lowercase each token for lookup; preserve original for display
-3. Run aho-corasick automaton against lowercased tokens (single pass, O(n))
-4. For each hit, check whitelist membership (also lowercase)
-5. Classify:
-   - Blacklist hit, no whitelist hit → **YELLOW** (matched, default ELIDE)
-   - Blacklist hit AND whitelist hit → **YELLOW** (collision, default ELIDE)
-   - Whitelist hit only → **PASS**
-   - Neither list → **PASS**
+**Observed Stanford strengths** (recorded from spike evaluation on APCK synthetic fixtures):
+- Multi-token person names merged as single spans (`Margaret J. Thornton` → one `PATIENT`)
+- Facility names merged (`Maine Medical Center` → one `HOSPITAL`)
+- Narrative-scope PHI catches where positional anchors are absent
 
-**Collision resolution context signals** (applied within YELLOW to aid clinician review):
-- Capitalization mid-sentence suggests a proper noun (name) rather than common word
-- Adjacent blacklist hits suggest a full name ("Robert Thornton" — two hits together)
-- Section context: names in demographics header vs. narrative HPI carry different weight
+**Observed Stanford weaknesses:** structured identifiers (SSN, URL, address, device serial) fragment across multiple labels — less reliable than regex for the same categories. The regex scan and Stanford scan are complementary; combining is where the complementarity is cashed in.
 
-These signals inform the findings panel display but do not change the YELLOW classification in the prototype. The clinician makes the final call.
+**Historical spike.** An earlier spike (`apcnsa_main.rs` + formerly APCNS0-NeuralStanford.md) validated Stanford de-identifier utility by running it via ONNX inside a standalone Rust binary. That binary continues to exist as a reference / offline assay tool; the container-based path supersedes it for the production pipeline. The ONNX export ceremony is no longer required — the container uses HuggingFace transformers + PyTorch natively.
+
+**spaCy choice.** `en_core_sci_md` is the clinical-domain model from scispaCy. Provides POS tagging, dependency parsing, and biomedical NER. Chosen for its syntactic signals (POS + dependency parse), which are what enable disambiguation of homographs like "may" (modal verb, AUX) vs. "May" (proper noun, PROPN). Its NER is biomedical-focused (diseases, chemicals) and provides supplementary signal; PHI-focused NER is the Stanford scan's job.
+
+**Stanza choice.** English Universal Dependencies pipeline. Provides a second, architecturally independent syntactic analyzer plus OntoNotes-style NER (PERSON, ORG, GPE, DATE). The two-parser redundancy is deliberate — when spaCy and Stanza agree that "may" is AUX, that's independent corroboration; when they disagree, combining can weight accordingly. Whether both ship in MVP-to-Ann or whether evaluation narrows to one is a decision for a later pace.
+
+## Container Architecture
+
+### Purpose
+
+Isolate Python-native NLP algorithms from the Rust application process while preserving a strong privacy and security posture. The container's zero-network, capability-dropped, non-root posture means the sophisticated algorithms can be iterated on and scaled up without widening the trust boundary of Clipbuddy itself.
+
+### Lifecycle
+
+Container lifecycle is **managed externally from Clipbuddy** — via tabtargets, not by the Tauri app. Clipbuddy presumes the container is already running; if it isn't, the bind-mount directory simply fails to receive `{N}.json` files and combining runs with an empty container-side evidence contribution (graceful degradation — Rust-side evidence still drives the anonymized output).
+
+Tabtarget set (names in the `apcw-X` family; concrete names pending mint):
+
+| Tabtarget | Purpose |
+|-----------|---------|
+| Image build | `docker build` the container image from the Dockerfile in the project tree |
+| Container start | Truncate `container-log.txt`, `docker run` the image with the bind mount and security flags |
+| Container stop | `docker stop` + `docker rm` |
+| Container status | Report whether the container is running, which image it's bound to, whether it can see the bind-mount directory |
+
+### Bind Mount
+
+**Host directory.** `$HOME/apcjd/` — the journal directory, bind-mounted into the container at a container-local path (e.g., `/work/apcjd/`). Single directory, read+write for both sides.
+
+**Container files it reads:**
+- `{N}-in.txt` — normalized text for the input with index `N`
+
+**Container files it writes:**
+- `{N}.json.tmp` — transient, during assembly
+- `{N}.json` — consolidated findings, published atomically via `rename(2)`
+- `container-log.txt` — running diagnostic log
+
+**Indexing discipline.** The container scans `$HOME/apcjd/` for `{N}-in.txt` files. It processes **only the highest-indexed** input and ignores all others. This implements a drop-old backlog policy: if Ann copies three things quickly, the container processes only the newest; older inputs are skipped. Cleanup of stale inputs and outputs is manual.
+
+### Wire Protocol
+
+1. Clipbuddy writes `{N}-in.txt` containing `apcs_normalized_text` to `$HOME/apcjd/`.
+2. The container (in a polling or inotify-driven loop; implementation detail) observes the new file, confirms `N` is the highest index present, and runs all three discerners on its contents.
+3. The container writes `{N}.json.tmp` with the consolidated findings from all three discerners.
+4. When all algorithms have completed and the file is closed, the container `rename(2)`s `{N}.json.tmp` to `{N}.json`. POSIX guarantees the rename is atomic within the same filesystem — readers either see the old (absent) state or the final file, never a partially written intermediate.
+5. Clipbuddy (watching via the `notify` crate) observes `{N}.json` existing, reads and deserializes it, and folds its findings into the evidence pool alongside the Rust-side findings.
+
+No sockets, no HTTP, no pipes — POSIX file I/O is the entire wire format.
+
+### Container Output JSON Schema
+
+The `{N}.json` file has this top-level shape:
+
+```json
+{
+  "index": 10000,
+  "stanford": {
+    "findings": [ /* see Stanford finding schema */ ]
+  },
+  "spacy": {
+    "findings": [ /* see spaCy finding schema */ ]
+  },
+  "stanza": {
+    "findings": [ /* see Stanza finding schema */ ]
+  }
+}
+```
+
+No schema version field for the prototype — the shape is pinned to the container image version. If the schema evolves, the image tag changes, and any Clipbuddy built against an older schema is simply incompatible with the newer image.
+
+Per-discerner finding schemas:
+
+**Stanford finding:**
+```json
+{
+  "text": "Margaret J. Thornton",
+  "start": 45,
+  "end": 65,
+  "label": "PATIENT",
+  "confidence": 0.987
+}
+```
+- `start`/`end` are character offsets into `apcs_normalized_text`.
+- `label` is one of the 8 native labels (non-`O` values only; `O` tokens are not emitted as findings).
+- `confidence` is the model's softmax confidence for the dominant label over the span.
+
+**spaCy finding.** Two variants share a single discerner namespace; each finding is either token-level or entity-level, distinguished by a `kind` field:
+
+```json
+{
+  "kind": "token",
+  "text": "may",
+  "start": 120,
+  "end": 123,
+  "pos": "AUX",
+  "tag": "MD",
+  "morph": "VerbType=Mod",
+  "lemma": "may",
+  "head": 5,
+  "dep": "aux"
+}
+```
+
+```json
+{
+  "kind": "entity",
+  "text": "aspirin",
+  "start": 84,
+  "end": 91,
+  "label": "CHEMICAL"
+}
+```
+
+**Stanza finding.** Same two-variant pattern:
+
+```json
+{
+  "kind": "token",
+  "text": "Margaret",
+  "start": 45,
+  "end": 53,
+  "upos": "PROPN",
+  "xpos": "NNP",
+  "feats": "Number=Sing",
+  "lemma": "Margaret",
+  "head": 2,
+  "deprel": "nsubj",
+  "ner": "B-PERSON"
+}
+```
+
+```json
+{
+  "kind": "entity",
+  "text": "Margaret J. Thornton",
+  "start": 45,
+  "end": 65,
+  "label": "PERSON"
+}
+```
+
+These schemas are illustrative for the prototype — concrete field ordering, optionality, and type precision will be fixed by the Rust deserializer types in `apcd/src/` when the consumer is written.
+
+### Security Posture
+
+| Control | Setting | Rationale |
+|---------|---------|-----------|
+| Network | `--network=none` | The container cannot initiate or accept any network traffic — eliminates PHI exfiltration risk |
+| Capabilities | `--cap-drop=all` | No Linux capabilities beyond the bare minimum needed to run Python and write to the bind mount |
+| Filesystem | Read-only root filesystem (`--read-only`), writable bind-mount only | The container can mutate only the bind-mounted directory |
+| User | Non-root (explicit `USER` directive in Dockerfile) | Standard container hygiene; bind-mount file ownership maps to host UID/GID |
+| Resource limits | None (prototype scale) | Memory and CPU caps deferred until empirical usage is observed |
+
+### Rationale Summary
+
+- **Python ecosystem unlocked**: scispaCy, Stanza, HuggingFace transformers run natively without ONNX export ceremony or Rust-Python FFI.
+- **Combining stays in Rust**: strongly typed deserialization, full test coverage on the combining logic, unchanged language boundary.
+- **Zero-network container**: PHI cannot leave the container over the network because there is no network. Stronger posture than a host-side Python venv.
+- **File-I/O wire protocol**: the simplest possible interface — debuggable by eyeballing a directory, no protocol parser to write or maintain.
+- **External lifecycle**: container up/down is a developer-directed action, decoupled from Clipbuddy startup. Simplifies the prototype's failure modes.
 
 ## Dictionary Data
 
 ### Proof-of-Life Sizing
 
-Curated-small dictionaries that prove the architecture without requiring full datasets:
+Curated-small dictionaries that prove the architecture without requiring full datasets. Each paired with its own scan (see Dictionary Scans above):
 
 | Dictionary | Source | License | Size | File |
 |------------|--------|---------|------|------|
@@ -261,6 +461,8 @@ Total: ~8,000 entries, ~80KB on disk.
 | English whitelist | Full dictionary | Public domain | ~170,000 |
 
 ## Anonymization
+
+Combining is deferred. The prototype's current anonymization derives from Rust-only findings (regex, label, and dictionary-style scans) via a stand-in that approximates the post-combining shape. The full combining-aware anonymization will land in a later pace once combining is spec'd.
 
 ### Placeholder Strategy
 
@@ -287,30 +489,34 @@ Plain text with preserved section structure (line breaks, section headers). HTML
 
 ## Self-Update Mechanism
 
-The application watches `/Users/Shared/apcua/` for new `.app` bundles using the `notify` crate (FSEvents backend on macOS). On detection:
+Currently **dormant** for the prototype. `apcru_start_watcher()` is commented out in `apcap_main.rs::main()`; `apcru_update.rs` source is retained for trivial revert. Ann's deploy ceremony is a manual quit + relaunch of `Apcap.app` from `/Users/Shared/apcua/`. The seamless hot-swap-during-active-session problem is not one Ann has today.
+
+When re-enabled, the watcher architecture is: `/Users/Shared/apcua/` watched via `notify` (FSEvents on macOS). On detection of a new `.app` bundle:
 
 1. Copy new bundle over current application path
 2. Spawn `open -n <app-path>` to launch new version
 3. `std::process::exit(0)` to terminate current process
 
-No confirmation dialog. The watcher runs on a background thread independent of the main Tauri event loop. If the watch directory does not exist at startup, the app creates it silently.
-
 ## Project Structure
 
 ```
 Tools/apck/
-  apck-claude-context.md          # Build/run/deploy instructions (RCG reference)
+  apck-claude-context.md          # Build/run/deploy instructions
   APCAS-Specification.md          # Application spec (UX vision)
   APCPS-PrototypeSpecification.md # This document (pipeline engineering)
+  APCS0-SpecTop.adoc              # Detection pipeline vocabulary
   apcw_workbench.sh               # Bash workbench
   apcz_zipper.sh                  # Zipper enrollment
   test_fixtures/
     epic_progress_note.html       # Synthetic Epic clipboard data
   apcd/                           # Rust/Tauri source directory
-    Cargo.toml                    # Two [[bin]]: apcap (app), apcal (fixture loader)
+    Cargo.toml                    # Multiple [[bin]]: apcap, apcal, apcad, apcab, apcnsa
     src/
       apcap_main.rs               # Tauri app entry point
       apcal_main.rs               # Fixture loader entry point
+      apcab_main.rs               # Batch assay binary
+      apcad_main.rs               # Dictionary refresh binary
+      apcnsa_main.rs              # Historical Stanford ONNX spike binary (reference only)
       lib.rs                      # Engine library + test module declarations
       apcre_engine.rs             # PHI detection orchestrator
       apcte_engine.rs             # Tests for engine
@@ -320,13 +526,13 @@ Tools/apck/
       apctm_match.rs              # Tests for matching
       apcrd_dictionaries.rs       # Dictionary loading
       apctd_dictionaries.rs       # Tests for dictionaries
-      apcru_update.rs             # Directory watcher + self-update (no unit tests)
-      apcrh_harvest.rs            # Clipboard harvest orchestrator (index scan + delegate)
+      apcru_update.rs             # Directory watcher + self-update (no unit tests; currently dormant)
+      apcrh_harvest.rs            # Clipboard harvest orchestrator
       apcth_harvest.rs            # Tests for harvest
       apcrj_journal.rs            # Journal directory path resolver
       apcrl_log.rs                # Logging macros + file-tee sink
       apcrb_pasteboard.rs         # macOS NSPasteboard FFI — declared-UTI enumeration
-      apctb_pasteboard.rs         # Tests for pasteboard (UTI → ext + sanitization)
+      apctb_pasteboard.rs         # Tests for pasteboard
     ui/
       index.html
       style.css
@@ -336,7 +542,17 @@ Tools/apck/
       cities.txt
       medical_whitelist.txt
       english_whitelist.txt
+    container/                    # Container build inputs (new)
+      Dockerfile                  # Python 3.11-slim + NLP stack
+      requirements.txt            # transformers, torch-cpu, scispacy, spacy, en_core_sci_md, stanza
+      entrypoint.py               # Long-running loop: watch bind mount, run 3 discerners, atomic publish
+      discerners/                 # Per-algorithm Python modules
+        stanford.py
+        spacy_scan.py
+        stanza_scan.py
 ```
+
+The `container/` subdirectory under `apcd/` holds the Dockerfile and Python sources for the container image. Keeping it adjacent to the Rust application source (rather than in a separate top-level directory) reflects that the two halves — Rust app + container — are one system, built and deployed together.
 
 ## Prefix Tree
 
@@ -355,8 +571,11 @@ apc  (non-terminal)
 │   ├── apcrj  — Journal directory path resolver
 │   └── apcrl  — Logging macros (info, error, fatal with file/line) + file-tee sink
 ├── apcj   (non-terminal — journal)
-│   └── apcjd  — journal directory ($HOME/apcjd/) holding harvests + apcap.log
+│   └── apcjd  — journal directory ($HOME/apcjd/) — shared by app and container
 ├── apck   — kit directory
+├── apcn   (non-terminal — neural)
+│   └── apcns  (non-terminal — neural stanford)
+│       └── apcnsa  — App Neural Stanford Assay binary (historical ONNX spike, reference only)
 ├── apcps  — prototype specification document
 ├── apcs   (non-terminal)
 │   └── apcs0  — detection pipeline specification (MCM concept model)
@@ -366,27 +585,7 @@ apc  (non-terminal)
 └── apcz   — zipper
 ```
 
-Rust source file prefixes follow RCG: `{cipher}r{classifier}_{name}.rs` where cipher is `apc`. Test files: `{cipher}t{classifier}_{name}.rs` — classifier matches between source and test. See RCG (Rust Coding Guide) for full naming conventions, including `z`-prefix internal declarations, string boundary discipline, and constant discipline.
-
-`lib.rs` wiring:
-```rust
-pub mod apcrl_log;
-pub mod apcre_engine;
-pub mod apcrp_parse;
-pub mod apcrm_match;
-pub mod apcrd_dictionaries;
-pub mod apcru_update;
-pub mod apcrh_harvest;
-pub mod apcrj_journal;
-pub mod apcrb_pasteboard;
-
-#[cfg(test)] mod apcte_engine;
-#[cfg(test)] mod apctp_parse;
-#[cfg(test)] mod apctm_match;
-#[cfg(test)] mod apctd_dictionaries;
-#[cfg(test)] mod apcth_harvest;
-#[cfg(test)] mod apctb_pasteboard;
-```
+Rust source file prefixes follow RCG: `{cipher}r{classifier}_{name}.rs` where cipher is `apc`. Test files: `{cipher}t{classifier}_{name}.rs` — classifier matches between source and test.
 
 ## Tabtargets
 
@@ -397,3 +596,18 @@ pub mod apcrb_pasteboard;
 | `tt/apcw-D.Deploy.sh` | `apcw-D` | Build + scp to `anns-macbook-air:/Users/Shared/apcua/` |
 | `tt/apcw-fl.FixtureLoad.sh` | `apcw-fl` | Run `apcal` to load fixture HTML onto clipboard |
 | `tt/apcw-t.Test.sh` | `apcw-t` | `cargo test` in `apcd/` |
+| `tt/apcw-dr.DictionaryRefresh.sh` | `apcw-dr` | `cargo run --bin apcad` (refresh dictionaries) |
+| `tt/apcw-ba.BatchAssay.sh` | `apcw-ba` | `cargo run --bin apcab` (batch assay on HTML directory) |
+| `tt/apcw-nsa.NeuralStanfordAssay.sh` | `apcw-nsa` | Historical Stanford ONNX spike binary (reference only) |
+| `tt/apcw-nsi.NeuralStanfordInstall.sh` | `apcw-nsi` | Historical Stanford ONNX install (reference only) |
+
+Container lifecycle tabtargets (names pending mint; placement under `apcw-c*` colophon family to distinguish from file-system lifecycle):
+
+| Tabtarget (proposed) | Purpose |
+|---------------------|---------|
+| `apcw-cb.ContainerBuild.sh` | `docker build` the container image |
+| `apcw-cs.ContainerStart.sh` | Truncate `container-log.txt`, `docker run` the container with bind mount and security flags |
+| `apcw-cx.ContainerStop.sh` | `docker stop` + `docker rm` |
+| `apcw-ci.ContainerStatus.sh` | Report running state, bound image tag, bind-mount reachability |
+
+Final names will be minted when the container lifecycle is implemented.

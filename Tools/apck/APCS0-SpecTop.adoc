@@ -15,69 +15,101 @@
 //   _ing: progressive form (verbs)
 
 // Input
-:apcs_clipboard_content:           <<apcs_clipboard_content,Clipboard Content>>
-:apcs_epic_html:                   <<apcs_epic_html,Epic HTML>>
-:apcs_clinical_gate:               <<apcs_clinical_gate,Clinical Gate>>
+:apcs_clipboard_content:               <<apcs_clipboard_content,Clipboard Content>>
+:apcs_epic_html:                       <<apcs_epic_html,Epic HTML>>
+:apcs_clinical_gate:                   <<apcs_clinical_gate,Clinical Gate>>
 
 // Parsed structure
-:apcs_document:                    <<apcs_document,Parsed Document>>
-:apcs_span:                        <<apcs_span,Span>>
-:apcs_span_s:                      <<apcs_span,Spans>>
-:apcs_labeled_field:               <<apcs_labeled_field,Labeled Field>>
-:apcs_section_header:              <<apcs_section_header,Section Header>>
-:apcs_narrative:                   <<apcs_narrative,Narrative>>
+:apcs_document:                        <<apcs_document,Parsed Document>>
+:apcs_span:                            <<apcs_span,Span>>
+:apcs_span_s:                          <<apcs_span,Spans>>
+:apcs_labeled_field:                   <<apcs_labeled_field,Labeled Field>>
+:apcs_section_header:                  <<apcs_section_header,Section Header>>
+:apcs_narrative:                       <<apcs_narrative,Narrative>>
 
 // Detection resources — registries and dictionaries
-:apcs_label_registry:              <<apcs_label_registry,Label Registry>>
-:apcs_regex_table:                 <<apcs_regex_table,Regex Table>>
-:apcs_surname_dictionary:          <<apcs_surname_dictionary,Surname Dictionary>>
-:apcs_firstname_dictionary:        <<apcs_firstname_dictionary,Firstname Dictionary>>
-:apcs_city_dictionary:             <<apcs_city_dictionary,City Dictionary>>
-:apcs_blacklist:                   <<apcs_blacklist,Blacklist>>
-:apcs_blacklist_s:                 <<apcs_blacklist,Blacklists>>
-:apcs_english_whitelist:           <<apcs_english_whitelist,English Whitelist>>
-:apcs_medical_whitelist:           <<apcs_medical_whitelist,Medical Whitelist>>
-:apcs_whitelist:                   <<apcs_whitelist,Whitelist>>
-:apcs_whitelist_s:                 <<apcs_whitelist,Whitelists>>
+:apcs_label_registry:                  <<apcs_label_registry,Label Registry>>
+:apcs_regex_table:                     <<apcs_regex_table,Regex Table>>
+:apcs_surname_dictionary:              <<apcs_surname_dictionary,Surname Dictionary>>
+:apcs_firstname_dictionary:            <<apcs_firstname_dictionary,Firstname Dictionary>>
+:apcs_city_dictionary:                 <<apcs_city_dictionary,City Dictionary>>
+:apcs_english_whitelist:               <<apcs_english_whitelist,English Whitelist>>
+:apcs_medical_whitelist:               <<apcs_medical_whitelist,Medical Whitelist>>
 
 // PHI categories
-:apcs_phi_category:                <<apcs_phi_category,PHI Category>>
+:apcs_phi_category:                    <<apcs_phi_category,PHI Category>>
 
 // Normalization
-:apcs_normalization:               <<apcs_normalization,Normalization>>
-:apcs_normalized_text:             <<apcs_normalized_text,Normalized Text>>
+:apcs_normalization:                   <<apcs_normalization,Normalization>>
+:apcs_normalized_text:                 <<apcs_normalized_text,Normalized Text>>
 
-// Discerners
-:apcs_regex_scan:                  <<apcs_regex_scan,Regex Scan>>
-:apcs_label_scan:                  <<apcs_label_scan,Label Scan>>
-:apcs_dictionary_scan:             <<apcs_dictionary_scan,Dictionary Scan>>
-:apcs_stanford_ner:                <<apcs_stanford_ner,Stanford NER>>
+// Placement and the container
+:apcs_placement:                       <<apcs_placement,Placement>>
+:apcs_container:                       <<apcs_container,Container>>
 
-// Per-discerner findings (intimately named, no generic supertype)
-:apcs_regex_finding:               <<apcs_regex_finding,Regex Finding>>
-:apcs_regex_finding_s:             <<apcs_regex_finding,Regex Findings>>
-:apcs_label_finding:               <<apcs_label_finding,Label Finding>>
-:apcs_label_finding_s:             <<apcs_label_finding,Label Findings>>
-:apcs_dictionary_finding:          <<apcs_dictionary_finding,Dictionary Finding>>
-:apcs_dictionary_finding_s:        <<apcs_dictionary_finding,Dictionary Findings>>
-:apcs_stanford_finding:            <<apcs_stanford_finding,Stanford Finding>>
-:apcs_stanford_finding_s:          <<apcs_stanford_finding,Stanford Findings>>
+// Findings (general prose noun) and the evidence pool
+:apcs_finding:                         <<apcs_finding,Finding>>
+:apcs_finding_s:                       <<apcs_finding,Findings>>
+:apcs_evidence:                        <<apcs_evidence,Evidence>>
 
-// Reconciliation (deferred — see ₢A9AAV apcs-combining-algorithm)
-:apcs_reconciliation:              <<apcs_reconciliation,Reconciliation>>
-:apcs_unified_classification:      <<apcs_unified_classification,Unified Classification>>
+// Rust-application discerners and their intimate findings
+:apcs_regex_scan:                      <<apcs_regex_scan,Regex Scan>>
+:apcs_regex_finding:                   <<apcs_regex_finding,Regex Finding>>
+:apcs_regex_finding_s:                 <<apcs_regex_finding,Regex Findings>>
+
+:apcs_label_scan:                      <<apcs_label_scan,Label Scan>>
+:apcs_label_finding:                   <<apcs_label_finding,Label Finding>>
+:apcs_label_finding_s:                 <<apcs_label_finding,Label Findings>>
+
+:apcs_surname_scan:                    <<apcs_surname_scan,Surname Scan>>
+:apcs_surname_finding:                 <<apcs_surname_finding,Surname Finding>>
+:apcs_surname_finding_s:               <<apcs_surname_finding,Surname Findings>>
+
+:apcs_firstname_scan:                  <<apcs_firstname_scan,Firstname Scan>>
+:apcs_firstname_finding:               <<apcs_firstname_finding,Firstname Finding>>
+:apcs_firstname_finding_s:             <<apcs_firstname_finding,Firstname Findings>>
+
+:apcs_city_scan:                       <<apcs_city_scan,City Scan>>
+:apcs_city_finding:                    <<apcs_city_finding,City Finding>>
+:apcs_city_finding_s:                  <<apcs_city_finding,City Findings>>
+
+:apcs_english_scan:                    <<apcs_english_scan,English Scan>>
+:apcs_english_finding:                 <<apcs_english_finding,English Finding>>
+:apcs_english_finding_s:               <<apcs_english_finding,English Findings>>
+
+:apcs_medical_scan:                    <<apcs_medical_scan,Medical Scan>>
+:apcs_medical_finding:                 <<apcs_medical_finding,Medical Finding>>
+:apcs_medical_finding_s:               <<apcs_medical_finding,Medical Findings>>
+
+// Container discerners and their intimate findings
+:apcs_stanford_scan:                   <<apcs_stanford_scan,Stanford Scan>>
+:apcs_stanford_finding:                <<apcs_stanford_finding,Stanford Finding>>
+:apcs_stanford_finding_s:              <<apcs_stanford_finding,Stanford Findings>>
+
+:apcs_spacy_scan:                      <<apcs_spacy_scan,spaCy Scan>>
+:apcs_spacy_finding:                   <<apcs_spacy_finding,spaCy Finding>>
+:apcs_spacy_finding_s:                 <<apcs_spacy_finding,spaCy Findings>>
+
+:apcs_stanza_scan:                     <<apcs_stanza_scan,Stanza Scan>>
+:apcs_stanza_finding:                  <<apcs_stanza_finding,Stanza Finding>>
+:apcs_stanza_finding_s:                <<apcs_stanza_finding,Stanza Findings>>
+
+// Combining (deferred)
+:apcs_combining:                       <<apcs_combining,Combining>>
+:apcs_unified_finding:                 <<apcs_unified_finding,Unified Finding>>
+:apcs_unified_finding_s:               <<apcs_unified_finding,Unified Findings>>
 
 // Anonymization
-:apcs_anonymization:               <<apcs_anonymization,Anonymization>>
-:apcs_anonymized_text:             <<apcs_anonymized_text,Anonymized Text>>
-:apcs_placeholder:                 <<apcs_placeholder,Placeholder>>
-:apcs_placeholder_s:               <<apcs_placeholder,Placeholders>>
+:apcs_anonymization:                   <<apcs_anonymization,Anonymization>>
+:apcs_anonymized_text:                 <<apcs_anonymized_text,Anonymized Text>>
+:apcs_placeholder:                     <<apcs_placeholder,Placeholder>>
+:apcs_placeholder_s:                   <<apcs_placeholder,Placeholders>>
 
 // Diagnostic projections
-:apcs_discerner_assay:             <<apcs_discerner_assay,Discerner Assay>>
-:apcs_unified_assay:               <<apcs_unified_assay,Unified Assay>>
-:apcs_elision_marker:              <<apcs_elision_marker,Elision Marker>>
-:apcs_elision_marker_s:            <<apcs_elision_marker,Elision Markers>>
+:apcs_discerner_assay:                 <<apcs_discerner_assay,Discerner Assay>>
+:apcs_unified_assay:                   <<apcs_unified_assay,Unified Assay>>
+:apcs_elision_marker:                  <<apcs_elision_marker,Elision Marker>>
+:apcs_elision_marker_s:                <<apcs_elision_marker,Elision Markers>>
 
 // end::mapping-section[]
 
@@ -85,26 +117,25 @@
 == Overview
 
 This document defines the formal vocabulary for the detection pipeline in Ann's PHI Clipbuddy.
-It specifies the entities the algorithm operates on, the resources it consults, and the procedures it performs.
+It specifies the entities the algorithm operates on, the resources it consults, the procedures it performs, and the execution sites at which each discerner runs.
 
 The application specification (APCAS) owns the user experience.
-The prototype specification (APCPS) owns implementation details, tech stack, and data sources.
+The prototype specification (APCPS) owns implementation details, tech stack, data sources, wire-format JSON schemas, and the container image contents.
 This document owns the detection pipeline's conceptual structure — the terms that must be precise for the pipeline to be reasoned about correctly.
 
-The pipeline has three named procedures with four parallel discerners between the first and second.
+The pipeline has three named procedures with ten parallel discerners between the first and second.
 {apcs_normalization}
 produces the canonical input.
-{apcs_regex_scan},
-{apcs_label_scan},
-{apcs_dictionary_scan},
-and
-{apcs_stanford_ner}
-each run as a pure function of
+Ten discerners each run as a pure function of
 {apcs_normalized_text},
-producing their own intimately-named finding type.
-{apcs_reconciliation}
-fuses the four finding streams into
-{apcs_unified_classification}.
+producing their own intimately-named finding type;
+seven of them run inside the Rust application and three of them run inside
+{apcs_container}.
+{apcs_combining}
+fuses the ten finding streams into
+{apcs_unified_finding_s}
+covering regions of
+{apcs_normalized_text}.
 {apcs_anonymization}
 produces
 {apcs_anonymized_text}.
@@ -197,11 +228,7 @@ Clinical prose, family history details, plan items.
 PHI in
 {apcs_narrative}
 {apcs_span_s}
-lacks positional anchoring and must be detected by
-{apcs_regex_scan},
-{apcs_dictionary_scan},
-or
-{apcs_stanford_ner}.
+lacks positional anchoring and must be detected by the discerners that do not depend on Epic labels.
 
 
 == Detection Resources
@@ -243,54 +270,44 @@ See APCPS for the full pattern table.
 
 === Dictionaries
 
-[[apcs_blacklist]]
-{apcs_blacklist}::
-A word list whose members are flagged as potential PHI during the
-{apcs_dictionary_scan}.
-Three named
-{apcs_blacklist_s}
-are combined into a single lookup automaton:
-
 [[apcs_surname_dictionary]]
 {apcs_surname_dictionary}::
 US Census 2010 surnames, top 1,000 by frequency.
 Source: public domain.
+Consumed by the
+{apcs_surname_scan}.
 
 [[apcs_firstname_dictionary]]
 {apcs_firstname_dictionary}::
 SSA baby names, top 1,000 by aggregate frequency.
 Source: public domain.
+Consumed by the
+{apcs_firstname_scan}.
 
 [[apcs_city_dictionary]]
 {apcs_city_dictionary}::
 US state capitals plus top 100 cities by population.
 Source: public domain.
-
-[[apcs_whitelist]]
-{apcs_whitelist}::
-A word list whose members are common English or medical terms.
-A
-{apcs_whitelist}
-supplies corroborating evidence about a word — specifically, that the word has a recognized non-PHI reading.
-The
-{apcs_dictionary_scan}
-records whitelist membership as a flag on every emitted
-{apcs_dictionary_finding}
-but does not use it to gate emission; how whitelist corroboration composes into a disposition is a
-{apcs_reconciliation}
-concern.
-Two named
-{apcs_whitelist_s}:
+Consumed by the
+{apcs_city_scan}.
 
 [[apcs_english_whitelist]]
 {apcs_english_whitelist}::
 Top 5,000 common English words (Norvig/Google n-grams).
 Source: public domain.
+Consumed by the
+{apcs_english_scan}.
 
 [[apcs_medical_whitelist]]
 {apcs_medical_whitelist}::
 Hand-curated medications, lab tests, diagnoses, anatomy, abbreviations.
 Source: original curation.
+Consumed by the
+{apcs_medical_scan}.
+
+NOTE: There is no umbrella "blacklist" or "whitelist" concept in this vocabulary.
+Earlier drafts grouped the three name/location dictionaries under a `blacklist` concept and the two common-term dictionaries under a `whitelist` concept, then parameterized a single dictionary scan over both.
+The unified framing was load-bearing only for the unified scan; with each dictionary now paired to its own intimately-named scan, the umbrella adds grouping without carrying weight.
 
 
 === PHI Categories
@@ -303,13 +320,13 @@ Determines the
 text used in
 {apcs_anonymized_text}.
 Enumerated: NAME, PROVIDER, FACILITY, DATE, DOB, PHONE, EMAIL, SSN, MRN, ACCOUNT, ENCOUNTER_ID, ADDRESS, HEALTH_PLAN_ID, DEVICE_ID, NPI, DEA, URL, IP_ADDRESS.
-The
-{apcs_stanford_ner}
-discerner carries its own flat taxonomy of native labels (PATIENT, DOCTOR, HOSPITAL, …);
-{apcs_reconciliation}
-is responsible for mapping those labels into the
++
+Container discerners carry their own native taxonomies (Stanford's 8-label flat set; spaCy's POS tags, dependency relations, and scispaCy biomedical entity labels; Stanza's Universal Dependencies POS tags, morphological features, dependency relations, and OntoNotes NER labels).
+Mapping native taxonomies to the
 {apcs_phi_category}
-enumeration.
+enumeration is a
+{apcs_combining}
+concern and is deferred along with the rest of combining.
 
 
 == Normalization
@@ -326,9 +343,10 @@ into a
 when the content is HTML, or taken as-is when plain text — and produces
 {apcs_normalized_text}.
 One of the three named procedures of the pipeline, together with
-{apcs_reconciliation}
+{apcs_combining}
 and
 {apcs_anonymization}.
+Runs entirely inside the Rust application.
 Internal mechanics (HTML stripping, whitespace collapse, line-break handling, encoding normalization) are implementation detail; the vocabulary concerns only the procedure's inputs and output.
 
 [[apcs_normalized_text]]
@@ -338,14 +356,55 @@ The output of
 {apcs_normalization}.
 Regions within
 {apcs_normalized_text}
-are the addressable units of detection; byte positions and character offsets are implementation detail and not part of this vocabulary.
-All four discerners —
-{apcs_regex_scan},
-{apcs_label_scan},
-{apcs_dictionary_scan},
-{apcs_stanford_ner} —
-are pure functions of
+are the addressable units of detection; character positions are counted into this string, not into
+{apcs_clipboard_content}
+or
+{apcs_epic_html}.
+All ten discerners are pure functions of
 {apcs_normalized_text}.
+
+
+== Placement and the Container
+
+[[apcs_placement]]
+{apcs_placement}::
+The execution site at which a discerner runs.
+Enumerated: `rust_application` (the discerner runs in-process inside the Tauri-hosted Rust application, emitting findings via direct function calls) and `container` (the discerner runs inside
+{apcs_container},
+emitting findings via a JSON file written to the bind-mounted directory).
+Every discerner declares its
+{apcs_placement}
+as part of its definition.
+{apcs_combining}
+reads both streams into the same
+{apcs_evidence}
+pool;
+from combining's perspective the
+{apcs_placement}
+of a finding's originating discerner is a provenance field, not a structural dimension.
+
+[[apcs_container]]
+{apcs_container}::
+A long-running Linux container that hosts the three sophisticated discerners —
+{apcs_stanford_scan},
+{apcs_spacy_scan},
+and
+{apcs_stanza_scan} —
+in their native Python runtime.
+Parameterized by the set of discerner models it bundles (see APCPS for the concrete images, versions, and Dockerfile).
+Reads inputs from and writes outputs to a single bind-mounted host directory; exposes no network interface (`--network=none`), runs as a non-root user, and drops all Linux capabilities.
+Lifecycle is managed by tabtargets, not by the Rust application — start, stop, and image build are human-directed actions, distinct from Clipbuddy startup.
+Communication with the Rust application is file I/O only:
+Clipbuddy writes
+{apcs_normalized_text}
+as `{N}-in.txt` into the shared directory;
+the container reads the highest-indexed
+`{N}-in.txt`
+it finds, runs its three discerners, and publishes their consolidated findings atomically as `{N}.json`
+(write to `{N}.json.tmp`, then `rename(2)` to `{N}.json`).
+The container emits a running log to `container-log.txt` in the same directory; the start-container tabtarget truncates the log at each container restart.
+No sockets, no pipes, no HTTP — POSIX file I/O is the entire wire format.
+See APCPS for the directory path, JSON schema, Dockerfile, and tabtarget set.
 
 
 == Discerners
@@ -353,15 +412,34 @@ are pure functions of
 Each discerner is an independent algorithm that consumes
 {apcs_normalized_text}
 and emits an intimately-named finding type.
-The four discerners run in parallel on the same input; no discerner refines or filters another's output.
-{apcs_reconciliation}
+Ten discerners run in parallel on the same input; no discerner refines or filters another's output.
+{apcs_combining}
 fuses their finding streams.
 
 There is deliberately no generic supertype for discerners and no generic finding type.
 Each discerner is named individually, parameterized individually, and reasoned about individually;
-{apcs_reconciliation}
+{apcs_combining}
 rules reference discerners and findings by name, not by a shared abstract shape.
 This is load-bearing: earlier drafts that introduced `apcs_algorithm` and `apcs_reliability_profile` collapsed distinct concerns (what a discerner knows, how confident it is, how its output should be displayed) into non-load-bearing abstractions that each had to be re-specialized at every rule site.
+
+[[apcs_finding]]
+{apcs_finding}::
+A single detection emitted by any discerner, covering a region of
+{apcs_normalized_text}.
+Prose noun — there is no generic schema.
+Each discerner's
+{apcs_finding}
+subtype has its own intimate schema carrying whatever information that discerner's algorithm produces.
+
+[[apcs_evidence]]
+{apcs_evidence}::
+The pool of every
+{apcs_finding}
+emitted by every discerner for a single input.
+{apcs_combining}
+is a function of
+{apcs_evidence}.
+The pool preserves provenance — a finding's originating discerner is never lost — and allows multiple findings to cover the same region without any one being discarded or subordinated before combining.
 
 === Regex Scan
 
@@ -378,6 +456,7 @@ Each match emits one
 with the
 {apcs_phi_category}
 specified by the pattern entry.
+{apcs_placement}: `rust_application`.
 
 [[apcs_regex_finding]]
 {apcs_regex_finding}::
@@ -403,6 +482,7 @@ segment the value following the label into words and emit one
 per word with the
 {apcs_phi_category}
 specified by the registry entry.
+{apcs_placement}: `rust_application`.
 
 [[apcs_label_finding]]
 {apcs_label_finding}::
@@ -412,124 +492,289 @@ Carries: the word text, the region of
 {apcs_normalized_text}
 it covers, the
 {apcs_phi_category}
-specified by the registry entry, and the originating label (retained for audit and for reconciliation rules that reference specific labels).
+specified by the registry entry, and the originating label (retained for audit and for combining rules that reference specific labels).
 
-=== Dictionary Scan
+=== Surname Scan
 
-[[apcs_dictionary_scan]]
-{apcs_dictionary_scan}::
-The discerner that detects potential PHI by dictionary membership.
-Parameterized by the combined
-{apcs_blacklist}
-automaton and the two
-{apcs_whitelist_s}.
+[[apcs_surname_scan]]
+{apcs_surname_scan}::
+The discerner that detects surname dictionary membership.
+Parameterized by the
+{apcs_surname_dictionary}
+(case-insensitive lookup via aho-corasick automaton).
 Scans
-{apcs_normalized_text}
-against the blacklist automaton; every hit emits one
-{apcs_dictionary_finding},
-regardless of whitelist membership.
-Whitelist corroboration is recorded on the emitted finding as a flag — it is evidence passed downstream, not a gate on emission.
-+
-NOTE: The internal disposition of
-{apcs_dictionary_finding_s}
-(how the whitelist-collision flag composes with the blacklist hit to express self-confidence, and whether the dictionary itself renders an ambiguous-vs-confident verdict or defers that entirely to reconciliation) is a deferred decision of
-{apcs_reconciliation} —
-see ₢A9AAV `apcs-combining-algorithm`.
-
-[[apcs_dictionary_finding]]
-{apcs_dictionary_finding}::
-The output unit of
-{apcs_dictionary_scan}.
-Carries: the matched text, the region of
-{apcs_normalized_text}
-it covers, the originating
-{apcs_blacklist}
-(surname / firstname / city), and a whitelist-collision flag indicating whether the word is also in an
-{apcs_english_whitelist}
+{apcs_normalized_text};
+every match emits one
+{apcs_surname_finding}.
+The scan emits unconditionally on match — whitelist corroboration from
+{apcs_english_scan}
 or
-{apcs_medical_whitelist}.
-A
-{apcs_phi_category}
-is implied by the originating dictionary (NAME for surname/firstname, ADDRESS for city), subject to any remapping in
-{apcs_reconciliation}.
+{apcs_medical_scan}
+is a
+{apcs_combining}
+concern, never a gate on emission here.
+{apcs_placement}: `rust_application`.
 
-=== Stanford NER
+[[apcs_surname_finding]]
+{apcs_surname_finding}::
+The output unit of
+{apcs_surname_scan}.
+Carries: the matched text and the region of
+{apcs_normalized_text}
+it covers.
+Implied
+{apcs_phi_category}: NAME.
 
-[[apcs_stanford_ner]]
-{apcs_stanford_ner}::
-The discerner that detects PHI by neural named-entity recognition.
-Parameterized by a frozen ONNX export of `StanfordAIMI/stanford-deidentifier-base` together with its flat taxonomy of entity labels (PATIENT, DOCTOR, HOSPITAL, DATE, AGE, STREET, CITY, STATE, COUNTRY, ZIP, PHONE, EMAIL, ID, PROFESSION, ORGANIZATION, …).
-Runs as a pure function of
-{apcs_normalized_text}:
-tokenizes the input, scores each token, and emits a
+=== Firstname Scan
+
+[[apcs_firstname_scan]]
+{apcs_firstname_scan}::
+The discerner that detects first-name dictionary membership.
+Parameterized by the
+{apcs_firstname_dictionary}
+(case-insensitive lookup via aho-corasick automaton).
+Scans
+{apcs_normalized_text};
+every match emits one
+{apcs_firstname_finding}.
+Unconditional emission, like
+{apcs_surname_scan}.
+{apcs_placement}: `rust_application`.
+
+[[apcs_firstname_finding]]
+{apcs_firstname_finding}::
+The output unit of
+{apcs_firstname_scan}.
+Carries: the matched text and the region of
+{apcs_normalized_text}
+it covers.
+Implied
+{apcs_phi_category}: NAME.
+
+=== City Scan
+
+[[apcs_city_scan]]
+{apcs_city_scan}::
+The discerner that detects city dictionary membership.
+Parameterized by the
+{apcs_city_dictionary}
+(case-insensitive lookup via aho-corasick automaton).
+Scans
+{apcs_normalized_text};
+every match emits one
+{apcs_city_finding}.
+Unconditional emission.
+{apcs_placement}: `rust_application`.
+
+[[apcs_city_finding]]
+{apcs_city_finding}::
+The output unit of
+{apcs_city_scan}.
+Carries: the matched text and the region of
+{apcs_normalized_text}
+it covers.
+Implied
+{apcs_phi_category}: ADDRESS (subject to remapping in combining — a city name overlapping a Stanford-labeled HOSPITAL span, for instance, may unify as FACILITY).
+
+=== English Scan
+
+[[apcs_english_scan]]
+{apcs_english_scan}::
+The discerner that detects common-English-word dictionary membership.
+Parameterized by the
+{apcs_english_whitelist}
+(case-insensitive lookup via aho-corasick automaton).
+Scans
+{apcs_normalized_text};
+every match emits one
+{apcs_english_finding}.
+Findings from this scan are suppression evidence — they indicate a word has a recognized non-PHI reading — and enter
+{apcs_evidence}
+as peers to the name/location findings rather than gating them.
+{apcs_placement}: `rust_application`.
+
+[[apcs_english_finding]]
+{apcs_english_finding}::
+The output unit of
+{apcs_english_scan}.
+Carries: the matched text and the region of
+{apcs_normalized_text}
+it covers.
+No implied
+{apcs_phi_category} —
+this finding asserts common-English membership, not a PHI classification.
+
+=== Medical Scan
+
+[[apcs_medical_scan]]
+{apcs_medical_scan}::
+The discerner that detects medical-term dictionary membership.
+Parameterized by the
+{apcs_medical_whitelist}
+(case-insensitive lookup via aho-corasick automaton).
+Scans
+{apcs_normalized_text};
+every match emits one
+{apcs_medical_finding}.
+Like
+{apcs_english_scan},
+a source of suppression evidence — medical jargon is emphatically not PHI, even when it collides with a surname ("Lennox," "Broca," "Parkinson").
+{apcs_placement}: `rust_application`.
+
+[[apcs_medical_finding]]
+{apcs_medical_finding}::
+The output unit of
+{apcs_medical_scan}.
+Carries: the matched text and the region of
+{apcs_normalized_text}
+it covers.
+No implied
+{apcs_phi_category}.
+
+=== Stanford Scan
+
+[[apcs_stanford_scan]]
+{apcs_stanford_scan}::
+The discerner that detects PHI by neural named-entity recognition using `StanfordAIMI/stanford-deidentifier-base`.
+Parameterized by the model's flat 8-label taxonomy:
+`O, VENDOR, DATE, HCW, HOSPITAL, ID, PATIENT, PHONE`
+(labels are flat — no BIO prefix — so runs of identical labels form a single entity).
+Observed strengths (recorded from spike evaluation on the APCK synthetic fixtures): multi-token person names merged as a single span
+(`Margaret J. Thornton` → one `PATIENT` span),
+facility names merged
+(`Maine Medical Center` → one `HOSPITAL` span),
+narrative-scope catches where positional anchors are absent.
+Observed weaknesses: structured identifiers (SSN, URL, address, device serial) fragment across multiple labels and are less reliable than
+{apcs_regex_scan}
+for the same categories.
+The two are complementary, and
+{apcs_combining}
+is where the complementarity is cashed in.
+Runs once per input inside the
+{apcs_container};
+emits a
 {apcs_stanford_finding}
 per contiguous labeled span.
-The taxonomy is the model's native label set;
-{apcs_reconciliation}
-maps native labels onto the
-{apcs_phi_category}
-enumeration when building
-{apcs_unified_classification}.
+{apcs_placement}: `container`.
 
 [[apcs_stanford_finding]]
 {apcs_stanford_finding}::
 The output unit of
-{apcs_stanford_ner}.
+{apcs_stanford_scan}.
 Carries: the matched text, the region of
 {apcs_normalized_text}
-it covers, the native Stanford entity label, and the model's confidence score for that span.
+it covers, the native Stanford entity label (one of the seven non-`O` labels above), and the model's confidence score for that span.
+The native label is preserved verbatim; mapping to
+{apcs_phi_category}
+happens in
+{apcs_combining}.
+
+=== spaCy Scan
+
+[[apcs_spacy_scan]]
+{apcs_spacy_scan}::
+The discerner that produces syntactic and biomedical-entity analysis via spaCy parameterized by a clinical-domain model (scispaCy's `en_core_sci_md`; see APCPS for the concrete pipeline component list).
+Emits per-token structural signals (POS tag, morphological features, lemma, dependency head index, dependency relation) and any biomedical named-entity spans the pipeline produces.
+The syntactic signals are the load-bearing output for this discerner's role in combining — the "may/May/may" disambiguation relies on POS tags separating modal verbs (AUX) from proper nouns (PROPN).
+Runs once per input inside the
+{apcs_container};
+emits a
+{apcs_spacy_finding}
+per token and per entity span.
+{apcs_placement}: `container`.
+
+[[apcs_spacy_finding]]
+{apcs_spacy_finding}::
+The output unit of
+{apcs_spacy_scan}.
+Two variants share this name:
+per-token findings carry text, region, POS tag, morphological features, lemma, and dependency information;
+per-entity findings carry text, region, and the biomedical entity label.
+Concrete JSON schema for both variants lives in APCPS.
+
+=== Stanza Scan
+
+[[apcs_stanza_scan]]
+{apcs_stanza_scan}::
+The discerner that produces syntactic and general-domain named-entity analysis via Stanza, parameterized by the English Universal Dependencies pipeline (see APCPS for concrete version).
+Emits the full set of per-token signals Stanza's pipeline produces (Universal POS tag, language-specific POS tag, morphological features, lemma, dependency head, dependency relation, BIO-encoded NER tag) and entity-level spans derived from the BIO-tagged tokens.
+Like
+{apcs_spacy_scan},
+chosen for its POS and dependency signals; its general-domain NER (OntoNotes-style PERSON/ORG/GPE labels) supplements
+{apcs_stanford_scan}
+with a second NER signal trained on different data.
+Runs once per input inside the
+{apcs_container};
+emits
+{apcs_stanza_finding_s}
+at both per-token and per-entity granularities.
+{apcs_placement}: `container`.
+
+[[apcs_stanza_finding]]
+{apcs_stanza_finding}::
+The output unit of
+{apcs_stanza_scan}.
+As with
+{apcs_spacy_finding},
+per-token and per-entity variants share the name;
+the concrete JSON schema for both lives in APCPS.
 
 
-== Reconciliation
+== Combining
 
 NOTE: **Deferred section.**
-The reconciliation algorithm — the rules that fuse the four discerner finding streams into a single authoritative classification — is the subject of pace ₢A9AAV `apcs-combining-algorithm`.
-The quoins below are placeholders so downstream procedures have referenceable inputs and so the document's link graph remains complete; their authoritative shape is written as part of that pace.
+The combining algorithm — the rules that fuse the ten discerner finding streams into authoritative per-region classifications — is deferred.
+The decision to defer is deliberate: combining rules should be written with empirical
+{apcs_evidence}
+in hand from real clinical text processed through all ten discerners, not invented before the signals are visible.
+The quoins below are placeholders so downstream procedures have referenceable inputs and so the document's link graph remains complete; their authoritative shape will be written in a later pace once representative inputs have flowed through the pipeline.
 
-Specifically deferred to ₢A9AAV:
+Specifically deferred:
 
-* The role / disposition vocabulary that replaces the discarded severity gestalt (candidates under discussion include TEXT/PHI/DECIDE as classification roles, `cover`/`surface` as per-finding dispositions, and others).
-* Per-discerner-pair precedence rules, including granularity merging when findings of different sizes overlap (e.g., a phrase-scoped
-{apcs_stanford_finding}
-covering a word-scoped
-{apcs_label_finding}).
-* The composition of dictionary-finding internal disposition with reconciliation rules (whether the dictionary renders a self-verdict using its whitelist evidence, or whether reconciliation derives the verdict externally).
-* Clinician-toggle composition — whether clinician decisions enter reconciliation as a fifth finding stream, operate as a post-reconciliation mutator on
-{apcs_unified_classification},
-or take some third shape.
+* The noun for what
+{apcs_combining}
+produces per region (candidates under consideration include verdict, decision, call, outcome, determination, or remaining as
+{apcs_unified_finding}).
+* Per-discerner-pair precedence rules and the complete combining rule table.
+* Granularity handling when findings of different sizes overlap (phrase-scoped Stanford findings covering word-scoped label findings, etc.).
 * The concrete mapping from
-{apcs_stanford_ner}
+{apcs_stanford_scan}'s
 native labels onto the
 {apcs_phi_category}
-enumeration.
+enumeration, and similar mappings for spaCy and Stanza native taxonomies.
+* Clinician-toggle composition — whether clinician decisions enter combining as an additional finding stream, operate as a post-combining mutator on
+{apcs_unified_finding_s},
+or take some third shape.
+* Second-order reprocessing — whether phrase-scoped findings derive additional word-scoped findings for uniform word-grained combining, while preserving the original phrase-scoped finding as evidence.
 
-[[apcs_reconciliation]]
-{apcs_reconciliation}::
-The procedure that fuses the
-{apcs_regex_finding_s},
-{apcs_label_finding_s},
-{apcs_dictionary_finding_s},
-and
-{apcs_stanford_finding_s}
+[[apcs_combining]]
+{apcs_combining}::
+The procedure that consumes
+{apcs_evidence}
+and produces
+{apcs_unified_finding_s}
 covering regions of
-{apcs_normalized_text}
-into
-{apcs_unified_classification}.
+{apcs_normalized_text}.
 One of the three named procedures of the pipeline, together with
 {apcs_normalization}
 and
 {apcs_anonymization}.
-Rules — including all items listed above — are deferred to ₢A9AAV.
+Rules are deferred (see above).
+The procedure is named
+{apcs_combining}
+rather than the earlier draft name `reconciliation` because the latter implied smoothing competing verdicts into one, whereas the intent is to read all evidence in parallel and produce a classification per region without discarding any finding's contribution to the record.
 
-[[apcs_unified_classification]]
-{apcs_unified_classification}::
+[[apcs_unified_finding]]
+{apcs_unified_finding}::
 The output of
-{apcs_reconciliation}:
-a single authoritative classification of every covered region of
-{apcs_normalized_text},
-consumed by
+{apcs_combining}
+for a single region of
+{apcs_normalized_text}:
+a single authoritative classification consumed by
 {apcs_anonymization}.
-The concrete shape of a classification (the fields carried, the role/disposition vocabulary, the clinician-toggle composition) is deferred to ₢A9AAV.
+The concrete shape of a
+{apcs_unified_finding}
+(the fields carried, the classification vocabulary, the clinician-toggle composition) is deferred.
 
 
 == Anonymization
@@ -537,7 +782,7 @@ The concrete shape of a classification (the fields carried, the role/disposition
 [[apcs_anonymization]]
 {apcs_anonymization}::
 The procedure that consumes
-{apcs_unified_classification}
+{apcs_unified_finding_s}
 and
 {apcs_normalized_text}
 and produces
@@ -545,16 +790,17 @@ and produces
 Regions classified as PHI are replaced by their category-specific
 {apcs_placeholder_s};
 regions classified as retained text pass through verbatim.
+Runs entirely inside the Rust application.
 One of the three named procedures of the pipeline, named for symmetry with
 {apcs_normalization}
 and
-{apcs_reconciliation}.
+{apcs_combining}.
 
 [[apcs_anonymized_text]]
 {apcs_anonymized_text}::
 {apcs_normalized_text}
-with every region marked for elision in
-{apcs_unified_classification}
+with every region marked for elision in the set of
+{apcs_unified_finding_s}
 replaced by its
 {apcs_placeholder}.
 The output format for pasting into Open Evidence.
@@ -573,31 +819,35 @@ The assay projections render the pipeline's internal state for review and debugg
 They are not user-facing — the user-facing surface is
 {apcs_anonymized_text}
 together with the triage view (owned by APCAS).
-Two sibling projections exist because the pipeline now has two meaningful stages to inspect: the raw per-discerner output before
-{apcs_reconciliation},
+Two sibling projections exist because the pipeline now has two meaningful stages to inspect: the raw per-discerner
+{apcs_evidence}
+before
+{apcs_combining},
 and the fused view after.
 
 [[apcs_discerner_assay]]
 {apcs_discerner_assay}::
 {apcs_normalized_text}
-with every
-{apcs_regex_finding},
-{apcs_label_finding},
-{apcs_dictionary_finding},
-and
-{apcs_stanford_finding}
-annotated inline using
-{apcs_elision_marker_s}.
+annotated inline with markers drawn from
+{apcs_evidence}:
+every
+{apcs_finding}
+from every discerner is rendered, with its originating discerner and any native tag it carries distinguishable in the marker.
 Shows each discerner's raw output — overlaps, disagreements, and granularity differences are all visible side-by-side, which is the point.
+The exact marker content per discerner varies with what each discerner's
+{apcs_finding}
+carries (see
+{apcs_elision_marker});
+the format is a debugging aid, not a stable interface.
 
 [[apcs_unified_assay]]
 {apcs_unified_assay}::
 {apcs_normalized_text}
-with every region of
-{apcs_unified_classification}
+with every region of every
+{apcs_unified_finding}
 annotated inline using
 {apcs_elision_marker_s}.
-Shows the post-reconciliation view — what
+Shows the post-combining view — what
 {apcs_anonymization}
 actually sees.
 
@@ -609,8 +859,13 @@ or an
 {apcs_unified_assay}.
 In an
 {apcs_discerner_assay}
-the format is `‹DISCERNER:CATEGORY matched text›` (e.g., `‹REGEX:SSN 123-45-6789›`, `‹DICTIONARY:NAME Margaret›`, `‹STANFORD:HOSPITAL Mercy General›`) so each discerner's contribution is distinguishable.
+the format is `‹DISCERNER:TAG text›` (e.g., `‹REGEX:SSN 123-45-6789›`, `‹SURNAME:NAME Thornton›`, `‹STANFORD:PATIENT Margaret Thornton›`, `‹SPACY:AUX may›`) so each discerner's contribution is distinguishable;
+the TAG slot carries the discerner's native tag (PHI category, native entity label, POS tag, etc.) or is omitted for discerners whose findings have no meaningful tag (e.g., the
+{apcs_english_scan}
+and
+{apcs_medical_scan},
+where membership itself is the finding and rendered as `‹ENGLISH may›` or `‹MEDICAL aspirin›`).
 In an
 {apcs_unified_assay}
-the format is `‹CATEGORY matched text›` — the discerner that originated the region is absorbed into the reconciliation decision and no longer shown.
+the format is `‹CATEGORY text›` — the discerner that originated the region is absorbed into the combining decision and no longer shown.
 Guillemets delimit the marker to avoid collision with clinical prose punctuation.
