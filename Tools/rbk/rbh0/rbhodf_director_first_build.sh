@@ -91,7 +91,7 @@ rbho_director_first_build() {
 
   # --- Function-specific yelp captures (not in RBYC vocabulary) ---
 
-  buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel" "rbev-sentry-deb-tether"; local -r z_lk_vessel_name="${z_buym_yelp}"
+  buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel" "${z_vessel}"; local -r z_lk_vessel_name="${z_buym_yelp}"
 
   # --- Header ---
   buh_section "Your First Cloud Build"
@@ -132,7 +132,7 @@ rbho_director_first_build() {
 
   buh_line "Configure this handbook session:"
   buh_e
-  buh_code "   export ONBOARD_VESSEL=${z_vessel}"
+  buh_code "   export ${RBYC_HANDBOOK_VESSEL_NAME}=${z_vessel}"
   buh_e
   buh_line "This sets the ${RBYC_VESSEL} you will build throughout the track."
   buh_line "The remaining steps reference it by name."
@@ -168,7 +168,7 @@ rbho_director_first_build() {
   buh_e
   buh_code "   RBRV_RELIQUARY=<datestamp>"
   buh_e
-  buyy_cmd_yawp "rbev-sentry-deb-tether/rbrv.env"; local -r z_rbrv_file="${z_buym_yelp}"
+  buyy_cmd_yawp "${z_vessel}/rbrv.env"; local -r z_rbrv_file="${z_buym_yelp}"
   buh_line "Open ${z_rbrv_file} and set the field,"
   buh_line "then commit the change."
   buh_e
@@ -182,7 +182,7 @@ rbho_director_first_build() {
   buh_line "it reads the ${RBYC_VESSEL} ${RBYC_RBRV} ${RBYC_REGIME} to determine the mode"
   buh_line "(${RBYC_CONJURE}, ${RBYC_BIND}, or ${RBYC_GRAFT}) and acts accordingly:"
   buh_e
-  buh_tt "   " "${RBZ_ORDAIN_HALLMARK}" "" ' ${ONBOARD_VESSEL}'
+  buh_tt "   " "${RBZ_ORDAIN_HALLMARK}" "" " ${RBYC_HANDBOOK_VESSEL_REF}"
   buh_e
   buh_line "This builds on the ${RBYC_TETHERED} pool — Cloud Build has"
   buh_line "public internet access and pulls base images from upstream"
@@ -211,7 +211,7 @@ rbho_director_first_build() {
   buh_line "Read the ${RBYC_HALLMARK} from the fact file and export it so"
   buh_line "you can copy-paste the commands in the remaining steps:"
   buh_e
-  buh_code "   export ONBOARD_HALLMARK=\$(cat ${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK})"
+  buh_code "   export ${RBYC_HANDBOOK_HALLMARK_NAME}=\$(cat ${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK})"
   buh_e
 
   buh_step1 "Tour the ${RBYC_HALLMARK} artifacts"
@@ -281,11 +281,11 @@ rbho_director_first_build() {
   buh_line "${RBYC_PLUMB} displays the ${RBYC_SBOM}, build info, and Dockerfile"
   buh_line "that produced the ${RBYC_HALLMARK}. Two modes:"
   buh_e
-  buh_tt "   " "${RBZ_PLUMB_FULL}" "" ' ${ONBOARD_VESSEL} ${ONBOARD_HALLMARK}'
+  buh_tt "   " "${RBZ_PLUMB_FULL}" "" " ${RBYC_HANDBOOK_VESSEL_REF} ${RBYC_HANDBOOK_HALLMARK_REF}"
   buh_line "   Full ${RBYC_PROVENANCE} display — ${RBYC_SBOM} packages, build parameters,"
   buh_line "   Dockerfile content."
   buh_e
-  buh_tt "   " "${RBZ_PLUMB_COMPACT}" "" ' ${ONBOARD_VESSEL} ${ONBOARD_HALLMARK}'
+  buh_tt "   " "${RBZ_PLUMB_COMPACT}" "" " ${RBYC_HANDBOOK_VESSEL_REF} ${RBYC_HANDBOOK_HALLMARK_REF}"
   buh_line "   Compact summary — one-line-per-artifact overview."
   buh_e
 
@@ -295,7 +295,7 @@ rbho_director_first_build() {
   buh_line "${RBYC_HALLMARK} that has been ${RBYC_VOUCHED} to your local"
   buh_line "Docker image cache:"
   buh_e
-  buh_tt "   " "${RBZ_SUMMON_HALLMARK}" "" ' ${ONBOARD_VESSEL} ${ONBOARD_HALLMARK}'
+  buh_tt "   " "${RBZ_SUMMON_HALLMARK}" "" " ${RBYC_HANDBOOK_VESSEL_REF} ${RBYC_HANDBOOK_HALLMARK_REF}"
   buh_e
   buyy_cmd_yawp "{hallmark}${RBGC_ARK_SUFFIX_IMAGE}"; local -r z_sfx_img2="${z_buym_yelp}"
   buh_line "   ${z_sfx_img2}"
@@ -319,7 +319,7 @@ rbho_director_first_build() {
   buh_line "package in GAR. Run it before and after ${RBYC_ABJURE} to see"
   buh_line "the full lifecycle:"
   buh_e
-  buh_tt "   " "${RBZ_REKON_IMAGE}" "" ' ${ONBOARD_VESSEL}'
+  buh_tt "   " "${RBZ_REKON_IMAGE}" "" " ${RBYC_HANDBOOK_VESSEL_REF}"
   buh_e
   buh_line "You should see all five durable tags for your ${RBYC_HALLMARK}:"
   buyy_cmd_yawp "${RBGC_ARK_SUFFIX_IMAGE}, ${RBGC_ARK_SUFFIX_ABOUT}, ${RBGC_ARK_SUFFIX_VOUCH}, ${RBGC_ARK_SUFFIX_POUCH}, ${RBGC_ARK_SUFFIX_DIAGS}"; local -r z_sfx_list="${z_buym_yelp}"
@@ -329,11 +329,11 @@ rbho_director_first_build() {
   buh_line "from GAR. This is permanent — the ${RBYC_HALLMARK} and all its"
   buh_line "tags are deleted:"
   buh_e
-  buh_tt "   " "${RBZ_ABJURE_HALLMARK}" "" ' ${ONBOARD_VESSEL} ${ONBOARD_HALLMARK}'
+  buh_tt "   " "${RBZ_ABJURE_HALLMARK}" "" " ${RBYC_HANDBOOK_VESSEL_REF} ${RBYC_HANDBOOK_HALLMARK_REF}"
   buh_e
   buh_line "After ${RBYC_ABJURE}, run ${RBYC_REKON} again:"
   buh_e
-  buh_tt "   " "${RBZ_REKON_IMAGE}" "" ' ${ONBOARD_VESSEL}'
+  buh_tt "   " "${RBZ_REKON_IMAGE}" "" " ${RBYC_HANDBOOK_VESSEL_REF}"
   buh_e
   buh_line "The tags for your ${RBYC_HALLMARK} should be gone. The image is no"
   buh_line "longer in the ${RBYC_DEPOT}."
