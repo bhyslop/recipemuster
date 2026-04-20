@@ -14,15 +14,6 @@ Concept Model Kit (CMK) is installed for managing concept model documents.
 - **Annotations**: `// ⟦content⟧` - Strachey brackets for type categorization
 
 **Available commands:**
-- `/cma-normalize` - Apply full MCM normalization (haiku)
-- `/cma-render` - Transform to ClaudeMark (sonnet)
-- `/cma-validate` - Check links and annotations
 - `/cma-prep-pr` - Prepare upstream contribution
-- `/cma-doctor` - Validate installation
-
-**Subagents:**
-- `cmsa-normalizer` - Haiku-enforced MCM normalization (text, mapping, validation)
 
 For full MCM specification, see `Tools/cmk/MCM-MetaConceptModel.adoc`.
-
-**Important**: Restart Claude Code session after installation for new commands and subagents to become available.

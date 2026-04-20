@@ -3,15 +3,11 @@
 All sections below assume Google Cloud Build (GCB) remains the sole builder.
 GCB provides only x86 workers — default and private pools alike.
 Multi-platform builds use QEMU emulation via the binfmt setup step (rbgjb02).
-The binfmt step is conditionally included: vessels whose `RBRV_CONJURE_PLATFORMS`
-matches the build runner platform (`RBGC_BUILD_RUNNER_PLATFORM`) skip it,
-reducing attack surface for native-only builds.
+The binfmt step is conditionally included: vessels whose `RBRV_CONJURE_PLATFORMS` matches the build runner platform (`RBGC_BUILD_RUNNER_PLATFORM`) skip it, reducing attack surface for native-only builds.
 
-If a vessel requires native ARM builds, the builder strategy must expand beyond GCB,
-and further GCB-specific hardening should be re-evaluated.
+If a vessel requires native ARM builds, the builder strategy must expand beyond GCB, and further GCB-specific hardening should be re-evaluated.
 
-If native ARM builds become necessary, builder-agnostic controls (cosign signing, portable SLSA provenance)
-become more valuable than GCB-specific infrastructure (private pools, VPC Service Controls).
+If native ARM builds become necessary, builder-agnostic controls (cosign signing, portable SLSA provenance) become more valuable than GCB-specific infrastructure (private pools, VPC Service Controls).
 See cosign deferral rationale in Deferred Items.
 
 ==== Current Posture
@@ -21,14 +17,12 @@ Authoritative procedures live in the operational specs (RBSAC, RBSAV, RBSDC, RBS
 this section states what holds and why it matters.
 
 **Build definitions are fully static.**
-Each vessel's `cloudbuild.json` is stitched from step scripts (`rbgjb*.sh`) and current regime pins -- zero custom substitution overrides
-at submission time.
+Each vessel's `cloudbuild.json` is stitched from step scripts (`rbgjb*.sh`) and current regime pins -- zero custom substitution overrides at submission time.
 The build is fully determined by the stitched JSON and the pouch (build context as OCI image in GAR).
 See RBSAC.
 
 **SLSA v1.0 Build Level 3 provenance — verified.**
-All `builds.create` submissions produce SLSA v1.0 Build Level 3 provenance via
-`requestedVerifyOption: VERIFIED` and the `images:` field declaring per-platform image URIs.
+All `builds.create` submissions produce SLSA v1.0 Build Level 3 provenance via `requestedVerifyOption: VERIFIED` and the `images:` field declaring per-platform image URIs.
 Google Container Analysis generates both v0.1 and v1 predicate attestations per image.
 Provenance chain: stitched JSON + pouch -> per-platform image digest.
 Verification via DSSE envelope signature verification (jq + openssl against embedded GCB attestor keys).
@@ -63,8 +57,7 @@ Scoped to depot-project permissions, specified in the `serviceAccount` field of 
 
 **SBOM generation.**
 Per-platform Syft scans via `registry:` transport (reads directly from GAR using an OAuth2 token obtained from the GCB metadata server — no Docker daemon coupling).
-Each platform image gets its own JSON and table-format SBOM,
-packaged into the per-platform metadata container.
+Each platform image gets its own JSON and table-format SBOM, packaged into the per-platform metadata container.
 Aligned with CISA 2025 minimum elements and EU CRA requirements.
 The upgrade path is runtime-aware analysis, not removal.
 
@@ -73,9 +66,9 @@ Build requests set `options.logging: CLOUD_LOGGING_ONLY`.
 Log hygiene (no credential echo) was audited during trigger migration script inlining.
 
 **Provenance on demand.**
-`rbfl_tally()` lists all hallmarks and queries Container Analysis inline for each per-platform image,
-displaying SLSA build level, build invocation ID, and single-origin verification per hallmark.
-Tabtarget: {rbtgo_hallmark_tally}.
+`rbfl_tally()` lists all hallmarks and queries Container Analysis inline for each per-platform image, displaying SLSA build level, build invocation ID, and single-origin verification per hallmark.
+Tabtarget:
+{rbtgo_hallmark_tally}.
 
 ===== Pipeline Architecture: Single-Platform Vessels
 
@@ -94,7 +87,8 @@ Applies to vessels whose `RBRV_CONJURE_PLATFORMS` matches `RBGC_BUILD_RUNNER_PLA
 
 Seven build steps plus CB-native `images:` push (binfmt step included at stitch time).
 Applies to vessels whose `RBRV_CONJURE_PLATFORMS` differs from `RBGC_BUILD_RUNNER_PLATFORM`.
-About steps (`rbgja/`) are embedded in the build job via stitch (combined image+about). Vouch (`rbgjv/`) runs as a separate Cloud Build job.
+About steps (`rbgja/`) are embedded in the build job via stitch (combined image+about).
+Vouch (`rbgjv/`) runs as a separate Cloud Build job.
 
 1. **derive-tag-base** — compute timestamps and tag components; log build strategy
 2. **qemu-binfmt** — register QEMU user-static for cross-arch emulation
@@ -139,7 +133,9 @@ Computed at inscribe time from `RBRV_CONJURE_PLATFORMS`.
 ===== About Artifact Contents
 
 The `-about` artifact is a `FROM scratch` multi-platform container carrying build provenance files at the root filesystem.
-Contents are extracted by {rbtgo_ark_inspect} for trust posture display.
+Contents are extracted by
+{rbtgo_ark_inspect}
+for trust posture display.
 
 [cols="1,2",options="header"]
 |===
@@ -172,8 +168,7 @@ For bind and graft, these files are absent and the about artifact contains only 
 
 ===== OCI Layout Bridge — Superseded
 
-The original OCI Layout Bridge (RBSOB) — export to OCI tarball, push via crane,
-split with skopeo — is fully superseded for all vessel types.
+The original OCI Layout Bridge (RBSOB) — export to OCI tarball, push via crane, split with skopeo — is fully superseded for all vessel types.
 Single-platform vessels use `buildx --load` into the local daemon.
 Multi-platform vessels use `buildx --push` with per-platform pullback.
 CB pre-populates GAR credentials; no explicit docker login step is needed.
@@ -242,30 +237,23 @@ This restricts which GCP APIs can be called and from where, reducing data exfilt
 Evaluated and consciously deferred; each has a specific revisit trigger.
 
 **Dockerfile base image digest validation.**
-Builder step images are digest-pinned (Current Posture), but user-authored Dockerfiles
-in vessel build contexts are not validated.
+Builder step images are digest-pinned (Current Posture), but user-authored Dockerfiles in vessel build contexts are not validated.
 A vessel with `FROM ubuntu:22.04` passes today — mutable tag, supply-chain risk.
-This constrains vessel authors (policy decision with RBSRV implications),
-orthogonal to pipeline infrastructure.
+This constrains vessel authors (policy decision with RBSRV implications), orthogonal to pipeline infrastructure.
 Separate future heat.
 
 **BuildKit provenance flag.**
-`--provenance=true` on `docker buildx build` records builder internals —
-useful for deeper forensics.
+`--provenance=true` on `docker buildx build` records builder internals — useful for deeper forensics.
 GCB-native SLSA v1.0 provenance covers the primary attestation use case.
 Redundant for the current threat model.
 Revisit if build reproducibility verification becomes a priority.
 
 **Cosign image signing.**
 Cryptographic signatures attached to images, verifiable by downstream consumers.
-Two modes: keyless (Sigstore/Fulcio — requires public internet, conflicts with Egress Lockdown)
-and keyed (Cloud KMS — no external dependency).
-With CB-native SLSA v1.0 Build Level 3 verified on all vessel types,
-cosign is redundant for the current threat model (building and consuming within own GCP project).
-Becomes valuable if: images are distributed externally, trust verification needed outside GCP,
-or builder strategy expands beyond GCB (losing Google's provenance).
-If adopted, prefer KMS-backed keyed signing (`cosign sign --key gcpkms://...`)
-for Egress Lockdown compatibility.
+Two modes: keyless (Sigstore/Fulcio — requires public internet, conflicts with Egress Lockdown) and keyed (Cloud KMS — no external dependency).
+With CB-native SLSA v1.0 Build Level 3 verified on all vessel types, cosign is redundant for the current threat model (building and consuming within own GCP project).
+Becomes valuable if: images are distributed externally, trust verification needed outside GCP, or builder strategy expands beyond GCB (losing Google's provenance).
+If adopted, prefer KMS-backed keyed signing (`cosign sign --key gcpkms://...`) for Egress Lockdown compatibility.
 
 **Binary Authorization.**
 Deploy-time policy enforcement: only attested images can be deployed.

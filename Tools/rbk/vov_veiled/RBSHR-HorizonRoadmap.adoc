@@ -1,235 +1,199 @@
 [[rbshr_horizon_roadmap]]
 ==== Horizon Roadmap
 
-Defined-but-unscoped future work across Recipe Bottle.  Each item has a
-rationale (why it matters), a trigger (when to revisit), and a reference
-(where the evidence lives).
+Defined-but-unscoped future work across Recipe Bottle.
+Each item has a rationale (why it matters), a trigger (when to revisit), and a reference (where the evidence lives).
 
-Items here are not planned for any heat.  When an item becomes actionable,
-it moves into a heat as paces with proper dockets.  This is the single
-collection point for big changes — individual spec subdocuments should
-cross-reference here rather than maintaining local "Future Work" sections.
+Items here are not planned for any heat.
+When an item becomes actionable, it moves into a heat as paces with proper dockets.
+This is the single collection point for big changes — individual spec subdocuments should cross-reference here rather than maintaining local "Future Work" sections.
 
 ===== IAM / Identity Infrastructure
 
 **SA numeric ID for member references.**
-Google recommends using a {giam_service_account}'s numeric ID rather than its
-email address when referencing it immediately after creation, to reduce
-propagation delay.  Recipe Bottle uses email addresses throughout, which is
-why propagation retry (<<rbscip_trade_study>> backoff profile) is necessary.
-Switching to numeric ID could reduce retry frequency but would require
-threading the numeric ID from SA creation responses through all call chains
-that construct `serviceAccount:` member strings.  Requires verification that
-`setIamPolicy` accepts numeric ID in member strings.
-_Trigger_: if propagation retries become a significant wall-clock cost in
-depot creation or governor reset.
-_Reference_: <<rbscig_iam_grant_contracts>> (SA propagation section, evidence table).
+Google recommends using a
+{giam_service_account}'s
+numeric ID rather than its email address when referencing it immediately after creation, to reduce propagation delay.
+Recipe Bottle uses email addresses throughout, which is why propagation retry
+(<<rbscip_trade_study>>
+backoff profile) is necessary.
+Switching to numeric ID could reduce retry frequency but would require threading the numeric ID from SA creation responses through all call chains that construct `serviceAccount:` member strings.
+Requires verification that `setIamPolicy` accepts numeric ID in member strings.
+_Trigger_: if propagation retries become a significant wall-clock cost in depot creation or governor reset.
+_Reference_:
+<<rbscig_iam_grant_contracts>>
+(SA propagation section, evidence table).
 
 **Read-back verification universalization.**
-Currently only {rbtoe_iam_grant_project} performs post-write verification
-(re-reading policy to confirm the granted role is observable).
-{rbtoe_iam_grant_repo}, {rbtoe_iam_grant_sa}, and {rbtoe_iam_grant_bucket}
-trust the 200 from `setIamPolicy`.  Adding verification universally would
-provide stronger guarantees but adds an HTTP round-trip and a new timeout
-window per grant.
-_Trigger_: after etag convergence (\u20a2AsAAF) has been validated in production
-and we have confidence in the corrected grant contracts.
-_Reference_: <<rbscig_iam_grant_contracts>> (Convergence Analysis section).
+Currently only
+{rbtoe_iam_grant_project}
+performs post-write verification (re-reading policy to confirm the granted role is observable).
+{rbtoe_iam_grant_repo},
+{rbtoe_iam_grant_sa},
+and
+{rbtoe_iam_grant_bucket}
+trust the 200 from `setIamPolicy`.
+Adding verification universally would provide stronger guarantees but adds an HTTP round-trip and a new timeout window per grant.
+_Trigger_: after etag convergence (\u20a2AsAAF) has been validated in production and we have confidence in the corrected grant contracts.
+_Reference_:
+<<rbscig_iam_grant_contracts>>
+(Convergence Analysis section).
 
 **SA preflight universalization.**
-Currently only {rbtoe_iam_grant_sa} performs a pre-flight existence check on
-the target {giam_service_account}.  Applying it to all grant types when the
-member is a service account requires conditional logic and changes behavior
-for non-SA members.
-_Trigger_: if grant failures due to non-existent members become a diagnostic
-problem.
-_Reference_: <<rbscig_iam_grant_contracts>> (Convergence Analysis section).
+Currently only
+{rbtoe_iam_grant_sa}
+performs a pre-flight existence check on the target
+{giam_service_account}.
+Applying it to all grant types when the member is a service account requires conditional logic and changes behavior for non-SA members.
+_Trigger_: if grant failures due to non-existent members become a diagnostic problem.
+_Reference_:
+<<rbscig_iam_grant_contracts>>
+(Convergence Analysis section).
 
 ===== Container Runtime
 
 **Podman as first-class deployment target.**
-Recipe Bottle currently deploys to Podman on workstations via the bottle
-lifecycle (RBSBS, RBSBR, RBSBL).  Podman support is functional but not
-hardened — the sentry container, network isolation, and eBPF enforcement
-assume Linux Podman with rootful access.  Expanding to rootless Podman,
-Podman on macOS (via podman-machine), or alternative container runtimes
-would require revisiting the security model and network architecture.
-_Trigger_: user demand for rootless deployment or macOS-native workflows
-beyond the current Podman VM approach.
+Recipe Bottle currently deploys to Podman on workstations via the bottle lifecycle (RBSBS, RBSBR, RBSBL).
+Podman support is functional but not hardened — the sentry container, network isolation, and eBPF enforcement assume Linux Podman with rootful access.
+Expanding to rootless Podman, Podman on macOS (via podman-machine), or alternative container runtimes would require revisiting the security model and network architecture.
+_Trigger_: user demand for rootless deployment or macOS-native workflows beyond the current Podman VM approach.
 _Reference_: RBSPV-PodmanVmSupplyChain.adoc (current VM supply chain);
 RBSBS, RBSBR, RBSBL (bottle lifecycle specs).
 
 **`podman-compose` lacks `--wait` for `compose up`.**
-Docker Compose `--wait` (v2.1.1+) blocks until all container health checks
-pass, which `rbob_charge` relies on to guarantee crucible readiness before
-returning.  `podman-compose` does not implement `--wait` — the command
-returns immediately after scheduling containers, creating a race between
-charge completion and the active-check assertion in theurge.
-Without `--wait`, Podman integration will need an alternative readiness
-gate (polling loop, explicit health-check query, or `podman wait
---condition=healthy`).
+Docker Compose `--wait` (v2.1.1+) blocks until all container health checks pass, which `rbob_charge` relies on to guarantee crucible readiness before returning.
+`podman-compose` does not implement `--wait` — the command returns immediately after scheduling containers, creating a race between charge completion and the active-check assertion in theurge.
+Without `--wait`, Podman integration will need an alternative readiness gate (polling loop, explicit health-check query, or `podman wait --condition=healthy`).
 _Trigger_: Podman first-class deployment (above).
 _Reference_: containers/podman-compose#710 (June 2023, open);
 containers/podman-compose#1329 (October 2025, open).
 
 **VM image supply chain targets GHCR, not GAR.**
-The Podman VM image pipeline (`rbv_PodmanVM.sh`) mirrors machine-os disk
-images from quay.io into GHCR as OCI containers, with per-platform tags,
-brand-file provenance, and crane-based extraction inside an ignite VM.
-This infrastructure has not been ported to GAR/Depot.  Podman deployment
-requires either migrating the mirror target to GAR or maintaining a
-parallel GHCR registry alongside the existing Depot project model.
+The Podman VM image pipeline (`rbv_PodmanVM.sh`) mirrors machine-os disk images from quay.io into GHCR as OCI containers, with per-platform tags, brand-file provenance, and crane-based extraction inside an ignite VM.
+This infrastructure has not been ported to GAR/Depot.
+Podman deployment requires either migrating the mirror target to GAR or maintaining a parallel GHCR registry alongside the existing Depot project model.
 _Trigger_: Podman first-class deployment (above).
-_Reference_: RBSPV-PodmanVmSupplyChain.adoc; `rbv_PodmanVM.sh` (mirror,
-fetch, init operations).
+_Reference_: RBSPV-PodmanVmSupplyChain.adoc;
+`rbv_PodmanVM.sh` (mirror, fetch, init operations).
 
 **Hairpin peer access between crucibles.**
 Bottled containers cannot currently reach each other's published entry ports.
 Each bottle is isolated behind its own sentry on a separate enclave network.
-The traffic path is feasible: Bottle A egresses through Sentry A's transit
-bridge, the host kernel routes to Sentry B's transit bridge, and Sentry B's
-existing entry path (DNAT + RBM-FORWARD) accepts the connection unchanged.
-The security model is preserved — the sentry remains the sole enforcement
-point, with peer access as a new category of allowed destination alongside
-entry (inbound) and uplink (outbound internet).  Nameplate model: two new
-variables (`RBRN_PEER_ACCESS_MODE` disabled|allowlist, gated
-`RBRN_PEER_ALLOWED_MONIKERS` as comma-separated moniker list).  No global
-mode — peer access must always be explicit.  Implementation touches three
-areas: nameplate kindle/validate/render, a peer-access iptables step in
-security_config, and host-side peer IP discovery via container inspection.
-Audit gains a cross-instance check: each named peer must exist and have
-entry enabled.
-_Trigger_: when a use case requires bottle-to-bottle communication (e.g.,
-microservice composition, service mesh patterns).
+The traffic path is feasible: Bottle A egresses through Sentry A's transit bridge, the host kernel routes to Sentry B's transit bridge, and Sentry B's existing entry path (DNAT + RBM-FORWARD) accepts the connection unchanged.
+The security model is preserved — the sentry remains the sole enforcement point, with peer access as a new category of allowed destination alongside entry (inbound) and uplink (outbound internet).
+Nameplate model: two new variables (`RBRN_PEER_ACCESS_MODE` disabled|allowlist, gated `RBRN_PEER_ALLOWED_MONIKERS` as comma-separated moniker list).
+No global mode — peer access must always be explicit.
+Implementation touches three areas: nameplate kindle/validate/render, a peer-access iptables step in security_config, and host-side peer IP discovery via container inspection.
+Audit gains a cross-instance check: each named peer must exist and have entry enabled.
+_Trigger_: when a use case requires bottle-to-bottle communication (e.g., microservice composition, service mesh patterns).
 _Reference_: Heat ₣AU paddock (design conversation capture).
 
 ===== Artifact Preservation
 
 **Hoard: external artifact mirror in retention-locked GCS.**
-A {rbtgi_depot} citizen alongside the {rbtga_ark} that mirrors
-external content-addressed corpora — canonical case: Hugging
-Face model checkpoints.  GCS archive is ~80× cheaper per byte
-than GAR and supports bucket-level retention locks for
-compliance-grade immutability that GAR does not offer.  Ingress
-reuses upstream SHA256 addressing (shallow git + LFS pointer
-resolution, SHA256-keyed GCS objects with natural dedup across
-revisions); Cloud Build streams so egress stays Google-side;
-auth path reuses the existing JWT/OAuth bearer curl stack — no
-new tooling dependency.
+A
+{rbtgi_depot}
+citizen alongside the
+{rbtga_ark}
+that mirrors external content-addressed corpora — canonical case: Hugging Face model checkpoints.
+GCS archive is ~80× cheaper per byte than GAR and supports bucket-level retention locks for compliance-grade immutability that GAR does not offer.
+Ingress reuses upstream SHA256 addressing (shallow git + LFS pointer resolution, SHA256-keyed GCS objects with natural dedup across revisions);
+Cloud Build streams so egress stays Google-side;
+auth path reuses the existing JWT/OAuth bearer curl stack — no new tooling dependency.
 +
-Intended consumption: just-in-time workstation mount from the
-retention-locked bucket into the {at_bottle_container} at charge
-time, rather than baking models into {at_bottle_image_s}.  Keeps
-images lean, enables model swap without rebuild, keeps the
-retention property where it naturally lives.  Tradeoff:
-provenance becomes a {at_nameplate}-declared hoard digest
-recorded at charge time rather than a SLSA-attested image
-layer — weaker by one link.
+Intended consumption: just-in-time workstation mount from the retention-locked bucket into the
+{at_bottle_container}
+at charge time, rather than baking models into
+{at_bottle_image_s}.
+Keeps images lean, enables model swap without rebuild, keeps the retention property where it naturally lives.
+Tradeoff: provenance becomes a
+{at_nameplate}-declared
+hoard digest recorded at charge time rather than a SLSA-attested image layer — weaker by one link.
 _Trigger_: first concrete need to run LM inference inside a
-{at_bottle_container} against a specific HF checkpoint with
-retention guarantees.
-_Reference_: this roadmap entry; design conversation pending heat.
+{at_bottle_container}
+against a specific HF checkpoint with retention guarantees.
+_Reference_: this roadmap entry;
+design conversation pending heat.
 
 ===== Network Security Model
 
 **CIDR allowlist granularity vs CDN-hosted domains.**
-The sentry's iptables CIDR rules accept all protocols and all destination ports
-to allowed IP ranges.  This is intentional: the spec defines
-{rbrn_uplink_access_mode_allowlist} as "IP access restricted to allowed CIDR
-ranges" — not port-restricted.  The DNS allowlist
-({rbrn_uplink_allowed_domains}) provides name-level precision; the CIDR
-allowlist provides IP-level gating.  These two layers are independent and
-reinforce each other.
+The sentry's iptables CIDR rules accept all protocols and all destination ports to allowed IP ranges.
+This is intentional: the spec defines
+{rbrn_uplink_access_mode_allowlist}
+as "IP access restricted to allowed CIDR ranges" — not port-restricted.
+The DNS allowlist
+({rbrn_uplink_allowed_domains})
+provides name-level precision;
+the CIDR allowlist provides IP-level gating.
+These two layers are independent and reinforce each other.
 +
-The weakness emerges when allowed domains are CDN-hosted.  IANA's example.com
-(RFC 2606) migrated to Cloudflare, requiring CIDR expansion from
-`93.184.216.0/24` to include `104.16.0.0/12` — a /12 covering ~1M IPs shared
-with a large fraction of Cloudflare-fronted sites.  The DNS allowlist remains
-precise (two domains), but the CIDR backstop is now porous: any destination
-within the Cloudflare range is reachable regardless of domain.  A compromised
-or attacker-controlled site sharing the CDN range would be reachable from the
-bottle.
+The weakness emerges when allowed domains are CDN-hosted.
+IANA's example.com (RFC 2606) migrated to Cloudflare, requiring CIDR expansion from `93.184.216.0/24` to include `104.16.0.0/12` — a /12 covering ~1M IPs shared with a large fraction of Cloudflare-fronted sites.
+The DNS allowlist remains precise (two domains), but the CIDR backstop is now porous: any destination within the Cloudflare range is reachable regardless of domain.
+A compromised or attacker-controlled site sharing the CDN range would be reachable from the bottle.
 +
 Three potential mitigations, in order of increasing ambition:
 +
-. **Accept as-is with documentation.**  The DNS allowlist is the primary gate;
-  the CIDR is a coarse backstop.  Document the known weakness for broad CIDRs.
-  Suitable when the allowed domains are trusted and the CDN range is acceptable
-  collateral exposure.
-. **Dynamic CIDR from DNS resolution.**  Have dnsmasq feed resolved IPs into
-  iptables at resolution time, so the allowed set tracks actual DNS responses
-  rather than static configuration.  Eliminates CDN range sprawl.  Requires
-  new sentry infrastructure (dnsmasq hook scripts or ipset integration).
-. **TLS SNI enforcement.**  Inspect TLS ClientHello for the SNI field and
-  enforce that it matches the DNS allowlist.  Closes the CDN gap at the
-  application layer without dynamic iptables.  Requires a transparent TLS
-  proxy or eBPF-based SNI extraction in the sentry — a different order of
-  complexity.
+. **Accept as-is with documentation.**
+  The DNS allowlist is the primary gate;
+  the CIDR is a coarse backstop.
+  Document the known weakness for broad CIDRs.
+  Suitable when the allowed domains are trusted and the CDN range is acceptable collateral exposure.
+. **Dynamic CIDR from DNS resolution.**
+  Have dnsmasq feed resolved IPs into iptables at resolution time, so the allowed set tracks actual DNS responses rather than static configuration.
+  Eliminates CDN range sprawl.
+  Requires new sentry infrastructure (dnsmasq hook scripts or ipset integration).
+. **TLS SNI enforcement.**
+  Inspect TLS ClientHello for the SNI field and enforce that it matches the DNS allowlist.
+  Closes the CDN gap at the application layer without dynamic iptables.
+  Requires a transparent TLS proxy or eBPF-based SNI extraction in the sentry — a different order of complexity.
 +
-_Trigger_: when allowed domains require CIDRs broader than /24, or when the
-threat model requires preventing lateral reachability within a CDN range.
-_Reference_: rbjs_sentry.sh (Phase 3 CIDR rules); .rbk/tadmor/rbrn.env
-(current CIDR configuration); ₣A1 heat ₢A1AAj (discovery context).
+_Trigger_: when allowed domains require CIDRs broader than /24, or when the threat model requires preventing lateral reachability within a CDN range.
+_Reference_: rbjs_sentry.sh (Phase 3 CIDR rules);
+.rbk/tadmor/rbrn.env (current CIDR configuration);
+₣A1 heat ₢A1AAj (discovery context).
 
 ===== Crucible Conduit Architecture
 
 **Encrypted tunnel conduit (WireGuard in sentry).**
-Add WireGuard to the sentry image so the sentry terminates an encrypted
-tunnel directly to a VPC hosting PrivateLink endpoints for cloud services.
-The bottle's traffic routes through a `wg0` interface on the sentry —
-one stable VPC CIDR replaces floating cloud-provider IP ranges.  WireGuard
-is ~400KB on Alpine, uses static keypair exchange (no PKI/CA), and fits
-naturally into the sentry's existing privileged-container, explicit-routing
-architecture.  New nameplate fields: tunnel mode, peer endpoint, public
-keys, allowed IPs.  VPC side requires a small WireGuard peer instance and
-PrivateLink endpoints for target services.
-_Trigger_: when a bottle needs to reach a cloud service that supports
-PrivateLink (AWS Bedrock is the known first case; survey should include
-Vertex AI, Azure OpenAI, GitLab Dedicated, SageMaker, and others as they
-emerge).
-_Reference_: `Memos/memo-20260415-crucible-conduit-architecture.md`
-(full design exploration, approach comparison, service compatibility survey).
+Add WireGuard to the sentry image so the sentry terminates an encrypted tunnel directly to a VPC hosting PrivateLink endpoints for cloud services.
+The bottle's traffic routes through a `wg0` interface on the sentry — one stable VPC CIDR replaces floating cloud-provider IP ranges.
+WireGuard is ~400KB on Alpine, uses static keypair exchange (no PKI/CA), and fits naturally into the sentry's existing privileged-container, explicit-routing architecture.
+New nameplate fields: tunnel mode, peer endpoint, public keys, allowed IPs.
+VPC side requires a small WireGuard peer instance and PrivateLink endpoints for target services.
+_Trigger_: when a bottle needs to reach a cloud service that supports PrivateLink (AWS Bedrock is the known first case; survey should include Vertex AI, Azure OpenAI, GitLab Dedicated, SageMaker, and others as they emerge).
+_Reference_: `Memos/memo-20260415-crucible-conduit-architecture.md` (full design exploration, approach comparison, service compatibility survey).
 
 **Cloud service conduit nameplate.**
-A nameplate configuration pattern for bottles that access cloud services
-at runtime.  Near-term: allowlist-only nameplate targeting specific service
-CIDRs and domains (works today with existing sentry machinery, no
-development needed).  Longer-term: tunnel-mode nameplate using WireGuard
-conduit (above).  AWS Bedrock is the known requirement; the pattern should
-be researched broadly across cloud AI inference services, managed Git
-hosting, and other PrivateLink-capable endpoints.
-_Trigger_: immediate — Bedrock access is a current need.  Allowlist-only
-nameplate can be created now; tunnel-mode nameplate follows WireGuard
-sentry work.
-_Reference_: `Memos/memo-20260415-crucible-conduit-architecture.md`
-(approach A for allowlist-only, approach C for tunnel mode).
+A nameplate configuration pattern for bottles that access cloud services at runtime.
+Near-term: allowlist-only nameplate targeting specific service CIDRs and domains (works today with existing sentry machinery, no development needed).
+Longer-term: tunnel-mode nameplate using WireGuard conduit (above).
+AWS Bedrock is the known requirement;
+the pattern should be researched broadly across cloud AI inference services, managed Git hosting, and other PrivateLink-capable endpoints.
+_Trigger_: immediate — Bedrock access is a current need.
+Allowlist-only nameplate can be created now;
+tunnel-mode nameplate follows WireGuard sentry work.
+_Reference_: `Memos/memo-20260415-crucible-conduit-architecture.md` (approach A for allowlist-only, approach C for tunnel mode).
 
 **Credential confinement to crucible.**
-Move cloud service credentials (AWS IAM keys, API tokens, SSH keys) from
-the operator's workstation into the crucible, injected via nameplate/regime
-configuration.  The workstation starts the crucible but never holds service
-credentials.  The existing RBRA file pattern provides a model; extending to
-tunnel keys and cloud service credentials follows the same regime path
-approach.  Reduces the attack surface from "everything on the workstation"
-to "one minimal container."
-_Trigger_: alongside the conduit nameplate work — credentials and network
-access are naturally paired.
-_Reference_: `Memos/memo-20260415-crucible-conduit-architecture.md`
-(Credential Confinement section, threat model table).
+Move cloud service credentials (AWS IAM keys, API tokens, SSH keys) from the operator's workstation into the crucible, injected via nameplate/regime configuration.
+The workstation starts the crucible but never holds service credentials.
+The existing RBRA file pattern provides a model;
+extending to tunnel keys and cloud service credentials follows the same regime path approach.
+Reduces the attack surface from "everything on the workstation" to "one minimal container."
+_Trigger_: alongside the conduit nameplate work — credentials and network access are naturally paired.
+_Reference_: `Memos/memo-20260415-crucible-conduit-architecture.md` (Credential Confinement section, threat model table).
 
-NOTE: For SaaS services without PrivateLink (GitHub.com, GitLab.com),
-the sentry CIDR/domain allowlist + TLS remains the realistic ceiling.
-The sentry still provides the core value: the bottle cannot reach anything
-the sentry doesn't allow, and the workstation is cut out of the data path.
+NOTE: For SaaS services without PrivateLink (GitHub.com, GitLab.com), the sentry CIDR/domain allowlist + TLS remains the realistic ceiling.
+The sentry still provides the core value: the bottle cannot reach anything the sentry doesn't allow, and the workstation is cut out of the data path.
 The tunnel adds defense-in-depth only for PrivateLink-capable services.
-Cross-reference: the existing "CIDR allowlist granularity vs CDN-hosted
-domains" item (Network Security Model) remains relevant for SaaS-only
-services where the tunnel cannot help.
+Cross-reference: the existing "CIDR allowlist granularity vs CDN-hosted domains" item (Network Security Model) remains relevant for SaaS-only services where the tunnel cannot help.
 
 ===== Build Pipeline Security
 
-Items below are evaluated and consciously deferred.  Full analysis with
-revisit triggers lives in RBSCB-CloudBuildPosture.adoc.
+Items below are evaluated and consciously deferred.
+Full analysis with revisit triggers lives in RBSCB-CloudBuildPosture.adoc.
 
 **Egress lockdown — IMPLEMENTED (₣Av).**
 Dual-pool architecture: tether pool (public egress) and airgap pool (`NO_PUBLIC_EGRESS`).
@@ -238,41 +202,35 @@ Reliquaries (tool images) and anchors (base images) provide universal GAR-source
 _Reference_: RBSCB-CloudBuildPosture.adoc (Implemented: Egress Lockdown via Dual Pools).
 
 **VPC Service Controls perimeter.**
-Wrap depot project in VPC-SC perimeter restricting API access.  Requires
-egress lockdown (now implemented) as prerequisite, org-level admin for perimeter creation,
-and verification of every GCP API call in the pipeline.
-_Trigger_: organizational security policy mandating VPC-SC, or data
-exfiltration risk assessment.
+Wrap depot project in VPC-SC perimeter restricting API access.
+Requires egress lockdown (now implemented) as prerequisite, org-level admin for perimeter creation, and verification of every GCP API call in the pipeline.
+_Trigger_: organizational security policy mandating VPC-SC, or data exfiltration risk assessment.
 _Reference_: RBSCB-CloudBuildPosture.adoc (Potential Hardening: VPC Service Controls).
-Cross-reference: if a VPC is stood up for the crucible conduit architecture
-(above), design the VPC-SC perimeter to serve both Cloud Build egress and
-bottle conduit consumers.
+Cross-reference: if a VPC is stood up for the crucible conduit architecture (above), design the VPC-SC perimeter to serve both Cloud Build egress and bottle conduit consumers.
 
 **Cosign image signing.**
 Cryptographic signatures on images, verifiable by downstream consumers.
 KMS-backed keyed signing preferred for airgap-pool compatibility.
 Currently redundant given CB-native SLSA v1.0 Build Level 3 attestation.
-_Trigger_: external image distribution, trust verification needed outside
-GCP, or builder strategy expanding beyond Google Cloud Build.
+_Trigger_: external image distribution, trust verification needed outside GCP, or builder strategy expanding beyond Google Cloud Build.
 _Reference_: RBSCB-CloudBuildPosture.adoc (Deferred Items: Cosign).
 
 **Binary Authorization.**
 Deploy-time policy enforcement (only attested images can be deployed).
-Technically achievable now with CB-native SLSA Level 3.  Not beneficial
-until deployment targets include GKE or Cloud Run.
-_Trigger_: deployment targets change from Podman workstations to managed
-container platforms.
+Technically achievable now with CB-native SLSA Level 3.
+Not beneficial until deployment targets include GKE or Cloud Run.
+_Trigger_: deployment targets change from Podman workstations to managed container platforms.
 _Reference_: RBSCB-CloudBuildPosture.adoc (Deferred Items: Binary Authorization).
 
 **Dockerfile base image digest validation.**
-Builder step images are digest-pinned, but user-authored Dockerfiles in
-vessel build contexts are not validated.  A vessel with `FROM ubuntu:22.04`
-uses a mutable tag.  Constrains vessel authors (policy decision).
+Builder step images are digest-pinned, but user-authored Dockerfiles in vessel build contexts are not validated.
+A vessel with `FROM ubuntu:22.04` uses a mutable tag.
+Constrains vessel authors (policy decision).
 _Trigger_: vessel ecosystem matures beyond internal-only use.
 _Reference_: RBSCB-CloudBuildPosture.adoc (Deferred Items: Dockerfile base image).
 
 **Reproducibility verification.**
-Periodic independent rebuilds compared by digest.  Requires reproducible
-toolchains — a vessel-author discipline, not a pipeline control.
+Periodic independent rebuilds compared by digest.
+Requires reproducible toolchains — a vessel-author discipline, not a pipeline control.
 _Trigger_: vessel ecosystem maturity and external distribution.
 _Reference_: RBSCB-CloudBuildPosture.adoc (Deferred Items: Reproducibility).

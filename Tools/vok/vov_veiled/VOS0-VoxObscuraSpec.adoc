@@ -449,7 +449,7 @@ vvk-parcel-1000/
   claude/
     commands/
       jjc-heat-mount.md
-      cma-normalize.md
+      cma-prep-pr.md
       vvc-commit.md
     hooks/                # Future
 ----

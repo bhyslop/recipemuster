@@ -47,15 +47,6 @@ Concept Model Kit (CMK) is installed for managing concept model documents.
 Before introducing new quoin prefixes in an MCM document, consult the CLAUDE.md "Quoin Sub-Letter Discipline" subsection and minting memo Pattern J (`Memos/memo-20260110-acronym-selection-study.md`). The rule: uniform `prefixXY_word` shape, hard 2-letter ceiling, within-domain Y monosemy, documented sub-letter legend in the spec's mapping section.
 
 **Available commands:**
-- `/cma-normalize` - Apply full MCM normalization (haiku)
-- `/cma-render` - Transform to ClaudeMark (sonnet)
-- `/cma-validate` - Check links and annotations
 - `/cma-prep-pr` - Prepare upstream contribution
-- `/cma-doctor` - Validate installation
-
-**Subagents:**
-- `cmsa-normalizer` - Haiku-enforced MCM normalization (text, mapping, validation)
 
 For full MCM specification, see `Tools/cmk/vov_veiled/MCM-MetaConceptModel.adoc`.
-
-**Important**: Restart Claude Code session after installation for new commands and subagents to become available.

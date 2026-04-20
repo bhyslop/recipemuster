@@ -5,8 +5,6 @@
 Concept Model Kit (CMK) is a system for creating, editing, and rendering MCM-conformant concept model documents. It provides tooling for human-directed, LLM-executed curation of technical specifications that use linked terminology and precise relationship mapping.
 
 The kit supports:
-- **Editing**: Whitespace normalization, mapping section cleanup, link validation
-- **Rendering**: Transform concept models to ClaudeMark format for LLM consumption
 - **Workflow**: Prepare contributions for upstream repositories (stripping proprietary content)
 
 ## Core Concepts
@@ -87,8 +85,7 @@ The kit directory contains:
 ### Project Files (created at install)
 
 - `lenses/` - Project-specific concept model documents (MCM/AXL specs remain in kit directory)
-- `.claude/commands/cma-*.md` - Generated command files
-- `.claude/agents/cmsa-*.md` - Generated subagent files
+- `.claude/commands/cma-prep-pr.md` - Generated command file
 
 ### ClaudeMark Output
 
@@ -98,50 +95,6 @@ Rendered ClaudeMark files are placed in `lenses/` with `-claudemark.md` suffix:
 ## Actions
 
 Concept Model Actions (CMA) are Claude Code slash commands for working with concept model documents.
-
-### Editing Actions
-
-#### `/cma-normalize`
-Apply full MCM normalization to concept model documents.
-
-**Usage**: `/cma-normalize [file-path | all]`
-
-**Model**: `haiku` (mechanical, rule-based task)
-
-**Behavior**:
-- Text Normalization: One sentence per line, linked terms isolated, blank lines only between paragraphs
-- Mapping Section Normalization: Per-category group alignment to multiples of 10 columns, alphabetized by display text
-- Preserves code block contents unchanged
-
-### Rendering Actions
-
-#### `/cma-render`
-Transform concept model document to ClaudeMark format.
-
-**Usage**: `/cma-render [source-file] [full | --terms term1,term2 | --section "Section Name"]`
-
-**Model**: `sonnet`
-
-**Behavior**:
-- Transforms AsciiDoc to ClaudeMark using guillimet syntax
-- `full`: Include all terms
-- `--terms`: Include only specified terms and their definitions
-- `--section`: Include only terms from specified section
-- Output placed in `lenses/` with `-claudemark.md` suffix
-- Validates semantic fidelity before presenting
-
-### Validation Actions
-
-#### `/cma-validate`
-Validate links, anchors, and optionally annotations.
-
-**Usage**: `/cma-validate [file-path | all]`
-
-**Behavior**:
-- Verifies all `{term}` references have corresponding `:term:` definitions
-- Verifies all `:term:` definitions have corresponding `[[anchor]]` targets
-- Checks for orphaned anchors
-- If AXL is in context: validates annotation format and motif references
 
 ### Workflow Actions
 
@@ -157,17 +110,6 @@ Prepare a branch for upstream contribution, stripping proprietary content.
 - Strips: `.claude/` directory, `lenses/` directory
 - Generates consolidated commit message
 - Stops for user review before push
-
-#### `/cma-doctor`
-Validate Concept Model Kit installation.
-
-**Usage**: `/cma-doctor`
-
-**Behavior**:
-- Verifies kit file exists at configured path
-- Verifies lenses directory exists
-- Checks all command files present
-- Reports any issues found
 
 ## Installation
 
@@ -185,12 +127,12 @@ Run the workbench installation script:
 ```
 
 The script will:
-1. Create `.claude/commands/` and `.claude/agents/` directories
-2. Generate all command and subagent files
+1. Create `.claude/commands/` directory
+2. Generate the `cma-prep-pr` command file
 3. Create `lenses/` directory (if missing)
 4. Patch `CLAUDE.md` with CMK configuration section
 
-After installation, **restart Claude Code** for new commands to become available.
+After installation, **restart Claude Code** for the new command to become available.
 
 ### Uninstall
 
