@@ -2167,6 +2167,7 @@
       "order": [
         "₢A9AAZ",
         "₢A9AAa",
+        "₢A9AAc",
         "₢A9AAV",
         "₢A9AAb",
         "₢A9AAY",
@@ -2194,7 +2195,7 @@
         "₢A9AAN",
         "₢A9AAU"
       ],
-      "next_pace_seed": "AAc",
+      "next_pace_seed": "AAd",
       "paddock_file": ".claude/jjm/jjp_uAl9.md",
       "paces": {
         "₢A9AAA": {
@@ -2782,6 +2783,17 @@
               "text": "## Character\n\nHarden the filesystem wire between Rust and container. Two beats: a ping transaction, and a proper wire protocol that survives edge cases.\n\n## Scope\n\n### Ping transaction\n\n- Define ping request/response shape. Candidate: reserved filename (e.g., `ping-in.txt`) or reserved index; container writes `ping.json` with readiness + model-status metadata.\n- Container entrypoint dispatches ping without running the three discerners.\n- Rust-side `apcrc_ping(journal_dir, timeout) -> Result<ApcrcPingReply>`.\n- Wired into app startup and/or a diagnostic tabtarget.\n\n### Wire-protocol hardening\n\n- Name transaction shapes explicitly: discerner-run vs ping. Document atomic guarantees and error-reply shape.\n- APCPS: reserved filenames, index-space discipline, error semantics.\n- Container emits an error reply on internal failure (not silent no-reply) so Rust can distinguish timeout from container-internal error.\n- Single-tenant remains the baseline; defensive drop-old handling if warranted by review.\n\n### APCPS cascade\n\nContainer Architecture gets an explicit wire-protocol subsection.\n\n## Exit criteria\n\n- Ping implemented container-side + Rust-side.\n- APCPS wire-protocol subsection authoritative.\n- Tests cover: ping success, container absent, container internal error, timeout.\n\n## Out of scope\n\n- Combining.\n- Multi-tenant semantics.\n- Performance tuning.",
               "silks": "container-wire-and-ping",
               "commit": "9f7bc42"
+            }
+          ]
+        },
+        "₢A9AAc": {
+          "tacks": [
+            {
+              "ts": "260420-1003",
+              "state": "rough",
+              "text": "## Character\n\nMechanical refactor applying quoin sub-letter discipline (CLAUDE.md \"Quoin Sub-Letter Discipline\"; minting memo Pattern J) to APCS0. Sonnet-scale. Legend decisions settled in this docket; pace executes without re-litigating.\n\n## Prerequisite\n\nCLAUDE.md + minting memo + cmk-claude-context.md updates already in place (committed in the work preceding this pace).\n\n## Domain letter assignments\n\n| Letter | Domain | Contains |\n|--------|--------|----------|\n| c | Container | Container meta + container-side discerners (stanford/spacy/stanza) |\n| w | Wire/protocol | Empty initially — populated by wire-protocol-spec pace |\n| d | Discernment | App-side discerners, resources, structure, evidence |\n| n | uNification | Combining, unified_finding, anonymization, placeholder |\n| u | UI | Clipboard, epic_html, clinical_gate, elision_marker, assays |\n| g | Global | Span, phi_category, placement, normalization, finding |\n\n## Sub-letter legends (to be committed in APCS0 mapping-section comment block)\n\n**D1 apcsc_**: c=container (singleton), s=scan (role), f=finding (role)\n\n**D3 apcsd_**: s=scan, f=finding, d=dictionary, w=whitelist, t=table/registry, e=evidence, o=document (o since d taken), l=labeled_field, h=section_header, n=narrative\n\n**D4 apcsn_**: c=combining, u=unified_finding, a=anonymization, t=text (anonymized_text; a taken), p=placeholder\n\n**D5 apcsu_**: c=clipboard_content, e=epic_html, g=clinical_gate (g from gate; c taken), m=elision_marker (m from marker; e taken), d=discerner_assay, u=unified_assay\n\n**D6 apcsg_**: s=span, c=phi_category (c from category; p used for placement), p=placement, n=normalization, t=text (normalized_text; n taken), f=finding\n\n## Quoin rename table (50 quoins)\n\n**D1 Container (7):**\n- container → apcscc_container\n- {stanford,spacy,stanza}_scan → apcscs_{stanford,spacy,stanza}\n- {stanford,spacy,stanza}_finding → apcscf_{stanford,spacy,stanza}\n\n**D3 Discernment (24):**\n- 7 scans: apcsds_{regex,label,surname,firstname,city,english,medical}\n- 7 findings: apcsdf_{regex,label,surname,firstname,city,english,medical}\n- 3 dictionaries: apcsdd_{surname,firstname,city}\n- 2 whitelists: apcsdw_{english,medical}\n- 2 tables: apcsdt_{label_registry,regex_table}\n- evidence → apcsde_evidence\n- document → apcsdo_document\n- labeled_field → apcsdl_labeled_field\n- section_header → apcsdh_section_header\n- narrative → apcsdn_narrative\n\n**D4 uNification (5):**\n- combining → apcsnc_combining\n- unified_finding → apcsnu_unified_finding\n- anonymization → apcsna_anonymization\n- anonymized_text → apcsnt_anonymized_text\n- placeholder → apcsnp_placeholder\n\n**D5 UI (6):**\n- clipboard_content → apcsuc_clipboard_content\n- epic_html → apcsue_epic_html\n- clinical_gate → apcsug_clinical_gate\n- elision_marker → apcsum_elision_marker\n- discerner_assay → apcsud_discerner_assay\n- unified_assay → apcsuu_unified_assay\n\n**D6 Global (6):**\n- span → apcsgs_span\n- phi_category → apcsgc_phi_category\n- placement → apcsgp_placement\n- normalization → apcsgn_normalization\n- normalized_text → apcsgt_normalized_text\n- finding → apcsgf_finding\n\n## Files to update (from scope check)\n\n- `Tools/apck/APCS0-SpecTop.adoc` (the spec itself — 50 quoins, anchors, attribute refs, cross-references)\n- `Tools/apck/APCPS-PrototypeSpecification.md` (28 refs, 19 distinct)\n- `Tools/apck/apck-claude-context.md` (13 refs)\n- `Tools/apck/apcd/container/README.md` (3 refs)\n- `Memos/memo-20260420-apck-container-fixture-assay/memo.md` (1 ref)\n\nNo Rust/bash/Python code changes needed — code uses its own internal names.\n\n## Execution notes\n\n- Subagent `cmsa-normalizer` can accelerate mechanical parts (attribute section, anchor updates, cross-reference sweeps)\n- Run `/cma-normalize` then `/cma-validate` to confirm mapping and link integrity\n- Sanity check: search repo for bare `apcs_` after migration; surviving occurrences should only appear in this docket and the minting memo's Pattern J\n\n## Exit criteria\n\n- All 50 APCS0 quoins follow `apcsXY_word` shape\n- Sub-letter legends committed to APCS0 mapping-section comment blocks (one per domain)\n- All 5 downstream files updated and resolve cleanly\n- `/cma-validate` passes\n- `/cma-normalize` applied\n\n## Out of scope\n\n- Any conceptual changes to quoins (pure rename)\n- Wire-protocol quoins (minted in the next pace)\n- Stale paddock references in `.claude/jjm/` (internal tooling state; not worth touching)",
+              "silks": "apcs0-minting-migration",
+              "commit": "8f9fda2"
             }
           ]
         }
