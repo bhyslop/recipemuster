@@ -22,6 +22,7 @@
 // axvo_: Axial Voicing Operation (definition-site operation annotations) → mcm_form_deflist
 // axhr*_: Axial Hierarchy Regime (standalone hierarchy markers) → mcm_form_deflist
 // axho*_: Axial Hierarchy Operation (standalone operation hierarchy markers) → mcm_form_deflist
+// axhp*_: Axial Hierarchy Protocol (standalone protocol hierarchy markers) → mcm_form_deflist
 // axpo*_: Axial Product-of-Operation (definition-site voicings for operation outputs) → mcm_form_deflist
 // axve_: Axial Voicing Entity (definition-site entity annotations) → mcm_form_deflist
 // axhe*_: Axial Hierarchy Entity (standalone entity hierarchy markers) → mcm_form_deflist
@@ -70,8 +71,10 @@
 :axd_defaulted:                       <<axd_defaulted,Defaulted>>
 :axd_dimension:                       <<axd_dimension,Dimension>>
 :axd_dimension_s:                     <<axd_dimension,Dimensions>>
+:axd_disjoint_lifecycle:              <<axd_disjoint_lifecycle,Disjoint Lifecycle>>
 :axd_endianness:                      <<axd_endianness,Endianness>>
 :axd_field_number:                    <<axd_field_number,Field Number>>
+:axd_file_bus:                        <<axd_file_bus,File Bus>>
 :axd_list:                            <<axd_list,List>>
 :axd_longrunning:                     <<axd_longrunning,Long-running>>
 :axd_none:                            <<axd_none,None>>
@@ -159,6 +162,12 @@
 :axhoq_precondition:                  <<axhoq_precondition,Hierarchy Precondition>>
 :axhos_step:                          <<axhos_step,Hierarchy Step>>
 :axhos_waymark:                       <<axhos_waymark,Hierarchy Waymark>>
+
+// Axial Hierarchy Protocol Terms (standalone hierarchy markers)
+:axhpb_protocol:                      <<axhpb_protocol,Hierarchy Protocol>>
+:axhpc_call:                          <<axhpc_call,Hierarchy Call>>
+:axhpr_return:                        <<axhpr_return,Hierarchy Return>>
+:axhpt_transaction:                   <<axhpt_transaction,Hierarchy Transaction>>
 
 // Axial Hierarchy Regime Operation Markers (subdocument)
 :axhro_kindle:                        <<axhro_kindle,Hierarchy Kindle>>
@@ -341,6 +350,8 @@
 :axi_endpoint:                        <<axi_endpoint,Endpoint>>
 :axi_endpoint_s:                      <<axi_endpoint,Endpoints>>
 :axi_hash_parameter:                  <<axi_hash_parameter,Hash Parameter>>
+:axi_protocol:                        <<axi_protocol,Protocol>>
+:axi_protocol_s:                      <<axi_protocol,Protocols>>
 :axi_hash_parameter_s:                <<axi_hash_parameter,Hash Parameters>>
 :axi_request_body:                    <<axi_request_body,Request Body>>
 :axi_response_body:                   <<axi_response_body,Response Body>>
@@ -1360,6 +1371,31 @@ representing a managed section within a project CLAUDE.md file.
 Provides persistent LLM context that bridges specification-layer concepts to runtime execution.
 Typically contains command references, vocabulary mappings, and operational guidance.
 
+[[axi_protocol]]
+{axi_protocol}::
+A
+{axl_motif}
+representing the bilateral discipline binding two
+{axo_actor_s}
+— a caller and a callee — through a defined sequence of call and return envelopes.
+Distinct from
+{axi_rpc_interface}
+which describes one side's view of a service;
+{axi_protocol}
+is the relationship itself, owning transport, lifecycle, and concurrency presumptions.
+A protocol quoin carries transport via
+{axd_dimension_s}
+(e.g.,
+{axd_file_bus}),
+lifecycle presumptions (e.g.,
+{axd_disjoint_lifecycle}),
+and concurrency discipline as dimensions on the primary voicing.
+Structural detail — the roster of transactions, call/return envelopes, and member types — lives at the
+{axl_detail_site}
+under
+{axhpb_protocol}
+and nested hierarchy markers.
+
 == Axial Dimension Terms
 
 {axd_dimension_s}
@@ -1536,6 +1572,48 @@ No enumeration or cross-instance operations apply.
 {axrd_manifold}::
 Regime has multiple assignment sources (one per instance).
 Enumeration and cross-instance operations are meaningful.
+
+=== Protocol Dimensions
+
+These
+{axd_dimension_s}
+qualify
+{axi_protocol}
+voicings to specify transport, lifecycle, and concurrency presumptions of the bilateral discipline.
+
+[[axd_file_bus]]
+{axd_file_bus}::
+Transport dimension on an
+{axi_protocol}:
+participants communicate via a shared filesystem directory acting as the wire.
+The caller writes call envelopes as files; the callee observes atomic file appearance via rename(2) (write-temp-then-rename) and writes return envelopes the same way.
+No sockets, no in-process shared memory — POSIX file I/O is the entire wire.
++
+*Index discipline:* participants coordinate transaction ordering via monotonic indices assigned by the caller and embedded in filenames or envelope bodies.
+Indices are session-local and reset on callee restart; the caller detects restart via index-collision or an explicit readiness exchange.
+Filename conventions for call and return envelopes are declared in the voicing spec, not in this motif.
++
+*Atomicity:* every envelope write uses the rename(2) idiom so receivers never observe partial content.
++
+*Wire-format neutrality:*
+{axd_file_bus}
+is transport-only; envelope contents are described by separate
+{axr_record_s}
+voicings (e.g.,
+{axr_record_json}).
+
+[[axd_disjoint_lifecycle]]
+{axd_disjoint_lifecycle}::
+Lifecycle dimension on an
+{axi_protocol}:
+the caller and callee have independent start and stop lifecycles.
+Neither actor can assume the other exists when it itself begins;
+each call must handle the possibility that the peer is absent, starting, or no longer the same instance that handled the previous call.
++
+Implies the caller must observe callee presence before committing to a transaction, and must gracefully degrade or retry when the callee is unavailable.
+The specific observation mechanism (readiness probe, file-presence check, timeout) is declared in the protocol's detail site, not in this motif.
++
+Contrasts with shared-session protocols where caller and callee share a bounded lifetime (e.g., an HTTP request-response pair scoped to a single process).
 
 === Dimension Applicability
 
@@ -2511,6 +2589,140 @@ only
 uses
 {axd_grouped},
 the method's affiliated entity must equal the group's affiliated entity
+
+== Axial Hierarchy Protocol Markers
+
+{axhp*} markers appear at the
+{axl_detail_site}
+of an
+{axi_protocol}
+as standalone annotations, paralleling the
+{axho*}
+operation hierarchy markers.
+A protocol's structural detail — the roster of transactions, and within each transaction the call envelope and return envelope — is expressed through a four-level nesting of these markers.
+
+=== Marker Terms and Lookahead Arities
+
+[cols="<,^,<",options="header"]
+|===
+|Marker |Lookahead |Reads
+
+|{axhpb_protocol}   |1 {mcm_attribute_reference}  |The protocol this detail site describes (no dimensions — dimensions are at {axl_definition_site} only)
+|{axhpt_transaction}|0                            |A named call/return pairing within the protocol; bare marker, identity carried through heading and prose
+|{axhpc_call}       |0                            |The caller-side envelope of an enclosing transaction; bare marker, members listed in following prose
+|{axhpr_return}     |0                            |The callee-side envelope of an enclosing transaction; bare marker, members listed in following prose
+|===
+
+[[axhpb_protocol]]
+{axhpb_protocol}::
+Opens the protocol hierarchy block at the
+{axl_detail_site}.
+Lookahead: 1
+{mcm_attribute_reference}
+— the protocol this detail site describes.
+The referenced attribute must correspond to an anchor annotated with
+{axi_protocol}
+at the
+{axl_definition_site}.
+No dimensions on this marker — all dimensions (transport, lifecycle, concurrency) are authoritative at the
+{axl_definition_site}
+only.
+
+The surface syntax:
+
+[source,asciidoc]
+----
+//axhpb_protocol
+{apcswp_wire}
+
+//axhpt_transaction
+discerner — main detection transaction.
+
+//axhpc_call
+caller payload members:
+----
+
+[[axhpt_transaction]]
+{axhpt_transaction}::
+Marks a named call/return pairing within an
+{axi_protocol}
+detail site.
+No lookahead required — bare marker; content follows directly.
+A transaction groups exactly one
+{axhpc_call}
+and one
+{axhpr_return}
+that together constitute a single caller-initiated exchange.
+Transaction identity is carried through section heading and prose; no linked term is expected on the following line.
+Multiple
+{axhpt_transaction}
+blocks within one protocol describe the full set of exchanges the protocol supports.
+
+[[axhpc_call]]
+{axhpc_call}::
+Marks the caller-side envelope of an enclosing
+{axhpt_transaction}.
+No lookahead required — bare marker; content follows directly.
+The prose under this marker enumerates the envelope's members, each referencing a type term defined at the
+{axl_definition_site}
+(in the parent spec or a shared vocabulary).
+Exactly one
+{axhpc_call}
+per
+{axhpt_transaction}.
+
+[[axhpr_return]]
+{axhpr_return}::
+Marks the callee-side envelope of an enclosing
+{axhpt_transaction}.
+No lookahead required — bare marker; content follows directly.
+The prose under this marker enumerates the envelope's members using the same type-reference pattern as
+{axhpc_call}.
+Exactly one
+{axhpr_return}
+per
+{axhpt_transaction}.
+A transaction where the caller expects no data back still declares
+{axhpr_return}
+(with prose noting "empty envelope" or equivalent) — the return presence is the signal, and uniform structure keeps the hierarchy complete.
+
+=== Nesting Rules
+
+Protocol hierarchy markers establish implicit scope through document order:
+
+* {axhpb_protocol}
+opens the protocol block; all subsequent markers belong to it until document end or next
+{axhpb_protocol}
+* {axhpt_transaction}
+must appear within
+{axhpb_protocol}
+scope
+* {axhpc_call}
+and
+{axhpr_return}
+must appear within
+{axhpt_transaction}
+scope, each exactly once
+* Transactions appear in document order; no required ordering is imposed, but convention places readiness or probe transactions first and main-workload transactions second
+
+=== Cross-Document Validation
+
+* {axhpb_protocol}
+attribute reference must match a protocol defined with
+{axi_protocol}
+at the
+{axl_definition_site}
+* {axhpb_protocol}
+carries no dimensions — all dimensions are authoritative at the
+{axl_definition_site}
+only
+* Types referenced in
+{axhpc_call}
+and
+{axhpr_return}
+member prose must resolve to
+{axt_type}
+anchors in the parent spec or a shared vocabulary
 
 == Axial Voicing Entity Terms
 

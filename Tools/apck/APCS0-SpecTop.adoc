@@ -51,7 +51,15 @@
 //   t = text           (normalized_text; t since n taken)
 //   f = finding
 //
-// (apcsw_ — Wire/protocol — empty; populated by wire-protocol-spec pace.)
+// --- apcsw_ — Wire/protocol ---
+//   p = protocol       (the bilateral discipline itself)
+//   x = transaction    (call/return pairing within the protocol)
+//   r = record         (envelope; prose-only in subdoc, not a primary quoin)
+//   m = member         (slot within a record; prose-only in subdoc)
+//   t = type           (value shape; primary quoin, referenced from member prose)
+//
+// (Note: x/r/m are used only in the protocol subdocument as hierarchy-marker
+//  scaffolding; only p and t yield primary quoins in the apcsw_ domain.)
 //
 // Variant patterns:
 //   _s: plural form
@@ -155,6 +163,13 @@
 :apcsum_elision_marker:                  <<apcsum_elision_marker,Elision Marker>>
 :apcsum_elision_marker_s:                <<apcsum_elision_marker,Elision Markers>>
 :apcsuu_unified_assay:                   <<apcsuu_unified_assay,Unified Assay>>
+
+// Wire protocol — the bilateral discipline between Rust application and container
+:apcswp_wire:                            <<apcswp_wire,Wire Protocol>>
+:apcswt_finding_list:                    <<apcswt_finding_list,Wire Finding List>>
+:apcswt_model_status:                    <<apcswt_model_status,Model Status>>
+:apcswt_normalized_text:                 <<apcswt_normalized_text,Wire Normalized Text>>
+:apcswt_transaction_index:               <<apcswt_transaction_index,Transaction Index>>
 
 // end::mapping-section[]
 
@@ -437,19 +452,115 @@ and
 {apcscs_stanza}
 — in their native Python runtime.
 Parameterized by the set of discerner models it bundles (see APCPS for the concrete images, versions, and Dockerfile).
-Reads inputs from and writes outputs to a single bind-mounted host directory; exposes no network interface (`--network=none`), runs as a non-root user, and drops all Linux capabilities.
+Exposes no network interface (`--network=none`), runs as a non-root user, and drops all Linux capabilities.
 Lifecycle is managed by tabtargets, not by the Rust application — start, stop, and image build are human-directed actions, distinct from Clipbuddy startup.
-Communication with the Rust application is file I/O only:
-Clipbuddy writes
+Communication with the Rust application is governed by
+{apcswp_wire};
+see that section for transaction shapes, member types, and the call/return discipline.
+See APCPS for the concrete bind-mount directory path, Dockerfile, and tabtarget set.
+
+
+== Wire Protocol
+
+The Rust application and
+{apcscc_container}
+are two
+{axo_actor_s}
+with independent lifecycles and no shared process memory.
+They coordinate through a bilateral discipline — a *protocol* — whose structure is owned by this section.
+The protocol names what can be exchanged and under what presumptions;
+it does not name which filesystem directory or which image tag realizes it (those live in APCPS).
+
+[[apcswp_wire]]
+//axi_protocol axd_file_bus axd_disjoint_lifecycle
+{apcswp_wire}::
+The call/return discipline between the caller (Rust application) and the callee
+({apcscc_container}).
++
+*Transport* is
+{axd_file_bus}:
+a shared host directory is the wire;
+the caller writes call envelopes as files and observes return envelopes as atomic file appearances;
+the callee symmetrically observes calls and writes returns.
+The directory path is a deployment concern named by APCPS, not by this protocol.
++
+*Lifecycle presumption* is
+{axd_disjoint_lifecycle}:
+the caller cannot assume the callee exists at any point;
+each transaction must tolerate callee-absent and callee-restart states;
+the callee cannot assume caller persistence either — callers come and go.
++
+*Concurrency* is single-tenant by construction:
+at most one transaction is in flight at any instant.
+The caller issues one call, awaits its return, then may issue the next.
+No pipelining, no multiplexing.
++
+*Direction* is synchronous from the caller's point of view:
+a call is meaningful only when paired with its return;
+the caller blocks (or times out) waiting for the callee's atomic reply appearance.
++
+The protocol supports two named transactions — a readiness probe and the detection exchange — defined as structured children at the
+{axl_detail_site}
+(see subdocument).
+Type terms referenced by transaction members are defined below.
+
+=== Types
+
+[[apcswt_transaction_index]]
+//axt_number
+{apcswt_transaction_index}::
+A monotonically increasing integer assigned by the caller to each transaction within a session.
+The index disambiguates concurrent-in-time but not-in-flight transactions at the filesystem level:
+the caller writes call envelopes at index N;
+the callee writes return envelopes at the same N;
+the caller then advances to N+1.
++
+Index is session-local — it resets to its starting value whenever the caller starts fresh.
+The callee does not persist an expected index across its own restarts;
+under
+{axd_disjoint_lifecycle}
+the callee accepts whatever index the caller presents and echoes it in the return.
+Collision detection (a caller observing a return envelope it did not request) is the caller's signal that the callee was restarted mid-session.
+
+[[apcswt_normalized_text]]
+{apcswt_normalized_text}::
+The wire-facing view of
+{apcsgt_normalized_text}:
+the exact string the caller wishes the callee to analyze.
+Carried verbatim — the protocol imposes no additional normalization beyond what produced
 {apcsgt_normalized_text}
-as `{N}-in.txt` into the shared directory;
-the container reads the highest-indexed
-`{N}-in.txt`
-it finds, runs its three discerners, and publishes their consolidated findings atomically as `{N}.json`
-(write to `{N}.json.tmp`, then `rename(2)` to `{N}.json`).
-The container emits a running log to `container-log.txt` in the same directory; the start-container tabtarget truncates the log at each container restart.
-No sockets, no pipes, no HTTP — POSIX file I/O is the entire wire format.
-See APCPS for the directory path, JSON schema, Dockerfile, and tabtarget set.
+upstream.
+Size is bounded only by filesystem and runtime limits;
+APCPS documents the practical upper bound for the container's current model configuration.
+
+[[apcswt_finding_list]]
+//axd_repeated
+{apcswt_finding_list}::
+The wire-facing view of the callee's consolidated output:
+an ordered list of
+{apcsgf_finding_s}
+produced by the three container-side discerners
+({apcscs_stanford},
+{apcscs_spacy},
+{apcscs_stanza})
+running as pure functions of the call's
+{apcswt_normalized_text}.
+Each element carries its originating discerner as a provenance field so the caller's
+{apcsnc_combining}
+step can attribute it correctly.
+Empty list is valid (all discerners produced no findings);
+absence of the field is not distinguished from empty list.
+
+[[apcswt_model_status]]
+{apcswt_model_status}::
+The callee's readiness self-report, returned in the readiness transaction's return envelope.
+Carries per-discerner boolean readiness flags and — when any discerner is not yet ready — a short diagnostic string naming the unloaded model or the phase the callee is in (loading weights, warming JIT, etc.).
+The protocol does not enumerate the status vocabulary;
+the callee's publication and the caller's interpretation share a version compatibility contract documented in APCPS alongside the container image tag.
+
+=== Protocol Detail
+
+include::APCSWP-wire.adoc[leveloffset=+1]
 
 
 == Discerners

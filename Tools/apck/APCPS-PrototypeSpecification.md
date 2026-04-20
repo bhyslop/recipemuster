@@ -2,7 +2,7 @@
 
 ## Scope
 
-This document specifies the engineering pipeline for the proof-of-life prototype. It covers detection algorithms, tech stack, data sources, wire-format JSON schemas, the container image, project structure, and scope boundaries. It does NOT cover the user experience — see [APCAS-Specification.md](APCAS-Specification.md) for the UX plan — nor the detection pipeline's conceptual vocabulary, which lives in [APCS0-SpecTop.adoc](APCS0-SpecTop.adoc).
+This document specifies the engineering pipeline for the proof-of-life prototype. It covers detection algorithms, tech stack, data sources, the container image, project structure, and scope boundaries. It does NOT cover the user experience — see [APCAS-Specification.md](APCAS-Specification.md) for the UX plan — nor the detection pipeline's conceptual vocabulary and the wire protocol between the Rust application and the container, both of which live in [APCS0-SpecTop.adoc](APCS0-SpecTop.adoc). This document explains the prototype's concrete tech-stack realization of those contracts: filenames, JSON shapes, container image, and the tabtargets that drive it all.
 
 This is a living document. The pipeline will evolve rapidly during prototype development. Changes here do not require parallel updates to the product spec.
 
@@ -312,17 +312,30 @@ Tabtarget set (names in the `apcw-X` family; concrete names pending mint):
 
 **Indexing discipline.** The container scans `$HOME/apcjd/` for `{N}-in.txt` files. It processes **only the highest-indexed** input and ignores all others. This implements a drop-old backlog policy: if Ann copies three things quickly, the container processes only the newest; older inputs are skipped. Cleanup of stale inputs and outputs is manual.
 
-### Wire Protocol
+### Wire Protocol Realization
 
-1. Clipbuddy writes `{N}-in.txt` containing `apcsgt_normalized_text` to `$HOME/apcjd/`.
-2. The container (in a polling or inotify-driven loop; implementation detail) observes the new file, confirms `N` is the highest index present, and runs all three discerners on its contents.
-3. The container writes `{N}.json.tmp` with the consolidated findings from all three discerners.
-4. When all algorithms have completed and the file is closed, the container `rename(2)`s `{N}.json.tmp` to `{N}.json`. POSIX guarantees the rename is atomic within the same filesystem — readers either see the old (absent) state or the final file, never a partially written intermediate.
-5. Clipbuddy (watching via the `notify` crate) observes `{N}.json` existing, reads and deserializes it, and folds its findings into the evidence pool alongside the Rust-side findings.
+The wire's abstract contract — transactions, envelopes, types, and the single-tenant synchronous discipline — is defined by `apcswp_wire` in APCS0. This subsection documents the prototype's concrete realization of that contract on top of the `$HOME/apcjd/` bind mount.
 
-No sockets, no HTTP, no pipes — POSIX file I/O is the entire wire format.
+**File-bus transport.** The `axd_file_bus` transport is realized by the shared bind-mount directory `$HOME/apcjd/` (host path; mapped to a container-local path). POSIX file I/O is the entire wire — no sockets, no HTTP, no pipes.
+
+**Envelope filenames.** The protocol's two transactions realize as follows:
+
+| Transaction | Caller writes | Callee writes |
+|-------------|---------------|---------------|
+| Detection | `{N}-in.txt` (plain UTF-8 — `apcswt_normalized_text`) | `{N}.json` (per schema below — carries `apcswt_transaction_index` and `apcswt_finding_list`) |
+| Readiness probe | `ping-in` (reserved name, non-indexed) | `ping.json` (carries `apcswt_model_status`) |
+
+The readiness probe's filenames are placeholders; the concrete names are a realization decision pending implementation. The detection transaction uses `{N}-in.txt` / `{N}.json` because the index serves double duty as filename disambiguator and as `apcswt_transaction_index`.
+
+**Atomic publish.** The container writes `{N}.json.tmp` during assembly, then `rename(2)`s to `{N}.json` when all three discerners have completed. POSIX guarantees rename atomicity within the same filesystem — Clipbuddy either sees the file absent or sees it complete, never partially written.
+
+**Return observation.** Clipbuddy uses the `notify` crate to watch `$HOME/apcjd/` for return-envelope appearances. On observing `{N}.json`, it reads, deserializes, and folds the findings into the evidence pool alongside the Rust-side findings.
+
+**Single-tenant under adversity.** APCS0's single-tenant premise is respected on the happy path — Clipbuddy awaits the return before issuing the next call. If Ann copies several things in rapid succession faster than the callee can process them, Clipbuddy *may* write multiple `{N}-in.txt` files ahead of the callee. The container tolerates this by processing **only the highest-indexed `{N}-in.txt` it finds** and skipping the rest (drop-old backlog policy). This preserves the single-tenant premise from the callee's perspective — one transaction in flight at a time — while keeping the caller UI responsive. Cleanup of skipped inputs and stale outputs is manual at the prototype scale.
 
 ### Container Output JSON Schema
+
+This is the concrete JSON realization of the detection transaction's return envelope. APCS0 owns the abstract envelope: it carries `apcswt_transaction_index` (echoed) and `apcswt_finding_list` (the three-discerner output). This subsection defines how those types are serialized for the prototype.
 
 The `{N}.json` file has this top-level shape:
 
@@ -340,6 +353,9 @@ The `{N}.json` file has this top-level shape:
   }
 }
 ```
+
+- `index` realizes `apcswt_transaction_index` — echoed from the call's filename `{N}-in.txt`.
+- The `stanford`/`spacy`/`stanza` object is the prototype's shape for `apcswt_finding_list`: a per-discerner grouping rather than a flat list. Each grouping's `findings` array carries that discerner's findings tagged implicitly by the containing key (the schemas below do not repeat the discerner name on each finding — the parent key is the tag).
 
 No schema version field for the prototype — the shape is pinned to the container image version. If the schema evolves, the image tag changes, and any Clipbuddy built against an older schema is simply incompatible with the newer image.
 

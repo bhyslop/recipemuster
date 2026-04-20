@@ -1,0 +1,79 @@
+//axhpb_protocol
+{apcswp_wire}
+
+The protocol exposes two named transactions:
+a readiness probe the caller uses to observe callee liveness before committing to a detection call,
+and the detection transaction itself.
+Both transactions share the single-tenant, synchronous, file-bus discipline declared at the
+{axl_definition_site}.
+
+Each transaction below lists its call envelope and its return envelope.
+Members reference the type terms
+({apcswt_transaction_index},
+{apcswt_normalized_text},
+{apcswt_finding_list},
+{apcswt_model_status})
+defined in the parent section.
+Concrete field names, filename conventions, and the bind-mount directory path are implementation concerns documented in APCPS.
+
+=== Readiness Probe
+
+//axhpt_transaction
+The caller issues a readiness probe before its first detection call of a session,
+and may re-issue it at any time when it suspects the callee has restarted.
+The callee's return carries
+{apcswt_model_status}
+so the caller can discriminate "fully ready" from "alive but still loading" and act accordingly.
+
+//axhpc_call
+
+Caller payload members:
+
+* {apcswt_transaction_index}
+— the probe's own index, drawn from the same monotonic sequence as detection calls.
+
+//axhpr_return
+
+Callee payload members:
+
+* {apcswt_transaction_index}
+— echoes the call's index unchanged.
+
+* {apcswt_model_status}
+— per-discerner readiness flags plus optional diagnostic string.
+
+=== Detection
+
+//axhpt_transaction
+The detection transaction carries a
+{apcsgt_normalized_text}
+payload to the callee and returns the consolidated output of the three container-side discerners.
+This is the protocol's workload transaction;
+the readiness probe exists to make this transaction's preconditions observable.
+
+//axhpc_call
+
+Caller payload members:
+
+* {apcswt_transaction_index}
+— the detection call's index.
+
+* {apcswt_normalized_text}
+— the text to analyze.
+
+//axhpr_return
+
+Callee payload members:
+
+* {apcswt_transaction_index}
+— echoes the call's index unchanged.
+The caller uses this echo to confirm the return pairs with the call it issued,
+not with a stale envelope from a prior session under the same index.
+
+* {apcswt_finding_list}
+— consolidated findings from
+{apcscs_stanford},
+{apcscs_spacy},
+and
+{apcscs_stanza},
+each element tagged with its originating discerner.
