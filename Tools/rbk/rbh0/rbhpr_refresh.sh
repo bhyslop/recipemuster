@@ -60,8 +60,7 @@ rbhp_refresh() {
   buh_e
   buh_section  "2. Install/Refresh OAuth Credentials:"
   buh_line     "   Run the payor install command with the downloaded JSON:"
-  buyy_cmd_yawp "rbgp_payor_install ~/Downloads/client_secret_*.json"; local -r z_cmd_payor_install="${z_buym_yelp}"
-  buh_line     "      ${z_cmd_payor_install}"
+  buh_tt       "      " "${RBZ_PAYOR_INSTALL}" "" " ~/Downloads/client_secret_*.json"
   buh_line     "   This will:"
   buh_line     "   - Guide you through OAuth authorization flow"
   buh_line     "   - Store secure credentials in RBRR_SECRETS_DIR/rbro.env"
