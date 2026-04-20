@@ -1,0 +1,179 @@
+Patient: Margaret J. Thornton
+
+DOB: 03/15/1952
+
+Age: 74 y.o. Female
+
+MRN: 00847293
+
+Account: 3391057842
+
+Encounter ID: ENC-2026-0048817
+
+SSN: 471-83-2956
+
+Health Plan ID: BCBS-MEM-992817445
+
+Address: 1847 Cranberry Lane, Westbrook, ME 04092
+
+Phone: (207) 555-0143
+
+Fax: 207-555-0199
+
+Email: m.thornton47@gmail.com
+
+Emergency Contact: Robert Thornton (husband) — (207) 555-0187
+
+Primary Care Physician: Dr. Susan Chen
+
+Patient Portal: https://mychart.mainehealth.org/patient/thornton-m
+
+Facility: Maine Medical Center
+
+Attending: James R. Whitfield, MD
+
+Referring: Priya Anand, MD
+
+Provider: Elena Vasquez, PA-C
+
+Visit Date: 04/08/2026
+
+Admission Date: 04/07/2026
+
+Discharge Date: 04/09/2026
+
+NPI: 1234567890
+
+DEA: AW1234567
+
+Chief Complaint:
+
+Chest pain and shortness of breath x 2 days.
+
+History of Present Illness:
+
+Ms. Thornton is a 74-year-old female with a history of hypertension, type 2 diabetes mellitus, and hyperlipidemia who presents with substernal chest pain radiating to the left arm, onset two days prior to admission while gardening at her home on Cranberry Lane. She describes the pain as 7/10, pressure-like, associated with diaphoresis and mild dyspnea. She took two aspirin 325mg at home before calling 911. Her husband Robert Thornton called EMS at approximately 14:30 on 04/07/2026. EMS arrived at 1847 Cranberry Lane, Westbrook and transported to Maine Medical Center. In the ED, initial troponin was 0.42 ng/mL (ref <0.04), rising to 1.87 ng/mL at 6 hours. ECG showed ST depression in leads V3-V5 consistent with NSTEMI.
+
+Of note, the patient was recently seen by Dr. Priya Anand at 220 Brighton Avenue, Portland, ME 04101 on 03/28/2026 for routine follow-up where her A1c was 7.2% and she was counseled on dietary modifications. Dr. Anand can be reached at 207-555-0234 or anand.priya@mainemedpartners.org.
+
+The patient's mother, Dorothy Kowalski, had an MI at age 58. Her father, Edward Kowalski, died of complications of CHF at age 71. The patient reports her neighbor, Linda Washington, drove her to Dr. Anand's appointment last month.
+
+Past Medical History:
+
+1. Hypertension — diagnosed 2008
+
+2. Type 2 Diabetes Mellitus — diagnosed 2012, on oral agents
+
+3. Hyperlipidemia
+
+4. Osteoarthritis, bilateral knees
+
+5. GERD
+
+6. S/P cholecystectomy 2019
+
+7. S/P right total knee arthroplasty 2023 (implant serial: STR-KN-2023-44819)
+
+Allergies:
+
+Penicillin — rash
+
+Sulfa drugs — anaphylaxis
+
+NKDA to contrast dye
+
+Medications (Home):
+
+1. Metformin 1000mg PO BID
+
+2. Lisinopril 20mg PO daily
+
+3. Atorvastatin 40mg PO QHS
+
+4. Omeprazole 20mg PO daily
+
+5. Acetaminophen 500mg PO PRN
+
+6. Aspirin 81mg PO daily
+
+Vitals (04/08/2026 06:00):
+
+BP: 148/92 mmHg | HR: 88 bpm | RR: 18 /min | Temp: 98.4 F | SpO2: 96% RA
+
+Weight: 78.2 kg | Height: 165 cm | BMI: 28.7
+
+Laboratory Results (04/08/2026):
+
+Troponin I:1.87 ng/mL(H) ref <0.04
+
+BNP:342 pg/mL(H) ref <100
+
+BMP:
+
+Na:139 mEq/Lref 136-145
+
+K:4.1 mEq/Lref 3.5-5.0
+
+Cl:102 mEq/Lref 98-106
+
+CO2:24 mEq/Lref 22-29
+
+BUN:18 mg/dLref 7-20
+
+Cr:1.1 mg/dLref 0.6-1.2
+
+Glucose:187 mg/dL(H) ref 70-100
+
+HbA1c:7.2%(H) ref <5.7%
+
+CBC:
+
+WBC:8.7 x10^3/uLref 4.5-11.0
+
+Hgb:13.1 g/dLref 12.0-16.0
+
+Plt:224 x10^3/uLref 150-400
+
+Lipid Panel:
+
+Total Chol:218 mg/dL(H) ref <200
+
+LDL:142 mg/dL(H) ref <100
+
+HDL:44 mg/dL(L) ref >40
+
+Triglycerides:160 mg/dLref <150
+
+PT/INR:12.8 sec / 1.0ref 11.0-13.5 / 0.8-1.2
+
+Imaging:
+
+ECG (04/07/2026 15:22): Normal sinus rhythm, rate 88. ST depression V3-V5, no ST elevation. No Q waves. QTc 440ms.
+
+Chest X-Ray (04/07/2026 15:45): No acute cardiopulmonary process. Heart size normal. No pleural effusion.
+
+Echocardiogram (04/08/2026 10:30): LVEF 50-55%. Mild hypokinesis of the anteroseptal wall. No significant valvular disease. Normal RV function. No pericardial effusion.
+
+Assessment/Plan:
+
+74-year-old female with NSTEMI, now hemodynamically stable.
+
+1. NSTEMI — Troponin trending up, ST changes V3-V5. Continue heparin drip per ACS protocol. Cardiology consulted — Dr. Michael Torres recommends cardiac catheterization tomorrow AM. Continue dual antiplatelet therapy (aspirin 325mg + clopidogrel 300mg load, then 75mg daily). Serial ECGs q8h. Telemetry monitoring.
+
+2. Type 2 DM — Hold metformin in setting of catheterization with contrast. Sliding scale insulin per hospital protocol. Monitor BG QAC and QHS. Resume home regimen post-procedure if renal function stable.
+
+3. Hypertension — Continue lisinopril. Hold if SBP <100 or pre-cath. Target BP <140/90.
+
+4. Hyperlipidemia — Increase atorvastatin to 80mg PO QHS given ACS event per ACC/AHA guidelines. LDL goal <70 mg/dL.
+
+5. GERD — Continue omeprazole. NPO after midnight for cath lab.
+
+6. DVT Prophylaxis — Heparin drip therapeutic; no additional SQ heparin needed.
+
+7. Disposition — Anticipate 2-3 day stay pending catheterization results. SW consult for discharge planning. PT eval for mobility given knee arthroplasty history. Discussed with family member Robert Thornton at bedside.
+
+Electronically signed by: James R. Whitfield, MD — 04/08/2026 18:47
+
+Co-signed by: Elena Vasquez, PA-C — 04/08/2026 19:02
+
+System: Epic 2024 R1 | Node: MMCPRD-APP-07 | IP: 10.142.38.91 | Print ID: RPT-2026-0408-18472

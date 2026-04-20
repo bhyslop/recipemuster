@@ -1,0 +1,129 @@
+Patient: Harold W. Eriksen
+
+DOB: 11/02/1932
+
+Age: 93 y.o. Male
+
+MRN: 01192847
+
+Account: 5578203916
+
+Encounter ID: ENC-2026-0051203
+
+Address: 42 Pinehurst Drive, Scarborough, ME 04074
+
+Phone: 207-555-0312
+
+Emergency Contact: Karen Eriksen-Moody (daughter) — 207-555-0488
+
+Facility: Maine Medical Center
+
+Attending: James R. Whitfield, MD
+
+Consulting: Naomi Okwu, MD — Geriatric Medicine
+
+Referring: Susan Chen, MD
+
+Visit Date: 04/09/2026
+
+Reason for Consult:
+
+Geriatric medicine consultation requested for cognitive assessment and fall risk evaluation in the setting of acute hospitalization for NSTEMI.
+
+History of Present Illness:
+
+Mr. Eriksen is a 93-year-old male admitted 04/07/2026 with NSTEMI, now post-catheterization with single-vessel PCI to LAD. Consultation requested by Dr. Whitfield for pre-discharge cognitive and functional assessment. The patient's daughter, Karen Eriksen-Moody, reports progressive memory difficulties over the past 18 months — missed appointments, repeated questions, and difficulty managing medications. She states her brother, Thomas Eriksen of 15 Ocean View Road, Cape Elizabeth, ME 04107, has also noticed the changes during weekly phone calls. The patient lives alone at 42 Pinehurst Drive since the death of his wife, Miriam Eriksen, in 2024. A home health aide, Patricia Nowak, visits three times weekly.
+
+Prior cognitive screening by Dr. Susan Chen on 01/15/2026 noted MoCA 22/30 with deficits in delayed recall and visuospatial domains.
+
+Past Medical History:
+
+1. Coronary artery disease — NSTEMI 04/2026, s/p PCI to LAD
+
+2. Hypertension
+
+3. Atrial fibrillation — rate controlled, on apixaban
+
+4. Mild cognitive impairment — MoCA 22/30 (01/2026)
+
+5. Benign prostatic hyperplasia
+
+6. Osteoporosis — T-score -2.8 lumbar spine
+
+7. Bilateral sensorineural hearing loss — uses hearing aids
+
+8. S/P appendectomy 1961
+
+Medications (Home):
+
+1. Apixaban (Eliquis) 5mg PO BID
+
+2. Metoprolol succinate (Toprol-XL) 50mg PO daily
+
+3. Amlodipine 5mg PO daily
+
+4. Atorvastatin 40mg PO QHS
+
+5. Tamsulosin (Flomax) 0.4mg PO QHS
+
+6. Alendronate (Fosamax) 70mg PO weekly
+
+7. Vitamin D3 2000 IU PO daily
+
+8. Aspirin 81mg PO daily — added post-PCI
+
+9. Clopidogrel 75mg PO daily — added post-PCI
+
+Vitals (04/09/2026 08:15):
+
+BP: 132/78 mmHg | HR: 72 bpm (irregular) | RR: 16 /min | Temp: 97.8 F | SpO2: 95% RA
+
+Weight: 68.5 kg | Height: 175 cm | BMI: 22.4
+
+Cognitive Assessment:
+
+MoCA: 20/30 (decline from 22/30 on 01/15/2026)
+
+- Visuospatial/Executive: 3/5
+
+- Naming: 3/3
+
+- Attention: 5/6
+
+- Language: 2/3
+
+- Abstraction: 1/2
+
+- Delayed Recall: 2/5 (registered 5/5)
+
+- Orientation: 4/6 (missed day of week, date)
+
+GDS-15: 4/15 (mild depressive symptoms)
+
+Timed Up and Go: 18.2 seconds (elevated fall risk, cutoff >12s)
+
+Grip Strength: 22 kg right, 20 kg left (below normative for age/sex)
+
+ADLs: Independent in bathing, dressing, toileting. Requires cueing for medication management.
+
+IADLs: Requires assistance with finances, transportation, meal preparation. Independent in telephone use.
+
+Assessment/Plan:
+
+93-year-old male with mild cognitive impairment progressing toward early dementia, now post-NSTEMI with increased fall risk and polypharmacy concerns.
+
+1. Cognitive Decline — MoCA 20/30, down from 22 three months ago. Pattern suggests amnestic MCI progressing. Recommend outpatient neuropsych testing with Dr. Rebecca Langford at Maine Neuropsychology Associates, 75 John Roberts Road, South Portland, ME 04106, phone 207-555-0671. Consider cholinesterase inhibitor (donepezil 5mg QHS) after cardiology clears — discuss with Dr. Whitfield re: bradycardia risk given recent ACS.
+
+2. Fall Risk — TUG 18.2s, grip strength below normative. Recommend PT for balance and strengthening program. Home safety evaluation by OT. Remove loose rugs, install grab bars in bathroom at 42 Pinehurst Drive. Night lights in hallway and bathroom.
+
+3. Polypharmacy — Currently on 9 medications. Reviewed with clinical pharmacist Angela Kim, PharmD. No immediate deprescribing targets given acute ACS requiring DAPT. Reassess tamsulosin and alendronate at 3-month follow-up — fall risk vs benefit.
+
+4. Caregiver Support — Daughter Karen Eriksen-Moody is primary caregiver at distance. Brother Thomas Eriksen is local but limited involvement. Current home health aide 3x/week may be insufficient. SW referral for Area Agency on Aging services. Discussed with Karen at 207-555-0488 — she will explore increased aide hours.
+
+5. Advance Care Planning — Patient has DPOA (Karen Eriksen-Moody) but no living will on file. Recommend goals of care conversation prior to discharge given cognitive trajectory and cardiac disease burden. Palliative care consult if patient/family amenable.
+
+6. Follow-up — Geriatric medicine clinic in 4-6 weeks. Repeat MoCA at that visit. PCP follow-up with Dr. Chen within 2 weeks of discharge.
+
+Electronically signed by: Naomi Okwu, MD — 04/09/2026 14:33
+
+System: Epic 2024 R1 | Node: MMCPRD-APP-12 | IP: 10.142.38.107 | Print ID: RPT-2026-0409-14331
