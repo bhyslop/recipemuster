@@ -150,7 +150,7 @@ can continue from here.
 - **Combining rule for HOSPITAL vs. ADDRESS vs. GPE**: Stanford's
   HOSPITAL label is doing triple duty. A combining rule that triangulates
   Stanford HOSPITAL + Stanza FAC/GPE + regex address shape into distinct
-  apcs_phi_category values would eliminate the conflation.
+  apcsgc_phi_category values would eliminate the conflation.
 - **Structured-ID precedence**: when regex says "SSN" and Stanford says
   two fragmented IDs at the same offsets, regex wins. When regex says
   "email" and Stanford says VENDOR+PATIENT fragments, regex wins. A

@@ -7,7 +7,7 @@ See LICENSE for terms.
 # APCK Container
 
 Long-running Python container that runs three NLP discerners
-(`apcs_stanford_scan`, `apcs_spacy_scan`, `apcs_stanza_scan`) against
+(`apcscs_stanford`, `apcscs_spacy`, `apcscs_stanza`) against
 normalized clipboard text staged by Clipbuddy. See APCPS Container
 Architecture for the conceptual contract.
 

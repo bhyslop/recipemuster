@@ -88,21 +88,21 @@ apc  (non-terminal)
 
 ### Detection Architecture
 
-Ten discerners across two placements, each a pure function of `apcs_normalized_text`, feeding a single `apcs_evidence` pool; `apcs_combining` (deferred) unifies. See APCS0 for the conceptual vocabulary and APCPS for concrete parameterization and wire format.
+Ten discerners across two placements, each a pure function of `apcsgt_normalized_text`, feeding a single `apcsde_evidence` pool; `apcsnc_combining` (deferred) unifies. See APCS0 for the conceptual vocabulary and APCPS for concrete parameterization and wire format.
 
 **Rust-application discerners (7, in-process):**
-- `apcs_regex_scan` — structural patterns (SSN, phone, email, dates, addresses, zip, labeled identifiers)
-- `apcs_label_scan` — words following Epic labels (Patient:, Attending:, Facility:, etc.)
-- `apcs_surname_scan` — US Census surname dictionary
-- `apcs_firstname_scan` — SSA first-name dictionary
-- `apcs_city_scan` — US cities dictionary
-- `apcs_english_scan` — common-English-word whitelist (suppression evidence)
-- `apcs_medical_scan` — medical-term whitelist (suppression evidence)
+- `apcsds_regex` — structural patterns (SSN, phone, email, dates, addresses, zip, labeled identifiers)
+- `apcsds_label` — words following Epic labels (Patient:, Attending:, Facility:, etc.)
+- `apcsds_surname` — US Census surname dictionary
+- `apcsds_firstname` — SSA first-name dictionary
+- `apcsds_city` — US cities dictionary
+- `apcsds_english` — common-English-word whitelist (suppression evidence)
+- `apcsds_medical` — medical-term whitelist (suppression evidence)
 
 **Container discerners (3, via bind-mounted JSON):**
-- `apcs_stanford_scan` — `StanfordAIMI/stanford-deidentifier-base` (HuggingFace transformers, PyTorch CPU)
-- `apcs_spacy_scan` — scispaCy `en_core_sci_md` (POS, dependency parse, biomedical NER)
-- `apcs_stanza_scan` — Stanza English UD pipeline (POS, dependency parse, OntoNotes NER)
+- `apcscs_stanford` — `StanfordAIMI/stanford-deidentifier-base` (HuggingFace transformers, PyTorch CPU)
+- `apcscs_spacy` — scispaCy `en_core_sci_md` (POS, dependency parse, biomedical NER)
+- `apcscs_stanza` — Stanza English UD pipeline (POS, dependency parse, OntoNotes NER)
 
 The container runs as a long-running process with `--network=none`, `--cap-drop=all`, non-root user, read-only root filesystem. Bind-mounts `$HOME/apcjd/` only. Clipbuddy writes `{N}-in.txt` (normalized text); container writes `{N}.json` atomically (via `{N}.json.tmp` → `rename(2)`) consolidating all three container discerners' findings. No sockets, no HTTP — POSIX file I/O is the wire format.
 

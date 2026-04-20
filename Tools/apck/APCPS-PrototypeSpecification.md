@@ -102,7 +102,7 @@ On window focus, the engine compares the current clipboard content (byte-for-byt
 |----------|----------|-------|
 | Raw harvest captures | `apcrh_harvest` on every focus with changed content | `{N}-in.{tag}.{ext}` where `{tag}` is `clinical` or `nonclinical` |
 | Normalized text | `apcrh_harvest` (Clinical branch only) | `{N}-in.txt` — plain UTF-8 after HTML strip / whitespace collapse; the container's input |
-| Container findings | `apcs_container` on completion | `{N}.json` — consolidated output of all three container discerners (published atomically via `{N}.json.tmp` → rename) |
+| Container findings | `apcscc_container` on completion | `{N}.json` — consolidated output of all three container discerners (published atomically via `{N}.json.tmp` → rename) |
 | Anonymized outputs | `apcap_main` focus handler on Clinical branch | `{N}-out.txt` |
 | Observability log (app) | `apcrl_log` file-tee sink | `apcap.log` |
 | Observability log (container) | container runtime | `container-log.txt` (truncated on each container restart by the start-container tabtarget) |
@@ -119,7 +119,7 @@ All files sharing the same leading digit run `{N}` belong to the same capture.
 
 **Naming — raw harvest.** Raw captures are written as `{N}-in.{tag}.{ext}` where `{tag}` is `clinical` or `nonclinical` — the classifier's verdict at the moment of capture. `N` seeds at 10000 for an empty directory, otherwise `max_leading_digit_run + 1` across every filename whose name begins with digits. Files sharing the same `N` group all artifacts of one capture — e.g., `10000-in.clinical.rtf`, `10000-in.clinical.utf8.txt`, `10000-in.clinical.utf16.txt`, `10000-in.txt`, `10000-out.txt`, and `10000.json` are six artifacts of clinical capture 10000. Gaps in the numeric sequence are not filled — the scan advances past the current maximum. Filenames that do not begin with a digit are ignored in the max calculation, so `apcap.log`, `container-log.txt`, and any user-placed `README` or `notes` co-exist without perturbing indexing.
 
-**Naming — normalized text.** On every Clinical-branch focus, after the raw captures are written, `apcrh_harvest` also writes `{N}-in.txt`: the `apcs_normalized_text` (plain UTF-8 after HTML strip, whitespace collapse, encoding normalization as described in APCS0). This file is the container's input — the container reads the highest-indexed `{N}-in.txt` it finds in the bind-mounted directory, runs its three discerners, and writes `{N}.json`. The bare `{N}-in.txt` name (no `{tag}` infix, no UTI-derived suffix) distinguishes the pipeline-input file from the raw-flavor captures. `{N}-in.txt` is written only for clinical captures — non-clinical captures produce no normalized text because no detection pipeline runs.
+**Naming — normalized text.** On every Clinical-branch focus, after the raw captures are written, `apcrh_harvest` also writes `{N}-in.txt`: the `apcsgt_normalized_text` (plain UTF-8 after HTML strip, whitespace collapse, encoding normalization as described in APCS0). This file is the container's input — the container reads the highest-indexed `{N}-in.txt` it finds in the bind-mounted directory, runs its three discerners, and writes `{N}.json`. The bare `{N}-in.txt` name (no `{tag}` infix, no UTI-derived suffix) distinguishes the pipeline-input file from the raw-flavor captures. `{N}-in.txt` is written only for clinical captures — non-clinical captures produce no normalized text because no detection pipeline runs.
 
 **Naming — UTI-derived extensions.** The `{ext}` portion of raw captures is derived from the declared UTI via a data-driven table in `apcrb_pasteboard::apcrb_extension_for_uti`. Known public UTIs receive human-readable extensions (see Flavors below); any UTI not in the table — including legacy NSPasteboard names like `Unicode text` or a third-party `com.example.thing` — falls through `zapcrb_sanitize_uti` to `{sanitized}.bin`.
 
@@ -170,16 +170,16 @@ The conceptual vocabulary lives in [APCS0-SpecTop.adoc](APCS0-SpecTop.adoc). Thi
 
 ### Overview
 
-Ten discerners, seven running inside the Rust application and three inside the container, each a pure function of `apcs_normalized_text`. Each emits an intimately-typed finding into the evidence pool. Combining rules are deferred; the prototype currently uses a stand-in that treats Rust-side findings only, and the anonymized output `{N}-out.txt` reflects that stand-in. Full combining is a later pace once empirical evidence from real clinical text has flowed through all ten discerners.
+Ten discerners, seven running inside the Rust application and three inside the container, each a pure function of `apcsgt_normalized_text`. Each emits an intimately-typed finding into the evidence pool. Combining rules are deferred; the prototype currently uses a stand-in that treats Rust-side findings only, and the anonymized output `{N}-out.txt` reflects that stand-in. Full combining is a later pace once empirical evidence from real clinical text has flowed through all ten discerners.
 
 ```
-                                 apcs_clipboard_content
+                                 apcsuc_clipboard_content
                                           |
                                       Clinical gate
                                           |
-                                   apcs_normalization  (Rust)
+                                   apcsgn_normalization  (Rust)
                                           |
-                                 apcs_normalized_text  (= {N}-in.txt)
+                                 apcsgt_normalized_text  (= {N}-in.txt)
                                           |
             +-----------------------------+-----------------------------+
             |                             |                             |
@@ -188,15 +188,15 @@ Ten discerners, seven running inside the Rust application and three inside the c
             |                             |
             +--------------+--------------+
                            |
-                     apcs_evidence
+                     apcsde_evidence
                            |
-                     apcs_combining  (DEFERRED)
+                     apcsnc_combining  (DEFERRED)
                            |
-                 apcs_unified_finding_s
+                 apcsnu_unified_finding_s
                            |
-                    apcs_anonymization  (Rust)
+                    apcsna_anonymization  (Rust)
                            |
-                    apcs_anonymized_text  (= {N}-out.txt)
+                    apcsnt_anonymized_text  (= {N}-out.txt)
 ```
 
 ### Regex Scan — parameterization
@@ -236,27 +236,27 @@ Words immediately following known Epic labels. Label matching is case-insensitiv
 
 ### Dictionary Scans — parameterization
 
-Five separate scans, each parameterized by one dictionary, each emitting its own intimate finding type. All case-insensitive; all use aho-corasick automata built from lowercase entries; all scan the lowercased `apcs_normalized_text` while preserving original case for display. All unconditional — every match emits a finding regardless of whitelist membership, and combining is responsible for interpreting overlaps. All run in the Rust application.
+Five separate scans, each parameterized by one dictionary, each emitting its own intimate finding type. All case-insensitive; all use aho-corasick automata built from lowercase entries; all scan the lowercased `apcsgt_normalized_text` while preserving original case for display. All unconditional — every match emits a finding regardless of whitelist membership, and combining is responsible for interpreting overlaps. All run in the Rust application.
 
 | Scan | Dictionary | Implied category | Role |
 |------|-----------|------------------|------|
-| `apcs_surname_scan` | surnames.txt | NAME | PHI candidate — emit on match |
-| `apcs_firstname_scan` | firstnames.txt | NAME | PHI candidate — emit on match |
-| `apcs_city_scan` | cities.txt | ADDRESS | PHI candidate (may remap to FACILITY under combining) — emit on match |
-| `apcs_english_scan` | english_whitelist.txt | (none) | Suppression evidence — emit on match |
-| `apcs_medical_scan` | medical_whitelist.txt | (none) | Suppression evidence — emit on match |
+| `apcsds_surname` | surnames.txt | NAME | PHI candidate — emit on match |
+| `apcsds_firstname` | firstnames.txt | NAME | PHI candidate — emit on match |
+| `apcsds_city` | cities.txt | ADDRESS | PHI candidate (may remap to FACILITY under combining) — emit on match |
+| `apcsds_english` | english_whitelist.txt | (none) | Suppression evidence — emit on match |
+| `apcsds_medical` | medical_whitelist.txt | (none) | Suppression evidence — emit on match |
 
 The five scans, together, replace the single Tier-3 "dictionary scan" of earlier drafts. The whitelist scans (`english`, `medical`) previously existed only as flags on dictionary findings; promoting them to first-class discerners makes their evidence addressable by combining rules on equal footing with the name/location scans.
 
 ### Container Discerners — parameterization
 
-All three run inside `apcs_container` (see Container Architecture below). Each consumes `{N}-in.txt` (the normalized text) and contributes a key to the consolidated `{N}.json`.
+All three run inside `apcscc_container` (see Container Architecture below). Each consumes `{N}-in.txt` (the normalized text) and contributes a key to the consolidated `{N}.json`.
 
 | Discerner | Model | Placement | Primary output signal |
 |-----------|-------|-----------|----------------------|
-| `apcs_stanford_scan` | `StanfordAIMI/stanford-deidentifier-base` (HuggingFace transformers, PyTorch CPU) | container | PHI named entities with native 8-label taxonomy |
-| `apcs_spacy_scan` | scispaCy `en_core_sci_md` | container | POS tags, morphological features, dependency parse, biomedical NER |
-| `apcs_stanza_scan` | Stanza English UD pipeline (default English package) | container | POS (UD + language-specific), morphological features, lemma, dependency parse, OntoNotes-style NER |
+| `apcscs_stanford` | `StanfordAIMI/stanford-deidentifier-base` (HuggingFace transformers, PyTorch CPU) | container | PHI named entities with native 8-label taxonomy |
+| `apcscs_spacy` | scispaCy `en_core_sci_md` | container | POS tags, morphological features, dependency parse, biomedical NER |
+| `apcscs_stanza` | Stanza English UD pipeline (default English package) | container | POS (UD + language-specific), morphological features, lemma, dependency parse, OntoNotes-style NER |
 
 **Stanford taxonomy.** The `StanfordAIMI/stanford-deidentifier-base` model uses a **flat 8-label** taxonomy (no BIO prefix):
 
@@ -264,7 +264,7 @@ All three run inside `apcs_container` (see Container Architecture below). Each c
 O, VENDOR, DATE, HCW, HOSPITAL, ID, PATIENT, PHONE
 ```
 
-Runs of identical labels form a single entity. This taxonomy is read from `config.json:id2label` at container image build time — no hardcoded mapping on the Rust side. Mapping these native labels to `apcs_phi_category` is a combining concern (deferred).
+Runs of identical labels form a single entity. This taxonomy is read from `config.json:id2label` at container image build time — no hardcoded mapping on the Rust side. Mapping these native labels to `apcsgc_phi_category` is a combining concern (deferred).
 
 **Observed Stanford strengths** (recorded from spike evaluation on APCK synthetic fixtures):
 - Multi-token person names merged as single spans (`Margaret J. Thornton` → one `PATIENT`)
@@ -314,7 +314,7 @@ Tabtarget set (names in the `apcw-X` family; concrete names pending mint):
 
 ### Wire Protocol
 
-1. Clipbuddy writes `{N}-in.txt` containing `apcs_normalized_text` to `$HOME/apcjd/`.
+1. Clipbuddy writes `{N}-in.txt` containing `apcsgt_normalized_text` to `$HOME/apcjd/`.
 2. The container (in a polling or inotify-driven loop; implementation detail) observes the new file, confirms `N` is the highest index present, and runs all three discerners on its contents.
 3. The container writes `{N}.json.tmp` with the consolidated findings from all three discerners.
 4. When all algorithms have completed and the file is closed, the container `rename(2)`s `{N}.json.tmp` to `{N}.json`. POSIX guarantees the rename is atomic within the same filesystem — readers either see the old (absent) state or the final file, never a partially written intermediate.
@@ -355,7 +355,7 @@ Per-discerner finding schemas:
   "confidence": 0.987
 }
 ```
-- `start`/`end` are character offsets into `apcs_normalized_text`.
+- `start`/`end` are character offsets into `apcsgt_normalized_text`.
 - `label` is one of the 8 native labels (non-`O` values only; `O` tokens are not emitted as findings).
 - `confidence` is the model's softmax confidence for the dominant label over the span.
 
