@@ -16,18 +16,26 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle Common Vocabulary — linked term constants
+# Recipe Bottle Common Vocabulary — handbook-facing constants
 #
 # Kindled after regime loads (needs RBRR_PUBLIC_DOCS_URL).  Does not
 # source or kindle anything itself — the consuming _cli.sh is responsible
 # for sourcing buym_yelp.sh and this file, then calling zrbyc_kindle.
 #
-# Each constant is a diastema-marked yelp fragment suitable for
-# interpolation into buh_line calls:
-#   buh_line "A ${RBYC_DEPOT} is where images live."
+# Contents organized by kind:
 #
-# Variant forms (_S plural, _P possessive) link to the base anchor
-# with alternate display text.
+#   1. Linked-term yelp fragments (RBYC_DEPOT, RBYC_VESSEL, ...) —
+#      diastema-marked yelp fragments for interpolation into buh_line:
+#          buh_line "A ${RBYC_DEPOT} is where images live."
+#      Variant forms (_S plural, _P possessive) use alternate display text.
+#
+#   2. Probe markers (RBYC_PROBE_YES / RBYC_PROBE_NO) — pass/warn yawp
+#      captures for handbook status indicators.
+#
+#   3. Handbook env var metadata (RBYC_HANDBOOK_*_NAME / _REF) — bare
+#      strings naming the learner-facing env vars that handbooks teach
+#      learners to export and consume. _NAME for export-teaching lines,
+#      _REF for command-arg interpolation.
 
 set -euo pipefail
 
@@ -146,6 +154,23 @@ zrbyc_kindle() {
 
   buyy_pass_yawp " [*] "; readonly RBYC_PROBE_YES="${z_buym_yelp}"
   buyy_warn_yawp " [ ] "; readonly RBYC_PROBE_NO="${z_buym_yelp}"
+
+  # --- Handbook env var metadata (learner-facing shell vars) ---
+  #
+  # _NAME: env var name for buh_code "export ___=..." teaching lines.
+  # _REF:  interpolation-ready "${HANDBOOK_*}" literal for buh_tt args.
+  # Prefix centralizes HANDBOOK_↔ONBOARDING_ swap as a one-line change.
+
+  readonly RBYC_HANDBOOK_ENV_PREFIX="HANDBOOK_"
+
+  readonly RBYC_HANDBOOK_VESSEL_NAME="${RBYC_HANDBOOK_ENV_PREFIX}VESSEL"
+  readonly RBYC_HANDBOOK_VESSEL_REF="\${${RBYC_HANDBOOK_VESSEL_NAME}}"
+
+  readonly RBYC_HANDBOOK_NAMEPLATE_NAME="${RBYC_HANDBOOK_ENV_PREFIX}NAMEPLATE"
+  readonly RBYC_HANDBOOK_NAMEPLATE_REF="\${${RBYC_HANDBOOK_NAMEPLATE_NAME}}"
+
+  readonly RBYC_HANDBOOK_HALLMARK_NAME="${RBYC_HANDBOOK_ENV_PREFIX}HALLMARK"
+  readonly RBYC_HANDBOOK_HALLMARK_REF="\${${RBYC_HANDBOOK_HALLMARK_NAME}}"
 
   unset -f zrbyc_yk
   readonly ZRBYC_KINDLED=1
