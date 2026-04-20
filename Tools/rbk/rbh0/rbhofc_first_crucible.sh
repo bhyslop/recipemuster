@@ -51,13 +51,9 @@ rbho_first_crucible() {
   local -r z_ssh_tabtarget="tt/rbw-cS.SshTo.${z_moniker}.sh"
 
   # Inline yelps (not worth kindle constants — track-specific)
-  buyy_cmd_yawp "rbw-fk";                 local -r z_cmd_rbw_fk="${z_buym_yelp}"
-  buyy_cmd_yawp "rbw-cKB";                local -r z_cmd_rbw_cKB="${z_buym_yelp}"
-  buyy_cmd_yawp "RBRN_SENTRY_HALLMARK=";  local -r z_cmd_sentry_hallmark="${z_buym_yelp}"
   buyy_cmd_yawp "${z_ssh_tabtarget}";     local -r z_cmd_ssh="${z_buym_yelp}"
   buyy_cmd_yawp "RBRN_SENTRY_HALLMARK";   local -r z_code_sentry_field="${z_buym_yelp}"
   buyy_cmd_yawp "RBRN_BOTTLE_HALLMARK";   local -r z_code_bottle_field="${z_buym_yelp}"
-  buyy_cmd_yawp "k260413155458-f9dcb6d9"; local -r z_example_tag="${z_buym_yelp}"
 
   local -r z_test_domain="www.internic.net"
 
@@ -155,6 +151,20 @@ rbho_first_crucible() {
   buh_line "container without cloud build involvement.  Note this only builds for the"
   buh_line "host platform."
   buh_e
+  buh_line "A ${RBYC_NAMEPLATE} is the file that defines a ${RBYC_CRUCIBLE} — it specifies"
+  buh_line "which ${RBYC_HALLMARK} to use for the ${RBYC_SENTRY}, ${RBYC_PENTACLE}, and"
+  buh_line "${RBYC_BOTTLE} containers. It lives at:"
+  buh_e
+  buh_code "   ${z_nameplate_file}"
+  buh_e
+  buh_line "Each ${RBYC_KLUDGE} below builds a ${RBYC_VESSEL} AND drives the resulting"
+  buh_line "${RBYC_HALLMARK} into the ${RBYC_CCYOLO} ${RBYC_NAMEPLATE} — no copy/paste."
+  buh_e
+  buh_warn "${RBYC_KLUDGE} requires a clean git tree."
+  buh_line "If you have uncommitted changes, commit them first.  Each ${RBYC_KLUDGE} image"
+  buh_line "must correspond to an exact committed state — which is why you will commit"
+  buh_line "after each ${RBYC_KLUDGE} below."
+  buh_e
 
   buh_step2 "${RBYC_KLUDGE} the ${RBYC_SENTRY}"
   buh_e
@@ -162,13 +172,9 @@ rbho_first_crucible() {
   buh_line "and dnsmasq to enforce network policy — only domains you whitelist"
   buh_line "are reachable from inside."
   buh_e
-  buh_line "Build it:"
+  buh_line "Build it and drive the ${RBYC_HALLMARK} into the ${RBYC_NAMEPLATE}:"
   buh_e
-  buh_tt  "   " "${RBZ_KLUDGE_VESSEL}" "" " ${z_sentry_vessel}"
-  buh_e
-  buh_line "The output prints a ${RBYC_HALLMARK} tag — something like"
-  buh_line "  ${z_example_tag}"
-  buh_line "Copy it. You will paste it into the ${RBYC_NAMEPLATE} in Step 2."
+  buh_tt  "   " "${RBZ_CRUCIBLE_KLUDGE_SENTRY}" "" " ${z_moniker}"
   buh_e
 
   if test "${z_sentry_image_exists}" = "1"; then
@@ -176,11 +182,21 @@ rbho_first_crucible() {
   else
     buh_line "${RBYC_PROBE_NO}No ${RBYC_KLUDGE}-tagged ${RBYC_SENTRY} image found"
   fi
+  if test "${z_sentry_hallmark_present}" = "1"; then
+    buh_line "${RBYC_PROBE_YES}${z_code_sentry_field} = ${z_sentry_hallmark}"
+  else
+    buh_line "${RBYC_PROBE_NO}${z_code_sentry_field} is empty — run the ${RBYC_SENTRY} ${RBYC_KLUDGE} above"
+  fi
   buh_e
 
-  buh_warn "${RBYC_KLUDGE} requires a clean git tree."
-  buh_line "If you have uncommitted changes, commit them first.  This is by"
-  buh_line "design — container images not backed by git commits easy to confuse."
+  buh_step2 "Commit the ${RBYC_SENTRY} ${RBYC_HALLMARK}"
+  buh_e
+  buh_line "The ${RBYC_KLUDGE} wrote the new ${RBYC_HALLMARK} into the ${RBYC_NAMEPLATE}"
+  buh_line "file.  The tree is now dirty.  The next ${RBYC_KLUDGE} requires a clean"
+  buh_line "tree, so commit before proceeding:"
+  buh_e
+  buh_code "   git add ${z_nameplate_file}"
+  buh_code "   git commit -m \"Kludge sentry hallmark into ${z_moniker} nameplate\""
   buh_e
 
   buh_step2 "${RBYC_KLUDGE} the ${RBYC_BOTTLE}"
@@ -188,75 +204,32 @@ rbho_first_crucible() {
   buh_line "The ${RBYC_BOTTLE} is your workload container — where Claude Code"
   buh_line "runs. The ${RBYC_CCYOLO} ${RBYC_BOTTLE} includes SSH, node, and the Claude CLI."
   buh_e
-  buh_line "This command is different from the ${RBYC_SENTRY} ${RBYC_KLUDGE}. It builds the"
-  buh_line "${RBYC_BOTTLE} AND drives the ${RBYC_HALLMARK} into the ${RBYC_NAMEPLATE}"
-  buh_line "automatically:"
+  buh_line "Build it and drive the ${RBYC_HALLMARK} into the ${RBYC_NAMEPLATE}:"
   buh_e
   buh_tt  "   " "${RBZ_CRUCIBLE_KLUDGE_BOTTLE}" "" " ${z_moniker}"
   buh_e
-  buh_line "Two ${RBYC_KLUDGE} commands, two different jobs:"
-  buh_line "  ${z_cmd_rbw_fk}  — standalone ${RBYC_VESSEL} ${RBYC_KLUDGE}. Produces a ${RBYC_HALLMARK}, touches nothing else."
-  buh_line "  ${z_cmd_rbw_cKB} — ${RBYC_NAMEPLATE}-aware ${RBYC_BOTTLE} ${RBYC_KLUDGE}. Builds AND installs the ${RBYC_HALLMARK}."
-  buh_e
-  buh_line "The ${RBYC_SENTRY} is shared across ${RBYC_NAMEPLATES}, so you ${RBYC_KLUDGE} it standalone"
-  buh_line "and drive the ${RBYC_HALLMARK} yourself. The ${RBYC_BOTTLE} belongs to one ${RBYC_NAMEPLATE},"
-  buh_line "so the tool does the driving for you."
-  buh_e
 
-  # Bottle kludge image probe
   if test "${z_bottle_image_exists}" = "1"; then
     buh_line "${RBYC_PROBE_YES}${RBYC_KLUDGE}-tagged ${RBYC_BOTTLE} image found locally"
   else
     buh_line "${RBYC_PROBE_NO}No ${RBYC_KLUDGE}-tagged ${RBYC_BOTTLE} image found"
   fi
-  buh_e
-
-  # =================================================================
-  # Step 2: Drive sentry hallmark into the nameplate
-  # =================================================================
-  buh_step1 "Drive ${RBYC_SENTRY} ${RBYC_HALLMARK} into the ${RBYC_NAMEPLATE}"
-  buh_e
-  buh_line "A ${RBYC_NAMEPLATE} is the file that defines a ${RBYC_CRUCIBLE} — it specifies"
-  buh_line "what ${RBYC_HALLMARK} to use for ${RBYC_SENTRY}, ${RBYC_PENTACLE}, and"
-  buh_line "${RBYC_BOTTLE} containers. It lives at:"
-  buh_e
-  buh_code "   ${z_nameplate_file}"
-  buh_e
-  buh_line "The ${RBYC_RBRN} file has two ${RBYC_HALLMARK} fields — one for the ${RBYC_SENTRY}"
-  buh_line "and one for the ${RBYC_BOTTLE}. The ${RBYC_BOTTLE} ${RBYC_KLUDGE} (Step 1.2) already drove"
-  buh_line "its ${RBYC_HALLMARK}. Now you drive the ${RBYC_SENTRY} ${RBYC_HALLMARK} by hand."
-  buh_e
-  buh_line "Open the ${RBYC_NAMEPLATE} file and paste the ${RBYC_SENTRY} ${RBYC_HALLMARK} from Step 1.1"
-  buh_line "into the ${z_cmd_sentry_hallmark} field."
-  buh_e
-  buh_line "This is deliberately manual — it teaches you what ${RBYC_HALLMARKS} are and"
-  buh_line "where they live. You just saw the automated version with the ${RBYC_BOTTLE};"
-  buh_line "now you see the mechanism underneath."
-  buh_e
-
-  # Hallmark probes
-  if test "${z_sentry_hallmark_present}" = "1"; then
-    buh_line " [*] ${z_code_sentry_field} = ${z_sentry_hallmark}"
-  else
-    buh_line "${RBYC_PROBE_NO}RBRN_SENTRY_HALLMARK is empty — paste the ${RBYC_SENTRY} ${RBYC_HALLMARK} from Step 1.1"
-  fi
   if test "${z_bottle_hallmark_present}" = "1"; then
-    buh_line " [*] ${z_code_bottle_field} = ${z_bottle_hallmark}"
+    buh_line "${RBYC_PROBE_YES}${z_code_bottle_field} = ${z_bottle_hallmark}"
   else
-    buh_line "${RBYC_PROBE_NO}RBRN_BOTTLE_HALLMARK is empty — run Step 1.2 (${RBYC_BOTTLE} ${RBYC_KLUDGE})"
+    buh_line "${RBYC_PROBE_NO}${z_code_bottle_field} is empty — run the ${RBYC_BOTTLE} ${RBYC_KLUDGE} above"
   fi
   buh_e
 
-  buh_line "After editing, commit the change — the next ${RBYC_KLUDGE} will need a"
-  buh_line "clean tree:"
+  buh_step2 "Commit the ${RBYC_BOTTLE} ${RBYC_HALLMARK}"
+  buh_e
+  buh_line "Same cadence: the ${RBYC_KLUDGE} left the ${RBYC_NAMEPLATE} dirty, and"
+  buh_line "${RBYC_CHARGE} requires a clean ${RBYC_NAMEPLATE} before starting.  Commit:"
   buh_e
   buh_code "   git add ${z_nameplate_file}"
-  buh_code "   git commit -m \"Drive sentry hallmark into ${z_moniker} nameplate\""
+  buh_code "   git commit -m \"Kludge bottle hallmark into ${z_moniker} nameplate\""
   buh_e
 
-  # =================================================================
-  # Step 3: Charge the crucible
-  # =================================================================
   buh_step1 "${RBYC_CHARGE} the ${RBYC_CRUCIBLE}"
   buh_e
   buh_line "${RBYC_CHARGE} starts three containers from your ${RBYC_NAMEPLATE}:"
@@ -284,9 +257,6 @@ rbho_first_crucible() {
   fi
   buh_e
 
-  # =================================================================
-  # Step 4: Enter the container and run Claude Code
-  # =================================================================
   buh_step1 "Enter the container and run Claude Code"
   buh_e
   buh_line "SSH into the ${RBYC_BOTTLE}:"
@@ -335,9 +305,6 @@ rbho_first_crucible() {
   buh_tt  "   " "${RBZ_CRUCIBLE_RACK}" "" " ${z_moniker}"
   buh_e
 
-  # =================================================================
-  # Step 5: Verify network containment
-  # =================================================================
   buh_step1 "Verify network containment"
   buh_e
   buh_line "From inside the ${RBYC_BOTTLE} (while SSH'd in), you can test what's reachable."
@@ -371,9 +338,6 @@ rbho_first_crucible() {
   buh_line "allowlist works for a non-Anthropic domain."
   buh_e
 
-  # =================================================================
-  # Step 6: Quench the crucible
-  # =================================================================
   buh_step1 "${RBYC_QUENCH} the ${RBYC_CRUCIBLE}"
   buh_e
   buh_line "${RBYC_QUENCH} stops and removes all three containers and the"

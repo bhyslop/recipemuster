@@ -57,6 +57,7 @@ zrbz_kindle() {
   buz_enroll RBZ_CRUCIBLE_BARK    "rbw-cb"  "${z_mod}" "rbob_bark"         "imprint"  "Non-interactive exec in bottle container"
   buz_enroll RBZ_CRUCIBLE_ACTIVE  "rbw-cic" "${z_mod}" "rbob_charged"      "param1"   "Check if crucible is currently charged"
   buz_enroll RBZ_CRUCIBLE_KLUDGE_BOTTLE "rbw-cKB" "${z_mod}" "rbob_kludge_bottle" "param1" "Kludge bottle vessel and drive hallmark into nameplate"
+  buz_enroll RBZ_CRUCIBLE_KLUDGE_SENTRY "rbw-cKS" "${z_mod}" "rbob_kludge_sentry" "param1" "Kludge sentry vessel and drive hallmark into nameplate"
 
   # Depot — GCP project infrastructure (rbw-d, UPPER=mutates, lower=read)
   buz_group RBZ__GROUP_DEPOT      "rbw-d"   "Depot — GCP project infrastructure"

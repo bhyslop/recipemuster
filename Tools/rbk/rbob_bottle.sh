@@ -500,6 +500,37 @@ rbob_kludge() {
 }
 
 ######################################################################
+# Kludge Sentry — build sentry vessel locally and drive hallmark into nameplate
+
+rbob_kludge_sentry() {
+  zrbob_sentinel
+  zrbfc_sentinel
+
+  buc_doc_brief "Build sentry vessel locally and drive hallmark into nameplate"
+  buc_doc_shown || return 0
+
+  buc_step "Kludge: ${RBRN_MONIKER} (${RBRN_SENTRY_VESSEL})"
+
+  # Resolve vessel from nameplate config
+  local -r z_vessel_dir="${RBRR_VESSEL_DIR}/${RBRN_SENTRY_VESSEL}"
+  test -d "${z_vessel_dir}" || buc_die "Sentry vessel directory not found: ${z_vessel_dir}"
+
+  # Delegate build to foundry kludge
+  rbfd_kludge "${z_vessel_dir}"
+
+  # Read hallmark from fact file
+  local z_hallmark=""
+  z_hallmark=$(<"${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}") \
+    || buc_die "Failed to read hallmark from kludge output"
+  test -n "${z_hallmark}" || buc_die "Empty hallmark from kludge output"
+
+  # Drive hallmark into nameplate
+  zrbob_drive_hallmark "${ZRBOB_ENV_RBRN}" "RBRN_SENTRY_HALLMARK" "${z_hallmark}"
+
+  buc_success "Kludge installed: ${z_hallmark} → ${RBRN_MONIKER}"
+}
+
+######################################################################
 # Ordain — cloud-build bottle vessel and drive hallmark into nameplate
 
 rbob_ordain() {

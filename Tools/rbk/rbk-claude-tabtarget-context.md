@@ -35,6 +35,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-cb` | Bark | imprint | Non-interactive exec in bottle container |
 | `rbw-cic` | CrucibleIsCharged | param1 | Check if crucible is currently charged |
 | `rbw-cKB` | KludgeBottle | param1 | Kludge bottle vessel and drive hallmark into nameplate |
+| `rbw-cKS` | KludgeSentry | param1 | Kludge sentry vessel and drive hallmark into nameplate |
 
 ### Depot — GCP project infrastructure (`rbw-d`)
 
