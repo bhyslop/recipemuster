@@ -323,6 +323,18 @@ Within kit prefixes, these constrain the tree. If `*c_` means Command, don't use
 - AsciiDoc concept attributes (`:prefix_term:`) follow MCM semantic categories
 - Domain-specific suffixes may evolve per project
 
+### Quoin Sub-Letter Discipline (MCM Spec-Internal)
+
+For MCM concept model specs, apply this discipline on top of the general minting rules:
+
+- **Uniform shape `prefixXY_word`** — every quoin carries exactly two sub-letters
+- **Hard 2-letter ceiling** — never mint 3+ letter sub-prefixes (proven opaque in RBS0/JJS0)
+- **Within-domain Y monosemy** — each sub-letter has exactly one meaning per domain; reusing Y for a second concept produces pattern-recognition collisions (JJS0's `rd` appearing in three quoins with three meanings is the canonical failure)
+- **Documented legend** — sub-letter table declared in a comment block at the top of the spec's mapping section; future minters consult the table rather than re-derive from first letters
+- **Family members sharing YY is intended** — uniqueness lives in the full quoin name, not the 5-char prefix
+
+See minting memo Pattern J (RBS0/JJS0 empirical study) for evidence.
+
 ### Minting Workflow
 
 Before minting new prefixes:

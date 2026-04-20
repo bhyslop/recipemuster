@@ -42,6 +42,10 @@ Concept Model Kit (CMK) is installed for managing concept model documents.
 - **Anchors**: `[[anchor_name]]` — definition targets
 - **Annotations**: `//axl_voices axk_premise` — prefix-discriminated comment lines (no space after `//`, letter distinguishes from regular comments)
 
+### Minting Guidance
+
+Before introducing new quoin prefixes in an MCM document, consult the CLAUDE.md "Quoin Sub-Letter Discipline" subsection and minting memo Pattern J (`Memos/memo-20260110-acronym-selection-study.md`). The rule: uniform `prefixXY_word` shape, hard 2-letter ceiling, within-domain Y monosemy, documented sub-letter legend in the spec's mapping section.
+
 **Available commands:**
 - `/cma-normalize` - Apply full MCM normalization (haiku)
 - `/cma-render` - Transform to ClaudeMark (sonnet)

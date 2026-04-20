@@ -900,6 +900,28 @@ This enables:
 
 Pattern confirmed by Assessment 13 (PB greenfield) comparing against Assessment 11 (RBM mature).
 
+### Pattern J: Quoin Sub-Letter Discipline (from RBS0/JJS0 analysis)
+
+Agent-driven analysis of RBS0 (30 quoins) and JJS0 (23 quoins) surfaced consistent failure modes when sub-letter discipline was left implicit within a single MCM concept model spec.
+
+**Failure mode 1 — Sub-letter drift**: both specs mixed 1-letter, 2-letter, and 3+ letter sub-prefixes (RBS0: `rbsc_`, `rbsob_`, `rbscip_`; JJS0: `jjsuv_`, `jjsgmrd_`, `jjsogmc_`). Without a documented rule, subsequent minters couldn't predict the correct form and the tree drifted over time.
+
+**Failure mode 2 — 3+ letter opacity**: extended sub-prefixes (`rbscip_trade_study`, `jjsgmpt_prepend_tack`) were consistently opaque to readers. Mnemonic letters past the second added cost without clarity and required external lookup to decode.
+
+**Failure mode 3 — Within-domain Y collision**: JJS0's sub-letter `rd` appears in three quoins (`jjsgmrd_`, `jjsogrd_`, `jjsoprd_`) carrying three different meanings (revise docket / remote dispatch / revise docket elsewhere). Pattern recognition breaks; grep-based tooling yields false positives; readers infer a shared meaning that doesn't exist.
+
+**Successful pattern — Uniform 2-letter prefix with shared family prefixes**: JJS0's `jjsuv_` family (15 members, all share the same 2-letter sub-prefix) and RBS0's `rbsc_` family (10 members) both read cleanly at scale. Uniqueness lives in the full quoin name, not in the prefix being unique per-quoin.
+
+**Derived rule (for new MCM specs)**:
+
+1. **Uniform shape `prefixXY_word`** — every quoin carries exactly two sub-letters
+2. **Hard 2-letter ceiling** — never mint `prefixXYZ_` sub-prefixes
+3. **Within-domain Y monosemy** — each sub-letter has exactly one meaning per domain (e.g., Y=`s` always means "scan" within that domain, never also "stanford")
+4. **Documented sub-letter legend** — the spec's mapping section carries a comment block naming each Y; future minters consult the table rather than deriving from first letters
+5. **Family members may share YY** — sharing is intentional, not a compromise; uniqueness comes from the full quoin name
+
+Applies to spec-internal quoin minting; orthogonal to the project/domain prefix minting governed by Rules 1–6.
+
 ## Future Work
 
 - [x] Complete 2-3 deep assessments (actually completed 10)
