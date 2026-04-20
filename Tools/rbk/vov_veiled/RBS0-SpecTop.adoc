@@ -2741,7 +2741,7 @@ Builds always use a private pool; the default shared pool is not supported.
 `options.machineType` is omitted from the build JSON — machine type is a property of the pool resource.
 
 NOTE: *Private pool is always required.*
-Private pools are a prerequisite for VPC Service Controls and `NO_PUBLIC_EGRESS` hardening tiers (see `RBSCB-CloudBuildRoadmap.adoc` tier definitions).
+Private pools are a prerequisite for VPC Service Controls and `NO_PUBLIC_EGRESS` hardening (see `RBSCB-CloudBuildPosture.adoc`).
 Pricing is region-dependent: in us-central1/us-east4, private pool e2-standard-2 matches the default pool rate ($0.006/build-minute); in other regions the private pool rate is up to 1.4× higher.
 This cost is accepted because the security prerequisite is non-negotiable and maintaining two code paths (conditional pool vs. default) doubles configuration surface.
 +

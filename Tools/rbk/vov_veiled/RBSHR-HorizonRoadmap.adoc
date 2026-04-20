@@ -103,6 +103,31 @@ _Trigger_: when a use case requires bottle-to-bottle communication (e.g.,
 microservice composition, service mesh patterns).
 _Reference_: Heat ₣AU paddock (design conversation capture).
 
+===== Artifact Preservation
+
+**Hoard: external artifact mirror in retention-locked GCS.**
+A depot citizen alongside the ark that mirrors external
+content-addressed corpora — canonical case: Hugging Face model
+checkpoints.  GCS archive is ~80× cheaper per byte than GAR and
+supports bucket-level retention locks for compliance-grade
+immutability that GAR does not offer.  Ingress reuses upstream
+SHA256 addressing (shallow git + LFS pointer resolution,
+SHA256-keyed GCS objects with natural dedup across revisions);
+Cloud Build streams so egress stays Google-side; auth path
+reuses the existing JWT/OAuth bearer curl stack — no new
+tooling dependency.
++
+Intended consumption: just-in-time workstation mount from the
+retention-locked bucket into the bottle at charge time, rather
+than baking models into vessel images.  Keeps images lean,
+enables model swap without rebuild, keeps the retention property
+where it naturally lives.  Tradeoff: provenance becomes a
+nameplate-declared hoard digest recorded at charge time rather
+than a SLSA-attested image layer — weaker by one link.
+_Trigger_: first concrete need to run LM inference inside a
+bottle against a specific HF checkpoint with retention guarantees.
+_Reference_: this roadmap entry; design conversation pending heat.
+
 ===== Network Security Model
 
 **CIDR allowlist granularity vs CDN-hosted domains.**
