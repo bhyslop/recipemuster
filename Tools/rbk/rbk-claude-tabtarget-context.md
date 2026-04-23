@@ -68,6 +68,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-Ots` | OnboardingTadmorSecurity | — | Verify Crucible containment under attack — charge tadmor and run the adversarial suite |
 | `rbw-Odf` | OnboardingDirectorFirstBuild | — | Your First Cloud Build — inscribe, conjure, tour, summon, abjure |
 | `rbw-Oda` | OnboardingDirectorAirgap | — | Airgap Cloud Build — enshrine, conjure forge, conjure airgap, charge moriah, compare plumb |
+| `rbw-Odb` | OnboardingDirectorBind | — | Bind Cloud Build — pin upstream image by digest, mode-mixture pluml Crucible |
 | `rbw-Op` | OnboardingPayor | — | Payor — establish a Manor and provision the Depot |
 | `rbw-Og` | OnboardingGovernor | — | Governor — administer service accounts for directors and retrievers |
 
