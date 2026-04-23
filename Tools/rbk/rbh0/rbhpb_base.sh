@@ -20,12 +20,8 @@
 
 set -euo pipefail
 
-# Multiple inclusion detection
 test -z "${ZRBHP_SOURCED:-}" || buc_die "Module rbhp multiply sourced - check sourcing hierarchy"
 ZRBHP_SOURCED=1
-
-######################################################################
-# Internal Functions (zrbhp_*)
 
 zrbhp_kindle() {
   test -z "${ZRBHP_KINDLED:-}" || buc_die "Module rbhp already kindled"
@@ -35,7 +31,6 @@ zrbhp_kindle() {
   local -r z_uname_out="${BURD_TEMP_DIR}/zrbhp_uname_1_kernel.txt"
   local -r z_uname_err="${BURD_TEMP_DIR}/zrbhp_uname_2_kernel.txt"
 
-  # Click modifier: Cmd on macOS, Ctrl elsewhere
   uname -s > "${z_uname_out}" 2>"${z_uname_err}" || buc_die "uname -s failed"
   local z_uname_kernel=""
   IFS= read -r z_uname_kernel < "${z_uname_out}" || true

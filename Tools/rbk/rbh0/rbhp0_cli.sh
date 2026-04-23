@@ -33,7 +33,6 @@ zrbhp_furnish() {
   buc_doc_env "BURD_OUTPUT_DIR       " "Directory for command outputs"
   buc_doc_env_done || return 0
 
-  # Light sources (always)
   source "${BURD_CONFIG_DIR}/rbbc_constants.sh"  || buc_die "Failed to source rbbc_constants.sh"
   local -r z_rbk_kit_dir="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}"
 

@@ -23,7 +23,6 @@ set -euo pipefail
 test -z "${ZRBHOCT_SOURCED:-}" || return 0
 ZRBHOCT_SOURCED=1
 
-######################################################################
 # Voice-neutral kludge/commit/charge choreography shared by the first
 # crucible explorer (rbhofc) and the tadmor security evaluator (rbhots).
 # Intimate voice lives in caller top/tail — the trunk stays mechanical.
@@ -42,8 +41,6 @@ rbhoct_crucible_trunk() {
 
   buyy_cmd_yawp "RBRN_SENTRY_HALLMARK";   local -r z_code_sentry_field="${z_buym_yelp}"
   buyy_cmd_yawp "RBRN_BOTTLE_HALLMARK";   local -r z_code_bottle_field="${z_buym_yelp}"
-
-  # --- Probes ---
 
   local z_nameplate_exists=0
   test -f "${z_nameplate_file}" && z_nameplate_exists=1
@@ -82,8 +79,6 @@ rbhoct_crucible_trunk() {
       case "${z_line}" in "${z_moniker}-bottle") z_crucible_charged=1; break ;; esac
     done < "${z_ct_ps_out}"
   fi
-
-  # --- Step sequence ---
 
   buh_step_style "Step " " — "
 

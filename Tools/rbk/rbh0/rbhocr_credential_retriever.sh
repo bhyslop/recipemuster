@@ -23,9 +23,6 @@ set -euo pipefail
 test -z "${ZRBHOCR_SOURCED:-}" || return 0
 ZRBHOCR_SOURCED=1
 
-######################################################################
-# Install Retriever Credentials
-
 rbho_credential_retriever() {
   zrbho_sentinel
 
@@ -40,7 +37,6 @@ rbho_credential_retriever() {
 
   zrbho_credential_install "${RBCC_role_retriever}"
 
-  # --- Step 4: Confirm live access ---
   buh_step1 "Confirm live access"
   buh_e
   buh_line "Run ${RBYC_TALLY} to list ${RBYC_HALLMARKS} in the registry using your retriever credential:"
@@ -51,7 +47,6 @@ rbho_credential_retriever() {
   buh_line "If it fails, re-check the file placement in Step 2."
   buh_e
 
-  # --- Step 5: Next steps ---
   buh_step1 "Next steps"
   buh_e
   buh_line "Return to the start menu:"

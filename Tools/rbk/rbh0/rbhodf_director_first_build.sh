@@ -23,17 +23,6 @@ set -euo pipefail
 test -z "${ZRBHODF_SOURCED:-}" || return 0
 ZRBHODF_SOURCED=1
 
-######################################################################
-# Director First Cloud Build — inscribe, conjure, tour, summon, abjure
-#
-# Frame 4-refined handbook: teaching prose + probes + tabtarget refs.
-# Target learner: director doing their first cloud build.
-#
-# Vessel: rbev-sentry-deb-tether (conjure mode, tethered)
-# Teaches: full conjure lifecycle from reliquary through cleanup.
-#
-# ₢A6AAU — Director subtracks, first cloud build track.
-
 rbho_director_first_build() {
   zrbho_sentinel
 
@@ -42,9 +31,6 @@ rbho_director_first_build() {
 
   local -r z_vessel="rbev-sentry-deb-tether"
 
-  # --- Probes ---
-
-  # Director credential present
   local z_has_director=0
   local z_secrets_dir=""
   if test -f "${RBBC_rbrr_file}"; then
@@ -55,7 +41,6 @@ rbho_director_first_build() {
     z_has_director=1
   fi
 
-  # Depot configured
   local z_has_depot=0
   if test -f "${RBBC_rbrr_file}"; then
     local z_line=""
@@ -64,7 +49,6 @@ rbho_director_first_build() {
     done < "${RBBC_rbrr_file}"
   fi
 
-  # Conjured sentry image summoned locally (c-prefixed hallmark from GAR)
   local z_conjure_summoned=0
   if command -v docker >/dev/null 2>&1; then
     local z_project_id=""
@@ -89,11 +73,8 @@ rbho_director_first_build() {
     fi
   fi
 
-  # --- Function-specific yelp captures (not in RBYC vocabulary) ---
-
   buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel" "${z_vessel}"; local -r z_lk_vessel_name="${z_buym_yelp}"
 
-  # --- Header ---
   buh_section "Your First Cloud Build"
   buh_e
   buh_line "This track walks you through the complete ${RBYC_CONJURE} lifecycle:"
@@ -105,7 +86,6 @@ rbho_director_first_build() {
   buh_line "Google Cloud Build with full SLSA ${RBYC_PROVENANCE}."
   buh_e
 
-  # Prerequisite probes
   buh_line "Prerequisites:"
   buh_e
   if test "${z_has_director}" = "1"; then
@@ -305,7 +285,6 @@ rbho_director_first_build() {
   buh_line "   starting a ${RBYC_CRUCIBLE} from cloud-built ${RBYC_HALLMARKS}."
   buh_e
 
-  # Summoned probe
   if test "${z_conjure_summoned}" = "1"; then
     buh_line "${RBYC_PROBE_YES}${RBYC_CONJURED} ${RBYC_SENTRY} image found locally (via ${RBYC_SUMMON})"
   else
@@ -355,7 +334,6 @@ rbho_director_first_build() {
   buh_line "that dependency entirely."
   buh_e
 
-  # --- Return to start ---
   buh_tt "Return to start: " "${RBZ_ONBOARD_START_HERE}"
   buh_e
 }

@@ -20,13 +20,9 @@
 
 set -euo pipefail
 
-# Multiple inclusion detection
 test -z "${ZRBHO_SOURCED:-}" || buc_die "Module rbho multiply sourced - check sourcing hierarchy"
 ZRBHO_SOURCED=1
 
-######################################################################
-# Module kindle — verifies prerequisite modules are kindled
-#
 # rbho walkthroughs do not require rbho-local state (they probe the
 # filesystem directly and render via buh_*). The kindle exists to assert
 # the dependency ordering is correct at furnish time.
@@ -50,13 +46,9 @@ zrbho_sentinel() {
   test "${ZRBHO_KINDLED:-}" = "1" || buc_die "Module rbho not kindled - call zrbho_kindle first"
 }
 
-######################################################################
-# Probe utilities — no sentinels, all work pre-kindle
-#
-# These are filesystem probes for onboarding status. They set
-# caller-scope variables; callers declare the variables locally first.
+# Probe utilities — no sentinels, all work pre-kindle. Filesystem probes
+# for onboarding status; callers declare caller-scope variables locally.
 
-# Dashboard status line
 zrbho_po_status() {
   local -r z_flag="${1:-}"
   local -r z_text="${2:-}"
@@ -80,22 +72,9 @@ zrbho_po_extract_capture() {
   return 1
 }
 
-######################################################################
-# Legacy role-track functions (triage, reference, retriever, director,
-# governor, payor) removed — replaced by intent-organized handbook
-# tracks below. See ₣A6 paddock "Context — The Malformation".
-
-######################################################################
-# Credential installation — shared utility for retriever/director
-#
-# Args: role_display  role_constant  knight_tabtarget_constant  role_description
-# Probes RBRR for secrets dir, checks credential file, shows install
-# path, points to auth regime validator.
-
 zrbho_credential_install() {
   local -r z_role_constant="${1}"
 
-  # --- Probes ---
   local z_secrets_dir=""
   if test -f "${RBBC_rbrr_file}"; then
     z_secrets_dir=$(zrbho_po_extract_capture "${RBBC_rbrr_file}" "RBRR_SECRETS_DIR") || z_secrets_dir=""
@@ -109,7 +88,6 @@ zrbho_credential_install() {
 
   buh_step_style "Step " " — "
 
-  # --- Step 1: Get the key file ---
   buh_step1 "Get the key file"
   buh_e
   buh_line "A ${RBYC_GOVERNOR} produces ${RBYC_RBRA} credential files for ${RBYC_DIRECTORS} and ${RBYC_RETRIEVERS}."
@@ -117,7 +95,6 @@ zrbho_credential_install() {
   buh_line "secret, never committed to the repo."
   buh_e
 
-  # --- Step 2: Install the key file ---
   buh_step1 "Install the key file"
   buh_e
   if test -n "${z_secrets_dir}"; then
@@ -139,7 +116,6 @@ zrbho_credential_install() {
   fi
   buh_e
 
-  # --- Step 3: Validate ---
   buh_step1 "Validate"
   buh_e
   buh_line "Run the ${RBYC_RBRA} validator for your role:"

@@ -23,21 +23,12 @@ set -euo pipefail
 test -z "${ZRBHOGW_SOURCED:-}" || return 0
 ZRBHOGW_SOURCED=1
 
-######################################################################
-# Governor handbook — administer service accounts for directors and
-# retrievers.
-#
-# Linear step sequence, no conditional probes. The governor operates
-# within a depot the payor created: installs governor credentials,
-# provisions downstream SAs, verifies the chain.
-
 rbho_governor_handbook() {
   zrbho_sentinel
 
   buc_doc_brief "Governor — administer service accounts for directors and retrievers"
   buc_doc_shown || return 0
 
-  # --- Header ---
   buh_section "Governor — Administer Service Accounts"
   buh_e
   buh_line "A ${RBYC_GOVERNOR} administers a ${RBYC_DEPOT} — creating service accounts"
@@ -46,9 +37,6 @@ rbho_governor_handbook() {
 
   buh_step_style "Step " " — "
 
-  # =================================================================
-  # Step 1: Install governor credentials
-  # =================================================================
   buh_step1 "Install governor credentials"
   buh_e
   buh_line "The ${RBYC_GOVERNOR} works within a ${RBYC_DEPOT} provisioned under the"
@@ -63,9 +51,6 @@ rbho_governor_handbook() {
   buh_line "${RBYC_RBRR} configuration — check RBRR_SECRETS_DIR for the location."
   buh_e
 
-  # =================================================================
-  # Step 2: Provision downstream service accounts
-  # =================================================================
   buh_step1 "Provision downstream service accounts"
   buh_e
   buh_line "The governor provisions access for two downstream roles:"
@@ -89,9 +74,6 @@ rbho_governor_handbook() {
   buh_tt  "  " "${RBZ_LIST_SERVICE_ACCOUNTS}"
   buh_e
 
-  # =================================================================
-  # Step 3: Verify the chain
-  # =================================================================
   buh_step1 "Verify the chain"
   buh_e
   buh_line "The service accounts you created include IAM grants — each SA"
@@ -108,7 +90,6 @@ rbho_governor_handbook() {
   buh_line "${RBYC_DIRECTOR} can see the registry, your grants are correct."
   buh_e
 
-  # --- Return to start ---
   buh_tt  "Return to start: " "${RBZ_ONBOARD_START_HERE}"
   buh_e
 }

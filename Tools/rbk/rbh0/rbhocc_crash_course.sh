@@ -23,20 +23,12 @@ set -euo pipefail
 test -z "${ZRBHOCC_SOURCED:-}" || return 0
 ZRBHOCC_SOURCED=1
 
-######################################################################
-# Configure your Repo's Environment — universal prerequisite handbook
-#
-# Hands-on walk-through: run commands, read output, configure your
-# station. By the end, the learner has working local tooling and
-# understands tabtargets, regimes, and the render/validate pattern.
-
 rbho_crash_course() {
   zrbho_sentinel
 
   buc_doc_brief "Configure your Repo's Environment — tabtargets, regimes, station setup, logs"
   buc_doc_shown || return 0
 
-  # --- Probes ---
   local z_rbrr_project=""
   local z_rbrr_populated=0
   if test -f "${RBBC_rbrr_file}"; then
@@ -51,12 +43,10 @@ rbho_crash_course() {
     z_log_dir=$(zrbho_po_extract_capture "${BURD_STATION_FILE}" "BURS_LOG_DIR") || z_log_dir=""
   fi
 
-  # --- Header ---
   buh_section "Recipe Bottle — Configure your Repo's Environment"
   buh_e
   buh_step_style "Step " " — "
 
-  # --- Step 1: What you ran to get here ---
   buh_step1 "What you ran to get here"
   buh_e
   buh_line "The command you just ran is a ${RBYC_TABTARGET} — a launcher script"
@@ -64,7 +54,6 @@ rbho_crash_course() {
   buh_line "${RBYC_RECIPE_BOTTLE} command."
   buh_e
 
-  # --- Step 2: View the project config (BURC) ---
   buh_step1 "View the project config"
   buh_e
   buh_line "A ${RBYC_REGIME} is a configuration file with a schema, a renderer,"
@@ -77,7 +66,6 @@ rbho_crash_course() {
   buh_line "to look for your personal station file."
   buh_e
 
-  # --- Step 3: View your station (BURS) ---
   buh_step1 "View your personal station"
   buh_e
   buh_line "${RBYC_BURS} is your per-developer station file: local, gitignored,"
@@ -88,7 +76,6 @@ rbho_crash_course() {
   buh_line "The repo-vs-personal split is deliberate: ${RBYC_BURC} travels with the code; ${RBYC_BURS} stays on your machine."
   buh_e
 
-  # --- Step 4: Validate your station ---
   buh_step1 "Validate your station"
   buh_e
   buh_line "Every ${RBYC_REGIME} has a validate tabtarget that checks the file against"
@@ -110,7 +97,6 @@ rbho_crash_course() {
   fi
   buh_e
 
-  # --- Step 5: Validate the repo regime ---
   buh_step1 "Validate the repo regime"
   buh_e
   buh_line "The repository regime (${RBYC_RBRR}) holds your team's ${RBYC_DEPOT}"
@@ -131,7 +117,6 @@ rbho_crash_course() {
   fi
   buh_e
 
-  # --- Step 6: Check your logs ---
   buh_step1 "Check your logs"
   buh_e
   buh_line "When you ran the validator, it printed file paths at the top"
@@ -155,7 +140,6 @@ rbho_crash_course() {
   buh_line "output is ephemeral by design."
   buh_e
 
-  # --- Step 7: The pattern ---
   buh_step1 "The pattern"
   buh_e
   buh_line "Every ${RBYC_REGIME} has a render and a validate tabtarget."
@@ -192,7 +176,6 @@ rbho_crash_course() {
   buh_line "Learn the letter — you can find any regime's tools from it."
   buh_e
 
-  # --- Step 8: Next steps ---
   buh_step1 "Next steps"
   buh_e
   buh_line "Your repo environment is configured. The tools work, errors explain"

@@ -23,16 +23,6 @@ set -euo pipefail
 test -z "${ZRBHOFC_SOURCED:-}" || return 0
 ZRBHOFC_SOURCED=1
 
-######################################################################
-# First Crucible — local builds onboarding
-#
-# Frame 4-refined handbook: teaching prose + probes + tabtarget refs.
-# Target learner: crucible explorer — local-only, zero cloud, fast
-# iteration for inhabiting the sandbox. Zero registry, zero SA credentials.
-#
-# Nameplate: ccyolo  (Claude Code sandbox, Anthropic-only network)
-# Vessels:   rbev-sentry-deb-tether (sentry), rbev-bottle-ccyolo (bottle)
-#
 # Explorer-intimate top/tail; mechanical middle delegates to
 # rbhoct_crucible_trunk + rbhocq_crucible_quench.
 
@@ -52,11 +42,9 @@ rbho_first_crucible() {
 
   local -r z_test_domain="www.internic.net"
 
-  # --- Docker probe ---
   local z_has_docker=0
   command -v docker >/dev/null 2>&1 && z_has_docker=1
 
-  # --- Header ---
   buh_section "Start a ${RBYC_CRUCIBLE} Using Local Builds"
   buh_e
   buh_line "A ${RBYC_CRUCIBLE} is a sandboxed container environment with enforced"
@@ -79,7 +67,6 @@ rbho_first_crucible() {
   buh_line "by name. Export once and paste freely."
   buh_e
 
-  # --- Docker gate ---
   if test "${z_has_docker}" = "0"; then
     buh_error "Docker is not available on this machine."
     buh_line  "Install Docker Desktop (or dockerd in WSL) and re-run this handbook."
@@ -89,10 +76,7 @@ rbho_first_crucible() {
     return 0
   fi
 
-  # --- Shared mechanical trunk: kludge sentry/bottle + charge ---
   rbhoct_crucible_trunk "${z_moniker}" "${z_sentry_vessel}" "${z_bottle_vessel}" "${z_nameplate_file}"
-
-  # --- Explorer tail: SSH, OAuth, curl verification ---
 
   buh_step1 "Enter the container and run Claude Code"
   buh_e
@@ -175,10 +159,8 @@ rbho_first_crucible() {
   buh_line "allowlist works for a non-Anthropic domain."
   buh_e
 
-  # --- Shared mechanical quench ---
   rbhocq_crucible_quench "${z_moniker}"
 
-  # --- Iteration-loop wrap (explorer-specific) ---
   buh_section "The iteration loop"
   buh_e
   buh_line "You now have the full local cycle:"
@@ -199,7 +181,6 @@ rbho_first_crucible() {
   buh_line "target."
   buh_e
 
-  # --- Return to start ---
   buh_tt  "Return to start: " "${RBZ_ONBOARD_START_HERE}"
   buh_e
 }

@@ -23,20 +23,12 @@ set -euo pipefail
 test -z "${ZRBHOPW_SOURCED:-}" || return 0
 ZRBHOPW_SOURCED=1
 
-######################################################################
-# Payor handbook — establish a Manor and provision the Depot
-#
-# Linear step sequence, no conditional probes. The payor owns the GCP
-# project and funds it. This handbook walks through the full ceremony:
-# OAuth credentials, project setup, depot provisioning, governor handoff.
-
 rbho_payor_handbook() {
   zrbho_sentinel
 
   buc_doc_brief "Payor — establish a Manor and provision the Depot"
   buc_doc_shown || return 0
 
-  # --- Header ---
   buh_section "Payor — Establish a Manor and Provision the Depot"
   buh_e
   buh_line "The ${RBYC_PAYOR} establishes a ${RBYC_MANOR} — an administrative seat"
@@ -53,9 +45,6 @@ rbho_payor_handbook() {
 
   buh_step_style "Step " " — "
 
-  # =================================================================
-  # Step 1: Establish the Manor
-  # =================================================================
   buh_step1 "Establish the Manor"
   buh_e
   buh_line "The ${RBYC_MANORS} GCP project hosts the OAuth client and billing"
@@ -70,9 +59,6 @@ rbho_payor_handbook() {
   buh_line "identity is recorded in ${RBYC_RBRP}."
   buh_e
 
-  # =================================================================
-  # Step 2: Install OAuth credentials
-  # =================================================================
   buh_step1 "Install OAuth credentials"
   buh_e
   buh_line "Step 1 ended with downloading a JSON client secret file from the"
@@ -87,9 +73,6 @@ rbho_payor_handbook() {
   buh_tt  "  " "${RBZ_PAYOR_REFRESH}"
   buh_e
 
-  # =================================================================
-  # Step 3: Provision the Depot
-  # =================================================================
   buh_step1 "Provision the Depot"
   buh_e
   buh_line "A ${RBYC_DEPOT} is the facility where container images are built and"
@@ -119,7 +102,6 @@ rbho_payor_handbook() {
   buh_line "project-level changes are needed."
   buh_e
 
-  # --- Return to start ---
   buh_tt  "Return to start: " "${RBZ_ONBOARD_START_HERE}"
   buh_e
 }

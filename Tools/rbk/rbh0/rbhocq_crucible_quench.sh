@@ -23,7 +23,6 @@ set -euo pipefail
 test -z "${ZRBHOCQ_SOURCED:-}" || return 0
 ZRBHOCQ_SOURCED=1
 
-######################################################################
 # Voice-neutral quench step shared by the first crucible explorer and
 # the tadmor security evaluator. Surfaces the charge-auto-quench
 # pedagogy at its natural moment (alongside the quench teaching).

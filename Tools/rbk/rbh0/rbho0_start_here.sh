@@ -23,11 +23,6 @@ set -euo pipefail
 test -z "${ZRBHO0_SOURCED:-}" || return 0
 ZRBHO0_SOURCED=1
 
-######################################################################
-# Handbook — intent-organized tracks (Frame 4-refined)
-#
-# Organizing axis: learner intent + repo state, NOT role/authorization.
-
 # rbho_start_here — probe-aware menu into the handbook family.
 # Probes are deliberately narrow: just RBRR populated + any-credential-
 # present. Highlighting only arrows foundation actions based on repo
@@ -40,7 +35,6 @@ rbho_start_here() {
 
   local -r z_docs="${RBRR_PUBLIC_DOCS_URL}"
 
-  # --- Preamble ---
   buh_section "Recipe Bottle — Onboarding Start"
   buh_e
   buh_line "  ${RBYC_RECIPE_BOTTLE} builds container images with supply-chain provenance"
@@ -50,7 +44,6 @@ rbho_start_here() {
   buh_line "  documents that explain concepts and show you live probe status."
   buh_e
 
-  # --- Foundation ---
   buh_section "Foundation"
   buh_e
   buh_line "    Configure your Repo's Environment"
@@ -69,7 +62,6 @@ rbho_start_here() {
   buh_tt   "        " "${RBZ_ONBOARD_CRED_DIRECTOR}"
   buh_e
 
-  # --- Kludged Crucibles ---
   buh_section "Kludged Crucibles"
   buh_e
   buh_line "  Two tracks that build a ${RBYC_CRUCIBLE} locally from ${RBYC_KLUDGE_D}"
@@ -100,7 +92,6 @@ rbho_start_here() {
   buh_tt   "        " "${RBZ_ONBOARD_TADMOR_SECURITY}"
   buh_e
 
-  # --- Create Payor and Depot ---
   buh_section "Create Payor and Depot"
   buh_e
   buh_line "  A ${RBYC_DEPOT} is the facility where the team's container images are"
@@ -113,7 +104,6 @@ rbho_start_here() {
   buh_tt   "        " "${RBZ_ONBOARD_GOVERNOR_HB}"
   buh_e
 
-  # --- Director subtracks ---
   buh_section "Director Subtracks"
   buh_e
   buh_line "    Your First Cloud Build"

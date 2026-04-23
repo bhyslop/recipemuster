@@ -23,9 +23,6 @@ set -euo pipefail
 test -z "${ZRBHOCD_SOURCED:-}" || return 0
 ZRBHOCD_SOURCED=1
 
-######################################################################
-# Install Director Credentials
-
 rbho_credential_director() {
   zrbho_sentinel
 
@@ -40,7 +37,6 @@ rbho_credential_director() {
 
   zrbho_credential_install "${RBCC_role_director}"
 
-  # --- Step 4: Confirm live access ---
   buh_step1 "Confirm live access"
   buh_e
   buh_line "Run ${RBYC_REKON} to list raw image tags in the registry"
@@ -53,7 +49,6 @@ rbho_credential_director() {
   buh_line "If it fails, re-check the file placement in Step 2."
   buh_e
 
-  # --- Step 5: Next steps ---
   buh_step1 "Next steps"
   buh_e
   buh_line "Return to the start menu:"

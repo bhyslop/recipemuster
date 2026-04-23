@@ -23,16 +23,6 @@ set -euo pipefail
 test -z "${ZRBHOTS_SOURCED:-}" || return 0
 ZRBHOTS_SOURCED=1
 
-######################################################################
-# Tadmor Security Evaluation — evaluator handbook
-#
-# Frame 4-refined handbook: teaching prose + probes + tabtarget refs.
-# Target learner: evaluator — critical eye on containment, wants
-# evidence that the sandbox holds under active attack.
-#
-# Nameplate: tadmor  (adversarial testing target, kludge-friendly)
-# Vessels:   rbev-sentry-deb-tether (sentry), rbev-bottle-ifrit-tether (bottle)
-#
 # Evaluator-intimate top/tail; mechanical middle delegates to
 # rbhoct_crucible_trunk + rbhocq_crucible_quench.
 #
@@ -51,11 +41,9 @@ rbho_tadmor_security() {
   local -r z_bottle_vessel="rbev-bottle-ifrit-tether"
   local -r z_nameplate_file="${RBBC_dot_dir}/${z_moniker}/${RBCC_rbrn_file}"
 
-  # --- Docker probe ---
   local z_has_docker=0
   command -v docker >/dev/null 2>&1 && z_has_docker=1
 
-  # --- Header ---
   buh_section "Verify ${RBYC_CRUCIBLE} Containment Under Attack"
   buh_e
   buh_line "You are evaluating whether ${RBYC_RECIPE_BOTTLE}'s sandbox holds up"
@@ -82,7 +70,6 @@ rbho_tadmor_security() {
   buh_line "by name. Export once and paste freely."
   buh_e
 
-  # --- Docker gate ---
   if test "${z_has_docker}" = "0"; then
     buh_error "Docker is not available on this machine."
     buh_line  "Install Docker Desktop (or dockerd in WSL) and re-run this handbook."
@@ -92,10 +79,7 @@ rbho_tadmor_security() {
     return 0
   fi
 
-  # --- Shared mechanical trunk: kludge sentry/bottle + charge ---
   rbhoct_crucible_trunk "${z_moniker}" "${z_sentry_vessel}" "${z_bottle_vessel}" "${z_nameplate_file}"
-
-  # --- Evaluator tail: architecture + methodology + fixture + results ---
 
   buh_step1 "Tour the containment architecture"
   buh_e
@@ -207,10 +191,8 @@ rbho_tadmor_security() {
   buh_line "             logged, and how the assertion compared the two."
   buh_e
 
-  # --- Shared mechanical quench ---
   rbhocq_crucible_quench "${z_moniker}"
 
-  # --- Evaluator wrap: what you evaluated + next tests ---
   buh_section "What you evaluated"
   buh_e
   buh_line "You exercised the complete containment suite against a local"
@@ -232,7 +214,6 @@ rbho_tadmor_security() {
   buh_line "build provenance is evaluated separately."
   buh_e
 
-  # --- Return to start ---
   buh_tt  "Return to start: " "${RBZ_ONBOARD_START_HERE}"
   buh_e
 }
