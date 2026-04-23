@@ -130,6 +130,13 @@ zrbgc_kindle() {
   # across all vessels, enabling hallmark-only lookup without knowing the vessel.
   readonly RBGC_VOUCHES_PACKAGE="vouches"
 
+  # GAR Categorical Namespaces (₢A_AAK layout)
+  # Top-level prefix-rooted namespaces under which hallmark/reliquary/enshrine
+  # arks are stored as plain basename siblings. Consumed by rbgl_GarLayout.sh.
+  readonly RBGC_GAR_CATEGORY_HALLMARKS="hallmarks"
+  readonly RBGC_GAR_CATEGORY_RELIQUARIES="reliquaries"
+  readonly RBGC_GAR_CATEGORY_ENSHRINES="enshrines"
+
   # Fact-file filenames (written to BURD_OUTPUT_DIR by producers, read by tests)
   readonly RBF_FACT_HALLMARK="rbf_fact_hallmark"
   readonly RBF_FACT_BUILD_ID="rbf_fact_build_id"
