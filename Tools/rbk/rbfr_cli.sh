@@ -34,6 +34,7 @@ zrbfr_furnish() {
   source "${BURD_BUK_DIR}/burd_regime.sh"
   source "${z_rbk_kit_dir}/rbcc_Constants.sh"
   source "${z_rbk_kit_dir}/rbgc_Constants.sh"
+  source "${z_rbk_kit_dir}/rbgl_GarLayout.sh"
   source "${z_rbk_kit_dir}/rbgd_DepotConstants.sh"
   source "${z_rbk_kit_dir}/rbrr_regime.sh"
   source "${z_rbk_kit_dir}/rbrv_regime.sh"
@@ -55,6 +56,7 @@ zrbfr_furnish() {
 
   buc_log_args 'Kindle modules in dependency order'
   zrbgc_kindle
+  zrbgl_kindle
   zrbgd_kindle
   zrbgo_kindle
   zrbfc_kindle

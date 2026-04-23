@@ -118,17 +118,14 @@ zrbgc_kindle() {
   # Operation Prefixes
   readonly RBGC_OP_PREFIX_GLOBAL="operations/"
 
-  # Ark Artifact Suffixes
-  readonly RBGC_ARK_SUFFIX_IMAGE="-image"
-  readonly RBGC_ARK_SUFFIX_ABOUT="-about"
-  readonly RBGC_ARK_SUFFIX_VOUCH="-vouch"
-  readonly RBGC_ARK_SUFFIX_DIAGS="-diags"
-  readonly RBGC_ARK_SUFFIX_ATTEST="-attest"
-  readonly RBGC_ARK_SUFFIX_POUCH="-pouch"
-
-  # VOUCHES superdirectory — single GAR package aggregating all vouch artifacts
-  # across all vessels, enabling hallmark-only lookup without knowing the vessel.
-  readonly RBGC_VOUCHES_PACKAGE="vouches"
+  # Ark Artifact Basenames (₢A_AAK layout)
+  # Each ark type is a plain basename sibling under <prefix>hallmarks/<hallmark>/.
+  readonly RBGC_ARK_BASENAME_IMAGE="image"
+  readonly RBGC_ARK_BASENAME_ABOUT="about"
+  readonly RBGC_ARK_BASENAME_VOUCH="vouch"
+  readonly RBGC_ARK_BASENAME_DIAGS="diags"
+  readonly RBGC_ARK_BASENAME_ATTEST="attest"
+  readonly RBGC_ARK_BASENAME_POUCH="pouch"
 
   # GAR Categorical Namespaces (₢A_AAK layout)
   # Top-level prefix-rooted namespaces under which hallmark/reliquary/enshrine
@@ -136,6 +133,16 @@ zrbgc_kindle() {
   readonly RBGC_GAR_CATEGORY_HALLMARKS="hallmarks"
   readonly RBGC_GAR_CATEGORY_RELIQUARIES="reliquaries"
   readonly RBGC_GAR_CATEGORY_ENSHRINES="enshrines"
+
+  # Reliquary Tool Basenames (₢A_AAK layout)
+  # Canonical tool names under <prefix>reliquaries/<date>/. Authoritative
+  # manifest lives in rbgji/rbgji01-inscribe-mirror.sh.
+  readonly RBGC_RELIQUARY_TOOL_GCLOUD="gcloud"
+  readonly RBGC_RELIQUARY_TOOL_DOCKER="docker"
+  readonly RBGC_RELIQUARY_TOOL_ALPINE="alpine"
+  readonly RBGC_RELIQUARY_TOOL_SYFT="syft"
+  readonly RBGC_RELIQUARY_TOOL_BINFMT="binfmt"
+  readonly RBGC_RELIQUARY_TOOL_SKOPEO="skopeo"
 
   # Fact-file filenames (written to BURD_OUTPUT_DIR by producers, read by tests)
   readonly RBF_FACT_HALLMARK="rbf_fact_hallmark"

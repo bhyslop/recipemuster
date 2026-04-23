@@ -18,10 +18,14 @@
 #
 # Recipe Bottle GAR Layout - Implementation
 #
-# Single source of truth for GAR categorical-namespace path construction.
-# All producer and consumer sites route through these helpers; no direct concat.
-# Output is the prefix-rooted relative path (from GAR repo root); callers
-# prepend "${host}/${path}/" for full URL.
+# Kindle constants for GAR categorical-namespace path construction.
+# Callers interpolate the three root constants with hallmark/date/anchor and
+# basename literals at the call site — no subshell, no function call overhead.
+#
+# Shape:
+#   "${z_gar_base}/${RBGL_HALLMARKS_ROOT}/<hallmark>/<basename>:<hallmark>"
+#   "${z_gar_base}/${RBGL_RELIQUARIES_ROOT}/<date>/<tool>:<date>"
+#   "${z_gar_base}/${RBGL_ENSHRINES_ROOT}/<anchor>:<anchor>"
 
 set -euo pipefail
 
@@ -35,58 +39,21 @@ ZRBGL_SOURCED=1
 zrbgl_kindle() {
   test -z "${ZRBGL_KINDLED:-}" || buc_die "Module rbgl already kindled"
 
-  # Category constants come from rbgc.
+  # Category constants come from rbgc; cloud prefix comes from rbrr.
   zrbgc_sentinel
+  test -n "${RBRR_CLOUD_PREFIX+x}" \
+    || buc_die "RBRR_CLOUD_PREFIX must be defined before rbgl kindle"
+
+  # Root segments — cloud-prefix + category. Callers append '/<id>/<basename>:<tag>'.
+  readonly RBGL_HALLMARKS_ROOT="${RBRR_CLOUD_PREFIX}${RBGC_GAR_CATEGORY_HALLMARKS}"
+  readonly RBGL_RELIQUARIES_ROOT="${RBRR_CLOUD_PREFIX}${RBGC_GAR_CATEGORY_RELIQUARIES}"
+  readonly RBGL_ENSHRINES_ROOT="${RBRR_CLOUD_PREFIX}${RBGC_GAR_CATEGORY_ENSHRINES}"
 
   readonly ZRBGL_KINDLED=1
 }
 
 zrbgl_sentinel() {
   test "${ZRBGL_KINDLED:-}" = "1" || buc_die "Module rbgl not kindled - call zrbgl_kindle first"
-}
-
-######################################################################
-# Path Construction Functions
-#
-# Each function emits a prefix-rooted relative path to stdout.
-# Requires RBRR_CLOUD_PREFIX to be set (regime contract; enforced by
-# rbrr_validate ahead of any consumer).
-
-rbgl_hallmark_ark_path() {
-  zrbgl_sentinel
-  local -r z_hallmark="${1:?rbgl_hallmark_ark_path: hallmark required}"
-  local -r z_basename="${2:?rbgl_hallmark_ark_path: ark basename required}"
-  printf '%s%s/%s/%s\n' \
-    "${RBRR_CLOUD_PREFIX}" "${RBGC_GAR_CATEGORY_HALLMARKS}" "${z_hallmark}" "${z_basename}"
-}
-
-rbgl_hallmark_subtree() {
-  zrbgl_sentinel
-  local -r z_hallmark="${1:?rbgl_hallmark_subtree: hallmark required}"
-  printf '%s%s/%s\n' \
-    "${RBRR_CLOUD_PREFIX}" "${RBGC_GAR_CATEGORY_HALLMARKS}" "${z_hallmark}"
-}
-
-rbgl_reliquary_path() {
-  zrbgl_sentinel
-  local -r z_date="${1:?rbgl_reliquary_path: reliquary date required}"
-  local -r z_tool="${2:?rbgl_reliquary_path: tool name required}"
-  printf '%s%s/%s/%s\n' \
-    "${RBRR_CLOUD_PREFIX}" "${RBGC_GAR_CATEGORY_RELIQUARIES}" "${z_date}" "${z_tool}"
-}
-
-rbgl_reliquary_subtree() {
-  zrbgl_sentinel
-  local -r z_date="${1:?rbgl_reliquary_subtree: reliquary date required}"
-  printf '%s%s/%s\n' \
-    "${RBRR_CLOUD_PREFIX}" "${RBGC_GAR_CATEGORY_RELIQUARIES}" "${z_date}"
-}
-
-rbgl_enshrine_path() {
-  zrbgl_sentinel
-  local -r z_anchor="${1:?rbgl_enshrine_path: anchor required}"
-  printf '%s%s/%s\n' \
-    "${RBRR_CLOUD_PREFIX}" "${RBGC_GAR_CATEGORY_ENSHRINES}" "${z_anchor}"
 }
 
 # eof

@@ -90,6 +90,14 @@ zrbfc_kindle() {
   readonly ZRBFC_RBGJV_STEPS_DIR="${z_self_dir}/rbgjv"
   test -d "${ZRBFC_RBGJV_STEPS_DIR}" || buc_die "RBGJV steps directory not found: ${ZRBFC_RBGJV_STEPS_DIR}"
 
+  buc_log_args 'Tool image refs — mutable kindle state, populated by zrbfc_resolve_tool_images'
+  z_rbfc_tool_gcloud=""
+  z_rbfc_tool_docker=""
+  z_rbfc_tool_alpine=""
+  z_rbfc_tool_syft=""
+  z_rbfc_tool_binfmt=""
+  z_rbfc_tool_skopeo=""
+
   readonly ZRBFC_KINDLED=1
 }
 
@@ -99,7 +107,7 @@ zrbfc_sentinel() {
 
 # Internal: Resolve tool image references from reliquary.
 # Must be called after vessel load (reads RBRV_RELIQUARY).
-# Sets module-level ZRBFC_TOOL_* variables for downstream step assembly.
+# Sets module-level z_rbfc_tool_* mutable kindle state for downstream step assembly.
 # Idempotent — safe to call multiple times per invocation.
 zrbfc_resolve_tool_images() {
   zrbfc_sentinel
@@ -108,13 +116,13 @@ zrbfc_resolve_tool_images() {
   test -n "${z_reliquary}" \
     || buc_die "RBRV_RELIQUARY is required — run inscribe to create a reliquary first"
 
-  local -r z_rqy_prefix="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBRR_CLOUD_PREFIX}${z_reliquary}"
-  ZRBFC_TOOL_GCLOUD="${z_rqy_prefix}/gcloud:latest"
-  ZRBFC_TOOL_DOCKER="${z_rqy_prefix}/docker:latest"
-  ZRBFC_TOOL_ALPINE="${z_rqy_prefix}/alpine:latest"
-  ZRBFC_TOOL_SYFT="${z_rqy_prefix}/syft:latest"
-  ZRBFC_TOOL_BINFMT="${z_rqy_prefix}/binfmt:latest"
-  ZRBFC_TOOL_SKOPEO="${z_rqy_prefix}/skopeo:latest"
+  local -r z_rqy_prefix="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBGL_RELIQUARIES_ROOT}/${z_reliquary}"
+  z_rbfc_tool_gcloud="${z_rqy_prefix}/${RBGC_RELIQUARY_TOOL_GCLOUD}:${z_reliquary}"
+  z_rbfc_tool_docker="${z_rqy_prefix}/${RBGC_RELIQUARY_TOOL_DOCKER}:${z_reliquary}"
+  z_rbfc_tool_alpine="${z_rqy_prefix}/${RBGC_RELIQUARY_TOOL_ALPINE}:${z_reliquary}"
+  z_rbfc_tool_syft="${z_rqy_prefix}/${RBGC_RELIQUARY_TOOL_SYFT}:${z_reliquary}"
+  z_rbfc_tool_binfmt="${z_rqy_prefix}/${RBGC_RELIQUARY_TOOL_BINFMT}:${z_reliquary}"
+  z_rbfc_tool_skopeo="${z_rqy_prefix}/${RBGC_RELIQUARY_TOOL_SKOPEO}:${z_reliquary}"
   buc_log_args "Tool images resolved from reliquary: ${z_reliquary}"
 }
 
@@ -371,7 +379,7 @@ zrbfc_ensure_git_metadata() {
 
 # Internal: assemble about step scripts into JSON array file
 # Args: output_file temp_prefix
-# Reads ZRBFC_RBGJA_STEPS_DIR and ZRBFC_TOOL_* image refs from module state
+# Reads ZRBFC_RBGJA_STEPS_DIR and z_rbfc_tool_* image refs from module state
 zrbfc_assemble_about_steps() {
   zrbfc_sentinel
 
@@ -381,10 +389,10 @@ zrbfc_assemble_about_steps() {
   # Step definitions: script|builder|entrypoint|id
   # Delimiter is | because image refs contain colons (sha256 digests)
   local -r z_about_step_defs=(
-    "rbgja01-discover-platforms.py|${ZRBFC_TOOL_GCLOUD}|python3|discover-platforms"
-    "rbgja02-syft-per-platform.sh|${ZRBFC_TOOL_DOCKER}|bash|syft-per-platform"
-    "rbgja03-build-info-per-platform.py|${ZRBFC_TOOL_GCLOUD}|python3|build-info-per-platform"
-    "rbgja04-assemble-push-about.sh|${ZRBFC_TOOL_DOCKER}|bash|assemble-push-about"
+    "rbgja01-discover-platforms.py|${z_rbfc_tool_gcloud}|python3|discover-platforms"
+    "rbgja02-syft-per-platform.sh|${z_rbfc_tool_docker}|bash|syft-per-platform"
+    "rbgja03-build-info-per-platform.py|${z_rbfc_tool_gcloud}|python3|build-info-per-platform"
+    "rbgja04-assemble-push-about.sh|${z_rbfc_tool_docker}|bash|assemble-push-about"
   )
 
   echo "[]" > "${z_output_file}" || buc_die "Failed to initialize about steps JSON"
@@ -417,7 +425,7 @@ zrbfc_assemble_about_steps() {
     test -n "${z_abody}" || buc_die "Empty about script body: ${z_ascript_path}"
 
     buc_log_args "Baking pinned image refs into script text"
-    z_abody="${z_abody//\$\{ZRBF_TOOL_SYFT\}/${ZRBFC_TOOL_SYFT}}"
+    z_abody="${z_abody//\$\{ZRBF_TOOL_SYFT\}/${z_rbfc_tool_syft}}"
 
     case "${z_aentrypoint}" in
       bash)    z_ashebang="#!/bin/bash" ;;
@@ -443,7 +451,7 @@ zrbfc_assemble_about_steps() {
 
 # Internal: assemble vouch step scripts into JSON array file
 # Args: output_file temp_prefix
-# Reads ZRBFC_RBGJV_STEPS_DIR and ZRBFC_TOOL_* image refs from module state
+# Reads ZRBFC_RBGJV_STEPS_DIR and z_rbfc_tool_* image refs from module state
 zrbfc_assemble_vouch_steps() {
   zrbfc_sentinel
 
@@ -453,9 +461,9 @@ zrbfc_assemble_vouch_steps() {
   # Step definitions: script|builder|entrypoint|id
   # Delimiter is | because image refs contain colons (sha256 digests)
   local -r z_vouch_step_defs=(
-    "rbgjv01-download-verifier.sh|${ZRBFC_TOOL_ALPINE}|sh|prepare-keys"
-    "rbgjv02-verify-provenance.py|${ZRBFC_TOOL_GCLOUD}|python3|verify-provenance"
-    "rbgjv03-assemble-push-vouch.sh|${ZRBFC_TOOL_DOCKER}|bash|assemble-push-vouch"
+    "rbgjv01-download-verifier.sh|${z_rbfc_tool_alpine}|sh|prepare-keys"
+    "rbgjv02-verify-provenance.py|${z_rbfc_tool_gcloud}|python3|verify-provenance"
+    "rbgjv03-assemble-push-vouch.sh|${z_rbfc_tool_docker}|bash|assemble-push-vouch"
   )
 
   echo "[]" > "${z_output_file}" || buc_die "Failed to initialize vouch steps JSON"
@@ -646,25 +654,25 @@ zrbfc_plumb_core() {
   local z_has_about=false
   local z_has_vouch=false
 
-  # Hallmark-only mode: resolve vessel via vouches superdirectory
+  # Hallmark-only mode: resolve vessel from vouch ark (vessel lives in vouch_summary.json)
+  local -r z_vouch_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}"
   if test -z "${z_vessel}"; then
-    buc_step "Looking up hallmark in vouches superdirectory"
-    local -r z_vouches_dir="${BURD_TEMP_DIR}/plumb_vouches"
-    if zrbfc_gar_extract_artifact "${z_token}" "${RBRR_CLOUD_PREFIX}${RBGC_VOUCHES_PACKAGE}" \
-         "${z_hallmark}${RBGC_ARK_SUFFIX_VOUCH}" "${z_vouches_dir}"; then
-      test -f "${z_vouches_dir}/vouch_summary.json" \
-        || buc_die "vouch_summary.json not found in vouches artifact"
+    buc_step "Resolving vessel from vouch ark"
+    local -r z_vouch_only_dir="${BURD_TEMP_DIR}/plumb_vouch_only"
+    if zrbfc_gar_extract_artifact "${z_token}" "${z_vouch_pkg}" "${z_hallmark}" "${z_vouch_only_dir}"; then
+      test -f "${z_vouch_only_dir}/vouch_summary.json" \
+        || buc_die "vouch_summary.json not found in vouch ark"
       local -r z_vessel_file="${BURD_TEMP_DIR}/plumb_vessel.txt"
-      jq -r '.vessel // empty' "${z_vouches_dir}/vouch_summary.json" \
+      jq -r '.vessel // empty' "${z_vouch_only_dir}/vouch_summary.json" \
         > "${z_vessel_file}" \
         || buc_die "Failed to read vessel from vouch_summary.json"
       z_vessel=$(<"${z_vessel_file}")
       test -n "${z_vessel}" || buc_die "Vessel field empty in vouch_summary.json"
       buc_info "Resolved hallmark to vessel: ${z_vessel}"
-      cp "${z_vouches_dir}"/* "${z_extract}/" 2>/dev/null || true
+      cp "${z_vouch_only_dir}"/* "${z_extract}/" 2>/dev/null || true
       z_has_vouch=true
     else
-      buc_die "Hallmark not found in vouches superdirectory: ${z_hallmark}"
+      buc_die "Hallmark not found: ${z_hallmark} (no vouch ark at ${z_vouch_pkg})"
     fi
   fi
 
@@ -674,35 +682,34 @@ zrbfc_plumb_core() {
   local -r z_vessel_dir="${RBRR_VESSEL_DIR}/${z_vessel}"
   zrbfc_load_vessel "${z_vessel_dir}"
 
-  # Fetch -about artifact from GAR
-  buc_step "Fetching -about artifact from GAR"
+  # Fetch about ark from GAR (tag = hallmark)
+  buc_step "Fetching about ark from GAR"
+  local -r z_about_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_ABOUT}"
   local -r z_about_dir="${BURD_TEMP_DIR}/plumb_about"
-  if zrbfc_gar_extract_artifact "${z_token}" "${RBRR_CLOUD_PREFIX}${z_vessel}" \
-       "${z_hallmark}${RBGC_ARK_SUFFIX_ABOUT}" "${z_about_dir}"; then
+  if zrbfc_gar_extract_artifact "${z_token}" "${z_about_pkg}" "${z_hallmark}" "${z_about_dir}"; then
     z_has_about=true
     cp "${z_about_dir}"/* "${z_extract}/" 2>/dev/null || true
   fi
 
-  # Fetch -vouch artifact from vessel package (skip if already resolved via vouches)
+  # Fetch vouch ark (skip if already resolved via hallmark-only branch)
   if test "${z_has_vouch}" = "false"; then
-    buc_step "Fetching -vouch artifact from GAR"
+    buc_step "Fetching vouch ark from GAR"
     local -r z_vouch_dir="${BURD_TEMP_DIR}/plumb_vouch"
-    if zrbfc_gar_extract_artifact "${z_token}" "${RBRR_CLOUD_PREFIX}${z_vessel}" \
-         "${z_hallmark}${RBGC_ARK_SUFFIX_VOUCH}" "${z_vouch_dir}"; then
+    if zrbfc_gar_extract_artifact "${z_token}" "${z_vouch_pkg}" "${z_hallmark}" "${z_vouch_dir}"; then
       z_has_vouch=true
       cp "${z_vouch_dir}"/* "${z_extract}/" 2>/dev/null || true
     fi
   fi
 
-  # Bind vessels: fallback to static display if no -about
+  # Bind vessels: fallback to static display if no about ark
   if test "${RBRV_VESSEL_MODE}" = "bind" && test "${z_has_about}" = "false"; then
     zrbfc_plumb_show_bind "${z_vessel}" "${z_hallmark}" "${z_mode}"
     return 0
   fi
 
-  # Require -about for non-bind vessels
+  # Require about ark for non-bind vessels
   if test "${z_has_about}" = "false"; then
-    buc_die "About artifact not found in GAR for ${z_vessel}:${z_hallmark}${RBGC_ARK_SUFFIX_ABOUT}"
+    buc_die "About ark not found in GAR: ${z_about_pkg}:${z_hallmark}"
   fi
 
   # Display results

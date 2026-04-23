@@ -420,16 +420,16 @@ zrbfd_stitch_build_json() {
   # Delimiter is | because image refs contain colons (sha256 digests)
   # Pipeline: buildx --push → per-platform pullback → SLSA provenance via images: field
   local z_step_defs=(
-    "rbgjb01-derive-tag-base.sh|${ZRBFC_TOOL_GCLOUD}|bash|derive-tag-base"
+    "rbgjb01-derive-tag-base.sh|${z_rbfc_tool_gcloud}|bash|derive-tag-base"
   )
   if test "${z_needs_binfmt}" = "true"; then
-    z_step_defs+=("rbgjb02-qemu-binfmt.sh|${ZRBFC_TOOL_DOCKER}|bash|qemu-binfmt")
+    z_step_defs+=("rbgjb02-qemu-binfmt.sh|${z_rbfc_tool_docker}|bash|qemu-binfmt")
   fi
   z_step_defs+=(
-    "rbgjb03-buildx-push-image.sh|${ZRBFC_TOOL_DOCKER}|bash|buildx-push-image"
-    "rbgjb04-per-platform-pullback.sh|${ZRBFC_TOOL_DOCKER}|bash|per-platform-pullback"
-    "rbgjb05-push-per-platform.sh|${ZRBFC_TOOL_DOCKER}|bash|push-per-platform"
-    "rbgjb06-push-diags.sh|${ZRBFC_TOOL_DOCKER}|bash|push-diags"
+    "rbgjb03-buildx-push-image.sh|${z_rbfc_tool_docker}|bash|buildx-push-image"
+    "rbgjb04-per-platform-pullback.sh|${z_rbfc_tool_docker}|bash|per-platform-pullback"
+    "rbgjb05-push-per-platform.sh|${z_rbfc_tool_docker}|bash|push-per-platform"
+    "rbgjb06-push-diags.sh|${z_rbfc_tool_docker}|bash|push-diags"
   )
 
   # Compute platform suffixes (used in images: field and substitutions)
@@ -487,7 +487,7 @@ zrbfd_stitch_build_json() {
     test -n "${z_body}" || buc_die "Empty script body: ${z_script_path}"
 
     buc_log_args "Baking pinned image refs and build strategy into script text"
-    z_body="${z_body//\$\{ZRBF_TOOL_BINFMT\}/${ZRBFC_TOOL_BINFMT}}"
+    z_body="${z_body//\$\{ZRBF_TOOL_BINFMT\}/${z_rbfc_tool_binfmt}}"
     z_body="${z_body//\$\{ZRBF_BUILD_STRATEGY\}/${z_build_strategy}}"
 
     case "${z_entrypoint}" in
@@ -574,7 +574,7 @@ zrbfd_stitch_build_json() {
   # Context extraction step (first step — extracts build context from pouch in GAR)
   local -r z_extract_step_file="${ZRBFD_STITCH_PREFIX}extract_step.json"
   jq -n \
-    --arg name "${ZRBFC_TOOL_DOCKER}" \
+    --arg name "${z_rbfc_tool_docker}" \
     --arg ctx_tag "${z_context_tag}" \
     --arg sigil "${z_sigil}" \
     '{
@@ -840,7 +840,7 @@ zrbfd_enshrine_submit() {
 
   local -r z_step_built="${ZRBFD_ENSHRINE_PREFIX}step_built.json"
   jq \
-    --arg name "${ZRBFC_TOOL_SKOPEO}" \
+    --arg name "${z_rbfc_tool_skopeo}" \
     --arg id "enshrine-copy" \
     --rawfile script "${z_escaped_file}" \
     '. + [{name: $name, id: $id, script: $script}]' \
@@ -1414,7 +1414,7 @@ zrbfd_mirror_submit() {
 
   echo "[]" > "${z_mirror_step_file}" || buc_die "Failed to initialize mirror step JSON"
   jq \
-    --arg name "${ZRBFC_TOOL_SKOPEO}" \
+    --arg name "${z_rbfc_tool_skopeo}" \
     --arg id "mirror-image" \
     --rawfile script "${z_mescaped_file}" \
     '. + [{name: $name, id: $id, script: $script}]' \

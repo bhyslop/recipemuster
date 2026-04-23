@@ -120,6 +120,7 @@ zrbob_furnish() {
   source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
   source "${RBBC_rbrr_file}"
   source "${z_rbk_kit_dir}/rbgc_Constants.sh"
+  source "${z_rbk_kit_dir}/rbgl_GarLayout.sh"
   source "${z_rbk_kit_dir}/rbgd_DepotConstants.sh"
   source "${z_rbk_kit_dir}/rbgo_OAuth.sh"
   source "${z_rbk_kit_dir}/rbob_bottle.sh"
@@ -154,6 +155,7 @@ zrbob_furnish() {
   zrbrr_enforce
   zrbdc_kindle
   zrbgc_kindle
+  zrbgl_kindle
   zrbgd_kindle
   zrbgo_kindle
   zrbob_kindle

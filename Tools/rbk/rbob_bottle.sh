@@ -123,12 +123,12 @@ zrbob_kindle() {
 
   # GAR image references (computed once, used by preflight and auto-summon)
   local z_gar_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
-  readonly ZRBOB_SENTRY_IMAGE="${z_gar_base}/${RBRR_CLOUD_PREFIX}${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_HALLMARK}${RBGC_ARK_SUFFIX_IMAGE}"
-  readonly ZRBOB_BOTTLE_IMAGE="${z_gar_base}/${RBRR_CLOUD_PREFIX}${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_HALLMARK}${RBGC_ARK_SUFFIX_IMAGE}"
+  readonly ZRBOB_SENTRY_IMAGE="${z_gar_base}/${RBGL_HALLMARKS_ROOT}/${RBRN_SENTRY_HALLMARK}/${RBGC_ARK_BASENAME_IMAGE}:${RBRN_SENTRY_HALLMARK}"
+  readonly ZRBOB_BOTTLE_IMAGE="${z_gar_base}/${RBGL_HALLMARKS_ROOT}/${RBRN_BOTTLE_HALLMARK}/${RBGC_ARK_BASENAME_IMAGE}:${RBRN_BOTTLE_HALLMARK}"
 
   # GAR vouch references (local presence verified on every start)
-  readonly ZRBOB_SENTRY_VOUCH="${z_gar_base}/${RBRR_CLOUD_PREFIX}${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_HALLMARK}${RBGC_ARK_SUFFIX_VOUCH}"
-  readonly ZRBOB_BOTTLE_VOUCH="${z_gar_base}/${RBRR_CLOUD_PREFIX}${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_HALLMARK}${RBGC_ARK_SUFFIX_VOUCH}"
+  readonly ZRBOB_SENTRY_VOUCH="${z_gar_base}/${RBGL_HALLMARKS_ROOT}/${RBRN_SENTRY_HALLMARK}/${RBGC_ARK_BASENAME_VOUCH}:${RBRN_SENTRY_HALLMARK}"
+  readonly ZRBOB_BOTTLE_VOUCH="${z_gar_base}/${RBGL_HALLMARKS_ROOT}/${RBRN_BOTTLE_HALLMARK}/${RBGC_ARK_BASENAME_VOUCH}:${RBRN_BOTTLE_HALLMARK}"
 
   # Export RBRN/RBRR vars for compose environment: bare name forwarding.
   # Compose --env-file populates the compose environment for both YAML interpolation

@@ -52,8 +52,8 @@ zrbrn_fleet_survey() {
     (
       source "${z_sv_files[$z_sv_i]}" || buc_die "Failed to source: ${z_sv_files[$z_sv_i]}"
 
-      local z_sentry_img="${z_gar_base}/${RBRR_CLOUD_PREFIX}${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_HALLMARK}${RBGC_ARK_SUFFIX_IMAGE}"
-      local z_bottle_img="${z_gar_base}/${RBRR_CLOUD_PREFIX}${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_HALLMARK}${RBGC_ARK_SUFFIX_IMAGE}"
+      local z_sentry_img="${z_gar_base}/${RBGL_HALLMARKS_ROOT}/${RBRN_SENTRY_HALLMARK}/${RBGC_ARK_BASENAME_IMAGE}:${RBRN_SENTRY_HALLMARK}"
+      local z_bottle_img="${z_gar_base}/${RBGL_HALLMARKS_ROOT}/${RBRN_BOTTLE_HALLMARK}/${RBGC_ARK_BASENAME_IMAGE}:${RBRN_BOTTLE_HALLMARK}"
 
       local z_sentry_local="--"
       local z_bottle_local="--"
@@ -170,6 +170,7 @@ zrbrn_furnish() {
       source "${z_rbk_kit_dir}/rbrr_regime.sh"
       source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
       source "${z_rbk_kit_dir}/rbgc_Constants.sh"
+      source "${z_rbk_kit_dir}/rbgl_GarLayout.sh"
       source "${z_rbk_kit_dir}/rbgd_DepotConstants.sh"
       source "${z_rbk_kit_dir}/rbgo_OAuth.sh"
       ;;
@@ -188,6 +189,7 @@ zrbrn_furnish() {
     rbrn_survey|rbrn_audit)
       source "${RBBC_rbrr_file}"
       zrbgc_kindle
+      zrbgl_kindle
       zrbrr_kindle
       zrbrr_enforce
       zrbdc_kindle
