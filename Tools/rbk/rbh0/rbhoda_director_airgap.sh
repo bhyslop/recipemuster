@@ -90,7 +90,6 @@ rbho_director_airgap() {
 
   buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel"    "${z_forge_vessel}";   local -r z_lk_forge="${z_buym_yelp}"
   buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel"    "${z_airgap_vessel}";  local -r z_lk_airgap="${z_buym_yelp}"
-  buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel"    "${z_tether_vessel}";  local -r z_lk_tether_v="${z_buym_yelp}"
   buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Nameplate" "${z_moniker}";        local -r z_lk_moriah="${z_buym_yelp}"
   buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Nameplate" "${z_tether_moniker}"; local -r z_lk_tadmor="${z_buym_yelp}"
 
