@@ -45,22 +45,30 @@ rbho_start_here() {
   buh_line "  This menu points you at handbook tracks — self-describing teaching"
   buh_line "  documents that explain concepts and show you live probe status."
   buh_e
+  buh_line "  New to ${RBYC_RECIPE_BOTTLE}? Run Occ first, then pick Kludged ${RBYC_CRUCIBLES}"
+  buh_line "  (local, no cloud) or Director subtracks (requires ${RBYC_PAYOR} + ${RBYC_DEPOT})."
+  buh_e
 
   buh_section "Foundation"
   buh_e
-  buh_line "    Configure your Repo's Environment"
+  buh_line "  Foundation sets up three things on your workstation: the repository"
+  buh_line "  ${RBYC_REGIME} (${RBYC_RBRR}, shared project settings), the station ${RBYC_REGIME}"
+  buh_line "  (${RBYC_BURS}, per-developer local settings), and credentials (${RBYC_RBRA}, the"
+  buh_line "  role key a ${RBYC_GOVERNOR} hands you). Local-only — no cloud ceremony yet."
+  buh_e
+  buh_line "    Configure your Repo's Environment (~5 min)"
   buh_line "      Universal prerequisite. ${RBYC_TABTARGETS}, ${RBYC_REGIMES},"
   buh_line "      ${RBYC_BURS} setup, validation, ${RBYC_LOGS}. Local-only, no cloud."
   buh_tt   "        " "${RBZ_ONBOARD_CRASH_COURSE}"
   buh_e
-  buh_line "    Install ${RBYC_RETRIEVER} Credentials (existing projects only)"
+  buh_line "    Install ${RBYC_RETRIEVER} Credentials (existing projects only, ~5 min)"
   buh_line "      A ${RBYC_RETRIEVER} retrieves assets from the ${RBYC_DEPOT} for an"
   buh_line "      established project — read-only access to pull existing images from"
   buh_line "      the project's registry; no build, no publish."
   buh_line "      Place your ${RBYC_RBRA} credential file, verify, confirm you can pull images."
   buh_tt   "        " "${RBZ_ONBOARD_CRED_RETRIEVER}"
   buh_e
-  buh_line "    Install ${RBYC_DIRECTOR} Credentials (existing projects only)"
+  buh_line "    Install ${RBYC_DIRECTOR} Credentials (existing projects only, ~5 min)"
   buh_line "      A ${RBYC_DIRECTOR} conducts cloud operations on an established project —"
   buh_line "      submits Cloud Builds, publishes and manages images in the ${RBYC_DEPOT}."
   buh_line "      Place your ${RBYC_RBRA} credential file, verify, confirm you can build and publish."
@@ -79,7 +87,7 @@ rbho_start_here() {
   buh_e
   buh_line "  They diverge on what happens once the ${RBYC_CRUCIBLE} is ${RBYC_CHARGE_D}:"
   buh_e
-  buh_line "    Inhabit the sandbox — explorer track"
+  buh_line "    Inhabit the sandbox — explorer track (~20 min)"
   buh_line "      The ${RBYC_CCYOLO} ${RBYC_CRUCIBLE} runs Claude Code in a ${RBYC_BOTTLE} that"
   buh_line "      can only reach Anthropic. Requires a Claude OAuth subscription."
   buh_line "      After ${RBYC_CHARGE}:"
@@ -87,7 +95,7 @@ rbho_start_here() {
   buh_line "        * Verify network containment     (manual curl against the allowlist)"
   buh_tt   "        " "${RBZ_ONBOARD_FIRST_CRUCIBLE}"
   buh_e
-  buh_line "    Prove containment under attack — evaluator track"
+  buh_line "    Prove containment under attack — evaluator track (~15 min)"
   buh_line "      The tadmor ${RBYC_CRUCIBLE} pairs the same ${RBYC_SENTRY} with a hostile"
   buh_line "      ${RBYC_BOTTLE} carrying the ${RBYC_IFRIT} attack binary; >30 authored cases"
   buh_line "      exercise the containment primitives."
@@ -102,10 +110,10 @@ rbho_start_here() {
   buh_line "  A ${RBYC_DEPOT} is the facility where the team's container images are"
   buh_line "  built and stored — the ground truth other tracks rest on."
   buh_e
-  buh_line "    ${RBYC_PAYOR} — establish a ${RBYC_MANOR} and provision the ${RBYC_DEPOT}"
+  buh_line "    ${RBYC_PAYOR} — establish a ${RBYC_MANOR} and provision the ${RBYC_DEPOT} (~30 min)"
   buh_tt   "        " "${RBZ_ONBOARD_PAYOR_HB}"
   buh_e
-  buh_line "    ${RBYC_GOVERNOR} — administer service accounts for ${RBYC_DIRECTORS} and ${RBYC_RETRIEVERS}"
+  buh_line "    ${RBYC_GOVERNOR} — administer service accounts for ${RBYC_DIRECTORS} and ${RBYC_RETRIEVERS} (~10 min)"
   buh_tt   "        " "${RBZ_ONBOARD_GOVERNOR_HB}"
   buh_e
 
@@ -113,7 +121,7 @@ rbho_start_here() {
   buh_e
   buh_line "  All tracks below require ${RBYC_DIRECTOR} credentials and a provisioned ${RBYC_DEPOT}."
   buh_e
-  buh_line "    ${RBHO_TRACK_FIRST_BUILD}"
+  buh_line "    ${RBHO_TRACK_FIRST_BUILD} (~30 min, ~15 of which is Cloud Build wall-clock)"
   buh_line "      Build your first image in the cloud with verified provenance."
   buh_line "      Steps:"
   buh_line "        * Provision the builder toolchain (Inscribe the ${RBYC_RELIQUARY})"
@@ -123,7 +131,7 @@ rbho_start_here() {
   buh_line "        * Clean up                        (${RBYC_ABJURE}, ${RBYC_REKON})"
   buh_tt   "        " "${RBZ_ONBOARD_DIR_FIRST_BUILD}"
   buh_e
-  buh_line "    ${RBYC_AIRGAP} Cloud Build"
+  buh_line "    ${RBYC_AIRGAP} Cloud Build (~60 min, two 15-20 min Cloud Builds)"
   buh_line "      Build a ${RBYC_BOTTLE} with zero external network during Cloud Build."
   buh_line "      Pre-stage every input in the ${RBYC_DEPOT} first — rust upstream base,"
   buh_line "      then a project-authored toolchain image (the forge) — then build the"
@@ -136,7 +144,7 @@ rbho_start_here() {
   buh_line "        * Compare provenance side by side          (airgap vs ${RBYC_TETHERED} ${RBYC_PLUMB})"
   buh_tt   "        " "${RBZ_ONBOARD_DIR_AIRGAP}"
   buh_e
-  buh_line "    ${RBYC_BIND} — Safe PlantUML Container"
+  buh_line "    ${RBYC_BIND} — Safe PlantUML Container (~10 min)"
   buyy_link_yawp "${z_docs}" "Bind" "PlantUML"; local -r z_plantuml="${z_buym_yelp}"
   buyy_link_yawp "${z_docs}" "Nameplate" "pluml"; local -r z_pluml="${z_buym_yelp}"
   buh_line "      Mirror an upstream image by digest — no Dockerfile, no build."
@@ -152,7 +160,7 @@ rbho_start_here() {
   buh_line "        * Render a diagram, observe blocked egress (${RBYC_CHARGE} the ${z_pluml} ${RBYC_CRUCIBLE})"
   buh_tt   "        " "${RBZ_ONBOARD_DIR_BIND}"
   buh_e
-  buh_line "    ${RBYC_GRAFT} — Local Image Publishing"
+  buh_line "    ${RBYC_GRAFT} — Local Image Publishing (~10 min)"
   buh_line "      Push a locally-built image to the Depot. The ${RBYC_DIRECTOR} owns"
   buh_line "      the entire build — SLSA cannot vouch for this image. The Vouch"
   buh_line "      verdict reads GRAFTED: an explicit signal that provenance stops"
