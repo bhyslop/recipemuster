@@ -2416,12 +2416,12 @@ fn rbtdrc_four_mode_supply_chain(dir: &Path) -> rbtdre_Verdict {
         }
 
         // Steps 10-12: Abjure all three hallmarks
-        for (label, vdir, consec) in [
-            ("conjure", &conjure_dir, &conjure_consec),
-            ("bind", &bind_dir, &bind_consec),
-            ("graft", &graft_dir, &graft_consec),
+        for (label, consec) in [
+            ("conjure", &conjure_consec),
+            ("bind", &bind_consec),
+            ("graft", &graft_consec),
         ] {
-            match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ABJURE, &[vdir.as_str(), consec.as_str(), "--force"], &[]) {
+            match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ABJURE, &[consec.as_str(), "--force"], &[]) {
                 Ok(r) if r.exit_code == 0 => {}
                 Ok(r) => return rbtdre_Verdict::Fail(format!("abjure {} failed (exit {})\n{}", label, r.exit_code, r.stderr)),
                 Err(e) => return rbtdre_Verdict::Fail(format!("abjure {} invocation: {}", label, e)),

@@ -113,26 +113,20 @@ rbfr_wrest() {
 rbfr_summon() {
   zrbfr_sentinel
 
-  local z_vessel="${1:-}"
-  z_vessel="${z_vessel##*/}"  # strip path prefix — accept directory path or bare moniker
-  local z_hallmark="${2:-}"
+  local z_hallmark="${1:-}"
 
   # Documentation block
   buc_doc_brief "Summon an ark (pull -image, -about, and -vouch artifacts as a coherent unit)"
-  buc_doc_param "vessel" "Vessel name (e.g., rbev-busybox)"
   buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"
   buc_doc_shown || return 0
 
-  buc_log_args "Validate parameters"
-  rbfc_require_vessel_sigil "${z_vessel}"
+  # Hallmark required — use rbw-ft (tally) to discover available hallmarks
+  test -n "${z_hallmark}" || buc_die "Hallmark parameter required (use rbw-ft to tally vouched hallmarks)"
 
   buc_step "Authenticating for retrieval"
   test -f "${RBDC_RETRIEVER_RBRA_FILE}" || buc_die "Retriever credential not found: ${RBDC_RETRIEVER_RBRA_FILE}"
   local z_token
   z_token=$(rbgo_get_token_capture "${RBDC_RETRIEVER_RBRA_FILE}") || buc_die "Failed to get OAuth token"
-
-  # Hallmark required — use rbw-ft (tally) to discover available hallmarks
-  test -n "${z_hallmark}" || buc_die "Hallmark parameter required (use rbw-ft to tally vouched hallmarks)"
 
   # Ark package paths — all basename siblings under the hallmark subtree
   local -r z_image_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE}"
@@ -262,7 +256,7 @@ rbfr_summon() {
 
   # Display results
   echo ""
-  buc_success "Hallmark summoned: ${z_vessel}/${z_hallmark}"
+  buc_success "Hallmark summoned: ${z_hallmark}"
   if test "${z_image_exists}" = "true"; then
     echo "  - ${RBGC_GAR_CATEGORY_HALLMARKS}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE} retrieved"
   fi
