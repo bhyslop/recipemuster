@@ -148,15 +148,17 @@ rbho_start_here() {
   buh_tt   "        " "${RBZ_ONBOARD_DIR_BIND}"
   buh_e
   buh_line "    ${RBYC_GRAFT} — Local Image Publishing"
-  buh_line "      Push a locally-built image to the Depot. The user owns the"
-  buh_line "      entire build — SLSA cannot vouch for this image. Vouch verdict"
-  buh_line "      is GRAFTED: an explicit signal that provenance stops at the"
-  buh_line "      local machine. Not the enterprise path for safe image creation."
+  buh_line "      Push a locally-built image to the Depot. The ${RBYC_DIRECTOR} owns"
+  buh_line "      the entire build — SLSA cannot vouch for this image. The Vouch"
+  buh_line "      verdict reads GRAFTED: an explicit signal that provenance stops"
+  buh_line "      at the local machine. Development and prototyping workflow, not"
+  buh_line "      the enterprise path for production supply chain."
   buh_line "      Steps:"
-  buh_line "        * ${RBYC_KLUDGE} a vessel image locally"
-  buh_line "        * ${RBYC_GRAFT} — push local image to the Depot"
+  buh_line "        * Build a local image — trivial busybox tag, your machine"
+  buh_line "        * ${RBYC_GRAFT} — push the local image to the ${RBYC_DEPOT}"
   buh_line "        * Inspect ${RBYC_VOUCH} verdict — GRAFTED, no provenance chain"
-  buh_line "      Development and prototyping workflow, not production supply chain."
+  buh_line "      Requires: ${RBYC_DIRECTOR} credentials, a provisioned ${RBYC_DEPOT}, and the rbev-graft-demo ${RBYC_VESSEL} present."
+  buh_tt   "        " "${RBZ_ONBOARD_DIR_GRAFT}"
   buh_e
 
 }

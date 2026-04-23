@@ -69,6 +69,7 @@ zrbho_furnish() {
   source "${z_rbk_kit_dir}/rbh0/rbhodf_director_first_build.sh" || buc_die "Failed to source rbhodf_director_first_build.sh"
   source "${z_rbk_kit_dir}/rbh0/rbhoda_director_airgap.sh"   || buc_die "Failed to source rbhoda_director_airgap.sh"
   source "${z_rbk_kit_dir}/rbh0/rbhodb_director_bind.sh"     || buc_die "Failed to source rbhodb_director_bind.sh"
+  source "${z_rbk_kit_dir}/rbh0/rbhodg_director_graft.sh"    || buc_die "Failed to source rbhodg_director_graft.sh"
   source "${z_rbk_kit_dir}/rbh0/rbhopw_payor_wrapper.sh"     || buc_die "Failed to source rbhopw_payor_wrapper.sh"
   source "${z_rbk_kit_dir}/rbh0/rbhogw_governor_wrapper.sh"  || buc_die "Failed to source rbhogw_governor_wrapper.sh"
   zrbho_kindle
