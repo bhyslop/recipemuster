@@ -101,12 +101,12 @@ zrbob_kindle() {
   esac
 
   # Container names (for connect and info commands)
-  readonly ZRBOB_SENTRY="${RBRN_MONIKER}-sentry"
-  readonly ZRBOB_PENTACLE="${RBRN_MONIKER}-pentacle"
-  readonly ZRBOB_BOTTLE="${RBRN_MONIKER}-bottle"
+  readonly ZRBOB_SENTRY="${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}-sentry"
+  readonly ZRBOB_PENTACLE="${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}-pentacle"
+  readonly ZRBOB_BOTTLE="${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}-bottle"
 
   # Network name (compose names as {project}_{network}; used by observe and info)
-  readonly ZRBOB_NETWORK="${RBRN_MONIKER}_enclave"
+  readonly ZRBOB_NETWORK="${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}_enclave"
 
   # Compose file paths (relative to project root, where compose runs)
   readonly ZRBOB_COMPOSE_BASE="${RBBC_dot_dir}/rbob_compose.yml"
@@ -123,12 +123,12 @@ zrbob_kindle() {
 
   # GAR image references (computed once, used by preflight and auto-summon)
   local z_gar_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
-  readonly ZRBOB_SENTRY_IMAGE="${z_gar_base}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_HALLMARK}${RBGC_ARK_SUFFIX_IMAGE}"
-  readonly ZRBOB_BOTTLE_IMAGE="${z_gar_base}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_HALLMARK}${RBGC_ARK_SUFFIX_IMAGE}"
+  readonly ZRBOB_SENTRY_IMAGE="${z_gar_base}/${RBRR_CLOUD_PREFIX}${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_HALLMARK}${RBGC_ARK_SUFFIX_IMAGE}"
+  readonly ZRBOB_BOTTLE_IMAGE="${z_gar_base}/${RBRR_CLOUD_PREFIX}${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_HALLMARK}${RBGC_ARK_SUFFIX_IMAGE}"
 
   # GAR vouch references (local presence verified on every start)
-  readonly ZRBOB_SENTRY_VOUCH="${z_gar_base}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_HALLMARK}${RBGC_ARK_SUFFIX_VOUCH}"
-  readonly ZRBOB_BOTTLE_VOUCH="${z_gar_base}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_HALLMARK}${RBGC_ARK_SUFFIX_VOUCH}"
+  readonly ZRBOB_SENTRY_VOUCH="${z_gar_base}/${RBRR_CLOUD_PREFIX}${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_HALLMARK}${RBGC_ARK_SUFFIX_VOUCH}"
+  readonly ZRBOB_BOTTLE_VOUCH="${z_gar_base}/${RBRR_CLOUD_PREFIX}${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_HALLMARK}${RBGC_ARK_SUFFIX_VOUCH}"
 
   # Export RBRN/RBRR vars for compose environment: bare name forwarding.
   # Compose --env-file populates the compose environment for both YAML interpolation
@@ -199,7 +199,7 @@ zrbob_compose() {
     z_args+=("-f" "${ZRBOB_COMPOSE_FRAGMENT}")
   fi
 
-  z_args+=("-p" "${RBRN_MONIKER}")
+  z_args+=("-p" "${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}")
   z_args+=("$@")
 
   buc_log_args "${ZRBOB_RUNTIME} ${z_args[*]}"

@@ -120,7 +120,7 @@ zrbfl_inscribe_submit() {
     --arg zjq_sa           "${z_mason_sa}" \
     --arg zjq_gar_host     "${z_gar_host}" \
     --arg zjq_gar_path     "${z_gar_path}" \
-    --arg zjq_reliquary    "${z_reliquary}" \
+    --arg zjq_reliquary    "${RBRR_CLOUD_PREFIX}${z_reliquary}" \
     --arg zjq_pool         "${RBDC_POOL_TETHER}" \
     --arg zjq_timeout      "${RBRR_GCB_TIMEOUT}" \
     '{
@@ -244,7 +244,7 @@ rbfl_jettison() {
     -H "Authorization: Bearer ${z_token}"             \
     -w "%{http_code}"                                 \
     -o "${z_response_file}"                           \
-    "${ZRBFC_REGISTRY_API_BASE}/${z_moniker}/manifests/${z_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${z_moniker}/manifests/${z_tag}" \
     > "${z_status_file}" || buc_die "DELETE request failed"
 
   local z_http_code
@@ -347,7 +347,7 @@ rbfl_abjure() {
       -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}"     \
       -w "%{http_code}"                               \
       -o "${z_img_response_file}"                     \
-      "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_img_tag}" \
+      "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}/manifests/${z_img_tag}" \
       > "${z_img_status_file}" || buc_die "HEAD request failed for image tag: ${z_img_tag}"
 
     local z_img_http_code
@@ -373,7 +373,7 @@ rbfl_abjure() {
     -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}"     \
     -w "%{http_code}"                               \
     -o "${z_about_response_file}"                   \
-    "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_about_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}/manifests/${z_about_tag}" \
     > "${z_about_status_file}" || buc_die "HEAD request failed for -about artifact"
 
   local z_about_http_code
@@ -398,7 +398,7 @@ rbfl_abjure() {
     -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}"     \
     -w "%{http_code}"                               \
     -o "${z_vouch_response_file}"                   \
-    "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_vouch_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}/manifests/${z_vouch_tag}" \
     > "${z_vouch_status_file}" || buc_die "HEAD request failed for -vouch artifact"
 
   local z_vouch_http_code
@@ -423,7 +423,7 @@ rbfl_abjure() {
     -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}"     \
     -w "%{http_code}"                               \
     -o "${z_diags_response_file}"                   \
-    "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_diags_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}/manifests/${z_diags_tag}" \
     > "${z_diags_status_file}" || buc_die "HEAD request failed for -diags artifact"
 
   local z_diags_http_code
@@ -448,7 +448,7 @@ rbfl_abjure() {
     -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}"     \
     -w "%{http_code}"                               \
     -o "${z_pouch_response_file}"                   \
-    "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_pouch_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}/manifests/${z_pouch_tag}" \
     > "${z_pouch_status_file}" || buc_die "HEAD request failed for ${RBGC_ARK_SUFFIX_POUCH} artifact"
 
   local z_pouch_http_code
@@ -511,7 +511,7 @@ rbfl_abjure() {
         -H "Authorization: Bearer ${z_token}"             \
         -w "%{http_code}"                                 \
         -o "${z_delete_img_response}"                     \
-        "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_img_tag}" \
+        "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}/manifests/${z_img_tag}" \
         > "${z_delete_img_status}" || buc_die "DELETE request failed for image tag: ${z_img_tag}"
 
       local z_delete_img_code
@@ -543,7 +543,7 @@ rbfl_abjure() {
       -H "Authorization: Bearer ${z_token}"             \
       -w "%{http_code}"                                 \
       -o "${z_delete_about_response}"                   \
-      "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_about_tag}" \
+      "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}/manifests/${z_about_tag}" \
       > "${z_delete_about_status}" || buc_die "DELETE request failed for -about"
 
     local z_delete_about_code
@@ -573,7 +573,7 @@ rbfl_abjure() {
       -H "Authorization: Bearer ${z_token}"             \
       -w "%{http_code}"                                 \
       -o "${z_delete_vouch_response}"                   \
-      "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_vouch_tag}" \
+      "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}/manifests/${z_vouch_tag}" \
       > "${z_delete_vouch_status}" || buc_die "DELETE request failed for -vouch"
 
     local z_delete_vouch_code
@@ -603,7 +603,7 @@ rbfl_abjure() {
       -H "Authorization: Bearer ${z_token}"             \
       -w "%{http_code}"                                 \
       -o "${z_delete_diags_response}"                   \
-      "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_diags_tag}" \
+      "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}/manifests/${z_diags_tag}" \
       > "${z_delete_diags_status}" || buc_die "DELETE request failed for -diags"
 
     local z_delete_diags_code
@@ -633,7 +633,7 @@ rbfl_abjure() {
       -H "Authorization: Bearer ${z_token}"             \
       -w "%{http_code}"                                 \
       -o "${z_delete_pouch_response}"                   \
-      "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_pouch_tag}" \
+      "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}/manifests/${z_pouch_tag}" \
       > "${z_delete_pouch_status}" || buc_die "DELETE request failed for ${RBGC_ARK_SUFFIX_POUCH}"
 
     local z_delete_pouch_code
@@ -700,7 +700,7 @@ rbfl_tally() {
       --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
       --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
       -H "Authorization: Bearer ${z_token}" \
-      "${ZRBFC_REGISTRY_API_BASE}/${z_sigil}/tags/list" \
+      "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${z_sigil}/tags/list" \
       > "${z_tags_file}" 2>"${z_stderr_file}" \
       || buc_die "Failed to fetch tags for ${z_sigil} — see ${z_stderr_file}"
 
@@ -867,7 +867,7 @@ rbfl_rekon() {
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
     -H "Authorization: Bearer ${z_token}" \
-    "${ZRBFC_REGISTRY_API_BASE}/${z_moniker}/tags/list" \
+    "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${z_moniker}/tags/list" \
     > "${z_tags_file}" 2>"${z_stderr_file}" \
     || buc_die "Failed to fetch tags for ${z_moniker} — see ${z_stderr_file}"
 

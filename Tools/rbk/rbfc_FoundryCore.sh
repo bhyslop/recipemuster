@@ -108,7 +108,7 @@ zrbfc_resolve_tool_images() {
   test -n "${z_reliquary}" \
     || buc_die "RBRV_RELIQUARY is required — run inscribe to create a reliquary first"
 
-  local -r z_rqy_prefix="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${z_reliquary}"
+  local -r z_rqy_prefix="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBRR_CLOUD_PREFIX}${z_reliquary}"
   ZRBFC_TOOL_GCLOUD="${z_rqy_prefix}/gcloud:latest"
   ZRBFC_TOOL_DOCKER="${z_rqy_prefix}/docker:latest"
   ZRBFC_TOOL_ALPINE="${z_rqy_prefix}/alpine:latest"
@@ -650,7 +650,7 @@ zrbfc_plumb_core() {
   if test -z "${z_vessel}"; then
     buc_step "Looking up hallmark in vouches superdirectory"
     local -r z_vouches_dir="${BURD_TEMP_DIR}/plumb_vouches"
-    if zrbfc_gar_extract_artifact "${z_token}" "${RBGC_vouches_PACKAGE}" \
+    if zrbfc_gar_extract_artifact "${z_token}" "${RBRR_CLOUD_PREFIX}${RBGC_VOUCHES_PACKAGE}" \
          "${z_hallmark}${RBGC_ARK_SUFFIX_VOUCH}" "${z_vouches_dir}"; then
       test -f "${z_vouches_dir}/vouch_summary.json" \
         || buc_die "vouch_summary.json not found in vouches artifact"
@@ -677,7 +677,7 @@ zrbfc_plumb_core() {
   # Fetch -about artifact from GAR
   buc_step "Fetching -about artifact from GAR"
   local -r z_about_dir="${BURD_TEMP_DIR}/plumb_about"
-  if zrbfc_gar_extract_artifact "${z_token}" "${z_vessel}" \
+  if zrbfc_gar_extract_artifact "${z_token}" "${RBRR_CLOUD_PREFIX}${z_vessel}" \
        "${z_hallmark}${RBGC_ARK_SUFFIX_ABOUT}" "${z_about_dir}"; then
     z_has_about=true
     cp "${z_about_dir}"/* "${z_extract}/" 2>/dev/null || true
@@ -687,7 +687,7 @@ zrbfc_plumb_core() {
   if test "${z_has_vouch}" = "false"; then
     buc_step "Fetching -vouch artifact from GAR"
     local -r z_vouch_dir="${BURD_TEMP_DIR}/plumb_vouch"
-    if zrbfc_gar_extract_artifact "${z_token}" "${z_vessel}" \
+    if zrbfc_gar_extract_artifact "${z_token}" "${RBRR_CLOUD_PREFIX}${z_vessel}" \
          "${z_hallmark}${RBGC_ARK_SUFFIX_VOUCH}" "${z_vouch_dir}"; then
       z_has_vouch=true
       cp "${z_vouch_dir}"/* "${z_extract}/" 2>/dev/null || true

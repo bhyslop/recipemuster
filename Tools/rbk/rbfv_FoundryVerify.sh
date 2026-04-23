@@ -86,7 +86,7 @@ rbfv_vouch_gate() {
     -H "Authorization: Bearer ${z_token}" \
     -o /dev/null \
     -w "%{http_code}" \
-    "${z_registry_api_base}/${z_vessel}/manifests/${z_vouch_tag}" \
+    "${z_registry_api_base}/${RBRR_CLOUD_PREFIX}${z_vessel}/manifests/${z_vouch_tag}" \
     > "${ZRBFC_SCRATCH_FILE}" \
     || buc_die "rbfv_vouch_gate: HEAD request failed for ${z_vessel}:${z_vouch_tag}"
   z_vouch_http_code=$(<"${ZRBFC_SCRATCH_FILE}")
@@ -139,7 +139,7 @@ rbfv_about() {
     -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
     -w "%{http_code}" \
     -o "${z_image_gate_response}" \
-    "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_image_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}/manifests/${z_image_tag}" \
     > "${z_image_gate_status}" 2>"${z_image_gate_stderr}" \
     || buc_die "HEAD request failed for -image artifact — see ${z_image_gate_stderr}"
 
@@ -163,7 +163,7 @@ rbfv_about() {
     -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
     -w "%{http_code}" \
     -o "${z_about_gate_response}" \
-    "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_about_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}/manifests/${z_about_tag}" \
     > "${z_about_gate_status}" 2>"${z_about_gate_stderr}" \
     || buc_die "HEAD request failed for -about artifact — see ${z_about_gate_stderr}"
 
@@ -221,7 +221,7 @@ zrbfv_graft_metadata_submit() {
     -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
     -w "%{http_code}" \
     -o "${z_image_gate_response}" \
-    "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_image_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}/manifests/${z_image_tag}" \
     > "${z_image_gate_status}" 2>"${z_image_gate_stderr}" \
     || buc_die "HEAD request failed for -image artifact — see ${z_image_gate_stderr}"
 
@@ -264,7 +264,7 @@ zrbfv_graft_metadata_submit() {
   zrbfc_assemble_about_steps "${z_about_steps_file}" "${ZRBFV_GRAFT_META_PREFIX}about_"
 
   # === Resolve base image provenance (for vouch summary) ===
-  local -r z_vi_gar_prefix="${z_gar_host}/${z_gar_path}/${RBRV_SIGIL}"
+  local -r z_vi_gar_prefix="${z_gar_host}/${z_gar_path}/${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}"
   local z_vi_ref_1="" z_vi_ref_2="" z_vi_ref_3=""
   local z_vi_prov_1="" z_vi_prov_2="" z_vi_prov_3=""
   local z_vi_n="" z_vi_origin_var="" z_vi_anchor_var="" z_vi_origin="" z_vi_anchor=""
@@ -307,7 +307,7 @@ zrbfv_graft_metadata_submit() {
     --arg zjq_sa                "${z_mason_sa}" \
     --arg zjq_gar_host          "${z_gar_host}" \
     --arg zjq_gar_path          "${z_gar_path}" \
-    --arg zjq_vessel            "${RBRV_SIGIL}" \
+    --arg zjq_vessel            "${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}" \
     --arg zjq_hallmark      "${z_hallmark}" \
     --arg zjq_git_commit        "${z_git_commit}" \
     --arg zjq_git_branch        "${z_git_branch}" \
@@ -318,7 +318,7 @@ zrbfv_graft_metadata_submit() {
     --arg zjq_ark_suffix_about  "${RBGC_ARK_SUFFIX_ABOUT}" \
     --arg zjq_ark_suffix_vouch  "${RBGC_ARK_SUFFIX_VOUCH}" \
     --arg zjq_ark_suffix_diags  "${RBGC_ARK_SUFFIX_DIAGS}" \
-    --arg zjq_vouches_package   "${RBGC_VOUCHES_PACKAGE}" \
+    --arg zjq_vouches_package   "${RBRR_CLOUD_PREFIX}${RBGC_VOUCHES_PACKAGE}" \
     --arg zjq_vi_ref_1          "${z_vi_ref_1}" \
     --arg zjq_vi_prov_1         "${z_vi_prov_1}" \
     --arg zjq_vi_ref_2          "${z_vi_ref_2}" \
@@ -496,7 +496,7 @@ zrbfv_about_submit() {
     --arg zjq_sa           "${z_mason_sa}" \
     --arg zjq_gar_host     "${z_gar_host}" \
     --arg zjq_gar_path     "${z_gar_path}" \
-    --arg zjq_vessel       "${RBRV_SIGIL}" \
+    --arg zjq_vessel       "${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}" \
     --arg zjq_hallmark "${z_hallmark}" \
     --arg zjq_vessel_mode  "${z_vessel_mode}" \
     --arg zjq_git_commit   "${z_git_commit}" \
@@ -614,7 +614,7 @@ rbfv_vouch() {
     -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
     -w "%{http_code}" \
     -o "${z_about_gate_response}" \
-    "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_about_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}/manifests/${z_about_tag}" \
     > "${z_about_gate_status}" 2>"${z_about_gate_stderr}" \
     || buc_die "HEAD request failed for -about artifact — see ${z_about_gate_stderr}"
 
@@ -638,7 +638,7 @@ rbfv_vouch() {
     -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
     -w "%{http_code}" \
     -o "${z_vouch_gate_response}" \
-    "${ZRBFC_REGISTRY_API_BASE}/${RBRV_SIGIL}/manifests/${z_vouch_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}/manifests/${z_vouch_tag}" \
     > "${z_vouch_gate_status}" 2>"${z_vouch_gate_stderr}" \
     || buc_die "HEAD request failed for -vouch artifact — see ${z_vouch_gate_stderr}"
 
@@ -684,7 +684,7 @@ zrbfv_vouch_submit() {
   esac
 
   # Resolve base image provenance (for vouch summary recording)
-  local -r z_vi_gar_prefix="${z_gar_host}/${z_gar_path}/${RBRV_SIGIL}"
+  local -r z_vi_gar_prefix="${z_gar_host}/${z_gar_path}/${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}"
   local z_vi_ref_1="" z_vi_ref_2="" z_vi_ref_3=""
   local z_vi_prov_1="" z_vi_prov_2="" z_vi_prov_3=""
   local z_vi_n="" z_vi_origin_var="" z_vi_anchor_var="" z_vi_origin="" z_vi_anchor=""
@@ -721,7 +721,7 @@ zrbfv_vouch_submit() {
     --arg zjq_sa                "${z_mason_sa}" \
     --arg zjq_gar_host          "${z_gar_host}" \
     --arg zjq_gar_path          "${z_gar_path}" \
-    --arg zjq_vessel            "${RBRV_SIGIL}" \
+    --arg zjq_vessel            "${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}" \
     --arg zjq_hallmark      "${z_hallmark}" \
     --arg zjq_vessel_mode       "${RBRV_VESSEL_MODE}" \
     --arg zjq_bind_source       "${z_bind_source}" \
@@ -729,7 +729,7 @@ zrbfv_vouch_submit() {
     --arg zjq_ark_suffix_image  "${RBGC_ARK_SUFFIX_IMAGE}" \
     --arg zjq_ark_suffix_attest "${RBGC_ARK_SUFFIX_ATTEST}" \
     --arg zjq_ark_suffix_vouch  "${RBGC_ARK_SUFFIX_VOUCH}" \
-    --arg zjq_vouches_package   "${RBGC_VOUCHES_PACKAGE}" \
+    --arg zjq_vouches_package   "${RBRR_CLOUD_PREFIX}${RBGC_VOUCHES_PACKAGE}" \
     --arg zjq_vi_ref_1          "${z_vi_ref_1}" \
     --arg zjq_vi_prov_1         "${z_vi_prov_1}" \
     --arg zjq_vi_ref_2          "${z_vi_ref_2}" \
@@ -819,7 +819,7 @@ rbfv_batch_vouch() {
       --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
       --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
       -H "Authorization: Bearer ${z_token}" \
-      "${ZRBFC_REGISTRY_API_BASE}/${z_sigil}/tags/list" \
+      "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${z_sigil}/tags/list" \
       > "${z_tags_file}" 2>"${z_stderr_file}" \
       || buc_die "Failed to fetch tags for ${z_sigil} — see ${z_stderr_file}"
 

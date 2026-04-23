@@ -85,7 +85,7 @@ rbfr_wrest() {
   buc_step "Logging into container registry"
 
   # Construct full image reference
-  local z_full_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${z_locator}"
+  local z_full_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBRR_CLOUD_PREFIX}${z_locator}"
 
   # Docker login to GAR
   echo "${z_token}" | docker login -u oauth2accesstoken --password-stdin "https://${ZRBFC_REGISTRY_HOST}" \
@@ -139,7 +139,7 @@ rbfr_summon() {
       --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
       --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
       -H "Authorization: Bearer ${z_token}" \
-      "${ZRBFC_REGISTRY_API_BASE}/${z_vessel}/tags/list" \
+      "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${z_vessel}/tags/list" \
       > "${z_tags_file}" 2>"${z_stderr_file}" \
       || buc_die "Failed to fetch tags for ${z_vessel} — see ${z_stderr_file}"
     local -r z_all_tags_file="${ZRBFR_TEMP_PREFIX}summon_all_tags.txt"
@@ -185,7 +185,7 @@ rbfr_summon() {
     -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}"     \
     -w "%{http_code}"                               \
     -o "${z_image_response_file}"                   \
-    "${ZRBFC_REGISTRY_API_BASE}/${z_vessel}/manifests/${z_image_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${z_vessel}/manifests/${z_image_tag}" \
     > "${z_image_status_file}" || buc_die "HEAD request failed for -image artifact"
 
   local z_image_http_code
@@ -210,7 +210,7 @@ rbfr_summon() {
     -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}"     \
     -w "%{http_code}"                               \
     -o "${z_about_response_file}"                   \
-    "${ZRBFC_REGISTRY_API_BASE}/${z_vessel}/manifests/${z_about_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${z_vessel}/manifests/${z_about_tag}" \
     > "${z_about_status_file}" || buc_die "HEAD request failed for -about artifact"
 
   local z_about_http_code
@@ -235,7 +235,7 @@ rbfr_summon() {
     -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}"     \
     -w "%{http_code}"                               \
     -o "${z_vouch_response_file}"                   \
-    "${ZRBFC_REGISTRY_API_BASE}/${z_vessel}/manifests/${z_vouch_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${z_vessel}/manifests/${z_vouch_tag}" \
     > "${z_vouch_status_file}" || buc_die "HEAD request failed for -vouch artifact"
 
   local z_vouch_http_code
@@ -270,7 +270,7 @@ rbfr_summon() {
   if test "${z_image_exists}" = "true"; then
     buc_step "Pulling -image artifact"
 
-    local z_image_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${z_vessel}:${z_image_tag}"
+    local z_image_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBRR_CLOUD_PREFIX}${z_vessel}:${z_image_tag}"
     docker pull "${z_image_ref}" || buc_die "Failed to pull -image artifact"
     buc_info "Retrieved: ${z_image_ref}"
   fi
@@ -279,7 +279,7 @@ rbfr_summon() {
   if test "${z_about_exists}" = "true"; then
     buc_step "Pulling -about artifact"
 
-    local z_about_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${z_vessel}:${z_about_tag}"
+    local z_about_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBRR_CLOUD_PREFIX}${z_vessel}:${z_about_tag}"
     docker pull "${z_about_ref}" || buc_die "Failed to pull -about artifact"
     buc_info "Retrieved: ${z_about_ref}"
   fi
@@ -288,7 +288,7 @@ rbfr_summon() {
   if test "${z_vouch_exists}" = "true"; then
     buc_step "Pulling -vouch artifact"
 
-    local z_vouch_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${z_vessel}:${z_vouch_tag}"
+    local z_vouch_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBRR_CLOUD_PREFIX}${z_vessel}:${z_vouch_tag}"
     docker pull "${z_vouch_ref}" || buc_die "Failed to pull -vouch artifact"
     buc_info "Retrieved: ${z_vouch_ref}"
   fi
