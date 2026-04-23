@@ -4674,9 +4674,10 @@
         "₢A_AAJ",
         "₢A_AAE",
         "₢A_AAF",
-        "₢A_AAG"
+        "₢A_AAG",
+        "₢A_AAM"
       ],
-      "next_pace_seed": "AAM",
+      "next_pace_seed": "AAN",
       "paddock_file": ".claude/jjm/jjp_uAl_.md",
       "paces": {
         "₢A_AAA": {
@@ -4944,6 +4945,17 @@
               "text": "## Character\n\nMechanical once ₢A_AAK lands. CLI UX simplification — vessel parameter drops from tabtargets whose folio was `(vessel, hallmark)`. Review attention: confirm the metadata-resolution path (vessel from vouch/about) is exercised and yields correct vessel identity for every affected command.\n\n## Docket\n\nAfter the GAR categorical layout migration (₢A_AAK) lands, vessel is no longer part of the GAR path. Tabtargets that previously took `(vessel, hallmark)` to construct ark paths simplify to `(hallmark)` alone. Internal vessel identity is resolved on demand from the hallmark's `vouch` or `about` metadata.\n\n### Affected tabtargets (verify and refine)\n\nFoundry and image families — confirm the exact list by grepping for dispatch channels that take both params. Expected targets:\n\n- `rbw-fA` DirectorAbjuresHallmark\n- `rbw-fV` DirectorVouchesHallmarks\n- `rbw-fs` RetrieverSummonsHallmark\n- `rbw-fpf` RetrieverPlumbsFull\n- `rbw-fpc` RetrieverPlumbsCompact\n- `rbw-ft` RetrieverTalliesHallmarks (if vessel-filtered)\n- `rbw-iJ` DirectorJettisonsImage\n- `rbw-ir` DirectorRekonsImages\n- `rbw-iw` DirectorWrestsImage\n\n### NOT affected\n\nNameplate-moniker tabtargets (Charge, Quench, Rack, KludgeBottle, Hail, Writ, Fiat, Bark, SshTo, Ifrit-*) pass a nameplate moniker — not a vessel for path construction. Different axis; unchanged.\n\n### Per-tabtarget changes\n\n- Folio channel: `param1`+`param2` collapses to `param1` (hallmark) — or `imprint` if the hallmark is bakeable into the filename for the given colophon\n- Workbench dispatch simplifies accordingly\n- Underlying command-function signatures in foundry/image modules lose the vessel parameter\n- Internal vessel-resolution reads vouch/about metadata when operation prose or logging requires the vessel name\n\n### Cross-cutting\n\n- Zipper enrollment updates for affected colophons (channel declaration changes)\n- `tt/rbw-MG.MarshalGenerate.sh` regenerates `Tools/rbk/rbk-claude-tabtarget-context.md` to reflect the new signatures\n\n### Depends on\n\n- ₢A_AAK — vessel must resolve from metadata in the new GAR layout before it can leave the CLI surface\n\n### Verification\n\n- Affected tabtargets take hallmark-only params; none reference the old vessel param\n- A representative flow (summon → plumb → abjure against a known hallmark) runs end-to-end without the user specifying vessel\n- Regenerated `rbk-claude-tabtarget-context.md` reflects the new signatures\n- `tt/rbtd-s.TestSuite.fast.sh` — 75/75 green\n- `tt/rbtd-s.TestSuite.service.sh` — 80/80 green (if credentials available)\n\n### Out of scope\n\n- Layout migration itself — predecessor ₢A_AAK\n- Nameplate-moniker tabtargets — different axis\n- Depot regen — ₢A_AAE",
               "silks": "tabtarget-vessel-param-removal",
               "commit": "fcdbfc5"
+            }
+          ]
+        },
+        "₢A_AAM": {
+          "tacks": [
+            {
+              "ts": "260423-0947",
+              "state": "rough",
+              "text": "## Character\n\nMechanical — small-scope extraction of OCI Distribution Spec protocol keywords (`manifests`, `blobs`, `tags/list`, `v2`) that currently appear as bare literals in URL construction across rbfr and rbfv. Low per-site judgment once the naming scheme is chosen; the design thought lies in choosing between named-constant replacement vs a URL-builder helper.\n\n## Docket\n\nThe OCI Registry HTTP API v2 URL shape `/v2/<name>/manifests/<reference>` (and peers `blobs/`, `tags/list`) appears ~10× across `rbfr_FoundryRetriever.sh` and `rbfv_FoundryVerify.sh` with the endpoint keywords inlined as bare string literals. These are protocol-defined keywords from the OCI Distribution Spec — frozen, not arbitrary — but repeated inlining violates BCG's Load-Bearing Complexity principle. See BCG:609 `Z«PREFIX»_API_VERSION=\"v2\"` as the canonical pattern for capturing protocol keywords.\n\n### Two options (pick one at pace execution)\n\n**Option A — named protocol constants as RBFC tinder**. Add `ZRBFC_ENDPOINT_MANIFESTS=\"manifests\"`, `ZRBFC_ENDPOINT_BLOBS=\"blobs\"`, `ZRBFC_ENDPOINT_TAGS_LIST=\"tags/list\"`, `ZRBFC_API_VERSION=\"v2\"` at RBFC tinder-constant position (post-`SOURCED`, pre-kindle). Each site replaces the bare literal with the named constant. Minimal structural change, most direct expression of BCG's tinder-constant pattern.\n\n**Option B — URL-builder helper**. Add `zrbfc_manifest_url_capture <vessel_path> <reference>` returning `${ZRBFC_REGISTRY_API_BASE}/<vessel_path>/manifests/<reference>`. Callers collapse to one line. Higher upfront effort, higher payoff if future OCI endpoints get added. Tilts toward \"one place owns the URL shape.\"\n\n### Sites (verify-on-touch; line numbers will drift)\n\n- `rbfr_FoundryRetriever.sh` — `/tags/list` (~142), `/manifests/` (~188, 213, 238)\n- `rbfv_FoundryVerify.sh` — `/manifests/` (~89, 142, 166, 224, 617, 641), `/tags/list` (~822)\n- Any other hits from `grep -rnE '/manifests/|/tags/list|/blobs/|/v2/' Tools/rbk/`\n\n### Verification\n\n- Fast suite green (no new test surface for this refactor)\n- Crucible suite green (exercises actual registry fetches end-to-end)\n- Manual smoke: `tt/rbw-cC.Charge.tadmor.sh` succeeds unchanged\n\n### Scope guardrails\n\n- Pure extraction — no URL semantics change, no new endpoint types\n- Independent of AAK: OCI protocol keywords persist regardless of whether path grammar reshapes into hallmark-centered layout\n- Does not block or get blocked by depot regen (AAE)",
+              "silks": "oci-magic-string-extraction",
+              "commit": "2a388e5"
             }
           ]
         }
