@@ -34,6 +34,8 @@ rbho_start_here() {
   buc_doc_shown || return 0
 
   local -r z_docs="${RBRR_PUBLIC_DOCS_URL}"
+  buyy_link_yawp "${z_docs}" "ccyolo"; local -r z_ccyolo="${z_buym_yelp}"
+  buyy_link_yawp "${z_docs}" "tadmor"; local -r z_tadmor="${z_buym_yelp}"
 
   buh_section "Recipe Bottle — Onboarding Start"
   buh_e
@@ -51,21 +53,32 @@ rbho_start_here() {
   buh_line "      ${RBYC_BURS} setup, validation, ${RBYC_LOGS}. Local-only, no cloud."
   buh_tt   "        " "${RBZ_ONBOARD_CRASH_COURSE}"
   buh_e
-  buh_line "    Install ${RBYC_RETRIEVER} Credentials"
-  buh_line "      For joining an established project."
+  buh_line "    Install ${RBYC_RETRIEVER} Credentials (existing projects only)"
+  buh_line "      A ${RBYC_RETRIEVER} retrieves assets from the ${RBYC_DEPOT} for an"
+  buh_line "      established project — read-only access to pull existing images from"
+  buh_line "      the project's registry; no build, no publish."
   buh_line "      Place your ${RBYC_RBRA} credential file, verify, confirm you can pull images."
   buh_tt   "        " "${RBZ_ONBOARD_CRED_RETRIEVER}"
   buh_e
-  buh_line "    Install ${RBYC_DIRECTOR} Credentials"
-  buh_line "      For joining an established project."
+  buh_line "    Install ${RBYC_DIRECTOR} Credentials (existing projects only)"
+  buh_line "      A ${RBYC_DIRECTOR} conducts cloud operations on an established project —"
+  buh_line "      submits Cloud Builds, publishes and manages images in the ${RBYC_DEPOT}."
   buh_line "      Place your ${RBYC_RBRA} credential file, verify, confirm you can build and publish."
   buh_tt   "        " "${RBZ_ONBOARD_CRED_DIRECTOR}"
   buh_e
 
-  buh_section "Kludged Crucibles"
+  buh_section "Kludged ${RBYC_CRUCIBLES}"
   buh_e
-  buh_line "  Two tracks that locally build the images for a ${RBYC_CRUCIBLE} and then start it."
-  buh_line "  Both share the same mechanical middle:"
+  buh_line "  A ${RBYC_CRUCIBLE} is this project's container sandbox: a ${RBYC_BOTTLE}"
+  buh_line "  that runs the workload paired with a ${RBYC_SENTRY} that enforces what"
+  buh_line "  can leave — the ${RBYC_BOTTLE}'s only network path is through the"
+  buh_line "  ${RBYC_SENTRY}'s allowlist. (A third container, the ${RBYC_PENTACLE},"
+  buh_line "  owns the network namespace the two share, making the containment"
+  buh_line "  structural rather than policy-alone.) Each ${RBYC_CRUCIBLE} is described"
+  buh_line "  by a ${RBYC_NAMEPLATE} — the two tracks below ship ${z_ccyolo} and ${z_tadmor}."
+  buh_e
+  buh_line "  Two tracks locally build the images for a ${RBYC_CRUCIBLE} and then"
+  buh_line "  start it. Both share the same mechanical middle:"
   buh_e
   buh_line "    * Build images locally — ${RBYC_KLUDGE} ${RBYC_SENTRY}/${RBYC_PENTACLE} and ${RBYC_BOTTLE}"
   buh_line "    * Start the sandbox    — ${RBYC_CHARGE} the ${RBYC_CRUCIBLE}"
