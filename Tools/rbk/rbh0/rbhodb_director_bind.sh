@@ -252,21 +252,18 @@ rbho_director_bind() {
   buh_tt "   " "${RBZ_CRUCIBLE_QUENCH}" "${z_moniker}"
   buh_e
 
-  buh_section "What you learned"
+  buh_step1 "The pattern"
   buh_e
-  buh_line "You completed the simplest ${RBYC_ORDAIN} mode end to end:"
+  buh_line "Three ${RBYC_ORDAIN} modes, three trust contracts. ${RBYC_VOUCH} is mode-aware;"
+  buh_line "its verdict names where trust for this ${RBYC_HALLMARK} comes from."
   buh_e
-  buh_line "  1. ${RBYC_KLUDGE} or reuse a ${RBYC_SENTRY} ${RBYC_HALLMARK} — the policy enforcer"
-  buh_line "  2. ${RBYC_BIND} the PlantUML ${RBYC_BOTTLE} — upstream image pinned by digest"
-  buh_line "  3. ${RBYC_VOUCH} reports digest-pin — honest about the trust chain"
-  buh_line "  4. ${RBYC_CHARGE} the ${RBYC_CRUCIBLE} — mode-mixed pair runs as a unit"
+  buh_line "   ${RBYC_CONJURE}  project Dockerfile built by Cloud Build; SLSA ${RBYC_PROVENANCE}"
+  buh_line "   ${RBYC_BIND}     upstream image mirrored by digest; trust the publisher"
+  buh_line "   ${RBYC_GRAFT}    locally-built image pushed to GAR; trust this machine"
   buh_e
-  buh_line "Three ${RBYC_ORDAIN} modes now make sense as a hierarchy of trust:"
-  buh_line "${RBYC_CONJURE} (project builds, SLSA), ${RBYC_BIND} (upstream by digest),"
-  buh_line "${RBYC_GRAFT} (local machine builds, no provenance). The ${RBYC_VOUCH}"
-  buh_line "verdict tells you which one you got. A ${RBYC_NAMEPLATE} can mix them"
-  buh_line "freely — runtime containment is enforced by the ${RBYC_SENTRY}, not"
-  buh_line "by the build chain."
+  buh_line "Read the ${RBYC_VOUCH} verdict: full-SLSA / digest-pin / GRAFTED tells you"
+  buh_line "which contract holds. A ${RBYC_NAMEPLATE} can mix modes freely — runtime"
+  buh_line "containment is the ${RBYC_SENTRY}'s job, not the build chain's."
   buh_e
 
   buh_tt "Return to start: " "${RBZ_ONBOARD_START_HERE}"

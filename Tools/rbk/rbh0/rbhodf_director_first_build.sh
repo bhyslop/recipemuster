@@ -143,14 +143,13 @@ rbho_director_first_build() {
   buh_e
   buyy_cmd_yawp "r260324193326";                   local -r z_ds_example="${z_buym_yelp}"
   buh_line "When inscribe completes, it prints a ${RBYC_RELIQUARY} datestamp"
-  buh_line "(e.g., ${z_ds_example}). Every ${RBYC_VESSEL} that uses Cloud Build"
-  buh_line "needs this value in its ${RBYC_REGIME} file:"
+  buh_line "(e.g., ${z_ds_example}). Yoke that stamp into ${z_lk_vessel_name}'s"
+  buh_line "${RBYC_REGIME} so ${RBYC_CONJURE} knows which tool images to use:"
   buh_e
-  buh_code "   RBRV_RELIQUARY=<datestamp>"
+  buh_tt "   " "${RBZ_YOKE_RELIQUARY}" "" " <stamp> ${RBYC_HANDBOOK_VESSEL_REF}"
   buh_e
-  buyy_cmd_yawp "${z_vessel}/rbrv.env"; local -r z_rbrv_file="${z_buym_yelp}"
-  buh_line "Open ${z_rbrv_file} and set the field,"
-  buh_line "then commit the change."
+  buh_line "Yoke validates both arguments before writing. On success it rewrites"
+  buh_line "RBRV_RELIQUARY in the ${RBYC_VESSEL} rbrv.env. Commit the change."
   buh_e
 
   buh_step1 "${RBYC_CONJURE} the ${RBYC_SENTRY}"
@@ -318,20 +317,23 @@ rbho_director_first_build() {
   buh_line "longer in the ${RBYC_DEPOT}."
   buh_e
 
-  buh_section "What you learned"
+  buh_step1 "The pattern"
   buh_e
-  buh_line "You just completed the full ${RBYC_CONJURE} lifecycle:"
+  buh_line "Every ${RBYC_CONJURED} ${RBYC_HALLMARK} is a structured bundle of six arks in"
+  buh_line "GAR under ${RBGC_GAR_CATEGORY_HALLMARKS}/{hallmark}/. Know the six basenames"
+  buh_line "and you can tour any ${RBYC_HALLMARK} by hand."
   buh_e
-  buh_line "  1. ${RBYC_RELIQUARY} — builder toolchain provisioned"
-  buh_line "  2. ${RBYC_CONJURE} — ${RBYC_VESSEL} built by Cloud Build with SLSA ${RBYC_PROVENANCE}"
-  buh_line "  3. ${RBYC_TALLY}/${RBYC_VOUCH} — health and ${RBYC_PROVENANCE} verified"
-  buh_line "  4. ${RBYC_PLUMB} — ${RBYC_SBOM} and build info inspected"
-  buh_line "  5. ${RBYC_SUMMON} — consumer image pulled locally"
-  buh_line "  6. ${RBYC_ABJURE}/${RBYC_REKON} — lifecycle cleanup"
+  buh_line "   ${RBGC_ARK_BASENAME_POUCH}    build context pushed to GAR before the build"
+  buh_line "   ${RBGC_ARK_BASENAME_IMAGE}    consumer multiplatform manifest — what you pull and run"
+  buh_line "   ${RBGC_ARK_BASENAME_ATTEST}   per-platform ${RBYC_PROVENANCE}-carrying image (one per architecture)"
+  buh_line "   ${RBGC_ARK_BASENAME_ABOUT}    ${RBYC_SBOM} plus build info"
+  buh_line "   ${RBGC_ARK_BASENAME_VOUCH}    SLSA ${RBYC_PROVENANCE} verification record"
+  buh_line "   ${RBGC_ARK_BASENAME_DIAGS}    diagnostics from the build"
   buh_e
-  buh_line "This was a ${RBYC_TETHERED} build — Cloud Build had"
-  buh_line "internet access. The next track teaches you to remove"
-  buh_line "that dependency entirely."
+  buyy_tt_yawp "${RBZ_PLUMB_FULL}";     local -r z_tt_plumb_full="${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_PLUMB_COMPACT}";  local -r z_tt_plumb_compact="${z_buym_yelp}"
+  buh_line "${RBYC_PLUMB} is the pattern-driven inspector — ${z_tt_plumb_full}"
+  buh_line "walks every ark, ${z_tt_plumb_compact} names them at a glance."
   buh_e
 
   buh_tt "Return to start: " "${RBZ_ONBOARD_START_HERE}"

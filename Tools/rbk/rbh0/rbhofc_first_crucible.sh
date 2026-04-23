@@ -161,24 +161,23 @@ rbho_first_crucible() {
 
   rbhocq_crucible_quench "${z_moniker}"
 
-  buh_section "The iteration loop"
+  buh_step1 "The pattern"
   buh_e
-  buh_line "You now have the full local cycle:"
+  buh_line "Four verbs drive the local-${RBYC_CRUCIBLE} iteration loop. Own them"
+  buh_line "and you can run any ${RBYC_NAMEPLATE} — ${z_moniker} was just this"
+  buh_line "session's example."
   buh_e
-  buh_line "  1. Edit the Dockerfile or entrypoint"
-  buh_line "  2. Commit your changes (${RBYC_KLUDGE} needs a clean tree)"
-  buh_line "  3. ${RBYC_KLUDGE} the ${RBYC_BOTTLE}:"
-  buh_tt    "       " "${RBZ_CRUCIBLE_KLUDGE_BOTTLE}" "" " ${RBYC_HANDBOOK_NAMEPLATE_REF}"
-  buh_line  "  4. Commit the ${RBYC_HALLMARK} change"
-  buh_line  "  5. ${RBYC_CHARGE}: Stop and restart"
-  buh_tt    "       " "${RBZ_CRUCIBLE_CHARGE}" "${z_moniker}"
-  buh_line  "  6. SSH in:"
-  buh_line  "       ${z_cmd_ssh}"
-  buh_line  "  7. Test your changes"
+  buyy_tt_yawp "${RBZ_CRUCIBLE_KLUDGE_BOTTLE}";          local -r z_tt_kludge="${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_CRUCIBLE_CHARGE}" "${z_moniker}";  local -r z_tt_charge="${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_CRUCIBLE_SSH}"    "${z_moniker}";  local -r z_tt_ssh="${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_CRUCIBLE_QUENCH}" "${z_moniker}";  local -r z_tt_quench="${z_buym_yelp}"
+  buh_line "   ${RBYC_KLUDGE}   ${z_tt_kludge}    build the ${RBYC_BOTTLE} image, write ${RBYC_HALLMARK} into ${RBYC_NAMEPLATE}"
+  buh_line "   ${RBYC_CHARGE}   ${z_tt_charge}    start the three containers from the ${RBYC_NAMEPLATE}"
+  buh_line "   SSH      ${z_tt_ssh}     log into the ${RBYC_BOTTLE} for interactive work"
+  buh_line "   ${RBYC_QUENCH}   ${z_tt_quench}    stop and remove the ${RBYC_CRUCIBLE}"
   buh_e
-  buh_line "Steps 3-7 take under a minute. The ${RBYC_SENTRY} rarely changes, so"
-  buh_line "you almost never re-${RBYC_KLUDGE} it — the ${RBYC_BOTTLE} is your iteration"
-  buh_line "target."
+  buh_line "${RBYC_CHARGE} tears down prior state on restart — you rarely ${RBYC_QUENCH}"
+  buh_line "between iterations."
   buh_e
 
   buh_tt  "Return to start: " "${RBZ_ONBOARD_START_HERE}"

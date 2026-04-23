@@ -342,20 +342,20 @@ rbho_director_airgap() {
   buh_tt "   " "${RBZ_PLUMB_COMPACT}" "" " ${z_airgap_vessel} ${RBYC_HANDBOOK_HALLMARK_REF}"
   buh_e
 
-  buh_section "What you learned"
+  buh_step1 "The pattern"
   buh_e
-  buh_line "You built an airgap supply chain end to end:"
+  buh_line "An airgap supply chain has three links. Any future airgap build"
+  buh_line "follows the same shape:"
   buh_e
-  buh_line "  1. ${RBYC_ENSHRINE} — rust upstream base mirrored into your ${RBYC_DEPOT}"
-  buh_line "  2. Forge ${RBYC_CONJURE} — project toolchain image built ${RBYC_TETHERED}"
-  buh_line "  3. Airgap ${RBYC_CONJURE} — customer code built with zero external network"
-  buh_line "  4. ${RBYC_NAMEPLATE} install + ${RBYC_CHARGE} — runtime config assembled, suite green"
-  buh_line "  5. ${RBYC_PLUMB} comparison — airgap ${RBYC_PROVENANCE} visible against the ${RBYC_TETHERED} baseline"
+  buh_line "   1. ${RBYC_ENSHRINE} the upstream base into your ${RBYC_DEPOT}"
+  buh_line "   2. ${RBYC_CONJURE} the forge ${RBYC_TETHERED}, re-${RBYC_ENSHRINE} its ${RBYC_HALLMARK}"
+  buh_line "   3. ${RBYC_CONJURE} the final ${RBYC_BOTTLE} ${RBYC_AIRGAP} from the enshrined forge"
   buh_e
-  buh_line "The same 34 containment attacks pass against a ${RBYC_BOTTLE} you"
-  buh_line "built with discipline over your entire supply chain. The attack"
-  buh_line "surface is the ${RBYC_CRUCIBLE}; the build ${RBYC_PROVENANCE} is separate"
-  buh_line "evidence about how the ${RBYC_BOTTLE} came to exist."
+  buh_line "${RBYC_PLUMB} distinguishes three build-info signatures:"
+  buh_e
+  buh_line "   ${RBYC_AIRGAP}     sealed chain — base digests resolved to your ${RBYC_DEPOT}"
+  buh_line "   ${RBYC_TETHERED}   upstream resolution during the build window"
+  buh_line "   ${RBYC_KLUDGE_D}    no Cloud Build record — local provenance only"
   buh_e
 
   buh_tt "Return to start: " "${RBZ_ONBOARD_START_HERE}"
