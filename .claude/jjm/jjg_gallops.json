@@ -4647,13 +4647,14 @@
         "₢A_AAA",
         "₢A_AAB",
         "₢A_AAC",
+        "₢A_AAK",
         "₢A_AAD",
         "₢A_AAJ",
         "₢A_AAE",
         "₢A_AAF",
         "₢A_AAG"
       ],
-      "next_pace_seed": "AAK",
+      "next_pace_seed": "AAL",
       "paddock_file": ".claude/jjm/jjp_uAl_.md",
       "paces": {
         "₢A_AAA": {
@@ -4829,6 +4830,17 @@
               "text": "## Character\n\nResearch pace — survey how other projects name their local configuration directories, then propose a pattern for replacing `.buk/` and `.rbk/` with something visible and unsurprising. The hidden-dot semantic actively hinders discoverability, which conflicts with the handbook's teaching goals. No code changes — just research and a recommendation.\n\n## Docket\n\n### Problem\n\n`.buk/` and `.rbk/` use the Unix dot-prefix convention to hide directories from `ls`. This made sense when they were implementation details, but the handbook explicitly teaches learners to find and read these files (RBRR, RBRN, BURC). Hiding them contradicts discoverability.\n\n### Research\n\nSurvey configuration directory naming conventions across well-known projects:\n\n- How do Rust, Node, Python, Go, Ruby projects name their config dirs?\n- What do tools like `.github/`, `.vscode/`, `.cargo/`, `.npm/` do — and do any visible-directory conventions exist?\n- Are there projects that deliberately chose visible config directories? What pattern did they use?\n- What does `config/` vs `conf/` vs `cfg/` vs project-prefixed (`config_buk/`) look like in practice?\n- How do monorepo tools handle per-tool config directories?\n\n### Evaluate candidates\n\nFor each candidate pattern, assess:\n- Discoverability: does `ls` show it without flags?\n- Sort position: does it cluster with related dirs or scatter?\n- Collision risk: could it conflict with common directory names?\n- Familiarity: would a new contributor guess the convention?\n- Grep/glob friendliness: does the prefix pattern work well for searching?\n\n### Propose\n\nRecommend a naming pattern with rationale. Include:\n- Proposed names for both BUK and RBK config dirs\n- Migration considerations (what references need updating)\n- Whether the pattern extends to other kits (JJK, CMK, etc.)\n\n### Out of scope\n\n- Actually renaming anything\n- Writing migration scripts\n- Updating code references",
               "silks": "research-config-directory-naming",
               "commit": "135d478"
+            }
+          ]
+        },
+        "₢A_AAK": {
+          "tacks": [
+            {
+              "ts": "260423-0821",
+              "state": "rough",
+              "text": "## Character\n\nStructural — reshapes how arks are stored in GAR and how consumer code constructs paths. Requires attention to the split between producer sites (foundry conjure, enshrine, inscribe) and consumer sites (tally, summon, plumb, abjure). Not mechanical — touches the core abstraction of ark storage. Atomic cutover: old and new path shapes do not coexist in live code.\n\n## Docket\n\nMigrate GAR top-level namespace from the current vessel-scattered, hyphen-suffix layout to three prefixed categorical namespaces:\n\n```\n<prefix>hallmarks/<hallmark>/{image, vouch, pouch, about, attest, diags}\n<prefix>reliquaries/<date>/<tool>\n<prefix>enshrines/<base>\n```\n\nEach immediate child of `<prefix>hallmarks` IS a hallmark; the six ark types become plain basename siblings. The `<vessel>:<hallmark>-<suffix>` scheme and the `vouches/` aggregator package both dissolve.\n\n### Constants (`Tools/rbk/rbgc_Constants.sh`)\n\n- Rename `RBGC_ARK_SUFFIX_{IMAGE,VOUCH,POUCH,ABOUT,ATTEST,DIAGS}` to `RBGC_ARK_BASENAME_*`; values drop the leading hyphen.\n- Delete `RBGC_VOUCHES_PACKAGE` — hallmark-only vouch lookup now comes free via subtree navigation.\n- Add categorical-namespace constants: `RBGC_GAR_CATEGORY_HALLMARKS=\"hallmarks\"`, `_RELIQUARIES=\"reliquaries\"`, `_ENSHRINES=\"enshrines\"`.\n\n### Vessel identity\n\nNot in the GAR path. Resolved from the `vouch` or `about` metadata for the hallmark in question. Tally already reads metadata for health; other commands extend the pattern where operation prose or logging requires vessel name.\n\n### Attest-vs-vouch split\n\nBoth persist as peer basenames under `<hallmark>/`. Attestations advertise during build for SLSA provenance; vouches check them at consumption. Load-bearing split retained.\n\n### Producer-site updates\n\nEvery site that pushes an ark — conjure (image, vouch, pouch, about, attest, diags), enshrine, inscribe — constructs paths in the new shape. Concentrate path construction in a helper if current code scatters it.\n\n### Consumer-site updates\n\nSummon, plumb, vouch-verify, tally — switch to new path shape. Abjure simplifies considerably: the per-suffix HEAD/DELETE dance in `rbfl_FoundryLedger.sh:440-650` collapses to a single subtree enumeration + delete loop.\n\n### Spec updates\n\n- `RBSAC-ark_conjure.adoc` — new basename layout\n- `RBSAE-ark_enshrine.adoc` — enshrine lands under `<prefix>enshrines`\n- `RBSDI-depot_inscribe.adoc` — reliquary lands under `<prefix>reliquaries`\n- `RBSAA-ark_abjure.adoc` — subtree delete replaces per-suffix dance\n- `RBS0-SpecTop.adoc` — update ark-layout prose\n- Any spec referencing the `vouches/` aggregator — rewrite for hallmark-only lookup via subtree\n\n### Depends on\n\n- ₢A_AAA — prefix variables enrolled\n- ₢A_AAB — prefix wired through consumers; this pace reshapes the paths AAB wires\n\n### Verification\n\n- `grep -nE 'RBGC_ARK_SUFFIX_' Tools/` returns zero (renamed to `_BASENAME_`)\n- `grep -nE 'RBGC_VOUCHES_PACKAGE' Tools/` returns zero\n- `grep -nE ':\\$\\{[^}]*hallmark[^}]*\\}-' Tools/` returns zero for the old concat pattern\n- Render one hallmark's subtree after conjure — confirms image/vouch/pouch/about/attest/diags as basenames under `<prefix>hallmarks/<hallmark>/`\n- `tt/rbtd-s.TestSuite.fast.sh` — 75/75 green\n\n### Out of scope\n\n- Tabtarget signature simplification — follow-up pace\n- Depot regen execution — ₢A_AAE\n- Filesystem moorings rename — separate heat per ₢A_AAJ decision",
+              "silks": "gar-categorical-layout-migration",
+              "commit": "d420fba"
             }
           ]
         }
