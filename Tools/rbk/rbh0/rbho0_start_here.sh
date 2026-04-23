@@ -68,29 +68,35 @@ rbho_start_here() {
   buh_line "      Place your ${RBYC_RBRA} credential file, verify, confirm you can build and publish."
   buh_tt   "        " "${RBZ_ONBOARD_CRED_DIRECTOR}"
   buh_e
-  buh_line "    Start a ${RBYC_CRUCIBLE} Using Local Builds"
-  buh_line "      Explorer track: inhabit the sandbox, feel the walls."
-  buh_line "      The ${RBYC_CCYOLO} ${RBYC_CRUCIBLE} runs Claude Code in a container that can"
-  buh_line "      only reach Anthropic. Requires a Claude OAuth subscription."
-  buh_line "      Steps:"
-  buh_line "        * Build images locally      — ${RBYC_KLUDGE} ${RBYC_SENTRY} and ${RBYC_BOTTLE}"
-  buh_line "        * Start the sandbox         — ${RBYC_CHARGE} the ${RBYC_CRUCIBLE}"
-  buh_line "        * Shell into the container  — SSH into the ${RBYC_BOTTLE}, run Claude Code"
+
+  # --- Kludged Crucibles ---
+  buh_section "Kludged Crucibles"
+  buh_e
+  buh_line "  Two tracks that build a ${RBYC_CRUCIBLE} locally from ${RBYC_KLUDGE_D}"
+  buh_line "  images — no cloud, no ${RBYC_DEPOT}. Both share the same mechanical"
+  buh_line "  middle:"
+  buh_e
+  buh_line "    * Build images locally — ${RBYC_KLUDGE} ${RBYC_SENTRY} and ${RBYC_BOTTLE}"
+  buh_line "    * Start the sandbox    — ${RBYC_CHARGE} the ${RBYC_CRUCIBLE}"
+  buh_e
+  buh_line "  They diverge on what happens once the ${RBYC_CRUCIBLE} is ${RBYC_CHARGE_D}:"
+  buh_e
+  buh_line "    Inhabit the sandbox — explorer track"
+  buh_line "      The ${RBYC_CCYOLO} ${RBYC_CRUCIBLE} runs Claude Code in a ${RBYC_BOTTLE} that"
+  buh_line "      can only reach Anthropic. Feel the walls from inside."
+  buh_line "      Requires a Claude OAuth subscription."
+  buh_line "      After ${RBYC_CHARGE}:"
+  buh_line "        * Shell into the ${RBYC_BOTTLE}   — SSH in, run Claude Code"
   buh_line "        * Verify network containment — manual curl against the allowlist"
-  buh_line "      No cloud, no credentials beyond your own."
   buh_tt   "        " "${RBZ_ONBOARD_FIRST_CRUCIBLE}"
   buh_e
-  buh_line "    Verify ${RBYC_CRUCIBLE} Containment Under Attack"
-  buh_line "      Evaluator track: prove the sandbox holds under active attack."
+  buh_line "    Prove containment under attack — evaluator track"
   buh_line "      The tadmor ${RBYC_CRUCIBLE} pairs the same ${RBYC_SENTRY} with a hostile"
   buh_line "      ${RBYC_BOTTLE} carrying the Ifrit attack binary; 34 authored cases"
   buh_line "      exercise the containment primitives."
-  buh_line "      Steps:"
-  buh_line "        * Build images locally      — ${RBYC_KLUDGE} ${RBYC_SENTRY} and ifrit ${RBYC_BOTTLE}"
-  buh_line "        * Start the sandbox         — ${RBYC_CHARGE} the ${RBYC_CRUCIBLE}"
-  buh_line "        * Tour the architecture     — ${RBYC_SENTRY}/${RBYC_PENTACLE}/${RBYC_BOTTLE} layers, defense-in-depth"
-  buh_line "        * Run the adversarial suite — Theurge + Ifrit, per-case result reading"
-  buh_line "      No cloud, no credentials."
+  buh_line "      After ${RBYC_CHARGE}:"
+  buh_line "        * Tour the architecture      — ${RBYC_SENTRY}/${RBYC_PENTACLE}/${RBYC_BOTTLE} layers, defense-in-depth"
+  buh_line "        * Run the adversarial suite  — Theurge + Ifrit, per-case result reading"
   buh_tt   "        " "${RBZ_ONBOARD_TADMOR_SECURITY}"
   buh_e
 

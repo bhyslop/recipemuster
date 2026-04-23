@@ -68,6 +68,7 @@ zrbyc_kindle() {
   zrbyc_yk RBYC_BIND      "${z_docs}" "Bind"
   zrbyc_yk RBYC_GRAFT     "${z_docs}" "Graft"
   zrbyc_yk RBYC_KLUDGE    "${z_docs}" "Kludge"
+  zrbyc_yk RBYC_KLUDGE_D  "${z_docs}" "Kludged"
   zrbyc_yk RBYC_ENSHRINE  "${z_docs}" "Enshrine"
   zrbyc_yk RBYC_SUMMON    "${z_docs}" "Summon"
   zrbyc_yk RBYC_PLUMB     "${z_docs}" "Plumb"
@@ -75,6 +76,7 @@ zrbyc_kindle() {
   zrbyc_yk RBYC_VOUCH     "${z_docs}" "Vouch"
   zrbyc_yk RBYC_LEVY      "${z_docs}" "Levy"
   zrbyc_yk RBYC_CHARGE    "${z_docs}" "Charge"
+  zrbyc_yk RBYC_CHARGE_D  "${z_docs}" "Charged"
   zrbyc_yk RBYC_QUENCH    "${z_docs}" "Quench"
 
   # Artifacts and infrastructure
