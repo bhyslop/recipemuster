@@ -1,0 +1,92 @@
+//axhob_operation
+{rbtgo_director_yoke}
+
+NOTE: This operation writes `RBRV_RELIQUARY=«STAMP»` into a conjure vessel's `rbrv.env` so that subsequent Cloud Build operations (conjure, enshrine) consume the named tool image set as GCB step images.
+Both arguments are validated before any file write: the stamp against GAR (all six tool packages must be present under the reliquary subtree), the vessel against its RBRV enrollment plus a vessel-mode gate.
+On validation failure the operation errors diagnostically without touching any file.
+
+The
+{rbtr_director}
+yokes a reliquary stamp into a vessel's regime:
+
+//axhopt_typed_parameter
+{rbtr_director}
+. *Validate Input Parameters*:
+.. {rbbc_require}
+`«STAMP»` provided as first positional argument (e.g., `r260327172456`)
+.. {rbbc_require}
+`«VESSEL_SIGIL»` provided as second positional argument (e.g., `rbev-sentry-deb-tether`)
+
+//axhos_step
+. *Resolve and Load Vessel*:
+.. Resolve `«VESSEL_SIGIL»` to an absolute vessel directory under
+{rbrr_vessel_dir}
+.. {rbbc_require}
+vessel directory contains `rbrv.env`
+.. Source `rbrv.env` to populate `RBRV_*` variables
+.. Enforce RBRV enrollment — all schema-required fields present and well-formed
+.. {rbbc_require}
+{rbrv_sigil}
+matches the directory basename
+
+//axhos_step
+. *Gate on Vessel Mode*:
+.. {rbbc_require}
+{rbrv_vessel_mode}
+equals
+{rbrv_vessel_mode_conjure}
+.. {rbbc_fatal}
+if mode is
+{rbrv_vessel_mode_bind}
+— bind vessels pin an upstream digest (no Cloud Build, no reliquary)
+.. {rbbc_fatal}
+if mode is
+{rbrv_vessel_mode_graft}
+— graft vessels push a locally-built image (no Cloud Build, no reliquary)
+
+//axhos_step
+. *Authenticate as
+{rbtr_director}*:
+.. Execute
+{rbtoe_director_authenticate}
+.. {rbbc_store}
+`«DIRECTOR_TOKEN»` for subsequent API calls
+
+//axhos_step
+. *List Reliquary Packages in GAR*:
+.. {rbbc_call}
+link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.packages/list[packages.list] for
+{rbrr_depot_project_id}
+/
+{rbrr_gcp_region}
+/
+{rbrr_gar_repository}
+with `pageSize=1000`
+.. {rbbc_require}
+HTTP 200 response
+.. Filter response package names to those starting with `${RBRR_CLOUD_PREFIX}reliquaries/«STAMP»/`
+.. Strip the subtree prefix to yield the bare tool-name set present in GAR
+
+//axhos_step
+. *Verify Tool Image Completeness*:
+.. Expected tool name set: `gcloud`, `docker`, `alpine`, `syft`, `binfmt`, `skopeo` (per
+{rbtgo_depot_inscribe})
+.. {rbbc_require}
+all six names present in the filtered list
+.. {rbbc_fatal}
+if any expected tool is missing — the error message names `«STAMP»`, the reliquary subtree path, and the specific missing tool(s); remediation points at
+{rbtgo_depot_inscribe}
+
+//axhos_step
+. *Rewrite rbrv.env*:
+.. Load the vessel's `rbrv.env` into memory, line by line
+.. For each line matching `^RBRV_RELIQUARY=` — substitute with `RBRV_RELIQUARY=«STAMP»`, preserving position
+.. All other lines pass through unchanged
+.. If no `RBRV_RELIQUARY=` line was found — append one under a `# Tool Image Reliquary` comment header
+.. Write the composed content to a temp file, then atomically replace `rbrv.env` via rename
+
+//axhoc_completion
+Successful execution writes `RBRV_RELIQUARY=«STAMP»` into the vessel's `rbrv.env`; no GAR state is modified.
+The
+{rbtr_director}
+commits the modified `rbrv.env` with their usual git workflow.

@@ -115,6 +115,7 @@
 :rbtgo_depot_inscribe:            <<rbtgo_depot_inscribe,rbfl_inscribe>>
 :rbtgo_director_knight:           <<rbtgo_director_knight,rbgg_knight_director>>
 :rbtgo_director_vouch:            <<rbtgo_director_vouch,rbfv_batch_vouch>>
+:rbtgo_director_yoke:             <<rbtgo_director_yoke,rbfl_yoke>>
 :rbtgo_governor_mantle:            <<rbtgo_governor_mantle,rbgp_governor_mantle>>
 :rbtgo_image_delete:              <<rbtgo_image_delete,rbfl_jettison>>
 :rbtgo_image_rekon:               <<rbtgo_image_rekon,rbfl_rekon>>
@@ -1082,6 +1083,17 @@ mirrors upstream tool images into a datestamped GAR namespace
 ({rbtgog_depot}).
 
 include::RBSDI-depot_inscribe.adoc[]
+
+[[rbtgo_director_yoke]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_director_yoke}
+
+Yokes a reliquary stamp into a conjure vessel's
+{rbrv_regime}:
+validates the stamp against GAR and the vessel against its enrollment, then rewrites `RBRV_RELIQUARY` in the vessel's `rbrv.env`
+({rbtgog_depot}).
+
+include::RBSDY-director_yoke.adoc[]
 
 [[rbtgo_image_delete]]
 //axvo_method axd_transient axd_grouped

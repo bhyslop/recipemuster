@@ -73,6 +73,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBSDS** → `rbk/vov_veiled/RBSDS-dns_step.adoc`
 - **RBSDU** → `rbk/vov_veiled/RBSDU-depot_unmake.adoc`
 - **RBSDV** → `rbk/vov_veiled/RBSDV-director_vouch.adoc`
+- **RBSDY** → `rbk/vov_veiled/RBSDY-director_yoke.adoc` (Yoke operation — director validates reliquary stamp and conjure vessel, then rewrites RBRV_RELIQUARY in rbrv.env)
 - **RBSFR** → `rbk/vov_veiled/RBSFR-FundusRegistry.md` (Fundus Capability Registry — agent-interpreted test target inventory)
 - **RBSGD** → `rbk/vov_veiled/RBSGD-gdc_establish.adoc`
 - **RBSGM** → `rbk/vov_veiled/RBSGM-governor_mantle.adoc`

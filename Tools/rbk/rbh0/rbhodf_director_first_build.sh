@@ -122,9 +122,10 @@ rbho_director_first_build() {
 
   buh_step1 "Inscribe the ${RBYC_RELIQUARY}"
   buh_e
-  buh_line "The ${RBYC_RELIQUARY} is a set of builder tool images (skopeo,"
-  buh_line "docker, gcloud, syft) that Cloud Build uses during ${RBYC_VESSEL}"
-  buh_line "construction. Without it, the ${RBYC_CONJURE} preflight check fails."
+  buh_line "The ${RBYC_RELIQUARY} is a set of six builder tool images (gcloud,"
+  buh_line "docker, alpine, syft, binfmt, skopeo) that Cloud Build uses during"
+  buh_line "${RBYC_VESSEL} construction. Without it, the ${RBYC_CONJURE} preflight"
+  buh_line "check fails."
   buh_e
   buh_line "Think of it as installing the toolchain before your first build."
   buh_line "This is a one-time operation — once inscribed, the ${RBYC_RELIQUARY}"
@@ -138,7 +139,7 @@ rbho_director_first_build() {
   buh_e
   buh_tt "   " "${RBZ_INSCRIBE_RELIQUARY}"
   buh_e
-  buh_line "This mirrors four tool images from upstream into the ${RBYC_DEPOT}"
+  buh_line "This mirrors six tool images from upstream into the ${RBYC_DEPOT}"
   buh_line "GAR namespace. Takes 2-5 minutes depending on network speed."
   buh_e
   buyy_cmd_yawp "r260324193326";                   local -r z_ds_example="${z_buym_yelp}"
