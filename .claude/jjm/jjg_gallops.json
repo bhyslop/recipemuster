@@ -2,6 +2,7 @@
   "schema_version": 4,
   "next_heat_seed": "BA",
   "heat_order": [
+    "₣A_",
     "₣A-",
     "₣A9",
     "₣Az",
@@ -22,8 +23,7 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au",
-    "₣A_"
+    "₣Au"
   ],
   "heats": {
     "₣A-": {
@@ -4655,7 +4655,7 @@
     "₣A_": {
       "silks": "rbk-mvp-3-resource-prefix-and-depot-regen",
       "creation_time": "260415",
-      "status": "stabled",
+      "status": "racing",
       "order": [
         "₢A_AAI",
         "₢A_AAA",
