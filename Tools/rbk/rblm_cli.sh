@@ -48,7 +48,8 @@ rblm_zero() {
   buh_e
   buh_line "  RBRR fields blanked (zeroed to onboarding start):"
   buh_line "    RBRR_DEPOT_PROJECT_ID, RBRR_GAR_REPOSITORY,"
-  buh_line "    RBRR_GCB_POOL_STEM"
+  buh_line "    RBRR_GCB_POOL_STEM,"
+  buh_line "    RBRR_CLOUD_PREFIX, RBRR_RUNTIME_PREFIX"
   buh_e
   buh_line "  RBRR fields pre-filled to defaults:"
   buh_line "    RBRR_DNS_SERVER, RBRR_GCB_MACHINE_TYPE, RBRR_GCB_TIMEOUT,"
@@ -116,6 +117,8 @@ rblm_zero() {
       RBRR_DEPOT_PROJECT_ID=*)              printf '%s\n' "RBRR_DEPOT_PROJECT_ID="                      ;;
       RBRR_GAR_REPOSITORY=*)                printf '%s\n' "RBRR_GAR_REPOSITORY="                        ;;
       RBRR_GCB_POOL_STEM=*)                 printf '%s\n' "RBRR_GCB_POOL_STEM="                         ;;
+      RBRR_CLOUD_PREFIX=*)                  printf '%s\n' "RBRR_CLOUD_PREFIX="                          ;;
+      RBRR_RUNTIME_PREFIX=*)                printf '%s\n' "RBRR_RUNTIME_PREFIX="                        ;;
       RBRR_GCB_WORKER_POOL=*)               continue                                                      ;;
       # Everything else passes through (comments, shebang, blanks)
       *)                                    printf '%s\n' "${z_line}"                                   ;;
