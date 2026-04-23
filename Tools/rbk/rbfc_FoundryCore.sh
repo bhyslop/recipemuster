@@ -83,6 +83,9 @@ zrbfc_kindle() {
   buc_log_args 'Scratch file for sequential temp-file patterns'
   readonly ZRBFC_SCRATCH_FILE="${BURD_TEMP_DIR}/rbfc_scratch.txt"
 
+  buc_log_args 'Hallmark enumeration output (zrbfc_list_hallmarks_capture)'
+  readonly ZRBFC_HALLMARK_LIST_FILE="${BURD_TEMP_DIR}/rbfc_hallmark_list.txt"
+
   buc_log_args 'Step script directories (used by shared about/vouch assembly)'
   local z_self_dir="${BASH_SOURCE[0]%/*}"
   readonly ZRBFC_RBGJA_STEPS_DIR="${z_self_dir}/rbgja"
@@ -518,6 +521,49 @@ zrbfc_assemble_vouch_steps() {
 }
 
 ######################################################################
+# GAR Hallmark Enumeration (Registry API — shared by tally and batch_vouch)
+
+# Internal: enumerate every ark under ${RBGL_HALLMARKS_ROOT}/ via GAR REST.
+# Writes "<hallmark> <basename>" pairs (one per line, sorted) to
+# ZRBFC_HALLMARK_LIST_FILE. An empty file is a valid result (no hallmarks).
+# Args: token
+# Pagination: pageSize=1000 — deferred until evidence of >1000 packages.
+zrbfc_list_hallmarks_capture() {
+  zrbfc_sentinel
+
+  local -r z_token="${1:?Token required}"
+
+  local -r z_list_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages?pageSize=1000"
+  local -r z_list_infix="rbfc_list_hallmarks"
+  local -r z_subtree="${RBGL_HALLMARKS_ROOT}/"
+
+  rbgu_http_json "GET" "${z_list_url}" "${z_token}" "${z_list_infix}"
+  rbgu_http_require_ok "List hallmark packages" "${z_list_infix}"
+
+  local -r z_resp_file="${ZRBGU_PREFIX}${z_list_infix}${ZRBGU_POSTFIX_JSON}"
+  local -r z_raw_file="${BURD_TEMP_DIR}/rbfc_hallmark_list_raw.txt"
+
+  # GAR returns package names URL-encoded (slashes as %2F). Decode, strip the
+  # API path prefix, filter to ${RBGL_HALLMARKS_ROOT}/<hallmark>/<basename> shape
+  # (length == 2 after split excludes anything deeper or shallower), emit as
+  # space-separated pair lines.
+  jq -r --arg subtree "${z_subtree}" '
+    .packages[]?.name
+    | sub("^.*/packages/"; "")
+    | gsub("%2F"; "/")
+    | select(startswith($subtree))
+    | ltrimstr($subtree)
+    | split("/")
+    | select(length == 2)
+    | "\(.[0]) \(.[1])"
+  ' "${z_resp_file}" > "${z_raw_file}" \
+    || buc_die "Failed to extract hallmark package list"
+
+  sort "${z_raw_file}" > "${ZRBFC_HALLMARK_LIST_FILE}" \
+    || buc_die "Failed to sort hallmark list"
+}
+
+######################################################################
 # GAR Artifact Extraction (Registry API — no docker required)
 
 # Internal: extract files from a FROM-scratch artifact in GAR to a local directory.
@@ -624,24 +670,69 @@ zrbfc_gar_extract_artifact() {
   return 0
 }
 
+# Resolve a hallmark's vessel by reading the vessel field from its vouch ark.
+# Authenticates as Retriever, fetches the vouch ark, extracts vouch_summary.json,
+# and emits the .vessel field. Single home for hallmark→vessel lookup; callers
+# that need vessel identity for operation prose or logging route through here.
+# Args: hallmark
+# Emits: vessel sigil (e.g., "rbev-busybox")
+rbfc_vessel_for_hallmark_capture() {
+  zrbfc_sentinel
+
+  local -r z_hallmark="${1:?Hallmark required}"
+
+  test -f "${RBDC_RETRIEVER_RBRA_FILE}" \
+    || buc_die "Retriever credential not found: ${RBDC_RETRIEVER_RBRA_FILE}"
+  local z_token=""
+  z_token=$(rbgo_get_token_capture "${RBDC_RETRIEVER_RBRA_FILE}") \
+    || buc_die "Failed to get Retriever OAuth token"
+
+  local -r z_vouch_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}"
+  local -r z_scratch="${BURD_TEMP_DIR}/rbfc_vessel_for_hallmark"
+  rm -rf "${z_scratch}" || buc_die "Failed to clear scratch dir: ${z_scratch}"
+
+  zrbfc_gar_extract_artifact "${z_token}" "${z_vouch_pkg}" "${z_hallmark}" "${z_scratch}" \
+    || buc_die "Hallmark not found: ${z_hallmark} (no vouch ark at ${z_vouch_pkg}:${z_hallmark})"
+
+  test -f "${z_scratch}/vouch_summary.json" \
+    || buc_die "vouch_summary.json not found in vouch ark for ${z_hallmark}"
+
+  local -r z_vessel_file="${BURD_TEMP_DIR}/rbfc_vessel_for_hallmark_value.txt"
+  jq -r '.vessel // empty' "${z_scratch}/vouch_summary.json" > "${z_vessel_file}" \
+    || buc_die "Failed to read vessel from vouch_summary.json"
+  local -r z_vessel=$(<"${z_vessel_file}")
+  test -n "${z_vessel}" || buc_die "Vessel field empty in vouch_summary.json"
+
+  printf '%s\n' "${z_vessel}"
+}
+
 ######################################################################
 # Plumb (rbw-fpf / rbw-fpc)
 
 # Internal: core plumb logic shared by full and compact modes.
 # Queries GAR directly via Registry API — no local docker required.
-# Authenticates as Retriever. Supports hallmark-only mode via vouches lookup.
-# Args: vessel hallmark mode
+# Authenticates as Retriever. Vessel is resolved from the hallmark's vouch ark.
+# Args: hallmark mode
 zrbfc_plumb_core() {
   zrbfc_sentinel
 
-  local z_vessel="${1:-}"
-  z_vessel="${z_vessel##*/}"  # accept directory path or bare moniker
-  local -r z_hallmark="${2:-}"
-  local -r z_mode="${3}"
+  local -r z_hallmark="${1:-}"
+  local -r z_mode="${2}"
 
   test -n "${z_hallmark}" || buc_die "Hallmark parameter required"
 
-  # Authenticate as Retriever
+  buc_step "Resolving vessel from vouch ark"
+  local z_vessel=""
+  z_vessel=$(rbfc_vessel_for_hallmark_capture "${z_hallmark}") \
+    || buc_die "Failed to resolve vessel for hallmark: ${z_hallmark}"
+  buc_info "Resolved hallmark to vessel: ${z_vessel}"
+
+  rbfc_require_vessel_sigil "${z_vessel}"
+
+  # Load vessel config (sets RBRV_VESSEL_MODE, RBRV_BIND_IMAGE, etc.)
+  local -r z_vessel_dir="${RBRR_VESSEL_DIR}/${z_vessel}"
+  zrbfc_load_vessel "${z_vessel_dir}"
+
   buc_step "Authenticating as Retriever"
   test -f "${RBDC_RETRIEVER_RBRA_FILE}" \
     || buc_die "Retriever credential not found: ${RBDC_RETRIEVER_RBRA_FILE}"
@@ -654,34 +745,6 @@ zrbfc_plumb_core() {
   local z_has_about=false
   local z_has_vouch=false
 
-  # Hallmark-only mode: resolve vessel from vouch ark (vessel lives in vouch_summary.json)
-  local -r z_vouch_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}"
-  if test -z "${z_vessel}"; then
-    buc_step "Resolving vessel from vouch ark"
-    local -r z_vouch_only_dir="${BURD_TEMP_DIR}/plumb_vouch_only"
-    if zrbfc_gar_extract_artifact "${z_token}" "${z_vouch_pkg}" "${z_hallmark}" "${z_vouch_only_dir}"; then
-      test -f "${z_vouch_only_dir}/vouch_summary.json" \
-        || buc_die "vouch_summary.json not found in vouch ark"
-      local -r z_vessel_file="${BURD_TEMP_DIR}/plumb_vessel.txt"
-      jq -r '.vessel // empty' "${z_vouch_only_dir}/vouch_summary.json" \
-        > "${z_vessel_file}" \
-        || buc_die "Failed to read vessel from vouch_summary.json"
-      z_vessel=$(<"${z_vessel_file}")
-      test -n "${z_vessel}" || buc_die "Vessel field empty in vouch_summary.json"
-      buc_info "Resolved hallmark to vessel: ${z_vessel}"
-      cp "${z_vouch_only_dir}"/* "${z_extract}/" 2>/dev/null || true
-      z_has_vouch=true
-    else
-      buc_die "Hallmark not found: ${z_hallmark} (no vouch ark at ${z_vouch_pkg})"
-    fi
-  fi
-
-  rbfc_require_vessel_sigil "${z_vessel}"
-
-  # Load vessel config (sets RBRV_VESSEL_MODE, RBRV_BIND_IMAGE, etc.)
-  local -r z_vessel_dir="${RBRR_VESSEL_DIR}/${z_vessel}"
-  zrbfc_load_vessel "${z_vessel_dir}"
-
   # Fetch about ark from GAR (tag = hallmark)
   buc_step "Fetching about ark from GAR"
   local -r z_about_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_ABOUT}"
@@ -691,14 +754,13 @@ zrbfc_plumb_core() {
     cp "${z_about_dir}"/* "${z_extract}/" 2>/dev/null || true
   fi
 
-  # Fetch vouch ark (skip if already resolved via hallmark-only branch)
-  if test "${z_has_vouch}" = "false"; then
-    buc_step "Fetching vouch ark from GAR"
-    local -r z_vouch_dir="${BURD_TEMP_DIR}/plumb_vouch"
-    if zrbfc_gar_extract_artifact "${z_token}" "${z_vouch_pkg}" "${z_hallmark}" "${z_vouch_dir}"; then
-      z_has_vouch=true
-      cp "${z_vouch_dir}"/* "${z_extract}/" 2>/dev/null || true
-    fi
+  # Fetch vouch ark for content (vessel resolution already extracted it once above)
+  buc_step "Fetching vouch ark from GAR"
+  local -r z_vouch_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}"
+  local -r z_vouch_dir="${BURD_TEMP_DIR}/plumb_vouch"
+  if zrbfc_gar_extract_artifact "${z_token}" "${z_vouch_pkg}" "${z_hallmark}" "${z_vouch_dir}"; then
+    z_has_vouch=true
+    cp "${z_vouch_dir}"/* "${z_extract}/" 2>/dev/null || true
   fi
 
   # Bind vessels: fallback to static display if no about ark
@@ -1270,41 +1332,25 @@ zrbfc_plumb_show_full() {
 rbfc_plumb_full() {
   zrbfc_sentinel
 
-  local z_vessel="${1:-}"
-  local z_hallmark="${2:-}"
-
-  # Single-arg: hallmark-only mode (lookup vessel via vouches superdirectory)
-  if test -n "${z_vessel}" && test -z "${z_hallmark}"; then
-    z_hallmark="${z_vessel}"
-    z_vessel=""
-  fi
+  local -r z_hallmark="${1:-}"
 
   buc_doc_brief "Plumb a hallmark's trust posture (full detail)"
-  buc_doc_param "vessel" "Vessel name (omit for hallmark-only lookup via vouches)"
   buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"
   buc_doc_shown || return 0
 
-  zrbfc_plumb_core "${z_vessel}" "${z_hallmark}" "full"
+  zrbfc_plumb_core "${z_hallmark}" "full"
 }
 
 rbfc_plumb_compact() {
   zrbfc_sentinel
 
-  local z_vessel="${1:-}"
-  local z_hallmark="${2:-}"
-
-  # Single-arg: hallmark-only mode (lookup vessel via vouches superdirectory)
-  if test -n "${z_vessel}" && test -z "${z_hallmark}"; then
-    z_hallmark="${z_vessel}"
-    z_vessel=""
-  fi
+  local -r z_hallmark="${1:-}"
 
   buc_doc_brief "Plumb a hallmark's trust posture (compact summary)"
-  buc_doc_param "vessel" "Vessel name (omit for hallmark-only lookup via vouches)"
   buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"
   buc_doc_shown || return 0
 
-  zrbfc_plumb_core "${z_vessel}" "${z_hallmark}" "compact"
+  zrbfc_plumb_core "${z_hallmark}" "compact"
 }
 
 # eof

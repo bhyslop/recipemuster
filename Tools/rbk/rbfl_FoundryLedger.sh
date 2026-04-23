@@ -397,22 +397,14 @@ rbfl_jettison() {
 rbfl_abjure() {
   zrbfl_sentinel
 
-  local z_hallmark="${2:-}"
-  local z_force="${3:-}"
+  local z_hallmark="${1:-}"
+  local z_force="${2:-}"
 
   # Documentation block
   buc_doc_brief "Abjure a hallmark — delete all GAR packages under hallmarks/<hallmark>/"
-  buc_doc_param "vessel" "Vessel sigil or path (retained for AAK signature; drops in AAL)"
   buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"
   buc_doc_param "--force" "Optional: skip confirmation prompt"
   buc_doc_shown || return 0
-
-  # Vessel resolution kept for AAK signature compatibility — vessel no longer
-  # appears in the registry path, but the load still validates the moniker.
-  zrbfc_resolve_vessel "${1:-}"
-  local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
-  test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
-  zrbfc_load_vessel "${z_vessel_dir}"
 
   test -n "${z_hallmark}" || buc_die "Hallmark parameter required"
 
@@ -494,15 +486,112 @@ rbfl_abjure() {
 rbfl_tally() {
   zrbfl_sentinel
 
-  buc_doc_brief "List hallmarks across all vessels with health status"
+  buc_doc_brief "Tally hallmarks with health status (vouched / pending / incomplete)"
   buc_doc_shown || return 0
 
-  # Stubbed in ₢A_AAK Notch 2b. The original implementation enumerated tags
-  # under per-vessel registry paths and case-matched suffix patterns, both of
-  # which dissolved with the GAR categorical-layout migration. The rewrite
-  # (enumerate hallmarks via GAR REST list-packages, classify by basename
-  # presence) is architecturally substantial and lands in pace ₢A_AAO.
-  buc_die "rbfl_tally: rewrite pending in ₢A_AAO — see RBSCL spec and Tools/rbk/rbfl_FoundryLedger.sh history at commit a9e95201 for the legacy implementation"
+  buc_step "Authenticating as Retriever"
+  test -f "${RBDC_RETRIEVER_RBRA_FILE}" \
+    || buc_die "Retriever credential not found: ${RBDC_RETRIEVER_RBRA_FILE}"
+  local z_token=""
+  z_token=$(rbgo_get_token_capture "${RBDC_RETRIEVER_RBRA_FILE}") \
+    || buc_die "Failed to get Retriever OAuth token"
+
+  buc_step "Enumerating hallmarks under ${RBGL_HALLMARKS_ROOT}/"
+  zrbfc_list_hallmarks_capture "${z_token}"
+
+  if ! test -s "${ZRBFC_HALLMARK_LIST_FILE}"; then
+    buc_info "No hallmarks found under ${RBGL_HALLMARKS_ROOT}/"
+    buc_success "Tally complete — 0 hallmarks"
+    return 0
+  fi
+
+  # Load-then-iterate. A synthetic sentinel element appended to the array
+  # lets the final hallmark flush through the same boundary branch as every
+  # intermediate one (single flush site).
+  local z_lines=()
+  local z_line=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    z_lines+=("${z_line}")
+  done < "${ZRBFC_HALLMARK_LIST_FILE}"
+  z_lines+=("__SENTINEL__ __SENTINEL__")
+
+  echo ""
+  printf "  %-30s  %-11s  %s\n" "HALLMARK" "HEALTH" "BASENAMES"
+  printf "  %-30s  %-11s  %s\n" "------------------------------" "-----------" "---------"
+
+  # State machine over <hallmark> <basename> pairs (file was sorted by the
+  # capture helper). Vessel is no longer encoded in the GAR path —
+  # restoration via about/vouch metadata is AAL territory.
+  local z_prev_h="" z_prev_bns=""
+  local z_prev_img=0 z_prev_abt=0 z_prev_vch=0
+  local z_count=0 z_vouched_n=0 z_pending_n=0 z_incomplete_n=0
+  local z_i="" z_h="" z_b="" z_health=""
+
+  for z_i in "${!z_lines[@]}"; do
+    z_line="${z_lines[$z_i]}"
+    test -n "${z_line}" || continue
+
+    z_h="${z_line%% *}"
+    z_b="${z_line#* }"
+    test -n "${z_h}" || continue
+    test -n "${z_b}" || continue
+
+    if test "${z_h}" != "${z_prev_h}"; then
+      if test -n "${z_prev_h}"; then
+        if test "${z_prev_img}" = "1" \
+          && test "${z_prev_abt}" = "1" \
+          && test "${z_prev_vch}" = "1"; then
+          z_health="vouched"
+          z_vouched_n=$(( z_vouched_n + 1 ))
+        elif test "${z_prev_img}" = "1" \
+          && test "${z_prev_abt}" = "1"; then
+          z_health="pending"
+          z_pending_n=$(( z_pending_n + 1 ))
+        else
+          z_health="incomplete"
+          z_incomplete_n=$(( z_incomplete_n + 1 ))
+        fi
+        printf "  %-30s  %-11s  %s\n" "${z_prev_h}" "${z_health}" "${z_prev_bns}"
+        z_count=$(( z_count + 1 ))
+      fi
+
+      case "${z_h}" in
+        __SENTINEL__) break ;;
+      esac
+
+      z_prev_h="${z_h}"
+      z_prev_bns=""
+      z_prev_img=0
+      z_prev_abt=0
+      z_prev_vch=0
+    fi
+
+    z_prev_bns="${z_prev_bns}${z_prev_bns:+ }${z_b}"
+    case "${z_b}" in
+      "${RBGC_ARK_BASENAME_IMAGE}") z_prev_img=1 ;;
+      "${RBGC_ARK_BASENAME_ABOUT}") z_prev_abt=1 ;;
+      "${RBGC_ARK_BASENAME_VOUCH}") z_prev_vch=1 ;;
+    esac
+  done
+
+  echo ""
+  buc_info "Total hallmarks: ${z_count}  (vouched: ${z_vouched_n}, pending: ${z_pending_n}, incomplete: ${z_incomplete_n})"
+
+  case "${z_pending_n}" in
+    0) ;;
+    *) buc_info "To vouch pending hallmarks:"
+       buc_tabtarget "rbw-fV"
+       ;;
+  esac
+
+  case "${z_incomplete_n}" in
+    0) ;;
+    *) buc_info "To abjure incomplete hallmarks:"
+       buc_tabtarget "rbw-fA"
+       ;;
+  esac
+
+  buc_success "Tally complete"
 }
 
 rbfl_rekon() {
