@@ -20,17 +20,12 @@
 
 set -euo pipefail
 
-# Multiple inclusion detection
 test -z "${ZRBHW_SOURCED:-}" || buc_die "Module rbhw multiply sourced - check sourcing hierarchy"
 ZRBHW_SOURCED=1
-
-######################################################################
-# Internal: Kindle and Sentinel
 
 zrbhw_kindle() {
   test -z "${ZRBHW_KINDLED:-}" || buc_die "Module rbhw already kindled"
 
-  # Kindle — project-specific constants for Windows test infrastructure
   readonly ZRBHW_WSL_DISTRO="rbtww-main"
   readonly ZRBHW_DOCKER_CONTEXT="wsl-native"
 
