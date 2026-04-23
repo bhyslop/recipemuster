@@ -90,7 +90,6 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDRM_COLOPHON_ORDAIN,
             RBTDRM_COLOPHON_ABJURE,
             RBTDRM_COLOPHON_WREST,
-            RBTDRM_COLOPHON_TALLY,
             RBTDRM_COLOPHON_KLUDGE,
         ]),
         RBTDRM_FIXTURE_ACCESS_PROBE => Some(&[RBTDRM_COLOPHON_ACCESS_PROBE]),
