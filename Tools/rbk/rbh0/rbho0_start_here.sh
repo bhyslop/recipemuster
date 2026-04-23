@@ -69,16 +69,10 @@ rbho_start_here() {
 
   buh_section "Kludged ${RBYC_CRUCIBLES}"
   buh_e
-  buh_line "  A ${RBYC_CRUCIBLE} is this project's container sandbox: a ${RBYC_BOTTLE}"
-  buh_line "  that runs the workload paired with a ${RBYC_SENTRY} that enforces what"
-  buh_line "  can leave — the ${RBYC_BOTTLE}'s only network path is through the"
-  buh_line "  ${RBYC_SENTRY}'s allowlist. (A third container, the ${RBYC_PENTACLE},"
-  buh_line "  owns the network namespace the two share, making the containment"
-  buh_line "  structural rather than policy-alone.) Each ${RBYC_CRUCIBLE} is described"
-  buh_line "  by a ${RBYC_NAMEPLATE} — the two tracks below ship ${z_ccyolo} and ${z_tadmor}."
-  buh_e
-  buh_line "  Two tracks locally build the images for a ${RBYC_CRUCIBLE} and then"
-  buh_line "  start it. Both share the same mechanical middle:"
+  buh_line "  A ${RBYC_CRUCIBLE} is this project's container sandbox: a ${RBYC_BOTTLE} runs"
+  buh_line "  the workload, a ${RBYC_SENTRY} gates egress, and a ${RBYC_PENTACLE} owns their"
+  buh_line "  shared network namespace. ${z_ccyolo} and ${z_tadmor} below both start"
+  buh_line "  the same way:"
   buh_e
   buh_line "    * Build images locally — ${RBYC_KLUDGE} ${RBYC_SENTRY}/${RBYC_PENTACLE} and ${RBYC_BOTTLE}"
   buh_line "    * Start the sandbox    — ${RBYC_CHARGE} the ${RBYC_CRUCIBLE}"
