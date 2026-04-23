@@ -331,21 +331,21 @@ rbfl_jettison() {
 
   # Documentation block
   buc_doc_brief "Jettison an image tag from the registry by locator"
-  buc_doc_param "locator" "Image locator in moniker:tag format (e.g., rbev-busybox:20251231T160211Z-img)"
+  buc_doc_param "locator" "Image locator in package-path:tag format (e.g. hallmarks/H/image:H)"
   buc_doc_param "--force" "Optional: skip confirmation prompt"
   buc_doc_shown || return 0
 
   # Validate locator parameter
-  test -n "${z_locator}" || buc_die "Locator parameter required (moniker:tag)"
+  test -n "${z_locator}" || buc_die "Locator parameter required (package-path:tag)"
 
-  # Parse locator into moniker and tag
+  # Parse locator into package path and tag
   case "${z_locator}" in
     *:*) : ;;
-    *)   buc_die "Invalid locator format. Expected moniker:tag" ;;
+    *)   buc_die "Invalid locator format. Expected package-path:tag" ;;
   esac
-  local z_moniker="${z_locator%%:*}"
-  local z_tag="${z_locator#*:}"
-  test -n "${z_moniker}" || buc_die "Moniker is empty in locator"
+  local z_pkg_path="${z_locator%:*}"
+  local z_tag="${z_locator##*:}"
+  test -n "${z_pkg_path}" || buc_die "Package path is empty in locator"
   test -n "${z_tag}" || buc_die "Tag is empty in locator"
 
   # Check for --force flag
@@ -377,7 +377,7 @@ rbfl_jettison() {
     -H "Authorization: Bearer ${z_token}"             \
     -w "%{http_code}"                                 \
     -o "${z_response_file}"                           \
-    "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${z_moniker}/manifests/${z_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${z_pkg_path}/manifests/${z_tag}" \
     > "${z_status_file}" || buc_die "DELETE request failed"
 
   local z_http_code
@@ -597,64 +597,68 @@ rbfl_tally() {
 rbfl_rekon() {
   zrbfl_sentinel
 
-  local z_moniker="${1:-}"
+  local -r z_hallmark="${1:-}"
 
-  buc_doc_brief "List all tags for a vessel package in the registry"
-  buc_doc_param "moniker" "Vessel moniker (e.g., rbev-sentry-deb-tether)"
+  buc_doc_brief "List ark basenames present under a hallmark's GAR subtree"
+  buc_doc_param "hallmark" "Hallmark identifier"
   buc_doc_shown || return 0
 
-  if test -z "${z_moniker}"; then
-    local z_sigils
-    z_sigils=$(rbrv_list_capture 2>/dev/null) || true
-    buc_warn "Vessel moniker parameter required"
-    if test -n "${z_sigils}"; then
-      buc_bare "  Available vessels:"
-      local z_s=""
-      for z_s in ${z_sigils}; do
-        buc_bare "    ${z_s}"
-      done
-    fi
-    buc_die "Usage: rbw-ir <vessel-moniker>"
-  fi
+  test -n "${z_hallmark}" || buc_die "Usage: rbw-ir <hallmark>"
 
   buc_step "Authenticating as Director"
-  local z_token
-  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
+  test -f "${RBDC_DIRECTOR_RBRA_FILE}" \
+    || buc_die "Director credential not found: ${RBDC_DIRECTOR_RBRA_FILE}"
+  local z_token=""
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+    || buc_die "Failed to get Director OAuth token"
 
-  buc_step "Fetching tags for ${z_moniker}"
-  local z_tags_file="${BURD_TEMP_DIR}/rbfl_rekon_tags.json"
-  local z_stderr_file="${BURD_TEMP_DIR}/rbfl_rekon_stderr.txt"
-  curl -sL \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-    -H "Authorization: Bearer ${z_token}" \
-    "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${z_moniker}/tags/list" \
-    > "${z_tags_file}" 2>"${z_stderr_file}" \
-    || buc_die "Failed to fetch tags for ${z_moniker} — see ${z_stderr_file}"
+  buc_step "Enumerating arks under ${RBGL_HALLMARKS_ROOT}/${z_hallmark}/"
+  zrbfc_list_hallmarks_capture "${z_token}"
 
-  if jq -e '.errors' "${z_tags_file}" >/dev/null 2>&1; then
-    local z_err
-    jq -r '.errors[0].message // "Unknown error"' "${z_tags_file}" > "${ZRBFC_SCRATCH_FILE}" \
-      || buc_die "Failed to extract error message from registry response"
-    z_err=$(<"${ZRBFC_SCRATCH_FILE}")
-    buc_die "Registry API error for ${z_moniker}: ${z_err}"
-  fi
+  # Filter the full hallmark enumeration to rows for this hallmark.
+  local z_present=""
+  local z_line=""
+  local z_h=""
+  local z_b=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    test -n "${z_line}" || continue
+    z_h="${z_line%% *}"
+    z_b="${z_line#* }"
+    if test "${z_h}" = "${z_hallmark}"; then
+      z_present="${z_present}${z_present:+ }${z_b}"
+    fi
+  done < "${ZRBFC_HALLMARK_LIST_FILE}"
 
-  local z_all_tags_file="${BURD_TEMP_DIR}/rbfl_rekon_all_tags.txt"
-  jq -r '.tags[]? // empty' "${z_tags_file}" > "${z_all_tags_file}" \
-    || buc_die "Failed to extract tags"
+  test -n "${z_present}" || buc_die "Hallmark not found: ${z_hallmark}"
 
-  local z_count
-  z_count=$(wc -l < "${z_all_tags_file}" | tr -d ' ')
+  echo ""
+  printf "  %-10s  %-6s  %s\n" "BASENAME" "EXISTS" "PACKAGE-PATH"
+  printf "  %-10s  %-6s  %s\n" "----------" "------" "------------"
 
-  printf "\nVessel: %s  (%s tags)\n\n" "${z_moniker}" "${z_count}"
-  if test -s "${z_all_tags_file}"; then
-    sort "${z_all_tags_file}"
-  else
-    echo "  (no tags)"
-  fi
+  local z_canon=""
+  local z_mark=""
+  local z_path=""
+  for z_canon in \
+    "${RBGC_ARK_BASENAME_IMAGE}" \
+    "${RBGC_ARK_BASENAME_ABOUT}" \
+    "${RBGC_ARK_BASENAME_VOUCH}" \
+    "${RBGC_ARK_BASENAME_ATTEST}" \
+    "${RBGC_ARK_BASENAME_POUCH}" \
+    "${RBGC_ARK_BASENAME_DIAGS}"; do
+    z_mark="no"
+    case " ${z_present} " in
+      *" ${z_canon} "*) z_mark="yes" ;;
+    esac
+    if test "${z_mark}" = "yes"; then
+      z_path="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${z_canon}"
+    else
+      z_path="(absent)"
+    fi
+    printf "  %-10s  %-6s  %s\n" "${z_canon}" "${z_mark}" "${z_path}"
+  done
 
-  buc_success "Rekon complete"
+  echo ""
+  buc_success "Rekon complete for ${z_hallmark}"
 }
 
 
