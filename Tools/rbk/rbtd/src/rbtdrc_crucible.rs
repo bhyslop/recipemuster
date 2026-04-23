@@ -2213,7 +2213,7 @@ fn rbtdrc_four_mode_supply_chain(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
         let conjure_vessel = "rbev-busybox";
         let bind_vessel = "rbev-bottle-plantuml";
-        let graft_vessel = "rbev-busybox-graft";
+        let graft_vessel = "rbev-graft-demo";
         let conjure_dir = format!("rbev-vessels/{}", conjure_vessel);
         let bind_dir = format!("rbev-vessels/{}", bind_vessel);
         let graft_dir = format!("rbev-vessels/{}", graft_vessel);
