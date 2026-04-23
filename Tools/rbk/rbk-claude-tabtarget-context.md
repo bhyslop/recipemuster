@@ -99,7 +99,7 @@ The Folio column shows how each tabtarget receives it:
 | Colophon | Frontispiece | Folio | Purpose |
 |----------|-------------|-------|---------|
 | `rbw-iJ` | DirectorJettisonsImage | — | Jettison a specific image tag from registry |
-| `rbw-ir` | DirectorRekonsImages | — | Raw GAR tag listing for a vessel package |
+| `rbw-ir` | DirectorRekonsImages | — | List ark basenames present under a hallmark's GAR subtree |
 | `rbw-iw` | DirectorWrestsImage | — | Wrest a specific image from registry |
 
 ### Marshal — Lifecycle (`rbw-M`)
