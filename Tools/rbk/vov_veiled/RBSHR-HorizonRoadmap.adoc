@@ -190,6 +190,77 @@ The sentry still provides the core value: the bottle cannot reach anything the s
 The tunnel adds defense-in-depth only for PrivateLink-capable services.
 Cross-reference: the existing "CIDR allowlist granularity vs CDN-hosted domains" item (Network Security Model) remains relevant for SaaS-only services where the tunnel cannot help.
 
+===== Cross-Cloud Delivery
+
+NOTE: Names in this section — embassy, envoy, lode, entrust, accredit, recall, chantry — are tentative working vocabulary from a design conversation.
+They will be reviewed when these items move into a heat with real scope;
+the concepts are firmer than the words.
+
+Working architectural stance: **asymmetric sovereignty.**
+Recipe Bottle governs identities and infrastructure only in GCP.
+AWS-side presence is shaped as delivered artifacts and policy templates, not owned principals — no AWS-Director, no AWS-Mason, no AWS-Retriever.
+If Recipe Bottle ever needs to *build* in AWS rather than deliver to it, that would be a deliberate architectural decision triggering a full parallel role hierarchy, not an incremental drift.
+
+**Embassy — AWS-side delivery premises.**
+An S3 bucket (with Object Lock in Compliance mode for retention), an IAM role with a trust policy accepting the envoy's federated identity, and Recipe-Bottle-shipped IAM policy shapes that the AWS consumer attaches to whatever principal consumes delivered artifacts (EC2 role, ECS task role, Bedrock execution role, etc.).
+Provisioned by the payor via operations congruent with
+{rbtgi_depot}
+creation — the AWS consumer's embassy is the sovereign-setup equivalent of the Manor's depot.
+Recipe Bottle ships provisioning templates;
+the AWS consumer owns the resulting resources.
+_Trigger_: first concrete need to deliver artifacts to an AWS workload.
+_Reference_: this roadmap entry;
+design conversation pending heat.
+
+**Envoy — GCP-side cloud-native cross-post actor.**
+A
+{giam_service_account}
+in the depot, sibling to existing cloud-native SAs, whose sole purpose is executing cross-cloud pushes to an accredited embassy.
+The envoy holds no long-lived AWS credentials;
+it federates to AWS via OIDC Workload Identity Federation, exchanging short-lived GCP tokens for short-lived AWS STS credentials at operation time.
+Preserves credential locality: Director holds only GCP credentials on the workstation, envoy holds only federation configuration in GCP, and AWS admin credentials never enter Recipe Bottle's custody.
+_Trigger_: embassy entry above.
+_Reference_: this roadmap entry.
+
+**Lode — AWS-side content-addressed artifact.**
+Recipe Bottle's delivered artifact in an embassy bucket: a content-addressed filesystem image (squashfs/erofs, optionally with dm-verity) with Object Lock applied for compliance-grade retention.
+A lode may carry a vessel image payload (the "Director pushes a vessel to AWS" motivator), model weights, or any other content-addressed corpus.
+Sibling-but-distinct from the hoard: hoards stay GCS-native and depot-resident, preserving the existing provenance story;
+lodes are the new AWS-side citizen with S3-native retention semantics.
+Provenance transports as naming-convention sibling objects (attestation JSON adjacent to the image blob), not as OCI referring artifacts, because the lode is not an OCI artifact.
+_Trigger_: embassy entry above.
+_Reference_: this roadmap entry;
+Artifact Preservation section (hoard entry) for the GCP sibling concept.
+
+**Accredit / Recall — governor operations for embassy binding lifecycle.**
+Accredit: governor configures the envoy's OIDC federation against an embassy's IAM role trust policy, and records the binding (embassy name, AWS account, region, role ARN, bucket name) in depot state.
+Recall: governor removes the federation configuration and prunes the binding.
+Follows the existing governor verb register (mantles, charters, knights, forfeits) with diplomatic-register verbs appropriate for foreign-court relationships.
+A single depot may be accredited to multiple embassies.
+_Trigger_: embassy entry above.
+_Reference_: this roadmap entry.
+
+**Entrust — director-triggered cross-post operation.**
+Director invokes entrust on a specific hallmark (or other deliverable) with a target embassy name.
+The envoy executes the cross-post from within Cloud Build: federates to the embassy's IAM role, streams bytes to S3, applies Object Lock retention.
+Director holds no AWS credentials;
+failure modes surface through the existing Cloud Build event stream.
+_Trigger_: embassy entry above.
+_Reference_: this roadmap entry.
+
+**Chantry — Bedrock-hosted inference endpoint.**
+Architecturally distinct from the embassy/lode pattern.
+A chantry is a Bedrock-registered custom model (or a native Bedrock foundation model) invoked by a
+{at_bottle_container}
+over the crucible conduit architecture — not an artifact Recipe Bottle delivers, but a foreign-sovereign service a bottle consumes.
+Weights may originate as a lode (entrusted to an embassy, then consumed by Bedrock Custom Model Import on the AWS side), but the chantry itself is the registered-and-invocable endpoint, not the weight storage.
+Pairs with the "Cloud service conduit nameplate" entry for the invocation path.
+_Trigger_: first concrete Bedrock inference requirement;
+near-term per the Crucible Conduit Architecture section above.
+_Reference_: this roadmap entry;
+`Memos/memo-20260415-crucible-conduit-architecture.md`;
+Crucible Conduit Architecture section above.
+
 ===== Build Pipeline Security
 
 Items below are evaluated and consciously deferred.
