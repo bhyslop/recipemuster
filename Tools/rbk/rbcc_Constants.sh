@@ -60,11 +60,6 @@ zrbcc_kindle() {
   # Increase if services grow heavier.
   readonly RBCC_BOTTLE_TEST_READINESS_DELAY_SEC=30
 
-  # Fact-file infix for per-vessel-hallmark presence files
-  # Composed as: ${vessel}${RBCC_FACT_CONSEC_INFIX}${hallmark}
-  # Producer: rbfl_tally  Consumer: test cases via test -f
-  readonly RBCC_FACT_CONSEC_INFIX="_fact_consec_"
-
   readonly ZRBCC_KINDLED=1
 }
 

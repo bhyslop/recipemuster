@@ -1,29 +1,20 @@
 //axhob_operation
 {rbtgo_hallmark_tally}
 
-NOTE: This operation enumerates
-{rbtga_ark}s
-across all
-{rbtgi_vessel}
-packages in
-{rbtgi_repository},
+NOTE: This operation enumerates every
+{rbtga_ark}
+in
+{rbtgi_repository}
+by listing packages under `hallmarks/` via the GAR REST API implemented by
+{gar_service},
 classifying each
 {rbtga_hallmark}
-by artifact completeness and vouch status.
-Uses local regime vessel list for enumeration, queries
-{gar_service}
-Docker Registry HTTP API V2 for tag data.
+by basename presence under its subtree.
+A single `packages.list` call returns the full corpus; no per-vessel iteration is required because vessel identity is no longer encoded in the GAR path.
 
 The
 {rbtr_retriever}
 tallies hallmarks:
-
-//axhos_step
-. *Enumerate Vessels*:
-.. {rbbc_call}
-local regime vessel list via `rbrv_list_capture`
-.. {rbbc_store}
-`«VESSELS»` as list of vessel monikers
 
 //axhos_step
 . *Authenticate as
@@ -34,61 +25,60 @@ local regime vessel list via `rbrv_list_capture`
 `«RETRIEVER_TOKEN»` for subsequent API calls
 
 //axhos_step
-. *Enumerate Hallmark Subtrees Per Vessel*:
-.. For each vessel in `«VESSELS»`:
-... {rbbc_call}
-Docker Registry HTTP API V2 catalog/list endpoints under `hallmarks/<hallmark>/` for the vessel
-... For each hallmark subtree discovered, match the hallmark segment against
-{rbtga_hallmark}
-pattern (`[cbg]\d{12}-r\d{12}`):
-.... Package `hallmarks/<hallmark>/image` present → classify image tags by platform (bare `:<hallmark>` = consumer manifest list, per-platform build tags may exist as intermediates)
-.... Package `hallmarks/<hallmark>/about` present → about artifact present
-.... Package `hallmarks/<hallmark>/vouch` present → vouch artifact present
-.... Package `hallmarks/<hallmark>/diags` present → diags artifact present (conjure-only build diagnostics; parsed for completeness but does not affect health state)
-.... Package `hallmarks/<hallmark>/attest` with per-platform tags (`:<hallmark>-<ARCH>`) → attest artifact present
-.... Hallmark segments not matching the pattern → skip (not ark hallmarks)
-.... Packages outside `hallmarks/` (reliquaries, enshrines) → skip (not ark artifacts)
-... {rbbc_store}
-unique hallmarks with basename presence and platform data
+. *Enumerate Hallmark Packages*:
+.. {rbbc_store}
+`«HALLMARKS_ROOT»` from `RBGL_HALLMARKS_ROOT` (kindled as `RBRR_CLOUD_PREFIX` + `hallmarks`)
+.. {rbbc_store}
+`«REPO_BASE»` as the GAR REST API repository base (`projects/«PROJECT»/locations/«REGION»/repositories/«REPOSITORY»`)
+.. {rbbc_call}
+link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.packages/list[GAR REST API: packages.list] with:
+... method: `GET`
+... endpoint: `«REPO_BASE»/packages?pageSize=1000`
+... header: `Authorization: Bearer «RETRIEVER_TOKEN»`
+.. {rbbc_require}
+HTTP 200 response
+.. Extract `.packages[].name` from the response, strip the resource prefix, and URL-decode `%2F` back to `/`
+.. Filter to names whose path under `«HALLMARKS_ROOT»/` is exactly two segments (`<hallmark>/<basename>`); excludes both shallower and deeper entries, and excludes anything outside `hallmarks/` (reliquaries, enshrines)
+.. {rbbc_store}
+`«PAIRS»` as sorted `<hallmark> <basename>` pairs (one per line). An empty result is a valid outcome — no hallmarks in the repository.
 
 //axhos_step
-. *Evaluate Health Per Hallmark*:
-.. For each unique vessel+hallmark pair:
-... If `about` basename present and `vouch` basename present → `vouched`
-... If `about` basename present and `vouch` basename absent → `pending`
-... If `image` basename present and `about` basename absent → `incomplete`
-.. {rbbc_store}
-health state and platform list per hallmark
+. *Classify Health Per Hallmark*:
+.. Iterate `«PAIRS»` in sort order; each contiguous run of the same hallmark value constitutes one
+{rbtga_hallmark}'s
+ark inventory.
+.. For each hallmark, record whether the basenames
+{rbtga_ark_image},
+{rbtga_ark_about},
+and
+{rbtga_ark_vouch}
+each appear in its run. Other basenames (`pouch`, `diags`, `attest`) are retained for display but do not affect health classification.
+.. Classify:
+... `vouched`: `image` + `about` + `vouch` all present
+... `pending`: `image` + `about` present, `vouch` absent
+... `incomplete`: any other combination (including `image` without `about`, `about` without `image`, or only auxiliary basenames)
 
 //axhoot_typed_output
 {rbtga_hallmark}
-
-//axhoot_typed_output axd_tally
-{rbcc_fact_consec_infix}
-One file per
-{rbtga_hallmark}
-per vessel.
-Consumers check presence via `test -f` on composed filenames.
-
-. *Present Per-Vessel Tables*:
-.. For each vessel with hallmarks:
+. *Display Table*:
+.. {rbbc_show}
+three-column header: `HALLMARK`, `HEALTH`, `BASENAMES`
+.. For each hallmark (in sort order):
 ... {rbbc_show}
-vessel header
-... {rbbc_show}
-column headers: `Hallmark`, `Platforms`, `Health`
-... For each hallmark (newest first):
-.... {rbbc_show}
-hallmark timestamp, platform list (or `single`), health state
+hallmark, health state, space-separated list of basenames present under its subtree
+.. {rbbc_show}
+summary line: `Total hallmarks: N (vouched: V, pending: P, incomplete: I)`
 
 //axhos_step
 . *Recommend Next Actions*:
 .. If any `pending` hallmarks:
 ... {rbbc_show}
-tabtarget recommendation for vouch
+tabtarget recommendation: {rbtgo_director_vouch} (`rbw-fV`)
 .. If any `incomplete` hallmarks:
 ... {rbbc_show}
-tabtarget recommendation to abjure and rebuild (incomplete typically means the build was interrupted or about stitch failed)
+tabtarget recommendation: {rbtgo_ark_abjure} (`rbw-fA`) — incomplete typically means the build was interrupted or the about stitch failed
 
 //axhoc_completion
-Procedure completes successfully when all vessels have been queried and the per-vessel tables display hallmark health.
-The check reveals the registry's ark inventory and vouch coverage without modifying any resources.
+Procedure completes successfully when the packages listing returns and the classified table displays.
+No resources are modified.
+Vessel identity is not encoded in the GAR path; restoration of a vessel column, if needed, reads `vessel_name` from `about` or `vouch` metadata and is AAL scope — not performed by tally.

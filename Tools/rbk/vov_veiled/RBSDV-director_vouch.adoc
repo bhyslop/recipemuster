@@ -1,77 +1,121 @@
 //axhob_operation
 {rbtgo_director_vouch}
 
-NOTE: This operation vouches for all pending
+NOTE: This operation vouches for every *pending*
 {rbtga_ark}
-hallmarks across all
-{rbtgi_vessel}
-repositories.
+in
+{rbtgi_repository},
+where *pending* means a hallmark whose subtree contains both
+{rbtga_ark_image}
+and
+{rbtga_ark_about}
+basenames but no
+{rbtga_ark_vouch}.
 The
 {rbtr_director}
-enumerates vessels, identifies hallmarks whose subtree contains an `about` basename but no `vouch` basename, pre-checks SLSA provenance availability for conjure-mode hallmarks, and submits individual vouch builds for each vouchable hallmark.
-Conjure hallmarks lacking provenance are skipped with a warning; bind and graft hallmarks are always vouchable.
+enumerates the full hallmark corpus via a single GAR REST `packages.list` call (the same shared helper used by
+{rbtgo_hallmark_tally}),
+identifies pending hallmarks, resolves the vessel name from each hallmark's
+{rbtga_ark_about}
+metadata (since vessel identity no longer lives in the GAR path), and dispatches
+{rbtgo_ark_vouch}
+per hallmark.
+Mode-awareness (conjure, bind, graft) lives inside
+{rbtgo_ark_vouch};
+batch vouch does not branch on mode.
+
+NOTE: *Fail-fast semantics.* If
+{rbtgo_ark_vouch}
+fails for any hallmark, the batch terminates via fatal error at that hallmark.
+There is no skip-with-warning path and no summary-count-masking of failures: a broken hallmark demands immediate attention, not quiet continuation.
 
 The
 {rbtr_director}
 batch-vouches arks:
 
 //axhos_step
-. *Enumerate Vessels*:
-.. Invoke `rbrv_list_capture` to discover all vessel sigils
-.. {rbbc_require}
-at least one vessel exists
+. *Authenticate as
+{rbtr_director}*:
+.. Execute
+{rbtoe_director_authenticate}
+.. {rbbc_store}
+`«DIRECTOR_TOKEN»` for subsequent API calls
 
 //axhos_step
-. *Iterate Vessels*:
-.. For each vessel sigil:
-... Load vessel configuration via `zrbf_load_vessel`
-... {rbbc_call}
-Docker Registry API: enumerate packages under `hallmarks/<hallmark>/` for the vessel
-... For each hallmark subtree, record which basenames are present (`image`, `about`, `vouch`, `pouch`, `diags`, `attest`)
+. *Enumerate Hallmark Packages*:
+.. {rbbc_call}
+the shared hallmark enumeration helper — a single
+link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.packages/list[GAR REST API: packages.list]
+call under `«HALLMARKS_ROOT»/` (`RBGL_HALLMARKS_ROOT`), filtered to `<hallmark>/<basename>` shape
+.. {rbbc_store}
+`«PAIRS»` as sorted `<hallmark> <basename>` pairs (same shape produced for
+{rbtgo_hallmark_tally})
 
 //axhos_step
-. *Classify Hallmark Health*:
-.. For each unique hallmark across all vessels, determine health state by basename presence under its `hallmarks/<hallmark>/` subtree:
-... *vouched*: `about` and `vouch` basenames both present — healthy, skip
-... *vouchable*: `about` present, `vouch` absent, and either (a) mode is bind/graft, or (b) mode is conjure and SLSA provenance exists — queue for vouch
-... *unvouchable*: `about` present, `vouch` absent, mode is conjure, no SLSA provenance — skip with warning
-... *incomplete*: `image` present but `about` absent — about pipeline has not run, skip with warning
-.. Vessel mode is derived from the hallmark mode prefix (`c`=conjure, `b`=bind, `g`=graft)
-.. {rbbc_warn}
-if hallmark mode prefix does not match loaded {rbrv_vessel_mode} — may indicate vessel reconfiguration or corruption
+. *Identify Pending Hallmarks (Pass 1)*:
+.. Iterate `«PAIRS»` in sort order; each contiguous run of the same hallmark is one
+{rbtga_hallmark}'s
+ark inventory.
+.. For each hallmark, record whether
+{rbtga_ark_image},
+{rbtga_ark_about},
+and
+{rbtga_ark_vouch}
+each appear in its run.
+.. A hallmark is *pending* when `image` and `about` are present and `vouch` is absent.
+Collect pending hallmarks into `«PENDING»` (in-memory sequence).
+.. If `«PENDING»` is empty, the procedure completes successfully with no vouches submitted.
 
 //axhos_step
-. *Pre-check Provenance* (conjure only):
-.. For each conjure-mode hallmark with `about` present and `vouch` absent:
-... {rbbc_call}
-`gcloud artifacts docker images describe --show-provenance` to test provenance availability
-... If provenance unavailable: classify as *unvouchable*, continue to next
-.. Bind and graft hallmarks skip this step — they are always vouchable
-
-//axhos_step
-. *Submit Vouch Builds*:
-.. For each *vouchable* hallmark:
-... Invoke `rbf_vouch` with vessel directory and hallmark parameters
+. *Resolve Vessel and Vouch Per Pending Hallmark (Pass 2)*:
+.. For each `«HALLMARK»` in `«PENDING»`:
+... Extract the hallmark's
+{rbtga_ark_about}
+artifact (package `«HALLMARKS_ROOT»/«HALLMARK»/about`, tag `«HALLMARK»`) to a scratch directory via the shared GAR artifact extraction helper
+... Read `.vessel_name` from the extracted `build_info.json` via `jq`
+... {rbbc_store}
+`«VESSEL_DIR»` as `«RBRR_VESSEL_DIR»/«VESSEL_NAME»`
 ... {rbbc_require}
-vouch completes successfully
+`«VESSEL_DIR»` exists on disk — the vessel named in `about` metadata must correspond to a configured vessel in the current regime
+... {rbbc_fatal}
+if the `about` artifact cannot be extracted, `build_info.json` is missing, `.vessel_name` is empty, or `«VESSEL_DIR»` does not exist — the `about` artifact is the sole source of vessel identity for this batch; a gap there is a fail-fast stop
+... Invoke
+{rbtgo_ark_vouch}
+with `«VESSEL_DIR»` and `«HALLMARK»`.
+{rbtgo_ark_vouch}
+loads the vessel's
+{rbrv_vessel_mode}
+internally and dispatches the appropriate verification (conjure: SLSA DSSE verification; bind: digest-pin; graft: GRAFTED stamp).
+... {rbbc_fatal}
+if
+{rbtgo_ark_vouch}
+fails — the batch terminates at the broken hallmark.
 
 //axhoot_typed_output
 {rbtga_ark_vouch}
 . *Display Summary*:
 .. {rbbc_show}
-per-vessel table: hallmark, health state, action taken
-.. {rbbc_show}
-batch totals: N vouched, M skipped (no provenance), P already vouched, Q incomplete
+`Batch vouch complete — N/N hallmark(s) vouched` where N is the initial pending count
 
 //axhoc_completion
-Successful execution creates
+Successful execution creates one
 {rbtga_ark_vouch}
-artifacts for all vouchable hallmarks across all vessels.
-Conjure hallmarks without SLSA provenance are skipped gracefully — the batch never aborts on these.
-Bind and graft hallmarks are always vouchable (no provenance pre-check needed).
+artifact per pending hallmark (N total, where N = initial pending count).
+The batch runs sequentially; a failure at any hallmark halts the remainder.
 +
-*No-provenance resilience* (conjure only): Older conjure builds may lack SLSA provenance records.
-Rather than submitting a Cloud Build that fails with an opaque `invalid DSSE envelope payload` error, the batch pre-checks provenance availability and skips with a clear message.
+*Scope of vessel resolution*: Reading `vessel_name` from `build_info.json` is a narrow anticipation of the broader vessel-from-metadata pattern (AAL territory) — applied locally inside batch vouch only, because
+{rbtgo_ark_vouch}
+'s signature still takes a vessel directory.
+Other operations (tally, plumb, abjure) continue to not surface vessel.
 +
-*Mode-aware vouch*: The batch delegates to {rbtgo_ark_vouch}, which branches on vessel mode internally.
-Bind gets digest-pin verification; graft gets GRAFTED stamp; conjure gets full SLSA verification.
+*Two-pass shape*: Pass 1 collects pending hallmarks into memory before Pass 2 begins processing.
+Each
+{rbtgo_ark_vouch}
+invocation sources credentials and issues Cloud Build calls that would silently consume loop stdin if the pending set were streamed; the in-memory collection decouples enumeration from dispatch.
++
+*Idempotency*: Re-running batch vouch after a successful batch finds an empty pending set (every prior pending hallmark now has `vouch` present) and exits with no action.
++
+*No mode pre-check*: Earlier shapes of this operation pre-probed SLSA provenance for conjure-mode hallmarks to skip-with-warning those lacking provenance.
+That pattern is gone — all mode-specific verification happens inside
+{rbtgo_ark_vouch},
+and any failure there surfaces as a fail-fast stop rather than being absorbed into a summary count.

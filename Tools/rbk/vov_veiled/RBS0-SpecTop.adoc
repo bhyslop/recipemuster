@@ -92,8 +92,6 @@
 :rbf_fact_ark_yield:         <<rbf_fact_ark_yield,RBF_FACT_ARK_YIELD>>
 :rbf_fact_reliquary:         <<rbf_fact_reliquary,RBF_FACT_RELIQUARY>>
 
-// Recipe Bottle Common Fact Maps (dynamic output contract identifiers)
-:rbcc_fact_consec_infix:     <<rbcc_fact_consec_infix,RBCC_FACT_CONSEC_INFIX>>
 // Recipe Bottle Term Google Build Definitions
 :rbtgr_build_json:          <<rbtgr_build_json,cloudbuild.json>>
 :rbtgr_provenance:          <<rbtgr_provenance,Rubric Provenance>>
@@ -1234,13 +1232,13 @@ include::RBSAV-ark_vouch.adoc[]
 //axvo_method axd_transient axd_grouped
 === {rbtgo_director_vouch}
 
-Batch-vouches all pending
+Batch-vouches every pending
 {rbtga_ark}
-hallmarks across all
-{rbtga_vessel}
-repositories
+hallmark in
+{rbtgi_repository}
 ({rbtgog_ark}).
-Bind and graft hallmarks are always vouchable; conjure hallmarks require SLSA provenance pre-check.
+Dispatches {rbtgo_ark_vouch} per pending hallmark; mode-specific verification (conjure, bind, graft) happens inside that operation, not in the batch.
+Any vouch failure terminates the batch fail-fast at the broken hallmark.
 
 include::RBSDV-director_vouch.adoc[]
 
@@ -1250,9 +1248,10 @@ include::RBSDV-director_vouch.adoc[]
 //axvo_method axd_transient axd_grouped
 === {rbtgo_hallmark_tally}
 
-Enumerates
+Enumerates every
 {rbtga_ark}
-hallmarks across all regime vessels
+hallmark in
+{rbtgi_repository}
 ({rbtgog_ark}),
 classifying each by artifact completeness and vouch status.
 
@@ -1833,7 +1832,7 @@ The per-arch `attest` digests are the GCB-attested digests; the `image` manifest
 +
 **Abjure**: {rbtgo_ark_abjure} enumerates every package under `hallmarks/«HALLMARK»/` and deletes each — `image`, `about`, `vouch`, `pouch`, `diags`, and (for conjure vessels) `attest`. Deleting the single `attest` package removes all its per-arch tags.
 +
-**Display**: {rbtgo_hallmark_tally} includes a Vouch column showing `yes`/`no` per hallmark, detected by probing the `vouch` package under the hallmark subtree.
+**Display**: {rbtgo_hallmark_tally} classifies each hallmark as `vouched`, `pending`, or `incomplete` by basename presence under the hallmark subtree (`vouched` = image+about+vouch all present; `pending` = image+about without vouch; `incomplete` = any other combination).
 
 [[rbtga_ark_pouch]]
 //axl_voices axig_build_context
@@ -1906,18 +1905,6 @@ Per-platform image reference.
 {rbf_fact_reliquary}::
 Reliquary datestamp (`r` + `YYMMDDHHMMSS`).
 Written by {rbtgo_depot_inscribe} on successful Cloud Build submission.
-
-==== Hallmark Check Fact Map
-
-[[rbcc_fact_consec_infix]]
-//axpot_tally
-{rbcc_fact_consec_infix}::
-Per-vessel-hallmark presence marker.
-Filename: `«VESSEL»«INFIX»«HALLMARK»`.
-One file per discovered
-{rbtga_hallmark}
-in
-{rbtgi_repository}.
 
 [[rbtgr_build_json]]
 //axl_voices axig_build_config
