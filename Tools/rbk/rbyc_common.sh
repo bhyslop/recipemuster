@@ -68,7 +68,7 @@ zrbyc_kindle() {
   zrbyc_yk RBYC_BIND      "${z_docs}" "Bind"
   zrbyc_yk RBYC_GRAFT     "${z_docs}" "Graft"
   zrbyc_yk RBYC_KLUDGE    "${z_docs}" "Kludge"
-  zrbyc_yk RBYC_KLUDGE_D  "${z_docs}" "Kludged"
+  zrbyc_yk RBYC_KLUDGE_D  "${z_docs}" "Kludge"   "Kludged"
   zrbyc_yk RBYC_ENSHRINE  "${z_docs}" "Enshrine"
   zrbyc_yk RBYC_SUMMON    "${z_docs}" "Summon"
   zrbyc_yk RBYC_PLUMB     "${z_docs}" "Plumb"
@@ -76,7 +76,7 @@ zrbyc_kindle() {
   zrbyc_yk RBYC_VOUCH     "${z_docs}" "Vouch"
   zrbyc_yk RBYC_LEVY      "${z_docs}" "Levy"
   zrbyc_yk RBYC_CHARGE    "${z_docs}" "Charge"
-  zrbyc_yk RBYC_CHARGE_D  "${z_docs}" "Charged"
+  zrbyc_yk RBYC_CHARGE_D  "${z_docs}" "Charge"  "Charged"
   zrbyc_yk RBYC_QUENCH    "${z_docs}" "Quench"
 
   # Artifacts and infrastructure
@@ -129,6 +129,8 @@ zrbyc_kindle() {
   zrbyc_yk RBYC_MANOR     "${z_docs}" "Manor"
   zrbyc_yk RBYC_RBRA      "${z_docs}" "RBRA"
   zrbyc_yk RBYC_CCYOLO    "${z_docs}" "ccyolo"
+  zrbyc_yk RBYC_IFRIT     "${z_docs}" "Ifrit"
+  zrbyc_yk RBYC_THEURGE   "${z_docs}" "Theurge"
   zrbyc_yk RBYC_ABJURE    "${z_docs}" "Abjure"
   zrbyc_yk RBYC_REKON     "${z_docs}" "Rekon"
   zrbyc_yk RBYC_LOG        "${z_docs}" "Log"

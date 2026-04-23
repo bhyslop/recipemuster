@@ -92,11 +92,11 @@ rbho_start_here() {
   buh_e
   buh_line "    Prove containment under attack — evaluator track"
   buh_line "      The tadmor ${RBYC_CRUCIBLE} pairs the same ${RBYC_SENTRY} with a hostile"
-  buh_line "      ${RBYC_BOTTLE} carrying the Ifrit attack binary; 34 authored cases"
+  buh_line "      ${RBYC_BOTTLE} carrying the ${RBYC_IFRIT} attack binary; 34 authored cases"
   buh_line "      exercise the containment primitives."
   buh_line "      After ${RBYC_CHARGE}:"
   buh_line "        * Tour the architecture      — ${RBYC_SENTRY}/${RBYC_PENTACLE}/${RBYC_BOTTLE} layers, defense-in-depth"
-  buh_line "        * Run the adversarial suite  — Theurge + Ifrit, per-case result reading"
+  buh_line "        * Run the adversarial suite  — ${RBYC_THEURGE} + ${RBYC_IFRIT}, per-case result reading"
   buh_tt   "        " "${RBZ_ONBOARD_TADMOR_SECURITY}"
   buh_e
 

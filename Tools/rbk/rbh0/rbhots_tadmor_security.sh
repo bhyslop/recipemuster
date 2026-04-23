@@ -66,7 +66,7 @@ rbho_tadmor_security() {
   buh_e
   buh_line "This track uses the ${z_moniker} ${RBYC_NAMEPLATE}: the same ${RBYC_SENTRY}"
   buh_line "as the explorer track, paired with a ${RBYC_BOTTLE} that carries"
-  buh_line "the Ifrit attack binary. The ${RBYC_BOTTLE} is a hostile workload"
+  buh_line "the ${RBYC_IFRIT} attack binary. The ${RBYC_BOTTLE} is a hostile workload"
   buh_line "that attempts escape, not a friendly one."
   buh_e
   buh_line "What you will see: each attack is both an attempt AND the observed"
@@ -152,9 +152,9 @@ rbho_tadmor_security() {
   buh_line "primitives required to bypass either layer above."
   buh_e
 
-  buh_step1 "Meet Ifrit and Theurge"
+  buh_step1 "Meet ${RBYC_IFRIT} and ${RBYC_THEURGE}"
   buh_e
-  buh_line "Ifrit is the attack binary. It lives inside the bottle-ifrit image"
+  buh_line "${RBYC_IFRIT} is the attack binary. It lives inside the bottle-ifrit image"
   buh_line "and carries a catalog of containment-violation attempts — DNS"
   buh_line "tunneling, IP-literal exfiltration, raw socket use, namespace"
   buh_line "escape, filesystem breakout, and similar primitives."
@@ -165,15 +165,15 @@ rbho_tadmor_security() {
   buh_line "gap. The cases preserve the reasoning for each attempt — you can"
   buh_line "read them as an evaluator, not just run them."
   buh_e
-  buh_line "Theurge coordinates the test. It runs outside the ${RBYC_CRUCIBLE}"
+  buh_line "${RBYC_THEURGE} coordinates the test. It runs outside the ${RBYC_CRUCIBLE}"
   buh_line "and orchestrates each case: ${RBYC_CHARGE} the ${RBYC_CRUCIBLE},"
-  buh_line "dispatch Ifrit to attempt one attack, observe the attack's"
+  buh_line "dispatch ${RBYC_IFRIT} to attempt one attack, observe the attack's"
   buh_line "behavior inside the ${RBYC_BOTTLE} AND the ${RBYC_SENTRY}'s response"
   buh_line "from outside, compare against expected."
   buh_e
   buh_line "A case passes when the attack ran AND the sandbox responded as"
   buh_line "designed. The output is not 'did the test pass' — it is 'what"
-  buh_line "did Ifrit try, and what stopped it'."
+  buh_line "did ${RBYC_IFRIT} try, and what stopped it'."
   buh_e
 
   buh_step1 "Run the security suite"
@@ -203,7 +203,7 @@ rbho_tadmor_security() {
   buh_line "  red      — the attack either succeeded (containment gap) or"
   buh_line "             failed in an unexpected way (test drift)."
   buh_e
-  buh_line "  per-case — output shows what Ifrit tried, what the ${RBYC_SENTRY}"
+  buh_line "  per-case — output shows what ${RBYC_IFRIT} tried, what the ${RBYC_SENTRY}"
   buh_line "             logged, and how the assertion compared the two."
   buh_e
 
