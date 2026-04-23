@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-# RBGJAM Step 01: Discover platforms from -image manifest in GAR
+# RBGJAM Step 01: Discover platforms from image manifest in GAR
 # Builder: gcr.io/cloud-builders/gcloud
 # Substitutions (GCB anchors — automapSubstitutions provides as env vars):
-#   ${_RBGA_GAR_HOST} ${_RBGA_GAR_PATH} ${_RBGA_VESSEL}
+#   ${_RBGA_GAR_HOST} ${_RBGA_GAR_PATH} ${_RBGA_HALLMARKS_ROOT}
 #   ${_RBGA_HALLMARK} ${_RBGA_VESSEL_MODE}
-#   ${_RBGA_ARK_SUFFIX_IMAGE} ${_RBGA_ARK_SUFFIX_DIAGS}
 #
-# Queries the -image manifest to discover what platforms are present.
+# Queries the image manifest to discover what platforms are present.
 # Handles OCI image index (multi-platform) vs single OCI/Docker manifest.
 # Writes platform info to /workspace for subsequent steps:
 #   platforms.txt          - comma-separated platform list (linux/amd64,linux/arm64)
@@ -84,26 +83,27 @@ def gar_json(url, token, accept):
 
 
 def main():
-    gar_host       = require_env("_RBGA_GAR_HOST")
-    gar_path       = require_env("_RBGA_GAR_PATH")
-    vessel         = require_env("_RBGA_VESSEL")
-    hallmark       = get_hallmark()
-    _              = require_env("_RBGA_VESSEL_MODE")
-    ark_suffix_img = require_env("_RBGA_ARK_SUFFIX_IMAGE")
-    ark_suffix_dia = require_env("_RBGA_ARK_SUFFIX_DIAGS")
+    gar_host        = require_env("_RBGA_GAR_HOST")
+    gar_path        = require_env("_RBGA_GAR_PATH")
+    hallmarks_root  = require_env("_RBGA_HALLMARKS_ROOT")
+    hallmark        = get_hallmark()
+    _               = require_env("_RBGA_VESSEL_MODE")
 
-    image_tag = f"{hallmark}{ark_suffix_img}"
-    registry_base = f"https://{gar_host}/v2/{gar_path}/{vessel}"
+    # New layout: image package = <HALLMARKS_ROOT>/<HALLMARK>/image, tag = <HALLMARK>
+    image_package = f"{hallmarks_root}/{hallmark}/image"
+    diags_package = f"{hallmarks_root}/{hallmark}/diags"
+    image_registry_base = f"https://{gar_host}/v2/{gar_path}/{image_package}"
+    diags_registry_base = f"https://{gar_host}/v2/{gar_path}/{diags_package}"
 
     print("Fetching OAuth2 token via metadata server")
     token = metadata_token()
 
-    print(f"=== Discovering platforms for {vessel}:{image_tag} ===")
+    print(f"=== Discovering platforms for {image_package}:{hallmark} ===")
 
     try:
-        manifest = gar_json(f"{registry_base}/manifests/{image_tag}", token, ACCEPT_ALL)
+        manifest = gar_json(f"{image_registry_base}/manifests/{hallmark}", token, ACCEPT_ALL)
     except Exception as e:
-        die(f"Failed to fetch manifest for {image_tag}: {e}")
+        die(f"Failed to fetch manifest for {image_package}:{hallmark}: {e}")
 
     media_type = manifest.get("mediaType", "")
     print(f"Manifest media type: {media_type}")
@@ -111,9 +111,9 @@ def main():
     is_index = "manifest.list" in media_type or "image.index" in media_type
 
     if is_index:
-        _discover_index(manifest, registry_base, token)
+        _discover_index(manifest)
     else:
-        _discover_single(manifest, registry_base, token, image_tag)
+        _discover_single(manifest, image_registry_base, token, hallmark)
 
     with open("platforms.txt") as f:
         print(f"Platforms: {f.read()}")
@@ -123,10 +123,10 @@ def main():
         print(f"Count: {f.read()}")
     print("=== Platform discovery complete ===")
 
-    _extract_diags(registry_base, token, hallmark, ark_suffix_dia)
+    _extract_diags(diags_registry_base, token, hallmark)
 
 
-def _discover_index(manifest, registry_base, token):
+def _discover_index(manifest):
     all_entries = manifest.get("manifests", [])
     print(f"Multi-platform manifest detected ({len(all_entries)} entries in index)")
 
@@ -169,7 +169,7 @@ def _discover_index(manifest, registry_base, token):
             f.write(f"{suffix} {digest}\n")
 
 
-def _discover_single(manifest, registry_base, token, image_tag):
+def _discover_single(manifest, image_registry_base, token, hallmark):
     print("Single manifest detected")
 
     config_digest = manifest.get("config", {}).get("digest", "")
@@ -177,7 +177,7 @@ def _discover_single(manifest, registry_base, token, image_tag):
         die("No config digest in manifest")
 
     try:
-        config = gar_json(f"{registry_base}/blobs/{config_digest}", token, ACCEPT_ALL)
+        config = gar_json(f"{image_registry_base}/blobs/{config_digest}", token, ACCEPT_ALL)
     except Exception as e:
         die(f"Failed to fetch config blob: {e}")
 
@@ -194,7 +194,7 @@ def _discover_single(manifest, registry_base, token, image_tag):
 
     # Get manifest digest from HEAD response
     try:
-        resp = gar_fetch(f"{registry_base}/manifests/{image_tag}", token, ACCEPT_ALL, method="HEAD")
+        resp = gar_fetch(f"{image_registry_base}/manifests/{hallmark}", token, ACCEPT_ALL, method="HEAD")
         manifest_digest = resp.headers.get("Docker-Content-Digest", "")
     except Exception as e:
         die(f"Failed HEAD for manifest digest: {e}")
@@ -211,31 +211,30 @@ def _discover_single(manifest, registry_base, token, image_tag):
         f.write(f"{suffix} {manifest_digest}\n")
 
 
-def _extract_diags(registry_base, token, hallmark, ark_suffix_diags):
-    diags_tag = f"{hallmark}{ark_suffix_diags}"
+def _extract_diags(diags_registry_base, token, hallmark):
     print()
-    print(f"=== Checking for -diags artifact: {diags_tag} ===")
+    print(f"=== Checking for diags artifact at {diags_registry_base}:{hallmark} ===")
 
     try:
         diags_manifest = gar_json(
-            f"{registry_base}/manifests/{diags_tag}", token, DIAGS_ACCEPT,
+            f"{diags_registry_base}/manifests/{hallmark}", token, DIAGS_ACCEPT,
         )
     except urllib.error.HTTPError as e:
-        print(f"No -diags artifact found (HTTP {e.code}) — expected for bind/graft")
-        print("=== -diags check complete ===")
+        print(f"No diags artifact found (HTTP {e.code}) — expected for bind/graft")
+        print("=== diags check complete ===")
         return
     except Exception:
-        print("No -diags artifact found (HTTP 000) — expected for bind/graft")
-        print("=== -diags check complete ===")
+        print("No diags artifact found (HTTP 000) — expected for bind/graft")
+        print("=== diags check complete ===")
         return
 
-    print("Found -diags artifact, extracting...")
+    print("Found diags artifact, extracting...")
 
     for layer in diags_manifest.get("layers", []):
         layer_digest = layer["digest"]
-        print(f"Extracting -diags layer: {layer_digest}")
+        print(f"Extracting diags layer: {layer_digest}")
         try:
-            resp = gar_fetch(f"{registry_base}/blobs/{layer_digest}", token, DIAGS_ACCEPT)
+            resp = gar_fetch(f"{diags_registry_base}/blobs/{layer_digest}", token, DIAGS_ACCEPT)
             data = resp.read()
             with tarfile.open(fileobj=BytesIO(data), mode="r:gz") as tar:
                 # filter="data" available in 3.12+; gcloud image is 3.10
@@ -244,13 +243,13 @@ def _extract_diags(registry_base, token, hallmark, ark_suffix_diags):
                 else:
                     tar.extractall()
         except Exception:
-            print(f"WARN: Failed to extract -diags layer {layer_digest}", file=sys.stderr)
+            print(f"WARN: Failed to extract diags layer {layer_digest}", file=sys.stderr)
 
     for dfile in ["buildkit_metadata.json", "cache_before.json", "cache_after.json", "recipe.txt"]:
         if os.path.isfile(dfile):
-            print(f"Extracted from -diags: {dfile} ({os.path.getsize(dfile)} bytes)")
+            print(f"Extracted from diags: {dfile} ({os.path.getsize(dfile)} bytes)")
 
-    print("=== -diags check complete ===")
+    print("=== diags check complete ===")
 
 
 if __name__ == "__main__":

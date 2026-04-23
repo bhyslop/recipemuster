@@ -292,15 +292,15 @@ zrbfd_registry_preflight() {
       -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
       -w "%{http_code}" \
       -o "${z_response_file}" \
-      "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}enshrine/manifests/${z_anchor}" \
+      "${ZRBFC_REGISTRY_API_BASE}/${RBGL_ENSHRINES_ROOT}/${z_anchor}/manifests/${z_anchor}" \
       > "${z_status_file}" 2>"${z_stderr_file}" \
-      || buc_die "HEAD request failed for enshrined image: enshrine:${z_anchor} — see ${z_stderr_file}"
+      || buc_die "HEAD request failed for enshrined image: ${RBGL_ENSHRINES_ROOT}/${z_anchor}:${z_anchor} — see ${z_stderr_file}"
 
     z_http_code=$(<"${z_status_file}")
     test -n "${z_http_code}" || buc_die "HTTP status code is empty for enshrine check"
 
     if test "${z_http_code}" = "404"; then
-      buc_warn "Enshrined base image not found: enshrine:${z_anchor} (from ${z_origin})"
+      buc_warn "Enshrined base image not found: ${RBGL_ENSHRINES_ROOT}/${z_anchor}:${z_anchor} (from ${z_origin})"
       buc_bare "  Enshrine copies upstream base images (e.g., busybox:latest from Docker Hub) into"
       buc_bare "  your private GAR, pinned by content hash. Like the reliquary, this ensures"
       buc_bare "  air-gapped builds never reach the public internet. The anchor tag is stable"
@@ -311,10 +311,10 @@ zrbfd_registry_preflight() {
       buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir}"
       buc_die "Registry preflight failed — enshrined base image missing from GAR"
     elif test "${z_http_code}" != "200"; then
-      buc_die "Unexpected HTTP ${z_http_code} when checking enshrined image: enshrine:${z_anchor}"
+      buc_die "Unexpected HTTP ${z_http_code} when checking enshrined image: ${RBGL_ENSHRINES_ROOT}/${z_anchor}:${z_anchor}"
     fi
 
-    buc_log_args "Enshrined image verified: enshrine:${z_anchor}"
+    buc_log_args "Enshrined image verified: ${RBGL_ENSHRINES_ROOT}/${z_anchor}:${z_anchor}"
   done
 
   if test "${z_any_checked}" = "true"; then
@@ -344,7 +344,8 @@ zrbfd_stitch_build_json() {
 
   # Resolve base images: ANCHOR → full GAR reference, or pass ORIGIN through
   # Spec: RBSAC step "Resolve Base Images"
-  local -r z_gar_image_prefix="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRR_CLOUD_PREFIX}enshrine"
+  # New layout: each anchor is its own package under RBGL_ENSHRINES_ROOT, with anchor as both path segment and tag.
+  local -r z_gar_repo_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
   local z_image_ref_1="" z_image_ref_2="" z_image_ref_3=""
   local z_ri_n="" z_ri_origin_var="" z_ri_anchor_var="" z_ri_origin="" z_ri_anchor=""
   for z_ri_n in 1 2 3; do
@@ -355,7 +356,7 @@ zrbfd_stitch_build_json() {
     test -n "${z_ri_origin}" || continue
     local z_ri_ref=""
     if test -n "${z_ri_anchor}"; then
-      z_ri_ref="${z_gar_image_prefix}:${z_ri_anchor}"
+      z_ri_ref="${z_gar_repo_base}/${RBGL_ENSHRINES_ROOT}/${z_ri_anchor}:${z_ri_anchor}"
       buc_log_args "Image slot ${z_ri_n} (anchored): ${z_ri_ref}"
     else
       z_ri_ref="${z_ri_origin}"
@@ -590,16 +591,17 @@ zrbfd_stitch_build_json() {
   jq -s '.[0] + .[1]' <(jq -s '.' "${z_extract_step_file}") "${z_accumulator_file}" \
     > "${z_all_steps_file}" || buc_die "Failed to prepend context extraction step"
 
-  # images: field — one -attest-{arch} entry per platform for SLSA provenance via CB images: push
-  # These are durable provenance-carrying tags; deleted only by abjure.
+  # images: field — one per-platform attest tag per platform for SLSA provenance via CB images: push
+  # These are durable provenance-carrying tags on the single attest package
+  # (hallmarks/<H>/attest); deleted only by abjure.
   local z_images_file="${ZRBFD_STITCH_PREFIX}images.json"
-  local z_image_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRR_CLOUD_PREFIX}${z_sigil}"
+  local z_attest_pkg="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/attest"
   local z_remaining_suffixes="${z_platform_suffixes_csv}"
   local z_img_suffix=""
   echo "[]" > "${z_images_file}" || buc_die "Failed to initialize images JSON"
   while test -n "${z_remaining_suffixes}"; do
     z_img_suffix="${z_remaining_suffixes%%,*}"
-    jq --arg uri "${z_image_base}:${z_hallmark}${RBGC_ARK_SUFFIX_ATTEST}${z_img_suffix}" \
+    jq --arg uri "${z_attest_pkg}:${z_hallmark}${z_img_suffix}" \
       '. + [$uri]' "${z_images_file}" > "${z_images_file}.tmp" \
       || buc_die "Failed to append image URI"
     mv "${z_images_file}.tmp" "${z_images_file}" \
@@ -622,33 +624,30 @@ zrbfd_stitch_build_json() {
   jq -n \
     --slurpfile zjq_steps  "${z_all_steps_file}" \
     --slurpfile zjq_images "${z_images_file}" \
-    --arg zjq_dockerfile     "${z_dockerfile_name}" \
-    --arg zjq_moniker        "${RBRR_CLOUD_PREFIX}${z_sigil}" \
-    --arg zjq_platforms      "${z_platforms}" \
+    --arg zjq_dockerfile        "${z_dockerfile_name}" \
+    --arg zjq_vessel            "${z_sigil}" \
+    --arg zjq_platforms         "${z_platforms}" \
     --arg zjq_platform_suffixes "${z_platform_suffixes_csv}" \
-    --arg zjq_gar_location   "${RBGD_GAR_LOCATION}" \
-    --arg zjq_gar_project    "${RBGD_GAR_PROJECT_ID}" \
-    --arg zjq_gar_repository "${RBRR_GAR_REPOSITORY}" \
-    --arg zjq_git_commit     "${z_git_commit}" \
-    --arg zjq_git_branch     "${z_git_branch}" \
-    --arg zjq_git_repo       "${z_git_repo}" \
-    --arg zjq_gar_host_suffix  "${RBGC_GAR_HOST_SUFFIX}" \
-    --arg zjq_ark_suffix_image  "${RBGC_ARK_SUFFIX_IMAGE}" \
-    --arg zjq_ark_suffix_attest "${RBGC_ARK_SUFFIX_ATTEST}" \
-    --arg zjq_ark_suffix_diags  "${RBGC_ARK_SUFFIX_DIAGS}" \
+    --arg zjq_gar_location      "${RBGD_GAR_LOCATION}" \
+    --arg zjq_gar_project       "${RBGD_GAR_PROJECT_ID}" \
+    --arg zjq_gar_repository    "${RBRR_GAR_REPOSITORY}" \
+    --arg zjq_git_commit        "${z_git_commit}" \
+    --arg zjq_git_branch        "${z_git_branch}" \
+    --arg zjq_git_repo          "${z_git_repo}" \
+    --arg zjq_gar_host_suffix   "${RBGC_GAR_HOST_SUFFIX}" \
+    --arg zjq_hallmarks_root    "${RBGL_HALLMARKS_ROOT}" \
     --arg zjq_hallmark          "${z_hallmark}" \
     --arg zjq_inscribe_ts       "${z_hallmark%%-r*}" \
-    --arg zjq_pool   "${z_conjure_pool}" \
-    --arg zjq_timeout "${RBRR_GCB_TIMEOUT}" \
-    --arg zjq_mason_sa         "${z_mason_sa}" \
-    --arg zjq_cb_build_id      "${z_cb_build_id}" \
-    --arg zjq_rbga_gar_host       "${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}" \
-    --arg zjq_rbga_gar_path       "${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}" \
-    --arg zjq_rbga_ark_suffix_about "${RBGC_ARK_SUFFIX_ABOUT}" \
-    --arg zjq_rbga_dockerfile     "${z_stitch_dockerfile_content}" \
-    --arg zjq_image_1             "${z_image_ref_1}" \
-    --arg zjq_image_2             "${z_image_ref_2}" \
-    --arg zjq_image_3             "${z_image_ref_3}" \
+    --arg zjq_pool              "${z_conjure_pool}" \
+    --arg zjq_timeout           "${RBRR_GCB_TIMEOUT}" \
+    --arg zjq_mason_sa          "${z_mason_sa}" \
+    --arg zjq_cb_build_id       "${z_cb_build_id}" \
+    --arg zjq_rbga_gar_host     "${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}" \
+    --arg zjq_rbga_gar_path     "${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}" \
+    --arg zjq_rbga_dockerfile   "${z_stitch_dockerfile_content}" \
+    --arg zjq_image_1           "${z_image_ref_1}" \
+    --arg zjq_image_2           "${z_image_ref_2}" \
+    --arg zjq_image_3           "${z_image_ref_3}" \
     '{
       steps: [$zjq_steps[0][] |
         if .args then
@@ -659,7 +658,6 @@ zrbfd_stitch_build_json() {
       images: $zjq_images[0],
       substitutions: {
         _RBGY_DOCKERFILE:          $zjq_dockerfile,
-        _RBGY_MONIKER:             $zjq_moniker,
         _RBGY_PLATFORMS:           $zjq_platforms,
         _RBGY_PLATFORM_SUFFIXES:   $zjq_platform_suffixes,
         _RBGY_GAR_LOCATION:        $zjq_gar_location,
@@ -668,24 +666,21 @@ zrbfd_stitch_build_json() {
         _RBGY_GIT_COMMIT:          $zjq_git_commit,
         _RBGY_GIT_BRANCH:          $zjq_git_branch,
         _RBGY_GAR_HOST_SUFFIX:     $zjq_gar_host_suffix,
+        _RBGY_HALLMARKS_ROOT:      $zjq_hallmarks_root,
         _RBGY_HALLMARK:            $zjq_hallmark,
-        _RBGY_ARK_SUFFIX_IMAGE:    $zjq_ark_suffix_image,
-        _RBGY_ARK_SUFFIX_ATTEST:   $zjq_ark_suffix_attest,
-        _RBGY_ARK_SUFFIX_DIAGS:    $zjq_ark_suffix_diags,
         _RBGY_IMAGE_1:             $zjq_image_1,
         _RBGY_IMAGE_2:             $zjq_image_2,
         _RBGY_IMAGE_3:             $zjq_image_3,
         _RBGA_GAR_HOST:            $zjq_rbga_gar_host,
         _RBGA_GAR_PATH:            $zjq_rbga_gar_path,
-        _RBGA_VESSEL:              $zjq_moniker,
+        _RBGA_HALLMARKS_ROOT:      $zjq_hallmarks_root,
+        _RBGA_HALLMARK:            $zjq_hallmark,
+        _RBGA_VESSEL:              $zjq_vessel,
         _RBGA_VESSEL_MODE:         "conjure",
         _RBGA_GIT_COMMIT:          $zjq_git_commit,
         _RBGA_GIT_BRANCH:          $zjq_git_branch,
         _RBGA_GIT_REPO:            $zjq_git_repo,
         _RBGA_INSCRIBE_TIMESTAMP:  $zjq_inscribe_ts,
-        _RBGA_ARK_SUFFIX_IMAGE:    $zjq_ark_suffix_image,
-        _RBGA_ARK_SUFFIX_ABOUT:    $zjq_rbga_ark_suffix_about,
-        _RBGA_ARK_SUFFIX_DIAGS:    $zjq_ark_suffix_diags,
         _RBGA_BIND_SOURCE:         "",
         _RBGA_GRAFT_SOURCE:        "",
         _RBGA_DOCKERFILE_CONTENT:  $zjq_rbga_dockerfile
@@ -730,7 +725,7 @@ zrbfd_push_build_context() {
   local -r z_context_tag_file="${ZRBFD_CONTEXT_PREFIX}tag.txt"
   local -r z_context_dockerfile="${ZRBFD_CONTEXT_PREFIX}Dockerfile"
 
-  local -r z_context_tag="${z_gar_host}/${ZRBFC_REGISTRY_PATH}/${RBRR_CLOUD_PREFIX}${z_sigil}:${z_hallmark}${RBGC_ARK_SUFFIX_POUCH}"
+  local -r z_context_tag="${z_gar_host}/${ZRBFC_REGISTRY_PATH}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/pouch:${z_hallmark}"
 
   # Build FROM SCRATCH image containing build context
   buc_step "Building context image for ${z_sigil}"
@@ -855,24 +850,24 @@ zrbfd_enshrine_submit() {
 
   jq -n \
     --slurpfile zjq_steps  "${z_step_file}" \
-    --arg zjq_sa           "${z_mason_sa}" \
-    --arg zjq_gar_host         "${z_gar_host}" \
-    --arg zjq_gar_path         "${z_gar_path}" \
-    --arg zjq_enshrine_name    "${RBRR_CLOUD_PREFIX}enshrine" \
-    --arg zjq_origin_1         "${RBRV_IMAGE_1_ORIGIN:-}" \
-    --arg zjq_origin_2         "${RBRV_IMAGE_2_ORIGIN:-}" \
-    --arg zjq_origin_3         "${RBRV_IMAGE_3_ORIGIN:-}" \
-    --arg zjq_pool             "${RBDC_POOL_TETHER}" \
-    --arg zjq_timeout          "${RBRR_GCB_TIMEOUT}" \
+    --arg zjq_sa             "${z_mason_sa}" \
+    --arg zjq_gar_host       "${z_gar_host}" \
+    --arg zjq_gar_path       "${z_gar_path}" \
+    --arg zjq_enshrines_root "${RBGL_ENSHRINES_ROOT}" \
+    --arg zjq_origin_1       "${RBRV_IMAGE_1_ORIGIN:-}" \
+    --arg zjq_origin_2       "${RBRV_IMAGE_2_ORIGIN:-}" \
+    --arg zjq_origin_3       "${RBRV_IMAGE_3_ORIGIN:-}" \
+    --arg zjq_pool           "${RBDC_POOL_TETHER}" \
+    --arg zjq_timeout        "${RBRR_GCB_TIMEOUT}" \
     '{
       steps: $zjq_steps[0],
       substitutions: {
-        _RBGE_GAR_HOST:          $zjq_gar_host,
-        _RBGE_GAR_PATH:          $zjq_gar_path,
-        _RBGE_ENSHRINE_NAME:     $zjq_enshrine_name,
-        _RBGE_IMAGE_1_ORIGIN:    $zjq_origin_1,
-        _RBGE_IMAGE_2_ORIGIN:    $zjq_origin_2,
-        _RBGE_IMAGE_3_ORIGIN:    $zjq_origin_3
+        _RBGE_GAR_HOST:        $zjq_gar_host,
+        _RBGE_GAR_PATH:        $zjq_gar_path,
+        _RBGE_ENSHRINES_ROOT:  $zjq_enshrines_root,
+        _RBGE_IMAGE_1_ORIGIN:  $zjq_origin_1,
+        _RBGE_IMAGE_2_ORIGIN:  $zjq_origin_2,
+        _RBGE_IMAGE_3_ORIGIN:  $zjq_origin_3
       },
       serviceAccount: $zjq_sa,
       options: {
@@ -1167,19 +1162,20 @@ rbfd_build() {
   # Write GAR root fact file (registry prefix for composing full refs)
   buf_write_fact "${RBF_FACT_GAR_ROOT}" "${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}"
 
-  # Write ark stem fact file (sigil:hallmark base for composing artifact refs)
-  buf_write_fact "${RBF_FACT_ARK_STEM}" "${RBRV_SIGIL}:${z_hallmark}"
+  # Write ark stem fact file (hallmark subtree under HALLMARKS_ROOT)
+  buf_write_fact "${RBF_FACT_ARK_STEM}" "${RBGL_HALLMARKS_ROOT}/${z_hallmark}"
 
   # Write per-platform yield fact files (attest tags — durable provenance-carrying artifacts)
+  # Single attest package; per-platform tag = ${HALLMARK}-${arch}
   local z_plat=""
   local z_plat_suffix=""
-  local z_yield_tag=""
+  local z_yield_ref=""
   for z_plat in ${RBRV_CONJURE_PLATFORMS//,/ }; do
     z_plat_suffix="${z_plat#linux/}"
     z_plat_suffix="${z_plat_suffix//\//}"
-    z_yield_tag="${z_hallmark}${RBGC_ARK_SUFFIX_ATTEST}-${z_plat_suffix}"
-    buf_write_fact "${RBF_FACT_ARK_YIELD}${RBGC_ARK_SUFFIX_ATTEST}-${z_plat_suffix}" "${RBRV_SIGIL}:${z_yield_tag}"
-    buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_YIELD}${RBGC_ARK_SUFFIX_ATTEST}-${z_plat_suffix}"
+    z_yield_ref="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_ATTEST}:${z_hallmark}-${z_plat_suffix}"
+    buf_write_fact "${RBF_FACT_ARK_YIELD}-${RBGC_ARK_BASENAME_ATTEST}-${z_plat_suffix}" "${z_yield_ref}"
+    buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_YIELD}-${RBGC_ARK_BASENAME_ATTEST}-${z_plat_suffix}"
   done
 
   # Write build ID fact file (dispatched build ID for cross-check with vouch provenance)
@@ -1256,9 +1252,9 @@ rbfd_kludge() {
   # BURD_GIT_CONTEXT is exported by bud_dispatch; dirty-tree guard above ensures clean tree
   local -r z_hallmark="k${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}-${BURD_GIT_CONTEXT}"
 
-  # Construct image refs matching compose/vouch-gate format
-  local -r z_image_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}:${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}"
-  local -r z_vouch_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}:${z_hallmark}${RBGC_ARK_SUFFIX_VOUCH}"
+  # Construct image refs matching compose/vouch-gate format (new layout — hallmark-as-tag).
+  local -r z_image_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"
+  local -r z_vouch_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}:${z_hallmark}"
 
   buc_step "Kludge build: ${RBRV_SIGIL}"
   buc_info "Hallmark: ${z_hallmark}"
@@ -1364,12 +1360,12 @@ rbfd_mirror() {
   # Write GAR root fact file
   buf_write_fact "${RBF_FACT_GAR_ROOT}" "${z_gar_base}"
 
-  # Write ark stem fact file
-  buf_write_fact "${RBF_FACT_ARK_STEM}" "${RBRV_SIGIL}:${z_hallmark}"
+  # Write ark stem fact file (hallmark subtree under HALLMARKS_ROOT)
+  buf_write_fact "${RBF_FACT_ARK_STEM}" "${RBGL_HALLMARKS_ROOT}/${z_hallmark}"
 
   # Write yield fact file (single-platform bind image)
-  local -r z_bind_image_tag="${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}"
-  buf_write_fact "${RBF_FACT_ARK_YIELD}${RBGC_ARK_SUFFIX_IMAGE}" "${RBRV_SIGIL}:${z_bind_image_tag}"
+  buf_write_fact "${RBF_FACT_ARK_YIELD}-${RBGC_ARK_BASENAME_IMAGE}" \
+    "${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"
 
   # Submit combined Cloud Build (skopeo image copy + about steps)
   zrbfd_mirror_submit "${z_hallmark}" "${z_token}"
@@ -1473,32 +1469,31 @@ zrbfd_mirror_submit() {
 
   jq -n \
     --slurpfile zjq_steps  "${z_combined_steps}" \
-    --arg zjq_sa           "${z_mason_sa}" \
-    --arg zjq_gar_host     "${z_gar_host}" \
-    --arg zjq_gar_path     "${z_gar_path}" \
-    --arg zjq_vessel       "${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}" \
-    --arg zjq_hallmark "${z_hallmark}" \
-    --arg zjq_vessel_mode  "bind" \
-    --arg zjq_git_commit   "${z_git_commit}" \
-    --arg zjq_git_branch   "${z_git_branch}" \
-    --arg zjq_git_repo     "${z_git_repo}" \
-    --arg zjq_build_id     "" \
-    --arg zjq_inscribe_ts  "" \
-    --arg zjq_bind_source  "${z_bind_source}" \
-    --arg zjq_graft_source "" \
-    --arg zjq_dockerfile   "${z_dockerfile_content}" \
-    --arg zjq_ark_suffix_image "${RBGC_ARK_SUFFIX_IMAGE}" \
-    --arg zjq_ark_suffix_about "${RBGC_ARK_SUFFIX_ABOUT}" \
-    --arg zjq_ark_suffix_diags "${RBGC_ARK_SUFFIX_DIAGS}" \
-    --arg zjq_pool         "${z_mirror_pool}" \
-    --arg zjq_timeout      "${RBRR_GCB_TIMEOUT}" \
+    --arg zjq_sa             "${z_mason_sa}" \
+    --arg zjq_gar_host       "${z_gar_host}" \
+    --arg zjq_gar_path       "${z_gar_path}" \
+    --arg zjq_hallmarks_root "${RBGL_HALLMARKS_ROOT}" \
+    --arg zjq_hallmark       "${z_hallmark}" \
+    --arg zjq_vessel         "${RBRV_SIGIL}" \
+    --arg zjq_vessel_mode    "bind" \
+    --arg zjq_git_commit     "${z_git_commit}" \
+    --arg zjq_git_branch     "${z_git_branch}" \
+    --arg zjq_git_repo       "${z_git_repo}" \
+    --arg zjq_build_id       "" \
+    --arg zjq_inscribe_ts    "" \
+    --arg zjq_bind_source    "${z_bind_source}" \
+    --arg zjq_graft_source   "" \
+    --arg zjq_dockerfile     "${z_dockerfile_content}" \
+    --arg zjq_pool           "${z_mirror_pool}" \
+    --arg zjq_timeout        "${RBRR_GCB_TIMEOUT}" \
     '{
       steps: $zjq_steps[0],
       substitutions: {
         _RBGA_GAR_HOST:              $zjq_gar_host,
         _RBGA_GAR_PATH:              $zjq_gar_path,
+        _RBGA_HALLMARKS_ROOT:        $zjq_hallmarks_root,
+        _RBGA_HALLMARK:              $zjq_hallmark,
         _RBGA_VESSEL:                $zjq_vessel,
-        _RBGA_HALLMARK:          $zjq_hallmark,
         _RBGA_VESSEL_MODE:           $zjq_vessel_mode,
         _RBGA_GIT_COMMIT:            $zjq_git_commit,
         _RBGA_GIT_BRANCH:            $zjq_git_branch,
@@ -1507,10 +1502,7 @@ zrbfd_mirror_submit() {
         _RBGA_INSCRIBE_TIMESTAMP:    $zjq_inscribe_ts,
         _RBGA_BIND_SOURCE:           $zjq_bind_source,
         _RBGA_GRAFT_SOURCE:          $zjq_graft_source,
-        _RBGA_DOCKERFILE_CONTENT:    $zjq_dockerfile,
-        _RBGA_ARK_SUFFIX_IMAGE:      $zjq_ark_suffix_image,
-        _RBGA_ARK_SUFFIX_ABOUT:      $zjq_ark_suffix_about,
-        _RBGA_ARK_SUFFIX_DIAGS:      $zjq_ark_suffix_diags
+        _RBGA_DOCKERFILE_CONTENT:    $zjq_dockerfile
       },
       serviceAccount: $zjq_sa,
       options: {
@@ -1629,8 +1621,7 @@ rbfd_graft() {
   z_push_ts="r$(<"${z_push_ts_file}")"
   test -n "${z_push_ts}" || buc_die "Empty push timestamp from ${z_push_ts_file}"
   local -r z_hallmark="${z_graft_ts}-${z_push_ts}"
-  local -r z_image_tag="${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}"
-  local -r z_image_ref="${z_gar_base}/${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}:${z_image_tag}"
+  local -r z_image_ref="${z_gar_base}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"
 
   buc_info "Hallmark: ${z_hallmark}"
 
@@ -1658,11 +1649,12 @@ rbfd_graft() {
   # Write GAR root fact file
   buf_write_fact "${RBF_FACT_GAR_ROOT}" "${z_gar_base}"
 
-  # Write ark stem fact file
-  buf_write_fact "${RBF_FACT_ARK_STEM}" "${RBRV_SIGIL}:${z_hallmark}"
+  # Write ark stem fact file (hallmark subtree under HALLMARKS_ROOT)
+  buf_write_fact "${RBF_FACT_ARK_STEM}" "${RBGL_HALLMARKS_ROOT}/${z_hallmark}"
 
   # Write yield fact file (single-platform graft image)
-  buf_write_fact "${RBF_FACT_ARK_YIELD}${RBGC_ARK_SUFFIX_IMAGE}" "${RBRV_SIGIL}:${z_image_tag}"
+  buf_write_fact "${RBF_FACT_ARK_YIELD}-${RBGC_ARK_BASENAME_IMAGE}" \
+    "${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"
 
   # Summary
   echo ""

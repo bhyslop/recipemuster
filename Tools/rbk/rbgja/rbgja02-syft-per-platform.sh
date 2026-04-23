@@ -1,13 +1,12 @@
 #!/bin/bash
-# RBGJAM Step 02: Syft SBOM scan for each platform of -image
+# RBGJAM Step 02: Syft SBOM scan for each platform of image
 # Builder: gcr.io/cloud-builders/docker
-# Substitutions: _RBGA_GAR_HOST, _RBGA_GAR_PATH, _RBGA_VESSEL,
-#                _RBGA_HALLMARK, _RBGA_VESSEL_MODE,
-#                _RBGA_ARK_SUFFIX_IMAGE
+# Substitutions: _RBGA_GAR_HOST, _RBGA_GAR_PATH, _RBGA_HALLMARKS_ROOT,
+#                _RBGA_HALLMARK, _RBGA_VESSEL_MODE
 #
-# Scans each platform of -image via registry: transport.
+# Scans each platform of image via registry: transport.
 # Two scan modes based on platform count:
-#   Single-platform: scan main -image tag directly
+#   Single-platform: scan main image tag directly
 #   Multi-platform: scan via @digest from manifest list (all modes)
 # Auth via GCB metadata server OAuth2 token — no Docker daemon coupling.
 # Produces one SBOM per platform: sbom-{arch}{variant}.json
@@ -16,19 +15,17 @@ set -euo pipefail
 
 SYFT_IMAGE="${ZRBF_TOOL_SYFT}"
 
-test -n "${_RBGA_GAR_HOST}"       || { echo "_RBGA_GAR_HOST missing"       >&2; exit 1; }
-test -n "${_RBGA_GAR_PATH}"       || { echo "_RBGA_GAR_PATH missing"       >&2; exit 1; }
-test -n "${_RBGA_VESSEL}"         || { echo "_RBGA_VESSEL missing"         >&2; exit 1; }
-test -n "${_RBGA_HALLMARK}"   || { echo "_RBGA_HALLMARK missing"   >&2; exit 1; }
-test -n "${_RBGA_VESSEL_MODE}"    || { echo "_RBGA_VESSEL_MODE missing"    >&2; exit 1; }
-test -n "${_RBGA_ARK_SUFFIX_IMAGE}" || { echo "_RBGA_ARK_SUFFIX_IMAGE missing" >&2; exit 1; }
+test -n "${_RBGA_GAR_HOST}"        || { echo "_RBGA_GAR_HOST missing"        >&2; exit 1; }
+test -n "${_RBGA_GAR_PATH}"        || { echo "_RBGA_GAR_PATH missing"        >&2; exit 1; }
+test -n "${_RBGA_HALLMARKS_ROOT}"  || { echo "_RBGA_HALLMARKS_ROOT missing"  >&2; exit 1; }
+test -n "${_RBGA_HALLMARK}"        || { echo "_RBGA_HALLMARK missing"        >&2; exit 1; }
+test -n "${_RBGA_VESSEL_MODE}"     || { echo "_RBGA_VESSEL_MODE missing"     >&2; exit 1; }
 
 test -s platforms.txt         || { echo "platforms.txt not found (step 01)" >&2; exit 1; }
 test -s platform_suffixes.txt || { echo "platform_suffixes.txt not found (step 01)" >&2; exit 1; }
 test -s platform_count.txt    || { echo "platform_count.txt not found (step 01)" >&2; exit 1; }
 
-IMAGE_BASE="${_RBGA_GAR_HOST}/${_RBGA_GAR_PATH}/${_RBGA_VESSEL}"
-IMAGE_TAG="${_RBGA_HALLMARK}${_RBGA_ARK_SUFFIX_IMAGE}"
+IMAGE_URI="${_RBGA_GAR_HOST}/${_RBGA_GAR_PATH}/${_RBGA_HALLMARKS_ROOT}/${_RBGA_HALLMARK}/image:${_RBGA_HALLMARK}"
 PLATFORM_COUNT=$(cat platform_count.txt)
 GAR_AUTHORITY="${_RBGA_GAR_HOST}"
 
@@ -68,11 +65,11 @@ for IDX in "${!PLATFORMS[@]}"; do
   # attestation manifests (unknown/unknown platform) that cause syft to fail on
   # auto-selection. platform_digests.txt is always written by discover-platforms.
   if test "${PLATFORM_COUNT}" = "1"; then
-    SCAN_TARGET="registry:${IMAGE_BASE}:${IMAGE_TAG}"
+    SCAN_TARGET="registry:${IMAGE_URI}"
   else
     DIGEST="${DIGEST_MAP[${SUFFIX}]:-}"
     test -n "${DIGEST}" || { echo "No digest found for suffix ${SUFFIX}" >&2; exit 1; }
-    SCAN_TARGET="registry:${IMAGE_BASE}:${IMAGE_TAG}@${DIGEST}"
+    SCAN_TARGET="registry:${IMAGE_URI}@${DIGEST}"
   fi
 
   echo "--- Scanning ${PLAT} (${SCAN_TARGET}) → ${SBOM_FILE} ---"

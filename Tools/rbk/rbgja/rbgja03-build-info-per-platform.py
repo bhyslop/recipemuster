@@ -2,7 +2,7 @@
 # RBGJAM Step 03: Generate per-platform mode-aware build_info.json
 # Builder: gcr.io/cloud-builders/gcloud (switched from alpine for Python availability)
 # Substitutions (GCB anchors — automapSubstitutions provides as env vars):
-#   ${_RBGA_GAR_HOST} ${_RBGA_GAR_PATH} ${_RBGA_VESSEL}
+#   ${_RBGA_VESSEL} (content only — written into build_info.vessel_name)
 #   ${_RBGA_HALLMARK} ${_RBGA_VESSEL_MODE}
 #   ${_RBGA_GIT_COMMIT} ${_RBGA_GIT_BRANCH} ${_RBGA_GIT_REPO}
 #   ${_RBGA_BUILD_ID} ${_RBGA_INSCRIBE_TIMESTAMP}
@@ -52,8 +52,6 @@ def get_build_id():
 
 
 def main():
-    _            = require_env("_RBGA_GAR_HOST")
-    _            = require_env("_RBGA_GAR_PATH")
     vessel       = require_env("_RBGA_VESSEL")
     hallmark = get_hallmark()
     vessel_mode  = require_env("_RBGA_VESSEL_MODE")

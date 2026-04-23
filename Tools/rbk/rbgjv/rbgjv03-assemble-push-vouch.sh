@@ -1,10 +1,9 @@
 #!/bin/bash
-# RBGJV Step 03: Build FROM scratch container with verification results, push as -vouch
+# RBGJV Step 03: Build FROM scratch container with verification results, push as vouch
 # Builder: docker (from reliquary)
 # Entrypoint: bash
-# Substitutions: _RBGV_GAR_HOST, _RBGV_GAR_PATH, _RBGV_VESSEL,
-#                _RBGV_HALLMARK, _RBGV_ARK_SUFFIX_VOUCH,
-#                _RBGV_VOUCHES_PACKAGE
+# Substitutions: _RBGV_GAR_HOST, _RBGV_GAR_PATH, _RBGV_HALLMARKS_ROOT,
+#                _RBGV_HALLMARK
 #
 # Note: The Dockerfile heredoc below is intentional — this script runs inside
 # a Cloud Build container, not under BCG module discipline.
@@ -23,11 +22,9 @@ test -f /workspace/vouch_platforms.txt \
 PLATFORMS=$(cat /workspace/vouch_platforms.txt)
 test -n "${PLATFORMS}" || { echo "FATAL: vouch_platforms.txt is empty" >&2; exit 1; }
 
-VOUCH_TAG="${_RBGV_GAR_HOST}/${_RBGV_GAR_PATH}/${_RBGV_VESSEL}:${_RBGV_HALLMARK}${_RBGV_ARK_SUFFIX_VOUCH}"
-VOUCHES_TAG="${_RBGV_GAR_HOST}/${_RBGV_GAR_PATH}/${_RBGV_VOUCHES_PACKAGE}:${_RBGV_HALLMARK}${_RBGV_ARK_SUFFIX_VOUCH}"
+VOUCH_URI="${_RBGV_GAR_HOST}/${_RBGV_GAR_PATH}/${_RBGV_HALLMARKS_ROOT}/${_RBGV_HALLMARK}/vouch:${_RBGV_HALLMARK}"
 echo "Platforms: ${PLATFORMS}"
-echo "Target (vessel): ${VOUCH_TAG}"
-echo "Target (vouches): ${VOUCHES_TAG}"
+echo "Target: ${VOUCH_URI}"
 
 mkdir -p /workspace/vouch_ctx
 cp /workspace/vouch_summary.json /workspace/vouch_ctx/
@@ -51,9 +48,7 @@ docker buildx use rb-builder
 docker buildx build \
   --push \
   --platform="${PLATFORMS}" \
-  --tag "${VOUCH_TAG}" \
-  --tag "${VOUCHES_TAG}" \
+  --tag "${VOUCH_URI}" \
   /workspace/vouch_ctx
 
-echo "Vouch artifact pushed: ${VOUCH_TAG}"
-echo "Vouch artifact tagged: ${VOUCHES_TAG}"
+echo "Vouch artifact pushed: ${VOUCH_URI}"

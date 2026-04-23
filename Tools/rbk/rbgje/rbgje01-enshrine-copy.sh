@@ -1,12 +1,16 @@
 #!/bin/bash
 # RBGJE Step 01: Enshrine upstream base images to GAR via skopeo
 # Builder: skopeo (from reliquary)
-# Substitutions: _RBGE_GAR_HOST, _RBGE_GAR_PATH, _RBGE_ENSHRINE_NAME,
+# Substitutions: _RBGE_GAR_HOST, _RBGE_GAR_PATH, _RBGE_ENSHRINES_ROOT,
 #                _RBGE_IMAGE_1_ORIGIN, _RBGE_IMAGE_2_ORIGIN, _RBGE_IMAGE_3_ORIGIN
 #
 # For each non-empty ORIGIN slot: inspect upstream manifest, compute anchor,
 # skopeo copy --all to GAR. Write JSON anchor results to /builder/outputs/output.
 # Mason SA ambient auth via Cloud Build metadata server for GAR destination.
+#
+# Image URI shape: <host>/<path>/<ENSHRINES_ROOT>/<ANCHOR>:<ANCHOR>
+# Anchor as both path segment and tag — each anchor is a peer package under
+# the enshrines namespace, not a tag on a shared package.
 
 set -euo pipefail
 echo "=== Enshrine base images to GAR ==="
@@ -58,8 +62,8 @@ for SLOT in 1 2 3; do
   echo "Anchor: ${ANCHOR}"
   echo "Digest: sha256:${SHA}"
 
-  # Construct GAR destination
-  DEST_REF="${_RBGE_GAR_HOST}/${_RBGE_GAR_PATH}/${_RBGE_ENSHRINE_NAME}:${ANCHOR}"
+  # Construct GAR destination — anchor is both the package name and the tag
+  DEST_REF="${_RBGE_GAR_HOST}/${_RBGE_GAR_PATH}/${_RBGE_ENSHRINES_ROOT}/${ANCHOR}:${ANCHOR}"
   echo "Dest: ${DEST_REF}"
 
   # Copy upstream to GAR with anchor tag, preserving manifest list

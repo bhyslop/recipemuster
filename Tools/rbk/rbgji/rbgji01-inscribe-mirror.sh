@@ -1,12 +1,16 @@
 #!/bin/bash
 # RBGJI Step 01: Inscribe tool images to GAR reliquary
 # Builder: gcr.io/cloud-builders/docker (always pullable — Google-hosted)
-# Substitutions: _RBGN_GAR_HOST, _RBGN_GAR_PATH, _RBGN_RELIQUARY
+# Substitutions: _RBGN_GAR_HOST, _RBGN_GAR_PATH,
+#                _RBGN_RELIQUARIES_ROOT, _RBGN_RELIQUARY
 #
 # Mirrors all 6 GCB step/tool images from upstream registries to a datestamped
 # GAR namespace (reliquary). Co-versioned: all images in one pass, one datestamp.
 # Single-platform (linux/amd64) — tool images run as GCB steps on amd64 workers.
 # Outputs JSON manifest with tool→digest mapping via /builder/outputs/output.
+#
+# Image URI shape: <host>/<path>/<RELIQUARIES_ROOT>/<RELIQUARY>/<NAME>:<RELIQUARY>
+# Tag = the reliquary datestamp itself (immutable-datestamp-as-tag).
 
 set -euo pipefail
 echo "=== Inscribe tool images to GAR reliquary ==="
@@ -33,7 +37,7 @@ for ENTRY in "${MANIFEST[@]}"; do
 
   echo "--- ${NAME}: ${UPSTREAM} ---"
 
-  DEST="${_RBGN_GAR_HOST}/${_RBGN_GAR_PATH}/${_RBGN_RELIQUARY}/${NAME}:latest"
+  DEST="${_RBGN_GAR_HOST}/${_RBGN_GAR_PATH}/${_RBGN_RELIQUARIES_ROOT}/${_RBGN_RELIQUARY}/${NAME}:${_RBGN_RELIQUARY}"
   echo "Dest: ${DEST}"
 
   docker pull "${UPSTREAM}" \

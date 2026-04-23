@@ -72,8 +72,9 @@ rbfv_vouch_gate() {
   local -r z_registry_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
   local -r z_registry_api_base="https://${z_registry_host}/v2/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
 
-  local -r z_vouch_tag="${z_hallmark}${RBGC_ARK_SUFFIX_VOUCH}"
-  buc_step "Vouch gate: checking ${z_vessel}:${z_vouch_tag}"
+  # Vouch package = hallmarks/<H>/vouch, tag = <H> (hallmark-as-tag).
+  local -r z_vouch_tag="${z_hallmark}"
+  buc_step "Vouch gate: checking ${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}:${z_vouch_tag}"
 
   local z_token
   z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
@@ -86,16 +87,16 @@ rbfv_vouch_gate() {
     -H "Authorization: Bearer ${z_token}" \
     -o /dev/null \
     -w "%{http_code}" \
-    "${z_registry_api_base}/${RBRR_CLOUD_PREFIX}${z_vessel}/manifests/${z_vouch_tag}" \
+    "${z_registry_api_base}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}/manifests/${z_vouch_tag}" \
     > "${ZRBFC_SCRATCH_FILE}" \
     || buc_die "rbfv_vouch_gate: HEAD request failed for ${z_vessel}:${z_vouch_tag}"
   z_vouch_http_code=$(<"${ZRBFC_SCRATCH_FILE}")
 
   if test "${z_vouch_http_code}" != "200"; then
-    buc_die "Hallmark not vouched: ${z_vessel}:${z_hallmark} (HTTP ${z_vouch_http_code} — refusing to use unvouched image)"
+    buc_die "Hallmark not vouched: ${z_hallmark} (HTTP ${z_vouch_http_code} — refusing to use unvouched image)"
   fi
 
-  buc_info "Vouch verified: ${z_vessel}:${z_vouch_tag}"
+  buc_info "Vouch verified: ${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}:${z_vouch_tag}"
 }
 
 rbfv_about() {
@@ -125,9 +126,9 @@ rbfv_about() {
   z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
     || buc_die "Failed to get Director OAuth token"
 
-  # Gate: require -image exists
+  # Gate: require image exists. Image package = hallmarks/<H>/image, tag = <H>.
   buc_step "Gating on image artifact existence"
-  local -r z_image_tag="${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}"
+  local -r z_hallmark_subtree="${RBGL_HALLMARKS_ROOT}/${z_hallmark}"
   local -r z_image_gate_status="${ZRBFV_ABOUT_PREFIX}image_status.txt"
   local -r z_image_gate_response="${ZRBFV_ABOUT_PREFIX}image_response.json"
   local -r z_image_gate_stderr="${ZRBFV_ABOUT_PREFIX}image_stderr.txt"
@@ -139,19 +140,18 @@ rbfv_about() {
     -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
     -w "%{http_code}" \
     -o "${z_image_gate_response}" \
-    "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}/manifests/${z_image_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_IMAGE}/manifests/${z_hallmark}" \
     > "${z_image_gate_status}" 2>"${z_image_gate_stderr}" \
-    || buc_die "HEAD request failed for -image artifact — see ${z_image_gate_stderr}"
+    || buc_die "HEAD request failed for image artifact — see ${z_image_gate_stderr}"
 
   local -r z_image_http_code=$(<"${z_image_gate_status}")
-  test -n "${z_image_http_code}" || buc_die "HTTP status code is empty for -image"
+  test -n "${z_image_http_code}" || buc_die "HTTP status code is empty for image"
   test "${z_image_http_code}" = "200" \
     || buc_die "Image artifact not found (HTTP ${z_image_http_code}) — image must exist before about"
 
-  buc_info "Image artifact confirmed: ${z_image_tag}"
+  buc_info "Image artifact confirmed: ${z_hallmark_subtree}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"
 
-  # Gate: warn if -about already exists (re-about is idempotent overwrite)
-  local -r z_about_tag="${z_hallmark}${RBGC_ARK_SUFFIX_ABOUT}"
+  # Gate: warn if about already exists (re-about is idempotent overwrite)
   local -r z_about_gate_status="${ZRBFV_ABOUT_PREFIX}about_status.txt"
   local -r z_about_gate_response="${ZRBFV_ABOUT_PREFIX}about_response.json"
   local -r z_about_gate_stderr="${ZRBFV_ABOUT_PREFIX}about_stderr.txt"
@@ -163,21 +163,21 @@ rbfv_about() {
     -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
     -w "%{http_code}" \
     -o "${z_about_gate_response}" \
-    "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}/manifests/${z_about_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_ABOUT}/manifests/${z_hallmark}" \
     > "${z_about_gate_status}" 2>"${z_about_gate_stderr}" \
-    || buc_die "HEAD request failed for -about artifact — see ${z_about_gate_stderr}"
+    || buc_die "HEAD request failed for about artifact — see ${z_about_gate_stderr}"
 
   local -r z_about_http_code=$(<"${z_about_gate_status}")
-  test -n "${z_about_http_code}" || buc_die "HTTP status code is empty for -about"
+  test -n "${z_about_http_code}" || buc_die "HTTP status code is empty for about"
   if test "${z_about_http_code}" = "200"; then
-    buc_warn "Re-about in progress: ${z_about_tag} already exists"
+    buc_warn "Re-about in progress: ${z_hallmark_subtree}/${RBGC_ARK_BASENAME_ABOUT}:${z_hallmark} already exists"
   fi
 
   # Submit about Cloud Build
   zrbfv_about_submit "${z_hallmark}" "${z_token}" "${z_conjure_build_id}"
 
-  buc_success "About complete: ${RBRV_SIGIL}/${z_hallmark}"
-  buc_info "About artifact: ${RBRV_SIGIL}:${z_about_tag}"
+  buc_success "About complete: ${z_hallmark}"
+  buc_info "About artifact: ${z_hallmark_subtree}/${RBGC_ARK_BASENAME_ABOUT}:${z_hallmark}"
 }
 
 # Internal: submit combined about+vouch Cloud Build job for graft mode.
@@ -207,9 +207,9 @@ zrbfv_graft_metadata_submit() {
   local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
   local -r z_mason_sa="projects/${RBRR_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
 
-  # Gate: require -image exists (graft push must have completed)
+  # Gate: require image exists (graft push must have completed)
   buc_step "Gating on image artifact existence"
-  local -r z_image_tag="${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}"
+  local -r z_hallmark_subtree="${RBGL_HALLMARKS_ROOT}/${z_hallmark}"
   local -r z_image_gate_status="${ZRBFV_GRAFT_META_PREFIX}image_status.txt"
   local -r z_image_gate_response="${ZRBFV_GRAFT_META_PREFIX}image_response.json"
   local -r z_image_gate_stderr="${ZRBFV_GRAFT_META_PREFIX}image_stderr.txt"
@@ -221,16 +221,16 @@ zrbfv_graft_metadata_submit() {
     -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
     -w "%{http_code}" \
     -o "${z_image_gate_response}" \
-    "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}/manifests/${z_image_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_IMAGE}/manifests/${z_hallmark}" \
     > "${z_image_gate_status}" 2>"${z_image_gate_stderr}" \
-    || buc_die "HEAD request failed for -image artifact — see ${z_image_gate_stderr}"
+    || buc_die "HEAD request failed for image artifact — see ${z_image_gate_stderr}"
 
   local -r z_image_http_code=$(<"${z_image_gate_status}")
-  test -n "${z_image_http_code}" || buc_die "HTTP status code is empty for -image"
+  test -n "${z_image_http_code}" || buc_die "HTTP status code is empty for image"
   test "${z_image_http_code}" = "200" \
     || buc_die "Image artifact not found (HTTP ${z_image_http_code}) — graft push must complete before about+vouch"
 
-  buc_info "Image artifact confirmed: ${z_image_tag}"
+  buc_info "Image artifact confirmed: ${z_hallmark_subtree}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"
 
   # Git metadata (shared temp files, idempotent)
   zrbfc_ensure_git_metadata
@@ -264,7 +264,8 @@ zrbfv_graft_metadata_submit() {
   zrbfc_assemble_about_steps "${z_about_steps_file}" "${ZRBFV_GRAFT_META_PREFIX}about_"
 
   # === Resolve base image provenance (for vouch summary) ===
-  local -r z_vi_gar_prefix="${z_gar_host}/${z_gar_path}/${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}"
+  # New layout: anchored base images live at <ENSHRINES_ROOT>/<anchor>:<anchor>
+  local -r z_vi_gar_repo_base="${z_gar_host}/${z_gar_path}"
   local z_vi_ref_1="" z_vi_ref_2="" z_vi_ref_3=""
   local z_vi_prov_1="" z_vi_prov_2="" z_vi_prov_3=""
   local z_vi_n="" z_vi_origin_var="" z_vi_anchor_var="" z_vi_origin="" z_vi_anchor=""
@@ -276,7 +277,7 @@ zrbfv_graft_metadata_submit() {
     test -n "${z_vi_origin}" || continue
     local z_vi_ref="" z_vi_prov=""
     if test -n "${z_vi_anchor}"; then
-      z_vi_ref="${z_vi_gar_prefix}:${z_vi_anchor}"
+      z_vi_ref="${z_vi_gar_repo_base}/${RBGL_ENSHRINES_ROOT}/${z_vi_anchor}:${z_vi_anchor}"
       z_vi_prov="anchored"
     else
       z_vi_ref="${z_vi_origin}"
@@ -307,18 +308,14 @@ zrbfv_graft_metadata_submit() {
     --arg zjq_sa                "${z_mason_sa}" \
     --arg zjq_gar_host          "${z_gar_host}" \
     --arg zjq_gar_path          "${z_gar_path}" \
-    --arg zjq_vessel            "${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}" \
-    --arg zjq_hallmark      "${z_hallmark}" \
+    --arg zjq_hallmarks_root    "${RBGL_HALLMARKS_ROOT}" \
+    --arg zjq_hallmark          "${z_hallmark}" \
+    --arg zjq_vessel            "${RBRV_SIGIL}" \
     --arg zjq_git_commit        "${z_git_commit}" \
     --arg zjq_git_branch        "${z_git_branch}" \
     --arg zjq_git_repo          "${z_git_repo}" \
     --arg zjq_graft_source      "${z_graft_source}" \
     --arg zjq_dockerfile        "${z_dockerfile_content}" \
-    --arg zjq_ark_suffix_image  "${RBGC_ARK_SUFFIX_IMAGE}" \
-    --arg zjq_ark_suffix_about  "${RBGC_ARK_SUFFIX_ABOUT}" \
-    --arg zjq_ark_suffix_vouch  "${RBGC_ARK_SUFFIX_VOUCH}" \
-    --arg zjq_ark_suffix_diags  "${RBGC_ARK_SUFFIX_DIAGS}" \
-    --arg zjq_vouches_package   "${RBRR_CLOUD_PREFIX}${RBGC_VOUCHES_PACKAGE}" \
     --arg zjq_vi_ref_1          "${z_vi_ref_1}" \
     --arg zjq_vi_prov_1         "${z_vi_prov_1}" \
     --arg zjq_vi_ref_2          "${z_vi_ref_2}" \
@@ -332,8 +329,9 @@ zrbfv_graft_metadata_submit() {
       substitutions: {
         _RBGA_GAR_HOST:              $zjq_gar_host,
         _RBGA_GAR_PATH:              $zjq_gar_path,
+        _RBGA_HALLMARKS_ROOT:        $zjq_hallmarks_root,
+        _RBGA_HALLMARK:              $zjq_hallmark,
         _RBGA_VESSEL:                $zjq_vessel,
-        _RBGA_HALLMARK:          $zjq_hallmark,
         _RBGA_VESSEL_MODE:           "graft",
         _RBGA_GIT_COMMIT:            $zjq_git_commit,
         _RBGA_GIT_BRANCH:            $zjq_git_branch,
@@ -343,19 +341,14 @@ zrbfv_graft_metadata_submit() {
         _RBGA_BIND_SOURCE:           "",
         _RBGA_GRAFT_SOURCE:          $zjq_graft_source,
         _RBGA_DOCKERFILE_CONTENT:    $zjq_dockerfile,
-        _RBGA_ARK_SUFFIX_IMAGE:      $zjq_ark_suffix_image,
-        _RBGA_ARK_SUFFIX_ABOUT:      $zjq_ark_suffix_about,
-        _RBGA_ARK_SUFFIX_DIAGS:      $zjq_ark_suffix_diags,
         _RBGV_GAR_HOST:              $zjq_gar_host,
         _RBGV_GAR_PATH:              $zjq_gar_path,
+        _RBGV_HALLMARKS_ROOT:        $zjq_hallmarks_root,
+        _RBGV_HALLMARK:              $zjq_hallmark,
         _RBGV_VESSEL:                $zjq_vessel,
-        _RBGV_HALLMARK:          $zjq_hallmark,
         _RBGV_VESSEL_MODE:           "graft",
         _RBGV_BIND_SOURCE:           "",
         _RBGV_GRAFT_SOURCE:          $zjq_graft_source,
-        _RBGV_ARK_SUFFIX_IMAGE:      $zjq_ark_suffix_image,
-        _RBGV_ARK_SUFFIX_VOUCH:      $zjq_ark_suffix_vouch,
-        _RBGV_VOUCHES_PACKAGE:       $zjq_vouches_package,
         _RBGV_IMAGE_1:               $zjq_vi_ref_1,
         _RBGV_IMAGE_1_PROVENANCE:    $zjq_vi_prov_1,
         _RBGV_IMAGE_2:               $zjq_vi_ref_2,
@@ -391,11 +384,9 @@ zrbfv_graft_metadata_submit() {
 
   zrbfc_wait_build_completion 100 "About+Vouch"  # ~8 minutes at 5s intervals
 
-  buc_success "About+Vouch complete: ${RBRV_SIGIL}/${z_hallmark}"
-  local -r z_about_tag="${z_hallmark}${RBGC_ARK_SUFFIX_ABOUT}"
-  local -r z_vouch_tag="${z_hallmark}${RBGC_ARK_SUFFIX_VOUCH}"
-  buc_info "About artifact: ${RBRV_SIGIL}:${z_about_tag}"
-  buc_info "Vouch artifact: ${RBRV_SIGIL}:${z_vouch_tag}"
+  buc_success "About+Vouch complete: ${z_hallmark}"
+  buc_info "About artifact: ${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_ABOUT}:${z_hallmark}"
+  buc_info "Vouch artifact: ${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}:${z_hallmark}"
 }
 
 # Internal: submit about Cloud Build job and wait for completion
@@ -492,33 +483,32 @@ zrbfv_about_submit() {
   local -r z_about_build_file="${ZRBFV_ABOUT_PREFIX}build.json"
 
   jq -n \
-    --slurpfile zjq_steps  "${z_about_steps_accumulator}" \
-    --arg zjq_sa           "${z_mason_sa}" \
-    --arg zjq_gar_host     "${z_gar_host}" \
-    --arg zjq_gar_path     "${z_gar_path}" \
-    --arg zjq_vessel       "${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}" \
-    --arg zjq_hallmark "${z_hallmark}" \
-    --arg zjq_vessel_mode  "${z_vessel_mode}" \
-    --arg zjq_git_commit   "${z_git_commit}" \
-    --arg zjq_git_branch   "${z_git_branch}" \
-    --arg zjq_git_repo     "${z_git_repo}" \
-    --arg zjq_build_id     "${z_conjure_build_id}" \
-    --arg zjq_inscribe_ts  "${z_inscribe_ts}" \
-    --arg zjq_bind_source  "${z_bind_source}" \
-    --arg zjq_graft_source "${z_graft_source}" \
-    --arg zjq_dockerfile   "${z_dockerfile_content}" \
-    --arg zjq_ark_suffix_image "${RBGC_ARK_SUFFIX_IMAGE}" \
-    --arg zjq_ark_suffix_about "${RBGC_ARK_SUFFIX_ABOUT}" \
-    --arg zjq_ark_suffix_diags "${RBGC_ARK_SUFFIX_DIAGS}" \
-    --arg zjq_pool         "${RBDC_POOL_AIRGAP}" \
-    --arg zjq_timeout      "${RBRR_GCB_TIMEOUT}" \
+    --slurpfile zjq_steps    "${z_about_steps_accumulator}" \
+    --arg zjq_sa             "${z_mason_sa}" \
+    --arg zjq_gar_host       "${z_gar_host}" \
+    --arg zjq_gar_path       "${z_gar_path}" \
+    --arg zjq_hallmarks_root "${RBGL_HALLMARKS_ROOT}" \
+    --arg zjq_hallmark       "${z_hallmark}" \
+    --arg zjq_vessel         "${RBRV_SIGIL}" \
+    --arg zjq_vessel_mode    "${z_vessel_mode}" \
+    --arg zjq_git_commit     "${z_git_commit}" \
+    --arg zjq_git_branch     "${z_git_branch}" \
+    --arg zjq_git_repo       "${z_git_repo}" \
+    --arg zjq_build_id       "${z_conjure_build_id}" \
+    --arg zjq_inscribe_ts    "${z_inscribe_ts}" \
+    --arg zjq_bind_source    "${z_bind_source}" \
+    --arg zjq_graft_source   "${z_graft_source}" \
+    --arg zjq_dockerfile     "${z_dockerfile_content}" \
+    --arg zjq_pool           "${RBDC_POOL_AIRGAP}" \
+    --arg zjq_timeout        "${RBRR_GCB_TIMEOUT}" \
     '{
       steps: $zjq_steps[0],
       substitutions: {
         _RBGA_GAR_HOST:              $zjq_gar_host,
         _RBGA_GAR_PATH:              $zjq_gar_path,
+        _RBGA_HALLMARKS_ROOT:        $zjq_hallmarks_root,
+        _RBGA_HALLMARK:              $zjq_hallmark,
         _RBGA_VESSEL:                $zjq_vessel,
-        _RBGA_HALLMARK:          $zjq_hallmark,
         _RBGA_VESSEL_MODE:           $zjq_vessel_mode,
         _RBGA_GIT_COMMIT:            $zjq_git_commit,
         _RBGA_GIT_BRANCH:            $zjq_git_branch,
@@ -527,10 +517,7 @@ zrbfv_about_submit() {
         _RBGA_INSCRIBE_TIMESTAMP:    $zjq_inscribe_ts,
         _RBGA_BIND_SOURCE:           $zjq_bind_source,
         _RBGA_GRAFT_SOURCE:          $zjq_graft_source,
-        _RBGA_DOCKERFILE_CONTENT:    $zjq_dockerfile,
-        _RBGA_ARK_SUFFIX_IMAGE:      $zjq_ark_suffix_image,
-        _RBGA_ARK_SUFFIX_ABOUT:      $zjq_ark_suffix_about,
-        _RBGA_ARK_SUFFIX_DIAGS:      $zjq_ark_suffix_diags
+        _RBGA_DOCKERFILE_CONTENT:    $zjq_dockerfile
       },
       serviceAccount: $zjq_sa,
       options: {
@@ -600,9 +587,9 @@ rbfv_vouch() {
   z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
     || buc_die "Failed to get Director OAuth token"
 
-  # Gate: require -about exists (about must complete before vouch)
+  # Gate: require about exists (about must complete before vouch)
   buc_step "Gating on about artifact existence"
-  local -r z_about_tag="${z_hallmark}${RBGC_ARK_SUFFIX_ABOUT}"
+  local -r z_hallmark_subtree="${RBGL_HALLMARKS_ROOT}/${z_hallmark}"
   local -r z_about_gate_status="${ZRBFV_VOUCH_PREFIX}about_status.txt"
   local -r z_about_gate_response="${ZRBFV_VOUCH_PREFIX}about_response.json"
   local -r z_about_gate_stderr="${ZRBFV_VOUCH_PREFIX}about_stderr.txt"
@@ -614,19 +601,18 @@ rbfv_vouch() {
     -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
     -w "%{http_code}" \
     -o "${z_about_gate_response}" \
-    "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}/manifests/${z_about_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_ABOUT}/manifests/${z_hallmark}" \
     > "${z_about_gate_status}" 2>"${z_about_gate_stderr}" \
-    || buc_die "HEAD request failed for -about artifact — see ${z_about_gate_stderr}"
+    || buc_die "HEAD request failed for about artifact — see ${z_about_gate_stderr}"
 
   local -r z_about_http_code=$(<"${z_about_gate_status}")
-  test -n "${z_about_http_code}" || buc_die "HTTP status code is empty for -about"
+  test -n "${z_about_http_code}" || buc_die "HTTP status code is empty for about"
   test "${z_about_http_code}" = "200" \
     || buc_die "About artifact not found (HTTP ${z_about_http_code}) — about must complete before vouch"
 
-  buc_info "About artifact confirmed: ${z_about_tag}"
+  buc_info "About artifact confirmed: ${z_hallmark_subtree}/${RBGC_ARK_BASENAME_ABOUT}:${z_hallmark}"
 
-  # Gate: warn if -vouch already exists (re-vouch)
-  local -r z_vouch_tag="${z_hallmark}${RBGC_ARK_SUFFIX_VOUCH}"
+  # Gate: warn if vouch already exists (re-vouch)
   local -r z_vouch_gate_status="${ZRBFV_VOUCH_PREFIX}vouch_status.txt"
   local -r z_vouch_gate_response="${ZRBFV_VOUCH_PREFIX}vouch_response.json"
   local -r z_vouch_gate_stderr="${ZRBFV_VOUCH_PREFIX}vouch_stderr.txt"
@@ -638,21 +624,21 @@ rbfv_vouch() {
     -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
     -w "%{http_code}" \
     -o "${z_vouch_gate_response}" \
-    "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}/manifests/${z_vouch_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_VOUCH}/manifests/${z_hallmark}" \
     > "${z_vouch_gate_status}" 2>"${z_vouch_gate_stderr}" \
-    || buc_die "HEAD request failed for -vouch artifact — see ${z_vouch_gate_stderr}"
+    || buc_die "HEAD request failed for vouch artifact — see ${z_vouch_gate_stderr}"
 
   local -r z_vouch_http_code=$(<"${z_vouch_gate_status}")
-  test -n "${z_vouch_http_code}" || buc_die "HTTP status code is empty for -vouch"
+  test -n "${z_vouch_http_code}" || buc_die "HTTP status code is empty for vouch"
   if test "${z_vouch_http_code}" = "200"; then
-    buc_warn "Re-vouch in progress: ${z_vouch_tag} already exists"
+    buc_warn "Re-vouch in progress: ${z_hallmark_subtree}/${RBGC_ARK_BASENAME_VOUCH}:${z_hallmark} already exists"
   fi
 
   # All modes use Cloud Build for vouch (mode-aware verification inside the build)
-  zrbfv_vouch_submit "${z_hallmark}" "${z_vouch_tag}" "${z_token}"
+  zrbfv_vouch_submit "${z_hallmark}" "${z_token}"
 
-  buc_success "Vouch complete: ${RBRV_SIGIL}/${z_hallmark}"
-  buc_info "Vouch artifact: ${RBRV_SIGIL}:${z_vouch_tag}"
+  buc_success "Vouch complete: ${z_hallmark}"
+  buc_info "Vouch artifact: ${z_hallmark_subtree}/${RBGC_ARK_BASENAME_VOUCH}:${z_hallmark}"
 }
 
 # Internal: Submit vouch Cloud Build job (mode-aware verification)
@@ -664,8 +650,7 @@ zrbfv_vouch_submit() {
   zrbfv_sentinel
 
   local -r z_hallmark="$1"
-  local -r z_vouch_tag="$2"
-  local -r z_token="$3"
+  local -r z_token="$2"
 
   buc_step "Constructing vouch Cloud Build resource"
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
@@ -684,7 +669,8 @@ zrbfv_vouch_submit() {
   esac
 
   # Resolve base image provenance (for vouch summary recording)
-  local -r z_vi_gar_prefix="${z_gar_host}/${z_gar_path}/${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}"
+  # New layout: anchored base images live at <ENSHRINES_ROOT>/<anchor>:<anchor>
+  local -r z_vi_gar_repo_base="${z_gar_host}/${z_gar_path}"
   local z_vi_ref_1="" z_vi_ref_2="" z_vi_ref_3=""
   local z_vi_prov_1="" z_vi_prov_2="" z_vi_prov_3=""
   local z_vi_n="" z_vi_origin_var="" z_vi_anchor_var="" z_vi_origin="" z_vi_anchor=""
@@ -696,7 +682,7 @@ zrbfv_vouch_submit() {
     test -n "${z_vi_origin}" || continue
     local z_vi_ref="" z_vi_prov=""
     if test -n "${z_vi_anchor}"; then
-      z_vi_ref="${z_vi_gar_prefix}:${z_vi_anchor}"
+      z_vi_ref="${z_vi_gar_repo_base}/${RBGL_ENSHRINES_ROOT}/${z_vi_anchor}:${z_vi_anchor}"
       z_vi_prov="anchored"
     else
       z_vi_ref="${z_vi_origin}"
@@ -717,46 +703,40 @@ zrbfv_vouch_submit() {
   local -r z_vouch_build_file="${ZRBFV_VOUCH_PREFIX}build.json"
 
   jq -n \
-    --slurpfile zjq_steps       "${z_vouch_steps_accumulator}" \
-    --arg zjq_sa                "${z_mason_sa}" \
-    --arg zjq_gar_host          "${z_gar_host}" \
-    --arg zjq_gar_path          "${z_gar_path}" \
-    --arg zjq_vessel            "${RBRR_CLOUD_PREFIX}${RBRV_SIGIL}" \
-    --arg zjq_hallmark      "${z_hallmark}" \
-    --arg zjq_vessel_mode       "${RBRV_VESSEL_MODE}" \
-    --arg zjq_bind_source       "${z_bind_source}" \
-    --arg zjq_graft_source      "${z_graft_source}" \
-    --arg zjq_ark_suffix_image  "${RBGC_ARK_SUFFIX_IMAGE}" \
-    --arg zjq_ark_suffix_attest "${RBGC_ARK_SUFFIX_ATTEST}" \
-    --arg zjq_ark_suffix_vouch  "${RBGC_ARK_SUFFIX_VOUCH}" \
-    --arg zjq_vouches_package   "${RBRR_CLOUD_PREFIX}${RBGC_VOUCHES_PACKAGE}" \
-    --arg zjq_vi_ref_1          "${z_vi_ref_1}" \
-    --arg zjq_vi_prov_1         "${z_vi_prov_1}" \
-    --arg zjq_vi_ref_2          "${z_vi_ref_2}" \
-    --arg zjq_vi_prov_2         "${z_vi_prov_2}" \
-    --arg zjq_vi_ref_3          "${z_vi_ref_3}" \
-    --arg zjq_vi_prov_3         "${z_vi_prov_3}" \
-    --arg zjq_pool              "${RBDC_POOL_AIRGAP}" \
-    --arg zjq_timeout           "${RBRR_GCB_TIMEOUT}" \
+    --slurpfile zjq_steps    "${z_vouch_steps_accumulator}" \
+    --arg zjq_sa             "${z_mason_sa}" \
+    --arg zjq_gar_host       "${z_gar_host}" \
+    --arg zjq_gar_path       "${z_gar_path}" \
+    --arg zjq_hallmarks_root "${RBGL_HALLMARKS_ROOT}" \
+    --arg zjq_hallmark       "${z_hallmark}" \
+    --arg zjq_vessel         "${RBRV_SIGIL}" \
+    --arg zjq_vessel_mode    "${RBRV_VESSEL_MODE}" \
+    --arg zjq_bind_source    "${z_bind_source}" \
+    --arg zjq_graft_source   "${z_graft_source}" \
+    --arg zjq_vi_ref_1       "${z_vi_ref_1}" \
+    --arg zjq_vi_prov_1      "${z_vi_prov_1}" \
+    --arg zjq_vi_ref_2       "${z_vi_ref_2}" \
+    --arg zjq_vi_prov_2      "${z_vi_prov_2}" \
+    --arg zjq_vi_ref_3       "${z_vi_ref_3}" \
+    --arg zjq_vi_prov_3      "${z_vi_prov_3}" \
+    --arg zjq_pool           "${RBDC_POOL_AIRGAP}" \
+    --arg zjq_timeout        "${RBRR_GCB_TIMEOUT}" \
     '{
       steps: $zjq_steps[0],
       substitutions: {
-        _RBGV_GAR_HOST:          $zjq_gar_host,
-        _RBGV_GAR_PATH:          $zjq_gar_path,
-        _RBGV_VESSEL:            $zjq_vessel,
-        _RBGV_HALLMARK:      $zjq_hallmark,
-        _RBGV_VESSEL_MODE:       $zjq_vessel_mode,
-        _RBGV_BIND_SOURCE:       $zjq_bind_source,
-        _RBGV_GRAFT_SOURCE:      $zjq_graft_source,
-        _RBGV_ARK_SUFFIX_IMAGE:  $zjq_ark_suffix_image,
-        _RBGV_ARK_SUFFIX_ATTEST: $zjq_ark_suffix_attest,
-        _RBGV_ARK_SUFFIX_VOUCH:  $zjq_ark_suffix_vouch,
-        _RBGV_VOUCHES_PACKAGE:   $zjq_vouches_package,
-        _RBGV_IMAGE_1:           $zjq_vi_ref_1,
+        _RBGV_GAR_HOST:           $zjq_gar_host,
+        _RBGV_GAR_PATH:           $zjq_gar_path,
+        _RBGV_HALLMARKS_ROOT:     $zjq_hallmarks_root,
+        _RBGV_HALLMARK:           $zjq_hallmark,
+        _RBGV_VESSEL:             $zjq_vessel,
+        _RBGV_VESSEL_MODE:        $zjq_vessel_mode,
+        _RBGV_BIND_SOURCE:        $zjq_bind_source,
+        _RBGV_GRAFT_SOURCE:       $zjq_graft_source,
+        _RBGV_IMAGE_1:            $zjq_vi_ref_1,
         _RBGV_IMAGE_1_PROVENANCE: $zjq_vi_prov_1,
-        _RBGV_IMAGE_2:           $zjq_vi_ref_2,
+        _RBGV_IMAGE_2:            $zjq_vi_ref_2,
         _RBGV_IMAGE_2_PROVENANCE: $zjq_vi_prov_2,
-        _RBGV_IMAGE_3:           $zjq_vi_ref_3,
+        _RBGV_IMAGE_3:            $zjq_vi_ref_3,
         _RBGV_IMAGE_3_PROVENANCE: $zjq_vi_prov_3
       },
       serviceAccount: $zjq_sa,
@@ -794,134 +774,16 @@ zrbfv_vouch_submit() {
 rbfv_batch_vouch() {
   zrbfv_sentinel
 
-  buc_doc_brief "Vouch all pending hallmarks across all vessels"
+  buc_doc_brief "Vouch all pending hallmarks (rewrite pending — see ₢A_AAO)"
   buc_doc_shown || return 0
 
-  buc_step "Enumerating vessels"
-  local z_sigils
-  z_sigils=$(rbrv_list_capture) || buc_die "No vessels found"
-
-  buc_step "Fetching OAuth token (Director)"
-  local z_token
-  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
-
-  local z_vouched_count=0
-  local z_already_count=0
-  local z_failed_count=0
-
-  local z_sigil=""
-  for z_sigil in ${z_sigils}; do
-
-    buc_step "Scanning ${z_sigil} for pending hallmarks"
-    local z_tags_file="${BURD_TEMP_DIR}/rbfv_bv_${z_sigil}_tags.json"
-    local z_stderr_file="${BURD_TEMP_DIR}/rbfv_bv_${z_sigil}_stderr.txt"
-    curl -sL \
-      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-      --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-      -H "Authorization: Bearer ${z_token}" \
-      "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${z_sigil}/tags/list" \
-      > "${z_tags_file}" 2>"${z_stderr_file}" \
-      || buc_die "Failed to fetch tags for ${z_sigil} — see ${z_stderr_file}"
-
-    if jq -e '.errors' "${z_tags_file}" >/dev/null 2>&1; then
-      local z_err
-      jq -r '.errors[0].message // "Unknown error"' "${z_tags_file}" > "${ZRBFC_SCRATCH_FILE}" \
-        || buc_die "Failed to extract error message from registry response for ${z_sigil}"
-      z_err=$(<"${ZRBFC_SCRATCH_FILE}")
-      buc_die "Registry API error for ${z_sigil}: ${z_err}"
-    fi
-
-    local z_all_tags_file="${BURD_TEMP_DIR}/rbfv_bv_${z_sigil}_all_tags.txt"
-    jq -r '.tags[]? // empty' "${z_tags_file}" > "${z_all_tags_file}" \
-      || buc_die "Failed to extract tags for ${z_sigil}"
-
-    # Classify: find hallmarks with -about but no -vouch
-    local z_about_file="${BURD_TEMP_DIR}/rbfv_bv_${z_sigil}_has_about.txt"
-    local z_vouch_file="${BURD_TEMP_DIR}/rbfv_bv_${z_sigil}_has_vouch.txt"
-    : > "${z_about_file}"
-    : > "${z_vouch_file}"
-
-    while IFS= read -r z_tag || test -n "${z_tag}"; do
-      local z_consec=""
-      if [[ "${z_tag}" =~ ^([cbg][0-9]{12}-r[0-9]{12}) ]]; then
-        z_consec="${BASH_REMATCH[1]}"
-      else
-        continue
-      fi
-      case "${z_tag}" in
-        *"${RBGC_ARK_SUFFIX_VOUCH}")
-          echo "${z_consec}" >> "${z_vouch_file}"
-          ;;
-        *"${RBGC_ARK_SUFFIX_ABOUT}")
-          echo "${z_consec}" >> "${z_about_file}"
-          ;;
-      esac
-    done < "${z_all_tags_file}"
-
-    # Find pending: has about, no vouch
-    local z_pending_file="${BURD_TEMP_DIR}/rbfv_bv_${z_sigil}_pending.txt"
-    sort -u "${z_about_file}" > "${z_about_file}.sorted" \
-      || buc_die "Failed to sort about file for ${z_sigil}"
-    sort -u "${z_vouch_file}" > "${z_vouch_file}.sorted" \
-      || buc_die "Failed to sort vouch file for ${z_sigil}"
-    comm -23 "${z_about_file}.sorted" "${z_vouch_file}.sorted" > "${z_pending_file}" \
-      || buc_die "Failed to compute pending hallmarks for ${z_sigil}"
-
-    # Count already vouched for this vessel
-    local z_count_file="${BURD_TEMP_DIR}/rbfv_bv_${z_sigil}_vouch_count.txt"
-    wc -l < "${z_vouch_file}.sorted" > "${z_count_file}" \
-      || buc_die "Failed to count vouched hallmarks for ${z_sigil}"
-    local z_vessel_already=0
-    z_vessel_already=$(<"${z_count_file}")
-    z_vessel_already="${z_vessel_already// /}"
-    z_already_count=$((z_already_count + z_vessel_already))
-
-    if ! test -s "${z_pending_file}"; then
-      buc_info "No pending hallmarks for ${z_sigil}"
-      continue
-    fi
-
-    # Load pending hallmarks into array (load-then-iterate)
-    local z_pending_items=()
-    while IFS= read -r z_pline || test -n "${z_pline}"; do
-      z_pending_items+=("${z_pline}")
-    done < "${z_pending_file}"
-
-    local z_vessel_dir="${RBRR_VESSEL_DIR}/${z_sigil}"
-    local z_pi=""
-    for z_pi in "${!z_pending_items[@]}"; do
-      local z_hallmark="${z_pending_items[$z_pi]}"
-      test -n "${z_hallmark}" || continue
-
-      buc_step "Vouching ${z_sigil}/${z_hallmark}"
-
-      # Run vouch in isolation subshell — buc_die inside kills only the subshell
-      local z_vouch_status=0
-      (
-        rbfv_vouch "${z_vessel_dir}" "${z_hallmark}" \
-          || buc_die "rbfv_vouch failed for ${z_sigil}/${z_hallmark}"
-      ) || z_vouch_status=$?
-
-      if test "${z_vouch_status}" = "0"; then
-        z_vouched_count=$((z_vouched_count + 1))
-      else
-        buc_warn "Vouch failed for ${z_sigil}/${z_hallmark} (exit ${z_vouch_status}) — skipping"
-        z_failed_count=$((z_failed_count + 1))
-      fi
-    done
-  done
-
-  echo ""
-  buc_step "Batch vouch summary"
-  buc_info "  Vouched:        ${z_vouched_count}"
-  buc_info "  Already vouched: ${z_already_count}"
-  buc_info "  Failed/skipped:  ${z_failed_count}"
-
-  if test "${z_failed_count}" -gt 0; then
-    buc_warn "Some hallmarks failed — older builds may lack SLSA provenance"
-  fi
-
-  buc_success "Batch vouch complete"
+  # Stubbed in ₢A_AAK Notch 2b. The original implementation enumerated tags
+  # under per-vessel registry paths and case-matched suffix patterns to find
+  # hallmarks with about but no vouch — both shapes dissolved with the GAR
+  # categorical-layout migration. The rewrite (enumerate hallmarks via GAR
+  # REST list-packages, classify by basename presence) shares architectural
+  # work with rbfl_tally and lands in pace ₢A_AAO.
+  buc_die "rbfv_batch_vouch: rewrite pending in ₢A_AAO — see RBSAV spec and Tools/rbk/rbfv_FoundryVerify.sh history at commit a9e95201 for the legacy implementation"
 }
 
 # eof

@@ -4,9 +4,9 @@
 # bind: digest-pin comparison | graft: GRAFTED stamp
 # Writes /workspace/vouch_platforms.txt for step 03.
 # Substitutions (GCB anchors — automapSubstitutions provides as env vars):
-#   ${_RBGV_GAR_HOST} ${_RBGV_GAR_PATH} ${_RBGV_VESSEL}
-#   ${_RBGV_HALLMARK} ${_RBGV_VESSEL_MODE} ${_RBGV_ARK_SUFFIX_IMAGE}
-#   ${_RBGV_ARK_SUFFIX_ATTEST} (conjure only)
+#   ${_RBGV_GAR_HOST} ${_RBGV_GAR_PATH} ${_RBGV_HALLMARKS_ROOT}
+#   ${_RBGV_HALLMARK} ${_RBGV_VESSEL_MODE}
+#   ${_RBGV_VESSEL} (content only — written into vouch_summary.vessel)
 #   ${_RBGV_IMAGE_1} ${_RBGV_IMAGE_2} ${_RBGV_IMAGE_3}
 #   ${_RBGV_IMAGE_1_PROVENANCE} ${_RBGV_IMAGE_2_PROVENANCE} ${_RBGV_IMAGE_3_PROVENANCE}
 #   ${_RBGV_BIND_SOURCE} ${_RBGV_GRAFT_SOURCE}
@@ -83,22 +83,23 @@ def main():
     vessel_mode    = os.environ.get("_RBGV_VESSEL_MODE", "")
     gar_host       = require_env("_RBGV_GAR_HOST")
     gar_path       = require_env("_RBGV_GAR_PATH")
+    hallmarks_root = require_env("_RBGV_HALLMARKS_ROOT")
     vessel         = require_env("_RBGV_VESSEL")
     hallmark       = require_env("_RBGV_HALLMARK")
-    ark_suffix_img = require_env("_RBGV_ARK_SUFFIX_IMAGE")
 
     print(f"=== Mode-aware verification ({vessel_mode}) ===")
 
-    full_image = f"{gar_host}/{gar_path}/{vessel}"
-    image_tag = f"{hallmark}{ark_suffix_img}"
-    registry_base = f"https://{gar_host}/v2/{gar_path}/{vessel}"
+    # New layout: image package = <HALLMARKS_ROOT>/<HALLMARK>/image, tag = <HALLMARK>
+    image_package = f"{hallmarks_root}/{hallmark}/image"
+    image_registry_base = f"https://{gar_host}/v2/{gar_path}/{image_package}"
+    image_full_ref = f"{gar_host}/{gar_path}/{image_package}"
 
     token = metadata_token()
 
     try:
-        manifest = gar_json(f"{registry_base}/manifests/{image_tag}", token, ACCEPT_ALL)
+        manifest = gar_json(f"{image_registry_base}/manifests/{hallmark}", token, ACCEPT_ALL)
     except Exception as e:
-        die(f"Failed to fetch manifest for {image_tag}: {e}")
+        die(f"Failed to fetch manifest for {image_package}:{hallmark}: {e}")
 
     media_type = manifest.get("mediaType", "")
     is_index = "manifest.list" in media_type or "image.index" in media_type
@@ -121,7 +122,7 @@ def main():
         if not config_digest:
             die("No config digest")
         try:
-            config = gar_json(f"{registry_base}/blobs/{config_digest}", token, ACCEPT_ALL)
+            config = gar_json(f"{image_registry_base}/blobs/{config_digest}", token, ACCEPT_ALL)
         except Exception as e:
             die(f"Failed to fetch config blob: {e}")
         ps = f"{config['os']}/{config['architecture']}"
@@ -134,27 +135,30 @@ def main():
         print(f"Platforms: {f.read()}")
 
     if vessel_mode == "conjure":
-        _verify_conjure(manifest, is_index, config, full_image, token,
-                        registry_base, hallmark, vessel, ark_suffix_img)
+        _verify_conjure(manifest, is_index, config, token, gar_host, gar_path,
+                        hallmarks_root, hallmark, vessel)
     elif vessel_mode == "bind":
-        _verify_bind(token, registry_base, image_tag, hallmark, vessel)
+        _verify_bind(token, image_registry_base, hallmark, vessel)
     elif vessel_mode == "graft":
         _verify_graft(hallmark, vessel)
     else:
         die(f"Unknown vessel mode: {vessel_mode}")
 
 
-def _verify_conjure(manifest, is_index, config, full_image, token,
-                    registry_base, hallmark, vessel, ark_suffix_img):
+def _verify_conjure(manifest, is_index, config, token, gar_host, gar_path,
+                    hallmarks_root, hallmark, vessel):
     builder_id = "https://cloudbuild.googleapis.com/GoogleHostedWorker"
     expected_keyid = ("projects/verified-builder/locations/global/keyRings/"
                       "attestor/cryptoKeys/google-hosted-worker/cryptoKeyVersions/1")
 
-    ark_suffix_attest = require_env("_RBGV_ARK_SUFFIX_ATTEST")
+    # New layout: attest package = <HALLMARKS_ROOT>/<HALLMARK>/attest with per-platform tags <HALLMARK>-<arch>
+    attest_package = f"{hallmarks_root}/{hallmark}/attest"
+    attest_registry_base = f"https://{gar_host}/v2/{gar_path}/{attest_package}"
+    attest_full_ref = f"{gar_host}/{gar_path}/{attest_package}"
 
     # Build platform entries: [(digest, arch, variant), ...]
-    # Resolve provenance-carrying digests from -attest-{arch} tags (HEAD request),
-    # NOT from the -image manifest index (those are buildx-native digests with no GCB provenance).
+    # Resolve provenance-carrying digests from per-platform attest tags (HEAD request),
+    # NOT from the image manifest index (those are buildx-native digests with no GCB provenance).
     entries = []
     if is_index:
         for m in manifest.get("manifests", []):
@@ -164,27 +168,27 @@ def _verify_conjure(manifest, is_index, config, full_image, token,
             arch = p["architecture"]
             variant = p.get("variant", "")
             ps = f"{arch}{variant}"
-            at = f"{hallmark}{ark_suffix_attest}-{ps}"
+            attest_tag = f"{hallmark}-{ps}"
             try:
-                resp = gar_fetch(f"{registry_base}/manifests/{at}", token, ACCEPT_ALL, method="HEAD")
+                resp = gar_fetch(f"{attest_registry_base}/manifests/{attest_tag}", token, ACCEPT_ALL, method="HEAD")
                 ad = resp.headers.get("Docker-Content-Digest", "")
             except Exception:
-                die(f"HEAD for {at} failed")
+                die(f"HEAD for {attest_package}:{attest_tag} failed")
             if not ad:
-                die(f"No digest for {at}")
+                die(f"No digest for {attest_package}:{attest_tag}")
             entries.append((ad, arch, variant))
     else:
         arch = config["architecture"]
         variant = config.get("variant", "")
         ps = f"{arch}{variant}"
-        at = f"{hallmark}{ark_suffix_attest}-{ps}"
+        attest_tag = f"{hallmark}-{ps}"
         try:
-            resp = gar_fetch(f"{registry_base}/manifests/{at}", token, ACCEPT_ALL, method="HEAD")
+            resp = gar_fetch(f"{attest_registry_base}/manifests/{attest_tag}", token, ACCEPT_ALL, method="HEAD")
             ad = resp.headers.get("Docker-Content-Digest", "")
         except Exception:
-            die(f"HEAD for {at} failed")
+            die(f"HEAD for {attest_package}:{attest_tag} failed")
         if not ad:
-            die(f"No digest for {at}")
+            die(f"No digest for {attest_package}:{attest_tag}")
         entries.append((ad, arch, variant))
 
     print(f"Verifying {len(entries)} platform(s) via DSSE")
@@ -193,7 +197,7 @@ def _verify_conjure(manifest, is_index, config, full_image, token,
 
     for digest, arch, variant in entries:
         ps = f"{arch}{variant}"
-        fr = f"{full_image}@{digest}"
+        fr = f"{attest_full_ref}@{digest}"
         print(f"  {ps}: fetching provenance...")
 
         result = subprocess.run(
@@ -306,9 +310,9 @@ def _verify_conjure(manifest, is_index, config, full_image, token,
     print("Vouch summary composed")
 
 
-def _verify_bind(token, registry_base, image_tag, hallmark, vessel):
+def _verify_bind(token, image_registry_base, hallmark, vessel):
     try:
-        resp = gar_fetch(f"{registry_base}/manifests/{image_tag}", token, ACCEPT_ALL, method="HEAD")
+        resp = gar_fetch(f"{image_registry_base}/manifests/{hallmark}", token, ACCEPT_ALL, method="HEAD")
         actual_digest = resp.headers.get("Docker-Content-Digest", "")
     except Exception:
         die("HEAD failed")
@@ -322,7 +326,7 @@ def _verify_bind(token, registry_base, image_tag, hallmark, vessel):
     if not pinned_digest:
         die("no digest in BIND_SOURCE")
     if actual_digest != pinned_digest:
-        die(f"Digest mismatch \u2014 GAR: {actual_digest}  Pin: {pinned_digest}")
+        die(f"Digest mismatch — GAR: {actual_digest}  Pin: {pinned_digest}")
     print(f"Digest pin verified: {actual_digest}")
 
     vouch_summary = {
@@ -344,7 +348,7 @@ def _verify_bind(token, registry_base, image_tag, hallmark, vessel):
 
 
 def _verify_graft(hallmark, vessel):
-    print("Graft mode \u2014 stamping GRAFTED")
+    print("Graft mode — stamping GRAFTED")
     graft_source = os.environ.get("_RBGV_GRAFT_SOURCE", "")
     vouch_summary = {
         "hallmark": hallmark,
