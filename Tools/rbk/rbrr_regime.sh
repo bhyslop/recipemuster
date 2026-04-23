@@ -37,6 +37,10 @@ zrbrr_kindle() {
 
   buv_regime_enroll RBRR
 
+  buv_group_enroll "Resource Prefixing"
+  buv_string_enroll  RBRR_CLOUD_PREFIX         0   11  "Prefix prepended to cloud-visible resource names (GAR, Cloud Build, GCP)"
+  buv_string_enroll  RBRR_RUNTIME_PREFIX       0   11  "Prefix prepended to local container and network names"
+
   buv_group_enroll "Vessel and Local Configuration"
   buv_string_enroll  RBRR_VESSEL_DIR           1  255  "Vessel definitions directory"
   buv_string_enroll  RBRR_BOTTLE_WORKSPACE     1   64  "Container workspace path for bottle working directory"
@@ -91,6 +95,12 @@ zrbrr_enforce() {
 
   [[ "${RBRR_GCB_POOL_STEM}" =~ ^[a-z][a-z0-9-]+$ ]] \
     || buc_die "Invalid RBRR_GCB_POOL_STEM format: ${RBRR_GCB_POOL_STEM} (expected lowercase pool base name)"
+
+  [[ "${RBRR_CLOUD_PREFIX}"   =~ ^$|^[a-z][a-z0-9-]*-$ ]] \
+    || buc_die "Invalid RBRR_CLOUD_PREFIX format: ${RBRR_CLOUD_PREFIX}   (expected empty or lowercase ending in hyphen)"
+
+  [[ "${RBRR_RUNTIME_PREFIX}" =~ ^$|^[a-z][a-z0-9-]*-$ ]] \
+    || buc_die "Invalid RBRR_RUNTIME_PREFIX format: ${RBRR_RUNTIME_PREFIX} (expected empty or lowercase ending in hyphen)"
 
 }
 

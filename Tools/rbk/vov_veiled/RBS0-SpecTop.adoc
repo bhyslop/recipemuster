@@ -322,6 +322,9 @@
 :rbrr_gcb_min_concurrent_builds: <<rbrr_gcb_min_concurrent_builds,RBRR_GCB_MIN_CONCURRENT_BUILDS>>
 :rbrr_public_docs_url:       <<rbrr_public_docs_url,RBRR_PUBLIC_DOCS_URL>>
 :rbrr_group_public_docs:     <<rbrr_group_public_docs,Public Docs Group>>
+:rbrr_cloud_prefix:          <<rbrr_cloud_prefix,RBRR_CLOUD_PREFIX>>
+:rbrr_runtime_prefix:        <<rbrr_runtime_prefix,RBRR_RUNTIME_PREFIX>>
+:rbrr_group_resource_prefixing: <<rbrr_group_resource_prefixing,Resource Prefixing Group>>
 // RBRG regime eliminated (₣Av) — reliquaries replace pin-based tool image management
 :rbrm_chosen_identity:       <<rbrm_chosen_identity,RBRM_CHOSEN_IDENTITY>>
 :rbrm_chosen_podman_version: <<rbrm_chosen_podman_version,RBRM_CHOSEN_PODMAN_VERSION>>

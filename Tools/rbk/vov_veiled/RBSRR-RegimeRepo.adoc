@@ -7,6 +7,28 @@ Each
 instance represents foundational infrastructure configuration that rarely changes and is shared across all Recipe Bottle operations.
 RBRR assignment files are found in the operator's local filesystem (typically `../station-files/rbrr.env`) and configure depot project identifiers, regional settings, repository locations, and service account credential file paths.
 
+//axhrgb_group
+{rbrr_group_resource_prefixing}
+
+Operator-chosen prefixes that scope resource names across the cloud and local-runtime namespaces.
+Enables multi-regime isolation on shared infrastructure — distinct depots or developers can coexist in the same GCP project or on the same developer workstation without name collisions.
+Both variables default to empty (no prefix).
+When non-empty, the prefix must be 2–11 characters, start with a lowercase letter, and end with a hyphen (regex `^[a-z][a-z0-9-]*-$`).
+
+//axhrgv_variable
+{rbrr_cloud_prefix}
+
+Prefix prepended to all cloud-visible resource names under the depot: GAR image paths, vessel package names,
+{gcb_service}
+substitutions, and other GCP-scoped identifiers.
+Empty by default.
+
+//axhrgv_variable
+{rbrr_runtime_prefix}
+
+Prefix prepended to machine-local resource names: container names, Docker network names, and other runtime identifiers on the operator's workstation.
+Empty by default.
+
 //axhrv_variable
 {rbrr_depot_project_id}
 
