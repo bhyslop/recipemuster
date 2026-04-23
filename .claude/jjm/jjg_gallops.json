@@ -1932,6 +1932,13 @@
         "₢A6AAx": {
           "tacks": [
             {
+              "ts": "260423-0855",
+              "state": "rough",
+              "text": "## Character\n\nInteractive debug pace. No pre-written docket — work proceeds by running the newly-landed airgap onboarding track, observing output with the user, and iterating on issues as they surface. Mirrors `₢A6AAu`'s relationship to the first-kludge track: implementation lands in `₢A6AA1`, then this pace absorbs user review feedback. Cognitive posture: responsive, hands-on, driven by user judgment at each step.\n\n## Docket\n\nRe-review the airgap onboarding handbook track produced by `₢A6AA1`. Interactive debug until the user is satisfied.\n\n### Requires\n\n- `₢A6AA1` wrapped — handbook track `rbw-Oda.OnboardingDirectorAirgap.sh` landed, sequence `rbho_director_airgap()` in `rbhoda_director_airgap.sh`, zipper entry under `RBZ__GROUP_ONBOARDING`, start-here menu entry, all five teaching units rendering.\n- Infrastructure from `₢A6AAV` already in place — forge vessel, airgap-ifrit vessel, moriah nameplate, 10 moriah tabtargets, theurge fixture, enclave validator fix.\n\n### Out of scope\n\n- Vessel / nameplate / fixture creation (handled by `₢A6AAV` Phase 1)\n- Teaching arc authoring (handled by `₢A6AA1`)\n- Moriah docs/anchor introduction (handled by `₢A6AAw`)\n- Final docs hygiene sweep (handled by `₢A6AAF`)",
+              "silks": "review-onboarding-director-airgap",
+              "commit": "de8fb99"
+            },
+            {
               "ts": "260416-1722",
               "state": "rough",
               "text": "## Character\n\nInteractive debug pace. No pre-written docket — work proceeds by running the newly-landed airgap onboarding track, observing output with the user, and iterating on issues as they surface. Mirrors `₢A6AAu`'s relationship to the first-kludge track: implementation lands in `₢A6AAV`, then this pace absorbs user review feedback. Cognitive posture: responsive, hands-on, driven by user judgment at each step.\n\n## Docket\n\nRe-review the airgap onboarding handbook track produced by `₢A6AAV`. Interactive debug until the user is satisfied.\n\n### Requires\n\n- `₢A6AAV` wrapped — handbook track landed, vessels conjured cleanly, moriah charging, security suite passing\n\n### Out of scope\n\n- Vessel / nameplate / fixture creation (handled by `₢A6AAV` Phase 1)\n- Teaching arc authoring (handled by `₢A6AAV` Phase 2)\n- Moriah docs/anchor introduction (handled by `₢A6AAw`)\n- Final docs hygiene sweep (handled by `₢A6AAF`)",
