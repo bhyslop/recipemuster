@@ -65,6 +65,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-Ocr` | OnboardingCredentialRetriever | — | Install retriever credentials — place RBRA key file |
 | `rbw-Ocd` | OnboardingCredentialDirector | — | Install director credentials — place RBRA key file |
 | `rbw-Ofc` | OnboardingFirstCrucible | — | Start a Crucible using local builds — kludge, charge, rack |
+| `rbw-Ots` | OnboardingTadmorSecurity | — | Verify Crucible containment under attack — charge tadmor and run the adversarial suite |
 | `rbw-Odf` | OnboardingDirectorFirstBuild | — | Your First Cloud Build — inscribe, conjure, tour, summon, abjure |
 | `rbw-Op` | OnboardingPayor | — | Payor — establish a Manor and provision the Depot |
 | `rbw-Og` | OnboardingGovernor | — | Governor — administer service accounts for directors and retrievers |

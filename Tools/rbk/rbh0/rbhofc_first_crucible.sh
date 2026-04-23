@@ -28,14 +28,13 @@ ZRBHOFC_SOURCED=1
 #
 # Frame 4-refined handbook: teaching prose + probes + tabtarget refs.
 # Target learner: crucible explorer — local-only, zero cloud, fast
-# iteration for security exploration. Zero registry, zero SA credentials.
+# iteration for inhabiting the sandbox. Zero registry, zero SA credentials.
 #
 # Nameplate: ccyolo  (Claude Code sandbox, Anthropic-only network)
 # Vessels:   rbev-sentry-deb-tether (sentry), rbev-bottle-ccyolo (bottle)
 #
-# ₢A6AAC DRAFT — content ready for implementation review.
-# Infrastructure gaps are marked with [INFRA-NEEDED] comments.
-# Assumptions are marked with [ASSUMPTION].
+# Explorer-intimate top/tail; mechanical middle delegates to
+# rbhoct_crucible_trunk + rbhocq_crucible_quench.
 
 rbho_first_crucible() {
   zrbho_sentinel
@@ -43,74 +42,19 @@ rbho_first_crucible() {
   buc_doc_brief "Start a Crucible using local builds — kludge, charge, SSH, verify containment"
   buc_doc_shown || return 0
 
-  # Hardcoded for this track — ccyolo is the teaching nameplate
   local -r z_moniker="ccyolo"
   local -r z_sentry_vessel="rbev-sentry-deb-tether"
   local -r z_bottle_vessel="rbev-bottle-ccyolo"
   local -r z_nameplate_file="${RBBC_dot_dir}/${z_moniker}/${RBCC_rbrn_file}"
   local -r z_ssh_tabtarget="tt/rbw-cS.SshTo.${z_moniker}.sh"
 
-  # Inline yelps (not worth kindle constants — track-specific)
   buyy_cmd_yawp "${z_ssh_tabtarget}";     local -r z_cmd_ssh="${z_buym_yelp}"
-  buyy_cmd_yawp "RBRN_SENTRY_HALLMARK";   local -r z_code_sentry_field="${z_buym_yelp}"
-  buyy_cmd_yawp "RBRN_BOTTLE_HALLMARK";   local -r z_code_bottle_field="${z_buym_yelp}"
 
   local -r z_test_domain="www.internic.net"
 
-  # --- Probes ---
-
-  # Docker runtime
+  # --- Docker probe ---
   local z_has_docker=0
   command -v docker >/dev/null 2>&1 && z_has_docker=1
-
-  # Nameplate exists
-  local z_nameplate_exists=0
-  test -f "${z_nameplate_file}" && z_nameplate_exists=1
-
-  # Hallmarks populated in nameplate
-  local z_sentry_hallmark=""
-  local z_bottle_hallmark=""
-  local z_sentry_hallmark_present=0
-  local z_bottle_hallmark_present=0
-  if test "${z_nameplate_exists}" = "1"; then
-    z_sentry_hallmark=$(zrbho_po_extract_capture "${z_nameplate_file}" "RBRN_SENTRY_HALLMARK") || z_sentry_hallmark=""
-    z_bottle_hallmark=$(zrbho_po_extract_capture "${z_nameplate_file}" "RBRN_BOTTLE_HALLMARK") || z_bottle_hallmark=""
-    test -n "${z_sentry_hallmark}" && z_sentry_hallmark_present=1
-    test -n "${z_bottle_hallmark}" && z_bottle_hallmark_present=1
-  fi
-
-  # Kludge-tagged images exist locally (k-prefixed hallmarks)
-  local z_sentry_image_exists=0
-  local z_bottle_image_exists=0
-  local z_line=""
-  if test "${z_has_docker}" = "1"; then
-    local -r z_fc_images_out="${ZRBHO_DOCKER_IMAGES_PREFIX}4_repotag.txt"
-    local -r z_fc_images_err="${ZRBHO_DOCKER_STDERR_PREFIX}5_repotag.txt"
-    if docker images --format "{{.Repository}}:{{.Tag}}" \
-         > "${z_fc_images_out}" 2>"${z_fc_images_err}"; then
-      while IFS= read -r z_line || test -n "${z_line}"; do
-        case "${z_line}" in
-          *"${z_sentry_vessel}:k"[0-9]*) z_sentry_image_exists=1 ;;
-          *"${z_bottle_vessel}:k"[0-9]*) z_bottle_image_exists=1 ;;
-        esac
-      done < "${z_fc_images_out}"
-    fi
-  fi
-
-  # Crucible charged
-  # [INFRA-NEEDED] Currently rbw-cic is a tabtarget (param1 channel).
-  # For probe use, need a scriptable function that returns 0/1 without
-  # running the full dispatch. For now, check docker containers directly.
-  local z_crucible_charged=0
-  if test "${z_has_docker}" = "1"; then
-    local -r z_fc_ps_out="${ZRBHO_DOCKER_PS_PREFIX}2_names.txt"
-    local -r z_fc_ps_err="${ZRBHO_DOCKER_STDERR_PREFIX}6_ps.txt"
-    if docker ps --format "{{.Names}}" > "${z_fc_ps_out}" 2>"${z_fc_ps_err}"; then
-      while IFS= read -r z_line || test -n "${z_line}"; do
-        case "${z_line}" in "${z_moniker}-bottle") z_crucible_charged=1; break ;; esac
-      done < "${z_fc_ps_out}"
-    fi
-  fi
 
   # --- Header ---
   buh_section "Start a ${RBYC_CRUCIBLE} Using Local Builds"
@@ -123,8 +67,19 @@ rbho_first_crucible() {
   buh_line "This track uses the ${RBYC_CCYOLO} ${RBYC_NAMEPLATE}: a Claude Code sandbox that can"
   buh_line "only reach Anthropic. Everything else is blocked."
   buh_e
+  buh_line "Prerequisite: a Claude OAuth subscription (you will authenticate"
+  buh_line "inside the container via copy/paste from your browser)."
+  buh_e
 
-  # Docker gate
+  buh_line "Configure this handbook session:"
+  buh_e
+  buh_code "   export ${RBYC_HANDBOOK_NAMEPLATE_NAME}=${z_moniker}"
+  buh_e
+  buh_line "The kludge and commit commands below reference this ${RBYC_NAMEPLATE}"
+  buh_line "by name. Export once and paste freely."
+  buh_e
+
+  # --- Docker gate ---
   if test "${z_has_docker}" = "0"; then
     buh_error "Docker is not available on this machine."
     buh_line  "Install Docker Desktop (or dockerd in WSL) and re-run this handbook."
@@ -134,128 +89,10 @@ rbho_first_crucible() {
     return 0
   fi
 
-  buh_line "Prerequisite: a Claude OAuth subscription (you will authenticate"
-  buh_line "inside the container via copy/paste from your browser)."
-  buh_e
+  # --- Shared mechanical trunk: kludge sentry/bottle + charge ---
+  rbhoct_crucible_trunk "${z_moniker}" "${z_sentry_vessel}" "${z_bottle_vessel}" "${z_nameplate_file}"
 
-  buh_step_style "Step " " — "
-
-  buh_step1 "Build images locally"
-  buh_e
-  buh_line "A ${RBYC_VESSEL} is a specification for a container image — a Dockerfile"
-  buh_line "and build context. A ${RBYC_HALLMARK} is a specific build instance,"
-  buh_line "identified by a timestamp tag."
-  buh_e
-  buh_line "${RBYC_KLUDGE} builds a ${RBYC_VESSEL} image locally using Docker — no cloud, no"
-  buh_line "registry, no credentials. The fastest path from Dockerfile to running"
-  buh_line "container without cloud build involvement.  Note this only builds for the"
-  buh_line "host platform."
-  buh_e
-  buh_line "A ${RBYC_NAMEPLATE} is the file that defines a ${RBYC_CRUCIBLE} — it specifies"
-  buh_line "which ${RBYC_HALLMARK} to use for the ${RBYC_SENTRY}, ${RBYC_PENTACLE}, and"
-  buh_line "${RBYC_BOTTLE} containers. It lives at:"
-  buh_e
-  buh_code "   ${z_nameplate_file}"
-  buh_e
-  buh_line "Each ${RBYC_KLUDGE} below builds a ${RBYC_VESSEL} AND drives the resulting"
-  buh_line "${RBYC_HALLMARK} into the ${RBYC_CCYOLO} ${RBYC_NAMEPLATE} — no copy/paste."
-  buh_e
-  buh_warn "${RBYC_KLUDGE} requires a clean git tree."
-  buh_line "If you have uncommitted changes, commit them first.  Each ${RBYC_KLUDGE} image"
-  buh_line "must correspond to an exact committed state — which is why you will commit"
-  buh_line "after each ${RBYC_KLUDGE} below."
-  buh_e
-
-  buh_step2 "${RBYC_KLUDGE} the ${RBYC_SENTRY}"
-  buh_e
-  buh_line "The ${RBYC_SENTRY} is the gatekeeper container. It runs iptables"
-  buh_line "and dnsmasq to enforce network policy — only domains you whitelist"
-  buh_line "are reachable from inside."
-  buh_e
-  buh_line "Build it and drive the ${RBYC_HALLMARK} into the ${RBYC_NAMEPLATE}:"
-  buh_e
-  buh_tt  "   " "${RBZ_CRUCIBLE_KLUDGE_SENTRY}" "" " ${z_moniker}"
-  buh_e
-
-  if test "${z_sentry_image_exists}" = "1"; then
-    buh_line "${RBYC_PROBE_YES}${RBYC_KLUDGE}-tagged ${RBYC_SENTRY} image found locally"
-  else
-    buh_line "${RBYC_PROBE_NO}No ${RBYC_KLUDGE}-tagged ${RBYC_SENTRY} image found"
-  fi
-  if test "${z_sentry_hallmark_present}" = "1"; then
-    buh_line "${RBYC_PROBE_YES}${z_code_sentry_field} = ${z_sentry_hallmark}"
-  else
-    buh_line "${RBYC_PROBE_NO}${z_code_sentry_field} is empty — run the ${RBYC_SENTRY} ${RBYC_KLUDGE} above"
-  fi
-  buh_e
-
-  buh_step2 "Commit the ${RBYC_SENTRY} ${RBYC_HALLMARK}"
-  buh_e
-  buh_line "The ${RBYC_KLUDGE} wrote the new ${RBYC_HALLMARK} into the ${RBYC_NAMEPLATE}"
-  buh_line "file.  The tree is now dirty.  The next ${RBYC_KLUDGE} requires a clean"
-  buh_line "tree, so commit before proceeding:"
-  buh_e
-  buh_code "   git add ${z_nameplate_file}"
-  buh_code "   git commit -m \"Kludge sentry hallmark into ${z_moniker} nameplate\""
-  buh_e
-
-  buh_step2 "${RBYC_KLUDGE} the ${RBYC_BOTTLE}"
-  buh_e
-  buh_line "The ${RBYC_BOTTLE} is your workload container — where Claude Code"
-  buh_line "runs. The ${RBYC_CCYOLO} ${RBYC_BOTTLE} includes SSH, node, and the Claude CLI."
-  buh_e
-  buh_line "Build it and drive the ${RBYC_HALLMARK} into the ${RBYC_NAMEPLATE}:"
-  buh_e
-  buh_tt  "   " "${RBZ_CRUCIBLE_KLUDGE_BOTTLE}" "" " ${z_moniker}"
-  buh_e
-
-  if test "${z_bottle_image_exists}" = "1"; then
-    buh_line "${RBYC_PROBE_YES}${RBYC_KLUDGE}-tagged ${RBYC_BOTTLE} image found locally"
-  else
-    buh_line "${RBYC_PROBE_NO}No ${RBYC_KLUDGE}-tagged ${RBYC_BOTTLE} image found"
-  fi
-  if test "${z_bottle_hallmark_present}" = "1"; then
-    buh_line "${RBYC_PROBE_YES}${z_code_bottle_field} = ${z_bottle_hallmark}"
-  else
-    buh_line "${RBYC_PROBE_NO}${z_code_bottle_field} is empty — run the ${RBYC_BOTTLE} ${RBYC_KLUDGE} above"
-  fi
-  buh_e
-
-  buh_step2 "Commit the ${RBYC_BOTTLE} ${RBYC_HALLMARK}"
-  buh_e
-  buh_line "Same cadence: the ${RBYC_KLUDGE} left the ${RBYC_NAMEPLATE} dirty, and"
-  buh_line "${RBYC_CHARGE} requires a clean ${RBYC_NAMEPLATE} before starting.  Commit:"
-  buh_e
-  buh_code "   git add ${z_nameplate_file}"
-  buh_code "   git commit -m \"Kludge bottle hallmark into ${z_moniker} nameplate\""
-  buh_e
-
-  buh_step1 "${RBYC_CHARGE} the ${RBYC_CRUCIBLE}"
-  buh_e
-  buh_line "${RBYC_CHARGE} starts three containers from your ${RBYC_NAMEPLATE}:"
-  buh_e
-  buh_line "  ${RBYC_SENTRY}    — runs iptables + dnsmasq, enforces the network allowlist"
-  buh_line "  ${RBYC_PENTACLE}  — establishes the network namespace shared with the ${RBYC_BOTTLE}"
-  buh_line "  ${RBYC_BOTTLE}    — your workload container (Claude Code lives here)"
-  buh_e
-  buh_line "The ${RBYC_SENTRY} mediates all traffic. The ${RBYC_BOTTLE} never touches the"
-  buh_line "network directly — everything routes through the ${RBYC_SENTRY_P} rules."
-  buh_e
-  buh_tt  "   " "${RBZ_CRUCIBLE_CHARGE}" "${z_moniker}"
-  buh_e
-  buh_line "${RBYC_CHARGE} takes 10-30 seconds. It pulls the images from your local"
-  buh_line "Docker, creates the ${RBYC_ENCLAVE} network, starts the containers,"
-  buh_line "waits for the ${RBYC_SENTRY} to confirm its iptables rules are"
-  buh_line "applied, then starts the ${RBYC_BOTTLE}."
-  buh_e
-
-  # Charged probe
-  if test "${z_crucible_charged}" = "1"; then
-    buh_line "${RBYC_PROBE_YES}${RBYC_CRUCIBLE} ${z_moniker} is charged (${RBYC_BOTTLE} container running)"
-  else
-    buh_line "${RBYC_PROBE_NO}${RBYC_CRUCIBLE} ${z_moniker} is not charged"
-  fi
-  buh_e
+  # --- Explorer tail: SSH, OAuth, curl verification ---
 
   buh_step1 "Enter the container and run Claude Code"
   buh_e
@@ -338,20 +175,10 @@ rbho_first_crucible() {
   buh_line "allowlist works for a non-Anthropic domain."
   buh_e
 
-  buh_step1 "${RBYC_QUENCH} the ${RBYC_CRUCIBLE}"
-  buh_e
-  buh_line "${RBYC_QUENCH} stops and removes all three containers and the"
-  buh_line "${RBYC_ENCLAVE} network:"
-  buh_e
-  buh_tt  "   " "${RBZ_CRUCIBLE_QUENCH}" "${z_moniker}"
-  buh_e
-  buh_line "Clean shutdown. The images stay cached locally — your next ${RBYC_CHARGE}"
-  buh_line "reuses them instantly."
-  buh_e
+  # --- Shared mechanical quench ---
+  rbhocq_crucible_quench "${z_moniker}"
 
-  # =================================================================
-  # Iteration loop
-  # =================================================================
+  # --- Iteration-loop wrap (explorer-specific) ---
   buh_section "The iteration loop"
   buh_e
   buh_line "You now have the full local cycle:"
@@ -359,16 +186,13 @@ rbho_first_crucible() {
   buh_line "  1. Edit the Dockerfile or entrypoint"
   buh_line "  2. Commit your changes (${RBYC_KLUDGE} needs a clean tree)"
   buh_line "  3. ${RBYC_KLUDGE} the ${RBYC_BOTTLE}:"
-  buh_tt    "       " "${RBZ_CRUCIBLE_KLUDGE_BOTTLE}" "" " ${z_moniker}"
+  buh_tt    "       " "${RBZ_CRUCIBLE_KLUDGE_BOTTLE}" "" " ${RBYC_HANDBOOK_NAMEPLATE_REF}"
   buh_line  "  4. Commit the ${RBYC_HALLMARK} change"
   buh_line  "  5. ${RBYC_CHARGE}: Stop and restart"
   buh_tt    "       " "${RBZ_CRUCIBLE_CHARGE}" "${z_moniker}"
   buh_line  "  6. SSH in:"
   buh_line  "       ${z_cmd_ssh}"
   buh_line  "  7. Test your changes"
-  buh_e
-  buh_line "${RBYC_CHARGE} tears down any prior state before starting, so you"
-  buh_line "don't need to ${RBYC_QUENCH} between iterations — just ${RBYC_CHARGE} again."
   buh_e
   buh_line "Steps 3-7 take under a minute. The ${RBYC_SENTRY} rarely changes, so"
   buh_line "you almost never re-${RBYC_KLUDGE} it — the ${RBYC_BOTTLE} is your iteration"
