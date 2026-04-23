@@ -8,7 +8,7 @@ hallmarks across all
 repositories.
 The
 {rbtr_director}
-enumerates vessels, identifies hallmarks with `-about` but no `-vouch`, pre-checks SLSA provenance availability for conjure-mode hallmarks, and submits individual vouch builds for each vouchable hallmark.
+enumerates vessels, identifies hallmarks whose subtree contains an `about` basename but no `vouch` basename, pre-checks SLSA provenance availability for conjure-mode hallmarks, and submits individual vouch builds for each vouchable hallmark.
 Conjure hallmarks lacking provenance are skipped with a warning; bind and graft hallmarks are always vouchable.
 
 The
@@ -26,23 +26,23 @@ at least one vessel exists
 .. For each vessel sigil:
 ... Load vessel configuration via `zrbf_load_vessel`
 ... {rbbc_call}
-Docker Registry API: GET tags list for the vessel
-... Classify each tag by hallmark and suffix (`-image`, `-about`, `-vouch`)
+Docker Registry API: enumerate packages under `hallmarks/<hallmark>/` for the vessel
+... For each hallmark subtree, record which basenames are present (`image`, `about`, `vouch`, `pouch`, `diags`, `attest`)
 
 //axhos_step
 . *Classify Hallmark Health*:
-.. For each unique hallmark across all vessels, determine health state:
-... *vouched*: has `-about` and `-vouch` — healthy, skip
-... *vouchable*: has `-about`, no `-vouch`, and either (a) mode is bind/graft, or (b) mode is conjure and SLSA provenance exists — queue for vouch
-... *unvouchable*: has `-about`, no `-vouch`, mode is conjure, no SLSA provenance — skip with warning
-... *incomplete*: has `-image` but no `-about` — about pipeline has not run, skip with warning
+.. For each unique hallmark across all vessels, determine health state by basename presence under its `hallmarks/<hallmark>/` subtree:
+... *vouched*: `about` and `vouch` basenames both present — healthy, skip
+... *vouchable*: `about` present, `vouch` absent, and either (a) mode is bind/graft, or (b) mode is conjure and SLSA provenance exists — queue for vouch
+... *unvouchable*: `about` present, `vouch` absent, mode is conjure, no SLSA provenance — skip with warning
+... *incomplete*: `image` present but `about` absent — about pipeline has not run, skip with warning
 .. Vessel mode is derived from the hallmark mode prefix (`c`=conjure, `b`=bind, `g`=graft)
 .. {rbbc_warn}
 if hallmark mode prefix does not match loaded {rbrv_vessel_mode} — may indicate vessel reconfiguration or corruption
 
 //axhos_step
 . *Pre-check Provenance* (conjure only):
-.. For each conjure-mode hallmark with `-about` but no `-vouch`:
+.. For each conjure-mode hallmark with `about` present and `vouch` absent:
 ... {rbbc_call}
 `gcloud artifacts docker images describe --show-provenance` to test provenance availability
 ... If provenance unavailable: classify as *unvouchable*, continue to next

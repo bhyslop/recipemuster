@@ -77,7 +77,7 @@ query local container runtime for image creation timestamp via `docker image ins
 .. {rbbc_call}
 `docker login` to GAR registry with director credentials
 .. {rbbc_store}
-`«REGISTRY_TAG»` as `«GAR_HOST»/«GAR_PATH»/«VESSEL_SIGIL»:«HALLMARK»-image`
+`«REGISTRY_TAG»` as `«GAR_HOST»/«GAR_PATH»/hallmarks/«HALLMARK»/image:«HALLMARK»`
 .. {rbbc_call}
 `docker tag «LOCAL_IMAGE_REF» «REGISTRY_TAG»`
 .. {rbbc_call}
@@ -111,11 +111,8 @@ for full artifact references.
 
 //axhoot_typed_output axd_fact
 {rbf_fact_ark_stem}
-{rbrv_sigil}
-and
-{rbtga_hallmark}
-joined as `«VESSEL»:«HALLMARK»`.
-Composable with suffix for artifact tags.
+The hallmark subtree prefix `hallmarks/«HALLMARK»`.
+Composable with basename (`image`, `about`, `vouch`, etc.) and the `:«HALLMARK»` tag for full artifact references.
 
 //axhoot_typed_output axd_fact
 {rbf_fact_ark_yield}
@@ -133,7 +130,7 @@ local image reference, registry tag, digest
 //axhoc_completion
 Successful execution pushes the locally-built image to
 {rbtgi_repository}
-tagged as `«VESSEL»:«HALLMARK»-image`.
+tagged as `hallmarks/«HALLMARK»/image:«HALLMARK»` within the hallmark subtree.
 The graft operation returns `«HALLMARK»` to {rbtgo_ark_ordain}, which chains the subsequent pipeline stages automatically:
 {rbtgo_ark_about} and {rbtgo_ark_vouch} in a single combined `builds.create` job (about steps followed by vouch steps) to assemble metadata and record the GRAFTED verdict.
 +
@@ -146,5 +143,5 @@ The director can safely retry without cleanup.
 +
 *Single-platform only*: Graft is specified for single-platform images only.
 `docker push` of a locally-present image pushes a single manifest.
-The about pipeline's platform discovery step handles this correctly, producing a single-platform `-about` artifact.
+The about pipeline's platform discovery step handles this correctly, producing a single-platform `about` basename under the hallmark subtree.
 Multi-platform graft is not currently specified — `buildx --load` only loads one platform into the local daemon, so true multi-platform local images would require a different push mechanism.

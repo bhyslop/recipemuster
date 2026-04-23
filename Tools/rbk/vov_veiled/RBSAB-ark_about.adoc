@@ -23,7 +23,7 @@ See <<rbtgo_about_substitutions>> below for the full variable reference.
 .. Image: gcloud (from reliquary)
 .. Fetch OAuth token from GCE metadata server
 .. {rbbc_call}
-Docker Registry API: GET manifests for `«HALLMARK»-image` with OCI media type accept headers
+Docker Registry API: GET manifests for `«PREFIX»hallmarks/«HALLMARK»/image:«HALLMARK»` with OCI media type accept headers
 .. If response is an OCI image index or Docker manifest list:
 ... Filter out attestation manifests before extracting platforms.
 OCI image indexes may contain non-runnable attestation manifests (SLSA provenance, SBOMs) alongside real platform manifests.
@@ -41,12 +41,12 @@ GET config blob via digest from manifest's `config.digest` field
 `«PLATFORMS»` as single-element list from config's `os` and `architecture` fields
 .. {rbbc_store}
 platform count for subsequent step branching
-.. After platform discovery, attempt `-diags` artifact extraction (conjure-only):
+.. After platform discovery, attempt diags artifact extraction (conjure-only):
 ... {rbbc_call}
-Docker Registry API: HEAD manifests for `«HALLMARK»-diags`
+Docker Registry API: HEAD manifests for `«PREFIX»hallmarks/«HALLMARK»/diags:«HALLMARK»`
 ... If HTTP 200: fetch manifest, iterate layer blobs, extract diagnostic files (`buildkit_metadata.json`, `cache_before.json`, `cache_after.json`, `recipe.txt`) to `/workspace`
-... If HTTP 404 or error: skip gracefully (expected for bind/graft — no `-diags` artifact exists)
-.. NOTE: The `-diags` artifact is pushed by conjure step 06 (`rbgjb06-push-diags.sh`) and contains build-time diagnostics that cannot be conveyed via Cloud Build substitution variables (Dockerfile content exceeding the ~4KB limit, BuildKit metadata, Docker daemon cache snapshots).
+... If HTTP 404 or error: skip gracefully (expected for bind/graft — no diags artifact exists)
+.. NOTE: The diags artifact is pushed by conjure step 06 (`rbgjb06-push-diags.sh`) and contains build-time diagnostics that cannot be conveyed via Cloud Build substitution variables (Dockerfile content exceeding the ~4KB limit, BuildKit metadata, Docker daemon cache snapshots).
 
 //axhos_step
 . *Cloud Build Step 2: Syft SBOM Generation*:
@@ -54,11 +54,11 @@ Docker Registry API: HEAD manifests for `«HALLMARK»-diags`
 .. Fetch OAuth token via metadata server (syft authenticates as {rbtr_mason})
 .. For each platform in `«PLATFORMS»`:
 ... Conjure with per-platform tags (multi-platform): {rbbc_call}
-`syft registry:«GAR_HOST»/«GAR_PATH»/«VESSEL»:«HALLMARK»-image-«PLATFORM_SUFFIX»`
+`syft registry:«GAR_HOST»/«GAR_PATH»/hallmarks/«HALLMARK»/image:«HALLMARK»-«PLATFORM_SUFFIX»`
 ... Conjure single-platform (single manifest, not an index): {rbbc_call}
-`syft registry:«GAR_HOST»/«GAR_PATH»/«VESSEL»:«HALLMARK»-image`
+`syft registry:«GAR_HOST»/«GAR_PATH»/hallmarks/«HALLMARK»/image:«HALLMARK»`
 ... Bind/graft (always via per-platform digest): {rbbc_call}
-`syft registry:«GAR_HOST»/«GAR_PATH»/«VESSEL»:«HALLMARK»-image@«PLATFORM_DIGEST»` using per-platform digest from step 1's manifest list
+`syft registry:«GAR_HOST»/«GAR_PATH»/hallmarks/«HALLMARK»/image@«PLATFORM_DIGEST»` using per-platform digest from step 1's manifest list
 +
 NOTE: Bind and graft images always use `@«PLATFORM_DIGEST»` pinning, even for single-platform images.
 Grafted images may be stored as OCI image indexes containing attestation manifests (see step 1 filtering); scanning the main tag would cause syft to auto-select the Cloud Build worker's native platform (amd64) from the index, failing when the image contains only a different architecture.
@@ -81,33 +81,33 @@ per-platform SBOM to `/workspace/sbom-«LABEL».json` (e.g., `sbom-amd64.json`; 
 ... {rbbc_store}
 per-platform `build_info.json` to `/workspace/build_info-«LABEL».json` (e.g., `build_info-amd64.json`)
 .. Write `recipe.txt` using dual-source logic:
-... If `recipe.txt` already exists in `/workspace` (written by `-diags` extraction in step 1): skip substitution variable write, log that `recipe.txt` came from `-diags`
+... If `recipe.txt` already exists in `/workspace` (written by diags extraction in step 1): skip substitution variable write, log that `recipe.txt` came from the diags artifact
 ... Else if `_RBGA_DOCKERFILE_CONTENT` is non-empty: {rbbc_store}
 `recipe.txt` to `/workspace/recipe.txt` from substitution variable content
 ... Else: omit `recipe.txt`
 .. NOTE: The {rbtr_director} reads the Dockerfile locally and passes its content as `_RBGA_DOCKERFILE_CONTENT`.
 If the file exceeds the Cloud Build substitution variable size limit (~4KB), the director omits it with a warning.
-The `-diags` path (conjure only) bypasses this limit by conveying the full Dockerfile via a registry artifact.
-`_RBGA_DOCKERFILE_CONTENT` is retained for all modes as a fallback when `-diags` extraction fails or is absent.
+The diags path (conjure only) bypasses this limit by conveying the full Dockerfile via a registry artifact.
+`_RBGA_DOCKERFILE_CONTENT` is retained for all modes as a fallback when diags extraction fails or is absent.
 
 //axhos_step
 . *Cloud Build Step 4: Build and Push About Artifact*:
 .. Image: docker (from reliquary)
 .. Create buildx builder instance (inspect-or-create pattern)
-.. Build multi-platform `FROM scratch` container with per-platform SBOM, `build_info.json`, `recipe.txt` (when present), and conjure enrichment files when forwarded from `-diags`: `buildkit_metadata.json`, `cache_before.json`, `cache_after.json` (conditional COPY — included only if present in `/workspace`)
-.. For single-platform images: build single-platform `-about` container
+.. Build multi-platform `FROM scratch` container with per-platform SBOM, `build_info.json`, `recipe.txt` (when present), and conjure enrichment files when forwarded from the diags artifact: `buildkit_metadata.json`, `cache_before.json`, `cache_after.json` (conditional COPY — included only if present in `/workspace`)
+.. For single-platform images: build single-platform about container
 .. For multi-platform images: build with `buildx --push` using `TARGETARCH`/`TARGETVARIANT` to select per-platform files
-.. Push to registry tagged `«HALLMARK»-about` via `docker buildx build --push`
+.. Push to registry tagged `«PREFIX»hallmarks/«HALLMARK»/about:«HALLMARK»` via `docker buildx build --push`
 .. {rbbc_require}
 push succeeds
 
 //axhoc_completion
 Successful execution of these four Cloud Build steps produces a
 {rbtga_ark_about}
-artifact in the registry tagged as `«VESSEL»:«HALLMARK»-about`.
-The about artifact is a multi-platform container matching the `-image` artifact's platform list.
+artifact in the registry tagged as `«PREFIX»hallmarks/«HALLMARK»/about:«HALLMARK»`.
+The about artifact is a multi-platform container matching the image artifact's platform list.
 +
-*Re-about idempotency*: Re-running about re-executes Syft and rebuilds `build_info.json`, overwriting the previous `-about` artifact.
+*Re-about idempotency*: Re-running about re-executes Syft and rebuilds `build_info.json`, overwriting the previous about artifact.
 SBOM content may vary if Syft discovers different packages (e.g., after a Syft version update).
 +
 *Implementation note*: About and vouch share common Build resource JSON construction patterns (worker pool, mason SA, registry coordinates).
@@ -127,9 +127,9 @@ All `_RBGA_*` substitution variables are passed in the `builds.create` request b
 | `_RBGA_VESSEL` | Vessel sigil. Source: loaded vessel configuration.
 | `_RBGA_HALLMARK` | Full hallmark string. Source: input parameter.
 | `_RBGA_VESSEL_MODE` | Vessel mode (`conjure`, `bind`, or `graft`). Source: loaded vessel configuration.
-| `_RBGA_ARK_SUFFIX_IMAGE` | Ark suffix for image artifact. Source: `RBGC_ARK_SUFFIX_IMAGE` constant.
-| `_RBGA_ARK_SUFFIX_ABOUT` | Ark suffix for about artifact. Source: `RBGC_ARK_SUFFIX_ABOUT` constant.
-| `_RBGA_ARK_SUFFIX_DIAGS` | Ark suffix for diags artifact. Source: `RBGC_ARK_SUFFIX_DIAGS` constant.
+| `_RBGA_ARK_BASENAME_IMAGE` | Ark basename for image artifact. Source: `RBGC_ARK_BASENAME_IMAGE` constant.
+| `_RBGA_ARK_BASENAME_ABOUT` | Ark basename for about artifact. Source: `RBGC_ARK_BASENAME_ABOUT` constant.
+| `_RBGA_ARK_BASENAME_DIAGS` | Ark basename for diags artifact. Source: `RBGC_ARK_BASENAME_DIAGS` constant.
 |===
 
 *Git metadata*::

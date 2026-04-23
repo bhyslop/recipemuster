@@ -11,9 +11,9 @@ performs the build via
 {gcb_service}
 using direct `builds.create` API submission.
 
-NOTE: Conjure produces both the `-image` and `-about` artifacts in a single Cloud Build job submitted via `builds.create`.
+NOTE: Conjure produces both the image and about artifacts in a single Cloud Build job submitted via `builds.create`.
 The about steps (`rbgja01`-`rbgja04`) are embedded via stitch alongside the build steps.
-The `-vouch` artifact is created by the subsequent {rbtgo_ark_vouch} pipeline stage (always a separate Cloud Build job).
+The vouch artifact is created by the subsequent {rbtgo_ark_vouch} pipeline stage (always a separate Cloud Build job).
 
 NOTE: The
 {rbtga_hallmark}
@@ -47,7 +47,7 @@ The reliquary is a co-versioned set of builder tool images inscribed from upstre
 and
 {rbrv_image_anchor}
 are set:
-... HEAD request to `enshrine:«ANCHOR»` manifest in
+... HEAD request to `«PREFIX»enshrines/«ANCHOR»:«ANCHOR»` manifest in
 {gar_service}
 ... {rbbc_require}
 HTTP 200 — on 404, fail with directive to run {rbtgo_ark_enshrine} first.
@@ -82,7 +82,7 @@ locally on the Director's workstation
 //axhos_step
 . *Push Pouch*:
 .. Package build context (Dockerfile and context files) as a FROM SCRATCH OCI image
-.. Push to GAR tagged `«VESSEL»:«HALLMARK»-pouch`
+.. Push to GAR tagged `«PREFIX»hallmarks/«HALLMARK»/pouch:«HALLMARK»`
 .. {rbbc_require}
 push succeeds -- the pouch delivers build context to
 {gcb_service}
@@ -135,11 +135,10 @@ for full artifact references.
 
 //axhoot_typed_output axd_fact
 {rbf_fact_ark_stem}
-{rbrv_sigil}
-and
-{rbtga_hallmark}
-joined as `«VESSEL»:«HALLMARK»`.
-Composable with suffix for artifact tags.
+Hallmark subtree prefix joining
+{gar_service}
+root with the hallmark path segment as `«PREFIX»hallmarks/«HALLMARK»`.
+Composable with basename and `:«HALLMARK»` tag for full artifact references.
 
 //axhoot_typed_output axd_fact
 {rbf_fact_ark_yield}
@@ -158,5 +157,5 @@ Successful execution creates the
 in
 {rbtgi_repository}.
 The {rbtr_director} retains `«BUILD_ID»` and `«HALLMARK»` from the conjure round-trip.
-The `builds.create` job produces both `-image` and `-about` (about steps embedded via stitch).
+The `builds.create` job produces both the image and about artifacts under the hallmark subtree (about steps embedded via stitch).
 {rbtgo_ark_ordain} chains only {rbtgo_ark_vouch} after the combined job completes, passing `«BUILD_ID»` for DSSE provenance verification.

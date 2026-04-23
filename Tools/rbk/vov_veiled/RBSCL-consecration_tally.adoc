@@ -34,28 +34,29 @@ local regime vessel list via `rbrv_list_capture`
 `«RETRIEVER_TOKEN»` for subsequent API calls
 
 //axhos_step
-. *Fetch Tags Per Vessel*:
+. *Enumerate Hallmark Subtrees Per Vessel*:
 .. For each vessel in `«VESSELS»`:
 ... {rbbc_call}
-Docker Registry HTTP API V2 tag list endpoint
-... For each tag returned, match against
+Docker Registry HTTP API V2 catalog/list endpoints under `hallmarks/<hallmark>/` for the vessel
+... For each hallmark subtree discovered, match the hallmark segment against
 {rbtga_hallmark}
 pattern (`[cbg]\d{12}-r\d{12}`):
-.... Tags with `-image` suffix → classify by platform suffix (bare = consumer manifest list, `-amd64`/`-arm64` = per-platform)
-.... Tags with `-about` suffix → about artifact present
-.... Tags with `-vouch` suffix → vouch artifact present
-.... Tags with `-diags` suffix → diags artifact present (conjure-only build diagnostics; parsed for completeness but does not affect health state)
-.... Tags with unrecognized patterns → skip (not ark artifacts)
-.... Other tags → skip (infrastructure aliases, not ark artifacts)
+.... Package `hallmarks/<hallmark>/image` present → classify image tags by platform (bare `:<hallmark>` = consumer manifest list, per-platform build tags may exist as intermediates)
+.... Package `hallmarks/<hallmark>/about` present → about artifact present
+.... Package `hallmarks/<hallmark>/vouch` present → vouch artifact present
+.... Package `hallmarks/<hallmark>/diags` present → diags artifact present (conjure-only build diagnostics; parsed for completeness but does not affect health state)
+.... Package `hallmarks/<hallmark>/attest` with per-platform tags (`:<hallmark>-<ARCH>`) → attest artifact present
+.... Hallmark segments not matching the pattern → skip (not ark hallmarks)
+.... Packages outside `hallmarks/` (reliquaries, enshrines) → skip (not ark artifacts)
 ... {rbbc_store}
-unique hallmarks with artifact type and platform data
+unique hallmarks with basename presence and platform data
 
 //axhos_step
 . *Evaluate Health Per Hallmark*:
 .. For each unique vessel+hallmark pair:
-... If `-about` present and `-vouch` present → `vouched`
-... If `-about` present and `-vouch` absent → `pending`
-... If `-image` present and `-about` absent → `incomplete`
+... If `about` basename present and `vouch` basename present → `vouched`
+... If `about` basename present and `vouch` basename absent → `pending`
+... If `image` basename present and `about` basename absent → `incomplete`
 .. {rbbc_store}
 health state and platform list per hallmark
 

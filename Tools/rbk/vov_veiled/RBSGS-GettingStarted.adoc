@@ -241,7 +241,7 @@ by querying GAR directly via the Registry API — no local summon required.
 Authenticates as
 {rbtr_retriever}.
 Use {rbtc_plumb_compact} for a summary or {rbtc_plumb_full} for complete detail including package inventory and Dockerfile.
-Hallmark-only invocation (single argument) resolves the vessel via the vouches superdirectory.
+Hallmark-only invocation (single argument) navigates the hallmark subtree directly to locate the ark.
 
 == Recovery
 

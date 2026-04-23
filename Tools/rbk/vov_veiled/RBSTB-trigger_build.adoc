@@ -184,7 +184,7 @@ Cloud Build resolves these from the committed JSON — no values are overridden 
 | `_RBGY_GAR_PROJECT` | Depot project ID. Source: {rbrr_depot_project_id}.
 | `_RBGY_GAR_REPOSITORY` | GAR repository name. Source: {rbrr_gar_repository}.
 | `_RBGY_GAR_HOST_SUFFIX` | GAR Docker host suffix. Source: RBGC constant.
-| `_RBGY_ARK_SUFFIX_IMAGE` | Image artifact tag suffix. Source: RBGC constant.
+| `_RBGY_ARK_BASENAME_IMAGE` | Image artifact basename under the hallmark subtree. Source: RBGC constant.
 | `_RBGY_CRANE_TAR_GZ` | Crane release tarball URL. Source: RBGC constant.
 |===
 
@@ -227,9 +227,9 @@ Example: `c260224153022-r260224160530`
 
 Step `rbgjb01` constructs: `HALLMARK="c${_RBGY_INSCRIBE_TIMESTAMP}-r$(date -u +%y%m%d%H%M%S)"`
 
-Complete artifact tags combine vessel moniker with {rbtga_hallmark}:
+Complete artifact references compose the hallmarks root, the hallmark identifier, and the ark basename with {rbtga_hallmark} as tag:
 
-* {rbtga_ark_image}: `«MONIKER»:«HALLMARK»«ARK_SUFFIX_IMAGE»`
+* {rbtga_ark_image}: `hallmarks/«HALLMARK»/«ARK_BASENAME_IMAGE»:«HALLMARK»`
 
 About and vouch artifacts are created by subsequent pipeline stages ({rbtgo_ark_about}, {rbtgo_ark_vouch}).
 

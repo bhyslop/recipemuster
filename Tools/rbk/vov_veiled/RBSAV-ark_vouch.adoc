@@ -54,10 +54,10 @@ hallmark provided as second argument
 //axhos_step
 . *Gate on About Existence*:
 .. {rbbc_call}
-Docker Registry API: HEAD manifests for `«HALLMARK»-about`
+Docker Registry API: HEAD manifests for `hallmarks/«HALLMARK»/about:«HALLMARK»`
 .. {rbbc_require}
 HTTP 200 response -- {rbtgo_ark_about} must complete before vouch
-.. If `«HALLMARK»-vouch` already exists:
+.. If `hallmarks/«HALLMARK»/vouch:«HALLMARK»` already exists:
 {rbbc_warn}
 re-vouch in progress (see idempotency below)
 
@@ -87,7 +87,7 @@ Cloud Console URL for build monitoring
 .. Image: gcloud (from reliquary)
 .. Fetch OAuth token from GCE metadata server
 .. {rbbc_call}
-Docker Registry API: GET manifests for `«HALLMARK»-image` to obtain OCI image index
+Docker Registry API: GET manifests for `hallmarks/«HALLMARK»/image:«HALLMARK»` to obtain OCI image index
 .. Filter out attestation manifests before extracting platforms.
 OCI image indexes may contain non-runnable attestation manifests (SLSA provenance, SBOMs) with platform `unknown/unknown`.
 Exclude any manifest entry where _both_ `platform.os` and `platform.architecture` are `unknown`.
@@ -119,7 +119,7 @@ all platforms verify successfully
 +
 **Bind branch**:
 .. {rbbc_call}
-Docker Registry API: HEAD manifests for `«HALLMARK»-image`
+Docker Registry API: HEAD manifests for `hallmarks/«HALLMARK»/image:«HALLMARK»`
 .. {rbbc_store}
 `«ACTUAL_DIGEST»` from `Docker-Content-Digest` response header
 .. Extract `«PINNED_DIGEST»` from the `@sha256:...` suffix of `_RBGV_BIND_SOURCE`
@@ -137,9 +137,8 @@ Docker Registry API: HEAD manifests for `«HALLMARK»-image`
 .. Create buildx builder instance (inspect-or-create pattern, same as conjure)
 .. Build multi-platform `FROM scratch` container with summary and per-platform verification files as layers
 .. Platforms: read from `/workspace/vouch_platforms.txt` (written by step 2 for all modes)
-.. Push to registry tagged `«VESSEL»:«HALLMARK»-vouch` and `vouches:«HALLMARK»-vouch` via `docker buildx build --push --tag ... --tag ...`
-.. The vouches tag enables hallmark-only lookup by {rbtgo_ark_inspect} without knowing the vessel
-.. Since GAR is content-addressable, dual-tagging is a pointer operation — no blob duplication
+.. Push to registry at `hallmarks/«HALLMARK»/vouch:«HALLMARK»` via `docker buildx build --push --tag ...`
+.. Hallmark-only lookup by {rbtgo_ark_inspect} is served by subtree navigation — the vouch package lives directly under `hallmarks/«HALLMARK»/`, so no cross-vessel aggregator tag is needed
 .. {rbbc_require}
 push succeeds
 
@@ -163,7 +162,7 @@ verdict type: `DSSE_VERIFIED` (conjure), `DIGEST_PIN_VERIFIED` (bind), or `GRAFT
 //axhoc_completion
 Successful execution creates a
 {rbtga_ark_vouch}
-artifact in the registry tagged as `«VESSEL»:«HALLMARK»-vouch` and additionally tagged into the vouches superdirectory as `vouches:«HALLMARK»-vouch`.
+artifact in the registry at `hallmarks/«HALLMARK»/vouch:«HALLMARK»`.
 The vouch artifact is a multi-platform container (verification results are architecture-independent metadata; multi-platform is for pull ergonomics so arm64 hosts receive no platform mismatch warning).
 +
 *DSSE verification* (conjure only): Provenance is fetched via `gcloud artifacts docker images describe --show-provenance` as a DSSE envelope.
@@ -189,7 +188,6 @@ All `_RBGV_*` substitution variables are passed in the `builds.create` request b
 | `_RBGV_VESSEL` | Vessel sigil. Source: loaded vessel configuration.
 | `_RBGV_HALLMARK` | Full hallmark string. Source: input parameter.
 | `_RBGV_VESSEL_MODE` | Vessel mode (`conjure`, `bind`, or `graft`). Source: loaded vessel configuration.
-| `_RBGV_VOUCHES_PACKAGE` | vouches superdirectory package name. Source: `RBGC_VOUCHES_PACKAGE` constant.
 |===
 
 NOTE: Platform list is discovered by step 2 and written to `/workspace/vouch_platforms.txt`, not passed as a substitution variable.

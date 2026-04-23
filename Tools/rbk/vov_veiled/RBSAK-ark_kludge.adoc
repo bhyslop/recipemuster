@@ -38,11 +38,11 @@ is set, use the origin directly as the `RBF_IMAGE_n` build-arg
 . *Build Image Locally*:
 .. Run `docker build` with resolved `RBF_IMAGE_n` build-args
 .. Build for host platform only (no multi-arch -- development builds run where they are built)
-.. Tag as `«GAR_BASE»/«SIGIL»:«HALLMARK»-image` to match compose YAML interpolation format
+.. Tag as `«GAR_BASE»/hallmarks/«HALLMARK»/image:«HALLMARK»` to match compose YAML interpolation format
 
 //axhos_step
 . *Create Fake Vouch Tag*:
-.. `docker tag` the image ref to also carry the `-vouch` suffix
+.. `docker tag` the image ref to also carry the `vouch` basename under the same hallmark subtree (`«GAR_BASE»/hallmarks/«HALLMARK»/vouch:«HALLMARK»`)
 .. This is the same image aliased -- no provenance verification, no DSSE envelope
 .. Satisfies the `rbob_charge` vouch gate (`docker image inspect` on vouch ref)
 
@@ -55,7 +55,7 @@ is set, use the origin directly as the `RBF_IMAGE_n` build-arg
 
 * Requires GCP depot configuration (foundry kindle validates `RBDC_DIRECTOR_RBRA_FILE` exists, though kludge does not use credentials)
 * Host platform only -- a kludge-built `linux/arm64` image on Apple Silicon will not run on `linux/amd64` hosts
-* No about artifact, no provenance chain -- the vouch tag is a same-image alias with no attestation content
+* No about artifact, no provenance chain -- the vouch alias carries no attestation content
 * Not suitable for release or delivery -- use {rbtgo_ark_conjure} for production hallmarks
 
 == Tabtarget
