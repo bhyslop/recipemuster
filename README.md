@@ -104,7 +104,7 @@ The [Governor](#Governor) [Knights](#Knight) [Directors](#Director) for build ac
 
 Builds and publishes [Vessel](#Vessel) images into a [Depot](#Depot).
 Each [Director](#Director) credential is scoped to one [Depot](#Depot).
-The [Director](#Director) manages the image lifecycle: [Ordain](#Ordain) a build, [Tally](#Tally) registry health, [Rekon](#Rekon) raw tags, [Vouch](#Vouch) [provenance](#Provenance), [Abjure](#Abjure) superseded artifacts, and [Jettison](#Jettison) individual tags.
+The [Director](#Director) manages the image lifecycle: [Ordain](#Ordain) a [Hallmark](#Hallmark), [Tally](#Tally) registry health, [Rekon](#Rekon) raw tags, [Vouch](#Vouch) [provenance](#Provenance), [Abjure](#Abjure) superseded artifacts, and [Jettison](#Jettison) individual tags.
 
 ### <a id="Retriever"></a>Retriever
 
@@ -123,7 +123,7 @@ A fourth mode, [Kludge](#Kludge), builds locally for development without involvi
 A specific build instance of a [Vessel](#Vessel), identified by timestamp.
 [Hallmarks](#Hallmark) are the unit of [provenance](#Provenance) tracking — each one records when and how the image was produced.
 Each [Hallmark](#Hallmark) produces three tagged artifacts in the [Depot](#Depot) registry: the container image (`-image`), the [software bill of materials](#SBOM) ([`-about`](#About)), and the cryptographic attestation ([`-vouch`](#Vouch)).
-[Hallmark](#Hallmark) values are recorded into [Nameplate](#Nameplate) [Regime](#Regime) files to pin a [Crucible](#Crucible) to specific image versions.
+[Hallmark](#Hallmark) values are recorded into [Nameplate](#Nameplate) [Regime](#Regime) files to pin a [Nameplate](#Nameplate) to specific image versions.
 
 ### Foundry Lifecycle
 
@@ -181,7 +181,7 @@ Containers excel at packaging known applications, but running unvetted code pose
 [Recipe Bottle](#RecipeBottle) assembles a [Crucible](#Crucible) — three cooperating containers where a [Sentry](#Sentry) enforces network policy — without requiring modifications to existing container images.
 The [Bottle](#Bottle) container runs unmodified, in a network namespace prepared by a privileged [Pentacle](#Pentacle), with all egress flowing through the [Sentry](#Sentry) gateway.
 
-The [Sentry](#Sentry)/[Pentacle](#Pentacle)/[Bottle](#Bottle) triad running together as one unit for a [Nameplate](#Nameplate).
+The [Sentry](#Sentry)/[Pentacle](#Pentacle)/[Bottle](#Bottle) triad running together as one unit defined by a [Nameplate](#Nameplate).
 The [Crucible](#Crucible) is the local safety orchestration — the apparatus that makes running untrusted code practical.
 [Charging](#Charge) starts all three containers; [Quenching](#Quench) stops and cleans them up.
 
@@ -221,15 +221,15 @@ Shipped [Nameplates](#Nameplate) demonstrating different [Crucible](#Crucible) c
 Each pairs a [Sentry](#Sentry) with a [Bottle](#Bottle) [Vessel](#Vessel) and defines the network policy for that deployment target.
 
 <a id="ccyolo"></a>**[ccyolo](#ccyolo)** — Claude Code sandbox for network-contained AI development.
-The [ccyolo](#ccyolo) [Crucible](#Crucible) runs Claude Code inside a [Bottle](#Bottle) that can only reach Anthropic — SSH entry from the workstation, OAuth authentication via copy/paste, everything else blocked.
+The [ccyolo](#ccyolo) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with a Claude Code [Bottle](#Bottle) under an Anthropic-only network allowlist — SSH entry from the workstation, OAuth authentication via copy/paste, everything else blocked.
 [Kludge](#Kludge)-only development target: no cloud account, no service account credentials, fully self-contained on the developer's workstation.
 The onboarding handbook's first hands-on track teaches the full [Crucible](#Crucible) lifecycle using [ccyolo](#ccyolo).
 
-<a id="tadmor"></a>**[tadmor](#tadmor)** — Adversarial security testing [Crucible](#Crucible) for daily iteration.
+<a id="tadmor"></a>**[tadmor](#tadmor)** — Adversarial security testing [Nameplate](#Nameplate) for daily iteration.
 The [tadmor](#tadmor) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with the [Ifrit](#Ifrit) attack [Vessel](#Vessel) under a restrictive network allowlist, consuming [Kludged](#Kludge) [Hallmarks](#Hallmark) for fast author-test-iterate cycles.
 The [Theurge](#Theurge) test orchestrator [Charges](#Charge) [tadmor](#tadmor) and dispatches curated escape attempts to validate that the [Sentry's](#Sentry) containment holds under adversarial conditions.
 
-<a id="moriah"></a>**[moriah](#moriah)** — Adversarial security testing [Crucible](#Crucible) for the airgap supply chain.
+<a id="moriah"></a>**[moriah](#moriah)** — Adversarial security testing [Nameplate](#Nameplate) for the airgap supply chain.
 The [moriah](#moriah) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with the [Ifrit](#Ifrit) attack [Vessel](#Vessel) under the same restrictive network allowlist as [tadmor](#tadmor), consuming [Hallmarks](#Hallmark) [Ordained](#Ordain) end-to-end on the [Airgap](#Airgap) pool.
 The [Theurge](#Theurge) runs the same escape attempts against [moriah](#moriah) as against [tadmor](#tadmor) — the cloud-built variant validating that containment holds identically when the supply chain produces the inputs.
 
@@ -339,7 +339,7 @@ Two views are available: full ([SBOM](#SBOM), build info, Dockerfile) and compac
 ### Distribution
 
 <a id="Summon"></a>**[Summon](#Summon)** — Pull a [Hallmark](#Hallmark) image from the [Depot](#Depot) to your local machine.
-The [Retriever](#Retriever) [Summons](#Summon) [Vouched](#Vouch) images for local use — the final step before a [Hallmark](#Hallmark) can be used in a [Crucible](#Crucible).
+The [Retriever](#Retriever) [Summons](#Summon) [Vouched](#Vouch) images for local use — the final step before a [Hallmark's](#Hallmark) image can be used in a [Crucible](#Crucible).
 
 <a id="Wrest"></a>**[Wrest](#Wrest)** — Pull a specific image from the [Depot](#Depot) registry by reference.
 [Wresting](#Wrest) is a direct pull without [Vouch](#Vouch) verification — used when you need a specific image tag regardless of attestation status.
@@ -372,10 +372,10 @@ Formal definitions for all [Crucible](#Crucible) operations.
 
 ### Lifecycle
 
-<a id="Charge"></a>**[Charge](#Charge)** — Start the [Sentry](#Sentry)/[Pentacle](#Pentacle)/[Bottle](#Bottle) triad for a [Nameplate](#Nameplate).
+<a id="Charge"></a>**[Charge](#Charge)** — Start a [Crucible](#Crucible) — the [Sentry](#Sentry)/[Pentacle](#Pentacle)/[Bottle](#Bottle) triad — defined by a [Nameplate](#Nameplate).
 [Charging](#Charge) brings up the [Crucible](#Crucible) in dependency order: [Pentacle](#Pentacle) creates the namespace, [Sentry](#Sentry) configures policy, then the [Bottle](#Bottle) starts with its network already constrained.
 
-<a id="Quench"></a>**[Quench](#Quench)** — Stop and clean up a [Charged](#Charge) [Nameplate's](#Nameplate) containers.
+<a id="Quench"></a>**[Quench](#Quench)** — Stop and clean up a [Charged](#Charge) [Crucible's](#Crucible) containers.
 [Quenching](#Quench) tears down the [Crucible](#Crucible) in reverse order and removes the network resources created during [Charging](#Charge).
 
 ### Interaction
@@ -472,7 +472,7 @@ Near-term, allowlist-only [Nameplates](#Nameplate) targeting specific service CI
 The tunnel adds defense-in-depth for PrivateLink-capable services; SaaS endpoints without PrivateLink (GitHub.com, GitLab.com) remain served by CIDR/domain allowlisting.
 
 - **Credential confinement** - Move cloud service credentials (API keys, IAM keys, SSH keys) from the operator's workstation into the [Crucible](#Crucible), injected via [Nameplate](#Nameplate) [Regime](#Regime) configuration.
-The workstation starts the [Crucible](#Crucible) but never holds service credentials — reducing the attack surface from "everything on the workstation" to "one minimal container."
+The workstation [Charges](#Charge) the [Crucible](#Crucible) but never holds service credentials — reducing the attack surface from "everything on the workstation" to "one minimal container."
 Naturally paired with conduit work: credentials and network access are configured together.
 
 - **VPC Service Controls** - Google Cloud security perimeters that prevent data from being copied out of a project even if an attacker holds valid credentials.
@@ -509,15 +509,15 @@ The annotated tree below maps its files to the concepts defined above.
 | `├── .rbk/` | [Regime](#Regime) configuration root |
 | `│   ��── rbrp.env` | [RBRP](#RBRP) — [Payor](#Payor) identity for this [Depot](#Depot) |
 | `│   ├── rbrr.env` | [RBRR](#RBRR) — [Depot](#Depot) identity and build configuration |
-| `│   ├── ccyolo/` | [Nameplate](#Nameplate) — [ccyolo](#ccyolo) Claude Code sandbox [Crucible](#Crucible) |
+| `│   ├── ccyolo/` | [Nameplate](#Nameplate) — [ccyolo](#ccyolo) Claude Code sandbox |
 | `│   │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + Claude Code, Anthropic-only allowlist |
-| `│   ├── tadmor/` | [Nameplate](#Nameplate) — [tadmor](#tadmor) adversarial testing [Crucible](#Crucible) |
+| `│   ├── tadmor/` | [Nameplate](#Nameplate) — [tadmor](#tadmor) adversarial testing |
 | `│   │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + [Ifrit](#Ifrit), restrictive allowlist |
-| `│   ├── moriah/` | [Nameplate](#Nameplate) — [moriah](#moriah) airgap-built adversarial testing [Crucible](#Crucible) |
+| `│   ├── moriah/` | [Nameplate](#Nameplate) — [moriah](#moriah) airgap-built adversarial testing |
 | `│   │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + [Ifrit](#Ifrit), restrictive allowlist |
-| `│   ├── srjcl/` | [Nameplate](#Nameplate) — Jupyter notebook [Crucible](#Crucible) |
+| `│   ├── srjcl/` | [Nameplate](#Nameplate) — Jupyter notebook |
 | `│   │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + Jupyter, academic-domain allowlist |
-| `│   └── pluml/` | [Nameplate](#Nameplate) — PlantUML diagram server [Crucible](#Crucible) |
+| `│   └── pluml/` | [Nameplate](#Nameplate) — PlantUML diagram server |
 | `│       └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + PlantUML, no-egress allowlist |
 | `└── rbev-vessels/` | [Vessel](#Vessel) definitions |
 | `    ├── common-sentry-context/` | Shared [Sentry](#Sentry)/[Pentacle](#Pentacle) build context |
