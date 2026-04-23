@@ -190,6 +190,139 @@ rbfl_inscribe() {
   buc_info "Add RBRV_RELIQUARY=${z_reliquary} to vessel rbrv.env files to use this reliquary"
 }
 
+rbfl_yoke() {
+  zrbfl_sentinel
+
+  local -r z_stamp="${1:-}"
+  local -r z_vessel="${2:-}"
+
+  buc_doc_brief "Yoke a reliquary stamp into a conjure vessel's rbrv.env — validate both, then rewrite RBRV_RELIQUARY"
+  buc_doc_param "stamp"  "Reliquary datestamp (e.g., r260327172456)"
+  buc_doc_param "vessel" "Vessel sigil (e.g., rbev-sentry-deb-tether)"
+  buc_doc_shown || return 0
+
+  test -n "${z_stamp}"  || buc_die "Reliquary stamp required (arg 1)"
+  test -n "${z_vessel}" || buc_die "Vessel sigil required (arg 2)"
+
+  buc_step "Validating vessel: ${z_vessel}"
+  zrbfc_resolve_vessel "${z_vessel}"
+  local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
+  test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
+  zrbfc_load_vessel "${z_vessel_dir}"
+  local -r z_rbrv_file="${z_vessel_dir}/rbrv.env"
+
+  zrbrv_kindle
+  zrbrv_enforce
+
+  case "${RBRV_VESSEL_MODE}" in
+    conjure) ;;
+    bind)    buc_die "Vessel '${z_vessel}' has mode=bind; Yoke only applies to conjure vessels. Bind vessels pin an upstream digest (no Cloud Build, no reliquary)." ;;
+    graft)   buc_die "Vessel '${z_vessel}' has mode=graft; Yoke only applies to conjure vessels. Graft vessels push a locally-built image (no Cloud Build, no reliquary)." ;;
+    *)       buc_die "Vessel '${z_vessel}' has unrecognized RBRV_VESSEL_MODE='${RBRV_VESSEL_MODE}'" ;;
+  esac
+  buc_info "Vessel valid — mode=${RBRV_VESSEL_MODE}, egress=${RBRV_EGRESS_MODE}"
+
+  buc_step "Authenticating as Director"
+  local z_token=""
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+    || buc_die "Failed to get Director OAuth token"
+
+  buc_step "Validating reliquary stamp: ${z_stamp}"
+  local -r z_rqy_subtree="${RBGL_RELIQUARIES_ROOT}/${z_stamp}/"
+  local -r z_list_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages?pageSize=1000"
+  local -r z_list_infix="rbfl_yoke_list"
+
+  rbgu_http_json "GET" "${z_list_url}" "${z_token}" "${z_list_infix}"
+  rbgu_http_require_ok "List reliquary packages" "${z_list_infix}"
+
+  local -r z_resp_file="${ZRBGU_PREFIX}${z_list_infix}${ZRBGU_POSTFIX_JSON}"
+  local -r z_present_file="${BURD_TEMP_DIR}/rbfl_yoke_present.txt"
+
+  jq -r --arg subtree "${z_rqy_subtree}" '
+    .packages[]?.name
+    | sub("^.*/packages/"; "")
+    | gsub("%2F"; "/")
+    | select(startswith($subtree))
+    | ltrimstr($subtree)
+  ' "${z_resp_file}" > "${z_present_file}" \
+    || buc_die "Failed to extract reliquary package names"
+
+  local z_present=()
+  local z_line=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    test -n "${z_line}" || continue
+    z_present+=("${z_line}")
+  done < "${z_present_file}"
+
+  local -r z_expected=(
+    "${RBGC_RELIQUARY_TOOL_GCLOUD}"
+    "${RBGC_RELIQUARY_TOOL_DOCKER}"
+    "${RBGC_RELIQUARY_TOOL_ALPINE}"
+    "${RBGC_RELIQUARY_TOOL_SYFT}"
+    "${RBGC_RELIQUARY_TOOL_BINFMT}"
+    "${RBGC_RELIQUARY_TOOL_SKOPEO}"
+  )
+
+  local z_missing=""
+  local z_tool=""
+  for z_tool in "${z_expected[@]}"; do
+    local z_found=0
+    local z_i=""
+    for z_i in "${!z_present[@]}"; do
+      test "${z_present[$z_i]}" = "${z_tool}" || continue
+      z_found=1
+      break
+    done
+    case "${z_found}" in
+      1) ;;
+      *) z_missing="${z_missing}${z_missing:+, }${z_tool}" ;;
+    esac
+  done
+
+  test -z "${z_missing}" || buc_die "Reliquary stamp '${z_stamp}' not found in Depot — expected 6 tool images under ${z_rqy_subtree}; missing: ${z_missing}. Re-run tt/rbw-dI.DirectorInscribesReliquary.sh to mint a fresh reliquary, or verify the stamp spelling."
+  buc_info "Reliquary valid — all 6 tool images present (gcloud, docker, alpine, syft, binfmt, skopeo)"
+
+  buc_step "Yoking ${z_vessel} to reliquary ${z_stamp}"
+
+  local z_rbrv_lines=()
+  local z_rbrv_line=""
+  while IFS= read -r z_rbrv_line || test -n "${z_rbrv_line}"; do
+    z_rbrv_lines+=("${z_rbrv_line}")
+  done < "${z_rbrv_file}"
+
+  local -r z_tmp_file="${BURD_TEMP_DIR}/rbfl_yoke_rbrv.env.new"
+  : > "${z_tmp_file}" || buc_die "Failed to create ${z_tmp_file}"
+
+  local z_wrote=0
+  local z_j=""
+  for z_j in "${!z_rbrv_lines[@]}"; do
+    case "${z_rbrv_lines[$z_j]}" in
+      RBRV_RELIQUARY=*)
+        printf 'RBRV_RELIQUARY=%s\n' "${z_stamp}" >> "${z_tmp_file}" \
+          || buc_die "Failed to write RBRV_RELIQUARY line to ${z_tmp_file}"
+        z_wrote=1
+        ;;
+      *)
+        printf '%s\n' "${z_rbrv_lines[$z_j]}" >> "${z_tmp_file}" \
+          || buc_die "Failed to write line to ${z_tmp_file}"
+        ;;
+    esac
+  done
+
+  case "${z_wrote}" in
+    1) ;;
+    *) printf '\n# Tool Image Reliquary\nRBRV_RELIQUARY=%s\n' "${z_stamp}" >> "${z_tmp_file}" \
+         || buc_die "Failed to append RBRV_RELIQUARY to ${z_tmp_file}" ;;
+  esac
+
+  mv "${z_tmp_file}" "${z_rbrv_file}" || buc_die "Failed to finalize ${z_rbrv_file}"
+
+  buc_success "Yoked ${z_vessel} to reliquary ${z_stamp}"
+  buc_info "Modified: ${z_rbrv_file}"
+  buc_info "  RBRV_RELIQUARY=${z_stamp}"
+  buc_info "Commit the change with your usual git workflow."
+}
+
 rbfl_jettison() {
   zrbfl_sentinel
 

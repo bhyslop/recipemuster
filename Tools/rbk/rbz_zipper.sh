@@ -69,6 +69,7 @@ zrbz_kindle() {
   buz_enroll RBZ_ENSHRINE_VESSEL        "rbw-dE"  "${z_mod}" "rbfd_enshrine"      ""  "Enshrine upstream base images to GAR via Cloud Build"
   z_mod="rbfl_cli.sh"
   buz_enroll RBZ_INSCRIBE_RELIQUARY     "rbw-dI"  "${z_mod}" "rbfl_inscribe"      ""  "Create reliquary: mirror tool images from upstream to GAR"
+  buz_enroll RBZ_YOKE_RELIQUARY         "rbw-dY"  "${z_mod}" "rbfl_yoke"          ""  "Yoke a reliquary stamp into a conjure vessel's rbrv.env"
 
   # Guide — human-directed procedures (rbw-g)
   buz_group RBZ__GROUP_GUIDE      "rbw-g"   "Guide — Human-directed procedures"
