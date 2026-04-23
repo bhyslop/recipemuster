@@ -2158,9 +2158,14 @@ const RBTDRC_FACT_HALLMARK: &str = "rbf_fact_hallmark";
 const RBTDRC_FACT_GAR_ROOT: &str = "rbf_fact_gar_root";
 const RBTDRC_FACT_ARK_STEM: &str = "rbf_fact_ark_stem";
 
-/// Ark tag suffixes — matching rbgc_Constants.sh values.
-const RBTDRC_ARK_SUFFIX_IMAGE: &str = "-image";
-const RBTDRC_ARK_SUFFIX_VOUCH: &str = "-vouch";
+/// Ark basenames — matching rbgc_Constants.sh RBGC_ARK_BASENAME_* values.
+const RBTDRC_ARK_BASENAME_IMAGE: &str = "image";
+const RBTDRC_ARK_BASENAME_VOUCH: &str = "vouch";
+
+/// GAR categorical namespace literal — matches RBGC_GAR_CATEGORY_HALLMARKS.
+/// Used to build wrest locators (which the rbfr_wrest callee prepends the
+/// cloud-prefix onto — see rbfr_FoundryRetriever.sh `z_full_ref` construction).
+const RBTDRC_GAR_CATEGORY_HALLMARKS: &str = "hallmarks";
 
 /// Fact consec infix — matching rbcc_Constants.sh value.
 const RBTDRC_FACT_CONSEC_INFIX: &str = "_fact_consec_";
@@ -2260,14 +2265,25 @@ fn rbtdrc_four_mode_supply_chain(dir: &Path) -> rbtdre_Verdict {
         };
         let _ = std::fs::write(dir.join("step-02-bind-consec.txt"), &bind_consec);
 
-        // Retrieve conjured image for graft input
-        let graft_retrieve_locator = format!("{}{}", conjure_ark_stem, RBTDRC_ARK_SUFFIX_IMAGE);
+        // Retrieve conjured image for graft input.
+        // Wrest locator is relative-to-cloud-prefix: rbfr_wrest prepends
+        // RBRR_CLOUD_PREFIX itself when building the full registry ref.
+        let graft_retrieve_locator = format!(
+            "{}/{}/{}:{}",
+            RBTDRC_GAR_CATEGORY_HALLMARKS, conjure_consec, RBTDRC_ARK_BASENAME_IMAGE, conjure_consec
+        );
         match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_WREST, &[&graft_retrieve_locator], &[]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtdre_Verdict::Fail(format!("wrest for graft failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("wrest invocation: {}", e)),
         }
-        let local_image_ref = format!("{}/{}", conjure_gar_root, graft_retrieve_locator);
+        // Full local ref for the wrested image: gar_root + prefixed ark_stem + basename:tag.
+        // conjure_ark_stem already includes the cloud prefix (see rbfd_FoundryDirectorBuild.sh
+        // fact emission using RBGL_HALLMARKS_ROOT).
+        let local_image_ref = format!(
+            "{}/{}/{}:{}",
+            conjure_gar_root, conjure_ark_stem, RBTDRC_ARK_BASENAME_IMAGE, conjure_consec
+        );
 
         // Step 3: Graft busybox
         let _ = std::fs::write(dir.join("step-03-status.txt"), "grafting");
@@ -2298,11 +2314,24 @@ fn rbtdrc_four_mode_supply_chain(dir: &Path) -> rbtdre_Verdict {
             Ok(v) => v,
             Err(e) => return rbtdre_Verdict::Fail(format!("step 4: {}", e)),
         };
+        let kludge_ark_stem = match rbtdri_read_burv_fact(&kludge_result, RBTDRC_FACT_ARK_STEM) {
+            Ok(v) => v,
+            Err(e) => return rbtdre_Verdict::Fail(format!("step 4 ark_stem: {}", e)),
+        };
         let _ = std::fs::write(dir.join("step-04-kludge-consec.txt"), &kludge_consec);
 
-        // Verify kludge image and vouch tag exist locally
-        let kludge_image_ref = format!("{}/{}:{}{}", conjure_gar_root, conjure_vessel, kludge_consec, RBTDRC_ARK_SUFFIX_IMAGE);
-        let kludge_vouch_ref = format!("{}/{}:{}{}", conjure_gar_root, conjure_vessel, kludge_consec, RBTDRC_ARK_SUFFIX_VOUCH);
+        // Verify kludge image and vouch tag exist locally.
+        // rbfd_kludge tags images as <host>/<path>/<prefixed_stem>/<basename>:<hallmark>
+        // (rbfd_FoundryDirectorBuild.sh:1256-1257 via RBGL_HALLMARKS_ROOT) — mirror that
+        // construction here using the kludge-side ark_stem fact.
+        let kludge_image_ref = format!(
+            "{}/{}/{}:{}",
+            conjure_gar_root, kludge_ark_stem, RBTDRC_ARK_BASENAME_IMAGE, kludge_consec
+        );
+        let kludge_vouch_ref = format!(
+            "{}/{}/{}:{}",
+            conjure_gar_root, kludge_ark_stem, RBTDRC_ARK_BASENAME_VOUCH, kludge_consec
+        );
 
         if !rbtdrc_docker_inspect(&kludge_image_ref) {
             return rbtdre_Verdict::Fail(format!("kludge image not found: {}", kludge_image_ref));
@@ -2354,16 +2383,22 @@ fn rbtdrc_four_mode_supply_chain(dir: &Path) -> rbtdre_Verdict {
 
         // Steps 6-9: Vouch gate, retrieve, run, cleanup (conjured busybox)
         // Step 6: vouch_gate is done by the ordain pipeline — the three hallmarks above prove it
-        // Step 7: Retrieve image
-        let retrieve_locator = format!("{}:{}{}", conjure_vessel, conjure_consec, RBTDRC_ARK_SUFFIX_IMAGE);
+        // Step 7: Retrieve image — locator is relative-to-cloud-prefix (wrest prepends).
+        let retrieve_locator = format!(
+            "{}/{}/{}:{}",
+            RBTDRC_GAR_CATEGORY_HALLMARKS, conjure_consec, RBTDRC_ARK_BASENAME_IMAGE, conjure_consec
+        );
         match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_WREST, &[&retrieve_locator], &[]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtdre_Verdict::Fail(format!("wrest failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("wrest invocation: {}", e)),
         }
 
-        // Step 8: Run and verify
-        let full_image_ref = format!("{}/{}", conjure_gar_root, retrieve_locator);
+        // Step 8: Run and verify — full ref uses prefixed ark_stem (matches what wrest pulled).
+        let full_image_ref = format!(
+            "{}/{}/{}:{}",
+            conjure_gar_root, conjure_ark_stem, RBTDRC_ARK_BASENAME_IMAGE, conjure_consec
+        );
         match rbtdrc_docker_run(&full_image_ref) {
             Ok((output, 0)) if output.contains(expected_output) => {}
             Ok((output, code)) => {

@@ -1881,7 +1881,8 @@ GAR registry root path.
 [[rbf_fact_ark_stem]]
 //axpof_fact
 {rbf_fact_ark_stem}::
-Ark stem (vessel:hallmark).
+Hallmark subtree prefix — `«PREFIX»hallmarks/«HALLMARK»`.
+Composable with basename and `:«HALLMARK»` tag for full artifact references.
 
 [[rbf_fact_ark_yield]]
 //axpof_fact

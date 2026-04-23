@@ -1274,8 +1274,11 @@ rbfd_kludge() {
   docker tag "${z_image_ref}" "${z_vouch_ref}" \
     || buc_die "Failed to create vouch tag"
 
-  # Persist hallmark to output directory
+  # Persist facts — mirror conjure/bind/graft so downstream consumers (theurge)
+  # can build full refs uniformly regardless of mode.
   buf_write_fact "${RBF_FACT_HALLMARK}" "${z_hallmark}"
+  buf_write_fact "${RBF_FACT_GAR_ROOT}" "${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}"
+  buf_write_fact "${RBF_FACT_ARK_STEM}" "${RBGL_HALLMARKS_ROOT}/${z_hallmark}"
 
   buc_success "Kludge build complete: ${RBRV_SIGIL}"
   buc_bare ""

@@ -111,7 +111,7 @@ for full artifact references.
 
 //axhoot_typed_output axd_fact
 {rbf_fact_ark_stem}
-The hallmark subtree prefix `hallmarks/«HALLMARK»`.
+The hallmark subtree prefix `«PREFIX»hallmarks/«HALLMARK»`.
 Composable with basename (`image`, `about`, `vouch`, etc.) and the `:«HALLMARK»` tag for full artifact references.
 
 //axhoot_typed_output axd_fact
