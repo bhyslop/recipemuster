@@ -108,7 +108,7 @@ The payor stands apart — requires manual console work and OAuth. All downstrea
 
 All credential files require `600` permissions and must never be committed to version control.
 
-- **Payor OAuth**: `~/.rbw/rbro.env` — client secret + refresh token. Only on the administrator's workstation.
+- **Payor OAuth**: `~/.rbw/payor/rbro.env` — client secret + refresh token. Only on the administrator's workstation.
 - **Governor/Director/Retriever**: credential files at paths defined in RBRR (`RBRR_SECRETS_DIR`). Each file contains a service account credential scoped to one role within one depot.
 
 @Tools/buk/buk-claude-context.md

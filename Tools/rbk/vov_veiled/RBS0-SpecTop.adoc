@@ -2673,7 +2673,7 @@ Path to the
 credentials file for OAuth operations.
 Derived from
 {rbrr_secrets_dir}
-as `rbro.env`.
+as `payor/rbro.env`.
 
 [[rbrr_bottle_workspace]]
 //axvr_variable axd_required rbst_path
@@ -3781,13 +3781,13 @@ A pattern that loads and validates RBRO credentials:
 . {rbbc_require} ~/.rbw/ directory exists or
 {rbbc_fatal}
 "RBRO directory missing - run {rbtgo_payor_install}",
-. {rbbc_require} ~/.rbw/rbro.env file exists or
+. {rbbc_require} ~/.rbw/payor/rbro.env file exists or
 {rbbc_fatal}
 "RBRO credentials missing - run {rbtgo_payor_install}",
 . validates file permissions are 600 or
 {rbbc_warn}
 "RBRO file permissions should be 600",
-. sources ~/.rbw/rbro.env into current environment,
+. sources ~/.rbw/payor/rbro.env into current environment,
 . validates RBRO_CLIENT_SECRET is present and non-empty or
 {rbbc_fatal}
 "RBRO_CLIENT_SECRET missing",

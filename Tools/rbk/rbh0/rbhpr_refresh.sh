@@ -63,7 +63,7 @@ rbhp_refresh() {
   buh_tt       "      " "${RBZ_PAYOR_INSTALL}" "" " ~/Downloads/client_secret_*.json"
   buh_line     "   This will:"
   buh_line     "   - Guide you through OAuth authorization flow"
-  buh_line     "   - Store secure credentials in RBRR_SECRETS_DIR/rbro.env"
+  buh_line     "   - Store secure credentials in RBRR_SECRETS_DIR/payor/rbro.env"
   buh_line     "   - Update RBRP_OAUTH_CLIENT_ID in rbrp.env"
   buh_line     "   - Test the authentication"
   buh_line     "   - Initialize depot tracking"

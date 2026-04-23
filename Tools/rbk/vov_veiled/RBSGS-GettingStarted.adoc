@@ -79,7 +79,7 @@ and completes the OAuth handshake.
 A browser window opens for authorization.
 Upon success, the
 {rbro_refresh_token}
-is stored in `~/.rbw/rbro.env` with `600` permissions.
+is stored in `~/.rbw/payor/rbro.env` with `600` permissions.
 This file enables the
 {rbtr_payor}
 to authenticate for all future operations without repeating the browser flow.
@@ -164,7 +164,7 @@ Understanding these files helps administrators plan secure handling.
 
 The
 {rbtr_payor}
-credentials reside in `~/.rbw/rbro.env`, containing the
+credentials reside in `~/.rbw/payor/rbro.env`, containing the
 {rbro_client_secret}
 and
 {rbro_refresh_token}.
@@ -245,7 +245,7 @@ Hallmark-only invocation (single argument) navigates the hallmark subtree direct
 
 == Recovery
 
-If `~/.rbw/rbro.env` is lost, the administrator obtains a fresh
+If `~/.rbw/payor/rbro.env` is lost, the administrator obtains a fresh
 {rbtgi_json_key_file}
 from Google Cloud Console and re-executes
 {rbtgo_payor_install}.

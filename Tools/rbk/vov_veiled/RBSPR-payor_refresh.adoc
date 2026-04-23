@@ -24,7 +24,7 @@ and for renewal operations.
 .. Run: `rbgp_payor_install ~/Downloads/client_secret_*.json`
 .. This will:
 ... Guide you through OAuth authorization flow
-... Store secure credentials in `~/.rbw/rbro.env`
+... Store secure credentials in `~/.rbw/payor/rbro.env`
 ... Test the authentication
 ... Initialize depot tracking
 ... Update `RBRP_OAUTH_CLIENT_ID` in `rbrp.env`

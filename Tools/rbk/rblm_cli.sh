@@ -97,7 +97,7 @@ rblm_zero() {
   fi
   buh_e
   buh_line "  Preserved (payor-scoped, survives depot change):"
-  buh_line "    ${z_secrets_dir}/rbro.env"
+  buh_line "    ${z_secrets_dir}/${RBCC_role_payor}/${RBCC_rbro_file}"
   buh_e
   buc_require "Proceed with marshal zero?" "zero"
 

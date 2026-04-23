@@ -106,7 +106,7 @@ administration operations.
 
 Path derived from
 {rbrr_secrets_dir}
-as `rbro.env`.
+as `payor/rbro.env`.
 Enables the operator to perform
 {rbtr_payor}
 OAuth operations using locally stored refresh credentials.

@@ -40,16 +40,16 @@ rbgp_payor_install ~/Downloads/client_secret_*.json
 
 //axhos_step
 . *Credential Storage*:
-.. OAuth credentials stored securely in `~/.rbw/rbro.env` with 600 permissions
+.. OAuth credentials stored securely in `~/.rbw/payor/rbro.env` with 600 permissions
 .. Credentials include:
 ... `RBRO_CLIENT_SECRET`: OAuth client secret for token refresh
 ... `RBRO_REFRESH_TOKEN`: Long-lived refresh token for authentication
 .. {rbhg_warn}
-Never commit `~/.rbw/rbro.env` to version control
+Never commit `~/.rbw/payor/rbro.env` to version control
 
 //axhoot_typed_output
 {rbro_regime}
-* OAuth credentials stored in `~/.rbw/rbro.env`:
+* OAuth credentials stored in `~/.rbw/payor/rbro.env`:
 ** `RBRO_CLIENT_SECRET`: OAuth client secret for token refresh
 ** `RBRO_REFRESH_TOKEN`: Long-lived refresh token for authentication
 

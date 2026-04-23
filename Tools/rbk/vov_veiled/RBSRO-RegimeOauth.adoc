@@ -2,7 +2,7 @@
 {rbro_regime}
 
 This regime specifies OAuth 2.0 credentials used by the Payor role for token generation and API authentication.
-RBRO assignment files are external credential files stored in ~/.rbw/rbro.env with 600 permissions, never committed to version control.
+RBRO assignment files are external credential files stored in ~/.rbw/payor/rbro.env with 600 permissions, never committed to version control.
 
 //axhrv_variable
 {rbro_client_secret}
