@@ -117,6 +117,8 @@ rbho_start_here() {
 
   buh_section "Director Subtracks"
   buh_e
+  buh_line "  All tracks below require ${RBYC_DIRECTOR} credentials and a provisioned ${RBYC_DEPOT}."
+  buh_e
   buh_line "    ${RBHO_TRACK_FIRST_BUILD}"
   buh_line "      Build your first image in the cloud with verified provenance."
   buh_line "      Steps:"
@@ -125,7 +127,6 @@ rbho_start_here() {
   buh_line "        * Inspect images and SLSA         (${RBYC_TALLY}, ${RBYC_VOUCH}, ${RBYC_PLUMB}, ${RBYC_POUCH})"
   buh_line "        * Pull the image locally          (${RBYC_SUMMON} the ${RBYC_HALLMARK})"
   buh_line "        * Clean up                        (${RBYC_ABJURE}, ${RBYC_REKON})"
-  buh_line "      Requires: Director credentials and a provisioned Depot."
   buh_tt   "        " "${RBZ_ONBOARD_DIR_FIRST_BUILD}"
   buh_e
   buh_line "    ${RBYC_AIRGAP} Cloud Build"
@@ -139,7 +140,6 @@ rbho_start_here() {
   buh_line "        * Build the final image with zero network  (${RBYC_CONJURE} the airgap ${RBYC_BOTTLE} in ${RBYC_AIRGAP} mode)"
   buh_line "        * Start the sandbox and attack it          (${RBYC_CHARGE} moriah, run the adversarial suite)"
   buh_line "        * Compare provenance side by side          (airgap vs ${RBYC_TETHERED} ${RBYC_PLUMB})"
-  buh_line "      Requires: Director credentials, a provisioned Depot, and ${RBHO_TRACK_FIRST_BUILD} completed."
   buh_tt   "        " "${RBZ_ONBOARD_DIR_AIRGAP}"
   buh_e
   buh_line "    ${RBYC_BIND} — Safe PlantUML Container"
@@ -152,14 +152,10 @@ rbho_start_here() {
   buh_line "      a bound ${RBYC_BOTTLE} — two ${RBYC_ORDAIN} modes in one ${RBYC_CRUCIBLE} is the"
   buh_line "      expected shape, not a defect."
   buh_line "      Steps:"
-  buh_line "        * Prepare the guard image                  (${RBYC_KLUDGE} a ${RBYC_SENTRY} locally, or reuse the ${RBYC_CONJURED} ${RBYC_HALLMARK} from ${RBHO_TRACK_FIRST_BUILD})"
+  buh_line "        * Prepare the guard image                  (${RBYC_KLUDGE} ${RBYC_SENTRY} or reuse ${RBYC_CONJURED})"
   buh_line "        * Pin the upstream image by digest         (${RBYC_BIND} ${z_plantuml})"
   buh_line "        * Check the provenance verdict             (${RBYC_VOUCH} reads digest-pin — image not built here)"
   buh_line "        * Render a diagram, observe blocked egress (${RBYC_CHARGE} the ${z_pluml} ${RBYC_CRUCIBLE})"
-  buh_line "      Requires:"
-  buh_line "        * ${RBYC_DIRECTOR} credentials"
-  buh_line "        * a provisioned ${RBYC_DEPOT}"
-  buh_line "        * ${RBHO_TRACK_FIRST_CRUCIBLE} (${RBYC_KLUDGE_D} ${RBYC_SENTRY} available) or ${RBHO_TRACK_FIRST_BUILD} completed"
   buh_tt   "        " "${RBZ_ONBOARD_DIR_BIND}"
   buh_e
   buh_line "    ${RBYC_GRAFT} — Local Image Publishing"
@@ -172,7 +168,6 @@ rbho_start_here() {
   buh_line "        * Build a local image          (trivial busybox tag on your machine)"
   buh_line "        * Publish the local image      (${RBYC_GRAFT} it to the ${RBYC_DEPOT})"
   buh_line "        * Check the provenance verdict (${RBYC_VOUCH} reads GRAFTED, no chain)"
-  buh_line "      Requires: ${RBYC_DIRECTOR} credentials, a provisioned ${RBYC_DEPOT}, and the rbev-graft-demo ${RBYC_VESSEL} present."
   buh_tt   "        " "${RBZ_ONBOARD_DIR_GRAFT}"
   buh_e
 
