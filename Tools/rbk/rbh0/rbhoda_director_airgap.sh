@@ -31,7 +31,7 @@ ZRBHODA_SOURCED=1
 rbho_director_airgap() {
   zrbho_sentinel
 
-  buc_doc_brief "Airgap Cloud Build — enshrine, conjure forge, conjure airgap, charge moriah, compare plumb"
+  buc_doc_brief "${RBHO_TRACK_AIRGAP} — enshrine, conjure forge, conjure airgap, charge moriah, compare plumb"
   buc_doc_shown || return 0
 
   local -r z_moniker="moriah"
@@ -93,9 +93,9 @@ rbho_director_airgap() {
   buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Nameplate" "${z_moniker}";        local -r z_lk_moriah="${z_buym_yelp}"
   buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Nameplate" "${z_tether_moniker}"; local -r z_lk_tadmor="${z_buym_yelp}"
 
-  buh_section "Airgap Cloud Build — Your Own Supply Chain"
+  buh_section "${RBHO_TRACK_AIRGAP} — Your Own Supply Chain"
   buh_e
-  buh_line "In Your First Cloud Build you ${RBYC_ORDAIN}ed a ${RBYC_VESSEL} on the"
+  buh_line "In ${RBHO_TRACK_FIRST_BUILD} you ${RBYC_ORDAIN}ed a ${RBYC_VESSEL} on the"
   buh_line "${RBYC_TETHERED} pool — Cloud Build pulled base images from the"
   buh_line "public internet during the build. ${RBYC_AIRGAP} removes that"
   buh_line "dependency: zero network during the build, every input pre-staged"
@@ -129,7 +129,7 @@ rbho_director_airgap() {
     buh_tt "      " "${RBZ_ONBOARD_PAYOR_HB}"
   fi
   buh_e
-  buh_line "This track assumes you have completed Your First Cloud Build —"
+  buh_line "This track assumes you have completed ${RBHO_TRACK_FIRST_BUILD} —"
   buh_line "the ${RBYC_RELIQUARY} is inscribed and you have ${RBYC_ORDAIN}ed at least"
   buh_line "one ${RBYC_VESSEL} on the ${RBYC_TETHERED} pool."
   buh_e

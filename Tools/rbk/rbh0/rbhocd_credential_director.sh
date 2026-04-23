@@ -29,7 +29,7 @@ rbho_credential_director() {
   buc_doc_brief "Install director credentials — place RBRA key, validate, confirm build access"
   buc_doc_shown || return 0
 
-  buh_section "Install Director Credentials"
+  buh_section "${RBHO_TRACK_DIR_CREDS}"
   buh_e
   buh_line "A ${RBYC_DIRECTOR} causes cloud builds and publishes container images to the"
   buh_line "  ${RBYC_DEPOT} — write access to the registry."

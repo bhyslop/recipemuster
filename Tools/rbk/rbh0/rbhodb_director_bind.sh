@@ -32,7 +32,7 @@ ZRBHODB_SOURCED=1
 rbho_director_bind() {
   zrbho_sentinel
 
-  buc_doc_brief "Bind Cloud Build — pin upstream image by digest, mode-mixture pluml Crucible"
+  buc_doc_brief "${RBHO_TRACK_BIND} — pin upstream image by digest, mode-mixture pluml Crucible"
   buc_doc_shown || return 0
 
   local -r z_moniker="pluml"
@@ -80,9 +80,9 @@ rbho_director_bind() {
   buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel"    "${z_vessel}";   local -r z_lk_vessel="${z_buym_yelp}"
   buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Nameplate" "${z_moniker}";  local -r z_lk_pluml="${z_buym_yelp}"
 
-  buh_section "Bind Cloud Build — Pin Upstream by Digest"
+  buh_section "${RBHO_TRACK_BIND} — Pin Upstream by Digest"
   buh_e
-  buh_line "Your First Cloud Build taught ${RBYC_CONJURE} — Cloud Build constructs"
+  buh_line "${RBHO_TRACK_FIRST_BUILD} taught ${RBYC_CONJURE} — Cloud Build constructs"
   buh_line "the ${RBYC_VESSEL} image from the project's Dockerfile, and SLSA"
   buh_line "${RBYC_PROVENANCE} attests the build chain. ${RBYC_BIND} is the simplest"
   buh_line "${RBYC_ORDAIN} mode: no Dockerfile, no build context, no Cloud Build."
@@ -141,13 +141,13 @@ rbho_director_bind() {
   buh_line "${RBYC_SENTRY} ${RBYC_HALLMARK}. Two paths reach the same outcome:"
   buh_e
   buh_line "  Primary path — ${RBYC_KLUDGE} the ${RBYC_SENTRY} locally. Same"
-  buh_line "  pattern you met in Your First Crucible: the host builds the"
+  buh_line "  pattern you met in ${RBHO_TRACK_FIRST_CRUCIBLE}: the host builds the"
   buh_line "  image and writes the resulting ${RBYC_HALLMARK} into the ${z_lk_pluml}"
   buh_line "  ${RBYC_NAMEPLATE} automatically:"
   buh_e
   buh_tt "   " "${RBZ_CRUCIBLE_KLUDGE_SENTRY}" "" " ${z_moniker}"
   buh_e
-  buh_line "  Alternative — if you completed Your First Cloud Build, the"
+  buh_line "  Alternative — if you completed ${RBHO_TRACK_FIRST_BUILD}, the"
   buh_line "  ${RBYC_CONJURED} ${RBYC_SENTRY} ${RBYC_HALLMARK} is already in your ${RBYC_DEPOT}."
   buh_line "  Read it and write it into ${z_lk_pluml}'s ${RBYC_RBRN}:"
   buh_e

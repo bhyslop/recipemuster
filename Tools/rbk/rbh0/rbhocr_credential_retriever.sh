@@ -29,7 +29,7 @@ rbho_credential_retriever() {
   buc_doc_brief "Install retriever credentials — place RBRA key, validate, confirm pull access"
   buc_doc_shown || return 0
 
-  buh_section "Install Retriever Credentials"
+  buh_section "${RBHO_TRACK_RET_CREDS}"
   buh_e
   buh_line "A ${RBYC_RETRIEVER} pulls container images from the"
   buh_line "  ${RBYC_DEPOT} — read-only access to what others have built."

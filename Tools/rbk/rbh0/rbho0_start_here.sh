@@ -117,7 +117,7 @@ rbho_start_here() {
 
   buh_section "Director Subtracks"
   buh_e
-  buh_line "    Your First Cloud Build"
+  buh_line "    ${RBHO_TRACK_FIRST_BUILD}"
   buh_line "      Provision the builder toolchain, ${RBYC_ORDAIN} your first"
   buh_line "      ${RBYC_VESSEL} via Cloud Build, and tour the result."
   buh_line "      Steps:"
@@ -140,7 +140,7 @@ rbho_start_here() {
   buh_line "        * ${RBYC_CONJURE} the airgap ${RBYC_BOTTLE} ${RBYC_AIRGAP} — zero-network build from the forge"
   buh_line "        * ${RBYC_CHARGE} moriah and run the adversarial suite against the airgap-built ${RBYC_BOTTLE}"
   buh_line "        * Compare ${RBYC_PLUMB} — airgap vs ${RBYC_TETHERED} ${RBYC_PROVENANCE} side by side"
-  buh_line "      Requires: Director credentials, a provisioned Depot, and Your First Cloud Build completed."
+  buh_line "      Requires: Director credentials, a provisioned Depot, and ${RBHO_TRACK_FIRST_BUILD} completed."
   buh_tt   "        " "${RBZ_ONBOARD_DIR_AIRGAP}"
   buh_e
   buh_line "    ${RBYC_BIND} — Safe PlantUML Container"
@@ -153,14 +153,14 @@ rbho_start_here() {
   buh_line "      a bound ${RBYC_BOTTLE} — two ${RBYC_ORDAIN} modes in one ${RBYC_CRUCIBLE} is the"
   buh_line "      expected shape, not a defect."
   buh_line "      Steps:"
-  buh_line "        * Ready a ${RBYC_SENTRY} — ${RBYC_KLUDGE} locally or reuse the ${RBYC_CONJURED} ${RBYC_HALLMARK} from Your First Cloud Build"
+  buh_line "        * Ready a ${RBYC_SENTRY} — ${RBYC_KLUDGE} locally or reuse the ${RBYC_CONJURED} ${RBYC_HALLMARK} from ${RBHO_TRACK_FIRST_BUILD}"
   buh_line "        * ${RBYC_BIND} ${z_plantuml} — pin upstream image by digest"
   buh_line "        * Inspect ${RBYC_VOUCH} verdict — digest-pin, no SLSA (image not built here)"
   buh_line "        * ${RBYC_CHARGE} the ${z_pluml} ${RBYC_CRUCIBLE} — render a diagram, observe blocked egress"
   buh_line "      Requires:"
   buh_line "        * ${RBYC_DIRECTOR} credentials"
   buh_line "        * a provisioned ${RBYC_DEPOT}"
-  buh_line "        * Your First ${RBYC_CRUCIBLE} (${RBYC_KLUDGE_D} ${RBYC_SENTRY} available) or Your First Cloud Build completed"
+  buh_line "        * ${RBHO_TRACK_FIRST_CRUCIBLE} (${RBYC_KLUDGE_D} ${RBYC_SENTRY} available) or ${RBHO_TRACK_FIRST_BUILD} completed"
   buh_tt   "        " "${RBZ_ONBOARD_DIR_BIND}"
   buh_e
   buh_line "    ${RBYC_GRAFT} — Local Image Publishing"

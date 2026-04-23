@@ -39,6 +39,18 @@ zrbho_kindle() {
   readonly ZRBHO_DOCKER_PS_PREFIX="${BURD_TEMP_DIR}/zrbho_docker_ps_"
   readonly ZRBHO_DOCKER_STDERR_PREFIX="${BURD_TEMP_DIR}/zrbho_docker_stderr_"
 
+  # Handbook track display names — plain strings, not linked-term yelps.
+  # Used where tracks cross-reference each other and in the start-here menu.
+  readonly RBHO_TRACK_CRASH_COURSE="Crash Course"
+  readonly RBHO_TRACK_RET_CREDS="Install Retriever Credentials"
+  readonly RBHO_TRACK_DIR_CREDS="Install Director Credentials"
+  readonly RBHO_TRACK_FIRST_CRUCIBLE="Your First Crucible"
+  readonly RBHO_TRACK_TADMOR="Tadmor Security"
+  readonly RBHO_TRACK_FIRST_BUILD="Your First Cloud Build"
+  readonly RBHO_TRACK_AIRGAP="Airgap Cloud Build"
+  readonly RBHO_TRACK_BIND="Bind Cloud Build"
+  readonly RBHO_TRACK_GRAFT="Graft Cloud Build"
+
   readonly ZRBHO_KINDLED=1
 }
 

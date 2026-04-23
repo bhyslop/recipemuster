@@ -34,7 +34,7 @@ ZRBHODG_SOURCED=1
 rbho_director_graft() {
   zrbho_sentinel
 
-  buc_doc_brief "Graft Cloud Build — push locally-built image, inspect GRAFTED Vouch verdict"
+  buc_doc_brief "${RBHO_TRACK_GRAFT} — push locally-built image, inspect GRAFTED Vouch verdict"
   buc_doc_shown || return 0
 
   local -r z_vessel="rbev-graft-demo"
