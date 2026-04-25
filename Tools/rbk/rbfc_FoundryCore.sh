@@ -643,29 +643,52 @@ zrbfc_gar_extract_artifact() {
       ;;
   esac
 
-  # Extract first layer digest (FROM-scratch images have one layer with all COPY'd files)
-  local -r z_layer_file="${z_prefix}layer_digest.txt"
-  jq -r '.layers[0].digest // empty' "${z_single_manifest}" \
-    > "${z_layer_file}" 2>/dev/null \
-    || buc_die "Failed to extract layer digest from manifest"
-  local -r z_layer_digest=$(<"${z_layer_file}")
-  test -n "${z_layer_digest}" || buc_die "No layer digest in manifest for ${z_package}:${z_tag}"
-
-  # Fetch layer blob and extract
-  local -r z_blob_file="${z_prefix}blob.tar.gz"
-  local -r z_blob_stderr="${z_prefix}blob_stderr.txt"
-  curl -sL \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-    -H "Authorization: Bearer ${z_token}" \
-    "${ZRBFC_REGISTRY_API_BASE}/${z_package}/blobs/${z_layer_digest}" \
-    > "${z_blob_file}" 2>"${z_blob_stderr}" \
-    || buc_die "GET blob failed for ${z_package} layer ${z_layer_digest} — see ${z_blob_stderr}"
+  # Extract all layer digests. Buildkit FROM-scratch images emit one layer per
+  # COPY instruction (rbgja04's about-image stacks six: sbom, build_info,
+  # recipe.txt, buildkit_metadata.json, cache_before.json, cache_after.json),
+  # so a single-layer extract loses everything past the first COPY.
+  local -r z_layers_file="${z_prefix}layer_digests.txt"
+  local -r z_layers_stderr="${z_prefix}layer_digests_stderr.txt"
+  jq -r '.layers[].digest' "${z_single_manifest}" \
+    > "${z_layers_file}" 2>"${z_layers_stderr}" \
+    || buc_die "Failed to extract layer digests from manifest — see ${z_layers_stderr}"
+  test -s "${z_layers_file}" \
+    || buc_die "No layer digests in manifest for ${z_package}:${z_tag}"
 
   mkdir -p "${z_extract_dir}" || buc_die "Failed to create extraction directory: ${z_extract_dir}"
-  local -r z_tar_stderr="${z_prefix}tar_stderr.txt"
-  tar -xzf "${z_blob_file}" -C "${z_extract_dir}" 2>"${z_tar_stderr}" \
-    || buc_die "Failed to extract layer blob for ${z_package}:${z_tag} — see ${z_tar_stderr}"
+
+  # Load-then-iterate: file fully consumed and closed before curl/tar run, so
+  # no child process can silently consume the loop's remaining input.
+  local z_layer_digests=()
+  local z_layer_line=""
+  while IFS= read -r z_layer_line || test -n "${z_layer_line}"; do
+    z_layer_digests+=("${z_layer_line}")
+  done < "${z_layers_file}"
+
+  # Fetch and extract each layer in manifest order. FROM-scratch COPY layers
+  # add disjoint files, so accumulation needs no whiteout handling.
+  local z_layer_digest=""
+  local z_blob_file=""
+  local z_blob_stderr=""
+  local z_tar_stderr=""
+  local z_layer_idx=0
+  for z_layer_idx in "${!z_layer_digests[@]}"; do
+    z_layer_digest="${z_layer_digests[$z_layer_idx]}"
+    test -n "${z_layer_digest}" || continue
+    z_blob_file="${z_prefix}blob_${z_layer_idx}.tar.gz"
+    z_blob_stderr="${z_prefix}blob_${z_layer_idx}_stderr.txt"
+    curl -sL \
+      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+      --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+      -H "Authorization: Bearer ${z_token}" \
+      "${ZRBFC_REGISTRY_API_BASE}/${z_package}/blobs/${z_layer_digest}" \
+      > "${z_blob_file}" 2>"${z_blob_stderr}" \
+      || buc_die "GET blob failed for ${z_package} layer ${z_layer_digest} — see ${z_blob_stderr}"
+
+    z_tar_stderr="${z_prefix}tar_${z_layer_idx}_stderr.txt"
+    tar -xzf "${z_blob_file}" -C "${z_extract_dir}" 2>"${z_tar_stderr}" \
+      || buc_die "Failed to extract layer ${z_layer_digest} for ${z_package}:${z_tag} — see ${z_tar_stderr}"
+  done
 
   return 0
 }
