@@ -797,6 +797,16 @@ fn rbtdrf_rv_rbrr_bad_secrets_dir(dir: &Path) -> rbtdre_Verdict {
         "export RBRR_SECRETS_DIR=\"/tmp/nonexistent-rbtdrf-secrets-dir\"")
 }
 
+fn rbtdrf_rv_rbrr_bad_cloud_prefix(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_rv_rbrr_neg(dir, "rbrr-bad-cloud-prefix",
+        "export RBRR_CLOUD_PREFIX=\"BAD-\"")
+}
+
+fn rbtdrf_rv_rbrr_bad_runtime_prefix(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_rv_rbrr_neg(dir, "rbrr-bad-runtime-prefix",
+        "export RBRR_RUNTIME_PREFIX=\"acme\"")
+}
+
 // --- RBRV negative tests ---
 
 const RBTDRF_RBRV_BASELINE_CONJURE: &str = "\
@@ -1063,6 +1073,61 @@ fn rbtdrf_rs_rbrr(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_rs_render_validate(dir, "rbw-rrr", "rbw-rrv", "rbrr")
 }
 
+fn rbtdrf_rs_rbrr_nonempty_prefix(dir: &Path) -> rbtdre_Verdict {
+    let root = match std::env::current_dir() {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+    };
+    let buv = root.join("Tools/buk/buv_validation.sh");
+    let rbk = root.join("Tools/rbk");
+
+    let script = format!(
+        "set -euo pipefail\n\
+         source '{}'\n\
+         source '{}/rbcc_Constants.sh'\n\
+         source '{}/rbgc_Constants.sh'\n\
+         source '{}/rbrr_regime.sh'\n\
+         source '{}/rbgl_GarLayout.sh'\n\
+         zbuv_kindle\nzrbcc_kindle\nzrbgc_kindle\n\
+         source \"${{PWD}}/.rbk/rbrr.env\"\n\
+         RBRR_CLOUD_PREFIX=\"acme-\"\n\
+         RBRR_RUNTIME_PREFIX=\"acme-\"\n\
+         zrbrr_kindle\nzrbrr_enforce\nzrbgl_kindle\n\
+         echo \"hallmarks_root=${{RBGL_HALLMARKS_ROOT}}\"\n\
+         echo \"runtime_prefix=${{RBRR_RUNTIME_PREFIX}}\"",
+        buv.display(),
+        rbk.display(), rbk.display(), rbk.display(), rbk.display(),
+    );
+
+    match rbtdrf_run_bash(&root, &script, dir, "rbrr-nonempty-prefix") {
+        Ok((0, stdout, _)) => {
+            let hallmarks_ok = stdout
+                .lines()
+                .any(|l| l.starts_with("hallmarks_root=acme-hallmarks"));
+            let runtime_ok = stdout
+                .lines()
+                .any(|l| l.trim() == "runtime_prefix=acme-");
+            if !hallmarks_ok {
+                return rbtdre_Verdict::Fail(format!(
+                    "RBGL_HALLMARKS_ROOT did not propagate from prefix; stdout:\n{}",
+                    stdout
+                ));
+            }
+            if !runtime_ok {
+                return rbtdre_Verdict::Fail(format!(
+                    "RBRR_RUNTIME_PREFIX did not propagate; stdout:\n{}",
+                    stdout
+                ));
+            }
+            rbtdre_Verdict::Pass
+        }
+        Ok((code, _, stderr)) => {
+            rbtdre_Verdict::Fail(format!("kindle failed (exit {}); stderr:\n{}", code, stderr))
+        }
+        Err(e) => rbtdre_Verdict::Fail(e),
+    }
+}
+
 fn rbtdrf_rs_rbrv(dir: &Path) -> rbtdre_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
@@ -1246,6 +1311,8 @@ pub static RBTDRF_SECTIONS_REGIME_VALIDATION: &[rbtdre_Section] = &[
             case!(rbtdrf_rv_rbrr_unexpected_var),
             case!(rbtdrf_rv_rbrr_bad_vessel_dir),
             case!(rbtdrf_rv_rbrr_bad_secrets_dir),
+            case!(rbtdrf_rv_rbrr_bad_cloud_prefix),
+            case!(rbtdrf_rv_rbrr_bad_runtime_prefix),
         ],
     },
     rbtdre_Section {
@@ -1287,6 +1354,7 @@ pub static RBTDRF_SECTIONS_REGIME_SMOKE: &[rbtdre_Section] = &[rbtdre_Section {
         case!(rbtdrf_rs_burs),
         case!(rbtdrf_rs_rbrn),
         case!(rbtdrf_rs_rbrr),
+        case!(rbtdrf_rs_rbrr_nonempty_prefix),
         case!(rbtdrf_rs_rbrv),
         case!(rbtdrf_rs_rbrp),
         case!(rbtdrf_rs_burd),

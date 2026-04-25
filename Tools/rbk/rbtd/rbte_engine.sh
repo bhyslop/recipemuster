@@ -46,9 +46,9 @@ zrbte_kindle() {
 
   # Suite-to-fixture mappings
   ZRBTE_SUITE_FAST=("enrollment-validation" "regime-validation" "regime-smoke" "handbook-render")
-  ZRBTE_SUITE_SERVICE=("${ZRBTE_SUITE_FAST[@]}" "access-probe" "four-mode")
+  ZRBTE_SUITE_SERVICE=("${ZRBTE_SUITE_FAST[@]}" "access-probe" "four-mode" "batch-vouch")
   ZRBTE_SUITE_CRUCIBLE=("${ZRBTE_SUITE_FAST[@]}" "tadmor" "srjcl" "pluml")
-  ZRBTE_SUITE_COMPLETE=("${ZRBTE_SUITE_FAST[@]}" "access-probe" "four-mode" "tadmor" "srjcl" "pluml")
+  ZRBTE_SUITE_COMPLETE=("${ZRBTE_SUITE_FAST[@]}" "access-probe" "four-mode" "batch-vouch" "tadmor" "srjcl" "pluml")
 
   readonly ZRBTE_KINDLED=1
 }

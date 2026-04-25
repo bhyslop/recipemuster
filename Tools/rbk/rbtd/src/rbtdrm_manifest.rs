@@ -31,9 +31,15 @@ pub const RBTDRM_COLOPHON_ORDAIN: &str = "rbw-fO";
 pub const RBTDRM_COLOPHON_ABJURE: &str = "rbw-fA";
 pub const RBTDRM_COLOPHON_TALLY: &str = "rbw-ft";
 pub const RBTDRM_COLOPHON_KLUDGE: &str = "rbw-fk";
+pub const RBTDRM_COLOPHON_VOUCH: &str = "rbw-fV";
+pub const RBTDRM_COLOPHON_SUMMON: &str = "rbw-fs";
+pub const RBTDRM_COLOPHON_PLUMB_FULL: &str = "rbw-fpf";
+pub const RBTDRM_COLOPHON_PLUMB_COMPACT: &str = "rbw-fpc";
 
-// Image colophon (global — no nameplate imprint)
+// Image colophons (global — no nameplate imprint)
 pub const RBTDRM_COLOPHON_WREST: &str = "rbw-iw";
+pub const RBTDRM_COLOPHON_REKON: &str = "rbw-ir";
+pub const RBTDRM_COLOPHON_JETTISON: &str = "rbw-iJ";
 
 // Crucible active check (param1 channel — nameplate as argument)
 pub const RBTDRM_COLOPHON_CRUCIBLE_ACTIVE: &str = "rbw-cic";
@@ -68,6 +74,7 @@ pub const RBTDRM_FIXTURE_SRJCL: &str = "srjcl";
 pub const RBTDRM_FIXTURE_PLUML: &str = "pluml";
 // Bare fixtures (GCP credentials, no container runtime)
 pub const RBTDRM_FIXTURE_FOUR_MODE: &str = "four-mode";
+pub const RBTDRM_FIXTURE_BATCH_VOUCH: &str = "batch-vouch";
 pub const RBTDRM_FIXTURE_ACCESS_PROBE: &str = "access-probe";
 // Fast fixtures (no external dependencies)
 pub const RBTDRM_FIXTURE_ENROLLMENT_VALIDATION: &str = "enrollment-validation";
@@ -91,6 +98,18 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDRM_COLOPHON_ABJURE,
             RBTDRM_COLOPHON_WREST,
             RBTDRM_COLOPHON_KLUDGE,
+            RBTDRM_COLOPHON_SUMMON,
+            RBTDRM_COLOPHON_PLUMB_FULL,
+            RBTDRM_COLOPHON_PLUMB_COMPACT,
+            RBTDRM_COLOPHON_REKON,
+            RBTDRM_COLOPHON_JETTISON,
+        ]),
+        RBTDRM_FIXTURE_BATCH_VOUCH => Some(&[
+            RBTDRM_COLOPHON_ORDAIN,
+            RBTDRM_COLOPHON_ABJURE,
+            RBTDRM_COLOPHON_JETTISON,
+            RBTDRM_COLOPHON_VOUCH,
+            RBTDRM_COLOPHON_TALLY,
         ]),
         RBTDRM_FIXTURE_ACCESS_PROBE => Some(&[RBTDRM_COLOPHON_ACCESS_PROBE]),
         RBTDRM_FIXTURE_ENROLLMENT_VALIDATION

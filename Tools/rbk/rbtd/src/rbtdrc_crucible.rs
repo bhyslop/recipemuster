@@ -33,8 +33,10 @@ use crate::rbtdri_invocation::{
 };
 use crate::rbtdrm_manifest::{
     RBTDRM_COLOPHON_ABJURE, RBTDRM_COLOPHON_ACCESS_PROBE, RBTDRM_COLOPHON_BARK,
-    RBTDRM_COLOPHON_FIAT, RBTDRM_COLOPHON_KLUDGE, RBTDRM_COLOPHON_ORDAIN,
-    RBTDRM_COLOPHON_WREST, RBTDRM_COLOPHON_WRIT,
+    RBTDRM_COLOPHON_FIAT, RBTDRM_COLOPHON_JETTISON, RBTDRM_COLOPHON_KLUDGE,
+    RBTDRM_COLOPHON_ORDAIN, RBTDRM_COLOPHON_PLUMB_COMPACT, RBTDRM_COLOPHON_PLUMB_FULL,
+    RBTDRM_COLOPHON_REKON, RBTDRM_COLOPHON_SUMMON, RBTDRM_COLOPHON_TALLY,
+    RBTDRM_COLOPHON_VOUCH, RBTDRM_COLOPHON_WREST, RBTDRM_COLOPHON_WRIT,
 };
 
 // ── Thread-local invocation context ──────────────────────────
@@ -2019,6 +2021,7 @@ pub fn rbtdrc_sections_for_fixture(fixture: &str) -> &'static [rbtdre_Section] {
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_SRJCL => RBTDRC_SECTIONS_SRJCL,
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_PLUML => RBTDRC_SECTIONS_PLUML,
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_FOUR_MODE => RBTDRC_SECTIONS_FOUR_MODE,
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_BATCH_VOUCH => RBTDRC_SECTIONS_BATCH_VOUCH,
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_ACCESS_PROBE => RBTDRC_SECTIONS_ACCESS_PROBE,
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_ENROLLMENT_VALIDATION => crate::rbtdrf_fast::RBTDRF_SECTIONS_ENROLLMENT_VALIDATION,
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_REGIME_VALIDATION => crate::rbtdrf_fast::RBTDRF_SECTIONS_REGIME_VALIDATION,
@@ -2161,6 +2164,9 @@ const RBTDRC_FACT_ARK_STEM: &str = "rbf_fact_ark_stem";
 /// Ark basenames — matching rbgc_Constants.sh RBGC_ARK_BASENAME_* values.
 const RBTDRC_ARK_BASENAME_IMAGE: &str = "image";
 const RBTDRC_ARK_BASENAME_VOUCH: &str = "vouch";
+const RBTDRC_ARK_BASENAME_ABOUT: &str = "about";
+const RBTDRC_ARK_BASENAME_ATTEST: &str = "attest";
+const RBTDRC_ARK_BASENAME_POUCH: &str = "pouch";
 
 /// GAR categorical namespace literal — matches RBGC_GAR_CATEGORY_HALLMARKS.
 /// Used to build wrest locators (which the rbfr_wrest callee prepends the
@@ -2207,6 +2213,19 @@ fn rbtdrc_docker_rmi(refs: &[&str]) -> Result<(), String> {
         return Err(format!("docker rmi exited {}", status.code().unwrap_or(-1)));
     }
     Ok(())
+}
+
+/// Parse a rekon stdout line for a given basename and return whether the
+/// EXISTS column reads "yes". Returns false if the basename row is absent.
+/// Rekon prints rows of `  <basename>  <yes|no>  <path-or-(absent)>`.
+fn rbtdrc_rekon_basename_yes(stdout: &str, basename: &str) -> bool {
+    for line in stdout.lines() {
+        let mut fields = line.split_whitespace();
+        if fields.next() == Some(basename) {
+            return fields.next() == Some("yes");
+        }
+    }
+    false
 }
 
 /// Docker wrapper: pull image from upstream.
@@ -2283,10 +2302,18 @@ fn rbtdrc_fourmode_conjure_lifecycle(dir: &Path) -> rbtdre_Verdict {
             Err(e) => return rbtdre_Verdict::Fail(format!("wrest invocation: {}", e)),
         }
 
-        // Full local ref uses prefixed ark_stem (matches what wrest pulled).
+        // Local ark refs share gar_root/ark_stem; only basename differs.
         let image_ref = format!(
             "{}/{}/{}:{}",
             gar_root, ark_stem, RBTDRC_ARK_BASENAME_IMAGE, hallmark
+        );
+        let about_ref = format!(
+            "{}/{}/{}:{}",
+            gar_root, ark_stem, RBTDRC_ARK_BASENAME_ABOUT, hallmark
+        );
+        let vouch_ref = format!(
+            "{}/{}/{}:{}",
+            gar_root, ark_stem, RBTDRC_ARK_BASENAME_VOUCH, hallmark
         );
 
         let _ = std::fs::write(dir.join("03-run.txt"), "running");
@@ -2301,18 +2328,73 @@ fn rbtdrc_fourmode_conjure_lifecycle(dir: &Path) -> rbtdre_Verdict {
             Err(e) => return rbtdre_Verdict::Fail(format!("docker run: {}", e)),
         }
 
-        if let Err(e) = rbtdrc_docker_rmi(&[&image_ref]) {
+        // Summon pulls image+about+vouch arks for the hallmark (single-arg
+        // signature post-AAL). Verify exit 0 and that all three refs are now
+        // locally inspectable.
+        let _ = std::fs::write(dir.join("04-summon.txt"), "summoning");
+        let summon_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_SUMMON, &[&hallmark], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("summon failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("summon invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("04-summon-stdout.txt"), &summon_result.stdout);
+        for ark_ref in [&image_ref, &about_ref, &vouch_ref] {
+            if !rbtdrc_docker_inspect(ark_ref) {
+                return rbtdre_Verdict::Fail(format!("summon: ark not local after pull: {}", ark_ref));
+            }
+        }
+
+        // Plumb full — verify provenance display contains SLSA / SBOM / Dockerfile.
+        let _ = std::fs::write(dir.join("05-plumb-full.txt"), "plumbing full");
+        let plumb_full_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_PLUMB_FULL, &[&hallmark], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("plumb_full failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("plumb_full invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("05-plumb-full-stdout.txt"), &plumb_full_result.stdout);
+        for marker in ["SLSA", "SBOM", "Dockerfile"] {
+            if !plumb_full_result.stdout.contains(marker) {
+                return rbtdre_Verdict::Fail(format!(
+                    "plumb_full: marker '{}' not in stdout",
+                    marker
+                ));
+            }
+        }
+
+        // Rekon — verify image+about+vouch basenames are present.
+        let _ = std::fs::write(dir.join("06-rekon.txt"), "rekoning");
+        let rekon_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_REKON, &[&hallmark], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("rekon failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("rekon invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("06-rekon-stdout.txt"), &rekon_result.stdout);
+        for basename in [
+            RBTDRC_ARK_BASENAME_IMAGE,
+            RBTDRC_ARK_BASENAME_ABOUT,
+            RBTDRC_ARK_BASENAME_VOUCH,
+            RBTDRC_ARK_BASENAME_ATTEST,
+        ] {
+            if !rbtdrc_rekon_basename_yes(&rekon_result.stdout, basename) {
+                return rbtdre_Verdict::Fail(format!(
+                    "rekon: basename '{}' not marked yes\nstdout:\n{}",
+                    basename, rekon_result.stdout
+                ));
+            }
+        }
+
+        if let Err(e) = rbtdrc_docker_rmi(&[&image_ref, &about_ref, &vouch_ref]) {
             return rbtdre_Verdict::Fail(format!("rmi: {}", e));
         }
 
-        let _ = std::fs::write(dir.join("04-abjure.txt"), "abjuring");
+        let _ = std::fs::write(dir.join("07-abjure.txt"), "abjuring");
         match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ABJURE, &[&hallmark, "--force"], &[]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtdre_Verdict::Fail(format!("abjure failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("abjure invocation: {}", e)),
         }
 
-        let _ = std::fs::write(dir.join("05-passed.txt"), "passed");
+        let _ = std::fs::write(dir.join("08-passed.txt"), "passed");
         rbtdre_Verdict::Pass
     })
 }
@@ -2362,18 +2444,74 @@ fn rbtdrc_fourmode_bind_lifecycle(dir: &Path) -> rbtdre_Verdict {
             "{}/{}/{}:{}",
             gar_root, ark_stem, RBTDRC_ARK_BASENAME_IMAGE, hallmark
         );
+
+        // Plumb compact — verify hallmark identifier appears in compact summary.
+        let _ = std::fs::write(dir.join("03-plumb-compact.txt"), "plumbing compact");
+        let plumb_compact_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_PLUMB_COMPACT, &[&hallmark], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("plumb_compact failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("plumb_compact invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("03-plumb-compact-stdout.txt"), &plumb_compact_result.stdout);
+        if !plumb_compact_result.stdout.contains(&hallmark) {
+            return rbtdre_Verdict::Fail(format!(
+                "plumb_compact: hallmark '{}' not in stdout",
+                hallmark
+            ));
+        }
+        if !plumb_compact_result.stdout.contains("HALLMARK PLUMB:") {
+            return rbtdre_Verdict::Fail(
+                "plumb_compact: expected 'HALLMARK PLUMB:' marker in stdout".to_string(),
+            );
+        }
+
+        // Jettison the pouch ark surgically. Locator is package-path:tag where
+        // the package path is relative to the cloud prefix (rbfl_jettison
+        // builds the full URL from RBGL_HALLMARKS_ROOT under the hood).
+        let _ = std::fs::write(dir.join("04-jettison.txt"), "jettisoning pouch");
+        let jettison_locator = format!(
+            "{}/{}/{}:{}",
+            RBTDRC_GAR_CATEGORY_HALLMARKS, hallmark, RBTDRC_ARK_BASENAME_POUCH, hallmark
+        );
+        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_JETTISON, &[&jettison_locator, "--force"], &[]) {
+            Ok(r) if r.exit_code == 0 => {}
+            Ok(r) => return rbtdre_Verdict::Fail(format!("jettison failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("jettison invocation: {}", e)),
+        }
+
+        // Rekon after jettison — verify pouch is now absent but image remains.
+        let _ = std::fs::write(dir.join("05-rekon.txt"), "rekoning post-jettison");
+        let rekon_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_REKON, &[&hallmark], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("rekon failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("rekon invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("05-rekon-stdout.txt"), &rekon_result.stdout);
+        if rbtdrc_rekon_basename_yes(&rekon_result.stdout, RBTDRC_ARK_BASENAME_POUCH) {
+            return rbtdre_Verdict::Fail(format!(
+                "rekon: pouch still present after jettison\nstdout:\n{}",
+                rekon_result.stdout
+            ));
+        }
+        if !rbtdrc_rekon_basename_yes(&rekon_result.stdout, RBTDRC_ARK_BASENAME_IMAGE) {
+            return rbtdre_Verdict::Fail(format!(
+                "rekon: image disappeared after pouch jettison (collateral damage)\nstdout:\n{}",
+                rekon_result.stdout
+            ));
+        }
+
         if let Err(e) = rbtdrc_docker_rmi(&[&image_ref]) {
             return rbtdre_Verdict::Fail(format!("rmi: {}", e));
         }
 
-        let _ = std::fs::write(dir.join("03-abjure.txt"), "abjuring");
+        let _ = std::fs::write(dir.join("06-abjure.txt"), "abjuring");
         match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ABJURE, &[&hallmark, "--force"], &[]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtdre_Verdict::Fail(format!("abjure failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("abjure invocation: {}", e)),
         }
 
-        let _ = std::fs::write(dir.join("04-passed.txt"), "passed");
+        let _ = std::fs::write(dir.join("07-passed.txt"), "passed");
         rbtdre_Verdict::Pass
     })
 }
@@ -2543,6 +2681,119 @@ pub static RBTDRC_SECTIONS_FOUR_MODE: &[rbtdre_Section] = &[rbtdre_Section {
         case!(rbtdrc_fourmode_graft_lifecycle),
         case!(rbtdrc_fourmode_kludge_lifecycle),
     ],
+}];
+
+// Batch-vouch fixture — exercises rbfv_batch_vouch's two-pass pending→vouched
+// transition. Single self-contained lifecycle: ordain conjure, jettison the
+// vouch ark to plant a pending hallmark, tally to confirm pending, batch_vouch
+// to fill the gap, tally to confirm vouched, abjure.
+
+/// Locate a hallmark's row in tally stdout and return its health column.
+/// Tally rows have shape `  <hallmark>  <health>  <basenames...>`.
+fn rbtdrc_tally_health(stdout: &str, hallmark: &str) -> Option<String> {
+    for line in stdout.lines() {
+        let mut fields = line.split_whitespace();
+        if fields.next() == Some(hallmark) {
+            return fields.next().map(str::to_string);
+        }
+    }
+    None
+}
+
+fn rbtdrc_batch_vouch_lifecycle(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        let vessel_dir = RBTDRC_FOURMODE_CONJURE_VESSEL_DIR;
+        if !ctx.project_root().join(vessel_dir).is_dir() {
+            return rbtdre_Verdict::Fail(format!("vessel directory not found: {}", vessel_dir));
+        }
+
+        let _ = std::fs::write(dir.join("01-ordain.txt"), "ordaining conjure for plant");
+        let ordain_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ORDAIN, &[vessel_dir], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("ordain failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("ordain invocation: {}", e)),
+        };
+        let hallmark = match rbtdri_read_burv_fact(&ordain_result, RBTDRC_FACT_HALLMARK) {
+            Ok(v) => v,
+            Err(e) => return rbtdre_Verdict::Fail(format!("read hallmark: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("01-hallmark.txt"), &hallmark);
+
+        // Plant pending state: jettison the vouch ark, leaving image+about.
+        let _ = std::fs::write(dir.join("02-plant-jettison.txt"), "jettisoning vouch");
+        let jettison_locator = format!(
+            "{}/{}/{}:{}",
+            RBTDRC_GAR_CATEGORY_HALLMARKS, hallmark, RBTDRC_ARK_BASENAME_VOUCH, hallmark
+        );
+        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_JETTISON, &[&jettison_locator, "--force"], &[]) {
+            Ok(r) if r.exit_code == 0 => {}
+            Ok(r) => return rbtdre_Verdict::Fail(format!("plant jettison failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("plant jettison invocation: {}", e)),
+        }
+
+        // Tally — expect pending classification on our hallmark.
+        let _ = std::fs::write(dir.join("03-tally-pending.txt"), "tallying for pending");
+        let tally_pending = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_TALLY, &[], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("tally (pending) failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("tally (pending) invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("03-tally-pending-stdout.txt"), &tally_pending.stdout);
+        match rbtdrc_tally_health(&tally_pending.stdout, &hallmark) {
+            Some(h) if h == "pending" => {}
+            Some(h) => return rbtdre_Verdict::Fail(format!(
+                "tally: expected health 'pending' for {}, got '{}'\nstdout:\n{}",
+                hallmark, h, tally_pending.stdout
+            )),
+            None => return rbtdre_Verdict::Fail(format!(
+                "tally: hallmark {} not found in tally output\nstdout:\n{}",
+                hallmark, tally_pending.stdout
+            )),
+        }
+
+        // Batch vouch — should detect the pending hallmark and re-create vouch.
+        let _ = std::fs::write(dir.join("04-batch-vouch.txt"), "running batch vouch");
+        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_VOUCH, &[], &[]) {
+            Ok(r) if r.exit_code == 0 => {}
+            Ok(r) => return rbtdre_Verdict::Fail(format!("batch_vouch failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("batch_vouch invocation: {}", e)),
+        }
+
+        // Tally — expect vouched after batch_vouch.
+        let _ = std::fs::write(dir.join("05-tally-vouched.txt"), "tallying for vouched");
+        let tally_vouched = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_TALLY, &[], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("tally (vouched) failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("tally (vouched) invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("05-tally-vouched-stdout.txt"), &tally_vouched.stdout);
+        match rbtdrc_tally_health(&tally_vouched.stdout, &hallmark) {
+            Some(h) if h == "vouched" => {}
+            Some(h) => return rbtdre_Verdict::Fail(format!(
+                "tally: expected health 'vouched' for {}, got '{}'\nstdout:\n{}",
+                hallmark, h, tally_vouched.stdout
+            )),
+            None => return rbtdre_Verdict::Fail(format!(
+                "tally: hallmark {} not found in tally output\nstdout:\n{}",
+                hallmark, tally_vouched.stdout
+            )),
+        }
+
+        let _ = std::fs::write(dir.join("06-abjure.txt"), "abjuring");
+        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ABJURE, &[&hallmark, "--force"], &[]) {
+            Ok(r) if r.exit_code == 0 => {}
+            Ok(r) => return rbtdre_Verdict::Fail(format!("abjure failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("abjure invocation: {}", e)),
+        }
+
+        let _ = std::fs::write(dir.join("07-passed.txt"), "passed");
+        rbtdre_Verdict::Pass
+    })
+}
+
+pub static RBTDRC_SECTIONS_BATCH_VOUCH: &[rbtdre_Section] = &[rbtdre_Section {
+    name: "batch-vouch",
+    cases: &[case!(rbtdrc_batch_vouch_lifecycle)],
 }];
 
 // ── Access probe cases (bare fixture, imprint-scoped) ────────

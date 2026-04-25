@@ -40,6 +40,12 @@ fn rbtdtm_accepts_valid_fourmode_manifest() {
 }
 
 #[test]
+fn rbtdtm_accepts_valid_batchvouch_manifest() {
+    let manifest = rbtdtm_manifest_for(RBTDRM_FIXTURE_BATCH_VOUCH);
+    assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_BATCH_VOUCH).is_ok());
+}
+
+#[test]
 fn rbtdtm_accepts_valid_accessprobe_manifest() {
     let manifest = rbtdtm_manifest_for(RBTDRM_FIXTURE_ACCESS_PROBE);
     assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_ACCESS_PROBE).is_ok());
