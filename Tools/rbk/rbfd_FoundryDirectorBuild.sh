@@ -515,10 +515,9 @@ zrbfd_stitch_build_json() {
   done
 
   # === Combined conjure: embed about steps after image steps ===
-  # About steps use _RBGA_* substitutions. Most are added to the substitutions block.
-  # Two require special handling (not known at inscribe time):
-  #   - _RBGA_HALLMARK: computed at build time by rbgjb01, read from workspace
-  #   - _RBGA_BUILD_ID: Cloud Build job ID, available as built-in $BUILD_ID
+  # About steps use _RBGA_* substitutions delivered via the substitutions block.
+  # _RBGA_BUILD_ID is the lone exception — Cloud Build job ID, only available
+  # at runtime as the built-in $BUILD_ID env var; rewritten below.
 
   buc_log_args "Assembling about steps for combined conjure"
   local -r z_about_steps_file="${ZRBFD_STITCH_PREFIX}about_steps.json"
@@ -531,14 +530,12 @@ zrbfd_stitch_build_json() {
     "${z_about_steps_file}" > "${z_about_with_dir}" \
     || buc_die "Failed to add dir to about steps"
 
-  # Hallmark: $(cat .hallmark) → bash reads workspace file written by rbgjb01
   # Build ID: $BUILD_ID → GCB built-in available as env var
-  buc_log_args "Post-processing about steps: hallmark from workspace, build ID from env"
+  buc_log_args "Post-processing about steps: build ID from env"
   local -r z_about_processed="${ZRBFD_STITCH_PREFIX}about_processed.json"
   local z_about_content
   z_about_content=$(<"${z_about_with_dir}") \
     || buc_die "Failed to read about steps for post-processing"
-  z_about_content="${z_about_content//\$\{_RBGA_HALLMARK\}/\$(cat .hallmark)}"
   z_about_content="${z_about_content//\$\{_RBGA_BUILD_ID:-\}/\$BUILD_ID}"
   printf '%s' "${z_about_content}" > "${z_about_processed}" \
     || buc_die "Failed to post-process about steps for conjure"

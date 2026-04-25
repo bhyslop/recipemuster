@@ -240,11 +240,12 @@ fn run_single(args: &[String]) -> ExitCode {
         return ExitCode::FAILURE;
     }
 
-    // Crucible fixtures: verify charged before listing or running
-    if rbtdrc_needs_charge(fixture) {
-        let burv_root = root_temp.join("burv");
-        let mut ctx = rbtdri_Context::new(&project_root, fixture, &burv_root);
+    // Context is required for every case execution path (rbtdrc_with_ctx).
+    // Crucible fixtures additionally verify their crucible is charged.
+    let burv_root = root_temp.join("burv");
+    let mut ctx = rbtdri_Context::new(&project_root, fixture, &burv_root);
 
+    if rbtdrc_needs_charge(fixture) {
         match rbtdri_invoke_global(
             &mut ctx,
             RBTDRM_COLOPHON_CRUCIBLE_ACTIVE,
@@ -261,9 +262,9 @@ fn run_single(args: &[String]) -> ExitCode {
                 return ExitCode::FAILURE;
             }
         }
-
-        rbtdrc_set_context(ctx);
     }
+
+    rbtdrc_set_context(ctx);
 
     let sections = rbtdrc_sections_for_fixture(fixture);
 
