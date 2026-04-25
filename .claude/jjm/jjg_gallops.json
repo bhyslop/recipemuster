@@ -4772,6 +4772,7 @@
         "₢A_AAY",
         "₢A_AAE",
         "₢A_AAF",
+        "₢A_AAZ",
         "₢A_AAG",
         "₢A_AAM",
         "₢A_AAV",
@@ -4779,7 +4780,7 @@
         "₢A_AAX",
         "₢A_AAJ"
       ],
-      "next_pace_seed": "AAZ",
+      "next_pace_seed": "AAa",
       "paddock_file": ".claude/jjm/jjp_uAl_.md",
       "paces": {
         "₢A_AAA": {
@@ -5323,6 +5324,17 @@
               "text": "## Character\n\nSimple-pattern discipline. BCG exists because nuanced bash craftsmanship gets forgotten across chat boundaries and corrupts. The shape of the answer here should be a uniform, easily-verifiable rule baked into BCG — not a per-script judgment call. Bias toward the simplest mechanical pattern. Only consider a more-nuanced shape if there's a concrete reason against the default.\n\n## Docket\n\nCross-module readonly state (Z*_PREFIX, RB*_* constants) is shared across BCG-compliant modules via the kindle/sentinel chain. Shellcheck cannot follow runtime sourcing and fires SC2153 (\"possible misspelling\") on every cross-module reference. ₢A_AAN's F6b addresses this per-file in two scripts (`rbgp_Payor.sh`, `rbgg_Governor.sh`). This pace decides whether to promote the fix to a BCG-level pattern.\n\n### Default answer\n\nA single mandated line in BCG's prologue spec for kindled modules:\n\n    # shellcheck disable=SC2153  # cross-module Z*_/RB*_ state via kindle chain\n\nPlaced below the copyright header, above `set -euo pipefail`. Uniform across all BCG modules. Verifiable by `grep -L 'shellcheck disable=SC2153' Tools/**/*.sh` (find files missing the directive).\n\n### Decision criterion\n\nAdopt the default unless one of these holds:\n\n- A meaningful fraction of BCG modules do NOT participate in cross-module state sharing (the directive becomes dead weight in leaf modules — silent typo-detection loss for no benefit).\n- A survey finds existing typo bugs that SC2153 *would* have caught (suggests the false-positive rate is acceptable and the warning carries real value).\n\nIf neither holds, apply the default. If either holds, report the finding and slate a follow-up — do not invent a middle ground.\n\n### Work items\n\n1. **Survey** — count BCG-compliant modules in the tree; spot-check ~10 for whether they reference cross-module readonly state. Estimate participation rate.\n2. **Decide** using the criterion above. Record the outcome in one line.\n3. **If applying:** amend BCG (`Tools/buk/vov_veiled/BCG-BashConsoleGuide.md`), sweep the directive across all BCG modules, remove pre-existing per-file SC2153 disables (including those landed by AAN F6b). Single notch.\n4. **If not applying:** report why; slate a follow-up if a different shape is warranted.\n5. **Verify** — shellcheck delta across the tree matches expectation; a deliberate scratch-script typo confirms `set -u` still catches what SC2153 used to catch.\n\n## Why simple\n\nThe architectural alternatives (`.shellcheckrc` repo config, `# shellcheck source=...` per-reference directives) preserve more typo detection but cost more cognitive load and survive chat boundaries less well. BCG's track record favors verifiable uniformity over engineering nuance. Stay there unless evidence forces otherwise.\n\n## Out of scope\n\n- SC2154 disable (different shellcheck class, different tradeoff).\n- `.shellcheckrc` repo-level config.\n- `# shellcheck source=...` directives.\n- Bringing non-BCG scripts into BCG compliance.\n\n## References\n\n- ₢A_AAN F6b — becomes redundant if the default is applied.\n- BCG: `Tools/buk/vov_veiled/BCG-BashConsoleGuide.md`.\n- CLAUDE.md \"Load-Bearing Complexity\" — uniformity is what's load-bearing here, not technical sophistication.",
               "silks": "bcg-shellcheck-cross-module-discipline",
               "commit": "ed0131f"
+            }
+          ]
+        },
+        "₢A_AAZ": {
+          "tacks": [
+            {
+              "ts": "260425-1008",
+              "state": "rough",
+              "text": "## Character\n\nCuriosity-driven benchmark, awkwardly placed in this heat by deliberate\nchoice. May migrate out when ₣A_ splits. Goal is data, not a binding\ndecision — no code lands by default; results inform whether to spend a\nfollow-up changing pipeline `machineType`.\n\n## Motivation\n\nBuild wall-clock has drifted out of memory. Cloud Build defaults to a\nsmall machine type; working assumption has been that conjure is\nnetwork/IO-bound (base-image pulls, apt fetches, layer pushes) and\nbigger CPU would not help materially. Want a number, not a hunch.\n\n## What\n\nRun the same conjure pipeline twice on the same vessel, varying ONLY\n`options.machineType`:\n\n  - Run 1: current default (no `machineType` set)\n  - Run 2: `E2_HIGHCPU_8`\n\nOptional Run 3: `E2_HIGHCPU_32` if Run 2 shows clear linear scaling.\n\nSame vessel both runs — pick one of tadmor / srjcl / pluml (rebuilt\nanyway by ₢A_AAF immediately prior, so the cache state is comparable).\n\n## How\n\n  - Identify the Cloud Build step config touched by conjure (RBSAC\n    territory; RBSAB about-pipeline may also be a candidate target).\n  - Add `options: { machineType: E2_HIGHCPU_8 }` to a one-off variant\n    invocation; do NOT commit it to the canonical pipeline.\n  - Capture wall-clock from `gcloud builds list` / build log\n    timestamps for each run; record per-step durations if surfaced.\n  - Compare.\n\n## Outcome\n\nA short note recorded back to this docket (or paddock) with:\n\n  - Run 1 wall-clock and per-step breakdown\n  - Run 2 wall-clock and per-step breakdown\n  - Verdict: CPU-bound, IO-bound, or mixed\n  - Recommendation: nominate a follow-up heat to change `machineType`,\n    itch it for later, or close the question.\n\nNo production-config changes from this pace. Discoveries that would\nchange the canonical pipeline get filed as separate heats / itches.\n\n## Adjacency note\n\nSits between ₢A_AAF (complete test suite — rebuilds tadmor/srjcl/pluml\nagainst fresh depot) and ₢A_AAG (onboarding tracks). AAF provides the\ncache-warm baseline; piggybacking minimizes incremental Cloud Build\nspend.",
+              "silks": "cloudbuild-machinetype-ab-bench",
+              "commit": "23a93bb"
             }
           ]
         }
