@@ -114,7 +114,7 @@ zrbfd_preflight_reliquary() {
   if test -n "${z_reliquary}"; then
     buc_step "Verifying reliquary tool images exist in GAR"
 
-    local -r z_rqy_canary="${z_reliquary}/docker"
+    local -r z_rqy_canary_pkg="${RBGL_RELIQUARIES_ROOT}/${z_reliquary}/${RBGC_RELIQUARY_TOOL_DOCKER}"
     local -r z_rqy_status_file="${ZRBFD_PREFLIGHT_PREFIX}reliquary_status.txt"
     local -r z_rqy_response_file="${ZRBFD_PREFLIGHT_PREFIX}reliquary_response.txt"
     local -r z_rqy_stderr_file="${ZRBFD_PREFLIGHT_PREFIX}reliquary_stderr.txt"
@@ -126,9 +126,9 @@ zrbfd_preflight_reliquary() {
       -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
       -w "%{http_code}" \
       -o "${z_rqy_response_file}" \
-      "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${z_rqy_canary}/manifests/latest" \
+      "${ZRBFC_REGISTRY_API_BASE}/${z_rqy_canary_pkg}/manifests/${z_reliquary}" \
       > "${z_rqy_status_file}" 2>"${z_rqy_stderr_file}" \
-      || buc_die "HEAD request failed for reliquary canary: ${z_rqy_canary}:latest — see ${z_rqy_stderr_file}"
+      || buc_die "HEAD request failed for reliquary canary: ${z_rqy_canary_pkg}:${z_reliquary} — see ${z_rqy_stderr_file}"
 
     local z_rqy_http_code=""
     z_rqy_http_code=$(<"${z_rqy_status_file}")
@@ -140,12 +140,14 @@ zrbfd_preflight_reliquary() {
       buc_bare "  syft, alpine, binfmt, skopeo) inscribed from upstream into your private GAR."
       buc_bare "  Air-gapped worker pools cannot pull from the public internet — the reliquary"
       buc_bare "  stages these tools so builds can run without egress. All vessels in a depot"
-      buc_bare "  typically share one reliquary. Inscribe creates a new datestamped set:"
+      buc_bare "  typically share one reliquary. Inscribe a fresh stamp, yoke it into the"
+      buc_bare "  vessel's rbrv.env, then re-ordain:"
       buc_tabtarget "${RBZ_INSCRIBE_RELIQUARY}"
+      buc_tabtarget "${RBZ_YOKE_RELIQUARY}" "<new-stamp>" "${z_vessel_dir}"
       buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir}"
       buc_die "Registry preflight failed — reliquary missing from GAR"
     elif test "${z_rqy_http_code}" != "200"; then
-      buc_die "Unexpected HTTP ${z_rqy_http_code} when checking reliquary: ${z_rqy_canary}:latest"
+      buc_die "Unexpected HTTP ${z_rqy_http_code} when checking reliquary: ${z_rqy_canary_pkg}:${z_reliquary}"
     fi
 
     buc_info "Reliquary verified: ${z_reliquary}"

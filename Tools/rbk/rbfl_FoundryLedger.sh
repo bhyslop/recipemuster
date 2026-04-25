@@ -118,17 +118,19 @@ zrbfl_inscribe_submit() {
   jq -n \
     --slurpfile zjq_steps  "${z_step_file}" \
     --arg zjq_sa           "${z_mason_sa}" \
-    --arg zjq_gar_host     "${z_gar_host}" \
-    --arg zjq_gar_path     "${z_gar_path}" \
-    --arg zjq_reliquary    "${RBRR_CLOUD_PREFIX}${z_reliquary}" \
-    --arg zjq_pool         "${RBDC_POOL_TETHER}" \
-    --arg zjq_timeout      "${RBRR_GCB_TIMEOUT}" \
+    --arg zjq_gar_host         "${z_gar_host}" \
+    --arg zjq_gar_path         "${z_gar_path}" \
+    --arg zjq_reliquaries_root "${RBGL_RELIQUARIES_ROOT}" \
+    --arg zjq_reliquary        "${z_reliquary}" \
+    --arg zjq_pool             "${RBDC_POOL_TETHER}" \
+    --arg zjq_timeout          "${RBRR_GCB_TIMEOUT}" \
     '{
       steps: $zjq_steps[0],
       substitutions: {
-        _RBGN_GAR_HOST:     $zjq_gar_host,
-        _RBGN_GAR_PATH:     $zjq_gar_path,
-        _RBGN_RELIQUARY:    $zjq_reliquary
+        _RBGN_GAR_HOST:         $zjq_gar_host,
+        _RBGN_GAR_PATH:         $zjq_gar_path,
+        _RBGN_RELIQUARIES_ROOT: $zjq_reliquaries_root,
+        _RBGN_RELIQUARY:        $zjq_reliquary
       },
       serviceAccount: $zjq_sa,
       options: {
