@@ -126,6 +126,30 @@ def main():
     _extract_diags(diags_registry_base, token, hallmark)
 
 
+def _normalize_variant(arch, variant):
+    """Strip default-variant pairs to match containerd/buildkit normalization.
+
+    Transcribes the table in containerd's platforms/defaults.go Normalize():
+        arm64 + v8  → arm64 (v8 was the original, now-implicit arm64 default)
+        amd64 + v1  → amd64 (v1 is baseline x86_64; v2/v3/v4 are kept)
+
+    Without this, our pipeline disagrees with itself across reads. A config
+    blob (raw, never normalized — e.g. a Mac M-series image carries
+    architecture=arm64, variant=v8) produces suffix=-arm64v8, while step 04
+    feeds the same platform string to buildx, which normalizes again and
+    exposes ${TARGETARCH}${TARGETVARIANT} as plain "arm64" — yielding a
+    sbom-arm64.json:not-found COPY failure. Manifest-list entries written by
+    buildx are already normalized, so _discover_index sees no v8; this helper
+    is symmetric defense in case an upstream registry serves a non-normalized
+    list.
+    """
+    if arch == "arm64" and variant == "v8":
+        return ""
+    if arch == "amd64" and variant == "v1":
+        return ""
+    return variant
+
+
 def _discover_index(manifest):
     all_entries = manifest.get("manifests", [])
     print(f"Multi-platform manifest detected ({len(all_entries)} entries in index)")
@@ -144,7 +168,7 @@ def _discover_index(manifest):
         if os_name == "unknown" and arch == "unknown":
             attestation_count += 1
             continue
-        variant = plat.get("variant", "")
+        variant = _normalize_variant(arch, plat.get("variant", ""))
         platform_str = f"{os_name}/{arch}"
         suffix = f"-{arch}"
         if variant:
@@ -183,7 +207,7 @@ def _discover_single(manifest, image_registry_base, token, hallmark):
 
     os_name = config.get("os", "")
     arch    = config.get("architecture", "")
-    variant = config.get("variant", "")
+    variant = _normalize_variant(arch, config.get("variant", ""))
 
     if variant:
         platform = f"{os_name}/{arch}/{variant}"
