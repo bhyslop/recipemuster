@@ -148,7 +148,10 @@ zrbgo_exchange_jwt_capture() {
     --max-time "${RBCC_CURL_MAX_TIME_SEC}"                                         \
     -H "Content-Type: application/x-www-form-urlencoded"                           \
     -d "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${z_jwt}" \
-    > "${ZRBGO_OAUTH_RESPONSE_FILE}" 2>"${ZRBGO_CURL_STDERR_FILE}" || return 1
+    > "${ZRBGO_OAUTH_RESPONSE_FILE}" 2>"${ZRBGO_CURL_STDERR_FILE}" || {
+      buc_warn "OAuth curl failed: $(<"${ZRBGO_CURL_STDERR_FILE}")"
+      return 1
+    }
 
   buc_log_args "Debug: Show the actual response (minus secrets)"
   jq 'del(.access_token, .refresh_token)
@@ -160,7 +163,13 @@ zrbgo_exchange_jwt_capture() {
   buc_log_args "Extract access token"
   local z_token
   z_token=$(jq -r '.access_token // empty' "${ZRBGO_OAUTH_RESPONSE_FILE}") || return 1
-  test -n "${z_token}" || return 1
+  test -n "${z_token}" || {
+    buc_warn "OAuth response missing access_token; redacted response body follows:"
+    jq 'with_entries(select(.key | test("token|secret|key|password"; "i") | not))' \
+      "${ZRBGO_OAUTH_RESPONSE_FILE}" 2>"${ZRBGO_JQ_STDERR_FILE}" >&2 \
+      || cat "${ZRBGO_OAUTH_RESPONSE_FILE}" >&2
+    return 1
+  }
 
   printf '%s\n' "${z_token}"
 }
