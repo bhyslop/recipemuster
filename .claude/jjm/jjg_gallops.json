@@ -6643,6 +6643,7 @@
       "order": [
         "₢BBAAA",
         "₢BBAAB",
+        "₢BBAAJ",
         "₢BBAAC",
         "₢BBAAD",
         "₢BBAAE",
@@ -6651,7 +6652,7 @@
         "₢BBAAH",
         "₢BBAAI"
       ],
-      "next_pace_seed": "AAJ",
+      "next_pace_seed": "AAK",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAAA": {
@@ -6792,6 +6793,17 @@
               "text": "## Character\n\nMaintenance pace — re-read RELEASE.md with fresh eyes after the rest of the heat lands and apply accumulated fixes the operator identified during heat work but did not address inline.\n\n## Work\n\n- Re-read RELEASE.md cold\n- Apply corrections, clarifications, and restructurings captured during BBAAB–BBAAH execution but deferred from those paces\n- Verify references to `rbw-tP`, the `pristine-lifecycle` fixture, and the marshal-zero signature shape match what BBAAB–BBAAH actually delivered\n- Confirm cross-doc links from RELEASE.md to README.md anchors still resolve\n- Confirm the README's pointer paragraph and reference-tree entry still match RELEASE.md content\n\n## Verification\n\n- Updates committed\n- Operator confirms the doc reads correctly cold from a release-day perspective\n\n## Out of scope\n\n- README.md restructuring beyond cross-doc consistency\n- Re-architecting the release procedure itself (architectural changes belong in a separate heat)",
               "silks": "release-doc-revision",
               "commit": "df8f1ce"
+            }
+          ]
+        },
+        "₢BBAAJ": {
+          "tacks": [
+            {
+              "ts": "260426-1225",
+              "state": "rough",
+              "text": "## Character\n\nSibling pace to BBAAB. Implements the simpler half of pristine-lifecycle: depot lifecycle (case 2) and governor lifecycle (case 3). No probe, no assay/canonical shuffle — these cases exercise create/list/destroy patterns without credential probing.\n\nDepends on BBAAB landing first (fixture skeleton + case 1 must compile and register the fixture).\n\n## Work\n\n### Throwaway prefix mechanism\n\nCases 2-5 use throwaway RBRR prefixes locked in BBAAB design: `RBRR_CLOUD_PREFIX=\"prlc-\"` and `RBRR_RUNTIME_PREFIX=\"prlr-\"`. Mechanism (temp RBRR file vs runtime override) chosen at implementation time — both work; pick the simpler.\n\n### Case 2: depot-lifecycle (quota-bearing)\n\n- Apply throwaway prefixes\n- `rbw-dL.PayorLeviesDepot` → create throwaway depot\n- `rbw-dl.PayorListsDepots` → assert throwaway present\n- `rbw-dU.PayorUnmakesDepot` → soft-delete\n- `rbw-dl` → assert throwaway absent or in DELETE_REQUESTED\n- Cost: one GCP project per run, soft-delete graveyard accepted\n\n### Case 3: governor-lifecycle (free)\n\n- Apply throwaway prefixes\n- `rbw-aM.PayorMantlesGovernor` → mantle throwaway governor\n- `rbw-aL.GovernorListsServiceAccounts` → assert throwaway present\n- `rbw-aF.GovernorForfeitsServiceAccount` → forfeit\n- `rbw-aL` → assert throwaway absent\n- Cost: free\n\n### Registration\n\n- Add cases to `RBTDRC_SECTIONS_PRISTINE_LIFECYCLE` (alongside case 1 from BBAAB)\n- Add required colophons to `rbtdrm_required_colophons` for `pristine-lifecycle`: `rbw-dL`, `rbw-dl`, `rbw-dU`, `rbw-aM`, `rbw-aL`, `rbw-aF`\n\n## Verification\n\n- Single-case `depot-lifecycle`: creates+destroys throwaway depot; canonical depot (if present) untouched\n- Single-case `governor-lifecycle`: same for governor\n- Full fixture on marshal-zero state: case 1 passes, cases 2-3 each clean up\n\n## Out of scope\n\n- Cases 4-5 (sibling pace — needs probe + assay/canonical shuffle)\n- Canonical infrastructure setup (BBAAC)",
+              "silks": "phase-0-fixture-lifecycle-simple",
+              "commit": "fccdab0"
             }
           ]
         }
