@@ -116,8 +116,9 @@
 :rbtgo_director_yoke:             <<rbtgo_director_yoke,rbfl_yoke>>
 :rbtgo_governor_mantle:            <<rbtgo_governor_mantle,rbgp_governor_mantle>>
 :rbtgo_image_delete:              <<rbtgo_image_delete,rbfl_jettison>>
-:rbtgo_image_rekon:               <<rbtgo_image_rekon,rbfl_rekon>>
-:rbtgo_image_retrieve:            <<rbtgo_image_retrieve,rbfr_wrest>>
+:rbtgo_image_muster:              <<rbtgo_image_muster,Image Muster>>
+:rbtgo_image_rekon:               <<rbtgo_image_rekon,Image Rekon>>
+:rbtgo_image_retrieve:            <<rbtgo_image_retrieve,rbfl_wrest>>
 :rbtgo_payor_establish:           <<rbtgo_payor_establish,rbhp_establish>>
 :rbtgo_payor_install:             <<rbtgo_payor_install,rbgp_payor_install>>
 :rbtgo_payor_refresh:             <<rbtgo_payor_refresh,rbhp_refresh>>
@@ -441,6 +442,7 @@
 :rbst_image_ref:             <<rbst_image_ref,Image Reference>>
 :rbst_locator:               <<rbst_locator,Locator>>
 :rbst_hallmark:                  <<rbst_hallmark,Hallmark>>
+:rbst_reliquary_stamp:       <<rbst_reliquary_stamp,Reliquary Stamp>>
 :rbst_path:                  <<rbst_path,Path>>
 :rbst_platform_list:         <<rbst_platform_list,Platform List>>
 :rbst_binfmt_policy:         <<rbst_binfmt_policy,Binfmt Policy>>
@@ -1097,10 +1099,12 @@ include::RBSDY-director_yoke.adoc[]
 //axvo_method axd_transient axd_grouped
 === {rbtgo_image_delete}
 
-Jettisons
+Jettisons a single
 {rbtgi_image}
-artifacts
+artifact by
+{rbst_locator}
 ({rbtgog_image}).
+Locator-generic across hallmark members, reliquary tool images, and enshrinement images.
 
 include::RBSIJ-image_jettison.adoc[]
 
@@ -1108,10 +1112,13 @@ include::RBSIJ-image_jettison.adoc[]
 //axvo_method axd_transient axd_grouped
 === {rbtgo_image_retrieve}
 
-Wrests
+Wrests a single
 {rbtgi_image}
-artifacts
+artifact by
+{rbst_locator}
 ({rbtgog_image}).
+Locator-generic across hallmark members, reliquary tool images, and enshrinement images.
+{rbtr_director}-tier — peer to {rbtgo_image_delete}, distinct from {rbtgo_ark_summon}.
 
 include::RBSIW-image_wrest.adoc[]
 
@@ -1119,13 +1126,23 @@ include::RBSIW-image_wrest.adoc[]
 //axvo_method axd_transient axd_grouped
 === {rbtgo_image_rekon}
 
-Lists all tags for a
-{rbtga_vessel}
-package in
+Reports canonical-member presence under a hallmark or reliquary subtree in
 {rbtgi_repository}
 ({rbtgog_image}).
+Two distinct procedures (`rbfl_rekon_hallmark`, `rbfl_rekon_reliquary`); rekon-on-enshrinement is intentionally omitted (enshrinements are 1-deep).
 
 include::RBSIR-image_rekon.adoc[]
+
+[[rbtgo_image_muster]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_image_muster}
+
+Lists identifiers under one of three GAR domains (hallmarks, reliquaries, enshrinements) in
+{rbtgi_repository}
+({rbtgog_image}).
+{rbtr_director}-tier flat catalog; complements the {rbtr_retriever}-tier {rbtgo_hallmark_tally}, which adds health classification on the hallmark domain only.
+
+include::RBSIM-image_muster.adoc[]
 
 [[rbtgo_ark_abjure]]
 //axvo_method axd_transient axd_grouped
@@ -3381,13 +3398,12 @@ Fully-qualified container image reference.
 [[rbst_locator]]
 //axl_voices axtu_string
 {rbst_locator}::
-Repository-local image identifier combining
-{at_moniker}
-and tag.
-Format: `moniker:tag` (e.g., `rbev-busybox:20251231T161441Z-img`).
+Repository-local artifact identifier combining a package path and tag.
+Format: `package-path:tag` where `package-path` is a relative path under the categorical root (e.g., `hallmarks/«HALLMARK»/image`, `reliquaries/«STAMP»/syft`, `enshrines/«ANCHOR»`).
 Identifies a single artifact within the
 {rbtgi_repository}
 without repeating registry host or path.
+Domain-blind: the package path embedded in the locator is sufficient to dispatch a delete or pull against any of the three categorical domains (hallmarks, reliquaries, enshrinements).
 
 [[rbst_hallmark]]
 //axl_voices axtu_string
@@ -3396,6 +3412,14 @@ Dual-timestamp {rbtga_hallmark} identifying a specific build of a vessel.
 Format: `«MODE»YYMMDDHHMMSS-rYYMMDDHHMMSS` where `«MODE»` is `c` (conjure), `b` (bind), or `g` (graft).
 Example: `c260224153022-r260224160530`; 1-128 characters.
 Regex: `[cbg]\d{12}-r\d{12}`.
+
+[[rbst_reliquary_stamp]]
+//axl_voices axtu_string
+{rbst_reliquary_stamp}::
+Datestamp identifying a reliquary — the GAR namespace holding a coherent set of mirrored tool images for builder use.
+Format: `r` + `YYMMDDHHMMSS` (e.g., `r260327172456`); 13 characters.
+Regex: `r\d{12}`.
+Mints once at {rbtgo_depot_inscribe} time and serves both as the GAR path segment (`reliquaries/«STAMP»/...`) and the per-tool tag, so a single value identifies the namespace and pins every member.
 
 [[rbst_path]]
 //axl_voices axtu_path

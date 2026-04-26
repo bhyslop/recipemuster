@@ -5,23 +5,37 @@ NOTE: This operation wrests a container image from
 {rbtgi_repository}
 to the local container runtime.
 
+`rbfl_wrest` is locator-generic: the same procedure pulls
+{rbtga_ark}
+hallmark members,
+reliquary tool images, and enshrinement images.
+The package path embedded in the
+{rbst_locator}
+selects the domain — the procedure itself does not branch.
+
+NOTE: This is a {rbtr_director} operation (Director credentials, registry write/admin tier — same authority as {rbtgo_image_delete}). It is not the {rbtr_retriever}-tier counterpart of {rbtgo_ark_summon}: summon performs vouch ceremony before pulling under retriever credentials, while wrest is a direct pull with no vouch and no health classification. Use wrest for diagnostic or development pulls; use summon for production retrieval.
+
 The
 {rbtr_director}
-pulls an image by {rbst_locator}:
+wrests an image by {rbst_locator}:
 
 //axhopt_typed_parameter
 {rbst_locator}
 . *Validate Input Parameters*:
 .. {rbbc_require}
-`«INPUT_LOCATOR»` provided as first argument in `moniker:tag` format
+`«INPUT_LOCATOR»` provided as first argument in `package-path:tag` format
 .. {rbbc_fatal}
-if missing: "Locator parameter required (moniker:tag)"
+if missing: "Locator parameter required (package-path:tag)"
 .. {rbbc_fatal}
-if malformed (no colon): "Invalid locator format. Expected moniker:tag"
+if malformed (no colon): "Invalid locator format. Expected package-path:tag"
 .. {rbbc_store}
-`«MONIKER»` as portion before first colon
+`«PACKAGE_PATH»` as portion before the final colon (e.g., `hallmarks/«HALLMARK»/image`, `reliquaries/«STAMP»/syft`, `enshrines/«ANCHOR»`)
 .. {rbbc_store}
-`«TAG»` as portion after first colon
+`«TAG»` as portion after the final colon
+.. {rbbc_fatal}
+if `«PACKAGE_PATH»` is empty: "Package path is empty in locator"
+.. {rbbc_fatal}
+if `«TAG»` is empty: "Tag is empty in locator"
 
 //axhos_step
 . *Authenticate as
@@ -36,7 +50,7 @@ if malformed (no colon): "Invalid locator format. Expected moniker:tag"
 .. {rbbc_store}
 `«REGISTRY_HOST»` as `{rbrr_gcp_region}-docker.pkg.dev`
 .. {rbbc_store}
-`«FULL_IMAGE_REF»` as `«REGISTRY_HOST»/{rbrr_depot_project_id}/{rbrr_gar_repository}/«INPUT_LOCATOR»`
+`«FULL_IMAGE_REF»` as `«REGISTRY_HOST»/{rbrr_depot_project_id}/{rbrr_gar_repository}/«RBRR_CLOUD_PREFIX»«INPUT_LOCATOR»`
 
 //axhos_step
 . *Configure Container Runtime Authentication*:
@@ -72,3 +86,4 @@ local image ID: `«IMAGE_ID»`
 
 //axhoc_completion
 Successful execution wrests the image and displays the local image ID.
+The locator-generic shape means a hallmark member, a reliquary tool image, or an enshrinement image are all retrieved by the same call — domain identity lives in the locator's package path, not in branched logic.

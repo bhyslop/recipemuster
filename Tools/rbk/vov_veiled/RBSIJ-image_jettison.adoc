@@ -1,12 +1,22 @@
 //axhob_operation
 {rbtgo_image_delete}
 
-NOTE: This operation jettisons a container image from
+NOTE: This operation jettisons a single image tag from
 {rbtgi_repository}
 using the Docker Registry HTTP API V2 implemented by
 {gar_service}.
 
+`rbfl_jettison` is locator-generic: the same procedure backs
+{rbtga_ark}
+hallmark members,
+reliquary tool images, and enshrinement images.
+The package path embedded in the
+{rbst_locator}
+selects the domain — the procedure itself does not branch.
+
 NOTE: To delete an entire {rbtga_ark} (the full `hallmarks/«HALLMARK»/` subtree — every basename including `image`, `about`, `vouch`, and any `pouch`/`diags`/`attest` tags present), use {rbtgo_ark_abjure} instead.
+
+NOTE: Jettisoning an interior member of a reliquary subtree (e.g., a single tool image) leaves a hole in an otherwise-coherent set. The operator accepts this piecemeal-by-image semantic; recovery is nuclear: re-run {rbtgo_depot_inscribe} to restore the full reliquary corpus. The operation provides no integrity guard against such interior holes.
 
 The
 {rbtr_director}
@@ -16,15 +26,19 @@ jettisons an image by {rbst_locator}:
 {rbst_locator}
 . *Validate Input Parameters*:
 .. {rbbc_require}
-`«INPUT_LOCATOR»` provided as first argument in `moniker:tag` format
+`«INPUT_LOCATOR»` provided as first argument in `package-path:tag` format
 .. {rbbc_fatal}
-if missing: "Locator parameter required (moniker:tag)"
+if missing: "Locator parameter required (package-path:tag)"
 .. {rbbc_fatal}
-if malformed (no colon): "Invalid locator format. Expected moniker:tag"
+if malformed (no colon): "Invalid locator format. Expected package-path:tag"
 .. {rbbc_store}
-`«MONIKER»` as portion before first colon
+`«PACKAGE_PATH»` as portion before the final colon (e.g., `hallmarks/«HALLMARK»/image`, `reliquaries/«STAMP»/syft`, `enshrines/«ANCHOR»`)
 .. {rbbc_store}
-`«TAG»` as portion after first colon
+`«TAG»` as portion after the final colon
+.. {rbbc_fatal}
+if `«PACKAGE_PATH»` is empty: "Package path is empty in locator"
+.. {rbbc_fatal}
+if `«TAG»` is empty: "Tag is empty in locator"
 
 //axhos_step
 . *Authenticate as
@@ -49,7 +63,7 @@ if not confirmed: "prompt not confirmed."
 .. {rbbc_call}
 link:https://github.com/opencontainers/distribution-spec/blob/main/spec.md#deleting-tags[Docker Registry API: DELETE manifests] with:
 ... method: `DELETE`
-... endpoint: `«REGISTRY_BASE»/«MONIKER»/manifests/«TAG»`
+... endpoint: `«REGISTRY_BASE»/«RBRR_CLOUD_PREFIX»«PACKAGE_PATH»/manifests/«TAG»`
 ... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
 .. {rbbc_require}
 HTTP 202 (Accepted) or 204 (No Content) response
@@ -64,3 +78,4 @@ if jettison fails: "Jettison failed with HTTP «STATUS_CODE»"
 
 //axhoc_completion
 Procedure completes successfully when the tag has been jettisoned from the registry and the jettisoned message is displayed.
+The locator-generic shape means a hallmark member, a reliquary tool image, or an enshrinement image are all deleted by the same call — domain identity lives in the locator's package path, not in branched logic.

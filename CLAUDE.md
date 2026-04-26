@@ -81,8 +81,9 @@ Full read and edit access is pre-approved for all files in:
 - **RBSHR** → `rbk/vov_veiled/RBSHR-HorizonRoadmap.adoc` (Horizon Roadmap - single collection point for defined-but-unscoped future work)
 - **RBSII** → `rbk/vov_veiled/RBSII-iptables_init.adoc`
 - **RBSIJ** → `rbk/vov_veiled/RBSIJ-image_jettison.adoc`
+- **RBSIM** → `rbk/vov_veiled/RBSIM-image_muster.adoc` (Image Muster — three-domain catalog listing: hallmarks, reliquaries, enshrinements)
 - **RBSIP** → `rbk/vov_veiled/RBSIP-ifrit_pentester.adoc` (Ifrit Pentester — adversarial AI escape testing framework)
-- **RBSIR** → `rbk/vov_veiled/RBSIR-image_rekon.adoc` (Image Rekon — director-only raw GAR tag listing)
+- **RBSIR** → `rbk/vov_veiled/RBSIR-image_rekon.adoc` (Image Rekon — director-only canonical-member presence under hallmark/reliquary subtrees)
 - **RBSIW** → `rbk/vov_veiled/RBSIW-image_wrest.adoc`
 - **RBSNC** → `rbk/vov_veiled/RBSNC-network_create.adoc`
 - **RBSNX** → `rbk/vov_veiled/RBSNX-network_connect.adoc`

@@ -1,24 +1,35 @@
 //axhob_operation
 {rbtgo_image_rekon}
 
-NOTE: This operation lists all tags for a
-{rbtga_vessel}
-package in
+NOTE: This operation reports which canonical members are present under a
+hallmark or reliquary subtree in
 {rbtgi_repository}
-using the Docker Registry HTTP API V2.
-Raw tag enumeration — no hallmark parsing or health classification.
+via the GAR REST API implemented by
+{gar_service}.
+Raw presence enumeration — no health classification (use {rbtgo_hallmark_tally} for that).
 
 The
 {rbtr_director}
-rekons image tags:
+rekons over two domains, each backed by a distinct procedure:
+
+* `rbfl_rekon_hallmark` — basenames present under a hallmark subtree
+* `rbfl_rekon_reliquary` — tool images present under a reliquary stamp's subtree
+
+Rekon over the {rbtgo_ark_enshrine} domain is intentionally omitted: an enshrinement is a single image per anchor (1-deep), so no presence table is meaningful — {rbtgo_image_muster} covers the catalog and {rbtgo_image_retrieve} covers retrieval.
+
+== Hallmark Rekon
+
+The
+{rbtr_director}
+rekons basenames under a hallmark:
 
 //axhopt_typed_parameter
-{rbtga_vessel}
+{rbst_hallmark}
 . *Validate Input Parameters*:
 .. {rbbc_require}
-`«INPUT_MONIKER»` provided as first argument (vessel moniker)
+`«INPUT_HALLMARK»` provided as first argument
 .. {rbbc_fatal}
-if missing: "Vessel moniker parameter required"
+if missing: "Usage: rbw-irh <hallmark>"
 
 //axhos_step
 . *Authenticate as
@@ -29,34 +40,108 @@ if missing: "Vessel moniker parameter required"
 `«DIRECTOR_TOKEN»` for subsequent API calls
 
 //axhos_step
-. *Construct Registry Endpoint*:
+. *Enumerate Packages Under Hallmarks Root*:
 .. {rbbc_store}
-`«REGISTRY_HOST»` as `{rbrr_gcp_region}-docker.pkg.dev`
+`«HALLMARKS_ROOT»` from `RBGL_HALLMARKS_ROOT` (kindled as `RBRR_CLOUD_PREFIX` + `hallmarks`)
 .. {rbbc_store}
-`«TAG_LIST_URL»` as `«REGISTRY_HOST»/v2/{rbrr_depot_project_id}/{rbrr_gar_repository}/«INPUT_MONIKER»/tags/list`
-
-//axhos_step
-. *Fetch Tag List*:
+`«REPO_BASE»` as the GAR REST API repository base (`projects/«PROJECT»/locations/«REGION»/repositories/«REPOSITORY»`)
 .. {rbbc_call}
-link:https://github.com/opencontainers/distribution-spec/blob/main/spec.md#listing-tags[Docker Registry API: tag list] with:
+link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.packages/list[GAR REST API: packages.list] with:
 ... method: `GET`
-... endpoint: `«TAG_LIST_URL»`
+... endpoint: `«REPO_BASE»/packages?pageSize=1000`
 ... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
 .. {rbbc_require}
-HTTP 200 response with JSON body containing `tags` array
+HTTP 200 response
+.. Extract `.packages[].name`, strip the resource prefix, URL-decode `%2F` back to `/`, and retain only entries beginning with `«HALLMARKS_ROOT»/`
 .. {rbbc_store}
-`«TAGS»` as array of tag strings
+`«HALLMARK_ROWS»` as `«HALLMARK» «BASENAME»` pairs derived from those entries (a 2-deep enumeration)
+
+//axhos_step
+. *Filter to Input Hallmark*:
+.. {rbbc_store}
+`«PRESENT»` as the set of basenames in `«HALLMARK_ROWS»` whose hallmark equals `«INPUT_HALLMARK»`
 .. {rbbc_fatal}
-if request fails: "Tag list failed with HTTP «STATUS_CODE»"
+if `«PRESENT»` is empty: "Hallmark not found: «INPUT_HALLMARK»"
 
 //axhoot_typed_output
-{rbst_locator}
+{rbtga_ark}
 . *Display Results*:
 .. {rbbc_show}
-vessel moniker and tag count
-.. For each tag in `«TAGS»`:
+table header `BASENAME | EXISTS | PACKAGE-PATH`
+.. For each canonical basename in the order
+{rbtga_ark_image},
+{rbtga_ark_about},
+{rbtga_ark_vouch},
+`attest`,
+{rbtga_ark_pouch},
+{rbtga_ark_diags}:
+... {rbbc_store}
+`«MARK»` as `yes` if `«BASENAME»` ∈ `«PRESENT»`, else `no`
+... {rbbc_store}
+`«PATH»` as `«HALLMARKS_ROOT»/«INPUT_HALLMARK»/«BASENAME»` when `«MARK»` = `yes`, else the literal `(absent)`
 ... {rbbc_show}
-tag name
+row `«BASENAME» | «MARK» | «PATH»`
+
+== Reliquary Rekon
+
+The
+{rbtr_director}
+rekons tool images under a reliquary stamp:
+
+//axhopt_typed_parameter
+{rbst_reliquary_stamp}
+. *Validate Input Parameters*:
+.. {rbbc_require}
+`«INPUT_STAMP»` provided as first argument
+.. {rbbc_fatal}
+if missing: "Usage: rbw-irr <stamp>"
+
+//axhos_step
+. *Authenticate as
+{rbtr_director}*:
+.. Execute
+{rbtoe_director_authenticate}
+.. {rbbc_store}
+`«DIRECTOR_TOKEN»` for subsequent API calls
+
+//axhos_step
+. *Enumerate Packages Under Reliquaries Root*:
+.. {rbbc_store}
+`«RELIQUARIES_ROOT»` from `RBGL_RELIQUARIES_ROOT` (kindled as `RBRR_CLOUD_PREFIX` + `reliquaries`)
+.. {rbbc_store}
+`«REPO_BASE»` as the GAR REST API repository base (`projects/«PROJECT»/locations/«REGION»/repositories/«REPOSITORY»`)
+.. {rbbc_call}
+link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.packages/list[GAR REST API: packages.list] with:
+... method: `GET`
+... endpoint: `«REPO_BASE»/packages?pageSize=1000`
+... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
+.. {rbbc_require}
+HTTP 200 response
+.. Extract `.packages[].name`, strip the resource prefix, URL-decode `%2F` back to `/`, and retain only entries beginning with `«RELIQUARIES_ROOT»/`
+.. {rbbc_store}
+`«RELIQUARY_ROWS»` as `«STAMP» «TOOL»` pairs derived from those entries (a 2-deep enumeration)
+
+//axhos_step
+. *Filter to Input Stamp*:
+.. {rbbc_store}
+`«PRESENT»` as the set of tools in `«RELIQUARY_ROWS»` whose stamp equals `«INPUT_STAMP»`
+.. {rbbc_fatal}
+if `«PRESENT»` is empty: "Reliquary stamp not found: «INPUT_STAMP»"
+
+//axhoot_typed_output
+{rbst_reliquary_stamp}
+. *Display Results*:
+.. {rbbc_show}
+table header `TOOL | EXISTS | PACKAGE-PATH`
+.. For each canonical reliquary tool in the order `gcloud`, `docker`, `alpine`, `syft`, `binfmt`, `skopeo`:
+... {rbbc_store}
+`«MARK»` as `yes` if `«TOOL»` ∈ `«PRESENT»`, else `no`
+... {rbbc_store}
+`«PATH»` as `«RELIQUARIES_ROOT»/«INPUT_STAMP»/«TOOL»` when `«MARK»` = `yes`, else the literal `(absent)`
+... {rbbc_show}
+row `«TOOL» | «MARK» | «PATH»`
 
 //axhoc_completion
-Procedure completes successfully when all tags for the vessel have been listed.
+Each procedure completes successfully when the canonical row set has been displayed for the input identifier.
+A subtree with no matching row across the canon is treated as the "not present" signal and reported as a fatal — empty subtrees do not yield empty tables.
+The operation does not classify health; that is the role of {rbtgo_hallmark_tally}.
