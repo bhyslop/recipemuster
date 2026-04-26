@@ -2,6 +2,7 @@
   "schema_version": 4,
   "next_heat_seed": "BB",
   "heat_order": [
+    "₣BA",
     "₣A_",
     "₣A-",
     "₣A9",
@@ -23,8 +24,7 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au",
-    "₣BA"
+    "₣Au"
   ],
   "heats": {
     "₣A-": {
@@ -6381,7 +6381,7 @@
     "₣BA": {
       "silks": "rbk-mvp-3-cleanups-and-imageops",
       "creation_time": "260426",
-      "status": "stabled",
+      "status": "racing",
       "order": [
         "₢BAAAA",
         "₢BAAAB",
