@@ -2,6 +2,7 @@
   "schema_version": 4,
   "next_heat_seed": "BC",
   "heat_order": [
+    "₣BB",
     "₣BA",
     "₣A_",
     "₣A-",
@@ -24,8 +25,7 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au",
-    "₣BB"
+    "₣Au"
   ],
   "heats": {
     "₣A-": {
@@ -6639,7 +6639,7 @@
     "₣BB": {
       "silks": "rbk-mvp-3-release-qualification",
       "creation_time": "260426",
-      "status": "stabled",
+      "status": "racing",
       "order": [],
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
