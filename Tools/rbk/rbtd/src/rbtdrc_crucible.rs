@@ -2242,6 +2242,31 @@ fn rbtdrc_docker_pull(image_ref: &str) -> Result<(), String> {
     Ok(())
 }
 
+/// Docker wrapper: capture RootFS layer DiffIDs as a JSON array string.
+/// Layer DiffIDs are SHA256s of uncompressed layer file content — byte-preserved
+/// across registry round-trips even when manifest envelope normalizes (e.g.,
+/// multi-arch index → single-platform manifest). Robust round-trip fingerprint.
+fn rbtdrc_docker_layers_capture(image_ref: &str) -> Result<String, String> {
+    let output = Command::new("docker")
+        .args(["inspect", "--format={{json .RootFS.Layers}}", image_ref])
+        .output()
+        .map_err(|e| format!("docker inspect exec failed: {}", e))?;
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr).into_owned();
+        return Err(format!(
+            "docker inspect {} exited {}: {}",
+            image_ref,
+            output.status.code().unwrap_or(-1),
+            stderr
+        ));
+    }
+    let layers = String::from_utf8_lossy(&output.stdout).trim().to_owned();
+    if layers.is_empty() || layers == "null" {
+        return Err(format!("docker inspect {} returned empty layers", image_ref));
+    }
+    Ok(layers)
+}
+
 // Four-mode lifecycle fixture — four independent per-mode cases, one per delivery mode.
 //
 // Each case is fully self-contained: own setup, own observation, own teardown.
@@ -2533,6 +2558,11 @@ fn rbtdrc_fourmode_graft_lifecycle(dir: &Path) -> rbtdre_Verdict {
                 RBTDRC_FOURMODE_GRAFT_SOURCE_IMAGE, e
             ));
         }
+        let source_layers = match rbtdrc_docker_layers_capture(RBTDRC_FOURMODE_GRAFT_SOURCE_IMAGE) {
+            Ok(v) => v,
+            Err(e) => return rbtdre_Verdict::Fail(format!("source image inspect: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("01-source-layers.txt"), &source_layers);
 
         let _ = std::fs::write(dir.join("02-ordain.txt"), "ordaining graft");
         let ordain_result = match rbtdri_invoke_global(
@@ -2578,18 +2608,21 @@ fn rbtdrc_fourmode_graft_lifecycle(dir: &Path) -> rbtdre_Verdict {
             gar_root, ark_stem, RBTDRC_ARK_BASENAME_IMAGE, hallmark
         );
 
-        // Graft source was busybox — wrested image has the same payload, so
-        // we know its run behavior.
-        let _ = std::fs::write(dir.join("04-run.txt"), "running");
-        match rbtdrc_docker_run(&image_ref) {
-            Ok((output, 0)) if output.contains(RBTDRC_FOURMODE_BUSYBOX_RUN_OUTPUT) => {}
-            Ok((output, code)) => {
-                return rbtdre_Verdict::Fail(format!(
-                    "run: expected '{}', got exit {} output: {}",
-                    RBTDRC_FOURMODE_BUSYBOX_RUN_OUTPUT, code, output
-                ))
-            }
-            Err(e) => return rbtdre_Verdict::Fail(format!("docker run: {}", e)),
+        // Graft's contract is "push these bytes to GAR" — assert payload byte-
+        // identity by comparing layer DiffIDs (uncompressed file-content SHA256s)
+        // captured before graft to those of the wrested image. Robust to graft's
+        // intentional manifest-envelope normalization (multi-arch index →
+        // single-platform manifest); catches silent re-pack of layer content.
+        let wrested_layers = match rbtdrc_docker_layers_capture(&image_ref) {
+            Ok(v) => v,
+            Err(e) => return rbtdre_Verdict::Fail(format!("wrested image inspect: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("04-wrested-layers.txt"), &wrested_layers);
+        if source_layers != wrested_layers {
+            return rbtdre_Verdict::Fail(format!(
+                "graft round-trip layer mismatch:\n  source:  {}\n  wrested: {}",
+                source_layers, wrested_layers
+            ));
         }
 
         if let Err(e) = rbtdrc_docker_rmi(&[&image_ref]) {
