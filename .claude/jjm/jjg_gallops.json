@@ -4773,9 +4773,10 @@
         "₢A_AAF",
         "₢A_AAZ",
         "₢A_AAG",
-        "₢A_AAJ"
+        "₢A_AAJ",
+        "₢A_AAa"
       ],
-      "next_pace_seed": "AAa",
+      "next_pace_seed": "AAb",
       "paddock_file": ".claude/jjm/jjp_uAl_.md",
       "paces": {
         "₢A_AAA": {
@@ -5243,6 +5244,17 @@
               "text": "## Character\n\nCuriosity-driven benchmark, awkwardly placed in this heat by deliberate\nchoice. May migrate out when ₣A_ splits. Goal is data, not a binding\ndecision — no code lands by default; results inform whether to spend a\nfollow-up changing pipeline `machineType`.\n\n## Motivation\n\nBuild wall-clock has drifted out of memory. Cloud Build defaults to a\nsmall machine type; working assumption has been that conjure is\nnetwork/IO-bound (base-image pulls, apt fetches, layer pushes) and\nbigger CPU would not help materially. Want a number, not a hunch.\n\n## What\n\nRun the same conjure pipeline twice on the same vessel, varying ONLY\n`options.machineType`:\n\n  - Run 1: current default (no `machineType` set)\n  - Run 2: `E2_HIGHCPU_8`\n\nOptional Run 3: `E2_HIGHCPU_32` if Run 2 shows clear linear scaling.\n\nSame vessel both runs — pick one of tadmor / srjcl / pluml (rebuilt\nanyway by ₢A_AAF immediately prior, so the cache state is comparable).\n\n## How\n\n  - Identify the Cloud Build step config touched by conjure (RBSAC\n    territory; RBSAB about-pipeline may also be a candidate target).\n  - Add `options: { machineType: E2_HIGHCPU_8 }` to a one-off variant\n    invocation; do NOT commit it to the canonical pipeline.\n  - Capture wall-clock from `gcloud builds list` / build log\n    timestamps for each run; record per-step durations if surfaced.\n  - Compare.\n\n## Outcome\n\nA short note recorded back to this docket (or paddock) with:\n\n  - Run 1 wall-clock and per-step breakdown\n  - Run 2 wall-clock and per-step breakdown\n  - Verdict: CPU-bound, IO-bound, or mixed\n  - Recommendation: nominate a follow-up heat to change `machineType`,\n    itch it for later, or close the question.\n\nNo production-config changes from this pace. Discoveries that would\nchange the canonical pipeline get filed as separate heats / itches.\n\n## Adjacency note\n\nSits between ₢A_AAF (complete test suite — rebuilds tadmor/srjcl/pluml\nagainst fresh depot) and ₢A_AAG (onboarding tracks). AAF provides the\ncache-warm baseline; piggybacking minimizes incremental Cloud Build\nspend.",
               "silks": "cloudbuild-machinetype-ab-bench",
               "commit": "23a93bb"
+            }
+          ]
+        },
+        "₢A_AAa": {
+          "tacks": [
+            {
+              "ts": "260426-0659",
+              "state": "rough",
+              "text": "## Character\n\nDesign conversation requiring judgment. Re-study before implementing.\n\n## Docket\n\n### Issue\n\n`zrbgo_exchange_jwt_capture` runs a single curl POST to `oauth2.googleapis.com` and returns 1 on any failure with no diagnostic surfaced — the wrapper `buc_die \"Failed to get Director OAuth token\"` identically covers credentials-bad, endpoint-down, JWT-malformed, network-blip, DNS-fail, TLS-handshake-fail. Observed in ₢A_AAS: a brief connect-phase timeout (curl 28) on a single director op killed a multi-minute test. The same operation succeeded on retry minutes later.\n\nTwo halves:\n\n- **Diagnostic visibility** — already landed in ₢A_AAS. `zrbgo_exchange_jwt_capture` now `buc_warn`s the curl stderr on network failure and the redacted response body on missing-access-token, before returning 1. The wrapper `buc_die` still fires; the cause now appears above it.\n- **Retry on transient failures** — open. Single attempt is fragile against ordinary network blips. Roughly 11 call sites go through `rbgo_get_token_capture` from rbfd / rbfl / rbfv.\n\n### Survey of retry mechanisms in the codebase\n\n- **`zrbgv_http_get_with_5xx_retry` in `rbgv_AccessProbe.sh`** — bounded exponential backoff (3 attempts, 2s doubling). Retries HTTP 5xx only. Curl-network failures (`curl_status != 0`) → immediate `buc_die`. Surfaces curl stderr each iteration. Closest existing pattern; would not have helped with a curl exit 28. GET-only.\n- **No POST retry helper exists.** The OAuth exchange is the only POST site that needs auth-aware retry.\n- **`zrbhh_pull_with_retry` in `vov_veiled/ABANDONED-github/`** — abandoned, not in use.\n- **Counter-precedent** — `rbcc_Constants.sh` carries a comment expressing aversion to retry-loop complexity in bash, scoped to *bottle test fixture readiness* (waiting for local services to start). Different problem from outbound HTTP; not strictly authoritative for OAuth.\n\n### Open\n\nWhether to extend / generalize / inline the retry, what curl exit codes count as \"transient\" vs configuration-deterministic, and whether to extend diagnostic surfacing to the JWT-build openssl path and the RBRA-validation paths in the same family. Decide via conversation when this pace mounts.",
+              "silks": "rbgo-oauth-retry-and-diagnostics-completion",
+              "commit": "c9883c0"
             }
           ]
         }
