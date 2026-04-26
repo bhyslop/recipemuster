@@ -6643,9 +6643,10 @@
       "order": [
         "₢BBAAA",
         "₢BBAAB",
-        "₢BBAAC"
+        "₢BBAAC",
+        "₢BBAAD"
       ],
-      "next_pace_seed": "AAD",
+      "next_pace_seed": "AAE",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAAA": {
@@ -6678,6 +6679,17 @@
               "text": "## Character\n\nFirst executable phase after the preflight gate. Quota-bearing: GCP project creation has daily quota caps, so this phase is a deliberate discrete operator-aware checkpoint. Re-runs of subsequent phases do NOT re-trigger quota; only Phase 1 does. Operator pauses here consciously.\n\n## Work\n\nAdd Phase 1 to `rbw-tP`:\n\n1. **Levy depot** — invoke `rbw-dL` PayorLeviesDepot to create the depot; verify GAR repository exists, worker pools provisioned\n2. **List depots** — invoke `rbw-dl` PayorListsDepots; assert just-created depot appears\n3. **Active-depot assertion** — confirm `RBDC_*` derived constants resolve to the just-created depot\n4. **Discrete checkpoint UX** — phase exits with a clear \"Depot created. Re-run rbw-tP to proceed to Phase 2; preflight will re-validate marshal-zero state.\" message\n\nCover create/list/delete via tests:\n- **Create test** — depot levy succeeds; verifiable via `rbw-dl`\n- **List test** — `rbw-dl` enumerates correctly with the new depot\n- **Delete test** — defer to Phase 5 cleanup; deletion mid-tier would break subsequent phases, so it's tested in cleanup context\n\nRe-run discipline: when operator re-invokes `rbw-tP` after Phase 1 has already created a depot, the preflight still runs (and may fail on RBRA presence if creds got installed mid-stream — design call). If preflight passes and a depot already exists, Phase 1 detects it and skips levy, proceeding to Phase 2. The detector key is \"depot exists matching RBRR-derived name.\"\n\n## Verification\n\n- Phase 1 runs cleanly against post-preflight state\n- After Phase 1, depot exists and is the active depot per `RBDC_*`\n- Re-running `rbw-tP` after Phase 1 detects already-created depot and proceeds to Phase 2 (subject to preflight passing)\n- Quota-aware messaging is clear at phase exit\n- Failure during levy surfaces with operator-actionable diagnostic (quota? auth? config?)\n\n## Out of scope\n\n- Service account creation (Phase 2)\n- Depot deletion (Phase 5 cleanup)\n- Multi-depot scenarios\n- Quota recovery beyond unmake-at-end-of-tier",
               "silks": "phase-1-depot-lifecycle",
               "commit": "1bd2032"
+            }
+          ]
+        },
+        "₢BBAAD": {
+          "tacks": [
+            {
+              "ts": "260426-1103",
+              "state": "rough",
+              "text": "## Character\n\nSecond executable phase. Tests the governor/retriever/director SA lifecycle that every later cloud operation depends on. Adds explicit create/list/delete coverage (the user pointed out this surface had been under-tested).\n\n## Work\n\nAdd Phase 2 to `rbw-tP`:\n\n1. **Mantle governor** — `rbw-aM` PayorMantlesGovernor; verify governor SA exists in IAM\n2. **Charter retriever** — `rbw-aC` GovernorChartersRetriever; verify retriever SA exists with correct roles\n3. **Knight director** — `rbw-aK` GovernorKnightsDirector; verify director SA exists with correct roles\n4. **List service accounts** — `rbw-aL` GovernorListsServiceAccounts; assert all three present, classified correctly by role\n5. **Forfeit cycle test** — within Phase 2, create a throwaway named SA, list it, then `rbw-aF` GovernorForfeitsServiceAccount, list again, assert clean removal — exercises the forfeit machinery without touching the three production SAs\n6. **IAM propagation wait** — Phase 2 cannot exit until IAM propagation completes for the production SAs; subsequent phases assume they work\n\nEach step's verification is a tabtarget output assertion, not just exit-code success — confirm the SA's role bindings match the contract documented in RBSCIG (IamGrantContracts).\n\n## Verification\n\n- All three production SAs (governor, retriever, director) present after Phase 2\n- `rbw-aL` enumerates all three with correct role classifications\n- Throwaway forfeit cycle leaves no residue\n- IAM propagation has completed (Phase 3 ordains succeed without retries on auth grounds)\n- Failed forfeit (e.g., on a non-existent SA) surfaces with actionable diagnostic\n\n## Out of scope\n\n- Reliquary inscribe (Phase 3)\n- Production SA cleanup at end-of-tier (Phase 5)\n- IAM grant contract changes (RBSCIG is authoritative; this phase exercises but doesn't modify)",
+              "silks": "phase-2-service-account-lifecycle",
+              "commit": "80207a3"
             }
           ]
         }
