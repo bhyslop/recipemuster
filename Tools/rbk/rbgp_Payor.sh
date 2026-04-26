@@ -679,6 +679,7 @@ rbgp_depot_levy() {
 
   buc_step 'Create dual worker pools (tether + airgap)'
   local -r z_pool_stem="rbw-${z_depot_name}${RBGC_WORKER_POOL_SUFFIX}"
+  buf_write_fact "${RBGP_FACT_GCB_POOL_STEM}" "${z_pool_stem}"
   local -r z_pool_parent="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${z_depot_project_id}/locations/${z_region}${RBGC_PATH_WORKER_POOLS}"
 
   # Tether pool (default egress — public internet access)
@@ -767,6 +768,7 @@ rbgp_depot_levy() {
 
   buc_step 'Create container repository'
   local -r z_repository_name="rbw-${z_depot_name}-repository"
+  buf_write_fact "${RBGP_FACT_GAR_REPOSITORY}" "${z_repository_name}"
   local -r z_parent="projects/${z_depot_project_id}/locations/${z_region}"
   local -r z_create_repo_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_parent}/repositories?repositoryId=${z_repository_name}"
   local -r z_create_repo_body="${BURD_TEMP_DIR}/rbgp_create_repo.json"
