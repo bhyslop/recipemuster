@@ -1,6 +1,6 @@
 {
   "schema_version": 4,
-  "next_heat_seed": "BA",
+  "next_heat_seed": "BB",
   "heat_order": [
     "₣A_",
     "₣A-",
@@ -23,7 +23,8 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au"
+    "₣Au",
+    "₣BA"
   ],
   "heats": {
     "₣A-": {
@@ -6463,6 +6464,15 @@
       "order": [],
       "next_pace_seed": "AAA",
       "paddock_file": ".claude/jjm/jjp_uAlz.md",
+      "paces": {}
+    },
+    "₣BA": {
+      "silks": "rbk-mvp-3-cleanups-and-imageops",
+      "creation_time": "260426",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uBuA.md",
       "paces": {}
     }
   }
