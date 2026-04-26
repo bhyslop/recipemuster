@@ -6644,6 +6644,7 @@
         "₢BBAAA",
         "₢BBAAB",
         "₢BBAAJ",
+        "₢BBAAK",
         "₢BBAAC",
         "₢BBAAD",
         "₢BBAAE",
@@ -6652,7 +6653,7 @@
         "₢BBAAH",
         "₢BBAAI"
       ],
-      "next_pace_seed": "AAK",
+      "next_pace_seed": "AAL",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAAA": {
@@ -6804,6 +6805,17 @@
               "text": "## Character\n\nSibling pace to BBAAB. Implements the simpler half of pristine-lifecycle: depot lifecycle (case 2) and governor lifecycle (case 3). No probe, no assay/canonical shuffle — these cases exercise create/list/destroy patterns without credential probing.\n\nDepends on BBAAB landing first (fixture skeleton + case 1 must compile and register the fixture).\n\n## Work\n\n### Throwaway prefix mechanism\n\nCases 2-5 use throwaway RBRR prefixes locked in BBAAB design: `RBRR_CLOUD_PREFIX=\"prlc-\"` and `RBRR_RUNTIME_PREFIX=\"prlr-\"`. Mechanism (temp RBRR file vs runtime override) chosen at implementation time — both work; pick the simpler.\n\n### Case 2: depot-lifecycle (quota-bearing)\n\n- Apply throwaway prefixes\n- `rbw-dL.PayorLeviesDepot` → create throwaway depot\n- `rbw-dl.PayorListsDepots` → assert throwaway present\n- `rbw-dU.PayorUnmakesDepot` → soft-delete\n- `rbw-dl` → assert throwaway absent or in DELETE_REQUESTED\n- Cost: one GCP project per run, soft-delete graveyard accepted\n\n### Case 3: governor-lifecycle (free)\n\n- Apply throwaway prefixes\n- `rbw-aM.PayorMantlesGovernor` → mantle throwaway governor\n- `rbw-aL.GovernorListsServiceAccounts` → assert throwaway present\n- `rbw-aF.GovernorForfeitsServiceAccount` → forfeit\n- `rbw-aL` → assert throwaway absent\n- Cost: free\n\n### Registration\n\n- Add cases to `RBTDRC_SECTIONS_PRISTINE_LIFECYCLE` (alongside case 1 from BBAAB)\n- Add required colophons to `rbtdrm_required_colophons` for `pristine-lifecycle`: `rbw-dL`, `rbw-dl`, `rbw-dU`, `rbw-aM`, `rbw-aL`, `rbw-aF`\n\n## Verification\n\n- Single-case `depot-lifecycle`: creates+destroys throwaway depot; canonical depot (if present) untouched\n- Single-case `governor-lifecycle`: same for governor\n- Full fixture on marshal-zero state: case 1 passes, cases 2-3 each clean up\n\n## Out of scope\n\n- Cases 4-5 (sibling pace — needs probe + assay/canonical shuffle)\n- Canonical infrastructure setup (BBAAC)",
               "silks": "phase-0-fixture-lifecycle-simple",
               "commit": "fccdab0"
+            }
+          ]
+        },
+        "₢BBAAK": {
+          "tacks": [
+            {
+              "ts": "260426-1225",
+              "state": "rough",
+              "text": "## Character\n\nSibling pace to BBAAB. Implements the more complex half of pristine-lifecycle: retriever lifecycle (case 4) and director lifecycle (case 5). Each case creates a throwaway governor + the role SA, exercises the credential via access-probe, then forfeits.\n\nIncludes the assay/canonical file movement choreography: SA-creator writes RBRA to `BURD_OUTPUT_DIR`; test stages to `assay/`; test copies `assay/` → canonical role path for probe; test cleans canonical and assay before forfeit. Mirrors operator-flow file movements rather than extending the probe to accept arbitrary paths.\n\nDepends on BBAAB landing first.\n\n## Work\n\n### Pre-conditions\n\n- Throwaway prefix mechanism (locked in BBAAB design: `prlc-` / `prlr-`)\n- Each case pre-checks canonical role path empty (refuse with diagnostic if not — single-case independence requires clean canonical paths for the role being tested AND for governor, since each case mantles its own throwaway governor)\n\n### Case 4: retriever-lifecycle (free + light read probe)\n\n- Apply throwaway prefixes\n- Pre-check: governor and retriever canonical RBRA paths empty\n- `rbw-aM` → mantle throwaway governor (RBRA lands in `BURD_OUTPUT_DIR`)\n- Move: `BURD_OUTPUT_DIR/$instance.rbra` → `RBDC_ASSAY_RBRA_FILE` → `RBDC_GOVERNOR_RBRA_FILE` (canonical)\n- `rbw-aC` → charter throwaway retriever (its RBRA in `BURD_OUTPUT_DIR`)\n- Move: `BURD_OUTPUT_DIR/$instance.rbra` → `RBDC_ASSAY_RBRA_FILE` (overwrite) → `RBDC_RETRIEVER_RBRA_FILE` (canonical)\n- `rbtd-ap retriever` → access-probe proves retriever permissions resolve\n- Cleanup: rm canonical retriever, rm canonical governor, rm assay\n- `rbw-aF retriever`, `rbw-aF governor`\n\n### Case 5: director-lifecycle (light Cloud Build / GAR write probe)\n\n- Same shape as case 4 but with `rbw-aK` (knight director) and `rbtd-ap director`\n\n### Registration\n\n- Add cases to `RBTDRC_SECTIONS_PRISTINE_LIFECYCLE`\n- Add required colophons to `rbtdrm_required_colophons` for `pristine-lifecycle`: `rbw-aC`, `rbw-aK` (`rbtd-ap` already in manifest from access-probe fixture, but re-declare for clarity)\n\n## Verification\n\n- Single-case `retriever-lifecycle`: creates throwaway gov+ret, probe passes, cleans up cleanly; refuses with diagnostic if canonical role paths occupied\n- Single-case `director-lifecycle`: same for director\n- Full fixture on marshal-zero state: cases 1-5 all pass\n\n## Out of scope\n\n- Cases 1-3 (BBAAB and sibling pace BBAAJ)\n- Canonical infrastructure setup (BBAAC)\n- Crash-recovery cleanup of orphan SAs (handled via soft-delete graveyard discipline)",
+              "silks": "phase-0-fixture-lifecycle-credentialed",
+              "commit": "8f0e29e"
             }
           ]
         }
