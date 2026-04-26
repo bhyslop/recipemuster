@@ -99,8 +99,10 @@ zrbfd_sentinel() {
 
 
 # Verify reliquary tool images exist in GAR.
-# Inscribe creates all 6 tool images atomically in one GCB job, so checking
-# one (docker:latest) is sufficient as a canary for the entire reliquary.
+# Full-subtree presence check: every canonical tool image must be present at
+# the stamp. Inscribe creates all 6 atomically; piecemeal jettison or registry
+# damage compromises the stamp's integrity. Misses are accumulated across the
+# whole tool set so the operator sees full damage in one report.
 # Args: token vessel_dir
 zrbfd_preflight_reliquary() {
   zrbfd_sentinel
@@ -111,13 +113,32 @@ zrbfd_preflight_reliquary() {
   test -n "${z_vessel_dir}" || buc_die "zrbfd_preflight_reliquary: vessel_dir required"
 
   local -r z_reliquary="${RBRV_RELIQUARY:-}"
-  if test -n "${z_reliquary}"; then
-    buc_step "Verifying reliquary tool images exist in GAR"
+  test -n "${z_reliquary}" || return 0
 
-    local -r z_rqy_canary_pkg="${RBGL_RELIQUARIES_ROOT}/${z_reliquary}/${RBGC_RELIQUARY_TOOL_DOCKER}"
-    local -r z_rqy_status_file="${ZRBFD_PREFLIGHT_PREFIX}reliquary_status.txt"
-    local -r z_rqy_response_file="${ZRBFD_PREFLIGHT_PREFIX}reliquary_response.txt"
-    local -r z_rqy_stderr_file="${ZRBFD_PREFLIGHT_PREFIX}reliquary_stderr.txt"
+  buc_step "Verifying reliquary tool images exist in GAR"
+
+  local -r z_canonical_tools=(
+    "${RBGC_RELIQUARY_TOOL_GCLOUD}"
+    "${RBGC_RELIQUARY_TOOL_DOCKER}"
+    "${RBGC_RELIQUARY_TOOL_ALPINE}"
+    "${RBGC_RELIQUARY_TOOL_SYFT}"
+    "${RBGC_RELIQUARY_TOOL_BINFMT}"
+    "${RBGC_RELIQUARY_TOOL_SKOPEO}"
+  )
+
+  local z_missing=()
+  local z_tool=""
+  local z_pkg=""
+  local z_status_file=""
+  local z_response_file=""
+  local z_stderr_file=""
+  local z_http_code=""
+
+  for z_tool in "${z_canonical_tools[@]}"; do
+    z_pkg="${RBGL_RELIQUARIES_ROOT}/${z_reliquary}/${z_tool}"
+    z_status_file="${ZRBFD_PREFLIGHT_PREFIX}reliquary_${z_tool}_status.txt"
+    z_response_file="${ZRBFD_PREFLIGHT_PREFIX}reliquary_${z_tool}_response.txt"
+    z_stderr_file="${ZRBFD_PREFLIGHT_PREFIX}reliquary_${z_tool}_stderr.txt"
 
     curl --head -sS \
       --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
@@ -125,33 +146,43 @@ zrbfd_preflight_reliquary() {
       -H "Authorization: Bearer ${z_token}" \
       -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
       -w "%{http_code}" \
-      -o "${z_rqy_response_file}" \
-      "${ZRBFC_REGISTRY_API_BASE}/${z_rqy_canary_pkg}/manifests/${z_reliquary}" \
-      > "${z_rqy_status_file}" 2>"${z_rqy_stderr_file}" \
-      || buc_die "HEAD request failed for reliquary canary: ${z_rqy_canary_pkg}:${z_reliquary} — see ${z_rqy_stderr_file}"
+      -o "${z_response_file}" \
+      "${ZRBFC_REGISTRY_API_BASE}/${z_pkg}/manifests/${z_reliquary}" \
+      > "${z_status_file}" 2>"${z_stderr_file}" \
+      || buc_die "HEAD request failed for reliquary tool: ${z_pkg}:${z_reliquary} — see ${z_stderr_file}"
 
-    local z_rqy_http_code=""
-    z_rqy_http_code=$(<"${z_rqy_status_file}")
-    test -n "${z_rqy_http_code}" || buc_die "HTTP status code is empty for reliquary check"
+    z_http_code=$(<"${z_status_file}")
+    test -n "${z_http_code}" || buc_die "HTTP status code is empty for reliquary check: ${z_tool}"
 
-    if test "${z_rqy_http_code}" = "404"; then
-      buc_warn "Reliquary not found: ${z_reliquary}"
-      buc_bare "  The reliquary is a co-versioned set of builder tool images (gcloud, docker,"
-      buc_bare "  syft, alpine, binfmt, skopeo) inscribed from upstream into your private GAR."
-      buc_bare "  Air-gapped worker pools cannot pull from the public internet — the reliquary"
-      buc_bare "  stages these tools so builds can run without egress. All vessels in a depot"
-      buc_bare "  typically share one reliquary. Inscribe a fresh stamp, yoke it into the"
-      buc_bare "  vessel's rbrv.env, then re-ordain:"
-      buc_tabtarget "${RBZ_INSCRIBE_RELIQUARY}"
-      buc_tabtarget "${RBZ_YOKE_RELIQUARY}" "<new-stamp>" "${z_vessel_dir}"
-      buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir}"
-      buc_die "Registry preflight failed — reliquary missing from GAR"
-    elif test "${z_rqy_http_code}" != "200"; then
-      buc_die "Unexpected HTTP ${z_rqy_http_code} when checking reliquary: ${z_rqy_canary_pkg}:${z_reliquary}"
-    fi
+    case "${z_http_code}" in
+      200) buc_log_args "Reliquary tool present: ${z_tool}" ;;
+      404) z_missing+=("${z_tool}") ;;
+      *)   buc_die "Unexpected HTTP ${z_http_code} when checking reliquary tool: ${z_pkg}:${z_reliquary}" ;;
+    esac
+  done
 
-    buc_info "Reliquary verified: ${z_reliquary}"
+  if test "${#z_missing[@]}" -eq 0; then
+    buc_info "Reliquary verified: ${z_reliquary} (${#z_canonical_tools[@]}/${#z_canonical_tools[@]} tools present)"
+    return 0
   fi
+
+  buc_warn "Reliquary integrity check failed: ${z_reliquary} (${#z_missing[@]}/${#z_canonical_tools[@]} tools missing)"
+  buc_bare "  The reliquary is a co-versioned set of builder tool images (gcloud, docker,"
+  buc_bare "  syft, alpine, binfmt, skopeo) inscribed from upstream into your private GAR."
+  buc_bare "  Air-gapped worker pools cannot pull from the public internet — the reliquary"
+  buc_bare "  stages these tools so builds can run without egress. Piecemeal jettison is"
+  buc_bare "  allowed but unrecoverable surgically: re-inscribe the whole stamp."
+  buc_bare ""
+  for z_tool in "${z_missing[@]}"; do
+    buc_bare "  PRECHECK: GAR image not found at ${RBGL_RELIQUARIES_ROOT}/${z_reliquary}/${z_tool}"
+    buc_bare "    Required by ${RBRV_SIGIL}'s RBRV_RELIQUARY=${z_reliquary}."
+  done
+  buc_bare ""
+  buc_bare "  Recover by re-inscribing the reliquary, then re-yoking and re-ordaining:"
+  buc_tabtarget "${RBZ_INSCRIBE_RELIQUARY}"
+  buc_tabtarget "${RBZ_YOKE_RELIQUARY}" "<new-stamp>" "${z_vessel_dir}"
+  buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir}"
+  buc_die "Registry preflight failed — ${#z_missing[@]} of ${#z_canonical_tools[@]} reliquary tool images missing from GAR"
 }
 
 
@@ -1338,6 +1369,9 @@ rbfd_mirror() {
   local z_token
   z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
     || buc_die "Failed to get Director OAuth token"
+
+  # Registry preflight -- verify reliquary and enshrined base images exist before expensive operations
+  zrbfd_registry_preflight "${z_token}" "${z_vessel_dir}"
 
   # GAR coordinates
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"

@@ -16,8 +16,8 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle Foundry Ledger - inscribe, jettison, abjure, rekon, and tally operations
-# Director credentials for inscribe, jettison, abjure, rekon; retriever credentials for tally
+# Recipe Bottle Foundry Ledger - inscribe, yoke, jettison, abjure, wrest, rekon, muster, and tally operations
+# Director credentials for inscribe, yoke, jettison, abjure, wrest, rekon, muster; retriever credentials for tally
 
 set -euo pipefail
 
@@ -499,9 +499,9 @@ rbfl_tally() {
     || buc_die "Failed to get Retriever OAuth token"
 
   buc_step "Enumerating hallmarks under ${RBGL_HALLMARKS_ROOT}/"
-  zrbfc_list_hallmarks_capture "${z_token}"
+  zrbfc_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
 
-  if ! test -s "${ZRBFC_HALLMARK_LIST_FILE}"; then
+  if ! test -s "${ZRBFC_PACKAGE_LIST_FILE}"; then
     buc_info "No hallmarks found under ${RBGL_HALLMARKS_ROOT}/"
     buc_success "Tally complete — 0 hallmarks"
     return 0
@@ -514,7 +514,7 @@ rbfl_tally() {
   local z_line=""
   while IFS= read -r z_line || test -n "${z_line}"; do
     z_lines+=("${z_line}")
-  done < "${ZRBFC_HALLMARK_LIST_FILE}"
+  done < "${ZRBFC_PACKAGE_LIST_FILE}"
   z_lines+=("__SENTINEL__ __SENTINEL__")
 
   echo ""
@@ -596,7 +596,7 @@ rbfl_tally() {
   buc_success "Tally complete"
 }
 
-rbfl_rekon() {
+rbfl_rekon_hallmark() {
   zrbfl_sentinel
 
   local -r z_hallmark="${1:-}"
@@ -605,7 +605,7 @@ rbfl_rekon() {
   buc_doc_param "hallmark" "Hallmark identifier"
   buc_doc_shown || return 0
 
-  test -n "${z_hallmark}" || buc_die "Usage: rbw-ir <hallmark>"
+  test -n "${z_hallmark}" || buc_die "Usage: rbw-irh <hallmark>"
 
   buc_step "Authenticating as Director"
   test -f "${RBDC_DIRECTOR_RBRA_FILE}" \
@@ -615,7 +615,7 @@ rbfl_rekon() {
     || buc_die "Failed to get Director OAuth token"
 
   buc_step "Enumerating arks under ${RBGL_HALLMARKS_ROOT}/${z_hallmark}/"
-  zrbfc_list_hallmarks_capture "${z_token}"
+  zrbfc_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
 
   # Filter the full hallmark enumeration to rows for this hallmark.
   local z_present=""
@@ -629,7 +629,7 @@ rbfl_rekon() {
     if test "${z_h}" = "${z_hallmark}"; then
       z_present="${z_present}${z_present:+ }${z_b}"
     fi
-  done < "${ZRBFC_HALLMARK_LIST_FILE}"
+  done < "${ZRBFC_PACKAGE_LIST_FILE}"
 
   test -n "${z_present}" || buc_die "Hallmark not found: ${z_hallmark}"
 
@@ -661,6 +661,252 @@ rbfl_rekon() {
 
   echo ""
   buc_success "Rekon complete for ${z_hallmark}"
+}
+
+rbfl_rekon_reliquary() {
+  zrbfl_sentinel
+
+  local -r z_stamp="${1:-}"
+
+  buc_doc_brief "List tool images present under a reliquary stamp's GAR subtree"
+  buc_doc_param "stamp" "Reliquary datestamp (e.g., r260327172456)"
+  buc_doc_shown || return 0
+
+  test -n "${z_stamp}" || buc_die "Usage: rbw-irr <stamp>"
+
+  buc_step "Authenticating as Director"
+  test -f "${RBDC_DIRECTOR_RBRA_FILE}" \
+    || buc_die "Director credential not found: ${RBDC_DIRECTOR_RBRA_FILE}"
+  local z_token=""
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+    || buc_die "Failed to get Director OAuth token"
+
+  buc_step "Enumerating tool images under ${RBGL_RELIQUARIES_ROOT}/${z_stamp}/"
+  zrbfc_list_packages_capture "${z_token}" "${RBGL_RELIQUARIES_ROOT}"
+
+  # Filter the full reliquary enumeration to rows for this stamp.
+  local z_present=""
+  local z_line=""
+  local z_s=""
+  local z_t=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    test -n "${z_line}" || continue
+    z_s="${z_line%% *}"
+    z_t="${z_line#* }"
+    if test "${z_s}" = "${z_stamp}"; then
+      z_present="${z_present}${z_present:+ }${z_t}"
+    fi
+  done < "${ZRBFC_PACKAGE_LIST_FILE}"
+
+  test -n "${z_present}" || buc_die "Reliquary stamp not found: ${z_stamp}"
+
+  echo ""
+  printf "  %-10s  %-6s  %s\n" "TOOL" "EXISTS" "PACKAGE-PATH"
+  printf "  %-10s  %-6s  %s\n" "----------" "------" "------------"
+
+  local z_canon=""
+  local z_mark=""
+  local z_path=""
+  for z_canon in \
+    "${RBGC_RELIQUARY_TOOL_GCLOUD}" \
+    "${RBGC_RELIQUARY_TOOL_DOCKER}" \
+    "${RBGC_RELIQUARY_TOOL_ALPINE}" \
+    "${RBGC_RELIQUARY_TOOL_SYFT}" \
+    "${RBGC_RELIQUARY_TOOL_BINFMT}" \
+    "${RBGC_RELIQUARY_TOOL_SKOPEO}"; do
+    z_mark="no"
+    case " ${z_present} " in
+      *" ${z_canon} "*) z_mark="yes" ;;
+    esac
+    if test "${z_mark}" = "yes"; then
+      z_path="${RBGL_RELIQUARIES_ROOT}/${z_stamp}/${z_canon}"
+    else
+      z_path="(absent)"
+    fi
+    printf "  %-10s  %-6s  %s\n" "${z_canon}" "${z_mark}" "${z_path}"
+  done
+
+  echo ""
+  buc_success "Rekon complete for ${z_stamp}"
+}
+
+rbfl_wrest() {
+  zrbfl_sentinel
+
+  local -r z_locator="${1:-}"
+
+  buc_doc_brief "Wrest an image from the registry to local container runtime by locator"
+  buc_doc_param "locator" "Image locator in package-path:tag format (e.g. hallmarks/H/image:H, reliquaries/r260327172456/syft:r260327172456, enshrines/eb-anchor:eb-anchor)"
+  buc_doc_shown || return 0
+
+  test -n "${z_locator}" || buc_die "Locator parameter required (package-path:tag)"
+
+  case "${z_locator}" in
+    *:*) : ;;
+    *)   buc_die "Invalid locator format. Expected package-path:tag" ;;
+  esac
+  local -r z_pkg_path="${z_locator%:*}"
+  local -r z_tag="${z_locator##*:}"
+  test -n "${z_pkg_path}" || buc_die "Package path is empty in locator"
+  test -n "${z_tag}"      || buc_die "Tag is empty in locator"
+
+  buc_step "Authenticating as Director"
+  test -f "${RBDC_DIRECTOR_RBRA_FILE}" \
+    || buc_die "Director credential not found: ${RBDC_DIRECTOR_RBRA_FILE}"
+  local z_token
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+    || buc_die "Failed to get OAuth token"
+
+  buc_step "Logging into container registry"
+  local -r z_full_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBRR_CLOUD_PREFIX}${z_locator}"
+
+  echo "${z_token}" | docker login -u oauth2accesstoken --password-stdin "https://${ZRBFC_REGISTRY_HOST}" \
+    || buc_die "Container runtime authentication failed"
+
+  buc_step "Pulling image: ${z_full_ref}"
+  docker pull "${z_full_ref}" || buc_die "Image pull failed"
+
+  local z_image_id
+  docker inspect --format='{{.Id}}' "${z_full_ref}" > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null \
+    || buc_die "Failed to get image ID"
+  z_image_id=$(<"${ZRBFC_SCRATCH_FILE}")
+
+  echo ""
+  echo "Image wrested: ${z_full_ref}"
+  echo "Local image ID: ${z_image_id}"
+
+  buc_success "Image wrest complete"
+}
+
+rbfl_muster_hallmarks() {
+  zrbfl_sentinel
+
+  buc_doc_brief "Muster hallmarks — list all hallmark identifiers in registry"
+  buc_doc_shown || return 0
+
+  buc_step "Authenticating as Director"
+  test -f "${RBDC_DIRECTOR_RBRA_FILE}" \
+    || buc_die "Director credential not found: ${RBDC_DIRECTOR_RBRA_FILE}"
+  local z_token=""
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+    || buc_die "Failed to get Director OAuth token"
+
+  buc_step "Enumerating hallmarks under ${RBGL_HALLMARKS_ROOT}/"
+  zrbfc_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
+
+  if ! test -s "${ZRBFC_PACKAGE_LIST_FILE}"; then
+    buc_info "No hallmarks found under ${RBGL_HALLMARKS_ROOT}/"
+    buc_success "Muster complete — 0 hallmarks"
+    return 0
+  fi
+
+  echo ""
+  printf "  %s\n" "HALLMARK"
+  printf "  %s\n" "------------------------------"
+
+  local z_count=0
+  local z_prev=""
+  local z_line=""
+  local z_h=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    test -n "${z_line}" || continue
+    z_h="${z_line%% *}"
+    test -n "${z_h}" || continue
+    if test "${z_h}" != "${z_prev}"; then
+      printf "  %s\n" "${z_h}"
+      z_count=$(( z_count + 1 ))
+      z_prev="${z_h}"
+    fi
+  done < "${ZRBFC_PACKAGE_LIST_FILE}"
+
+  echo ""
+  buc_info "Total hallmarks: ${z_count}"
+  buc_success "Muster complete"
+}
+
+rbfl_muster_reliquaries() {
+  zrbfl_sentinel
+
+  buc_doc_brief "Muster reliquaries — list all reliquary stamps in registry"
+  buc_doc_shown || return 0
+
+  buc_step "Authenticating as Director"
+  test -f "${RBDC_DIRECTOR_RBRA_FILE}" \
+    || buc_die "Director credential not found: ${RBDC_DIRECTOR_RBRA_FILE}"
+  local z_token=""
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+    || buc_die "Failed to get Director OAuth token"
+
+  buc_step "Enumerating reliquaries under ${RBGL_RELIQUARIES_ROOT}/"
+  zrbfc_list_packages_capture "${z_token}" "${RBGL_RELIQUARIES_ROOT}"
+
+  if ! test -s "${ZRBFC_PACKAGE_LIST_FILE}"; then
+    buc_info "No reliquaries found under ${RBGL_RELIQUARIES_ROOT}/"
+    buc_success "Muster complete — 0 reliquaries"
+    return 0
+  fi
+
+  echo ""
+  printf "  %s\n" "RELIQUARY-STAMP"
+  printf "  %s\n" "------------------------------"
+
+  local z_count=0
+  local z_prev=""
+  local z_line=""
+  local z_s=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    test -n "${z_line}" || continue
+    z_s="${z_line%% *}"
+    test -n "${z_s}" || continue
+    if test "${z_s}" != "${z_prev}"; then
+      printf "  %s\n" "${z_s}"
+      z_count=$(( z_count + 1 ))
+      z_prev="${z_s}"
+    fi
+  done < "${ZRBFC_PACKAGE_LIST_FILE}"
+
+  echo ""
+  buc_info "Total reliquaries: ${z_count}"
+  buc_success "Muster complete"
+}
+
+rbfl_muster_enshrinements() {
+  zrbfl_sentinel
+
+  buc_doc_brief "Muster enshrinements — list all enshrined base anchors in registry"
+  buc_doc_shown || return 0
+
+  buc_step "Authenticating as Director"
+  test -f "${RBDC_DIRECTOR_RBRA_FILE}" \
+    || buc_die "Director credential not found: ${RBDC_DIRECTOR_RBRA_FILE}"
+  local z_token=""
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+    || buc_die "Failed to get Director OAuth token"
+
+  buc_step "Enumerating enshrinements under ${RBGL_ENSHRINES_ROOT}/"
+  zrbfc_list_anchors_capture "${z_token}" "${RBGL_ENSHRINES_ROOT}"
+
+  if ! test -s "${ZRBFC_PACKAGE_LIST_FILE}"; then
+    buc_info "No enshrinements found under ${RBGL_ENSHRINES_ROOT}/"
+    buc_success "Muster complete — 0 enshrinements"
+    return 0
+  fi
+
+  echo ""
+  printf "  %s\n" "ENSHRINE-ANCHOR"
+  printf "  %s\n" "------------------------------"
+
+  local z_count=0
+  local z_line=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    test -n "${z_line}" || continue
+    printf "  %s\n" "${z_line}"
+    z_count=$(( z_count + 1 ))
+  done < "${ZRBFC_PACKAGE_LIST_FILE}"
+
+  echo ""
+  buc_info "Total enshrinements: ${z_count}"
+  buc_success "Muster complete"
 }
 
 

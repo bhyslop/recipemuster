@@ -47,7 +47,8 @@ The supply chain has three layers: inscribe creates the reliquary (tool images),
 
 | Verb | What it does |
 |------|-------------|
-| **tally** | Count and classify hallmarks in the registry by health state |
+| **muster** | List registry identifiers in one of the three domains (hallmarks, reliquaries, enshrinements) — director-tier flat catalog, no health detail |
+| **tally** | Count and classify hallmarks in the registry by health state — retriever-tier, hallmarks only |
 | **vouch** | Verify SLSA provenance — proves a hallmark was built by trusted infrastructure |
 | **plumb** | Examine an image's provenance details: SBOM, build info, Dockerfile |
 
@@ -56,14 +57,14 @@ The supply chain has three layers: inscribe creates the reliquary (tool images),
 | Verb | What it does |
 |------|-------------|
 | **summon** | Pull a vouched hallmark image locally (full vouch ceremony first) |
-| **wrest** | Pull a specific image by reference (direct pull, no vouch) |
+| **wrest** | Pull a specific image by locator — works across hallmark members, reliquary tools, or enshrinements (direct pull, no vouch) |
 
 ### How do I remove images?
 
 | Verb | What it does |
 |------|-------------|
 | **abjure** | Delete a hallmark's artifacts from GAR (the full set: image + about + vouch) |
-| **jettison** | Delete a specific image tag from the registry (surgical, single artifact) |
+| **jettison** | Delete a specific image tag by locator — works across hallmark members, reliquary tools, or enshrinements (surgical, single artifact) |
 
 ### How do I run containers?
 

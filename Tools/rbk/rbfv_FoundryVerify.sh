@@ -786,7 +786,7 @@ rbfv_batch_vouch() {
     || buc_die "Failed to get Director OAuth token"
 
   buc_step "Enumerating hallmarks under ${RBGL_HALLMARKS_ROOT}/"
-  zrbfc_list_hallmarks_capture "${z_token}"
+  zrbfc_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
 
   # Load-then-iterate. A synthetic sentinel element appended to the array
   # lets the final hallmark flush through the same boundary branch as every
@@ -795,7 +795,7 @@ rbfv_batch_vouch() {
   local z_line=""
   while IFS= read -r z_line || test -n "${z_line}"; do
     z_lines+=("${z_line}")
-  done < "${ZRBFC_HALLMARK_LIST_FILE}"
+  done < "${ZRBFC_PACKAGE_LIST_FILE}"
   z_lines+=("__SENTINEL__ __SENTINEL__")
 
   # Pass 1: state machine identifies pending hallmarks (image+about present,
