@@ -55,7 +55,7 @@ Concurrent bash sessions share this path, so parallel commands can overwrite eac
 To begin, run the onboarding walkthrough:
 
 ```
-tt/rbw-o.OnboardingStartHere.sh
+tt/rbw-o.ONBOARDING.sh
 ```
 
 ## <a id="Foundry"></a>Foundry
