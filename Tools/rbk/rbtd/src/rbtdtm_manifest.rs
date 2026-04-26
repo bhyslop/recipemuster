@@ -86,7 +86,21 @@ fn rbtdtm_accepts_fast_fixtures() {
     assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_ENROLLMENT_VALIDATION).is_ok());
     assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_REGIME_VALIDATION).is_ok());
     assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_REGIME_SMOKE).is_ok());
+}
+
+#[test]
+fn rbtdtm_accepts_valid_pristine_lifecycle_manifest() {
+    let manifest = rbtdtm_manifest_for(RBTDRM_FIXTURE_PRISTINE_LIFECYCLE);
     assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_PRISTINE_LIFECYCLE).is_ok());
+}
+
+#[test]
+fn rbtdtm_pristine_lifecycle_rejects_missing_colophon() {
+    // Manifest with only the depot levy colophon — missing the other 5
+    let manifest = RBTDRM_COLOPHON_DEPOT_LEVY;
+    let err = rbtdrm_verify(manifest, RBTDRM_FIXTURE_PRISTINE_LIFECYCLE).unwrap_err();
+    // verify returns the first missing colophon — DEPOT_LIST is second in the list
+    assert!(err.contains(RBTDRM_COLOPHON_DEPOT_LIST));
 }
 
 #[test]

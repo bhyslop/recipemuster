@@ -622,6 +622,7 @@ rbgp_depot_levy() {
   fi
   
   buc_log_args "Generated depot project ID: ${z_depot_project_id}"
+  buf_write_fact "${RBGP_FACT_DEPOT_PROJECT_ID}" "${z_depot_project_id}"
 
   buc_step 'Create depot project'
   local -r z_create_project_body="${BURD_TEMP_DIR}/rbgp_create_project.json"
@@ -1242,6 +1243,7 @@ rbgp_governor_mantle() {
   rbgu_http_require_ok "Create Governor service account" "${ZRBGP_INFIX_GOV_CREATE_SA}"
 
   buc_log_args "Governor service account created: ${z_governor_email}"
+  buf_write_fact "${RBGP_FACT_GOVERNOR_SA_EMAIL}" "${z_governor_email}"
 
   buc_step 'Wait for Governor SA propagation'
   local -r z_verify_url="${z_sa_list_url}/${z_governor_email}"

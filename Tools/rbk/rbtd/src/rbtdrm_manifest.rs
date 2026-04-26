@@ -57,6 +57,16 @@ pub const RBTDRM_COLOPHON_CRUCIBLE_ACTIVE: &str = "rbw-cic";
 // Access probe colophon (imprint-scoped by role)
 pub const RBTDRM_COLOPHON_ACCESS_PROBE: &str = "rbtd-ap";
 
+// Payor depot colophons (global — no nameplate imprint)
+pub const RBTDRM_COLOPHON_DEPOT_LEVY: &str = "rbw-dL";
+pub const RBTDRM_COLOPHON_DEPOT_LIST: &str = "rbw-dl";
+pub const RBTDRM_COLOPHON_DEPOT_UNMAKE: &str = "rbw-dU";
+
+// Governor service-account colophons (global — no nameplate imprint)
+pub const RBTDRM_COLOPHON_GOV_MANTLE: &str = "rbw-aM";
+pub const RBTDRM_COLOPHON_GOV_LIST_SAS: &str = "rbw-aL";
+pub const RBTDRM_COLOPHON_GOV_FORFEIT: &str = "rbw-aF";
+
 // Handbook display colophons — one symbolic ref per RBZ_* zipper constant.
 // Onboarding group (8)
 pub const RBTDRM_COLOPHON_ONBOARD_START_HERE: &str = "rbw-o";
@@ -126,8 +136,15 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         RBTDRM_FIXTURE_ACCESS_PROBE => Some(&[RBTDRM_COLOPHON_ACCESS_PROBE]),
         RBTDRM_FIXTURE_ENROLLMENT_VALIDATION
         | RBTDRM_FIXTURE_REGIME_VALIDATION
-        | RBTDRM_FIXTURE_REGIME_SMOKE
-        | RBTDRM_FIXTURE_PRISTINE_LIFECYCLE => Some(&[]),
+        | RBTDRM_FIXTURE_REGIME_SMOKE => Some(&[]),
+        RBTDRM_FIXTURE_PRISTINE_LIFECYCLE => Some(&[
+            RBTDRM_COLOPHON_DEPOT_LEVY,
+            RBTDRM_COLOPHON_DEPOT_LIST,
+            RBTDRM_COLOPHON_DEPOT_UNMAKE,
+            RBTDRM_COLOPHON_GOV_MANTLE,
+            RBTDRM_COLOPHON_GOV_LIST_SAS,
+            RBTDRM_COLOPHON_GOV_FORFEIT,
+        ]),
         RBTDRM_FIXTURE_HANDBOOK_RENDER => Some(&[
             RBTDRM_COLOPHON_ONBOARD_START_HERE,
             RBTDRM_COLOPHON_ONBOARD_CRASH_COURSE,

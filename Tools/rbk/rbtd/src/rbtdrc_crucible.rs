@@ -65,7 +65,7 @@ pub fn rbtdrc_take_context() -> rbtdri_Context {
     })
 }
 
-fn rbtdrc_with_ctx<F>(f: F) -> rbtdre_Verdict
+pub(crate) fn rbtdrc_with_ctx<F>(f: F) -> rbtdre_Verdict
 where
     F: FnOnce(&mut rbtdri_Context) -> rbtdre_Verdict,
 {

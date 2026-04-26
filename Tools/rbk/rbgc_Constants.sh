@@ -152,6 +152,10 @@ zrbgc_kindle() {
   readonly RBF_FACT_ARK_YIELD="rbf_fact_ark_yield"
   readonly RBF_FACT_RELIQUARY="rbf_fact_reliquary"
 
+  # Payor fact-file filenames (depot/governor identifying values)
+  readonly RBGP_FACT_DEPOT_PROJECT_ID="rbgp_fact_depot_project_id"
+  readonly RBGP_FACT_GOVERNOR_SA_EMAIL="rbgp_fact_governor_sa_email"
+
   # Artifact Registry (GAR) Composition
   readonly RBGC_GAR_HOST_SUFFIX="-docker.pkg.dev"
 
