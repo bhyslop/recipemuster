@@ -233,6 +233,79 @@ The [Theurge](#Theurge) test orchestrator [Charges](#Charge) [tadmor](#tadmor) a
 The [moriah](#moriah) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with the [Ifrit](#Ifrit) attack [Vessel](#Vessel) under the same restrictive network allowlist as [tadmor](#tadmor), consuming [Hallmarks](#Hallmark) [Ordained](#Ordain) end-to-end on the [Airgap](#Airgap) pool.
 The [Theurge](#Theurge) runs the same escape attempts against [moriah](#moriah) as against [tadmor](#tadmor) — the cloud-built variant validating that containment holds identically when the supply chain produces the inputs.
 
+## Release Procedure
+
+The release qualification ceremony for the project maintainer — five operator steps, roughly one hour wall-clock, with cloud cost on the order of two GCP projects per run.
+The ceremony exists to catch silent first-build assumptions that the routine `tt/rbw-tf.QualifyFast.sh` and `tt/rbw-tr.QualifyRelease.sh` tiers tolerate by design.
+
+[Payor](#Payor) OAuth is the only prerequisite credential.
+All other credentials — [Governor](#Governor), [Director](#Director), and [Retriever](#Retriever) service-account [RBRA](#RBRA) files — are minted by the qualification itself, not restored from backup.
+The entire credential chain must be reproducible from a clean local state.
+
+**Failure mode contract.** Mid-qualification failure means start over from step 2, not patch-and-continue.
+Patching forward is exactly the bug class this ceremony exists to catch — accumulated state hides first-build assumptions.
+
+### 1. Confirm Payor health
+
+```
+tt/rbw-gPR.PayorRefresh.sh
+```
+
+Or `tt/rbw-gPI.PayorInstall.sh` if [Payor](#Payor) credentials have never been [Installed](#Install) on this workstation.
+[Refreshes](#Refresh) the OAuth refresh token so subsequent [Payor](#Payor)-authority operations do not fail mid-qualification on token expiry.
+Success: the command exits clean.
+Failure: re-[Establish](#Establish) the [Manor](#Manor) before proceeding — the ceremony cannot run without a healthy [Payor](#Payor).
+
+### 2. Marshal zero, then commit
+
+```
+tt/rbw-MZ.MarshalZeroes.sh
+```
+
+The marshal-zero operation empties the local regime to a blank template: [Depot](#Depot) identity fields in [RBRR](#RBRR), all [RBRA](#RBRA) credential files, [Hallmark](#Hallmark) pins in [Nameplate](#Nameplate) regimes, and depot-scoped fields in [Vessel](#Vessel) `rbrv.env` files all return to template values.
+Commit the result with the marshal-zero signature in the commit message — step 3 detects that signature on `HEAD` and refuses to run otherwise.
+Success: working tree clean and `HEAD` carries the signature.
+Failure: review the marshal output for files the operation would not zero, resolve, and retry.
+
+### 3. Run the pristine qualification
+
+```
+tt/rbw-tP.QualifyPristine.sh
+```
+
+The release gate.
+Cost: roughly one hour wall-clock plus two GCP projects per run — one throwaway [Depot](#Depot) created and torn down by the `pristine-lifecycle` fixture's `depot-lifecycle` case, one canonical [Depot](#Depot) [Levied](#Levy) by the canonical-infrastructure setup phase.
+GCP project deletion is asynchronous (30-day soft delete), so each run leaves pending-delete projects in the project list; this is accepted cost.
+
+`rbw-tP` refuses to run unless marshal-zero was just committed: signature on `HEAD`, working tree clean, [RBRA](#RBRA) files absent, regime fields blank.
+The refusal is enforced by the test itself, not by ceremony or operator discipline — that entry contract is the property that lets this tier catch silent-first-build assumptions by construction.
+
+The qualification runs the `pristine-lifecycle` fixture (marshal-zero gate plus idempotent throwaway lifecycles for [Depot](#Depot), [Governor](#Governor), [Retriever](#Retriever), and [Director](#Director)), then proceeds to canonical infrastructure setup: [Mantle](#Mantle) the canonical [Governor](#Governor) and deploy its [RBRA](#RBRA), [Charter](#Charter) the canonical [Retriever](#Retriever) and deploy its [RBRA](#RBRA), [Knight](#Knight) the canonical [Director](#Director) and deploy its [RBRA](#RBRA), [Levy](#Levy) the canonical [Depot](#Depot), inscribe the [Reliquary](#Reliquary), [Ordain](#Ordain) all [Hallmarks](#Hallmark), run the [Crucible](#Crucible) suite, and clean up.
+Success: green tally and clean exit.
+Failure: return to step 2 — never patch-and-continue.
+
+### 4. Prepare the upstream release
+
+```
+/rbk-prep-release
+```
+
+A Claude Code slash command, not a tabtarget — the contribution ceremony is interactive by design.
+Drives the upstream contribution review and produces the contribution-ready branch.
+Success: the ceremony reports a clean upstream-ready state.
+Failure: address findings and re-run; if the underlying issue is structural, return to step 2.
+
+### 5. Push to the upstream remote
+
+```
+git push <upstream> <branch>
+```
+
+Universal git operation; no tabtarget.
+Pushes the contribution-ready branch produced by step 4.
+Success: the upstream accepts the push.
+Failure: resolve the upstream-side reason (branch protection, force-push policy, etc.) and retry — the local state from step 4 remains valid.
+
 ## Appendix: Foundry Operations
 
 Formal definitions for all [Foundry](#Foundry) operations, organized by lifecycle phase.
