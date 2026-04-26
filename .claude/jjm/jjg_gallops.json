@@ -6647,9 +6647,10 @@
         "₢BBAAD",
         "₢BBAAE",
         "₢BBAAF",
-        "₢BBAAG"
+        "₢BBAAG",
+        "₢BBAAH"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAAA": {
@@ -6726,6 +6727,17 @@
               "text": "## Character\n\nCleanup phase plus the actual first run. The tier doesn't ship until it's been run end-to-end against fresh state and surprises captured. Failures during the first run are *informative*, not blockers — they document the surprises this whole heat exists to surface.\n\n## Work\n\n### Cleanup phase implementation\n\nAdd Phase 5 to `rbw-tP`:\n\n1. **Abjure all hallmarks** — `rbw-fA` for each ordained hallmark; verify clean removal via `rbw-irh`\n2. **Forfeit service accounts** — `rbw-aF` for retriever, director, governor (in dependency order, governor last since it grants the others); verify clean removal via `rbw-aL`\n3. **Unmake depot** — `rbw-dU` PayorUnmakesDepot; verify quota recovery\n4. **Final tally** — `rbw-dl` shows no depots, `rbw-irh`/`rbw-irr` surfaces clean GAR namespace\n\n### First end-to-end run\n\nExecute the FIRST end-to-end run of `rbw-tP` against actual fresh state:\n\n1. Marshal zero, commit (using the new signature from Phase 0)\n2. Install RBRAs from secure backup\n3. Run `rbw-tP` — full sequence; expect ~1 hour wall-clock\n4. Capture every surprise — failed assertions, unexpected diagnostics, performance anomalies, missing tabtargets, awkward UX — in a notch dedicated to this pace's findings\n5. Fix small surprises inline within this pace (one-line bash fixes, message clarity)\n6. Surface large surprises for follow-up paces (new heats if they're significant)\n\n### Recording\n\nRecord into the pace closure:\n- Wall-clock total and per-phase\n- Cloud cost (depot creation, build minutes, GAR storage)\n- Surprises captured + their disposition (fixed inline / spawned follow-up)\n\n## Verification\n\n- Cleanup phase leaves depot empty and unmade after each pristine run\n- First end-to-end run completes (or fails informatively) with surprises captured\n- Wall-clock and cost recorded for future capacity planning\n- All four crucible fixtures green at the conclusion of the first successful run\n- The bug class this heat exists for (silent first-build assumptions) is either caught or proven absent\n\n## Out of scope\n\n- `/rbk-prep-release` integration (Phase 6)\n- Multi-day re-run scenarios (out of single-operator scope)\n- Quota recovery beyond unmake-at-end-of-tier\n- Restoring RBRAs after marshal-zero (manual operator step per runbook)",
               "silks": "phase-5-cleanup-and-first-end-to-end-run",
               "commit": "39f6f11"
+            }
+          ]
+        },
+        "₢BBAAH": {
+          "tacks": [
+            {
+              "ts": "260426-1105",
+              "state": "rough",
+              "text": "## Character\n\nFinal integration pace. Wires pristine-pass as a precondition for `/rbk-prep-release` so the upstream contribution ceremony cannot proceed without a recent pristine green. Closes the loop: pristine qualification becomes load-bearing on release prep, not optional ceremony.\n\n## Work\n\nModify `.claude/commands/rbk-prep-release.md` to add a precondition step at or near step 1:\n\n- Verify a recent `rbw-tP` run was green\n- Recency contract — design call: most recent commit on main? Last 7 days? Tagged release marker on the green run? Suggest \"pristine-passed marker file references HEAD's commit SHA exactly\" — strongest invariant, prevents stale passes\n- If pristine has not run green against the current HEAD, prep-release fails-fast with operator-visible message naming the marshal-zero → pristine sequence\n\nLikely needs a small artifact written by `rbw-tP` on success — e.g., a `.pristine-passed` file (gitignored) carrying timestamp + commit SHA. `/rbk-prep-release` reads it; if SHA doesn't match HEAD, prep-release refuses.\n\nUpdate README \"Release Procedure\" section (from Pace 1) to reflect that step 4 (`/rbk-prep-release`) now enforces step 3 (`rbw-tP`) had to pass against the very HEAD that prep-release is preparing.\n\n## Verification\n\n- `/rbk-prep-release` fails fast when no pristine pass is recorded for current HEAD\n- After successful `rbw-tP`, `/rbk-prep-release` proceeds normally\n- After successful `rbw-tP` followed by an unrelated commit, `/rbk-prep-release` refuses (SHA mismatch)\n- Pristine-passed artifact's gitignore status is correct (deliberately not committed)\n- README accurately documents the precondition\n\n## Out of scope\n\n- Restructuring the rest of `/rbk-prep-release` (preserved as-is)\n- Multi-pristine-run aggregation\n- CI integration\n- Recency policies beyond exact-HEAD-match (other policies left for future heats if needed)",
+              "silks": "phase-6-prep-release-integration",
+              "commit": "3452739"
             }
           ]
         }
