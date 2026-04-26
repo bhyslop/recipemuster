@@ -513,7 +513,7 @@ The annotated tree below maps its files to the concepts defined above.
 | `│   └── rbk/` | Recipe Bottle Kit — domain logic |
 | `├── .buk/` | [BURC](#BURC) project structure [Regime](#Regime) |
 | `├── .rbk/` | [Regime](#Regime) configuration root |
-| `│   ��── rbrp.env` | [RBRP](#RBRP) — [Payor](#Payor) identity for this [Depot](#Depot) |
+| `│   ├── rbrp.env` | [RBRP](#RBRP) — [Payor](#Payor) identity for this [Depot](#Depot) |
 | `│   ├── rbrr.env` | [RBRR](#RBRR) — [Depot](#Depot) identity and build configuration |
 | `│   ├── ccyolo/` | [Nameplate](#Nameplate) — [ccyolo](#ccyolo) Claude Code sandbox |
 | `│   │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + Claude Code, Anthropic-only allowlist |
