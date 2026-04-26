@@ -6640,10 +6640,24 @@
       "silks": "rbk-mvp-3-release-qualification",
       "creation_time": "260426",
       "status": "racing",
-      "order": [],
-      "next_pace_seed": "AAA",
+      "order": [
+        "₢BBAAA"
+      ],
+      "next_pace_seed": "AAB",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
-      "paces": {}
+      "paces": {
+        "₢BBAAA": {
+          "tacks": [
+            {
+              "ts": "260426-1102",
+              "state": "rough",
+              "text": "## Character\n\nDocumentation pace. Write the operator-facing release procedure as the README \"Release\" section. Concise — 4-5 human steps. References `rbw-tP` (built in subsequent paces) by name; `rbw-tP` need not exist yet for this docket to land. Establishes the contract that the rest of the heat fulfills.\n\n## Work\n\nAdd a \"Release Procedure\" section to README.md with the sequence:\n\n1. **Marshal zero, commit** — `tt/rbw-MZ.MarshalZeroes.sh`; commit the result with the marshal-zero signature in the message (signature shape designed in Phase 0)\n2. **Install RBRAs** — re-place retriever and director credential JSON files at the configured RBRR paths; marshal-zero deleted them, reinstall from secure backup\n3. **Run pristine qualification** — `tt/rbw-tP.QualifyPristine.sh`; ~1 hour wall-clock; includes depot creation (quota-bearing, first attempt of the day preferred)\n4. **If green, prep release** — `/rbk-prep-release` (upstream contribution ceremony)\n5. **Push** — to upstream remote\n\nEach step gets one paragraph: what it does, what it costs, what success looks like, what failure means. Failure mode contract called out explicitly: mid-qualification failure means start-over-from-zero, not patch-and-continue.\n\n## Verification\n\n- README.md has a \"Release Procedure\" section\n- Section is readable cold by the operator without conversation context\n- Section explicitly names the marshal-zero-just-committed entry contract for `rbw-tP` and the quota-aware nature of Phase 1\n- Section explicitly names the start-over-from-zero failure contract\n\n## Out of scope\n\n- Implementing `rbw-tP` itself (subsequent paces)\n- Revising `rbw-tr` or `rbw-tf` (preserved as-is)\n- Multi-operator workflow (single-operator scope by design)",
+              "silks": "release-procedure-runbook",
+              "commit": "30f8ec5"
+            }
+          ]
+        }
+      }
     }
   }
 }
