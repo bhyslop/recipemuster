@@ -6645,9 +6645,10 @@
         "₢BBAAB",
         "₢BBAAC",
         "₢BBAAD",
-        "₢BBAAE"
+        "₢BBAAE",
+        "₢BBAAF"
       ],
-      "next_pace_seed": "AAF",
+      "next_pace_seed": "AAG",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAAA": {
@@ -6702,6 +6703,17 @@
               "text": "## Character\n\nThird executable phase. The largest cloud-side phase by surface area: exercises every producer mode (conjure, bind, graft) plus reliquary inscribe and full consumer flow (vouch, summon, plumb, tally). This is the phase where the recent first-build spook bug class (kludge-aware-charge-prereq, ZRBOB_PROJECT, reliquary integrity) gets caught at construction rather than discovery.\n\n## Work\n\nAdd Phase 3 to `rbw-tP`:\n\n1. **Inscribe reliquary** — `rbw-dI` DirectorInscribesReliquary; verify reliquary stamp lands under `${RBRR_CLOUD_PREFIX}reliquaries/<date>/<tool>` with all canonical tools present (gcloud, docker, alpine, syft, binfmt, skopeo)\n2. **Conjure small vessel** — `rbw-fO` against a small conjure-mode vessel (suggest `rbev-busybox` or sentry-deb-tether); verify hallmark publication with shape `<prefix>hallmarks/<hallmark>/{image,vouch,pouch,about,attest,diags}`\n3. **Bind small vessel** — `rbw-fO` against a bind-mode vessel; verify digest pin and hallmark\n4. **Graft small vessel** — `rbw-fk` LocalKludge then `rbw-fO` graft path; verify GRAFTED vouch verdict and `<hallmark>/` shape (no pouch for graft)\n5. **Vouch all three** — `rbw-fV` mode-aware vouch; verify each verdict shape matches mode contract (SLSA for conjure, digest-pin for bind, GRAFTED for graft)\n6. **Summon each** — `rbw-fs` RetrieverSummonsHallmark; verify local image present\n7. **Plumb compact + full** — `rbw-fpc` and `rbw-fpf`; verify metadata fetch from new GAR layout\n8. **Tally** — `rbw-ft` RetrieverTalliesHallmarks; verify all three hallmarks classified correctly by health state\n9. **Rekon** — `rbw-irh` and `rbw-irr`; verify ark basenames match canonical members under hallmark and reliquary subtrees\n\nImplicitly exercises the kludge-aware-charge-prereq fix path: k-prefixed kludge hallmarks classify correctly without false missing-vouch warnings.\n\n## Verification\n\n- All three hallmarks present in GAR with correct shape per mode\n- Each vouch verdict matches mode contract\n- Summon + plumb succeed against new layout\n- Tally counts and classifications correct\n- Rekon surfaces all expected canonical members\n- No false missing-vouch warnings on k-prefixed paths\n\n## Out of scope\n\n- Crucible charge / security tests (Phase 4)\n- Hallmark abjure (Phase 5)\n- New vessel creation (uses existing kit-shipped vessels)",
               "silks": "phase-3-reliquary-and-hallmark-lifecycle",
               "commit": "cb3cfbd"
+            }
+          ]
+        },
+        "₢BBAAF": {
+          "tacks": [
+            {
+              "ts": "260426-1104",
+              "state": "rough",
+              "text": "## Character\n\nFourth executable phase. Brings up containers; runs the security and capability fixtures against freshly-built hallmarks. This is where moriah's airgap test cases finally run on a depot whose first-time creation we just validated end-to-end. The user noted: \"I've been pretending like I don't need to test depot creation but maybe I do\" — this phase is where that decision becomes operational.\n\n## Work\n\nAdd Phase 4 to `rbw-tP`:\n\n1. **Charge tadmor** — `rbw-cC.Charge.tadmor.sh`; verify sentry+pentacle+bottle up cleanly under prefixed names\n2. **Run tadmor security suite** — `rbtd-r.Run.tadmor.sh` (or single-case mode against the just-charged crucible); verify 34 security cases pass against a freshly-conjured tadmor hallmark\n3. **Quench tadmor** — `rbw-cQ.Quench.tadmor.sh`; verify cleanup\n4. **Charge moriah** — airgap nameplate; verify charge with airgap topology against fresh enshrined-base + airgap-conjured vessel\n5. **Run moriah airgap suite** — capability fixtures verify airgap discipline holds end-to-end against fresh-cloud-built hallmark\n6. **Quench moriah**\n7. **Charge srjcl + run srjcl-jupyter (3 cases) + quench**\n8. **Charge pluml + run pluml-diagram (5 cases) + quench**\n\nSequential only — fixtures share regime state and container/network namespaces. Per-fixture quench-after-test discipline so a failure in one fixture doesn't poison the next.\n\nThe moriah test specifically validates the airgap path that requires `rbw-dE` enshrine + airgap-mode `rbw-fO` to have completed in Phase 3 against the freshly-created depot. If Phase 3 was wrong, moriah fails here.\n\n## Verification\n\n- All four crucibles charge successfully against fresh hallmarks\n- Tadmor security suite green\n- Moriah airgap suite green (the test that motivated this whole heat)\n- srjcl-jupyter green (3 cases)\n- pluml-diagram green (5 cases)\n- Charge/quench cycles leave no residual state between fixtures\n\n## Out of scope\n\n- Cleanup of hallmarks/SAs/depot (Phase 5)\n- Test infrastructure changes (any test failures here surface in subsequent paces or follow-up heats)\n- Adding new fixtures (this phase exercises the existing four)",
+              "silks": "phase-4-crucible-suite",
+              "commit": "7a43e7b"
             }
           ]
         }
