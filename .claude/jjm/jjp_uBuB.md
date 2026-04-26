@@ -48,6 +48,18 @@ Two depots created per pristine run: one throwaway (case 2 of fixture) + one can
 
 Mid-qualification failure means start-over-from-zero, not patch-and-continue. Documented explicitly in runbook to prevent the very accumulated-state bug class this tier exists to catch.
 
+### Release-branch execution contract
+
+Three properties bind every case in this fixture. They shape how a run is shaped — distinct from, and constraining, the failure-mode contract above.
+
+**Run on a release branch.** The release machinery is engineered for branch execution, not main. The branch will accumulate many commits across a successful pristine run. After a failed run, the branch holds bygone commits that `rbw-MZ` does not touch — they remain as history; the next run starts from a fresh marshal-zero commit on top.
+
+**Commits during the run are first-class.** Each fixture step that mutates regime state (rbrr.env, rbra files, vessel rbrv.env, etc.) commits the change. Container-recipe work has a documented cognitive failure mode: humans lose track of where they are in long sequences. The growing commit trail is the operator's mental anchor against that. Minimizing fixture commits is anti-goal.
+
+**Stop on very first failure, cleanly and clearly.** A case fails → fixture stops → operator stops → debugging happens immediately on the failed branch. Stderr names the failed step; fixture exits non-zero. No graceful degradation, no recovery branches, no "cleanup so the next case can run." Recovery is `rbw-MZ` + retry on a fresh marshal-zero. The operator never asks "should I continue past this failure?" — the answer is always no.
+
+Engineering scaffolding for any other shape — partial-run cleanup, soft-delete tolerance for graceful continuation, multi-mode failure handling, recovery-time orphan inspection, diagnostic-redundancy tee files — is non-load-bearing complexity and does not belong in pristine-lifecycle code. The single mechanical path is the entire surface.
+
 ### Implementation patterns (locked during BBAAJ)
 
 Durable choices binding all pristine-lifecycle case implementations (BBAAB, BBAAJ, BBAAK, and future BBAAC vessel-commit cases).
