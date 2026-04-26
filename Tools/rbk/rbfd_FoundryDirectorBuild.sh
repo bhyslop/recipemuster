@@ -1532,6 +1532,9 @@ zrbfd_mirror_submit() {
     --arg zjq_dockerfile     "${z_dockerfile_content}" \
     --arg zjq_pool           "${z_mirror_pool}" \
     --arg zjq_timeout        "${RBRR_GCB_TIMEOUT}" \
+    --arg zjq_basename_image "${RBGC_ARK_BASENAME_IMAGE}" \
+    --arg zjq_basename_about "${RBGC_ARK_BASENAME_ABOUT}" \
+    --arg zjq_basename_diags "${RBGC_ARK_BASENAME_DIAGS}" \
     '{
       steps: $zjq_steps[0],
       substitutions: {
@@ -1548,7 +1551,10 @@ zrbfd_mirror_submit() {
         _RBGA_INSCRIBE_TIMESTAMP:    $zjq_inscribe_ts,
         _RBGA_BIND_SOURCE:           $zjq_bind_source,
         _RBGA_GRAFT_SOURCE:          $zjq_graft_source,
-        _RBGA_DOCKERFILE_CONTENT:    $zjq_dockerfile
+        _RBGA_DOCKERFILE_CONTENT:    $zjq_dockerfile,
+        _RBGA_ARK_BASENAME_IMAGE:    $zjq_basename_image,
+        _RBGA_ARK_BASENAME_ABOUT:    $zjq_basename_about,
+        _RBGA_ARK_BASENAME_DIAGS:    $zjq_basename_diags
       },
       serviceAccount: $zjq_sa,
       options: {
