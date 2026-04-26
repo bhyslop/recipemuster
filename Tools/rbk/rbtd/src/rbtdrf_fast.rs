@@ -761,6 +761,11 @@ fn rbtdrf_ev_multiscope(dir: &Path) -> rbtdre_Verdict {
 
 // ── Regime-validation cases ─────────────────────────────────
 
+// Env-var name consts — single source of truth for prefix-related env vars
+// referenced across rv_rbrr negatives and rs_rbrr_nonempty_prefix smoke.
+const RBTDRF_VAR_RBRR_CLOUD_PREFIX: &str = "RBRR_CLOUD_PREFIX";
+const RBTDRF_VAR_RBRR_RUNTIME_PREFIX: &str = "RBRR_RUNTIME_PREFIX";
+
 // --- RBRR negative tests ---
 
 fn rbtdrf_rv_rbrr_neg(dir: &Path, label: &str, setup: &str) -> rbtdre_Verdict {
@@ -797,14 +802,37 @@ fn rbtdrf_rv_rbrr_bad_secrets_dir(dir: &Path) -> rbtdre_Verdict {
         "export RBRR_SECRETS_DIR=\"/tmp/nonexistent-rbtdrf-secrets-dir\"")
 }
 
-fn rbtdrf_rv_rbrr_bad_cloud_prefix(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_rv_rbrr_neg(dir, "rbrr-bad-cloud-prefix",
-        "export RBRR_CLOUD_PREFIX=\"BAD-\"")
+// Cloud-prefix format rule: ^[a-z][a-z0-9-]*-$ length 2..=11 (rbrr_regime.sh).
+// Three independent failure modes — one case each.
+
+fn rbtdrf_rv_rbrr_bad_cloud_prefix_uppercase(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_rv_rbrr_neg(dir, "rbrr-bad-cloud-prefix-uppercase",
+        &format!("export {}=\"BAD-\"", RBTDRF_VAR_RBRR_CLOUD_PREFIX))
 }
 
-fn rbtdrf_rv_rbrr_bad_runtime_prefix(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_rv_rbrr_neg(dir, "rbrr-bad-runtime-prefix",
-        "export RBRR_RUNTIME_PREFIX=\"acme\"")
+fn rbtdrf_rv_rbrr_bad_cloud_prefix_no_trailing_hyphen(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_rv_rbrr_neg(dir, "rbrr-bad-cloud-prefix-no-trailing-hyphen",
+        &format!("export {}=\"acme\"", RBTDRF_VAR_RBRR_CLOUD_PREFIX))
+}
+
+fn rbtdrf_rv_rbrr_bad_cloud_prefix_too_long(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_rv_rbrr_neg(dir, "rbrr-bad-cloud-prefix-too-long",
+        &format!("export {}=\"twelvechars-\"", RBTDRF_VAR_RBRR_CLOUD_PREFIX))
+}
+
+fn rbtdrf_rv_rbrr_bad_runtime_prefix_uppercase(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_rv_rbrr_neg(dir, "rbrr-bad-runtime-prefix-uppercase",
+        &format!("export {}=\"BAD-\"", RBTDRF_VAR_RBRR_RUNTIME_PREFIX))
+}
+
+fn rbtdrf_rv_rbrr_bad_runtime_prefix_no_trailing_hyphen(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_rv_rbrr_neg(dir, "rbrr-bad-runtime-prefix-no-trailing-hyphen",
+        &format!("export {}=\"acme\"", RBTDRF_VAR_RBRR_RUNTIME_PREFIX))
+}
+
+fn rbtdrf_rv_rbrr_bad_runtime_prefix_too_long(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_rv_rbrr_neg(dir, "rbrr-bad-runtime-prefix-too-long",
+        &format!("export {}=\"twelvechars-\"", RBTDRF_VAR_RBRR_RUNTIME_PREFIX))
 }
 
 // --- RBRV negative tests ---
@@ -1090,13 +1118,15 @@ fn rbtdrf_rs_rbrr_nonempty_prefix(dir: &Path) -> rbtdre_Verdict {
          source '{}/rbgl_GarLayout.sh'\n\
          zbuv_kindle\nzrbcc_kindle\nzrbgc_kindle\n\
          source \"${{PWD}}/.rbk/rbrr.env\"\n\
-         RBRR_CLOUD_PREFIX=\"acme-\"\n\
-         RBRR_RUNTIME_PREFIX=\"acme-\"\n\
+         {cloud_var}=\"acme-\"\n\
+         {runtime_var}=\"acme-\"\n\
          zrbrr_kindle\nzrbrr_enforce\nzrbgl_kindle\n\
          echo \"hallmarks_root=${{RBGL_HALLMARKS_ROOT}}\"\n\
-         echo \"runtime_prefix=${{RBRR_RUNTIME_PREFIX}}\"",
+         echo \"runtime_prefix=${{{runtime_var}}}\"",
         buv.display(),
         rbk.display(), rbk.display(), rbk.display(), rbk.display(),
+        cloud_var = RBTDRF_VAR_RBRR_CLOUD_PREFIX,
+        runtime_var = RBTDRF_VAR_RBRR_RUNTIME_PREFIX,
     );
 
     match rbtdrf_run_bash(&root, &script, dir, "rbrr-nonempty-prefix") {
@@ -1311,8 +1341,12 @@ pub static RBTDRF_SECTIONS_REGIME_VALIDATION: &[rbtdre_Section] = &[
             case!(rbtdrf_rv_rbrr_unexpected_var),
             case!(rbtdrf_rv_rbrr_bad_vessel_dir),
             case!(rbtdrf_rv_rbrr_bad_secrets_dir),
-            case!(rbtdrf_rv_rbrr_bad_cloud_prefix),
-            case!(rbtdrf_rv_rbrr_bad_runtime_prefix),
+            case!(rbtdrf_rv_rbrr_bad_cloud_prefix_uppercase),
+            case!(rbtdrf_rv_rbrr_bad_cloud_prefix_no_trailing_hyphen),
+            case!(rbtdrf_rv_rbrr_bad_cloud_prefix_too_long),
+            case!(rbtdrf_rv_rbrr_bad_runtime_prefix_uppercase),
+            case!(rbtdrf_rv_rbrr_bad_runtime_prefix_no_trailing_hyphen),
+            case!(rbtdrf_rv_rbrr_bad_runtime_prefix_too_long),
         ],
     },
     rbtdre_Section {
