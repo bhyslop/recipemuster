@@ -6641,9 +6641,10 @@
       "creation_time": "260426",
       "status": "racing",
       "order": [
-        "₢BBAAA"
+        "₢BBAAA",
+        "₢BBAAB"
       ],
-      "next_pace_seed": "AAB",
+      "next_pace_seed": "AAC",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAAA": {
@@ -6654,6 +6655,17 @@
               "text": "## Character\n\nDocumentation pace. Write the operator-facing release procedure as the README \"Release\" section. Concise — 4-5 human steps. References `rbw-tP` (built in subsequent paces) by name; `rbw-tP` need not exist yet for this docket to land. Establishes the contract that the rest of the heat fulfills.\n\n## Work\n\nAdd a \"Release Procedure\" section to README.md with the sequence:\n\n1. **Marshal zero, commit** — `tt/rbw-MZ.MarshalZeroes.sh`; commit the result with the marshal-zero signature in the message (signature shape designed in Phase 0)\n2. **Install RBRAs** — re-place retriever and director credential JSON files at the configured RBRR paths; marshal-zero deleted them, reinstall from secure backup\n3. **Run pristine qualification** — `tt/rbw-tP.QualifyPristine.sh`; ~1 hour wall-clock; includes depot creation (quota-bearing, first attempt of the day preferred)\n4. **If green, prep release** — `/rbk-prep-release` (upstream contribution ceremony)\n5. **Push** — to upstream remote\n\nEach step gets one paragraph: what it does, what it costs, what success looks like, what failure means. Failure mode contract called out explicitly: mid-qualification failure means start-over-from-zero, not patch-and-continue.\n\n## Verification\n\n- README.md has a \"Release Procedure\" section\n- Section is readable cold by the operator without conversation context\n- Section explicitly names the marshal-zero-just-committed entry contract for `rbw-tP` and the quota-aware nature of Phase 1\n- Section explicitly names the start-over-from-zero failure contract\n\n## Out of scope\n\n- Implementing `rbw-tP` itself (subsequent paces)\n- Revising `rbw-tr` or `rbw-tf` (preserved as-is)\n- Multi-operator workflow (single-operator scope by design)",
               "silks": "release-procedure-runbook",
               "commit": "30f8ec5"
+            }
+          ]
+        },
+        "₢BBAAB": {
+          "tacks": [
+            {
+              "ts": "260426-1103",
+              "state": "rough",
+              "text": "## Character\n\nThe load-bearing pace. Codes the fails-fast invariant that makes the whole tier catch the silent-first-build bug class by construction. Without this, every later phase silently tolerates accumulated state and the tier loses its discipline. Design conversation requiring judgment on the marshal-zero commit signature shape and on how the assertion battery surfaces violations.\n\n## Work\n\nImplement the `rbw-tP` preflight: a Bash function (likely in `Tools/rbk/rblm_cli.sh` or a new pristine module) that asserts ALL of the following or fails with a single complete diagnostic:\n\n1. **Working tree clean** — `git status --porcelain` empty\n2. **HEAD is a marshal-zero commit** — commit message contains a marshal-zero signature; design and bake the signature into `rblm_zero` so commits land with a recognizable marker (suggest a structured trailer like `Marshal-Zero: true` or a dedicated commit subject prefix)\n3. **RBRR fields blank** — prefixes empty, depot project ID empty, GAR repo empty, etc.; read RBRR via `rbrr_regime.sh` and assert blank-state\n4. **No RBRA credential files present** — check governor/retriever/director RBRA paths; all must be absent\n5. **No hallmark fields in nameplates** — iterate vessel nameplates, assert hallmark fields are blank\n6. **No depot-scoped vessel regime fields** — iterate vessel rbrv.env files, assert reliquary/image-anchor fields blank\n\nFailure surfaces every assertion that failed in one diagnostic, not first-failure-wins. Operator should learn the full state-deviation in one read, then go back to marshal-zero rather than playing whack-a-mole.\n\nWire into `tt/rbw-tP.QualifyPristine.sh` as the gate: preflight runs first, fails-fast on any violation, no cloud calls happen until green.\n\nAlso: design and bake the marshal-zero signature into `rblm_zero`. The `rbw-MZ` tabtarget should land its commit (or instruct the operator to commit) with the signature in the message. Prefer auto-commit by `rblm_zero` itself if marshal-zero already commits internally.\n\n## Verification\n\n- Run `rbw-tP` preflight against accumulated state — fails with complete diagnostic listing every violation\n- Run `rbw-tP` preflight after `rbw-MZ` + commit (RBRAs not yet reinstalled) — fails on RBRA-presence assertion only\n- Run `rbw-tP` preflight after `rbw-MZ` + commit + RBRA install — passes\n- Run `rbw-tP` preflight after marshal-zero commit but with one nameplate hand-edited to set a hallmark field — fails with that specific violation surfaced\n- Marshal-zero signature is detectable from `git log -1 --format=%B`\n\n## Out of scope\n\n- Phase 1 onward (depot create, etc.) — those land in subsequent paces\n- Auto-install of RBRAs (operator-owned; manual reinstall is a deliberate ceremony step per runbook)\n- Rolling back accumulated state (the test refuses, doesn't repair)",
+              "silks": "phase-0-pristine-preflight-detector",
+              "commit": "bce8885"
             }
           ]
         }
