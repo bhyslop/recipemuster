@@ -155,8 +155,6 @@ zrbgc_kindle() {
   # Payor fact-file filenames (depot/governor identifying values)
   readonly RBGP_FACT_DEPOT_PROJECT_ID="rbgp_fact_depot_project_id"
   readonly RBGP_FACT_GOVERNOR_SA_EMAIL="rbgp_fact_governor_sa_email"
-  readonly RBGP_FACT_GAR_REPOSITORY="rbgp_fact_gar_repository"
-  readonly RBGP_FACT_GCB_POOL_STEM="rbgp_fact_gcb_pool_stem"
 
   # Artifact Registry (GAR) Composition
   readonly RBGC_GAR_HOST_SUFFIX="-docker.pkg.dev"

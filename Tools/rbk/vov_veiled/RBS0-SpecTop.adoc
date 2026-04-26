@@ -95,8 +95,6 @@
 // Recipe Bottle Payor Fact Files (depot/governor identifying values)
 :rbgp_fact_depot_project_id:   <<rbgp_fact_depot_project_id,RBGP_FACT_DEPOT_PROJECT_ID>>
 :rbgp_fact_governor_sa_email:  <<rbgp_fact_governor_sa_email,RBGP_FACT_GOVERNOR_SA_EMAIL>>
-:rbgp_fact_gar_repository:     <<rbgp_fact_gar_repository,RBGP_FACT_GAR_REPOSITORY>>
-:rbgp_fact_gcb_pool_stem:      <<rbgp_fact_gcb_pool_stem,RBGP_FACT_GCB_POOL_STEM>>
 
 // Recipe Bottle Term Google Build Definitions
 :rbtgr_build_json:          <<rbtgr_build_json,cloudbuild.json>>
@@ -1942,18 +1940,6 @@ Written when the project ID is generated, before any GCP API call — survives p
 {rbgp_fact_governor_sa_email}::
 Governor service-account email created by {rbtgo_governor_mantle}.
 Written immediately after the IAM create call returns success.
-
-[[rbgp_fact_gar_repository]]
-//axpof_fact
-{rbgp_fact_gar_repository}::
-Artifact Registry repository name derived by {rbtgo_depot_levy} from the depot moniker (form `rbw-«NAME»-repository`).
-Written when the value is computed, before the create-repository API call — the post-levy RBRR install needs it whether or not the create call succeeds.
-
-[[rbgp_fact_gcb_pool_stem]]
-//axpof_fact
-{rbgp_fact_gcb_pool_stem}::
-Cloud Build worker-pool stem derived by {rbtgo_depot_levy} from the depot moniker (form `rbw-«NAME»-pool`); the tether and airgap pool IDs are formed by suffixing this stem.
-Written when the value is computed, before the worker-pool create calls — survives partial-success runs.
 
 [[rbtgr_build_json]]
 //axl_voices axig_build_config

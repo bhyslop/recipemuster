@@ -39,16 +39,14 @@ use crate::rbtdrm_manifest::{
 const RBTDRP_FIELD_RBRR_CLOUD_PREFIX: &str = "RBRR_CLOUD_PREFIX";
 const RBTDRP_FIELD_RBRR_RUNTIME_PREFIX: &str = "RBRR_RUNTIME_PREFIX";
 const RBTDRP_FIELD_RBRR_DEPOT_PROJECT_ID: &str = "RBRR_DEPOT_PROJECT_ID";
-const RBTDRP_FIELD_RBRR_GAR_REPOSITORY: &str = "RBRR_GAR_REPOSITORY";
-const RBTDRP_FIELD_RBRR_GCB_POOL_STEM: &str = "RBRR_GCB_POOL_STEM";
 
 /// Site-specific RBRR fields that rblm_zero blanks. These five fields define
 /// the depot-bound site identity; an empty value is the post-marshal-zero
 /// invariant.
 const RBTDRP_RBRR_BLANK_FIELDS: &[&str] = &[
     RBTDRP_FIELD_RBRR_DEPOT_PROJECT_ID,
-    RBTDRP_FIELD_RBRR_GAR_REPOSITORY,
-    RBTDRP_FIELD_RBRR_GCB_POOL_STEM,
+    "RBRR_GAR_REPOSITORY",
+    "RBRR_GCB_POOL_STEM",
     RBTDRP_FIELD_RBRR_CLOUD_PREFIX,
     RBTDRP_FIELD_RBRR_RUNTIME_PREFIX,
 ];
@@ -71,16 +69,6 @@ const RBTDRP_DEPOT_MONIKER_GOVERNOR: &str = "pristg01";
 /// the producing invocation.
 const RBTDRP_FACT_DEPOT_PROJECT_ID: &str = "rbgp_fact_depot_project_id";
 const RBTDRP_FACT_GOVERNOR_SA_EMAIL: &str = "rbgp_fact_governor_sa_email";
-const RBTDRP_FACT_GAR_REPOSITORY: &str = "rbgp_fact_gar_repository";
-const RBTDRP_FACT_GCB_POOL_STEM: &str = "rbgp_fact_gcb_pool_stem";
-
-/// Per-case diagnostic tee filenames. Cases write captured fact values into
-/// the case's BURV-isolated dir under these names so a failure investigation
-/// can read the values without parsing the raw stdout/stderr captures.
-const RBTDRP_TEE_PROJECT_ID: &str = "project-id.txt";
-const RBTDRP_TEE_GAR_REPOSITORY: &str = "gar-repository.txt";
-const RBTDRP_TEE_GCB_POOL_STEM: &str = "gcb-pool-stem.txt";
-const RBTDRP_TEE_SA_EMAIL: &str = "sa-email.txt";
 
 /// BURE confirmation override (mirrors buc_command.sh): when set to "skip",
 /// `buc_require` accepts the operation without interactive prompt.
@@ -394,40 +382,25 @@ pub(crate) fn rbtdrp_install_throwaway_prefixes(root: &Path) -> Result<(), Strin
     rbtdrp_git_add_and_commit(root, RBTDRP_RBRR_FILE, &commit_msg)
 }
 
-/// Set the three post-levy RBRR fields (`RBRR_DEPOT_PROJECT_ID`,
-/// `RBRR_GAR_REPOSITORY`, `RBRR_GCB_POOL_STEM`) in rbrr.env in a single
-/// commit. Cases 2-5 call this immediately after `rbgp_depot_levy` so any
-/// subsequent invocation passes `zrbrr_enforce`, which requires all three
-/// fields non-blank on every non-`rbgp_depot_levy` command per
-/// `rbgp_cli.sh` differential furnish. Marshal-zero blanks all three.
-///
-/// One commit per call documents the levy step that produced the values;
-/// the audit trail names the depot the rest of the case is running against.
-fn rbtdrp_install_post_levy_rbrr(
-    root: &Path,
-    project_id: &str,
-    gar_repository: &str,
-    gcb_pool_stem: &str,
-) -> Result<(), String> {
+/// Set `RBRR_DEPOT_PROJECT_ID` in rbrr.env to `project_id` and commit. Used
+/// by case 3 to satisfy `rbgp_governor_mantle`'s precondition that the
+/// depot project is named in the regime. The commit is separate from the
+/// throwaway-prefix commit so the audit trail shows the levy step that
+/// produced the value.
+fn rbtdrp_install_depot_project_id(root: &Path, project_id: &str) -> Result<(), String> {
     let rbrr = root.join(RBTDRP_RBRR_FILE);
     let content = std::fs::read_to_string(&rbrr)
         .map_err(|e| format!("rbtdrp: read {}: {}", rbrr.display(), e))?;
     let new_content = rbtdrp_replace_env_fields(
         &content,
-        &[
-            (RBTDRP_FIELD_RBRR_DEPOT_PROJECT_ID, project_id),
-            (RBTDRP_FIELD_RBRR_GAR_REPOSITORY, gar_repository),
-            (RBTDRP_FIELD_RBRR_GCB_POOL_STEM, gcb_pool_stem),
-        ],
+        &[(RBTDRP_FIELD_RBRR_DEPOT_PROJECT_ID, project_id)],
     );
     std::fs::write(&rbrr, &new_content)
         .map_err(|e| format!("rbtdrp: write {}: {}", rbrr.display(), e))?;
 
     let commit_msg = format!(
-        "pristine-lifecycle fixture: set {}/{}/{}",
-        RBTDRP_FIELD_RBRR_DEPOT_PROJECT_ID,
-        RBTDRP_FIELD_RBRR_GAR_REPOSITORY,
-        RBTDRP_FIELD_RBRR_GCB_POOL_STEM,
+        "pristine-lifecycle fixture: set {}={}",
+        RBTDRP_FIELD_RBRR_DEPOT_PROJECT_ID, project_id
     );
     rbtdrp_git_add_and_commit(root, RBTDRP_RBRR_FILE, &commit_msg)
 }
@@ -535,23 +508,7 @@ fn rbtdrp_depot_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_V
         Ok(s) => s,
         Err(e) => return rbtdre_Verdict::Fail(format!("read depot project_id fact: {}", e)),
     };
-    let gar_repository = match rbtdri_read_burv_fact(&levy, RBTDRP_FACT_GAR_REPOSITORY) {
-        Ok(s) => s,
-        Err(e) => return rbtdre_Verdict::Fail(format!("read gar_repository fact: {}", e)),
-    };
-    let gcb_pool_stem = match rbtdri_read_burv_fact(&levy, RBTDRP_FACT_GCB_POOL_STEM) {
-        Ok(s) => s,
-        Err(e) => return rbtdre_Verdict::Fail(format!("read gcb_pool_stem fact: {}", e)),
-    };
-    let _ = std::fs::write(dir.join(RBTDRP_TEE_PROJECT_ID), &project_id);
-    let _ = std::fs::write(dir.join(RBTDRP_TEE_GAR_REPOSITORY), &gar_repository);
-    let _ = std::fs::write(dir.join(RBTDRP_TEE_GCB_POOL_STEM), &gcb_pool_stem);
-
-    if let Err(e) =
-        rbtdrp_install_post_levy_rbrr(&root, &project_id, &gar_repository, &gcb_pool_stem)
-    {
-        return rbtdre_Verdict::Fail(format!("install post-levy rbrr: {}", e));
-    }
+    let _ = std::fs::write(dir.join("project-id.txt"), &project_id);
 
     let list_present = match rbtdrp_invoke_logged(
         ctx,
@@ -665,22 +622,10 @@ fn rbtdrp_governor_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdr
         Ok(s) => s,
         Err(e) => return rbtdre_Verdict::Fail(format!("read depot project_id fact: {}", e)),
     };
-    let gar_repository = match rbtdri_read_burv_fact(&levy, RBTDRP_FACT_GAR_REPOSITORY) {
-        Ok(s) => s,
-        Err(e) => return rbtdre_Verdict::Fail(format!("read gar_repository fact: {}", e)),
-    };
-    let gcb_pool_stem = match rbtdri_read_burv_fact(&levy, RBTDRP_FACT_GCB_POOL_STEM) {
-        Ok(s) => s,
-        Err(e) => return rbtdre_Verdict::Fail(format!("read gcb_pool_stem fact: {}", e)),
-    };
-    let _ = std::fs::write(dir.join(RBTDRP_TEE_PROJECT_ID), &project_id);
-    let _ = std::fs::write(dir.join(RBTDRP_TEE_GAR_REPOSITORY), &gar_repository);
-    let _ = std::fs::write(dir.join(RBTDRP_TEE_GCB_POOL_STEM), &gcb_pool_stem);
+    let _ = std::fs::write(dir.join("project-id.txt"), &project_id);
 
-    if let Err(e) =
-        rbtdrp_install_post_levy_rbrr(&root, &project_id, &gar_repository, &gcb_pool_stem)
-    {
-        return rbtdre_Verdict::Fail(format!("install post-levy rbrr: {}", e));
+    if let Err(e) = rbtdrp_install_depot_project_id(&root, &project_id) {
+        return rbtdre_Verdict::Fail(format!("set RBRR_DEPOT_PROJECT_ID: {}", e));
     }
 
     let mantle = match rbtdrp_invoke_logged(
@@ -705,7 +650,7 @@ fn rbtdrp_governor_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdr
         Ok(s) => s,
         Err(e) => return rbtdre_Verdict::Fail(format!("read governor SA email fact: {}", e)),
     };
-    let _ = std::fs::write(dir.join(RBTDRP_TEE_SA_EMAIL), &sa_email);
+    let _ = std::fs::write(dir.join("sa-email.txt"), &sa_email);
 
     let list_present = match rbtdrp_invoke_logged(
         ctx,
