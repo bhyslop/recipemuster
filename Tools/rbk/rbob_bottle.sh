@@ -100,13 +100,18 @@ zrbob_kindle() {
     *) buc_die "Unknown RBRN_RUNTIME: ${RBRN_RUNTIME}" ;;
   esac
 
+  # Compose project identity for this nameplate. The runtime-prefixed moniker
+  # is the authoritative project name compose labels containers and networks
+  # under; every -p invocation and every container/network name derives from it.
+  readonly ZRBOB_PROJECT="${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}"
+
   # Container names (for connect and info commands)
-  readonly ZRBOB_SENTRY="${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}-sentry"
-  readonly ZRBOB_PENTACLE="${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}-pentacle"
-  readonly ZRBOB_BOTTLE="${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}-bottle"
+  readonly ZRBOB_SENTRY="${ZRBOB_PROJECT}-sentry"
+  readonly ZRBOB_PENTACLE="${ZRBOB_PROJECT}-pentacle"
+  readonly ZRBOB_BOTTLE="${ZRBOB_PROJECT}-bottle"
 
   # Network name (compose names as {project}_{network}; used by observe and info)
-  readonly ZRBOB_NETWORK="${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}_enclave"
+  readonly ZRBOB_NETWORK="${ZRBOB_PROJECT}_enclave"
 
   # Compose file paths (relative to project root, where compose runs)
   readonly ZRBOB_COMPOSE_BASE="${RBBC_dot_dir}/rbob_compose.yml"
@@ -199,7 +204,7 @@ zrbob_compose() {
     z_args+=("-f" "${ZRBOB_COMPOSE_FRAGMENT}")
   fi
 
-  z_args+=("-p" "${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}")
+  z_args+=("-p" "${ZRBOB_PROJECT}")
   z_args+=("$@")
 
   buc_log_args "${ZRBOB_RUNTIME} ${z_args[*]}"
@@ -342,7 +347,7 @@ rbob_charge() {
 # BCG predicate: returns 0 if charged, 1 if not. Never dies, no output.
 rbob_charged_predicate() {
   zrbob_sentinel
-  "${ZRBOB_RUNTIME}" compose -p "${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}" ps -q --status running 2>/dev/null | grep -q .
+  "${ZRBOB_RUNTIME}" compose -p "${ZRBOB_PROJECT}" ps -q --status running 2>/dev/null | grep -q .
 }
 
 # Stop the crucible via compose
