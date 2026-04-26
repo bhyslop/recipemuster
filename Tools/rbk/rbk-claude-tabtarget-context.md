@@ -96,9 +96,6 @@ The Folio column shows how each tabtarget receives it:
 
 ### Image — Container image operations (`rbw-i`)
 
-Three-domain symmetric: hallmarks (h), reliquaries (r), enshrinements (e).
-Verbs: `r` rekon (member-list), `m` muster (catalog-list), `J` jettison (delete), `w` wrest (pull).
-
 | Colophon | Frontispiece | Folio | Purpose |
 |----------|-------------|-------|---------|
 | `rbw-irh` | DirectorRekonsHallmark | — | List ark basenames present under a hallmark's GAR subtree |
