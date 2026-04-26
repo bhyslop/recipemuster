@@ -27,6 +27,12 @@ use std::process::Command;
 use crate::case;
 use crate::rbtdre_engine::{rbtdre_Section, rbtdre_Verdict};
 
+/// RBRR field names referenced by the pristine-lifecycle fixture. Field
+/// identifiers extracted as consts so the blank-field array and the
+/// throwaway-prefix install helper share a single definition site.
+const RBTDRP_FIELD_RBRR_CLOUD_PREFIX: &str = "RBRR_CLOUD_PREFIX";
+const RBTDRP_FIELD_RBRR_RUNTIME_PREFIX: &str = "RBRR_RUNTIME_PREFIX";
+
 /// Site-specific RBRR fields that rblm_zero blanks. These five fields define
 /// the depot-bound site identity; an empty value is the post-marshal-zero
 /// invariant.
@@ -34,9 +40,19 @@ const RBTDRP_RBRR_BLANK_FIELDS: &[&str] = &[
     "RBRR_DEPOT_PROJECT_ID",
     "RBRR_GAR_REPOSITORY",
     "RBRR_GCB_POOL_STEM",
-    "RBRR_CLOUD_PREFIX",
-    "RBRR_RUNTIME_PREFIX",
+    RBTDRP_FIELD_RBRR_CLOUD_PREFIX,
+    RBTDRP_FIELD_RBRR_RUNTIME_PREFIX,
 ];
+
+/// Throwaway RBRR prefix values stamped into rbrr.env by
+/// `rbtdrp_install_throwaway_prefixes`. Pristine-lifecycle cases that need
+/// non-blank prefixes (depot/governor/retriever/director lifecycle) call the
+/// helper to install these values; the marker shape distinguishes throwaway
+/// from operator-chosen canonical values.
+#[allow(dead_code)]
+pub(crate) const RBTDRP_THROWAWAY_CLOUD_PREFIX: &str = "prlc-";
+#[allow(dead_code)]
+pub(crate) const RBTDRP_THROWAWAY_RUNTIME_PREFIX: &str = "prlr-";
 
 /// Roles whose RBRA credential files rblm_zero deletes.
 const RBTDRP_RBRA_ROLES: &[&str] = &["governor", "director", "retriever", "assay"];
@@ -236,6 +252,96 @@ fn rbtdrp_scan_rbrv_file(rbrv: &Path, violations: &mut Vec<String>) {
             ));
         }
     }
+}
+
+// ── Throwaway-prefix install ─────────────────────────────────
+
+/// Replace the `RBRR_CLOUD_PREFIX=` and `RBRR_RUNTIME_PREFIX=` lines in
+/// rbrr.env content with throwaway values, preserving all other lines and
+/// the trailing-newline shape.
+#[allow(dead_code)]
+fn rbtdrp_replace_prefix_lines(content: &str) -> String {
+    let cloud_assign = format!("{}=", RBTDRP_FIELD_RBRR_CLOUD_PREFIX);
+    let runtime_assign = format!("{}=", RBTDRP_FIELD_RBRR_RUNTIME_PREFIX);
+    let mut result: String = content
+        .lines()
+        .map(|line| {
+            if line.starts_with(&cloud_assign) {
+                format!("{}{}", cloud_assign, RBTDRP_THROWAWAY_CLOUD_PREFIX)
+            } else if line.starts_with(&runtime_assign) {
+                format!("{}{}", runtime_assign, RBTDRP_THROWAWAY_RUNTIME_PREFIX)
+            } else {
+                line.to_string()
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+    if content.ends_with('\n') {
+        result.push('\n');
+    }
+    result
+}
+
+/// Idempotently install throwaway RBRR prefixes into `.rbk/rbrr.env`.
+///
+/// Pristine-lifecycle cases that need non-blank prefixes (depot/governor/
+/// retriever/director lifecycle) call this as their first step. The helper
+/// reads current values; if `RBRR_CLOUD_PREFIX` and `RBRR_RUNTIME_PREFIX`
+/// already match the throwaway markers, returns `Ok(())` with no side
+/// effect. Otherwise rewrites both lines in place, then `git add` +
+/// `git commit` the change. One commit per fixture run regardless of which
+/// case is the first to call it.
+///
+/// HEAD walks off marshal-zero after the commit; recovery is `rbw-MZ`,
+/// matching the pristine fixture's start-over-from-zero failure mode.
+#[allow(dead_code)]
+pub(crate) fn rbtdrp_install_throwaway_prefixes(root: &Path) -> Result<(), String> {
+    let rbrr = root.join(RBTDRP_RBRR_FILE);
+    let cloud = rbtdrp_read_env_value(&rbrr, RBTDRP_FIELD_RBRR_CLOUD_PREFIX).unwrap_or_default();
+    let runtime =
+        rbtdrp_read_env_value(&rbrr, RBTDRP_FIELD_RBRR_RUNTIME_PREFIX).unwrap_or_default();
+
+    if cloud == RBTDRP_THROWAWAY_CLOUD_PREFIX && runtime == RBTDRP_THROWAWAY_RUNTIME_PREFIX {
+        return Ok(());
+    }
+
+    let content = std::fs::read_to_string(&rbrr)
+        .map_err(|e| format!("rbtdrp: read {}: {}", rbrr.display(), e))?;
+    let new_content = rbtdrp_replace_prefix_lines(&content);
+    std::fs::write(&rbrr, &new_content)
+        .map_err(|e| format!("rbtdrp: write {}: {}", rbrr.display(), e))?;
+
+    let add = Command::new("git")
+        .args(["add", RBTDRP_RBRR_FILE])
+        .current_dir(root)
+        .output()
+        .map_err(|e| format!("rbtdrp: git add invocation failed: {}", e))?;
+    if !add.status.success() {
+        return Err(format!(
+            "rbtdrp: git add failed (exit {}): {}",
+            add.status.code().unwrap_or(-1),
+            String::from_utf8_lossy(&add.stderr).trim()
+        ));
+    }
+
+    let commit_msg = format!(
+        "pristine-lifecycle fixture: install throwaway RBRR prefixes ({}/{})",
+        RBTDRP_THROWAWAY_CLOUD_PREFIX, RBTDRP_THROWAWAY_RUNTIME_PREFIX
+    );
+    let commit = Command::new("git")
+        .args(["commit", "-m", &commit_msg])
+        .current_dir(root)
+        .output()
+        .map_err(|e| format!("rbtdrp: git commit invocation failed: {}", e))?;
+    if !commit.status.success() {
+        return Err(format!(
+            "rbtdrp: git commit failed (exit {}): {}",
+            commit.status.code().unwrap_or(-1),
+            String::from_utf8_lossy(&commit.stderr).trim()
+        ));
+    }
+
+    Ok(())
 }
 
 // ── Case ─────────────────────────────────────────────────────

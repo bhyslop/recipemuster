@@ -35,3 +35,5 @@ mod rbtdte_engine;
 mod rbtdti_invocation;
 #[cfg(test)]
 mod rbtdtm_manifest;
+#[cfg(test)]
+mod rbtdtp_pristine;
