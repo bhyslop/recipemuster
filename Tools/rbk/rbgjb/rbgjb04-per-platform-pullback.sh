@@ -3,7 +3,8 @@
 # Builder: gcr.io/cloud-builders/docker
 # Substitutions: _RBGY_PLATFORMS, _RBGY_PLATFORM_SUFFIXES,
 #                _RBGY_GAR_LOCATION, _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY,
-#                _RBGY_GAR_HOST_SUFFIX, _RBGY_HALLMARKS_ROOT, _RBGY_HALLMARK
+#                _RBGY_GAR_HOST_SUFFIX, _RBGY_HALLMARKS_ROOT, _RBGY_HALLMARK,
+#                _RBGY_ARK_BASENAME_IMAGE, _RBGY_ARK_BASENAME_ATTEST
 #
 # For each platform: docker pull --platform <plat> from the image manifest,
 # then docker tag to the attest package with tag <hallmark>-<arch>
@@ -19,14 +20,16 @@ test -n "${_RBGY_GAR_PROJECT}"         || (echo "_RBGY_GAR_PROJECT missing"     
 test -n "${_RBGY_GAR_REPOSITORY}"      || (echo "_RBGY_GAR_REPOSITORY missing"      >&2; exit 1)
 test -n "${_RBGY_HALLMARKS_ROOT}"      || (echo "_RBGY_HALLMARKS_ROOT missing"      >&2; exit 1)
 test -n "${_RBGY_HALLMARK}"            || (echo "_RBGY_HALLMARK missing"            >&2; exit 1)
+test -n "${_RBGY_ARK_BASENAME_IMAGE}"  || (echo "_RBGY_ARK_BASENAME_IMAGE missing"  >&2; exit 1)
+test -n "${_RBGY_ARK_BASENAME_ATTEST}" || (echo "_RBGY_ARK_BASENAME_ATTEST missing" >&2; exit 1)
 
 test -s .hallmark || (echo "hallmark not derived" >&2; exit 1)
 HALLMARK="$(cat .hallmark)"
 
 GAR_REPO_BASE="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}"
 HALLMARK_BASE="${GAR_REPO_BASE}/${_RBGY_HALLMARKS_ROOT}/${HALLMARK}"
-IMAGE_URI="${HALLMARK_BASE}/image:${HALLMARK}"
-ATTEST_BASE="${HALLMARK_BASE}/attest"
+IMAGE_URI="${HALLMARK_BASE}/${_RBGY_ARK_BASENAME_IMAGE}:${HALLMARK}"
+ATTEST_BASE="${HALLMARK_BASE}/${_RBGY_ARK_BASENAME_ATTEST}"
 
 # Split platforms and suffixes into parallel arrays
 # _RBGY_PLATFORMS is comma-separated: linux/amd64,linux/arm64,linux/arm/v7

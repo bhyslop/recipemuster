@@ -4,6 +4,7 @@
 # Substitutions (GCB anchors — automapSubstitutions provides as env vars):
 #   ${_RBGA_GAR_HOST} ${_RBGA_GAR_PATH} ${_RBGA_HALLMARKS_ROOT}
 #   ${_RBGA_HALLMARK} ${_RBGA_VESSEL_MODE}
+#   ${_RBGA_ARK_BASENAME_IMAGE} ${_RBGA_ARK_BASENAME_DIAGS}
 #
 # Queries the image manifest to discover what platforms are present.
 # Handles OCI image index (multi-platform) vs single OCI/Docker manifest.
@@ -86,12 +87,14 @@ def main():
     gar_host        = require_env("_RBGA_GAR_HOST")
     gar_path        = require_env("_RBGA_GAR_PATH")
     hallmarks_root  = require_env("_RBGA_HALLMARKS_ROOT")
+    image_basename  = require_env("_RBGA_ARK_BASENAME_IMAGE")
+    diags_basename  = require_env("_RBGA_ARK_BASENAME_DIAGS")
     hallmark        = get_hallmark()
     _               = require_env("_RBGA_VESSEL_MODE")
 
-    # New layout: image package = <HALLMARKS_ROOT>/<HALLMARK>/image, tag = <HALLMARK>
-    image_package = f"{hallmarks_root}/{hallmark}/image"
-    diags_package = f"{hallmarks_root}/{hallmark}/diags"
+    # New layout: image package = <HALLMARKS_ROOT>/<HALLMARK>/<image-basename>, tag = <HALLMARK>
+    image_package = f"{hallmarks_root}/{hallmark}/{image_basename}"
+    diags_package = f"{hallmarks_root}/{hallmark}/{diags_basename}"
     image_registry_base = f"https://{gar_host}/v2/{gar_path}/{image_package}"
     diags_registry_base = f"https://{gar_host}/v2/{gar_path}/{diags_package}"
 

@@ -324,6 +324,11 @@ zrbfv_graft_metadata_submit() {
     --arg zjq_vi_prov_3         "${z_vi_prov_3}" \
     --arg zjq_pool              "${RBDC_POOL_AIRGAP}" \
     --arg zjq_timeout           "${RBRR_GCB_TIMEOUT}" \
+    --arg zjq_basename_image    "${RBGC_ARK_BASENAME_IMAGE}" \
+    --arg zjq_basename_about    "${RBGC_ARK_BASENAME_ABOUT}" \
+    --arg zjq_basename_vouch    "${RBGC_ARK_BASENAME_VOUCH}" \
+    --arg zjq_basename_attest   "${RBGC_ARK_BASENAME_ATTEST}" \
+    --arg zjq_basename_diags    "${RBGC_ARK_BASENAME_DIAGS}" \
     '{
       steps: $zjq_steps[0],
       substitutions: {
@@ -341,6 +346,9 @@ zrbfv_graft_metadata_submit() {
         _RBGA_BIND_SOURCE:           "",
         _RBGA_GRAFT_SOURCE:          $zjq_graft_source,
         _RBGA_DOCKERFILE_CONTENT:    $zjq_dockerfile,
+        _RBGA_ARK_BASENAME_IMAGE:    $zjq_basename_image,
+        _RBGA_ARK_BASENAME_ABOUT:    $zjq_basename_about,
+        _RBGA_ARK_BASENAME_DIAGS:    $zjq_basename_diags,
         _RBGV_GAR_HOST:              $zjq_gar_host,
         _RBGV_GAR_PATH:              $zjq_gar_path,
         _RBGV_HALLMARKS_ROOT:        $zjq_hallmarks_root,
@@ -354,7 +362,10 @@ zrbfv_graft_metadata_submit() {
         _RBGV_IMAGE_2:               $zjq_vi_ref_2,
         _RBGV_IMAGE_2_PROVENANCE:    $zjq_vi_prov_2,
         _RBGV_IMAGE_3:               $zjq_vi_ref_3,
-        _RBGV_IMAGE_3_PROVENANCE:    $zjq_vi_prov_3
+        _RBGV_IMAGE_3_PROVENANCE:    $zjq_vi_prov_3,
+        _RBGV_ARK_BASENAME_IMAGE:    $zjq_basename_image,
+        _RBGV_ARK_BASENAME_VOUCH:    $zjq_basename_vouch,
+        _RBGV_ARK_BASENAME_ATTEST:   $zjq_basename_attest
       },
       serviceAccount: $zjq_sa,
       options: {
@@ -721,23 +732,29 @@ zrbfv_vouch_submit() {
     --arg zjq_vi_prov_3      "${z_vi_prov_3}" \
     --arg zjq_pool           "${RBDC_POOL_AIRGAP}" \
     --arg zjq_timeout        "${RBRR_GCB_TIMEOUT}" \
+    --arg zjq_basename_image  "${RBGC_ARK_BASENAME_IMAGE}" \
+    --arg zjq_basename_vouch  "${RBGC_ARK_BASENAME_VOUCH}" \
+    --arg zjq_basename_attest "${RBGC_ARK_BASENAME_ATTEST}" \
     '{
       steps: $zjq_steps[0],
       substitutions: {
-        _RBGV_GAR_HOST:           $zjq_gar_host,
-        _RBGV_GAR_PATH:           $zjq_gar_path,
-        _RBGV_HALLMARKS_ROOT:     $zjq_hallmarks_root,
-        _RBGV_HALLMARK:           $zjq_hallmark,
-        _RBGV_VESSEL:             $zjq_vessel,
-        _RBGV_VESSEL_MODE:        $zjq_vessel_mode,
-        _RBGV_BIND_SOURCE:        $zjq_bind_source,
-        _RBGV_GRAFT_SOURCE:       $zjq_graft_source,
-        _RBGV_IMAGE_1:            $zjq_vi_ref_1,
-        _RBGV_IMAGE_1_PROVENANCE: $zjq_vi_prov_1,
-        _RBGV_IMAGE_2:            $zjq_vi_ref_2,
-        _RBGV_IMAGE_2_PROVENANCE: $zjq_vi_prov_2,
-        _RBGV_IMAGE_3:            $zjq_vi_ref_3,
-        _RBGV_IMAGE_3_PROVENANCE: $zjq_vi_prov_3
+        _RBGV_GAR_HOST:            $zjq_gar_host,
+        _RBGV_GAR_PATH:            $zjq_gar_path,
+        _RBGV_HALLMARKS_ROOT:      $zjq_hallmarks_root,
+        _RBGV_HALLMARK:            $zjq_hallmark,
+        _RBGV_VESSEL:              $zjq_vessel,
+        _RBGV_VESSEL_MODE:         $zjq_vessel_mode,
+        _RBGV_BIND_SOURCE:         $zjq_bind_source,
+        _RBGV_GRAFT_SOURCE:        $zjq_graft_source,
+        _RBGV_IMAGE_1:             $zjq_vi_ref_1,
+        _RBGV_IMAGE_1_PROVENANCE:  $zjq_vi_prov_1,
+        _RBGV_IMAGE_2:             $zjq_vi_ref_2,
+        _RBGV_IMAGE_2_PROVENANCE:  $zjq_vi_prov_2,
+        _RBGV_IMAGE_3:             $zjq_vi_ref_3,
+        _RBGV_IMAGE_3_PROVENANCE:  $zjq_vi_prov_3,
+        _RBGV_ARK_BASENAME_IMAGE:  $zjq_basename_image,
+        _RBGV_ARK_BASENAME_VOUCH:  $zjq_basename_vouch,
+        _RBGV_ARK_BASENAME_ATTEST: $zjq_basename_attest
       },
       serviceAccount: $zjq_sa,
       options: {

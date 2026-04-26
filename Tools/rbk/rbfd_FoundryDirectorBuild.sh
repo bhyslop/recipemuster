@@ -678,6 +678,10 @@ zrbfd_stitch_build_json() {
     --arg zjq_image_1           "${z_image_ref_1}" \
     --arg zjq_image_2           "${z_image_ref_2}" \
     --arg zjq_image_3           "${z_image_ref_3}" \
+    --arg zjq_basename_image    "${RBGC_ARK_BASENAME_IMAGE}" \
+    --arg zjq_basename_about    "${RBGC_ARK_BASENAME_ABOUT}" \
+    --arg zjq_basename_attest   "${RBGC_ARK_BASENAME_ATTEST}" \
+    --arg zjq_basename_diags    "${RBGC_ARK_BASENAME_DIAGS}" \
     '{
       steps: [$zjq_steps[0][] |
         if .args then
@@ -701,6 +705,9 @@ zrbfd_stitch_build_json() {
         _RBGY_IMAGE_1:             $zjq_image_1,
         _RBGY_IMAGE_2:             $zjq_image_2,
         _RBGY_IMAGE_3:             $zjq_image_3,
+        _RBGY_ARK_BASENAME_IMAGE:  $zjq_basename_image,
+        _RBGY_ARK_BASENAME_ATTEST: $zjq_basename_attest,
+        _RBGY_ARK_BASENAME_DIAGS:  $zjq_basename_diags,
         _RBGA_GAR_HOST:            $zjq_rbga_gar_host,
         _RBGA_GAR_PATH:            $zjq_rbga_gar_path,
         _RBGA_HALLMARKS_ROOT:      $zjq_hallmarks_root,
@@ -713,7 +720,10 @@ zrbfd_stitch_build_json() {
         _RBGA_INSCRIBE_TIMESTAMP:  $zjq_inscribe_ts,
         _RBGA_BIND_SOURCE:         "",
         _RBGA_GRAFT_SOURCE:        "",
-        _RBGA_DOCKERFILE_CONTENT:  $zjq_rbga_dockerfile
+        _RBGA_DOCKERFILE_CONTENT:  $zjq_rbga_dockerfile,
+        _RBGA_ARK_BASENAME_IMAGE:  $zjq_basename_image,
+        _RBGA_ARK_BASENAME_ABOUT:  $zjq_basename_about,
+        _RBGA_ARK_BASENAME_DIAGS:  $zjq_basename_diags
       },
       serviceAccount: $zjq_mason_sa,
       options: {

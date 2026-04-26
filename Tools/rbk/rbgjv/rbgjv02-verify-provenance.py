@@ -7,6 +7,7 @@
 #   ${_RBGV_GAR_HOST} ${_RBGV_GAR_PATH} ${_RBGV_HALLMARKS_ROOT}
 #   ${_RBGV_HALLMARK} ${_RBGV_VESSEL_MODE}
 #   ${_RBGV_VESSEL} (content only — written into vouch_summary.vessel)
+#   ${_RBGV_ARK_BASENAME_IMAGE} ${_RBGV_ARK_BASENAME_ATTEST}
 #   ${_RBGV_IMAGE_1} ${_RBGV_IMAGE_2} ${_RBGV_IMAGE_3}
 #   ${_RBGV_IMAGE_1_PROVENANCE} ${_RBGV_IMAGE_2_PROVENANCE} ${_RBGV_IMAGE_3_PROVENANCE}
 #   ${_RBGV_BIND_SOURCE} ${_RBGV_GRAFT_SOURCE}
@@ -84,13 +85,14 @@ def main():
     gar_host       = require_env("_RBGV_GAR_HOST")
     gar_path       = require_env("_RBGV_GAR_PATH")
     hallmarks_root = require_env("_RBGV_HALLMARKS_ROOT")
+    image_basename = require_env("_RBGV_ARK_BASENAME_IMAGE")
     vessel         = require_env("_RBGV_VESSEL")
     hallmark       = require_env("_RBGV_HALLMARK")
 
     print(f"=== Mode-aware verification ({vessel_mode}) ===")
 
-    # New layout: image package = <HALLMARKS_ROOT>/<HALLMARK>/image, tag = <HALLMARK>
-    image_package = f"{hallmarks_root}/{hallmark}/image"
+    # New layout: image package = <HALLMARKS_ROOT>/<HALLMARK>/<image-basename>, tag = <HALLMARK>
+    image_package = f"{hallmarks_root}/{hallmark}/{image_basename}"
     image_registry_base = f"https://{gar_host}/v2/{gar_path}/{image_package}"
     image_full_ref = f"{gar_host}/{gar_path}/{image_package}"
 
@@ -151,8 +153,9 @@ def _verify_conjure(manifest, is_index, config, token, gar_host, gar_path,
     expected_keyid = ("projects/verified-builder/locations/global/keyRings/"
                       "attestor/cryptoKeys/google-hosted-worker/cryptoKeyVersions/1")
 
-    # New layout: attest package = <HALLMARKS_ROOT>/<HALLMARK>/attest with per-platform tags <HALLMARK>-<arch>
-    attest_package = f"{hallmarks_root}/{hallmark}/attest"
+    # New layout: attest package = <HALLMARKS_ROOT>/<HALLMARK>/<attest-basename> with per-platform tags <HALLMARK>-<arch>
+    attest_basename = require_env("_RBGV_ARK_BASENAME_ATTEST")
+    attest_package = f"{hallmarks_root}/{hallmark}/{attest_basename}"
     attest_registry_base = f"https://{gar_host}/v2/{gar_path}/{attest_package}"
     attest_full_ref = f"{gar_host}/{gar_path}/{attest_package}"
 

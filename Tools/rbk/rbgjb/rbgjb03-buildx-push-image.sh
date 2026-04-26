@@ -5,13 +5,14 @@
 #                _RBGY_GAR_LOCATION, _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY,
 #                _RBGY_GAR_HOST_SUFFIX, _RBGY_HALLMARKS_ROOT, _RBGY_HALLMARK,
 #                _RBGY_GIT_COMMIT, _RBGY_GIT_BRANCH,
+#                _RBGY_ARK_BASENAME_IMAGE,
 #                _RBGY_IMAGE_1, _RBGY_IMAGE_2, _RBGY_IMAGE_3 (optional base image refs)
 #
 # Uses buildx --push with docker-container driver. Cloud Build pre-populates
 # Docker credentials in the host daemon; buildx inherits them via the
 # docker-container driver's config propagation.
 #
-# Image URI shape: <host>/<project>/<repo>/<HALLMARKS_ROOT>/<HALLMARK>/image:<HALLMARK>
+# Image URI shape: <host>/<project>/<repo>/<HALLMARKS_ROOT>/<HALLMARK>/<image-basename>:<HALLMARK>
 
 set -euo pipefail
 
@@ -25,6 +26,7 @@ test -n "${_RBGY_HALLMARKS_ROOT}"      || (echo "_RBGY_HALLMARKS_ROOT missing"  
 test -n "${_RBGY_HALLMARK}"            || (echo "_RBGY_HALLMARK missing"            >&2; exit 1)
 test -n "${_RBGY_GIT_COMMIT}"          || (echo "_RBGY_GIT_COMMIT missing"          >&2; exit 1)
 test -n "${_RBGY_GIT_BRANCH}"          || (echo "_RBGY_GIT_BRANCH missing"          >&2; exit 1)
+test -n "${_RBGY_ARK_BASENAME_IMAGE}"  || (echo "_RBGY_ARK_BASENAME_IMAGE missing"  >&2; exit 1)
 
 # Resolve base image build-args (anchored GAR refs or upstream pass-through)
 BUILD_ARGS=""
@@ -36,7 +38,7 @@ test -s .hallmark || (echo "hallmark not derived" >&2; exit 1)
 HALLMARK="$(cat .hallmark)"
 
 GAR_REPO_BASE="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}"
-IMAGE_URI="${GAR_REPO_BASE}/${_RBGY_HALLMARKS_ROOT}/${HALLMARK}/image:${HALLMARK}"
+IMAGE_URI="${GAR_REPO_BASE}/${_RBGY_HALLMARKS_ROOT}/${HALLMARK}/${_RBGY_ARK_BASENAME_IMAGE}:${HALLMARK}"
 
 docker buildx version
 docker version
