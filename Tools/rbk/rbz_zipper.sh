@@ -118,12 +118,21 @@ zrbz_kindle() {
   buz_enroll RBZ_BOTTLE_SORTIE  "rbw-Is"  "${z_mod}" "rbob_ifrit_sortie"  "imprint"  "Run automated security test scripts inside the bottle"
 
   # Image — container image operations (rbw-i, UPPER=mutates, lower=read)
+  # Three-domain symmetric: hallmarks (h), reliquaries (r), enshrinements (e).
+  # Verbs: rekon (member-list), muster (catalog-list), Jettison (delete), wrest (pull).
   buz_group RBZ__GROUP_IMAGE      "rbw-i"   "Image — Container image operations"
   z_mod="rbfl_cli.sh"
-  buz_enroll RBZ_JETTISON_IMAGE         "rbw-iJ"  "${z_mod}" "rbfl_jettison"  ""  "Jettison a specific image tag from registry"
-  buz_enroll RBZ_REKON_IMAGE            "rbw-ir"  "${z_mod}" "rbfl_rekon"     ""  "List ark basenames present under a hallmark's GAR subtree"
-  z_mod="rbfr_cli.sh"
-  buz_enroll RBZ_WREST_IMAGE            "rbw-iw"  "${z_mod}" "rbfr_wrest"     ""  "Wrest a specific image from registry"
+  buz_enroll RBZ_REKON_HALLMARK         "rbw-irh" "${z_mod}" "rbfl_rekon_hallmark"        ""  "List ark basenames present under a hallmark's GAR subtree"
+  buz_enroll RBZ_REKON_RELIQUARY        "rbw-irr" "${z_mod}" "rbfl_rekon_reliquary"       ""  "List tool images present under a reliquary stamp's GAR subtree"
+  buz_enroll RBZ_MUSTER_HALLMARKS       "rbw-imh" "${z_mod}" "rbfl_muster_hallmarks"      ""  "Muster hallmarks — list all hallmark identifiers"
+  buz_enroll RBZ_MUSTER_RELIQUARIES     "rbw-imr" "${z_mod}" "rbfl_muster_reliquaries"    ""  "Muster reliquaries — list all reliquary stamps"
+  buz_enroll RBZ_MUSTER_ENSHRINEMENTS   "rbw-ime" "${z_mod}" "rbfl_muster_enshrinements"  ""  "Muster enshrinements — list all enshrined base anchors"
+  buz_enroll RBZ_WREST_HALLMARK_IMAGE   "rbw-iwh" "${z_mod}" "rbfl_wrest"                 ""  "Wrest a hallmark image from registry"
+  buz_enroll RBZ_WREST_RELIQUARY_IMAGE  "rbw-iwr" "${z_mod}" "rbfl_wrest"                 ""  "Wrest a reliquary tool image from registry"
+  buz_enroll RBZ_WREST_ENSHRINED_IMAGE  "rbw-iwe" "${z_mod}" "rbfl_wrest"                 ""  "Wrest an enshrined base image from registry"
+  buz_enroll RBZ_JETTISON_HALLMARK_IMAGE  "rbw-iJh" "${z_mod}" "rbfl_jettison"            ""  "Jettison a hallmark image tag from registry"
+  buz_enroll RBZ_JETTISON_RELIQUARY_IMAGE "rbw-iJr" "${z_mod}" "rbfl_jettison"            ""  "Jettison a reliquary tool image from registry"
+  buz_enroll RBZ_JETTISON_ENSHRINEMENT    "rbw-iJe" "${z_mod}" "rbfl_jettison"            ""  "Jettison an enshrinement from registry"
 
   # Marshal — lifecycle (rbw-M)
   buz_group RBZ__GROUP_MARSHAL    "rbw-M"   "Marshal — Lifecycle"

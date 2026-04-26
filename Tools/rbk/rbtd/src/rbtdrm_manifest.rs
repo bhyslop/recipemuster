@@ -37,9 +37,19 @@ pub const RBTDRM_COLOPHON_PLUMB_FULL: &str = "rbw-fpf";
 pub const RBTDRM_COLOPHON_PLUMB_COMPACT: &str = "rbw-fpc";
 
 // Image colophons (global — no nameplate imprint)
-pub const RBTDRM_COLOPHON_WREST: &str = "rbw-iw";
-pub const RBTDRM_COLOPHON_REKON: &str = "rbw-ir";
-pub const RBTDRM_COLOPHON_JETTISON: &str = "rbw-iJ";
+// Three-domain symmetric: hallmarks (h), reliquaries (r), enshrinements (e).
+// Verbs: rekon (member-list), muster (catalog-list), Jettison (delete), wrest (pull).
+pub const RBTDRM_COLOPHON_REKON_HALLMARK: &str = "rbw-irh";
+pub const RBTDRM_COLOPHON_REKON_RELIQUARY: &str = "rbw-irr";
+pub const RBTDRM_COLOPHON_MUSTER_HALLMARKS: &str = "rbw-imh";
+pub const RBTDRM_COLOPHON_MUSTER_RELIQUARIES: &str = "rbw-imr";
+pub const RBTDRM_COLOPHON_MUSTER_ENSHRINEMENTS: &str = "rbw-ime";
+pub const RBTDRM_COLOPHON_WREST_HALLMARK_IMAGE: &str = "rbw-iwh";
+pub const RBTDRM_COLOPHON_WREST_RELIQUARY_IMAGE: &str = "rbw-iwr";
+pub const RBTDRM_COLOPHON_WREST_ENSHRINED_IMAGE: &str = "rbw-iwe";
+pub const RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE: &str = "rbw-iJh";
+pub const RBTDRM_COLOPHON_JETTISON_RELIQUARY_IMAGE: &str = "rbw-iJr";
+pub const RBTDRM_COLOPHON_JETTISON_ENSHRINEMENT: &str = "rbw-iJe";
 
 // Crucible active check (param1 channel — nameplate as argument)
 pub const RBTDRM_COLOPHON_CRUCIBLE_ACTIVE: &str = "rbw-cic";
@@ -96,18 +106,18 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         RBTDRM_FIXTURE_FOUR_MODE => Some(&[
             RBTDRM_COLOPHON_ORDAIN,
             RBTDRM_COLOPHON_ABJURE,
-            RBTDRM_COLOPHON_WREST,
+            RBTDRM_COLOPHON_WREST_HALLMARK_IMAGE,
             RBTDRM_COLOPHON_KLUDGE,
             RBTDRM_COLOPHON_SUMMON,
             RBTDRM_COLOPHON_PLUMB_FULL,
             RBTDRM_COLOPHON_PLUMB_COMPACT,
-            RBTDRM_COLOPHON_REKON,
-            RBTDRM_COLOPHON_JETTISON,
+            RBTDRM_COLOPHON_REKON_HALLMARK,
+            RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE,
         ]),
         RBTDRM_FIXTURE_BATCH_VOUCH => Some(&[
             RBTDRM_COLOPHON_ORDAIN,
             RBTDRM_COLOPHON_ABJURE,
-            RBTDRM_COLOPHON_JETTISON,
+            RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE,
             RBTDRM_COLOPHON_VOUCH,
             RBTDRM_COLOPHON_TALLY,
         ]),

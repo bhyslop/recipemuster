@@ -16,8 +16,8 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle Foundry Retriever - wrest and summon operations
-# Director credentials for wrest; retriever credentials for summon
+# Recipe Bottle Foundry Retriever - summon operation
+# Retriever credentials
 
 set -euo pipefail
 
@@ -50,65 +50,6 @@ zrbfr_sentinel() {
 
 ######################################################################
 # Public Functions (rbfr_*)
-
-rbfr_wrest() {
-  zrbfr_sentinel
-
-  local z_locator="${1:-}"
-
-  # Documentation block
-  buc_doc_brief "Wrest an image from the registry to local container runtime by locator"
-  buc_doc_param "locator" "Image locator in package-path:tag format (e.g. hallmarks/H/image:H)"
-  buc_doc_shown || return 0
-
-  # Validate locator parameter
-  test -n "${z_locator}" || buc_die "Locator parameter required (package-path:tag)"
-
-  # Parse locator into package path and tag
-  case "${z_locator}" in
-    *:*) : ;;
-    *)   buc_die "Invalid locator format. Expected package-path:tag" ;;
-  esac
-  local z_pkg_path="${z_locator%:*}"
-  local z_tag="${z_locator##*:}"
-  test -n "${z_pkg_path}" || buc_die "Package path is empty in locator"
-  test -n "${z_tag}" || buc_die "Tag is empty in locator"
-
-  buc_step "Authenticating as Director"
-
-  test -f "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Director credential not found: ${RBDC_DIRECTOR_RBRA_FILE}"
-
-  # Get OAuth token
-  local z_token
-  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
-
-  buc_step "Logging into container registry"
-
-  # Construct full image reference
-  local z_full_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBRR_CLOUD_PREFIX}${z_locator}"
-
-  # Docker login to GAR
-  echo "${z_token}" | docker login -u oauth2accesstoken --password-stdin "https://${ZRBFC_REGISTRY_HOST}" \
-    || buc_die "Container runtime authentication failed"
-
-  buc_step "Pulling image: ${z_full_ref}"
-
-  # Pull image
-  docker pull "${z_full_ref}" || buc_die "Image pull failed"
-
-  # Get local image ID
-  local z_image_id
-  docker inspect --format='{{.Id}}' "${z_full_ref}" > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null \
-    || buc_die "Failed to get image ID"
-  z_image_id=$(<"${ZRBFC_SCRATCH_FILE}")
-
-  # Display results
-  echo ""
-  echo "Image wrested: ${z_full_ref}"
-  echo "Local image ID: ${z_image_id}"
-
-  buc_success "Image wrest complete"
-}
 
 rbfr_summon() {
   zrbfr_sentinel
