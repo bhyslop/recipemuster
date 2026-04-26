@@ -1055,36 +1055,23 @@ rbgp_depot_list() {
   
   buc_info ""
   buc_info "=== DEPOT SUMMARY ==="
-  
+  printf "%-40s %s\n" "PROJECT_ID" "STATUS"
+
   while test "${z_depot_index}" -lt "${z_project_count}"; do
     local z_project_id
     z_project_id=$(rbgu_json_field_capture "depot_list_projects" ".projects[${z_depot_index}].projectId") || continue
-    
-    local z_display_name  
-    z_display_name=$(rbgu_json_field_capture "depot_list_projects" ".projects[${z_depot_index}].displayName") || z_display_name="N/A"
-    
-    # Extract depot name and timestamp from project ID pattern rbwg-d-NAME-TIMESTAMP
-    # Using bash builtins per BCG
-    local z_depot_name
-    local z_depot_timestamp
+
+    local z_depot_name=""
     if [[ "${z_project_id}" =~ ${RBGC_GLOBAL_DEPOT_REGEX} ]]; then
       local z_without_prefix="${z_project_id#"${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-"}"
       local z_len=${#z_without_prefix}
       local z_suffix_len=$((1 + RBGC_GLOBAL_TIMESTAMP_LEN))
       z_depot_name="${z_without_prefix:0:$((z_len - z_suffix_len))}"
-      z_depot_timestamp="${z_project_id:$((${#z_project_id} - RBGC_GLOBAL_TIMESTAMP_LEN))}"
     fi
-    
-    # Check depot components
-    local z_status="CHECKING"
-    local z_region="unknown"
-    
-    # Try to detect region and validate components
-    local z_mason_expected="${RBGC_MASON_PREFIX}-${z_depot_name}"
-    local z_repo_expected="rbw-${z_depot_name}-repository"
-    local z_bucket_expected="${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_BUCKET}-${z_depot_name}-${z_depot_timestamp}"
 
-    # Quick validation - check if Mason service account exists
+    local z_status="CHECKING"
+    local z_mason_expected="${RBGC_MASON_PREFIX}-${z_depot_name}"
+
     local z_mason_email
     z_mason_email=$(rbgu_sa_email_capture "${z_mason_expected}" "${z_project_id}") \
       || buc_die "Failed to compose Mason email for depot ${z_depot_name}"
@@ -1100,10 +1087,9 @@ rbgp_depot_list() {
       z_status="BROKEN"
       z_broken_count=$((z_broken_count + 1))
     fi
-    
-    # Display depot info
-    printf "%-25s %-20s %-15s %s\n" "${z_project_id}" "${z_depot_name:-N/A}" "${z_region}" "${z_status}"
-    
+
+    printf "%-40s %s\n" "${z_project_id}" "${z_status}"
+
     z_depot_index=$((z_depot_index + 1))
   done
   
