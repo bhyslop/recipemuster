@@ -83,8 +83,8 @@ zrbfc_kindle() {
   buc_log_args 'Scratch file for sequential temp-file patterns'
   readonly ZRBFC_SCRATCH_FILE="${BURD_TEMP_DIR}/rbfc_scratch.txt"
 
-  buc_log_args 'Hallmark enumeration output (zrbfc_list_hallmarks_capture)'
-  readonly ZRBFC_HALLMARK_LIST_FILE="${BURD_TEMP_DIR}/rbfc_hallmark_list.txt"
+  buc_log_args 'GAR package enumeration output (zrbfc_list_packages_capture)'
+  readonly ZRBFC_PACKAGE_LIST_FILE="${BURD_TEMP_DIR}/rbfc_package_list.txt"
 
   buc_log_args 'Step script directories (used by shared about/vouch assembly)'
   local z_self_dir="${BASH_SOURCE[0]%/*}"
@@ -521,30 +521,31 @@ zrbfc_assemble_vouch_steps() {
 }
 
 ######################################################################
-# GAR Hallmark Enumeration (Registry API — shared by tally and batch_vouch)
+# GAR Package Enumeration (Registry API — shared by tally, rekon, muster, batch_vouch)
 
-# Internal: enumerate every ark under ${RBGL_HALLMARKS_ROOT}/ via GAR REST.
-# Writes "<hallmark> <basename>" pairs (one per line, sorted) to
-# ZRBFC_HALLMARK_LIST_FILE. An empty file is a valid result (no hallmarks).
-# Args: token
+# Internal: enumerate every <element>/<basename> pair under <subtree-root>/ via GAR REST.
+# Writes "<element> <basename>" pairs (one per line, sorted) to ZRBFC_PACKAGE_LIST_FILE.
+# An empty file is a valid result (no elements).
+# Args: token, subtree_root (e.g., RBGL_HALLMARKS_ROOT, RBGL_RELIQUARIES_ROOT)
 # Pagination: pageSize=1000 — deferred until evidence of >1000 packages.
-zrbfc_list_hallmarks_capture() {
+zrbfc_list_packages_capture() {
   zrbfc_sentinel
 
   local -r z_token="${1:?Token required}"
+  local -r z_subtree_root="${2:?Subtree root required}"
 
   local -r z_list_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages?pageSize=1000"
-  local -r z_list_infix="rbfc_list_hallmarks"
-  local -r z_subtree="${RBGL_HALLMARKS_ROOT}/"
+  local -r z_list_infix="rbfc_list_packages"
+  local -r z_subtree="${z_subtree_root}/"
 
   rbgu_http_json "GET" "${z_list_url}" "${z_token}" "${z_list_infix}"
-  rbgu_http_require_ok "List hallmark packages" "${z_list_infix}"
+  rbgu_http_require_ok "List GAR packages" "${z_list_infix}"
 
   local -r z_resp_file="${ZRBGU_PREFIX}${z_list_infix}${ZRBGU_POSTFIX_JSON}"
-  local -r z_raw_file="${BURD_TEMP_DIR}/rbfc_hallmark_list_raw.txt"
+  local -r z_raw_file="${BURD_TEMP_DIR}/rbfc_package_list_raw.txt"
 
   # GAR returns package names URL-encoded (slashes as %2F). Decode, strip the
-  # API path prefix, filter to ${RBGL_HALLMARKS_ROOT}/<hallmark>/<basename> shape
+  # API path prefix, filter to <subtree>/<element>/<basename> shape
   # (length == 2 after split excludes anything deeper or shallower), emit as
   # space-separated pair lines.
   jq -r --arg subtree "${z_subtree}" '
@@ -557,10 +558,50 @@ zrbfc_list_hallmarks_capture() {
     | select(length == 2)
     | "\(.[0]) \(.[1])"
   ' "${z_resp_file}" > "${z_raw_file}" \
-    || buc_die "Failed to extract hallmark package list"
+    || buc_die "Failed to extract GAR package list"
 
-  sort "${z_raw_file}" > "${ZRBFC_HALLMARK_LIST_FILE}" \
-    || buc_die "Failed to sort hallmark list"
+  sort "${z_raw_file}" > "${ZRBFC_PACKAGE_LIST_FILE}" \
+    || buc_die "Failed to sort GAR package list"
+}
+
+# Internal: enumerate every <anchor> directly under <subtree-root>/ via GAR REST.
+# For 1-deep categories (e.g., enshrinements) where the package itself is
+# named <anchor> with no further basename. Writes "<anchor>" lines (one per
+# line, sorted) to ZRBFC_PACKAGE_LIST_FILE. An empty file is a valid result.
+# Args: token, subtree_root (e.g., RBGL_ENSHRINES_ROOT)
+# Pagination: pageSize=1000 — deferred until evidence of >1000 packages.
+zrbfc_list_anchors_capture() {
+  zrbfc_sentinel
+
+  local -r z_token="${1:?Token required}"
+  local -r z_subtree_root="${2:?Subtree root required}"
+
+  local -r z_list_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages?pageSize=1000"
+  local -r z_list_infix="rbfc_list_anchors"
+  local -r z_subtree="${z_subtree_root}/"
+
+  rbgu_http_json "GET" "${z_list_url}" "${z_token}" "${z_list_infix}"
+  rbgu_http_require_ok "List GAR anchor packages" "${z_list_infix}"
+
+  local -r z_resp_file="${ZRBGU_PREFIX}${z_list_infix}${ZRBGU_POSTFIX_JSON}"
+  local -r z_raw_file="${BURD_TEMP_DIR}/rbfc_anchor_list_raw.txt"
+
+  # Filter to <subtree>/<anchor> shape (length == 1 after split excludes
+  # anything deeper) and emit just the anchor name.
+  jq -r --arg subtree "${z_subtree}" '
+    .packages[]?.name
+    | sub("^.*/packages/"; "")
+    | gsub("%2F"; "/")
+    | select(startswith($subtree))
+    | ltrimstr($subtree)
+    | split("/")
+    | select(length == 1)
+    | .[0]
+  ' "${z_resp_file}" > "${z_raw_file}" \
+    || buc_die "Failed to extract GAR anchor package list"
+
+  sort "${z_raw_file}" > "${ZRBFC_PACKAGE_LIST_FILE}" \
+    || buc_die "Failed to sort GAR anchor package list"
 }
 
 ######################################################################

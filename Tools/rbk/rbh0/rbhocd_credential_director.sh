@@ -42,7 +42,7 @@ rbho_credential_director() {
   buh_line "Run ${RBYC_REKON} to list raw image tags in the registry"
   buh_line "using your director credential:"
   buh_e
-  buh_tt   "   " "${RBZ_REKON_IMAGE}" "" " rbev-busybox"
+  buh_tt   "   " "${RBZ_REKON_HALLMARK}" "" " rbev-busybox"
   buh_e
   buh_line "If the command succeeds you have working build access to the"
   buh_line "  ${RBYC_DEPOT}."

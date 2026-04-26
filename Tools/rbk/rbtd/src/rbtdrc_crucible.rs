@@ -33,10 +33,10 @@ use crate::rbtdri_invocation::{
 };
 use crate::rbtdrm_manifest::{
     RBTDRM_COLOPHON_ABJURE, RBTDRM_COLOPHON_ACCESS_PROBE, RBTDRM_COLOPHON_BARK,
-    RBTDRM_COLOPHON_FIAT, RBTDRM_COLOPHON_JETTISON, RBTDRM_COLOPHON_KLUDGE,
+    RBTDRM_COLOPHON_FIAT, RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE, RBTDRM_COLOPHON_KLUDGE,
     RBTDRM_COLOPHON_ORDAIN, RBTDRM_COLOPHON_PLUMB_COMPACT, RBTDRM_COLOPHON_PLUMB_FULL,
-    RBTDRM_COLOPHON_REKON, RBTDRM_COLOPHON_SUMMON, RBTDRM_COLOPHON_TALLY,
-    RBTDRM_COLOPHON_VOUCH, RBTDRM_COLOPHON_WREST, RBTDRM_COLOPHON_WRIT,
+    RBTDRM_COLOPHON_REKON_HALLMARK, RBTDRM_COLOPHON_SUMMON, RBTDRM_COLOPHON_TALLY,
+    RBTDRM_COLOPHON_VOUCH, RBTDRM_COLOPHON_WREST_HALLMARK_IMAGE, RBTDRM_COLOPHON_WRIT,
 };
 
 // ── Thread-local invocation context ──────────────────────────
@@ -2296,7 +2296,7 @@ fn rbtdrc_fourmode_conjure_lifecycle(dir: &Path) -> rbtdre_Verdict {
             "{}/{}/{}:{}",
             RBTDRC_GAR_CATEGORY_HALLMARKS, hallmark, RBTDRC_ARK_BASENAME_IMAGE, hallmark
         );
-        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_WREST, &[&locator], &[]) {
+        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_WREST_HALLMARK_IMAGE, &[&locator], &[]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtdre_Verdict::Fail(format!("wrest failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("wrest invocation: {}", e)),
@@ -2363,7 +2363,7 @@ fn rbtdrc_fourmode_conjure_lifecycle(dir: &Path) -> rbtdre_Verdict {
 
         // Rekon — verify image+about+vouch basenames are present.
         let _ = std::fs::write(dir.join("06-rekon.txt"), "rekoning");
-        let rekon_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_REKON, &[&hallmark], &[]) {
+        let rekon_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_REKON_HALLMARK, &[&hallmark], &[]) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtdre_Verdict::Fail(format!("rekon failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("rekon invocation: {}", e)),
@@ -2434,7 +2434,7 @@ fn rbtdrc_fourmode_bind_lifecycle(dir: &Path) -> rbtdre_Verdict {
             "{}/{}/{}:{}",
             RBTDRC_GAR_CATEGORY_HALLMARKS, hallmark, RBTDRC_ARK_BASENAME_IMAGE, hallmark
         );
-        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_WREST, &[&locator], &[]) {
+        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_WREST_HALLMARK_IMAGE, &[&locator], &[]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtdre_Verdict::Fail(format!("wrest failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("wrest invocation: {}", e)),
@@ -2473,7 +2473,7 @@ fn rbtdrc_fourmode_bind_lifecycle(dir: &Path) -> rbtdre_Verdict {
             "{}/{}/{}:{}",
             RBTDRC_GAR_CATEGORY_HALLMARKS, hallmark, RBTDRC_ARK_BASENAME_POUCH, hallmark
         );
-        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_JETTISON, &[&jettison_locator, "--force"], &[]) {
+        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE, &[&jettison_locator, "--force"], &[]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtdre_Verdict::Fail(format!("jettison failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("jettison invocation: {}", e)),
@@ -2481,7 +2481,7 @@ fn rbtdrc_fourmode_bind_lifecycle(dir: &Path) -> rbtdre_Verdict {
 
         // Rekon after jettison — verify pouch is now absent but image remains.
         let _ = std::fs::write(dir.join("05-rekon.txt"), "rekoning post-jettison");
-        let rekon_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_REKON, &[&hallmark], &[]) {
+        let rekon_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_REKON_HALLMARK, &[&hallmark], &[]) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtdre_Verdict::Fail(format!("rekon failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("rekon invocation: {}", e)),
@@ -2567,7 +2567,7 @@ fn rbtdrc_fourmode_graft_lifecycle(dir: &Path) -> rbtdre_Verdict {
             "{}/{}/{}:{}",
             RBTDRC_GAR_CATEGORY_HALLMARKS, hallmark, RBTDRC_ARK_BASENAME_IMAGE, hallmark
         );
-        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_WREST, &[&locator], &[]) {
+        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_WREST_HALLMARK_IMAGE, &[&locator], &[]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtdre_Verdict::Fail(format!("wrest failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("wrest invocation: {}", e)),
@@ -2725,7 +2725,7 @@ fn rbtdrc_batch_vouch_lifecycle(dir: &Path) -> rbtdre_Verdict {
             "{}/{}/{}:{}",
             RBTDRC_GAR_CATEGORY_HALLMARKS, hallmark, RBTDRC_ARK_BASENAME_VOUCH, hallmark
         );
-        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_JETTISON, &[&jettison_locator, "--force"], &[]) {
+        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE, &[&jettison_locator, "--force"], &[]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtdre_Verdict::Fail(format!("plant jettison failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("plant jettison invocation: {}", e)),
