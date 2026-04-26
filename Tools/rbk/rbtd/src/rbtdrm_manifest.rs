@@ -91,6 +91,8 @@ pub const RBTDRM_FIXTURE_ENROLLMENT_VALIDATION: &str = "enrollment-validation";
 pub const RBTDRM_FIXTURE_REGIME_VALIDATION: &str = "regime-validation";
 pub const RBTDRM_FIXTURE_REGIME_SMOKE: &str = "regime-smoke";
 pub const RBTDRM_FIXTURE_HANDBOOK_RENDER: &str = "handbook-render";
+// Pristine-lifecycle fixture (gate + SA/depot lifecycle cases)
+pub const RBTDRM_FIXTURE_PRISTINE_LIFECYCLE: &str = "pristine-lifecycle";
 
 /// Per-fixture required colophons. Returns None for unknown fixtures.
 pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str]> {
@@ -124,7 +126,8 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         RBTDRM_FIXTURE_ACCESS_PROBE => Some(&[RBTDRM_COLOPHON_ACCESS_PROBE]),
         RBTDRM_FIXTURE_ENROLLMENT_VALIDATION
         | RBTDRM_FIXTURE_REGIME_VALIDATION
-        | RBTDRM_FIXTURE_REGIME_SMOKE => Some(&[]),
+        | RBTDRM_FIXTURE_REGIME_SMOKE
+        | RBTDRM_FIXTURE_PRISTINE_LIFECYCLE => Some(&[]),
         RBTDRM_FIXTURE_HANDBOOK_RENDER => Some(&[
             RBTDRM_COLOPHON_ONBOARD_START_HERE,
             RBTDRM_COLOPHON_ONBOARD_CRASH_COURSE,

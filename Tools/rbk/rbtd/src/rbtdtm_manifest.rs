@@ -86,6 +86,7 @@ fn rbtdtm_accepts_fast_fixtures() {
     assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_ENROLLMENT_VALIDATION).is_ok());
     assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_REGIME_VALIDATION).is_ok());
     assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_REGIME_SMOKE).is_ok());
+    assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_PRISTINE_LIFECYCLE).is_ok());
 }
 
 #[test]

@@ -25,8 +25,9 @@
 use std::process::ExitCode;
 
 use rbtd::rbtdrc_crucible::{
-    rbtdrc_needs_charge, rbtdrc_needs_readiness_delay, rbtdrc_sections_for_fixture,
-    rbtdrc_set_context, rbtdrc_take_context, RBTDRC_SERVICE_READINESS_DELAY_SECS,
+    rbtdrc_fixture_fail_fast, rbtdrc_needs_charge, rbtdrc_needs_readiness_delay,
+    rbtdrc_sections_for_fixture, rbtdrc_set_context, rbtdrc_take_context,
+    RBTDRC_SERVICE_READINESS_DELAY_SECS,
 };
 use rbtd::rbtdre_engine::{
     rbtdre_detect_colors, rbtdre_find_case, rbtdre_list_cases, rbtdre_print_summary,
@@ -149,7 +150,8 @@ fn run_suite(args: &[String]) -> ExitCode {
     rbtdrc_set_context(ctx);
 
     let colors = rbtdre_detect_colors();
-    let run_result = rbtdre_run_sections(sections, &colors, false, &root_temp);
+    let fail_fast = rbtdrc_fixture_fail_fast(fixture);
+    let run_result = rbtdre_run_sections(sections, &colors, fail_fast, &root_temp);
 
     // ── Quench crucible (crucible fixtures only, unconditional) ──
     let mut ctx = rbtdrc_take_context();

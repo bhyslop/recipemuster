@@ -2014,6 +2014,17 @@ pub fn rbtdrc_needs_readiness_delay(fixture: &str) -> bool {
     )
 }
 
+/// Returns whether full-fixture mode should abort after the first failed case.
+/// The pristine-lifecycle gate (case 1) gates the rest of the fixture: if it
+/// fails, subsequent SA/depot lifecycle cases would burn quota chasing a
+/// non-pristine state, so we short-circuit.
+pub fn rbtdrc_fixture_fail_fast(fixture: &str) -> bool {
+    matches!(
+        fixture,
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_PRISTINE_LIFECYCLE
+    )
+}
+
 /// Returns the section array appropriate for the given fixture.
 pub fn rbtdrc_sections_for_fixture(fixture: &str) -> &'static [rbtdre_Section] {
     match fixture {
@@ -2027,6 +2038,7 @@ pub fn rbtdrc_sections_for_fixture(fixture: &str) -> &'static [rbtdre_Section] {
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_REGIME_VALIDATION => crate::rbtdrf_fast::RBTDRF_SECTIONS_REGIME_VALIDATION,
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_REGIME_SMOKE => crate::rbtdrf_fast::RBTDRF_SECTIONS_REGIME_SMOKE,
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_HANDBOOK_RENDER => crate::rbtdrf_handbook::RBTDRF_SECTIONS_HANDBOOK_RENDER,
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_PRISTINE_LIFECYCLE => crate::rbtdrp_pristine::RBTDRP_SECTIONS_PRISTINE_LIFECYCLE,
         _ => {
             eprintln!(
                 "rbtdrc: no sections defined for fixture '{}' — running empty",
