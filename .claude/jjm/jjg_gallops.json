@@ -6648,9 +6648,10 @@
         "₢BBAAE",
         "₢BBAAF",
         "₢BBAAG",
-        "₢BBAAH"
+        "₢BBAAH",
+        "₢BBAAI"
       ],
-      "next_pace_seed": "AAI",
+      "next_pace_seed": "AAJ",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAAA": {
@@ -6766,6 +6767,17 @@
               "text": "## Character\n\nFinal integration pace. Wires pristine-pass as a precondition for `/rbk-prep-release` so the upstream contribution ceremony cannot proceed without a recent pristine green. Closes the loop: pristine qualification becomes load-bearing on release prep, not optional ceremony.\n\n## Work\n\nModify `.claude/commands/rbk-prep-release.md` to add a precondition step at or near step 1:\n\n- Verify a recent `rbw-tP` run was green\n- Recency contract — design call: most recent commit on main? Last 7 days? Tagged release marker on the green run? Suggest \"pristine-passed marker file references HEAD's commit SHA exactly\" — strongest invariant, prevents stale passes\n- If pristine has not run green against the current HEAD, prep-release fails-fast with operator-visible message naming the marshal-zero → pristine sequence\n\nLikely needs a small artifact written by `rbw-tP` on success — e.g., a `.pristine-passed` file (gitignored) carrying timestamp + commit SHA. `/rbk-prep-release` reads it; if SHA doesn't match HEAD, prep-release refuses.\n\nUpdate README \"Release Procedure\" section (from Pace 1) to reflect that step 4 (`/rbk-prep-release`) now enforces step 3 (`rbw-tP`) had to pass against the very HEAD that prep-release is preparing.\n\n## Verification\n\n- `/rbk-prep-release` fails fast when no pristine pass is recorded for current HEAD\n- After successful `rbw-tP`, `/rbk-prep-release` proceeds normally\n- After successful `rbw-tP` followed by an unrelated commit, `/rbk-prep-release` refuses (SHA mismatch)\n- Pristine-passed artifact's gitignore status is correct (deliberately not committed)\n- README accurately documents the precondition\n\n## Out of scope\n\n- Restructuring the rest of `/rbk-prep-release` (preserved as-is)\n- Multi-pristine-run aggregation\n- CI integration\n- Recency policies beyond exact-HEAD-match (other policies left for future heats if needed)",
               "silks": "phase-6-prep-release-integration",
               "commit": "3452739"
+            }
+          ]
+        },
+        "₢BBAAI": {
+          "tacks": [
+            {
+              "ts": "260426-1223",
+              "state": "rough",
+              "text": "## Character\n\nMaintenance pace — re-read RELEASE.md with fresh eyes after the rest of the heat lands and apply accumulated fixes the operator identified during heat work but did not address inline.\n\n## Work\n\n- Re-read RELEASE.md cold\n- Apply corrections, clarifications, and restructurings captured during BBAAB–BBAAH execution but deferred from those paces\n- Verify references to `rbw-tP`, the `pristine-lifecycle` fixture, and the marshal-zero signature shape match what BBAAB–BBAAH actually delivered\n- Confirm cross-doc links from RELEASE.md to README.md anchors still resolve\n- Confirm the README's pointer paragraph and reference-tree entry still match RELEASE.md content\n\n## Verification\n\n- Updates committed\n- Operator confirms the doc reads correctly cold from a release-day perspective\n\n## Out of scope\n\n- README.md restructuring beyond cross-doc consistency\n- Re-architecting the release procedure itself (architectural changes belong in a separate heat)",
+              "silks": "release-doc-revision",
+              "commit": "df8f1ce"
             }
           ]
         }
