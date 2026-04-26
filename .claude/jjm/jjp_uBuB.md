@@ -48,6 +48,31 @@ Two depots created per pristine run: one throwaway (case 2 of fixture) + one can
 
 Mid-qualification failure means start-over-from-zero, not patch-and-continue. Documented explicitly in runbook to prevent the very accumulated-state bug class this tier exists to catch.
 
+### Implementation patterns (locked during BBAAJ)
+
+Durable choices binding all pristine-lifecycle case implementations (BBAAB, BBAAJ, BBAAK, and future BBAAC vessel-commit cases).
+
+**Throwaway-prefix mechanism: edit `.rbk/rbrr.env` + git commit.** Cases 2-5 need non-blank `RBRR_CLOUD_PREFIX`/`RBRR_RUNTIME_PREFIX` to invoke depot/SA tabtargets. The fixture mimics the human workflow: open rbrr.env, edit, `git add` + `git commit`. After the fixture runs, HEAD has walked off marshal-zero — recovery is `rbw-MZ`, matching the "start-over-from-zero" failure mode above.
+
+Rejected alternative — env-var override: `rbrr_cli.sh` kindle does `source rbrr_regime.sh; source ${RBBC_rbrr_file}; zrbrr_kindle; zrbrr_enforce` — sourcing rbrr.env overwrites any pre-set env, then enforce locks `readonly`. Pre-set env is silently discarded. Confirmed by tracing.
+
+Rejected alternative — in-memory restore (RAII): mutates rbrr.env without committing, leaves a transient dirty-tree window where a crash or sibling tooling sees uncommitted state that isn't operator-authored. Edit-and-commit is honest.
+
+**Idempotent install helper.** A shared function `rbtdrp_install_throwaway_prefixes` reads current rbrr.env values; if blank (post-marshal-zero), writes throwaway values and commits; if already throwaway, no-op. Cases 2-5 call this as their first step. One commit per fixture run, not per case.
+
+**Tabtarget shell-out style.** Cases discover global tabtargets via `rbtdri_find_tabtarget_global` and invoke via raw `Command::new(&tt).current_dir(&root)` — same pattern as `rbtdrf_handbook.rs`. No BURV context plumbing for these tabtargets (they don't write fact files theurge needs to read). For imprint-channel tabtargets like `rbtd-ap` (cases 4-5), use `rbtdri_find_tabtarget` with the role as imprint.
+
+**Section structure inside `RBTDRP_SECTIONS_PRISTINE_LIFECYCLE`.**
+- §1 `pristine-lifecycle-gate` — case 1 only (BBAAB-landed)
+- §2 `pristine-lifecycle-simple` — cases 2-3 (BBAAJ)
+- §3 `pristine-lifecycle-credentialed` — cases 4-5 (BBAAK)
+
+`rbtdrc_fixture_fail_fast` is true for pristine-lifecycle, so §1 failure short-circuits §2 and §3 in full-fixture mode. Single-case mode skips the gate.
+
+**Vessel commits beyond BBAAJ/BBAAK.** As pristine-tier extends to BBAAC and beyond (reliquary inscribe / enshrine / ordain / kludge), additional commits in vessel `rbrv.env` files and similar regime artifacts use the same edit-and-commit shape. The qualification's commit trail is the operator's audit trail.
+
+**Git shell-out style.** Mirror jjx/vvx — `Command::new("git").args([...]).current_dir(&root).output()`. Stage with explicit file path (never `git add -A`); commit messages produced via Rust string formatting. No `--no-verify`, no `--amend`.
+
 ### Tier layering
 
 Three tiers, escalating cost:
@@ -76,3 +101,5 @@ This heat runs concurrently with ₣A_'s remaining paces. ₣A_'s AAE+AAF+AAG se
 - `Tools/rbk/rbh0/rbhocd_credential_director.sh` / `rbhocr_credential_retriever.sh` — handbook tracks describing director "build access" and retriever "pull/tally access" — operations the lifecycle cases 4 and 5 must verify
 - `.claude/commands/rbk-prep-release.md` — upstream contribution ceremony; pristine-pass becomes a precondition (BBAAH)
 - Recent spook commits informing the bug class: kludge-aware-charge-prereq (₢BAAAH), ZRBOB_PROJECT extraction (f7146d1d), rbob_charged_predicate fix (a8eb7311), reliquary integrity-broken negative-test residue (recent ₣BA verification)
+- `Tools/rbk/rbtd/src/rbtdrf_handbook.rs` — non-context tabtarget shell-out reference pattern for case implementations
+- `Tools/rbk/rbrr_cli.sh` — kindle architecture documented in Implementation patterns; sourcing-over-env behavior locked the throwaway mechanism choice
