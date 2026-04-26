@@ -5851,9 +5851,10 @@
         "₢AmAAI",
         "₢AmAAK",
         "₢AmAAL",
-        "₢AmAAM"
+        "₢AmAAM",
+        "₢AmAAN"
       ],
-      "next_pace_seed": "AAN",
+      "next_pace_seed": "AAO",
       "paddock_file": ".claude/jjm/jjp_uAlm.md",
       "paces": {
         "₢AmAAA": {
@@ -6111,6 +6112,17 @@
               "text": "## Character\n\nSpook fix — tighten scripted agent behavior in JJK context file. Captured from ₢A9AAc (2026-04-20) where the size guard blocked a legitimate atomic commit and the agent offered \"raise OR split?\" as parallel options. The user's correction: split is not a first-class answer; the guard is a review step, not a problem to work around.\n\n## Problem\n\n`Tools/jjk/vov_veiled/jjk-claude-context.md` — the Commit Discipline → Size Guard subsection — literally scripts the prompt:\n\n> Ask: \"Raise the limit, or split?\"\n\nThat framing primes the agent to offer split as half the answer space. In ₢A9AAc the agent reflexively did exactly that on a 63 KB atomic migration (APCS0 quoin rename + downstream sweep). Accepting the split would have produced an intermediate commit where downstream files cited dead quoin names — strictly worse for review than one atomic commit.\n\n## User's actual policy\n\n- The size guard exists to catch \"did a gigabyte of binary sneak in?\" — a byte-count sanity gate.\n- Expected flow: guard fires → agent reports per-file byte breakdown → user reviews → user approves raise → agent raises and proceeds.\n- Splitting is never the reflexive fallback. It only enters the picture if the user explicitly directs it (because the work genuinely decomposes, not because the bytes are inconvenient).\n\n## Shape of the fix\n\nRewrite the Size Guard subsection so:\n\n1. The scripted question is removed (\"Raise the limit, or split?\"). Replace with: \"Report the byte breakdown and wait for the user to review. Expected outcome is that the user confirms the bytes are real and directs you to raise the limit.\"\n2. Add a note that split is a possible outcome but only when the user raises it — the agent must not offer split as a menu option.\n3. Keep the existing load-bearing guardrails: NEVER auto-override `size_limit`; STOP on guard fires; report breakdown.\n\nThe one-line summary: the guard is a review step, not a problem to work around.\n\n## Files\n\n- `Tools/jjk/vov_veiled/jjk-claude-context.md` — Size Guard subsection under Commit Discipline.\n\n## Cross-check\n\nAfter the rewrite, search the context file for any other scripted prompts that frame agent choices as menus when the actual user policy has a default outcome. The split/raise framing may not be unique.\n\n## Exit criteria\n\n- Size Guard subsection no longer contains \"Raise the limit, or split?\" framing.\n- Revised subsection directs agent to report-and-wait; raise-on-approval is the default path.\n- Any similar menu-framed prompts in the file are audited and corrected.\n\n## Source\n\n- Heat ₣A9 pace ₢A9AAc (2026-04-20) — triggering incident.\n- User feedback: \"I muse that we ought to call the suggestion to split a 'spook' that we ought to address in JJK v5 heat. I never want to split; I always want to review large git commits to make sure we aren't adding a gigabyte.\"",
               "silks": "size-guard-review-not-split",
               "commit": "588eae2"
+            }
+          ]
+        },
+        "₢AmAAN": {
+          "tacks": [
+            {
+              "ts": "260426-0632",
+              "state": "rough",
+              "text": "## Character\n\nSpook capture. JJK infrastructure stumble surfaced during a real recovery scenario; small fix with a broader audit angle.\n\n## Background\n\nDuring ₣BA creation (sibling heat to ₣A_), `jjx_transfer`'s pre-commit guard blocked because the staged `jjg_gallops.json` delta exceeded the default 100KB limit. The user authorized raising the limit, and `jjx_transfer` correctly honored `size_limit: 250000` on retry — but the retry errored \"Pace not found\" because the first attempt had already mutated gallops.json on disk (it just couldn't commit). Recovery shifted to `jjx_paddock` (set the new heat's paddock and bundle the staged restring into one commit), but `jjx_paddock` silently ignored the same `size_limit` param and blocked at its own hardcoded ~50KB guard. Operator fell back to direct `git commit` (`0c03f527`).\n\n## Defect\n\n`jjx_paddock` does not accept a `size_limit` parameter. The MCP Command Reference documents the signature as `{firemark?, note?}`, and the runtime ignores any extra field. Internal guard is hardcoded at ~50000 bytes — half the default for `jjx_transfer`. The asymmetry is the bug: when paddock is the recovery vector for a transfer's blocked commit, the limit a user just authorized cannot propagate.\n\n## Fix\n\n1. Extend `jjx_paddock` signature to accept `size_limit?` like `jjx_record`, `jjx_close`, `jjx_archive`, `jjx_transfer`.\n2. Update `Tools/jjk/vov_veiled/jjk-claude-context.md` MCP Command Reference to reflect the new param.\n3. Audit other state-mutating commands for the same omission — at minimum `jjx_create`, `jjx_alter`, `jjx_relabel`, `jjx_drop`, `jjx_reorder`, `jjx_relocate`, `jjx_redocket`, `jjx_landing`. Any command that self-commits and could plausibly batch with prior staged content should honor `size_limit`. Document the audit outcome in this pace's notch.\n\n## Verification\n\n- Reproduce a ₣BA-like scenario (synthetic large gallops delta) and confirm `jjx_paddock {firemark, size_limit: <large>}` commits cleanly.\n- CLAUDE.md doc reflects the new param.\n- Audit table of other commands posted in pace notch.\n\n## References\n\n- Officium ☉260426-1000 session captured the original failure pattern\n- Workaround commit: `0c03f527` (\"jjx: restring 6 paces A_ -> BA + install BA paddock\")\n- Spook origin: real-time recovery during ₣BA nomination + restring",
+              "silks": "jjx-paddock-honor-size-limit-param",
+              "commit": "0c03f52"
             }
           ]
         }
