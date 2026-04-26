@@ -32,6 +32,24 @@ rblm_zero() {
   local -r z_rbrr="${RBBC_rbrr_file}"
   test -f "${z_rbrr}" || buc_die "RBRR file not found: ${z_rbrr}"
 
+  # Pre-checks: working tree clean and HEAD pushed.
+  # Marshal-zero auto-commits its mutations; both invariants must hold to keep
+  # the resulting commit purely the marshal-zero state.
+  mkdir -p "${BURD_TEMP_DIR}" || buc_die "Failed to create temp directory"
+  local -r z_status_temp="${BURD_TEMP_DIR}/rblm_zero_status.txt"
+  local -r z_upstream_temp="${BURD_TEMP_DIR}/rblm_zero_upstream.txt"
+  local -r z_unpushed_temp="${BURD_TEMP_DIR}/rblm_zero_unpushed.txt"
+
+  git status --porcelain > "${z_status_temp}" || buc_die "git status failed"
+  test ! -s "${z_status_temp}" || buc_die "Working tree not clean — commit or discard before marshal-zero. See: ${z_status_temp}"
+
+  if ! git rev-parse --abbrev-ref --symbolic-full-name '@{u}' > "${z_upstream_temp}" 2>&1; then
+    buc_die "Current branch has no upstream — set tracking and push before marshal-zero. See: ${z_upstream_temp}"
+  fi
+
+  git rev-list '@{u}..HEAD' > "${z_unpushed_temp}" || buc_die "git rev-list failed"
+  test ! -s "${z_unpushed_temp}" || buc_die "HEAD has unpushed commits — push before marshal-zero. See: ${z_unpushed_temp}"
+
   # Discover secrets dir and vessel dir for pre-confirmation inventory
   local z_secrets_dir=""
   local z_vessel_dir=""
@@ -60,7 +78,7 @@ rblm_zero() {
   if test -n "${z_secrets_dir}"; then
     local z_preview=""
     local z_any_cred=0
-    for z_preview in "${RBCC_role_governor}/${RBCC_rbra_file}" "${RBCC_role_director}/${RBCC_rbra_file}" "${RBCC_role_retriever}/${RBCC_rbra_file}"; do
+    for z_preview in "${RBCC_role_governor}/${RBCC_rbra_file}" "${RBCC_role_director}/${RBCC_rbra_file}" "${RBCC_role_retriever}/${RBCC_rbra_file}" "${RBCC_role_assay}/${RBCC_rbra_file}"; do
       if test -f "${z_secrets_dir}/${z_preview}"; then
         buh_line "    ${z_secrets_dir}/${z_preview}"
         z_any_cred=1
@@ -99,6 +117,8 @@ rblm_zero() {
   buh_line "  Preserved (payor-scoped, survives depot change):"
   buh_line "    ${z_secrets_dir}/${RBCC_role_payor}/${RBCC_rbro_file}"
   buh_e
+  buh_line "  On completion, marshal-zero auto-commits the in-tree mutations."
+  buh_e
   buc_require "Proceed with marshal zero?" "zero"
 
   local -r z_tmp="${z_rbrr}.tmp"
@@ -129,7 +149,7 @@ rblm_zero() {
   # z_secrets_dir already extracted above for pre-confirmation inventory.
   if test -n "${z_secrets_dir}"; then
     local z_rbra=""
-    for z_rbra in "${RBCC_role_governor}/${RBCC_rbra_file}" "${RBCC_role_director}/${RBCC_rbra_file}" "${RBCC_role_retriever}/${RBCC_rbra_file}"; do
+    for z_rbra in "${RBCC_role_governor}/${RBCC_rbra_file}" "${RBCC_role_director}/${RBCC_rbra_file}" "${RBCC_role_retriever}/${RBCC_rbra_file}" "${RBCC_role_assay}/${RBCC_rbra_file}"; do
       if test -f "${z_secrets_dir}/${z_rbra}"; then
         rm "${z_secrets_dir}/${z_rbra}" || buc_die "Failed to remove: ${z_secrets_dir}/${z_rbra}"
         buh_line "  Removed stale depot credential: ${z_rbra}"
@@ -179,6 +199,32 @@ rblm_zero() {
 
   buh_line "  Zero complete: ${z_rbrr}"
   buh_e
+
+  # Auto-commit the in-tree mutations so post-zero state is captured as a single
+  # commit. RBRA deletions (outside repo) are not staged.
+  buc_step "Committing marshal-zero state"
+  git add "${z_rbrr}" || buc_die "Failed to stage RBRR file"
+
+  local z_stage=""
+  for z_stage in "${RBBC_dot_dir}"/*/rbrn.env; do
+    test -f "${z_stage}" || continue
+    git add "${z_stage}" || buc_die "Failed to stage: ${z_stage}"
+  done
+  if test -n "${z_vessel_dir}" && test -d "${z_vessel_dir}"; then
+    for z_stage in "${z_vessel_dir}"/*/rbrv.env; do
+      test -f "${z_stage}" || continue
+      git add "${z_stage}" || buc_die "Failed to stage: ${z_stage}"
+    done
+  fi
+
+  if git diff --cached --quiet; then
+    buh_line "  No changes to commit — already in marshal-zero state"
+  else
+    git commit -m "Marshal Zero — release qualification reset" || buc_die "Marshal-zero commit failed"
+    buh_line "  Marshal-zero state committed"
+  fi
+  buh_e
+
   buh_line "  Next: verify onboarding guide detects blank state:"
   buc_tabtarget "${RBZ_ONBOARDING}"
   buc_success "Regime zeroed to blank template"

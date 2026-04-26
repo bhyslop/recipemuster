@@ -1344,6 +1344,9 @@ rbgp_governor_mantle() {
   buc_info ""
   buc_info "Install the RBRA file:"
   buc_bare "        cp ${z_rbra_file} ${RBDC_GOVERNOR_RBRA_FILE}"
+  buc_info ""
+  buc_info "Or, for assay (test) mode:"
+  buc_bare "        cp ${z_rbra_file} ${RBDC_ASSAY_RBRA_FILE}"
 }
 
 # eof

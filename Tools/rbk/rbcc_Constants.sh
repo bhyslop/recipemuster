@@ -37,6 +37,7 @@ RBCC_role_governor="governor"
 RBCC_role_retriever="retriever"
 RBCC_role_director="director"
 RBCC_role_payor="payor"
+RBCC_role_assay="assay"
 RBCC_onboarding_nameplate="tadmor"
 
 ######################################################################

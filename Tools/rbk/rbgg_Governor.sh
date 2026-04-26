@@ -515,6 +515,9 @@ rbgg_charter_retriever() {
   buc_info ""
   buc_info "Install the RBRA file:"
   buc_bare "        cp ${z_actual_rbra_file} ${RBDC_RETRIEVER_RBRA_FILE}"
+  buc_info ""
+  buc_info "Or, for assay (test) mode:"
+  buc_bare "        cp ${z_actual_rbra_file} ${RBDC_ASSAY_RBRA_FILE}"
 }
 
 rbgg_knight_director() {
@@ -667,6 +670,9 @@ rbgg_knight_director() {
   buc_info ""
   buc_info "Install the RBRA file:"
   buc_bare "        cp ${z_actual_rbra_file} ${RBDC_DIRECTOR_RBRA_FILE}"
+  buc_info ""
+  buc_info "Or, for assay (test) mode:"
+  buc_bare "        cp ${z_actual_rbra_file} ${RBDC_ASSAY_RBRA_FILE}"
 }
 
 rbgg_forfeit_service_account() {

@@ -36,6 +36,7 @@ zrbdc_kindle() {
            "${RBRR_SECRETS_DIR}/${RBCC_role_retriever}" \
            "${RBRR_SECRETS_DIR}/${RBCC_role_director}" \
            "${RBRR_SECRETS_DIR}/${RBCC_role_payor}" \
+           "${RBRR_SECRETS_DIR}/${RBCC_role_assay}" \
     || buc_die "Failed to create secrets directories under: ${RBRR_SECRETS_DIR}"
 
   # One-shot migration: move old flat rbra-{role}.env to {role}/rbra.env
@@ -74,6 +75,7 @@ zrbdc_kindle() {
   readonly RBDC_RETRIEVER_RBRA_FILE="${RBRR_SECRETS_DIR}/${RBCC_role_retriever}/${RBCC_rbra_file}"
   readonly RBDC_DIRECTOR_RBRA_FILE="${RBRR_SECRETS_DIR}/${RBCC_role_director}/${RBCC_rbra_file}"
   readonly RBDC_PAYOR_RBRO_FILE="${RBRR_SECRETS_DIR}/${RBCC_role_payor}/${RBCC_rbro_file}"
+  readonly RBDC_ASSAY_RBRA_FILE="${RBRR_SECRETS_DIR}/${RBCC_role_assay}/${RBCC_rbra_file}"
 
   # Derive full pool resource paths from stem (suffixes match RBGC_POOL_SUFFIX_TETHER/AIRGAP)
   readonly RBDC_POOL_TETHER="projects/${RBRR_DEPOT_PROJECT_ID}/locations/${RBRR_GCP_REGION}/workerPools/${RBRR_GCB_POOL_STEM}-tether"
