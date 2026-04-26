@@ -30,7 +30,7 @@ The marshal-zero gate AND the SA/depot lifecycle exercises live as cases inside 
 |---|------|-------------|------|
 | 1 | `marshal-zero-attestation` | N/A — gate | Free |
 | 2 | `depot-lifecycle` | Yes (throwaway-named) | One GCP project per run (soft-delete graveyard accepted) |
-| 3 | `governor-lifecycle` | Yes (throwaway-named) | Free |
+| 3 | `governor-lifecycle` | Yes (throwaway-named) | One GCP project per run (case levies its own throwaway depot to satisfy `RBRR_DEPOT_PROJECT_ID` precondition; depot is unmade in case cleanup) |
 | 4 | `retriever-lifecycle` | Yes (throwaway governor + retriever) | Free + light read probe |
 | 5 | `director-lifecycle` | Yes (throwaway governor + director) | Light Cloud Build / GAR write probe |
 
@@ -42,7 +42,7 @@ Cases 4 and 5 each create their own throwaway governor (single-case independence
 
 After the pristine-lifecycle fixture passes, `rbw-tP` proceeds to canonical infrastructure setup (BBAAC): mantle real governor + deploy real RBRA, charter real retriever + deploy RBRA, knight real director + deploy RBRA, levy canonical depot. This persistent state is what reliquary inscribe, hallmark builds, and crucible runs depend on.
 
-Two depots created per pristine run: one throwaway (case 2 of fixture) + one canonical (BBAAC). Both quota-bearing.
+Two depots created per pristine run: one throwaway (case 2 of fixture) + one canonical (BBAAC). Both quota-bearing. Case 3 also levies+unmakes its own throwaway depot — counted as a third quota-bearing event but cleaned up within the case.
 
 ### Failure mode contract
 
@@ -60,7 +60,9 @@ Rejected alternative — in-memory restore (RAII): mutates rbrr.env without comm
 
 **Idempotent install helper.** A shared function `rbtdrp_install_throwaway_prefixes` reads current rbrr.env values; if blank (post-marshal-zero), writes throwaway values and commits; if already throwaway, no-op. Cases 2-5 call this as their first step. One commit per fixture run, not per case.
 
-**Tabtarget shell-out style.** Cases discover global tabtargets via `rbtdri_find_tabtarget_global` and invoke via raw `Command::new(&tt).current_dir(&root)` — same pattern as `rbtdrf_handbook.rs`. No BURV context plumbing for these tabtargets (they don't write fact files theurge needs to read). For imprint-channel tabtargets like `rbtd-ap` (cases 4-5), use `rbtdri_find_tabtarget` with the role as imprint.
+**Depot precondition for governor-mantle (case 3).** `rbgp_governor_mantle` requires `RBRR_DEPOT_PROJECT_ID` set — post-marshal-zero it is blank. Case 3 levies its own throwaway depot (named distinctly from case 2's, e.g. `pristg01` vs `pristq01`), edits rbrr.env to set `RBRR_DEPOT_PROJECT_ID` and commits, runs the governor lifecycle, then unmakes the depot in cleanup. The same pattern (commit a small targeted edit, run, clean up) is the model for future cases that need additional rbrr/rbrv/rbrn fields populated.
+
+**Tabtarget invocation style — fact files over stdout parsing.** Tabtargets that emit identifying values (depot project_ids, SA emails) write `rbgp_fact_*` files via `buf_write_fact`; cases consume via `rbtdri_invoke_global` + `rbtdri_read_burv_fact`. The BURV-isolated invoke also makes invoke counters and per-call output capture available to the case. Handbook-style tabtargets without facts (e.g., `rbtdrf_handbook.rs` cases) keep the raw `Command::new(&tt).current_dir(&root)` style. For imprint-channel tabtargets like `rbtd-ap` (cases 4-5), use `rbtdri_find_tabtarget` with the role as imprint.
 
 **Section structure inside `RBTDRP_SECTIONS_PRISTINE_LIFECYCLE`.**
 - §1 `pristine-lifecycle-gate` — case 1 only (BBAAB-landed)
@@ -101,5 +103,6 @@ This heat runs concurrently with ₣A_'s remaining paces. ₣A_'s AAE+AAF+AAG se
 - `Tools/rbk/rbh0/rbhocd_credential_director.sh` / `rbhocr_credential_retriever.sh` — handbook tracks describing director "build access" and retriever "pull/tally access" — operations the lifecycle cases 4 and 5 must verify
 - `.claude/commands/rbk-prep-release.md` — upstream contribution ceremony; pristine-pass becomes a precondition (BBAAH)
 - Recent spook commits informing the bug class: kludge-aware-charge-prereq (₢BAAAH), ZRBOB_PROJECT extraction (f7146d1d), rbob_charged_predicate fix (a8eb7311), reliquary integrity-broken negative-test residue (recent ₣BA verification)
-- `Tools/rbk/rbtd/src/rbtdrf_handbook.rs` — non-context tabtarget shell-out reference pattern for case implementations
+- `Tools/rbk/rbtd/src/rbtdrf_handbook.rs` — non-context tabtarget shell-out reference pattern for handbook-style cases (no fact files)
+- `Tools/rbk/rbtd/src/rbtdri_invocation.rs` — fact-file invocation pattern: `rbtdri_invoke_global` + `rbtdri_read_burv_fact` for cases that need to capture identifying values
 - `Tools/rbk/rbrr_cli.sh` — kindle architecture documented in Implementation patterns; sourcing-over-env behavior locked the throwaway mechanism choice
