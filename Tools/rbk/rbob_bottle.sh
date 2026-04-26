@@ -342,7 +342,7 @@ rbob_charge() {
 # BCG predicate: returns 0 if charged, 1 if not. Never dies, no output.
 rbob_charged_predicate() {
   zrbob_sentinel
-  "${ZRBOB_RUNTIME}" compose -p "${RBRN_MONIKER}" ps -q --status running 2>/dev/null | grep -q .
+  "${ZRBOB_RUNTIME}" compose -p "${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}" ps -q --status running 2>/dev/null | grep -q .
 }
 
 # Stop the crucible via compose
