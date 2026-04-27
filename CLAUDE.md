@@ -65,11 +65,13 @@ Full read and edit access is pre-approved for all files in:
 - **RBSCN** → `rbk/vov_veiled/RBSCN-crucible_enjoin.adoc`
 - **RBSCO** → `rbk/vov_veiled/RBSCO-CosmologyIntro.adoc`
 - **RBSCTD** → `rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc`
+- **RBSDD** → `rbk/vov_veiled/RBSDD-director_divest.adoc` (Governor divests a director SA — zero-arg by-role lookup)
 - **RBSDE** → `rbk/vov_veiled/RBSDE-depot_levy.adoc`
 - **RBSDI** → `rbk/vov_veiled/RBSDI-depot_inscribe.adoc` (Reliquary creation — director mirrors tool images to datestamped GAR namespace)
-- **RBSDK** → `rbk/vov_veiled/RBSDK-director_knight.adoc`
+- **RBSDK** → `rbk/vov_veiled/RBSDK-director_invest.adoc` (Governor invests a director SA — singleton-per-role)
 - **RBSDL** → `rbk/vov_veiled/RBSDL-depot_list.adoc`
 - **RBSDN** → `rbk/vov_veiled/RBSDN-depot_initialize.adoc`
+- **RBSDR** → `rbk/vov_veiled/RBSDR-director_roster.adoc` (Governor rosters director SAs — fact-multi emission, presence-as-fact)
 - **RBSDS** → `rbk/vov_veiled/RBSDS-dns_step.adoc`
 - **RBSDU** → `rbk/vov_veiled/RBSDU-depot_unmake.adoc`
 - **RBSDV** → `rbk/vov_veiled/RBSDV-director_vouch.adoc`
@@ -94,8 +96,10 @@ Full read and edit access is pre-approved for all files in:
 - **RBSPT** → `rbk/vov_veiled/RBSPT-port_setup.adoc`
 - **RBSQB** → `rbk/vov_veiled/RBSQB-quota_build.adoc`
 - **RBSRA** → `rbk/vov_veiled/RBSRA-CredentialFormat.adoc`
+- **RBSRD** → `rbk/vov_veiled/RBSRD-retriever_divest.adoc` (Governor divests a retriever SA — zero-arg by-role lookup)
 - **RBSRG** → `rbk/vov_veiled/RBSRG-RegimeGcbPins.adoc`
-- **RBSRK** → `rbk/vov_veiled/RBSRK-retriever_knight.adoc`
+- **RBSRK** → `rbk/vov_veiled/RBSRK-retriever_invest.adoc` (Governor invests a retriever SA — singleton-per-role)
+- **RBSRL** → `rbk/vov_veiled/RBSRL-retriever_roster.adoc` (Governor rosters retriever SAs — fact-multi emission, presence-as-fact)
 - **RBRN**  → `rbk/vov_veiled/RBRN-RegimeNameplate.adoc`
 - **RBSRM** → `rbk/vov_veiled/RBSRM-RegimeMachine.adoc`
 - **RBSRO** → `rbk/vov_veiled/RBSRO-RegimeOauth.adoc`
@@ -104,8 +108,6 @@ Full read and edit access is pre-approved for all files in:
 - **RBSRS** → `rbk/vov_veiled/RBSRS-RegimeStation.adoc`
 - **RBSRV** → `rbk/vov_veiled/RBSRV-RegimeVessel.adoc`
 - **RBSSC** → `rbk/vov_veiled/RBSSC-security_config.adoc`
-- **RBSSF** → `rbk/vov_veiled/RBSSF-sa_forfeit.adoc`
-- **RBSSL** → `rbk/vov_veiled/RBSSL-sa_list.adoc`
 - **RBSSR** → `rbk/vov_veiled/RBSSR-sentry_run.adoc`
 - **RBSSS** → `rbk/vov_veiled/RBSSS-sentry_start.adoc`
 - **RBSTB** → `rbk/vov_veiled/RBSTB-trigger_build.adoc`
