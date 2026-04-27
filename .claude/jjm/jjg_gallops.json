@@ -6648,6 +6648,7 @@
         "₢BBAAJ",
         "₢BBAAO",
         "₢BBAAN",
+        "₢BBAAQ",
         "₢BBAAK",
         "₢BBAAP",
         "₢BBAAC",
@@ -6658,7 +6659,7 @@
         "₢BBAAH",
         "₢BBAAI"
       ],
-      "next_pace_seed": "AAQ",
+      "next_pace_seed": "AAR",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAAA": {
@@ -6953,6 +6954,17 @@
               "text": "## Character\n\nCloses out depot-identity-collapse: multi-fact depot_list emission, test sweep audit, spec banner copy.\n\nIntent-only docket — implementation specifics surface at mount time.\n\n## Scope\n\n- Reshape rbgp_depot_list: emit one fact file per known depot in BURD_OUTPUT_DIR. Basename is the moniker; content is one of RBGP_DEPOT_STATE_COMPLETE / BROKEN / DELETE_REQUESTED.\n- Audit fast-suite tests for residual references to pre-collapse RBRR fields or derivations; sweep into the new shape.\n- RBS0 (operator spec) and RBSDE (depot levy spec) banner copy: reflect (CLOUD_PREFIX, MONIKER) shape.\n\n## Constraints\n\n- Honor paddock's Release-branch execution contract.\n- Real-time review at each step before commit.\n- BCG compliance for any new state-determination probes or constants.\n\n## Out of scope\n\n- Bucket / Mason SA naming uniformity.\n- 409-fatal posture redesign.",
               "silks": "depot-identity-collapse-finalize",
               "commit": "0f77a17"
+            }
+          ]
+        },
+        "₢BBAAQ": {
+          "tacks": [
+            {
+              "ts": "260427-0850",
+              "state": "rough",
+              "text": "## Character\n\nSpec sweep consolidating the .md/.adoc surface for the two foundation paces — BBAAO (multi-fact infrastructure) and BBAAN (cult-verb refactor). Lands after both coding paces complete so spec text describes settled reality, not intent. Designed to run in parallel with downstream coding paces (BBAAK and onward) — frees the coding officium from prose work while the vocabulary is fresh.\n\nDifferent cognitive posture from the foundation paces it documents — reflective and prose-shaped, not iterative bash. Best held in a separate session from the coding officium.\n\n## Scope\n\nTwo doc surfaces, both with paddock-settled vocabulary.\n\n**BUS0 multi-element fact convention** (BBAAO surface). New quoin or quoin family for the multi-element fact-file convention: type-as-extension naming, closed registry pattern, dual-write semantics. Document the `BUF_EXT_*` constant convention (value matches name downcased) and the BUK/RB boundary discipline (BUK-only registry; RB-domain extensions stay in `rbgc_Constants.sh`). Reference the BURH alias case as proof-of-shape.\n\n**RBS0 cult-verb concepts** (BBAAN surface). Verb-concept additions: invest, divest, muster as the cult-verb triad for operational SAs. Per-role colophon shape `rbw-a<role><verb>`. Mantle stays as singleton-per-depot exception. Observation-fact convention quoin — list-style tabtargets emit per-row facts via type-as-extension naming. Producer-output discipline — assay slot as binding output for credential bytes; retirement of BURD-output-dir as canonical credential write. Stdout-substring assertion retirement.\n\n**README glossary** (BBAAN surface). Verb additions matching RBS0 vocabulary. Glossary entries for the cult-verb triad and the observation-fact convention.\n\n**Operator handbook tracks rbho/rbhp** (BBAAN surface). Mechanical verb-rename sweep through narrative procedure text — charter/knight → invest, forfeit → divest, list → muster. Procedure step ordering and command examples follow the new `rbw-a<role><verb>` shape.\n\n## Constraints\n\n- Honor paddock's Release-branch execution contract.\n- Spec text describes what landed in BBAAO and BBAAN — read the actual code state, do not work from intent. If implementation differs from paddock-settled vocabulary, raise it; do not silently reconcile.\n- Apply CMK MCM linked-term shape (attribute reference + anchor + definition with appropriate voicing) for new RBS0/BUS0 quoins.\n- Real-time review at each step before commit. No pre-engineered choices.\n\n## Out of scope\n\n- Code changes — bash, Rust, .yml all out of scope. If a code touch is genuinely needed, raise it as a separate concern; do not silently edit code.\n- BBAAP's depot-list spec work — that pace owns its own RBS0 surface.\n- Single-fact convention spec — already in tree; revise only if multi-fact convention requires comparative documentation.\n- Handbook track restructuring beyond the verb-rename sweep — structural changes belong in their own pace.",
+              "silks": "multi-fact-cult-verb-spec",
+              "commit": "9a4ad10"
             }
           ]
         }
