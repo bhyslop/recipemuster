@@ -1,10 +1,18 @@
 //axhob_operation
 {rbtgo_director_invest}
 
-NOTE: This operation invests a {rbtr_director} {giam_service_account} into the {rbtgi_depot_project}.
-The {rbtr_governor} mints the SA, generates its credential key, and writes the RBRA bytes to the assay output slot.
+NOTE: This operation invests a
+{rbtr_director}
+{giam_service_account}
+into the
+{rbtgi_depot_project}.
+The
+{rbtr_governor}
+mints the SA, generates its credential key, and writes the RBRA bytes to the assay output slot.
 The operation is singleton-per-role: no instance argument; the SA identity is derived from regime constants as `${RBCC_role_director}-${RBRR_DEPOT_MONIKER}`.
-Fatal if the SA already exists — operator must {rbtgo_director_divest} first to re-key.
+Fatal if the SA already exists — operator must
+{rbtgo_director_divest}
+first to re-key.
 
 //axhos_step
 . *Authenticate as
@@ -139,7 +147,9 @@ bucket IAM update successful
 Admin Access*:
 .. {rbbc_call}
 link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/getIamPolicy[repositories.getIamPolicy] via HTTP GET with `options.requestedPolicyVersion=3` query parameter
-.. NOTE: {gar_registry} proto specifies GET for `getIamPolicy` with no `additional_bindings` for POST. Using POST fails intermittently with HTTP 404 (transcoding layer rejection, not missing repository). See <<rbscig_iam_grant_contracts>>.
+.. NOTE:
+{gar_registry}
+proto specifies GET for `getIamPolicy` with no `additional_bindings` for POST. Using POST fails intermittently with HTTP 404 (transcoding layer rejection, not missing repository). See <<rbscig_iam_grant_contracts>>.
 .. {rbbc_require}
 HTTP 200 — 404 means repository does not exist (real error, not empty policy)
 .. {rbbc_call}
@@ -148,7 +158,8 @@ link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.
 .. *Complete policy write*: Add ALL expected bindings to the read policy, regardless of what the read returned:
 ... `serviceAccount:«DIRECTOR_EMAIL»` with `roles/artifactregistry.repoAdmin` — Director manages images
 ... `serviceAccount:«MASON_EMAIL»` with `roles/artifactregistry.writer` — Mason pushes images at build time
-.. NOTE: Same complete-policy-write pattern as the secret IAM step. Prevents stale read from overwriting Mason's writer binding set by {rbtgo_depot_levy}.
+.. NOTE: Same complete-policy-write pattern as the secret IAM step. Prevents stale read from overwriting Mason's writer binding set by
+{rbtgo_depot_levy}.
 .. {rbbc_require}
 repository IAM set with all expected bindings
 

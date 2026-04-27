@@ -1,8 +1,15 @@
 //axhob_operation
 {rbtgo_retriever_roster}
 
-NOTE: This operation rosters {rbtr_retriever} {giam_service_account_s} in the {rbtgi_depot_project} via per-SA fact-file emission.
-Read-only observation: lists all service accounts, filters to retriever-prefixed accountIds, and emits one fact per discovered SA via {buf_write_fact_multi} against the `RBCC_fact_ext_roster_retriever` extension constant.
+NOTE: This operation rosters
+{rbtr_retriever}
+{giam_service_account_s}
+in the
+{rbtgi_depot_project}
+via per-SA fact-file emission.
+Read-only observation: lists all service accounts, filters to retriever-prefixed accountIds, and emits one fact per discovered SA via
+{buf_write_fact_multi}
+against the `RBCC_fact_ext_roster_retriever` extension constant.
 Fact content is empty (presence-as-fact); stdout assertion of individual identities is retired.
 
 //axhos_step

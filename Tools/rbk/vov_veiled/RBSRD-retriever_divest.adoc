@@ -1,8 +1,14 @@
 //axhob_operation
 {rbtgo_retriever_divest}
 
-NOTE: This operation divests a {rbtr_retriever} {giam_service_account} from the {rbtgi_depot_project}.
-The {rbtr_governor} reads the retriever's installed RBRA, extracts the SA email from the RBRA's `client_email` field, issues a REST DELETE against the IAM API, and removes the production RBRA file from disk to mirror cloud state and prevent stale-credential reuse.
+NOTE: This operation divests a
+{rbtr_retriever}
+{giam_service_account}
+from the
+{rbtgi_depot_project}.
+The
+{rbtr_governor}
+reads the retriever's installed RBRA, extracts the SA email from the RBRA's `client_email` field, issues a REST DELETE against the IAM API, and removes the production RBRA file from disk to mirror cloud state and prevent stale-credential reuse.
 No arguments are required; the target SA is derived entirely from the kindled regime and the retriever's installed credential file.
 
 //axhos_step
@@ -40,9 +46,11 @@ if HTTP 404: "Retriever service account not found in cloud (already divested)"
 . *Remove Production RBRA File*:
 .. Remove the retriever's RBRA file at
 {rbrr_retriever_rbra_file}
-from disk to mirror cloud state and prevent stale-credential reuse
+from disk
 .. {rbbc_require}
 file removal successful or file already absent
+.. NOTE: Removing the RBRA file mirrors cloud state locally and prevents any process from reusing a credential that no longer corresponds to an active
+{giam_service_account}.
 
 //axhos_step
 . *Display Result*:
@@ -50,7 +58,19 @@ file removal successful or file already absent
 single-line success notice naming `«RETRIEVER_EMAIL»` and confirming divestiture, or a 404-already-gone notice if cloud state was already clean
 
 //axhoc_completion
-Successful execution removes the {rbtr_retriever} {giam_service_account} from the {rbtgi_depot_project} and deletes the production RBRA file, leaving no stale credentials on disk.
+Successful execution removes the
+{rbtr_retriever}
+{giam_service_account}
+from
+{rbtgi_depot_project}
+and deletes the local RBRA credential file.
+Cloud state and local credential state are left in agreement: no stale key file remains after a successful divest.
+A 404 response from the cloud DELETE is accepted as success — the
+{giam_service_account}
+is absent either way, and the RBRA file is removed regardless.
 Proceed to
 {rbtgo_retriever_invest}
-to re-issue a fresh retriever SA when needed.
+to re-issue a fresh
+{rbtr_retriever}
+{giam_service_account}
+when needed.

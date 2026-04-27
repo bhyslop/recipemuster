@@ -1,10 +1,21 @@
 //axhob_operation
 {rbtgo_retriever_invest}
 
-NOTE: This operation invests a {rbtr_retriever} {giam_service_account} into the {rbtgi_depot_project} with read-only {rbtgi_repository} access.
-The {rbtr_governor} mints the SA, generates its credential key, and writes the RBRA bytes to the assay output slot.
+NOTE: This operation invests a
+{rbtr_retriever}
+{giam_service_account}
+into the
+{rbtgi_depot_project}
+with read-only
+{rbtgi_repository}
+access.
+The
+{rbtr_governor}
+mints the SA, generates its credential key, and writes the RBRA bytes to the assay output slot.
 The operation is singleton-per-role: no instance argument; the SA identity is derived from regime constants as `${RBCC_role_retriever}-${RBRR_DEPOT_MONIKER}`.
-Fatal if the SA already exists — operator must {rbtgo_retriever_divest} first to re-key.
+Fatal if the SA already exists — operator must
+{rbtgo_retriever_divest}
+first to re-key.
 
 //axhos_step
 . *Authenticate as
@@ -26,14 +37,15 @@ Service Account Identity*:
 .. NOTE: `RBDC_DEPOT_PROJECT_ID` is derived from `(RBRR_CLOUD_PREFIX, RBRR_DEPOT_MONIKER)` at regime kindle time; no operator-supplied project ID field is referenced.
 
 //axhos_step
-. *Probe for Pre-existing Service Account*:
+. *Preflight: Confirm Service Account Does Not Exist*:
 .. {rbbc_call}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/get[iam.serviceAccounts.get] for `projects/-/serviceAccounts/«RETRIEVER_EMAIL»`
 .. {rbbc_fatal}
-if HTTP 200: service account already exists — operator must run
+if HTTP 200: service account already exists — operator must execute
 {rbtgo_retriever_divest}
-before re-investing
-.. Continue only on HTTP 404 (account absent — proceed to create)
+before re-investing this role
+.. {rbbc_require}
+HTTP 404 to proceed
 
 //axhos_step
 . *Create
