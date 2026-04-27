@@ -95,6 +95,19 @@ zrbgg_sentinel() {
   test "${ZRBGG_KINDLED:-}" = "1" || buc_die "Module rbgg not kindled - call zrbgg_kindle first"
 }
 
+# Path-driven sibling of rbgu_json_field_capture for files that live outside
+# the rbgu cache (under RBRR_SECRETS_DIR/assay/* for credential bytes that
+# must not leak into BURD_TEMP_DIR).
+zrbgg_secrets_json_field_capture() {
+  zrbgg_sentinel
+  local -r z_path="${1}"
+  local -r z_jq="${2}"
+  local z_result
+  z_result=$(jq -r "${z_jq}" "${z_path}")  || return 1
+  if test -z "${z_result}" || test "${z_result}" = "null"; then return 1; fi
+  echo "${z_result}"
+}
+
 ######################################################################
 ######################################################################
 # Capture: list required services that are NOT enabled (blank = all enabled)
@@ -237,10 +250,11 @@ zrbgg_create_service_account_with_key() {
   local z_key_b64
   z_key_b64=$(rbgu_json_field_capture "${z_key_infix}" '.privateKeyData') \
     || buc_die "Failed to extract privateKeyData"
-  # Decode into the rbgu cache so rbgu_json_field_capture (BCG-sanctioned _capture)
-  # can address the decoded key JSON by infix.
-  local z_key_decoded_infix="${z_key_infix}_decoded"
-  local z_key_json="${ZRBGU_PREFIX}${z_key_decoded_infix}${ZRBGU_POSTFIX_JSON}"
+  # Decode into the assay subdirectory (RBRR_SECRETS_DIR/assay/) so the
+  # only readable form of the private key shares lifecycle and location
+  # with the final RBRA file — credentials never leak into BURD_TEMP_DIR.
+  local -r z_assay_dir="${RBDC_ASSAY_RBRA_FILE%/*}"
+  local -r z_key_json="${z_assay_dir}/_decoded_key_${z_account_name}.json"
   printf '%s' "${z_key_b64}" | openssl enc -base64 -d -A > "${z_key_json}" \
     || buc_die "Failed to decode key data"
 
@@ -248,15 +262,15 @@ zrbgg_create_service_account_with_key() {
   local z_rbra_file="${RBDC_ASSAY_RBRA_FILE}"
 
   local z_client_email
-  z_client_email=$(rbgu_json_field_capture "${z_key_decoded_infix}" '.client_email') \
+  z_client_email=$(zrbgg_secrets_json_field_capture "${z_key_json}" '.client_email') \
     || buc_die "Failed to extract client_email from key JSON"
 
   local z_private_key
-  z_private_key=$(rbgu_json_field_capture "${z_key_decoded_infix}" '.private_key') \
+  z_private_key=$(zrbgg_secrets_json_field_capture "${z_key_json}" '.private_key') \
     || buc_die "Failed to extract private_key from key JSON"
 
   local z_project_id
-  z_project_id=$(rbgu_json_field_capture "${z_key_decoded_infix}" '.project_id') \
+  z_project_id=$(zrbgg_secrets_json_field_capture "${z_key_json}" '.project_id') \
     || buc_die "Failed to extract project_id from key JSON"
 
   buc_step 'Write RBRA file' "${z_rbra_file}"
@@ -269,6 +283,11 @@ zrbgg_create_service_account_with_key() {
   } > "${z_rbra_file}" || buc_die "Failed to write RBRA file ${z_rbra_file}"
 
   test -f "${z_rbra_file}" || buc_die "Failed to write RBRA file ${z_rbra_file}"
+
+  # Decoded JSON lives in RBRR_SECRETS_DIR (not BURD_TEMP_DIR), so
+  # BCG:518's no-module-temp-deletion rule does not bind. Remove now
+  # that the bytes are persisted in RBRA form.
+  rm -f "${z_key_json}"
 
   buc_info "RBRA file written: ${z_rbra_file}"
 
