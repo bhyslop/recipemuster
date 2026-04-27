@@ -38,10 +38,12 @@ zrbz_kindle() {
   local z_mod="rbgp_cli.sh"
   buz_enroll RBZ_MANTLE_GOVERNOR         "rbw-aM"  "${z_mod}" "rbgp_governor_mantle"       ""        "Create/replace governor service account"
   z_mod="rbgg_cli.sh"
-  buz_enroll RBZ_CHARTER_RETRIEVER       "rbw-aC"  "${z_mod}" "rbgg_charter_retriever"     ""        "Charter retriever (image pull) service account"
-  buz_enroll RBZ_KNIGHT_DIRECTOR         "rbw-aK"  "${z_mod}" "rbgg_knight_director"       ""        "Knight director (build) service account"
-  buz_enroll RBZ_LIST_SERVICE_ACCOUNTS   "rbw-aL"  "${z_mod}" "rbgg_list_service_accounts" ""        "List issued service accounts"
-  buz_enroll RBZ_FORFEIT_SERVICE_ACCOUNT "rbw-aF"  "${z_mod}" "rbgg_forfeit_service_account" ""      "Forfeit a service account"
+  buz_enroll RBZ_INVEST_RETRIEVER        "rbw-arI" "${z_mod}" "rbgg_invest_retriever"      "param1"  "Invest a Retriever service account for an identity"
+  buz_enroll RBZ_INVEST_DIRECTOR         "rbw-adI" "${z_mod}" "rbgg_invest_director"       "param1"  "Invest a Director service account for an identity"
+  buz_enroll RBZ_DIVEST_RETRIEVER        "rbw-arD" "${z_mod}" "rbgg_divest_retriever"      "param1"  "Divest a Retriever service account by identity"
+  buz_enroll RBZ_DIVEST_DIRECTOR         "rbw-adD" "${z_mod}" "rbgg_divest_director"       "param1"  "Divest a Director service account by identity"
+  buz_enroll RBZ_ROSTER_RETRIEVERS       "rbw-arr" "${z_mod}" "rbgg_roster_retrievers"     ""        "Roster Retriever service accounts (emit per-identity fact files)"
+  buz_enroll RBZ_ROSTER_DIRECTORS        "rbw-adr" "${z_mod}" "rbgg_roster_directors"      ""        "Roster Director service accounts (emit per-identity fact files)"
 
   # Crucible — container runtime (rbw-c)
   buz_group RBZ__GROUP_CRUCIBLE   "rbw-c"   "Crucible — Container runtime"
