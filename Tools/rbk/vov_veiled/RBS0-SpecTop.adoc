@@ -305,9 +305,7 @@
 
 // Recipe Bottle Regime: Repo
 :rbrr_bottle_workspace:      <<rbrr_bottle_workspace,RBRR_BOTTLE_WORKSPACE>>
-:rbrr_depot_project_id:      <<rbrr_depot_project_id,RBRR_DEPOT_PROJECT_ID>>
 :rbrr_director_rbra_file:    <<rbrr_director_rbra_file,RBRR_DIRECTOR_RBRA_FILE>>
-:rbrr_gar_repository:        <<rbrr_gar_repository,RBRR_GAR_REPOSITORY>>
 :rbrr_gcp_region:            <<rbrr_gcp_region,RBRR_GCP_REGION>>
 :rbrr_governor_rbra_file:    <<rbrr_governor_rbra_file,RBRR_GOVERNOR_RBRA_FILE>>
 :rbrr_payor_rbro_file:       <<rbrr_payor_rbro_file,RBRR_PAYOR_RBRO_FILE>>
@@ -321,7 +319,6 @@
 :rbrr_dns_server:            <<rbrr_dns_server,RBRR_DNS_SERVER>>
 :rbrr_gcb_machine_type:      <<rbrr_gcb_machine_type,RBRR_GCB_MACHINE_TYPE>>
 :rbrr_gcb_timeout:           <<rbrr_gcb_timeout,RBRR_GCB_TIMEOUT>>
-:rbrr_gcb_pool_stem:         <<rbrr_gcb_pool_stem,RBRR_GCB_POOL_STEM>>
 :rbrr_gcb_min_concurrent_builds: <<rbrr_gcb_min_concurrent_builds,RBRR_GCB_MIN_CONCURRENT_BUILDS>>
 :rbrr_public_docs_url:       <<rbrr_public_docs_url,RBRR_PUBLIC_DOCS_URL>>
 :rbrr_group_public_docs:     <<rbrr_group_public_docs,Public Docs Group>>
@@ -1830,7 +1827,7 @@ Discovered constraints from implementation:
 +
   * **Private worker pool**: The RunBuild API caller ({rbtr_director}) requires `cloudbuild.workerpools.use` to specify a private pool, a permission not included in `roles/cloudbuild.builds.editor`.
     {rbtgo_director_knight} grants `roles/cloudbuild.workerPoolUser` at project scope.
-    Vouch runs on the same private pool as conjure (`RBRR_GCB_POOL_STEM`), eliminating an untested default-pool-with-buildx permutation.
+    Vouch runs on the same private pool as conjure (the depot's worker pool, derived from `(RBRR_CLOUD_PREFIX, RBRR_DEPOT_MONIKER)`), eliminating an untested default-pool-with-buildx permutation.
   * **gcloud exception**: Vouch verification (conjure mode) invokes `gcloud artifacts docker images describe` for provenance retrieval (see {rbsk_no_gcloud} exception).
     All other steps use the GCE metadata server for OAuth tokens and direct registry REST API calls.
   * **Builder image selection**: Step 1 (Alpine) writes attestor keys (conjure) or is a no-op (bind/graft).
@@ -2607,15 +2604,6 @@ Repository-wide configuration and installation-wide settings shared across all
 {at_recipe_bottle}
 operations.
 
-[[rbrr_depot_project_id]]
-//axl_voices axrg_variable axtg_project_id
-{rbrr_depot_project_id}::
-{gcp_service}
-{gcp_project_id}
-where all
-{at_recipe_bottle}
-resources are created and managed.
-
 [[rbrr_gcp_region]]
 //axl_voices axrg_variable axtg_region
 {rbrr_gcp_region}::
@@ -2625,18 +2613,6 @@ region for regional services like
 {gar_service}
 and
 {gcb_service}.
-
-[[rbrr_gar_repository]]
-//axl_voices axrg_variable axtg_project_id
-{rbrr_gar_repository}::
-{gar_service}
-{rbtgi_repository}
-within
-{rbrr_depot_project_id}
-for
-{at_bottle_image_s}
-and
-{rbtgi_metadata_s}.
 
 [[rbrr_secrets_dir]]
 //axl_voices axrg_variable axtu_path
@@ -2751,17 +2727,6 @@ Compute Engine machine type for the private worker pool, consumed at pool creati
 {rbtgo_depot_levy}.
 Default: `e2-standard-2`.
 The pool resource holds this value; individual build requests do not specify machine type.
-
-[[rbrr_gcb_pool_stem]]
-//axvr_variable axd_required rbst_string
-{rbrr_gcb_pool_stem}::
-Worker pool base name (suffixed with -tether/-airgap by derived constants).
-Derived constants `RBDC_POOL_TETHER` and `RBDC_POOL_AIRGAP` expand this stem into full resource paths.
-Must be set to the pool base name created by
-{rbtgo_depot_levy}
-for this depot.
-Builds always use a private pool; the default shared pool is not supported.
-`options.machineType` is omitted from the build JSON — machine type is a property of the pool resource.
 
 NOTE: *Private pool is always required.*
 Private pools are a prerequisite for VPC Service Controls and `NO_PUBLIC_EGRESS` hardening (see `RBSCB-CloudBuildPosture.adoc`).

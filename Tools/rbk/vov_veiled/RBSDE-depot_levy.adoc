@@ -9,14 +9,8 @@ that share their productive lifecycle.
 The
 {rbtr_payor}
 creates a new depot infrastructure from the
-{rbtgi_payor_project}:
-
-//axhopt_typed_parameter
-{rbtgi_depot}
-. *Depot Name*:
-.. {rbbc_require}
-`«INPUT_DEPOT_NAME»` provided as first argument
-.. Validate depot name: lowercase letters, numbers, hyphens only, max 20 chars
+{rbtgi_payor_project}.
+The operation accepts no CLI parameters; depot identity is read from the kindled regime as `(RBRR_CLOUD_PREFIX, RBRR_DEPOT_MONIKER)`.
 
 //axhos_step
 . *Authenticate as
@@ -25,26 +19,36 @@ creates a new depot infrastructure from the
 {rbtoe_payor_authenticate}
 
 //axhos_step
-. *Generate Depot Project ID*:
-.. {rbbc_store}
-`«TIMESTAMP»` as current time in YYYYMMDDHHmm format
-.. Generate project ID: `rbw-«INPUT_DEPOT_NAME»-«TIMESTAMP»`
-.. {rbbc_store}
-as `«DEPOT_PROJECT_ID»`
+. *Validate region against Artifact Registry locations*:
+.. {rbbc_call}
+link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations/list[locations.list] for the authenticated project
 .. {rbbc_require}
-total length ≤ 30 characters
+`{rbrr_gcp_region}` present in the returned location set
+
+//axhos_step
+. *Derive Depot Identity*:
+.. {rbbc_store}
+`«DEPOT_PROJECT_ID»` as `${RBRR_CLOUD_PREFIX}d-${RBRR_DEPOT_MONIKER}` (resolved by `RBDC_DEPOT_PROJECT_ID`)
+.. {rbbc_store}
+`«GAR_REPOSITORY»` as `${RBRR_CLOUD_PREFIX}${RBRR_DEPOT_MONIKER}-gar` (resolved by `RBDC_GAR_REPOSITORY`)
+.. {rbbc_store}
+`«WORKER_POOL_STEM»` as `${RBRR_CLOUD_PREFIX}${RBRR_DEPOT_MONIKER}-pool` (resolved by `RBDC_GCB_POOL_STEM`)
+.. {rbbc_store}
+`«BUILD_BUCKET»` as `${RBRR_CLOUD_PREFIX}b-${RBRR_DEPOT_MONIKER}` (resolved by `RBDC_GCS_BUCKET`)
+.. NOTE: Joint length `${RBRR_CLOUD_PREFIX}` + `d-` + `${RBRR_DEPOT_MONIKER}` ≤ 30 chars (GCP project ID limit) is enforced upstream by `zrbrr_enforce` at regime kindle time, so this step performs no length validation.
 
 //axhos_step
 . *Create Depot Project*:
 .. {rbbc_submit}
 link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/create[projects.create] with:
 ... projectId: `«DEPOT_PROJECT_ID»`
-... displayName: `RB Depot: «INPUT_DEPOT_NAME»`
+... displayName: `RB Depot: «RBRR_DEPOT_MONIKER»`
 ... parent: `{rbrp_parent_type}s/{rbrp_parent_id}` (if parent_type != `none`)
 .. {rbbc_await}
 returned operation
 .. {rbbc_require}
 project creation successful
+.. NOTE: Project name collision against the GCP soft-delete graveyard surfaces here as fatal — re-using a moniker after `{rbtgo_depot_unmake}` requires waiting out the 30-day retention window. The operator-visible "fails if exists" property is intentional under the (CLOUD_PREFIX, MONIKER) shape.
 
 //axhos_step
 . *Link Billing Account*:
@@ -74,11 +78,10 @@ all APIs enabled successfully
 
 //axhos_step
 . *Create Private Worker Pool*:
-.. Construct pool ID: `rbw-«INPUT_DEPOT_NAME»-pool`
 .. {rbbc_call}
 link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.workerPools/create[workerPools.create] with:
 ... parent: `projects/«DEPOT_PROJECT_ID»/locations/{rbrr_gcp_region}`
-... workerPoolId: `rbw-«INPUT_DEPOT_NAME»-pool`
+... workerPoolId: `«WORKER_POOL_STEM»`
 ... body:
 +
 ----
@@ -90,9 +93,6 @@ link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.location
   }
 }
 ----
-.. {rbbc_store}
-`«WORKER_POOL_STEM»` as base pool name (without project/region path prefix):
-`rbw-«INPUT_DEPOT_NAME»-pool`
 .. NOTE:
 {rbrr_gcb_machine_type}
 is a Compute Engine machine type (e.g., `e2-standard-2`), consumed at pool creation time.
@@ -112,29 +112,23 @@ if timeout: "IAM propagation timeout - artifactregistry API not accessible"
 
 //axhos_step
 . *Create Build Bucket*:
-.. Construct bucket name: `rbw-«INPUT_DEPOT_NAME»-bucket`
 .. {rbbc_call}
 link:https://cloud.google.com/storage/docs/json_api/v1/buckets/insert[storage.buckets.insert] with:
-... name: `rbw-«INPUT_DEPOT_NAME»-bucket`
+... name: `«BUILD_BUCKET»`
 ... location: `{rbrr_gcp_region}`
 ... project: `«DEPOT_PROJECT_ID»`
 ... lifecycle rule: delete objects after 1 day
-.. {rbbc_store}
-`«BUILD_BUCKET»` as created bucket name
 
 //axhos_step
 . *Create Container Repository*:
-.. Construct repository name: `rbw-«INPUT_DEPOT_NAME»-repository`
 .. {rbbc_submit}
 link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/create[artifactregistry.repositories.create] with:
-... repositoryId: `rbw-«INPUT_DEPOT_NAME»-repository`
+... repositoryId: `«GAR_REPOSITORY»`
 ... format: `DOCKER`
 ... location: `{rbrr_gcp_region}`
 ... parent: `projects/«DEPOT_PROJECT_ID»/locations/{rbrr_gcp_region}`
 .. {rbbc_await}
 returned operation
-.. {rbbc_store}
-`«GAR_REPOSITORY»` as created repository name
 
 //axhos_step
 . *Create
@@ -145,8 +139,8 @@ Service Account*:
 replaces Cloud Build's implicit service account to provide deterministic permissions and predictable authorization within the depot infrastructure.
 .. {rbbc_call}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/create[iam.serviceAccounts.create] with:
-... accountId: `mason-«INPUT_DEPOT_NAME»`
-... displayName: `Mason for RB Depot: «INPUT_DEPOT_NAME»`
+... accountId: `mason-«RBRR_DEPOT_MONIKER»`
+... displayName: `Mason for RB Depot: «RBRR_DEPOT_MONIKER»`
 ... project: `«DEPOT_PROJECT_ID»`
 .. {rbbc_store}
 `«MASON_EMAIL»` from response `.email` field
@@ -175,27 +169,21 @@ IAM binding successful
 
 //axhoot_typed_output
 {rbtgi_depot}
-. *Display Depot Configuration*:
+. *Confirm Depot Creation*:
 .. {rbbc_show}
-depot creation successful
-.. {rbbc_show}
-required RBRR configuration values:
-... `RBRR_DEPOT_PROJECT_ID=«DEPOT_PROJECT_ID»`
-... `RBRR_GCP_REGION={rbrr_gcp_region}`
-... `RBRR_GAR_REPOSITORY=«GAR_REPOSITORY»`
-... `RBRR_GCB_POOL_STEM=«WORKER_POOL_STEM»`
-.. {rbbc_show}
-Mason service account: `«MASON_EMAIL»`
+single-line success banner naming `«DEPOT_PROJECT_ID»` and the
+{rbtgo_governor_mantle}
+follow-up hint
 
 //axhoot_typed_output
 {rbtgi_depot}
 . *Update Depot Tracking*:
 .. Execute
 {rbtoe_depot_list_update}
-to refresh depot project tracking
+to refresh per-moniker depot fact files
 
 //axhoc_completion
-Successful execution creates depot infrastructure with configured build bucket, container repository, Mason service account, and private worker pool.
+Successful execution creates depot infrastructure with configured build bucket, container repository, Mason service account, and private worker pool — all derived from `(RBRR_CLOUD_PREFIX, RBRR_DEPOT_MONIKER)`.
 Proceed to
 {rbtgo_governor_mantle}
 to create the
