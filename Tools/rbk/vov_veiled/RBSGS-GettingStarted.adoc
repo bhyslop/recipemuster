@@ -132,7 +132,7 @@ manages the roster of credentialed users throughout the
 lifecycle.
 While credential creation is typically infrequent, this administrative function remains active.
 
-{rbtgo_director_knight}
+{rbtgo_director_invest}
 provisions a
 {rbtr_director}
 service account, producing an
@@ -141,7 +141,7 @@ at the path specified by
 {rbrr_director_rbra_file}.
 Directors submit builds and manage images.
 
-{rbtgo_retriever_charter}
+{rbtgo_retriever_invest}
 provisions a
 {rbtr_retriever}
 service account, producing an
@@ -153,9 +153,13 @@ Retrievers pull images for local use.
 The
 {rbtr_governor}
 also maintains visibility into issued credentials through
-{rbtgo_sa_list}
+{rbtgo_director_roster}
+and
+{rbtgo_retriever_roster},
 and can revoke access through
-{rbtgo_sa_forfeit}.
+{rbtgo_director_divest}
+or
+{rbtgo_retriever_divest}.
 
 == Credential Files
 
@@ -269,6 +273,8 @@ credentials.
 To revoke a user's access, the
 {rbtr_governor}
 executes
-{rbtgo_sa_forfeit}
+{rbtgo_director_divest}
+or
+{rbtgo_retriever_divest}
 for the target service account, invalidating the corresponding
 {rbtgi_rbra_file}.

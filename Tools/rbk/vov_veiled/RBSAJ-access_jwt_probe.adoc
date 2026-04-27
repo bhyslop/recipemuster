@@ -61,9 +61,13 @@ if file missing: "«ROLE_DISPLAY» RBRA file missing at «RBRA_FILE»"
 //axhos_step
 . *Construct Verification Endpoint*:
 .. {rbbc_store}
+`«DEPOT_PROJECT_ID»` as `${RBRR_CLOUD_PREFIX}d-${RBRR_DEPOT_MONIKER}` (resolved by `RBDC_DEPOT_PROJECT_ID`)
+.. {rbbc_store}
+`«GAR_REPOSITORY»` as `${RBRR_CLOUD_PREFIX}${RBRR_DEPOT_MONIKER}-gar` (resolved by `RBDC_GAR_REPOSITORY`)
+.. {rbbc_store}
 `«VERIFY_URL»` as:
 +
-`https://artifactregistry.googleapis.com/v1/projects/{rbrr_depot_project_id}/locations/{rbrr_gcp_region}/repositories/{rbrr_gar_repository}/packages`
+`https://artifactregistry.googleapis.com/v1/projects/«DEPOT_PROJECT_ID»/locations/{rbrr_gcp_region}/repositories/«GAR_REPOSITORY»/packages`
 
 //axhos_step
 . *Execute Probe Iterations*:

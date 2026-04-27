@@ -60,6 +60,10 @@ if missing: "Vessel not configured for conjuring"
 {rbtoe_director_authenticate}
 .. {rbbc_store}
 `«DIRECTOR_TOKEN»` for subsequent API calls
+.. {rbbc_store}
+`«DEPOT_PROJECT_ID»` as `${RBRR_CLOUD_PREFIX}d-${RBRR_DEPOT_MONIKER}` (resolved by `RBDC_DEPOT_PROJECT_ID`)
+.. {rbbc_store}
+`«GAR_REPOSITORY»` as `${RBRR_CLOUD_PREFIX}${RBRR_DEPOT_MONIKER}-gar` (resolved by `RBDC_GAR_REPOSITORY`)
 
 //axhos_step
 . *Resolve Trigger Identity*:
@@ -68,7 +72,7 @@ if missing: "Vessel not configured for conjuring"
 .. {rbbc_call}
 link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.triggers/list[cloudbuild.triggers.list] with:
 ... project:
-{rbrr_depot_project_id}
+`«DEPOT_PROJECT_ID»`
 ... location:
 {rbrr_gcp_region}
 ... filter matching `«TRIGGER_NAME»`
@@ -86,7 +90,7 @@ if not found: "Vessel trigger not found"
 .. {rbbc_submit}
 link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.triggers/run[cloudbuild.triggers.run] with:
 ... project:
-{rbrr_depot_project_id}
+`«DEPOT_PROJECT_ID»`
 ... location:
 {rbrr_gcp_region}
 ... triggerId: `«TRIGGER_ID»`
@@ -127,7 +131,7 @@ within the depot infrastructure.
 .. {rbbc_poll}
 link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.builds/get[cloudbuild.builds.get] with:
 ... project:
-{rbrr_depot_project_id}
+`«DEPOT_PROJECT_ID»`
 ... location:
 {rbrr_gcp_region}
 ... buildId: `«BUILD_ID»`
@@ -181,8 +185,8 @@ Cloud Build resolves these from the committed JSON — no values are overridden 
 [cols="1,2"]
 |===
 | `_RBGY_GAR_LOCATION` | Artifact Registry region. Source: {rbrr_gcp_region}.
-| `_RBGY_GAR_PROJECT` | Depot project ID. Source: {rbrr_depot_project_id}.
-| `_RBGY_GAR_REPOSITORY` | GAR repository name. Source: {rbrr_gar_repository}.
+| `_RBGY_GAR_PROJECT` | Depot project ID. Source: derived `RBDC_DEPOT_PROJECT_ID` from `RBRR_CLOUD_PREFIX` + `RBRR_DEPOT_MONIKER`.
+| `_RBGY_GAR_REPOSITORY` | GAR repository name. Source: derived `RBDC_GAR_REPOSITORY` from `RBRR_CLOUD_PREFIX` + `RBRR_DEPOT_MONIKER`.
 | `_RBGY_GAR_HOST_SUFFIX` | GAR Docker host suffix. Source: RBGC constant.
 | `_RBGY_ARK_BASENAME_IMAGE` | Image artifact basename under the hallmark subtree. Source: RBGC constant.
 | `_RBGY_CRANE_TAR_GZ` | Crane release tarball URL. Source: RBGC constant.

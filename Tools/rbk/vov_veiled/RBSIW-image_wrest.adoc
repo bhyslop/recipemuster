@@ -50,7 +50,11 @@ if `«TAG»` is empty: "Tag is empty in locator"
 .. {rbbc_store}
 `«REGISTRY_HOST»` as `{rbrr_gcp_region}-docker.pkg.dev`
 .. {rbbc_store}
-`«FULL_IMAGE_REF»` as `«REGISTRY_HOST»/{rbrr_depot_project_id}/{rbrr_gar_repository}/«RBRR_CLOUD_PREFIX»«INPUT_LOCATOR»`
+`«DEPOT_PROJECT_ID»` as `${RBRR_CLOUD_PREFIX}d-${RBRR_DEPOT_MONIKER}` (resolved by `RBDC_DEPOT_PROJECT_ID`)
+.. {rbbc_store}
+`«GAR_REPOSITORY»` as `${RBRR_CLOUD_PREFIX}${RBRR_DEPOT_MONIKER}-gar` (resolved by `RBDC_GAR_REPOSITORY`)
+.. {rbbc_store}
+`«FULL_IMAGE_REF»` as `«REGISTRY_HOST»/«DEPOT_PROJECT_ID»/«GAR_REPOSITORY»/«RBRR_CLOUD_PREFIX»«INPUT_LOCATOR»`
 
 //axhos_step
 . *Configure Container Runtime Authentication*:

@@ -22,7 +22,7 @@ for a specified
 {rbtgi_depot_project}
 . *Validate Input Parameters*:
 .. {rbbc_store}
-`«DEPOT_PROJECT_ID»` from {rbrr_depot_project_id}
+`«DEPOT_PROJECT_ID»` as `${RBRR_CLOUD_PREFIX}d-${RBRR_DEPOT_MONIKER}` (resolved by `RBDC_DEPOT_PROJECT_ID`)
 .. {rbbc_require}
 `«DEPOT_PROJECT_ID»` matches pattern `rbw-*-[0-9]{12}`
 

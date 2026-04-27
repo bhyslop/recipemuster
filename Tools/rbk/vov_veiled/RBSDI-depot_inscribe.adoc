@@ -33,10 +33,12 @@ inscribes a reliquary:
 ... serviceAccount:
 {rbtr_mason}
 ... pool: tethered (upstream pull requires public egress)
+.. {rbbc_store}
+`«DEPOT_PROJECT_ID»` as `${RBRR_CLOUD_PREFIX}d-${RBRR_DEPOT_MONIKER}` (resolved by `RBDC_DEPOT_PROJECT_ID`)
 .. {rbbc_submit}
 link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.builds/create[builds.create] with:
 ... project:
-{rbrr_depot_project_id}
+`«DEPOT_PROJECT_ID»`
 ... location:
 {rbrr_gcp_region}
 .. {rbbc_store}
