@@ -143,7 +143,6 @@
 :rbtgog_image:                    <<rbtgog_image,Image Group>>
 :rbtgog_payor:                    <<rbtgog_payor,Payor Group>>
 :rbtgog_rubric:                   <<rbtgog_rubric,Build Definition Group>>
-:rbtgog_sa:                       <<rbtgog_sa,Service Account Group>>
 
 // Recipe Bottle Term Colophon (tabtarget entry points)
 // rbtc_refresh_gcb_pins eliminated (₣Av) — RBRG regime removed, reliquaries replace pin refresh
@@ -916,13 +915,6 @@ Operations on
 {rbtga_ark}
 units: abjuration, conjuring, grafting, about assembly, vouching, summoning, inspection, and hallmark checking.
 
-[[rbtgog_sa]]
-//axvo_group axd_tabtarget
-{rbtgog_sa}::
-Operations on
-{giam_service_account}
-resources: listing and deletion across roles.
-
 [[rbtgog_access]]
 //axvo_group axd_tabtarget
 {rbtgog_access}::
@@ -1000,6 +992,9 @@ Destroys
 {rbtgi_depot}
 infrastructure
 ({rbtgog_depot}).
+Includes
+{rbtr_governor}
+service account cleanup; no separate demantle verb (DELETE tolerates 404).
 
 include::RBSDU-depot_unmake.adoc[]
 
@@ -1039,27 +1034,89 @@ include::RBSGM-governor_mantle.adoc[]
 
 == {rbtr_governor} Operations
 
-[[rbtgo_retriever_charter]]
-//axvo_method axd_transient axd_grouped
-=== {rbtgo_retriever_charter}
-
-Charters a
+The
 {rbtr_retriever}
-service account
-({rbtgog_governor}).
+and
+{rbtr_director}
+service accounts share a cult-verb triad: invest mints the SA and emits its RBRA credential bytes, divest tears it down, and muster lists existing instances.
+Each verb has per-role instances; the colophon shape is `rbw-a<role-letter><verb-letter>` where the letter case carries semantic load — capital `I` (invest) and `D` (divest) for cloud-mutating verbs, lowercase `m` (muster) for read-only observation, mirroring the existing `rbw-d[lL]` precedent.
+{rbtgo_governor_mantle} stays as the singleton-per-depot exception; governor SA cleanup folds into {rbtgo_depot_unmake}.
 
-include::RBSRK-retriever_knight.adoc[]
-
-[[rbtgo_director_knight]]
+[[rbtgo_director_divest]]
 //axvo_method axd_transient axd_grouped
-=== {rbtgo_director_knight}
+=== {rbtgo_director_divest}
 
-Knights a
+Divests a
 {rbtr_director}
 service account
 ({rbtgog_governor}).
 
-include::RBSDK-director_knight.adoc[]
+Zero-arg: reads the role's installed RBRA, extracts the SA email, and issues a REST DELETE.
+After successful cloud DELETE, removes the role's production RBRA file to mirror cloud state and prevent stale-credential reuse.
+
+[[rbtgo_director_invest]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_director_invest}
+
+Invests a
+{rbtr_director}
+service account
+({rbtgog_governor}).
+
+Singleton-per-role: zero instance argument from operator; SA name derived from role and depot moniker (regime-kindled, not operator-supplied).
+Producer-output discipline: writes RBRA bytes to the assay slot exclusively (the `${BURD_OUTPUT_DIR}` credential write retires).
+Fatal if the SA already exists; operator divests first to re-key.
+
+[[rbtgo_director_muster]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_director_muster}
+
+Musters
+{rbtr_director}
+service accounts
+({rbtgog_governor}).
+
+Read-only observation.
+Emits one fact file per discovered SA via the BUS0 multi-element fact-file convention (`buf_write_fact_multi` against a registered extension constant); fact content is empty, presence-as-fact.
+Stdout-substring assertions retire from the consumer-facing surface.
+
+[[rbtgo_retriever_divest]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_retriever_divest}
+
+Divests a
+{rbtr_retriever}
+service account
+({rbtgog_governor}).
+
+Zero-arg: reads the role's installed RBRA, extracts the SA email, and issues a REST DELETE.
+After successful cloud DELETE, removes the role's production RBRA file to mirror cloud state and prevent stale-credential reuse.
+
+[[rbtgo_retriever_invest]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_retriever_invest}
+
+Invests a
+{rbtr_retriever}
+service account
+({rbtgog_governor}).
+
+Singleton-per-role: zero instance argument from operator; SA name derived from role and depot moniker (regime-kindled, not operator-supplied).
+Producer-output discipline: writes RBRA bytes to the assay slot exclusively (the `${BURD_OUTPUT_DIR}` credential write retires).
+Fatal if the SA already exists; operator divests first to re-key.
+
+[[rbtgo_retriever_muster]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_retriever_muster}
+
+Musters
+{rbtr_retriever}
+service accounts
+({rbtgog_governor}).
+
+Read-only observation.
+Emits one fact file per discovered SA via the BUS0 multi-element fact-file convention (`buf_write_fact_multi` against a registered extension constant); fact content is empty, presence-as-fact.
+Stdout-substring assertions retire from the consumer-facing surface.
 
 == {rbtr_director} Operations
 
@@ -1302,28 +1359,6 @@ Two modes: {rbtc_plumb_full} (full detail) and {rbtc_plumb_compact} (summary).
 include::RBSAP-ark_plumb.adoc[]
 
 == Multi Role Operations
-
-[[rbtgo_sa_list]]
-//axvo_method axd_transient axd_grouped
-=== {rbtgo_sa_list}
-
-Lists
-{giam_service_account}
-resources
-({rbtgog_sa}).
-
-include::RBSSL-sa_list.adoc[]
-
-[[rbtgo_sa_forfeit]]
-//axvo_method axd_transient axd_grouped
-=== {rbtgo_sa_forfeit}
-
-Forfeits
-{giam_service_account}
-resources
-({rbtgog_sa}).
-
-include::RBSSF-sa_forfeit.adoc[]
 
 [[rbtgo_access_jwt_probe]]
 //axvo_method axd_transient axd_grouped
