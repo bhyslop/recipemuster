@@ -1,26 +1,14 @@
 //axhob_operation
-{rbtgo_director_knight}
+{rbtgo_director_invest}
 
 The
 {rbtr_governor}
-knights a
+invests a
 {rbtr_director}
 {giam_service_account}
-with build management permissions:
-
-//axhopt_typed_parameter
-{rbtr_director}
-. *Validate Input Parameters*:
-.. {rbbc_require}
-`«INPUT_INSTANCE»` provided as first argument
-.. {rbbc_store}
-`«DIRECTOR_ACCOUNT_NAME»` as `director-«INPUT_INSTANCE»`
-.. {rbbc_store}
-`«DIRECTOR_EMAIL»` as `«DIRECTOR_ACCOUNT_NAME»@{rbrr_depot_project_id}.iam.gserviceaccount.com`
-
-//axhoq_precondition
-* {rbbc_require}
-`BURD_OUTPUT_DIR` environment variable set and directory exists
+with build management permissions.
+This operation accepts no instance argument; the service account identity is derived entirely from regime constants as
+`${RBCC_role_director}-${RBRR_DEPOT_MONIKER}`.
 
 //axhos_step
 . *Authenticate as
@@ -31,16 +19,37 @@ with build management permissions:
 `«GOVERNOR_TOKEN»` for subsequent API calls
 
 //axhos_step
+. *Derive
+{rbtr_director}
+Service Account Identity*:
+.. {rbbc_store}
+`«DIRECTOR_ACCOUNT_NAME»` as `${RBCC_role_director}-${RBRR_DEPOT_MONIKER}` (singleton per role per depot, regime-kindled via
+{rbrr_depot_moniker})
+.. {rbbc_store}
+`«DIRECTOR_EMAIL»` as `«DIRECTOR_ACCOUNT_NAME»@${RBDC_DEPOT_PROJECT_ID}.iam.gserviceaccount.com` (depot project ID derived from `(RBRR_CLOUD_PREFIX, RBRR_DEPOT_MONIKER)`)
+
+//axhos_step
+. *Preflight: Confirm Service Account Does Not Exist*:
+.. {rbbc_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/get[iam.serviceAccounts.get] for `projects/-/serviceAccounts/«DIRECTOR_EMAIL»`
+.. {rbbc_fatal}
+if HTTP 200: service account already exists — operator must execute
+{rbtgo_director_divest}
+before re-investing this role
+.. {rbbc_require}
+HTTP 404 to proceed
+
+//axhos_step
 . *Create
 {rbtr_director}
 Service Account*:
 .. {rbbc_call}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/create[iam.serviceAccounts.create] with:
 ... accountId: `«DIRECTOR_ACCOUNT_NAME»`
-... displayName: `Recipe Bottle Director («INPUT_INSTANCE»)`
-... description: `Create/destroy container images for «INPUT_INSTANCE»`
+... displayName: `Recipe Bottle Director`
+... description: `Create/destroy container images for depot ${RBRR_DEPOT_MONIKER}`
 ... project:
-{rbrr_depot_project_id}
+{rbtgi_depot_project}
 .. {rbbc_require}
 HTTP 200 response
 .. {rbbc_store}
@@ -83,14 +92,14 @@ converts `«DIRECTOR_PRIVATE_KEY_DATA»` to `«DIRECTOR_RBRA_FILE»`
 . *Get Depot Project Number*:
 .. {rbbc_call}
 link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[projects.get] for
-{rbrr_depot_project_id}
+{rbtgi_depot_project}
 .. {rbbc_store}
 `«PROJECT_NUMBER»` from `.projectNumber` field
 
 //axhos_step
 . *Grant Project-Level Permissions*:
 .. {rbtoe_iam_grant_project} for
-{rbrr_depot_project_id}
+{rbtgi_depot_project}
 .. Add `serviceAccount:«DIRECTOR_EMAIL»` with roles:
 ... `roles/cloudbuild.builds.editor` (submit and manage builds)
 ... `roles/viewer` (read project resources)
@@ -147,20 +156,10 @@ link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.
 .. {rbbc_require}
 repository IAM set with all expected bindings
 
-//axhoot_typed_output
-{rbtgi_rbra_file}
-. *Display Installation Instructions*:
-.. {rbbc_show}
-Director created successfully
-.. {rbbc_show}
-RBRA file location: `«DIRECTOR_RBRA_FILE»`
-.. {rbbc_show}
-installation command:
-... `cp "«DIRECTOR_RBRA_FILE»" "{rbrr_director_rbra_file}"`
-.. {rbbc_warn}
-if
-{rbrr_director_rbra_file}
-already exists
+//axhos_step
+. *Write Credential to Assay Output Slot*:
+.. {rbbc_store}
+`«DIRECTOR_RBRA_FILE»` RBRA bytes to the assay output slot via the producer-output discipline
 
 //axhoc_completion
-Successful execution knights director service account.
+Successful execution invests director service account `«DIRECTOR_ACCOUNT_NAME»` with build management permissions, generates its credential key, and writes the RBRA file to the assay output slot.
