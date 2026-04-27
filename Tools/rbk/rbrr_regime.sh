@@ -102,8 +102,11 @@ zrbrr_enforce() {
 
   # Joint-length cap: GCP project IDs max 30 chars. RBDC_DEPOT_PROJECT_ID
   # composes as "${RBRR_CLOUD_PREFIX}d-${RBRR_DEPOT_MONIKER}".
-  test $(( ${#RBRR_CLOUD_PREFIX} + 2 + ${#RBRR_DEPOT_MONIKER} )) -le 30 \
-    || buc_die "Joint length exceeds 30-char GCP project ID limit: RBRR_CLOUD_PREFIX(${#RBRR_CLOUD_PREFIX}) + 'd-'(2) + RBRR_DEPOT_MONIKER(${#RBRR_DEPOT_MONIKER}) = $(( ${#RBRR_CLOUD_PREFIX} + 2 + ${#RBRR_DEPOT_MONIKER} ))"
+  local -r z_prefix_len=${#RBRR_CLOUD_PREFIX}
+  local -r z_moniker_len=${#RBRR_DEPOT_MONIKER}
+  local -r z_joint_len=$(( z_prefix_len + 2 + z_moniker_len ))
+  test "${z_joint_len}" -le 30 \
+    || buc_die "Joint length exceeds 30-char GCP project ID limit: RBRR_CLOUD_PREFIX(${z_prefix_len}) + 'd-'(2) + RBRR_DEPOT_MONIKER(${z_moniker_len}) = ${z_joint_len}"
 
 }
 
