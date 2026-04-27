@@ -521,7 +521,7 @@ zrbfc_assemble_vouch_steps() {
 }
 
 ######################################################################
-# GAR Package Enumeration (Registry API — shared by tally, rekon, muster, batch_vouch)
+# GAR Package Enumeration (Registry API — shared by tally, rekon, audit, batch_vouch)
 
 # Internal: enumerate every <element>/<basename> pair under <subtree-root>/ via GAR REST.
 # Writes "<element> <basename>" pairs (one per line, sorted) to ZRBFC_PACKAGE_LIST_FILE.

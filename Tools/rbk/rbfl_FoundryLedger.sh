@@ -16,8 +16,8 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle Foundry Ledger - inscribe, yoke, jettison, abjure, wrest, rekon, muster, and tally operations
-# Director credentials for inscribe, yoke, jettison, abjure, wrest, rekon, muster; retriever credentials for tally
+# Recipe Bottle Foundry Ledger - inscribe, yoke, jettison, abjure, wrest, rekon, audit, and tally operations
+# Director credentials for inscribe, yoke, jettison, abjure, wrest, rekon, audit; retriever credentials for tally
 
 set -euo pipefail
 
@@ -778,10 +778,10 @@ rbfl_wrest() {
   buc_success "Image wrest complete"
 }
 
-rbfl_muster_hallmarks() {
+rbfl_audit_hallmarks() {
   zrbfl_sentinel
 
-  buc_doc_brief "Muster hallmarks — list all hallmark identifiers in registry"
+  buc_doc_brief "Audit hallmarks — list all hallmark identifiers in registry"
   buc_doc_shown || return 0
 
   buc_step "Authenticating as Director"
@@ -796,7 +796,7 @@ rbfl_muster_hallmarks() {
 
   if ! test -s "${ZRBFC_PACKAGE_LIST_FILE}"; then
     buc_info "No hallmarks found under ${RBGL_HALLMARKS_ROOT}/"
-    buc_success "Muster complete — 0 hallmarks"
+    buc_success "Audit complete — 0 hallmarks"
     return 0
   fi
 
@@ -821,13 +821,13 @@ rbfl_muster_hallmarks() {
 
   echo ""
   buc_info "Total hallmarks: ${z_count}"
-  buc_success "Muster complete"
+  buc_success "Audit complete"
 }
 
-rbfl_muster_reliquaries() {
+rbfl_audit_reliquaries() {
   zrbfl_sentinel
 
-  buc_doc_brief "Muster reliquaries — list all reliquary stamps in registry"
+  buc_doc_brief "Audit reliquaries — list all reliquary stamps in registry"
   buc_doc_shown || return 0
 
   buc_step "Authenticating as Director"
@@ -842,7 +842,7 @@ rbfl_muster_reliquaries() {
 
   if ! test -s "${ZRBFC_PACKAGE_LIST_FILE}"; then
     buc_info "No reliquaries found under ${RBGL_RELIQUARIES_ROOT}/"
-    buc_success "Muster complete — 0 reliquaries"
+    buc_success "Audit complete — 0 reliquaries"
     return 0
   fi
 
@@ -867,13 +867,13 @@ rbfl_muster_reliquaries() {
 
   echo ""
   buc_info "Total reliquaries: ${z_count}"
-  buc_success "Muster complete"
+  buc_success "Audit complete"
 }
 
-rbfl_muster_enshrinements() {
+rbfl_audit_enshrinements() {
   zrbfl_sentinel
 
-  buc_doc_brief "Muster enshrinements — list all enshrined base anchors in registry"
+  buc_doc_brief "Audit enshrinements — list all enshrined base anchors in registry"
   buc_doc_shown || return 0
 
   buc_step "Authenticating as Director"
@@ -888,7 +888,7 @@ rbfl_muster_enshrinements() {
 
   if ! test -s "${ZRBFC_PACKAGE_LIST_FILE}"; then
     buc_info "No enshrinements found under ${RBGL_ENSHRINES_ROOT}/"
-    buc_success "Muster complete — 0 enshrinements"
+    buc_success "Audit complete — 0 enshrinements"
     return 0
   fi
 
@@ -906,7 +906,7 @@ rbfl_muster_enshrinements() {
 
   echo ""
   buc_info "Total enshrinements: ${z_count}"
-  buc_success "Muster complete"
+  buc_success "Audit complete"
 }
 
 

@@ -102,9 +102,9 @@ The Folio column shows how each tabtarget receives it:
 |----------|-------------|-------|---------|
 | `rbw-irh` | DirectorRekonsHallmark | — | List ark basenames present under a hallmark's GAR subtree |
 | `rbw-irr` | DirectorRekonsReliquary | — | List tool images present under a reliquary stamp's GAR subtree |
-| `rbw-imh` | DirectorMustersHallmarks | — | Muster hallmarks — list all hallmark identifiers |
-| `rbw-imr` | DirectorMustersReliquaries | — | Muster reliquaries — list all reliquary stamps |
-| `rbw-ime` | DirectorMustersEnshrinements | — | Muster enshrinements — list all enshrined base anchors |
+| `rbw-iah` | DirectorAuditsHallmarks | — | Audit hallmarks — list all hallmark identifiers |
+| `rbw-iar` | DirectorAuditsReliquaries | — | Audit reliquaries — list all reliquary stamps |
+| `rbw-iae` | DirectorAuditsEnshrinements | — | Audit enshrinements — list all enshrined base anchors |
 | `rbw-iwh` | DirectorWrestsHallmarkImage | — | Wrest a hallmark image from registry |
 | `rbw-iwr` | DirectorWrestsReliquaryImage | — | Wrest a reliquary tool image from registry |
 | `rbw-iwe` | DirectorWrestsEnshrinedImage | — | Wrest an enshrined base image from registry |

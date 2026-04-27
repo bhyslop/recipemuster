@@ -47,7 +47,7 @@ The supply chain has three layers: inscribe creates the reliquary (tool images),
 
 | Verb | What it does |
 |------|-------------|
-| **muster** | List registry identifiers in one of the three domains (hallmarks, reliquaries, enshrinements) — director-tier flat catalog, no health detail |
+| **audit** | List registry identifiers in one of the three domains (hallmarks, reliquaries, enshrinements) — director-tier flat catalog, no health detail |
 | **tally** | Count and classify hallmarks in the registry by health state — retriever-tier, hallmarks only |
 | **vouch** | Verify SLSA provenance — proves a hallmark was built by trusted infrastructure |
 | **plumb** | Examine an image's provenance details: SBOM, build info, Dockerfile |

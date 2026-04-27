@@ -38,12 +38,12 @@ pub const RBTDRM_COLOPHON_PLUMB_COMPACT: &str = "rbw-fpc";
 
 // Image colophons (global — no nameplate imprint)
 // Three-domain symmetric: hallmarks (h), reliquaries (r), enshrinements (e).
-// Verbs: rekon (member-list), muster (catalog-list), Jettison (delete), wrest (pull).
+// Verbs: rekon (member-list), audit (catalog-list), Jettison (delete), wrest (pull).
 pub const RBTDRM_COLOPHON_REKON_HALLMARK: &str = "rbw-irh";
 pub const RBTDRM_COLOPHON_REKON_RELIQUARY: &str = "rbw-irr";
-pub const RBTDRM_COLOPHON_MUSTER_HALLMARKS: &str = "rbw-imh";
-pub const RBTDRM_COLOPHON_MUSTER_RELIQUARIES: &str = "rbw-imr";
-pub const RBTDRM_COLOPHON_MUSTER_ENSHRINEMENTS: &str = "rbw-ime";
+pub const RBTDRM_COLOPHON_AUDIT_HALLMARKS: &str = "rbw-iah";
+pub const RBTDRM_COLOPHON_AUDIT_RELIQUARIES: &str = "rbw-iar";
+pub const RBTDRM_COLOPHON_AUDIT_ENSHRINEMENTS: &str = "rbw-iae";
 pub const RBTDRM_COLOPHON_WREST_HALLMARK_IMAGE: &str = "rbw-iwh";
 pub const RBTDRM_COLOPHON_WREST_RELIQUARY_IMAGE: &str = "rbw-iwr";
 pub const RBTDRM_COLOPHON_WREST_ENSHRINED_IMAGE: &str = "rbw-iwe";
