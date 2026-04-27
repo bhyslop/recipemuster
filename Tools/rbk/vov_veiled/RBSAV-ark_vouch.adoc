@@ -13,7 +13,7 @@ The
 {rbtr_director}
 submits a Cloud Build job via `builds.create` (direct submission), which runs as the
 {rbtr_mason}
-service account on the airgap private pool (`RBDC_POOL_AIRGAP`, derived from `RBRR_GCB_POOL_STEM` with `-airgap` suffix — no public egress).
+service account on the airgap private pool (`RBDC_POOL_AIRGAP`, derived from `RBDC_GCB_POOL_STEM` with `-airgap` suffix — no public egress).
 
 NOTE: Vouch uses `builds.create` rather than trigger dispatch because the
 {rbtga_hallmark}
