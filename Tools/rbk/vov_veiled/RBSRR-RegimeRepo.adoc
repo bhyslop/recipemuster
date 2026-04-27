@@ -164,19 +164,19 @@ Used by buh_tlt glossary links and user-facing output.
 //axhro_kindle
 {rbkro_kindle}
 
-Enrolls fields via `buv_*_enroll` type-specific helpers under named groups.
-Detects unexpected RBRR_ variables via `buv_scope_sentinel`.
-Composes `ZRBRR_DOCKER_ENV` injection array and locks the regime.
+Kindles the {rbrr_regime} fields by enrolling each field with its type-specific constraints under named groups.
+Detects unexpected RBRR_ variables.
+Composes the docker environment injection set and locks the regime against further modification.
 
 //axhro_validate
 {rbkro_validate}
 
-Validates enrolled fields via `buv_report RBRR` against type-specific constraints from enrollment.
-Validates directory existence for `RBRR_VESSEL_DIR` and `RBRR_SECRETS_DIR`.
-Enforces `RBRR_DEPOT_MONIKER` and `RBRR_CLOUD_PREFIX` format and their joint-length cap (≤30 chars for GCP project ID limit).
+Validates enrolled fields against type-specific constraints from enrollment.
+Validates directory existence for {rbrr_vessel_dir} and {rbrr_secrets_dir}.
+Enforces format constraints on {rbrr_cloud_prefix} and {rbrr_depot_moniker}, and the joint-length cap on `${RBRR_CLOUD_PREFIX}d-${RBRR_DEPOT_MONIKER}` (≤30 chars per the GCP project ID limit).
 
 //axhro_render
 {rbkro_render}
 
-Renders enrolled fields via `buv_render RBRR` with group structure and presentation gates.
+Renders the {rbrr_regime} grouped by section with presentation gates per group.
 Sections: Resource Prefixing, Vessel and Local Configuration, GCP Infrastructure, Google Cloud Build Configuration, Secrets Directory, Public Docs.
