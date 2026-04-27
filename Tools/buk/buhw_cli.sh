@@ -29,6 +29,7 @@ zbuhw_furnish() {
   buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env_done || return 0
 
+  source "${BURD_BUK_DIR}/buym_yelp.sh"          || buc_die "Failed to source buym_yelp.sh"
   source "${BURD_BUK_DIR}/buh_handbook.sh"       || buc_die "Failed to source buh_handbook.sh"
   source "${BURD_BUK_DIR}/buhw_windows.sh"       || buc_die "Failed to source buhw_windows.sh"
 

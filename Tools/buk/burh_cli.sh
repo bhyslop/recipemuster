@@ -303,6 +303,7 @@ zburh_furnish() {
   source "${BURD_BUK_DIR}/burs_regime.sh"
   source "${BURD_BUK_DIR}/burh_regime.sh"
   source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
+  source "${BURD_BUK_DIR}/buym_yelp.sh"
   source "${BURD_BUK_DIR}/buh_handbook.sh"
 
   zbuv_kindle
