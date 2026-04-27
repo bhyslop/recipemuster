@@ -357,7 +357,7 @@ zrbgg_list_bucket_objects_capture() {
     buc_log_args 'Print names from this page (if any)'
     buc_log_args 'Next page?'
     jq -r                '.items[]?.name // empty' "${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"  || return 1
-    z_page_token=$(jq -r '.nextPageToken // empty' "${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}") || return 1
+    z_page_token=$(rbgu_json_field_capture "${z_infix}" '.nextPageToken') || z_page_token=""
 
     test -n "${z_page_token}" || break
     z_first=$((z_first + 1))

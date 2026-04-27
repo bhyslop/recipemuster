@@ -1289,37 +1289,58 @@ rbgp_governor_mantle() {
 
   test "${z_depot_project_id}" != "${RBRP_PAYOR_PROJECT_ID}" || buc_die "Cannot create Governor in Payor project"
 
-  buc_step 'List existing service accounts in depot'
+  buc_step 'Clean up existing governor-* service accounts (404-tolerant)'
   local -r z_sa_list_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_depot_project_id}/serviceAccounts"
-  rbgu_http_json "GET" "${z_sa_list_url}" "${z_token}" "${ZRBGP_INFIX_GOV_LIST_SA}"
-  rbgu_http_require_ok "List service accounts" "${ZRBGP_INFIX_GOV_LIST_SA}"
-
-  buc_step 'Find and delete existing governor-* service accounts'
   local z_deleted_count=0
-  local z_governor_emails
-  jq -r '.accounts[]? | select(.email | startswith("governor-")) | .email' \
-    "${ZRBGU_PREFIX}${ZRBGP_INFIX_GOV_LIST_SA}${ZRBGU_POSTFIX_JSON}" \
-    > "${ZRBGP_SCRATCH_FILE}" 2>/dev/null || true
-  z_governor_emails=$(<"${ZRBGP_SCRATCH_FILE}")
+  local z_mantle_sa_page_token=""
+  local z_mantle_sa_page=1
+  local z_mantle_sa_url=""
+  local z_mantle_sa_tok_enc=""
+  local z_mantle_sa_infix=""
+  local z_mantle_sa_count=0
+  local z_mantle_sa_index=0
+  local z_mantle_sa_email=""
+  local z_mantle_delete_infix=""
+  local z_mantle_delete_attempt=0
+  local z_mantle_delete_code=""
+  while :; do
+    z_mantle_sa_url="${z_sa_list_url}"
+    if test -n "${z_mantle_sa_page_token}"; then
+      z_mantle_sa_tok_enc=$(rbgu_urlencode_capture "${z_mantle_sa_page_token}") \
+        || buc_die "Failed to URL-encode pageToken"
+      z_mantle_sa_url="${z_mantle_sa_url}?pageToken=${z_mantle_sa_tok_enc}"
+    fi
+    z_mantle_sa_infix="${ZRBGP_INFIX_GOV_LIST_SA}_${z_mantle_sa_page}"
+    rbgu_http_json "GET" "${z_mantle_sa_url}" "${z_token}" "${z_mantle_sa_infix}"
+    rbgu_http_require_ok "List service accounts (page ${z_mantle_sa_page})" "${z_mantle_sa_infix}"
 
-  if test -n "${z_governor_emails}"; then
-    local z_email
-    while IFS= read -r z_email; do
-      test -n "${z_email}" || continue
-      buc_log_args "Deleting existing governor SA: ${z_email}"
+    z_mantle_sa_count=$(rbgu_json_field_capture "${z_mantle_sa_infix}" '.accounts // [] | length') \
+      || buc_die "Failed to parse SA list"
 
-      local -r z_delete_url="${z_sa_list_url}/${z_email}"
-      rbgu_http_json "DELETE" "${z_delete_url}" "${z_token}" "${ZRBGP_INFIX_GOV_DELETE_SA}"
+    z_mantle_sa_index=0
+    while test "${z_mantle_sa_index}" -lt "${z_mantle_sa_count}"; do
+      z_mantle_sa_email=$(rbgu_json_field_capture "${z_mantle_sa_infix}" ".accounts[${z_mantle_sa_index}].email") \
+        || { z_mantle_sa_index=$((z_mantle_sa_index + 1)); continue; }
+      if [[ "${z_mantle_sa_email}" == ${RBCC_role_governor}-* ]]; then
+        buc_log_args "Deleting existing governor SA: ${z_mantle_sa_email}"
+        z_mantle_delete_infix="${ZRBGP_INFIX_GOV_DELETE_SA}_${z_mantle_delete_attempt}"
+        rbgu_http_json "DELETE" "${z_sa_list_url}/${z_mantle_sa_email}" "${z_token}" "${z_mantle_delete_infix}"
+        z_mantle_delete_code=$(rbgu_http_code_capture "${z_mantle_delete_infix}") || z_mantle_delete_code=""
+        case "${z_mantle_delete_code}" in
+          200|204) z_deleted_count=$((z_deleted_count + 1)) ;;
+          404)     buc_log_args "SA already deleted: ${z_mantle_sa_email}" ;;
+          *)       buc_warn "Failed to delete SA ${z_mantle_sa_email}: HTTP ${z_mantle_delete_code}" ;;
+        esac
+        z_mantle_delete_attempt=$((z_mantle_delete_attempt + 1))
+      fi
+      z_mantle_sa_index=$((z_mantle_sa_index + 1))
+    done
 
-      local z_delete_code
-      z_delete_code=$(rbgu_http_code_capture "${ZRBGP_INFIX_GOV_DELETE_SA}") || z_delete_code=""
-      case "${z_delete_code}" in
-        200|204) z_deleted_count=$((z_deleted_count + 1)) ;;
-        404)     buc_log_args "SA already deleted: ${z_email}" ;;
-        *)       buc_warn "Failed to delete SA ${z_email}: HTTP ${z_delete_code}" ;;
-      esac
-    done <<< "${z_governor_emails}"
-  fi
+    z_mantle_sa_page_token=$(rbgu_json_field_capture "${z_mantle_sa_infix}" '.nextPageToken') \
+      || z_mantle_sa_page_token=""
+    test -n "${z_mantle_sa_page_token}" || break
+    z_mantle_sa_page=$((z_mantle_sa_page + 1))
+  done
 
   buc_info "Deleted ${z_deleted_count} existing governor service account(s)"
 
