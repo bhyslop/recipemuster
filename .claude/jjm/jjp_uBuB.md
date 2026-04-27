@@ -57,6 +57,29 @@ Single operator (project lead). Not designed for multi-operator workflow. Runboo
 
 Runs concurrently with ₣A_'s remaining paces; ₣A_'s one-time cutover informs `rbw-tP`'s sequence.
 
+## Depot identity collapse — locked design decisions (₢BBAAM)
+
+These decisions emerged in conversation during ₢BBAAM Step 1. They persist for the rest of the pace and constrain BBAAK cases 4-5 (the follow-on pace).
+
+**Maximal collapse.** RBRR drops `RBRR_DEPOT_PROJECT_ID`, `RBRR_GAR_REPOSITORY`, `RBRR_GCB_POOL_STEM` and gains `RBRR_DEPOT_MONIKER` (format `^[a-z][a-z0-9]*$`, length 1–26). Project ID, GAR repo, pool stem, and bucket fall out as RBDC kindle constants from `(RBRR_CLOUD_PREFIX, RBRR_DEPOT_MONIKER)`. The minimal-collapse alternative (drop only the timestamp, keep the three RBRR fields) was considered and rejected — it would leave the operator hand-pasting derivable values into RBRR after every levy.
+
+**CLOUD_PREFIX scope.** `RBRR_CLOUD_PREFIX` flows uniformly through depot project_id, GAR repo, pool stem, AND bucket (depot-affiliated resources). Payor remains on `RBGC_GLOBAL_PREFIX` (installation-scoped, not depot-affiliated); payor naming uniformity is out of scope for this pace.
+
+**Naming shapes.** Type markers and pool suffixes live as literal strings inside RBDC, keeping rbdc kindle independent of rbgc kindle ordering:
+
+- Project: `${CLOUD_PREFIX}d-${MONIKER}`
+- GAR repository: `${CLOUD_PREFIX}${MONIKER}-gar` (note: `-gar` suffix, not `-repository`)
+- Pool stem: `${CLOUD_PREFIX}${MONIKER}-pool`
+- Bucket: `${CLOUD_PREFIX}b-${MONIKER}`
+
+**409 posture deferred.** Timestamp drop alone creates the operator-visible "fails if exists" property: re-levying a moniker collides at project-create against the GCP soft-delete graveyard. Downstream sub-resource 409 posture is left as today — bucket fatal; AR / pools idempotent. A pre-locked redesign here would over-engineer; surface fixture-driven need before reshaping.
+
+**Mason SA name unchanged.** `mason-${moniker}` retained; broader SA-naming uniformity deferred.
+
+**Pristine-fixture moniker autodetect lives in Rust, not payor.** Theurge-side autodetect for pristine-lifecycle cases 2-3 — family stems (e.g. `pristq`, `pristg`) and the `100000` floor — lives in `rbtdrp_pristine.rs`. Payor `rbgp_depot_list` emits per-moniker fact files; theurge consumes them and computes the next free six-digit numeric increment per family prefix. Payor stays uncoupled from fixture identity space.
+
+**Depot fact-file shape.** Per-moniker fact files use `<moniker>.${RBGP_FACT_EXT_DEPOT}` (extension constant resolves to `depot`). File content is one of `RBGP_DEPOT_STATE_COMPLETE`, `RBGP_DEPOT_STATE_BROKEN`, `RBGP_DEPOT_STATE_DELETE_REQUESTED`. State and extension tinder constants live in `rbgc_Constants.sh` (added in Step 1).
+
 ## References
 
 - ₣A_ rbk-mvp-3-resource-prefix-and-depot-regen — surfaced the gap
