@@ -8,8 +8,6 @@ Items here are not planned for any heat.
 When an item becomes actionable, it moves into a heat as paces with proper dockets.
 This is the single collection point for big changes — individual spec subdocuments should cross-reference here rather than maintaining local "Future Work" sections.
 
-===== IAM / Identity Infrastructure
-
 **SA numeric ID for member references.**
 Google recommends using a
 {giam_service_account}'s
@@ -50,8 +48,6 @@ _Reference_:
 <<rbscig_iam_grant_contracts>>
 (Convergence Analysis section).
 
-===== Container Runtime
-
 **Podman as first-class deployment target.**
 Recipe Bottle currently deploys to Podman on workstations via the bottle lifecycle (RBSBS, RBSBR, RBSBL).
 Podman support is functional but not hardened — the sentry container, network isolation, and eBPF enforcement assume Linux Podman with rootful access.
@@ -88,8 +84,6 @@ Audit gains a cross-instance check: each named peer must exist and have entry en
 _Trigger_: when a use case requires bottle-to-bottle communication (e.g., microservice composition, service mesh patterns).
 _Reference_: Heat ₣AU paddock (design conversation capture).
 
-===== Artifact Preservation
-
 **Hoard: external artifact mirror in retention-locked GCS.**
 A
 {rbtgi_depot}
@@ -114,8 +108,6 @@ _Trigger_: first concrete need to run LM inference inside a
 against a specific HF checkpoint with retention guarantees.
 _Reference_: this roadmap entry;
 design conversation pending heat.
-
-===== Network Security Model
 
 **CIDR allowlist granularity vs CDN-hosted domains.**
 The sentry's iptables CIDR rules accept all protocols and all destination ports to allowed IP ranges.
@@ -154,8 +146,6 @@ _Reference_: rbjs_sentry.sh (Phase 3 CIDR rules);
 .rbk/tadmor/rbrn.env (current CIDR configuration);
 ₣A1 heat ₢A1AAj (discovery context).
 
-===== Crucible Conduit Architecture
-
 **Encrypted tunnel conduit (WireGuard in sentry).**
 Add WireGuard to the sentry image so the sentry terminates an encrypted tunnel directly to a VPC hosting PrivateLink endpoints for cloud services.
 The bottle's traffic routes through a `wg0` interface on the sentry — one stable VPC CIDR replaces floating cloud-provider IP ranges.
@@ -190,16 +180,13 @@ The sentry still provides the core value: the bottle cannot reach anything the s
 The tunnel adds defense-in-depth only for PrivateLink-capable services.
 Cross-reference: the existing "CIDR allowlist granularity vs CDN-hosted domains" item (Network Security Model) remains relevant for SaaS-only services where the tunnel cannot help.
 
-===== Cross-Cloud Delivery
-
-NOTE: Names in this section — embassy, envoy, lode, entrust, accredit, recall, chantry — are tentative working vocabulary from a design conversation.
-They will be reviewed when these items move into a heat with real scope;
-the concepts are firmer than the words.
-
-Working architectural stance: **asymmetric sovereignty.**
+**Cross-cloud architectural stance: asymmetric sovereignty.**
 Recipe Bottle governs identities and infrastructure only in GCP.
 AWS-side presence is shaped as delivered artifacts and policy templates, not owned principals — no AWS-Director, no AWS-Mason, no AWS-Retriever.
 If Recipe Bottle ever needs to *build* in AWS rather than deliver to it, that would be a deliberate architectural decision triggering a full parallel role hierarchy, not an incremental drift.
+Vocabulary used in related entries — embassy, envoy, lode, entrust, accredit, recall, chantry — is tentative working language from a design conversation; concepts are firmer than the words.
+_Trigger_: when AWS-side work moves into a heat with real scope.
+_Reference_: this roadmap entry; design conversation pending heat.
 
 **Embassy — AWS-side delivery premises.**
 An S3 bucket (with Object Lock in Compliance mode for retention), an IAM role with a trust policy accepting the envoy's federated identity, and Recipe-Bottle-shipped IAM policy shapes that the AWS consumer attaches to whatever principal consumes delivered artifacts (EC2 role, ECS task role, Bedrock execution role, etc.).
@@ -261,11 +248,6 @@ _Reference_: this roadmap entry;
 `Memos/memo-20260415-crucible-conduit-architecture.md`;
 Crucible Conduit Architecture section above.
 
-===== Build Pipeline Security
-
-Items below are evaluated and consciously deferred.
-Full analysis with revisit triggers lives in RBSCB-CloudBuildPosture.adoc.
-
 **Egress lockdown — IMPLEMENTED (₣Av).**
 Dual-pool architecture: tether pool (public egress) and airgap pool (`NO_PUBLIC_EGRESS`).
 Operation-level routing: inscribe/enshrine use tether, about/vouch always airgap, conjure/bind per vessel `RBRV_EGRESS_MODE`.
@@ -305,3 +287,17 @@ Periodic independent rebuilds compared by digest.
 Requires reproducible toolchains — a vessel-author discipline, not a pipeline control.
 _Trigger_: vessel ecosystem maturity and external distribution.
 _Reference_: RBSCB-CloudBuildPosture.adoc (Deferred Items: Reproducibility).
+
+**Browser-OAuth human authentication for Governor / Director / Retriever.**
+Replace SA-keyfile distribution (the RBRA model) with a browser-based OAuth flow that mints short-lived SA tokens via service-account impersonation, eliminating credential artifact distribution.
+User authenticates once at `accounts.google.com` (no gcloud dependency — reuses the existing curl/openssl/jq stack and the Payor OAuth pattern from RBGP/RBGO);
+refresh token cached locally;
+per-operation, the system mints a user access token and calls `iamcredentials.googleapis.com:generateAccessToken` against the target SA to obtain a short-lived SA token.
+The grant lives in IAM policy on the SA itself (`roles/iam.serviceAccountTokenCreator` for `user:alice@example.com`), administered by Governor as a new verb sibling to mantle/charter/knight/forfeit.
+Distribution dissolves (nothing to ship);
+revocation becomes one IAM binding deletion or OAuth consent revocation;
+audit logs gain `delegationInfo` attributing actions to the human behind the SA.
+Additive in the near term — RBRA keyfiles remain necessary for headless paths (Cloud Build itself, automated fixtures, Ifrit-style scenarios), and a regime mode field selects per-role credential mode.
+Open questions remain (storage location, OAuth client scope, probe coexistence) — see memo for full design.
+_Trigger_: first concrete external-user request for browser-based onboarding, or first time keyfile distribution materially blocks adoption rather than being theoretically frictionful.
+_Reference_: `Memos/memo-20260427-google-native-human-auth.md`.
