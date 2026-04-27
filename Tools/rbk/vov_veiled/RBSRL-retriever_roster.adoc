@@ -1,0 +1,54 @@
+//axhob_operation
+{rbtgo_retriever_roster}
+
+NOTE: This operation rosters {rbtr_retriever} {giam_service_account}s in the {rbtgi_depot_project} via per-SA fact-file emission.
+Read-only observation: lists all service accounts, filters to retriever-prefixed accountIds, and emits one fact per discovered SA via {buf_write_fact_multi} against the `RBCC_fact_ext_roster_retriever` extension constant.
+Fact content is empty (presence-as-fact); stdout assertion of individual identities is retired.
+
+//axhos_step
+. *Authenticate as
+{rbtr_governor}*:
+.. Execute
+{rbtoe_governor_authenticate}
+.. {rbbc_store}
+`«GOVERNOR_TOKEN»` for subsequent API calls
+
+//axhos_step
+. *List Service Accounts*:
+.. {rbbc_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/list[iam.projects.serviceAccounts.list] with:
+... method: `GET`
+... endpoint: `https://iam.googleapis.com/v1/projects/{rbtgi_depot_project}/serviceAccounts`
+... header: `Authorization: Bearer «GOVERNOR_TOKEN»`
+.. {rbbc_require}
+HTTP 200 response
+.. {rbbc_store}
+`«ACCOUNTS»` from response `.accounts[]` array
+
+//axhos_step
+. *Filter to
+{rbtr_retriever}
+Service Accounts*:
+.. From `«ACCOUNTS»`, select entries whose `accountId` begins with `${RBCC_role_retriever}-`
+.. {rbbc_store}
+`«RETRIEVER_ACCOUNTS»` — the filtered set; per-role observation per BBAAQ contract
+
+//axhos_step
+. *Emit Fact Per Discovered
+{rbtr_retriever}*:
+.. For each entry in `«RETRIEVER_ACCOUNTS»`:
+... Derive `«IDENTITY»` by stripping the `${RBCC_role_retriever}-` prefix from `accountId` (the operator-typed name)
+... {rbbc_call}
+{buf_write_fact_multi}
+with `<file_root>`, extension `RBCC_fact_ext_roster_retriever` (resolves to `roster-retriever`), and value `«IDENTITY»`
+... Fact content is empty — basename presence is the assertion (RBS0:1119)
+
+//axhos_step
+. *Display Summary*:
+.. {rbbc_show}
+count of emitted facts; no per-account stdout enumeration
+
+//axhoc_completion
+Successful execution emits one fact file per discovered {rbtr_retriever} {giam_service_account},
+keyed by operator-typed identity under the `RBCC_fact_ext_roster_retriever` extension.
+The operation is read-only; no service accounts are created or modified.
