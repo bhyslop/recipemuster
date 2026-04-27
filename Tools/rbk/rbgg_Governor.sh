@@ -75,7 +75,7 @@ zrbgg_kindle() {
   readonly ZRBGG_INFIX_DELETE_REPO="delete_repo"
   readonly ZRBGG_INFIX_REPO_POLICY="repo_policy"
   readonly ZRBGG_INFIX_RPOLICY_SET="repo_policy_set"
-  readonly ZRBGG_INFIX_LIST="list"
+  readonly ZRBGG_INFIX_ROSTER="roster"
   readonly ZRBGG_INFIX_API_CHECK="api_checking"
   readonly ZRBGG_INFIX_DELETE="delete"
   readonly ZRBGG_INFIX_LIST_KEYS="list_keys"
@@ -146,8 +146,7 @@ zrbgg_create_service_account_with_key() {
   local z_account_name="$1"
   local z_display_name="$2"
   local z_description="$3"
-  local z_instance="$4"
-  local z_role="$5"
+  local z_role="$4"
 
   local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
 
@@ -191,8 +190,8 @@ zrbgg_create_service_account_with_key() {
 
   buc_log_args 'Count existing user-managed keys'
   local z_user_keys
-  z_user_keys=$(jq -r '[.keys[]? | select(.keyType=="USER_MANAGED")] | length' \
-                 "${ZRBGU_PREFIX}${ZRBGG_INFIX_LIST_KEYS}${ZRBGU_POSTFIX_JSON}") \
+  z_user_keys=$(rbgu_json_field_capture "${ZRBGG_INFIX_LIST_KEYS}" \
+                 '[.keys[]? | select(.keyType=="USER_MANAGED")] | length') \
     || buc_die "Failed to parse service account keys"
 
   if test "${z_user_keys}" -gt 0; then
@@ -238,24 +237,27 @@ zrbgg_create_service_account_with_key() {
   local z_key_b64
   z_key_b64=$(rbgu_json_field_capture "${z_key_infix}" '.privateKeyData') \
     || buc_die "Failed to extract privateKeyData"
-  local z_key_json="${BURD_TEMP_DIR}/rbgg_key_${z_instance}.json"
+  # Decode into the rbgu cache so rbgu_json_field_capture (BCG-sanctioned _capture)
+  # can address the decoded key JSON by infix.
+  local z_key_decoded_infix="${z_key_infix}_decoded"
+  local z_key_json="${ZRBGU_PREFIX}${z_key_decoded_infix}${ZRBGU_POSTFIX_JSON}"
   printf '%s' "${z_key_b64}" | openssl enc -base64 -d -A > "${z_key_json}" \
     || buc_die "Failed to decode key data"
 
   buc_step 'Convert JSON key to RBRA format'
-  local z_rbra_file="${BURD_OUTPUT_DIR}/${z_instance}.rbra"
+  local z_rbra_file="${RBDC_ASSAY_RBRA_FILE}"
 
   local z_client_email
-  z_client_email=$(jq -r '.client_email' "${z_key_json}") || buc_die "Failed to extract client_email"
-  test -n "${z_client_email}" || buc_die "Empty client_email in key JSON"
+  z_client_email=$(rbgu_json_field_capture "${z_key_decoded_infix}" '.client_email') \
+    || buc_die "Failed to extract client_email from key JSON"
 
   local z_private_key
-  z_private_key=$(jq -r '.private_key' "${z_key_json}") || buc_die "Failed to extract private_key"
-  test -n "${z_private_key}" || buc_die "Empty private_key in key JSON"
+  z_private_key=$(rbgu_json_field_capture "${z_key_decoded_infix}" '.private_key') \
+    || buc_die "Failed to extract private_key from key JSON"
 
   local z_project_id
-  z_project_id=$(jq -r '.project_id' "${z_key_json}") || buc_die "Failed to extract project_id"
-  test -n "${z_project_id}" || buc_die "Empty project_id in key JSON"
+  z_project_id=$(rbgu_json_field_capture "${z_key_decoded_infix}" '.project_id') \
+    || buc_die "Failed to extract project_id from key JSON"
 
   buc_step 'Write RBRA file' "${z_rbra_file}"
   {
@@ -268,7 +270,6 @@ zrbgg_create_service_account_with_key() {
 
   test -f "${z_rbra_file}" || buc_die "Failed to write RBRA file ${z_rbra_file}"
 
-  rm -f "${z_key_json}"
   buc_info "RBRA file written: ${z_rbra_file}"
 
   # Echo uniqueId to stdout for callers (all logging goes to stderr per BCG)
@@ -426,67 +427,106 @@ zrbgg_delete_gcs_bucket_predicate() {
 ######################################################################
 # External Functions (rbgg_*)
 
-rbgg_list_service_accounts() {
+# Roster a single role: paginate the SA list, filter by role-prefix,
+# emit per-identity fact files (basename = identity, content = full email)
+# and a human-readable line per match. Used by rbgg_roster_retrievers /
+# rbgg_roster_directors via $1 = role tinder, $2 = fact-extension tinder.
+zrbgg_roster_role() {
   zrbgg_sentinel
 
-  buc_doc_brief "List all service accounts in the project"
-  buc_doc_shown || return 0
+  local -r z_role="$1"
+  local -r z_fact_ext="$2"
 
-  buc_step 'Listing service accounts in project: '"${RBDC_DEPOT_PROJECT_ID}"
+  buc_step "Rostering ${z_role} service accounts in project: ${RBDC_DEPOT_PROJECT_ID}"
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token (rc=$?)"
 
-  buc_log_args 'List service accounts via REST API'
-  rbgu_http_json "GET" "${RBGD_API_SERVICE_ACCOUNTS}" "${z_token}" "${ZRBGG_INFIX_LIST}"
-  rbgu_http_require_ok "List service accounts"                     "${ZRBGG_INFIX_LIST}"
+  local z_url_base="${RBGD_API_SERVICE_ACCOUNTS}"
+  local z_page_token=""
+  local z_page=1
+  local z_count=0
 
-  local z_count
-  z_count=$(rbgu_json_field_capture "${ZRBGG_INFIX_LIST}" '.accounts | length') \
-    || buc_die "Failed to parse response"
+  while :; do
+    local z_url="${z_url_base}"
+    if test -n "${z_page_token}"; then
+      local z_tok_enc
+      z_tok_enc=$(rbgu_urlencode_capture "${z_page_token}") \
+        || buc_die "Failed to URL-encode pageToken"
+      z_url="${z_url}?pageToken=${z_tok_enc}"
+    fi
 
-  if test "${z_count}" = "0"; then
-    buc_info "No service accounts found in project"
-    return 0
-  fi
+    local z_infix="${ZRBGG_INFIX_ROSTER}_${z_role}_${z_page}"
+    rbgu_http_json "GET" "${z_url}" "${z_token}" "${z_infix}"
+    rbgu_http_require_ok "List service accounts (page ${z_page})" "${z_infix}"
 
-  buc_step "Found ${z_count} service account(s):"
+    local z_sa_count
+    z_sa_count=$(rbgu_json_field_capture "${z_infix}" '.accounts // [] | length') \
+      || buc_die "Failed to parse service accounts page"
 
-  local z_max_width
-  z_max_width=$(jq -r '.accounts[].email | length' "${ZRBGU_PREFIX}${ZRBGG_INFIX_LIST}${ZRBGU_POSTFIX_JSON}" | sort -n | tail -1) \
-    || buc_die "Failed to calculate max width"
+    local z_index=0
+    while test "${z_index}" -lt "${z_sa_count}"; do
+      local z_sa_email
+      z_sa_email=$(rbgu_json_field_capture "${z_infix}" ".accounts[${z_index}].email") \
+        || { z_index=$((z_index + 1)); continue; }
+      if [[ "${z_sa_email}" =~ ^${z_role}-(.+)@${RBGD_SA_EMAIL_FULL}$ ]]; then
+        local z_identity="${BASH_REMATCH[1]}"
+        buf_write_fact_multi "${z_identity}" "${z_fact_ext}" "${z_sa_email}"
+        buc_bare "  ${z_identity}  ${z_sa_email}"
+        z_count=$((z_count + 1))
+      fi
+      z_index=$((z_index + 1))
+    done
 
-  jq -r --argjson width "${z_max_width}" \
-    '.accounts[] | "  " + (.email | tostring | ((" " * ($width - length)) + .)) + " - " + (.displayName // "(no display name)")' \
-    "${ZRBGU_PREFIX}${ZRBGG_INFIX_LIST}${ZRBGU_POSTFIX_JSON}" || buc_die "Failed to format accounts"
+    z_page_token=$(rbgu_json_field_capture "${z_infix}" '.nextPageToken') || z_page_token=""
+    test -n "${z_page_token}" || break
+    z_page=$((z_page + 1))
+  done
 
-  buc_success "Service account listing completed"
+  buc_info "Found ${z_count} ${z_role} service account(s)"
+  buc_success "Roster operation completed"
 }
 
-rbgg_charter_retriever() {
+rbgg_roster_retrievers() {
   zrbgg_sentinel
 
-  local z_instance="${1:-}"
-
-  buc_doc_brief "Charter Retriever service account instance"
-  buc_doc_param "instance" "Instance name (required)"
+  buc_doc_brief "Roster Retriever service accounts (emit per-identity fact files)"
   buc_doc_shown || return 0
 
-  test -n "${z_instance}" || buc_die "Instance name required"
-  zburd_sentinel
-  test -d "${BURD_OUTPUT_DIR}" || buc_die "BURD_OUTPUT_DIR does not exist: ${BURD_OUTPUT_DIR}"
+  zrbgg_roster_role "${RBCC_role_retriever}" "${RBCC_fact_ext_roster_retriever}"
+}
 
-  local z_account_name="${RBCC_role_retriever}-${z_instance}"
+rbgg_roster_directors() {
+  zrbgg_sentinel
+
+  buc_doc_brief "Roster Director service accounts (emit per-identity fact files)"
+  buc_doc_shown || return 0
+
+  zrbgg_roster_role "${RBCC_role_director}" "${RBCC_fact_ext_roster_director}"
+}
+
+rbgg_invest_retriever() {
+  zrbgg_sentinel
+
+  local z_identity="${1:-}"
+
+  buc_doc_brief "Invest a Retriever service account for an identity"
+  buc_doc_param "identity" "Identity (required) — composes ${RBCC_role_retriever}-<identity>"
+  buc_doc_shown || return 0
+
+  test -n "${z_identity}" || buc_die "Identity required"
+
+  local z_account_name="${RBCC_role_retriever}-${z_identity}"
   local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
 
-  buc_step "Chartering Retriever service account: ${z_account_name}"
+  buc_step "Investing Retriever service account: ${z_account_name}"
 
   zrbgg_create_service_account_with_key                                          \
     "${z_account_name}"                                                        \
-    "Recipe Bottle Retriever (${z_instance})"                                  \
-    "Read-only access to Google Artifact Registry - instance: ${z_instance}"   \
-    "${z_instance}" "${RBCC_role_retriever}" > /dev/null || buc_die "Failed to create Retriever SA"
+    "Recipe Bottle Retriever (${z_identity})"                                  \
+    "Read-only access to Google Artifact Registry - identity: ${z_identity}"   \
+    "${RBCC_role_retriever}" > /dev/null || buc_die "Failed to create Retriever SA"
 
   local z_token
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
@@ -509,40 +549,33 @@ rbgg_charter_retriever() {
     "serviceAccount:${z_account_email}"                  \
     "retriever-analysis"
 
-  local z_actual_rbra_file="${BURD_OUTPUT_DIR}/${z_instance}.rbra"
-
-  buc_info "RBRA file written: ${z_actual_rbra_file}"
+  buc_info "RBRA file written: ${RBDC_ASSAY_RBRA_FILE}"
   buc_info ""
-  buc_info "Install the RBRA file:"
-  buc_bare "        cp ${z_actual_rbra_file} ${RBDC_RETRIEVER_RBRA_FILE}"
-  buc_info ""
-  buc_info "Or, for assay (test) mode:"
-  buc_bare "        cp ${z_actual_rbra_file} ${RBDC_ASSAY_RBRA_FILE}"
+  buc_info "Install:"
+  buc_bare "        cp ${RBDC_ASSAY_RBRA_FILE} ${RBDC_RETRIEVER_RBRA_FILE}"
 }
 
-rbgg_knight_director() {
+rbgg_invest_director() {
   zrbgg_sentinel
 
-  local z_instance="${1:-}"
+  local z_identity="${1:-}"
 
-  buc_doc_brief "Knight Director service account instance"
-  buc_doc_param "instance" "Instance name (required)"
+  buc_doc_brief "Invest a Director service account for an identity"
+  buc_doc_param "identity" "Identity (required) — composes ${RBCC_role_director}-<identity>"
   buc_doc_shown || return 0
 
-  test -n "${z_instance}"     || buc_die "Instance name required"
-  zburd_sentinel
-  test -d "${BURD_OUTPUT_DIR}" || buc_die "BURD_OUTPUT_DIR does not exist: ${BURD_OUTPUT_DIR}"
+  test -n "${z_identity}" || buc_die "Identity required"
 
-  local z_account_name="${RBCC_role_director}-${z_instance}"
+  local z_account_name="${RBCC_role_director}-${z_identity}"
   local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
 
-  buc_step "Knighting Director service account: ${z_account_name}"
+  buc_step "Investing Director service account: ${z_account_name}"
 
   zrbgg_create_service_account_with_key                      \
     "${z_account_name}"                                    \
-    "Recipe Bottle Director (${z_instance})"               \
-    "Create/destroy container images for ${z_instance}"    \
-    "${z_instance}" "${RBCC_role_director}" > /dev/null || buc_die "Failed to create Director SA"
+    "Recipe Bottle Director (${z_identity})"               \
+    "Create/destroy container images for ${z_identity}"    \
+    "${RBCC_role_director}" > /dev/null || buc_die "Failed to create Director SA"
 
   buc_step 'Get OAuth token from admin'
   local z_token
@@ -664,41 +697,75 @@ rbgg_knight_director() {
     break
   done
 
-  local z_actual_rbra_file="${BURD_OUTPUT_DIR}/${z_instance}.rbra"
-
-  buc_info "RBRA file written: ${z_actual_rbra_file}"
+  buc_info "RBRA file written: ${RBDC_ASSAY_RBRA_FILE}"
   buc_info ""
-  buc_info "Install the RBRA file:"
-  buc_bare "        cp ${z_actual_rbra_file} ${RBDC_DIRECTOR_RBRA_FILE}"
-  buc_info ""
-  buc_info "Or, for assay (test) mode:"
-  buc_bare "        cp ${z_actual_rbra_file} ${RBDC_ASSAY_RBRA_FILE}"
+  buc_info "Install:"
+  buc_bare "        cp ${RBDC_ASSAY_RBRA_FILE} ${RBDC_DIRECTOR_RBRA_FILE}"
 }
 
-rbgg_forfeit_service_account() {
+# Divest a single role+identity: synthesize email, DELETE (404-tolerant),
+# opportunistic role-RBRA cleanup only on email match.
+zrbgg_divest_role() {
   zrbgg_sentinel
 
-  local z_sa_email="${1:-}"
+  local -r z_role="$1"
+  local -r z_identity="$2"
+  local -r z_role_rbra_file="$3"
 
-  buc_doc_brief "Forfeit a service account"
-  buc_doc_param "email" "Email address of the service account to forfeit"
-  buc_doc_shown || return 0
+  local z_account_email="${z_role}-${z_identity}@${RBGD_SA_EMAIL_FULL}"
 
-  test -n "${z_sa_email}" || buc_die "Service account email required"
-
-  buc_step "Forfeiting service account: ${z_sa_email}"
+  buc_step "Divesting service account: ${z_account_email}"
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
 
-  buc_log_args 'Delete via REST API'
-  rbgu_http_json "DELETE" "${RBGD_API_SERVICE_ACCOUNTS}/${z_sa_email}" "${z_token}" \
+  buc_log_args 'Delete via REST API (404-tolerant)'
+  rbgu_http_json "DELETE" "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}" "${z_token}" \
                                                  "${ZRBGG_INFIX_DELETE}"
   rbgu_http_require_ok "Delete service account" "${ZRBGG_INFIX_DELETE}" \
     404 "not found (already deleted)"
 
-  buc_success "Forfeit operation completed"
+  buc_log_args 'Opportunistic role-RBRA cleanup if installed credential matches'
+  if test -f "${z_role_rbra_file}"; then
+    local z_installed_email
+    z_installed_email=$(. "${z_role_rbra_file}" 2>/dev/null && printf '%s' "${RBRA_CLIENT_EMAIL:-}") \
+      || z_installed_email=""
+    if test "${z_installed_email}" = "${z_account_email}"; then
+      rm -f "${z_role_rbra_file}"
+      buc_info "Removed installed RBRA at ${z_role_rbra_file} (matched divested email)"
+    fi
+  fi
+
+  buc_success "Divest operation completed"
+}
+
+rbgg_divest_retriever() {
+  zrbgg_sentinel
+
+  local z_identity="${1:-}"
+
+  buc_doc_brief "Divest a Retriever service account by identity"
+  buc_doc_param "identity" "Identity (required) — composes ${RBCC_role_retriever}-<identity>"
+  buc_doc_shown || return 0
+
+  test -n "${z_identity}" || buc_die "Identity required"
+
+  zrbgg_divest_role "${RBCC_role_retriever}" "${z_identity}" "${RBDC_RETRIEVER_RBRA_FILE}"
+}
+
+rbgg_divest_director() {
+  zrbgg_sentinel
+
+  local z_identity="${1:-}"
+
+  buc_doc_brief "Divest a Director service account by identity"
+  buc_doc_param "identity" "Identity (required) — composes ${RBCC_role_director}-<identity>"
+  buc_doc_shown || return 0
+
+  test -n "${z_identity}" || buc_die "Identity required"
+
+  zrbgg_divest_role "${RBCC_role_director}" "${z_identity}" "${RBDC_DIRECTOR_RBRA_FILE}"
 }
 
 rbgg_destroy_project() {
