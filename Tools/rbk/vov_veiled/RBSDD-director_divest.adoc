@@ -1,18 +1,9 @@
 //axhob_operation
 {rbtgo_director_divest}
 
-The
-{rbtr_director}
-divests the
-{rbtr_director}
-{giam_service_account}
-for this depot.
-The operation accepts no CLI parameters; the
-{giam_service_account}
-email is resolved at runtime by reading the role's installed
-{rbrr_director_rbra_file}
-and extracting the `client_email` field.
-After the cloud DELETE, the production RBRA file is removed from disk to mirror cloud state and prevent stale-credential reuse.
+NOTE: This operation divests a {rbtr_director} {giam_service_account} from the {rbtgi_depot_project}.
+The {rbtr_governor} reads the role's installed RBRA, extracts the SA email from the `client_email` field, issues a REST DELETE against the IAM API, and removes the production RBRA file from disk to mirror cloud state and prevent stale-credential reuse.
+No arguments required; the target SA is derived entirely from the kindled regime and the role's installed credential file.
 
 //axhos_step
 . *Authenticate as
@@ -36,13 +27,11 @@ if the file is missing: "Director RBRA file not found — director may not have 
 if `client_email` is empty or absent: "Director RBRA file present but client_email field is missing or empty"
 
 //axhos_step
-. *Divest Service Account*:
+. *Divest Director Service Account*:
 .. {rbbc_call}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/delete[iam.projects.serviceAccounts.delete] with:
 ... method: `DELETE`
-... endpoint: `https://iam.googleapis.com/v1/projects/«DEPOT_PROJECT_ID»/serviceAccounts/«SA_EMAIL»`
-where `«DEPOT_PROJECT_ID»` is derived as `RBDC_DEPOT_PROJECT_ID` from `(RBRR_CLOUD_PREFIX, RBRR_DEPOT_MONIKER)`, consistent with
-{rbtgi_depot_project}
+... endpoint: `https://iam.googleapis.com/v1/projects/{rbtgi_depot_project}/serviceAccounts/«SA_EMAIL»`
 ... header: `Authorization: Bearer «GOVERNOR_TOKEN»`
 .. {rbbc_require}
 HTTP 200 response OR HTTP 404 (already divested)
@@ -51,12 +40,9 @@ if HTTP 404: "Service account not found (already divested)"
 
 //axhos_step
 . *Remove Production RBRA File*:
-.. {rbbc_require}
-the preceding DELETE succeeded (HTTP 200 or 404 — cloud state is authoritative)
-.. Execute
-{rbtoe_rbra_remove}
-for the role's RBRA file at
+.. Remove the role's RBRA file at
 {rbrr_director_rbra_file}
+from disk
 .. {rbbc_fatal}
 if the file cannot be removed: "Failed to remove director RBRA file — manual cleanup required"
 .. NOTE: Removing the RBRA file mirrors cloud state locally and prevents any process from reusing a credential that no longer corresponds to an active

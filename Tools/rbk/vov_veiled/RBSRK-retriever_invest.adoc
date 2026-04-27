@@ -1,19 +1,10 @@
 //axhob_operation
 {rbtgo_retriever_invest}
 
-The
-{rbtr_governor}
-invests a
-{rbtr_retriever}
-{giam_service_account}
-with read-only
-{rbtgi_repository}
-access.
-The operation accepts no instance argument; the service account identity is singleton per-role per-depot, derived entirely from regime-kindled values.
-
-//axhoq_precondition
-* {rbbc_require}
-regime kindled with valid `(RBRR_CLOUD_PREFIX, RBRR_DEPOT_MONIKER)` pair
+NOTE: This operation invests a {rbtr_retriever} {giam_service_account} into the {rbtgi_depot_project} with read-only {rbtgi_repository} access.
+The {rbtr_governor} mints the SA, generates its credential key, and writes the RBRA bytes to the assay output slot.
+The operation is singleton-per-role: no instance argument; the SA identity is derived from regime constants as `${RBCC_role_retriever}-${RBRR_DEPOT_MONIKER}`.
+Fatal if the SA already exists — operator must {rbtgo_retriever_divest} first to re-key.
 
 //axhos_step
 . *Authenticate as
@@ -105,9 +96,11 @@ Read Access*:
 .. {rbbc_require}
 IAM policy update successful
 
-//axhos_step
-. *Write Credential to Assay Output Slot*:
-.. The produced `«RETRIEVER_RBRA_FILE»` bytes are written exclusively to the assay output slot.
+//axhoot_typed_output
+{rbtgi_rbra_file}
+. *Deliver Credential to Assay Output Slot*:
+.. {rbbc_store}
+`«RETRIEVER_RBRA_FILE»` RBRA bytes to the assay output slot via the producer-output discipline (the orphan's `${BURD_OUTPUT_DIR}` credential write retires)
 
 //axhoc_completion
 Successful execution invests retriever service account with read-only Artifact Registry access and delivers the RBRA credential bytes to the assay output slot.

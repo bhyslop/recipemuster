@@ -1,14 +1,10 @@
 //axhob_operation
 {rbtgo_director_invest}
 
-The
-{rbtr_governor}
-invests a
-{rbtr_director}
-{giam_service_account}
-with build management permissions.
-This operation accepts no instance argument; the service account identity is derived entirely from regime constants as
-`${RBCC_role_director}-${RBRR_DEPOT_MONIKER}`.
+NOTE: This operation invests a {rbtr_director} {giam_service_account} into the {rbtgi_depot_project}.
+The {rbtr_governor} mints the SA, generates its credential key, and writes the RBRA bytes to the assay output slot.
+The operation is singleton-per-role: no instance argument; the SA identity is derived from regime constants as `${RBCC_role_director}-${RBRR_DEPOT_MONIKER}`.
+Fatal if the SA already exists — operator must {rbtgo_director_divest} first to re-key.
 
 //axhos_step
 . *Authenticate as
@@ -156,10 +152,11 @@ link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.
 .. {rbbc_require}
 repository IAM set with all expected bindings
 
-//axhos_step
-. *Write Credential to Assay Output Slot*:
+//axhoot_typed_output
+{rbtgi_rbra_file}
+. *Deliver Credential to Assay Output Slot*:
 .. {rbbc_store}
-`«DIRECTOR_RBRA_FILE»` RBRA bytes to the assay output slot via the producer-output discipline
+`«DIRECTOR_RBRA_FILE»` RBRA bytes to the assay output slot via the producer-output discipline (the orphan's `${BURD_OUTPUT_DIR}` credential write retires)
 
 //axhoc_completion
 Successful execution invests director service account `«DIRECTOR_ACCOUNT_NAME»` with build management permissions, generates its credential key, and writes the RBRA file to the assay output slot.

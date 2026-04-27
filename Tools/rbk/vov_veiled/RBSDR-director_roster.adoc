@@ -1,15 +1,9 @@
 //axhob_operation
 {rbtgo_director_roster}
 
-The
-{rbtr_governor}
-lists all
-{rbtr_director}
-{giam_service_account}
-instances within the
-{rbtgi_depot_project},
-emitting a presence fact per discovered account.
-This is a read-only observation operation; no SA credentials are created or modified.
+NOTE: This operation rosters {rbtr_director} {giam_service_account_s} in the {rbtgi_depot_project} via per-SA fact-file emission.
+Read-only observation: lists all SAs, filters to director-prefixed accountIds, and emits one fact per discovered SA via {buf_write_fact_multi} against the `RBCC_fact_ext_roster_director` extension constant.
+Fact content is empty (presence-as-fact); stdout assertion of individual identities is retired.
 
 //axhos_step
 . *Authenticate as
@@ -35,21 +29,19 @@ HTTP 200 response
 . *Filter to director service accounts*:
 .. From `«ACCOUNTS»`, retain only entries whose `.accountId` begins with the `${RBCC_role_director}-` prefix
 .. {rbbc_store}
-`«DIRECTOR_ACCOUNTS»` — the filtered set
-.. If `«DIRECTOR_ACCOUNTS»` is empty:
-... {rbbc_show}
-"No director service accounts found in project"
-... Return success
+`«DIRECTOR_ACCOUNTS»` — the filtered set; per-role observation per BBAAQ contract
 
 //axhos_step
-. *Emit per-account fact files*:
+. *Emit Fact Per Discovered {rbtr_director}*:
 .. For each entry in `«DIRECTOR_ACCOUNTS»`:
 ... {rbbc_store}
-`«IDENTITY»` by stripping the `${RBCC_role_director}-` prefix from the entry's `.accountId`
+`«IDENTITY»` by stripping the `${RBCC_role_director}-` prefix from the entry's `accountId`
 ... {rbbc_call}
-{buf_write_fact_multi} with file root, extension constant `RBCC_fact_ext_roster_director`
-(expands to `roster-director`), and basename `«IDENTITY»`
-... Fact content is empty — presence of the fact file is the datum (presence-as-fact convention)
+{buf_write_fact_multi}
+with three positional arguments:
+.... `<file_root>`: composed as `<roster_subdir>/«IDENTITY»` (the basename root for the emitted fact file)
+.... `<ext>`: `RBCC_fact_ext_roster_director` (resolves at source time to `roster-director`)
+.... `<value>`: `""` (empty content — presence-as-fact convention per RBS0:1081)
 
 //axhos_step
 . *Report count*:
@@ -57,6 +49,5 @@ HTTP 200 response
 total count of emitted director fact files
 
 //axhoc_completion
-Successful execution rosters
-{rbtr_director}
-service accounts via per-SA fact emission, one `roster-director` fact file per discovered director identity.
+Successful execution rosters {rbtr_director} service accounts via per-SA fact emission — one `roster-director` fact file per discovered identity.
+The operation is read-only; no service accounts are created or modified.

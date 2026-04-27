@@ -1083,7 +1083,7 @@ include::RBSDK-director_invest.adoc[]
 
 Rosters
 {rbtr_director}
-{giam_service_account}s in the
+{giam_service_account_s} in the
 {rbtgi_depot_project}
 via per-SA fact-file emission
 ({rbtgog_governor}).
@@ -1118,7 +1118,7 @@ include::RBSRK-retriever_invest.adoc[]
 
 Rosters
 {rbtr_retriever}
-{giam_service_account}s in the
+{giam_service_account_s} in the
 {rbtgi_depot_project}
 via per-SA fact-file emission
 ({rbtgog_governor}).
