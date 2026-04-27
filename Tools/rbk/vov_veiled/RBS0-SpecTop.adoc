@@ -92,8 +92,7 @@
 :rbf_fact_ark_yield:         <<rbf_fact_ark_yield,RBF_FACT_ARK_YIELD>>
 :rbf_fact_reliquary:         <<rbf_fact_reliquary,RBF_FACT_RELIQUARY>>
 
-// Recipe Bottle Payor Fact Files (depot/governor identifying values)
-:rbgp_fact_depot_project_id:   <<rbgp_fact_depot_project_id,RBGP_FACT_DEPOT_PROJECT_ID>>
+// Recipe Bottle Payor Fact Files (governor identifying values)
 :rbgp_fact_governor_sa_email:  <<rbgp_fact_governor_sa_email,RBGP_FACT_GOVERNOR_SA_EMAIL>>
 
 // Recipe Bottle Term Google Build Definitions
@@ -1928,12 +1927,6 @@ Reliquary datestamp (`r` + `YYMMDDHHMMSS`).
 Written by {rbtgo_depot_inscribe} on successful Cloud Build submission.
 
 === Payor Fact Files
-
-[[rbgp_fact_depot_project_id]]
-//axpof_fact
-{rbgp_fact_depot_project_id}::
-Depot project ID assembled by {rbtgo_depot_levy} (form `rbwg-d-«NAME»-«TIMESTAMP»`).
-Written when the project ID is generated, before any GCP API call — survives partial-success runs.
 
 [[rbgp_fact_governor_sa_email]]
 //axpof_fact

@@ -561,33 +561,19 @@ rbgp_payor_install() {
   buc_info "  RBRP_OPERATOR_EMAIL=${z_operator_email}"
   buc_info "  RBRP_BILLING_ACCOUNT_ID=<obtain from Cloud Console Billing>"
   buc_info ""
-  buc_info "Next: rbgp_depot_levy <depot-name> <region>"
-  buc_info "  Example: rbgp_depot_levy dev us-central1"
+  buc_info "Next: rbgp_depot_levy"
+  buc_info "  (set RBRR_DEPOT_MONIKER and RBRR_GCP_REGION in rbrr.env first)"
 }
 
 rbgp_depot_levy() {
   zrbgp_sentinel
 
-  local -r z_depot_name="${1:-}"
   local -r z_region="${RBRR_GCP_REGION}"
 
   buc_doc_brief "Create new depot infrastructure following RBAGS specification"
-  buc_doc_param "depot_name" "Depot name (lowercase/numbers/hyphens, max ${RBGC_GLOBAL_DEPOT_NAME_MAX} chars)"
   buc_doc_shown || return 0
 
-  buc_step 'Validate input parameters'
-  test -n "${z_depot_name}" || buc_die "Depot name required as first argument"
-  
-  if ! [[ "${z_depot_name}" =~ ^[a-z0-9-]+$ ]]; then
-    buc_die "Depot name must contain only lowercase letters, numbers, and hyphens"
-  fi
-  
-  if test "${#z_depot_name}" -gt "${RBGC_GLOBAL_DEPOT_NAME_MAX}"; then
-    buc_die "Depot name must be ${RBGC_GLOBAL_DEPOT_NAME_MAX} characters or less"
-  fi
-
-  # Validate region exists in Artifact Registry locations
-  buc_log_args 'Validating region exists in Artifact Registry locations'
+  buc_step 'Validate region against Artifact Registry locations'
   local z_token
   z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor for region validation"
 
@@ -610,27 +596,13 @@ rbgp_depot_levy() {
   local z_token
   z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
 
-  buc_step 'Generate depot project ID'
-  local z_timestamp
-  date "${RBGC_GLOBAL_TIMESTAMP_FORMAT}" > "${ZRBGP_SCRATCH_FILE}" \
-    || buc_die "Failed to generate timestamp"
-  z_timestamp=$(<"${ZRBGP_SCRATCH_FILE}")
-  local -r z_depot_project_id="${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-${z_depot_name}-${z_timestamp}"
-  
-  if test "${#z_depot_project_id}" -gt 30; then
-    buc_die "Generated project ID too long (${#z_depot_project_id} > 30): ${z_depot_project_id}"
-  fi
-  
-  buc_log_args "Generated depot project ID: ${z_depot_project_id}"
-  buf_write_fact "${RBGP_FACT_DEPOT_PROJECT_ID}" "${z_depot_project_id}"
-
   buc_step 'Create depot project'
   local -r z_create_project_body="${BURD_TEMP_DIR}/rbgp_create_project.json"
 
   # OAuth users create projects without parent (per MPCR)
   jq -n \
-    --arg projectId "${z_depot_project_id}" \
-    --arg displayName "RB Depot ${z_depot_name}" \
+    --arg projectId "${RBDC_DEPOT_PROJECT_ID}" \
+    --arg displayName "RB Depot ${RBRR_DEPOT_MONIKER}" \
     '{
       projectId: $projectId,
       displayName: $displayName
@@ -657,15 +629,15 @@ rbgp_depot_levy() {
       billingAccountName: $billingAccountName
     }' > "${z_billing_body}" || buc_die "Failed to build billing link body"
 
-  local -r z_billing_url="${RBGC_API_ROOT_CLOUDBILLING}${RBGC_CLOUDBILLING_V1}/projects/${z_depot_project_id}/billingInfo"
+  local -r z_billing_url="${RBGC_API_ROOT_CLOUDBILLING}${RBGC_CLOUDBILLING_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/billingInfo"
   rbgu_http_json "PUT" "${z_billing_url}" "${z_token}" "depot_billing_link" "${z_billing_body}"
   rbgu_http_require_ok "Link billing account" "depot_billing_link"
 
   buc_step 'Get depot project number'
-  local -r z_project_info_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_depot_project_id}"
+  local -r z_project_info_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${RBDC_DEPOT_PROJECT_ID}"
   rbgu_http_json "GET" "${z_project_info_url}" "${z_token}" "depot_project_info"
   rbgu_http_require_ok "Get project info" "depot_project_info"
-  
+
   local z_project_number
   # CRM v3 returns project number in name field as "projects/{number}"
   z_project_number=$(rbgu_json_field_capture "depot_project_info" '.name | sub("projects/"; "")') || buc_die "Failed to get project number"
@@ -674,15 +646,14 @@ rbgp_depot_levy() {
   buc_step 'Enable depot project APIs'
   local -r z_api_services="artifactregistry cloudbuild cloudresourcemanager containeranalysis iam serviceusage storage"
   for z_service in ${z_api_services}; do
-    rbgu_api_enable "${z_service}" "${z_depot_project_id}" "${z_token}"
+    rbgu_api_enable "${z_service}" "${RBDC_DEPOT_PROJECT_ID}" "${z_token}"
   done
 
   buc_step 'Create dual worker pools (tether + airgap)'
-  local -r z_pool_stem="rbw-${z_depot_name}${RBGC_WORKER_POOL_SUFFIX}"
-  local -r z_pool_parent="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${z_depot_project_id}/locations/${z_region}${RBGC_PATH_WORKER_POOLS}"
+  local -r z_pool_parent="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/locations/${z_region}${RBGC_PATH_WORKER_POOLS}"
 
   # Tether pool (default egress — public internet access)
-  local -r z_tether_id="${z_pool_stem}${RBGC_POOL_SUFFIX_TETHER}"
+  local -r z_tether_id="${RBDC_GCB_POOL_STEM}${RBGC_POOL_SUFFIX_TETHER}"
   local -r z_tether_create_url="${z_pool_parent}?workerPoolId=${z_tether_id}"
   local -r z_tether_create_body="${BURD_TEMP_DIR}/rbgp_pool_tether_create.json"
 
@@ -705,7 +676,7 @@ rbgp_depot_levy() {
   esac
 
   # Airgap pool (NO_PUBLIC_EGRESS — no public internet)
-  local -r z_airgap_id="${z_pool_stem}${RBGC_POOL_SUFFIX_AIRGAP}"
+  local -r z_airgap_id="${RBDC_GCB_POOL_STEM}${RBGC_POOL_SUFFIX_AIRGAP}"
   local -r z_airgap_create_url="${z_pool_parent}?workerPoolId=${z_airgap_id}"
   local -r z_airgap_create_body="${BURD_TEMP_DIR}/rbgp_pool_airgap_create.json"
 
@@ -730,23 +701,22 @@ rbgp_depot_levy() {
     *)       buc_die "Failed to create airgap pool: HTTP ${z_airgap_create_code}" ;;
   esac
 
-  local -r z_pool_resource="projects/${z_depot_project_id}/locations/${z_region}/workerPools/${z_pool_stem}"
+  local -r z_pool_resource="projects/${RBDC_DEPOT_PROJECT_ID}/locations/${z_region}/workerPools/${RBDC_GCB_POOL_STEM}"
   buc_log_args "Pool stem: ${z_pool_resource}"
 
   # Note: OAuth Payor doesn't need explicit permissions on depot since it uses user identity
   # Skip Payor permission grants - OAuth user context provides necessary access
 
   buc_step 'Verify IAM propagation before resource creation'
-  local -r z_preflight_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${z_depot_project_id}/locations/${z_region}/repositories"
+  local -r z_preflight_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/locations/${z_region}/repositories"
   rbgu_poll_until_ok "AR IAM propagation" "${z_preflight_url}" "${z_token}" "iam_preflight"
 
   buc_step 'Create build bucket'
-  local -r z_build_bucket="${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_BUCKET}-${z_depot_name}-${z_timestamp}"
   local -r z_bucket_req="${BURD_TEMP_DIR}/rbgp_bucket_create_req.json"
   jq -n \
-    --arg name "${z_build_bucket}" \
+    --arg name "${RBDC_GCS_BUCKET}" \
     --arg location "${z_region}" \
-    --arg project "${z_depot_project_id}" \
+    --arg project "${RBDC_DEPOT_PROJECT_ID}" \
     '{
       name: $name,
       location: $location,
@@ -754,21 +724,20 @@ rbgp_depot_levy() {
       lifecycle: { rule: [ { action: { type: "Delete" }, condition: { age: 1 } } ] }
     }' > "${z_bucket_req}" || buc_die "Failed to create bucket request JSON"
 
-  local -r z_bucket_create_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b?project=${z_depot_project_id}"
+  local -r z_bucket_create_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b?project=${RBDC_DEPOT_PROJECT_ID}"
   rbgu_http_json "POST" "${z_bucket_create_url}" "${z_token}" "depot_bucket_create" "${z_bucket_req}"
-  
+
   local z_bucket_code
   z_bucket_code=$(rbgu_http_code_capture "depot_bucket_create") || buc_die "Bad bucket creation HTTP code"
   case "${z_bucket_code}" in
-    200|201) buc_log_args "Build bucket ${z_build_bucket} created" ;;
-    409)     buc_die "Build bucket ${z_build_bucket} already exists" ;;
+    200|201) buc_log_args "Build bucket ${RBDC_GCS_BUCKET} created" ;;
+    409)     buc_die "Build bucket ${RBDC_GCS_BUCKET} already exists" ;;
     *)       buc_die "Failed to create build bucket: HTTP ${z_bucket_code}" ;;
   esac
 
   buc_step 'Create container repository'
-  local -r z_repository_name="rbw-${z_depot_name}-repository"
-  local -r z_parent="projects/${z_depot_project_id}/locations/${z_region}"
-  local -r z_create_repo_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_parent}/repositories?repositoryId=${z_repository_name}"
+  local -r z_parent="projects/${RBDC_DEPOT_PROJECT_ID}/locations/${z_region}"
+  local -r z_create_repo_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_parent}/repositories?repositoryId=${RBDC_GAR_REPOSITORY}"
   local -r z_create_repo_body="${BURD_TEMP_DIR}/rbgp_create_repo.json"
   
   jq -n '{format:"DOCKER"}' > "${z_create_repo_body}" || buc_die "Failed to build create-repo body"
@@ -786,14 +755,14 @@ rbgp_depot_levy() {
     "${RBGC_MAX_CONSISTENCY_SEC}"
 
   buc_step 'Verify IAM API is ready for service account creation'
-  local -r z_iam_preflight_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_depot_project_id}/serviceAccounts"
+  local -r z_iam_preflight_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts"
   rbgu_poll_until_ok "IAM API" "${z_iam_preflight_url}" "${z_token}" "iam_sa_preflight"
 
   buc_step 'Create Mason service account'
-  local -r z_mason_name="${RBGC_MASON_PREFIX}-${z_depot_name}"
-  local -r z_mason_display_name="Mason for RB Depot: ${z_depot_name}"
+  local -r z_mason_name="${RBGC_MASON_PREFIX}-${RBRR_DEPOT_MONIKER}"
+  local -r z_mason_display_name="Mason for RB Depot: ${RBRR_DEPOT_MONIKER}"
   local -r z_create_sa_body="${BURD_TEMP_DIR}/rbgp_create_mason.json"
-  
+
   jq -n \
     --arg accountId "${z_mason_name}" \
     --arg displayName "${z_mason_display_name}" \
@@ -804,31 +773,31 @@ rbgp_depot_levy() {
       }
     }' > "${z_create_sa_body}" || buc_die "Failed to build Mason creation body"
 
-  local -r z_create_sa_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_depot_project_id}/serviceAccounts"
+  local -r z_create_sa_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts"
   rbgu_http_json "POST" "${z_create_sa_url}" "${z_token}" "depot_mason_create" "${z_create_sa_body}"
   rbgu_http_require_ok "Create Mason service account" "depot_mason_create"
-  
+
   local z_mason_sa_email
   z_mason_sa_email=$(rbgu_json_field_capture "depot_mason_create" '.email') || buc_die "Failed to get Mason email"
 
   buc_step 'Verify Mason service account propagation'
-  local -r z_mason_sa_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_depot_project_id}/serviceAccounts/${z_mason_sa_email}"
+  local -r z_mason_sa_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts/${z_mason_sa_email}"
   rbgu_poll_until_ok "Mason SA" "${z_mason_sa_url}" "${z_token}" "mason_sa_preflight"
 
   buc_step 'Configure Mason permissions'
   # Repository admin (AR repo IAM requires email, not numeric ID)
-  rbgi_add_repo_iam_role "${z_token}" "${z_depot_project_id}" "${z_mason_sa_email}" "${z_region}" "${z_repository_name}" \
+  rbgi_add_repo_iam_role "${z_token}" "${RBDC_DEPOT_PROJECT_ID}" "${z_mason_sa_email}" "${z_region}" "${RBDC_GAR_REPOSITORY}" \
     "roles/artifactregistry.writer"
 
   # Bucket viewer (GCS bucket IAM requires email, not numeric ID)
-  rbgi_add_bucket_iam_role "${z_token}" "${z_build_bucket}" "${z_mason_sa_email}" "roles/storage.objectViewer"
+  rbgi_add_bucket_iam_role "${z_token}" "${RBDC_GCS_BUCKET}" "${z_mason_sa_email}" "roles/storage.objectViewer"
 
   # Project viewer
-  rbgi_add_project_iam_role "${z_token}" "Grant Mason Project Viewer" "projects/${z_depot_project_id}" \
+  rbgi_add_project_iam_role "${z_token}" "Grant Mason Project Viewer" "projects/${RBDC_DEPOT_PROJECT_ID}" \
     "roles/viewer" "serviceAccount:${z_mason_sa_email}" "mason-viewer"
 
   # Logs writer (for Cloud Build logs to Cloud Logging)
-  rbgi_add_project_iam_role "${z_token}" "Grant Mason Logs Writer" "projects/${z_depot_project_id}" \
+  rbgi_add_project_iam_role "${z_token}" "Grant Mason Logs Writer" "projects/${RBDC_DEPOT_PROJECT_ID}" \
     "roles/logging.logWriter" "serviceAccount:${z_mason_sa_email}" "mason-logs-writer"
 
   buc_step 'Provision Cloud Build service agent'
@@ -836,7 +805,7 @@ rbgp_depot_levy() {
   # needs serviceAccountTokenCreator on Mason to impersonate it during builds.create.
   # The service agent is auto-created when the Cloud Build API is enabled; its email is
   # deterministic from the project number. See RBSCIP for the two-SA distinction.
-  rbgu_provision_service_agent "cloudbuild" "${z_depot_project_id}" "${z_token}" > /dev/null \
+  rbgu_provision_service_agent "cloudbuild" "${RBDC_DEPOT_PROJECT_ID}" "${z_token}" > /dev/null \
     || buc_die "Failed to provision Cloud Build service agent"
   local -r z_cb_service_agent="service-${z_project_number}@gcp-sa-cloudbuild.${RBGC_SA_EMAIL_DOMAIN}"
   buc_log_args "CB service agent: ${z_cb_service_agent}"
@@ -847,14 +816,7 @@ rbgp_depot_levy() {
   buc_step 'Update depot tracking'
   zrbgp_depot_list_update || buc_die "Failed to update depot tracking after creation"
 
-  buc_step 'Display depot configuration'
   buc_success 'Depot creation successful'
-  buc_info "Depot resources created:"
-  buc_bare "  Project:    ${z_depot_project_id}"
-  buc_bare "  Region:     ${z_region}"
-  buc_bare "  GAR repo:   ${z_repository_name}"
-  buc_bare "  Pool stem:  ${z_pool_stem}"
-  buc_bare "  Mason SA:   ${z_mason_sa_email}"
   buc_info "Next: mantle Governor for this depot:"
   buc_tabtarget "${RBZ_MANTLE_GOVERNOR}"
 }

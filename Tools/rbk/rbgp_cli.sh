@@ -27,8 +27,6 @@ zrbgp_furnish() {
   buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
   buc_doc_env_done || return 0
 
-  local z_command="${1:-}"
-
   source "${BURD_CONFIG_DIR}/rbbc_constants.sh"
   local z_rbk_kit_dir="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}"
   source "${BURD_BUK_DIR}/burd_regime.sh"
@@ -53,13 +51,7 @@ zrbgp_furnish() {
   zrbcc_kindle
 
   zrbrr_kindle
-  # Differential furnish (Step-2-pending): depot_levy currently still takes
-  # a CLI arg pre-collapse; post-Step-2 it reads RBRR_DEPOT_MONIKER from
-  # the kindled regime and the differential skip below is obsolete.
-  case "${z_command}" in
-    rbgp_depot_levy) ;;
-    *)                 zrbrr_enforce ;;
-  esac
+  zrbrr_enforce
   zrbdc_kindle
 
   zrbgc_kindle

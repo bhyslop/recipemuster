@@ -41,7 +41,6 @@ zrbgc_kindle() {
   readonly RBGC_GLOBAL_TIMESTAMP_FORMAT="+%y%m%d%H%M%S"
   readonly RBGC_GLOBAL_TIMESTAMP_LEN=12
   readonly RBGC_GLOBAL_TIMESTAMP_REGEX="[0-9]{${RBGC_GLOBAL_TIMESTAMP_LEN}}"
-  readonly RBGC_GLOBAL_DEPOT_NAME_MAX=10
 
   # Global resource validation patterns
   # Payor:  rbwg-p-YYMMDDHHMMSS  (timestamp survives — payor is installation-scoped, not depot-scoped)
@@ -148,8 +147,7 @@ zrbgc_kindle() {
   readonly RBF_FACT_ARK_YIELD="rbf_fact_ark_yield"
   readonly RBF_FACT_RELIQUARY="rbf_fact_reliquary"
 
-  # Payor fact-file filenames (depot/governor identifying values)
-  readonly RBGP_FACT_DEPOT_PROJECT_ID="rbgp_fact_depot_project_id"
+  # Payor fact-file filenames (governor identifying values)
   readonly RBGP_FACT_GOVERNOR_SA_EMAIL="rbgp_fact_governor_sa_email"
 
   # Depot fact-file extension and lifecycle-state vocabulary.
