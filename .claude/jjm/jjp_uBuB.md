@@ -4,15 +4,14 @@ Release qualification gap surfaced by the ₣A_ depot-regen heat. Every existing
 
 This heat constructs `rbw-tP` QualifyPristine — a third tier that **refuses to run** unless marshal-zero state was just committed. The refusal is enforced by the test itself, not by ceremony or operator discipline.
 
-## Design decisions
-
-### Single operator prerequisite chain
+## Single operator prerequisite chain
 
 Operator has exactly one prerequisite chain: confirm Payor health → marshal-zero → commit → run `rbw-tP`. Payor OAuth is the only credential the operator must have ready; everything else (governor, retriever, director SAs and their RBRA files) is **minted by the qualification itself**, not restored from backup.
 
-### Entry contract — load-bearing
+## Entry contract — load-bearing
 
 `rbw-tP` fails-fast unless ALL of the following hold:
+
 - Working tree clean
 - HEAD commit is a marshal-zero commit (detectable signature baked into `rblm_zero` per BBAAB)
 - RBRR fields are blank (prefixes, depot project ID, etc.)
@@ -22,72 +21,23 @@ Operator has exactly one prerequisite chain: confirm Payor health → marshal-ze
 
 Operator cannot skip the prerequisite. This is the property that makes the tier catch the silent-first-build bug class by construction.
 
-### Pristine-lifecycle fixture architecture
-
-The marshal-zero gate AND the SA/depot lifecycle exercises live as cases inside one new theurge fixture (`pristine-lifecycle`):
-
-| # | Case | Idempotent? | Cost |
-|---|------|-------------|------|
-| 1 | `marshal-zero-attestation` | N/A — gate | Free |
-| 2 | `depot-lifecycle` | Yes (throwaway-named) | One GCP project per run (soft-delete graveyard accepted) |
-| 3 | `governor-lifecycle` | Yes (throwaway-named) | One GCP project per run (case levies its own throwaway depot to satisfy `RBRR_DEPOT_PROJECT_ID` precondition; depot is unmade in case cleanup) |
-| 4 | `retriever-lifecycle` | Yes (throwaway governor + retriever) | Free + light read probe |
-| 5 | `director-lifecycle` | Yes (throwaway governor + director) | Light Cloud Build / GAR write probe |
-
-Cases 4 and 5 each create their own throwaway governor (single-case independence is load-bearing); after the case, both throwaway SAs are forfeited. Cases 2-5 are idempotent against existing canonical state — they can run while a canonical depot/SA chain exists, against any state.
-
-**Single-case run** (e.g., `tt/rbtd-s.SingleCase.pristine-lifecycle.sh depot-lifecycle`) skips case 1's gate and exercises just the named case. **Full-fixture run** goes through case 1 first; case 1 gates the rest.
-
-### Canonical infrastructure setup is a separate phase
-
-After the pristine-lifecycle fixture passes, `rbw-tP` proceeds to canonical infrastructure setup (BBAAC): mantle real governor + deploy real RBRA, charter real retriever + deploy RBRA, knight real director + deploy RBRA, levy canonical depot. This persistent state is what reliquary inscribe, hallmark builds, and crucible runs depend on.
-
-Two depots created per pristine run: one throwaway (case 2 of fixture) + one canonical (BBAAC). Both quota-bearing. Case 3 also levies+unmakes its own throwaway depot — counted as a third quota-bearing event but cleaned up within the case.
-
-### Failure mode contract
+## Failure mode contract
 
 Mid-qualification failure means start-over-from-zero, not patch-and-continue. Documented explicitly in runbook to prevent the very accumulated-state bug class this tier exists to catch.
 
-### Release-branch execution contract
+## Release-branch execution contract
 
-Three properties bind every case in this fixture. They shape how a run is shaped — distinct from, and constraining, the failure-mode contract above.
+Three properties bind every fixture and phase in this tier.
 
 **Run on a release branch.** The release machinery is engineered for branch execution, not main. The branch will accumulate many commits across a successful pristine run. After a failed run, the branch holds bygone commits that `rbw-MZ` does not touch — they remain as history; the next run starts from a fresh marshal-zero commit on top.
 
-**Commits during the run are first-class.** Each fixture step that mutates regime state (rbrr.env, rbra files, vessel rbrv.env, etc.) commits the change. Container-recipe work has a documented cognitive failure mode: humans lose track of where they are in long sequences. The growing commit trail is the operator's mental anchor against that. Minimizing fixture commits is anti-goal.
+**Commits during the run are first-class.** Each step that mutates regime state (rbrr.env, rbra files, vessel rbrv.env, etc.) commits the change. Container-recipe work has a documented cognitive failure mode: humans lose track of where they are in long sequences. The growing commit trail is the operator's mental anchor against that.
 
-**Stop on very first failure, cleanly and clearly.** A case fails → fixture stops → operator stops → debugging happens immediately on the failed branch. Stderr names the failed step; fixture exits non-zero. No graceful degradation, no recovery branches, no "cleanup so the next case can run." Recovery is `rbw-MZ` + retry on a fresh marshal-zero. The operator never asks "should I continue past this failure?" — the answer is always no.
+**Stop on very first failure, cleanly and clearly.** A step fails → fixture stops → operator stops → debugging happens immediately on the failed branch. Stderr names the failed step; fixture exits non-zero. Recovery is `rbw-MZ` + retry on a fresh marshal-zero. No graceful degradation, no recovery branches.
 
-Engineering scaffolding for any other shape — partial-run cleanup, soft-delete tolerance for graceful continuation, multi-mode failure handling, recovery-time orphan inspection, diagnostic-redundancy tee files — is non-load-bearing complexity and does not belong in pristine-lifecycle code. The single mechanical path is the entire surface.
+Engineering scaffolding for any other shape — partial-run cleanup, soft-delete tolerance, multi-mode failure handling, recovery-time orphan inspection, diagnostic-redundancy — is non-load-bearing and does not belong in pristine-tier code. The single mechanical path is the entire surface.
 
-### Implementation patterns (locked during BBAAJ)
-
-Durable choices binding all pristine-lifecycle case implementations (BBAAB, BBAAJ, BBAAK, and future BBAAC vessel-commit cases).
-
-**Throwaway-prefix mechanism: edit `.rbk/rbrr.env` + git commit.** Cases 2-5 need non-blank `RBRR_CLOUD_PREFIX`/`RBRR_RUNTIME_PREFIX` to invoke depot/SA tabtargets. The fixture mimics the human workflow: open rbrr.env, edit, `git add` + `git commit`. After the fixture runs, HEAD has walked off marshal-zero — recovery is `rbw-MZ`, matching the "start-over-from-zero" failure mode above.
-
-Rejected alternative — env-var override: `rbrr_cli.sh` kindle does `source rbrr_regime.sh; source ${RBBC_rbrr_file}; zrbrr_kindle; zrbrr_enforce` — sourcing rbrr.env overwrites any pre-set env, then enforce locks `readonly`. Pre-set env is silently discarded. Confirmed by tracing.
-
-Rejected alternative — in-memory restore (RAII): mutates rbrr.env without committing, leaves a transient dirty-tree window where a crash or sibling tooling sees uncommitted state that isn't operator-authored. Edit-and-commit is honest.
-
-**Idempotent install helper.** A shared function `rbtdrp_install_throwaway_prefixes` reads current rbrr.env values; if blank (post-marshal-zero), writes throwaway values and commits; if already throwaway, no-op. Cases 2-5 call this as their first step. One commit per fixture run, not per case.
-
-**Depot precondition for governor-mantle (case 3).** `rbgp_governor_mantle` requires `RBRR_DEPOT_PROJECT_ID` set — post-marshal-zero it is blank. Case 3 levies its own throwaway depot (named distinctly from case 2's, e.g. `pristg01` vs `pristq01`), edits rbrr.env to set `RBRR_DEPOT_PROJECT_ID` and commits, runs the governor lifecycle, then unmakes the depot in cleanup. The same pattern (commit a small targeted edit, run, clean up) is the model for future cases that need additional rbrr/rbrv/rbrn fields populated.
-
-**Tabtarget invocation style — fact files over stdout parsing.** Tabtargets that emit identifying values (depot project_ids, SA emails) write `rbgp_fact_*` files via `buf_write_fact`; cases consume via `rbtdri_invoke_global` + `rbtdri_read_burv_fact`. The BURV-isolated invoke also makes invoke counters and per-call output capture available to the case. Handbook-style tabtargets without facts (e.g., `rbtdrf_handbook.rs` cases) keep the raw `Command::new(&tt).current_dir(&root)` style. For imprint-channel tabtargets like `rbtd-ap` (cases 4-5), use `rbtdri_find_tabtarget` with the role as imprint.
-
-**Section structure inside `RBTDRP_SECTIONS_PRISTINE_LIFECYCLE`.**
-- §1 `pristine-lifecycle-gate` — case 1 only (BBAAB-landed)
-- §2 `pristine-lifecycle-simple` — cases 2-3 (BBAAJ)
-- §3 `pristine-lifecycle-credentialed` — cases 4-5 (BBAAK)
-
-`rbtdrc_fixture_fail_fast` is true for pristine-lifecycle, so §1 failure short-circuits §2 and §3 in full-fixture mode. Single-case mode skips the gate.
-
-**Vessel commits beyond BBAAJ/BBAAK.** As pristine-tier extends to BBAAC and beyond (reliquary inscribe / enshrine / ordain / kludge), additional commits in vessel `rbrv.env` files and similar regime artifacts use the same edit-and-commit shape. The qualification's commit trail is the operator's audit trail.
-
-**Git shell-out style.** Mirror jjx/vvx — `Command::new("git").args([...]).current_dir(&root).output()`. Stage with explicit file path (never `git add -A`); commit messages produced via Rust string formatting. No `--no-verify`, no `--amend`.
-
-### Tier layering
+## Tier layering
 
 Three tiers, escalating cost:
 
@@ -99,22 +49,17 @@ Three tiers, escalating cost:
 
 `rbw-tP` is THE release gate. `rbw-tr` becomes the pre-pristine smoke test — cheap-and-frequent for development confidence; pristine for actual release.
 
-### Operator scope
+## Operator scope
 
-Single operator (project lead). Not designed for multi-operator workflow. Runbook lives in README.md release section (5 human steps).
+Single operator (project lead). Not designed for multi-operator workflow. Runbook lives in README.md release section.
 
-### Coupling to ₣A_
+## Coupling to ₣A_
 
-This heat runs concurrently with ₣A_'s remaining paces. ₣A_'s AAE+AAF+AAG sequence is the one-time cutover that informs `rbw-tP`'s sequence; pristine-tier construction proceeds in parallel and codifies the lessons. BBAAG's first end-to-end run is the natural validation point for both heats together.
+Runs concurrently with ₣A_'s remaining paces; ₣A_'s one-time cutover informs `rbw-tP`'s sequence.
 
 ## References
 
-- ₣A_ rbk-mvp-3-resource-prefix-and-depot-regen — surfaced the gap; AAE+AAF+AAG one-time burn-in informs but doesn't codify
-- `Tools/rbk/rblm_cli.sh` — RBLM Lifecycle Marshal; `rbw-MZ` zeroes local regime, deletes all RBRAs, blanks hallmark/depot-scoped vessel fields. Marshal-zero signature is baked here per BBAAB.
+- ₣A_ rbk-mvp-3-resource-prefix-and-depot-regen — surfaced the gap
 - `tt/rbw-tr.QualifyRelease.sh` — current release qualify; layered alongside, not replaced
-- `Tools/rbk/rbh0/rbhocd_credential_director.sh` / `rbhocr_credential_retriever.sh` — handbook tracks describing director "build access" and retriever "pull/tally access" — operations the lifecycle cases 4 and 5 must verify
+- `Tools/rbk/rblm_cli.sh` — `rbw-MZ` zeroes local regime; marshal-zero signature baked here per BBAAB
 - `.claude/commands/rbk-prep-release.md` — upstream contribution ceremony; pristine-pass becomes a precondition (BBAAH)
-- Recent spook commits informing the bug class: kludge-aware-charge-prereq (₢BAAAH), ZRBOB_PROJECT extraction (f7146d1d), rbob_charged_predicate fix (a8eb7311), reliquary integrity-broken negative-test residue (recent ₣BA verification)
-- `Tools/rbk/rbtd/src/rbtdrf_handbook.rs` — non-context tabtarget shell-out reference pattern for handbook-style cases (no fact files)
-- `Tools/rbk/rbtd/src/rbtdri_invocation.rs` — fact-file invocation pattern: `rbtdri_invoke_global` + `rbtdri_read_burv_fact` for cases that need to capture identifying values
-- `Tools/rbk/rbrr_cli.sh` — kindle architecture documented in Implementation patterns; sourcing-over-env behavior locked the throwaway mechanism choice
