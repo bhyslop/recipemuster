@@ -56,8 +56,8 @@ zrbgp_furnish() {
   zrbrr_kindle
   if test "${z_command}" != "rbgp_depot_list"; then
     zrbrr_enforce
-    zrbdc_kindle
   fi
+  zrbdc_kindle
 
   zrbgc_kindle
 
