@@ -23,8 +23,7 @@ for a specified
 . *Validate Input Parameters*:
 .. {rbbc_store}
 `«DEPOT_PROJECT_ID»` as `${RBRR_CLOUD_PREFIX}d-${RBRR_DEPOT_MONIKER}` (resolved by `RBDC_DEPOT_PROJECT_ID`)
-.. {rbbc_require}
-`«DEPOT_PROJECT_ID»` matches pattern `rbw-*-[0-9]{12}`
+.. NOTE: Format and joint length of `${RBRR_CLOUD_PREFIX}` + `d-` + `${RBRR_DEPOT_MONIKER}` are enforced upstream by `zrbrr_enforce` at regime kindle time, so this step performs no shape validation.
 
 //axhos_step
 . *Authenticate as

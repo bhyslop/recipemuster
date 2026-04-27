@@ -5,15 +5,15 @@ This regime specifies variables that define repository-wide configuration and in
 Each
 {rbrr_regime}
 instance represents foundational infrastructure configuration that rarely changes and is shared across all Recipe Bottle operations.
-RBRR assignment files are found in the operator's local filesystem (typically `../station-files/rbrr.env`) and configure depot project identifiers, regional settings, repository locations, and service account credential file paths.
+RBRR assignment files are found in the operator's local filesystem (typically `../station-files/rbrr.env`) and configure the depot identity tuple `(RBRR_CLOUD_PREFIX, RBRR_DEPOT_MONIKER)` (from which depot project ID, GAR repository, pool stem, and bucket fall out as RBDC constants), regional settings, and service account credential file paths.
 
 //axhrgb_group
 {rbrr_group_resource_prefixing}
 
-Operator-chosen prefixes that scope resource names across the cloud and local-runtime namespaces.
+Operator-chosen identifiers that scope resource names across the cloud and local-runtime namespaces.
 Enables multi-regime isolation on shared infrastructure — distinct depots or developers can coexist in the same GCP project or on the same developer workstation without name collisions.
-Both variables must be populated — the marshal-zero path blanks them so a fresh regime requires an explicit operator decision before `rbrr_validate` passes.
-The prefix must be 2–11 characters, start with a lowercase letter, and end with a hyphen (regex `^[a-z][a-z0-9-]*-$`).
+All three variables must be populated — the marshal-zero path blanks them so a fresh regime requires an explicit operator decision before `rbrr_validate` passes.
+The two prefixes must be 2–11 characters, start with a lowercase letter, and end with a hyphen (regex `^[a-z][a-z0-9-]*-$`).
 
 //axhrgv_variable
 {rbrr_cloud_prefix}
@@ -23,20 +23,18 @@ Prefix prepended to all cloud-visible resource names under the depot: GAR image 
 substitutions, and other GCP-scoped identifiers.
 
 //axhrgv_variable
+{rbrr_depot_moniker}
+
+Stem identifier that combines with
+{rbrr_cloud_prefix}
+to form the depot identity tuple.
+Must be 1–26 characters, start with a lowercase letter, and contain only lowercase alphanumerics (regex `^[a-z][a-z0-9]*$`).
+The tuple derives `RBDC_DEPOT_PROJECT_ID`, `RBDC_GAR_REPOSITORY`, `RBDC_GCB_POOL_STEM`, and `RBDC_GCS_BUCKET` at kindle time.
+
+//axhrgv_variable
 {rbrr_runtime_prefix}
 
 Prefix prepended to machine-local resource names: container names, Docker network names, and other runtime identifiers on the operator's workstation.
-
-//axhrv_variable
-{rbrr_depot_project_id}
-
-The
-{gcp_service}
-{gcp_project_id}
-where all Recipe Bottle resources are created and managed.
-Used as the target
-{gcp_project_id}
-in API calls and as the audience claim in OAuth token exchange.
 
 //axhrv_variable
 {rbrr_gcp_region}
@@ -48,15 +46,6 @@ region for regional services like
 and
 {gcb_service}.
 Applied when creating repositories and submitting builds unless overridden by operation-specific configuration.
-
-//axhrv_variable
-{rbrr_gar_repository}
-
-The
-{gar_service}
-repository name within
-{rbrr_depot_project_id}
-that stores all bottle images and metadata.
 
 //axhrgb_group
 {rbrr_group_service_accounts}
@@ -159,15 +148,6 @@ Machine type is determined by the pool configuration at creation time, not by in
 
 Maximum duration for Cloud Build operations before timeout.
 Specified in seconds or duration format (e.g., `3600s`).
-
-//axhrgv_variable
-{rbrr_gcb_pool_stem}
-
-Worker pool base name (suffixed with -tether/-airgap by derived constants).
-Derived constants `RBDC_POOL_TETHER` and `RBDC_POOL_AIRGAP` expand this stem into full resource paths for each pool variant.
-Must be set to the base name of the pools created by
-{rbtgo_depot_levy}
-for this depot.
 
 //axhrgb_group
 {rbrr_group_public_docs}
