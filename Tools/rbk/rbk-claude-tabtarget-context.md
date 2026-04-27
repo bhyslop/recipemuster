@@ -15,10 +15,12 @@ The Folio column shows how each tabtarget receives it:
 | Colophon | Frontispiece | Folio | Purpose |
 |----------|-------------|-------|---------|
 | `rbw-aM` | PayorMantlesGovernor | — | Create/replace governor service account |
-| `rbw-aC` | GovernorChartersRetriever | — | Charter retriever (image pull) service account |
-| `rbw-aK` | GovernorKnightsDirector | — | Knight director (build) service account |
-| `rbw-aL` | GovernorListsServiceAccounts | — | List issued service accounts |
-| `rbw-aF` | GovernorForfeitsServiceAccount | — | Forfeit a service account |
+| `rbw-arI` | GovernorInvestsRetriever | param1 | Invest a Retriever service account for an identity |
+| `rbw-adI` | GovernorInvestsDirector | param1 | Invest a Director service account for an identity |
+| `rbw-arD` | GovernorDivestsRetriever | param1 | Divest a Retriever service account by identity |
+| `rbw-adD` | GovernorDivestsDirector | param1 | Divest a Director service account by identity |
+| `rbw-arr` | GovernorRostersRetrievers | — | Roster Retriever service accounts (emit per-identity fact files) |
+| `rbw-adr` | GovernorRostersDirectors | — | Roster Director service accounts (emit per-identity fact files) |
 
 ### Crucible — Container runtime (`rbw-c`)
 
