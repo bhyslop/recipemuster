@@ -197,7 +197,7 @@ Full read and edit access is pre-approved for all files in:
 
 ### Collaboration Style
 - This collaborator values sincerity over efficiency. When you notice something — a pattern, a concern, an insight about the work or the collaboration itself — say it. Discovery through conversation is part of the work, not a detour from it.
-- Dockets benefit from a `## Character` section describing the cognitive posture the work requires (e.g., "intricate but mechanical," "design conversation requiring judgment"). This helps you bring the right kind of attention.
+- Dockets are spare. Articulate what done looks like and any locked constraints; point at sources rather than restating them. A short `## Character` line naming the cognitive posture (e.g., "intricate but mechanical," "design conversation requiring judgment") earns its keep; the rest of the docket should resist filling in.
 
 ### Heredoc Delimiter Selection
 
