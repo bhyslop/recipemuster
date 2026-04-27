@@ -6651,6 +6651,7 @@
         "₢BBAAO",
         "₢BBAAN",
         "₢BBAAQ",
+        "₢BBAAU",
         "₢BBAAR",
         "₢BBAAK",
         "₢BBAAP",
@@ -6662,7 +6663,7 @@
         "₢BBAAH",
         "₢BBAAI"
       ],
-      "next_pace_seed": "AAU",
+      "next_pace_seed": "AAV",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAAA": {
@@ -7134,6 +7135,17 @@
               "text": "## Character\n\nMechanical correctness sweep on BBAAS. Call sites settled; no design.\n\n## Scope\n\n- Drop `billingEnabled=true` filter in `zrbgp_depot_state_emit` (hides DELETE_REQUESTED unnecessarily).\n- Reorder: CRM lifecycle lookup before IAM SA list.\n- Add `rbgu_http_code_capture` check on CRM lookup; `|| true` + jq fallback is silently lossy.\n- Add `nextPageToken` pagination on Billing v1 projects list and IAM v1 serviceAccounts list.\n- Delete orphan `RBGP_DEPOT_STATE_BROKEN` constant.\n\nEmpirical check after: does IAM list SAs on DELETE_REQUESTED projects? If no, surface graveyard-observability as a separate pace.\n\n## References\n\n- BBAAS notch 4d810db7\n- BBAAM paused; resumes after this pace closes",
               "silks": "depot-list-correctness-sweep",
               "commit": "202c772"
+            }
+          ]
+        },
+        "₢BBAAU": {
+          "tacks": [
+            {
+              "ts": "260427-1207",
+              "state": "rough",
+              "text": "## Character\n\nMechanical rename. JJ owns \"muster\" as a verb (`jjx_list`); RB's image-domain muster verb collides. Per paddock cult-verb naming decision: image muster → **audit**. This pace sweeps all landed image-muster sites in code, tabtargets, and project-memory files.\n\nNo design decisions in scope. The rename target and case rule are paddock-locked. Symbol-substitution discipline only.\n\nDepends on BBAAQ landing the spec-side rename first so spec is source-of-truth at code-rename time.\n\n## Scope\n\n**Bash:**\n\n- `Tools/rbk/rbz_zipper.sh` (L122-129) — `RBZ_MUSTER_HALLMARKS/RELIQUARIES/ENSHRINEMENTS` → `RBZ_AUDIT_*`; `buz_enroll` function refs `rbfl_muster_*` → `rbfl_audit_*`; verb-list comment.\n- `Tools/rbk/rbfl_FoundryLedger.sh` — three function defs (`rbfl_muster_hallmarks/reliquaries/enshrinements` → `rbfl_audit_*`); `buc_doc_brief` strings (\"Muster hallmarks...\" → \"Audit hallmarks...\"); `buc_success \"Muster complete...\"` strings; comments at L19-20 (verb listings).\n- `Tools/rbk/rbfc_FoundryCore.sh:524` — comment (\"shared by tally, rekon, muster, batch_vouch\" → \"audit\").\n\n**Rust:**\n\n- `Tools/rbk/rbtd/src/rbtdrm_manifest.rs:41-46` — three constants `RBTDRM_COLOPHON_MUSTER_HALLMARKS/RELIQUARIES/ENSHRINEMENTS` → `RBTDRM_COLOPHON_AUDIT_*`; verb-list comment at L41.\n\n**Tabtarget files (rename, content unchanged — they're colophon-agnostic launchers):**\n\n- `tt/rbw-imh.DirectorMustersHallmarks.sh` → `tt/rbw-iah.DirectorAuditsHallmarks.sh`\n- `tt/rbw-imr.DirectorMustersReliquaries.sh` → `tt/rbw-iar.DirectorAuditsReliquaries.sh`\n- `tt/rbw-ime.DirectorMustersEnshrinements.sh` → `tt/rbw-iae.DirectorAuditsEnshrinements.sh`\n\n**Project memory:**\n\n- `CLAUDE.md:84` — RBSIM acronym mapping. If BBAAQ renamed the spec file (RBSIM → RBSIA), update both the acronym key and the file path here.\n- `Tools/rbk/rbk-claude-tabtarget-context.md:103-105` — three image table rows (colophon, frontispiece, purpose).\n- `Tools/rbk/vov_veiled/CLAUDE.consumer.md:50` — verb table entry for \"muster\".\n\n**Permission file (operator-owned, surface only):**\n\n- `.claude/settings.local.json:1057-1059` — three tabtarget shim references. Surface to operator with the proposed three replacements; do not silently rewrite.\n\n## Verification\n\n- `tt/` lists three new `rbw-ia*.DirectorAudits*.sh` tabtargets; old `rbw-im*.DirectorMusters*.sh` files absent.\n- `grep -rni 'muster' Tools/rbk/ tt/` returns zero hits in image-domain code paths (SA-domain roster references — if BBAAN landed — and JJ-internal jjk/ references excluded).\n- `tt/rbtd-b.Build.sh` builds clean (Rust constant rename compiles).\n- `tt/rbtd-s.TestSuite.fast.sh` passes — fast suite covers manifest validation; rename should not break enrollment-validation.\n- `tt/rbw-iah.DirectorAuditsHallmarks.sh` invokable end-to-end against the canonical depot (smoke test).\n- `CLAUDE.md` and `rbk-claude-tabtarget-context.md` acronym/colophon mappings consistent with new filenames.\n\n## Constraints\n\n- Spec-side rename (RBSIM content + possible file rename to RBSIA, plus RBS0 image-muster section) lands first via BBAAQ. This pace begins after BBAAQ commits.\n- Symbol substitution only — no behavioral changes, no test additions, no helper extractions.\n- Honor paddock's Release-branch execution contract.\n- BCG compliance for any incidental touch beyond pure rename.\n\n## Out of scope\n\n- SA cult-verb roster work (BBAAN — separate domain, separate pace).\n- Spec/README/RBSIM file content (BBAAQ — already in flight).\n- New audit functionality, behavioral changes to listing semantics.\n- `.claude/settings.local.json` rewrite beyond surfacing the three references for operator review.\n- `Tools/rbk/vov_veiled/RBSIR-image_rekon.adoc:18` xref to `{rbtgo_image_muster}` — owned by BBAAQ's spec sweep.",
+              "silks": "image-muster-to-audit-rename",
+              "commit": "9af836d"
             }
           ]
         }
