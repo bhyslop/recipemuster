@@ -989,6 +989,57 @@ rbgp_depot_unmake() {
     fi
   fi
 
+  buc_step 'Clean up governor service accounts (404-tolerant)'
+  # No standalone demantle verb — governor SA lifecycle ends here.  Project
+  # deletion would clean these up implicitly, but an explicit DELETE pass
+  # gives diagnostic visibility and makes the cleanup contract testable.
+  local -r z_unmake_sa_url_base="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts"
+  local z_unmake_sa_page_token=""
+  local z_unmake_sa_page=1
+  local z_unmake_sa_url=""
+  local z_unmake_sa_tok_enc=""
+  local z_unmake_sa_infix=""
+  local z_unmake_sa_count=0
+  local z_unmake_sa_index=0
+  local z_unmake_sa_email=""
+  local z_unmake_gov_delete_infix=""
+  local z_governor_sa_count=0
+  while :; do
+    z_unmake_sa_url="${z_unmake_sa_url_base}"
+    if test -n "${z_unmake_sa_page_token}"; then
+      z_unmake_sa_tok_enc=$(rbgu_urlencode_capture "${z_unmake_sa_page_token}") \
+        || buc_die "Failed to URL-encode pageToken"
+      z_unmake_sa_url="${z_unmake_sa_url}?pageToken=${z_unmake_sa_tok_enc}"
+    fi
+    z_unmake_sa_infix="depot_unmake_gov_list_${z_unmake_sa_page}"
+    rbgu_http_json "GET" "${z_unmake_sa_url}" "${z_token}" "${z_unmake_sa_infix}"
+    rbgu_http_require_ok "List service accounts (page ${z_unmake_sa_page})" "${z_unmake_sa_infix}"
+
+    z_unmake_sa_count=$(rbgu_json_field_capture "${z_unmake_sa_infix}" '.accounts // [] | length') \
+      || buc_die "Failed to parse SA list"
+
+    z_unmake_sa_index=0
+    while test "${z_unmake_sa_index}" -lt "${z_unmake_sa_count}"; do
+      z_unmake_sa_email=$(rbgu_json_field_capture "${z_unmake_sa_infix}" ".accounts[${z_unmake_sa_index}].email") \
+        || { z_unmake_sa_index=$((z_unmake_sa_index + 1)); continue; }
+      if [[ "${z_unmake_sa_email}" == ${RBCC_role_governor}-* ]]; then
+        buc_log_args "Deleting governor SA: ${z_unmake_sa_email}"
+        z_unmake_gov_delete_infix="depot_unmake_gov_delete_${z_governor_sa_count}"
+        rbgu_http_json "DELETE" "${z_unmake_sa_url_base}/${z_unmake_sa_email}" "${z_token}" "${z_unmake_gov_delete_infix}"
+        rbgu_http_require_ok "Delete governor SA ${z_unmake_sa_email}" "${z_unmake_gov_delete_infix}" \
+          404 "not found (already deleted)"
+        z_governor_sa_count=$((z_governor_sa_count + 1))
+      fi
+      z_unmake_sa_index=$((z_unmake_sa_index + 1))
+    done
+
+    z_unmake_sa_page_token=$(rbgu_json_field_capture "${z_unmake_sa_infix}" '.nextPageToken') \
+      || z_unmake_sa_page_token=""
+    test -n "${z_unmake_sa_page_token}" || break
+    z_unmake_sa_page=$((z_unmake_sa_page + 1))
+  done
+  buc_info "Governor SA cleanup: removed ${z_governor_sa_count} account(s)"
+
   buc_step 'Check for and remove liens'
   local -r z_liens_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens?parent=projects%2F${RBDC_DEPOT_PROJECT_ID}"
   rbgu_http_json "GET" "${z_liens_url}" "${z_token}" "depot_destroy_liens_list"
