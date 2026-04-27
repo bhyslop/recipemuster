@@ -161,10 +161,13 @@
 
 // Fact-File
 :busff_fact_file:                 <<busff_fact_file,Fact-File>>
+:busff_multi_fact:                <<busff_multi_fact,Multi-Element Fact-File>>
 
 // Fact Module
-:buf_write_fact:                  <<buf_write_fact,buf_write_fact>>
+:buf_write_fact_single:           <<buf_write_fact_single,buf_write_fact_single>>
+:buf_write_fact_multi:            <<buf_write_fact_multi,buf_write_fact_multi>>
 :buf_burx_env:                    <<buf_burx_env,BUF_burx_env>>
+:buf_ext_alias:                   <<buf_ext_alias,BUF_EXT_ALIAS>>
 
 // Yelp
 :busy_yelp:                       <<busy_yelp,Yelp>>
@@ -565,10 +568,40 @@ The `current/` path segment maps
 inside the BURV isolation tree.
 Fact-file constants are defined as `readonly` in kindle (e.g., `RBF_FACT_HALLMARK`).
 
-[[buf_write_fact]]
+[[busff_multi_fact]]
 //axl_voices axo_entity
-{buf_write_fact}::
-Dual-write fact-file primitive.
+{busff_multi_fact}::
+Inter-step communication pattern for emitting multiple facts of a uniform shape during a single dispatch.
+Each fact lands as a file named `<root>.<extension>` under
+{burd_output_dir}
+(and durably under
+{burd_temp_dir}),
+where the extension classifies the fact type and the root identifies the per-row instance.
++
+The pattern composes three rules:
++
+* *Type-as-extension naming.* The extension token carries the fact's classification; the root carries the row identity.
+A producer emitting per-alias observation facts writes `<alias>.buf_ext_alias` rather than encoding the type into the filename stem.
+* *Closed registry.* Each allowed extension is a named constant of the shape `BUF_EXT_<NAME>` declared in `buf_fact.sh`.
+Constant values match constant names downcased (e.g., `BUF_EXT_ALIAS="buf_ext_alias"`), so any fact file is recognizable on disk by extension alone.
+Adding an extension is a deliberate edit to the registry; opaque ad-hoc extensions are not the shape.
+* *BUK/RB boundary discipline.* The BUK registry holds only BUK-domain extensions.
+RB-domain extensions register in `rbgc_Constants.sh` under the `RBGP_FACT_EXT_*` family, and neither universe enumerates the other.
+Boundary is by ownership of the producer module, not by where the fact lands on disk.
++
+Emission cardinality: one write per `<root, extension>` key per dispatch.
+A second write of the same key during one dispatch is a bug — the implementing primitive
+{buf_write_fact_multi}
+fails fatally on preexistence to surface it.
++
+Semantically distinct from
+{busff_fact_file}:
+single-form is one named-content slot per dispatch (the filename is the contract); multi-form is many same-shaped emissions per dispatch (the extension is the contract, the root is per-row).
+
+[[buf_write_fact_single]]
+//axl_voices axo_entity
+{buf_write_fact_single}::
+Dual-write fact-file primitive — single-form.
 Writes a named file to both
 {burd_output_dir}
 and
@@ -580,18 +613,46 @@ is the latest-command convenience copy, cleared on next dispatch.
 {burd_temp_dir}
 is the durable copy, addressable by anyone who captured the path.
 +
-All fact-file producers must use
-{buf_write_fact}
-to ensure durable copies exist.
+All single-form fact-file producers must use
+{buf_write_fact_single}
+to ensure durable copies exist; multi-row producers use
+{buf_write_fact_multi}.
 +
 [source,bash]
 ----
 # Single-value fact:
-buf_write_fact "${RBF_FACT_HALLMARK}" "${z_hallmark}"
+buf_write_fact_single "${RBF_FACT_HALLMARK}" "${z_hallmark}"
 
-# Multi-field fact (e.g., burx.env):
-buf_write_fact "${BUF_burx_env}" "${z_content}"
+# Single-slot fact whose body has structured content (e.g., burx.env):
+buf_write_fact_single "${BUF_burx_env}" "${z_content}"
 ----
+
+[[buf_write_fact_multi]]
+//axl_voices axo_entity
+{buf_write_fact_multi}::
+Dual-write fact-file primitive — multi-form, implementing the
+{busff_multi_fact}
+pattern.
+Writes a value to `<file_root>.<ext>` in both
+{burd_output_dir}
+and
+{burd_temp_dir}.
+Dies if either copy already exists.
++
+Signature: `buf_write_fact_multi <file_root> <ext> <value>`.
+The extension is an opaque pass-through — the function performs no registry validation; the registered `BUF_EXT_*` constant at the call site is the contract, and out-of-registry usage is a producer-side bug to be caught by code review, not by this primitive.
++
+[source,bash]
+----
+# Per-row emission inside a producer loop:
+for z_alias in "${z_aliases[@]}"; do
+  buf_write_fact_multi "${z_alias}" "${BUF_EXT_ALIAS}" ""
+done
+----
++
+Mirror of
+{buf_write_fact_single}
+for the multi-row shape; both use the same dual-write + fail-on-preexist semantics.
 
 [[buf_burx_env]]
 //axpof_fact
@@ -600,8 +661,18 @@ Tinder constant naming the
 {burx_regime}
 fact-file (`burx.env`).
 Written by bud_dispatch.sh via
-{buf_write_fact}
+{buf_write_fact_single}
 at dispatch start, with terminal fields appended at completion.
+
+[[buf_ext_alias]]
+//axl_voices axt_enum_value
+{buf_ext_alias}::
+Registered BUK-domain extension constant for BURH alias observation facts (`BUF_EXT_ALIAS="buf_ext_alias"`).
+Written by `burh_list_capture` (in `burh_regime.sh`) once per discovered alias profile, with empty content — presence-of-file is the fact, not file content.
++
+First and currently sole member of the
+{busff_multi_fact}
+registry; serves as the proof-of-shape for the convention.
 
 === Yelp Pattern
 
@@ -1109,7 +1180,7 @@ Written by bud_dispatch.sh to both
 and
 {burd_temp_dir}
 as `burx.env` via
-{buf_write_fact}.
+{buf_write_fact_single}.
 Unlike single-project regimes,
 {burx_regime}
 is designed to be read across a remote project boundary.
