@@ -1,48 +1,62 @@
 //axhob_operation
-{rbtgo_sa_list}
+{rbtgo_director_roster}
 
-NOTE: This operation lists all service accounts in the
-{rbtgi_depot_project}.
-It is a multi-role operation that can be invoked by any authenticated role with project read access.
+The
+{rbtr_governor}
+lists all
+{rbtr_director}
+{giam_service_account}
+instances within the
+{rbtgi_depot_project},
+emitting a presence fact per discovered account.
+This is a read-only observation operation; no SA credentials are created or modified.
 
 //axhos_step
-. *Authenticate*:
-.. {rbbc_require}
-caller has valid OAuth token with `https://www.googleapis.com/auth/cloud-platform` scope
+. *Authenticate as
+{rbtr_governor}*:
+.. Execute
+{rbtoe_governor_authenticate}
 .. {rbbc_store}
-`«ACCESS_TOKEN»` from caller context
+`«GOVERNOR_TOKEN»` from the resulting access token
 
 //axhos_step
-. *List Service Accounts*:
+. *List service accounts*:
 .. {rbbc_call}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/list[iam.projects.serviceAccounts.list] with:
 ... method: `GET`
-... endpoint: `https://iam.googleapis.com/v1/projects/{rbrr_depot_project_id}/serviceAccounts`
-... header: `Authorization: Bearer «ACCESS_TOKEN»`
+... endpoint: `https://iam.googleapis.com/v1/projects/{rbtgi_depot_project}/serviceAccounts`
+... header: `Authorization: Bearer «GOVERNOR_TOKEN»`
 .. {rbbc_require}
 HTTP 200 response
 .. {rbbc_store}
 `«ACCOUNTS»` from response `.accounts[]` array
-.. {rbbc_store}
-`«ACCOUNT_COUNT»` from response `.accounts | length`
 
 //axhos_step
-. *Handle Empty Result*:
-.. If `«ACCOUNT_COUNT»` is 0:
+. *Filter to director service accounts*:
+.. From `«ACCOUNTS»`, retain only entries whose `.accountId` begins with the `${RBCC_role_director}-` prefix
+.. {rbbc_store}
+`«DIRECTOR_ACCOUNTS»` — the filtered set
+.. If `«DIRECTOR_ACCOUNTS»` is empty:
 ... {rbbc_show}
-"No service accounts found in project"
+"No director service accounts found in project"
 ... Return success
 
-//axhoot_typed_output
-{rbtgi_depot_project}
-. *Display Results*:
+//axhos_step
+. *Emit per-account fact files*:
+.. For each entry in `«DIRECTOR_ACCOUNTS»`:
+... {rbbc_store}
+`«IDENTITY»` by stripping the `${RBCC_role_director}-` prefix from the entry's `.accountId`
+... {rbbc_call}
+{buf_write_fact_multi} with file root, extension constant `RBCC_fact_ext_roster_director`
+(expands to `roster-director`), and basename `«IDENTITY»`
+... Fact content is empty — presence of the fact file is the datum (presence-as-fact convention)
+
+//axhos_step
+. *Report count*:
 .. {rbbc_show}
-"Found «ACCOUNT_COUNT»` service account(s):"
-.. For each account in `«ACCOUNTS»`:
-... {rbbc_show}
-account `.email` and `.displayName`
-.. {rbbc_show}
-listing completed successfully
+total count of emitted director fact files
 
 //axhoc_completion
-Successful execution lists all service accounts in the depot project.
+Successful execution rosters
+{rbtr_director}
+service accounts via per-SA fact emission, one `roster-director` fact file per discovered director identity.
