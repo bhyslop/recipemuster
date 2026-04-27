@@ -239,7 +239,7 @@ zrbgg_create_service_account_with_key() {
   z_key_b64=$(rbgu_json_field_capture "${z_key_infix}" '.privateKeyData') \
     || buc_die "Failed to extract privateKeyData"
   local z_key_json="${BURD_TEMP_DIR}/rbgg_key_${z_instance}.json"
-  printf '%s' "${z_key_b64}" | openssl enc -base64 -d > "${z_key_json}" \
+  printf '%s' "${z_key_b64}" | openssl enc -base64 -d -A > "${z_key_json}" \
     || buc_die "Failed to decode key data"
 
   buc_step 'Convert JSON key to RBRA format'
