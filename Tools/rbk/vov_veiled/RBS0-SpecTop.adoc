@@ -1049,11 +1049,10 @@ Each verb has per-role instances; the colophon shape is `rbw-a<role-letter><verb
 
 Divests a
 {rbtr_director}
-service account
+{giam_service_account}
 ({rbtgog_governor}).
 
-Zero-arg: reads the role's installed RBRA, extracts the SA email, and issues a REST DELETE.
-After successful cloud DELETE, removes the role's production RBRA file to mirror cloud state and prevent stale-credential reuse.
+include::RBSDD-director_divest.adoc[]
 
 [[rbtgo_director_invest]]
 //axvo_method axd_transient axd_grouped
@@ -1061,12 +1060,10 @@ After successful cloud DELETE, removes the role's production RBRA file to mirror
 
 Invests a
 {rbtr_director}
-service account
+{giam_service_account}
 ({rbtgog_governor}).
 
-Singleton-per-role: zero instance argument from operator; SA name derived from role and depot moniker (regime-kindled, not operator-supplied).
-Producer-output discipline: writes RBRA bytes to the assay slot exclusively (the `${BURD_OUTPUT_DIR}` credential write retires).
-Fatal if the SA already exists; operator divests first to re-key.
+include::RBSDK-director_invest.adoc[]
 
 [[rbtgo_director_roster]]
 //axvo_method axd_transient axd_grouped
@@ -1074,12 +1071,12 @@ Fatal if the SA already exists; operator divests first to re-key.
 
 Rosters
 {rbtr_director}
-service accounts
+{giam_service_account}s in the
+{rbtgi_depot_project}
+via per-SA fact-file emission
 ({rbtgog_governor}).
 
-Read-only observation.
-Emits one fact file per discovered SA via the BUS0 multi-element fact-file convention (`buf_write_fact_multi` against a registered extension constant); fact content is empty, presence-as-fact.
-Stdout-substring assertions retire from the consumer-facing surface.
+include::RBSDR-director_roster.adoc[]
 
 [[rbtgo_retriever_divest]]
 //axvo_method axd_transient axd_grouped
@@ -1087,11 +1084,10 @@ Stdout-substring assertions retire from the consumer-facing surface.
 
 Divests a
 {rbtr_retriever}
-service account
+{giam_service_account}
 ({rbtgog_governor}).
 
-Zero-arg: reads the role's installed RBRA, extracts the SA email, and issues a REST DELETE.
-After successful cloud DELETE, removes the role's production RBRA file to mirror cloud state and prevent stale-credential reuse.
+include::RBSRD-retriever_divest.adoc[]
 
 [[rbtgo_retriever_invest]]
 //axvo_method axd_transient axd_grouped
@@ -1099,12 +1095,10 @@ After successful cloud DELETE, removes the role's production RBRA file to mirror
 
 Invests a
 {rbtr_retriever}
-service account
+{giam_service_account}
 ({rbtgog_governor}).
 
-Singleton-per-role: zero instance argument from operator; SA name derived from role and depot moniker (regime-kindled, not operator-supplied).
-Producer-output discipline: writes RBRA bytes to the assay slot exclusively (the `${BURD_OUTPUT_DIR}` credential write retires).
-Fatal if the SA already exists; operator divests first to re-key.
+include::RBSRK-retriever_invest.adoc[]
 
 [[rbtgo_retriever_roster]]
 //axvo_method axd_transient axd_grouped
@@ -1112,12 +1106,12 @@ Fatal if the SA already exists; operator divests first to re-key.
 
 Rosters
 {rbtr_retriever}
-service accounts
+{giam_service_account}s in the
+{rbtgi_depot_project}
+via per-SA fact-file emission
 ({rbtgog_governor}).
 
-Read-only observation.
-Emits one fact file per discovered SA via the BUS0 multi-element fact-file convention (`buf_write_fact_multi` against a registered extension constant); fact content is empty, presence-as-fact.
-Stdout-substring assertions retire from the consumer-facing surface.
+include::RBSRL-retriever_roster.adoc[]
 
 == {rbtr_director} Operations
 
