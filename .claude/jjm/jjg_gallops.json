@@ -6649,6 +6649,7 @@
         "₢BBAAO",
         "₢BBAAN",
         "₢BBAAK",
+        "₢BBAAP",
         "₢BBAAC",
         "₢BBAAD",
         "₢BBAAE",
@@ -6657,7 +6658,7 @@
         "₢BBAAH",
         "₢BBAAI"
       ],
-      "next_pace_seed": "AAP",
+      "next_pace_seed": "AAQ",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAAA": {
@@ -6941,6 +6942,17 @@
               "text": "## Character\n\nFoundation pace for the multi-element fact-file surface in BUK. Lands before BBAAN so its observation-fact convention rides on settled BUK ground. Establishes the closed-registry pattern for fact-extension type tokens — file extensions that name their owning module — using BURH list as the proof-of-shape consumer.\n\nIntent-only docket — code-level planning at mount time.\n\n## Scope\n\nThe BUF fact-file surface gains a multi-element shape along three load-bearing axes.\n\nCompanion function. `buf_write_fact_multi(file_root, ext, content)` joins existing `buf_write_fact` in `buf_fact.sh`. Same dual-write semantics (`BURD_OUTPUT_DIR` + `BURD_TEMP_DIR`); produces `<file_root>.<ext>` files. No validation of `ext` — opaque pass-through. Whether `buf_write_fact` renames to `buf_write_fact_single` for symmetry is open at mount.\n\nCentralized extension registry. Fact-extension type tokens consolidate into `buf_fact.sh` itself, alongside the function. Constants follow a discoverability convention: each constant's value matches its name downcased (e.g., `BUF_EXT_ALIAS=\"buf_ext_alias\"`). The file extension carries the owning prefix, making any fact file recognizable by name from anywhere on disk. Scope of registry: BUK-domain extensions only.\n\nBURH proof-of-shape. `burh_list` keeps its current `buc_step`/`buc_bare` stdout output and adds per-alias fact emission alongside. One fact file per profile, named `<alias>.buf_ext_alias` with empty content (presence is the fact). The walker already exists in `burh_list_capture` at `burh_regime.sh:96-112`; this pace adds emission without restructuring.\n\nSpec coverage. BUS0 gains a quoin for the multi-element fact convention — type-as-extension naming, closed registry, dual-write semantics.\n\n## Constraints\n\n- Honor paddock's Release-branch execution contract.\n- No pre-staged file paths, function signatures, or step enumeration here. Implementation specifics surface in real-time conversation at mount time.\n- Settled-at-paddock decisions: registry location (buf_fact.sh), discoverability convention (constant value matches name downcased), no validation, BUK-only registry scope, BURH list as proof-of-shape. Other choices remain open for mount-time review.\n\n## Out of scope\n\n- BBAAN's SA-management refactor (sibling pace, immediately following).\n- RB-side fact-extension migration — `RBGP_FACT_EXT_DEPOT` and any future RB extensions stay in `rbgc_Constants.sh` per the BUK/RB boundary discipline.\n- Validation or closed-set enforcement in `buf_write_fact_multi` — opaque pass-through only.\n- BURH platform-suffix consolidation (BURH is rough; not this pace).\n- Migration of existing single-fact callsites (`RBF_FACT_*`, `RBGP_FACT_*` already using `buf_write_fact`).",
               "silks": "buf-fact-multi-foundation",
               "commit": "5f3d999"
+            }
+          ]
+        },
+        "₢BBAAP": {
+          "tacks": [
+            {
+              "ts": "260427-0844",
+              "state": "rough",
+              "text": "## Character\n\nCloses out depot-identity-collapse: multi-fact depot_list emission, test sweep audit, spec banner copy.\n\nIntent-only docket — implementation specifics surface at mount time.\n\n## Scope\n\n- Reshape rbgp_depot_list: emit one fact file per known depot in BURD_OUTPUT_DIR. Basename is the moniker; content is one of RBGP_DEPOT_STATE_COMPLETE / BROKEN / DELETE_REQUESTED.\n- Audit fast-suite tests for residual references to pre-collapse RBRR fields or derivations; sweep into the new shape.\n- RBS0 (operator spec) and RBSDE (depot levy spec) banner copy: reflect (CLOUD_PREFIX, MONIKER) shape.\n\n## Constraints\n\n- Honor paddock's Release-branch execution contract.\n- Real-time review at each step before commit.\n- BCG compliance for any new state-determination probes or constants.\n\n## Out of scope\n\n- Bucket / Mason SA naming uniformity.\n- 409-fatal posture redesign.",
+              "silks": "depot-identity-collapse-finalize",
+              "commit": "0f77a17"
             }
           ]
         }
