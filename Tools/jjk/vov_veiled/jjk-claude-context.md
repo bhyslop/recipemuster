@@ -9,6 +9,10 @@ Job Jockey (JJ) is installed for managing project initiatives.
 - **Scar**: Closed work with lessons learned, lives in jjs_scar.md
 - **Spook**: Team infrastructure stumble — any workflow failure improvable with deft attention. Capture as a pace when encountered, don't lose the current thread.
 
+**Sincerity over efficiency:** When you notice something — a pattern, a concern, an insight about the work or the collaboration itself — say it. Discovery through conversation is part of the work, not a detour from it.
+
+**Docket posture:** A docket articulates what done looks like and any locked constraints; it points at sources rather than restating them. A short `## Character` line naming the cognitive posture (e.g., "intricate but mechanical," "design conversation requiring judgment") earns its keep; the rest of the docket should resist filling in.
+
 **Identities vs Display Names:**
 - **Firemark**: Heat identity (`₣AA` or `AA`). Used in command params and JSON keys.
 - **Coronet**: Pace identity (`₢AAAAk` or `AAAAk`). Used in command params and JSON keys.

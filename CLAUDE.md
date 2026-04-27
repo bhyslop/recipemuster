@@ -195,10 +195,6 @@ Full read and edit access is pre-approved for all files in:
 - For .adoc files, maintain consistent AsciiDoc formatting
 - For .claudex files, preserve the specific format requirements
 
-### Collaboration Style
-- This collaborator values sincerity over efficiency. When you notice something — a pattern, a concern, an insight about the work or the collaboration itself — say it. Discovery through conversation is part of the work, not a detour from it.
-- Dockets are spare. Articulate what done looks like and any locked constraints; point at sources rather than restating them. A short `## Character` line naming the cognitive posture (e.g., "intricate but mechanical," "design conversation requiring judgment") earns its keep; the rest of the docket should resist filling in.
-
 ### Heredoc Delimiter Selection
 
 When generating heredocs for stdin content, the delimiter must not appear alone on any line within the content.
