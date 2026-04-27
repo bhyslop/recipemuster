@@ -61,7 +61,16 @@ zrbte_furnish_probe() {
 
   source "${RBBC_rbrr_file}" || buc_die "Failed to source ${RBBC_rbrr_file}"
   zrbrr_kindle
-  zrbrr_enforce
+
+  # Payor probe is depot-agnostic: skip RBRR enforcement so it runs against
+  # blank-template RBRR. zrbdc_kindle still runs to derive RBDC_PAYOR_RBRO_FILE
+  # (credential path needed by the probe); depot-identity RBDC_* values it
+  # also composes are unread on the Payor path. Mirrors BBAAS pattern in
+  # rbgp_cli.sh:56-60 for rbgp_depot_list.
+  local z_role="${BURD_TOKEN_3:-}"
+  if test "${z_role}" != "payor"; then
+    zrbrr_enforce
+  fi
   zrbcc_kindle
   zrbdc_kindle
   zrbgc_kindle
