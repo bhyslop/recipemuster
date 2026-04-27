@@ -98,7 +98,7 @@ All other roles descend from credentials the [Payor's](#Payor) infrastructure cr
 
 Administers a [Depot](#Depot): creates service accounts, manages access.
 The [Governor](#Governor) is [Mantled](#Mantle) by the [Payor](#Payor) and holds the administrative credential for the [Depot](#Depot).
-The [Governor](#Governor) [Knights](#Knight) [Directors](#Director) for build access, [Charters](#Charter) [Retrievers](#Retriever) for pull access, and [Forfeits](#Forfeit) credentials when they are no longer needed.
+The [Governor](#Governor) [Invests](#Invest) [Directors](#Director) and [Retrievers](#Retriever) with credentials, [Divests](#Divest) credentials no longer needed, and [Rosters](#Roster) issued credentials.
 
 ### <a id="Director"></a>Director
 
@@ -151,7 +151,7 @@ Before the first build can run, the [Depot](#Depot) needs its supply-chain infra
 
 #### Credential Distribution
 
-The [Governor](#Governor) creates downstream credentials: [Knighting](#Knight) a [Director](#Director) for build operations and [Chartering](#Charter) a [Retriever](#Retriever) for image pull access.
+The [Governor](#Governor) [Invests](#Invest) downstream credentials: a [Director](#Director) for build operations and a [Retriever](#Retriever) for image pull access.
 Each credential is scoped to a single role within a single [Depot](#Depot).
 
 #### Build and Retrieve
@@ -271,18 +271,17 @@ Run when [Payor](#Payor) operations fail with authentication errors.
 <a id="Mantle"></a>**[Mantle](#Mantle)** — Create or replace the [Governor](#Governor) service account for a [Depot](#Depot).
 [Mantling](#Mantle) is a [Payor](#Payor) operation that provisions the administrative credential — the [Governor](#Governor) inherits the [Payor's](#Payor) authority to manage the [Depot](#Depot) but authenticates via service account key rather than OAuth.
 
-<a id="Knight"></a>**[Knight](#Knight)** — Create a [Director](#Director) service account.
-[Knighting](#Knight) provisions a new credential scoped to build and publish access within a single [Depot](#Depot).
+<a id="Invest"></a>**[Invest](#Invest)** — Create a [Director](#Director) or [Retriever](#Retriever) service account.
+[Investing](#Invest) provisions a new credential scoped to a single role within a single [Depot](#Depot) and emits its credential file in one step.
+This is a [Governor](#Governor) operation; investing fails if the named credential already exists, so re-keying requires [Divesting](#Divest) first.
 
-<a id="Charter"></a>**[Charter](#Charter)** — Create a [Retriever](#Retriever) service account.
-[Chartering](#Charter) provisions a new credential scoped to image pull access within a single [Depot](#Depot).
-
-<a id="Forfeit"></a>**[Forfeit](#Forfeit)** — Revoke a service account credential.
-[Forfeiting](#Forfeit) deletes the service account and its key material from the [Depot](#Depot) — the credential becomes permanently unusable.
+<a id="Divest"></a>**[Divest](#Divest)** — Revoke a [Director](#Director) or [Retriever](#Retriever) service account.
+[Divesting](#Divest) deletes the service account and removes the local credential file — the credential becomes permanently unusable.
 This is a [Governor](#Governor) operation used when a credential is compromised, no longer needed, or being rotated.
 
-<a id="ListSAs"></a>**[List Service Accounts](#ListSAs)** — Inventory all service accounts issued within a [Depot](#Depot).
-Shows [Governor](#Governor), [Director](#Director), and [Retriever](#Retriever) credentials with their creation dates and status.
+<a id="Roster"></a>**[Roster](#Roster)** — Inventory [Director](#Director) or [Retriever](#Retriever) service accounts within a [Depot](#Depot).
+[Rostering](#Roster) shows credentials issued under each role with their creation dates and status.
+This is a [Governor](#Governor) operation; observation-only, no cloud mutation.
 
 ### Supply Chain
 
