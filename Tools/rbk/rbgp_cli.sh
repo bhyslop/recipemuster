@@ -35,6 +35,7 @@ zrbgp_furnish() {
   source "${BURD_BUK_DIR}/buv_validation.sh"
   source "${BURD_BUK_DIR}/buym_yelp.sh"
   source "${BURD_BUK_DIR}/buh_handbook.sh"
+  source "${BURD_BUK_DIR}/buf_fact.sh"
   source "${z_rbk_kit_dir}/rbgc_Constants.sh"
   source "${z_rbk_kit_dir}/rbcc_Constants.sh"
   source "${z_rbk_kit_dir}/rbrr_regime.sh"
