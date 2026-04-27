@@ -817,28 +817,18 @@ rbgp_depot_levy() {
 rbgp_depot_unmake() {
   zrbgp_sentinel
 
-  local -r z_depot_project_id="${1:-}"
-
   buc_doc_brief "DANGER: Permanently destroy an entire depot infrastructure"
-  buc_doc_param "depot_project_id" "The depot project ID to destroy"
   buc_doc_shown || return 0
 
   buc_step 'Safety confirmation required'
-  test -n "${z_depot_project_id}" || buc_die "Depot project ID required as first argument (current derived: ${RBDC_DEPOT_PROJECT_ID})"
-
-  buc_require "DANGER: Permanently destroy depot ${z_depot_project_id} and ALL resources" "${z_depot_project_id}"
+  buc_require "DANGER: Permanently destroy depot ${RBDC_DEPOT_PROJECT_ID} and ALL resources" "${RBDC_DEPOT_PROJECT_ID}"
 
   buc_step 'Authenticate as Payor'
-  test -n "${RBRP_PAYOR_PROJECT_ID:-}" || buc_die "RBRP_PAYOR_PROJECT_ID is not set"
-  test -n "${RBRP_OAUTH_CLIENT_ID:-}" || buc_die "RBRP_OAUTH_CLIENT_ID is not set"
-  
   local z_token
   z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
 
   buc_step 'Validate target depot'
-  test -n "${z_depot_project_id}" || buc_die "Depot project ID required as first argument"
-
-  local -r z_project_info_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_depot_project_id}"
+  local -r z_project_info_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${RBDC_DEPOT_PROJECT_ID}"
   rbgu_http_json "GET" "${z_project_info_url}" "${z_token}" "depot_destroy_validate"
   rbgu_http_require_ok "Validate depot project" "depot_destroy_validate"
   
@@ -854,7 +844,7 @@ rbgp_depot_unmake() {
   fi
 
   buc_step 'Check for and remove liens'
-  local -r z_liens_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens?parent=projects%2F${z_depot_project_id}"
+  local -r z_liens_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens?parent=projects%2F${RBDC_DEPOT_PROJECT_ID}"
   rbgu_http_json "GET" "${z_liens_url}" "${z_token}" "depot_destroy_liens_list"
   rbgu_http_require_ok "List liens" "depot_destroy_liens_list"
   
@@ -880,7 +870,7 @@ rbgp_depot_unmake() {
   local -r z_billing_unlink_body="${BURD_TEMP_DIR}/rbgp_billing_unlink.json"
   echo '{"billingAccountName":""}' > "${z_billing_unlink_body}" || buc_die "Failed to build billing unlink body"
 
-  local -r z_billing_unlink_url="${RBGC_API_ROOT_CLOUDBILLING}${RBGC_CLOUDBILLING_V1}/projects/${z_depot_project_id}/billingInfo"
+  local -r z_billing_unlink_url="${RBGC_API_ROOT_CLOUDBILLING}${RBGC_CLOUDBILLING_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/billingInfo"
   rbgu_http_json "PUT" "${z_billing_unlink_url}" "${z_token}" "depot_destroy_billing_unlink" "${z_billing_unlink_body}"
 
   local z_billing_unlink_code
@@ -891,18 +881,10 @@ rbgp_depot_unmake() {
     buc_warn "Could not unlink billing (HTTP ${z_billing_unlink_code}) - proceeding with deletion anyway"
   fi
 
-  # Extract depot name from project ID for resource naming
-  local z_without_prefix="${z_depot_project_id#"${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-"}"
-  local z_name_len=${#z_without_prefix}
-  local z_ts_suffix_len=$((1 + RBGC_GLOBAL_TIMESTAMP_LEN))
-  local -r z_depot_name="${z_without_prefix:0:$((z_name_len - z_ts_suffix_len))}"
-
   buc_step 'Delete dual worker pools (if exist)'
-  local -r z_pool_stem="rbw-${z_depot_name}${RBGC_WORKER_POOL_SUFFIX}"
-
   # Delete tether pool
-  local -r z_tether_del_id="${z_pool_stem}${RBGC_POOL_SUFFIX_TETHER}"
-  local -r z_tether_del_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${z_depot_project_id}/locations/${RBRR_GCP_REGION}${RBGC_PATH_WORKER_POOLS}/${z_tether_del_id}"
+  local -r z_tether_del_id="${RBDC_GCB_POOL_STEM}${RBGC_POOL_SUFFIX_TETHER}"
+  local -r z_tether_del_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/locations/${RBRR_GCP_REGION}${RBGC_PATH_WORKER_POOLS}/${z_tether_del_id}"
   rbgu_http_json "DELETE" "${z_tether_del_url}" "${z_token}" "depot_destroy_pool_tether"
   local z_tether_del_code
   z_tether_del_code=$(rbgu_http_code_capture "depot_destroy_pool_tether") || z_tether_del_code=""
@@ -912,8 +894,8 @@ rbgp_depot_unmake() {
   esac
 
   # Delete airgap pool
-  local -r z_airgap_del_id="${z_pool_stem}${RBGC_POOL_SUFFIX_AIRGAP}"
-  local -r z_airgap_del_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${z_depot_project_id}/locations/${RBRR_GCP_REGION}${RBGC_PATH_WORKER_POOLS}/${z_airgap_del_id}"
+  local -r z_airgap_del_id="${RBDC_GCB_POOL_STEM}${RBGC_POOL_SUFFIX_AIRGAP}"
+  local -r z_airgap_del_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/locations/${RBRR_GCP_REGION}${RBGC_PATH_WORKER_POOLS}/${z_airgap_del_id}"
   rbgu_http_json "DELETE" "${z_airgap_del_url}" "${z_token}" "depot_destroy_pool_airgap"
   local z_airgap_del_code
   z_airgap_del_code=$(rbgu_http_code_capture "depot_destroy_pool_airgap") || z_airgap_del_code=""
@@ -923,7 +905,7 @@ rbgp_depot_unmake() {
   esac
 
   buc_step 'Initiate depot deletion'
-  local -r z_delete_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_depot_project_id}"
+  local -r z_delete_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${RBDC_DEPOT_PROJECT_ID}"
   rbgu_http_json "DELETE" "${z_delete_url}" "${z_token}" "depot_destroy_delete"
   
   local z_delete_response
@@ -969,7 +951,7 @@ rbgp_depot_unmake() {
   zrbgp_depot_list_update || buc_log_args "Warning: Failed to update depot tracking after deletion"
 
   # Success
-  buc_success "Depot ${z_depot_project_id} successfully marked for deletion"
+  buc_success "Depot ${RBDC_DEPOT_PROJECT_ID} successfully marked for deletion"
   buc_info "Project Status: DELETE_REQUESTED"
   buc_info "Billing: Unlinked (quota released immediately)"
   buc_info "Grace period: Up to 30 days before permanent removal"
