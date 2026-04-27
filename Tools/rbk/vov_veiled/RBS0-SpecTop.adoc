@@ -116,12 +116,12 @@
 :rbtgo_depot_inscribe:            <<rbtgo_depot_inscribe,rbfl_inscribe>>
 :rbtgo_director_divest:           <<rbtgo_director_divest,rbgg_divest_director>>
 :rbtgo_director_invest:           <<rbtgo_director_invest,rbgg_invest_director>>
-:rbtgo_director_muster:           <<rbtgo_director_muster,rbgg_muster_directors>>
+:rbtgo_director_roster:           <<rbtgo_director_roster,rbgg_roster_directors>>
 :rbtgo_director_vouch:            <<rbtgo_director_vouch,rbfv_batch_vouch>>
 :rbtgo_director_yoke:             <<rbtgo_director_yoke,rbfl_yoke>>
 :rbtgo_governor_mantle:            <<rbtgo_governor_mantle,rbgp_governor_mantle>>
 :rbtgo_image_delete:              <<rbtgo_image_delete,rbfl_jettison>>
-:rbtgo_image_muster:              <<rbtgo_image_muster,Image Muster>>
+:rbtgo_image_audit:               <<rbtgo_image_audit,Image Audit>>
 :rbtgo_image_rekon:               <<rbtgo_image_rekon,Image Rekon>>
 :rbtgo_image_retrieve:            <<rbtgo_image_retrieve,rbfl_wrest>>
 :rbtgo_payor_establish:           <<rbtgo_payor_establish,rbhp_establish>>
@@ -129,7 +129,7 @@
 :rbtgo_payor_refresh:             <<rbtgo_payor_refresh,rbhp_refresh>>
 :rbtgo_retriever_divest:          <<rbtgo_retriever_divest,rbgg_divest_retriever>>
 :rbtgo_retriever_invest:          <<rbtgo_retriever_invest,rbgg_invest_retriever>>
-:rbtgo_retriever_muster:          <<rbtgo_retriever_muster,rbgg_muster_retrievers>>
+:rbtgo_retriever_roster:          <<rbtgo_retriever_roster,rbgg_roster_retrievers>>
 :rbtgo_quota_build:               <<rbtgo_quota_build,rbhp_quota_build>>
 :rbtgo_trigger_build:             <<rbtgo_trigger_build,rbfd_build>>
 :rbtgo_access_jwt_probe:          <<rbtgo_access_jwt_probe,rbgv_jwt_sa_probe>>
@@ -1038,8 +1038,8 @@ The
 {rbtr_retriever}
 and
 {rbtr_director}
-service accounts share a cult-verb triad: invest mints the SA and emits its RBRA credential bytes, divest tears it down, and muster lists existing instances.
-Each verb has per-role instances; the colophon shape is `rbw-a<role-letter><verb-letter>` where the letter case carries semantic load — capital `I` (invest) and `D` (divest) for cloud-mutating verbs, lowercase `m` (muster) for read-only observation, mirroring the existing `rbw-d[lL]` precedent.
+service accounts share a cult-verb triad: invest mints the SA and emits its RBRA credential bytes, divest tears it down, and roster lists existing instances.
+Each verb has per-role instances; the colophon shape is `rbw-a<role-letter><verb-letter>` where the letter case carries semantic load — capital `I` (invest) and `D` (divest) for cloud-mutating verbs, lowercase `r` (roster) for read-only observation, mirroring the existing `rbw-d[lL]` precedent.
 {rbtgo_governor_mantle} stays as the singleton-per-depot exception; governor SA cleanup folds into {rbtgo_depot_unmake}.
 
 [[rbtgo_director_divest]]
@@ -1067,11 +1067,11 @@ Singleton-per-role: zero instance argument from operator; SA name derived from r
 Producer-output discipline: writes RBRA bytes to the assay slot exclusively (the `${BURD_OUTPUT_DIR}` credential write retires).
 Fatal if the SA already exists; operator divests first to re-key.
 
-[[rbtgo_director_muster]]
+[[rbtgo_director_roster]]
 //axvo_method axd_transient axd_grouped
-=== {rbtgo_director_muster}
+=== {rbtgo_director_roster}
 
-Musters
+Rosters
 {rbtr_director}
 service accounts
 ({rbtgog_governor}).
@@ -1105,11 +1105,11 @@ Singleton-per-role: zero instance argument from operator; SA name derived from r
 Producer-output discipline: writes RBRA bytes to the assay slot exclusively (the `${BURD_OUTPUT_DIR}` credential write retires).
 Fatal if the SA already exists; operator divests first to re-key.
 
-[[rbtgo_retriever_muster]]
+[[rbtgo_retriever_roster]]
 //axvo_method axd_transient axd_grouped
-=== {rbtgo_retriever_muster}
+=== {rbtgo_retriever_roster}
 
-Musters
+Rosters
 {rbtr_retriever}
 service accounts
 ({rbtgog_governor}).
@@ -1192,16 +1192,16 @@ Two distinct procedures (`rbfl_rekon_hallmark`, `rbfl_rekon_reliquary`); rekon-o
 
 include::RBSIR-image_rekon.adoc[]
 
-[[rbtgo_image_muster]]
+[[rbtgo_image_audit]]
 //axvo_method axd_transient axd_grouped
-=== {rbtgo_image_muster}
+=== {rbtgo_image_audit}
 
 Lists identifiers under one of three GAR domains (hallmarks, reliquaries, enshrinements) in
 {rbtgi_repository}
 ({rbtgog_image}).
 {rbtr_director}-tier flat catalog; complements the {rbtr_retriever}-tier {rbtgo_hallmark_tally}, which adds health classification on the hallmark domain only.
 
-include::RBSIM-image_muster.adoc[]
+include::RBSIA-image_audit.adoc[]
 
 [[rbtgo_ark_abjure]]
 //axvo_method axd_transient axd_grouped

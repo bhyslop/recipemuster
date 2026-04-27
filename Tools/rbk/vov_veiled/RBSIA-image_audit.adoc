@@ -1,5 +1,5 @@
 //axhob_operation
-{rbtgo_image_muster}
+{rbtgo_image_audit}
 
 NOTE: This operation produces a flat catalog of identifiers under one of the three GAR domains
 (hallmarks, reliquaries, enshrinements)
@@ -11,20 +11,20 @@ Identifiers only — no per-member presence detail (use {rbtgo_image_rekon} for 
 
 The
 {rbtr_director}
-musters over three domains, each backed by a distinct procedure:
+audits over three domains, each backed by a distinct procedure:
 
-* `rbfl_muster_hallmarks` — every hallmark identifier under the `hallmarks/` root
-* `rbfl_muster_reliquaries` — every reliquary stamp under the `reliquaries/` root
-* `rbfl_muster_enshrinements` — every enshrined base anchor under the `enshrines/` root
+* `rbfl_audit_hallmarks` — every hallmark identifier under the `hallmarks/` root
+* `rbfl_audit_reliquaries` — every reliquary stamp under the `reliquaries/` root
+* `rbfl_audit_enshrinements` — every enshrined base anchor under the `enshrines/` root
 
-Muster vs. {rbtgo_hallmark_tally}: muster is a {rbtr_director}-tier flat-list operation across all three domains; tally is a {rbtr_retriever}-tier hallmarks-only operation that classifies each entry by basename completeness and vouch status.
+Audit vs. {rbtgo_hallmark_tally}: audit is a {rbtr_director}-tier flat-list operation across all three domains; tally is a {rbtr_retriever}-tier hallmarks-only operation that classifies each entry by basename completeness and vouch status.
 The two roles compose without overlap.
 
-== Hallmarks Muster
+== Hallmarks Audit
 
 The
 {rbtr_director}
-musters hallmark identifiers:
+audits hallmark identifiers:
 
 //axhos_step
 . *Authenticate as
@@ -72,11 +72,11 @@ table header `HALLMARK`
 ... {rbbc_show}
 "Total hallmarks: «COUNT»"
 
-== Reliquaries Muster
+== Reliquaries Audit
 
 The
 {rbtr_director}
-musters reliquary stamps:
+audits reliquary stamps:
 
 //axhos_step
 . *Authenticate as
@@ -124,11 +124,11 @@ table header `RELIQUARY-STAMP`
 ... {rbbc_show}
 "Total reliquaries: «COUNT»"
 
-== Enshrinements Muster
+== Enshrinements Audit
 
 The
 {rbtr_director}
-musters enshrined base anchors:
+audits enshrined base anchors:
 
 //axhos_step
 . *Authenticate as
