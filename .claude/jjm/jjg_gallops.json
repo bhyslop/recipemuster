@@ -6646,6 +6646,7 @@
         "₢BBAAA",
         "₢BBAAB",
         "₢BBAAJ",
+        "₢BBAAN",
         "₢BBAAK",
         "₢BBAAC",
         "₢BBAAD",
@@ -6655,7 +6656,7 @@
         "₢BBAAH",
         "₢BBAAI"
       ],
-      "next_pace_seed": "AAN",
+      "next_pace_seed": "AAO",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAAA": {
@@ -6903,6 +6904,17 @@
               "text": "## Character\n\nFoundational simplification before BBAAK. Collapses depot identity in RBRR\nto (CLOUD_PREFIX, MONIKER) — project_id, GAR repository, pool stem, and\nrelated derived names fall out of those two at kindle. Drops the timestamp\nfrom project_id; CLOUD_PREFIX flows uniformly through derived names,\ndisplacing today's hard-coded `rbw-`. Levy fails if derived resources\nalready exist; the soft-delete window becomes operator-visible rather than\nhidden behind a timestamp.\n\nMechanical at call sites, conceptually load-bearing. Docket holds intent\nonly — implementation specifics surface at commit time.\n\n## Scope\n\n- Reshape `rbgp_depot_levy`: project_id and sub-resource names derive from\n  (CLOUD_PREFIX, MONIKER); no timestamp.\n- Collapse RBRR fields: RBRR_GAR_REPOSITORY and RBRR_GCB_POOL_STEM removed,\n  replaced by RBDC-derived constants computed at kindle.\n- Reshape `rbgp_depot_list`: emit one fact file per known depot in\n  BURD_OUTPUT_DIR (basename keyed on moniker; content = state value).\n  State vocabulary in BCG-compliant tinder/kindle constants.\n- Retrofit pristine-lifecycle cases 2-3 to autodetect next free moniker\n  via depot-list (theurge-side — autodetect is NOT in payor code).\n  Six-digit numeric increment starting at the 100000 floor per family\n  prefix (e.g., pristq100000, pristg100000).\n- Marshal-zero blanking adjusted to match the new RBRR field set.\n- RBS0 and operator banner updated to match.\n\n## Constraints\n\n- Honor paddock's Release-branch execution contract.\n- BURD_OUTPUT_DIR wipe at every tabtarget entry (already enforced by\n  bud_dispatch.sh) is the lifecycle anchor: fact files and other artifacts\n  are ephemeral; fixturing must read every needed output before invoking\n  the next tabtarget.\n- Real-time review at each step before commit. No pre-engineered choices\n  beyond intent.\n- BCG compliance for new state-value vocabulary (tinder/kindle constants).\n\n## Out of scope\n\n- BBAAK cases 4-5 (smaller follow-on pace, rides on this).\n- Operator-handbook restructuring beyond removing the post-levy\n  banner-copy instruction.\n- Bucket / Mason SA naming uniformity — design call at implementation, not\n  a pre-locked redesign.\n- 409-fatal posture for currently-idempotent sub-resources — design call\n  at implementation.",
               "silks": "rbrr-depot-identity-collapse",
               "commit": "8960fb9"
+            }
+          ]
+        },
+        "₢BBAAN": {
+          "tacks": [
+            {
+              "ts": "260427-0806",
+              "state": "rough",
+              "text": "## Character\n\nFoundation pace for the cult-verb refactor of the SA-management surface. Lands before any theurge consumer touches the new surface so the consumer pace (BBAAK rebuild) starts from a settled foundation. Intent-only docket — code-level planning happens at mount time, in real-time conversation against current state, not pre-staged here.\n\n## Scope\n\nThe SA-management interface refactors along three load-bearing axes settled in the paddock.\n\nCult-verb collapse for operational SAs (retriever, director). Invest replaces charter and knight; divest replaces forfeit for operational SAs; muster replaces list. Per-role colophons of shape `rbw-a<role><verb>`. Mantle (governor) stays — singleton-per-depot is asymmetric with retriever/director and the existing verb captures it honestly.\n\nProducer-output discipline. SA creation operations write RBRA bytes to the assay slot exclusively. The BURD-output-dir credential write retires; assay becomes the binding producer output for credential bytes.\n\nObservation-fact convention. List-style tabtargets emit per-row facts using the `<basename>.<type>` type-as-extension naming convention. Stdout-substring assertions retire entirely from the consumer-facing surface.\n\nDivest-by-role recovers email from the role's installed RBRA via REST DELETE. No gcloud, per the RBSK no-gcloud rule. Governor SA cleanup folds into depot-unmake; no standalone demantle verb.\n\nSpec (RBS0), README glossary, and operator handbook tracks (rbho/rbhp) update to reflect the new vocabulary.\n\n## Constraints\n\n- Honor paddock's Release-branch execution contract.\n- No pre-staged file paths, function names, exact colophon strings, or step enumeration here. Implementation specifics surface in real-time conversation at mount time.\n- Settled-at-paddock decisions: cult-verb identities (invest/divest/muster), per-role colophon shape, fact-file naming convention, assay-as-binding-output discipline, divest-by-role lookup. Other choices remain open for mount-time review.\n\n## Out of scope\n\n- Theurge consumer adaptation (sibling pace, immediately following).\n- Multi-instance RBRA path scheme (singleton-per-role path stands until a future need surfaces).\n- Mantle ceremony or governor lifecycle change beyond fold-into-unmake.\n- Phase 1+ of rbw-tP (BBAAC and onward).",
+              "silks": "cult-verb-foundation",
+              "commit": "36840a1"
             }
           ]
         }
