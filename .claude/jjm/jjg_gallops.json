@@ -7130,6 +7130,13 @@
         "₢BBAAT": {
           "tacks": [
             {
+              "ts": "260427-1209",
+              "state": "complete",
+              "text": "## Character\n\nMechanical correctness sweep on BBAAS. Call sites settled; no design.\n\n## Scope\n\n- Drop `billingEnabled=true` filter in `zrbgp_depot_state_emit` (hides DELETE_REQUESTED unnecessarily).\n- Reorder: CRM lifecycle lookup before IAM SA list.\n- Add `rbgu_http_code_capture` check on CRM lookup; `|| true` + jq fallback is silently lossy.\n- Add `nextPageToken` pagination on Billing v1 projects list and IAM v1 serviceAccounts list.\n- Delete orphan `RBGP_DEPOT_STATE_BROKEN` constant.\n\nEmpirical check after: does IAM list SAs on DELETE_REQUESTED projects? If no, surface graveyard-observability as a separate pace.\n\n## References\n\n- BBAAS notch 4d810db7\n- BBAAM paused; resumes after this pace closes",
+              "silks": "depot-list-correctness-sweep",
+              "commit": "9f2714b"
+            },
+            {
               "ts": "260427-1154",
               "state": "rough",
               "text": "## Character\n\nMechanical correctness sweep on BBAAS. Call sites settled; no design.\n\n## Scope\n\n- Drop `billingEnabled=true` filter in `zrbgp_depot_state_emit` (hides DELETE_REQUESTED unnecessarily).\n- Reorder: CRM lifecycle lookup before IAM SA list.\n- Add `rbgu_http_code_capture` check on CRM lookup; `|| true` + jq fallback is silently lossy.\n- Add `nextPageToken` pagination on Billing v1 projects list and IAM v1 serviceAccounts list.\n- Delete orphan `RBGP_DEPOT_STATE_BROKEN` constant.\n\nEmpirical check after: does IAM list SAs on DELETE_REQUESTED projects? If no, surface graveyard-observability as a separate pace.\n\n## References\n\n- BBAAS notch 4d810db7\n- BBAAM paused; resumes after this pace closes",
