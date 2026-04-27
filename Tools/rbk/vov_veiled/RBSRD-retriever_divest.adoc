@@ -1,0 +1,58 @@
+//axhob_operation
+{rbtgo_retriever_divest}
+
+NOTE: This operation divests a {rbtr_retriever} {giam_service_account} from the {rbtgi_depot_project}.
+The {rbtr_governor} reads the retriever's installed RBRA, extracts the SA email from the RBRA's `client_email` field, issues a REST DELETE against the IAM API, and removes the production RBRA file from disk to mirror cloud state and prevent stale-credential reuse.
+No arguments are required; the target SA is derived entirely from the kindled regime and the retriever's installed credential file.
+
+//axhos_step
+. *Authenticate as {rbtr_governor}*:
+.. Execute
+{rbtoe_governor_authenticate}
+.. {rbbc_store}
+`«GOVERNOR_TOKEN»` for subsequent API calls
+
+//axhos_step
+. *Read Retriever RBRA and Extract SA Email*:
+.. {rbbc_require}
+RBRA file present at
+{rbrr_retriever_rbra_file}
+.. {rbbc_fatal}
+if file missing: "Retriever RBRA file not found — retriever may not be invested"
+.. {rbbc_store}
+`«RETRIEVER_EMAIL»` from RBRA's `client_email` field
+.. {rbbc_fatal}
+if `«RETRIEVER_EMAIL»` is empty or absent: "client_email field missing from retriever RBRA"
+
+//axhos_step
+. *Delete Retriever Service Account*:
+.. {rbbc_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/delete[iam.projects.serviceAccounts.delete] with:
+... method: `DELETE`
+... endpoint: `https://iam.googleapis.com/v1/projects/{rbtgi_depot_project}/serviceAccounts/«RETRIEVER_EMAIL»`
+... header: `Authorization: Bearer «GOVERNOR_TOKEN»`
+.. {rbbc_require}
+HTTP 200 response OR HTTP 404 (already divested)
+.. {rbbc_warn}
+if HTTP 404: "Retriever service account not found in cloud (already divested)"
+
+//axhos_step
+. *Remove Production RBRA File*:
+.. Execute
+{rbtoe_rbra_remove}
+for the retriever's RBRA file at
+{rbrr_retriever_rbra_file},
+mirroring cloud state and preventing stale-credential reuse
+.. {rbbc_require}
+file removal successful or file already absent
+
+//axhos_step
+. *Display Result*:
+.. {rbbc_show}
+single-line success notice naming `«RETRIEVER_EMAIL»` and confirming divestiture, or a 404-already-gone notice if cloud state was already clean
+
+//axhoc_completion
+Successful execution removes the {rbtr_retriever} {giam_service_account} from the {rbtgi_depot_project} and deletes the production RBRA file, leaving no stale credentials on disk.
+Proceed to
+{rbtgo_retriever_invest}
+to re-issue a fresh retriever SA when needed.
