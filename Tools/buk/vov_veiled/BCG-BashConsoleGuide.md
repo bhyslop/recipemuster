@@ -128,7 +128,7 @@ Enrollment types and gating API: see `buv_validation.sh`.
 
 **Mutable kindle state**: A variable initialized in kindle but intentionally mutated after kindle returns (counters, accumulators, registry rolls, builder state). Uses **lowercase** `z_«prefix»_name` to visually distinguish from `readonly` kindle constants. Never apply `readonly` to mutable kindle state.
 
-**Tinder constant**: A public variable (`«PREFIX»_lower_name`) defined at module top level, immediately after the `Z«PREFIX»_SOURCED=1` guard. Tinder constants must be pure string literals with **no variable expansion, no computation, and no runtime dependency**. They are available immediately after sourcing — no kindle required. Use `SCREAMING` case for the prefix (module identity) and `lower_snake` case for the name to visually distinguish from kindle constants. This enables sourcing chains where a tinder constant from module A provides the path for sourcing module B's config in the furnish function. The name reflects their role in the kindle metaphor: tinder is the fixed material prepared before kindling — inert, unchanging, and enabling the fire to start.
+**Tinder constant**: A public variable (`«PREFIX»_lower_name`) defined at module top level, immediately after the `Z«PREFIX»_SOURCED=1` guard. Tinder constants must resolve to pure string literals at source time — **no runtime dependency, no `$(…)` computation, no expansion of kindle constants or runtime variables**. Tinder-on-tinder expansion is permitted: a tinder value may interpolate `${«PREFIX»_lower_name}` for any tinder constant defined earlier in the same module's tinder block, since that expansion resolves at source time and preserves the no-runtime-dependency invariant. They are available immediately after sourcing — no kindle required. Use `SCREAMING` case for the prefix (module identity) and `lower_snake` case for the name to visually distinguish from kindle constants. This enables sourcing chains where a tinder constant from module A provides the path for sourcing module B's config in the furnish function. The name reflects their role in the kindle metaphor: tinder is the fixed material prepared before kindling — inert, unchanging, and enabling the fire to start.
 
 **KINDLED must be last**: `readonly Z«PREFIX»_KINDLED=1` must be the final statement in kindle. Since sentinel checks this variable, setting it last guarantees all kindle constants, roll arrays, and enroll calls are complete before the module is considered operational. Any function calling sentinel before kindle finishes will correctly fail. The `readonly` makes re-kindling a loud error.
 
@@ -277,7 +277,7 @@ set -euo pipefail
 test -z "${Z«PREFIX»_SOURCED:-}" || buc_die "Module «prefix» multiply sourced - check sourcing hierarchy"
 Z«PREFIX»_SOURCED=1
 
-# Tinder constants (pure string literals, no variable expansion — available at source time)
+# Tinder constants (pure string literals or tinder-on-tinder composition — available at source time)
 # «PREFIX»_some_path="fixed-filename.env"
 # «PREFIX»_some_prefix="prefix_"
 
@@ -363,17 +363,24 @@ z«prefix»_kindle() {
 **Tinder vs kindle constant — choosing correctly:**
 
 ```bash
-# ✅ Tinder constant: pure string, no variable expansion, available at source time
+# ✅ Tinder constant: pure string, available at source time
 «PREFIX»_config_file="config.env"        # lower_snake name — no kindle needed
+
+# ✅ Tinder-on-tinder composition: expansion of earlier tinder constant
+«PREFIX»_role_director="director"
+«PREFIX»_fact_ext_director="ext-${«PREFIX»_role_director}"  # resolves at source time
 
 # ✅ Kindle constant: depends on runtime state, requires kindle
 «PREFIX»_CONFIG_DIR="${BURD_TEMP_DIR}/config"  # SCREAMING name — kindle required
 
-# ❌ Wrong: variable expansion in tinder constant position
-«PREFIX»_config_dir="${BURD_TEMP_DIR}/config"  # VIOLATION: uses ${}, must be in kindle
+# ❌ Wrong: runtime variable expansion in tinder position
+«PREFIX»_config_dir="${BURD_TEMP_DIR}/config"  # VIOLATION: BURD_TEMP_DIR is runtime — must be kindle
 
-# ❌ Wrong: computation in tinder constant position
+# ❌ Wrong: computation in tinder position
 «PREFIX»_color_red=$(z«prefix»_color '1;31')   # VIOLATION: $() — must be in kindle
+
+# ❌ Wrong: expansion of kindle constant in tinder position
+«PREFIX»_derived="${«PREFIX»_KINDLED_VAR}/sub"  # VIOLATION: KINDLED_VAR available only after kindle
 ```
 
 ## Variable Handling (General Rules)
@@ -1615,7 +1622,7 @@ buc_warn    # Instead of echo >&2
 - [ ] All kindle constants (internal `Z«PREFIX»_SCREAMING` and public `«PREFIX»_SCREAMING`) defined exclusively in kindle with `readonly`
 - [ ] No kindle constant assignments outside kindle function
 - [ ] Mutable kindle state (counters, rolls, builder state) uses lowercase `z_«prefix»_name` — no `readonly`
-- [ ] Tinder constants (`«PREFIX»_lower_name`) are pure string literals with no `${}` expansion, no `$()` computation, placed after `SOURCED` guard
+- [ ] Tinder constants (`«PREFIX»_lower_name`) resolve at source time — pure literals or `${«PREFIX»_lower_name}` expansion of earlier tinder from the same module; no `$(…)` computation; no expansion of kindle constants or runtime variables; placed after `SOURCED` guard
 - [ ] All local variables use `z_` prefix
 - [ ] All expansions use `"${var}"` pattern (braced, quoted)
 - [ ] Parameters use `"${1:-}"` pattern for defensive programming
