@@ -6656,6 +6656,7 @@
         "₢BBAAR",
         "₢BBAAK",
         "₢BBAAP",
+        "₢BBAAW",
         "₢BBAAC",
         "₢BBAAD",
         "₢BBAAE",
@@ -6664,7 +6665,7 @@
         "₢BBAAH",
         "₢BBAAI"
       ],
-      "next_pace_seed": "AAW",
+      "next_pace_seed": "AAX",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAAA": {
@@ -7200,6 +7201,17 @@
               "text": "## Character\n\nMechanical AsciiDoc xref repair. BBAAQ's quoin retirements (Surfaces 2 and 4 plus naming-collision repair) left dead `{attribute}` references in sibling specs that now render as literal text. This pace flips them to the live attributes. No code, no narrative tracks — pure .adoc.\n\nRuns in parallel with any non-spec work. All replacement targets are already settled in RBS0.\n\n## Scope\n\n**SA cult-verb retirements (BBAAQ Surface 2):**\n- `{rbtgo_director_knight}` → `{rbtgo_director_invest}`\n- `{rbtgo_retriever_charter}` → `{rbtgo_retriever_invest}`\n- `{rbtgo_sa_forfeit}` → per call site, `{rbtgo_director_divest}` or `{rbtgo_retriever_divest}` (per-role split, requires reading context)\n- `{rbtgo_sa_list}` → per call site, `{rbtgo_director_roster}` or `{rbtgo_retriever_roster}`\n\n**RBRR retirements (BBAAQ Surface 4) — 11 sibling specs noted by BBAAQ:** RBSGM, RBSDK, RBSRK, RBSSF, RBSSL, RBSAJ, RBSIW, RBSDY, RBSDI, RBSTB, RBSRR\n- `{rbrr_depot_project_id}` / `{rbrr_gar_repository}` / `{rbrr_gcb_pool_stem}` → flip to literal `RBRR_CLOUD_PREFIX` / `RBRR_DEPOT_MONIKER` prose with derivation pattern, matching BBAAQ Surface 4's RBSDE rewrite precedent.\n\n**Image-muster retirement (already prompted to BBAAQ — verify if still pending):**\n- `Tools/rbk/vov_veiled/RBSIR-image_rekon.adoc:18` — `{rbtgo_image_muster}` → `{rbtgo_image_audit}`\n\n**Orphan .adoc files** — RBSDK-director_knight.adoc, RBSRK-retriever_knight.adoc, RBSSF-sa_forfeit.adoc, RBSSL-sa_list.adoc no longer included by RBS0. Decide: `git rm` or keep on disk un-rendered. Single decision call at mount time.\n\n## Verification\n\n- `grep -rn '{rbtgo_director_knight\\|rbtgo_retriever_charter\\|rbtgo_sa_forfeit\\|rbtgo_sa_list\\|rbtgo_image_muster\\|rbrr_depot_project_id\\|rbrr_gar_repository\\|rbrr_gcb_pool_stem}' Tools/rbk/vov_veiled/` returns zero hits.\n- AsciiDoc rendering shows no literal `{...}` strings in swept files (spot-check a few).\n\n## Out of scope\n\n- New quoin authoring.\n- Behavioral or structural changes to spec content beyond xref flipping.\n- Code, tabtargets, project memory.\n- Operator handbook tracks (BBAAR).",
               "silks": "spec-dangling-xref-sweep",
               "commit": "c9f0ddb"
+            }
+          ]
+        },
+        "₢BBAAW": {
+          "tacks": [
+            {
+              "ts": "260427-1233",
+              "state": "rough",
+              "text": "## Character\n\nConstruction of the canonical entry-point script `tt/rbw-tP.QualifyPristine.sh`. Stitches existing tabtargets per RELEASE.md §3 sequence into one orchestrator. No new cloud-mutating logic — every cloud step is a call to an existing tabtarget. The script's value is sequence, entry-contract enforcement, and exit gating, not novel functionality.\n\nCoding-only pace. **Wrap criterion**: script exists, parses cleanly, each tabtarget invocation has the right shape under cheap dry-checks. The gate-on-green discipline lives in the sibling first-run pace.\n\nIntent-only docket. Code-level planning happens at mount time.\n\n## Scope\n\nNew file: `tt/rbw-tP.QualifyPristine.sh`. Body comprises three responsibilities.\n\n**Entry contract** (per RELEASE.md L46–53): refuse to run unless ALL hold:\n- marshal-zero signature on HEAD\n- working tree clean\n- RBRA files absent\n- RBRR fields blank\n- hallmark pins blank in every nameplate regime\n- depot-scoped fields blank in every vessel regime\n\n**Sequence body** (per RELEASE.md L63–69):\n- pristine-lifecycle fixture (gate + simple + credentialed sections — depends on BBAAK landing)\n- canonical infrastructure setup — levy canonical depot (`rbw-dL`), mantle canonical governor (`rbw-aM`), invest canonical retriever (`rbw-arI` per BBAAN), invest canonical director (`rbw-adI` per BBAAN), IAM propagation wait\n- supply chain — inscribe reliquary (`rbw-dI`), ordain all hallmarks (`rbw-fO` per vessel)\n- crucible suite — charge/run-fixture/quench × {tadmor, moriah, srjcl, pluml}, sequential, per-fixture quench-after to avoid cross-fixture contamination\n- cleanup — abjure all hallmarks (`rbw-fA`), divest operational SAs (`rbw-arD`, `rbw-adD` per BBAAN), unmake depot (`rbw-dU`); governor cleanup folds into unmake per BBAAN's settled posture\n\n**Exit semantics**: green tally on success; operator-actionable diagnostic on failure naming the marshal-zero → pristine sequence per RELEASE.md L74.\n\n## Constraints\n\n- Honor paddock's Release-branch execution contract\n- Reuse existing tabtargets exclusively — no inline cloud-mutating logic\n- Real-time review at each step before commit\n- Wrap on script-exists + parses + invocation shapes correct; do **not** wrap on \"ran end-to-end\" — that is the first-run pace's wrap criterion\n\n## Cross-pace dependencies\n\n- BBAAK landed (credentialed fixture cases available)\n- BBAAN landed (cult-verb tabtargets `rbw-arI`, `rbw-adI`, `rbw-arD`, `rbw-adD`, `rbw-arr`, `rbw-adr`)\n\n## Out of scope\n\n- First end-to-end run against fresh cloud state (sibling pace)\n- Modifications to existing tabtargets to support orchestration — surface as separate paces if needed\n- Phase-skip flags or partial re-run flags (single-shot ceremony per RELEASE.md L10–11)\n- Pristine-passed sentinel artifact (BBAAH territory)\n- `/rbk-prep-release` integration (BBAAH)",
+              "silks": "rbw-tP-build",
+              "commit": "8c90fae"
             }
           ]
         }
