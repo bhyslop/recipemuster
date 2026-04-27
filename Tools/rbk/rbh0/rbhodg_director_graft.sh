@@ -55,7 +55,7 @@ rbho_director_graft() {
   if test -f "${RBBC_rbrr_file}"; then
     local z_line=""
     while IFS= read -r z_line; do
-      case "${z_line}" in RBRR_DEPOT_PROJECT_ID=?*) z_has_depot=1; break ;; esac
+      case "${z_line}" in RBRR_DEPOT_MONIKER=?*) z_has_depot=1; break ;; esac
     done < "${RBBC_rbrr_file}"
   fi
 
@@ -71,7 +71,7 @@ rbho_director_graft() {
     local z_project_id=""
     local z_region=""
     if test -f "${RBBC_rbrr_file}"; then
-      z_project_id=$(zrbho_po_extract_capture "${RBBC_rbrr_file}" "RBRR_DEPOT_PROJECT_ID") || z_project_id=""
+      z_project_id=$(zrbho_po_extract_capture "${RBBC_rbrr_file}" "RBRR_DEPOT_MONIKER") || z_project_id=""
       z_region=$(zrbho_po_extract_capture "${RBBC_rbrr_file}" "RBRR_GCP_REGION") || z_region=""
     fi
     if test -n "${z_region}" && test -n "${z_project_id}"; then
@@ -116,7 +116,7 @@ rbho_director_graft() {
     buh_tt "      " "${RBZ_ONBOARD_CRED_DIRECTOR}"
   fi
   if test "${z_has_depot}" = "1"; then
-    buh_line "${RBYC_PROBE_YES}${RBYC_DEPOT} configured (RBRR_DEPOT_PROJECT_ID populated)"
+    buh_line "${RBYC_PROBE_YES}${RBYC_DEPOT} configured (RBRR_DEPOT_MONIKER populated)"
   else
     buh_line "${RBYC_PROBE_NO}${RBYC_DEPOT} not configured — the ${RBYC_PAYOR} must establish the ${RBYC_DEPOT}:"
     buh_tt "      " "${RBZ_ONBOARD_PAYOR_HB}"

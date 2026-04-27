@@ -42,14 +42,14 @@ zrbfc_kindle() {
   readonly ZRBFC_CLOUD_QUERY_BASE="https://console.cloud.google.com/cloud-build/builds"
 
   readonly ZRBFC_GCB_PROJECT_BUILDS_URL="${ZRBFC_GCB_API_BASE}/projects/${RBGD_GCB_PROJECT_ID}/locations/${RBGD_GCB_REGION}/builds"
-  readonly ZRBFC_GAR_PACKAGE_BASE="projects/${RBGD_GAR_PROJECT_ID}/locations/${RBGD_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
+  readonly ZRBFC_GAR_PACKAGE_BASE="projects/${RBGD_GAR_PROJECT_ID}/locations/${RBGD_GAR_LOCATION}/repositories/${RBDC_GAR_REPOSITORY}"
 
   buc_log_args 'Trigger dispatch endpoints'
-  readonly ZRBFC_TRIGGERS_URL="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${RBRR_DEPOT_PROJECT_ID}/locations/${RBGD_GCB_REGION}/triggers"
+  readonly ZRBFC_TRIGGERS_URL="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/locations/${RBGD_GCB_REGION}/triggers"
 
   buc_log_args 'Registry API endpoints'
   readonly ZRBFC_REGISTRY_HOST="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
-  readonly ZRBFC_REGISTRY_PATH="${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
+  readonly ZRBFC_REGISTRY_PATH="${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
   readonly ZRBFC_REGISTRY_API_BASE="https://${ZRBFC_REGISTRY_HOST}/v2/${ZRBFC_REGISTRY_PATH}"
 
   buc_log_args 'Media types for registry operations'

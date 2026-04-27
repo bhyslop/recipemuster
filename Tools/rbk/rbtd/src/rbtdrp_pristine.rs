@@ -38,17 +38,16 @@ use crate::rbtdrm_manifest::{
 /// throwaway-prefix install helper share a single definition site.
 const RBTDRP_FIELD_RBRR_CLOUD_PREFIX: &str = "RBRR_CLOUD_PREFIX";
 const RBTDRP_FIELD_RBRR_RUNTIME_PREFIX: &str = "RBRR_RUNTIME_PREFIX";
-const RBTDRP_FIELD_RBRR_DEPOT_PROJECT_ID: &str = "RBRR_DEPOT_PROJECT_ID";
+const RBTDRP_FIELD_RBRR_DEPOT_MONIKER: &str = "RBRR_DEPOT_MONIKER";
 
-/// Site-specific RBRR fields that rblm_zero blanks. These five fields define
-/// the depot-bound site identity; an empty value is the post-marshal-zero
-/// invariant.
+/// Site-specific RBRR fields that rblm_zero blanks. These three fields define
+/// the depot-bound site identity (project ID, GAR repo, pool stem, and bucket
+/// derive from CLOUD_PREFIX + DEPOT_MONIKER at kindle); an empty value is the
+/// post-marshal-zero invariant.
 const RBTDRP_RBRR_BLANK_FIELDS: &[&str] = &[
-    RBTDRP_FIELD_RBRR_DEPOT_PROJECT_ID,
-    "RBRR_GAR_REPOSITORY",
-    "RBRR_GCB_POOL_STEM",
     RBTDRP_FIELD_RBRR_CLOUD_PREFIX,
     RBTDRP_FIELD_RBRR_RUNTIME_PREFIX,
+    RBTDRP_FIELD_RBRR_DEPOT_MONIKER,
 ];
 
 /// Throwaway RBRR prefix values stamped into rbrr.env by
@@ -382,25 +381,25 @@ pub(crate) fn rbtdrp_install_throwaway_prefixes(root: &Path) -> Result<(), Strin
     rbtdrp_git_add_and_commit(root, RBTDRP_RBRR_FILE, &commit_msg)
 }
 
-/// Set `RBRR_DEPOT_PROJECT_ID` in rbrr.env to `project_id` and commit. Used
-/// by case 3 to satisfy `rbgp_governor_mantle`'s precondition that the
-/// depot project is named in the regime. The commit is separate from the
-/// throwaway-prefix commit so the audit trail shows the levy step that
-/// produced the value.
-fn rbtdrp_install_depot_project_id(root: &Path, project_id: &str) -> Result<(), String> {
+/// Set `RBRR_DEPOT_MONIKER` in rbrr.env to `moniker` and commit. Step-5
+/// callers (pristine cases 2-3) use this to install a moniker that drives
+/// `RBDC_DEPOT_PROJECT_ID` via kindle derivation. The commit is separate
+/// from the throwaway-prefix commit so the audit trail shows the moniker
+/// landing as its own pace.
+fn rbtdrp_install_depot_moniker(root: &Path, moniker: &str) -> Result<(), String> {
     let rbrr = root.join(RBTDRP_RBRR_FILE);
     let content = std::fs::read_to_string(&rbrr)
         .map_err(|e| format!("rbtdrp: read {}: {}", rbrr.display(), e))?;
     let new_content = rbtdrp_replace_env_fields(
         &content,
-        &[(RBTDRP_FIELD_RBRR_DEPOT_PROJECT_ID, project_id)],
+        &[(RBTDRP_FIELD_RBRR_DEPOT_MONIKER, moniker)],
     );
     std::fs::write(&rbrr, &new_content)
         .map_err(|e| format!("rbtdrp: write {}: {}", rbrr.display(), e))?;
 
     let commit_msg = format!(
         "pristine-lifecycle fixture: set {}={}",
-        RBTDRP_FIELD_RBRR_DEPOT_PROJECT_ID, project_id
+        RBTDRP_FIELD_RBRR_DEPOT_MONIKER, moniker
     );
     rbtdrp_git_add_and_commit(root, RBTDRP_RBRR_FILE, &commit_msg)
 }
@@ -624,8 +623,13 @@ fn rbtdrp_governor_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdr
     };
     let _ = std::fs::write(dir.join("project-id.txt"), &project_id);
 
-    if let Err(e) = rbtdrp_install_depot_project_id(&root, &project_id) {
-        return rbtdre_Verdict::Fail(format!("set RBRR_DEPOT_PROJECT_ID: {}", e));
+    // STEP-5-PENDING: post-collapse, case 3 should set RBRR_DEPOT_MONIKER
+    // before invoking levy (so RBDC_DEPOT_PROJECT_ID drives all derived
+    // names). Step 1 leaves the previous edit-and-commit pattern in place
+    // semantically inverted — fixture run is service-tier-broken until
+    // Step 5 reshapes case 3's ordering.
+    if let Err(e) = rbtdrp_install_depot_moniker(&root, &project_id) {
+        return rbtdre_Verdict::Fail(format!("set RBRR_DEPOT_MONIKER: {}", e));
     }
 
     let mantle = match rbtdrp_invoke_logged(

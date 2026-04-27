@@ -209,7 +209,7 @@ zrbfd_quota_preflight() {
 
   # Query Service Usage consumer quota API for concurrent_private_pool_build_cpus
   local -r z_metric_encoded="cloudbuild.googleapis.com%2Fconcurrent_private_pool_build_cpus"
-  local -r z_url="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1BETA1}/projects/${RBRR_DEPOT_PROJECT_ID}/services/cloudbuild.googleapis.com/consumerQuotaMetrics/${z_metric_encoded}"
+  local -r z_url="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1BETA1}/projects/${RBDC_DEPOT_PROJECT_ID}/services/cloudbuild.googleapis.com/consumerQuotaMetrics/${z_metric_encoded}"
 
   buc_step "Checking concurrent build quota"
   rbgu_http_json "GET" "${z_url}" "${z_token}" "quota_preflight"
@@ -378,7 +378,7 @@ zrbfd_stitch_build_json() {
   # Resolve base images: ANCHOR → full GAR reference, or pass ORIGIN through
   # Spec: RBSAC step "Resolve Base Images"
   # New layout: each anchor is its own package under RBGL_ENSHRINES_ROOT, with anchor as both path segment and tag.
-  local -r z_gar_repo_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
+  local -r z_gar_repo_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
   local z_image_ref_1="" z_image_ref_2="" z_image_ref_3=""
   local z_ri_n="" z_ri_origin_var="" z_ri_anchor_var="" z_ri_origin="" z_ri_anchor=""
   for z_ri_n in 1 2 3; do
@@ -600,7 +600,7 @@ zrbfd_stitch_build_json() {
   # Context extraction step prepended; mason SA included; images: field uses inscribe_ts.
   buc_log_args "Composing builds.create Build resource"
   local -r z_build_file="${ZRBFD_STITCH_PREFIX}build.json"
-  local -r z_mason_sa="projects/${RBRR_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
+  local -r z_mason_sa="projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
 
   # Context extraction step (first step — extracts build context from pouch in GAR)
   local -r z_extract_step_file="${ZRBFD_STITCH_PREFIX}extract_step.json"
@@ -625,7 +625,7 @@ zrbfd_stitch_build_json() {
   # These are durable provenance-carrying tags on the single attest package
   # (hallmarks/<H>/attest); deleted only by abjure.
   local z_images_file="${ZRBFD_STITCH_PREFIX}images.json"
-  local z_attest_pkg="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/attest"
+  local z_attest_pkg="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/attest"
   local z_remaining_suffixes="${z_platform_suffixes_csv}"
   local z_img_suffix=""
   echo "[]" > "${z_images_file}" || buc_die "Failed to initialize images JSON"
@@ -660,7 +660,7 @@ zrbfd_stitch_build_json() {
     --arg zjq_platform_suffixes "${z_platform_suffixes_csv}" \
     --arg zjq_gar_location      "${RBGD_GAR_LOCATION}" \
     --arg zjq_gar_project       "${RBGD_GAR_PROJECT_ID}" \
-    --arg zjq_gar_repository    "${RBRR_GAR_REPOSITORY}" \
+    --arg zjq_gar_repository    "${RBDC_GAR_REPOSITORY}" \
     --arg zjq_git_commit        "${z_git_commit}" \
     --arg zjq_git_branch        "${z_git_branch}" \
     --arg zjq_git_repo          "${z_git_repo}" \
@@ -673,7 +673,7 @@ zrbfd_stitch_build_json() {
     --arg zjq_mason_sa          "${z_mason_sa}" \
     --arg zjq_cb_build_id       "${z_cb_build_id}" \
     --arg zjq_rbga_gar_host     "${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}" \
-    --arg zjq_rbga_gar_path     "${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}" \
+    --arg zjq_rbga_gar_path     "${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}" \
     --arg zjq_rbga_dockerfile   "${z_stitch_dockerfile_content}" \
     --arg zjq_image_1           "${z_image_ref_1}" \
     --arg zjq_image_2           "${z_image_ref_2}" \
@@ -850,8 +850,8 @@ zrbfd_enshrine_submit() {
 
   buc_step "Constructing enshrine Cloud Build resource"
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
-  local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
-  local -r z_mason_sa="projects/${RBRR_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
+  local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
+  local -r z_mason_sa="projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
 
   # Assemble enshrine step from script
   local -r z_script_path="${ZRBFD_RBGJE_STEPS_DIR}/rbgje01-enshrine-copy.sh"
@@ -1385,7 +1385,7 @@ rbfd_mirror() {
 
   # GAR coordinates
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
-  local -r z_gar_base="${z_gar_host}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
+  local -r z_gar_base="${z_gar_host}/${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
 
   # Generate hallmark timestamps: bYYMMDDHHMMSS-rYYMMDDHHMMSS
   local -r z_mirror_ts="b${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
@@ -1432,8 +1432,8 @@ zrbfd_mirror_submit() {
 
   buc_step "Constructing combined mirror Cloud Build resource"
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
-  local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
-  local -r z_mason_sa="projects/${RBRR_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
+  local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
+  local -r z_mason_sa="projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
 
   # Step 0: Mirror image via skopeo
   local -r z_mscript_path="${ZRBFD_RBGJM_STEPS_DIR}/rbgjm01-mirror-image.sh"
@@ -1664,7 +1664,7 @@ rbfd_graft() {
 
   # GAR coordinates
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
-  local -r z_gar_base="${z_gar_host}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
+  local -r z_gar_base="${z_gar_host}/${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
 
   # Generate push timestamp (T2) for hallmark
   local -r z_push_ts_file="${ZRBFD_GRAFT_PREFIX}push_ts.txt"

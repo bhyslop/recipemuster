@@ -44,12 +44,8 @@ zrbgc_kindle() {
   readonly RBGC_GLOBAL_DEPOT_NAME_MAX=10
 
   # Global resource validation patterns
-  # Payor:  rbwg-p-YYMMDDHHMMSS
-  # Depot:  rbwg-d-[name]-YYMMDDHHMMSS
-  # Bucket: rbwg-b-[name]-YYMMDDHHMMSS
+  # Payor:  rbwg-p-YYMMDDHHMMSS  (timestamp survives — payor is installation-scoped, not depot-scoped)
   readonly RBGC_GLOBAL_PAYOR_REGEX="^${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_PAYOR}-${RBGC_GLOBAL_TIMESTAMP_REGEX}$"
-  readonly RBGC_GLOBAL_DEPOT_REGEX="^${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-[a-z0-9-]+-${RBGC_GLOBAL_TIMESTAMP_REGEX}$"
-  readonly RBGC_GLOBAL_BUCKET_REGEX="^${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_BUCKET}-[a-z0-9-]+-${RBGC_GLOBAL_TIMESTAMP_REGEX}$"
 
   # Basic Configuration
   readonly RBGC_ADMIN_ROLE="rbw-admin"
@@ -155,6 +151,14 @@ zrbgc_kindle() {
   # Payor fact-file filenames (depot/governor identifying values)
   readonly RBGP_FACT_DEPOT_PROJECT_ID="rbgp_fact_depot_project_id"
   readonly RBGP_FACT_GOVERNOR_SA_EMAIL="rbgp_fact_governor_sa_email"
+
+  # Depot fact-file extension and lifecycle-state vocabulary.
+  # rbgp_depot_list emits one fact file per known depot named "<moniker>.depot"
+  # with content equal to one of the state values below.
+  readonly RBGP_FACT_EXT_DEPOT="depot"
+  readonly RBGP_DEPOT_STATE_COMPLETE="COMPLETE"
+  readonly RBGP_DEPOT_STATE_BROKEN="BROKEN"
+  readonly RBGP_DEPOT_STATE_DELETE_REQUESTED="DELETE_REQUESTED"
 
   # Artifact Registry (GAR) Composition
   readonly RBGC_GAR_HOST_SUFFIX="-docker.pkg.dev"

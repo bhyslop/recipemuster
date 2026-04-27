@@ -30,37 +30,33 @@ ZRBGD_SOURCED=1
 zrbgd_kindle() {
   test -z "${ZRBGD_KINDLED:-}" || buc_die "Module rbgd already kindled"
 
-  # Depot-specific Constants (require RBRR variables)
-  # Note: RBGD_GCS_BUCKET defined below after depot name extraction
+  # Depot-specific Constants — derive from RBDC kindle constants.
+  # RBDC_DEPOT_PROJECT_ID and RBDC_GCS_BUCKET are themselves derived from
+  # (RBRR_CLOUD_PREFIX, RBRR_DEPOT_MONIKER) at zrbdc_kindle time.
 
   # Service-specific Aliases
-  readonly RBGD_GAR_PROJECT_ID="${RBRR_DEPOT_PROJECT_ID}"
+  readonly RBGD_GAR_PROJECT_ID="${RBDC_DEPOT_PROJECT_ID}"
   readonly RBGD_GAR_LOCATION="${RBRR_GCP_REGION}"
-  readonly RBGD_GCB_PROJECT_ID="${RBRR_DEPOT_PROJECT_ID}"
+  readonly RBGD_GCB_PROJECT_ID="${RBDC_DEPOT_PROJECT_ID}"
   readonly RBGD_GCB_REGION="${RBRR_GCP_REGION}"
 
   # Project-dependent API Paths
-  readonly RBGD_PROJECT_RESOURCE="${RBGC_PATH_PROJECTS}/${RBRR_DEPOT_PROJECT_ID}"
+  readonly RBGD_PROJECT_RESOURCE="${RBGC_PATH_PROJECTS}/${RBDC_DEPOT_PROJECT_ID}"
 
   # Common API Base Paths (hoisted for reuse)
-  readonly RBGD_API_BASE_SERVICEUSAGE="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}${RBGC_PATH_PROJECTS}/${RBRR_DEPOT_PROJECT_ID}${RBGC_SERVICEUSAGE_PATH_SERVICES}"
-  readonly RBGD_API_BASE_CRM_PROJECT="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}${RBGC_PATH_PROJECTS}/${RBRR_DEPOT_PROJECT_ID}"
-  readonly RBGD_API_BASE_IAM_PROJECT="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}${RBGC_PATH_PROJECTS}/${RBRR_DEPOT_PROJECT_ID}"
+  readonly RBGD_API_BASE_SERVICEUSAGE="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}${RBGC_PATH_PROJECTS}/${RBDC_DEPOT_PROJECT_ID}${RBGC_SERVICEUSAGE_PATH_SERVICES}"
+  readonly RBGD_API_BASE_CRM_PROJECT="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}${RBGC_PATH_PROJECTS}/${RBDC_DEPOT_PROJECT_ID}"
+  readonly RBGD_API_BASE_IAM_PROJECT="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}${RBGC_PATH_PROJECTS}/${RBDC_DEPOT_PROJECT_ID}"
 
   # IAM Service Accounts
   readonly RBGD_API_SERVICE_ACCOUNTS="${RBGD_API_BASE_IAM_PROJECT}${RBGC_PATH_SERVICE_ACCOUNTS}"
-  readonly RBGD_SA_EMAIL_FULL="${RBRR_DEPOT_PROJECT_ID}.${RBGC_SA_EMAIL_DOMAIN}"
+  readonly RBGD_SA_EMAIL_FULL="${RBDC_DEPOT_PROJECT_ID}.${RBGC_SA_EMAIL_DOMAIN}"
 
-  # Extract depot name and timestamp from project ID pattern rbwg-d-{depot_name}-{timestamp}
-  # Using bash builtins per BCG: remove prefix, then remove suffix (hyphen + timestamp)
-  local z_without_prefix="${RBRR_DEPOT_PROJECT_ID#"${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-"}"
-  local z_len=${#z_without_prefix}
-  local z_suffix_len=$((1 + RBGC_GLOBAL_TIMESTAMP_LEN))
-  readonly RBGD_DEPOT_NAME="${z_without_prefix:0:$((z_len - z_suffix_len))}"
-  local z_timestamp="${z_without_prefix: -${RBGC_GLOBAL_TIMESTAMP_LEN}}"
-
-  # Bucket name follows same pattern as project but with 'b' type instead of 'd'
-  readonly RBGD_GCS_BUCKET="${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_BUCKET}-${RBGD_DEPOT_NAME}-${z_timestamp}"
+  # Depot name (the moniker) and bucket — both inputs to RBGD_MASON_EMAIL and
+  # bucket-IAM operations. Moniker is the operator-set RBRR field; bucket is
+  # already derived in RBDC.
+  readonly RBGD_DEPOT_NAME="${RBRR_DEPOT_MONIKER}"
+  readonly RBGD_GCS_BUCKET="${RBDC_GCS_BUCKET}"
   readonly RBGD_MASON_EMAIL="${RBGC_MASON_PREFIX}-${RBGD_DEPOT_NAME}@${RBGD_SA_EMAIL_FULL}"
 
   # Cloud Resource Manager (CRM) APIs
@@ -87,7 +83,7 @@ zrbgd_kindle() {
   readonly RBGD_API_SU_VERIFY_STORAGE="${RBGD_API_BASE_SERVICEUSAGE}/storage.googleapis.com"
 
   # Google Cloud Storage (GCS) APIs
-  readonly RBGD_API_GCS_BUCKET_CREATE="${RBGC_API_GCS_BUCKETS}?project=${RBRR_DEPOT_PROJECT_ID}"
+  readonly RBGD_API_GCS_BUCKET_CREATE="${RBGC_API_GCS_BUCKETS}?project=${RBDC_DEPOT_PROJECT_ID}"
   readonly RBGD_API_GCS_BUCKET_OPS="${RBGC_API_GCS_BUCKETS}/${RBGD_GCS_BUCKET}"
   readonly RBGD_API_GCS_BUCKET_OBJECTS="${RBGD_API_GCS_BUCKET_OPS}/o"
   readonly RBGD_API_GCS_BUCKET_IAM="${RBGD_API_GCS_BUCKET_OPS}/iam"

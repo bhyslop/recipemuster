@@ -44,8 +44,8 @@ ZRBGG_SOURCED=1
 zrbgg_kindle() {
   test -z "${ZRBGG_KINDLED:-}" || buc_die "Module rbgg already kindled"
 
-  test -n "${RBRR_DEPOT_PROJECT_ID:-}"     || buc_die "RBRR_DEPOT_PROJECT_ID is not set"
-  test   "${#RBRR_DEPOT_PROJECT_ID}" -gt 0 || buc_die "RBRR_DEPOT_PROJECT_ID is empty"
+  test -n "${RBDC_DEPOT_PROJECT_ID:-}"     || buc_die "RBDC_DEPOT_PROJECT_ID is not set"
+  test   "${#RBDC_DEPOT_PROJECT_ID}" -gt 0 || buc_die "RBDC_DEPOT_PROJECT_ID is empty"
 
   buc_log_args 'Ensure dependencies are kindled first'
   zrbgc_sentinel
@@ -198,7 +198,7 @@ zrbgg_create_service_account_with_key() {
   if test "${z_user_keys}" -gt 0; then
     buc_log_args 'Provide a console URL to delete keys manually, then rerun this command'
     local z_sa_email_enc="${z_account_email//@/%40}"
-    local z_keys_url="${RBGC_CONSOLE_URL}iam-admin/serviceaccounts/details/${z_sa_email_enc}?project=${RBRR_DEPOT_PROJECT_ID}"
+    local z_keys_url="${RBGC_CONSOLE_URL}iam-admin/serviceaccounts/details/${z_sa_email_enc}?project=${RBDC_DEPOT_PROJECT_ID}"
 
     buc_warn "Found ${z_user_keys} existing USER_MANAGED key(s) on ${z_account_email}."
     buc_info "Open Console, select the **Keys** tab, delete old keys, then rerun:"
@@ -432,7 +432,7 @@ rbgg_list_service_accounts() {
   buc_doc_brief "List all service accounts in the project"
   buc_doc_shown || return 0
 
-  buc_step 'Listing service accounts in project: '"${RBRR_DEPOT_PROJECT_ID}"
+  buc_step 'Listing service accounts in project: '"${RBDC_DEPOT_PROJECT_ID}"
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
@@ -579,7 +579,7 @@ rbgg_knight_director() {
   buc_step 'Grant Artifact Registry roles (complete expected policy)'
   # Complete policy: Director repoAdmin + Mason writer in one setIamPolicy.
   # Prevents read-modify-write race where stale getIamPolicy omits Mason's binding.
-  local -r z_gar_resource="projects/${RBGD_GAR_PROJECT_ID}/locations/${RBGD_GAR_LOCATION}/repositories/${RBRR_GAR_REPOSITORY}"
+  local -r z_gar_resource="projects/${RBGD_GAR_PROJECT_ID}/locations/${RBGD_GAR_LOCATION}/repositories/${RBDC_GAR_REPOSITORY}"
   local -r z_gar_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_gar_resource}:getIamPolicy?options.requestedPolicyVersion=3"
   local -r z_gar_set_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_gar_resource}:setIamPolicy"
 
@@ -734,7 +734,7 @@ rbgg_destroy_project() {
   buc_warn ""
   buc_warn "========================================================================"
   buc_warn "CRITICAL WARNING: You are about to PERMANENTLY DELETE the entire project:"
-  buc_warn "  Project: ${RBRR_DEPOT_PROJECT_ID}"
+  buc_warn "  Project: ${RBDC_DEPOT_PROJECT_ID}"
   buc_warn "This will:"
   buc_warn "  - Delete ALL resources in the project"
   buc_warn "  - Delete ALL data permanently"
@@ -744,12 +744,12 @@ rbgg_destroy_project() {
   buc_warn "========================================================================"
   buc_warn ""
 
-  buc_require "Type the exact project ID to confirm deletion" "${RBRR_DEPOT_PROJECT_ID}"
+  buc_require "Type the exact project ID to confirm deletion" "${RBDC_DEPOT_PROJECT_ID}"
   buc_require "Confirm you understand this DELETES EVERYTHING in the project" "DELETE-EVERYTHING"
   buc_require "Final confirmation - type OBLITERATE to proceed" "OBLITERATE"
 
   buc_step 'Check for liens (will block deletion)'
-  rbgu_http_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens?parent=projects/${RBRR_DEPOT_PROJECT_ID}" "${z_token}" "${ZRBGG_INFIX_LIST_LIENS}"
+  rbgu_http_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens?parent=projects/${RBDC_DEPOT_PROJECT_ID}" "${z_token}" "${ZRBGG_INFIX_LIST_LIENS}"
   rbgu_http_require_ok "List liens" "${ZRBGG_INFIX_LIST_LIENS}"
 
   local z_lien_count
@@ -759,8 +759,8 @@ rbgg_destroy_project() {
     buc_step 'BLOCKED: Liens exist on project'
     buc_warn "Project has ${z_lien_count} lien(s) that prevent deletion"
     buc_warn "You must remove all liens first:"
-    buc_code "  gcloud resource-manager liens list --project=${RBRR_DEPOT_PROJECT_ID}"
-    buc_code "  gcloud resource-manager liens delete LIEN_NAME --project=${RBRR_DEPOT_PROJECT_ID}"
+    buc_code "  gcloud resource-manager liens list --project=${RBDC_DEPOT_PROJECT_ID}"
+    buc_code "  gcloud resource-manager liens delete LIEN_NAME --project=${RBDC_DEPOT_PROJECT_ID}"
     buc_warn "Then re-run this command."
     buc_die "Cannot proceed with active liens"
   fi
@@ -812,7 +812,7 @@ rbgg_restore_project() {
 
   buc_step 'Confirm restoration'
   buc_log_args "Project Status: ${z_lifecycle_state}"
-  buc_log_args "Attempting to restore project: ${RBRR_DEPOT_PROJECT_ID}"
+  buc_log_args "Attempting to restore project: ${RBDC_DEPOT_PROJECT_ID}"
   buc_log_args "WARNING: Restore may fail if deletion process has already started"
   buc_require "Confirm restoration of project" "RESTORE"
 

@@ -70,7 +70,7 @@ rbfv_vouch_gate() {
   test -n "${z_hallmark}" || buc_die "rbfv_vouch_gate: hallmark required"
 
   local -r z_registry_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
-  local -r z_registry_api_base="https://${z_registry_host}/v2/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
+  local -r z_registry_api_base="https://${z_registry_host}/v2/${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
 
   # Vouch package = hallmarks/<H>/vouch, tag = <H> (hallmark-as-tag).
   local -r z_vouch_tag="${z_hallmark}"
@@ -204,8 +204,8 @@ zrbfv_graft_metadata_submit() {
 
   buc_step "Constructing combined about+vouch Cloud Build resource"
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
-  local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
-  local -r z_mason_sa="projects/${RBRR_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
+  local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
+  local -r z_mason_sa="projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
 
   # Gate: require image exists (graft push must have completed)
   buc_step "Gating on image artifact existence"
@@ -410,8 +410,8 @@ zrbfv_about_submit() {
 
   buc_step "Constructing about Cloud Build resource"
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
-  local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
-  local -r z_mason_sa="projects/${RBRR_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
+  local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
+  local -r z_mason_sa="projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
 
   # Determine mode-specific substitution values
   local z_vessel_mode="${RBRV_VESSEL_MODE}"
@@ -665,8 +665,8 @@ zrbfv_vouch_submit() {
 
   buc_step "Constructing vouch Cloud Build resource"
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
-  local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
-  local -r z_mason_sa="projects/${RBRR_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
+  local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
+  local -r z_mason_sa="projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
 
   # Mode-specific substitution values (empty strings for non-applicable modes)
   local z_bind_source=""

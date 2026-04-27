@@ -77,9 +77,18 @@ zrbdc_kindle() {
   readonly RBDC_PAYOR_RBRO_FILE="${RBRR_SECRETS_DIR}/${RBCC_role_payor}/${RBCC_rbro_file}"
   readonly RBDC_ASSAY_RBRA_FILE="${RBRR_SECRETS_DIR}/${RBCC_role_assay}/${RBCC_rbra_file}"
 
+  # Derive depot identity from (RBRR_CLOUD_PREFIX, RBRR_DEPOT_MONIKER).
+  # Project ID, GAR repository, pool stem, and bucket fall out at kindle.
+  # Type markers and suffixes are literals here (rather than RBGC consts)
+  # to keep rbdc kindle independent of rbgc kindle ordering.
+  readonly RBDC_DEPOT_PROJECT_ID="${RBRR_CLOUD_PREFIX}d-${RBRR_DEPOT_MONIKER}"
+  readonly RBDC_GAR_REPOSITORY="${RBRR_CLOUD_PREFIX}${RBRR_DEPOT_MONIKER}-gar"
+  readonly RBDC_GCB_POOL_STEM="${RBRR_CLOUD_PREFIX}${RBRR_DEPOT_MONIKER}-pool"
+  readonly RBDC_GCS_BUCKET="${RBRR_CLOUD_PREFIX}b-${RBRR_DEPOT_MONIKER}"
+
   # Derive full pool resource paths from stem (suffixes match RBGC_POOL_SUFFIX_TETHER/AIRGAP)
-  readonly RBDC_POOL_TETHER="projects/${RBRR_DEPOT_PROJECT_ID}/locations/${RBRR_GCP_REGION}/workerPools/${RBRR_GCB_POOL_STEM}-tether"
-  readonly RBDC_POOL_AIRGAP="projects/${RBRR_DEPOT_PROJECT_ID}/locations/${RBRR_GCP_REGION}/workerPools/${RBRR_GCB_POOL_STEM}-airgap"
+  readonly RBDC_POOL_TETHER="projects/${RBDC_DEPOT_PROJECT_ID}/locations/${RBRR_GCP_REGION}/workerPools/${RBDC_GCB_POOL_STEM}-tether"
+  readonly RBDC_POOL_AIRGAP="projects/${RBDC_DEPOT_PROJECT_ID}/locations/${RBRR_GCP_REGION}/workerPools/${RBDC_GCB_POOL_STEM}-airgap"
 
   readonly ZRBDC_KINDLED=1
 }

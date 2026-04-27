@@ -47,13 +47,11 @@ zrbrr_kindle() {
   buv_ipv4_enroll    RBRR_DNS_SERVER                   "DNS server for containers"
 
   buv_group_enroll "GCP Infrastructure"
-  buv_gname_enroll   RBRR_DEPOT_PROJECT_ID         6   63  "GCP project ID for depot"
+  buv_string_enroll  RBRR_DEPOT_MONIKER            1   26  "Depot moniker — paired with CLOUD_PREFIX to derive depot project ID, GAR repo, pool stem, and bucket"
   buv_gname_enroll   RBRR_GCP_REGION               1   32  "GCP region"
-  buv_gname_enroll   RBRR_GAR_REPOSITORY           1   63  "Google Artifact Registry repository name"
 
   buv_group_enroll "Google Cloud Build Configuration"
   buv_gname_enroll   RBRR_GCB_MACHINE_TYPE           3   64  "Machine type for Cloud Build (CE format)"
-  buv_gname_enroll   RBRR_GCB_POOL_STEM                1   63  "Worker pool base name (suffixed with -tether/-airgap)"
   buv_string_enroll  RBRR_GCB_TIMEOUT                2   10  "Build timeout (e.g., 1200s)"
   buv_decimal_enroll RBRR_GCB_MIN_CONCURRENT_BUILDS  1  999  "Min concurrent builds required"
 
@@ -93,8 +91,8 @@ zrbrr_enforce() {
   [[ "${RBRR_GCB_TIMEOUT}" =~ ^[0-9]+s$ ]] \
     || buc_die "Invalid RBRR_GCB_TIMEOUT format: ${RBRR_GCB_TIMEOUT} (expected NNNs)"
 
-  [[ "${RBRR_GCB_POOL_STEM}" =~ ^[a-z][a-z0-9-]+$ ]] \
-    || buc_die "Invalid RBRR_GCB_POOL_STEM format: ${RBRR_GCB_POOL_STEM} (expected lowercase pool base name)"
+  [[ "${RBRR_DEPOT_MONIKER}" =~ ^[a-z][a-z0-9]*$ ]] \
+    || buc_die "Invalid RBRR_DEPOT_MONIKER format: ${RBRR_DEPOT_MONIKER} (expected lowercase alphanumeric starting with letter; no hyphens)"
 
   [[ "${RBRR_CLOUD_PREFIX}"   =~ ^[a-z][a-z0-9-]*-$ ]] \
     || buc_die "Invalid RBRR_CLOUD_PREFIX format: ${RBRR_CLOUD_PREFIX}   (expected lowercase starting with letter, ending in hyphen)"

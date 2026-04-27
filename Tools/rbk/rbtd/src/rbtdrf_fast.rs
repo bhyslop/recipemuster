@@ -776,16 +776,16 @@ fn rbtdrf_rv_rbrr_neg(dir: &Path, label: &str, setup: &str) -> rbtdre_Verdict {
     )
 }
 
-fn rbtdrf_rv_rbrr_missing_project_id(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_rv_rbrr_neg(dir, "rbrr-missing-project-id", "unset RBRR_DEPOT_PROJECT_ID")
+fn rbtdrf_rv_rbrr_missing_moniker(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_rv_rbrr_neg(dir, "rbrr-missing-moniker", "unset RBRR_DEPOT_MONIKER")
 }
 
 fn rbtdrf_rv_rbrr_bad_timeout(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_rv_rbrr_neg(dir, "rbrr-bad-timeout", "export RBRR_GCB_TIMEOUT=\"1200\"")
 }
 
-fn rbtdrf_rv_rbrr_bad_pool_stem(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_rv_rbrr_neg(dir, "rbrr-bad-pool-stem", "export RBRR_GCB_POOL_STEM=\"BAD_POOL_NAME\"")
+fn rbtdrf_rv_rbrr_bad_moniker(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_rv_rbrr_neg(dir, "rbrr-bad-moniker", "export RBRR_DEPOT_MONIKER=\"BAD-MONIKER\"")
 }
 
 fn rbtdrf_rv_rbrr_unexpected_var(dir: &Path) -> rbtdre_Verdict {
@@ -1335,9 +1335,9 @@ pub static RBTDRF_SECTIONS_REGIME_VALIDATION: &[rbtdre_Section] = &[
     rbtdre_Section {
         name: "rv-rbrr-negative",
         cases: &[
-            case!(rbtdrf_rv_rbrr_missing_project_id),
+            case!(rbtdrf_rv_rbrr_missing_moniker),
             case!(rbtdrf_rv_rbrr_bad_timeout),
-            case!(rbtdrf_rv_rbrr_bad_pool_stem),
+            case!(rbtdrf_rv_rbrr_bad_moniker),
             case!(rbtdrf_rv_rbrr_unexpected_var),
             case!(rbtdrf_rv_rbrr_bad_vessel_dir),
             case!(rbtdrf_rv_rbrr_bad_secrets_dir),

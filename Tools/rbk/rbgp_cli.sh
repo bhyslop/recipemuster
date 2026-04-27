@@ -53,8 +53,9 @@ zrbgp_furnish() {
   zrbcc_kindle
 
   zrbrr_kindle
-  # Differential furnish: depot_levy establishes the depot — skip enforce
-  # which requires RBRR_DEPOT_PROJECT_ID and other fields it will populate.
+  # Differential furnish (Step-2-pending): depot_levy currently still takes
+  # a CLI arg pre-collapse; post-Step-2 it reads RBRR_DEPOT_MONIKER from
+  # the kindled regime and the differential skip below is obsolete.
   case "${z_command}" in
     rbgp_depot_levy) ;;
     *)                 zrbrr_enforce ;;

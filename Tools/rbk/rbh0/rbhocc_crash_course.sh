@@ -32,7 +32,7 @@ rbho_crash_course() {
   local z_rbrr_project=""
   local z_rbrr_populated=0
   if test -f "${RBBC_rbrr_file}"; then
-    z_rbrr_project=$(zrbho_po_extract_capture "${RBBC_rbrr_file}" "RBRR_DEPOT_PROJECT_ID") || z_rbrr_project=""
+    z_rbrr_project=$(zrbho_po_extract_capture "${RBBC_rbrr_file}" "RBRR_DEPOT_MONIKER") || z_rbrr_project=""
     test -n "${z_rbrr_project}" && z_rbrr_populated=1
   fi
 

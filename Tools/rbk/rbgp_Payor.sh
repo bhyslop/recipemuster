@@ -171,11 +171,11 @@ zrbgp_depot_list_update() {
       local z_project_id
       z_project_id=$(rbgu_json_field_capture "depot_list_tracking" ".projects[${z_index}].projectId") || continue
       
-      # Validate depot project ID pattern (global namespace)
-      if [[ "${z_project_id}" =~ ${RBGC_GLOBAL_DEPOT_REGEX} ]]; then
+      # Match this installation's depot prefix (CLOUD_PREFIX + 'd-')
+      if [[ "${z_project_id}" == "${RBRR_CLOUD_PREFIX}${RBGC_GLOBAL_TYPE_DEPOT}-"* ]]; then
         z_depot_ids="${z_depot_ids} ${z_project_id}"
       else
-        buc_log_args "Warning: Skipping project with invalid depot pattern: ${z_project_id}"
+        buc_log_args "Skipping project outside this installation's depot namespace: ${z_project_id}"
       fi
       
       z_index=$((z_index + 1))
@@ -210,14 +210,14 @@ zrbgp_billing_attach() {
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
   local -r z_billing_body="${BURD_TEMP_DIR}/rbgp_billing_attach.json"
   jq -n --arg billingAccountName "billingAccounts/${z_billing_account}" \
-    --arg projectId "${RBRR_DEPOT_PROJECT_ID}" \
+    --arg projectId "${RBDC_DEPOT_PROJECT_ID}" \
     '{
       billingAccountName: $billingAccountName,
       projectId: $projectId,
       billingEnabled: true
     }' > "${z_billing_body}" || buc_die "Failed to build billing attach body"
 
-  local -r z_billing_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${RBRR_DEPOT_PROJECT_ID}:setBillingInfo"
+  local -r z_billing_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${RBDC_DEPOT_PROJECT_ID}:setBillingInfo"
   rbgu_http_json "PUT" "${z_billing_url}" "${z_token}" \
                                   "${ZRBGP_INFIX_BILLING_ATTACH}" "${z_billing_body}"
   rbgu_http_require_ok "Attach billing account" "${ZRBGP_INFIX_BILLING_ATTACH}"
@@ -236,13 +236,13 @@ zrbgp_billing_detach() {
   local z_token
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
   local -r z_billing_body="${BURD_TEMP_DIR}/rbgp_billing_detach.json"
-  jq -n --arg projectId "${RBRR_DEPOT_PROJECT_ID}" \
+  jq -n --arg projectId "${RBDC_DEPOT_PROJECT_ID}" \
     '{
       projectId: $projectId,
       billingEnabled: false
     }' > "${z_billing_body}" || buc_die "Failed to build billing detach body"
 
-  local -r z_billing_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${RBRR_DEPOT_PROJECT_ID}:setBillingInfo"
+  local -r z_billing_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${RBDC_DEPOT_PROJECT_ID}:setBillingInfo"
   rbgu_http_json "PUT" "${z_billing_url}" "${z_token}" \
                                   "${ZRBGP_INFIX_BILLING_DETACH}" "${z_billing_body}"
   rbgu_http_require_ok "Detach billing account" "${ZRBGP_INFIX_BILLING_DETACH}"
@@ -258,11 +258,11 @@ zrbgp_liens_list() {
   buc_doc_brief "List all liens on the project"
   buc_doc_shown || return 0
 
-  buc_step "Listing liens on project: ${RBRR_DEPOT_PROJECT_ID}"
+  buc_step "Listing liens on project: ${RBDC_DEPOT_PROJECT_ID}"
 
   local z_token
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
-  rbgu_http_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens?parent=projects/${RBRR_DEPOT_PROJECT_ID}" "${z_token}" "${ZRBGP_INFIX_LIST_LIENS}"
+  rbgu_http_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens?parent=projects/${RBDC_DEPOT_PROJECT_ID}" "${z_token}" "${ZRBGP_INFIX_LIST_LIENS}"
   rbgu_http_require_ok "List liens" "${ZRBGP_INFIX_LIST_LIENS}"
 
   local z_lien_count
@@ -352,7 +352,7 @@ zrbgp_get_project_number_capture() {
   local z_token
   z_token=$(rbgu_get_governor_token_capture) || return 1
 
-  rbgu_http_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}${RBGC_PATH_PROJECTS}/${RBRR_DEPOT_PROJECT_ID}" "${z_token}" "${ZRBGP_INFIX_PROJECT_INFO}"
+  rbgu_http_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}${RBGC_PATH_PROJECTS}/${RBDC_DEPOT_PROJECT_ID}" "${z_token}" "${ZRBGP_INFIX_PROJECT_INFO}"
   rbgu_http_require_ok "Get project info" "${ZRBGP_INFIX_PROJECT_INFO}" || return 1
 
   local z_project_number
@@ -382,7 +382,7 @@ zrbgp_create_gcs_bucket() {
   buc_log_args 'Send bucket creation request'
   local z_code
   local z_err
-  rbgu_http_json "POST" "${RBGC_API_GCS_BUCKETS}?project=${RBRR_DEPOT_PROJECT_ID}" "${z_token}" \
+  rbgu_http_json "POST" "${RBGC_API_GCS_BUCKETS}?project=${RBDC_DEPOT_PROJECT_ID}" "${z_token}" \
                                   "${ZRBGP_INFIX_BUCKET_CREATE}" "${z_bucket_req}"
   z_code=$(rbgu_http_code_capture "${ZRBGP_INFIX_BUCKET_CREATE}") || buc_die "Bad bucket creation HTTP code"
   z_err=$(rbgu_json_field_capture "${ZRBGP_INFIX_BUCKET_CREATE}" '.error.message') || z_err="HTTP ${z_code}"
@@ -849,12 +849,12 @@ rbgp_depot_levy() {
 
   buc_step 'Display depot configuration'
   buc_success 'Depot creation successful'
-  buc_info "Mason service account: ${z_mason_sa_email}"
-  buc_info "Update RBRR configuration:"
-  buc_bare "  RBRR_DEPOT_PROJECT_ID=${z_depot_project_id}"
-  buc_bare "  RBRR_GCP_REGION=${z_region}"
-  buc_bare "  RBRR_GAR_REPOSITORY=${z_repository_name}"
-  buc_bare "  RBRR_GCB_POOL_STEM=${z_pool_stem}"
+  buc_info "Depot resources created:"
+  buc_bare "  Project:    ${z_depot_project_id}"
+  buc_bare "  Region:     ${z_region}"
+  buc_bare "  GAR repo:   ${z_repository_name}"
+  buc_bare "  Pool stem:  ${z_pool_stem}"
+  buc_bare "  Mason SA:   ${z_mason_sa_email}"
   buc_info "Next: mantle Governor for this depot:"
   buc_tabtarget "${RBZ_MANTLE_GOVERNOR}"
 }
@@ -869,7 +869,7 @@ rbgp_depot_unmake() {
   buc_doc_shown || return 0
 
   buc_step 'Safety confirmation required'
-  test -n "${z_depot_project_id}" || buc_die "Depot project ID required as first argument (current RBRR: ${RBRR_DEPOT_PROJECT_ID})"
+  test -n "${z_depot_project_id}" || buc_die "Depot project ID required as first argument (current derived: ${RBDC_DEPOT_PROJECT_ID})"
 
   buc_require "DANGER: Permanently destroy depot ${z_depot_project_id} and ALL resources" "${z_depot_project_id}"
 
@@ -1062,12 +1062,12 @@ rbgp_depot_list() {
     local z_project_id
     z_project_id=$(rbgu_json_field_capture "depot_list_projects" ".projects[${z_depot_index}].projectId") || continue
 
+    # Strip this installation's depot prefix (CLOUD_PREFIX + 'd-') to recover
+    # the moniker; projects outside the namespace are listed but skipped here
+    # since their moniker can't be inferred from the new naming scheme.
     local z_depot_name=""
-    if [[ "${z_project_id}" =~ ${RBGC_GLOBAL_DEPOT_REGEX} ]]; then
-      local z_without_prefix="${z_project_id#"${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-"}"
-      local z_len=${#z_without_prefix}
-      local z_suffix_len=$((1 + RBGC_GLOBAL_TIMESTAMP_LEN))
-      z_depot_name="${z_without_prefix:0:$((z_len - z_suffix_len))}"
+    if [[ "${z_project_id}" == "${RBRR_CLOUD_PREFIX}${RBGC_GLOBAL_TYPE_DEPOT}-"* ]]; then
+      z_depot_name="${z_project_id#"${RBRR_CLOUD_PREFIX}${RBGC_GLOBAL_TYPE_DEPOT}-"}"
     fi
 
     local z_status="CHECKING"
@@ -1149,19 +1149,15 @@ rbgp_payor_oauth_refresh() {
 rbgp_governor_mantle() {
   zrbgp_sentinel
 
-  local -r z_depot_project_id="${RBRR_DEPOT_PROJECT_ID}"
+  local -r z_depot_project_id="${RBDC_DEPOT_PROJECT_ID}"
 
   buc_doc_brief "Create or replace Governor service account in a depot"
   buc_doc_lines "This operation is idempotent: existing governor-* SAs are deleted before creating a new one"
-  buc_doc_lines "Uses RBRR_DEPOT_PROJECT_ID from regime configuration"
+  buc_doc_lines "Targets depot derived from RBRR_CLOUD_PREFIX + RBRR_DEPOT_MONIKER (RBDC_DEPOT_PROJECT_ID)"
   buc_doc_shown || return 0
 
   buc_step 'Validate input parameters'
-  test -n "${z_depot_project_id}" || buc_die "RBRR_DEPOT_PROJECT_ID is not set in regime configuration"
-
-  if ! [[ "${z_depot_project_id}" =~ ${RBGC_GLOBAL_DEPOT_REGEX} ]]; then
-    buc_die "Depot project ID must match pattern ${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_DEPOT}-{name}-{timestamp}"
-  fi
+  test -n "${z_depot_project_id}" || buc_die "RBDC_DEPOT_PROJECT_ID is empty — set RBRR_CLOUD_PREFIX and RBRR_DEPOT_MONIKER in rbrr.env"
 
   buc_step 'Authenticate as Payor'
   test -n "${RBRP_PAYOR_PROJECT_ID:-}" || buc_die "RBRP_PAYOR_PROJECT_ID is not set"

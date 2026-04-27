@@ -125,9 +125,18 @@ zrbob_kindle() {
   readonly ZRBOB_ENV_RBJE="${RBBC_dot_dir}/rbje_compose_probe.env"
   readonly ZRBOB_ENV_RBRN="${RBBC_dot_dir}/${RBRN_MONIKER}/${RBCC_rbrn_file}"
 
+  # RBDC env file — RBDC_* are bash-kindle constants invisible to compose
+  # without an env-file bridge. Write the subset compose interpolates into
+  # a temp file and feed it via --env-file.
+  local z_rbdc_env="${BURD_TEMP_DIR}/rbob_rbdc_compose.env"
+  printf 'RBDC_DEPOT_PROJECT_ID=%s\nRBDC_GAR_REPOSITORY=%s\n' \
+    "${RBDC_DEPOT_PROJECT_ID}" "${RBDC_GAR_REPOSITORY}" > "${z_rbdc_env}" \
+    || buc_die "Failed to write RBDC compose env file: ${z_rbdc_env}"
+  readonly ZRBOB_ENV_RBDC="${z_rbdc_env}"
+
 
   # GAR image references (computed once, used by preflight and auto-summon)
-  local z_gar_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}"
+  local z_gar_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
   readonly ZRBOB_SENTRY_IMAGE="${z_gar_base}/${RBGL_HALLMARKS_ROOT}/${RBRN_SENTRY_HALLMARK}/${RBGC_ARK_BASENAME_IMAGE}:${RBRN_SENTRY_HALLMARK}"
   readonly ZRBOB_BOTTLE_IMAGE="${z_gar_base}/${RBGL_HALLMARKS_ROOT}/${RBRN_BOTTLE_HALLMARK}/${RBGC_ARK_BASENAME_IMAGE}:${RBRN_BOTTLE_HALLMARK}"
 
@@ -195,6 +204,7 @@ zrbob_compose() {
   local z_args=()
   z_args+=("compose")
   z_args+=("--env-file" "${ZRBOB_ENV_RBRR}")
+  z_args+=("--env-file" "${ZRBOB_ENV_RBDC}")
   z_args+=("--env-file" "${ZRBOB_ENV_RBJE}")
   z_args+=("--env-file" "${ZRBOB_ENV_RBRN}")
   z_args+=("-f" "${ZRBOB_COMPOSE_BASE}")

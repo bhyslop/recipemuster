@@ -51,7 +51,7 @@ zrbhp_sentinel() {
 
 zrbhp_enforce() {
   zrbhp_sentinel
-  test -n "${RBRR_DEPOT_PROJECT_ID:-}"     || buc_die "RBRR_DEPOT_PROJECT_ID is not set"
+  test -n "${RBDC_DEPOT_PROJECT_ID:-}"     || buc_die "RBDC_DEPOT_PROJECT_ID is not set"
   zrbgc_sentinel
 }
 
