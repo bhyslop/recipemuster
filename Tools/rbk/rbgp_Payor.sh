@@ -282,7 +282,7 @@ zrbgp_depot_state_emit() {
         while test "${z_sa_index}" -lt "${z_sa_count}"; do
           z_sa_email=$(rbgu_json_field_capture "${z_sa_infix}" ".accounts[${z_sa_index}].email") \
             || { z_sa_index=$((z_sa_index + 1)); continue; }
-          if [[ "${z_sa_email}" =~ ^${RBGC_MASON_PREFIX}-[a-z][a-z0-9]*@[^@]*\.iam\.gserviceaccount\.com$ ]]; then
+          if [[ "${z_sa_email}" =~ ^${RBCC_role_mason}-[a-z][a-z0-9]*@[^@]*\.iam\.gserviceaccount\.com$ ]]; then
             z_mason_email="${z_sa_email}"
             break
           fi
@@ -306,7 +306,7 @@ zrbgp_depot_state_emit() {
 
       # Derive moniker from Mason SA local-part (strip leading mason- prefix)
       z_mason_local="${z_mason_email%%@*}"
-      z_moniker="${z_mason_local#"${RBGC_MASON_PREFIX}-"}"
+      z_moniker="${z_mason_local#"${RBCC_role_mason}-"}"
 
       buf_write_fact_multi "${z_moniker}" "${RBCC_fact_ext_depot}"         "${z_state}"
       buf_write_fact_multi "${z_moniker}" "${RBCC_fact_ext_depot_project}" "${z_project_id}"
@@ -898,7 +898,7 @@ rbgp_depot_levy() {
   rbgu_poll_until_ok "IAM API" "${z_iam_preflight_url}" "${z_token}" "iam_sa_preflight"
 
   buc_step 'Create Mason service account'
-  local -r z_mason_name="${RBGC_MASON_PREFIX}-${RBRR_DEPOT_MONIKER}"
+  local -r z_mason_name="${RBCC_role_mason}-${RBRR_DEPOT_MONIKER}"
   local -r z_mason_display_name="Mason for RB Depot: ${RBRR_DEPOT_MONIKER}"
   local -r z_create_sa_body="${BURD_TEMP_DIR}/rbgp_create_mason.json"
 

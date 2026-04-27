@@ -38,15 +38,23 @@ RBCC_role_retriever="retriever"
 RBCC_role_director="director"
 RBCC_role_payor="payor"
 RBCC_role_assay="assay"
+RBCC_role_mason="mason"
 RBCC_onboarding_nameplate="tadmor"
+
+# Cult-verb tinder — used by SA-management surface (invest/divest/roster) and
+# composed into fact-extension constants below.
+RBCC_verb_invest="invest"
+RBCC_verb_divest="divest"
+RBCC_verb_roster="roster"
 
 # Fact-file extension tinder — multi-fact registry for buf_write_fact_multi.
 # Producers emit "<basename>.<extension>" via filesystem-as-data-bus pattern;
 # consumers walk fact files in BURD_OUTPUT_DIR / BURD_TEMP_DIR keyed on extension.
+# Roster extensions composed from earlier tinder (BCG tinder-on-tinder).
 RBCC_fact_ext_depot="depot"
 RBCC_fact_ext_depot_project="depot-project"
-RBCC_fact_ext_roster_retriever="roster-retriever"
-RBCC_fact_ext_roster_director="roster-director"
+RBCC_fact_ext_roster_retriever="${RBCC_verb_roster}-${RBCC_role_retriever}"
+RBCC_fact_ext_roster_director="${RBCC_verb_roster}-${RBCC_role_director}"
 
 ######################################################################
 # Internal Functions (zrbcc_*)

@@ -57,7 +57,7 @@ zrbgd_kindle() {
   # already derived in RBDC.
   readonly RBGD_DEPOT_NAME="${RBRR_DEPOT_MONIKER}"
   readonly RBGD_GCS_BUCKET="${RBDC_GCS_BUCKET}"
-  readonly RBGD_MASON_EMAIL="${RBGC_MASON_PREFIX}-${RBGD_DEPOT_NAME}@${RBGD_SA_EMAIL_FULL}"
+  readonly RBGD_MASON_EMAIL="${RBCC_role_mason}-${RBGD_DEPOT_NAME}@${RBGD_SA_EMAIL_FULL}"
 
   # Cloud Resource Manager (CRM) APIs
   readonly RBGD_API_CRM_GET_IAM_POLICY="${RBGD_API_BASE_CRM_PROJECT}${RBGC_CRM_GET_IAM_POLICY_SUFFIX}"

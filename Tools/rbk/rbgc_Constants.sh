@@ -51,9 +51,6 @@ zrbgc_kindle() {
   readonly RBGC_PAYOR_ROLE="rbw-payor"
   readonly RBGC_PAYOR_APP_NAME="Recipe Bottle Payor"
 
-  # Service Account Prefixes
-  readonly RBGC_MASON_PREFIX="mason"
-
   # Timeouts
   readonly RBGC_MAX_CONSISTENCY_SEC=90
   readonly RBGC_EVENTUAL_CONSISTENCY_SEC=3
