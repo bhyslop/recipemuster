@@ -6657,6 +6657,7 @@
         "₢BBAAK",
         "₢BBAAP",
         "₢BBAAW",
+        "₢BBAAX",
         "₢BBAAC",
         "₢BBAAD",
         "₢BBAAE",
@@ -6665,7 +6666,7 @@
         "₢BBAAH",
         "₢BBAAI"
       ],
-      "next_pace_seed": "AAX",
+      "next_pace_seed": "AAY",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAAA": {
@@ -7212,6 +7213,17 @@
               "text": "## Character\n\nConstruction of the canonical entry-point script `tt/rbw-tP.QualifyPristine.sh`. Stitches existing tabtargets per RELEASE.md §3 sequence into one orchestrator. No new cloud-mutating logic — every cloud step is a call to an existing tabtarget. The script's value is sequence, entry-contract enforcement, and exit gating, not novel functionality.\n\nCoding-only pace. **Wrap criterion**: script exists, parses cleanly, each tabtarget invocation has the right shape under cheap dry-checks. The gate-on-green discipline lives in the sibling first-run pace.\n\nIntent-only docket. Code-level planning happens at mount time.\n\n## Scope\n\nNew file: `tt/rbw-tP.QualifyPristine.sh`. Body comprises three responsibilities.\n\n**Entry contract** (per RELEASE.md L46–53): refuse to run unless ALL hold:\n- marshal-zero signature on HEAD\n- working tree clean\n- RBRA files absent\n- RBRR fields blank\n- hallmark pins blank in every nameplate regime\n- depot-scoped fields blank in every vessel regime\n\n**Sequence body** (per RELEASE.md L63–69):\n- pristine-lifecycle fixture (gate + simple + credentialed sections — depends on BBAAK landing)\n- canonical infrastructure setup — levy canonical depot (`rbw-dL`), mantle canonical governor (`rbw-aM`), invest canonical retriever (`rbw-arI` per BBAAN), invest canonical director (`rbw-adI` per BBAAN), IAM propagation wait\n- supply chain — inscribe reliquary (`rbw-dI`), ordain all hallmarks (`rbw-fO` per vessel)\n- crucible suite — charge/run-fixture/quench × {tadmor, moriah, srjcl, pluml}, sequential, per-fixture quench-after to avoid cross-fixture contamination\n- cleanup — abjure all hallmarks (`rbw-fA`), divest operational SAs (`rbw-arD`, `rbw-adD` per BBAAN), unmake depot (`rbw-dU`); governor cleanup folds into unmake per BBAAN's settled posture\n\n**Exit semantics**: green tally on success; operator-actionable diagnostic on failure naming the marshal-zero → pristine sequence per RELEASE.md L74.\n\n## Constraints\n\n- Honor paddock's Release-branch execution contract\n- Reuse existing tabtargets exclusively — no inline cloud-mutating logic\n- Real-time review at each step before commit\n- Wrap on script-exists + parses + invocation shapes correct; do **not** wrap on \"ran end-to-end\" — that is the first-run pace's wrap criterion\n\n## Cross-pace dependencies\n\n- BBAAK landed (credentialed fixture cases available)\n- BBAAN landed (cult-verb tabtargets `rbw-arI`, `rbw-adI`, `rbw-arD`, `rbw-adD`, `rbw-arr`, `rbw-adr`)\n\n## Out of scope\n\n- First end-to-end run against fresh cloud state (sibling pace)\n- Modifications to existing tabtargets to support orchestration — surface as separate paces if needed\n- Phase-skip flags or partial re-run flags (single-shot ceremony per RELEASE.md L10–11)\n- Pristine-passed sentinel artifact (BBAAH territory)\n- `/rbk-prep-release` integration (BBAAH)",
               "silks": "rbw-tP-build",
               "commit": "8c90fae"
+            }
+          ]
+        },
+        "₢BBAAX": {
+          "tacks": [
+            {
+              "ts": "260427-1234",
+              "state": "rough",
+              "text": "## Character\n\nFirst end-to-end execution of `rbw-tP` against actual fresh state. The bug class this heat exists to catch — silent first-build assumptions — surfaces here, not in construction.\n\n**Wrap criterion is green tally.** Not \"ran to completion.\" Not \"captured findings.\" Not \"construction complete.\" This pace exists as a structural guardrail against the recurring agent failure mode where wrap is driven at \"I built the thing\" rather than \"the thing actually works against reality.\" If the first run surfaces issues, fixes land here (small) or spawn follow-up paces (large) — but this pace stays open until `rbw-tP` runs green end-to-end.\n\nIntent-only docket. Triage decisions surface at mount time per surprise.\n\n## Cost\n\n~1 hour wall-clock + 2 GCP projects per attempt (one throwaway from pristine-lifecycle fixture, one canonical from infrastructure setup). Re-runs after inline fixes accumulate cost; budget accordingly.\n\n## Scope\n\n- Marshal zero per RELEASE.md §2 (signature commit on HEAD)\n- Install RBRAs from secure backup (manual operator step per runbook)\n- Run `tt/rbw-tP.QualifyPristine.sh`\n- Capture every surprise — failed assertions, unexpected diagnostics, performance anomalies, missing tabtargets, awkward UX\n- Triage routing per surprise:\n  - Tiny inline (one-line bash, message clarity) — fix and re-run within this pace\n  - Larger (structural, design call) — slate as follow-up pace, surface to operator before deciding\n- Record into pace closure: wall-clock total, per-phase wall-clock, cloud cost, surprises + dispositions\n\n## Constraints\n\n- Honor paddock's Release-branch execution contract\n- **Wrap criterion is green tally** — explicit guardrail, restated to defeat drift\n- Re-runs within the pace are first-class; each re-run draws fresh quota\n- Per BBAAN's invest-fatal-on-exists and divest-deletes-production-RBRA: any retry path must respect cult-verb posture; reset between attempts goes through marshal-zero, not partial recovery\n- Per RELEASE.md L10–11 failure mode contract: mid-qualification failure means start over from step 2, not patch-and-continue\n\n## Cross-pace dependencies\n\n- ₢BBAAW (rbw-tP-build) landed — the script exists and parses\n\n## Out of scope\n\n- Restoring RBRAs after marshal-zero (manual operator step per runbook)\n- `/rbk-prep-release` integration (BBAAH)\n- Multi-day re-run scenarios\n- Cleanup beyond what `rbw-tP` itself does (cleanup is in the script body, owned by ₢BBAAW)",
+              "silks": "rbw-tP-first-run",
+              "commit": "ac67135"
             }
           ]
         }
