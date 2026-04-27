@@ -223,7 +223,7 @@ rblm_zero() {
   buh_e
 
   buh_line "  Next: verify onboarding guide detects blank state:"
-  buc_tabtarget "${RBZ_ONBOARDING}"
+  buc_tabtarget "${RBZ_ONBOARD_START_HERE}"
   buc_success "Regime zeroed to blank template"
 }
 
