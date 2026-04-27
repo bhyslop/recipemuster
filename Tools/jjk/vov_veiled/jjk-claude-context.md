@@ -21,8 +21,8 @@ Job Jockey (JJ) is installed for managing project initiatives.
 - Restating commits/specs the mount agent already loads. Point, don't paraphrase.
 - Pre-baking implementation (function names, signatures, locations for new code). Mount-time decisions.
 - Site enumerations. Write a discovery recipe (`grep "pattern" Tools/rbk/`) instead of listing six file:line entries.
-- Multi-deliverable A/B/C/D dockets. Three deliverables = three paces.
 - Body over ~15 lines warrants suspicion of overprescription.
+- **Plan-step structure stays in the plan.** Docket phase/step labels (A/B/C, "Phase 1", "first/then/finally") must not appear as code comments — the plan won't exist at maintenance time, and line order already conveys execution.
 
 **Identities vs Display Names:**
 - **Firemark**: Heat identity (`₣AA` or `AA`). Used in command params and JSON keys.
