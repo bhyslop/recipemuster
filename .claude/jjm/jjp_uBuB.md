@@ -80,6 +80,18 @@ These decisions emerged in conversation during ₢BBAAM Step 1. They persist for
 
 **Depot fact-file shape.** Per-moniker fact files use `<moniker>.${RBGP_FACT_EXT_DEPOT}` (extension constant resolves to `depot`). File content is one of `RBGP_DEPOT_STATE_COMPLETE`, `RBGP_DEPOT_STATE_BROKEN`, `RBGP_DEPOT_STATE_DELETE_REQUESTED`. State and extension tinder constants live in `rbgc_Constants.sh` (added in Step 1).
 
+## Cult-verb naming decision — domain-exclusive split
+
+JJ owns "muster" as a verb (`jjx_list`). Recipe Bottle's two unrelated muster uses both rename to avoid the collision. The two replacement verbs are **domain-exclusive** — each belongs to one domain only and does not substitute for the other.
+
+**SA cult-verb (BBAAN surface):** muster → **roster**. Colophons `rbw-arr` (retriever), `rbw-adr` (director). Constants `RBYC_ROSTER`, `RBZ_ROSTER_RETRIEVER`, `RBZ_ROSTER_DIRECTOR`. Functions `rbgg_roster_retrievers`, `rbgg_roster_directors`. Verb-as-noun ceremony: `(Roster):`.
+
+**Image domain (landed code, separate rename pace):** muster → **audit**. Colophons `rbw-iah/iar/iae`. Constants `RBZ_AUDIT_HALLMARKS/RELIQUARIES/ENSHRINEMENTS` and Rust `RBTDRM_COLOPHON_AUDIT_*`. Functions `rbfl_audit_hallmarks/reliquaries/enshrinements`. Spec quoin `:rbtgo_image_audit:`; spec file likely renames RBSIM → RBSIA (BBAAQ decides).
+
+**Case discipline.** Lowercase tail letter on both new colophons preserves BBAAN's existing rule: capitals (`I`, `D`) for cloud-mutating verbs; lowercase (`r`, `a`) for no-cloud-change observation. Mantle (`rbw-aM`) unchanged.
+
+**Cross-pace ordering.** BBAAQ (spec sweep) lands the spec-side rename first, so spec is source-of-truth. The image-rename code pace executes after BBAAQ. BBAAN's docket has been updated to use roster vocabulary directly. BBAAC and BBAAG are touched only at colophon/verb references. BBAAR's docket is already abstract ("adapt to whatever BBAAN settles") and inherits the new vocabulary without redocketing.
+
 ## References
 
 - ₣A_ rbk-mvp-3-resource-prefix-and-depot-regen — surfaced the gap
