@@ -27,10 +27,15 @@ use std::process::Command;
 use crate::case;
 use crate::rbtdrc_crucible::rbtdrc_with_ctx;
 use crate::rbtdre_engine::{rbtdre_Section, rbtdre_Verdict};
-use crate::rbtdri_invocation::{rbtdri_invoke_global, rbtdri_read_burv_fact, rbtdri_Context};
+use crate::rbtdri_invocation::{
+    rbtdri_invoke_global, rbtdri_invoke_imprint, rbtdri_read_burv_fact, rbtdri_Context,
+    RBTDRI_BURV_OUTPUT_SUBDIR,
+};
 use crate::rbtdrm_manifest::{
-    RBTDRM_COLOPHON_DEPOT_LEVY, RBTDRM_COLOPHON_DEPOT_LIST, RBTDRM_COLOPHON_DEPOT_UNMAKE,
-    RBTDRM_COLOPHON_GOV_FORFEIT, RBTDRM_COLOPHON_GOV_LIST_SAS, RBTDRM_COLOPHON_GOV_MANTLE,
+    RBTDRM_COLOPHON_ACCESS_PROBE, RBTDRM_COLOPHON_DEPOT_LEVY, RBTDRM_COLOPHON_DEPOT_LIST,
+    RBTDRM_COLOPHON_DEPOT_UNMAKE, RBTDRM_COLOPHON_GOV_DIVEST_DIRECTOR,
+    RBTDRM_COLOPHON_GOV_DIVEST_RETRIEVER, RBTDRM_COLOPHON_GOV_INVEST_DIRECTOR,
+    RBTDRM_COLOPHON_GOV_INVEST_RETRIEVER, RBTDRM_COLOPHON_GOV_MANTLE,
 };
 
 /// RBRR field names referenced by the pristine-lifecycle fixture. Field
@@ -58,13 +63,18 @@ const RBTDRP_RBRR_BLANK_FIELDS: &[&str] = &[
 pub(crate) const RBTDRP_THROWAWAY_CLOUD_PREFIX: &str = "prlc-";
 pub(crate) const RBTDRP_THROWAWAY_RUNTIME_PREFIX: &str = "prlr-";
 
-/// Family-stem prefixes for autodetected per-case monikers. Cases pick a
-/// numeric six-digit suffix at runtime by walking emitted depot fact files
-/// and incrementing past the highest existing suffix per family. Distinct
-/// stems keep the two cases' depots separable when both run in the same
-/// fixture pass.
-const RBTDRP_FAMILY_STEM_LIFECYCLE: &str = "pristq";
-const RBTDRP_FAMILY_STEM_GOVERNOR: &str = "pristg";
+/// Family stem for the fused arc section. One depot shared across all three
+/// arc cases; the stem keeps arc monikers separable from other fixture
+/// families. Cases pick a numeric six-digit suffix at runtime by walking
+/// emitted depot fact files and incrementing past the highest existing
+/// suffix per family.
+const RBTDRP_FAMILY_STEM_ARC: &str = "pristl";
+
+/// Static identities for the SA cycle case. The invest colophons compose
+/// SA account names as `<role>-<identity>`; these are stable across runs
+/// because each run uses a fresh throwaway depot project.
+const RBTDRP_IDENTITY_RETRIEVER: &str = "pristl-ret";
+const RBTDRP_IDENTITY_DIRECTOR: &str = "pristl-dir";
 
 /// Lowest valid numeric suffix for autodetected monikers. Six-digit width
 /// keeps composed project_id length predictable: cloud_prefix(<=11) +
@@ -79,6 +89,11 @@ const RBTDRP_FAMILY_NUMERIC_WIDTH: usize = 6;
 /// Fact-file extension mirror of RBCC_fact_ext_depot in rbcc_Constants.sh.
 /// rbgp_depot_list emits `<moniker>.depot` files with state content.
 const RBTDRP_FACT_EXT_DEPOT: &str = "depot";
+
+/// Fact-file extension mirror of RBCC_fact_ext_depot_project in
+/// rbcc_Constants.sh. rbgp_depot_list emits `<moniker>.depot-project` files
+/// with project_id content.
+const RBTDRP_FACT_EXT_DEPOT_PROJECT: &str = "depot-project";
 
 /// Fact-file name for the governor SA email (mirror of
 /// RBGP_FACT_GOVERNOR_SA_EMAIL from rbgc_Constants.sh). Read from the mantle
@@ -526,7 +541,7 @@ fn rbtdrp_marshal_zero_attestation(_dir: &Path) -> rbtdre_Verdict {
     ))
 }
 
-// ── Cases 2 & 3 — depot and governor lifecycles ──────────────
+// ── §2 pristine-lifecycle-arc (stand-up → SA cycle → tear-down) ─────────────
 
 /// Wrapper invocation: call `rbtdri_invoke_global` and tee stdout/stderr to
 /// `dir/<label>-stdout.txt` / `dir/<label>-stderr.txt` for diagnostic review.
@@ -546,20 +561,30 @@ fn rbtdrp_invoke_logged(
     Ok(result)
 }
 
-/// Case 2 — depot-lifecycle. Probes existing depots via `rbgp_depot_list`,
-/// picks the next free six-digit moniker in the `pristq` family, levies the
-/// depot, asserts it appears in a follow-up `rbgp_depot_list`, soft-deletes
-/// it via `rbgp_depot_unmake`, then asserts it is absent or in
-/// `DELETE_REQUESTED` state.
-///
-/// Levy and unmake are zero-arg post-collapse — the moniker is set in
-/// rbrr.env via `rbtdrp_install_depot_moniker` before levy invocation, and
-/// the project_id is composed from regime values via `rbtdrp_compose_project_id`.
-fn rbtdrp_depot_lifecycle(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrp_depot_lifecycle_impl(ctx, dir))
+/// Resolve the canonical RBRA path for a role by reading RBRR_SECRETS_DIR
+/// from rbrr.env and joining `<role>/rbra.env`.
+fn rbtdrp_canonical_rbra(root: &Path, role: &str) -> Result<PathBuf, String> {
+    let rbrr = root.join(RBTDRP_RBRR_FILE);
+    let secrets_dir = rbtdrp_read_env_value(&rbrr, "RBRR_SECRETS_DIR")
+        .ok_or_else(|| format!("RBRR_SECRETS_DIR missing from {}", rbrr.display()))?;
+    if secrets_dir.is_empty() {
+        return Err(format!("RBRR_SECRETS_DIR is blank in {}", rbrr.display()));
+    }
+    Ok(rbtdrp_resolve(root, &secrets_dir).join(role).join(RBTDRP_RBRA_FILE))
 }
 
-fn rbtdrp_depot_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
+// ── Case 2: depot stand-up ───────────────────────────────────
+
+/// Case 2 — depot stand-up. Installs throwaway prefixes, picks the next free
+/// moniker in the `pristl` family, levies the depot, re-lists to refresh
+/// facts, reads project_id from the `<moniker>.depot-project` fact file, and
+/// cross-checks it against the RBDC compose derivation. The moniker survives
+/// in rbrr.env for cases 3 and 4.
+fn rbtdrp_depot_stand_up(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrp_depot_stand_up_impl(ctx, dir))
+}
+
+fn rbtdrp_depot_stand_up_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
     let root = ctx.project_root().to_path_buf();
 
     if let Err(e) = rbtdrp_install_throwaway_prefixes(&root) {
@@ -575,16 +600,16 @@ fn rbtdrp_depot_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_V
         "list-pre",
     ) {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("depot list (pre-levy probe): {}", e)),
+        Err(e) => return rbtdre_Verdict::Fail(format!("depot list (pre-levy): {}", e)),
     };
     if list_pre.exit_code != 0 {
         return rbtdre_Verdict::Fail(format!(
-            "depot list (pre-levy probe) exit {}\n{}",
+            "depot list (pre-levy) exit {}\n{}",
             list_pre.exit_code, list_pre.stderr
         ));
     }
 
-    let moniker = match rbtdrp_pick_next_moniker(&list_pre, RBTDRP_FAMILY_STEM_LIFECYCLE) {
+    let moniker = match rbtdrp_pick_next_moniker(&list_pre, RBTDRP_FAMILY_STEM_ARC) {
         Ok(m) => m,
         Err(e) => return rbtdre_Verdict::Fail(format!("pick next moniker: {}", e)),
     };
@@ -610,12 +635,6 @@ fn rbtdrp_depot_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_V
         ));
     }
 
-    let project_id = match rbtdrp_compose_project_id(&root, &moniker) {
-        Ok(p) => p,
-        Err(e) => return rbtdre_Verdict::Fail(format!("compose project_id: {}", e)),
-    };
-    let _ = std::fs::write(dir.join("project-id.txt"), &project_id);
-
     let list_present = match rbtdrp_invoke_logged(
         ctx,
         RBTDRM_COLOPHON_DEPOT_LIST,
@@ -633,12 +652,375 @@ fn rbtdrp_depot_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_V
             list_present.exit_code, list_present.stderr
         ));
     }
-    if !list_present.stdout.contains(&project_id) {
+
+    let fact_path = list_present
+        .burv_output
+        .join(RBTDRI_BURV_OUTPUT_SUBDIR)
+        .join(format!("{}.{}", moniker, RBTDRP_FACT_EXT_DEPOT_PROJECT));
+    let fact_project_id = match std::fs::read_to_string(&fact_path) {
+        Ok(s) => s.trim().to_string(),
+        Err(e) => {
+            return rbtdre_Verdict::Fail(format!(
+                "read depot-project fact '{}': {}",
+                fact_path.display(),
+                e
+            ))
+        }
+    };
+    if fact_project_id.is_empty() {
         return rbtdre_Verdict::Fail(format!(
-            "project_id '{}' missing from depot list after levy:\n{}",
-            project_id, list_present.stdout
+            "depot-project fact is empty: {}",
+            fact_path.display()
         ));
     }
+    let _ = std::fs::write(dir.join("project-id.txt"), &fact_project_id);
+
+    let composed_project_id = match rbtdrp_compose_project_id(&root, &moniker) {
+        Ok(p) => p,
+        Err(e) => return rbtdre_Verdict::Fail(format!("compose project_id: {}", e)),
+    };
+    if composed_project_id != fact_project_id {
+        return rbtdre_Verdict::Fail(format!(
+            "project_id mismatch: RBDC compose='{}' vs depot-list fact='{}' \
+             (RBDC kindle derivation diverged from payor creation)",
+            composed_project_id, fact_project_id
+        ));
+    }
+
+    rbtdre_Verdict::Pass
+}
+
+// ── Case 3: SA cycle ─────────────────────────────────────────
+
+/// Case 3 — SA cycle. Pre-condition: depot stood up by case 2 (moniker in
+/// rbrr.env). Mantles governor (RBRA lands in BURV output; copy to canonical),
+/// then for each role: invest → copy assay → canonical → access-probe.
+/// Divests both roles in reverse order, verifies BBAAN's
+/// divest-deletes-production-RBRA contract via canonical-path absence checks.
+/// Best-effort cleanup of assay file at the end.
+fn rbtdrp_sa_cycle(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrp_sa_cycle_impl(ctx, dir))
+}
+
+fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
+    let root = ctx.project_root().to_path_buf();
+
+    let rbrr = root.join(RBTDRP_RBRR_FILE);
+    let moniker = match rbtdrp_read_env_value(&rbrr, RBTDRP_FIELD_RBRR_DEPOT_MONIKER) {
+        Some(m) if !m.is_empty() => m,
+        _ => {
+            return rbtdre_Verdict::Fail(
+                "case 2 (stand-up) did not run or rbrr.env is missing the moniker \
+                 (RBRR_DEPOT_MONIKER is blank)"
+                    .to_string(),
+            )
+        }
+    };
+    let _ = std::fs::write(dir.join("moniker.txt"), &moniker);
+
+    let mantle = match rbtdrp_invoke_logged(
+        ctx,
+        RBTDRM_COLOPHON_GOV_MANTLE,
+        &[],
+        &[],
+        dir,
+        "mantle",
+    ) {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("governor mantle: {}", e)),
+    };
+    if mantle.exit_code != 0 {
+        return rbtdre_Verdict::Fail(format!(
+            "governor mantle exit {}\n{}",
+            mantle.exit_code, mantle.stderr
+        ));
+    }
+
+    let governor_email = match rbtdri_read_burv_fact(&mantle, RBTDRP_FACT_GOVERNOR_SA_EMAIL) {
+        Ok(s) => s,
+        Err(e) => return rbtdre_Verdict::Fail(format!("read governor SA email fact: {}", e)),
+    };
+    let _ = std::fs::write(dir.join("governor-sa-email.txt"), &governor_email);
+
+    // Mantle deposits governor RBRA into its BURV output dir as
+    // governor-<timestamp>.rbra; locate and copy to canonical.
+    let mantle_out_dir = mantle.burv_output.join(RBTDRI_BURV_OUTPUT_SUBDIR);
+    let governor_rbra_src = match std::fs::read_dir(&mantle_out_dir)
+        .map_err(|e| format!("read mantle output dir {}: {}", mantle_out_dir.display(), e))
+        .and_then(|entries| {
+            let matches: Vec<_> = entries
+                .filter_map(|e| e.ok())
+                .filter(|e| {
+                    e.file_name()
+                        .to_str()
+                        .map(|n| n.starts_with("governor-") && n.ends_with(".rbra"))
+                        .unwrap_or(false)
+                })
+                .collect();
+            match matches.len() {
+                0 => Err("no governor-*.rbra file in mantle BURV output".to_string()),
+                1 => Ok(matches.into_iter().next().unwrap().path()),
+                n => Err(format!("{} governor-*.rbra files in mantle BURV output", n)),
+            }
+        }) {
+        Ok(p) => p,
+        Err(e) => return rbtdre_Verdict::Fail(format!("locate governor RBRA: {}", e)),
+    };
+
+    let governor_canonical = match rbtdrp_canonical_rbra(&root, "governor") {
+        Ok(p) => p,
+        Err(e) => return rbtdre_Verdict::Fail(format!("canonical governor RBRA path: {}", e)),
+    };
+    if let Some(parent) = governor_canonical.parent() {
+        if let Err(e) = std::fs::create_dir_all(parent) {
+            return rbtdre_Verdict::Fail(format!(
+                "create governor RBRA dir {}: {}",
+                parent.display(),
+                e
+            ));
+        }
+    }
+    if let Err(e) = std::fs::copy(&governor_rbra_src, &governor_canonical) {
+        return rbtdre_Verdict::Fail(format!(
+            "copy governor RBRA {} → {}: {}",
+            governor_rbra_src.display(),
+            governor_canonical.display(),
+            e
+        ));
+    }
+    if !governor_canonical.exists() {
+        return rbtdre_Verdict::Fail(format!(
+            "governor canonical RBRA absent after copy: {}",
+            governor_canonical.display()
+        ));
+    }
+
+    let assay_canonical = match rbtdrp_canonical_rbra(&root, "assay") {
+        Ok(p) => p,
+        Err(e) => return rbtdre_Verdict::Fail(format!("canonical assay RBRA path: {}", e)),
+    };
+
+    // Retriever: invest → assay → canonical → access-probe.
+    let invest_ret = match rbtdrp_invoke_logged(
+        ctx,
+        RBTDRM_COLOPHON_GOV_INVEST_RETRIEVER,
+        &[RBTDRP_IDENTITY_RETRIEVER],
+        &[],
+        dir,
+        "invest-retriever",
+    ) {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("invest retriever: {}", e)),
+    };
+    if invest_ret.exit_code != 0 {
+        return rbtdre_Verdict::Fail(format!(
+            "invest retriever exit {}\n{}",
+            invest_ret.exit_code, invest_ret.stderr
+        ));
+    }
+
+    if !assay_canonical.exists() {
+        return rbtdre_Verdict::Fail(format!(
+            "assay RBRA absent after invest-retriever: {}",
+            assay_canonical.display()
+        ));
+    }
+
+    let retriever_canonical = match rbtdrp_canonical_rbra(&root, "retriever") {
+        Ok(p) => p,
+        Err(e) => return rbtdre_Verdict::Fail(format!("canonical retriever RBRA path: {}", e)),
+    };
+    if let Some(parent) = retriever_canonical.parent() {
+        if let Err(e) = std::fs::create_dir_all(parent) {
+            return rbtdre_Verdict::Fail(format!(
+                "create retriever RBRA dir {}: {}",
+                parent.display(),
+                e
+            ));
+        }
+    }
+    if let Err(e) = std::fs::copy(&assay_canonical, &retriever_canonical) {
+        return rbtdre_Verdict::Fail(format!(
+            "copy assay RBRA → retriever canonical {}: {}",
+            retriever_canonical.display(),
+            e
+        ));
+    }
+
+    let probe_ret = match rbtdri_invoke_imprint(
+        ctx,
+        RBTDRM_COLOPHON_ACCESS_PROBE,
+        "retriever",
+        &[],
+    ) {
+        Ok(r) => r,
+        Err(e) => {
+            return rbtdre_Verdict::Fail(format!("access-probe retriever invocation: {}", e))
+        }
+    };
+    let _ = std::fs::write(dir.join("probe-retriever-stdout.txt"), &probe_ret.stdout);
+    let _ = std::fs::write(dir.join("probe-retriever-stderr.txt"), &probe_ret.stderr);
+    if probe_ret.exit_code != 0 {
+        return rbtdre_Verdict::Fail(format!(
+            "access-probe retriever exit {}\n{}",
+            probe_ret.exit_code, probe_ret.stderr
+        ));
+    }
+
+    // Director: invest → assay → canonical → access-probe.
+    let invest_dir = match rbtdrp_invoke_logged(
+        ctx,
+        RBTDRM_COLOPHON_GOV_INVEST_DIRECTOR,
+        &[RBTDRP_IDENTITY_DIRECTOR],
+        &[],
+        dir,
+        "invest-director",
+    ) {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("invest director: {}", e)),
+    };
+    if invest_dir.exit_code != 0 {
+        return rbtdre_Verdict::Fail(format!(
+            "invest director exit {}\n{}",
+            invest_dir.exit_code, invest_dir.stderr
+        ));
+    }
+
+    if !assay_canonical.exists() {
+        return rbtdre_Verdict::Fail(format!(
+            "assay RBRA absent after invest-director: {}",
+            assay_canonical.display()
+        ));
+    }
+    let director_canonical = match rbtdrp_canonical_rbra(&root, "director") {
+        Ok(p) => p,
+        Err(e) => return rbtdre_Verdict::Fail(format!("canonical director RBRA path: {}", e)),
+    };
+    if let Some(parent) = director_canonical.parent() {
+        if let Err(e) = std::fs::create_dir_all(parent) {
+            return rbtdre_Verdict::Fail(format!(
+                "create director RBRA dir {}: {}",
+                parent.display(),
+                e
+            ));
+        }
+    }
+    if let Err(e) = std::fs::copy(&assay_canonical, &director_canonical) {
+        return rbtdre_Verdict::Fail(format!(
+            "copy assay RBRA → director canonical {}: {}",
+            director_canonical.display(),
+            e
+        ));
+    }
+
+    let probe_dir = match rbtdri_invoke_imprint(
+        ctx,
+        RBTDRM_COLOPHON_ACCESS_PROBE,
+        "director",
+        &[],
+    ) {
+        Ok(r) => r,
+        Err(e) => {
+            return rbtdre_Verdict::Fail(format!("access-probe director invocation: {}", e))
+        }
+    };
+    let _ = std::fs::write(dir.join("probe-director-stdout.txt"), &probe_dir.stdout);
+    let _ = std::fs::write(dir.join("probe-director-stderr.txt"), &probe_dir.stderr);
+    if probe_dir.exit_code != 0 {
+        return rbtdre_Verdict::Fail(format!(
+            "access-probe director exit {}\n{}",
+            probe_dir.exit_code, probe_dir.stderr
+        ));
+    }
+
+    // Divests in reverse order.
+    let divest_dir = match rbtdrp_invoke_logged(
+        ctx,
+        RBTDRM_COLOPHON_GOV_DIVEST_DIRECTOR,
+        &[RBTDRP_IDENTITY_DIRECTOR],
+        &[],
+        dir,
+        "divest-director",
+    ) {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("divest director: {}", e)),
+    };
+    if divest_dir.exit_code != 0 {
+        return rbtdre_Verdict::Fail(format!(
+            "divest director exit {}\n{}",
+            divest_dir.exit_code, divest_dir.stderr
+        ));
+    }
+    if director_canonical.exists() {
+        return rbtdre_Verdict::Fail(format!(
+            "director canonical RBRA still present after divest: {} \
+             (BBAAN divest-deletes-production-RBRA contract violated)",
+            director_canonical.display()
+        ));
+    }
+
+    let divest_ret = match rbtdrp_invoke_logged(
+        ctx,
+        RBTDRM_COLOPHON_GOV_DIVEST_RETRIEVER,
+        &[RBTDRP_IDENTITY_RETRIEVER],
+        &[],
+        dir,
+        "divest-retriever",
+    ) {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("divest retriever: {}", e)),
+    };
+    if divest_ret.exit_code != 0 {
+        return rbtdre_Verdict::Fail(format!(
+            "divest retriever exit {}\n{}",
+            divest_ret.exit_code, divest_ret.stderr
+        ));
+    }
+    if retriever_canonical.exists() {
+        return rbtdre_Verdict::Fail(format!(
+            "retriever canonical RBRA still present after divest: {} \
+             (BBAAN divest-deletes-production-RBRA contract violated)",
+            retriever_canonical.display()
+        ));
+    }
+
+    if assay_canonical.exists() {
+        let _ = std::fs::remove_file(&assay_canonical);
+    }
+
+    rbtdre_Verdict::Pass
+}
+
+// ── Case 4: depot tear-down ──────────────────────────────────
+
+/// Case 4 — depot tear-down. Pre-condition: depot exists from case 2. Reads
+/// moniker from rbrr.env, unmakes the depot (BURE_CONFIRM=skip), re-lists,
+/// and verifies the depot is absent or in DELETE_REQUESTED state via
+/// fact-file content read (no stdout-grep).
+fn rbtdrp_depot_tear_down(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrp_depot_tear_down_impl(ctx, dir))
+}
+
+fn rbtdrp_depot_tear_down_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
+    let root = ctx.project_root().to_path_buf();
+
+    let rbrr = root.join(RBTDRP_RBRR_FILE);
+    let moniker = match rbtdrp_read_env_value(&rbrr, RBTDRP_FIELD_RBRR_DEPOT_MONIKER) {
+        Some(m) if !m.is_empty() => m,
+        _ => {
+            return rbtdre_Verdict::Fail(
+                "case 2 (stand-up) did not run or rbrr.env is missing the moniker \
+                 (RBRR_DEPOT_MONIKER is blank)"
+                    .to_string(),
+            )
+        }
+    };
+
+    let project_id = match rbtdrp_compose_project_id(&root, &moniker) {
+        Ok(p) => p,
+        Err(e) => return rbtdre_Verdict::Fail(format!("compose project_id: {}", e)),
+    };
+    let _ = std::fs::write(dir.join("project-id.txt"), &project_id);
 
     let unmake = match rbtdrp_invoke_logged(
         ctx,
@@ -675,197 +1057,36 @@ fn rbtdrp_depot_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_V
             list_after.exit_code, list_after.stderr
         ));
     }
-    for line in list_after.stdout.lines() {
-        if line.contains(&project_id) && !line.contains(RBTDRP_DELETE_REQUESTED) {
+
+    let depot_fact_path = list_after
+        .burv_output
+        .join(RBTDRI_BURV_OUTPUT_SUBDIR)
+        .join(format!("{}.{}", moniker, RBTDRP_FACT_EXT_DEPOT));
+
+    if !depot_fact_path.exists() {
+        return rbtdre_Verdict::Pass;
+    }
+
+    let depot_state = match std::fs::read_to_string(&depot_fact_path) {
+        Ok(s) => s.trim().to_string(),
+        Err(e) => {
             return rbtdre_Verdict::Fail(format!(
-                "project_id '{}' still present without {} after unmake:\n{}",
-                project_id, RBTDRP_DELETE_REQUESTED, line
-            ));
+                "read depot fact '{}': {}",
+                depot_fact_path.display(),
+                e
+            ))
         }
-    }
-
-    rbtdre_Verdict::Pass
-}
-
-/// Case 3 — governor-lifecycle. Probes existing depots, picks the next free
-/// moniker in the `pristg` family, levies its own throwaway depot (so
-/// `RBDC_DEPOT_PROJECT_ID` is set via kindle derivation, satisfying the
-/// precondition for `rbgp_governor_mantle`), mantles a governor, asserts it
-/// appears in `rbgg_list_service_accounts`, forfeits it, asserts absent,
-/// then unmakes the depot to clean up.
-///
-/// `pristg` family stem keeps governor monikers separable from `pristq`
-/// (case 2) when the full fixture runs.
-fn rbtdrp_governor_lifecycle(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrp_governor_lifecycle_impl(ctx, dir))
-}
-
-fn rbtdrp_governor_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
-    let root = ctx.project_root().to_path_buf();
-
-    if let Err(e) = rbtdrp_install_throwaway_prefixes(&root) {
-        return rbtdre_Verdict::Fail(format!("install throwaway prefixes: {}", e));
-    }
-
-    let list_pre = match rbtdrp_invoke_logged(
-        ctx,
-        RBTDRM_COLOPHON_DEPOT_LIST,
-        &[],
-        &[],
-        dir,
-        "list-pre",
-    ) {
-        Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("depot list (pre-levy probe): {}", e)),
     };
-    if list_pre.exit_code != 0 {
-        return rbtdre_Verdict::Fail(format!(
-            "depot list (pre-levy probe) exit {}\n{}",
-            list_pre.exit_code, list_pre.stderr
-        ));
+
+    if depot_state == RBTDRP_DELETE_REQUESTED {
+        return rbtdre_Verdict::Pass;
     }
 
-    let moniker = match rbtdrp_pick_next_moniker(&list_pre, RBTDRP_FAMILY_STEM_GOVERNOR) {
-        Ok(m) => m,
-        Err(e) => return rbtdre_Verdict::Fail(format!("pick next moniker: {}", e)),
-    };
-    if let Err(e) = rbtdrp_install_depot_moniker(&root, &moniker) {
-        return rbtdre_Verdict::Fail(format!("install depot moniker: {}", e));
-    }
-
-    let levy = match rbtdrp_invoke_logged(
-        ctx,
-        RBTDRM_COLOPHON_DEPOT_LEVY,
-        &[],
-        &[],
-        dir,
-        "levy",
-    ) {
-        Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("depot levy: {}", e)),
-    };
-    if levy.exit_code != 0 {
-        return rbtdre_Verdict::Fail(format!(
-            "depot levy exit {}\n{}",
-            levy.exit_code, levy.stderr
-        ));
-    }
-
-    let project_id = match rbtdrp_compose_project_id(&root, &moniker) {
-        Ok(p) => p,
-        Err(e) => return rbtdre_Verdict::Fail(format!("compose project_id: {}", e)),
-    };
-    let _ = std::fs::write(dir.join("project-id.txt"), &project_id);
-
-    let mantle = match rbtdrp_invoke_logged(
-        ctx,
-        RBTDRM_COLOPHON_GOV_MANTLE,
-        &[],
-        &[],
-        dir,
-        "mantle",
-    ) {
-        Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("governor mantle: {}", e)),
-    };
-    if mantle.exit_code != 0 {
-        return rbtdre_Verdict::Fail(format!(
-            "governor mantle exit {}\n{}",
-            mantle.exit_code, mantle.stderr
-        ));
-    }
-
-    let sa_email = match rbtdri_read_burv_fact(&mantle, RBTDRP_FACT_GOVERNOR_SA_EMAIL) {
-        Ok(s) => s,
-        Err(e) => return rbtdre_Verdict::Fail(format!("read governor SA email fact: {}", e)),
-    };
-    let _ = std::fs::write(dir.join("sa-email.txt"), &sa_email);
-
-    let list_present = match rbtdrp_invoke_logged(
-        ctx,
-        RBTDRM_COLOPHON_GOV_LIST_SAS,
-        &[],
-        &[],
-        dir,
-        "list-present",
-    ) {
-        Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("list SAs (after mantle): {}", e)),
-    };
-    if list_present.exit_code != 0 {
-        return rbtdre_Verdict::Fail(format!(
-            "list SAs (after mantle) exit {}\n{}",
-            list_present.exit_code, list_present.stderr
-        ));
-    }
-    if !list_present.stdout.contains(&sa_email) {
-        return rbtdre_Verdict::Fail(format!(
-            "governor SA '{}' missing from list after mantle:\n{}",
-            sa_email, list_present.stdout
-        ));
-    }
-
-    let forfeit = match rbtdrp_invoke_logged(
-        ctx,
-        RBTDRM_COLOPHON_GOV_FORFEIT,
-        &[&sa_email],
-        &[],
-        dir,
-        "forfeit",
-    ) {
-        Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("governor forfeit: {}", e)),
-    };
-    if forfeit.exit_code != 0 {
-        return rbtdre_Verdict::Fail(format!(
-            "governor forfeit exit {}\n{}",
-            forfeit.exit_code, forfeit.stderr
-        ));
-    }
-
-    let list_after = match rbtdrp_invoke_logged(
-        ctx,
-        RBTDRM_COLOPHON_GOV_LIST_SAS,
-        &[],
-        &[],
-        dir,
-        "list-after",
-    ) {
-        Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("list SAs (after forfeit): {}", e)),
-    };
-    if list_after.exit_code != 0 {
-        return rbtdre_Verdict::Fail(format!(
-            "list SAs (after forfeit) exit {}\n{}",
-            list_after.exit_code, list_after.stderr
-        ));
-    }
-    if list_after.stdout.contains(&sa_email) {
-        return rbtdre_Verdict::Fail(format!(
-            "governor SA '{}' still present after forfeit:\n{}",
-            sa_email, list_after.stdout
-        ));
-    }
-
-    let unmake = match rbtdrp_invoke_logged(
-        ctx,
-        RBTDRM_COLOPHON_DEPOT_UNMAKE,
-        &[],
-        &[(RBTDRP_BURE_CONFIRM_KEY, RBTDRP_BURE_CONFIRM_SKIP)],
-        dir,
-        "unmake",
-    ) {
-        Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("depot unmake (cleanup): {}", e)),
-    };
-    if unmake.exit_code != 0 {
-        return rbtdre_Verdict::Fail(format!(
-            "depot unmake (cleanup) exit {}\n{}",
-            unmake.exit_code, unmake.stderr
-        ));
-    }
-
-    rbtdre_Verdict::Pass
+    rbtdre_Verdict::Fail(format!(
+        "depot '{}' (project '{}') still present with unexpected state '{}' after unmake \
+         (expected absent or '{}')",
+        moniker, project_id, depot_state, RBTDRP_DELETE_REQUESTED
+    ))
 }
 
 // ── Section registry ─────────────────────────────────────────
@@ -876,10 +1097,11 @@ pub static RBTDRP_SECTIONS_PRISTINE_LIFECYCLE: &[rbtdre_Section] = &[
         cases: &[case!(rbtdrp_marshal_zero_attestation)],
     },
     rbtdre_Section {
-        name: "pristine-lifecycle-simple",
+        name: "pristine-lifecycle-arc",
         cases: &[
-            case!(rbtdrp_depot_lifecycle),
-            case!(rbtdrp_governor_lifecycle),
+            case!(rbtdrp_depot_stand_up),
+            case!(rbtdrp_sa_cycle),
+            case!(rbtdrp_depot_tear_down),
         ],
     },
 ];

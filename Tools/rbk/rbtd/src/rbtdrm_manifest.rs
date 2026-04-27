@@ -64,8 +64,10 @@ pub const RBTDRM_COLOPHON_DEPOT_UNMAKE: &str = "rbw-dU";
 
 // Governor service-account colophons (global — no nameplate imprint)
 pub const RBTDRM_COLOPHON_GOV_MANTLE: &str = "rbw-aM";
-pub const RBTDRM_COLOPHON_GOV_LIST_SAS: &str = "rbw-aL";
-pub const RBTDRM_COLOPHON_GOV_FORFEIT: &str = "rbw-aF";
+pub const RBTDRM_COLOPHON_GOV_INVEST_RETRIEVER: &str = "rbw-arI";
+pub const RBTDRM_COLOPHON_GOV_INVEST_DIRECTOR: &str = "rbw-adI";
+pub const RBTDRM_COLOPHON_GOV_DIVEST_RETRIEVER: &str = "rbw-arD";
+pub const RBTDRM_COLOPHON_GOV_DIVEST_DIRECTOR: &str = "rbw-adD";
 
 // Handbook display colophons — one symbolic ref per RBZ_* zipper constant.
 // Onboarding group (8)
@@ -142,8 +144,11 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDRM_COLOPHON_DEPOT_LIST,
             RBTDRM_COLOPHON_DEPOT_UNMAKE,
             RBTDRM_COLOPHON_GOV_MANTLE,
-            RBTDRM_COLOPHON_GOV_LIST_SAS,
-            RBTDRM_COLOPHON_GOV_FORFEIT,
+            RBTDRM_COLOPHON_GOV_INVEST_RETRIEVER,
+            RBTDRM_COLOPHON_GOV_INVEST_DIRECTOR,
+            RBTDRM_COLOPHON_GOV_DIVEST_RETRIEVER,
+            RBTDRM_COLOPHON_GOV_DIVEST_DIRECTOR,
+            RBTDRM_COLOPHON_ACCESS_PROBE,
         ]),
         RBTDRM_FIXTURE_HANDBOOK_RENDER => Some(&[
             RBTDRM_COLOPHON_ONBOARD_START_HERE,
