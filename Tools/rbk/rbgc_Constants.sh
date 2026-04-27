@@ -150,11 +150,9 @@ zrbgc_kindle() {
   # Payor fact-file filenames (governor identifying values)
   readonly RBGP_FACT_GOVERNOR_SA_EMAIL="rbgp_fact_governor_sa_email"
 
-  # Depot fact-file extension and lifecycle-state vocabulary.
-  # rbgp_depot_list emits one fact file per known depot named "<moniker>.depot"
-  # with content equal to one of the state values below.
-  readonly RBGP_FACT_EXT_DEPOT="depot"
-  readonly RBGP_FACT_EXT_DEPOT_PROJECT="depot-project"
+  # Depot lifecycle-state vocabulary. Fact-file extensions live in RBCC.
+  # rbgp_depot_list emits one fact file per known depot named
+  # "<moniker>.${RBCC_fact_ext_depot}" with content equal to one of the values below.
   readonly RBGP_DEPOT_STATE_COMPLETE="COMPLETE"
   readonly RBGP_DEPOT_STATE_DELETE_REQUESTED="DELETE_REQUESTED"
 

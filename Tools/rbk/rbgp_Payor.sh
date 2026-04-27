@@ -146,8 +146,8 @@ zrbgp_authenticate_capture() {
 # is derived from the Mason SA local-part after stripping the mason- prefix.
 # Lifecycle is determined first via CRM v1; only ACTIVE and DELETE_REQUESTED
 # projects are candidates for SA-list scanning.  Per-moniker fact files
-# named "<moniker>.${RBGP_FACT_EXT_DEPOT}" (state) and
-# "<moniker>.${RBGP_FACT_EXT_DEPOT_PROJECT}" (project_id) are written via
+# named "<moniker>.${RBCC_fact_ext_depot}" (state) and
+# "<moniker>.${RBCC_fact_ext_depot_project}" (project_id) are written via
 # buf_write_fact_multi; consumers walk the emitted files in BURD_OUTPUT_DIR /
 # BURD_TEMP_DIR (filesystem is the data bus).
 #
@@ -308,8 +308,8 @@ zrbgp_depot_state_emit() {
       z_mason_local="${z_mason_email%%@*}"
       z_moniker="${z_mason_local#"${RBGC_MASON_PREFIX}-"}"
 
-      buf_write_fact_multi "${z_moniker}" "${RBGP_FACT_EXT_DEPOT}"         "${z_state}"
-      buf_write_fact_multi "${z_moniker}" "${RBGP_FACT_EXT_DEPOT_PROJECT}" "${z_project_id}"
+      buf_write_fact_multi "${z_moniker}" "${RBCC_fact_ext_depot}"         "${z_state}"
+      buf_write_fact_multi "${z_moniker}" "${RBCC_fact_ext_depot_project}" "${z_project_id}"
 
       z_index=$((z_index + 1))
       z_global_project_index=$((z_global_project_index + 1))
@@ -1137,10 +1137,10 @@ rbgp_depot_list() {
   # Walk emitted depot fact files; stem is the moniker, content is the state.
   # The sidecar depot-project fact file carries the canonical project_id.
   shopt -s nullglob
-  for z_fact_path in "${BURD_OUTPUT_DIR}"/*.${RBGP_FACT_EXT_DEPOT}; do
+  for z_fact_path in "${BURD_OUTPUT_DIR}"/*.${RBCC_fact_ext_depot}; do
     z_basename="${z_fact_path##*/}"
-    z_moniker="${z_basename%.${RBGP_FACT_EXT_DEPOT}}"
-    z_project_fact_path="${BURD_OUTPUT_DIR}/${z_moniker}.${RBGP_FACT_EXT_DEPOT_PROJECT}"
+    z_moniker="${z_basename%.${RBCC_fact_ext_depot}}"
+    z_project_fact_path="${BURD_OUTPUT_DIR}/${z_moniker}.${RBCC_fact_ext_depot_project}"
     z_state=$(<"${z_fact_path}")
     test -n "${z_state}" || buc_die "Empty state in fact file: ${z_fact_path}"
     test -f "${z_project_fact_path}" || buc_die "Missing depot-project fact file: ${z_project_fact_path}"

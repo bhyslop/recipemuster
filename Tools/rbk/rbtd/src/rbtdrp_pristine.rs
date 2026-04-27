@@ -76,7 +76,7 @@ const RBTDRP_FAMILY_NUMERIC_FLOOR: u32 = 100000;
 /// as 1 and shadowing real entries.
 const RBTDRP_FAMILY_NUMERIC_WIDTH: usize = 6;
 
-/// Fact-file extension mirror of RBGP_FACT_EXT_DEPOT in rbgc_Constants.sh.
+/// Fact-file extension mirror of RBCC_fact_ext_depot in rbcc_Constants.sh.
 /// rbgp_depot_list emits `<moniker>.depot` files with state content.
 const RBTDRP_FACT_EXT_DEPOT: &str = "depot";
 

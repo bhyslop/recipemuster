@@ -40,6 +40,14 @@ RBCC_role_payor="payor"
 RBCC_role_assay="assay"
 RBCC_onboarding_nameplate="tadmor"
 
+# Fact-file extension tinder — multi-fact registry for buf_write_fact_multi.
+# Producers emit "<basename>.<extension>" via filesystem-as-data-bus pattern;
+# consumers walk fact files in BURD_OUTPUT_DIR / BURD_TEMP_DIR keyed on extension.
+RBCC_fact_ext_depot="depot"
+RBCC_fact_ext_depot_project="depot-project"
+RBCC_fact_ext_roster_retriever="roster-retriever"
+RBCC_fact_ext_roster_director="roster-director"
+
 ######################################################################
 # Internal Functions (zrbcc_*)
 
