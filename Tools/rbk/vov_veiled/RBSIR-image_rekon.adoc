@@ -15,7 +15,7 @@ rekons over two domains, each backed by a distinct procedure:
 * `rbfl_rekon_hallmark` — basenames present under a hallmark subtree
 * `rbfl_rekon_reliquary` — tool images present under a reliquary stamp's subtree
 
-Rekon over the {rbtgo_ark_enshrine} domain is intentionally omitted: an enshrinement is a single image per anchor (1-deep), so no presence table is meaningful — {rbtgo_image_muster} covers the catalog and {rbtgo_image_retrieve} covers retrieval.
+Rekon over the {rbtgo_ark_enshrine} domain is intentionally omitted: an enshrinement is a single image per anchor (1-deep), so no presence table is meaningful — {rbtgo_image_audit} covers the catalog and {rbtgo_image_retrieve} covers retrieval.
 
 == Hallmark Rekon
 
