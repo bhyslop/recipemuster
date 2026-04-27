@@ -5,7 +5,9 @@ The
 {rbtr_payor}
 lists all
 {rbtgi_depot}
-instances and their status:
+instances billed to the
+{rbtr_payor}
+account and their status:
 
 //axhos_step
 . *Authenticate as
@@ -14,28 +16,54 @@ instances and their status:
 {rbtoe_payor_authenticate}
 
 //axhos_step
-. *Query depot projects*:
+. *Enumerate billing-account projects*:
 .. {rbbc_call}
-link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/list[projects.list] with filter: `projectId:rbw-* AND lifecycleState:ACTIVE`
+link:https://cloud.google.com/billing/reference/rest/v1/billingAccounts.projects/list[billingAccounts.projects.list]
+for `billingAccounts/${RBRP_BILLING_ACCOUNT_ID}/projects`
 .. {rbbc_store}
-`«DEPOT_PROJECTS»` from response
+`«BILLED_PROJECTS»` — projects with `billingEnabled=true`
 
 //axhos_step
-. *Validate each depot*:
-.. For each project in `«DEPOT_PROJECTS»`:
-... Extract depot name from project ID pattern `rbw-«NAME»-«TIMESTAMP»`
-... Check for Mason service account: `mason-«NAME»`
-... Check for repository: `rbw-«NAME»-repository`
-... Check for bucket: `rbw-«NAME»-bucket`
-... Display status: COMPLETE, BROKEN (missing resources), or DELETE_REQUESTED
+. *Classify each project as a depot*:
+.. For each project in `«BILLED_PROJECTS»`:
+... {rbbc_call}
+link:https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts/list[projects.serviceAccounts.list]
+for the project's IAM service accounts
+... Inspect service account emails for a match against
+`mason-«MONIKER»@<project>.iam.gserviceaccount.com`
+where `«MONIKER»` matches `^[a-z][a-z0-9]*$`
+... Skip projects with no matching Mason service account
+... {rbbc_store}
+`«MONIKER»` by stripping the `mason-` prefix from the matched SA's local-part
+
+//axhos_step
+. *Look up lifecycle state for each depot project*:
+.. {rbbc_call}
+link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[projects.get]
+for each Mason-SA-bearing project via CRM v1 `projects/${project_id}`
+.. Classify state:
+... `lifecycleState=ACTIVE` → `COMPLETE`
+... `lifecycleState=DELETE_REQUESTED` → `DELETE_REQUESTED`
+... Other lifecycle states → log and skip
+
+//axhos_step
+. *Emit per-moniker fact files*:
+.. {rbbc_store}
+state string to `«MONIKER».depot`
+(extension constant `RBGP_FACT_EXT_DEPOT`)
+.. {rbbc_store}
+canonical project_id to `«MONIKER».depot-project`
+(extension constant `RBGP_FACT_EXT_DEPOT_PROJECT`)
 
 //axhoot_typed_output
 {rbtgi_depot}
 . *Display summary*:
 .. {rbbc_show}
-total depot count
+each depot moniker with state (`COMPLETE` or `DELETE_REQUESTED`)
 .. {rbbc_show}
-each depot with ID and status
+total depot count
 
 //axhoc_completion
-Successful execution lists depot projects.
+Successful execution lists all depots billed to the
+{rbtr_payor}
+account.

@@ -114,7 +114,9 @@
 :rbtgo_depot_unmake:              <<rbtgo_depot_unmake,rbgp_depot_unmake>>
 :rbtgo_depot_list:                <<rbtgo_depot_list,rbgp_depot_list>>
 :rbtgo_depot_inscribe:            <<rbtgo_depot_inscribe,rbfl_inscribe>>
-:rbtgo_director_knight:           <<rbtgo_director_knight,rbgg_knight_director>>
+:rbtgo_director_divest:           <<rbtgo_director_divest,rbgg_divest_director>>
+:rbtgo_director_invest:           <<rbtgo_director_invest,rbgg_invest_director>>
+:rbtgo_director_muster:           <<rbtgo_director_muster,rbgg_muster_directors>>
 :rbtgo_director_vouch:            <<rbtgo_director_vouch,rbfv_batch_vouch>>
 :rbtgo_director_yoke:             <<rbtgo_director_yoke,rbfl_yoke>>
 :rbtgo_governor_mantle:            <<rbtgo_governor_mantle,rbgp_governor_mantle>>
@@ -125,9 +127,9 @@
 :rbtgo_payor_establish:           <<rbtgo_payor_establish,rbhp_establish>>
 :rbtgo_payor_install:             <<rbtgo_payor_install,rbgp_payor_install>>
 :rbtgo_payor_refresh:             <<rbtgo_payor_refresh,rbhp_refresh>>
-:rbtgo_retriever_charter:         <<rbtgo_retriever_charter,rbgg_charter_retriever>>
-:rbtgo_sa_forfeit:                <<rbtgo_sa_forfeit,rbgg_forfeit_service_account>>
-:rbtgo_sa_list:                   <<rbtgo_sa_list,rbgg_list_service_accounts>>
+:rbtgo_retriever_divest:          <<rbtgo_retriever_divest,rbgg_divest_retriever>>
+:rbtgo_retriever_invest:          <<rbtgo_retriever_invest,rbgg_invest_retriever>>
+:rbtgo_retriever_muster:          <<rbtgo_retriever_muster,rbgg_muster_retrievers>>
 :rbtgo_quota_build:               <<rbtgo_quota_build,rbhp_quota_build>>
 :rbtgo_trigger_build:             <<rbtgo_trigger_build,rbfd_build>>
 :rbtgo_access_jwt_probe:          <<rbtgo_access_jwt_probe,rbgv_jwt_sa_probe>>
@@ -1826,7 +1828,7 @@ The vouch step branches on `_RBGV_VESSEL_MODE`: conjure runs DSSE provenance ver
 Discovered constraints from implementation:
 +
   * **Private worker pool**: The RunBuild API caller ({rbtr_director}) requires `cloudbuild.workerpools.use` to specify a private pool, a permission not included in `roles/cloudbuild.builds.editor`.
-    {rbtgo_director_knight} grants `roles/cloudbuild.workerPoolUser` at project scope.
+    {rbtgo_director_invest} grants `roles/cloudbuild.workerPoolUser` at project scope.
     Vouch runs on the same private pool as conjure (the depot's worker pool, derived from `(RBRR_CLOUD_PREFIX, RBRR_DEPOT_MONIKER)`), eliminating an untested default-pool-with-buildx permutation.
   * **gcloud exception**: Vouch verification (conjure mode) invokes `gcloud artifacts docker images describe` for provenance retrieval (see {rbsk_no_gcloud} exception).
     All other steps use the GCE metadata server for OAuth tokens and direct registry REST API calls.
@@ -3736,7 +3738,7 @@ service account context:
 exists or
 {rbbc_fatal}
 "Director RBRA file missing - run
-{rbtgo_director_knight}",
+{rbtgo_director_invest}",
 . loads RBRA credentials (RBRA_CLIENT_EMAIL, RBRA_PRIVATE_KEY, RBRA_PROJECT_ID),
 . generates JWT with scope `https://www.googleapis.com/auth/cloud-platform`,
 . {rbbc_call} link:https://oauth2.googleapis.com/token[Google OAuth token endpoint] to exchange JWT for access token,
@@ -3754,7 +3756,7 @@ service account context:
 exists or
 {rbbc_fatal}
 "Retriever RBRA file missing - run
-{rbtgo_retriever_charter}",
+{rbtgo_retriever_invest}",
 . loads RBRA credentials (RBRA_CLIENT_EMAIL, RBRA_PRIVATE_KEY, RBRA_PROJECT_ID),
 . generates JWT with scope `https://www.googleapis.com/auth/cloud-platform`,
 . {rbbc_call} link:https://oauth2.googleapis.com/token[Google OAuth token endpoint] to exchange JWT for access token,
@@ -3788,16 +3790,17 @@ A pattern that loads and validates RBRO credentials:
 {rbtoe_depot_list_update}::
 A pattern that synchronizes
 {rbtgi_depot}
-project tracking:
+fact-file state after a depot lifecycle mutation:
 
 . executes
 {rbtoe_payor_authenticate}
 to obtain access token,
-. {rbbc_call} link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/list[projects.list] with filter `projectId:rbw-depot-* AND lifecycleState:ACTIVE`,
-. {rbbc_require} HTTP 200 response from projects API,
-. extracts project IDs from `.projects[].projectId` array,
-. validates each project ID matches pattern `rbw-[name]-[timestamp]`,
-. constructs space-delimited string from valid depot project IDs,
+. {rbbc_call} Cloud Billing v1 `billingAccounts/${RBRP_BILLING_ACCOUNT_ID}/projects` to enumerate projects with `billingEnabled=true`,
+. for each billed project, {rbbc_call} IAM v1 `projects.serviceAccounts.list` and inspects SA emails for a Mason SA matching `mason-«MONIKER»@<project>.iam.gserviceaccount.com`,
+. skips projects with no matching Mason SA; derives moniker by stripping the `mason-` prefix,
+. {rbbc_call} CRM v1 `projects/${project_id}` to look up lifecycle state for each Mason-SA-bearing project,
+. classifies state: `ACTIVE` → `COMPLETE`, `DELETE_REQUESTED` → `DELETE_REQUESTED`; other states are logged and skipped,
+. emits per-moniker fact files: `«MONIKER».depot` (state) and `«MONIKER».depot-project` (canonical project_id),
 . invoked by
 {rbtgo_payor_install},
 {rbtgo_depot_levy},

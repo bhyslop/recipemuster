@@ -141,15 +141,19 @@ zrbgp_authenticate_capture() {
 }
 
 # Probe per-installation depot states and emit per-moniker fact files.
-# Each ACTIVE depot's Mason SA presence distinguishes COMPLETE from BROKEN;
-# DELETE_REQUESTED projects are recorded as such. Per-moniker fact files
-# named "<moniker>.${RBGP_FACT_EXT_DEPOT}" are written via buf_write_fact_multi
-# with state content drawn from RBGP_DEPOT_STATE_*; consumers walk the
-# emitted files in BURD_OUTPUT_DIR/BURD_TEMP_DIR (filesystem is the data bus).
+# Classification is by Mason SA presence — any billing-account project hosting
+# a service account matching ^mason-[a-z][a-z0-9]*@ is a depot.  The moniker
+# is derived from the Mason SA local-part after stripping the mason- prefix.
+# DELETE_REQUESTED projects are recorded as such.  Per-moniker fact files
+# named "<moniker>.${RBGP_FACT_EXT_DEPOT}" (state) and
+# "<moniker>.${RBGP_FACT_EXT_DEPOT_PROJECT}" (project_id) are written via
+# buf_write_fact_multi; consumers walk the emitted files in BURD_OUTPUT_DIR /
+# BURD_TEMP_DIR (filesystem is the data bus).
 #
-# Single-shot per dispatch — buf_write_fact_multi dies on preexist, so a
-# second call within the same dispatch would fatal at the first repeated
-# moniker. By design: one tabtarget = one dispatch = one emit call.
+# RBGP_DEPOT_STATE_BROKEN is never emitted — Mason SA presence IS the
+# discriminator; projects without a Mason SA are silently skipped.
+#
+# Single-shot per dispatch — buf_write_fact_multi dies on preexist.
 #
 # Args: <oauth_access_token>
 zrbgp_depot_state_emit() {
@@ -158,59 +162,105 @@ zrbgp_depot_state_emit() {
   local -r z_token="${1:-}"
   test -n "${z_token}" || buc_die "zrbgp_depot_state_emit: token required"
 
-  # No lifecycleState filter — DELETE_REQUESTED projects must surface so
-  # their per-moniker fact files emit alongside ACTIVE ones.
-  local -r z_prefix_match="${RBRR_CLOUD_PREFIX}d-"
-  local -r z_filter="projectId:${z_prefix_match}*"
-  local -r z_list_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects?filter=${z_filter// /%20}"
-  rbgu_http_json "GET" "${z_list_url}" "${z_token}" "depot_state_list"
-  rbgu_http_require_ok "List depot projects" "depot_state_list"
+  # RBRP_BILLING_ACCOUNT_ID is min=0 in the regime (optional for payor-only
+  # operations) but required here to enumerate depot projects.
+  test -n "${RBRP_BILLING_ACCOUNT_ID:-}" \
+    || buc_die "RBRP_BILLING_ACCOUNT_ID is not set — required for depot_list"
+
+  # Query Cloud Billing API v1: list all projects under the billing account.
+  local -r z_billing_list_url="${RBGC_API_ROOT_CLOUDBILLING}${RBGC_CLOUDBILLING_V1}/billingAccounts/${RBRP_BILLING_ACCOUNT_ID}/projects"
+  rbgu_http_json "GET" "${z_billing_list_url}" "${z_token}" "depot_state_billing"
+  rbgu_http_require_ok "List billing account projects" "depot_state_billing"
 
   local z_project_count
-  z_project_count=$(rbgu_json_field_capture "depot_state_list" '.projects // [] | length') || z_project_count=0
+  z_project_count=$(rbgu_json_field_capture "depot_state_billing" '.projectBillingInfo // [] | length') \
+    || z_project_count=0
 
   test "${z_project_count}" -gt 0 || return 0
 
   # Per-iteration synthesized locals (BCG exception 2 — declare outside, assign inside)
   local z_index=0
   local z_project_id=""
+  local z_billing_enabled=""
+  local z_sa_list_infix=""
+  local z_sa_list_code=""
+  local z_sa_count=""
+  local z_sa_index=0
+  local z_sa_email=""
+  local z_mason_email=""
+  local z_mason_local=""
   local z_moniker=""
+  local z_crm_infix=""
   local z_lifecycle_state=""
   local z_state=""
-  local z_mason_email=""
-  local z_mason_url=""
-  local z_mason_infix=""
-  local z_mason_code=""
 
   while test "${z_index}" -lt "${z_project_count}"; do
-    z_project_id=$(rbgu_json_field_capture "depot_state_list" ".projects[${z_index}].projectId") \
+    z_project_id=$(rbgu_json_field_capture "depot_state_billing" ".projectBillingInfo[${z_index}].projectId") \
       || { z_index=$((z_index + 1)); continue; }
 
-    if [[ "${z_project_id}" != "${z_prefix_match}"* ]]; then
-      buc_log_args "Skipping project outside this installation's depot namespace: ${z_project_id}"
+    z_billing_enabled=$(rbgu_json_field_capture "depot_state_billing" ".projectBillingInfo[${z_index}].billingEnabled") \
+      || z_billing_enabled="false"
+
+    if test "${z_billing_enabled}" != "true"; then
+      buc_log_args "Skipping project with billing disabled: ${z_project_id}"
       z_index=$((z_index + 1))
       continue
     fi
-    z_moniker="${z_project_id#"${z_prefix_match}"}"
 
-    z_lifecycle_state=$(rbgu_json_field_capture "depot_state_list" ".projects[${z_index}].lifecycleState // \"UNKNOWN\"") \
+    # List service accounts in this project; treat HTTP errors as skip (not fatal).
+    z_sa_list_infix="depot_state_sa_${z_index}"
+    rbgu_http_json "GET" \
+      "${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_project_id}/serviceAccounts" \
+      "${z_token}" "${z_sa_list_infix}" || true
+
+    z_sa_list_code=$(rbgu_http_code_capture "${z_sa_list_infix}") || z_sa_list_code=""
+    if test "${z_sa_list_code}" != "200"; then
+      buc_log_args "Skipping project (SA list HTTP ${z_sa_list_code}): ${z_project_id}"
+      z_index=$((z_index + 1))
+      continue
+    fi
+
+    z_sa_count=$(rbgu_json_field_capture "${z_sa_list_infix}" '.accounts // [] | length') \
+      || z_sa_count=0
+
+    # Scan SA list for a Mason SA — moniker portion enforced to RBRR's
+    # ^[a-z][a-z0-9]*$ shape so an unrelated SA literally named e.g.
+    # "mason-Foo" cannot be misclassified as a depot.
+    z_mason_email=""
+    z_sa_index=0
+    while test "${z_sa_index}" -lt "${z_sa_count}"; do
+      z_sa_email=$(rbgu_json_field_capture "${z_sa_list_infix}" ".accounts[${z_sa_index}].email") \
+        || { z_sa_index=$((z_sa_index + 1)); continue; }
+      if [[ "${z_sa_email}" =~ ^${RBGC_MASON_PREFIX}-[a-z][a-z0-9]*@[^@]*\.iam\.gserviceaccount\.com$ ]]; then
+        z_mason_email="${z_sa_email}"
+        break
+      fi
+      z_sa_index=$((z_sa_index + 1))
+    done
+
+    if test -z "${z_mason_email}"; then
+      buc_log_args "Skipping project — no Mason SA found: ${z_project_id}"
+      z_index=$((z_index + 1))
+      continue
+    fi
+
+    # Derive moniker from Mason SA local-part (strip leading mason- prefix)
+    z_mason_local="${z_mason_email%%@*}"
+    z_moniker="${z_mason_local#"${RBGC_MASON_PREFIX}-"}"
+
+    # Determine lifecycle state via CRM v1.
+    z_crm_infix="depot_state_crm_${z_index}"
+    rbgu_http_json "GET" \
+      "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${z_project_id}" \
+      "${z_token}" "${z_crm_infix}" || true
+
+    z_lifecycle_state=$(rbgu_json_field_capture "${z_crm_infix}" '.lifecycleState // "UNKNOWN"') \
       || z_lifecycle_state="UNKNOWN"
 
     if test "${z_lifecycle_state}" = "DELETE_REQUESTED"; then
       z_state="${RBGP_DEPOT_STATE_DELETE_REQUESTED}"
     elif test "${z_lifecycle_state}" = "ACTIVE"; then
-      z_mason_email=$(rbgu_sa_email_capture "${RBGC_MASON_PREFIX}-${z_moniker}" "${z_project_id}") \
-        || buc_die "Failed to compose Mason email for moniker ${z_moniker}"
-      z_mason_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_project_id}/serviceAccounts/${z_mason_email}"
-      z_mason_infix="depot_state_mason_${z_index}"
-      rbgu_http_json "GET" "${z_mason_url}" "${z_token}" "${z_mason_infix}" || true
-
-      z_mason_code=$(rbgu_http_code_capture "${z_mason_infix}") || z_mason_code=""
-      if test "${z_mason_code}" = "200"; then
-        z_state="${RBGP_DEPOT_STATE_COMPLETE}"
-      else
-        z_state="${RBGP_DEPOT_STATE_BROKEN}"
-      fi
+      z_state="${RBGP_DEPOT_STATE_COMPLETE}"
     else
       buc_log_args "Skipping moniker ${z_moniker} with unrecognized lifecycle state: ${z_lifecycle_state}"
       z_index=$((z_index + 1))
@@ -218,6 +268,7 @@ zrbgp_depot_state_emit() {
     fi
 
     buf_write_fact_multi "${z_moniker}" "${RBGP_FACT_EXT_DEPOT}" "${z_state}"
+    buf_write_fact_multi "${z_moniker}" "${RBGP_FACT_EXT_DEPOT_PROJECT}" "${z_project_id}"
 
     z_index=$((z_index + 1))
   done
@@ -1019,10 +1070,8 @@ rbgp_depot_list() {
   zrbgp_depot_state_emit "${z_token}"
 
   buc_step 'Render depot summary'
-  local -r z_prefix_match="${RBRR_CLOUD_PREFIX}d-"
   local z_total_count=0
   local z_complete_count=0
-  local z_broken_count=0
   local z_delete_requested_count=0
 
   buc_info ""
@@ -1034,22 +1083,26 @@ rbgp_depot_list() {
   local z_basename=""
   local z_moniker=""
   local z_project_id=""
+  local z_project_fact_path=""
   local z_state=""
 
-  # Walk emitted fact files; filename stem is the moniker, content is the state.
+  # Walk emitted depot fact files; stem is the moniker, content is the state.
+  # The sidecar depot-project fact file carries the canonical project_id.
   shopt -s nullglob
   for z_fact_path in "${BURD_OUTPUT_DIR}"/*.${RBGP_FACT_EXT_DEPOT}; do
     z_basename="${z_fact_path##*/}"
     z_moniker="${z_basename%.${RBGP_FACT_EXT_DEPOT}}"
-    z_project_id="${z_prefix_match}${z_moniker}"
+    z_project_fact_path="${BURD_OUTPUT_DIR}/${z_moniker}.${RBGP_FACT_EXT_DEPOT_PROJECT}"
     z_state=$(<"${z_fact_path}")
     test -n "${z_state}" || buc_die "Empty state in fact file: ${z_fact_path}"
+    test -f "${z_project_fact_path}" || buc_die "Missing depot-project fact file: ${z_project_fact_path}"
+    z_project_id=$(<"${z_project_fact_path}")
+    test -n "${z_project_id}" || buc_die "Empty project_id in fact file: ${z_project_fact_path}"
 
     printf "%-40s %s\n" "${z_project_id}" "${z_state}"
     z_total_count=$((z_total_count + 1))
     case "${z_state}" in
       "${RBGP_DEPOT_STATE_COMPLETE}")          z_complete_count=$((z_complete_count + 1)) ;;
-      "${RBGP_DEPOT_STATE_BROKEN}")            z_broken_count=$((z_broken_count + 1)) ;;
       "${RBGP_DEPOT_STATE_DELETE_REQUESTED}")  z_delete_requested_count=$((z_delete_requested_count + 1)) ;;
     esac
   done
@@ -1064,14 +1117,7 @@ rbgp_depot_list() {
   buc_info "=== SUMMARY ==="
   buc_info "Total depots:     ${z_total_count}"
   buc_info "Complete:         ${z_complete_count}"
-  buc_info "Broken:           ${z_broken_count}"
   buc_info "Delete-requested: ${z_delete_requested_count}"
-
-  if test "${z_broken_count}" -gt 0; then
-    buc_info ""
-    buc_info "Note: BROKEN depots may have missing resources (Mason SA, repository, or bucket)"
-    buc_info "Consider investigating broken depots or destroying them if no longer needed"
-  fi
 }
 
 rbgp_payor_oauth_refresh() {

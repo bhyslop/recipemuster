@@ -27,6 +27,8 @@ zrbgp_furnish() {
   buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
   buc_doc_env_done || return 0
 
+  local -r z_command="${1:-}"
+
   source "${BURD_CONFIG_DIR}/rbbc_constants.sh"
   local z_rbk_kit_dir="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}"
   source "${BURD_BUK_DIR}/burd_regime.sh"
@@ -52,8 +54,10 @@ zrbgp_furnish() {
   zrbcc_kindle
 
   zrbrr_kindle
-  zrbrr_enforce
-  zrbdc_kindle
+  if test "${z_command}" != "rbgp_depot_list"; then
+    zrbrr_enforce
+    zrbdc_kindle
+  fi
 
   zrbgc_kindle
 

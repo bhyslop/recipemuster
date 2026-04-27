@@ -154,6 +154,7 @@ zrbgc_kindle() {
   # rbgp_depot_list emits one fact file per known depot named "<moniker>.depot"
   # with content equal to one of the state values below.
   readonly RBGP_FACT_EXT_DEPOT="depot"
+  readonly RBGP_FACT_EXT_DEPOT_PROJECT="depot-project"
   readonly RBGP_DEPOT_STATE_COMPLETE="COMPLETE"
   readonly RBGP_DEPOT_STATE_BROKEN="BROKEN"
   readonly RBGP_DEPOT_STATE_DELETE_REQUESTED="DELETE_REQUESTED"
