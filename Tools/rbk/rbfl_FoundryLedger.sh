@@ -186,7 +186,7 @@ rbfl_inscribe() {
   # Submit inscribe as a Cloud Build job (docker pull/tag/push on GCB)
   zrbfl_inscribe_submit "${z_token}" "${z_reliquary}"
 
-  buf_write_fact "${RBF_FACT_RELIQUARY}" "${z_reliquary}"
+  buf_write_fact_single "${RBF_FACT_RELIQUARY}" "${z_reliquary}"
 
   buc_success "Inscribe complete — reliquary ${z_reliquary} created"
   buc_info "Add RBRV_RELIQUARY=${z_reliquary} to vessel rbrv.env files to use this reliquary"

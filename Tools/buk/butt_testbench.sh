@@ -75,12 +75,15 @@ butt_kindle() {
   butr_case_enroll "bure-tweak" butcbe_label_too_long_tcase
   butr_case_enroll "bure-tweak" butcbe_unexpected_var_tcase
 
-  # burx-exchange fixture (4 cases)
+  # burx-exchange fixture (7 cases)
   butr_fixture_enroll "burx-exchange" "" "zbutt_noop_baste"
   butr_case_enroll "burx-exchange" butcbx_burx_dual_write_tcase
   butr_case_enroll "burx-exchange" butcbx_burx_fields_tcase
   butr_case_enroll "burx-exchange" butcbx_burx_preexist_tcase
   butr_case_enroll "burx-exchange" butcbx_burx_timestamp_format_tcase
+  butr_case_enroll "burx-exchange" butcbx_multi_dual_write_tcase
+  butr_case_enroll "burx-exchange" butcbx_multi_preexist_tcase
+  butr_case_enroll "burx-exchange" butcbx_multi_empty_content_tcase
 
   # buh-link fixture (3 cases)
   butr_fixture_enroll "buh-link" "" "zbutt_noop_baste"

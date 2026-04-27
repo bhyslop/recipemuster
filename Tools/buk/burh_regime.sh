@@ -91,7 +91,9 @@ zburh_build_key_line() {
   fi
 }
 
-# List available alias names as space-separated tokens
+# List available alias names as space-separated tokens.
+# Emits one <alias>.${BUF_EXT_ALIAS} observation fact per profile (empty
+# content; presence is the fact).
 # Prerequisite: BURS kindled (needs BURS_USER), BURD kindled (needs BURD_CONFIG_DIR)
 burh_list_capture() {
   zburs_sentinel
@@ -105,7 +107,9 @@ burh_list_capture() {
   for z_i in "${!z_files[@]}"; do
     test -f "${z_files[$z_i]}" || continue
     local z_dir="${z_files[$z_i]%/*}"
-    z_result="${z_result}${z_result:+ }${z_dir##*/}"
+    local z_alias="${z_dir##*/}"
+    buf_write_fact_multi "${z_alias}" "${BUF_EXT_ALIAS}" ""
+    z_result="${z_result}${z_result:+ }${z_alias}"
   done
   test -n "${z_result}" || return 1
   echo "${z_result}"

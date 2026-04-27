@@ -1197,13 +1197,13 @@ rbfd_build() {
   # Persist to output directory for test harness consumption
   echo "${z_vessel_dir}" > "${ZRBFC_OUTPUT_VESSEL_DIR}" \
     || buc_die "Failed to write vessel dir to output"
-  buf_write_fact "${RBF_FACT_HALLMARK}" "${z_hallmark}"
+  buf_write_fact_single "${RBF_FACT_HALLMARK}" "${z_hallmark}"
 
   # Write GAR root fact file (registry prefix for composing full refs)
-  buf_write_fact "${RBF_FACT_GAR_ROOT}" "${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}"
+  buf_write_fact_single "${RBF_FACT_GAR_ROOT}" "${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}"
 
   # Write ark stem fact file (hallmark subtree under HALLMARKS_ROOT)
-  buf_write_fact "${RBF_FACT_ARK_STEM}" "${RBGL_HALLMARKS_ROOT}/${z_hallmark}"
+  buf_write_fact_single "${RBF_FACT_ARK_STEM}" "${RBGL_HALLMARKS_ROOT}/${z_hallmark}"
 
   # Write per-platform yield fact files (attest tags — durable provenance-carrying artifacts)
   # Single attest package; per-platform tag = ${HALLMARK}-${arch}
@@ -1214,12 +1214,12 @@ rbfd_build() {
     z_plat_suffix="${z_plat#linux/}"
     z_plat_suffix="${z_plat_suffix//\//}"
     z_yield_ref="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_ATTEST}:${z_hallmark}-${z_plat_suffix}"
-    buf_write_fact "${RBF_FACT_ARK_YIELD}-${RBGC_ARK_BASENAME_ATTEST}-${z_plat_suffix}" "${z_yield_ref}"
+    buf_write_fact_single "${RBF_FACT_ARK_YIELD}-${RBGC_ARK_BASENAME_ATTEST}-${z_plat_suffix}" "${z_yield_ref}"
     buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_YIELD}-${RBGC_ARK_BASENAME_ATTEST}-${z_plat_suffix}"
   done
 
   # Write build ID fact file (dispatched build ID for cross-check with vouch provenance)
-  buf_write_fact "${RBF_FACT_BUILD_ID}" "${z_build_id}"
+  buf_write_fact_single "${RBF_FACT_BUILD_ID}" "${z_build_id}"
 
   buc_info "Output: ${ZRBFC_OUTPUT_VESSEL_DIR}"
   buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}"
@@ -1316,9 +1316,9 @@ rbfd_kludge() {
 
   # Persist facts — mirror conjure/bind/graft so downstream consumers (theurge)
   # can build full refs uniformly regardless of mode.
-  buf_write_fact "${RBF_FACT_HALLMARK}" "${z_hallmark}"
-  buf_write_fact "${RBF_FACT_GAR_ROOT}" "${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}"
-  buf_write_fact "${RBF_FACT_ARK_STEM}" "${RBGL_HALLMARKS_ROOT}/${z_hallmark}"
+  buf_write_fact_single "${RBF_FACT_HALLMARK}" "${z_hallmark}"
+  buf_write_fact_single "${RBF_FACT_GAR_ROOT}" "${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}"
+  buf_write_fact_single "${RBF_FACT_ARK_STEM}" "${RBGL_HALLMARKS_ROOT}/${z_hallmark}"
 
   buc_success "Kludge build complete: ${RBRV_SIGIL}"
   buc_bare ""
@@ -1401,16 +1401,16 @@ rbfd_mirror() {
   # Persist to output directory for chaining by rbfd_ordain
   echo "${z_vessel_dir}" > "${ZRBFC_OUTPUT_VESSEL_DIR}" \
     || buc_die "Failed to write vessel dir to output"
-  buf_write_fact "${RBF_FACT_HALLMARK}" "${z_hallmark}"
+  buf_write_fact_single "${RBF_FACT_HALLMARK}" "${z_hallmark}"
 
   # Write GAR root fact file
-  buf_write_fact "${RBF_FACT_GAR_ROOT}" "${z_gar_base}"
+  buf_write_fact_single "${RBF_FACT_GAR_ROOT}" "${z_gar_base}"
 
   # Write ark stem fact file (hallmark subtree under HALLMARKS_ROOT)
-  buf_write_fact "${RBF_FACT_ARK_STEM}" "${RBGL_HALLMARKS_ROOT}/${z_hallmark}"
+  buf_write_fact_single "${RBF_FACT_ARK_STEM}" "${RBGL_HALLMARKS_ROOT}/${z_hallmark}"
 
   # Write yield fact file (single-platform bind image)
-  buf_write_fact "${RBF_FACT_ARK_YIELD}-${RBGC_ARK_BASENAME_IMAGE}" \
+  buf_write_fact_single "${RBF_FACT_ARK_YIELD}-${RBGC_ARK_BASENAME_IMAGE}" \
     "${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"
 
   # Submit combined Cloud Build (skopeo image copy + about steps)
@@ -1696,16 +1696,16 @@ rbfd_graft() {
   # Persist to output directory for downstream consumption
   echo "${z_vessel_dir}" > "${ZRBFC_OUTPUT_VESSEL_DIR}" \
     || buc_die "Failed to write vessel dir to output"
-  buf_write_fact "${RBF_FACT_HALLMARK}" "${z_hallmark}"
+  buf_write_fact_single "${RBF_FACT_HALLMARK}" "${z_hallmark}"
 
   # Write GAR root fact file
-  buf_write_fact "${RBF_FACT_GAR_ROOT}" "${z_gar_base}"
+  buf_write_fact_single "${RBF_FACT_GAR_ROOT}" "${z_gar_base}"
 
   # Write ark stem fact file (hallmark subtree under HALLMARKS_ROOT)
-  buf_write_fact "${RBF_FACT_ARK_STEM}" "${RBGL_HALLMARKS_ROOT}/${z_hallmark}"
+  buf_write_fact_single "${RBF_FACT_ARK_STEM}" "${RBGL_HALLMARKS_ROOT}/${z_hallmark}"
 
   # Write yield fact file (single-platform graft image)
-  buf_write_fact "${RBF_FACT_ARK_YIELD}-${RBGC_ARK_BASENAME_IMAGE}" \
+  buf_write_fact_single "${RBF_FACT_ARK_YIELD}-${RBGC_ARK_BASENAME_IMAGE}" \
     "${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"
 
   # Summary

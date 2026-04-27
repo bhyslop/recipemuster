@@ -273,7 +273,7 @@ BURX_TEMP_DIR=${BURD_TEMP_DIR}
 BURX_TRANSCRIPT=${BURD_TRANSCRIPT}
 BURX_LOG_HIST=${BURD_LOG_HIST:-}
 BURX_LABEL=${z_label}"
-  buf_write_fact "${BUF_burx_env}" "${z_content}"
+  buf_write_fact_single "${BUF_burx_env}" "${z_content}"
 }
 
 zbud_write_burx_completion() {

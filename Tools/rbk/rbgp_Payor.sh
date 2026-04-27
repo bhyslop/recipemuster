@@ -1176,7 +1176,7 @@ rbgp_governor_mantle() {
   rbgu_http_require_ok "Create Governor service account" "${ZRBGP_INFIX_GOV_CREATE_SA}"
 
   buc_log_args "Governor service account created: ${z_governor_email}"
-  buf_write_fact "${RBGP_FACT_GOVERNOR_SA_EMAIL}" "${z_governor_email}"
+  buf_write_fact_single "${RBGP_FACT_GOVERNOR_SA_EMAIL}" "${z_governor_email}"
 
   buc_step 'Wait for Governor SA propagation'
   local -r z_verify_url="${z_sa_list_url}/${z_governor_email}"
