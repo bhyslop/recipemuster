@@ -100,6 +100,11 @@ zrbrr_enforce() {
   [[ "${RBRR_RUNTIME_PREFIX}" =~ ^[a-z][a-z0-9-]*-$ ]] \
     || buc_die "Invalid RBRR_RUNTIME_PREFIX format: ${RBRR_RUNTIME_PREFIX} (expected lowercase starting with letter, ending in hyphen)"
 
+  # Joint-length cap: GCP project IDs max 30 chars. RBDC_DEPOT_PROJECT_ID
+  # composes as "${RBRR_CLOUD_PREFIX}d-${RBRR_DEPOT_MONIKER}".
+  test $(( ${#RBRR_CLOUD_PREFIX} + 2 + ${#RBRR_DEPOT_MONIKER} )) -le 30 \
+    || buc_die "Joint length exceeds 30-char GCP project ID limit: RBRR_CLOUD_PREFIX(${#RBRR_CLOUD_PREFIX}) + 'd-'(2) + RBRR_DEPOT_MONIKER(${#RBRR_DEPOT_MONIKER}) = $(( ${#RBRR_CLOUD_PREFIX} + 2 + ${#RBRR_DEPOT_MONIKER} ))"
+
 }
 
 # eof

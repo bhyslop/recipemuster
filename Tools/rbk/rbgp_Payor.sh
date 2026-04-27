@@ -573,28 +573,21 @@ rbgp_depot_levy() {
   buc_doc_brief "Create new depot infrastructure following RBAGS specification"
   buc_doc_shown || return 0
 
-  buc_step 'Validate region against Artifact Registry locations'
+  buc_step 'Authenticate as Payor'
   local z_token
-  z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor for region validation"
+  z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
 
+  buc_step 'Validate region against Artifact Registry locations'
   local -r z_locations_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBRP_PAYOR_PROJECT_ID}/locations"
   rbgu_http_json "GET" "${z_locations_url}" "${z_token}" "region_validation"
   rbgu_http_require_ok "Validate region" "region_validation"
-  
+
   local z_valid_regions
   z_valid_regions=$(rbgu_json_field_capture "region_validation" '.locations[].locationId' | tr '\n' ' ') || buc_die "Failed to parse region list"
-  
+
   if ! [[ " ${z_valid_regions} " =~ [[:space:]]${z_region}[[:space:]] ]]; then
     buc_die "Invalid region. Valid regions: ${z_valid_regions}"
   fi
-
-  buc_step 'Authenticate as Payor'
-  test -n "${RBRP_PAYOR_PROJECT_ID:-}" || buc_die "RBRP_PAYOR_PROJECT_ID is not set"
-  test -n "${RBRP_BILLING_ACCOUNT_ID:-}" || buc_die "RBRP_BILLING_ACCOUNT_ID is not set"
-  test -n "${RBRP_OAUTH_CLIENT_ID:-}" || buc_die "RBRP_OAUTH_CLIENT_ID is not set"
-  
-  local z_token
-  z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
 
   buc_step 'Create depot project'
   local -r z_create_project_body="${BURD_TEMP_DIR}/rbgp_create_project.json"
