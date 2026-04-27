@@ -156,7 +156,6 @@ zrbgc_kindle() {
   readonly RBGP_FACT_EXT_DEPOT="depot"
   readonly RBGP_FACT_EXT_DEPOT_PROJECT="depot-project"
   readonly RBGP_DEPOT_STATE_COMPLETE="COMPLETE"
-  readonly RBGP_DEPOT_STATE_BROKEN="BROKEN"
   readonly RBGP_DEPOT_STATE_DELETE_REQUESTED="DELETE_REQUESTED"
 
   # Artifact Registry (GAR) Composition
