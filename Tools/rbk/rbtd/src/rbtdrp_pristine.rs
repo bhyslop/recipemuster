@@ -58,15 +58,31 @@ const RBTDRP_RBRR_BLANK_FIELDS: &[&str] = &[
 pub(crate) const RBTDRP_THROWAWAY_CLOUD_PREFIX: &str = "prlc-";
 pub(crate) const RBTDRP_THROWAWAY_RUNTIME_PREFIX: &str = "prlr-";
 
-/// Throwaway depot monikers used by cases 2 and 3. Distinct values keep the
-/// two cases' depots separable when both run in the same fixture pass.
-const RBTDRP_DEPOT_MONIKER_LIFECYCLE: &str = "pristq01";
-const RBTDRP_DEPOT_MONIKER_GOVERNOR: &str = "pristg01";
+/// Family-stem prefixes for autodetected per-case monikers. Cases pick a
+/// numeric six-digit suffix at runtime by walking emitted depot fact files
+/// and incrementing past the highest existing suffix per family. Distinct
+/// stems keep the two cases' depots separable when both run in the same
+/// fixture pass.
+const RBTDRP_FAMILY_STEM_LIFECYCLE: &str = "pristq";
+const RBTDRP_FAMILY_STEM_GOVERNOR: &str = "pristg";
 
-/// Fact-file names emitted by the rbgp tabtargets (mirror of bash consts in
-/// rbgc_Constants.sh). Cases read these values from the BURV output dir of
-/// the producing invocation.
-const RBTDRP_FACT_DEPOT_PROJECT_ID: &str = "rbgp_fact_depot_project_id";
+/// Lowest valid numeric suffix for autodetected monikers. Six-digit width
+/// keeps composed project_id length predictable: cloud_prefix(<=11) +
+/// "d-"(2) + family(6) + suffix(6) = <=25, well under the 30-char GCP limit.
+const RBTDRP_FAMILY_NUMERIC_FLOOR: u32 = 100000;
+
+/// Six-digit numeric suffix width — enforced when parsing existing fact-file
+/// names so e.g. "pristq01" (legacy two-digit) is ignored rather than parsed
+/// as 1 and shadowing real entries.
+const RBTDRP_FAMILY_NUMERIC_WIDTH: usize = 6;
+
+/// Fact-file extension mirror of RBGP_FACT_EXT_DEPOT in rbgc_Constants.sh.
+/// rbgp_depot_list emits `<moniker>.depot` files with state content.
+const RBTDRP_FACT_EXT_DEPOT: &str = "depot";
+
+/// Fact-file name for the governor SA email (mirror of
+/// RBGP_FACT_GOVERNOR_SA_EMAIL from rbgc_Constants.sh). Read from the mantle
+/// invocation's BURV output.
 const RBTDRP_FACT_GOVERNOR_SA_EMAIL: &str = "rbgp_fact_governor_sa_email";
 
 /// BURE confirmation override (mirrors buc_command.sh): when set to "skip",
@@ -381,11 +397,73 @@ pub(crate) fn rbtdrp_install_throwaway_prefixes(root: &Path) -> Result<(), Strin
     rbtdrp_git_add_and_commit(root, RBTDRP_RBRR_FILE, &commit_msg)
 }
 
-/// Set `RBRR_DEPOT_MONIKER` in rbrr.env to `moniker` and commit. Step-5
-/// callers (pristine cases 2-3) use this to install a moniker that drives
-/// `RBDC_DEPOT_PROJECT_ID` via kindle derivation. The commit is separate
-/// from the throwaway-prefix commit so the audit trail shows the moniker
-/// landing as its own pace.
+/// Pick the next free moniker for `family_stem` by walking the depot_list
+/// invocation's BURV output dir for `<family>NNNNNN.depot` files, parsing
+/// the numeric suffix from each, and returning `<family><max + 1>`. Returns
+/// `<family>RBTDRP_FAMILY_NUMERIC_FLOOR` when no matching files exist or the
+/// output dir is missing (first run, no prior depots).
+fn rbtdrp_pick_next_moniker(
+    list_result: &crate::rbtdri_invocation::rbtdri_InvokeResult,
+    family_stem: &str,
+) -> Result<String, String> {
+    let dir = list_result
+        .burv_output
+        .join(crate::rbtdri_invocation::RBTDRI_BURV_OUTPUT_SUBDIR);
+
+    let entries = match std::fs::read_dir(&dir) {
+        Ok(e) => e,
+        Err(_) => {
+            return Ok(format!("{}{}", family_stem, RBTDRP_FAMILY_NUMERIC_FLOOR));
+        }
+    };
+
+    let suffix_ext = format!(".{}", RBTDRP_FACT_EXT_DEPOT);
+    let mut max_suffix: Option<u32> = None;
+    for entry in entries.flatten() {
+        let name = match entry.file_name().into_string() {
+            Ok(n) => n,
+            Err(_) => continue,
+        };
+        let stem = match name.strip_suffix(&suffix_ext) {
+            Some(s) => s,
+            None => continue,
+        };
+        let numeric = match stem.strip_prefix(family_stem) {
+            Some(s) => s,
+            None => continue,
+        };
+        if numeric.len() != RBTDRP_FAMILY_NUMERIC_WIDTH {
+            continue;
+        }
+        let parsed: u32 = match numeric.parse() {
+            Ok(n) => n,
+            Err(_) => continue,
+        };
+        max_suffix = Some(max_suffix.map_or(parsed, |m| m.max(parsed)));
+    }
+
+    let next = match max_suffix {
+        Some(m) => m + 1,
+        None => RBTDRP_FAMILY_NUMERIC_FLOOR,
+    };
+    Ok(format!("{}{}", family_stem, next))
+}
+
+/// Compose the depot project_id from kindled regime values. Mirrors RBDC's
+/// derivation: `${RBRR_CLOUD_PREFIX}d-${moniker}`. Used by cases 2 and 3 to
+/// recover the project_id post-levy without re-reading a fact file (the
+/// pre-collapse `rbgp_fact_depot_project_id` producer is gone).
+fn rbtdrp_compose_project_id(root: &Path, moniker: &str) -> Result<String, String> {
+    let rbrr = root.join(RBTDRP_RBRR_FILE);
+    let cloud_prefix = rbtdrp_read_env_value(&rbrr, RBTDRP_FIELD_RBRR_CLOUD_PREFIX)
+        .ok_or_else(|| format!("RBRR_CLOUD_PREFIX missing from {}", rbrr.display()))?;
+    Ok(format!("{}d-{}", cloud_prefix, moniker))
+}
+
+/// Set `RBRR_DEPOT_MONIKER` in rbrr.env to `moniker` and commit. Cases 2-3
+/// use this to install a moniker that drives `RBDC_DEPOT_PROJECT_ID` via
+/// kindle derivation. The commit is separate from the throwaway-prefix
+/// commit so the audit trail shows the moniker landing as its own pace.
 fn rbtdrp_install_depot_moniker(root: &Path, moniker: &str) -> Result<(), String> {
     let rbrr = root.join(RBTDRP_RBRR_FILE);
     let content = std::fs::read_to_string(&rbrr)
@@ -468,12 +546,15 @@ fn rbtdrp_invoke_logged(
     Ok(result)
 }
 
-/// Case 2 — depot-lifecycle. Levies a throwaway depot, asserts it appears
-/// in `rbgp_depot_list`, soft-deletes it, then asserts it is absent or in
+/// Case 2 — depot-lifecycle. Probes existing depots via `rbgp_depot_list`,
+/// picks the next free six-digit moniker in the `pristq` family, levies the
+/// depot, asserts it appears in a follow-up `rbgp_depot_list`, soft-deletes
+/// it via `rbgp_depot_unmake`, then asserts it is absent or in
 /// `DELETE_REQUESTED` state.
 ///
-/// The depot project_id is captured from the levy invocation's
-/// `rbgp_fact_depot_project_id` fact file rather than scraped from stdout.
+/// Levy and unmake are zero-arg post-collapse — the moniker is set in
+/// rbrr.env via `rbtdrp_install_depot_moniker` before levy invocation, and
+/// the project_id is composed from regime values via `rbtdrp_compose_project_id`.
 fn rbtdrp_depot_lifecycle(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrp_depot_lifecycle_impl(ctx, dir))
 }
@@ -485,10 +566,36 @@ fn rbtdrp_depot_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_V
         return rbtdre_Verdict::Fail(format!("install throwaway prefixes: {}", e));
     }
 
+    let list_pre = match rbtdrp_invoke_logged(
+        ctx,
+        RBTDRM_COLOPHON_DEPOT_LIST,
+        &[],
+        &[],
+        dir,
+        "list-pre",
+    ) {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("depot list (pre-levy probe): {}", e)),
+    };
+    if list_pre.exit_code != 0 {
+        return rbtdre_Verdict::Fail(format!(
+            "depot list (pre-levy probe) exit {}\n{}",
+            list_pre.exit_code, list_pre.stderr
+        ));
+    }
+
+    let moniker = match rbtdrp_pick_next_moniker(&list_pre, RBTDRP_FAMILY_STEM_LIFECYCLE) {
+        Ok(m) => m,
+        Err(e) => return rbtdre_Verdict::Fail(format!("pick next moniker: {}", e)),
+    };
+    if let Err(e) = rbtdrp_install_depot_moniker(&root, &moniker) {
+        return rbtdre_Verdict::Fail(format!("install depot moniker: {}", e));
+    }
+
     let levy = match rbtdrp_invoke_logged(
         ctx,
         RBTDRM_COLOPHON_DEPOT_LEVY,
-        &[RBTDRP_DEPOT_MONIKER_LIFECYCLE],
+        &[],
         &[],
         dir,
         "levy",
@@ -503,9 +610,9 @@ fn rbtdrp_depot_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_V
         ));
     }
 
-    let project_id = match rbtdri_read_burv_fact(&levy, RBTDRP_FACT_DEPOT_PROJECT_ID) {
-        Ok(s) => s,
-        Err(e) => return rbtdre_Verdict::Fail(format!("read depot project_id fact: {}", e)),
+    let project_id = match rbtdrp_compose_project_id(&root, &moniker) {
+        Ok(p) => p,
+        Err(e) => return rbtdre_Verdict::Fail(format!("compose project_id: {}", e)),
     };
     let _ = std::fs::write(dir.join("project-id.txt"), &project_id);
 
@@ -536,7 +643,7 @@ fn rbtdrp_depot_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_V
     let unmake = match rbtdrp_invoke_logged(
         ctx,
         RBTDRM_COLOPHON_DEPOT_UNMAKE,
-        &[&project_id],
+        &[],
         &[(RBTDRP_BURE_CONFIRM_KEY, RBTDRP_BURE_CONFIRM_SKIP)],
         dir,
         "unmake",
@@ -580,14 +687,15 @@ fn rbtdrp_depot_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_V
     rbtdre_Verdict::Pass
 }
 
-/// Case 3 — governor-lifecycle. Levies its own throwaway depot (so
-/// `RBRR_DEPOT_PROJECT_ID` becomes set, satisfying the precondition for
-/// `rbgp_governor_mantle`), mantles a governor, asserts it appears in
-/// `rbgg_list_service_accounts`, forfeits it, asserts absent, then unmakes
-/// the depot to clean up.
+/// Case 3 — governor-lifecycle. Probes existing depots, picks the next free
+/// moniker in the `pristg` family, levies its own throwaway depot (so
+/// `RBDC_DEPOT_PROJECT_ID` is set via kindle derivation, satisfying the
+/// precondition for `rbgp_governor_mantle`), mantles a governor, asserts it
+/// appears in `rbgg_list_service_accounts`, forfeits it, asserts absent,
+/// then unmakes the depot to clean up.
 ///
-/// Governor lifecycle uses a moniker distinct from case 2 so both cases'
-/// depots are separable when the full fixture runs.
+/// `pristg` family stem keeps governor monikers separable from `pristq`
+/// (case 2) when the full fixture runs.
 fn rbtdrp_governor_lifecycle(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrp_governor_lifecycle_impl(ctx, dir))
 }
@@ -599,10 +707,36 @@ fn rbtdrp_governor_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdr
         return rbtdre_Verdict::Fail(format!("install throwaway prefixes: {}", e));
     }
 
+    let list_pre = match rbtdrp_invoke_logged(
+        ctx,
+        RBTDRM_COLOPHON_DEPOT_LIST,
+        &[],
+        &[],
+        dir,
+        "list-pre",
+    ) {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("depot list (pre-levy probe): {}", e)),
+    };
+    if list_pre.exit_code != 0 {
+        return rbtdre_Verdict::Fail(format!(
+            "depot list (pre-levy probe) exit {}\n{}",
+            list_pre.exit_code, list_pre.stderr
+        ));
+    }
+
+    let moniker = match rbtdrp_pick_next_moniker(&list_pre, RBTDRP_FAMILY_STEM_GOVERNOR) {
+        Ok(m) => m,
+        Err(e) => return rbtdre_Verdict::Fail(format!("pick next moniker: {}", e)),
+    };
+    if let Err(e) = rbtdrp_install_depot_moniker(&root, &moniker) {
+        return rbtdre_Verdict::Fail(format!("install depot moniker: {}", e));
+    }
+
     let levy = match rbtdrp_invoke_logged(
         ctx,
         RBTDRM_COLOPHON_DEPOT_LEVY,
-        &[RBTDRP_DEPOT_MONIKER_GOVERNOR],
+        &[],
         &[],
         dir,
         "levy",
@@ -617,20 +751,11 @@ fn rbtdrp_governor_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdr
         ));
     }
 
-    let project_id = match rbtdri_read_burv_fact(&levy, RBTDRP_FACT_DEPOT_PROJECT_ID) {
-        Ok(s) => s,
-        Err(e) => return rbtdre_Verdict::Fail(format!("read depot project_id fact: {}", e)),
+    let project_id = match rbtdrp_compose_project_id(&root, &moniker) {
+        Ok(p) => p,
+        Err(e) => return rbtdre_Verdict::Fail(format!("compose project_id: {}", e)),
     };
     let _ = std::fs::write(dir.join("project-id.txt"), &project_id);
-
-    // STEP-5-PENDING: post-collapse, case 3 should set RBRR_DEPOT_MONIKER
-    // before invoking levy (so RBDC_DEPOT_PROJECT_ID drives all derived
-    // names). Step 1 leaves the previous edit-and-commit pattern in place
-    // semantically inverted — fixture run is service-tier-broken until
-    // Step 5 reshapes case 3's ordering.
-    if let Err(e) = rbtdrp_install_depot_moniker(&root, &project_id) {
-        return rbtdre_Verdict::Fail(format!("set RBRR_DEPOT_MONIKER: {}", e));
-    }
 
     let mantle = match rbtdrp_invoke_logged(
         ctx,
@@ -725,7 +850,7 @@ fn rbtdrp_governor_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdr
     let unmake = match rbtdrp_invoke_logged(
         ctx,
         RBTDRM_COLOPHON_DEPOT_UNMAKE,
-        &[&project_id],
+        &[],
         &[(RBTDRP_BURE_CONFIRM_KEY, RBTDRP_BURE_CONFIRM_SKIP)],
         dir,
         "unmake",
