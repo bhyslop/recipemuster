@@ -5,7 +5,7 @@ The
 {rbtr_payor}
 lists all
 {rbtgi_depot}
-instances billed to the
+instances visible under the
 {rbtr_payor}
 account and their status:
 
@@ -16,35 +16,28 @@ account and their status:
 {rbtoe_payor_authenticate}
 
 //axhos_step
-. *Enumerate billing-account projects*:
+. *Search depots by displayName anchor*:
 .. {rbbc_call}
-link:https://cloud.google.com/billing/reference/rest/v1/billingAccounts.projects/list[billingAccounts.projects.list]
-for `billingAccounts/${RBRP_BILLING_ACCOUNT_ID}/projects`
+link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/search[cloudresourcemanager.googleapis.com/v3/projects:search]
+with `query=displayName:«RBGC_DEPOT_DISPLAY_PREFIX»*`
 .. {rbbc_store}
-`«BILLED_PROJECTS»` — projects with `billingEnabled=true`
+`«SEARCH_RESULTS»` — paginated list of matching projects; follow `nextPageToken` until exhausted
+.. NOTE: CRM v3 search returns both `ACTIVE` and `DELETE_REQUESTED` projects in the default response — no state filter is applied.
+This means soft-deleted depots within their 30-day retention window (ghost depots) are visible alongside active ones.
+This visibility is load-bearing: the canonical-establish fixture's auto-pick logic must see `DELETE_REQUESTED` projects to
+avoid re-selecting a moniker that is still in the soft-delete graveyard.
 
 //axhos_step
-. *Classify each project as a depot*:
-.. For each project in `«BILLED_PROJECTS»`:
-... {rbbc_call}
-link:https://cloud.google.com/iam/reference/rest/v1/projects.serviceAccounts/list[projects.serviceAccounts.list]
-for the project's IAM service accounts
-... Inspect service account emails for a match against
-`mason-«MONIKER»@<project>.iam.gserviceaccount.com`
-where `«MONIKER»` matches `^[a-z][a-z0-9]*$`
-... Skip projects with no matching Mason service account
+. *Derive moniker and state per result*:
+.. For each project in `«SEARCH_RESULTS»`:
 ... {rbbc_store}
-`«MONIKER»` by stripping the `mason-` prefix from the matched SA's local-part
-
-//axhos_step
-. *Look up lifecycle state for each depot project*:
-.. {rbbc_call}
-link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[projects.get]
-for each Mason-SA-bearing project via CRM v1 `projects/${project_id}`
-.. Classify state:
-... `lifecycleState=ACTIVE` → `COMPLETE`
-... `lifecycleState=DELETE_REQUESTED` → `DELETE_REQUESTED`
-... Other lifecycle states → log and skip
+`«MONIKER»` by stripping the `«RBGC_DEPOT_DISPLAY_PREFIX» ` prefix from the project's `displayName`
+... {rbbc_require}
+`«MONIKER»` matches `^[a-z][a-z0-9]*$`; if not, log and skip (defensive against non-depot displayName matches)
+... Classify state:
+.... `state=ACTIVE` → `COMPLETE`
+.... `state=DELETE_REQUESTED` → `DELETE_REQUESTED`
+.... Other states → log and skip
 
 //axhos_step
 . *Emit per-moniker fact files*:
@@ -64,6 +57,6 @@ each depot moniker with state (`COMPLETE` or `DELETE_REQUESTED`)
 total depot count
 
 //axhoc_completion
-Successful execution lists all depots billed to the
+Successful execution lists all depots visible to the
 {rbtr_payor}
-account.
+account, including soft-deleted depots still within their 30-day retention window.

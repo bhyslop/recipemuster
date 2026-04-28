@@ -141,21 +141,21 @@ zrbgp_authenticate_capture() {
 }
 
 # Probe per-installation depot states and emit per-moniker fact files.
-# Classification is by Mason SA presence — any billing-account project hosting
-# a service account matching ^mason-[a-z][a-z0-9]*@ is a depot.  The moniker
-# is derived from the Mason SA local-part after stripping the mason- prefix.
-# Lifecycle is determined first via CRM v1; only ACTIVE and DELETE_REQUESTED
-# projects are candidates for SA-list scanning.  Per-moniker fact files
-# named "<moniker>.${RBCC_fact_ext_depot}" (state) and
+# Uses CRM v3 projects:search with displayName anchor as discriminator —
+# query "displayName:RBGC_DEPOT_COMMON*" returns ACTIVE and DELETE_REQUESTED
+# projects together (no billing-account enumeration required).  Moniker is
+# derived by stripping the "${RBGC_DEPOT_DISPLAY_PREFIX} " prefix from each
+# project's displayName.  Per-moniker fact files named
+# "<moniker>.${RBCC_fact_ext_depot}" (state) and
 # "<moniker>.${RBCC_fact_ext_depot_project}" (project_id) are written via
 # buf_write_fact_multi; consumers walk the emitted files in BURD_OUTPUT_DIR /
 # BURD_TEMP_DIR (filesystem is the data bus).
 #
-# Mason SA presence IS the discriminator; projects without a Mason SA are
-# silently skipped (no BROKEN state emitted).
+# No RBRP_BILLING_ACCOUNT_ID required for enumeration; no Mason SA IAM scan.
+# The displayName anchor is the sole discriminator.  Projects whose
+# displayName does not parse to a valid RBRR-canonical moniker are skipped.
 #
-# Billing v1 projects list and IAM v1 serviceAccounts list are paginated via
-# nextPageToken; per-page infixes keep response files distinct.
+# Paginated via nextPageToken; per-page infixes keep response files distinct.
 #
 # Single-shot per dispatch — buf_write_fact_multi dies on preexist.
 #
@@ -166,159 +166,92 @@ zrbgp_depot_state_emit() {
   local -r z_token="${1:-}"
   test -n "${z_token}" || buc_die "zrbgp_depot_state_emit: token required"
 
-  # RBRP_BILLING_ACCOUNT_ID is min=0 in the regime (optional for payor-only
-  # operations) but required here to enumerate depot projects.
-  test -n "${RBRP_BILLING_ACCOUNT_ID:-}" \
-    || buc_die "RBRP_BILLING_ACCOUNT_ID is not set — required for depot_list"
+  local -r z_search_query="displayName:${RBGC_DEPOT_DISPLAY_PREFIX}*"
+  local -r z_search_url_base="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects:search"
 
-  local -r z_billing_url_base="${RBGC_API_ROOT_CLOUDBILLING}${RBGC_CLOUDBILLING_V1}/billingAccounts/${RBRP_BILLING_ACCOUNT_ID}/projects"
+  # Anchor prefix string used inside loop for displayName stripping.
+  local -r z_display_prefix="${RBGC_DEPOT_DISPLAY_PREFIX} "
 
   # Per-iteration synthesized locals (BCG exception 2 — declare outside, assign inside)
-  local z_billing_page=1
-  local z_billing_page_token=""
-  local z_billing_url=""
-  local z_billing_tok_enc=""
-  local z_billing_infix=""
+  local z_search_page=1
+  local z_search_page_token=""
+  local z_search_url=""
+  local z_query_enc=""
+  local z_tok_enc=""
+  local z_search_infix=""
   local z_project_count=0
   local z_index=0
-  local z_global_project_index=0
   local z_project_id=""
-  local z_crm_infix=""
-  local z_crm_code=""
-  local z_lifecycle_state=""
+  local z_display_name=""
+  local z_crm_state=""
   local z_state=""
-  local z_sa_url_base=""
-  local z_sa_url=""
-  local z_sa_page=1
-  local z_sa_page_token=""
-  local z_sa_tok_enc=""
-  local z_sa_infix=""
-  local z_sa_list_code=""
-  local z_sa_count=0
-  local z_sa_index=0
-  local z_sa_email=""
-  local z_mason_email=""
-  local z_mason_local=""
   local z_moniker=""
 
+  z_query_enc=$(rbgu_urlencode_capture "${z_search_query}") \
+    || buc_die "Failed to URL-encode CRM v3 search query"
+
   while :; do
-    z_billing_url="${z_billing_url_base}"
-    if test -n "${z_billing_page_token}"; then
-      z_billing_tok_enc=$(rbgu_urlencode_capture "${z_billing_page_token}") \
-        || buc_die "Failed to URL-encode Billing v1 pageToken"
-      z_billing_url="${z_billing_url}?pageToken=${z_billing_tok_enc}"
+    z_search_url="${z_search_url_base}?query=${z_query_enc}"
+    if test -n "${z_search_page_token}"; then
+      z_tok_enc=$(rbgu_urlencode_capture "${z_search_page_token}") \
+        || buc_die "Failed to URL-encode CRM v3 pageToken"
+      z_search_url="${z_search_url}&pageToken=${z_tok_enc}"
     fi
 
-    z_billing_infix="depot_state_billing_${z_billing_page}"
-    rbgu_http_json "GET" "${z_billing_url}" "${z_token}" "${z_billing_infix}"
-    rbgu_http_require_ok "List billing account projects" "${z_billing_infix}"
+    z_search_infix="depot_state_search_${z_search_page}"
+    rbgu_http_json "GET" "${z_search_url}" "${z_token}" "${z_search_infix}"
+    rbgu_http_require_ok "CRM v3 projects:search" "${z_search_infix}"
 
-    z_project_count=$(rbgu_json_field_capture "${z_billing_infix}" '.projectBillingInfo // [] | length') \
+    z_project_count=$(rbgu_json_field_capture "${z_search_infix}" '.projects // [] | length') \
       || z_project_count=0
 
     z_index=0
     while test "${z_index}" -lt "${z_project_count}"; do
-      z_project_id=$(rbgu_json_field_capture "${z_billing_infix}" ".projectBillingInfo[${z_index}].projectId") \
-        || { z_index=$((z_index + 1)); z_global_project_index=$((z_global_project_index + 1)); continue; }
+      z_crm_state=$(rbgu_json_field_capture "${z_search_infix}" ".projects[${z_index}].state") \
+        || { z_index=$((z_index + 1)); continue; }
 
-      # CRM v1 lifecycle lookup gates the SA list — cheaper call, single
-      # classification decision before potentially-failing IAM scan.
-      z_crm_infix="depot_state_crm_${z_global_project_index}"
-      rbgu_http_json "GET" \
-        "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${z_project_id}" \
-        "${z_token}" "${z_crm_infix}" || true
-
-      z_crm_code=$(rbgu_http_code_capture "${z_crm_infix}") || z_crm_code=""
-      if test "${z_crm_code}" != "200"; then
-        buc_log_args "Skipping project (CRM lookup HTTP ${z_crm_code}): ${z_project_id}"
-        z_index=$((z_index + 1))
-        z_global_project_index=$((z_global_project_index + 1))
-        continue
-      fi
-
-      z_lifecycle_state=$(rbgu_json_field_capture "${z_crm_infix}" '.lifecycleState') \
-        || z_lifecycle_state=""
-
-      if test "${z_lifecycle_state}" = "DELETE_REQUESTED"; then
+      if test "${z_crm_state}" = "DELETE_REQUESTED"; then
         z_state="${RBGP_DEPOT_STATE_DELETE_REQUESTED}"
-      elif test "${z_lifecycle_state}" = "ACTIVE"; then
+      elif test "${z_crm_state}" = "ACTIVE"; then
         z_state="${RBGP_DEPOT_STATE_COMPLETE}"
       else
-        buc_log_args "Skipping project ${z_project_id} with unrecognized lifecycle state: ${z_lifecycle_state}"
+        buc_log_args "Skipping project with unrecognized state: ${z_crm_state}"
         z_index=$((z_index + 1))
-        z_global_project_index=$((z_global_project_index + 1))
         continue
       fi
 
-      # Scan SA list for a Mason SA — moniker portion anchored to RBRR's
-      # ^[a-z][a-z0-9]*$ shape.  Paginated via nextPageToken; break out on
-      # first hit since the depot's Mason SA is a singleton.
-      z_sa_url_base="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${z_project_id}/serviceAccounts"
-      z_sa_page=1
-      z_sa_page_token=""
-      z_mason_email=""
+      z_project_id=$(rbgu_json_field_capture "${z_search_infix}" ".projects[${z_index}].projectId") \
+        || { z_index=$((z_index + 1)); continue; }
 
-      while :; do
-        z_sa_url="${z_sa_url_base}"
-        if test -n "${z_sa_page_token}"; then
-          z_sa_tok_enc=$(rbgu_urlencode_capture "${z_sa_page_token}") \
-            || buc_die "Failed to URL-encode IAM v1 pageToken"
-          z_sa_url="${z_sa_url}?pageToken=${z_sa_tok_enc}"
-        fi
+      z_display_name=$(rbgu_json_field_capture "${z_search_infix}" ".projects[${z_index}].displayName") \
+        || { z_index=$((z_index + 1)); continue; }
 
-        z_sa_infix="depot_state_sa_${z_global_project_index}_${z_sa_page}"
-        rbgu_http_json "GET" "${z_sa_url}" "${z_token}" "${z_sa_infix}" || true
-
-        z_sa_list_code=$(rbgu_http_code_capture "${z_sa_infix}") || z_sa_list_code=""
-        if test "${z_sa_list_code}" != "200"; then
-          buc_log_args "Skipping project (SA list HTTP ${z_sa_list_code}): ${z_project_id}"
-          break
-        fi
-
-        z_sa_count=$(rbgu_json_field_capture "${z_sa_infix}" '.accounts // [] | length') \
-          || z_sa_count=0
-
-        z_sa_index=0
-        while test "${z_sa_index}" -lt "${z_sa_count}"; do
-          z_sa_email=$(rbgu_json_field_capture "${z_sa_infix}" ".accounts[${z_sa_index}].email") \
-            || { z_sa_index=$((z_sa_index + 1)); continue; }
-          if [[ "${z_sa_email}" =~ ^${RBCC_role_mason}-[a-z][a-z0-9]*@[^@]*\.iam\.gserviceaccount\.com$ ]]; then
-            z_mason_email="${z_sa_email}"
-            break
-          fi
-          z_sa_index=$((z_sa_index + 1))
-        done
-
-        test -z "${z_mason_email}" || break
-
-        z_sa_page_token=$(rbgu_json_field_capture "${z_sa_infix}" '.nextPageToken') \
-          || z_sa_page_token=""
-        test -n "${z_sa_page_token}" || break
-        z_sa_page=$((z_sa_page + 1))
-      done
-
-      if test -z "${z_mason_email}"; then
-        buc_log_args "Skipping project — no Mason SA found: ${z_project_id}"
+      # Strip the anchor prefix (including trailing space) to get the moniker.
+      # displayName format: "${RBGC_DEPOT_DISPLAY_PREFIX} <moniker>"
+      if [[ "${z_display_name}" != "${z_display_prefix}"* ]]; then
+        buc_log_args "Skipping project — displayName does not match anchor: ${z_display_name}"
         z_index=$((z_index + 1))
-        z_global_project_index=$((z_global_project_index + 1))
         continue
       fi
+      z_moniker="${z_display_name#"${z_display_prefix}"}"
 
-      # Derive moniker from Mason SA local-part (strip leading mason- prefix)
-      z_mason_local="${z_mason_email%%@*}"
-      z_moniker="${z_mason_local#"${RBCC_role_mason}-"}"
+      # Validate moniker is RBRR-canonical: ^[a-z][a-z0-9]*$
+      if ! [[ "${z_moniker}" =~ ^[a-z][a-z0-9]*$ ]]; then
+        buc_log_args "Skipping project — moniker fails validation (${z_moniker}): ${z_display_name}"
+        z_index=$((z_index + 1))
+        continue
+      fi
 
       buf_write_fact_multi "${z_moniker}" "${RBCC_fact_ext_depot}"         "${z_state}"
       buf_write_fact_multi "${z_moniker}" "${RBCC_fact_ext_depot_project}" "${z_project_id}"
 
       z_index=$((z_index + 1))
-      z_global_project_index=$((z_global_project_index + 1))
     done
 
-    z_billing_page_token=$(rbgu_json_field_capture "${z_billing_infix}" '.nextPageToken') \
-      || z_billing_page_token=""
-    test -n "${z_billing_page_token}" || break
-    z_billing_page=$((z_billing_page + 1))
+    z_search_page_token=$(rbgu_json_field_capture "${z_search_infix}" '.nextPageToken') \
+      || z_search_page_token=""
+    test -n "${z_search_page_token}" || break
+    z_search_page=$((z_search_page + 1))
   done
 }
 
@@ -741,7 +674,7 @@ rbgp_depot_levy() {
   # OAuth users create projects without parent (per MPCR)
   jq -n \
     --arg projectId "${RBDC_DEPOT_PROJECT_ID}" \
-    --arg displayName "RB Depot ${RBRR_DEPOT_MONIKER}" \
+    --arg displayName "${RBGC_DEPOT_DISPLAY_PREFIX} ${RBRR_DEPOT_MONIKER}" \
     '{
       projectId: $projectId,
       displayName: $displayName
@@ -899,7 +832,7 @@ rbgp_depot_levy() {
 
   buc_step 'Create Mason service account'
   local -r z_mason_name="${RBCC_role_mason}-${RBRR_DEPOT_MONIKER}"
-  local -r z_mason_display_name="Mason for RB Depot: ${RBRR_DEPOT_MONIKER}"
+  local -r z_mason_display_name="${RBGC_DEPOT_DISPLAY_PREFIX} mason ${RBRR_DEPOT_MONIKER}"
   local -r z_create_sa_body="${BURD_TEMP_DIR}/rbgp_create_mason.json"
 
   jq -n \
@@ -1360,7 +1293,7 @@ rbgp_governor_mantle() {
   local -r z_create_sa_body="${BURD_TEMP_DIR}/rbgp_create_governor.json"
   jq -n \
     --arg accountId "${z_governor_account_id}" \
-    --arg displayName "Governor for RB Depot" \
+    --arg displayName "${RBGC_DEPOT_DISPLAY_PREFIX} governor ${RBRR_DEPOT_MONIKER}" \
     '{
       accountId: $accountId,
       serviceAccount: {

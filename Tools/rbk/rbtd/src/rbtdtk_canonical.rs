@@ -45,11 +45,11 @@ fn rbtdtk_canonical_prefix_shape() {
         .all(|c| c.is_ascii_lowercase() || c == '-'));
 }
 
-/// Family stem 'canest' is a contract: case 2's probe matches monikers
+/// Family stem 'canest2' is a contract: case 2's probe matches monikers
 /// starting with this exact string.
 #[test]
 fn rbtdtk_family_stem_value() {
-    assert_eq!(RBTDRK_FAMILY_STEM, "canest");
+    assert_eq!(RBTDRK_FAMILY_STEM, "canest2");
 }
 
 /// Canonical-establish is StateProgressing — the engine's keep-going

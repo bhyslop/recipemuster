@@ -42,7 +42,8 @@ link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.
 .. {rbbc_submit}
 link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/create[projects.create] with:
 ... projectId: `«DEPOT_PROJECT_ID»`
-... displayName: `RB Depot: «RBRR_DEPOT_MONIKER»`
+... displayName: `«RBGC_DEPOT_DISPLAY_PREFIX» «RBRR_DEPOT_MONIKER»`
+... NOTE: This displayName prefix anchors CRM v3 search-based depot discrimination used by {rbtgo_depot_list}.
 ... parent: `{rbrp_parent_type}s/{rbrp_parent_id}` (if parent_type != `none`)
 .. {rbbc_await}
 returned operation
@@ -140,7 +141,7 @@ replaces Cloud Build's implicit service account to provide deterministic permiss
 .. {rbbc_call}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/create[iam.serviceAccounts.create] with:
 ... accountId: `mason-«RBRR_DEPOT_MONIKER»`
-... displayName: `Mason for RB Depot: «RBRR_DEPOT_MONIKER»`
+... displayName: `«RBGC_DEPOT_DISPLAY_PREFIX» mason «RBRR_DEPOT_MONIKER»`
 ... project: `«DEPOT_PROJECT_ID»`
 .. {rbbc_store}
 `«MASON_EMAIL»` from response `.email` field

@@ -153,6 +153,12 @@ zrbgc_kindle() {
   readonly RBGP_DEPOT_STATE_COMPLETE="COMPLETE"
   readonly RBGP_DEPOT_STATE_DELETE_REQUESTED="DELETE_REQUESTED"
 
+  # DisplayName anchor used across depot-creation sites (depot project,
+  # Mason SA, Governor SA). Search backend filters CRM v3 projects:search
+  # by displayName starting with this anchor. Distinct, unmistakable string
+  # ensures no collision with non-depot projects in the operator's account.
+  readonly RBGC_DEPOT_DISPLAY_PREFIX="RBGC_DEPOT_COMMON"
+
   # Artifact Registry (GAR) Composition
   readonly RBGC_GAR_HOST_SUFFIX="-docker.pkg.dev"
 

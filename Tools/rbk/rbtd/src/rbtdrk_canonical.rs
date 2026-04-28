@@ -55,8 +55,10 @@ pub(crate) const RBTDRK_CANONICAL_RUNTIME_PREFIX: &str = "canr-";
 
 /// Family stem for canonical depots; six-digit auto-increment suffix per run.
 /// Depots persist post-success for operator inspection; reruns pick the next
-/// free suffix by walking depot_list output.
-pub(crate) const RBTDRK_FAMILY_STEM: &str = "canest";
+/// free suffix by walking depot_list output. Era-bumped past the prior
+/// `canest` family to side-step pending-delete projectId reservations from
+/// burned-bridges teardown.
+pub(crate) const RBTDRK_FAMILY_STEM: &str = "canest2";
 
 /// Static identities for the canonical SA cycle. Stable across runs because
 /// each run uses a fresh canest depot project.
@@ -229,6 +231,11 @@ fn rbtdrk_compose_project_id(root: &Path, moniker: &str) -> Result<String, Strin
 /// Pick the next free moniker for `family_stem` by walking the depot_list
 /// invocation's BURV output dir for `<family>NNNNNN.depot` files. Returns
 /// `<family>RBTDRK_FAMILY_NUMERIC_FLOOR` when no matching files exist.
+///
+/// Caller contract: `list_result` MUST be from a freshly-invoked depot_list
+/// that ran in the current process. The fact-file scan IS the collision
+/// check — stale state means picking a colliding moniker. Do not reuse a
+/// `list_result` across cases or pass an operator-cached value.
 fn rbtdrk_pick_next_moniker(
     list_result: &rbtdri_InvokeResult,
     family_stem: &str,

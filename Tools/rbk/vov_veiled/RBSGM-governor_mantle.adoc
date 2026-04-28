@@ -77,7 +77,7 @@ link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccount
 to create service account in
 `«INPUT_DEPOT_PROJECT_ID»`
 .. Set `accountId` to `«GOVERNOR_ACCOUNT_ID»`
-.. Use display name: `Governor for RB Depot`
+.. Use display name: `«RBGC_DEPOT_DISPLAY_PREFIX» governor «RBRR_DEPOT_MONIKER»`
 .. {rbbc_store}
 `«GOVERNOR_SERVICE_ACCOUNT»` from response `.email` field
 .. {rbbc_require}
