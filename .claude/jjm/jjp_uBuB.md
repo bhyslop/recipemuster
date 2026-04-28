@@ -62,12 +62,24 @@ Three tiers, escalating cost:
 1. enrollment-validation (preflight, state-indifferent)
 2. pristine-lifecycle (§1: marshal-zero gate + throwaway depot/SA lifecycle)
 3. canonical-establish (§2: canonical depot levy + governor mantle + retriever invest + director invest + IAM propagation wait)
-4. canonical-onboarding-sequence (§3: reliquary inscribe + per-vessel hallmark ordain — mimics operator onboarding journey under theurge control)
+4. canonical-onboarding-sequence (§3: reliquary inscribe + per-vessel hallmark ordain — handbook-driven build walks per BBAAf)
 5. regime-validation, regime-smoke (post-§3, regimes now populated)
 6. four-mode (cloud-build mode coverage)
-7. tadmor, moriah, srjcl, pluml (§4: crucible suite)
+7. tadmor, moriah, srjcl, pluml (§4: per-crucible test fixtures, vessel-exists preconditions per BBAAs)
 
 No automatic teardown — see "No-teardown decision" below.
+
+## Dual purpose: handbook-regression coverage
+
+The gauntlet's primary purpose is release qualification (catch silent first-build assumptions). Its **secondary purpose** is automated handbook-regression coverage: ensure operator-facing onboarding handbook tracks (`rbh*`) stay in sync with working code so future operators following the prescribed steps aren't surprised by drift.
+
+Build-side handbook coverage lives in BBAAf (canonical-onboarding-sequence): each ordain case walks the corresponding director-mode handbook track (`rbw-Odf` conjure / `rbw-Oda` airgap / `rbw-Odb` bind / `rbw-Odg` graft) rather than calling inscribe/ordain machinery directly.
+
+**Build/run split — load-bearing.** Handbook walks cover the BUILD step (vessel construction) and stop when the hallmark lands in GAR. Run-side fixtures (per-crucible: tadmor/moriah/srjcl/pluml) stay as direct test fixtures with vessel-exists preconditions, NOT handbook walks. The split keeps run-side reusable against any vessel source — coupling them to handbook prose breaks reusability.
+
+Drift between fixtures and handbooks is accepted future maintenance: whoever changes one is responsible for updating the other; the gauntlet's job is to surface drift, not prevent it by construction.
+
+Run-side handbook coverage (`rbw-Ots`, the rack portion of `rbw-Ofc`) is explicitly out of scope for this heat.
 
 ## Fixture disposition — Independent vs StateProgressing
 
@@ -99,7 +111,7 @@ Documentation of the post-success cleanup ceremony is BBAAI work (RELEASE.md).
 
 ## Operator scope
 
-Single operator (project lead). Not designed for multi-operator workflow. Runbook lives in README.md release section.
+Single operator (project lead). Not designed for multi-operator workflow. The README.md release section remains the runbook for the gauntlet itself; the dual-purpose handbook-regression coverage protects the broader operator surface (onboarding tracks under `rbh*`) from drift.
 
 ## Coupling to ₣A_
 
@@ -109,6 +121,7 @@ Cutover work from ₣A_ informing `rbw-tP`'s sequence has landed (BBAAM depot-id
 
 - **Depot identity collapse** (BBAAM, landed): RBRR collapses to `RBRR_DEPOT_MONIKER`; `RBRR_CLOUD_PREFIX` flows through depot-affiliated resources; per-moniker depot fact-files; pristine-fixture moniker autodetect lives in Rust (`rbtdrp_pristine.rs`), not payor.
 - **Cult-verb naming** (BBAAN/BBAAQ/BBAAR, landed): SA domain muster→**roster**; image domain muster→**audit**. Domain-exclusive split; lowercase tail letters preserved for no-cloud-change observation colophons.
+- **Build/run split** (BBAAc, landed via paddock pivot): handbook walks cover build only (BBAAf); per-crucible fixtures stay reusable as direct tests (BBAAs).
 
 ## Calibrant fixture family — BBAAh
 
