@@ -6661,6 +6661,7 @@
       "creation_time": "260426",
       "status": "racing",
       "order": [
+        "₢BBAAo",
         "₢BBAAm",
         "₢BBAAS",
         "₢BBAAT",
@@ -6698,7 +6699,7 @@
         "₢BBAAH",
         "₢BBAAI"
       ],
-      "next_pace_seed": "AAo",
+      "next_pace_seed": "AAp",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAAA": {
@@ -7647,6 +7648,17 @@
               "text": "## Character\n\nSurface eliminator: extract shared helper, add probe-mint behavior, validate. Mechanical bash refactor with one new behavior bolted in. Helper signature and module placement are mount-time calls.\n\n## Wrap criterion\n\nAfter the new helper returns, an immediate JWT-bearer mint with the freshly-written RBRA succeeds without consumer-side retry. Validated by `rbw-aM` re-mantle against an existing depot (fast iteration), then by `canonical-establish` from fresh marshal-zero — which then unblocks BBAAc retry.\n\n## Locked decisions\n\n- Single pace, full extraction. No refactor-then-probe split.\n- Shared helper covers Governor (Payor mantle), Director (Governor invest), Retriever (Governor invest) — all three key-creation paths consolidated.\n- Total probe budget: **90 seconds**. Poll cadence and backoff schedule are mount-time decisions.\n- Produce-side guard only. RBRA on disk means usable for JWT-bearer mint. No consume-side fallback at the OAuth token-fetch site.\n- Timeout = hard fail (`buc_die`). Pristine-tier contract; no partial-write tolerance, no degraded-RBRA shipping.\n- Existing 404-retry-on-create logic preserved (orthogonal SA-write-path concern).\n\n## Cross-pace dependencies\n\nBlocks BBAAc pristine-walkthrough-manual: every retry from marshal-zero hits the same JWT-bearer race the moment Governor RBRA is consumed by the next case. Surface raised after BBAAm displayName fix landed (commit `0d4a6285`).\n\n## Out of scope\n\n- Empirical lag distribution measurement (operator chose to skip).\n- Consume-side fallback at OAuth token-fetch.\n- Divest paths (no key creation, no race).",
               "silks": "sa-key-propagation-probe",
               "commit": "0e4f714"
+            }
+          ]
+        },
+        "₢BBAAo": {
+          "tacks": [
+            {
+              "ts": "260428-1024",
+              "state": "rough",
+              "text": "## Character\n\nGovernor mantle predates the credential-locality discipline applied to Director/Retriever invest. RBRA bytes are written to BURD_OUTPUT_DIR (transient/disposable) rather than RBRR_SECRETS_DIR; the \"Install the RBRA file\" advice in `rbw-aM` output copies from there. Director/Retriever already write directly to RBDC_ASSAY_RBRA_FILE — operator copies stay within secrets dir per the rbgg_Governor.sh comment block (\"credentials never leak into BURD_TEMP_DIR\"). Surfaced live by `rbw-aM` transcript review post-BBAAn wrap.\n\n## Wrap criterion\n\nGovernor RBRA bytes never appear outside RBRR_SECRETS_DIR across the full mantle path. `rbw-aM` \"Install the RBRA file\" advice copies from secrets/, not output-buk/. The \"or, for assay (test) mode\" branch disappears once the file already IS in assay.\n\n## Locked decisions\n\n- Match Director/Retriever shape: write to RBDC_ASSAY_RBRA_FILE (single-slot, no per-mantle timestamp on the canonical drop point); operator copies to RBDC_GOVERNOR_RBRA_FILE.\n- Code-only pace.\n\n## Out of scope\n\n- Retroactive cleanup of credential bytes left in BURD_OUTPUT_DIR by prior runs.\n- Spec doc updates documenting the install ceremony — separate concern.",
+              "silks": "governor-mantle-rbra-locality",
+              "commit": "e3111dc"
             }
           ]
         }
