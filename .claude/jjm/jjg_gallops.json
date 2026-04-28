@@ -6687,6 +6687,7 @@
         "₢BBAAn",
         "₢BBAAc",
         "₢BBAAo",
+        "₢BBAAp",
         "₢BBAAf",
         "₢BBAAW",
         "₢BBAAg",
@@ -6699,7 +6700,7 @@
         "₢BBAAH",
         "₢BBAAI"
       ],
-      "next_pace_seed": "AAp",
+      "next_pace_seed": "AAq",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAAA": {
@@ -7673,6 +7674,17 @@
               "text": "## Character\n\nGovernor mantle predates the credential-locality discipline applied to Director/Retriever invest. RBRA bytes are written to BURD_OUTPUT_DIR (transient/disposable) rather than RBRR_SECRETS_DIR; the \"Install the RBRA file\" advice in `rbw-aM` output copies from there. Director/Retriever already write directly to RBDC_ASSAY_RBRA_FILE — operator copies stay within secrets dir per the rbgg_Governor.sh comment block (\"credentials never leak into BURD_TEMP_DIR\"). Surfaced live by `rbw-aM` transcript review post-BBAAn wrap.\n\n## Wrap criterion\n\nGovernor RBRA bytes never appear outside RBRR_SECRETS_DIR across the full mantle path. `rbw-aM` \"Install the RBRA file\" advice copies from secrets/, not output-buk/. The \"or, for assay (test) mode\" branch disappears once the file already IS in assay.\n\n## Locked decisions\n\n- Match Director/Retriever shape: write to RBDC_ASSAY_RBRA_FILE (single-slot, no per-mantle timestamp on the canonical drop point); operator copies to RBDC_GOVERNOR_RBRA_FILE.\n- Code-only pace.\n\n## Out of scope\n\n- Retroactive cleanup of credential bytes left in BURD_OUTPUT_DIR by prior runs.\n- Spec doc updates documenting the install ceremony — separate concern.",
               "silks": "governor-mantle-rbra-locality",
               "commit": "e3111dc"
+            }
+          ]
+        },
+        "₢BBAAp": {
+          "tacks": [
+            {
+              "ts": "260428-1052",
+              "state": "rough",
+              "text": "## Character\n\nTight, mechanical change in rbgo_OAuth.sh: shift the propagation-race tolerance from SA-creation-time probe to consumer-side token-mint retry. Single mechanism, uniform treatment for every RBRA consumer.\n\n## Wrap criterion\n\n- `rbgo_get_token_capture` retries on `invalid_grant` + `\"Invalid JWT Signature\"` only; other errors fail-fast as today.\n- `rbgo_probe_jwt_bearer_propagation` and its two call sites (zrbgg_create_service_account_with_key, rbgp_governor_mantle) deleted.\n- The three `RBGC_SA_KEY_PROBE_*` constants either deleted or repurposed for the consumer-retry budget. ZRBGO_PROBE_STDERR_FILE deleted or repurposed.\n- 30s upper-bound budget preserved (was probe budget; becomes consumer-retry budget).\n- bash -n clean, theurge build clean, theurge unit tests pass.\n- Live validation: canonical-establish fixture run end-to-end from fresh marshal-zero passes (depot_levy + governor_mantle + retriever_invest + director_invest), demonstrating the consumer-side retry absorbs the same race BBAAn's probe was bounding.\n\n## Constraints\n\n- Error-class discrimination required: parse OAuth response body via jq for `error == \"invalid_grant\"` AND `error_description == \"Invalid JWT Signature.\"` Other shapes fail-fast as today. Capture body to disk so probe-style forensic file remains available on timeout.\n- Progress logging on each retry attempt — operator visibility during retry window (no silent 30s pause).\n- Backoff schedule preserved from BBAAn (initial 2s, 2x growth, 15s cap).\n\n## Cross-pace dependencies\n\n- Absorbs BBAAn's mechanism: BBAAn's probe + constants deleted; same constants may be renamed to `RBGC_SA_KEY_CONSUMER_RETRY_*` family if reused.\n- Unblocks canonical-onboarding-sequence (subsequent pace) which sequences SA creation + consumer mints tightly across fixture cases.\n- Surfaced by BBAAc walkthrough (canonical-establish fixture's retriever_invest case failed with Invalid JWT Signature ~zero seconds after governor_mantle's probe succeeded — same race, different consumer).\n\n## Out of scope\n\n- Other retry-worthy OAuth error patterns (e.g., transient 5xx, network reset). Capture as itch — not today; today's scope is the propagation-race signature pattern only.\n- Changes to non-token RBRA flows (RBRA file write, RBRA validation, etc.).\n- Spec changes — no behavioral shift visible at procedural-spec level.",
+              "silks": "oauth-token-mint-retry-on-signature-race",
+              "commit": "dd3a183"
             }
           ]
         }
