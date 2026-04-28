@@ -60,18 +60,32 @@ rbho_governor_handbook() {
   buh_line "A ${RBYC_DIRECTOR} has build and publish access — they create container"
   buh_line "images and push them to the registry."
   buh_e
-  buh_line "Create a ${RBYC_RETRIEVER} with read access (${RBYC_CHARTER}):"
-  buh_tt  "  " "${RBZ_CHARTER_RETRIEVER}"
+  buh_line "Create a ${RBYC_RETRIEVER} with read access (${RBYC_INVEST}):"
+  buh_tt  "  " "${RBZ_INVEST_RETRIEVER}" "" " <identity>"
   buh_e
-  buh_line "Create a ${RBYC_DIRECTOR} with build access (${RBYC_KNIGHT}):"
-  buh_tt  "  " "${RBZ_KNIGHT_DIRECTOR}"
+  buh_line "Create a ${RBYC_DIRECTOR} with build access (${RBYC_INVEST}):"
+  buh_tt  "  " "${RBZ_INVEST_DIRECTOR}" "" " <identity>"
   buh_e
   buh_line "Each command creates the service account and applies the IAM"
   buh_line "grants it needs. The output is an ${RBYC_RBRA} key file — hand it to"
   buh_line "the Retriever or Director user."
   buh_e
-  buh_line "List issued service accounts:"
-  buh_tt  "  " "${RBZ_LIST_SERVICE_ACCOUNTS}"
+  buh_line "List issued ${RBYC_RETRIEVERS} (${RBYC_ROSTER}):"
+  buh_tt  "  " "${RBZ_ROSTER_RETRIEVERS}"
+  buh_e
+  buh_line "List issued ${RBYC_DIRECTORS} (${RBYC_ROSTER}):"
+  buh_tt  "  " "${RBZ_ROSTER_DIRECTORS}"
+  buh_e
+  buh_line "Remove a ${RBYC_RETRIEVER} (${RBYC_DIVEST}):"
+  buh_tt  "  " "${RBZ_DIVEST_RETRIEVER}" "" " <identity>"
+  buh_e
+  buh_line "Remove a ${RBYC_DIRECTOR} (${RBYC_DIVEST}):"
+  buh_tt  "  " "${RBZ_DIVEST_DIRECTOR}" "" " <identity>"
+  buh_e
+  buh_line "${RBYC_DIVEST} deletes the cloud service account and removes the"
+  buh_line "local production ${RBYC_RBRA} file — cloud and local state agree."
+  buh_line "${RBYC_INVEST} is fatal if the service account already exists. To"
+  buh_line "re-key, divest the old account first, then invest again."
   buh_e
 
   buh_step1 "Verify the chain"
