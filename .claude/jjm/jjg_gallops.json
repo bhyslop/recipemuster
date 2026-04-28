@@ -6661,6 +6661,7 @@
       "creation_time": "260426",
       "status": "racing",
       "order": [
+        "₢BBAAm",
         "₢BBAAS",
         "₢BBAAT",
         "₢BBAAM",
@@ -6696,7 +6697,7 @@
         "₢BBAAH",
         "₢BBAAI"
       ],
-      "next_pace_seed": "AAm",
+      "next_pace_seed": "AAn",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAAA": {
@@ -7609,6 +7610,17 @@
               "text": "## Character\n\nMechanical Rust pace. Repurpose the dormant `rbtdrd_dummy.rs` placeholder into `rbtdrl_calibrant.rs`, populate the four-fixture calibrant family with deterministic ground truth, wire into the manifest, tag dispositions, and pin verdicts via Rust unit tests in `rbtdtl_calibrant.rs`. Self-contained — the bash driver pace depends on this but does not land here.\n\nIntent-only docket. Fixture catalog and dispositions locked in paddock — see \"Bash blackbox calibrant — design.\" Code-level decisions (module organization, exact section structure inside calibrant-fail-fast, sentinel-file naming, manifest constant naming, auto-generated tabtarget granularity) made at mount time.\n\n## Scope\n\n- Rename `rbtdrd_dummy.rs` → `rbtdrl_calibrant.rs`; update `lib.rs` mod declaration.\n- Four fixtures per paddock catalog: calibrant-verdicts, calibrant-fail-fast, calibrant-progressing, calibrant-sentinel.\n- Manifest entries (`rbtdrm_manifest.rs`) for fixtures + `calibrant` suite.\n- `rbtdrc_fixture_disposition`: tag calibrant-progressing as StateProgressing; the others Independent.\n- Rust unit tests in `rbtdtl_calibrant.rs` pinning each case's verdict and observable side effects.\n- Tabtargets where the manifest-driven generation yields them; hand-written stubs as needed for the suite.\n\n## Out of scope\n\n- Bash-side testbench, case files, zipper entry, runbook update — Pace 2.\n- New engine concepts beyond what BBAAd already landed.\n- Cross-kit composition.\n\n## Depends on\n\nBBAAd (gauntlet-engine-foundation) — needs `rbtdre_Disposition`, `rbtdre_resolve_fail_fast`, and `rbtdrb_Probe` already in place.",
               "silks": "calibrant-fixture-foundation",
               "commit": "ac03bad"
+            }
+          ]
+        },
+        "₢BBAAm": {
+          "tacks": [
+            {
+              "ts": "260428-0922",
+              "state": "rough",
+              "text": "## Character\n\nSurfaced by ₢BBAAc: depot enumeration via Cloud Billing v1 + Mason-SA gate is\nblind to DELETE_REQUESTED projects. Billing unlinked at unmake time before\nsoft-delete; Mason SA list returns 404 on pending-delete. Operator has no\nvisibility into ghost depots; canonical-establish moniker selector collides\nwith reserved project IDs on retry-after-failure.\n\n## Wrap criterion\n\n`rbw-dl` shows DELETE_REQUESTED alongside ACTIVE. `rbtdrk_pick_next_moniker`\nrefreshes fact files load-bearingly before scan, no reliance on operator-run\n`rbw-dl`. RBGC kindle owns the displayName anchor\n(`RBGC_DEPOT_DISPLAY_PREFIX=\"RBGC_DEPOT_COMMON\"`) across depot/Mason/Governor\ncreate sites + search site. Mason-SA discrimination removed; moniker derived by\nstripping prefix from displayName. CRM v3 `projects:search` replaces Cloud\nBilling enumeration. Family stem bumped past current pending-delete\nreservations. Specs RBSDE/RBSGM in sync with code.\n\n## Constraints\n\n- Burn-the-bridges: all current depots deleted before this lands; no\n  transitional dual-search code.\n- DisplayName-based discrimination; projectId-infix and label schemes out of\n  scope.\n\n## Cross-pace dependencies\n\n- Surfaced by ₢BBAAc; operator burn-the-bridges cleanup precedes landing.\n\n## Out of scope\n\n- Wider billing-list enumeration audit (other sites may share assumption).\n- ProjectId-infix migration scheme.\n- BBAAc walkthrough resumption (separate concern, blocked on this).",
+              "silks": "depot-list-via-displayname-search",
+              "commit": "776515a"
             }
           ]
         }
