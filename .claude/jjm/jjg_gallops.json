@@ -6684,6 +6684,7 @@
         "₢BBAAc",
         "₢BBAAf",
         "₢BBAAW",
+        "₢BBAAg",
         "₢BBAAX",
         "₢BBAAC",
         "₢BBAAD",
@@ -6693,7 +6694,7 @@
         "₢BBAAH",
         "₢BBAAI"
       ],
-      "next_pace_seed": "AAg",
+      "next_pace_seed": "AAh",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAAA": {
@@ -7444,6 +7445,17 @@
               "text": "## Character\n\nSecond state-progressing fixture for the gauntlet test suite. Wraps §3 of the release-qualification sequence — reliquary inscribe + per-vessel hallmark ordain. Mimics the operator's online onboarding journey under theurge control while establishing the hallmarks needed by §4 crucible fixtures.\n\nService-tier — needs GCP credentials and Cloud Build capacity. Per-vessel mode coverage (conjure / bind / graft / airgap) flows from each vessel's mode field; fixture is mode-agnostic in structure. Intent-only docket. Code-level planning happens at mount time.\n\n## Scope\n\n- New fixture covering §3 cases: inscribe-reliquary, ordain-tadmor, ordain-moriah, ordain-srjcl, ordain-pluml\n- Each case carries a precondition probe — refuses cleanly with operator-actionable diagnostic if expected state absent\n- Disposition: StateProgressing\n- Manifest registration\n- Mode coverage encoded per vessel; fixture exercises whatever mode each vessel's regime declares\n\n## Cross-pace dependencies\n\n- gauntlet-canonical-establish landed (precondition-probe pattern set; depot + SAs in place)\n- BBAAc landed (manual walkthrough informs case design + probe specifications)\n\n## Out of scope\n\n- Engine work (gauntlet-engine-foundation)\n- Canonical-establish fixture (prior pace)\n- Suite assembly (subsequent pace)\n- Live end-to-end validation (BBAAX)",
               "silks": "gauntlet-canonical-onboarding-sequence",
               "commit": "2c9b9f3"
+            }
+          ]
+        },
+        "₢BBAAg": {
+          "tacks": [
+            {
+              "ts": "260428-0705",
+              "state": "rough",
+              "text": "## Character\n\nFinal assembly of the gauntlet test suite. Defines the suite as a composition of fixtures, creates the suite tabtarget, and pivots the rbw-tP workbench tabtarget from the originally-planned orchestrator-script shape to entry-contract enforcer + suite tabtarget exec. No new test cases; this pace is composition + entry point only.\n\nIntent-only docket. Code-level planning happens at mount time.\n\n## Scope\n\n- Gauntlet suite definition: bash array in the engine holding the full ordered fixture sequence\n- Resolver branch in the suite-name resolver\n- New TestSuite tabtarget for the gauntlet suite\n- Reshape rbw-tP.QualifyPristine.sh: enforce entry contract (marshal-zero signature, RBRR blank, RBRA absent, regimes blank) then exec the gauntlet suite tabtarget\n\n## Suite ordering\n\nenrollment-validation (preflight, state-indifferent), pristine-lifecycle (§1), canonical-establish (§2), canonical-onboarding-sequence (§3), regime-validation, regime-smoke, four-mode, tadmor, moriah, srjcl, pluml. No teardown — operator peeks post-success and runs cleanup tabtargets manually if desired.\n\n## Cross-pace dependencies\n\n- gauntlet-canonical-onboarding-sequence landed (final new fixture exists)\n\n## Out of scope\n\n- First-run end-to-end validation (BBAAX)\n- Pristine-passed sentinel artifact (BBAAH)\n- Documentation updates beyond what the workbench tabtarget needs (BBAAI)",
+              "silks": "gauntlet-suite-assembly",
+              "commit": "acdc595"
             }
           ]
         }
