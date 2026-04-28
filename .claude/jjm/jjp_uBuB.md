@@ -120,7 +120,7 @@ A bash-driven black-box test layer over the Theurge binary, driving synthetic fi
 
 **Fixture catalog** (Rust, manifest-registered):
 
-- `calibrant-verdicts` (Independent) — pass / fail / skip / pass_with_trace / pass_with_emission. Verdict-path coverage.
+- `calibrant-verdicts` (Independent) — pass / fail / skip / pass_with_output. Verdict-path coverage. The case-written file (`output.txt`) is distinct from the engine-auto `trace.txt`.
 - `calibrant-fail-fast` (Independent, multi-section) — fixture-internal fail-fast across cases and across sections; "not_reached" cases write sentinel files used as absence-of-side-effect assertions.
 - `calibrant-progressing` (StateProgressing) — exercises `rbtdrb_Probe` diagnostic format and `rbtdre_resolve_fail_fast` policy gate.
 - `calibrant-sentinel` (Independent) — single case writing a known file when it runs. Used for suite-level fail-fast verification (placed after the failing fixture in the calibrant suite; bash asserts sentinel absent).
@@ -147,7 +147,7 @@ Suite: `calibrant` = [verdicts, fail-fast, sentinel]. Sentinel-after-fail verifi
 
 - Cross-kit testbench composition (BUK fixtures registered in rbk testbench).
 - Orchestrating tabtargets containing exec-of-children logic.
-- Trace-file format invariants beyond a single `pass_with_trace` smoke check.
+- Trace-file format invariants beyond a single `pass_with_output` smoke check.
 - Color rendering / terminal width contracts.
 
 ## References
