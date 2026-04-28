@@ -6698,9 +6698,10 @@
         "₢BBAAF",
         "₢BBAAG",
         "₢BBAAH",
-        "₢BBAAI"
+        "₢BBAAI",
+        "₢BBAAq"
       ],
-      "next_pace_seed": "AAq",
+      "next_pace_seed": "AAr",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAAA": {
@@ -7699,6 +7700,17 @@
               "text": "## Character\n\nTight, mechanical change in rbgo_OAuth.sh: shift the propagation-race tolerance from SA-creation-time probe to consumer-side token-mint retry. Single mechanism, uniform treatment for every RBRA consumer.\n\n## Wrap criterion\n\n- `rbgo_get_token_capture` retries on `invalid_grant` + `\"Invalid JWT Signature\"` only; other errors fail-fast as today.\n- `rbgo_probe_jwt_bearer_propagation` and its two call sites (zrbgg_create_service_account_with_key, rbgp_governor_mantle) deleted.\n- The three `RBGC_SA_KEY_PROBE_*` constants either deleted or repurposed for the consumer-retry budget. ZRBGO_PROBE_STDERR_FILE deleted or repurposed.\n- 30s upper-bound budget preserved (was probe budget; becomes consumer-retry budget).\n- bash -n clean, theurge build clean, theurge unit tests pass.\n- Live validation: canonical-establish fixture run end-to-end from fresh marshal-zero passes (depot_levy + governor_mantle + retriever_invest + director_invest), demonstrating the consumer-side retry absorbs the same race BBAAn's probe was bounding.\n\n## Constraints\n\n- Error-class discrimination required: parse OAuth response body via jq for `error == \"invalid_grant\"` AND `error_description == \"Invalid JWT Signature.\"` Other shapes fail-fast as today. Capture body to disk so probe-style forensic file remains available on timeout.\n- Progress logging on each retry attempt — operator visibility during retry window (no silent 30s pause).\n- Backoff schedule preserved from BBAAn (initial 2s, 2x growth, 15s cap).\n\n## Cross-pace dependencies\n\n- Absorbs BBAAn's mechanism: BBAAn's probe + constants deleted; same constants may be renamed to `RBGC_SA_KEY_CONSUMER_RETRY_*` family if reused.\n- Unblocks canonical-onboarding-sequence (subsequent pace) which sequences SA creation + consumer mints tightly across fixture cases.\n- Surfaced by BBAAc walkthrough (canonical-establish fixture's retriever_invest case failed with Invalid JWT Signature ~zero seconds after governor_mantle's probe succeeded — same race, different consumer).\n\n## Out of scope\n\n- Other retry-worthy OAuth error patterns (e.g., transient 5xx, network reset). Capture as itch — not today; today's scope is the propagation-race signature pattern only.\n- Changes to non-token RBRA flows (RBRA file write, RBRA validation, etc.).\n- Spec changes — no behavioral shift visible at procedural-spec level.",
               "silks": "oauth-token-mint-retry-on-signature-race",
               "commit": "dd3a183"
+            }
+          ]
+        },
+        "₢BBAAq": {
+          "tacks": [
+            {
+              "ts": "260428-1103",
+              "state": "rough",
+              "text": "## Character\n\nReflective audit pace at the tail of BB. Walk the changes landed across BB's paces and determine which RBS0 (and adjacent veiled-spec) sections fell out of sync with code/behavior, then update them.\n\nCognitive posture: deliberate read-and-compare. Source of truth is the code/handbook surface as it stands at mount-time; RBS0 is being reconciled to it.\n\n## Wrap criterion\n\nRBS0 (and any directly-implicated sibling spec files under `rbk/vov_veiled/`) reflect the behavior shipped during BB. Each touched section either updated or explicitly judged still-correct. No silent drift left behind for the next heat.\n\n## Constraints\n\n- Read-only against code; spec edits only.\n- Scope is BB's changes — not a full RBS0 audit.\n\n## Out of scope\n\n- Restructuring RBS0 beyond what BB's changes require.\n- Spec touches outside the veiled-spec family unless directly implicated.",
+              "silks": "rbs0-sync-sweep-from-bb-changes",
+              "commit": "7ee9f98"
             }
           ]
         }
