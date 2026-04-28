@@ -110,49 +110,27 @@ Cutover work from ₣A_ informing `rbw-tP`'s sequence has landed (BBAAM depot-id
 - **Depot identity collapse** (BBAAM, landed): RBRR collapses to `RBRR_DEPOT_MONIKER`; `RBRR_CLOUD_PREFIX` flows through depot-affiliated resources; per-moniker depot fact-files; pristine-fixture moniker autodetect lives in Rust (`rbtdrp_pristine.rs`), not payor.
 - **Cult-verb naming** (BBAAN/BBAAQ/BBAAR, landed): SA domain muster→**roster**; image domain muster→**audit**. Domain-exclusive split; lowercase tail letters preserved for no-cloud-change observation colophons.
 
-## Bash blackbox calibrant — design
+## Calibrant fixture family — BBAAh
 
-A bash-driven black-box test layer over the Theurge binary, driving synthetic fixtures (the "calibrant" family) with deterministic verdicts to verify the operator-facing surface of the test framework: CLI exit codes, stderr diagnostic format, fixture and suite fail-fast, and the disposition × keep-going policy gate landed in BBAAd. Rust unit tests verify engine functions in isolation; the calibrant layer verifies what the operator sees when the binary runs.
+Synthetic Rust fixtures with deterministic verdicts, registered in the manifest by BBAAh. The family exists to give ₣BC `rbk-mvp-3-theurge-self-test` deterministic targets for bash-blackbox driving and manifest-coverage validation; here in ₣BB only the foundation lands.
 
 **Anchor word: `calibrant`.** Module `rbtdrl_calibrant.rs` (classifier `l` for caLibrant since `c` is owned by crucible). Replaces the dormant `rbtdrd_dummy.rs` placeholder. Test counterpart `rbtdtl_calibrant.rs`. Internal-only vocabulary; not end-user-facing.
-
-**With-the-grain composition.** Tabtargets are bare exec stubs; orchestration lives in zippers/workbenches/testbenches/suites. The bash blackbox is its own testbench (`Tools/rbk/rbtt_testbench.sh`) registered through `rbz_zipper.sh` with its own colophon and tabtarget. BUK's self-test stays untouched. No "BUK + calibrant" composite tabtarget — operator sequences `buw-st` then the new colophon, same shape as the existing rbtd test-suite tier ladder.
 
 **Fixture catalog** (Rust, manifest-registered):
 
 - `calibrant-verdicts` (Independent) — pass / fail / skip / pass_with_output. Verdict-path coverage. The case-written file (`output.txt`) is distinct from the engine-auto `trace.txt`.
 - `calibrant-fail-fast` (Independent, multi-section) — fixture-internal fail-fast across cases and across sections; "not_reached" cases write sentinel files used as absence-of-side-effect assertions.
 - `calibrant-progressing` (StateProgressing) — exercises `rbtdrb_Probe` diagnostic format and `rbtdre_resolve_fail_fast` policy gate.
-- `calibrant-sentinel` (Independent) — single case writing a known file when it runs. Used for suite-level fail-fast verification (placed after the failing fixture in the calibrant suite; bash asserts sentinel absent).
+- `calibrant-sentinel` (Independent) — single case writing a known file when it runs. Used for suite-level fail-fast verification.
 
 Suite: `calibrant` = [verdicts, fail-fast, sentinel]. Sentinel-after-fail verifies cross-fixture fail-fast contract.
 
-**Bash case catalog** (`Tools/rbk/rbts/`, 14 cases across 6 sections):
-
-- `verdict-propagation` (4) — pass/fail/skip exit codes + trace file
-- `fixture-fail-fast` (2) — intra-section, inter-section
-- `disposition-policy` (3) — Independent+keep-going runs all; StateProgressing+keep-going refused with policy stderr; StateProgressing default runs fail-fast
-- `probe-diagnostics` (1) — unmet-probe stderr contains "precondition '%s' not met:" + "remediation:"
-- `suite-fail-fast` (2) — suite aborts on failing fixture; subsequent fixture's sentinel absent
-- `cli-surface` (2) — unknown fixture errors clearly; missing arg → usage
-
-**Two-pace shape:**
-
-1. Calibrant fixture foundation (Rust) — module rename, fixtures registered, manifest entries, dispositions tagged, Rust unit tests pin ground truth.
-2. Calibrant bash blackbox driver (BUK side) — testbench, case files, zipper entry, tabtarget, runbook entry. Depends on (1).
-
-**BURV chain is contract, not hook.** The `BURV_TEMP_ROOT_DIR` / `BURV_OUTPUT_ROOT_DIR` override is load-bearing infrastructure already used by the BUT framework's `buto_unit_*` invocations and the Theurge's `rbtdri_invocation` shell-outs (BUS0 §540-552). Per-case BURV isolation, nested through calibrant cases when they invoke `rbtd`, composes cleanly with any operator-set `BURV_TEMP_ROOT_DIR` exported in the parent shell. Calibrant cases incidentally regression-test this chain.
-
-**Out of scope for both paces:**
-
-- Cross-kit testbench composition (BUK fixtures registered in rbk testbench).
-- Orchestrating tabtargets containing exec-of-children logic.
-- Trace-file format invariants beyond a single `pass_with_output` smoke check.
-- Color rendering / terminal width contracts.
+Downstream consumption — bash testbench, manifest-coverage runtime checks, coverage-validation fixtures and driver — lives in ₣BC.
 
 ## References
 
 - ₣A_ rbk-mvp-3-resource-prefix-and-depot-regen — surfaced the gap
+- ₣BC rbk-mvp-3-theurge-self-test — calibrant downstream consumers
 - `tt/rbw-tr.QualifyRelease.sh` — current release qualify; layered alongside, not replaced
 - `Tools/rbk/rblm_cli.sh` — `rbw-MZ` zeroes local regime; marshal-zero signature baked here per BBAAB
 - `.claude/commands/rbk-prep-release.md` — upstream contribution ceremony; pristine-pass becomes a precondition (BBAAH)
