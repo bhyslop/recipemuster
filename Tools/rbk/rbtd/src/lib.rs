@@ -22,12 +22,12 @@
 
 pub mod rbtdrb_probe;
 pub mod rbtdrc_crucible;
-pub mod rbtdrd_dummy;
 pub mod rbtdre_engine;
 pub mod rbtdrf_fast;
 pub mod rbtdrf_handbook;
 pub mod rbtdri_invocation;
 pub mod rbtdrk_canonical;
+pub mod rbtdrl_calibrant;
 pub mod rbtdrm_manifest;
 pub mod rbtdrp_pristine;
 
@@ -39,6 +39,8 @@ mod rbtdte_engine;
 mod rbtdti_invocation;
 #[cfg(test)]
 mod rbtdtk_canonical;
+#[cfg(test)]
+mod rbtdtl_calibrant;
 #[cfg(test)]
 mod rbtdtm_manifest;
 #[cfg(test)]

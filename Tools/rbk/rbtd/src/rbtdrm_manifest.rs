@@ -108,6 +108,12 @@ pub const RBTDRM_FIXTURE_PRISTINE_LIFECYCLE: &str = "pristine-lifecycle";
 // Gauntlet canonical-establish fixture (§2: canonical depot levy + governor
 // mantle + retriever/director invest with per-case precondition probes)
 pub const RBTDRM_FIXTURE_CANONICAL_ESTABLISH: &str = "canonical-establish";
+// Calibrant fixtures — synthetic deterministic-verdict fixtures driving the
+// bash blackbox testbench. Internal framework-test plumbing.
+pub const RBTDRM_FIXTURE_CALIBRANT_VERDICTS: &str = "calibrant-verdicts";
+pub const RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST: &str = "calibrant-fail-fast";
+pub const RBTDRM_FIXTURE_CALIBRANT_PROGRESSING: &str = "calibrant-progressing";
+pub const RBTDRM_FIXTURE_CALIBRANT_SENTINEL: &str = "calibrant-sentinel";
 
 /// Per-fixture required colophons. Returns None for unknown fixtures.
 pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str]> {
@@ -141,7 +147,11 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         RBTDRM_FIXTURE_ACCESS_PROBE => Some(&[RBTDRM_COLOPHON_ACCESS_PROBE]),
         RBTDRM_FIXTURE_ENROLLMENT_VALIDATION
         | RBTDRM_FIXTURE_REGIME_VALIDATION
-        | RBTDRM_FIXTURE_REGIME_SMOKE => Some(&[]),
+        | RBTDRM_FIXTURE_REGIME_SMOKE
+        | RBTDRM_FIXTURE_CALIBRANT_VERDICTS
+        | RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST
+        | RBTDRM_FIXTURE_CALIBRANT_PROGRESSING
+        | RBTDRM_FIXTURE_CALIBRANT_SENTINEL => Some(&[]),
         RBTDRM_FIXTURE_PRISTINE_LIFECYCLE => Some(&[
             RBTDRM_COLOPHON_DEPOT_LEVY,
             RBTDRM_COLOPHON_DEPOT_LIST,
