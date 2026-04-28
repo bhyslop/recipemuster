@@ -156,7 +156,7 @@ fn rbtdrk_git_add_and_commit(root: &Path, file: &str, message: &str) -> Result<(
 }
 
 /// Resolve canonical RBRA path for a role: <RBRR_SECRETS_DIR>/<role>/rbra.env.
-fn rbtdrk_canonical_rbra(root: &Path, role: &str) -> Result<PathBuf, String> {
+pub(crate) fn rbtdrk_canonical_rbra(root: &Path, role: &str) -> Result<PathBuf, String> {
     let rbrr = root.join(RBTDRK_RBRR_FILE);
     let secrets_dir = rbtdrk_read_env_value(&rbrr, RBTDRK_FIELD_RBRR_SECRETS_DIR)
         .ok_or_else(|| format!("RBRR_SECRETS_DIR missing from {}", rbrr.display()))?;

@@ -29,6 +29,7 @@ pub mod rbtdri_invocation;
 pub mod rbtdrk_canonical;
 pub mod rbtdrl_calibrant;
 pub mod rbtdrm_manifest;
+pub mod rbtdro_onboarding;
 pub mod rbtdrp_pristine;
 
 #[cfg(test)]
@@ -43,5 +44,7 @@ mod rbtdtk_canonical;
 mod rbtdtl_calibrant;
 #[cfg(test)]
 mod rbtdtm_manifest;
+#[cfg(test)]
+mod rbtdto_onboarding;
 #[cfg(test)]
 mod rbtdtp_pristine;

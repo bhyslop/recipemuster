@@ -62,6 +62,12 @@ pub const RBTDRM_COLOPHON_DEPOT_LEVY: &str = "rbw-dL";
 pub const RBTDRM_COLOPHON_DEPOT_LIST: &str = "rbw-dl";
 pub const RBTDRM_COLOPHON_DEPOT_UNMAKE: &str = "rbw-dU";
 
+// Director depot colophons — reliquary inscribe/yoke and vessel enshrine
+// (global — no nameplate imprint)
+pub const RBTDRM_COLOPHON_INSCRIBE_RELIQUARY: &str = "rbw-dI";
+pub const RBTDRM_COLOPHON_YOKE_RELIQUARY: &str = "rbw-dY";
+pub const RBTDRM_COLOPHON_ENSHRINE_VESSEL: &str = "rbw-dE";
+
 // Governor service-account colophons (global — no nameplate imprint)
 pub const RBTDRM_COLOPHON_GOV_MANTLE: &str = "rbw-aM";
 pub const RBTDRM_COLOPHON_GOV_INVEST_RETRIEVER: &str = "rbw-arI";
@@ -108,6 +114,10 @@ pub const RBTDRM_FIXTURE_PRISTINE_LIFECYCLE: &str = "pristine-lifecycle";
 // Gauntlet canonical-establish fixture (§2: canonical depot levy + governor
 // mantle + retriever/director invest with per-case precondition probes)
 pub const RBTDRM_FIXTURE_CANONICAL_ESTABLISH: &str = "canonical-establish";
+// Gauntlet canonical-onboarding-sequence fixture (§3: handbook-walked vessel
+// construction — inscribe reliquary plus one ordain-* case per director-mode
+// handbook track, build-only)
+pub const RBTDRM_FIXTURE_CANONICAL_ONBOARDING_SEQUENCE: &str = "canonical-onboarding-sequence";
 // Calibrant fixtures — synthetic deterministic-verdict fixtures driving the
 // bash blackbox testbench. Internal framework-test plumbing.
 pub const RBTDRM_FIXTURE_CALIBRANT_VERDICTS: &str = "calibrant-verdicts";
@@ -170,6 +180,12 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDRM_COLOPHON_GOV_INVEST_RETRIEVER,
             RBTDRM_COLOPHON_GOV_INVEST_DIRECTOR,
             RBTDRM_COLOPHON_ACCESS_PROBE,
+        ]),
+        RBTDRM_FIXTURE_CANONICAL_ONBOARDING_SEQUENCE => Some(&[
+            RBTDRM_COLOPHON_INSCRIBE_RELIQUARY,
+            RBTDRM_COLOPHON_YOKE_RELIQUARY,
+            RBTDRM_COLOPHON_ENSHRINE_VESSEL,
+            RBTDRM_COLOPHON_ORDAIN,
         ]),
         RBTDRM_FIXTURE_HANDBOOK_RENDER => Some(&[
             RBTDRM_COLOPHON_ONBOARD_START_HERE,

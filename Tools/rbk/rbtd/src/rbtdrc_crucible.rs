@@ -2023,6 +2023,7 @@ pub fn rbtdrc_fixture_disposition(fixture: &str) -> rbtdre_Disposition {
     match fixture {
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_PRISTINE_LIFECYCLE
         | crate::rbtdrm_manifest::RBTDRM_FIXTURE_CANONICAL_ESTABLISH
+        | crate::rbtdrm_manifest::RBTDRM_FIXTURE_CANONICAL_ONBOARDING_SEQUENCE
         | crate::rbtdrm_manifest::RBTDRM_FIXTURE_CALIBRANT_PROGRESSING => {
             rbtdre_Disposition::StateProgressing
         }
@@ -2054,6 +2055,7 @@ pub fn rbtdrc_sections_for_fixture(fixture: &str) -> &'static [rbtdre_Section] {
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_HANDBOOK_RENDER => crate::rbtdrf_handbook::RBTDRF_SECTIONS_HANDBOOK_RENDER,
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_PRISTINE_LIFECYCLE => crate::rbtdrp_pristine::RBTDRP_SECTIONS_PRISTINE_LIFECYCLE,
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_CANONICAL_ESTABLISH => crate::rbtdrk_canonical::RBTDRK_SECTIONS_CANONICAL_ESTABLISH,
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_CANONICAL_ONBOARDING_SEQUENCE => crate::rbtdro_onboarding::RBTDRO_SECTIONS_CANONICAL_ONBOARDING_SEQUENCE,
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_CALIBRANT_VERDICTS => crate::rbtdrl_calibrant::RBTDRL_SECTIONS_VERDICTS,
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST => crate::rbtdrl_calibrant::RBTDRL_SECTIONS_FAIL_FAST,
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_CALIBRANT_PROGRESSING => crate::rbtdrl_calibrant::RBTDRL_SECTIONS_PROGRESSING,
@@ -2188,7 +2190,8 @@ static RBTDRC_SECTIONS_TADMOR: &[rbtdre_Section] = &[
 // ── Four-mode foundry integration (bare fixture) ─────────────
 
 /// BURV fact file names — single definition, matching rbgc_Constants.sh values.
-const RBTDRC_FACT_HALLMARK: &str = "rbf_fact_hallmark";
+pub(crate) const RBTDRC_FACT_HALLMARK: &str = "rbf_fact_hallmark";
+pub(crate) const RBTDRC_FACT_RELIQUARY: &str = "rbf_fact_reliquary";
 const RBTDRC_FACT_GAR_ROOT: &str = "rbf_fact_gar_root";
 const RBTDRC_FACT_ARK_STEM: &str = "rbf_fact_ark_stem";
 

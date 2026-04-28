@@ -104,6 +104,20 @@ fn rbtdtm_pristine_lifecycle_rejects_missing_colophon() {
 }
 
 #[test]
+fn rbtdtm_accepts_valid_canonical_onboarding_sequence_manifest() {
+    let manifest = rbtdtm_manifest_for(RBTDRM_FIXTURE_CANONICAL_ONBOARDING_SEQUENCE);
+    assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_CANONICAL_ONBOARDING_SEQUENCE).is_ok());
+}
+
+#[test]
+fn rbtdtm_canonical_onboarding_sequence_rejects_missing_colophon() {
+    // Manifest with only the inscribe colophon — missing yoke, enshrine, ordain
+    let manifest = RBTDRM_COLOPHON_INSCRIBE_RELIQUARY;
+    let err = rbtdrm_verify(manifest, RBTDRM_FIXTURE_CANONICAL_ONBOARDING_SEQUENCE).unwrap_err();
+    assert!(err.contains(RBTDRM_COLOPHON_YOKE_RELIQUARY));
+}
+
+#[test]
 fn rbtdtm_accepts_valid_handbook_render_manifest() {
     let manifest = rbtdtm_manifest_for(RBTDRM_FIXTURE_HANDBOOK_RENDER);
     assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_HANDBOOK_RENDER).is_ok());
