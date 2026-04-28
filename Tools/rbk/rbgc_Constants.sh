@@ -157,7 +157,7 @@ zrbgc_kindle() {
   # Mason SA, Governor SA). Search backend filters CRM v3 projects:search
   # by displayName starting with this anchor. Distinct, unmistakable string
   # ensures no collision with non-depot projects in the operator's account.
-  readonly RBGC_DEPOT_DISPLAY_PREFIX="RBGC_DEPOT_COMMON"
+  readonly RBGC_DEPOT_DISPLAY_PREFIX="RBGC-DEPOT"
 
   # Artifact Registry (GAR) Composition
   readonly RBGC_GAR_HOST_SUFFIX="-docker.pkg.dev"

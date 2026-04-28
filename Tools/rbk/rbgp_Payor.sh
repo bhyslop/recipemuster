@@ -142,7 +142,7 @@ zrbgp_authenticate_capture() {
 
 # Probe per-installation depot states and emit per-moniker fact files.
 # Uses CRM v3 projects:search with displayName anchor as discriminator —
-# query "displayName:RBGC_DEPOT_COMMON*" returns ACTIVE and DELETE_REQUESTED
+# query "displayName:RBGC-DEPOT*" returns ACTIVE and DELETE_REQUESTED
 # projects together (no billing-account enumeration required).  Moniker is
 # derived by stripping the "${RBGC_DEPOT_DISPLAY_PREFIX} " prefix from each
 # project's displayName.  Per-moniker fact files named
