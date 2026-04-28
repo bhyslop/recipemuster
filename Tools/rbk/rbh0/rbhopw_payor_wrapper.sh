@@ -94,6 +94,10 @@ rbho_payor_handbook() {
   buh_line "${RBYC_PAYOR} creates the Governor service account:"
   buh_tt  "  " "${RBZ_MANTLE_GOVERNOR}"
   buh_e
+  buh_line "The mantle command writes the key file to its output directory"
+  buh_line "and prints two cp commands — one for production install, one"
+  buh_line "for assay (test) mode."
+  buh_e
   buh_line "Hand the resulting key file to the person who will administer"
   buh_line "this ${RBYC_DEPOT}. After this handoff, the ${RBYC_GOVERNOR} can create"
   buh_line "${RBYC_RETRIEVER} and ${RBYC_DIRECTOR} accounts independently."
