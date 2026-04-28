@@ -6695,9 +6695,10 @@
         "₢BBAAG",
         "₢BBAAH",
         "₢BBAAI",
-        "₢BBAAj"
+        "₢BBAAj",
+        "₢BBAAk"
       ],
-      "next_pace_seed": "AAk",
+      "next_pace_seed": "AAl",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAAA": {
@@ -7618,6 +7619,17 @@
               "text": "## Character\n\nTighten rbtdrm's per-fixture required-colophons list from \"asserted superset\" to \"exhaustive subset\". Two runtime checks, both at the rbtdri_invoke_* primitive chokepoint:\n\n- Positive: every invoked colophon must be in the fixture's declared list — refuse otherwise.\n- Negative: every declared colophon must have been invoked at least once on a successful full-fixture run — fail otherwise.\n\nSurgical refactor; no case-body edits expected. The audit risk for the negative check surfaces at turn-on; existing TestSuite runs serve as the audit gate.\n\n## Scope\n\n- rbtdri_Context tracks declared and used colophon sets\n- All three invoke primitives (rbtdri_invoke, _global, _imprint) refuse undeclared invocations and record successful ones\n- run_suite enforces the negative check after run_sections returns success (gated on result.failed == 0 — failure paths suppress the check)\n- run_single enforces positive only — single-case cannot satisfy exhaustiveness by construction\n- Unit tests covering both check directions and the single-case exemption\n- Operator-facing diagnostics name the fixture and the offending colophon\n\n## Cross-pace dependencies\n\nNone. The check applies to all theurge fixtures, independent of gauntlet assembly.\n\n## Out of scope\n\n- Imprint coverage (which nameplate a per-imprint colophon was called with), argument patterns, compile-time/static analysis\n- Phase-split into two paces — implement both checks together; the TestSuite run is the validation gate\n- Any fixture-level declaration edits — the implementation should pass clean against current declarations or surface a real stale entry as a separate find",
               "silks": "theurge-manifest-coverage-check",
               "commit": "b86840c"
+            }
+          ]
+        },
+        "₢BBAAk": {
+          "tacks": [
+            {
+              "ts": "260428-0815",
+              "state": "rough",
+              "text": "## Character\n\nRust extension to the calibrant family proving BBAAj's runtime manifest-coverage checks land their diagnostics. Three synthetic fixtures with deliberately aligned or mis-declared manifests; one synthetic theurge-internal noop tabtarget the fixtures invoke without cloud or filesystem side-effects. Self-contained — bash driver pace consumes this but does not land here.\n\nIntent-only docket. Catalog locked below; module placement, tabtarget naming, manifest constant naming chosen at mount time.\n\n## Scope\n\n- Synthetic noop tabtarget, theurge-internal (rbtd-l* family — parity with rbtdrl_calibrant.rs).\n- Three new fixtures in the calibrant family (Independent disposition):\n  - calibrant-coverage-aligned: manifest declares noop, case invokes noop → Pass.\n  - calibrant-coverage-undeclared: manifest declares nothing, case invokes noop → fixture-level FAIL via positive check.\n  - calibrant-coverage-unused: manifest declares noop, case invokes nothing → fixture-level FAIL via negative check.\n- Manifest entries + disposition tags.\n- Rust unit tests pin only registration shape; verdict assertions live in the bash driver pace.\n\n## Depends on\n\n- BBAAh (calibrant-fixture-foundation) — needs rbtdrl_calibrant.rs and the calibrant-family scaffolding.\n- BBAAj (theurge-manifest-coverage-check) — without the runtime checks landed, the failing fixtures pass instead of fail.\n\n## Out of scope\n\n- Bash assertions on exit code or stderr shape — sibling pace.\n- Inclusion in the calibrant suite — these fixtures are standalone-invoked so the existing suite-fail-fast assertions remain clean.\n- Cross-kit composition.",
+              "silks": "calibrant-coverage-foundation",
+              "commit": "c115da9"
             }
           ]
         }
