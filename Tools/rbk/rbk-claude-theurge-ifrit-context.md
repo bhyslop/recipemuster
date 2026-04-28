@@ -37,7 +37,7 @@ This applies to **all** crucible verification: new tests, bug fixes, refactors. 
 3. Git commit the hallmark change (kludge dirties `rbrn.env` — a clean working tree is required for charge, and the commit trail maintains audit integrity)
 4. Run the full tadmor fixture:
    ```
-   tt/rbtd-r.Run.tadmor.sh
+   tt/rbtd-r.FixtureRun.tadmor.sh
    ```
    This charges the crucible, runs all cases, and quenches — one command.
 
@@ -51,7 +51,7 @@ When iterating on a specific failing test case:
    ```
 2. Run individual cases against the live crucible:
    ```
-   tt/rbtd-s.SingleCase.tadmor.sh case-name
+   tt/rbtd-s.FixtureCase.tadmor.sh case-name
    ```
    Omit the case name to list all available cases.
 3. Edit code, rebuild as needed (kludge for ifrit, `tt/rbtd-b.Build.sh` for theurge), re-run the single case. Repeat.
@@ -116,10 +116,10 @@ Tadmor crucible cases are organized by test pattern:
    ```
 3. Verify each new/changed case individually against the live crucible:
    ```
-   tt/rbtd-s.SingleCase.tadmor.sh rbtdrc_sortie_new_case_name
+   tt/rbtd-s.FixtureCase.tadmor.sh rbtdrc_sortie_new_case_name
    ```
 4. Only after all targeted cases pass, run the full fixture for regression:
    ```
-   tt/rbtd-r.Run.tadmor.sh
+   tt/rbtd-r.FixtureRun.tadmor.sh
    ```
    Note: this charges and quenches internally — quench the manual crucible first if one is active (`tt/rbw-cQ.Quench.tadmor.sh`).

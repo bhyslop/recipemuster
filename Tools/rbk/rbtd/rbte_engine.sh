@@ -107,7 +107,7 @@ rbte_run() {
   zrbte_sentinel
 
   local z_fixture="${BURD_TOKEN_3:-}"
-  test -n "${z_fixture}" || buc_die "No fixture imprint — use tabtarget with imprint (e.g. rbtd-r.Run.tadmor.sh)"
+  test -n "${z_fixture}" || buc_die "No fixture imprint — use tabtarget with imprint (e.g. rbtd-r.FixtureRun.tadmor.sh)"
 
   zrbte_build_binary
 
@@ -141,7 +141,7 @@ rbte_single() {
   zrbte_sentinel
 
   local z_fixture="${BURD_TOKEN_3:-}"
-  test -n "${z_fixture}" || buc_die "No fixture imprint — use tabtarget with imprint (e.g. rbtd-s.SingleCase.tadmor.sh)"
+  test -n "${z_fixture}" || buc_die "No fixture imprint — use tabtarget with imprint (e.g. rbtd-s.FixtureCase.tadmor.sh)"
 
   zrbte_build_binary
 

@@ -118,7 +118,7 @@ All credential files require `600` permissions and must never be committed to ve
 
 Test suite/fixture tabtargets use `rbtd-s` and `rbtd-r` colophons:
 - Available test suites: `ls tt/rbtd-s.TestSuite.*`
-- Available test fixtures: `ls tt/rbtd-r.Run.*`
+- Available test fixtures: `ls tt/rbtd-r.FixtureRun.*`
 
 For theurge/ifrit crucible testing work (editing test cases, adding new security probes, debugging test failures), read `Tools/rbk/rbk-claude-theurge-ifrit-context.md` — covers the two-binary architecture, the kludge/charge/test/ordain iteration loop, and how to add new test cases.
 

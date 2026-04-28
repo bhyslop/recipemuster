@@ -57,7 +57,7 @@ fn run_suite(args: &[String]) -> ExitCode {
         None => {
             eprintln!(
                 "rbtd: usage: rbtd <manifest> <fixture>\n\
-                 theurge must be launched via tabtarget (e.g. tt/rbtd-r.Run.tadmor.sh)"
+                 theurge must be launched via tabtarget (e.g. tt/rbtd-r.FixtureRun.tadmor.sh)"
             );
             return ExitCode::FAILURE;
         }

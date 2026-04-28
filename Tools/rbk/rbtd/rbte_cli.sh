@@ -108,9 +108,9 @@ rbte_dispatch() {
     rbtd-s)
       local z_frontispiece="${BURD_TOKEN_2:-}"
       case "${z_frontispiece}" in
-        TestSuite)   rbte_suite "$@" ;;
-        SingleCase)  rbte_single "$@" ;;
-        *)           buc_die "Unknown frontispiece for rbtd-s: ${z_frontispiece} (expected TestSuite|SingleCase)" ;;
+        TestSuite)    rbte_suite "$@" ;;
+        FixtureCase)  rbte_single "$@" ;;
+        *)            buc_die "Unknown frontispiece for rbtd-s: ${z_frontispiece} (expected TestSuite|FixtureCase)" ;;
       esac
       ;;
 
