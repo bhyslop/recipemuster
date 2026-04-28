@@ -20,6 +20,7 @@
 #![allow(non_camel_case_types)]
 #![allow(private_interfaces)]
 
+pub mod rbtdrb_probe;
 pub mod rbtdrc_crucible;
 pub mod rbtdrd_dummy;
 pub mod rbtdre_engine;
@@ -29,6 +30,8 @@ pub mod rbtdri_invocation;
 pub mod rbtdrm_manifest;
 pub mod rbtdrp_pristine;
 
+#[cfg(test)]
+mod rbtdtb_probe;
 #[cfg(test)]
 mod rbtdte_engine;
 #[cfg(test)]

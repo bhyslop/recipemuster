@@ -343,6 +343,33 @@ fn rbtdte_temp_dirs_are_distinct_and_isolated() {
     let _ = std::fs::remove_dir_all(&tmp);
 }
 
+// ── Disposition policy gate ──────────────────────────────────
+
+#[test]
+fn rbtdte_resolve_fail_fast_independent_default_is_fail_fast() {
+    let r = rbtdre_resolve_fail_fast(rbtdre_Disposition::Independent, false).unwrap();
+    assert!(r);
+}
+
+#[test]
+fn rbtdte_resolve_fail_fast_independent_keep_going_permitted() {
+    let r = rbtdre_resolve_fail_fast(rbtdre_Disposition::Independent, true).unwrap();
+    assert!(!r);
+}
+
+#[test]
+fn rbtdte_resolve_fail_fast_state_progressing_default_is_fail_fast() {
+    let r = rbtdre_resolve_fail_fast(rbtdre_Disposition::StateProgressing, false).unwrap();
+    assert!(r);
+}
+
+#[test]
+fn rbtdte_resolve_fail_fast_state_progressing_keep_going_refused() {
+    let err = rbtdre_resolve_fail_fast(rbtdre_Disposition::StateProgressing, true).unwrap_err();
+    assert!(err.contains("StateProgressing"));
+    assert!(err.contains("keep-going"));
+}
+
 // ── Trace file content detail ────────────────────────────────
 
 #[test]

@@ -26,7 +26,9 @@ use std::path::Path;
 use std::process::{Command, Stdio};
 
 use crate::case;
-use crate::rbtdre_engine::{rbtdre_Section, rbtdre_Verdict};
+use crate::rbtdre_engine::{
+    rbtdre_resolve_fail_fast, rbtdre_Disposition, rbtdre_Section, rbtdre_Verdict,
+};
 use crate::rbtdri_invocation::{
     rbtdri_Context, rbtdri_invoke, rbtdri_invoke_global, rbtdri_invoke_imprint,
     rbtdri_parse_ifrit_verdict, rbtdri_read_burv_fact,
@@ -2014,15 +2016,25 @@ pub fn rbtdrc_needs_readiness_delay(fixture: &str) -> bool {
     )
 }
 
+/// Returns the fixture's disposition. StateProgressing fixtures have cases that
+/// build on each other's preconditions; Independent fixtures have self-contained
+/// cases. The disposition determines per-fixture mode policy at the engine layer.
+pub fn rbtdrc_fixture_disposition(fixture: &str) -> rbtdre_Disposition {
+    match fixture {
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_PRISTINE_LIFECYCLE => {
+            rbtdre_Disposition::StateProgressing
+        }
+        _ => rbtdre_Disposition::Independent,
+    }
+}
+
 /// Returns whether full-fixture mode should abort after the first failed case.
-/// The pristine-lifecycle gate (case 1) gates the rest of the fixture: if it
-/// fails, subsequent SA/depot lifecycle cases would burn quota chasing a
-/// non-pristine state, so we short-circuit.
+/// Funnels through the engine's policy gate with keep-going=false (the disposition
+/// default mode); both Independent and StateProgressing dispositions resolve cleanly
+/// in this mode, so the call is infallible.
 pub fn rbtdrc_fixture_fail_fast(fixture: &str) -> bool {
-    matches!(
-        fixture,
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_PRISTINE_LIFECYCLE
-    )
+    rbtdre_resolve_fail_fast(rbtdrc_fixture_disposition(fixture), false)
+        .expect("disposition-default mode never fails policy resolution")
 }
 
 /// Returns the section array appropriate for the given fixture.

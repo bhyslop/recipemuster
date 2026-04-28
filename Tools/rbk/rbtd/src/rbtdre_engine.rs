@@ -28,6 +28,45 @@ pub enum rbtdre_Verdict {
     Skip(String),
 }
 
+// ── Disposition ────────────────────────────────────────────────
+
+/// Fixture disposition controls per-fixture mode policy at the engine layer.
+///
+/// `Independent` — cases are self-contained; suite-order is informational. Engine
+/// permits keep-going mode for surveying.
+///
+/// `StateProgressing` — case N's success establishes preconditions for case N+1.
+/// Engine refuses keep-going mode (a failed case leaves a broken precondition for
+/// the next case, so continuing is incoherent). Fail-fast is forced.
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+pub enum rbtdre_Disposition {
+    Independent,
+    StateProgressing,
+}
+
+/// Resolve the effective fail-fast bool from a disposition and a caller's
+/// requested keep-going mode. Returns Err if the request is incompatible with
+/// the disposition (StateProgressing + keep-going).
+///
+/// Centralizes the keep-going / fail-fast policy at the engine boundary so all
+/// callers funnel through one place.
+pub fn rbtdre_resolve_fail_fast(
+    disposition: rbtdre_Disposition,
+    keep_going_requested: bool,
+) -> Result<bool, String> {
+    match (disposition, keep_going_requested) {
+        (rbtdre_Disposition::StateProgressing, true) => Err(
+            "rbtd: keep-going mode refused for StateProgressing fixture — \
+             a failed case leaves a broken precondition for the next case, \
+             so continuing is incoherent. Run individual cases via the \
+             SingleCase tabtarget if you want to survey."
+                .to_string(),
+        ),
+        (rbtdre_Disposition::StateProgressing, false) => Ok(true),
+        (rbtdre_Disposition::Independent, keep_going) => Ok(!keep_going),
+    }
+}
+
 // ── Case and Section ───────────────────────────────────────────
 
 /// A named test case with a function that receives its isolated temp directory.
