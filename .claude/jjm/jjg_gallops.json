@@ -1,6 +1,6 @@
 {
   "schema_version": 4,
-  "next_heat_seed": "BC",
+  "next_heat_seed": "BD",
   "heat_order": [
     "₣BB",
     "₣BA",
@@ -25,7 +25,8 @@
     "₣Aa",
     "₣Ap",
     "₣Aq",
-    "₣Au"
+    "₣Au",
+    "₣BC"
   ],
   "heats": {
     "₣A-": {
@@ -7653,6 +7654,15 @@
           ]
         }
       }
+    },
+    "₣BC": {
+      "silks": "rbk-mvp-3-theurge-self-test",
+      "creation_time": "260428",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uBuC.md",
+      "paces": {}
     }
   }
 }
