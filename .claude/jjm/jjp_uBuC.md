@@ -4,7 +4,7 @@ Split from ₣BB rbk-mvp-3-release-qualification to decouple theurge framework s
 
 ## Cross-heat coupling
 
-Mounts after ₣BB's BBAAh (calibrant fixture foundation) commits. The four fixtures BBAAh registers — `calibrant-verdicts`, `calibrant-fail-fast`, `calibrant-progressing`, `calibrant-sentinel` — are this heat's blackbox subjects. ₣BB's paddock § "Bash blackbox calibrant — design" and the BBAAh commit carry the fixture catalog, anchor-word rationale, and module-rename decisions; mount-time agents read those for fixture-contract detail rather than restating here.
+Mounts after ₣BB's BBAAh (calibrant fixture foundation) commits. The four fixtures BBAAh registers — `calibrant-verdicts`, `calibrant-fail-fast`, `calibrant-progressing`, `calibrant-sentinel` — are this heat's blackbox subjects. ₣BB's paddock § "Calibrant fixture family — BBAAh" and the BBAAh commit carry the fixture catalog, anchor-word rationale, and module-rename decisions; mount-time agents read those for fixture-contract detail rather than restating here.
 
 ## Origin gaps — two design pillars
 
@@ -55,7 +55,7 @@ Bash driver (BCAAD) — section `manifest-coverage`, 4 cases: `coverage-aligned-
 
 ## References
 
-- ₣BB paddock § "Bash blackbox calibrant — design" — fixture-family origin, anchor-word rationale, sub-pace catalog
+- ₣BB paddock § "Calibrant fixture family — BBAAh" — anchor-word rationale, module-rename decision, Rust fixture catalog
 - ₣BB BBAAh — calibrant fixture foundation (prerequisite)
 - BBAAd — engine concepts (`rbtdre_Disposition`, `rbtdre_resolve_fail_fast`, `rbtdrb_Probe`)
 - `rbtdri_invoke`, `rbtdri_invoke_global`, `rbtdri_invoke_imprint` — chokepoint primitives BCAAB modifies
