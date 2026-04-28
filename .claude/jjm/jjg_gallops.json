@@ -6680,6 +6680,7 @@
         "₢BBAAK",
         "₢BBAAP",
         "₢BBAAd",
+        "₢BBAAe",
         "₢BBAAc",
         "₢BBAAW",
         "₢BBAAX",
@@ -6691,7 +6692,7 @@
         "₢BBAAH",
         "₢BBAAI"
       ],
-      "next_pace_seed": "AAe",
+      "next_pace_seed": "AAf",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAAA": {
@@ -7420,6 +7421,17 @@
               "text": "## Character\n\nEngine-layer foundation for the gauntlet test suite redesign. Adds the fixture-disposition concept so per-fixture mode policy can be enforced at the engine layer, and stubs the precondition-probe helper module that subsequent fixture paces will populate. Mechanical implementation pace; no test code added, only engine concepts.\n\nIntent-only docket. Code-level planning happens at mount time.\n\n## Scope\n\n- Fixture-disposition concept (Independent | StateProgressing) on the fixture struct\n- Per-fixture mode policy: state-progressing fixtures refuse keep-going mode at engine level\n- Suite-level fail-fast across cross-fixture boundary: verify existing behavior matches paddock contract or add policy\n- Precondition-probe helper module — stub with extractable shape, populated by subsequent fixture paces\n\n## Cross-pace dependencies\n\n- BBAAK landed (carries the disposition tag retrofit on pristine-lifecycle, exercises the engine concept on existing fixture)\n\n## Out of scope\n\n- New fixtures (canonical-establish, canonical-onboarding-sequence — subsequent paces own their own probes)\n- Gauntlet suite definition (gauntlet-suite-assembly)\n- Per-case probe implementations (each fixture pace populates its own under the helper-module shape)\n- Keep-going tabtarget variants (deferred — no concrete development workflow demands it yet)",
               "silks": "gauntlet-engine-foundation",
               "commit": "081b91d"
+            }
+          ]
+        },
+        "₢BBAAe": {
+          "tacks": [
+            {
+              "ts": "260428-0704",
+              "state": "rough",
+              "text": "## Character\n\nFirst state-progressing fixture for the gauntlet test suite. Wraps §2 of the release-qualification sequence — canonical depot levy, governor mantle, retriever invest, director invest, IAM propagation wait. Sets the precondition-probe pattern subsequent state-progressing fixtures inherit.\n\nService-tier — needs GCP credentials. Intent-only docket. Code-level planning happens at mount time.\n\n## Scope\n\n- New fixture covering §2 cases: canonical-depot-levy, governor-mantle, retriever-invest, director-invest, iam-propagation-wait\n- Each case carries a precondition probe — refuses cleanly with operator-actionable diagnostic if expected state absent\n- Disposition: StateProgressing\n- Manifest registration\n\n## Cross-pace dependencies\n\n- gauntlet-engine-foundation landed (Disposition concept + probe-helper shape)\n\n## Out of scope\n\n- Onboarding-sequence fixture (subsequent pace)\n- Suite assembly (gauntlet-suite-assembly)\n- Live end-to-end cloud validation (BBAAX)\n- Teardown — operator peeks post-success, then runs cleanup tabtargets manually",
+              "silks": "gauntlet-canonical-establish",
+              "commit": "80181f2"
             }
           ]
         }
