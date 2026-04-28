@@ -57,6 +57,13 @@ zrbgc_kindle() {
   readonly RBGC_SA_KEY_CREATE_RETRY_MAX=7
   readonly RBGC_SA_KEY_CREATE_RETRY_DELAY_SEC=10
 
+  # JWT-bearer mint propagation probe — bound the post-write race where a
+  # freshly-written RBRA cannot yet exchange its JWT for an OAuth token.
+  # 90s budget locked by ₣BB pristine-tier contract; cadence below.
+  readonly RBGC_SA_KEY_PROBE_BUDGET_SEC=90
+  readonly RBGC_SA_KEY_PROBE_INITIAL_DELAY_SEC=2
+  readonly RBGC_SA_KEY_PROBE_MAX_DELAY_SEC=15
+
   # URL Roots & Well-known Endpoints
   readonly RBGC_OAUTH_TOKEN_URL="https://oauth2.googleapis.com/token"
   readonly RBGC_API_ROOT_IAM="https://iam.googleapis.com"

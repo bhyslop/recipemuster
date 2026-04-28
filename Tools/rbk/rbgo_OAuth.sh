@@ -51,6 +51,7 @@ zrbgo_kindle() {
   readonly ZRBGO_OPENSSL_STDERR_FILE="${BURD_TEMP_DIR}/rbgo_openssl_stderr.txt"
   readonly ZRBGO_CURL_STDERR_FILE="${BURD_TEMP_DIR}/rbgo_curl_stderr.txt"
   readonly ZRBGO_JQ_STDERR_FILE="${BURD_TEMP_DIR}/rbgo_jq_stderr.txt"
+  readonly ZRBGO_PROBE_STDERR_FILE="${BURD_TEMP_DIR}/rbgo_probe_stderr.txt"
 
   readonly ZRBGO_KINDLED=1
 }
@@ -199,6 +200,54 @@ rbgo_get_token_capture() {
   z_token=$(zrbgo_exchange_jwt_capture "${z_jwt}") || return 1
 
   printf '%s\n' "${z_token}"
+}
+
+# Bound the post-write race where Google's auth backend has not yet accepted
+# the freshly-minted SA key — die on timeout per pristine-tier contract.
+rbgo_probe_jwt_bearer_propagation() {
+  zrbgo_sentinel
+
+  local -r z_rbra_file="${1:-}"
+  local -r z_role_label="${2:-}"
+
+  buc_doc_brief "Probe JWT-bearer mint until freshly-written RBRA is usable"
+  buc_doc_param "rbra_file"  "Path to just-written RBRA credentials file"
+  buc_doc_param "role_label" "Diagnostic label for timeout/success messages"
+  buc_doc_shown || return 0
+
+  test -n "${z_rbra_file}"  || buc_die "rbra_file required"
+  test -n "${z_role_label}" || buc_die "role_label required"
+  test -f "${z_rbra_file}"  || buc_die "RBRA file not found: ${z_rbra_file}"
+
+  buc_step "JWT-bearer propagation probe [${z_role_label}]: budget ${RBGC_SA_KEY_PROBE_BUDGET_SEC}s"
+
+  local z_attempt=0
+  local z_elapsed=0
+  local z_delay="${RBGC_SA_KEY_PROBE_INITIAL_DELAY_SEC}"
+  local z_token=""
+  local z_status=0
+
+  while :; do
+    z_attempt=$((z_attempt + 1))
+
+    z_token=""
+    z_status=0
+    z_token=$(rbgo_get_token_capture "${z_rbra_file}" 2>"${ZRBGO_PROBE_STDERR_FILE}") || z_status=$?
+
+    if test "${z_status}" -eq 0 && test -n "${z_token}"; then
+      buc_step "JWT-bearer probe [${z_role_label}]: OK after ${z_attempt} attempt(s), ${z_elapsed}s elapsed"
+      return 0
+    fi
+
+    test "${z_elapsed}" -lt "${RBGC_SA_KEY_PROBE_BUDGET_SEC}" \
+      || buc_die "JWT-bearer probe [${z_role_label}]: timeout after ${z_elapsed}s (${z_attempt} attempts) — RBRA at ${z_rbra_file} not mintable; last stderr: ${ZRBGO_PROBE_STDERR_FILE}"
+
+    buc_log_args "JWT-bearer probe [${z_role_label}]: attempt ${z_attempt} failed at ${z_elapsed}s, sleep ${z_delay}s"
+    sleep "${z_delay}"
+    z_elapsed=$((z_elapsed + z_delay))
+    z_delay=$((z_delay * 2))
+    test "${z_delay}" -le "${RBGC_SA_KEY_PROBE_MAX_DELAY_SEC}" || z_delay="${RBGC_SA_KEY_PROBE_MAX_DELAY_SEC}"
+  done
 }
 
 # eof
