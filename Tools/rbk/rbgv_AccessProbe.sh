@@ -160,20 +160,42 @@ zrbgv_http_get_with_5xx_retry() {
   done
 }
 
-# Execute one Artifact Registry packages.list probe iteration for a JWT SA role.
-# Writes response to ZRBGV_AR_RESP_FILE, HTTP code to ZRBGV_AR_CODE_FILE,
-# and stderr to ZRBGV_AR_STDERR_FILE (kindle-constant paths for forensic visibility).
-zrbgv_jwt_ar_probe_once() {
+# Extract '.error.message' from a JSON response file for diagnostic surfacing.
+# Returns a fallback string for empty/missing/malformed bodies. jq stderr captured
+# to the paired stderr file (no suppression). Exactly one line printed in all paths.
+zrbgv_jq_error_message_capture() {
   zrbgv_sentinel
 
-  local z_role="${1}"
-  local z_iteration="${2}"
+  local -r z_resp_file="${1}"
+  local -r z_stderr_file="${2}"
 
-  buc_log_args "JWT SA probe iteration ${z_iteration} for role '${z_role}'"
+  test -s "${z_resp_file}" \
+    || { printf 'empty response body\n'; return 0; }
+
+  jq -e . "${z_resp_file}" > /dev/null 2>>"${z_stderr_file}" \
+    || { printf 'non-JSON response body — see %s\n' "${z_stderr_file}"; return 0; }
+
+  jq -r '.error.message // "no error.message field"' "${z_resp_file}" 2>>"${z_stderr_file}" \
+    || printf 'jq extraction failed — see %s\n' "${z_stderr_file}"
+}
+
+# Execute one Artifact Registry packages.list probe call for a JWT SA role.
+# Pure observation: populates ZRBGV_AR_RESP_FILE, ZRBGV_AR_CODE_FILE, ZRBGV_AR_STDERR_FILE
+# and prints the resulting HTTP code to stdout. Verdict logic lives in the caller
+# (rbgv_jwt_sa_probe) which has loop context to discriminate retry-on-403 from
+# fail-fast on other shapes. buc_dies only on infrastructure failures.
+zrbgv_jwt_ar_probe_once_capture() {
+  zrbgv_sentinel
+
+  local -r z_role="${1}"
+  local -r z_attempt="${2}"
+
+  buc_log_args "JWT SA probe attempt ${z_attempt} for role '${z_role}'"
 
   buc_log_args "Resolve RBRA file for role"
   local z_rbra_file
-  z_rbra_file=$(zrbgv_role_rbra_file_capture "${z_role}") || return 1
+  z_rbra_file=$(zrbgv_role_rbra_file_capture "${z_role}") \
+    || buc_die "Failed to resolve RBRA file for role ${z_role}"
 
   buc_log_args "Validate RBRA file exists"
   test -f "${z_rbra_file}" || buc_die "RBRA file not found for role ${z_role}: ${z_rbra_file}"
@@ -181,8 +203,8 @@ zrbgv_jwt_ar_probe_once() {
   buc_log_args "Exchange JWT for OAuth token"
   local z_token
   z_token=$(rbgo_get_token_capture "${z_rbra_file}") \
-    || buc_die "Failed to obtain OAuth token for role ${z_role} (iteration ${z_iteration})"
-  test -n "${z_token}" || buc_die "Empty OAuth token for role ${z_role} (iteration ${z_iteration})"
+    || buc_die "Failed to obtain OAuth token for role ${z_role} (attempt ${z_attempt})"
+  test -n "${z_token}" || buc_die "Empty OAuth token for role ${z_role} (attempt ${z_attempt})"
 
   buc_log_args "Build Artifact Registry packages.list URL"
   test -n "${RBDC_DEPOT_PROJECT_ID:-}" || buc_die "RBDC_DEPOT_PROJECT_ID is not set"
@@ -190,7 +212,7 @@ zrbgv_jwt_ar_probe_once() {
   test -n "${RBDC_GAR_REPOSITORY:-}"   || buc_die "RBDC_GAR_REPOSITORY is not set"
 
   local -r z_ar_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/locations/${RBRR_GCP_REGION}/repositories/${RBDC_GAR_REPOSITORY}/packages"
-  local -r z_ar_label="JWT SA probe [${z_role}] iteration ${z_iteration}"
+  local -r z_ar_label="JWT SA probe [${z_role}] attempt ${z_attempt}"
 
   buc_log_args "Call Artifact Registry packages.list (with transient-5xx retry)"
   zrbgv_http_get_with_5xx_retry \
@@ -205,25 +227,9 @@ zrbgv_jwt_ar_probe_once() {
   z_code=$(<"${ZRBGV_AR_CODE_FILE}") || buc_die "Failed to read AR HTTP code file"
   test -n "${z_code}"                || buc_die "Empty HTTP code from AR curl"
 
-  buc_log_args "AR packages.list HTTP ${z_code} for role ${z_role} iteration ${z_iteration}"
+  buc_log_args "AR packages.list HTTP ${z_code} for role ${z_role} attempt ${z_attempt}"
 
-  case "${z_code}" in
-    200|206)
-      buc_step "JWT SA probe [${z_role}] iteration ${z_iteration}: OK (HTTP ${z_code})"
-      ;;
-    401|403)
-      buc_die "JWT SA probe [${z_role}] iteration ${z_iteration}: access denied (HTTP ${z_code})"
-      ;;
-    *)
-      local z_err=""
-      if jq -e . "${ZRBGV_AR_RESP_FILE}" >/dev/null 2>&1; then
-        z_err=$(jq -r '.error.message // "Unknown error"' "${ZRBGV_AR_RESP_FILE}" 2>/dev/null) || z_err="Unknown error"
-      else
-        z_err="Non-JSON response (HTTP ${z_code})"
-      fi
-      buc_die "JWT SA probe [${z_role}] iteration ${z_iteration}: unexpected HTTP ${z_code}: ${z_err}"
-      ;;
-  esac
+  printf '%s\n' "${z_code}"
 }
 
 # Execute one CRM projects.get probe iteration for the Payor OAuth flow.
@@ -287,10 +293,11 @@ zrbgv_payor_crm_probe_once() {
 
 # Probe 1: JWT SA Access Probe
 #
-# For each iteration:
-#   1. Exchange JWT for OAuth token via rbgo_get_token_capture with role's RBRA file
-#   2. Call Artifact Registry packages.list to verify token grants read access
-#   3. Sleep for configured delay
+# Bounded propagation-absorbing retry. First HTTP 200/206 wins; HTTP 403 (the
+# IAM-policy-read 'not yet' signature in the post-mint window) retries with delay;
+# any other HTTP code dies with body summary. Past max attempts on 403, dies with
+# body summary as 'budget exhausted'. Layers cleanly with rbgo_get_token_capture's
+# JWT-signature retry: each layer recognizes its own 'not yet' and retries.
 #
 # All three roles have read access:
 #   Governor  = Owner
@@ -299,14 +306,14 @@ zrbgv_payor_crm_probe_once() {
 rbgv_jwt_sa_probe() {
   zrbgv_sentinel
 
-  local z_role="${1:-}"
-  local z_count="${2:-1}"
-  local z_delay_ms="${3:-0}"
+  local -r z_role="${1:-}"
+  local -r z_count="${2:-1}"
+  local -r z_delay_ms="${3:-0}"
 
   buc_doc_brief "Probe JWT service account access for a given role against Artifact Registry"
   buc_doc_param "role"     "Role to probe: governor | director | retriever"
-  buc_doc_param "count"    "Number of iterations (default: 1)"
-  buc_doc_param "delay_ms" "Milliseconds to sleep between iterations (default: 0)"
+  buc_doc_param "count"    "Maximum attempts; first 2xx wins, retries on HTTP 403 (default: 1)"
+  buc_doc_param "delay_ms" "Milliseconds to sleep between retries (default: 0)"
   buc_doc_shown || return 0
 
   test -n "${z_role}"  || buc_die "role parameter required (governor | director | retriever)"
@@ -316,21 +323,44 @@ rbgv_jwt_sa_probe() {
 
   local z_iter=1
   while test "${z_iter}" -le "${z_count}"; do
-    buc_step "JWT SA probe [${z_role}] iteration ${z_iter}/${z_count}"
+    buc_step "JWT SA probe [${z_role}] attempt ${z_iter}/${z_count}"
 
-    zrbgv_jwt_ar_probe_once "${z_role}" "${z_iter}"
+    local z_code
+    z_code=$(zrbgv_jwt_ar_probe_once_capture "${z_role}" "${z_iter}") \
+      || buc_die "JWT SA probe [${z_role}] attempt ${z_iter}: probe-once observation failed"
+    test -n "${z_code}" || buc_die "JWT SA probe [${z_role}] attempt ${z_iter}: empty HTTP code"
 
-    if test "${z_iter}" -lt "${z_count}" && test "${z_delay_ms}" -gt 0; then
-      local z_sleep
-      z_sleep=$(zrbgv_ms_to_sleep_capture "${z_delay_ms}")
-      buc_log_args "Sleeping ${z_sleep}s (${z_delay_ms}ms) before next iteration"
-      sleep "${z_sleep}"
-    fi
+    case "${z_code}" in
+      200|206)
+        buc_step "JWT SA probe [${z_role}] attempt ${z_iter}: OK (HTTP ${z_code})"
+        return 0
+        ;;
+      403)
+        if test "${z_iter}" -lt "${z_count}"; then
+          buc_step "JWT SA probe [${z_role}] attempt ${z_iter}: 'not yet' (HTTP 403); retrying"
+          if test "${z_delay_ms}" -gt 0; then
+            local z_sleep
+            z_sleep=$(zrbgv_ms_to_sleep_capture "${z_delay_ms}")
+            buc_log_args "Sleeping ${z_sleep}s (${z_delay_ms}ms) before next attempt"
+            sleep "${z_sleep}"
+          fi
+        else
+          local z_err
+          z_err=$(zrbgv_jq_error_message_capture "${ZRBGV_AR_RESP_FILE}" "${ZRBGV_AR_STDERR_FILE}")
+          buc_die "JWT SA probe [${z_role}] attempt ${z_iter}: propagation budget exhausted (HTTP 403): ${z_err}"
+        fi
+        ;;
+      *)
+        local z_err
+        z_err=$(zrbgv_jq_error_message_capture "${ZRBGV_AR_RESP_FILE}" "${ZRBGV_AR_STDERR_FILE}")
+        buc_die "JWT SA probe [${z_role}] attempt ${z_iter}: unexpected HTTP ${z_code}: ${z_err}"
+        ;;
+    esac
 
     z_iter=$(( z_iter + 1 ))
   done
 
-  buc_step "JWT SA access probe complete: role=${z_role} iterations=${z_count}"
+  buc_die "JWT SA probe [${z_role}]: loop exited without verdict — internal logic error"
 }
 
 # Probe 2: Payor OAuth Access Probe

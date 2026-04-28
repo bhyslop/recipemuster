@@ -152,19 +152,25 @@ rbte_single() {
 rbte_probe() {
   zrbte_sentinel
 
-  local z_role="${BURD_TOKEN_3:-}"
+  local -r z_role="${BURD_TOKEN_3:-}"
   test -n "${z_role}" || buc_die "No role imprint — use tabtarget with imprint (e.g. rbtd-ap.AccessProbe.governor.sh)"
-
-  local z_iterations=5
-  local z_delay_ms=1500
 
   case "${z_role}" in
     governor|director|retriever)
+      # JWT SA propagation-absorbing budget: 60 attempts × 3000ms ≈ 180s worst case.
+      # Happy path exits on first 2xx; budget consumed only when post-mint IAM
+      # propagation lags. Each retry mints a fresh JWT-OAuth token, so the inner
+      # rbgo_get_token_capture race (BBAAp) is exercised independently per attempt.
+      local -r z_iterations=60
+      local -r z_delay_ms=3000
       buc_step "JWT SA access probe: ${z_role}"
       rbgv_jwt_sa_probe "${z_role}" "${z_iterations}" "${z_delay_ms}"
       buc_success "${z_role} JWT access probe passed"
       ;;
     payor)
+      # Payor probe semantic unchanged: stability-sample loop.
+      local -r z_iterations=5
+      local -r z_delay_ms=1500
       buc_step "Payor OAuth access probe"
       source "${RBBC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBBC_rbrp_file}"
       zrbrp_kindle
