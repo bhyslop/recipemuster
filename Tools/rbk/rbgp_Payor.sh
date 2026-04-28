@@ -1388,7 +1388,7 @@ rbgp_governor_mantle() {
 
   rm -f "${z_key_json}" || buc_die "Failed to remove temp key file: ${z_key_json}"
 
-  rbgo_probe_jwt_bearer_propagation "${z_rbra_file}" "${RBCC_role_governor}-${z_governor_account_id}"
+  rbgo_probe_jwt_bearer_propagation "${z_rbra_file}" "${z_governor_account_id}"
 
   buc_success "Governor reset completed successfully"
   buc_info "Governor service account: ${z_governor_email}"
