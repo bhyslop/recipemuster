@@ -6682,10 +6682,6 @@
         "₢BBAAP",
         "₢BBAAd",
         "₢BBAAh",
-        "₢BBAAi",
-        "₢BBAAj",
-        "₢BBAAk",
-        "₢BBAAl",
         "₢BBAAe",
         "₢BBAAc",
         "₢BBAAf",
@@ -7608,9 +7604,31 @@
               "commit": "ac03bad"
             }
           ]
-        },
-        "₢BBAAi": {
+        }
+      }
+    },
+    "₣BC": {
+      "silks": "rbk-mvp-3-theurge-self-test",
+      "creation_time": "260428",
+      "status": "stabled",
+      "order": [
+        "₢BCAAA",
+        "₢BCAAB",
+        "₢BCAAC",
+        "₢BCAAD"
+      ],
+      "next_pace_seed": "AAE",
+      "paddock_file": ".claude/jjm/jjp_uBuC.md",
+      "paces": {
+        "₢BCAAA": {
           "tacks": [
+            {
+              "ts": "260428-0832",
+              "state": "rough",
+              "text": "Drafted from ₢BBAAi in ₣BB.\n\n## Character\n\nBUK-side testbench wiring that black-box-drives the calibrant fixtures (Pace BBAAh) through the `rbtd` binary. Asserts CLI exit codes, stderr diagnostic format, fail-fast policy across fixture and suite layers, and the disposition × keep-going gate landed in BBAAd. The bash layer covers what Rust unit tests cannot honestly self-test: the binary's operator-facing surface and the bash bridge's reaction to verdicts.\n\nIntent-only docket. Section/case catalog locked in paddock — see \"Bash blackbox calibrant — design.\" Case organization, assertion helpers, exact zipper colophon, and tabtarget naming chosen at mount time.\n\n## Scope\n\n- New module `Tools/rbk/rbtt_testbench.sh` registering 14 cases across 6 sections per paddock catalog.\n- Six case files in `Tools/rbk/rbts/rbtc*_*.sh` — one per section.\n- Zipper entry in `rbz_zipper.sh` mapping new colophon → testbench module.\n- One tabtarget stub in `tt/` (one-line exec, with-the-grain).\n- Release runbook entry documenting `buw-st` → new-colophon sequence.\n\n## Out of scope\n\n- Rust-side fixture work (Pace BBAAh).\n- Cross-kit composition (BUK fixtures registered in rbk testbench).\n- Orchestrating tabtargets that exec multiple children.\n- Explicit BURV-chain regression tests (incidentally exercised; no dedicated cases).\n\n## Depends on\n\nPace BBAAh (calibrant-fixture-foundation) — needs the calibrant fixtures registered in the manifest and the `calibrant` suite available before bash assertions can pass.",
+              "silks": "calibrant-bash-blackbox-driver",
+              "commit": "a68b66d"
+            },
             {
               "ts": "260428-0802",
               "state": "rough",
@@ -7620,8 +7638,15 @@
             }
           ]
         },
-        "₢BBAAj": {
+        "₢BCAAB": {
           "tacks": [
+            {
+              "ts": "260428-0832",
+              "state": "rough",
+              "text": "Drafted from ₢BBAAj in ₣BB.\n\n## Character\n\nTighten rbtdrm's per-fixture required-colophons list from \"asserted superset\" to \"exhaustive subset\". Two runtime checks, both at the rbtdri_invoke_* primitive chokepoint:\n\n- Positive: every invoked colophon must be in the fixture's declared list — refuse otherwise.\n- Negative: every declared colophon must have been invoked at least once on a successful full-fixture run — fail otherwise.\n\nSurgical refactor; no case-body edits expected. The audit risk for the negative check surfaces at turn-on; existing TestSuite runs serve as the audit gate.\n\n## Scope\n\n- rbtdri_Context tracks declared and used colophon sets\n- All three invoke primitives (rbtdri_invoke, _global, _imprint) refuse undeclared invocations and record successful ones\n- run_suite enforces the negative check after run_sections returns success (gated on result.failed == 0 — failure paths suppress the check)\n- run_single enforces positive only — single-case cannot satisfy exhaustiveness by construction\n- Unit tests covering both check directions and the single-case exemption\n- Operator-facing diagnostics name the fixture and the offending colophon\n\n## Cross-pace dependencies\n\nNone. The check applies to all theurge fixtures, independent of gauntlet assembly.\n\n## Out of scope\n\n- Imprint coverage (which nameplate a per-imprint colophon was called with), argument patterns, compile-time/static analysis\n- Phase-split into two paces — implement both checks together; the TestSuite run is the validation gate\n- Any fixture-level declaration edits — the implementation should pass clean against current declarations or surface a real stale entry as a separate find",
+              "silks": "theurge-manifest-coverage-check",
+              "commit": "a68b66d"
+            },
             {
               "ts": "260428-0809",
               "state": "rough",
@@ -7631,8 +7656,15 @@
             }
           ]
         },
-        "₢BBAAk": {
+        "₢BCAAC": {
           "tacks": [
+            {
+              "ts": "260428-0832",
+              "state": "rough",
+              "text": "Drafted from ₢BBAAk in ₣BB.\n\n## Character\n\nRust extension to the calibrant family proving BBAAj's runtime manifest-coverage checks land their diagnostics. Three synthetic fixtures with deliberately aligned or mis-declared manifests; one synthetic theurge-internal noop tabtarget the fixtures invoke without cloud or filesystem side-effects. Self-contained — bash driver pace consumes this but does not land here.\n\nIntent-only docket. Catalog locked below; module placement, tabtarget naming, manifest constant naming chosen at mount time.\n\n## Scope\n\n- Synthetic noop tabtarget, theurge-internal (rbtd-l* family — parity with rbtdrl_calibrant.rs).\n- Three new fixtures in the calibrant family (Independent disposition):\n  - calibrant-coverage-aligned: manifest declares noop, case invokes noop → Pass.\n  - calibrant-coverage-undeclared: manifest declares nothing, case invokes noop → fixture-level FAIL via positive check.\n  - calibrant-coverage-unused: manifest declares noop, case invokes nothing → fixture-level FAIL via negative check.\n- Manifest entries + disposition tags.\n- Rust unit tests pin only registration shape; verdict assertions live in the bash driver pace.\n\n## Depends on\n\n- BBAAh (calibrant-fixture-foundation) — needs rbtdrl_calibrant.rs and the calibrant-family scaffolding.\n- BBAAj (theurge-manifest-coverage-check) — without the runtime checks landed, the failing fixtures pass instead of fail.\n\n## Out of scope\n\n- Bash assertions on exit code or stderr shape — sibling pace.\n- Inclusion in the calibrant suite — these fixtures are standalone-invoked so the existing suite-fail-fast assertions remain clean.\n- Cross-kit composition.",
+              "silks": "calibrant-coverage-foundation",
+              "commit": "a68b66d"
+            },
             {
               "ts": "260428-0815",
               "state": "rough",
@@ -7642,8 +7674,15 @@
             }
           ]
         },
-        "₢BBAAl": {
+        "₢BCAAD": {
           "tacks": [
+            {
+              "ts": "260428-0832",
+              "state": "rough",
+              "text": "Drafted from ₢BBAAl in ₣BB.\n\n## Character\n\nBUK-side testbench extension that black-box-drives the three coverage fixtures from the sibling Rust pace (BBAAk) through the rbtd binary. Asserts CLI exit codes and stderr diagnostic shapes for the positive check (invoked-not-declared) and the negative check (declared-not-invoked), plus the single-case exemption for the negative check.\n\nIntent-only docket. Section and case catalog below; case-file naming and assertion helpers chosen at mount time.\n\n## Scope\n\n- New section manifest-coverage in rbtt_testbench.sh, four cases:\n  - coverage-aligned-passes — Run.calibrant-coverage-aligned exits 0.\n  - coverage-undeclared-fails — Run.calibrant-coverage-undeclared exits non-zero; stderr matches the positive-check diagnostic naming the offending colophon.\n  - coverage-unused-fails — Run.calibrant-coverage-unused exits non-zero; stderr names the unused colophon.\n  - coverage-single-case-skips-negative — SingleCase invocation of calibrant-coverage-unused's case exits 0 (proves the single-case exemption).\n- Case files in Tools/rbk/rbts/ following BBAAi convention.\n- Tabtarget(s) where manifest-driven generation yields them; testbench colophon registration.\n\n## Depends on\n\n- BBAAk (calibrant-coverage-foundation) — needs the three fixtures and the noop tabtarget.\n- BBAAi (calibrant-bash-blackbox-driver) — needs rbtt_testbench.sh and the case-file convention.\n- BBAAj (theurge-manifest-coverage-check) — transitively, via the Rust fixtures.\n\n## Out of scope\n\n- Rust-side fixture work (sibling pace).\n- New testbench infrastructure.\n- Trace-file shape contracts beyond exit code + stderr substring.",
+              "silks": "calibrant-coverage-driver",
+              "commit": "a68b66d"
+            },
             {
               "ts": "260428-0815",
               "state": "rough",
@@ -7654,15 +7693,6 @@
           ]
         }
       }
-    },
-    "₣BC": {
-      "silks": "rbk-mvp-3-theurge-self-test",
-      "creation_time": "260428",
-      "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
-      "paddock_file": ".claude/jjm/jjp_uBuC.md",
-      "paces": {}
     }
   }
 }
