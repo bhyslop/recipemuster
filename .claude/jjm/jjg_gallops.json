@@ -6694,9 +6694,10 @@
         "₢BBAAF",
         "₢BBAAG",
         "₢BBAAH",
-        "₢BBAAI"
+        "₢BBAAI",
+        "₢BBAAj"
       ],
-      "next_pace_seed": "AAj",
+      "next_pace_seed": "AAk",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAAA": {
@@ -7599,6 +7600,17 @@
               "text": "## Character\n\nBUK-side testbench wiring that black-box-drives the calibrant fixtures (Pace BBAAh) through the `rbtd` binary. Asserts CLI exit codes, stderr diagnostic format, fail-fast policy across fixture and suite layers, and the disposition × keep-going gate landed in BBAAd. The bash layer covers what Rust unit tests cannot honestly self-test: the binary's operator-facing surface and the bash bridge's reaction to verdicts.\n\nIntent-only docket. Section/case catalog locked in paddock — see \"Bash blackbox calibrant — design.\" Case organization, assertion helpers, exact zipper colophon, and tabtarget naming chosen at mount time.\n\n## Scope\n\n- New module `Tools/rbk/rbtt_testbench.sh` registering 14 cases across 6 sections per paddock catalog.\n- Six case files in `Tools/rbk/rbts/rbtc*_*.sh` — one per section.\n- Zipper entry in `rbz_zipper.sh` mapping new colophon → testbench module.\n- One tabtarget stub in `tt/` (one-line exec, with-the-grain).\n- Release runbook entry documenting `buw-st` → new-colophon sequence.\n\n## Out of scope\n\n- Rust-side fixture work (Pace BBAAh).\n- Cross-kit composition (BUK fixtures registered in rbk testbench).\n- Orchestrating tabtargets that exec multiple children.\n- Explicit BURV-chain regression tests (incidentally exercised; no dedicated cases).\n\n## Depends on\n\nPace BBAAh (calibrant-fixture-foundation) — needs the calibrant fixtures registered in the manifest and the `calibrant` suite available before bash assertions can pass.",
               "silks": "calibrant-bash-blackbox-driver",
               "commit": "8c7a8d6"
+            }
+          ]
+        },
+        "₢BBAAj": {
+          "tacks": [
+            {
+              "ts": "260428-0809",
+              "state": "rough",
+              "text": "## Character\n\nTighten rbtdrm's per-fixture required-colophons list from \"asserted superset\" to \"exhaustive subset\". Two runtime checks, both at the rbtdri_invoke_* primitive chokepoint:\n\n- Positive: every invoked colophon must be in the fixture's declared list — refuse otherwise.\n- Negative: every declared colophon must have been invoked at least once on a successful full-fixture run — fail otherwise.\n\nSurgical refactor; no case-body edits expected. The audit risk for the negative check surfaces at turn-on; existing TestSuite runs serve as the audit gate.\n\n## Scope\n\n- rbtdri_Context tracks declared and used colophon sets\n- All three invoke primitives (rbtdri_invoke, _global, _imprint) refuse undeclared invocations and record successful ones\n- run_suite enforces the negative check after run_sections returns success (gated on result.failed == 0 — failure paths suppress the check)\n- run_single enforces positive only — single-case cannot satisfy exhaustiveness by construction\n- Unit tests covering both check directions and the single-case exemption\n- Operator-facing diagnostics name the fixture and the offending colophon\n\n## Cross-pace dependencies\n\nNone. The check applies to all theurge fixtures, independent of gauntlet assembly.\n\n## Out of scope\n\n- Imprint coverage (which nameplate a per-imprint colophon was called with), argument patterns, compile-time/static analysis\n- Phase-split into two paces — implement both checks together; the TestSuite run is the validation gate\n- Any fixture-level declaration edits — the implementation should pass clean against current declarations or surface a real stale entry as a separate find",
+              "silks": "theurge-manifest-coverage-check",
+              "commit": "b86840c"
             }
           ]
         }
