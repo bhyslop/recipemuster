@@ -2021,7 +2021,8 @@ pub fn rbtdrc_needs_readiness_delay(fixture: &str) -> bool {
 /// cases. The disposition determines per-fixture mode policy at the engine layer.
 pub fn rbtdrc_fixture_disposition(fixture: &str) -> rbtdre_Disposition {
     match fixture {
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_PRISTINE_LIFECYCLE => {
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_PRISTINE_LIFECYCLE
+        | crate::rbtdrm_manifest::RBTDRM_FIXTURE_CANONICAL_ESTABLISH => {
             rbtdre_Disposition::StateProgressing
         }
         _ => rbtdre_Disposition::Independent,
@@ -2051,6 +2052,7 @@ pub fn rbtdrc_sections_for_fixture(fixture: &str) -> &'static [rbtdre_Section] {
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_REGIME_SMOKE => crate::rbtdrf_fast::RBTDRF_SECTIONS_REGIME_SMOKE,
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_HANDBOOK_RENDER => crate::rbtdrf_handbook::RBTDRF_SECTIONS_HANDBOOK_RENDER,
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_PRISTINE_LIFECYCLE => crate::rbtdrp_pristine::RBTDRP_SECTIONS_PRISTINE_LIFECYCLE,
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_CANONICAL_ESTABLISH => crate::rbtdrk_canonical::RBTDRK_SECTIONS_CANONICAL_ESTABLISH,
         _ => {
             eprintln!(
                 "rbtdrc: no sections defined for fixture '{}' — running empty",

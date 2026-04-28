@@ -27,6 +27,7 @@ pub mod rbtdre_engine;
 pub mod rbtdrf_fast;
 pub mod rbtdrf_handbook;
 pub mod rbtdri_invocation;
+pub mod rbtdrk_canonical;
 pub mod rbtdrm_manifest;
 pub mod rbtdrp_pristine;
 
@@ -36,6 +37,8 @@ mod rbtdtb_probe;
 mod rbtdte_engine;
 #[cfg(test)]
 mod rbtdti_invocation;
+#[cfg(test)]
+mod rbtdtk_canonical;
 #[cfg(test)]
 mod rbtdtm_manifest;
 #[cfg(test)]

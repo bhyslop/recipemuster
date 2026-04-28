@@ -105,6 +105,9 @@ pub const RBTDRM_FIXTURE_REGIME_SMOKE: &str = "regime-smoke";
 pub const RBTDRM_FIXTURE_HANDBOOK_RENDER: &str = "handbook-render";
 // Pristine-lifecycle fixture (gate + SA/depot lifecycle cases)
 pub const RBTDRM_FIXTURE_PRISTINE_LIFECYCLE: &str = "pristine-lifecycle";
+// Gauntlet canonical-establish fixture (§2: canonical depot levy + governor
+// mantle + retriever/director invest with per-case precondition probes)
+pub const RBTDRM_FIXTURE_CANONICAL_ESTABLISH: &str = "canonical-establish";
 
 /// Per-fixture required colophons. Returns None for unknown fixtures.
 pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str]> {
@@ -148,6 +151,14 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDRM_COLOPHON_GOV_INVEST_DIRECTOR,
             RBTDRM_COLOPHON_GOV_DIVEST_RETRIEVER,
             RBTDRM_COLOPHON_GOV_DIVEST_DIRECTOR,
+            RBTDRM_COLOPHON_ACCESS_PROBE,
+        ]),
+        RBTDRM_FIXTURE_CANONICAL_ESTABLISH => Some(&[
+            RBTDRM_COLOPHON_DEPOT_LEVY,
+            RBTDRM_COLOPHON_DEPOT_LIST,
+            RBTDRM_COLOPHON_GOV_MANTLE,
+            RBTDRM_COLOPHON_GOV_INVEST_RETRIEVER,
+            RBTDRM_COLOPHON_GOV_INVEST_DIRECTOR,
             RBTDRM_COLOPHON_ACCESS_PROBE,
         ]),
         RBTDRM_FIXTURE_HANDBOOK_RENDER => Some(&[
