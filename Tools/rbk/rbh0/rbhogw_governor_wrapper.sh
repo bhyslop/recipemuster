@@ -46,9 +46,11 @@ rbho_governor_handbook() {
   buh_line "If no ${RBYC_DEPOT} exists yet, the ${RBYC_PAYOR} establishes one first:"
   buh_tt  "  " "${RBZ_ONBOARD_PAYOR_HB}"
   buh_e
-  buh_line "Install the resulting key file into the secrets directory under"
-  buh_line "the governor role subdirectory. The path is derived from your"
-  buh_line "${RBYC_RBRR} configuration — check RBRR_SECRETS_DIR for the location."
+  buh_line "The mantle command writes the key file to its output"
+  buh_line "directory and prints two cp commands — one for production"
+  buh_line "install, one for assay (test) mode. Run the production line"
+  buh_line "to place the file at the path derived from your ${RBYC_RBRR}"
+  buh_line "configuration."
   buh_e
 
   buh_step1 "Provision downstream service accounts"
