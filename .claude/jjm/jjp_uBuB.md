@@ -49,6 +49,52 @@ Three tiers, escalating cost:
 
 `rbw-tP` is THE release gate. `rbw-tr` becomes the pre-pristine smoke test — cheap-and-frequent for development confidence; pristine for actual release.
 
+## Gauntlet test suite — design
+
+`rbw-tP` exec's the **gauntlet suite** — a TestSuite (not a custom orchestrator script) composed of fixtures sequenced from marshal-zero state through canonical-credentialed state to crucible verification. The TestSuite mechanism is existing infrastructure (`tt/rbtd-s.TestSuite.{fast,service,crucible,complete}.sh`); the gauntlet suite extends it.
+
+**Suite-of-fixtures, not orchestrator-script.** The original construction plan (custom bash orchestrator with inline tabtarget calls) was abandoned in favor of suite composition. Each section of the release-qualification sequence becomes a fixture; the suite composes them in order.
+
+**Naming hygiene.** "Gauntlet" is the suite name; "pristine" is reserved for the §1 pristine-lifecycle fixture and informally for tier vocabulary. The suite name does not appear at fixture or case level — distinct stratification across naming layers (suite ≠ fixture ≠ case).
+
+**State ladder, fixtures along it.** The suite walks a state ladder no single fixture covers:
+
+1. enrollment-validation (preflight, state-indifferent)
+2. pristine-lifecycle (§1: marshal-zero gate + throwaway depot/SA lifecycle)
+3. canonical-establish (§2: canonical depot levy + governor mantle + retriever invest + director invest + IAM propagation wait)
+4. canonical-onboarding-sequence (§3: reliquary inscribe + per-vessel hallmark ordain — mimics operator onboarding journey under theurge control)
+5. regime-validation, regime-smoke (post-§3, regimes now populated)
+6. four-mode (cloud-build mode coverage)
+7. tadmor, moriah, srjcl, pluml (§4: crucible suite)
+
+No automatic teardown — see "No-teardown decision" below.
+
+## Fixture disposition — Independent vs StateProgressing
+
+Each fixture declares a disposition flag in Rust, controlling engine behavior:
+
+- **Independent** — cases are self-contained; suite-order is informational. Engine permits keep-going mode for surveying.
+- **StateProgressing** — case N's success establishes preconditions for case N+1. Engine refuses keep-going mode (incoherent: failed case leaves broken precondition). Fail-fast required.
+
+Suite-level disposition derives from membership: any StateProgressing fixture in the suite makes the suite state-progressing → suite-level keep-going refused.
+
+**Per-case precondition probes.** Each case in a StateProgressing fixture probes its precondition at start. If state matches expectation, run. If not, refuse with operator-actionable diagnostic naming the expected state and the closest fixture that produces it. This enables safe a-la-carte single-case rerun — the engine doesn't need to know the case's history; the case's probe enforces.
+
+## Suite-level fail-fast
+
+Across all suites — not just gauntlet — any fixture failure stops subsequent fixtures from running automatically. State-progressing suites require this for correctness; independent suites adopt it for the simpler mental model. Operators who want full surveying run individual fixtures separately.
+
+## No-teardown decision
+
+The gauntlet suite omits an automatic teardown phase. After green tally, the canonical depot, SAs, hallmarks, and RBRA files persist for operator inspection. Deliberate trade-off:
+
+- **Inspect-after-success** is genuine operator value — browse canonical depot in GCP console, inspect GAR contents, run ad-hoc verification a test sequence cannot anticipate.
+- **Cleanup is operator-driven** — manual sequence is `rbw-fA` per vessel + `rbw-arD` + `rbw-adD` + `rbw-dU` (governor cleanup folds into unmake per BBAAN). All existing tabtargets; no new infrastructure.
+- **Failed runs don't accumulate cleanup debt** — under fail-fast, teardown wouldn't run anyway; the no-teardown decision only changes behavior on full success.
+- **Cost visibility** — pending-delete soft-deleted projects accumulate per run (RELEASE.md accepts this); not changed by teardown decision.
+
+Documentation of the post-success cleanup ceremony is BBAAH/BBAAI work.
+
 ## Operator scope
 
 Single operator (project lead). Not designed for multi-operator workflow. Runbook lives in README.md release section.
