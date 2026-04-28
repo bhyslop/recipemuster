@@ -6690,6 +6690,7 @@
         "₢BBAAp",
         "₢BBAAf",
         "₢BBAAW",
+        "₢BBAAs",
         "₢BBAAg",
         "₢BBAAr",
         "₢BBAAX",
@@ -6702,7 +6703,7 @@
         "₢BBAAI",
         "₢BBAAq"
       ],
-      "next_pace_seed": "AAs",
+      "next_pace_seed": "AAt",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAAA": {
@@ -7737,6 +7738,17 @@
               "text": "## Character\n\nVerify the iterative-debug surface of the gauntlet suite, sequenced after BBAAg (suite + rbw-tP exist) and before BBAAX (first end-to-end run, green-tally guardrail). BBAAX commits to marshal-zero-between-attempts — without proven single-case rerun against the suite's expensive state-progressing cases (especially §3 ordain, where vessel construction is the costliest step), each debug iteration costs ~1 hour + a GCP project, and the gauntlet's value collapses to \"must get it perfect in one shot.\" That contradicts BBAAX's first-class re-run clause.\n\nIntent-only docket. Code-level planning at mount time.\n\n## Scope\n\n- Verify (or add) `tt/rbtd-s.SingleCase.canonical-onboarding-sequence.sh` handles ordain-* cases against an already-canonical depot, no upstream re-run\n- Tamper deliberately — delete a hallmark, blank a regime field, leave a partial reliquary — and verify per-case precondition probes fire with operator-actionable diagnostics naming the expected state and the closest fixture that produces it\n- Confirm §4 crucible fixtures (tadmor/moriah/srjcl/pluml) runnable alone against a §3-completed state, no re-ordain required for crucible debug\n- Document the iterative debug workflow into the gauntlet runbook surface BBAAI owns: where to look when X fails, what tabtarget to invoke, how to interpret per-case probe output\n\n## Wrap criterion\n\n- Single-case rerun mechanism demonstrably works for ordain-* cases without marshal-zero, against established canonical state\n- Per-case probes verified under deliberately-broken state across at least one ordain case and one crucible fixture\n- §4 crucible single-fixture rerun confirmed against §3-completed depot\n- Debug workflow referenced from BBAAX's docket so the green-tally pace has tooling on hand\n\n## Cost\n\n~30-45 min wall-clock. Reuses canonical state from a prior end-to-end run; does not require its own marshal-zero + GCP project.\n\n## Cross-pace dependencies\n\n- BBAAf landed (canonical-onboarding-sequence fixture + per-case probes exist)\n- BBAAg landed (rbw-tP + suite resolver exist)\n\n## Out of scope\n\n- New mechanism design — per-case probe pattern is BBAAf's territory; this pace verifies behavior, not invents it\n- BBAAX's first end-to-end green-tally run (uses the tooling proven here)\n- Cross-heat debug tooling generalizations",
               "silks": "gauntlet-rerun-infrastructure",
               "commit": "88f87cc"
+            }
+          ]
+        },
+        "₢BBAAs": {
+          "tacks": [
+            {
+              "ts": "260428-1213",
+              "state": "rough",
+              "text": "## Character\n\nMake the existing per-crucible fixtures (tadmor, moriah, srjcl, pluml) gauntlet-ready under the build/run split established in BBAAf: each takes \"vessel hallmark exists in GAR\" as its only precondition, refuses cleanly if absent, and runs identically against vessels built by any source — gauntlet flow, manual rbw-fO, kludge.\n\nCases stay as direct test fixtures, NOT handbook walks. Coupling crucible cases to handbook prose breaks the reusability the split exists to preserve.\n\nSequence-correctness slate; not active focus during BBAAf execution. Intent-only docket. Code-level planning at mount time.\n\n## Scope\n\n- Each crucible fixture: precondition probe for vessel-hallmark-exists with operator-actionable diagnostic on absence.\n- Reusability verified: each fixture passes against vessels built by any source, not just gauntlet-built.\n- Suite-flow integration adjustments as needed.\n\n## Wrap criterion\n\n- Each per-crucible fixture has a vessel-exists precondition probe, verified under deliberately-broken state.\n- Reusability demonstrated against at least one non-gauntlet-built vessel source.\n\n## Cross-pace dependencies\n\n- BBAAf landed (handbook-driven build cases produce vessels for the gauntlet flow).\n\n## Out of scope\n\n- Handbook walks inside crucible fixtures (architectural anti-pattern; preserves split).\n- New crucible fixtures (existing tadmor/moriah/srjcl/pluml are sufficient).\n- BBAAr's rerun proving (separate pace).\n- BBAAX's first end-to-end run (uses the readiness work this pace delivers).",
+              "silks": "crucible-fixture-gauntlet-readiness",
+              "commit": "1168e71"
             }
           ]
         }
