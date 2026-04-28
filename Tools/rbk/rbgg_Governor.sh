@@ -528,7 +528,7 @@ rbgg_roster_directors() {
 rbgg_invest_retriever() {
   zrbgg_sentinel
 
-  local z_identity="${1:-}"
+  local z_identity="${BUZ_FOLIO:-}"
 
   buc_doc_brief "Invest a Retriever service account for an identity"
   buc_doc_param "identity" "Identity (required) — composes ${RBCC_role_retriever}-<identity>"
@@ -577,7 +577,7 @@ rbgg_invest_retriever() {
 rbgg_invest_director() {
   zrbgg_sentinel
 
-  local z_identity="${1:-}"
+  local z_identity="${BUZ_FOLIO:-}"
 
   buc_doc_brief "Invest a Director service account for an identity"
   buc_doc_param "identity" "Identity (required) — composes ${RBCC_role_director}-<identity>"
@@ -762,7 +762,7 @@ zrbgg_divest_role() {
 rbgg_divest_retriever() {
   zrbgg_sentinel
 
-  local z_identity="${1:-}"
+  local z_identity="${BUZ_FOLIO:-}"
 
   buc_doc_brief "Divest a Retriever service account by identity"
   buc_doc_param "identity" "Identity (required) — composes ${RBCC_role_retriever}-<identity>"
@@ -776,7 +776,7 @@ rbgg_divest_retriever() {
 rbgg_divest_director() {
   zrbgg_sentinel
 
-  local z_identity="${1:-}"
+  local z_identity="${BUZ_FOLIO:-}"
 
   buc_doc_brief "Divest a Director service account by identity"
   buc_doc_param "identity" "Identity (required) — composes ${RBCC_role_director}-<identity>"
