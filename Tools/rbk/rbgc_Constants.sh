@@ -57,12 +57,13 @@ zrbgc_kindle() {
   readonly RBGC_SA_KEY_CREATE_RETRY_MAX=7
   readonly RBGC_SA_KEY_CREATE_RETRY_DELAY_SEC=10
 
-  # JWT-bearer mint propagation probe — bound the post-write race where a
-  # freshly-written RBRA cannot yet exchange its JWT for an OAuth token.
+  # JWT-bearer consumer-side retry — every RBRA consumer absorbs the post-write
+  # race where Google's OAuth backend has not yet accepted a freshly-minted SA
+  # key, surfaced as `invalid_grant` + `Invalid JWT Signature` on token mint.
   # 90s budget locked by ₣BB pristine-tier contract; cadence below.
-  readonly RBGC_SA_KEY_PROBE_BUDGET_SEC=90
-  readonly RBGC_SA_KEY_PROBE_INITIAL_DELAY_SEC=2
-  readonly RBGC_SA_KEY_PROBE_MAX_DELAY_SEC=15
+  readonly RBGC_SA_KEY_CONSUMER_RETRY_BUDGET_SEC=90
+  readonly RBGC_SA_KEY_CONSUMER_RETRY_INITIAL_DELAY_SEC=2
+  readonly RBGC_SA_KEY_CONSUMER_RETRY_MAX_DELAY_SEC=15
 
   # URL Roots & Well-known Endpoints
   readonly RBGC_OAUTH_TOKEN_URL="https://oauth2.googleapis.com/token"

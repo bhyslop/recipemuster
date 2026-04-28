@@ -1395,8 +1395,6 @@ rbgp_governor_mantle() {
   # that the bytes are persisted in RBRA form.
   rm -f "${z_key_json}" || buc_die "Failed to remove decoded key file: ${z_key_json}"
 
-  rbgo_probe_jwt_bearer_propagation "${z_rbra_file}" "${z_governor_account_id}"
-
   buc_success "Governor reset completed successfully"
   buc_info "Governor service account: ${z_governor_email}"
   buc_info "RBRA file written: ${z_rbra_file}"

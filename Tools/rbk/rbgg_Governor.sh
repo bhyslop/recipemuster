@@ -291,8 +291,6 @@ zrbgg_create_service_account_with_key() {
 
   buc_info "RBRA file written: ${z_rbra_file}"
 
-  rbgo_probe_jwt_bearer_propagation "${z_rbra_file}" "${z_account_name}"
-
   # Echo uniqueId to stdout for callers (all logging goes to stderr per BCG)
   printf '%s' "${z_sa_uid}"
 }

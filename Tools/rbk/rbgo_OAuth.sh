@@ -51,7 +51,7 @@ zrbgo_kindle() {
   readonly ZRBGO_OPENSSL_STDERR_FILE="${BURD_TEMP_DIR}/rbgo_openssl_stderr.txt"
   readonly ZRBGO_CURL_STDERR_FILE="${BURD_TEMP_DIR}/rbgo_curl_stderr.txt"
   readonly ZRBGO_JQ_STDERR_FILE="${BURD_TEMP_DIR}/rbgo_jq_stderr.txt"
-  readonly ZRBGO_PROBE_STDERR_FILE="${BURD_TEMP_DIR}/rbgo_probe_stderr.txt"
+  readonly ZRBGO_CONSUMER_RETRY_BODY_FILE="${BURD_TEMP_DIR}/rbgo_consumer_retry_body.json"
 
   readonly ZRBGO_KINDLED=1
 }
@@ -183,70 +183,57 @@ rbgo_get_token_capture() {
 
   local -r z_rbra_file="$1"
 
-  # Documentation block
-  buc_doc_brief "Exchange service account credentials for OAuth2 access token"
+  buc_doc_brief "Exchange service account credentials for OAuth2 access token (retries on JWT-propagation race)"
   buc_doc_param "rbra_file" "Path to RBRA credentials file containing RBRA_* variables"
   buc_doc_shown || return 0
 
   buc_log_args "Validate RBRA file exists"
   test -f "${z_rbra_file}" || return 1
 
-  buc_log_args "Build JWT"
-  local z_jwt
-  z_jwt=$(zrbgo_build_jwt_capture "${z_rbra_file}") || return 1
-
-  buc_log_args "Exchange for OAuth token"
-  local z_token
-  z_token=$(zrbgo_exchange_jwt_capture "${z_jwt}") || return 1
-
-  printf '%s\n' "${z_token}"
-}
-
-# Bound the post-write race where Google's auth backend has not yet accepted
-# the freshly-minted SA key — die on timeout per pristine-tier contract.
-rbgo_probe_jwt_bearer_propagation() {
-  zrbgo_sentinel
-
-  local -r z_rbra_file="${1:-}"
-  local -r z_role_label="${2:-}"
-
-  buc_doc_brief "Probe JWT-bearer mint until freshly-written RBRA is usable"
-  buc_doc_param "rbra_file"  "Path to just-written RBRA credentials file"
-  buc_doc_param "role_label" "Diagnostic label for timeout/success messages"
-  buc_doc_shown || return 0
-
-  test -n "${z_rbra_file}"  || buc_die "rbra_file required"
-  test -n "${z_role_label}" || buc_die "role_label required"
-  test -f "${z_rbra_file}"  || buc_die "RBRA file not found: ${z_rbra_file}"
-
-  buc_step "JWT-bearer propagation probe [${z_role_label}]: budget ${RBGC_SA_KEY_PROBE_BUDGET_SEC}s"
-
   local z_attempt=0
   local z_elapsed=0
-  local z_delay="${RBGC_SA_KEY_PROBE_INITIAL_DELAY_SEC}"
+  local z_delay="${RBGC_SA_KEY_CONSUMER_RETRY_INITIAL_DELAY_SEC}"
+  local z_jwt=""
   local z_token=""
   local z_status=0
+  local z_err=""
+  local z_err_desc=""
 
   while :; do
     z_attempt=$((z_attempt + 1))
 
-    z_token=""
     z_status=0
-    z_token=$(rbgo_get_token_capture "${z_rbra_file}" 2>"${ZRBGO_PROBE_STDERR_FILE}") || z_status=$?
+    z_jwt=$(zrbgo_build_jwt_capture "${z_rbra_file}") || z_status=$?
+    test "${z_status}" -eq 0 || return 1
+
+    z_status=0
+    z_token=$(zrbgo_exchange_jwt_capture "${z_jwt}") || z_status=$?
 
     if test "${z_status}" -eq 0 && test -n "${z_token}"; then
-      buc_step "JWT-bearer probe [${z_role_label}]: OK after ${z_attempt} attempt(s), ${z_elapsed}s elapsed"
+      printf '%s\n' "${z_token}"
       return 0
     fi
 
-    test "${z_elapsed}" -lt "${RBGC_SA_KEY_PROBE_BUDGET_SEC}" \
-      || buc_die "JWT-bearer probe [${z_role_label}]: timeout after ${z_elapsed}s (${z_attempt} attempts) — RBRA at ${z_rbra_file} not mintable; last stderr: ${ZRBGO_PROBE_STDERR_FILE}"
+    # Discriminate failure: only `invalid_grant` + `Invalid JWT Signature.` is
+    # the post-write propagation race. Any other shape fails fast.
+    z_err=$(jq -r '.error // ""'             "${ZRBGO_OAUTH_RESPONSE_FILE}" 2>"${ZRBGO_JQ_STDERR_FILE}") || z_err=""
+    z_err_desc=$(jq -r '.error_description // ""' "${ZRBGO_OAUTH_RESPONSE_FILE}" 2>"${ZRBGO_JQ_STDERR_FILE}") || z_err_desc=""
 
-    buc_log_args "JWT-bearer probe [${z_role_label}]: attempt ${z_attempt} failed at ${z_elapsed}s, sleep ${z_delay}s"
+    test "${z_err}" = "invalid_grant" && test "${z_err_desc}" = "Invalid JWT Signature." \
+      || return 1
+
+    cp "${ZRBGO_OAUTH_RESPONSE_FILE}" "${ZRBGO_CONSUMER_RETRY_BODY_FILE}" || return 1
+
+    if test "${z_elapsed}" -ge "${RBGC_SA_KEY_CONSUMER_RETRY_BUDGET_SEC}"; then
+      buc_warn "Token mint: JWT propagation race timeout after ${z_elapsed}s (${z_attempt} attempts); last body: ${ZRBGO_CONSUMER_RETRY_BODY_FILE}"
+      return 1
+    fi
+
+    buc_step "Token mint: attempt ${z_attempt} hit JWT propagation race at ${z_elapsed}s, sleep ${z_delay}s"
     sleep "${z_delay}"
     z_elapsed=$((z_elapsed + z_delay))
     z_delay=$((z_delay * 2))
-    test "${z_delay}" -le "${RBGC_SA_KEY_PROBE_MAX_DELAY_SEC}" || z_delay="${RBGC_SA_KEY_PROBE_MAX_DELAY_SEC}"
+    test "${z_delay}" -le "${RBGC_SA_KEY_CONSUMER_RETRY_MAX_DELAY_SEC}" || z_delay="${RBGC_SA_KEY_CONSUMER_RETRY_MAX_DELAY_SEC}"
   done
 }
 
