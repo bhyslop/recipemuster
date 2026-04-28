@@ -1356,12 +1356,16 @@ rbgp_governor_mantle() {
   z_key_b64=$(rbgu_json_field_capture "${z_gov_key_infix}" '.privateKeyData') \
     || buc_die "Failed to extract privateKeyData"
 
-  local -r z_key_json="${BURD_TEMP_DIR}/rbgp_governor_key.json"
+  # Decode into the assay subdirectory (RBRR_SECRETS_DIR/assay/) so the
+  # only readable form of the private key shares lifecycle and location
+  # with the final RBRA file — credentials never leak into BURD_TEMP_DIR.
+  local -r z_assay_dir="${RBDC_ASSAY_RBRA_FILE%/*}"
+  local -r z_key_json="${z_assay_dir}/_decoded_governor_key.json"
   printf '%s' "${z_key_b64}" | openssl enc -base64 -d -A > "${z_key_json}" \
     || buc_die "Failed to decode key data"
 
   buc_step 'Convert JSON key to RBRA format'
-  local -r z_rbra_file="${BURD_OUTPUT_DIR}/governor-${z_timestamp}.rbra"
+  local -r z_rbra_file="${RBDC_ASSAY_RBRA_FILE}"
 
   local z_client_email
   z_client_email=$(jq -r '.client_email' "${z_key_json}") || buc_die "Failed to extract client_email"
@@ -1375,7 +1379,7 @@ rbgp_governor_mantle() {
   z_project_id=$(jq -r '.project_id' "${z_key_json}") || buc_die "Failed to extract project_id"
   test -n "${z_project_id}" || buc_die "Empty project_id in key JSON"
 
-  buc_step 'Write RBRA file'
+  buc_step 'Write RBRA file' "${z_rbra_file}"
   {
     printf 'RBRA_ROLE=%s\n' "${RBCC_role_governor}"
     printf 'RBRA_CLIENT_EMAIL="%s"\n'      "${z_client_email}"
@@ -1386,7 +1390,10 @@ rbgp_governor_mantle() {
 
   test -f "${z_rbra_file}" || buc_die "Failed to write RBRA file ${z_rbra_file}"
 
-  rm -f "${z_key_json}" || buc_die "Failed to remove temp key file: ${z_key_json}"
+  # Decoded JSON lives in RBRR_SECRETS_DIR (not BURD_TEMP_DIR), so
+  # BCG:518's no-module-temp-deletion rule does not bind. Remove now
+  # that the bytes are persisted in RBRA form.
+  rm -f "${z_key_json}" || buc_die "Failed to remove decoded key file: ${z_key_json}"
 
   rbgo_probe_jwt_bearer_propagation "${z_rbra_file}" "${z_governor_account_id}"
 
@@ -1395,10 +1402,7 @@ rbgp_governor_mantle() {
   buc_info "RBRA file written: ${z_rbra_file}"
   buc_info ""
   buc_info "Install the RBRA file:"
-  buc_bare "        cp ${z_rbra_file} ${RBDC_GOVERNOR_RBRA_FILE}"
-  buc_info ""
-  buc_info "Or, for assay (test) mode:"
-  buc_bare "        cp ${z_rbra_file} ${RBDC_ASSAY_RBRA_FILE}"
+  buc_bare "        mv ${z_rbra_file} ${RBDC_GOVERNOR_RBRA_FILE}"
 }
 
 # eof

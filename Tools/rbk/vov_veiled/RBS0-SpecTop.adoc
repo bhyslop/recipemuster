@@ -803,13 +803,14 @@ The vouch verification step (conjure mode) additionally invokes `gcloud` for pro
 [[rbsk_invest_serialized]]
 //axl_voices axk_premise
 {rbsk_invest_serialized}::
-{rbtgo_retriever_invest} and {rbtgo_director_invest} write credential bytes to a singleton assay slot (`RBDC_ASSAY_RBRA_FILE`), not a per-identity slot.
-The operator MUST copy `RBDC_ASSAY_RBRA_FILE` to the role's production slot (`RBDC_RETRIEVER_RBRA_FILE` or `RBDC_DIRECTOR_RBRA_FILE`) before initiating the next invest against the same role.
-Two consecutive invests against the same role without an intervening copy lose the first invest's bytes.
+{rbtgo_retriever_invest}, {rbtgo_director_invest}, and {rbtgo_governor_mantle} write credential bytes to a singleton assay slot (`RBDC_ASSAY_RBRA_FILE`), not a per-identity slot.
+The operator MUST move `RBDC_ASSAY_RBRA_FILE` to a safe place before initiating the next operation that writes to the assay slot — typically the role's production slot (`RBDC_RETRIEVER_RBRA_FILE`, `RBDC_DIRECTOR_RBRA_FILE`, or `RBDC_GOVERNOR_RBRA_FILE`) when the invester and the consumer are the same operator, otherwise a delivery channel to the consumer.
+Two consecutive assay-slot writers without an intervening move lose the first writer's bytes.
 Batched invest is not supported — by design.
 +
 Rationale: a singleton assay slot keeps the producer-output discipline uniform across roles and frees the implementation from path-space per-identity routing.
-The operator-driven copy step is the deliberate promotion gate from producer output to role-production consumer; it also acts as the operator's explicit acknowledgement of which identity owns the role at runtime, since `RBRA` files encode exactly one identity at a time.
+The operator-driven move step is the deliberate promotion gate from producer output to role-production consumer; it also acts as the operator's explicit acknowledgement of which identity owns the role at runtime, since `RBRA` files encode exactly one identity at a time.
+Move (not copy) prevents the assay slot from accumulating stale credential bytes after promotion.
 
 == Dependency Inventory
 

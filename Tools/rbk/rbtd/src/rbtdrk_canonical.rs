@@ -480,6 +480,11 @@ fn rbtdrk_governor_mantle(dir: &Path) -> rbtdre_Verdict {
 fn rbtdrk_governor_mantle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
     let root = ctx.project_root().to_path_buf();
 
+    let assay = match rbtdrk_canonical_rbra(&root, "assay") {
+        Ok(p) => p,
+        Err(e) => return rbtdre_Verdict::Fail(format!("canonical assay RBRA path: {}", e)),
+    };
+
     let mantle = match rbtdrk_invoke_logged(
         ctx,
         RBTDRM_COLOPHON_GOV_MANTLE,
@@ -504,28 +509,12 @@ fn rbtdrk_governor_mantle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_V
     };
     let _ = std::fs::write(dir.join("governor-sa-email.txt"), &email);
 
-    let mantle_out_dir = mantle.burv_output.join(RBTDRI_BURV_OUTPUT_SUBDIR);
-    let governor_rbra_src = match std::fs::read_dir(&mantle_out_dir)
-        .map_err(|e| format!("read mantle output dir {}: {}", mantle_out_dir.display(), e))
-        .and_then(|entries| {
-            let matches: Vec<_> = entries
-                .filter_map(|e| e.ok())
-                .filter(|e| {
-                    e.file_name()
-                        .to_str()
-                        .map(|n| n.starts_with("governor-") && n.ends_with(".rbra"))
-                        .unwrap_or(false)
-                })
-                .collect();
-            match matches.len() {
-                0 => Err("no governor-*.rbra file in mantle BURV output".to_string()),
-                1 => Ok(matches.into_iter().next().unwrap().path()),
-                n => Err(format!("{} governor-*.rbra files in mantle BURV output", n)),
-            }
-        }) {
-        Ok(p) => p,
-        Err(e) => return rbtdre_Verdict::Fail(format!("locate governor RBRA: {}", e)),
-    };
+    if !assay.exists() {
+        return rbtdre_Verdict::Fail(format!(
+            "assay RBRA absent after governor mantle: {}",
+            assay.display()
+        ));
+    }
 
     let canonical = match rbtdrk_canonical_rbra(&root, "governor") {
         Ok(p) => p,
@@ -540,18 +529,11 @@ fn rbtdrk_governor_mantle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_V
             ));
         }
     }
-    if let Err(e) = std::fs::copy(&governor_rbra_src, &canonical) {
+    if let Err(e) = std::fs::copy(&assay, &canonical) {
         return rbtdre_Verdict::Fail(format!(
-            "copy governor RBRA {} → {}: {}",
-            governor_rbra_src.display(),
+            "copy assay RBRA → governor canonical {}: {}",
             canonical.display(),
             e
-        ));
-    }
-    if !canonical.exists() {
-        return rbtdre_Verdict::Fail(format!(
-            "governor canonical RBRA absent after copy: {}",
-            canonical.display()
         ));
     }
     rbtdre_Verdict::Pass

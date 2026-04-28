@@ -572,8 +572,10 @@ rbgg_invest_retriever() {
 
   buc_info "RBRA file written: ${RBDC_ASSAY_RBRA_FILE}"
   buc_info ""
-  buc_info "Install:"
-  buc_bare "        cp ${RBDC_ASSAY_RBRA_FILE} ${RBDC_RETRIEVER_RBRA_FILE}"
+  buc_info "Move the RBRA file to a safe place — typically delivered to the"
+  buc_info "operator who consumes this identity. When the invester is also the"
+  buc_info "consumer, the local role slot is the canonical destination:"
+  buc_bare "        mv ${RBDC_ASSAY_RBRA_FILE} ${RBDC_RETRIEVER_RBRA_FILE}"
 }
 
 rbgg_invest_director() {
@@ -720,8 +722,10 @@ rbgg_invest_director() {
 
   buc_info "RBRA file written: ${RBDC_ASSAY_RBRA_FILE}"
   buc_info ""
-  buc_info "Install:"
-  buc_bare "        cp ${RBDC_ASSAY_RBRA_FILE} ${RBDC_DIRECTOR_RBRA_FILE}"
+  buc_info "Move the RBRA file to a safe place — typically delivered to the"
+  buc_info "operator who consumes this identity. When the invester is also the"
+  buc_info "consumer, the local role slot is the canonical destination:"
+  buc_bare "        mv ${RBDC_ASSAY_RBRA_FILE} ${RBDC_DIRECTOR_RBRA_FILE}"
 }
 
 # Divest a single role+identity: synthesize email, DELETE (404-tolerant),
