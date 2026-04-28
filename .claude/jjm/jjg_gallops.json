@@ -6680,6 +6680,7 @@
         "₢BBAAK",
         "₢BBAAP",
         "₢BBAAd",
+        "₢BBAAh",
         "₢BBAAe",
         "₢BBAAc",
         "₢BBAAf",
@@ -6694,7 +6695,7 @@
         "₢BBAAH",
         "₢BBAAI"
       ],
-      "next_pace_seed": "AAh",
+      "next_pace_seed": "AAi",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAAA": {
@@ -7575,6 +7576,17 @@
               "text": "## Character\n\nFinal assembly of the gauntlet test suite. Defines the suite as a composition of fixtures, creates the suite tabtarget, and pivots the rbw-tP workbench tabtarget from the originally-planned orchestrator-script shape to entry-contract enforcer + suite tabtarget exec. No new test cases; this pace is composition + entry point only.\n\nIntent-only docket. Code-level planning happens at mount time.\n\n## Scope\n\n- Gauntlet suite definition: bash array in the engine holding the full ordered fixture sequence\n- Resolver branch in the suite-name resolver\n- New TestSuite tabtarget for the gauntlet suite\n- Reshape rbw-tP.QualifyPristine.sh: enforce entry contract (marshal-zero signature, RBRR blank, RBRA absent, regimes blank) then exec the gauntlet suite tabtarget\n\n## Suite ordering\n\nenrollment-validation (preflight, state-indifferent), pristine-lifecycle (§1), canonical-establish (§2), canonical-onboarding-sequence (§3), regime-validation, regime-smoke, four-mode, tadmor, moriah, srjcl, pluml. No teardown — operator peeks post-success and runs cleanup tabtargets manually if desired.\n\n## Cross-pace dependencies\n\n- gauntlet-canonical-onboarding-sequence landed (final new fixture exists)\n\n## Out of scope\n\n- First-run end-to-end validation (BBAAX)\n- Pristine-passed sentinel artifact (BBAAH)\n- Documentation updates beyond what the workbench tabtarget needs (BBAAI)",
               "silks": "gauntlet-suite-assembly",
               "commit": "acdc595"
+            }
+          ]
+        },
+        "₢BBAAh": {
+          "tacks": [
+            {
+              "ts": "260428-0801",
+              "state": "rough",
+              "text": "## Character\n\nMechanical Rust pace. Repurpose the dormant `rbtdrd_dummy.rs` placeholder into `rbtdrl_calibrant.rs`, populate the four-fixture calibrant family with deterministic ground truth, wire into the manifest, tag dispositions, and pin verdicts via Rust unit tests in `rbtdtl_calibrant.rs`. Self-contained — the bash driver pace depends on this but does not land here.\n\nIntent-only docket. Fixture catalog and dispositions locked in paddock — see \"Bash blackbox calibrant — design.\" Code-level decisions (module organization, exact section structure inside calibrant-fail-fast, sentinel-file naming, manifest constant naming, auto-generated tabtarget granularity) made at mount time.\n\n## Scope\n\n- Rename `rbtdrd_dummy.rs` → `rbtdrl_calibrant.rs`; update `lib.rs` mod declaration.\n- Four fixtures per paddock catalog: calibrant-verdicts, calibrant-fail-fast, calibrant-progressing, calibrant-sentinel.\n- Manifest entries (`rbtdrm_manifest.rs`) for fixtures + `calibrant` suite.\n- `rbtdrc_fixture_disposition`: tag calibrant-progressing as StateProgressing; the others Independent.\n- Rust unit tests in `rbtdtl_calibrant.rs` pinning each case's verdict and observable side effects.\n- Tabtargets where the manifest-driven generation yields them; hand-written stubs as needed for the suite.\n\n## Out of scope\n\n- Bash-side testbench, case files, zipper entry, runbook update — Pace 2.\n- New engine concepts beyond what BBAAd already landed.\n- Cross-kit composition.\n\n## Depends on\n\nBBAAd (gauntlet-engine-foundation) — needs `rbtdre_Disposition`, `rbtdre_resolve_fail_fast`, and `rbtdrb_Probe` already in place.",
+              "silks": "calibrant-fixture-foundation",
+              "commit": "ac03bad"
             }
           ]
         }
