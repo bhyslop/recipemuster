@@ -76,6 +76,8 @@ Each fixture declares a disposition flag in Rust, controlling engine behavior:
 - **Independent** — cases are self-contained; suite-order is informational. Engine permits keep-going mode for surveying.
 - **StateProgressing** — case N's success establishes preconditions for case N+1. Engine refuses keep-going mode (incoherent: failed case leaves broken precondition). Fail-fast required.
 
+**Default is Independent.** Existing fixtures (`enrollment-validation`, `regime-validation`, `regime-smoke`, `four-mode`, `tadmor`, `moriah`, `srjcl`, `pluml`) are Independent and require no tagging change. Only fixtures whose case-N success establishes case-N+1 preconditions get StateProgressing — currently `pristine-lifecycle`, `canonical-establish`, and `canonical-onboarding-sequence`.
+
 Suite-level disposition derives from membership: any StateProgressing fixture in the suite makes the suite state-progressing → suite-level keep-going refused.
 
 **Per-case precondition probes.** Each case in a StateProgressing fixture probes its precondition at start. If state matches expectation, run. If not, refuse with operator-actionable diagnostic naming the expected state and the closest fixture that produces it. This enables safe a-la-carte single-case rerun — the engine doesn't need to know the case's history; the case's probe enforces.
@@ -93,7 +95,7 @@ The gauntlet suite omits an automatic teardown phase. After green tally, the can
 - **Failed runs don't accumulate cleanup debt** — under fail-fast, teardown wouldn't run anyway; the no-teardown decision only changes behavior on full success.
 - **Cost visibility** — pending-delete soft-deleted projects accumulate per run (RELEASE.md accepts this); not changed by teardown decision.
 
-Documentation of the post-success cleanup ceremony is BBAAH/BBAAI work.
+Documentation of the post-success cleanup ceremony is BBAAI work (RELEASE.md).
 
 ## Operator scope
 
@@ -101,42 +103,12 @@ Single operator (project lead). Not designed for multi-operator workflow. Runboo
 
 ## Coupling to ₣A_
 
-Runs concurrently with ₣A_'s remaining paces; ₣A_'s one-time cutover informs `rbw-tP`'s sequence.
+Cutover work from ₣A_ informing `rbw-tP`'s sequence has landed (BBAAM depot-identity-collapse). ₣A_'s remaining paces run independently of BB.
 
-## Depot identity collapse — locked design decisions (₢BBAAM)
+## Locked design decisions — pointers
 
-These decisions emerged in conversation during ₢BBAAM Step 1. They persist for the rest of the pace and constrain BBAAK cases 4-5 (the follow-on pace).
-
-**Maximal collapse.** RBRR drops `RBRR_DEPOT_PROJECT_ID`, `RBRR_GAR_REPOSITORY`, `RBRR_GCB_POOL_STEM` and gains `RBRR_DEPOT_MONIKER` (format `^[a-z][a-z0-9]*$`, length 1–26). Project ID, GAR repo, pool stem, and bucket fall out as RBDC kindle constants from `(RBRR_CLOUD_PREFIX, RBRR_DEPOT_MONIKER)`. The minimal-collapse alternative (drop only the timestamp, keep the three RBRR fields) was considered and rejected — it would leave the operator hand-pasting derivable values into RBRR after every levy.
-
-**CLOUD_PREFIX scope.** `RBRR_CLOUD_PREFIX` flows uniformly through depot project_id, GAR repo, pool stem, AND bucket (depot-affiliated resources). Payor remains on `RBGC_GLOBAL_PREFIX` (installation-scoped, not depot-affiliated); payor naming uniformity is out of scope for this pace.
-
-**Naming shapes.** Type markers and pool suffixes live as literal strings inside RBDC, keeping rbdc kindle independent of rbgc kindle ordering:
-
-- Project: `${CLOUD_PREFIX}d-${MONIKER}`
-- GAR repository: `${CLOUD_PREFIX}${MONIKER}-gar` (note: `-gar` suffix, not `-repository`)
-- Pool stem: `${CLOUD_PREFIX}${MONIKER}-pool`
-- Bucket: `${CLOUD_PREFIX}b-${MONIKER}`
-
-**409 posture deferred.** Timestamp drop alone creates the operator-visible "fails if exists" property: re-levying a moniker collides at project-create against the GCP soft-delete graveyard. Downstream sub-resource 409 posture is left as today — bucket fatal; AR / pools idempotent. A pre-locked redesign here would over-engineer; surface fixture-driven need before reshaping.
-
-**Mason SA name unchanged.** `mason-${moniker}` retained; broader SA-naming uniformity deferred.
-
-**Pristine-fixture moniker autodetect lives in Rust, not payor.** Theurge-side autodetect for pristine-lifecycle cases 2-3 — family stems (e.g. `pristq`, `pristg`) and the `100000` floor — lives in `rbtdrp_pristine.rs`. Payor `rbgp_depot_list` emits per-moniker fact files; theurge consumes them and computes the next free six-digit numeric increment per family prefix. Payor stays uncoupled from fixture identity space.
-
-**Depot fact-file shape.** Per-moniker fact files use `<moniker>.${RBGP_FACT_EXT_DEPOT}` (extension constant resolves to `depot`). File content is one of `RBGP_DEPOT_STATE_COMPLETE`, `RBGP_DEPOT_STATE_BROKEN`, `RBGP_DEPOT_STATE_DELETE_REQUESTED`. State and extension tinder constants live in `rbgc_Constants.sh` (added in Step 1).
-
-## Cult-verb naming decision — domain-exclusive split
-
-JJ owns "muster" as a verb (`jjx_list`). Recipe Bottle's two unrelated muster uses both rename to avoid the collision. The two replacement verbs are **domain-exclusive** — each belongs to one domain only and does not substitute for the other.
-
-**SA cult-verb (BBAAN surface):** muster → **roster**. Colophons `rbw-arr` (retriever), `rbw-adr` (director). Constants `RBYC_ROSTER`, `RBZ_ROSTER_RETRIEVER`, `RBZ_ROSTER_DIRECTOR`. Functions `rbgg_roster_retrievers`, `rbgg_roster_directors`. Verb-as-noun ceremony: `(Roster):`.
-
-**Image domain (landed code, separate rename pace):** muster → **audit**. Colophons `rbw-iah/iar/iae`. Constants `RBZ_AUDIT_HALLMARKS/RELIQUARIES/ENSHRINEMENTS` and Rust `RBTDRM_COLOPHON_AUDIT_*`. Functions `rbfl_audit_hallmarks/reliquaries/enshrinements`. Spec quoin `:rbtgo_image_audit:`; spec file likely renames RBSIM → RBSIA (BBAAQ decides).
-
-**Case discipline.** Lowercase tail letter on both new colophons preserves BBAAN's existing rule: capitals (`I`, `D`) for cloud-mutating verbs; lowercase (`r`, `a`) for no-cloud-change observation. Mantle (`rbw-aM`) unchanged.
-
-**Cross-pace ordering.** BBAAQ (spec sweep) lands the spec-side rename first, so spec is source-of-truth. The image-rename code pace executes after BBAAQ. BBAAN's docket has been updated to use roster vocabulary directly. BBAAC and BBAAG are touched only at colophon/verb references. BBAAR's docket is already abstract ("adapt to whatever BBAAN settles") and inherits the new vocabulary without redocketing.
+- **Depot identity collapse** (BBAAM, landed): RBRR collapses to `RBRR_DEPOT_MONIKER`; `RBRR_CLOUD_PREFIX` flows through depot-affiliated resources; per-moniker depot fact-files; pristine-fixture moniker autodetect lives in Rust (`rbtdrp_pristine.rs`), not payor.
+- **Cult-verb naming** (BBAAN/BBAAQ/BBAAR, landed): SA domain muster→**roster**; image domain muster→**audit**. Domain-exclusive split; lowercase tail letters preserved for no-cloud-change observation colophons.
 
 ## References
 
