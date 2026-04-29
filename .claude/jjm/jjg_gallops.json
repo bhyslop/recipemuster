@@ -49,6 +49,7 @@
         "₢A-AAW",
         "₢A-AAX",
         "₢A-AAY",
+        "₢A-AAZ",
         "₢A-AAC",
         "₢A-AAD",
         "₢A-AAE",
@@ -60,7 +61,7 @@
         "₢A-AAS",
         "₢A-AAT"
       ],
-      "next_pace_seed": "AAZ",
+      "next_pace_seed": "AAa",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -489,6 +490,17 @@
               "text": "## Character\nImplementation — workload-tier mirror of Garrison; new code on the workload-shell-choice side.\n\n## Docket\nMint per BUS0 catalog:\n\n`busn_conscript_{l,m,c,w,p,x}` — create remote OS user via privileged BURN, install station-user pubkey to per-user `authorized_keys` (NOT admin path), write workload `burn.env` (BURN_TIER=workload). Workload shell choice independent of privileged BURN's shell.\n\n`busn_discharge` — use the workload profile's recorded privileged-authority back-reference to delete the remote OS user; remove local profile.\n\n`busn_inventory` — list workload users on the node via privileged BURN. Scope: full workload-user population.\n\nNew BURN field: workload profiles record their privileged-authority alias. Mint via the tier-refusal spec or extend BURN_TIER add.\n\nTier assertions: privileged-alias args reject workload tier; workload-alias args reject privileged tier.",
               "silks": "conscript-discharge-inventory-machinery",
               "commit": "94cd199"
+            }
+          ]
+        },
+        "₢A-AAZ": {
+          "tacks": [
+            {
+              "ts": "260429-1057",
+              "state": "rough",
+              "text": "## Character\nImplementation — small surface; one extraction (Check from existing verify_ssh), two new verbs (Run, Ssh).\n\n## Docket\nMint `buw-nwc <workload-alias>` (Check), `buw-nwr <workload-alias> <cmd-file>` (Run with output capture), `buw-nws <workload-alias>` (interactive SSH).\n\nCheck absorbs the workload portion of `burn_verify_ssh`. The privileged portion belongs inside Garrison's verify phase, not as a separate tabtarget.\n\nNote colophon proximity: `buw-nwc` (Check) sits next to `buw-nwc{platform}` (Conscript). Distinct colophons, accepted.\n\nTier assertion: workload-alias arg rejects privileged tier.",
+              "silks": "workload-operational-tabtargets",
+              "commit": "bbcce39"
             }
           ]
         }
