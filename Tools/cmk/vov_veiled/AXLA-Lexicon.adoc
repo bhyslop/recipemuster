@@ -85,6 +85,7 @@
 :axd_required:                        <<axd_required,Required>>
 :axd_attended:                        <<axd_attended,Attended>>
 :axd_grouped:                         <<axd_grouped,Grouped>>
+:axd_imprint:                         <<axd_imprint,Imprint>>
 :axd_internal:                        <<axd_internal,Internal>>
 :axd_slash_command:                   <<axd_slash_command,Slash Command>>
 :axd_tabtarget:                       <<axd_tabtarget,Tabtarget>>
@@ -145,6 +146,7 @@
 :axvo_group:                          <<axvo_group,Group Voicing>>
 :axvo_method:                         <<axvo_method,Method Voicing>>
 :axvo_procedure:                      <<axvo_procedure,Procedure Voicing>>
+:axvo_tabtarget:                      <<axvo_tabtarget,Tabtarget Voicing>>
 
 // Axial Product-of-Operation Terms (definition-site output voicings)
 :axpof_fact:                          <<axpof_fact,Fact Voicing>>
@@ -2225,6 +2227,44 @@ optional
 {axd_slash_command},
 or other exposure mechanism specifying the default interface for external members.
 
+[[axvo_tabtarget]]
+{axvo_tabtarget}::
+Voices a tabtarget — one concrete CLI invocation routed via filename
+from a tabtarget-style dispatch convention.
+Each tabtarget receives exactly one
+{mcm_quoin};
+per-platform or per-target variants are catalogued separately rather
+than collapsed under a shared sprue list.
++
+1-arity: reads one
+{mcm_sprue}
+from following text — the literal routing identifier of the concrete
+CLI invocation as it appears on disk.
+The
+{mcm_sprue}
+is the exact wire-name; the
+{mcm_quoin}
+is the concrete CLI invocation concept.
+Sprue-lookahead mechanism mirrors
+{axr_member}.
++
+Qualified by
+{axd_dimension_s}
+in
+{axl_annotation}.
+The
+{axd_imprint}
+dimension types a filename-embedded folio slot when present;
+absence declares the tabtarget has no embedded folio.
++
+Operation detail sites may attach to
+{axvo_tabtarget}
+quoins via
+{axhob_operation},
+reusing the procedure/method hierarchy markers without alteration.
+Second-order constraints — which markers apply, which don't,
+under what conditions — are deferred to future articulation.
+
 === New Operation Dimension Terms
 
 [[axd_attended]]
@@ -2285,6 +2325,35 @@ indicating that external members of an operation group are exposed as
 {axi_cc_slash_command_s}.
 Valid on
 {axvo_group}.
+
+[[axd_imprint]]
+{axd_imprint}::
+A
+{axd_dimension}
+indicating that a tabtarget's filename embeds a folio — a parameter
+value carried by the tabtarget's wire-name rather than passed as a
+runtime argument.
+1-arity: reads one
+{mcm_attribute_reference}
+from following text — the type anchor of whatever the imprint slot
+names.
+Must resolve to an existing type quoin; zero new terms minted.
+Valid on
+{axvo_tabtarget}.
++
+Lookahead composition rule: dimensions on the annotation line consume
+their lookaheads in left-to-right order, after the primary voicing has
+consumed its own.
+For
+{axvo_tabtarget}
+this means the
+{mcm_sprue}
+is read first, then any
+{axd_imprint}
+attribute-reference lookahead.
+The rule is forward-looking — composition of multiple lookahead-bearing
+dimensions is not yet exercised, but future additions follow the same
+convention.
 
 [[axd_fact]]
 {axd_fact}::
@@ -2418,9 +2487,10 @@ Lookahead: 1
 {mcm_attribute_reference}
 — the operation this detail site describes.
 The referenced attribute must correspond to an anchor annotated with
-{axvo_procedure}
+{axvo_procedure},
+{axvo_method},
 or
-{axvo_method}
+{axvo_tabtarget}
 at the
 {axl_definition_site}.
 No dimensions on this marker — all dimensions are authoritative at the
@@ -2575,9 +2645,10 @@ per operation
 
 * {axhob_operation}
 attribute reference must match an operation defined with
-{axvo_procedure}
+{axvo_procedure},
+{axvo_method},
 or
-{axvo_method}
+{axvo_tabtarget}
 at the
 {axl_definition_site}
 * {axhob_operation}
@@ -3592,9 +3663,10 @@ or other interface mechanism specifying the default exposure for external member
 
 * {axhob_operation}
 attribute reference must match a term voiced
-{axvo_procedure}
+{axvo_procedure},
+{axvo_method},
 or
-{axvo_method}
+{axvo_tabtarget}
 at the
 {axl_definition_site}
 

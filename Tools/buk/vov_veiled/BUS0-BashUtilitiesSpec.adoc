@@ -35,6 +35,29 @@
 // Tabtarget Vesture
 :bust_tabtarget:        <<bust_tabtarget,Tabtarget Vesture>>
 
+// Concrete BURN Tabtargets
+:bust_garrison_linux:        <<bust_garrison_linux,Garrison Linux>>
+:bust_garrison_mac:          <<bust_garrison_mac,Garrison Mac>>
+:bust_garrison_cygwin:       <<bust_garrison_cygwin,Garrison Cygwin>>
+:bust_garrison_wsl:          <<bust_garrison_wsl,Garrison WSL>>
+:bust_garrison_powershell:   <<bust_garrison_powershell,Garrison PowerShell>>
+:bust_garrison_localhost:    <<bust_garrison_localhost,Garrison Localhost>>
+:bust_conscript_linux:       <<bust_conscript_linux,Conscript Linux>>
+:bust_conscript_mac:         <<bust_conscript_mac,Conscript Mac>>
+:bust_conscript_cygwin:      <<bust_conscript_cygwin,Conscript Cygwin>>
+:bust_conscript_wsl:         <<bust_conscript_wsl,Conscript WSL>>
+:bust_conscript_powershell:  <<bust_conscript_powershell,Conscript PowerShell>>
+:bust_conscript_localhost:   <<bust_conscript_localhost,Conscript Localhost>>
+:bust_discharge:             <<bust_discharge,Discharge>>
+:bust_inventory:             <<bust_inventory,Inventory>>
+:bust_knock:                 <<bust_knock,Knock>>
+:bust_remote_run:            <<bust_remote_run,Remote Run>>
+:bust_interactive_session:   <<bust_interactive_session,Interactive Session>>
+:bust_node_regime_list:      <<bust_node_regime_list,Node Regime List>>
+:bust_node_regime_render:    <<bust_node_regime_render,Node Regime Render>>
+:bust_node_regime_validate:  <<bust_node_regime_validate,Node Regime Validate>>
+:bust_handbook_node_top:     <<bust_handbook_node_top,Handbook Node Top>>
+
 // Dispatch
 :busdc_colophon:        <<busdc_colophon,Colophon>>
 :busdc_colophon_s:      <<busdc_colophon,Colophons>>
@@ -1323,54 +1346,142 @@ operations. Tier-specific colophons follow `buw-n[pw]` for clarity.
 
 ==== Lifecycle
 
-`buw-rnl`::
+[[bust_node_regime_list]]
+//axvo_tabtarget
+{bust_node_regime_list}::
+`buw-rnl` —
 List all {burn_regime} profiles in the local station subtree.
 
-`buw-rnr <alias>`::
-Render a single {burn_regime} profile.
+[[bust_node_regime_render]]
+//axvo_tabtarget
+{bust_node_regime_render}::
+`buw-rnr` —
+Render a single {burn_regime} profile (alias passed as positional argument).
 
-`buw-rnv <alias>`::
-Validate a single {burn_regime} profile.
+[[bust_node_regime_validate]]
+//axvo_tabtarget
+{bust_node_regime_validate}::
+`buw-rnv` —
+Validate a single {burn_regime} profile (alias passed as positional argument).
 
 ==== Privileged (per-platform node setup)
 
-`buw-npg{l,m,c,w,p,x} <host> <user> <moniker>`::
-{busn_garrison} a node for the named platform.
-Writes the privileged {burn_regime} profile and runs the platform-specific
-ceremony to establish admin trust.
-Platform letters: l=Linux, m=Mac, c=Cygwin, w=WSL, p=PowerShell, x=Localhost.
+[[bust_garrison_linux]]
+//axvo_tabtarget
+{bust_garrison_linux}::
+`buw-npgl` —
+{busn_garrison} ceremony for Linux nodes.
+
+[[bust_garrison_mac]]
+//axvo_tabtarget
+{bust_garrison_mac}::
+`buw-npgm` —
+{busn_garrison} ceremony for macOS nodes.
+
+[[bust_garrison_cygwin]]
+//axvo_tabtarget
+{bust_garrison_cygwin}::
+`buw-npgc` —
+{busn_garrison} ceremony for Cygwin nodes.
+
+[[bust_garrison_wsl]]
+//axvo_tabtarget
+{bust_garrison_wsl}::
+`buw-npgw` —
+{busn_garrison} ceremony for WSL nodes.
+
+[[bust_garrison_powershell]]
+//axvo_tabtarget
+{bust_garrison_powershell}::
+`buw-npgp` —
+{busn_garrison} ceremony for PowerShell nodes.
+
+[[bust_garrison_localhost]]
+//axvo_tabtarget
+{bust_garrison_localhost}::
+`buw-npgx` —
+{busn_garrison} ceremony for localhost nodes.
 
 ==== Workload (privileged authority required)
 
-`buw-nwc{l,m,c,w,p,x} <privileged-alias> <workload-moniker>`::
-{busn_conscript} a workload user via the named privileged BURN.
-Creates the remote OS user, installs the station user's pubkey, and
-writes a workload {burn_regime} profile locally.
+[[bust_conscript_linux]]
+//axvo_tabtarget
+{bust_conscript_linux}::
+`buw-nwcl` —
+{busn_conscript} a workload user with a Linux shell, via the named privileged BURN.
 
-`buw-nwd <workload-alias>`::
+[[bust_conscript_mac]]
+//axvo_tabtarget
+{bust_conscript_mac}::
+`buw-nwcm` —
+{busn_conscript} a workload user with a macOS shell, via the named privileged BURN.
+
+[[bust_conscript_cygwin]]
+//axvo_tabtarget
+{bust_conscript_cygwin}::
+`buw-nwcc` —
+{busn_conscript} a workload user with a Cygwin shell, via the named privileged BURN.
+
+[[bust_conscript_wsl]]
+//axvo_tabtarget
+{bust_conscript_wsl}::
+`buw-nwcw` —
+{busn_conscript} a workload user with a WSL shell, via the named privileged BURN.
+
+[[bust_conscript_powershell]]
+//axvo_tabtarget
+{bust_conscript_powershell}::
+`buw-nwcp` —
+{busn_conscript} a workload user with a PowerShell shell, via the named privileged BURN.
+
+[[bust_conscript_localhost]]
+//axvo_tabtarget
+{bust_conscript_localhost}::
+`buw-nwcx` —
+{busn_conscript} a workload user with a localhost shell, via the named privileged BURN.
+
+[[bust_discharge]]
+//axvo_tabtarget
+{bust_discharge}::
+`buw-nwd` —
 {busn_discharge} a workload user.
 Deletes the remote OS user via the workload profile's privileged
 authority and removes the local profile.
 
-`buw-nwi <privileged-alias>`::
+[[bust_inventory]]
+//axvo_tabtarget
+{bust_inventory}::
+`buw-nwi` —
 {busn_inventory} workload users present on the node, queried via the
 privileged BURN.
 
 ==== Workload (operational)
 
-`buw-nwc <workload-alias>`::
-Check responsiveness via passwordless SSH probe.
+[[bust_knock]]
+//axvo_tabtarget
+{bust_knock}::
+`buw-nwk` —
+Probe workload responsiveness via passwordless SSH.
 
-`buw-nwr <workload-alias> <cmd-file>`::
-Run the contents of `<cmd-file>` on the remote node; capture output to
+[[bust_remote_run]]
+//axvo_tabtarget
+{bust_remote_run}::
+`buw-nwr` —
+Run the contents of a command file on the remote node; capture output to
 {burd_output_dir}.
 
-`buw-nws <workload-alias>`::
-Open an interactive SSH session.
+[[bust_interactive_session]]
+//axvo_tabtarget
+{bust_interactive_session}::
+`buw-nws` —
+Open an interactive SSH session to the workload account.
 
 ==== Handbook
 
-`buw-hn0`::
+[[bust_handbook_node_top]]
+//axvo_tabtarget
+{bust_handbook_node_top}::
+`buw-hn0` —
 Top-level handbook landing for node access procedures.
 
 === Privileges
