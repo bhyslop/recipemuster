@@ -51,6 +51,7 @@
         "₢A-AAY",
         "₢A-AAZ",
         "₢A-AAa",
+        "₢A-AAc",
         "₢A-AAb",
         "₢A-AAC",
         "₢A-AAD",
@@ -60,7 +61,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "next_pace_seed": "AAc",
+      "next_pace_seed": "AAd",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -601,6 +602,17 @@
               "text": "## Character\nSmall implementation — colophon move + tier-aware filtering decision. May fold into BUK rename.\n\n## Docket\nMove SSH config aggregator from `buw-HWsc` (Windows-handbook scope) to `buw-rnc` (regime-ops scope, both tiers).\n\nTier-aware filtering: aggregator emits `~/.ssh/config` entries for which BURN profiles? Likely both tiers. Mount-time decision.\n\nUpdate handbook references that pointed at the old colophon.\n\nOptional fold into BUK rename if scope holds.",
               "silks": "buw-rnc-ssh-config-aggregator",
               "commit": "053d5a0"
+            }
+          ]
+        },
+        "₢A-AAc": {
+          "tacks": [
+            {
+              "ts": "260429-1135",
+              "state": "rough",
+              "text": "## Character\nTest execution on the curia (Mac) — early regression catch for the BURN rename + Windows-only scope changes, before committing to a Windows trip.\n\n## Docket\nRun `tt/jjw-tfs.TestFundusScenario.localhost.sh` on the curia after AAa lands. This is the FIRST testing pace in the heat — runs before any Windows practice so curia regressions don't compound with Windows-host discoveries.\n\nValidates:\n- Legacy `buw-rhcx` (BURN-renamed in AAV, no garrison replacement) still mints a localhost profile consumable by `jjx_bind`\n- JJK fundus scenarios pass against the renamed `burn.env` profile filename\n- BUK self-test (`tt/buw-st.BukSelfTest.sh`) green\n- New Windows-only verbs in AAX/AAY don't break the localhost coexistence path\n\nIf failures surface, fix on the curia before AAC commits to the Windows host. Distinct from AAP — AAP runs at the very end (post-Windows practice) and catches regressions introduced during Windows work; this pace catches regressions introduced by the implementation block itself.",
+              "silks": "localhost-smoke-pre-windows",
+              "commit": "7c0ef24"
             }
           ]
         }
