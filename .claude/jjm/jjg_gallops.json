@@ -370,6 +370,13 @@
         "₢A-AAQ": {
           "tacks": [
             {
+              "ts": "260429-1056",
+              "state": "rough",
+              "text": "## Character\nSpec writing — fleshing out a stub spec into full ceremony coverage. Mostly mechanical once Garrison/Conscript phase boundaries are clear.\n\n## Docket\nElaborate `Tools/buk/vov_veiled/BUSNW-NodeWindows.adoc` covering Garrison and Conscript ceremonies on Windows.\n\nGarrison phases: console (operator at keyboard, handbook surface only), handshake (first SSH via temp creds), provisioning (sshd_config, service, firewall, admin authorized_keys), harden (disable temp auth, verify keys-only).\n\nConscript phases per workload shell: remote user create via privileged BURN, per-user authorized_keys (NOT admin auth_keys), workload `burn.env` write, verification.\n\nWire format details: `administrators_authorized_keys` path + `icacls` ACL contract; per-user authorized_keys path; sshd_config directives Windows OpenSSH refuses (`UsePAM`, `ChallengeResponseAuthentication`).\n\nCodify the PowerShell-from-WSL pattern: bash owns control flow, PowerShell is the Windows syscall layer, one atomic command per call.\n\nOriginal AAQ scope morphed: per-command subdocs no longer the right shape under the tier model. Per-platform subdoc is the right home.",
+              "silks": "specify-new-buk-commands-in-bus0",
+              "commit": "7fc79f3"
+            },
+            {
               "ts": "260413-1609",
               "state": "rough",
               "text": "## Character\nSpec writing — studying three existing concept model documents, then applying the patterns to produce two new BUS0 subdocuments. Mechanical once the study phase is complete.\n\n## Docket\n\nWrite BUS0 subdocuments for the three new BUK commands added in ₢A-AAC. One command per include file.\n\n**Phase 1 — Study (read-only):**\nRead these documents for patterns:\n- RBS0 (`Tools/rbk/vov_veiled/RBS0-SpecTop.adoc`) — how RBK structures command specs with include files\n- AXLA (`Tools/cmk/vov_veiled/AXLA-Lexicon.adoc`) — motif vocabulary and voicing annotations\n- MCM (`Tools/cmk/vov_veiled/MCM-MetaConceptModel.adoc`) — linked term structure: mapping section, anchors, definition sites\n- BUSD-DispatchRuntime.adoc — existing BUS0 subdocument precedent\n\n**Phase 2 — Write three subdocuments:**\n\nArchitecture context (resolved in ₢A-AAC): `zburh_build_key_line` in `burh_regime.sh` is the shared pure string builder (sets `ZBURH_KEY_LINE` and `ZBURH_KEY_MARKER`). Platform wrappers handle I/O: Unix file ops on Linux/Mac, PowerShell on Windows. Marker format `# BURH:<alias>` is the idempotency wire contract.\n\nThree commands to specify:\n1. `burh_install_key` (buw-rhk) — Linux/Mac key install. Uses `${HOME}/.ssh/authorized_keys`, chmod 600.\n2. `buwc_install_key` (buw-wck) — Windows admin key install. Uses `ZBUHW_ADMIN_AUTH_KEYS` (PowerShell I/O), icacls for permissions.\n3. `buwc_bootstrap_sshd` (buw-wcb) — Windows sshd provisioning. Platform gate (WSL required), `buc_require \"OVERWRITE\"` confirmation gate. Owns sshd_config, service, firewall. Does NOT touch authorized_keys.\n\nEach subdocument should specify:\n- Inputs (regime variables consumed, folio requirements)\n- Preconditions (platform gates, confirmation gates)\n- Behavior (what it writes, idempotency guarantees)\n- Ownership boundary (what it does and does NOT manage)\n- Wire formats (marker pattern for key install commands)\n\nAdd `include::` lines to BUS0 at appropriate positions.",
@@ -387,6 +394,13 @@
         },
         "₢A-AAR": {
           "tacks": [
+            {
+              "ts": "260429-1056",
+              "state": "rough",
+              "text": "## Character\nSpec writing — single contract specification. Mechanical.\n\n## Docket\nSpecify the `zburn_build_key_line` pure-string contract in BUS0 §Remote Node Access. Defines the `# BURN:<alias>` idempotency marker, the output variable shape, and the key-line format with and without `command=` routing. Pure function — no I/O.\n\nThis is the wire format for all key-install helpers across Garrison and Conscript. Marker format change breaks idempotency across all platforms.\n\nOriginal AAR scope minus the BUWC module declaration — that vocabulary disappears under the BUS0 tier model.",
+              "silks": "specify-bus0-buwc-module-and-key-builder",
+              "commit": "7fc79f3"
+            },
             {
               "ts": "260413-1724",
               "state": "rough",
