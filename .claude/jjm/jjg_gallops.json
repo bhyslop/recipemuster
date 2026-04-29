@@ -7761,6 +7761,13 @@
         "₢BBAAs": {
           "tacks": [
             {
+              "ts": "260429-1022",
+              "state": "rough",
+              "text": "## Character\n\nEmpirical run-until-green for `onboarding-sequence` against a canonical-established depot.\n\n## Iteration loop\n\nEach turn:\n\n1. Run the fixture, or the named failing case.\n2. If needed, use `gcloud` to diagnose.\n3. Recommend a fix.\n4. Await guidance.\n\nNo autonomous re-runs. No autonomous edits.\n\n## Wrap criterion\n\nGreen tally on onboarding-sequence.\n\n## Cross-pace dependencies\n\n- BBAAu landed.\n- canonical-establish (BBAAe) for depot+SAs.\n\n## Out of scope\n\n- Construction — BBAAu.\n- Full gauntlet — BBAAX.\n- moriah Fixture static — phantom.",
+              "silks": "crucible-fixture-gauntlet-readiness",
+              "commit": "7d0377e"
+            },
+            {
               "ts": "260429-0824",
               "state": "rough",
               "text": "## Character\n\nEmpirical run-until-green for `onboarding-sequence` fixture. Iterate: run, observe surprises, triage inline-or-follow-up, run again, until the fixture passes end-to-end against a canonical-established depot.\n\nThe fixture must produce every vessel downstream crucibles consume — kludged for tadmor/ccyolo, ordained for moriah/srjcl/pluml/graft. Verifying that production works against real GCP is what this pace closes.\n\n## Wrap criterion\n\n**Green tally on onboarding-sequence.** Not \"ran to completion.\" Not \"captured findings.\" Same structural guardrail as BBAAX, scoped to this one fixture.\n\n## Cost\n\n~30-60 min wall-clock + a GCP project per attempt. Re-runs accumulate cost; budget accordingly.\n\n## Cross-pace dependencies\n\n- BBAAu landed (onboarding-sequence cases exist, compile, are invocable).\n- canonical-establish fixture (BBAAe) for the depot+SAs precondition.\n\n## Out of scope\n\n- Construction work — landed in BBAAu.\n- Full gauntlet end-to-end run — BBAAX.\n- moriah crucible Fixture static — still phantom.",
