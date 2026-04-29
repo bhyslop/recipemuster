@@ -374,6 +374,13 @@
         "₢A-AAP": {
           "tacks": [
             {
+              "ts": "260429-1109",
+              "state": "rough",
+              "text": "## Character\nTest execution — regression check after practice-driven amendments.\n\n## Docket\nRe-run the full fundus scenario test suite (`tt/jjw-tfs.TestFundusScenario.localhost.sh`) to confirm that any code changes made during practice paces (AAC–AAF) haven't broken the BURN-based bind path.\n\nSame coverage as ₢A-AAO but exercised after practice amendments have landed. If failures surface, fix and iterate.",
+              "silks": "retest-fundus-after-practice",
+              "commit": "803fff6"
+            },
+            {
               "ts": "260413-1050",
               "state": "rough",
               "text": "## Character\nTest execution — regression check after practice-driven amendments.\n\n## Docket\nRe-run the full fundus scenario test suite (`tt/jjw-tfs.TestFundusScenario.localhost.sh`) to confirm that any code changes made during practice paces (AAC–AAF) haven't broken the BURH-based bind path.\n\nSame coverage as ₢A-AAO but exercised after practice amendments have landed. If failures surface, fix and iterate.",
@@ -475,6 +482,13 @@
         "₢A-AAV": {
           "tacks": [
             {
+              "ts": "260429-1109",
+              "state": "rough",
+              "text": "## Character\nMechanical sweep — rename across BUK, no semantic change. Absorbs former AAU (tier-refusal helper) and AAb (SSH config aggregator colophon move).\n\n## Docket\nWholesale rename BURH → BURN across BUK: variables, function prefixes, module file names, profile filename (`burh.env` → `burn.env`), zipper enrollments, tabtarget filenames. Add `BURN_TIER` enrollment (`privileged|workload`); the field exists, enforcement helper lands here.\n\nConstructor enrollments (`BUWZ_RHC_*`) and Windows command enrollments (`BUWZ_WC_*`) keep names provisionally; they retire in Garrison/Conscript paces, not here.\n\nTier-refusal helper: mint a centralized assertion (e.g., `burn_assert_tier <expected> <alias>`) that compares the alias's `BURN_TIER` against the expected tier. Error format: name expected tier, observed tier, alias name; exit non-zero before any side effect. BUS0 already states the contract on `burn_tier`; this codifies the helper and its error shape so Garrison/Conscript paces consume one implementation.\n\nSSH config aggregator move: rename `buw-HWsc.SshConfig.sh` → `buw-rnc.NodeSshConfig.sh` and update its underlying function/module names. Tier-aware filtering: aggregator emits `~/.ssh/config` entries for both tiers (privileged and workload); document the choice. Update handbook references that pointed at the old colophon.\n\nValidation: `tt/buw-st.BukSelfTest.sh` and BUK-touching fixtures pass.\n\nDiscovery: `grep -rln 'BURH\\|burh' Tools/buk/ tt/`.",
+              "silks": "burh-to-burn-rename-buk",
+              "commit": "803fff6"
+            },
+            {
               "ts": "260429-1056",
               "state": "rough",
               "text": "## Character\nMechanical sweep — rename across BUK, no semantic change.\n\n## Docket\nWholesale rename BURH → BURN across BUK: variables, function prefixes, module file names, profile filename (`burh.env` → `burn.env`), zipper enrollments, tabtarget filenames. Add `BURN_TIER` enrollment (`privileged|workload`); no enforcement yet — just the field.\n\nConstructor enrollments (`BUWZ_RHC_*`) and Windows command enrollments (`BUWZ_WC_*`) keep names provisionally; they retire in Garrison/Conscript paces, not here.\n\nValidation: `tt/buw-st.BukSelfTest.sh` and BUK-touching fixtures pass.\n\nDiscovery: `grep -rln 'BURH\\|burh' Tools/buk/ tt/`.\n\nOptional fold: `buw-HWsc.SshConfig.sh` → `buw-rnc.NodeSshConfig.sh` may land here; mount decision.",
@@ -496,6 +510,13 @@
         },
         "₢A-AAX": {
           "tacks": [
+            {
+              "ts": "260429-1109",
+              "state": "rough",
+              "text": "## Character\nImplementation — net new code with refactor absorbing existing constructor + Windows-specific provisioning into per-platform routines. Multi-shell decomposition for Windows needs design judgment. Defines the key-line wire format inline.\n\n## Docket\nMint `busn_garrison` per platform per BUS0 catalog (`buw-npg{l,m,c,w,p,x}`). Each writes a privileged `burn.env` (BURN_TIER=privileged) and runs the platform ceremony.\n\nLinux/Mac/Localhost: minimal — assume existing sshd, key install via privileged authority.\n\nWindows variants (Cygwin/WSL/PowerShell): full ceremony — sshd bootstrap, admin authorized_keys install with `command=` routing per shell. Console phase is handbook-surface residue (later pace), not Garrison code.\n\nKey-line wire format (the former AAR scope, now inline): the renamed `zburn_build_key_line` helper produces `[command=\"...\",options ]<keytype> <base64> # BURN:<alias>` — the trailing `# BURN:<alias>` is the idempotency marker that key-install and SSH-config-aggregation logic grep for. The `command=` prefix is conditional on the platform's routing needs (Windows shells require it; direct-shell platforms omit it). Keep the format definition co-located with the only producer.\n\nRetire `buw-rhc{c,l,m,p,w,x}`, `buw-wcb`, `buw-wck` files and zipper enrollments.\n\nTier assertion via the helper minted in AAV: Garrison rejects workload aliases.",
+              "silks": "garrison-platform-machinery",
+              "commit": "803fff6"
+            },
             {
               "ts": "260429-1057",
               "state": "rough",
