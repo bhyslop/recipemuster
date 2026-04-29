@@ -98,9 +98,20 @@ const RBTDRO_CONSUMERS_JUPYTER_BOTTLE: &[&str] = &[RBTDRO_NAMEPLATE_SRJCL];
 
 // ── Yoke fan-out — inscribe-reliquary yoking all ordain-side vessels ─────────
 //
+// Yoke applies to conjure-mode vessels only — they are the ones whose
+// Dockerfile pulls from the reliquary tool images at Cloud Build time, so
+// they need the stamp written into rbrv.env. Bind-mode and graft-mode
+// vessels skip Cloud Build (bind pins an upstream digest; graft pushes a
+// pre-built image), so the reliquary toolchain is not in their build path.
+// `rbfl_yoke` enforces this by refusing non-conjure vessels.
+//
 // ccyolo has RBRV_RELIQUARY= in its rbrv.env (present, empty) — it is a
 // conjure-mode vessel whose Dockerfile pulls from the reliquary tool images,
 // so it needs the stamp at ordain time. Included.
+//
+// rbev-bottle-plantuml has RBRV_RELIQUARY= as schema parity but is
+// bind-mode. Excluded from yoke fan-out — bind mode does not use the
+// reliquary toolchain.
 //
 // rbev-graft-demo also has RBRV_RELIQUARY= but graft-mode vessels do not use
 // the reliquary toolchain (they push a pre-built image; no Dockerfile build).
@@ -110,9 +121,9 @@ const RBTDRO_YOKE_VESSEL_DIRS: &[&str] = &[
     RBTDRO_VESSEL_DIR_SENTRY_TETHER,
     RBTDRO_VESSEL_DIR_AIRGAP_FORGE,
     RBTDRO_VESSEL_DIR_AIRGAP_BOTTLE,
-    RBTDRO_VESSEL_DIR_PLANTUML,
     RBTDRO_VESSEL_DIR_JUPYTER,
     "rbev-vessels/rbev-bottle-ccyolo",
+    // rbev-bottle-plantuml excluded: bind mode does not use reliquary tool images
     // rbev-graft-demo excluded: graft mode does not use reliquary tool images
 ];
 
