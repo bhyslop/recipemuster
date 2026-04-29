@@ -138,8 +138,8 @@ buhw_access_remote() {
   test -n "${z_key_name}" || buc_die "buhw_access_remote: key-name required (arg 3)"
   test -n "${z_alias}"    || buc_die "buhw_access_remote: alias required (arg 4)"
 
-  buh_section  "SSH Client Key & Host Configuration"
-  buh_line     "Provision client with a dedicated key and deterministic host config."
+  buh_section  "SSH Client Key Generation"
+  buh_line     "Provision client with a dedicated key for the target host."
   buh_e
   buh_section  "Parameters:"
   buyy_cmd_yawp "${z_host}"; local -r z_host_yelp="${z_buym_yelp}"
@@ -310,8 +310,9 @@ buhw_top() {
   buh_tt       "  PowerShell: " "${BUWZ_RHC_POWERSHELL}" "" " <host> <user> <moniker>"
   buh_tt       "  Localhost:  " "${BUWZ_RHC_LOCALHOST}" "" " <user> <moniker>"
   buh_e
+  buh_section  "BURN Profile SSH Operations:"
   buh_tt       "  Verify SSH connection:  " "${BUWZ_HW_VERIFY_SSH}" "" " <alias>"
-  buh_tt       "  Install BURN key:       " "${BUWZ_RH_INSTALL_KEY}" "" " <alias>"
+  buh_tt       "  Install BURN key:       " "${BUWZ_RN_INSTALL_KEY}" "" " <alias>"
   buh_e
   buh_section  "Windows Commands:"
   buh_tt       "  Bootstrap sshd (WSL):   " "${BUWZ_WC_BOOTSTRAP}"
