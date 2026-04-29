@@ -51,6 +51,10 @@ pub const RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE: &str = "rbw-iJh";
 pub const RBTDRM_COLOPHON_JETTISON_RELIQUARY_IMAGE: &str = "rbw-iJr";
 pub const RBTDRM_COLOPHON_JETTISON_ENSHRINEMENT: &str = "rbw-iJe";
 
+// Kludge colophons (param1 channel — nameplate as argument)
+pub const RBTDRM_COLOPHON_KLUDGE_SENTRY: &str = "rbw-cKS";
+pub const RBTDRM_COLOPHON_KLUDGE_BOTTLE: &str = "rbw-cKB";
+
 // Crucible active check (param1 channel — nameplate as argument)
 pub const RBTDRM_COLOPHON_CRUCIBLE_ACTIVE: &str = "rbw-cic";
 
@@ -114,10 +118,10 @@ pub const RBTDRM_FIXTURE_PRISTINE_LIFECYCLE: &str = "pristine-lifecycle";
 // Gauntlet canonical-establish fixture (§2: canonical depot levy + governor
 // mantle + retriever/director invest with per-case precondition probes)
 pub const RBTDRM_FIXTURE_CANONICAL_ESTABLISH: &str = "canonical-establish";
-// Gauntlet canonical-onboarding-sequence fixture (§3: handbook-walked vessel
-// construction — inscribe reliquary plus one ordain-* case per director-mode
-// handbook track, build-only)
-pub const RBTDRM_FIXTURE_CANONICAL_ONBOARDING_SEQUENCE: &str = "canonical-onboarding-sequence";
+// Gauntlet onboarding-sequence fixture (§3: handbook-walked vessel
+// construction — inscribe reliquary, enshrine bases, kludge tadmor/ccyolo,
+// plus one ordain-* case per director-mode handbook track, build-only)
+pub const RBTDRM_FIXTURE_ONBOARDING_SEQUENCE: &str = "onboarding-sequence";
 // Calibrant fixtures — synthetic deterministic-verdict fixtures driving the
 // bash blackbox testbench. Internal framework-test plumbing.
 pub const RBTDRM_FIXTURE_CALIBRANT_VERDICTS: &str = "calibrant-verdicts";
@@ -181,11 +185,13 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDRM_COLOPHON_GOV_INVEST_DIRECTOR,
             RBTDRM_COLOPHON_ACCESS_PROBE,
         ]),
-        RBTDRM_FIXTURE_CANONICAL_ONBOARDING_SEQUENCE => Some(&[
+        RBTDRM_FIXTURE_ONBOARDING_SEQUENCE => Some(&[
             RBTDRM_COLOPHON_INSCRIBE_RELIQUARY,
             RBTDRM_COLOPHON_YOKE_RELIQUARY,
             RBTDRM_COLOPHON_ENSHRINE_VESSEL,
             RBTDRM_COLOPHON_ORDAIN,
+            RBTDRM_COLOPHON_KLUDGE_SENTRY,
+            RBTDRM_COLOPHON_KLUDGE_BOTTLE,
         ]),
         RBTDRM_FIXTURE_HANDBOOK_RENDER => Some(&[
             RBTDRM_COLOPHON_ONBOARD_START_HERE,

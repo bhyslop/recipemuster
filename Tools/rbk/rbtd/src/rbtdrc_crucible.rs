@@ -2205,8 +2205,8 @@ pub fn rbtdrc_lookup_fixture(fixture: &str) -> Option<&'static rbtdre_Fixture> {
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_CANONICAL_ESTABLISH => {
             Some(&crate::rbtdrk_canonical::RBTDRK_FIXTURE_CANONICAL_ESTABLISH)
         }
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_CANONICAL_ONBOARDING_SEQUENCE => {
-            Some(&crate::rbtdro_onboarding::RBTDRO_FIXTURE_CANONICAL_ONBOARDING_SEQUENCE)
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_ONBOARDING_SEQUENCE => {
+            Some(&crate::rbtdro_onboarding::RBTDRO_FIXTURE_ONBOARDING_SEQUENCE)
         }
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_CALIBRANT_VERDICTS => {
             Some(&crate::rbtdrl_calibrant::RBTDRL_FIXTURE_VERDICTS)
