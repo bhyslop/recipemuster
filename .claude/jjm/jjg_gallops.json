@@ -123,6 +123,13 @@
         "₢A-AAC": {
           "tacks": [
             {
+              "ts": "260429-1135",
+              "state": "rough",
+              "text": "## Character\nHuman-driven with agent amending — first cross-boundary execution against real Windows. Expect discoveries.\n\n## Docket\nRun new Garrison/Conscript automation against the actual Windows host. Runs *after* the curia localhost smoke pace passes (don't commit to a Windows trip with curia regressions outstanding).\n\nMac side (curia):\n- `buw-npg{c,w,p}` for the three Windows shell variants — each writes a privileged profile and runs the Windows ceremony.\n- `buw-rnc` to aggregate `~/.ssh/config` entries.\n- `buw-nwc{c|w|p}` to Conscript a workload account.\n- `jjx_bind` to confirm JJK relay works against a Windows BURN profile.\n\nWindows side: first Garrison SSH lands using temp credentials from console-handshake residue. Harden phase disables temp credentials.\n\nPass criteria — what counts as Windows ceremony works per shell variant:\n- Passwordless re-SSH lands as the privileged user\n- `administrators_authorized_keys` contains the `# BURN:<alias>` marker line\n- Hardened sshd_config in place (no `UsePAM`, no password auth, no challenge-response)\n- Workload Conscript writes per-user `authorized_keys` (NOT admin path) with marker\n- Workload Check (`buw-nwc <workload-alias>`) returns clean\n- `jjx_bind` against the workload alias succeeds\n\nAgent amends tabtarget code for issues discovered. Watch for: `b hyslop` (space in username) shell quoting at every BURN_USER expansion; PowerShell-from-WSL atomic-command boundaries.",
+              "silks": "practice-access-procedures",
+              "commit": "d780f59"
+            },
+            {
               "ts": "260429-1058",
               "state": "rough",
               "text": "## Character\nHuman-driven with agent amending — first cross-boundary execution under BUS0 verb set. Expect discoveries.\n\n## Docket\nRun the new Garrison/Conscript automation against the actual Windows host.\n\nMac side (curia):\n- `buw-npg{c,w,p}` for the three Windows shell variants — each writes a privileged profile and runs the Windows ceremony (sshd bootstrap, admin authorized_keys install).\n- `buw-rnc` to aggregate `~/.ssh/config` entries.\n- Optional `buw-nwc{c|w|p}` to Conscript a workload account for daily work.\n- Verify with `buw-nwc <workload-alias>` per workload profile.\n- `jjx_bind` to confirm relay still works post-rename.\n\nWindows side: first Garrison SSH lands using temp credentials enabled in the console-handshake residue. Garrison harden phase disables temp credentials.\n\nAgent amends tabtarget code for any issues discovered. Watch for: `b hyslop` (space in username) shell quoting at every BURN_USER expansion; PowerShell-from-WSL atomic-command boundaries; sshd_config directives Windows OpenSSH refuses.",
@@ -373,6 +380,13 @@
         },
         "₢A-AAP": {
           "tacks": [
+            {
+              "ts": "260429-1135",
+              "state": "rough",
+              "text": "## Character\nTest execution — final regression after Windows practice; validates legacy localhost path coexists with new Windows garrison verbs.\n\n## Docket\nRe-run `tt/jjw-tfs.TestFundusScenario.localhost.sh` on the curia after all practice paces (AAC–AAF) have landed. Distinct from the pre-Windows curia smoke pace: AAP runs *after* Windows practice has potentially amended code, catching regressions introduced during human-driven Windows work.\n\nValidates:\n- Practice-driven amendments didn't break the BURN-based bind path\n- Legacy `buw-rhcx` (BURN-renamed in AAV, no garrison replacement) still mints localhost profiles consumable by JJK fundus\n- Windows-only additions in AAX/AAY don't regress localhost coexistence\n- BUK self-test (`tt/buw-st.BukSelfTest.sh`) green\n\nIf failures surface, fix and iterate.",
+              "silks": "retest-fundus-after-practice",
+              "commit": "d780f59"
+            },
             {
               "ts": "260429-1109",
               "state": "rough",
