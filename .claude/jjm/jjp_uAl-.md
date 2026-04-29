@@ -26,10 +26,11 @@ captures only state that doesn't fit there.
   - `buw-npg{c,w,p}` — Garrison per Windows shell (Cygwin/WSL/PowerShell)
   - `buw-nwc{c,w,p}` — Conscript per Windows shell
   - `buw-nw{d,i}` — Discharge / Inventory (Windows-side)
-  - `buw-nw{c,r,s}` — Check / Run / Ssh (workload operational)
+  - `buw-nw{k,r,s}` — Knock / Run / Ssh (workload operational)
   - `buw-hn0` — Handbook landing for node ops
-- Visual proximity note: `buw-nwc` (Check) vs `buw-nwc{platform}` (Conscript)
-  — distinct colophons, accepted
+- Workload responsiveness "knock" colophon is `buw-nwk` (originally
+  `buw-nwc`; renamed to remove visual collision with conscript family
+  `buw-nwc{platform}`).
 - Linux/Mac/Localhost garrison and conscript variants (`buw-npg{l,m,x}`,
   `buw-nwc{l,m,x}`) are not slated and not itched. Mint as new paces when
   a first non-Windows fundus target actually arrives. Legacy `buw-rhc{l,m,x}`
