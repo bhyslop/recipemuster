@@ -22,6 +22,7 @@ captures only state that doesn't fit there.
 - Verb vocabulary (BUSN quoins): Garrison / Conscript / Discharge / Inventory
 - Tabtarget colophon families under `buw-`:
   - `buw-rn{l,r,v}` — BURN regime ops (list / render / validate)
+  - `buw-rnc` — SSH config aggregator (cross-tier, all profiles)
   - `buw-npg{l,m,c,w,p,x}` — Garrison per platform (privileged setup)
   - `buw-nwc{l,m,c,w,p,x}` — Conscript per platform (workload mint)
   - `buw-nw{d,i}` — Discharge / Inventory
@@ -30,27 +31,47 @@ captures only state that doesn't fit there.
 - Visual proximity note: `buw-nwc` (Check) vs `buw-nwc{platform}` (Conscript)
   — distinct colophons, accepted
 
-## Heat Sequence (post-triage)
+## Heat Sequence (post-triage and post-audit)
 
-Spec exists. Remaining: implement, walk, practice.
+Spec backbone in place; spec subdocs need elaboration; implementation paces
+slated; practice unchanged.
 
-Pending:
+**Spec phase (pending):**
 
-- **Implement** the BUS0 tabtarget set (BURH → BURN code rename, new
-  colophon families, Garrison/Conscript/Discharge/Inventory machinery)
-- **₢A-AAC** reslate to: walk access ceremony on real hardware
-- **₢A-AAD** practice WSL + Cygwin install on Windows host
-- **₢A-AAE** practice fundus provisioning inside WSL
-- **₢A-AAF** practice Docker dual-daemon setup
-- **₢A-AAP** regression-retest fundus after practice amendments
-- **₢A-AAR** specify BUWC module + key builder in BUS0
-- **₢A-AAQ** specify per-command subdocs (burn_install_key etc.)
+- ₢A-AAR specify-zburn-key-line-builder (reslated; BUWC half dropped)
+- ₢A-AAQ elaborate-busnw-windows-ceremony (reslated; morphed from
+  per-command subdocs)
+- ₢A-AAU specify-busn-tier-refusal (newly slated)
 
-Triaged out:
+**Implementation phase (newly slated, sequenced):**
+
+- ₢A-AAV burh-to-burn-rename-buk (mechanical)
+- ₢A-AAW burh-to-burn-rename-jjk (mechanical, depends on AAV)
+- ₢A-AAX garrison-platform-machinery (refactor + new code, six platforms)
+- ₢A-AAY conscript-discharge-inventory-machinery (workload-tier mirror,
+  depends on AAX)
+- ₢A-AAZ workload-operational-tabtargets (Check / Run / Ssh)
+- ₢A-AAa node-handbook-landing-and-windows-residue (handbook restructure,
+  depends on AAX and AAY)
+- ₢A-AAb buw-rnc-ssh-config-aggregator (colophon move; may fold into AAV)
+
+**Practice phase:**
+
+- ₢A-AAC (reslated for new verbs) — practice with Garrison/Conscript on
+  real hardware
+- ₢A-AAD WSL + Cygwin install (unchanged)
+- ₢A-AAE fundus provisioning (unchanged)
+- ₢A-AAF Docker dual-daemon (unchanged)
+
+**Regression:**
+
+- ₢A-AAP retest fundus after practice (unchanged)
+
+Triaged out (no slate change; act on at wrap time):
 
 - ₢A-AAH (verification tabtargets) — fold into practice wrap notes
-- ₢A-AAI (reconsider Cygwin install) — fold into ₢A-AAD wrap notes
-- ₢A-AAJ (autonumber sweep) — relocate to ₣A6 (handbook restart)
+- ₢A-AAI (reconsider Cygwin install) — fold into AAD wrap notes
+- ₢A-AAJ (autonumber sweep) — relocate to ₣A6
 - ₢A-AAS, ₢A-AAT (handbook-render fixture coverage) — relocate to ₣BB
 
 ## Deferred (named for future return)
