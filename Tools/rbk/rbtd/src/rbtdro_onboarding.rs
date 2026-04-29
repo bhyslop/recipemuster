@@ -35,9 +35,9 @@
 // when each handbook-prescribed hallmark lands in GAR. Per-case precondition
 // probes enable a-la-carte single-case rerun.
 //
-// The reliquary stamp captured by case 1 is persisted to a scratch file
-// under .rbk/.gauntlet/ so downstream cases can verify the stamp landed
-// without re-walking depot inventory.
+// Case 1 yokes the reliquary stamp into vessel rbrv.env files and commits.
+// Downstream cases verify case 1 ran by reading RBRV_RELIQUARY from a stable
+// yoked vessel's rbrv.env — no out-of-source-tree scratch state.
 
 use std::io::{BufRead, BufReader, Write};
 use std::path::{Path, PathBuf};
@@ -116,12 +116,19 @@ const RBTDRO_YOKE_VESSEL_DIRS: &[&str] = &[
     // rbev-graft-demo excluded: graft mode does not use reliquary tool images
 ];
 
-// ── Reliquary scratch state ──────────────────────────────────
+// ── Reliquary stamp witness ──────────────────────────────────
 
-/// Fixture-private scratch path under the regime state dir. Carries the
-/// reliquary stamp captured by case 1 forward to downstream cases across
-/// per-case BURV-invocation isolation.
-const RBTDRO_SCRATCH_RELIQUARY_REL: &str = ".rbk/.gauntlet/reliquary-stamp.txt";
+/// Filename of a vessel's rbrv.env (relative to the vessel directory).
+const RBTDRO_VESSEL_RBRV_FILE: &str = "rbrv.env";
+
+/// Field name yoked by case 1 in each vessel rbrv.env. Presence (non-empty)
+/// is the cross-case witness that case 1 ran.
+const RBTDRO_FIELD_RBRV_RELIQUARY: &str = "RBRV_RELIQUARY";
+
+/// Stable vessel chosen for the case-1 witness probe: sentry-tether is the
+/// first entry in `RBTDRO_YOKE_VESSEL_DIRS` and is yoked on every conjure
+/// path, so its rbrv.env always carries the stamp after case 1.
+const RBTDRO_WITNESS_VESSEL_DIR: &str = RBTDRO_VESSEL_DIR_SENTRY_TETHER;
 
 // ── Graft override ───────────────────────────────────────────
 
@@ -143,8 +150,21 @@ fn rbtdro_probe_root() -> Result<PathBuf, String> {
     std::env::current_dir().map_err(|e| format!("cannot resolve project root: {}", e))
 }
 
-fn rbtdro_scratch_reliquary_path(root: &Path) -> PathBuf {
-    root.join(RBTDRO_SCRATCH_RELIQUARY_REL)
+/// Read an env-file value or None if absent. Mirrors the helpers in rbtdrk
+/// and rbtdrp — kept local to avoid cross-module coupling.
+fn rbtdro_read_env_value(path: &Path, key: &str) -> Option<String> {
+    let content = std::fs::read_to_string(path).ok()?;
+    let prefix = format!("{}=", key);
+    for line in content.lines() {
+        let trimmed = line.trim_start();
+        if trimmed.starts_with('#') {
+            continue;
+        }
+        if let Some(rest) = trimmed.strip_prefix(&prefix) {
+            return Some(rest.to_string());
+        }
+    }
+    None
 }
 
 /// Cases 1, 2, 8, 9 probe: governor RBRA present at the canonical secrets path.
@@ -158,18 +178,30 @@ fn rbtdro_probe_governor_rbra() -> Result<(), String> {
     Ok(())
 }
 
-/// Cases 3-7 probe: reliquary stamp scratch file present and non-empty.
-/// Established by case 1's inscribe; the scratch file lets per-vessel cases
-/// verify case 1 ran without re-walking depot inventory.
+/// Cases 3-7 probe: reliquary stamp yoked into the witness vessel's rbrv.env.
+/// Case 1's yoke fan-out writes RBRV_RELIQUARY into every conjure-path vessel
+/// and commits; reading the witness vessel's committed value is the cross-case
+/// evidence that case 1 ran. No out-of-source-tree scratch state.
 /// Kludge is local-only (no GCP), so governor RBRA is not a load-bearing
-/// precondition for kludge; the scratch presence confirms case 1 completed.
+/// precondition for kludge; the witness presence confirms case 1 completed.
 fn rbtdro_probe_reliquary_stamp() -> Result<(), String> {
     let root = rbtdro_probe_root()?;
-    let path = rbtdro_scratch_reliquary_path(&root);
-    let content = std::fs::read_to_string(&path)
-        .map_err(|e| format!("reliquary scratch '{}' unreadable: {}", path.display(), e))?;
-    if content.trim().is_empty() {
-        return Err(format!("reliquary scratch '{}' is empty", path.display()));
+    let rbrv = root
+        .join(RBTDRO_WITNESS_VESSEL_DIR)
+        .join(RBTDRO_VESSEL_RBRV_FILE);
+    let value = rbtdro_read_env_value(&rbrv, RBTDRO_FIELD_RBRV_RELIQUARY).ok_or_else(|| {
+        format!(
+            "{} missing from {}",
+            RBTDRO_FIELD_RBRV_RELIQUARY,
+            rbrv.display()
+        )
+    })?;
+    if value.trim().is_empty() {
+        return Err(format!(
+            "{} is empty in {}",
+            RBTDRO_FIELD_RBRV_RELIQUARY,
+            rbrv.display()
+        ));
     }
     Ok(())
 }
@@ -508,8 +540,6 @@ fn rbtdro_onboarding_inscribe_reliquary_impl(
     ctx: &mut rbtdri_Context,
     dir: &Path,
 ) -> rbtdre_Verdict {
-    let root = ctx.project_root().to_path_buf();
-
     let result = match rbtdro_invoke_logged(
         ctx,
         RBTDRM_COLOPHON_INSCRIBE_RELIQUARY,
@@ -533,24 +563,6 @@ fn rbtdro_onboarding_inscribe_reliquary_impl(
         Err(e) => return rbtdre_Verdict::Fail(format!("read reliquary fact: {}", e)),
     };
     let _ = std::fs::write(dir.join("reliquary-stamp.txt"), &stamp);
-
-    let scratch = rbtdro_scratch_reliquary_path(&root);
-    if let Some(parent) = scratch.parent() {
-        if let Err(e) = std::fs::create_dir_all(parent) {
-            return rbtdre_Verdict::Fail(format!(
-                "create scratch dir {}: {}",
-                parent.display(),
-                e
-            ));
-        }
-    }
-    if let Err(e) = std::fs::write(&scratch, &stamp) {
-        return rbtdre_Verdict::Fail(format!(
-            "write reliquary scratch {}: {}",
-            scratch.display(),
-            e
-        ));
-    }
 
     // Yoke stamp into all ordain-side vessels in one pass.
     for vessel_dir in RBTDRO_YOKE_VESSEL_DIRS {
