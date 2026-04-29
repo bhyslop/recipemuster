@@ -44,6 +44,7 @@
         "₢A-AAO",
         "₢A-AAR",
         "₢A-AAQ",
+        "₢A-AAU",
         "₢A-AAC",
         "₢A-AAD",
         "₢A-AAE",
@@ -55,7 +56,7 @@
         "₢A-AAS",
         "₢A-AAT"
       ],
-      "next_pace_seed": "AAU",
+      "next_pace_seed": "AAV",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -429,6 +430,17 @@
               "text": "## Character\nImprint-channel sibling to ₢A-AAS. Design decision pace — the core question is how `buh_tt` and the handbook-render fixture should treat imprint-channel colophons when the handbook is host-agnostic. Likely needs discussion before code lands.\n\n## Docket\n`buh_tt` delegates to `buyy_tt_yawp`, which globs `${BURD_TABTARGET_DIR}/${colophon}.*` when no imprint arg is supplied and picks the first alphabetical match. For imprint-channel colophons with multiple host variants, the first match is arbitrary.\n\n### Concrete trigger\nSurfaced during ₢A6AAn. In `Tools/rbk/rbh0/rbhw0_top.sh:52`, the Windows handbook teaches Phase 3 with:\n```bash\nbuh_tt \"     Phase 2 (clone repos):              \" \"${JJZ_FUNDUS_PHASE2}\"\n```\n`JJZ_FUNDUS_PHASE2` is enrolled with channel `imprint`; the tabtargets are `jjw-tfP2.ProvisionPhase2.cerebro.sh` and `jjw-tfP2.ProvisionPhase2.localhost.sh`. The handbook is host-agnostic (it's about \"a Windows host\" in the abstract), so the glob picks `cerebro` — arbitrary and potentially misleading for a learner setting up a different host.\n\nThe prior hardcoded string was `tt/jjw-tfP2.ProvisionPhase2.{host}.sh` — explicit about the placeholder. The `buh_tt` replacement (prescribed in ₢A6AAn's docket) loses that teaching signal in exchange for a clickable link.\n\n### Why this isn't caught by the fixture today\n`handbook-render` checks exit 0, not rendered content correctness. The Windows handbook rendering with `cerebro.sh` baked in is a green case — the fixture catches display *breakage* but not display *drift*.\n\n### Candidate directions\n- **Suffix annotation idiom**: document the standard `buh_tt ... \"${FOO}\" \"\" \" (pick your host)\"` pattern for imprint-channel colophons in host-agnostic handbooks. Cheapest; no primitive change. Accepts that the rendered link points at an arbitrary variant.\n- **Multi-variant rendering in `buyy_tt_yawp`**: when called with no imprint on an imprint-channel colophon, render something like `tt/jjw-tfP2.ProvisionPhase2.{host}.sh` (synthetic placeholder) instead of globbing. Needs a way to detect \"colophon is imprint-channel\" — likely requires `buz_exec_lookup` or a sibling query on the zipper registry.\n- **Require explicit imprint**: make `buh_tt` on an imprint-channel colophon without an imprint arg a hard error. Forces every caller to make a choice. Breaking change; audit scope unclear without a grep sweep.\n- **Companion fixture assertion**: extend `handbook-render` (coordinating with ₢A-AAS) to snapshot rendered content and diff against expected per-colophon output. Catches drift, not just breakage. Heavier but pairs naturally with the param1 coverage work.\n\n### Prerequisites\n- ₢A6AAn complete — it produced the concrete trigger.\n- Likely best sequenced after ₢A-AAS so the fixture's parameterization mechanism is known before deciding whether to leverage it for content-snapshot testing.\n\n### Wrap criterion\n- Decision recorded on imprint-channel handling in handbooks (one of the directions above, or another).\n- If a primitive change: `buh_tt`/`buyy_tt_yawp` updated, call sites audited, fixture updated if behavior is observable.\n- If an idiom only: documented in BCG or the handbook-building guide, and `rbhw0_top.sh:52` updated to apply it.\n- Windows handbook (`rbw-hw`) renders in a way that doesn't silently commit a learner to the wrong host variant.\n\n### Notes\n- Currently `JJZ_FUNDUS_PHASE2` is the only known imprint-channel colophon used from a host-agnostic handbook. `JJZ_FUNDUS_SCENARIO` and `JJZ_FUNDUS_SINGLE` are also imprint-channel but aren't referenced from handbooks at time of slate.\n- Pairs thematically with ₢A-AAS — both address the gap where channeled colophons meet uniform handbook/fixture shapes. May be worth groom-time discussion of whether to merge.",
               "silks": "handbook-render-imprint-coverage",
               "commit": "31f80c5"
+            }
+          ]
+        },
+        "₢A-AAU": {
+          "tacks": [
+            {
+              "ts": "260429-1056",
+              "state": "rough",
+              "text": "## Character\nSpec writing — small contract addition to BUS0. Mechanical.\n\n## Docket\nSpecify in BUS0 §Remote Node Access that every node-access tabtarget asserts `BURN_TIER` matches its expected tier at entry. Privileged-only verbs reject workload aliases. Workload-only verbs reject privileged aliases. Cross-tier verbs accept either.\n\nSpecify error format: name expected tier, observed tier, alias name; exit non-zero before any side effect.\n\nBUS0 currently mentions the refusal in passing but doesn't catalogue the contract.",
+              "silks": "specify-busn-tier-refusal",
+              "commit": "b698cf2"
             }
           ]
         }
