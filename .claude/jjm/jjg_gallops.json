@@ -216,6 +216,13 @@
         "₢A-AAH": {
           "tacks": [
             {
+              "ts": "260429-1110",
+              "state": "abandoned",
+              "text": "## Character\nDesign + implementation — informed by practice walkthrough discoveries.\n\n## Docket\nCreate automation tabtargets that probe Windows host health over SSH. SSH connectivity verification moved to ₢A-AAL (`buw-HWvs`); this pace covers post-SSH infrastructure health.\n\nCandidates (refine based on what practice paces reveal):\n- WSL distro health: systemd running, expected packages present\n- Fundus accounts: `jjfu_*` users exist and are SSH-reachable\n- Docker dual-daemon: both daemons running, context routing correct\n- End-to-end: RBK test fixture can charge/quench inside WSL\n\nThese are automation tabtargets (exit status matters), not handbooks. They run from the curia and probe the Windows host via SSH — so they depend on ₢A-AAC (practice-access) completing successfully.\n\nScope will narrow during practice — not all candidates may be worth automating.",
+              "silks": "create-verification-tabtargets",
+              "commit": "c26f95a"
+            },
+            {
               "ts": "260413-1002",
               "state": "rough",
               "text": "## Character\nDesign + implementation — informed by practice walkthrough discoveries.\n\n## Docket\nCreate automation tabtargets that probe Windows host health over SSH. SSH connectivity verification moved to ₢A-AAL (`buw-HWvs`); this pace covers post-SSH infrastructure health.\n\nCandidates (refine based on what practice paces reveal):\n- WSL distro health: systemd running, expected packages present\n- Fundus accounts: `jjfu_*` users exist and are SSH-reachable\n- Docker dual-daemon: both daemons running, context routing correct\n- End-to-end: RBK test fixture can charge/quench inside WSL\n\nThese are automation tabtargets (exit status matters), not handbooks. They run from the curia and probe the Windows host via SSH — so they depend on ₢A-AAC (practice-access) completing successfully.\n\nScope will narrow during practice — not all candidates may be worth automating.",
