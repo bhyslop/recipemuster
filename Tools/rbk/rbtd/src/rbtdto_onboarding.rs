@@ -30,7 +30,7 @@ fn rbtdto_disposition_is_state_progressing() {
 }
 
 /// Sections lookup binds the fixture name to the registry array and yields
-/// exactly nine cases under one section ("onboarding-arc").
+/// exactly eight cases under one section ("onboarding-arc").
 #[test]
 fn rbtdto_sections_registered() {
     let fix = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_ONBOARDING_SEQUENCE)
@@ -38,10 +38,9 @@ fn rbtdto_sections_registered() {
     let sections = fix.sections;
     assert_eq!(sections.len(), 1, "expected one section");
     assert_eq!(sections[0].name, "onboarding-arc");
-    assert_eq!(sections[0].cases.len(), 9, "expected nine cases");
+    assert_eq!(sections[0].cases.len(), 8, "expected eight cases");
     let names: Vec<&str> = sections[0].cases.iter().map(|c| c.name).collect();
     assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_inscribe_reliquary")));
-    assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_enshrine_bases")));
     assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_kludge_tadmor")));
     assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_kludge_ccyolo")));
     assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_ordain_conjure")));
@@ -63,10 +62,6 @@ fn rbtdto_inscribe_precedes_reliquary_consumers() {
         .iter()
         .position(|n| n.contains("rbtdro_onboarding_inscribe_reliquary"))
         .expect("inscribe case present");
-    let enshrine_idx = names
-        .iter()
-        .position(|n| n.contains("rbtdro_onboarding_enshrine_bases"))
-        .expect("enshrine-bases case present");
     let kludge_tadmor_idx = names
         .iter()
         .position(|n| n.contains("rbtdro_onboarding_kludge_tadmor"))
@@ -91,7 +86,6 @@ fn rbtdto_inscribe_precedes_reliquary_consumers() {
         .iter()
         .position(|n| n.contains("rbtdro_onboarding_ordain_bind"))
         .expect("ordain-bind case present");
-    assert!(inscribe_idx < enshrine_idx);
     assert!(inscribe_idx < kludge_tadmor_idx);
     assert!(inscribe_idx < kludge_ccyolo_idx);
     assert!(inscribe_idx < conjure_idx);

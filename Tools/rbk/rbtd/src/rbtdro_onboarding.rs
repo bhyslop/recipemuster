@@ -18,26 +18,17 @@
 //
 // Each case walks the operator-facing onboarding handbook track for one
 // vessel-construction mode, invoking the handbook's prescribed tabtargets
-// in the prescribed order:
-//
-//   1. inscribe_reliquary  — `rbw-dI` (depot-wide toolchain mirror) +
-//                             yoke stamp into all ordain-side vessels + auto-commit
-//   2. enshrine_bases      — `rbw-dE` (global enshrine sweep) + auto-commit
-//   3. kludge_tadmor       — local docker build for tadmor sentry + bottle
-//   4. kludge_ccyolo       — local docker build for ccyolo sentry + bottle
-//   5. ordain_conjure      — ordain rbev-sentry-deb-tether + propagate to consumers
-//   6. conjure_srjcl       — ordain rbev-bottle-anthropic-jupyter + propagate to srjcl
-//   7. ordain_airgap       — airgap supply chain: enshrine, forge, enshrine, airgap
-//   8. ordain_bind         — bind rbev-bottle-plantuml + propagate to pluml
-//   9. ordain_graft        — docker pull + BURE_TWEAK ordain rbev-graft-demo
+// in the prescribed order. Case order and per-case docs live with the
+// functions below; the registered order is the source of truth (see the
+// `cases:` array in RBTDRO_SECTIONS_ONBOARDING_SEQUENCE).
 //
 // Disposition: StateProgressing. Build-only — no charge, no test. Cases stop
 // when each handbook-prescribed hallmark lands in GAR. Per-case precondition
 // probes enable a-la-carte single-case rerun.
 //
-// Case 1 yokes the reliquary stamp into vessel rbrv.env files and commits.
-// Downstream cases verify case 1 ran by reading RBRV_RELIQUARY from a stable
-// yoked vessel's rbrv.env — no out-of-source-tree scratch state.
+// inscribe_reliquary yokes the reliquary stamp into vessel rbrv.env files
+// and commits. Downstream cases verify it ran by reading RBRV_RELIQUARY from
+// a stable yoked vessel's rbrv.env — no out-of-source-tree scratch state.
 
 use std::io::{BufRead, BufReader, Write};
 use std::path::{Path, PathBuf};
@@ -314,19 +305,20 @@ fn rbtdro_yoke(
     Ok(())
 }
 
-/// Sweep enshrine across all vessel rbrv.env files. Idempotent: already-
-/// enshrined upstreams are skipped. The airgap chain calls this twice —
-/// first to mirror the upstream rust base, then to populate the airgap
-/// vessel's base anchor from the freshly-conjured forge hallmark.
+/// Enshrine one vessel — mirrors that vessel's RBRV_IMAGE_n_ORIGIN bases
+/// to GAR and writes back the resulting RBRV_IMAGE_n_ANCHOR digests.
+/// `rbfd_enshrine` is per-vessel; the airgap chain calls this twice with
+/// different vessels (forge first, then airgap-bottle).
 fn rbtdro_enshrine(
     ctx: &mut rbtdri_Context,
     dir: &Path,
+    vessel_sigil: &str,
     label: &str,
 ) -> Result<(), rbtdre_Verdict> {
     let result = match rbtdro_invoke_logged(
         ctx,
         RBTDRM_COLOPHON_ENSHRINE_VESSEL,
-        &[],
+        &[vessel_sigil],
         &[],
         dir,
         label,
@@ -336,8 +328,8 @@ fn rbtdro_enshrine(
     };
     if result.exit_code != 0 {
         return Err(rbtdre_Verdict::Fail(format!(
-            "enshrine exit {}\n{}",
-            result.exit_code, result.stderr
+            "enshrine {} exit {}\n{}",
+            vessel_sigil, result.exit_code, result.stderr
         )));
     }
     Ok(())
@@ -530,8 +522,6 @@ fn rbtdro_kludge_nameplate(
     Ok(())
 }
 
-// ── Case 1: inscribe-reliquary ───────────────────────────────
-
 /// Inscribe the depot-wide reliquary toolchain. Captures the reliquary
 /// stamp from BURV fact, persists it to the fixture scratch file, then
 /// yokes the stamp into all ordain-side vessels in one pass and auto-commits.
@@ -594,38 +584,6 @@ fn rbtdro_onboarding_inscribe_reliquary_impl(
     rbtdre_Verdict::Pass
 }
 
-// ── Case 2: enshrine-bases ────────────────────────────────────
-
-/// Sweep enshrine across all vessel rbrv.env files to populate base-image
-/// anchors from upstream registries. Idempotent. Auto-commits resulting
-/// rbrv.env anchor fields.
-fn rbtdro_onboarding_enshrine_bases(dir: &Path) -> rbtdre_Verdict {
-    let probe = rbtdrb_Probe {
-        name: "governor RBRA present",
-        check: rbtdro_probe_governor_rbra,
-        remediation: "rerun canonical-establish (rbtdrk_governor_mantle) before this fixture",
-    };
-    if let Err(v) = rbtdrb_assert(&probe) {
-        return v;
-    }
-    rbtdrc_with_ctx(|ctx| rbtdro_onboarding_enshrine_bases_impl(ctx, dir))
-}
-
-fn rbtdro_onboarding_enshrine_bases_impl(
-    ctx: &mut rbtdri_Context,
-    dir: &Path,
-) -> rbtdre_Verdict {
-    if let Err(v) = rbtdro_enshrine(ctx, dir, "enshrine-bases") {
-        return v;
-    }
-    if let Err(v) = rbtdro_git_commit("BBAAu enshrine-bases: populate enshrined base anchors") {
-        return v;
-    }
-    rbtdre_Verdict::Pass
-}
-
-// ── Case 3: kludge-tadmor ────────────────────────────────────
-
 /// Build tadmor sentry and bottle locally. Kludge is local docker — no GCP.
 /// Probe: reliquary scratch present (confirms case 1 completed).
 fn rbtdro_onboarding_kludge_tadmor(dir: &Path) -> rbtdre_Verdict {
@@ -647,8 +605,6 @@ fn rbtdro_onboarding_kludge_tadmor_impl(ctx: &mut rbtdri_Context, dir: &Path) ->
     }
 }
 
-// ── Case 4: kludge-ccyolo ────────────────────────────────────
-
 /// Build ccyolo sentry and bottle locally. Kludge is local docker — no GCP.
 /// Probe: reliquary scratch present (confirms case 1 completed).
 fn rbtdro_onboarding_kludge_ccyolo(dir: &Path) -> rbtdre_Verdict {
@@ -669,8 +625,6 @@ fn rbtdro_onboarding_kludge_ccyolo_impl(ctx: &mut rbtdri_Context, dir: &Path) ->
         Err(v) => v,
     }
 }
-
-// ── Case 5: ordain-conjure (rbw-Odf walk) ────────────────────
 
 /// Ordain rbev-sentry-deb-tether (conjure mode). Case 1 yoked the reliquary
 /// stamp into the vessel. Propagates the resulting hallmark to all sentry-tether
@@ -721,8 +675,6 @@ fn rbtdro_onboarding_ordain_conjure_impl(ctx: &mut rbtdri_Context, dir: &Path) -
     rbtdre_Verdict::Pass
 }
 
-// ── Case 6: conjure-srjcl (jupyter bottle) ───────────────────
-
 /// Ordain rbev-bottle-anthropic-jupyter (conjure mode). Propagates the
 /// resulting hallmark to srjcl via RBRN_BOTTLE_HALLMARK.
 fn rbtdro_onboarding_conjure_srjcl(dir: &Path) -> rbtdre_Verdict {
@@ -771,8 +723,6 @@ fn rbtdro_onboarding_conjure_srjcl_impl(ctx: &mut rbtdri_Context, dir: &Path) ->
     rbtdre_Verdict::Pass
 }
 
-// ── Case 7: ordain-airgap (rbw-Oda walk) ─────────────────────
-
 /// Walk the airgap supply chain: enshrine upstream rust base, conjure the
 /// forge tethered, re-enshrine to populate the airgap vessel's base anchor
 /// from the freshly-built forge, conjure the airgap bottle.
@@ -793,7 +743,22 @@ fn rbtdro_onboarding_ordain_airgap(dir: &Path) -> rbtdre_Verdict {
 fn rbtdro_onboarding_ordain_airgap_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
     let root = ctx.project_root().to_path_buf();
 
-    if let Err(v) = rbtdro_enshrine(ctx, dir, "enshrine-upstream") {
+    let forge_sigil = RBTDRO_VESSEL_DIR_AIRGAP_FORGE
+        .rsplit('/')
+        .next()
+        .unwrap_or(RBTDRO_VESSEL_DIR_AIRGAP_FORGE);
+    let airgap_sigil = RBTDRO_VESSEL_DIR_AIRGAP_BOTTLE
+        .rsplit('/')
+        .next()
+        .unwrap_or(RBTDRO_VESSEL_DIR_AIRGAP_BOTTLE);
+
+    if let Err(v) = rbtdro_enshrine(ctx, dir, forge_sigil, "enshrine-upstream") {
+        return v;
+    }
+    // Commit before ordain-forge: ordain has clean-tree precondition.
+    if let Err(v) = rbtdro_git_commit(
+        "BBAAs ordain-airgap: enshrine upstream rust base into forge vessel",
+    ) {
         return v;
     }
 
@@ -804,7 +769,13 @@ fn rbtdro_onboarding_ordain_airgap_impl(ctx: &mut rbtdri_Context, dir: &Path) ->
         return v;
     }
 
-    if let Err(v) = rbtdro_enshrine(ctx, dir, "enshrine-forge") {
+    if let Err(v) = rbtdro_enshrine(ctx, dir, airgap_sigil, "enshrine-forge") {
+        return v;
+    }
+    // Commit before ordain-airgap: ordain has clean-tree precondition.
+    if let Err(v) = rbtdro_git_commit(
+        "BBAAs ordain-airgap: enshrine forge hallmark as airgap-bottle base",
+    ) {
         return v;
     }
 
@@ -831,15 +802,13 @@ fn rbtdro_onboarding_ordain_airgap_impl(ctx: &mut rbtdri_Context, dir: &Path) ->
     }
 
     if let Err(v) =
-        rbtdro_git_commit("BBAAu ordain-airgap: airgap-bottle hallmark + propagate to moriah")
+        rbtdro_git_commit("BBAAs ordain-airgap: airgap-bottle hallmark + propagate to moriah")
     {
         return v;
     }
 
     rbtdre_Verdict::Pass
 }
-
-// ── Case 8: ordain-bind (rbw-Odb walk) ───────────────────────
 
 /// Pin upstream PlantUML by digest. Bind mode reads RBRV_BIND_IMAGE from
 /// rbev-bottle-plantuml/rbrv.env and mirrors the digest into GAR — no
@@ -890,8 +859,6 @@ fn rbtdro_onboarding_ordain_bind_impl(ctx: &mut rbtdri_Context, dir: &Path) -> r
 
     rbtdre_Verdict::Pass
 }
-
-// ── Case 9: ordain-graft (rbw-Odg walk) ──────────────────────
 
 /// Pull the graft source image, then ordain rbev-graft-demo with a
 /// BURE_TWEAK overriding RBRV_GRAFT_IMAGE in-process. No consumers —
@@ -944,7 +911,6 @@ pub static RBTDRO_SECTIONS_ONBOARDING_SEQUENCE: &[rbtdre_Section] = &[rbtdre_Sec
     name: "onboarding-arc",
     cases: &[
         case!(rbtdro_onboarding_inscribe_reliquary),
-        case!(rbtdro_onboarding_enshrine_bases),
         case!(rbtdro_onboarding_kludge_tadmor),
         case!(rbtdro_onboarding_kludge_ccyolo),
         case!(rbtdro_onboarding_ordain_conjure),
