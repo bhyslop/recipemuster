@@ -243,13 +243,13 @@ fn rbtdro_yoke(
     ctx: &mut rbtdri_Context,
     dir: &Path,
     stamp: &str,
-    vessel_dir: &str,
+    vessel_sigil: &str,
     label: &str,
 ) -> Result<(), rbtdre_Verdict> {
     let result = match rbtdro_invoke_logged(
         ctx,
         RBTDRM_COLOPHON_YOKE_RELIQUARY,
-        &[stamp, vessel_dir],
+        &[vessel_sigil, stamp],
         &[],
         dir,
         label,
@@ -258,14 +258,14 @@ fn rbtdro_yoke(
         Err(e) => {
             return Err(rbtdre_Verdict::Fail(format!(
                 "yoke {} invocation: {}",
-                vessel_dir, e
+                vessel_sigil, e
             )))
         }
     };
     if result.exit_code != 0 {
         return Err(rbtdre_Verdict::Fail(format!(
             "yoke {} exit {}\n{}",
-            vessel_dir, result.exit_code, result.stderr
+            vessel_sigil, result.exit_code, result.stderr
         )));
     }
     Ok(())
@@ -554,9 +554,9 @@ fn rbtdro_onboarding_inscribe_reliquary_impl(
 
     // Yoke stamp into all ordain-side vessels in one pass.
     for vessel_dir in RBTDRO_YOKE_VESSEL_DIRS {
-        let short = vessel_dir.rsplit('/').next().unwrap_or(vessel_dir);
-        let label = format!("yoke-{}", short);
-        if let Err(v) = rbtdro_yoke(ctx, dir, &stamp, vessel_dir, &label) {
+        let sigil = vessel_dir.rsplit('/').next().unwrap_or(vessel_dir);
+        let label = format!("yoke-{}", sigil);
+        if let Err(v) = rbtdro_yoke(ctx, dir, &stamp, sigil, &label) {
             return v;
         }
     }

@@ -70,6 +70,18 @@ zrbfl_furnish() {
 
   zbuz_kindle
   zrbz_kindle
+
+  # If BUZ_FOLIO is set, load and kindle the specified vessel.
+  # zrbrv_enforce intentionally skipped — yoke (the only rbfl_* command with
+  # param1 channel today) writes RBRV_RELIQUARY (kindle constant, min=1);
+  # pre-write enforce self-vetoes on marshal-zero state. rbw-rvv
+  # (rbrv_cli.sh:108) is the strict validator path.
+  if test -n "${BUZ_FOLIO:-}"; then
+    local z_vessel_file="${RBRR_VESSEL_DIR}/${BUZ_FOLIO}/rbrv.env"
+    test -f "${z_vessel_file}" || buc_die "Vessel not found: ${z_vessel_file}"
+    source "${z_vessel_file}" || buc_die "Failed to source vessel: ${z_vessel_file}"
+    zrbrv_kindle
+  fi
 }
 
 buc_execute rbfl_ "Recipe Bottle Foundry Ledger" zrbfl_furnish "$@"

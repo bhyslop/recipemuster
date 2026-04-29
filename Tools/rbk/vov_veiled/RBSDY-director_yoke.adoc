@@ -13,21 +13,20 @@ yokes a reliquary stamp into a vessel's regime:
 {rbtr_director}
 . *Validate Input Parameters*:
 .. {rbbc_require}
-`«STAMP»` provided as first positional argument (e.g., `r260327172456`)
+`«VESSEL_SIGIL»` provided as folio (e.g., `rbev-sentry-deb-tether`)
 .. {rbbc_require}
-`«VESSEL_SIGIL»` provided as second positional argument (e.g., `rbev-sentry-deb-tether`)
+`«STAMP»` provided as first positional argument (e.g., `r260327172456`)
 
 //axhos_step
-. *Resolve and Load Vessel*:
-.. Resolve `«VESSEL_SIGIL»` to an absolute vessel directory under
-{rbrr_vessel_dir}
+. *Load Vessel* (CLI furnish, BUZ_FOLIO-gated):
+.. Resolve `«VESSEL_SIGIL»` to vessel directory `${RBRR_VESSEL_DIR}/«VESSEL_SIGIL»`
 .. {rbbc_require}
 vessel directory contains `rbrv.env`
 .. Source `rbrv.env` to populate `RBRV_*` variables
-.. Enforce RBRV enrollment — all schema-required fields present and well-formed
-.. {rbbc_require}
-{rbrv_sigil}
-matches the directory basename
+.. Kindle RBRV enrollment (no enforce — yoke writes `RBRV_RELIQUARY`,
+which is a kindle constant with min=1 enrollment; pre-write enforce
+would self-veto on marshal-zero state. The strict validator path is
+`rbw-rvv` ValidateVesselRegime.)
 
 //axhos_step
 . *Gate on Vessel Mode*:

@@ -147,7 +147,7 @@ rbho_director_first_build() {
   buh_line "(e.g., ${z_ds_example}). Yoke that stamp into ${z_lk_vessel_name}'s"
   buh_line "${RBYC_REGIME} so ${RBYC_CONJURE} knows which tool images to use:"
   buh_e
-  buh_tt "   " "${RBZ_YOKE_RELIQUARY}" "" " <stamp> ${RBYC_HANDBOOK_VESSEL_REF}"
+  buh_tt "   " "${RBZ_YOKE_RELIQUARY}" "" " ${RBYC_HANDBOOK_VESSEL_REF} <stamp>"
   buh_e
   buh_line "Yoke validates both arguments before writing. On success it rewrites"
   buh_line "RBRV_RELIQUARY in the ${RBYC_VESSEL} rbrv.env. Commit the change."

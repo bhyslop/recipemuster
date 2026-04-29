@@ -195,26 +195,19 @@ rbfl_inscribe() {
 rbfl_yoke() {
   zrbfl_sentinel
 
+  local -r z_vessel="${BUZ_FOLIO:-}"
   local -r z_stamp="${1:-}"
-  local -r z_vessel="${2:-}"
 
   buc_doc_brief "Yoke a reliquary stamp into a conjure vessel's rbrv.env — validate both, then rewrite RBRV_RELIQUARY"
+  buc_doc_param "vessel" "Vessel sigil — folio (e.g., rbev-sentry-deb-tether)"
   buc_doc_param "stamp"  "Reliquary datestamp (e.g., r260327172456)"
-  buc_doc_param "vessel" "Vessel sigil (e.g., rbev-sentry-deb-tether)"
   buc_doc_shown || return 0
 
+  test -n "${z_vessel}" || buc_die "Vessel sigil required (folio)"
   test -n "${z_stamp}"  || buc_die "Reliquary stamp required (arg 1)"
-  test -n "${z_vessel}" || buc_die "Vessel sigil required (arg 2)"
 
-  buc_step "Validating vessel: ${z_vessel}"
-  zrbfc_resolve_vessel "${z_vessel}"
-  local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
-  test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
-  zrbfc_load_vessel "${z_vessel_dir}"
+  local -r z_vessel_dir="${RBRR_VESSEL_DIR}/${z_vessel}"
   local -r z_rbrv_file="${z_vessel_dir}/rbrv.env"
-
-  zrbrv_kindle
-  zrbrv_enforce
 
   case "${RBRV_VESSEL_MODE}" in
     conjure) ;;
