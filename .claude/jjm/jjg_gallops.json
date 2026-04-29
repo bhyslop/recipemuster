@@ -6701,9 +6701,10 @@
         "₢BBAAG",
         "₢BBAAH",
         "₢BBAAI",
-        "₢BBAAq"
+        "₢BBAAq",
+        "₢BBAAt"
       ],
-      "next_pace_seed": "AAt",
+      "next_pace_seed": "AAu",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAAA": {
@@ -7763,6 +7764,17 @@
               "text": "## Character\n\nMake the existing per-crucible fixtures (tadmor, moriah, srjcl, pluml) gauntlet-ready under the build/run split established in BBAAf: each takes \"vessel hallmark exists in GAR\" as its only precondition, refuses cleanly if absent, and runs identically against vessels built by any source — gauntlet flow, manual rbw-fO, kludge.\n\nCases stay as direct test fixtures, NOT handbook walks. Coupling crucible cases to handbook prose breaks the reusability the split exists to preserve.\n\nSequence-correctness slate; not active focus during BBAAf execution. Intent-only docket. Code-level planning at mount time.\n\n## Scope\n\n- Each crucible fixture: precondition probe for vessel-hallmark-exists with operator-actionable diagnostic on absence.\n- Reusability verified: each fixture passes against vessels built by any source, not just gauntlet-built.\n- Suite-flow integration adjustments as needed.\n\n## Wrap criterion\n\n- Each per-crucible fixture has a vessel-exists precondition probe, verified under deliberately-broken state.\n- Reusability demonstrated against at least one non-gauntlet-built vessel source.\n\n## Cross-pace dependencies\n\n- BBAAf landed (handbook-driven build cases produce vessels for the gauntlet flow).\n\n## Out of scope\n\n- Handbook walks inside crucible fixtures (architectural anti-pattern; preserves split).\n- New crucible fixtures (existing tadmor/moriah/srjcl/pluml are sufficient).\n- BBAAr's rerun proving (separate pace).\n- BBAAX's first end-to-end run (uses the readiness work this pace delivers).",
               "silks": "crucible-fixture-gauntlet-readiness",
               "commit": "1168e71"
+            }
+          ]
+        },
+        "₢BBAAt": {
+          "tacks": [
+            {
+              "ts": "260429-0650",
+              "state": "rough",
+              "text": "## Character\n\nConvert post-charge readiness-wait from a theurge-side matcher into a\nnameplate-borne fact, with the wait folded into the charge tabtarget itself.\nAfter charge returns, the case is ready — theurge holds no readiness concern.\n\n## Scope\n\n- Add `RBRN_BOTTLE_READINESS_DELAY_SEC` to the nameplate regime\n  (tadmor=0, srjcl/pluml=30 currently).\n- Charge tabtarget consults the fact and waits internally before returning.\n- Theurge: `rbtdrc_needs_readiness_delay` matcher and post-charge wait block\n  both removed.\n- Three colluding pieces collapsed: bash const\n  `RBCC_BOTTLE_TEST_READINESS_DELAY_SEC`, Rust mirror\n  `RBTDRC_SERVICE_READINESS_DELAY_SECS`, Rust matcher\n  `rbtdrc_needs_readiness_delay`.\n\n## Wrap criterion\n\n- Charge honors per-nameplate readiness delay; theurge has no readiness code.\n- tadmor/srjcl/pluml fixtures pass under fixture execution.\n\n## Cross-pace dependencies\n\n- BBAAs landed (fixture lifecycle is the right shape for this hand-off).\n\n## Out of scope\n\n- Service-readiness probe contract (poll port-open or curl health endpoint\n  until truly ready). Bigger contract upgrade; blind-sleep-by-nameplate-fact\n  is sufficient. Surface as itch.\n\n## References\n\n- Discovery clue: grep `RBRN_BOTTLE_VESSEL` to find the locality the new field\n  needs plumbing through — per-nameplate `.rbk/*/rbrn.env`, `rbrn_regime.sh`,\n  `rbrn_cli.sh`, `RBRN-RegimeNameplate.adoc`, and runtime consumers.\n- `Tools/rbk/rbtd/src/main.rs` — current post-charge wait block in theurge\n  orchestration.\n- `Tools/rbk/rbtd/src/rbtdrc_crucible.rs::rbtdrc_needs_readiness_delay()` —\n  current matcher.\n- `Tools/rbk/rbcc_Constants.sh` — bash const definition.",
+              "silks": "charge-folds-readiness-wait",
+              "commit": "ff29871"
             }
           ]
         }
