@@ -424,6 +424,13 @@
         "₢A-AAR": {
           "tacks": [
             {
+              "ts": "260429-1110",
+              "state": "abandoned",
+              "text": "## Character\nSpec writing — single contract specification. Mechanical.\n\n## Docket\nSpecify the `zburn_build_key_line` pure-string contract in BUS0 §Remote Node Access. Defines the `# BURN:<alias>` idempotency marker, the output variable shape, and the key-line format with and without `command=` routing. Pure function — no I/O.\n\nThis is the wire format for all key-install helpers across Garrison and Conscript. Marker format change breaks idempotency across all platforms.\n\nOriginal AAR scope minus the BUWC module declaration — that vocabulary disappears under the BUS0 tier model.",
+              "silks": "specify-zburn-key-line-builder",
+              "commit": "d1057b1"
+            },
+            {
               "ts": "260429-1059",
               "state": "rough",
               "text": "## Character\nSpec writing — single contract specification. Mechanical.\n\n## Docket\nSpecify the `zburn_build_key_line` pure-string contract in BUS0 §Remote Node Access. Defines the `# BURN:<alias>` idempotency marker, the output variable shape, and the key-line format with and without `command=` routing. Pure function — no I/O.\n\nThis is the wire format for all key-install helpers across Garrison and Conscript. Marker format change breaks idempotency across all platforms.\n\nOriginal AAR scope minus the BUWC module declaration — that vocabulary disappears under the BUS0 tier model.",
