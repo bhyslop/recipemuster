@@ -126,6 +126,13 @@
         "₢A-AAC": {
           "tacks": [
             {
+              "ts": "260429-1058",
+              "state": "rough",
+              "text": "## Character\nHuman-driven with agent amending — first cross-boundary execution under BUS0 verb set. Expect discoveries.\n\n## Docket\nRun the new Garrison/Conscript automation against the actual Windows host.\n\nMac side (curia):\n- `buw-npg{c,w,p}` for the three Windows shell variants — each writes a privileged profile and runs the Windows ceremony (sshd bootstrap, admin authorized_keys install).\n- `buw-rnc` to aggregate `~/.ssh/config` entries.\n- Optional `buw-nwc{c|w|p}` to Conscript a workload account for daily work.\n- Verify with `buw-nwc <workload-alias>` per workload profile.\n- `jjx_bind` to confirm relay still works post-rename.\n\nWindows side: first Garrison SSH lands using temp credentials enabled in the console-handshake residue. Garrison harden phase disables temp credentials.\n\nAgent amends tabtarget code for any issues discovered. Watch for: `b hyslop` (space in username) shell quoting at every BURN_USER expansion; PowerShell-from-WSL atomic-command boundaries; sshd_config directives Windows OpenSSH refuses.",
+              "silks": "practice-access-procedures",
+              "commit": "b6ecfd7"
+            },
+            {
               "ts": "260413-1037",
               "state": "rough",
               "text": "## Character\nHuman-driven with agent amending — running automation tabtargets on real hardware, discovering gaps.\n\n## Docket\nRun the new SSH automation tabtargets against the actual Windows host.\n\n**Mac side:**\n1. Run platform constructors per BURH profile — creates `burh.env`, displays `ssh-keygen` commands if pubkey missing\n2. User runs `ssh-keygen` manually (copy/paste from constructor output)\n3. Re-run constructors — picks up `.pub` files, writes complete `burh.env`\n4. `buw-HWsc` — write `~/.ssh/config` entries from all profiles\n5. Commit + push (BURH profiles now carry real pubkeys)\n\n**Windows/WSL side:**\nGit pull in WSL, then run `buw-HWbs`.\n\nNote: sshd is already configured from manual AccessBase practice (steps 1-7). Running `buw-HWbs` will overwrite `sshd_config` and `authorized_keys` with BURH-derived versions. This validates that automation produces a working result, but replaces manual config. Human decides.\n\n**Verify:**\n- `buw-HWvs` per profile — ssh via each alias, confirm correct environment lands\n- `jjx_bind` to Windows host — confirm relay works\n\nAgent amends tabtarget code for any issues discovered during practice. This is the first real cross-boundary execution — expect discoveries.",
