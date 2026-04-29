@@ -392,6 +392,13 @@
         "₢A-AAQ": {
           "tacks": [
             {
+              "ts": "260429-1133",
+              "state": "abandoned",
+              "text": "## Character\nSpec writing — fleshing out a stub spec into full ceremony coverage. Mostly mechanical once Garrison/Conscript phase boundaries are clear.\n\n## Docket\nElaborate `Tools/buk/vov_veiled/BUSNW-NodeWindows.adoc` covering Garrison and Conscript ceremonies on Windows.\n\nGarrison phases: console (operator at keyboard, handbook surface only), handshake (first SSH via temp creds), provisioning (sshd_config, service, firewall, admin authorized_keys), harden (disable temp auth, verify keys-only).\n\nConscript phases per workload shell: remote user create via privileged BURN, per-user authorized_keys (NOT admin auth_keys), workload `burn.env` write, verification.\n\nWire format details: `administrators_authorized_keys` path + `icacls` ACL contract; per-user authorized_keys path; sshd_config directives Windows OpenSSH refuses (`UsePAM`, `ChallengeResponseAuthentication`).\n\nCodify the PowerShell-from-WSL pattern: bash owns control flow, PowerShell is the Windows syscall layer, one atomic command per call.\n\nOriginal AAQ scope morphed: per-command subdocs no longer the right shape under the tier model. Per-platform subdoc is the right home.",
+              "silks": "elaborate-busnw-windows-ceremony",
+              "commit": "280c7cb"
+            },
+            {
               "ts": "260429-1059",
               "state": "rough",
               "text": "## Character\nSpec writing — fleshing out a stub spec into full ceremony coverage. Mostly mechanical once Garrison/Conscript phase boundaries are clear.\n\n## Docket\nElaborate `Tools/buk/vov_veiled/BUSNW-NodeWindows.adoc` covering Garrison and Conscript ceremonies on Windows.\n\nGarrison phases: console (operator at keyboard, handbook surface only), handshake (first SSH via temp creds), provisioning (sshd_config, service, firewall, admin authorized_keys), harden (disable temp auth, verify keys-only).\n\nConscript phases per workload shell: remote user create via privileged BURN, per-user authorized_keys (NOT admin auth_keys), workload `burn.env` write, verification.\n\nWire format details: `administrators_authorized_keys` path + `icacls` ACL contract; per-user authorized_keys path; sshd_config directives Windows OpenSSH refuses (`UsePAM`, `ChallengeResponseAuthentication`).\n\nCodify the PowerShell-from-WSL pattern: bash owns control flow, PowerShell is the Windows syscall layer, one atomic command per call.\n\nOriginal AAQ scope morphed: per-command subdocs no longer the right shape under the tier model. Per-platform subdoc is the right home.",
