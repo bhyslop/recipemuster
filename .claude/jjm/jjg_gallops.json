@@ -6692,6 +6692,7 @@
         "₢BBAAW",
         "₢BBAAu",
         "₢BBAAs",
+        "₢BBAAv",
         "₢BBAAg",
         "₢BBAAr",
         "₢BBAAX",
@@ -6705,7 +6706,7 @@
         "₢BBAAq",
         "₢BBAAt"
       ],
-      "next_pace_seed": "AAv",
+      "next_pace_seed": "AAw",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAAA": {
@@ -7801,6 +7802,17 @@
               "text": "## Character\n\nPure construction. Build out the `onboarding-sequence` fixture with the cases needed to produce every vessel downstream crucibles consume. No empirical run-against-fresh-state here — that's BBAAs's reslated scope.\n\n## Scope\n\n- Rename sweep: `canonical-onboarding-sequence` → `onboarding-sequence` across fixture/section/manifest constants and tabtarget filenames; `onboarding-` prefix on all case names (existing five and new four).\n- Four new cases: `enshrine-bases`, `kludge-tadmor`, `kludge-ccyolo`, `conjure-srjcl`.\n- Expand `inscribe-reliquary` to yoke the stamp into all seven ordain-side vessels in one pass; remove per-ordain-case yoke prelude.\n- Centralize hallmark propagation: each ordain case publishes its hallmark to a static list of consuming nameplates (sentry-tether → moriah/srjcl/pluml; airgap-bottle → moriah; plantuml-bottle → pluml; jupyter-bottle → srjcl; graft-demo → none).\n- RCG named-string constants for vessel dirs, nameplates, case names, consumer arrays.\n- Auto-commit pattern: kludge cases commit between sentry+bottle (clean-tree precondition); ordain cases commit at end (clean-tree for next ordain).\n\n## Case order\n\ninscribe-reliquary → enshrine-bases → kludge-tadmor → kludge-ccyolo → ordain-conjure → conjure-srjcl → ordain-airgap → ordain-bind → ordain-graft\n\n## Wrap criterion\n\nAll nine cases compile; fixture invocable; single-case rerun works for each new case (mechanical confirmation, not green-against-fresh-state). Unit tests pass; no fast-suite regression.\n\n## Out of scope\n\n- Empirical run-until-green against fresh canonical state (BBAAs).\n- moriah crucible Fixture static (still phantom; separate concern).\n- RBS0 spec sync (BBAAq).",
               "silks": "onboarding-sequence-buildout",
               "commit": "bd3cda1"
+            }
+          ]
+        },
+        "₢BBAAv": {
+          "tacks": [
+            {
+              "ts": "260429-1005",
+              "state": "rough",
+              "text": "## Character\n\nMechanical RCG sweep. Replace four lowercase \"yoke\" string literals in `rbtdro_onboarding.rs` with a named-string constant so the operation name lives in one place.\n\n## Wrap criterion\n\nA single `RBTDRO_OPERATION_YOKE` (or similarly named) constant declared once, consumed by every yoke-as-string site. Build clean under `#![deny(warnings)]`; unit tests pass; fast suite no regression.\n\n## Sites (entry points, will drift — discover at mount time)\n\n`grep -n '\"yoke\\|\"yoke-' Tools/rbk/rbtd/src/rbtdro_onboarding.rs` — currently four hits at error formats, label prefix, commit message. Re-grep at mount time.\n\n## Naming\n\nPer RCG/CLAUDE.md prefix discipline: `RBTDRO_*` for module-scoped constants. Capitalization in the constant value vs. each call site's casing is the design call to make at mount time — one constant with case adaptation at use sites, or distinct constants for distinct cases.\n\n## Out of scope\n\n- Other Rust files. The four-site cluster is in `rbtdro_onboarding.rs` only.\n- Other operation strings (\"inscribe\", \"enshrine\", \"ordain\", etc.). Yoke is the canary; if the pattern lands cleanly here, the same sweep can roll forward in a separate pace.\n- Comments and doc strings — those are explanatory prose, not magic strings.",
+              "silks": "yoke-string-constant-sweep",
+              "commit": "4097610"
             }
           ]
         }
