@@ -286,15 +286,17 @@ zrbfd_registry_preflight() {
 
   # --- Layer 2: Enshrined base images ---
   # Each vessel declares base images via RBRV_IMAGE_n_ORIGIN (upstream tag) and
-  # RBRV_IMAGE_n_ANCHOR (content-addressed GAR tag). Enshrine copies the upstream
-  # image into the enshrine namespace, pinned by the anchor hash. The conjure
-  # Dockerfile's FROM references the anchor, not the upstream tag.
+  # RBRV_IMAGE_n_ANCHOR (locator: package-path:tag). Enshrine copies the upstream
+  # image into the enshrine namespace, pinned by content hash. The conjure
+  # Dockerfile's FROM references the locator-resolved GAR ref, not upstream tag.
 
   buc_step "Verifying enshrined base images exist in GAR"
 
   local z_n=""
   local z_anchor_var=""
   local z_anchor=""
+  local z_pkg_path=""
+  local z_tag=""
   local z_origin_var=""
   local z_origin=""
   local z_any_checked="false"
@@ -313,6 +315,15 @@ zrbfd_registry_preflight() {
     test -n "${z_origin}" || continue
     test -n "${z_anchor}" || continue
 
+    case "${z_anchor}" in
+      *:*) : ;;
+      *)   buc_die "Invalid ${z_anchor_var} locator format (expected package-path:tag): ${z_anchor}" ;;
+    esac
+    z_pkg_path="${z_anchor%:*}"
+    z_tag="${z_anchor##*:}"
+    test -n "${z_pkg_path}" || buc_die "Package path is empty in ${z_anchor_var}: ${z_anchor}"
+    test -n "${z_tag}"      || buc_die "Tag is empty in ${z_anchor_var}: ${z_anchor}"
+
     z_any_checked="true"
     z_status_file="${ZRBFD_PREFLIGHT_PREFIX}enshrine_${z_n}_status.txt"
     z_response_file="${ZRBFD_PREFLIGHT_PREFIX}enshrine_${z_n}_response.txt"
@@ -325,18 +336,18 @@ zrbfd_registry_preflight() {
       -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
       -w "%{http_code}" \
       -o "${z_response_file}" \
-      "${ZRBFC_REGISTRY_API_BASE}/${RBGL_ENSHRINES_ROOT}/${z_anchor}/manifests/${z_anchor}" \
+      "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${z_pkg_path}/manifests/${z_tag}" \
       > "${z_status_file}" 2>"${z_stderr_file}" \
-      || buc_die "HEAD request failed for enshrined image: ${RBGL_ENSHRINES_ROOT}/${z_anchor}:${z_anchor} — see ${z_stderr_file}"
+      || buc_die "HEAD request failed for enshrined image: ${RBRR_CLOUD_PREFIX}${z_anchor} — see ${z_stderr_file}"
 
     z_http_code=$(<"${z_status_file}")
     test -n "${z_http_code}" || buc_die "HTTP status code is empty for enshrine check"
 
     if test "${z_http_code}" = "404"; then
-      buc_warn "Enshrined base image not found: ${RBGL_ENSHRINES_ROOT}/${z_anchor}:${z_anchor} (from ${z_origin})"
+      buc_warn "Enshrined base image not found: ${RBRR_CLOUD_PREFIX}${z_anchor} (from ${z_origin})"
       buc_bare "  Enshrine copies upstream base images (e.g., busybox:latest from Docker Hub) into"
       buc_bare "  your private GAR, pinned by content hash. Like the reliquary, this ensures"
-      buc_bare "  air-gapped builds never reach the public internet. The anchor tag is stable"
+      buc_bare "  air-gapped builds never reach the public internet. The anchor locator is stable"
       buc_bare "  until you deliberately re-enshrine to pick up a newer upstream version."
       buc_bare "  Multiple vessels sharing the same base image anchor need only one enshrine."
       buc_bare "  Run enshrine, then re-run ordain:"
@@ -344,10 +355,10 @@ zrbfd_registry_preflight() {
       buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir}"
       buc_die "Registry preflight failed — enshrined base image missing from GAR"
     elif test "${z_http_code}" != "200"; then
-      buc_die "Unexpected HTTP ${z_http_code} when checking enshrined image: ${RBGL_ENSHRINES_ROOT}/${z_anchor}:${z_anchor}"
+      buc_die "Unexpected HTTP ${z_http_code} when checking enshrined image: ${RBRR_CLOUD_PREFIX}${z_anchor}"
     fi
 
-    buc_log_args "Enshrined image verified: ${RBGL_ENSHRINES_ROOT}/${z_anchor}:${z_anchor}"
+    buc_log_args "Enshrined image verified: ${RBRR_CLOUD_PREFIX}${z_anchor}"
   done
 
   if test "${z_any_checked}" = "true"; then
@@ -375,12 +386,15 @@ zrbfd_stitch_build_json() {
   local -r z_dockerfile_name="${RBRV_CONJURE_DOCKERFILE##*/}"
   local -r z_platforms="${RBRV_CONJURE_PLATFORMS// /,}"
 
-  # Resolve base images: ANCHOR → full GAR reference, or pass ORIGIN through
+  # Resolve base images: ANCHOR (locator) → full GAR reference, or pass ORIGIN through.
   # Spec: RBSAC step "Resolve Base Images"
-  # New layout: each anchor is its own package under RBGL_ENSHRINES_ROOT, with anchor as both path segment and tag.
+  # The locator carries its own namespace path (e.g. enshrines/<anchor>:<anchor>);
+  # cloud prefix is applied at use-site per the wrest/jettison convention.
   local -r z_gar_repo_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
   local z_image_ref_1="" z_image_ref_2="" z_image_ref_3=""
   local z_ri_n="" z_ri_origin_var="" z_ri_anchor_var="" z_ri_origin="" z_ri_anchor=""
+  local z_ri_pkg_path=""
+  local z_ri_tag=""
   for z_ri_n in 1 2 3; do
     z_ri_origin_var="RBRV_IMAGE_${z_ri_n}_ORIGIN"
     z_ri_anchor_var="RBRV_IMAGE_${z_ri_n}_ANCHOR"
@@ -389,7 +403,15 @@ zrbfd_stitch_build_json() {
     test -n "${z_ri_origin}" || continue
     local z_ri_ref=""
     if test -n "${z_ri_anchor}"; then
-      z_ri_ref="${z_gar_repo_base}/${RBGL_ENSHRINES_ROOT}/${z_ri_anchor}:${z_ri_anchor}"
+      case "${z_ri_anchor}" in
+        *:*) : ;;
+        *)   buc_die "Invalid ${z_ri_anchor_var} locator format (expected package-path:tag): ${z_ri_anchor}" ;;
+      esac
+      z_ri_pkg_path="${z_ri_anchor%:*}"
+      z_ri_tag="${z_ri_anchor##*:}"
+      test -n "${z_ri_pkg_path}" || buc_die "Package path is empty in ${z_ri_anchor_var}: ${z_ri_anchor}"
+      test -n "${z_ri_tag}"      || buc_die "Tag is empty in ${z_ri_anchor_var}: ${z_ri_anchor}"
+      z_ri_ref="${z_gar_repo_base}/${RBRR_CLOUD_PREFIX}${z_ri_pkg_path}:${z_ri_tag}"
       buc_log_args "Image slot ${z_ri_n} (anchored): ${z_ri_ref}"
     else
       z_ri_ref="${z_ri_origin}"
@@ -889,25 +911,27 @@ zrbfd_enshrine_submit() {
   local -r z_build_file="${ZRBFD_ENSHRINE_PREFIX}build.json"
 
   jq -n \
-    --slurpfile zjq_steps  "${z_step_file}" \
-    --arg zjq_sa             "${z_mason_sa}" \
-    --arg zjq_gar_host       "${z_gar_host}" \
-    --arg zjq_gar_path       "${z_gar_path}" \
-    --arg zjq_enshrines_root "${RBGL_ENSHRINES_ROOT}" \
-    --arg zjq_origin_1       "${RBRV_IMAGE_1_ORIGIN:-}" \
-    --arg zjq_origin_2       "${RBRV_IMAGE_2_ORIGIN:-}" \
-    --arg zjq_origin_3       "${RBRV_IMAGE_3_ORIGIN:-}" \
-    --arg zjq_pool           "${RBDC_POOL_TETHER}" \
-    --arg zjq_timeout        "${RBRR_GCB_TIMEOUT}" \
+    --slurpfile zjq_steps        "${z_step_file}" \
+    --arg zjq_sa                 "${z_mason_sa}" \
+    --arg zjq_gar_host           "${z_gar_host}" \
+    --arg zjq_gar_path           "${z_gar_path}" \
+    --arg zjq_enshrines_root     "${RBGL_ENSHRINES_ROOT}" \
+    --arg zjq_enshrines_category "${RBGC_GAR_CATEGORY_ENSHRINES}" \
+    --arg zjq_origin_1           "${RBRV_IMAGE_1_ORIGIN:-}" \
+    --arg zjq_origin_2           "${RBRV_IMAGE_2_ORIGIN:-}" \
+    --arg zjq_origin_3           "${RBRV_IMAGE_3_ORIGIN:-}" \
+    --arg zjq_pool               "${RBDC_POOL_TETHER}" \
+    --arg zjq_timeout            "${RBRR_GCB_TIMEOUT}" \
     '{
       steps: $zjq_steps[0],
       substitutions: {
-        _RBGE_GAR_HOST:        $zjq_gar_host,
-        _RBGE_GAR_PATH:        $zjq_gar_path,
-        _RBGE_ENSHRINES_ROOT:  $zjq_enshrines_root,
-        _RBGE_IMAGE_1_ORIGIN:  $zjq_origin_1,
-        _RBGE_IMAGE_2_ORIGIN:  $zjq_origin_2,
-        _RBGE_IMAGE_3_ORIGIN:  $zjq_origin_3
+        _RBGE_GAR_HOST:           $zjq_gar_host,
+        _RBGE_GAR_PATH:           $zjq_gar_path,
+        _RBGE_ENSHRINES_ROOT:     $zjq_enshrines_root,
+        _RBGE_ENSHRINES_CATEGORY: $zjq_enshrines_category,
+        _RBGE_IMAGE_1_ORIGIN:     $zjq_origin_1,
+        _RBGE_IMAGE_2_ORIGIN:     $zjq_origin_2,
+        _RBGE_IMAGE_3_ORIGIN:     $zjq_origin_3
       },
       serviceAccount: $zjq_sa,
       options: {

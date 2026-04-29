@@ -65,11 +65,11 @@ zrbrv_kindle() {
   buv_group_enroll "Image Group"
   buv_gate_enroll   RBRV_VESSEL_MODE  conjure
   buv_string_enroll RBRV_IMAGE_1_ORIGIN   0  512  "Upstream base image tag slot 1 (e.g., python:3.11-slim)"
-  buv_string_enroll RBRV_IMAGE_1_ANCHOR   0  512  "GAR-mirrored anchor slot 1 (written by enshrine)"
+  buv_string_enroll RBRV_IMAGE_1_ANCHOR   0  512  "GAR-mirrored anchor locator slot 1 (package-path:tag, written by enshrine)"
   buv_string_enroll RBRV_IMAGE_2_ORIGIN   0  512  "Upstream base image tag slot 2"
-  buv_string_enroll RBRV_IMAGE_2_ANCHOR   0  512  "GAR-mirrored anchor slot 2 (written by enshrine)"
+  buv_string_enroll RBRV_IMAGE_2_ANCHOR   0  512  "GAR-mirrored anchor locator slot 2 (package-path:tag, written by enshrine)"
   buv_string_enroll RBRV_IMAGE_3_ORIGIN   0  512  "Upstream base image tag slot 3"
-  buv_string_enroll RBRV_IMAGE_3_ANCHOR   0  512  "GAR-mirrored anchor slot 3 (written by enshrine)"
+  buv_string_enroll RBRV_IMAGE_3_ANCHOR   0  512  "GAR-mirrored anchor locator slot 3 (package-path:tag, written by enshrine)"
 
   buv_group_enroll "Grafting Configuration"
   buv_gate_enroll   RBRV_VESSEL_MODE  graft

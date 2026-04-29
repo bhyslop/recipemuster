@@ -164,10 +164,10 @@ rbho_director_airgap() {
   buh_line "its ${RBYC_RBRV} file:"
   buh_e
   buh_code "   RBRV_IMAGE_1_ORIGIN=rust:slim-bookworm"
-  buh_code "   RBRV_IMAGE_1_ANCHOR=rust-slim-bookworm-5ae2d2ef98"
+  buh_code "   RBRV_IMAGE_1_ANCHOR=enshrines/rust-slim-bookworm-5ae2d2ef98:rust-slim-bookworm-5ae2d2ef98"
   buh_e
-  buh_line "ORIGIN names where the image comes from; ANCHOR is the name it"
-  buh_line "takes inside your ${RBYC_DEPOT}. Run ${RBYC_ENSHRINE}:"
+  buh_line "ORIGIN names where the image comes from; ANCHOR is the locator"
+  buh_line "for it inside your ${RBYC_DEPOT}. Run ${RBYC_ENSHRINE}:"
   buh_e
   buh_tt "   " "${RBZ_ENSHRINE_VESSEL}"
   buh_e

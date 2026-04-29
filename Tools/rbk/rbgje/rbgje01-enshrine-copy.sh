@@ -2,13 +2,15 @@
 # RBGJE Step 01: Enshrine upstream base images to GAR via skopeo
 # Builder: skopeo (from reliquary)
 # Substitutions: _RBGE_GAR_HOST, _RBGE_GAR_PATH, _RBGE_ENSHRINES_ROOT,
+#                _RBGE_ENSHRINES_CATEGORY,
 #                _RBGE_IMAGE_1_ORIGIN, _RBGE_IMAGE_2_ORIGIN, _RBGE_IMAGE_3_ORIGIN
 #
 # For each non-empty ORIGIN slot: inspect upstream manifest, compute anchor,
-# skopeo copy --all to GAR. Write JSON anchor results to /builder/outputs/output.
+# skopeo copy --all to GAR. Write JSON locator results to /builder/outputs/output.
 # Mason SA ambient auth via Cloud Build metadata server for GAR destination.
 #
 # Image URI shape: <host>/<path>/<ENSHRINES_ROOT>/<ANCHOR>:<ANCHOR>
+# Locator shape (written back to rbrv.env): <ENSHRINES_CATEGORY>/<ANCHOR>:<ANCHOR>
 # Anchor as both path segment and tag — each anchor is a peer package under
 # the enshrines namespace, not a tag on a shared package.
 
@@ -59,7 +61,11 @@ for SLOT in 1 2 3; do
   SHORT="${SHA:0:10}"
   ANCHOR="${SANITIZED}-${SHORT}"
 
+  # Compose locator (package-path:tag, no cloud prefix — caller prepends at use-site)
+  LOCATOR="${_RBGE_ENSHRINES_CATEGORY}/${ANCHOR}:${ANCHOR}"
+
   echo "Anchor: ${ANCHOR}"
+  echo "Locator: ${LOCATOR}"
   echo "Digest: sha256:${SHA}"
 
   # Construct GAR destination — anchor is both the package name and the tag
@@ -75,13 +81,14 @@ for SLOT in 1 2 3; do
 
   echo "Slot ${SLOT} enshrined: ${ANCHOR}"
 
-  # Accumulate JSON result (no jq dependency — printf safe for sanitized anchor values)
+  # Accumulate JSON result (no jq dependency — printf safe for sanitized values)
+  # The "anchor" key carries the full locator (writeback target for RBRV_IMAGE_n_ANCHOR).
   if [ "${FIRST}" = "true" ]; then
     FIRST=false
   else
     RESULT="${RESULT},"
   fi
-  RESULT="${RESULT}\"slot_${SLOT}\":{\"anchor\":\"${ANCHOR}\",\"origin\":\"${ORIGIN}\",\"digest\":\"sha256:${SHA}\"}"
+  RESULT="${RESULT}\"slot_${SLOT}\":{\"anchor\":\"${LOCATOR}\",\"origin\":\"${ORIGIN}\",\"digest\":\"sha256:${SHA}\"}"
 done
 
 RESULT="${RESULT}}"

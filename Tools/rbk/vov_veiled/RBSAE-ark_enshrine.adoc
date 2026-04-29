@@ -8,12 +8,13 @@ The
 {rbtr_director}
 submits a Cloud Build job that copies each declared
 {rbrv_image_origin}
-from its upstream registry to GAR with an anchor tag using
+from its upstream registry to GAR using
 the reliquary skopeo image
 (`skopeo copy --all`), preserving the manifest list and all per-platform manifests for multi-platform images.
-The anchor results are returned via `buildStepOutputs` and
+The locator results are returned via `buildStepOutputs` and
 {rbrv_image_anchor}
-is then written back to the vessel regime locally.
+is then written back to the vessel regime locally as a
+{rbst_locator}.
 
 NOTE: Enshrine is a pre-build preparation step.
 It must be run before
@@ -55,24 +56,27 @@ as the builder image (script: `rbgje01-enshrine-copy.sh`)
 ... {rbbc_store}
 `<<DIGEST>>` -- the sha256 digest of the upstream manifest (manifest list digest for multi-platform images, single manifest digest for single-platform images)
 ... Constructs anchor: sanitize full origin string (`:` `/` replaced with `-`), append first 10 hex chars of sha256 digest
-... Example: `python:3.11-slim` with `sha256:abc123def4...` produces `python-3.11-slim-abc123def4`
+... Example: `python:3.11-slim` with `sha256:abc123def4...` yields anchor `python-3.11-slim-abc123def4`
+... Composes the
+{rbst_locator}
+as `enshrines/«ANCHOR»:«ANCHOR»` (e.g., `enshrines/python-3.11-slim-abc123def4:python-3.11-slim-abc123def4`)
 ... Copies upstream image into the shared `enshrines/` namespace in GAR as a peer package at `«PREFIX»enshrines/«ANCHOR»:«ANCHOR»` using `skopeo copy --all`, transferring the manifest list and all per-platform manifests atomically. Each anchor is its own package under the namespace — the path segment carries the anchor identity, and the tag redundantly restates it so divergence is a visible bug. The anchor is vessel-independent — multiple vessels sharing the same base image origin share one enshrined package.
 ... {rbbc_require}
-copy succeeds -- the anchor tag is now a permanent, content-addressed reference in
+copy succeeds -- the locator now resolves to a permanent, content-addressed reference in
 {gar_service}
 containing all upstream platforms
 ... Single-platform upstream images are handled identically -- `skopeo copy --all` is a no-op on the platform dimension when only one platform exists
-.. Writes JSON anchor results to `/builder/outputs/output` (returned as `buildStepOutputs`)
+.. Writes JSON locator results to `/builder/outputs/output` (returned as `buildStepOutputs`); each slot's `anchor` field carries the full locator string
 
 //axhos_step
-. *Extract Anchors and Write Regime*:
+. *Extract Locators and Write Regime*:
 .. Read `buildStepOutputs[0]` from the completed build result (base64-decoded JSON)
 .. For each slot present in the result:
-... Write anchor string to `RBRV_IMAGE_n_ANCHOR` in the vessel's `rbrv.env`
+... Write locator string to `RBRV_IMAGE_n_ANCHOR` in the vessel's `rbrv.env`
 
 //axhoot_typed_output
 {rbrv_image_anchor}
-Per-slot anchor string written to the vessel regime.
+Per-slot locator string written to the vessel regime.
 
 //axhoc_completion
 Successful execution produces anchored base image references in
@@ -86,5 +90,5 @@ builds using GAR-mirrored base images.
 Multi-platform conjure vessels pull the correct platform from the anchored manifest list automatically.
 Re-running enshrine with the same
 {rbrv_image_origin}
-but a different upstream digest produces a new anchor (upstream image was updated).
+but a different upstream digest produces a new locator (upstream image was updated).
 Re-running with the same digest is idempotent.

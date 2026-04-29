@@ -264,11 +264,13 @@ zrbfv_graft_metadata_submit() {
   zrbfc_assemble_about_steps "${z_about_steps_file}" "${ZRBFV_GRAFT_META_PREFIX}about_"
 
   # === Resolve base image provenance (for vouch summary) ===
-  # New layout: anchored base images live at <ENSHRINES_ROOT>/<anchor>:<anchor>
+  # ANCHOR carries a locator (package-path:tag); cloud prefix applied at use-site.
   local -r z_vi_gar_repo_base="${z_gar_host}/${z_gar_path}"
   local z_vi_ref_1="" z_vi_ref_2="" z_vi_ref_3=""
   local z_vi_prov_1="" z_vi_prov_2="" z_vi_prov_3=""
   local z_vi_n="" z_vi_origin_var="" z_vi_anchor_var="" z_vi_origin="" z_vi_anchor=""
+  local z_vi_pkg_path=""
+  local z_vi_tag=""
   for z_vi_n in 1 2 3; do
     z_vi_origin_var="RBRV_IMAGE_${z_vi_n}_ORIGIN"
     z_vi_anchor_var="RBRV_IMAGE_${z_vi_n}_ANCHOR"
@@ -277,7 +279,15 @@ zrbfv_graft_metadata_submit() {
     test -n "${z_vi_origin}" || continue
     local z_vi_ref="" z_vi_prov=""
     if test -n "${z_vi_anchor}"; then
-      z_vi_ref="${z_vi_gar_repo_base}/${RBGL_ENSHRINES_ROOT}/${z_vi_anchor}:${z_vi_anchor}"
+      case "${z_vi_anchor}" in
+        *:*) : ;;
+        *)   buc_die "Invalid ${z_vi_anchor_var} locator format (expected package-path:tag): ${z_vi_anchor}" ;;
+      esac
+      z_vi_pkg_path="${z_vi_anchor%:*}"
+      z_vi_tag="${z_vi_anchor##*:}"
+      test -n "${z_vi_pkg_path}" || buc_die "Package path is empty in ${z_vi_anchor_var}: ${z_vi_anchor}"
+      test -n "${z_vi_tag}"      || buc_die "Tag is empty in ${z_vi_anchor_var}: ${z_vi_anchor}"
+      z_vi_ref="${z_vi_gar_repo_base}/${RBRR_CLOUD_PREFIX}${z_vi_pkg_path}:${z_vi_tag}"
       z_vi_prov="anchored"
     else
       z_vi_ref="${z_vi_origin}"
@@ -680,11 +690,13 @@ zrbfv_vouch_submit() {
   esac
 
   # Resolve base image provenance (for vouch summary recording)
-  # New layout: anchored base images live at <ENSHRINES_ROOT>/<anchor>:<anchor>
+  # ANCHOR carries a locator (package-path:tag); cloud prefix applied at use-site.
   local -r z_vi_gar_repo_base="${z_gar_host}/${z_gar_path}"
   local z_vi_ref_1="" z_vi_ref_2="" z_vi_ref_3=""
   local z_vi_prov_1="" z_vi_prov_2="" z_vi_prov_3=""
   local z_vi_n="" z_vi_origin_var="" z_vi_anchor_var="" z_vi_origin="" z_vi_anchor=""
+  local z_vi_pkg_path=""
+  local z_vi_tag=""
   for z_vi_n in 1 2 3; do
     z_vi_origin_var="RBRV_IMAGE_${z_vi_n}_ORIGIN"
     z_vi_anchor_var="RBRV_IMAGE_${z_vi_n}_ANCHOR"
@@ -693,7 +705,15 @@ zrbfv_vouch_submit() {
     test -n "${z_vi_origin}" || continue
     local z_vi_ref="" z_vi_prov=""
     if test -n "${z_vi_anchor}"; then
-      z_vi_ref="${z_vi_gar_repo_base}/${RBGL_ENSHRINES_ROOT}/${z_vi_anchor}:${z_vi_anchor}"
+      case "${z_vi_anchor}" in
+        *:*) : ;;
+        *)   buc_die "Invalid ${z_vi_anchor_var} locator format (expected package-path:tag): ${z_vi_anchor}" ;;
+      esac
+      z_vi_pkg_path="${z_vi_anchor%:*}"
+      z_vi_tag="${z_vi_anchor##*:}"
+      test -n "${z_vi_pkg_path}" || buc_die "Package path is empty in ${z_vi_anchor_var}: ${z_vi_anchor}"
+      test -n "${z_vi_tag}"      || buc_die "Tag is empty in ${z_vi_anchor_var}: ${z_vi_anchor}"
+      z_vi_ref="${z_vi_gar_repo_base}/${RBRR_CLOUD_PREFIX}${z_vi_pkg_path}:${z_vi_tag}"
       z_vi_prov="anchored"
     else
       z_vi_ref="${z_vi_origin}"

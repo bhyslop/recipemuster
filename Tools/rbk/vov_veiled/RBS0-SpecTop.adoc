@@ -3173,17 +3173,17 @@ Vessel author declares intent (e.g., `python:3.11-slim`).
 The Dockerfile uses `ARG RBF_IMAGE_n` / `FROM ${RBF_IMAGE_n}` -- the Foundry substitutes the resolved reference via `--build-arg` at conjure time.
 
 [[rbrv_image_anchor]]
-//axvr_variable axd_optional rbst_image_ref
+//axvr_variable axd_optional rbst_locator
 {rbrv_image_anchor}::
-GAR-mirrored, content-addressed reference for a base image in
+{rbst_locator}
+naming a GAR-mirrored base image for
 {rbrv_regime}
 conjuring vessels.
 Written by
 {rbtgo_ark_enshrine}.
-Format: `«sanitized-origin»-«10-char-sha256»` (e.g., `python-3.11-slim-abc123def4`).
-The anchor serves as both the path segment and the tag on the enshrined package, and also as the regime variable value.
-Enshrined images are stored as peer packages under the shared `enshrines/` namespace (`«prefix»enshrines/«anchor»:«anchor»`), not per-vessel — vessels sharing the same base image origin share one enshrined artifact.
-When present, conjure resolves the base image from GAR via this anchor.
+The anchor itself is `«sanitized-origin»-«10-char-sha256»` (e.g., `python-3.11-slim-abc123def4`); the locator embeds it as both path segment and tag: `enshrines/«ANCHOR»:«ANCHOR»`.
+Enshrined images are stored as peer packages under the shared `enshrines/` namespace, not per-vessel — vessels sharing the same base image origin share one enshrined artifact.
+When present, conjure resolves the base image from GAR via this locator (parsing path and tag, prepending {rbrr_cloud_prefix} at use-site per the {rbst_locator} convention).
 When absent, conjure passes
 {rbrv_image_origin}
 through as the upstream tag (development path).

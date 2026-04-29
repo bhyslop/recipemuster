@@ -47,7 +47,12 @@ The reliquary is a co-versioned set of builder tool images inscribed from upstre
 and
 {rbrv_image_anchor}
 are set:
-... HEAD request to `«PREFIX»enshrines/«ANCHOR»:«ANCHOR»` manifest in
+... Parse
+{rbrv_image_anchor}
+as a
+{rbst_locator}
+into package-path and tag
+... HEAD request to `«PREFIX»«LOCATOR-PATH»:«LOCATOR-TAG»` manifest in
 {gar_service}
 ... {rbbc_require}
 HTTP 200 — on 404, fail with directive to run {rbtgo_ark_enshrine} first.
@@ -63,7 +68,9 @@ submission time on missing images, with copy-paste remediation commands
 is set:
 ... If
 {rbrv_image_anchor}
-is present: resolve to full GAR image reference using the anchor tag
+is present: parse the
+{rbst_locator}
+and resolve to full GAR image reference (`«GAR-REPO-BASE»/«PREFIX»«LOCATOR-PATH»:«LOCATOR-TAG»`)
 ... If
 {rbrv_image_anchor}
 is absent: pass
