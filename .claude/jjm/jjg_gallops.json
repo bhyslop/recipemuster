@@ -58,7 +58,6 @@
         "₢A-AAF",
         "₢A-AAH",
         "₢A-AAI",
-        "₢A-AAJ",
         "₢A-AAP",
         "₢A-AAS",
         "₢A-AAT"
@@ -253,17 +252,6 @@
               "text": "## Character\nDesign review — lightweight judgment call.\n\n## Docket\nRevisit whether `buw-HWec` should dictate full Cygwin installation or just configure an existing install. After practicing the other procedures, we'll have better intuition about how much hand-holding the handbook should provide vs assuming prerequisites are already in place.",
               "silks": "reconsider-cygwin-install-procedure",
               "commit": "1fa2c30"
-            }
-          ]
-        },
-        "₢A-AAJ": {
-          "tacks": [
-            {
-              "ts": "260412-1514",
-              "state": "rough",
-              "text": "## Character\nMechanical sweep with judgment — convert existing procedures, evaluate whether the pattern held up.\n\n## Docket\nAfter practicing the Windows procedures with `buh_step1`/`buh_step2`, decide whether to adopt auto-numbered steps across all handbook procedures (onboarding, payor). Convert if yes, document why not if no. Includes PayorEstablish, PayorRefresh, QuotaBuild, and any onboarding procedures still using hardcoded `buh_section \"N. ...\"`.",
-              "silks": "adopt-step-autonumber-across-all-procedures",
-              "commit": "87e1814"
             }
           ]
         },
@@ -817,9 +805,10 @@
         "₢A6AAF",
         "₢A6AAL",
         "₢A6AAy",
-        "₢A6AAz"
+        "₢A6AAz",
+        "₢A6AA9"
       ],
-      "next_pace_seed": "AA9",
+      "next_pace_seed": "AA-",
       "paddock_file": ".claude/jjm/jjp_uAl6.md",
       "paces": {
         "₢A6AA0": {
@@ -1009,6 +998,24 @@
               "text": "## Character\n\nPer-handbook authoring requiring judgment. Not mechanical — each closer is the distilled \"what the reader should walk away with\" for its track, and the right abstraction differs per handbook. A single author handling all four closers will produce more consistent closer shape than parallelizing across files; the convention itself is load-bearing. Cognitive posture: ask \"what generative rule does this handbook teach?\" and surface that rule as the retained takeaway.\n\n## Context\n\n`tt/rbw-Occ.OnboardingConfigureEnvironment.sh` Step 7 (\"The pattern\") is the best single teaching moment in the current onboarding. It shows that all regimes follow `rbw-r{letter}{r|v}` tabtargets and lists them in a table. The reader leaves with a *generative rule*, not a memorized list — they can derive any regime's tools by knowing one letter.\n\nFresh-reader study found that the other handbooks end without equivalent recaps. They walk the learner through a sequence and stop. A closer in Occ's shape would turn each handbook from a walkthrough into a retained mental model.\n\nNot every handbook needs a closer. The Director subtracks (`Odf`, `Oda`, `Odb`) and the primary Crucible track (`Ofc`) each carry a generative rule worth surfacing. Short tracks (`Ocr`, `Ocd`, `Odg`) don't — their whole content is already a short recap.\n\n## Target files\n\nUnder `Tools/rbk/rbh0/`. Locate the sequence function for each handbook (per CLAUDE.md the onboarding decomposition lives there). Per recent commits the file naming pattern is likely `rbho*_*.sh` with one function per file.\n\nHandbooks in scope (in priority order):\n\n- `rbw-Ofc.OnboardingFirstCrucible.sh`\n- `rbw-Odf.OnboardingDirectorFirstBuild.sh`\n- `rbw-Odb.OnboardingDirectorBind.sh`\n- `rbw-Oda.OnboardingDirectorAirgap.sh`\n\n## Closer shape (common across all)\n\nNew section appended after the existing final step. Consistent header voice — e.g., `Step N — The pattern` or `What you now know` (pick one phrasing and apply uniformly across all four; don't mix). Body:\n\n- 2-4 lines of prose naming the rule\n- A compact table or bullet list enacting the rule\n- No probes, no tabtarget invocations to run — pure retained-knowledge content\n- Close with a one-line bridge back to start-menu or related tracks\n\nThe Occ Step 7 body shape is the reference: prose setup → table → one-line closer. Match that rhythm.\n\n## Per-handbook closer content\n\nEach closer's content is distilled per handbook. Do NOT copy a generic template — the whole point is that each track teaches a different generative rule.\n\n### `Ofc` — Crucible lifecycle\n\nFour verbs that describe the full local-crucible iteration loop:\n\n    Kludge → Charge → SSH → Quench\n\nProse should name these as the iteration primitives: once the learner owns the four verbs, they can repeat the loop against any Nameplate without re-reading the handbook. A 4-row table mapping verb → tabtarget → purpose is the right enactment.\n\n### `Odf` — The six arks\n\nEvery Conjured Hallmark produces six artifacts in GAR: `pouch`, `image`, `attest`, `about`, `vouch`, `diags`. These already appear mid-flow in Step 4, which is fine — but the closer should promote them to the retained position as a reference card (a six-row table). The pattern: \"every Hallmark is a structured bundle; know the six basenames and you can tour any Hallmark by hand.\" Consider referencing `Plumb` (full vs compact) as the pattern-driven inspector for these arks.\n\n### `Odb` — Three ordain modes, three trust contracts\n\nThis table already appears mid-flow in `Odb` Step 2 (Conjure / Bind / Graft trust-contract comparison). It is arguably the single best architectural summary in the entire onboarding. The closer's job is to promote it to the retained position — either by moving it to the end or duplicating it there. The rule: \"three modes, three trust contracts, mode-aware Vouch verdicts.\" Consider whether moving it breaks Step 2's flow; if so, duplicate.\n\n### `Oda` — Airgap supply chain\n\nThe three-link chain the handbook already describes in its opening prose:\n\n    1. Enshrine upstream base into Depot\n    2. Conjure forge Tethered, then re-Enshrine\n    3. Conjure final Bottle in Airgap mode\n\nThe closer names the chain as the reusable pattern: any future airgap build follows these three links. Consider surfacing the Tethered/Airgap/Kludged three-way build-info comparison (already in Step 5) as a secondary micro-card if it fits without bloat.\n\n## Consistency constraints across all four closers\n\n- Same header phrasing (pick one and use everywhere).\n- Same rough shape (prose → table/list → one-line closer).\n- Same length budget (~10-15 rendered lines each; don't balloon).\n- Same voice register — matches Occ Step 7's teacher-voice, not step-voice.\n- No probes, no `[*]`/`[ ]` markers (this is pure retained-knowledge content).\n- Closer is the LAST thing the reader sees before the \"return to start\" line; if a handbook has a \"Next steps\" section, the closer precedes it.\n\n## What NOT to do\n\n- Do not author closers for short handbooks (`Ocr`, `Ocd`, `Odg`, `Op`, `Og`, `Ots`) — they don't need them. If a short handbook genuinely would benefit, flag it but do not add speculative closers.\n- Do not invent patterns that aren't already taught in the handbook body. If the pattern isn't in the content, the closer would be introducing new material — out of scope for this pace.\n- Do not merge closers across handbooks. Each track has its own generative rule.\n- Do not restructure existing step content (exception: the `Odb` three-mode table may be moved from Step 2 to the closer if the flow holds; if moving it damages Step 2, duplicate).\n- Do not add cross-track \"see also\" navigation inside closers beyond a single bridge line.\n\n## Done criteria\n\n- Four handbook closers authored and rendering correctly in their respective tabtargets (`Ofc`, `Odf`, `Odb`, `Oda`).\n- Same header phrasing and shape across all four.\n- `tt/rbw-o.ONBOARDING.sh` unchanged by this pace (menu is P1's territory).\n- `tt/rbw-tf.QualifyFast.sh` green.\n- Visual spot-check: each closer renders cleanly under ~100 cols terminal width.\n- Occ Step 7 unchanged — it's the reference shape, not the target.\n\n## References\n\n- `tt/rbw-Occ.OnboardingConfigureEnvironment.sh` Step 7 — reference shape\n- Existing mid-flow patterns worth promoting:\n  - `Odb` Step 2 three-mode trust-contract table\n  - `Odf` Step 4 six-ark artifact listing\n  - `Oda` opening prose three-link chain\n- Onboarding menu module: `Tools/rbk/rbh0/rbho0_start_here.sh` (for context on project voice — do not modify here)\n- Design provenance: onboarding-study session ☉260423-1024",
               "silks": "handbook-pattern-recap-closers",
               "commit": "87f1097"
+            }
+          ]
+        },
+        "₢A6AA9": {
+          "tacks": [
+            {
+              "ts": "260429-1110",
+              "state": "rough",
+              "text": "Drafted from ₢A-AAJ in ₣A-.\n\n## Character\nMechanical sweep with judgment — convert existing procedures, evaluate whether the pattern held up.\n\n## Docket\nAfter practicing the Windows procedures with `buh_step1`/`buh_step2`, decide whether to adopt auto-numbered steps across all handbook procedures (onboarding, payor). Convert if yes, document why not if no. Includes PayorEstablish, PayorRefresh, QuotaBuild, and any onboarding procedures still using hardcoded `buh_section \"N. ...\"`.",
+              "silks": "adopt-step-autonumber-across-all-procedures",
+              "commit": "03e67d8"
+            },
+            {
+              "ts": "260412-1514",
+              "state": "rough",
+              "text": "## Character\nMechanical sweep with judgment — convert existing procedures, evaluate whether the pattern held up.\n\n## Docket\nAfter practicing the Windows procedures with `buh_step1`/`buh_step2`, decide whether to adopt auto-numbered steps across all handbook procedures (onboarding, payor). Convert if yes, document why not if no. Includes PayorEstablish, PayorRefresh, QuotaBuild, and any onboarding procedures still using hardcoded `buh_section \"N. ...\"`.",
+              "silks": "adopt-step-autonumber-across-all-procedures",
+              "commit": "87e1814"
             }
           ]
         },
