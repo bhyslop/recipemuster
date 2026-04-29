@@ -150,13 +150,18 @@ zrbob_furnish() {
   source "${z_nameplate_file}" || buc_die "Failed to source nameplate: ${z_nameplate_file}"
   zrbrn_kindle
 
-  # Differential enforce: kludge/ordain commands write RBRN_*_HALLMARK,
-  # so zrbrn_enforce would self-veto on marshal-zero state where those
-  # fields are blank by design (rblm zeroes them; rbtdrp_pristine treats
-  # them as RBTDRP_RBRN_BLANK_FIELDS). Strict validation lives in rbw-rnv
-  # (rbrn_cli.sh). Mirrors the yoke/RBRV split (rbfl_cli vs rbrv_cli).
+  # Differential enforce: nameplate-keyed kludge commands write
+  # RBRN_*_HALLMARK, so zrbrn_enforce would self-veto on marshal-zero
+  # state where those fields are blank by design (rblm zeroes them;
+  # rbtdrp_pristine treats them as RBTDRP_RBRN_BLANK_FIELDS). Strict
+  # validation lives in rbw-rnv (rbrn_cli.sh). Mirrors the yoke/RBRV
+  # split (rbfl_cli vs rbrv_cli). rbob_ordain (rbw-tO) keeps enforce —
+  # it is the nameplate-keyed gate before incurring Cloud Build spend;
+  # the foundry-keyed ordain (rbw-fO → rbfd_ordain) is vessel-only and
+  # never enters this CLI, so onboarding-sequence's ordain steps are
+  # unaffected.
   case "${z_command}" in
-    rbob_kludge|rbob_kludge_bottle|rbob_kludge_sentry|rbob_ordain)
+    rbob_kludge|rbob_kludge_bottle|rbob_kludge_sentry)
       ;;
     *)
       zrbrn_enforce
