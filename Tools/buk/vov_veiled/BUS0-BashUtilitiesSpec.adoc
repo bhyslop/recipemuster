@@ -58,6 +58,9 @@
 :bust_node_regime_validate:  <<bust_node_regime_validate,Node Regime Validate>>
 :bust_handbook_node_top:     <<bust_handbook_node_top,Handbook Node Top>>
 
+// Input Artifacts
+:busi_scribed_command_file:  <<busi_scribed_command_file,Scribed Command File>>
+
 // Dispatch
 :busdc_colophon:        <<busdc_colophon,Colophon>>
 :busdc_colophon_s:      <<busdc_colophon,Colophons>>
@@ -1530,6 +1533,16 @@ user. Tabtarget: `buw-nwd`.
 List workload users currently provisioned on a node, queried via a
 privileged BURN. Scope is the node's full workload-user population — not
 just the current station user's history. Tabtarget: `buw-nwi`.
+
+=== Input Artifacts
+
+[[busi_scribed_command_file]]
+//axl_voices axo_entity
+{busi_scribed_command_file}::
+A file authored by the operator containing commands to be executed
+on the remote node by {bust_remote_run}.
+Path passed as the second positional argument; contents are streamed
+to the remote shell at dispatch time.
 
 include::BUSNW-NodeWindows.adoc[]
 

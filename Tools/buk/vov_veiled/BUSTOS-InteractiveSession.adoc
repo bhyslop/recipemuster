@@ -6,6 +6,9 @@ by a workload {burn_regime} profile.
 Foreground operation; control returns to the station shell when the
 operator exits the remote shell.
 
+//axhopt_typed_parameter
+{burn_alias}
+
 //axhoq_precondition
 A workload-tier {burn_regime} profile exists at the given {burn_alias}
 and is currently {bust_knock}-responsive.

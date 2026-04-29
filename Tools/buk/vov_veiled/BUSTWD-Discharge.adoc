@@ -7,6 +7,9 @@ The workload profile encodes its privileged authority; {bust_discharge}
 uses that authority to delete the remote OS user, then unlinks the
 local profile file.
 
+//axhopt_typed_parameter
+{burn_alias}
+
 //axhoq_precondition
 A {burn_regime} profile with `{burn_tier} = workload` exists at the
 given {burn_alias} and references a privileged authority that is

@@ -9,6 +9,9 @@ creation.
 The PowerShell shell choice is independent of the privileged BURN's
 shell.
 
+//axhopt_typed_parameter
+{burn_alias}
+
 //axhoq_precondition
 A privileged-tier {burn_regime} profile exists locally and is
 {bust_knock}-responsive against the target node.

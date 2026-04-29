@@ -6,6 +6,12 @@ and captures stdout, stderr, and the remote exit status to
 {burd_output_dir}.
 Workload-tier dispatch.
 
+//axhopt_typed_parameter
+{burn_alias}
+
+//axhopt_typed_parameter
+{busi_scribed_command_file}
+
 //axhoq_precondition
 A workload-tier {burn_regime} profile exists at the given {burn_alias}
 and is currently {bust_knock}-responsive.

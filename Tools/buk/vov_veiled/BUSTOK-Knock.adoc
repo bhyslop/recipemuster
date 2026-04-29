@@ -6,6 +6,9 @@ Used to confirm that a workload {burn_regime} profile is currently
 usable before dispatching real work, and used internally by the
 garrison and conscript ceremonies as their final verification step.
 
+//axhopt_typed_parameter
+{burn_alias}
+
 //axhoq_precondition
 A {burn_regime} profile exists at the given {burn_alias} and references
 a {burn_key_file} readable by the calling {burs_user}.

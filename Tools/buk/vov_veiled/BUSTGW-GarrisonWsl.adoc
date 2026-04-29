@@ -6,6 +6,9 @@ the privileged {burn_regime} profile and driving the WSL-specific
 {busn_garrison} ceremony.
 Idempotent on re-run.
 
+//axhopt_typed_parameter
+{burn_alias}
+
 //axhoq_precondition
 The remote Windows account hosting the WSL distribution is a member of
 the local Administrators group, and the WSL distribution named in

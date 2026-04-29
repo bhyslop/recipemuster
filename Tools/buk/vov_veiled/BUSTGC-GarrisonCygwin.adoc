@@ -6,6 +6,9 @@ the privileged {burn_regime} profile and driving the Cygwin-specific
 {busn_garrison} ceremony.
 Idempotent on re-run.
 
+//axhopt_typed_parameter
+{burn_alias}
+
 //axhoq_precondition
 The remote Windows account named in {burn_user} is a member of the
 local Administrators group on the target node.

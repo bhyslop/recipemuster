@@ -5,6 +5,9 @@ NOTE: Prints the resolved field set for a single {burn_regime} profile
 identified by a positional {burn_alias} argument.
 Read-only; no remote contact.
 
+//axhopt_typed_parameter
+{burn_alias}
+
 //axhoq_precondition
 A {burn_regime} profile with the given {burn_alias} exists in the local
 station subtree under the current {burs_user}.

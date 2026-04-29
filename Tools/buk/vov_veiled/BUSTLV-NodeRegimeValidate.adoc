@@ -6,6 +6,9 @@ NOTE: Validates a single {burn_regime} profile, identified by positional
 key-file accessibility.
 Read-only; no remote contact.
 
+//axhopt_typed_parameter
+{burn_alias}
+
 //axhoq_precondition
 A {burn_regime} profile with the given {burn_alias} exists in the local
 station subtree.
