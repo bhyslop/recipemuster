@@ -6911,6 +6911,7 @@
       "creation_time": "260426",
       "status": "racing",
       "order": [
+        "₢BBAAz",
         "₢BBAAm",
         "₢BBAAS",
         "₢BBAAT",
@@ -6959,7 +6960,7 @@
         "₢BBAAx",
         "₢BBAAy"
       ],
-      "next_pace_seed": "AAz",
+      "next_pace_seed": "AA0",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAAA": {
@@ -8134,6 +8135,17 @@
               "text": "## Character\n\nTwo-step nomenclature simplification in the rbtd fixture engine.\nMechanical refactor with one careful read of test-coverage impact.\n\n## Goals\n\n1. Eliminate \"case name string\" as a parallel surface to function name.\n   Today `case!()` already sets name from `stringify!($func)`, so case\n   names ARE function names — but operator-facing surfaces (commit\n   prose, dockets, error messages) treat the kebab form as if it were\n   a key. Make canonical = function name; either drop kebab from\n   user-facing output entirely, or accept kebab as an alias resolver.\n\n2. Eliminate `rbtdre_Section` abstraction. Replace with flat\n   `cases: &[Case]` directly on `rbtdre_Fixture`. Fixture-level\n   fail-fast vs keep-going (already controlled by disposition) is the\n   only granularity actually wanted. Multi-section fixtures\n   (enrollment-validation, regime-validation) absorb their grouping\n   into case-name prefixes if helpful for display.\n\n## Wrap criterion\n\n- All sections collapsed; `rbtdre_Section` struct removed.\n- `calibrant-fail-fast` inter-section coverage retired or repurposed\n  (it currently exists to test the abstraction being removed).\n- All fixtures still pass under their existing tabtargets.\n\n## Out of scope\n\n- Renaming individual case functions for prose readability.\n- Changes to fixture lifecycle (setup/teardown), dispositions,\n  or run/list tabtarget surfaces.\n- Anything in rbtw or upstream of the engine API.",
               "silks": "rbtd-fixture-nomenclature-collapse",
               "commit": "0fd7ac5"
+            }
+          ]
+        },
+        "₢BBAAz": {
+          "tacks": [
+            {
+              "ts": "260429-1511",
+              "state": "rough",
+              "text": "## Character\n\nSpec-driven mechanical refactor. ANCHOR's value shape changes from\ncontent-addressed identifier to domain-blind locator. No new\ncapabilities; existing flows preserved.\n\n## Goals\n\nRedefine `RBRV_IMAGE_n_ANCHOR` as a `package-path:tag` locator\nmatching the existing wrest/jettison locator pattern\n(RBS0:3423-3427). Today ANCHOR is `<sanitized-origin>-<10-hex>`\nimplicitly under `enshrines/`; new shape carries its namespace\nexplicitly so it can name an enshrinement OR (in the next pace)\na hallmark.\n\n## Wrap criterion\n\n- Spec sweep: RBS0 RBRV_IMAGE_n_ANCHOR definition, RBSAE enshrine,\n  RBSAC conjure preflight + resolve, plus any consumers using the\n  short-form anchor.\n- Code consumers updated: enshrine writeback, conjure resolution,\n  validation patterns.\n- Existing populated rbrv.env values migrated to locator shape.\n- Fast suite green; previously-green onboarding-sequence cases\n  still pass.\n\n## Out of scope\n\n- Hallmark-base support — separate pace, follows this one.\n- Airgap chain integration — `₢BBAAs` verifies.",
+              "silks": "rbrv-anchor-locator-format",
+              "commit": "83d57c2"
             }
           ]
         }
