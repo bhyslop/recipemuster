@@ -149,7 +149,19 @@ zrbob_furnish() {
   test -f "${z_nameplate_file}" || buc_die "Nameplate not found: ${z_nameplate_file}"
   source "${z_nameplate_file}" || buc_die "Failed to source nameplate: ${z_nameplate_file}"
   zrbrn_kindle
-  zrbrn_enforce
+
+  # Differential enforce: kludge/ordain commands write RBRN_*_HALLMARK,
+  # so zrbrn_enforce would self-veto on marshal-zero state where those
+  # fields are blank by design (rblm zeroes them; rbtdrp_pristine treats
+  # them as RBTDRP_RBRN_BLANK_FIELDS). Strict validation lives in rbw-rnv
+  # (rbrn_cli.sh). Mirrors the yoke/RBRV split (rbfl_cli vs rbrv_cli).
+  case "${z_command}" in
+    rbob_kludge|rbob_kludge_bottle|rbob_kludge_sentry|rbob_ordain)
+      ;;
+    *)
+      zrbrn_enforce
+      ;;
+  esac
 
   zrbrr_kindle
   zrbrr_enforce
