@@ -38,7 +38,7 @@ rbhw_top() {
   buh_e
   buh_section  "Phase 1: SSH Access (BUK — generic OS)"
   buh_tt       "  1. OpenSSH server install & lockdown:  " "${BUWZ_HW_ACCESS_BASE}"
-  buh_tt       "  2. SSH client key & host config:       " "${BUWZ_HW_ACCESS_REMOTE}"
+  buh_tt       "  2. SSH client key generation:          " "${BUWZ_HW_ACCESS_REMOTE}"
   buh_tt       "  3. SSH entrypoint routing (command=):  " "${BUWZ_HW_ACCESS_ENTRY}"
   buh_e
   buh_section  "Phase 2: Environments (BUK — generic OS)"

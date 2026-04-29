@@ -83,7 +83,6 @@ zbuwz_kindle() {
   buz_enroll BUWZ_RHC_WSL        "buw-rhcw"  "${z_mod}" "burn_construct_wsl"        ""        "Construct BURN profile: WSL"
   buz_enroll BUWZ_RHC_POWERSHELL "buw-rhcp"  "${z_mod}" "burn_construct_powershell" ""        "Construct BURN profile: PowerShell"
   buz_enroll BUWZ_RHC_LOCALHOST  "buw-rhcx"  "${z_mod}" "burn_construct_localhost"  ""        "Construct BURN profile: localhost"
-  buz_enroll BUWZ_HW_SSH_CONFIG  "buw-HWsc"  "${z_mod}" "burn_ssh_config"           ""        "Write SSH config from BURN profiles"
   buz_enroll BUWZ_HW_VERIFY_SSH  "buw-HWvs"  "${z_mod}" "burn_verify_ssh"           "param1"  "Verify SSH to BURN profile"
   buz_enroll BUWZ_RN_INSTALL_KEY "buw-rnk"   "${z_mod}" "burn_install_key"          "param1"  "Install BURN key into authorized_keys"
 
@@ -97,7 +96,7 @@ zbuwz_kindle() {
   buz_enroll BUWZ_H0_TOP            "buw-h0"    "${z_mod}" "buhw_handbook_top"        ""        "BUK top-level handbook index"
   buz_enroll BUWZ_HW_TOP            "buw-hw"    "${z_mod}" "buhw_top"                ""        "BUK-level Windows procedures checklist"
   buz_enroll BUWZ_HW_ACCESS_BASE    "buw-HWab"  "${z_mod}" "buhw_access_base"        ""        "OpenSSH server install + lockdown"
-  buz_enroll BUWZ_HW_ACCESS_REMOTE  "buw-HWar"  "${z_mod}" "buhw_access_remote"      ""        "Client key gen + ssh config"
+  buz_enroll BUWZ_HW_ACCESS_REMOTE  "buw-HWar"  "${z_mod}" "buhw_access_remote"      ""        "Client key generation"
   buz_enroll BUWZ_HW_ACCESS_ENTRY   "buw-HWax"  "${z_mod}" "buhw_access_entrypoints" ""        "SSH command= routing + icacls"
   buz_enroll BUWZ_HW_ENV_WSL        "buw-HWew"  "${z_mod}" "buhw_environment_wsl"    "param1"  "WSL distro creation"
   buz_enroll BUWZ_HW_ENV_CYGWIN     "buw-HWec"  "${z_mod}" "buhw_environment_cygwin" ""        "Cygwin install"

@@ -125,7 +125,7 @@ buhw_access_base() {
 buhw_access_remote() {
   zbuhw_sentinel
 
-  buc_doc_brief "Display SSH client key generation and host config procedure (args: host user key-name alias)"
+  buc_doc_brief "Display SSH client key generation procedure (args: host user key-name alias)"
   buc_doc_shown || return 0
 
   local z_host="${1:-}"
@@ -154,15 +154,6 @@ buhw_access_remote() {
   buh_step1    "Generate Key:"
   buh_code     "ssh-keygen -t ed25519 -f ~/.ssh/${z_key_name}"
   buh_e
-  buh_step1    "Create SSH Config Entry:"
-  buyy_cmd_yawp "~/.ssh/config"; local -r z_ssh_config_yelp="${z_buym_yelp}"
-  buh_line     "Add to ${z_ssh_config_yelp}"
-  buh_e
-  buh_code     "Host ${z_alias}"
-  buh_code     "  HostName ${z_host}"
-  buh_code     "  User ${z_user}"
-  buh_code     "  IdentityFile ~/.ssh/${z_key_name}"
-  buh_e
   buh_step1    "Copy Public Key to Host:"
   buh_line     "The public key must be added to the host's authorized_keys."
   buyy_cmd_yawp "cat ~/.ssh/${z_key_name}.pub"; local -r z_pubkey_cmd_yelp="${z_buym_yelp}"
@@ -170,7 +161,7 @@ buhw_access_remote() {
   buh_line     "Copy the output for use in the entrypoints procedure."
   buh_e
   buh_section  "Verification:"
-  buh_code     "ssh ${z_alias}"
+  buh_tt       ""  "${BUWZ_HW_VERIFY_SSH}"  ""  " ${z_alias}"
   buh_line     "Expect: connects (may not yet enter target env — routing not configured)."
 
 }
@@ -319,8 +310,6 @@ buhw_top() {
   buh_tt       "  PowerShell: " "${BUWZ_RHC_POWERSHELL}" "" " <host> <user> <moniker>"
   buh_tt       "  Localhost:  " "${BUWZ_RHC_LOCALHOST}" "" " <user> <moniker>"
   buh_e
-  buh_section  "SSH Automation:"
-  buh_tt       "  Write SSH config:       " "${BUWZ_HW_SSH_CONFIG}"
   buh_tt       "  Verify SSH connection:  " "${BUWZ_HW_VERIFY_SSH}" "" " <alias>"
   buh_tt       "  Install BURN key:       " "${BUWZ_RH_INSTALL_KEY}" "" " <alias>"
   buh_e
@@ -329,7 +318,7 @@ buhw_top() {
   buh_e
   buh_section  "Handbook Procedures (manual steps):"
   buh_tt       "  OpenSSH server install:                " "${BUWZ_HW_ACCESS_BASE}"
-  buh_tt       "  SSH client key & host config:          " "${BUWZ_HW_ACCESS_REMOTE}"
+  buh_tt       "  SSH client key generation:             " "${BUWZ_HW_ACCESS_REMOTE}"
   buh_tt       "  SSH entrypoint routing (command=):     " "${BUWZ_HW_ACCESS_ENTRY}"
   buh_e
   buh_section  "Environment Procedures:"
