@@ -8167,6 +8167,13 @@
         "₢BBAAz": {
           "tacks": [
             {
+              "ts": "260429-1600",
+              "state": "complete",
+              "text": "## Character\n\nSpec-driven mechanical refactor. ANCHOR's value shape changes from\ncontent-addressed identifier to domain-blind locator. No new\ncapabilities; existing flows preserved.\n\n## Goals\n\nRedefine `RBRV_IMAGE_n_ANCHOR` as a `package-path:tag` locator\nmatching the wrest/jettison domain-blind locator pattern in RBS0.\nToday ANCHOR is `<sanitized-origin>-<10-hex>` implicitly under\n`enshrines/`; new shape carries its namespace explicitly so it can\nname an enshrinement OR (in ₢BBAA0) a hallmark.\n\n## Wrap criterion\n\n- Spec sweep: RBS0 RBRV_IMAGE_n_ANCHOR definition, RBSAE enshrine,\n  RBSAC conjure preflight + resolve, plus any consumers using the\n  short-form anchor.\n- Code consumers updated: enshrine writeback, conjure resolution,\n  validation patterns.\n- Existing populated rbrv.env values migrated to locator shape.\n- Fast suite green; previously-green onboarding-sequence cases\n  still pass.\n\n## Out of scope\n\n- Hallmark-base support — ₢BBAA0.\n- Airgap chain integration — ₢BBAAs verifies.",
+              "silks": "rbrv-anchor-locator-format",
+              "commit": "6286445"
+            },
+            {
               "ts": "260429-1517",
               "state": "rough",
               "text": "## Character\n\nSpec-driven mechanical refactor. ANCHOR's value shape changes from\ncontent-addressed identifier to domain-blind locator. No new\ncapabilities; existing flows preserved.\n\n## Goals\n\nRedefine `RBRV_IMAGE_n_ANCHOR` as a `package-path:tag` locator\nmatching the wrest/jettison domain-blind locator pattern in RBS0.\nToday ANCHOR is `<sanitized-origin>-<10-hex>` implicitly under\n`enshrines/`; new shape carries its namespace explicitly so it can\nname an enshrinement OR (in ₢BBAA0) a hallmark.\n\n## Wrap criterion\n\n- Spec sweep: RBS0 RBRV_IMAGE_n_ANCHOR definition, RBSAE enshrine,\n  RBSAC conjure preflight + resolve, plus any consumers using the\n  short-form anchor.\n- Code consumers updated: enshrine writeback, conjure resolution,\n  validation patterns.\n- Existing populated rbrv.env values migrated to locator shape.\n- Fast suite green; previously-green onboarding-sequence cases\n  still pass.\n\n## Out of scope\n\n- Hallmark-base support — ₢BBAA0.\n- Airgap chain integration — ₢BBAAs verifies.",
