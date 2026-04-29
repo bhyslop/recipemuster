@@ -1,0 +1,45 @@
+//axhob_operation
+{bust_conscript_cygwin}
+
+NOTE: Creates an ephemeral workload OS user on a Windows node with a
+Cygwin shell, and provisions a corresponding workload {burn_regime}
+profile locally.
+Uses a named privileged BURN as authority for the remote-user creation.
+The Cygwin shell choice is independent of the privileged BURN's shell.
+
+//axhoq_precondition
+A privileged-tier {burn_regime} profile exists locally and is
+{bust_knock}-responsive against the target node.
+
+//axhoq_precondition
+The privileged account on the target node carries authority sufficient
+to create local OS users and assign Cygwin login defaults.
+
+//axhos_step
+. *Authenticate via privileged BURN*: open an authenticated session to
+the target node using the privileged profile
+
+//axhos_step
+. *Create workload user*: provision a fresh OS user with a Cygwin shell
+default; capture the temporary credential or pubkey trust as defined
+by the platform ceremony
+
+//axhos_step
+. *Write workload profile*: persist a workload {burn_regime} profile
+locally with `{burn_tier} = workload` and a reference to the privileged
+authority used to create the user
+
+//axhos_step
+. *Probe new account*: confirm passwordless SSH to the workload account
+succeeds via {bust_knock}
+
+//axhog_guarantee
+A new workload OS user exists on the remote node, a corresponding
+workload {burn_regime} profile is persisted locally, and the new
+account is reachable over passwordless SSH.
+
+//axhoc_completion
+Exit 0 when remote-user creation, local profile write, and verification
+probe all succeed.
+Non-zero when the privileged BURN refuses, remote-user creation fails,
+the local profile cannot be written, or the final probe fails.

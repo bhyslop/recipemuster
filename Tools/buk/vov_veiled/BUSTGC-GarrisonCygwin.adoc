@@ -1,0 +1,39 @@
+//axhob_operation
+{bust_garrison_cygwin}
+
+NOTE: Establishes privileged BURN trust against a Cygwin node by writing
+the privileged {burn_regime} profile and driving the Cygwin-specific
+{busn_garrison} ceremony.
+Idempotent on re-run.
+
+//axhoq_precondition
+The remote Windows account named in {burn_user} is a member of the
+local Administrators group on the target node.
+
+//axhoq_precondition
+OpenSSH server is reachable on {burn_host} from the calling station,
+and the operator can complete the console-side handshake at the
+Windows keyboard (or RDP).
+
+//axhos_step
+. *Write profile*: persist the privileged {burn_regime} profile to the
+station subtree with `{burn_tier} = privileged`
+
+//axhos_step
+. *Console handshake*: drive the Cygwin-specific console ceremony to
+install the station pubkey into
+`C:\ProgramData\ssh\administrators_authorized_keys`
+
+//axhos_step
+. *Probe trust*: confirm passwordless SSH to the privileged account
+succeeds via {bust_knock}
+
+//axhog_guarantee
+The privileged {burn_regime} profile is persisted locally and the
+station's {burn_ssh_pubkey} is trusted on the remote Cygwin node.
+
+//axhoc_completion
+Exit 0 when the trust handshake completes and the verification probe
+succeeds.
+Non-zero on profile-write failure, console-handshake refusal, or final
+SSH probe failure.

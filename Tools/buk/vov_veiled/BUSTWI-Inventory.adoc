@@ -1,0 +1,31 @@
+//axhob_operation
+{bust_inventory}
+
+NOTE: Reports workload users currently provisioned on a node.
+Scope is the node's full workload-user population — not just the
+calling station's history.
+Queries the node via the named privileged BURN.
+
+//axhoq_precondition
+A {burn_regime} profile with `{burn_tier} = privileged` exists at the
+given {burn_alias} and authenticates without prompting.
+
+//axhos_step
+. *Authenticate via privileged BURN*: open an authenticated session to
+the target node using the privileged profile
+
+//axhos_step
+. *Enumerate workload users*: list OS users whose names match the
+workload-user naming convention defined by the platform ceremony
+
+//axhos_step
+. *Display roster*: print the discovered identities together with any
+shell or last-login metadata exposed by the platform
+
+//axhog_guarantee
+No remote OS state was modified and no local profile was written.
+
+//axhoc_completion
+Exit 0 on successful enumeration; a zero-user roster is success.
+Non-zero when the privileged BURN refuses, the node cannot be queried,
+or the user-listing call returns a non-success status.

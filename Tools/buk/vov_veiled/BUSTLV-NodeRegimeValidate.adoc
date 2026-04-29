@@ -1,0 +1,34 @@
+//axhob_operation
+{bust_node_regime_validate}
+
+NOTE: Validates a single {burn_regime} profile, identified by positional
+{burn_alias}, for required-field presence, valid {burn_tier}, and
+key-file accessibility.
+Read-only; no remote contact.
+
+//axhoq_precondition
+A {burn_regime} profile with the given {burn_alias} exists in the local
+station subtree.
+
+//axhos_step
+. *Load profile*: parse the profile file for the supplied {burn_alias}
+
+//axhos_step
+. *Required fields*: confirm {burn_host}, {burn_user}, {burn_alias},
+and {burn_tier} are present
+
+//axhos_step
+. *Tier sanity*: confirm {burn_tier} is exactly one of
+`privileged | workload`
+
+//axhos_step
+. *Key reachable*: resolve {burn_key_file} and confirm the file is
+readable by the calling user
+
+//axhog_guarantee
+The verdict reflects the on-disk state at call time; no field was
+modified.
+
+//axhoc_completion
+Exit 0 when every check passes.
+Non-zero with a diagnostic message identifying the first failed check.

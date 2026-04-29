@@ -1,0 +1,26 @@
+//axhob_operation
+{bust_node_regime_render}
+
+NOTE: Prints the resolved field set for a single {burn_regime} profile
+identified by a positional {burn_alias} argument.
+Read-only; no remote contact.
+
+//axhoq_precondition
+A {burn_regime} profile with the given {burn_alias} exists in the local
+station subtree under the current {burs_user}.
+
+//axhos_step
+. *Locate profile*: resolve the profile file for the supplied
+{burn_alias} under the station subtree
+
+//axhos_step
+. *Resolve fields*: parse the profile and emit every defined
+{burn_regime} field assignment
+
+//axhog_guarantee
+No remote network contact occurred and no field was modified on disk.
+
+//axhoc_completion
+Exit 0 on successful render.
+Non-zero when the {burn_alias} is not found or the profile fails to
+parse.

@@ -1,0 +1,34 @@
+//axhob_operation
+{bust_discharge}
+
+NOTE: Removes a workload user from a node and deletes the local
+workload {burn_regime} profile.
+The workload profile encodes its privileged authority; {bust_discharge}
+uses that authority to delete the remote OS user, then unlinks the
+local profile file.
+
+//axhoq_precondition
+A {burn_regime} profile with `{burn_tier} = workload` exists at the
+given {burn_alias} and references a privileged authority that is
+currently {bust_knock}-responsive.
+
+//axhos_step
+. *Resolve authority*: read the workload profile and resolve its
+referenced privileged authority
+
+//axhos_step
+. *Delete remote user*: authenticate via the privileged authority and
+delete the remote OS user named by the workload profile
+
+//axhos_step
+. *Remove local profile*: unlink the local workload profile file and
+its associated key material under the station subtree
+
+//axhog_guarantee
+The workload OS user no longer exists on the remote node, and the local
+workload profile file is removed.
+
+//axhoc_completion
+Exit 0 on full removal.
+Non-zero when the privileged authority refuses, the remote-user
+deletion fails, or the local profile cannot be removed.

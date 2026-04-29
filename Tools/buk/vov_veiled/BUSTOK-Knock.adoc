@@ -1,0 +1,27 @@
+//axhob_operation
+{bust_knock}
+
+NOTE: Probes workload responsiveness via passwordless SSH.
+Used to confirm that a workload {burn_regime} profile is currently
+usable before dispatching real work, and used internally by the
+garrison and conscript ceremonies as their final verification step.
+
+//axhoq_precondition
+A {burn_regime} profile exists at the given {burn_alias} and references
+a {burn_key_file} readable by the calling {burs_user}.
+
+//axhos_step
+. *Open SSH connection*: invoke the SSH client non-interactively using
+the profile's {burn_alias} and {burn_key_file}
+
+//axhos_step
+. *Issue trivial command*: execute a no-op remote command (e.g.,
+`true`) and observe the remote exit status
+
+//axhog_guarantee
+No remote OS state was modified.
+
+//axhoc_completion
+Exit 0 when the remote command returns 0 within the probe window.
+Non-zero on connection refusal, authentication failure, remote-exec
+failure, or probe-window timeout.

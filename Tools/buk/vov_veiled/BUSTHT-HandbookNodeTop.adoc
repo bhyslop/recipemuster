@@ -1,0 +1,18 @@
+//axhob_operation
+{bust_handbook_node_top}
+
+NOTE: Top-level landing surface for the Remote Node Access handbook.
+Renders handbook prose to the operator's terminal as the entry point
+into the per-platform garrison and conscript procedures.
+No remote contact and no profile mutation.
+
+//axhos_step
+. *Render landing*: emit the node-access handbook landing content,
+including pointers to per-platform garrison and conscript procedures
+
+//axhog_guarantee
+No remote contact occurred and no local file was written.
+
+//axhoc_completion
+Exit 0 after the landing content is printed.
+Non-zero only when the handbook content cannot be located or rendered.
