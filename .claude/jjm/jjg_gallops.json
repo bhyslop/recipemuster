@@ -6912,6 +6912,7 @@
       "status": "racing",
       "order": [
         "₢BBAAz",
+        "₢BBAA0",
         "₢BBAAm",
         "₢BBAAS",
         "₢BBAAT",
@@ -6960,9 +6961,20 @@
         "₢BBAAx",
         "₢BBAAy"
       ],
-      "next_pace_seed": "AA0",
+      "next_pace_seed": "AA1",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
+        "₢BBAA0": {
+          "tacks": [
+            {
+              "ts": "260429-1511",
+              "state": "rough",
+              "text": "## Character\n\nFeature atop the locator-shape refactor. Lets a vessel's base image\nbe an internal hallmark (e.g., airgap's forge-base) rather than only\nan enshrined upstream.\n\n## Goals\n\nDefine how `RBRV_IMAGE_n_ANCHOR` gets populated when the base is a\nhallmark (`hallmarks/<H>/<sigil>:<H>`). Pick the population\nmechanism: enshrine grows internal-sigil resolution; a new\nhallmarks→enshrines bridge operation; or orchestration-driven value\nwriting. Spec the chosen mechanism in RBSAE/RBS0; update enshrine to\nhandle already-populated ANCHOR slots (skip-pull-if-set semantics\nmirroring conjure's preflight).\n\n## Wrap criterion\n\n- Spec defines the hallmark-base population mechanism.\n- Enshrine semantics for already-populated ANCHOR are spec'd and coded.\n- `rbhoda_director_airgap` handbook prose matches actual operator UX.\n- Onboarding-sequence airgap orchestration produces a working chain.\n\n## Cross-pace dependencies\n\n- ₢BBAAz locator-shape refactor — required.\n\n## Out of scope\n\n- Empirical onboarding-sequence green — `₢BBAAs` verifies.",
+              "silks": "rbrv-anchor-hallmark-base",
+              "commit": "7564f56"
+            }
+          ]
+        },
         "₢BBAAA": {
           "tacks": [
             {
