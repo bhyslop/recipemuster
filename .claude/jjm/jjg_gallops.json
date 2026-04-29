@@ -533,6 +533,13 @@
         "₢A-AAX": {
           "tacks": [
             {
+              "ts": "260429-1526",
+              "state": "rough",
+              "text": "## Character\nImplementation — Windows-only garrison. Mint per-shell ceremony for the three Windows variants (Cygwin/WSL/PowerShell). Defines the key-line wire format inline.\n\n## Docket\nMint `busn_garrison` for the three Windows shells per BUS0 catalog: `buw-npg{c,w,p}`. Each writes a privileged `burn.env` (BURN_TIER=privileged) and runs the Windows ceremony — sshd bootstrap, admin authorized_keys install with `command=` routing per shell. Console phase is handbook-surface residue (AAa), not Garrison code.\n\nKey-line wire format (former AAR scope, now inline): `zburn_build_key_line` produces `[command=\"...\",options ]<keytype> <base64> # BURN:<alias>`. The trailing `# BURN:<alias>` is the idempotency marker that key-install and SSH-config-aggregation grep for. `command=` prefix is conditional on the platform's routing needs. Keep the format definition co-located with the only producer.\n\nRetire `buw-rhc{c,w,p}`, `buw-wcb`, `buw-wck` files and zipper enrollments.\n\nLinux/Mac/Localhost garrison variants (`buw-npg{l,m,x}`) are out of scope and not slated elsewhere — they do not exist after this pace. Disposition of legacy `buw-rhc{l,m,x}` (BURN-renamed in AAV but no garrison replacement): mount-time decision based on whether they're still consumed by anything (e.g., localhost fundus scenarios).\n\nTier assertion via the helper minted in AAV: Garrison rejects workload aliases.",
+              "silks": "garrison-platform-machinery",
+              "commit": "e603b10"
+            },
+            {
               "ts": "260429-1131",
               "state": "rough",
               "text": "## Character\nImplementation — Windows-only garrison. Mint per-shell ceremony for the three Windows variants (Cygwin/WSL/PowerShell). Defines the key-line wire format inline.\n\n## Docket\nMint `busn_garrison` for the three Windows shells per BUS0 catalog: `buw-npg{c,w,p}`. Each writes a privileged `burn.env` (BURN_TIER=privileged) and runs the Windows ceremony — sshd bootstrap, admin authorized_keys install with `command=` routing per shell. Console phase is handbook-surface residue (AAa), not Garrison code.\n\nKey-line wire format (former AAR scope, now inline): `zburn_build_key_line` produces `[command=\"...\",options ]<keytype> <base64> # BURN:<alias>`. The trailing `# BURN:<alias>` is the idempotency marker that key-install and SSH-config-aggregation grep for. `command=` prefix is conditional on the platform's routing needs. Keep the format definition co-located with the only producer.\n\nRetire `buw-rhc{c,w,p}`, `buw-wcb`, `buw-wck` files and zipper enrollments.\n\nLinux/Mac/Localhost garrison variants (`buw-npg{l,m,x}`) are out of scope and not slated elsewhere — they do not exist after this pace. Disposition of legacy `buw-rhc{l,m,x}` (BURN-renamed in AAV but no garrison replacement): mount-time decision based on whether they're still consumed by anything (e.g., localhost fundus scenarios). Update BUS0 §Tabtarget Catalog to reflect the actual extent (`buw-npg{c,w,p}`) so the spec describes what exists.\n\nTier assertion via the helper minted in AAV: Garrison rejects workload aliases.",
@@ -557,6 +564,13 @@
         },
         "₢A-AAY": {
           "tacks": [
+            {
+              "ts": "260429-1526",
+              "state": "rough",
+              "text": "## Character\nImplementation — Windows-only workload-tier mirror of Garrison. Three workload-shell variants share user-creation logic; Windows-side discharge/inventory.\n\n## Docket\nMint per BUS0 catalog (Windows scope):\n\n`busn_conscript_{c,w,p}` (`buw-nwc{c,w,p}`) — create remote Windows OS user via privileged BURN (`net user` / `New-LocalUser` via PowerShell-from-WSL), install station-user pubkey to per-user `authorized_keys` (NOT admin path), write workload `burn.env` (BURN_TIER=workload). Workload shell choice (c/w/p) independent of privileged BURN's shell.\n\n`busn_discharge` (`buw-nwd`) — use the workload profile's recorded privileged-authority back-reference to delete the remote Windows user; remove local profile.\n\n`busn_inventory` (`buw-nwi`) — list workload users on a Windows node via privileged BURN. Scope: full workload-user population.\n\nNew BURN field: workload profiles record their privileged-authority alias.\n\nLinux/Mac/Localhost conscript variants (`buw-nwc{l,m,x}`) and their discharge/inventory cousins are out of scope and not slated elsewhere — they do not exist after this pace.\n\nTier assertions: privileged-alias args reject workload tier; workload-alias args reject privileged tier.",
+              "silks": "conscript-discharge-inventory-machinery",
+              "commit": "e603b10"
+            },
             {
               "ts": "260429-1131",
               "state": "rough",
