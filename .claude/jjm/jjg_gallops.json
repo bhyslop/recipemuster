@@ -241,6 +241,13 @@
         "₢A-AAI": {
           "tacks": [
             {
+              "ts": "260429-1110",
+              "state": "abandoned",
+              "text": "## Character\nDesign review — lightweight judgment call.\n\n## Docket\nRevisit whether `buw-HWec` should dictate full Cygwin installation or just configure an existing install. After practicing the other procedures, we'll have better intuition about how much hand-holding the handbook should provide vs assuming prerequisites are already in place.",
+              "silks": "reconsider-cygwin-install-procedure",
+              "commit": "f8255fb"
+            },
+            {
               "ts": "260412-1449",
               "state": "rough",
               "text": "## Character\nDesign review — lightweight judgment call.\n\n## Docket\nRevisit whether `buw-HWec` should dictate full Cygwin installation or just configure an existing install. After practicing the other procedures, we'll have better intuition about how much hand-holding the handbook should provide vs assuming prerequisites are already in place.",
