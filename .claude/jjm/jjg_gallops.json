@@ -45,6 +45,7 @@
         "₢A-AAR",
         "₢A-AAQ",
         "₢A-AAU",
+        "₢A-AAd",
         "₢A-AAV",
         "₢A-AAW",
         "₢A-AAX",
@@ -61,7 +62,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "next_pace_seed": "AAd",
+      "next_pace_seed": "AAe",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -620,6 +621,17 @@
               "text": "## Character\nTest execution on the curia (Mac) — early regression catch for the BURN rename + Windows-only scope changes, before committing to a Windows trip.\n\n## Docket\nRun `tt/jjw-tfs.TestFundusScenario.localhost.sh` on the curia after AAa lands. This is the FIRST testing pace in the heat — runs before any Windows practice so curia regressions don't compound with Windows-host discoveries.\n\nValidates:\n- Legacy `buw-rhcx` (BURN-renamed in AAV, no garrison replacement) still mints a localhost profile consumable by `jjx_bind`\n- JJK fundus scenarios pass against the renamed `burn.env` profile filename\n- BUK self-test (`tt/buw-st.BukSelfTest.sh`) green\n- New Windows-only verbs in AAX/AAY don't break the localhost coexistence path\n\nIf failures surface, fix on the curia before AAC commits to the Windows host. Distinct from AAP — AAP runs at the very end (post-Windows practice) and catches regressions introduced during Windows work; this pace catches regressions introduced by the implementation block itself.",
               "silks": "localhost-smoke-pre-windows",
               "commit": "7c0ef24"
+            }
+          ]
+        },
+        "₢A-AAd": {
+          "tacks": [
+            {
+              "ts": "260429-1519",
+              "state": "rough",
+              "text": "## Character\n\nMechanical authoring against settled spec — 15 small subdocs following one shape. Pattern-replication, not design.\n\n## Goal\n\nOne detail-site subdoc per BURN-domain tabtarget quoin (Windows-relevant scope, 15 subdocs). Each lives at `Tools/buk/vov_veiled/BUSTxx-<silks>.adoc` and contains an `axhob_operation` block elaborating parameters, preconditions, and guarantees against the corresponding `bust_*` voicing in BUS0.\n\n## Constraints\n\n- Reuse the procedure/method hierarchy markers per AXLA `axvo_tabtarget` allowance — no new markers minted at the detail site.\n- Introduces `BUST` as a parent prefix in the doc namespace, parallel to existing `BUSN`. Two-letter `xx` mnemonic per tabtarget decided at mount time; `BUST` itself is not a name.\n- BUS0 includes each new subdoc. The 21 voicings in BUS0's `=== Tabtarget Catalog` stay unchanged; only `include::` lines are added.\n- No code changes. No tabtarget filename changes.\n\n## Scope\n\n15 quoins drawn from BUS0's `// Concrete BURN Tabtargets` mapping block — every `bust_*` quoin except the six Linux/Mac/Localhost garrison/conscript variants. Discovery: `grep '^:bust_' Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc` then exclude `_linux`, `_mac`, `_localhost`.\n\nThe Linux/Mac/Localhost garrison/conscript subdocs are explicitly deferred per the paddock's non-Windows-deferral note; they belong to the future paces that introduce non-Windows fundus implementations.\n\n## Done\n\nAll 15 subdocs exist under `Tools/buk/vov_veiled/`, all are `include::`'d from BUS0, the existing 21 voicings in BUS0's catalog remain unchanged, and `tt/buw-st.BukSelfTest.sh` passes.",
+              "silks": "node-tabtarget-subdocs",
+              "commit": "35a9713"
             }
           ]
         }
