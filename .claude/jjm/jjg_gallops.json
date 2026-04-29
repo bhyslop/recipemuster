@@ -6926,6 +6926,7 @@
       "status": "racing",
       "order": [
         "₢BBAAz",
+        "₢BBAA1",
         "₢BBAA0",
         "₢BBAAm",
         "₢BBAAS",
@@ -6975,7 +6976,7 @@
         "₢BBAAx",
         "₢BBAAy"
       ],
-      "next_pace_seed": "AA1",
+      "next_pace_seed": "AA2",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAA0": {
@@ -6993,6 +6994,17 @@
               "text": "## Character\n\nFeature atop the locator-shape refactor. Lets a vessel's base image\nbe an internal hallmark (e.g., airgap's forge-base) rather than only\nan enshrined upstream.\n\n## Goals\n\nDefine how `RBRV_IMAGE_n_ANCHOR` gets populated when the base is a\nhallmark (`hallmarks/<H>/<sigil>:<H>`). Pick the population\nmechanism: enshrine grows internal-sigil resolution; a new\nhallmarks→enshrines bridge operation; or orchestration-driven value\nwriting. Spec the chosen mechanism in RBSAE/RBS0; update enshrine to\nhandle already-populated ANCHOR slots (skip-pull-if-set semantics\nmirroring conjure's preflight).\n\n## Wrap criterion\n\n- Spec defines the hallmark-base population mechanism.\n- Enshrine semantics for already-populated ANCHOR are spec'd and coded.\n- `rbhoda_director_airgap` handbook prose matches actual operator UX.\n- Onboarding-sequence airgap orchestration produces a working chain.\n\n## Cross-pace dependencies\n\n- ₢BBAAz locator-shape refactor — required.\n\n## Out of scope\n\n- Empirical onboarding-sequence green — `₢BBAAs` verifies.",
               "silks": "rbrv-anchor-hallmark-base",
               "commit": "7564f56"
+            }
+          ]
+        },
+        "₢BBAA1": {
+          "tacks": [
+            {
+              "ts": "260429-1608",
+              "state": "rough",
+              "text": "## Character\n\nTabtarget-surface refactor. Mechanical except for one judgment call:\nthe colophon name and channel.\n\n## Goals\n\nReplace the imprint-channel `rbtd-s.FixtureCase.<fixture>.sh [case]`\npattern with a single non-imprint, two-param colophon: param1 is the\nfixture name, param2 is the rust test case function name (e.g.\n`rbtdrf_rv_rbrv_all_vessels`). The new tabtarget covers ALL\nmanifest-registered fixtures, not just crucible ones.\n\n## Wrap criterion\n\n- Single new tabtarget routes by fixture-name lookup against the\n  rbtd manifest; rejects unknown fixture names\n- Per-fixture FixtureCase.<fixture>.sh files retired\n- Crucible-fixture single-case semantics preserved: still operates on\n  already-charged state, never charges/quenches\n- BUK channel discipline honored — the new colophon enrolls under the\n  param1 channel, not imprint; zipper updated; CLAUDE.md tabtarget table\n  reflects the change\n- Fast suite green; canonical onboarding-sequence cases unchanged\n\n## Out of scope\n\n- FixtureRun (whole-fixture) tabtargets — unchanged\n- Charge/quench tabtargets — unchanged\n- Adding new fixtures or new manifest fields\n\n## References\n\n- Tools/buk/buk-claude-context.md — channel semantics (imprint vs param1)\n- BBAAz onboarding-sequence-buildout pattern — precedent for\n  manifest-driven dispatch\n- rbtd manifest: rbtd/src/rbtdrm_manifest.rs",
+              "silks": "single-case-imprint-collapse",
+              "commit": "58cb7a1"
             }
           ]
         },
