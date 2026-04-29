@@ -6690,6 +6690,7 @@
         "₢BBAAp",
         "₢BBAAf",
         "₢BBAAW",
+        "₢BBAAu",
         "₢BBAAs",
         "₢BBAAg",
         "₢BBAAr",
@@ -6704,7 +6705,7 @@
         "₢BBAAq",
         "₢BBAAt"
       ],
-      "next_pace_seed": "AAu",
+      "next_pace_seed": "AAv",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAAA": {
@@ -7775,6 +7776,17 @@
               "text": "## Character\n\nConvert post-charge readiness-wait from a theurge-side matcher into a\nnameplate-borne fact, with the wait folded into the charge tabtarget itself.\nAfter charge returns, the case is ready — theurge holds no readiness concern.\n\n## Scope\n\n- Add `RBRN_BOTTLE_READINESS_DELAY_SEC` to the nameplate regime\n  (tadmor=0, srjcl/pluml=30 currently).\n- Charge tabtarget consults the fact and waits internally before returning.\n- Theurge: `rbtdrc_needs_readiness_delay` matcher and post-charge wait block\n  both removed.\n- Three colluding pieces collapsed: bash const\n  `RBCC_BOTTLE_TEST_READINESS_DELAY_SEC`, Rust mirror\n  `RBTDRC_SERVICE_READINESS_DELAY_SECS`, Rust matcher\n  `rbtdrc_needs_readiness_delay`.\n\n## Wrap criterion\n\n- Charge honors per-nameplate readiness delay; theurge has no readiness code.\n- tadmor/srjcl/pluml fixtures pass under fixture execution.\n\n## Cross-pace dependencies\n\n- BBAAs landed (fixture lifecycle is the right shape for this hand-off).\n\n## Out of scope\n\n- Service-readiness probe contract (poll port-open or curl health endpoint\n  until truly ready). Bigger contract upgrade; blind-sleep-by-nameplate-fact\n  is sufficient. Surface as itch.\n\n## References\n\n- Discovery clue: grep `RBRN_BOTTLE_VESSEL` to find the locality the new field\n  needs plumbing through — per-nameplate `.rbk/*/rbrn.env`, `rbrn_regime.sh`,\n  `rbrn_cli.sh`, `RBRN-RegimeNameplate.adoc`, and runtime consumers.\n- `Tools/rbk/rbtd/src/main.rs` — current post-charge wait block in theurge\n  orchestration.\n- `Tools/rbk/rbtd/src/rbtdrc_crucible.rs::rbtdrc_needs_readiness_delay()` —\n  current matcher.\n- `Tools/rbk/rbcc_Constants.sh` — bash const definition.",
               "silks": "charge-folds-readiness-wait",
               "commit": "ff29871"
+            }
+          ]
+        },
+        "₢BBAAu": {
+          "tacks": [
+            {
+              "ts": "260429-0824",
+              "state": "rough",
+              "text": "## Character\n\nPure construction. Build out the `onboarding-sequence` fixture with the cases needed to produce every vessel downstream crucibles consume. No empirical run-against-fresh-state here — that's BBAAs's reslated scope.\n\n## Scope\n\n- Rename sweep: `canonical-onboarding-sequence` → `onboarding-sequence` across fixture/section/manifest constants and tabtarget filenames; `onboarding-` prefix on all case names (existing five and new four).\n- Four new cases: `enshrine-bases`, `kludge-tadmor`, `kludge-ccyolo`, `conjure-srjcl`.\n- Expand `inscribe-reliquary` to yoke the stamp into all seven ordain-side vessels in one pass; remove per-ordain-case yoke prelude.\n- Centralize hallmark propagation: each ordain case publishes its hallmark to a static list of consuming nameplates (sentry-tether → moriah/srjcl/pluml; airgap-bottle → moriah; plantuml-bottle → pluml; jupyter-bottle → srjcl; graft-demo → none).\n- RCG named-string constants for vessel dirs, nameplates, case names, consumer arrays.\n- Auto-commit pattern: kludge cases commit between sentry+bottle (clean-tree precondition); ordain cases commit at end (clean-tree for next ordain).\n\n## Case order\n\ninscribe-reliquary → enshrine-bases → kludge-tadmor → kludge-ccyolo → ordain-conjure → conjure-srjcl → ordain-airgap → ordain-bind → ordain-graft\n\n## Wrap criterion\n\nAll nine cases compile; fixture invocable; single-case rerun works for each new case (mechanical confirmation, not green-against-fresh-state). Unit tests pass; no fast-suite regression.\n\n## Out of scope\n\n- Empirical run-until-green against fresh canonical state (BBAAs).\n- moriah crucible Fixture static (still phantom; separate concern).\n- RBS0 spec sync (BBAAq).",
+              "silks": "onboarding-sequence-buildout",
+              "commit": "bd3cda1"
             }
           ]
         }
