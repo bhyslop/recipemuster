@@ -57,11 +57,11 @@ zbuwz_kindle() {
   buz_enroll BUWZ_RE_VALIDATE "buw-rev" "${z_mod}" "bure_validate"  ""  "Validate BURE regime"
   buz_enroll BUWZ_RE_RENDER   "buw-rer" "${z_mod}" "bure_render"    ""  "Render BURE regime"
 
-  # Host Regime subsystem (burh_cli.sh)
-  z_mod="burh_cli.sh"
-  buz_enroll BUWZ_RH_VALIDATE "buw-rhv" "${z_mod}" "burh_validate" "param1" "Validate BURH profile"
-  buz_enroll BUWZ_RH_RENDER   "buw-rhr" "${z_mod}" "burh_render"   "param1" "Render BURH profile"
-  buz_enroll BUWZ_RH_LIST     "buw-rhl" "${z_mod}" "burh_list"     ""       "List BURH profiles"
+  # Node Regime subsystem (burn_cli.sh)
+  z_mod="burn_cli.sh"
+  buz_enroll BUWZ_RN_VALIDATE "buw-rnv" "${z_mod}" "burn_validate" "param1" "Validate BURN profile"
+  buz_enroll BUWZ_RN_RENDER   "buw-rnr" "${z_mod}" "burn_render"   "param1" "Render BURN profile"
+  buz_enroll BUWZ_RN_LIST     "buw-rnl" "${z_mod}" "burn_list"     ""       "List BURN profiles"
 
   # Qualification subsystem (buq_cli.sh)
   z_mod="buq_cli.sh"
@@ -75,22 +75,22 @@ zbuwz_kindle() {
   z_mod="butt_testbench.sh"
   buz_enroll BUWZ_SELF_TEST "buw-st" "${z_mod}" "buw-st"  ""  "BUK self-test (kick-tires + bure-tweak)"
 
-  # Host Regime — constructors + SSH automation (burh_cli.sh)
-  z_mod="burh_cli.sh"
-  buz_enroll BUWZ_RHC_LINUX      "buw-rhcl"  "${z_mod}" "burh_construct_linux"      ""        "Construct BURH profile: Linux"
-  buz_enroll BUWZ_RHC_MAC        "buw-rhcm"  "${z_mod}" "burh_construct_mac"        ""        "Construct BURH profile: macOS"
-  buz_enroll BUWZ_RHC_CYGWIN     "buw-rhcc"  "${z_mod}" "burh_construct_cygwin"     ""        "Construct BURH profile: Cygwin"
-  buz_enroll BUWZ_RHC_WSL        "buw-rhcw"  "${z_mod}" "burh_construct_wsl"        ""        "Construct BURH profile: WSL"
-  buz_enroll BUWZ_RHC_POWERSHELL "buw-rhcp"  "${z_mod}" "burh_construct_powershell" ""        "Construct BURH profile: PowerShell"
-  buz_enroll BUWZ_RHC_LOCALHOST  "buw-rhcx"  "${z_mod}" "burh_construct_localhost"  ""        "Construct BURH profile: localhost"
-  buz_enroll BUWZ_HW_SSH_CONFIG  "buw-HWsc"  "${z_mod}" "burh_ssh_config"           ""        "Write SSH config from BURH profiles"
-  buz_enroll BUWZ_HW_VERIFY_SSH  "buw-HWvs"  "${z_mod}" "burh_verify_ssh"           "param1"  "Verify SSH to BURH profile"
-  buz_enroll BUWZ_RH_INSTALL_KEY "buw-rhk"   "${z_mod}" "burh_install_key"          "param1"  "Install BURH key into authorized_keys"
+  # Node Regime — constructors + SSH automation (burn_cli.sh)
+  z_mod="burn_cli.sh"
+  buz_enroll BUWZ_RHC_LINUX      "buw-rhcl"  "${z_mod}" "burn_construct_linux"      ""        "Construct BURN profile: Linux"
+  buz_enroll BUWZ_RHC_MAC        "buw-rhcm"  "${z_mod}" "burn_construct_mac"        ""        "Construct BURN profile: macOS"
+  buz_enroll BUWZ_RHC_CYGWIN     "buw-rhcc"  "${z_mod}" "burn_construct_cygwin"     ""        "Construct BURN profile: Cygwin"
+  buz_enroll BUWZ_RHC_WSL        "buw-rhcw"  "${z_mod}" "burn_construct_wsl"        ""        "Construct BURN profile: WSL"
+  buz_enroll BUWZ_RHC_POWERSHELL "buw-rhcp"  "${z_mod}" "burn_construct_powershell" ""        "Construct BURN profile: PowerShell"
+  buz_enroll BUWZ_RHC_LOCALHOST  "buw-rhcx"  "${z_mod}" "burn_construct_localhost"  ""        "Construct BURN profile: localhost"
+  buz_enroll BUWZ_HW_SSH_CONFIG  "buw-HWsc"  "${z_mod}" "burn_ssh_config"           ""        "Write SSH config from BURN profiles"
+  buz_enroll BUWZ_HW_VERIFY_SSH  "buw-HWvs"  "${z_mod}" "burn_verify_ssh"           "param1"  "Verify SSH to BURN profile"
+  buz_enroll BUWZ_RN_INSTALL_KEY "buw-rnk"   "${z_mod}" "burn_install_key"          "param1"  "Install BURN key into authorized_keys"
 
   # Windows Commands (buwc_cli.sh)
   z_mod="buwc_cli.sh"
   buz_enroll BUWZ_WC_BOOTSTRAP   "buw-wcb"   "${z_mod}" "buwc_bootstrap_sshd"       ""        "Provision sshd on Windows (WSL)"
-  buz_enroll BUWZ_WC_INSTALL_KEY "buw-wck"   "${z_mod}" "buwc_install_key"          "param1"  "Install BURH key into Windows admin authorized_keys"
+  buz_enroll BUWZ_WC_INSTALL_KEY "buw-wck"   "${z_mod}" "buwc_install_key"          "param1"  "Install BURN key into Windows admin authorized_keys"
 
   # Handbook — top index + Windows OS procedures (buhw_cli.sh)
   z_mod="buhw_cli.sh"

@@ -34,7 +34,7 @@ zbuwc_furnish() {
   source "${BURD_BUK_DIR}/burd_regime.sh"
   source "${BURD_BUK_DIR}/burc_regime.sh"
   source "${BURD_BUK_DIR}/burs_regime.sh"
-  source "${BURD_BUK_DIR}/burh_regime.sh"
+  source "${BURD_BUK_DIR}/burn_regime.sh"
   source "${BURD_BUK_DIR}/buhw_windows.sh"
   source "${BURD_BUK_DIR}/buwc_windows.sh"
 
@@ -57,11 +57,11 @@ zbuwc_furnish() {
 
   # If BUZ_FOLIO is set, load and kindle the specified profile
   if test -n "${BUZ_FOLIO:-}"; then
-    local -r z_profile_file="${BURD_CONFIG_DIR}/users/${BURS_USER}/${BUZ_FOLIO}/burh.env"
-    test -f "${z_profile_file}" || buc_die "BURH profile not found: ${z_profile_file}"
-    source "${z_profile_file}" || buc_die "Failed to source BURH: ${z_profile_file}"
-    zburh_kindle
-    zburh_enforce
+    local -r z_profile_file="${BURD_CONFIG_DIR}/users/${BURS_USER}/${BUZ_FOLIO}/burn.env"
+    test -f "${z_profile_file}" || buc_die "BURN profile not found: ${z_profile_file}"
+    source "${z_profile_file}" || buc_die "Failed to source BURN: ${z_profile_file}"
+    zburn_kindle
+    zburn_enforce
   fi
 }
 

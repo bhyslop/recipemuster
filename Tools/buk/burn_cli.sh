@@ -16,13 +16,13 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# BURH CLI - Command line interface for BURH host regime operations
+# BURN CLI - Command line interface for BURN node regime operations
 #
 # Four command families:
-#   burh_validate/render/list  — regime read operations (require BUZ_FOLIO)
-#   burh_construct_*           — profile constructors (write burh.env)
-#   burh_ssh_*/burh_verify_*   — SSH automation (config, verify)
-#   burh_install_key           — authorized_keys management (per-profile, idempotent)
+#   burn_validate/render/list  — regime read operations (require BUZ_FOLIO)
+#   burn_construct_*           — profile constructors (write burn.env)
+#   burn_ssh_*/burn_verify_*   — SSH automation (config, verify)
+#   burn_install_key           — authorized_keys management (per-profile, idempotent)
 
 set -euo pipefail
 
@@ -31,30 +31,30 @@ source "${BURD_BUK_DIR}/buc_command.sh"
 ######################################################################
 # Command Functions — Regime Operations
 
-burh_validate() {
-  buc_doc_brief "Validate BURH host regime profile via enrollment report"
+burn_validate() {
+  buc_doc_brief "Validate BURN node regime profile via enrollment report"
   buc_doc_shown || return 0
 
   test -n "${BUZ_FOLIO:-}" || buc_die "Profile alias required (e.g., winhost-cyg)"
-  buc_step "Validating BURH host regime"
-  buv_report BURH "Host Regime"
-  buc_step "BURH host regime valid"
+  buc_step "Validating BURN node regime"
+  buv_report BURN "Node Regime"
+  buc_step "BURN node regime valid"
 }
 
-burh_render() {
-  buc_doc_brief "Display diagnostic view of BURH host regime profile"
+burn_render() {
+  buc_doc_brief "Display diagnostic view of BURN node regime profile"
   buc_doc_shown || return 0
 
   test -n "${BUZ_FOLIO:-}" || buc_die "Profile alias required (e.g., winhost-cyg)"
-  buv_render BURH "BURH - Bash Utility Host Regime"
+  buv_render BURN "BURN - Bash Utility Node Regime"
 }
 
-burh_list() {
-  buc_doc_brief "List available BURH host profiles for current user"
+burn_list() {
+  buc_doc_brief "List available BURN host profiles for current user"
   buc_doc_shown || return 0
 
   local z_aliases
-  z_aliases=$(burh_list_capture) || buc_die "No BURH profiles found for user: ${BURS_USER}"
+  z_aliases=$(burn_list_capture) || buc_die "No BURN profiles found for user: ${BURS_USER}"
   buc_step "Available profiles for ${BURS_USER}:"
   local z_alias=""
   for z_alias in ${z_aliases}; do
@@ -69,7 +69,7 @@ burh_list() {
 # Args: host user moniker suffix command_value key_file
 # command_value and key_file may be empty.
 
-zburh_construct() {
+zburn_construct() {
   local z_host="${1:-}"
   local z_user="${2:-}"
   local z_moniker="${3:-}"
@@ -83,7 +83,7 @@ zburh_construct() {
 
   local -r z_alias="${z_moniker}-${z_suffix}"
   local -r z_profile_dir="${BURD_CONFIG_DIR}/users/${BURS_USER}/${z_alias}"
-  local -r z_profile_file="${z_profile_dir}/burh.env"
+  local -r z_profile_file="${z_profile_dir}/burn.env"
   local -r z_pubkey_file="${HOME}/.ssh/${z_alias}.pub"
   local z_pubkey=""
   local z_has_pubkey=0
@@ -98,14 +98,14 @@ zburh_construct() {
 
   mkdir -p "${z_profile_dir}"
 
-  printf '%s\n' "BURH_HOST=${z_host}"           >  "${z_profile_file}"
-  printf '%s\n' "BURH_USER=${z_user}"            >> "${z_profile_file}"
-  printf '%s\n' "BURH_ALIAS=${z_alias}"          >> "${z_profile_file}"
-  printf '%s\n' "BURH_SSH_PUBKEY='${z_pubkey}'"  >> "${z_profile_file}"
-  printf '%s\n' "BURH_KEY_FILE=${z_key_file}"    >> "${z_profile_file}"
-  printf '%s\n' "BURH_COMMAND='${z_command}'"    >> "${z_profile_file}"
+  printf '%s\n' "BURN_HOST=${z_host}"           >  "${z_profile_file}"
+  printf '%s\n' "BURN_USER=${z_user}"            >> "${z_profile_file}"
+  printf '%s\n' "BURN_ALIAS=${z_alias}"          >> "${z_profile_file}"
+  printf '%s\n' "BURN_SSH_PUBKEY='${z_pubkey}'"  >> "${z_profile_file}"
+  printf '%s\n' "BURN_KEY_FILE=${z_key_file}"    >> "${z_profile_file}"
+  printf '%s\n' "BURN_COMMAND='${z_command}'"    >> "${z_profile_file}"
 
-  buc_step "BURH profile written: ${z_profile_file}"
+  buc_step "BURN profile written: ${z_profile_file}"
 
   if test "${z_has_pubkey}" = "0"; then
     buh_e
@@ -123,79 +123,79 @@ zburh_construct() {
 ######################################################################
 # Command Functions — Constructors
 
-burh_construct_linux() {
-  buc_doc_brief "Construct BURH profile for Linux target"
+burn_construct_linux() {
+  buc_doc_brief "Construct BURN profile for Linux target"
   buc_doc_param "host" "IP or hostname of the Linux machine"
   buc_doc_param "user" "Username on the remote host"
   buc_doc_param "moniker" "Short name (alias = moniker-linux)"
   buc_doc_shown || return 0
 
-  zburh_construct "${1:-}" "${2:-}" "${3:-}" "linux" ""
+  zburn_construct "${1:-}" "${2:-}" "${3:-}" "linux" ""
 }
 
-burh_construct_mac() {
-  buc_doc_brief "Construct BURH profile for macOS target"
+burn_construct_mac() {
+  buc_doc_brief "Construct BURN profile for macOS target"
   buc_doc_param "host" "IP or hostname of the Mac"
   buc_doc_param "user" "Username on the remote host"
   buc_doc_param "moniker" "Short name (alias = moniker-mac)"
   buc_doc_shown || return 0
 
-  zburh_construct "${1:-}" "${2:-}" "${3:-}" "mac" ""
+  zburn_construct "${1:-}" "${2:-}" "${3:-}" "mac" ""
 }
 
-burh_construct_cygwin() {
-  buc_doc_brief "Construct BURH profile for Windows Cygwin target"
+burn_construct_cygwin() {
+  buc_doc_brief "Construct BURN profile for Windows Cygwin target"
   buc_doc_param "host" "IP or hostname of the Windows machine"
   buc_doc_param "user" "Username on the Windows host"
   buc_doc_param "moniker" "Short name (alias = moniker-cyg)"
   buc_doc_shown || return 0
 
-  zburh_construct "${1:-}" "${2:-}" "${3:-}" "cyg" 'C:\cygwin64\bin\bash.exe -l'
+  zburn_construct "${1:-}" "${2:-}" "${3:-}" "cyg" 'C:\cygwin64\bin\bash.exe -l'
 }
 
-burh_construct_wsl() {
-  buc_doc_brief "Construct BURH profile for Windows WSL target"
+burn_construct_wsl() {
+  buc_doc_brief "Construct BURN profile for Windows WSL target"
   buc_doc_param "host" "IP or hostname of the Windows machine"
   buc_doc_param "user" "Username on the Windows host"
   buc_doc_param "moniker" "Short name (alias = moniker-wsl)"
   buc_doc_shown || return 0
 
   local -r z_wsl_distro="Ubuntu"
-  zburh_construct "${1:-}" "${2:-}" "${3:-}" "wsl" "C:\\Windows\\System32\\wsl.exe -d ${z_wsl_distro}"
+  zburn_construct "${1:-}" "${2:-}" "${3:-}" "wsl" "C:\\Windows\\System32\\wsl.exe -d ${z_wsl_distro}"
 }
 
-burh_construct_powershell() {
-  buc_doc_brief "Construct BURH profile for Windows PowerShell target"
+burn_construct_powershell() {
+  buc_doc_brief "Construct BURN profile for Windows PowerShell target"
   buc_doc_param "host" "IP or hostname of the Windows machine"
   buc_doc_param "user" "Username on the Windows host"
   buc_doc_param "moniker" "Short name (alias = moniker-ps)"
   buc_doc_shown || return 0
 
-  zburh_construct "${1:-}" "${2:-}" "${3:-}" "ps" 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
+  zburn_construct "${1:-}" "${2:-}" "${3:-}" "ps" 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
 }
 
-burh_construct_localhost() {
-  buc_doc_brief "Construct BURH profile for localhost (local SSH)"
+burn_construct_localhost() {
+  buc_doc_brief "Construct BURN profile for localhost (local SSH)"
   buc_doc_param "user" "Username on this machine"
   buc_doc_param "moniker" "Short name (alias = moniker-local)"
   buc_doc_shown || return 0
 
-  zburh_construct "localhost" "${1:-}" "${2:-}" "local" "" "id_ed25519"
+  zburn_construct "localhost" "${1:-}" "${2:-}" "local" "" "id_ed25519"
 }
 
 ######################################################################
 # Command Functions — SSH Automation
 
-burh_ssh_config() {
-  buc_doc_brief "Generate SSH config entries from all BURH profiles"
+burn_ssh_config() {
+  buc_doc_brief "Generate SSH config entries from all BURN profiles"
   buc_doc_shown || return 0
 
   local z_aliases
-  z_aliases=$(burh_list_capture) || buc_die "No BURH profiles found for user: ${BURS_USER}"
+  z_aliases=$(burn_list_capture) || buc_die "No BURN profiles found for user: ${BURS_USER}"
 
   local -r z_config="${HOME}/.ssh/config"
-  local -r z_begin="# --- BEGIN BURH MANAGED ---"
-  local -r z_end="# --- END BURH MANAGED ---"
+  local -r z_begin="# --- BEGIN BURN MANAGED ---"
+  local -r z_end="# --- END BURN MANAGED ---"
 
   # Build managed section content
   local z_section=""
@@ -204,14 +204,14 @@ burh_ssh_config() {
 
   local z_alias=""
   for z_alias in ${z_aliases}; do
-    local z_profile="${BURD_CONFIG_DIR}/users/${BURS_USER}/${z_alias}/burh.env"
-    # Source directly — BURH not kindled, no readonly conflict
+    local z_profile="${BURD_CONFIG_DIR}/users/${BURS_USER}/${z_alias}/burn.env"
+    # Source directly — BURN not kindled, no readonly conflict
     source "${z_profile}"
     z_section+=$'\n'
-    local z_key="${BURH_KEY_FILE:-${BURH_ALIAS}}"
-    z_section+="Host ${BURH_ALIAS}"$'\n'
-    z_section+="  HostName ${BURH_HOST}"$'\n'
-    z_section+="  User ${BURH_USER}"$'\n'
+    local z_key="${BURN_KEY_FILE:-${BURN_ALIAS}}"
+    z_section+="Host ${BURN_ALIAS}"$'\n'
+    z_section+="  HostName ${BURN_HOST}"$'\n'
+    z_section+="  User ${BURN_USER}"$'\n'
     z_section+="  IdentityFile ~/.ssh/${z_key}"$'\n'
   done
 
@@ -250,49 +250,49 @@ burh_ssh_config() {
   buc_step "Managed profiles: ${z_aliases}"
 }
 
-burh_verify_ssh() {
-  buc_doc_brief "Verify SSH connectivity to a BURH profile"
+burn_verify_ssh() {
+  buc_doc_brief "Verify SSH connectivity to a BURN profile"
   buc_doc_shown || return 0
 
   test -n "${BUZ_FOLIO:-}" || buc_die "Profile alias required (e.g., winhost-cyg)"
 
-  buc_step "Testing SSH to ${BURH_ALIAS} (${BURH_HOST})..."
+  buc_step "Testing SSH to ${BURN_ALIAS} (${BURN_HOST})..."
   local z_result=""
-  if z_result=$(ssh -o BatchMode=yes -o ConnectTimeout=10 "${BURH_ALIAS}" whoami 2>&1); then
-    buc_success "SSH OK: ${BURH_ALIAS} -> ${z_result}"
+  if z_result=$(ssh -o BatchMode=yes -o ConnectTimeout=10 "${BURN_ALIAS}" whoami 2>&1); then
+    buc_success "SSH OK: ${BURN_ALIAS} -> ${z_result}"
   else
-    buc_die "SSH FAILED: ${BURH_ALIAS} -> ${z_result}"
+    buc_die "SSH FAILED: ${BURN_ALIAS} -> ${z_result}"
   fi
 }
 
-burh_install_key() {
-  buc_doc_brief "Install BURH profile SSH key into authorized_keys (idempotent)"
+burn_install_key() {
+  buc_doc_brief "Install BURN profile SSH key into authorized_keys (idempotent)"
   buc_doc_shown || return 0
 
   test -n "${BUZ_FOLIO:-}" || buc_die "Profile alias required (e.g., winhost-cyg)"
 
   local -r z_auth_keys="${HOME}/.ssh/authorized_keys"
 
-  zburh_build_key_line
+  zburn_build_key_line
 
   mkdir -p "${HOME}/.ssh"
 
   if test -f "${z_auth_keys}"; then
     local -r z_temp=$(mktemp)
-    grep -v "${ZBURH_KEY_MARKER}" "${z_auth_keys}" > "${z_temp}" || true
+    grep -v "${ZBURN_KEY_MARKER}" "${z_auth_keys}" > "${z_temp}" || true
     mv "${z_temp}" "${z_auth_keys}"
   fi
 
-  printf '%s\n' "${ZBURH_KEY_LINE}" >> "${z_auth_keys}"
+  printf '%s\n' "${ZBURN_KEY_LINE}" >> "${z_auth_keys}"
   chmod 600 "${z_auth_keys}"
 
-  buc_success "Key installed for ${BURH_ALIAS} in ${z_auth_keys}"
+  buc_success "Key installed for ${BURN_ALIAS} in ${z_auth_keys}"
 }
 
 ######################################################################
 # Furnish and Main
 
-zburh_furnish() {
+zburn_furnish() {
   buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env "BURD_CONFIG_DIR       " "BUK config directory (dispatch-provided)"
   buc_doc_env_done || return 0
@@ -301,7 +301,7 @@ zburh_furnish() {
   source "${BURD_BUK_DIR}/burd_regime.sh"
   source "${BURD_BUK_DIR}/burc_regime.sh"
   source "${BURD_BUK_DIR}/burs_regime.sh"
-  source "${BURD_BUK_DIR}/burh_regime.sh"
+  source "${BURD_BUK_DIR}/burn_regime.sh"
   source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
   source "${BURD_BUK_DIR}/buym_yelp.sh"
   source "${BURD_BUK_DIR}/buh_handbook.sh"
@@ -324,14 +324,14 @@ zburh_furnish() {
 
   # If BUZ_FOLIO is set, load and kindle the specified profile
   if test -n "${BUZ_FOLIO:-}"; then
-    local -r z_profile_file="${BURD_CONFIG_DIR}/users/${BURS_USER}/${BUZ_FOLIO}/burh.env"
-    test -f "${z_profile_file}" || buc_die "BURH profile not found: ${z_profile_file}"
-    source "${z_profile_file}" || buc_die "Failed to source BURH: ${z_profile_file}"
-    zburh_kindle
-    zburh_enforce
+    local -r z_profile_file="${BURD_CONFIG_DIR}/users/${BURS_USER}/${BUZ_FOLIO}/burn.env"
+    test -f "${z_profile_file}" || buc_die "BURN profile not found: ${z_profile_file}"
+    source "${z_profile_file}" || buc_die "Failed to source BURN: ${z_profile_file}"
+    zburn_kindle
+    zburn_enforce
   fi
 }
 
-buc_execute burh_ "Bash Utility Host Regime" zburh_furnish "$@"
+buc_execute burn_ "Bash Utility Node Regime" zburn_furnish "$@"
 
 # eof

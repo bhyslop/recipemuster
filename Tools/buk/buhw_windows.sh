@@ -311,7 +311,7 @@ buhw_top() {
   buh_line     "Generic Windows mechanisms — SSH access, WSL, and Cygwin."
   buh_line     "These procedures are OS-level and project-independent."
   buh_e
-  buh_section  "BURH Profile Constructors:"
+  buh_section  "BURN Profile Constructors:"
   buh_tt       "  Linux:      " "${BUWZ_RHC_LINUX}" "" " <host> <user> <moniker>"
   buh_tt       "  macOS:      " "${BUWZ_RHC_MAC}" "" " <host> <user> <moniker>"
   buh_tt       "  Cygwin:     " "${BUWZ_RHC_CYGWIN}" "" " <host> <user> <moniker>"
@@ -322,7 +322,7 @@ buhw_top() {
   buh_section  "SSH Automation:"
   buh_tt       "  Write SSH config:       " "${BUWZ_HW_SSH_CONFIG}"
   buh_tt       "  Verify SSH connection:  " "${BUWZ_HW_VERIFY_SSH}" "" " <alias>"
-  buh_tt       "  Install BURH key:       " "${BUWZ_RH_INSTALL_KEY}" "" " <alias>"
+  buh_tt       "  Install BURN key:       " "${BUWZ_RH_INSTALL_KEY}" "" " <alias>"
   buh_e
   buh_section  "Windows Commands:"
   buh_tt       "  Bootstrap sshd (WSL):   " "${BUWZ_WC_BOOTSTRAP}"
