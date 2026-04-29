@@ -6967,6 +6967,13 @@
         "₢BBAA0": {
           "tacks": [
             {
+              "ts": "260429-1517",
+              "state": "rough",
+              "text": "## Character\n\nFeature atop the locator-shape refactor. Lets a vessel's base image\nbe an internal hallmark (e.g., airgap's forge-base) rather than only\nan enshrined upstream.\n\n## Goals\n\nDefine how `RBRV_IMAGE_n_ANCHOR` gets populated when the base is a\nhallmark (`hallmarks/<H>/<sigil>:<H>`). Pick the population mechanism:\n\n- (a) enshrine grows internal-sigil resolution → copies hallmark into\n  `enshrines/`; ANCHOR points at `enshrines/`\n- (b) separate bridge operation → copies hallmark into `enshrines/`;\n  ANCHOR points at `enshrines/`\n- (c) orchestration writes ANCHOR=`hallmarks/<H>/<sigil>:<H>`\n  directly → no copy; ANCHOR points at hallmark namespace\n\n₢BBAAz's locator shape makes (c) most natural — the generic locator\nalready supports cross-namespace references. (a) and (b) require a\nphysical copy. Decision is mount-time; the asymmetry is real.\n\nSpec the chosen mechanism in RBSAE/RBS0; update enshrine to handle\nalready-populated ANCHOR slots (skip-if-set semantics: HEAD-validate\nGAR-resident instead of pulling).\n\n## Wrap criterion\n\n- Spec defines the hallmark-base population mechanism.\n- Enshrine semantics for already-populated ANCHOR slots are spec'd\n  and coded.\n- `rbhoda_director_airgap` handbook prose matches actual operator UX.\n- Onboarding-sequence airgap orchestration is wired and dispatch-able\n  (empirical green is ₢BBAAs's wrap, not this one).\n\n## Cross-pace dependencies\n\n- ₢BBAAz locator-shape refactor — required.\n\n## Out of scope\n\n- Empirical onboarding-sequence green — ₢BBAAs verifies.",
+              "silks": "rbrv-anchor-hallmark-base",
+              "commit": "8c045ef"
+            },
+            {
               "ts": "260429-1511",
               "state": "rough",
               "text": "## Character\n\nFeature atop the locator-shape refactor. Lets a vessel's base image\nbe an internal hallmark (e.g., airgap's forge-base) rather than only\nan enshrined upstream.\n\n## Goals\n\nDefine how `RBRV_IMAGE_n_ANCHOR` gets populated when the base is a\nhallmark (`hallmarks/<H>/<sigil>:<H>`). Pick the population\nmechanism: enshrine grows internal-sigil resolution; a new\nhallmarks→enshrines bridge operation; or orchestration-driven value\nwriting. Spec the chosen mechanism in RBSAE/RBS0; update enshrine to\nhandle already-populated ANCHOR slots (skip-pull-if-set semantics\nmirroring conjure's preflight).\n\n## Wrap criterion\n\n- Spec defines the hallmark-base population mechanism.\n- Enshrine semantics for already-populated ANCHOR are spec'd and coded.\n- `rbhoda_director_airgap` handbook prose matches actual operator UX.\n- Onboarding-sequence airgap orchestration produces a working chain.\n\n## Cross-pace dependencies\n\n- ₢BBAAz locator-shape refactor — required.\n\n## Out of scope\n\n- Empirical onboarding-sequence green — `₢BBAAs` verifies.",
@@ -8152,6 +8159,13 @@
         },
         "₢BBAAz": {
           "tacks": [
+            {
+              "ts": "260429-1517",
+              "state": "rough",
+              "text": "## Character\n\nSpec-driven mechanical refactor. ANCHOR's value shape changes from\ncontent-addressed identifier to domain-blind locator. No new\ncapabilities; existing flows preserved.\n\n## Goals\n\nRedefine `RBRV_IMAGE_n_ANCHOR` as a `package-path:tag` locator\nmatching the wrest/jettison domain-blind locator pattern in RBS0.\nToday ANCHOR is `<sanitized-origin>-<10-hex>` implicitly under\n`enshrines/`; new shape carries its namespace explicitly so it can\nname an enshrinement OR (in ₢BBAA0) a hallmark.\n\n## Wrap criterion\n\n- Spec sweep: RBS0 RBRV_IMAGE_n_ANCHOR definition, RBSAE enshrine,\n  RBSAC conjure preflight + resolve, plus any consumers using the\n  short-form anchor.\n- Code consumers updated: enshrine writeback, conjure resolution,\n  validation patterns.\n- Existing populated rbrv.env values migrated to locator shape.\n- Fast suite green; previously-green onboarding-sequence cases\n  still pass.\n\n## Out of scope\n\n- Hallmark-base support — ₢BBAA0.\n- Airgap chain integration — ₢BBAAs verifies.",
+              "silks": "rbrv-anchor-locator-format",
+              "commit": "8c045ef"
+            },
             {
               "ts": "260429-1511",
               "state": "rough",
