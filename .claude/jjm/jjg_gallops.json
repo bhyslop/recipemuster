@@ -47,6 +47,7 @@
         "₢A-AAU",
         "₢A-AAV",
         "₢A-AAW",
+        "₢A-AAX",
         "₢A-AAC",
         "₢A-AAD",
         "₢A-AAE",
@@ -58,7 +59,7 @@
         "₢A-AAS",
         "₢A-AAT"
       ],
-      "next_pace_seed": "AAX",
+      "next_pace_seed": "AAY",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -465,6 +466,17 @@
               "text": "## Character\nMechanical sweep — rename across JJK Rust + spec, no semantic change.\n\n## Docket\nWholesale rename BURH → BURN across JJK: env-var reads, `burh.env` path → `burn.env`, identifier renames, spec text, claude-context.\n\nValidation: `tt/vow-b.Build.sh` green; `tt/vow-t.Test.sh` green; fundus scenario test green.\n\nSequencing: depends on the BUK rename (`.buk/users/.../burn.env` must already exist).\n\nDiscovery: `grep -rln 'BURH\\|burh' Tools/jjk/`.",
               "silks": "burh-to-burn-rename-jjk",
               "commit": "18856d7"
+            }
+          ]
+        },
+        "₢A-AAX": {
+          "tacks": [
+            {
+              "ts": "260429-1057",
+              "state": "rough",
+              "text": "## Character\nImplementation — net new code with refactor absorbing existing constructor + Windows-specific provisioning into per-platform routines. Multi-shell decomposition for Windows needs design judgment.\n\n## Docket\nMint `busn_garrison` per platform per BUS0 catalog (`buw-npg{l,m,c,w,p,x}`). Each writes a privileged `burn.env` (BURN_TIER=privileged) and runs the platform ceremony.\n\nLinux/Mac/Localhost: minimal — assume existing sshd, key install via privileged authority.\n\nWindows variants (Cygwin/WSL/PowerShell): full ceremony — sshd bootstrap, admin authorized_keys install with `command=` routing per shell. Console phase is handbook-surface residue (later pace), not Garrison code.\n\nReuse `zburn_build_key_line` (renamed in BUK rename); do not duplicate the wire format.\n\nRetire `buw-rhc{c,l,m,p,w,x}`, `buw-wcb`, `buw-wck` files and zipper enrollments.\n\nTier assertion per the tier-refusal spec: Garrison rejects workload aliases.",
+              "silks": "garrison-platform-machinery",
+              "commit": "6ad14e9"
             }
           ]
         }
