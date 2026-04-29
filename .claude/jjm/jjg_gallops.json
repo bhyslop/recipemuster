@@ -50,6 +50,7 @@
         "₢A-AAX",
         "₢A-AAY",
         "₢A-AAZ",
+        "₢A-AAa",
         "₢A-AAC",
         "₢A-AAD",
         "₢A-AAE",
@@ -61,7 +62,7 @@
         "₢A-AAS",
         "₢A-AAT"
       ],
-      "next_pace_seed": "AAa",
+      "next_pace_seed": "AAb",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -501,6 +502,17 @@
               "text": "## Character\nImplementation — small surface; one extraction (Check from existing verify_ssh), two new verbs (Run, Ssh).\n\n## Docket\nMint `buw-nwc <workload-alias>` (Check), `buw-nwr <workload-alias> <cmd-file>` (Run with output capture), `buw-nws <workload-alias>` (interactive SSH).\n\nCheck absorbs the workload portion of `burn_verify_ssh`. The privileged portion belongs inside Garrison's verify phase, not as a separate tabtarget.\n\nNote colophon proximity: `buw-nwc` (Check) sits next to `buw-nwc{platform}` (Conscript). Distinct colophons, accepted.\n\nTier assertion: workload-alias arg rejects privileged tier.",
               "silks": "workload-operational-tabtargets",
               "commit": "bbcce39"
+            }
+          ]
+        },
+        "₢A-AAa": {
+          "tacks": [
+            {
+              "ts": "260429-1058",
+              "state": "rough",
+              "text": "## Character\nImplementation + retirement — handbook restructure, retire access trio, mint console-handshake residue.\n\n## Docket\nMint:\n- `tt/buw-hn0.HandbookNode.sh` + display function: top-level node-access landing per BUS0 catalog.\n- Console-handshake residue tabtarget for Windows (operator at keyboard / RDP enables Remote Login or temp password auth so first Garrison SSH lands). Single thin handbook procedure declared by BUSNW §Out of Band.\n\nRetire access trio (`buw-HWab/ar/ax`) and their display functions and zipper enrollments.\n\nRetarget content (NOT retire):\n- BUK top handbook gains pointer to node-access landing.\n- BUK Windows handbook drops access trio entries, adds Garrison/Conscript pointers, adds console residue, keeps WSL/Cygwin entries.\n- RBK Windows orchestrator Phase 1 entries replaced with Garrison pointers for the three Windows shell variants.\n\nSequencing: Garrison and Conscript paces must precede so colophons exist.",
+              "silks": "node-handbook-landing-and-windows-residue",
+              "commit": "e5a23ec"
             }
           ]
         }
