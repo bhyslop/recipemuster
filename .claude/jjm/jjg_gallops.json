@@ -45,6 +45,7 @@
         "₢A-AAR",
         "₢A-AAQ",
         "₢A-AAU",
+        "₢A-AAV",
         "₢A-AAC",
         "₢A-AAD",
         "₢A-AAE",
@@ -56,7 +57,7 @@
         "₢A-AAS",
         "₢A-AAT"
       ],
-      "next_pace_seed": "AAV",
+      "next_pace_seed": "AAW",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -441,6 +442,17 @@
               "text": "## Character\nSpec writing — small contract addition to BUS0. Mechanical.\n\n## Docket\nSpecify in BUS0 §Remote Node Access that every node-access tabtarget asserts `BURN_TIER` matches its expected tier at entry. Privileged-only verbs reject workload aliases. Workload-only verbs reject privileged aliases. Cross-tier verbs accept either.\n\nSpecify error format: name expected tier, observed tier, alias name; exit non-zero before any side effect.\n\nBUS0 currently mentions the refusal in passing but doesn't catalogue the contract.",
               "silks": "specify-busn-tier-refusal",
               "commit": "b698cf2"
+            }
+          ]
+        },
+        "₢A-AAV": {
+          "tacks": [
+            {
+              "ts": "260429-1056",
+              "state": "rough",
+              "text": "## Character\nMechanical sweep — rename across BUK, no semantic change.\n\n## Docket\nWholesale rename BURH → BURN across BUK: variables, function prefixes, module file names, profile filename (`burh.env` → `burn.env`), zipper enrollments, tabtarget filenames. Add `BURN_TIER` enrollment (`privileged|workload`); no enforcement yet — just the field.\n\nConstructor enrollments (`BUWZ_RHC_*`) and Windows command enrollments (`BUWZ_WC_*`) keep names provisionally; they retire in Garrison/Conscript paces, not here.\n\nValidation: `tt/buw-st.BukSelfTest.sh` and BUK-touching fixtures pass.\n\nDiscovery: `grep -rln 'BURH\\|burh' Tools/buk/ tt/`.\n\nOptional fold: `buw-HWsc.SshConfig.sh` → `buw-rnc.NodeSshConfig.sh` may land here; mount decision.",
+              "silks": "burh-to-burn-rename-buk",
+              "commit": "0fd31cd"
             }
           ]
         }
