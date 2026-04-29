@@ -82,6 +82,27 @@ pub struct rbtdre_Section {
     pub cases: &'static [rbtdre_Case],
 }
 
+/// A complete fixture definition — name, disposition, optional setup/teardown
+/// hooks, and section array. All fixture-level metadata in one place; replaces
+/// the prior side-channel matchers (sections_for_fixture, fixture_disposition,
+/// needs_charge, needs_readiness_delay) keyed off the fixture name string.
+///
+/// `setup` runs before any cases. Failure aborts the fixture; cases do not run;
+/// `teardown` still runs (finally-shaped) for any partial-state cleanup.
+///
+/// `teardown` runs unconditionally after cases regardless of case verdicts or
+/// setup outcome. Errors are surfaced as warnings — teardown is best-effort.
+///
+/// Both hooks access invocation context via the thread-local established by
+/// `rbtdrc_set_context` before `rbtdre_run_fixture` is called.
+pub struct rbtdre_Fixture {
+    pub name: &'static str,
+    pub disposition: rbtdre_Disposition,
+    pub setup: Option<fn() -> Result<(), String>>,
+    pub teardown: Option<fn()>,
+    pub sections: &'static [rbtdre_Section],
+}
+
 /// Case registration macro. Derives case name from function name via `stringify!`.
 /// Compiler enforces uniqueness — duplicate function names won't compile.
 #[macro_export]
@@ -247,6 +268,40 @@ pub fn rbtdre_list_cases(sections: &[rbtdre_Section]) {
             eprintln!("  {}", case.name);
         }
     }
+}
+
+/// Run a fixture: setup hook → cases → teardown hook (finally-shaped).
+///
+/// Expects the invocation context to already be installed in the thread-local
+/// (via `rbtdrc_set_context`); setup/teardown access ctx via that channel.
+///
+/// Setup failure short-circuits cases but still invokes teardown. Teardown
+/// errors are surfaced as warnings via stderr; the function never panics on
+/// teardown failure.
+pub fn rbtdre_run_fixture(
+    fixture: &'static rbtdre_Fixture,
+    colors: &rbtdre_Colors,
+    root_temp: &Path,
+) -> Result<rbtdre_RunResult, String> {
+    let setup_result = match fixture.setup {
+        Some(f) => f(),
+        None => Ok(()),
+    };
+
+    let run_result = match setup_result {
+        Ok(()) => {
+            let fail_fast = rbtdre_resolve_fail_fast(fixture.disposition, false)
+                .expect("disposition-default mode never fails policy resolution");
+            rbtdre_run_sections(fixture.sections, colors, fail_fast, root_temp)
+        }
+        Err(msg) => Err(format!("rbtd: fixture '{}' setup failed: {}", fixture.name, msg)),
+    };
+
+    if let Some(f) = fixture.teardown {
+        f();
+    }
+
+    run_result
 }
 
 /// Run a single case without charge/quench lifecycle.

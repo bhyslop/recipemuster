@@ -25,19 +25,14 @@
 use std::process::ExitCode;
 
 use rbtd::rbtdrc_crucible::{
-    rbtdrc_fixture_fail_fast, rbtdrc_needs_charge, rbtdrc_needs_readiness_delay,
-    rbtdrc_sections_for_fixture, rbtdrc_set_context, rbtdrc_take_context,
-    RBTDRC_SERVICE_READINESS_DELAY_SECS,
+    rbtdrc_lookup_fixture, rbtdrc_set_context, rbtdrc_take_context,
 };
 use rbtd::rbtdre_engine::{
     rbtdre_detect_colors, rbtdre_find_case, rbtdre_list_cases, rbtdre_print_summary,
-    rbtdre_run_sections, rbtdre_run_single_case,
+    rbtdre_run_fixture, rbtdre_run_single_case,
 };
-use rbtd::rbtdri_invocation::{rbtdri_Context, rbtdri_invoke, rbtdri_invoke_global};
-use rbtd::rbtdrm_manifest::{
-    rbtdrm_verify, RBTDRM_COLOPHON_CHARGE, RBTDRM_COLOPHON_CRUCIBLE_ACTIVE,
-    RBTDRM_COLOPHON_QUENCH,
-};
+use rbtd::rbtdri_invocation::{rbtdri_Context, rbtdri_invoke_global};
+use rbtd::rbtdrm_manifest::{rbtdrm_verify, RBTDRM_COLOPHON_CRUCIBLE_ACTIVE};
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().collect();
@@ -91,101 +86,32 @@ fn run_suite(args: &[String]) -> ExitCode {
     }
 
     let burv_root = root_temp.join("burv");
-    let mut ctx = rbtdri_Context::new(&project_root, fixture, &burv_root);
-    let needs_charge = rbtdrc_needs_charge(fixture);
+    let ctx = rbtdri_Context::new(&project_root, fixture, &burv_root);
 
-    // ── Charge crucible (crucible fixtures only) ─────────────
-    if needs_charge {
-        eprintln!("\nCharging crucible for nameplate '{}'...", fixture);
-        match rbtdri_invoke(&mut ctx, RBTDRM_COLOPHON_CHARGE, &[]) {
-            Ok(r) if r.exit_code == 0 => {
-                eprintln!("Crucible charged");
-            }
-            Ok(r) => {
-                eprintln!(
-                    "Charge failed (exit {})\n{}",
-                    r.exit_code, r.stderr
-                );
-                return ExitCode::FAILURE;
-            }
-            Err(e) => {
-                eprintln!("Charge invocation failed: {}", e);
-                return ExitCode::FAILURE;
-            }
-        }
-
-        // Lifecycle assertion: crucible must be active after charge
-        eprintln!("Verifying crucible is active after charge...");
-        match rbtdri_invoke_global(&mut ctx, RBTDRM_COLOPHON_CRUCIBLE_ACTIVE, &[fixture], &[]) {
-            Ok(r) if r.exit_code == 0 => {
-                eprintln!("Crucible active confirmed");
-            }
-            Ok(r) => {
-                eprintln!(
-                    "Lifecycle assertion failed: crucible not active after charge (exit {})\n{}",
-                    r.exit_code, r.stderr
-                );
-                return ExitCode::FAILURE;
-            }
-            Err(e) => {
-                eprintln!("CrucibleActive invocation failed after charge: {}", e);
-                return ExitCode::FAILURE;
-            }
-        }
-
-        // Service readiness delay (srjcl/pluml need services to start)
-        if rbtdrc_needs_readiness_delay(fixture) {
+    let fixture_def = match rbtdrc_lookup_fixture(fixture) {
+        Some(f) => f,
+        None => {
             eprintln!(
-                "Waiting {}s for service readiness...",
-                RBTDRC_SERVICE_READINESS_DELAY_SECS
+                "rbtd: fixture '{}' has no registered Fixture — \
+                 manifest verification accepted the name but no Fixture static is bound. \
+                 Update rbtdrc_lookup_fixture in rbtdrc_crucible.rs.",
+                fixture
             );
-            std::thread::sleep(std::time::Duration::from_secs(
-                RBTDRC_SERVICE_READINESS_DELAY_SECS,
-            ));
+            return ExitCode::FAILURE;
         }
-    }
+    };
 
-    // ── Run cases ────────────────────────────────────────────
-    let sections = rbtdrc_sections_for_fixture(fixture);
     rbtdrc_set_context(ctx);
 
     let colors = rbtdre_detect_colors();
-    let fail_fast = rbtdrc_fixture_fail_fast(fixture);
-    let run_result = rbtdre_run_sections(sections, &colors, fail_fast, &root_temp);
+    let run_result = rbtdre_run_fixture(fixture_def, &colors, &root_temp);
 
-    // ── Quench crucible (crucible fixtures only, unconditional) ──
-    let mut ctx = rbtdrc_take_context();
-    if needs_charge {
-        eprintln!("\nQuenching crucible...");
-        match rbtdri_invoke(&mut ctx, RBTDRM_COLOPHON_QUENCH, &[]) {
-            Ok(r) if r.exit_code == 0 => eprintln!("Crucible quenched"),
-            Ok(r) => eprintln!("Warning: quench exited {}", r.exit_code),
-            Err(e) => eprintln!("Warning: quench invocation failed: {}", e),
-        }
+    let _ctx = rbtdrc_take_context();
 
-        // Lifecycle assertion: crucible must be inactive after quench
-        eprintln!("Verifying crucible is inactive after quench...");
-        match rbtdri_invoke_global(&mut ctx, RBTDRM_COLOPHON_CRUCIBLE_ACTIVE, &[fixture], &[]) {
-            Ok(r) if r.exit_code != 0 => {
-                eprintln!("Crucible inactive confirmed");
-            }
-            Ok(r) => {
-                eprintln!(
-                    "Warning: crucible still active after quench (exit {})",
-                    r.exit_code
-                );
-            }
-            Err(e) => {
-                eprintln!("Warning: CrucibleActive invocation failed after quench: {}", e);
-            }
-        }
-    }
-
-    // ── Report ───────────────────────────────────────────────
     let result = match run_result {
         Ok(r) => r,
         Err(msg) => {
-            eprintln!("rbtd: case execution error: {}", msg);
+            eprintln!("rbtd: {}", msg);
             return ExitCode::FAILURE;
         }
     };
@@ -243,11 +169,23 @@ fn run_single(args: &[String]) -> ExitCode {
     }
 
     // Context is required for every case execution path (rbtdrc_with_ctx).
-    // Crucible fixtures additionally verify their crucible is charged.
+    // Fixtures with a setup hook (crucible charge) additionally verify their
+    // crucible is charged externally — single-case mode never charges.
     let burv_root = root_temp.join("burv");
     let mut ctx = rbtdri_Context::new(&project_root, fixture, &burv_root);
 
-    if rbtdrc_needs_charge(fixture) {
+    let fixture_def = match rbtdrc_lookup_fixture(fixture) {
+        Some(f) => f,
+        None => {
+            eprintln!(
+                "rbtd single: fixture '{}' has no registered Fixture",
+                fixture
+            );
+            return ExitCode::FAILURE;
+        }
+    };
+
+    if fixture_def.setup.is_some() {
         match rbtdri_invoke_global(
             &mut ctx,
             RBTDRM_COLOPHON_CRUCIBLE_ACTIVE,
@@ -268,7 +206,7 @@ fn run_single(args: &[String]) -> ExitCode {
 
     rbtdrc_set_context(ctx);
 
-    let sections = rbtdrc_sections_for_fixture(fixture);
+    let sections = fixture_def.sections;
 
     // No case argument — list all cases
     let case_name = match args.get(2) {

@@ -24,8 +24,12 @@ use std::path::Path;
 use std::process::Command;
 
 use crate::case;
-use crate::rbtdre_engine::{rbtdre_Section, rbtdre_Verdict};
+use crate::rbtdre_engine::{rbtdre_Disposition, rbtdre_Fixture, rbtdre_Section, rbtdre_Verdict};
 use crate::rbtdri_invocation::rbtdri_find_tabtarget_global;
+use crate::rbtdrm_manifest::{
+    RBTDRM_FIXTURE_ENROLLMENT_VALIDATION, RBTDRM_FIXTURE_REGIME_SMOKE,
+    RBTDRM_FIXTURE_REGIME_VALIDATION,
+};
 
 // ── Helpers ──────────────────────────────────────────────────
 
@@ -1394,3 +1398,29 @@ pub static RBTDRF_SECTIONS_REGIME_SMOKE: &[rbtdre_Section] = &[rbtdre_Section {
         case!(rbtdrf_rs_burd),
     ],
 }];
+
+// ── Fixture statics ──────────────────────────────────────────
+
+pub static RBTDRF_FIXTURE_ENROLLMENT_VALIDATION: rbtdre_Fixture = rbtdre_Fixture {
+    name: RBTDRM_FIXTURE_ENROLLMENT_VALIDATION,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    sections: RBTDRF_SECTIONS_ENROLLMENT_VALIDATION,
+};
+
+pub static RBTDRF_FIXTURE_REGIME_VALIDATION: rbtdre_Fixture = rbtdre_Fixture {
+    name: RBTDRM_FIXTURE_REGIME_VALIDATION,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    sections: RBTDRF_SECTIONS_REGIME_VALIDATION,
+};
+
+pub static RBTDRF_FIXTURE_REGIME_SMOKE: rbtdre_Fixture = rbtdre_Fixture {
+    name: RBTDRM_FIXTURE_REGIME_SMOKE,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    sections: RBTDRF_SECTIONS_REGIME_SMOKE,
+};

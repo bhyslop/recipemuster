@@ -34,7 +34,7 @@ use std::process::Command;
 use crate::case;
 use crate::rbtdrb_probe::{rbtdrb_assert, rbtdrb_Probe};
 use crate::rbtdrc_crucible::rbtdrc_with_ctx;
-use crate::rbtdre_engine::{rbtdre_Section, rbtdre_Verdict};
+use crate::rbtdre_engine::{rbtdre_Disposition, rbtdre_Fixture, rbtdre_Section, rbtdre_Verdict};
 use crate::rbtdri_invocation::{
     rbtdri_invoke_global, rbtdri_invoke_imprint, rbtdri_read_burv_fact, rbtdri_Context,
     rbtdri_InvokeResult, RBTDRI_BURV_OUTPUT_SUBDIR,
@@ -42,7 +42,7 @@ use crate::rbtdri_invocation::{
 use crate::rbtdrm_manifest::{
     RBTDRM_COLOPHON_ACCESS_PROBE, RBTDRM_COLOPHON_DEPOT_LEVY, RBTDRM_COLOPHON_DEPOT_LIST,
     RBTDRM_COLOPHON_GOV_INVEST_DIRECTOR, RBTDRM_COLOPHON_GOV_INVEST_RETRIEVER,
-    RBTDRM_COLOPHON_GOV_MANTLE,
+    RBTDRM_COLOPHON_GOV_MANTLE, RBTDRM_FIXTURE_CANONICAL_ESTABLISH,
 };
 
 // ── Canonical-fixture identities ─────────────────────────────
@@ -685,3 +685,11 @@ pub static RBTDRK_SECTIONS_CANONICAL_ESTABLISH: &[rbtdre_Section] = &[rbtdre_Sec
         case!(rbtdrk_director_invest),
     ],
 }];
+
+pub static RBTDRK_FIXTURE_CANONICAL_ESTABLISH: rbtdre_Fixture = rbtdre_Fixture {
+    name: RBTDRM_FIXTURE_CANONICAL_ESTABLISH,
+    disposition: rbtdre_Disposition::StateProgressing,
+    setup: None,
+    teardown: None,
+    sections: RBTDRK_SECTIONS_CANONICAL_ESTABLISH,
+};

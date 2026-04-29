@@ -16,7 +16,7 @@
 //
 // Tests for rbtdro_onboarding — gauntlet canonical-onboarding-sequence fixture.
 
-use crate::rbtdrc_crucible::{rbtdrc_fixture_disposition, rbtdrc_sections_for_fixture};
+use crate::rbtdrc_crucible::rbtdrc_lookup_fixture;
 use crate::rbtdre_engine::rbtdre_Disposition;
 use crate::rbtdrm_manifest::RBTDRM_FIXTURE_CANONICAL_ONBOARDING_SEQUENCE;
 
@@ -24,10 +24,9 @@ use crate::rbtdrm_manifest::RBTDRM_FIXTURE_CANONICAL_ONBOARDING_SEQUENCE;
 /// state establishes preconditions for case N+1, so engine keep-going is refused.
 #[test]
 fn rbtdto_disposition_is_state_progressing() {
-    assert_eq!(
-        rbtdrc_fixture_disposition(RBTDRM_FIXTURE_CANONICAL_ONBOARDING_SEQUENCE),
-        rbtdre_Disposition::StateProgressing
-    );
+    let fix = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_CANONICAL_ONBOARDING_SEQUENCE)
+        .expect("canonical-onboarding-sequence is registered");
+    assert_eq!(fix.disposition, rbtdre_Disposition::StateProgressing);
 }
 
 /// Sections lookup binds the fixture name to the registry array and yields
@@ -35,7 +34,9 @@ fn rbtdto_disposition_is_state_progressing() {
 /// ("canonical-onboarding-arc").
 #[test]
 fn rbtdto_sections_registered() {
-    let sections = rbtdrc_sections_for_fixture(RBTDRM_FIXTURE_CANONICAL_ONBOARDING_SEQUENCE);
+    let fix = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_CANONICAL_ONBOARDING_SEQUENCE)
+        .expect("canonical-onboarding-sequence is registered");
+    let sections = fix.sections;
     assert_eq!(sections.len(), 1, "expected one section");
     assert_eq!(sections[0].name, "canonical-onboarding-arc");
     assert_eq!(sections[0].cases.len(), 5, "expected five cases");
@@ -51,7 +52,9 @@ fn rbtdto_sections_registered() {
 /// the conjure/airgap cases that read the reliquary scratch.
 #[test]
 fn rbtdto_inscribe_precedes_reliquary_consumers() {
-    let sections = rbtdrc_sections_for_fixture(RBTDRM_FIXTURE_CANONICAL_ONBOARDING_SEQUENCE);
+    let fix = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_CANONICAL_ONBOARDING_SEQUENCE)
+        .expect("canonical-onboarding-sequence is registered");
+    let sections = fix.sections;
     let names: Vec<&str> = sections[0].cases.iter().map(|c| c.name).collect();
     let inscribe_idx = names
         .iter()

@@ -53,25 +53,32 @@ pub struct rbtdri_InvokeResult {
 /// Per-case invocation context. Tracks BURV isolation state so each tabtarget
 /// invocation within a case gets its own output and temp directories, matching
 /// the zbuto_invoke() pattern from buto_operations.sh.
+///
+/// `fixture` carries the fixture name. For crucible fixtures (tadmor/srjcl/
+/// pluml) the fixture name happens to equal a valid nameplate moniker — that's
+/// the convention crucible-scoped tabtargets exploit when imprinting (e.g.,
+/// `rbw-cC.Charge.{fixture}.sh`). Non-crucible fixtures (regime-*, calibrant-*,
+/// canonical-*, etc.) carry their fixture name in this slot too, but no
+/// nameplate-shaped consumer reads them.
 pub struct rbtdri_Context {
     pub(crate) project_root: PathBuf,
-    pub(crate) nameplate: String,
+    pub(crate) fixture: String,
     pub(crate) burv_root: PathBuf,
     pub(crate) invoke_count: u32,
 }
 
 impl rbtdri_Context {
-    pub fn new(project_root: &Path, nameplate: &str, burv_root: &Path) -> Self {
+    pub fn new(project_root: &Path, fixture: &str, burv_root: &Path) -> Self {
         Self {
             project_root: project_root.to_path_buf(),
-            nameplate: nameplate.to_string(),
+            fixture: fixture.to_string(),
             burv_root: burv_root.to_path_buf(),
             invoke_count: 0,
         }
     }
 
-    pub fn nameplate(&self) -> &str {
-        &self.nameplate
+    pub fn fixture(&self) -> &str {
+        &self.fixture
     }
 
     pub fn project_root(&self) -> &Path {
@@ -88,11 +95,11 @@ impl rbtdri_Context {
 pub fn rbtdri_find_tabtarget(
     project_root: &Path,
     colophon: &str,
-    nameplate: &str,
+    imprint: &str,
 ) -> Result<PathBuf, String> {
     let tt_dir = project_root.join("tt");
     let prefix = format!("{}.", colophon);
-    let suffix = format!(".{}.sh", nameplate);
+    let suffix = format!(".{}.sh", imprint);
 
     let entries = std::fs::read_dir(&tt_dir)
         .map_err(|e| format!("rbtdri: cannot read tt/ directory: {}", e))?;
@@ -111,13 +118,13 @@ pub fn rbtdri_find_tabtarget(
 
     match matches.len() {
         0 => Err(format!(
-            "rbtdri: no tabtarget for colophon '{}' nameplate '{}'",
-            colophon, nameplate
+            "rbtdri: no tabtarget for colophon '{}' imprint '{}'",
+            colophon, imprint
         )),
         1 => Ok(matches.into_iter().next().unwrap()),
         n => Err(format!(
-            "rbtdri: {} tabtargets match colophon '{}' nameplate '{}' — expected exactly one",
-            n, colophon, nameplate
+            "rbtdri: {} tabtargets match colophon '{}' imprint '{}' — expected exactly one",
+            n, colophon, imprint
         )),
     }
 }
@@ -210,13 +217,15 @@ fn rbtdri_invoke_impl(
     })
 }
 
-/// Invoke a nameplate-scoped tabtarget (colophon + ctx.nameplate).
+/// Invoke a fixture-imprinted tabtarget (colophon + ctx.fixture). For crucible
+/// fixtures the fixture name is also a nameplate moniker, which is the
+/// imprint shape this resolves against.
 pub fn rbtdri_invoke(
     ctx: &mut rbtdri_Context,
     colophon: &str,
     args: &[&str],
 ) -> Result<rbtdri_InvokeResult, String> {
-    let tabtarget = rbtdri_find_tabtarget(&ctx.project_root, colophon, &ctx.nameplate)?;
+    let tabtarget = rbtdri_find_tabtarget(&ctx.project_root, colophon, &ctx.fixture)?;
     rbtdri_invoke_impl(ctx, &tabtarget, args, &[])
 }
 
@@ -231,7 +240,7 @@ pub fn rbtdri_invoke_global(
     rbtdri_invoke_impl(ctx, &tabtarget, args, extra_env)
 }
 
-/// Invoke a tabtarget with an explicit imprint (overrides ctx.nameplate for discovery).
+/// Invoke a tabtarget with an explicit imprint (overrides ctx.fixture for discovery).
 pub fn rbtdri_invoke_imprint(
     ctx: &mut rbtdri_Context,
     colophon: &str,

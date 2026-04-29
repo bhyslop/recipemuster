@@ -42,14 +42,14 @@ use std::path::{Path, PathBuf};
 use crate::case;
 use crate::rbtdrb_probe::{rbtdrb_assert, rbtdrb_Probe};
 use crate::rbtdrc_crucible::{rbtdrc_with_ctx, RBTDRC_FACT_HALLMARK, RBTDRC_FACT_RELIQUARY};
-use crate::rbtdre_engine::{rbtdre_Section, rbtdre_Verdict};
+use crate::rbtdre_engine::{rbtdre_Disposition, rbtdre_Fixture, rbtdre_Section, rbtdre_Verdict};
 use crate::rbtdri_invocation::{
     rbtdri_invoke_global, rbtdri_read_burv_fact, rbtdri_Context, rbtdri_InvokeResult,
 };
 use crate::rbtdrk_canonical::rbtdrk_canonical_rbra;
 use crate::rbtdrm_manifest::{
     RBTDRM_COLOPHON_ENSHRINE_VESSEL, RBTDRM_COLOPHON_INSCRIBE_RELIQUARY, RBTDRM_COLOPHON_ORDAIN,
-    RBTDRM_COLOPHON_YOKE_RELIQUARY,
+    RBTDRM_COLOPHON_YOKE_RELIQUARY, RBTDRM_FIXTURE_CANONICAL_ONBOARDING_SEQUENCE,
 };
 
 // ── Vessel identities ────────────────────────────────────────
@@ -491,3 +491,11 @@ pub static RBTDRO_SECTIONS_CANONICAL_ONBOARDING_SEQUENCE: &[rbtdre_Section] = &[
         case!(rbtdro_ordain_graft),
     ],
 }];
+
+pub static RBTDRO_FIXTURE_CANONICAL_ONBOARDING_SEQUENCE: rbtdre_Fixture = rbtdre_Fixture {
+    name: RBTDRM_FIXTURE_CANONICAL_ONBOARDING_SEQUENCE,
+    disposition: rbtdre_Disposition::StateProgressing,
+    setup: None,
+    teardown: None,
+    sections: RBTDRO_SECTIONS_CANONICAL_ONBOARDING_SEQUENCE,
+};

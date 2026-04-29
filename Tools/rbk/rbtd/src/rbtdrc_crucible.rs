@@ -27,7 +27,7 @@ use std::process::{Command, Stdio};
 
 use crate::case;
 use crate::rbtdre_engine::{
-    rbtdre_resolve_fail_fast, rbtdre_Disposition, rbtdre_Section, rbtdre_Verdict,
+    rbtdre_Disposition, rbtdre_Fixture, rbtdre_Section, rbtdre_Verdict,
 };
 use crate::rbtdri_invocation::{
     rbtdri_Context, rbtdri_invoke, rbtdri_invoke_global, rbtdri_invoke_imprint,
@@ -35,8 +35,9 @@ use crate::rbtdri_invocation::{
 };
 use crate::rbtdrm_manifest::{
     RBTDRM_COLOPHON_ABJURE, RBTDRM_COLOPHON_ACCESS_PROBE, RBTDRM_COLOPHON_BARK,
-    RBTDRM_COLOPHON_FIAT, RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE, RBTDRM_COLOPHON_KLUDGE,
-    RBTDRM_COLOPHON_ORDAIN, RBTDRM_COLOPHON_PLUMB_COMPACT, RBTDRM_COLOPHON_PLUMB_FULL,
+    RBTDRM_COLOPHON_CHARGE, RBTDRM_COLOPHON_CRUCIBLE_ACTIVE, RBTDRM_COLOPHON_FIAT,
+    RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE, RBTDRM_COLOPHON_KLUDGE, RBTDRM_COLOPHON_ORDAIN,
+    RBTDRM_COLOPHON_PLUMB_COMPACT, RBTDRM_COLOPHON_PLUMB_FULL, RBTDRM_COLOPHON_QUENCH,
     RBTDRM_COLOPHON_REKON_HALLMARK, RBTDRM_COLOPHON_SUMMON, RBTDRM_COLOPHON_TALLY,
     RBTDRM_COLOPHON_VOUCH, RBTDRM_COLOPHON_WREST_HALLMARK_IMAGE, RBTDRM_COLOPHON_WRIT,
 };
@@ -78,6 +79,128 @@ where
             .expect("rbtdrc: no invocation context for case execution");
         f(ctx)
     })
+}
+
+// ── Crucible lifecycle hooks (setup/teardown) ────────────────
+
+/// Setup hook for crucible fixtures: charge → CrucibleActive assertion →
+/// readiness delay (for service-bearing nameplates). Reads ctx from thread-
+/// local. Returns Err on any step failure; engine surfaces this as a fixture
+/// failure and runs teardown anyway.
+///
+/// Readiness-delay handling currently consults a hardcoded service-fixture
+/// set; pace ₢BBAAt migrates the delay to a per-nameplate fact
+/// (`RBRN_BOTTLE_READINESS_DELAY_SEC`) read by the charge tabtarget itself,
+/// at which point this function loses the wait entirely.
+pub fn rbtdrc_charge_crucible() -> Result<(), String> {
+    RBTDRC_CTX.with(|c| {
+        let mut opt = c.borrow_mut();
+        let ctx = opt
+            .as_mut()
+            .ok_or_else(|| "rbtdrc: no invocation context for charge".to_string())?;
+        zrbtdrc_charge_impl(ctx)
+    })
+}
+
+/// Teardown hook for crucible fixtures: quench → inverse CrucibleActive
+/// assertion. Reads ctx from thread-local. Best-effort — surfaces failures as
+/// stderr warnings rather than errors; teardown always completes.
+pub fn rbtdrc_quench_crucible() {
+    RBTDRC_CTX.with(|c| {
+        let mut opt = c.borrow_mut();
+        if let Some(ctx) = opt.as_mut() {
+            zrbtdrc_quench_impl(ctx);
+        } else {
+            eprintln!("Warning: rbtdrc: no invocation context for quench — skipped");
+        }
+    });
+}
+
+fn zrbtdrc_charge_impl(ctx: &mut rbtdri_Context) -> Result<(), String> {
+    let fixture = ctx.fixture().to_string();
+    eprintln!("\nCharging crucible for nameplate '{}'...", fixture);
+    match rbtdri_invoke(ctx, RBTDRM_COLOPHON_CHARGE, &[]) {
+        Ok(r) if r.exit_code == 0 => {
+            eprintln!("Crucible charged");
+        }
+        Ok(r) => {
+            return Err(format!("Charge failed (exit {})\n{}", r.exit_code, r.stderr));
+        }
+        Err(e) => {
+            return Err(format!("Charge invocation failed: {}", e));
+        }
+    }
+
+    eprintln!("Verifying crucible is active after charge...");
+    match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_CRUCIBLE_ACTIVE, &[&fixture], &[]) {
+        Ok(r) if r.exit_code == 0 => {
+            eprintln!("Crucible active confirmed");
+        }
+        Ok(r) => {
+            return Err(format!(
+                "Lifecycle assertion failed: crucible not active after charge (exit {})\n{}",
+                r.exit_code, r.stderr
+            ));
+        }
+        Err(e) => {
+            return Err(format!(
+                "CrucibleActive invocation failed after charge: {}",
+                e
+            ));
+        }
+    }
+
+    if zrbtdrc_needs_readiness_delay(&fixture) {
+        eprintln!(
+            "Waiting {}s for service readiness...",
+            RBTDRC_SERVICE_READINESS_DELAY_SECS
+        );
+        std::thread::sleep(std::time::Duration::from_secs(
+            RBTDRC_SERVICE_READINESS_DELAY_SECS,
+        ));
+    }
+
+    Ok(())
+}
+
+fn zrbtdrc_quench_impl(ctx: &mut rbtdri_Context) {
+    let fixture = ctx.fixture().to_string();
+    eprintln!("\nQuenching crucible...");
+    match rbtdri_invoke(ctx, RBTDRM_COLOPHON_QUENCH, &[]) {
+        Ok(r) if r.exit_code == 0 => eprintln!("Crucible quenched"),
+        Ok(r) => eprintln!("Warning: quench exited {}", r.exit_code),
+        Err(e) => eprintln!("Warning: quench invocation failed: {}", e),
+    }
+
+    eprintln!("Verifying crucible is inactive after quench...");
+    match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_CRUCIBLE_ACTIVE, &[&fixture], &[]) {
+        Ok(r) if r.exit_code != 0 => {
+            eprintln!("Crucible inactive confirmed");
+        }
+        Ok(r) => {
+            eprintln!(
+                "Warning: crucible still active after quench (exit {})",
+                r.exit_code
+            );
+        }
+        Err(e) => {
+            eprintln!(
+                "Warning: CrucibleActive invocation failed after quench: {}",
+                e
+            );
+        }
+    }
+}
+
+/// Readiness-delay membership: srjcl/pluml have services that need warmup
+/// after charge; tadmor doesn't. ₢BBAAt replaces this with a per-nameplate
+/// fact and folds the wait into the charge tabtarget itself.
+fn zrbtdrc_needs_readiness_delay(fixture: &str) -> bool {
+    matches!(
+        fixture,
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_SRJCL
+            | crate::rbtdrm_manifest::RBTDRM_FIXTURE_PLUML
+    )
 }
 
 // ── Helpers ──────────────────────────────────────────────────
@@ -1413,11 +1536,13 @@ fn rbtdrc_coordinated_mac_flood_resilience(dir: &Path) -> rbtdre_Verdict {
 // ── Host-side helpers (HTTP probes, port discovery) ──────────
 
 /// Read RBRN_ENTRY_PORT_WORKSTATION from the nameplate's rbrn.env file.
+/// Caller's fixture name must equal a valid nameplate moniker — only crucible
+/// fixtures (srjcl/pluml) call this.
 fn rbtdrc_read_nameplate_port(ctx: &rbtdri_Context) -> Result<u16, String> {
     let env_path = ctx
         .project_root()
         .join(".rbk")
-        .join(ctx.nameplate())
+        .join(ctx.fixture())
         .join("rbrn.env");
     let content = std::fs::read_to_string(&env_path)
         .map_err(|e| format!("cannot read {}: {}", env_path.display(), e))?;
@@ -1995,78 +2120,107 @@ fn rbtdrc_pluml_malformed_diagram(dir: &Path) -> rbtdre_Verdict {
 
 /// Readiness delay in seconds after charge for service-bearing nameplates.
 /// Matches RBCC_BOTTLE_TEST_READINESS_DELAY_SEC from rbcc_Constants.sh.
+/// Pace ₢BBAAt migrates this to a per-nameplate fact read by the charge
+/// tabtarget, at which point this constant goes away.
 pub const RBTDRC_SERVICE_READINESS_DELAY_SECS: u64 = 30;
 
-/// Returns whether this fixture uses the crucible charge/quench lifecycle.
-pub fn rbtdrc_needs_charge(fixture: &str) -> bool {
-    matches!(
-        fixture,
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_TADMOR
-            | crate::rbtdrm_manifest::RBTDRM_FIXTURE_SRJCL
-            | crate::rbtdrm_manifest::RBTDRM_FIXTURE_PLUML
-    )
-}
+// ── Crucible fixtures (charge/quench lifecycle) ──────────────
 
-/// Returns whether this fixture needs a post-charge readiness delay.
-pub fn rbtdrc_needs_readiness_delay(fixture: &str) -> bool {
-    matches!(
-        fixture,
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_SRJCL
-            | crate::rbtdrm_manifest::RBTDRM_FIXTURE_PLUML
-    )
-}
+pub static RBTDRC_FIXTURE_TADMOR: rbtdre_Fixture = rbtdre_Fixture {
+    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_TADMOR,
+    disposition: rbtdre_Disposition::Independent,
+    setup: Some(rbtdrc_charge_crucible),
+    teardown: Some(rbtdrc_quench_crucible),
+    sections: RBTDRC_SECTIONS_TADMOR,
+};
 
-/// Returns the fixture's disposition. StateProgressing fixtures have cases that
-/// build on each other's preconditions; Independent fixtures have self-contained
-/// cases. The disposition determines per-fixture mode policy at the engine layer.
-pub fn rbtdrc_fixture_disposition(fixture: &str) -> rbtdre_Disposition {
+pub static RBTDRC_FIXTURE_SRJCL: rbtdre_Fixture = rbtdre_Fixture {
+    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_SRJCL,
+    disposition: rbtdre_Disposition::Independent,
+    setup: Some(rbtdrc_charge_crucible),
+    teardown: Some(rbtdrc_quench_crucible),
+    sections: RBTDRC_SECTIONS_SRJCL,
+};
+
+pub static RBTDRC_FIXTURE_PLUML: rbtdre_Fixture = rbtdre_Fixture {
+    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_PLUML,
+    disposition: rbtdre_Disposition::Independent,
+    setup: Some(rbtdrc_charge_crucible),
+    teardown: Some(rbtdrc_quench_crucible),
+    sections: RBTDRC_SECTIONS_PLUML,
+};
+
+// ── Bare fixtures owned by rbtdrc (no charge/quench) ─────────
+
+pub static RBTDRC_FIXTURE_FOUR_MODE: rbtdre_Fixture = rbtdre_Fixture {
+    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_FOUR_MODE,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    sections: RBTDRC_SECTIONS_FOUR_MODE,
+};
+
+pub static RBTDRC_FIXTURE_BATCH_VOUCH: rbtdre_Fixture = rbtdre_Fixture {
+    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_BATCH_VOUCH,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    sections: RBTDRC_SECTIONS_BATCH_VOUCH,
+};
+
+pub static RBTDRC_FIXTURE_ACCESS_PROBE: rbtdre_Fixture = rbtdre_Fixture {
+    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_ACCESS_PROBE,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    sections: RBTDRC_SECTIONS_ACCESS_PROBE,
+};
+
+/// Resolve a fixture name to its registered Fixture definition. Returns None
+/// for unregistered names; callers decide whether that is fatal (main.rs
+/// surfaces it as an error after rbtdrm_verify already accepted the name).
+pub fn rbtdrc_lookup_fixture(fixture: &str) -> Option<&'static rbtdre_Fixture> {
     match fixture {
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_PRISTINE_LIFECYCLE
-        | crate::rbtdrm_manifest::RBTDRM_FIXTURE_CANONICAL_ESTABLISH
-        | crate::rbtdrm_manifest::RBTDRM_FIXTURE_CANONICAL_ONBOARDING_SEQUENCE
-        | crate::rbtdrm_manifest::RBTDRM_FIXTURE_CALIBRANT_PROGRESSING => {
-            rbtdre_Disposition::StateProgressing
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_TADMOR => Some(&RBTDRC_FIXTURE_TADMOR),
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_SRJCL => Some(&RBTDRC_FIXTURE_SRJCL),
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_PLUML => Some(&RBTDRC_FIXTURE_PLUML),
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_FOUR_MODE => Some(&RBTDRC_FIXTURE_FOUR_MODE),
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_BATCH_VOUCH => Some(&RBTDRC_FIXTURE_BATCH_VOUCH),
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_ACCESS_PROBE => Some(&RBTDRC_FIXTURE_ACCESS_PROBE),
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_ENROLLMENT_VALIDATION => {
+            Some(&crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION)
         }
-        _ => rbtdre_Disposition::Independent,
-    }
-}
-
-/// Returns whether full-fixture mode should abort after the first failed case.
-/// Funnels through the engine's policy gate with keep-going=false (the disposition
-/// default mode); both Independent and StateProgressing dispositions resolve cleanly
-/// in this mode, so the call is infallible.
-pub fn rbtdrc_fixture_fail_fast(fixture: &str) -> bool {
-    rbtdre_resolve_fail_fast(rbtdrc_fixture_disposition(fixture), false)
-        .expect("disposition-default mode never fails policy resolution")
-}
-
-/// Returns the section array appropriate for the given fixture.
-pub fn rbtdrc_sections_for_fixture(fixture: &str) -> &'static [rbtdre_Section] {
-    match fixture {
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_TADMOR => RBTDRC_SECTIONS_TADMOR,
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_SRJCL => RBTDRC_SECTIONS_SRJCL,
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_PLUML => RBTDRC_SECTIONS_PLUML,
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_FOUR_MODE => RBTDRC_SECTIONS_FOUR_MODE,
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_BATCH_VOUCH => RBTDRC_SECTIONS_BATCH_VOUCH,
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_ACCESS_PROBE => RBTDRC_SECTIONS_ACCESS_PROBE,
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_ENROLLMENT_VALIDATION => crate::rbtdrf_fast::RBTDRF_SECTIONS_ENROLLMENT_VALIDATION,
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_REGIME_VALIDATION => crate::rbtdrf_fast::RBTDRF_SECTIONS_REGIME_VALIDATION,
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_REGIME_SMOKE => crate::rbtdrf_fast::RBTDRF_SECTIONS_REGIME_SMOKE,
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_HANDBOOK_RENDER => crate::rbtdrf_handbook::RBTDRF_SECTIONS_HANDBOOK_RENDER,
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_PRISTINE_LIFECYCLE => crate::rbtdrp_pristine::RBTDRP_SECTIONS_PRISTINE_LIFECYCLE,
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_CANONICAL_ESTABLISH => crate::rbtdrk_canonical::RBTDRK_SECTIONS_CANONICAL_ESTABLISH,
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_CANONICAL_ONBOARDING_SEQUENCE => crate::rbtdro_onboarding::RBTDRO_SECTIONS_CANONICAL_ONBOARDING_SEQUENCE,
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_CALIBRANT_VERDICTS => crate::rbtdrl_calibrant::RBTDRL_SECTIONS_VERDICTS,
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST => crate::rbtdrl_calibrant::RBTDRL_SECTIONS_FAIL_FAST,
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_CALIBRANT_PROGRESSING => crate::rbtdrl_calibrant::RBTDRL_SECTIONS_PROGRESSING,
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_CALIBRANT_SENTINEL => crate::rbtdrl_calibrant::RBTDRL_SECTIONS_SENTINEL,
-        _ => {
-            eprintln!(
-                "rbtdrc: no sections defined for fixture '{}' — running empty",
-                fixture
-            );
-            &[]
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_REGIME_VALIDATION => {
+            Some(&crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION)
         }
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_REGIME_SMOKE => {
+            Some(&crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_SMOKE)
+        }
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_HANDBOOK_RENDER => {
+            Some(&crate::rbtdrf_handbook::RBTDRF_FIXTURE_HANDBOOK_RENDER)
+        }
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_PRISTINE_LIFECYCLE => {
+            Some(&crate::rbtdrp_pristine::RBTDRP_FIXTURE_PRISTINE_LIFECYCLE)
+        }
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_CANONICAL_ESTABLISH => {
+            Some(&crate::rbtdrk_canonical::RBTDRK_FIXTURE_CANONICAL_ESTABLISH)
+        }
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_CANONICAL_ONBOARDING_SEQUENCE => {
+            Some(&crate::rbtdro_onboarding::RBTDRO_FIXTURE_CANONICAL_ONBOARDING_SEQUENCE)
+        }
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_CALIBRANT_VERDICTS => {
+            Some(&crate::rbtdrl_calibrant::RBTDRL_FIXTURE_VERDICTS)
+        }
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST => {
+            Some(&crate::rbtdrl_calibrant::RBTDRL_FIXTURE_FAIL_FAST)
+        }
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_CALIBRANT_PROGRESSING => {
+            Some(&crate::rbtdrl_calibrant::RBTDRL_FIXTURE_PROGRESSING)
+        }
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_CALIBRANT_SENTINEL => {
+            Some(&crate::rbtdrl_calibrant::RBTDRL_FIXTURE_SENTINEL)
+        }
+        _ => None,
     }
 }
 

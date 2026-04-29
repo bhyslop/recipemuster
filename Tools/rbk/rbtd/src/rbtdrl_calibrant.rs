@@ -37,7 +37,11 @@ use std::path::Path;
 
 use crate::case;
 use crate::rbtdrb_probe::{rbtdrb_assert, rbtdrb_Probe};
-use crate::rbtdre_engine::{rbtdre_Section, rbtdre_Verdict};
+use crate::rbtdre_engine::{rbtdre_Disposition, rbtdre_Fixture, rbtdre_Section, rbtdre_Verdict};
+use crate::rbtdrm_manifest::{
+    RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST, RBTDRM_FIXTURE_CALIBRANT_PROGRESSING,
+    RBTDRM_FIXTURE_CALIBRANT_SENTINEL, RBTDRM_FIXTURE_CALIBRANT_VERDICTS,
+};
 
 /// Sentinel filename written into a case's temp dir to mark execution. The
 /// blackbox driver asserts presence/absence by globbing under the
@@ -198,3 +202,37 @@ pub static RBTDRL_SECTIONS_SENTINEL: &[rbtdre_Section] = &[rbtdre_Section {
     name: "calibrant-sentinel",
     cases: &[case!(rbtdrl_sentinel_marks)],
 }];
+
+// ── Fixture statics ──────────────────────────────────────────
+
+pub static RBTDRL_FIXTURE_VERDICTS: rbtdre_Fixture = rbtdre_Fixture {
+    name: RBTDRM_FIXTURE_CALIBRANT_VERDICTS,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    sections: RBTDRL_SECTIONS_VERDICTS,
+};
+
+pub static RBTDRL_FIXTURE_FAIL_FAST: rbtdre_Fixture = rbtdre_Fixture {
+    name: RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    sections: RBTDRL_SECTIONS_FAIL_FAST,
+};
+
+pub static RBTDRL_FIXTURE_PROGRESSING: rbtdre_Fixture = rbtdre_Fixture {
+    name: RBTDRM_FIXTURE_CALIBRANT_PROGRESSING,
+    disposition: rbtdre_Disposition::StateProgressing,
+    setup: None,
+    teardown: None,
+    sections: RBTDRL_SECTIONS_PROGRESSING,
+};
+
+pub static RBTDRL_FIXTURE_SENTINEL: rbtdre_Fixture = rbtdre_Fixture {
+    name: RBTDRM_FIXTURE_CALIBRANT_SENTINEL,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    sections: RBTDRL_SECTIONS_SENTINEL,
+};

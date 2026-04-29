@@ -18,7 +18,7 @@
 
 use std::path::PathBuf;
 
-use crate::rbtdrc_crucible::{rbtdrc_fixture_disposition, rbtdrc_sections_for_fixture};
+use crate::rbtdrc_crucible::rbtdrc_lookup_fixture;
 use crate::rbtdre_engine::rbtdre_Disposition;
 use crate::rbtdrk_canonical::{
     rbtdrk_install_canonical_prefixes, RBTDRK_CANONICAL_CLOUD_PREFIX,
@@ -56,17 +56,18 @@ fn rbtdtk_family_stem_value() {
 /// refusal applies to this fixture too, by design (per BBAAd policy gate).
 #[test]
 fn rbtdtk_disposition_is_state_progressing() {
-    assert_eq!(
-        rbtdrc_fixture_disposition(RBTDRM_FIXTURE_CANONICAL_ESTABLISH),
-        rbtdre_Disposition::StateProgressing
-    );
+    let fixture = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_CANONICAL_ESTABLISH)
+        .expect("canonical-establish is registered");
+    assert_eq!(fixture.disposition, rbtdre_Disposition::StateProgressing);
 }
 
 /// Sections lookup binds the fixture name to the registry array and yields
 /// exactly four cases under one section ("canonical-establish-arc").
 #[test]
 fn rbtdtk_sections_registered() {
-    let sections = rbtdrc_sections_for_fixture(RBTDRM_FIXTURE_CANONICAL_ESTABLISH);
+    let fixture = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_CANONICAL_ESTABLISH)
+        .expect("canonical-establish is registered");
+    let sections = fixture.sections;
     assert_eq!(sections.len(), 1, "expected one section");
     assert_eq!(sections[0].name, "canonical-establish-arc");
     assert_eq!(sections[0].cases.len(), 4, "expected four cases");

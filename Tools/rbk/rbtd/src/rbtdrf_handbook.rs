@@ -28,7 +28,7 @@ use std::path::Path;
 use std::process::Command;
 
 use crate::case;
-use crate::rbtdre_engine::{rbtdre_Section, rbtdre_Verdict};
+use crate::rbtdre_engine::{rbtdre_Disposition, rbtdre_Fixture, rbtdre_Section, rbtdre_Verdict};
 use crate::rbtdri_invocation::rbtdri_find_tabtarget_global;
 use crate::rbtdrm_manifest::{
     RBTDRM_COLOPHON_HANDBOOK_TOP, RBTDRM_COLOPHON_HANDBOOK_WINDOWS,
@@ -38,7 +38,7 @@ use crate::rbtdrm_manifest::{
     RBTDRM_COLOPHON_ONBOARD_FIRST_CRUCIBLE, RBTDRM_COLOPHON_ONBOARD_GOVERNOR_HB,
     RBTDRM_COLOPHON_ONBOARD_PAYOR_HB, RBTDRM_COLOPHON_ONBOARD_START_HERE,
     RBTDRM_COLOPHON_PAYOR_ESTABLISH, RBTDRM_COLOPHON_PAYOR_REFRESH,
-    RBTDRM_COLOPHON_QUOTA_BUILD,
+    RBTDRM_COLOPHON_QUOTA_BUILD, RBTDRM_FIXTURE_HANDBOOK_RENDER,
 };
 
 // ── Helper ───────────────────────────────────────────────────
@@ -184,3 +184,13 @@ pub static RBTDRF_SECTIONS_HANDBOOK_RENDER: &[rbtdre_Section] = &[
         ],
     },
 ];
+
+// ── Fixture static ───────────────────────────────────────────
+
+pub static RBTDRF_FIXTURE_HANDBOOK_RENDER: rbtdre_Fixture = rbtdre_Fixture {
+    name: RBTDRM_FIXTURE_HANDBOOK_RENDER,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    sections: RBTDRF_SECTIONS_HANDBOOK_RENDER,
+};
