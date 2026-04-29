@@ -576,6 +576,13 @@
         "₢A-AAb": {
           "tacks": [
             {
+              "ts": "260429-1110",
+              "state": "abandoned",
+              "text": "## Character\nSmall implementation — colophon move + tier-aware filtering decision. May fold into BUK rename.\n\n## Docket\nMove SSH config aggregator from `buw-HWsc` (Windows-handbook scope) to `buw-rnc` (regime-ops scope, both tiers).\n\nTier-aware filtering: aggregator emits `~/.ssh/config` entries for which BURN profiles? Likely both tiers. Mount-time decision.\n\nUpdate handbook references that pointed at the old colophon.\n\nOptional fold into BUK rename if scope holds.",
+              "silks": "buw-rnc-ssh-config-aggregator",
+              "commit": "13b921c"
+            },
+            {
               "ts": "260429-1058",
               "state": "rough",
               "text": "## Character\nSmall implementation — colophon move + tier-aware filtering decision. May fold into BUK rename.\n\n## Docket\nMove SSH config aggregator from `buw-HWsc` (Windows-handbook scope) to `buw-rnc` (regime-ops scope, both tiers).\n\nTier-aware filtering: aggregator emits `~/.ssh/config` entries for which BURN profiles? Likely both tiers. Mount-time decision.\n\nUpdate handbook references that pointed at the old colophon.\n\nOptional fold into BUK rename if scope holds.",
