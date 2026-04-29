@@ -12,7 +12,7 @@ captures only state that doesn't fit there.
 
 **Header decisions made in this heat:**
 
-- BURH regime renamed to BURN (n = Node)
+- BURH regime renamed to BURN (n = Node) — decision; execution in AAV/AAW
 - BURN_TIER field added: `privileged | workload`
 - Two-tier model:
   - Privileged tier: node-level ops (sshd config, user provisioning).
@@ -31,48 +31,36 @@ captures only state that doesn't fit there.
 - Visual proximity note: `buw-nwc` (Check) vs `buw-nwc{platform}` (Conscript)
   — distinct colophons, accepted
 
-## Heat Sequence (post-triage and post-audit)
-
-Spec backbone in place; spec subdocs need elaboration; implementation paces
-slated; practice unchanged.
+## Heat Sequence
 
 **Spec phase (pending):**
 
-- ₢A-AAR specify-zburn-key-line-builder (reslated; BUWC half dropped)
-- ₢A-AAQ elaborate-busnw-windows-ceremony (reslated; morphed from
-  per-command subdocs)
-- ₢A-AAU specify-busn-tier-refusal (newly slated)
+- ₢A-AAQ elaborate-busnw-windows-ceremony — flesh BUSNW from stub to full
+  Garrison/Conscript ceremony coverage on Windows
 
-**Implementation phase (newly slated, sequenced):**
+**Implementation phase (sequenced):**
 
-- ₢A-AAV burh-to-burn-rename-buk (mechanical)
-- ₢A-AAW burh-to-burn-rename-jjk (mechanical, depends on AAV)
-- ₢A-AAX garrison-platform-machinery (refactor + new code, six platforms)
-- ₢A-AAY conscript-discharge-inventory-machinery (workload-tier mirror,
-  depends on AAX)
-- ₢A-AAZ workload-operational-tabtargets (Check / Run / Ssh)
-- ₢A-AAa node-handbook-landing-and-windows-residue (handbook restructure,
-  depends on AAX and AAY)
-- ₢A-AAb buw-rnc-ssh-config-aggregator (colophon move; may fold into AAV)
+- ₢A-AAV burh-to-burn-rename-buk — mechanical rename + tier-refusal helper
+  + SSH config aggregator move (`buw-HWsc` → `buw-rnc`)
+- ₢A-AAW burh-to-burn-rename-jjk — mechanical, depends on AAV
+- ₢A-AAX garrison-platform-machinery — six platforms; defines key-line
+  wire format (`# BURN:<alias>` marker) inline
+- ₢A-AAY conscript-discharge-inventory-machinery — workload-tier mirror,
+  depends on AAX
+- ₢A-AAZ workload-operational-tabtargets — Check / Run / Ssh
+- ₢A-AAa node-handbook-landing-and-windows-residue — handbook restructure,
+  depends on AAX and AAY
 
 **Practice phase:**
 
-- ₢A-AAC (reslated for new verbs) — practice with Garrison/Conscript on
-  real hardware
-- ₢A-AAD WSL + Cygwin install (unchanged)
-- ₢A-AAE fundus provisioning (unchanged)
-- ₢A-AAF Docker dual-daemon (unchanged)
+- ₢A-AAC — practice with Garrison/Conscript on real hardware
+- ₢A-AAD — WSL + Cygwin install
+- ₢A-AAE — fundus provisioning
+- ₢A-AAF — Docker dual-daemon
 
 **Regression:**
 
-- ₢A-AAP retest fundus after practice (unchanged)
-
-Triaged out (no slate change; act on at wrap time):
-
-- ₢A-AAH (verification tabtargets) — fold into practice wrap notes
-- ₢A-AAI (reconsider Cygwin install) — fold into AAD wrap notes
-- ₢A-AAJ (autonumber sweep) — relocate to ₣A6
-- ₢A-AAS, ₢A-AAT (handbook-render fixture coverage) — relocate to ₣BB
+- ₢A-AAP retest fundus after practice
 
 ## Deferred (named for future return)
 
