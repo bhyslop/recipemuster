@@ -117,11 +117,11 @@ Single operator (project lead). Not designed for multi-operator workflow. The RE
 
 Cutover work from ₣A_ informing `rbw-tP`'s sequence has landed (BBAAM depot-identity-collapse). ₣A_'s remaining paces run independently of BB.
 
-## Locked design decisions — pointers
+## Locked design decisions
 
-- **Depot identity collapse** (BBAAM, landed): RBRR collapses to `RBRR_DEPOT_MONIKER`; `RBRR_CLOUD_PREFIX` flows through depot-affiliated resources; per-moniker depot fact-files; pristine-fixture moniker autodetect lives in Rust (`rbtdrp_pristine.rs`), not payor.
-- **Cult-verb naming** (BBAAN/BBAAQ/BBAAR, landed): SA domain muster→**roster**; image domain muster→**audit**. Domain-exclusive split; lowercase tail letters preserved for no-cloud-change observation colophons.
-- **Build/run split** (BBAAc, landed via paddock pivot): handbook walks cover build only (BBAAf); per-crucible fixtures stay reusable as direct tests (BBAAs).
+- **Depot identity collapse**: RBRR collapses to `RBRR_DEPOT_MONIKER`; `RBRR_CLOUD_PREFIX` flows through depot-affiliated resources; per-moniker depot fact-files; pristine-fixture moniker autodetect lives in Rust (`rbtdrp_pristine.rs`), not payor.
+- **Cult-verb naming**: SA domain muster→**roster**; image domain muster→**audit**. Domain-exclusive split; lowercase tail letters preserved for no-cloud-change observation colophons.
+- **Build/run split**: handbook walks cover build only; per-crucible fixtures stay reusable as direct tests.
 
 ## Calibrant fixture family — BBAAh
 
