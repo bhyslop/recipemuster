@@ -13,10 +13,12 @@
 // busdl_: Dispatch Launcher (bootstrap script)
 // bukro_: Kit Regime Operation (kindle/validate/render)
 // burc_:  Configuration Regime (project-level settings)
+// burn_:  Node Regime (per-node SSH connection profiles, multi-instance)
 // burs_:  Station Regime (developer-level settings)
 // burd_:  Dispatch Runtime (ephemeral state assembled during dispatch)
 // bure_:  Environment Regime (ambient caller-supplied behavioral overrides)
 // busi:   Invocation (test invocation umbrella)
+// busn_:  Node Access (verbs for remote node management)
 // busit_: Invocation Tier (tier classification)
 // busig_: Invocation Global (capture state set by zbuto_invoke)
 // busx_:  Case Boundary (test case isolation runner)
@@ -64,7 +66,7 @@
 
 // BUK Regime Prefixes
 :burc_prefix:                      <<burc_prefix,BURC_>>
-:burh_prefix:                      <<burh_prefix,BURH_>>
+:burn_prefix:                      <<burn_prefix,BURN_>>
 :burs_prefix:                      <<burs_prefix,BURS_>>
 
 // BURC Regime: Configuration (project-level BUK settings)
@@ -80,14 +82,21 @@
 :burc_log_last:                    <<burc_log_last,BURC_LOG_LAST>>
 :burc_log_ext:                     <<burc_log_ext,BURC_LOG_EXT>>
 
-// BURH Regime: Host (per-user SSH connection profiles)
-:burh_regime:                      <<burh_regime,BURH Regime>>
-:burh_host:                        <<burh_host,BURH_HOST>>
-:burh_user:                        <<burh_user,BURH_USER>>
-:burh_alias:                       <<burh_alias,BURH_ALIAS>>
-:burh_ssh_pubkey:                  <<burh_ssh_pubkey,BURH_SSH_PUBKEY>>
-:burh_key_file:                    <<burh_key_file,BURH_KEY_FILE>>
-:burh_command:                     <<burh_command,BURH_COMMAND>>
+// BURN Regime: Node (per-node SSH connection profiles, multi-instance)
+:burn_regime:                      <<burn_regime,BURN Regime>>
+:burn_host:                        <<burn_host,BURN_HOST>>
+:burn_user:                        <<burn_user,BURN_USER>>
+:burn_alias:                       <<burn_alias,BURN_ALIAS>>
+:burn_ssh_pubkey:                  <<burn_ssh_pubkey,BURN_SSH_PUBKEY>>
+:burn_key_file:                    <<burn_key_file,BURN_KEY_FILE>>
+:burn_command:                     <<burn_command,BURN_COMMAND>>
+:burn_tier:                        <<burn_tier,BURN_TIER>>
+
+// BUSN: Node Access (verbs for remote node management)
+:busn_garrison:                    <<busn_garrison,Garrison>>
+:busn_conscript:                   <<busn_conscript,Conscript>>
+:busn_discharge:                   <<busn_discharge,Discharge>>
+:busn_inventory:                   <<busn_inventory,Inventory>>
 
 // BURS Regime: Station (developer-level BUK settings)
 :burs_regime:                      <<burs_regime,BURS Regime>>
@@ -667,8 +676,8 @@ at dispatch start, with terminal fields appended at completion.
 [[buf_ext_alias]]
 //axl_voices axt_enum_value
 {buf_ext_alias}::
-Registered BUK-domain extension constant for BURH alias observation facts (`BUF_EXT_ALIAS="buf_ext_alias"`).
-Written by `burh_list_capture` (in `burh_regime.sh`) once per discovered alias profile, with empty content — presence-of-file is the fact, not file content.
+Registered BUK-domain extension constant for BURN alias observation facts (`BUF_EXT_ALIAS="buf_ext_alias"`).
+Written by `burn_list_capture` (in `burn_regime.sh`) once per discovered alias profile, with empty content — presence-of-file is the fact, not file content.
 +
 First and currently sole member of the
 {busff_multi_fact}
@@ -760,10 +769,10 @@ Bash Utility Configuration Regime
 {burs_prefix}::
 Bash Utility Station Regime
 
-[[burh_prefix]]
+[[burn_prefix]]
 //axl_voices axrg_prefix
-{burh_prefix}::
-Bash Utility Host Regime
+{burn_prefix}::
+Bash Utility Regime Node
 
 [[bure_prefix]]
 //axl_voices axrg_prefix
@@ -872,7 +881,7 @@ BURS assignment files are personal to each developer and not committed to versio
 {burs_user}::
 Local developer username.
 Routes to the correct `.buk/users/` subdirectory for
-{burh_regime}
+{burn_regime}
 profiles.
 
 [[burs_log_dir]]
@@ -880,55 +889,67 @@ profiles.
 {burs_log_dir}::
 Directory where this developer stores BUK operation logs.
 
-=== BURH Regime
+=== BURN Regime
 
-[[burh_regime]]
+[[burn_regime]]
 //axvr_regime axf_bash axrd_file_sourced
-{burh_regime}::
-Per-user, per-connection-profile regime for SSH access to remote hosts.
-Unlike singleton regimes, BURH is multi-instance: one assignment file per SSH connection,
-stored at `.buk/users/{burs_user}/<alias>/burh.env`.
-Each profile describes one SSH connection — one key, one alias, one entry point.
+{burn_regime}::
+Per-user, per-connection-profile regime for SSH access to remote nodes.
+Unlike singleton regimes, BURN is multi-instance: one assignment file per SSH connection,
+stored at `.buk/users/{burs_user}/<alias>/burn.env`.
+Each profile describes one SSH connection — one key, one alias, one entry point —
+classified by {burn_tier} as either privileged (node-level operations) or workload
+(user-level operations on an established node).
 
-[[burh_host]]
+[[burn_host]]
 //axvr_variable axd_required axtu_string
-{burh_host}::
-IP address or hostname of the remote machine.
+{burn_host}::
+IP address or hostname of the remote node.
 
-[[burh_user]]
+[[burn_user]]
 //axvr_variable axd_required axtu_xname
-{burh_user}::
-Username on the remote host.
+{burn_user}::
+Username on the remote node.
 May differ from the local
 {burs_user}.
 
-[[burh_alias]]
+[[burn_alias]]
 //axvr_variable axd_required axtu_xname
-{burh_alias}::
+{burn_alias}::
 SSH alias and key filename.
 Must match the directory name containing this profile's assignment file.
 
-[[burh_ssh_pubkey]]
+[[burn_ssh_pubkey]]
 //axvr_variable axd_required axtu_string
-{burh_ssh_pubkey}::
+{burn_ssh_pubkey}::
 Full SSH public key line (e.g., `ssh-ed25519 AAAA... user@host`).
 Git-transported: no private key material.
 Used by handbook procedures to render `authorized_keys` entries and `ssh-keygen` commands.
 
-[[burh_key_file]]
+[[burn_key_file]]
 //axvr_variable axd_optional axtu_string
-{burh_key_file}::
+{burn_key_file}::
 SSH private key filename within `~/.ssh/`.
-Empty defaults to {burh_alias} (one key per connection).
+Empty defaults to {burn_alias} (one key per connection).
 Localhost profiles set `id_ed25519` to share the invoking user's default key.
 
-[[burh_command]]
+[[burn_command]]
 //axvr_variable axd_required axtu_string
-{burh_command}::
+{burn_command}::
 Shell command for `command=` routing in SSH `authorized_keys`.
 Empty for direct-shell connections (Linux, macOS, localhost — no routing needed).
 When set, determines which shell or environment the connection launches
 (e.g., `C:\cygwin64\bin\bash.exe -l` for Cygwin, `wsl.exe -d Ubuntu` for WSL).
+
+[[burn_tier]]
+//axvr_variable axd_required axtu_xname
+{burn_tier}::
+Privilege classification of this profile.
+Values: `privileged` (admin-level operations on the node — sshd configuration,
+user provisioning, node-level setup) or `workload` (normal remote work as an
+ephemeral user on an established node).
+Tabtargets enforce tier preconditions at entry: privileged-only operations
+refuse workload aliases and vice versa.
 
 === BURD Regime
 
@@ -1258,3 +1279,149 @@ Present only when
 is present.
 
 include::BUSD-DispatchRuntime.adoc[]
+
+== Remote Node Access
+
+Bringing remote nodes under SSH key control from a local station, establishing
+trust that supports both privileged node-level operations and ephemeral
+workload-tier work over the same {burn_regime}.
+
+=== Privilege Tiers
+
+The {burn_tier} field of every {burn_regime} profile classifies the profile
+as either `privileged` or `workload`. Tabtargets refuse aliases of the wrong
+tier at entry.
+
+==== Privileged Tier
+
+Privileged profiles authenticate as a remote OS user with admin or equivalent
+privileges. Used for node-level operations: sshd configuration, user
+provisioning, node-establishment ceremonies.
+
+Multiple station users may hold privileged trust on the same node (file
+format supports multi-resident keys). Operational convention: only one
+station user actively orchestrates work at a time. This convention is
+enforced by social contract, not BUK locking.
+
+==== Workload Tier
+
+Workload profiles authenticate as ephemeral remote OS users created by
+privileged authority. Used for normal remote work: running commands,
+file operations, interactive shells.
+
+Workload users are exclusive to one station user — not handed off between
+station users. Lifecycle is short:
+{busn_conscript}
+when needed,
+{busn_discharge}
+when done.
+
+=== Tabtarget Catalog
+
+Tabtargets under `buw-` consume {burn_regime} profiles to perform remote
+operations. Tier-specific colophons follow `buw-n[pw]` for clarity.
+
+==== Lifecycle
+
+`buw-rnl`::
+List all {burn_regime} profiles in the local station subtree.
+
+`buw-rnr <alias>`::
+Render a single {burn_regime} profile.
+
+`buw-rnv <alias>`::
+Validate a single {burn_regime} profile.
+
+==== Privileged (per-platform node setup)
+
+`buw-npg{l,m,c,w,p,x} <host> <user> <moniker>`::
+{busn_garrison} a node for the named platform.
+Writes the privileged {burn_regime} profile and runs the platform-specific
+ceremony to establish admin trust.
+Platform letters: l=Linux, m=Mac, c=Cygwin, w=WSL, p=PowerShell, x=Localhost.
+
+==== Workload (privileged authority required)
+
+`buw-nwc{l,m,c,w,p,x} <privileged-alias> <workload-moniker>`::
+{busn_conscript} a workload user via the named privileged BURN.
+Creates the remote OS user, installs the station user's pubkey, and
+writes a workload {burn_regime} profile locally.
+
+`buw-nwd <workload-alias>`::
+{busn_discharge} a workload user.
+Deletes the remote OS user via the workload profile's privileged
+authority and removes the local profile.
+
+`buw-nwi <privileged-alias>`::
+{busn_inventory} workload users present on the node, queried via the
+privileged BURN.
+
+==== Workload (operational)
+
+`buw-nwc <workload-alias>`::
+Check responsiveness via passwordless SSH probe.
+
+`buw-nwr <workload-alias> <cmd-file>`::
+Run the contents of `<cmd-file>` on the remote node; capture output to
+{burd_output_dir}.
+
+`buw-nws <workload-alias>`::
+Open an interactive SSH session.
+
+==== Handbook
+
+`buw-hn0`::
+Top-level handbook landing for node access procedures.
+
+=== Privileges
+
+The {burs_user} owns its profile subtree at `.buk/users/{burs_user}/`
+exclusively — operations write only under the current station user's tree.
+
+A {burn_regime} profile describes a connection identity (host, user, shell,
+alias, key, tier) — not project state, not work-directory. Project context
+is supplied by the consumer at invocation time.
+
+Each platform subdoc declares the remote-user privilege contract that its
+ceremony assumes (e.g., on Windows the privileged user must be a member of
+the Administrators group).
+
+=== Verb Definitions
+
+[[busn_garrison]]
+//axl_voices axt_command
+{busn_garrison}::
+Establish privileged BURN trust on a node by writing the privileged
+{burn_regime} profile and running the platform-specific ceremony to gain
+admin access. Per-platform tabtargets at `buw-npg{platform}`. First-time
+node setup; idempotent on re-run.
+
+[[busn_conscript]]
+//axl_voices axt_command
+{busn_conscript}::
+Create an ephemeral workload user on a node and provision a workload
+{burn_regime} profile locally. Requires a privileged BURN as authority for
+the remote-user creation. Per-platform tabtargets at `buw-nwc{platform}`,
+where the platform letter selects the workload shell — independent of the
+privileged BURN's shell choice.
+
+[[busn_discharge]]
+//axl_voices axt_command
+{busn_discharge}::
+Remove a workload user from a node and delete the local workload
+{burn_regime} profile. The workload profile encodes its privileged
+authority; {busn_discharge} uses that authority to delete the remote OS
+user. Tabtarget: `buw-nwd`.
+
+[[busn_inventory]]
+//axl_voices axt_command
+{busn_inventory}::
+List workload users currently provisioned on a node, queried via a
+privileged BURN. Scope is the node's full workload-user population — not
+just the current station user's history. Tabtarget: `buw-nwi`.
+
+include::BUSNW-NodeWindows.adoc[]
+
+include::BUSNL-NodeLinux.adoc[]
+
+include::BUSNM-NodeMac.adoc[]

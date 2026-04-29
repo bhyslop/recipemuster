@@ -1,0 +1,29 @@
+=== Linux Node Access
+
+Platform-specific ceremony and contracts for Linux node access.
+
+==== Status
+
+Stub.
+Linux ceremony content to be drafted when first Linux fundus target is
+brought online.
+The expected ceremony is substantially shorter than Windows because most
+Linux distributions ship with OpenSSH server pre-configured and accept
+`ssh-copy-id` for the handshake phase.
+
+==== Privilege Contract
+
+To be specified.
+Likely: the {burn_user} of a Linux privileged BURN must have `sudo`
+capability for user-creation commands (`useradd`, `usermod`, etc.) used
+by {busn_conscript} and {busn_discharge}.
+Specific sudoers configuration to be specified when the contract is
+actually exercised.
+
+==== Platform Letters
+
+* `l` — Linux (`buw-npgl`, `buw-nwcl`)
+
+==== Out of Band
+
+To be specified.
