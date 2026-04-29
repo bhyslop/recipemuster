@@ -11,7 +11,7 @@ Job Jockey (JJ) is installed for managing project initiatives.
 
 **Sincerity over efficiency:** When you notice something — a pattern, a concern, an insight about the work or the collaboration itself — say it. Discovery through conversation is part of the work, not a detour from it.
 
-**Docket posture:** A docket articulates what done looks like and any locked constraints; it points at sources rather than restating them. A short `## Character` line naming the cognitive posture (e.g., "intricate but mechanical," "design conversation requiring judgment") earns its keep; the rest of the docket should resist filling in.
+**Docket posture:** A docket is a specification of needed change, not architectural commentary. It articulates what done looks like and any locked constraints; it points at sources rather than restating them. A short `## Character` line naming the cognitive posture (e.g., "intricate but mechanical," "design conversation requiring judgment") earns its keep; the rest of the docket should resist filling in.
 
 **Slate-time vs mount-time.** The slate agent has just done analysis; the mount agent will reorient against the project as it stands then, with CLAUDE.md and specs already loaded. Hand off goal and boundary, not the analysis. Depth belongs in the slate commit message, not the docket body.
 
@@ -23,6 +23,10 @@ Job Jockey (JJ) is installed for managing project initiatives.
 - Site enumerations. Write a discovery recipe (`grep "pattern" Tools/rbk/`) instead of listing six file:line entries.
 - Body over ~15 lines warrants suspicion of overprescription.
 - **Plan-step structure stays in the plan.** Docket phase/step labels (A/B/C, "Phase 1", "first/then/finally") must not appear as code comments — the plan won't exist at maintenance time, and line order already conveys execution.
+
+**Reference discipline.** Pace order is the dependency tree — single-operator workflow runs paces in heat order, so explicit dependency markers in docket prose are usually overspecified. Coronet cross-refs in dockets earn their keep only when the dependency crosses heats or skips order — rare, not never.
+
+**Paddock posture.** A paddock articulates shape, locked decisions, and what done looks like — not a progress journal. Annotating locked decisions with the coronet that landed them ("BBAAM depot-identity-collapse", "BBAAN landed") accumulates into a changelog. Git log and `jjx_log` are the journal; the paddock is the shape. Don't add such annotations; when editing a paddock for other reasons, prune the ones that aren't load-bearing.
 
 **Identities vs Display Names:**
 - **Firemark**: Heat identity (`₣AA` or `AA`). Used in command params and JSON keys.
