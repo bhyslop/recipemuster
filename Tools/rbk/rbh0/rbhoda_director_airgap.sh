@@ -171,10 +171,12 @@ rbho_director_airgap() {
   buh_e
   buh_tt "   " "${RBZ_ENSHRINE_VESSEL}" "" " ${z_forge_vessel}"
   buh_e
-  buh_line "${RBYC_ENSHRINE} resolves the upstream base for that ${RBYC_VESSEL}"
-  buh_line "and writes the locator back into its ${RBYC_RBRV}. Slots whose ANCHOR"
-  buh_line "is already populated are HEAD-validated against your ${RBYC_DEPOT} and"
-  buh_line "left untouched — re-running is idempotent."
+  buh_line "${RBYC_ENSHRINE} inspects the current upstream image, computes a"
+  buh_line "content-addressed locator from the live manifest digest, copies the"
+  buh_line "image into your ${RBYC_DEPOT}, and writes the locator back into the"
+  buh_line "vessel's ${RBYC_RBRV}, overwriting any prior value. Re-running mirrors"
+  buh_line "current upstream — if upstream rotates, the next call writes a"
+  buh_line "different locator and that is the operation surfacing the change."
   buh_e
 
   buh_step1 "${RBYC_CONJURE} ${z_lk_forge} ${RBYC_TETHERED}, then point the airgap ${RBYC_BOTTLE} at it"
@@ -215,12 +217,11 @@ rbho_director_airgap() {
   buh_e
   buh_line "Substitute the captured hallmark into the locator. Commit the change."
   buh_e
-  buh_line "Now run ${RBYC_ENSHRINE} on the airgap ${RBYC_VESSEL} as a validation step —"
-  buh_line "${RBYC_ENSHRINE} sees the populated ANCHOR, HEAD-validates that the base"
-  buh_line "${RBYC_HALLMARK} is reachable in your ${RBYC_DEPOT}, and leaves the slot"
-  buh_line "untouched. No copy, no Cloud Build job — just a validation gate."
-  buh_e
-  buh_tt "   " "${RBZ_ENSHRINE_VESSEL}" "" " ${z_airgap_vessel}"
+  buh_line "${RBYC_ENSHRINE} is not invoked on the airgap ${RBYC_VESSEL} — its"
+  buh_line "${RBYC_RBRV}'s ANCHOR points at ${z_lk_forge}'s ${RBYC_HALLMARK}"
+  buh_line "subtree, and the hallmark's existence in your ${RBYC_DEPOT} is"
+  buh_line "established by ${z_lk_forge}'s ${RBYC_ORDAIN} success above. Conjure"
+  buh_line "resolves the locator at airgap-bottle build time."
   buh_e
   if test "${z_airgap_base_enshrined}" = "1"; then
     buh_line "${RBYC_PROBE_YES}Airgap base anchor populated — base ${RBYC_HALLMARK} ready"
@@ -360,8 +361,9 @@ rbho_director_airgap() {
   buh_line "follows the same shape:"
   buh_e
   buh_line "   1. ${RBYC_ENSHRINE} the upstream base into your ${RBYC_DEPOT}"
-  buh_line "   2. ${RBYC_CONJURE} the toolchain ${RBYC_VESSEL} ${RBYC_TETHERED}, re-${RBYC_ENSHRINE} its ${RBYC_HALLMARK}"
-  buh_line "   3. ${RBYC_CONJURE} the final ${RBYC_BOTTLE} ${RBYC_AIRGAP} from the enshrined ${RBYC_HALLMARK}"
+  buh_line "   2. ${RBYC_CONJURE} ${z_lk_forge} ${RBYC_TETHERED}, write its ${RBYC_HALLMARK} locator"
+  buh_line "      into the consumer's ${RBYC_RBRV} ANCHOR"
+  buh_line "   3. ${RBYC_CONJURE} the final ${RBYC_BOTTLE} ${RBYC_AIRGAP} from the ${z_lk_forge} ${RBYC_HALLMARK}"
   buh_e
   buh_line "${RBYC_PLUMB} distinguishes three build-info signatures:"
   buh_e
