@@ -530,6 +530,13 @@
         "₢A-AAW": {
           "tacks": [
             {
+              "ts": "260429-1721",
+              "state": "complete",
+              "text": "## Character\nMechanical sweep — rename across JJK Rust + spec, no semantic change.\n\n## Docket\nWholesale rename BURH → BURN across JJK: env-var reads, `burh.env` path → `burn.env`, identifier renames, spec text, claude-context.\n\nValidation: `tt/vow-b.Build.sh` green; `tt/vow-t.Test.sh` green; fundus scenario test green.\n\nSequencing: depends on the BUK rename (`.buk/users/.../burn.env` must already exist).\n\nDiscovery: `grep -rln 'BURH\\|burh' Tools/jjk/`.",
+              "silks": "burh-to-burn-rename-jjk",
+              "commit": "0dba636"
+            },
+            {
               "ts": "260429-1057",
               "state": "rough",
               "text": "## Character\nMechanical sweep — rename across JJK Rust + spec, no semantic change.\n\n## Docket\nWholesale rename BURH → BURN across JJK: env-var reads, `burh.env` path → `burn.env`, identifier renames, spec text, claude-context.\n\nValidation: `tt/vow-b.Build.sh` green; `tt/vow-t.Test.sh` green; fundus scenario test green.\n\nSequencing: depends on the BUK rename (`.buk/users/.../burn.env` must already exist).\n\nDiscovery: `grep -rln 'BURH\\|burh' Tools/jjk/`.",
