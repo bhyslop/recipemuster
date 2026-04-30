@@ -102,7 +102,7 @@ jjx_brief      {coronet}
 jjx_coronets   {firemark, remaining?, rough?}
 jjx_landing        {coronet, agent, content?}
 jjx_validate       {}
-jjx_bind           {alias, reldir}                                  # remote: create legatio session (alias resolves BURH profile)
+jjx_bind           {alias, reldir}                                  # remote: create legatio session (alias resolves BURN profile)
 jjx_send           {legatio, command}                               # remote: synchronous exec on fundus
 jjx_plant          {legatio, commit}                                # remote: reset fundus to exact commit
 jjx_relay          {legatio, tabtarget, timeout, firemark}          # remote: async dispatch via nohup
@@ -206,11 +206,11 @@ When user says "foray" or asks to run something on a remote machine:
 
 **Fundus constants** (use these for `jjx_bind`):
 - Default reldir: `projects/rbm_alpha_recipemuster`
-- BURH alias: use the alias from the target's BUK Regime Host profile (e.g., `winhost-wsl`, `winhost-cyg`)
+- BURN alias: use the alias from the target's BUK Regime Node profile (e.g., `winhost-wsl`, `winhost-cyg`)
 
 **Workflow:**
 
-1. **Bind** (once per session per host): `jjx_bind` with `{alias: "<BURH_ALIAS>", reldir: "projects/rbm_alpha_recipemuster"}`. Resolves the BURH profile on the curia to extract host/user/command, then probes via SSH. Returns legatio token.
+1. **Bind** (once per session per host): `jjx_bind` with `{alias: "<BURN_ALIAS>", reldir: "projects/rbm_alpha_recipemuster"}`. Resolves the BURN profile on the curia to extract host/user/command, then probes via SSH. Returns legatio token.
 2. **Ensure curia is clean and pushed**: notch if needed, `git push` if needed. `jjx_relay` will refuse dispatch if working tree is dirty or HEAD is unpushed.
 3. **Plant**: `jjx_plant` with `{legatio: "L0", commit: "<HEAD SHA>"}`. Resets fundus to exact commit.
 4. **Relay**: `jjx_relay` with `{legatio: "L0", tabtarget: "<filename>.sh", timeout: <seconds>, firemark: "<heat>"}`. Returns pensum token.

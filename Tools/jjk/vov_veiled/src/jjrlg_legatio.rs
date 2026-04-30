@@ -142,7 +142,7 @@ pub struct jjrlg_SshResult {
     pub stderr: Vec<u8>,
 }
 
-/// Execute a command on a remote host via SSH using a BURH alias.
+/// Execute a command on a remote host via SSH using a BURN alias.
 ///
 /// The alias routes through ~/.ssh/config to the correct host, user, key,
 /// and optional forced command. Uses BatchMode=yes (no password prompts)
@@ -264,8 +264,8 @@ pub struct jjrlg_BindArgs {
     pub reldir: String,
 }
 
-/// Resolved BURH profile fields (read from curia-side .buk/users/).
-struct zjjrlg_BurhProfile {
+/// Resolved BURN profile fields (read from curia-side .buk/users/).
+struct zjjrlg_BurnProfile {
     host: String,
     user: String,
     alias: String,
@@ -288,13 +288,13 @@ fn zjjrlg_read_env_file(path: &Path) -> Result<HashMap<String, String>, String> 
     Ok(map)
 }
 
-/// Resolve a BURH profile on the curia by reading .buk/ regime files.
+/// Resolve a BURN profile on the curia by reading .buk/ regime files.
 ///
 /// Resolution chain:
 /// 1. .buk/burc.env → BURC_STATION_FILE (path to burs.env, relative to .buk/)
 /// 2. burs.env → BURS_USER
-/// 3. .buk/users/${BURS_USER}/${alias}/burh.env → BURH_HOST, BURH_USER, BURH_ALIAS
-fn zjjrlg_resolve_burh(alias: &str) -> Result<zjjrlg_BurhProfile, String> {
+/// 3. .buk/users/${BURS_USER}/${alias}/burn.env → BURN_HOST, BURN_USER, BURN_ALIAS
+fn zjjrlg_resolve_burn(alias: &str) -> Result<zjjrlg_BurnProfile, String> {
     let buk_dir = PathBuf::from(".buk");
 
     // Step 1: Read burc.env to find station file path
@@ -309,46 +309,46 @@ fn zjjrlg_resolve_burh(alias: &str) -> Result<zjjrlg_BurhProfile, String> {
     let burs_user = station.get("BURS_USER")
         .ok_or_else(|| format!("BURS_USER not found in {}", station_path.display()))?;
 
-    // Step 3: Read BURH profile
-    let burh_path = buk_dir.join("users").join(burs_user).join(alias).join("burh.env");
-    let burh = zjjrlg_read_env_file(&burh_path)?;
+    // Step 3: Read BURN profile
+    let burn_path = buk_dir.join("users").join(burs_user).join(alias).join("burn.env");
+    let burn = zjjrlg_read_env_file(&burn_path)?;
 
-    let host = burh.get("BURH_HOST")
-        .ok_or_else(|| format!("BURH_HOST not found in {}", burh_path.display()))?
+    let host = burn.get("BURN_HOST")
+        .ok_or_else(|| format!("BURN_HOST not found in {}", burn_path.display()))?
         .clone();
-    let user = burh.get("BURH_USER")
-        .ok_or_else(|| format!("BURH_USER not found in {}", burh_path.display()))?
+    let user = burn.get("BURN_USER")
+        .ok_or_else(|| format!("BURN_USER not found in {}", burn_path.display()))?
         .clone();
-    let burh_alias = burh.get("BURH_ALIAS")
-        .ok_or_else(|| format!("BURH_ALIAS not found in {}", burh_path.display()))?
+    let burn_alias = burn.get("BURN_ALIAS")
+        .ok_or_else(|| format!("BURN_ALIAS not found in {}", burn_path.display()))?
         .clone();
 
-    if burh_alias != alias {
+    if burn_alias != alias {
         return Err(format!(
-            "BURH_ALIAS mismatch: profile directory '{}' but BURH_ALIAS='{}'",
-            alias, burh_alias
+            "BURN_ALIAS mismatch: profile directory '{}' but BURN_ALIAS='{}'",
+            alias, burn_alias
         ));
     }
 
-    Ok(zjjrlg_BurhProfile { host, user, alias: burh_alias })
+    Ok(zjjrlg_BurnProfile { host, user, alias: burn_alias })
 }
 
-/// Bind a legatio: resolve BURH profile, validate RELDIR, SSH probe the
+/// Bind a legatio: resolve BURN profile, validate RELDIR, SSH probe the
 /// fundus, cache regime paths, mint and persist legatio token.
 pub fn jjrlg_run_bind(args: jjrlg_BindArgs, officium_id: &str) -> (i32, String) {
     let cn = JJRLG_CMD_NAME_BIND;
     let mut output = vvco_Output::buffer();
 
-    // Step 1: Resolve BURH profile on curia
-    let burh = match zjjrlg_resolve_burh(&args.alias) {
+    // Step 1: Resolve BURN profile on curia
+    let burn = match zjjrlg_resolve_burn(&args.alias) {
         Ok(b) => b,
         Err(e) => {
-            vvco_err!(output, "{}: BURH resolution failed: {}", cn, e);
+            vvco_err!(output, "{}: BURN resolution failed: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
 
-    vvco_out!(output, "BURH profile: {} → {}@{}", burh.alias, burh.user, burh.host);
+    vvco_out!(output, "BURN profile: {} → {}@{}", burn.alias, burn.user, burn.host);
 
     // Step 2: Layer 1 RELDIR validation
     if let Err(e) = jjrlg_validate_reldir(&args.reldir) {
@@ -362,7 +362,7 @@ pub fn jjrlg_run_bind(args: jjrlg_BindArgs, officium_id: &str) -> (i32, String) 
         return (1, output.vvco_finish());
     }
 
-    // Step 3: SSH probe via BURH alias (Layer 3 — resolved-path safety)
+    // Step 3: SSH probe via BURN alias (Layer 3 — resolved-path safety)
     let probe_script = format!(
         concat!(
             "z_resolved=\"$(cd \"$HOME/{reldir}\" 2>/dev/null && pwd)\" || exit 99\n",
@@ -380,9 +380,9 @@ pub fn jjrlg_run_bind(args: jjrlg_BindArgs, officium_id: &str) -> (i32, String) 
         reldir = args.reldir
     );
 
-    vvco_out!(output, "Probing {} ({}@{}):~/{} ...", burh.alias, burh.user, burh.host, args.reldir);
+    vvco_out!(output, "Probing {} ({}@{}):~/{} ...", burn.alias, burn.user, burn.host, args.reldir);
 
-    let probe_result = match zjjrlg_ssh_exec(&burh.alias, &probe_script) {
+    let probe_result = match zjjrlg_ssh_exec(&burn.alias, &probe_script) {
         Ok(r) => r,
         Err(e) => {
             vvco_err!(output, "{}: SSH probe failed: {}", cn, e);
@@ -413,7 +413,7 @@ pub fn jjrlg_run_bind(args: jjrlg_BindArgs, officium_id: &str) -> (i32, String) 
         args.reldir
     );
 
-    let burc_result = match zjjrlg_ssh_exec(&burh.alias, &burc_cmd) {
+    let burc_result = match zjjrlg_ssh_exec(&burn.alias, &burc_cmd) {
         Ok(r) => r,
         Err(e) => {
             vvco_err!(output, "{}: failed to read burc.env: {}", cn, e);
@@ -439,9 +439,9 @@ pub fn jjrlg_run_bind(args: jjrlg_BindArgs, officium_id: &str) -> (i32, String) 
     // Step 5: Mint legatio token and persist state
     let token = zjjrlg_mint_token(&officium_dir);
     let state = jjrlg_LegatioState {
-        alias: burh.alias.clone(),
-        host: burh.host.clone(),
-        user: burh.user.clone(),
+        alias: burn.alias.clone(),
+        host: burn.host.clone(),
+        user: burn.user.clone(),
         reldir: args.reldir.clone(),
         output_root_dir: output_root_dir.clone(),
     };

@@ -44,7 +44,7 @@
 
 // Cross-references
 :xref_BUS0:                  Bash Utilities Specification
-:xref_BURH:                  BUK Regime Host profile
+:xref_BURN:                  BUK Regime Node profile
 
 // Types
 :jjdt_coronet:    <<jjdt_coronet,Coronet>>
@@ -658,11 +658,11 @@ project directory at `~user/RELDIR` with BUK installed,
 functional BUD dispatch chain, git repo with origin configured.
 +
 {jjdxr_curia}-side
-precondition: a {xref_BURH} for the target connection,
+precondition: a {xref_BURN} for the target connection,
 providing host, user, SSH alias, and public key material.
 The alias is the addressing handle — all remote dispatch operations resolve
 {jjdxr_fundus}
-coordinates through the BURH profile.
+coordinates through the BURN profile.
 
 ==== Legatio and Pensum
 
@@ -670,7 +670,7 @@ Remote dispatch uses a two-tier identity model:
 
 {jjdt_legatio}::
 Session handle (connection descriptor).
-The meaningful identity is the target pair (alias, reldir); the alias resolves host and user from a {xref_BURH}.
+The meaningful identity is the target pair (alias, reldir); the alias resolves host and user from a {xref_BURN}.
 The token is
 {jjdxo_officium}-scoped —
 a convenience handle, not a persistent record.
@@ -1133,7 +1133,7 @@ still gets a valid identity.
 //axl_voices axt_string
 {jjdt_legatio}::
 A session-local convenience handle for an SSH connection to a remote project.
-The meaningful identity is the target pair: (alias, reldir); the alias resolves host and user from a {xref_BURH}.
+The meaningful identity is the target pair: (alias, reldir); the alias resolves host and user from a {xref_BURN}.
 The
 {jjdt_legatio}
 token is an
@@ -2239,10 +2239,10 @@ per
 {jjda_alias}
 //axd_required
 * {jjda_alias}
-— {xref_BURH} alias identifying the target connection.
+— {xref_BURN} alias identifying the target connection.
 Resolved on the
 {jjdxr_curia}
-to extract `BURH_HOST`, `BURH_USER`, and `BURH_COMMAND` (which may be empty for platforms using the default shell).
+to extract `BURN_HOST`, `BURN_USER`, and `BURN_COMMAND` (which may be empty for platforms using the default shell).
 
 //axhopt_typed_parameter
 {jjdt_reldir}
@@ -2263,10 +2263,10 @@ token and probe results
 {jjds_behavior}
 
 //axhos_step
-. Resolve {xref_BURH} on the
+. Resolve {xref_BURN} on the
 {jjdxr_curia}:
-kindle `{alias}/burh.env` from the station user's BURH directory, extract `BURH_HOST`, `BURH_USER`, `BURH_ALIAS`, and `BURH_COMMAND`.
-`BURH_COMMAND` may be empty — platforms using the default shell (Linux, macOS) omit it.
+kindle `{alias}/burn.env` from the station user's BURN directory, extract `BURN_HOST`, `BURN_USER`, `BURN_ALIAS`, and `BURN_COMMAND`.
+`BURN_COMMAND` may be empty — platforms using the default shell (Linux, macOS) omit it.
 //axhos_step
 . Validate
 {jjdt_reldir}
@@ -2276,7 +2276,7 @@ must not be empty, must not start with `/` or `.`, must contain at least one `/`
 //axhos_step
 . SSH probe (Layer 3 —
 {jjdk_reldir_safety}):
-connect via `BURH_ALIAS` (which routes through `~/.ssh/config` to the correct host, user, and key),
+connect via `BURN_ALIAS` (which routes through `~/.ssh/config` to the correct host, user, and key),
 execute remote shell script on
 {jjdxr_fundus}
 that resolves `$HOME/{reldir}` to an absolute path, verifies it is strictly under `$HOME`, and verifies minimum depth (at least 2 components under `$HOME`).
@@ -2284,7 +2284,7 @@ Expect `PROBE_OK` sentinel on success.
 //axhos_step
 . Read `$HOME/{reldir}/.buk/burc.env` from
 {jjdxr_fundus}
-via SSH (using `BURH_ALIAS`) and extract `BURC_OUTPUT_ROOT_DIR`
+via SSH (using `BURN_ALIAS`) and extract `BURC_OUTPUT_ROOT_DIR`
 //axhos_step
 . Mint
 {jjdt_legatio}
@@ -2292,7 +2292,7 @@ token: scan existing legatio files in
 {jjdxo_officium}
 directory, assign next sequential `L{N}` token
 //axhos_step
-. Persist legatio state (alias, reldir, host, user [resolved from BURH], output_root_dir) as JSON in
+. Persist legatio state (alias, reldir, host, user [resolved from BURN], output_root_dir) as JSON in
 {jjdxo_officium}
 directory
 //axhos_step

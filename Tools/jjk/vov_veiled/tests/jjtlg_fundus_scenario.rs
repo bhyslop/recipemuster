@@ -36,7 +36,7 @@ const JJTLG_ACCOUNT_NOKEY: &str = "jjfu_nokey";
 const JJTLG_ACCOUNT_NOREPO: &str = "jjfu_norepo";
 const JJTLG_ACCOUNT_NOGIT: &str = "jjfu_nogit";
 
-// BURH aliases for fundus test accounts (must match .buk/users/ profile dirs)
+// BURN aliases for fundus test accounts (must match .buk/users/ profile dirs)
 const JJTLG_ALIAS_FULL: &str = "jjfu-full";
 const JJTLG_ALIAS_NOKEY: &str = "jjfu-nokey";
 const JJTLG_ALIAS_NOREPO: &str = "jjfu-norepo";
