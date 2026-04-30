@@ -143,37 +143,6 @@ burn_construct_mac() {
   zburn_construct "${1:-}" "${2:-}" "${3:-}" "mac" ""
 }
 
-burn_construct_cygwin() {
-  buc_doc_brief "Construct BURN profile for Windows Cygwin target"
-  buc_doc_param "host" "IP or hostname of the Windows machine"
-  buc_doc_param "user" "Username on the Windows host"
-  buc_doc_param "moniker" "Short name (alias = moniker-cyg)"
-  buc_doc_shown || return 0
-
-  zburn_construct "${1:-}" "${2:-}" "${3:-}" "cyg" 'C:\cygwin64\bin\bash.exe -l'
-}
-
-burn_construct_wsl() {
-  buc_doc_brief "Construct BURN profile for Windows WSL target"
-  buc_doc_param "host" "IP or hostname of the Windows machine"
-  buc_doc_param "user" "Username on the Windows host"
-  buc_doc_param "moniker" "Short name (alias = moniker-wsl)"
-  buc_doc_shown || return 0
-
-  local -r z_wsl_distro="Ubuntu"
-  zburn_construct "${1:-}" "${2:-}" "${3:-}" "wsl" "C:\\Windows\\System32\\wsl.exe -d ${z_wsl_distro}"
-}
-
-burn_construct_powershell() {
-  buc_doc_brief "Construct BURN profile for Windows PowerShell target"
-  buc_doc_param "host" "IP or hostname of the Windows machine"
-  buc_doc_param "user" "Username on the Windows host"
-  buc_doc_param "moniker" "Short name (alias = moniker-ps)"
-  buc_doc_shown || return 0
-
-  zburn_construct "${1:-}" "${2:-}" "${3:-}" "ps" 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
-}
-
 burn_construct_localhost() {
   buc_doc_brief "Construct BURN profile for localhost (local SSH)"
   buc_doc_param "user" "Username on this machine"

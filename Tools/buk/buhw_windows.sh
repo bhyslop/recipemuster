@@ -305,17 +305,11 @@ buhw_top() {
   buh_section  "BURN Profile Constructors:"
   buh_tt       "  Linux:      " "${BUWZ_RHC_LINUX}" "" " <host> <user> <moniker>"
   buh_tt       "  macOS:      " "${BUWZ_RHC_MAC}" "" " <host> <user> <moniker>"
-  buh_tt       "  Cygwin:     " "${BUWZ_RHC_CYGWIN}" "" " <host> <user> <moniker>"
-  buh_tt       "  WSL:        " "${BUWZ_RHC_WSL}" "" " <host> <user> <moniker>"
-  buh_tt       "  PowerShell: " "${BUWZ_RHC_POWERSHELL}" "" " <host> <user> <moniker>"
   buh_tt       "  Localhost:  " "${BUWZ_RHC_LOCALHOST}" "" " <user> <moniker>"
   buh_e
   buh_section  "BURN Profile SSH Operations:"
   buh_tt       "  Verify SSH connection:  " "${BUWZ_HW_VERIFY_SSH}" "" " <alias>"
   buh_tt       "  Install BURN key:       " "${BUWZ_RN_INSTALL_KEY}" "" " <alias>"
-  buh_e
-  buh_section  "Windows Commands:"
-  buh_tt       "  Bootstrap sshd (WSL):   " "${BUWZ_WC_BOOTSTRAP}"
   buh_e
   buh_section  "Handbook Procedures (manual steps):"
   buh_tt       "  OpenSSH server install:                " "${BUWZ_HW_ACCESS_BASE}"

@@ -79,17 +79,9 @@ zbuwz_kindle() {
   z_mod="burn_cli.sh"
   buz_enroll BUWZ_RHC_LINUX      "buw-rhcl"  "${z_mod}" "burn_construct_linux"      ""        "Construct BURN profile: Linux"
   buz_enroll BUWZ_RHC_MAC        "buw-rhcm"  "${z_mod}" "burn_construct_mac"        ""        "Construct BURN profile: macOS"
-  buz_enroll BUWZ_RHC_CYGWIN     "buw-rhcc"  "${z_mod}" "burn_construct_cygwin"     ""        "Construct BURN profile: Cygwin"
-  buz_enroll BUWZ_RHC_WSL        "buw-rhcw"  "${z_mod}" "burn_construct_wsl"        ""        "Construct BURN profile: WSL"
-  buz_enroll BUWZ_RHC_POWERSHELL "buw-rhcp"  "${z_mod}" "burn_construct_powershell" ""        "Construct BURN profile: PowerShell"
   buz_enroll BUWZ_RHC_LOCALHOST  "buw-rhcx"  "${z_mod}" "burn_construct_localhost"  ""        "Construct BURN profile: localhost"
   buz_enroll BUWZ_HW_VERIFY_SSH  "buw-HWvs"  "${z_mod}" "burn_verify_ssh"           "param1"  "Verify SSH to BURN profile"
   buz_enroll BUWZ_RN_INSTALL_KEY "buw-rnk"   "${z_mod}" "burn_install_key"          "param1"  "Install BURN key into authorized_keys"
-
-  # Windows Commands (buwc_cli.sh)
-  z_mod="buwc_cli.sh"
-  buz_enroll BUWZ_WC_BOOTSTRAP   "buw-wcb"   "${z_mod}" "buwc_bootstrap_sshd"       ""        "Provision sshd on Windows (WSL)"
-  buz_enroll BUWZ_WC_INSTALL_KEY "buw-wck"   "${z_mod}" "buwc_install_key"          "param1"  "Install BURN key into Windows admin authorized_keys"
 
   # Handbook — top index + Windows OS procedures (buhw_cli.sh)
   z_mod="buhw_cli.sh"
