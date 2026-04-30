@@ -38,7 +38,7 @@ zrbrr_kindle() {
   buv_regime_enroll RBRR
 
   buv_group_enroll "Resource Prefixing"
-  buv_string_enroll  RBRR_CLOUD_PREFIX         2   11  "Prefix prepended to cloud-visible resource names (GAR, Cloud Build, GCP)"
+  buv_string_enroll  RBRR_CLOUD_PREFIX         2   11  "Prefix for cloud-visible resource names (depot project, GAR repo, GCS bucket, pool stem)"
   buv_string_enroll  RBRR_RUNTIME_PREFIX       2   11  "Prefix prepended to local container and network names"
 
   buv_group_enroll "Vessel and Local Configuration"

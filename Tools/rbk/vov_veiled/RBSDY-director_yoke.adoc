@@ -67,7 +67,7 @@ link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.
 with `pageSize=1000`
 .. {rbbc_require}
 HTTP 200 response
-.. Filter response package names to those starting with `${RBRR_CLOUD_PREFIX}reliquaries/«STAMP»/`
+.. Filter response package names to those starting with `{gar_reliquaries_namespace}/«STAMP»/`
 .. Strip the subtree prefix to yield the bare tool-name set present in GAR
 
 //axhos_step

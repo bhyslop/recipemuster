@@ -2357,9 +2357,8 @@ const RBTDRC_ARK_BASENAME_ATTEST: &str = "attest";
 const RBTDRC_ARK_BASENAME_POUCH: &str = "pouch";
 
 /// GAR categorical namespace literal — matches RBGC_GAR_CATEGORY_HALLMARKS.
-/// Used to build wrest locators (which the rbfr_wrest callee prepends the
-/// cloud-prefix onto — see rbfr_FoundryRetriever.sh `z_full_ref` construction).
-const RBTDRC_GAR_CATEGORY_HALLMARKS: &str = "hallmarks";
+/// Used to build wrest locators (paths within a GAR repo, prefix-free).
+const RBTDRC_GAR_CATEGORY_HALLMARKS: &str = "rbi_hm";
 
 /// Docker wrapper: run image and capture output.
 fn rbtdrc_docker_run(image_ref: &str) -> Result<(String, i32), String> {

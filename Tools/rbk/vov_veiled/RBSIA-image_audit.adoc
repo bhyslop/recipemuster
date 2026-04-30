@@ -13,9 +13,9 @@ The
 {rbtr_director}
 audits over three domains, each backed by a distinct procedure:
 
-* `rbfl_audit_hallmarks` — every hallmark identifier under the `hallmarks/` root
-* `rbfl_audit_reliquaries` — every reliquary stamp under the `reliquaries/` root
-* `rbfl_audit_enshrinements` — every enshrined base anchor under the `enshrines/` root
+* `rbfl_audit_hallmarks` — every hallmark identifier under the `{gar_hallmarks_namespace}/` root
+* `rbfl_audit_reliquaries` — every reliquary stamp under the `{gar_reliquaries_namespace}/` root
+* `rbfl_audit_enshrinements` — every enshrined base anchor under the `{gar_enshrines_namespace}/` root
 
 Audit vs. {rbtgo_hallmark_tally}: audit is a {rbtr_director}-tier flat-list operation across all three domains; tally is a {rbtr_retriever}-tier hallmarks-only operation that classifies each entry by basename completeness and vouch status.
 The two roles compose without overlap.

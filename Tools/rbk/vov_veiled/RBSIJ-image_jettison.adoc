@@ -14,7 +14,7 @@ The package path embedded in the
 {rbst_locator}
 selects the domain — the procedure itself does not branch.
 
-NOTE: To delete an entire {rbtga_ark} (the full `hallmarks/«HALLMARK»/` subtree — every basename including `image`, `about`, `vouch`, and any `pouch`/`diags`/`attest` tags present), use {rbtgo_ark_abjure} instead.
+NOTE: To delete an entire {rbtga_ark} (the full `{gar_hallmarks_namespace}/«HALLMARK»/` subtree — every basename including `image`, `about`, `vouch`, and any `pouch`/`diags`/`attest` tags present), use {rbtgo_ark_abjure} instead.
 
 NOTE: Jettisoning an interior member of a reliquary subtree (e.g., a single tool image) leaves a hole in an otherwise-coherent set. The operator accepts this piecemeal-by-image semantic; recovery is nuclear: re-run {rbtgo_depot_inscribe} to restore the full reliquary corpus. The operation provides no integrity guard against such interior holes.
 
@@ -32,7 +32,7 @@ if missing: "Locator parameter required (package-path:tag)"
 .. {rbbc_fatal}
 if malformed (no colon): "Invalid locator format. Expected package-path:tag"
 .. {rbbc_store}
-`«PACKAGE_PATH»` as portion before the final colon (e.g., `hallmarks/«HALLMARK»/image`, `reliquaries/«STAMP»/syft`, `enshrines/«ANCHOR»`)
+`«PACKAGE_PATH»` as portion before the final colon (e.g., `{gar_hallmarks_namespace}/«HALLMARK»/image`, `{gar_reliquaries_namespace}/«STAMP»/syft`, `{gar_enshrines_namespace}/«ANCHOR»`)
 .. {rbbc_store}
 `«TAG»` as portion after the final colon
 .. {rbbc_fatal}
@@ -63,7 +63,7 @@ if not confirmed: "prompt not confirmed."
 .. {rbbc_call}
 link:https://github.com/opencontainers/distribution-spec/blob/main/spec.md#deleting-tags[Docker Registry API: DELETE manifests] with:
 ... method: `DELETE`
-... endpoint: `«REGISTRY_BASE»/«RBRR_CLOUD_PREFIX»«PACKAGE_PATH»/manifests/«TAG»`
+... endpoint: `«REGISTRY_BASE»/«PACKAGE_PATH»/manifests/«TAG»`
 ... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
 .. {rbbc_require}
 HTTP 202 (Accepted) or 204 (No Content) response

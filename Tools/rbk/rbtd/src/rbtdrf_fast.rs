@@ -770,6 +770,9 @@ fn rbtdrf_ev_multiscope(dir: &Path) -> rbtdre_Verdict {
 const RBTDRF_VAR_RBRR_CLOUD_PREFIX: &str = "RBRR_CLOUD_PREFIX";
 const RBTDRF_VAR_RBRR_RUNTIME_PREFIX: &str = "RBRR_RUNTIME_PREFIX";
 
+// Expected RBGL_HALLMARKS_ROOT value — must match RBGC_GAR_CATEGORY_HALLMARKS.
+const RBTDRF_VAL_HALLMARKS_ROOT: &str = "rbi_hm";
+
 // --- RBRR negative tests ---
 
 fn rbtdrf_rv_rbrr_neg(dir: &Path, label: &str, setup: &str) -> rbtdre_Verdict {
@@ -1135,15 +1138,16 @@ fn rbtdrf_rs_rbrr_nonempty_prefix(dir: &Path) -> rbtdre_Verdict {
 
     match rbtdrf_run_bash(&root, &script, dir, "rbrr-nonempty-prefix") {
         Ok((0, stdout, _)) => {
+            let expected_line = format!("hallmarks_root={}", RBTDRF_VAL_HALLMARKS_ROOT);
             let hallmarks_ok = stdout
                 .lines()
-                .any(|l| l.starts_with("hallmarks_root=acme-hallmarks"));
+                .any(|l| l.trim() == expected_line);
             let runtime_ok = stdout
                 .lines()
                 .any(|l| l.trim() == "runtime_prefix=acme-");
             if !hallmarks_ok {
                 return rbtdre_Verdict::Fail(format!(
-                    "RBGL_HALLMARKS_ROOT did not propagate from prefix; stdout:\n{}",
+                    "RBGL_HALLMARKS_ROOT did not match category constant; stdout:\n{}",
                     stdout
                 ));
             }

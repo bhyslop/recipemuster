@@ -233,7 +233,7 @@ Step `rbgjb01` constructs: `HALLMARK="c${_RBGY_INSCRIBE_TIMESTAMP}-r$(date -u +%
 
 Complete artifact references compose the hallmarks root, the hallmark identifier, and the ark basename with {rbtga_hallmark} as tag:
 
-* {rbtga_ark_image}: `hallmarks/«HALLMARK»/«ARK_BASENAME_IMAGE»:«HALLMARK»`
+* {rbtga_ark_image}: `{gar_hallmarks_namespace}/«HALLMARK»/«ARK_BASENAME_IMAGE»:«HALLMARK»`
 
 About and vouch artifacts are created by subsequent pipeline stages ({rbtgo_ark_about}, {rbtgo_ark_vouch}).
 

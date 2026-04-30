@@ -38,11 +38,11 @@ is set, use the origin directly as the `RBF_IMAGE_n` build-arg
 . *Build Image Locally*:
 .. Run `docker build` with resolved `RBF_IMAGE_n` build-args
 .. Build for host platform only (no multi-arch -- development builds run where they are built)
-.. Tag as `«GAR_BASE»/hallmarks/«HALLMARK»/image:«HALLMARK»` to match compose YAML interpolation format
+.. Tag as `«GAR_BASE»/{gar_hallmarks_namespace}/«HALLMARK»/image:«HALLMARK»` to match compose YAML interpolation format
 
 //axhos_step
 . *Create Fake Vouch Tag*:
-.. `docker tag` the image ref to also carry the `vouch` basename under the same hallmark subtree (`«GAR_BASE»/hallmarks/«HALLMARK»/vouch:«HALLMARK»`)
+.. `docker tag` the image ref to also carry the `vouch` basename under the same hallmark subtree (`«GAR_BASE»/{gar_hallmarks_namespace}/«HALLMARK»/vouch:«HALLMARK»`)
 .. This is the same image aliased -- no provenance verification, no DSSE envelope
 .. Satisfies the `rbob_charge` vouch gate (`docker image inspect` on vouch ref)
 

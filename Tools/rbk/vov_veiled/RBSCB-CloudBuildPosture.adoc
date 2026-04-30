@@ -79,7 +79,7 @@ Applies to vessels whose `RBRV_CONJURE_PLATFORMS` matches `RBGC_BUILD_RUNNER_PLA
 2. **build-and-load** — `docker buildx build --load` (single platform into local daemon)
 3. **sbom** — Syft scan via `registry:` transport
 4. **assemble-metadata** — per-platform `build_info.json` with SLSA summary fields
-5. **build-and-push-metadata** — multi-platform `about` container pushed to `<prefix>hallmarks/<hallmark>/about:<hallmark>` via `buildx --push`
+5. **build-and-push-metadata** — multi-platform `about` container pushed to `{gar_hallmarks_namespace}/<hallmark>/about:<hallmark>` via `buildx --push`
 
 `images:` field declares the single per-platform URI → CB pushes and generates SLSA Level 3.
 
@@ -96,7 +96,7 @@ Vouch (`rbgjv/`) runs as a separate Cloud Build job.
 4. **per-platform-pullback** — `docker pull --platform` each arch, tag individually
 5. **push-per-platform** — `docker push` each per-platform tag (pre-push for imagetools); capture `cache_after.json` (Docker daemon state post-push)
 6. **imagetools-create** — reassemble consumer-facing manifest list from per-platform tags
-7. **push-diags** — build `FROM scratch` container with build-time diagnostic files (`buildkit_metadata.json`, `cache_before.json`, `cache_after.json`, `recipe.txt`), push as `<prefix>hallmarks/«HALLMARK»/diags:«HALLMARK»`
+7. **push-diags** — build `FROM scratch` container with build-time diagnostic files (`buildkit_metadata.json`, `cache_before.json`, `cache_after.json`, `recipe.txt`), push as `{gar_hallmarks_namespace}/«HALLMARK»/diags:«HALLMARK»`
 
 `images:` field declares all per-platform URIs → CB re-pushes (idempotent) and generates SLSA Level 3.
 The reassembled manifest list provides transparent platform resolution to attested per-platform images.
@@ -108,25 +108,25 @@ The reassembled manifest list provides transparent platform resolution to attest
 |Tag Pattern
 |Purpose
 
-|`<prefix>hallmarks/{HALLMARK}/image:{INSCRIBE_TS}-multi`
+|`{gar_hallmarks_namespace}/{HALLMARK}/image:{INSCRIBE_TS}-multi`
 |Intermediate `buildx --push` target (multi-platform only)
 
-|`<prefix>hallmarks/{HALLMARK}/image:{HALLMARK}-{SUFFIX}`
+|`{gar_hallmarks_namespace}/{HALLMARK}/image:{HALLMARK}-{SUFFIX}`
 |Per-platform image tag on the image package (persistent, hallmark-tagged)
 
-|`<prefix>hallmarks/{HALLMARK}/image:{INSCRIBE_TS}-{SUFFIX}`
+|`{gar_hallmarks_namespace}/{HALLMARK}/image:{INSCRIBE_TS}-{SUFFIX}`
 |SLSA alias tag (`images:` field, provenance generation trigger — ephemeral, overwritten on re-conjure)
 
-|`<prefix>hallmarks/{HALLMARK}/image:{HALLMARK}`
+|`{gar_hallmarks_namespace}/{HALLMARK}/image:{HALLMARK}`
 |Consumer-facing manifest list on the image package (reassembled by `imagetools create`, multi-platform only)
 
-|`<prefix>hallmarks/{HALLMARK}/about:{HALLMARK}`
+|`{gar_hallmarks_namespace}/{HALLMARK}/about:{HALLMARK}`
 |Metadata container on the about package (build provenance — multi-platform, see About Artifact Contents below)
 
-|`<prefix>hallmarks/{HALLMARK}/diags:{HALLMARK}`
+|`{gar_hallmarks_namespace}/{HALLMARK}/diags:{HALLMARK}`
 |Build-time diagnostics container on the diags package (conjure only — `buildkit_metadata.json`, `cache_before.json`, `cache_after.json`, `recipe.txt`). Pushed by conjure step 07, pulled by about step 01.
 
-|`<prefix>hallmarks/{HALLMARK}/attest:{HALLMARK}-{SUFFIX}`
+|`{gar_hallmarks_namespace}/{HALLMARK}/attest:{HALLMARK}-{SUFFIX}`
 |Per-platform attestation tags on the single attest package (one tag per architecture).
 |===
 
@@ -135,7 +135,7 @@ Computed at inscribe time from `RBRV_CONJURE_PLATFORMS`.
 
 ===== About Artifact Contents
 
-The `about` artifact (at `<prefix>hallmarks/<hallmark>/about:<hallmark>`) is a `FROM scratch` multi-platform container carrying build provenance files at the root filesystem.
+The `about` artifact (at `{gar_hallmarks_namespace}/<hallmark>/about:<hallmark>`) is a `FROM scratch` multi-platform container carrying build provenance files at the root filesystem.
 Contents are extracted by
 {rbtgo_ark_inspect}
 for trust posture display.
@@ -155,18 +155,18 @@ for trust posture display.
 |The exact Dockerfile used to build the image.
 
 |`buildkit_metadata.json`
-|BuildKit resolved base image references and build parameters (conjure only, forwarded from the `hallmarks/<hallmark>/diags` package).
+|BuildKit resolved base image references and build parameters (conjure only, forwarded from the `{gar_hallmarks_namespace}/<hallmark>/diags` package).
 
 |`cache_before.json`
-|Docker daemon image state before the build (conjure only, forwarded from the `hallmarks/<hallmark>/diags` package).
+|Docker daemon image state before the build (conjure only, forwarded from the `{gar_hallmarks_namespace}/<hallmark>/diags` package).
 
 |`cache_after.json`
-|Docker daemon image state after all pushes (conjure only, forwarded from the `hallmarks/<hallmark>/diags` package).
+|Docker daemon image state after all pushes (conjure only, forwarded from the `{gar_hallmarks_namespace}/<hallmark>/diags` package).
 
 |===
 
 NOTE: The three enrichment files (`buildkit_metadata.json`, `cache_before.json`, `cache_after.json`) are present only for conjure hallmarks.
-They are forwarded from the `hallmarks/<hallmark>/diags` registry package by the about pipeline's step 1.
+They are forwarded from the `{gar_hallmarks_namespace}/<hallmark>/diags` registry package by the about pipeline's step 1.
 For bind and graft, these files are absent and the about artifact contains only `build_info.json`, `sbom.json`, and optionally `recipe.txt`.
 
 ===== OCI Layout Bridge — Superseded

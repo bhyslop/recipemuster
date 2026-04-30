@@ -12,7 +12,7 @@ hallmark subtree via the GAR REST API implemented by
 An
 {rbtga_ark}
 is the coherent unit of a Recipe Bottle build: a set of packages rooted at
-`hallmarks/«HALLMARK»/` and distinguished by basename.
+`{gar_hallmarks_namespace}/«HALLMARK»/` and distinguished by basename.
 The
 {rbtga_ark_image}
 (basename `image`) contains the container image itself.
@@ -62,7 +62,7 @@ if malformed: "Hallmark format invalid"
 //axhos_step
 . *Construct Hallmark Subtree*:
 .. {rbbc_store}
-`«SUBTREE»` as `«HALLMARKS_ROOT»/«INPUT_HALLMARK»/` where `«HALLMARKS_ROOT»` derives from `RBGL_HALLMARKS_ROOT` (kindled from `RBRR_CLOUD_PREFIX` + `hallmarks`)
+`«SUBTREE»` as `«HALLMARKS_ROOT»/«INPUT_HALLMARK»/` where `«HALLMARKS_ROOT»` derives from `RBGL_HALLMARKS_ROOT` (kindled to `{gar_hallmarks_namespace}`)
 .. {rbbc_store}
 `«REPO_BASE»` as the GAR REST API repository base (`projects/«PROJECT»/locations/«REGION»/repositories/«REPOSITORY»`)
 

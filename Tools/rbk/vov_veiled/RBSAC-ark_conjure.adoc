@@ -52,7 +52,7 @@ are set:
 as a
 {rbst_locator}
 into package-path and tag
-... HEAD request to `«PREFIX»«LOCATOR-PATH»:«LOCATOR-TAG»` manifest in
+... HEAD request to `«LOCATOR-PATH»:«LOCATOR-TAG»` manifest in
 {gar_service}
 ... {rbbc_require}
 HTTP 200 — on 404, fail with directive to run {rbtgo_ark_enshrine} first.
@@ -70,7 +70,7 @@ is set:
 {rbrv_image_anchor}
 is present: parse the
 {rbst_locator}
-and resolve to full GAR image reference (`«GAR-REPO-BASE»/«PREFIX»«LOCATOR-PATH»:«LOCATOR-TAG»`)
+and resolve to full GAR image reference (`«GAR-REPO-BASE»/«LOCATOR-PATH»:«LOCATOR-TAG»`)
 ... If
 {rbrv_image_anchor}
 is absent: pass
@@ -89,7 +89,7 @@ locally on the Director's workstation
 //axhos_step
 . *Push Pouch*:
 .. Package build context (Dockerfile and context files) as a FROM SCRATCH OCI image
-.. Push to GAR tagged `«PREFIX»hallmarks/«HALLMARK»/pouch:«HALLMARK»`
+.. Push to GAR tagged `{gar_hallmarks_namespace}/«HALLMARK»/pouch:«HALLMARK»`
 .. {rbbc_require}
 push succeeds -- the pouch delivers build context to
 {gcb_service}
@@ -144,7 +144,7 @@ for full artifact references.
 {rbf_fact_ark_stem}
 Hallmark subtree prefix joining
 {gar_service}
-root with the hallmark path segment as `«PREFIX»hallmarks/«HALLMARK»`.
+root with the hallmark path segment as `{gar_hallmarks_namespace}/«HALLMARK»`.
 Composable with basename and `:«HALLMARK»` tag for full artifact references.
 
 //axhoot_typed_output axd_fact

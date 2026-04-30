@@ -48,7 +48,7 @@ reliquary tool images exist in GAR (HEAD check on `docker:latest` canary)
 ... Single step using
 the reliquary skopeo image
 as the builder image (script: `rbgje01-enshrine-copy.sh`)
-... `_RBGE_*` substitutions: `_RBGE_GAR_HOST`, `_RBGE_GAR_PATH`, `_RBGE_IMAGE_n_ORIGIN` (n = 1, 2, 3; empty for unused slots). Base images are stored in the shared `enshrines/` namespace, with each anchor as a peer package (`«PREFIX»enshrines/«ANCHOR»:«ANCHOR»`), not per-vessel.
+... `_RBGE_*` substitutions: `_RBGE_GAR_HOST`, `_RBGE_GAR_PATH`, `_RBGE_IMAGE_n_ORIGIN` (n = 1, 2, 3; empty for unused slots). Base images are stored in the shared `{gar_enshrines_namespace}/` namespace, with each anchor as a peer package (`{gar_enshrines_namespace}/«ANCHOR»:«ANCHOR»`), not per-vessel.
 ... Mason SA, private pool, timeout
 .. Submit via `builds.create` and wait for completion
 .. The GCB step, for each non-empty ORIGIN slot:
@@ -59,8 +59,8 @@ as the builder image (script: `rbgje01-enshrine-copy.sh`)
 ... Example: `python:3.11-slim` with `sha256:abc123def4...` yields anchor `python-3.11-slim-abc123def4`
 ... Composes the
 {rbst_locator}
-as `enshrines/«ANCHOR»:«ANCHOR»` (e.g., `enshrines/python-3.11-slim-abc123def4:python-3.11-slim-abc123def4`)
-... Copies upstream image into the shared `enshrines/` namespace in GAR as a peer package at `«PREFIX»enshrines/«ANCHOR»:«ANCHOR»` using `skopeo copy --all`, transferring the manifest list and all per-platform manifests atomically. Each anchor is its own package under the namespace — the path segment carries the anchor identity, and the tag redundantly restates it so divergence is a visible bug. The anchor is vessel-independent — multiple vessels sharing the same base image origin share one enshrined package.
+as `{gar_enshrines_namespace}/«ANCHOR»:«ANCHOR»` (e.g., `{gar_enshrines_namespace}/python-3.11-slim-abc123def4:python-3.11-slim-abc123def4`)
+... Copies upstream image into the shared `{gar_enshrines_namespace}/` namespace in GAR as a peer package at `{gar_enshrines_namespace}/«ANCHOR»:«ANCHOR»` using `skopeo copy --all`, transferring the manifest list and all per-platform manifests atomically. Each anchor is its own package under the namespace — the path segment carries the anchor identity, and the tag redundantly restates it so divergence is a visible bug. The anchor is vessel-independent — multiple vessels sharing the same base image origin share one enshrined package.
 ... {rbbc_require}
 copy succeeds -- the locator now resolves to a permanent, content-addressed reference in
 {gar_service}

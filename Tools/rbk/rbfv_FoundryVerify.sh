@@ -72,7 +72,7 @@ rbfv_vouch_gate() {
   local -r z_registry_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
   local -r z_registry_api_base="https://${z_registry_host}/v2/${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
 
-  # Vouch package = hallmarks/<H>/vouch, tag = <H> (hallmark-as-tag).
+  # Vouch package = rbi_hm/<H>/vouch, tag = <H> (hallmark-as-tag).
   local -r z_vouch_tag="${z_hallmark}"
   buc_step "Vouch gate: checking ${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}:${z_vouch_tag}"
 
@@ -126,7 +126,7 @@ rbfv_about() {
   z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
     || buc_die "Failed to get Director OAuth token"
 
-  # Gate: require image exists. Image package = hallmarks/<H>/image, tag = <H>.
+  # Gate: require image exists. Image package = rbi_hm/<H>/image, tag = <H>.
   buc_step "Gating on image artifact existence"
   local -r z_hallmark_subtree="${RBGL_HALLMARKS_ROOT}/${z_hallmark}"
   local -r z_image_gate_status="${ZRBFV_ABOUT_PREFIX}image_status.txt"
@@ -287,7 +287,7 @@ zrbfv_graft_metadata_submit() {
       z_vi_tag="${z_vi_anchor##*:}"
       test -n "${z_vi_pkg_path}" || buc_die "Package path is empty in ${z_vi_anchor_var}: ${z_vi_anchor}"
       test -n "${z_vi_tag}"      || buc_die "Tag is empty in ${z_vi_anchor_var}: ${z_vi_anchor}"
-      z_vi_ref="${z_vi_gar_repo_base}/${RBRR_CLOUD_PREFIX}${z_vi_pkg_path}:${z_vi_tag}"
+      z_vi_ref="${z_vi_gar_repo_base}/${z_vi_pkg_path}:${z_vi_tag}"
       z_vi_prov="anchored"
     else
       z_vi_ref="${z_vi_origin}"
@@ -713,7 +713,7 @@ zrbfv_vouch_submit() {
       z_vi_tag="${z_vi_anchor##*:}"
       test -n "${z_vi_pkg_path}" || buc_die "Package path is empty in ${z_vi_anchor_var}: ${z_vi_anchor}"
       test -n "${z_vi_tag}"      || buc_die "Tag is empty in ${z_vi_anchor_var}: ${z_vi_anchor}"
-      z_vi_ref="${z_vi_gar_repo_base}/${RBRR_CLOUD_PREFIX}${z_vi_pkg_path}:${z_vi_tag}"
+      z_vi_ref="${z_vi_gar_repo_base}/${z_vi_pkg_path}:${z_vi_tag}"
       z_vi_prov="anchored"
     else
       z_vi_ref="${z_vi_origin}"

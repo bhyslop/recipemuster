@@ -29,7 +29,7 @@ if missing: "Locator parameter required (package-path:tag)"
 .. {rbbc_fatal}
 if malformed (no colon): "Invalid locator format. Expected package-path:tag"
 .. {rbbc_store}
-`«PACKAGE_PATH»` as portion before the final colon (e.g., `hallmarks/«HALLMARK»/image`, `reliquaries/«STAMP»/syft`, `enshrines/«ANCHOR»`)
+`«PACKAGE_PATH»` as portion before the final colon (e.g., `{gar_hallmarks_namespace}/«HALLMARK»/image`, `{gar_reliquaries_namespace}/«STAMP»/syft`, `{gar_enshrines_namespace}/«ANCHOR»`)
 .. {rbbc_store}
 `«TAG»` as portion after the final colon
 .. {rbbc_fatal}
@@ -54,7 +54,7 @@ if `«TAG»` is empty: "Tag is empty in locator"
 .. {rbbc_store}
 `«GAR_REPOSITORY»` as `${RBRR_CLOUD_PREFIX}${RBRR_DEPOT_MONIKER}-gar` (resolved by `RBDC_GAR_REPOSITORY`)
 .. {rbbc_store}
-`«FULL_IMAGE_REF»` as `«REGISTRY_HOST»/«DEPOT_PROJECT_ID»/«GAR_REPOSITORY»/«RBRR_CLOUD_PREFIX»«INPUT_LOCATOR»`
+`«FULL_IMAGE_REF»` as `«REGISTRY_HOST»/«DEPOT_PROJECT_ID»/«GAR_REPOSITORY»/«INPUT_LOCATOR»`
 
 //axhos_step
 . *Configure Container Runtime Authentication*:

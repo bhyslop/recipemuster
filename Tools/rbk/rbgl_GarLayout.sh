@@ -39,15 +39,13 @@ ZRBGL_SOURCED=1
 zrbgl_kindle() {
   test -z "${ZRBGL_KINDLED:-}" || buc_die "Module rbgl already kindled"
 
-  # Category constants come from rbgc; cloud prefix comes from rbrr.
+  # Category constants come from rbgc.
   zrbgc_sentinel
-  test -n "${RBRR_CLOUD_PREFIX+x}" \
-    || buc_die "RBRR_CLOUD_PREFIX must be defined before rbgl kindle"
 
-  # Root segments — cloud-prefix + category. Callers append '/<id>/<basename>:<tag>'.
-  readonly RBGL_HALLMARKS_ROOT="${RBRR_CLOUD_PREFIX}${RBGC_GAR_CATEGORY_HALLMARKS}"
-  readonly RBGL_RELIQUARIES_ROOT="${RBRR_CLOUD_PREFIX}${RBGC_GAR_CATEGORY_RELIQUARIES}"
-  readonly RBGL_ENSHRINES_ROOT="${RBRR_CLOUD_PREFIX}${RBGC_GAR_CATEGORY_ENSHRINES}"
+  # Root segments — category only. Callers append '/<id>/<basename>:<tag>'.
+  readonly RBGL_HALLMARKS_ROOT="${RBGC_GAR_CATEGORY_HALLMARKS}"
+  readonly RBGL_RELIQUARIES_ROOT="${RBGC_GAR_CATEGORY_RELIQUARIES}"
+  readonly RBGL_ENSHRINES_ROOT="${RBGC_GAR_CATEGORY_ENSHRINES}"
 
   readonly ZRBGL_KINDLED=1
 }

@@ -336,15 +336,15 @@ zrbfd_registry_preflight() {
       -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
       -w "%{http_code}" \
       -o "${z_response_file}" \
-      "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${z_pkg_path}/manifests/${z_tag}" \
+      "${ZRBFC_REGISTRY_API_BASE}/${z_pkg_path}/manifests/${z_tag}" \
       > "${z_status_file}" 2>"${z_stderr_file}" \
-      || buc_die "HEAD request failed for enshrined image: ${RBRR_CLOUD_PREFIX}${z_anchor} — see ${z_stderr_file}"
+      || buc_die "HEAD request failed for enshrined image: ${z_anchor} — see ${z_stderr_file}"
 
     z_http_code=$(<"${z_status_file}")
     test -n "${z_http_code}" || buc_die "HTTP status code is empty for enshrine check"
 
     if test "${z_http_code}" = "404"; then
-      buc_warn "Enshrined base image not found: ${RBRR_CLOUD_PREFIX}${z_anchor} (from ${z_origin})"
+      buc_warn "Enshrined base image not found: ${z_anchor} (from ${z_origin})"
       buc_bare "  Enshrine copies upstream base images (e.g., busybox:latest from Docker Hub) into"
       buc_bare "  your private GAR, pinned by content hash. Like the reliquary, this ensures"
       buc_bare "  air-gapped builds never reach the public internet. The anchor locator is stable"
@@ -355,10 +355,10 @@ zrbfd_registry_preflight() {
       buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir}"
       buc_die "Registry preflight failed — enshrined base image missing from GAR"
     elif test "${z_http_code}" != "200"; then
-      buc_die "Unexpected HTTP ${z_http_code} when checking enshrined image: ${RBRR_CLOUD_PREFIX}${z_anchor}"
+      buc_die "Unexpected HTTP ${z_http_code} when checking enshrined image: ${z_anchor}"
     fi
 
-    buc_log_args "Enshrined image verified: ${RBRR_CLOUD_PREFIX}${z_anchor}"
+    buc_log_args "Enshrined image verified: ${z_anchor}"
   done
 
   if test "${z_any_checked}" = "true"; then
@@ -388,8 +388,8 @@ zrbfd_stitch_build_json() {
 
   # Resolve base images: ANCHOR (locator) → full GAR reference, or pass ORIGIN through.
   # Spec: RBSAC step "Resolve Base Images"
-  # The locator carries its own namespace path (e.g. enshrines/<anchor>:<anchor>);
-  # cloud prefix is applied at use-site per the wrest/jettison convention.
+  # The locator carries its own namespace path (e.g. rbi_es/<anchor>:<anchor>);
+  # paths within a GAR repo are prefix-free per the wrest/jettison convention.
   local -r z_gar_repo_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
   local z_image_ref_1="" z_image_ref_2="" z_image_ref_3=""
   local z_ri_n="" z_ri_origin_var="" z_ri_anchor_var="" z_ri_origin="" z_ri_anchor=""
@@ -411,7 +411,7 @@ zrbfd_stitch_build_json() {
       z_ri_tag="${z_ri_anchor##*:}"
       test -n "${z_ri_pkg_path}" || buc_die "Package path is empty in ${z_ri_anchor_var}: ${z_ri_anchor}"
       test -n "${z_ri_tag}"      || buc_die "Tag is empty in ${z_ri_anchor_var}: ${z_ri_anchor}"
-      z_ri_ref="${z_gar_repo_base}/${RBRR_CLOUD_PREFIX}${z_ri_pkg_path}:${z_ri_tag}"
+      z_ri_ref="${z_gar_repo_base}/${z_ri_pkg_path}:${z_ri_tag}"
       buc_log_args "Image slot ${z_ri_n} (anchored): ${z_ri_ref}"
     else
       z_ri_ref="${z_ri_origin}"
@@ -645,7 +645,7 @@ zrbfd_stitch_build_json() {
 
   # images: field — one per-platform attest tag per platform for SLSA provenance via CB images: push
   # These are durable provenance-carrying tags on the single attest package
-  # (hallmarks/<H>/attest); deleted only by abjure.
+  # (rbi_hm/<H>/attest); deleted only by abjure.
   local z_images_file="${ZRBFD_STITCH_PREFIX}images.json"
   local z_attest_pkg="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/attest"
   local z_remaining_suffixes="${z_platform_suffixes_csv}"

@@ -119,7 +119,7 @@ zrbgc_kindle() {
   readonly RBGC_OP_PREFIX_GLOBAL="operations/"
 
   # Ark Artifact Basenames (₢A_AAK layout)
-  # Each ark type is a plain basename sibling under <prefix>hallmarks/<hallmark>/.
+  # Each ark type is a plain basename sibling under rbi_hm/<hallmark>/.
   readonly RBGC_ARK_BASENAME_IMAGE="image"
   readonly RBGC_ARK_BASENAME_ABOUT="about"
   readonly RBGC_ARK_BASENAME_VOUCH="vouch"
@@ -128,14 +128,14 @@ zrbgc_kindle() {
   readonly RBGC_ARK_BASENAME_POUCH="pouch"
 
   # GAR Categorical Namespaces (₢A_AAK layout)
-  # Top-level prefix-rooted namespaces under which hallmark/reliquary/enshrine
-  # arks are stored as plain basename siblings. Consumed by rbgl_GarLayout.sh.
-  readonly RBGC_GAR_CATEGORY_HALLMARKS="hallmarks"
-  readonly RBGC_GAR_CATEGORY_RELIQUARIES="reliquaries"
-  readonly RBGC_GAR_CATEGORY_ENSHRINES="enshrines"
+  # Top-level namespaces under which hallmark/reliquary/enshrine arks are
+  # stored as plain basename siblings. Consumed by rbgl_GarLayout.sh.
+  readonly RBGC_GAR_CATEGORY_HALLMARKS="rbi_hm"
+  readonly RBGC_GAR_CATEGORY_RELIQUARIES="rbi_rq"
+  readonly RBGC_GAR_CATEGORY_ENSHRINES="rbi_es"
 
   # Reliquary Tool Basenames (₢A_AAK layout)
-  # Canonical tool names under <prefix>reliquaries/<date>/. Authoritative
+  # Canonical tool names under rbi_rq/<date>/. Authoritative
   # manifest lives in rbgji/rbgji01-inscribe-mirror.sh.
   readonly RBGC_RELIQUARY_TOOL_GCLOUD="gcloud"
   readonly RBGC_RELIQUARY_TOOL_DOCKER="docker"

@@ -326,7 +326,7 @@ rbfl_jettison() {
 
   # Documentation block
   buc_doc_brief "Jettison an image tag from the registry by locator"
-  buc_doc_param "locator" "Image locator in package-path:tag format (e.g. hallmarks/H/image:H)"
+  buc_doc_param "locator" "Image locator in package-path:tag format (e.g. rbi_hm/H/image:H)"
   buc_doc_param "--force" "Optional: skip confirmation prompt"
   buc_doc_shown || return 0
 
@@ -372,7 +372,7 @@ rbfl_jettison() {
     -H "Authorization: Bearer ${z_token}"             \
     -w "%{http_code}"                                 \
     -o "${z_response_file}"                           \
-    "${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${z_pkg_path}/manifests/${z_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${z_pkg_path}/manifests/${z_tag}" \
     > "${z_status_file}" || buc_die "DELETE request failed"
 
   local z_http_code
@@ -396,7 +396,7 @@ rbfl_abjure() {
   local z_force="${2:-}"
 
   # Documentation block
-  buc_doc_brief "Abjure a hallmark — delete all GAR packages under hallmarks/<hallmark>/"
+  buc_doc_brief "Abjure a hallmark — delete all GAR packages under rbi_hm/<hallmark>/"
   buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"
   buc_doc_param "--force" "Optional: skip confirmation prompt"
   buc_doc_shown || return 0
@@ -412,7 +412,7 @@ rbfl_abjure() {
   local z_token
   z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
 
-  # Enumerate packages under hallmarks/<hallmark>/ via GAR REST API.
+  # Enumerate packages under rbi_hm/<hallmark>/ via GAR REST API.
   # Each immediate child of the subtree is one ark (image, vouch, pouch,
   # about, attest, diags). Iterating discovered children rather than a
   # hardcoded suffix list naturally tolerates graft's missing pouch.
@@ -729,7 +729,7 @@ rbfl_wrest() {
   local -r z_locator="${1:-}"
 
   buc_doc_brief "Wrest an image from the registry to local container runtime by locator"
-  buc_doc_param "locator" "Image locator in package-path:tag format (e.g. hallmarks/H/image:H, reliquaries/r260327172456/syft:r260327172456, enshrines/eb-anchor:eb-anchor)"
+  buc_doc_param "locator" "Image locator in package-path:tag format (e.g. rbi_hm/H/image:H, rbi_rq/r260327172456/syft:r260327172456, rbi_es/eb-anchor:eb-anchor)"
   buc_doc_shown || return 0
 
   test -n "${z_locator}" || buc_die "Locator parameter required (package-path:tag)"
@@ -751,7 +751,7 @@ rbfl_wrest() {
     || buc_die "Failed to get OAuth token"
 
   buc_step "Logging into container registry"
-  local -r z_full_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBRR_CLOUD_PREFIX}${z_locator}"
+  local -r z_full_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${z_locator}"
 
   echo "${z_token}" | docker login -u oauth2accesstoken --password-stdin "https://${ZRBFC_REGISTRY_HOST}" \
     || buc_die "Container runtime authentication failed"

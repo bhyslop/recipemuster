@@ -5,7 +5,7 @@ NOTE: This operation enumerates every
 {rbtga_ark}
 in
 {rbtgi_repository}
-by listing packages under `hallmarks/` via the GAR REST API implemented by
+by listing packages under `{gar_hallmarks_namespace}/` via the GAR REST API implemented by
 {gar_service},
 classifying each
 {rbtga_hallmark}
@@ -27,7 +27,7 @@ tallies hallmarks:
 //axhos_step
 . *Enumerate Hallmark Packages*:
 .. {rbbc_store}
-`«HALLMARKS_ROOT»` from `RBGL_HALLMARKS_ROOT` (kindled as `RBRR_CLOUD_PREFIX` + `hallmarks`)
+`«HALLMARKS_ROOT»` from `RBGL_HALLMARKS_ROOT` (kindled to `{gar_hallmarks_namespace}`)
 .. {rbbc_store}
 `«REPO_BASE»` as the GAR REST API repository base (`projects/«PROJECT»/locations/«REGION»/repositories/«REPOSITORY»`)
 .. {rbbc_call}
@@ -38,7 +38,7 @@ link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.
 .. {rbbc_require}
 HTTP 200 response
 .. Extract `.packages[].name` from the response, strip the resource prefix, and URL-decode `%2F` back to `/`
-.. Filter to names whose path under `«HALLMARKS_ROOT»/` is exactly two segments (`<hallmark>/<basename>`); excludes both shallower and deeper entries, and excludes anything outside `hallmarks/` (reliquaries, enshrines)
+.. Filter to names whose path under `«HALLMARKS_ROOT»/` is exactly two segments (`<hallmark>/<basename>`); excludes both shallower and deeper entries, and excludes anything outside `{gar_hallmarks_namespace}/` (reliquaries, enshrines)
 .. {rbbc_store}
 `«PAIRS»` as sorted `<hallmark> <basename>` pairs (one per line). An empty result is a valid outcome — no hallmarks in the repository.
 

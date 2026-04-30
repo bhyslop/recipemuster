@@ -19,7 +19,7 @@ NOTE: Two entry points provide different detail levels:
 
 NOTE: Two invocation modes:
 Vessel+hallmark (both arguments) fetches directly from the hallmark subtree with the vessel identity already in hand.
-Hallmark-only (single argument) navigates the `hallmarks/«HALLMARK»/` subtree to locate the basenames and reads the vessel identity from the vouch artifact's `vouch_summary.json`.
+Hallmark-only (single argument) navigates the `{gar_hallmarks_namespace}/«HALLMARK»/` subtree to locate the basenames and reads the vessel identity from the vouch artifact's `vouch_summary.json`.
 
 The plumb operation:
 
@@ -42,9 +42,9 @@ Retriever credential file present (`RBDC_RETRIEVER_RBRA_FILE`)
 //axhos_step
 . *Resolve Vessel (hallmark-only mode)*:
 .. {rbbc_call}
-Registry API: extract vouch artifact from `hallmarks/«HALLMARK»/vouch:«HALLMARK»`
+Registry API: extract vouch artifact from `{gar_hallmarks_namespace}/«HALLMARK»/vouch:«HALLMARK»`
 .. {rbbc_require}
-hallmark subtree exists (`hallmarks/«HALLMARK»/` contains the basenames)
+hallmark subtree exists (`{gar_hallmarks_namespace}/«HALLMARK»/` contains the basenames)
 .. {rbbc_store}
 vessel name from `vouch_summary.json` `.vessel` field
 .. {rbbc_store}
@@ -58,7 +58,7 @@ vessel mode (conjure, bind, or graft) from vessel regime
 //axhos_step
 . *Fetch About Artifact from GAR*:
 .. {rbbc_call}
-Registry API: extract from `hallmarks/«HALLMARK»/about:«HALLMARK»`
+Registry API: extract from `{gar_hallmarks_namespace}/«HALLMARK»/about:«HALLMARK»`
 .. Resolve multi-platform manifest to single platform (content is architecture-independent)
 .. Fetch layer blob and extract: `build_info.json`, `sbom.json`, `recipe.txt`, `buildkit_metadata.json`, `cache_before.json`, `cache_after.json`
 .. Graceful degradation: absence of optional files does not affect output
@@ -66,7 +66,7 @@ Registry API: extract from `hallmarks/«HALLMARK»/about:«HALLMARK»`
 //axhos_step
 . *Fetch Vouch Artifact from GAR* (if not already fetched during hallmark-only resolution):
 .. {rbbc_call}
-Registry API: extract from `hallmarks/«HALLMARK»/vouch:«HALLMARK»`
+Registry API: extract from `{gar_hallmarks_namespace}/«HALLMARK»/vouch:«HALLMARK»`
 .. Extract `vouch_summary.json` and per-platform verification files
 
 //axhos_step
@@ -117,7 +117,7 @@ using OAuth credentials.
 *GAR-direct extraction*: Artifacts are fetched via Registry API manifest and blob endpoints.
 Multi-platform manifest lists are resolved to a single platform (first entry) since artifact content (JSON metadata) is architecture-independent.
 +
-*Hallmark-only mode*: When invoked with only a hallmark, plumb navigates directly to the `hallmarks/«HALLMARK»/` subtree in GAR.
+*Hallmark-only mode*: When invoked with only a hallmark, plumb navigates directly to the `{gar_hallmarks_namespace}/«HALLMARK»/` subtree in GAR.
 The categorical layout makes the hallmark itself the primary index — all basenames (`image`, `about`, `vouch`, `pouch`, `diags`, `attest`) for a single build sit together under one subtree, so no cross-vessel aggregator is needed.
 The vessel identity is recovered by reading the `.vessel` field out of the subtree's `vouch` artifact, and the remaining basenames are fetched from the same subtree.
 +

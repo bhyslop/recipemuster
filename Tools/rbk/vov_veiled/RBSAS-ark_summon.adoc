@@ -42,11 +42,11 @@ authentication token for subsequent API calls
 //axhos_step
 . *Construct Ark Tags*:
 .. {rbbc_store}
-image tag as `«PREFIX»hallmarks/«INPUT_HALLMARK»/image:«INPUT_HALLMARK»`
+image tag as `{gar_hallmarks_namespace}/«INPUT_HALLMARK»/image:«INPUT_HALLMARK»`
 .. {rbbc_store}
-about tag as `«PREFIX»hallmarks/«INPUT_HALLMARK»/about:«INPUT_HALLMARK»`
+about tag as `{gar_hallmarks_namespace}/«INPUT_HALLMARK»/about:«INPUT_HALLMARK»`
 .. {rbbc_store}
-vouch tag as `«PREFIX»hallmarks/«INPUT_HALLMARK»/vouch:«INPUT_HALLMARK»`
+vouch tag as `{gar_hallmarks_namespace}/«INPUT_HALLMARK»/vouch:«INPUT_HALLMARK»`
 
 //axhos_step
 . *Verify Ark Existence*:

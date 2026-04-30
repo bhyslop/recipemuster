@@ -9,9 +9,9 @@ Compose owns container and network lifecycle; this operation handles preflight v
 //axhos_step
 . *Verify Local Vouch Artifacts*:
 .. {rbbc_require}
-sentry vouch artifact present in local image store (`docker image inspect` on `<GCP_REGION>-docker.pkg.dev/<PROJECT>/<REPO>/<prefix>hallmarks/<hallmark>/vouch:<hallmark>`)
+sentry vouch artifact present in local image store (`docker image inspect` on `<GCP_REGION>-docker.pkg.dev/<PROJECT>/<REPO>/{gar_hallmarks_namespace}/<hallmark>/vouch:<hallmark>`)
 .. {rbbc_require}
-bottle vouch artifact present in local image store (`docker image inspect` on `<GCP_REGION>-docker.pkg.dev/<PROJECT>/<REPO>/<prefix>hallmarks/<hallmark>/vouch:<hallmark>`)
+bottle vouch artifact present in local image store (`docker image inspect` on `<GCP_REGION>-docker.pkg.dev/<PROJECT>/<REPO>/{gar_hallmarks_namespace}/<hallmark>/vouch:<hallmark>`)
 .. {rbbc_fatal}
 if either vouch artifact is absent: emit clear message directing operator to run summon first; no network calls attempted
 

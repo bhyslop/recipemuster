@@ -177,6 +177,11 @@
 :gar_registry_s:             <<gar_registry,Artifact Registries>>
 :gar_service:                <<gar_service,Google Artifact Registry>>
 
+// GAR top-level categorical namespaces (wire-format values)
+:gar_hallmarks_namespace:    <<gar_hallmarks_namespace,rbi_hm>>
+:gar_reliquaries_namespace:  <<gar_reliquaries_namespace,rbi_rq>>
+:gar_enshrines_namespace:    <<gar_enshrines_namespace,rbi_es>>
+
 // Google Cloud Storage
 :gcs_bucket:                 <<gcs_bucket,Cloud Storage Bucket>>
 :gcs_bucket_s:               <<gcs_bucket,Cloud Storage Buckets>>
@@ -1685,6 +1690,21 @@ Shared fields include `vessel_mode`, `vessel_name`, `platform`, `image_digest`; 
 
 === Ark Definitions
 
+[[gar_hallmarks_namespace]]
+{gar_hallmarks_namespace}::
+GAR top-level path token under which every {rbtga_hallmark}'s ark packages live as basename siblings (`image`, `about`, `vouch`, `diags`, `attest`, `pouch`).
+A path-segment value, not a cloud-visible resource name; carries no {rbrr_cloud_prefix} since each {rbtgi_depot} owns its own GAR repo.
+
+[[gar_reliquaries_namespace]]
+{gar_reliquaries_namespace}::
+GAR top-level path token under which reliquary tool images live as basename siblings, keyed by {rbst_reliquary_stamp}.
+A path-segment value, not a cloud-visible resource name; carries no {rbrr_cloud_prefix} since each {rbtgi_depot} owns its own GAR repo.
+
+[[gar_enshrines_namespace]]
+{gar_enshrines_namespace}::
+GAR top-level path token under which enshrined upstream base images live as peer packages keyed by content-addressed anchor.
+A path-segment value, not a cloud-visible resource name; carries no {rbrr_cloud_prefix} since each {rbtgi_depot} owns its own GAR repo.
+
 [[rbtga_ark]]
 //axl_voices axig_artifact_group
 {rbtga_ark}::
@@ -1694,7 +1714,7 @@ build output: a set of packages in the
 {rbtgi_repository}
 sharing a common
 {rbtga_hallmark}
-and rooted at the `hallmarks/«HALLMARK»/` subtree.
+and rooted at the `{gar_hallmarks_namespace}/«HALLMARK»/` subtree.
 An ark comprises the
 {rbtga_ark_image}
 (basename `image`) containing the container image, the
@@ -1751,27 +1771,27 @@ Keyed into complete package references:
 |===
 |Reference |Lifecycle |Purpose
 
-|`hallmarks/«HALLMARK»/image:«HALLMARK»`
+|`{gar_hallmarks_namespace}/«HALLMARK»/image:«HALLMARK»`
 |Durable
 |Consumer multiplatform manifest list (from `buildx --push`), or single-platform image
 
-|`hallmarks/«HALLMARK»/about:«HALLMARK»`
+|`{gar_hallmarks_namespace}/«HALLMARK»/about:«HALLMARK»`
 |Durable
 |SBOM + build info
 
-|`hallmarks/«HALLMARK»/vouch:«HALLMARK»`
+|`{gar_hallmarks_namespace}/«HALLMARK»/vouch:«HALLMARK»`
 |Durable
 |SLSA verification record
 
-|`hallmarks/«HALLMARK»/diags:«HALLMARK»`
+|`{gar_hallmarks_namespace}/«HALLMARK»/diags:«HALLMARK»`
 |Durable
 |Build diagnostics
 
-|`hallmarks/«HALLMARK»/pouch:«HALLMARK»`
+|`{gar_hallmarks_namespace}/«HALLMARK»/pouch:«HALLMARK»`
 |Durable
 |Build context (FROM SCRATCH OCI image in GAR)
 
-|`hallmarks/«HALLMARK»/attest:«HALLMARK»-«ARCH»`
+|`{gar_hallmarks_namespace}/«HALLMARK»/attest:«HALLMARK»-«ARCH»`
 |Durable
 |Per-platform provenance-carrying images pushed via CB `images:` field (one package, per-platform tags)
 |===
@@ -1782,15 +1802,15 @@ The tags are durable ark artifacts, persisting alongside `image`, `about`, `vouc
 +
 Multiple conjures produce distinct hallmarks (unique realized timestamps) with independently-attested images.
 +
-Hallmark-only lookup falls out of the layout: because every ark's packages live under `hallmarks/«HALLMARK»/`, {rbtgo_ark_inspect} resolves an ark from a bare hallmark by navigating the subtree directly — no cross-vessel aggregator tag is needed.
-Look up `hallmarks/«HALLMARK»/vouch:«HALLMARK»`, read `vouch_summary.json` to discover the originating vessel, then fetch `about` from the same subtree.
+Hallmark-only lookup falls out of the layout: because every ark's packages live under `{gar_hallmarks_namespace}/«HALLMARK»/`, {rbtgo_ark_inspect} resolves an ark from a bare hallmark by navigating the subtree directly — no cross-vessel aggregator tag is needed.
+Look up `{gar_hallmarks_namespace}/«HALLMARK»/vouch:«HALLMARK»`, read `vouch_summary.json` to discover the originating vessel, then fetch `about` from the same subtree.
 
 [[rbtga_ark_image]]
 //axl_voices axig_container_image
 {rbtga_ark_image}::
 The container image artifact within an
 {rbtga_ark},
-the `image` package under the hallmark subtree (`hallmarks/«HALLMARK»/image:«HALLMARK»`).
+the `image` package under the hallmark subtree (`{gar_hallmarks_namespace}/«HALLMARK»/image:«HALLMARK»`).
 Contains the executable container layers, regardless of how the image arrived in GAR.
 +
 * *Conjure*: built by {gcb_service} from a Dockerfile. SLSA v1.0 Level 3 provenance is auto-generated.
@@ -1811,7 +1831,7 @@ Graft vessels are typically single-platform.
 {rbtga_ark_about}::
 The metadata artifact within an
 {rbtga_ark},
-the `about` package under the hallmark subtree (`hallmarks/«HALLMARK»/about:«HALLMARK»`).
+the `about` package under the hallmark subtree (`{gar_hallmarks_namespace}/«HALLMARK»/about:«HALLMARK»`).
 Contains SBOM (Software Bill of Materials) generated by Syft and `build_info.json` assembled by the
 {rbtgo_ark_about}
 Cloud Build steps.
@@ -1837,7 +1857,7 @@ The `about` package mirrors the `image` package's platform list.
 {rbtga_ark_vouch}::
 The mandatory verification artifact within an
 {rbtga_ark},
-the `vouch` package under the hallmark subtree (`hallmarks/«HALLMARK»/vouch:«HALLMARK»`).
+the `vouch` package under the hallmark subtree (`{gar_hallmarks_namespace}/«HALLMARK»/vouch:«HALLMARK»`).
 Created by
 {rbtgo_ark_vouch}
 as a
@@ -1892,7 +1912,7 @@ If determinism proves unreliable in practice, narrow the comparison to verificat
 **Vouch provenance resolution**: The vouch verifier resolves per-platform digests from `attest:«HALLMARK»-«ARCH»` tags (HEAD request per tag) rather than from the `image` manifest index.
 The per-arch `attest` digests are the GCB-attested digests; the `image` manifest's per-platform digests are buildx-native and carry no GCB provenance.
 +
-**Abjure**: {rbtgo_ark_abjure} enumerates every package under `hallmarks/«HALLMARK»/` and deletes each — `image`, `about`, `vouch`, `pouch`, `diags`, and (for conjure vessels) `attest`. Deleting the single `attest` package removes all its per-arch tags.
+**Abjure**: {rbtgo_ark_abjure} enumerates every package under `{gar_hallmarks_namespace}/«HALLMARK»/` and deletes each — `image`, `about`, `vouch`, `pouch`, `diags`, and (for conjure vessels) `attest`. Deleting the single `attest` package removes all its per-arch tags.
 +
 **Display**: {rbtgo_hallmark_tally} classifies each hallmark as `vouched`, `pending`, or `incomplete` by basename presence under the hallmark subtree (`vouched` = image+about+vouch all present; `pending` = image+about without vouch; `incomplete` = any other combination).
 
@@ -1901,7 +1921,7 @@ The per-arch `attest` digests are the GCB-attested digests; the `image` manifest
 {rbtga_ark_pouch}::
 The build context artifact within an
 {rbtga_ark},
-the `pouch` package under the hallmark subtree (`hallmarks/«HALLMARK»/pouch:«HALLMARK»`).
+the `pouch` package under the hallmark subtree (`{gar_hallmarks_namespace}/«HALLMARK»/pouch:«HALLMARK»`).
 A FROM SCRATCH OCI image in GAR containing the Dockerfile, step scripts, and regime-derived configuration needed to reproduce the build.
 Submitted as the `source` for `builds.create` API calls.
 +
@@ -1914,7 +1934,7 @@ Conjure and bind modes create a pouch; graft mode does not (the image arrives vi
 {rbtga_ark_diags}::
 The diagnostics artifact within an
 {rbtga_ark},
-the `diags` package under the hallmark subtree (`hallmarks/«HALLMARK»/diags:«HALLMARK»`).
+the `diags` package under the hallmark subtree (`{gar_hallmarks_namespace}/«HALLMARK»/diags:«HALLMARK»`).
 Contains build-time diagnostic output (step timings, builder versions, platform details) for troubleshooting.
 Pushed as a dedicated step in the build pipeline.
 
@@ -1954,7 +1974,7 @@ GAR registry root path.
 [[rbf_fact_ark_stem]]
 //axpof_fact
 {rbf_fact_ark_stem}::
-Hallmark subtree prefix — `«PREFIX»hallmarks/«HALLMARK»`.
+Hallmark subtree prefix — `{gar_hallmarks_namespace}/«HALLMARK»`.
 Composable with basename and `:«HALLMARK»` tag for full artifact references.
 
 [[rbf_fact_ark_yield]]
@@ -2013,7 +2033,7 @@ Docker's local store (classic image store on CB workers, Docker 20.10.24) is sin
 The validated approach uses per-platform pullback after `buildx --push`:
 `buildx --push` builds all platforms and pushes the consumer-facing `image` manifest list directly to GAR;
 `docker pull --platform «ARCH»` pulls each platform variant back to the local daemon (requires Experimental: true, confirmed on CB workers);
-each pulled image is tagged as `hallmarks/«HALLMARK»/attest:«HALLMARK»-«ARCH»`;
+each pulled image is tagged as `{gar_hallmarks_namespace}/«HALLMARK»/attest:«HALLMARK»-«ARCH»`;
 the `images:` field declares all per-arch `attest` tags — Cloud Build pushes each and generates independent SLSA v1.0 Level 3 provenance with the same `buildInvocationId`, proving single-build origin.
 +
 The per-arch `attest` tags are **ephemeral attestation scaffolding**: they exist solely to bridge `buildx --push` output to the `images:` field for SLSA provenance generation.
@@ -2037,8 +2057,8 @@ See `Memos/memo-20260305-provenance-architecture-gap.md` for full experiment det
 +
   1. `derive-tag-base` — receive host-minted {rbtga_hallmark} via `_RBGY_HALLMARK`, write to `.hallmark` + `/builder/outputs/output`
   2. `qemu-binfmt` — register cross-architecture emulation (if needed)
-  3. `buildx --push` — build all platforms, push consumer-facing `image` manifest list to GAR under `hallmarks/«HALLMARK»/image:«HALLMARK»`
-  4. `per-platform-pullback` — `docker pull --platform «ARCH»` from the `image` package, `docker tag` to `hallmarks/«HALLMARK»/attest:«HALLMARK»-«ARCH»`
+  3. `buildx --push` — build all platforms, push consumer-facing `image` manifest list to GAR under `{gar_hallmarks_namespace}/«HALLMARK»/image:«HALLMARK»`
+  4. `per-platform-pullback` — `docker pull --platform «ARCH»` from the `image` package, `docker tag` to `{gar_hallmarks_namespace}/«HALLMARK»/attest:«HALLMARK»-«ARCH»`
   5. `push-per-platform` — push each per-arch `attest` tag to GAR
   6. `push-diags` — diagnostics artifact
 +
@@ -3181,8 +3201,8 @@ naming a GAR-mirrored base image for
 conjuring vessels.
 Written by
 {rbtgo_ark_enshrine}.
-The anchor itself is `«sanitized-origin»-«10-char-sha256»` (e.g., `python-3.11-slim-abc123def4`); the locator embeds it as both path segment and tag: `enshrines/«ANCHOR»:«ANCHOR»`.
-Enshrined images are stored as peer packages under the shared `enshrines/` namespace, not per-vessel — vessels sharing the same base image origin share one enshrined artifact.
+The anchor itself is `«sanitized-origin»-«10-char-sha256»` (e.g., `python-3.11-slim-abc123def4`); the locator embeds it as both path segment and tag: `{gar_enshrines_namespace}/«ANCHOR»:«ANCHOR»`.
+Enshrined images are stored as peer packages under the shared `{gar_enshrines_namespace}/` namespace, not per-vessel — vessels sharing the same base image origin share one enshrined artifact.
 When present, conjure resolves the base image from GAR via this locator (parsing path and tag, prepending {rbrr_cloud_prefix} at use-site per the {rbst_locator} convention).
 When absent, conjure passes
 {rbrv_image_origin}
@@ -3420,7 +3440,7 @@ Fully-qualified container image reference.
 //axl_voices axtu_string
 {rbst_locator}::
 Repository-local artifact identifier combining a package path and tag.
-Format: `package-path:tag` where `package-path` is a relative path under the categorical root (e.g., `hallmarks/«HALLMARK»/image`, `reliquaries/«STAMP»/syft`, `enshrines/«ANCHOR»`).
+Format: `package-path:tag` where `package-path` is a relative path under the categorical root (e.g., `{gar_hallmarks_namespace}/«HALLMARK»/image`, `{gar_reliquaries_namespace}/«STAMP»/syft`, `{gar_enshrines_namespace}/«ANCHOR»`).
 Identifies a single artifact within the
 {rbtgi_repository}
 without repeating registry host or path.
@@ -3440,7 +3460,7 @@ Regex: `[cbg]\d{12}-r\d{12}`.
 Datestamp identifying a reliquary — the GAR namespace holding a coherent set of mirrored tool images for builder use.
 Format: `r` + `YYMMDDHHMMSS` (e.g., `r260327172456`); 13 characters.
 Regex: `r\d{12}`.
-Mints once at {rbtgo_depot_inscribe} time and serves both as the GAR path segment (`reliquaries/«STAMP»/...`) and the per-tool tag, so a single value identifies the namespace and pins every member.
+Mints once at {rbtgo_depot_inscribe} time and serves both as the GAR path segment (`{gar_reliquaries_namespace}/«STAMP»/...`) and the per-tool tag, so a single value identifies the namespace and pins every member.
 
 [[rbst_path]]
 //axl_voices axtu_path

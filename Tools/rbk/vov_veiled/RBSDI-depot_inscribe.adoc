@@ -29,7 +29,7 @@ inscribes a reliquary:
 ... step image: `gcr.io/cloud-builders/docker` (Google-hosted, always pullable)
 ... step script: `rbgji01-inscribe-mirror.sh` (docker pull/tag/push per tool image)
 ... substitutions: `_RBGN_GAR_HOST`, `_RBGN_GAR_PATH`, `_RBGN_CLOUD_PREFIX`, `_RBGN_RELIQUARY`
-... resulting tool image path shape: `${_RBGN_GAR_HOST}/${_RBGN_GAR_PATH}/${_RBGN_CLOUD_PREFIX}reliquaries/${_RBGN_RELIQUARY}/<tool>:${_RBGN_RELIQUARY}` (both path segment and tag are the reliquary datestamp, per the categorical layout)
+... resulting tool image path shape: `${_RBGN_GAR_HOST}/${_RBGN_GAR_PATH}/{gar_reliquaries_namespace}/${_RBGN_RELIQUARY}/<tool>:${_RBGN_RELIQUARY}` (both path segment and tag are the reliquary datestamp, per the categorical layout)
 ... serviceAccount:
 {rbtr_mason}
 ... pool: tethered (upstream pull requires public egress)
