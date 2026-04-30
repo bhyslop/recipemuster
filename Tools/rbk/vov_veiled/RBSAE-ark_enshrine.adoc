@@ -16,6 +16,19 @@ The locator results are returned via `buildStepOutputs` and
 is then written back to the vessel regime locally as a
 {rbst_locator}.
 
+NOTE: Slots whose
+{rbrv_image_anchor}
+is already populated are processed under skip-if-set semantics.
+The Director HEAD-validates that the locator resolves in
+{gar_service}
+and leaves the slot's
+{rbrv_image_anchor}
+untouched — no Cloud Build copy occurs for that slot.
+This admits hallmark-base vessels: a vessel whose base image is an internal hallmark (e.g., the airgap-bottle building FROM the just-ordained forge) carries an
+{rbrv_image_anchor}
+of `{gar_hallmarks_namespace}/«HALLMARK»/«BASENAME»:«HALLMARK»` written by the orchestrating procedure (handbook step or onboarding-sequence fixture) before enshrine runs; enshrine then verifies the hallmark is reachable rather than re-mirroring it.
+A vessel whose every slot is pre-populated requires no Cloud Build submission — enshrine reduces to local HEAD validation.
+
 NOTE: Enshrine is a pre-build preparation step.
 It must be run before
 {rbtgo_ark_conjure}
@@ -34,16 +47,37 @@ The enshrine operation:
 .. {rbbc_require}
 vessel provided as first argument
 .. {rbbc_require}
-vessel contains at least one
+vessel declares at least one base-image slot — that is, at least one of slots 1-3 has either
 {rbrv_image_origin}
-declaration (slots 1-3)
+or
+{rbrv_image_anchor}
+populated
 .. {rbbc_require}
 vessel mode is `conjure` (`RBRV_VESSEL_MODE`)
 .. {rbbc_require}
 reliquary tool images exist in GAR (HEAD check on `docker:latest` canary)
 
 //axhos_step
-. *Submit Enshrine Cloud Build Job*:
+. *Classify Slots*:
+.. For each indexed slot (n = 1, 2, 3):
+... If
+{rbrv_image_anchor}
+is set: classify as *pre-populated*. HEAD-request the locator's `«PACKAGE-PATH»:«TAG»` manifest in
+{gar_service}
+. {rbbc_require}
+HTTP 200 — on 404, fail with directive naming the missing locator (caller wrote an unreachable
+{rbrv_image_anchor}
+). The slot's
+{rbrv_image_anchor}
+is left intact; no Cloud Build copy is performed.
+... Otherwise, if
+{rbrv_image_origin}
+is set: classify as *to-enshrine*. ORIGIN is passed to the Cloud Build step for inspect-and-copy.
+... Otherwise the slot is empty and is omitted from the build.
+.. If every declared slot is pre-populated, skip the Cloud Build submission entirely — the operation reduces to local HEAD validation.
+
+//axhos_step
+. *Submit Enshrine Cloud Build Job* (only if any slot is *to-enshrine*):
 .. Compose `builds.create` JSON with:
 ... Single step using
 the reliquary skopeo image
@@ -69,10 +103,13 @@ containing all upstream platforms
 .. Writes JSON locator results to `/builder/outputs/output` (returned as `buildStepOutputs`); each slot's `anchor` field carries the full locator string
 
 //axhos_step
-. *Extract Locators and Write Regime*:
+. *Extract Locators and Write Regime* (only for *to-enshrine* slots):
 .. Read `buildStepOutputs[0]` from the completed build result (base64-decoded JSON)
 .. For each slot present in the result:
 ... Write locator string to `RBRV_IMAGE_n_ANCHOR` in the vessel's `rbrv.env`
+.. *Pre-populated* slots are not touched — their existing
+{rbrv_image_anchor}
+values stand
 
 //axhoot_typed_output
 {rbrv_image_anchor}

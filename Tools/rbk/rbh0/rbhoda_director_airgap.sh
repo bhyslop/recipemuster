@@ -167,16 +167,17 @@ rbho_director_airgap() {
   buh_code "   RBRV_IMAGE_1_ANCHOR=rbi_es/rust-slim-bookworm-5ae2d2ef98:rust-slim-bookworm-5ae2d2ef98"
   buh_e
   buh_line "ORIGIN names where the image comes from; ANCHOR is the locator"
-  buh_line "for it inside your ${RBYC_DEPOT}. Run ${RBYC_ENSHRINE}:"
+  buh_line "for it inside your ${RBYC_DEPOT}. Run ${RBYC_ENSHRINE} on the forge:"
   buh_e
-  buh_tt "   " "${RBZ_ENSHRINE_VESSEL}"
+  buh_tt "   " "${RBZ_ENSHRINE_VESSEL}" "" " ${z_forge_vessel}"
   buh_e
-  buh_line "${RBYC_ENSHRINE} sweeps every ${RBYC_VESSEL} ${RBYC_REGIME}, resolves the"
-  buh_line "upstream bases they declare, and creates the mirror tags. It's"
-  buh_line "idempotent — already-enshrined bases are skipped."
+  buh_line "${RBYC_ENSHRINE} resolves the upstream base for the forge ${RBYC_VESSEL}"
+  buh_line "and writes the locator back into its ${RBYC_RBRV}. Slots whose ANCHOR"
+  buh_line "is already populated are HEAD-validated against your ${RBYC_DEPOT} and"
+  buh_line "left untouched — re-running is idempotent."
   buh_e
 
-  buh_step1 "${RBYC_CONJURE} the forge ${RBYC_TETHERED}, then ${RBYC_ENSHRINE} its result"
+  buh_step1 "${RBYC_CONJURE} the forge ${RBYC_TETHERED}, then point the airgap ${RBYC_BOTTLE} at it"
   buh_e
   buh_line "The forge is a project-authored toolchain image. It pre-stages"
   buh_line "apt packages and warms the cargo cache so the airgap build"
@@ -201,19 +202,30 @@ rbho_director_airgap() {
   buh_code "   RBRV_IMAGE_1_ORIGIN=rbev-bottle-ifrit-forge"
   buh_code "   RBRV_IMAGE_1_ANCHOR="
   buh_e
-  buh_line "ANCHOR starts empty because it resolves to the forge's freshly"
-  buh_line "built ${RBYC_HALLMARK}. Re-run ${RBYC_ENSHRINE} to populate it:"
+  buh_line "ORIGIN names the producer ${RBYC_VESSEL} (lineage); ANCHOR will hold"
+  buh_line "the locator pointing at the forge's just-built ${RBYC_HALLMARK} inside"
+  buh_line "your ${RBYC_DEPOT}'s hallmark namespace. ${RBYC_ORDAIN} wrote the forge"
+  buh_line "${RBYC_HALLMARK} to the fact file — capture it:"
   buh_e
-  buh_tt "   " "${RBZ_ENSHRINE_VESSEL}"
+  buh_code "   export FORGE_HALLMARK=\$(cat ${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK})"
   buh_e
-  buh_line "This time ${RBYC_ENSHRINE} sees the internal reference, finds the"
-  buh_line "forge ${RBYC_HALLMARK} in your ${RBYC_DEPOT}, and writes the resolved"
-  buh_line "anchor into the airgap vessel's ${RBYC_RBRV}. Commit that change."
+  buh_line "Open the airgap ${RBYC_RBRV} and set ANCHOR to the forge image's locator:"
+  buh_e
+  buh_code "   RBRV_IMAGE_1_ANCHOR=rbi_hm/\${FORGE_HALLMARK}/image:\${FORGE_HALLMARK}"
+  buh_e
+  buh_line "Substitute the captured hallmark into the locator. Commit the change."
+  buh_e
+  buh_line "Now run ${RBYC_ENSHRINE} on the airgap ${RBYC_VESSEL} as a validation step —"
+  buh_line "${RBYC_ENSHRINE} sees the populated ANCHOR, HEAD-validates that the forge"
+  buh_line "${RBYC_HALLMARK} is reachable in your ${RBYC_DEPOT}, and leaves the slot"
+  buh_line "untouched. No copy, no Cloud Build job — just a validation gate."
+  buh_e
+  buh_tt "   " "${RBZ_ENSHRINE_VESSEL}" "" " ${z_airgap_vessel}"
   buh_e
   if test "${z_airgap_base_enshrined}" = "1"; then
     buh_line "${RBYC_PROBE_YES}Airgap base anchor populated — forge is ready to serve as airgap base"
   else
-    buh_line "${RBYC_PROBE_NO}Airgap base anchor empty — ${RBYC_CONJURE} the forge and re-run ${RBYC_ENSHRINE}"
+    buh_line "${RBYC_PROBE_NO}Airgap base anchor empty — ${RBYC_CONJURE} the forge, then write the locator into the airgap ${RBYC_RBRV}"
   fi
   buh_e
 

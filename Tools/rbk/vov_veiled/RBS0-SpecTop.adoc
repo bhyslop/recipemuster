@@ -3186,23 +3186,39 @@ vessels.
 [[rbrv_image_origin]]
 //axvr_variable axd_optional rbst_image_ref
 {rbrv_image_origin}::
-Upstream base image tag declaration for
+Base image declaration for
 {rbrv_regime}
 conjuring vessels.
-Vessel author declares intent (e.g., `python:3.11-slim`).
+Two complementary roles depending on whether the slot's
+{rbrv_image_anchor}
+is set:
++
+- *When the slot is open (no ANCHOR yet)*: ORIGIN is the upstream registry tag the vessel author intends to mirror (e.g., `python:3.11-slim`). {rbtgo_ark_enshrine} consumes it as the source for `skopeo inspect`/`copy`.
+- *When the slot is pre-populated with a hallmark-base ANCHOR*: ORIGIN is informational — a lineage marker (typically the producing vessel's sigil, e.g., `rbev-bottle-ifrit-forge`). {rbtgo_ark_enshrine} ignores ORIGIN under skip-if-set; conjure resolves the base from
+{rbrv_image_anchor}.
++
 The Dockerfile uses `ARG RBF_IMAGE_n` / `FROM ${RBF_IMAGE_n}` -- the Foundry substitutes the resolved reference via `--build-arg` at conjure time.
 
 [[rbrv_image_anchor]]
 //axvr_variable axd_optional rbst_locator
 {rbrv_image_anchor}::
 {rbst_locator}
-naming a GAR-mirrored base image for
+naming a GAR-resident base image for
 {rbrv_regime}
 conjuring vessels.
-Written by
+The locator's namespace identifies how the slot was populated:
++
+- `{gar_enshrines_namespace}/«ANCHOR»:«ANCHOR»` — written by
 {rbtgo_ark_enshrine}.
-The anchor itself is `«sanitized-origin»-«10-char-sha256»` (e.g., `python-3.11-slim-abc123def4`); the locator embeds it as both path segment and tag: `{gar_enshrines_namespace}/«ANCHOR»:«ANCHOR»`.
+The anchor itself is `«sanitized-origin»-«10-char-sha256»` (e.g., `python-3.11-slim-abc123def4`); the locator embeds it as both path segment and tag.
 Enshrined images are stored as peer packages under the shared `{gar_enshrines_namespace}/` namespace, not per-vessel — vessels sharing the same base image origin share one enshrined artifact.
+- `{gar_hallmarks_namespace}/«HALLMARK»/«BASENAME»:«HALLMARK»` — written by an orchestrating procedure (handbook step or onboarding-sequence fixture) when the vessel's base image is an internal hallmark (e.g., the airgap-bottle building FROM the just-ordained forge image).
+The locator points at the specific
+{rbtga_ark_image}
+inside the producer hallmark's subtree.
+{rbtgo_ark_enshrine}
+treats such pre-populated slots under skip-if-set semantics — HEAD-validates and leaves the slot intact.
++
 When present, conjure resolves the base image from GAR via this locator (parsing path and tag, prepending {rbrr_cloud_prefix} at use-site per the {rbst_locator} convention).
 When absent, conjure passes
 {rbrv_image_origin}
