@@ -882,13 +882,18 @@ rbfd_enshrine() {
   buc_success "Enshrine complete for vessel: ${RBRV_SIGIL}"
 }
 
-# Internal: Classify each base-image slot for skip-if-set semantics.
-#   Slot with ANCHOR set     → HEAD-validate the locator in GAR, write "skip".
-#   Slot with ORIGIN only    → write "enshrine" (submit to CB).
-#   Slot with neither set    → write "empty" (omitted from build).
-# A 404 on a pre-populated ANCHOR is fatal — the caller wrote an unreachable
-# locator. Total to-enshrine count is persisted so rbfd_enshrine can decide
-# whether to submit Cloud Build at all.
+# Internal: Classify each base-image slot. Branches on the (ORIGIN, ANCHOR) pair:
+#   ANCHOR set + HEAD 200                 → "skip"     (cache hit; locator stands).
+#   ANCHOR set + HEAD 404 + ORIGIN set    → "enshrine" (stale cache; regenerate
+#                                            from ORIGIN — extract overwrites the
+#                                            stale value with the new locator).
+#   ANCHOR set + HEAD 404 + ORIGIN empty  → fatal      (orchestration wrote a
+#                                            hallmark-pin locator that should
+#                                            resolve; no ORIGIN to regenerate from).
+#   ANCHOR empty + ORIGIN set             → "enshrine" (fresh enshrine).
+#   Both empty                            → "empty"    (omitted from build).
+# Total to-enshrine count is persisted so rbfd_enshrine can decide whether to
+# submit Cloud Build at all.
 zrbfd_enshrine_classify_slots() {
   zrbfd_sentinel
 
@@ -947,6 +952,17 @@ zrbfd_enshrine_classify_slots() {
       test -n "${z_http_code}" || buc_die "HTTP status code is empty for pre-populated ${z_anchor_var}"
 
       if test "${z_http_code}" = "404"; then
+        # ANCHOR is a derived cache; ORIGIN is its source of truth. A 404 with
+        # ORIGIN populated means the cache is stale (depot rotated, or upstream
+        # digest moved) — regenerate. With ORIGIN empty, the locator was written
+        # by orchestration as a hallmark-pin and 404 is a contract violation.
+        if test -n "${z_origin}"; then
+          printf 'enshrine' > "${z_class_file}" \
+            || buc_die "Failed to write classification for slot ${z_n}"
+          z_to_enshrine_count=$((z_to_enshrine_count + 1))
+          buc_log_args "Slot ${z_n} stale cache (404 on ${z_anchor}) — regenerating from ORIGIN=${z_origin}"
+          continue
+        fi
         buc_die "Pre-populated ${z_anchor_var} not reachable in GAR: ${z_anchor} — caller wrote an unresolvable locator"
       elif test "${z_http_code}" != "200"; then
         buc_die "Unexpected HTTP ${z_http_code} for pre-populated ${z_anchor_var}: ${z_anchor}"

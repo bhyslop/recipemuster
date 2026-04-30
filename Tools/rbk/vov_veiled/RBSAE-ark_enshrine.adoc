@@ -21,13 +21,17 @@ NOTE: Slots whose
 is already populated are processed under skip-if-set semantics.
 The Director HEAD-validates that the locator resolves in
 {gar_service}
-and leaves the slot's
+. On HEAD 200, the slot's
 {rbrv_image_anchor}
-untouched — no Cloud Build copy occurs for that slot.
+is left intact and no Cloud Build copy occurs for that slot. On HEAD 404, behavior depends on
+{rbrv_image_origin}
+: if ORIGIN is populated, the
+{rbrv_image_anchor}
+is treated as a stale derived cache (depot rotated, or upstream digest moved since the prior enshrine) and the slot is reclassified to-enshrine — Cloud Build regenerates the locator from ORIGIN and the writeback step overwrites the stale value; if ORIGIN is empty, the locator was written by an upstream caller as a hallmark-pin and 404 is fatal (caller wrote an unresolvable locator).
 This admits hallmark-base vessels: a vessel whose base image is an internal hallmark (e.g., the airgap-bottle building FROM the just-ordained forge) carries an
 {rbrv_image_anchor}
-of `{gar_hallmarks_namespace}/«HALLMARK»/«BASENAME»:«HALLMARK»` written by the orchestrating procedure (handbook step or onboarding-sequence fixture) before enshrine runs; enshrine then verifies the hallmark is reachable rather than re-mirroring it.
-A vessel whose every slot is pre-populated requires no Cloud Build submission — enshrine reduces to local HEAD validation.
+of `{gar_hallmarks_namespace}/«HALLMARK»/«BASENAME»:«HALLMARK»` written by the orchestrating procedure (handbook step or onboarding-sequence fixture) before enshrine runs with ORIGIN empty; enshrine then verifies the hallmark is reachable rather than re-mirroring it.
+A vessel whose every slot resolves to skip requires no Cloud Build submission — enshrine reduces to local HEAD validation.
 
 NOTE: Enshrine is a pre-build preparation step.
 It must be run before
@@ -59,22 +63,29 @@ reliquary tool images exist in GAR (HEAD check on `docker:latest` canary)
 
 //axhos_step
 . *Classify Slots*:
-.. For each indexed slot (n = 1, 2, 3):
+.. For each indexed slot (n = 1, 2, 3), branch on the (ORIGIN, ANCHOR) pair:
 ... If
 {rbrv_image_anchor}
-is set: classify as *pre-populated*. HEAD-request the locator's `«PACKAGE-PATH»:«TAG»` manifest in
+is set, HEAD-request the locator's `«PACKAGE-PATH»:«TAG»` manifest in
 {gar_service}
-. {rbbc_require}
-HTTP 200 — on 404, fail with directive naming the missing locator (caller wrote an unreachable
-{rbrv_image_anchor}
-). The slot's
+:
+.... HTTP 200 — classify as *skip*. The slot's
 {rbrv_image_anchor}
 is left intact; no Cloud Build copy is performed.
+.... HTTP 404 with
+{rbrv_image_origin}
+populated — classify as *to-enshrine*. The
+{rbrv_image_anchor}
+is a stale derived cache; ORIGIN is passed to the Cloud Build step for inspect-and-copy and the writeback step overwrites the stale value with the freshly-computed locator.
+.... HTTP 404 with
+{rbrv_image_origin}
+empty — fail with directive naming the unresolvable locator. The locator was written by an upstream caller (orchestration) as a hallmark-pin; with no ORIGIN there is no source from which to regenerate.
+.... Any other HTTP status — fail.
 ... Otherwise, if
 {rbrv_image_origin}
 is set: classify as *to-enshrine*. ORIGIN is passed to the Cloud Build step for inspect-and-copy.
 ... Otherwise the slot is empty and is omitted from the build.
-.. If every declared slot is pre-populated, skip the Cloud Build submission entirely — the operation reduces to local HEAD validation.
+.. If every declared slot resolves to skip, skip the Cloud Build submission entirely — the operation reduces to local HEAD validation.
 
 //axhos_step
 . *Submit Enshrine Cloud Build Job* (only if any slot is *to-enshrine*):
@@ -107,9 +118,9 @@ containing all upstream platforms
 .. Read `buildStepOutputs[0]` from the completed build result (base64-decoded JSON)
 .. For each slot present in the result:
 ... Write locator string to `RBRV_IMAGE_n_ANCHOR` in the vessel's `rbrv.env`
-.. *Pre-populated* slots are not touched — their existing
+.. *Skip* slots are not touched — their existing
 {rbrv_image_anchor}
-values stand
+values stand. Stale-cache slots reclassified to *to-enshrine* by the 404+ORIGIN branch are written like any other to-enshrine slot, overwriting the stale locator.
 
 //axhoot_typed_output
 {rbrv_image_anchor}
