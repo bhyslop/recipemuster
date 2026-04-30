@@ -237,6 +237,7 @@ zburn_furnish() {
   source "${BURD_BUK_DIR}/burd_regime.sh"
   source "${BURD_BUK_DIR}/burc_regime.sh"
   source "${BURD_BUK_DIR}/burs_regime.sh"
+  source "${BURD_BUK_DIR}/buf_fact.sh"
   source "${BURD_BUK_DIR}/burn_regime.sh"
   source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
   source "${BURD_BUK_DIR}/buym_yelp.sh"
