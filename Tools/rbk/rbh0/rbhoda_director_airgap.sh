@@ -19,8 +19,8 @@
 # Recipe Bottle Handbook Onboarding - Director Airgap Cloud Build
 #
 # Sequel to Your First Cloud Build (rbhodf). Teaches the airgap
-# supply chain: enshrine upstream, conjure forge tethered, conjure
-# airgap ifrit from enshrined forge, install into moriah, run the
+# supply chain: enshrine upstream, conjure base tethered, conjure
+# airgap ifrit from enshrined base, install into moriah, run the
 # same 34-case security suite, compare plumb against tadmor baseline.
 
 set -euo pipefail
@@ -31,7 +31,7 @@ ZRBHODA_SOURCED=1
 rbho_director_airgap() {
   zrbho_sentinel
 
-  buc_doc_brief "${RBHO_TRACK_AIRGAP} — enshrine, conjure forge, conjure airgap, charge moriah, compare plumb"
+  buc_doc_brief "${RBHO_TRACK_AIRGAP} — enshrine, conjure base, conjure airgap, charge moriah, compare plumb"
   buc_doc_shown || return 0
 
   local -r z_moniker="moriah"
@@ -106,8 +106,8 @@ rbho_director_airgap() {
   buh_line "now with full supply-chain discipline. The chain has three links:"
   buh_e
   buh_line "  1. Mirror the rust base from upstream into your ${RBYC_DEPOT} (${RBYC_ENSHRINE})"
-  buh_line "  2. Build a project-authored toolchain image (the forge) ${RBYC_TETHERED}"
-  buh_line "  3. Build the airgap ${RBYC_BOTTLE} ${RBYC_AIRGAP} from the enshrined forge"
+  buh_line "  2. Build a project-authored toolchain ${RBYC_VESSEL} ${RBYC_TETHERED}"
+  buh_line "  3. Build the airgap ${RBYC_BOTTLE} ${RBYC_AIRGAP} from the enshrined ${RBYC_HALLMARK}"
   buh_e
   buh_line "Then drive the resulting ${RBYC_HALLMARK} into the ${z_lk_moriah}"
   buh_line "${RBYC_NAMEPLATE} and run the same 34 containment attacks against"
@@ -160,30 +160,30 @@ rbho_director_airgap() {
   buh_line "under a content-addressed anchor. Once enshrined, builds pull the"
   buh_line "base from your ${RBYC_DEPOT} without touching the public internet."
   buh_e
-  buh_line "The forge ${RBYC_VESSEL} ${z_lk_forge} declares its upstream base in"
+  buh_line "The ${z_lk_forge} ${RBYC_VESSEL} declares its upstream base in"
   buh_line "its ${RBYC_RBRV} file:"
   buh_e
   buh_code "   RBRV_IMAGE_1_ORIGIN=rust:slim-bookworm"
   buh_code "   RBRV_IMAGE_1_ANCHOR=rbi_es/rust-slim-bookworm-5ae2d2ef98:rust-slim-bookworm-5ae2d2ef98"
   buh_e
   buh_line "ORIGIN names where the image comes from; ANCHOR is the locator"
-  buh_line "for it inside your ${RBYC_DEPOT}. Run ${RBYC_ENSHRINE} on the forge:"
+  buh_line "for it inside your ${RBYC_DEPOT}. Run ${RBYC_ENSHRINE} on ${z_lk_forge}:"
   buh_e
   buh_tt "   " "${RBZ_ENSHRINE_VESSEL}" "" " ${z_forge_vessel}"
   buh_e
-  buh_line "${RBYC_ENSHRINE} resolves the upstream base for the forge ${RBYC_VESSEL}"
+  buh_line "${RBYC_ENSHRINE} resolves the upstream base for that ${RBYC_VESSEL}"
   buh_line "and writes the locator back into its ${RBYC_RBRV}. Slots whose ANCHOR"
   buh_line "is already populated are HEAD-validated against your ${RBYC_DEPOT} and"
   buh_line "left untouched — re-running is idempotent."
   buh_e
 
-  buh_step1 "${RBYC_CONJURE} the forge ${RBYC_TETHERED}, then point the airgap ${RBYC_BOTTLE} at it"
+  buh_step1 "${RBYC_CONJURE} ${z_lk_forge} ${RBYC_TETHERED}, then point the airgap ${RBYC_BOTTLE} at it"
   buh_e
-  buh_line "The forge is a project-authored toolchain image. It pre-stages"
+  buh_line "It is a project-authored toolchain image that pre-stages"
   buh_line "apt packages and warms the cargo cache so the airgap build"
   buh_line "downstream has nothing to fetch."
   buh_e
-  buh_line "Build it on the ${RBYC_TETHERED} pool — the forge ${RBYC_RBRV} declares:"
+  buh_line "Build it on the ${RBYC_TETHERED} pool — its ${RBYC_RBRV} declares:"
   buh_e
   buh_code "   RBRV_EGRESS_MODE=tether"
   buh_e
@@ -191,41 +191,41 @@ rbho_director_airgap() {
   buh_e
   buh_tt "   " "${RBZ_ORDAIN_HALLMARK}" "" " ${z_forge_vessel}"
   buh_e
-  buh_line "Wall-clock ~15-20 minutes across the declared platforms. The"
-  buh_line "forge is toolchain plumbing that your customer code will be"
+  buh_line "Wall-clock ~15-20 minutes across the declared platforms. This"
+  buh_line "${RBYC_VESSEL} is toolchain plumbing that your customer code will be"
   buh_line "built against — it is not itself customer code, which is why"
   buh_line "${RBYC_TETHERED} build is acceptable at this layer."
   buh_e
-  buh_line "Now bridge: the airgap ${RBYC_VESSEL} ${z_lk_airgap} declares the"
-  buh_line "forge as its base:"
+  buh_line "Now bridge: the airgap ${RBYC_VESSEL} ${z_lk_airgap} declares"
+  buh_line "${z_lk_forge} as its base:"
   buh_e
   buh_code "   RBRV_IMAGE_1_ORIGIN=rbev-bottle-ifrit-forge"
   buh_code "   RBRV_IMAGE_1_ANCHOR="
   buh_e
   buh_line "ORIGIN names the producer ${RBYC_VESSEL} (lineage); ANCHOR will hold"
-  buh_line "the locator pointing at the forge's just-built ${RBYC_HALLMARK} inside"
-  buh_line "your ${RBYC_DEPOT}'s hallmark namespace. ${RBYC_ORDAIN} wrote the forge"
+  buh_line "the locator pointing at the just-built ${RBYC_HALLMARK} inside"
+  buh_line "your ${RBYC_DEPOT}'s hallmark namespace. ${RBYC_ORDAIN} wrote that"
   buh_line "${RBYC_HALLMARK} to the fact file — capture it:"
   buh_e
   buh_code "   export FORGE_HALLMARK=\$(cat ${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK})"
   buh_e
-  buh_line "Open the airgap ${RBYC_RBRV} and set ANCHOR to the forge image's locator:"
+  buh_line "Open the airgap ${RBYC_RBRV} and set ANCHOR to that ${RBYC_HALLMARK}'s locator:"
   buh_e
   buh_code "   RBRV_IMAGE_1_ANCHOR=rbi_hm/\${FORGE_HALLMARK}/image:\${FORGE_HALLMARK}"
   buh_e
   buh_line "Substitute the captured hallmark into the locator. Commit the change."
   buh_e
   buh_line "Now run ${RBYC_ENSHRINE} on the airgap ${RBYC_VESSEL} as a validation step —"
-  buh_line "${RBYC_ENSHRINE} sees the populated ANCHOR, HEAD-validates that the forge"
+  buh_line "${RBYC_ENSHRINE} sees the populated ANCHOR, HEAD-validates that the base"
   buh_line "${RBYC_HALLMARK} is reachable in your ${RBYC_DEPOT}, and leaves the slot"
   buh_line "untouched. No copy, no Cloud Build job — just a validation gate."
   buh_e
   buh_tt "   " "${RBZ_ENSHRINE_VESSEL}" "" " ${z_airgap_vessel}"
   buh_e
   if test "${z_airgap_base_enshrined}" = "1"; then
-    buh_line "${RBYC_PROBE_YES}Airgap base anchor populated — forge is ready to serve as airgap base"
+    buh_line "${RBYC_PROBE_YES}Airgap base anchor populated — base ${RBYC_HALLMARK} ready"
   else
-    buh_line "${RBYC_PROBE_NO}Airgap base anchor empty — ${RBYC_CONJURE} the forge, then write the locator into the airgap ${RBYC_RBRV}"
+    buh_line "${RBYC_PROBE_NO}Airgap base anchor empty — ${RBYC_CONJURE} ${z_lk_forge}, then write the locator into the airgap ${RBYC_RBRV}"
   fi
   buh_e
 
@@ -233,9 +233,9 @@ rbho_director_airgap() {
   buh_e
   buh_line "Now the airgap build has everything it needs inside your"
   buh_line "${RBYC_DEPOT} — rust toolchain, apt packages, cargo cache, all"
-  buh_line "pre-staged in the enshrined forge."
+  buh_line "pre-staged in the enshrined base ${RBYC_HALLMARK}."
   buh_e
-  buh_line "The airgap ${RBYC_VESSEL}'s Dockerfile starts FROM the forge:"
+  buh_line "The airgap ${RBYC_VESSEL}'s Dockerfile starts FROM that ${RBYC_HALLMARK}:"
   buh_e
   buh_code "   ARG RBF_IMAGE_1"
   buh_code "   FROM \${RBF_IMAGE_1}"
@@ -360,8 +360,8 @@ rbho_director_airgap() {
   buh_line "follows the same shape:"
   buh_e
   buh_line "   1. ${RBYC_ENSHRINE} the upstream base into your ${RBYC_DEPOT}"
-  buh_line "   2. ${RBYC_CONJURE} the forge ${RBYC_TETHERED}, re-${RBYC_ENSHRINE} its ${RBYC_HALLMARK}"
-  buh_line "   3. ${RBYC_CONJURE} the final ${RBYC_BOTTLE} ${RBYC_AIRGAP} from the enshrined forge"
+  buh_line "   2. ${RBYC_CONJURE} the toolchain ${RBYC_VESSEL} ${RBYC_TETHERED}, re-${RBYC_ENSHRINE} its ${RBYC_HALLMARK}"
+  buh_line "   3. ${RBYC_CONJURE} the final ${RBYC_BOTTLE} ${RBYC_AIRGAP} from the enshrined ${RBYC_HALLMARK}"
   buh_e
   buh_line "${RBYC_PLUMB} distinguishes three build-info signatures:"
   buh_e

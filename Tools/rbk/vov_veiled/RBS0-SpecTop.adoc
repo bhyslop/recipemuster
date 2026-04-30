@@ -3212,7 +3212,7 @@ The locator's namespace identifies how the slot was populated:
 {rbtgo_ark_enshrine}.
 The anchor itself is `«sanitized-origin»-«10-char-sha256»` (e.g., `python-3.11-slim-abc123def4`); the locator embeds it as both path segment and tag.
 Enshrined images are stored as peer packages under the shared `{gar_enshrines_namespace}/` namespace, not per-vessel — vessels sharing the same base image origin share one enshrined artifact.
-- `{gar_hallmarks_namespace}/«HALLMARK»/«BASENAME»:«HALLMARK»` — written by an orchestrating procedure (handbook step or onboarding-sequence fixture) when the vessel's base image is an internal hallmark (e.g., the airgap-bottle building FROM the just-ordained forge image).
+- `{gar_hallmarks_namespace}/«HALLMARK»/«BASENAME»:«HALLMARK»` — written by an orchestrating procedure (handbook step or onboarding-sequence fixture) when the vessel's base image is an internal hallmark (e.g., the airgap-bottle building FROM another vessel's just-ordained hallmark).
 The locator points at the specific
 {rbtga_ark_image}
 inside the producer hallmark's subtree.

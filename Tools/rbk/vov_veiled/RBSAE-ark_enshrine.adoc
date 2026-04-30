@@ -24,7 +24,7 @@ The Director HEAD-validates that the locator resolves in
 and leaves the slot's
 {rbrv_image_anchor}
 untouched — no Cloud Build copy occurs for that slot.
-This admits hallmark-base vessels: a vessel whose base image is an internal hallmark (e.g., the airgap-bottle building FROM the just-ordained forge) carries an
+This admits hallmark-base vessels: a vessel whose base image is an internal hallmark (e.g., the airgap-bottle building FROM another vessel's just-ordained hallmark) carries an
 {rbrv_image_anchor}
 of `{gar_hallmarks_namespace}/«HALLMARK»/«BASENAME»:«HALLMARK»` written by the orchestrating procedure (handbook step or onboarding-sequence fixture) before enshrine runs; enshrine then verifies the hallmark is reachable rather than re-mirroring it.
 A vessel whose every slot is pre-populated requires no Cloud Build submission — enshrine reduces to local HEAD validation.
