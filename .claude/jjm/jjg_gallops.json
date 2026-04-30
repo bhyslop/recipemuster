@@ -6946,7 +6946,6 @@
       "order": [
         "₢BBAAz",
         "₢BBAA2",
-        "₢BBAA1",
         "₢BBAA0",
         "₢BBAAm",
         "₢BBAAS",
@@ -6994,7 +6993,8 @@
         "₢BBAAt",
         "₢BBAAw",
         "₢BBAAx",
-        "₢BBAAy"
+        "₢BBAAy",
+        "₢BBAA1"
       ],
       "next_pace_seed": "AA3",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
