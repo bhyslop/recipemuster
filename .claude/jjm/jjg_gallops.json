@@ -548,6 +548,13 @@
         "₢A-AAX": {
           "tacks": [
             {
+              "ts": "260430-0707",
+              "state": "rough",
+              "text": "## Character\nImplementation — mint three Windows-shell garrison tabtargets.\n\n## Docket\nMint `buw-npg{c,w,p}` per BUS0 catalog. Design open — settle in conversation before coding.",
+              "silks": "garrison-platform-machinery",
+              "commit": "21b377f"
+            },
+            {
               "ts": "260429-1526",
               "state": "rough",
               "text": "## Character\nImplementation — Windows-only garrison. Mint per-shell ceremony for the three Windows variants (Cygwin/WSL/PowerShell). Defines the key-line wire format inline.\n\n## Docket\nMint `busn_garrison` for the three Windows shells per BUS0 catalog: `buw-npg{c,w,p}`. Each writes a privileged `burn.env` (BURN_TIER=privileged) and runs the Windows ceremony — sshd bootstrap, admin authorized_keys install with `command=` routing per shell. Console phase is handbook-surface residue (AAa), not Garrison code.\n\nKey-line wire format (former AAR scope, now inline): `zburn_build_key_line` produces `[command=\"...\",options ]<keytype> <base64> # BURN:<alias>`. The trailing `# BURN:<alias>` is the idempotency marker that key-install and SSH-config-aggregation grep for. `command=` prefix is conditional on the platform's routing needs. Keep the format definition co-located with the only producer.\n\nRetire `buw-rhc{c,w,p}`, `buw-wcb`, `buw-wck` files and zipper enrollments.\n\nLinux/Mac/Localhost garrison variants (`buw-npg{l,m,x}`) are out of scope and not slated elsewhere — they do not exist after this pace. Disposition of legacy `buw-rhc{l,m,x}` (BURN-renamed in AAV but no garrison replacement): mount-time decision based on whether they're still consumed by anything (e.g., localhost fundus scenarios).\n\nTier assertion via the helper minted in AAV: Garrison rejects workload aliases.",
