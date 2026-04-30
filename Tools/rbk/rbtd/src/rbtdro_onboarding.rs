@@ -549,7 +549,7 @@ fn rbtdro_kludge_nameplate(
     }
 
     // Commit sentry hallmark before bottle kludge — kludge asserts clean tree.
-    rbtdro_git_commit(&format!("BBAAu kludge-{}: sentry hallmark", nameplate))?;
+    rbtdro_git_commit(&format!("kludge-{}: sentry hallmark", nameplate))?;
 
     let bottle_result = match rbtdro_invoke_logged(
         ctx,
@@ -574,7 +574,7 @@ fn rbtdro_kludge_nameplate(
         )));
     }
 
-    rbtdro_git_commit(&format!("BBAAu kludge-{}: bottle hallmark", nameplate))?;
+    rbtdro_git_commit(&format!("kludge-{}: bottle hallmark", nameplate))?;
     Ok(())
 }
 
@@ -632,7 +632,7 @@ fn rbtdro_onboarding_inscribe_reliquary_impl(
 
     // Commit the rbrv.env changes for all yoked vessels.
     if let Err(v) = rbtdro_git_commit(
-        "BBAAu inscribe-reliquary: yoke stamp into all ordain-side vessels",
+        "inscribe-reliquary: yoke stamp into all ordain-side vessels",
     ) {
         return v;
     }
@@ -723,7 +723,7 @@ fn rbtdro_onboarding_ordain_conjure_impl(ctx: &mut rbtdri_Context, dir: &Path) -
     }
 
     if let Err(v) = rbtdro_git_commit(
-        "BBAAu ordain-conjure: sentry-tether hallmark + propagate to consumers",
+        "ordain-conjure: sentry-tether hallmark + propagate to consumers",
     ) {
         return v;
     }
@@ -771,7 +771,7 @@ fn rbtdro_onboarding_conjure_srjcl_impl(ctx: &mut rbtdri_Context, dir: &Path) ->
     }
 
     if let Err(v) =
-        rbtdro_git_commit("BBAAu conjure-srjcl: jupyter-bottle hallmark + propagate to srjcl")
+        rbtdro_git_commit("conjure-srjcl: jupyter-bottle hallmark + propagate to srjcl")
     {
         return v;
     }
@@ -810,7 +810,7 @@ fn rbtdro_onboarding_ordain_airgap_impl(ctx: &mut rbtdri_Context, dir: &Path) ->
     }
     // Commit before ordain-forge: ordain has clean-tree precondition.
     if let Err(v) = rbtdro_git_commit(
-        "BBAA0 ordain-airgap: enshrine upstream rust base into forge vessel",
+        "ordain-airgap: enshrine upstream rust base into forge vessel",
     ) {
         return v;
     }
@@ -880,7 +880,7 @@ fn rbtdro_onboarding_ordain_airgap_impl(ctx: &mut rbtdri_Context, dir: &Path) ->
     }
 
     if let Err(v) =
-        rbtdro_git_commit("BBAA0 ordain-airgap: airgap-bottle hallmark + propagate to moriah")
+        rbtdro_git_commit("ordain-airgap: airgap-bottle hallmark + propagate to moriah")
     {
         return v;
     }
@@ -930,7 +930,7 @@ fn rbtdro_onboarding_ordain_bind_impl(ctx: &mut rbtdri_Context, dir: &Path) -> r
     }
 
     if let Err(v) =
-        rbtdro_git_commit("BBAAu ordain-bind: plantuml-bottle hallmark + propagate to pluml")
+        rbtdro_git_commit("ordain-bind: plantuml-bottle hallmark + propagate to pluml")
     {
         return v;
     }
@@ -976,7 +976,7 @@ fn rbtdro_onboarding_ordain_graft_impl(ctx: &mut rbtdri_Context, dir: &Path) -> 
     };
     let _ = hallmark; // graft-demo is terminal — no consumer propagation
 
-    if let Err(v) = rbtdro_git_commit("BBAAu ordain-graft: graft-demo hallmark") {
+    if let Err(v) = rbtdro_git_commit("ordain-graft: graft-demo hallmark") {
         return v;
     }
 
