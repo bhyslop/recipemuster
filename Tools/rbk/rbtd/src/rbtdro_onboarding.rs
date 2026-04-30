@@ -121,9 +121,11 @@ const RBTDRO_YOKE_VESSEL_DIRS: &[&str] = &[
 // ── Hallmark-base locator construction ───────────────────────
 //
 // Module-local literals matching rbgc_Constants.sh values. Used to compose the
-// airgap-bottle's RBRV_IMAGE_1_ANCHOR after the forge hallmark is captured —
-// mechanism (c) of BBAA0: orchestration writes a hallmark-namespace locator
-// directly so enshrine reduces to skip-if-set HEAD validation.
+// airgap-bottle's RBRV_IMAGE_1_ANCHOR after the forge hallmark is captured.
+// Orchestration writes a hallmark-namespace locator directly into the consumer
+// vessel's rbrv.env; conjure resolves the locator at airgap-bottle build time.
+// The forge hallmark's existence in GAR is established by ordain-forge's
+// success — no separate enshrine validation step on the consumer.
 
 const RBTDRO_GAR_CATEGORY_HALLMARKS: &str = "rbi_hm";
 const RBTDRO_ARK_BASENAME_IMAGE: &str = "image";
@@ -792,8 +794,8 @@ fn rbtdro_onboarding_conjure_srjcl_impl(ctx: &mut rbtdri_Context, dir: &Path) ->
 
 /// Walk the airgap supply chain: enshrine upstream rust base into forge,
 /// conjure the forge tethered, write the forge-hallmark locator into the
-/// airgap vessel's base anchor (mechanism (c) — no copy), validate via
-/// skip-if-set enshrine, conjure the airgap bottle.
+/// airgap vessel's base anchor (no copy — orchestration writes the locator
+/// directly), conjure the airgap bottle.
 /// Case 1 yoked the reliquary stamp into both forge and airgap vessels.
 /// Propagates airgap-bottle hallmark to moriah via RBRN_BOTTLE_HALLMARK.
 fn rbtdro_onboarding_ordain_airgap(dir: &Path) -> rbtdre_Verdict {
@@ -815,10 +817,6 @@ fn rbtdro_onboarding_ordain_airgap_impl(ctx: &mut rbtdri_Context, dir: &Path) ->
         .rsplit('/')
         .next()
         .unwrap_or(RBTDRO_VESSEL_DIR_AIRGAP_FORGE);
-    let airgap_sigil = RBTDRO_VESSEL_DIR_AIRGAP_BOTTLE
-        .rsplit('/')
-        .next()
-        .unwrap_or(RBTDRO_VESSEL_DIR_AIRGAP_BOTTLE);
 
     if let Err(v) = rbtdro_enshrine(ctx, dir, forge_sigil, "enshrine-upstream") {
         return v;
@@ -863,14 +861,11 @@ fn rbtdro_onboarding_ordain_airgap_impl(ctx: &mut rbtdri_Context, dir: &Path) ->
     }
     let _ = std::fs::write(dir.join("airgap-anchor.txt"), &airgap_anchor);
 
-    // Enshrine on airgap-bottle is now a validation gate — skip-if-set HEAD
-    // checks the hallmark-base locator against GAR; no Cloud Build job runs.
-    if let Err(v) = rbtdro_enshrine(ctx, dir, airgap_sigil, "enshrine-airgap-validate") {
-        return v;
-    }
-    // Commit before ordain-airgap: ordain has clean-tree precondition.
+    // Commit the locator write before ordain-airgap: ordain has clean-tree
+    // precondition. The forge hallmark's existence in GAR is established by
+    // ordain-forge's success above — no separate enshrine validation step.
     if let Err(v) = rbtdro_git_commit(
-        "BBAA0 ordain-airgap: write forge-hallmark locator into airgap-bottle base anchor",
+        "ordain-airgap: write forge-hallmark locator into airgap-bottle base anchor",
     ) {
         return v;
     }

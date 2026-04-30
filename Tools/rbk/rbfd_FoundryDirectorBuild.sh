@@ -830,19 +830,18 @@ rbfd_enshrine() {
   test "${RBRV_VESSEL_MODE:-}" = "conjure" \
     || buc_die "Vessel '${RBRV_SIGIL}' is not a conjure vessel (mode: ${RBRV_VESSEL_MODE:-unset})"
 
-  # Check at least one slot is declared (ORIGIN or pre-populated ANCHOR)
-  local z_has_slot=false
+  # Check at least one slot declares an upstream ORIGIN. ANCHOR is a derived
+  # value computed by this operation from ORIGIN; a vessel with no ORIGIN has
+  # nothing for enshrine to mirror.
+  local z_has_origin=false
   local z_n=""
   local z_origin_var=""
-  local z_anchor_var=""
   for z_n in 1 2 3; do
     z_origin_var="RBRV_IMAGE_${z_n}_ORIGIN"
-    z_anchor_var="RBRV_IMAGE_${z_n}_ANCHOR"
-    test -z "${!z_origin_var:-}" || z_has_slot=true
-    test -z "${!z_anchor_var:-}" || z_has_slot=true
+    test -z "${!z_origin_var:-}" || z_has_origin=true
   done
-  test "${z_has_slot}" = "true" \
-    || buc_die "Vessel '${RBRV_SIGIL}' declares no base-image slots (RBRV_IMAGE_n_ORIGIN/ANCHOR)"
+  test "${z_has_origin}" = "true" \
+    || buc_die "Vessel '${RBRV_SIGIL}' declares no upstream base-image slots (RBRV_IMAGE_n_ORIGIN)"
 
   # Resolve tool images from reliquary (enshrine uses skopeo from reliquary)
   zrbfc_resolve_tool_images
@@ -859,112 +858,18 @@ rbfd_enshrine() {
   # Verify reliquary tool images exist before submitting
   zrbfd_preflight_reliquary "${z_token}" "${z_vessel_dir}"
 
-  # Per-slot classification: pre-populated ANCHOR slots are HEAD-validated and
-  # left intact (skip-if-set); slots with ORIGIN-only are submitted to Cloud Build.
-  # Output: ZRBFD_ENSHRINE_PREFIX{1,2,3}_classification.txt holding "skip" or "enshrine".
-  zrbfd_enshrine_classify_slots "${z_token}"
+  # Always submit the Cloud Build job. The CB step inspects current upstream
+  # for each non-empty ORIGIN slot, computes the content-addressed locator
+  # from the live manifest digest, and copies into GAR. Extract overwrites
+  # whatever was previously committed in RBRV_IMAGE_n_ANCHOR with the just-
+  # computed value — the ANCHOR is a derived artifact of the current upstream,
+  # not a pin.
+  zrbfd_enshrine_submit "${z_token}"
 
-  local z_to_enshrine_count
-  z_to_enshrine_count=$(<"${ZRBFD_ENSHRINE_PREFIX}to_enshrine_count.txt")
-  test -n "${z_to_enshrine_count}" || buc_die "Empty to-enshrine count"
-
-  if test "${z_to_enshrine_count}" = "0"; then
-    buc_info "All declared slots pre-populated — skipping Cloud Build submission"
-  else
-    # Submit enshrine as a Cloud Build job (skopeo runs on GCB, not locally)
-    zrbfd_enshrine_submit "${z_token}"
-
-    # Extract anchor results from build step outputs (only for to-enshrine slots)
-    local -r z_rbrv_file="${z_vessel_dir}/rbrv.env"
-    zrbfd_enshrine_extract_anchors "${z_rbrv_file}"
-  fi
+  local -r z_rbrv_file="${z_vessel_dir}/rbrv.env"
+  zrbfd_enshrine_extract_anchors "${z_rbrv_file}"
 
   buc_success "Enshrine complete for vessel: ${RBRV_SIGIL}"
-}
-
-# Internal: Classify each base-image slot for skip-if-set semantics.
-#   Slot with ANCHOR set     → HEAD-validate the locator in GAR, write "skip".
-#   Slot with ORIGIN only    → write "enshrine" (submit to CB).
-#   Slot with neither set    → write "empty" (omitted from build).
-# A 404 on a pre-populated ANCHOR is fatal — the caller wrote an unreachable
-# locator. Total to-enshrine count is persisted so rbfd_enshrine can decide
-# whether to submit Cloud Build at all.
-zrbfd_enshrine_classify_slots() {
-  zrbfd_sentinel
-
-  local -r z_token="${1:-}"
-  test -n "${z_token}" || buc_die "zrbfd_enshrine_classify_slots: token required"
-
-  buc_step "Classifying enshrine slots (skip-if-set vs. submit)"
-
-  local z_n=""
-  local z_origin_var=""
-  local z_anchor_var=""
-  local z_origin=""
-  local z_anchor=""
-  local z_pkg_path=""
-  local z_tag=""
-  local z_class_file=""
-  local z_status_file=""
-  local z_response_file=""
-  local z_stderr_file=""
-  local z_http_code=""
-  local z_to_enshrine_count=0
-
-  for z_n in 1 2 3; do
-    z_origin_var="RBRV_IMAGE_${z_n}_ORIGIN"
-    z_anchor_var="RBRV_IMAGE_${z_n}_ANCHOR"
-    z_origin="${!z_origin_var:-}"
-    z_anchor="${!z_anchor_var:-}"
-    z_class_file="${ZRBFD_ENSHRINE_PREFIX}${z_n}_classification.txt"
-
-    if test -n "${z_anchor}"; then
-      case "${z_anchor}" in
-        *:*) : ;;
-        *)   buc_die "Invalid ${z_anchor_var} locator format (expected package-path:tag): ${z_anchor}" ;;
-      esac
-      z_pkg_path="${z_anchor%:*}"
-      z_tag="${z_anchor##*:}"
-      test -n "${z_pkg_path}" || buc_die "Package path is empty in ${z_anchor_var}: ${z_anchor}"
-      test -n "${z_tag}"      || buc_die "Tag is empty in ${z_anchor_var}: ${z_anchor}"
-
-      z_status_file="${ZRBFD_ENSHRINE_PREFIX}${z_n}_skip_status.txt"
-      z_response_file="${ZRBFD_ENSHRINE_PREFIX}${z_n}_skip_response.txt"
-      z_stderr_file="${ZRBFD_ENSHRINE_PREFIX}${z_n}_skip_stderr.txt"
-
-      curl --head -sS \
-        --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-        --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-        -H "Authorization: Bearer ${z_token}" \
-        -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
-        -w "%{http_code}" \
-        -o "${z_response_file}" \
-        "${ZRBFC_REGISTRY_API_BASE}/${z_pkg_path}/manifests/${z_tag}" \
-        > "${z_status_file}" 2>"${z_stderr_file}" \
-        || buc_die "HEAD request failed for pre-populated ${z_anchor_var}: ${z_anchor} — see ${z_stderr_file}"
-
-      z_http_code=$(<"${z_status_file}")
-      test -n "${z_http_code}" || buc_die "HTTP status code is empty for pre-populated ${z_anchor_var}"
-
-      if test "${z_http_code}" = "404"; then
-        buc_die "Pre-populated ${z_anchor_var} not reachable in GAR: ${z_anchor} — caller wrote an unresolvable locator"
-      elif test "${z_http_code}" != "200"; then
-        buc_die "Unexpected HTTP ${z_http_code} for pre-populated ${z_anchor_var}: ${z_anchor}"
-      fi
-
-      printf 'skip' > "${z_class_file}" || buc_die "Failed to write classification for slot ${z_n}"
-      buc_info "Slot ${z_n} pre-populated and reachable: ${z_anchor}"
-    elif test -n "${z_origin}"; then
-      printf 'enshrine' > "${z_class_file}" || buc_die "Failed to write classification for slot ${z_n}"
-      z_to_enshrine_count=$((z_to_enshrine_count + 1))
-      buc_log_args "Slot ${z_n} to enshrine: ORIGIN=${z_origin}"
-    else
-      printf 'empty' > "${z_class_file}" || buc_die "Failed to write classification for slot ${z_n}"
-    fi
-  done
-
-  printf '%s' "${z_to_enshrine_count}" > "${ZRBFD_ENSHRINE_PREFIX}to_enshrine_count.txt" \
-    || buc_die "Failed to persist to-enshrine count"
 }
 
 # Internal: Submit enshrine Cloud Build job
@@ -1014,28 +919,12 @@ zrbfd_enshrine_submit() {
   buc_log_args "Composing enshrine Build resource JSON"
   local -r z_build_file="${ZRBFD_ENSHRINE_PREFIX}build.json"
 
-  # ORIGIN substitution per slot: pass through only when the slot is classified
-  # "enshrine"; "skip" (pre-populated ANCHOR) and "empty" map to empty string so
-  # the Cloud Build step omits them.
-  local z_sub_n=""
-  local z_sub_class_file=""
-  local z_sub_class=""
-  local z_sub_origin_var=""
-  local z_sub_origin_1=""
-  local z_sub_origin_2=""
-  local z_sub_origin_3=""
-  for z_sub_n in 1 2 3; do
-    z_sub_class_file="${ZRBFD_ENSHRINE_PREFIX}${z_sub_n}_classification.txt"
-    z_sub_class=$(<"${z_sub_class_file}")
-    z_sub_origin_var="RBRV_IMAGE_${z_sub_n}_ORIGIN"
-    if test "${z_sub_class}" = "enshrine"; then
-      case "${z_sub_n}" in
-        1) z_sub_origin_1="${!z_sub_origin_var:-}" ;;
-        2) z_sub_origin_2="${!z_sub_origin_var:-}" ;;
-        3) z_sub_origin_3="${!z_sub_origin_var:-}" ;;
-      esac
-    fi
-  done
+  # ORIGIN substitution per slot: pass non-empty ORIGIN through verbatim; empty
+  # slots become empty substitutions so the CB step's `test -n "${ORIGIN}"
+  # || continue` guard skips them.
+  local -r z_sub_origin_1="${RBRV_IMAGE_1_ORIGIN:-}"
+  local -r z_sub_origin_2="${RBRV_IMAGE_2_ORIGIN:-}"
+  local -r z_sub_origin_3="${RBRV_IMAGE_3_ORIGIN:-}"
 
   jq -n \
     --slurpfile zjq_steps        "${z_step_file}" \
