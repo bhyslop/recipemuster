@@ -7097,9 +7097,10 @@
         "₢BBAAw",
         "₢BBAAx",
         "₢BBAAy",
-        "₢BBAA1"
+        "₢BBAA1",
+        "₢BBAA5"
       ],
-      "next_pace_seed": "AA5",
+      "next_pace_seed": "AA6",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAA0": {
@@ -7217,6 +7218,17 @@
               "text": "## Character\nMulti-layer alignment — implementation, orchestration, and spec all express the same fact.\n\n## Locked decision\nRBRV_RELIQUARY is required (min=1, non-empty) for every ordain-path vessel: conjure, bind, AND graft. The about/vouch pipeline is mode-uniform and consumes reliquary tool images in every mode (gcloud, docker, alpine, syft); bind also uses reliquary skopeo for image-copy. The current spec/yoke/orchestration claim that \"bind/graft don't use reliquary\" contradicts the implementation — three layers (`rbfd_mirror`, `rbfd_graft`, about/vouch step assembly) require it, while yoke and the spec refuse to set or document it.\n\n## Surface\n- yoke mode-gate (`rbfl_yoke`): accept all ordain-path modes\n- orchestration yoke fan-out (`rbtdro_onboarding.rs`): include bind/graft vessels\n- spec corrections: RBSDY (strike \"Gate on Vessel Mode\"), RBS0 yoke linked-term description\n- preflight gate (`zrbfd_preflight_reliquary`): remove empty-RBRV_RELIQUARY tolerance\n- graft preflight: ensure `zrbfd_registry_preflight` runs before submission\n- vessel kindle schema for RBRV_RELIQUARY: min=1\n- procedural specs (RBSAC, RBSAB, RBSAG): declare universal reliquary precondition\n\n## Watch for\nValidator min=1 against post-`rbw-MZ` state — every vessel has empty RBRV_RELIQUARY by design until inscribe+yoke run. If `rbw-rvv` is exercised against marshal-zero state in any test tier, surface as adjacent fix.\n\n## Cross-pace dependencies\n- BBAAu landed.\n\n## Wrap criterion\n- `ordain-bind` and `ordain-graft` clear empirically against canonical-established depot.\n- `rbw-rvv` enforces RBRV_RELIQUARY min=1 on every ordain-path vessel.\n- Spec, orchestration, and implementation tell one story — no remaining \"bind/graft don't use reliquary\" claims anywhere.\n\n## Out of scope\n- In-pool Cloud-Build-time reliquary preflight — separate pace (BBAA3).\n- BBAAs empirical run — downstream pace, mounts after this clears.",
               "silks": "reliquary-universal-required",
               "commit": "dc96060"
+            }
+          ]
+        },
+        "₢BBAA5": {
+          "tacks": [
+            {
+              "ts": "260501-1059",
+              "state": "rough",
+              "text": "## Character\n\nMechanical DRY port: replace inline curl-with-stderr-capture blocks across the codebase with calls to `rbgu_http_request` (helper landed in BBAAs, lives in `Tools/rbk/rbgu_Utility.sh`). Mount-time discovery — do not assume the surface is what it was when this was slated.\n\n## Discovery recipe\n\nAt mount, scan the curl callsites:\n\n```\ngrep -n 'curl' Tools/rbk/*.sh | grep -v 'rbgu_http_request\\|--head\\|rbgj'\n```\n\nFor each hit, decide: compatible or not?\n\nA callsite is **compatible** with the helper when its curl shape matches all of:\n- Method-parameterized HTTP request (GET/POST/PUT/DELETE)\n- Bearer-token auth passed via a separate token variable\n- Accept and Content-Type headers (when present) are `application/json`\n- Optional JSON body file via `-d @body`\n- Caller wants response body, HTTP status code, and stderr captured to files (rather than discarded or piped)\n\nA callsite is **incompatible** (leave inline; possibly sibling-helper in a future pass) when any of:\n- HEAD-only existence probe (`--head`)\n- Form-encoded body (`application/x-www-form-urlencoded`)\n- Runs in a different shell environment (e.g., alpine sh inside Cloud Build step scripts)\n- Other Content-Type or unusual header set the helper doesn't speak\n\n## Wrap criterion\n\n- Every callsite found by the recipe has been classified compatible or incompatible\n- Every compatible callsite calls the helper instead of inlining the curl flags\n- No new inline curl block matching the compatible shape has appeared in the working tree\n- `tt/rbtd-b.Build.sh` green; `tt/rbtd-s.TestSuite.fast.sh` baseline preserved\n- At least one empirical run exercises a ported callsite end-to-end\n\n## Cross-pace dependencies\n\n- BBAAs landed (helper available)\n\n## Out of scope\n\n- Tolerance/timeout tuning of any retry or polling loop\n- New helper variants (form-encoded, HEAD-predicate, etc.) — those are separate paces if warranted\n- Restructuring caller-side retry/policy logic — only the curl-flag block is portable; the loop around it stays as-is",
+              "silks": "http-helper-callsite-port",
+              "commit": "8c057a4"
             }
           ]
         },
