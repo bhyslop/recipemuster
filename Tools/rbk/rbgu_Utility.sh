@@ -365,6 +365,59 @@ rbgu_http_json() {
   buc_log_args "HTTP ${z_method} ${z_url} returned code ${z_code}"
 }
 
+# Single HTTP request — perform curl with stderr capture, return rc.
+# Args: method url token resp_file code_file stderr_file [body_file]
+# Returns: 0 on success, curl exit rc on failure (no buc_die — caller decides policy).
+# Hardcoded headers: Authorization: Bearer ${token}, Accept: application/json.
+# When body_file is non-empty: adds Content-Type: application/json, sends @body_file.
+# Pass "-" as body_file to read body from stdin (curl @- convention).
+# This is the BCG-conformant primitive — caller supplies temp file paths so per-attempt
+# numbering (BCG §"In loops, use an auto-incrementing integer") is the caller's choice.
+rbgu_http_request() {
+  zrbgu_sentinel
+
+  local -r z_method="${1}"
+  local -r z_url="${2}"
+  local -r z_token="${3}"
+  local -r z_resp_file="${4}"
+  local -r z_code_file="${5}"
+  local -r z_stderr_file="${6}"
+  local -r z_body_file="${7:-}"
+
+  local z_curl_status=0
+  if test -n "${z_body_file}"; then
+    curl                                                     \
+        -sS                                                  \
+        --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+        --max-time "${RBCC_CURL_MAX_TIME_SEC}"               \
+        -X "${z_method}"                                     \
+        -H "Authorization: Bearer ${z_token}"                \
+        -H "Content-Type: application/json"                  \
+        -H "Accept: application/json"                        \
+        -d @"${z_body_file}"                                 \
+        -o "${z_resp_file}"                                  \
+        -w "%{http_code}"                                    \
+        "${z_url}" > "${z_code_file}"                        \
+                  2> "${z_stderr_file}"                      \
+      || z_curl_status=$?
+  else
+    curl                                                     \
+        -sS                                                  \
+        --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+        --max-time "${RBCC_CURL_MAX_TIME_SEC}"               \
+        -X "${z_method}"                                     \
+        -H "Authorization: Bearer ${z_token}"                \
+        -H "Accept: application/json"                        \
+        -o "${z_resp_file}"                                  \
+        -w "%{http_code}"                                    \
+        "${z_url}" > "${z_code_file}"                        \
+                  2> "${z_stderr_file}"                      \
+      || z_curl_status=$?
+  fi
+
+  return "${z_curl_status}"
+}
+
 rbgu_http_require_ok() {
   zrbgu_sentinel
   local -r z_ctx="$1"

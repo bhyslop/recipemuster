@@ -61,6 +61,13 @@ zrbfc_kindle() {
   readonly ZRBFC_BUILD_START_FILE="${BURD_TEMP_DIR}/rbfc_build_start.txt"
   readonly ZRBFC_BUILD_FINISH_FILE="${BURD_TEMP_DIR}/rbfc_build_finish.txt"
 
+  buc_log_args 'Per-poll-attempt temp file prefixes (suffixed by poll counter for forensics)'
+  readonly ZRBFC_POLL_RESPONSE_PREFIX="${BURD_TEMP_DIR}/rbfc_poll_response_"
+  readonly ZRBFC_POLL_CODE_PREFIX="${BURD_TEMP_DIR}/rbfc_poll_code_"
+  readonly ZRBFC_POLL_STDERR_PREFIX="${BURD_TEMP_DIR}/rbfc_poll_stderr_"
+  readonly ZRBFC_POLL_ERR_CHECK_PREFIX="${BURD_TEMP_DIR}/rbfc_poll_err_check_"
+  readonly ZRBFC_POLL_STATUS_PREFIX="${BURD_TEMP_DIR}/rbfc_poll_status_"
+
   buc_log_args 'Define git info file (used by stitch)'
   readonly ZRBFC_GIT_INFO_FILE="${BURD_TEMP_DIR}/rbfc_git_info.json"
 
@@ -69,9 +76,6 @@ zrbfc_kindle() {
   readonly ZRBFC_GIT_COMMIT_FILE="${ZRBFC_GIT_PREFIX}commit.txt"
   readonly ZRBFC_GIT_BRANCH_FILE="${ZRBFC_GIT_PREFIX}branch.txt"
   readonly ZRBFC_GIT_REPO_FILE="${ZRBFC_GIT_PREFIX}repo.txt"
-
-  buc_log_args 'Define validation files'
-  readonly ZRBFC_STATUS_CHECK_FILE="${BURD_TEMP_DIR}/rbfc_status_check.txt"
 
   buc_log_args 'Vessel-related files'
   readonly ZRBFC_VESSEL_SIGIL_FILE="${BURD_TEMP_DIR}/rbfc_vessel_sigil.txt"
@@ -246,8 +250,14 @@ zrbfc_wait_build_completion() {
   local z_polls=0
   local z_queued_advisory_shown=0
   local z_consecutive_failures=0
-  local z_max_consecutive_failures=3
-  local z_err_check_file="${BURD_TEMP_DIR}/rbfc_poll_err_check.txt"
+  local -r z_max_consecutive_failures=3
+  local z_response_file=""
+  local z_code_file=""
+  local z_stderr_file=""
+  local z_err_check_file=""
+  local z_status_check_file=""
+  local z_last_good_response=""
+  local z_curl_rc=0
 
   while true; do
     case "${z_status}" in PENDING|QUEUED|WORKING) : ;; *) break;; esac
@@ -256,48 +266,52 @@ zrbfc_wait_build_completion() {
     z_polls=$((z_polls + 1))
     test "${z_polls}" -le "${z_max_polls}" || buc_die "${z_label}: Build timeout after ${z_max_polls} polls"
 
+    z_response_file="${ZRBFC_POLL_RESPONSE_PREFIX}${z_polls}.json"
+    z_code_file="${ZRBFC_POLL_CODE_PREFIX}${z_polls}.txt"
+    z_stderr_file="${ZRBFC_POLL_STDERR_PREFIX}${z_polls}.txt"
+    z_err_check_file="${ZRBFC_POLL_ERR_CHECK_PREFIX}${z_polls}.txt"
+    z_status_check_file="${ZRBFC_POLL_STATUS_PREFIX}${z_polls}.txt"
+
     buc_log_args "Fetch build status (poll ${z_polls}/${z_max_polls})"
-    local z_curl_rc=0
-    curl -s                                                \
-         --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-         --max-time "${RBCC_CURL_MAX_TIME_SEC}"             \
-         -H "Authorization: Bearer ${z_token}"             \
-         "${ZRBFC_GCB_PROJECT_BUILDS_URL}/${z_build_id}"    \
-         > "${ZRBFC_BUILD_STATUS_FILE}"                     \
-         || z_curl_rc=$?
+    z_curl_rc=0
+    rbgu_http_request "GET" "${ZRBFC_GCB_PROJECT_BUILDS_URL}/${z_build_id}" \
+                      "${z_token}"                                          \
+                      "${z_response_file}" "${z_code_file}" "${z_stderr_file}" \
+      || z_curl_rc=$?
+
     if test "${z_curl_rc}" -ne 0; then
       z_consecutive_failures=$((z_consecutive_failures + 1))
-      buc_warn "Curl failed (${z_consecutive_failures}/${z_max_consecutive_failures} consecutive)"
+      buc_warn "Curl failed (rc=${z_curl_rc}; ${z_consecutive_failures}/${z_max_consecutive_failures} consecutive) — see ${z_stderr_file}"
+      buc_log_pipe < "${z_stderr_file}"
       test ${z_consecutive_failures} -ge ${z_max_consecutive_failures} \
-        && buc_die "Failed to get build status after ${z_max_consecutive_failures} consecutive failures"
+        && buc_die "Failed to get build status after ${z_max_consecutive_failures} consecutive failures (last rc=${z_curl_rc}; see ${z_stderr_file})"
       continue
     fi
 
-    # Validate response is non-empty
-    if ! test -s "${ZRBFC_BUILD_STATUS_FILE}"; then
+    if ! test -s "${z_response_file}"; then
       z_consecutive_failures=$((z_consecutive_failures + 1))
-      buc_warn "Empty response (${z_consecutive_failures}/${z_max_consecutive_failures} consecutive)"
+      buc_warn "Empty response (poll ${z_polls}; ${z_consecutive_failures}/${z_max_consecutive_failures} consecutive) — see ${z_response_file}"
       test ${z_consecutive_failures} -ge ${z_max_consecutive_failures} \
         && buc_die "Empty build status after ${z_max_consecutive_failures} consecutive failures"
       continue
     fi
 
-    # Check for HTTP error responses (401/403/etc) — write to temp file, no subshell
-    jq -r '.error.code // empty' "${ZRBFC_BUILD_STATUS_FILE}" > "${z_err_check_file}" 2>/dev/null
+    jq -r '.error.code // empty' "${z_response_file}" > "${z_err_check_file}" 2>/dev/null
     if test -s "${z_err_check_file}"; then
       z_consecutive_failures=$((z_consecutive_failures + 1))
-      buc_warn "HTTP error $(<"${z_err_check_file}") (${z_consecutive_failures}/${z_max_consecutive_failures} consecutive)"
+      buc_warn "HTTP error $(<"${z_err_check_file}") (poll ${z_polls}; ${z_consecutive_failures}/${z_max_consecutive_failures} consecutive) — see ${z_response_file}"
       test ${z_consecutive_failures} -ge ${z_max_consecutive_failures} \
         && buc_die "HTTP errors after ${z_max_consecutive_failures} consecutive failures"
       continue
     fi
 
-    # Successful response — reset failure counter
     z_consecutive_failures=0
 
-    jq -r '.status' "${ZRBFC_BUILD_STATUS_FILE}" > "${ZRBFC_STATUS_CHECK_FILE}" || buc_die "Failed to extract status"
-    z_status=$(<"${ZRBFC_STATUS_CHECK_FILE}")
-    test -n "${z_status}" || buc_die "Status is empty"
+    jq -r '.status' "${z_response_file}" > "${z_status_check_file}" || buc_die "Failed to extract status (poll ${z_polls})"
+    z_status=$(<"${z_status_check_file}")
+    test -n "${z_status}" || buc_die "Status is empty (poll ${z_polls})"
+
+    z_last_good_response="${z_response_file}"
 
     buc_info "${z_label}: ${z_status} (poll ${z_polls}/${z_max_polls})"
 
@@ -307,6 +321,11 @@ zrbfc_wait_build_completion() {
       buc_tabtarget "${RBZ_QUOTA_BUILD}"
     fi
   done
+
+  test -n "${z_last_good_response}" \
+    || buc_die "${z_label}: no successful poll observed"
+  cp "${z_last_good_response}" "${ZRBFC_BUILD_STATUS_FILE}" \
+    || buc_die "Failed to register winner response at ${ZRBFC_BUILD_STATUS_FILE}"
 
   test "${z_status}" = "SUCCESS" || buc_die "${z_label}: Build failed with status: ${z_status}"
 
