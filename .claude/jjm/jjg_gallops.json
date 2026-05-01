@@ -34,6 +34,7 @@
       "creation_time": "260412",
       "status": "racing",
       "order": [
+        "₢A-AAi",
         "₢A-AAh",
         "₢A-AAg",
         "₢A-AAG",
@@ -66,7 +67,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "next_pace_seed": "AAi",
+      "next_pace_seed": "AAj",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -792,6 +793,17 @@
               "text": "## Character\nInteractive review — operator and agent together assess BUS0 health\nafter paces 1 and 2 land. NOT a candidate for unilateral agent\nimplementation; walked together, one finding at a time.\n\n## Docket\nAfter paces 1+2 ship, BUS0 carries: new BURP regime mappings/bodies,\npruned BURN field set with BURN_PLATFORM added, consolidated garrison\nsubdoc (BUSTG, advisor model), new privileged-ssh subdoc (BUSTPS),\nnew BUSTPL/PR/PV BURP-tabtarget subdocs, three deletions\n(BUSTGC/BUSTGP/old BUSTGW under actor model), updated includes.\n\nReview goals:\n\n- Each new mapping entry has a clean linked-term body.\n- BURP field bodies cross-reference BURN via burp_node correctly.\n- Voicings (//axl_voices) appropriate.\n- No cruft surviving from the old per-Windows-shell garrison split.\n- New quoin sub-letters honor MCM Quoin Discipline — 2-letter ceiling,\n  within-domain Y monosemy, documented sub-letter legend.\n- §Remote Node Access narrative no longer references deprecated terms.\n- Subdoc length and shape consistent with neighbors (BUSTLL etc.).\n\nFindings either land in this pace as small fixes (with explicit operator\ngo-ahead per finding), or get deferred-and-noted to AAg/AAf scope.\n\nMount-time stance: agent reads, surfaces issues one at a time; operator\ndecides each call. No batch rewrites without explicit go-aheads.",
               "silks": "review-bus0-spec-health",
               "commit": "ce57847"
+            }
+          ]
+        },
+        "₢A-AAi": {
+          "tacks": [
+            {
+              "ts": "260501-1132",
+              "state": "rough",
+              "text": "## Character\nImplementation — ship the Windows first-time-setup chain end-to-end\non at least one shell platform (WSL preferred). Architectural decisions\ndeferred elsewhere.\n\n## Docket\nOperator runs `tt/buw-hn.HandbookNode.sh` on a fresh Windows host and\narrives at: pubkey installed in privileged BURN, password auth disabled,\ngarrison passes.\n\nThree pieces:\n\n1. `buw-hw` → `buw-hn.HandbookNode.sh` rename (Node Handbook).\n   Cascades: `buhw_top` → `buhn_top`; module file rename if judged\n   worthwhile; zipper enrollment update; RBK-side cross-references\n   updated. Subdoc BUSTHT stays (already named \"Node Top\").\n\n2. `buw-npg.GarrisonNode.sh` (single, generic) — detect-and-advise.\n   Reads BURN_PLATFORM, branches; only WSL branch filled, others emit\n   \"not yet supported.\" Inspects pubkey + password-auth state, emits\n   guidance, never mutates remote state. Failure advisory covers:\n   handbook pointer; how to open bootstrap auth window; how to disable\n   password auth after garrison passes.\n   Subdoc consolidation: rename BUSTGW → BUSTG (rewrite under advisor\n   model); delete BUSTGC, BUSTGP; collapse 6 `bust_garrison_*` mapping\n   entries → single `bust_garrison`; update BUS0 includes.\n\n3. `buw-nps.SshPrivilegedToNode.sh` — operator drops into admin shell\n   on the configured BURN using BURP credentials. Used for the manual\n   sshd_config edits garrison advises. New subdoc BUSTPS-PrivilegedSsh.adoc;\n   new `bust_privileged_ssh` quoin; new BUS0 include.\n\nDone when chain works end-to-end on at least one Windows shell platform;\ngarrison's advisor reflects actual node state correctly.\n\nMount-time decisions: subdoc body content; whether buhw_windows.sh module\nfile renames; exact garrison advisory wording.\n\nOut of scope: other Windows shells (Cygwin, PowerShell); Linux/Mac/\nLocalhost; conscript/withdraw/discharge/inventory/vanquish; premise\nquoin mints; legacy call-site fixups outside the three pieces.",
+              "silks": "ship-windows-first-time-chain",
+              "commit": "858d288"
             }
           ]
         }
