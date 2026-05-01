@@ -53,10 +53,13 @@
 :bust_knock:                 <<bust_knock,Knock>>
 :bust_remote_run:            <<bust_remote_run,Remote Run>>
 :bust_interactive_session:   <<bust_interactive_session,Interactive Session>>
-:bust_node_regime_list:      <<bust_node_regime_list,Node Regime List>>
-:bust_node_regime_render:    <<bust_node_regime_render,Node Regime Render>>
-:bust_node_regime_validate:  <<bust_node_regime_validate,Node Regime Validate>>
-:bust_handbook_node_top:     <<bust_handbook_node_top,Handbook Node Top>>
+:bust_node_regime_list:        <<bust_node_regime_list,Node Regime List>>
+:bust_node_regime_render:      <<bust_node_regime_render,Node Regime Render>>
+:bust_node_regime_validate:    <<bust_node_regime_validate,Node Regime Validate>>
+:bust_privilege_regime_list:     <<bust_privilege_regime_list,Privilege Regime List>>
+:bust_privilege_regime_render:   <<bust_privilege_regime_render,Privilege Regime Render>>
+:bust_privilege_regime_validate: <<bust_privilege_regime_validate,Privilege Regime Validate>>
+:bust_handbook_node_top:       <<bust_handbook_node_top,Handbook Node Top>>
 
 // Input Artifacts
 :busi_scribed_command_file:  <<busi_scribed_command_file,Scribed Command File>>
@@ -110,18 +113,10 @@
 :burc_log_last:                    <<burc_log_last,BURC_LOG_LAST>>
 :burc_log_ext:                     <<burc_log_ext,BURC_LOG_EXT>>
 
-// BURN Regime: Node (per-node SSH connection profiles, multi-instance)
+// BURN Regime: Node-shape (per-node, project-global, git-tracked)
 :burn_regime:                      <<burn_regime,BURN Regime>>
 :burn_host:                        <<burn_host,BURN_HOST>>
-:burn_user:                        <<burn_user,BURN_USER>>
-:burn_alias:                       <<burn_alias,BURN_ALIAS>>
-:burn_ssh_pubkey:                  <<burn_ssh_pubkey,BURN_SSH_PUBKEY>>
-:burn_key_file:                    <<burn_key_file,BURN_KEY_FILE>>
-:burn_command:                     <<burn_command,BURN_COMMAND>>
-:burn_tier:                        <<burn_tier,BURN_TIER>>
-
-// BURN Regime fields — reshaped for node-shape model
-:burn_os_family:                   <<burn_os_family,BURN_OS_FAMILY>>
+:burn_platform:                    <<burn_platform,BURN_PLATFORM>>
 :burn_workloads:                   <<burn_workloads,BURN_WORKLOADS>>
 
 // BURN/BURP/BURW Identifier Vocabulary
@@ -138,6 +133,7 @@
 :burp_node:                        <<burp_node,BURP_NODE>>
 :burp_user:                        <<burp_user,BURP_USER>>
 :burp_ssh_pubkey:                  <<burp_ssh_pubkey,BURP_SSH_PUBKEY>>
+:burp_key_file:                    <<burp_key_file,BURP_KEY_FILE>>
 :burp_command:                     <<burp_command,BURP_COMMAND>>
 
 // BURW Regime: Workload State (per-station-user, written by conscript)
@@ -934,8 +930,8 @@ BURS assignment files are personal to each developer and not committed to versio
 //axvr_variable axd_required axtu_xname
 {burs_user}::
 Local developer username.
-Routes to the correct `.buk/users/` subdirectory for
-{burn_regime}
+Routes to the correct `.buk/rbmu_users/` subdirectory for
+{burp_regime}
 profiles.
 
 [[burs_log_dir]]
@@ -957,6 +953,9 @@ instance is identified by its
 it carries no key material and changes rarely.
 +
 {burn_regime}
+files live under `.buk/rbmn_nodes/<{burn_viceroyalty}>/burn.env`.
++
+{burn_regime}
 is the sole home of node address-of-record per
 {burn_host_singularity};
 {burp_regime}
@@ -972,12 +971,17 @@ and
 {burn_host}::
 IP address or hostname of the remote node.
 
-[[burn_os_family]]
+[[burn_platform]]
 //axvr_variable axd_required axtu_xname
-{burn_os_family}::
-Operating-system family of the node: `linux`, `mac`, or `windows`.
-Drives platform-specific procedure dispatch (OS-user creation
-mechanism, file-permission tooling, service-restart command).
+{burn_platform}::
+Platform identity of the node, selecting the access stack and procedure
+dispatch.
+Values: `linux`, `mac`, `cygwin`, `wsl`, `powershell`, `localhost`.
+The Windows family appears as three values
+(`cygwin`, `wsl`, `powershell`)
+because each surfaces a distinct shell and quoting regime;
+`localhost` is its own value because connections short-circuit the SSH
+transport.
 
 [[burn_workloads]]
 //axvr_variable axd_required axtu_string axd_repeated
@@ -988,51 +992,6 @@ strings on this node.
 {busn_conscript}
 may only materialize a workload whose alias is enumerated here;
 the operator pre-declares the node's supported workload offices.
-
-[[burn_user]]
-//axvr_variable axd_required axtu_xname
-{burn_user}::
-Username on the remote node.
-May differ from the local
-{burs_user}.
-
-[[burn_alias]]
-//axvr_variable axd_required axtu_xname
-{burn_alias}::
-SSH alias and key filename.
-Must match the directory name containing this profile's assignment file.
-
-[[burn_ssh_pubkey]]
-//axvr_variable axd_required axtu_string
-{burn_ssh_pubkey}::
-Full SSH public key line (e.g., `ssh-ed25519 AAAA... user@host`).
-Git-transported: no private key material.
-Used by handbook procedures to render `authorized_keys` entries and `ssh-keygen` commands.
-
-[[burn_key_file]]
-//axvr_variable axd_optional axtu_string
-{burn_key_file}::
-SSH private key filename within `~/.ssh/`.
-Empty defaults to {burn_alias} (one key per connection).
-Localhost profiles set `id_ed25519` to share the invoking user's default key.
-
-[[burn_command]]
-//axvr_variable axd_required axtu_string
-{burn_command}::
-Shell command for `command=` routing in SSH `authorized_keys`.
-Empty for direct-shell connections (Linux, macOS, localhost — no routing needed).
-When set, determines which shell or environment the connection launches
-(e.g., `C:\cygwin64\bin\bash.exe -l` for Cygwin, `wsl.exe -d Ubuntu` for WSL).
-
-[[burn_tier]]
-//axvr_variable axd_required axtu_xname
-{burn_tier}::
-Privilege classification of this profile.
-Values: `privileged` (admin-level operations on the node — sshd configuration,
-user provisioning, node-level setup) or `workload` (normal remote work as an
-ephemeral user on an established node).
-Tabtargets enforce tier preconditions at entry: privileged-only operations
-refuse workload aliases and vice versa.
 
 === BURN/BURP/BURW Identifier Vocabulary
 
@@ -1152,6 +1111,10 @@ instance is identified by its
 (directory name).
 +
 {burp_regime}
+files live under
+`.buk/rbmu_users/<{burs_user}>/<{burp_investiture}>/burp.env`.
++
+{burp_regime}
 references its node by
 {burp_node}
 per
@@ -1181,6 +1144,16 @@ Full SSH public key line of the operator-managed admin keypair.
 The matching private key lives at `${BURS_KEY_DIR}/<{burp_investiture}>` on
 the operator's station per
 {bus_keys_operator_owned}.
+
+[[burp_key_file]]
+//axvr_variable axd_optional axtu_string
+{burp_key_file}::
+Operator-managed SSH private key filename.
+Resolves under the operator's key directory (typically `~/.ssh/`) per
+{bus_keys_operator_owned}.
+Empty defaults to the
+{burp_investiture}
+(one key per investiture).
 
 [[burp_command]]
 //axvr_variable axd_optional axtu_string
@@ -1589,15 +1562,30 @@ workload-tier work over the same {burn_regime}.
 
 === Privilege Tiers
 
-The {burn_tier} field of every {burn_regime} profile classifies the profile
-as either `privileged` or `workload`. Tabtargets refuse aliases of the wrong
-tier at entry.
+Privilege is encoded by regime, not by a field on
+{burn_regime}.
+Each
+{burp_regime}
+instance grants a single station user privileged authority over a
+{burn_viceroyalty},
+and each
+{burw_regime}
+instance records an ephemeral workload user materialized on that
+viceroyalty by
+{busn_conscript}.
+Tabtargets dispatch by colophon family
+(`buw-np*` for privileged-tier verbs,
+`buw-nw*` for workload-tier verbs)
+and consume the regime appropriate to the verb.
 
 ==== Privileged Tier
 
-Privileged profiles authenticate as a remote OS user with admin or equivalent
-privileges. Used for node-level operations: sshd configuration, user
-provisioning, node-establishment ceremonies.
+Privileged operations authenticate as a remote OS user with admin or
+equivalent privileges via a
+{burp_regime}
+instance.
+Used for node-level operations: sshd configuration, user provisioning,
+node-establishment ceremonies.
 
 Multiple station users may hold privileged trust on the same node (file
 format supports multi-resident keys). Operational convention: only one
@@ -1606,9 +1594,12 @@ enforced by social contract, not BUK locking.
 
 ==== Workload Tier
 
-Workload profiles authenticate as ephemeral remote OS users created by
-privileged authority. Used for normal remote work: running commands,
-file operations, interactive shells.
+Workload operations authenticate as ephemeral remote OS users created by
+privileged authority and tracked by a
+{burw_regime}
+instance.
+Used for normal remote work: running commands, file operations,
+interactive shells.
 
 Workload users are exclusive to one station user — not handed off between
 station users. Lifecycle is short:
@@ -1628,19 +1619,37 @@ operations. Tier-specific colophons follow `buw-n[pw]` for clarity.
 //axvo_tabtarget
 {bust_node_regime_list}::
 `buw-rnl` —
-List all {burn_regime} profiles in the local station subtree.
+List all {burn_regime} profiles under `.buk/rbmn_nodes/`.
 
 [[bust_node_regime_render]]
 //axvo_tabtarget
 {bust_node_regime_render}::
 `buw-rnr` —
-Render a single {burn_regime} profile (alias passed as positional argument).
+Render a single {burn_regime} profile (viceroyalty passed as positional argument).
 
 [[bust_node_regime_validate]]
 //axvo_tabtarget
 {bust_node_regime_validate}::
 `buw-rnv` —
-Validate a single {burn_regime} profile (alias passed as positional argument).
+Validate a single {burn_regime} profile (viceroyalty passed as positional argument).
+
+[[bust_privilege_regime_list]]
+//axvo_tabtarget
+{bust_privilege_regime_list}::
+`buw-rpl` —
+List all {burp_regime} profiles for the current {burs_user}.
+
+[[bust_privilege_regime_render]]
+//axvo_tabtarget
+{bust_privilege_regime_render}::
+`buw-rpr` —
+Render a single {burp_regime} profile (investiture passed as positional argument).
+
+[[bust_privilege_regime_validate]]
+//axvo_tabtarget
+{bust_privilege_regime_validate}::
+`buw-rpv` —
+Validate a single {burp_regime} profile (investiture passed as positional argument).
 
 ==== Privileged (per-platform node setup)
 
@@ -1764,12 +1773,18 @@ Top-level handbook landing for node access procedures.
 
 === Privileges
 
-The {burs_user} owns its profile subtree at `.buk/users/{burs_user}/`
-exclusively — operations write only under the current station user's tree.
-
-A {burn_regime} profile describes a connection identity (host, user, shell,
-alias, key, tier) — not project state, not work-directory. Project context
-is supplied by the consumer at invocation time.
+A
+{burn_regime}
+instance lives under `.buk/rbmn_nodes/<viceroyalty>/` and is shared
+across station users (git-transported); it carries node shape only and
+no key material.
+A
+{burp_regime}
+instance lives under `.buk/rbmu_users/<burs_user>/<investiture>/`;
+the
+{burs_user}
+owns its privileged-credential subtree exclusively, and operations
+write only under the current station user's tree.
 
 Each platform subdoc declares the remote-user privilege contract that its
 ceremony assumes (e.g., on Windows the privileged user must be a member of
