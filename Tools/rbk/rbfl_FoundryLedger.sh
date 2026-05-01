@@ -198,7 +198,7 @@ rbfl_yoke() {
   local -r z_vessel="${BUZ_FOLIO:-}"
   local -r z_stamp="${1:-}"
 
-  buc_doc_brief "Yoke a reliquary stamp into a conjure vessel's rbrv.env — validate both, then rewrite RBRV_RELIQUARY"
+  buc_doc_brief "Yoke a reliquary stamp into a vessel's rbrv.env — validate both, then rewrite RBRV_RELIQUARY"
   buc_doc_param "vessel" "Vessel sigil — folio (e.g., rbev-sentry-deb-tether)"
   buc_doc_param "stamp"  "Reliquary datestamp (e.g., r260327172456)"
   buc_doc_shown || return 0
@@ -210,10 +210,8 @@ rbfl_yoke() {
   local -r z_rbrv_file="${z_vessel_dir}/rbrv.env"
 
   case "${RBRV_VESSEL_MODE}" in
-    conjure) ;;
-    bind)    buc_die "Vessel '${z_vessel}' has mode=bind; Yoke only applies to conjure vessels. Bind vessels pin an upstream digest (no Cloud Build, no reliquary)." ;;
-    graft)   buc_die "Vessel '${z_vessel}' has mode=graft; Yoke only applies to conjure vessels. Graft vessels push a locally-built image (no Cloud Build, no reliquary)." ;;
-    *)       buc_die "Vessel '${z_vessel}' has unrecognized RBRV_VESSEL_MODE='${RBRV_VESSEL_MODE}'" ;;
+    conjure|bind|graft) ;;
+    *)                  buc_die "Vessel '${z_vessel}' has unrecognized RBRV_VESSEL_MODE='${RBRV_VESSEL_MODE}'" ;;
   esac
   buc_info "Vessel valid — mode=${RBRV_VESSEL_MODE}, egress=${RBRV_EGRESS_MODE}"
 

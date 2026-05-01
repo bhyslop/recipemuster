@@ -113,7 +113,7 @@ zrbfd_preflight_reliquary() {
   test -n "${z_vessel_dir}" || buc_die "zrbfd_preflight_reliquary: vessel_dir required"
 
   local -r z_reliquary="${RBRV_RELIQUARY:-}"
-  test -n "${z_reliquary}" || return 0
+  test -n "${z_reliquary}" || buc_die "RBRV_RELIQUARY required on every ordain-path vessel — yoke a reliquary stamp via tt/${RBZ_YOKE_RELIQUARY}.sh before ordaining"
 
   buc_step "Verifying reliquary tool images exist in GAR"
 
@@ -1701,6 +1701,9 @@ rbfd_graft() {
   local z_token
   z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
     || buc_die "Failed to get Director OAuth token"
+
+  # Registry preflight -- verify reliquary tool images exist (graft about+vouch use them)
+  zrbfd_registry_preflight "${z_token}" "${z_vessel_dir}"
 
   # GAR coordinates
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"

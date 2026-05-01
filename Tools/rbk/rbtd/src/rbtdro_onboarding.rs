@@ -89,33 +89,19 @@ const RBTDRO_CONSUMERS_JUPYTER_BOTTLE: &[&str] = &[RBTDRO_NAMEPLATE_SRJCL];
 
 // ── Yoke fan-out — inscribe-reliquary yoking all ordain-side vessels ─────────
 //
-// Yoke applies to conjure-mode vessels only — they are the ones whose
-// Dockerfile pulls from the reliquary tool images at Cloud Build time, so
-// they need the stamp written into rbrv.env. Bind-mode and graft-mode
-// vessels skip Cloud Build (bind pins an upstream digest; graft pushes a
-// pre-built image), so the reliquary toolchain is not in their build path.
-// `rbfl_yoke` enforces this by refusing non-conjure vessels.
-//
-// ccyolo has RBRV_RELIQUARY= in its rbrv.env (present, empty) — it is a
-// conjure-mode vessel whose Dockerfile pulls from the reliquary tool images,
-// so it needs the stamp at ordain time. Included.
-//
-// rbev-bottle-plantuml has RBRV_RELIQUARY= as schema parity but is
-// bind-mode. Excluded from yoke fan-out — bind mode does not use the
-// reliquary toolchain.
-//
-// rbev-graft-demo also has RBRV_RELIQUARY= but graft-mode vessels do not use
-// the reliquary toolchain (they push a pre-built image; no Dockerfile build).
-// Excluded from yoke fan-out despite the presence of the field.
+// All ordain-path vessels — conjure, bind, AND graft — require RBRV_RELIQUARY.
+// The reliquary tool images feed the about/vouch pipeline in every mode
+// (gcloud, docker, alpine, syft); bind also uses skopeo for image-copy. Yoke
+// fan-out covers every vessel that ordain will visit.
 
 const RBTDRO_YOKE_VESSEL_DIRS: &[&str] = &[
     RBTDRO_VESSEL_DIR_SENTRY_TETHER,
     RBTDRO_VESSEL_DIR_AIRGAP_FORGE,
     RBTDRO_VESSEL_DIR_AIRGAP_BOTTLE,
     RBTDRO_VESSEL_DIR_JUPYTER,
+    RBTDRO_VESSEL_DIR_PLANTUML,
+    RBTDRO_VESSEL_DIR_GRAFT,
     "rbev-vessels/rbev-bottle-ccyolo",
-    // rbev-bottle-plantuml excluded: bind mode does not use reliquary tool images
-    // rbev-graft-demo excluded: graft mode does not use reliquary tool images
 ];
 
 // ── Hallmark-base locator construction ───────────────────────
@@ -197,7 +183,7 @@ fn rbtdro_probe_governor_rbra() -> Result<(), String> {
 }
 
 /// Cases 3-7 probe: reliquary stamp yoked into the witness vessel's rbrv.env.
-/// Case 1's yoke fan-out writes RBRV_RELIQUARY into every conjure-path vessel
+/// Case 1's yoke fan-out writes RBRV_RELIQUARY into every ordain-path vessel
 /// and commits; reading the witness vessel's committed value is the cross-case
 /// evidence that case 1 ran. No out-of-source-tree scratch state.
 /// Kludge is local-only (no GCP), so governor RBRA is not a load-bearing
@@ -902,14 +888,14 @@ fn rbtdro_onboarding_ordain_airgap_impl(ctx: &mut rbtdri_Context, dir: &Path) ->
 }
 
 /// Pin upstream PlantUML by digest. Bind mode reads RBRV_BIND_IMAGE from
-/// rbev-bottle-plantuml/rbrv.env and mirrors the digest into GAR — no
-/// reliquary, no Dockerfile, no Cloud Build. Propagates plantuml hallmark
-/// to pluml via RBRN_BOTTLE_HALLMARK.
+/// rbev-bottle-plantuml/rbrv.env and mirrors the digest into GAR via Cloud
+/// Build (skopeo from reliquary + about/vouch metadata). Propagates plantuml
+/// hallmark to pluml via RBRN_BOTTLE_HALLMARK.
 fn rbtdro_onboarding_ordain_bind(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
-        name: "governor RBRA present",
-        check: rbtdro_probe_governor_rbra,
-        remediation: "rerun canonical-establish (rbtdrk_governor_mantle) before this fixture",
+        name: "reliquary stamp captured",
+        check: rbtdro_probe_reliquary_stamp,
+        remediation: "rerun rbtdro_onboarding_inscribe_reliquary before this case",
     };
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;
@@ -956,9 +942,9 @@ fn rbtdro_onboarding_ordain_bind_impl(ctx: &mut rbtdri_Context, dir: &Path) -> r
 /// graft-demo is terminal.
 fn rbtdro_onboarding_ordain_graft(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
-        name: "governor RBRA present",
-        check: rbtdro_probe_governor_rbra,
-        remediation: "rerun canonical-establish (rbtdrk_governor_mantle) before this fixture",
+        name: "reliquary stamp captured",
+        check: rbtdro_probe_reliquary_stamp,
+        remediation: "rerun rbtdro_onboarding_inscribe_reliquary before this case",
     };
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;
