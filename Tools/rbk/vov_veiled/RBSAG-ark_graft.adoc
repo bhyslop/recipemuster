@@ -16,6 +16,8 @@ The metaphor fits the trust posture: grafted images have no provenance chain and
 NOTE: Graft uses whatever container runtime the `docker` command resolves to in PATH, matching other {rbtr_director}-side operations.
 No separate regime variable governs runtime selection for graft.
 
+NOTE: *Universal reliquary precondition*. Every ordain-path vessel — conjure, bind, and graft — must have `RBRV_RELIQUARY` non-empty before this operation runs. Graft's about+vouch combined Cloud Build job consumes reliquary tool images (gcloud, docker, alpine, syft) just like conjure and bind; the registry preflight enforces this before submission.
+
 The
 {rbtr_director}
 grafts an image:

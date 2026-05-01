@@ -25,6 +25,8 @@ The Director knows the complete artifact tag set before the build begins -- nami
 NOTE: The conjure build job runs on the worker pool selected by the vessel's `RBRV_EGRESS_MODE`: tether pool for vessels needing public internet (e.g., `apt-get` in Dockerfile), airgap pool for vessels with all dependencies enshrined in GAR.
 The subsequent {rbtgo_ark_vouch} always runs on the airgap pool regardless of vessel egress mode.
 
+NOTE: *Universal reliquary precondition*. Every ordain-path vessel — conjure, bind, and graft — must have `RBRV_RELIQUARY` non-empty before this operation runs. The about/vouch pipeline (gcloud, docker, alpine, syft) consumes reliquary tool images uniformly across all modes; the registry preflight below enforces this.
+
 The conjure operation:
 
 //axhopt_typed_parameter

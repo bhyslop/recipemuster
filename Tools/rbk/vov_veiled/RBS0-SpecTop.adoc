@@ -797,13 +797,13 @@ All other GCB step operations use the GCE metadata server for OAuth token acquis
 The provenance fetch runs as Python 3 on the gcloud builder image after the primary image is built; the reproducibility concern that motivates this premise is weaker for post-build verification.
 Works under NO_PUBLIC_EGRESS (Private Google Access reaches Google APIs).
 +
-In GCB build step contexts (conjure, bind, enshrine), registry authentication uses the GCE metadata server to obtain an access token and writes a static Docker config JSON.
+In GCB build step contexts (conjure, bind, graft, enshrine), registry authentication uses the GCE metadata server to obtain an access token and writes a static Docker config JSON.
 +
 Rationale: `gcloud` is an opaque, version-sensitive binary that obscures API semantics, introduces implicit authentication state, and breaks reproducibility.
 The `gcloud auth configure-docker` approach also fails mechanically in GCB steps — the gcloud builder image lacks `docker` in PATH, so the credential helper it installs cannot function.
 +
-NOTE: The gcloud reliquary image exists because conjure build steps use it as a convenience shell (for `bash` and `date`).
-The vouch verification step (conjure mode) additionally invokes `gcloud` for provenance retrieval (see exception above).
+NOTE: The gcloud reliquary image exists because every ordain-path build step (conjure, bind, graft) uses it for the about/vouch pipeline (`bash`, `date`, and `gcloud` for provenance retrieval per the exception above).
+The reliquary toolchain is mode-uniform: all ordain modes consume gcloud, docker, alpine, and syft from the reliquary; bind additionally uses skopeo for image-copy.
 
 [[rbsk_invest_serialized]]
 //axl_voices axk_premise
@@ -1160,7 +1160,7 @@ include::RBSDI-depot_inscribe.adoc[]
 //axvo_method axd_transient axd_grouped
 === {rbtgo_director_yoke}
 
-Yokes a reliquary stamp into a conjure vessel's
+Yokes a reliquary stamp into an ordain-path vessel's
 {rbrv_regime}:
 validates the stamp against GAR and the vessel against its enrollment, then rewrites `RBRV_RELIQUARY` in the vessel's `rbrv.env`
 ({rbtgog_depot}).
@@ -2821,7 +2821,7 @@ Maximum duration for Cloud Build operations.
 Public docs URL — readme target for buh_tlt glossary links, updated per-release or per-incorporation.
 
 // RBRG variable definitions eliminated (₣Av) — reliquaries replace pin-based tool image management
-// Tool images (gcloud, docker, alpine, syft, binfmt, skopeo) now sourced from reliquary at conjure time
+// Tool images (gcloud, docker, alpine, syft, binfmt, skopeo) now sourced from reliquary at ordain time
 
 [[rbrr_group_public_docs]]
 //axvr_group
@@ -2851,7 +2851,7 @@ Container image build process configuration.
 include::RBSRR-RegimeRepo.adoc[]
 
 // RBRG regime eliminated (₣Av) — reliquaries replace pin-based tool image management
-// Tool images now sourced from datestamped reliquary namespace in GAR at conjure time
+// Tool images now sourced from datestamped reliquary namespace in GAR at ordain time
 
 === Machine Regime (RBRM)
 

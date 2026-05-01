@@ -48,7 +48,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-dl` | PayorListsDepots | — | List all active depots |
 | `rbw-dE` | DirectorEnshrinesVessel | — | Enshrine upstream base images to GAR via Cloud Build |
 | `rbw-dI` | DirectorInscribesReliquary | — | Create reliquary: mirror tool images from upstream to GAR |
-| `rbw-dY` | DirectorYokesReliquaryInVessel | param1 | Yoke a reliquary stamp into a conjure vessel's rbrv.env |
+| `rbw-dY` | DirectorYokesReliquaryInVessel | param1 | Yoke a reliquary stamp into an ordain-path vessel's rbrv.env |
 
 ### Guide — Human-directed procedures (`rbw-g`)
 

@@ -18,6 +18,8 @@ NOTE: The about steps receive their context via substitution variables (`_RBGA_*
 For conjure, the hallmark is read from `/workspace` (computed by the preceding build steps); for bind and graft, it comes from the `_RBGA_HALLMARK` substitution variable.
 See <<rbtgo_about_substitutions>> below for the full variable reference.
 
+NOTE: *Universal reliquary precondition*. Every ordain-path vessel — conjure, bind, and graft — must have `RBRV_RELIQUARY` non-empty before about runs. The four steps below execute on reliquary-sourced tool images (gcloud, docker, alpine, syft) regardless of mode; the parent operation's registry preflight enforces this before any Cloud Build submission.
+
 //axhos_step
 . *Cloud Build Step 1: Discover Platforms* (Python 3):
 .. Image: gcloud (from reliquary)

@@ -1,8 +1,9 @@
 //axhob_operation
 {rbtgo_director_yoke}
 
-NOTE: This operation writes `RBRV_RELIQUARY=«STAMP»` into a conjure vessel's `rbrv.env` so that subsequent Cloud Build operations (conjure, enshrine) consume the named tool image set as GCB step images.
-Both arguments are validated before any file write: the stamp against GAR (all six tool packages must be present under the reliquary subtree), the vessel against its RBRV enrollment plus a vessel-mode gate.
+NOTE: This operation writes `RBRV_RELIQUARY=«STAMP»` into an ordain-path vessel's `rbrv.env` so that subsequent Cloud Build operations (conjure, bind, graft, enshrine) consume the named tool image set as GCB step images.
+The about/vouch pipeline (gcloud, docker, alpine, syft) consumes reliquary tool images uniformly across all ordain modes; bind additionally uses skopeo for image-copy.
+Both arguments are validated before any file write: the stamp against GAR (all six tool packages must be present under the reliquary subtree), the vessel against its RBRV enrollment.
 On validation failure the operation errors diagnostically without touching any file.
 
 The
@@ -27,21 +28,6 @@ vessel directory contains `rbrv.env`
 which is a kindle constant with min=1 enrollment; pre-write enforce
 would self-veto on marshal-zero state. The strict validator path is
 `rbw-rvv` ValidateVesselRegime.)
-
-//axhos_step
-. *Gate on Vessel Mode*:
-.. {rbbc_require}
-{rbrv_vessel_mode}
-equals
-{rbrv_vessel_mode_conjure}
-.. {rbbc_fatal}
-if mode is
-{rbrv_vessel_mode_bind}
-— bind vessels pin an upstream digest (no Cloud Build, no reliquary)
-.. {rbbc_fatal}
-if mode is
-{rbrv_vessel_mode_graft}
-— graft vessels push a locally-built image (no Cloud Build, no reliquary)
 
 //axhos_step
 . *Authenticate as
