@@ -549,6 +549,13 @@
         "₢A-AAX": {
           "tacks": [
             {
+              "ts": "260501-0947",
+              "state": "abandoned",
+              "text": "## Character\nImplementation — mint three Windows-shell garrison tabtargets.\n\n## Docket\nMint `buw-npg{c,w,p}` per BUS0 catalog. Design open — settle in conversation before coding.",
+              "silks": "garrison-platform-machinery",
+              "commit": "469526b"
+            },
+            {
               "ts": "260430-0707",
               "state": "rough",
               "text": "## Character\nImplementation — mint three Windows-shell garrison tabtargets.\n\n## Docket\nMint `buw-npg{c,w,p}` per BUS0 catalog. Design open — settle in conversation before coding.",
