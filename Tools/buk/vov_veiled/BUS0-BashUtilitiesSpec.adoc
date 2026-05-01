@@ -93,7 +93,9 @@
 // BUK Regime Prefixes
 :burc_prefix:                      <<burc_prefix,BURC_>>
 :burn_prefix:                      <<burn_prefix,BURN_>>
+:burp_prefix:                      <<burp_prefix,BURP_>>
 :burs_prefix:                      <<burs_prefix,BURS_>>
+:burw_prefix:                      <<burw_prefix,BURW_>>
 
 // BURC Regime: Configuration (project-level BUK settings)
 :burc_regime:                      <<burc_regime,BURC Regime>>
@@ -118,14 +120,26 @@
 :burn_command:                     <<burn_command,BURN_COMMAND>>
 :burn_tier:                        <<burn_tier,BURN_TIER>>
 
+// BURN Regime fields — reshaped for node-shape model
+:burn_os_family:                   <<burn_os_family,BURN_OS_FAMILY>>
+:burn_workloads:                   <<burn_workloads,BURN_WORKLOADS>>
+
 // BURN/BURP/BURW Identifier Vocabulary (reshape-in-progress)
 :burn_viceroyalty:                 <<burn_viceroyalty,Viceroyalty>>
 :burp_investiture:                 <<burp_investiture,Investiture>>
 :burw_lieutenancy:                 <<burw_lieutenancy,Lieutenancy>>
 
-// BURP/BURW Regime references (full definitions pending reshape)
+// BURP Regime: Privileged Credentials (per-station-user)
 :burp_regime:                      <<burp_regime,BURP Regime>>
+:burp_node:                        <<burp_node,BURP_NODE>>
+:burp_user:                        <<burp_user,BURP_USER>>
+:burp_ssh_pubkey:                  <<burp_ssh_pubkey,BURP_SSH_PUBKEY>>
+:burp_command:                     <<burp_command,BURP_COMMAND>>
+
+// BURW Regime: Workload State (per-station-user, written by conscript)
 :burw_regime:                      <<burw_regime,BURW Regime>>
+:burw_node:                        <<burw_node,BURW_NODE>>
+:burw_command:                     <<burw_command,BURW_COMMAND>>
 
 // BUSN: Node Access (verbs for remote node management)
 :busn_garrison:                    <<busn_garrison,Garrison>>
@@ -929,17 +943,49 @@ Directory where this developer stores BUK operation logs.
 [[burn_regime]]
 //axvr_regime axf_bash axrd_file_sourced
 {burn_regime}::
-Per-user, per-connection-profile regime for SSH access to remote nodes.
-Unlike singleton regimes, BURN is multi-instance: one assignment file per SSH connection,
-stored at `.buk/users/{burs_user}/<alias>/burn.env`.
-Each profile describes one SSH connection — one key, one alias, one entry point —
-classified by {burn_tier} as either privileged (node-level operations) or workload
-(user-level operations on an established node).
+Per-node configuration regime describing the shape of a remote
+target — its address, OS family, and the authoritative template of
+workload offices it admits.
+A
+{burn_regime}
+instance is identified by its
+{burn_viceroyalty}
+(directory name) and is shared across station users (git-transported);
+it carries no key material and changes rarely.
++
+{burn_regime}
+instances are referenced by
+{burp_regime}
+instances (which authorize privileged operations against the node)
+and by
+{burw_regime}
+instances (which record workload state created on the node).
+The host lives only here; credentials never duplicate it.
 
 [[burn_host]]
 //axvr_variable axd_required axtu_string
 {burn_host}::
 IP address or hostname of the remote node.
+
+[[burn_os_family]]
+//axvr_variable axd_required axtu_xname
+{burn_os_family}::
+Operating-system family of the node: `linux`, `mac`, or `windows`.
+Drives platform-specific procedure dispatch (OS-user creation
+mechanism, file-permission tooling, service-restart command).
+
+[[burn_workloads]]
+//axvr_variable axd_required axtu_string axd_repeated
+{burn_workloads}::
+Authoritative template of valid
+{burw_lieutenancy}
+strings on this node.
+Conscript refuses to create any workload whose alias is not enumerated
+here; the operator pre-declares the node's supported workload offices,
+and conscript may only materialize what the template admits.
++
+Each entry is also the remote OS username of its workload account by
+construction.
 
 [[burn_user]]
 //axvr_variable axd_required axtu_xname
@@ -1066,6 +1112,117 @@ account on the node, drawn at conscript time from the
 {burn_viceroyalty}'s authoritative `burn_workloads` template.
 +
 Examples: `redbox-cyg`, `redbox-wsl`, `redbox-pwsh`.
+
+=== BURP Regime
+
+[[burp_prefix]]
+//axl_voices axrg_prefix
+{burp_prefix}::
+Bash Utility Regime Privileged
+
+[[burp_regime]]
+//axvr_regime axf_bash axrd_file_sourced
+{burp_regime}::
+Per-station-user privileged-credential regime — an operator's named
+grant of admin authority over a
+{burn_viceroyalty}.
+A
+{burp_regime}
+instance is identified by its
+{burp_investiture}
+(directory name) and carries the credential bundle (admin keys, shell
+command, remote admin user) authorizing privileged operations on the
+referenced node.
++
+The host is not duplicated here; it is sourced from the referenced
+{burn_regime}
+via
+{burp_node}.
+
+[[burp_node]]
+//axvr_variable axd_required axtu_xname
+{burp_node}::
+Reference to a
+{burn_viceroyalty}
+— the node this investiture is granted over.
+Resolves to the
+{burn_regime}
+file at the directory bearing this name.
+
+[[burp_user]]
+//axvr_variable axd_required axtu_xname
+{burp_user}::
+Remote admin OS user this credential authenticates as
+(e.g., `Administrator` on Windows, `root` or a sudo-capable user on
+Linux/Mac).
+
+[[burp_ssh_pubkey]]
+//axvr_variable axd_required axtu_string
+{burp_ssh_pubkey}::
+Full SSH public key line of the operator-managed admin keypair.
+The matching private key lives at `${BURS_KEY_DIR}/<investiture>` on
+the operator's station;
+the system never generates or modifies key material.
+
+[[burp_command]]
+//axvr_variable axd_optional axtu_string
+{burp_command}::
+Shell command for SSH `command=` routing in the node's
+`administrators_authorized_keys`.
+Empty for direct-shell connections;
+non-empty when the admin shell is selected at the SSH layer
+(e.g., `powershell.exe`, `C:\cygwin64\bin\bash.exe -l`).
+
+=== BURW Regime
+
+[[burw_prefix]]
+//axl_voices axrg_prefix
+{burw_prefix}::
+Bash Utility Regime Workload
+
+[[burw_regime]]
+//axvr_regime axf_bash axrd_file_sourced
+{burw_regime}::
+Per-station-user workload-state regime — a record of a workload office
+materialized on a node by conscript.
+A
+{burw_regime}
+instance is identified by its
+{burw_lieutenancy}
+(directory name) and captures the
+configuration-at-conscription-time that the station needs to remember.
+Unlike
+{burp_regime}
+(operator-authored config),
+{burw_regime}
+is system-written by conscript and consumed by discharge / knock /
+remote_run / interactive_session.
++
+{burw_regime}
+files live under a path declared by the station regime
+(`BURS_KEY_DIR`-adjacent or a sibling field — pinned in cleanup pace).
+
+[[burw_node]]
+//axvr_variable axd_required axtu_xname
+{burw_node}::
+Reference to a
+{burn_viceroyalty}
+— the node this lieutenancy operates on.
+Resolves to the
+{burn_regime}
+file at the directory bearing this name;
+provides the host for SSH operations against the workload account.
+
+[[burw_command]]
+//axvr_variable axd_required axtu_string
+{burw_command}::
+Shell command captured at conscript time, mirroring the `command=`
+directive installed in the workload account's `~/.ssh/authorized_keys`
+on the node.
+The conscript-platform variant supplies this template value at
+materialization;
+{burw_regime}
+records it for station-side memory of what was inscribed.
 
 === BURD Regime
 
