@@ -548,7 +548,7 @@ zrbfc_assemble_preflight_step() {
   z_pbody=$(<"${z_pbody_file}")
   test -n "${z_pbody}" || buc_die "Empty preflight script body"
 
-  printf '#!/bin/bash\n%s' "${z_pbody}" > "${z_pescaped_file}" \
+  printf '#!/bin/sh\n%s' "${z_pbody}" > "${z_pescaped_file}" \
     || buc_die "Failed to write escaped preflight script body"
 
   echo "[]" > "${z_output_file}" || buc_die "Failed to initialize preflight steps JSON"

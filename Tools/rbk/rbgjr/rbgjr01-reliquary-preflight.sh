@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # RBGJR Step 01: In-pool reliquary preflight — HEAD-check tool images and enshrined anchors
 # Builder: alpine (from reliquary)
 # Substitutions: _RBGR_GAR_HOST, _RBGR_GAR_PATH, _RBGR_RELIQUARIES_ROOT,
