@@ -3,97 +3,92 @@
 Windows test infrastructure for Recipe Bottle. Run RB's container isolation
 tests on a Windows host with WSL, Cygwin, and dual Docker daemons.
 
-## Current Design
+## Current Concept
 
-The architectural backbone lives in BUS0 §Remote Node Access (`Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc`)
-plus three platform subdocs (`BUSNW-NodeWindows.adoc`, `BUSNL-NodeLinux.adoc`,
-`BUSNM-NodeMac.adoc`). Read BUS0 §Remote Node Access first; this paddock
-captures only state that doesn't fit there.
+Architectural backbone in BUS0 (`Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc`).
+Read BUS0 §Remote Node Access first; this paddock captures only state that
+doesn't fit there.
 
-**Header decisions made in this heat:**
+**Three regimes (BURN/BURP/BURW):**
 
-- BURH regime renamed to BURN (n = Node) — decision; execution in AAV/AAW
-- BURN_TIER field added: `privileged | workload`
-- Two-tier model:
-  - Privileged tier: node-level ops (sshd config, user provisioning).
-    Multi-resident allowed; one operator at a time by social contract.
-  - Workload tier: user-level ops (normal remote work). Exclusive to one
-    station user; ephemeral.
-- Verb vocabulary (BUSN quoins): Garrison / Conscript / Discharge / Inventory
-- Tabtarget colophon families under `buw-`:
-  - `buw-rn{l,r,v}` — BURN regime ops (list / render / validate)
-  - `buw-rnc` — SSH config aggregator (cross-tier, all profiles)
-  - `buw-npg{c,w,p}` — Garrison per Windows shell (Cygwin/WSL/PowerShell)
-  - `buw-nwc{c,w,p}` — Conscript per Windows shell
-  - `buw-nw{d,i}` — Discharge / Inventory (Windows-side)
-  - `buw-nw{k,r,s}` — Knock / Run / Ssh (workload operational)
-  - `buw-hn0` — Handbook landing for node ops
-- Workload responsiveness "knock" colophon is `buw-nwk` (originally
-  `buw-nwc`; renamed to remove visual collision with conscript family
-  `buw-nwc{platform}`).
-- Linux/Mac/Localhost garrison and conscript variants (`buw-npg{l,m,x}`,
-  `buw-nwc{l,m,x}`) are not slated and not itched. Mint as new paces when
-  a first non-Windows fundus target actually arrives. Legacy `buw-rhc{l,m,x}`
-  (BURN-renamed in AAV) survives as transitional code; localhost remains
-  exercised by AAc and AAP regression paces.
-- AAQ (BUSNW elaboration) dropped: BUS0 backbone is sufficient spec; per-
-  platform contracts crystallize through implementation paces and AAC
-  practice. BUSNW stub (36 lines) stands as-is.
+- BURN — node-shape (host, OS family, valid workload-template list).
+  Per-node, git-transported, changes rarely. Identifier: viceroyalty.
+- BURP — privileged credentials. Per-station-user, operator-authored.
+  Identifier: investiture. References a viceroyalty via `burp_node`.
+- BURW — workload state. Per-station-user, system-written by conscript.
+  Identifier: lieutenancy. References a viceroyalty via `burw_node`.
+
+**Cross-cutting premises:**
+
+- `burn_host_singularity` — host of a node lives only in BURN; BURP and BURW
+  reach it by reference, never duplicate.
+- `bus_keys_operator_owned` — system never generates or modifies SSH key
+  material; operator owns all key administration.
+- single-admin-at-a-time — one privileged admin per node at a time;
+  sequential transitions, not concurrent residence.
+
+**Verb vocabulary:**
+
+- Privileged tier: garrison, withdraw, conscript-{platform}, discharge,
+  vanquish, inventory
+- Workload tier: knock, remote_run, interactive_session
+
+**Tabtarget colophons under `buw-`:**
+
+- `buw-rn{l,r,v}` — BURN regime ops; analogous `buw-rp/rw{l,r,v}` for BURP/BURW
+- `buw-np*` — privileged-tier verbs (np = uses privileged authority)
+- `buw-nw*` — workload-tier verbs (nw = uses workload identity)
+- `buw-hn0` — handbook landing for node ops
+
+**BURS additions:**
+
+- `BURS_KEY_DIR` — operator-managed SSH key directory (full path, no tilde)
+- `BURS_WORKLOAD_STATE_DIR` — where BURW state files live (per-station-user)
 
 ## Heat Sequence
 
-**Implementation phase (sequenced):**
+**Spec finalization (gates implementation):**
 
-- ₢A-AAV burh-to-burn-rename-buk — mechanical rename + tier-refusal helper
-  + SSH config aggregator move (`buw-HWsc` → `buw-rnc`)
-- ₢A-AAW burh-to-burn-rename-jjk — mechanical, depends on AAV
-- ₢A-AAX garrison-windows-machinery — three Windows shells; defines key-
-  line wire format (`# BURN:<alias>` marker) inline; updates BUS0 catalog
-- ₢A-AAY conscript-discharge-inventory-windows — Windows workload-tier
-  mirror, depends on AAX; updates BUS0 catalog
-- ₢A-AAZ workload-operational-tabtargets — Check / Run / Ssh
-- ₢A-AAa node-handbook-landing-and-windows-residue — handbook restructure,
-  depends on AAX and AAY
+- reshape-spec-finalize — finish BUS0 verb table, cross-cutting principles
+  section, subdoc consolidation
 
-**Curia smoke (FIRST testing — runs on Mac before any Windows trip):**
+**Cleanup (depends on spec finalize):**
 
-- ₢A-AAc localhost-smoke-pre-windows — fundus scenario test on Mac;
-  validates BURN rename + Windows-only scope didn't break localhost path
+- AAf (scope-expanded) — delete deprecated BURN fields, residue prose,
+  retired subdocs, legacy buhw handbook tabtargets, legacy
+  `buw-rhc{l,m,x}` profile-minting if confirmed unused
 
-**Practice phase (Windows host):**
+**Investigation (independent, runs anytime):**
 
-- ₢A-AAC practice-access-procedures — Garrison/Conscript on real Windows;
-  pass criteria specified per shell variant in pace docket
-- ₢A-AAD practice-environment-procedures — WSL + Cygwin install
-- ₢A-AAE practice-fundus-provisioning — JJK fundus inside WSL
-- ₢A-AAF practice-docker-procedures — Docker dual-daemon
+- AAe — localhost-fundus-parallel-saturation diagnosis
 
-**Final regression:**
+**Practice phase (Windows host) — blocked on yet-to-mint implementation paces:**
 
-- ₢A-AAP retest-fundus-after-practice — re-run localhost fundus scenario
-  test after Windows practice has potentially amended code
+- AAD — WSL distro + Cygwin install
+- AAE — JJK fundus inside WSL
+- AAF — Docker dual-daemon
+
+**Implementation paces:** TBD. Minted fresh after spec finalize + cleanup land.
+Will cover garrison, withdraw, conscript-{platform}, discharge, vanquish,
+BURS field additions, BURP/BURW regime tabtargets.
 
 ## Deferred (named for future return)
 
-- **Adopt** — cross-station-user pubkey install via existing privileged
-  trust. Today: each station user runs the ceremony fresh from their
-  own machine.
-- **User regime** — centralized per-user pubkey for shared admin
-  scenarios. Pairs naturally with Adopt when both are needed.
-- **Git normalization on remote** — JJK has `jjx_plant`; BUK doesn't
-  duplicate.
+- **Adopt** — cross-station-user pubkey install via existing privileged trust.
+  Today: each station user runs the ceremony fresh from their own machine.
+- **User regime** — centralized per-user pubkey for shared admin scenarios.
+  Pairs naturally with Adopt when both are needed.
+- **Git normalization on remote** — JJK has `jjx_plant`; BUK doesn't duplicate.
 
 ## Standing Notes
 
 - Tailscale provides stable transport (Mac sees `rocket` as
   `100.x.y.z` / tailnet hostname); not adopted as a BUK dependency
 - Windows username `b hyslop` (with space) — audit shell quoting at
-  every `${BURN_USER}` expansion during practice
+  every `${BURP_USER}` expansion during practice
 - Fundus capability registry: `Tools/rbk/vov_veiled/RBSFR-FundusRegistry.md`
-- PowerShell-from-WSL pattern: bash owns control flow, PowerShell is
-  the Windows syscall layer; one atomic command per call
-- BURS_USER station regime field routes profiles to
-  `.buk/users/${BURS_USER}/` subdirectory
-- Three Windows BURN profiles for `rocket` distinguished by
-  `BURN_COMMAND`: cygwin (`...bash.exe -l`), WSL (`wsl.exe -d ...`),
-  PowerShell (`powershell.exe`)
+- PowerShell-from-WSL pattern: bash owns control flow, PowerShell is the
+  Windows syscall layer; one atomic command per call
+- BURS_USER station regime field routes BURP files to
+  `.buk/users/${BURS_USER}/` subdirectory; BURN files are shared
+  (project-tracked); BURW state lives at `${BURS_WORKLOAD_STATE_DIR}`
