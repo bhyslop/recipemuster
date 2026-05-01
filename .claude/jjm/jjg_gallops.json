@@ -627,6 +627,13 @@
         "₢A-AAZ": {
           "tacks": [
             {
+              "ts": "260501-0948",
+              "state": "abandoned",
+              "text": "## Character\nImplementation — small surface; one extraction (Check from existing verify_ssh), two new verbs (Run, Ssh).\n\n## Docket\nMint `buw-nwc <workload-alias>` (Check), `buw-nwr <workload-alias> <cmd-file>` (Run with output capture), `buw-nws <workload-alias>` (interactive SSH).\n\nCheck absorbs the workload portion of `burn_verify_ssh`. The privileged portion belongs inside Garrison's verify phase, not as a separate tabtarget.\n\nNote colophon proximity: `buw-nwc` (Check) sits next to `buw-nwc{platform}` (Conscript). Distinct colophons, accepted.\n\nTier assertion: workload-alias arg rejects privileged tier.",
+              "silks": "workload-operational-tabtargets",
+              "commit": "cbdd0fa"
+            },
+            {
               "ts": "260429-1057",
               "state": "rough",
               "text": "## Character\nImplementation — small surface; one extraction (Check from existing verify_ssh), two new verbs (Run, Ssh).\n\n## Docket\nMint `buw-nwc <workload-alias>` (Check), `buw-nwr <workload-alias> <cmd-file>` (Run with output capture), `buw-nws <workload-alias>` (interactive SSH).\n\nCheck absorbs the workload portion of `burn_verify_ssh`. The privileged portion belongs inside Garrison's verify phase, not as a separate tabtarget.\n\nNote colophon proximity: `buw-nwc` (Check) sits next to `buw-nwc{platform}` (Conscript). Distinct colophons, accepted.\n\nTier assertion: workload-alias arg rejects privileged tier.",
