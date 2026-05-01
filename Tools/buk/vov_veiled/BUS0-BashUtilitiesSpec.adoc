@@ -118,6 +118,15 @@
 :burn_command:                     <<burn_command,BURN_COMMAND>>
 :burn_tier:                        <<burn_tier,BURN_TIER>>
 
+// BURN/BURP/BURW Identifier Vocabulary (reshape-in-progress)
+:burn_viceroyalty:                 <<burn_viceroyalty,Viceroyalty>>
+:burp_investiture:                 <<burp_investiture,Investiture>>
+:burw_lieutenancy:                 <<burw_lieutenancy,Lieutenancy>>
+
+// BURP/BURW Regime references (full definitions pending reshape)
+:burp_regime:                      <<burp_regime,BURP Regime>>
+:burw_regime:                      <<burw_regime,BURW Regime>>
+
 // BUSN: Node Access (verbs for remote node management)
 :busn_garrison:                    <<busn_garrison,Garrison>>
 :busn_conscript:                   <<busn_conscript,Conscript>>
@@ -976,6 +985,87 @@ user provisioning, node-level setup) or `workload` (normal remote work as an
 ephemeral user on an established node).
 Tabtargets enforce tier preconditions at entry: privileged-only operations
 refuse workload aliases and vice versa.
+
+=== BURN/BURP/BURW Identifier Vocabulary (reshape-in-progress)
+
+The following quoins establish the minted-name vocabulary for the
+reshaped BURN/BURP/BURW model.
+Field-level deletions and full BURP/BURW regime definitions are
+tracked under the cleanup pace.
+
+[[burn_viceroyalty]]
+//axl_voices axo_entity
+{burn_viceroyalty}::
+The minted identifier of a
+{burn_regime}
+instance — the operator-chosen name for a node under administration.
+A
+{burn_viceroyalty}
+is the string by which
+{burp_regime}
+instances and other regime references designate this node;
+it is the shared coordinate that multiple credentials may target.
++
+The
+{burn_viceroyalty}
+is conveyed by the directory containing the
+{burn_regime}
+assignment file;
+it is not redundantly inscribed as a field within the file.
++
+Examples: `redbox`, `winbox-prod`, `hawthorne`.
+
+[[burp_investiture]]
+//axl_voices axo_entity
+{burp_investiture}::
+The minted identifier of a
+{burp_regime}
+instance — the operator's named grant of privileged authority over a
+{burn_viceroyalty}.
+A
+{burp_investiture}
+names a credential bundle (admin keys, shell command, remote admin
+user) authorizing privileged operations on the
+{burn_viceroyalty}
+it references.
++
+The
+{burp_investiture}
+is conveyed by the directory containing the
+{burp_regime}
+assignment file;
+it is not redundantly inscribed as a field within the file.
++
+Examples: `redbox-bhyslop-admin`, `winbox-prod-alice-admin`.
+
+[[burw_lieutenancy]]
+//axl_voices axo_entity
+{burw_lieutenancy}::
+The minted identifier of a
+{burw_regime}
+instance — a workload office operating on a
+{burn_viceroyalty}
+under the authority of a
+{burp_investiture}.
+A
+{burw_lieutenancy}
+names a workload entry (shell command, remote OS user, key file) that
+materializes when a workload is conscripted.
++
+The
+{burw_lieutenancy}
+is conveyed by the directory containing the
+{burw_regime}
+state file;
+it is not redundantly inscribed as a field within the file.
++
+The
+{burw_lieutenancy}
+string is by construction the remote OS username of its workload
+account on the node, drawn at conscript time from the
+{burn_viceroyalty}'s authoritative `burn_workloads` template.
++
+Examples: `redbox-cyg`, `redbox-wsl`, `redbox-pwsh`.
 
 === BURD Regime
 
