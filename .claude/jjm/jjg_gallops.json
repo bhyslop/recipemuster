@@ -6963,6 +6963,7 @@
       "creation_time": "260426",
       "status": "racing",
       "order": [
+        "₢BBAA3",
         "₢BBAAz",
         "₢BBAA2",
         "₢BBAA0",
@@ -7015,7 +7016,7 @@
         "₢BBAAy",
         "₢BBAA1"
       ],
-      "next_pace_seed": "AA3",
+      "next_pace_seed": "AA4",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAA0": {
@@ -7090,6 +7091,17 @@
               "text": "## Character\n\nWire-format value rename. Mechanical sweep across all GAR path\nproducers and consumers; no semantic change.\n\n## Goals\n\nReplace the three GAR top-level subdirectory literals with short,\nunique, anchored path tokens:\n\n- `enshrines/`   → `rbi_es/`\n- `hallmarks/`   → `rbi_hm/`\n- `reliquaries/` → `rbi_rq/`\n\nHold each value in a named constant (kindle or tinder, per call-site\nconvention) — long descriptive name, short value:\n\n- `RBI_ENSHRINES_GAR_NAMESPACE=\"rbi_es\"`\n- `RBI_HALLMARKS_GAR_NAMESPACE=\"rbi_hm\"`\n- `RBI_RELIQUARIES_GAR_NAMESPACE=\"rbi_rq\"`\n\nThe `rbi_` lead anchors the token as recipemuster-image-namespace;\nthe suffix discriminates the three categories. Tabtarget colophons\n(`rbw-i*`) and prefix discipline are unchanged — this is value-space\nonly.\n\n## Wrap criterion\n\n- Three named constants emplaced in the appropriate kindle/tinder\n  module.\n- All call sites composing GAR locators reference the constants\n  rather than the bare literal strings.\n- Locator parses (the inline `${anchor%:*}` / `${anchor##*:}` pattern\n  used at three sites in BBAAz) operate identically on the new tokens.\n- Existing populated values in vessel rbrv.env files migrated\n  (the one ANCHOR field repo-wide carrying `enshrines/...`).\n- Spec sweep: RBS0/RBSAE/RBSAC/RBSAG and any other doc that names the\n  GAR namespace literals reflects the new tokens.\n- Handbook prose using these literals as examples updated.\n- Fast suite green; canonical onboarding-sequence cases unchanged.\n\n## Out of scope\n\n- Code-identifier prefix changes (`rbie_`, `rbih_`, `rbir_` minting\n  was considered and rejected — wire-format only).\n- New tabtarget colophons; the existing `rbw-i*` family is unchanged.\n- Migration of any abandoned-vessel registry artifacts under the old\n  paths — fresh-build assumption.\n\n## References\n\n- BBAAz locator-shape refactor — locator parsing pattern; this pace\n  swaps the values flowing through that pattern.\n- Tools/buk/buk-claude-context.md — kindle/tinder convention.",
               "silks": "gar-namespace-path-tokens",
               "commit": "14b94f7"
+            }
+          ]
+        },
+        "₢BBAA3": {
+          "tacks": [
+            {
+              "ts": "260501-0733",
+              "state": "rough",
+              "text": "## Character\nDefense-in-depth — every Cloud Build validates reliquary GAR-presence from the worker pool's vantage before expensive work runs.\n\n## Motivation\nThe host-side preflight (`zrbfd_preflight_reliquary`) verifies the Director's host can reach GAR. It does NOT verify what actually matters at build time: the worker pool's view of GAR. Three real divergence sources — airgap pool private VPC routing, IAM split between Director (host) and Mason (build) SAs, and time skew between submission and execution.\n\n## Surface\n- New step script (rbgjr* or analogous) — gcloud/alpine HEAD-checks against reliquary tool images and enshrined base anchors\n- Step-assembly prepend: conjure (`rbfd_build` stitch), bind (`zrbfd_mirror_submit`), graft (`zrbfv_graft_metadata_submit`), enshrine (`zrbfd_enshrine_submit`)\n- Specs: RBSAC, RBSAB, RBSAV, RBSAE — declare the in-pool preflight step\n- RBS0:800 (cloud-build-step contexts paragraph) — extend to mention in-pool preflight contract\n\n## Chicken-and-egg note\nThe preflight step's own image is implicitly validated by Cloud Build pulling it. Preflight covers the other five tool images plus enshrinements. Document the boundary explicitly in spec.\n\n## Cross-pace dependencies\n- Reliquary universalization (this heat's prior pace) lands first.\n\n## Wrap criterion\n- Preflight runs as step 0 in every ordain-path Cloud Build job.\n- Injected miss (post-jettison rerun) produces a clean structured \"this pool can't see «TOOL»\" message.\n- Green case overhead acceptable (~5s).\n\n## Out of scope\n- Host-side preflight tightening — covered by prior pace.\n- BBAAs empirical run.",
+              "silks": "cloud-build-reliquary-preflight",
+              "commit": "fd6998c"
             }
           ]
         },
