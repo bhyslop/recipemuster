@@ -76,9 +76,9 @@ done
 # enshrine namespace already (e.g. rbi_es/<anchor>:<anchor>).
 for SLOT in 1 2 3; do
   case "${SLOT}" in
-    1) LOCATOR="${_RBGR_ENSHRINE_LOCATOR_1:-}" ;;
-    2) LOCATOR="${_RBGR_ENSHRINE_LOCATOR_2:-}" ;;
-    3) LOCATOR="${_RBGR_ENSHRINE_LOCATOR_3:-}" ;;
+    1) LOCATOR="${_RBGR_ENSHRINE_LOCATOR_1}" ;;
+    2) LOCATOR="${_RBGR_ENSHRINE_LOCATOR_2}" ;;
+    3) LOCATOR="${_RBGR_ENSHRINE_LOCATOR_3}" ;;
   esac
   test -n "${LOCATOR}" || continue
 
