@@ -37,6 +37,7 @@ rbho_director_bind() {
 
   local -r z_moniker="pluml"
   local -r z_vessel="rbev-bottle-plantuml"
+  local -r z_vessel_rbrv="${RBRR_VESSEL_DIR}/${z_vessel}/rbrv.env"
   local -r z_pluml_rbrn="${RBBC_dot_dir}/${z_moniker}/${RBCC_rbrn_file}"
 
   local z_has_director=0
@@ -77,6 +78,13 @@ rbho_director_bind() {
     esac
   fi
 
+  local z_vessel_yoked=0
+  if test -f "${z_vessel_rbrv}"; then
+    local z_vessel_stamp=""
+    z_vessel_stamp=$(zrbho_po_extract_capture "${z_vessel_rbrv}" "RBRV_RELIQUARY") || z_vessel_stamp=""
+    test -n "${z_vessel_stamp}" && z_vessel_yoked=1
+  fi
+
   buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel"    "${z_vessel}";   local -r z_lk_vessel="${z_buym_yelp}"
   buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Nameplate" "${z_moniker}";  local -r z_lk_pluml="${z_buym_yelp}"
 
@@ -85,9 +93,9 @@ rbho_director_bind() {
   buh_line "${RBHO_TRACK_FIRST_BUILD} taught ${RBYC_CONJURE} — Cloud Build constructs"
   buh_line "the ${RBYC_VESSEL} image from the project's Dockerfile, and SLSA"
   buh_line "${RBYC_PROVENANCE} attests the build chain. ${RBYC_BIND} is the simplest"
-  buh_line "${RBYC_ORDAIN} mode: no Dockerfile, no build context, no Cloud Build."
-  buh_line "You pin an upstream image by digest into your ${RBYC_DEPOT}, and the"
-  buh_line "${RBYC_DEPOT} mirrors exactly what upstream published."
+  buh_line "${RBYC_ORDAIN} mode: no Dockerfile, no build context, no image build —"
+  buh_line "Cloud Build runs skopeo to copy the digest-pinned upstream image into"
+  buh_line "your ${RBYC_DEPOT}, then about/vouch records what was mirrored."
   buh_e
   buh_line "This track binds ${z_lk_vessel} — the PlantUML server image. PlantUML"
   buh_line "renders diagrams, but its Docker Hub source could phone home if run"
@@ -166,6 +174,36 @@ rbho_director_bind() {
   fi
   buh_e
 
+  buh_step1 "Yoke ${z_lk_vessel} to a ${RBYC_RELIQUARY}"
+  buh_e
+  buh_line "Every ${RBYC_ORDAIN}-path ${RBYC_VESSEL} — ${RBYC_CONJURE}, ${RBYC_BIND}, and"
+  buh_line "${RBYC_GRAFT} — needs a ${RBYC_RELIQUARY} stamp in its ${RBYC_RBRV}. ${RBYC_BIND}"
+  buh_line "uses skopeo from the ${RBYC_RELIQUARY} to copy the upstream image into"
+  buh_line "your ${RBYC_DEPOT}, and the about/vouch pipeline that follows runs on"
+  buh_line "${RBYC_RELIQUARY} tool images regardless of mode."
+  buh_e
+  buh_line "If you completed ${RBHO_TRACK_FIRST_BUILD}, your ${RBYC_RELIQUARY} is already"
+  buh_line "inscribed. Otherwise inscribe it now — once per ${RBYC_DEPOT}, shared"
+  buh_line "across every ${RBYC_VESSEL}:"
+  buh_e
+  buh_tt "   " "${RBZ_INSCRIBE_RELIQUARY}"
+  buh_e
+  buyy_cmd_yawp "r260324193326"; local -r z_ds_example="${z_buym_yelp}"
+  buh_line "Inscribe prints a stamp (e.g., ${z_ds_example}). Yoke that stamp into"
+  buh_line "${z_lk_vessel}'s ${RBYC_REGIME}:"
+  buh_e
+  buh_tt "   " "${RBZ_YOKE_RELIQUARY}" "" " ${z_vessel} <stamp>"
+  buh_e
+  buh_line "Yoke validates both arguments before writing. On success it rewrites"
+  buh_line "RBRV_RELIQUARY in the ${RBYC_VESSEL} ${RBYC_RBRV}. Commit the change."
+  buh_e
+  if test "${z_vessel_yoked}" = "1"; then
+    buh_line "${RBYC_PROBE_YES}${z_lk_vessel} ${RBYC_RELIQUARY} stamp set"
+  else
+    buh_line "${RBYC_PROBE_NO}${z_lk_vessel} ${RBYC_RELIQUARY} stamp not set — yoke above before ${RBYC_ORDAIN}"
+  fi
+  buh_e
+
   buh_step1 "${RBYC_BIND} the PlantUML ${RBYC_BOTTLE}"
   buh_e
   buh_line "${RBYC_BIND} mode mirrors an upstream image into your ${RBYC_DEPOT} by"
@@ -175,10 +213,11 @@ rbho_director_bind() {
   buh_code "   RBRV_BIND_IMAGE=docker.io/plantuml/plantuml-server@sha256:cd3d67a..."
   buh_e
   buh_line "${RBYC_ORDAIN} reads the mode from the ${RBYC_RBRV} and routes accordingly."
-  buh_line "For ${RBYC_BIND}, that means: pull the digest-pinned image from upstream,"
-  buh_line "push it to your ${RBYC_DEPOT} under a ${RBYC_HALLMARK} tag. No Dockerfile."
-  buh_line "No ${RBYC_POUCH}. No Cloud Build. The image in your ${RBYC_DEPOT} is"
-  buh_line "byte-identical to what upstream published at that digest."
+  buh_line "For ${RBYC_BIND}, that means: a Cloud Build job runs skopeo (from your"
+  buh_line "${RBYC_RELIQUARY}) to copy the digest-pinned image from upstream into"
+  buh_line "your ${RBYC_DEPOT} under a ${RBYC_HALLMARK} tag, then the about steps assemble"
+  buh_line "${RBYC_SBOM} and metadata. No project Dockerfile, no ${RBYC_POUCH} —"
+  buh_line "the image bytes are upstream's, not yours."
   buh_e
   buh_line "Three ${RBYC_ORDAIN} modes, three trust contracts:"
   buh_e
@@ -192,8 +231,9 @@ rbho_director_bind() {
   buh_e
   buh_tt "   " "${RBZ_ORDAIN_HALLMARK}" "" " ${z_vessel}"
   buh_e
-  buh_line "Wall-clock: seconds, not minutes. There is nothing to build — only"
-  buh_line "a digest-addressed image to mirror."
+  buh_line "Wall-clock: ~5-10 minutes — skopeo copy plus about/vouch metadata."
+  buh_line "Faster than ${RBYC_CONJURE} because there is no image build, just a"
+  buh_line "digest-addressed copy."
   buh_e
 
   buh_step1 "Inspect the ${RBYC_VOUCH} verdict"

@@ -22,7 +22,8 @@
 # image to the Depot. The Director owns the entire build; SLSA
 # cannot vouch for this image. The Vouch verdict reads GRAFTED —
 # an explicit signal that provenance stops at the local machine.
-# No Dockerfile in the project, no Pouch, no Cloud Build, no
+# No project Dockerfile, no Pouch, no Cloud Build for the image
+# itself (about+vouch metadata still runs on the reliquary), no
 # Nameplate, no Crucible — this vessel exists as teaching contrast
 # in the trust hierarchy across the three ordain modes.
 
@@ -66,6 +67,13 @@ rbho_director_graft() {
     test "${z_mode}" = "graft" && z_vessel_ready=1
   fi
 
+  local z_vessel_yoked=0
+  if test -f "${z_vessel_rbrv}"; then
+    local z_vessel_stamp=""
+    z_vessel_stamp=$(zrbho_po_extract_capture "${z_vessel_rbrv}" "RBRV_RELIQUARY") || z_vessel_stamp=""
+    test -n "${z_vessel_stamp}" && z_vessel_yoked=1
+  fi
+
   local z_grafted_installed=0
   if command -v docker >/dev/null 2>&1; then
     local z_project_id=""
@@ -97,8 +105,10 @@ rbho_director_graft() {
   buh_line "${RBYC_CONJURE} and ${RBYC_BIND} teach images whose ${RBYC_PROVENANCE} the"
   buh_line "project can attest. ${RBYC_GRAFT} teaches the opposite case: the"
   buh_line "${RBYC_DIRECTOR} builds an image on their own machine and pushes it to"
-  buh_line "the ${RBYC_DEPOT} as-is. No project Dockerfile, no ${RBYC_POUCH}, no Cloud"
-  buh_line "Build, no ${RBYC_SBOM} from the project's pipeline."
+  buh_line "the ${RBYC_DEPOT} as-is. No project Dockerfile, no ${RBYC_POUCH}, no SLSA"
+  buh_line "${RBYC_PROVENANCE} — Cloud Build never sees the build, only the pushed"
+  buh_line "image. About+vouch metadata still runs on ${RBYC_RELIQUARY} tools after"
+  buh_line "the push to record the GRAFTED verdict."
   buh_e
   buh_line "This track grafts ${z_lk_vessel} — a teaching ${RBYC_VESSEL} whose sole"
   buh_line "purpose is demonstrating the least-trusted ${RBYC_ORDAIN} mode. You"
@@ -187,13 +197,45 @@ rbho_director_graft() {
   buh_line "between what you built and what the ${RBYC_DEPOT} receives."
   buh_e
 
+  buh_step1 "Yoke ${z_lk_vessel} to a ${RBYC_RELIQUARY}"
+  buh_e
+  buh_line "Every ${RBYC_ORDAIN}-path ${RBYC_VESSEL} — ${RBYC_CONJURE}, ${RBYC_BIND}, and"
+  buh_line "${RBYC_GRAFT} — needs a ${RBYC_RELIQUARY} stamp in its ${RBYC_RBRV}. ${RBYC_GRAFT}"
+  buh_line "skips Cloud Build for the image push, but the about+vouch metadata"
+  buh_line "that follows runs on ${RBYC_RELIQUARY} tool images (gcloud, docker,"
+  buh_line "alpine, syft) just like the other modes."
+  buh_e
+  buh_line "If you completed ${RBHO_TRACK_FIRST_BUILD}, your ${RBYC_RELIQUARY} is already"
+  buh_line "inscribed. Otherwise inscribe it now — once per ${RBYC_DEPOT}, shared"
+  buh_line "across every ${RBYC_VESSEL}:"
+  buh_e
+  buh_tt "   " "${RBZ_INSCRIBE_RELIQUARY}"
+  buh_e
+  buyy_cmd_yawp "r260324193326"; local -r z_ds_example="${z_buym_yelp}"
+  buh_line "Inscribe prints a stamp (e.g., ${z_ds_example}). Yoke that stamp into"
+  buh_line "${z_lk_vessel}'s ${RBYC_REGIME}:"
+  buh_e
+  buh_tt "   " "${RBZ_YOKE_RELIQUARY}" "" " ${z_vessel} <stamp>"
+  buh_e
+  buh_line "Yoke validates both arguments before writing. On success it rewrites"
+  buh_line "RBRV_RELIQUARY in the ${RBYC_VESSEL} ${RBYC_RBRV}. Commit the change."
+  buh_e
+  if test "${z_vessel_yoked}" = "1"; then
+    buh_line "${RBYC_PROBE_YES}${z_lk_vessel} ${RBYC_RELIQUARY} stamp set"
+  else
+    buh_line "${RBYC_PROBE_NO}${z_lk_vessel} ${RBYC_RELIQUARY} stamp not set — yoke above before ${RBYC_ORDAIN}"
+  fi
+  buh_e
+
   buh_step1 "${RBYC_GRAFT} — push the local image"
   buh_e
   buh_line "${RBYC_ORDAIN} reads RBRV_VESSEL_MODE from the ${RBYC_RBRV} and routes"
   buh_line "accordingly. For ${RBYC_GRAFT}, that means: look up RBRV_GRAFT_IMAGE"
   buh_line "in your local Docker image cache, tag it for the ${RBYC_DEPOT}'s"
-  buh_line "GAR repository, and push. No Dockerfile is read. No ${RBYC_POUCH}"
-  buh_line "is assembled. No Cloud Build is triggered."
+  buh_line "GAR repository, and push directly. No Dockerfile is read. No ${RBYC_POUCH}"
+  buh_line "is assembled. After the push, a combined Cloud Build job runs the"
+  buh_line "about steps (syft ${RBYC_SBOM}, build_info) followed by ${RBYC_VOUCH} steps to"
+  buh_line "record the GRAFTED verdict."
   buh_e
   buh_line "The ${RBYC_HALLMARK} format encodes two timestamps: the image's own"
   buh_line "creation time (from ${RBYC_DEPOT} layer metadata) and the push time."
@@ -203,8 +245,8 @@ rbho_director_graft() {
   buh_e
   buh_tt "   " "${RBZ_ORDAIN_HALLMARK}" "" " ${z_vessel}"
   buh_e
-  buh_line "Wall-clock: seconds. The only network traffic is the push itself;"
-  buh_line "the image is already on your machine."
+  buh_line "Wall-clock: a few minutes — the image push completes in seconds, and"
+  buh_line "the combined about+vouch Cloud Build job that follows takes the rest."
   buh_e
 
   buh_step1 "Inspect the ${RBYC_VOUCH} verdict"
