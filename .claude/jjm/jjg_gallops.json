@@ -392,6 +392,13 @@
         "₢A-AAP": {
           "tacks": [
             {
+              "ts": "260501-0948",
+              "state": "abandoned",
+              "text": "## Character\nTest execution — final regression after Windows practice; validates legacy localhost path coexists with new Windows garrison verbs.\n\n## Docket\nRe-run `tt/jjw-tfs.TestFundusScenario.localhost.sh` on the curia after all practice paces (AAC–AAF) have landed. Distinct from the pre-Windows curia smoke pace: AAP runs *after* Windows practice has potentially amended code, catching regressions introduced during human-driven Windows work.\n\nValidates:\n- Practice-driven amendments didn't break the BURN-based bind path\n- Legacy `buw-rhcx` (BURN-renamed in AAV, no garrison replacement) still mints localhost profiles consumable by JJK fundus\n- Windows-only additions in AAX/AAY don't regress localhost coexistence\n- BUK self-test (`tt/buw-st.BukSelfTest.sh`) green\n\nIf failures surface, fix and iterate.",
+              "silks": "retest-fundus-after-practice",
+              "commit": "59f8a8d"
+            },
+            {
               "ts": "260429-1135",
               "state": "rough",
               "text": "## Character\nTest execution — final regression after Windows practice; validates legacy localhost path coexists with new Windows garrison verbs.\n\n## Docket\nRe-run `tt/jjw-tfs.TestFundusScenario.localhost.sh` on the curia after all practice paces (AAC–AAF) have landed. Distinct from the pre-Windows curia smoke pace: AAP runs *after* Windows practice has potentially amended code, catching regressions introduced during human-driven Windows work.\n\nValidates:\n- Practice-driven amendments didn't break the BURN-based bind path\n- Legacy `buw-rhcx` (BURN-renamed in AAV, no garrison replacement) still mints localhost profiles consumable by JJK fundus\n- Windows-only additions in AAX/AAY don't regress localhost coexistence\n- BUK self-test (`tt/buw-st.BukSelfTest.sh`) green\n\nIf failures surface, fix and iterate.",
