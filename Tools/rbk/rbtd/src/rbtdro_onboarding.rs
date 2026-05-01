@@ -55,6 +55,7 @@ const RBTDRO_VESSEL_DIR_AIRGAP_BOTTLE: &str = "rbev-vessels/rbev-bottle-ifrit-ai
 const RBTDRO_VESSEL_DIR_PLANTUML: &str = "rbev-vessels/rbev-bottle-plantuml";
 const RBTDRO_VESSEL_DIR_JUPYTER: &str = "rbev-vessels/rbev-bottle-anthropic-jupyter";
 const RBTDRO_VESSEL_DIR_GRAFT: &str = "rbev-vessels/rbev-graft-demo";
+const RBTDRO_VESSEL_DIR_CCYOLO: &str = "rbev-vessels/rbev-bottle-ccyolo";
 
 // ── Nameplate monikers ────────────────────────────────────────
 
@@ -101,7 +102,7 @@ const RBTDRO_YOKE_VESSEL_DIRS: &[&str] = &[
     RBTDRO_VESSEL_DIR_JUPYTER,
     RBTDRO_VESSEL_DIR_PLANTUML,
     RBTDRO_VESSEL_DIR_GRAFT,
-    "rbev-vessels/rbev-bottle-ccyolo",
+    RBTDRO_VESSEL_DIR_CCYOLO,
 ];
 
 // ── Hallmark-base locator construction ───────────────────────
