@@ -27,6 +27,8 @@ The subsequent {rbtgo_ark_vouch} always runs on the airgap pool regardless of ve
 
 NOTE: *Universal reliquary precondition*. Every ordain-path vessel — conjure, bind, and graft — must have `RBRV_RELIQUARY` non-empty before this operation runs. The about/vouch pipeline (gcloud, docker, alpine, syft) consumes reliquary tool images uniformly across all modes; the registry preflight below enforces this.
 
+NOTE: *In-pool reliquary preflight*. Step 0 of the conjure Cloud Build job HEAD-checks reliquary tool images and enshrined base anchors from the worker pool's vantage, before extract-context and the image+about steps run. Coverage is 5 of 6 reliquary tools (gcloud, docker, syft, binfmt, skopeo) plus the vessel's enshrined base anchors; alpine (the preflight step's own image) is implicitly validated by Cloud Build pulling it. Failure produces a structured "this pool can't see «TOOL»" message naming each missed item; remediation is re-inscribe + re-yoke + re-ordain. The host-side `Registry Preflight` step (below) verifies the Director's host-side view of GAR; the in-pool preflight catches divergence the host-side check cannot — airgap-VPC routing, Director↔Mason IAM split, and submit↔execute time skew.
+
 The conjure operation:
 
 //axhopt_typed_parameter

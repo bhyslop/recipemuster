@@ -86,12 +86,14 @@ zrbfc_kindle() {
   buc_log_args 'GAR package enumeration output (zrbfc_list_packages_capture)'
   readonly ZRBFC_PACKAGE_LIST_FILE="${BURD_TEMP_DIR}/rbfc_package_list.txt"
 
-  buc_log_args 'Step script directories (used by shared about/vouch assembly)'
+  buc_log_args 'Step script directories (used by shared about/vouch/preflight assembly)'
   local z_self_dir="${BASH_SOURCE[0]%/*}"
   readonly ZRBFC_RBGJA_STEPS_DIR="${z_self_dir}/rbgja"
   test -d "${ZRBFC_RBGJA_STEPS_DIR}" || buc_die "RBGJA steps directory not found: ${ZRBFC_RBGJA_STEPS_DIR}"
   readonly ZRBFC_RBGJV_STEPS_DIR="${z_self_dir}/rbgjv"
   test -d "${ZRBFC_RBGJV_STEPS_DIR}" || buc_die "RBGJV steps directory not found: ${ZRBFC_RBGJV_STEPS_DIR}"
+  readonly ZRBFC_RBGJR_STEPS_DIR="${z_self_dir}/rbgjr"
+  test -d "${ZRBFC_RBGJR_STEPS_DIR}" || buc_die "RBGJR steps directory not found: ${ZRBFC_RBGJR_STEPS_DIR}"
 
   buc_log_args 'Tool image refs — mutable kindle state, populated by zrbfc_resolve_tool_images'
   z_rbfc_tool_gcloud=""
@@ -518,6 +520,47 @@ zrbfc_assemble_vouch_steps() {
     mv "${z_vsteps_file}" "${z_output_file}" \
       || buc_die "Failed to update vouch steps JSON for ${z_vid}"
   done
+}
+
+# Internal: assemble single-step preflight JSON array file
+# Args: output_file temp_prefix
+# Reads ZRBFC_RBGJR_STEPS_DIR and z_rbfc_tool_alpine from module state.
+# Single step prepends to every ordain-path Cloud Build job (conjure, bind,
+# graft, enshrine) as defense-in-depth: validates reliquary GAR-presence from
+# the worker pool's vantage before expensive work runs.
+zrbfc_assemble_preflight_step() {
+  zrbfc_sentinel
+
+  local -r z_output_file="$1"
+  local -r z_temp_prefix="$2"
+
+  local -r z_pscript_path="${ZRBFC_RBGJR_STEPS_DIR}/rbgjr01-reliquary-preflight.sh"
+  local -r z_pbody_file="${z_temp_prefix}preflight_body.txt"
+  local -r z_pescaped_file="${z_temp_prefix}preflight_escaped.txt"
+  local -r z_psteps_file="${z_temp_prefix}preflight_steps.json"
+
+  test -f "${z_pscript_path}" || buc_die "Preflight step script not found: ${z_pscript_path}"
+
+  buc_log_args "Reading preflight step script (skip shebang)"
+  tail -n +2 "${z_pscript_path}" > "${z_pbody_file}" \
+    || buc_die "Failed to read preflight step script: ${z_pscript_path}"
+  local z_pbody=""
+  z_pbody=$(<"${z_pbody_file}")
+  test -n "${z_pbody}" || buc_die "Empty preflight script body"
+
+  printf '#!/bin/bash\n%s' "${z_pbody}" > "${z_pescaped_file}" \
+    || buc_die "Failed to write escaped preflight script body"
+
+  echo "[]" > "${z_output_file}" || buc_die "Failed to initialize preflight steps JSON"
+  jq \
+    --arg name "${z_rbfc_tool_alpine}" \
+    --arg id "reliquary-preflight" \
+    --rawfile script "${z_pescaped_file}" \
+    '. + [{name: $name, id: $id, script: $script}]' \
+    "${z_output_file}" > "${z_psteps_file}" \
+    || buc_die "Failed to build preflight step JSON"
+  mv "${z_psteps_file}" "${z_output_file}" \
+    || buc_die "Failed to finalize preflight step JSON"
 }
 
 ######################################################################

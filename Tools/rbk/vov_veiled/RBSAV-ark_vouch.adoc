@@ -25,6 +25,8 @@ Conjure: DSSE envelope signature verification of GCB-signed provenance.
 Bind: digest-pin comparison against the upstream reference.
 Graft: GRAFTED stamp — explicit acknowledgment of no provenance chain.
 
+NOTE: *In-pool reliquary preflight*. When vouch steps are embedded in graft's combined about+vouch Cloud Build job (`zrbfv_graft_metadata_submit`), step 0 of the combined job is the in-pool reliquary preflight that HEAD-checks reliquary tool images from the worker pool's vantage before about and vouch steps run. Standalone vouch (`zrbfv_vouch_submit`, used by conjure and bind ordain flows after the image+about CB completes) does not currently include the preflight.
+
 The
 {rbtr_director}
 vouches for an ark:

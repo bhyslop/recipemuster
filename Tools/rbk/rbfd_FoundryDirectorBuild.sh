@@ -390,8 +390,12 @@ zrbfd_stitch_build_json() {
   # Spec: RBSAC step "Resolve Base Images"
   # The locator carries its own namespace path (e.g. rbi_es/<anchor>:<anchor>);
   # paths within a GAR repo are prefix-free per the wrest/jettison convention.
+  # Locator captures (z_image_locator_n) feed _RBGR_ENSHRINE_LOCATOR_n substitutions
+  # for the in-pool preflight step — anchored slots get HEAD-checked, pass-through
+  # slots stay empty (preflight cannot reach upstream from the worker pool).
   local -r z_gar_repo_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
   local z_image_ref_1="" z_image_ref_2="" z_image_ref_3=""
+  local z_image_locator_1="" z_image_locator_2="" z_image_locator_3=""
   local z_ri_n="" z_ri_origin_var="" z_ri_anchor_var="" z_ri_origin="" z_ri_anchor=""
   local z_ri_pkg_path=""
   local z_ri_tag=""
@@ -402,6 +406,7 @@ zrbfd_stitch_build_json() {
     z_ri_anchor="${!z_ri_anchor_var:-}"
     test -n "${z_ri_origin}" || continue
     local z_ri_ref=""
+    local z_ri_locator=""
     if test -n "${z_ri_anchor}"; then
       case "${z_ri_anchor}" in
         *:*) : ;;
@@ -412,13 +417,16 @@ zrbfd_stitch_build_json() {
       test -n "${z_ri_pkg_path}" || buc_die "Package path is empty in ${z_ri_anchor_var}: ${z_ri_anchor}"
       test -n "${z_ri_tag}"      || buc_die "Tag is empty in ${z_ri_anchor_var}: ${z_ri_anchor}"
       z_ri_ref="${z_gar_repo_base}/${z_ri_pkg_path}:${z_ri_tag}"
+      z_ri_locator="${z_ri_anchor}"
       buc_log_args "Image slot ${z_ri_n} (anchored): ${z_ri_ref}"
     else
       z_ri_ref="${z_ri_origin}"
       buc_log_args "Image slot ${z_ri_n} (pass-through): ${z_ri_ref}"
     fi
     case "${z_ri_n}" in
-      1) z_image_ref_1="${z_ri_ref}" ;; 2) z_image_ref_2="${z_ri_ref}" ;; 3) z_image_ref_3="${z_ri_ref}" ;;
+      1) z_image_ref_1="${z_ri_ref}"; z_image_locator_1="${z_ri_locator}" ;;
+      2) z_image_ref_2="${z_ri_ref}"; z_image_locator_2="${z_ri_locator}" ;;
+      3) z_image_ref_3="${z_ri_ref}"; z_image_locator_3="${z_ri_locator}" ;;
     esac
   done
 
@@ -638,10 +646,17 @@ zrbfd_stitch_build_json() {
     }' > "${z_extract_step_file}" \
     || buc_die "Failed to compose context extraction step"
 
-  # Combine: [extract-context] + image steps + about steps
+  # Step 0: in-pool reliquary preflight (defense-in-depth)
+  local -r z_preflight_step_file="${ZRBFD_STITCH_PREFIX}preflight_step.json"
+  zrbfc_assemble_preflight_step "${z_preflight_step_file}" "${ZRBFD_STITCH_PREFIX}"
+
+  # Combine: [preflight] + [extract-context] + image steps + about steps
   local -r z_all_steps_file="${ZRBFD_STITCH_PREFIX}all_steps.json"
-  jq -s '.[0] + .[1]' <(jq -s '.' "${z_extract_step_file}") "${z_accumulator_file}" \
-    > "${z_all_steps_file}" || buc_die "Failed to prepend context extraction step"
+  jq -s '.[0] + .[1] + .[2]' \
+    "${z_preflight_step_file}" \
+    <(jq -s '.' "${z_extract_step_file}") \
+    "${z_accumulator_file}" \
+    > "${z_all_steps_file}" || buc_die "Failed to combine preflight, context extraction, and image+about steps"
 
   # images: field — one per-platform attest tag per platform for SLSA provenance via CB images: push
   # These are durable provenance-carrying tags on the single attest package
@@ -704,6 +719,11 @@ zrbfd_stitch_build_json() {
     --arg zjq_basename_about    "${RBGC_ARK_BASENAME_ABOUT}" \
     --arg zjq_basename_attest   "${RBGC_ARK_BASENAME_ATTEST}" \
     --arg zjq_basename_diags    "${RBGC_ARK_BASENAME_DIAGS}" \
+    --arg zjq_reliquaries_root  "${RBGL_RELIQUARIES_ROOT}" \
+    --arg zjq_reliquary         "${RBRV_RELIQUARY}" \
+    --arg zjq_locator_1         "${z_image_locator_1}" \
+    --arg zjq_locator_2         "${z_image_locator_2}" \
+    --arg zjq_locator_3         "${z_image_locator_3}" \
     '{
       steps: [$zjq_steps[0][] |
         if .args then
@@ -745,7 +765,14 @@ zrbfd_stitch_build_json() {
         _RBGA_DOCKERFILE_CONTENT:  $zjq_rbga_dockerfile,
         _RBGA_ARK_BASENAME_IMAGE:  $zjq_basename_image,
         _RBGA_ARK_BASENAME_ABOUT:  $zjq_basename_about,
-        _RBGA_ARK_BASENAME_DIAGS:  $zjq_basename_diags
+        _RBGA_ARK_BASENAME_DIAGS:  $zjq_basename_diags,
+        _RBGR_GAR_HOST:            $zjq_rbga_gar_host,
+        _RBGR_GAR_PATH:            $zjq_rbga_gar_path,
+        _RBGR_RELIQUARIES_ROOT:    $zjq_reliquaries_root,
+        _RBGR_RELIQUARY:           $zjq_reliquary,
+        _RBGR_ENSHRINE_LOCATOR_1:  $zjq_locator_1,
+        _RBGR_ENSHRINE_LOCATOR_2:  $zjq_locator_2,
+        _RBGR_ENSHRINE_LOCATOR_3:  $zjq_locator_3
       },
       serviceAccount: $zjq_mason_sa,
       options: {
@@ -915,6 +942,15 @@ zrbfd_enshrine_submit() {
   mv "${z_step_built}" "${z_step_file}" \
     || buc_die "Failed to finalize enshrine step JSON"
 
+  # Step 0: in-pool reliquary preflight (defense-in-depth)
+  local -r z_preflight_step_file="${ZRBFD_ENSHRINE_PREFIX}preflight_step.json"
+  zrbfc_assemble_preflight_step "${z_preflight_step_file}" "${ZRBFD_ENSHRINE_PREFIX}"
+
+  local -r z_combined_steps_file="${ZRBFD_ENSHRINE_PREFIX}combined_steps.json"
+  jq -s '.[0] + .[1]' "${z_preflight_step_file}" "${z_step_file}" \
+    > "${z_combined_steps_file}" \
+    || buc_die "Failed to combine preflight and enshrine steps"
+
   # Compose Build resource JSON
   buc_log_args "Composing enshrine Build resource JSON"
   local -r z_build_file="${ZRBFD_ENSHRINE_PREFIX}build.json"
@@ -927,7 +963,7 @@ zrbfd_enshrine_submit() {
   local -r z_sub_origin_3="${RBRV_IMAGE_3_ORIGIN:-}"
 
   jq -n \
-    --slurpfile zjq_steps        "${z_step_file}" \
+    --slurpfile zjq_steps        "${z_combined_steps_file}" \
     --arg zjq_sa                 "${z_mason_sa}" \
     --arg zjq_gar_host           "${z_gar_host}" \
     --arg zjq_gar_path           "${z_gar_path}" \
@@ -936,6 +972,8 @@ zrbfd_enshrine_submit() {
     --arg zjq_origin_1           "${z_sub_origin_1}" \
     --arg zjq_origin_2           "${z_sub_origin_2}" \
     --arg zjq_origin_3           "${z_sub_origin_3}" \
+    --arg zjq_reliquaries_root   "${RBGL_RELIQUARIES_ROOT}" \
+    --arg zjq_reliquary          "${RBRV_RELIQUARY}" \
     --arg zjq_pool               "${RBDC_POOL_TETHER}" \
     --arg zjq_timeout            "${RBRR_GCB_TIMEOUT}" \
     '{
@@ -947,7 +985,14 @@ zrbfd_enshrine_submit() {
         _RBGE_ENSHRINES_CATEGORY: $zjq_enshrines_category,
         _RBGE_IMAGE_1_ORIGIN:     $zjq_origin_1,
         _RBGE_IMAGE_2_ORIGIN:     $zjq_origin_2,
-        _RBGE_IMAGE_3_ORIGIN:     $zjq_origin_3
+        _RBGE_IMAGE_3_ORIGIN:     $zjq_origin_3,
+        _RBGR_GAR_HOST:           $zjq_gar_host,
+        _RBGR_GAR_PATH:           $zjq_gar_path,
+        _RBGR_RELIQUARIES_ROOT:   $zjq_reliquaries_root,
+        _RBGR_RELIQUARY:          $zjq_reliquary,
+        _RBGR_ENSHRINE_LOCATOR_1: "",
+        _RBGR_ENSHRINE_LOCATOR_2: "",
+        _RBGR_ENSHRINE_LOCATOR_3: ""
       },
       serviceAccount: $zjq_sa,
       options: {
@@ -1509,10 +1554,14 @@ zrbfd_mirror_submit() {
   local -r z_about_steps_file="${ZRBFD_MIRROR_PREFIX}about_steps.json"
   zrbfc_assemble_about_steps "${z_about_steps_file}" "${ZRBFD_MIRROR_PREFIX}about_"
 
-  # Combine: mirror step + about steps
+  # Step 0: in-pool reliquary preflight (defense-in-depth)
+  local -r z_preflight_step_file="${ZRBFD_MIRROR_PREFIX}preflight_step.json"
+  zrbfc_assemble_preflight_step "${z_preflight_step_file}" "${ZRBFD_MIRROR_PREFIX}"
+
+  # Combine: preflight step + mirror step + about steps
   local -r z_combined_steps="${ZRBFD_MIRROR_PREFIX}combined_steps.json"
-  jq -s '.[0] + .[1]' "${z_mirror_step_file}" "${z_about_steps_file}" \
-    > "${z_combined_steps}" || buc_die "Failed to combine mirror and about steps"
+  jq -s '.[0] + .[1] + .[2]' "${z_preflight_step_file}" "${z_mirror_step_file}" "${z_about_steps_file}" \
+    > "${z_combined_steps}" || buc_die "Failed to combine preflight, mirror, and about steps"
 
   # Git metadata (shared temp files, idempotent)
   zrbfc_ensure_git_metadata
@@ -1554,7 +1603,7 @@ zrbfd_mirror_submit() {
   local -r z_mirror_build_file="${ZRBFD_MIRROR_PREFIX}build.json"
 
   jq -n \
-    --slurpfile zjq_steps  "${z_combined_steps}" \
+    --slurpfile zjq_steps    "${z_combined_steps}" \
     --arg zjq_sa             "${z_mason_sa}" \
     --arg zjq_gar_host       "${z_gar_host}" \
     --arg zjq_gar_path       "${z_gar_path}" \
@@ -1575,6 +1624,8 @@ zrbfd_mirror_submit() {
     --arg zjq_basename_image "${RBGC_ARK_BASENAME_IMAGE}" \
     --arg zjq_basename_about "${RBGC_ARK_BASENAME_ABOUT}" \
     --arg zjq_basename_diags "${RBGC_ARK_BASENAME_DIAGS}" \
+    --arg zjq_reliquaries_root "${RBGL_RELIQUARIES_ROOT}" \
+    --arg zjq_reliquary      "${RBRV_RELIQUARY}" \
     '{
       steps: $zjq_steps[0],
       substitutions: {
@@ -1594,7 +1645,14 @@ zrbfd_mirror_submit() {
         _RBGA_DOCKERFILE_CONTENT:    $zjq_dockerfile,
         _RBGA_ARK_BASENAME_IMAGE:    $zjq_basename_image,
         _RBGA_ARK_BASENAME_ABOUT:    $zjq_basename_about,
-        _RBGA_ARK_BASENAME_DIAGS:    $zjq_basename_diags
+        _RBGA_ARK_BASENAME_DIAGS:    $zjq_basename_diags,
+        _RBGR_GAR_HOST:              $zjq_gar_host,
+        _RBGR_GAR_PATH:              $zjq_gar_path,
+        _RBGR_RELIQUARIES_ROOT:      $zjq_reliquaries_root,
+        _RBGR_RELIQUARY:             $zjq_reliquary,
+        _RBGR_ENSHRINE_LOCATOR_1:    "",
+        _RBGR_ENSHRINE_LOCATOR_2:    "",
+        _RBGR_ENSHRINE_LOCATOR_3:    ""
       },
       serviceAccount: $zjq_sa,
       options: {

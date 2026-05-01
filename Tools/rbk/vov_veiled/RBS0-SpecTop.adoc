@@ -805,6 +805,8 @@ The `gcloud auth configure-docker` approach also fails mechanically in GCB steps
 NOTE: The gcloud reliquary image exists because every ordain-path build step (conjure, bind, graft) uses it for the about/vouch pipeline (`bash`, `date`, and `gcloud` for provenance retrieval per the exception above).
 The reliquary toolchain is mode-uniform: all ordain modes consume gcloud, docker, alpine, and syft from the reliquary; bind additionally uses skopeo for image-copy.
 
+NOTE: *In-pool reliquary preflight contract*. Every ordain-path Cloud Build job (conjure's combined image+about, bind's combined mirror+about, graft's combined about+vouch, enshrine) prepends a step 0 — the in-pool reliquary preflight (`rbgjr01-reliquary-preflight.sh`) — that HEAD-checks reliquary tool images and (for conjure) enshrined base anchors from the worker pool's vantage. This is defense-in-depth on top of the host-side `zrbfd_registry_preflight` (which validates the Director's host-side view of GAR): the in-pool check catches divergence the host-side check cannot — airgap-VPC routing, Director↔Mason IAM split, and submit↔execute time skew. Coverage is 5 of 6 reliquary tools; alpine (the preflight step's own image) is implicitly validated by Cloud Build pulling it before the script runs. Failure produces a structured "this pool can't see «TOOL»" message naming each missed item, with remediation directive (re-inscribe + re-yoke + re-ordain). Standalone vouch (`zrbfv_vouch_submit`) and standalone about (`zrbfv_about_submit`) are operator-recovery paths and are not currently covered by the in-pool preflight.
+
 [[rbsk_invest_serialized]]
 //axl_voices axk_premise
 {rbsk_invest_serialized}::

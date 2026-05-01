@@ -39,6 +39,8 @@ NOTE: Enshrine runs on Cloud Build, not the Director's workstation.
 No local skopeo installation is required.
 The GCB step uses Mason SA ambient credentials via the metadata server for GAR writes.
 
+NOTE: *In-pool reliquary preflight*. Step 0 of the enshrine Cloud Build job is the in-pool reliquary preflight that HEAD-checks reliquary tool images from the worker pool's vantage before the skopeo copy step runs. Coverage is 5 of 6 reliquary tools (gcloud, docker, syft, binfmt, skopeo); alpine (the preflight step's own image) is implicitly validated by Cloud Build pulling it. Enshrine slot locators are NOT included in the preflight — enshrine creates anchors, so pre-validating them would be circular. Failure produces a structured "this pool can't see «TOOL»" message naming each missed item; remediation is re-inscribe the reliquary, then re-run enshrine.
+
 The enshrine operation:
 
 //axhopt_typed_parameter

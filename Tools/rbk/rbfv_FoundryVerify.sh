@@ -304,10 +304,14 @@ zrbfv_graft_metadata_submit() {
   local -r z_vouch_steps_file="${ZRBFV_GRAFT_META_PREFIX}vouch_steps.json"
   zrbfc_assemble_vouch_steps "${z_vouch_steps_file}" "${ZRBFV_GRAFT_META_PREFIX}vouch_"
 
-  # === Combine: about steps + vouch steps ===
+  # === Step 0: in-pool reliquary preflight (defense-in-depth) ===
+  local -r z_preflight_step_file="${ZRBFV_GRAFT_META_PREFIX}preflight_step.json"
+  zrbfc_assemble_preflight_step "${z_preflight_step_file}" "${ZRBFV_GRAFT_META_PREFIX}"
+
+  # === Combine: preflight + about steps + vouch steps ===
   local -r z_combined_steps="${ZRBFV_GRAFT_META_PREFIX}combined_steps.json"
-  jq -s '.[0] + .[1]' "${z_about_steps_file}" "${z_vouch_steps_file}" \
-    > "${z_combined_steps}" || buc_die "Failed to combine about and vouch steps"
+  jq -s '.[0] + .[1] + .[2]' "${z_preflight_step_file}" "${z_about_steps_file}" "${z_vouch_steps_file}" \
+    > "${z_combined_steps}" || buc_die "Failed to combine preflight, about, and vouch steps"
 
   # Compose Build resource JSON with both _RBGA_ and _RBGV_ substitutions
   buc_log_args "Composing combined about+vouch Build resource JSON"
@@ -339,6 +343,8 @@ zrbfv_graft_metadata_submit() {
     --arg zjq_basename_vouch    "${RBGC_ARK_BASENAME_VOUCH}" \
     --arg zjq_basename_attest   "${RBGC_ARK_BASENAME_ATTEST}" \
     --arg zjq_basename_diags    "${RBGC_ARK_BASENAME_DIAGS}" \
+    --arg zjq_reliquaries_root  "${RBGL_RELIQUARIES_ROOT}" \
+    --arg zjq_reliquary         "${RBRV_RELIQUARY}" \
     '{
       steps: $zjq_steps[0],
       substitutions: {
@@ -375,7 +381,14 @@ zrbfv_graft_metadata_submit() {
         _RBGV_IMAGE_3_PROVENANCE:    $zjq_vi_prov_3,
         _RBGV_ARK_BASENAME_IMAGE:    $zjq_basename_image,
         _RBGV_ARK_BASENAME_VOUCH:    $zjq_basename_vouch,
-        _RBGV_ARK_BASENAME_ATTEST:   $zjq_basename_attest
+        _RBGV_ARK_BASENAME_ATTEST:   $zjq_basename_attest,
+        _RBGR_GAR_HOST:              $zjq_gar_host,
+        _RBGR_GAR_PATH:              $zjq_gar_path,
+        _RBGR_RELIQUARIES_ROOT:      $zjq_reliquaries_root,
+        _RBGR_RELIQUARY:             $zjq_reliquary,
+        _RBGR_ENSHRINE_LOCATOR_1:    "",
+        _RBGR_ENSHRINE_LOCATOR_2:    "",
+        _RBGR_ENSHRINE_LOCATOR_3:    ""
       },
       serviceAccount: $zjq_sa,
       options: {
