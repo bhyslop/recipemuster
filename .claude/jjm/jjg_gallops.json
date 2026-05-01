@@ -34,6 +34,7 @@
       "creation_time": "260412",
       "status": "racing",
       "order": [
+        "₢A-AAg",
         "₢A-AAG",
         "₢A-AAA",
         "₢A-AAB",
@@ -64,7 +65,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "next_pace_seed": "AAg",
+      "next_pace_seed": "AAh",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -747,6 +748,17 @@
               "text": "## Character\nAudit + retire — operator-gated cleanup. Two-phase: review first, delete after operator agreement on what content needs to survive elsewhere.\n\n## Docket\nThe `buhw_*` Windows handbook procedures (access trio + WSL/Cygwin environment) and their tabtargets are slated for retirement once AAX's architecture clarifies what content (if any) needs to migrate.\n\nReview: present each procedure's content to the operator; operator decides what survives elsewhere before deletion.\n\nRetire (after operator agreement):\n- Tabtargets in `tt/`: `buw-HWab`, `buw-HWar`, `buw-HWax`, `buw-HWew`, `buw-HWec`\n- Functions in `Tools/buk/buhw_windows.sh`: `buhw_access_base`, `buhw_access_remote`, `buhw_access_entrypoints`, `buhw_environment_wsl`, `buhw_environment_cygwin`\n- Zipper enrollments matching `BUWZ_HW_ACCESS_*` and `BUWZ_HW_ENV_*` in `buwz_zipper.sh`\n- Downstream references (discover via `grep -rn 'BUWZ_HW_\\|buhw_access_\\|buhw_environment_' Tools/ tt/`)\n- Section listings in `buhw_top` that point at retired entries\n\nValidation: `tt/buw-st.BukSelfTest.sh` green; `bash -n` on edited files clean.",
               "silks": "audit-and-retire-buhw-handbook",
               "commit": "c746cab"
+            }
+          ]
+        },
+        "₢A-AAg": {
+          "tacks": [
+            {
+              "ts": "260501-0948",
+              "state": "rough",
+              "text": "## Character\nSpec drafting — finish the BUS0 statement of the BURN/BURP/BURW reshape so\nnothing in BUS0 contradicts the regime trio or the premises.\n\n## Docket\nBUS0 currently carries: regime trio (BURN/BURP/BURW), identifier vocabulary\n(viceroyalty/investiture/lieutenancy), two premise quoins\n(`burn_host_singularity`, `bus_keys_operator_owned`), regime field tables.\nThree drafting steps remain:\n\n- **Verb table**: garrison, withdraw, conscript-{platform}, discharge,\n  vanquish, inventory — each with explicit args, behavior, preconditions.\n- **Cross-cutting principles section**: formalize single-admin-at-a-time\n  alongside the existing two premise quoins.\n- **Subdoc consolidation in `Tools/buk/vov_veiled/`**: drop BUSTGC/W/P\n  (consolidate to one BUSTG); decide BUSTCC/W/P fate (per-platform templates\n  or consolidate); align BUSTWD/BUSTWI with reshape colophons (np tier).\n\nDone when: BUS0 §Remote Node Access reads coherently without prior-conversation\ncontext; verb table covers all six privileged-tier verbs and three workload-tier\nverbs; subdocs in `Tools/buk/vov_veiled/` match the BUS0 catalog.",
+              "silks": "reshape-spec-finalize",
+              "commit": "9ad8b77"
             }
           ]
         }
