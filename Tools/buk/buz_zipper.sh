@@ -256,7 +256,12 @@ buz_exec_lookup() {
   local z_folio=""
   local z_args=("$@")
   case "${z_buz_channel_roll[z_found]}" in
-    "") ;;
+    "")
+      if (( ${#z_args[@]} )); then
+        buc_warn "Colophon '${z_colophon}' takes no folio; ignoring unexpected argument(s): ${z_args[*]}"
+        z_args=()
+      fi
+      ;;
     "imprint")
       z_folio="${BURD_TOKEN_3}"
       ;;
