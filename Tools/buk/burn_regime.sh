@@ -41,7 +41,7 @@ zburn_kindle() {
 
   buv_group_enroll "Node Identity"
   buv_string_enroll       BURN_HOST       1  253  "IP address or hostname of the remote node"
-  buv_enum_enroll         BURN_PLATFORM   "Platform identity selecting the access stack"  linux mac cygwin wsl powershell localhost
+  buv_enum_enroll         BURN_PLATFORM   "OS family of the node"                          linux mac windows
   buv_list_string_enroll  BURN_WORKLOADS  1   64  "Space-separated list of valid workload-lieutenancy templates on this node"
 
   # Guard against unexpected BURN_ variables not in enrollment

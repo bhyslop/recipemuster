@@ -974,14 +974,21 @@ IP address or hostname of the remote node.
 [[burn_platform]]
 //axvr_variable axd_required axtu_xname
 {burn_platform}::
-Platform identity of the node, selecting the access stack and procedure
-dispatch.
-Values: `linux`, `mac`, `cygwin`, `wsl`, `powershell`, `localhost`.
-The Windows family appears as three values
-(`cygwin`, `wsl`, `powershell`)
-because each surfaces a distinct shell and quoting regime;
-`localhost` is its own value because connections short-circuit the SSH
-transport.
+OS family of the node.
+Selects procedure dispatch for OS-specific ceremonies
+(garrison shell selection, sshd configuration paths, quoting regime).
+Values: `linux`, `mac`, `windows`.
++
+Admin-shell variant on Windows nodes (cygwin / wsl / powershell) is
+captured in
+{burp_command}
+per investiture, not at the node level — a single Windows host can
+support multiple admin-shell stacks under separate
+{burp_investiture}
+instances.
+Workload-shell variant is captured in
+{burw_lieutenancy}
+naming.
 
 [[burn_workloads]]
 //axvr_variable axd_required axtu_string axd_repeated

@@ -23,7 +23,7 @@ local node subtree.
 
 //axhos_step
 . *Platform sanity*: confirm {burn_platform} is exactly one of
-`linux | mac | cygwin | wsl | powershell | localhost`
+`linux | mac | windows`
 
 //axhog_guarantee
 The verdict reflects the on-disk state at call time; no field was
