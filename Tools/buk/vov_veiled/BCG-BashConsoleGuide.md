@@ -1616,6 +1616,7 @@ buc_warn    # Instead of echo >&2
 - [ ] Implementation file sources nothing (except within kindle function)
 - [ ] CLI header sources only `buc_command.sh`; all other deps sourced in furnish
 - [ ] External code accesses module through CLI only (no direct `z*_kindle()` calls from outside)
+- [ ] `_cli.sh` files are executable; all other `*.sh` files in the module directory are not
 
 ### Required Functions
 - [ ] `z«prefix»_kindle` - first line: `test -z "${Z«PREFIX»_KINDLED:-}" || buc_die`
