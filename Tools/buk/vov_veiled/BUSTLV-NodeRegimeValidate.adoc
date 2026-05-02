@@ -18,7 +18,8 @@ local node subtree.
 {burn_viceroyalty}
 
 //axhos_step
-. *Required fields*: confirm {burn_host} and {burn_platform} are present
+. *Required fields*: confirm {burn_host}, {burn_platform}, and
+{burn_workloads} are present
 
 //axhos_step
 . *Platform sanity*: confirm {burn_platform} is exactly one of

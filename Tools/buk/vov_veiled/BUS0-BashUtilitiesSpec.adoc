@@ -35,7 +35,7 @@
 // Tabtarget Vesture
 :bust_tabtarget:        <<bust_tabtarget,Tabtarget Vesture>>
 
-// Concrete BURN Tabtargets
+// Concrete BURN/BURP Tabtargets
 :bust_garrison_linux:        <<bust_garrison_linux,Garrison Linux>>
 :bust_garrison_mac:          <<bust_garrison_mac,Garrison Mac>>
 :bust_garrison_cygwin:       <<bust_garrison_cygwin,Garrison Cygwin>>
@@ -1131,7 +1131,7 @@ Resolves to the
 file at the directory bearing this name.
 
 [[burp_user]]
-//axvr_variable axd_required axtu_xname
+//axvr_variable axd_required axtu_string
 {burp_user}::
 Remote admin OS user this credential authenticates as
 (e.g., `Administrator` on Windows, `root` or a sudo-capable user on

@@ -38,7 +38,7 @@ Every module has an implementation file. CLI entry points are only present if mo
 
 ```bash
 «prefix»_«name».sh (implementation - REQUIRED, prefer single lowercase word, allow snake_case)
-«prefix»_cli.sh (executable entry point - OPTIONAL, omit for library/utility modules)
+«prefix»_cli.sh (entry point - OPTIONAL, omit for library/utility modules)
 ```
 
 ### CLI as Module Gateway
@@ -80,6 +80,13 @@ exec "${TOOLS_DIR}/rbob_cli.sh" rbob_charge "$@"
 - A module's own CLI (in `furnish()`)
 - Another CLI's `furnish()` (when CLI A depends on module B, A's furnish kindles B)
 - Test harnesses that explicitly isolate module behavior
+
+**Filesystem marker**: The `_cli.sh` suffix and the executable bit must agree. Within a BCG module directory:
+
+- Every `*_cli.sh` MUST be executable
+- Every other `*.sh` MUST NOT be executable
+
+This makes the gateway role visible to `ls -l`: a workbench, testbench, or implementation module carrying `+x` is a bug — direct execution bypasses the CLI's `furnish()` and the kindle graph it owns. Tabtargets in `tt/` and shipped tool binaries are not BCG modules and stand outside this rule.
 
 ### Module-CLI Prefix Unity
 

@@ -38,7 +38,7 @@ zburs_kindle() {
   buv_regime_enroll BURS
 
   buv_group_enroll "Developer Identity"
-  buv_xname_enroll   BURS_USER     1   32  "Local developer username (routes to .buk/users/ profiles)"
+  buv_xname_enroll   BURS_USER     1   32  "Local developer username (routes to .buk/rbmu_users/ profiles)"
 
   buv_group_enroll "Developer Logging"
   buv_string_enroll  BURS_LOG_DIR  1  512  "Directory for BUK operation logs"
