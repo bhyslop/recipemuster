@@ -1033,11 +1033,12 @@ zrbfd_enshrine_extract_anchors() {
 
   buc_step "Extracting anchor results from build step outputs"
 
-  # buildStepOutputs[0] is base64-encoded JSON from the enshrine step
+  # buildStepOutputs[1] is base64-encoded JSON from the enshrine-copy step;
+  # step 0 is the in-pool reliquary preflight, which does not write /builder/outputs/output.
   local -r z_b64_file="${ZRBFD_ENSHRINE_PREFIX}output_b64.txt"
   local -r z_output_file="${ZRBFD_ENSHRINE_PREFIX}output.json"
 
-  jq -r '.results.buildStepOutputs[0] // empty' "${ZRBFC_BUILD_STATUS_FILE}" \
+  jq -r '.results.buildStepOutputs[1] // empty' "${ZRBFC_BUILD_STATUS_FILE}" \
     > "${z_b64_file}" || buc_die "Failed to extract buildStepOutputs from build result"
   test -s "${z_b64_file}" || buc_die "No buildStepOutputs in build result — enshrine step did not produce output"
 
