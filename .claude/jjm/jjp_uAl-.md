@@ -89,6 +89,3 @@ BURS field additions, BURP/BURW regime tabtargets.
 - Fundus capability registry: `Tools/rbk/vov_veiled/RBSFR-FundusRegistry.md`
 - PowerShell-from-WSL pattern: bash owns control flow, PowerShell is the
   Windows syscall layer; one atomic command per call
-- BURS_USER station regime field routes BURP files to
-  `.buk/users/${BURS_USER}/` subdirectory; BURN files are shared
-  (project-tracked); BURW state lives at `${BURS_WORKLOAD_STATE_DIR}`
