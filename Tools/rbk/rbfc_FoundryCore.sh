@@ -1458,7 +1458,7 @@ zrbfc_plumb_show_full() {
 rbfc_plumb_full() {
   zrbfc_sentinel
 
-  local -r z_hallmark="${1:-}"
+  local -r z_hallmark="${BUZ_FOLIO:-}"
 
   buc_doc_brief "Plumb a hallmark's trust posture (full detail)"
   buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"
@@ -1470,7 +1470,7 @@ rbfc_plumb_full() {
 rbfc_plumb_compact() {
   zrbfc_sentinel
 
-  local -r z_hallmark="${1:-}"
+  local -r z_hallmark="${BUZ_FOLIO:-}"
 
   buc_doc_brief "Plumb a hallmark's trust posture (compact summary)"
   buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"

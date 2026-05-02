@@ -54,7 +54,7 @@ zrbfr_sentinel() {
 rbfr_summon() {
   zrbfr_sentinel
 
-  local z_hallmark="${1:-}"
+  local z_hallmark="${BUZ_FOLIO:-}"
 
   # Documentation block
   buc_doc_brief "Summon an ark (pull -image, -about, and -vouch artifacts as a coherent unit)"

@@ -319,8 +319,8 @@ rbfl_yoke() {
 rbfl_jettison() {
   zrbfl_sentinel
 
-  local z_locator="${1:-}"
-  local z_force="${2:-}"
+  local z_locator="${BUZ_FOLIO:-}"
+  local z_force="${1:-}"
 
   # Documentation block
   buc_doc_brief "Jettison an image tag from the registry by locator"
@@ -390,8 +390,8 @@ rbfl_jettison() {
 rbfl_abjure() {
   zrbfl_sentinel
 
-  local z_hallmark="${1:-}"
-  local z_force="${2:-}"
+  local z_hallmark="${BUZ_FOLIO:-}"
+  local z_force="${1:-}"
 
   # Documentation block
   buc_doc_brief "Abjure a hallmark — delete all GAR packages under rbi_hm/<hallmark>/"
@@ -590,7 +590,7 @@ rbfl_tally() {
 rbfl_rekon_hallmark() {
   zrbfl_sentinel
 
-  local -r z_hallmark="${1:-}"
+  local -r z_hallmark="${BUZ_FOLIO:-}"
 
   buc_doc_brief "List ark basenames present under a hallmark's GAR subtree"
   buc_doc_param "hallmark" "Hallmark identifier"
@@ -657,7 +657,7 @@ rbfl_rekon_hallmark() {
 rbfl_rekon_reliquary() {
   zrbfl_sentinel
 
-  local -r z_stamp="${1:-}"
+  local -r z_stamp="${BUZ_FOLIO:-}"
 
   buc_doc_brief "List tool images present under a reliquary stamp's GAR subtree"
   buc_doc_param "stamp" "Reliquary datestamp (e.g., r260327172456)"
@@ -724,7 +724,7 @@ rbfl_rekon_reliquary() {
 rbfl_wrest() {
   zrbfl_sentinel
 
-  local -r z_locator="${1:-}"
+  local -r z_locator="${BUZ_FOLIO:-}"
 
   buc_doc_brief "Wrest an image from the registry to local container runtime by locator"
   buc_doc_param "locator" "Image locator in package-path:tag format (e.g. rbi_hm/H/image:H, rbi_rq/r260327172456/syft:r260327172456, rbi_es/eb-anchor:eb-anchor)"

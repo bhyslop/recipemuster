@@ -850,7 +850,7 @@ rbfd_enshrine() {
   buc_doc_shown || return 0
 
   # Resolve vessel argument (sigil or path) and load
-  zrbfc_resolve_vessel "${1:-}"
+  zrbfc_resolve_vessel "${BUZ_FOLIO:-}"
   local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
   test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
   zrbfc_load_vessel "${z_vessel_dir}"
@@ -1099,7 +1099,7 @@ rbfd_ordain() {
   buc_doc_shown || return 0
 
   # Resolve vessel argument (sigil or path)
-  zrbfc_resolve_vessel "${1:-}"
+  zrbfc_resolve_vessel "${BUZ_FOLIO:-}"
   local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
   test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
 
@@ -1342,7 +1342,7 @@ rbfd_kludge() {
     || buc_die "Index has staged changes — commit before kludge"
 
   # Resolve vessel argument (sigil or path)
-  zrbfc_resolve_vessel "${1:-}"
+  zrbfc_resolve_vessel "${BUZ_FOLIO:-}"
   local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
   test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
 

@@ -46,7 +46,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-dL` | PayorLeviesDepot | — | Provision GCP depot project |
 | `rbw-dU` | PayorUnmakesDepot | — | Permanently remove a depot |
 | `rbw-dl` | PayorListsDepots | — | List all active depots |
-| `rbw-dE` | DirectorEnshrinesVessel | — | Enshrine upstream base images to GAR via Cloud Build |
+| `rbw-dE` | DirectorEnshrinesVessel | param1 | Enshrine upstream base images to GAR via Cloud Build |
 | `rbw-dI` | DirectorInscribesReliquary | — | Create reliquary: mirror tool images from upstream to GAR |
 | `rbw-dY` | DirectorYokesReliquaryInVessel | param1 | Yoke a reliquary stamp into an ordain-path vessel's rbrv.env |
 
@@ -80,14 +80,14 @@ The Folio column shows how each tabtarget receives it:
 
 | Colophon | Frontispiece | Folio | Purpose |
 |----------|-------------|-------|---------|
-| `rbw-fO` | DirectorOrdainsHallmark | — | Ordain hallmark: conjure, bind, or graft based on vessel mode |
-| `rbw-fk` | LocalKludge | — | Kludge a vessel image locally for development |
-| `rbw-fA` | DirectorAbjuresHallmark | — | Abjure a hallmark (delete artifacts from GAR) |
+| `rbw-fO` | DirectorOrdainsHallmark | param1 | Ordain hallmark: conjure, bind, or graft based on vessel mode |
+| `rbw-fk` | LocalKludge | param1 | Kludge a vessel image locally for development |
+| `rbw-fA` | DirectorAbjuresHallmark | param1 | Abjure a hallmark (delete artifacts from GAR) |
 | `rbw-ft` | RetrieverTalliesHallmarks | — | Tally hallmarks by health state |
 | `rbw-fV` | DirectorVouchesHallmarks | — | Mode-aware vouch: SLSA (conjure), digest-pin (bind), GRAFTED (graft) |
-| `rbw-fs` | RetrieverSummonsHallmark | — | Summon vouched hallmark image locally |
-| `rbw-fpf` | RetrieverPlumbsFull | — | Full provenance display (SBOM, build info, Dockerfile) |
-| `rbw-fpc` | RetrieverPlumbsCompact | — | Compact provenance summary |
+| `rbw-fs` | RetrieverSummonsHallmark | param1 | Summon vouched hallmark image locally |
+| `rbw-fpf` | RetrieverPlumbsFull | param1 | Full provenance display (SBOM, build info, Dockerfile) |
+| `rbw-fpc` | RetrieverPlumbsCompact | param1 | Compact provenance summary |
 
 ### Ifrit — Attack binary (`rbw-I`)
 
@@ -100,17 +100,17 @@ The Folio column shows how each tabtarget receives it:
 
 | Colophon | Frontispiece | Folio | Purpose |
 |----------|-------------|-------|---------|
-| `rbw-irh` | DirectorRekonsHallmark | — | List ark basenames present under a hallmark's GAR subtree |
-| `rbw-irr` | DirectorRekonsReliquary | — | List tool images present under a reliquary stamp's GAR subtree |
+| `rbw-irh` | DirectorRekonsHallmark | param1 | List ark basenames present under a hallmark's GAR subtree |
+| `rbw-irr` | DirectorRekonsReliquary | param1 | List tool images present under a reliquary stamp's GAR subtree |
 | `rbw-iah` | DirectorAuditsHallmarks | — | Audit hallmarks — list all hallmark identifiers |
 | `rbw-iar` | DirectorAuditsReliquaries | — | Audit reliquaries — list all reliquary stamps |
 | `rbw-iae` | DirectorAuditsEnshrinements | — | Audit enshrinements — list all enshrined base anchors |
-| `rbw-iwh` | DirectorWrestsHallmarkImage | — | Wrest a hallmark image from registry |
-| `rbw-iwr` | DirectorWrestsReliquaryImage | — | Wrest a reliquary tool image from registry |
-| `rbw-iwe` | DirectorWrestsEnshrinedImage | — | Wrest an enshrined base image from registry |
-| `rbw-iJh` | DirectorJettisonsHallmarkImage | — | Jettison a hallmark image tag from registry |
-| `rbw-iJr` | DirectorJettisonsReliquaryImage | — | Jettison a reliquary tool image from registry |
-| `rbw-iJe` | DirectorJettisonsEnshrinement | — | Jettison an enshrinement from registry |
+| `rbw-iwh` | DirectorWrestsHallmarkImage | param1 | Wrest a hallmark image from registry |
+| `rbw-iwr` | DirectorWrestsReliquaryImage | param1 | Wrest a reliquary tool image from registry |
+| `rbw-iwe` | DirectorWrestsEnshrinedImage | param1 | Wrest an enshrined base image from registry |
+| `rbw-iJh` | DirectorJettisonsHallmarkImage | param1 | Jettison a hallmark image tag from registry |
+| `rbw-iJr` | DirectorJettisonsReliquaryImage | param1 | Jettison a reliquary tool image from registry |
+| `rbw-iJe` | DirectorJettisonsEnshrinement | param1 | Jettison an enshrinement from registry |
 
 ### Marshal — Lifecycle (`rbw-M`)
 
