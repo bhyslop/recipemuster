@@ -1,0 +1,25 @@
+//axhob_operation
+{bust_privilege_regime_list}
+
+NOTE: Lists every {burp_regime} profile in the local station-user subtree
+without contacting any remote node.
+Read-only enumeration scoped to the current {burs_user}.
+
+//axhoq_precondition
+The station-user subtree at `.buk/rbmu_users/{burs_user}/` exists and is
+readable by the calling user.
+
+//axhos_step
+. *Enumerate local profiles*: scan the station-user subtree for
+{burp_regime} profile files
+
+//axhos_step
+. *Display roster*: print each discovered {burp_investiture} for the
+current {burs_user}
+
+//axhog_guarantee
+No remote network contact occurred and no profile file was modified.
+
+//axhoc_completion
+Exit 0 on successful enumeration; an empty roster is success.
+Non-zero only when the station-user subtree cannot be read.

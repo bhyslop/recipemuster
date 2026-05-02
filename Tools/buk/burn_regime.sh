@@ -74,7 +74,7 @@ zburn_enforce() {
 burn_list_capture() {
   zburd_sentinel
 
-  local -r z_nodes_dir="${BURD_CONFIG_DIR}/rbmn_nodes"
+  local -r z_nodes_dir="${BURD_CONFIG_DIR}/${BUBC_rbmn_nodes_subdir}"
   test -d "${z_nodes_dir}" || return 1
 
   local z_result=""
@@ -99,15 +99,15 @@ burn_die_no_folio() {
   local z_aliases=""
   if z_aliases=$(burn_list_capture 2>/dev/null); then
     buc_warn "BURN viceroyalty required as first argument."
-    buc_step "Available viceroyalties under .buk/rbmn_nodes/:"
+    buc_step "Available viceroyalties under .buk/${BUBC_rbmn_nodes_subdir}/:"
     local z_v=""
     for z_v in ${z_aliases}; do
       buc_bare "        ${z_v}"
     done
   else
     buc_warn "BURN viceroyalty required as first argument."
-    buc_step "No profiles found under .buk/rbmn_nodes/."
-    buc_bare "        Author one at .buk/rbmn_nodes/<viceroyalty>/burn.env"
+    buc_step "No profiles found under .buk/${BUBC_rbmn_nodes_subdir}/."
+    buc_bare "        Author one at .buk/${BUBC_rbmn_nodes_subdir}/<viceroyalty>/burn.env"
   fi
   buc_die "No BURN viceroyalty supplied."
 }

@@ -63,6 +63,12 @@ zbuwz_kindle() {
   buz_enroll BUWZ_RN_RENDER   "buw-rnr" "${z_mod}" "burn_render"   "param1" "Render BURN profile"
   buz_enroll BUWZ_RN_LIST     "buw-rnl" "${z_mod}" "burn_list"     ""       "List BURN profiles"
 
+  # Privileged Regime subsystem (burp_cli.sh)
+  z_mod="burp_cli.sh"
+  buz_enroll BUWZ_RP_VALIDATE "buw-rpv" "${z_mod}" "burp_validate" "param1" "Validate BURP profile"
+  buz_enroll BUWZ_RP_RENDER   "buw-rpr" "${z_mod}" "burp_render"   "param1" "Render BURP profile"
+  buz_enroll BUWZ_RP_LIST     "buw-rpl" "${z_mod}" "burp_list"     ""       "List BURP profiles"
+
   # Qualification subsystem (buq_cli.sh)
   z_mod="buq_cli.sh"
   buz_enroll BUWZ_QUALIFY_SHELLCHECK "buw-qsc" "${z_mod}" "buq_shellcheck"  ""  "Run shellcheck on all tools"
@@ -74,14 +80,6 @@ zbuwz_kindle() {
   # Self-test (butt_testbench.sh)
   z_mod="butt_testbench.sh"
   buz_enroll BUWZ_SELF_TEST "buw-st" "${z_mod}" "buw-st"  ""  "BUK self-test (kick-tires + bure-tweak)"
-
-  # Node Regime — constructors + SSH automation (burn_cli.sh)
-  z_mod="burn_cli.sh"
-  buz_enroll BUWZ_RHC_LINUX      "buw-rhcl"  "${z_mod}" "burn_construct_linux"      ""        "Construct BURN profile: Linux"
-  buz_enroll BUWZ_RHC_MAC        "buw-rhcm"  "${z_mod}" "burn_construct_mac"        ""        "Construct BURN profile: macOS"
-  buz_enroll BUWZ_RHC_LOCALHOST  "buw-rhcx"  "${z_mod}" "burn_construct_localhost"  ""        "Construct BURN profile: localhost"
-  buz_enroll BUWZ_HW_VERIFY_SSH  "buw-HWvs"  "${z_mod}" "burn_verify_ssh"           "param1"  "Verify SSH to BURN profile"
-  buz_enroll BUWZ_RN_INSTALL_KEY "buw-rnk"   "${z_mod}" "burn_install_key"          "param1"  "Install BURN key into authorized_keys"
 
   # Handbook — top index + Windows OS procedures (buhw_cli.sh)
   z_mod="buhw_cli.sh"

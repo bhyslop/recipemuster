@@ -78,7 +78,7 @@ zburp_enforce() {
 burp_list_capture() {
   zburs_sentinel
 
-  local -r z_user_dir="${BURD_CONFIG_DIR}/rbmu_users/${BURS_USER}"
+  local -r z_user_dir="${BURD_CONFIG_DIR}/${BUBC_rbmu_users_subdir}/${BURS_USER}"
   test -d "${z_user_dir}" || return 1
 
   local z_result=""
@@ -103,15 +103,15 @@ burp_die_no_folio() {
   local z_aliases=""
   if z_aliases=$(burp_list_capture 2>/dev/null); then
     buc_warn "BURP investiture required as first argument."
-    buc_step "Available investitures under .buk/rbmu_users/${BURS_USER}/:"
+    buc_step "Available investitures under .buk/${BUBC_rbmu_users_subdir}/${BURS_USER}/:"
     local z_v=""
     for z_v in ${z_aliases}; do
       buc_bare "        ${z_v}"
     done
   else
     buc_warn "BURP investiture required as first argument."
-    buc_step "No profiles found under .buk/rbmu_users/${BURS_USER}/."
-    buc_bare "        Author one at .buk/rbmu_users/${BURS_USER}/<investiture>/burp.env"
+    buc_step "No profiles found under .buk/${BUBC_rbmu_users_subdir}/${BURS_USER}/."
+    buc_bare "        Author one at .buk/${BUBC_rbmu_users_subdir}/${BURS_USER}/<investiture>/burp.env"
   fi
   buc_die "No BURP investiture supplied."
 }

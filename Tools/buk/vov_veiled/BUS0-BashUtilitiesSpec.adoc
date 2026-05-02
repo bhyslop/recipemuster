@@ -1846,6 +1846,12 @@ include::BUSTLR-NodeRegimeRender.adoc[]
 
 include::BUSTLV-NodeRegimeValidate.adoc[]
 
+include::BUSTPL-PrivilegeRegimeList.adoc[]
+
+include::BUSTPR-PrivilegeRegimeRender.adoc[]
+
+include::BUSTPV-PrivilegeRegimeValidate.adoc[]
+
 include::BUSTGC-GarrisonCygwin.adoc[]
 
 include::BUSTGW-GarrisonWsl.adoc[]

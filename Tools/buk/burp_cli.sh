@@ -16,11 +16,11 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# BURN CLI - Command line interface for BURN node regime operations
+# BURP CLI - Command line interface for BURP privileged regime operations
 #
-#   burn_validate/render/list  — regime read operations
-#       validate/render require BUZ_FOLIO (the viceroyalty)
-#       list enumerates the project-global node subtree
+#   burp_validate/render/list  — regime read operations
+#       validate/render require BUZ_FOLIO (the investiture)
+#       list enumerates the per-station-user investiture subtree
 
 set -euo pipefail
 
@@ -29,31 +29,31 @@ source "${BURD_BUK_DIR}/buc_command.sh"
 ######################################################################
 # Command Functions — Regime Operations
 
-burn_validate() {
-  buc_doc_brief "Validate BURN node regime profile via enrollment report"
+burp_validate() {
+  buc_doc_brief "Validate BURP privileged regime profile via enrollment report"
   buc_doc_shown || return 0
 
-  test -n "${BUZ_FOLIO:-}" || burn_die_no_folio
-  buc_step "Validating BURN node regime"
-  buv_report BURN "Node Regime"
-  buc_step "BURN node regime valid"
+  test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
+  buc_step "Validating BURP privileged regime"
+  buv_report BURP "Privileged Regime"
+  buc_step "BURP privileged regime valid"
 }
 
-burn_render() {
-  buc_doc_brief "Display diagnostic view of BURN node regime profile"
+burp_render() {
+  buc_doc_brief "Display diagnostic view of BURP privileged regime profile"
   buc_doc_shown || return 0
 
-  test -n "${BUZ_FOLIO:-}" || burn_die_no_folio
-  buv_render BURN "BURN - Bash Utility Node Regime"
+  test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
+  buv_render BURP "BURP - Bash Utility Privileged Regime"
 }
 
-burn_list() {
-  buc_doc_brief "List available BURN node viceroyalties"
+burp_list() {
+  buc_doc_brief "List available BURP investitures for the current station user"
   buc_doc_shown || return 0
 
   local z_aliases
-  z_aliases=$(burn_list_capture) || buc_die "No BURN profiles under .buk/${BUBC_rbmn_nodes_subdir}/"
-  buc_step "Available viceroyalties:"
+  z_aliases=$(burp_list_capture) || buc_die "No BURP profiles under .buk/${BUBC_rbmu_users_subdir}/${BURS_USER}/"
+  buc_step "Available investitures for ${BURS_USER}:"
   local z_alias=""
   for z_alias in ${z_aliases}; do
     buc_bare "        ${z_alias}"
@@ -63,7 +63,7 @@ burn_list() {
 ######################################################################
 # Furnish and Main
 
-zburn_furnish() {
+zburp_furnish() {
   buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env "BURD_CONFIG_DIR       " "BUK config directory (dispatch-provided)"
   buc_doc_env_done || return 0
@@ -74,7 +74,7 @@ zburn_furnish() {
   source "${BURD_BUK_DIR}/burs_regime.sh"
   source "${BURD_BUK_DIR}/buf_fact.sh"
   source "${BURD_BUK_DIR}/bubc_constants.sh"
-  source "${BURD_BUK_DIR}/burn_regime.sh"
+  source "${BURD_BUK_DIR}/burp_regime.sh"
   source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
   source "${BURD_BUK_DIR}/buym_yelp.sh"
   source "${BURD_BUK_DIR}/buh_handbook.sh"
@@ -95,16 +95,16 @@ zburn_furnish() {
 
   zbupr_kindle
 
-  # If BUZ_FOLIO is set, load and kindle the specified profile
+  # If BUZ_FOLIO is set, load and kindle the specified investiture profile
   if test -n "${BUZ_FOLIO:-}"; then
-    local -r z_profile_file="${BURD_CONFIG_DIR}/${BUBC_rbmn_nodes_subdir}/${BUZ_FOLIO}/burn.env"
-    test -f "${z_profile_file}" || buc_die "BURN profile not found: ${z_profile_file}"
-    source "${z_profile_file}" || buc_die "Failed to source BURN: ${z_profile_file}"
-    zburn_kindle
-    zburn_enforce
+    local -r z_profile_file="${BURD_CONFIG_DIR}/${BUBC_rbmu_users_subdir}/${BURS_USER}/${BUZ_FOLIO}/burp.env"
+    test -f "${z_profile_file}" || buc_die "BURP profile not found: ${z_profile_file}"
+    source "${z_profile_file}" || buc_die "Failed to source BURP: ${z_profile_file}"
+    zburp_kindle
+    zburp_enforce
   fi
 }
 
-buc_execute burn_ "Bash Utility Node Regime" zburn_furnish "$@"
+buc_execute burp_ "Bash Utility Privileged Regime" zburp_furnish "$@"
 
 # eof

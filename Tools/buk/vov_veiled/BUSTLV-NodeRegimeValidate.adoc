@@ -2,31 +2,27 @@
 {bust_node_regime_validate}
 
 NOTE: Validates a single {burn_regime} profile, identified by positional
-{burn_alias}, for required-field presence, valid {burn_tier}, and
-key-file accessibility.
+{burn_viceroyalty}, for required-field presence and {burn_platform} enum
+conformance.
 Read-only; no remote contact.
 
 //axhopt_typed_parameter
-{burn_alias}
+{burn_viceroyalty}
 
 //axhoq_precondition
-A {burn_regime} profile with the given {burn_alias} exists in the local
-station subtree.
+A {burn_regime} profile with the given {burn_viceroyalty} exists in the
+local node subtree.
 
 //axhos_step
-. *Load profile*: parse the profile file for the supplied {burn_alias}
+. *Load profile*: parse the profile file for the supplied
+{burn_viceroyalty}
 
 //axhos_step
-. *Required fields*: confirm {burn_host}, {burn_user}, {burn_alias},
-and {burn_tier} are present
+. *Required fields*: confirm {burn_host} and {burn_platform} are present
 
 //axhos_step
-. *Tier sanity*: confirm {burn_tier} is exactly one of
-`privileged | workload`
-
-//axhos_step
-. *Key reachable*: resolve {burn_key_file} and confirm the file is
-readable by the calling user
+. *Platform sanity*: confirm {burn_platform} is exactly one of
+`linux | mac | cygwin | wsl | powershell | localhost`
 
 //axhog_guarantee
 The verdict reflects the on-disk state at call time; no field was

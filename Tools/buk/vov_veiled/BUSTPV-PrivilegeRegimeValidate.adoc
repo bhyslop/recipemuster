@@ -1,0 +1,34 @@
+//axhob_operation
+{bust_privilege_regime_validate}
+
+NOTE: Validates a single {burp_regime} profile, identified by positional
+{burp_investiture}, for required-field presence and field-type
+conformance.
+Read-only; no remote contact.
+
+//axhopt_typed_parameter
+{burp_investiture}
+
+//axhoq_precondition
+A {burp_regime} profile with the given {burp_investiture} exists in the
+local station-user subtree.
+
+//axhos_step
+. *Load profile*: parse the profile file for the supplied
+{burp_investiture}
+
+//axhos_step
+. *Required fields*: confirm {burp_node}, {burp_user}, and
+{burp_ssh_pubkey} are present
+
+//axhos_step
+. *Optional fields*: confirm {burp_key_file} and {burp_command} either
+parse cleanly as their declared types or are explicitly empty
+
+//axhog_guarantee
+The verdict reflects the on-disk state at call time; no field was
+modified.
+
+//axhoc_completion
+Exit 0 when every check passes.
+Non-zero with a diagnostic message identifying the first failed check.
