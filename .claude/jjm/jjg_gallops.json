@@ -35,6 +35,7 @@
       "status": "racing",
       "order": [
         "₢A-AAj",
+        "₢A-AAk",
         "₢A-AAi",
         "₢A-AAh",
         "₢A-AAg",
@@ -68,7 +69,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "next_pace_seed": "AAk",
+      "next_pace_seed": "AAl",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -816,6 +817,17 @@
               "text": "## Character\nImplementation — mint BURN/BURP regime boilerplate; establish storage\nlayout the rest of the heat depends on. Don't preserve existing files.\n\n## Docket\nStorage layout:\n\n- BURN (project-global, git-tracked):\n  `.buk/rbmn_nodes/<viceroyalty>/burn.env`\n- BURP (per-station-user, flat):\n  `.buk/rbmu_users/<user>/<investiture>/burp.env`\n\n`.buk/users/` renames to `.buk/rbmu_users/` in this pace.\n\nBURN field reshape:\n\n- Add `BURN_PLATFORM` enum (linux/mac/cygwin/wsl/powershell/localhost).\n- Drop deprecated fields (BURN_TIER, BURN_USER, BURN_SSH_PUBKEY,\n  BURN_KEY_FILE, BURN_COMMAND) — content moves to BURP.\n- Final BURN field set: BURN_HOST, BURN_PLATFORM, plus\n  workload-template field per paddock.\n\nBURP regime mint (mirror BURN N-instance pattern):\n\n- New `burp_regime.sh`, `burp_cli.sh`, `burp.env` template.\n- Fields: BURP_NODE (cross-references viceroyalty), BURP_USER,\n  BURP_SSH_PUBKEY, BURP_KEY_FILE, optional BURP_COMMAND. Derived from\n  current BURN's deprecated field list plus the BURP_NODE link.\n- Tabtargets `buw-rp{l,r,v}.{List,Render,Validate}PrivilegeRegime.sh`\n  mirror `buw-rn{l,r,v}`.\n- Subdocs BUSTPL/PR/PV mirror BUSTLL/LR/LV (List/Render/Validate\n  operation+step+guarantee shape).\n\nBUS0 spec touches:\n\n- Drop deprecated BURN field mapping entries + body anchors.\n- Add BURN_PLATFORM mapping entry + body.\n- Mint BURP regime mapping section + field bodies.\n- Mint `bust_privilege_regime_{list,render,validate}` quoins + bodies.\n- Add three new BUSTPx include lines.\n\nFriendly-error UX: when render/validate is invoked without folio, error\nmessage lists available instances. Applies to both BURN and BURP.\n\nExisting 7 burn.env files: delete; operator reauthors fresh under new\nlayout in `.buk/rbmn_nodes/`.\n\nDone when:\n\n- `tt/buw-rn{l,r,v}` work against new layout (read from `rbmn_nodes/`).\n- `tt/buw-rp{l,r,v}` work against new layout (read from `rbmu_users/`).\n- BURP profile authorable by hand and validates clean.\n- Friendly-error messages land for both regimes.\n- BUS0 validates (asciidoc clean, no orphaned cross-references).\n\nOut of scope: garrison/handbook/ssh-priv (pace 2); BURW boilerplate;\nlegacy call-site fixups elsewhere (those break and get cleaned up\nlater — heat-wide breakage acknowledged, fixed forward).",
               "silks": "mint-burn-burp-boilerplate",
               "commit": "c5a2044"
+            }
+          ]
+        },
+        "₢A-AAk": {
+          "tacks": [
+            {
+              "ts": "260502-1235",
+              "state": "rough",
+              "text": "## Character\nSpec-language: promote \"jurisdiction\" from implicit minting-prefix\nside-effect to explicit named feature in BUS0. No code/kindle changes.\n\n## Docket\nThe bujn-/bujp-/bujw- minting prefixes authored in ₢A-AAj name the\nBURN/BURP/BURW family as \"jurisdiction\" by side-effect. BUS0 currently\ncarries no umbrella term for the trio; viceroyalty/investiture/lieutenancy\nare the addressing rungs but the umbrella is unnamed.\n\nDone when:\n- BUS0 mapping section carries umbrella quoin(s) for the BURN/BURP/BURW\n  family under \"jurisdiction\" framing.\n- BUS0 § Remote Node Access section heading and overview text reflect\n  the named frame; viceroyalty / investiture / lieutenancy stand as\n  jurisdictional rungs.\n- Paddock Current Concept three-regimes block names the umbrella.\n- Asciidoc validates clean; no orphaned cross-references.\n\nOut of scope: bujn-/bujp-/bujw- minting prefixes (treated as final);\nkindle/CLI/tabtarget changes (no behavior change).",
+              "silks": "name-jurisdiction-feature-in-spec",
+              "commit": "d2ab279"
             }
           ]
         }
