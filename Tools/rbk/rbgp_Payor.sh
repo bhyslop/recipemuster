@@ -716,6 +716,9 @@ rbgp_depot_levy() {
     "${RBGC_EVENTUAL_CONSISTENCY_SEC}" \
     "${RBGC_MAX_CONSISTENCY_SEC}"
 
+  buc_info "Depot project ID: ${RBDC_DEPOT_PROJECT_ID}"
+  buc_link "Click to " "Open depot Cloud Build console" "${RBGC_CONSOLE_URL}cloud-build/builds?project=${RBDC_DEPOT_PROJECT_ID}"
+
   buc_step 'Link billing account'
   local -r z_billing_body="${BURD_TEMP_DIR}/rbgp_billing_link.json"
   jq -n \
