@@ -66,14 +66,20 @@ zbuhj_render_landing() {
 zbuhj_render_linux_mac_note() {
   buh_section  "Linux and macOS"
   buh_line     "sshd is typically already installed and reachable. The operator's"
-  buh_line     "manual scope is just: confirm sshd is running, the admin user"
-  buh_line     "has a known password, and the host is reachable from the station."
-  buh_line     "Garrison handles admin pubkey placement and sshd hardening on"
-  buh_line     "first run via the password-fallback path."
+  buh_line     "manual scope is just: confirm sshd is running and the host is"
+  buh_line     "reachable from the station. Garrison handles admin pubkey"
+  buh_line     "placement and sshd hardening on first run via the password-"
+  buh_line     "fallback path."
+  buh_e
+  buh_line     "If you are unsure of the admin user's password (or it has none),"
+  buh_line     "set it to a known value first; garrison clears the password-"
+  buh_line     "fallback path on first run, so the value stops affecting SSH:"
+  buh_e
+  buh_code     "sudo passwd <admin-user>"
   buh_e
   buh_line     "Operators who prefer to pre-establish key trust manually may use"
-  buh_line     "the standard recipe; garrison's first run then converges as a"
-  buh_line     "no-op on the admin pubkey:"
+  buh_line     "the standard recipe instead; garrison's first run then converges"
+  buh_line     "as a no-op on the admin pubkey:"
   buh_e
   buh_code     "ssh-copy-id -i ~/.ssh/<admin-pubkey>.pub <admin-user>@<host>"
 }
@@ -86,9 +92,17 @@ zbuhj_render_windows_bootstrap() {
   buh_e
   buh_section  "Preconditions:"
   buh_line     "- Windows host with administrator access"
-  buh_line     "- Admin user account has a known password (garrison's first run"
-  buh_line     "  prompts for it once on /dev/tty; subsequent runs use key auth)"
   buh_line     "- Network reachable on TCP/${BUBC_windows_ssh_port} from operator's station"
+  buh_e
+
+  buh_step1    "Set or Confirm Admin Password:"
+  buh_line     "Garrison's first run authenticates as the admin user via password"
+  buh_line     "(once) before installing the pubkey. If you already know your local"
+  buh_line     "admin password, skip. Otherwise set it to a known value:"
+  buh_code     "net user <admin-user> <temp-password>"
+  buh_line     "After garrison runs, sshd is hardened to key-only and this value"
+  buh_line     "stops affecting SSH (it remains your Windows logon password — leave"
+  buh_line     "it or reset to taste)."
   buh_e
 
   buh_step1    "Install OpenSSH Server:"
