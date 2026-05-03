@@ -174,7 +174,7 @@ rbho_director_bind() {
   fi
   buh_e
 
-  buh_step1 "Yoke ${z_lk_vessel} to a ${RBYC_RELIQUARY}"
+  buh_step1 "Yoke every ${RBYC_VESSEL} to a ${RBYC_RELIQUARY}"
   buh_e
   buh_line "Every ${RBYC_ORDAIN}-path ${RBYC_VESSEL} — ${RBYC_CONJURE}, ${RBYC_BIND}, and"
   buh_line "${RBYC_GRAFT} — needs a ${RBYC_RELIQUARY} stamp in its ${RBYC_RBRV}. ${RBYC_BIND}"
@@ -189,13 +189,18 @@ rbho_director_bind() {
   buh_tt "   " "${RBZ_INSCRIBE_RELIQUARY}"
   buh_e
   buyy_cmd_yawp "r260324193326"; local -r z_ds_example="${z_buym_yelp}"
-  buh_line "Inscribe prints a stamp (e.g., ${z_ds_example}). Yoke that stamp into"
-  buh_line "${z_lk_vessel}'s ${RBYC_REGIME}:"
+  buh_line "Inscribe prints a stamp (e.g., ${z_ds_example}). Yoke wildcard-fans the"
+  buh_line "stamp into every ${RBYC_VESSEL}'s ${RBYC_RBRV} under \${RBRR_VESSEL_DIR}"
+  buh_line "in one pass — there is no per-vessel argument:"
   buh_e
-  buh_tt "   " "${RBZ_YOKE_RELIQUARY}" "" " ${z_vessel} <stamp>"
+  buh_tt "   " "${RBZ_YOKE_RELIQUARY}" "" " <stamp>"
   buh_e
-  buh_line "Yoke validates both arguments before writing. On success it rewrites"
-  buh_line "RBRV_RELIQUARY in the ${RBYC_VESSEL} ${RBYC_RBRV}. Commit the change."
+  buh_line "Yoke validates the stamp once against GAR, then rewrites RBRV_RELIQUARY"
+  buh_line "in every ${RBYC_VESSEL}'s ${RBYC_RBRV}. Commit the changes."
+  buh_e
+  buh_line "Reminder: yoking links the new ${RBYC_RELIQUARY} into the ${RBYC_VESSEL}"
+  buh_line "${RBYC_REGIME}, but existing ${RBYC_VESSEL} images still embed the old tool"
+  buh_line "versions until you rebuild them via ${RBYC_ORDAIN}."
   buh_e
   if test "${z_vessel_yoked}" = "1"; then
     buh_line "${RBYC_PROBE_YES}${z_lk_vessel} ${RBYC_RELIQUARY} stamp set"

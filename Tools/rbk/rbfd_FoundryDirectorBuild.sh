@@ -180,7 +180,7 @@ zrbfd_preflight_reliquary() {
   buc_bare ""
   buc_bare "  Recover by re-inscribing the reliquary, then re-yoking and re-ordaining:"
   buc_tabtarget "${RBZ_INSCRIBE_RELIQUARY}"
-  buc_tabtarget "${RBZ_YOKE_RELIQUARY}" "<new-stamp>" "${z_vessel_dir}"
+  buc_tabtarget "${RBZ_YOKE_RELIQUARY}" "<new-stamp>"
   buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir}"
   buc_die "Registry preflight failed — ${#z_missing[@]} of ${#z_canonical_tools[@]} reliquary tool images missing from GAR"
 }

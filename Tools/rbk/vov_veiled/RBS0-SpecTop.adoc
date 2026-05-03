@@ -1176,9 +1176,9 @@ include::RBSDI-depot_inscribe.adoc[]
 //axvo_method axd_transient axd_grouped
 === {rbtgo_director_yoke}
 
-Yokes a reliquary stamp into an ordain-path vessel's
+Yokes a reliquary stamp across every vessel's
 {rbrv_regime}:
-validates the stamp against GAR and the vessel against its enrollment, then rewrites `RBRV_RELIQUARY` in the vessel's `rbrv.env`
+validates the stamp once against GAR, then rewrites `RBRV_RELIQUARY` in every `rbrv.env` under `${RBRR_VESSEL_DIR}`
 ({rbtgog_depot}).
 
 include::RBSDY-director_yoke.adoc[]

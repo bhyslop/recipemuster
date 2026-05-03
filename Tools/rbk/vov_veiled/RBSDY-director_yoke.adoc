@@ -1,33 +1,22 @@
 //axhob_operation
 {rbtgo_director_yoke}
 
-NOTE: This operation writes `RBRV_RELIQUARY=«STAMP»` into an ordain-path vessel's `rbrv.env` so that subsequent Cloud Build operations (conjure, bind, graft, enshrine) consume the named tool image set as GCB step images.
+NOTE: This operation writes `RBRV_RELIQUARY=«STAMP»` into every vessel's `rbrv.env` under `${RBRR_VESSEL_DIR}` so that subsequent Cloud Build operations (conjure, bind, graft, enshrine) consume the named tool image set as GCB step images.
 The about/vouch pipeline (gcloud, docker, alpine, syft) consumes reliquary tool images uniformly across all ordain modes; bind additionally uses skopeo for image-copy.
-Both arguments are validated before any file write: the stamp against GAR (all six tool packages must be present under the reliquary subtree), the vessel against its RBRV enrollment.
-On validation failure the operation errors diagnostically without touching any file.
+The stamp is validated once against GAR before any vessel file is touched: all six tool packages must be present under the reliquary subtree.
+On stamp validation failure the operation errors diagnostically without writing any vessel.
+On per-vessel write failure the diagnostic identifies the failing vessel and the set of vessels already written, so the operator can resume from a known point.
+This primitive does not commit; the caller (orchestrator or operator) commits the rbrv.env changes.
 
 The
 {rbtr_director}
-yokes a reliquary stamp into a vessel's regime:
+yokes a reliquary stamp across every vessel:
 
 //axhopt_typed_parameter
 {rbtr_director}
 . *Validate Input Parameters*:
 .. {rbbc_require}
-`«VESSEL_SIGIL»` provided as folio (e.g., `rbev-sentry-deb-tether`)
-.. {rbbc_require}
 `«STAMP»` provided as first positional argument (e.g., `r260327172456`)
-
-//axhos_step
-. *Load Vessel* (CLI furnish, BUZ_FOLIO-gated):
-.. Resolve `«VESSEL_SIGIL»` to vessel directory `${RBRR_VESSEL_DIR}/«VESSEL_SIGIL»`
-.. {rbbc_require}
-vessel directory contains `rbrv.env`
-.. Source `rbrv.env` to populate `RBRV_*` variables
-.. Kindle RBRV enrollment (no enforce — yoke writes `RBRV_RELIQUARY`,
-which is a kindle constant with min=1 enrollment; pre-write enforce
-would self-veto on marshal-zero state. The strict validator path is
-`rbw-rvv` ValidateVesselRegime.)
 
 //axhos_step
 . *Authenticate as
@@ -67,15 +56,26 @@ if any expected tool is missing — the error message names `«STAMP»`, the rel
 {rbtgo_depot_inscribe}
 
 //axhos_step
-. *Rewrite rbrv.env*:
+. *Iterate Vessels under `${RBRR_VESSEL_DIR}`*:
+.. Enumerate every immediate subdirectory of `${RBRR_VESSEL_DIR}` containing an `rbrv.env` file
+.. {rbbc_require}
+at least one vessel found — empty enumeration is a fatal error (nothing to yoke)
+.. For each enumerated vessel, perform *Rewrite rbrv.env* below in directory order
+.. Maintain a running list of vessels successfully written; emit per-vessel progress
+
+//axhos_step
+. *Rewrite rbrv.env* (per vessel):
 .. Load the vessel's `rbrv.env` into memory, line by line
 .. For each line matching `^RBRV_RELIQUARY=` — substitute with `RBRV_RELIQUARY=«STAMP»`, preserving position
 .. All other lines pass through unchanged
 .. If no `RBRV_RELIQUARY=` line was found — append one under a `# Tool Image Reliquary` comment header
-.. Write the composed content to a temp file, then atomically replace `rbrv.env` via rename
+.. Write the composed content to a per-vessel temp file, then atomically replace `rbrv.env` via rename
+.. {rbbc_fatal}
+on any per-vessel I/O failure — the error message names the failing vessel and the list of vessels already written, so the operator can resume from a known point
 
 //axhoc_completion
-Successful execution writes `RBRV_RELIQUARY=«STAMP»` into the vessel's `rbrv.env`; no GAR state is modified.
-The
-{rbtr_director}
-commits the modified `rbrv.env` with their usual git workflow.
+Successful execution writes `RBRV_RELIQUARY=«STAMP»` into the `rbrv.env` of every vessel discovered under `${RBRR_VESSEL_DIR}`; no GAR state is modified.
+The primitive does not commit — the caller (orchestrator or operator) commits the modified `rbrv.env` files with their usual git workflow.
+The reliquary tool images are now linked, but vessel images must be rebuilt
+({rbtgo_ark_ordain})
+to pick up the new tool versions.

@@ -57,7 +57,6 @@ const RBTDRO_VESSEL_DIR_AIRGAP_BOTTLE: &str = "rbev-vessels/rbev-bottle-ifrit-ai
 const RBTDRO_VESSEL_DIR_PLANTUML: &str = "rbev-vessels/rbev-bottle-plantuml";
 const RBTDRO_VESSEL_DIR_JUPYTER: &str = "rbev-vessels/rbev-bottle-anthropic-jupyter";
 const RBTDRO_VESSEL_DIR_GRAFT: &str = "rbev-vessels/rbev-graft-demo";
-const RBTDRO_VESSEL_DIR_CCYOLO: &str = "rbev-vessels/rbev-bottle-ccyolo";
 
 // ── Nameplate monikers ────────────────────────────────────────
 
@@ -90,23 +89,6 @@ const RBTDRO_CONSUMERS_PLANTUML_BOTTLE: &[&str] = &[RBTDRO_NAMEPLATE_PLUML];
 /// Nameplates that receive the jupyter-bottle hallmark from conjure-srjcl.
 const RBTDRO_CONSUMERS_JUPYTER_BOTTLE: &[&str] = &[RBTDRO_NAMEPLATE_SRJCL];
 
-// ── Yoke fan-out — inscribe-reliquary yoking all ordain-side vessels ─────────
-//
-// All ordain-path vessels — conjure, bind, AND graft — require RBRV_RELIQUARY.
-// The reliquary tool images feed the about/vouch pipeline in every mode
-// (gcloud, docker, alpine, syft); bind also uses skopeo for image-copy. Yoke
-// fan-out covers every vessel that ordain will visit.
-
-const RBTDRO_YOKE_VESSEL_DIRS: &[&str] = &[
-    RBTDRO_VESSEL_DIR_SENTRY_TETHER,
-    RBTDRO_VESSEL_DIR_AIRGAP_FORGE,
-    RBTDRO_VESSEL_DIR_AIRGAP_BOTTLE,
-    RBTDRO_VESSEL_DIR_JUPYTER,
-    RBTDRO_VESSEL_DIR_PLANTUML,
-    RBTDRO_VESSEL_DIR_GRAFT,
-    RBTDRO_VESSEL_DIR_CCYOLO,
-];
-
 // ── Hallmark-base locator construction ───────────────────────
 //
 // Module-local literals matching rbgc_Constants.sh values. Used to compose the
@@ -132,9 +114,10 @@ const RBTDRO_VESSEL_RBRV_FILE: &str = "rbrv.env";
 /// is the cross-case witness that case 1 ran.
 const RBTDRO_FIELD_RBRV_RELIQUARY: &str = "RBRV_RELIQUARY";
 
-/// Stable vessel chosen for the case-1 witness probe: sentry-tether is the
-/// first entry in `RBTDRO_YOKE_VESSEL_DIRS` and is yoked on every conjure
-/// path, so its rbrv.env always carries the stamp after case 1.
+/// Stable vessel chosen for the case-1 witness probe. Yoke is wildcard-
+/// fan-out across every vessel under ${RBRR_VESSEL_DIR}; sentry-tether is a
+/// guaranteed-present member of that set, so its rbrv.env always carries
+/// the stamp after case 1.
 const RBTDRO_WITNESS_VESSEL_DIR: &str = RBTDRO_VESSEL_DIR_SENTRY_TETHER;
 
 // ── Graft override ───────────────────────────────────────────
@@ -289,23 +272,22 @@ fn rbtdro_ordain_capture(
     Ok(hallmark)
 }
 
-/// Yoke the reliquary stamp into a vessel's rbrv.env. The yoke tabtarget
-/// validates the stamp and writes RBRV_RELIQUARY; the handbook ceremony
-/// includes a commit step the operator performs by hand, which the fixture
-/// skips since the yoke value is rerun-derivable from the scratch file.
+/// Yoke the reliquary stamp into every vessel's rbrv.env. The yoke tabtarget
+/// validates the stamp once against GAR, then wildcard-iterates every vessel
+/// under ${RBRR_VESSEL_DIR}. The orchestrator commits the resulting rbrv.env
+/// changes after this primitive returns.
 fn rbtdro_yoke(
     ctx: &mut rbtdri_Context,
     dir: &Path,
     stamp: &str,
-    vessel_sigil: &str,
     label: &str,
 ) -> Result<(), rbtdre_Verdict> {
     rbtdro_invoke_or_fail(
         ctx,
         RBTDRM_OPERATION_YOKE,
-        vessel_sigil,
+        "",
         RBTDRM_COLOPHON_YOKE_RELIQUARY,
-        &[vessel_sigil, stamp],
+        &[stamp],
         &[],
         dir,
         label,
@@ -597,18 +579,15 @@ fn rbtdro_onboarding_inscribe_reliquary_impl(
     };
     let _ = std::fs::write(dir.join("reliquary-stamp.txt"), &stamp);
 
-    // Yoke stamp into all ordain-side vessels in one pass.
-    for vessel_dir in RBTDRO_YOKE_VESSEL_DIRS {
-        let sigil = vessel_dir.rsplit('/').next().unwrap_or(vessel_dir);
-        let label = format!("{}-{}", RBTDRM_OPERATION_YOKE, sigil);
-        if let Err(v) = rbtdro_yoke(ctx, dir, &stamp, sigil, &label) {
-            return v;
-        }
+    // Wildcard-yoke: single invocation writes RBRV_RELIQUARY into every
+    // vessel under ${RBRR_VESSEL_DIR}.
+    if let Err(v) = rbtdro_yoke(ctx, dir, &stamp, RBTDRM_OPERATION_YOKE) {
+        return v;
     }
 
     // Commit the rbrv.env changes for all yoked vessels.
     if let Err(v) = rbtdro_git_commit(&format!(
-        "inscribe-reliquary: {} stamp into all ordain-side vessels",
+        "inscribe-reliquary: {} stamp across all vessels",
         RBTDRM_OPERATION_YOKE
     )) {
         return v;

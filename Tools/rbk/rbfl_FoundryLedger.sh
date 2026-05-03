@@ -195,25 +195,13 @@ rbfl_inscribe() {
 rbfl_yoke() {
   zrbfl_sentinel
 
-  local -r z_vessel="${BUZ_FOLIO:-}"
-  local -r z_stamp="${1:-}"
+  local -r z_stamp="${BUZ_FOLIO:-}"
 
-  buc_doc_brief "Yoke a reliquary stamp into a vessel's rbrv.env — validate both, then rewrite RBRV_RELIQUARY"
-  buc_doc_param "vessel" "Vessel sigil — folio (e.g., rbev-sentry-deb-tether)"
-  buc_doc_param "stamp"  "Reliquary datestamp (e.g., r260327172456)"
+  buc_doc_brief "Yoke a reliquary stamp into every vessel's rbrv.env — pre-validate stamp once against GAR, then rewrite RBRV_RELIQUARY across all vessels under \${RBRR_VESSEL_DIR}"
+  buc_doc_param "stamp" "Reliquary datestamp (e.g., r260327172456)"
   buc_doc_shown || return 0
 
-  test -n "${z_vessel}" || buc_die "Vessel sigil required (folio)"
-  test -n "${z_stamp}"  || buc_die "Reliquary stamp required (arg 1)"
-
-  local -r z_vessel_dir="${RBRR_VESSEL_DIR}/${z_vessel}"
-  local -r z_rbrv_file="${z_vessel_dir}/rbrv.env"
-
-  case "${RBRV_VESSEL_MODE}" in
-    conjure|bind|graft) ;;
-    *)                  buc_die "Vessel '${z_vessel}' has unrecognized RBRV_VESSEL_MODE='${RBRV_VESSEL_MODE}'" ;;
-  esac
-  buc_info "Vessel valid — mode=${RBRV_VESSEL_MODE}, egress=${RBRV_EGRESS_MODE}"
+  test -n "${z_stamp}" || buc_die "Reliquary stamp required (param1)"
 
   buc_step "Authenticating as Director"
   local z_token=""
@@ -275,45 +263,69 @@ rbfl_yoke() {
   test -z "${z_missing}" || buc_die "Reliquary stamp '${z_stamp}' not found in Depot — expected 6 tool images under ${z_rqy_subtree}; missing: ${z_missing}. Re-run tt/rbw-dI.DirectorInscribesReliquary.sh to mint a fresh reliquary, or verify the stamp spelling."
   buc_info "Reliquary valid — all 6 tool images present (gcloud, docker, alpine, syft, binfmt, skopeo)"
 
-  buc_step "Yoking ${z_vessel} to reliquary ${z_stamp}"
+  buc_step "Yoking ${z_stamp} into all vessels under ${RBRR_VESSEL_DIR}"
 
+  local z_written=()
+  local z_vessel_dir=""
+  local z_rbrv_file=""
+  local z_sigil=""
+  local z_tmp_file=""
   local z_rbrv_lines=()
   local z_rbrv_line=""
-  while IFS= read -r z_rbrv_line || test -n "${z_rbrv_line}"; do
-    z_rbrv_lines+=("${z_rbrv_line}")
-  done < "${z_rbrv_file}"
-
-  local -r z_tmp_file="${BURD_TEMP_DIR}/rbfl_yoke_rbrv.env.new"
-  : > "${z_tmp_file}" || buc_die "Failed to create ${z_tmp_file}"
-
   local z_wrote=0
   local z_j=""
-  for z_j in "${!z_rbrv_lines[@]}"; do
-    case "${z_rbrv_lines[$z_j]}" in
-      RBRV_RELIQUARY=*)
-        printf 'RBRV_RELIQUARY=%s\n' "${z_stamp}" >> "${z_tmp_file}" \
-          || buc_die "Failed to write RBRV_RELIQUARY line to ${z_tmp_file}"
-        z_wrote=1
-        ;;
-      *)
-        printf '%s\n' "${z_rbrv_lines[$z_j]}" >> "${z_tmp_file}" \
-          || buc_die "Failed to write line to ${z_tmp_file}"
-        ;;
+
+  for z_vessel_dir in "${RBRR_VESSEL_DIR}"/*/; do
+    test -d "${z_vessel_dir}" || continue
+    z_rbrv_file="${z_vessel_dir%/}/rbrv.env"
+    test -f "${z_rbrv_file}" || continue
+    z_sigil="${z_vessel_dir%/}"
+    z_sigil="${z_sigil##*/}"
+
+    z_rbrv_lines=()
+    while IFS= read -r z_rbrv_line || test -n "${z_rbrv_line}"; do
+      z_rbrv_lines+=("${z_rbrv_line}")
+    done < "${z_rbrv_file}"
+
+    z_tmp_file="${BURD_TEMP_DIR}/rbfl_yoke_${z_sigil}_rbrv.env.new"
+    : > "${z_tmp_file}" \
+      || buc_die "Failed to create ${z_tmp_file} (yoking ${z_sigil}; already wrote: ${z_written[*]:-(none)})"
+
+    z_wrote=0
+    for z_j in "${!z_rbrv_lines[@]}"; do
+      case "${z_rbrv_lines[$z_j]}" in
+        RBRV_RELIQUARY=*)
+          printf 'RBRV_RELIQUARY=%s\n' "${z_stamp}" >> "${z_tmp_file}" \
+            || buc_die "Failed to write RBRV_RELIQUARY for ${z_sigil} (already wrote: ${z_written[*]:-(none)})"
+          z_wrote=1
+          ;;
+        *)
+          printf '%s\n' "${z_rbrv_lines[$z_j]}" >> "${z_tmp_file}" \
+            || buc_die "Failed to write line for ${z_sigil} (already wrote: ${z_written[*]:-(none)})"
+          ;;
+      esac
+    done
+
+    case "${z_wrote}" in
+      1) ;;
+      *) printf '\n# Tool Image Reliquary\nRBRV_RELIQUARY=%s\n' "${z_stamp}" >> "${z_tmp_file}" \
+           || buc_die "Failed to append RBRV_RELIQUARY for ${z_sigil} (already wrote: ${z_written[*]:-(none)})" ;;
     esac
+
+    mv "${z_tmp_file}" "${z_rbrv_file}" \
+      || buc_die "Failed to finalize ${z_rbrv_file} (yoking ${z_sigil}; already wrote: ${z_written[*]:-(none)})"
+
+    z_written+=("${z_sigil}")
+    buc_log_args "Yoked ${z_sigil}"
   done
 
-  case "${z_wrote}" in
-    1) ;;
-    *) printf '\n# Tool Image Reliquary\nRBRV_RELIQUARY=%s\n' "${z_stamp}" >> "${z_tmp_file}" \
-         || buc_die "Failed to append RBRV_RELIQUARY to ${z_tmp_file}" ;;
-  esac
+  test "${#z_written[@]}" -gt 0 \
+    || buc_die "No vessels found under ${RBRR_VESSEL_DIR} — nothing yoked"
 
-  mv "${z_tmp_file}" "${z_rbrv_file}" || buc_die "Failed to finalize ${z_rbrv_file}"
-
-  buc_success "Yoked ${z_vessel} to reliquary ${z_stamp}"
-  buc_info "Modified: ${z_rbrv_file}"
-  buc_info "  RBRV_RELIQUARY=${z_stamp}"
-  buc_info "Commit the change with your usual git workflow."
+  buc_success "Yoked ${#z_written[@]} vessel(s) to reliquary ${z_stamp}"
+  buc_info "Vessels: ${z_written[*]}"
+  buc_info "Commit the rbrv.env changes with your usual git workflow."
+  buc_info "Reminder: the reliquary tool images are now linked, but vessel images must be rebuilt (ordain) to pick up the new tool versions."
 }
 
 rbfl_jettison() {

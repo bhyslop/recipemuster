@@ -144,13 +144,18 @@ rbho_director_first_build() {
   buh_e
   buyy_cmd_yawp "r260324193326";                   local -r z_ds_example="${z_buym_yelp}"
   buh_line "When inscribe completes, it prints a ${RBYC_RELIQUARY} datestamp"
-  buh_line "(e.g., ${z_ds_example}). Yoke that stamp into ${z_lk_vessel_name}'s"
-  buh_line "${RBYC_REGIME} so ${RBYC_CONJURE} knows which tool images to use:"
+  buh_line "(e.g., ${z_ds_example}). Yoke wildcard-fans that stamp into every"
+  buh_line "${RBYC_VESSEL}'s ${RBYC_REGIME} under \${RBRR_VESSEL_DIR} in one pass —"
+  buh_line "there is no per-vessel argument:"
   buh_e
-  buh_tt "   " "${RBZ_YOKE_RELIQUARY}" "" " ${RBYC_HANDBOOK_VESSEL_REF} <stamp>"
+  buh_tt "   " "${RBZ_YOKE_RELIQUARY}" "" " <stamp>"
   buh_e
-  buh_line "Yoke validates both arguments before writing. On success it rewrites"
-  buh_line "RBRV_RELIQUARY in the ${RBYC_VESSEL} rbrv.env. Commit the change."
+  buh_line "Yoke validates the stamp once against GAR, then rewrites RBRV_RELIQUARY"
+  buh_line "in every ${RBYC_VESSEL}'s rbrv.env. Commit the changes."
+  buh_e
+  buh_line "Reminder: yoking links the new ${RBYC_RELIQUARY} into the ${RBYC_VESSEL}"
+  buh_line "${RBYC_REGIME}, but existing ${RBYC_VESSEL} images still embed the old tool"
+  buh_line "versions until you rebuild them via ${RBYC_ORDAIN}."
   buh_e
 
   buh_step1 "${RBYC_CONJURE} the ${RBYC_SENTRY}"
