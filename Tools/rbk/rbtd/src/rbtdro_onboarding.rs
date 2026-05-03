@@ -105,6 +105,11 @@ const RBTDRO_YOKE_VESSEL_DIRS: &[&str] = &[
     RBTDRO_VESSEL_DIR_CCYOLO,
 ];
 
+/// Operation name for the yoke step — appears in error messages, the per-vessel
+/// label prefix, and the inscribe-reliquary commit message. Single source so the
+/// operation's vocabulary lives in one place.
+const RBTDRO_OPERATION_YOKE: &str = "yoke";
+
 // ── Hallmark-base locator construction ───────────────────────
 //
 // Module-local literals matching rbgc_Constants.sh values. Used to compose the
@@ -294,15 +299,15 @@ fn rbtdro_yoke(
         Ok(r) => r,
         Err(e) => {
             return Err(rbtdre_Verdict::Fail(format!(
-                "yoke {} invocation: {}",
-                vessel_sigil, e
+                "{} {} invocation: {}",
+                RBTDRO_OPERATION_YOKE, vessel_sigil, e
             )))
         }
     };
     if result.exit_code != 0 {
         return Err(rbtdre_Verdict::Fail(format!(
-            "yoke {} exit {}\n{}",
-            vessel_sigil, result.exit_code, result.stderr
+            "{} {} exit {}\n{}",
+            RBTDRO_OPERATION_YOKE, vessel_sigil, result.exit_code, result.stderr
         )));
     }
     Ok(())
@@ -624,7 +629,7 @@ fn rbtdro_onboarding_inscribe_reliquary_impl(
     // Yoke stamp into all ordain-side vessels in one pass.
     for vessel_dir in RBTDRO_YOKE_VESSEL_DIRS {
         let sigil = vessel_dir.rsplit('/').next().unwrap_or(vessel_dir);
-        let label = format!("yoke-{}", sigil);
+        let label = format!("{}-{}", RBTDRO_OPERATION_YOKE, sigil);
         if let Err(v) = rbtdro_yoke(ctx, dir, &stamp, sigil, &label) {
             return v;
         }
@@ -632,7 +637,7 @@ fn rbtdro_onboarding_inscribe_reliquary_impl(
 
     // Commit the rbrv.env changes for all yoked vessels.
     if let Err(v) = rbtdro_git_commit(
-        "inscribe-reliquary: yoke stamp into all ordain-side vessels",
+        &format!("inscribe-reliquary: {} stamp into all ordain-side vessels", RBTDRO_OPERATION_YOKE),
     ) {
         return v;
     }
