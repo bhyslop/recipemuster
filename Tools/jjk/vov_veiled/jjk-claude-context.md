@@ -28,6 +28,8 @@ Job Jockey (JJ) is installed for managing project initiatives.
 
 **Paddock posture.** A paddock articulates shape, locked decisions, and what done looks like — not a progress journal. Annotating locked decisions with the coronet that landed them ("BBAAM depot-identity-collapse", "BBAAN landed") accumulates into a changelog. Git log and `jjx_log` are the journal; the paddock is the shape. Don't add such annotations; when editing a paddock for other reasons, prune the ones that aren't load-bearing.
 
+**Mid-execution posture.** When a failure or surprise surfaces while a pace is mounted, the default response is mechanism + one specific repair you'd attempt. Do not proliferate options or weigh consequences across alternatives — pace scope and segmentation are operator territory. If the repair is obvious, proceed; if not, surface the question and stop.
+
 **Identities vs Display Names:**
 - **Firemark**: Heat identity (`₣AA` or `AA`). Used in command params and JSON keys.
 - **Coronet**: Pace identity (`₢AAAAk` or `AAAAk`). Used in command params and JSON keys.
