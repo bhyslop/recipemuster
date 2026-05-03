@@ -54,26 +54,38 @@ in BUS0 §Remote Node Access.
 
 BCG-compliant module hardcoding the three shell-letter→`command=` directive
 mappings (b/c/w), the workload privkey destination path on remote per
-shell-letter, and the canonical WSL distribution name (`rbtww-main`). SSH
-transport mechanics live in code; BURP carries no shell selection.
+shell-letter, the canonical WSL distribution name (`rbtww-main`), and the
+SSH auth strategy `PreferredAuthentications=publickey,password` (so first-run
+falls through to ssh's password prompt without garrison-side state
+detection). SSH transport mechanics live in code; BURP carries no shell
+selection.
 
 **Garrison ceremony (per shell-letter):**
 
-1. SSH-as-`BURP_PRIVILEGED_USER` using `BURP_PRIVILEGED_KEY_FILE` (key auth
-   only — no password path; first-time bootstrap is operator-manual via
-   handbook before garrison runs)
-2. Idempotently place admin pubkey (derived from privkey via `ssh-keygen -y`)
-   in admin's authorized_keys with the shell-letter's `command=` directive
-3. Destroy existing workload user (if present) via `userdel -r` or platform
+1. SSH-as-`BURP_PRIVILEGED_USER` with
+   `PreferredAuthentications=publickey,password`. Steady-state:
+   `BURP_PRIVILEGED_KEY_FILE` authenticates. First-run: ssh prompts on
+   /dev/tty; operator types the Windows admin password (Linux/Mac
+   equivalent); ssh proceeds. Garrison process never sees the password.
+2. Idempotently place admin pubkey (derived from `BURP_PRIVILEGED_KEY_FILE`
+   via `ssh-keygen -y`) in admin's authorized_keys with the shell-letter's
+   `command=` directive.
+3. Set platform ACL on admin authorized_keys (`icacls` on Windows;
+   `chmod 600` on Linux/Mac).
+4. Harden sshd_config: `PubkeyAuthentication yes`,
+   `PasswordAuthentication no`, `PermitEmptyPasswords no`. Validate config,
+   restart sshd. Steps 2–4 are the bootstrap front-half — idempotent;
+   subsequent runs converge as no-ops.
+5. Destroy existing workload user (if present) via `userdel -r` or platform
    equivalent — removes account + home directory; stray files outside home
-   are workload's own concern, not garrison's
-4. Create fresh workload user named `BURC_WORKLOAD_USER` (unprivileged: no
-   sudo, no admin group, ssh-only access)
-5. Place workload pubkey in workload's authorized_keys with `command=`
-6. Copy workload privkey to remote workload account at the path hardcoded in
+   are workload's own concern, not garrison's.
+6. Create fresh workload user named `BURC_WORKLOAD_USER` (unprivileged: no
+   sudo, no admin group, ssh-only access).
+7. Place workload pubkey in workload's authorized_keys with `command=`.
+8. Copy workload privkey to remote workload account at the path hardcoded in
    `bujb_jurisdiction.sh` per shell-letter (so workload can authenticate
-   outbound to GitHub)
-7. Validate round-trip — SSH as workload + exec no-op + verify exit 0
+   outbound to GitHub).
+9. Validate round-trip — SSH as workload + exec no-op + verify exit 0.
 
 ## Heat Sequence
 
@@ -110,10 +122,15 @@ transport mechanics live in code; BURP carries no shell selection.
 
 ## Standing Notes
 
-- **Garrison assumes admin SSH key trust is pre-established.** First-time
-  bootstrap (initial pubkey placement, password-auth disable on the node) is
-  operator-manual via the handbook. Garrison uses key auth only; on key
-  failure it errors out with a pointer to the bootstrap procedure.
+- **Garrison handles first-time admin trust establishment.** On a fresh
+  node, ssh's `PreferredAuthentications=publickey,password` falls through
+  to a password prompt on /dev/tty; operator types the Windows admin
+  password once. Garrison then installs the admin pubkey, sets the platform
+  ACL, hardens sshd_config (`PasswordAuthentication no`), restarts sshd,
+  and proceeds with the destructive workload ceremony — all in one
+  tabtarget. Subsequent runs use key auth automatically. The operator's
+  manual scope reduces to: install OpenSSH server, enable the service,
+  allow the firewall port, ensure the admin user has a known password.
 - **Encrypted (passphrase-protected) privkeys not supported.** `ssh-keygen -y`
   prompts interactively; garrison would hang. Operator policy: privkeys
   unencrypted; station-level security covers privkey-at-rest protection.
