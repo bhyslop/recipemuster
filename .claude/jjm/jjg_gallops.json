@@ -7258,6 +7258,7 @@
         "₢BBAAv",
         "₢BBAAg",
         "₢BBAAr",
+        "₢BBAA7",
         "₢BBAAX",
         "₢BBAAC",
         "₢BBAAD",
@@ -7274,7 +7275,7 @@
         "₢BBAA1",
         "₢BBAA5"
       ],
-      "next_pace_seed": "AA7",
+      "next_pace_seed": "AA8",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAA0": {
@@ -7421,6 +7422,17 @@
               "text": "## Character\n\nDiscrete contract reshape — yoke domain shifts vessel→reliquary. Mechanically intricate but design is locked. Bundled orphan vessel cleanup closes the `rbtdrf_rv_rbrv_all_vessels` test thread carrying-forward since BBAA3.\n\n## Locked decisions\n\n- `rbw-dY` channel: `param1` → `\"\"` (no folio); operation iterates every vessel under `${RBRR_VESSEL_DIR}/*/` with rbrv.env, writes RBRV_RELIQUARY into each\n- Primitive does **not** git commit — leaves changed files in repo dir\n- Orchestrator (inscribe-reliquary case in onboarding-sequence) **must** commit at end-of-case\n- Frontispiece: `DirectorYokesReliquaryInVessel` → `DirectorYokesReliquaryAllVessels`\n- BCG-compliant unimpeachable error handling — pre-validate reliquary stamp before touching any vessel; vessel-write failures surface clear diagnostic identifying which vessel failed and which were already written\n- Orphan vessel cleanup (bundled): delete `rbev-busybox-airgap-negative-canary`, `rbev-busybox-native-verify`, `rbev-sentry-deb-airgap`, `rbev-ubu-safety`\n\n## Done criteria\n\n- `rbtdrf_rv_rbrv_all_vessels` passes; fast suite 26/26\n- `tt/rbw-tf.QualifyFast.sh` green\n- Build clean under `#![deny(warnings)]`\n- All callers of `rbw-dY` updated; spec, tabtarget filename, zipper enrollment, frontispiece consistent\n\n## Discovery recipes\n\n- Caller audit: `grep -rn \"rbw-dY\\|RBZ_YOKE_RELIQUARY\\|YokesReliquaryInVessel\" Tools/ tt/`\n- Per-vessel yoke-list residue in onboarding: `RBTDRO_YOKE_VESSEL_DIRS` const and consuming call sites in `rbtdro_onboarding.rs`\n- Spec: `RBSDY-director_yoke.adoc` — rewrite to reliquary-domain semantics\n- Witness probe: `RBTDRO_WITNESS_VESSEL_DIR` may need adjustment if witness vessel is now wildcard-discovered\n- Tabtarget rename: `tt/rbw-dY.DirectorYokesReliquaryInVessel.sh` → `tt/rbw-dY.DirectorYokesReliquaryAllVessels.sh` (filesystem rename + executable bit)\n\n## Out of scope\n\n- Validator (`rbrv_regime.sh:48`) mode-awareness rework — wildcard-yoke renders this latent, not load-bearing\n- Orphan vessel restoration — these directories are deleted, not preserved",
               "silks": "yoke-domain-shift-all-vessels",
               "commit": "36e7493"
+            }
+          ]
+        },
+        "₢BBAA7": {
+          "tacks": [
+            {
+              "ts": "260503-1544",
+              "state": "rough",
+              "text": "## Character\n\nMostly-delete refactor: trim four-mode fixture down to its load-bearing case (graft-roundtrip — the only place verifying GRAFTED vouch marker + post-graft summon/plumb, since no crucible consumes a grafted hallmark). Also tightens foundry preflight against the airgap+empty-anchor latent bug class BBAAX exposed.\n\n## Scope\n\n- four-mode cases for conjure/bind/kludge: removed. Coverage rationale documented in pace closure (airgap-conjure roundtrip → moriah end-to-end; bind → pluml end-to-end; kludge → every bottle charge).\n- four-mode fixture renamed to reflect graft-only scope (operator picks name; the previous \"four\" no longer fits).\n- rbev-busybox vessel: removed (used only by deleted conjure_lifecycle).\n- Foundry enshrine-preflight loop in rbfd_FoundryDirectorBuild.sh: airgap vessel + non-empty ORIGIN + empty ANCHOR now fails-fast via the existing 404-path remediation diagnostic shape. Tether vessels keep the permissive skip (current behavior correct — buildx fetches upstream at build time).\n\n## Constraints\n\n- Onboarding-sequence unchanged. Its ordain_* cases keep handbook-walk regression coverage.\n- rbev-bottle-plantuml stays (pluml crucible bind consumer).\n- rbev-graft-demo stays (graft case still exists in the trimmed fixture).\n- Gauntlet sequence unchanged — renamed fixture occupies the same slot in ZRBTE_SUITE_GAUNTLET.\n\n## Cross-pace dependencies\n\n- BBAAX is the verifier — re-run gauntlet after this pace lands and confirm green tally.\n\n## Out of scope\n\n- Onboarding-sequence enrichment (analyzed during slate-time; graft is the only case carrying coverage not already provided elsewhere; absorb-into-onboarding rejected).\n- Documentation sweep beyond what rbw-MG.MarshalGenerate.sh regenerates and the fundus registry update.\n- Vessel directory deletion beyond rbev-busybox.",
+              "silks": "four-mode-trim-and-airgap-preflight",
+              "commit": "136121f"
             }
           ]
         },
