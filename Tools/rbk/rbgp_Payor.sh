@@ -186,6 +186,9 @@ zrbgp_depot_state_emit() {
   local z_crm_state=""
   local z_state=""
   local z_moniker=""
+  local z_get_url=""
+  local z_get_infix=""
+  local z_get_code=""
 
   z_query_enc=$(rbgu_urlencode_capture "${z_search_query}") \
     || buc_die "Failed to URL-encode CRM v3 search query"
@@ -207,19 +210,6 @@ zrbgp_depot_state_emit() {
 
     z_index=0
     while test "${z_index}" -lt "${z_project_count}"; do
-      z_crm_state=$(rbgu_json_field_capture "${z_search_infix}" ".projects[${z_index}].state") \
-        || { z_index=$((z_index + 1)); continue; }
-
-      if test "${z_crm_state}" = "DELETE_REQUESTED"; then
-        z_state="${RBGP_DEPOT_STATE_DELETE_REQUESTED}"
-      elif test "${z_crm_state}" = "ACTIVE"; then
-        z_state="${RBGP_DEPOT_STATE_COMPLETE}"
-      else
-        buc_log_args "Skipping project with unrecognized state: ${z_crm_state}"
-        z_index=$((z_index + 1))
-        continue
-      fi
-
       z_project_id=$(rbgu_json_field_capture "${z_search_infix}" ".projects[${z_index}].projectId") \
         || { z_index=$((z_index + 1)); continue; }
 
@@ -238,6 +228,41 @@ zrbgp_depot_state_emit() {
       # Validate moniker is RBRR-canonical: ^[a-z][a-z0-9]*$
       if ! [[ "${z_moniker}" =~ ^[a-z][a-z0-9]*$ ]]; then
         buc_log_args "Skipping project — moniker fails validation (${z_moniker}): ${z_display_name}"
+        z_index=$((z_index + 1))
+        continue
+      fi
+
+      # CRM v3 projects:search is eventually consistent and lags state mutations
+      # (notably DELETE_REQUESTED transitions post-projects.delete). Resolve
+      # authoritative state via GET against the strongly-consistent endpoint —
+      # the same path rbgp_depot_unmake polls for its verify-deletion step.
+      z_get_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_project_id}"
+      z_get_infix="depot_state_get_${z_project_id}"
+      rbgu_http_json "GET" "${z_get_url}" "${z_token}" "${z_get_infix}"
+      z_get_code=$(rbgu_http_code_capture "${z_get_infix}") || z_get_code=""
+      case "${z_get_code}" in
+        200)
+          z_crm_state=$(rbgu_json_field_capture "${z_get_infix}" '.state // "UNKNOWN"') \
+            || z_crm_state="UNKNOWN"
+          ;;
+        404)
+          # Project completed deletion between search and GET — emit nothing.
+          z_index=$((z_index + 1))
+          continue
+          ;;
+        *)
+          buc_log_args "Skipping project ${z_project_id} — GET returned ${z_get_code}"
+          z_index=$((z_index + 1))
+          continue
+          ;;
+      esac
+
+      if test "${z_crm_state}" = "DELETE_REQUESTED"; then
+        z_state="${RBGP_DEPOT_STATE_DELETE_REQUESTED}"
+      elif test "${z_crm_state}" = "ACTIVE"; then
+        z_state="${RBGP_DEPOT_STATE_COMPLETE}"
+      else
+        buc_log_args "Skipping project ${z_project_id} with unrecognized state: ${z_crm_state}"
         z_index=$((z_index + 1))
         continue
       fi
