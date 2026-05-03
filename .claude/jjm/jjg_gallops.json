@@ -830,6 +830,13 @@
         "₢A-AAk": {
           "tacks": [
             {
+              "ts": "260503-1022",
+              "state": "abandoned",
+              "text": "## Character\nSpec-language: promote \"jurisdiction\" from implicit minting-prefix\nside-effect to explicit named feature in BUS0. No code/kindle changes.\n\n## Docket\nThe bujn-/bujp-/bujw- minting prefixes authored in ₢A-AAj name the\nBURN/BURP/BURW family as \"jurisdiction\" by side-effect. BUS0 currently\ncarries no umbrella term for the trio; viceroyalty/investiture/lieutenancy\nare the addressing rungs but the umbrella is unnamed.\n\nDone when:\n- BUS0 mapping section carries umbrella quoin(s) for the BURN/BURP/BURW\n  family under \"jurisdiction\" framing.\n- BUS0 § Remote Node Access section heading and overview text reflect\n  the named frame; viceroyalty / investiture / lieutenancy stand as\n  jurisdictional rungs.\n- Paddock Current Concept three-regimes block names the umbrella.\n- Asciidoc validates clean; no orphaned cross-references.\n\nOut of scope: bujn-/bujp-/bujw- minting prefixes (treated as final);\nkindle/CLI/tabtarget changes (no behavior change).",
+              "silks": "name-jurisdiction-feature-in-spec",
+              "commit": "ca58f71"
+            },
+            {
               "ts": "260502-1235",
               "state": "rough",
               "text": "## Character\nSpec-language: promote \"jurisdiction\" from implicit minting-prefix\nside-effect to explicit named feature in BUS0. No code/kindle changes.\n\n## Docket\nThe bujn-/bujp-/bujw- minting prefixes authored in ₢A-AAj name the\nBURN/BURP/BURW family as \"jurisdiction\" by side-effect. BUS0 currently\ncarries no umbrella term for the trio; viceroyalty/investiture/lieutenancy\nare the addressing rungs but the umbrella is unnamed.\n\nDone when:\n- BUS0 mapping section carries umbrella quoin(s) for the BURN/BURP/BURW\n  family under \"jurisdiction\" framing.\n- BUS0 § Remote Node Access section heading and overview text reflect\n  the named frame; viceroyalty / investiture / lieutenancy stand as\n  jurisdictional rungs.\n- Paddock Current Concept three-regimes block names the umbrella.\n- Asciidoc validates clean; no orphaned cross-references.\n\nOut of scope: bujn-/bujp-/bujw- minting prefixes (treated as final);\nkindle/CLI/tabtarget changes (no behavior change).",
