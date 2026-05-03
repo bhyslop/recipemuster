@@ -19,9 +19,10 @@
 # Bash Utility Handbook - Jurisdiction Procedures
 #
 # Handbook content for BUK's remote-node feature area (BUS0 §Remote
-# Node Access). Garrison authenticates as an admin SSH user using
-# operator-managed keys; first-time admin trust is established here,
-# out-of-band, before any garrison runs.
+# Node Access). Garrison handles first-run admin trust establishment
+# itself (password-fallback on /dev/tty, then key-only thereafter);
+# the operator's manual scope is just making sshd reachable on the
+# network with a known admin password.
 
 set -euo pipefail
 
@@ -34,7 +35,7 @@ ZBUHJ_SOURCED=1
 zbuhj_kindle() {
   test -z "${ZBUHJ_KINDLED:-}" || buc_die "Module buhj already kindled"
 
-  test -n "${BUBC_windows_admin_auth_keys:-}" || buc_die "buhj requires bubc_constants.sh sourced before kindle"
+  test -n "${BUBC_windows_ssh_port:-}" || buc_die "buhj requires bubc_constants.sh sourced before kindle"
 
   readonly ZBUHJ_KINDLED=1
 }
@@ -50,47 +51,44 @@ zbuhj_render_landing() {
   buh_section  "Jurisdiction Handbook"
   buh_line     "BUK reaches remote nodes through Garrison: a destructive ceremony"
   buh_line     "that provisions one workload account per node, dispatched as the"
-  buh_line     "current station user. Garrison authenticates over key-only admin"
-  buh_line     "SSH; it never generates or modifies SSH key material."
+  buh_line     "current station user. Garrison never generates or modifies SSH"
+  buh_line     "key material; the operator owns all key administration."
   buh_e
-  buh_line     "First-time admin trust is operator-manual: install sshd on the"
-  buh_line     "node, place the admin pubkey in admin's authorized_keys with"
-  buh_line     "no command= directive, and disable password auth. Garrison"
-  buh_line     "rewrites the admin authorized_keys on first run with the"
-  buh_line     "shell-letter command= directive that routes its sessions."
+  buh_line     "Garrison handles first-run admin trust itself. Its admin SSH"
+  buh_line     "session uses PreferredAuthentications=publickey,password — on a"
+  buh_line     "fresh node ssh falls through to a password prompt on /dev/tty,"
+  buh_line     "the operator types the admin password once, garrison installs"
+  buh_line     "the admin pubkey + sshd hardening, and subsequent runs use key"
+  buh_line     "auth automatically. The operator's manual scope reduces to:"
+  buh_line     "make sshd reachable on the network with a known admin password."
 }
 
 zbuhj_render_linux_mac_note() {
   buh_section  "Linux and macOS"
-  buh_line     "Admin trust is the standard SSH client recipe — copy the operator's"
-  buh_line     "admin pubkey to the remote admin user's authorized_keys."
+  buh_line     "sshd is typically already installed and reachable. The operator's"
+  buh_line     "manual scope is just: confirm sshd is running, the admin user"
+  buh_line     "has a known password, and the host is reachable from the station."
+  buh_line     "Garrison handles admin pubkey placement and sshd hardening on"
+  buh_line     "first run via the password-fallback path."
+  buh_e
+  buh_line     "Operators who prefer to pre-establish key trust manually may use"
+  buh_line     "the standard recipe; garrison's first run then converges as a"
+  buh_line     "no-op on the admin pubkey:"
   buh_e
   buh_code     "ssh-copy-id -i ~/.ssh/<admin-pubkey>.pub <admin-user>@<host>"
-  buh_e
-  buh_line     "If the node already disallows password auth, append the pubkey"
-  buh_line     "to ~<admin-user>/.ssh/authorized_keys via an existing trusted"
-  buh_line     "channel. No further preparation is required before garrison."
 }
 
 zbuhj_render_windows_bootstrap() {
-  buyy_cmd_yawp "${BUBC_windows_sshd_config}";     local -r z_sshd_config_yelp="${z_buym_yelp}"
-  buyy_cmd_yawp "${BUBC_windows_admin_auth_keys}"; local -r z_admin_keys_yelp="${z_buym_yelp}"
-
-  buh_section  "Windows Admin Trust Bootstrap"
-  buh_line     "All steps run on the Windows host except Step 9, which runs"
-  buh_line     "from the operator's station to verify."
+  buh_section  "Windows: sshd Reachability"
+  buh_line     "All steps run on the Windows host in an elevated PowerShell."
+  buh_line     "Right-click Start, Terminal (Admin), or search 'PowerShell' and"
+  buh_line     "Run as Administrator."
   buh_e
   buh_section  "Preconditions:"
   buh_line     "- Windows host with administrator access"
-  buh_line     "- Operator's admin SSH keypair already exists on the station"
-  buh_line     "  (key generation is operator-owned; not a handbook concern)"
+  buh_line     "- Admin user account has a known password (garrison's first run"
+  buh_line     "  prompts for it once on /dev/tty; subsequent runs use key auth)"
   buh_line     "- Network reachable on TCP/${BUBC_windows_ssh_port} from operator's station"
-  buh_e
-
-  buh_step1    "Open Elevated PowerShell:"
-  buh_line     "Right-click Start, Terminal (Admin), or search 'PowerShell' and"
-  buh_line     "Run as Administrator. All commands below run in this elevated"
-  buh_line     "session unless explicitly noted."
   buh_e
 
   buh_step1    "Install OpenSSH Server:"
@@ -107,72 +105,21 @@ zbuhj_render_windows_bootstrap() {
   buh_code     "New-NetFirewallRule -Name ${BUBC_windows_fw_rule_name} -DisplayName \"${BUBC_windows_fw_display_name}\" -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort ${BUBC_windows_ssh_port}"
   buh_e
 
-  buh_step1    "Harden sshd_config to Key-Only:"
-  buh_line     "File: ${z_sshd_config_yelp}"
-  buh_line     "SYSTEM-owned. Edit a temp copy, validate, then replace."
+  buh_section  "Verify Reachability"
+  buh_line     "From the operator's station, confirm sshd answers (a password"
+  buh_line     "prompt is expected and correct — garrison's first run will"
+  buh_line     "type it through to ssh on /dev/tty):"
   buh_e
-  buh_step2    "Copy to editable location:"
-  buh_code     "Copy-Item ${BUBC_windows_sshd_config} \$env:TEMP\\sshd_config"
-  buh_e
-  buh_step2    "Edit the copy:"
-  buh_code     "notepad \$env:TEMP\\sshd_config"
-  buh_line     "Set these directives (add if absent):"
-  buh_code     "PasswordAuthentication no"
-  buh_code     "PubkeyAuthentication yes"
-  buh_code     "PermitEmptyPasswords no"
-  buh_warn     "Do NOT add UsePAM or ChallengeResponseAuthentication — Windows"
-  buh_warn     "OpenSSH rejects unrecognized directives and sshd fails to start."
-  buh_e
-  buh_step2    "Validate the edited copy (silence means valid):"
-  buh_code     "sshd -t -f \$env:TEMP\\sshd_config"
-  buh_e
-  buh_step2    "Replace the original:"
-  buh_code     "Copy-Item \$env:TEMP\\sshd_config ${BUBC_windows_sshd_config} -Force"
-  buh_e
-
-  buh_step1    "Place the Operator Admin Pubkey:"
-  buh_line     "File: ${z_admin_keys_yelp}"
-  buh_line     "Create the file if absent. Each line is one pubkey for an"
-  buh_line     "administrative user (BuiltIn\\Administrators or equivalent)."
-  buh_e
-  buh_line     "Paste exactly the bare contents of the operator's station admin"
-  buh_line     "public key (e.g., ~/.ssh/id_ed25519.pub) on its own line."
-  buh_warn     "NO command= prefix. Garrison rewrites this file on first run"
-  buh_warn     "with the shell-letter command= directive (b/c/w). Adding one"
-  buh_warn     "manually is forbidden — garrison will overwrite it anyway."
-  buh_e
-
-  buh_step1    "Lock Down Admin Keys File ACLs:"
-  buh_line     "Windows OpenSSH refuses to read administrators_authorized_keys"
-  buh_line     "unless ownership is restricted to Administrators and SYSTEM."
-  buh_code     "icacls \"${BUBC_windows_admin_auth_keys}\" /inheritance:r"
-  buh_code     "icacls \"${BUBC_windows_admin_auth_keys}\" /grant \"Administrators:F\""
-  buh_code     "icacls \"${BUBC_windows_admin_auth_keys}\" /grant \"SYSTEM:F\""
-  buh_e
-
-  buh_step1    "Restart sshd to Apply Config:"
-  buh_code     "Restart-Service sshd"
-  buh_e
-
-  buh_step1    "Verify Key-Only Auth from the Operator Station:"
-  buh_line     "From the operator's station (not the Windows host):"
-  buh_code     "ssh -i ~/.ssh/<admin-privkey> <admin-user>@<windows-host> whoami"
-  buh_line     "Expect: the admin username printed back. Key auth succeeded."
-  buh_e
-  buh_line     "Symptoms and remedies:"
-  buh_line     "- 'Permission denied (publickey)': admin pubkey absent, malformed,"
-  buh_line     "  or ACLs on administrators_authorized_keys still inherited."
-  buh_line     "- Password prompt appears: PasswordAuthentication directive not"
-  buh_line     "  yet applied; revisit Step 5 and confirm sshd was restarted."
-  buh_line     "- 'Connection refused': firewall rule absent or sshd not running."
+  buh_code     "ssh <admin-user>@<windows-host>"
 }
 
 zbuhj_render_post_bootstrap() {
-  buh_section  "After Bootstrap — Run Garrison"
-  buh_line     "With admin trust established, run garrison for the chosen"
-  buh_line     "workload shell. Garrison destroys any prior workload account"
-  buh_line     "on the node and provisions a fresh one as the project-wide"
-  buh_line     "convention name carried in BURC_WORKLOAD_USER."
+  buh_section  "Run Garrison"
+  buh_line     "With sshd reachable, run garrison for the chosen workload shell."
+  buh_line     "Garrison establishes admin trust on its first run (typing the"
+  buh_line     "admin password once when ssh prompts on /dev/tty), then destroys"
+  buh_line     "any prior workload account and provisions a fresh one named"
+  buh_line     "BURC_WORKLOAD_USER. Subsequent runs use key auth automatically."
   buh_e
   buh_line     "  buw-jpgb <investiture>  — native bash workload (Linux, macOS)"
   buh_line     "  buw-jpgc <investiture>  — Cygwin bash workload (Windows)"
@@ -195,7 +142,7 @@ zbuhj_render_post_bootstrap() {
 buhj_top() {
   zbuhj_sentinel
 
-  buc_doc_brief "Display jurisdiction handbook landing + admin SSH bootstrap procedures"
+  buc_doc_brief "Display jurisdiction handbook landing + sshd-reachability procedures"
   buc_doc_shown || return 0
 
   zbuhj_render_landing
