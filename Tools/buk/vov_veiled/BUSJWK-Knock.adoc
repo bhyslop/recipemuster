@@ -1,0 +1,35 @@
+//axhob_operation
+{bust_knock}
+
+NOTE: Probes the workload account's reachability via key-only SSH.
+Used to confirm that a {burp_investiture}'s workload trust is currently
+usable before dispatching real work, and used internally as the
+final-step validation of {busn_garrison}.
+
+//axhopt_typed_parameter
+{burp_investiture}
+
+//axhoq_precondition
+A {burp_regime} profile exists at the given {burp_investiture} and its
+referenced {burn_regime} profile is reachable.
+
+//axhoq_precondition
+{busn_garrison} has been run for this {burp_investiture} so that
+{burc_workload_user} exists on the node and trusts the workload pubkey
+derived from {burp_workload_key_file}.
+
+//axhos_step
+. *Open workload SSH*: connect as {burc_workload_user} using
+{burp_workload_key_file}; key-auth only.
+
+//axhos_step
+. *Issue trivial command*: execute a no-op on the remote
+(e.g., `true`) and observe the remote exit status.
+
+//axhog_guarantee
+No remote OS state was modified.
+
+//axhoc_completion
+Exit 0 when the remote command returns 0 within the probe window.
+Non-zero on connection refusal, authentication failure, remote-exec
+failure, or probe-window timeout.

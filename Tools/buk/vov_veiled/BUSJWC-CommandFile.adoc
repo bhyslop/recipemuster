@@ -1,0 +1,45 @@
+//axhob_operation
+{bust_command_file}
+
+NOTE: Executes the contents of a local command file on the remote node
+as {burc_workload_user} and captures stdout, stderr, and the remote
+exit status to {burd_output_dir}.
+The remote shell is whichever shell-letter garrisoned the node; the
+operator does not choose it at dispatch time.
+
+//axhopt_typed_parameter
+{burp_investiture}
+
+//axhopt_typed_parameter
+{busi_scribed_command_file}
+
+//axhoq_precondition
+A {burp_regime} profile exists at the given {burp_investiture} and is
+{bust_knock}-responsive.
+
+//axhoq_precondition
+The local command file referenced as the dispatch input exists and is
+readable by the calling user.
+
+//axhos_step
+. *Open workload session*: open an SSH session to {burc_workload_user}
+using {burp_workload_key_file}.
+
+//axhos_step
+. *Stream command file*: feed the command-file contents to the remote
+shell.
+
+//axhos_step
+. *Capture outputs*: write remote stdout, stderr, and the remote exit
+status to {burd_output_dir}.
+
+//axhog_guarantee
+The complete remote stdout, stderr, and exit code are durably written
+under {burd_output_dir} regardless of the remote command's success or
+failure.
+
+//axhoc_completion
+Exit 0 when dispatch and capture both complete (independent of the
+remote exit code).
+Non-zero on SSH connection failure, capture-write failure, or transport
+interruption.

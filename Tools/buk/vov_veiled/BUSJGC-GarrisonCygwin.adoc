@@ -1,0 +1,64 @@
+//axhob_operation
+{bust_garrison_cygwin}
+
+NOTE: {busn_garrison} ceremony with Cygwin bash as the workload shell,
+for Windows nodes reached via Cygwin sshd.
+Destructive: removes any prior workload account named
+{burc_workload_user}
+and recreates it from a clean slate.
+
+//axhopt_typed_parameter
+{burp_investiture}
+
+//axhoq_precondition
+A {burp_regime} profile exists at the given {burp_investiture} and its
+referenced {burn_regime} profile is reachable.
+
+//axhoq_precondition
+Cygwin sshd is installed on the node and {burp_privileged_user}
+(member of the Administrators group) trusts {burp_privileged_key_file}
+for key-only SSH (operator-bootstrapped out-of-band).
+
+//axhoq_precondition
+{burp_workload_key_file} is unencrypted and exists on the operator's
+station.
+
+//axhos_step
+. *Open admin SSH*: connect as {burp_privileged_user} using
+{burp_privileged_key_file}; key-auth only.
+
+//axhos_step
+. *Place admin trust*: idempotently install the admin pubkey
+(derived via `ssh-keygen -y`) in admin's authorized_keys with the
+shell-letter `c` `command=` directive from {bujb_jurisdiction}.
+
+//axhos_step
+. *Destroy workload*: remove any existing {burc_workload_user} Cygwin
+account via the Cygwin user-management equivalent of `userdel -r`.
+
+//axhos_step
+. *Create workload*: provision {burc_workload_user} as an unprivileged,
+ssh-only Cygwin account.
+
+//axhos_step
+. *Place workload trust*: write the workload pubkey
+(derived via `ssh-keygen -y`) to the workload's authorized_keys with
+the shell-letter `c` `command=` directive.
+
+//axhos_step
+. *Plant workload key*: copy {burp_workload_key_file} to the workload
+account at the shell-letter `c` destination path hardcoded in
+{bujb_jurisdiction}.
+
+//axhos_step
+. *Validate round-trip*: SSH as workload, run a no-op command, verify
+exit 0.
+
+//axhog_guarantee
+On success the node has exactly one workload account named
+{burc_workload_user} reachable via Cygwin bash.
+
+//axhoc_completion
+Exit 0 when the round-trip validation succeeds.
+Non-zero on admin SSH failure, Cygwin account-management failure,
+key-write failure, or workload validation failure.

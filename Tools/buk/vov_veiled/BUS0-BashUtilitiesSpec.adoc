@@ -35,31 +35,22 @@
 // Tabtarget Vesture
 :bust_tabtarget:        <<bust_tabtarget,Tabtarget Vesture>>
 
-// Concrete BURN/BURP Tabtargets
-:bust_garrison_linux:        <<bust_garrison_linux,Garrison Linux>>
-:bust_garrison_mac:          <<bust_garrison_mac,Garrison Mac>>
-:bust_garrison_cygwin:       <<bust_garrison_cygwin,Garrison Cygwin>>
-:bust_garrison_wsl:          <<bust_garrison_wsl,Garrison WSL>>
-:bust_garrison_powershell:   <<bust_garrison_powershell,Garrison PowerShell>>
-:bust_garrison_localhost:    <<bust_garrison_localhost,Garrison Localhost>>
-:bust_conscript_linux:       <<bust_conscript_linux,Conscript Linux>>
-:bust_conscript_mac:         <<bust_conscript_mac,Conscript Mac>>
-:bust_conscript_cygwin:      <<bust_conscript_cygwin,Conscript Cygwin>>
-:bust_conscript_wsl:         <<bust_conscript_wsl,Conscript WSL>>
-:bust_conscript_powershell:  <<bust_conscript_powershell,Conscript PowerShell>>
-:bust_conscript_localhost:   <<bust_conscript_localhost,Conscript Localhost>>
-:bust_discharge:             <<bust_discharge,Discharge>>
-:bust_inventory:             <<bust_inventory,Inventory>>
-:bust_knock:                 <<bust_knock,Knock>>
-:bust_remote_run:            <<bust_remote_run,Remote Run>>
-:bust_interactive_session:   <<bust_interactive_session,Interactive Session>>
-:bust_node_regime_list:        <<bust_node_regime_list,Node Regime List>>
-:bust_node_regime_render:      <<bust_node_regime_render,Node Regime Render>>
-:bust_node_regime_validate:    <<bust_node_regime_validate,Node Regime Validate>>
-:bust_privilege_regime_list:     <<bust_privilege_regime_list,Privilege Regime List>>
-:bust_privilege_regime_render:   <<bust_privilege_regime_render,Privilege Regime Render>>
-:bust_privilege_regime_validate: <<bust_privilege_regime_validate,Privilege Regime Validate>>
-:bust_handbook_node_top:       <<bust_handbook_node_top,Handbook Node Top>>
+// Jurisdiction Tabtargets
+:bust_garrison_bash:               <<bust_garrison_bash,Garrison Bash>>
+:bust_garrison_cygwin:             <<bust_garrison_cygwin,Garrison Cygwin>>
+:bust_garrison_wsl:                <<bust_garrison_wsl,Garrison WSL>>
+:bust_knock:                       <<bust_knock,Knock>>
+:bust_command_file:                <<bust_command_file,Command File>>
+:bust_interactive_session:         <<bust_interactive_session,Interactive Session>>
+:bust_handbook_jurisdiction_top:   <<bust_handbook_jurisdiction_top,Handbook Jurisdiction Top>>
+
+// Regime Config Tabtargets
+:bust_node_regime_list:            <<bust_node_regime_list,Node Regime List>>
+:bust_node_regime_render:          <<bust_node_regime_render,Node Regime Render>>
+:bust_node_regime_validate:        <<bust_node_regime_validate,Node Regime Validate>>
+:bust_privilege_regime_list:       <<bust_privilege_regime_list,Privilege Regime List>>
+:bust_privilege_regime_render:     <<bust_privilege_regime_render,Privilege Regime Render>>
+:bust_privilege_regime_validate:   <<bust_privilege_regime_validate,Privilege Regime Validate>>
 
 // Input Artifacts
 :busi_scribed_command_file:  <<busi_scribed_command_file,Scribed Command File>>
@@ -98,7 +89,6 @@
 :burn_prefix:                      <<burn_prefix,BURN_>>
 :burp_prefix:                      <<burp_prefix,BURP_>>
 :burs_prefix:                      <<burs_prefix,BURS_>>
-:burw_prefix:                      <<burw_prefix,BURW_>>
 
 // BURC Regime: Configuration (project-level BUK settings)
 :burc_regime:                      <<burc_regime,BURC Regime>>
@@ -112,46 +102,39 @@
 :burc_output_root_dir:             <<burc_output_root_dir,BURC_OUTPUT_ROOT_DIR>>
 :burc_log_last:                    <<burc_log_last,BURC_LOG_LAST>>
 :burc_log_ext:                     <<burc_log_ext,BURC_LOG_EXT>>
+:burc_workload_user:               <<burc_workload_user,BURC_WORKLOAD_USER>>
 
 // BURN Regime: Node-shape (per-node, project-global, git-tracked)
 :burn_regime:                      <<burn_regime,BURN Regime>>
 :burn_host:                        <<burn_host,BURN_HOST>>
 :burn_platform:                    <<burn_platform,BURN_PLATFORM>>
-:burn_workloads:                   <<burn_workloads,BURN_WORKLOADS>>
 
-// BURN/BURP/BURW Identifier Vocabulary
+// BURN/BURP Identifier Vocabulary
 :burn_viceroyalty:                 <<burn_viceroyalty,Viceroyalty>>
 :burp_investiture:                 <<burp_investiture,Investiture>>
-:burw_lieutenancy:                 <<burw_lieutenancy,Lieutenancy>>
 
-// Cross-cutting premises for BURN/BURP/BURW
+// Cross-cutting premises for BURN/BURP
 :burn_host_singularity:            <<burn_host_singularity,Host Singularity>>
 :bus_keys_operator_owned:          <<bus_keys_operator_owned,Operator-Owned Keys>>
 
-// BURP Regime: Privileged Credentials (per-station-user)
+// Jurisdiction (logical umbrella + implementation seat)
+:bus_jurisdiction:                 <<bus_jurisdiction,Jurisdiction>>
+:bujb_jurisdiction:                <<bujb_jurisdiction,bujb_jurisdiction.sh>>
+
+// BURP Regime: Privileged + Workload Credentials (per-station-user)
 :burp_regime:                      <<burp_regime,BURP Regime>>
 :burp_node:                        <<burp_node,BURP_NODE>>
-:burp_user:                        <<burp_user,BURP_USER>>
-:burp_ssh_pubkey:                  <<burp_ssh_pubkey,BURP_SSH_PUBKEY>>
-:burp_key_file:                    <<burp_key_file,BURP_KEY_FILE>>
-:burp_command:                     <<burp_command,BURP_COMMAND>>
+:burp_privileged_user:             <<burp_privileged_user,BURP_PRIVILEGED_USER>>
+:burp_privileged_key_file:         <<burp_privileged_key_file,BURP_PRIVILEGED_KEY_FILE>>
+:burp_workload_key_file:           <<burp_workload_key_file,BURP_WORKLOAD_KEY_FILE>>
 
-// BURW Regime: Workload State (per-station-user, written by conscript)
-:burw_regime:                      <<burw_regime,BURW Regime>>
-:burw_node:                        <<burw_node,BURW_NODE>>
-:burw_command:                     <<burw_command,BURW_COMMAND>>
-
-// BUSN: Node Access (verbs for remote node management)
+// BUSN: Node Access (verb for remote node management)
 :busn_garrison:                    <<busn_garrison,Garrison>>
-:busn_conscript:                   <<busn_conscript,Conscript>>
-:busn_discharge:                   <<busn_discharge,Discharge>>
-:busn_inventory:                   <<busn_inventory,Inventory>>
 
 // BURS Regime: Station (developer-level BUK settings)
 :burs_regime:                      <<burs_regime,BURS Regime>>
 :burs_user:                        <<burs_user,BURS_USER>>
 :burs_log_dir:                     <<burs_log_dir,BURS_LOG_DIR>>
-:burs_workload_state_dir:          <<burs_workload_state_dir,BURS_WORKLOAD_STATE_DIR>>
 
 // BURD Regime: Dispatch Runtime (ephemeral dispatch state)
 :burd_regime:                      <<burd_regime,BURD Regime>>
@@ -918,6 +901,17 @@ Filename stem for the most recent command execution log.
 {burc_log_ext}::
 File extension for log files, without leading dot.
 
+[[burc_workload_user]]
+//axvr_variable axd_required axtu_xname
+{burc_workload_user}::
+Project-wide convention name for the unprivileged workload OS user that
+{busn_garrison}
+provisions on every node — single source of truth, one workload user
+per node.
++
+Validation enforces a name-collision blacklist (against well-known
+admin/service accounts) and platform-imposed length limits.
+
 === BURS Regime
 
 [[burs_regime]]
@@ -959,12 +953,8 @@ files live under `.buk/rbmn_nodes/<{burn_viceroyalty}>/burn.env`.
 is the sole home of node address-of-record per
 {burn_host_singularity};
 {burp_regime}
-and
-{burw_regime}
 instances reference it via
-{burp_node}
-and
-{burw_node}.
+{burp_node}.
 
 [[burn_host]]
 //axvr_variable axd_required axtu_string
@@ -975,35 +965,17 @@ IP address or hostname of the remote node.
 //axvr_variable axd_required axtu_xname
 {burn_platform}::
 OS family of the node.
-Selects procedure dispatch for OS-specific ceremonies
-(garrison shell selection, sshd configuration paths, quoting regime).
+Used by handbook diagnostics; the
+{bus_jurisdiction}
+implementation in
+{bujb_jurisdiction}
+selects shell mappings by garrison shell-letter rather than by node platform.
 Values: `linux`, `mac`, `windows`.
-+
-Admin-shell variant on Windows nodes (cygwin / wsl / powershell) is
-captured in
-{burp_command}
-per investiture, not at the node level — a single Windows host can
-support multiple admin-shell stacks under separate
-{burp_investiture}
-instances.
-Workload-shell variant is captured in
-{burw_lieutenancy}
-naming.
 
-[[burn_workloads]]
-//axvr_variable axd_required axtu_string axd_repeated
-{burn_workloads}::
-Authoritative template of valid
-{burw_lieutenancy}
-strings on this node.
-{busn_conscript}
-may only materialize a workload whose alias is enumerated here;
-the operator pre-declares the node's supported workload offices.
-
-=== BURN/BURP/BURW Identifier Vocabulary
+=== BURN/BURP Identifier Vocabulary
 
 The following quoins establish the minted-name vocabulary for the
-BURN/BURP/BURW model.
+BURN/BURP model.
 
 [[burn_viceroyalty]]
 //axl_voices axo_entity
@@ -1012,8 +984,6 @@ The minted identifier of a
 {burn_regime}
 instance.
 {burp_regime}
-and
-{burw_regime}
 instances reference a node by its
 {burn_viceroyalty}.
 +
@@ -1043,51 +1013,17 @@ it is not redundantly inscribed as a field within the file.
 +
 Examples: `redbox-bhyslop-admin`, `winbox-prod-alice-admin`.
 
-[[burw_lieutenancy]]
-//axl_voices axo_entity
-{burw_lieutenancy}::
-The minted identifier of a
-{burw_regime}
-instance — a workload office operating on a
-{burn_viceroyalty}
-under the authority of a
-{burp_investiture}.
-A
-{burw_lieutenancy}
-names a workload entry (shell command, remote OS user, key file) that
-materializes when a workload is conscripted.
-+
-The
-{burw_lieutenancy}
-is conveyed by the directory containing the
-{burw_regime}
-state file;
-it is not redundantly inscribed as a field within the file.
-+
-The
-{burw_lieutenancy}
-string is by construction the remote OS username of its workload
-account on the node, drawn at conscript time from the
-{burn_viceroyalty}'s authoritative `burn_workloads` template.
-+
-Examples: `redbox-cyg`, `redbox-wsl`, `redbox-pwsh`.
-
 [[burn_host_singularity]]
 //axl_voices axk_premise
 {burn_host_singularity}::
 The host of a node lives only in
 {burn_regime}.
 {burp_regime}
-and
-{burw_regime}
-instances reach the host by reference
-(via
-{burp_node}
-and
-{burw_node}
-respectively) and never duplicate it.
+instances reach the host by reference (via
+{burp_node})
+and never duplicate it.
 A given node has exactly one address-of-record;
-credentials and workload state never re-state it.
+credentials never re-state it.
 
 [[bus_keys_operator_owned]]
 //axl_voices axk_premise
@@ -1110,7 +1046,9 @@ Bash Utility Regime Privileged
 [[burp_regime]]
 //axvr_regime axf_bash axrd_file_sourced
 {burp_regime}::
-Per-station-user privileged-credential regime.
+Per-station-user credential regime carrying both privileged (admin)
+and workload key references for a single
+{burn_viceroyalty}.
 A
 {burp_regime}
 instance is identified by its
@@ -1126,6 +1064,12 @@ references its node by
 {burp_node}
 per
 {burn_host_singularity}.
++
+Public keys are derived from private keys at use-time via `ssh-keygen -y`;
+neither the privileged nor the workload pubkey is stored in
+{burp_regime}.
+Encrypted (passphrase-protected) private keys are not supported because
+`ssh-keygen -y` would prompt interactively and hang the ceremony.
 
 [[burp_node]]
 //axvr_variable axd_required axtu_xname
@@ -1137,100 +1081,48 @@ Resolves to the
 {burn_regime}
 file at the directory bearing this name.
 
-[[burp_user]]
+[[burp_privileged_user]]
 //axvr_variable axd_required axtu_string
-{burp_user}::
-Remote admin OS user this credential authenticates as
+{burp_privileged_user}::
+Remote admin OS user this credential authenticates as for the
+privileged garrison ceremony
 (e.g., `Administrator` on Windows, `root` or a sudo-capable user on
 Linux/Mac).
-
-[[burp_ssh_pubkey]]
-//axvr_variable axd_required axtu_string
-{burp_ssh_pubkey}::
-Full SSH public key line of the operator-managed admin keypair.
-The matching private key lives at `${BURS_KEY_DIR}/<{burp_investiture}>` on
-the operator's station per
-{bus_keys_operator_owned}.
-
-[[burp_key_file]]
-//axvr_variable axd_optional axtu_string
-{burp_key_file}::
-Operator-managed SSH private key filename.
-Resolves under the operator's key directory (typically `~/.ssh/`) per
-{bus_keys_operator_owned}.
-Empty defaults to the
-{burp_investiture}
-(one key per investiture).
-
-[[burp_command]]
-//axvr_variable axd_optional axtu_string
-{burp_command}::
-Shell command for SSH `command=` routing in the node's
-`administrators_authorized_keys`.
-Empty for direct-shell connections;
-non-empty when the admin shell is selected at the SSH layer
-(e.g., `powershell.exe`, `C:\cygwin64\bin\bash.exe -l`).
-
-=== BURW Regime
-
-[[burw_prefix]]
-//axl_voices axrg_prefix
-{burw_prefix}::
-Bash Utility Regime Workload
-
-[[burw_regime]]
-//axvr_regime axf_bash axrd_file_sourced
-{burw_regime}::
-Per-station-user workload-state regime — a record of a workload office
-materialized on a node by
-{busn_conscript}.
-A
-{burw_regime}
-instance is identified by its
-{burw_lieutenancy}
-(directory name).
-Unlike
-{burp_regime}
-(operator-authored config),
-{burw_regime}
-is system-written by
-{busn_conscript}
-and consumed by
-{busn_discharge},
-{bust_knock},
-{bust_remote_run},
-and
-{bust_interactive_session}.
+Garrison runs against this account to provision the workload account.
 +
-{burw_regime}
-references its node by
-{burw_node}
-per
-{burn_host_singularity}.
+Some platforms permit privileged usernames containing spaces
+(e.g., `b hyslop`); the implementation must quote correctly at every
+expansion.
+
+[[burp_privileged_key_file]]
+//axvr_variable axd_required axtu_path
+{burp_privileged_key_file}::
+Path to the operator-managed SSH private key authorized as
+{burp_privileged_user}
+on the node per
+{bus_keys_operator_owned}.
+The matching public key is derived at use-time via `ssh-keygen -y`;
+no separate pubkey path is stored.
 +
-{burw_regime}
-files live under
-{burs_workload_state_dir}.
+Garrison authenticates using this key only — there is no password fallback.
+First-time admin trust is established out-of-band via the bootstrap
+handbook before garrison runs.
 
-[[burw_node]]
-//axvr_variable axd_required axtu_xname
-{burw_node}::
-Reference to a
-{burn_viceroyalty}
-— the node this lieutenancy operates on.
-Resolves to the
-{burn_regime}
-file at the directory bearing this name;
-provides the host for SSH operations against the workload account.
-
-[[burw_command]]
-//axvr_variable axd_required axtu_string
-{burw_command}::
-Shell command captured at conscript time, mirroring the `command=`
-directive installed in the workload account's `~/.ssh/authorized_keys`
-on the node.
-The conscript-platform variant supplies this template value at
-materialization.
+[[burp_workload_key_file]]
+//axvr_variable axd_required axtu_path
+{burp_workload_key_file}::
+Path to the operator-managed SSH private key the workload account uses
+to authenticate inbound (from the operator's station) and outbound
+(to GitHub or other services).
+Garrison copies this private key onto the remote workload account at a
+shell-letter-specific path hardcoded in
+{bujb_jurisdiction};
+the matching public key is derived via `ssh-keygen -y` for
+authorized_keys placement on both sides of the trip.
++
+The workload pubkey must be pre-registered with any outbound service
+(e.g., GitHub deploy keys) out-of-band; garrison cannot validate that
+registration.
 
 === BURD Regime
 
@@ -1563,64 +1455,88 @@ include::BUSD-DispatchRuntime.adoc[]
 
 == Remote Node Access
 
-Bringing remote nodes under SSH key control from a local station, establishing
-trust that supports both privileged node-level operations and ephemeral
-workload-tier work over the same {burn_regime}.
+BUK reaches remote nodes under the
+{bus_jurisdiction}
+umbrella: a single station user provisions one workload account per
+node and dispatches commands to it. Privileged trust is the operator's
+prerequisite, not BUK's deliverable — first-time admin SSH bootstrap
+is an out-of-band handbook procedure.
 
-=== Privilege Tiers
+[[bus_jurisdiction]]
+{bus_jurisdiction}::
+The BUK feature-area for reaching remote nodes deterministically:
+operator-managed admin trust as input,
+{busn_garrison}
+to provision and refresh a workload account, and the workload-side
+tabtargets ({bust_knock}, {bust_command_file}, {bust_interactive_session})
+to dispatch work.
++
+{bus_jurisdiction}
+is logical only — there is no AXLA-typed entity behind the umbrella.
+Its implementation seat is
+{bujb_jurisdiction}.
 
-Privilege is encoded by regime, not by a field on
-{burn_regime}.
-Each
+[[bujb_jurisdiction]]
+{bujb_jurisdiction}::
+The BCG-compliant module
+(`Tools/buk/bujb_jurisdiction.sh` plus its `bujb_cli.sh` companion)
+that hardcodes the
+{bus_jurisdiction}
+contracts not expressed in regime data:
+the three shell-letter→`command=` directive mappings
+(`b` = native bash for Linux/Mac;
+`c` = Cygwin;
+`w` = WSL),
+the workload private-key destination paths on the remote per shell-letter,
+and the canonical WSL distribution name (`rbtww-main`).
++
+SSH transport mechanics live in code;
 {burp_regime}
-instance grants a single station user privileged authority over a
-{burn_viceroyalty},
-and each
-{burw_regime}
-instance records an ephemeral workload user materialized on that
-viceroyalty by
-{busn_conscript}.
-Tabtargets dispatch by colophon family
-(`buw-np*` for privileged-tier verbs,
-`buw-nw*` for workload-tier verbs)
-and consume the regime appropriate to the verb.
+carries no shell selection.
 
-==== Privileged Tier
+=== Privileges
 
-Privileged operations authenticate as a remote OS user with admin or
-equivalent privileges via a
+A
+{burn_regime}
+instance lives under `.buk/rbmn_nodes/<{burn_viceroyalty}>/` and is shared
+across station users (git-transported); it carries node shape only and
+no key material.
+A
 {burp_regime}
-instance.
-Used for node-level operations: sshd configuration, user provisioning,
-node-establishment ceremonies.
+instance lives under `.buk/rbmu_users/<{burs_user}>/<{burp_investiture}>/`;
+the
+{burs_user}
+owns its credential subtree exclusively, and operations write only
+under the current station user's tree.
 
-Multiple station users may hold privileged trust on the same node (file
-format supports multi-resident keys). Operational convention: only one
-station user actively orchestrates work at a time. This convention is
-enforced by social contract, not BUK locking.
+Garrison authenticates as
+{burp_privileged_user}
+using
+{burp_privileged_key_file}
+(key auth only — no password fallback).
+Workload account is unprivileged, ssh-only, and named by
+{burc_workload_user}
+(project-wide convention, single source of truth).
 
-==== Workload Tier
+=== Garrison-Destructive Model
 
-Workload operations authenticate as ephemeral remote OS users created by
-privileged authority and tracked by a
-{burw_regime}
-instance.
-Used for normal remote work: running commands, file operations,
-interactive shells.
-
-Workload users are exclusive to one station user — not handed off between
-station users. Lifecycle is short:
-{busn_conscript}
-when needed,
-{busn_discharge}
-when done.
+Every garrison invocation wipes prior workload state on the node
+regardless of which
+{burp_investiture}
+or station user runs it.
+There is exactly one workload user per node, ever; node runtime state
+belongs to whoever last garrisoned it.
+Garrison subsumes lifecycle: there is no separate verb to materialize,
+remove, or enumerate workload accounts — every garrison rebuilds from a
+clean slate.
 
 === Tabtarget Catalog
 
-Tabtargets under `buw-` consume {burn_regime} profiles to perform remote
-operations. Tier-specific colophons follow `buw-n[pw]` for clarity.
+Thirteen tabtargets cover regime configuration, garrison ceremony, and
+workload dispatch.
+PowerShell garrison and dispatch are deferred and not enumerated below.
 
-==== Lifecycle
+==== Regime Configuration
 
 [[bust_node_regime_list]]
 //axvo_tabtarget
@@ -1632,13 +1548,15 @@ List all {burn_regime} profiles under `.buk/rbmn_nodes/`.
 //axvo_tabtarget
 {bust_node_regime_render}::
 `buw-rnr` —
-Render a single {burn_regime} profile (viceroyalty passed as positional argument).
+Render a single {burn_regime} profile
+(viceroyalty passed as positional argument).
 
 [[bust_node_regime_validate]]
 //axvo_tabtarget
 {bust_node_regime_validate}::
 `buw-rnv` —
-Validate a single {burn_regime} profile (viceroyalty passed as positional argument).
+Validate a single {burn_regime} profile
+(viceroyalty passed as positional argument).
 
 [[bust_privilege_regime_list]]
 //axvo_tabtarget
@@ -1650,186 +1568,115 @@ List all {burp_regime} profiles for the current {burs_user}.
 //axvo_tabtarget
 {bust_privilege_regime_render}::
 `buw-rpr` —
-Render a single {burp_regime} profile (investiture passed as positional argument).
+Render a single {burp_regime} profile
+(investiture passed as positional argument).
 
 [[bust_privilege_regime_validate]]
 //axvo_tabtarget
 {bust_privilege_regime_validate}::
 `buw-rpv` —
-Validate a single {burp_regime} profile (investiture passed as positional argument).
+Validate a single {burp_regime} profile
+(investiture passed as positional argument).
 
-==== Privileged (per-platform node setup)
+==== Garrison (per shell-letter)
 
-[[bust_garrison_linux]]
+[[bust_garrison_bash]]
 //axvo_tabtarget
-{bust_garrison_linux}::
-`buw-npgl` —
-{busn_garrison} ceremony for Linux nodes.
-
-[[bust_garrison_mac]]
-//axvo_tabtarget
-{bust_garrison_mac}::
-`buw-npgm` —
-{busn_garrison} ceremony for macOS nodes.
+{bust_garrison_bash}::
+`buw-jpgb` —
+{busn_garrison} ceremony with native bash as the workload shell
+(Linux and macOS nodes).
 
 [[bust_garrison_cygwin]]
 //axvo_tabtarget
 {bust_garrison_cygwin}::
-`buw-npgc` —
-{busn_garrison} ceremony for Cygwin nodes.
+`buw-jpgc` —
+{busn_garrison} ceremony with Cygwin bash as the workload shell
+(Windows nodes via Cygwin sshd).
 
 [[bust_garrison_wsl]]
 //axvo_tabtarget
 {bust_garrison_wsl}::
-`buw-npgw` —
-{busn_garrison} ceremony for WSL nodes.
+`buw-jpgw` —
+{busn_garrison} ceremony with WSL bash as the workload shell
+(Windows nodes via WSL distribution `rbtww-main`).
 
-[[bust_garrison_powershell]]
-//axvo_tabtarget
-{bust_garrison_powershell}::
-`buw-npgp` —
-{busn_garrison} ceremony for PowerShell nodes.
-
-[[bust_garrison_localhost]]
-//axvo_tabtarget
-{bust_garrison_localhost}::
-`buw-npgx` —
-{busn_garrison} ceremony for localhost nodes.
-
-==== Workload (privileged authority required)
-
-[[bust_conscript_linux]]
-//axvo_tabtarget
-{bust_conscript_linux}::
-`buw-nwcl` —
-{busn_conscript} a workload user with a Linux shell, via the named privileged BURN.
-
-[[bust_conscript_mac]]
-//axvo_tabtarget
-{bust_conscript_mac}::
-`buw-nwcm` —
-{busn_conscript} a workload user with a macOS shell, via the named privileged BURN.
-
-[[bust_conscript_cygwin]]
-//axvo_tabtarget
-{bust_conscript_cygwin}::
-`buw-nwcc` —
-{busn_conscript} a workload user with a Cygwin shell, via the named privileged BURN.
-
-[[bust_conscript_wsl]]
-//axvo_tabtarget
-{bust_conscript_wsl}::
-`buw-nwcw` —
-{busn_conscript} a workload user with a WSL shell, via the named privileged BURN.
-
-[[bust_conscript_powershell]]
-//axvo_tabtarget
-{bust_conscript_powershell}::
-`buw-nwcp` —
-{busn_conscript} a workload user with a PowerShell shell, via the named privileged BURN.
-
-[[bust_conscript_localhost]]
-//axvo_tabtarget
-{bust_conscript_localhost}::
-`buw-nwcx` —
-{busn_conscript} a workload user with a localhost shell, via the named privileged BURN.
-
-[[bust_discharge]]
-//axvo_tabtarget
-{bust_discharge}::
-`buw-nwd` —
-{busn_discharge} a workload user.
-Deletes the remote OS user via the workload profile's privileged
-authority and removes the local profile.
-
-[[bust_inventory]]
-//axvo_tabtarget
-{bust_inventory}::
-`buw-nwi` —
-{busn_inventory} workload users present on the node, queried via the
-privileged BURN.
-
-==== Workload (operational)
+==== Workload Dispatch
 
 [[bust_knock]]
 //axvo_tabtarget
 {bust_knock}::
-`buw-nwk` —
-Probe workload responsiveness via passwordless SSH.
+`buw-jwk` —
+Probe workload reachability via key-only SSH;
+returns 0 if the workload account answers a no-op command.
 
-[[bust_remote_run]]
+[[bust_command_file]]
 //axvo_tabtarget
-{bust_remote_run}::
-`buw-nwr` —
-Run the contents of a command file on the remote node; capture output to
-{burd_output_dir}.
+{bust_command_file}::
+`buw-jwc` —
+Run the contents of a local command file as the workload account;
+shell is determined by whichever shell-letter garrisoned the node.
+Captures stdout, stderr, and remote exit status to {burd_output_dir}.
 
 [[bust_interactive_session]]
 //axvo_tabtarget
 {bust_interactive_session}::
-`buw-nws` —
+`buw-jws` —
 Open an interactive SSH session to the workload account.
 
 ==== Handbook
 
-[[bust_handbook_node_top]]
+[[bust_handbook_jurisdiction_top]]
 //axvo_tabtarget
-{bust_handbook_node_top}::
-`buw-hn0` —
-Top-level handbook landing for node access procedures.
-
-=== Privileges
-
-A
-{burn_regime}
-instance lives under `.buk/rbmn_nodes/<viceroyalty>/` and is shared
-across station users (git-transported); it carries node shape only and
-no key material.
-A
-{burp_regime}
-instance lives under `.buk/rbmu_users/<burs_user>/<investiture>/`;
-the
-{burs_user}
-owns its privileged-credential subtree exclusively, and operations
-write only under the current station user's tree.
-
-Each platform subdoc declares the remote-user privilege contract that its
-ceremony assumes (e.g., on Windows the privileged user must be a member of
-the Administrators group).
+{bust_handbook_jurisdiction_top}::
+`buw-hj0` —
+Top-level handbook landing for jurisdiction procedures
+(garrison preparation, bootstrap pointers, dispatch usage).
 
 === Verb Definitions
 
 [[busn_garrison]]
 //axl_voices axt_command
 {busn_garrison}::
-Establish privileged BURN trust on a node by writing the privileged
-{burn_regime} profile and running the platform-specific ceremony to gain
-admin access. Per-platform tabtargets at `buw-npg{platform}`. First-time
-node setup; idempotent on re-run.
-
-[[busn_conscript]]
-//axl_voices axt_command
-{busn_conscript}::
-Create an ephemeral workload user on a node and provision a workload
-{burn_regime} profile locally. Requires a privileged BURN as authority for
-the remote-user creation. Per-platform tabtargets at `buw-nwc{platform}`,
-where the platform letter selects the workload shell — independent of the
-privileged BURN's shell choice.
-
-[[busn_discharge]]
-//axl_voices axt_command
-{busn_discharge}::
-Remove a workload user from a node and delete the local workload
-{burn_regime} profile. The workload profile encodes its privileged
-authority; {busn_discharge} uses that authority to delete the remote OS
-user. Tabtarget: `buw-nwd`.
-
-[[busn_inventory]]
-//axl_voices axt_command
-{busn_inventory}::
-List workload users currently provisioned on a node, queried via a
-privileged BURN. Scope is the node's full workload-user population — not
-just the current station user's history. Tabtarget: `buw-nwi`.
+Establish or refresh workload trust on a node from an existing
+admin SSH foothold.
+A single tabtarget per shell-letter
+(`buw-jpgb`, `buw-jpgc`, `buw-jpgw`)
+runs the same destructive ceremony with the shell-letter selecting
+remote shell mappings via
+{bujb_jurisdiction}.
+Idempotent on re-run; destructive of any prior workload state.
++
+Ceremony steps:
++
+. SSH as
+{burp_privileged_user}
+using
+{burp_privileged_key_file};
+key-auth only.
+. Idempotently place admin pubkey
+(derived from privkey via `ssh-keygen -y`)
+in admin's authorized_keys with the shell-letter's `command=` directive.
+. Destroy any existing workload account named
+{burc_workload_user}
+via `userdel -r` or platform equivalent — removes account and home
+directory.
+. Create fresh workload account named
+{burc_workload_user}:
+unprivileged, no sudo, no admin group, ssh-only.
+. Place workload pubkey
+(derived from
+{burp_workload_key_file}
+via `ssh-keygen -y`)
+in workload's authorized_keys with the shell-letter's `command=`
+directive.
+. Copy
+{burp_workload_key_file}
+to the remote workload account at the path hardcoded in
+{bujb_jurisdiction}
+per shell-letter,
+so the workload can authenticate outbound (e.g., to GitHub).
+. Validate round-trip: SSH as workload, exec a no-op, verify exit 0.
 
 === Input Artifacts
 
@@ -1837,15 +1684,9 @@ just the current station user's history. Tabtarget: `buw-nwi`.
 //axl_voices axo_entity
 {busi_scribed_command_file}::
 A file authored by the operator containing commands to be executed
-on the remote node by {bust_remote_run}.
-Path passed as the second positional argument; contents are streamed
+on the remote node by {bust_command_file}.
+Path passed as a positional argument; contents are streamed
 to the remote shell at dispatch time.
-
-include::BUSNW-NodeWindows.adoc[]
-
-include::BUSNL-NodeLinux.adoc[]
-
-include::BUSNM-NodeMac.adoc[]
 
 include::BUSTLL-NodeRegimeList.adoc[]
 
@@ -1859,26 +1700,16 @@ include::BUSTPR-PrivilegeRegimeRender.adoc[]
 
 include::BUSTPV-PrivilegeRegimeValidate.adoc[]
 
-include::BUSTGC-GarrisonCygwin.adoc[]
+include::BUSJGB-GarrisonBash.adoc[]
 
-include::BUSTGW-GarrisonWsl.adoc[]
+include::BUSJGC-GarrisonCygwin.adoc[]
 
-include::BUSTGP-GarrisonPowershell.adoc[]
+include::BUSJGW-GarrisonWsl.adoc[]
 
-include::BUSTCC-ConscriptCygwin.adoc[]
+include::BUSJWK-Knock.adoc[]
 
-include::BUSTCW-ConscriptWsl.adoc[]
+include::BUSJWC-CommandFile.adoc[]
 
-include::BUSTCP-ConscriptPowershell.adoc[]
+include::BUSJWS-InteractiveSession.adoc[]
 
-include::BUSTWD-Discharge.adoc[]
-
-include::BUSTWI-Inventory.adoc[]
-
-include::BUSTOK-Knock.adoc[]
-
-include::BUSTOE-RemoteRun.adoc[]
-
-include::BUSTOS-InteractiveSession.adoc[]
-
-include::BUSTHT-HandbookNodeTop.adoc[]
+include::BUSJH0-HandbookJurisdictionTop.adoc[]

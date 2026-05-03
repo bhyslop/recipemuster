@@ -18,12 +18,13 @@ local station-user subtree.
 {burp_investiture}
 
 //axhos_step
-. *Required fields*: confirm {burp_node}, {burp_user}, and
-{burp_ssh_pubkey} are present
+. *Required fields*: confirm {burp_node}, {burp_privileged_user},
+{burp_privileged_key_file}, and {burp_workload_key_file} are present
 
 //axhos_step
-. *Optional fields*: confirm {burp_key_file} and {burp_command} either
-parse cleanly as their declared types or are explicitly empty
+. *Key file readability*: confirm both {burp_privileged_key_file} and
+{burp_workload_key_file} resolve to readable files on the operator's
+station and are unencrypted (so `ssh-keygen -y` will not prompt)
 
 //axhog_guarantee
 The verdict reflects the on-disk state at call time; no field was

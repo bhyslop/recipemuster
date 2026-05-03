@@ -1,0 +1,20 @@
+//axhob_operation
+{bust_handbook_jurisdiction_top}
+
+NOTE: Top-level landing surface for the {bus_jurisdiction} handbook.
+Renders handbook prose to the operator's terminal as the entry point
+into bootstrap, garrison, and dispatch procedures.
+No remote contact and no profile mutation.
+
+//axhos_step
+. *Render landing*: emit the jurisdiction handbook landing content,
+including pointers to the admin SSH bootstrap procedure (operator-
+manual prerequisite to {busn_garrison}), the per-shell-letter
+garrison tabtargets, and the workload dispatch tabtargets.
+
+//axhog_guarantee
+No remote contact occurred and no local file was written.
+
+//axhoc_completion
+Exit 0 after the landing content is printed.
+Non-zero only when the handbook content cannot be located or rendered.

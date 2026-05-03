@@ -1,0 +1,64 @@
+//axhob_operation
+{bust_garrison_bash}
+
+NOTE: {busn_garrison} ceremony with native bash as the workload shell,
+for Linux and macOS nodes.
+Destructive: removes any prior workload account named
+{burc_workload_user}
+and recreates it from a clean slate.
+
+//axhopt_typed_parameter
+{burp_investiture}
+
+//axhoq_precondition
+A {burp_regime} profile exists at the given {burp_investiture} and its
+referenced {burn_regime} profile is reachable.
+
+//axhoq_precondition
+{burp_privileged_user} on the node trusts {burp_privileged_key_file} for
+key-only SSH (operator-bootstrapped out-of-band).
+
+//axhoq_precondition
+{burp_workload_key_file} is unencrypted and exists on the operator's
+station.
+
+//axhos_step
+. *Open admin SSH*: connect as {burp_privileged_user} using
+{burp_privileged_key_file}; key-auth only.
+
+//axhos_step
+. *Place admin trust*: idempotently install the admin pubkey
+(derived via `ssh-keygen -y`) in admin's authorized_keys with the
+shell-letter `b` `command=` directive from {bujb_jurisdiction}.
+
+//axhos_step
+. *Destroy workload*: remove any existing {burc_workload_user} account
+via `userdel -r`.
+
+//axhos_step
+. *Create workload*: provision {burc_workload_user} as an unprivileged,
+ssh-only account.
+
+//axhos_step
+. *Place workload trust*: write the workload pubkey
+(derived via `ssh-keygen -y`) to the workload's authorized_keys with
+the shell-letter `b` `command=` directive.
+
+//axhos_step
+. *Plant workload key*: copy {burp_workload_key_file} to the workload
+account at the shell-letter `b` destination path hardcoded in
+{bujb_jurisdiction}.
+
+//axhos_step
+. *Validate round-trip*: SSH as workload, run a no-op command, verify
+exit 0.
+
+//axhog_guarantee
+On success the node has exactly one workload account named
+{burc_workload_user}, ssh-only, with both inbound (from operator) and
+outbound (to GitHub or equivalent) key trust in place.
+
+//axhoc_completion
+Exit 0 when the round-trip validation succeeds.
+Non-zero on admin SSH failure, account-management failure, key-write
+failure, or workload validation failure.
