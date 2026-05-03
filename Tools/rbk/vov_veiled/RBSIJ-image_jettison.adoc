@@ -50,12 +50,11 @@ if `«TAG»` is empty: "Tag is empty in locator"
 
 //axhos_step
 . *Confirm Jettison*:
-.. Unless `--force` flag is provided:
-... {rbbc_show}
+.. {rbbc_show}
 `Will jettison: «INPUT_LOCATOR»`
-... {rbbc_require}
+.. {rbbc_require}
 user types `yes` to confirm
-... {rbbc_fatal}
+.. {rbbc_fatal}
 if not confirmed: "prompt not confirmed."
 
 //axhos_step

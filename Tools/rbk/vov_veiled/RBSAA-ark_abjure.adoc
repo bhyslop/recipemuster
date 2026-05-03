@@ -83,12 +83,11 @@ if `«ARK_PACKAGES»` is empty: "No packages found under «SUBTREE» — hallmar
 
 //axhos_step
 . *Confirm Abjuration*:
-.. Unless `--force` flag provided:
-... {rbbc_show}
+.. {rbbc_show}
 "Will abjure «COUNT» packages under «SUBTREE»:" followed by each entry in `«ARK_PACKAGES»`
-... {rbbc_require}
+.. {rbbc_require}
 user types `yes` to confirm
-... {rbbc_fatal}
+.. {rbbc_fatal}
 if not confirmed: "prompt not confirmed."
 
 //axhos_step

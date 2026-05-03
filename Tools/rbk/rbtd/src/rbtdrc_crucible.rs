@@ -2600,7 +2600,7 @@ fn rbtdrc_fourmode_conjure_lifecycle(dir: &Path) -> rbtdre_Verdict {
         }
 
         let _ = std::fs::write(dir.join("07-abjure.txt"), "abjuring");
-        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ABJURE, &[&hallmark, "--force"], &[]) {
+        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ABJURE, &[&hallmark], &[("BURE_CONFIRM", "skip")]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtdre_Verdict::Fail(format!("abjure failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("abjure invocation: {}", e)),
@@ -2685,7 +2685,7 @@ fn rbtdrc_fourmode_bind_lifecycle(dir: &Path) -> rbtdre_Verdict {
             "{}/{}/{}:{}",
             RBTDRC_GAR_CATEGORY_HALLMARKS, hallmark, RBTDRC_ARK_BASENAME_POUCH, hallmark
         );
-        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE, &[&jettison_locator, "--force"], &[]) {
+        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE, &[&jettison_locator], &[("BURE_CONFIRM", "skip")]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtdre_Verdict::Fail(format!("jettison failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("jettison invocation: {}", e)),
@@ -2717,7 +2717,7 @@ fn rbtdrc_fourmode_bind_lifecycle(dir: &Path) -> rbtdre_Verdict {
         }
 
         let _ = std::fs::write(dir.join("06-abjure.txt"), "abjuring");
-        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ABJURE, &[&hallmark, "--force"], &[]) {
+        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ABJURE, &[&hallmark], &[("BURE_CONFIRM", "skip")]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtdre_Verdict::Fail(format!("abjure failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("abjure invocation: {}", e)),
@@ -2817,7 +2817,7 @@ fn rbtdrc_fourmode_graft_lifecycle(dir: &Path) -> rbtdre_Verdict {
         }
 
         let _ = std::fs::write(dir.join("05-abjure.txt"), "abjuring");
-        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ABJURE, &[&hallmark, "--force"], &[]) {
+        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ABJURE, &[&hallmark], &[("BURE_CONFIRM", "skip")]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtdre_Verdict::Fail(format!("abjure failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("abjure invocation: {}", e)),
@@ -2945,7 +2945,7 @@ fn rbtdrc_batch_vouch_lifecycle(dir: &Path) -> rbtdre_Verdict {
             "{}/{}/{}:{}",
             RBTDRC_GAR_CATEGORY_HALLMARKS, hallmark, RBTDRC_ARK_BASENAME_VOUCH, hallmark
         );
-        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE, &[&jettison_locator, "--force"], &[]) {
+        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE, &[&jettison_locator], &[("BURE_CONFIRM", "skip")]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtdre_Verdict::Fail(format!("plant jettison failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("plant jettison invocation: {}", e)),
@@ -3000,7 +3000,7 @@ fn rbtdrc_batch_vouch_lifecycle(dir: &Path) -> rbtdre_Verdict {
         }
 
         let _ = std::fs::write(dir.join("06-abjure.txt"), "abjuring");
-        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ABJURE, &[&hallmark, "--force"], &[]) {
+        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ABJURE, &[&hallmark], &[("BURE_CONFIRM", "skip")]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtdre_Verdict::Fail(format!("abjure failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("abjure invocation: {}", e)),

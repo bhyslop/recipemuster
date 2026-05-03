@@ -495,12 +495,9 @@ rbob_kludge() {
 
   buc_step "Kludge: ${RBRN_MONIKER} (${RBRN_BOTTLE_VESSEL})"
 
-  # Resolve vessel from nameplate config
-  local -r z_vessel_dir="${RBRR_VESSEL_DIR}/${RBRN_BOTTLE_VESSEL}"
-  test -d "${z_vessel_dir}" || buc_die "Bottle vessel directory not found: ${z_vessel_dir}"
-
-  # Delegate build to foundry kludge
-  rbfd_kludge "${z_vessel_dir}"
+  # Delegate build to foundry kludge — override BUZ_FOLIO with the vessel sigil
+  # for the duration of the call (rbfd_kludge reads BUZ_FOLIO as its operand).
+  BUZ_FOLIO="${RBRN_BOTTLE_VESSEL}" rbfd_kludge
 
   # Read hallmark from fact file
   local z_hallmark=""
@@ -526,12 +523,7 @@ rbob_kludge_sentry() {
 
   buc_step "Kludge: ${RBRN_MONIKER} (${RBRN_SENTRY_VESSEL})"
 
-  # Resolve vessel from nameplate config
-  local -r z_vessel_dir="${RBRR_VESSEL_DIR}/${RBRN_SENTRY_VESSEL}"
-  test -d "${z_vessel_dir}" || buc_die "Sentry vessel directory not found: ${z_vessel_dir}"
-
-  # Delegate build to foundry kludge
-  rbfd_kludge "${z_vessel_dir}"
+  BUZ_FOLIO="${RBRN_SENTRY_VESSEL}" rbfd_kludge
 
   # Read hallmark from fact file
   local z_hallmark=""
@@ -557,12 +549,7 @@ rbob_ordain() {
 
   buc_step "Ordain: ${RBRN_MONIKER} (${RBRN_BOTTLE_VESSEL})"
 
-  # Resolve vessel from nameplate config
-  local -r z_vessel_dir="${RBRR_VESSEL_DIR}/${RBRN_BOTTLE_VESSEL}"
-  test -d "${z_vessel_dir}" || buc_die "Bottle vessel directory not found: ${z_vessel_dir}"
-
-  # Delegate to foundry ordain (mode-dispatched: conjure, bind, or graft)
-  rbfd_ordain "${z_vessel_dir}"
+  BUZ_FOLIO="${RBRN_BOTTLE_VESSEL}" rbfd_ordain
 
   # Read hallmark from fact file
   local z_hallmark=""

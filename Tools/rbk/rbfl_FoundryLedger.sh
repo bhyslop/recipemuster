@@ -320,12 +320,10 @@ rbfl_jettison() {
   zrbfl_sentinel
 
   local z_locator="${BUZ_FOLIO:-}"
-  local z_force="${1:-}"
 
   # Documentation block
   buc_doc_brief "Jettison an image tag from the registry by locator"
   buc_doc_param "locator" "Image locator in package-path:tag format (e.g. rbi_hm/H/image:H)"
-  buc_doc_param "--force" "Optional: skip confirmation prompt"
   buc_doc_shown || return 0
 
   # Validate locator parameter
@@ -341,22 +339,13 @@ rbfl_jettison() {
   test -n "${z_pkg_path}" || buc_die "Package path is empty in locator"
   test -n "${z_tag}" || buc_die "Tag is empty in locator"
 
-  # Check for --force flag
-  local z_skip_confirm=false
-  if test "${z_force}" = "--force"; then
-    z_skip_confirm=true
-  fi
-
   buc_step "Authenticating as Director"
 
   # Get OAuth token using Director credentials
   local z_token
   z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get OAuth token"
 
-  # Confirm jettison unless --force
-  if test "${z_skip_confirm}" = "false"; then
-    buc_require "Will jettison: ${z_locator}" "yes"
-  fi
+  buc_require "Will jettison: ${z_locator}" "yes"
 
   buc_step "Jettisoning: ${z_locator}"
 
@@ -391,20 +380,13 @@ rbfl_abjure() {
   zrbfl_sentinel
 
   local z_hallmark="${BUZ_FOLIO:-}"
-  local z_force="${1:-}"
 
   # Documentation block
   buc_doc_brief "Abjure a hallmark — delete all GAR packages under rbi_hm/<hallmark>/"
   buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"
-  buc_doc_param "--force" "Optional: skip confirmation prompt"
   buc_doc_shown || return 0
 
   test -n "${z_hallmark}" || buc_die "Hallmark parameter required"
-
-  local z_skip_confirm=false
-  if test "${z_force}" = "--force"; then
-    z_skip_confirm=true
-  fi
 
   buc_step "Authenticating as Director"
   local z_token
@@ -443,15 +425,12 @@ rbfl_abjure() {
   local z_count
   z_count=$(wc -l < "${z_pkg_file}" | tr -d ' ')
 
-  # Confirm abjuration unless --force
-  if test "${z_skip_confirm}" = "false"; then
-    local z_confirm_msg="Will abjure ${z_count} packages under ${z_subtree}:"
-    local z_pkg_path=""
-    while IFS= read -r z_pkg_path || test -n "${z_pkg_path}"; do
-      z_confirm_msg="${z_confirm_msg}\n  - ${z_pkg_path}"
-    done < "${z_pkg_file}"
-    buc_require "${z_confirm_msg}" "yes"
-  fi
+  local z_confirm_msg="Will abjure ${z_count} packages under ${z_subtree}:"
+  local z_pkg_path=""
+  while IFS= read -r z_pkg_path || test -n "${z_pkg_path}"; do
+    z_confirm_msg="${z_confirm_msg}\n  - ${z_pkg_path}"
+  done < "${z_pkg_file}"
+  buc_require "${z_confirm_msg}" "yes"
 
   # Delete each package via GAR REST API.
   # DELETE returns a long-running operation; trust 200 as accepted (matches
