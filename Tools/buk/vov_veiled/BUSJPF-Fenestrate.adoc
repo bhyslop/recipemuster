@@ -1,0 +1,102 @@
+//axhob_operation
+{bust_fenestrate}
+
+NOTE: {busn_fenestrate} ceremony — Windows OpenSSH only. Establishes
+admin SSH key trust and hardens `sshd_config` to key-only
+authentication on the node, leaving it ready for {busn_garrison} to
+provision the workload account. Two-phase remote-run because
+`Restart-Service sshd` terminates its own ssh session: phase 1 places
+admin trust, writes the hardened `sshd_config`, validates it, and
+restarts sshd; phase 2 reconnects via key auth alone to verify the
+post-restart state.
+
+//axhopt_typed_parameter
+{burp_investiture}
+
+//axhoq_precondition
+A {burp_regime} profile exists at the given {burp_investiture} and its
+referenced {burn_regime} profile targets a Windows OpenSSH node.
+
+//axhoq_precondition
+The Windows handbook bootstrap is complete: OpenSSH Server installed,
+sshd started and set to Automatic, firewall opens the configured SSH
+port, and `sshd_config` carries `PasswordAuthentication yes` so that
+fenestrate's phase-1 admin SSH session can fall through to a password
+prompt on a fresh node.
+
+//axhoq_precondition
+{burp_privileged_user} is a member of the Administrators group with a
+known password (typed once on phase-1 first run when ssh prompts on
+/dev/tty; fenestrate itself never sees the password).
+
+//axhoq_precondition
+{burp_privileged_key_file} is unencrypted and exists on the operator's
+station.
+
+//axhos_step
+. *Phase 1 — open admin SSH*: connect as {burp_privileged_user} with
+`PreferredAuthentications=publickey,password`. Steady-state:
+{burp_privileged_key_file} authenticates by key. First run: ssh
+prompts on /dev/tty for the admin password; operator types it once.
+
+//axhos_step
+. *Phase 1 — place admin trust*: idempotently install the admin pubkey
+(derived from {burp_privileged_key_file} via `ssh-keygen -y`) in
+Windows OpenSSH `administrators_authorized_keys` as a bare key entry
+(no `command=` directive — fenestrate is uniform across shell-letters).
+Re-runs converge as a no-op when the line is already present. Performed
+before any sshd_config change so that key auth is available for
+phase 2's reconnect.
+
+//axhos_step
+. *Phase 1 — lock down administrators_authorized_keys*: apply
+`icacls` so only SYSTEM and the Administrators group hold ACL
+entries; Windows OpenSSH refuses to read the file otherwise.
+Idempotent.
+
+//axhos_step
+. *Phase 1 — write hardened directives*: set `PubkeyAuthentication yes`,
+`PasswordAuthentication no`, `PermitEmptyPasswords no` in
+`sshd_config`. Idempotent — already-hardened configs converge to the
+same byte sequence on re-run.
+
+//axhos_step
+. *Phase 1 — verify written state*: PowerShell `Get-Content` returns
+the raw `sshd_config` bytes; bash-side BCG-compliant matching extracts
+each effective directive value and asserts it matches the intended
+hardened value. Keeps PowerShell out of the parsing business (its
+error semantics are unreliable).
+
+//axhos_step
+. *Phase 1 — validate sshd_config*: `sshd -t` runs as the penultimate
+atomic op of phase 1. A malformed config aborts fenestrate before it
+could brick the running sshd.
+
+//axhos_step
+. *Phase 1 — restart sshd*: `Restart-Service sshd` is the final atomic
+op of phase 1. The bash orchestrator treats the disconnect immediately
+after this exec as the expected phase boundary, not a failure.
+
+//axhos_step
+. *Phase 2 — reconnect via key auth*: re-establish admin SSH as
+{burp_privileged_user} with `PreferredAuthentications=publickey`
+(no password fallback). Failure here surfaces a brick — the operator's
+manual password no longer opens a session.
+
+//axhos_step
+. *Phase 2 — verify post-state*: confirm the post-restart admin
+session authenticates by key and the running sshd serves the hardened
+configuration.
+
+//axhog_guarantee
+On success the node has admin SSH hardened to key-only with the
+operator's admin pubkey installed in `administrators_authorized_keys`
+under correct ACLs, `sshd_config` carries the three hardening
+directives, and the post-restart admin session has been verified to
+authenticate by key without password fallback.
+
+//axhoc_completion
+Exit 0 when phase 2 verification succeeds.
+Non-zero on phase-1 admin SSH failure, pubkey-write failure, ACL
+lockdown failure, sshd_config write failure, parsed-state mismatch,
+`sshd -t` failure, or phase-2 key-auth failure.

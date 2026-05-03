@@ -3,9 +3,14 @@
 
 NOTE: {busn_garrison} ceremony with Cygwin bash as the workload shell,
 for Windows nodes reached via Cygwin sshd.
-Destructive: removes any prior workload account named
+Workload-only: garrison destroys any prior workload account named
 {burc_workload_user}
 and recreates it from a clean slate.
+Garrison never reads or writes any `sshd_config` and never modifies
+admin authorized_keys; admin trust is established beforehand by
+{busn_fenestrate}
+on the Windows OpenSSH server, while Cygwin sshd hardening (if used
+in addition to Windows OpenSSH) remains operator-manual.
 
 //axhopt_typed_parameter
 {burp_investiture}
@@ -15,9 +20,10 @@ A {burp_regime} profile exists at the given {burp_investiture} and its
 referenced {burn_regime} profile is reachable.
 
 //axhoq_precondition
-Cygwin sshd is installed on the node and {burp_privileged_user}
-(member of the Administrators group) trusts {burp_privileged_key_file}
-for key-only SSH (operator-bootstrapped out-of-band).
+{busn_fenestrate} has run for this {burp_investiture} so that
+{burp_privileged_user} can authenticate by key alone using
+{burp_privileged_key_file} (Windows OpenSSH path). Cygwin sshd is
+installed on the node.
 
 //axhoq_precondition
 {burp_workload_key_file} is unencrypted and exists on the operator's
@@ -25,12 +31,8 @@ station.
 
 //axhos_step
 . *Open admin SSH*: connect as {burp_privileged_user} using
-{burp_privileged_key_file}; key-auth only.
-
-//axhos_step
-. *Place admin trust*: idempotently install the admin pubkey
-(derived via `ssh-keygen -y`) in admin's authorized_keys with the
-shell-letter `c` `command=` directive from {bujb_jurisdiction}.
+{burp_privileged_key_file}; key-auth only. Failure here surfaces a
+missing or stale admin trust.
 
 //axhos_step
 . *Destroy workload*: remove any existing {burc_workload_user} Cygwin
@@ -43,7 +45,7 @@ ssh-only Cygwin account.
 //axhos_step
 . *Place workload trust*: write the workload pubkey
 (derived via `ssh-keygen -y`) to the workload's authorized_keys with
-the shell-letter `c` `command=` directive.
+the shell-letter `c` `command=` directive from {bujb_jurisdiction}.
 
 //axhos_step
 . *Plant workload key*: copy {burp_workload_key_file} to the workload

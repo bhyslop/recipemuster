@@ -2,11 +2,12 @@
 {bust_garrison_bash}
 
 NOTE: {busn_garrison} ceremony with native bash as the workload shell,
-for Linux and macOS nodes. Dual-purpose: the front-half (steps 1-4)
-idempotently establishes admin SSH trust and hardens sshd; the
-back-half (steps 5-9) destroys any prior workload account named
+for Linux and macOS nodes.
+Workload-only: garrison destroys any prior workload account named
 {burc_workload_user}
 and recreates it from a clean slate.
+Garrison never reads or writes any `sshd_config` and never modifies
+admin authorized_keys.
 
 //axhopt_typed_parameter
 {burp_investiture}
@@ -16,41 +17,19 @@ A {burp_regime} profile exists at the given {burp_investiture} and its
 referenced {burn_regime} profile is reachable.
 
 //axhoq_precondition
-sshd is reachable on the node and {burp_privileged_user} can authenticate
-either via {burp_privileged_key_file} (steady-state) or via password
-(first run only). Garrison opens its admin SSH session with
-`PreferredAuthentications=publickey,password`, so on a fresh node
-ssh prompts for the admin password on /dev/tty; garrison itself never
-sees the password.
+sshd is reachable on the node and {burp_privileged_user} authenticates
+by key alone using {burp_privileged_key_file}. On Linux/Mac this
+admin trust is operator-managed (e.g., placed via `ssh-copy-id`) —
+there is no `busn_fenestrate` for non-Windows-OpenSSH nodes.
 
 //axhoq_precondition
 {burp_workload_key_file} is unencrypted and exists on the operator's
 station.
 
 //axhos_step
-. *Open admin SSH*: connect as {burp_privileged_user} with
-`PreferredAuthentications=publickey,password`. Steady-state:
-{burp_privileged_key_file} authenticates. First run: ssh prompts on
-/dev/tty for the admin password; operator types it once.
-
-//axhos_step
-. *Place admin trust*: idempotently install the admin pubkey
-(derived from {burp_privileged_key_file} via `ssh-keygen -y`) in
-admin's authorized_keys with the shell-letter `b` `command=` directive
-from {bujb_jurisdiction}. Re-runs converge as a no-op when the line
-is already present.
-
-//axhos_step
-. *Lock down admin authorized_keys*: `chmod 600` and `chown` to the
-admin user. Idempotent.
-
-//axhos_step
-. *Harden sshd_config*: ensure `PubkeyAuthentication yes`,
-`PasswordAuthentication no`, `PermitEmptyPasswords no`. Validate
-(`sshd -t`) and restart sshd. Idempotent — already-hardened configs
-re-converge to the same state and the restart is a no-op effect on
-established sessions. After this step the password-fallback path used
-in step 1 is closed; subsequent runs authenticate by key.
+. *Open admin SSH*: connect as {burp_privileged_user} using
+{burp_privileged_key_file}; key-auth only. Failure here surfaces a
+missing or stale admin trust.
 
 //axhos_step
 . *Destroy workload*: remove any existing {burc_workload_user} account
@@ -63,7 +42,7 @@ ssh-only account.
 //axhos_step
 . *Place workload trust*: write the workload pubkey
 (derived via `ssh-keygen -y`) to the workload's authorized_keys with
-the shell-letter `b` `command=` directive.
+the shell-letter `b` `command=` directive from {bujb_jurisdiction}.
 
 //axhos_step
 . *Plant workload key*: copy {burp_workload_key_file} to the workload
@@ -75,14 +54,11 @@ account at the shell-letter `b` destination path hardcoded in
 exit 0.
 
 //axhog_guarantee
-On success the node has admin SSH hardened to key-only with the
-operator's admin pubkey carrying the shell-letter `b` `command=`
-directive, and exactly one workload account named
+On success the node has exactly one workload account named
 {burc_workload_user}, ssh-only, with both inbound (from operator) and
 outbound (to GitHub or equivalent) key trust in place.
 
 //axhoc_completion
 Exit 0 when the round-trip validation succeeds.
-Non-zero on admin SSH failure, sshd_config validation or restart
-failure, account-management failure, key-write failure, or workload
-validation failure.
+Non-zero on admin SSH failure, account-management failure, key-write
+failure, or workload validation failure.

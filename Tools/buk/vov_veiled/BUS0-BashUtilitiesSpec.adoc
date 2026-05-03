@@ -36,6 +36,7 @@
 :bust_tabtarget:        <<bust_tabtarget,Tabtarget Vesture>>
 
 // Jurisdiction Tabtargets
+:bust_fenestrate:                  <<bust_fenestrate,Fenestrate>>
 :bust_garrison_bash:               <<bust_garrison_bash,Garrison Bash>>
 :bust_garrison_cygwin:             <<bust_garrison_cygwin,Garrison Cygwin>>
 :bust_garrison_wsl:                <<bust_garrison_wsl,Garrison WSL>>
@@ -128,7 +129,8 @@
 :burp_privileged_key_file:         <<burp_privileged_key_file,BURP_PRIVILEGED_KEY_FILE>>
 :burp_workload_key_file:           <<burp_workload_key_file,BURP_WORKLOAD_KEY_FILE>>
 
-// BUSN: Node Access (verb for remote node management)
+// BUSN: Node Access (verbs for remote node management)
+:busn_fenestrate:                  <<busn_fenestrate,Fenestrate>>
 :busn_garrison:                    <<busn_garrison,Garrison>>
 
 // BURS Regime: Station (developer-level BUK settings)
@@ -1104,9 +1106,19 @@ on the node per
 The matching public key is derived at use-time via `ssh-keygen -y`;
 no separate pubkey path is stored.
 +
-Garrison authenticates using this key only — there is no password fallback.
-First-time admin trust is established out-of-band via the bootstrap
-handbook before garrison runs.
+{busn_garrison}
+authenticates using this key only.
+First-time admin trust is established by
+{busn_fenestrate}
+on Windows nodes, or operator-manually
+(e.g., `ssh-copy-id`) on Linux/Mac nodes.
+{busn_fenestrate}
+itself uses
+`PreferredAuthentications=publickey,password`
+on its phase-1 admin SSH session so that on a fresh Windows node ssh
+prompts on /dev/tty for the admin password once; fenestrate then
+installs the admin pubkey and hardens sshd, after which all
+subsequent admin authentication is by key alone.
 
 [[burp_workload_key_file]]
 //axvr_variable axd_required axtu_path
@@ -1457,19 +1469,20 @@ include::BUSD-DispatchRuntime.adoc[]
 
 BUK reaches remote nodes under the
 {bus_jurisdiction}
-umbrella: a single station user provisions one workload account per
-node and dispatches commands to it. Privileged trust is the operator's
-prerequisite, not BUK's deliverable — first-time admin SSH bootstrap
-is an out-of-band handbook procedure.
+umbrella: a single station user establishes admin SSH trust on the
+node, provisions one workload account, and dispatches commands to it.
 
 [[bus_jurisdiction]]
 {bus_jurisdiction}::
-The BUK feature-area for reaching remote nodes deterministically:
-operator-managed admin trust as input,
-{busn_garrison}
-to provision and refresh a workload account, and the workload-side
-tabtargets ({bust_knock}, {bust_command_file}, {bust_interactive_session})
-to dispatch work.
+The BUK feature-area for reaching remote nodes deterministically.
+Two verbs cover the privileged-side ceremonies:
+{busn_fenestrate}
+hardens admin SSH trust and `sshd_config` on Windows OpenSSH nodes
+(operator-manual on Linux/Mac, e.g., `ssh-copy-id`); {busn_garrison}
+provisions and refreshes a workload account from an existing admin
+SSH foothold. The workload-side tabtargets
+({bust_knock}, {bust_command_file}, {bust_interactive_session})
+dispatch work to that account.
 +
 {bus_jurisdiction}
 is logical only — there is no AXLA-typed entity behind the umbrella.
@@ -1480,15 +1493,22 @@ Its implementation seat is
 {bujb_jurisdiction}::
 The BCG-compliant module
 (`Tools/buk/bujb_jurisdiction.sh` plus its `bujb_cli.sh` companion)
-that hardcodes the
+that houses both
+{busn_fenestrate}
+and
+{busn_garrison}
+implementations and hardcodes the
 {bus_jurisdiction}
 contracts not expressed in regime data:
 the three shell-letter→`command=` directive mappings
 (`b` = native bash for Linux/Mac;
 `c` = Cygwin;
-`w` = WSL),
+`w` = WSL)
+used by garrison on the workload account,
 the workload private-key destination paths on the remote per shell-letter,
-and the canonical WSL distribution name (`rbtww-main`).
+the canonical WSL distribution name (`rbtww-main`),
+and the Windows OpenSSH `sshd_config` hardening directive set used by
+fenestrate.
 +
 SSH transport mechanics live in code;
 {burp_regime}
@@ -1509,31 +1529,41 @@ the
 owns its credential subtree exclusively, and operations write only
 under the current station user's tree.
 
-Garrison authenticates as
+{busn_garrison}
+authenticates as
 {burp_privileged_user}
 using
 {burp_privileged_key_file}
-(key auth only — no password fallback).
+by key alone; admin trust is established beforehand by
+{busn_fenestrate}
+on Windows (which uses a one-time password fallback on its own
+phase-1 admin SSH session) or operator-manually on Linux/Mac.
 Workload account is unprivileged, ssh-only, and named by
 {burc_workload_user}
 (project-wide convention, single source of truth).
 
 === Garrison-Destructive Model
 
-Every garrison invocation wipes prior workload state on the node
-regardless of which
+Every
+{busn_garrison}
+invocation wipes prior workload state on the node regardless of which
 {burp_investiture}
 or station user runs it.
 There is exactly one workload user per node, ever; node runtime state
 belongs to whoever last garrisoned it.
-Garrison subsumes lifecycle: there is no separate verb to materialize,
-remove, or enumerate workload accounts — every garrison rebuilds from a
-clean slate.
+Garrison subsumes the workload-account lifecycle: there is no separate
+verb to materialize, remove, or enumerate workload accounts — every
+garrison rebuilds from a clean slate.
++
+Admin-side sshd configuration is out of garrison's scope.
+{busn_fenestrate}
+owns Windows OpenSSH `sshd_config` hardening; on Linux/Mac the
+operator manages sshd directly.
 
 === Tabtarget Catalog
 
-Thirteen tabtargets cover regime configuration, garrison ceremony, and
-workload dispatch.
+Fourteen tabtargets cover regime configuration, fenestrate, garrison
+ceremony, and workload dispatch.
 PowerShell garrison and dispatch are deferred and not enumerated below.
 
 ==== Regime Configuration
@@ -1578,26 +1608,37 @@ Render a single {burp_regime} profile
 Validate a single {burp_regime} profile
 (investiture passed as positional argument).
 
+==== Fenestrate (Windows OpenSSH only)
+
+[[bust_fenestrate]]
+//axvo_tabtarget
+{bust_fenestrate}::
+`buw-jpF` —
+{busn_fenestrate} ceremony: hardens admin SSH trust and `sshd_config`
+on a Windows OpenSSH node (uniform; no shell-letter variant).
+Capital `F` marks this as a persistent-config-application tabtarget.
+
 ==== Garrison (per shell-letter)
 
 [[bust_garrison_bash]]
 //axvo_tabtarget
 {bust_garrison_bash}::
-`buw-jpgb` —
+`buw-jpGb` —
 {busn_garrison} ceremony with native bash as the workload shell
 (Linux and macOS nodes).
+Capital `G` marks this as a persistent-config-application tabtarget.
 
 [[bust_garrison_cygwin]]
 //axvo_tabtarget
 {bust_garrison_cygwin}::
-`buw-jpgc` —
+`buw-jpGc` —
 {busn_garrison} ceremony with Cygwin bash as the workload shell
 (Windows nodes via Cygwin sshd).
 
 [[bust_garrison_wsl]]
 //axvo_tabtarget
 {bust_garrison_wsl}::
-`buw-jpgw` —
+`buw-jpGw` —
 {busn_garrison} ceremony with WSL bash as the workload shell
 (Windows nodes via WSL distribution `rbtww-main`).
 
@@ -1631,20 +1672,64 @@ Open an interactive SSH session to the workload account.
 {bust_handbook_jurisdiction_top}::
 `buw-hj0` —
 Top-level handbook landing for jurisdiction procedures
-(garrison preparation, bootstrap pointers, dispatch usage).
+(sshd-reachability bootstrap, fenestrate and garrison hand-off,
+dispatch usage).
 
 === Verb Definitions
+
+[[busn_fenestrate]]
+//axl_voices axt_command
+{busn_fenestrate}::
+Establish admin SSH key trust and harden Windows OpenSSH
+`sshd_config` to key-only on a node, leaving it ready for
+{busn_garrison}.
+Uniform across shell-letters — one tabtarget (`buw-jpF`).
+Targets Windows OpenSSH only; Linux/Mac sshd hardening is
+operator-manual outside BUK.
+Idempotent on re-run.
++
+Two-phase ceremony forced by `Restart-Service sshd` terminating its
+own ssh session:
++
+* Phase 1: SSH as
+{burp_privileged_user}
+with `PreferredAuthentications=publickey,password` (one-time password
+fallback on a fresh node);
+idempotently place the admin pubkey
+(derived from
+{burp_privileged_key_file}
+via `ssh-keygen -y`)
+in `administrators_authorized_keys` as a bare entry (no `command=`);
+apply `icacls` lockdown;
+write the hardening directives to `sshd_config`
+(`PubkeyAuthentication yes`,
+`PasswordAuthentication no`,
+`PermitEmptyPasswords no`);
+verify written state via PowerShell `Get-Content` + bash-side
+parsing;
+run `sshd -t` as the penultimate atomic op; restart sshd as the
+final atomic op.
+* Phase 2: reconnect using
+{burp_privileged_key_file}
+with `PreferredAuthentications=publickey` (no password fallback);
+verify the post-restart admin session authenticates by key alone.
++
+The bash orchestrator treats the disconnect immediately after
+`Restart-Service sshd` as the expected phase boundary, not a failure.
 
 [[busn_garrison]]
 //axl_voices axt_command
 {busn_garrison}::
-Establish or refresh workload trust on a node from an existing
+Provision or refresh the workload account on a node from an existing
 admin SSH foothold.
 A single tabtarget per shell-letter
-(`buw-jpgb`, `buw-jpgc`, `buw-jpgw`)
+(`buw-jpGb`, `buw-jpGc`, `buw-jpGw`)
 runs the same destructive ceremony with the shell-letter selecting
 remote shell mappings via
 {bujb_jurisdiction}.
+Garrison never reads or writes any `sshd_config` and never alters
+admin authorized_keys; first-step admin SSH must succeed by key auth
+alone, surfacing any missing admin trust immediately.
 Idempotent on re-run; destructive of any prior workload state.
 +
 Ceremony steps:
@@ -1653,10 +1738,10 @@ Ceremony steps:
 {burp_privileged_user}
 using
 {burp_privileged_key_file};
-key-auth only.
-. Idempotently place admin pubkey
-(derived from privkey via `ssh-keygen -y`)
-in admin's authorized_keys with the shell-letter's `command=` directive.
+key-auth only (no password fallback). On Windows, this presupposes
+that
+{busn_fenestrate}
+has run for this {burp_investiture}.
 . Destroy any existing workload account named
 {burc_workload_user}
 via `userdel -r` or platform equivalent — removes account and home
@@ -1699,6 +1784,8 @@ include::BUSTPL-PrivilegeRegimeList.adoc[]
 include::BUSTPR-PrivilegeRegimeRender.adoc[]
 
 include::BUSTPV-PrivilegeRegimeValidate.adoc[]
+
+include::BUSJPF-Fenestrate.adoc[]
 
 include::BUSJGB-GarrisonBash.adoc[]
 

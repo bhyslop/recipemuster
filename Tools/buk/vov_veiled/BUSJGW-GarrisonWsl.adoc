@@ -4,9 +4,14 @@
 NOTE: {busn_garrison} ceremony with WSL bash as the workload shell,
 for Windows nodes reached via the WSL distribution `rbtww-main`
 (hardcoded in {bujb_jurisdiction}).
-Destructive: removes any prior workload account named
+Workload-only: garrison destroys any prior workload account named
 {burc_workload_user}
 and recreates it from a clean slate.
+Garrison never reads or writes any `sshd_config` and never modifies
+admin authorized_keys; admin trust is established beforehand by
+{busn_fenestrate}
+on the Windows OpenSSH server, while sshd hardening inside the WSL
+distribution remains operator-manual.
 
 //axhopt_typed_parameter
 {burp_investiture}
@@ -20,9 +25,11 @@ The default WSL distribution on the node is `rbtww-main` and its sshd
 is installed; mismatch fails fast with a clear error.
 
 //axhoq_precondition
-{burp_privileged_user} (member of the Administrators group) trusts
-{burp_privileged_key_file} for key-only SSH against the WSL distribution
-(operator-bootstrapped out-of-band).
+{busn_fenestrate} has run for this {burp_investiture} so that
+{burp_privileged_user} can authenticate by key alone using
+{burp_privileged_key_file} into the Windows OpenSSH host (used as the
+admin entry point); the WSL session is then opened from that
+foothold.
 
 //axhoq_precondition
 {burp_workload_key_file} is unencrypted and exists on the operator's
@@ -31,11 +38,7 @@ station.
 //axhos_step
 . *Open admin SSH*: connect as {burp_privileged_user} using
 {burp_privileged_key_file}; key-auth only into the WSL distribution.
-
-//axhos_step
-. *Place admin trust*: idempotently install the admin pubkey
-(derived via `ssh-keygen -y`) in admin's authorized_keys with the
-shell-letter `w` `command=` directive from {bujb_jurisdiction}.
+Failure here surfaces a missing or stale admin trust.
 
 //axhos_step
 . *Destroy workload*: remove any existing {burc_workload_user} account
@@ -48,7 +51,7 @@ ssh-only Linux account inside `rbtww-main`.
 //axhos_step
 . *Place workload trust*: write the workload pubkey
 (derived via `ssh-keygen -y`) to the workload's authorized_keys with
-the shell-letter `w` `command=` directive.
+the shell-letter `w` `command=` directive from {bujb_jurisdiction}.
 
 //axhos_step
 . *Plant workload key*: copy {burp_workload_key_file} to the workload
