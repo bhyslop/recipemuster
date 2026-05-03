@@ -37,6 +37,13 @@ const RBTDRI_IFRIT_BINARY: &str = "rbid";
 /// Matches BURD_OUTPUT_DIR = "${BURC_OUTPUT_ROOT_DIR}/current" from bud_dispatch.sh.
 pub const RBTDRI_BURV_OUTPUT_SUBDIR: &str = "current";
 
+/// Env var name read by `buc_require` (buc_command.sh:335) to bypass interactive
+/// confirmation prompts in non-interactive contexts (test fixtures, automation).
+pub const RBTDRI_BURE_CONFIRM_KEY: &str = "BURE_CONFIRM";
+
+/// Value paired with `RBTDRI_BURE_CONFIRM_KEY` to skip the confirmation prompt.
+pub const RBTDRI_BURE_CONFIRM_SKIP: &str = "skip";
+
 // ── Invocation result ────────────────────────────────────────
 
 /// Captured output from a tabtarget invocation.

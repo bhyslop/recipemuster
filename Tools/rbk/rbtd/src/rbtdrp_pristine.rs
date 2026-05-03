@@ -29,7 +29,7 @@ use crate::rbtdrc_crucible::rbtdrc_with_ctx;
 use crate::rbtdre_engine::{rbtdre_Disposition, rbtdre_Fixture, rbtdre_Section, rbtdre_Verdict};
 use crate::rbtdri_invocation::{
     rbtdri_invoke_global, rbtdri_invoke_imprint, rbtdri_read_burv_fact, rbtdri_Context,
-    RBTDRI_BURV_OUTPUT_SUBDIR,
+    RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP, RBTDRI_BURV_OUTPUT_SUBDIR,
 };
 use crate::rbtdrm_manifest::{
     RBTDRM_COLOPHON_ACCESS_PROBE, RBTDRM_COLOPHON_DEPOT_LEVY, RBTDRM_COLOPHON_DEPOT_LIST,
@@ -100,11 +100,6 @@ const RBTDRP_FACT_EXT_DEPOT_PROJECT: &str = "depot-project";
 /// RBGP_FACT_GOVERNOR_SA_EMAIL from rbgc_Constants.sh). Read from the mantle
 /// invocation's BURV output.
 const RBTDRP_FACT_GOVERNOR_SA_EMAIL: &str = "rbgp_fact_governor_sa_email";
-
-/// BURE confirmation override (mirrors buc_command.sh): when set to "skip",
-/// `buc_require` accepts the operation without interactive prompt.
-const RBTDRP_BURE_CONFIRM_KEY: &str = "BURE_CONFIRM";
-const RBTDRP_BURE_CONFIRM_SKIP: &str = "skip";
 
 /// `DELETE_REQUESTED` lifecycle state — appears in `rbgp_depot_list` output
 /// after a soft-delete, used by case 2 to relax the post-unmake assertion.
@@ -1027,7 +1022,7 @@ fn rbtdrp_depot_tear_down_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_V
         ctx,
         RBTDRM_COLOPHON_DEPOT_UNMAKE,
         &[],
-        &[(RBTDRP_BURE_CONFIRM_KEY, RBTDRP_BURE_CONFIRM_SKIP)],
+        &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
         dir,
         "unmake",
     ) {
