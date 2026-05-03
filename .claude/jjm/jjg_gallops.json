@@ -39,6 +39,7 @@
         "₢A-AAE",
         "₢A-AAF",
         "₢A-AAm",
+        "₢A-AAn",
         "₢A-AAk",
         "₢A-AAj",
         "₢A-AAi",
@@ -71,7 +72,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "next_pace_seed": "AAn",
+      "next_pace_seed": "AAo",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -908,6 +909,17 @@
               "text": "## Character\nImplementation — drop BURW, reshape BURP, mint module, build tabtargets,\ngarrison ceremony.\n\n## Docket\nLand the design from the heat paddock and BUS0 spec.\n\nDone when:\n- BURW infrastructure removed (`burw_regime.sh`, `burw_cli.sh`, `burw.env`\n  template, any BURW tabtargets, zipper enrollments, validators)\n- BURP regime restructured to four-field shape; pubkey derivation via\n  `ssh-keygen -y`; validation surface updated (file existence, perms,\n  key-pair match)\n- `BURC_WORKLOAD_USER` field added with name-collision blacklist + length\n  validation\n- `bujb_bash.sh` + `bujb_cli.sh` BCG-compliant module created; hardcodes the\n  four shell-letter→`command=` directive mappings (b/c/w/p)\n- All 14 tabtargets per paddock catalog implemented and zipper-enrolled\n  (6 regime config kept; 4 garrison `buw-jpg[bcwp]`; knock; command-file;\n  interactive; handbook)\n- Garrison ceremony works end-to-end on at least one shell variant: destroy/\n  recreate workload user, write authorized_keys with `command=` directives,\n  copy workload privkey to remote workload account\n- Superseded colophons retired (`buw-np*`, `buw-nw*`, old `buw-HW*` per audit);\n  RBK Windows orchestrator entries updated to point at new garrison + handbook\n- `bash -n` green on all edited shell files; `tt/buw-st.BukSelfTest.sh` green;\n  `tt/rbtd-s.TestSuite.fast.sh` unchanged from baseline",
               "silks": "implement-jurisdiction",
               "commit": "fcc967a"
+            }
+          ]
+        },
+        "₢A-AAn": {
+          "tacks": [
+            {
+              "ts": "260503-1049",
+              "state": "rough",
+              "text": "## Character\nCleanup sweep — audit-and-retire detritus from prior unimplemented attempts.\n\n## Docket\nAfter AAm lands new jurisdiction, sweep what's left from earlier abandoned\nattempts. Operator gate before any deletion whose content might need to migrate\nelsewhere; mechanical deletions (zipper rows, empty modules) need no review.\n\nDone when:\n- Old \"construct\" family removed: `tt/buw-rhc{c,l,m,p,w,x}` + `zburn_construct`\n  helper in `burn_cli.sh`\n- Old host-profile family removed: `tt/buw-rh{l,r,v}`\n- Old InstallKey tabtargets removed: `tt/buw-{rhk,rnk,wck}`\n- Old worker bootstrap removed: `tt/buw-wcb`\n- Old Windows SSH-setup tabtargets removed: `tt/buw-HW{bs,sc,vs}`\n- Access trio removed: `tt/buw-HW{ab,ar,ax}` and corresponding\n  `buhw_access_*` functions\n- StationInit removed (verify unused first): `tt/buw-SI`\n- Old modules removed: `Tools/buk/{buwc_cli,buwc_windows,buhw_cli,buhw_windows}.sh`\n- Zipper enrollments matching dropped items pruned from `buwz_zipper.sh`\n- Section listings in retired handbook tops pruned\n- Discovery sweeps return empty:\n  - `grep -rn 'BUWZ_HW_\\|buhw_access_\\|buhw_environment_' Tools/ tt/`\n  - `grep -rn 'zburn_construct\\|\\brhc[clmpwx]\\b' Tools/ tt/`\n- `bash -n` green on all edited shell files; `tt/buw-st.BukSelfTest.sh` green;\n  `tt/rbtd-s.TestSuite.fast.sh` unchanged from baseline",
+              "silks": "cleanup-prior-attempts",
+              "commit": "9dc7419"
             }
           ]
         }
