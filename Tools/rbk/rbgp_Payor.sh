@@ -232,10 +232,8 @@ zrbgp_depot_state_emit() {
         continue
       fi
 
-      # CRM v3 projects:search is eventually consistent and lags state mutations
-      # (notably DELETE_REQUESTED transitions post-projects.delete). Resolve
-      # authoritative state via GET against the strongly-consistent endpoint —
-      # the same path rbgp_depot_unmake polls for its verify-deletion step.
+      # CRM v3 projects:search lags state mutations (notably post-delete transitions).
+      # GET against the strongly-consistent endpoint for authoritative state.
       z_get_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_project_id}"
       z_get_infix="depot_state_get_${z_project_id}"
       rbgu_http_json "GET" "${z_get_url}" "${z_token}" "${z_get_infix}"
