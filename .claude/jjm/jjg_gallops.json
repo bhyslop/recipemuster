@@ -7211,6 +7211,7 @@
       "creation_time": "260426",
       "status": "racing",
       "order": [
+        "₢BBAA6",
         "₢BBAA4",
         "₢BBAA3",
         "₢BBAAz",
@@ -7266,7 +7267,7 @@
         "₢BBAA1",
         "₢BBAA5"
       ],
-      "next_pace_seed": "AA6",
+      "next_pace_seed": "AA7",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAA0": {
@@ -7395,6 +7396,17 @@
               "text": "## Character\n\nMechanical DRY port: replace inline curl-with-stderr-capture blocks across the codebase with calls to `rbgu_http_request` (helper landed in BBAAs, lives in `Tools/rbk/rbgu_Utility.sh`). Mount-time discovery — do not assume the surface is what it was when this was slated.\n\n## Discovery recipe\n\nAt mount, scan the curl callsites:\n\n```\ngrep -n 'curl' Tools/rbk/*.sh | grep -v 'rbgu_http_request\\|--head\\|rbgj'\n```\n\nFor each hit, decide: compatible or not?\n\nA callsite is **compatible** with the helper when its curl shape matches all of:\n- Method-parameterized HTTP request (GET/POST/PUT/DELETE)\n- Bearer-token auth passed via a separate token variable\n- Accept and Content-Type headers (when present) are `application/json`\n- Optional JSON body file via `-d @body`\n- Caller wants response body, HTTP status code, and stderr captured to files (rather than discarded or piped)\n\nA callsite is **incompatible** (leave inline; possibly sibling-helper in a future pass) when any of:\n- HEAD-only existence probe (`--head`)\n- Form-encoded body (`application/x-www-form-urlencoded`)\n- Runs in a different shell environment (e.g., alpine sh inside Cloud Build step scripts)\n- Other Content-Type or unusual header set the helper doesn't speak\n\n## Wrap criterion\n\n- Every callsite found by the recipe has been classified compatible or incompatible\n- Every compatible callsite calls the helper instead of inlining the curl flags\n- No new inline curl block matching the compatible shape has appeared in the working tree\n- `tt/rbtd-b.Build.sh` green; `tt/rbtd-s.TestSuite.fast.sh` baseline preserved\n- At least one empirical run exercises a ported callsite end-to-end\n\n## Cross-pace dependencies\n\n- BBAAs landed (helper available)\n\n## Out of scope\n\n- Tolerance/timeout tuning of any retry or polling loop\n- New helper variants (form-encoded, HEAD-predicate, etc.) — those are separate paces if warranted\n- Restructuring caller-side retry/policy logic — only the curl-flag block is portable; the loop around it stays as-is",
               "silks": "http-helper-callsite-port",
               "commit": "8c057a4"
+            }
+          ]
+        },
+        "₢BBAA6": {
+          "tacks": [
+            {
+              "ts": "260503-1141",
+              "state": "rough",
+              "text": "## Character\n\nDiscrete contract reshape — yoke domain shifts vessel→reliquary. Mechanically intricate but design is locked. Bundled orphan vessel cleanup closes the `rbtdrf_rv_rbrv_all_vessels` test thread carrying-forward since BBAA3.\n\n## Locked decisions\n\n- `rbw-dY` channel: `param1` → `\"\"` (no folio); operation iterates every vessel under `${RBRR_VESSEL_DIR}/*/` with rbrv.env, writes RBRV_RELIQUARY into each\n- Primitive does **not** git commit — leaves changed files in repo dir\n- Orchestrator (inscribe-reliquary case in onboarding-sequence) **must** commit at end-of-case\n- Frontispiece: `DirectorYokesReliquaryInVessel` → `DirectorYokesReliquaryAllVessels`\n- BCG-compliant unimpeachable error handling — pre-validate reliquary stamp before touching any vessel; vessel-write failures surface clear diagnostic identifying which vessel failed and which were already written\n- Orphan vessel cleanup (bundled): delete `rbev-busybox-airgap-negative-canary`, `rbev-busybox-native-verify`, `rbev-sentry-deb-airgap`, `rbev-ubu-safety`\n\n## Done criteria\n\n- `rbtdrf_rv_rbrv_all_vessels` passes; fast suite 26/26\n- `tt/rbw-tf.QualifyFast.sh` green\n- Build clean under `#![deny(warnings)]`\n- All callers of `rbw-dY` updated; spec, tabtarget filename, zipper enrollment, frontispiece consistent\n\n## Discovery recipes\n\n- Caller audit: `grep -rn \"rbw-dY\\|RBZ_YOKE_RELIQUARY\\|YokesReliquaryInVessel\" Tools/ tt/`\n- Per-vessel yoke-list residue in onboarding: `RBTDRO_YOKE_VESSEL_DIRS` const and consuming call sites in `rbtdro_onboarding.rs`\n- Spec: `RBSDY-director_yoke.adoc` — rewrite to reliquary-domain semantics\n- Witness probe: `RBTDRO_WITNESS_VESSEL_DIR` may need adjustment if witness vessel is now wildcard-discovered\n- Tabtarget rename: `tt/rbw-dY.DirectorYokesReliquaryInVessel.sh` → `tt/rbw-dY.DirectorYokesReliquaryAllVessels.sh` (filesystem rename + executable bit)\n\n## Out of scope\n\n- Validator (`rbrv_regime.sh:48`) mode-awareness rework — wildcard-yoke renders this latent, not load-bearing\n- Orphan vessel restoration — these directories are deleted, not preserved",
+              "silks": "yoke-domain-shift-all-vessels",
+              "commit": "36e7493"
             }
           ]
         },
