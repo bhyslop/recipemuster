@@ -34,6 +34,7 @@
       "creation_time": "260412",
       "status": "racing",
       "order": [
+        "₢A-AAl",
         "₢A-AAk",
         "₢A-AAj",
         "₢A-AAi",
@@ -69,7 +70,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "next_pace_seed": "AAl",
+      "next_pace_seed": "AAm",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -870,6 +871,17 @@
               "text": "## Character\nSpec-language: promote \"jurisdiction\" from implicit minting-prefix\nside-effect to explicit named feature in BUS0. No code/kindle changes.\n\n## Docket\nThe bujn-/bujp-/bujw- minting prefixes authored in ₢A-AAj name the\nBURN/BURP/BURW family as \"jurisdiction\" by side-effect. BUS0 currently\ncarries no umbrella term for the trio; viceroyalty/investiture/lieutenancy\nare the addressing rungs but the umbrella is unnamed.\n\nDone when:\n- BUS0 mapping section carries umbrella quoin(s) for the BURN/BURP/BURW\n  family under \"jurisdiction\" framing.\n- BUS0 § Remote Node Access section heading and overview text reflect\n  the named frame; viceroyalty / investiture / lieutenancy stand as\n  jurisdictional rungs.\n- Paddock Current Concept three-regimes block names the umbrella.\n- Asciidoc validates clean; no orphaned cross-references.\n\nOut of scope: bujn-/bujp-/bujw- minting prefixes (treated as final);\nkindle/CLI/tabtarget changes (no behavior change).",
               "silks": "name-jurisdiction-feature-in-spec",
               "commit": "d2ab279"
+            }
+          ]
+        },
+        "₢A-AAl": {
+          "tacks": [
+            {
+              "ts": "260503-1023",
+              "state": "rough",
+              "text": "## Character\nSpec rewrite — declarative, mostly mechanical given the paddock as ground truth.\n\n## Docket\nRewrite BUS0 §Remote Node Access to reflect the jurisdiction shape declared in\nthe heat paddock. Paddock is the source; spec restates as needed.\n\nDone when:\n- `bus_jurisdiction` quoin minted in BUS0 mapping section (logical-only, no\n  AXLA voicing)\n- BUS0 §Remote Node Access narrative + tabtarget catalog match the paddock's\n  declared 14-tabtarget working set\n- BURP four-field shape declared in BUS0; old `BURP_USER` / `BURP_SSH_PUBKEY` /\n  `BURP_KEY_FILE` / `BURP_COMMAND` quoins removed; `ssh-keygen -y` pubkey\n  derivation noted in the BURP regime body\n- `BURC_WORKLOAD_USER` quoin declared in BUS0\n- BURW spec content removed (regime section, `burw_lieutenancy` quoin, BURW\n  field bodies, `burn_workloads` field if still present)\n- Superseded subdocs identified for retirement (BUSTGC/W/P, BUSTCC/W/P,\n  BUSTWD, BUSTWI, BUSNW/L/M as appropriate); replacement subdocs minted as\n  needed for the buw-jpg/buw-jw/buw-hj0 family\n- AsciiDoc validates clean; no orphaned cross-references; no surviving\n  references to dropped concepts (lieutenancy, conscript, withdraw, vanquish,\n  inventory, multi-resident framing, per-platform garrison)",
+              "silks": "spec-bus0-jurisdiction",
+              "commit": "1db66a7"
             }
           ]
         }
