@@ -35,6 +35,7 @@
       "status": "racing",
       "order": [
         "₢A-AAl",
+        "₢A-AAo",
         "₢A-AAD",
         "₢A-AAE",
         "₢A-AAF",
@@ -72,7 +73,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "next_pace_seed": "AAo",
+      "next_pace_seed": "AAp",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -920,6 +921,17 @@
               "text": "## Character\nCleanup sweep — audit-and-retire detritus from prior unimplemented attempts.\n\n## Docket\nAfter AAm lands new jurisdiction, sweep what's left from earlier abandoned\nattempts. Operator gate before any deletion whose content might need to migrate\nelsewhere; mechanical deletions (zipper rows, empty modules) need no review.\n\nDone when:\n- Old \"construct\" family removed: `tt/buw-rhc{c,l,m,p,w,x}` + `zburn_construct`\n  helper in `burn_cli.sh`\n- Old host-profile family removed: `tt/buw-rh{l,r,v}`\n- Old InstallKey tabtargets removed: `tt/buw-{rhk,rnk,wck}`\n- Old worker bootstrap removed: `tt/buw-wcb`\n- Old Windows SSH-setup tabtargets removed: `tt/buw-HW{bs,sc,vs}`\n- Access trio removed: `tt/buw-HW{ab,ar,ax}` and corresponding\n  `buhw_access_*` functions\n- StationInit removed (verify unused first): `tt/buw-SI`\n- Old modules removed: `Tools/buk/{buwc_cli,buwc_windows,buhw_cli,buhw_windows}.sh`\n- Zipper enrollments matching dropped items pruned from `buwz_zipper.sh`\n- Section listings in retired handbook tops pruned\n- Discovery sweeps return empty:\n  - `grep -rn 'BUWZ_HW_\\|buhw_access_\\|buhw_environment_' Tools/ tt/`\n  - `grep -rn 'zburn_construct\\|\\brhc[clmpwx]\\b' Tools/ tt/`\n- `bash -n` green on all edited shell files; `tt/buw-st.BukSelfTest.sh` green;\n  `tt/rbtd-s.TestSuite.fast.sh` unchanged from baseline",
               "silks": "cleanup-prior-attempts",
               "commit": "9dc7419"
+            }
+          ]
+        },
+        "₢A-AAo": {
+          "tacks": [
+            {
+              "ts": "260503-1056",
+              "state": "rough",
+              "text": "## Character\nOperator-driven review + handbook rewrite — assess prior drafts, salvage what's\nsound, rewrite the rest. Quality of prior tries is uncertain.\n\n## Docket\nGarrison assumes admin SSH key trust is already established. On a fresh Windows\nhost, that trust must be created out-of-band before garrison can run. Land a\nclean operator-facing procedure for that bootstrap.\n\nExisting draft material to review (entry points, not exhaustive):\n- `tt/buw-HW{bs,sc,vs}` tabtargets (BootstrapSshd, SshConfig, VerifySsh)\n- `Tools/buk/buhw_windows.sh` related functions\n- `BUSNW-NodeWindows.adoc` (if surviving AAl)\n\nDone when:\n- Handbook section reachable from `buw-hj0` walks the operator through\n  first-time Windows admin SSH bootstrap end-to-end: install sshd (per chosen\n  shell variant), place initial admin pubkey, disable PasswordAuthentication,\n  verify key-only auth works from operator's station\n- Procedure terminates at a node where `buw-jpg{b,c,w}` garrison succeeds on\n  the first invocation\n- Prior draft content either rewritten cleanly under the new design or marked\n  for AAn cleanup; AAn's docket updated if the disposition differs from its\n  current \"retire\" assumption\n- Operator-tested on a real Windows host (not review-then-commit only)\n\nOut of scope: WSL/Cygwin install (AAD); jurisdiction implementation (AAm);\nunrelated legacy detritus (AAn).",
+              "silks": "bootstrap-windows-admin-trust",
+              "commit": "32360ba"
             }
           ]
         }
