@@ -738,30 +738,17 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
     };
     let _ = std::fs::write(dir.join("governor-sa-email.txt"), &governor_email);
 
-    // Mantle deposits governor RBRA into its BURV output dir as
-    // governor-<timestamp>.rbra; locate and copy to canonical.
-    let mantle_out_dir = mantle.burv_output.join(RBTDRI_BURV_OUTPUT_SUBDIR);
-    let governor_rbra_src = match std::fs::read_dir(&mantle_out_dir)
-        .map_err(|e| format!("read mantle output dir {}: {}", mantle_out_dir.display(), e))
-        .and_then(|entries| {
-            let matches: Vec<_> = entries
-                .filter_map(|e| e.ok())
-                .filter(|e| {
-                    e.file_name()
-                        .to_str()
-                        .map(|n| n.starts_with("governor-") && n.ends_with(".rbra"))
-                        .unwrap_or(false)
-                })
-                .collect();
-            match matches.len() {
-                0 => Err("no governor-*.rbra file in mantle BURV output".to_string()),
-                1 => Ok(matches.into_iter().next().unwrap().path()),
-                n => Err(format!("{} governor-*.rbra files in mantle BURV output", n)),
-            }
-        }) {
+    let assay_canonical = match rbtdrp_canonical_rbra(&root, "assay") {
         Ok(p) => p,
-        Err(e) => return rbtdre_Verdict::Fail(format!("locate governor RBRA: {}", e)),
+        Err(e) => return rbtdre_Verdict::Fail(format!("canonical assay RBRA path: {}", e)),
     };
+
+    if !assay_canonical.exists() {
+        return rbtdre_Verdict::Fail(format!(
+            "assay RBRA absent after governor mantle: {}",
+            assay_canonical.display()
+        ));
+    }
 
     let governor_canonical = match rbtdrp_canonical_rbra(&root, "governor") {
         Ok(p) => p,
@@ -776,25 +763,13 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
             ));
         }
     }
-    if let Err(e) = std::fs::copy(&governor_rbra_src, &governor_canonical) {
+    if let Err(e) = std::fs::copy(&assay_canonical, &governor_canonical) {
         return rbtdre_Verdict::Fail(format!(
-            "copy governor RBRA {} → {}: {}",
-            governor_rbra_src.display(),
+            "copy assay RBRA → governor canonical {}: {}",
             governor_canonical.display(),
             e
         ));
     }
-    if !governor_canonical.exists() {
-        return rbtdre_Verdict::Fail(format!(
-            "governor canonical RBRA absent after copy: {}",
-            governor_canonical.display()
-        ));
-    }
-
-    let assay_canonical = match rbtdrp_canonical_rbra(&root, "assay") {
-        Ok(p) => p,
-        Err(e) => return rbtdre_Verdict::Fail(format!("canonical assay RBRA path: {}", e)),
-    };
 
     // Retriever: invest → assay → canonical → access-probe.
     let invest_ret = match rbtdrp_invoke_logged(
