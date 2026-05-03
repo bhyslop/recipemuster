@@ -35,6 +35,7 @@
       "status": "racing",
       "order": [
         "₢A-AAl",
+        "₢A-AAm",
         "₢A-AAk",
         "₢A-AAj",
         "₢A-AAi",
@@ -70,7 +71,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "next_pace_seed": "AAm",
+      "next_pace_seed": "AAn",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -882,6 +883,17 @@
               "text": "## Character\nSpec rewrite — declarative, mostly mechanical given the paddock as ground truth.\n\n## Docket\nRewrite BUS0 §Remote Node Access to reflect the jurisdiction shape declared in\nthe heat paddock. Paddock is the source; spec restates as needed.\n\nDone when:\n- `bus_jurisdiction` quoin minted in BUS0 mapping section (logical-only, no\n  AXLA voicing)\n- BUS0 §Remote Node Access narrative + tabtarget catalog match the paddock's\n  declared 14-tabtarget working set\n- BURP four-field shape declared in BUS0; old `BURP_USER` / `BURP_SSH_PUBKEY` /\n  `BURP_KEY_FILE` / `BURP_COMMAND` quoins removed; `ssh-keygen -y` pubkey\n  derivation noted in the BURP regime body\n- `BURC_WORKLOAD_USER` quoin declared in BUS0\n- BURW spec content removed (regime section, `burw_lieutenancy` quoin, BURW\n  field bodies, `burn_workloads` field if still present)\n- Superseded subdocs identified for retirement (BUSTGC/W/P, BUSTCC/W/P,\n  BUSTWD, BUSTWI, BUSNW/L/M as appropriate); replacement subdocs minted as\n  needed for the buw-jpg/buw-jw/buw-hj0 family\n- AsciiDoc validates clean; no orphaned cross-references; no surviving\n  references to dropped concepts (lieutenancy, conscript, withdraw, vanquish,\n  inventory, multi-resident framing, per-platform garrison)",
               "silks": "spec-bus0-jurisdiction",
               "commit": "1db66a7"
+            }
+          ]
+        },
+        "₢A-AAm": {
+          "tacks": [
+            {
+              "ts": "260503-1023",
+              "state": "rough",
+              "text": "## Character\nImplementation — drop BURW, reshape BURP, mint module, build tabtargets,\ngarrison ceremony.\n\n## Docket\nLand the design from the heat paddock and BUS0 spec.\n\nDone when:\n- BURW infrastructure removed (`burw_regime.sh`, `burw_cli.sh`, `burw.env`\n  template, any BURW tabtargets, zipper enrollments, validators)\n- BURP regime restructured to four-field shape; pubkey derivation via\n  `ssh-keygen -y`; validation surface updated (file existence, perms,\n  key-pair match)\n- `BURC_WORKLOAD_USER` field added with name-collision blacklist + length\n  validation\n- `bujb_bash.sh` + `bujb_cli.sh` BCG-compliant module created; hardcodes the\n  four shell-letter→`command=` directive mappings (b/c/w/p)\n- All 14 tabtargets per paddock catalog implemented and zipper-enrolled\n  (6 regime config kept; 4 garrison `buw-jpg[bcwp]`; knock; command-file;\n  interactive; handbook)\n- Garrison ceremony works end-to-end on at least one shell variant: destroy/\n  recreate workload user, write authorized_keys with `command=` directives,\n  copy workload privkey to remote workload account\n- Superseded colophons retired (`buw-np*`, `buw-nw*`, old `buw-HW*` per audit);\n  RBK Windows orchestrator entries updated to point at new garrison + handbook\n- `bash -n` green on all edited shell files; `tt/buw-st.BukSelfTest.sh` green;\n  `tt/rbtd-s.TestSuite.fast.sh` unchanged from baseline",
+              "silks": "implement-jurisdiction",
+              "commit": "fcc967a"
             }
           ]
         }
