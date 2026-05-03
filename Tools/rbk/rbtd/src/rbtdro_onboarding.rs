@@ -44,7 +44,9 @@ use crate::rbtdrk_canonical::rbtdrk_canonical_rbra;
 use crate::rbtdrm_manifest::{
     RBTDRM_COLOPHON_ENSHRINE_VESSEL, RBTDRM_COLOPHON_INSCRIBE_RELIQUARY,
     RBTDRM_COLOPHON_KLUDGE_BOTTLE, RBTDRM_COLOPHON_KLUDGE_SENTRY, RBTDRM_COLOPHON_ORDAIN,
-    RBTDRM_COLOPHON_YOKE_RELIQUARY, RBTDRM_FIXTURE_ONBOARDING_SEQUENCE,
+    RBTDRM_COLOPHON_YOKE_RELIQUARY, RBTDRM_CONTAINER_BOTTLE, RBTDRM_CONTAINER_SENTRY,
+    RBTDRM_FIXTURE_ONBOARDING_SEQUENCE, RBTDRM_OPERATION_ENSHRINE, RBTDRM_OPERATION_INSCRIBE,
+    RBTDRM_OPERATION_KLUDGE, RBTDRM_OPERATION_ORDAIN, RBTDRM_OPERATION_YOKE,
 };
 
 // ── Vessel directories ────────────────────────────────────────
@@ -104,11 +106,6 @@ const RBTDRO_YOKE_VESSEL_DIRS: &[&str] = &[
     RBTDRO_VESSEL_DIR_GRAFT,
     RBTDRO_VESSEL_DIR_CCYOLO,
 ];
-
-/// Operation name for the yoke step — appears in error messages, the per-vessel
-/// label prefix, and the inscribe-reliquary commit message. Single source so the
-/// operation's vocabulary lives in one place.
-const RBTDRO_OPERATION_YOKE: &str = "yoke";
 
 // ── Hallmark-base locator construction ───────────────────────
 //
@@ -232,6 +229,36 @@ fn rbtdro_invoke_logged(
     Ok(result)
 }
 
+/// Invoke a tabtarget via `rbtdro_invoke_logged` and convert non-success outcomes
+/// into Fail verdicts with consistent operation-prefixed messages. `target` is
+/// the per-call distinguishing string (vessel sigil, vessel dir, nameplate)
+/// included in the error prefix; pass `""` for operations without a target.
+fn rbtdro_invoke_or_fail(
+    ctx: &mut rbtdri_Context,
+    operation: &str,
+    target: &str,
+    colophon: &str,
+    args: &[&str],
+    extra_env: &[(&str, &str)],
+    dir: &Path,
+    label: &str,
+) -> Result<rbtdri_InvokeResult, rbtdre_Verdict> {
+    let prefix = if target.is_empty() {
+        operation.to_string()
+    } else {
+        format!("{} {}", operation, target)
+    };
+    let result = rbtdro_invoke_logged(ctx, colophon, args, extra_env, dir, label)
+        .map_err(|e| rbtdre_Verdict::Fail(format!("{} invocation: {}", prefix, e)))?;
+    if result.exit_code != 0 {
+        return Err(rbtdre_Verdict::Fail(format!(
+            "{} exit {}\n{}",
+            prefix, result.exit_code, result.stderr
+        )));
+    }
+    Ok(result)
+}
+
 /// Run an ordain on `vessel_dir` and return the captured hallmark string.
 /// Writes invocation logs to `dir` under the `label` prefix; returns Fail
 /// verdict-bearing Err so callers can early-return cleanly.
@@ -242,37 +269,22 @@ fn rbtdro_ordain_capture(
     extra_env: &[(&str, &str)],
     label: &str,
 ) -> Result<String, rbtdre_Verdict> {
-    let result = match rbtdro_invoke_logged(
+    let result = rbtdro_invoke_or_fail(
         ctx,
+        RBTDRM_OPERATION_ORDAIN,
+        vessel_dir,
         RBTDRM_COLOPHON_ORDAIN,
         &[vessel_dir],
         extra_env,
         dir,
         label,
-    ) {
-        Ok(r) => r,
-        Err(e) => {
-            return Err(rbtdre_Verdict::Fail(format!(
-                "ordain {} invocation: {}",
-                vessel_dir, e
-            )))
-        }
-    };
-    if result.exit_code != 0 {
-        return Err(rbtdre_Verdict::Fail(format!(
-            "ordain {} exit {}\n{}",
-            vessel_dir, result.exit_code, result.stderr
-        )));
-    }
-    let hallmark = match rbtdri_read_burv_fact(&result, RBTDRC_FACT_HALLMARK) {
-        Ok(s) => s,
-        Err(e) => {
-            return Err(rbtdre_Verdict::Fail(format!(
-                "read hallmark fact after ordain {}: {}",
-                vessel_dir, e
-            )))
-        }
-    };
+    )?;
+    let hallmark = rbtdri_read_burv_fact(&result, RBTDRC_FACT_HALLMARK).map_err(|e| {
+        rbtdre_Verdict::Fail(format!(
+            "read hallmark fact after {} {}: {}",
+            RBTDRM_OPERATION_ORDAIN, vessel_dir, e
+        ))
+    })?;
     let _ = std::fs::write(dir.join(format!("{}-hallmark.txt", label)), &hallmark);
     Ok(hallmark)
 }
@@ -288,28 +300,16 @@ fn rbtdro_yoke(
     vessel_sigil: &str,
     label: &str,
 ) -> Result<(), rbtdre_Verdict> {
-    let result = match rbtdro_invoke_logged(
+    rbtdro_invoke_or_fail(
         ctx,
+        RBTDRM_OPERATION_YOKE,
+        vessel_sigil,
         RBTDRM_COLOPHON_YOKE_RELIQUARY,
         &[vessel_sigil, stamp],
         &[],
         dir,
         label,
-    ) {
-        Ok(r) => r,
-        Err(e) => {
-            return Err(rbtdre_Verdict::Fail(format!(
-                "{} {} invocation: {}",
-                RBTDRO_OPERATION_YOKE, vessel_sigil, e
-            )))
-        }
-    };
-    if result.exit_code != 0 {
-        return Err(rbtdre_Verdict::Fail(format!(
-            "{} {} exit {}\n{}",
-            RBTDRO_OPERATION_YOKE, vessel_sigil, result.exit_code, result.stderr
-        )));
-    }
+    )?;
     Ok(())
 }
 
@@ -323,23 +323,16 @@ fn rbtdro_enshrine(
     vessel_sigil: &str,
     label: &str,
 ) -> Result<(), rbtdre_Verdict> {
-    let result = match rbtdro_invoke_logged(
+    rbtdro_invoke_or_fail(
         ctx,
+        RBTDRM_OPERATION_ENSHRINE,
+        vessel_sigil,
         RBTDRM_COLOPHON_ENSHRINE_VESSEL,
         &[vessel_sigil],
         &[],
         dir,
         label,
-    ) {
-        Ok(r) => r,
-        Err(e) => return Err(rbtdre_Verdict::Fail(format!("enshrine invocation: {}", e))),
-    };
-    if result.exit_code != 0 {
-        return Err(rbtdre_Verdict::Fail(format!(
-            "enshrine {} exit {}\n{}",
-            vessel_sigil, result.exit_code, result.stderr
-        )));
-    }
+    )?;
     Ok(())
 }
 
@@ -530,56 +523,38 @@ fn rbtdro_kludge_nameplate(
     dir: &Path,
     nameplate: &str,
 ) -> Result<(), rbtdre_Verdict> {
-    let sentry_result = match rbtdro_invoke_logged(
+    rbtdro_invoke_or_fail(
         ctx,
+        &format!("{} {}", RBTDRM_OPERATION_KLUDGE, RBTDRM_CONTAINER_SENTRY),
+        nameplate,
         RBTDRM_COLOPHON_KLUDGE_SENTRY,
         &[nameplate],
         &[],
         dir,
-        &format!("kludge-sentry-{}", nameplate),
-    ) {
-        Ok(r) => r,
-        Err(e) => {
-            return Err(rbtdre_Verdict::Fail(format!(
-                "kludge sentry {} invocation: {}",
-                nameplate, e
-            )))
-        }
-    };
-    if sentry_result.exit_code != 0 {
-        return Err(rbtdre_Verdict::Fail(format!(
-            "kludge sentry {} exit {}\n{}",
-            nameplate, sentry_result.exit_code, sentry_result.stderr
-        )));
-    }
+        &format!("{}-{}-{}", RBTDRM_OPERATION_KLUDGE, RBTDRM_CONTAINER_SENTRY, nameplate),
+    )?;
 
     // Commit sentry hallmark before bottle kludge — kludge asserts clean tree.
-    rbtdro_git_commit(&format!("kludge-{}: sentry hallmark", nameplate))?;
+    rbtdro_git_commit(&format!(
+        "{}-{}: {} hallmark",
+        RBTDRM_OPERATION_KLUDGE, nameplate, RBTDRM_CONTAINER_SENTRY
+    ))?;
 
-    let bottle_result = match rbtdro_invoke_logged(
+    rbtdro_invoke_or_fail(
         ctx,
+        &format!("{} {}", RBTDRM_OPERATION_KLUDGE, RBTDRM_CONTAINER_BOTTLE),
+        nameplate,
         RBTDRM_COLOPHON_KLUDGE_BOTTLE,
         &[nameplate],
         &[],
         dir,
-        &format!("kludge-bottle-{}", nameplate),
-    ) {
-        Ok(r) => r,
-        Err(e) => {
-            return Err(rbtdre_Verdict::Fail(format!(
-                "kludge bottle {} invocation: {}",
-                nameplate, e
-            )))
-        }
-    };
-    if bottle_result.exit_code != 0 {
-        return Err(rbtdre_Verdict::Fail(format!(
-            "kludge bottle {} exit {}\n{}",
-            nameplate, bottle_result.exit_code, bottle_result.stderr
-        )));
-    }
+        &format!("{}-{}-{}", RBTDRM_OPERATION_KLUDGE, RBTDRM_CONTAINER_BOTTLE, nameplate),
+    )?;
 
-    rbtdro_git_commit(&format!("kludge-{}: bottle hallmark", nameplate))?;
+    rbtdro_git_commit(&format!(
+        "{}-{}: {} hallmark",
+        RBTDRM_OPERATION_KLUDGE, nameplate, RBTDRM_CONTAINER_BOTTLE
+    ))?;
     Ok(())
 }
 
@@ -602,23 +577,19 @@ fn rbtdro_onboarding_inscribe_reliquary_impl(
     ctx: &mut rbtdri_Context,
     dir: &Path,
 ) -> rbtdre_Verdict {
-    let result = match rbtdro_invoke_logged(
+    let result = match rbtdro_invoke_or_fail(
         ctx,
+        RBTDRM_OPERATION_INSCRIBE,
+        "",
         RBTDRM_COLOPHON_INSCRIBE_RELIQUARY,
         &[],
         &[],
         dir,
-        "inscribe",
+        RBTDRM_OPERATION_INSCRIBE,
     ) {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("inscribe invocation: {}", e)),
+        Err(v) => return v,
     };
-    if result.exit_code != 0 {
-        return rbtdre_Verdict::Fail(format!(
-            "inscribe exit {}\n{}",
-            result.exit_code, result.stderr
-        ));
-    }
 
     let stamp = match rbtdri_read_burv_fact(&result, RBTDRC_FACT_RELIQUARY) {
         Ok(s) => s,
@@ -629,16 +600,17 @@ fn rbtdro_onboarding_inscribe_reliquary_impl(
     // Yoke stamp into all ordain-side vessels in one pass.
     for vessel_dir in RBTDRO_YOKE_VESSEL_DIRS {
         let sigil = vessel_dir.rsplit('/').next().unwrap_or(vessel_dir);
-        let label = format!("{}-{}", RBTDRO_OPERATION_YOKE, sigil);
+        let label = format!("{}-{}", RBTDRM_OPERATION_YOKE, sigil);
         if let Err(v) = rbtdro_yoke(ctx, dir, &stamp, sigil, &label) {
             return v;
         }
     }
 
     // Commit the rbrv.env changes for all yoked vessels.
-    if let Err(v) = rbtdro_git_commit(
-        &format!("inscribe-reliquary: {} stamp into all ordain-side vessels", RBTDRO_OPERATION_YOKE),
-    ) {
+    if let Err(v) = rbtdro_git_commit(&format!(
+        "inscribe-reliquary: {} stamp into all ordain-side vessels",
+        RBTDRM_OPERATION_YOKE
+    )) {
         return v;
     }
 
