@@ -111,8 +111,30 @@ zbuhj_render_windows_bootstrap() {
   buh_e
 
   buh_step1    "Start and Enable the Service:"
+  buh_line     "First start also generates the default sshd_config."
   buh_code     "Start-Service sshd"
   buh_code     "Set-Service -Name sshd -StartupType Automatic"
+  buh_e
+
+  buyy_cmd_yawp "${BUBC_windows_sshd_config}"; local -r z_sshd_config_yelp="${z_buym_yelp}"
+  buh_step1    "Enable Password Authentication in sshd_config:"
+  buh_line     "Windows OpenSSH ships with sshd_config in a state that blocks"
+  buh_line     "garrison's first-run password fallback (the wire protocol"
+  buh_line     "advertises keyboard-interactive but the server refuses to"
+  buh_line     "actually prompt). Open sshd_config, find the"
+  buh_line     "PasswordAuthentication directive (commented or otherwise),"
+  buh_line     "and set it to exactly:"
+  buh_e
+  buh_code     "PasswordAuthentication yes"
+  buh_e
+  buh_line     "If no PasswordAuthentication line exists, add one. Save"
+  buh_line     "(notepad inherits your elevated context so SYSTEM-owned writes"
+  buh_line     "succeed). Garrison flips this back to 'no' as part of its"
+  buh_line     "hardening step, so this is a temporary state."
+  buh_line     "File: ${z_sshd_config_yelp}"
+  buh_e
+  buh_code     "notepad ${BUBC_windows_sshd_config}"
+  buh_code     "Restart-Service sshd"
   buh_e
 
   buh_step1    "Allow Port ${BUBC_windows_ssh_port} Through Firewall:"
