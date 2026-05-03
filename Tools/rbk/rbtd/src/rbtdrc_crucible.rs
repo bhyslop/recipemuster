@@ -2132,7 +2132,18 @@ pub static RBTDRC_FIXTURE_TADMOR: rbtdre_Fixture = rbtdre_Fixture {
     disposition: rbtdre_Disposition::Independent,
     setup: Some(rbtdrc_charge_crucible),
     teardown: Some(rbtdrc_quench_crucible),
-    sections: RBTDRC_SECTIONS_TADMOR,
+    sections: RBTDRC_SECTIONS_SECURITY,
+};
+
+// Moriah is the airgap-bottle nameplate; runtime semantics are identical
+// to tadmor so the fixture shares RBTDRC_SECTIONS_SECURITY. The distinction
+// is provenance (cloud-built airgap vs local kludge), not behavior.
+pub static RBTDRC_FIXTURE_MORIAH: rbtdre_Fixture = rbtdre_Fixture {
+    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_MORIAH,
+    disposition: rbtdre_Disposition::Independent,
+    setup: Some(rbtdrc_charge_crucible),
+    teardown: Some(rbtdrc_quench_crucible),
+    sections: RBTDRC_SECTIONS_SECURITY,
 };
 
 pub static RBTDRC_FIXTURE_SRJCL: rbtdre_Fixture = rbtdre_Fixture {
@@ -2183,6 +2194,7 @@ pub static RBTDRC_FIXTURE_ACCESS_PROBE: rbtdre_Fixture = rbtdre_Fixture {
 pub fn rbtdrc_lookup_fixture(fixture: &str) -> Option<&'static rbtdre_Fixture> {
     match fixture {
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_TADMOR => Some(&RBTDRC_FIXTURE_TADMOR),
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_MORIAH => Some(&RBTDRC_FIXTURE_MORIAH),
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_SRJCL => Some(&RBTDRC_FIXTURE_SRJCL),
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_PLUML => Some(&RBTDRC_FIXTURE_PLUML),
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_FOUR_MODE => Some(&RBTDRC_FIXTURE_FOUR_MODE),
@@ -2245,16 +2257,19 @@ pub static RBTDRC_SECTIONS_PLUML: &[rbtdre_Section] = &[rbtdre_Section {
     ],
 }];
 
-static RBTDRC_SECTIONS_TADMOR: &[rbtdre_Section] = &[
+// Bottle/sentry security cases — shared by RBTDRC_FIXTURE_TADMOR and
+// RBTDRC_FIXTURE_MORIAH. Section names omit fixture prefix; the engine
+// surfaces fixture identity in its own output.
+static RBTDRC_SECTIONS_SECURITY: &[rbtdre_Section] = &[
     rbtdre_Section {
-        name: "tadmor-basic-infra",
+        name: "basic-infra",
         cases: &[
             case!(rbtdrc_pentacle_dnsmasq_responds),
             case!(rbtdrc_pentacle_ping_sentry),
         ],
     },
     rbtdre_Section {
-        name: "tadmor-ifrit-attacks",
+        name: "ifrit-attacks",
         cases: &[
             case!(rbtdrc_ifrit_dns_allowed),
             case!(rbtdrc_ifrit_dns_allowed_example_org),
@@ -2275,14 +2290,14 @@ static RBTDRC_SECTIONS_TADMOR: &[rbtdre_Section] = &[
         ],
     },
     rbtdre_Section {
-        name: "tadmor-observation",
+        name: "observation",
         cases: &[
             case!(rbtdrc_sentry_iptables_loaded),
             case!(rbtdrc_dns_blocked_with_observation),
         ],
     },
     rbtdre_Section {
-        name: "tadmor-correlated",
+        name: "correlated",
         cases: &[
             case!(rbtdrc_tcp443_allow_example),
             case!(rbtdrc_tcp443_block_google),
@@ -2293,7 +2308,7 @@ static RBTDRC_SECTIONS_TADMOR: &[rbtdre_Section] = &[
         ],
     },
     rbtdre_Section {
-        name: "tadmor-sortie-attacks",
+        name: "sortie-attacks",
         cases: &[
             case!(rbtdrc_sortie_dns_exfil_subdomain),
             case!(rbtdrc_sortie_meta_cloud_endpoint),
@@ -2314,7 +2329,7 @@ static RBTDRC_SECTIONS_TADMOR: &[rbtdre_Section] = &[
         ],
     },
     rbtdre_Section {
-        name: "tadmor-unilateral-novel",
+        name: "unilateral-novel",
         cases: &[
             case!(rbtdrc_sortie_net_route_manipulation),
             case!(rbtdrc_sortie_net_enclave_subnet_escape),
@@ -2322,7 +2337,7 @@ static RBTDRC_SECTIONS_TADMOR: &[rbtdre_Section] = &[
         ],
     },
     rbtdre_Section {
-        name: "tadmor-coordinated-attacks",
+        name: "coordinated-attacks",
         cases: &[
             case!(rbtdrc_coordinated_arp_gratuitous),
             case!(rbtdrc_coordinated_arp_gateway_poison),
@@ -2330,7 +2345,7 @@ static RBTDRC_SECTIONS_TADMOR: &[rbtdre_Section] = &[
         ],
     },
     rbtdre_Section {
-        name: "tadmor-coordinated-integrity",
+        name: "coordinated-integrity",
         cases: &[
             case!(rbtdrc_coordinated_sentry_integrity),
             case!(rbtdrc_coordinated_dns_cache_integrity),

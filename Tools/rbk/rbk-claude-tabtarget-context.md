@@ -157,6 +157,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-tO` | OrdainCycle | imprint | Cloud build + install hallmark into nameplate |
 | `rbw-tf` | QualifyFast | — | Fast qualify: tabtargets, colophons, nameplate health |
 | `rbw-tr` | QualifyRelease | — | Release qualify: + shellcheck, full test suite |
+| `rbw-tP` | QualifyPristine | — | Pristine qualify: gauntlet test suite (release gate) |
 
 ### Handbook — Human-facing procedures (`rbw-HW`)
 

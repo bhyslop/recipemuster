@@ -185,4 +185,18 @@ rbq_qualify_release() {
   buc_step "Release qualification passed"
 }
 
+rbq_qualify_pristine() {
+  zrbq_sentinel
+
+  # The gauntlet's first content fixture (pristine-lifecycle case 1) is the
+  # entry-contract gate: tree clean, RBRR blank, RBRA absent, nameplate
+  # hallmarks empty, vessel depot fields empty. Preceding enrollment-validation
+  # is state-indifferent. The bash for-loop in rbte_suite() runs under set -e
+  # so any fixture failure halts the gauntlet immediately.
+  buc_step "Running pristine qualification (gauntlet test suite)"
+  "${ZRBQ_PROJECT_ROOT}/tt/rbtd-s.TestSuite.gauntlet.sh"
+
+  buc_step "Pristine qualification passed"
+}
+
 # eof

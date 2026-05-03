@@ -102,6 +102,7 @@ pub const RBTDRM_COLOPHON_QUOTA_BUILD: &str = "rbw-gq";
 // Fixture name consts — single definition per String Boundary Discipline.
 // Crucible fixtures (charge/quench lifecycle)
 pub const RBTDRM_FIXTURE_TADMOR: &str = "tadmor";
+pub const RBTDRM_FIXTURE_MORIAH: &str = "moriah";
 pub const RBTDRM_FIXTURE_SRJCL: &str = "srjcl";
 pub const RBTDRM_FIXTURE_PLUML: &str = "pluml";
 // Bare fixtures (GCP credentials, no container runtime)
@@ -149,7 +150,10 @@ pub const RBTDRM_CONTAINER_BOTTLE: &str = "bottle";
 /// Per-fixture required colophons. Returns None for unknown fixtures.
 pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str]> {
     match fixture {
-        RBTDRM_FIXTURE_TADMOR | RBTDRM_FIXTURE_SRJCL | RBTDRM_FIXTURE_PLUML => Some(&[
+        RBTDRM_FIXTURE_TADMOR
+        | RBTDRM_FIXTURE_MORIAH
+        | RBTDRM_FIXTURE_SRJCL
+        | RBTDRM_FIXTURE_PLUML => Some(&[
             RBTDRM_COLOPHON_CHARGE,
             RBTDRM_COLOPHON_QUENCH,
             RBTDRM_COLOPHON_WRIT,

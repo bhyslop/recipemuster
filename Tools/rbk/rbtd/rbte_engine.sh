@@ -49,6 +49,24 @@ zrbte_kindle() {
   ZRBTE_SUITE_SERVICE=("${ZRBTE_SUITE_FAST[@]}" "access-probe" "four-mode" "batch-vouch")
   ZRBTE_SUITE_CRUCIBLE=("${ZRBTE_SUITE_FAST[@]}" "tadmor" "srjcl" "pluml")
   ZRBTE_SUITE_COMPLETE=("${ZRBTE_SUITE_FAST[@]}" "access-probe" "four-mode" "batch-vouch" "tadmor" "srjcl" "pluml")
+  # Gauntlet — release-qualification ladder, walks marshal-zero state through
+  # canonical-credentialed state to crucible verification. Pristine-lifecycle
+  # case 1 is the entry-contract gate; preceding enrollment-validation runs
+  # state-indifferent and is harmless on broken state. Fail-fast across
+  # fixtures is provided by the for-loop's set -e.
+  ZRBTE_SUITE_GAUNTLET=(
+    "enrollment-validation"
+    "pristine-lifecycle"
+    "canonical-establish"
+    "onboarding-sequence"
+    "regime-validation"
+    "regime-smoke"
+    "four-mode"
+    "tadmor"
+    "moriah"
+    "srjcl"
+    "pluml"
+  )
 
   readonly ZRBTE_KINDLED=1
 }
@@ -78,7 +96,8 @@ zrbte_resolve_suite() {
     service)  echo "${ZRBTE_SUITE_SERVICE[*]}" ;;
     crucible) echo "${ZRBTE_SUITE_CRUCIBLE[*]}" ;;
     complete) echo "${ZRBTE_SUITE_COMPLETE[*]}" ;;
-    *)        buc_die "Unknown suite: ${z_suite} (expected fast|service|crucible|complete)" ;;
+    gauntlet) echo "${ZRBTE_SUITE_GAUNTLET[*]}" ;;
+    *)        buc_die "Unknown suite: ${z_suite} (expected fast|service|crucible|complete|gauntlet)" ;;
   esac
 }
 

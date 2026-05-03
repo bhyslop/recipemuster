@@ -78,18 +78,18 @@ Kludge builds are for rapid local iteration. Once all tests pass with the kludge
 
 ### Test Sections
 
-Tadmor crucible cases are organized by test pattern:
+Bottle/sentry security cases — shared verbatim by the `tadmor` and `moriah` fixtures (`RBTDRC_SECTIONS_SECURITY` in `rbtdrc_crucible.rs`). The two fixtures differ only in provenance: tadmor runs against a locally-kludged bottle, moriah against the cloud-built airgap bottle. Runtime semantics are identical.
 
 | Section | Pattern | Example |
 |---------|---------|---------|
-| `tadmor-basic-infra` | Smoke tests — containers up, DNS responding | pentacle ping, dnsmasq responds |
-| `tadmor-ifrit-attacks` | Single ifrit attack, verdict from inside only | dns-allowed, dns-blocked, apt blocked |
-| `tadmor-observation` | Sentry-side observation of bottle behavior | iptables loaded, blocked-with-observation |
-| `tadmor-correlated` | Theurge resolves on sentry, ifrit attacks with result | tcp443 allow/block, ICMP hop tests |
-| `tadmor-sortie-attacks` | Multi-step ifrit sorties (complex attack sequences) | DNS exfil, metadata probe, raw socket smuggle |
-| `tadmor-unilateral-novel` | Ifrit sorties testing novel attack vectors | route manipulation, subnet escape, DNAT reflection |
-| `tadmor-coordinated-attacks` | Simultaneous attack + observation | ARP gratuitous/poison, table stability |
-| `tadmor-coordinated-integrity` | Attack then verify sentry state unchanged | sentry integrity, DNS cache integrity, MAC flood |
+| `basic-infra` | Smoke tests — containers up, DNS responding | pentacle ping, dnsmasq responds |
+| `ifrit-attacks` | Single ifrit attack, verdict from inside only | dns-allowed, dns-blocked, apt blocked |
+| `observation` | Sentry-side observation of bottle behavior | iptables loaded, blocked-with-observation |
+| `correlated` | Theurge resolves on sentry, ifrit attacks with result | tcp443 allow/block, ICMP hop tests |
+| `sortie-attacks` | Multi-step ifrit sorties (complex attack sequences) | DNS exfil, metadata probe, raw socket smuggle |
+| `unilateral-novel` | Ifrit sorties testing novel attack vectors | route manipulation, subnet escape, DNAT reflection |
+| `coordinated-attacks` | Simultaneous attack + observation | ARP gratuitous/poison, table stability |
+| `coordinated-integrity` | Attack then verify sentry state unchanged | sentry integrity, DNS cache integrity, MAC flood |
 
 ### Adding a New Test
 
