@@ -158,7 +158,8 @@ buh_tt() {
 buh_index_buk() {
   buh_section  "Generic OS Procedures (Bash Utility Kit)"
   buh_line     "  Project-independent OS-level mechanisms."
-  buh_tt       "  Windows:  " "${BUWZ_HW_TOP}"
+  buh_tt       "  Windows:       " "${BUWZ_HW_TOP}"
+  buh_tt       "  Jurisdiction:  " "${BUWZ_HJ0_TOP}"
 }
 
 ######################################################################

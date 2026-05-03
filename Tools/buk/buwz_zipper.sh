@@ -91,6 +91,10 @@ zbuwz_kindle() {
   buz_enroll BUWZ_HW_ENV_WSL        "buw-HWew"  "${z_mod}" "buhw_environment_wsl"    "param1"  "WSL distro creation"
   buz_enroll BUWZ_HW_ENV_CYGWIN     "buw-HWec"  "${z_mod}" "buhw_environment_cygwin" ""        "Cygwin install"
 
+  # Handbook — jurisdiction (buhj_cli.sh)
+  z_mod="buhj_cli.sh"
+  buz_enroll BUWZ_HJ0_TOP           "buw-hj0"   "${z_mod}" "buhj_top"                ""        "Jurisdiction handbook landing + admin SSH bootstrap"
+
   readonly ZBUWZ_KINDLED=1
 }
 

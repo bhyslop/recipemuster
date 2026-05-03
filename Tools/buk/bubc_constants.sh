@@ -28,4 +28,12 @@ ZBUBC_SOURCED=1
 BUBC_rbmn_nodes_subdir="rbmn_nodes"
 BUBC_rbmu_users_subdir="rbmu_users"
 
+# Windows OpenSSH layout — forward slashes throughout so identical strings
+# work in PowerShell, terminal display, and icacls invocations.
+BUBC_windows_sshd_config='C:/ProgramData/ssh/sshd_config'
+BUBC_windows_admin_auth_keys='C:/ProgramData/ssh/administrators_authorized_keys'
+BUBC_windows_ssh_port="22"
+BUBC_windows_fw_rule_name="sshd"
+BUBC_windows_fw_display_name="OpenSSH Server"
+
 # eof
