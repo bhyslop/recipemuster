@@ -116,6 +116,36 @@ bujb_command_file() {
   buc_step "Capture complete"
 }
 
+# bujb_garrison_bash - garrison ceremony, native bash workload shell (Linux/Mac).
+bujb_garrison_bash() {
+  buc_doc_brief "Garrison workload account on a bubep_linux/bubep_mac node (shell-letter b)"
+  buc_doc_shown || return 0
+
+  test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
+  bujb_resolve_investiture
+  bujb_garrison b
+}
+
+# bujb_garrison_cygwin - garrison ceremony, Cygwin bash workload shell (Windows).
+bujb_garrison_cygwin() {
+  buc_doc_brief "Garrison workload account on a bubep_windows node via Cygwin (shell-letter c)"
+  buc_doc_shown || return 0
+
+  test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
+  bujb_resolve_investiture
+  bujb_garrison c
+}
+
+# bujb_garrison_wsl - garrison ceremony, WSL bash workload shell (Windows).
+bujb_garrison_wsl() {
+  buc_doc_brief "Garrison workload account on a bubep_windows node via WSL (shell-letter w)"
+  buc_doc_shown || return 0
+
+  test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
+  bujb_resolve_investiture
+  bujb_garrison w
+}
+
 # bujb_interactive_session - hand control to ssh as workload.
 bujb_interactive_session() {
   buc_doc_brief "Interactive SSH session as workload"

@@ -171,4 +171,318 @@ bujb_workload_keypath_for() {
   esac
 }
 
+######################################################################
+# Internal: Garrison helpers
+
+zbujb_assert_shell_letter() {
+  local z_letter="${1:-}"
+  case "${z_letter}" in
+    b|c|w) ;;
+    *) buc_die "Invalid shell-letter (expected b/c/w): '${z_letter}'" ;;
+  esac
+}
+
+# zbujb_garrison_assert_platform LETTER -- assert BUJB_RESOLVED_PLATFORM
+# matches the shell-letter's required platform set.
+zbujb_garrison_assert_platform() {
+  zbujb_sentinel
+  local z_letter="${1:-}"
+  zbujb_assert_shell_letter "${z_letter}"
+  case "${z_letter}" in
+    b)
+      case "${BUJB_RESOLVED_PLATFORM}" in
+        bubep_linux|bubep_mac) ;;
+        *) buc_die "garrison-b requires bubep_linux or bubep_mac, got '${BUJB_RESOLVED_PLATFORM}'" ;;
+      esac
+      ;;
+    c|w)
+      test "${BUJB_RESOLVED_PLATFORM}" = "bubep_windows" \
+        || buc_die "garrison-${z_letter} requires bubep_windows, got '${BUJB_RESOLVED_PLATFORM}'"
+      ;;
+  esac
+}
+
+# zbujb_workload_home LETTER -- echo the absolute workload home path on the
+# remote node for the given shell-letter.
+zbujb_workload_home() {
+  zbujb_sentinel
+  local z_letter="${1:-}"
+  local z_wlu="${BUJB_RESOLVED_WORKLOAD_USER}"
+  case "${z_letter}" in
+    b)
+      case "${BUJB_RESOLVED_PLATFORM}" in
+        bubep_linux) echo "/home/${z_wlu}" ;;
+        bubep_mac)   echo "/Users/${z_wlu}" ;;
+        *)           buc_die "zbujb_workload_home: unsupported platform '${BUJB_RESOLVED_PLATFORM}'" ;;
+      esac
+      ;;
+    c|w) echo "/home/${z_wlu}" ;;
+    *)   buc_die "zbujb_workload_home: invalid letter '${z_letter}'" ;;
+  esac
+}
+
+# zbujb_admin_exec LETTER -- read a bash script from stdin and execute it on
+# the remote node as the privileged user, wrapped in the shell-letter-
+# appropriate invocation (native bash for b; Cygwin's bash --login for c;
+# wsl.exe to BUJB_wsl_distribution as root for w).
+zbujb_admin_exec() {
+  zbujb_sentinel
+  local z_letter="${1:-}"
+  zbujb_assert_shell_letter "${z_letter}"
+
+  local z_remote_invoker
+  case "${z_letter}" in
+    b) z_remote_invoker='bash -s' ;;
+    c) z_remote_invoker='C:/cygwin64/bin/bash --login -s' ;;
+    w) z_remote_invoker="wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -s" ;;
+  esac
+
+  ssh -i "${BUJB_RESOLVED_PRIVILEGED_KEY_FILE}"     \
+      -o IdentitiesOnly=yes                         \
+      -o BatchMode=yes                              \
+      -o StrictHostKeyChecking=accept-new           \
+      -o ConnectTimeout=15                          \
+      "${BUJB_RESOLVED_PRIVILEGED_USER}@${BUJB_RESOLVED_HOST}" \
+      "${z_remote_invoker}"
+}
+
+######################################################################
+# Internal: Garrison steps (6-step ceremony per BUSJG{B,C,W})
+
+# Step 1 -- open admin SSH (test reachability under key-only auth).
+zbujb_garrison_step1_admin_open() {
+  local z_letter="${1:-}"
+  buc_step "  [1/6] Open admin SSH (${BUJB_RESOLVED_PRIVILEGED_USER}@${BUJB_RESOLVED_HOST})"
+
+  local z_exit=0
+  zbujb_admin_exec "${z_letter}" <<<'exit 0' || z_exit=$?
+  if test "${z_exit}" -ne 0; then
+    case "${BUJB_RESOLVED_PLATFORM}" in
+      bubep_windows)
+        buc_die "Admin SSH failed (exit ${z_exit}). Run fenestrate first: tt/buw-jpF.Fenestrate.sh ${BUJB_RESOLVED_VICEROYALTY}"
+        ;;
+      *)
+        buc_die "Admin SSH failed (exit ${z_exit}). Place admin pubkey via 'ssh-copy-id -i ${BUJB_RESOLVED_PRIVILEGED_KEY_FILE}.pub ${BUJB_RESOLVED_PRIVILEGED_USER}@${BUJB_RESOLVED_HOST}' first."
+        ;;
+    esac
+  fi
+}
+
+# Step 2 -- destroy any existing workload account + home.
+zbujb_garrison_step2_destroy() {
+  local z_letter="${1:-}"
+  local z_wlu="${BUJB_RESOLVED_WORKLOAD_USER}"
+  local z_wlhome
+  z_wlhome=$(zbujb_workload_home "${z_letter}")
+  buc_step "  [2/6] Destroy workload (${z_wlu})"
+
+  case "${z_letter}" in
+    b)
+      zbujb_admin_exec b <<SCRIPT
+set -uo pipefail
+sudo -n userdel -r '${z_wlu}' 2>/dev/null || true
+sudo -n rm -rf '${z_wlhome}' 2>/dev/null || true
+SCRIPT
+      ;;
+    c)
+      # Cygwin workload is a Windows local user; delete via net.exe then
+      # purge the Cygwin home directory.
+      zbujb_admin_exec c <<SCRIPT
+set -uo pipefail
+net.exe user '${z_wlu}' /delete > /dev/null 2>&1 || true
+rm -rf '${z_wlhome}'                              2>/dev/null || true
+rm -rf '/cygdrive/c/cygwin64/home/${z_wlu}'       2>/dev/null || true
+SCRIPT
+      ;;
+    w)
+      zbujb_admin_exec w <<SCRIPT
+set -uo pipefail
+userdel -r '${z_wlu}' 2>/dev/null || true
+rm -rf '${z_wlhome}'  2>/dev/null || true
+SCRIPT
+      ;;
+  esac
+}
+
+# Step 3 -- create the workload account fresh, ssh-only, no privilege.
+zbujb_garrison_step3_create() {
+  local z_letter="${1:-}"
+  local z_wlu="${BUJB_RESOLVED_WORKLOAD_USER}"
+  buc_step "  [3/6] Create workload (${z_wlu})"
+
+  case "${z_letter}" in
+    b)
+      case "${BUJB_RESOLVED_PLATFORM}" in
+        bubep_linux)
+          zbujb_admin_exec b <<SCRIPT
+set -euo pipefail
+sudo -n useradd --create-home --shell /bin/bash '${z_wlu}'
+sudo -n passwd  --lock '${z_wlu}'
+SCRIPT
+          ;;
+        bubep_mac)
+          # Mac uses dscl/sysadminctl; left for in-environment refinement.
+          # Operator may need to seat a more idiomatic primary group ID.
+          zbujb_admin_exec b <<SCRIPT
+set -euo pipefail
+sudo -n sysadminctl -addUser '${z_wlu}' -roleAccount
+sudo -n dscl . -create '/Users/${z_wlu}' UserShell /bin/bash
+SCRIPT
+          ;;
+      esac
+      ;;
+    c)
+      # Cygwin reflects Windows user accounts; mint via net.exe with a
+      # disabled-password posture (we want ssh-key-only).
+      zbujb_admin_exec c <<SCRIPT
+set -euo pipefail
+net.exe user '${z_wlu}' /add /passwordreq:no /active:yes > /dev/null
+mkpasswd -l -u '${z_wlu}' >> /etc/passwd
+mkdir -p '/home/${z_wlu}'
+chown -R '${z_wlu}' '/home/${z_wlu}'
+SCRIPT
+      ;;
+    w)
+      zbujb_admin_exec w <<SCRIPT
+set -euo pipefail
+useradd --create-home --shell /bin/bash '${z_wlu}'
+passwd  --lock '${z_wlu}'
+SCRIPT
+      ;;
+  esac
+}
+
+# Step 4 -- write workload authorized_keys with the shell-letter command=
+# directive and the workload pubkey (derived locally from the privkey).
+zbujb_garrison_step4_place_trust() {
+  local z_letter="${1:-}"
+  local z_wlu="${BUJB_RESOLVED_WORKLOAD_USER}"
+  local z_wlhome
+  z_wlhome=$(zbujb_workload_home "${z_letter}")
+  buc_step "  [4/6] Place workload trust (${z_wlhome}/.ssh/authorized_keys)"
+
+  local z_command_directive
+  z_command_directive=$(bujb_command_for "${z_letter}")
+
+  local z_pubkey
+  z_pubkey=$(ssh-keygen -y -P '' -f "${BUJB_RESOLVED_WORKLOAD_KEY_FILE}") \
+    || buc_die "ssh-keygen -y failed for workload key: ${BUJB_RESOLVED_WORKLOAD_KEY_FILE}"
+
+  local z_authkeys_line="${z_command_directive} ${z_pubkey}"
+
+  case "${z_letter}" in
+    b|w)
+      zbujb_admin_exec "${z_letter}" <<SCRIPT
+set -euo pipefail
+$([ "${z_letter}" = "b" ] && echo "sudo -n ")mkdir -p   '${z_wlhome}/.ssh'
+$([ "${z_letter}" = "b" ] && echo "sudo -n ")chmod 700  '${z_wlhome}/.ssh'
+echo '${z_authkeys_line}' | $([ "${z_letter}" = "b" ] && echo "sudo -n ")tee '${z_wlhome}/.ssh/authorized_keys' > /dev/null
+$([ "${z_letter}" = "b" ] && echo "sudo -n ")chmod 600  '${z_wlhome}/.ssh/authorized_keys'
+$([ "${z_letter}" = "b" ] && echo "sudo -n ")chown -R '${z_wlu}:${z_wlu}' '${z_wlhome}/.ssh'
+SCRIPT
+      ;;
+    c)
+      # In Cygwin, file ownership/permissions interplay with NTFS ACLs.
+      # mkdir/chmod/chown are Cygwin-mediated; run as the admin user
+      # without sudo (Windows admins already have privilege).
+      zbujb_admin_exec c <<SCRIPT
+set -euo pipefail
+mkdir -p   '${z_wlhome}/.ssh'
+chmod 700  '${z_wlhome}/.ssh'
+echo '${z_authkeys_line}' > '${z_wlhome}/.ssh/authorized_keys'
+chmod 600  '${z_wlhome}/.ssh/authorized_keys'
+chown -R '${z_wlu}' '${z_wlhome}/.ssh'
+SCRIPT
+      ;;
+  esac
+}
+
+# Step 5 -- copy workload privkey to the remote at the shell-letter's
+# hardcoded destination path, with workload ownership and 0600 mode.
+zbujb_garrison_step5_plant_key() {
+  local z_letter="${1:-}"
+  local z_wlu="${BUJB_RESOLVED_WORKLOAD_USER}"
+  local z_wlhome
+  z_wlhome=$(zbujb_workload_home "${z_letter}")
+  local z_keypath
+  z_keypath=$(bujb_workload_keypath_for "${z_letter}")
+  local z_target="${z_wlhome}/${z_keypath}"
+  buc_step "  [5/6] Plant workload privkey (${z_target})"
+
+  local z_key_b64
+  z_key_b64=$(base64 < "${BUJB_RESOLVED_WORKLOAD_KEY_FILE}") \
+    || buc_die "base64 encode failed for workload key: ${BUJB_RESOLVED_WORKLOAD_KEY_FILE}"
+
+  case "${z_letter}" in
+    b|w)
+      local z_sudo=""
+      test "${z_letter}" = "b" && z_sudo="sudo -n"
+      zbujb_admin_exec "${z_letter}" <<SCRIPT
+set -euo pipefail
+ztmp=\$(mktemp)
+trap 'rm -f "\${ztmp}"' EXIT
+echo '${z_key_b64}' | base64 -d > "\${ztmp}"
+${z_sudo} mkdir -p   '$(dirname "${z_target}")'
+${z_sudo} install -m 600 -o '${z_wlu}' -g '${z_wlu}' "\${ztmp}" '${z_target}'
+SCRIPT
+      ;;
+    c)
+      zbujb_admin_exec c <<SCRIPT
+set -euo pipefail
+ztmp=\$(mktemp)
+trap 'rm -f "\${ztmp}"' EXIT
+echo '${z_key_b64}' | base64 -d > "\${ztmp}"
+mkdir -p   '$(dirname "${z_target}")'
+cp "\${ztmp}" '${z_target}'
+chmod 600  '${z_target}'
+chown      '${z_wlu}' '${z_target}'
+SCRIPT
+      ;;
+  esac
+}
+
+# Step 6 -- workload-side round-trip validation (knock).
+zbujb_garrison_step6_validate() {
+  local z_letter="${1:-}"
+  buc_step "  [6/6] Validate workload round-trip"
+
+  local z_exit=0
+  ssh -i "${BUJB_RESOLVED_WORKLOAD_KEY_FILE}"     \
+      -o IdentitiesOnly=yes                       \
+      -o BatchMode=yes                            \
+      -o StrictHostKeyChecking=accept-new         \
+      -o ConnectTimeout=10                        \
+      "${BUJB_RESOLVED_WORKLOAD_USER}@${BUJB_RESOLVED_HOST}" \
+      true                                        \
+    || z_exit=$?
+
+  test "${z_exit}" -eq 0 \
+    || buc_die "Workload round-trip failed (ssh exit ${z_exit}); the new account did not accept its own key."
+}
+
+######################################################################
+# Public: Garrison ceremony
+
+# bujb_garrison LETTER -- run the 6-step garrison ceremony for shell-letter
+# b, c, or w. Caller must have invoked bujb_resolve_investiture beforehand.
+bujb_garrison() {
+  zbujb_sentinel
+  test "${ZBUJB_RESOLVED:-}" = "1" \
+    || buc_die "bujb_garrison: call bujb_resolve_investiture first"
+
+  local z_letter="${1:-}"
+  zbujb_garrison_assert_platform "${z_letter}"
+
+  buc_step "Garrison-${z_letter}: ${BUJB_RESOLVED_VICEROYALTY} (${BUJB_RESOLVED_HOST})"
+
+  zbujb_garrison_step1_admin_open    "${z_letter}"
+  zbujb_garrison_step2_destroy       "${z_letter}"
+  zbujb_garrison_step3_create        "${z_letter}"
+  zbujb_garrison_step4_place_trust   "${z_letter}"
+  zbujb_garrison_step5_plant_key     "${z_letter}"
+  zbujb_garrison_step6_validate      "${z_letter}"
+
+  buc_step "Garrison-${z_letter} succeeded"
+}
+
 # eof

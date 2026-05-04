@@ -101,6 +101,11 @@ zbuwz_kindle() {
   buz_enroll BUWZ_JW_COMMAND_FILE   "buw-jwc"   "${z_mod}" "bujb_command_file"        "param1"  "Run command file as workload, capture outputs"
   buz_enroll BUWZ_JW_INTERACTIVE    "buw-jws"   "${z_mod}" "bujb_interactive_session" "param1"  "Interactive SSH session as workload"
 
+  # Jurisdiction operational — garrison ceremonies (bujb_cli.sh)
+  buz_enroll BUWZ_JP_GARRISON_BASH    "buw-jpGb"  "${z_mod}" "bujb_garrison_bash"     "param1"  "Garrison workload (shell-letter b: native bash, Linux/Mac)"
+  buz_enroll BUWZ_JP_GARRISON_CYGWIN  "buw-jpGc"  "${z_mod}" "bujb_garrison_cygwin"   "param1"  "Garrison workload (shell-letter c: Cygwin bash, Windows)"
+  buz_enroll BUWZ_JP_GARRISON_WSL     "buw-jpGw"  "${z_mod}" "bujb_garrison_wsl"      "param1"  "Garrison workload (shell-letter w: WSL bash, Windows)"
+
   readonly ZBUWZ_KINDLED=1
 }
 
