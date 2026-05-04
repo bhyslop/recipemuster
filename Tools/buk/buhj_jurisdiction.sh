@@ -123,19 +123,22 @@ zbuhj_render_windows_bootstrap() {
   buh_line     "Windows OpenSSH ships with sshd_config in a state that blocks"
   buh_line     "fenestrate's phase-1 password fallback (the wire protocol"
   buh_line     "advertises keyboard-interactive but the server refuses to"
-  buh_line     "actually prompt). Open sshd_config, find the"
-  buh_line     "PasswordAuthentication directive (commented or otherwise),"
-  buh_line     "and set it to exactly:"
-  buh_e
-  buh_code     "PasswordAuthentication yes"
-  buh_e
-  buh_line     "If no PasswordAuthentication line exists, add one. Save"
-  buh_line     "(notepad inherits your elevated context so SYSTEM-owned writes"
-  buh_line     "succeed). Fenestrate flips this back to 'no' as part of its"
-  buh_line     "hardening step, so this is a temporary state."
+  buh_line     "actually prompt). Open sshd_config in an editor; notepad"
+  buh_line     "inherits your elevated context so SYSTEM-owned writes succeed."
   buh_line     "File: ${z_sshd_config_yelp}"
   buh_e
   buh_code     "notepad ${BUBC_windows_sshd_config}"
+  buh_e
+  buh_line     "Find the PasswordAuthentication directive (commented or"
+  buh_line     "otherwise) and set it to exactly:"
+  buh_e
+  buh_code     "PasswordAuthentication yes"
+  buh_e
+  buh_line     "If no PasswordAuthentication line exists, add one. Save."
+  buh_line     "Fenestrate flips this back to 'no' as part of its hardening"
+  buh_line     "step, so this is a temporary state. Restart sshd to pick up"
+  buh_line     "the change:"
+  buh_e
   buh_code     "Restart-Service sshd"
   buh_e
 
