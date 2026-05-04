@@ -95,6 +95,12 @@ zbuwz_kindle() {
   z_mod="buhj_cli.sh"
   buz_enroll BUWZ_HJ0_TOP           "buw-hj0"   "${z_mod}" "buhj_top"                ""        "Jurisdiction handbook landing + admin SSH bootstrap"
 
+  # Jurisdiction operational — workload ceremonies (bujb_cli.sh)
+  z_mod="bujb_cli.sh"
+  buz_enroll BUWZ_JW_KNOCK          "buw-jwk"   "${z_mod}" "bujb_knock"               "param1"  "Knock — probe workload SSH reachability"
+  buz_enroll BUWZ_JW_COMMAND_FILE   "buw-jwc"   "${z_mod}" "bujb_command_file"        "param1"  "Run command file as workload, capture outputs"
+  buz_enroll BUWZ_JW_INTERACTIVE    "buw-jws"   "${z_mod}" "bujb_interactive_session" "param1"  "Interactive SSH session as workload"
+
   readonly ZBUWZ_KINDLED=1
 }
 

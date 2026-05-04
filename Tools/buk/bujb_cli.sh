@@ -50,6 +50,91 @@ bujb_resolve() {
   buc_bare "  BUJB_RESOLVED_WORKLOAD_USER      = ${BUJB_RESOLVED_WORKLOAD_USER}"
 }
 
+# bujb_knock - probe workload reachability (workload SSH + remote no-op).
+bujb_knock() {
+  buc_doc_brief "Probe workload SSH reachability for an investiture"
+  buc_doc_shown || return 0
+
+  test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
+
+  bujb_resolve_investiture
+
+  buc_step "Knocking ${BUJB_RESOLVED_WORKLOAD_USER}@${BUJB_RESOLVED_HOST} (${BUJB_RESOLVED_VICEROYALTY})"
+
+  ssh -i "${BUJB_RESOLVED_WORKLOAD_KEY_FILE}"     \
+      -o IdentitiesOnly=yes                       \
+      -o BatchMode=yes                            \
+      -o StrictHostKeyChecking=accept-new         \
+      -o ConnectTimeout=10                        \
+      "${BUJB_RESOLVED_WORKLOAD_USER}@${BUJB_RESOLVED_HOST}" \
+      true                                        \
+    || buc_die "Knock failed for ${BUJB_RESOLVED_VICEROYALTY}"
+
+  buc_step "Knock succeeded"
+}
+
+# bujb_command_file - stream a local command file's contents to the workload
+# remote shell. Captures stdout/stderr/exit to BURD_OUTPUT_DIR. Per spec:
+# returns 0 when dispatch + capture complete (independent of remote exit);
+# non-zero on SSH-level failure (exit 255).
+bujb_command_file() {
+  buc_doc_brief "Execute a local command file as workload; capture stdout/stderr/exit"
+  buc_doc_param "command_file" "Local file streamed as the remote command body"
+  buc_doc_shown || return 0
+
+  test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
+
+  local z_command_file="${1:-}"
+  test -n "${z_command_file}"   || buc_usage_die
+  test -f "${z_command_file}"   || buc_die "Command file not found: ${z_command_file}"
+  test -r "${z_command_file}"   || buc_die "Command file not readable: ${z_command_file}"
+
+  bujb_resolve_investiture
+
+  buc_step "Streaming ${z_command_file} to ${BUJB_RESOLVED_WORKLOAD_USER}@${BUJB_RESOLVED_HOST}"
+  buc_step "Output dir: ${BURD_OUTPUT_DIR}"
+
+  local z_exit=0
+  ssh -i "${BUJB_RESOLVED_WORKLOAD_KEY_FILE}"     \
+      -o IdentitiesOnly=yes                       \
+      -o BatchMode=yes                            \
+      -o StrictHostKeyChecking=accept-new         \
+      -o ConnectTimeout=10                        \
+      "${BUJB_RESOLVED_WORKLOAD_USER}@${BUJB_RESOLVED_HOST}" \
+      'bash -s'                                   \
+      < "${z_command_file}"                       \
+      > "${BURD_OUTPUT_DIR}/stdout.log"           \
+      2> "${BURD_OUTPUT_DIR}/stderr.log"          \
+    || z_exit=$?
+
+  echo "${z_exit}" > "${BURD_OUTPUT_DIR}/exitcode"
+
+  test "${z_exit}" -ne 255 \
+    || buc_die "SSH connection or authentication failed (exit 255). See ${BURD_OUTPUT_DIR}/stderr.log"
+
+  buc_step "Remote exit code: ${z_exit}"
+  buc_step "Capture complete"
+}
+
+# bujb_interactive_session - hand control to ssh as workload.
+bujb_interactive_session() {
+  buc_doc_brief "Interactive SSH session as workload"
+  buc_doc_shown || return 0
+
+  test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
+
+  bujb_resolve_investiture
+
+  buc_step "Opening interactive session: ${BUJB_RESOLVED_WORKLOAD_USER}@${BUJB_RESOLVED_HOST} (${BUJB_RESOLVED_VICEROYALTY})"
+
+  exec ssh -t                                     \
+      -i "${BUJB_RESOLVED_WORKLOAD_KEY_FILE}"     \
+      -o IdentitiesOnly=yes                       \
+      -o StrictHostKeyChecking=accept-new         \
+      "${BUJB_RESOLVED_WORKLOAD_USER}@${BUJB_RESOLVED_HOST}" \
+      "bash -i"
+}
+
 ######################################################################
 # Furnish and Main
 
