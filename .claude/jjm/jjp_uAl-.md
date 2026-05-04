@@ -16,7 +16,7 @@ BUS0. Architectural spine in BUS0 §Remote Node Access.
 - BURN — node-shape (host, OS family). Per-node, git-transported, changes
   rarely. Identifier: viceroyalty.
 - BURP — privileged + workload credentials. Per-station-user. Four fields:
-  `BURP_NODE` (viceroyalty reference), `BURP_PRIVILEGED_USER`,
+  `BURP_VICEROYALTY` (BURN reference), `BURP_PRIVILEGED_USER`,
   `BURP_PRIVILEGED_KEY_FILE`, `BURP_WORKLOAD_KEY_FILE`. Pubkeys derived from
   privkeys via `ssh-keygen -y` at use-time; no separate pubkey paths or inline
   strings. Identifier: investiture.
@@ -142,10 +142,9 @@ Phase 2 (key auth only):
   out of garrison into a uniform fenestrate verb
 
 **Implementation:**
-- implement-jurisdiction — drop BURW infrastructure, four-field BURP,
-  `BURC_WORKLOAD_USER`, `bujb_jurisdiction.sh` module, 14 tabtargets,
-  fenestrate + garrison ceremonies, cleanup superseded colophons + handbook
-  entries
+- implement-jurisdiction — four-field BURP, `BURC_WORKLOAD_USER`,
+  `bujb_jurisdiction.sh` module, 14 tabtargets, fenestrate + garrison
+  ceremonies, cleanup superseded colophons + handbook entries
 
 **Investigation (independent, runs anytime):**
 - AAe — localhost-fundus-parallel-saturation diagnosis
