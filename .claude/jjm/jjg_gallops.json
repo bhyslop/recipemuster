@@ -66,6 +66,7 @@
         "₢A-AAY",
         "₢A-AAZ",
         "₢A-AAe",
+        "₢A-AAq",
         "₢A-AAa",
         "₢A-AAc",
         "₢A-AAb",
@@ -74,7 +75,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "next_pace_seed": "AAq",
+      "next_pace_seed": "AAr",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -1014,6 +1015,17 @@
               "text": "## Character\n\nDesign landing — multiple spec files, handbook, and paddock must end\nagreeing on a new verb decomposition. Spec-internal consistency is the\nload-bearing property; not a mechanical sweep.\n\n## Docket\n\nIntroduce `busn_fenestrate` as a new jurisdiction verb. Windows-only,\nuniform (no shell-letter), tabtarget `buw-jpF` (capital F = persistent\nconfig application; takes BURP investiture as param1), implementation\nseat shared with garrison in `bujb_jurisdiction.sh`. Locked design:\ntwo-phase remote-run ceremony — password-session followed by\nkey-session; `sshd -t` validation as load-bearing gate before any sshd\nrestart (lockout safety). Posture A — fenestrate writes sshd_config,\nthat is its job. Add BUSJPF subdoc carrying the two-phase operation\ncontract; update mapping section + tabtarget catalog (13 → 14).\n\nNarrow `busn_garrison` to workload provisioning only — the admin-trust\nfront-half moves to fenestrate. Update BUSJGB/C/W to drop the\nfront-half and add two verification gates: ssh express-test of key\nauth before destructive workload work (lockout prevention);\nfile-content check requiring `PasswordAuthentication no` with\noperator-guidance failure if absent (Posture B — garrison verifies,\nnever writes sshd_config). Garrison stays per-shell-letter b/c/w;\nfenestrate is uniform.\n\nSweep BUS0 drift sites that the dual-purpose pivot left and that\nfenestrate now honestly covers. Discovery recipe:\n`grep -rn \"out-of-band\\|no password fallback\\|operator-bootstrapped\" Tools/buk/`.\nReframe §Garrison-Destructive Model paragraph (fenestrate carved off\nadmin trust; garrison still subsumes workload lifecycle with no\nseparate materialize/remove/enumerate verbs).\n\nUpdate `buhj_jurisdiction.sh` post-bootstrap hand-off prose to \"Run\nFenestrate, then Garrison.\" Linux/Mac stays operator-manual via\nssh-copy-id handbook line (no fenestrate equivalent). Update paddock\n§Current Concept (introduce fenestrate alongside garrison), split\nceremony section into §Fenestrate ceremony + §Garrison ceremony,\nadjust standing notes that no longer match.\n\nDone when:\n- BUS0 reflects the split with no contradicting prose anywhere\n- BUSJPF + revised BUSJGB/C/W carry their respective contracts\n- Handbook and paddock no longer claim garrison handles admin trust\n- `bujb_jurisdiction` body in BUS0 acknowledges the verb shared seat\n\nOut of scope: any code (implementation is `implement-jurisdiction`'s\njob); PowerShell garrison + dispatch (deferred per paddock); adopt\nverb (deferred); end-to-end operator test on a Windows node (waits on\nimplementation existing).",
               "silks": "introduce-fenestrate-narrow-garrison",
               "commit": "48de4ca"
+            }
+          ]
+        },
+        "₢A-AAq": {
+          "tacks": [
+            {
+              "ts": "260504-1601",
+              "state": "rough",
+              "text": "## Character\n\nCleanup. Mechanical BCG conformance fixes on `Tools/buk/bujb_cli.sh`.\n\n## Docket\n\nThree classes of BCG drift in `bujb_cli.sh`, surfaced during review of\nthe L3 commit that landed `bujb_command_file`. Scope is this single\nfile; do not sweep siblings.\n\n1. **Output filenames as kindle constants.** `stdout.log`, `stderr.log`,\n   `exitcode` are written as bare literals against `BURD_OUTPUT_DIR`.\n   BCG Template 3 prescribes kindle constants for fixed paths under\n   `BURD_OUTPUT_DIR` (see the `Z«PREFIX»_OUTPUT_RESULT` example).\n   Promote the three to `ZBUJB_OUTPUT_*` in `zbujb_kindle()` and\n   update all call sites (the two ssh redirections, the exitcode\n   write, and the `buc_die` message that references the stderr path).\n\n2. **Unguarded write.** The `echo \"${z_exit}\" > .../exitcode` line\n   has no `|| buc_die` per the no-silent-failures discipline that\n   neighbouring code in this same file follows.\n\n3. **Public command function entry shape.** The four public functions\n   in this CLI (`bujb_resolve`, `bujb_knock`, `bujb_command_file`,\n   `bujb_interactive_session`) skip the `zbujb_sentinel` first-line\n   that BCG's boilerplate table mandates. Add the call. Do not audit\n   sibling CLIs.\n\nAlso: `local -r` pass on assigned-once locals in this file\n(`z_command_file` is the obvious one).\n\nDone when:\n- `bash -n Tools/buk/bujb_cli.sh` green\n- `tt/buw-st.BukSelfTest.sh` green",
+              "silks": "bcg-repair-bujb-cli",
+              "commit": "17f9a00"
             }
           ]
         }
