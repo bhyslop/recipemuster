@@ -2553,22 +2553,30 @@ fn rbtdrc_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
             Err(e) => return rbtdre_Verdict::Fail(format!("abjure invocation: {}", e)),
         }
 
-        // Step 6: rekon reports all five basenames not yes (post-abjure behavior
-        // unverified — failure here triggers debug, not workaround).
+        // Step 6: rekon for the abjured hallmark must die with the canonical
+        // 'Hallmark not found:' message — proves abjure removed the entire
+        // registry entry, complementing the audit-list disappearance from
+        // step 7. Producer-side message lives in rbfl_FoundryLedger.sh's
+        // rbfl_rekon_hallmark.
         let _ = std::fs::write(dir.join("06-rekon-after-abjure.txt"), "rekoning after abjure");
-        let rekon_after_abjure = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_REKON_HALLMARK, &[&hallmark], &[]) {
-            Ok(r) if r.exit_code == 0 => r,
-            Ok(r) => return rbtdre_Verdict::Fail(format!("post-abjure rekon failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("post-abjure rekon invocation: {}", e)),
-        };
-        let _ = std::fs::write(dir.join("06-rekon-after-abjure-stdout.txt"), &rekon_after_abjure.stdout);
-        for basename in ZRBTDRC_ARK_BASENAMES_ALL {
-            if rbtdrc_rekon_basename_yes(&rekon_after_abjure.stdout, basename) {
+        let expected_marker = format!("Hallmark not found: {}", hallmark);
+        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_REKON_HALLMARK, &[&hallmark], &[]) {
+            Ok(r) if r.exit_code != 0 && r.stderr.contains(&expected_marker) => {
+                let _ = std::fs::write(dir.join("06-rekon-after-abjure-stderr.txt"), &r.stderr);
+            }
+            Ok(r) if r.exit_code == 0 => {
                 return rbtdre_Verdict::Fail(format!(
-                    "post-abjure rekon: basename '{}' still marked yes after abjure\nstdout:\n{}",
-                    basename, rekon_after_abjure.stdout
+                    "post-abjure rekon: expected non-zero exit ('{}'), got success\nstdout:\n{}",
+                    expected_marker, r.stdout
                 ));
             }
+            Ok(r) => {
+                return rbtdre_Verdict::Fail(format!(
+                    "post-abjure rekon: exit {} but stderr did not contain expected '{}'\nstderr:\n{}",
+                    r.exit_code, expected_marker, r.stderr
+                ));
+            }
+            Err(e) => return rbtdre_Verdict::Fail(format!("post-abjure rekon invocation: {}", e)),
         }
 
         // Step 7: final audit — registry restored to baseline.
