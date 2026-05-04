@@ -31,13 +31,13 @@ Job Jockey (JJ) is installed for managing project initiatives.
 **Mid-execution posture.** When a failure or surprise surfaces while a pace is mounted, the default response is mechanism + one specific repair you'd attempt. Do not proliferate options or weigh consequences across alternatives — pace scope and segmentation are operator territory. If the repair is obvious, proceed; if not, surface the question and stop.
 
 **Identities vs Display Names:**
-- **Firemark**: Heat identity (`₣AA` or `AA`). Used in command params and JSON keys.
-- **Coronet**: Pace identity (`₢AAAAk` or `AAAAk`). Used in command params and JSON keys.
+- **Firemark**: Heat identity, two characters from a nonstandard b64 alphabet (e.g., `₣AA`, `₣Av`, `₣A-`, `₣A_`, `₣A7`). Used in command params and JSON keys.
+- **Coronet**: Pace identity, firemark plus three characters from the same alphabet (e.g., `₢AAAAk`, `₢A-AAm`, `₢A_A-p`, `₢AAA_7`). Used in command params and JSON keys.
 - **Silks**: kebab-case display name. Human-readable only — NOT usable for lookups.
 
 When a command takes a firemark or coronet, provide the identity, not the silks.
 
-**Case sensitivity**: Firemarks and coronets are case-sensitive. `Av` ≠ `AV` ≠ `av`. Passing the wrong case produces a confusing "not found" error. Copy identities exactly as displayed — the final letter's case distinguishes heats (e.g., `₣Av` vs `₣AV` are different heats).
+**Case sensitivity**: Firemarks and coronets are case-sensitive. `Av` ≠ `AV` ≠ `av`. Passing the wrong case produces a confusing "not found" error. Copy identities exactly as displayed — the final character's case distinguishes heats (e.g., `₣Av` vs `₣AV` are different heats).
 
 - Target repo dir: `.`
 - JJ Kit path: `Tools/jjk/README.md`
