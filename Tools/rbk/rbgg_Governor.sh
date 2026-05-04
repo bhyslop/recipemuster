@@ -79,6 +79,7 @@ zrbgg_kindle() {
   readonly ZRBGG_INFIX_API_CHECK="api_checking"
   readonly ZRBGG_INFIX_DELETE="delete"
   readonly ZRBGG_INFIX_LIST_KEYS="list_keys"
+  readonly ZRBGG_INFIX_KEYS_PROBE="keys_probe"
   readonly ZRBGG_INFIX_BUCKET_CREATE="bucket_create"
   readonly ZRBGG_INFIX_BUCKET_DELETE="bucket_delete"
   readonly ZRBGG_INFIX_BUCKET_LIST="bucket_list"
@@ -194,6 +195,10 @@ zrbgg_create_service_account_with_key() {
     "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}" "${z_token}" "${ZRBGG_INFIX_VERIFY}"
 
   buc_step 'Preflight: ensure no existing USER_MANAGED keys (manual cleanup path)'
+
+  rbgu_poll_until_ok "Keys subresource propagation"                           \
+    "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}${RBGC_PATH_KEYS}"        \
+                                      "${z_token}" "${ZRBGG_INFIX_KEYS_PROBE}"
 
   buc_log_args 'List keys'
   rbgu_http_json "GET"                                                        \
