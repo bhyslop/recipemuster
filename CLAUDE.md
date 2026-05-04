@@ -232,7 +232,7 @@ Two orthogonal Rust pipelines. Always use the tabtarget, never raw cargo command
 | Suite | Tabtarget | Dependencies | What it covers |
 |-------|-----------|-------------|----------------|
 | `fast` | `tt/rbtd-s.TestSuite.fast.sh` | None | enrollment-validation (47), regime-validation (21), regime-smoke (7) = 75 cases |
-| `service` | `tt/rbtd-s.TestSuite.service.sh` | GCP credentials | fast + access-probe (4), four-mode (1) = 80 cases |
+| `service` | `tt/rbtd-s.TestSuite.service.sh` | GCP credentials | fast + access-probe (4), hallmark-lifecycle (1), batch-vouch (1) = 81 cases |
 | `crucible` | `tt/rbtd-s.TestSuite.crucible.sh` | Container runtime | fast + tadmor-security (34), srjcl-jupyter (3), pluml-diagram (5) = 117 cases |
 | `complete` | `tt/rbtd-s.TestSuite.complete.sh` | All of the above | All 8 fixtures = 122 cases |
 

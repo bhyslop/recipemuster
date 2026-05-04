@@ -35,12 +35,11 @@ use crate::rbtdri_invocation::{
     RBTDRI_BURE_CONFIRM_SKIP,
 };
 use crate::rbtdrm_manifest::{
-    RBTDRM_COLOPHON_ABJURE, RBTDRM_COLOPHON_ACCESS_PROBE, RBTDRM_COLOPHON_BARK,
-    RBTDRM_COLOPHON_CHARGE, RBTDRM_COLOPHON_CRUCIBLE_ACTIVE, RBTDRM_COLOPHON_FIAT,
-    RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE, RBTDRM_COLOPHON_KLUDGE, RBTDRM_COLOPHON_ORDAIN,
-    RBTDRM_COLOPHON_PLUMB_COMPACT, RBTDRM_COLOPHON_PLUMB_FULL, RBTDRM_COLOPHON_QUENCH,
-    RBTDRM_COLOPHON_REKON_HALLMARK, RBTDRM_COLOPHON_SUMMON, RBTDRM_COLOPHON_TALLY,
-    RBTDRM_COLOPHON_VOUCH, RBTDRM_COLOPHON_WREST_HALLMARK_IMAGE, RBTDRM_COLOPHON_WRIT,
+    RBTDRM_COLOPHON_ABJURE, RBTDRM_COLOPHON_ACCESS_PROBE, RBTDRM_COLOPHON_AUDIT_HALLMARKS,
+    RBTDRM_COLOPHON_BARK, RBTDRM_COLOPHON_CHARGE, RBTDRM_COLOPHON_CRUCIBLE_ACTIVE,
+    RBTDRM_COLOPHON_FIAT, RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE, RBTDRM_COLOPHON_ORDAIN,
+    RBTDRM_COLOPHON_QUENCH, RBTDRM_COLOPHON_REKON_HALLMARK, RBTDRM_COLOPHON_TALLY,
+    RBTDRM_COLOPHON_VOUCH, RBTDRM_COLOPHON_WRIT,
 };
 
 // ── Thread-local invocation context ──────────────────────────
@@ -2164,12 +2163,12 @@ pub static RBTDRC_FIXTURE_PLUML: rbtdre_Fixture = rbtdre_Fixture {
 
 // ── Bare fixtures owned by rbtdrc (no charge/quench) ─────────
 
-pub static RBTDRC_FIXTURE_FOUR_MODE: rbtdre_Fixture = rbtdre_Fixture {
-    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_FOUR_MODE,
+pub static RBTDRC_FIXTURE_HALLMARK_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
+    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_HALLMARK_LIFECYCLE,
     disposition: rbtdre_Disposition::Independent,
     setup: None,
     teardown: None,
-    sections: RBTDRC_SECTIONS_FOUR_MODE,
+    sections: RBTDRC_SECTIONS_HALLMARK_LIFECYCLE,
 };
 
 pub static RBTDRC_FIXTURE_BATCH_VOUCH: rbtdre_Fixture = rbtdre_Fixture {
@@ -2197,7 +2196,7 @@ pub fn rbtdrc_lookup_fixture(fixture: &str) -> Option<&'static rbtdre_Fixture> {
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_MORIAH => Some(&RBTDRC_FIXTURE_MORIAH),
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_SRJCL => Some(&RBTDRC_FIXTURE_SRJCL),
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_PLUML => Some(&RBTDRC_FIXTURE_PLUML),
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_FOUR_MODE => Some(&RBTDRC_FIXTURE_FOUR_MODE),
+        crate::rbtdrm_manifest::RBTDRM_FIXTURE_HALLMARK_LIFECYCLE => Some(&RBTDRC_FIXTURE_HALLMARK_LIFECYCLE),
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_BATCH_VOUCH => Some(&RBTDRC_FIXTURE_BATCH_VOUCH),
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_ACCESS_PROBE => Some(&RBTDRC_FIXTURE_ACCESS_PROBE),
         crate::rbtdrm_manifest::RBTDRM_FIXTURE_ENROLLMENT_VALIDATION => {
@@ -2357,43 +2356,27 @@ static RBTDRC_SECTIONS_SECURITY: &[rbtdre_Section] = &[
     },
 ];
 
-// ── Four-mode foundry integration (bare fixture) ─────────────
+// ── Hallmark / ark vocabulary and docker helpers ─────────────
 
 /// BURV fact file names — single definition, matching rbgc_Constants.sh values.
 pub(crate) const RBTDRC_FACT_HALLMARK: &str = "rbf_fact_hallmark";
 pub(crate) const RBTDRC_FACT_RELIQUARY: &str = "rbf_fact_reliquary";
-const RBTDRC_FACT_GAR_ROOT: &str = "rbf_fact_gar_root";
-const RBTDRC_FACT_ARK_STEM: &str = "rbf_fact_ark_stem";
+pub(crate) const RBTDRC_FACT_GAR_ROOT: &str = "rbf_fact_gar_root";
+pub(crate) const RBTDRC_FACT_ARK_STEM: &str = "rbf_fact_ark_stem";
 
 /// Ark basenames — matching rbgc_Constants.sh RBGC_ARK_BASENAME_* values.
-const RBTDRC_ARK_BASENAME_IMAGE: &str = "image";
-const RBTDRC_ARK_BASENAME_VOUCH: &str = "vouch";
-const RBTDRC_ARK_BASENAME_ABOUT: &str = "about";
-const RBTDRC_ARK_BASENAME_ATTEST: &str = "attest";
-const RBTDRC_ARK_BASENAME_POUCH: &str = "pouch";
+pub(crate) const RBTDRC_ARK_BASENAME_IMAGE: &str = "image";
+pub(crate) const RBTDRC_ARK_BASENAME_VOUCH: &str = "vouch";
+pub(crate) const RBTDRC_ARK_BASENAME_ABOUT: &str = "about";
+pub(crate) const RBTDRC_ARK_BASENAME_ATTEST: &str = "attest";
+pub(crate) const RBTDRC_ARK_BASENAME_POUCH: &str = "pouch";
 
 /// GAR categorical namespace literal — matches RBGC_GAR_CATEGORY_HALLMARKS.
 /// Used to build wrest locators (paths within a GAR repo, prefix-free).
-const RBTDRC_GAR_CATEGORY_HALLMARKS: &str = "rbi_hm";
-
-/// Docker wrapper: run image and capture output.
-fn rbtdrc_docker_run(image_ref: &str) -> Result<(String, i32), String> {
-    let output = Command::new("docker")
-        .args(["run", "--rm", image_ref])
-        .output()
-        .map_err(|e| format!("docker run exec failed: {}", e))?;
-    let stdout = String::from_utf8_lossy(&output.stdout).into_owned();
-    let stderr = String::from_utf8_lossy(&output.stderr).into_owned();
-    let combined = if stderr.is_empty() {
-        stdout
-    } else {
-        format!("{}{}", stdout, stderr)
-    };
-    Ok((combined, output.status.code().unwrap_or(-1)))
-}
+pub(crate) const RBTDRC_GAR_CATEGORY_HALLMARKS: &str = "rbi_hm";
 
 /// Docker wrapper: inspect image (returns true if exists).
-fn rbtdrc_docker_inspect(image_ref: &str) -> bool {
+pub(crate) fn rbtdrc_docker_inspect(image_ref: &str) -> bool {
     Command::new("docker")
         .args(["inspect", image_ref])
         .stdout(Stdio::null())
@@ -2404,7 +2387,7 @@ fn rbtdrc_docker_inspect(image_ref: &str) -> bool {
 }
 
 /// Docker wrapper: remove images.
-fn rbtdrc_docker_rmi(refs: &[&str]) -> Result<(), String> {
+pub(crate) fn rbtdrc_docker_rmi(refs: &[&str]) -> Result<(), String> {
     let status = Command::new("docker")
         .arg("rmi")
         .args(refs)
@@ -2421,7 +2404,7 @@ fn rbtdrc_docker_rmi(refs: &[&str]) -> Result<(), String> {
 /// Parse a rekon stdout line for a given basename and return whether the
 /// EXISTS column reads "yes". Returns false if the basename row is absent.
 /// Rekon prints rows of `  <basename>  <yes|no>  <path-or-(absent)>`.
-fn rbtdrc_rekon_basename_yes(stdout: &str, basename: &str) -> bool {
+pub(crate) fn rbtdrc_rekon_basename_yes(stdout: &str, basename: &str) -> bool {
     for line in stdout.lines() {
         let mut fields = line.split_whitespace();
         if fields.next() == Some(basename) {
@@ -2431,25 +2414,11 @@ fn rbtdrc_rekon_basename_yes(stdout: &str, basename: &str) -> bool {
     false
 }
 
-/// Docker wrapper: pull image from upstream.
-fn rbtdrc_docker_pull(image_ref: &str) -> Result<(), String> {
-    let status = Command::new("docker")
-        .args(["pull", image_ref])
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .status()
-        .map_err(|e| format!("docker pull exec failed: {}", e))?;
-    if !status.success() {
-        return Err(format!("docker pull exited {}", status.code().unwrap_or(-1)));
-    }
-    Ok(())
-}
-
 /// Docker wrapper: capture RootFS layer DiffIDs as a JSON array string.
 /// Layer DiffIDs are SHA256s of uncompressed layer file content — byte-preserved
 /// across registry round-trips even when manifest envelope normalizes (e.g.,
 /// multi-arch index → single-platform manifest). Robust round-trip fingerprint.
-fn rbtdrc_docker_layers_capture(image_ref: &str) -> Result<String, String> {
+pub(crate) fn rbtdrc_docker_layers_capture(image_ref: &str) -> Result<String, String> {
     let output = Command::new("docker")
         .args(["inspect", "--format={{json .RootFS.Layers}}", image_ref])
         .output()
@@ -2470,368 +2439,120 @@ fn rbtdrc_docker_layers_capture(image_ref: &str) -> Result<String, String> {
     Ok(layers)
 }
 
-// Four-mode lifecycle fixture — four independent per-mode cases, one per delivery mode.
+// Hallmark-lifecycle fixture — round-trip ark inventory across the
+// ordain/abjure boundary on a conjure-mode hallmark. Verifies that abjure
+// removes every ark basename (image, about, vouch, attest, pouch) without
+// collateral damage to other hallmarks in the registry.
 //
-// Each case is fully self-contained: own setup, own observation, own teardown.
-// No inter-case state, no ordering requirement. Engine array order carries no load.
+// Sequence:
+//   1. Audit hallmarks → capture baseline.
+//   2. Ordain rbev-busybox in conjure mode → capture new hallmark.
+//   3. Audit hallmarks → assert baseline ∪ {new_hallmark}.
+//   4. Rekon new_hallmark → assert all five basenames yes.
+//   5. Abjure new_hallmark.
+//   6. Rekon new_hallmark → assert all five basenames not yes.
+//   7. Audit hallmarks → assert == baseline (no collateral damage).
 //
-// Modes under test:
-//   - conjure: ORDAIN on rbev-busybox (full Cloud Build)
-//   - bind:    ORDAIN on rbev-bottle-plantuml (digest-pinned upstream)
-//   - graft:   ORDAIN on rbev-graft-demo with BURE_TWEAK pointing at a local image
-//   - kludge:  KLUDGE on rbev-busybox (local-only, no GAR)
-//
-// Graft uses `busybox:latest` pulled from upstream as its source image — any
-// locally-present docker image works, and upstream busybox keeps this case
-// independent of conjure.
+// rbev-busybox is the load-bearing vessel — small, fast, conjure-mode
+// (full ark inventory). Also referenced by rbtdrc_batch_vouch_lifecycle.
 
-const RBTDRC_FOURMODE_CONJURE_VESSEL_DIR: &str = "rbev-vessels/rbev-busybox";
-const RBTDRC_FOURMODE_BIND_VESSEL_DIR: &str = "rbev-vessels/rbev-bottle-plantuml";
-const RBTDRC_FOURMODE_GRAFT_VESSEL_DIR: &str = "rbev-vessels/rbev-graft-demo";
-const RBTDRC_FOURMODE_GRAFT_SOURCE_IMAGE: &str = "busybox:latest";
-const RBTDRC_FOURMODE_BUSYBOX_RUN_OUTPUT: &str = "BusyBox container is running!";
+pub(crate) const RBTDRC_BUSYBOX_VESSEL_DIR: &str = "rbev-vessels/rbev-busybox";
 
-fn rbtdrc_fourmode_conjure_lifecycle(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
-        let vessel_dir = RBTDRC_FOURMODE_CONJURE_VESSEL_DIR;
-        if !ctx.project_root().join(vessel_dir).is_dir() {
-            return rbtdre_Verdict::Fail(format!("vessel directory not found: {}", vessel_dir));
-        }
+/// All five ark basenames produced by a conjure-mode hallmark.
+const ZRBTDRC_ARK_BASENAMES_ALL: &[&str] = &[
+    RBTDRC_ARK_BASENAME_IMAGE,
+    RBTDRC_ARK_BASENAME_ABOUT,
+    RBTDRC_ARK_BASENAME_VOUCH,
+    RBTDRC_ARK_BASENAME_ATTEST,
+    RBTDRC_ARK_BASENAME_POUCH,
+];
 
-        let _ = std::fs::write(dir.join("01-ordain.txt"), "ordaining conjure");
-        let ordain_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ORDAIN, &[vessel_dir], &[]) {
-            Ok(r) if r.exit_code == 0 => r,
-            Ok(r) => return rbtdre_Verdict::Fail(format!("conjure ordain failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("conjure ordain invocation: {}", e)),
-        };
-        let hallmark = match rbtdri_read_burv_fact(&ordain_result, RBTDRC_FACT_HALLMARK) {
-            Ok(v) => v,
-            Err(e) => return rbtdre_Verdict::Fail(format!("read hallmark: {}", e)),
-        };
-        let gar_root = match rbtdri_read_burv_fact(&ordain_result, RBTDRC_FACT_GAR_ROOT) {
-            Ok(v) => v,
-            Err(e) => return rbtdre_Verdict::Fail(format!("read gar_root: {}", e)),
-        };
-        let ark_stem = match rbtdri_read_burv_fact(&ordain_result, RBTDRC_FACT_ARK_STEM) {
-            Ok(v) => v,
-            Err(e) => return rbtdre_Verdict::Fail(format!("read ark_stem: {}", e)),
-        };
-        let _ = std::fs::write(dir.join("01-hallmark.txt"), &hallmark);
-
-        // Wrest locator is relative-to-cloud-prefix (rbfr_wrest prepends).
-        let _ = std::fs::write(dir.join("02-wrest.txt"), "wresting");
-        let locator = format!(
-            "{}/{}/{}:{}",
-            RBTDRC_GAR_CATEGORY_HALLMARKS, hallmark, RBTDRC_ARK_BASENAME_IMAGE, hallmark
-        );
-        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_WREST_HALLMARK_IMAGE, &[&locator], &[]) {
-            Ok(r) if r.exit_code == 0 => {}
-            Ok(r) => return rbtdre_Verdict::Fail(format!("wrest failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("wrest invocation: {}", e)),
-        }
-
-        // Local ark refs share gar_root/ark_stem; only basename differs.
-        let image_ref = format!(
-            "{}/{}/{}:{}",
-            gar_root, ark_stem, RBTDRC_ARK_BASENAME_IMAGE, hallmark
-        );
-        let about_ref = format!(
-            "{}/{}/{}:{}",
-            gar_root, ark_stem, RBTDRC_ARK_BASENAME_ABOUT, hallmark
-        );
-        let vouch_ref = format!(
-            "{}/{}/{}:{}",
-            gar_root, ark_stem, RBTDRC_ARK_BASENAME_VOUCH, hallmark
-        );
-
-        let _ = std::fs::write(dir.join("03-run.txt"), "running");
-        match rbtdrc_docker_run(&image_ref) {
-            Ok((output, 0)) if output.contains(RBTDRC_FOURMODE_BUSYBOX_RUN_OUTPUT) => {}
-            Ok((output, code)) => {
-                return rbtdre_Verdict::Fail(format!(
-                    "run: expected '{}', got exit {} output: {}",
-                    RBTDRC_FOURMODE_BUSYBOX_RUN_OUTPUT, code, output
-                ))
-            }
-            Err(e) => return rbtdre_Verdict::Fail(format!("docker run: {}", e)),
-        }
-
-        // Summon pulls image+about+vouch arks for the hallmark (single-arg
-        // signature post-AAL). Verify exit 0 and that all three refs are now
-        // locally inspectable.
-        let _ = std::fs::write(dir.join("04-summon.txt"), "summoning");
-        let summon_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_SUMMON, &[&hallmark], &[]) {
-            Ok(r) if r.exit_code == 0 => r,
-            Ok(r) => return rbtdre_Verdict::Fail(format!("summon failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("summon invocation: {}", e)),
-        };
-        let _ = std::fs::write(dir.join("04-summon-stdout.txt"), &summon_result.stdout);
-        for ark_ref in [&image_ref, &about_ref, &vouch_ref] {
-            if !rbtdrc_docker_inspect(ark_ref) {
-                return rbtdre_Verdict::Fail(format!("summon: ark not local after pull: {}", ark_ref));
-            }
-        }
-
-        // Plumb full — verify provenance display contains SLSA / SBOM / Dockerfile.
-        let _ = std::fs::write(dir.join("05-plumb-full.txt"), "plumbing full");
-        let plumb_full_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_PLUMB_FULL, &[&hallmark], &[]) {
-            Ok(r) if r.exit_code == 0 => r,
-            Ok(r) => return rbtdre_Verdict::Fail(format!("plumb_full failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("plumb_full invocation: {}", e)),
-        };
-        let _ = std::fs::write(dir.join("05-plumb-full-stdout.txt"), &plumb_full_result.stdout);
-        for marker in ["SLSA", "SBOM", "Dockerfile"] {
-            if !plumb_full_result.stdout.contains(marker) {
-                return rbtdre_Verdict::Fail(format!(
-                    "plumb_full: marker '{}' not in stdout",
-                    marker
-                ));
-            }
-        }
-
-        // Rekon — verify image+about+vouch basenames are present.
-        let _ = std::fs::write(dir.join("06-rekon.txt"), "rekoning");
-        let rekon_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_REKON_HALLMARK, &[&hallmark], &[]) {
-            Ok(r) if r.exit_code == 0 => r,
-            Ok(r) => return rbtdre_Verdict::Fail(format!("rekon failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("rekon invocation: {}", e)),
-        };
-        let _ = std::fs::write(dir.join("06-rekon-stdout.txt"), &rekon_result.stdout);
-        for basename in [
-            RBTDRC_ARK_BASENAME_IMAGE,
-            RBTDRC_ARK_BASENAME_ABOUT,
-            RBTDRC_ARK_BASENAME_VOUCH,
-            RBTDRC_ARK_BASENAME_ATTEST,
-        ] {
-            if !rbtdrc_rekon_basename_yes(&rekon_result.stdout, basename) {
-                return rbtdre_Verdict::Fail(format!(
-                    "rekon: basename '{}' not marked yes\nstdout:\n{}",
-                    basename, rekon_result.stdout
-                ));
-            }
-        }
-
-        if let Err(e) = rbtdrc_docker_rmi(&[&image_ref, &about_ref, &vouch_ref]) {
-            return rbtdre_Verdict::Fail(format!("rmi: {}", e));
-        }
-
-        let _ = std::fs::write(dir.join("07-abjure.txt"), "abjuring");
-        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ABJURE, &[&hallmark], &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)]) {
-            Ok(r) if r.exit_code == 0 => {}
-            Ok(r) => return rbtdre_Verdict::Fail(format!("abjure failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("abjure invocation: {}", e)),
-        }
-
-        let _ = std::fs::write(dir.join("08-passed.txt"), "passed");
-        rbtdre_Verdict::Pass
-    })
+/// Parse `rbw-iah` audit-hallmarks stdout and return a sorted Vec of hallmark
+/// identifiers. The audit prints a small table with two-space-indented rows;
+/// header ("HALLMARK", separator dashes) and "Total hallmarks: N" footer are
+/// filtered out.
+fn zrbtdrc_audit_parse(stdout: &str) -> Vec<String> {
+    let mut hallmarks: Vec<String> = stdout
+        .lines()
+        .map(|line| line.trim())
+        .filter(|line| !line.is_empty())
+        .filter(|line| *line != "HALLMARK")
+        .filter(|line| !line.starts_with("---"))
+        .filter(|line| !line.starts_with("Total hallmarks"))
+        .map(|line| line.to_string())
+        .collect();
+    hallmarks.sort();
+    hallmarks
 }
 
-fn rbtdrc_fourmode_bind_lifecycle(dir: &Path) -> rbtdre_Verdict {
+fn rbtdrc_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
-        let vessel_dir = RBTDRC_FOURMODE_BIND_VESSEL_DIR;
+        let vessel_dir = RBTDRC_BUSYBOX_VESSEL_DIR;
         if !ctx.project_root().join(vessel_dir).is_dir() {
             return rbtdre_Verdict::Fail(format!("vessel directory not found: {}", vessel_dir));
         }
 
-        let _ = std::fs::write(dir.join("01-ordain.txt"), "ordaining bind");
+        // Step 1: baseline audit.
+        let _ = std::fs::write(dir.join("01-audit-baseline.txt"), "auditing baseline");
+        let baseline_audit = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_AUDIT_HALLMARKS, &[], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("baseline audit failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("baseline audit invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("01-audit-baseline-stdout.txt"), &baseline_audit.stdout);
+        let baseline = zrbtdrc_audit_parse(&baseline_audit.stdout);
+        let _ = std::fs::write(dir.join("01-baseline-parsed.txt"), baseline.join("\n"));
+
+        // Step 2: ordain.
+        let _ = std::fs::write(dir.join("02-ordain.txt"), "ordaining busybox");
         let ordain_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ORDAIN, &[vessel_dir], &[]) {
             Ok(r) if r.exit_code == 0 => r,
-            Ok(r) => return rbtdre_Verdict::Fail(format!("bind ordain failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("bind ordain invocation: {}", e)),
+            Ok(r) => return rbtdre_Verdict::Fail(format!("ordain failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("ordain invocation: {}", e)),
         };
         let hallmark = match rbtdri_read_burv_fact(&ordain_result, RBTDRC_FACT_HALLMARK) {
             Ok(v) => v,
             Err(e) => return rbtdre_Verdict::Fail(format!("read hallmark: {}", e)),
-        };
-        let gar_root = match rbtdri_read_burv_fact(&ordain_result, RBTDRC_FACT_GAR_ROOT) {
-            Ok(v) => v,
-            Err(e) => return rbtdre_Verdict::Fail(format!("read gar_root: {}", e)),
-        };
-        let ark_stem = match rbtdri_read_burv_fact(&ordain_result, RBTDRC_FACT_ARK_STEM) {
-            Ok(v) => v,
-            Err(e) => return rbtdre_Verdict::Fail(format!("read ark_stem: {}", e)),
-        };
-        let _ = std::fs::write(dir.join("01-hallmark.txt"), &hallmark);
-
-        // Wrest verifies the GAR image is pullable. No run — plantuml runtime
-        // semantics are covered by the pluml fixture; here we only observe the
-        // bind supply-chain completion.
-        let _ = std::fs::write(dir.join("02-wrest.txt"), "wresting");
-        let locator = format!(
-            "{}/{}/{}:{}",
-            RBTDRC_GAR_CATEGORY_HALLMARKS, hallmark, RBTDRC_ARK_BASENAME_IMAGE, hallmark
-        );
-        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_WREST_HALLMARK_IMAGE, &[&locator], &[]) {
-            Ok(r) if r.exit_code == 0 => {}
-            Ok(r) => return rbtdre_Verdict::Fail(format!("wrest failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("wrest invocation: {}", e)),
-        }
-
-        let image_ref = format!(
-            "{}/{}/{}:{}",
-            gar_root, ark_stem, RBTDRC_ARK_BASENAME_IMAGE, hallmark
-        );
-
-        // Plumb compact — verify hallmark identifier appears in compact summary.
-        let _ = std::fs::write(dir.join("03-plumb-compact.txt"), "plumbing compact");
-        let plumb_compact_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_PLUMB_COMPACT, &[&hallmark], &[]) {
-            Ok(r) if r.exit_code == 0 => r,
-            Ok(r) => return rbtdre_Verdict::Fail(format!("plumb_compact failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("plumb_compact invocation: {}", e)),
-        };
-        let _ = std::fs::write(dir.join("03-plumb-compact-stdout.txt"), &plumb_compact_result.stdout);
-        if !plumb_compact_result.stdout.contains(&hallmark) {
-            return rbtdre_Verdict::Fail(format!(
-                "plumb_compact: hallmark '{}' not in stdout",
-                hallmark
-            ));
-        }
-        if !plumb_compact_result.stdout.contains("HALLMARK PLUMB:") {
-            return rbtdre_Verdict::Fail(
-                "plumb_compact: expected 'HALLMARK PLUMB:' marker in stdout".to_string(),
-            );
-        }
-
-        // Jettison the pouch ark surgically. Locator is package-path:tag where
-        // the package path is relative to the cloud prefix (rbfl_jettison
-        // builds the full URL from RBGL_HALLMARKS_ROOT under the hood).
-        let _ = std::fs::write(dir.join("04-jettison.txt"), "jettisoning pouch");
-        let jettison_locator = format!(
-            "{}/{}/{}:{}",
-            RBTDRC_GAR_CATEGORY_HALLMARKS, hallmark, RBTDRC_ARK_BASENAME_POUCH, hallmark
-        );
-        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE, &[&jettison_locator], &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)]) {
-            Ok(r) if r.exit_code == 0 => {}
-            Ok(r) => return rbtdre_Verdict::Fail(format!("jettison failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("jettison invocation: {}", e)),
-        }
-
-        // Rekon after jettison — verify pouch is now absent but image remains.
-        let _ = std::fs::write(dir.join("05-rekon.txt"), "rekoning post-jettison");
-        let rekon_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_REKON_HALLMARK, &[&hallmark], &[]) {
-            Ok(r) if r.exit_code == 0 => r,
-            Ok(r) => return rbtdre_Verdict::Fail(format!("rekon failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("rekon invocation: {}", e)),
-        };
-        let _ = std::fs::write(dir.join("05-rekon-stdout.txt"), &rekon_result.stdout);
-        if rbtdrc_rekon_basename_yes(&rekon_result.stdout, RBTDRC_ARK_BASENAME_POUCH) {
-            return rbtdre_Verdict::Fail(format!(
-                "rekon: pouch still present after jettison\nstdout:\n{}",
-                rekon_result.stdout
-            ));
-        }
-        if !rbtdrc_rekon_basename_yes(&rekon_result.stdout, RBTDRC_ARK_BASENAME_IMAGE) {
-            return rbtdre_Verdict::Fail(format!(
-                "rekon: image disappeared after pouch jettison (collateral damage)\nstdout:\n{}",
-                rekon_result.stdout
-            ));
-        }
-
-        if let Err(e) = rbtdrc_docker_rmi(&[&image_ref]) {
-            return rbtdre_Verdict::Fail(format!("rmi: {}", e));
-        }
-
-        let _ = std::fs::write(dir.join("06-abjure.txt"), "abjuring");
-        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ABJURE, &[&hallmark], &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)]) {
-            Ok(r) if r.exit_code == 0 => {}
-            Ok(r) => return rbtdre_Verdict::Fail(format!("abjure failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("abjure invocation: {}", e)),
-        }
-
-        let _ = std::fs::write(dir.join("07-passed.txt"), "passed");
-        rbtdre_Verdict::Pass
-    })
-}
-
-fn rbtdrc_fourmode_graft_lifecycle(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
-        let vessel_dir = RBTDRC_FOURMODE_GRAFT_VESSEL_DIR;
-        if !ctx.project_root().join(vessel_dir).is_dir() {
-            return rbtdre_Verdict::Fail(format!("vessel directory not found: {}", vessel_dir));
-        }
-
-        // Pull upstream busybox as the graft source. Any locally-present docker
-        // image works for graft; a public upstream keeps this case independent
-        // of conjure.
-        let _ = std::fs::write(dir.join("01-source-prep.txt"), RBTDRC_FOURMODE_GRAFT_SOURCE_IMAGE);
-        if let Err(e) = rbtdrc_docker_pull(RBTDRC_FOURMODE_GRAFT_SOURCE_IMAGE) {
-            return rbtdre_Verdict::Fail(format!(
-                "docker pull {}: {}",
-                RBTDRC_FOURMODE_GRAFT_SOURCE_IMAGE, e
-            ));
-        }
-        let source_layers = match rbtdrc_docker_layers_capture(RBTDRC_FOURMODE_GRAFT_SOURCE_IMAGE) {
-            Ok(v) => v,
-            Err(e) => return rbtdre_Verdict::Fail(format!("source image inspect: {}", e)),
-        };
-        let _ = std::fs::write(dir.join("01-source-layers.txt"), &source_layers);
-
-        let _ = std::fs::write(dir.join("02-ordain.txt"), "ordaining graft");
-        let ordain_result = match rbtdri_invoke_global(
-            ctx,
-            RBTDRM_COLOPHON_ORDAIN,
-            &[vessel_dir],
-            &[
-                ("BURE_TWEAK_NAME", "threemodegraft"),
-                ("BURE_TWEAK_VALUE", RBTDRC_FOURMODE_GRAFT_SOURCE_IMAGE),
-            ],
-        ) {
-            Ok(r) if r.exit_code == 0 => r,
-            Ok(r) => return rbtdre_Verdict::Fail(format!("graft ordain failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("graft ordain invocation: {}", e)),
-        };
-        let hallmark = match rbtdri_read_burv_fact(&ordain_result, RBTDRC_FACT_HALLMARK) {
-            Ok(v) => v,
-            Err(e) => return rbtdre_Verdict::Fail(format!("read hallmark: {}", e)),
-        };
-        let gar_root = match rbtdri_read_burv_fact(&ordain_result, RBTDRC_FACT_GAR_ROOT) {
-            Ok(v) => v,
-            Err(e) => return rbtdre_Verdict::Fail(format!("read gar_root: {}", e)),
-        };
-        let ark_stem = match rbtdri_read_burv_fact(&ordain_result, RBTDRC_FACT_ARK_STEM) {
-            Ok(v) => v,
-            Err(e) => return rbtdre_Verdict::Fail(format!("read ark_stem: {}", e)),
         };
         let _ = std::fs::write(dir.join("02-hallmark.txt"), &hallmark);
 
-        let _ = std::fs::write(dir.join("03-wrest.txt"), "wresting");
-        let locator = format!(
-            "{}/{}/{}:{}",
-            RBTDRC_GAR_CATEGORY_HALLMARKS, hallmark, RBTDRC_ARK_BASENAME_IMAGE, hallmark
-        );
-        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_WREST_HALLMARK_IMAGE, &[&locator], &[]) {
-            Ok(r) if r.exit_code == 0 => {}
-            Ok(r) => return rbtdre_Verdict::Fail(format!("wrest failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("wrest invocation: {}", e)),
-        }
-
-        let image_ref = format!(
-            "{}/{}/{}:{}",
-            gar_root, ark_stem, RBTDRC_ARK_BASENAME_IMAGE, hallmark
-        );
-
-        // Graft's contract is "push these bytes to GAR" — assert payload byte-
-        // identity by comparing layer DiffIDs (uncompressed file-content SHA256s)
-        // captured before graft to those of the wrested image. Robust to graft's
-        // intentional manifest-envelope normalization (multi-arch index →
-        // single-platform manifest); catches silent re-pack of layer content.
-        let wrested_layers = match rbtdrc_docker_layers_capture(&image_ref) {
-            Ok(v) => v,
-            Err(e) => return rbtdre_Verdict::Fail(format!("wrested image inspect: {}", e)),
+        // Step 3: audit shows new hallmark added.
+        let _ = std::fs::write(dir.join("03-audit-after-ordain.txt"), "auditing after ordain");
+        let after_ordain_audit = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_AUDIT_HALLMARKS, &[], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("post-ordain audit failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("post-ordain audit invocation: {}", e)),
         };
-        let _ = std::fs::write(dir.join("04-wrested-layers.txt"), &wrested_layers);
-        if source_layers != wrested_layers {
+        let _ = std::fs::write(dir.join("03-audit-after-ordain-stdout.txt"), &after_ordain_audit.stdout);
+        let after_ordain = zrbtdrc_audit_parse(&after_ordain_audit.stdout);
+        let mut expected_after_ordain = baseline.clone();
+        expected_after_ordain.push(hallmark.clone());
+        expected_after_ordain.sort();
+        if after_ordain != expected_after_ordain {
             return rbtdre_Verdict::Fail(format!(
-                "graft round-trip layer mismatch:\n  source:  {}\n  wrested: {}",
-                source_layers, wrested_layers
+                "post-ordain audit mismatch:\n  expected (baseline + new): {:?}\n  got: {:?}",
+                expected_after_ordain, after_ordain
             ));
         }
 
-        if let Err(e) = rbtdrc_docker_rmi(&[&image_ref]) {
-            return rbtdre_Verdict::Fail(format!("rmi: {}", e));
+        // Step 4: rekon shows all five ark basenames present.
+        let _ = std::fs::write(dir.join("04-rekon-after-ordain.txt"), "rekoning after ordain");
+        let rekon_after_ordain = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_REKON_HALLMARK, &[&hallmark], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("post-ordain rekon failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("post-ordain rekon invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("04-rekon-after-ordain-stdout.txt"), &rekon_after_ordain.stdout);
+        for basename in ZRBTDRC_ARK_BASENAMES_ALL {
+            if !rbtdrc_rekon_basename_yes(&rekon_after_ordain.stdout, basename) {
+                return rbtdre_Verdict::Fail(format!(
+                    "post-ordain rekon: basename '{}' not marked yes\nstdout:\n{}",
+                    basename, rekon_after_ordain.stdout
+                ));
+            }
         }
 
+        // Step 5: abjure.
         let _ = std::fs::write(dir.join("05-abjure.txt"), "abjuring");
         match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ABJURE, &[&hallmark], &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)]) {
             Ok(r) if r.exit_code == 0 => {}
@@ -2839,85 +2560,50 @@ fn rbtdrc_fourmode_graft_lifecycle(dir: &Path) -> rbtdre_Verdict {
             Err(e) => return rbtdre_Verdict::Fail(format!("abjure invocation: {}", e)),
         }
 
-        let _ = std::fs::write(dir.join("06-passed.txt"), "passed");
-        rbtdre_Verdict::Pass
-    })
-}
-
-fn rbtdrc_fourmode_kludge_lifecycle(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
-        let vessel_dir = RBTDRC_FOURMODE_CONJURE_VESSEL_DIR;
-        if !ctx.project_root().join(vessel_dir).is_dir() {
-            return rbtdre_Verdict::Fail(format!("vessel directory not found: {}", vessel_dir));
-        }
-
-        let _ = std::fs::write(dir.join("01-kludge.txt"), "kludging");
-        let kludge_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_KLUDGE, &[vessel_dir], &[]) {
+        // Step 6: rekon reports all five basenames not yes (post-abjure behavior
+        // unverified — failure here triggers debug, not workaround).
+        let _ = std::fs::write(dir.join("06-rekon-after-abjure.txt"), "rekoning after abjure");
+        let rekon_after_abjure = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_REKON_HALLMARK, &[&hallmark], &[]) {
             Ok(r) if r.exit_code == 0 => r,
-            Ok(r) => return rbtdre_Verdict::Fail(format!("kludge failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("kludge invocation: {}", e)),
+            Ok(r) => return rbtdre_Verdict::Fail(format!("post-abjure rekon failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("post-abjure rekon invocation: {}", e)),
         };
-        let hallmark = match rbtdri_read_burv_fact(&kludge_result, RBTDRC_FACT_HALLMARK) {
-            Ok(v) => v,
-            Err(e) => return rbtdre_Verdict::Fail(format!("read hallmark: {}", e)),
-        };
-        let gar_root = match rbtdri_read_burv_fact(&kludge_result, RBTDRC_FACT_GAR_ROOT) {
-            Ok(v) => v,
-            Err(e) => return rbtdre_Verdict::Fail(format!("read gar_root: {}", e)),
-        };
-        let ark_stem = match rbtdri_read_burv_fact(&kludge_result, RBTDRC_FACT_ARK_STEM) {
-            Ok(v) => v,
-            Err(e) => return rbtdre_Verdict::Fail(format!("read ark_stem: {}", e)),
-        };
-        let _ = std::fs::write(dir.join("01-hallmark.txt"), &hallmark);
-
-        // rbfd_kludge tags images as <gar_root>/<prefixed_stem>/<basename>:<hallmark>.
-        let image_ref = format!(
-            "{}/{}/{}:{}",
-            gar_root, ark_stem, RBTDRC_ARK_BASENAME_IMAGE, hallmark
-        );
-        let vouch_ref = format!(
-            "{}/{}/{}:{}",
-            gar_root, ark_stem, RBTDRC_ARK_BASENAME_VOUCH, hallmark
-        );
-
-        if !rbtdrc_docker_inspect(&image_ref) {
-            return rbtdre_Verdict::Fail(format!("kludge image not found: {}", image_ref));
-        }
-        if !rbtdrc_docker_inspect(&vouch_ref) {
-            return rbtdre_Verdict::Fail(format!("kludge vouch tag not found: {}", vouch_ref));
-        }
-
-        let _ = std::fs::write(dir.join("02-run.txt"), "running");
-        match rbtdrc_docker_run(&image_ref) {
-            Ok((output, 0)) if output.contains(RBTDRC_FOURMODE_BUSYBOX_RUN_OUTPUT) => {}
-            Ok((output, code)) => {
+        let _ = std::fs::write(dir.join("06-rekon-after-abjure-stdout.txt"), &rekon_after_abjure.stdout);
+        for basename in ZRBTDRC_ARK_BASENAMES_ALL {
+            if rbtdrc_rekon_basename_yes(&rekon_after_abjure.stdout, basename) {
                 return rbtdre_Verdict::Fail(format!(
-                    "run: expected '{}', got exit {} output: {}",
-                    RBTDRC_FOURMODE_BUSYBOX_RUN_OUTPUT, code, output
-                ))
+                    "post-abjure rekon: basename '{}' still marked yes after abjure\nstdout:\n{}",
+                    basename, rekon_after_abjure.stdout
+                ));
             }
-            Err(e) => return rbtdre_Verdict::Fail(format!("docker run: {}", e)),
         }
 
-        if let Err(e) = rbtdrc_docker_rmi(&[&image_ref, &vouch_ref]) {
-            return rbtdre_Verdict::Fail(format!("rmi: {}", e));
+        // Step 7: final audit — registry restored to baseline.
+        let _ = std::fs::write(dir.join("07-audit-final.txt"), "auditing final");
+        let final_audit = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_AUDIT_HALLMARKS, &[], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("final audit failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("final audit invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("07-audit-final-stdout.txt"), &final_audit.stdout);
+        let final_state = zrbtdrc_audit_parse(&final_audit.stdout);
+        if final_state != baseline {
+            return rbtdre_Verdict::Fail(format!(
+                "final audit mismatch — abjure did not restore baseline:\n  baseline: {:?}\n  final: {:?}",
+                baseline, final_state
+            ));
         }
 
-        let _ = std::fs::write(dir.join("03-passed.txt"), "passed");
+        let _ = std::fs::write(dir.join("08-passed.txt"), "passed");
         rbtdre_Verdict::Pass
     })
 }
 
-pub static RBTDRC_SECTIONS_FOUR_MODE: &[rbtdre_Section] = &[rbtdre_Section {
-    name: "four-mode-integration",
-    cases: &[
-        case!(rbtdrc_fourmode_conjure_lifecycle),
-        case!(rbtdrc_fourmode_bind_lifecycle),
-        case!(rbtdrc_fourmode_graft_lifecycle),
-        case!(rbtdrc_fourmode_kludge_lifecycle),
-    ],
+pub static RBTDRC_SECTIONS_HALLMARK_LIFECYCLE: &[rbtdre_Section] = &[rbtdre_Section {
+    name: "ordain-abjure-roundtrip",
+    cases: &[case!(rbtdrc_hallmark_lifecycle)],
 }];
+
 
 // Batch-vouch fixture — exercises rbfv_batch_vouch's two-pass pending→vouched
 // transition. Single self-contained lifecycle: ordain conjure, jettison the
@@ -2938,7 +2624,7 @@ fn rbtdrc_tally_health(stdout: &str, hallmark: &str) -> Option<String> {
 
 fn rbtdrc_batch_vouch_lifecycle(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
-        let vessel_dir = RBTDRC_FOURMODE_CONJURE_VESSEL_DIR;
+        let vessel_dir = RBTDRC_BUSYBOX_VESSEL_DIR;
         if !ctx.project_root().join(vessel_dir).is_dir() {
             return rbtdre_Verdict::Fail(format!("vessel directory not found: {}", vessel_dir));
         }

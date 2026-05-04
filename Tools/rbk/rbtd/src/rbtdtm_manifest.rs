@@ -34,9 +34,9 @@ fn rbtdtm_accepts_valid_crucible_manifest() {
 }
 
 #[test]
-fn rbtdtm_accepts_valid_fourmode_manifest() {
-    let manifest = rbtdtm_manifest_for(RBTDRM_FIXTURE_FOUR_MODE);
-    assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_FOUR_MODE).is_ok());
+fn rbtdtm_accepts_valid_hallmark_lifecycle_manifest() {
+    let manifest = rbtdtm_manifest_for(RBTDRM_FIXTURE_HALLMARK_LIFECYCLE);
+    assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_HALLMARK_LIFECYCLE).is_ok());
 }
 
 #[test]

@@ -46,9 +46,9 @@ zrbte_kindle() {
 
   # Suite-to-fixture mappings
   ZRBTE_SUITE_FAST=("enrollment-validation" "regime-validation" "regime-smoke" "handbook-render")
-  ZRBTE_SUITE_SERVICE=("${ZRBTE_SUITE_FAST[@]}" "access-probe" "four-mode" "batch-vouch")
+  ZRBTE_SUITE_SERVICE=("${ZRBTE_SUITE_FAST[@]}" "access-probe" "hallmark-lifecycle" "batch-vouch")
   ZRBTE_SUITE_CRUCIBLE=("${ZRBTE_SUITE_FAST[@]}" "tadmor" "srjcl" "pluml")
-  ZRBTE_SUITE_COMPLETE=("${ZRBTE_SUITE_FAST[@]}" "access-probe" "four-mode" "batch-vouch" "tadmor" "srjcl" "pluml")
+  ZRBTE_SUITE_COMPLETE=("${ZRBTE_SUITE_FAST[@]}" "access-probe" "hallmark-lifecycle" "batch-vouch" "tadmor" "srjcl" "pluml")
   # Gauntlet — release-qualification ladder, walks marshal-zero state through
   # canonical-credentialed state to crucible verification. Pristine-lifecycle
   # case 1 is the entry-contract gate; preceding enrollment-validation runs
@@ -61,7 +61,7 @@ zrbte_kindle() {
     "onboarding-sequence"
     "regime-validation"
     "regime-smoke"
-    "four-mode"
+    "hallmark-lifecycle"
     "tadmor"
     "moriah"
     "srjcl"

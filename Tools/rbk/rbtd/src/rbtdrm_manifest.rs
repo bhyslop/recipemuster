@@ -106,7 +106,7 @@ pub const RBTDRM_FIXTURE_MORIAH: &str = "moriah";
 pub const RBTDRM_FIXTURE_SRJCL: &str = "srjcl";
 pub const RBTDRM_FIXTURE_PLUML: &str = "pluml";
 // Bare fixtures (GCP credentials, no container runtime)
-pub const RBTDRM_FIXTURE_FOUR_MODE: &str = "four-mode";
+pub const RBTDRM_FIXTURE_HALLMARK_LIFECYCLE: &str = "hallmark-lifecycle";
 pub const RBTDRM_FIXTURE_BATCH_VOUCH: &str = "batch-vouch";
 pub const RBTDRM_FIXTURE_ACCESS_PROBE: &str = "access-probe";
 // Fast fixtures (no external dependencies)
@@ -161,16 +161,11 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDRM_COLOPHON_BARK,
             RBTDRM_COLOPHON_CRUCIBLE_ACTIVE,
         ]),
-        RBTDRM_FIXTURE_FOUR_MODE => Some(&[
+        RBTDRM_FIXTURE_HALLMARK_LIFECYCLE => Some(&[
             RBTDRM_COLOPHON_ORDAIN,
             RBTDRM_COLOPHON_ABJURE,
-            RBTDRM_COLOPHON_WREST_HALLMARK_IMAGE,
-            RBTDRM_COLOPHON_KLUDGE,
-            RBTDRM_COLOPHON_SUMMON,
-            RBTDRM_COLOPHON_PLUMB_FULL,
-            RBTDRM_COLOPHON_PLUMB_COMPACT,
             RBTDRM_COLOPHON_REKON_HALLMARK,
-            RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE,
+            RBTDRM_COLOPHON_AUDIT_HALLMARKS,
         ]),
         RBTDRM_FIXTURE_BATCH_VOUCH => Some(&[
             RBTDRM_COLOPHON_ORDAIN,
@@ -213,6 +208,13 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDRM_COLOPHON_ORDAIN,
             RBTDRM_COLOPHON_KLUDGE_SENTRY,
             RBTDRM_COLOPHON_KLUDGE_BOTTLE,
+            RBTDRM_COLOPHON_WREST_HALLMARK_IMAGE,
+            RBTDRM_COLOPHON_SUMMON,
+            RBTDRM_COLOPHON_PLUMB_FULL,
+            RBTDRM_COLOPHON_PLUMB_COMPACT,
+            RBTDRM_COLOPHON_REKON_HALLMARK,
+            RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE,
+            RBTDRM_COLOPHON_ABJURE,
         ]),
         RBTDRM_FIXTURE_HANDBOOK_RENDER => Some(&[
             RBTDRM_COLOPHON_ONBOARD_START_HERE,

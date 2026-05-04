@@ -311,9 +311,26 @@ zrbfd_registry_preflight() {
     z_origin="${!z_origin_var:-}"
     z_anchor="${!z_anchor_var:-}"
 
-    # Skip slots without an origin or without an anchor (pass-through images don't need enshrine)
+    # Skip slots without an origin (no base image to enshrine).
     test -n "${z_origin}" || continue
-    test -n "${z_anchor}" || continue
+
+    # Anchor handling depends on egress mode. Tether passes through (buildx
+    # fetches upstream at build time). Airgap requires a populated anchor
+    # because the worker pool has no upstream egress — an empty anchor with
+    # a non-empty origin guarantees runtime build failure.
+    if test -z "${z_anchor}"; then
+      if test "${RBRV_EGRESS_MODE:-}" = "airgap"; then
+        buc_warn "Airgap vessel ${RBRV_SIGIL} has empty ${z_anchor_var} but non-empty ${z_origin_var}=${z_origin}"
+        buc_bare "  Airgap conjure cannot reach upstream — base images must be enshrined first."
+        buc_bare "  The anchor locator points at the enshrined image inside GAR. Without it,"
+        buc_bare "  the airgap worker pool has no source for the base image and the build fails."
+        buc_bare "  Run enshrine, then re-run ordain:"
+        buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir}"
+        buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir}"
+        buc_die "Registry preflight failed — airgap vessel missing required anchor"
+      fi
+      continue
+    fi
 
     case "${z_anchor}" in
       *:*) : ;;
