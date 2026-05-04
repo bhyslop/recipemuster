@@ -55,6 +55,7 @@ RBCC_fact_ext_depot="depot"
 RBCC_fact_ext_depot_project="depot-project"
 RBCC_fact_ext_roster_retriever="${RBCC_verb_roster}-${RBCC_role_retriever}"
 RBCC_fact_ext_roster_director="${RBCC_verb_roster}-${RBCC_role_director}"
+RBCC_fact_ext_audit_hallmark="audit-hallmark"
 
 ######################################################################
 # Internal Functions (zrbcc_*)

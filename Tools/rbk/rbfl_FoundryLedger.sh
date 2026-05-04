@@ -796,6 +796,7 @@ rbfl_audit_hallmarks() {
     test -n "${z_h}" || continue
     if test "${z_h}" != "${z_prev}"; then
       printf "  %s\n" "${z_h}"
+      buf_write_fact_multi "${z_h}" "${RBCC_fact_ext_audit_hallmark}" "${z_h}"
       z_count=$(( z_count + 1 ))
       z_prev="${z_h}"
     fi

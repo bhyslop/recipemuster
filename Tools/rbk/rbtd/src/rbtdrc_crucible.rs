@@ -31,8 +31,8 @@ use crate::rbtdre_engine::{
 };
 use crate::rbtdri_invocation::{
     rbtdri_Context, rbtdri_invoke, rbtdri_invoke_global, rbtdri_invoke_imprint,
-    rbtdri_parse_ifrit_verdict, rbtdri_read_burv_fact, RBTDRI_BURE_CONFIRM_KEY,
-    RBTDRI_BURE_CONFIRM_SKIP,
+    rbtdri_parse_ifrit_verdict, rbtdri_read_burv_fact, rbtdri_read_burv_facts_multi,
+    RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP,
 };
 use crate::rbtdrm_manifest::{
     RBTDRM_COLOPHON_ABJURE, RBTDRM_COLOPHON_ACCESS_PROBE, RBTDRM_COLOPHON_AUDIT_HALLMARKS,
@@ -2467,23 +2467,10 @@ const ZRBTDRC_ARK_BASENAMES_ALL: &[&str] = &[
     RBTDRC_ARK_BASENAME_POUCH,
 ];
 
-/// Parse `rbw-iah` audit-hallmarks stdout and return a sorted Vec of hallmark
-/// identifiers. The audit prints a small table with two-space-indented rows;
-/// header ("HALLMARK", separator dashes) and "Total hallmarks: N" footer are
-/// filtered out.
-fn zrbtdrc_audit_parse(stdout: &str) -> Vec<String> {
-    let mut hallmarks: Vec<String> = stdout
-        .lines()
-        .map(|line| line.trim())
-        .filter(|line| !line.is_empty())
-        .filter(|line| *line != "HALLMARK")
-        .filter(|line| !line.starts_with("---"))
-        .filter(|line| !line.starts_with("Total hallmarks"))
-        .map(|line| line.to_string())
-        .collect();
-    hallmarks.sort();
-    hallmarks
-}
+/// Multi-fact extension emitted by `rbw-iah` (rbfl_audit_hallmarks): one
+/// `<hallmark>.audit-hallmark` file per discovered hallmark. Mirrors
+/// rbcc_Constants.sh RBCC_fact_ext_audit_hallmark.
+const RBTDRC_FACT_EXT_AUDIT_HALLMARK: &str = "audit-hallmark";
 
 fn rbtdrc_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
@@ -2500,7 +2487,10 @@ fn rbtdrc_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
             Err(e) => return rbtdre_Verdict::Fail(format!("baseline audit invocation: {}", e)),
         };
         let _ = std::fs::write(dir.join("01-audit-baseline-stdout.txt"), &baseline_audit.stdout);
-        let baseline = zrbtdrc_audit_parse(&baseline_audit.stdout);
+        let baseline = match rbtdri_read_burv_facts_multi(&baseline_audit, RBTDRC_FACT_EXT_AUDIT_HALLMARK) {
+            Ok(v) => v,
+            Err(e) => return rbtdre_Verdict::Fail(format!("read baseline audit facts: {}", e)),
+        };
         let _ = std::fs::write(dir.join("01-baseline-parsed.txt"), baseline.join("\n"));
 
         // Step 2: ordain.
@@ -2524,7 +2514,10 @@ fn rbtdrc_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
             Err(e) => return rbtdre_Verdict::Fail(format!("post-ordain audit invocation: {}", e)),
         };
         let _ = std::fs::write(dir.join("03-audit-after-ordain-stdout.txt"), &after_ordain_audit.stdout);
-        let after_ordain = zrbtdrc_audit_parse(&after_ordain_audit.stdout);
+        let after_ordain = match rbtdri_read_burv_facts_multi(&after_ordain_audit, RBTDRC_FACT_EXT_AUDIT_HALLMARK) {
+            Ok(v) => v,
+            Err(e) => return rbtdre_Verdict::Fail(format!("read post-ordain audit facts: {}", e)),
+        };
         let mut expected_after_ordain = baseline.clone();
         expected_after_ordain.push(hallmark.clone());
         expected_after_ordain.sort();
@@ -2586,7 +2579,10 @@ fn rbtdrc_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
             Err(e) => return rbtdre_Verdict::Fail(format!("final audit invocation: {}", e)),
         };
         let _ = std::fs::write(dir.join("07-audit-final-stdout.txt"), &final_audit.stdout);
-        let final_state = zrbtdrc_audit_parse(&final_audit.stdout);
+        let final_state = match rbtdri_read_burv_facts_multi(&final_audit, RBTDRC_FACT_EXT_AUDIT_HALLMARK) {
+            Ok(v) => v,
+            Err(e) => return rbtdre_Verdict::Fail(format!("read final audit facts: {}", e)),
+        };
         if final_state != baseline {
             return rbtdre_Verdict::Fail(format!(
                 "final audit mismatch — abjure did not restore baseline:\n  baseline: {:?}\n  final: {:?}",

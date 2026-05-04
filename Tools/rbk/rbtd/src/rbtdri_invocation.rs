@@ -277,6 +277,32 @@ pub fn rbtdri_read_burv_fact(
     Ok(trimmed)
 }
 
+/// Enumerate multi-fact files in a tabtarget's BURV output directory.
+/// Multi-facts follow the convention `<root>.<ext>` written by buf_write_fact_multi;
+/// returns the sorted list of roots whose files have the requested extension.
+/// Returns an empty Vec if no matching files exist.
+pub fn rbtdri_read_burv_facts_multi(
+    result: &rbtdri_InvokeResult,
+    extension: &str,
+) -> Result<Vec<String>, String> {
+    let dir = result.burv_output.join(RBTDRI_BURV_OUTPUT_SUBDIR);
+    let entries = std::fs::read_dir(&dir).map_err(|e| {
+        format!(
+            "rbtdri: cannot enumerate fact dir {}: {}",
+            dir.display(),
+            e
+        )
+    })?;
+    let suffix = format!(".{}", extension);
+    let mut roots: Vec<String> = entries
+        .filter_map(|entry| entry.ok())
+        .filter_map(|entry| entry.file_name().into_string().ok())
+        .filter_map(|name| name.strip_suffix(&suffix).map(str::to_string))
+        .collect();
+    roots.sort();
+    Ok(roots)
+}
+
 // ── Ifrit verdict parsing ────────────────────────────────────
 
 /// Ifrit verdict wire protocol: ifrit prints exactly one line matching
