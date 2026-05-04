@@ -36,16 +36,15 @@ zburp_kindle() {
 
   buv_regime_enroll BURP
 
-  buv_group_enroll "Investiture Identity"
-  buv_xname_enroll   BURP_NODE        1   64  "Viceroyalty referenced by this investiture (BURN directory name)"
-  buv_string_enroll  BURP_USER        1   64  "Remote OS user authenticated by this investiture"
+  buv_group_enroll "Node Reference"
+  buv_xname_enroll   BURP_VICEROYALTY          1   64  "Viceroyalty referenced by this investiture (BURN directory name)"
 
-  buv_group_enroll "Authentication"
-  buv_string_enroll  BURP_SSH_PUBKEY  20 1024  "Full public key line of the operator-managed admin keypair"
-  buv_string_enroll  BURP_KEY_FILE     0  256  "SSH private key filename (empty defaults to investiture)"
+  buv_group_enroll "Privileged Credentials"
+  buv_string_enroll  BURP_PRIVILEGED_USER      1   64  "Remote admin OS user this investiture authenticates as"
+  buv_string_enroll  BURP_PRIVILEGED_KEY_FILE  1  512  "Path to the operator-managed SSH private key authorized as the privileged user"
 
-  buv_group_enroll "Session Routing"
-  buv_string_enroll  BURP_COMMAND      0  512  "Shell command for command= routing in administrators_authorized_keys (empty for direct shell)"
+  buv_group_enroll "Workload Credentials"
+  buv_string_enroll  BURP_WORKLOAD_KEY_FILE    1  512  "Path to the operator-managed SSH private key the workload account uses for inbound and outbound auth"
 
   # Guard against unexpected BURP_ variables not in enrollment
   buv_scope_sentinel BURP BURP_

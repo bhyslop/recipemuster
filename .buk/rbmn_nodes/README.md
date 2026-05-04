@@ -14,7 +14,7 @@ Each subdirectory is a BURN viceroyalty — one node identity. The `<viceroyalty
 
 ```
 BURN_HOST=<ip-or-hostname>       # IP address or hostname of the remote node
-BURN_PLATFORM=<platform>         # linux | mac | cygwin | wsl | powershell | localhost
+BURN_PLATFORM=<platform>         # bubep_linux | bubep_mac | bubep_windows
 ```
 
 ## Git Safety
@@ -31,4 +31,4 @@ tt/buw-rnr.RenderNodeRegime.sh <viceroyalty>    # show resolved fields
 
 ## Companion: BURP Privileged Investitures
 
-Privileged credentials live at `.buk/rbmu_users/<user>/<investiture>/burp.env` — per-station-user, operator-authored. Each BURP investiture references a viceroyalty by `BURP_NODE`.
+Privileged credentials live at `.buk/rbmu_users/<user>/<investiture>/burp.env` — per-station-user, operator-authored. Each BURP investiture references a viceroyalty by `BURP_VICEROYALTY`.

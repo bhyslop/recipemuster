@@ -13,16 +13,15 @@ Each subdirectory under a user is a BURP investiture — one privileged-credenti
 ## Fields
 
 ```
-BURP_NODE=<viceroyalty>          # references .buk/rbmn_nodes/<viceroyalty>
-BURP_USER=<remote-os-user>       # admin user authenticated by this investiture
-BURP_SSH_PUBKEY='ssh-... ...'    # operator-managed admin keypair (public side)
-BURP_KEY_FILE=<filename>         # SSH private key filename (empty = use investiture name)
-BURP_COMMAND='<shell-command>'   # optional command= routing in administrators_authorized_keys
+BURP_VICEROYALTY=<viceroyalty>      # references .buk/rbmn_nodes/<viceroyalty>
+BURP_PRIVILEGED_USER=<admin-user>   # remote admin OS user this investiture authenticates as
+BURP_PRIVILEGED_KEY_FILE=<path>     # operator-managed SSH private key path for admin authentication
+BURP_WORKLOAD_KEY_FILE=<path>       # operator-managed SSH private key path for workload authentication
 ```
 
 ## Git Safety
 
-BURP profiles contain **public** key material only (`BURP_SSH_PUBKEY`). Private keys are never stored here; they live at operator-managed paths.
+BURP profiles carry **no key material** — only paths to operator-managed private keys on the local station. Pubkeys are derived at use-time via `ssh-keygen -y`.
 
 ## Validation
 
@@ -34,4 +33,4 @@ tt/buw-rpr.RenderPrivilegeRegime.sh <invest>     # show resolved fields
 
 ## Companion: BURN Node Profiles
 
-Node-shape profiles (host, platform) live at `.buk/rbmn_nodes/<viceroyalty>/burn.env` — project-global, git-tracked. Each BURP investiture references a viceroyalty by `BURP_NODE`.
+Node-shape profiles (host, platform) live at `.buk/rbmn_nodes/<viceroyalty>/burn.env` — project-global, git-tracked. Each BURP investiture references a viceroyalty by `BURP_VICEROYALTY`.
