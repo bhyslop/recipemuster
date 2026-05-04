@@ -7321,6 +7321,7 @@
         "₢BBAAr",
         "₢BBAA7",
         "₢BBAAX",
+        "₢BBAA8",
         "₢BBAAC",
         "₢BBAAD",
         "₢BBAAE",
@@ -7336,7 +7337,7 @@
         "₢BBAA1",
         "₢BBAA5"
       ],
-      "next_pace_seed": "AA8",
+      "next_pace_seed": "AA9",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAA0": {
@@ -7515,6 +7516,17 @@
               "text": "## Character\n\nMostly-delete refactor: trim four-mode fixture down to its load-bearing case (graft-roundtrip — the only place verifying GRAFTED vouch marker + post-graft summon/plumb, since no crucible consumes a grafted hallmark). Also tightens foundry preflight against the airgap+empty-anchor latent bug class BBAAX exposed.\n\n## Scope\n\n- four-mode cases for conjure/bind/kludge: removed. Coverage rationale documented in pace closure (airgap-conjure roundtrip → moriah end-to-end; bind → pluml end-to-end; kludge → every bottle charge).\n- four-mode fixture renamed to reflect graft-only scope (operator picks name; the previous \"four\" no longer fits).\n- rbev-busybox vessel: removed (used only by deleted conjure_lifecycle).\n- Foundry enshrine-preflight loop in rbfd_FoundryDirectorBuild.sh: airgap vessel + non-empty ORIGIN + empty ANCHOR now fails-fast via the existing 404-path remediation diagnostic shape. Tether vessels keep the permissive skip (current behavior correct — buildx fetches upstream at build time).\n\n## Constraints\n\n- Onboarding-sequence unchanged. Its ordain_* cases keep handbook-walk regression coverage.\n- rbev-bottle-plantuml stays (pluml crucible bind consumer).\n- rbev-graft-demo stays (graft case still exists in the trimmed fixture).\n- Gauntlet sequence unchanged — renamed fixture occupies the same slot in ZRBTE_SUITE_GAUNTLET.\n\n## Cross-pace dependencies\n\n- BBAAX is the verifier — re-run gauntlet after this pace lands and confirm green tally.\n\n## Out of scope\n\n- Onboarding-sequence enrichment (analyzed during slate-time; graft is the only case carrying coverage not already provided elsewhere; absorb-into-onboarding rejected).\n- Documentation sweep beyond what rbw-MG.MarshalGenerate.sh regenerates and the fundus registry update.\n- Vessel directory deletion beyond rbev-busybox.",
               "silks": "four-mode-trim-and-airgap-preflight",
               "commit": "136121f"
+            }
+          ]
+        },
+        "₢BBAA8": {
+          "tacks": [
+            {
+              "ts": "260504-1547",
+              "state": "rough",
+              "text": "## Character\n\nDesign conversation requiring judgment. Mechanism choice must follow operator concurrence — load-bearing slate-time instruction.\n\n## Issue evidence\n\nFailed in BBAAX first-run gauntlet attempt at `rbtdro_onboarding_ordain_conjure` verification tail. Conjure cloud build (4m0s) and vouch (1m30s) both succeeded. All GAR artifacts confirmed via gcloud post-failure (image, attest-amd64, attest-arm64, about, vouch tagged correctly). Failure was wrest's `docker login` against `us-central1-docker.pkg.dev`:\n\n    Error response from daemon: Get \"https://us-central1-docker.pkg.dev/v2/\":\n    net/http: request canceled while waiting for connection\n    (Client.Timeout exceeded while awaiting headers)\n\nEndpoint probed clean post-failure (curl 134ms, 401 as expected; gcloud listing fast). Documented docker daemon transient per moby/moby#44350: non-configurable Client.Timeout fires before the registry auth backend responds; industry remediation across the corpus is retry. Same case had 4 curl rc=28 warnings during the preceding vouch poll, absorbed by the existing 3-consecutive tolerance.\n\n## Asymmetry to close\n\n`Tools/rbk/rbfc_FoundryCore.sh` poll loop tolerates this transient class with a 3-consecutive policy (BCG-clean, in production).\n`Tools/rbk/rbfl_FoundryLedger.sh` `rbfl_wrest`'s docker login is single-shot, fatal on the same transient class. Same daemon, same registry boundary, different fate.\n\n## Scope\n\nRetry shape for transient-vulnerable docker daemon ↔ registry single-shot calls. Immediate surface is wrest's docker login; design surface should include other single-shot daemon calls crossing the same boundary (login, pull, push, inspect with registry round-trip).\n\n## Discuss before implementing — load-bearing\n\nMount agent surfaces the design space and proposes a recommended shape; operator concurrence precedes landing. No pre-baking at slate-time. Design questions to seat at the table belong in the conversation, not the docket.\n\n## Out of scope\n\n- Curl/gcloud transient audit beyond the docker daemon path — distinct class\n- Build-poll loop changes (already tolerant)\n- Generic retry framework — only what the surveyed surface requires\n\n## References\n\n- moby/moby#44350 — non-configurable docker daemon Client.Timeout\n- BBAAX inline-fix commits 24e24651 (depot Cloud Build URL) and dd5893ba (Mid-execution posture rule) — first-run iteration arc context",
+              "silks": "docker-login-retry-shape",
+              "commit": "19a9229"
             }
           ]
         },
