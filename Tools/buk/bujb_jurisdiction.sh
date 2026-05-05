@@ -107,7 +107,7 @@ zbujb_check_key_file() {
 ######################################################################
 # Public Functions (bujb_*)
 
-# bujb_resolve_investiture -- sole load-and-cross-validate entrypoint.
+# bujb_resolve_investiture -- sole runtime cross-validation entrypoint.
 #
 # Preconditions: BURC, BURN, BURP regimes already kindled and enforced
 # (the bujb_cli furnish handles this for tabtarget callers; the cli's
@@ -115,9 +115,12 @@ zbujb_check_key_file() {
 # BURP_VICEROYALTY refers to a registered BURN profile by file presence).
 #
 # Behaviour: validates BURP_PRIVILEGED_KEY_FILE and BURP_WORKLOAD_KEY_FILE
-# (exist, mode 0600, ssh-keygen -y dry-load proves parseable + unencrypted),
-# then publishes BUJB_RESOLVED_* globals as readonly. Single-call-per-process;
-# subsequent calls die.
+# (exist, mode 0600, ssh-keygen -y dry-load proves parseable + unencrypted) —
+# the validation regime enforce cannot do because it requires running
+# ssh-keygen against the private key. After validation, sets ZBUJB_RESOLVED=1
+# as the I-have-been-validated sentinel. Callers reference the regime vars
+# directly (BURP_*, BURN_*, BURC_*); no separate published namespace.
+# Single-call-per-process; subsequent calls die.
 bujb_resolve_investiture() {
   zbujb_sentinel
   zburc_sentinel
@@ -129,14 +132,6 @@ bujb_resolve_investiture() {
 
   zbujb_check_key_file "${BURP_PRIVILEGED_KEY_FILE}" "BURP_PRIVILEGED_KEY_FILE"
   zbujb_check_key_file "${BURP_WORKLOAD_KEY_FILE}"   "BURP_WORKLOAD_KEY_FILE"
-
-  readonly BUJB_RESOLVED_VICEROYALTY="${BURP_VICEROYALTY}"
-  readonly BUJB_RESOLVED_HOST="${BURN_HOST}"
-  readonly BUJB_RESOLVED_PLATFORM="${BURN_PLATFORM}"
-  readonly BUJB_RESOLVED_PRIVILEGED_USER="${BURP_PRIVILEGED_USER}"
-  readonly BUJB_RESOLVED_PRIVILEGED_KEY_FILE="${BURP_PRIVILEGED_KEY_FILE}"
-  readonly BUJB_RESOLVED_WORKLOAD_KEY_FILE="${BURP_WORKLOAD_KEY_FILE}"
-  readonly BUJB_RESOLVED_WORKLOAD_USER="${BURC_WORKLOAD_USER}"
 
   readonly ZBUJB_RESOLVED=1
 }
@@ -178,7 +173,7 @@ zbujb_assert_shell_letter() {
   esac
 }
 
-# zbujb_garrison_assert_platform LETTER -- assert BUJB_RESOLVED_PLATFORM
+# zbujb_garrison_assert_platform LETTER -- assert BURN_PLATFORM
 # matches the shell-letter's required platform set.
 zbujb_garrison_assert_platform() {
   zbujb_sentinel
@@ -186,14 +181,14 @@ zbujb_garrison_assert_platform() {
   zbujb_assert_shell_letter "${z_letter}"
   case "${z_letter}" in
     b)
-      case "${BUJB_RESOLVED_PLATFORM}" in
+      case "${BURN_PLATFORM}" in
         bubep_linux|bubep_mac) ;;
-        *) buc_die "garrison-b requires bubep_linux or bubep_mac, got '${BUJB_RESOLVED_PLATFORM}'" ;;
+        *) buc_die "garrison-b requires bubep_linux or bubep_mac, got '${BURN_PLATFORM}'" ;;
       esac
       ;;
     c|w)
-      test "${BUJB_RESOLVED_PLATFORM}" = "bubep_windows" \
-        || buc_die "garrison-${z_letter} requires bubep_windows, got '${BUJB_RESOLVED_PLATFORM}'"
+      test "${BURN_PLATFORM}" = "bubep_windows" \
+        || buc_die "garrison-${z_letter} requires bubep_windows, got '${BURN_PLATFORM}'"
       ;;
   esac
 }
@@ -203,13 +198,13 @@ zbujb_garrison_assert_platform() {
 zbujb_workload_home() {
   zbujb_sentinel
   local z_letter="${1:-}"
-  local z_wlu="${BUJB_RESOLVED_WORKLOAD_USER}"
+  local z_wlu="${BURC_WORKLOAD_USER}"
   case "${z_letter}" in
     b)
-      case "${BUJB_RESOLVED_PLATFORM}" in
+      case "${BURN_PLATFORM}" in
         bubep_linux) echo "/home/${z_wlu}" ;;
         bubep_mac)   echo "/Users/${z_wlu}" ;;
-        *)           buc_die "zbujb_workload_home: unsupported platform '${BUJB_RESOLVED_PLATFORM}'" ;;
+        *)           buc_die "zbujb_workload_home: unsupported platform '${BURN_PLATFORM}'" ;;
       esac
       ;;
     c|w) echo "/home/${z_wlu}" ;;
@@ -233,12 +228,12 @@ zbujb_admin_exec() {
     w) z_remote_invoker="wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -s" ;;
   esac
 
-  ssh -i "${BUJB_RESOLVED_PRIVILEGED_KEY_FILE}"     \
+  ssh -i "${BURP_PRIVILEGED_KEY_FILE}"     \
       -o IdentitiesOnly=yes                         \
       -o BatchMode=yes                              \
       -o StrictHostKeyChecking=accept-new           \
       -o ConnectTimeout=15                          \
-      "${BUJB_RESOLVED_PRIVILEGED_USER}@${BUJB_RESOLVED_HOST}" \
+      "${BURP_PRIVILEGED_USER}@${BURN_HOST}" \
       "${z_remote_invoker}"
 }
 
@@ -248,17 +243,17 @@ zbujb_admin_exec() {
 # Step 1 -- open admin SSH (test reachability under key-only auth).
 zbujb_garrison_step1_admin_open() {
   local z_letter="${1:-}"
-  buc_step "  [1/6] Open admin SSH (${BUJB_RESOLVED_PRIVILEGED_USER}@${BUJB_RESOLVED_HOST})"
+  buc_step "  [1/6] Open admin SSH (${BURP_PRIVILEGED_USER}@${BURN_HOST})"
 
   local z_exit=0
   zbujb_admin_exec "${z_letter}" <<<'exit 0' || z_exit=$?
   if test "${z_exit}" -ne 0; then
-    case "${BUJB_RESOLVED_PLATFORM}" in
+    case "${BURN_PLATFORM}" in
       bubep_windows)
-        buc_die "Admin SSH failed (exit ${z_exit}). Run fenestrate first: tt/buw-jpF.Fenestrate.sh ${BUJB_RESOLVED_VICEROYALTY}"
+        buc_die "Admin SSH failed (exit ${z_exit}). Run fenestrate first: tt/buw-jpF.Fenestrate.sh ${BURP_VICEROYALTY}"
         ;;
       *)
-        buc_die "Admin SSH failed (exit ${z_exit}). Place admin pubkey via 'ssh-copy-id -i ${BUJB_RESOLVED_PRIVILEGED_KEY_FILE}.pub ${BUJB_RESOLVED_PRIVILEGED_USER}@${BUJB_RESOLVED_HOST}' first."
+        buc_die "Admin SSH failed (exit ${z_exit}). Place admin pubkey via 'ssh-copy-id -i ${BURP_PRIVILEGED_KEY_FILE}.pub ${BURP_PRIVILEGED_USER}@${BURN_HOST}' first."
         ;;
     esac
   fi
@@ -267,7 +262,7 @@ zbujb_garrison_step1_admin_open() {
 # Step 2 -- destroy any existing workload account + home.
 zbujb_garrison_step2_destroy() {
   local z_letter="${1:-}"
-  local z_wlu="${BUJB_RESOLVED_WORKLOAD_USER}"
+  local z_wlu="${BURC_WORKLOAD_USER}"
   local z_wlhome
   z_wlhome=$(zbujb_workload_home "${z_letter}")
   buc_step "  [2/6] Destroy workload (${z_wlu})"
@@ -303,12 +298,12 @@ SCRIPT
 # Step 3 -- create the workload account fresh, ssh-only, no privilege.
 zbujb_garrison_step3_create() {
   local z_letter="${1:-}"
-  local z_wlu="${BUJB_RESOLVED_WORKLOAD_USER}"
+  local z_wlu="${BURC_WORKLOAD_USER}"
   buc_step "  [3/6] Create workload (${z_wlu})"
 
   case "${z_letter}" in
     b)
-      case "${BUJB_RESOLVED_PLATFORM}" in
+      case "${BURN_PLATFORM}" in
         bubep_linux)
           zbujb_admin_exec b <<SCRIPT
 set -euo pipefail
@@ -352,7 +347,7 @@ SCRIPT
 # directive and the workload pubkey (derived locally from the privkey).
 zbujb_garrison_step4_place_trust() {
   local z_letter="${1:-}"
-  local z_wlu="${BUJB_RESOLVED_WORKLOAD_USER}"
+  local z_wlu="${BURC_WORKLOAD_USER}"
   local z_wlhome
   z_wlhome=$(zbujb_workload_home "${z_letter}")
   buc_step "  [4/6] Place workload trust (${z_wlhome}/.ssh/authorized_keys)"
@@ -361,8 +356,8 @@ zbujb_garrison_step4_place_trust() {
   z_command_directive=$(bujb_command_for "${z_letter}")
 
   local z_pubkey
-  z_pubkey=$(ssh-keygen -y -P '' -f "${BUJB_RESOLVED_WORKLOAD_KEY_FILE}") \
-    || buc_die "ssh-keygen -y failed for workload key: ${BUJB_RESOLVED_WORKLOAD_KEY_FILE}"
+  z_pubkey=$(ssh-keygen -y -P '' -f "${BURP_WORKLOAD_KEY_FILE}") \
+    || buc_die "ssh-keygen -y failed for workload key: ${BURP_WORKLOAD_KEY_FILE}"
 
   local z_authkeys_line="${z_command_directive} ${z_pubkey}"
 
@@ -397,7 +392,7 @@ SCRIPT
 # hardcoded destination path, with workload ownership and 0600 mode.
 zbujb_garrison_step5_plant_key() {
   local z_letter="${1:-}"
-  local z_wlu="${BUJB_RESOLVED_WORKLOAD_USER}"
+  local z_wlu="${BURC_WORKLOAD_USER}"
   local z_wlhome
   z_wlhome=$(zbujb_workload_home "${z_letter}")
   local z_keypath
@@ -406,8 +401,8 @@ zbujb_garrison_step5_plant_key() {
   buc_step "  [5/6] Plant workload privkey (${z_target})"
 
   local z_key_b64
-  z_key_b64=$(base64 < "${BUJB_RESOLVED_WORKLOAD_KEY_FILE}") \
-    || buc_die "base64 encode failed for workload key: ${BUJB_RESOLVED_WORKLOAD_KEY_FILE}"
+  z_key_b64=$(base64 < "${BURP_WORKLOAD_KEY_FILE}") \
+    || buc_die "base64 encode failed for workload key: ${BURP_WORKLOAD_KEY_FILE}"
 
   case "${z_letter}" in
     b|w)
@@ -443,12 +438,12 @@ zbujb_garrison_step6_validate() {
   buc_step "  [6/6] Validate workload round-trip"
 
   local z_exit=0
-  ssh -i "${BUJB_RESOLVED_WORKLOAD_KEY_FILE}"     \
+  ssh -i "${BURP_WORKLOAD_KEY_FILE}"     \
       -o IdentitiesOnly=yes                       \
       -o BatchMode=yes                            \
       -o StrictHostKeyChecking=accept-new         \
       -o ConnectTimeout=10                        \
-      "${BUJB_RESOLVED_WORKLOAD_USER}@${BUJB_RESOLVED_HOST}" \
+      "${BURC_WORKLOAD_USER}@${BURN_HOST}" \
       true                                        \
     || z_exit=$?
 
@@ -469,7 +464,7 @@ bujb_garrison() {
   local z_letter="${1:-}"
   zbujb_garrison_assert_platform "${z_letter}"
 
-  buc_step "Garrison-${z_letter}: ${BUJB_RESOLVED_VICEROYALTY} (${BUJB_RESOLVED_HOST})"
+  buc_step "Garrison-${z_letter}: ${BURP_VICEROYALTY} (${BURN_HOST})"
 
   zbujb_garrison_step1_admin_open    "${z_letter}"
   zbujb_garrison_step2_destroy       "${z_letter}"
@@ -494,8 +489,8 @@ bujb_garrison() {
 
 zbujb_fenestrate_assert_platform() {
   zbujb_sentinel
-  test "${BUJB_RESOLVED_PLATFORM}" = "bubep_windows" \
-    || buc_die "fenestrate requires bubep_windows, got '${BUJB_RESOLVED_PLATFORM}'"
+  test "${BURN_PLATFORM}" = "bubep_windows" \
+    || buc_die "fenestrate requires bubep_windows, got '${BURN_PLATFORM}'"
 }
 
 # zbujb_fenestrate_exec_with_password_fallback STDOUT_FILE STDERR_FILE
@@ -511,13 +506,13 @@ zbujb_fenestrate_exec_with_password_fallback() {
   test -n "${z_stdout_file}" || buc_die "zbujb_fenestrate_exec_with_password_fallback: stdout_file required"
   test -n "${z_stderr_file}" || buc_die "zbujb_fenestrate_exec_with_password_fallback: stderr_file required"
 
-  ssh -i "${BUJB_RESOLVED_PRIVILEGED_KEY_FILE}"            \
+  ssh -i "${BURP_PRIVILEGED_KEY_FILE}"            \
       -o IdentitiesOnly=yes                                \
       -o BatchMode=no                                      \
       -o PreferredAuthentications=publickey,password       \
       -o StrictHostKeyChecking=accept-new                  \
       -o ConnectTimeout=15                                 \
-      "${BUJB_RESOLVED_PRIVILEGED_USER}@${BUJB_RESOLVED_HOST}" \
+      "${BURP_PRIVILEGED_USER}@${BURN_HOST}" \
       'powershell -NoProfile -File -'                      \
       > "${z_stdout_file}"                                 \
       2> "${z_stderr_file}"
@@ -532,13 +527,13 @@ zbujb_fenestrate_exec_keyonly() {
   test -n "${z_stdout_file}" || buc_die "zbujb_fenestrate_exec_keyonly: stdout_file required"
   test -n "${z_stderr_file}" || buc_die "zbujb_fenestrate_exec_keyonly: stderr_file required"
 
-  ssh -i "${BUJB_RESOLVED_PRIVILEGED_KEY_FILE}"            \
+  ssh -i "${BURP_PRIVILEGED_KEY_FILE}"            \
       -o IdentitiesOnly=yes                                \
       -o BatchMode=yes                                     \
       -o PreferredAuthentications=publickey                \
       -o StrictHostKeyChecking=accept-new                  \
       -o ConnectTimeout=15                                 \
-      "${BUJB_RESOLVED_PRIVILEGED_USER}@${BUJB_RESOLVED_HOST}" \
+      "${BURP_PRIVILEGED_USER}@${BURN_HOST}" \
       'powershell -NoProfile -File -'                      \
       > "${z_stdout_file}"                                 \
       2> "${z_stderr_file}"
@@ -611,8 +606,8 @@ zbujb_fenestrate_phase1() {
   zbujb_sentinel
 
   local z_pubkey=""
-  z_pubkey=$(ssh-keygen -y -P '' -f "${BUJB_RESOLVED_PRIVILEGED_KEY_FILE}") \
-    || buc_die "ssh-keygen -y failed for admin key: ${BUJB_RESOLVED_PRIVILEGED_KEY_FILE}"
+  z_pubkey=$(ssh-keygen -y -P '' -f "${BURP_PRIVILEGED_KEY_FILE}") \
+    || buc_die "ssh-keygen -y failed for admin key: ${BURP_PRIVILEGED_KEY_FILE}"
 
   buc_step "  [Phase 1] Chunk A: pubkey + icacls + sshd_config + sshd -t + emit (operator may be prompted for admin password on first run)"
 
@@ -724,7 +719,7 @@ bujb_fenestrate() {
 
   zbujb_fenestrate_assert_platform
 
-  buc_step "Fenestrate: ${BUJB_RESOLVED_VICEROYALTY} (${BUJB_RESOLVED_HOST})"
+  buc_step "Fenestrate: ${BURP_VICEROYALTY} (${BURN_HOST})"
 
   zbujb_fenestrate_phase1
   zbujb_fenestrate_phase2

@@ -33,7 +33,7 @@ source "${BURD_BUK_DIR}/buc_command.sh"
 # bujb_resolve - diagnostic: load investiture and print resolved fields.
 # No remote action; verifies regime + key-file health for a target.
 bujb_resolve() {
-  buc_doc_brief "Resolve an investiture and display the BUJB_RESOLVED_* state"
+  buc_doc_brief "Cross-validate an investiture and display the regime fields it resolves"
   buc_doc_shown || return 0
 
   test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
@@ -41,13 +41,13 @@ bujb_resolve() {
   bujb_resolve_investiture
 
   buc_step "Resolved investiture ${BUZ_FOLIO}:"
-  buc_bare "  BUJB_RESOLVED_VICEROYALTY        = ${BUJB_RESOLVED_VICEROYALTY}"
-  buc_bare "  BUJB_RESOLVED_HOST               = ${BUJB_RESOLVED_HOST}"
-  buc_bare "  BUJB_RESOLVED_PLATFORM           = ${BUJB_RESOLVED_PLATFORM}"
-  buc_bare "  BUJB_RESOLVED_PRIVILEGED_USER    = ${BUJB_RESOLVED_PRIVILEGED_USER}"
-  buc_bare "  BUJB_RESOLVED_PRIVILEGED_KEY_FILE= ${BUJB_RESOLVED_PRIVILEGED_KEY_FILE}"
-  buc_bare "  BUJB_RESOLVED_WORKLOAD_KEY_FILE  = ${BUJB_RESOLVED_WORKLOAD_KEY_FILE}"
-  buc_bare "  BUJB_RESOLVED_WORKLOAD_USER      = ${BUJB_RESOLVED_WORKLOAD_USER}"
+  buc_bare "  BURP_VICEROYALTY        = ${BURP_VICEROYALTY}"
+  buc_bare "  BURN_HOST               = ${BURN_HOST}"
+  buc_bare "  BURN_PLATFORM           = ${BURN_PLATFORM}"
+  buc_bare "  BURP_PRIVILEGED_USER    = ${BURP_PRIVILEGED_USER}"
+  buc_bare "  BURP_PRIVILEGED_KEY_FILE= ${BURP_PRIVILEGED_KEY_FILE}"
+  buc_bare "  BURP_WORKLOAD_KEY_FILE  = ${BURP_WORKLOAD_KEY_FILE}"
+  buc_bare "  BURC_WORKLOAD_USER      = ${BURC_WORKLOAD_USER}"
 }
 
 # bujb_knock - probe workload reachability (workload SSH + remote no-op).
@@ -59,16 +59,16 @@ bujb_knock() {
 
   bujb_resolve_investiture
 
-  buc_step "Knocking ${BUJB_RESOLVED_WORKLOAD_USER}@${BUJB_RESOLVED_HOST} (${BUJB_RESOLVED_VICEROYALTY})"
+  buc_step "Knocking ${BURC_WORKLOAD_USER}@${BURN_HOST} (${BURP_VICEROYALTY})"
 
-  ssh -i "${BUJB_RESOLVED_WORKLOAD_KEY_FILE}"     \
+  ssh -i "${BURP_WORKLOAD_KEY_FILE}"     \
       -o IdentitiesOnly=yes                       \
       -o BatchMode=yes                            \
       -o StrictHostKeyChecking=accept-new         \
       -o ConnectTimeout=10                        \
-      "${BUJB_RESOLVED_WORKLOAD_USER}@${BUJB_RESOLVED_HOST}" \
+      "${BURC_WORKLOAD_USER}@${BURN_HOST}" \
       true                                        \
-    || buc_die "Knock failed for ${BUJB_RESOLVED_VICEROYALTY}"
+    || buc_die "Knock failed for ${BURP_VICEROYALTY}"
 
   buc_step "Knock succeeded"
 }
@@ -91,16 +91,16 @@ bujb_command_file() {
 
   bujb_resolve_investiture
 
-  buc_step "Streaming ${z_command_file} to ${BUJB_RESOLVED_WORKLOAD_USER}@${BUJB_RESOLVED_HOST}"
+  buc_step "Streaming ${z_command_file} to ${BURC_WORKLOAD_USER}@${BURN_HOST}"
   buc_step "Output dir: ${BURD_OUTPUT_DIR}"
 
   local z_exit=0
-  ssh -i "${BUJB_RESOLVED_WORKLOAD_KEY_FILE}"     \
+  ssh -i "${BURP_WORKLOAD_KEY_FILE}"     \
       -o IdentitiesOnly=yes                       \
       -o BatchMode=yes                            \
       -o StrictHostKeyChecking=accept-new         \
       -o ConnectTimeout=10                        \
-      "${BUJB_RESOLVED_WORKLOAD_USER}@${BUJB_RESOLVED_HOST}" \
+      "${BURC_WORKLOAD_USER}@${BURN_HOST}" \
       'bash -s'                                   \
       < "${z_command_file}"                       \
       > "${BURD_OUTPUT_DIR}/stdout.log"           \
@@ -165,13 +165,13 @@ bujb_interactive_session() {
 
   bujb_resolve_investiture
 
-  buc_step "Opening interactive session: ${BUJB_RESOLVED_WORKLOAD_USER}@${BUJB_RESOLVED_HOST} (${BUJB_RESOLVED_VICEROYALTY})"
+  buc_step "Opening interactive session: ${BURC_WORKLOAD_USER}@${BURN_HOST} (${BURP_VICEROYALTY})"
 
   exec ssh -t                                     \
-      -i "${BUJB_RESOLVED_WORKLOAD_KEY_FILE}"     \
+      -i "${BURP_WORKLOAD_KEY_FILE}"     \
       -o IdentitiesOnly=yes                       \
       -o StrictHostKeyChecking=accept-new         \
-      "${BUJB_RESOLVED_WORKLOAD_USER}@${BUJB_RESOLVED_HOST}" \
+      "${BURC_WORKLOAD_USER}@${BURN_HOST}" \
       "bash -i"
 }
 
