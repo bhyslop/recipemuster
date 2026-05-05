@@ -7482,6 +7482,7 @@
         "₢BBAAr",
         "₢BBAA7",
         "₢BBAAX",
+        "₢BBABA",
         "₢BBAA8",
         "₢BBAAC",
         "₢BBAAD",
@@ -7498,7 +7499,7 @@
         "₢BBAA1",
         "₢BBAA5"
       ],
-      "next_pace_seed": "ABA",
+      "next_pace_seed": "ABB",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAA-": {
@@ -8984,6 +8985,17 @@
               "text": "## Character\n\nSpec-driven mechanical refactor. ANCHOR's value shape changes from\ncontent-addressed identifier to domain-blind locator. No new\ncapabilities; existing flows preserved.\n\n## Goals\n\nRedefine `RBRV_IMAGE_n_ANCHOR` as a `package-path:tag` locator\nmatching the existing wrest/jettison locator pattern\n(RBS0:3423-3427). Today ANCHOR is `<sanitized-origin>-<10-hex>`\nimplicitly under `enshrines/`; new shape carries its namespace\nexplicitly so it can name an enshrinement OR (in the next pace)\na hallmark.\n\n## Wrap criterion\n\n- Spec sweep: RBS0 RBRV_IMAGE_n_ANCHOR definition, RBSAE enshrine,\n  RBSAC conjure preflight + resolve, plus any consumers using the\n  short-form anchor.\n- Code consumers updated: enshrine writeback, conjure resolution,\n  validation patterns.\n- Existing populated rbrv.env values migrated to locator shape.\n- Fast suite green; previously-green onboarding-sequence cases\n  still pass.\n\n## Out of scope\n\n- Hallmark-base support — separate pace, follows this one.\n- Airgap chain integration — `₢BBAAs` verifies.",
               "silks": "rbrv-anchor-locator-format",
               "commit": "83d57c2"
+            }
+          ]
+        },
+        "₢BBABA": {
+          "tacks": [
+            {
+              "ts": "260505-1456",
+              "state": "rough",
+              "text": "## Character\n\nValidate BBAAX's repairs (charge auto-summon + ordain rmi removals) by re-running rbw-tP end-to-end on a branch named after this pace's coronet. Branch isolation lets parallel attempts (e.g., simultaneous macOS + Linux runs) avoid the commit-trail race on main.\n\n## Wrap criterion\n\nGreen tally end-to-end. Same guardrail as BBAAX — partial completion is not pass.\n\n## Cost\n\n~90m wall-clock + 2 GCP projects per attempt.\n\n## Scope\n\n- Create a branch named after this pace's coronet, off current main\n- Run rbw-tP from marshal-zero on that branch\n- Operator selects which machine the pace mounts on (mac or linux); pace does NOT use foray\n- Triage surprises per BBAAX rules: tiny inline fix + re-run, larger → follow-up pace\n\n## Locked decisions\n\n- Branch name == pace coronet (identity-stable; no human-meaningful name)\n- Branch lives until pace wraps; deletion is operator territory",
+              "silks": "rbw-tP-branched-rerun",
+              "commit": "bb61542"
             }
           ]
         }
