@@ -1255,6 +1255,63 @@ fn rbtdrf_rs_burd(dir: &Path) -> rbtdre_Verdict {
     rbtdre_Verdict::Pass
 }
 
+// ── Tabtarget-refusal cases ─────────────────────────────────
+
+/// rbw-dU empty-arg refusal — BBAA9 contract. Invoking rbw-dU with no
+/// argument must die non-zero and emit the rbw-dl pointer (operator
+/// discovery for candidate depot project IDs). BUW dispatch merges
+/// stderr→stdout via `2>&1` (bud_dispatch.sh:372), so the captured
+/// stdout carries the buc_warn/buc_info/buc_tabtarget/buc_die output
+/// from rbgp_depot_unmake's no-arg branch (rbgp_Payor.sh:937-942).
+///
+/// Pure shell, no GCP traffic — refusal lands before authenticate.
+fn rbtdrf_rs_unmake_empty_arg_refusal(dir: &Path) -> rbtdre_Verdict {
+    let root = match std::env::current_dir() {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+    };
+
+    let tt = match rbtdri_find_tabtarget_global(&root, "rbw-dU") {
+        Ok(p) => p,
+        Err(e) => return rbtdre_Verdict::Fail(e),
+    };
+
+    let output = match Command::new(&tt).current_dir(&root).output() {
+        Ok(o) => o,
+        Err(e) => {
+            return rbtdre_Verdict::Fail(format!(
+                "failed to run {}: {}",
+                tt.display(),
+                e
+            ));
+        }
+    };
+
+    let stdout = String::from_utf8_lossy(&output.stdout).into_owned();
+    let stderr = String::from_utf8_lossy(&output.stderr).into_owned();
+    let code = output.status.code().unwrap_or(-1);
+    let _ = std::fs::write(dir.join("empty-arg-stdout.txt"), &stdout);
+    let _ = std::fs::write(dir.join("empty-arg-stderr.txt"), &stderr);
+
+    if code == 0 {
+        return rbtdre_Verdict::Fail(
+            "rbw-dU exited 0 with no argument — BBAA9 empty-arg refusal contract violated"
+                .to_string(),
+        );
+    }
+
+    let combined = format!("{}{}", stdout, stderr);
+    if !combined.contains("rbw-dl") {
+        return rbtdre_Verdict::Fail(format!(
+            "rbw-dU empty-arg refusal did not point at rbw-dl for operator discovery\n\
+             stdout:\n{}\n\nstderr:\n{}",
+            stdout, stderr
+        ));
+    }
+
+    rbtdre_Verdict::Pass
+}
+
 // ── Section arrays ──────────────────────────────────────────
 
 pub static RBTDRF_SECTIONS_ENROLLMENT_VALIDATION: &[rbtdre_Section] = &[
@@ -1392,19 +1449,25 @@ pub static RBTDRF_SECTIONS_REGIME_VALIDATION: &[rbtdre_Section] = &[
     },
 ];
 
-pub static RBTDRF_SECTIONS_REGIME_SMOKE: &[rbtdre_Section] = &[rbtdre_Section {
-    name: "regime-smoke",
-    cases: &[
-        case!(rbtdrf_rs_burc),
-        case!(rbtdrf_rs_burs),
-        case!(rbtdrf_rs_rbrn),
-        case!(rbtdrf_rs_rbrr),
-        case!(rbtdrf_rs_rbrr_nonempty_prefix),
-        case!(rbtdrf_rs_rbrv),
-        case!(rbtdrf_rs_rbrp),
-        case!(rbtdrf_rs_burd),
-    ],
-}];
+pub static RBTDRF_SECTIONS_REGIME_SMOKE: &[rbtdre_Section] = &[
+    rbtdre_Section {
+        name: "regime-smoke",
+        cases: &[
+            case!(rbtdrf_rs_burc),
+            case!(rbtdrf_rs_burs),
+            case!(rbtdrf_rs_rbrn),
+            case!(rbtdrf_rs_rbrr),
+            case!(rbtdrf_rs_rbrr_nonempty_prefix),
+            case!(rbtdrf_rs_rbrv),
+            case!(rbtdrf_rs_rbrp),
+            case!(rbtdrf_rs_burd),
+        ],
+    },
+    rbtdre_Section {
+        name: "rs-tabtarget-refusals",
+        cases: &[case!(rbtdrf_rs_unmake_empty_arg_refusal)],
+    },
+];
 
 // ── Fixture statics ──────────────────────────────────────────
 

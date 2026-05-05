@@ -25,6 +25,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use crate::case;
+use crate::rbtdrb_probe::{rbtdrb_assert, rbtdrb_Probe};
 use crate::rbtdrc_crucible::rbtdrc_with_ctx;
 use crate::rbtdre_engine::{rbtdre_Disposition, rbtdre_Fixture, rbtdre_Section, rbtdre_Verdict};
 use crate::rbtdri_invocation::{
@@ -117,6 +118,41 @@ const RBTDRP_RBRR_FILE: &str = ".rbk/rbrr.env";
 const RBTDRP_RBRA_FILE: &str = "rbra.env";
 const RBTDRP_RBRN_FILE: &str = "rbrn.env";
 const RBTDRP_RBRV_FILE: &str = "rbrv.env";
+
+// ── Probes ───────────────────────────────────────────────────
+//
+// rbtdrb_Probe.check is `fn() -> Result<(), String>` with no parameters,
+// so the probe reads the project root from current_dir() — theurge always
+// launches from the project root.
+
+/// Live-disqualify case probe: depot levied (RBRR_CLOUD_PREFIX +
+/// RBRR_DEPOT_MONIKER both non-blank, RBDC kindle composes a non-empty
+/// project_id). Established by case 2 (rbtdrp_depot_stand_up).
+fn rbtdrp_probe_depot_levied() -> Result<(), String> {
+    let root = std::env::current_dir()
+        .map_err(|e| format!("cannot resolve project root: {}", e))?;
+    let rbrr = root.join(RBTDRP_RBRR_FILE);
+
+    let cloud = rbtdrp_read_env_value(&rbrr, RBTDRP_FIELD_RBRR_CLOUD_PREFIX).unwrap_or_default();
+    if cloud.is_empty() {
+        return Err(format!(
+            "{} blank in {} — throwaway prefixes not installed",
+            RBTDRP_FIELD_RBRR_CLOUD_PREFIX,
+            rbrr.display()
+        ));
+    }
+
+    let moniker = rbtdrp_read_env_value(&rbrr, RBTDRP_FIELD_RBRR_DEPOT_MONIKER).unwrap_or_default();
+    if moniker.is_empty() {
+        return Err(format!(
+            "{} blank in {} — depot stand-up did not run",
+            RBTDRP_FIELD_RBRR_DEPOT_MONIKER,
+            rbrr.display()
+        ));
+    }
+
+    Ok(())
+}
 
 // ── Helpers ──────────────────────────────────────────────────
 
@@ -962,12 +998,105 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
     rbtdre_Verdict::Pass
 }
 
-// ── Case 4: depot tear-down ──────────────────────────────────
+// ── Case 4 (new): live-disqualify refusal ────────────────────
 
-/// Case 4 — depot tear-down. Pre-condition: depot exists from case 2. Reads
+/// Recovery-diagnostic substring emitted by `rbgp_depot_unmake`'s
+/// live-disqualify branch (rbgp_Payor.sh:944-948). The branch names
+/// `RBRR_DEPOT_MONIKER` rename or `rbw-MZ` as recovery paths; the
+/// assertion matches on the field-name token, which is invariant
+/// across cosmetic message edits.
+const RBTDRP_LIVE_DISQUALIFY_RECOVERY: &str = "RBRR_DEPOT_MONIKER";
+
+/// Case 4 (new) — live-disqualify refusal. Pre-condition: depot levied
+/// by case 2 (probe asserts both RBRR_CLOUD_PREFIX and RBRR_DEPOT_MONIKER
+/// are non-blank). Composes the live RBDC_DEPOT_PROJECT_ID and invokes
+/// `rbw-dU` with it as $1; expects non-zero exit + recovery diagnostic
+/// naming `RBRR_DEPOT_MONIKER` (BBAA9 contract). The refusal lands
+/// before authenticate (rbgp_Payor.sh:944-948), so no GCP traffic
+/// occurs — assertion is on exit-code + diagnostic shape only.
+fn rbtdrp_depot_live_disqualify(dir: &Path) -> rbtdre_Verdict {
+    let probe = rbtdrb_Probe {
+        name: "depot levied (RBRR_CLOUD_PREFIX + RBRR_DEPOT_MONIKER set)",
+        check: rbtdrp_probe_depot_levied,
+        remediation: "rerun case 2 (rbtdrp_depot_stand_up) before this case",
+    };
+    if let Err(v) = rbtdrb_assert(&probe) {
+        return v;
+    }
+    rbtdrc_with_ctx(|ctx| rbtdrp_depot_live_disqualify_impl(ctx, dir))
+}
+
+fn rbtdrp_depot_live_disqualify_impl(
+    ctx: &mut rbtdri_Context,
+    dir: &Path,
+) -> rbtdre_Verdict {
+    let root = ctx.project_root().to_path_buf();
+
+    let rbrr = root.join(RBTDRP_RBRR_FILE);
+    let moniker = match rbtdrp_read_env_value(&rbrr, RBTDRP_FIELD_RBRR_DEPOT_MONIKER) {
+        Some(m) if !m.is_empty() => m,
+        _ => {
+            return rbtdre_Verdict::Fail(
+                "RBRR_DEPOT_MONIKER blank — probe should have caught this".to_string(),
+            )
+        }
+    };
+
+    let project_id = match rbtdrp_compose_project_id(&root, &moniker) {
+        Ok(p) => p,
+        Err(e) => return rbtdre_Verdict::Fail(format!("compose project_id: {}", e)),
+    };
+    let _ = std::fs::write(dir.join("live-project-id.txt"), &project_id);
+
+    let result = match rbtdrp_invoke_logged(
+        ctx,
+        RBTDRM_COLOPHON_DEPOT_UNMAKE,
+        &[&project_id],
+        &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
+        dir,
+        "live-disqualify",
+    ) {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("rbw-dU invocation: {}", e)),
+    };
+
+    if result.exit_code == 0 {
+        return rbtdre_Verdict::Fail(format!(
+            "rbw-dU '{}' exited 0 — BBAA9 live-disqualify contract violated \
+             (refusal must die when target == RBDC_DEPOT_PROJECT_ID)",
+            project_id
+        ));
+    }
+
+    // BUW dispatch merges stderr→stdout; assertion checks combined output.
+    let combined = format!("{}{}", result.stdout, result.stderr);
+    if !combined.contains(RBTDRP_LIVE_DISQUALIFY_RECOVERY) {
+        return rbtdre_Verdict::Fail(format!(
+            "rbw-dU live-disqualify diagnostic did not name '{}' as recovery path\n\
+             stdout:\n{}\n\nstderr:\n{}",
+            RBTDRP_LIVE_DISQUALIFY_RECOVERY, result.stdout, result.stderr
+        ));
+    }
+
+    rbtdre_Verdict::Pass
+}
+
+// ── Case 5: depot tear-down ──────────────────────────────────
+
+/// Case 5 — depot tear-down. Pre-condition: depot exists from case 2. Reads
 /// moniker from rbrr.env, unmakes the depot (BURE_CONFIRM=skip), re-lists,
 /// and verifies the depot is absent or in DELETE_REQUESTED state via
 /// fact-file content read (no stdout-grep).
+//
+// CLUE: BBAA9 changed `rbgp_depot_unmake` to require depot project ID as $1.
+// The current call below passes &[] (empty args), which now hits the empty-
+// arg refusal branch (rbgp_Payor.sh:937-942). The natural fix — passing the
+// composed project_id as $1 — additionally trips the live-disqualify guard
+// (rbgp_Payor.sh:944-948) since the throwaway depot IS the live RBRR-
+// selected target at this point. Recovery per the live-disqualify diagnostic:
+// rename RBRR_DEPOT_MONIKER (or run rbw-MZ) before invoking unmake. Operator
+// designs the proper tear-down shape via the live-GCP exercise; until then
+// this case fails at the empty-arg refusal under StateProgressing fail-fast.
 fn rbtdrp_depot_tear_down(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrp_depot_tear_down_impl(ctx, dir))
 }
@@ -1072,6 +1201,7 @@ pub static RBTDRP_SECTIONS_PRISTINE_LIFECYCLE: &[rbtdre_Section] = &[
         cases: &[
             case!(rbtdrp_depot_stand_up),
             case!(rbtdrp_sa_cycle),
+            case!(rbtdrp_depot_live_disqualify),
             case!(rbtdrp_depot_tear_down),
         ],
     },
