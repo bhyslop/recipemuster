@@ -477,7 +477,7 @@ zbujb_garrison_step5_plant_key() {
   local z_target_dir="${z_target%/*}"  # parameter expansion replaces dirname
   buc_step "  [5/6] Plant workload privkey (${z_target})"
 
-  base64 < "${BURP_WORKLOAD_KEY_FILE}" \
+  openssl enc -base64 -A < "${BURP_WORKLOAD_KEY_FILE}" \
       > "${ZBUJB_KEY_B64_STDOUT}" \
       2> "${ZBUJB_KEY_B64_STDERR}" \
     || buc_die "base64 encode failed for workload key: ${BURP_WORKLOAD_KEY_FILE} — see ${ZBUJB_KEY_B64_STDERR}"
@@ -494,7 +494,7 @@ zbujb_garrison_step5_plant_key() {
 set -euo pipefail
 ztmp=\$(mktemp)
 trap 'rm -f "\${ztmp}"' EXIT
-echo '${z_key_b64}' | base64 -d > "\${ztmp}"
+echo '${z_key_b64}' | openssl enc -base64 -d -A > "\${ztmp}"
 ${z_sudo_prefix}mkdir -p   '${z_target_dir}'
 ${z_sudo_prefix}install -m 600 -o '${z_wlu}' -g '${z_wlu}' "\${ztmp}" '${z_target}'
 SCRIPT
@@ -504,7 +504,7 @@ SCRIPT
 set -euo pipefail
 ztmp=\$(mktemp)
 trap 'rm -f "\${ztmp}"' EXIT
-echo '${z_key_b64}' | base64 -d > "\${ztmp}"
+echo '${z_key_b64}' | openssl enc -base64 -d -A > "\${ztmp}"
 mkdir -p   '${z_target_dir}'
 cp "\${ztmp}" '${z_target}'
 chmod 600  '${z_target}'
