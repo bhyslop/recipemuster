@@ -44,30 +44,34 @@ zbujb_kindle() {
   # Forced commands routed through SSH_ORIGINAL_COMMAND keep workload account
   # behaviour pinned to the chosen shell regardless of what the SSH client
   # requests. Locked spec content; mirrored in BUSJG{B,C,W}.
-  BUJB_command_b='command="/bin/bash -lc \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding'
-  BUJB_command_c='command="C:/cygwin64/bin/bash --login -c \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding'
-  BUJB_command_w='command="C:/Windows/System32/wsl.exe --distribution rbtww-main --exec /bin/bash -lc \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding'
+  readonly BUJB_command_b='command="/bin/bash -lc \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding'
+  readonly BUJB_command_c='command="C:/cygwin64/bin/bash --login -c \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding'
+  readonly BUJB_command_w='command="C:/Windows/System32/wsl.exe --distribution rbtww-main --exec /bin/bash -lc \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding'
 
   # Shell-letter -> workload privkey destination path on the remote
   # (relative to the workload account home directory).
-  BUJB_workload_keypath_b='.ssh/id_ed25519'
-  BUJB_workload_keypath_c='.ssh/id_ed25519'
-  BUJB_workload_keypath_w='.ssh/id_ed25519'
+  readonly BUJB_workload_keypath_b='.ssh/id_ed25519'
+  readonly BUJB_workload_keypath_c='.ssh/id_ed25519'
+  readonly BUJB_workload_keypath_w='.ssh/id_ed25519'
 
   # Canonical WSL distribution name reached by garrison-w.
-  BUJB_wsl_distribution='rbtww-main'
+  readonly BUJB_wsl_distribution='rbtww-main'
 
   # Windows OpenSSH sshd_config hardening directive set written by
   # fenestrate phase 1. Newline-joined; each directive is asserted by
   # bash-side parse after PowerShell Get-Content returns the raw bytes.
-  BUJB_sshd_hardening='PubkeyAuthentication yes
+  readonly BUJB_sshd_hardening='PubkeyAuthentication yes
 PasswordAuthentication no
 PermitEmptyPasswords no'
 
-  readonly BUJB_command_b BUJB_command_c BUJB_command_w
-  readonly BUJB_workload_keypath_b BUJB_workload_keypath_c BUJB_workload_keypath_w
-  readonly BUJB_wsl_distribution
-  readonly BUJB_sshd_hardening
+  # Fenestrate temp file paths — ssh stdout/stderr captured here so
+  # callers parse from disk (no `$(ssh ...)` capture).
+  readonly ZBUJB_FENESTRATE_PHASE1_STDOUT="${BURD_TEMP_DIR}/bujb_fenestrate_phase1_stdout.txt"
+  readonly ZBUJB_FENESTRATE_PHASE1_STDERR="${BURD_TEMP_DIR}/bujb_fenestrate_phase1_stderr.txt"
+  readonly ZBUJB_FENESTRATE_RESTART_STDOUT="${BURD_TEMP_DIR}/bujb_fenestrate_restart_stdout.txt"
+  readonly ZBUJB_FENESTRATE_RESTART_STDERR="${BURD_TEMP_DIR}/bujb_fenestrate_restart_stderr.txt"
+  readonly ZBUJB_FENESTRATE_PHASE2_STDOUT="${BURD_TEMP_DIR}/bujb_fenestrate_phase2_stdout.txt"
+  readonly ZBUJB_FENESTRATE_PHASE2_STDERR="${BURD_TEMP_DIR}/bujb_fenestrate_phase2_stderr.txt"
 
   readonly ZBUJB_KINDLED=1
 }
@@ -126,21 +130,13 @@ bujb_resolve_investiture() {
   zbujb_check_key_file "${BURP_PRIVILEGED_KEY_FILE}" "BURP_PRIVILEGED_KEY_FILE"
   zbujb_check_key_file "${BURP_WORKLOAD_KEY_FILE}"   "BURP_WORKLOAD_KEY_FILE"
 
-  BUJB_RESOLVED_VICEROYALTY="${BURP_VICEROYALTY}"
-  BUJB_RESOLVED_HOST="${BURN_HOST}"
-  BUJB_RESOLVED_PLATFORM="${BURN_PLATFORM}"
-  BUJB_RESOLVED_PRIVILEGED_USER="${BURP_PRIVILEGED_USER}"
-  BUJB_RESOLVED_PRIVILEGED_KEY_FILE="${BURP_PRIVILEGED_KEY_FILE}"
-  BUJB_RESOLVED_WORKLOAD_KEY_FILE="${BURP_WORKLOAD_KEY_FILE}"
-  BUJB_RESOLVED_WORKLOAD_USER="${BURC_WORKLOAD_USER}"
-
-  readonly BUJB_RESOLVED_VICEROYALTY
-  readonly BUJB_RESOLVED_HOST
-  readonly BUJB_RESOLVED_PLATFORM
-  readonly BUJB_RESOLVED_PRIVILEGED_USER
-  readonly BUJB_RESOLVED_PRIVILEGED_KEY_FILE
-  readonly BUJB_RESOLVED_WORKLOAD_KEY_FILE
-  readonly BUJB_RESOLVED_WORKLOAD_USER
+  readonly BUJB_RESOLVED_VICEROYALTY="${BURP_VICEROYALTY}"
+  readonly BUJB_RESOLVED_HOST="${BURN_HOST}"
+  readonly BUJB_RESOLVED_PLATFORM="${BURN_PLATFORM}"
+  readonly BUJB_RESOLVED_PRIVILEGED_USER="${BURP_PRIVILEGED_USER}"
+  readonly BUJB_RESOLVED_PRIVILEGED_KEY_FILE="${BURP_PRIVILEGED_KEY_FILE}"
+  readonly BUJB_RESOLVED_WORKLOAD_KEY_FILE="${BURP_WORKLOAD_KEY_FILE}"
+  readonly BUJB_RESOLVED_WORKLOAD_USER="${BURC_WORKLOAD_USER}"
 
   readonly ZBUJB_RESOLVED=1
 }
@@ -483,6 +479,257 @@ bujb_garrison() {
   zbujb_garrison_step6_validate      "${z_letter}"
 
   buc_step "Garrison-${z_letter} succeeded"
+}
+
+######################################################################
+# Internal: Fenestrate helpers (BUSJPF — Windows OpenSSH only)
+#
+# Each phase 1 chunk is a separate ssh call with publickey,password preferred
+# auth. On a fresh node, chunk A's first publickey attempt fails and ssh
+# falls through to /dev/tty password prompt — operator types once. After
+# chunk A places the admin pubkey, chunk B's publickey attempt succeeds
+# (the running sshd's old config still permits pubkey auth and now reads
+# the updated authorized_keys), so no further prompt. Phase 2 is key-only.
+# No ControlMaster, no traps, no 2>/dev/null.
+
+zbujb_fenestrate_assert_platform() {
+  zbujb_sentinel
+  test "${BUJB_RESOLVED_PLATFORM}" = "bubep_windows" \
+    || buc_die "fenestrate requires bubep_windows, got '${BUJB_RESOLVED_PLATFORM}'"
+}
+
+# zbujb_fenestrate_exec_with_password_fallback STDOUT_FILE STDERR_FILE
+# Reads a PowerShell script from stdin and runs it on the remote node as
+# the privileged user. publickey,password preferred (BatchMode=no allows
+# /dev/tty password prompt on first run). Default Windows OpenSSH shell is
+# cmd.exe; we explicitly invoke `powershell -NoProfile -File -` to feed
+# the script via stdin. Returns ssh's exit code (caller decides).
+zbujb_fenestrate_exec_with_password_fallback() {
+  zbujb_sentinel
+  local -r z_stdout_file="${1:-}"
+  local -r z_stderr_file="${2:-}"
+  test -n "${z_stdout_file}" || buc_die "zbujb_fenestrate_exec_with_password_fallback: stdout_file required"
+  test -n "${z_stderr_file}" || buc_die "zbujb_fenestrate_exec_with_password_fallback: stderr_file required"
+
+  ssh -i "${BUJB_RESOLVED_PRIVILEGED_KEY_FILE}"            \
+      -o IdentitiesOnly=yes                                \
+      -o BatchMode=no                                      \
+      -o PreferredAuthentications=publickey,password       \
+      -o StrictHostKeyChecking=accept-new                  \
+      -o ConnectTimeout=15                                 \
+      "${BUJB_RESOLVED_PRIVILEGED_USER}@${BUJB_RESOLVED_HOST}" \
+      'powershell -NoProfile -File -'                      \
+      > "${z_stdout_file}"                                 \
+      2> "${z_stderr_file}"
+}
+
+# zbujb_fenestrate_exec_keyonly STDOUT_FILE STDERR_FILE
+# Same as above but BatchMode=yes (no password fallback). Used for phase 2.
+zbujb_fenestrate_exec_keyonly() {
+  zbujb_sentinel
+  local -r z_stdout_file="${1:-}"
+  local -r z_stderr_file="${2:-}"
+  test -n "${z_stdout_file}" || buc_die "zbujb_fenestrate_exec_keyonly: stdout_file required"
+  test -n "${z_stderr_file}" || buc_die "zbujb_fenestrate_exec_keyonly: stderr_file required"
+
+  ssh -i "${BUJB_RESOLVED_PRIVILEGED_KEY_FILE}"            \
+      -o IdentitiesOnly=yes                                \
+      -o BatchMode=yes                                     \
+      -o PreferredAuthentications=publickey                \
+      -o StrictHostKeyChecking=accept-new                  \
+      -o ConnectTimeout=15                                 \
+      "${BUJB_RESOLVED_PRIVILEGED_USER}@${BUJB_RESOLVED_HOST}" \
+      'powershell -NoProfile -File -'                      \
+      > "${z_stdout_file}"                                 \
+      2> "${z_stderr_file}"
+}
+
+# zbujb_fenestrate_verify_directives REMOTE_FILE -- load REMOTE_FILE (raw
+# sshd_config bytes from PowerShell Get-Content), strip CR, then assert
+# each directive in BUJB_sshd_hardening appears with the expected value.
+# Load-then-iterate (no nested while-read on stdin); pure parameter
+# expansion + case (no awk/grep/tr).
+zbujb_fenestrate_verify_directives() {
+  zbujb_sentinel
+  local -r z_remote_file="${1:-}"
+  test -n "${z_remote_file}" || buc_die "zbujb_fenestrate_verify_directives: remote_file required"
+  test -f "${z_remote_file}" || buc_die "zbujb_fenestrate_verify_directives: remote_file not found: ${z_remote_file}"
+
+  local -r z_raw_bytes=$(<"${z_remote_file}")
+  test -n "${z_raw_bytes}" || buc_die "zbujb_fenestrate_verify_directives: empty remote sshd_config bytes: ${z_remote_file}"
+  local -r z_clean_bytes="${z_raw_bytes//$'\r'/}"
+
+  local z_directives_roll=()
+  local z_pair=""
+  while IFS= read -r z_pair || test -n "${z_pair}"; do
+    test -n "${z_pair}" || continue
+    z_directives_roll+=("${z_pair}")
+  done <<<"${BUJB_sshd_hardening}"
+
+  local z_remote_lines_roll=()
+  local z_line=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    z_remote_lines_roll+=("${z_line}")
+  done <<<"${z_clean_bytes}"
+
+  local z_directive=""
+  local z_expected=""
+  local z_actual=""
+  local z_after_directive=""
+  local z_i=0
+  local z_j=0
+  for z_i in "${!z_directives_roll[@]}"; do
+    z_directive="${z_directives_roll[$z_i]%% *}"
+    z_expected="${z_directives_roll[$z_i]#* }"
+    z_actual=""
+
+    for z_j in "${!z_remote_lines_roll[@]}"; do
+      case "${z_remote_lines_roll[$z_j]}" in
+        "${z_directive} "*)
+          z_after_directive="${z_remote_lines_roll[$z_j]#"${z_directive} "}"
+          z_actual="${z_after_directive%% *}"
+          break
+          ;;
+      esac
+    done
+
+    test -n "${z_actual}" \
+      || buc_die "Hardening verify: directive '${z_directive}' missing or commented in remote sshd_config"
+    test "${z_actual}" = "${z_expected}" \
+      || buc_die "Hardening verify: ${z_directive}: expected '${z_expected}', got '${z_actual}'"
+  done
+}
+
+######################################################################
+# Internal: Fenestrate phases
+
+# zbujb_fenestrate_phase1 -- chunk A (install admin pubkey idempotently +
+# icacls + merge sshd_config hardening + sshd -t + emit raw bytes); bash-
+# side parse + verify; then chunk B (Restart-Service sshd, disconnect
+# expected — exit code ignored).
+zbujb_fenestrate_phase1() {
+  zbujb_sentinel
+
+  local z_pubkey=""
+  z_pubkey=$(ssh-keygen -y -P '' -f "${BUJB_RESOLVED_PRIVILEGED_KEY_FILE}") \
+    || buc_die "ssh-keygen -y failed for admin key: ${BUJB_RESOLVED_PRIVILEGED_KEY_FILE}"
+
+  buc_step "  [Phase 1] Chunk A: pubkey + icacls + sshd_config + sshd -t + emit (operator may be prompted for admin password on first run)"
+
+  zbujb_fenestrate_exec_with_password_fallback \
+      "${ZBUJB_FENESTRATE_PHASE1_STDOUT}"      \
+      "${ZBUJB_FENESTRATE_PHASE1_STDERR}"      \
+    <<PS1 || buc_die "Phase 1 chunk A failed — admin pubkey/icacls/sshd_config/sshd -t did not all succeed; see ${ZBUJB_FENESTRATE_PHASE1_STDERR}"
+\$ErrorActionPreference = 'Stop'
+
+\$pubkey = '${z_pubkey}'
+\$adminAuthKeys = "\$env:ProgramData\\ssh\\administrators_authorized_keys"
+\$sshConfig    = "\$env:ProgramData\\ssh\\sshd_config"
+
+# Idempotent admin pubkey install
+if (-not (Test-Path \$adminAuthKeys)) {
+  New-Item -Path \$adminAuthKeys -ItemType File -Force | Out-Null
+}
+\$existingLines = @(Get-Content \$adminAuthKeys -ErrorAction SilentlyContinue)
+if (\$existingLines -notcontains \$pubkey) {
+  Add-Content -Path \$adminAuthKeys -Value \$pubkey -Encoding ASCII
+}
+
+# icacls lockdown (idempotent)
+icacls \$adminAuthKeys /inheritance:r /grant 'SYSTEM:F' /grant 'BUILTIN\\Administrators:F' 2>&1 | Out-Null
+if (\$LASTEXITCODE -ne 0) { throw "icacls failed (exit \$LASTEXITCODE)" }
+
+# Idempotent sshd_config harden — replace the first matching line for
+# each directive (commented or otherwise) and drop subsequent duplicates;
+# append directives that are absent. Convergent on re-run.
+\$directives = [ordered]@{
+  'PubkeyAuthentication'   = 'yes'
+  'PasswordAuthentication' = 'no'
+  'PermitEmptyPasswords'   = 'no'
+}
+
+\$lines = @(Get-Content \$sshConfig)
+\$out   = New-Object System.Collections.Generic.List[string]
+\$seen  = @{}
+foreach (\$line in \$lines) {
+  \$matched = \$false
+  foreach (\$k in \$directives.Keys) {
+    if (\$line -match "^\\s*#*\\s*\$k\\s+\\S") {
+      if (-not \$seen.ContainsKey(\$k)) {
+        \$out.Add("\$k \$(\$directives[\$k])")
+        \$seen[\$k] = \$true
+      }
+      \$matched = \$true
+      break
+    }
+  }
+  if (-not \$matched) { \$out.Add(\$line) }
+}
+foreach (\$k in \$directives.Keys) {
+  if (-not \$seen.ContainsKey(\$k)) { \$out.Add("\$k \$(\$directives[\$k])") }
+}
+Set-Content -Path \$sshConfig -Value \$out -Encoding ASCII
+
+# sshd -t — penultimate atomic op; aborts before restart on bad config
+& 'C:\\Windows\\System32\\OpenSSH\\sshd.exe' -t
+if (\$LASTEXITCODE -ne 0) { throw "sshd -t failed (exit \$LASTEXITCODE)" }
+
+# Emit raw bytes for bash-side parse (last op so output is clean)
+Get-Content \$sshConfig -Raw
+PS1
+
+  buc_step "  [Phase 1] Verify hardened directives via bash-side parse"
+  zbujb_fenestrate_verify_directives "${ZBUJB_FENESTRATE_PHASE1_STDOUT}"
+
+  buc_step "  [Phase 1] Chunk B: Restart-Service sshd (disconnect expected — exit code ignored)"
+  zbujb_fenestrate_exec_with_password_fallback \
+      "${ZBUJB_FENESTRATE_RESTART_STDOUT}"     \
+      "${ZBUJB_FENESTRATE_RESTART_STDERR}"     \
+    <<'PS1' || true
+$ErrorActionPreference = 'Continue'
+Restart-Service sshd
+PS1
+}
+
+# zbujb_fenestrate_phase2 -- reconnect via key-only auth and re-verify the
+# hardened directives served by the running sshd.
+zbujb_fenestrate_phase2() {
+  zbujb_sentinel
+
+  buc_step "  [Phase 2] Reconnect under key-only auth + re-verify"
+
+  # Allow sshd a moment to come back from Restart-Service.
+  sleep 3
+
+  zbujb_fenestrate_exec_keyonly                 \
+      "${ZBUJB_FENESTRATE_PHASE2_STDOUT}"       \
+      "${ZBUJB_FENESTRATE_PHASE2_STDERR}"       \
+    <<'PS1' || buc_die "Phase 2 reconnect failed — possible brick: admin pubkey not honored after restart or sshd did not come back up; see ${ZBUJB_FENESTRATE_PHASE2_STDERR}"
+$ErrorActionPreference = 'Stop'
+Get-Content "$env:ProgramData\ssh\sshd_config" -Raw
+PS1
+
+  zbujb_fenestrate_verify_directives "${ZBUJB_FENESTRATE_PHASE2_STDOUT}"
+}
+
+######################################################################
+# Public: Fenestrate ceremony
+
+# bujb_fenestrate -- run the two-phase fenestrate ceremony for a Windows
+# OpenSSH node. Caller must have invoked bujb_resolve_investiture beforehand.
+bujb_fenestrate() {
+  zbujb_sentinel
+  test "${ZBUJB_RESOLVED:-}" = "1" \
+    || buc_die "bujb_fenestrate: call bujb_resolve_investiture first"
+
+  zbujb_fenestrate_assert_platform
+
+  buc_step "Fenestrate: ${BUJB_RESOLVED_VICEROYALTY} (${BUJB_RESOLVED_HOST})"
+
+  zbujb_fenestrate_phase1
+  zbujb_fenestrate_phase2
+
+  buc_step "Fenestrate succeeded"
 }
 
 # eof

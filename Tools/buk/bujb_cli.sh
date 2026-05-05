@@ -116,6 +116,16 @@ bujb_command_file() {
   buc_step "Capture complete"
 }
 
+# bujb_fenestrate - fenestrate ceremony (Windows OpenSSH only).
+bujb_fenestrate_command() {
+  buc_doc_brief "Fenestrate — admin SSH key trust + sshd_config harden (Windows)"
+  buc_doc_shown || return 0
+
+  test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
+  bujb_resolve_investiture
+  bujb_fenestrate
+}
+
 # bujb_garrison_bash - garrison ceremony, native bash workload shell (Linux/Mac).
 bujb_garrison_bash() {
   buc_doc_brief "Garrison workload account on a bubep_linux/bubep_mac node (shell-letter b)"
