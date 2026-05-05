@@ -192,6 +192,13 @@
         "₢A-AAD": {
           "tacks": [
             {
+              "ts": "260505-1224",
+              "state": "rough",
+              "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\n\nOperator (Windows host): install WSL with distribution name\n`rbtww-main` set as the default distribution. Per AAn's\nruthless-delete posture, detailed install instructions live in vendor\ndocs; `rbw-hw` carries only the downstream-load-bearing names. Cygwin\ninstall is deferred to the follow-on Cygwin path pace, not part of\nAAD.\n\nAgent amends inlined `rbw-hw` operator prose if friction surfaces\n(e.g., a missing constraint that breaks downstream AAr Garrison-WSL).\n\nGoal: WSL distro `rbtww-main` functional and set as the default\ndistribution on the Windows host, ready for AAr jurisdiction\nceremonies (Fenestrate + Garrison-WSL).",
+              "silks": "practice-environment-procedures",
+              "commit": "7e55c7e"
+            },
+            {
               "ts": "260505-1135",
               "state": "rough",
               "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\n\nOperator follows `tt/rbw-hw.HandbookWindows.sh` Phase 3 on the Windows\nhost: install WSL with distribution name `rbtww-main`, install Cygwin\n(POSIX userland). Per AAn's ruthless-delete posture, detailed install\ninstructions live in vendor docs; `rbw-hw` carries only the\ndownstream-load-bearing names. Agent amends the inlined `rbw-hw`\noperator prose if friction surfaces (e.g., a missing constraint that\nbreaks downstream Phase 4 garrison or Phase 5 fundus).\n\nGoal: WSL distro `rbtww-main` and Cygwin both functional on the Windows\nhost, ready for Phase 4 garrison and the AAE/AAF practice paces.",
@@ -1081,6 +1088,13 @@
         },
         "₢A-AAr": {
           "tacks": [
+            {
+              "ts": "260505-1224",
+              "state": "rough",
+              "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\n\nOperator runs jurisdiction ceremonies on the Windows host (post-AAD\nWSL install):\n\n- `buw-jpF` — Fenestrate Windows OpenSSH (admin trust + sshd harden)\n- `buw-jpGw` — Garrison WSL shell-letter\n\nGarrison-WSL's step 6 knock proves byte-exact privkey transport\nend-to-end through `bujb_jurisdiction.sh` step 5 — incidentally\nvalidates the BBAA_ base64→openssl substitution that the AAm-era\ndocket marked as covered by live ceremony.\n\nAgent amends `bujb_jurisdiction.sh`, handbook prose (`buw-hj0`), and\nerror diagnostics for issues surfaced.\n\nGoal: admin trust established on Windows OpenSSH; WSL workload\naccount garrisoned and reachable via the workload-side ssh path.\n\nOperator prerequisites per BUS0 standing notes (Windows OpenSSH\ninstalled and password-auth temporarily enabled, workload pubkey\npre-registered with GitHub out-of-band, investiture key files in\nplace 0600 unencrypted).\n\nCygwin garrison (`buw-jpGc`) deferred to follow-on Cygwin path pace.",
+              "silks": "practice-jurisdiction-windows",
+              "commit": "7e55c7e"
+            },
             {
               "ts": "260505-1133",
               "state": "rough",
