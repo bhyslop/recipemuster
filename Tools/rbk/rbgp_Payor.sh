@@ -922,7 +922,11 @@ rbgp_depot_levy() {
 rbgp_depot_unmake() {
   zrbgp_sentinel
 
-  local -r z_project_id="${1:-}"
+  # Folio arrives via BUZ_FOLIO under the param1 channel (rbz_zipper.sh
+  # enrolls RBZ_UNMAKE_DEPOT with channel=param1 per BBAA9). buz_exec_lookup
+  # extracts $1 into BUZ_FOLIO before exec'ing this function and removes it
+  # from $@, so reading $1 here would always be empty.
+  local -r z_project_id="${BUZ_FOLIO:-}"
 
   buc_doc_brief "DANGER: Permanently destroy an entire depot infrastructure"
   buc_doc_param "depot_project_id" "Full GCP project ID of the depot to destroy (matches what rbw-dl displays)"
