@@ -76,7 +76,6 @@ Full read and edit access is pre-approved for all files in:
 - **RBSDU** → `rbk/vov_veiled/RBSDU-depot_unmake.adoc`
 - **RBSDV** → `rbk/vov_veiled/RBSDV-director_vouch.adoc`
 - **RBSDY** → `rbk/vov_veiled/RBSDY-director_yoke.adoc` (Yoke operation — director validates reliquary stamp and conjure vessel, then rewrites RBRV_RELIQUARY in rbrv.env)
-- **RBSFR** → `rbk/vov_veiled/RBSFR-FundusRegistry.md` (Fundus Capability Registry — agent-interpreted test target inventory)
 - **RBSGD** → `rbk/vov_veiled/RBSGD-gdc_establish.adoc`
 - **RBSGM** → `rbk/vov_veiled/RBSGM-governor_mantle.adoc`
 - **RBSGS** → `rbk/vov_veiled/RBSGS-GettingStarted.adoc`
@@ -391,8 +390,6 @@ When evaluating any new pattern, extraction, or structural choice, the litmus te
 @Tools/rbk/rbk-claude-tabtarget-context.md
 
 For theurge/ifrit crucible testing work, read `Tools/rbk/rbk-claude-theurge-ifrit-context.md` — covers the iteration loop (kludge, charge, test, ordain), architecture of the two Rust binaries, and how to add new security test cases.
-
-For remote execution, fundus provisioning, foray dispatch, or cross-platform test planning, read `Tools/rbk/vov_veiled/RBSFR-FundusRegistry.md` — agent-interpreted inventory of all test targets, their capabilities, and reachability.
 
 @Tools/jjk/vov_veiled/jjk-claude-context.md
 

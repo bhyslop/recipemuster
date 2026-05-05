@@ -207,7 +207,6 @@ Phase 2 (key auth only):
   path construction.
 - Tailscale provides stable transport (Mac sees `rocket` as `100.x.y.z` /
   tailnet hostname); not adopted as a BUK dependency.
-- Fundus capability registry: `Tools/rbk/vov_veiled/RBSFR-FundusRegistry.md`.
 - PowerShell-from-WSL pattern: bash owns control flow, PowerShell is the
   Windows syscall layer; one atomic command per call.
 - `command=` in authorized_keys is OpenSSH-standard (used by gitolite, GitHub,

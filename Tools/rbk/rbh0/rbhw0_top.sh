@@ -38,15 +38,15 @@ rbhw_top() {
   buh_e
   buh_section  "Phase 1: SSH Reachability (BUK — operator-manual prerequisite)"
   buh_tt       "  1. Jurisdiction handbook walkthrough:  " "${BUWZ_HJ0_TOP}"
-  buh_tt       "  2. SSH client key generation:          " "${BUWZ_HW_ACCESS_REMOTE}"
+  buh_line     "  2. SSH client key generation:          Generate SSH client key per vendor docs (e.g., 'ssh-keygen -t ed25519')"
   buh_e
   buh_section  "Phase 2: Admin Trust + sshd Harden (BUK — jurisdiction)"
   buh_tt       "  3. Fenestrate (admin SSH + harden):    " "${BUWZ_JP_FENESTRATE}" "" " <investiture>"
   buh_e
   buh_section  "Phase 3: Environments (BUK — generic OS install)"
-  buh_tt       "  4. WSL distribution setup:             " "${BUWZ_HW_ENV_WSL}"
-  buh_line "     Pass distro name: ${z_wsl_distro_yelp}"
-  buh_tt       "  5. Cygwin installation:                " "${BUWZ_HW_ENV_CYGWIN}"
+  buh_line     "  4. WSL distribution setup:             Install WSL and create distribution per vendor docs"
+  buh_line     "     Use distribution name: ${z_wsl_distro_yelp}"
+  buh_line     "  5. Cygwin installation:                Install Cygwin POSIX userland per vendor docs"
   buh_e
   buh_section  "Phase 4: Workload Provisioning (BUK — jurisdiction)"
   buh_tt       "  6. Garrison-Cygwin (workload):         " "${BUWZ_JP_GARRISON_CYGWIN}" "" " <investiture>"
