@@ -7437,6 +7437,7 @@
       "creation_time": "260426",
       "status": "racing",
       "order": [
+        "₢BBABB",
         "₢BBAA_",
         "₢BBAA-",
         "₢BBAA9",
@@ -7499,7 +7500,7 @@
         "₢BBAA1",
         "₢BBAA5"
       ],
-      "next_pace_seed": "ABB",
+      "next_pace_seed": "ABC",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAA-": {
@@ -8996,6 +8997,17 @@
               "text": "## Character\n\nValidate BBAAX's repairs (charge auto-summon + ordain rmi removals) by re-running rbw-tP end-to-end on a branch named after this pace's coronet. Branch isolation lets parallel attempts (e.g., simultaneous macOS + Linux runs) avoid the commit-trail race on main.\n\n## Wrap criterion\n\nGreen tally end-to-end. Same guardrail as BBAAX — partial completion is not pass.\n\n## Cost\n\n~90m wall-clock + 2 GCP projects per attempt.\n\n## Scope\n\n- Create a branch named after this pace's coronet, off current main\n- Run rbw-tP from marshal-zero on that branch\n- Operator selects which machine the pace mounts on (mac or linux); pace does NOT use foray\n- Triage surprises per BBAAX rules: tiny inline fix + re-run, larger → follow-up pace\n\n## Locked decisions\n\n- Branch name == pace coronet (identity-stable; no human-meaningful name)\n- Branch lives until pace wraps; deletion is operator territory",
               "silks": "rbw-tP-branched-rerun",
               "commit": "bb61542"
+            }
+          ]
+        },
+        "₢BBABB": {
+          "tacks": [
+            {
+              "ts": "260505-1526",
+              "state": "rough",
+              "text": "## Character\n\nAdd BURS_TINCTURE per-station prefix to the BURS schema. Test fixtures compose it into every cloud-side name they write so parallel rbw-tP runs from different stations land in disjoint GCP projects on a shared payor manor.\n\n## Wrap criterion\n\nTest-side dual-station dry-run (two distinct BURS_TINCTURE values) shows disjoint depot project IDs, GAR repos, and SA emails before any GCP call would race. Actual parallel mac+linux validation is BBABA's job.\n\n## Scope\n\n- Enroll BURS_TINCTURE in burs_regime.sh alongside BURS_USER and BURS_LOG_DIR\n- Compose into test-fixture writes: pristine throwaway cloud/runtime prefixes, canonical family stem, any RBRR_CLOUD_PREFIX/RBRR_RUNTIME_PREFIX value the fixtures install into rbrr.env\n- Production code unchanged — it reads rbrr.env and uses whatever the test wrote\n- Update the joint-length validator (rbrr_regime.sh GCP project-ID budget) to account for the new term\n\n## Out of scope\n\n- Production-side BURS_TINCTURE consumers — test-only by intent\n- Director/Retriever identity prefixing — redundant once depots are disjoint\n- BBABA's actual parallel mac+linux execution — separate pace\n- Reslating BBABA's docket — its parallel-runs claim becomes accurate once this lands\n\n## Constraints\n\n- Test-only scope is load-bearing; production behavior unchanged\n- Default semantics for unset BURS_TINCTURE (empty vs required) decided at mount time",
+              "silks": "burs-tincture-station-namespacing",
+              "commit": "37f8d77"
             }
           ]
         }
