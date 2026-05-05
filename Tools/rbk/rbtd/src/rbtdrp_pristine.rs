@@ -1088,13 +1088,15 @@ fn rbtdrp_depot_live_disqualify_impl(
 /// and verifies the depot is absent or in DELETE_REQUESTED state via
 /// fact-file content read (no stdout-grep).
 //
-// CLUE: BBAA9 changed `rbgp_depot_unmake` to require depot project ID as $1.
-// The current call below passes &[] (empty args), which now hits the empty-
-// arg refusal branch (rbgp_Payor.sh:937-942). The natural fix — passing the
-// composed project_id as $1 — additionally trips the live-disqualify guard
-// (rbgp_Payor.sh:944-948) since the throwaway depot IS the live RBRR-
-// selected target at this point. Recovery per the live-disqualify diagnostic:
-// rename RBRR_DEPOT_MONIKER (or run rbw-MZ) before invoking unmake. Operator
+// CLUE: BBAA9 changed `rbgp_depot_unmake` to require a depot project ID
+// folio (channel=param1; folio arrives via BUZ_FOLIO, NOT $1 — buz_exec_lookup
+// extracts $1 into BUZ_FOLIO and removes it from $@). The current call below
+// passes &[] (empty args), which now hits the empty-arg refusal branch
+// (rbgp_Payor.sh:941-946). The natural fix — passing the composed project_id
+// as $1 — additionally trips the live-disqualify guard (rbgp_Payor.sh:948-
+// 952) since the throwaway depot IS the live RBRR-selected target at this
+// point. Recovery per the live-disqualify diagnostic: rename
+// RBRR_DEPOT_MONIKER (or run rbw-MZ) before invoking unmake. Operator
 // designs the proper tear-down shape via the live-GCP exercise; until then
 // this case fails at the empty-arg refusal under StateProgressing fail-fast.
 fn rbtdrp_depot_tear_down(dir: &Path) -> rbtdre_Verdict {
