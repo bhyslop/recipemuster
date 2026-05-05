@@ -222,9 +222,45 @@ zrbob_compose() {
 }
 
 ######################################################################
-# Auto-Summon Helper
+# Auto-Summon Helpers
 
-# Verify vouch exists and pull image if missing locally
+# Pull all three arks (image, about, vouch) for a hallmark to local runtime.
+# Used when charge detects a missing local artifact and needs to bootstrap.
+# Mirrors rbfr_summon's all-three-arks semantics; called inline rather than
+# as a tabtarget invocation because rbob is the sole caller and avoids the
+# launcher-dispatch round-trip.
+zrbob_summon_full_hallmark() {
+  local z_hallmark="${1:-}"
+
+  test -n "${z_hallmark}" || buc_die "zrbob_summon_full_hallmark: hallmark required"
+
+  local z_gar_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
+  local z_image_ref="${z_gar_base}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"
+  local z_about_ref="${z_gar_base}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_ABOUT}:${z_hallmark}"
+  local z_vouch_ref="${z_gar_base}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}:${z_hallmark}"
+
+  local z_registry_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
+  test -f "${RBDC_RETRIEVER_RBRA_FILE}" || buc_die "Retriever credential not found: ${RBDC_RETRIEVER_RBRA_FILE}"
+
+  local z_token
+  z_token=$(rbgo_get_token_capture "${RBDC_RETRIEVER_RBRA_FILE}") || buc_die "Failed to get OAuth token for auto-summon"
+
+  buc_step "Auto-summoning hallmark ${z_hallmark} (image + about + vouch)"
+
+  echo "${z_token}" | docker login -u oauth2accesstoken --password-stdin "https://${z_registry_host}" \
+    || buc_die "Container registry authentication failed during auto-summon"
+
+  docker pull "${z_image_ref}" || buc_die "Failed to pull image ark: ${z_image_ref}"
+  docker pull "${z_about_ref}" || buc_die "Failed to pull about ark: ${z_about_ref}"
+  docker pull "${z_vouch_ref}" || buc_die "Failed to pull vouch ark: ${z_vouch_ref}"
+
+  buc_info "Auto-summoned: ${z_hallmark}"
+}
+
+# Pull a single image ref to local runtime — used by the image-only auto-summon
+# branch in rbob_charge as defense-in-depth for partial-state cases (vouch
+# present but image missing). The full-hallmark helper above covers the common
+# path where all arks are missing together.
 # Usage: zrbob_vouch_gate_and_summon <vessel> <hallmark> <image_ref>
 zrbob_vouch_gate_and_summon() {
   local z_vessel="${1:-}"
@@ -313,20 +349,20 @@ rbob_charge() {
   # Cross-nameplate validation (silent on success, dies on conflict)
   rbrn_preflight
 
-  # Preflight: verify vouch artifacts exist locally — no network calls, fatal if missing
+  # Preflight: ensure all hallmark arks exist locally. Vouch presence is the
+  # hallmark-level signal — if vouch is missing, the full hallmark is treated
+  # as not-yet-summoned and all three arks are pulled together. Image-only
+  # auto-summon below is defense-in-depth for partial-state cases.
   if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_SENTRY_VOUCH}" >/dev/null 2>&1; then
     buc_warn "Sentry vouch artifact missing locally: ${ZRBOB_SENTRY_VOUCH}"
-    buc_tabtarget "${RBZ_SUMMON_HALLMARK}" "${RBRN_SENTRY_VESSEL}" "${RBRN_SENTRY_HALLMARK}"
-    buc_die "Run summon to pull vouch artifact before starting"
+    zrbob_summon_full_hallmark "${RBRN_SENTRY_HALLMARK}"
   fi
 
   if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_BOTTLE_VOUCH}" >/dev/null 2>&1; then
     buc_warn "Bottle vouch artifact missing locally: ${ZRBOB_BOTTLE_VOUCH}"
-    buc_tabtarget "${RBZ_SUMMON_HALLMARK}" "${RBRN_BOTTLE_VESSEL}" "${RBRN_BOTTLE_HALLMARK}"
-    buc_die "Run summon to pull vouch artifact before starting"
+    zrbob_summon_full_hallmark "${RBRN_BOTTLE_HALLMARK}"
   fi
 
-  # Preflight: verify container images exist locally, auto-summon if missing
   if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_SENTRY_IMAGE}" >/dev/null 2>&1; then
     buc_warn "Sentry image not found locally: ${ZRBOB_SENTRY_IMAGE}"
     zrbob_vouch_gate_and_summon "${RBRN_SENTRY_VESSEL}" "${RBRN_SENTRY_HALLMARK}" "${ZRBOB_SENTRY_IMAGE}"

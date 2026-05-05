@@ -809,10 +809,6 @@ fn rbtdro_onboarding_ordain_conjure_impl(ctx: &mut rbtdri_Context, dir: &Path) -
         }
     }
 
-    if let Err(e) = rbtdrc_docker_rmi(&[&image_ref, &about_ref, &vouch_ref]) {
-        return rbtdre_Verdict::Fail(format!("rmi: {}", e));
-    }
-
     for nameplate in RBTDRO_CONSUMERS_SENTRY_TETHER {
         if let Err(e) =
             rbtdro_drive_hallmark(&root, nameplate, RBTDRO_HALLMARK_VAR_SENTRY, &hallmark)
@@ -1009,14 +1005,14 @@ fn rbtdro_onboarding_ordain_bind(dir: &Path) -> rbtdre_Verdict {
 fn rbtdro_onboarding_ordain_bind_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
     let root = ctx.project_root().to_path_buf();
 
-    let (hallmark, gar_root, ark_stem) = match rbtdro_ordain_capture_full(
+    let hallmark = match rbtdro_ordain_capture(
         ctx,
         dir,
         RBTDRO_VESSEL_DIR_PLANTUML,
         &[],
         "ordain-bind",
     ) {
-        Ok(facts) => facts,
+        Ok(h) => h,
         Err(v) => return v,
     };
 
@@ -1040,8 +1036,6 @@ fn rbtdro_onboarding_ordain_bind_impl(ctx: &mut rbtdri_Context, dir: &Path) -> r
     ) {
         return v;
     }
-
-    let image_ref = format!("{}/{}/{}:{}", gar_root, ark_stem, RBTDRC_ARK_BASENAME_IMAGE, hallmark);
 
     let plumb_compact = match rbtdro_invoke_or_fail(
         ctx,
@@ -1109,10 +1103,6 @@ fn rbtdro_onboarding_ordain_bind_impl(ctx: &mut rbtdri_Context, dir: &Path) -> r
             "rekon: image disappeared after pouch jettison (collateral damage)\nstdout:\n{}",
             rekon_after.stdout
         ));
-    }
-
-    if let Err(e) = rbtdrc_docker_rmi(&[&image_ref]) {
-        return rbtdre_Verdict::Fail(format!("rmi: {}", e));
     }
 
     for nameplate in RBTDRO_CONSUMERS_PLANTUML_BOTTLE {
