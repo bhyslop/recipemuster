@@ -57,20 +57,19 @@ const RBTDRP_RBRR_BLANK_FIELDS: &[&str] = &[
     RBTDRP_FIELD_RBRR_DEPOT_MONIKER,
 ];
 
-/// Throwaway RBRR prefix values stamped into rbrr.env by
-/// `rbtdrp_install_throwaway_prefixes`. Pristine-lifecycle cases that need
-/// non-blank prefixes (depot/governor/retriever/director lifecycle) call the
-/// helper to install these values; the marker shape distinguishes throwaway
-/// from operator-chosen canonical values.
-pub(crate) const RBTDRP_THROWAWAY_CLOUD_PREFIX: &str = "prlc-";
-pub(crate) const RBTDRP_THROWAWAY_RUNTIME_PREFIX: &str = "prlr-";
+/// Throwaway RBRR prefix bases stamped into rbrr.env by
+/// `rbtdrp_install_throwaway_prefixes`. Per-station tincture from BURS is
+/// composed in at runtime so parallel runs from different stations land in
+/// disjoint cloud names; final values are produced by
+/// `rbtdrp_throwaway_cloud_prefix` / `rbtdrp_throwaway_runtime_prefix`.
+pub(crate) const RBTDRP_THROWAWAY_CLOUD_BASE: &str = "prlc";
+pub(crate) const RBTDRP_THROWAWAY_RUNTIME_BASE: &str = "prlr";
 
-/// Family stem for the fused arc section. One depot shared across all three
-/// arc cases; the stem keeps arc monikers separable from other fixture
-/// families. Cases pick a numeric six-digit suffix at runtime by walking
-/// emitted depot fact files and incrementing past the highest existing
-/// suffix per family.
-const RBTDRP_FAMILY_STEM_ARC: &str = "pristl";
+/// Family-stem base for the fused arc section. One depot shared across all
+/// three arc cases; the stem keeps arc monikers separable from other fixture
+/// families. Per-station tincture is composed in at runtime via
+/// `rbtdrp_family_stem_arc` so parallel runs pick non-colliding monikers.
+pub(crate) const RBTDRP_FAMILY_STEM_ARC_BASE: &str = "pristl";
 
 /// Placeholder moniker installed by tear_down before invoking rbw-dU. With the
 /// throwaway moniker still in rbrr.env, RBDC composes to the throwaway's own
@@ -126,6 +125,36 @@ const RBTDRP_RBRR_FILE: &str = ".rbk/rbrr.env";
 const RBTDRP_RBRA_FILE: &str = "rbra.env";
 const RBTDRP_RBRN_FILE: &str = "rbrn.env";
 const RBTDRP_RBRV_FILE: &str = "rbrv.env";
+
+/// BURS station-file env var (exported by bul_launcher.sh) — absolute path
+/// to the developer's burs.env. Source for BURS_TINCTURE.
+const RBTDRP_ENV_STATION_FILE: &str = "BURD_STATION_FILE";
+
+/// Read BURS_TINCTURE from the station file resolved via BURD_STATION_FILE.
+/// BURS validation upstream (zburs_enforce) guarantees the value is 1-3 chars
+/// of lowercase alphanumeric starting with a letter.
+pub(crate) fn rbtdrp_burs_tincture() -> Result<String, String> {
+    let path_str = std::env::var(RBTDRP_ENV_STATION_FILE)
+        .map_err(|_| format!("{} not set in environment", RBTDRP_ENV_STATION_FILE))?;
+    let path = PathBuf::from(&path_str);
+    rbtdrp_read_env_value(&path, "BURS_TINCTURE")
+        .ok_or_else(|| format!("BURS_TINCTURE not in {}", path.display()))
+}
+
+/// Compose throwaway RBRR_CLOUD_PREFIX with the given tincture.
+pub(crate) fn rbtdrp_throwaway_cloud_prefix(tincture: &str) -> String {
+    format!("{}{}-", RBTDRP_THROWAWAY_CLOUD_BASE, tincture)
+}
+
+/// Compose throwaway RBRR_RUNTIME_PREFIX with the given tincture.
+pub(crate) fn rbtdrp_throwaway_runtime_prefix(tincture: &str) -> String {
+    format!("{}{}-", RBTDRP_THROWAWAY_RUNTIME_BASE, tincture)
+}
+
+/// Compose arc-section family stem with the given tincture.
+pub(crate) fn rbtdrp_family_stem_arc(tincture: &str) -> String {
+    format!("{}{}", RBTDRP_FAMILY_STEM_ARC_BASE, tincture)
+}
 
 // ── Probes ───────────────────────────────────────────────────
 //
@@ -422,11 +451,15 @@ fn rbtdrp_git_add_and_commit(root: &Path, file: &str, message: &str) -> Result<(
 /// matching the pristine fixture's start-over-from-zero failure mode.
 pub(crate) fn rbtdrp_install_throwaway_prefixes(root: &Path) -> Result<(), String> {
     let rbrr = root.join(RBTDRP_RBRR_FILE);
+    let tincture = rbtdrp_burs_tincture()?;
+    let cloud_target = rbtdrp_throwaway_cloud_prefix(&tincture);
+    let runtime_target = rbtdrp_throwaway_runtime_prefix(&tincture);
+
     let cloud = rbtdrp_read_env_value(&rbrr, RBTDRP_FIELD_RBRR_CLOUD_PREFIX).unwrap_or_default();
     let runtime =
         rbtdrp_read_env_value(&rbrr, RBTDRP_FIELD_RBRR_RUNTIME_PREFIX).unwrap_or_default();
 
-    if cloud == RBTDRP_THROWAWAY_CLOUD_PREFIX && runtime == RBTDRP_THROWAWAY_RUNTIME_PREFIX {
+    if cloud == cloud_target && runtime == runtime_target {
         return Ok(());
     }
 
@@ -435,11 +468,8 @@ pub(crate) fn rbtdrp_install_throwaway_prefixes(root: &Path) -> Result<(), Strin
     let new_content = rbtdrp_replace_env_fields(
         &content,
         &[
-            (RBTDRP_FIELD_RBRR_CLOUD_PREFIX, RBTDRP_THROWAWAY_CLOUD_PREFIX),
-            (
-                RBTDRP_FIELD_RBRR_RUNTIME_PREFIX,
-                RBTDRP_THROWAWAY_RUNTIME_PREFIX,
-            ),
+            (RBTDRP_FIELD_RBRR_CLOUD_PREFIX, cloud_target.as_str()),
+            (RBTDRP_FIELD_RBRR_RUNTIME_PREFIX, runtime_target.as_str()),
         ],
     );
     std::fs::write(&rbrr, &new_content)
@@ -447,7 +477,7 @@ pub(crate) fn rbtdrp_install_throwaway_prefixes(root: &Path) -> Result<(), Strin
 
     let commit_msg = format!(
         "pristine-lifecycle fixture: install throwaway RBRR prefixes ({}/{})",
-        RBTDRP_THROWAWAY_CLOUD_PREFIX, RBTDRP_THROWAWAY_RUNTIME_PREFIX
+        cloud_target, runtime_target
     );
     rbtdrp_git_add_and_commit(root, RBTDRP_RBRR_FILE, &commit_msg)
 }
@@ -649,7 +679,12 @@ fn rbtdrp_depot_stand_up_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Ve
         ));
     }
 
-    let moniker = match rbtdrp_pick_next_moniker(&list_pre, RBTDRP_FAMILY_STEM_ARC) {
+    let tincture = match rbtdrp_burs_tincture() {
+        Ok(t) => t,
+        Err(e) => return rbtdre_Verdict::Fail(format!("read BURS_TINCTURE: {}", e)),
+    };
+    let family_stem = rbtdrp_family_stem_arc(&tincture);
+    let moniker = match rbtdrp_pick_next_moniker(&list_pre, &family_stem) {
         Ok(m) => m,
         Err(e) => return rbtdre_Verdict::Fail(format!("pick next moniker: {}", e)),
     };

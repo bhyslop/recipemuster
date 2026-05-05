@@ -47,18 +47,22 @@ use crate::rbtdrm_manifest::{
 
 // ── Canonical-fixture identities ─────────────────────────────
 
-/// Canonical RBRR prefix markers installed by case 1. Distinct from
-/// pristine's throwaway prefixes (prlc-/prlr-) — case 2's probe detects
-/// canonical state by reading the moniker's family stem from rbrr.env.
-pub(crate) const RBTDRK_CANONICAL_CLOUD_PREFIX: &str = "canc-";
-pub(crate) const RBTDRK_CANONICAL_RUNTIME_PREFIX: &str = "canr-";
+/// Canonical RBRR prefix bases installed by case 1. Distinct from pristine's
+/// throwaway prefix bases (prlc/prlr); per-station tincture from BURS is
+/// composed in at runtime so parallel-station runs land in disjoint cloud
+/// names. Case 2's probe detects canonical state by reading the moniker's
+/// family stem (also tinctured) from rbrr.env.
+pub(crate) const RBTDRK_CANONICAL_CLOUD_BASE: &str = "canc";
+pub(crate) const RBTDRK_CANONICAL_RUNTIME_BASE: &str = "canr";
 
-/// Family stem for canonical depots; six-digit auto-increment suffix per run.
-/// Depots persist post-success for operator inspection; reruns pick the next
-/// free suffix by walking depot_list output. Era-bumped past the prior
-/// `canest` family to side-step pending-delete projectId reservations from
-/// burned-bridges teardown.
-pub(crate) const RBTDRK_FAMILY_STEM: &str = "canest2";
+/// Family-stem base for canonical depots; six-digit auto-increment suffix per
+/// run. Depots persist post-success for operator inspection; reruns pick the
+/// next free suffix by walking depot_list output. Per-station tincture is
+/// composed in at runtime so each station's monikers fact-file-walk against
+/// a disjoint family stem. Era-bumped past the prior `canest` family to
+/// side-step pending-delete projectId reservations from burned-bridges
+/// teardown.
+pub(crate) const RBTDRK_FAMILY_STEM_BASE: &str = "canest2";
 
 /// Static identities for the canonical SA cycle. Stable across runs because
 /// each run uses a fresh canest depot project.
@@ -79,6 +83,36 @@ const RBTDRK_FIELD_RBRR_SECRETS_DIR: &str = "RBRR_SECRETS_DIR";
 
 const RBTDRK_RBRR_FILE: &str = ".rbk/rbrr.env";
 const RBTDRK_RBRA_FILE: &str = "rbra.env";
+
+/// BURS station-file env var (exported by bul_launcher.sh) — absolute path
+/// to the developer's burs.env. Source for BURS_TINCTURE.
+const RBTDRK_ENV_STATION_FILE: &str = "BURD_STATION_FILE";
+
+/// Read BURS_TINCTURE from the station file resolved via BURD_STATION_FILE.
+/// BURS validation upstream (zburs_enforce) guarantees the value is 1-3 chars
+/// of lowercase alphanumeric starting with a letter.
+pub(crate) fn rbtdrk_burs_tincture() -> Result<String, String> {
+    let path_str = std::env::var(RBTDRK_ENV_STATION_FILE)
+        .map_err(|_| format!("{} not set in environment", RBTDRK_ENV_STATION_FILE))?;
+    let path = PathBuf::from(&path_str);
+    rbtdrk_read_env_value(&path, "BURS_TINCTURE")
+        .ok_or_else(|| format!("BURS_TINCTURE not in {}", path.display()))
+}
+
+/// Compose canonical RBRR_CLOUD_PREFIX with the given tincture.
+pub(crate) fn rbtdrk_canonical_cloud_prefix(tincture: &str) -> String {
+    format!("{}{}-", RBTDRK_CANONICAL_CLOUD_BASE, tincture)
+}
+
+/// Compose canonical RBRR_RUNTIME_PREFIX with the given tincture.
+pub(crate) fn rbtdrk_canonical_runtime_prefix(tincture: &str) -> String {
+    format!("{}{}-", RBTDRK_CANONICAL_RUNTIME_BASE, tincture)
+}
+
+/// Compose canonical family stem with the given tincture.
+pub(crate) fn rbtdrk_family_stem(tincture: &str) -> String {
+    format!("{}{}", RBTDRK_FAMILY_STEM_BASE, tincture)
+}
 
 // ── Helpers ──────────────────────────────────────────────────
 
@@ -175,10 +209,14 @@ pub(crate) fn rbtdrk_canonical_rbra(root: &Path, role: &str) -> Result<PathBuf, 
 /// otherwise rewrites both lines and commits.
 pub(crate) fn rbtdrk_install_canonical_prefixes(root: &Path) -> Result<(), String> {
     let rbrr = root.join(RBTDRK_RBRR_FILE);
+    let tincture = rbtdrk_burs_tincture()?;
+    let cloud_target = rbtdrk_canonical_cloud_prefix(&tincture);
+    let runtime_target = rbtdrk_canonical_runtime_prefix(&tincture);
+
     let cloud = rbtdrk_read_env_value(&rbrr, RBTDRK_FIELD_RBRR_CLOUD_PREFIX).unwrap_or_default();
     let runtime =
         rbtdrk_read_env_value(&rbrr, RBTDRK_FIELD_RBRR_RUNTIME_PREFIX).unwrap_or_default();
-    if cloud == RBTDRK_CANONICAL_CLOUD_PREFIX && runtime == RBTDRK_CANONICAL_RUNTIME_PREFIX {
+    if cloud == cloud_target && runtime == runtime_target {
         return Ok(());
     }
     let content = std::fs::read_to_string(&rbrr)
@@ -186,21 +224,15 @@ pub(crate) fn rbtdrk_install_canonical_prefixes(root: &Path) -> Result<(), Strin
     let new_content = rbtdrk_replace_env_fields(
         &content,
         &[
-            (
-                RBTDRK_FIELD_RBRR_CLOUD_PREFIX,
-                RBTDRK_CANONICAL_CLOUD_PREFIX,
-            ),
-            (
-                RBTDRK_FIELD_RBRR_RUNTIME_PREFIX,
-                RBTDRK_CANONICAL_RUNTIME_PREFIX,
-            ),
+            (RBTDRK_FIELD_RBRR_CLOUD_PREFIX, cloud_target.as_str()),
+            (RBTDRK_FIELD_RBRR_RUNTIME_PREFIX, runtime_target.as_str()),
         ],
     );
     std::fs::write(&rbrr, &new_content)
         .map_err(|e| format!("rbtdrk: write {}: {}", rbrr.display(), e))?;
     let commit_msg = format!(
         "canonical-establish fixture: install canonical RBRR prefixes ({}/{})",
-        RBTDRK_CANONICAL_CLOUD_PREFIX, RBTDRK_CANONICAL_RUNTIME_PREFIX
+        cloud_target, runtime_target
     );
     rbtdrk_git_add_and_commit(root, RBTDRK_RBRR_FILE, &commit_msg)
 }
@@ -318,12 +350,14 @@ fn rbtdrk_probe_rbrr_present() -> Result<(), String> {
 fn rbtdrk_probe_canonical_moniker() -> Result<(), String> {
     let root = rbtdrk_probe_root()?;
     let rbrr = root.join(RBTDRK_RBRR_FILE);
+    let tincture = rbtdrk_burs_tincture()?;
+    let family_stem = rbtdrk_family_stem(&tincture);
     let moniker =
         rbtdrk_read_env_value(&rbrr, RBTDRK_FIELD_RBRR_DEPOT_MONIKER).unwrap_or_default();
-    if !moniker.starts_with(RBTDRK_FAMILY_STEM) {
+    if !moniker.starts_with(&family_stem) {
         return Err(format!(
             "{}={:?} does not begin with '{}' — canonical depot moniker not installed",
-            RBTDRK_FIELD_RBRR_DEPOT_MONIKER, moniker, RBTDRK_FAMILY_STEM
+            RBTDRK_FIELD_RBRR_DEPOT_MONIKER, moniker, family_stem
         ));
     }
     Ok(())
@@ -382,7 +416,12 @@ fn rbtdrk_depot_levy_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdic
         ));
     }
 
-    let moniker = match rbtdrk_pick_next_moniker(&list_pre, RBTDRK_FAMILY_STEM) {
+    let tincture = match rbtdrk_burs_tincture() {
+        Ok(t) => t,
+        Err(e) => return rbtdre_Verdict::Fail(format!("read BURS_TINCTURE: {}", e)),
+    };
+    let family_stem = rbtdrk_family_stem(&tincture);
+    let moniker = match rbtdrk_pick_next_moniker(&list_pre, &family_stem) {
         Ok(m) => m,
         Err(e) => return rbtdre_Verdict::Fail(format!("pick next moniker: {}", e)),
     };

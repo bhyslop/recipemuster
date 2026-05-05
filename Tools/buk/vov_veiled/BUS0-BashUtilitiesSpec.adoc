@@ -141,6 +141,7 @@
 // BURS Regime: Station (developer-level BUK settings)
 :burs_regime:                      <<burs_regime,BURS Regime>>
 :burs_user:                        <<burs_user,BURS_USER>>
+:burs_tincture:                    <<burs_tincture,BURS_TINCTURE>>
 :burs_log_dir:                     <<burs_log_dir,BURS_LOG_DIR>>
 
 // BURD Regime: Dispatch Runtime (ephemeral dispatch state)
@@ -934,6 +935,16 @@ Local developer username.
 Routes to the correct `.buk/rbmu_users/` subdirectory for
 {burp_regime}
 profiles.
+
+[[burs_tincture]]
+//axvr_variable axd_required axtu_string
+{burs_tincture}::
+Per-station tincture composed by test fixtures into cloud/runtime prefixes
+and family stems so parallel test runs from different stations land in
+disjoint GCP projects on a shared payor manor.
+Test-only by intent — production code reads `rbrr.env` directly and is
+unaware of the tincture.
+Format: 1-3 lowercase alphanumeric characters, leading letter, no hyphen.
 
 [[burs_log_dir]]
 //axvr_variable axd_required axtu_path

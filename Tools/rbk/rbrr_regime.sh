@@ -102,6 +102,17 @@ zrbrr_enforce() {
 
   # Joint-length cap: GCP project IDs max 30 chars. RBDC_DEPOT_PROJECT_ID
   # composes as "${RBRR_CLOUD_PREFIX}d-${RBRR_DEPOT_MONIKER}".
+  #
+  # Test fixtures (rbtdrp_pristine, rbtdrk_canonical) compose BURS_TINCTURE
+  # (1-3 chars) into BOTH the prefix and the moniker before writing rbrr.env
+  # for parallel-station disjointness on a shared payor manor. The cap below
+  # applies to whatever is in rbrr.env at validation time — production-
+  # authored or fixture-written. Fixture bases are short (≤7 chars) so
+  # tinctured fixture values stay well under the cap; the joint check exists
+  # to catch operator-authored prefix+moniker pairs that would overflow.
+  # The validator does not cross-reference BURS_TINCTURE (BURS may not be
+  # kindled in every RBRR-enforce context); the literal field values are
+  # the contract.
   local -r z_prefix_len=${#RBRR_CLOUD_PREFIX}
   local -r z_moniker_len=${#RBRR_DEPOT_MONIKER}
   local -r z_joint_len=$(( z_prefix_len + 2 + z_moniker_len ))

@@ -39,6 +39,7 @@ zburs_kindle() {
 
   buv_group_enroll "Developer Identity"
   buv_xname_enroll   BURS_USER     1   32  "Local developer username (routes to .buk/rbmu_users/ profiles)"
+  buv_string_enroll  BURS_TINCTURE 1    3  "Per-station tincture composed by test fixtures into cloud/runtime prefixes and family stems for parallel-run disjointness on a shared payor manor (lowercase alphanumeric, leading letter, no hyphen)"
 
   buv_group_enroll "Developer Logging"
   buv_string_enroll  BURS_LOG_DIR  1  512  "Directory for BUK operation logs"
@@ -61,6 +62,9 @@ zburs_enforce() {
   zburs_sentinel
 
   buv_vet BURS
+
+  [[ "${BURS_TINCTURE}" =~ ^[a-z][a-z0-9]{0,2}$ ]] \
+    || buc_die "Invalid BURS_TINCTURE format: ${BURS_TINCTURE} (expected 1-3 chars, lowercase alphanumeric starting with letter; no hyphens)"
 }
 
 # eof
