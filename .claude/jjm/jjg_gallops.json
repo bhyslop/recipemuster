@@ -39,6 +39,7 @@
         "₢A-AAo",
         "₢A-AAm",
         "₢A-AAD",
+        "₢A-AAr",
         "₢A-AAE",
         "₢A-AAF",
         "₢A-AAn",
@@ -75,7 +76,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "next_pace_seed": "AAr",
+      "next_pace_seed": "AAs",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -1026,6 +1027,17 @@
               "text": "## Character\n\nCleanup. Mechanical BCG conformance fixes on `Tools/buk/bujb_cli.sh`.\n\n## Docket\n\nThree classes of BCG drift in `bujb_cli.sh`, surfaced during review of\nthe L3 commit that landed `bujb_command_file`. Scope is this single\nfile; do not sweep siblings.\n\n1. **Output filenames as kindle constants.** `stdout.log`, `stderr.log`,\n   `exitcode` are written as bare literals against `BURD_OUTPUT_DIR`.\n   BCG Template 3 prescribes kindle constants for fixed paths under\n   `BURD_OUTPUT_DIR` (see the `Z«PREFIX»_OUTPUT_RESULT` example).\n   Promote the three to `ZBUJB_OUTPUT_*` in `zbujb_kindle()` and\n   update all call sites (the two ssh redirections, the exitcode\n   write, and the `buc_die` message that references the stderr path).\n\n2. **Unguarded write.** The `echo \"${z_exit}\" > .../exitcode` line\n   has no `|| buc_die` per the no-silent-failures discipline that\n   neighbouring code in this same file follows.\n\n3. **Public command function entry shape.** The four public functions\n   in this CLI (`bujb_resolve`, `bujb_knock`, `bujb_command_file`,\n   `bujb_interactive_session`) skip the `zbujb_sentinel` first-line\n   that BCG's boilerplate table mandates. Add the call. Do not audit\n   sibling CLIs.\n\nAlso: `local -r` pass on assigned-once locals in this file\n(`z_command_file` is the obvious one).\n\nDone when:\n- `bash -n Tools/buk/bujb_cli.sh` green\n- `tt/buw-st.BukSelfTest.sh` green",
               "silks": "bcg-repair-bujb-cli",
               "commit": "17f9a00"
+            }
+          ]
+        },
+        "₢A-AAr": {
+          "tacks": [
+            {
+              "ts": "260505-1133",
+              "state": "rough",
+              "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\nOperator runs jurisdiction ceremonies on the Windows host (post-AAD environment install, pre-AAE fundus):\n- `buw-jpF` — Fenestrate Windows OpenSSH (admin trust + sshd harden)\n- `buw-jpGc` — Garrison Cygwin shell-letter\n- `buw-jpGw` — Garrison WSL shell-letter\n\nEach garrison's step 6 knock proves byte-exact privkey transport end-to-end through `bujb_jurisdiction.sh` step 5 — incidentally validates the BBAA_ base64→openssl substitution that the AAm-era docket marked as covered by live ceremony.\n\nAgent amends `bujb_jurisdiction.sh`, handbook prose (`buw-hj0`), and error diagnostics for issues surfaced.\n\nGoal: admin trust established on Windows OpenSSH; Cygwin and WSL workload accounts garrisoned; AAE fundus provisioning has working SSH into the WSL workload.\n\nOperator prerequisites per BUS0 standing notes (Windows OpenSSH installed and password-auth temporarily enabled, workload pubkey pre-registered with GitHub out-of-band, investiture key files in place 0600 unencrypted).",
+              "silks": "practice-jurisdiction-windows",
+              "commit": "63610a5"
             }
           ]
         }
