@@ -39,6 +39,7 @@
         "₢A-AAo",
         "₢A-AAm",
         "₢A-AAn",
+        "₢A-AAu",
         "₢A-AAt",
         "₢A-AAD",
         "₢A-AAr",
@@ -78,7 +79,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "next_pace_seed": "AAu",
+      "next_pace_seed": "AAv",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -1132,6 +1133,17 @@
               "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\n\nFirst-time Fenestrate exercise on the Windows host. Sequenced ahead\nof AAD (WSL install) since Fenestrate has no WSL dependency — it\ntouches only Windows OpenSSH (sshd_config harden + admin pubkey to\n`administrators_authorized_keys`).\n\nCuria-side: run `buw-jpF <investiture>` against the Windows host.\nFirst-run path falls through to /dev/tty for the operator to type the\nadmin password once; subsequent runs key-auth automatically. Phase 1\nplaces admin pubkey, locks `administrators_authorized_keys` ACLs,\nhardens `sshd_config`, and restarts sshd. Phase 2 reconnects by key\nalone and verifies post-state.\n\nAgent amends `bujb_jurisdiction.sh` (fenestrate flow), error\ndiagnostics, or handbook prose (`buw-hj0`) for Windows-OpenSSH-only\nfriction surfaced.\n\nGoal: admin trust established by key alone on the Windows host;\n`sshd_config` hardened (`PasswordAuthentication no`,\n`PubkeyAuthentication yes`, `PermitEmptyPasswords no`); reconnect-by-\nkey verification green.\n\nOperator prerequisites per BUS0 standing notes (Windows OpenSSH\ninstalled, password-auth temporarily enabled, firewall port allowed,\nknown admin password set, `BURP_PRIVILEGED_KEY_FILE` in place 0600\nunencrypted).",
               "silks": "practice-fenestrate-windows",
               "commit": "6fbe291"
+            }
+          ]
+        },
+        "₢A-AAu": {
+          "tacks": [
+            {
+              "ts": "260505-1247",
+              "state": "rough",
+              "text": "## Character\nDesign refactor with mechanical fan-out — one shape call (path collapse), prose/spec/code follow-on.\n\n## Docket\n\nCollapse BURP from multi-instance (per investiture) to singleton (per station-user × viceroyalty). The investiture identifier was unused multiplicity — one operator never needs multiple admin handles to the same node.\n\n**Locked decisions:**\n- New BURP path: `.buk/rbmu_users/<BURS_USER>/<viceroyalty>/burp.env`\n- `BURP_VICEROYALTY` field drops (path-derived)\n- \"Investiture\" vocabulary retires from BUS0 / paddock / handbook prose\n- Folio on every jurisdiction tabtarget (`buw-jpF`, `buw-jpG[bcw]`, `buw-jw[kcs]`, `buw-rp[lrv]`) becomes *viceroyalty*\n- `buw-rpl` lists viceroyalties for which the station-user has credentials (strict subset of `buw-rnl`)\n\n**Scope (scan-confirmed):**\n- BUK: `burp_regime.sh`, `burp_cli.sh`, `bujb_jurisdiction.sh`, `buhj_jurisdiction.sh`, `buwz_zipper.sh`\n- BUS0 family: BUS0 + BUSJ* (Fenestrate, Garrisons, Workload verbs) + BUSTP* (BURP list/render/validate)\n- RBK Windows handbook: `Tools/rbk/rbh0/rbhw0_top.sh`\n- Paddock vocabulary + standing notes\n\nNo JJK consumers (scanned — legatio works on viceroyalty already).\n\n**Out of scope:** Authoring concrete BURP profile values (that's AAt's job once this lands); future re-introduction of investiture if multi-credential-per-(user,node) ever becomes real.\n\n**Done:** `grep -i 'investitur\\|BURP_VICEROYALTY' Tools/ tt/` returns empty; `bash -n` + `tt/buw-st` + `tt/rbtd-s.TestSuite.fast.sh` green at AAn baseline; jurisdiction tabtargets and Windows handbooks (`tt/rbw-hw`, `tt/buw-hj0`) render cleanly with viceroyalty.",
+              "silks": "collapse-investiture-into-viceroyalty",
+              "commit": "63435c9"
             }
           ]
         }
