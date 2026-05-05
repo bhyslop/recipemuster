@@ -140,6 +140,7 @@ fn rbtdrf_run_rv(
         "set -euo pipefail\n\
          source '{}'\n\
          source '{}/rbcc_Constants.sh'\n\
+         source '{}/rbgc_Constants.sh'\n\
          source '{}/rbrr_regime.sh'\n\
          source '{}/rbrv_regime.sh'\n\
          source '{}/rbrn_regime.sh'\n\
@@ -149,7 +150,7 @@ fn rbtdrf_run_rv(
          {}",
         buv.display(),
         rbk.display(), rbk.display(), rbk.display(),
-        rbk.display(), rbk.display(),
+        rbk.display(), rbk.display(), rbk.display(),
         preamble, setup,
     );
 
@@ -976,6 +977,7 @@ fn rbtdrf_rv_rbrv_all_vessels(dir: &Path) -> rbtdre_Verdict {
         "set -euo pipefail\n\
          source '{}'\n\
          source '{}/rbcc_Constants.sh'\n\
+         source '{}/rbgc_Constants.sh'\n\
          source '{}/rbrr_regime.sh'\n\
          source '{}/rbrv_regime.sh'\n\
          source '{}/rbdc_DerivedConstants.sh'\n\
@@ -992,7 +994,7 @@ fn rbtdrf_rv_rbrv_all_vessels(dir: &Path) -> rbtdre_Verdict {
            )\n\
          done",
         buv.display(),
-        rbk.display(), rbk.display(), rbk.display(), rbk.display(),
+        rbk.display(), rbk.display(), rbk.display(), rbk.display(), rbk.display(),
     );
 
     match rbtdrf_run_bash(&root, &script, dir, "rbrv-all-vessels") {
@@ -1180,6 +1182,7 @@ fn rbtdrf_rs_rbrv(dir: &Path) -> rbtdre_Verdict {
         "set -euo pipefail\n\
          source '{}'\n\
          source '{}/rbcc_Constants.sh'\n\
+         source '{}/rbgc_Constants.sh'\n\
          source '{}/rbrr_regime.sh'\n\
          source '{}/rbdc_DerivedConstants.sh'\n\
          zbuv_kindle\nzrbcc_kindle\n\
@@ -1187,7 +1190,7 @@ fn rbtdrf_rs_rbrv(dir: &Path) -> rbtdre_Verdict {
          zrbrr_kindle\nzrbrr_enforce\nzrbdc_kindle\n\
          echo \"${{RBRR_VESSEL_DIR}}\"",
         buv.display(),
-        rbk.display(), rbk.display(), rbk.display(),
+        rbk.display(), rbk.display(), rbk.display(), rbk.display(),
     );
 
     let vessel_dir = match rbtdrf_run_bash(&root, &script, dir, "rbrv-discover") {

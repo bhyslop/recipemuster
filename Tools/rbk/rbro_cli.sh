@@ -64,6 +64,7 @@ zrbro_furnish() {
   source "${BURD_BUK_DIR}/burd_regime.sh"
   source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
   source "${z_rbk_kit_dir}/rbcc_Constants.sh"
+  source "${z_rbk_kit_dir}/rbgc_Constants.sh"
   source "${z_rbk_kit_dir}/rbrr_regime.sh"
   source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
   source "${z_rbk_kit_dir}/rbro_regime.sh"

@@ -25,6 +25,11 @@ set -euo pipefail
 test -z "${ZRBGC_SOURCED:-}" || buc_die "Module rbgc multiply sourced - check sourcing hierarchy"
 ZRBGC_SOURCED=1
 
+# Tinder constants (pure string literals, no variable expansion — available at source time)
+# Depot project ID infix between RBRR_CLOUD_PREFIX and RBRR_DEPOT_MONIKER, consumed
+# by rbdc_DerivedConstants.sh's RBDC_DEPOT_PROJECT_ID derivation.
+RBGC_depot_project_infix="d-"
+
 ######################################################################
 # Internal Functions (zrbgc_*)
 

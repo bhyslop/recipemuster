@@ -332,6 +332,9 @@
 :rbrr_depot_moniker:         <<rbrr_depot_moniker,RBRR_DEPOT_MONIKER>>
 :rbrr_runtime_prefix:        <<rbrr_runtime_prefix,RBRR_RUNTIME_PREFIX>>
 :rbrr_group_resource_prefixing: <<rbrr_group_resource_prefixing,Resource Prefixing Group>>
+// Recipe Bottle GCP Constants (rbgc_*) — pure-literal tinder, available source-time
+:rbgc_depot_project_infix:   <<rbgc_depot_project_infix,RBGC_depot_project_infix>>
+
 // RBRG regime eliminated (₣Av) — reliquaries replace pin-based tool image management
 :rbrm_chosen_identity:       <<rbrm_chosen_identity,RBRM_CHOSEN_IDENTITY>>
 :rbrm_chosen_podman_version: <<rbrm_chosen_podman_version,RBRM_CHOSEN_PODMAN_VERSION>>

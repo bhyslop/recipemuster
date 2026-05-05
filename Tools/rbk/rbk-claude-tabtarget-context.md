@@ -44,7 +44,7 @@ The Folio column shows how each tabtarget receives it:
 | Colophon | Frontispiece | Folio | Purpose |
 |----------|-------------|-------|---------|
 | `rbw-dL` | PayorLeviesDepot | — | Provision GCP depot project |
-| `rbw-dU` | PayorUnmakesDepot | — | Permanently remove a depot |
+| `rbw-dU` | PayorUnmakesDepot | param1 | Permanently remove a depot (operator supplies depot project ID) |
 | `rbw-dl` | PayorListsDepots | — | List all active depots |
 | `rbw-dE` | DirectorEnshrinesVessel | param1 | Enshrine upstream base images to GAR via Cloud Build |
 | `rbw-dI` | DirectorInscribesReliquary | — | Create reliquary: mirror tool images from upstream to GAR |

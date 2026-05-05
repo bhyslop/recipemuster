@@ -79,9 +79,9 @@ zrbdc_kindle() {
 
   # Derive depot identity from (RBRR_CLOUD_PREFIX, RBRR_DEPOT_MONIKER).
   # Project ID, GAR repository, pool stem, and bucket fall out at kindle.
-  # Type markers and suffixes are literals here (rather than RBGC consts)
-  # to keep rbdc kindle independent of rbgc kindle ordering.
-  readonly RBDC_DEPOT_PROJECT_ID="${RBRR_CLOUD_PREFIX}d-${RBRR_DEPOT_MONIKER}"
+  # Project-ID infix lifted to RBGC tinder (`RBGC_depot_project_infix`),
+  # available at source time without rbgc kindle ordering dependency.
+  readonly RBDC_DEPOT_PROJECT_ID="${RBRR_CLOUD_PREFIX}${RBGC_depot_project_infix}${RBRR_DEPOT_MONIKER}"
   readonly RBDC_GAR_REPOSITORY="${RBRR_CLOUD_PREFIX}${RBRR_DEPOT_MONIKER}-gar"
   readonly RBDC_GCB_POOL_STEM="${RBRR_CLOUD_PREFIX}${RBRR_DEPOT_MONIKER}-pool"
   readonly RBDC_GCS_BUCKET="${RBRR_CLOUD_PREFIX}b-${RBRR_DEPOT_MONIKER}"

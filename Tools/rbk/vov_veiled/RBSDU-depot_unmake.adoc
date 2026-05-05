@@ -9,6 +9,12 @@ and all contained resources:
 
 //axhopt_typed_parameter
 {rbtgi_depot_project}
+. *Empty-argument refusal*:
+.. {rbbc_fatal}
+if no argument supplied: print operator pointer to
+{rbtgo_depot_list}
+for candidate enumeration and exit non-zero.
+No auto-routing to list — single responsibility preserved.
 . *Safety Confirmation*:
 .. If `RBGP_CONFIRM_DESTROY` environment variable is set:
 ... {rbbc_require}
@@ -18,6 +24,17 @@ value matches the depot project ID argument
 ... Display comprehensive destruction warnings
 ... {rbbc_require}
 operator confirmation with exact depot project ID (interactive)
+
+//axhos_step
+. *Refuse live depot target*:
+.. {rbbc_fatal}
+if argument equals the live depot derivation
+`{rbrr_cloud_prefix}{rbgc_depot_project_infix}{rbrr_depot_moniker}`
+(i.e., the value materialised as `RBDC_DEPOT_PROJECT_ID`).
+Recovery: rename
+{rbrr_depot_moniker}
+in `rbrr.env`, or run marshal-zero (`rbw-MZ`), then retry.
+.. Local string comparison; zero network traffic. Defense against orphaning local regime state by destroying the depot the regime currently points to.
 
 //axhos_step
 . *Authenticate as
@@ -39,6 +56,19 @@ link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[pr
 project exists and state is `ACTIVE`
 .. {rbbc_fatal}
 if state is already `DELETE_REQUESTED`: "Project already marked for deletion"
+.. *DisplayName discriminator* — symmetric with
+{rbtgo_depot_list}:
+... {rbbc_store}
+`«DISPLAY_NAME»` from response `.displayName`
+... {rbbc_require}
+`«DISPLAY_NAME»` starts with the anchor literal `«RBGC_DEPOT_DISPLAY_PREFIX» `; otherwise
+{rbbc_fatal}
+with diagnostic naming the mismatch and pointing operator at
+{rbtgo_depot_list}
+for candidate enumeration. Refuses non-depot projects in the
+{rbtr_payor}
+account, the structural defense once unmake is decoupled from
+{rbrr_regime}.
 
 //axhos_step
 . *Check for and remove

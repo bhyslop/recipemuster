@@ -65,7 +65,7 @@ zrbz_kindle() {
   buz_group RBZ__GROUP_DEPOT      "rbw-d"   "Depot — GCP project infrastructure"
   z_mod="rbgp_cli.sh"
   buz_enroll RBZ_LEVY_DEPOT             "rbw-dL"  "${z_mod}" "rbgp_depot_levy"   ""  "Provision GCP depot project"
-  buz_enroll RBZ_UNMAKE_DEPOT           "rbw-dU"  "${z_mod}" "rbgp_depot_unmake"  ""  "Permanently remove a depot"
+  buz_enroll RBZ_UNMAKE_DEPOT           "rbw-dU"  "${z_mod}" "rbgp_depot_unmake"  "param1"  "Permanently remove a depot (operator supplies depot project ID)"
   buz_enroll RBZ_LIST_DEPOT             "rbw-dl"  "${z_mod}" "rbgp_depot_list"    ""  "List all active depots"
   z_mod="rbfd_cli.sh"
   buz_enroll RBZ_ENSHRINE_VESSEL        "rbw-dE"  "${z_mod}" "rbfd_enshrine"      "param1"  "Enshrine upstream base images to GAR via Cloud Build"
