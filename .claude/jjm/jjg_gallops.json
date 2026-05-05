@@ -7298,6 +7298,7 @@
       "creation_time": "260426",
       "status": "racing",
       "order": [
+        "₢BBAA9",
         "₢BBAA6",
         "₢BBAA4",
         "₢BBAA3",
@@ -7356,7 +7357,7 @@
         "₢BBAA1",
         "₢BBAA5"
       ],
-      "next_pace_seed": "AA9",
+      "next_pace_seed": "AA-",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAA0": {
@@ -7546,6 +7547,17 @@
               "text": "## Character\n\nDesign conversation requiring judgment. Mechanism choice must follow operator concurrence — load-bearing slate-time instruction.\n\n## Issue evidence\n\nFailed in BBAAX first-run gauntlet attempt at `rbtdro_onboarding_ordain_conjure` verification tail. Conjure cloud build (4m0s) and vouch (1m30s) both succeeded. All GAR artifacts confirmed via gcloud post-failure (image, attest-amd64, attest-arm64, about, vouch tagged correctly). Failure was wrest's `docker login` against `us-central1-docker.pkg.dev`:\n\n    Error response from daemon: Get \"https://us-central1-docker.pkg.dev/v2/\":\n    net/http: request canceled while waiting for connection\n    (Client.Timeout exceeded while awaiting headers)\n\nEndpoint probed clean post-failure (curl 134ms, 401 as expected; gcloud listing fast). Documented docker daemon transient per moby/moby#44350: non-configurable Client.Timeout fires before the registry auth backend responds; industry remediation across the corpus is retry. Same case had 4 curl rc=28 warnings during the preceding vouch poll, absorbed by the existing 3-consecutive tolerance.\n\n## Asymmetry to close\n\n`Tools/rbk/rbfc_FoundryCore.sh` poll loop tolerates this transient class with a 3-consecutive policy (BCG-clean, in production).\n`Tools/rbk/rbfl_FoundryLedger.sh` `rbfl_wrest`'s docker login is single-shot, fatal on the same transient class. Same daemon, same registry boundary, different fate.\n\n## Scope\n\nRetry shape for transient-vulnerable docker daemon ↔ registry single-shot calls. Immediate surface is wrest's docker login; design surface should include other single-shot daemon calls crossing the same boundary (login, pull, push, inspect with registry round-trip).\n\n## Discuss before implementing — load-bearing\n\nMount agent surfaces the design space and proposes a recommended shape; operator concurrence precedes landing. No pre-baking at slate-time. Design questions to seat at the table belong in the conversation, not the docket.\n\n## Out of scope\n\n- Curl/gcloud transient audit beyond the docker daemon path — distinct class\n- Build-poll loop changes (already tolerant)\n- Generic retry framework — only what the surveyed surface requires\n\n## References\n\n- moby/moby#44350 — non-configurable docker daemon Client.Timeout\n- BBAAX inline-fix commits 24e24651 (depot Cloud Build URL) and dd5893ba (Mid-execution posture rule) — first-run iteration arc context",
               "silks": "docker-login-retry-shape",
               "commit": "19a9229"
+            }
+          ]
+        },
+        "₢BBAA9": {
+          "tacks": [
+            {
+              "ts": "260505-0928",
+              "state": "rough",
+              "text": "## Character\n\n`rbgp_depot_unmake` reads `RBDC_DEPOT_PROJECT_ID` (derived from\n`RBRR_DEPOT_MONIKER` + `RBRR_CLOUD_PREFIX` + literal `\"d-\"`) instead of\naccepting the target as a parameter. RBSDU spec already declares \"depot\nproject ID provided as first argument\" — implementation diverged.\nSurfaced as spook today: cleaning up leftover canonicals from failed\ngauntlet attempts requires editing `rbrr.env` to retarget, polluting\nregime state for a transient operation.\n\nCompounding bug: nothing prevents unmaking the live RBRR-selected depot.\n\nAdjacent BCG cleanup folds in: the `\"d-\"` literal in\n`rbdc_DerivedConstants.sh` is not lifted to a tinder constant.\n\n## Scope\n\n- `rbgp_depot_unmake()` accepts depot project ID as `$1`; all internal\n  references switch from `RBDC_DEPOT_PROJECT_ID` to the parameter\n- New refusal step (early, before authenticate): fail-fast if target\n  equals `RBDC_DEPOT_PROJECT_ID`; diagnostic names recovery path (rename\n  moniker or `rbw-MZ` before unmake)\n- Zipper enrollment for `RBZ_UNMAKE_DEPOT`: channel `\"\"` → `\"param1\"`\n- Tabtarget stays single-file (no imprint variant); param flows through\n- RBSDU spec adds the live-disqualify step; existing\n  argument-from-first-position language already correct\n- Lift `\"d-\"` to `RBGC_depot_project_infix` tinder constant in\n  `rbgc_Constants.sh` (top-of-module, lower_snake name per BCG)\n- `rbdc_DerivedConstants.sh` rewrites the `RBDC_DEPOT_PROJECT_ID`\n  derivation to reference the tinder constant\n\n## Constraints\n\n- BCG tinder discipline: `RBGC_depot_project_infix` is pure string\n  literal, lowercase name part, top-of-module placement immediately\n  after sourced-guard, no runtime dependency\n- Refusal compares against named `RBDC_DEPOT_PROJECT_ID` constant —\n  single source of truth, do not respell the formation formula at the\n  refusal site\n- Param shape: full project ID (e.g., `canc-d-canest2100000`), not\n  moniker — matches what `rbw-dl` displays and what GCP error messages\n  surface, so operator already has the right form in hand\n\n## Cross-pace dependencies\n\n- BBAAX (rbw-tP-first-run) does not block on this — today's manual\n  rbrr.env-edit dance is acceptable for one cleanup pass — but the\n  gauntlet will produce more leftovers, so this lands first\n\n## Out of scope\n\n- Formation helper function (e.g., `rbgp_depot_project_id_for_moniker`)\n  — speculative until a second call site needs the rule; current scope\n  has only `RBDC_DEPOT_PROJECT_ID` as the consumer\n- Symmetric refactor of other depot operations (levy still kindles from\n  RBRR, which is correct since levy IS the act of selecting/creating\n  the live depot)\n- Bulk-unmake-leftovers tool — separate pace if the need recurs",
+              "silks": "unmake-takes-project-id",
+              "commit": "6c1f3b6"
             }
           ]
         },
