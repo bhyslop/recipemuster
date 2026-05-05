@@ -192,6 +192,13 @@
         "₢A-AAD": {
           "tacks": [
             {
+              "ts": "260505-1135",
+              "state": "rough",
+              "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\n\nOperator follows `tt/rbw-hw.HandbookWindows.sh` Phase 3 on the Windows\nhost: install WSL with distribution name `rbtww-main`, install Cygwin\n(POSIX userland). Per AAn's ruthless-delete posture, detailed install\ninstructions live in vendor docs; `rbw-hw` carries only the\ndownstream-load-bearing names. Agent amends the inlined `rbw-hw`\noperator prose if friction surfaces (e.g., a missing constraint that\nbreaks downstream Phase 4 garrison or Phase 5 fundus).\n\nGoal: WSL distro `rbtww-main` and Cygwin both functional on the Windows\nhost, ready for Phase 4 garrison and the AAE/AAF practice paces.",
+              "silks": "practice-environment-procedures",
+              "commit": "ec3efc9"
+            },
+            {
               "ts": "260412-0931",
               "state": "rough",
               "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\nUser executes Environment procedures on Windows host:\n- `buw-HWew` — WSL distro creation (`rbtww-main`)\n- `buw-HWec` — Cygwin install\n\nAgent amends handbook for issues. Goal: WSL distro and Cygwin both functional, ready for fundus provisioning and Docker.",
@@ -202,6 +209,13 @@
         },
         "₢A-AAE": {
           "tacks": [
+            {
+              "ts": "260505-1135",
+              "state": "rough",
+              "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\nUser runs existing JJK fundus provisioning inside the WSL distro:\n- `jjw-tfP1.ProvisionPhase1.sh` (sudo, inside WSL) — create `jjfu_*` accounts\n- `jjw-tfP2.ProvisionPhase2.cerebro.sh` — clone repos, install BUK\n\nNo new code expected — this validates that the existing `jjfp_fundus.sh`\nworks unchanged inside WSL on Windows. If issues arise (platform\ndetection, path differences, SSH localhost behavior in WSL), agent\namends `jjfp_fundus.sh` or documents WSL-specific caveats.",
+              "silks": "practice-fundus-provisioning",
+              "commit": "ec3efc9"
+            },
             {
               "ts": "260412-0931",
               "state": "rough",
@@ -967,6 +981,13 @@
         },
         "₢A-AAn": {
           "tacks": [
+            {
+              "ts": "260505-1135",
+              "state": "rough",
+              "text": "## Character\n\nCleanup sweep — delete the superseded BUK-side Windows handbook ecosystem\nand older BUK regime/orchestration carryovers from prior generations.\nOperator gate on anything ambiguous; mechanical zipper prunes need no\nreview.\n\n## Docket\n\nThree generations of Windows-procedure ideas accumulated; AAm's L4 RBK\norchestrator rewire carried `buw-HW*` references forward, but the\nload-bearing knowledge is step sequencing and the downstream-consumed\nnames (`rbtww-main` for the WSL distro, Cygwin package names) — not\nhow-to-install prose. Per ruthless-delete posture: drop the wrappers,\nretain the names, hand the rest back to the operator with vendor docs.\n\nDone when:\n\n- BUK Windows handbook tabtargets gone:\n  `tt/buw-HW{ab,ar,ax,bs,sc,vs,ec,ew}.sh`, `tt/buw-h0.HandbookTOP.sh`,\n  `tt/buw-hw.HandbookWindows.sh`\n- Older BUK regime carryovers gone:\n  `tt/buw-rhc{c,l,m,p,w,x}.sh`, `tt/buw-rh{l,r,v}.sh`,\n  `tt/buw-{rhk,rnk,wck,wcb}.sh`, `tt/buw-SI.sh` (verify unused before\n  removing the last)\n- Modules gone: `Tools/buk/{buhw_cli,buhw_windows}.sh`\n- Helpers gone: `zburn_construct` in `burn_cli.sh`\n- Zipper rows pruned in `buwz_zipper.sh` matching every dropped tabtarget\n- `Tools/rbk/rbh0/rbhw0_top.sh` (the live `rbw-hw` body) updated:\n  Phase 1 Step 2 (was `BUWZ_HW_ACCESS_REMOTE`), Phase 3 Step 4 (was\n  `BUWZ_HW_ENV_WSL`), Phase 3 Step 5 (was `BUWZ_HW_ENV_CYGWIN`) drop\n  their wrapped-tabtarget links and become one-line operator prose\n  preserving the downstream-load-bearing names (the WSL distro name\n  `rbtww-main`, the Cygwin POSIX userland anchor, \"SSH client key per\n  vendor docs\")\n- Top-level `rbw-h0` handbook drops \"Generic OS Procedures → Windows\"\n  (it pointed at dead `buw-hw`); keeps \"Generic OS Procedures →\n  Jurisdiction\" → `buw-hj0`\n- Live BUK jurisdiction surface preserved: `buw-hj0`, `buw-jpF`,\n  `buw-jpG[bcw]`, `buw-jw[kcs]` and their backing `bujb_*` modules\n  remain untouched\n- Discovery sweeps return empty:\n  - `grep -rn 'BUWZ_HW_\\|BUWZ_H0_\\|buhw_\\|zburn_construct' Tools/ tt/`\n  - `grep -rn '\\brhc[clmpwx]\\b' Tools/ tt/`\n  - `grep -rn 'buw-HW\\|buw-rhc\\|buw-rhk\\|buw-rnk\\|buw-rhl\\|buw-rhr\\|buw-rhv\\|buw-wck\\|buw-wcb\\|buw-SI' Tools/ tt/`\n- `bash -n` green on edited shell files\n- `tt/buw-st.BukSelfTest.sh` green\n- `tt/rbtd-s.TestSuite.fast.sh` unchanged from baseline (25/26, lone\n  failure `rbtdrf_rv_rbrv_all_vessels`)\n- `tt/rbw-hw.HandbookWindows.sh` renders clean with the inlined operator\n  prose\n- `tt/rbw-h0.HandbookTOP.sh` renders clean without the dropped link",
+              "silks": "cleanup-prior-attempts",
+              "commit": "ec3efc9"
+            },
             {
               "ts": "260503-1049",
               "state": "rough",
