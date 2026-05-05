@@ -34,35 +34,37 @@ set -euo pipefail
 test -z "${ZBUJB_SOURCED:-}" || buc_die "Module bujb multiply sourced - check sourcing hierarchy"
 ZBUJB_SOURCED=1
 
+# Tinder constants (pure string literals — available at source time)
+
+# Shell-letter -> command= directive mappings.
+# Forced commands routed through SSH_ORIGINAL_COMMAND keep workload account
+# behaviour pinned to the chosen shell regardless of what the SSH client
+# requests. Locked spec content; mirrored in BUSJG{B,C,W}.
+BUJB_command_b='command="/bin/bash -lc \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding'
+BUJB_command_c='command="C:/cygwin64/bin/bash --login -c \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding'
+BUJB_command_w='command="C:/Windows/System32/wsl.exe --distribution rbtww-main --exec /bin/bash -lc \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding'
+
+# Shell-letter -> workload privkey destination path on the remote
+# (relative to the workload account home directory).
+BUJB_workload_keypath_b='.ssh/id_ed25519'
+BUJB_workload_keypath_c='.ssh/id_ed25519'
+BUJB_workload_keypath_w='.ssh/id_ed25519'
+
+# Canonical WSL distribution name reached by garrison-w.
+BUJB_wsl_distribution='rbtww-main'
+
+# Windows OpenSSH sshd_config hardening directive set written by
+# fenestrate phase 1. Newline-joined; each directive is asserted by
+# bash-side parse after PowerShell Get-Content returns the raw bytes.
+BUJB_sshd_hardening='PubkeyAuthentication yes
+PasswordAuthentication no
+PermitEmptyPasswords no'
+
 ######################################################################
 # Internal Functions (zbujb_*)
 
 zbujb_kindle() {
   test -z "${ZBUJB_KINDLED:-}" || buc_die "Module bujb already kindled"
-
-  # Shell-letter -> command= directive mappings.
-  # Forced commands routed through SSH_ORIGINAL_COMMAND keep workload account
-  # behaviour pinned to the chosen shell regardless of what the SSH client
-  # requests. Locked spec content; mirrored in BUSJG{B,C,W}.
-  readonly BUJB_command_b='command="/bin/bash -lc \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding'
-  readonly BUJB_command_c='command="C:/cygwin64/bin/bash --login -c \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding'
-  readonly BUJB_command_w='command="C:/Windows/System32/wsl.exe --distribution rbtww-main --exec /bin/bash -lc \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding'
-
-  # Shell-letter -> workload privkey destination path on the remote
-  # (relative to the workload account home directory).
-  readonly BUJB_workload_keypath_b='.ssh/id_ed25519'
-  readonly BUJB_workload_keypath_c='.ssh/id_ed25519'
-  readonly BUJB_workload_keypath_w='.ssh/id_ed25519'
-
-  # Canonical WSL distribution name reached by garrison-w.
-  readonly BUJB_wsl_distribution='rbtww-main'
-
-  # Windows OpenSSH sshd_config hardening directive set written by
-  # fenestrate phase 1. Newline-joined; each directive is asserted by
-  # bash-side parse after PowerShell Get-Content returns the raw bytes.
-  readonly BUJB_sshd_hardening='PubkeyAuthentication yes
-PasswordAuthentication no
-PermitEmptyPasswords no'
 
   # Fenestrate temp file paths — ssh stdout/stderr captured here so
   # callers parse from disk (no `$(ssh ...)` capture).
