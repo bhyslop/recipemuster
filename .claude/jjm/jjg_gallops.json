@@ -39,6 +39,7 @@
         "₢A-AAo",
         "₢A-AAm",
         "₢A-AAn",
+        "₢A-AAt",
         "₢A-AAD",
         "₢A-AAr",
         "₢A-AAs",
@@ -77,7 +78,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "next_pace_seed": "AAt",
+      "next_pace_seed": "AAu",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -1113,6 +1114,17 @@
               "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\n\nCygwin path verification — alternate access path on the same Windows\nhost, sequenced after AAr's WSL path lands.\n\nOperator (Windows host): install Cygwin POSIX userland with the\nOpenSSH package per vendor docs. Cygwin sshd hardening is\noperator-manual per paddock standing note (fenestrate covers Windows\nOpenSSH only).\n\nCuria-side: run `buw-jpGc` to garrison the Cygwin shell-letter.\nGarrison-Cygwin's step 6 knock proves byte-exact privkey transport\nend-to-end through Cygwin sshd.\n\nAgent amends `bujb_jurisdiction.sh`, handbook prose, or error\ndiagnostics for Cygwin-specific friction.\n\nGoal: Cygwin workload account reachable via SSH on the same Windows\nhost; b/c/w shell-letter support proven for c (in addition to AAr's\nw).",
               "silks": "practice-cygwin-path",
               "commit": "d011809"
+            }
+          ]
+        },
+        "₢A-AAt": {
+          "tacks": [
+            {
+              "ts": "260505-1232",
+              "state": "rough",
+              "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\n\nFirst-time Fenestrate exercise on the Windows host. Sequenced ahead\nof AAD (WSL install) since Fenestrate has no WSL dependency — it\ntouches only Windows OpenSSH (sshd_config harden + admin pubkey to\n`administrators_authorized_keys`).\n\nCuria-side: run `buw-jpF <investiture>` against the Windows host.\nFirst-run path falls through to /dev/tty for the operator to type the\nadmin password once; subsequent runs key-auth automatically. Phase 1\nplaces admin pubkey, locks `administrators_authorized_keys` ACLs,\nhardens `sshd_config`, and restarts sshd. Phase 2 reconnects by key\nalone and verifies post-state.\n\nAgent amends `bujb_jurisdiction.sh` (fenestrate flow), error\ndiagnostics, or handbook prose (`buw-hj0`) for Windows-OpenSSH-only\nfriction surfaced.\n\nGoal: admin trust established by key alone on the Windows host;\n`sshd_config` hardened (`PasswordAuthentication no`,\n`PubkeyAuthentication yes`, `PermitEmptyPasswords no`); reconnect-by-\nkey verification green.\n\nOperator prerequisites per BUS0 standing notes (Windows OpenSSH\ninstalled, password-auth temporarily enabled, firewall port allowed,\nknown admin password set, `BURP_PRIVILEGED_KEY_FILE` in place 0600\nunencrypted).",
+              "silks": "practice-fenestrate-windows",
+              "commit": "6fbe291"
             }
           ]
         }
