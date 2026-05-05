@@ -26,6 +26,12 @@
 // buf_:   Fact Module (dual-write fact-file primitives)
 // busy_:  Yelp (pre-rendered formatted string capture)
 // burx_:  Exchange Regime (cross-project dispatch state)
+// bus_:   Specification umbrella concept (e.g., bus_jurisdiction)
+// bujb_:  Jurisdiction implementation seat — sub-letter `b` = bash format.
+//         Future PowerShell sibling would mint as bujp_; under Quoin
+//         Sub-Letter Discipline, sub-letter Y is monosemic per domain
+//         (b → bash, p → powershell — never reused for other concepts
+//         within the buj* tree).
 //
 // Variant patterns:
 //   _s: plural form
@@ -124,7 +130,7 @@
 
 // BURP Regime: Privileged + Workload Credentials (per-station-user)
 :burp_regime:                      <<burp_regime,BURP Regime>>
-:burp_node:                        <<burp_node,BURP_NODE>>
+:burp_viceroyalty:                 <<burp_viceroyalty,BURP_VICEROYALTY>>
 :burp_privileged_user:             <<burp_privileged_user,BURP_PRIVILEGED_USER>>
 :burp_privileged_key_file:         <<burp_privileged_key_file,BURP_PRIVILEGED_KEY_FILE>>
 :burp_workload_key_file:           <<burp_workload_key_file,BURP_WORKLOAD_KEY_FILE>>
@@ -956,7 +962,7 @@ is the sole home of node address-of-record per
 {burn_host_singularity};
 {burp_regime}
 instances reference it via
-{burp_node}.
+{burp_viceroyalty}.
 
 [[burn_host]]
 //axvr_variable axd_required axtu_string
@@ -972,7 +978,7 @@ Used by handbook diagnostics; the
 implementation in
 {bujb_jurisdiction}
 selects shell mappings by garrison shell-letter rather than by node platform.
-Values: `linux`, `mac`, `windows`.
+Values: `bubep_linux`, `bubep_mac`, `bubep_windows`.
 
 === BURN/BURP Identifier Vocabulary
 
@@ -1022,7 +1028,7 @@ The host of a node lives only in
 {burn_regime}.
 {burp_regime}
 instances reach the host by reference (via
-{burp_node})
+{burp_viceroyalty})
 and never duplicate it.
 A given node has exactly one address-of-record;
 credentials never re-state it.
@@ -1063,7 +1069,7 @@ files live under
 +
 {burp_regime}
 references its node by
-{burp_node}
+{burp_viceroyalty}
 per
 {burn_host_singularity}.
 +
@@ -1073,9 +1079,9 @@ neither the privileged nor the workload pubkey is stored in
 Encrypted (passphrase-protected) private keys are not supported because
 `ssh-keygen -y` would prompt interactively and hang the ceremony.
 
-[[burp_node]]
+[[burp_viceroyalty]]
 //axvr_variable axd_required axtu_xname
-{burp_node}::
+{burp_viceroyalty}::
 Reference to a
 {burn_viceroyalty}
 — the node this investiture is granted over.
