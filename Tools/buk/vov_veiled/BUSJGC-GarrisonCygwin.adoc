@@ -45,7 +45,13 @@ ssh-only Cygwin account.
 //axhos_step
 . *Place workload trust*: write the workload pubkey
 (derived via `ssh-keygen -y`) to the workload's authorized_keys with
-the shell-letter `c` `command=` directive from {bujb_jurisdiction}.
+the shell-letter `c` `command=` directive below — locked spec content,
+mirrored at `BUJB_command_c` in {bujb_jurisdiction}:
++
+[listing]
+----
+command="C:/cygwin64/bin/bash --login -c \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding
+----
 
 //axhos_step
 . *Plant workload key*: copy {burp_workload_key_file} to the workload

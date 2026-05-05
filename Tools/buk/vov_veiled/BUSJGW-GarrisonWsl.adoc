@@ -51,7 +51,13 @@ ssh-only Linux account inside `rbtww-main`.
 //axhos_step
 . *Place workload trust*: write the workload pubkey
 (derived via `ssh-keygen -y`) to the workload's authorized_keys with
-the shell-letter `w` `command=` directive from {bujb_jurisdiction}.
+the shell-letter `w` `command=` directive below — locked spec content,
+mirrored at `BUJB_command_w` in {bujb_jurisdiction}:
++
+[listing]
+----
+command="C:/Windows/System32/wsl.exe --distribution rbtww-main --exec /bin/bash -lc \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding
+----
 
 //axhos_step
 . *Plant workload key*: copy {burp_workload_key_file} to the workload

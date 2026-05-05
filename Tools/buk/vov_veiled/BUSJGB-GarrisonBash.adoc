@@ -42,7 +42,13 @@ ssh-only account.
 //axhos_step
 . *Place workload trust*: write the workload pubkey
 (derived via `ssh-keygen -y`) to the workload's authorized_keys with
-the shell-letter `b` `command=` directive from {bujb_jurisdiction}.
+the shell-letter `b` `command=` directive below — locked spec content,
+mirrored at `BUJB_command_b` in {bujb_jurisdiction}:
++
+[listing]
+----
+command="/bin/bash -lc \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding
+----
 
 //axhos_step
 . *Plant workload key*: copy {burp_workload_key_file} to the workload

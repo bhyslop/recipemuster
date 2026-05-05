@@ -75,6 +75,30 @@ zbujb_kindle() {
   readonly ZBUJB_FENESTRATE_PHASE2_STDOUT="${BURD_TEMP_DIR}/bujb_fenestrate_phase2_stdout.txt"
   readonly ZBUJB_FENESTRATE_PHASE2_STDERR="${BURD_TEMP_DIR}/bujb_fenestrate_phase2_stderr.txt"
 
+  # stat captures (per-key-slot for parallel forensics on resolve).
+  readonly ZBUJB_STAT_STDOUT_PRIV="${BURD_TEMP_DIR}/bujb_stat_priv_stdout.txt"
+  readonly ZBUJB_STAT_STDERR_PRIV="${BURD_TEMP_DIR}/bujb_stat_priv_stderr.txt"
+  readonly ZBUJB_STAT_STDOUT_WORK="${BURD_TEMP_DIR}/bujb_stat_work_stdout.txt"
+  readonly ZBUJB_STAT_STDERR_WORK="${BURD_TEMP_DIR}/bujb_stat_work_stderr.txt"
+
+  # ssh-keygen dry-load captures (resolve-time, per slot).
+  readonly ZBUJB_DRYLOAD_STDOUT_PRIV="${BURD_TEMP_DIR}/bujb_dryload_priv_stdout.txt"
+  readonly ZBUJB_DRYLOAD_STDERR_PRIV="${BURD_TEMP_DIR}/bujb_dryload_priv_stderr.txt"
+  readonly ZBUJB_DRYLOAD_STDOUT_WORK="${BURD_TEMP_DIR}/bujb_dryload_work_stdout.txt"
+  readonly ZBUJB_DRYLOAD_STDERR_WORK="${BURD_TEMP_DIR}/bujb_dryload_work_stderr.txt"
+
+  # ssh-keygen pubkey-emit captures (garrison step4 = workload pubkey,
+  # fenestrate phase1 = admin pubkey).
+  readonly ZBUJB_PUBKEY_STDOUT_WORK="${BURD_TEMP_DIR}/bujb_pubkey_work_stdout.txt"
+  readonly ZBUJB_PUBKEY_STDERR_WORK="${BURD_TEMP_DIR}/bujb_pubkey_work_stderr.txt"
+  readonly ZBUJB_PUBKEY_STDOUT_PRIV="${BURD_TEMP_DIR}/bujb_pubkey_priv_stdout.txt"
+  readonly ZBUJB_PUBKEY_STDERR_PRIV="${BURD_TEMP_DIR}/bujb_pubkey_priv_stderr.txt"
+
+  # base64 capture (garrison step5 = workload privkey b64-encoded for
+  # heredoc transport to remote).
+  readonly ZBUJB_KEY_B64_STDOUT="${BURD_TEMP_DIR}/bujb_key_b64_stdout.txt"
+  readonly ZBUJB_KEY_B64_STDERR="${BURD_TEMP_DIR}/bujb_key_b64_stderr.txt"
+
   readonly ZBUJB_KINDLED=1
 }
 
@@ -82,28 +106,59 @@ zbujb_sentinel() {
   test "${ZBUJB_KINDLED:-}" = "1" || buc_die "Module bujb not kindled - call zbujb_kindle first"
 }
 
-# zbujb_check_key_file PATH VARNAME -- validate SSH private key at PATH:
+# zbujb_check_key_file PATH VARNAME SLOT -- validate SSH private key at PATH:
 # exists, mode 0600, parseable + unencrypted (ssh-keygen -y dry-load with
-# empty passphrase). Diagnostic uses VARNAME as the field label.
+# empty passphrase). Diagnostic uses VARNAME as the field label. SLOT
+# (priv|work) selects the kindle temp-file pair used for stat + dry-load
+# stdout/stderr capture so failures preserve forensic evidence per BCG.
 zbujb_check_key_file() {
   local z_path="${1:-}"
   local z_varname="${2:-}"
+  local z_slot="${3:-}"
 
-  test -n "${z_path}"   || buc_die "${z_varname}: empty path"
-  test -f "${z_path}"   || buc_die "${z_varname}: file not found: ${z_path}"
+  test -n "${z_path}"    || buc_die "${z_varname}: empty path"
+  test -f "${z_path}"    || buc_die "${z_varname}: file not found: ${z_path}"
 
-  local z_mode=""
-  if z_mode=$(stat -f '%A' "${z_path}" 2>/dev/null); then
-    : # macOS / BSD stat
-  elif z_mode=$(stat -c '%a' "${z_path}" 2>/dev/null); then
-    : # GNU/Linux stat
+  local z_stat_stdout="" z_stat_stderr="" z_dry_stdout="" z_dry_stderr=""
+  case "${z_slot}" in
+    priv)
+      z_stat_stdout="${ZBUJB_STAT_STDOUT_PRIV}"
+      z_stat_stderr="${ZBUJB_STAT_STDERR_PRIV}"
+      z_dry_stdout="${ZBUJB_DRYLOAD_STDOUT_PRIV}"
+      z_dry_stderr="${ZBUJB_DRYLOAD_STDERR_PRIV}"
+      ;;
+    work)
+      z_stat_stdout="${ZBUJB_STAT_STDOUT_WORK}"
+      z_stat_stderr="${ZBUJB_STAT_STDERR_WORK}"
+      z_dry_stdout="${ZBUJB_DRYLOAD_STDOUT_WORK}"
+      z_dry_stderr="${ZBUJB_DRYLOAD_STDERR_WORK}"
+      ;;
+    *)
+      buc_die "zbujb_check_key_file: invalid slot (expected priv|work): '${z_slot}'"
+      ;;
+  esac
+
+  # BSD stat first (Mac), GNU stat fallback (Linux). The failed flavor's
+  # stderr is overwritten by the successful flavor's invocation; on total
+  # failure z_stat_stderr holds the GNU-attempt error.
+  if stat -f '%A' "${z_path}" > "${z_stat_stdout}" 2> "${z_stat_stderr}"; then
+    : # macOS / BSD stat succeeded
+  elif stat -c '%a' "${z_path}" > "${z_stat_stdout}" 2> "${z_stat_stderr}"; then
+    : # GNU/Linux stat succeeded
   else
-    buc_die "${z_varname}: cannot stat ${z_path}"
+    buc_die "${z_varname}: cannot stat ${z_path} — see ${z_stat_stderr}"
   fi
-  test "${z_mode}" = "600" || buc_die "${z_varname}: mode must be 0600, got ${z_mode}: ${z_path}"
 
-  ssh-keygen -y -P '' -f "${z_path}" >/dev/null 2>&1 \
-    || buc_die "${z_varname}: ssh-keygen -y dry-load failed (passphrase-protected or malformed): ${z_path}"
+  local z_mode
+  z_mode=$(<"${z_stat_stdout}")
+  z_mode="${z_mode//$'\n'/}"
+  test "${z_mode}" = "600" \
+    || buc_die "${z_varname}: mode must be 0600, got ${z_mode}: ${z_path}"
+
+  ssh-keygen -y -P '' -f "${z_path}" \
+      > "${z_dry_stdout}" \
+      2> "${z_dry_stderr}" \
+    || buc_die "${z_varname}: ssh-keygen -y dry-load failed (passphrase-protected or malformed): ${z_path} — see ${z_dry_stderr}"
 }
 
 ######################################################################
@@ -132,35 +187,38 @@ bujb_resolve_investiture() {
   test -z "${ZBUJB_RESOLVED:-}" \
     || buc_die "bujb_resolve_investiture already called - single-call-per-process"
 
-  zbujb_check_key_file "${BURP_PRIVILEGED_KEY_FILE}" "BURP_PRIVILEGED_KEY_FILE"
-  zbujb_check_key_file "${BURP_WORKLOAD_KEY_FILE}"   "BURP_WORKLOAD_KEY_FILE"
+  zbujb_check_key_file "${BURP_PRIVILEGED_KEY_FILE}" "BURP_PRIVILEGED_KEY_FILE" priv
+  zbujb_check_key_file "${BURP_WORKLOAD_KEY_FILE}"   "BURP_WORKLOAD_KEY_FILE"   work
 
   readonly ZBUJB_RESOLVED=1
 }
 
-# bujb_command_for SHELL_LETTER -- emit the workload authorized_keys
-# command= directive for shell-letter b, c, or w (echoed to stdout).
-bujb_command_for() {
+# bujb_command_for_capture SHELL_LETTER -- emit the workload authorized_keys
+# command= directive for shell-letter b, c, or w. _capture form so callers
+# may use `$()` per BCG line 502; returns 1 on invalid letter, callers must
+# `|| buc_die`.
+bujb_command_for_capture() {
   zbujb_sentinel
   local z_letter="${1:-}"
   case "${z_letter}" in
     b) echo "${BUJB_command_b}" ;;
     c) echo "${BUJB_command_c}" ;;
     w) echo "${BUJB_command_w}" ;;
-    *) buc_die "bujb_command_for: invalid shell-letter (expected b/c/w): '${z_letter}'" ;;
+    *) return 1 ;;
   esac
 }
 
-# bujb_workload_keypath_for SHELL_LETTER -- emit the workload privkey
+# bujb_workload_keypath_for_capture SHELL_LETTER -- emit the workload privkey
 # remote destination path (relative to workload home) for b, c, or w.
-bujb_workload_keypath_for() {
+# Returns 1 on invalid letter; callers must `|| buc_die`.
+bujb_workload_keypath_for_capture() {
   zbujb_sentinel
   local z_letter="${1:-}"
   case "${z_letter}" in
     b) echo "${BUJB_workload_keypath_b}" ;;
     c) echo "${BUJB_workload_keypath_c}" ;;
     w) echo "${BUJB_workload_keypath_w}" ;;
-    *) buc_die "bujb_workload_keypath_for: invalid shell-letter (expected b/c/w): '${z_letter}'" ;;
+    *) return 1 ;;
   esac
 }
 
@@ -195,9 +253,11 @@ zbujb_garrison_assert_platform() {
   esac
 }
 
-# zbujb_workload_home LETTER -- echo the absolute workload home path on the
-# remote node for the given shell-letter.
-zbujb_workload_home() {
+# zbujb_workload_home_capture LETTER -- emit the absolute workload home path
+# on the remote node for the given shell-letter. _capture form per BCG line
+# 502; returns 1 on unsupported platform or invalid letter, callers must
+# `|| buc_die`.
+zbujb_workload_home_capture() {
   zbujb_sentinel
   local z_letter="${1:-}"
   local z_wlu="${BURC_WORKLOAD_USER}"
@@ -206,11 +266,11 @@ zbujb_workload_home() {
       case "${BURN_PLATFORM}" in
         bubep_linux) echo "/home/${z_wlu}" ;;
         bubep_mac)   echo "/Users/${z_wlu}" ;;
-        *)           buc_die "zbujb_workload_home: unsupported platform '${BURN_PLATFORM}'" ;;
+        *)           return 1 ;;
       esac
       ;;
     c|w) echo "/home/${z_wlu}" ;;
-    *)   buc_die "zbujb_workload_home: invalid letter '${z_letter}'" ;;
+    *)   return 1 ;;
   esac
 }
 
@@ -266,7 +326,8 @@ zbujb_garrison_step2_destroy() {
   local z_letter="${1:-}"
   local z_wlu="${BURC_WORKLOAD_USER}"
   local z_wlhome
-  z_wlhome=$(zbujb_workload_home "${z_letter}")
+  z_wlhome=$(zbujb_workload_home_capture "${z_letter}") \
+    || buc_die "step2: workload home unresolvable for letter='${z_letter}' platform='${BURN_PLATFORM}'"
   buc_step "  [2/6] Destroy workload (${z_wlu})"
 
   case "${z_letter}" in
@@ -351,27 +412,38 @@ zbujb_garrison_step4_place_trust() {
   local z_letter="${1:-}"
   local z_wlu="${BURC_WORKLOAD_USER}"
   local z_wlhome
-  z_wlhome=$(zbujb_workload_home "${z_letter}")
+  z_wlhome=$(zbujb_workload_home_capture "${z_letter}") \
+    || buc_die "step4: workload home unresolvable for letter='${z_letter}' platform='${BURN_PLATFORM}'"
   buc_step "  [4/6] Place workload trust (${z_wlhome}/.ssh/authorized_keys)"
 
   local z_command_directive
-  z_command_directive=$(bujb_command_for "${z_letter}")
+  z_command_directive=$(bujb_command_for_capture "${z_letter}") \
+    || buc_die "step4: bujb_command_for_capture failed for letter='${z_letter}'"
 
+  ssh-keygen -y -P '' -f "${BURP_WORKLOAD_KEY_FILE}" \
+      > "${ZBUJB_PUBKEY_STDOUT_WORK}" \
+      2> "${ZBUJB_PUBKEY_STDERR_WORK}" \
+    || buc_die "ssh-keygen -y failed for workload key: ${BURP_WORKLOAD_KEY_FILE} — see ${ZBUJB_PUBKEY_STDERR_WORK}"
   local z_pubkey
-  z_pubkey=$(ssh-keygen -y -P '' -f "${BURP_WORKLOAD_KEY_FILE}") \
-    || buc_die "ssh-keygen -y failed for workload key: ${BURP_WORKLOAD_KEY_FILE}"
+  z_pubkey=$(<"${ZBUJB_PUBKEY_STDOUT_WORK}")
+  z_pubkey="${z_pubkey//$'\n'/}"
 
   local z_authkeys_line="${z_command_directive} ${z_pubkey}"
+
+  # Precompute sudo prefix locally (bash parameter expansion, no $()) so the
+  # heredoc lines don't carry inline `$([ ... ] && echo "sudo -n ")` calls.
+  local z_sudo_prefix=""
+  test "${z_letter}" = "b" && z_sudo_prefix="sudo -n "
 
   case "${z_letter}" in
     b|w)
       zbujb_admin_exec "${z_letter}" <<SCRIPT
 set -euo pipefail
-$([ "${z_letter}" = "b" ] && echo "sudo -n ")mkdir -p   '${z_wlhome}/.ssh'
-$([ "${z_letter}" = "b" ] && echo "sudo -n ")chmod 700  '${z_wlhome}/.ssh'
-echo '${z_authkeys_line}' | $([ "${z_letter}" = "b" ] && echo "sudo -n ")tee '${z_wlhome}/.ssh/authorized_keys' > /dev/null
-$([ "${z_letter}" = "b" ] && echo "sudo -n ")chmod 600  '${z_wlhome}/.ssh/authorized_keys'
-$([ "${z_letter}" = "b" ] && echo "sudo -n ")chown -R '${z_wlu}:${z_wlu}' '${z_wlhome}/.ssh'
+${z_sudo_prefix}mkdir -p   '${z_wlhome}/.ssh'
+${z_sudo_prefix}chmod 700  '${z_wlhome}/.ssh'
+echo '${z_authkeys_line}' | ${z_sudo_prefix}tee '${z_wlhome}/.ssh/authorized_keys' > /dev/null
+${z_sudo_prefix}chmod 600  '${z_wlhome}/.ssh/authorized_keys'
+${z_sudo_prefix}chown -R '${z_wlu}:${z_wlu}' '${z_wlhome}/.ssh'
 SCRIPT
       ;;
     c)
@@ -396,27 +468,35 @@ zbujb_garrison_step5_plant_key() {
   local z_letter="${1:-}"
   local z_wlu="${BURC_WORKLOAD_USER}"
   local z_wlhome
-  z_wlhome=$(zbujb_workload_home "${z_letter}")
+  z_wlhome=$(zbujb_workload_home_capture "${z_letter}") \
+    || buc_die "step5: workload home unresolvable for letter='${z_letter}' platform='${BURN_PLATFORM}'"
   local z_keypath
-  z_keypath=$(bujb_workload_keypath_for "${z_letter}")
+  z_keypath=$(bujb_workload_keypath_for_capture "${z_letter}") \
+    || buc_die "step5: bujb_workload_keypath_for_capture failed for letter='${z_letter}'"
   local z_target="${z_wlhome}/${z_keypath}"
+  local z_target_dir="${z_target%/*}"  # parameter expansion replaces dirname
   buc_step "  [5/6] Plant workload privkey (${z_target})"
 
+  base64 < "${BURP_WORKLOAD_KEY_FILE}" \
+      > "${ZBUJB_KEY_B64_STDOUT}" \
+      2> "${ZBUJB_KEY_B64_STDERR}" \
+    || buc_die "base64 encode failed for workload key: ${BURP_WORKLOAD_KEY_FILE} — see ${ZBUJB_KEY_B64_STDERR}"
   local z_key_b64
-  z_key_b64=$(base64 < "${BURP_WORKLOAD_KEY_FILE}") \
-    || buc_die "base64 encode failed for workload key: ${BURP_WORKLOAD_KEY_FILE}"
+  z_key_b64=$(<"${ZBUJB_KEY_B64_STDOUT}")
+  z_key_b64="${z_key_b64//$'\n'/}"
+
+  local z_sudo_prefix=""
+  test "${z_letter}" = "b" && z_sudo_prefix="sudo -n "
 
   case "${z_letter}" in
     b|w)
-      local z_sudo=""
-      test "${z_letter}" = "b" && z_sudo="sudo -n"
       zbujb_admin_exec "${z_letter}" <<SCRIPT
 set -euo pipefail
 ztmp=\$(mktemp)
 trap 'rm -f "\${ztmp}"' EXIT
 echo '${z_key_b64}' | base64 -d > "\${ztmp}"
-${z_sudo} mkdir -p   '$(dirname "${z_target}")'
-${z_sudo} install -m 600 -o '${z_wlu}' -g '${z_wlu}' "\${ztmp}" '${z_target}'
+${z_sudo_prefix}mkdir -p   '${z_target_dir}'
+${z_sudo_prefix}install -m 600 -o '${z_wlu}' -g '${z_wlu}' "\${ztmp}" '${z_target}'
 SCRIPT
       ;;
     c)
@@ -425,7 +505,7 @@ set -euo pipefail
 ztmp=\$(mktemp)
 trap 'rm -f "\${ztmp}"' EXIT
 echo '${z_key_b64}' | base64 -d > "\${ztmp}"
-mkdir -p   '$(dirname "${z_target}")'
+mkdir -p   '${z_target_dir}'
 cp "\${ztmp}" '${z_target}'
 chmod 600  '${z_target}'
 chown      '${z_wlu}' '${z_target}'
@@ -607,9 +687,13 @@ zbujb_fenestrate_verify_directives() {
 zbujb_fenestrate_phase1() {
   zbujb_sentinel
 
-  local z_pubkey=""
-  z_pubkey=$(ssh-keygen -y -P '' -f "${BURP_PRIVILEGED_KEY_FILE}") \
-    || buc_die "ssh-keygen -y failed for admin key: ${BURP_PRIVILEGED_KEY_FILE}"
+  ssh-keygen -y -P '' -f "${BURP_PRIVILEGED_KEY_FILE}" \
+      > "${ZBUJB_PUBKEY_STDOUT_PRIV}" \
+      2> "${ZBUJB_PUBKEY_STDERR_PRIV}" \
+    || buc_die "ssh-keygen -y failed for admin key: ${BURP_PRIVILEGED_KEY_FILE} — see ${ZBUJB_PUBKEY_STDERR_PRIV}"
+  local z_pubkey
+  z_pubkey=$(<"${ZBUJB_PUBKEY_STDOUT_PRIV}")
+  z_pubkey="${z_pubkey//$'\n'/}"
 
   buc_step "  [Phase 1] Chunk A: pubkey + icacls + sshd_config + sshd -t + emit (operator may be prompted for admin password on first run)"
 
