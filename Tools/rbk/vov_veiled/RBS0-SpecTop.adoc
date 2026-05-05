@@ -2872,6 +2872,25 @@ include::RBSRR-RegimeRepo.adoc[]
 // RBRG regime eliminated (₣Av) — reliquaries replace pin-based tool image management
 // Tool images now sourced from datestamped reliquary namespace in GAR at ordain time
 
+=== Recipe Bottle GCP Constants (RBGC)
+
+Pure-literal tinder constants used in resource-name composition.
+Source-time available — no kindle ordering dependency.
+
+[[rbgc_depot_project_infix]]
+{rbgc_depot_project_infix}::
+Pure-literal infix `"d-"` placed between
+{rbrr_cloud_prefix}
+and
+{rbrr_depot_moniker}
+to materialise the depot project ID at `RBDC_DEPOT_PROJECT_ID` derivation time.
+Composition rule: `{rbrr_cloud_prefix}{rbgc_depot_project_infix}{rbrr_depot_moniker}`.
+Consumed by
+{rbtgo_depot_unmake}'s
+live-disqualify refusal step and by
+{rbtgo_depot_list}'s
+displayName discriminator.
+
 === Machine Regime (RBRM)
 
 [[rbrm_regime]]
