@@ -2,20 +2,20 @@
 {bust_node_regime_validate}
 
 NOTE: Validates a single {burn_regime} profile, identified by positional
-{burn_viceroyalty}, for required-field presence and {burn_platform} enum
+{burn_investiture}, for required-field presence and {burn_platform} enum
 conformance.
 Read-only; no remote contact.
 
 //axhopt_typed_parameter
-{burn_viceroyalty}
+{burn_investiture}
 
 //axhoq_precondition
-A {burn_regime} profile with the given {burn_viceroyalty} exists in the
+A {burn_regime} profile with the given {burn_investiture} exists in the
 local node subtree.
 
 //axhos_step
 . *Load profile*: parse the profile file for the supplied
-{burn_viceroyalty}
+{burn_investiture}
 
 //axhos_step
 . *Required fields*: confirm {burn_host} and {burn_platform} are present

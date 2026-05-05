@@ -14,13 +14,13 @@ BUS0. Architectural spine in BUS0 §Remote Node Access.
 **Two regimes (BURN, BURP):**
 
 - BURN — node-shape (host, OS family). Per-node, git-transported, changes
-  rarely. Identifier: viceroyalty.
+  rarely. Identifier: investiture.
 - BURP — privileged + workload credentials. Per-station-user. Three fields:
   `BURP_PRIVILEGED_USER`, `BURP_PRIVILEGED_KEY_FILE`,
   `BURP_WORKLOAD_KEY_FILE`. Pubkeys derived from privkeys via
   `ssh-keygen -y` at use-time; no separate pubkey paths or inline strings.
   Identifier: investiture — by construction equal to a registered
-  viceroyalty. The BURP directory name must match a BURN profile dir;
+  investiture. The BURP directory name must match a BURN profile dir;
   the 1:1 correspondence is enforced by file-presence check at load time.
 
 **BURC addition:**

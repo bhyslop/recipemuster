@@ -14,7 +14,7 @@ calling user.
 profile files
 
 //axhos_step
-. *Display roster*: print each discovered {burn_viceroyalty}
+. *Display roster*: print each discovered {burn_investiture}
 
 //axhog_guarantee
 No remote network contact occurred and no profile file was modified.

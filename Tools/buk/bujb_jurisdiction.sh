@@ -169,7 +169,7 @@ zbujb_check_key_file() {
 # Preconditions: BURC, BURN, BURP regimes already kindled and enforced
 # (the bujb_cli furnish handles this for tabtarget callers; the cli's
 # BURP and BURN sourcing also implicitly cross-validates that the
-# investiture name (BUZ_FOLIO) equals a registered viceroyalty —
+# investiture name (BUZ_FOLIO) equals a registered investiture —
 # enforcement is by file presence of the matching BURN profile).
 #
 # Behaviour: validates BURP_PRIVILEGED_KEY_FILE and BURP_WORKLOAD_KEY_FILE

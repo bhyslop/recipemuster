@@ -18,8 +18,8 @@
 #
 # BURN Regime - Bash Utility Regime Node Module
 #
-# BURN is a multi-instance regime — one file per node viceroyalty.
-# Each instance lives at .buk/rbmn_nodes/<viceroyalty>/burn.env and is
+# BURN is a multi-instance regime — one file per node investiture.
+# Each instance lives at .buk/rbmn_nodes/<investiture>/burn.env and is
 # project-global (git-tracked, shared across station users).
 
 set -euo pipefail
@@ -66,8 +66,8 @@ zburn_enforce() {
 ######################################################################
 # Public Functions (burn_*)
 
-# List available viceroyalty names as space-separated tokens.
-# Emits one <viceroyalty>.${BUF_EXT_ALIAS} observation fact per profile
+# List available investiture names as space-separated tokens.
+# Emits one <investiture>.${BUF_EXT_ALIAS} observation fact per profile
 # (empty content; presence is the fact).
 # Returns non-zero if no profiles are present.
 # Prerequisite: BURD kindled (BURD_CONFIG_DIR)
@@ -83,33 +83,33 @@ burn_list_capture() {
   for z_i in "${!z_files[@]}"; do
     test -f "${z_files[$z_i]}" || continue
     local z_dir="${z_files[$z_i]%/*}"
-    local z_viceroyalty="${z_dir##*/}"
-    buf_write_fact_multi "${z_viceroyalty}" "${BUF_EXT_ALIAS}" ""
-    z_result="${z_result}${z_result:+ }${z_viceroyalty}"
+    local z_investiture="${z_dir##*/}"
+    buf_write_fact_multi "${z_investiture}" "${BUF_EXT_ALIAS}" ""
+    z_result="${z_result}${z_result:+ }${z_investiture}"
   done
   test -n "${z_result}" || return 1
   echo "${z_result}"
 }
 
 # Friendly-error die: emit "no folio supplied" message followed by available
-# viceroyalties (or a "no profiles" hint when the directory is empty).
+# investitures (or a "no profiles" hint when the directory is empty).
 # Prerequisite: BURD kindled (BURD_CONFIG_DIR)
 burn_die_no_folio() {
   zburd_sentinel
   local z_aliases=""
   if z_aliases=$(burn_list_capture 2>/dev/null); then
-    buc_warn "BURN viceroyalty required as first argument."
-    buc_step "Available viceroyalties under .buk/${BUBC_rbmn_nodes_subdir}/:"
+    buc_warn "BURN investiture required as first argument."
+    buc_step "Available investitures under .buk/${BUBC_rbmn_nodes_subdir}/:"
     local z_v=""
     for z_v in ${z_aliases}; do
       buc_bare "        ${z_v}"
     done
   else
-    buc_warn "BURN viceroyalty required as first argument."
+    buc_warn "BURN investiture required as first argument."
     buc_step "No profiles found under .buk/${BUBC_rbmn_nodes_subdir}/."
-    buc_bare "        Author one at .buk/${BUBC_rbmn_nodes_subdir}/<viceroyalty>/burn.env"
+    buc_bare "        Author one at .buk/${BUBC_rbmn_nodes_subdir}/<investiture>/burn.env"
   fi
-  buc_die "No BURN viceroyalty supplied."
+  buc_die "No BURN investiture supplied."
 }
 
 # eof

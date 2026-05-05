@@ -218,11 +218,11 @@ zbujb_furnish() {
   zburp_kindle
   zburp_enforce
 
-  # Cross-reference: investiture name (BUZ_FOLIO) must equal a registered viceroyalty.
+  # Cross-reference: investiture name (BUZ_FOLIO) must equal a registered investiture.
   # The 1:1 constraint is enforced by file presence — the BURN profile directory
-  # name IS the viceroyalty, and it must match BUZ_FOLIO exactly.
+  # name IS the investiture, and it must match BUZ_FOLIO exactly.
   local -r z_burn_file="${BURD_CONFIG_DIR}/${BUBC_rbmn_nodes_subdir}/${BUZ_FOLIO}/burn.env"
-  test -f "${z_burn_file}" || buc_die "Investiture ${BUZ_FOLIO} has no matching viceroyalty (BURN profile not found): ${z_burn_file}"
+  test -f "${z_burn_file}" || buc_die "Investiture ${BUZ_FOLIO} has no matching investiture (BURN profile not found): ${z_burn_file}"
   source "${z_burn_file}"  || buc_die "Failed to source BURN: ${z_burn_file}"
   zburn_kindle
   zburn_enforce

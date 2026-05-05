@@ -19,7 +19,7 @@
 # BURN CLI - Command line interface for BURN node regime operations
 #
 #   burn_validate/render/list  — regime read operations
-#       validate/render require BUZ_FOLIO (the viceroyalty)
+#       validate/render require BUZ_FOLIO (the investiture)
 #       list enumerates the project-global node subtree
 
 set -euo pipefail
@@ -48,12 +48,12 @@ burn_render() {
 }
 
 burn_list() {
-  buc_doc_brief "List available BURN node viceroyalties"
+  buc_doc_brief "List available BURN node investitures"
   buc_doc_shown || return 0
 
   local z_aliases
   z_aliases=$(burn_list_capture) || buc_die "No BURN profiles under .buk/${BUBC_rbmn_nodes_subdir}/"
-  buc_step "Available viceroyalties:"
+  buc_step "Available investitures:"
   local z_alias=""
   for z_alias in ${z_aliases}; do
     buc_bare "        ${z_alias}"

@@ -2,19 +2,19 @@
 {bust_node_regime_render}
 
 NOTE: Prints the resolved field set for a single {burn_regime} profile
-identified by a positional {burn_viceroyalty} argument.
+identified by a positional {burn_investiture} argument.
 Read-only; no remote contact.
 
 //axhopt_typed_parameter
-{burn_viceroyalty}
+{burn_investiture}
 
 //axhoq_precondition
-A {burn_regime} profile with the given {burn_viceroyalty} exists in the
+A {burn_regime} profile with the given {burn_investiture} exists in the
 local node subtree.
 
 //axhos_step
 . *Locate profile*: resolve the profile file for the supplied
-{burn_viceroyalty} under the node subtree
+{burn_investiture} under the node subtree
 
 //axhos_step
 . *Resolve fields*: parse the profile and emit every defined
@@ -25,5 +25,5 @@ No remote network contact occurred and no field was modified on disk.
 
 //axhoc_completion
 Exit 0 on successful render.
-Non-zero when the {burn_viceroyalty} is not found or the profile fails
+Non-zero when the {burn_investiture} is not found or the profile fails
 to parse.

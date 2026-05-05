@@ -117,7 +117,7 @@
 :burn_platform:                    <<burn_platform,BURN_PLATFORM>>
 
 // BURN/BURP Identifier Vocabulary
-:burn_viceroyalty:                 <<burn_viceroyalty,Viceroyalty>>
+:burn_investiture:                 <<burn_investiture,Investiture>>
 :burp_investiture:                 <<burp_investiture,Investiture>>
 
 // Cross-cutting premises for BURN/BURP
@@ -949,12 +949,12 @@ Per-node configuration regime describing the shape of a remote target.
 A
 {burn_regime}
 instance is identified by its
-{burn_viceroyalty}
+{burn_investiture}
 (directory name) and is shared across station users (git-transported);
 it carries no key material and changes rarely.
 +
 {burn_regime}
-files live under `.buk/rbmn_nodes/<{burn_viceroyalty}>/burn.env`.
+files live under `.buk/rbmn_nodes/<{burn_investiture}>/burn.env`.
 +
 {burn_regime}
 is the sole home of node address-of-record per
@@ -963,7 +963,7 @@ is the sole home of node address-of-record per
 instances locate it by directory-name correspondence between
 {burp_investiture}
 and
-{burn_viceroyalty}.
+{burn_investiture}.
 
 [[burn_host]]
 //axvr_variable axd_required axtu_string
@@ -986,18 +986,18 @@ Values: `bubep_linux`, `bubep_mac`, `bubep_windows`.
 The following quoins establish the minted-name vocabulary for the
 BURN/BURP model.
 
-[[burn_viceroyalty]]
+[[burn_investiture]]
 //axl_voices axo_entity
-{burn_viceroyalty}::
+{burn_investiture}::
 The minted identifier of a
 {burn_regime}
 instance.
 {burp_regime}
 instances reference a node by its
-{burn_viceroyalty}.
+{burn_investiture}.
 +
 The
-{burn_viceroyalty}
+{burn_investiture}
 is conveyed by the directory containing the
 {burn_regime}
 assignment file;
@@ -1011,7 +1011,7 @@ Examples: `redbox`, `winbox-prod`, `hawthorne`.
 The minted identifier of a
 {burp_regime}
 instance — the operator's named grant of privileged authority over a
-{burn_viceroyalty}.
+{burn_investiture}.
 +
 The
 {burp_investiture}
@@ -1023,7 +1023,7 @@ it is not redundantly inscribed as a field within the file.
 The
 {burp_investiture}
 name is constrained to equal a registered
-{burn_viceroyalty}:
+{burn_investiture}:
 the directory name under `.buk/rbmu_users/<{burs_user}>/` MUST match a
 directory name under `.buk/rbmn_nodes/`.
 This 1:1 correspondence is enforced by file-presence check at load time;
@@ -1041,7 +1041,7 @@ carries no host data;
 its
 {burp_investiture}
 name is by construction equal to a
-{burn_viceroyalty},
+{burn_investiture},
 and that directory-name correspondence locates the node.
 A given node has exactly one address-of-record;
 credentials never re-state it.
@@ -1069,7 +1069,7 @@ Bash Utility Regime Privileged
 {burp_regime}::
 Per-station-user credential regime carrying both privileged (admin)
 and workload key references for a single
-{burn_viceroyalty}.
+{burn_investiture}.
 A
 {burp_regime}
 instance is identified by its
@@ -1084,7 +1084,7 @@ files live under
 locates its node by the directory-name equality between
 {burp_investiture}
 and
-{burn_viceroyalty},
+{burn_investiture},
 per
 {burn_host_singularity}.
 +
@@ -1529,7 +1529,7 @@ carries no shell selection.
 
 A
 {burn_regime}
-instance lives under `.buk/rbmn_nodes/<{burn_viceroyalty}>/` and is shared
+instance lives under `.buk/rbmn_nodes/<{burn_investiture}>/` and is shared
 across station users (git-transported); it carries node shape only and
 no key material.
 A
@@ -1590,14 +1590,14 @@ List all {burn_regime} profiles under `.buk/rbmn_nodes/`.
 {bust_node_regime_render}::
 `buw-rnr` —
 Render a single {burn_regime} profile
-(viceroyalty passed as positional argument).
+({burn_investiture} passed as positional argument).
 
 [[bust_node_regime_validate]]
 //axvo_tabtarget
 {bust_node_regime_validate}::
 `buw-rnv` —
 Validate a single {burn_regime} profile
-(viceroyalty passed as positional argument).
+({burn_investiture} passed as positional argument).
 
 [[bust_privilege_regime_list]]
 //axvo_tabtarget
@@ -1610,14 +1610,14 @@ List all {burp_regime} profiles for the current {burs_user}.
 {bust_privilege_regime_render}::
 `buw-rpr` —
 Render a single {burp_regime} profile
-(investiture passed as positional argument).
+({burp_investiture} passed as positional argument).
 
 [[bust_privilege_regime_validate]]
 //axvo_tabtarget
 {bust_privilege_regime_validate}::
 `buw-rpv` —
 Validate a single {burp_regime} profile
-(investiture passed as positional argument).
+({burp_investiture} passed as positional argument).
 
 ==== Fenestrate (Windows OpenSSH only)
 
