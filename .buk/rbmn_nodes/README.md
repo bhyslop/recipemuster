@@ -31,4 +31,4 @@ tt/buw-rnr.RenderNodeRegime.sh <viceroyalty>    # show resolved fields
 
 ## Companion: BURP Privileged Investitures
 
-Privileged credentials live at `.buk/rbmu_users/<user>/<investiture>/burp.env` — per-station-user, operator-authored. Each BURP investiture references a viceroyalty by `BURP_VICEROYALTY`.
+Privileged credentials live at `.buk/rbmu_users/<user>/<investiture>/burp.env` — per-station-user, operator-authored. Each BURP investiture name IS a viceroyalty name by construction; the `<investiture>` directory name must match a viceroyalty directory under `.buk/rbmn_nodes/`, enforced by file-presence check at load time.
