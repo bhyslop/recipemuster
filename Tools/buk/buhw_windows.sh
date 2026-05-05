@@ -54,74 +54,6 @@ zbuhw_sentinel() {
 ######################################################################
 # External Functions (buhw_*)
 
-buhw_access_base() {
-  zbuhw_sentinel
-
-  buc_doc_brief "Display OpenSSH server installation and lockdown procedure"
-  buc_doc_shown || return 0
-
-  buh_section  "OpenSSH Server Installation & Lockdown"
-  buh_line     "Establish Windows as a keys-only SSH endpoint."
-  buh_e
-  buh_section  "Preconditions:"
-  buh_line     "- Windows host with administrator access"
-  buh_line     "- Network reachable on TCP/${ZBUHW_SSH_PORT}"
-  buh_e
-  buh_step1    "Open Elevated PowerShell:"
-  buh_line     "Right-click Start → Terminal (Admin), or search 'PowerShell' and Run as Administrator."
-  buh_line     "All commands below run in this elevated session."
-  buh_e
-  buh_step1    "Install OpenSSH Server:"
-  buh_line     "This downloads from Windows Update — may take 10+ minutes."
-  buh_code     "Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0"
-  buh_e
-  buh_step1    "Enable OpenSSH Server:"
-  buh_code     "Start-Service sshd"
-  buh_code     "Set-Service -Name sshd -StartupType Automatic"
-  buh_e
-  buh_step1    "Allow Port ${ZBUHW_SSH_PORT} Through Firewall:"
-  buh_code     "New-NetFirewallRule -Name ${ZBUHW_FW_RULE_NAME} -DisplayName \"${ZBUHW_FW_DISPLAY_NAME}\" -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort ${ZBUHW_SSH_PORT}"
-  buh_e
-  buh_step1    "Configure sshd_config:"
-  buyy_cmd_yawp "${ZBUHW_SSHD_CONFIG}"; local -r z_sshd_config_yelp="${z_buym_yelp}"
-  buh_line     "File: ${z_sshd_config_yelp}"
-  buh_line     "This file is SYSTEM-owned. Edit a temp copy, then replace."
-  buh_e
-  buh_step2    "Copy to editable location:"
-  buh_code     "Copy-Item ${ZBUHW_SSHD_CONFIG} \$env:TEMP\\sshd_config"
-  buh_e
-  buh_step2    "Edit the copy:"
-  buh_code     "notepad \$env:TEMP\\sshd_config"
-  buh_line     "Set these directives (add if not present):"
-  buh_code     "PasswordAuthentication no"
-  buh_code     "PubkeyAuthentication yes"
-  buh_code     "PermitEmptyPasswords no"
-  buh_line     "Do NOT add UsePAM or ChallengeResponseAuthentication — Windows OpenSSH"
-  buh_line     "rejects unrecognized directives and the service will fail to start."
-  buh_e
-  buh_step2    "Validate before applying:"
-  buh_code     "sshd -t -f \$env:TEMP\\sshd_config"
-  buh_line     "Expect: no output (silence means valid). Fix any reported errors."
-  buh_e
-  buh_step2    "Replace the original:"
-  buh_code     "Copy-Item \$env:TEMP\\sshd_config ${ZBUHW_SSHD_CONFIG} -Force"
-  buh_e
-  buh_step1    "Restart Service:"
-  buh_code     "Restart-Service sshd"
-  buh_e
-  buh_step1    "Verify:"
-  buh_line     "Discover your Windows username and IP (on the Windows machine):"
-  buh_code     "whoami"
-  buh_code     "ipconfig"
-  buh_line     "Note the username (after the backslash) and IPv4 address."
-  buh_e
-  buh_line     "From a remote machine, test SSH reachability:"
-  buh_code     "ssh <username>@<ip>"
-  buh_line     "Expect: Permission denied (publickey). This confirms sshd is running"
-  buh_line     "and password login is correctly rejected. Key setup follows in step 2."
-
-}
-
 buhw_access_remote() {
   zbuhw_sentinel
 
@@ -163,47 +95,6 @@ buhw_access_remote() {
   buh_section  "Verification:"
   buh_tt       ""  "${BUWZ_HW_VERIFY_SSH}"  ""  " ${z_alias}"
   buh_line     "Expect: connects (may not yet enter target env — routing not configured)."
-
-}
-
-buhw_access_entrypoints() {
-  zbuhw_sentinel
-
-  buc_doc_brief "Display SSH command= routing format and key permissions procedure"
-  buc_doc_shown || return 0
-
-  buh_section  "SSH Entrypoint Routing via command= Prefix"
-  buh_line     "Deterministically route SSH keys to specific environments."
-  buh_line     "Each key forces a single environment — no interactive shell selection."
-  buh_e
-  buh_section  "Preconditions:"
-  buh_line     "- OpenSSH server installed (access-base complete)"
-  buh_line     "- Public keys available from access-remote"
-  buh_e
-  buh_step1    "Edit Administrators Authorized Keys:"
-  buyy_cmd_yawp "${ZBUHW_ADMIN_AUTH_KEYS}"; local -r z_admin_auth_keys_yelp="${z_buym_yelp}"
-  buh_line     "File: ${z_admin_auth_keys_yelp}"
-  buh_line     "Add one line per environment, prefixed with command= directive:"
-  buh_e
-  buh_code     "command=\"${ZBUHW_CYGWIN_BASH} -l\" ssh-ed25519 AAAA... cygwin"
-  buh_code     "command=\"wsl.exe -d DISTRO\"        ssh-ed25519 BBBB... wsl"
-  buh_code     "command=\"powershell.exe\"            ssh-ed25519 CCCC... windows"
-  buh_e
-  buyy_ui_yawp "DISTRO"; local -r z_distro_placeholder_yelp="${z_buym_yelp}"
-  buh_line     "Replace ${z_distro_placeholder_yelp} with your WSL distribution name."
-  buyy_ui_yawp "AAAA.../BBBB.../CCCC..."; local -r z_key_placeholders_yelp="${z_buym_yelp}"
-  buh_line     "Replace ${z_key_placeholders_yelp} with actual public key content."
-  buh_e
-  buh_step1    "Set File Permissions:"
-  buh_line     "Run in an elevated PowerShell:"
-  buh_code     "icacls \"${ZBUHW_ADMIN_AUTH_KEYS}\" /inheritance:r"
-  buh_code     "icacls \"${ZBUHW_ADMIN_AUTH_KEYS}\" /grant \"Administrators:F\""
-  buh_e
-  buh_section  "Verification:"
-  buh_line     "Test each key lands in the correct environment:"
-  buh_code     "ssh -i key-cygwin host   # lands in Cygwin bash"
-  buh_code     "ssh -i key-wsl host      # lands in WSL"
-  buh_code     "ssh -i key-win host      # lands in PowerShell"
 
 }
 
@@ -312,9 +203,7 @@ buhw_top() {
   buh_tt       "  Install BURN key:       " "${BUWZ_RN_INSTALL_KEY}" "" " <alias>"
   buh_e
   buh_section  "Handbook Procedures (manual steps):"
-  buh_tt       "  OpenSSH server install:                " "${BUWZ_HW_ACCESS_BASE}"
   buh_tt       "  SSH client key generation:             " "${BUWZ_HW_ACCESS_REMOTE}"
-  buh_tt       "  SSH entrypoint routing (command=):     " "${BUWZ_HW_ACCESS_ENTRY}"
   buh_e
   buh_section  "Environment Procedures:"
   buh_tt       "  WSL distribution setup:                " "${BUWZ_HW_ENV_WSL}"

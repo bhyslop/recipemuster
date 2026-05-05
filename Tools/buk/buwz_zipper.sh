@@ -85,9 +85,7 @@ zbuwz_kindle() {
   z_mod="buhw_cli.sh"
   buz_enroll BUWZ_H0_TOP            "buw-h0"    "${z_mod}" "buhw_handbook_top"        ""        "BUK top-level handbook index"
   buz_enroll BUWZ_HW_TOP            "buw-hw"    "${z_mod}" "buhw_top"                ""        "BUK-level Windows procedures checklist"
-  buz_enroll BUWZ_HW_ACCESS_BASE    "buw-HWab"  "${z_mod}" "buhw_access_base"        ""        "OpenSSH server install + lockdown"
   buz_enroll BUWZ_HW_ACCESS_REMOTE  "buw-HWar"  "${z_mod}" "buhw_access_remote"      ""        "Client key generation"
-  buz_enroll BUWZ_HW_ACCESS_ENTRY   "buw-HWax"  "${z_mod}" "buhw_access_entrypoints" ""        "SSH command= routing + icacls"
   buz_enroll BUWZ_HW_ENV_WSL        "buw-HWew"  "${z_mod}" "buhw_environment_wsl"    "param1"  "WSL distro creation"
   buz_enroll BUWZ_HW_ENV_CYGWIN     "buw-HWec"  "${z_mod}" "buhw_environment_cygwin" ""        "Cygwin install"
 
