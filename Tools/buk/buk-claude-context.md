@@ -55,6 +55,35 @@ The working directory persists between Bash tool calls. A single `cd` corrupts A
 
 **There is no safe cd.** Do not reason that "I'll cd back" — the next tool call may be yours or another Claude Code session's, and it will break.
 
+## TabTarget Invocation Discipline
+
+**Never wrap tabtarget invocations with `tee`, `tail`, `head`, `grep`, `2>&1`, or any other pipe — NO exceptions.**
+
+Tabtargets self-log to `../logs-buk/`:
+- `last.txt` — most recent invocation across all tabtargets
+- `same-{cmd}.txt` — most recent invocation of this specific tabtarget
+- `hist-{cmd}-{timestamp}.txt` — historical invocations
+
+Both stdout and stderr are captured. Adding your own `tee` or `2>&1` duplicates work the tool already did. The real hazard is piping a tabtarget into `tail`/`head`/`grep`: zsh defaults `pipefail` OFF, so the pipeline returns the last command's exit status — usually 0. **A failing test reports as success.**
+
+- Run the tabtarget directly, then read from `../logs-buk/` in a separate command
+- Environment variables before the command are fine: `BURE_CONFIRM=skip ./tt/foo.sh`
+- If you genuinely must pipe live output (rare — usually you can read the log instead), set `-o pipefail` on the same line, or check `${PIPESTATUS[0]}` (bash) / `${pipestatus[1]}` (zsh)
+
+```
+# Wrong — exit code is from `tail`, not the tabtarget; failures masked
+./tt/rbw-tP.QualifyPristine.sh 2>&1 | tee /tmp/log | tail -80
+
+# Wrong — even a bare `| head` discards the real signal
+./tt/rbtd-s.TestSuite.fast.sh | head -50
+
+# Right — separate commands; exit code preserved
+./tt/rbw-tP.QualifyPristine.sh
+tail -80 ../logs-buk/last.txt
+```
+
+**There is no safe `tee | tail`.** Do not reason "I'll just truncate the output for readability" — the truncation and the exit-code-eating are inseparable. Truncate by reading the log file afterward.
+
 ## Test Execution Discipline
 
 Run test fixture tabtargets **sequentially, never in parallel**. Test fixtures share regime state and container/network namespaces — parallel execution causes resource conflicts and false failures.
