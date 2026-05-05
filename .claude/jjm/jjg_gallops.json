@@ -210,6 +210,13 @@
         "₢A-AAE": {
           "tacks": [
             {
+              "ts": "260505-1218",
+              "state": "abandoned",
+              "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\nUser runs existing JJK fundus provisioning inside the WSL distro:\n- `jjw-tfP1.ProvisionPhase1.sh` (sudo, inside WSL) — create `jjfu_*` accounts\n- `jjw-tfP2.ProvisionPhase2.cerebro.sh` — clone repos, install BUK\n\nNo new code expected — this validates that the existing `jjfp_fundus.sh`\nworks unchanged inside WSL on Windows. If issues arise (platform\ndetection, path differences, SSH localhost behavior in WSL), agent\namends `jjfp_fundus.sh` or documents WSL-specific caveats.",
+              "silks": "practice-fundus-provisioning",
+              "commit": "c6aa577"
+            },
+            {
               "ts": "260505-1135",
               "state": "rough",
               "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\nUser runs existing JJK fundus provisioning inside the WSL distro:\n- `jjw-tfP1.ProvisionPhase1.sh` (sudo, inside WSL) — create `jjfu_*` accounts\n- `jjw-tfP2.ProvisionPhase2.cerebro.sh` — clone repos, install BUK\n\nNo new code expected — this validates that the existing `jjfp_fundus.sh`\nworks unchanged inside WSL on Windows. If issues arise (platform\ndetection, path differences, SSH localhost behavior in WSL), agent\namends `jjfp_fundus.sh` or documents WSL-specific caveats.",
