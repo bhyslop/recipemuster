@@ -72,6 +72,14 @@ pub(crate) const RBTDRP_THROWAWAY_RUNTIME_PREFIX: &str = "prlr-";
 /// suffix per family.
 const RBTDRP_FAMILY_STEM_ARC: &str = "pristl";
 
+/// Placeholder moniker installed by tear_down before invoking rbw-dU. With the
+/// throwaway moniker still in rbrr.env, RBDC composes to the throwaway's own
+/// project_id and rbgp_depot_unmake's live-disqualify guard refuses the call
+/// (rbgp_Payor.sh:948-952). Rotating to a value outside the family stem makes
+/// RBDC compose to a different value so the guard lets the unmake through.
+/// Marshal-zero is the recovery between runs and blanks the field anyway.
+const RBTDRP_TEAR_DOWN_PLACEHOLDER_MONIKER: &str = "torndown";
+
 /// Static identities for the SA cycle case. The invest colophons compose
 /// SA account names as `<role>-<identity>`; these are stable across runs
 /// because each run uses a fresh throwaway depot project.
@@ -1084,21 +1092,12 @@ fn rbtdrp_depot_live_disqualify_impl(
 // ── Case 5: depot tear-down ──────────────────────────────────
 
 /// Case 5 — depot tear-down. Pre-condition: depot exists from case 2. Reads
-/// moniker from rbrr.env, unmakes the depot (BURE_CONFIRM=skip), re-lists,
-/// and verifies the depot is absent or in DELETE_REQUESTED state via
-/// fact-file content read (no stdout-grep).
-//
-// CLUE: BBAA9 changed `rbgp_depot_unmake` to require a depot project ID
-// folio (channel=param1; folio arrives via BUZ_FOLIO, NOT $1 — buz_exec_lookup
-// extracts $1 into BUZ_FOLIO and removes it from $@). The current call below
-// passes &[] (empty args), which now hits the empty-arg refusal branch
-// (rbgp_Payor.sh:941-946). The natural fix — passing the composed project_id
-// as $1 — additionally trips the live-disqualify guard (rbgp_Payor.sh:948-
-// 952) since the throwaway depot IS the live RBRR-selected target at this
-// point. Recovery per the live-disqualify diagnostic: rename
-// RBRR_DEPOT_MONIKER (or run rbw-MZ) before invoking unmake. Operator
-// designs the proper tear-down shape via the live-GCP exercise; until then
-// this case fails at the empty-arg refusal under StateProgressing fail-fast.
+/// moniker from rbrr.env, composes the throwaway's project_id from it,
+/// rotates RBRR_DEPOT_MONIKER to a placeholder so rbgp_depot_unmake's
+/// live-disqualify guard lets the unmake through, invokes rbw-dU with the
+/// captured project_id (BURE_CONFIRM=skip), re-lists, and verifies the
+/// depot is absent or in DELETE_REQUESTED state via fact-file content read
+/// (no stdout-grep).
 fn rbtdrp_depot_tear_down(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrp_depot_tear_down_impl(ctx, dir))
 }
@@ -1124,10 +1123,16 @@ fn rbtdrp_depot_tear_down_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_V
     };
     let _ = std::fs::write(dir.join("project-id.txt"), &project_id);
 
+    if let Err(e) =
+        rbtdrp_install_depot_moniker(&root, RBTDRP_TEAR_DOWN_PLACEHOLDER_MONIKER)
+    {
+        return rbtdre_Verdict::Fail(format!("rotate moniker before unmake: {}", e));
+    }
+
     let unmake = match rbtdrp_invoke_logged(
         ctx,
         RBTDRM_COLOPHON_DEPOT_UNMAKE,
-        &[],
+        &[&project_id],
         &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
         dir,
         "unmake",
