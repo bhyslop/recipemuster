@@ -168,8 +168,9 @@ zbujb_check_key_file() {
 #
 # Preconditions: BURC, BURN, BURP regimes already kindled and enforced
 # (the bujb_cli furnish handles this for tabtarget callers; the cli's
-# BURP and BURN sourcing also implicitly cross-validates that
-# BURP_VICEROYALTY refers to a registered BURN profile by file presence).
+# BURP and BURN sourcing also implicitly cross-validates that the
+# investiture name (BUZ_FOLIO) equals a registered viceroyalty —
+# enforcement is by file presence of the matching BURN profile).
 #
 # Behaviour: validates BURP_PRIVILEGED_KEY_FILE and BURP_WORKLOAD_KEY_FILE
 # (exist, mode 0600, ssh-keygen -y dry-load proves parseable + unencrypted) —
@@ -312,7 +313,7 @@ zbujb_garrison_step1_admin_open() {
   if test "${z_exit}" -ne 0; then
     case "${BURN_PLATFORM}" in
       bubep_windows)
-        buc_die "Admin SSH failed (exit ${z_exit}). Run fenestrate first: tt/buw-jpF.Fenestrate.sh ${BURP_VICEROYALTY}"
+        buc_die "Admin SSH failed (exit ${z_exit}). Run fenestrate first: tt/buw-jpF.Fenestrate.sh ${BUZ_FOLIO}"
         ;;
       *)
         buc_die "Admin SSH failed (exit ${z_exit}). Place admin pubkey via 'ssh-copy-id -i ${BURP_PRIVILEGED_KEY_FILE}.pub ${BURP_PRIVILEGED_USER}@${BURN_HOST}' first."
@@ -546,7 +547,7 @@ bujb_garrison() {
   local z_letter="${1:-}"
   zbujb_garrison_assert_platform "${z_letter}"
 
-  buc_step "Garrison-${z_letter}: ${BURP_VICEROYALTY} (${BURN_HOST})"
+  buc_step "Garrison-${z_letter}: ${BUZ_FOLIO} (${BURN_HOST})"
 
   zbujb_garrison_step1_admin_open    "${z_letter}"
   zbujb_garrison_step2_destroy       "${z_letter}"
@@ -805,7 +806,7 @@ bujb_fenestrate() {
 
   zbujb_fenestrate_assert_platform
 
-  buc_step "Fenestrate: ${BURP_VICEROYALTY} (${BURN_HOST})"
+  buc_step "Fenestrate: ${BUZ_FOLIO} (${BURN_HOST})"
 
   zbujb_fenestrate_phase1
   zbujb_fenestrate_phase2

@@ -18,7 +18,7 @@ local station-user subtree.
 {burp_investiture}
 
 //axhos_step
-. *Required fields*: confirm {burp_node}, {burp_privileged_user},
+. *Required fields*: confirm {burp_privileged_user},
 {burp_privileged_key_file}, and {burp_workload_key_file} are present
 
 //axhos_step

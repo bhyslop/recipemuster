@@ -41,7 +41,6 @@ bujb_resolve() {
   bujb_resolve_investiture
 
   buc_step "Resolved investiture ${BUZ_FOLIO}:"
-  buc_bare "  BURP_VICEROYALTY        = ${BURP_VICEROYALTY}"
   buc_bare "  BURN_HOST               = ${BURN_HOST}"
   buc_bare "  BURN_PLATFORM           = ${BURN_PLATFORM}"
   buc_bare "  BURP_PRIVILEGED_USER    = ${BURP_PRIVILEGED_USER}"
@@ -59,7 +58,7 @@ bujb_knock() {
 
   bujb_resolve_investiture
 
-  buc_step "Knocking ${BURC_WORKLOAD_USER}@${BURN_HOST} (${BURP_VICEROYALTY})"
+  buc_step "Knocking ${BURC_WORKLOAD_USER}@${BURN_HOST} (${BUZ_FOLIO})"
 
   ssh -i "${BURP_WORKLOAD_KEY_FILE}"     \
       -o IdentitiesOnly=yes                       \
@@ -68,7 +67,7 @@ bujb_knock() {
       -o ConnectTimeout=10                        \
       "${BURC_WORKLOAD_USER}@${BURN_HOST}" \
       true                                        \
-    || buc_die "Knock failed for ${BURP_VICEROYALTY}"
+    || buc_die "Knock failed for ${BUZ_FOLIO}"
 
   buc_step "Knock succeeded"
 }
@@ -165,7 +164,7 @@ bujb_interactive_session() {
 
   bujb_resolve_investiture
 
-  buc_step "Opening interactive session: ${BURC_WORKLOAD_USER}@${BURN_HOST} (${BURP_VICEROYALTY})"
+  buc_step "Opening interactive session: ${BURC_WORKLOAD_USER}@${BURN_HOST} (${BUZ_FOLIO})"
 
   exec ssh -t                                     \
       -i "${BURP_WORKLOAD_KEY_FILE}"     \
@@ -219,9 +218,11 @@ zbujb_furnish() {
   zburp_kindle
   zburp_enforce
 
-  # Cross-reference: BURP_VICEROYALTY must resolve to a registered BURN profile.
-  local -r z_burn_file="${BURD_CONFIG_DIR}/${BUBC_rbmn_nodes_subdir}/${BURP_VICEROYALTY}/burn.env"
-  test -f "${z_burn_file}" || buc_die "BURN profile referenced by BURP_VICEROYALTY=${BURP_VICEROYALTY} not found: ${z_burn_file}"
+  # Cross-reference: investiture name (BUZ_FOLIO) must equal a registered viceroyalty.
+  # The 1:1 constraint is enforced by file presence — the BURN profile directory
+  # name IS the viceroyalty, and it must match BUZ_FOLIO exactly.
+  local -r z_burn_file="${BURD_CONFIG_DIR}/${BUBC_rbmn_nodes_subdir}/${BUZ_FOLIO}/burn.env"
+  test -f "${z_burn_file}" || buc_die "Investiture ${BUZ_FOLIO} has no matching viceroyalty (BURN profile not found): ${z_burn_file}"
   source "${z_burn_file}"  || buc_die "Failed to source BURN: ${z_burn_file}"
   zburn_kindle
   zburn_enforce

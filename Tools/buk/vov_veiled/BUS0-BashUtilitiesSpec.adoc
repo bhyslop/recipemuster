@@ -130,7 +130,6 @@
 
 // BURP Regime: Privileged + Workload Credentials (per-station-user)
 :burp_regime:                      <<burp_regime,BURP Regime>>
-:burp_viceroyalty:                 <<burp_viceroyalty,BURP_VICEROYALTY>>
 :burp_privileged_user:             <<burp_privileged_user,BURP_PRIVILEGED_USER>>
 :burp_privileged_key_file:         <<burp_privileged_key_file,BURP_PRIVILEGED_KEY_FILE>>
 :burp_workload_key_file:           <<burp_workload_key_file,BURP_WORKLOAD_KEY_FILE>>
@@ -961,8 +960,10 @@ files live under `.buk/rbmn_nodes/<{burn_viceroyalty}>/burn.env`.
 is the sole home of node address-of-record per
 {burn_host_singularity};
 {burp_regime}
-instances reference it via
-{burp_viceroyalty}.
+instances locate it by directory-name correspondence between
+{burp_investiture}
+and
+{burn_viceroyalty}.
 
 [[burn_host]]
 //axvr_variable axd_required axtu_string
@@ -1019,7 +1020,16 @@ is conveyed by the directory containing the
 assignment file;
 it is not redundantly inscribed as a field within the file.
 +
-Examples: `redbox-bhyslop-admin`, `winbox-prod-alice-admin`.
+The
+{burp_investiture}
+name is constrained to equal a registered
+{burn_viceroyalty}:
+the directory name under `.buk/rbmu_users/<{burs_user}>/` MUST match a
+directory name under `.buk/rbmn_nodes/`.
+This 1:1 correspondence is enforced by file-presence check at load time;
+no field carries the cross-reference.
++
+Examples: `redbox`, `winbox-prod`, `hawthorne`.
 
 [[burn_host_singularity]]
 //axl_voices axk_premise
@@ -1027,9 +1037,12 @@ Examples: `redbox-bhyslop-admin`, `winbox-prod-alice-admin`.
 The host of a node lives only in
 {burn_regime}.
 {burp_regime}
-instances reach the host by reference (via
-{burp_viceroyalty})
-and never duplicate it.
+carries no host data;
+its
+{burp_investiture}
+name is by construction equal to a
+{burn_viceroyalty},
+and that directory-name correspondence locates the node.
 A given node has exactly one address-of-record;
 credentials never re-state it.
 
@@ -1068,8 +1081,10 @@ files live under
 `.buk/rbmu_users/<{burs_user}>/<{burp_investiture}>/burp.env`.
 +
 {burp_regime}
-references its node by
-{burp_viceroyalty}
+locates its node by the directory-name equality between
+{burp_investiture}
+and
+{burn_viceroyalty},
 per
 {burn_host_singularity}.
 +
@@ -1078,16 +1093,6 @@ neither the privileged nor the workload pubkey is stored in
 {burp_regime}.
 Encrypted (passphrase-protected) private keys are not supported because
 `ssh-keygen -y` would prompt interactively and hang the ceremony.
-
-[[burp_viceroyalty]]
-//axvr_variable axd_required axtu_xname
-{burp_viceroyalty}::
-Reference to a
-{burn_viceroyalty}
-— the node this investiture is granted over.
-Resolves to the
-{burn_regime}
-file at the directory bearing this name.
 
 [[burp_privileged_user]]
 //axvr_variable axd_required axtu_string

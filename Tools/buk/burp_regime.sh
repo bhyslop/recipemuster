@@ -36,9 +36,6 @@ zburp_kindle() {
 
   buv_regime_enroll BURP
 
-  buv_group_enroll "Node Reference"
-  buv_xname_enroll   BURP_VICEROYALTY          1   64  "Viceroyalty referenced by this investiture (BURN directory name)"
-
   buv_group_enroll "Privileged Credentials"
   buv_string_enroll  BURP_PRIVILEGED_USER      1   64  "Remote admin OS user this investiture authenticates as"
   buv_string_enroll  BURP_PRIVILEGED_KEY_FILE  1  512  "Path to the operator-managed SSH private key authorized as the privileged user"
