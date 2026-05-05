@@ -41,6 +41,7 @@
         "₢A-AAn",
         "₢A-AAD",
         "₢A-AAr",
+        "₢A-AAs",
         "₢A-AAE",
         "₢A-AAF",
         "₢A-AAk",
@@ -76,7 +77,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "next_pace_seed": "AAs",
+      "next_pace_seed": "AAt",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -1101,6 +1102,17 @@
               "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\nOperator runs jurisdiction ceremonies on the Windows host (post-AAD environment install, pre-AAE fundus):\n- `buw-jpF` — Fenestrate Windows OpenSSH (admin trust + sshd harden)\n- `buw-jpGc` — Garrison Cygwin shell-letter\n- `buw-jpGw` — Garrison WSL shell-letter\n\nEach garrison's step 6 knock proves byte-exact privkey transport end-to-end through `bujb_jurisdiction.sh` step 5 — incidentally validates the BBAA_ base64→openssl substitution that the AAm-era docket marked as covered by live ceremony.\n\nAgent amends `bujb_jurisdiction.sh`, handbook prose (`buw-hj0`), and error diagnostics for issues surfaced.\n\nGoal: admin trust established on Windows OpenSSH; Cygwin and WSL workload accounts garrisoned; AAE fundus provisioning has working SSH into the WSL workload.\n\nOperator prerequisites per BUS0 standing notes (Windows OpenSSH installed and password-auth temporarily enabled, workload pubkey pre-registered with GitHub out-of-band, investiture key files in place 0600 unencrypted).",
               "silks": "practice-jurisdiction-windows",
               "commit": "63610a5"
+            }
+          ]
+        },
+        "₢A-AAs": {
+          "tacks": [
+            {
+              "ts": "260505-1224",
+              "state": "rough",
+              "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\n\nCygwin path verification — alternate access path on the same Windows\nhost, sequenced after AAr's WSL path lands.\n\nOperator (Windows host): install Cygwin POSIX userland with the\nOpenSSH package per vendor docs. Cygwin sshd hardening is\noperator-manual per paddock standing note (fenestrate covers Windows\nOpenSSH only).\n\nCuria-side: run `buw-jpGc` to garrison the Cygwin shell-letter.\nGarrison-Cygwin's step 6 knock proves byte-exact privkey transport\nend-to-end through Cygwin sshd.\n\nAgent amends `bujb_jurisdiction.sh`, handbook prose, or error\ndiagnostics for Cygwin-specific friction.\n\nGoal: Cygwin workload account reachable via SSH on the same Windows\nhost; b/c/w shell-letter support proven for c (in addition to AAr's\nw).",
+              "silks": "practice-cygwin-path",
+              "commit": "d011809"
             }
           ]
         }
