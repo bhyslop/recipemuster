@@ -34,6 +34,7 @@
       "creation_time": "260412",
       "status": "racing",
       "order": [
+        "₢A-AAv",
         "₢A-AAp",
         "₢A-AAl",
         "₢A-AAo",
@@ -79,7 +80,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "next_pace_seed": "AAv",
+      "next_pace_seed": "AAw",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -1172,6 +1173,17 @@
               "text": "## Character\nDesign refactor with mechanical fan-out — one shape call (path collapse), prose/spec/code follow-on.\n\n## Docket\n\nCollapse BURP from multi-instance (per investiture) to singleton (per station-user × viceroyalty). The investiture identifier was unused multiplicity — one operator never needs multiple admin handles to the same node.\n\n**Locked decisions:**\n- New BURP path: `.buk/rbmu_users/<BURS_USER>/<viceroyalty>/burp.env`\n- `BURP_VICEROYALTY` field drops (path-derived)\n- \"Investiture\" vocabulary retires from BUS0 / paddock / handbook prose\n- Folio on every jurisdiction tabtarget (`buw-jpF`, `buw-jpG[bcw]`, `buw-jw[kcs]`, `buw-rp[lrv]`) becomes *viceroyalty*\n- `buw-rpl` lists viceroyalties for which the station-user has credentials (strict subset of `buw-rnl`)\n\n**Scope (scan-confirmed):**\n- BUK: `burp_regime.sh`, `burp_cli.sh`, `bujb_jurisdiction.sh`, `buhj_jurisdiction.sh`, `buwz_zipper.sh`\n- BUS0 family: BUS0 + BUSJ* (Fenestrate, Garrisons, Workload verbs) + BUSTP* (BURP list/render/validate)\n- RBK Windows handbook: `Tools/rbk/rbh0/rbhw0_top.sh`\n- Paddock vocabulary + standing notes\n\nNo JJK consumers (scanned — legatio works on viceroyalty already).\n\n**Out of scope:** Authoring concrete BURP profile values (that's AAt's job once this lands); future re-introduction of investiture if multi-credential-per-(user,node) ever becomes real.\n\n**Done:** `grep -i 'investitur\\|BURP_VICEROYALTY' Tools/ tt/` returns empty; `bash -n` + `tt/buw-st` + `tt/rbtd-s.TestSuite.fast.sh` green at AAn baseline; jurisdiction tabtargets and Windows handbooks (`tt/rbw-hw`, `tt/buw-hj0`) render cleanly with viceroyalty.",
               "silks": "collapse-investiture-into-viceroyalty",
               "commit": "63435c9"
+            }
+          ]
+        },
+        "₢A-AAv": {
+          "tacks": [
+            {
+              "ts": "260506-1153",
+              "state": "rough",
+              "text": "## Character\nCode amendment with curia-side verification.\n\n## Docket\n\nCorrect the `w` shell-letter so the workload identity is mirrored\nacross two namespaces on Windows hosts: a Windows user (via `net.exe\nuser /add`) for the SSH auth boundary, and a Linux user inside\n`rbtww-main` (via `useradd`) for the WSL execution context. Same\nWindows-user shape as Cygwin's `c` branch, plus the WSL-side\n`useradd`. Authorized_keys lives Windows-side (Windows OpenSSH\ndiscovers it natively); workload privkey for outbound stays inside\nWSL at `/home/${BURC_WORKLOAD_USER}/.ssh/id_ed25519`.\n\nChanges in `bujb_jurisdiction.sh`:\n\n- `BUJB_command_w`: add `--user ${BURC_WORKLOAD_USER}` to the\n  wsl.exe forced command so the session lands as the WSL Linux user\n  rather than the distro's default user.\n- Step 2 (destroy) `w` branch: prepend `net.exe user delete` before\n  the WSL-side `userdel`. Both purges idempotent.\n- Step 3 (create) `w` branch: prepend `net.exe user /add /passwordreq\n  :no /active:yes` before `useradd`. Mirrors c-branch shape.\n- Step 4 (place trust) `w` branch: write authorized_keys to the\n  Windows-side home — `c` branch is the structural reference. Forced\n  command is the wsl.exe shim from `BUJB_command_w`.\n- Step 5 (plant privkey) `w` branch: unchanged. Privkey lives at\n  `/home/${BURC_WORKLOAD_USER}/.ssh/id_ed25519` inside WSL so the\n  Linux session reads it natively for outbound to GitHub.\n- Pre-flight: prepend a step (or extend step 1) that runs `wsl.exe\n  --list --verbose` via admin SSH and asserts a distribution named\n  `${BUJB_wsl_distribution}` exists. On absence, surface a BUK\n  diagnostic naming the constant and pointing at the WSL install\n  procedure — replaces opaque Microsoft `wsl.exe` failures.\n\nBUSJGW spec updated to describe the mirrored-identity architecture\n(Windows-user auth boundary + WSL-user execution context).\n\nSequencing: lands first in the Practice run so the operator's WSL\ninstall (next pace) is followed by a working garrison-WSL ceremony.\nPre-flight is verifiable against the current state of bujn-winpc\n(no `rbtww-main` yet) — exercises the diagnostic deliberately\nbefore any operator install action.\n\nDone when:\n- `bash -n` green on `bujb_jurisdiction.sh`\n- `tt/buw-st.BukSelfTest.sh` green\n- `tt/rbtd-s.TestSuite.fast.sh` green at baseline (no regression)\n- Pre-flight diagnostic surfaces the absent-distro condition cleanly\n  when run against bujn-winpc before WSL install",
+              "silks": "correct-wsl-user-model",
+              "commit": "357a9b1"
             }
           ]
         }
