@@ -36,6 +36,7 @@
       "order": [
         "₢A-AAw",
         "₢A-AAv",
+        "₢A-AAx",
         "₢A-AAp",
         "₢A-AAl",
         "₢A-AAo",
@@ -81,7 +82,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "next_pace_seed": "AAx",
+      "next_pace_seed": "AAy",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -1238,6 +1239,17 @@
               "text": "## Character\nCode amendment with curia-side verification.\n\n## Docket\n\nAdd `buw-jpS` privileged-SSH tabtarget — thin admin-side pipe that\nruns an arbitrary command as `BURP_PRIVILEGED_USER` on a BURN node.\nChannel: param1 = investiture; remaining args joined as the remote\ncommand. Pass-through — no shell wrapping; operator prepends\n`powershell -Command`, `bash -c`, etc. as needed for the platform.\n\nScope: any BURN that has a local BURP profile (Linux/Mac/Windows\nalike). Linux/Mac admin trust comes from operator-managed\n`ssh-copy-id`; Windows admin trust comes from fenestrate. The\ntabtarget itself does not assert platform — the privileged-key auth\npath handles success/failure uniformly.\n\nDrop \"interactive if no extra args\" from the earlier sketch — require\n≥1 command arg; die with a usage diagnostic on missing command.\nInteractive variant deferred to real need.\n\nCode shape:\n\n- New public function `bujb_privileged_ssh COMMAND...` in\n  `bujb_jurisdiction.sh`. Uses `BURP_PRIVILEGED_KEY_FILE`,\n  `IdentitiesOnly=yes`, `BatchMode=yes`, key-only auth — no password\n  fallback. No shell wrapping.\n- New CLI command in `bujb_cli.sh` with appropriate furnish (BURC +\n  BURN + BURP regimes kindled, `bujb_resolve_investiture` called for\n  privkey validation per existing pattern).\n- New tabtarget `tt/buw-jpS.PrivilegedSsh.sh` enrolled in\n  `buz_zipper.sh`. Channel: param1.\n\nBUS0 update:\n\n- New §BUSJPS section parallel to BUSJPF, describing the privileged-\n  SSH verb with: any-BURN scope, param1+args channel, pass-through\n  shell semantics, no persistent state change (ephemeral exec).\n- Mapping section gains the new tabtarget entry.\n\nDownstream consumer (next pace, AAv): pre-flight diagnostic emits\ncopy-paste hints in the form `tt/buw-jpS <investiture> 'wsl --install\n…'`. AAv depends on this pace landing first.\n\nDone when:\n\n- `bash -n` green on `bujb_jurisdiction.sh`, `bujb_cli.sh`\n- `tt/buw-st.BukSelfTest.sh` green\n- `tt/rbtd-s.TestSuite.fast.sh` green at baseline (no regression)\n- BUSJPS section present in BUS0; mapping section updated\n- Curia-side smoke: `tt/buw-jpS <investiture> 'whoami'` returns the\n  expected privileged user name on at least one platform reachable\n  from the test station",
               "silks": "add-privileged-ssh-tabtarget",
               "commit": "4705f36"
+            }
+          ]
+        },
+        "₢A-AAx": {
+          "tacks": [
+            {
+              "ts": "260506-1217",
+              "state": "rough",
+              "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\n\nEnd-to-end Windows jurisdiction ceremony on bujn-winpc — exercises\nthe AAw + AAv work in one continuous operator sitting. Curia-driven\nvia `tt/buw-jpS` for privileged install steps; garrison ceremonies\nrun via the standard tabtargets. Agent stands by to amend\n`bujb_jurisdiction.sh` diagnostics, handbook prose, or error messages\non any friction.\n\nSequence:\n\n1. `tt/buw-jpGw bujn-winpc` — AAv pre-flight fires (`rbtww-main`\n   absent), emits copy-paste `tt/buw-jpS` install hints.\n2. Operator runs the emitted `tt/buw-jpS` lines from the curia. WSL\n   kernel + `rbtww-main` distribution provisioned, set as default.\n3. `tt/buw-jpGw bujn-winpc` — pre-flight passes; mirrored-identity\n   ceremony lands; step 6 knock validates byte-exact privkey\n   transport (incidentally covers the BBAA_ base64→openssl\n   substitution that the AAm-era docket marked as covered by live\n   ceremony). Optional: `tt/buw-jws bujn-winpc` to interactively\n   confirm the workload session lands inside `rbtww-main` as the\n   WSL Linux user.\n4. Operator installs Cygwin POSIX userland with the OpenSSH package\n   per vendor docs. Cygwin sshd hardening is operator-manual per\n   paddock standing note. RB encodes no Cygwin install detail.\n5. `tt/buw-jpGc bujn-winpc` — Cygwin workload ceremony lands; step 6\n   knock validates the Cygwin path. Note: garrison-c overwrites the\n   workload `authorized_keys` forced command from the wsl.exe shim\n   to the cygwin64 shim — workload now routes via Cygwin until\n   re-garrisoned with `w`. Optional: `tt/buw-jws bujn-winpc` to\n   confirm.\n\nOperator prerequisites per BUS0 standing notes: workload pubkey\npre-registered with GitHub out-of-band, `BURP_WORKLOAD_KEY_FILE`\n0600 unencrypted, fenestrate already landed via AAt.\n\nMid-ceremony stall: if Cygwin install hits intractable vendor\nfriction, operator can wrap with WSL coverage landed and defer\nCygwin to a follow-on pace. Agent does not auto-split.\n\nDeferred (out-of-scope, named for follow-on): Docker Desktop WSL\nintegration enable + `docker run --rm hello-world` from the workload\nsession inside `rbtww-main`. The bare workload-reach validation via\n`tt/buw-jws` is the load-bearing test for this pace; Docker\nverification follows release-1 docker integration scoping.\n\nGoal: both WSL and Cygwin shell-letter paths exercised end-to-end\nagainst bujn-winpc; mirrored-identity model and Cygwin model both\nvalidated against live Windows OpenSSH.",
+              "silks": "practice-windows-jurisdiction-end-to-end",
+              "commit": "ea53ab8"
             }
           ]
         }
