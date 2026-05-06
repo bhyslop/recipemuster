@@ -1147,6 +1147,13 @@
         "₢A-AAs": {
           "tacks": [
             {
+              "ts": "260506-1217",
+              "state": "abandoned",
+              "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\n\nCygwin path verification — alternate access path on the same Windows\nhost, sequenced after AAr's WSL path lands.\n\nOperator (Windows host): install Cygwin POSIX userland with the\nOpenSSH package per vendor docs. Cygwin sshd hardening is\noperator-manual per paddock standing note (fenestrate covers Windows\nOpenSSH only).\n\nCuria-side: run `buw-jpGc` to garrison the Cygwin shell-letter.\nGarrison-Cygwin's step 6 knock proves byte-exact privkey transport\nend-to-end through Cygwin sshd.\n\nAgent amends `bujb_jurisdiction.sh`, handbook prose, or error\ndiagnostics for Cygwin-specific friction.\n\nGoal: Cygwin workload account reachable via SSH on the same Windows\nhost; b/c/w shell-letter support proven for c (in addition to AAr's\nw).",
+              "silks": "practice-cygwin-path",
+              "commit": "28a0296"
+            },
+            {
               "ts": "260505-1224",
               "state": "rough",
               "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\n\nCygwin path verification — alternate access path on the same Windows\nhost, sequenced after AAr's WSL path lands.\n\nOperator (Windows host): install Cygwin POSIX userland with the\nOpenSSH package per vendor docs. Cygwin sshd hardening is\noperator-manual per paddock standing note (fenestrate covers Windows\nOpenSSH only).\n\nCuria-side: run `buw-jpGc` to garrison the Cygwin shell-letter.\nGarrison-Cygwin's step 6 knock proves byte-exact privkey transport\nend-to-end through Cygwin sshd.\n\nAgent amends `bujb_jurisdiction.sh`, handbook prose, or error\ndiagnostics for Cygwin-specific friction.\n\nGoal: Cygwin workload account reachable via SSH on the same Windows\nhost; b/c/w shell-letter support proven for c (in addition to AAr's\nw).",
