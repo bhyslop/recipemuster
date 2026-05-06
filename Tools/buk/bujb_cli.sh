@@ -125,6 +125,20 @@ bujb_fenestrate_command() {
   bujb_fenestrate
 }
 
+# bujb_privileged_ssh_command - run an arbitrary command as BURP_PRIVILEGED_USER.
+# Pass-through: argv joined into ssh's remote-command position; no shell wrapping.
+bujb_privileged_ssh_command() {
+  buc_doc_brief "Privileged SSH — run a command on a node as BURP_PRIVILEGED_USER"
+  buc_doc_param "command..." "Command tokens executed on the remote node (pass-through)"
+  buc_doc_shown || return 0
+
+  test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
+  test $# -ge 1            || buc_usage_die
+
+  bujb_resolve_investiture
+  bujb_privileged_ssh "$@"
+}
+
 # bujb_garrison_bash - garrison ceremony, native bash workload shell (Linux/Mac).
 bujb_garrison_bash() {
   buc_doc_brief "Garrison workload account on a bubep_linux/bubep_mac node (shell-letter b)"
@@ -191,6 +205,10 @@ zbujb_furnish() {
   source "${BURD_BUK_DIR}/burn_regime.sh"
   source "${BURD_BUK_DIR}/burp_regime.sh"
   source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
+  source "${BURD_BUK_DIR}/buym_yelp.sh"
+  source "${BURD_BUK_DIR}/buh_handbook.sh"
+  source "${BURD_BUK_DIR}/buz_zipper.sh"
+  source "${BURD_BUK_DIR}/buwz_zipper.sh"
   source "${BURD_BUK_DIR}/bujb_jurisdiction.sh"
 
   zbuv_kindle
@@ -208,6 +226,8 @@ zbujb_furnish() {
   zburs_enforce
 
   zbupr_kindle
+  zbuz_kindle
+  zbuwz_kindle
   zbujb_kindle
 
   test -n "${BUZ_FOLIO:-}" || burp_die_no_folio

@@ -92,8 +92,12 @@ burp_list_capture() {
 }
 
 # Friendly-error die: emit "no folio supplied" message followed by available
-# investitures (or a "no profiles" hint when the directory is empty).
-# Prerequisite: BURS kindled (BURS_USER), BURD kindled (BURD_CONFIG_DIR)
+# investitures (or a "no profiles" hint when the directory is empty), then
+# always advise the BURN-side roster tabtarget (BUWZ_RN_LIST) as the canonical
+# source of investiture names.
+# Prerequisite: BURS kindled (BURS_USER), BURD kindled (BURD_CONFIG_DIR);
+# buym_yelp.sh and buh_handbook.sh sourced; buwz_zipper.sh kindled (for
+# BUWZ_RN_LIST and the yawp/buh_line path).
 burp_die_no_folio() {
   zburs_sentinel
   local z_aliases=""
@@ -109,6 +113,8 @@ burp_die_no_folio() {
     buc_step "No profiles found under .buk/${BUBC_rbmu_users_subdir}/${BURS_USER}/."
     buc_bare "        Author one at .buk/${BUBC_rbmu_users_subdir}/${BURS_USER}/<investiture>/burp.env"
   fi
+  buyy_tt_yawp "${BUWZ_RN_LIST}";  local -r z_rnl="${z_buym_yelp}"
+  buh_line "Investiture names come from BURN — run ${z_rnl} for the registered list."
   buc_die "No BURP investiture supplied."
 }
 

@@ -32,6 +32,16 @@ A small team can stand up a hardened build pipeline and a sandboxed runtime with
 [Recipe Bottle](#RecipeBottle) is organized around two independent capabilities: the [Foundry](#Foundry) builds container images with verifiable [provenance](#Provenance), and the [Crucible](#Crucible) runs untrusted images with enforced network isolation.
 The two compose but neither requires the other.
 
+### Supported Platforms
+
+[Recipe Bottle's](#RecipeBottle) [Crucible](#Crucible) runtime is qualified for release-1 against **Docker** as the container runtime, on three host families:
+
+- **Linux host** — native Docker Engine (Docker CE / `docker.io`) running directly on the host kernel; no VM. Tested on Ubuntu LTS with cgroup v2 and a 6.x kernel.
+- **Windows host** — Docker Desktop for Windows with the WSL2 backend, and per-distro WSL integration enabled for the Recipe Bottle WSL distribution. Single-daemon model: Docker Desktop's daemon serves all shells (Windows, Cygwin, WSL) via the default Docker context.
+- **macOS host** — Docker Desktop for Mac on a supported macOS release. Apple Silicon hosts use the Apple Virtualization framework or Docker VMM hypervisor backend.
+
+Podman support is architecturally accommodated by the spec but deferred — see §Future Work.
+
 <a id="Regime"></a>All configuration flows through [Regimes](#Regime) — structured `.env` files with typed validation, each with its own render and validate commands.
 Some regimes are committed in the repo: [Vessel](#Vessel) definitions ([RBRV](#RBRV)), [Nameplate](#Nameplate) configurations ([RBRN](#RBRN)), [Depot](#Depot) identity ([RBRR](#RBRR)), and [Payor](#Payor) identity ([RBRP](#RBRP)).
 Others live on the filesystem outside revision control: OAuth credentials ([RBRO](#RBRO)), role credentials ([RBRA](#RBRA)), and developer workstation paths ([BURS](#BURS)).

@@ -43,6 +43,7 @@
 
 // Jurisdiction Tabtargets
 :bust_fenestrate:                  <<bust_fenestrate,Fenestrate>>
+:bust_privileged_ssh:              <<bust_privileged_ssh,Privileged SSH>>
 :bust_garrison_bash:               <<bust_garrison_bash,Garrison Bash>>
 :bust_garrison_cygwin:             <<bust_garrison_cygwin,Garrison Cygwin>>
 :bust_garrison_wsl:                <<bust_garrison_wsl,Garrison WSL>>
@@ -1584,8 +1585,8 @@ operator manages sshd directly.
 
 === Tabtarget Catalog
 
-Fourteen tabtargets cover regime configuration, fenestrate, garrison
-ceremony, and workload dispatch.
+Fifteen tabtargets cover regime configuration, fenestrate, privileged
+SSH, garrison ceremony, and workload dispatch.
 PowerShell garrison and dispatch are deferred and not enumerated below.
 
 ==== Regime Configuration
@@ -1639,6 +1640,24 @@ Validate a single {burp_regime} profile
 {busn_fenestrate} ceremony: hardens admin SSH trust and `sshd_config`
 on a Windows OpenSSH node (uniform; no shell-letter variant).
 Capital `F` marks this as a persistent-config-application tabtarget.
+
+==== Privileged SSH
+
+[[bust_privileged_ssh]]
+//axvo_tabtarget
+{bust_privileged_ssh}::
+`buw-jpS` —
+Thin admin-side pass-through that runs an arbitrary command on a
+node as {burp_privileged_user} under key-only auth.
+Pass-through: argv after the {burp_investiture} is handed to ssh
+as the remote command without shell wrapping; the operator
+prepends `powershell -Command`, `bash -c`, or whatever the
+target platform requires.
+Scope spans every {burn_platform} — Linux/Mac admin trust comes
+from operator-managed `ssh-copy-id`, Windows admin trust from
+{busn_fenestrate}.
+Capital `S` marks the admin-side scope (privileged user) and
+distinguishes it from `buw-jws` (workload interactive session).
 
 ==== Garrison (per shell-letter)
 
@@ -1808,6 +1827,8 @@ include::BUSTPR-PrivilegeRegimeRender.adoc[]
 include::BUSTPV-PrivilegeRegimeValidate.adoc[]
 
 include::BUSJPF-Fenestrate.adoc[]
+
+include::BUSJPS-PrivilegedSsh.adoc[]
 
 include::BUSJGB-GarrisonBash.adoc[]
 

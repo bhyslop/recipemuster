@@ -34,6 +34,10 @@
       "creation_time": "260412",
       "status": "racing",
       "order": [
+        "₢A-AAw",
+        "₢A-AAv",
+        "₢A-AAq",
+        "₢A-AAx",
         "₢A-AAp",
         "₢A-AAl",
         "₢A-AAo",
@@ -69,8 +73,6 @@
         "₢A-AAf",
         "₢A-AAY",
         "₢A-AAZ",
-        "₢A-AAe",
-        "₢A-AAq",
         "₢A-AAa",
         "₢A-AAc",
         "₢A-AAb",
@@ -79,7 +81,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "next_pace_seed": "AAv",
+      "next_pace_seed": "AAy",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -194,6 +196,20 @@
         },
         "₢A-AAD": {
           "tacks": [
+            {
+              "ts": "260506-1216",
+              "state": "abandoned",
+              "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\n\nOperator runs the privileged-SSH install lines that AAv's pre-flight\ndiagnostic emits — one or two `tt/buw-jpS <investiture> '…'`\ninvocations covering the WSL kernel/distribution install and\nset-default.\n\nExact MS install incantation lives in the diagnostic message in\n`bujb_jurisdiction.sh` (one place to update when MS rotates the\n`wsl --install` CLI surface). Per AAn's ruthless-delete posture,\nvendor install detail is not duplicated in `rbw-hw` prose; the\nload-bearing constant `rbtww-main` is all RB encodes.\n\nVerify: re-run `tt/buw-jpGw <investiture>` after install — the\npre-flight should now pass and the garrison-w ceremony proceeds to\nprovisioning.\n\nCygwin install is deferred to the follow-on Cygwin path pace.\n\nAgent amends the `bujb_jurisdiction.sh` diagnostic message and\n`rbw-hw` Phase 3 prose if friction surfaces (e.g., MS CLI flag\nrotation, target distro flavor unavailable on this Windows version,\ndistro-name collision with an existing operator distribution).\n\nGoal: WSL distro `rbtww-main` functional and set as default on the\nWindows BURN node; AAv pre-flight passes against the now-installed\nstate; ready for downstream AAr Garrison-WSL ceremony.",
+              "silks": "practice-environment-procedures",
+              "commit": "56a0fc4"
+            },
+            {
+              "ts": "260506-1211",
+              "state": "rough",
+              "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\n\nOperator runs the privileged-SSH install lines that AAv's pre-flight\ndiagnostic emits — one or two `tt/buw-jpS <investiture> '…'`\ninvocations covering the WSL kernel/distribution install and\nset-default.\n\nExact MS install incantation lives in the diagnostic message in\n`bujb_jurisdiction.sh` (one place to update when MS rotates the\n`wsl --install` CLI surface). Per AAn's ruthless-delete posture,\nvendor install detail is not duplicated in `rbw-hw` prose; the\nload-bearing constant `rbtww-main` is all RB encodes.\n\nVerify: re-run `tt/buw-jpGw <investiture>` after install — the\npre-flight should now pass and the garrison-w ceremony proceeds to\nprovisioning.\n\nCygwin install is deferred to the follow-on Cygwin path pace.\n\nAgent amends the `bujb_jurisdiction.sh` diagnostic message and\n`rbw-hw` Phase 3 prose if friction surfaces (e.g., MS CLI flag\nrotation, target distro flavor unavailable on this Windows version,\ndistro-name collision with an existing operator distribution).\n\nGoal: WSL distro `rbtww-main` functional and set as default on the\nWindows BURN node; AAv pre-flight passes against the now-installed\nstate; ready for downstream AAr Garrison-WSL ceremony.",
+              "silks": "practice-environment-procedures",
+              "commit": "eb2d72f"
+            },
             {
               "ts": "260505-1224",
               "state": "rough",
@@ -778,17 +794,6 @@
             }
           ]
         },
-        "₢A-AAe": {
-          "tacks": [
-            {
-              "ts": "260429-1721",
-              "state": "rough",
-              "text": "## Character\nInvestigation. Reproduction is known and reliable; root cause not classified.\n\n## Docket\nJJK localhost fundus scenario tests fail 6/8 in parallel and pass 8/8 sequentially.\n\nReproduce on curia at this commit or later (fundus at same commit):\n\n- Fails 6/8: `cargo test --manifest-path Tools/jjk/vov_veiled/Cargo.toml --test jjtlg_fundus_scenario localhost::`\n- Passes 8/8: append `-- --test-threads=1`\n\nFailure pins in `zjjtlg_preflight_happy` (`Tools/jjk/vov_veiled/tests/jjtlg_fundus_scenario.rs`). The preflight SSH's `jjfu_full@localhost` and runs BUK tabtarget `buw-rcr.RenderConfigRegime.sh`; under concurrent SSH load this returns exit 1, while the same command run manually one-at-a-time returns exit 0. The contended path is BUK dispatch (writable state in logs / last-pointer / temp), not JJK — `buw-rcr` is BUK-side and unrelated to the BURH→BURN rename in AAW.\n\nPre-existing vs regression is not classified. First mount step: A/B against parent commit `44014598` (the BUF_EXT_ALIAS fix, before AAW). If parallel still fails 6/8 there, it's a pre-existing BUK parallelism bug; if it passes, bisect inside AAV/AAW. Then either fix the BUK contention or document `--test-threads=1` as mandatory for the JJK fundus scenario in JJSTF.",
-              "silks": "diagnose-localhost-fundus-parallel-saturation",
-              "commit": "6aaf821"
-            }
-          ]
-        },
         "₢A-AAf": {
           "tacks": [
             {
@@ -1081,6 +1086,13 @@
         "₢A-AAq": {
           "tacks": [
             {
+              "ts": "260506-1228",
+              "state": "rough",
+              "text": "## Character\n\nCleanup. Mechanical BCG conformance fixes on `Tools/buk/bujb*.sh`.\n\n## Docket\n\nSweep BCG drift across `bujb_cli.sh` and `bujb_jurisdiction.sh`. Scope\nis the bujb-prefixed module pair; do not sweep further siblings.\n\nThree classes of drift to address (verify in each file):\n\n1. **Output filenames as kindle constants.** `stdout.log`,\n   `stderr.log`, `exitcode` in `bujb_cli.sh`, and any analogous\n   bare-literal filename writes against `BURD_OUTPUT_DIR` or\n   `BURD_TEMP_DIR` not yet promoted. BCG Template 3 prescribes\n   kindle constants for fixed paths. Promote to `ZBUJB_OUTPUT_*` /\n   `ZBUJB_TEMP_*` in `zbujb_kindle()` and update call sites.\n\n2. **Unguarded write.** Any write/redirect missing the `|| buc_die`\n   guard per the no-silent-failures discipline (e.g., `echo\n   \"${z_exit}\" > .../exitcode`). Check both files.\n\n3. **Public command function entry shape.** Public `bujb_*`\n   functions must call `zbujb_sentinel` as their first line.\n   `bujb_jurisdiction.sh`'s public functions already conform; the\n   CLI commands in `bujb_cli.sh` (`bujb_resolve`, `bujb_knock`,\n   `bujb_command_file`, `bujb_interactive_session`) plus any new\n   public entries introduced by prior paces (`bujb_privileged_ssh`-\n   shaped) need the call.\n\nAlso: `local -r` pass on assigned-once locals across the pair.\n\nDone when:\n- `bash -n` green on both files\n- `tt/buw-st.BukSelfTest.sh` green\n- `tt/rbtd-s.TestSuite.fast.sh` green at baseline (no regression)",
+              "silks": "bcg-repair-bujb-cli",
+              "commit": "f6b094d"
+            },
+            {
               "ts": "260504-1601",
               "state": "rough",
               "text": "## Character\n\nCleanup. Mechanical BCG conformance fixes on `Tools/buk/bujb_cli.sh`.\n\n## Docket\n\nThree classes of BCG drift in `bujb_cli.sh`, surfaced during review of\nthe L3 commit that landed `bujb_command_file`. Scope is this single\nfile; do not sweep siblings.\n\n1. **Output filenames as kindle constants.** `stdout.log`, `stderr.log`,\n   `exitcode` are written as bare literals against `BURD_OUTPUT_DIR`.\n   BCG Template 3 prescribes kindle constants for fixed paths under\n   `BURD_OUTPUT_DIR` (see the `Z«PREFIX»_OUTPUT_RESULT` example).\n   Promote the three to `ZBUJB_OUTPUT_*` in `zbujb_kindle()` and\n   update all call sites (the two ssh redirections, the exitcode\n   write, and the `buc_die` message that references the stderr path).\n\n2. **Unguarded write.** The `echo \"${z_exit}\" > .../exitcode` line\n   has no `|| buc_die` per the no-silent-failures discipline that\n   neighbouring code in this same file follows.\n\n3. **Public command function entry shape.** The four public functions\n   in this CLI (`bujb_resolve`, `bujb_knock`, `bujb_command_file`,\n   `bujb_interactive_session`) skip the `zbujb_sentinel` first-line\n   that BCG's boilerplate table mandates. Add the call. Do not audit\n   sibling CLIs.\n\nAlso: `local -r` pass on assigned-once locals in this file\n(`z_command_file` is the obvious one).\n\nDone when:\n- `bash -n Tools/buk/bujb_cli.sh` green\n- `tt/buw-st.BukSelfTest.sh` green",
@@ -1091,6 +1103,20 @@
         },
         "₢A-AAr": {
           "tacks": [
+            {
+              "ts": "260506-1216",
+              "state": "abandoned",
+              "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\n\nGarrison-WSL exercise on the Windows host. Prerequisites: AAt\nfenestrate-windows admin trust landed; AAv mirrored-identity model\n(Windows user + WSL user) and pre-flight check landed; AAD WSL\ninstall with `rbtww-main` set as default landed.\n\nCuria-side: run `buw-jpGw <investiture>`. AAv's pre-flight asserts\n`rbtww-main` is present before any provisioning starts; steps 2-3\ndestroy/create the workload identity in both namespaces (Windows\nuser via `net.exe` + WSL Linux user via `useradd`); step 4 writes\nWindows-side authorized_keys with the wsl.exe shim forced command;\nstep 5 plants the workload privkey inside WSL at\n`/home/${BURC_WORKLOAD_USER}/.ssh/id_ed25519`; step 6 knock proves\nbyte-exact privkey transport end-to-end — incidentally validates\nthe BBAA_ base64→openssl substitution that the AAm-era docket marked\nas covered by live ceremony.\n\nAgent amends `bujb_jurisdiction.sh`, handbook prose (`buw-hj0`), and\nerror diagnostics for any issues surfaced during the live run.\n\nGoal: WSL workload account garrisoned with mirrored identity (Windows\nauth boundary + WSL Linux execution context), reachable via the\nworkload-side ssh path through the wsl.exe shim, session lands as\nthe WSL Linux user.\n\nOperator prerequisites per BUS0 standing notes (workload pubkey\npre-registered with GitHub out-of-band, `BURP_WORKLOAD_KEY_FILE`\nin place 0600 unencrypted).\n\nCygwin garrison (`buw-jpGc`) deferred to AAs.",
+              "silks": "practice-jurisdiction-windows",
+              "commit": "28bc9e4"
+            },
+            {
+              "ts": "260506-1156",
+              "state": "rough",
+              "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\n\nGarrison-WSL exercise on the Windows host. Prerequisites: AAt\nfenestrate-windows admin trust landed; AAv mirrored-identity model\n(Windows user + WSL user) and pre-flight check landed; AAD WSL\ninstall with `rbtww-main` set as default landed.\n\nCuria-side: run `buw-jpGw <investiture>`. AAv's pre-flight asserts\n`rbtww-main` is present before any provisioning starts; steps 2-3\ndestroy/create the workload identity in both namespaces (Windows\nuser via `net.exe` + WSL Linux user via `useradd`); step 4 writes\nWindows-side authorized_keys with the wsl.exe shim forced command;\nstep 5 plants the workload privkey inside WSL at\n`/home/${BURC_WORKLOAD_USER}/.ssh/id_ed25519`; step 6 knock proves\nbyte-exact privkey transport end-to-end — incidentally validates\nthe BBAA_ base64→openssl substitution that the AAm-era docket marked\nas covered by live ceremony.\n\nAgent amends `bujb_jurisdiction.sh`, handbook prose (`buw-hj0`), and\nerror diagnostics for any issues surfaced during the live run.\n\nGoal: WSL workload account garrisoned with mirrored identity (Windows\nauth boundary + WSL Linux execution context), reachable via the\nworkload-side ssh path through the wsl.exe shim, session lands as\nthe WSL Linux user.\n\nOperator prerequisites per BUS0 standing notes (workload pubkey\npre-registered with GitHub out-of-band, `BURP_WORKLOAD_KEY_FILE`\nin place 0600 unencrypted).\n\nCygwin garrison (`buw-jpGc`) deferred to AAs.",
+              "silks": "practice-jurisdiction-windows",
+              "commit": "f6c9c02"
+            },
             {
               "ts": "260505-1232",
               "state": "rough",
@@ -1117,6 +1143,13 @@
         "₢A-AAs": {
           "tacks": [
             {
+              "ts": "260506-1217",
+              "state": "abandoned",
+              "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\n\nCygwin path verification — alternate access path on the same Windows\nhost, sequenced after AAr's WSL path lands.\n\nOperator (Windows host): install Cygwin POSIX userland with the\nOpenSSH package per vendor docs. Cygwin sshd hardening is\noperator-manual per paddock standing note (fenestrate covers Windows\nOpenSSH only).\n\nCuria-side: run `buw-jpGc` to garrison the Cygwin shell-letter.\nGarrison-Cygwin's step 6 knock proves byte-exact privkey transport\nend-to-end through Cygwin sshd.\n\nAgent amends `bujb_jurisdiction.sh`, handbook prose, or error\ndiagnostics for Cygwin-specific friction.\n\nGoal: Cygwin workload account reachable via SSH on the same Windows\nhost; b/c/w shell-letter support proven for c (in addition to AAr's\nw).",
+              "silks": "practice-cygwin-path",
+              "commit": "28a0296"
+            },
+            {
               "ts": "260505-1224",
               "state": "rough",
               "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\n\nCygwin path verification — alternate access path on the same Windows\nhost, sequenced after AAr's WSL path lands.\n\nOperator (Windows host): install Cygwin POSIX userland with the\nOpenSSH package per vendor docs. Cygwin sshd hardening is\noperator-manual per paddock standing note (fenestrate covers Windows\nOpenSSH only).\n\nCuria-side: run `buw-jpGc` to garrison the Cygwin shell-letter.\nGarrison-Cygwin's step 6 knock proves byte-exact privkey transport\nend-to-end through Cygwin sshd.\n\nAgent amends `bujb_jurisdiction.sh`, handbook prose, or error\ndiagnostics for Cygwin-specific friction.\n\nGoal: Cygwin workload account reachable via SSH on the same Windows\nhost; b/c/w shell-letter support proven for c (in addition to AAr's\nw).",
@@ -1127,6 +1160,13 @@
         },
         "₢A-AAt": {
           "tacks": [
+            {
+              "ts": "260506-1052",
+              "state": "complete",
+              "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\n\nFirst-time Fenestrate exercise on the Windows host. Sequenced ahead\nof AAD (WSL install) since Fenestrate has no WSL dependency — it\ntouches only Windows OpenSSH (sshd_config harden + admin pubkey to\n`administrators_authorized_keys`).\n\nCuria-side: run `buw-jpF <investiture>` against the Windows host.\nFirst-run path falls through to /dev/tty for the operator to type the\nadmin password once; subsequent runs key-auth automatically. Phase 1\nplaces admin pubkey, locks `administrators_authorized_keys` ACLs,\nhardens `sshd_config`, and restarts sshd. Phase 2 reconnects by key\nalone and verifies post-state.\n\nAgent amends `bujb_jurisdiction.sh` (fenestrate flow), error\ndiagnostics, or handbook prose (`buw-hj0`) for Windows-OpenSSH-only\nfriction surfaced.\n\nGoal: admin trust established by key alone on the Windows host;\n`sshd_config` hardened (`PasswordAuthentication no`,\n`PubkeyAuthentication yes`, `PermitEmptyPasswords no`); reconnect-by-\nkey verification green.\n\nOperator prerequisites per BUS0 standing notes (Windows OpenSSH\ninstalled, password-auth temporarily enabled, firewall port allowed,\nknown admin password set, `BURP_PRIVILEGED_KEY_FILE` in place 0600\nunencrypted).",
+              "silks": "practice-fenestrate-windows",
+              "commit": "701e2e0"
+            },
             {
               "ts": "260505-1232",
               "state": "rough",
@@ -1165,6 +1205,53 @@
               "text": "## Character\nDesign refactor with mechanical fan-out — one shape call (path collapse), prose/spec/code follow-on.\n\n## Docket\n\nCollapse BURP from multi-instance (per investiture) to singleton (per station-user × viceroyalty). The investiture identifier was unused multiplicity — one operator never needs multiple admin handles to the same node.\n\n**Locked decisions:**\n- New BURP path: `.buk/rbmu_users/<BURS_USER>/<viceroyalty>/burp.env`\n- `BURP_VICEROYALTY` field drops (path-derived)\n- \"Investiture\" vocabulary retires from BUS0 / paddock / handbook prose\n- Folio on every jurisdiction tabtarget (`buw-jpF`, `buw-jpG[bcw]`, `buw-jw[kcs]`, `buw-rp[lrv]`) becomes *viceroyalty*\n- `buw-rpl` lists viceroyalties for which the station-user has credentials (strict subset of `buw-rnl`)\n\n**Scope (scan-confirmed):**\n- BUK: `burp_regime.sh`, `burp_cli.sh`, `bujb_jurisdiction.sh`, `buhj_jurisdiction.sh`, `buwz_zipper.sh`\n- BUS0 family: BUS0 + BUSJ* (Fenestrate, Garrisons, Workload verbs) + BUSTP* (BURP list/render/validate)\n- RBK Windows handbook: `Tools/rbk/rbh0/rbhw0_top.sh`\n- Paddock vocabulary + standing notes\n\nNo JJK consumers (scanned — legatio works on viceroyalty already).\n\n**Out of scope:** Authoring concrete BURP profile values (that's AAt's job once this lands); future re-introduction of investiture if multi-credential-per-(user,node) ever becomes real.\n\n**Done:** `grep -i 'investitur\\|BURP_VICEROYALTY' Tools/ tt/` returns empty; `bash -n` + `tt/buw-st` + `tt/rbtd-s.TestSuite.fast.sh` green at AAn baseline; jurisdiction tabtargets and Windows handbooks (`tt/rbw-hw`, `tt/buw-hj0`) render cleanly with viceroyalty.",
               "silks": "collapse-investiture-into-viceroyalty",
               "commit": "63435c9"
+            }
+          ]
+        },
+        "₢A-AAv": {
+          "tacks": [
+            {
+              "ts": "260506-1209",
+              "state": "rough",
+              "text": "## Character\nCode amendment with curia-side verification.\n\n## Docket\n\nCorrect the `w` shell-letter so the workload identity is mirrored\nacross two namespaces on Windows hosts: a Windows user (via `net.exe\nuser /add`) for the SSH auth boundary, and a Linux user inside\n`rbtww-main` (via `useradd`) for the WSL execution context. Same\nWindows-user shape as Cygwin's `c` branch, plus the WSL-side\n`useradd`. Authorized_keys lives Windows-side (Windows OpenSSH\ndiscovers it natively); workload privkey for outbound stays inside\nWSL at `/home/${BURC_WORKLOAD_USER}/.ssh/id_ed25519`.\n\nChanges in `bujb_jurisdiction.sh`:\n\n- `BUJB_command_w`: add `--user ${BURC_WORKLOAD_USER}` to the\n  wsl.exe forced command so the session lands as the WSL Linux user\n  rather than the distro's default user.\n- Step 2 (destroy) `w` branch: prepend `net.exe user delete` before\n  the WSL-side `userdel`. Both purges idempotent.\n- Step 3 (create) `w` branch: prepend `net.exe user /add /passwordreq\n  :no /active:yes` before `useradd`. Mirrors c-branch shape.\n- Step 4 (place trust) `w` branch: write authorized_keys to the\n  Windows-side home — `c` branch is the structural reference. Forced\n  command is the wsl.exe shim from `BUJB_command_w`.\n- Step 5 (plant privkey) `w` branch: unchanged. Privkey lives at\n  `/home/${BURC_WORKLOAD_USER}/.ssh/id_ed25519` inside WSL so the\n  Linux session reads it natively for outbound to GitHub.\n- Pre-flight: prepend a step (or extend step 1) that runs `wsl.exe\n  --list --verbose` via admin SSH and asserts a distribution named\n  `${BUJB_wsl_distribution}` exists. On absence, surface a BUK\n  diagnostic naming the constant and emitting copy-paste-ready\n  install lines in the `tt/buw-jpS <investiture> '…'` shape (the\n  privileged-SSH tabtarget that lands in the prior pace). Replaces\n  opaque Microsoft `wsl.exe` failures.\n\nBUSJGW spec updated to describe the mirrored-identity architecture\n(Windows-user auth boundary + WSL-user execution context).\n\nSequencing: depends on the privileged-SSH tabtarget pace landing\nfirst (the diagnostic emits `tt/buw-jpS …` hints, so the tabtarget\nmust exist). Pre-flight is verifiable against the current state of\nbujn-winpc (no `rbtww-main` yet) — exercises the diagnostic\ndeliberately before any operator install action.\n\nDone when:\n- `bash -n` green on `bujb_jurisdiction.sh`\n- `tt/buw-st.BukSelfTest.sh` green\n- `tt/rbtd-s.TestSuite.fast.sh` green at baseline (no regression)\n- Pre-flight diagnostic surfaces the absent-distro condition cleanly\n  when run against bujn-winpc before WSL install, with copy-paste\n  `tt/buw-jpS` lines in the diagnostic body",
+              "silks": "correct-wsl-user-model",
+              "commit": "6326610"
+            },
+            {
+              "ts": "260506-1153",
+              "state": "rough",
+              "text": "## Character\nCode amendment with curia-side verification.\n\n## Docket\n\nCorrect the `w` shell-letter so the workload identity is mirrored\nacross two namespaces on Windows hosts: a Windows user (via `net.exe\nuser /add`) for the SSH auth boundary, and a Linux user inside\n`rbtww-main` (via `useradd`) for the WSL execution context. Same\nWindows-user shape as Cygwin's `c` branch, plus the WSL-side\n`useradd`. Authorized_keys lives Windows-side (Windows OpenSSH\ndiscovers it natively); workload privkey for outbound stays inside\nWSL at `/home/${BURC_WORKLOAD_USER}/.ssh/id_ed25519`.\n\nChanges in `bujb_jurisdiction.sh`:\n\n- `BUJB_command_w`: add `--user ${BURC_WORKLOAD_USER}` to the\n  wsl.exe forced command so the session lands as the WSL Linux user\n  rather than the distro's default user.\n- Step 2 (destroy) `w` branch: prepend `net.exe user delete` before\n  the WSL-side `userdel`. Both purges idempotent.\n- Step 3 (create) `w` branch: prepend `net.exe user /add /passwordreq\n  :no /active:yes` before `useradd`. Mirrors c-branch shape.\n- Step 4 (place trust) `w` branch: write authorized_keys to the\n  Windows-side home — `c` branch is the structural reference. Forced\n  command is the wsl.exe shim from `BUJB_command_w`.\n- Step 5 (plant privkey) `w` branch: unchanged. Privkey lives at\n  `/home/${BURC_WORKLOAD_USER}/.ssh/id_ed25519` inside WSL so the\n  Linux session reads it natively for outbound to GitHub.\n- Pre-flight: prepend a step (or extend step 1) that runs `wsl.exe\n  --list --verbose` via admin SSH and asserts a distribution named\n  `${BUJB_wsl_distribution}` exists. On absence, surface a BUK\n  diagnostic naming the constant and pointing at the WSL install\n  procedure — replaces opaque Microsoft `wsl.exe` failures.\n\nBUSJGW spec updated to describe the mirrored-identity architecture\n(Windows-user auth boundary + WSL-user execution context).\n\nSequencing: lands first in the Practice run so the operator's WSL\ninstall (next pace) is followed by a working garrison-WSL ceremony.\nPre-flight is verifiable against the current state of bujn-winpc\n(no `rbtww-main` yet) — exercises the diagnostic deliberately\nbefore any operator install action.\n\nDone when:\n- `bash -n` green on `bujb_jurisdiction.sh`\n- `tt/buw-st.BukSelfTest.sh` green\n- `tt/rbtd-s.TestSuite.fast.sh` green at baseline (no regression)\n- Pre-flight diagnostic surfaces the absent-distro condition cleanly\n  when run against bujn-winpc before WSL install",
+              "silks": "correct-wsl-user-model",
+              "commit": "357a9b1"
+            }
+          ]
+        },
+        "₢A-AAw": {
+          "tacks": [
+            {
+              "ts": "260506-1247",
+              "state": "complete",
+              "text": "## Character\nCode amendment with curia-side verification.\n\n## Docket\n\nAdd `buw-jpS` privileged-SSH tabtarget — thin admin-side pipe that\nruns an arbitrary command as `BURP_PRIVILEGED_USER` on a BURN node.\nChannel: param1 = investiture; remaining args joined as the remote\ncommand. Pass-through — no shell wrapping; operator prepends\n`powershell -Command`, `bash -c`, etc. as needed for the platform.\n\nScope: any BURN that has a local BURP profile (Linux/Mac/Windows\nalike). Linux/Mac admin trust comes from operator-managed\n`ssh-copy-id`; Windows admin trust comes from fenestrate. The\ntabtarget itself does not assert platform — the privileged-key auth\npath handles success/failure uniformly.\n\nDrop \"interactive if no extra args\" from the earlier sketch — require\n≥1 command arg; die with a usage diagnostic on missing command.\nInteractive variant deferred to real need.\n\nCode shape:\n\n- New public function `bujb_privileged_ssh COMMAND...` in\n  `bujb_jurisdiction.sh`. Uses `BURP_PRIVILEGED_KEY_FILE`,\n  `IdentitiesOnly=yes`, `BatchMode=yes`, key-only auth — no password\n  fallback. No shell wrapping.\n- New CLI command in `bujb_cli.sh` with appropriate furnish (BURC +\n  BURN + BURP regimes kindled, `bujb_resolve_investiture` called for\n  privkey validation per existing pattern).\n- New tabtarget `tt/buw-jpS.PrivilegedSsh.sh` enrolled in\n  `buz_zipper.sh`. Channel: param1.\n\nBUS0 update:\n\n- New §BUSJPS section parallel to BUSJPF, describing the privileged-\n  SSH verb with: any-BURN scope, param1+args channel, pass-through\n  shell semantics, no persistent state change (ephemeral exec).\n- Mapping section gains the new tabtarget entry.\n\nDownstream consumer (next pace, AAv): pre-flight diagnostic emits\ncopy-paste hints in the form `tt/buw-jpS <investiture> 'wsl --install\n…'`. AAv depends on this pace landing first.\n\nDone when:\n\n- `bash -n` green on `bujb_jurisdiction.sh`, `bujb_cli.sh`\n- `tt/buw-st.BukSelfTest.sh` green\n- `tt/rbtd-s.TestSuite.fast.sh` green at baseline (no regression)\n- BUSJPS section present in BUS0; mapping section updated\n- Curia-side smoke: `tt/buw-jpS <investiture> 'whoami'` returns the\n  expected privileged user name on at least one platform reachable\n  from the test station",
+              "silks": "add-privileged-ssh-tabtarget",
+              "commit": "e6bc3b1"
+            },
+            {
+              "ts": "260506-1209",
+              "state": "rough",
+              "text": "## Character\nCode amendment with curia-side verification.\n\n## Docket\n\nAdd `buw-jpS` privileged-SSH tabtarget — thin admin-side pipe that\nruns an arbitrary command as `BURP_PRIVILEGED_USER` on a BURN node.\nChannel: param1 = investiture; remaining args joined as the remote\ncommand. Pass-through — no shell wrapping; operator prepends\n`powershell -Command`, `bash -c`, etc. as needed for the platform.\n\nScope: any BURN that has a local BURP profile (Linux/Mac/Windows\nalike). Linux/Mac admin trust comes from operator-managed\n`ssh-copy-id`; Windows admin trust comes from fenestrate. The\ntabtarget itself does not assert platform — the privileged-key auth\npath handles success/failure uniformly.\n\nDrop \"interactive if no extra args\" from the earlier sketch — require\n≥1 command arg; die with a usage diagnostic on missing command.\nInteractive variant deferred to real need.\n\nCode shape:\n\n- New public function `bujb_privileged_ssh COMMAND...` in\n  `bujb_jurisdiction.sh`. Uses `BURP_PRIVILEGED_KEY_FILE`,\n  `IdentitiesOnly=yes`, `BatchMode=yes`, key-only auth — no password\n  fallback. No shell wrapping.\n- New CLI command in `bujb_cli.sh` with appropriate furnish (BURC +\n  BURN + BURP regimes kindled, `bujb_resolve_investiture` called for\n  privkey validation per existing pattern).\n- New tabtarget `tt/buw-jpS.PrivilegedSsh.sh` enrolled in\n  `buz_zipper.sh`. Channel: param1.\n\nBUS0 update:\n\n- New §BUSJPS section parallel to BUSJPF, describing the privileged-\n  SSH verb with: any-BURN scope, param1+args channel, pass-through\n  shell semantics, no persistent state change (ephemeral exec).\n- Mapping section gains the new tabtarget entry.\n\nDownstream consumer (next pace, AAv): pre-flight diagnostic emits\ncopy-paste hints in the form `tt/buw-jpS <investiture> 'wsl --install\n…'`. AAv depends on this pace landing first.\n\nDone when:\n\n- `bash -n` green on `bujb_jurisdiction.sh`, `bujb_cli.sh`\n- `tt/buw-st.BukSelfTest.sh` green\n- `tt/rbtd-s.TestSuite.fast.sh` green at baseline (no regression)\n- BUSJPS section present in BUS0; mapping section updated\n- Curia-side smoke: `tt/buw-jpS <investiture> 'whoami'` returns the\n  expected privileged user name on at least one platform reachable\n  from the test station",
+              "silks": "add-privileged-ssh-tabtarget",
+              "commit": "4705f36"
+            }
+          ]
+        },
+        "₢A-AAx": {
+          "tacks": [
+            {
+              "ts": "260506-1217",
+              "state": "rough",
+              "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\n\nEnd-to-end Windows jurisdiction ceremony on bujn-winpc — exercises\nthe AAw + AAv work in one continuous operator sitting. Curia-driven\nvia `tt/buw-jpS` for privileged install steps; garrison ceremonies\nrun via the standard tabtargets. Agent stands by to amend\n`bujb_jurisdiction.sh` diagnostics, handbook prose, or error messages\non any friction.\n\nSequence:\n\n1. `tt/buw-jpGw bujn-winpc` — AAv pre-flight fires (`rbtww-main`\n   absent), emits copy-paste `tt/buw-jpS` install hints.\n2. Operator runs the emitted `tt/buw-jpS` lines from the curia. WSL\n   kernel + `rbtww-main` distribution provisioned, set as default.\n3. `tt/buw-jpGw bujn-winpc` — pre-flight passes; mirrored-identity\n   ceremony lands; step 6 knock validates byte-exact privkey\n   transport (incidentally covers the BBAA_ base64→openssl\n   substitution that the AAm-era docket marked as covered by live\n   ceremony). Optional: `tt/buw-jws bujn-winpc` to interactively\n   confirm the workload session lands inside `rbtww-main` as the\n   WSL Linux user.\n4. Operator installs Cygwin POSIX userland with the OpenSSH package\n   per vendor docs. Cygwin sshd hardening is operator-manual per\n   paddock standing note. RB encodes no Cygwin install detail.\n5. `tt/buw-jpGc bujn-winpc` — Cygwin workload ceremony lands; step 6\n   knock validates the Cygwin path. Note: garrison-c overwrites the\n   workload `authorized_keys` forced command from the wsl.exe shim\n   to the cygwin64 shim — workload now routes via Cygwin until\n   re-garrisoned with `w`. Optional: `tt/buw-jws bujn-winpc` to\n   confirm.\n\nOperator prerequisites per BUS0 standing notes: workload pubkey\npre-registered with GitHub out-of-band, `BURP_WORKLOAD_KEY_FILE`\n0600 unencrypted, fenestrate already landed via AAt.\n\nMid-ceremony stall: if Cygwin install hits intractable vendor\nfriction, operator can wrap with WSL coverage landed and defer\nCygwin to a follow-on pace. Agent does not auto-split.\n\nDeferred (out-of-scope, named for follow-on): Docker Desktop WSL\nintegration enable + `docker run --rm hello-world` from the workload\nsession inside `rbtww-main`. The bare workload-reach validation via\n`tt/buw-jws` is the load-bearing test for this pace; Docker\nverification follows release-1 docker integration scoping.\n\nGoal: both WSL and Cygwin shell-letter paths exercised end-to-end\nagainst bujn-winpc; mirrored-identity model and Cygwin model both\nvalidated against live Windows OpenSSH.",
+              "silks": "practice-windows-jurisdiction-end-to-end",
+              "commit": "ea53ab8"
             }
           ]
         }
@@ -6682,9 +6769,10 @@
         "₢AmAAK",
         "₢AmAAL",
         "₢AmAAM",
-        "₢AmAAN"
+        "₢AmAAN",
+        "₢AmAAO"
       ],
-      "next_pace_seed": "AAO",
+      "next_pace_seed": "AAP",
       "paddock_file": ".claude/jjm/jjp_uAlm.md",
       "paces": {
         "₢AmAAA": {
@@ -6953,6 +7041,24 @@
               "text": "## Character\n\nSpook capture. JJK infrastructure stumble surfaced during a real recovery scenario; small fix with a broader audit angle.\n\n## Background\n\nDuring ₣BA creation (sibling heat to ₣A_), `jjx_transfer`'s pre-commit guard blocked because the staged `jjg_gallops.json` delta exceeded the default 100KB limit. The user authorized raising the limit, and `jjx_transfer` correctly honored `size_limit: 250000` on retry — but the retry errored \"Pace not found\" because the first attempt had already mutated gallops.json on disk (it just couldn't commit). Recovery shifted to `jjx_paddock` (set the new heat's paddock and bundle the staged restring into one commit), but `jjx_paddock` silently ignored the same `size_limit` param and blocked at its own hardcoded ~50KB guard. Operator fell back to direct `git commit` (`0c03f527`).\n\n## Defect\n\n`jjx_paddock` does not accept a `size_limit` parameter. The MCP Command Reference documents the signature as `{firemark?, note?}`, and the runtime ignores any extra field. Internal guard is hardcoded at ~50000 bytes — half the default for `jjx_transfer`. The asymmetry is the bug: when paddock is the recovery vector for a transfer's blocked commit, the limit a user just authorized cannot propagate.\n\n## Fix\n\n1. Extend `jjx_paddock` signature to accept `size_limit?` like `jjx_record`, `jjx_close`, `jjx_archive`, `jjx_transfer`.\n2. Update `Tools/jjk/vov_veiled/jjk-claude-context.md` MCP Command Reference to reflect the new param.\n3. Audit other state-mutating commands for the same omission — at minimum `jjx_create`, `jjx_alter`, `jjx_relabel`, `jjx_drop`, `jjx_reorder`, `jjx_relocate`, `jjx_redocket`, `jjx_landing`. Any command that self-commits and could plausibly batch with prior staged content should honor `size_limit`. Document the audit outcome in this pace's notch.\n\n## Verification\n\n- Reproduce a ₣BA-like scenario (synthetic large gallops delta) and confirm `jjx_paddock {firemark, size_limit: <large>}` commits cleanly.\n- CLAUDE.md doc reflects the new param.\n- Audit table of other commands posted in pace notch.\n\n## References\n\n- Officium ☉260426-1000 session captured the original failure pattern\n- Workaround commit: `0c03f527` (\"jjx: restring 6 paces A_ -> BA + install BA paddock\")\n- Spook origin: real-time recovery during ₣BA nomination + restring",
               "silks": "jjx-paddock-honor-size-limit-param",
               "commit": "0c03f52"
+            }
+          ]
+        },
+        "₢AmAAO": {
+          "tacks": [
+            {
+              "ts": "260506-1221",
+              "state": "rough",
+              "text": "Drafted from ₢A-AAe in ₣A-.\n\n## Character\nInvestigation. Reproduction is known and reliable; root cause not classified.\n\n## Docket\nJJK localhost fundus scenario tests fail 6/8 in parallel and pass 8/8 sequentially.\n\nReproduce on curia at this commit or later (fundus at same commit):\n\n- Fails 6/8: `cargo test --manifest-path Tools/jjk/vov_veiled/Cargo.toml --test jjtlg_fundus_scenario localhost::`\n- Passes 8/8: append `-- --test-threads=1`\n\nFailure pins in `zjjtlg_preflight_happy` (`Tools/jjk/vov_veiled/tests/jjtlg_fundus_scenario.rs`). The preflight SSH's `jjfu_full@localhost` and runs BUK tabtarget `buw-rcr.RenderConfigRegime.sh`; under concurrent SSH load this returns exit 1, while the same command run manually one-at-a-time returns exit 0. The contended path is BUK dispatch (writable state in logs / last-pointer / temp), not JJK — `buw-rcr` is BUK-side and unrelated to the BURH→BURN rename in AAW.\n\nPre-existing vs regression is not classified. First mount step: A/B against parent commit `44014598` (the BUF_EXT_ALIAS fix, before AAW). If parallel still fails 6/8 there, it's a pre-existing BUK parallelism bug; if it passes, bisect inside AAV/AAW. Then either fix the BUK contention or document `--test-threads=1` as mandatory for the JJK fundus scenario in JJSTF.",
+              "silks": "diagnose-localhost-fundus-parallel-saturation",
+              "commit": "c41f2eb"
+            },
+            {
+              "ts": "260429-1721",
+              "state": "rough",
+              "text": "## Character\nInvestigation. Reproduction is known and reliable; root cause not classified.\n\n## Docket\nJJK localhost fundus scenario tests fail 6/8 in parallel and pass 8/8 sequentially.\n\nReproduce on curia at this commit or later (fundus at same commit):\n\n- Fails 6/8: `cargo test --manifest-path Tools/jjk/vov_veiled/Cargo.toml --test jjtlg_fundus_scenario localhost::`\n- Passes 8/8: append `-- --test-threads=1`\n\nFailure pins in `zjjtlg_preflight_happy` (`Tools/jjk/vov_veiled/tests/jjtlg_fundus_scenario.rs`). The preflight SSH's `jjfu_full@localhost` and runs BUK tabtarget `buw-rcr.RenderConfigRegime.sh`; under concurrent SSH load this returns exit 1, while the same command run manually one-at-a-time returns exit 0. The contended path is BUK dispatch (writable state in logs / last-pointer / temp), not JJK — `buw-rcr` is BUK-side and unrelated to the BURH→BURN rename in AAW.\n\nPre-existing vs regression is not classified. First mount step: A/B against parent commit `44014598` (the BUF_EXT_ALIAS fix, before AAW). If parallel still fails 6/8 there, it's a pre-existing BUK parallelism bug; if it passes, bisect inside AAV/AAW. Then either fix the BUK contention or document `--test-threads=1` as mandatory for the JJK fundus scenario in JJSTF.",
+              "silks": "diagnose-localhost-fundus-parallel-saturation",
+              "commit": "6aaf821"
             }
           ]
         }
@@ -7437,6 +7543,7 @@
       "creation_time": "260426",
       "status": "racing",
       "order": [
+        "₢BBABC",
         "₢BBABB",
         "₢BBAA_",
         "₢BBAA-",
@@ -7500,7 +7607,7 @@
         "₢BBAA1",
         "₢BBAA5"
       ],
-      "next_pace_seed": "ABC",
+      "next_pace_seed": "ABD",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAA-": {
@@ -9036,6 +9143,17 @@
               "text": "## Character\n\nAdd BURS_TINCTURE per-station prefix to the BURS schema. Test fixtures compose it into every cloud-side name they write so parallel rbw-tP runs from different stations land in disjoint GCP projects on a shared payor manor.\n\n## Wrap criterion\n\nTest-side dual-station dry-run (two distinct BURS_TINCTURE values) shows disjoint depot project IDs, GAR repos, and SA emails before any GCP call would race. Actual parallel mac+linux validation is BBABA's job.\n\n## Scope\n\n- Enroll BURS_TINCTURE in burs_regime.sh alongside BURS_USER and BURS_LOG_DIR\n- Compose into test-fixture writes: pristine throwaway cloud/runtime prefixes, canonical family stem, any RBRR_CLOUD_PREFIX/RBRR_RUNTIME_PREFIX value the fixtures install into rbrr.env\n- Production code unchanged — it reads rbrr.env and uses whatever the test wrote\n- Update the joint-length validator (rbrr_regime.sh GCP project-ID budget) to account for the new term\n\n## Out of scope\n\n- Production-side BURS_TINCTURE consumers — test-only by intent\n- Director/Retriever identity prefixing — redundant once depots are disjoint\n- BBABA's actual parallel mac+linux execution — separate pace\n- Reslating BBABA's docket — its parallel-runs claim becomes accurate once this lands\n\n## Constraints\n\n- Test-only scope is load-bearing; production behavior unchanged\n- Default semantics for unset BURS_TINCTURE (empty vs required) decided at mount time",
               "silks": "burs-tincture-station-namespacing",
               "commit": "37f8d77"
+            }
+          ]
+        },
+        "₢BBABC": {
+          "tacks": [
+            {
+              "ts": "260506-1248",
+              "state": "rough",
+              "text": "## Character\n\nTightens charge invariant; aligns docker compose YAML with established\nquoin vocabulary; fixes pre-existing spec drift in network-name quoins.\n\n## Wrap criterion\n\nCharge refuses to start if any docker network on the host matches\n`*{nameplate}_{enclave,transit}` regardless of compose project name.\nRefusal message names each offending network plus exact cleanup\ncommands. RBS0 network-name quoins reflect current compose project\nnaming (post-ZRBOB_PROJECT fix). YAML key `default` renamed to\n`transit` in rbob_compose.yml.\n\n## Scope\n\n- `.rbk/rbob_compose.yml`: rename `default:` to `transit:` (sentry\n  service networks list + comment on line 15)\n- `RBS0`: update `at_transit_network_name` and `at_enclave_network_name`\n  definitions to reflect `${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}_*` naming;\n  update body to use `transit` for the YAML key\n- `RBSNC`, `RBSNX`: replace remaining `default` references with\n  `{at_transit_network}` quoin links\n- `RBSCC` step 3: widen scan — enumerate networks by labels\n  `com.docker.compose.network ∈ {enclave, transit}` AND\n  `com.docker.compose.project` matches `^(.*-)?{nameplate}$`,\n  refuse on any match independent of current run's project name\n- `rbob_bottle.sh:329`: implement broader scan; refusal diagnostic\n  enumerates each offending network and the remove command(s)\n\n## Locked constraints\n\n- Invariant: at most one crucible per nameplate per system\n- Detection keyed on nameplate, not RBRR_RUNTIME_PREFIX\n- Behavior change applies to all charges, not just pristine tier\n- No new vocabulary minted — uses existing `at_transit_network` quoin\n\n## Open at mount time\n\n- Whether to keep current step 2 (project-scoped compose-down) as\n  fast-path before the broader scan, or drop in favor of the scan\n- Defensive label match (require sentry/pentacle/bottle service\n  presence) to eliminate false-positive risk on `*-{nameplate}`\n  project name collisions, or accept the negligible risk\n\n## References\n\n- RBSCC step 3 — current behavior to widen\n- RBS0:2453,2561,2567 — existing quoin definitions to align\n- `.rbk/rbob_compose.yml:15,27` — YAML rename surface\n- `rbob_bottle.sh:329` — current refusal site\n- Surfaced by ₣BB pristine run on this host: pre-prefix-era residue\n  (project=tadmor, label-only) blocked tadmor charge after MZ",
+              "silks": "charge-invariant-network-scan",
+              "commit": "204a3e6"
             }
           ]
         }

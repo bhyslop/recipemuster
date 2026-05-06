@@ -2,6 +2,10 @@
 
 Windows test infrastructure for Recipe Bottle. Run RB's container isolation
 tests on a Windows host with WSL, Cygwin, and PowerShell access paths.
+Container runtime for release-1 is Docker Desktop for Windows only; the
+WSL distro `rbtww-main` consumes Docker Desktop's per-distro WSL
+integration rather than running its own dockerd. Native dockerd inside
+WSL is named in §Deferred for the shared-kernel-iptables reason.
 
 ## Current Concept
 
@@ -149,12 +153,13 @@ Phase 2 (key auth only):
   ceremonies, cleanup superseded colophons + handbook entries
 
 **Investigation (independent, runs anytime):**
-- AAe — localhost-fundus-parallel-saturation diagnosis
+- localhost-fundus-parallel-saturation diagnosis
 
 **Practice (Windows host, blocks on implementation):**
-- AAD — WSL distro + Cygwin install
-- AAE — JJK fundus inside WSL
-- AAF — Docker dual-daemon
+- WSL distribution install (`rbtww-main` set as default)
+- Garrison-WSL exercise
+- Garrison-Cygwin exercise
+- Docker Desktop WSL integration enable + verify (no native dockerd)
 
 ## Deferred (named for future return)
 
@@ -174,6 +179,15 @@ Phase 2 (key auth only):
   only. If c/w garrisons ever require their own sshd to be hardened
   programmatically (rather than operator-managed), that is a future
   fenestrate sibling.
+- **Native dockerd inside `rbtww-main`** — Docker Desktop and a per-distro
+  native daemon cannot safely coexist on the same Windows host: WSL2 distros
+  share one network namespace, so two daemons fight for kernel iptables/NAT
+  rules. Release-1 ships Docker Desktop only; Desktop's WSL integration
+  serves the rbtww-main shells. If isolation needs ever require a native
+  daemon, it would be operator-managed exclusive lifecycle (one daemon at
+  a time, never both running concurrently).
+- **JJK fundus user provisioning under WSL** — fundus is a JJK concept and
+  currently deferred; the Windows handbook does not include a fundus phase.
 
 ## Standing Notes
 
@@ -204,6 +218,12 @@ Phase 2 (key auth only):
 - **WSL distribution is hardcoded to `rbtww-main`** in
   `bujb_jurisdiction.sh`. If the current default WSL distribution differs,
   garrison-WSL fails fast with a clear error.
+- **Docker Desktop is the release-1 container runtime on Windows.** WSL
+  shells reach the daemon via Docker Desktop's per-distro WSL integration
+  toggle (Settings → Resources → WSL Integration), enabled for `rbtww-main`.
+  Cygwin and Windows-side shells reach the same daemon via the default
+  Docker context. No separate dockerd inside the WSL distro; only one
+  daemon ever runs concurrently.
 - **Some `BURP_PRIVILEGED_USER` values may contain spaces** (e.g., Windows
   admin user `b hyslop`); audit shell quoting at every variable expansion and
   path construction.
