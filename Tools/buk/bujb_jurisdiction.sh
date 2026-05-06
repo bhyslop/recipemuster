@@ -304,6 +304,26 @@ zbujb_admin_exec() {
       "${z_remote_invoker}"
 }
 
+# zbujb_admin_powershell BODY... -- run a PowerShell statement chain on
+# the remote node as the privileged user. Prepends discipline prelude:
+# $ErrorActionPreference='Stop' (PS errors terminate), $env:WSL_UTF8=1
+# (wsl.exe emits UTF-8). Trailing if-check propagates $LASTEXITCODE on
+# non-zero. Caller redirects stdout/stderr; returns ssh's exit code.
+zbujb_admin_powershell() {
+  zbujb_sentinel
+  test $# -ge 1 \
+    || buc_die "zbujb_admin_powershell: PowerShell command body required"
+  local -r z_body="$*"
+
+  ssh -i "${BURP_PRIVILEGED_KEY_FILE}"            \
+      -o IdentitiesOnly=yes                       \
+      -o BatchMode=yes                             \
+      -o StrictHostKeyChecking=accept-new          \
+      -o ConnectTimeout=15                         \
+      "${BURP_PRIVILEGED_USER}@${BURN_HOST}"       \
+      "powershell -NoProfile -Command \"\$ErrorActionPreference = 'Stop'; \$env:WSL_UTF8 = 1; ${z_body}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE }\""
+}
+
 ######################################################################
 # Internal: Garrison steps (6-step ceremony per BUSJG{B,C,W})
 
@@ -551,13 +571,7 @@ zbujb_garrison_w_preflight() {
   buc_step "  [w-preflight] Verify WSL distribution '${BUJB_wsl_distribution}' is installed"
 
   local z_exit=0
-  ssh -i "${BURP_PRIVILEGED_KEY_FILE}"            \
-      -o IdentitiesOnly=yes                       \
-      -o BatchMode=yes                            \
-      -o StrictHostKeyChecking=accept-new         \
-      -o ConnectTimeout=15                        \
-      "${BURP_PRIVILEGED_USER}@${BURN_HOST}"      \
-      'powershell -NoProfile -Command "$env:WSL_UTF8=1; wsl.exe --list --quiet"' \
+  zbujb_admin_powershell "wsl.exe --list --quiet" \
       > "${ZBUJB_WSL_PREFLIGHT_STDOUT}"           \
       2> "${ZBUJB_WSL_PREFLIGHT_STDERR}"          \
     || z_exit=$?
