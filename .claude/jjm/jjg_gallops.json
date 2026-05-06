@@ -7543,6 +7543,7 @@
       "creation_time": "260426",
       "status": "racing",
       "order": [
+        "₢BBABC",
         "₢BBABB",
         "₢BBAA_",
         "₢BBAA-",
@@ -7606,7 +7607,7 @@
         "₢BBAA1",
         "₢BBAA5"
       ],
-      "next_pace_seed": "ABC",
+      "next_pace_seed": "ABD",
       "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAA-": {
@@ -9142,6 +9143,17 @@
               "text": "## Character\n\nAdd BURS_TINCTURE per-station prefix to the BURS schema. Test fixtures compose it into every cloud-side name they write so parallel rbw-tP runs from different stations land in disjoint GCP projects on a shared payor manor.\n\n## Wrap criterion\n\nTest-side dual-station dry-run (two distinct BURS_TINCTURE values) shows disjoint depot project IDs, GAR repos, and SA emails before any GCP call would race. Actual parallel mac+linux validation is BBABA's job.\n\n## Scope\n\n- Enroll BURS_TINCTURE in burs_regime.sh alongside BURS_USER and BURS_LOG_DIR\n- Compose into test-fixture writes: pristine throwaway cloud/runtime prefixes, canonical family stem, any RBRR_CLOUD_PREFIX/RBRR_RUNTIME_PREFIX value the fixtures install into rbrr.env\n- Production code unchanged — it reads rbrr.env and uses whatever the test wrote\n- Update the joint-length validator (rbrr_regime.sh GCP project-ID budget) to account for the new term\n\n## Out of scope\n\n- Production-side BURS_TINCTURE consumers — test-only by intent\n- Director/Retriever identity prefixing — redundant once depots are disjoint\n- BBABA's actual parallel mac+linux execution — separate pace\n- Reslating BBABA's docket — its parallel-runs claim becomes accurate once this lands\n\n## Constraints\n\n- Test-only scope is load-bearing; production behavior unchanged\n- Default semantics for unset BURS_TINCTURE (empty vs required) decided at mount time",
               "silks": "burs-tincture-station-namespacing",
               "commit": "37f8d77"
+            }
+          ]
+        },
+        "₢BBABC": {
+          "tacks": [
+            {
+              "ts": "260506-1248",
+              "state": "rough",
+              "text": "## Character\n\nTightens charge invariant; aligns docker compose YAML with established\nquoin vocabulary; fixes pre-existing spec drift in network-name quoins.\n\n## Wrap criterion\n\nCharge refuses to start if any docker network on the host matches\n`*{nameplate}_{enclave,transit}` regardless of compose project name.\nRefusal message names each offending network plus exact cleanup\ncommands. RBS0 network-name quoins reflect current compose project\nnaming (post-ZRBOB_PROJECT fix). YAML key `default` renamed to\n`transit` in rbob_compose.yml.\n\n## Scope\n\n- `.rbk/rbob_compose.yml`: rename `default:` to `transit:` (sentry\n  service networks list + comment on line 15)\n- `RBS0`: update `at_transit_network_name` and `at_enclave_network_name`\n  definitions to reflect `${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}_*` naming;\n  update body to use `transit` for the YAML key\n- `RBSNC`, `RBSNX`: replace remaining `default` references with\n  `{at_transit_network}` quoin links\n- `RBSCC` step 3: widen scan — enumerate networks by labels\n  `com.docker.compose.network ∈ {enclave, transit}` AND\n  `com.docker.compose.project` matches `^(.*-)?{nameplate}$`,\n  refuse on any match independent of current run's project name\n- `rbob_bottle.sh:329`: implement broader scan; refusal diagnostic\n  enumerates each offending network and the remove command(s)\n\n## Locked constraints\n\n- Invariant: at most one crucible per nameplate per system\n- Detection keyed on nameplate, not RBRR_RUNTIME_PREFIX\n- Behavior change applies to all charges, not just pristine tier\n- No new vocabulary minted — uses existing `at_transit_network` quoin\n\n## Open at mount time\n\n- Whether to keep current step 2 (project-scoped compose-down) as\n  fast-path before the broader scan, or drop in favor of the scan\n- Defensive label match (require sentry/pentacle/bottle service\n  presence) to eliminate false-positive risk on `*-{nameplate}`\n  project name collisions, or accept the negligible risk\n\n## References\n\n- RBSCC step 3 — current behavior to widen\n- RBS0:2453,2561,2567 — existing quoin definitions to align\n- `.rbk/rbob_compose.yml:15,27` — YAML rename surface\n- `rbob_bottle.sh:329` — current refusal site\n- Surfaced by ₣BB pristine run on this host: pre-prefix-era residue\n  (project=tadmor, label-only) blocked tadmor charge after MZ",
+              "silks": "charge-invariant-network-scan",
+              "commit": "204a3e6"
             }
           ]
         }
