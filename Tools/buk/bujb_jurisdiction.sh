@@ -557,7 +557,7 @@ zbujb_garrison_w_preflight() {
       -o StrictHostKeyChecking=accept-new         \
       -o ConnectTimeout=15                        \
       "${BURP_PRIVILEGED_USER}@${BURN_HOST}"      \
-      'powershell -NoProfile -Command "wsl.exe --list --quiet | Out-String"' \
+      'powershell -NoProfile -Command "$env:WSL_UTF8=1; wsl.exe --list --quiet"' \
       > "${ZBUJB_WSL_PREFLIGHT_STDOUT}"           \
       2> "${ZBUJB_WSL_PREFLIGHT_STDERR}"          \
     || z_exit=$?
@@ -568,7 +568,6 @@ zbujb_garrison_w_preflight() {
   local z_output
   z_output=$(<"${ZBUJB_WSL_PREFLIGHT_STDOUT}")
   z_output="${z_output//$'\r'/}"
-  z_output="${z_output//$'\x00'/}"
 
   case $'\n'"${z_output}"$'\n' in
     *$'\n'"${BUJB_wsl_distribution}"$'\n'*) return 0 ;;
@@ -582,9 +581,9 @@ ${z_output:-<none reported>}
 Install the canonical distribution before retrying garrison-w. Use the
 privileged-SSH tabtarget to inspect or install:
 
-  tt/buw-jpS.PrivilegedSsh.sh ${BUZ_FOLIO} 'wsl.exe --list --verbose'
-  tt/buw-jpS.PrivilegedSsh.sh ${BUZ_FOLIO} 'wsl.exe --install --no-launch -d Ubuntu-24.04'
-  tt/buw-jpS.PrivilegedSsh.sh ${BUZ_FOLIO} 'wsl.exe --import ${BUJB_wsl_distribution} C:\\WSL\\${BUJB_wsl_distribution} <rootfs.tar>'
+  tt/buw-jpS.PrivilegedSsh.sh ${BUZ_FOLIO} 'powershell -NoProfile -Command \"\$env:WSL_UTF8=1; wsl.exe --list --verbose\"'
+  tt/buw-jpS.PrivilegedSsh.sh ${BUZ_FOLIO} 'powershell -NoProfile -Command \"\$env:WSL_UTF8=1; wsl.exe --install --no-launch -d Ubuntu-24.04\"'
+  tt/buw-jpS.PrivilegedSsh.sh ${BUZ_FOLIO} 'powershell -NoProfile -Command \"\$env:WSL_UTF8=1; wsl.exe --import ${BUJB_wsl_distribution} C:\\WSL\\${BUJB_wsl_distribution} <rootfs.tar>\"'
 "
 }
 
@@ -622,8 +621,10 @@ bujb_garrison() {
 
   buc_step "Garrison-${z_letter}: ${BUZ_FOLIO} (${BURN_HOST})"
 
+  case "${z_letter}" in
+    w) zbujb_garrison_w_preflight ;;
+  esac
   zbujb_garrison_step1_admin_open    "${z_letter}"
-  test "${z_letter}" = "w" && zbujb_garrison_w_preflight
   zbujb_garrison_step2_destroy       "${z_letter}"
   zbujb_garrison_step3_create        "${z_letter}"
   zbujb_garrison_step4_place_trust   "${z_letter}"
