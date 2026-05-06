@@ -2,7 +2,11 @@
 {mkr_network_connect}
 
 NOTE: Secondary network attachment is now managed declaratively by Docker Compose.
-The sentry's compose service definition lists both `default` (priority 1000) and `enclave` (priority 500) networks.
+The sentry's compose service definition lists both
+{at_transit_network}
+(priority 1000) and
+{at_enclave_network}
+(priority 500).
 Compose attaches both networks when the container starts — there is no separate connect step.
 
 IMPORTANT: Docker Compose does not guarantee which network maps to which interface name (eth0, eth1).

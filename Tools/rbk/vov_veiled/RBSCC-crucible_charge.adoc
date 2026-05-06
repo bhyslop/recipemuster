@@ -22,11 +22,14 @@ if either vouch artifact is absent: emit clear message directing operator to run
 .. Tolerates missing project (first start)
 
 //axhos_step
-. *Detect Subnet Conflicts*:
-.. Enumerate all Docker networks and inspect each for subnet match against `{rbrn_enclave_base_ip}/{rbrn_enclave_netmask}`
-.. Skip this nameplate's own compose network (already removed by prior step)
+. *Detect Nameplate Collisions*:
+.. Enumerate Docker networks bearing the `com.docker.compose.project` label; for each, read its `com.docker.compose.network` and `com.docker.compose.project` labels
+.. Match: `com.docker.compose.network` is `enclave` or `transit` AND `com.docker.compose.project` matches `^(.*-)?{rbrn_moniker}$` (covers bare moniker from pre-prefix-era residue and any `{prefix}{rbrn_moniker}` form, since `{rbrr_runtime_prefix}` is constrained to end with `-`)
 .. {rbbc_fatal}
-if any foreign network occupies this subnet (stale containers from a prior compose project that died without cleanup)
+if any foreign network matches: refusal lists each offending network name with the exact `docker network rm` command(s)
+.. Independently, enumerate all Docker networks and inspect each for subnet match against `{rbrn_enclave_base_ip}/{rbrn_enclave_netmask}`; skip this nameplate's own compose network (already removed by prior step)
+.. {rbbc_fatal}
+if any foreign network occupies this subnet (catches non-compose networks not covered by the label-based scan)
 
 //axhos_step
 . *Start via Compose*:

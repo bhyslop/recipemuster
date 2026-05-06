@@ -2,16 +2,26 @@
 {mkr_network_create}
 
 NOTE: Network creation is now managed declaratively by Docker Compose.
-The `networks:` section of `rbob_compose.yml` defines the enclave network with a static subnet from the nameplate regime.
-Compose creates both the default (transit) and enclave networks automatically during `docker compose up`.
+The `networks:` section of `rbob_compose.yml` defines both networks; the
+{at_enclave_network}
+carries a static subnet from the nameplate regime.
+Compose creates both the
+{at_transit_network}
+and
+{at_enclave_network}
+automatically during `docker compose up`.
 
-The enclave network uses:
+The
+{at_enclave_network}
+uses:
 
 * driver: bridge
 * subnet: `${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}` (from nameplate env-file)
 * static IPs: sentry at `${RBRN_ENCLAVE_SENTRY_IP}`, pentacle at `${RBRN_ENCLAVE_BOTTLE_IP}`
 
-The default network provides internet connectivity via the Docker bridge.
+The
+{at_transit_network}
+provides internet connectivity via the Docker bridge.
 Each nameplate uses a distinct /24 subnet to prevent cross-nameplate collisions.
 
 //axhoc_completion

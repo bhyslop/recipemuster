@@ -289,12 +289,87 @@ zrbob_vouch_gate_and_summon() {
 }
 
 ######################################################################
-# Subnet Conflict Detection
+# Charge Invariant — Network Collision Detection
+
+# Die if any compose-managed network with our nameplate exists from a foreign
+# project. Catches pre-prefix-era residue (project=tadmor without RBRR
+# prefix) and any other compose project whose name is the bare moniker or
+# ends with "-{moniker}". Match is by labels — independent of how compose
+# joined project + network into the network name.
+zrbob_detect_nameplate_collision() {
+  zrbob_sentinel
+
+  local -r z_networks_file="${BURD_TEMP_DIR}/zrbob_collision_networks.txt"
+  local -r z_networks_stderr="${BURD_TEMP_DIR}/zrbob_collision_networks_stderr.txt"
+  local -r z_inspect_prefix="${BURD_TEMP_DIR}/zrbob_collision_inspect_"
+
+  ${ZRBOB_RUNTIME} network ls \
+    --filter 'label=com.docker.compose.project' \
+    --filter 'label=com.docker.compose.network' \
+    --format '{{.Name}}' \
+    > "${z_networks_file}" 2>"${z_networks_stderr}" \
+    || buc_die "Failed to list Docker networks for collision detection — see ${z_networks_stderr}"
+
+  local z_names=()
+  local z_line=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    test -n "${z_line}" || continue
+    z_names+=("${z_line}")
+  done < "${z_networks_file}"
+
+  local z_offenders=()
+  local z_index=0
+  local z_name=""
+  local z_inspect_file=""
+  local z_inspect_stderr=""
+  local z_labels=""
+  local z_net_label=""
+  local z_proj_label=""
+
+  if (( ${#z_names[@]} )); then
+    for z_name in "${z_names[@]}"; do
+      z_inspect_file="${z_inspect_prefix}${z_index}.txt"
+      z_inspect_stderr="${z_inspect_prefix}${z_index}_stderr.txt"
+      z_index=$((z_index + 1))
+
+      ${ZRBOB_RUNTIME} network inspect "${z_name}" \
+        --format '{{index .Labels "com.docker.compose.network"}}|{{index .Labels "com.docker.compose.project"}}' \
+        > "${z_inspect_file}" 2>"${z_inspect_stderr}" \
+        || continue
+
+      z_labels=$(<"${z_inspect_file}")
+      z_net_label="${z_labels%%|*}"
+      z_proj_label="${z_labels#*|}"
+
+      # Network must be enclave or transit
+      test "${z_net_label}" = "enclave" || test "${z_net_label}" = "transit" \
+        || continue
+
+      # Skip our own current project; compose-down already removed it (defensive)
+      test "${z_proj_label}" != "${ZRBOB_PROJECT}" || continue
+
+      # Match: bare moniker, or any prefix ending in "-{moniker}"
+      if test "${z_proj_label}" = "${RBRN_MONIKER}"; then
+        z_offenders+=("${z_name}")
+      elif test "${z_proj_label}" != "${z_proj_label%-"${RBRN_MONIKER}"}"; then
+        z_offenders+=("${z_name}")
+      fi
+    done
+  fi
+
+  test "${#z_offenders[@]}" -gt 0 || return 0
+
+  local z_msg="Nameplate '${RBRN_MONIKER}' collision: ${#z_offenders[@]} foreign compose network(s) match — clean up before charging:"
+  local z_offender=""
+  for z_offender in "${z_offenders[@]}"; do
+    z_msg="${z_msg}"$'\n'"  docker rm \$(docker ps -aq --filter network=${z_offender}) 2>/dev/null; docker network rm ${z_offender}"
+  done
+  buc_die "${z_msg}"
+}
 
 # Die if another Docker network already occupies this nameplate's subnet.
-# This catches stale networks from prior compose projects that died without
-# compose-down (reboot, Docker Desktop restart, crash). Our own network
-# (from the compose-down above) is excluded.
+# Catches non-compose networks (manual `docker network create`) that the
+# label-based scan above can't see. Our own network is excluded.
 zrbob_detect_subnet_conflict() {
   zrbob_sentinel
 
@@ -377,8 +452,12 @@ rbob_charge() {
   buc_step "Cleaning up any prior state"
   zrbob_compose --profile sessile down --remove-orphans 2>/dev/null || true
 
-  # Defensive check: another compose project may hold a network on our subnet
-  # (e.g., nsproto containers died without compose-down, blocking tadmor's subnet)
+  # Charge invariant: at most one crucible per nameplate per system. The
+  # collision scan refuses on any foreign compose project whose network
+  # bears our moniker (catches pre-prefix-era residue independent of the
+  # current run's project name); the subnet scan catches non-compose
+  # networks that bypass label-based detection.
+  zrbob_detect_nameplate_collision
   zrbob_detect_subnet_conflict
 
   # Start services via compose (--profile sessile includes bottle)

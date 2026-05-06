@@ -12,7 +12,7 @@
 #   2. Container environment forwarding (bare names in environment: sections)
 #
 # Network topology:
-#   sentry: default (internet via bridge) + enclave (eth0=default priority:1000, eth1=enclave priority:500)
+#   sentry: transit (internet via bridge) + enclave (eth0=transit priority:1000, eth1=enclave priority:500)
 #   pentacle: enclave only (static IP, routes through sentry)
 #   bottle: shares pentacle network namespace (network_mode: service:pentacle)
 #
@@ -24,7 +24,7 @@ services:
     container_name: ${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}-sentry
     privileged: true
     networks:
-      default:
+      transit:
         priority: 1000
       enclave:
         ipv4_address: ${RBRN_ENCLAVE_SENTRY_IP}
@@ -92,6 +92,8 @@ services:
       - sessile
 
 networks:
+  transit:
+    driver: bridge
   enclave:
     driver: bridge
     ipam:
