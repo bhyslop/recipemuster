@@ -1,0 +1,47 @@
+//axhob_operation
+{bust_privileged_ssh}
+
+NOTE: Thin admin-side pass-through that runs an arbitrary command on a
+node as {burp_privileged_user} under key-only auth. The remote command
+position is handed to ssh verbatim — no shell wrapping by BUK; the
+operator prepends `powershell -Command`, `bash -c`, or whatever the
+target platform requires. Scope: any {burp_investiture}, regardless of
+{burn_platform}; admin trust on Linux/Mac comes from operator-managed
+`ssh-copy-id`, on Windows from {busn_fenestrate}, and the privileged-key
+auth path surfaces success or failure uniformly without platform
+branching at this layer.
+
+//axhopt_typed_parameter
+{burp_investiture}
+
+//axhopt_typed_parameter
+At least one command token after the {burp_investiture}; an empty
+command tail dies with a usage diagnostic.
+
+//axhoq_precondition
+A {burp_regime} profile exists at the given {burp_investiture} and its
+{burp_privileged_key_file} is currently trusted by the node for
+{burp_privileged_user} (Windows: {busn_fenestrate} has run; Linux/Mac:
+operator has placed the admin pubkey out-of-band).
+
+//axhos_step
+. *Open admin SSH*: connect as {burp_privileged_user} using
+{burp_privileged_key_file}; key-auth only (no password fallback).
+
+//axhos_step
+. *Hand command to ssh*: pass the remaining argv to ssh as the remote
+command position without local wrapping or quoting transformation.
+
+//axhos_step
+. *Propagate exit*: return ssh's exit code as the operation's exit
+code so the remote command's success or failure surfaces unaltered.
+
+//axhog_guarantee
+No persistent state change at this layer — the operation is an
+ephemeral exec; any persistent change is the responsibility of the
+operator-supplied command body.
+
+//axhoc_completion
+Exit 0 when ssh and the remote command both return 0.
+Non-zero on SSH connection or authentication failure, or on a non-zero
+remote exit; the remote exit code is propagated verbatim.

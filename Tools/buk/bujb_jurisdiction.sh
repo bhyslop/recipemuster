@@ -814,4 +814,34 @@ bujb_fenestrate() {
   buc_step "Fenestrate succeeded"
 }
 
+######################################################################
+# Public: Privileged SSH (thin admin-side pass-through)
+
+# bujb_privileged_ssh COMMAND... -- run an arbitrary command on the BURN
+# node as BURP_PRIVILEGED_USER under key-only auth. Pass-through: argv is
+# handed to ssh as the remote command without shell wrapping (operator
+# prepends `powershell -Command`, `bash -c`, etc. as the platform requires).
+# Caller must have invoked bujb_resolve_investiture beforehand. Returns
+# ssh's exit code.
+bujb_privileged_ssh() {
+  zbujb_sentinel
+  test "${ZBUJB_RESOLVED:-}" = "1" \
+    || buc_die "bujb_privileged_ssh: call bujb_resolve_investiture first"
+  test $# -ge 1 \
+    || buc_die "bujb_privileged_ssh: command required"
+
+  buc_step "Privileged SSH: ${BURP_PRIVILEGED_USER}@${BURN_HOST} (${BUZ_FOLIO})"
+
+  local z_exit=0
+  ssh -i "${BURP_PRIVILEGED_KEY_FILE}"            \
+      -o IdentitiesOnly=yes                       \
+      -o BatchMode=yes                            \
+      -o StrictHostKeyChecking=accept-new         \
+      -o ConnectTimeout=15                        \
+      "${BURP_PRIVILEGED_USER}@${BURN_HOST}"      \
+      "$@"                                        \
+    || z_exit=$?
+  return "${z_exit}"
+}
+
 # eof

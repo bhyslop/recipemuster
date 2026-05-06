@@ -94,6 +94,9 @@ zbuwz_kindle() {
   # Jurisdiction operational — fenestrate (bujb_cli.sh)
   buz_enroll BUWZ_JP_FENESTRATE       "buw-jpF"   "${z_mod}" "bujb_fenestrate_command" "param1"  "Fenestrate — admin SSH trust + sshd_config harden (Windows)"
 
+  # Jurisdiction operational — privileged SSH pass-through (bujb_cli.sh)
+  buz_enroll BUWZ_JP_PRIVILEGED_SSH   "buw-jpS"   "${z_mod}" "bujb_privileged_ssh_command" "param1"  "Privileged SSH — run a command on a node as BURP_PRIVILEGED_USER"
+
   # Jurisdiction operational — garrison ceremonies (bujb_cli.sh)
   buz_enroll BUWZ_JP_GARRISON_BASH    "buw-jpGb"  "${z_mod}" "bujb_garrison_bash"     "param1"  "Garrison workload (shell-letter b: native bash, Linux/Mac)"
   buz_enroll BUWZ_JP_GARRISON_CYGWIN  "buw-jpGc"  "${z_mod}" "bujb_garrison_cygwin"   "param1"  "Garrison workload (shell-letter c: Cygwin bash, Windows)"
