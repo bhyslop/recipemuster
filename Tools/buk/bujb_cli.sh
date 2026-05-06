@@ -191,6 +191,10 @@ zbujb_furnish() {
   source "${BURD_BUK_DIR}/burn_regime.sh"
   source "${BURD_BUK_DIR}/burp_regime.sh"
   source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
+  source "${BURD_BUK_DIR}/buym_yelp.sh"
+  source "${BURD_BUK_DIR}/buh_handbook.sh"
+  source "${BURD_BUK_DIR}/buz_zipper.sh"
+  source "${BURD_BUK_DIR}/buwz_zipper.sh"
   source "${BURD_BUK_DIR}/bujb_jurisdiction.sh"
 
   zbuv_kindle
@@ -208,6 +212,8 @@ zbujb_furnish() {
   zburs_enforce
 
   zbupr_kindle
+  zbuz_kindle
+  zbuwz_kindle
   zbujb_kindle
 
   test -n "${BUZ_FOLIO:-}" || burp_die_no_folio

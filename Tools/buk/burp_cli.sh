@@ -78,6 +78,8 @@ zburp_furnish() {
   source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
   source "${BURD_BUK_DIR}/buym_yelp.sh"
   source "${BURD_BUK_DIR}/buh_handbook.sh"
+  source "${BURD_BUK_DIR}/buz_zipper.sh"
+  source "${BURD_BUK_DIR}/buwz_zipper.sh"
 
   zbuv_kindle
   zburd_kindle
@@ -94,6 +96,8 @@ zburp_furnish() {
   zburs_enforce
 
   zbupr_kindle
+  zbuz_kindle
+  zbuwz_kindle
 
   # If BUZ_FOLIO is set, load and kindle the specified investiture profile
   if test -n "${BUZ_FOLIO:-}"; then
