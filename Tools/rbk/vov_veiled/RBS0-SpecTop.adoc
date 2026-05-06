@@ -2560,14 +2560,14 @@ Both live in the sentry vessel's build context directory and are COPYed into the
 
 [[at_transit_network_name]]
 {at_transit_network_name}::
-The compose `default` network for the service's compose project.
-Compose names it `${RBRN_MONIKER}_default`.
+The compose `transit` network for the service's compose project.
+Compose names it `${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}_transit`.
 Provides internet connectivity via the Docker bridge.
 
 [[at_enclave_network_name]]
 {at_enclave_network_name}::
 The compose `enclave` network for the service's compose project, with a static subnet from the nameplate.
-Compose names it `${RBRN_MONIKER}_enclave`.
+Compose names it `${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}_enclave`.
 Pattern: `${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}`.
 
 [[at_bottle_container_name]]

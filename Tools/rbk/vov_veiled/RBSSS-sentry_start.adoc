@@ -9,7 +9,7 @@ Network creation, container instantiation, and startup ordering are all managed 
 . *Compose creates networks and starts sentry*:
 .. Compose creates
 {at_transit_network}
-(`default`) and
+(`transit`) and
 {at_enclave_network}
 (`enclave` with static subnet from nameplate)
 .. Sentry container starts on both networks with privileged mode
