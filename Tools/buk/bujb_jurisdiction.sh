@@ -597,7 +597,9 @@ privileged-SSH tabtarget to inspect or install:
 
   tt/buw-jpS.PrivilegedSsh.sh ${BUZ_FOLIO} 'powershell -NoProfile -Command \"\$env:WSL_UTF8=1; wsl.exe --list --verbose\"'
   tt/buw-jpS.PrivilegedSsh.sh ${BUZ_FOLIO} 'powershell -NoProfile -Command \"\$env:WSL_UTF8=1; wsl.exe --install --no-launch -d Ubuntu-24.04\"'
-  tt/buw-jpS.PrivilegedSsh.sh ${BUZ_FOLIO} 'powershell -NoProfile -Command \"\$env:WSL_UTF8=1; wsl.exe --import ${BUJB_wsl_distribution} C:\\WSL\\${BUJB_wsl_distribution} <rootfs.tar>\"'
+  tt/buw-jpS.PrivilegedSsh.sh ${BUZ_FOLIO} 'powershell -NoProfile -Command \"\$env:WSL_UTF8=1; wsl.exe --export Ubuntu-24.04 C:\\WSL\\${BUJB_wsl_distribution}.tar\"'
+  tt/buw-jpS.PrivilegedSsh.sh ${BUZ_FOLIO} 'powershell -NoProfile -Command \"\$env:WSL_UTF8=1; wsl.exe --import ${BUJB_wsl_distribution} C:\\WSL\\${BUJB_wsl_distribution} C:\\WSL\\${BUJB_wsl_distribution}.tar\"'
+  tt/buw-jpS.PrivilegedSsh.sh ${BUZ_FOLIO} 'powershell -NoProfile -Command \"\$env:WSL_UTF8=1; wsl.exe --unregister Ubuntu-24.04\"'
 "
 }
 
