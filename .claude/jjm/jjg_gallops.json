@@ -34,6 +34,7 @@
       "creation_time": "260412",
       "status": "racing",
       "order": [
+        "₢A-AAw",
         "₢A-AAv",
         "₢A-AAp",
         "₢A-AAl",
@@ -80,7 +81,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "next_pace_seed": "AAw",
+      "next_pace_seed": "AAx",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -1191,6 +1192,17 @@
               "text": "## Character\nCode amendment with curia-side verification.\n\n## Docket\n\nCorrect the `w` shell-letter so the workload identity is mirrored\nacross two namespaces on Windows hosts: a Windows user (via `net.exe\nuser /add`) for the SSH auth boundary, and a Linux user inside\n`rbtww-main` (via `useradd`) for the WSL execution context. Same\nWindows-user shape as Cygwin's `c` branch, plus the WSL-side\n`useradd`. Authorized_keys lives Windows-side (Windows OpenSSH\ndiscovers it natively); workload privkey for outbound stays inside\nWSL at `/home/${BURC_WORKLOAD_USER}/.ssh/id_ed25519`.\n\nChanges in `bujb_jurisdiction.sh`:\n\n- `BUJB_command_w`: add `--user ${BURC_WORKLOAD_USER}` to the\n  wsl.exe forced command so the session lands as the WSL Linux user\n  rather than the distro's default user.\n- Step 2 (destroy) `w` branch: prepend `net.exe user delete` before\n  the WSL-side `userdel`. Both purges idempotent.\n- Step 3 (create) `w` branch: prepend `net.exe user /add /passwordreq\n  :no /active:yes` before `useradd`. Mirrors c-branch shape.\n- Step 4 (place trust) `w` branch: write authorized_keys to the\n  Windows-side home — `c` branch is the structural reference. Forced\n  command is the wsl.exe shim from `BUJB_command_w`.\n- Step 5 (plant privkey) `w` branch: unchanged. Privkey lives at\n  `/home/${BURC_WORKLOAD_USER}/.ssh/id_ed25519` inside WSL so the\n  Linux session reads it natively for outbound to GitHub.\n- Pre-flight: prepend a step (or extend step 1) that runs `wsl.exe\n  --list --verbose` via admin SSH and asserts a distribution named\n  `${BUJB_wsl_distribution}` exists. On absence, surface a BUK\n  diagnostic naming the constant and pointing at the WSL install\n  procedure — replaces opaque Microsoft `wsl.exe` failures.\n\nBUSJGW spec updated to describe the mirrored-identity architecture\n(Windows-user auth boundary + WSL-user execution context).\n\nSequencing: lands first in the Practice run so the operator's WSL\ninstall (next pace) is followed by a working garrison-WSL ceremony.\nPre-flight is verifiable against the current state of bujn-winpc\n(no `rbtww-main` yet) — exercises the diagnostic deliberately\nbefore any operator install action.\n\nDone when:\n- `bash -n` green on `bujb_jurisdiction.sh`\n- `tt/buw-st.BukSelfTest.sh` green\n- `tt/rbtd-s.TestSuite.fast.sh` green at baseline (no regression)\n- Pre-flight diagnostic surfaces the absent-distro condition cleanly\n  when run against bujn-winpc before WSL install",
               "silks": "correct-wsl-user-model",
               "commit": "357a9b1"
+            }
+          ]
+        },
+        "₢A-AAw": {
+          "tacks": [
+            {
+              "ts": "260506-1209",
+              "state": "rough",
+              "text": "## Character\nCode amendment with curia-side verification.\n\n## Docket\n\nAdd `buw-jpS` privileged-SSH tabtarget — thin admin-side pipe that\nruns an arbitrary command as `BURP_PRIVILEGED_USER` on a BURN node.\nChannel: param1 = investiture; remaining args joined as the remote\ncommand. Pass-through — no shell wrapping; operator prepends\n`powershell -Command`, `bash -c`, etc. as needed for the platform.\n\nScope: any BURN that has a local BURP profile (Linux/Mac/Windows\nalike). Linux/Mac admin trust comes from operator-managed\n`ssh-copy-id`; Windows admin trust comes from fenestrate. The\ntabtarget itself does not assert platform — the privileged-key auth\npath handles success/failure uniformly.\n\nDrop \"interactive if no extra args\" from the earlier sketch — require\n≥1 command arg; die with a usage diagnostic on missing command.\nInteractive variant deferred to real need.\n\nCode shape:\n\n- New public function `bujb_privileged_ssh COMMAND...` in\n  `bujb_jurisdiction.sh`. Uses `BURP_PRIVILEGED_KEY_FILE`,\n  `IdentitiesOnly=yes`, `BatchMode=yes`, key-only auth — no password\n  fallback. No shell wrapping.\n- New CLI command in `bujb_cli.sh` with appropriate furnish (BURC +\n  BURN + BURP regimes kindled, `bujb_resolve_investiture` called for\n  privkey validation per existing pattern).\n- New tabtarget `tt/buw-jpS.PrivilegedSsh.sh` enrolled in\n  `buz_zipper.sh`. Channel: param1.\n\nBUS0 update:\n\n- New §BUSJPS section parallel to BUSJPF, describing the privileged-\n  SSH verb with: any-BURN scope, param1+args channel, pass-through\n  shell semantics, no persistent state change (ephemeral exec).\n- Mapping section gains the new tabtarget entry.\n\nDownstream consumer (next pace, AAv): pre-flight diagnostic emits\ncopy-paste hints in the form `tt/buw-jpS <investiture> 'wsl --install\n…'`. AAv depends on this pace landing first.\n\nDone when:\n\n- `bash -n` green on `bujb_jurisdiction.sh`, `bujb_cli.sh`\n- `tt/buw-st.BukSelfTest.sh` green\n- `tt/rbtd-s.TestSuite.fast.sh` green at baseline (no regression)\n- BUSJPS section present in BUS0; mapping section updated\n- Curia-side smoke: `tt/buw-jpS <investiture> 'whoami'` returns the\n  expected privileged user name on at least one platform reachable\n  from the test station",
+              "silks": "add-privileged-ssh-tabtarget",
+              "commit": "4705f36"
             }
           ]
         }
