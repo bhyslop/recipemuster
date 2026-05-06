@@ -67,7 +67,7 @@ rbhp_quota_build() {
   buh_section  "2. Check CPU Quota:"
   buh_line     "   Private pool quota is tracked under the depot project."
   buh_e
-  buyy_href_yawp "https://console.cloud.google.com/iam-admin/quotas?project=${RBDC_DEPOT_PROJECT_ID}" "Quotas & System Limits (opens to depot project)"; local -r z_href_check_quotas="${z_buym_yelp}"
+  buyy_href_yawp "https://console.cloud.google.com/iam-admin/quotas?project=${RBDC_DEPOT_PROJECT_ID}" "Quotas and System Limits (opens to depot project)"; local -r z_href_check_quotas="${z_buym_yelp}"
   buh_line     "   Go to: ${z_href_check_quotas}"
   buyy_ui_yawp "${RBDC_DEPOT_PROJECT_ID}"; local -r z_ui_check_project="${z_buym_yelp}"
   buh_line     "   1. Verify project ${z_ui_check_project} is selected in the project picker"
@@ -106,7 +106,7 @@ rbhp_quota_build() {
   buh_e
   buh_section  "4. Confirm Quota Increase:"
   buh_line     "   After approval, quotas can take up to 15 minutes to propagate."
-  buyy_href_yawp "https://console.cloud.google.com/iam-admin/quotas?project=${RBDC_DEPOT_PROJECT_ID}" "Quotas & System Limits (opens to depot project)"; local -r z_href_confirm_quotas="${z_buym_yelp}"
+  buyy_href_yawp "https://console.cloud.google.com/iam-admin/quotas?project=${RBDC_DEPOT_PROJECT_ID}" "Quotas and System Limits (opens to depot project)"; local -r z_href_confirm_quotas="${z_buym_yelp}"
   buh_line     "   Return to: ${z_href_confirm_quotas}"
   buyy_ui_yawp "concurrent_private"; local -r z_ui_confirm_filter_text="${z_buym_yelp}"
   buh_line     "   Filter for ${z_ui_confirm_filter_text} again and verify the new value"

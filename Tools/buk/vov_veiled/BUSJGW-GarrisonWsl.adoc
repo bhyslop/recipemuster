@@ -4,9 +4,18 @@
 NOTE: {busn_garrison} ceremony with WSL bash as the workload shell,
 for Windows nodes reached via the WSL distribution `rbtww-main`
 (hardcoded in {bujb_jurisdiction}).
+On Windows the workload identity is *mirrored across two namespaces*:
+a Windows local user (created via `net.exe user /add`) provides the
+SSH authentication boundary that Windows OpenSSH discovers, and a
+Linux user inside `rbtww-main` (created via `useradd`) provides the
+WSL execution context entered by the forced command.
+The Windows-user shape mirrors the c branch ({bust_garrison_cygwin});
+the WSL-side `useradd` is layered on top so the SSH session lands as
+the named WSL user (via `wsl.exe --user`) rather than the distro's
+default user.
 Workload-only: garrison destroys any prior workload account named
-{burc_workload_user}
-and recreates it from a clean slate.
+{burc_workload_user} in *both* namespaces and recreates it from a
+clean slate.
 Garrison never reads or writes any `sshd_config` and never modifies
 admin authorized_keys; admin trust is established beforehand by
 {busn_fenestrate}
@@ -21,15 +30,18 @@ A {burp_regime} profile exists at the given {burp_investiture} and its
 referenced {burn_regime} profile is reachable.
 
 //axhoq_precondition
-The default WSL distribution on the node is `rbtww-main` and its sshd
-is installed; mismatch fails fast with a clear error.
+The WSL distribution `rbtww-main` (hardcoded as `BUJB_wsl_distribution`
+in {bujb_jurisdiction}) is installed on the Windows host. Garrison-w
+verifies this in a pre-flight after admin SSH succeeds; absence
+surfaces a diagnostic naming the constant and emitting copy-paste
+operator hints in the `tt/buw-jpS <investiture> '…'` shape rather
+than letting an opaque `wsl.exe` failure escape downstream.
 
 //axhoq_precondition
 {busn_fenestrate} has run for this {burp_investiture} so that
 {burp_privileged_user} can authenticate by key alone using
-{burp_privileged_key_file} into the Windows OpenSSH host (used as the
-admin entry point); the WSL session is then opened from that
-foothold.
+{burp_privileged_key_file} into the Windows OpenSSH host (the admin
+entry point); the WSL session is then opened from that foothold.
 
 //axhoq_precondition
 {burp_workload_key_file} is unencrypted and exists on the operator's
@@ -37,42 +49,61 @@ station.
 
 //axhos_step
 . *Open admin SSH*: connect as {burp_privileged_user} using
-{burp_privileged_key_file}; key-auth only into the WSL distribution.
-Failure here surfaces a missing or stale admin trust.
+{burp_privileged_key_file} into the Windows OpenSSH host; key-auth
+only. Failure here surfaces a missing or stale admin trust.
 
 //axhos_step
-. *Destroy workload*: remove any existing {burc_workload_user} account
-inside the WSL distribution via `userdel -r`.
+. *Pre-flight WSL distribution*: assert `BUJB_wsl_distribution` is
+installed on the host (`wsl.exe --list --quiet` via the admin
+session). Absence dies with a diagnostic naming the constant and
+emitting `tt/buw-jpS` install hints; presence proceeds.
 
 //axhos_step
-. *Create workload*: provision {burc_workload_user} as an unprivileged,
-ssh-only Linux account inside `rbtww-main`.
+. *Destroy workload*: remove any existing {burc_workload_user}
+identity in *both* namespaces — the Windows user via
+`net.exe user /delete` and the WSL Linux user via `userdel -r`.
+Both purges are idempotent.
+
+//axhos_step
+. *Create workload*: provision {burc_workload_user} in *both*
+namespaces — the Windows user via `net.exe user /add /passwordreq:no
+/active:yes` (mirroring the c branch) and the WSL Linux user via
+`useradd --create-home --shell /bin/bash`.
 
 //axhos_step
 . *Place workload trust*: write the workload pubkey
-(derived via `ssh-keygen -y`) to the workload's authorized_keys with
-the shell-letter `w` `command=` directive below — locked spec content,
-mirrored at `BUJB_command_w` in {bujb_jurisdiction}:
+(derived via `ssh-keygen -y`) to the Windows-side
+authorized_keys at `C:\Users\${BURC_WORKLOAD_USER}\.ssh\authorized_keys`
+(reachable from WSL as `/mnt/c/Users/${BURC_WORKLOAD_USER}/.ssh/...`)
+so Windows OpenSSH discovers it natively. The c branch is the
+structural reference for mkdir/chmod/echo/chmod/chown ordering.
+The line carries the shell-letter `w` `command=` directive below —
+locked spec content, mirrored at `BUJB_command_w` in
+{bujb_jurisdiction}; `${BURC_WORKLOAD_USER}` is substituted with the
+configured workload user at directive-emit time:
 +
 [listing]
 ----
-command="C:/Windows/System32/wsl.exe --distribution rbtww-main --exec /bin/bash -lc \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding
+command="C:/Windows/System32/wsl.exe --distribution rbtww-main --user ${BURC_WORKLOAD_USER} --exec /bin/bash -lc \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding
 ----
 
 //axhos_step
-. *Plant workload key*: copy {burp_workload_key_file} to the workload
-account at the shell-letter `w` destination path hardcoded in
-{bujb_jurisdiction}.
+. *Plant workload key*: copy {burp_workload_key_file} to the WSL-side
+workload home at the shell-letter `w` destination path hardcoded in
+{bujb_jurisdiction} (`/home/${BURC_WORKLOAD_USER}/.ssh/id_ed25519`),
+so the Linux session reads it natively for outbound to GitHub.
 
 //axhos_step
 . *Validate round-trip*: SSH as workload, run a no-op command, verify
 exit 0.
 
 //axhog_guarantee
-On success the node has exactly one workload account named
-{burc_workload_user} reachable via the WSL distribution `rbtww-main`.
+On success the node has exactly one workload identity named
+{burc_workload_user} mirrored across the Windows user (auth boundary)
+and the WSL Linux user (execution context inside `rbtww-main`).
 
 //axhoc_completion
 Exit 0 when the round-trip validation succeeds.
-Non-zero on WSL distribution mismatch, admin SSH failure, account-
-management failure, key-write failure, or workload validation failure.
+Non-zero on WSL distribution absence (pre-flight), admin SSH failure,
+account-management failure in either namespace, key-write failure, or
+workload validation failure.

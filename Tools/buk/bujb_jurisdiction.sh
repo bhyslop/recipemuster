@@ -42,7 +42,7 @@ ZBUJB_SOURCED=1
 # requests. Locked spec content; mirrored in BUSJG{B,C,W}.
 BUJB_command_b='command="/bin/bash -lc \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding'
 BUJB_command_c='command="C:/cygwin64/bin/bash --login -c \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding'
-BUJB_command_w='command="C:/Windows/System32/wsl.exe --distribution rbtww-main --exec /bin/bash -lc \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding'
+BUJB_command_w='command="C:/Windows/System32/wsl.exe --distribution rbtww-main --user ${BURC_WORKLOAD_USER} --exec /bin/bash -lc \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding'
 
 # Shell-letter -> workload privkey destination path on the remote
 # (relative to the workload account home directory).
@@ -98,6 +98,10 @@ zbujb_kindle() {
   # heredoc transport to remote).
   readonly ZBUJB_KEY_B64_STDOUT="${BURD_TEMP_DIR}/bujb_key_b64_stdout.txt"
   readonly ZBUJB_KEY_B64_STDERR="${BURD_TEMP_DIR}/bujb_key_b64_stderr.txt"
+
+  # WSL distribution preflight captures (garrison-w only).
+  readonly ZBUJB_WSL_PREFLIGHT_STDOUT="${BURD_TEMP_DIR}/bujb_wsl_preflight_stdout.txt"
+  readonly ZBUJB_WSL_PREFLIGHT_STDERR="${BURD_TEMP_DIR}/bujb_wsl_preflight_stderr.txt"
 
   readonly ZBUJB_KINDLED=1
 }
@@ -204,7 +208,7 @@ bujb_command_for_capture() {
   case "${z_letter}" in
     b) echo "${BUJB_command_b}" ;;
     c) echo "${BUJB_command_c}" ;;
-    w) echo "${BUJB_command_w}" ;;
+    w) echo "${BUJB_command_w//\$\{BURC_WORKLOAD_USER\}/${BURC_WORKLOAD_USER}}" ;;
     *) return 1 ;;
   esac
 }
@@ -350,10 +354,14 @@ rm -rf '/cygdrive/c/cygwin64/home/${z_wlu}'       2>/dev/null || true
 SCRIPT
       ;;
     w)
+      # Workload identity is mirrored across two namespaces: a Windows user
+      # (SSH auth boundary) and a Linux user inside the WSL distro
+      # (execution context). Purge both, idempotent.
       zbujb_admin_exec w <<SCRIPT
 set -uo pipefail
-userdel -r '${z_wlu}' 2>/dev/null || true
-rm -rf '${z_wlhome}'  2>/dev/null || true
+net.exe user '${z_wlu}' /delete > /dev/null 2>&1 || true
+userdel -r '${z_wlu}'                           2>/dev/null || true
+rm -rf '${z_wlhome}'                            2>/dev/null || true
 SCRIPT
       ;;
   esac
@@ -398,8 +406,13 @@ chown -R '${z_wlu}' '/home/${z_wlu}'
 SCRIPT
       ;;
     w)
+      # Mirrored identity: net.exe creates the Windows user (SSH auth
+      # boundary), useradd creates the Linux user inside WSL (execution
+      # context). Same Windows-user shape as the c branch above; the
+      # WSL-side useradd layered on top.
       zbujb_admin_exec w <<SCRIPT
 set -euo pipefail
+net.exe user '${z_wlu}' /add /passwordreq:no /active:yes > /dev/null
 useradd --create-home --shell /bin/bash '${z_wlu}'
 passwd  --lock '${z_wlu}'
 SCRIPT
@@ -437,8 +450,8 @@ zbujb_garrison_step4_place_trust() {
   test "${z_letter}" = "b" && z_sudo_prefix="sudo -n "
 
   case "${z_letter}" in
-    b|w)
-      zbujb_admin_exec "${z_letter}" <<SCRIPT
+    b)
+      zbujb_admin_exec b <<SCRIPT
 set -euo pipefail
 ${z_sudo_prefix}mkdir -p   '${z_wlhome}/.ssh'
 ${z_sudo_prefix}chmod 700  '${z_wlhome}/.ssh'
@@ -458,6 +471,20 @@ chmod 700  '${z_wlhome}/.ssh'
 echo '${z_authkeys_line}' > '${z_wlhome}/.ssh/authorized_keys'
 chmod 600  '${z_wlhome}/.ssh/authorized_keys'
 chown -R '${z_wlu}' '${z_wlhome}/.ssh'
+SCRIPT
+      ;;
+    w)
+      # Authorized_keys lives Windows-side so Windows OpenSSH discovers
+      # it natively (the SSH auth boundary is the Windows user). From
+      # WSL bash the Windows profile is reachable at /mnt/c/Users.
+      # Structural shape mirrors the c branch above; the path differs.
+      zbujb_admin_exec w <<SCRIPT
+set -euo pipefail
+mkdir -p   '/mnt/c/Users/${z_wlu}/.ssh'
+chmod 700  '/mnt/c/Users/${z_wlu}/.ssh'
+echo '${z_authkeys_line}' > '/mnt/c/Users/${z_wlu}/.ssh/authorized_keys'
+chmod 600  '/mnt/c/Users/${z_wlu}/.ssh/authorized_keys'
+chown -R '${z_wlu}' '/mnt/c/Users/${z_wlu}/.ssh'
 SCRIPT
       ;;
   esac
@@ -515,6 +542,52 @@ SCRIPT
   esac
 }
 
+# zbujb_garrison_w_preflight -- pre-flight for shell-letter w only.
+# Asserts BUJB_wsl_distribution is installed on the Windows host before any
+# WSL-targeted action runs; replaces opaque downstream wsl.exe failures with
+# a copy-paste-ready operator hint pointing at the privileged-SSH tabtarget.
+zbujb_garrison_w_preflight() {
+  zbujb_sentinel
+  buc_step "  [w-preflight] Verify WSL distribution '${BUJB_wsl_distribution}' is installed"
+
+  local z_exit=0
+  ssh -i "${BURP_PRIVILEGED_KEY_FILE}"            \
+      -o IdentitiesOnly=yes                       \
+      -o BatchMode=yes                            \
+      -o StrictHostKeyChecking=accept-new         \
+      -o ConnectTimeout=15                        \
+      "${BURP_PRIVILEGED_USER}@${BURN_HOST}"      \
+      'powershell -NoProfile -Command "wsl.exe --list --quiet | Out-String"' \
+      > "${ZBUJB_WSL_PREFLIGHT_STDOUT}"           \
+      2> "${ZBUJB_WSL_PREFLIGHT_STDERR}"          \
+    || z_exit=$?
+
+  test "${z_exit}" -eq 0 \
+    || buc_die "WSL list query failed (ssh exit ${z_exit}); see ${ZBUJB_WSL_PREFLIGHT_STDERR}"
+
+  local z_output
+  z_output=$(<"${ZBUJB_WSL_PREFLIGHT_STDOUT}")
+  z_output="${z_output//$'\r'/}"
+  z_output="${z_output//$'\x00'/}"
+
+  case $'\n'"${z_output}"$'\n' in
+    *$'\n'"${BUJB_wsl_distribution}"$'\n'*) return 0 ;;
+  esac
+
+  buc_die "WSL distribution '${BUJB_wsl_distribution}' (BUJB_wsl_distribution) not installed on ${BURN_HOST}.
+
+Distributions present on host:
+${z_output:-<none reported>}
+
+Install the canonical distribution before retrying garrison-w. Use the
+privileged-SSH tabtarget to inspect or install:
+
+  tt/buw-jpS.PrivilegedSsh.sh ${BUZ_FOLIO} 'wsl.exe --list --verbose'
+  tt/buw-jpS.PrivilegedSsh.sh ${BUZ_FOLIO} 'wsl.exe --install --no-launch -d Ubuntu-24.04'
+  tt/buw-jpS.PrivilegedSsh.sh ${BUZ_FOLIO} 'wsl.exe --import ${BUJB_wsl_distribution} C:\\WSL\\${BUJB_wsl_distribution} <rootfs.tar>'
+"
+}
+
 # Step 6 -- workload-side round-trip validation (knock).
 zbujb_garrison_step6_validate() {
   local z_letter="${1:-}"
@@ -550,6 +623,7 @@ bujb_garrison() {
   buc_step "Garrison-${z_letter}: ${BUZ_FOLIO} (${BURN_HOST})"
 
   zbujb_garrison_step1_admin_open    "${z_letter}"
+  test "${z_letter}" = "w" && zbujb_garrison_w_preflight
   zbujb_garrison_step2_destroy       "${z_letter}"
   zbujb_garrison_step3_create        "${z_letter}"
   zbujb_garrison_step4_place_trust   "${z_letter}"

@@ -141,7 +141,7 @@ rbhp_establish() {
   buh_line     "      - Select your billing account and confirm"
   buh_e
   buh_section  "7. Enable Required APIs:"
-  buyy_href_yawp "https://console.cloud.google.com/apis/dashboard?project=${RBRP_PAYOR_PROJECT_ID}" "APIs & Services for your payor project"; local -r z_href_apis_dashboard_enable="${z_buym_yelp}"
+  buyy_href_yawp "https://console.cloud.google.com/apis/dashboard?project=${RBRP_PAYOR_PROJECT_ID}" "APIs and Services for your payor project"; local -r z_href_apis_dashboard_enable="${z_buym_yelp}"
   buh_line     "   Go to: ${z_href_apis_dashboard_enable}"
   buyy_ui_yawp "+ ENABLE APIS AND SERVICES"; local -r z_ui_enable_apis="${z_buym_yelp}"
   buh_line     "   1. Click ${z_ui_enable_apis}"
