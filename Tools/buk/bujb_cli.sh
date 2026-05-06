@@ -139,6 +139,16 @@ bujb_privileged_ssh_command() {
   bujb_privileged_ssh "$@"
 }
 
+# bujb_wsl_install_command - idempotently provision the canonical WSL distro.
+bujb_wsl_install_command() {
+  buc_doc_brief "WSL Install — provision canonical WSL distribution from Ubuntu-24.04 seed (Windows, idempotent)"
+  buc_doc_shown || return 0
+
+  test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
+  bujb_resolve_investiture
+  bujb_wsl_install
+}
+
 # bujb_garrison_bash - garrison ceremony, native bash workload shell (Linux/Mac).
 bujb_garrison_bash() {
   buc_doc_brief "Garrison workload account on a bubep_linux/bubep_mac node (shell-letter b)"

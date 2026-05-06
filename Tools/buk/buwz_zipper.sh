@@ -97,6 +97,9 @@ zbuwz_kindle() {
   # Jurisdiction operational — privileged SSH pass-through (bujb_cli.sh)
   buz_enroll BUWZ_JP_PRIVILEGED_SSH   "buw-jpS"   "${z_mod}" "bujb_privileged_ssh_command" "param1"  "Privileged SSH — run a command on a node as BURP_PRIVILEGED_USER"
 
+  # Jurisdiction operational — WSL install (bujb_cli.sh, Windows only)
+  buz_enroll BUWZ_JP_WSL_INSTALL      "buw-jpW"   "${z_mod}" "bujb_wsl_install_command"    "param1"  "WSL Install — provision canonical WSL distribution from Ubuntu-24.04 seed (Windows, idempotent)"
+
   # Jurisdiction operational — garrison ceremonies (bujb_cli.sh)
   buz_enroll BUWZ_JP_GARRISON_BASH    "buw-jpGb"  "${z_mod}" "bujb_garrison_bash"     "param1"  "Garrison workload (shell-letter b: native bash, Linux/Mac)"
   buz_enroll BUWZ_JP_GARRISON_CYGWIN  "buw-jpGc"  "${z_mod}" "bujb_garrison_cygwin"   "param1"  "Garrison workload (shell-letter c: Cygwin bash, Windows)"

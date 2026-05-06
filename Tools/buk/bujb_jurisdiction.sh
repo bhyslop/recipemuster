@@ -592,14 +592,13 @@ zbujb_garrison_w_preflight() {
 Distributions present on host:
 ${z_output:-<none reported>}
 
-Install the canonical distribution before retrying garrison-w. Use the
-privileged-SSH tabtarget to inspect or install:
+Install the canonical distribution before retrying garrison-w:
+
+  tt/buw-jpW.WslInstall.sh ${BUZ_FOLIO}
+
+Or inspect what is currently installed:
 
   tt/buw-jpS.PrivilegedSsh.sh ${BUZ_FOLIO} 'powershell -NoProfile -Command \"\$env:WSL_UTF8=1; wsl.exe --list --verbose\"'
-  tt/buw-jpS.PrivilegedSsh.sh ${BUZ_FOLIO} 'powershell -NoProfile -Command \"\$env:WSL_UTF8=1; wsl.exe --install --no-launch -d Ubuntu-24.04\"'
-  tt/buw-jpS.PrivilegedSsh.sh ${BUZ_FOLIO} 'powershell -NoProfile -Command \"\$env:WSL_UTF8=1; wsl.exe --export Ubuntu-24.04 C:\\WSL\\${BUJB_wsl_distribution}.tar\"'
-  tt/buw-jpS.PrivilegedSsh.sh ${BUZ_FOLIO} 'powershell -NoProfile -Command \"\$env:WSL_UTF8=1; wsl.exe --import ${BUJB_wsl_distribution} C:\\WSL\\${BUJB_wsl_distribution} C:\\WSL\\${BUJB_wsl_distribution}.tar\"'
-  tt/buw-jpS.PrivilegedSsh.sh ${BUZ_FOLIO} 'powershell -NoProfile -Command \"\$env:WSL_UTF8=1; wsl.exe --unregister Ubuntu-24.04\"'
 "
 }
 
@@ -903,6 +902,63 @@ bujb_fenestrate() {
   zbujb_fenestrate_phase2
 
   buc_step "Fenestrate succeeded"
+}
+
+######################################################################
+# Public: WSL Install (provision canonical WSL distribution)
+
+zbujb_wsl_install_assert_platform() {
+  zbujb_sentinel
+  test "${BURN_PLATFORM}" = "bubep_windows" \
+    || buc_die "wsl-install requires bubep_windows, got '${BURN_PLATFORM}'"
+}
+
+# bujb_wsl_install -- idempotently provision BUJB_wsl_distribution by purging
+# any prior state, installing an Ubuntu-24.04 seed, exporting it to a .tar,
+# importing under the canonical name, then unregistering the seed and removing
+# the .tar. Caller must have invoked bujb_resolve_investiture beforehand.
+# Each step propagates failure via zbujb_admin_powershell + || buc_die.
+bujb_wsl_install() {
+  zbujb_sentinel
+  test "${ZBUJB_RESOLVED:-}" = "1" \
+    || buc_die "bujb_wsl_install: call bujb_resolve_investiture first"
+
+  zbujb_wsl_install_assert_platform
+
+  local -r z_seed='Ubuntu-24.04'
+  local -r z_install_dir='C:\WSL'
+  local -r z_distro_dir="${z_install_dir}\\${BUJB_wsl_distribution}"
+  local -r z_tar_path="${z_install_dir}\\${BUJB_wsl_distribution}.tar"
+
+  buc_step "WSL Install: ${BUJB_wsl_distribution} on ${BURN_HOST} (seed: ${z_seed})"
+
+  buc_step "  [1/6] Purge prior state (idempotent: unregister both, remove tar+dir)"
+  local -r z_purge_body="if ((wsl.exe --list --quiet) -match '${BUJB_wsl_distribution}') { wsl.exe --unregister ${BUJB_wsl_distribution}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE } }; if ((wsl.exe --list --quiet) -match '${z_seed}') { wsl.exe --unregister ${z_seed}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE } }; if (Test-Path '${z_tar_path}') { Remove-Item -Force '${z_tar_path}' }; if (Test-Path '${z_distro_dir}') { Remove-Item -Recurse -Force '${z_distro_dir}' }"
+  zbujb_admin_powershell "${z_purge_body}" \
+    || buc_die "Purge step failed"
+
+  buc_step "  [2/6] Ensure ${z_install_dir} directory"
+  zbujb_admin_powershell "New-Item -ItemType Directory -Path '${z_install_dir}' -Force | Out-Null" \
+    || buc_die "Failed to create ${z_install_dir}"
+
+  buc_step "  [3/6] Install ${z_seed} seed distribution"
+  zbujb_admin_powershell "wsl.exe --install --no-launch -d ${z_seed}" \
+    || buc_die "Failed to install ${z_seed} seed"
+
+  buc_step "  [4/6] Export ${z_seed} to ${z_tar_path}"
+  zbujb_admin_powershell "wsl.exe --export ${z_seed} '${z_tar_path}'" \
+    || buc_die "Failed to export ${z_seed}"
+
+  buc_step "  [5/6] Import ${BUJB_wsl_distribution} from ${z_tar_path}"
+  zbujb_admin_powershell "wsl.exe --import ${BUJB_wsl_distribution} '${z_distro_dir}' '${z_tar_path}'" \
+    || buc_die "Failed to import ${BUJB_wsl_distribution}"
+
+  buc_step "  [6/6] Cleanup: unregister ${z_seed} and remove .tar"
+  local -r z_cleanup_body="wsl.exe --unregister ${z_seed}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE }; if (Test-Path '${z_tar_path}') { Remove-Item -Force '${z_tar_path}' }"
+  zbujb_admin_powershell "${z_cleanup_body}" \
+    || buc_die "Cleanup step failed"
+
+  buc_step "WSL Install succeeded"
 }
 
 ######################################################################
