@@ -2,7 +2,7 @@
 {bust_command_file}
 
 NOTE: Executes the contents of a local command file on the remote node
-as {burc_workload_user} and captures stdout, stderr, and the remote
+as {bujb_workload_user} and captures stdout, stderr, and the remote
 exit status to {burd_output_dir}.
 The remote shell is whichever shell-letter garrisoned the node; the
 operator does not choose it at dispatch time.
@@ -22,7 +22,7 @@ The local command file referenced as the dispatch input exists and is
 readable by the calling user.
 
 //axhos_step
-. *Open workload session*: open an SSH session to {burc_workload_user}
+. *Open workload session*: open an SSH session to {bujb_workload_user}
 using {burp_workload_key_file}.
 
 //axhos_step

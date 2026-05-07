@@ -110,7 +110,6 @@
 :burc_output_root_dir:             <<burc_output_root_dir,BURC_OUTPUT_ROOT_DIR>>
 :burc_log_last:                    <<burc_log_last,BURC_LOG_LAST>>
 :burc_log_ext:                     <<burc_log_ext,BURC_LOG_EXT>>
-:burc_workload_user:               <<burc_workload_user,BURC_WORKLOAD_USER>>
 
 // BURN Regime: Node-shape (per-node, project-global, git-tracked)
 :burn_regime:                      <<burn_regime,BURN Regime>>
@@ -128,6 +127,7 @@
 // Jurisdiction (logical umbrella + implementation seat)
 :bus_jurisdiction:                 <<bus_jurisdiction,Jurisdiction>>
 :bujb_jurisdiction:                <<bujb_jurisdiction,bujb_jurisdiction.sh>>
+:bujb_workload_user:               <<bujb_workload_user,BUJB_workload_user>>
 
 // BURP Regime: Privileged + Workload Credentials (per-station-user)
 :burp_regime:                      <<burp_regime,BURP Regime>>
@@ -910,17 +910,6 @@ Filename stem for the most recent command execution log.
 {burc_log_ext}::
 File extension for log files, without leading dot.
 
-[[burc_workload_user]]
-//axvr_variable axd_required axtu_xname
-{burc_workload_user}::
-Project-wide convention name for the unprivileged workload OS user that
-{busn_garrison}
-provisions on every node — single source of truth, one workload user
-per node.
-+
-Validation enforces a name-collision blacklist (against well-known
-admin/service accounts) and platform-imposed length limits.
-
 === BURS Regime
 
 [[burs_regime]]
@@ -1537,6 +1526,22 @@ SSH transport mechanics live in code;
 {burp_regime}
 carries no shell selection.
 
+[[bujb_workload_user]]
+//axvr_constant axf_bash
+{bujb_workload_user}::
+Project-wide constant name for the unprivileged workload OS user that
+{busn_garrison}
+provisions on every node — single source of truth, one workload user
+per node, never operator-tunable.
+Defined as a tinder constant in
+{bujb_jurisdiction}
+so it resolves at module-source time and is available to every
+jurisdiction-domain function without enrollment.
+On Windows nodes the same name covers both namespaces of the mirrored
+identity (the Windows local user that
+{busn_garrison} (`w`) creates via `net.exe user /add` and the Linux
+user inside `rbtww-main` it creates via `useradd`).
+
 === Privileges
 
 A
@@ -1562,7 +1567,7 @@ by key alone; admin trust is established beforehand by
 on Windows (which uses a one-time password fallback on its own
 phase-1 admin SSH session) or operator-manually on Linux/Mac.
 Workload account is unprivileged, ssh-only, and named by
-{burc_workload_user}
+{bujb_workload_user}
 (project-wide convention, single source of truth).
 
 === Garrison-Destructive Model
@@ -1783,12 +1788,15 @@ key-auth only (no password fallback). On Windows, this presupposes
 that
 {busn_fenestrate}
 has run for this {burp_investiture}.
-. Destroy any existing workload account named
-{burc_workload_user}
-via `userdel -r` or platform equivalent — removes account and home
-directory.
+. Obliterate any existing workload account named
+{bujb_workload_user}
+via `zbujb_obliterate_workload` — the letter-agnostic, platform-aware
+destroy helper. Scope spans every namespace a prior garrison of any
+letter could have written to (on Windows: SAM entry, Windows profile
+directory, Cygwin home, WSL-side Linux user inside `rbtww-main`; on
+Linux/Mac: native account + home). Idempotent on absent state.
 . Create fresh workload account named
-{burc_workload_user}:
+{bujb_workload_user}:
 unprivileged, no sudo, no admin group, ssh-only.
 . Place workload pubkey
 (derived from

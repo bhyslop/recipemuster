@@ -351,43 +351,50 @@ zbujb_garrison_step1_admin_open() {
   fi
 }
 
-# Step 2 -- destroy any existing workload account + home.
-zbujb_garrison_step2_destroy() {
-  local z_letter="${1:-}"
-  local z_wlu="${BUJB_workload_user}"
-  local z_wlhome
-  z_wlhome=$(zbujb_workload_home_capture "${z_letter}") \
-    || buc_die "step2: workload home unresolvable for letter='${z_letter}' platform='${BURN_PLATFORM}'"
-  buc_step "  [2/6] Destroy workload (${z_wlu})"
+# zbujb_obliterate_workload -- letter-agnostic, platform-dispatched destroy
+# helper. Single greppable verb covering every namespace a prior garrison
+# of any letter could have populated. Idempotent on absent state at every
+# step; (letter, platform) compatibility is asserted by garrison entry, so
+# the helper dispatches on BURN_PLATFORM alone.
+#
+# Windows scope (one PowerShell session over admin SSH):
+#   - Windows SAM entry (net.exe user /delete)
+#   - C:\Users\<user>\ Windows profile directory
+#   - C:\cygwin64\home\<user>\ Cygwin home
+#   - WSL-side /home/<user> via wsl.exe userdel -r inside rbtww-main
+# Linux scope: native userdel -r and home purge.
+# Mac scope: sysadminctl -deleteUser and home purge.
+zbujb_obliterate_workload() {
+  zbujb_sentinel
+  local -r z_wlu="${BUJB_workload_user}"
+  buc_step "  [2/6] Obliterate workload (${z_wlu}) on ${BURN_PLATFORM}"
 
-  case "${z_letter}" in
-    b)
+  case "${BURN_PLATFORM}" in
+    bubep_linux)
       zbujb_admin_exec b <<SCRIPT
 set -uo pipefail
 sudo -n userdel -r '${z_wlu}' 2>/dev/null || true
-sudo -n rm -rf '${z_wlhome}' 2>/dev/null || true
+sudo -n rm -rf '/home/${z_wlu}' 2>/dev/null || true
 SCRIPT
       ;;
-    c)
-      # Cygwin workload is a Windows local user; delete via net.exe then
-      # purge the Cygwin home directory.
-      zbujb_admin_exec c <<SCRIPT
+    bubep_mac)
+      zbujb_admin_exec b <<SCRIPT
 set -uo pipefail
-net.exe user '${z_wlu}' /delete > /dev/null 2>&1 || true
-rm -rf '${z_wlhome}'                              2>/dev/null || true
-rm -rf '/cygdrive/c/cygwin64/home/${z_wlu}'       2>/dev/null || true
+sudo -n sysadminctl -deleteUser '${z_wlu}' 2>/dev/null || true
+sudo -n rm -rf '/Users/${z_wlu}' 2>/dev/null || true
 SCRIPT
       ;;
-    w)
-      # Workload identity is mirrored across two namespaces: a Windows user
-      # (SSH auth boundary) and a Linux user inside the WSL distro
-      # (execution context). Purge both, idempotent.
-      zbujb_admin_exec w <<SCRIPT
-set -uo pipefail
-net.exe user '${z_wlu}' /delete > /dev/null 2>&1 || true
-userdel -r '${z_wlu}'                           2>/dev/null || true
-rm -rf '${z_wlhome}'                            2>/dev/null || true
-SCRIPT
+    bubep_windows)
+      # \$global:LASTEXITCODE is reset after each native-command probe so
+      # absent-state non-zero codes do not leak to the wrapper's trailing
+      # exit-code check. WSL block runs only if rbtww-main is installed
+      # (probed via wsl.exe --list --quiet).
+      local -r z_obliterate_body="& net.exe user '${z_wlu}' /delete 2>&1 | Out-Null; \$global:LASTEXITCODE = 0; if (Test-Path 'C:\\Users\\${z_wlu}') { Remove-Item -Recurse -Force 'C:\\Users\\${z_wlu}' -ErrorAction Stop }; if (Test-Path 'C:\\cygwin64\\home\\${z_wlu}') { Remove-Item -Recurse -Force 'C:\\cygwin64\\home\\${z_wlu}' -ErrorAction Stop }; \$wslList = wsl.exe --list --quiet 2>\$null; \$global:LASTEXITCODE = 0; if (\$wslList -match '${BUJB_wsl_distribution}') { wsl.exe --distribution ${BUJB_wsl_distribution} --user root userdel -r '${z_wlu}' 2>&1 | Out-Null; \$global:LASTEXITCODE = 0 }"
+      zbujb_admin_powershell "${z_obliterate_body}" \
+        || buc_die "Obliterate failed on ${BURN_HOST}"
+      ;;
+    *)
+      buc_die "obliterate: unsupported BURN_PLATFORM '${BURN_PLATFORM}'"
       ;;
   esac
 }
@@ -453,7 +460,16 @@ zbujb_garrison_step4_place_trust() {
   local z_wlhome
   z_wlhome=$(zbujb_workload_home_capture "${z_letter}") \
     || buc_die "step4: workload home unresolvable for letter='${z_letter}' platform='${BURN_PLATFORM}'"
-  buc_step "  [4/6] Place workload trust (${z_wlhome}/.ssh/authorized_keys)"
+
+  # Authorized_keys directory differs by letter: b/c land in the workload
+  # home; w lands Windows-side under /mnt/c/Users so Windows OpenSSH
+  # discovers it natively (the SSH auth boundary is the Windows user).
+  local z_authkeys_dir
+  case "${z_letter}" in
+    b|c) z_authkeys_dir="${z_wlhome}/.ssh" ;;
+    w)   z_authkeys_dir="/mnt/c/Users/${z_wlu}/.ssh" ;;
+  esac
+  buc_step "  [4/6] Place workload trust (${z_authkeys_dir}/authorized_keys)"
 
   local z_command_directive
   z_command_directive=$(bujb_command_for_capture "${z_letter}") \
@@ -469,20 +485,18 @@ zbujb_garrison_step4_place_trust() {
 
   local z_authkeys_line="${z_command_directive} ${z_pubkey}"
 
-  # Precompute sudo prefix locally (bash parameter expansion, no $()) so the
-  # heredoc lines don't carry inline `$([ ... ] && echo "sudo -n ")` calls.
   local z_sudo_prefix=""
-  test "${z_letter}" = "b" && z_sudo_prefix="sudo -n "
+  test "${z_letter}" != "b" || z_sudo_prefix="sudo -n "
 
   case "${z_letter}" in
     b)
       zbujb_admin_exec b <<SCRIPT
 set -euo pipefail
-${z_sudo_prefix}mkdir -p   '${z_wlhome}/.ssh'
-${z_sudo_prefix}chmod 700  '${z_wlhome}/.ssh'
-echo '${z_authkeys_line}' | ${z_sudo_prefix}tee '${z_wlhome}/.ssh/authorized_keys' > /dev/null
-${z_sudo_prefix}chmod 600  '${z_wlhome}/.ssh/authorized_keys'
-${z_sudo_prefix}chown -R '${z_wlu}:${z_wlu}' '${z_wlhome}/.ssh'
+${z_sudo_prefix}mkdir -p   '${z_authkeys_dir}'
+${z_sudo_prefix}chmod 700  '${z_authkeys_dir}'
+echo '${z_authkeys_line}' | ${z_sudo_prefix}tee '${z_authkeys_dir}/authorized_keys' > /dev/null
+${z_sudo_prefix}chmod 600  '${z_authkeys_dir}/authorized_keys'
+${z_sudo_prefix}chown -R '${z_wlu}:${z_wlu}' '${z_authkeys_dir}'
 SCRIPT
       ;;
     c)
@@ -491,25 +505,25 @@ SCRIPT
       # without sudo (Windows admins already have privilege).
       zbujb_admin_exec c <<SCRIPT
 set -euo pipefail
-mkdir -p   '${z_wlhome}/.ssh'
-chmod 700  '${z_wlhome}/.ssh'
-echo '${z_authkeys_line}' > '${z_wlhome}/.ssh/authorized_keys'
-chmod 600  '${z_wlhome}/.ssh/authorized_keys'
-chown -R '${z_wlu}' '${z_wlhome}/.ssh'
+mkdir -p   '${z_authkeys_dir}'
+chmod 700  '${z_authkeys_dir}'
+echo '${z_authkeys_line}' > '${z_authkeys_dir}/authorized_keys'
+chmod 600  '${z_authkeys_dir}/authorized_keys'
+chown -R '${z_wlu}' '${z_authkeys_dir}'
 SCRIPT
       ;;
     w)
-      # Authorized_keys lives Windows-side so Windows OpenSSH discovers
-      # it natively (the SSH auth boundary is the Windows user). From
-      # WSL bash the Windows profile is reachable at /mnt/c/Users.
-      # Structural shape mirrors the c branch above; the path differs.
+      # No chown: POSIX ownership on /mnt/c/... is meaningless to Windows
+      # OpenSSH, which inspects NTFS ACLs. Inherited NTFS ACL from the
+      # parent profile directory is admin-owned and read-only for
+      # non-admins — satisfies StrictModes. Explicit icacls hardening is
+      # deferred unless a real host kicks back.
       zbujb_admin_exec w <<SCRIPT
 set -euo pipefail
-mkdir -p   '/mnt/c/Users/${z_wlu}/.ssh'
-chmod 700  '/mnt/c/Users/${z_wlu}/.ssh'
-echo '${z_authkeys_line}' > '/mnt/c/Users/${z_wlu}/.ssh/authorized_keys'
-chmod 600  '/mnt/c/Users/${z_wlu}/.ssh/authorized_keys'
-chown -R '${z_wlu}' '/mnt/c/Users/${z_wlu}/.ssh'
+mkdir -p   '${z_authkeys_dir}'
+chmod 700  '${z_authkeys_dir}'
+echo '${z_authkeys_line}' > '${z_authkeys_dir}/authorized_keys'
+chmod 600  '${z_authkeys_dir}/authorized_keys'
 SCRIPT
       ;;
   esac
@@ -539,7 +553,7 @@ zbujb_garrison_step5_plant_key() {
   z_key_b64="${z_key_b64//$'\n'/}"
 
   local z_sudo_prefix=""
-  test "${z_letter}" = "b" && z_sudo_prefix="sudo -n "
+  test "${z_letter}" != "b" || z_sudo_prefix="sudo -n "
 
   case "${z_letter}" in
     b|w)
@@ -645,7 +659,7 @@ bujb_garrison() {
     w) zbujb_garrison_w_preflight ;;
   esac
   zbujb_garrison_step1_admin_open    "${z_letter}"
-  zbujb_garrison_step2_destroy       "${z_letter}"
+  zbujb_obliterate_workload
   zbujb_garrison_step3_create        "${z_letter}"
   zbujb_garrison_step4_place_trust   "${z_letter}"
   zbujb_garrison_step5_plant_key     "${z_letter}"

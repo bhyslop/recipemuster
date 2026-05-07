@@ -4,8 +4,11 @@
 NOTE: {busn_garrison} ceremony with native bash as the workload shell,
 for Linux and macOS nodes.
 Workload-only: garrison destroys any prior workload account named
-{burc_workload_user}
-and recreates it from a clean slate.
+{bujb_workload_user} via the letter-agnostic
+`zbujb_obliterate_workload` helper in {bujb_jurisdiction} — the
+single greppable destroy verb. On Linux the helper runs `userdel -r`
+and purges `/home/<user>`; on macOS it runs `sysadminctl -deleteUser`
+and purges `/Users/<user>`. Each step is idempotent on absent state.
 Garrison never reads or writes any `sshd_config` and never modifies
 admin authorized_keys.
 
@@ -32,11 +35,13 @@ station.
 missing or stale admin trust.
 
 //axhos_step
-. *Destroy workload*: remove any existing {burc_workload_user} account
-via `userdel -r`.
+. *Obliterate workload*: invoke `zbujb_obliterate_workload`. On Linux
+the helper runs `sudo -n userdel -r` and `sudo -n rm -rf /home/<user>`;
+on macOS it runs `sudo -n sysadminctl -deleteUser` and
+`sudo -n rm -rf /Users/<user>`. Idempotent on absent state.
 
 //axhos_step
-. *Create workload*: provision {burc_workload_user} as an unprivileged,
+. *Create workload*: provision {bujb_workload_user} as an unprivileged,
 ssh-only account.
 
 //axhos_step
@@ -61,7 +66,7 @@ exit 0.
 
 //axhog_guarantee
 On success the node has exactly one workload account named
-{burc_workload_user}, ssh-only, with both inbound (from operator) and
+{bujb_workload_user}, ssh-only, with both inbound (from operator) and
 outbound (to GitHub or equivalent) key trust in place.
 
 //axhoc_completion

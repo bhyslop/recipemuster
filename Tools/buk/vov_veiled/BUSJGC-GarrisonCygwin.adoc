@@ -4,8 +4,14 @@
 NOTE: {busn_garrison} ceremony with Cygwin bash as the workload shell,
 for Windows nodes reached via Cygwin sshd.
 Workload-only: garrison destroys any prior workload account named
-{burc_workload_user}
-and recreates it from a clean slate.
+{bujb_workload_user} via the letter-agnostic
+`zbujb_obliterate_workload` helper in {bujb_jurisdiction} — the
+single greppable destroy verb. The covenant scope spans every
+namespace a prior garrison of any letter could have written to: the
+Windows SAM entry, the `C:\Users\<user>\` Windows profile directory,
+the `C:\cygwin64\home\<user>\` Cygwin home, and the WSL-side
+`/home/<user>` inside `rbtww-main` (when `rbtww-main` is installed).
+Each step is idempotent on absent state.
 Garrison never reads or writes any `sshd_config` and never modifies
 admin authorized_keys; admin trust is established beforehand by
 {busn_fenestrate}
@@ -35,11 +41,14 @@ station.
 missing or stale admin trust.
 
 //axhos_step
-. *Destroy workload*: remove any existing {burc_workload_user} Cygwin
-account via the Cygwin user-management equivalent of `userdel -r`.
+. *Obliterate workload*: invoke `zbujb_obliterate_workload`. On
+Windows the helper executes a single PowerShell session over admin
+SSH that purges the Windows SAM entry, the Windows profile directory,
+the Cygwin home, and (when `rbtww-main` is installed) the WSL-side
+Linux user. Idempotent on absent state.
 
 //axhos_step
-. *Create workload*: provision {burc_workload_user} as an unprivileged,
+. *Create workload*: provision {bujb_workload_user} as an unprivileged,
 ssh-only Cygwin account.
 
 //axhos_step
@@ -64,7 +73,7 @@ exit 0.
 
 //axhog_guarantee
 On success the node has exactly one workload account named
-{burc_workload_user} reachable via Cygwin bash.
+{bujb_workload_user} reachable via Cygwin bash.
 
 //axhoc_completion
 Exit 0 when the round-trip validation succeeds.

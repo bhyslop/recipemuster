@@ -15,11 +15,11 @@ referenced {burn_regime} profile is reachable.
 
 //axhoq_precondition
 {busn_garrison} has been run for this {burp_investiture} so that
-{burc_workload_user} exists on the node and trusts the workload pubkey
+{bujb_workload_user} exists on the node and trusts the workload pubkey
 derived from {burp_workload_key_file}.
 
 //axhos_step
-. *Open workload SSH*: connect as {burc_workload_user} using
+. *Open workload SSH*: connect as {bujb_workload_user} using
 {burp_workload_key_file}; key-auth only.
 
 //axhos_step

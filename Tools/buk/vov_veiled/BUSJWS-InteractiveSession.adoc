@@ -1,7 +1,7 @@
 //axhob_operation
 {bust_interactive_session}
 
-NOTE: Opens an interactive SSH session to {burc_workload_user} on the
+NOTE: Opens an interactive SSH session to {bujb_workload_user} on the
 node named by a {burp_investiture}.
 Foreground operation; control returns to the station shell when the
 operator exits the remote shell.
@@ -15,7 +15,7 @@ A {burp_regime} profile exists at the given {burp_investiture} and is
 
 //axhos_step
 . *Hand control to SSH*: invoke the local SSH client interactively
-against {burc_workload_user} using {burp_workload_key_file}.
+against {bujb_workload_user} using {burp_workload_key_file}.
 
 //axhos_step
 . *Wait for exit*: block until the operator exits the remote shell.
