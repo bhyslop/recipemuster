@@ -70,7 +70,7 @@ NEVER invent param fields — check the reference below first.
 | notch | pace | See Commit Discipline below |
 | wrap | pace | `jjx_close` |
 | rail | heat | `jjx_reorder` |
-| furlough | heat | `jjx_alter` |
+| furlough | heat status/silks | `jjx_alter` |
 | retire | heat | `jjx_archive` |
 | restring | heat | `jjx_transfer` |
 | foray | remote dispatch | See Foray Protocol below |
