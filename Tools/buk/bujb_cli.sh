@@ -46,7 +46,7 @@ bujb_resolve() {
   buc_bare "  BURP_PRIVILEGED_USER    = ${BURP_PRIVILEGED_USER}"
   buc_bare "  BURP_PRIVILEGED_KEY_FILE= ${BURP_PRIVILEGED_KEY_FILE}"
   buc_bare "  BURP_WORKLOAD_KEY_FILE  = ${BURP_WORKLOAD_KEY_FILE}"
-  buc_bare "  BURC_WORKLOAD_USER      = ${BURC_WORKLOAD_USER}"
+  buc_bare "  BUJB_workload_user      = ${BUJB_workload_user}"
 }
 
 # bujb_knock - probe workload reachability (workload SSH + remote no-op).
@@ -58,14 +58,14 @@ bujb_knock() {
 
   bujb_resolve_investiture
 
-  buc_step "Knocking ${BURC_WORKLOAD_USER}@${BURN_HOST} (${BUZ_FOLIO})"
+  buc_step "Knocking ${BUJB_workload_user}@${BURN_HOST} (${BUZ_FOLIO})"
 
   ssh -i "${BURP_WORKLOAD_KEY_FILE}"     \
       -o IdentitiesOnly=yes                       \
       -o BatchMode=yes                            \
       -o StrictHostKeyChecking=accept-new         \
       -o ConnectTimeout=10                        \
-      "${BURC_WORKLOAD_USER}@${BURN_HOST}" \
+      "${BUJB_workload_user}@${BURN_HOST}" \
       true                                        \
     || buc_die "Knock failed for ${BUZ_FOLIO}"
 
@@ -90,7 +90,7 @@ bujb_command_file() {
 
   bujb_resolve_investiture
 
-  buc_step "Streaming ${z_command_file} to ${BURC_WORKLOAD_USER}@${BURN_HOST}"
+  buc_step "Streaming ${z_command_file} to ${BUJB_workload_user}@${BURN_HOST}"
   buc_step "Output dir: ${BURD_OUTPUT_DIR}"
 
   local z_exit=0
@@ -99,7 +99,7 @@ bujb_command_file() {
       -o BatchMode=yes                            \
       -o StrictHostKeyChecking=accept-new         \
       -o ConnectTimeout=10                        \
-      "${BURC_WORKLOAD_USER}@${BURN_HOST}" \
+      "${BUJB_workload_user}@${BURN_HOST}" \
       'bash -s'                                   \
       < "${z_command_file}"                       \
       > "${BURD_OUTPUT_DIR}/stdout.log"           \
@@ -188,13 +188,13 @@ bujb_interactive_session() {
 
   bujb_resolve_investiture
 
-  buc_step "Opening interactive session: ${BURC_WORKLOAD_USER}@${BURN_HOST} (${BUZ_FOLIO})"
+  buc_step "Opening interactive session: ${BUJB_workload_user}@${BURN_HOST} (${BUZ_FOLIO})"
 
   exec ssh -t                                     \
       -i "${BURP_WORKLOAD_KEY_FILE}"     \
       -o IdentitiesOnly=yes                       \
       -o StrictHostKeyChecking=accept-new         \
-      "${BURC_WORKLOAD_USER}@${BURN_HOST}" \
+      "${BUJB_workload_user}@${BURN_HOST}" \
       "bash -i"
 }
 

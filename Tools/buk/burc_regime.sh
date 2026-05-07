@@ -60,9 +60,6 @@ zburc_kindle() {
   buv_xname_enroll   BURC_LOG_EXT               1   16  "Log file extension (without dot)"
   buv_string_enroll  BURC_BUK_DIR               1  256  "Derived: BUK directory"
 
-  buv_group_enroll "Jurisdiction"
-  buv_xname_enroll   BURC_WORKLOAD_USER         1   32  "Project-wide convention name for the workload OS user provisioned on every node"
-
   # Guard against unexpected BURC_ variables not in enrollment
   buv_scope_sentinel BURC BURC_
 

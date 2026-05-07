@@ -42,7 +42,7 @@ ZBUJB_SOURCED=1
 # requests. Locked spec content; mirrored in BUSJG{B,C,W}.
 BUJB_command_b='command="/bin/bash -lc \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding'
 BUJB_command_c='command="C:/cygwin64/bin/bash --login -c \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding'
-BUJB_command_w='command="C:/Windows/System32/wsl.exe --distribution rbtww-main --user ${BURC_WORKLOAD_USER} --exec /bin/bash -lc \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding'
+BUJB_command_w='command="C:/Windows/System32/wsl.exe --distribution rbtww-main --user ${BUJB_workload_user} --exec /bin/bash -lc \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding'
 
 # Shell-letter -> workload privkey destination path on the remote
 # (relative to the workload account home directory).
@@ -52,6 +52,11 @@ BUJB_workload_keypath_w='.ssh/id_ed25519'
 
 # Canonical WSL distribution name reached by garrison-w.
 BUJB_wsl_distribution='rbtww-main'
+
+# Canonical workload OS user name provisioned on every node by garrison.
+# Project-wide convention; substituted into BUJB_command_w via
+# bujb_command_for_capture and consumed by garrison/cli display strings.
+BUJB_workload_user='bujuw_user'
 
 # Windows OpenSSH sshd_config hardening directive set written by
 # fenestrate phase 1. Newline-joined; each directive is asserted by
@@ -208,7 +213,7 @@ bujb_command_for_capture() {
   case "${z_letter}" in
     b) echo "${BUJB_command_b}" ;;
     c) echo "${BUJB_command_c}" ;;
-    w) echo "${BUJB_command_w//\$\{BURC_WORKLOAD_USER\}/${BURC_WORKLOAD_USER}}" ;;
+    w) echo "${BUJB_command_w//\$\{BUJB_workload_user\}/${BUJB_workload_user}}" ;;
     *) return 1 ;;
   esac
 }
@@ -265,7 +270,7 @@ zbujb_garrison_assert_platform() {
 zbujb_workload_home_capture() {
   zbujb_sentinel
   local z_letter="${1:-}"
-  local z_wlu="${BURC_WORKLOAD_USER}"
+  local z_wlu="${BUJB_workload_user}"
   case "${z_letter}" in
     b)
       case "${BURN_PLATFORM}" in
@@ -349,7 +354,7 @@ zbujb_garrison_step1_admin_open() {
 # Step 2 -- destroy any existing workload account + home.
 zbujb_garrison_step2_destroy() {
   local z_letter="${1:-}"
-  local z_wlu="${BURC_WORKLOAD_USER}"
+  local z_wlu="${BUJB_workload_user}"
   local z_wlhome
   z_wlhome=$(zbujb_workload_home_capture "${z_letter}") \
     || buc_die "step2: workload home unresolvable for letter='${z_letter}' platform='${BURN_PLATFORM}'"
@@ -390,7 +395,7 @@ SCRIPT
 # Step 3 -- create the workload account fresh, ssh-only, no privilege.
 zbujb_garrison_step3_create() {
   local z_letter="${1:-}"
-  local z_wlu="${BURC_WORKLOAD_USER}"
+  local z_wlu="${BUJB_workload_user}"
   buc_step "  [3/6] Create workload (${z_wlu})"
 
   case "${z_letter}" in
@@ -444,7 +449,7 @@ SCRIPT
 # directive and the workload pubkey (derived locally from the privkey).
 zbujb_garrison_step4_place_trust() {
   local z_letter="${1:-}"
-  local z_wlu="${BURC_WORKLOAD_USER}"
+  local z_wlu="${BUJB_workload_user}"
   local z_wlhome
   z_wlhome=$(zbujb_workload_home_capture "${z_letter}") \
     || buc_die "step4: workload home unresolvable for letter='${z_letter}' platform='${BURN_PLATFORM}'"
@@ -514,7 +519,7 @@ SCRIPT
 # hardcoded destination path, with workload ownership and 0600 mode.
 zbujb_garrison_step5_plant_key() {
   local z_letter="${1:-}"
-  local z_wlu="${BURC_WORKLOAD_USER}"
+  local z_wlu="${BUJB_workload_user}"
   local z_wlhome
   z_wlhome=$(zbujb_workload_home_capture "${z_letter}") \
     || buc_die "step5: workload home unresolvable for letter='${z_letter}' platform='${BURN_PLATFORM}'"
@@ -613,7 +618,7 @@ zbujb_garrison_step6_validate() {
       -o BatchMode=yes                            \
       -o StrictHostKeyChecking=accept-new         \
       -o ConnectTimeout=10                        \
-      "${BURC_WORKLOAD_USER}@${BURN_HOST}" \
+      "${BUJB_workload_user}@${BURN_HOST}" \
       true                                        \
     || z_exit=$?
 
