@@ -9212,6 +9212,13 @@
         "₢BDAAA": {
           "tacks": [
             {
+              "ts": "260507-0851",
+              "state": "complete",
+              "text": "Drafted from ₢AmAAK in ₣Am.\n\n## Character\nMechanical — single file edit, clear target.\n\n## Docket\nThe `furlough` verb in `jjk-claude-context.md` maps to `jjx_alter` but doesn't convey that it covers both directions (racing→stabled and stabled→racing) plus silks rename. An agent reading the verb table naturally assumes furlough = stable, missing the bidirectional nature.\n\nAdd a parenthetical to the verb table entry: `furlough | heat | jjx_alter` → `furlough | heat/status | jjx_alter` or similar, so the verb's scope is clear without needing to read JJS0.",
+              "silks": "clarify-furlough-verb-in-claude-context",
+              "commit": "3899d30"
+            },
+            {
               "ts": "260507-0847",
               "state": "rough",
               "text": "Drafted from ₢AmAAK in ₣Am.\n\n## Character\nMechanical — single file edit, clear target.\n\n## Docket\nThe `furlough` verb in `jjk-claude-context.md` maps to `jjx_alter` but doesn't convey that it covers both directions (racing→stabled and stabled→racing) plus silks rename. An agent reading the verb table naturally assumes furlough = stable, missing the bidirectional nature.\n\nAdd a parenthetical to the verb table entry: `furlough | heat | jjx_alter` → `furlough | heat/status | jjx_alter` or similar, so the verb's scope is clear without needing to read JJS0.",
