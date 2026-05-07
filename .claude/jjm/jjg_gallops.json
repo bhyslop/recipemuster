@@ -84,7 +84,6 @@
         "₢A-AAP"
       ],
       "next_pace_seed": "AAz",
-      "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
           "tacks": [
@@ -1296,7 +1295,6 @@
         "₢A5AAJ"
       ],
       "next_pace_seed": "AAK",
-      "paddock_file": ".claude/jjm/jjp_uAl5.md",
       "paces": {
         "₢A5AAA": {
           "tacks": [
@@ -1498,7 +1496,6 @@
         "₢A6AA9"
       ],
       "next_pace_seed": "AA-",
-      "paddock_file": ".claude/jjm/jjp_uAl6.md",
       "paces": {
         "₢A6AA0": {
           "tacks": [
@@ -2964,7 +2961,6 @@
         "₢A7AAA"
       ],
       "next_pace_seed": "AAB",
-      "paddock_file": ".claude/jjm/jjp_uAl7.md",
       "paces": {
         "₢A7AAA": {
           "tacks": [
@@ -3018,7 +3014,6 @@
         "₢A9AAU"
       ],
       "next_pace_seed": "AAg",
-      "paddock_file": ".claude/jjm/jjp_uAl9.md",
       "paces": {
         "₢A9AAA": {
           "tacks": [
@@ -3716,7 +3711,6 @@
         "₢ADAAJ"
       ],
       "next_pace_seed": "AAN",
-      "paddock_file": ".claude/jjm/jjp_uAuD.md",
       "paces": {
         "₢ADAAA": {
           "tacks": [
@@ -4105,7 +4099,6 @@
         "₢AIAAD"
       ],
       "next_pace_seed": "AAE",
-      "paddock_file": ".claude/jjm/jjp_uAuI.md",
       "paces": {
         "₢AIAAA": {
           "tacks": [
@@ -4204,7 +4197,6 @@
         "₢AJAAB"
       ],
       "next_pace_seed": "AAC",
-      "paddock_file": ".claude/jjm/jjp_uAuJ.md",
       "paces": {
         "₢AJAAA": {
           "tacks": [
@@ -4242,7 +4234,6 @@
         "₢ANAAE"
       ],
       "next_pace_seed": "AAF",
-      "paddock_file": ".claude/jjm/jjp_uAuN.md",
       "paces": {
         "₢ANAAA": {
           "tacks": [
@@ -4344,7 +4335,6 @@
         "₢AQAAA"
       ],
       "next_pace_seed": "AAB",
-      "paddock_file": ".claude/jjm/jjp_uAuQ.md",
       "paces": {
         "₢AQAAA": {
           "tacks": [
@@ -4419,7 +4409,6 @@
         "₢AUAA6"
       ],
       "next_pace_seed": "AA7",
-      "paddock_file": ".claude/jjm/jjp_uAuU.md",
       "paces": {
         "₢AUAA0": {
           "tacks": [
@@ -5635,7 +5624,6 @@
       "status": "stabled",
       "order": [],
       "next_pace_seed": "AAA",
-      "paddock_file": ".claude/jjm/jjp_uAuV.md",
       "paces": {}
     },
     "₣AZ": {
@@ -5644,7 +5632,6 @@
       "status": "stabled",
       "order": [],
       "next_pace_seed": "AAA",
-      "paddock_file": ".claude/jjm/jjp_uAuZ.md",
       "paces": {}
     },
     "₣A_": {
@@ -5674,7 +5661,6 @@
         "₢A_AAJ"
       ],
       "next_pace_seed": "AAb",
-      "paddock_file": ".claude/jjm/jjp_uAl_.md",
       "paces": {
         "₢A_AAA": {
           "tacks": [
@@ -6201,7 +6187,6 @@
         "₢AaAAB"
       ],
       "next_pace_seed": "AAC",
-      "paddock_file": ".claude/jjm/jjp_uAla.md",
       "paces": {
         "₢AaAAA": {
           "tacks": [
@@ -6254,7 +6239,6 @@
         "₢AhAAX"
       ],
       "next_pace_seed": "AAY",
-      "paddock_file": ".claude/jjm/jjp_uAlh.md",
       "paces": {
         "₢AhAAA": {
           "tacks": [
@@ -6793,7 +6777,6 @@
         "₢AmAAI"
       ],
       "next_pace_seed": "AAP",
-      "paddock_file": ".claude/jjm/jjp_uAlm.md",
       "paces": {
         "₢AmAAA": {
           "tacks": [
@@ -7013,7 +6996,6 @@
       "status": "stabled",
       "order": [],
       "next_pace_seed": "AAA",
-      "paddock_file": ".claude/jjm/jjp_uAln.md",
       "paces": {}
     },
     "₣Ap": {
@@ -7028,7 +7010,6 @@
         "₢ApAAE"
       ],
       "next_pace_seed": "AAF",
-      "paddock_file": ".claude/jjm/jjp_uAlp.md",
       "paces": {
         "₢ApAAA": {
           "tacks": [
@@ -7167,7 +7148,6 @@
         "₢AqAAC"
       ],
       "next_pace_seed": "AAD",
-      "paddock_file": ".claude/jjm/jjp_uAlq.md",
       "paces": {
         "₢AqAAA": {
           "tacks": [
@@ -7245,7 +7225,6 @@
       "status": "stabled",
       "order": [],
       "next_pace_seed": "AAA",
-      "paddock_file": ".claude/jjm/jjp_uAlu.md",
       "paces": {}
     },
     "₣Az": {
@@ -7254,7 +7233,6 @@
       "status": "stabled",
       "order": [],
       "next_pace_seed": "AAA",
-      "paddock_file": ".claude/jjm/jjp_uAlz.md",
       "paces": {}
     },
     "₣BA": {
@@ -7273,7 +7251,6 @@
         "₢BAAAF"
       ],
       "next_pace_seed": "AAJ",
-      "paddock_file": ".claude/jjm/jjp_uBuA.md",
       "paces": {
         "₢BAAAA": {
           "tacks": [
@@ -7551,7 +7528,6 @@
         "₢BBAA5"
       ],
       "next_pace_seed": "ABD",
-      "paddock_file": ".claude/jjm/jjp_uBuB.md",
       "paces": {
         "₢BBAA-": {
           "tacks": [
@@ -9127,7 +9103,6 @@
         "₢BCAAD"
       ],
       "next_pace_seed": "AAE",
-      "paddock_file": ".claude/jjm/jjp_uBuC.md",
       "paces": {
         "₢BCAAA": {
           "tacks": [
@@ -9232,7 +9207,6 @@
         "₢BDAAH"
       ],
       "next_pace_seed": "AAI",
-      "paddock_file": ".claude/jjm/jjp_uBuD.md",
       "paces": {
         "₢BDAAA": {
           "tacks": [
