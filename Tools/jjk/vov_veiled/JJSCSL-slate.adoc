@@ -141,3 +141,16 @@ insert immediately after target
 . Output new
 {jjdt_coronet}
 to stdout
+
+*Variants:*
+{jjsuv_chivvy}
+names the
+{jjda_first}
+positioning pattern;
+{jjsuv_cantle}
+names the
+{jjda_after}
+positioning pattern with the current
+{jjdpr_pace_p}
+{jjdt_coronet}
+as target.

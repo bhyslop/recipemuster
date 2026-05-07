@@ -66,6 +66,8 @@ NEVER invent param fields — check the reference below first.
 | mount | heat/pace | See Mount Protocol below |
 | groom | heat | See Groom Protocol below |
 | slate | pace | `jjx_enroll` |
+| chivvy | pace | `jjx_enroll {first: true}` |
+| cantle | pace | `jjx_enroll {after: <current_coronet>}` |
 | reslate | pace | `jjx_redocket` |
 | notch | pace | See Commit Discipline below |
 | wrap | pace | `jjx_close` |

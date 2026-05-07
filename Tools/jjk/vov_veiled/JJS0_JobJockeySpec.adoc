@@ -276,6 +276,8 @@
 :jjsuv_mount:      <<jjsuv_mount,mount>>
 :jjsuv_groom:      <<jjsuv_groom,groom>>
 :jjsuv_notch:      <<jjsuv_notch,notch>>
+:jjsuv_chivvy:     <<jjsuv_chivvy,chivvy>>
+:jjsuv_cantle:     <<jjsuv_cantle,cantle>>
 
 // Upper API: context artifact
 :jjsuc_insert:  <<jjsuc_insert,CLAUDE.md JJK section>>
@@ -979,6 +981,18 @@ Orchestrates {jjdo_show} with remaining view, then enters planning mode for stru
 {jjsuv_notch}::
 JJ-aware git commit with heat and pace affiliation.
 Detects context (pace-affiliated or heat-affiliated), then invokes {jjdo_record} with appropriate identity.
+
+[[jjsuv_chivvy]]
+//axl_voices axi_cc_claudemd_verb
+{jjsuv_chivvy}::
+Add a {jjdpr_pace} at the front of a {jjdhr_heat_p} {jjdhm_order}.
+Maps to {jjdo_enroll} with {jjda_first}.
+
+[[jjsuv_cantle]]
+//axl_voices axi_cc_claudemd_verb
+{jjsuv_cantle}::
+Add a {jjdpr_pace} immediately after the current {jjdpr_pace}.
+Maps to {jjdo_enroll} with {jjda_after} bound to the current {jjdpr_pace_p} {jjdt_coronet}.
 
 
 === Slash Commands
