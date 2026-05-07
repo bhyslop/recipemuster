@@ -1,6 +1,6 @@
 {
   "schema_version": 4,
-  "next_heat_seed": "BD",
+  "next_heat_seed": "BE",
   "heat_order": [
     "₣BB",
     "₣BA",
@@ -26,7 +26,8 @@
     "₣Ap",
     "₣Aq",
     "₣Au",
-    "₣BC"
+    "₣BC",
+    "₣BD"
   ],
   "heats": {
     "₣A-": {
@@ -9299,6 +9300,15 @@
           ]
         }
       }
+    },
+    "₣BD": {
+      "silks": "jjk-v4-1-fast-tweaks",
+      "creation_time": "260507",
+      "status": "stabled",
+      "order": [],
+      "next_pace_seed": "AAA",
+      "paddock_file": ".claude/jjm/jjp_uBuD.md",
+      "paces": {}
     }
   }
 }
