@@ -180,7 +180,7 @@ When user says "mount" or you need to engage the next pace:
 1. Run `jjx_orient` command with the firemark. **Firemark is required** — if the user says "mount" without specifying a heat and you have no prior heat context in this session, ask which heat to mount rather than guessing. If you have prior context (previously mounted/groomed heat), use that firemark.
 2. Parse output: Racing-heats table, Heat/Next/Docket/Recent-work sections. Read paddock and pace docket from the gazette file written to the officium exchange directory.
 3. **Read the paddock before the docket.** The paddock tells you the shape of the work and what's been learned; the docket tells you what to do next. Orientation before action.
-4. Display context to user: racing heats, heat silks, paddock summary, recent work, current pace and docket
+4. **Lead with the pace goal in one sentence**, distilled from the docket — what this pace is trying to accomplish, stated precisely. Paces can sit weeks between slating and mounting; the operator needs goal recall first, not heat scenery. Then display brief heat context (silks + paddock one-liner + recent work) and finally the full docket.
 5. **Name assessment**: If pace silks doesn't fit docket, offer rename via `jjx_relabel`
 6. Analyze docket, propose approach (2-4 bullets), assess execution strategy:
    - Model tier: haiku (mechanical), sonnet (standard dev), opus (architectural)
