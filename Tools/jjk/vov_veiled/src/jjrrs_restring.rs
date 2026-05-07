@@ -30,6 +30,10 @@ pub struct jjrrs_RestringArgs {
     /// Destination Heat identity (Firemark)
     #[arg(long)]
     pub to: String,
+
+    /// Override commit size guard limit in bytes
+    #[arg(long)]
+    pub size_limit: Option<u64>,
 }
 
 /// Execute restring command - bulk draft multiple paces atomically
@@ -97,6 +101,7 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
         &format!("restring {} paces from {}", result.drafted.len(), result.source_firemark)
     );
 
+    let size_limit = args.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT);
     let commit_args = vvc::vvcm_CommitArgs {
         files: vec![
             gallops_path,
@@ -104,8 +109,8 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
             dest_paddock_path,
         ],
         message: commit_message,
-        size_limit: 100000,  // 100KB - bulk operations can be large
-        warn_limit: 50000,
+        size_limit,
+        warn_limit: vvc::VVCG_WARN_LIMIT,
     };
 
     match vvc::machine_commit(&lock, &commit_args, &mut output) {

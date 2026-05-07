@@ -160,7 +160,7 @@ pub fn jjrtl_run_relabel(args: jjrtl_RelabelArgs) -> (i32, String) {
         Ok(()) => {
             let message = format_heat_message(&fm, HeatAction::Tally, &new_silks);
 
-            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000, &mut output) {
+            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, vvc::VVCG_SIZE_LIMIT, &mut output) {
                 Ok(hash) => {
                     vvco_out!(output, "committed {}", hash);
                     (0, output.vvco_finish())
@@ -244,7 +244,7 @@ pub fn jjrtl_run_drop(args: jjrtl_DropArgs) -> (i32, String) {
         Ok(()) => {
             let message = format_heat_message(&fm, HeatAction::Tally, &silks);
 
-            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000, &mut output) {
+            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, vvc::VVCG_SIZE_LIMIT, &mut output) {
                 Ok(hash) => {
                     vvco_out!(output, "committed {}", hash);
                     (0, output.vvco_finish())

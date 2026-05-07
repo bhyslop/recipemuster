@@ -146,7 +146,7 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> (i32, String) {
 
             let message = jjrn_format_heat_message(&fm, jjrn_HeatAction::Rail, &subject);
 
-            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000, &mut output) {
+            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, vvc::VVCG_SIZE_LIMIT, &mut output) {
                 Ok(hash) => {
                     vvco_out!(output, "{}: committed {}", cn, &hash[..8]);
                 }

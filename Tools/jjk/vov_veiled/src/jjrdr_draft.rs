@@ -104,8 +104,8 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> (i32, String) {
                     dest_paddock_path,
                 ],
                 message: format_heat_message(&dest_fm, HeatAction::Draft, &format!("{} → {}", coronet, result.new_coronet)),
-                size_limit: 50000,
-                warn_limit: 30000,
+                size_limit: vvc::VVCG_SIZE_LIMIT,
+                warn_limit: vvc::VVCG_WARN_LIMIT,
             };
 
             match vvc::machine_commit(&lock, &commit_args, &mut output) {

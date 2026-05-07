@@ -143,6 +143,7 @@
 :jjda_move:           <<jjda_move,--move>>
 :jjda_pace:           <<jjda_pace,--pace>>
 :jjda_silks:          <<jjda_silks,--silks>>
+:jjda_size_limit:     <<jjda_size_limit,--size-limit>>
 :jjda_state:          <<jjda_state,--state>>
 :jjda_status:         <<jjda_status,--status>>
 :jjda_to:             <<jjda_to,--to>>
@@ -1665,7 +1666,7 @@ Output always includes the prefix (`₣` or `₢`).
 == Arguments
 
 This section defines reusable argument linked terms shared across multiple operations.
-Operation-specific parameters (e.g., `detail`, `remaining`, `pattern`, `actionable`, `summary`, `content`, `note`, `agent`, `rough`, `size_limit`, `limit`, `identity`, `files`, `coronets`, `racing`, `stabled`, `docket`)
+Operation-specific parameters (e.g., `detail`, `remaining`, `pattern`, `actionable`, `summary`, `content`, `note`, `agent`, `rough`, `limit`, `identity`, `files`, `coronets`, `racing`, `stabled`, `docket`)
 are documented inline in their respective operation specs.
 Parameters that are identity types ({jjdt_coronet}, {jjdt_firemark}, {jjdt_silks})
 are referenced as types, not arguments.
@@ -1803,6 +1804,43 @@ Destination
 {jjdt_firemark}
 for
 {jjdo_relocate}.
+
+[[jjda_size_limit]]
+//axl_voices axa_keyword
+{jjda_size_limit}::
+Override the byte ceiling enforced by the
+{jjdr_persist}
+size guard.
+Optional integer; default 50KB, uniform across all
+{jjdx_tool_s}
+that accept this argument.
++
+The guard's purpose is byte-sanity review: it surfaces unintended bulk before a commit lands, expecting the operator to confirm the bytes are legitimate and authorize a raise on retry.
+Per-operation defaults are deliberately *not* part of this contract — uniform 50KB ensures the review fires on the same threshold everywhere, eliminating drift and the false-confidence failure mode where a silently-higher op-specific ceiling masks bulk that the operator believed was being checked.
++
+Accepted by
+{jjdx_tool_s}
+whose own delta has a variable-size content channel:
+{jjdo_record},
+{jjdo_close},
+{jjdo_archive},
+{jjdo_paddock},
+{jjdo_enroll},
+{jjdo_redocket},
+{jjdo_landing},
+{jjdo_transfer}.
+Structural-mutator
+{jjdx_tool_s}
+({jjdo_create},
+{jjdo_alter},
+{jjdo_relabel},
+{jjdo_drop},
+{jjdo_reorder},
+{jjdo_relocate},
+{jjdo_continue})
+do not accept this argument; their commit deltas are bounded by fixed-shape
+{jjdgr_gallops}
+mutations.
 
 [[jjda_direction]]
 //axl_voices axa_keyword axd_internal

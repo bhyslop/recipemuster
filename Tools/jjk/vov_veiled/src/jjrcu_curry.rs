@@ -27,6 +27,10 @@ pub struct jjrcu_CurryArgs {
     /// Optional note for chalk entry
     #[arg(long)]
     pub note: Option<String>,
+
+    /// Override commit size guard limit in bytes (setter mode only)
+    #[arg(long)]
+    pub size_limit: Option<u64>,
 }
 
 /// Handler for jjx_curry command
@@ -82,7 +86,7 @@ pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, content: Option<String>, gazette: 
         Some(new_content) => {
             // Setter mode: update paddock
             // Call operation (curry acquires its own lock)
-            match jjrg_curry(&args.file, &firemark, &new_content, args.note.as_deref(), &mut output) {
+            match jjrg_curry(&args.file, &firemark, &new_content, args.note.as_deref(), args.size_limit, &mut output) {
                 Ok(()) => {
                     vvco_out!(output, "{}: paddock updated", cn);
                     (0, output.vvco_finish())

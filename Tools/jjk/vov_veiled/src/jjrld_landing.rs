@@ -23,6 +23,10 @@ pub struct jjrld_LandingArgs {
 
     /// Agent tier that executed the pace
     pub agent: String,
+
+    /// Override commit size guard limit in bytes
+    #[arg(long)]
+    pub size_limit: Option<u64>,
 }
 
 /// Execute the landing command
@@ -58,7 +62,7 @@ pub fn jjrld_run_landing(args: jjrld_LandingArgs, content: String) -> (i32, Stri
         message: Some(message),
         allow_empty: true,
         no_stage: true,
-        size_limit: vvc::VVCG_SIZE_LIMIT,
+        size_limit: args.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT),
         warn_limit: vvc::VVCG_WARN_LIMIT,
     };
 

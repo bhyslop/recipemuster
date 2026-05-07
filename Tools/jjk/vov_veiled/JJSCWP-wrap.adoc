@@ -17,7 +17,7 @@ routine.
 If absent, defaults to "pace {silks} complete".
 
 //axd_optional
-* `size_limit` (integer) — maximum commit size in bytes (default 50KB).
+* {jjda_size_limit}
 
 {jjds_stdout} Commit hash.
 
@@ -25,7 +25,7 @@ If absent, defaults to "pace {silks} complete".
 
 * 0 — success
 * 1 — general error (parse failure, gallops error, git error)
-* 2 — size guard exceeded (use `size_limit` to override)
+* 2 — size guard exceeded (use {jjda_size_limit} to override)
 
 {jjds_behavior}
 

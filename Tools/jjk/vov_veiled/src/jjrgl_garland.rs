@@ -107,8 +107,8 @@ pub fn jjrgl_run_garland(args: jjrgl_GarlandArgs) -> (i32, String) {
             new_paddock_path,
         ],
         message: commit_message,
-        size_limit: 100000,  // 100KB - paddock files can be large
-        warn_limit: 50000,
+        size_limit: vvc::VVCG_SIZE_LIMIT,
+        warn_limit: vvc::VVCG_WARN_LIMIT,
     };
 
     match vvc::machine_commit(&lock, &commit_args, &mut output) {

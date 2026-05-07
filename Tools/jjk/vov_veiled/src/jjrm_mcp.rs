@@ -136,6 +136,7 @@ fn jjrm_deser_error(cmd: &str, e: serde_json::Error) -> Result<CallToolResult, M
 fn zjjrm_dispatch_inner(
     cmd: &str,
     firemark: &crate::jjrf_favor::jjrf_Firemark,
+    size_limit: u64,
     handler: impl FnOnce(&mut crate::jjrg_gallops::jjrg_Gallops) -> Result<String, String>,
 ) -> Result<CallToolResult, McpError> {
     use vvc::vvco_Output;
@@ -175,7 +176,7 @@ fn zjjrm_dispatch_inner(
         &gallops_path,
         firemark,
         format!("jjx: {}", cmd),
-        50000,
+        size_limit,
         &mut persist_output,
     ) {
         Ok(_hash) => {}
@@ -194,6 +195,7 @@ fn zjjrm_dispatch_inner(
 fn jjrm_dispatch_pace(
     cmd: &str,
     coronet_str: &str,
+    size_limit: u64,
     handler: impl FnOnce(&mut crate::jjrg_gallops::jjrg_Gallops) -> Result<String, String>,
 ) -> Result<CallToolResult, McpError> {
     let coronet = match crate::jjrf_favor::jjrf_Coronet::jjrf_parse(coronet_str) {
@@ -205,7 +207,7 @@ fn jjrm_dispatch_pace(
         }
     };
     let firemark = coronet.jjrf_parent_firemark();
-    zjjrm_dispatch_inner(cmd, &firemark, handler)
+    zjjrm_dispatch_inner(cmd, &firemark, size_limit, handler)
 }
 
 // ============================================================================
@@ -267,6 +269,7 @@ pub struct jjrm_EnrollParams {
     pub after: Option<String>,
     #[serde(default)]
     pub first: bool,
+    pub size_limit: Option<u64>,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
@@ -283,6 +286,7 @@ pub struct jjrm_ReorderParams {
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_ReviseDocketParams {
+    pub size_limit: Option<u64>,
 }
 
 
@@ -350,6 +354,7 @@ pub struct jjrm_PaddockParams {
     #[serde(default)]
     pub firemark: Option<String>,
     pub note: Option<String>,
+    pub size_limit: Option<u64>,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
@@ -362,6 +367,7 @@ pub struct jjrm_TransferParams {
     pub firemark: String,
     pub to: String,
     pub coronets: String,
+    pub size_limit: Option<u64>,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
@@ -369,6 +375,7 @@ pub struct jjrm_LandingParams {
     pub coronet: String,
     pub agent: String,
     pub content: Option<String>,
+    pub size_limit: Option<u64>,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
@@ -835,6 +842,7 @@ impl jjrm_McpServer {
                     before: p.before,
                     after: p.after,
                     first: p.first,
+                    size_limit: p.size_limit,
                 }, docket))
             }
             JJRM_CMD_NAME_REORDER => {
@@ -851,7 +859,7 @@ impl jjrm_McpServer {
                 }))
             }
             JJRM_CMD_NAME_REDOCKET => {
-                let _p = deser!(jjrm_ReviseDocketParams);
+                let p = deser!(jjrm_ReviseDocketParams);
                 let pairs = match gazette_in_content {
                     Some(ref content) => match jjrz_parse_reslate_input(content) {
                         Ok(p) => p,
@@ -864,7 +872,8 @@ impl jjrm_McpServer {
                     )])),
                 };
                 let first_coronet = pairs[0].0.clone();
-                jjrm_dispatch_pace(cmd, &first_coronet, |gallops| {
+                let size_limit = p.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT);
+                jjrm_dispatch_pace(cmd, &first_coronet, size_limit, |gallops| {
                     let mut diffs = Vec::new();
                     for (coronet, docket) in &pairs {
                         let diff = jjrtl_run_revise_docket(gallops, coronet, docket)?;
@@ -962,6 +971,7 @@ impl jjrm_McpServer {
                         file: gallops_pathbuf(),
                         firemark,
                         note: p.note,
+                        size_limit: p.size_limit,
                     }, Some(paddock_content), &mut gazette);
                     let md = gazette.jjrz_emit();
                     if !md.is_empty() { std::fs::write(&gazette_out_path, md.as_bytes()).ok(); }
@@ -979,6 +989,7 @@ impl jjrm_McpServer {
                         file: gallops_pathbuf(),
                         firemark,
                         note: p.note,
+                        size_limit: p.size_limit,
                     }, None, &mut gazette);
                     let md = gazette.jjrz_emit();
                     if !md.is_empty() { std::fs::write(&gazette_out_path, md.as_bytes()).ok(); }
@@ -998,6 +1009,7 @@ impl jjrm_McpServer {
                     file: gallops_pathbuf(),
                     firemark: p.firemark,
                     to: p.to,
+                    size_limit: p.size_limit,
                 }, p.coronets))
             }
             JJRM_CMD_NAME_LANDING => {
@@ -1005,6 +1017,7 @@ impl jjrm_McpServer {
                 jjrm_result(jjrld_run_landing(jjrld_LandingArgs {
                     coronet: p.coronet,
                     agent: p.agent,
+                    size_limit: p.size_limit,
                 }, p.content.unwrap_or_default()))
             }
             JJRM_CMD_NAME_BIND => {

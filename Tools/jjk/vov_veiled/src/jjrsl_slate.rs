@@ -41,6 +41,10 @@ pub struct jjrsl_SlateArgs {
     /// Insert at beginning of Heat
     #[arg(long, conflicts_with_all = ["before", "after"])]
     pub first: bool,
+
+    /// Override commit size guard limit in bytes
+    #[arg(long)]
+    pub size_limit: Option<u64>,
 }
 
 /// Handler for jjx_slate command
@@ -84,7 +88,8 @@ pub fn jjrsl_run_slate(args: jjrsl_SlateArgs, docket: String) -> (i32, String) {
             let fm = Firemark::jjrf_parse(&firemark).expect("slate given invalid firemark");
             let message = format_heat_message(&fm, HeatAction::Slate, &silks);
 
-            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000, &mut output) {
+            let size_limit = args.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT);
+            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, size_limit, &mut output) {
                 Ok(_hash) => {}
                 Err(e) => {
                     vvco_err!(output, "{}: error: {}", cn, e);

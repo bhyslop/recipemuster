@@ -131,7 +131,6 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
     // Commit using vvcm_commit with explicit file list
     // Files: gallops.json, trophy file (created), paddock file (deleted - git add handles this)
     let gallops_path = args.file.to_string_lossy().to_string();
-    let effective_size_limit = args.size_limit.unwrap_or(200000);
     let commit_args = vvc::vvcm_CommitArgs {
         files: vec![
             gallops_path,
@@ -139,8 +138,8 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
             result.paddock_path.clone(),
         ],
         message: jjrn_format_heat_message(&firemark, jjrn_HeatAction::Retire, &result.silks),
-        size_limit: effective_size_limit,
-        warn_limit: effective_size_limit / 2,
+        size_limit: args.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT),
+        warn_limit: vvc::VVCG_WARN_LIMIT,
     };
 
     match vvc::machine_commit(&lock, &commit_args, &mut output) {

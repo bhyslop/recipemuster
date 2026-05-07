@@ -11,6 +11,9 @@ Create an L (landing) commit recording agent return from autonomous execution.
 //axd_optional
 * `content` (string) — agent completion report (body content). Defaults to empty.
 
+//axd_optional
+* {jjda_size_limit}
+
 {jjds_stdout} Commit hash
 
 {jjds_exit_uniform} 0 success, non-zero error.

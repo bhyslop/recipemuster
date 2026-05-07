@@ -45,6 +45,9 @@ provided via {jjdxo_gazette} `jjezs_slate` body
 — insert at beginning of
 {jjdhm_order}
 
+//axd_optional
+* {jjda_size_limit}
+
 *Positioning:* Only one of
 {jjda_before},
 {jjda_after},

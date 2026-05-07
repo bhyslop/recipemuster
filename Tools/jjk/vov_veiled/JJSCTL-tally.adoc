@@ -11,6 +11,11 @@ No JSON params are required.
 * {jjdt_coronet} and `docket` — provided via {jjdxo_gazette} `jjezs_reslate` notice lede and body.
 Multiple notices in a single gazette enables mass reslate.
 
+//axd_optional
+* {jjda_size_limit}
++
+Mass reslate can stack many full docket bodies in one commit; the operator may need to authorize a raise on first attempt for large batches.
+
 {jjds_stdout} Revision count and diffs.
 
 {jjds_exit_uniform} 0 success, non-zero error.

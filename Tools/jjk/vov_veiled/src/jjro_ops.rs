@@ -711,6 +711,7 @@ pub fn jjrg_curry(
     firemark: &Firemark,
     new_content: &str,
     note: Option<&str>,
+    size_limit: Option<u64>,
     output: &mut vvc::vvco_Output,
 ) -> Result<(), String> {
     use std::fs;
@@ -743,7 +744,7 @@ pub fn jjrg_curry(
     let commit_args = vvc::vvcm_CommitArgs {
         files: vec![paddock_path.to_string_lossy().to_string()],
         message,
-        size_limit: vvc::VVCG_SIZE_LIMIT,
+        size_limit: size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT),
         warn_limit: vvc::VVCG_WARN_LIMIT,
     };
 

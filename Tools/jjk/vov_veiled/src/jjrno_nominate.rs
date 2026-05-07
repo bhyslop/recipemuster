@@ -85,7 +85,7 @@ pub fn jjrx_run_nominate(args: jjrx_NominateArgs) -> (i32, String) {
             let fm = Firemark::jjrf_parse(&result.firemark).expect("nominate returned invalid firemark");
             let message = format_heat_message(&fm, HeatAction::Nominate, &silks);
 
-            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, 50000, &mut output) {
+            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, vvc::VVCG_SIZE_LIMIT, &mut output) {
                 Ok(hash) => {
                     vvco_out!(output, "{}: committed {}", cn, &hash[..8]);
                 }

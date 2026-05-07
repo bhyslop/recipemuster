@@ -25,6 +25,11 @@ Not required in setter mode (firemark is parsed from {jjdxo_gazette}).
 Setter mode only.
 If absent, commit message is "paddock curried".
 
+//axd_optional
+* {jjda_size_limit}
++
+Setter mode only.
+
 {jjds_stdout}
 
 * Getter mode: paddock file contents; gazette-formatted paddock written to {jjdxo_gazette}.
@@ -49,4 +54,5 @@ If absent, commit message is "paddock curried".
 . Load {jjdgr_gallops}
 . Verify {jjdhr_heat} exists
 . Write new content to paddock file
+. Run size guard at {jjda_size_limit}
 . Commit paddock file with discussion marker (`d` action code)

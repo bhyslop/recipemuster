@@ -13,8 +13,9 @@ This is a destructive operation that permanently removes the heat from active tr
 {jjdhr_heat}
 
 //axd_optional
-* `size_limit` (integer) — override the commit size guard limit in bytes (default 200KB).
-Use when a large trophy exceeds the default guard.
+* {jjda_size_limit}
++
+Trophy archives commonly exceed the uniform default; the operator authorizes a raise after byte-sanity review.
 
 {jjds_stdout} Path to the written trophy file.
 
@@ -106,12 +107,12 @@ array
 . Delete paddock file at
 {jjdhm_paddock}
 . Stage exactly three paths: trophy file, gallops.json, paddock file (as deletion)
-. Run size guard with limit from `size_limit` (default 200KB)
+. Run size guard at {jjda_size_limit}
 . Commit with message per steeplechase conventions
 . If commit fails (size guard or other):
 .. Roll back file changes: restore gallops and paddock from HEAD, remove trophy
 .. Report error clearly with measured size
-.. Advise retry with `size_limit` override
+.. Advise retry with {jjda_size_limit} override
 .. Exit non-zero (working copy is clean for retry)
 . Release lock
 . Output trophy file path to stdout

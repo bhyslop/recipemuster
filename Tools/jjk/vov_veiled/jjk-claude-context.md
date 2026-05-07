@@ -85,7 +85,7 @@ jjx_show           {target?, detail?, remaining?}
 jjx_list           {status?}
 jjx_orient         {firemark}
 jjx_create         {silks}
-jjx_enroll         {firemark, before?, after?, first?}              # silks+docket via gazette_in.md only
+jjx_enroll         {firemark, before?, after?, first?, size_limit?} # silks+docket via gazette_in.md only
 jjx_reorder        {firemark, move?, before?, after?, first?, last?}
 jjx_alter          {firemark, racing?, stabled?, silks?}
 jjx_record         {identity, files[], size_limit?, intent?}
@@ -93,16 +93,16 @@ jjx_close          {coronet, summary?, size_limit?}
 jjx_log            {firemark, limit?}
 jjx_search         {pattern, actionable?}
 jjx_archive        {firemark, size_limit?}
-jjx_transfer       {firemark, to, coronets}
+jjx_transfer       {firemark, to, coronets, size_limit?}
 jjx_continue       {firemark}
-jjx_paddock        {firemark?, note?}                               # gazette_in.md to set, gazette_out.md to get
+jjx_paddock        {firemark?, note?, size_limit?}                  # gazette_in.md to set, gazette_out.md to get
 jjx_relocate       {coronet, to, before?, after?, first?}
-jjx_redocket       {}                                               # docket via gazette_in.md only; supports mass reslate
+jjx_redocket       {size_limit?}                                    # docket via gazette_in.md only; supports mass reslate
 jjx_relabel        {coronet, silks}
 jjx_drop           {coronet}
 jjx_brief      {coronet}
 jjx_coronets   {firemark, remaining?, rough?}
-jjx_landing        {coronet, agent, content?}
+jjx_landing        {coronet, agent, content?, size_limit?}
 jjx_validate       {}
 jjx_bind           {alias, reldir}                                  # remote: create legatio session (alias resolves BURN profile)
 jjx_send           {legatio, command}                               # remote: synchronous exec on fundus
@@ -239,7 +239,7 @@ Use `jjx_record` with `{identity: "FIREMARK", files: ["file1", "file2"], intent:
 
 Synthesize intent from the conversation — describe *what* was accomplished, not *how*.
 
-**Size guard — ALL commands (record, close, archive)**: If ANY jjx command fails due to size limits, STOP. Report the byte count, limit, and per-file breakdown to the user, then WAIT for the user's review. The guard is a byte-sanity review step — its purpose is catching unintended bulk (e.g., a binary that snuck in), not gating decomposition. Expected outcome: the user confirms the bytes are legitimate and directs you to raise the limit. Do NOT offer splitting as a parallel option — splitting enters the picture only if the user explicitly raises it, because the work genuinely decomposes. NEVER auto-override `size_limit`.
+**Size guard — ALL commands accepting `size_limit?` (record, close, archive, paddock, enroll, redocket, landing, transfer)**: If ANY jjx command fails due to size limits, STOP. Report the byte count, limit, and per-file breakdown to the user, then WAIT for the user's review. The guard is a byte-sanity review step — its purpose is catching unintended bulk (e.g., a binary that snuck in), not gating decomposition. The default is uniform 50KB across all eight commands. Expected outcome: the user confirms the bytes are legitimate and directs you to raise the limit. Do NOT offer splitting as a parallel option — splitting enters the picture only if the user explicitly raises it, because the work genuinely decomposes. NEVER auto-override `size_limit`.
 
 When user says "notch", determine context (pace or heat affiliated) and invoke `jjx_record` with the appropriate identity and explicit file list.
 

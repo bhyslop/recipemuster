@@ -87,7 +87,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
     }
 
     // Size guard check
-    let size_limit = args.size_limit.unwrap_or(50000); // 50KB default
+    let size_limit = args.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT);
     let diff_output = match vvc::vvce_git_command(&["diff", "--cached", "--stat"])
         .output()
     {

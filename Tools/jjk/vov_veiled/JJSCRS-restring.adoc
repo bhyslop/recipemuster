@@ -47,6 +47,14 @@ with no additional ceremony.
 {jjdt_coronet_s}
 to draft (order preserved in destination)
 
+//axd_optional
+* {jjda_size_limit}
++
+Bulk transfers stage
+{jjdgr_gallops}
+plus paddock moves for N
+{jjdpr_pace_s}; the operator may need to authorize a raise on first attempt for large bundles.
+
 {jjds_stdout} JSON object:
 
 [source,json]
