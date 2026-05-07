@@ -6790,7 +6790,6 @@
         "₢AmAAD",
         "₢AmAAE",
         "₢AmAAF",
-        "₢AmAAG",
         "₢AmAAI"
       ],
       "next_pace_seed": "AAP",
@@ -6957,38 +6956,6 @@
               "text": "Add an auto-generated intent field to pace records.\n\nThe intent statement should be a prose summary (1-2 sentences) extracted from the pace docket, maintaining it automatically as part of slate/reslate operations.\n\nDisplay intent:\n- In non-detailed pace listings (alongside silks)\n- In wrap completion summary (showing what was just finished)\n\nThis gives paces more semantic richness than silks alone, helping runners understand purpose at a glance.",
               "silks": "add-intent-field",
               "commit": "d13b192"
-            }
-          ]
-        },
-        "₢AmAAG": {
-          "tacks": [
-            {
-              "ts": "260507-1001",
-              "state": "rough",
-              "text": "## Character\nDesign conversation. Marker pace.\n\n## Operations\n\nName two action verbs for mid-implementation pace insertion. Both compose from `jjx_enroll` today but lack memorable verbs and dedicated CLI surfacing:\n\n- **chivvy** — slate a pace at the front of the heat queue; current continues. Maps to `jjx_enroll` with `first: true`.\n- **cantle** — slate a pace immediately after the current active pace; current continues. Maps to `jjx_enroll` with `after: <current_coronet>`.\n\nMid-flow ergonomic gestures: catchy verbs are easier to recall than parameter combinations on a generic enroll.\n\n## Genealogy\n\nReplaces original snip concept. Cantle subsumes snip's positioning (the load-bearing piece); snip's docket-shuffle composes from `jjx_enroll` + `jjx_redocket` — not a new primitive.\n\n## JJS0\n\nWill need updates. Sections determined at mount time.",
-              "silks": "chivvy-and-cantle-action-verbs",
-              "commit": "2375faf"
-            },
-            {
-              "ts": "260507-1001",
-              "state": "rough",
-              "text": "## Character\nDesign conversation. Marker pace.\n\n## Operations\n\nName two action verbs for mid-implementation pace insertion. Both compose from `jjx_enroll` today but lack memorable verbs and dedicated CLI surfacing:\n\n- **chivvy** — slate a pace at the front of the heat queue; current continues. Maps to `jjx_enroll` with `first: true`.\n- **cantle** — slate a pace immediately after the current active pace; current continues. Maps to `jjx_enroll` with `after: <current_coronet>`.\n\nMid-flow ergonomic gestures: catchy verbs are easier to recall than parameter combinations on a generic enroll.\n\n## Genealogy\n\nReplaces original snip concept. Cantle subsumes snip's positioning (the load-bearing piece); snip's docket-shuffle composes from `jjx_enroll` + `jjx_redocket` — not a new primitive.\n\n## JJS0\n\nWill need updates. Sections determined at mount time.",
-              "silks": "pace-snip-operation",
-              "commit": "e1928aa"
-            },
-            {
-              "ts": "260304-1504",
-              "state": "rough",
-              "text": "Drafted from ₢AGAAO in ₣AG.\n\nDesign and implement a \"snip\" operation for paces.\n\n## Concept\n\nMidway through executing a pace, the runner realizes a chunk of remaining work belongs in a separate pace (typically the one immediately following). The snip operation:\n\n1. Creates a new pace positioned immediately after the current pace\n2. Moves the \"snipped\" steps from the current pace's docket into the new pace's docket\n3. Revises the current pace's docket to remove those steps\n\n## Context\n\nThis typically arises at wrap time — the runner wants to wrap the current pace but recognizes some planned steps weren't done and belong in their own pace rather than being abandoned or crammed in.\n\n## Vocabulary TBD\n\nNeed good naming. Candidates to consider:\n- snip (cutting thread)\n- cleave (splitting)\n- shear (cutting wool — fits equestrian theme)\n- fork (splitting path)\n- calve (splitting off)\n\nThe verb should feel natural in the JJ equestrian vocabulary.\n\n## Schema Implications\n\nMay need a new CLI command (jjx_snip or similar). Likely composes existing primitives (enroll + revise_docket) but having a dedicated command ensures atomicity and correct positioning.\n\n## Open Questions\n\n- Should snip only work on the currently-active pace, or any pace?\n- Should it auto-position after current, or allow positioning?\n- How to handle the docket split — interactive, or provide both halves?\n- Should the snipped pace inherit any properties (markers, state)?",
-              "silks": "pace-snip-operation",
-              "commit": "d5b79bd"
-            },
-            {
-              "ts": "260210-1124",
-              "state": "rough",
-              "text": "Design and implement a \"snip\" operation for paces.\n\n## Concept\n\nMidway through executing a pace, the runner realizes a chunk of remaining work belongs in a separate pace (typically the one immediately following). The snip operation:\n\n1. Creates a new pace positioned immediately after the current pace\n2. Moves the \"snipped\" steps from the current pace's docket into the new pace's docket\n3. Revises the current pace's docket to remove those steps\n\n## Context\n\nThis typically arises at wrap time — the runner wants to wrap the current pace but recognizes some planned steps weren't done and belong in their own pace rather than being abandoned or crammed in.\n\n## Vocabulary TBD\n\nNeed good naming. Candidates to consider:\n- snip (cutting thread)\n- cleave (splitting)\n- shear (cutting wool — fits equestrian theme)\n- fork (splitting path)\n- calve (splitting off)\n\nThe verb should feel natural in the JJ equestrian vocabulary.\n\n## Schema Implications\n\nMay need a new CLI command (jjx_snip or similar). Likely composes existing primitives (enroll + revise_docket) but having a dedicated command ensures atomicity and correct positioning.\n\n## Open Questions\n\n- Should snip only work on the currently-active pace, or any pace?\n- Should it auto-position after current, or allow positioning?\n- How to handle the docket split — interactive, or provide both halves?\n- Should the snipped pace inherit any properties (markers, state)?",
-              "silks": "pace-snip-operation",
-              "commit": "3b1e8db"
             }
           ]
         },
@@ -9261,9 +9228,10 @@
         "₢BDAAD",
         "₢BDAAE",
         "₢BDAAF",
-        "₢BDAAG"
+        "₢BDAAG",
+        "₢BDAAH"
       ],
-      "next_pace_seed": "AAH",
+      "next_pace_seed": "AAI",
       "paddock_file": ".claude/jjm/jjp_uBuD.md",
       "paces": {
         "₢BDAAA": {
@@ -9445,6 +9413,45 @@
               "text": "## Character\nMechanical deletion sweep — the `garland` verb is going away. Self-contained: no callers outside its own module and type pair. ~700 lines deleted, ~30 lines edited.\n\n## What done looks like\n- No `garland`/`Garland`/`GARLAND` tokens remain under `Tools/jjk/vov_veiled/` source or specs\n- `tt/vow-b.Build.sh` clean, `tt/vow-t.Test.sh` green\n- JJS0 renders without a missing include\n\n## Discovery\n`grep -rl -i garland Tools/jjk/vov_veiled/` enumerates the work surface.\n\n## Out of scope\n- `.claude/jjm/retired/` — historical heat archives, do not touch\n- `.claude/jjm/jjg_gallops.json` and active paddock files — drift naturally; the `garlanded-...` silks string and steeplechase marker text are inert labels\n- CLAUDE.md verb table — garland is already absent there\n\n## Parallelization recipe\nLaunch two agents in a single message. They operate on disjoint file sets, so wall-clock time is bounded by Agent A (Rust build).\n\n**Agent A — source sweep.** All `.rs` files under `Tools/jjk/vov_veiled/src/`. Delete the two garland-only files (`jjrgl_garland.rs`, `jjtgl_garland.rs`) and excise garland references from the rest. Watch for: the type-struct pair (`jjrt_types.rs` + `jjrt_v3_types.rs` carry parallel `jjrg_GarlandArgs`/`jjrg_GarlandResult` declarations — both must go), MCP dispatch arm + use-import in `jjrm_mcp.rs`, the re-export plus method shim in `jjrg_gallops.rs`, the `Garland` variant in `jjrn_HeatAction` plus its match arms in `jjrn_notch.rs`, and the `JJRNM_GARLAND` constant + table entry in `jjrnm_markers.rs`. The `jjrg_garland` function in `jjro_ops.rs` is the largest excision. In `jjrq_query.rs`, drop `jjrq_build_garlanded_silks` and its tests; if `jjrq_parse_silks_sequence` and `jjrq_build_continuation_silks` have no remaining callers (grep before dropping), excise them too. Verify with `tt/vow-b.Build.sh` then `tt/vow-t.Test.sh`.\n\n**Agent B — spec sweep.** Delete `JJSCGL-garland.adoc`. Drop the `include::JJSCGL-garland.adoc[]` line from `JJS0_JobJockeySpec.adoc`. Strike \"garlanding,\" from the prose enumeration in `JJSCRS-restring.adoc`. No build gate on asciidoc.\n\nAfter both return, run `grep -rli garland Tools/jjk/vov_veiled/` to confirm clean, then notch.",
               "silks": "eliminate-garland-verb",
               "commit": "4603a2c"
+            }
+          ]
+        },
+        "₢BDAAH": {
+          "tacks": [
+            {
+              "ts": "260507-1015",
+              "state": "rough",
+              "text": "Drafted from ₢AmAAG in ₣Am.\n\n## Character\nDesign conversation. Marker pace.\n\n## Operations\n\nName two action verbs for mid-implementation pace insertion. Both compose from `jjx_enroll` today but lack memorable verbs and dedicated CLI surfacing:\n\n- **chivvy** — slate a pace at the front of the heat queue; current continues. Maps to `jjx_enroll` with `first: true`.\n- **cantle** — slate a pace immediately after the current active pace; current continues. Maps to `jjx_enroll` with `after: <current_coronet>`.\n\nMid-flow ergonomic gestures: catchy verbs are easier to recall than parameter combinations on a generic enroll.\n\n## Genealogy\n\nReplaces original snip concept. Cantle subsumes snip's positioning (the load-bearing piece); snip's docket-shuffle composes from `jjx_enroll` + `jjx_redocket` — not a new primitive.\n\n## JJS0\n\nWill need updates. Sections determined at mount time.",
+              "silks": "chivvy-and-cantle-action-verbs",
+              "commit": "5f28cbf"
+            },
+            {
+              "ts": "260507-1001",
+              "state": "rough",
+              "text": "## Character\nDesign conversation. Marker pace.\n\n## Operations\n\nName two action verbs for mid-implementation pace insertion. Both compose from `jjx_enroll` today but lack memorable verbs and dedicated CLI surfacing:\n\n- **chivvy** — slate a pace at the front of the heat queue; current continues. Maps to `jjx_enroll` with `first: true`.\n- **cantle** — slate a pace immediately after the current active pace; current continues. Maps to `jjx_enroll` with `after: <current_coronet>`.\n\nMid-flow ergonomic gestures: catchy verbs are easier to recall than parameter combinations on a generic enroll.\n\n## Genealogy\n\nReplaces original snip concept. Cantle subsumes snip's positioning (the load-bearing piece); snip's docket-shuffle composes from `jjx_enroll` + `jjx_redocket` — not a new primitive.\n\n## JJS0\n\nWill need updates. Sections determined at mount time.",
+              "silks": "chivvy-and-cantle-action-verbs",
+              "commit": "2375faf"
+            },
+            {
+              "ts": "260507-1001",
+              "state": "rough",
+              "text": "## Character\nDesign conversation. Marker pace.\n\n## Operations\n\nName two action verbs for mid-implementation pace insertion. Both compose from `jjx_enroll` today but lack memorable verbs and dedicated CLI surfacing:\n\n- **chivvy** — slate a pace at the front of the heat queue; current continues. Maps to `jjx_enroll` with `first: true`.\n- **cantle** — slate a pace immediately after the current active pace; current continues. Maps to `jjx_enroll` with `after: <current_coronet>`.\n\nMid-flow ergonomic gestures: catchy verbs are easier to recall than parameter combinations on a generic enroll.\n\n## Genealogy\n\nReplaces original snip concept. Cantle subsumes snip's positioning (the load-bearing piece); snip's docket-shuffle composes from `jjx_enroll` + `jjx_redocket` — not a new primitive.\n\n## JJS0\n\nWill need updates. Sections determined at mount time.",
+              "silks": "pace-snip-operation",
+              "commit": "e1928aa"
+            },
+            {
+              "ts": "260304-1504",
+              "state": "rough",
+              "text": "Drafted from ₢AGAAO in ₣AG.\n\nDesign and implement a \"snip\" operation for paces.\n\n## Concept\n\nMidway through executing a pace, the runner realizes a chunk of remaining work belongs in a separate pace (typically the one immediately following). The snip operation:\n\n1. Creates a new pace positioned immediately after the current pace\n2. Moves the \"snipped\" steps from the current pace's docket into the new pace's docket\n3. Revises the current pace's docket to remove those steps\n\n## Context\n\nThis typically arises at wrap time — the runner wants to wrap the current pace but recognizes some planned steps weren't done and belong in their own pace rather than being abandoned or crammed in.\n\n## Vocabulary TBD\n\nNeed good naming. Candidates to consider:\n- snip (cutting thread)\n- cleave (splitting)\n- shear (cutting wool — fits equestrian theme)\n- fork (splitting path)\n- calve (splitting off)\n\nThe verb should feel natural in the JJ equestrian vocabulary.\n\n## Schema Implications\n\nMay need a new CLI command (jjx_snip or similar). Likely composes existing primitives (enroll + revise_docket) but having a dedicated command ensures atomicity and correct positioning.\n\n## Open Questions\n\n- Should snip only work on the currently-active pace, or any pace?\n- Should it auto-position after current, or allow positioning?\n- How to handle the docket split — interactive, or provide both halves?\n- Should the snipped pace inherit any properties (markers, state)?",
+              "silks": "pace-snip-operation",
+              "commit": "d5b79bd"
+            },
+            {
+              "ts": "260210-1124",
+              "state": "rough",
+              "text": "Design and implement a \"snip\" operation for paces.\n\n## Concept\n\nMidway through executing a pace, the runner realizes a chunk of remaining work belongs in a separate pace (typically the one immediately following). The snip operation:\n\n1. Creates a new pace positioned immediately after the current pace\n2. Moves the \"snipped\" steps from the current pace's docket into the new pace's docket\n3. Revises the current pace's docket to remove those steps\n\n## Context\n\nThis typically arises at wrap time — the runner wants to wrap the current pace but recognizes some planned steps weren't done and belong in their own pace rather than being abandoned or crammed in.\n\n## Vocabulary TBD\n\nNeed good naming. Candidates to consider:\n- snip (cutting thread)\n- cleave (splitting)\n- shear (cutting wool — fits equestrian theme)\n- fork (splitting path)\n- calve (splitting off)\n\nThe verb should feel natural in the JJ equestrian vocabulary.\n\n## Schema Implications\n\nMay need a new CLI command (jjx_snip or similar). Likely composes existing primitives (enroll + revise_docket) but having a dedicated command ensures atomicity and correct positioning.\n\n## Open Questions\n\n- Should snip only work on the currently-active pace, or any pace?\n- Should it auto-position after current, or allow positioning?\n- How to handle the docket split — interactive, or provide both halves?\n- Should the snipped pace inherit any properties (markers, state)?",
+              "silks": "pace-snip-operation",
+              "commit": "3b1e8db"
             }
           ]
         }
