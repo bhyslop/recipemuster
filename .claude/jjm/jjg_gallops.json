@@ -6899,6 +6899,13 @@
         "₢AmAAE": {
           "tacks": [
             {
+              "ts": "260507-0921",
+              "state": "abandoned",
+              "text": "Drafted from ₢AGAAG in ₣AG.\n\nExtract hardcoded Rust build/test commands from the wrap slash command and make build discipline configurable per-heat.\n\nCurrent state: The wrap command (and CLAUDE.md Pre-wrap Verification section) hardcodes `tt/vow-b.Build.sh && tt/vow-t.Test.sh` as the pre-wrap verification step.\n\nGoal: Allow heats to specify their own build discipline (or none), so non-Rust heats don't require Rust builds, and different projects can have appropriate verification.\n\nDesign decision needed: Where should build discipline live?\n- Option A: Paddock structure (new field in paddock file)\n- Option B: Heat fields in gallops.json (new schema field)\n- Option C: Heat-level config file\n\nImplementation:\n1. Choose storage location\n2. Define schema for build discipline specification\n3. Update wrap command to read discipline from heat context\n4. Update CLAUDE.md to reference dynamic discipline rather than hardcoded commands\n5. Migrate existing heats if needed",
+              "silks": "heat-build-discipline",
+              "commit": "ae3838e"
+            },
+            {
               "ts": "260304-1503",
               "state": "rough",
               "text": "Drafted from ₢AGAAG in ₣AG.\n\nExtract hardcoded Rust build/test commands from the wrap slash command and make build discipline configurable per-heat.\n\nCurrent state: The wrap command (and CLAUDE.md Pre-wrap Verification section) hardcodes `tt/vow-b.Build.sh && tt/vow-t.Test.sh` as the pre-wrap verification step.\n\nGoal: Allow heats to specify their own build discipline (or none), so non-Rust heats don't require Rust builds, and different projects can have appropriate verification.\n\nDesign decision needed: Where should build discipline live?\n- Option A: Paddock structure (new field in paddock file)\n- Option B: Heat fields in gallops.json (new schema field)\n- Option C: Heat-level config file\n\nImplementation:\n1. Choose storage location\n2. Define schema for build discipline specification\n3. Update wrap command to read discipline from heat context\n4. Update CLAUDE.md to reference dynamic discipline rather than hardcoded commands\n5. Migrate existing heats if needed",
