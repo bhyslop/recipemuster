@@ -6856,6 +6856,13 @@
         "₢AmAAC": {
           "tacks": [
             {
+              "ts": "260507-0921",
+              "state": "abandoned",
+              "text": "Drafted from ₢AGAAD in ₣AG.\n\nConsider adding new heat-level fields for 'prewrap tests' - commands that must succeed before a pace wrap can proceed. Candidate fields: build_command and test_command. These would enforce the pre-wrap verification discipline (build + test) at the data model level rather than relying on convention.",
+              "silks": "prewrap-test-fields",
+              "commit": "bdf88c6"
+            },
+            {
               "ts": "260304-1503",
               "state": "rough",
               "text": "Drafted from ₢AGAAD in ₣AG.\n\nConsider adding new heat-level fields for 'prewrap tests' - commands that must succeed before a pace wrap can proceed. Candidate fields: build_command and test_command. These would enforce the pre-wrap verification discipline (build + test) at the data model level rather than relying on convention.",
