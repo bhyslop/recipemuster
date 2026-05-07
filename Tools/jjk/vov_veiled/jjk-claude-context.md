@@ -239,7 +239,7 @@ Use `jjx_record` with `{identity: "FIREMARK", files: ["file1", "file2"], intent:
 
 Synthesize intent from the conversation — describe *what* was accomplished, not *how*.
 
-**Size guard — ALL commands (record, close, archive)**: If ANY jjx command fails due to size limits, STOP. Report the byte count, limit, and per-file breakdown to the user. Ask: "Raise the limit, or split?" Then WAIT for the user's explicit answer before taking any action. NEVER auto-override `size_limit` — the guard exists to force a human decision.
+**Size guard — ALL commands (record, close, archive)**: If ANY jjx command fails due to size limits, STOP. Report the byte count, limit, and per-file breakdown to the user, then WAIT for the user's review. The guard is a byte-sanity review step — its purpose is catching unintended bulk (e.g., a binary that snuck in), not gating decomposition. Expected outcome: the user confirms the bytes are legitimate and directs you to raise the limit. Do NOT offer splitting as a parallel option — splitting enters the picture only if the user explicitly raises it, because the work genuinely decomposes. NEVER auto-override `size_limit`.
 
 When user says "notch", determine context (pace or heat affiliated) and invoke `jjx_record` with the appropriate identity and explicit file list.
 
