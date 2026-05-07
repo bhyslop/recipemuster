@@ -513,6 +513,72 @@ fn zjjrm_needs_probe(probe_date_path: &Path, today: &str) -> bool {
     }
 }
 
+/// Encode a cwd path to its `~/.claude/projects/<encoded>/` directory name.
+///
+/// Replacement rules: both `/` and `_` map to `-`. All other characters pass through.
+fn zjjrm_encode_cwd(cwd: &Path) -> String {
+    cwd.to_string_lossy()
+        .chars()
+        .map(|c| match c {
+            '/' | '_' => '-',
+            c => c,
+        })
+        .collect()
+}
+
+/// Resolve current Claude Code session UUID from the transcript directory for `cwd`.
+///
+/// Lists `~/.claude/projects/<encoded-cwd>/*.jsonl`, picks newest by mtime,
+/// returns the basename without `.jsonl`. Fails on missing dir, zero `.jsonl`
+/// files, or mtime tie between the top two candidates — silent fallback would
+/// bind the wrong session UUID into a durable git commit.
+fn zjjrm_resolve_session_uuid(cwd: &Path) -> Result<String, String> {
+    let home = std::env::var_os("HOME")
+        .ok_or_else(|| "HOME env var not set".to_string())?;
+    let projects_dir = PathBuf::from(home)
+        .join(".claude")
+        .join("projects")
+        .join(zjjrm_encode_cwd(cwd));
+
+    if !projects_dir.is_dir() {
+        return Err(format!(
+            "Claude transcripts dir not found: {}",
+            projects_dir.display()
+        ));
+    }
+
+    let entries = std::fs::read_dir(&projects_dir)
+        .map_err(|e| format!("read_dir({}): {}", projects_dir.display(), e))?;
+
+    let mut candidates: Vec<(std::time::SystemTime, String)> = Vec::new();
+    for entry in entries.flatten() {
+        let name = entry.file_name();
+        let name_str = name.to_string_lossy();
+        let Some(uuid) = name_str.strip_suffix(".jsonl") else { continue };
+        let Ok(metadata) = entry.metadata() else { continue };
+        let Ok(mtime) = metadata.modified() else { continue };
+        candidates.push((mtime, uuid.to_string()));
+    }
+
+    if candidates.is_empty() {
+        return Err(format!(
+            "No transcripts under {}",
+            projects_dir.display()
+        ));
+    }
+
+    candidates.sort_by(|a, b| b.0.cmp(&a.0));
+
+    if candidates.len() >= 2 && candidates[0].0 == candidates[1].0 {
+        return Err(format!(
+            "mtime tie between transcripts under {} — cannot disambiguate session",
+            projects_dir.display()
+        ));
+    }
+
+    Ok(candidates.swap_remove(0).1)
+}
+
 /// Validate officium directory exists and touch heartbeat.
 fn zjjrm_validate_officium(officium: &str) -> Result<(), String> {
     let bare_id = officium.trim_start_matches(OFFICIUM_SUN_PREFIX);
@@ -581,22 +647,43 @@ async fn zjjrm_handle_open() -> Result<CallToolResult, McpError> {
     // No gazette files created at open — they are ephemeral, single-MCP-call lifetime.
     std::fs::write(exchange.join(HEARTBEAT_FILE), b"").ok();
 
-    // Daily probe: run vvcp_probe if .probe_date doesn't match today
+    // Resolve session UUID + cwd. Emitted on every invitatory body so the
+    // chat that produced this commit can be located (`git log --grep='session: '`)
+    // and resumed (`claude --resume <uuid>` from the recorded cwd).
+    // Failure here aborts jjx_open — silently emitting a stale or wrong UUID
+    // would poison the durable recall anchor.
+    let cwd = match std::env::current_dir() {
+        Ok(p) => p,
+        Err(e) => {
+            return Ok(CallToolResult::error(vec![Content::text(
+                format!("{}: current_dir error: {}", cn, e),
+            )]));
+        }
+    };
+    let session_uuid = match zjjrm_resolve_session_uuid(&cwd) {
+        Ok(uuid) => uuid,
+        Err(e) => {
+            return Ok(CallToolResult::error(vec![Content::text(
+                format!("{}: session UUID resolution failed: {}", cn, e),
+            )]));
+        }
+    };
+    let mut body = format!("session: {}\ncwd: {}", session_uuid, cwd.display());
+
+    // Daily probe: append model inventory if .probe_date doesn't match today
     let probe_date_path = officia.join(PROBE_DATE_FILE);
-    let probe_data = if zjjrm_needs_probe(&probe_date_path, &today) {
+    if zjjrm_needs_probe(&probe_date_path, &today) {
         match vvc::vvcp_probe().await {
             Ok(data) => {
                 std::fs::write(&probe_date_path, &today).ok();
-                Some(data)
+                body.push('\n');
+                body.push_str(&data);
             }
             Err(e) => {
                 eprintln!("{}: probe warning: {}", cn, e);
-                None
             }
         }
-    } else {
-        None
-    };
+    }
 
     // Invitatory commit: jjb:BRAND::i: OFFICIUM <id>
     let brand = vvc::vvcc_get_brand();
@@ -608,7 +695,7 @@ async fn zjjrm_handle_open() -> Result<CallToolResult, McpError> {
         "",
         &action,
         &subject,
-        probe_data.as_deref(),
+        Some(&body),
     );
 
     let commit_args = vvc::vvcc_CommitArgs {

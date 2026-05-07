@@ -493,8 +493,9 @@ The agent calls {jjdo_open} once per chat session.
 . Run {jjdxo_exsanguination} (reap stale officia before creating new one)
 . Generate {jjdxo_officium} identity (datestamp + autonumber)
 . Create {jjdxo_exchange} directory with {jjdxo_gazette} and {jjdxo_heartbeat} files (both empty)
+. Resolve current Claude Code session UUID by listing `~/.claude/projects/<encoded-cwd>/*.jsonl` and selecting newest mtime (encoding rule: `/` and `_` both map to `-` in the absolute cwd path); fail loud on missing dir, zero `.jsonl` files, or mtime tie
 . Collect model inventory via `vvcp_probe()` if daily probe has not yet run (check `.claude/jjm/officia/.probe_date` datestamp file)
-. Create invitatory commit (action code `i`, `jjb`-branded) with model inventory in body (or empty body if probe skipped)
+. Create invitatory commit (action code `i`, `jjb`-branded) with `session:` + `cwd:` lines always present in body, optionally followed by model inventory when the daily probe ran
 . Return {jjdxo_officium} identity string (e.g. `☉260327-1000`)
 +
 The agent receives the identity and passes it as a parameter on all subsequent {jjdx_tool} calls.
@@ -548,6 +549,8 @@ Because the `officia/` tree is gitignored, incorrect reaping is benign — no tr
 ----
 jjb:BRAND::i: OFFICIUM <id>
 
+session: <uuid>
+cwd: <absolute-path>
 haiku: <model-id>
 sonnet: <model-id>
 opus: <model-id>
@@ -555,8 +558,17 @@ host: <hostname>
 platform: <platform>
 ----
 +
-The body contains model inventory when `vvcp_probe()` runs (first {jjdxo_invitatory} of the day).
-On subsequent invitatory commits the same day, the body is empty.
+The `session:` and `cwd:` lines appear in *every* invitatory body — each chat session has its own UUID and may run from a different cwd, so the recall anchor must be present on every {jjdo_open}.
+The model/host/platform inventory below them appears only on the first {jjdxo_invitatory} of the day (gated by `.probe_date`); subsequent same-day invitatories carry only `session:` + `cwd:`.
++
+*Recall workflow.*
+The `session:` and `cwd:` lines complete the chat-level recall loop:
++
+* `git log --all --grep='OFFICIUM <id>'` — locate every commit from a given {jjdxo_officium} (subject anchor)
+* `git log --all --grep='session: <uuid>'` — locate every commit from a given chat session (transcript anchor)
+* To resume a chat: extract `session:` and `cwd:` from the {jjdxo_invitatory} commit body, change to that working directory, run `claude --resume <session-uuid>`
++
+The `cwd:` line is recorded verbatim from the MCP server's process working directory at {jjdo_open} time — no symlink resolution, no case normalization. Recall is therefore machine-local; the transcript files under `~/.claude/projects/` are local anyway.
 +
 The invitatory commit uses empty identity (no firemark or coronet) — the officium is infrastructure, not affiliated with a heat.
 +
@@ -2758,6 +2770,8 @@ Subject format: `{agent} {landed|crashed}` where agent is the executor tier (hai
 ----
 jjb:BRAND::i: OFFICIUM <id>
 
+session: 1649a554-e779-454e-8490-58f40d55c04d
+cwd: /Users/bhyslop/projects/rbm_alpha_recipemuster
 haiku: claude-3-5-haiku-20241022
 sonnet: claude-sonnet-4-20250514
 opus: claude-opus-4-5-20251101
@@ -2765,8 +2779,9 @@ host: macbook-pro.local
 platform: darwin-arm64
 ----
 +
-The body contains model inventory when `vvcp_probe()` runs (first {jjdxo_invitatory} of the day).
-On subsequent invitatory commits the same day, the body is empty.
+The `session:` and `cwd:` lines appear on every {jjdxo_invitatory}.
+The model/host/platform inventory below them appears only on the first {jjdxo_invitatory} of the day; subsequent same-day invitatories carry `session:` + `cwd:` alone.
+See <<jjdxo_invitatory>> for the recall workflow (`git log --grep='session: …'` + `claude --resume`).
 
 {jjdxo_invitatory} markers record when an {jjdxo_officium} opens.
 Created by explicit agent action ({jjdo_open}) — not by {jjdx_mcp} process startup.
