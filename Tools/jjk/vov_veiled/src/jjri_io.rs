@@ -94,20 +94,12 @@ pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
     // to officium-local storage). Serde silently ignores the unknown field on read,
     // but re-serialization omits it, causing round-trip byte mismatch until the next
     // save writes the clean format back to disk.
-    //
-    // Also detect stale paddock_file field (removed in v4 — paddock path now derived
-    // from firemark via jjri_paddock_path on demand, not stored). Same auto-migration
-    // pattern as next_pensum_seed.
     const PENSUM_SEED_KEY: &[u8] = b"\"next_pensum_seed\"";
-    const PADDOCK_FILE_KEY: &[u8] = b"\"paddock_file\"";
     let needs_pensum_seed_removal = !gallops.heats.is_empty()
         && original_bytes.windows(PENSUM_SEED_KEY.len()).any(|w| w == PENSUM_SEED_KEY);
-    let needs_paddock_file_removal = !gallops.heats.is_empty()
-        && original_bytes.windows(PADDOCK_FILE_KEY.len()).any(|w| w == PADDOCK_FILE_KEY);
     let is_migration_mode = gallops.heat_order.is_empty()
         || gallops.schema_version.is_none()
-        || needs_pensum_seed_removal
-        || needs_paddock_file_removal;
+        || needs_pensum_seed_removal;
 
     // Round-trip validation: skipped for migration-mode files because reserialized
     // output will differ from original (dropped fields, sorted key order).
