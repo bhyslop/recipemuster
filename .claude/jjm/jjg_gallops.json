@@ -6931,6 +6931,13 @@
         "₢AmAAF": {
           "tacks": [
             {
+              "ts": "260507-1006",
+              "state": "abandoned",
+              "text": "Drafted from ₢AGAAM in ₣AG.\n\nAdd an auto-generated intent field to pace records.\n\nThe intent statement should be a prose summary (1-2 sentences) extracted from the pace docket, maintaining it automatically as part of slate/reslate operations.\n\nDisplay intent:\n- In non-detailed pace listings (alongside silks)\n- In wrap completion summary (showing what was just finished)\n\nThis gives paces more semantic richness than silks alone, helping runners understand purpose at a glance.",
+              "silks": "add-intent-field",
+              "commit": "879e857"
+            },
+            {
               "ts": "260304-1503",
               "state": "rough",
               "text": "Drafted from ₢AGAAM in ₣AG.\n\nAdd an auto-generated intent field to pace records.\n\nThe intent statement should be a prose summary (1-2 sentences) extracted from the pace docket, maintaining it automatically as part of slate/reslate operations.\n\nDisplay intent:\n- In non-detailed pace listings (alongside silks)\n- In wrap completion summary (showing what was just finished)\n\nThis gives paces more semantic richness than silks alone, helping runners understand purpose at a glance.",
