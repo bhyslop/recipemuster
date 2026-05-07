@@ -30,20 +30,10 @@ structure to JSON string (skipped if migration mode)
 If different:
 {axc_fatal}
 with diagnostic showing first difference location
-. Recompute
-{jjdhm_paddock}
-from
-{jjdt_firemark}
-for every
-{jjdhr_heat}
-using ul-encoding (overrides stored value; see
-{jjdhm_paddock}
-definition)
 . If migration mode: populate
 {jjdgm_order}
 from sorted `heats` keys.
 Next save writes new-format file; subsequent loads use strict round-trip check.
-. Verify encoded paddock files exist on disk; if missing, fatal with `mv` instructions for all missing files before proceeding
 . Validate semantic constraints (timestamps, kebab-case silks, invariants)
 . If validation fails:
 {axc_fatal}
@@ -63,4 +53,4 @@ from disk.
 This makes validation bypass architecturally impossible.
 The round-trip check (steps 4-5) ensures the file is in canonical form.
 It is skipped for old-format files to allow seamless migration.
-The semantic validation (steps 9-10) ensures business rules are satisfied.
+The semantic validation (steps 7-8) ensures business rules are satisfied.

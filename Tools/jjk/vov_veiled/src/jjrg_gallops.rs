@@ -208,8 +208,6 @@ mod tests {
             status: jjrg_HeatStatus::Racing,
             order: vec![coronet_key],
             next_pace_seed: "AAB".to_string(),
-
-            paddock_file: ".claude/jjm/jjp_test.md".to_string(),
             paces,
         };
         let mut heats = BTreeMap::new();

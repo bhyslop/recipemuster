@@ -75,12 +75,7 @@ pub fn jjri_paddock_path(firemark: &str) -> String {
 /// Performs these steps in order:
 /// 1. Deserialize JSON to Gallops struct
 /// 2. Round-trip validation: reserialize and compare bytes (validates stored format)
-/// 3. Recompute paddock_file from firemark for every heat (JJK owns this field)
-/// 4. Paddock existence check: fatal with mv instructions if files are at legacy paths
-/// 5. Semantic validation via jjrg_validate
-///
-/// Step 3 means the stored paddock_file value is ignored — JJK always derives it from
-/// the firemark. After migration, the next save writes the encoded value back to disk.
+/// 3. Semantic validation via jjrg_validate
 ///
 /// Returns ValidatedGallops wrapper that guarantees the data has passed all checks.
 pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
@@ -88,7 +83,6 @@ pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
     let original_bytes = fs::read(path)
         .map_err(|e| format!("Failed to read file '{}': {}", path.display(), e))?;
 
-    // Deserialize (mut: paddock_file will be recomputed below)
     let mut gallops: jjrg_Gallops = serde_json::from_slice(&original_bytes)
         .map_err(|e| format!("Failed to parse JSON: {}", e))?;
 
@@ -100,16 +94,23 @@ pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
     // to officium-local storage). Serde silently ignores the unknown field on read,
     // but re-serialization omits it, causing round-trip byte mismatch until the next
     // save writes the clean format back to disk.
+    //
+    // Also detect stale paddock_file field (removed in v4 — paddock path now derived
+    // from firemark via jjri_paddock_path on demand, not stored). Same auto-migration
+    // pattern as next_pensum_seed.
     const PENSUM_SEED_KEY: &[u8] = b"\"next_pensum_seed\"";
+    const PADDOCK_FILE_KEY: &[u8] = b"\"paddock_file\"";
     let needs_pensum_seed_removal = !gallops.heats.is_empty()
         && original_bytes.windows(PENSUM_SEED_KEY.len()).any(|w| w == PENSUM_SEED_KEY);
+    let needs_paddock_file_removal = !gallops.heats.is_empty()
+        && original_bytes.windows(PADDOCK_FILE_KEY.len()).any(|w| w == PADDOCK_FILE_KEY);
     let is_migration_mode = gallops.heat_order.is_empty()
         || gallops.schema_version.is_none()
-        || needs_pensum_seed_removal;
+        || needs_pensum_seed_removal
+        || needs_paddock_file_removal;
 
-    // Round-trip validation: run before recomputation to validate the stored format.
-    // Skipped for old-format files (heat_order empty) — BTreeMap key order differs from
-    // original IndexMap insertion order, so round-trip will always fail for these files.
+    // Round-trip validation: skipped for migration-mode files because reserialized
+    // output will differ from original (dropped fields, sorted key order).
     if !is_migration_mode {
         let reserialized = serde_json::to_string_pretty(&gallops)
             .map_err(|e| format!("Failed to reserialize JSON: {}", e))?;
@@ -120,15 +121,6 @@ pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
         }
     }
 
-    // Recompute paddock_file from firemark for every heat.
-    // JJK owns this field exclusively; whatever is stored in JSON is overwritten.
-    // This allows old gallops files (with raw-firemark paths) to load transparently —
-    // the correct encoded path is used in memory, and written back on the next save.
-    for (firemark_key, heat) in &mut gallops.heats {
-        let bare = firemark_key.trim_start_matches('₣');
-        heat.paddock_file = jjri_paddock_path(bare);
-    }
-
     // Populate missing fields on first load of old-format file.
     // BTreeMap guarantees sorted key order for heat_order.
     if is_migration_mode {
@@ -136,33 +128,6 @@ pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
             gallops.heat_order = gallops.heats.keys().cloned().collect();
         }
         gallops.schema_version = Some(4);
-    }
-
-    // Paddock existence check: verify each encoded paddock file exists on disk.
-    // If missing, compute the legacy raw-firemark path and emit mv instructions.
-    // Reports ALL missing files at once so a single repair pass suffices.
-    {
-        let mut repairs: Vec<String> = Vec::new();
-        for (firemark_key, heat) in &gallops.heats {
-            if !Path::new(&heat.paddock_file).exists() {
-                let bare = firemark_key.trim_start_matches('₣');
-                let legacy_path = format!(".claude/jjm/jjp_{}.md", bare);
-                if Path::new(&legacy_path).exists() {
-                    repairs.push(format!("  mv {} {}", legacy_path, heat.paddock_file));
-                } else {
-                    repairs.push(format!(
-                        "  # WARNING: paddock missing for heat \"{}\", expected: {}",
-                        bare, heat.paddock_file
-                    ));
-                }
-            }
-        }
-        if !repairs.is_empty() {
-            return Err(format!(
-                "Paddock files need renaming before proceeding:\n\n{}",
-                repairs.join("\n")
-            ));
-        }
     }
 
     // Semantic validation

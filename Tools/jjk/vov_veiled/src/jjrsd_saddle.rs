@@ -12,6 +12,7 @@ use vvc::{vvco_out, vvco_err, vvco_Output};
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrf_favor::jjrf_Coronet as Coronet;
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState};
+use crate::jjri_io::jjri_paddock_path;
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
 use crate::jjrs_steeplechase::{jjrs_get_entries, jjrs_ReinArgs};
 use crate::jjrpd_parade::{jjrpd_write_file_bitmap, jjrpd_write_commit_swimlanes};
@@ -186,10 +187,11 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette
     }
 
     // Read paddock file content
-    let paddock_content = match fs::read_to_string(&heat.paddock_file) {
+    let paddock_path = jjri_paddock_path(firemark.jjrf_as_str());
+    let paddock_content = match fs::read_to_string(&paddock_path) {
         Ok(content) => content,
         Err(e) => {
-            vvco_err!(output, "{}: error reading paddock file '{}': {}", cn, heat.paddock_file, e);
+            vvco_err!(output, "{}: error reading paddock file '{}': {}", cn, paddock_path, e);
             return (1, output.vvco_finish());
         }
     };
@@ -283,7 +285,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette
 
     // Output plain text format
     vvco_out!(output, "Heat: {} ({}) [{}]", heat.silks, heat_key, status_str);
-    vvco_out!(output, "Paddock: {}", heat.paddock_file);
+    vvco_out!(output, "Paddock: {}", paddock_path);
     vvco_out!(output, "");
 
     // Save gazette data before output section consumes variables

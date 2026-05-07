@@ -9,6 +9,7 @@
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrf_favor::jjrf_Coronet as Coronet;
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_Heat as Heat, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState};
+use crate::jjri_io::jjri_paddock_path;
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
 use crate::jjrq_query::{jjrq_files_for_pace, jjrq_file_touches_for_heat, zjjrq_files_for_commit, zjjrq_bare_filename, zjjrq_is_infra_file};
 use crate::jjrs_steeplechase::{jjrs_ReinArgs, jjrs_get_entries, jjrs_SteeplechaseEntry};
@@ -188,10 +189,11 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
 
         if args.detail {
             // Detail view: paddock + all dockets
-            let paddock_content = match fs::read_to_string(&heat.paddock_file) {
+            let paddock_path = jjri_paddock_path(firemark.jjrf_as_str());
+            let paddock_content = match fs::read_to_string(&paddock_path) {
                 Ok(content) => content,
                 Err(e) => {
-                    vvco_err!(output, "{}: error reading paddock file '{}': {}", cn, heat.paddock_file, e);
+                    vvco_err!(output, "{}: error reading paddock file '{}': {}", cn, paddock_path, e);
                     return (1, output.vvco_finish());
                 }
             };

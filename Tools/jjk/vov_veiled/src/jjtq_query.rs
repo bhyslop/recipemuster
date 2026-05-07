@@ -43,8 +43,6 @@ fn create_test_gallops() -> Gallops {
             status: HeatStatus::Racing,
             order: vec!["₢ABAAA".to_string(), "₢ABAAB".to_string()],
             next_pace_seed: "AAC".to_string(),
-
-            paddock_file: ".claude/jjm/jjp_AB.md".to_string(),
             paces,
         },
     );
@@ -230,8 +228,6 @@ fn create_test_gallops_with_mixed_states() -> Gallops {
                 "₢ACAAD".to_string(),
             ],
             next_pace_seed: "AAE".to_string(),
-
-            paddock_file: ".claude/jjm/jjp_AC.md".to_string(),
             paces,
         },
     );

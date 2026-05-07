@@ -45,8 +45,6 @@ fn make_heat_with_paces(heat_id: &str, pace_ids: &[&str]) -> (String, jjrg_Heat)
         status: jjrg_HeatStatus::Racing,
         order,
         next_pace_seed: "AAZ".to_string(),
-
-        paddock_file: ".claude/jjm/jjp_test.md".to_string(),
         paces,
     };
     (heat_key, heat)

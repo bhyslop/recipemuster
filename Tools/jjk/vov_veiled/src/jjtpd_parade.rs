@@ -49,8 +49,6 @@ fn make_valid_heat(heat_id: &str, silks: &str, status: jjrg_HeatStatus) -> (Stri
         status,
         order: vec![pace_key],
         next_pace_seed: "AAB".to_string(),
-
-        paddock_file: format!(".claude/jjm/jjp_{}.md", heat_id),
         paces,
     };
     (heat_key, heat)

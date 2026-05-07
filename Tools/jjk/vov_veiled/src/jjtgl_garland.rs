@@ -7,6 +7,7 @@
 //! Tests the garland operation which celebrates heat completion and creates
 //! a continuation heat.
 
+use super::jjri_io::jjri_paddock_path;
 use super::jjro_ops::jjrg_garland;
 use super::jjrt_types::{jjrg_PaceState, jjrg_HeatStatus, jjrg_Tack, jjrg_Pace, jjrg_Heat, jjrg_Gallops, jjrg_GarlandArgs, JJRG_UNKNOWN_BASIS};
 use super::jjrq_query::{jjrq_parse_silks_sequence, jjrq_build_garlanded_silks, jjrq_build_continuation_silks};
@@ -62,8 +63,6 @@ fn make_heat_with_paces(heat_id: &str, silks: &str, pace_states: Vec<jjrg_PaceSt
         status: jjrg_HeatStatus::Racing,
         order,
         next_pace_seed,
-
-        paddock_file: format!(".claude/jjm/jjp_{}.md", heat_id),
         paces,
     };
     (heat_key, heat)
@@ -96,7 +95,7 @@ fn jjtgl_garland_no_actionable_paces() {
     );
 
     // Create paddock file
-    let paddock_path = td.path().join(&heat.paddock_file);
+    let paddock_path = td.path().join(jjri_paddock_path("AB"));
     std::fs::create_dir_all(paddock_path.parent().unwrap()).unwrap();
     std::fs::write(&paddock_path, "Test paddock content").unwrap();
 
@@ -129,7 +128,7 @@ fn jjtgl_garland_successful_with_rough_paces() {
     );
 
     // Create paddock file
-    let paddock_path = td.path().join(&heat.paddock_file);
+    let paddock_path = td.path().join(jjri_paddock_path("AB"));
     std::fs::create_dir_all(paddock_path.parent().unwrap()).unwrap();
     std::fs::write(&paddock_path, "Original paddock content\n\nMore details here.").unwrap();
 
@@ -166,11 +165,11 @@ fn jjtgl_garland_successful_with_rough_paces() {
     assert_eq!(&gallops.heat_order[0], &result.new_firemark);
 
     // Verify paddock marker was added to old heat
-    let old_paddock_content = std::fs::read_to_string(td.path().join(&old_heat.paddock_file)).unwrap();
+    let old_paddock_content = std::fs::read_to_string(td.path().join(jjri_paddock_path("AB"))).unwrap();
     assert!(old_paddock_content.contains("Garlanded at pace 2"));
 
     // Verify paddock content was copied to new heat (without marker)
-    let new_paddock_content = std::fs::read_to_string(td.path().join(&new_heat.paddock_file)).unwrap();
+    let new_paddock_content = std::fs::read_to_string(td.path().join(jjri_paddock_path(result.new_firemark.trim_start_matches('₣')))).unwrap();
     assert!(new_paddock_content.contains("Original paddock content"));
     assert!(!new_paddock_content.contains("Garlanded at pace"));
 }
@@ -209,13 +208,11 @@ fn jjtgl_garland_successful_with_bridled_paces() {
         status: jjrg_HeatStatus::Racing,
         order,
         next_pace_seed: "AAC".to_string(),
-
-        paddock_file: ".claude/jjm/jjp_AB.md".to_string(),
         paces,
     };
 
     // Create paddock file
-    let paddock_path = td.path().join(&heat.paddock_file);
+    let paddock_path = td.path().join(jjri_paddock_path("AB"));
     std::fs::create_dir_all(paddock_path.parent().unwrap()).unwrap();
     std::fs::write(&paddock_path, "Paddock content").unwrap();
 
@@ -285,7 +282,7 @@ fn jjtgl_garland_preserves_pace_order() {
     );
 
     // Create paddock file
-    let paddock_path = td.path().join(&heat.paddock_file);
+    let paddock_path = td.path().join(jjri_paddock_path("AB"));
     std::fs::create_dir_all(paddock_path.parent().unwrap()).unwrap();
     std::fs::write(&paddock_path, "Paddock").unwrap();
 
@@ -322,7 +319,7 @@ fn jjtgl_garland_all_actionable_paces() {
     );
 
     // Create paddock file
-    let paddock_path = td.path().join(&heat.paddock_file);
+    let paddock_path = td.path().join(jjri_paddock_path("AB"));
     std::fs::create_dir_all(paddock_path.parent().unwrap()).unwrap();
     std::fs::write(&paddock_path, "Paddock").unwrap();
 
@@ -365,7 +362,7 @@ fn jjtgl_garland_abandoned_paces_not_transferred() {
     );
 
     // Create paddock file
-    let paddock_path = td.path().join(&heat.paddock_file);
+    let paddock_path = td.path().join(jjri_paddock_path("AB"));
     std::fs::create_dir_all(paddock_path.parent().unwrap()).unwrap();
     std::fs::write(&paddock_path, "Paddock").unwrap();
 
@@ -407,7 +404,7 @@ fn jjtgl_garland_complete_count_in_marker() {
     );
 
     // Create paddock file
-    let paddock_path = td.path().join(&heat.paddock_file);
+    let paddock_path = td.path().join(jjri_paddock_path("AB"));
     std::fs::create_dir_all(paddock_path.parent().unwrap()).unwrap();
     std::fs::write(&paddock_path, "Original content").unwrap();
 
@@ -417,10 +414,9 @@ fn jjtgl_garland_complete_count_in_marker() {
         firemark: "AB".to_string(),
     };
 
-    let result = jjrg_garland(&mut gallops, args, td.path()).unwrap();
+    let _ = jjrg_garland(&mut gallops, args, td.path()).unwrap();
 
     // Check paddock marker shows count of 3 complete paces
-    let old_heat = gallops.heats.get(&result.old_firemark).unwrap();
-    let paddock_content = std::fs::read_to_string(td.path().join(&old_heat.paddock_file)).unwrap();
+    let paddock_content = std::fs::read_to_string(td.path().join(jjri_paddock_path("AB"))).unwrap();
     assert!(paddock_content.contains("Garlanded at pace 3 — magnificent service"));
 }

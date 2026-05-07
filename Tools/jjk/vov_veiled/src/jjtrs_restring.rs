@@ -58,8 +58,6 @@ fn make_heat_with_paces(heat_id: &str, silks: &str, pace_count: usize) -> (Strin
         status: jjrg_HeatStatus::Racing,
         order,
         next_pace_seed: next_pace_suffix,
-
-        paddock_file: format!(".claude/jjm/jjp_{}.md", heat_id),
         paces,
     };
 
@@ -475,10 +473,10 @@ fn jjtrs_restring_result_contains_correct_metadata() {
     // Verify result contains expected metadata
     assert_eq!(result.source_firemark, "₣AB");
     assert_eq!(result.source_silks, "source-heat");
-    assert_eq!(result.source_paddock, ".claude/jjm/jjp_AB.md");
+    assert_eq!(result.source_paddock, ".claude/jjm/jjp_uAuB.md");
     assert_eq!(result.dest_firemark, "₣AC");
     assert_eq!(result.dest_silks, "dest-heat");
-    assert_eq!(result.dest_paddock, ".claude/jjm/jjp_AC.md");
+    assert_eq!(result.dest_paddock, ".claude/jjm/jjp_uAuC.md");
     assert_eq!(result.drafted.len(), 1);
 }
 

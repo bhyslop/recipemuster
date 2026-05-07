@@ -10,6 +10,7 @@ use std::path::PathBuf;
 use vvc::{vvco_out, vvco_err, vvco_Output};
 use crate::jjrf_favor::{jjrf_Firemark as Firemark};
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops};
+use crate::jjri_io::jjri_paddock_path;
 use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug};
 
 const JJRCU_CMD_NAME_CURRY: &str = "jjx_curry";
@@ -61,15 +62,13 @@ pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, content: Option<String>, gazette: 
             };
 
             let firemark_key = firemark.jjrf_display();
-            let heat = match gallops.heats.get(&firemark_key) {
-                Some(h) => h,
-                None => {
-                    vvco_err!(output, "{}: error: Heat '{}' not found", cn, firemark_key);
-                    return (1, output.vvco_finish());
-                }
-            };
+            if !gallops.heats.contains_key(&firemark_key) {
+                vvco_err!(output, "{}: error: Heat '{}' not found", cn, firemark_key);
+                return (1, output.vvco_finish());
+            }
 
-            let paddock_path = std::path::Path::new(&heat.paddock_file);
+            let paddock_path_string = jjri_paddock_path(firemark.jjrf_as_str());
+            let paddock_path = std::path::Path::new(&paddock_path_string);
             let paddock_content = match std::fs::read_to_string(paddock_path) {
                 Ok(c) => c,
                 Err(e) => {

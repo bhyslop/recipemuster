@@ -78,7 +78,7 @@
 :jjdhm_created:   <<jjdhm_created,creation_time>>
 :jjdhm_firemark:  <<jjdhm_firemark,firemark>>
 :jjdhm_order:     <<jjdhm_order,order>>
-:jjdhm_paddock:        <<jjdhm_paddock,paddock_file>>
+:jjdhm_paddock:        <<jjdhm_paddock,paddock path>>
 :jjdhm_pensum_seed:    <<jjdhm_pensum_seed,pensum_seed>>
 :jjdhm_seed:           <<jjdhm_seed,next_pace_seed>>
 :jjdhm_silks:          <<jjdhm_silks,silks>>
@@ -1377,7 +1377,7 @@ Pensum tokens are session-scoped ephemeral correlation labels — they do not be
 Cross-officium seed collision is acceptable.
 
 * [[jjdhm_paddock]]
-//axl_voices axr_member axd_required
+//axl_voices axr_member axd_derived
 {jjdhm_paddock}
 is the path to the paddock file containing
 {jjdhr_heat}
@@ -1388,13 +1388,24 @@ Format: `.claude/jjm/jjp_{encoded}.md` where `{encoded}` is the
 (lowercase) to ensure uniqueness on case-insensitive filesystems (macOS
 HFS+/APFS).
 Examples: firemark `AG` → `jjp_uAuG.md`; firemark `Ag` → `jjp_uAlg.md`.
-This field is recomputed from the firemark on every load; the stored value
-is authoritative only as a cross-check and will be overwritten on the next
-save.
-On load, if the encoded paddock file does not exist on disk, JJK fatals with
-`mv` instructions for all missing files before proceeding.
-Created by
+Computed on demand from the
+{jjdhm_firemark}
+via `jjri_paddock_path`; not persisted in
+{jjdgr_gallops}.
+The paddock file itself is created by
 {jjdo_create}.
++
+Formerly a
+{jjdhr_heat}
+member in
+{jjdgr_gallops}.
+Removed because the value is fully determined by the
+{jjdhm_firemark}
+— storing it in JSON was redundant noise that drifted from the encoding rule
+during the case-safe rename migration.
+Computed paths match production behavior on every reference; no migration
+machinery is required for projects that have already adopted the encoded
+format.
 
 * [[jjdhm_paces]]
 //axl_voices axr_member axd_required axt_map
@@ -2885,7 +2896,6 @@ Current behavior:
 
 . Deserialize JSON as current types
 . Detect migration mode: `schema_version` absent or `heat_order` empty
-. Recompute `paddock_file` from firemark for every heat
 . Set `schema_version` to 4
 . Populate `heat_order` from sorted BTreeMap keys
 . Next {jjdr_save} writes V4 format

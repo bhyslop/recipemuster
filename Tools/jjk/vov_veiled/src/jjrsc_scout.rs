@@ -14,6 +14,7 @@ use vvc::{vvco_out, vvco_err, vvco_Output};
 const JJRSC_CMD_NAME_SCOUT: &str = "jjx_scout";
 
 use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_PaceState as PaceState};
+use crate::jjri_io::jjri_paddock_path;
 
 /// Arguments for jjx_scout command
 #[derive(Args, Debug)]
@@ -88,8 +89,8 @@ pub fn jjrsc_run_scout(args: jjrsc_ScoutArgs) -> (i32, String) {
                         }
                     } else {
                         // Search paddock content
-                        let paddock_path = std::path::Path::new(&heat.paddock_file);
-                        if let Ok(content) = fs::read_to_string(paddock_path) {
+                        let paddock_path = jjri_paddock_path(heat_key.trim_start_matches('₣'));
+                        if let Ok(content) = fs::read_to_string(&paddock_path) {
                             if re.is_match(&content) {
                                 match_result = Some(("paddock".to_string(), content));
                             }

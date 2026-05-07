@@ -68,7 +68,6 @@ pub struct jjrg_Heat {
     pub status: jjrg_HeatStatus,
     pub order: Vec<String>,
     pub next_pace_seed: String,
-    pub paddock_file: String,
     pub paces: BTreeMap<String, jjrg_Pace>,
 }
 

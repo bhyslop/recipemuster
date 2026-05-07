@@ -37,11 +37,8 @@ pub fn jjrg_nominate(gallops: &mut jjrg_Gallops, args: jjrg_NominateArgs, base_p
     let firemark_str = format!("{}{}", FIREMARK_PREFIX, gallops.next_heat_seed);
     let heat_id = gallops.next_heat_seed.clone();
 
-    // Compute paddock path
-    let paddock_file = jjri_paddock_path(&heat_id);
-
     // Create paddock file with template
-    let paddock_path = base_path.join(&paddock_file);
+    let paddock_path = base_path.join(jjri_paddock_path(&heat_id));
     if let Some(parent) = paddock_path.parent() {
         fs::create_dir_all(parent)
             .map_err(|e| format!("Failed to create paddock directory: {}", e))?;
@@ -62,7 +59,6 @@ pub fn jjrg_nominate(gallops: &mut jjrg_Gallops, args: jjrg_NominateArgs, base_p
         status: jjrg_HeatStatus::Stabled,
         order: Vec::new(),
         next_pace_seed: "AAA".to_string(),
-        paddock_file,
         paces: BTreeMap::new(),
     };
 
@@ -526,9 +522,10 @@ pub fn jjrg_retire(
         .ok_or_else(|| format!("Heat '{}' not found", firemark_key))?;
 
     // Read paddock content before we remove anything
-    let paddock_path = base_path.join(&heat.paddock_file);
+    let paddock_file = jjri_paddock_path(firemark.jjrf_as_str());
+    let paddock_path = base_path.join(&paddock_file);
     let paddock_content = fs::read_to_string(&paddock_path)
-        .map_err(|e| format!("Failed to read paddock file '{}': {}", heat.paddock_file, e))?;
+        .map_err(|e| format!("Failed to read paddock file '{}': {}", paddock_file, e))?;
 
     // Build trophy content
     let trophy_content = zjjrg_build_trophy_content(&firemark_key, heat, &paddock_content, &args.today, steeplechase)?;
@@ -555,7 +552,6 @@ pub fn jjrg_retire(
 
     // Capture info for result before removing heat
     let silks = heat.silks.clone();
-    let paddock_file = heat.paddock_file.clone();
 
     // Remove heat from gallops (do NOT change next_heat_seed)
     gallops.heats.remove(&firemark_key);
@@ -722,11 +718,13 @@ pub fn jjrg_curry(
 
     // Verify heat exists
     let firemark_key = firemark.jjrf_display();
-    let heat = gallops.heats.get(&firemark_key)
-        .ok_or_else(|| format!("Heat '{}' not found", firemark_key))?;
+    if !gallops.heats.contains_key(&firemark_key) {
+        return Err(format!("Heat '{}' not found", firemark_key));
+    }
 
     // Write new paddock content
-    let paddock_path = std::path::Path::new(&heat.paddock_file);
+    let paddock_path_string = jjri_paddock_path(firemark.jjrf_as_str());
+    let paddock_path = std::path::Path::new(&paddock_path_string);
     fs::write(paddock_path, new_content)
         .map_err(|e| format!("Failed to write paddock file: {}", e))?;
 
@@ -849,7 +847,8 @@ pub fn jjrg_garland(gallops: &mut jjrg_Gallops, args: jjrg_GarlandArgs, base_pat
     let firemark_key = firemark.jjrf_display();
 
     // Verify source heat exists and extract needed data (avoid holding the borrow)
-    let (source_silks, source_paddock_file, source_order, actionable_count, retained_count) = {
+    let source_paddock_file = jjri_paddock_path(firemark.jjrf_as_str());
+    let (source_silks, source_order, actionable_count, retained_count) = {
         let source_heat = gallops.heats.get(&firemark_key)
             .ok_or_else(|| format!("Heat '{}' not found", firemark_key))?;
 
@@ -895,7 +894,7 @@ pub fn jjrg_garland(gallops: &mut jjrg_Gallops, args: jjrg_GarlandArgs, base_pat
         let marker_text = format!("Garlanded at pace {} — magnificent service", complete_count);
 
         // Update source heat: add steeplechase marker (prepend to paddock file)
-        let source_paddock_path = base_path.join(&source_heat.paddock_file);
+        let source_paddock_path = base_path.join(&source_paddock_file);
         let existing_content = std::fs::read_to_string(&source_paddock_path)
             .map_err(|e| format!("Failed to read paddock file: {}", e))?;
 
@@ -903,7 +902,7 @@ pub fn jjrg_garland(gallops: &mut jjrg_Gallops, args: jjrg_GarlandArgs, base_pat
         std::fs::write(&source_paddock_path, updated_content)
             .map_err(|e| format!("Failed to write paddock file: {}", e))?;
 
-        ((base, seq), source_heat.paddock_file.clone(), source_heat.order.clone(), actionable_count, retained_count)
+        ((base, seq), source_heat.order.clone(), actionable_count, retained_count)
     };
 
     // Build garlanded and continuation silks
@@ -921,11 +920,10 @@ pub fn jjrg_garland(gallops: &mut jjrg_Gallops, args: jjrg_GarlandArgs, base_pat
     let new_firemark_key = nominate_result.firemark.clone();
 
     // Get destination heat paddock file for copy
-    let dest_paddock_file = {
-        let dest_heat = gallops.heats.get(&new_firemark_key)
-            .ok_or_else(|| "Failed to retrieve newly nominated heat".to_string())?;
-        dest_heat.paddock_file.clone()
-    };
+    if !gallops.heats.contains_key(&new_firemark_key) {
+        return Err("Failed to retrieve newly nominated heat".to_string());
+    }
+    let dest_paddock_file = jjri_paddock_path(new_firemark_key.trim_start_matches('₣'));
 
     // Read original paddock content before modifications (for new heat)
     let source_paddock_path = base_path.join(&source_paddock_file);
@@ -1049,12 +1047,12 @@ pub fn jjrg_restring(gallops: &mut jjrg_Gallops, args: jjrg_RestringArgs) -> Res
     // Capture source heat info before mutations
     let source_heat = gallops.heats.get(&source_firemark_key).unwrap();
     let source_silks = source_heat.silks.clone();
-    let source_paddock = source_heat.paddock_file.clone();
+    let source_paddock = jjri_paddock_path(source_firemark.jjrf_as_str());
 
     // Capture destination heat info
     let dest_heat = gallops.heats.get(&dest_firemark_key).unwrap();
     let dest_silks = dest_heat.silks.clone();
-    let dest_paddock = dest_heat.paddock_file.clone();
+    let dest_paddock = jjri_paddock_path(dest_firemark.jjrf_as_str());
 
     // Draft each pace to destination (preserving order)
     let mut mappings = Vec::new();
