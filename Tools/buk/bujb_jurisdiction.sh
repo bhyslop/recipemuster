@@ -108,6 +108,11 @@ zbujb_kindle() {
   readonly ZBUJB_WSL_PREFLIGHT_STDOUT="${BURD_TEMP_DIR}/bujb_wsl_preflight_stdout.txt"
   readonly ZBUJB_WSL_PREFLIGHT_STDERR="${BURD_TEMP_DIR}/bujb_wsl_preflight_stderr.txt"
 
+  # Obliterate per-call captures (reused across the Windows sub-step
+  # sequence — last call's content is what's preserved at die time).
+  readonly ZBUJB_OBLITERATE_STDOUT="${BURD_TEMP_DIR}/bujb_obliterate_stdout.txt"
+  readonly ZBUJB_OBLITERATE_STDERR="${BURD_TEMP_DIR}/bujb_obliterate_stderr.txt"
+
   readonly ZBUJB_KINDLED=1
 }
 
@@ -351,17 +356,133 @@ zbujb_garrison_step1_admin_open() {
   fi
 }
 
+# zbujb_obliterate_windows_namespaces WLU -- run the four-namespace
+# Windows obliterate sequence as a series of atomic PowerShell calls.
+# Each PS call does ONE thing: a probe (emits raw text) or a destructive
+# operation (Remove-LocalUser / Remove-Item / wsl.exe userdel). All
+# conditional logic lives bash-side via `test ... || { … }` per BCG.
+# Probes use only PS cmdlets or wsl.exe with bash-internal `|| true`,
+# avoiding the PowerShell native-command stderr-to-terminating-error
+# escalation that bites multi-statement absent-tolerant bodies.
+zbujb_obliterate_windows_namespaces() {
+  zbujb_sentinel
+  local -r z_wlu="${1:-}"
+  test -n "${z_wlu}" \
+    || buc_die "zbujb_obliterate_windows_namespaces: workload user required"
+
+  local z_state
+
+  # SAM entry — Get-LocalUser emits object table if present, empty if
+  # absent (SilentlyContinue swallows the not-found error).
+  buc_step "    [SAM] Probe Windows local user (${z_wlu})"
+  zbujb_admin_powershell "Get-LocalUser -Name '${z_wlu}' -ErrorAction SilentlyContinue" \
+      > "${ZBUJB_OBLITERATE_STDOUT}" \
+      2> "${ZBUJB_OBLITERATE_STDERR}" \
+    || buc_die "SAM probe failed — see ${ZBUJB_OBLITERATE_STDERR}"
+  z_state=$(<"${ZBUJB_OBLITERATE_STDOUT}")
+  z_state="${z_state//[$'\r\n\t ']/}"
+  test -z "${z_state}" || {
+    buc_step "    [SAM] Remove Windows local user (${z_wlu})"
+    zbujb_admin_powershell "Remove-LocalUser -Name '${z_wlu}'" \
+        > "${ZBUJB_OBLITERATE_STDOUT}" \
+        2> "${ZBUJB_OBLITERATE_STDERR}" \
+      || buc_die "Remove-LocalUser failed — see ${ZBUJB_OBLITERATE_STDERR}"
+  }
+
+  # Windows profile directory.
+  buc_step "    [Profile] Probe C:\\Users\\${z_wlu}"
+  zbujb_admin_powershell "Test-Path 'C:\\Users\\${z_wlu}'" \
+      > "${ZBUJB_OBLITERATE_STDOUT}" \
+      2> "${ZBUJB_OBLITERATE_STDERR}" \
+    || buc_die "Profile-dir probe failed — see ${ZBUJB_OBLITERATE_STDERR}"
+  z_state=$(<"${ZBUJB_OBLITERATE_STDOUT}")
+  z_state="${z_state//[$'\r\n']/}"
+  case "${z_state}" in
+    True)
+      buc_step "    [Profile] Remove C:\\Users\\${z_wlu}"
+      zbujb_admin_powershell "Remove-Item -Recurse -Force 'C:\\Users\\${z_wlu}'" \
+          > "${ZBUJB_OBLITERATE_STDOUT}" \
+          2> "${ZBUJB_OBLITERATE_STDERR}" \
+        || buc_die "Remove C:\\Users\\${z_wlu} failed — see ${ZBUJB_OBLITERATE_STDERR}"
+      ;;
+    False)
+      ;;
+    *)
+      buc_die "Test-Path on C:\\Users\\${z_wlu} returned unexpected: '${z_state}'"
+      ;;
+  esac
+
+  # Cygwin home directory.
+  buc_step "    [Cygwin] Probe C:\\cygwin64\\home\\${z_wlu}"
+  zbujb_admin_powershell "Test-Path 'C:\\cygwin64\\home\\${z_wlu}'" \
+      > "${ZBUJB_OBLITERATE_STDOUT}" \
+      2> "${ZBUJB_OBLITERATE_STDERR}" \
+    || buc_die "Cygwin-home probe failed — see ${ZBUJB_OBLITERATE_STDERR}"
+  z_state=$(<"${ZBUJB_OBLITERATE_STDOUT}")
+  z_state="${z_state//[$'\r\n']/}"
+  case "${z_state}" in
+    True)
+      buc_step "    [Cygwin] Remove C:\\cygwin64\\home\\${z_wlu}"
+      zbujb_admin_powershell "Remove-Item -Recurse -Force 'C:\\cygwin64\\home\\${z_wlu}'" \
+          > "${ZBUJB_OBLITERATE_STDOUT}" \
+          2> "${ZBUJB_OBLITERATE_STDERR}" \
+        || buc_die "Remove C:\\cygwin64\\home\\${z_wlu} failed — see ${ZBUJB_OBLITERATE_STDERR}"
+      ;;
+    False)
+      ;;
+    *)
+      buc_die "Test-Path on C:\\cygwin64\\home\\${z_wlu} returned unexpected: '${z_state}'"
+      ;;
+  esac
+
+  # WSL distribution presence — case-scan stripped output for the
+  # canonical name (preflight already verified, but stay defensive).
+  buc_step "    [WSL] Probe distribution list"
+  zbujb_admin_powershell "wsl.exe --list --quiet 2>\$null" \
+      > "${ZBUJB_OBLITERATE_STDOUT}" \
+      2> "${ZBUJB_OBLITERATE_STDERR}" \
+    || buc_die "WSL distro probe failed — see ${ZBUJB_OBLITERATE_STDERR}"
+  z_state=$(<"${ZBUJB_OBLITERATE_STDOUT}")
+  z_state="${z_state//$'\r'/}"
+  case $'\n'"${z_state}"$'\n' in
+    *$'\n'"${BUJB_wsl_distribution}"$'\n'*)
+      # WSL user probe: bash-inside-wsl handles getent's absent-state
+      # via `|| true` so wsl.exe still exits 0 when user is absent
+      # (avoids the wrapper's exit-code propagation tripping). The
+      # `bash -c` argument uses a PS single-quoted string ('' escapes
+      # an embedded single quote) so no double quotes appear inside
+      # the cmd.exe-level powershell -Command token.
+      buc_step "    [WSL] Probe Linux user (${z_wlu}) inside ${BUJB_wsl_distribution}"
+      zbujb_admin_powershell "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c 'getent passwd ''${z_wlu}'' 2>/dev/null || true'" \
+          > "${ZBUJB_OBLITERATE_STDOUT}" \
+          2> "${ZBUJB_OBLITERATE_STDERR}" \
+        || buc_die "WSL user probe failed — see ${ZBUJB_OBLITERATE_STDERR}"
+      z_state=$(<"${ZBUJB_OBLITERATE_STDOUT}")
+      z_state="${z_state//[$'\r\n']/}"
+      test -z "${z_state}" || {
+        buc_step "    [WSL] Remove Linux user (${z_wlu}) inside ${BUJB_wsl_distribution}"
+        zbujb_admin_powershell "wsl.exe --distribution ${BUJB_wsl_distribution} --user root userdel -r '${z_wlu}'" \
+            > "${ZBUJB_OBLITERATE_STDOUT}" \
+            2> "${ZBUJB_OBLITERATE_STDERR}" \
+          || buc_die "WSL userdel failed for ${z_wlu} — see ${ZBUJB_OBLITERATE_STDERR}"
+      }
+      ;;
+  esac
+}
+
 # zbujb_obliterate_workload -- letter-agnostic, platform-dispatched destroy
 # helper. Single greppable verb covering every namespace a prior garrison
 # of any letter could have populated. Idempotent on absent state at every
 # step; (letter, platform) compatibility is asserted by garrison entry, so
 # the helper dispatches on BURN_PLATFORM alone.
 #
-# Windows scope (one PowerShell session over admin SSH):
-#   - Windows SAM entry (net.exe user /delete)
-#   - C:\Users\<user>\ Windows profile directory
-#   - C:\cygwin64\home\<user>\ Cygwin home
-#   - WSL-side /home/<user> via wsl.exe userdel -r inside rbtww-main
+# Windows scope (one PowerShell session per atomic operation):
+#   - Windows SAM entry (Remove-LocalUser if Get-LocalUser found it)
+#   - C:\Users\<user>\ Windows profile directory (Remove-Item if Test-Path)
+#   - C:\cygwin64\home\<user>\ Cygwin home (Remove-Item if Test-Path)
+#   - WSL-side /home/<user> via wsl.exe userdel -r (gated on rbtww-main
+#     present and getent passwd hit). Decisions live bash-side; PS is
+#     atomic. See zbujb_obliterate_windows_namespaces.
 # Linux scope: native userdel -r and home purge.
 # Mac scope: sysadminctl -deleteUser and home purge.
 zbujb_obliterate_workload() {
@@ -385,13 +506,7 @@ sudo -n rm -rf '/Users/${z_wlu}' 2>/dev/null || true
 SCRIPT
       ;;
     bubep_windows)
-      # \$global:LASTEXITCODE is reset after each native-command probe so
-      # absent-state non-zero codes do not leak to the wrapper's trailing
-      # exit-code check. WSL block runs only if rbtww-main is installed
-      # (probed via wsl.exe --list --quiet).
-      local -r z_obliterate_body="& net.exe user '${z_wlu}' /delete 2>&1 | Out-Null; \$global:LASTEXITCODE = 0; if (Test-Path 'C:\\Users\\${z_wlu}') { Remove-Item -Recurse -Force 'C:\\Users\\${z_wlu}' -ErrorAction Stop }; if (Test-Path 'C:\\cygwin64\\home\\${z_wlu}') { Remove-Item -Recurse -Force 'C:\\cygwin64\\home\\${z_wlu}' -ErrorAction Stop }; \$wslList = wsl.exe --list --quiet 2>\$null; \$global:LASTEXITCODE = 0; if (\$wslList -match '${BUJB_wsl_distribution}') { wsl.exe --distribution ${BUJB_wsl_distribution} --user root userdel -r '${z_wlu}' 2>&1 | Out-Null; \$global:LASTEXITCODE = 0 }"
-      zbujb_admin_powershell "${z_obliterate_body}" \
-        || buc_die "Obliterate failed on ${BURN_HOST}"
+      zbujb_obliterate_windows_namespaces "${z_wlu}"
       ;;
     *)
       buc_die "obliterate: unsupported BURN_PLATFORM '${BURN_PLATFORM}'"
