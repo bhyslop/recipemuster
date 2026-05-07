@@ -6942,6 +6942,13 @@
         "₢AmAAG": {
           "tacks": [
             {
+              "ts": "260507-1001",
+              "state": "rough",
+              "text": "## Character\nDesign conversation. Marker pace.\n\n## Operations\n\nName two action verbs for mid-implementation pace insertion. Both compose from `jjx_enroll` today but lack memorable verbs and dedicated CLI surfacing:\n\n- **chivvy** — slate a pace at the front of the heat queue; current continues. Maps to `jjx_enroll` with `first: true`.\n- **cantle** — slate a pace immediately after the current active pace; current continues. Maps to `jjx_enroll` with `after: <current_coronet>`.\n\nMid-flow ergonomic gestures: catchy verbs are easier to recall than parameter combinations on a generic enroll.\n\n## Genealogy\n\nReplaces original snip concept. Cantle subsumes snip's positioning (the load-bearing piece); snip's docket-shuffle composes from `jjx_enroll` + `jjx_redocket` — not a new primitive.\n\n## JJS0\n\nWill need updates. Sections determined at mount time.",
+              "silks": "pace-snip-operation",
+              "commit": "e1928aa"
+            },
+            {
               "ts": "260304-1504",
               "state": "rough",
               "text": "Drafted from ₢AGAAO in ₣AG.\n\nDesign and implement a \"snip\" operation for paces.\n\n## Concept\n\nMidway through executing a pace, the runner realizes a chunk of remaining work belongs in a separate pace (typically the one immediately following). The snip operation:\n\n1. Creates a new pace positioned immediately after the current pace\n2. Moves the \"snipped\" steps from the current pace's docket into the new pace's docket\n3. Revises the current pace's docket to remove those steps\n\n## Context\n\nThis typically arises at wrap time — the runner wants to wrap the current pace but recognizes some planned steps weren't done and belong in their own pace rather than being abandoned or crammed in.\n\n## Vocabulary TBD\n\nNeed good naming. Candidates to consider:\n- snip (cutting thread)\n- cleave (splitting)\n- shear (cutting wool — fits equestrian theme)\n- fork (splitting path)\n- calve (splitting off)\n\nThe verb should feel natural in the JJ equestrian vocabulary.\n\n## Schema Implications\n\nMay need a new CLI command (jjx_snip or similar). Likely composes existing primitives (enroll + revise_docket) but having a dedicated command ensures atomicity and correct positioning.\n\n## Open Questions\n\n- Should snip only work on the currently-active pace, or any pace?\n- Should it auto-position after current, or allow positioning?\n- How to handle the docket split — interactive, or provide both halves?\n- Should the snipped pace inherit any properties (markers, state)?",
