@@ -36,7 +36,6 @@ pub mod jjrcu_curry;
 pub mod jjrdr_draft;
 pub mod jjrfu_furlough;
 pub mod jjrgc_get_coronets;
-pub mod jjrgl_garland;
 pub mod jjrgs_get_spec;
 pub mod jjrld_landing;
 pub mod jjrlg_legatio;
@@ -76,9 +75,6 @@ mod jjtq_query;
 
 #[cfg(test)]
 mod jjtcu_curry;
-
-#[cfg(test)]
-mod jjtgl_garland;
 
 #[cfg(test)]
 mod jjtrs_restring;

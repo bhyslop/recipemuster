@@ -79,7 +79,6 @@ impl jjrn_ChalkMarker {
 /// - D = Draft: move pace between heats (uppercase, rare)
 /// - R = Retire: archive heat (uppercase)
 /// - f = furlough: change heat status or rename (lowercase)
-/// - G = Garland: celebrate completed heat, create continuation (uppercase)
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum jjrn_HeatAction {
     Nominate,
@@ -89,7 +88,6 @@ pub enum jjrn_HeatAction {
     Draft,
     Retire,
     Furlough,
-    Garland,
 }
 
 impl jjrn_HeatAction {
@@ -103,7 +101,6 @@ impl jjrn_HeatAction {
             jjrn_HeatAction::Draft => JJRNM_DRAFT,
             jjrn_HeatAction::Retire => JJRNM_RETIRE,
             jjrn_HeatAction::Furlough => JJRNM_FURLOUGH,
-            jjrn_HeatAction::Garland => JJRNM_GARLAND,
         }
     }
 
@@ -117,7 +114,6 @@ impl jjrn_HeatAction {
             jjrn_HeatAction::Draft => "draft",
             jjrn_HeatAction::Retire => "retire",
             jjrn_HeatAction::Furlough => "furlough",
-            jjrn_HeatAction::Garland => "garland",
         }
     }
 }

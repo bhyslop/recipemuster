@@ -2152,8 +2152,6 @@ include::JJSCFU-furlough.adoc[]
 //axvo_procedure axd_transient
 ==== {jjdo_continue}
 
-include::JJSCGL-garland.adoc[]
-
 [[jjdo_transfer]]
 //axvo_procedure axd_transient
 ==== {jjdo_transfer}

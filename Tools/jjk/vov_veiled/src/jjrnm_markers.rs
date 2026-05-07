@@ -34,9 +34,6 @@ pub const JJRNM_RETIRE: char = 'R';
 /// Heat Action: Furlough - change heat status or rename (lowercase)
 pub const JJRNM_FURLOUGH: char = 'f';
 
-/// Heat Action: Garland - celebrate completed heat, create continuation (uppercase)
-pub const JJRNM_GARLAND: char = 'G';
-
 /// Implicit Action: Notch - standard commit with heat/pace context
 pub const JJRNM_NOTCH: char = 'n';
 
@@ -64,7 +61,6 @@ pub const fn jjrnm_all_codes() -> &'static [(char, &'static str)] {
         (JJRNM_DRAFT, "Draft"),
         (JJRNM_RETIRE, "Retire"),
         (JJRNM_FURLOUGH, "Furlough"),
-        (JJRNM_GARLAND, "Garland"),
         (JJRNM_NOTCH, "Notch"),
         (JJRNM_LANDING, "Landing"),
         (JJRNM_INVITATORY, "Invitatory"),

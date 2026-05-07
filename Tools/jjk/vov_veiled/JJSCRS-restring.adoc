@@ -24,7 +24,7 @@ Either all
 transfer or none do.
 Unlike
 {jjdo_continue}
-which has specific ceremony semantics (garlanding, alter, filtering by state),
+which has specific ceremony semantics (alter, filtering by state),
 {jjdo_transfer}
 is a primitive bulk transfer: mechanical movement of specified
 {jjdpr_pace_s}

@@ -37,7 +37,6 @@ use crate::jjrsc_scout::{jjrsc_ScoutArgs, jjrsc_run_scout};
 use crate::jjrgs_get_spec::{jjrgs_GetSpecArgs, jjrgs_run_get_spec};
 use crate::jjrgc_get_coronets::{jjrgc_GetCoronetsArgs, jjrgc_run_get_coronets};
 use crate::jjrcu_curry::{jjrcu_CurryArgs, jjrcu_run_curry};
-use crate::jjrgl_garland::{jjrgl_GarlandArgs, jjrgl_run_garland};
 use crate::jjrrs_restring::{jjrrs_RestringArgs, jjrrs_run};
 use crate::jjrld_landing::{jjrld_LandingArgs, jjrld_run_landing};
 use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug, jjrz_parse_slate_input, jjrz_parse_reslate_input, jjrz_parse_paddock_input};
@@ -75,7 +74,6 @@ const JJRM_CMD_NAME_SEARCH: &str = "jjx_search";
 const JJRM_CMD_NAME_BRIEF: &str = "jjx_brief";
 const JJRM_CMD_NAME_CORONETS: &str = "jjx_coronets";
 const JJRM_CMD_NAME_PADDOCK: &str = "jjx_paddock";
-const JJRM_CMD_NAME_CONTINUE: &str = "jjx_continue";
 const JJRM_CMD_NAME_TRANSFER: &str = "jjx_transfer";
 const JJRM_CMD_NAME_LANDING: &str = "jjx_landing";
 // Legatio commands (remote dispatch)
@@ -94,7 +92,7 @@ const JJRM_ALL_COMMANDS: &[&str] = &[
     JJRM_CMD_NAME_REORDER, JJRM_CMD_NAME_REDOCKET, JJRM_CMD_NAME_RELABEL,
     JJRM_CMD_NAME_DROP, JJRM_CMD_NAME_RELOCATE, JJRM_CMD_NAME_ALTER,
     JJRM_CMD_NAME_CLOSE, JJRM_CMD_NAME_SEARCH, JJRM_CMD_NAME_BRIEF,
-    JJRM_CMD_NAME_CORONETS, JJRM_CMD_NAME_PADDOCK, JJRM_CMD_NAME_CONTINUE,
+    JJRM_CMD_NAME_CORONETS, JJRM_CMD_NAME_PADDOCK,
     JJRM_CMD_NAME_TRANSFER, JJRM_CMD_NAME_LANDING,
     JJRM_CMD_NAME_BIND, JJRM_CMD_NAME_SEND, JJRM_CMD_NAME_PLANT,
     JJRM_CMD_NAME_FETCH, JJRM_CMD_NAME_RELAY, JJRM_CMD_NAME_CHECK,
@@ -355,11 +353,6 @@ pub struct jjrm_PaddockParams {
     pub firemark: Option<String>,
     pub note: Option<String>,
     pub size_limit: Option<u64>,
-}
-
-#[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
-pub struct jjrm_ContinueParams {
-    pub firemark: String,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
@@ -1082,13 +1075,6 @@ impl jjrm_McpServer {
                     if !md.is_empty() { std::fs::write(&gazette_out_path, md.as_bytes()).ok(); }
                     jjrm_result(result)
                 }
-            }
-            JJRM_CMD_NAME_CONTINUE => {
-                let p = deser!(jjrm_ContinueParams);
-                jjrm_result(jjrgl_run_garland(jjrgl_GarlandArgs {
-                    file: gallops_pathbuf(),
-                    firemark: p.firemark,
-                }))
             }
             JJRM_CMD_NAME_TRANSFER => {
                 let p = deser!(jjrm_TransferParams);
