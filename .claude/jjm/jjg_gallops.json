@@ -9407,6 +9407,13 @@
         "₢BDAAH": {
           "tacks": [
             {
+              "ts": "260507-1041",
+              "state": "complete",
+              "text": "Drafted from ₢AmAAG in ₣Am.\n\n## Character\nDesign conversation. Marker pace.\n\n## Operations\n\nName two action verbs for mid-implementation pace insertion. Both compose from `jjx_enroll` today but lack memorable verbs and dedicated CLI surfacing:\n\n- **chivvy** — slate a pace at the front of the heat queue; current continues. Maps to `jjx_enroll` with `first: true`.\n- **cantle** — slate a pace immediately after the current active pace; current continues. Maps to `jjx_enroll` with `after: <current_coronet>`.\n\nMid-flow ergonomic gestures: catchy verbs are easier to recall than parameter combinations on a generic enroll.\n\n## Genealogy\n\nReplaces original snip concept. Cantle subsumes snip's positioning (the load-bearing piece); snip's docket-shuffle composes from `jjx_enroll` + `jjx_redocket` — not a new primitive.\n\n## JJS0\n\nWill need updates. Sections determined at mount time.",
+              "silks": "chivvy-and-cantle-action-verbs",
+              "commit": "7094956"
+            },
+            {
               "ts": "260507-1015",
               "state": "rough",
               "text": "Drafted from ₢AmAAG in ₣Am.\n\n## Character\nDesign conversation. Marker pace.\n\n## Operations\n\nName two action verbs for mid-implementation pace insertion. Both compose from `jjx_enroll` today but lack memorable verbs and dedicated CLI surfacing:\n\n- **chivvy** — slate a pace at the front of the heat queue; current continues. Maps to `jjx_enroll` with `first: true`.\n- **cantle** — slate a pace immediately after the current active pace; current continues. Maps to `jjx_enroll` with `after: <current_coronet>`.\n\nMid-flow ergonomic gestures: catchy verbs are easier to recall than parameter combinations on a generic enroll.\n\n## Genealogy\n\nReplaces original snip concept. Cantle subsumes snip's positioning (the load-bearing piece); snip's docket-shuffle composes from `jjx_enroll` + `jjx_redocket` — not a new primitive.\n\n## JJS0\n\nWill need updates. Sections determined at mount time.",
