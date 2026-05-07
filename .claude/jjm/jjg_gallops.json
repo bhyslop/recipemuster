@@ -36,6 +36,7 @@
       "order": [
         "₢A-AAw",
         "₢A-AAv",
+        "₢A-AAy",
         "₢A-AAq",
         "₢A-AAx",
         "₢A-AAp",
@@ -81,7 +82,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "next_pace_seed": "AAy",
+      "next_pace_seed": "AAz",
       "paddock_file": ".claude/jjm/jjp_uAl-.md",
       "paces": {
         "₢A-AAA": {
@@ -1266,6 +1267,17 @@
               "text": "## Character\nHuman-driven with agent amending.\n\n## Docket\n\nEnd-to-end Windows jurisdiction ceremony on bujn-winpc — exercises\nthe AAw + AAv work in one continuous operator sitting. Curia-driven\nvia `tt/buw-jpS` for privileged install steps; garrison ceremonies\nrun via the standard tabtargets. Agent stands by to amend\n`bujb_jurisdiction.sh` diagnostics, handbook prose, or error messages\non any friction.\n\nSequence:\n\n1. `tt/buw-jpGw bujn-winpc` — AAv pre-flight fires (`rbtww-main`\n   absent), emits copy-paste `tt/buw-jpS` install hints.\n2. Operator runs the emitted `tt/buw-jpS` lines from the curia. WSL\n   kernel + `rbtww-main` distribution provisioned, set as default.\n3. `tt/buw-jpGw bujn-winpc` — pre-flight passes; mirrored-identity\n   ceremony lands; step 6 knock validates byte-exact privkey\n   transport (incidentally covers the BBAA_ base64→openssl\n   substitution that the AAm-era docket marked as covered by live\n   ceremony). Optional: `tt/buw-jws bujn-winpc` to interactively\n   confirm the workload session lands inside `rbtww-main` as the\n   WSL Linux user.\n4. Operator installs Cygwin POSIX userland with the OpenSSH package\n   per vendor docs. Cygwin sshd hardening is operator-manual per\n   paddock standing note. RB encodes no Cygwin install detail.\n5. `tt/buw-jpGc bujn-winpc` — Cygwin workload ceremony lands; step 6\n   knock validates the Cygwin path. Note: garrison-c overwrites the\n   workload `authorized_keys` forced command from the wsl.exe shim\n   to the cygwin64 shim — workload now routes via Cygwin until\n   re-garrisoned with `w`. Optional: `tt/buw-jws bujn-winpc` to\n   confirm.\n\nOperator prerequisites per BUS0 standing notes: workload pubkey\npre-registered with GitHub out-of-band, `BURP_WORKLOAD_KEY_FILE`\n0600 unencrypted, fenestrate already landed via AAt.\n\nMid-ceremony stall: if Cygwin install hits intractable vendor\nfriction, operator can wrap with WSL coverage landed and defer\nCygwin to a follow-on pace. Agent does not auto-split.\n\nDeferred (out-of-scope, named for follow-on): Docker Desktop WSL\nintegration enable + `docker run --rm hello-world` from the workload\nsession inside `rbtww-main`. The bare workload-reach validation via\n`tt/buw-jws` is the load-bearing test for this pace; Docker\nverification follows release-1 docker integration scoping.\n\nGoal: both WSL and Cygwin shell-letter paths exercised end-to-end\nagainst bujn-winpc; mirrored-identity model and Cygwin model both\nvalidated against live Windows OpenSSH.",
               "silks": "practice-windows-jurisdiction-end-to-end",
               "commit": "ea53ab8"
+            }
+          ]
+        },
+        "₢A-AAy": {
+          "tacks": [
+            {
+              "ts": "260507-0810",
+              "state": "rough",
+              "text": "## Character\nIntricate but mechanical — platform-branching specifics researched; preflight is a uniform structural addition.\n\n## Docket\n\nLocked decisions:\n\n- Garrison-b gains flavor branching. Steps 2 (destroy) and 3\n  (create) fully branch on `BURN_PLATFORM` via per-platform flavor\n  functions. Steps 4–5 differ only in home-dir prefix — promote\n  to a kindle constant per platform. Step 6 identical across\n  platforms.\n  - Linux destroy/create: `userdel -r` / `useradd -m -s /bin/bash -N`.\n  - Mac destroy/create: `sysadminctl -deleteUser` (default removes\n    home) / `sysadminctl -addUser ... -shell /bin/bash`.\n  - Workload shell forced to `/bin/bash` on every platform —\n    macOS ships /bin/bash 3.2 at the canonical path; bash is BUK.\n\n- Garrison step 1 becomes a uniform preflight gate, replacing\n  today's implicit \"step 1 is the SSH connect itself\":\n  - Universal SSH-connectivity probe (key-only, BatchMode, no-op\n    exec) for b/c/w. Failure names `BURP_PRIVILEGED_USER` and\n    `BURP_PRIVILEGED_KEY_FILE` and advises the platform's\n    admin-trust establishment step.\n  - Elevation probe (`sudo -n CMD`) for b-linux, b-mac, and\n    w-inside-WSL only. Garrison-c is exempt — fenestrate's\n    Windows-admin key trust covers its elevation.\n  - Failure diagnostics are copy-pasteable. Elevation failure\n    emits the `visudo -f /etc/sudoers.d/bujb-garrison` invocation,\n    the scoped NOPASSWD line with `BURP_PRIVILEGED_USER`\n    substituted, on the correct filesystem (WSL distro for\n    w-inside-WSL, host for b-linux/b-mac).\n\n- Sudoers installation is operator-managed, like the existing\n  `ssh-copy-id` prerequisite. Garrison verifies effective\n  behavior (`sudo -n` succeeds), not file contents. Scoped\n  NOPASSWD recommended; blanket `NOPASSWD: ALL` acceptable on\n  personal workstations and called out as such.\n\n- BUS0 garrison paragraph updated to name linux/mac flavors of\n  garrison-b as load-bearing structure (not implementation\n  detail), name the elevation matrix across b/c/w platforms, and\n  name the uniform step-1 preflight.\n\n- Paddock standing notes added: Mac Remote Login enabled\n  (operator prerequisite for any Mac BURN target including self),\n  Linux openssh-server installed and sshd enabled, sudoers\n  NOPASSWD prerequisite scoped to the three sudo-affected\n  garrison flavors (b-linux, b-mac, w-inside-WSL), workload shell\n  `/bin/bash` forced regardless of platform default.\n\nOut of scope:\n- `bujn-cerebro` (linux) and `bujn-rocket` (mac) BURN profile\n  creation — operator-side, anytime.\n- Practice paces exercising linux/mac garrison end-to-end —\n  separate slate after this lands.\n- Heat rename to `rbk-mvp-3-draft-jurisdiction-procedures` —\n  separate `jjx_alter` call.\n- Any AAv concern — AAv's namespace-correctness scope is\n  unchanged by this pace.\n\nDone when:\n- `bash -n` green on `bujb_jurisdiction.sh` and `bujb_cli.sh`\n- `tt/buw-st.BukSelfTest.sh` green\n- `tt/rbtd-s.TestSuite.fast.sh` green at baseline (no regression)\n- BUS0 garrison paragraph reads coherently against the elevation\n  matrix and uniform step-1 preflight\n- Paddock standing notes landed\n- No grep finds of single-platform assumptions in garrison-b's\n  user-management branches",
+              "silks": "garrison-flavors-and-preflight",
+              "commit": "5e677ec"
             }
           ]
         }
