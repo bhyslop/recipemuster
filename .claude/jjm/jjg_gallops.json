@@ -9542,9 +9542,10 @@
       "status": "stabled",
       "order": [
         "₢BEAAA",
-        "₢BEAAB"
+        "₢BEAAB",
+        "₢BEAAC"
       ],
-      "next_pace_seed": "AAC",
+      "next_pace_seed": "AAD",
       "paces": {
         "₢BEAAA": {
           "tacks": [
@@ -9565,6 +9566,17 @@
               "text": "## Character\n\nApply the paddock's migration recipe to the four `jjrg_Gallops` root properties. Mechanical; sonnet-friendly.\n\n## Targets\n\n`jjgrn_schema_version`, `jjgrn_next_heat_seed`, `jjgrn_heat_order`, `jjgrn_heats`.\n\n## Done when\n\n- `tt/vow-b.Build.sh` clean; `tt/vow-t.Test.sh` green.\n- Gallops file: zero bare `schema_version`, `next_heat_seed`, `heat_order`, `heats` at the root path; `jjgrn_*` present.\n- Transitional `alias` lines removed.\n- JJS0 Sprue Vocabulary section gains four entries.",
               "silks": "mint-gallops-root-sprues",
               "commit": "a1c70c8"
+            }
+          ]
+        },
+        "₢BEAAC": {
+          "tacks": [
+            {
+              "ts": "260508-1045",
+              "state": "rough",
+              "text": "## Character\n\nApply the paddock's migration recipe to the remaining `jjrg_Heat` properties and the `jjrg_HeatStatus` enum. Mechanical; sonnet-friendly.\n\n## Targets\n\nFive `jjrg_Heat` properties — `jjghn_creation_time`, `jjghn_status`, `jjghn_order`, `jjghn_next_pace_seed`, `jjghn_paces`. Three `jjrg_HeatStatus` variants — `jjghe_racing`, `jjghe_stabled`, `jjghe_retired`. Remove `#[serde(rename_all = \"lowercase\")]` from `jjrg_HeatStatus`.\n\n## Done when\n\n- `tt/vow-b.Build.sh` clean; `tt/vow-t.Test.sh` green.\n- Gallops file: zero bare versions of those five property names on heat objects; zero bare HeatStatus values; `jjghn_*` and `jjghe_*` present.\n- Transitional `alias` lines removed.\n- JJS0 Sprue Vocabulary section gains eight entries.",
+              "silks": "mint-heat-rest-and-status",
+              "commit": "b7ecefa"
             }
           ]
         }
