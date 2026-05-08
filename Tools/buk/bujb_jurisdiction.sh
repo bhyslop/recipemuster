@@ -712,7 +712,7 @@ zbujb_garrison_step3_create() {
       # OpenSSH-Win32 silently closes at preauth if the workload SID has
       # no HKLM\...\ProfileList entry. net.exe user /add creates the SAM
       # entry but not the profile registration. Win32-OpenSSH issue #1383.
-      zbujb_admin_powershell "\$sid=(Get-LocalUser '${z_wlu}').SID.Value; reg.exe add \"HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\\$sid\" /v ProfileImagePath /t REG_EXPAND_SZ /d 'C:\\Users\\${z_wlu}' /f"
+      zbujb_admin_powershell "\$sid=(Get-LocalUser '${z_wlu}').SID.Value; \$path='HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\' + \$sid; New-Item \$path -Force | Out-Null; New-ItemProperty \$path -Name 'ProfileImagePath' -Value 'C:\\Users\\${z_wlu}' -PropertyType ExpandString -Force | Out-Null"
       ;;
   esac
 }
