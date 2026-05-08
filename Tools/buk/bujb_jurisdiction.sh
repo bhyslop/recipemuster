@@ -290,12 +290,19 @@ zbujb_workload_home_capture() {
 }
 
 # zbujb_admin_exec LETTER STMT [STMT ...] -- run statements as the privileged
-# user on the remote node. Statements are joined by newlines, base64-encoded,
-# and shipped as a single bash -c argument; decoding and execution happen
-# entirely inside the remote shell. No stdin pipe to ssh — eliminates the
-# wsl.exe stdin-propagation surface for the w letter (and is BCG-compliant
-# heredoc-free for all letters). Caller redirects stdout/stderr for capture;
-# returns ssh's exit code.
+# user on the remote node. Statements are IFS-joined with ';' and shipped
+# as the bash -c argument; embedded " characters are escaped to \" so the
+# outer "..." of `bash -c "..."` survives the cmd.exe / Windows argv-parser
+# layer (relevant for c/w letters via Windows OpenSSH). Linux bash inside
+# "..." applies the same \" → " rule, so b letter gets equivalent semantics.
+#
+# No stdin pipe to ssh, no inner shell process reading a script source,
+# no base64 detour, no pipeline-in-$() (BCG line 502), no temp file. The
+# remote bash receives the script as its -c argument and executes it
+# directly. Caller redirects stdout/stderr for capture; returns ssh exit
+# code. Each positional statement should be a complete shell statement;
+# the joiner inserts ';' between them so the body fits one line (cmd.exe
+# handles multi-line args poorly).
 zbujb_admin_exec() {
   zbujb_sentinel
   local z_letter="${1:-}"
@@ -304,8 +311,12 @@ zbujb_admin_exec() {
   test $# -ge 1 \
     || buc_die "zbujb_admin_exec: at least one statement required"
 
-  local z_body_b64
-  z_body_b64=$(printf '%s\n' "$@" | base64 | tr -d '\n')
+  # IFS-local join with ';' — pure parameter expansion, no subprocess.
+  local IFS=';'
+  local z_body="$*"
+
+  # Escape " → \" for the cmd.exe / Windows argv-parser layer.
+  local z_body_escaped="${z_body//\"/\\\"}"
 
   local z_remote_invoker
   case "${z_letter}" in
@@ -320,7 +331,7 @@ zbujb_admin_exec() {
       -o StrictHostKeyChecking=accept-new           \
       -o ConnectTimeout=15                          \
       "${BURP_PRIVILEGED_USER}@${BURN_HOST}" \
-      "${z_remote_invoker} -c \"echo '${z_body_b64}' | base64 -d | bash\""
+      "${z_remote_invoker} -c \"${z_body_escaped}\""
 }
 
 # zbujb_admin_powershell BODY... -- run a PowerShell statement chain on
