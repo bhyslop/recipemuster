@@ -26,11 +26,13 @@ in `cmd.exe /c <command>` before any other shell sees it. Cmd.exe's quoting
 rules — `"..."` only; no single-quote support; idiosyncratic `\` handling —
 bite even bodies that look bash-correct from the curia.
 
-**Object output formatters are lazy.** PowerShell formatters flush at the
-end of script execution, not eagerly. Calling `exit` mid-body discards
-unformatted output. String emission (Write-Host, Write-Output of strings) is
-eager and survives `exit`; cmdlet object output (Get-LocalUser, Get-Item,
-etc.) is lazy and gets eaten.
+**Some object output formatters are lazy.** PowerShell flushes string
+output (Write-Host, Write-Output of strings) eagerly; some cmdlets'
+formatter cycles flush only on full pipeline completion, so calling
+`exit` mid-body (or trailer-side) discards their unformatted output.
+The set of lazy cmdlets is not universal — `Get-LocalUser` is proven
+lazy, `Get-Item` is proven eager. Treat the lazy default as the safe
+assumption (PS-2). String emission always survives.
 
 **Trap, don't trust.** Each rule below assumes that any error which can
 plausibly be silenced WILL be silenced if not explicitly trapped. The bias
@@ -93,9 +95,15 @@ Probe pair (verification):
 
 ### ❌ PS-2: `exit` mid-body before object formatters flush
 
-PowerShell flushes string output eagerly but cmdlet object output lazily
-(Out-Default → Format-Table → render). `exit` aborts the formatter
-pipeline. Lazy outputs that haven't flushed are discarded.
+PowerShell flushes string output eagerly but *some* cmdlet object outputs
+lazily (Out-Default → Format-Table → render). `exit` aborts the formatter
+pipeline. Lazy outputs that haven't flushed are discarded. The cmdlets
+that exhibit this lazy behavior are formatter-cycle-specific: `Get-LocalUser`
+from `Microsoft.PowerShell.LocalAccounts` is proven lazy (empty stdout
+when followed by `exit 0`); `Get-Item` from the FileSystem provider is
+proven eager (table survives `exit 0`). Treat the rule as the safe
+default: assume any cmdlet output is lazy unless you've checked. See
+wsg-experiments/oq-6.md for the empirical baseline.
 
 ```powershell
 # ❌ Get-LocalUser's table is lost; Get-Date's string survives
@@ -185,6 +193,15 @@ ssh ... "powershell -NoProfile -Command \"Get-LocalUser -Name 'bujuw_user'\""
 This is why `zbujb_admin_powershell` consistently uses single quotes for PS
 string literals — they nest reliably through every layer.
 
+### ✅ PS-4: PS-2's lazy-flush behavior is transport-agnostic
+
+The PS-2 lazy-flush is a property of the PowerShell body, not of how
+PowerShell was launched. The same `Get-LocalUser; exit 0` body emits
+empty stdout via direct cmd.exe→powershell, cygwin→powershell.exe, and
+wsl.exe→bash→powershell.exe. The fix (Out-String materialization, or
+PS-1's `$LASTEXITCODE = 0` so the trailer doesn't fire) is also
+transport-agnostic. See wsg-experiments/oq-6.md.
+
 ### ❌ SH-4: cmd.exe does NOT process `$()` or `$var`
 
 Verified by direct probe: `cmd.exe /c echo "SHELL=$0 X=$(uname)"` emits the
@@ -215,6 +232,81 @@ through; remote bodies may use `$(mktemp)` for temp file creation. Top-level
 pipelines (not inside `$()`) are not banned by BCG and are permitted in
 remote bodies (see e.g. step-5's `openssl enc -base64 -d`).
 
+### ❌ SH-6: wsl.exe substitutes `$name` and `${name}` in argv
+
+The wsl.exe argv-to-Linux-invocation processor performs `$name` and
+`${name}` substitution against its own (Linux-side, root-shell startup)
+environment before bash receives the body. Names present in that
+environment substitute to their values; undefined names substitute to
+empty. **Cygwin bash does not exhibit this behavior. cmd.exe alone (per
+SH-4) also does not.** `$(...)` command substitution is unaffected (the
+`(` after `$` does not match the `$name`/`${name}` token shape).
+
+Per-letter escape table:
+
+| Letter | Path                                       | `$name`     | `${name}`     | `$(...)` |
+|--------|--------------------------------------------|-------------|---------------|----------|
+| b      | direct ssh to Linux/Mac                    | none        | none          | none     |
+| c      | cmd.exe → cygwin bash                      | none        | none          | none     |
+| w      | cmd.exe → wsl.exe → bash                   | `\$name`    | `\${name}`    | none     |
+
+Probe pair (verification, w-letter):
+
+```
+# ❌ Fails on w-letter — wsl.exe substitutes $ztmp to empty before bash runs
+./tt/buw-jpS.PrivilegedSsh.sh <node> 'wsl.exe --distribution rbtww-main --user root bash -c "ztmp=HELLO; echo $ztmp"'
+# stdout: (empty)
+
+# ✅ \$ defers expansion to bash
+./tt/buw-jpS.PrivilegedSsh.sh <node> 'wsl.exe --distribution rbtww-main --user root bash -c "ztmp=HELLO; echo \$ztmp"'
+# stdout: HELLO
+```
+
+See wsg-experiments/oq-1.md, oq-2.md, oq-4.md.
+
+### ✅ SH-7: Exit-code propagation is reliable across transports
+
+Non-zero exit codes propagate cleanly through every tested transport:
+cmd.exe direct, wsl.exe → bash, cygwin bash, PowerShell, and native
+Windows binaries called via wsl.exe interop. `set -e` aborts the script
+on first failure and the failing exit reaches the curia unchanged.
+Bodies that need to fail-loud should use `set -e` or explicit `exit N`.
+
+Probe (w-letter, set -e + false):
+
+```
+./tt/buw-jpS.PrivilegedSsh.sh <node> 'wsl.exe --distribution rbtww-main --user root bash -c "set -e; false; echo UNREACHED"'; echo "EXIT=$?"
+# (no UNREACHED in stdout)
+# EXIT=1
+```
+
+See wsg-experiments/oq-5.md.
+
+### ✅ SH-8: Multi-line bodies via file feed (when SH-2 doesn't fit)
+
+When a body materially exceeds what `;`-join (SH-2) can express, the
+canonical pattern is two-phase: phase 1 ships the body as a remote file
+via PowerShell `Set-Content` or `[System.IO.File]::WriteAllText`; phase 2
+runs `wsl.exe ... bash /path/to/file` (or `cygwin bash --login -c "bash
+/path/to/file"`). Side benefit: bypasses wsl.exe's argv `$`-substitution
+(SH-6) since the script body comes from disk, not argv.
+
+Caveats:
+- PS `Set-Content` writes CRLF. Either use an LF-explicit writer:
+
+  ```powershell
+  [System.IO.File]::WriteAllText($path, ($lines -join "`n"))
+  ```
+
+  or normalize CRLF→LF into a *second* file before exec.
+- Do NOT pipe the file into `bash` via stdin; that reintroduces SH-1's
+  stdin-consumption hazard. Use `bash /path/to/file`, not `bash <file`.
+- The two-phase approach is not atomic; the caller flow must clean up
+  the remote temp file.
+
+Default discipline remains SH-2; SH-8 applies only when bodies don't fit
+one line. See wsg-experiments/oq-7.md.
+
 ## Wrapper Discipline
 
 ### PowerShell wrapper (proven shape)
@@ -235,73 +327,68 @@ Discipline:
 - Body avoids object-emitting cmdlets immediately before exit, or pipes
   them through Out-String first (PS-2)
 
-### Bash-via-wsl.exe wrapper (open — see OQ-1, OQ-4)
+### Bash-via-wsl.exe wrapper (proven shape, w-letter)
 
-The body-as-arg form (no heredoc, no base64, no inner bash-from-stdin) is
-the right structural shape (SH-1). Body should be `;`-joined for one-line
-transit (SH-2) and have `"` escaped to `\"` (SH-3). Escape rules for `$`
-and `$()` in transit are not yet pinned down; do not author new wrappers
-of this shape until OQ-1 and OQ-4 land.
+Mirrors `zbujb_admin_exec w` after the cycle-3 BCG-clean repair. Body is
+`;`-joined for one-line transit (SH-2), `"` escaped to `\"` (SH-3), and
+all `$name`/`${name}` references escaped to `\$name`/`\${name}` for
+deferred bash-side expansion (SH-6). `$(...)` command substitution does
+not need escape (SH-6).
 
-## Open Questions (to be resolved by experiment paces)
+```bash
+ssh ... "${USER}@${HOST}" \
+    "wsl.exe --distribution ${DIST} --user root bash -c \"${z_body}\""
+```
 
-These rules are not yet established. The experiment pace
-**₢A-AAY-windows-transport-experiments** populates them empirically.
+Body authoring discipline:
+- Statements joined with `;` (SH-2)
+- Embedded `"` → `\"` (SH-3)
+- `$name` → `\$name`; `${name}` → `\${name}` (SH-6)
+- `$(...)` left as-is (SH-6)
+- No heredocs, no `bash -s`, no inner pipe-then-bash (SH-1, SH-5)
+- No newlines in body (SH-2); use SH-8 if the body genuinely won't fit
 
-### OQ-1: What eats `$()` and `$var` in `wsl.exe ... bash -c "<body>"`?
+### Bash-via-cygwin wrapper (proven shape, c-letter)
 
-Probe evidence:
-- Plain `bash -c "ztmp=$(mktemp); echo $ztmp"` → ztmp is empty; something
-  eats `$(mktemp)` and `$ztmp`
-- Escaped `bash -c "ztmp=\$(mktemp); echo \$ztmp"` → works; bash gets
-  `$(mktemp)` and `$ztmp` after escape strip
+Cygwin's path is simpler. cmd.exe → C:/cygwin64/bin/bash.exe. No wsl.exe,
+no Windows-side `$` substitution.
 
-Cmd.exe is proven NOT the eater (SH-4). The eater lives between cmd.exe
-and Linux bash — candidates: wsl.exe argv parser, Windows command-line
-tokenizer interaction with parens, or a side-effect of how OpenSSH-Win32
-spawns cmd.exe. Resolving this determines the canonical escape rule
-(probably involves `\$` for body-side variables and command substitutions).
+```bash
+ssh ... "${USER}@${HOST}" \
+    "C:/cygwin64/bin/bash --login -c \"${z_body}\""
+```
 
-### OQ-2: Does cygwin bash (c-letter) exhibit the same `$`-eating?
+Body authoring discipline:
+- Statements joined with `;` (SH-2)
+- Embedded `"` → `\"` (SH-3)
+- `$name`, `${name}`, `$(...)` all unescaped — bash sees them directly (SH-6)
+- No heredocs, no `bash -s` (SH-1, SH-5)
 
-Untested. The c-letter path is cmd.exe → C:/cygwin64/bin/bash.exe (no
-wsl.exe intermediate). Likely behavior differs and may admit a simpler
-escape rule.
+## Deferred — out of release-1 scope
 
-### OQ-3: Does Linux bash on a non-Windows ssh target (b-letter) exhibit any of these?
+### b-letter (Linux/Mac native ssh) verification
 
-Untested. Likely no — no cmd.exe in path, no Windows argv parser, just
-remote bash directly. But verify; the ssh-to-Linux path may have its own
-quirks.
+No Linux or Mac BURN profile is registered in the release-1 matrix; only
+`bujn-winpc` (`BURN_PLATFORM=bubep_windows`). The b-letter path bypasses
+every Windows-specific layer (no cmd.exe DefaultShell, no wsl.exe argv
+substitution, no Windows argv parser); standard BCG body discipline
+applies. If a Linux/Mac BURN profile is added, run the matrix from
+`wsg-experiments/oq-1.md` (probes 1A, 1G, 1J, 1P) substituting plain bash
+for wsl.exe / cygwin to confirm absence of Windows-layer quirks. See
+wsg-experiments/oq-3.md.
 
-### OQ-4: Canonical escape for body-side `$var` and `$(...)` (depends on OQ-1)
+## Experiment Artifacts
 
-If OQ-1 settles on a specific layer eating `$`, the canonical escape may
-be `\$` (which empirically survives), or a different mechanism. The rule
-that goes here governs how `zbujb_admin_exec` callers write bodies that
-need remote-side variable expansion or command substitution.
+Forensic probe records under `Tools/buk/vov_veiled/wsg-experiments/`,
+populated by pace `₢A-AA0` (windows-transport-experiments):
 
-### OQ-5: Native exit-code propagation through wsl.exe
-
-When a command inside `wsl.exe ... bash -c "set -e; failing_cmd"` fails,
-does the non-zero exit propagate reliably back through wsl.exe → cmd.exe
-→ ssh? Empirical evidence suggests YES (net.exe failures propagated
-correctly in cycle-3). The experiment matrix should confirm across
-nested-shell variants and across set-e vs explicit-exit forms.
-
-### OQ-6: Object-output flush semantics through cygwin bash and wsl.exe
-
-PS-2 was proven for `powershell -Command` directly via cmd.exe. Same
-semantics through other transports (powershell launched from cygwin bash,
-powershell launched from inside WSL via wsl.exe interop) untested.
-
-### OQ-7: Multi-line bodies via process substitution / file feed
-
-SH-2 mandates `;`-join for cmd.exe transit. Whether process substitution
-(`bash <(echo body)`) or remote-side file-feed (write to remote temp file
-via separate scp, then `bash <file>`) cleanly avoid the cmd.exe newline
-issue is open. May enable larger bodies; tests temp-file discipline
-boundaries for remote-side artifacts.
+- `oq-1.md` — wsl.exe argv `$` substitution mechanism (resolves to SH-6)
+- `oq-2.md` — cygwin bash absent of substitution (subsumed by SH-6 c-letter row)
+- `oq-3.md` — b-letter Linux/Mac path (deferred, see above)
+- `oq-4.md` — per-letter escape table (subsumed by SH-6)
+- `oq-5.md` — exit-code propagation across transports (resolves to SH-7)
+- `oq-6.md` — PS lazy-flush transport-agnosticism (resolves to PS-4)
+- `oq-7.md` — multi-line bodies via file feed (resolves to SH-8)
 
 ## Verification Probe Template
 
