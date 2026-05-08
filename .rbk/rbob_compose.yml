@@ -12,7 +12,13 @@
 #   2. Container environment forwarding (bare names in environment: sections)
 #
 # Network topology:
-#   sentry: transit (internet via bridge) + enclave (eth0=transit priority:1000, eth1=enclave priority:500)
+#   sentry: transit (uplink to internet via bridge) + enclave (down to bottle)
+#     Interface naming and default-route assignment are NOT controlled by compose:
+#       - eth0/eth1 ordering is Docker-engine-defined (sentry IP-discovers via RBRN_ENCLAVE_SENTRY_IP)
+#       - default route is assigned to the alphabetically-first attached network's gateway
+#         (compose 'priority:' keys empirically do NOT influence this on linux Docker
+#         engine 28.x or mac Docker Desktop 28.x — sentry replaces the default route
+#         with one via uplink at RBJp1, see rbjs_sentry.sh)
 #   pentacle: enclave only (static IP, routes through sentry)
 #   bottle: shares pentacle network namespace (network_mode: service:pentacle)
 #
@@ -24,11 +30,9 @@ services:
     container_name: ${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}-sentry
     privileged: true
     networks:
-      transit:
-        priority: 1000
+      transit: {}
       enclave:
         ipv4_address: ${RBRN_ENCLAVE_SENTRY_IP}
-        priority: 500
     ports:
       - "${RBRN_ENTRY_PORT_WORKSTATION}:${RBRN_ENTRY_PORT_WORKSTATION}"
     environment:

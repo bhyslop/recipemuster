@@ -50,6 +50,33 @@ rm -f "${z_temp_file}"
 echo "RBJp1: Enclave interface = ${RBJ_ENCLAVE_IF}"
 echo "RBJp1: Uplink interface  = ${RBJ_UPLINK_IF}"
 
+# Docker assigns the container's default route to whichever attached network's
+# gateway it picks (alphabetically-first attached, empirically); compose 'priority'
+# is not honored. Same don't-trust-Docker discipline as interface naming above —
+# sentry takes ownership: derive uplink gateway as first usable IP of uplink
+# subnet (Docker bridge convention) and install default route via uplink.
+echo "RBJp1: Computing uplink gateway from connected subnet"
+z_uplink_addr_cidr=$(ip -o -4 addr show dev "${RBJ_UPLINK_IF}" | awk '{print $4; exit}')
+test -n "${z_uplink_addr_cidr}" || { echo "FATAL: No IPv4 address on uplink interface ${RBJ_UPLINK_IF}"; exit 12; }
+z_uplink_ip="${z_uplink_addr_cidr%/*}"
+z_uplink_prefix="${z_uplink_addr_cidr#*/}"
+
+IFS=. read z_o1 z_o2 z_o3 z_o4 <<EOF_OCTETS
+${z_uplink_ip}
+EOF_OCTETS
+
+z_host_bits=$(( 32 - z_uplink_prefix ))
+z_ip_int=$(( (z_o1 << 24) | (z_o2 << 16) | (z_o3 << 8) | z_o4 ))
+z_mask=$(( 0xFFFFFFFF ^ ((1 << z_host_bits) - 1) ))
+z_net_int=$(( z_ip_int & z_mask ))
+z_gw_int=$(( z_net_int + 1 ))
+RBJ_UPLINK_GW="$(( (z_gw_int >> 24) & 0xFF )).$(( (z_gw_int >> 16) & 0xFF )).$(( (z_gw_int >> 8) & 0xFF )).$(( z_gw_int & 0xFF ))"
+echo "RBJp1: Uplink gateway     = ${RBJ_UPLINK_GW}"
+
+echo "RBJp1: Replacing default route via uplink (sentry-side ownership)"
+ip route replace default via "${RBJ_UPLINK_GW}" dev "${RBJ_UPLINK_IF}" || exit 13
+ip -o -4 route show default
+
 echo "RBJp1: Beginning IPTables initialization"
 
 echo "RBJp1: Set ephemeral port range for uplink connections"

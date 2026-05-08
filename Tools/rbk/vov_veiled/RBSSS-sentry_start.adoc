@@ -16,11 +16,13 @@ Network creation, container instantiation, and startup ordering are all managed 
 .. Baked-in entrypoint (`rbjs_sentry.sh`) executes
 
 //axhos_step
-. *Sentry discovers interfaces*:
+. *Sentry discovers interfaces and takes ownership of routing*:
 .. Sentry uses `ip -o addr show to «enclave_ip»` to identify which interface carries the enclave IP
 .. The other global-scope interface is identified as the uplink
 .. All iptables rules use discovered interface names, not hardcoded eth0/eth1
 .. NOTE: Docker Compose does not guarantee network-to-interface ordering; IP-based discovery is required
+.. Sentry replaces the default route with one via the uplink gateway, computed as the first usable IP of the uplink subnet (Docker bridge convention)
+.. NOTE: Docker assigns the default route to the alphabetically-first attached network's gateway (empirically, on both linux engine 28.x and mac Docker Desktop 28.x); compose `services.<svc>.networks.<net>.priority` does NOT influence this. Sentry-side ownership is the load-bearing fix — same don't-trust-Docker discipline that motivates IP-based interface discovery.
 
 //axhos_step
 . *Sentry configures iptables*:

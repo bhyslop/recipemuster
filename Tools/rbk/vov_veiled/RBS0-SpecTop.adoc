@@ -2413,6 +2413,7 @@ and
 {at_enclave_network},
 controlling all network traffic and providing DNS services.
 The sentry discovers its network interfaces by IP at startup using `ip -o addr show to «enclave_ip»`, not by hardcoded interface name, because Docker Compose does not guarantee network-to-interface ordering.
+The sentry also takes ownership of its default route at startup, replacing Docker's chosen default (the gateway of the alphabetically-first attached network) with a route via the uplink gateway, because compose `services.<svc>.networks.<net>.priority` is not honored for default-route selection by Docker engine 28.x on linux or by mac Docker Desktop 28.x.
 Initialization and iptables configuration scripts are baked into the image at build time (zero volume mounts for security containers).
 
 [[at_pentacle_container]]
