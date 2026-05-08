@@ -118,9 +118,16 @@ zbujb_kindle() {
   readonly ZBUJB_OBLITERATE_STDOUT="${BURD_TEMP_DIR}/bujb_obliterate_stdout.txt"
   readonly ZBUJB_OBLITERATE_STDERR="${BURD_TEMP_DIR}/bujb_obliterate_stderr.txt"
 
-  # Step 4 per-call captures (reused; diag_dump copies to per-label files).
-  readonly ZBUJB_STEP4_STDOUT="${BURD_TEMP_DIR}/bujb_step4_stdout.txt"
-  readonly ZBUJB_STEP4_STDERR="${BURD_TEMP_DIR}/bujb_step4_stderr.txt"
+  # Per-call captures for zbujb_garrison_step4_place_trust.
+  readonly ZBUJB_PLACE_TRUST_PREFIX="${BURD_TEMP_DIR}/bujb_place_trust_"
+
+  # Per-call captures for zbujb_garrison_step6_validate.
+  readonly ZBUJB_VALIDATE_PREFIX="${BURD_TEMP_DIR}/bujb_validate_"
+
+  # Single shared emission counter across all _run wrappers — file numbers
+  # are continuous across originating functions so chronological order is
+  # readable from the embedded number even when prefixes differ.
+  z_bujb_emit_index=0
 
   readonly ZBUJB_KINDLED=1
 }
@@ -414,19 +421,45 @@ zbujb_obliterate_diag_dump() {
   buc_step "      [diag/${z_label}] stderr (${z_err_bytes}B): ${z_err_preview}"
 }
 
-zbujb_garrison_step4_diag_dump() {
+zbujb_diag_dump_pair() {
   local z_label="${1:-}"
-  local z_out_dst="${BURD_TEMP_DIR}/bujb_step4_${z_label}_stdout.txt"
-  local z_err_dst="${BURD_TEMP_DIR}/bujb_step4_${z_label}_stderr.txt"
-  cp "${ZBUJB_STEP4_STDOUT}" "${z_out_dst}"
-  cp "${ZBUJB_STEP4_STDERR}" "${z_err_dst}"
+  local z_stdout="${2:-}"
+  local z_stderr="${3:-}"
   local z_out_bytes z_err_bytes z_out_preview z_err_preview
-  z_out_bytes=$(wc -c < "${z_out_dst}" | tr -d ' ')
-  z_err_bytes=$(wc -c < "${z_err_dst}" | tr -d ' ')
-  z_out_preview=$(head -c 240 < "${z_out_dst}" | tr -d '\r' | tr '\n' '|')
-  z_err_preview=$(head -c 240 < "${z_err_dst}" | tr -d '\r' | tr '\n' '|')
+  z_out_bytes=$(wc -c < "${z_stdout}" | tr -d ' ')
+  z_err_bytes=$(wc -c < "${z_stderr}" | tr -d ' ')
+  z_out_preview=$(head -c 240 < "${z_stdout}" | tr -d '\r' | tr '\n' '|')
+  z_err_preview=$(head -c 240 < "${z_stderr}" | tr -d '\r' | tr '\n' '|')
   buc_step "      [diag/${z_label}] stdout (${z_out_bytes}B): ${z_out_preview}"
   buc_step "      [diag/${z_label}] stderr (${z_err_bytes}B): ${z_err_preview}"
+}
+
+zbujb_place_trust_run() {
+  local z_label="${1:-}"
+  shift
+  local z_idx_str
+  printf -v z_idx_str '%02d' "${z_bujb_emit_index}"
+  local z_out="${ZBUJB_PLACE_TRUST_PREFIX}${z_idx_str}_${z_label}_stdout.txt"
+  local z_err="${ZBUJB_PLACE_TRUST_PREFIX}${z_idx_str}_${z_label}_stderr.txt"
+  z_bujb_emit_index=$((z_bujb_emit_index + 1))
+  local z_exit=0
+  "$@" > "${z_out}" 2> "${z_err}" || z_exit=$?
+  zbujb_diag_dump_pair "${z_label}" "${z_out}" "${z_err}"
+  return ${z_exit}
+}
+
+zbujb_validate_run() {
+  local z_label="${1:-}"
+  shift
+  local z_idx_str
+  printf -v z_idx_str '%02d' "${z_bujb_emit_index}"
+  local z_out="${ZBUJB_VALIDATE_PREFIX}${z_idx_str}_${z_label}_stdout.txt"
+  local z_err="${ZBUJB_VALIDATE_PREFIX}${z_idx_str}_${z_label}_stderr.txt"
+  z_bujb_emit_index=$((z_bujb_emit_index + 1))
+  local z_exit=0
+  "$@" > "${z_out}" 2> "${z_err}" || z_exit=$?
+  zbujb_diag_dump_pair "${z_label}" "${z_out}" "${z_err}"
+  return ${z_exit}
 }
 
 # zbujb_obliterate_windows_namespaces WLU -- run the four-namespace
@@ -751,54 +784,22 @@ zbujb_garrison_step4_place_trust() {
       buc_step "    [diag/curia] z_authkeys_line ${#z_authkeys_line}B; z_authkeys_b64 ${#z_authkeys_b64}B"
       buc_step "    [diag/curia-pubkey] z_pubkey ${#z_pubkey}B: ${z_pubkey}"
 
-      zbujb_admin_exec w "mkdir -p '${z_authkeys_dir}'"                                                                         \
-          > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
-      zbujb_garrison_step4_diag_dump "mkdir"
-
-      zbujb_admin_exec w "chmod 700 '${z_authkeys_dir}'"                                                                        \
-          > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
-      zbujb_garrison_step4_diag_dump "chmod-dir"
-
-      zbujb_admin_exec w "set -o pipefail; echo '${z_authkeys_b64}' | openssl enc -base64 -d -A > '${z_authkeys_dir}/authorized_keys'" \
-          > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
-      zbujb_garrison_step4_diag_dump "decode-write"
-
-      zbujb_admin_exec w "chmod 600 '${z_authkeys_dir}/authorized_keys'"                                                        \
-          > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
-      zbujb_garrison_step4_diag_dump "chmod-file"
-
-      zbujb_admin_exec c "cat '/cygdrive/c/Users/${z_wlu}/.ssh/authorized_keys'"                                                  \
-          > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
-      zbujb_garrison_step4_diag_dump "prelock-readback"
+      zbujb_place_trust_run "mkdir"            zbujb_admin_exec w "mkdir -p '${z_authkeys_dir}'"
+      zbujb_place_trust_run "chmod-dir"        zbujb_admin_exec w "chmod 700 '${z_authkeys_dir}'"
+      zbujb_place_trust_run "decode-write"     zbujb_admin_exec w "set -o pipefail; echo '${z_authkeys_b64}' | openssl enc -base64 -d -A > '${z_authkeys_dir}/authorized_keys'"
+      zbujb_place_trust_run "chmod-file"       zbujb_admin_exec w "chmod 600 '${z_authkeys_dir}/authorized_keys'"
+      zbujb_place_trust_run "prelock-readback" zbujb_admin_exec c "cat '/cygdrive/c/Users/${z_wlu}/.ssh/authorized_keys'"
 
       local z_authkeys_win="C:\\Users\\${z_wlu}\\.ssh\\authorized_keys"
       local z_authkeys_dir_win="C:\\Users\\${z_wlu}\\.ssh"
-
-      zbujb_admin_powershell "icacls '${z_authkeys_win}' /inheritance:r /grant 'SYSTEM:F' /grant '${z_wlu}:F'"                    \
-          > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
-      zbujb_garrison_step4_diag_dump "icacls-grant"
-
-      zbujb_admin_powershell "icacls '${z_authkeys_win}' /setowner '${z_wlu}'"                                                    \
-          > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
-      zbujb_garrison_step4_diag_dump "icacls-setowner"
-
-      zbujb_admin_powershell "icacls '${z_authkeys_dir_win}' /inheritance:r /grant 'SYSTEM:F' /grant '${z_wlu}:F'"                \
-          > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
-      zbujb_garrison_step4_diag_dump "icacls-dir-grant"
-
-      zbujb_admin_powershell "icacls '${z_authkeys_dir_win}' /setowner '${z_wlu}'"                                                \
-          > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
-      zbujb_garrison_step4_diag_dump "icacls-dir-setowner"
-
       local z_home_win="C:\\Users\\${z_wlu}"
 
-      zbujb_admin_powershell "icacls '${z_home_win}' /inheritance:r /grant 'SYSTEM:F' /grant 'BUILTIN\\Administrators:F' /grant '${z_wlu}:F'" \
-          > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
-      zbujb_garrison_step4_diag_dump "icacls-home-grant"
-
-      zbujb_admin_powershell "icacls '${z_home_win}' /setowner '${z_wlu}'"                                                        \
-          > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
-      zbujb_garrison_step4_diag_dump "icacls-home-setowner"
+      zbujb_place_trust_run "icacls-grant"         zbujb_admin_powershell "icacls '${z_authkeys_win}' /inheritance:r /grant 'SYSTEM:F' /grant '${z_wlu}:F'"
+      zbujb_place_trust_run "icacls-setowner"      zbujb_admin_powershell "icacls '${z_authkeys_win}' /setowner '${z_wlu}'"
+      zbujb_place_trust_run "icacls-dir-grant"     zbujb_admin_powershell "icacls '${z_authkeys_dir_win}' /inheritance:r /grant 'SYSTEM:F' /grant '${z_wlu}:F'"
+      zbujb_place_trust_run "icacls-dir-setowner"  zbujb_admin_powershell "icacls '${z_authkeys_dir_win}' /setowner '${z_wlu}'"
+      zbujb_place_trust_run "icacls-home-grant"    zbujb_admin_powershell "icacls '${z_home_win}' /inheritance:r /grant 'SYSTEM:F' /grant 'BUILTIN\\Administrators:F' /grant '${z_wlu}:F'"
+      zbujb_place_trust_run "icacls-home-setowner" zbujb_admin_powershell "icacls '${z_home_win}' /setowner '${z_wlu}'"
       ;;
   esac
 }
@@ -909,60 +910,17 @@ zbujb_garrison_step6_validate() {
     || z_exit=$?
 
   if test "${z_exit}" -ne 0; then
-    zbujb_admin_powershell "Get-WinEvent -FilterHashtable @{LogName='OpenSSH/Operational'; StartTime=(Get-Date).AddSeconds(-30)} -ErrorAction SilentlyContinue | Format-List TimeCreated, Message | Out-String" \
-        > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}" \
-      || true
-    zbujb_garrison_step4_diag_dump "step6-eventlog-operational"
-
-    zbujb_admin_powershell "Get-WinEvent -FilterHashtable @{LogName='OpenSSH/Admin'; StartTime=(Get-Date).AddSeconds(-30)} -ErrorAction SilentlyContinue | Format-List TimeCreated, Message | Out-String" \
-        > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}" \
-      || true
-    zbujb_garrison_step4_diag_dump "step6-eventlog-admin"
-
-    zbujb_admin_powershell "Get-Content \$env:ProgramData\\ssh\\sshd_config | Out-String" \
-        > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}" \
-      || true
-    zbujb_garrison_step4_diag_dump "step6-sshd-config"
-
-    zbujb_admin_powershell "icacls 'C:\\Users\\${BUJB_workload_user}'" \
-        > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}" \
-      || true
-    zbujb_garrison_step4_diag_dump "step6-acl-home"
-
-    zbujb_admin_powershell "icacls 'C:\\Users\\${BUJB_workload_user}\\.ssh'" \
-        > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}" \
-      || true
-    zbujb_garrison_step4_diag_dump "step6-acl-dotssh"
-
-    zbujb_admin_powershell "Get-Acl 'C:\\Users\\${BUJB_workload_user}' | Format-List | Out-String" \
-        > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}" \
-      || true
-    zbujb_garrison_step4_diag_dump "step6-getacl-home"
-
-    zbujb_admin_powershell "Get-Acl 'C:\\Users\\${BUJB_workload_user}\\.ssh' | Format-List | Out-String" \
-        > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}" \
-      || true
-    zbujb_garrison_step4_diag_dump "step6-getacl-dotssh"
-
-    zbujb_admin_powershell "Get-Acl 'C:\\Users\\${BUJB_workload_user}\\.ssh\\authorized_keys' | Format-List | Out-String" \
-        > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}" \
-      || true
-    zbujb_garrison_step4_diag_dump "step6-getacl-authkeys"
-
-    zbujb_admin_powershell "Get-LocalUser '${BUJB_workload_user}' | Format-List | Out-String" \
-        > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}" \
-      || true
-    zbujb_garrison_step4_diag_dump "step6-localuser"
-
-    zbujb_admin_powershell "Get-Service sshd | Format-List | Out-String" \
-        > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}" \
-      || true
-    zbujb_garrison_step4_diag_dump "step6-service-sshd"
-
-    zbujb_admin_powershell "Get-ChildItem \$env:ProgramData\\ssh -ErrorAction SilentlyContinue | Format-List Name, Length, LastWriteTime | Out-String" \
-        > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}" \
-      || true
-    zbujb_garrison_step4_diag_dump "step6-sshdir-listing"
+    zbujb_validate_run "eventlog-operational" zbujb_admin_powershell "Get-WinEvent -FilterHashtable @{LogName='OpenSSH/Operational'; StartTime=(Get-Date).AddSeconds(-30)} -ErrorAction SilentlyContinue | Format-List TimeCreated, Message | Out-String" || true
+    zbujb_validate_run "eventlog-admin"       zbujb_admin_powershell "Get-WinEvent -FilterHashtable @{LogName='OpenSSH/Admin'; StartTime=(Get-Date).AddSeconds(-30)} -ErrorAction SilentlyContinue | Format-List TimeCreated, Message | Out-String"       || true
+    zbujb_validate_run "sshd-config"          zbujb_admin_powershell "Get-Content \$env:ProgramData\\ssh\\sshd_config | Out-String"                                                                                                                       || true
+    zbujb_validate_run "acl-home"             zbujb_admin_powershell "icacls 'C:\\Users\\${BUJB_workload_user}'"                                                                                                                                          || true
+    zbujb_validate_run "acl-dotssh"           zbujb_admin_powershell "icacls 'C:\\Users\\${BUJB_workload_user}\\.ssh'"                                                                                                                                    || true
+    zbujb_validate_run "getacl-home"          zbujb_admin_powershell "Get-Acl 'C:\\Users\\${BUJB_workload_user}' | Format-List | Out-String"                                                                                                              || true
+    zbujb_validate_run "getacl-dotssh"        zbujb_admin_powershell "Get-Acl 'C:\\Users\\${BUJB_workload_user}\\.ssh' | Format-List | Out-String"                                                                                                        || true
+    zbujb_validate_run "getacl-authkeys"      zbujb_admin_powershell "Get-Acl 'C:\\Users\\${BUJB_workload_user}\\.ssh\\authorized_keys' | Format-List | Out-String"                                                                                       || true
+    zbujb_validate_run "localuser"            zbujb_admin_powershell "Get-LocalUser '${BUJB_workload_user}' | Format-List | Out-String"                                                                                                                   || true
+    zbujb_validate_run "service-sshd"         zbujb_admin_powershell "Get-Service sshd | Format-List | Out-String"                                                                                                                                        || true
+    zbujb_validate_run "sshdir-listing"       zbujb_admin_powershell "Get-ChildItem \$env:ProgramData\\ssh -ErrorAction SilentlyContinue | Format-List Name, Length, LastWriteTime | Out-String"                                                          || true
 
     buc_die "Workload round-trip failed (ssh exit ${z_exit}); the new account did not accept its own key."
   fi
