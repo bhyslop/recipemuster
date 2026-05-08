@@ -709,6 +709,10 @@ zbujb_garrison_step3_create() {
         "net.exe user '${z_wlu}' /add /passwordreq:no /active:yes > /dev/null" \
         "useradd --create-home --shell /bin/bash '${z_wlu}'"              \
         "passwd  --lock '${z_wlu}'"
+      # OpenSSH-Win32 silently closes at preauth if the workload SID has
+      # no HKLM\...\ProfileList entry. net.exe user /add creates the SAM
+      # entry but not the profile registration. Win32-OpenSSH issue #1383.
+      zbujb_admin_powershell "\$sid=(Get-LocalUser '${z_wlu}').SID.Value; reg.exe add \"HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\\$sid\" /v ProfileImagePath /t REG_EXPAND_SZ /d 'C:\\Users\\${z_wlu}' /f"
       ;;
   esac
 }
