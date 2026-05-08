@@ -21,7 +21,6 @@ All Job Jockey artifacts use the `jj` prefix with category-specific third letter
 | `jja_` | Action | Slash commands |
 | `jjb_` | Brand | Current detected version |
 | `jjc_` | Chase | Steeplechase performance logs |
-| `jjg_` | aGent | (Future) Agent definitions |
 | `jjh_` | Heat | Bounded initiative files |
 | `jji_` | Itch | Future work aggregate |
 | `jjk_` | sKill | (Future) Skill definitions |
