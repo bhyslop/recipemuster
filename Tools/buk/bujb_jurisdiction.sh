@@ -897,7 +897,28 @@ zbujb_garrison_step6_validate() {
     zbujb_admin_powershell "Get-WinEvent -FilterHashtable @{LogName='OpenSSH/Operational'; StartTime=(Get-Date).AddSeconds(-30)} -ErrorAction SilentlyContinue | Format-List TimeCreated, Message | Out-String" \
         > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}" \
       || true
-    zbujb_garrison_step4_diag_dump "step6-eventlog"
+    zbujb_garrison_step4_diag_dump "step6-eventlog-operational"
+
+    zbujb_admin_powershell "Get-WinEvent -FilterHashtable @{LogName='OpenSSH/Admin'; StartTime=(Get-Date).AddSeconds(-30)} -ErrorAction SilentlyContinue | Format-List TimeCreated, Message | Out-String" \
+        > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}" \
+      || true
+    zbujb_garrison_step4_diag_dump "step6-eventlog-admin"
+
+    zbujb_admin_powershell "Get-Content \$env:ProgramData\\ssh\\sshd_config | Out-String" \
+        > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}" \
+      || true
+    zbujb_garrison_step4_diag_dump "step6-sshd-config"
+
+    zbujb_admin_powershell "icacls 'C:\\Users\\${BUJB_workload_user}'" \
+        > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}" \
+      || true
+    zbujb_garrison_step4_diag_dump "step6-acl-home"
+
+    zbujb_admin_powershell "icacls 'C:\\Users\\${BUJB_workload_user}\\.ssh'" \
+        > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}" \
+      || true
+    zbujb_garrison_step4_diag_dump "step6-acl-dotssh"
+
     buc_die "Workload round-trip failed (ssh exit ${z_exit}); the new account did not accept its own key."
   fi
 }
