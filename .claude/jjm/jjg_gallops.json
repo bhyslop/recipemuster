@@ -2,6 +2,7 @@
   "schema_version": 4,
   "next_heat_seed": "BF",
   "heat_order": [
+    "₣BE",
     "₣BD",
     "₣BB",
     "₣BA",
@@ -27,8 +28,7 @@
     "₣Ap",
     "₣Aq",
     "₣Au",
-    "₣BC",
-    "₣BE"
+    "₣BC"
   ],
   "heats": {
     "₣A-": {
@@ -9553,7 +9553,7 @@
     "₣BE": {
       "silks": "jjk-v4-2-sprue",
       "creation_time": "260508",
-      "status": "stabled",
+      "status": "racing",
       "order": [
         "₢BEAAA",
         "₢BEAAB",
