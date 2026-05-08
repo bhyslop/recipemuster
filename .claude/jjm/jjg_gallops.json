@@ -35,6 +35,7 @@
       "creation_time": "260412",
       "status": "racing",
       "order": [
+        "₢A-AAz",
         "₢A-AAw",
         "₢A-AAv",
         "₢A-AAy",
@@ -83,7 +84,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "next_pace_seed": "AAz",
+      "next_pace_seed": "AA0",
       "paces": {
         "₢A-AAA": {
           "tacks": [
@@ -1278,6 +1279,17 @@
               "text": "## Character\nIntricate but mechanical — platform-branching specifics researched; preflight is a uniform structural addition.\n\n## Docket\n\nLocked decisions:\n\n- Garrison-b gains flavor branching. Steps 2 (destroy) and 3\n  (create) fully branch on `BURN_PLATFORM` via per-platform flavor\n  functions. Steps 4–5 differ only in home-dir prefix — promote\n  to a kindle constant per platform. Step 6 identical across\n  platforms.\n  - Linux destroy/create: `userdel -r` / `useradd -m -s /bin/bash -N`.\n  - Mac destroy/create: `sysadminctl -deleteUser` (default removes\n    home) / `sysadminctl -addUser ... -shell /bin/bash`.\n  - Workload shell forced to `/bin/bash` on every platform —\n    macOS ships /bin/bash 3.2 at the canonical path; bash is BUK.\n\n- Garrison step 1 becomes a uniform preflight gate, replacing\n  today's implicit \"step 1 is the SSH connect itself\":\n  - Universal SSH-connectivity probe (key-only, BatchMode, no-op\n    exec) for b/c/w. Failure names `BURP_PRIVILEGED_USER` and\n    `BURP_PRIVILEGED_KEY_FILE` and advises the platform's\n    admin-trust establishment step.\n  - Elevation probe (`sudo -n CMD`) for b-linux, b-mac, and\n    w-inside-WSL only. Garrison-c is exempt — fenestrate's\n    Windows-admin key trust covers its elevation.\n  - Failure diagnostics are copy-pasteable. Elevation failure\n    emits the `visudo -f /etc/sudoers.d/bujb-garrison` invocation,\n    the scoped NOPASSWD line with `BURP_PRIVILEGED_USER`\n    substituted, on the correct filesystem (WSL distro for\n    w-inside-WSL, host for b-linux/b-mac).\n\n- Sudoers installation is operator-managed, like the existing\n  `ssh-copy-id` prerequisite. Garrison verifies effective\n  behavior (`sudo -n` succeeds), not file contents. Scoped\n  NOPASSWD recommended; blanket `NOPASSWD: ALL` acceptable on\n  personal workstations and called out as such.\n\n- BUS0 garrison paragraph updated to name linux/mac flavors of\n  garrison-b as load-bearing structure (not implementation\n  detail), name the elevation matrix across b/c/w platforms, and\n  name the uniform step-1 preflight.\n\n- Paddock standing notes added: Mac Remote Login enabled\n  (operator prerequisite for any Mac BURN target including self),\n  Linux openssh-server installed and sshd enabled, sudoers\n  NOPASSWD prerequisite scoped to the three sudo-affected\n  garrison flavors (b-linux, b-mac, w-inside-WSL), workload shell\n  `/bin/bash` forced regardless of platform default.\n\nOut of scope:\n- `bujn-cerebro` (linux) and `bujn-rocket` (mac) BURN profile\n  creation — operator-side, anytime.\n- Practice paces exercising linux/mac garrison end-to-end —\n  separate slate after this lands.\n- Heat rename to `rbk-mvp-3-draft-jurisdiction-procedures` —\n  separate `jjx_alter` call.\n- Any AAv concern — AAv's namespace-correctness scope is\n  unchanged by this pace.\n\nDone when:\n- `bash -n` green on `bujb_jurisdiction.sh` and `bujb_cli.sh`\n- `tt/buw-st.BukSelfTest.sh` green\n- `tt/rbtd-s.TestSuite.fast.sh` green at baseline (no regression)\n- BUS0 garrison paragraph reads coherently against the elevation\n  matrix and uniform step-1 preflight\n- Paddock standing notes landed\n- No grep finds of single-platform assumptions in garrison-b's\n  user-management branches",
               "silks": "garrison-flavors-and-preflight",
               "commit": "5e677ec"
+            }
+          ]
+        },
+        "₢A-AAz": {
+          "tacks": [
+            {
+              "ts": "260508-0756",
+              "state": "rough",
+              "text": "## Character\nMechanical preflight mirroring the existing WSL preflight pattern.\n\n## Docket\n\nLocked decisions:\n\n- Mirror zbujb_garrison_w_preflight for the b letter: at garrison entry,\n  probe `sudo -n true` over admin SSH on linux/mac platforms; die with\n  a diagnostic that names BURP_PRIVILEGED_USER and emits a copy-paste\n  visudo line for the operator. Gate on BURN_PLATFORM in (bubep_linux,\n  bubep_mac); c/w letters do not use sudo and do not need this.\n- Wire via the same case-dispatch shape used for the w preflight (per\n  the BCG line-1290 fix already applied) — runs before step 1 on the\n  b branch.\n- Paddock Standing Note: add one line declaring NOPASSWD for\n  BURP_PRIVILEGED_USER as an operator-managed precondition on Linux/Mac\n  hosts.\n\nDone when:\n- bash -n green on bujb_jurisdiction.sh\n- tt/buw-st.BukSelfTest.sh green\n- tt/rbtd-s.TestSuite.fast.sh green at baseline\n- Absent-NOPASSWD diagnostic produces a buc_die message with the visudo\n  snippet in operator-readable form (verifiable by inspection)\n- Paddock Standing Note for NOPASSWD-as-precondition added",
+              "silks": "garrison-b-nopasswd-preflight",
+              "commit": "929cfbd"
             }
           ]
         }
