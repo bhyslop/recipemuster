@@ -9540,9 +9540,23 @@
       "silks": "jjk-v4-2-sprue",
       "creation_time": "260508",
       "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
-      "paces": {}
+      "order": [
+        "₢BEAAA"
+      ],
+      "next_pace_seed": "AAB",
+      "paces": {
+        "₢BEAAA": {
+          "tacks": [
+            {
+              "ts": "260508-1027",
+              "state": "rough",
+              "text": "## Character\n\nMechanical migration of two targets to validate the sprue-minting recipe end-to-end. Low judgment surface; sonnet-friendly.\n\n## Locked decisions\n\nTwo targets, no others:\n\n- `jjrg_Heat::silks` → wire-name `jjghn_silks`\n- `jjrg_PaceState` variants → `jjgte_rough`, `jjgte_bridled`, `jjgte_complete`, `jjgte_abandoned`\n\nMigration mechanism: `#[serde(rename, alias)]` window. In one edit, each target receives both its new `rename` (minted wire-name) and a transitional `alias` for its current wire-name. Build, trigger a gallops rewrite via the pace's own `jjx_record`, then remove the transitional `alias` lines in a separate edit.\n\nKeep `alias = \"primed\"` on `Bridled` — pre-existing legacy compat, outside this migration window.\n\nRemove `#[serde(rename_all = \"lowercase\")]` from `jjrg_PaceState`; explicit per-variant renames replace it.\n\nJJS0 gets a new \"Sprue Vocabulary\" section seeded with the five sprues plus one worked example of the Rust-field-to-sprue mapping pattern. Designed for cumulative extension by fan-out paces.\n\n## Out of scope\n\n`jjrg_Tack::silks` stays bare (fan-out target). Other unmigrated property names and enum values stay bare. No CLAUDE.md or memo edits.\n\n## Done when\n\n- `tt/vow-b.Build.sh` clean; `tt/vow-t.Test.sh` green.\n- Gallops file: `jjghn_silks` at heat level (no bare heat-level `\"silks\":`); `jjgte_*` for state values throughout.\n- Transitional `alias` lines removed; only `alias = \"primed\"` remains.\n- JJS0 carries the vocabulary section and worked example.\n- `jjx_show ₣BE` confirms the kit reads its own state.\n\n## Discovery hints\n\nTypes: `Tools/jjk/vov_veiled/src/jjrt_types.rs`. Gallops: `.claude/jjm/jjg_gallops.json`. Spec: `Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc`.",
+              "silks": "mint-heat-silks-pace-states",
+              "commit": "011250f"
+            }
+          ]
+        }
+      }
     }
   }
 }
