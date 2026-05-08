@@ -9175,6 +9175,13 @@
         "₢BBABD": {
           "tacks": [
             {
+              "ts": "260508-1628",
+              "state": "abandoned",
+              "text": "test",
+              "silks": "sentry-default-route-regression",
+              "commit": "958f01a"
+            },
+            {
               "ts": "260508-1627",
               "state": "rough",
               "text": "test",
