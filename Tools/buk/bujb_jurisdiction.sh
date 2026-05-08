@@ -104,6 +104,11 @@ zbujb_kindle() {
   readonly ZBUJB_KEY_B64_STDOUT="${BURD_TEMP_DIR}/bujb_key_b64_stdout.txt"
   readonly ZBUJB_KEY_B64_STDERR="${BURD_TEMP_DIR}/bujb_key_b64_stderr.txt"
 
+  # base64 capture (garrison step4 w-branch = authorized_keys line b64-encoded
+  # for transport to remote).
+  readonly ZBUJB_AUTHKEYS_B64_STDOUT="${BURD_TEMP_DIR}/bujb_authkeys_b64_stdout.txt"
+  readonly ZBUJB_AUTHKEYS_B64_STDERR="${BURD_TEMP_DIR}/bujb_authkeys_b64_stderr.txt"
+
   # WSL distribution preflight captures (garrison-w only).
   readonly ZBUJB_WSL_PREFLIGHT_STDOUT="${BURD_TEMP_DIR}/bujb_wsl_preflight_stdout.txt"
   readonly ZBUJB_WSL_PREFLIGHT_STDERR="${BURD_TEMP_DIR}/bujb_wsl_preflight_stderr.txt"
@@ -715,16 +720,23 @@ zbujb_garrison_step4_place_trust() {
         "chown -R '${z_wlu}' '${z_authkeys_dir}'"
       ;;
     w)
-      zbujb_admin_exec w                                                  \
-        "set -euo pipefail"                                               \
-        "mkdir -p   '${z_authkeys_dir}'"                                  \
-        "chmod 700  '${z_authkeys_dir}'"                                  \
-        "echo '${z_authkeys_line}' > '${z_authkeys_dir}/authorized_keys'" \
-        "chmod 600  '${z_authkeys_dir}/authorized_keys'"
+      printf '%s' "${z_authkeys_line}"                                    \
+        | openssl enc -base64 -A                                          \
+            > "${ZBUJB_AUTHKEYS_B64_STDOUT}"                              \
+            2> "${ZBUJB_AUTHKEYS_B64_STDERR}"                             \
+        || buc_die "base64 encode failed for authorized_keys line — see ${ZBUJB_AUTHKEYS_B64_STDERR}"
+      local z_authkeys_b64
+      z_authkeys_b64=$(<"${ZBUJB_AUTHKEYS_B64_STDOUT}")
+      z_authkeys_b64="${z_authkeys_b64//$'\n'/}"
+
+      zbujb_admin_exec w "mkdir -p '${z_authkeys_dir}'"
+      zbujb_admin_exec w "chmod 700 '${z_authkeys_dir}'"
+      zbujb_admin_exec w "set -o pipefail; echo '${z_authkeys_b64}' | openssl enc -base64 -d -A > '${z_authkeys_dir}/authorized_keys'"
+      zbujb_admin_exec w "chmod 600 '${z_authkeys_dir}/authorized_keys'"
 
       local z_authkeys_win="C:\\Users\\${z_wlu}\\.ssh\\authorized_keys"
-      zbujb_admin_powershell \
-        "icacls '${z_authkeys_win}' /inheritance:r /grant 'SYSTEM:F' /grant '${z_wlu}:F' | Out-Null; if (\$LASTEXITCODE -ne 0) { throw 'icacls grant failed' }; icacls '${z_authkeys_win}' /setowner '${z_wlu}' | Out-Null; if (\$LASTEXITCODE -ne 0) { throw 'icacls setowner failed' }"
+      zbujb_admin_powershell "icacls '${z_authkeys_win}' /inheritance:r /grant 'SYSTEM:F' /grant '${z_wlu}:F'"
+      zbujb_admin_powershell "icacls '${z_authkeys_win}' /setowner '${z_wlu}'"
       ;;
   esac
 }
