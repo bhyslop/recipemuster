@@ -12,7 +12,7 @@ use std::collections::BTreeMap;
 fn jjtg_pace_state_serialization() {
     let state = jjrg_PaceState::Rough;
     let json = serde_json::to_string(&state).unwrap();
-    assert_eq!(json, "\"rough\"");
+    assert_eq!(json, "\"jjgte_rough\"");
 }
 
 // Helper to create a minimal valid Gallops structure

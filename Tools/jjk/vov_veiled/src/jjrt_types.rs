@@ -18,13 +18,13 @@ pub const JJRG_UNKNOWN_BASIS: &str = "0000000";
 /// Pace state values
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum jjrg_PaceState {
-    #[serde(rename = "jjgte_rough", alias = "rough")]
+    #[serde(rename = "jjgte_rough")]
     Rough,
-    #[serde(rename = "jjgte_bridled", alias = "bridled", alias = "primed")]
+    #[serde(rename = "jjgte_bridled", alias = "primed")]
     Bridled,
-    #[serde(rename = "jjgte_complete", alias = "complete")]
+    #[serde(rename = "jjgte_complete")]
     Complete,
-    #[serde(rename = "jjgte_abandoned", alias = "abandoned")]
+    #[serde(rename = "jjgte_abandoned")]
     Abandoned,
 }
 
@@ -65,7 +65,7 @@ pub const JJRT_PENSUM_SEED_INIT: &str = "AA";
 /// Heat record - bounded initiative
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct jjrg_Heat {
-    #[serde(rename = "jjghn_silks", alias = "silks")]
+    #[serde(rename = "jjghn_silks")]
     pub silks: String,
     pub creation_time: String,
     pub status: jjrg_HeatStatus,
