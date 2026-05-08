@@ -103,7 +103,8 @@ from `Microsoft.PowerShell.LocalAccounts` is proven lazy (empty stdout
 when followed by `exit 0`); `Get-Item` from the FileSystem provider is
 proven eager (table survives `exit 0`). Treat the rule as the safe
 default: assume any cmdlet output is lazy unless you've checked. See
-wsg-experiments/oq-6.md for the empirical baseline.
+the OQ-6 section of `Memos/memo-20260508-windows-transport-experiments.md`
+for the empirical baseline.
 
 ```powershell
 # ❌ Get-LocalUser's table is lost; Get-Date's string survives
@@ -200,7 +201,8 @@ PowerShell was launched. The same `Get-LocalUser; exit 0` body emits
 empty stdout via direct cmd.exe→powershell, cygwin→powershell.exe, and
 wsl.exe→bash→powershell.exe. The fix (Out-String materialization, or
 PS-1's `$LASTEXITCODE = 0` so the trailer doesn't fire) is also
-transport-agnostic. See wsg-experiments/oq-6.md.
+transport-agnostic. See `Memos/memo-20260508-windows-transport-experiments.md`
+§OQ-6.
 
 ### ❌ SH-4: cmd.exe does NOT process `$()` or `$var`
 
@@ -262,7 +264,8 @@ Probe pair (verification, w-letter):
 # stdout: HELLO
 ```
 
-See wsg-experiments/oq-1.md, oq-2.md, oq-4.md.
+See `Memos/memo-20260508-windows-transport-experiments.md` §OQ-1, §OQ-2,
+§OQ-4.
 
 ### ✅ SH-7: Exit-code propagation is reliable across transports
 
@@ -280,7 +283,7 @@ Probe (w-letter, set -e + false):
 # EXIT=1
 ```
 
-See wsg-experiments/oq-5.md.
+See `Memos/memo-20260508-windows-transport-experiments.md` §OQ-5.
 
 ### ✅ SH-8: Multi-line bodies via file feed (when SH-2 doesn't fit)
 
@@ -305,7 +308,8 @@ Caveats:
   the remote temp file.
 
 Default discipline remains SH-2; SH-8 applies only when bodies don't fit
-one line. See wsg-experiments/oq-7.md.
+one line. See `Memos/memo-20260508-windows-transport-experiments.md`
+§OQ-7.
 
 ## Wrapper Discipline
 
@@ -372,23 +376,35 @@ No Linux or Mac BURN profile is registered in the release-1 matrix; only
 `bujn-winpc` (`BURN_PLATFORM=bubep_windows`). The b-letter path bypasses
 every Windows-specific layer (no cmd.exe DefaultShell, no wsl.exe argv
 substitution, no Windows argv parser); standard BCG body discipline
-applies. If a Linux/Mac BURN profile is added, run the matrix from
-`wsg-experiments/oq-1.md` (probes 1A, 1G, 1J, 1P) substituting plain bash
-for wsl.exe / cygwin to confirm absence of Windows-layer quirks. See
-wsg-experiments/oq-3.md.
+applies. If a Linux/Mac BURN profile is added, run the OQ-1 probes from
+`Memos/memo-20260508-windows-transport-experiments.md` (probes 1A, 1G,
+1J, 1P) substituting plain bash for wsl.exe / cygwin to confirm absence
+of Windows-layer quirks. See §OQ-3 of that memo.
 
-## Experiment Artifacts
+## Empirical Record
 
-Forensic probe records under `Tools/buk/vov_veiled/wsg-experiments/`,
-populated by pace `₢A-AA0` (windows-transport-experiments):
+Probe matrices, raw transcripts, and the bisection narratives that
+generated the rules in this document are filed under `Memos/`. WSG cites
+those memos but does not duplicate their contents.
 
-- `oq-1.md` — wsl.exe argv `$` substitution mechanism (resolves to SH-6)
-- `oq-2.md` — cygwin bash absent of substitution (subsumed by SH-6 c-letter row)
-- `oq-3.md` — b-letter Linux/Mac path (deferred, see above)
-- `oq-4.md` — per-letter escape table (subsumed by SH-6)
-- `oq-5.md` — exit-code propagation across transports (resolves to SH-7)
-- `oq-6.md` — PS lazy-flush transport-agnosticism (resolves to PS-4)
-- `oq-7.md` — multi-line bodies via file feed (resolves to SH-8)
+Active references:
+
+- `Memos/memo-20260508-windows-transport-experiments.md` — initial OQ-1
+  through OQ-7 resolution matrix run against `bujn-winpc` (pace `₢A-AA0`).
+
+### Convention for future Windows-transport experiments
+
+When a new open question surfaces around the Windows transport stack
+(wsl.exe, cygwin, cmd.exe, OpenSSH-Win32, PowerShell), file the probe
+matrix and resolution at:
+
+```
+Memos/memo-YYYYMMDD-windows-transport-{topic}.md
+```
+
+Cite the memo from WSG once findings stabilize into rules. WSG retains
+the distilled rules and one-line probe pairs; memos retain the full
+empirical record.
 
 ## Verification Probe Template
 
