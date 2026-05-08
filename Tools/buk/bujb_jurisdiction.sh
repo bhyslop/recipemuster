@@ -921,6 +921,8 @@ zbujb_garrison_step6_validate() {
     zbujb_validate_run "localuser"            zbujb_admin_powershell "Get-LocalUser '${BUJB_workload_user}' | Format-List | Out-String"                                                                                                                   || true
     zbujb_validate_run "service-sshd"         zbujb_admin_powershell "Get-Service sshd | Format-List | Out-String"                                                                                                                                        || true
     zbujb_validate_run "sshdir-listing"       zbujb_admin_powershell "Get-ChildItem \$env:ProgramData\\ssh -ErrorAction SilentlyContinue | Format-List Name, Length, LastWriteTime | Out-String"                                                          || true
+    zbujb_validate_run "limit-blank-password" zbujb_admin_powershell "reg.exe query 'HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa' /v LimitBlankPasswordUse 2>\$null | Out-String"                                                                        || true
+    zbujb_validate_run "profile-list"         zbujb_admin_powershell "reg.exe query 'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList' /s 2>\$null | Out-String"                                                                        || true
 
     buc_die "Workload round-trip failed (ssh exit ${z_exit}); the new account did not accept its own key."
   fi
