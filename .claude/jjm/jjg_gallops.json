@@ -7,6 +7,7 @@
     "₣BA",
     "₣A_",
     "₣A-",
+    "₣Ah",
     "₣A9",
     "₣Az",
     "₣An",
@@ -18,7 +19,6 @@
     "₣A7",
     "₣A6",
     "₣A5",
-    "₣Ah",
     "₣AU",
     "₣AQ",
     "₣AV",
@@ -6268,7 +6268,7 @@
     "₣Ah": {
       "silks": "jjk-v4-4-school-breeze-founding",
       "creation_time": "260222",
-      "status": "racing",
+      "status": "stabled",
       "order": [
         "₢AhAAV",
         "₢AhAAS",
