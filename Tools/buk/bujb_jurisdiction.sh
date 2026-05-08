@@ -326,8 +326,13 @@ zbujb_admin_exec() {
 # zbujb_admin_powershell BODY... -- run a PowerShell statement chain on
 # the remote node as the privileged user. Prepends discipline prelude:
 # $ErrorActionPreference='Stop' (PS errors terminate), $env:WSL_UTF8=1
-# (wsl.exe emits UTF-8). Trailing if-check propagates $LASTEXITCODE on
-# non-zero. Caller redirects stdout/stderr; returns ssh's exit code.
+# (wsl.exe emits UTF-8), $LASTEXITCODE=0 (initialize so the trailing
+# if-check doesn't trip on the $null default — $null -ne 0 evaluates True
+# in PowerShell typed comparison, which would fire `exit $null` and
+# discard buffered object-formatter output for cmdlets like Get-LocalUser
+# whose tables haven't flushed to stdout yet). Trailing if-check
+# propagates $LASTEXITCODE on non-zero from native commands in the body.
+# Caller redirects stdout/stderr; returns ssh's exit code.
 zbujb_admin_powershell() {
   zbujb_sentinel
   test $# -ge 1 \
@@ -340,7 +345,7 @@ zbujb_admin_powershell() {
       -o StrictHostKeyChecking=accept-new          \
       -o ConnectTimeout=15                         \
       "${BURP_PRIVILEGED_USER}@${BURN_HOST}"       \
-      "powershell -NoProfile -Command \"\$ErrorActionPreference = 'Stop'; \$env:WSL_UTF8 = 1; ${z_body}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE }\""
+      "powershell -NoProfile -Command \"\$ErrorActionPreference = 'Stop'; \$env:WSL_UTF8 = 1; \$LASTEXITCODE = 0; ${z_body}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE }\""
 }
 
 ######################################################################
