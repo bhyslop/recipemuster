@@ -324,8 +324,8 @@ Within kit prefixes, these constrain the tree. If `*c_` means Command, don't use
 
 For MCM concept model specs, apply this discipline on top of the general minting rules:
 
-- **Uniform shape `prefixXY_word`** — every quoin carries exactly two sub-letters
-- **Hard 2-letter ceiling** — never mint 3+ letter sub-prefixes (proven opaque in RBS0/JJS0)
+- **Uniform shape `prefixXY_word` or `prefixXYZ_word`** — every quoin carries two or three sub-letters; pick one count per spec
+- **Hard 3-letter ceiling** — never mint 4+ letter sub-prefixes
 - **Within-domain Y monosemy** — each sub-letter has exactly one meaning per domain; reusing Y for a second concept produces pattern-recognition collisions (JJS0's `rd` appearing in three quoins with three meanings is the canonical failure)
 - **Documented legend** — sub-letter table declared in a comment block at the top of the spec's mapping section; future minters consult the table rather than re-derive from first letters
 - **Family members sharing YY is intended** — uniqueness lives in the full quoin name, not the 5-char prefix
