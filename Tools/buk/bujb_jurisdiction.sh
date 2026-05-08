@@ -711,7 +711,7 @@ zbujb_garrison_step4_place_trust() {
   z_pubkey=$(<"${ZBUJB_PUBKEY_STDOUT_WORK}")
   z_pubkey="${z_pubkey//$'\n'/}"
 
-  local z_authkeys_line="${z_command_directive} ${z_pubkey}"
+  local z_authkeys_line="${z_command_directive} ${z_pubkey}"$'\n'
 
   local z_sudo_prefix=""
   test "${z_letter}" != "b" || z_sudo_prefix="sudo -n "
@@ -767,6 +767,16 @@ zbujb_garrison_step4_place_trust() {
       zbujb_garrison_step4_diag_dump "chmod-file"
 
       local z_authkeys_win="C:\\Users\\${z_wlu}\\.ssh\\authorized_keys"
+      local z_authkeys_dir_win="C:\\Users\\${z_wlu}\\.ssh"
+
+      zbujb_admin_powershell "icacls '${z_authkeys_dir_win}' /inheritance:r /grant 'SYSTEM:F' /grant '${z_wlu}:F'"                \
+          > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
+      zbujb_garrison_step4_diag_dump "icacls-dir-grant"
+
+      zbujb_admin_powershell "icacls '${z_authkeys_dir_win}' /setowner '${z_wlu}'"                                                \
+          > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
+      zbujb_garrison_step4_diag_dump "icacls-dir-setowner"
+
       zbujb_admin_powershell "icacls '${z_authkeys_win}' /inheritance:r /grant 'SYSTEM:F' /grant '${z_wlu}:F'"                    \
           > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
       zbujb_garrison_step4_diag_dump "icacls-grant"
@@ -887,8 +897,13 @@ zbujb_garrison_step6_validate() {
       true                                        \
     || z_exit=$?
 
-  test "${z_exit}" -eq 0 \
-    || buc_die "Workload round-trip failed (ssh exit ${z_exit}); the new account did not accept its own key."
+  if test "${z_exit}" -ne 0; then
+    zbujb_admin_powershell "Get-WinEvent -FilterHashtable @{LogName='OpenSSH/Operational'; StartTime=(Get-Date).AddSeconds(-30)} -ErrorAction SilentlyContinue | Format-List TimeCreated, Message | Out-String" \
+        > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}" \
+      || true
+    zbujb_garrison_step4_diag_dump "step6-eventlog"
+    buc_die "Workload round-trip failed (ssh exit ${z_exit}); the new account did not accept its own key."
+  fi
 }
 
 ######################################################################
