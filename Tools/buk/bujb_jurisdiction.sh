@@ -289,20 +289,29 @@ zbujb_workload_home_capture() {
   esac
 }
 
-# zbujb_admin_exec LETTER -- read a bash script from stdin and execute it on
-# the remote node as the privileged user, wrapped in the shell-letter-
-# appropriate invocation (native bash for b; Cygwin's bash --login for c;
-# wsl.exe to BUJB_wsl_distribution as root for w).
+# zbujb_admin_exec LETTER STMT [STMT ...] -- run statements as the privileged
+# user on the remote node. Statements are joined by newlines, base64-encoded,
+# and shipped as a single bash -c argument; decoding and execution happen
+# entirely inside the remote shell. No stdin pipe to ssh — eliminates the
+# wsl.exe stdin-propagation surface for the w letter (and is BCG-compliant
+# heredoc-free for all letters). Caller redirects stdout/stderr for capture;
+# returns ssh's exit code.
 zbujb_admin_exec() {
   zbujb_sentinel
   local z_letter="${1:-}"
   zbujb_assert_shell_letter "${z_letter}"
+  shift
+  test $# -ge 1 \
+    || buc_die "zbujb_admin_exec: at least one statement required"
+
+  local z_body_b64
+  z_body_b64=$(printf '%s\n' "$@" | base64 | tr -d '\n')
 
   local z_remote_invoker
   case "${z_letter}" in
-    b) z_remote_invoker='bash -s' ;;
-    c) z_remote_invoker='C:/cygwin64/bin/bash --login -s' ;;
-    w) z_remote_invoker="wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -s" ;;
+    b) z_remote_invoker='bash' ;;
+    c) z_remote_invoker='C:/cygwin64/bin/bash --login' ;;
+    w) z_remote_invoker="wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash" ;;
   esac
 
   ssh -i "${BURP_PRIVILEGED_KEY_FILE}"     \
@@ -311,7 +320,7 @@ zbujb_admin_exec() {
       -o StrictHostKeyChecking=accept-new           \
       -o ConnectTimeout=15                          \
       "${BURP_PRIVILEGED_USER}@${BURN_HOST}" \
-      "${z_remote_invoker}"
+      "${z_remote_invoker} -c \"echo '${z_body_b64}' | base64 -d | bash\""
 }
 
 # zbujb_admin_powershell BODY... -- run a PowerShell statement chain on
@@ -343,7 +352,7 @@ zbujb_garrison_step1_admin_open() {
   buc_step "  [1/6] Open admin SSH (${BURP_PRIVILEGED_USER}@${BURN_HOST})"
 
   local z_exit=0
-  zbujb_admin_exec "${z_letter}" <<<'exit 0' || z_exit=$?
+  zbujb_admin_exec "${z_letter}" 'exit 0' || z_exit=$?
   if test "${z_exit}" -ne 0; then
     case "${BURN_PLATFORM}" in
       bubep_windows)
@@ -466,6 +475,27 @@ zbujb_obliterate_windows_namespaces() {
             2> "${ZBUJB_OBLITERATE_STDERR}" \
           || buc_die "WSL userdel failed for ${z_wlu} — see ${ZBUJB_OBLITERATE_STDERR}"
       }
+
+      # Orphan home dir purge: covers the case where a prior failed
+      # garrison left /home/<user> on disk without a passwd entry —
+      # userdel -r doesn't fire (getent returns nothing) yet the
+      # leftover dir would force the next useradd onto pre-existing
+      # state. Probe Test -e and rm -rf bash-side via the same
+      # `|| true` absent-tolerance pattern as the user probe above.
+      buc_step "    [WSL] Probe orphan home (/home/${z_wlu}) inside ${BUJB_wsl_distribution}"
+      zbujb_admin_powershell "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c 'test -e /home/''${z_wlu}'' && echo PRESENT || true'" \
+          > "${ZBUJB_OBLITERATE_STDOUT}" \
+          2> "${ZBUJB_OBLITERATE_STDERR}" \
+        || buc_die "WSL orphan-home probe failed — see ${ZBUJB_OBLITERATE_STDERR}"
+      z_state=$(<"${ZBUJB_OBLITERATE_STDOUT}")
+      z_state="${z_state//[$'\r\n']/}"
+      test "${z_state}" != "PRESENT" || {
+        buc_step "    [WSL] Remove orphan home (/home/${z_wlu}) inside ${BUJB_wsl_distribution}"
+        zbujb_admin_powershell "wsl.exe --distribution ${BUJB_wsl_distribution} --user root rm -rf '/home/${z_wlu}'" \
+            > "${ZBUJB_OBLITERATE_STDOUT}" \
+            2> "${ZBUJB_OBLITERATE_STDERR}" \
+          || buc_die "WSL orphan-home removal failed — see ${ZBUJB_OBLITERATE_STDERR}"
+      }
       ;;
   esac
 }
@@ -492,18 +522,16 @@ zbujb_obliterate_workload() {
 
   case "${BURN_PLATFORM}" in
     bubep_linux)
-      zbujb_admin_exec b <<SCRIPT
-set -uo pipefail
-sudo -n userdel -r '${z_wlu}' 2>/dev/null || true
-sudo -n rm -rf '/home/${z_wlu}' 2>/dev/null || true
-SCRIPT
+      zbujb_admin_exec b                                              \
+        "set -uo pipefail"                                            \
+        "sudo -n userdel -r '${z_wlu}' 2>/dev/null || true"           \
+        "sudo -n rm -rf '/home/${z_wlu}' 2>/dev/null || true"
       ;;
     bubep_mac)
-      zbujb_admin_exec b <<SCRIPT
-set -uo pipefail
-sudo -n sysadminctl -deleteUser '${z_wlu}' 2>/dev/null || true
-sudo -n rm -rf '/Users/${z_wlu}' 2>/dev/null || true
-SCRIPT
+      zbujb_admin_exec b                                              \
+        "set -uo pipefail"                                            \
+        "sudo -n sysadminctl -deleteUser '${z_wlu}' 2>/dev/null || true" \
+        "sudo -n rm -rf '/Users/${z_wlu}' 2>/dev/null || true"
       ;;
     bubep_windows)
       zbujb_obliterate_windows_namespaces "${z_wlu}"
@@ -524,45 +552,41 @@ zbujb_garrison_step3_create() {
     b)
       case "${BURN_PLATFORM}" in
         bubep_linux)
-          zbujb_admin_exec b <<SCRIPT
-set -euo pipefail
-sudo -n useradd --create-home --shell /bin/bash '${z_wlu}'
-sudo -n passwd  --lock '${z_wlu}'
-SCRIPT
+          zbujb_admin_exec b                                              \
+            "set -euo pipefail"                                           \
+            "sudo -n useradd --create-home --shell /bin/bash '${z_wlu}'"  \
+            "sudo -n passwd  --lock '${z_wlu}'"
           ;;
         bubep_mac)
           # Mac uses dscl/sysadminctl; left for in-environment refinement.
           # Operator may need to seat a more idiomatic primary group ID.
-          zbujb_admin_exec b <<SCRIPT
-set -euo pipefail
-sudo -n sysadminctl -addUser '${z_wlu}' -roleAccount
-sudo -n dscl . -create '/Users/${z_wlu}' UserShell /bin/bash
-SCRIPT
+          zbujb_admin_exec b                                              \
+            "set -euo pipefail"                                           \
+            "sudo -n sysadminctl -addUser '${z_wlu}' -roleAccount"        \
+            "sudo -n dscl . -create '/Users/${z_wlu}' UserShell /bin/bash"
           ;;
       esac
       ;;
     c)
       # Cygwin reflects Windows user accounts; mint via net.exe with a
       # disabled-password posture (we want ssh-key-only).
-      zbujb_admin_exec c <<SCRIPT
-set -euo pipefail
-net.exe user '${z_wlu}' /add /passwordreq:no /active:yes > /dev/null
-mkpasswd -l -u '${z_wlu}' >> /etc/passwd
-mkdir -p '/home/${z_wlu}'
-chown -R '${z_wlu}' '/home/${z_wlu}'
-SCRIPT
+      zbujb_admin_exec c                                                  \
+        "set -euo pipefail"                                               \
+        "net.exe user '${z_wlu}' /add /passwordreq:no /active:yes > /dev/null" \
+        "mkpasswd -l -u '${z_wlu}' >> /etc/passwd"                        \
+        "mkdir -p '/home/${z_wlu}'"                                       \
+        "chown -R '${z_wlu}' '/home/${z_wlu}'"
       ;;
     w)
       # Mirrored identity: net.exe creates the Windows user (SSH auth
       # boundary), useradd creates the Linux user inside WSL (execution
       # context). Same Windows-user shape as the c branch above; the
       # WSL-side useradd layered on top.
-      zbujb_admin_exec w <<SCRIPT
-set -euo pipefail
-net.exe user '${z_wlu}' /add /passwordreq:no /active:yes > /dev/null
-useradd --create-home --shell /bin/bash '${z_wlu}'
-passwd  --lock '${z_wlu}'
-SCRIPT
+      zbujb_admin_exec w                                                  \
+        "set -euo pipefail"                                               \
+        "net.exe user '${z_wlu}' /add /passwordreq:no /active:yes > /dev/null" \
+        "useradd --create-home --shell /bin/bash '${z_wlu}'"              \
+        "passwd  --lock '${z_wlu}'"
       ;;
   esac
 }
@@ -605,27 +629,25 @@ zbujb_garrison_step4_place_trust() {
 
   case "${z_letter}" in
     b)
-      zbujb_admin_exec b <<SCRIPT
-set -euo pipefail
-${z_sudo_prefix}mkdir -p   '${z_authkeys_dir}'
-${z_sudo_prefix}chmod 700  '${z_authkeys_dir}'
-echo '${z_authkeys_line}' | ${z_sudo_prefix}tee '${z_authkeys_dir}/authorized_keys' > /dev/null
-${z_sudo_prefix}chmod 600  '${z_authkeys_dir}/authorized_keys'
-${z_sudo_prefix}chown -R '${z_wlu}:${z_wlu}' '${z_authkeys_dir}'
-SCRIPT
+      zbujb_admin_exec b                                                  \
+        "set -euo pipefail"                                               \
+        "${z_sudo_prefix}mkdir -p   '${z_authkeys_dir}'"                  \
+        "${z_sudo_prefix}chmod 700  '${z_authkeys_dir}'"                  \
+        "echo '${z_authkeys_line}' | ${z_sudo_prefix}tee '${z_authkeys_dir}/authorized_keys' > /dev/null" \
+        "${z_sudo_prefix}chmod 600  '${z_authkeys_dir}/authorized_keys'"  \
+        "${z_sudo_prefix}chown -R '${z_wlu}:${z_wlu}' '${z_authkeys_dir}'"
       ;;
     c)
       # In Cygwin, file ownership/permissions interplay with NTFS ACLs.
       # mkdir/chmod/chown are Cygwin-mediated; run as the admin user
       # without sudo (Windows admins already have privilege).
-      zbujb_admin_exec c <<SCRIPT
-set -euo pipefail
-mkdir -p   '${z_authkeys_dir}'
-chmod 700  '${z_authkeys_dir}'
-echo '${z_authkeys_line}' > '${z_authkeys_dir}/authorized_keys'
-chmod 600  '${z_authkeys_dir}/authorized_keys'
-chown -R '${z_wlu}' '${z_authkeys_dir}'
-SCRIPT
+      zbujb_admin_exec c                                                  \
+        "set -euo pipefail"                                               \
+        "mkdir -p   '${z_authkeys_dir}'"                                  \
+        "chmod 700  '${z_authkeys_dir}'"                                  \
+        "echo '${z_authkeys_line}' > '${z_authkeys_dir}/authorized_keys'" \
+        "chmod 600  '${z_authkeys_dir}/authorized_keys'"                  \
+        "chown -R '${z_wlu}' '${z_authkeys_dir}'"
       ;;
     w)
       # No chown: POSIX ownership on /mnt/c/... is meaningless to Windows
@@ -633,13 +655,12 @@ SCRIPT
       # parent profile directory is admin-owned and read-only for
       # non-admins — satisfies StrictModes. Explicit icacls hardening is
       # deferred unless a real host kicks back.
-      zbujb_admin_exec w <<SCRIPT
-set -euo pipefail
-mkdir -p   '${z_authkeys_dir}'
-chmod 700  '${z_authkeys_dir}'
-echo '${z_authkeys_line}' > '${z_authkeys_dir}/authorized_keys'
-chmod 600  '${z_authkeys_dir}/authorized_keys'
-SCRIPT
+      zbujb_admin_exec w                                                  \
+        "set -euo pipefail"                                               \
+        "mkdir -p   '${z_authkeys_dir}'"                                  \
+        "chmod 700  '${z_authkeys_dir}'"                                  \
+        "echo '${z_authkeys_line}' > '${z_authkeys_dir}/authorized_keys'" \
+        "chmod 600  '${z_authkeys_dir}/authorized_keys'"
       ;;
   esac
 }
@@ -672,26 +693,24 @@ zbujb_garrison_step5_plant_key() {
 
   case "${z_letter}" in
     b|w)
-      zbujb_admin_exec "${z_letter}" <<SCRIPT
-set -euo pipefail
-ztmp=\$(mktemp)
-trap 'rm -f "\${ztmp}"' EXIT
-echo '${z_key_b64}' | openssl enc -base64 -d -A > "\${ztmp}"
-${z_sudo_prefix}mkdir -p   '${z_target_dir}'
-${z_sudo_prefix}install -m 600 -o '${z_wlu}' -g '${z_wlu}' "\${ztmp}" '${z_target}'
-SCRIPT
+      zbujb_admin_exec "${z_letter}"                                      \
+        "set -euo pipefail"                                               \
+        "ztmp=\$(mktemp)"                                                 \
+        "trap 'rm -f \"\${ztmp}\"' EXIT"                                  \
+        "echo '${z_key_b64}' | openssl enc -base64 -d -A > \"\${ztmp}\"" \
+        "${z_sudo_prefix}mkdir -p   '${z_target_dir}'"                    \
+        "${z_sudo_prefix}install -m 600 -o '${z_wlu}' -g '${z_wlu}' \"\${ztmp}\" '${z_target}'"
       ;;
     c)
-      zbujb_admin_exec c <<SCRIPT
-set -euo pipefail
-ztmp=\$(mktemp)
-trap 'rm -f "\${ztmp}"' EXIT
-echo '${z_key_b64}' | openssl enc -base64 -d -A > "\${ztmp}"
-mkdir -p   '${z_target_dir}'
-cp "\${ztmp}" '${z_target}'
-chmod 600  '${z_target}'
-chown      '${z_wlu}' '${z_target}'
-SCRIPT
+      zbujb_admin_exec c                                                  \
+        "set -euo pipefail"                                               \
+        "ztmp=\$(mktemp)"                                                 \
+        "trap 'rm -f \"\${ztmp}\"' EXIT"                                  \
+        "echo '${z_key_b64}' | openssl enc -base64 -d -A > \"\${ztmp}\"" \
+        "mkdir -p   '${z_target_dir}'"                                    \
+        "cp \"\${ztmp}\" '${z_target}'"                                   \
+        "chmod 600  '${z_target}'"                                        \
+        "chown      '${z_wlu}' '${z_target}'"
       ;;
   esac
 }
