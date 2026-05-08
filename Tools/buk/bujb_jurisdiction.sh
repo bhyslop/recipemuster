@@ -749,6 +749,7 @@ zbujb_garrison_step4_place_trust() {
       z_authkeys_b64="${z_authkeys_b64//$'\n'/}"
 
       buc_step "    [diag/curia] z_authkeys_line ${#z_authkeys_line}B; z_authkeys_b64 ${#z_authkeys_b64}B"
+      buc_step "    [diag/curia-pubkey] z_pubkey ${#z_pubkey}B: ${z_pubkey}"
 
       zbujb_admin_exec w "mkdir -p '${z_authkeys_dir}'"                                                                         \
           > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
@@ -765,6 +766,10 @@ zbujb_garrison_step4_place_trust() {
       zbujb_admin_exec w "chmod 600 '${z_authkeys_dir}/authorized_keys'"                                                        \
           > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
       zbujb_garrison_step4_diag_dump "chmod-file"
+
+      zbujb_admin_exec c "cat '/cygdrive/c/Users/${z_wlu}/.ssh/authorized_keys'"                                                  \
+          > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
+      zbujb_garrison_step4_diag_dump "prelock-readback"
 
       local z_authkeys_win="C:\\Users\\${z_wlu}\\.ssh\\authorized_keys"
       local z_authkeys_dir_win="C:\\Users\\${z_wlu}\\.ssh"
@@ -918,6 +923,36 @@ zbujb_garrison_step6_validate() {
         > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}" \
       || true
     zbujb_garrison_step4_diag_dump "step6-acl-dotssh"
+
+    zbujb_admin_powershell "Get-Acl 'C:\\Users\\${BUJB_workload_user}' | Format-List | Out-String" \
+        > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}" \
+      || true
+    zbujb_garrison_step4_diag_dump "step6-getacl-home"
+
+    zbujb_admin_powershell "Get-Acl 'C:\\Users\\${BUJB_workload_user}\\.ssh' | Format-List | Out-String" \
+        > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}" \
+      || true
+    zbujb_garrison_step4_diag_dump "step6-getacl-dotssh"
+
+    zbujb_admin_powershell "Get-Acl 'C:\\Users\\${BUJB_workload_user}\\.ssh\\authorized_keys' | Format-List | Out-String" \
+        > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}" \
+      || true
+    zbujb_garrison_step4_diag_dump "step6-getacl-authkeys"
+
+    zbujb_admin_powershell "Get-LocalUser '${BUJB_workload_user}' | Format-List | Out-String" \
+        > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}" \
+      || true
+    zbujb_garrison_step4_diag_dump "step6-localuser"
+
+    zbujb_admin_powershell "Get-Service sshd | Format-List | Out-String" \
+        > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}" \
+      || true
+    zbujb_garrison_step4_diag_dump "step6-service-sshd"
+
+    zbujb_admin_powershell "Get-ChildItem \$env:ProgramData\\ssh -ErrorAction SilentlyContinue | Format-List Name, Length, LastWriteTime | Out-String" \
+        > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}" \
+      || true
+    zbujb_garrison_step4_diag_dump "step6-sshdir-listing"
 
     buc_die "Workload round-trip failed (ssh exit ${z_exit}); the new account did not accept its own key."
   fi
