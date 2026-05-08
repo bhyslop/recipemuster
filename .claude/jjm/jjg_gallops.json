@@ -7516,6 +7516,8 @@
       "creation_time": "260426",
       "status": "racing",
       "order": [
+        "₢BBABE",
+        "₢BBABD",
         "₢BBABC",
         "₢BBABB",
         "₢BBAA_",
@@ -7580,7 +7582,7 @@
         "₢BBAA1",
         "₢BBAA5"
       ],
-      "next_pace_seed": "ABD",
+      "next_pace_seed": "ABF",
       "paces": {
         "₢BBAA-": {
           "tacks": [
@@ -9140,6 +9142,35 @@
               "text": "## Character\n\nTightens charge invariant; aligns docker compose YAML with established\nquoin vocabulary; fixes pre-existing spec drift in network-name quoins.\n\n## Wrap criterion\n\nCharge refuses to start if any docker network on the host matches\n`*{nameplate}_{enclave,transit}` regardless of compose project name.\nRefusal message names each offending network plus exact cleanup\ncommands. RBS0 network-name quoins reflect current compose project\nnaming (post-ZRBOB_PROJECT fix). YAML key `default` renamed to\n`transit` in rbob_compose.yml.\n\n## Scope\n\n- `.rbk/rbob_compose.yml`: rename `default:` to `transit:` (sentry\n  service networks list + comment on line 15)\n- `RBS0`: update `at_transit_network_name` and `at_enclave_network_name`\n  definitions to reflect `${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}_*` naming;\n  update body to use `transit` for the YAML key\n- `RBSNC`, `RBSNX`: replace remaining `default` references with\n  `{at_transit_network}` quoin links\n- `RBSCC` step 3: widen scan — enumerate networks by labels\n  `com.docker.compose.network ∈ {enclave, transit}` AND\n  `com.docker.compose.project` matches `^(.*-)?{nameplate}$`,\n  refuse on any match independent of current run's project name\n- `rbob_bottle.sh:329`: implement broader scan; refusal diagnostic\n  enumerates each offending network and the remove command(s)\n\n## Locked constraints\n\n- Invariant: at most one crucible per nameplate per system\n- Detection keyed on nameplate, not RBRR_RUNTIME_PREFIX\n- Behavior change applies to all charges, not just pristine tier\n- No new vocabulary minted — uses existing `at_transit_network` quoin\n\n## Open at mount time\n\n- Whether to keep current step 2 (project-scoped compose-down) as\n  fast-path before the broader scan, or drop in favor of the scan\n- Defensive label match (require sentry/pentacle/bottle service\n  presence) to eliminate false-positive risk on `*-{nameplate}`\n  project name collisions, or accept the negligible risk\n\n## References\n\n- RBSCC step 3 — current behavior to widen\n- RBS0:2453,2561,2567 — existing quoin definitions to align\n- `.rbk/rbob_compose.yml:15,27` — YAML rename surface\n- `rbob_bottle.sh:329` — current refusal site\n- Surfaced by ₣BB pristine run on this host: pre-prefix-era residue\n  (project=tadmor, label-only) blocked tadmor charge after MZ",
               "silks": "charge-invariant-network-scan",
               "commit": "204a3e6"
+            }
+          ]
+        },
+        "₢BBABD": {
+          "tacks": [
+            {
+              "ts": "260508-1628",
+              "state": "abandoned",
+              "text": "test",
+              "silks": "sentry-default-route-regression",
+              "commit": "958f01a"
+            },
+            {
+              "ts": "260508-1627",
+              "state": "rough",
+              "text": "test",
+              "silks": "sentry-default-route-regression",
+              "commit": "ee83ae0"
+            }
+          ]
+        },
+        "₢BBABE": {
+          "tacks": [
+            {
+              "ts": "260508-1630",
+              "state": "rough",
+              "text": "## Character\n\nDiagnose-and-fix structural — design conversation requiring judgment after empirical cross-platform characterization.\n\nCrucible charge fails on linux because the sentry's `dig +short A <domain> @${RBRR_DNS_SERVER}` (resolve-then-freeze, `rbjs_sentry.sh` phase RBJp4) cannot reach the configured DNS server from inside its own network namespace, exit 42. Cause is a routing topology mismatch: Docker installs the multi-network sentry's default route via the *enclave* network gateway (alphabetically first attached) rather than the *transit* (uplink) gateway. Sentry's iptables OUTPUT chain ACCEPTs UDP/TCP/53 to `${RBRR_DNS_SERVER}` only when egressing on `${RBJ_UPLINK_IF}`; packets routed via the enclave interface miss that rule and hit the default-DROP policy.\n\nEmpirically confirmed on linux today by attaching a clean alpine to enclave-then-transit (compose's natural attach order) and observing `default via <enclave-gw> dev eth0`. The compose YAML's `priority: 1000` on transit / `priority: 500` on enclave does **not** influence default-route selection in this Docker engine.\n\nSuspected regression source: BBABC's `services.networks.default → transit` rename (commit message: \"eliminates compose's implicit default\"). Pre-rename, Docker compose treated `default` as the gateway-bearing network specially. Post-rename, default-route assignment falls to a non-priority-aware heuristic.\n\n## Wrap criterion\n\n- mac behavior characterized empirically (does the same default-route bug manifest, or does mac Docker honor `priority` differently?)\n- fix selected based on cross-platform evidence\n- fix lands; tadmor charge succeeds end-to-end on linux\n- (mac re-verification post-fix encouraged but operator-driven, not a hard wrap gate)\n\n## Linux conclusions to carry forward\n\n1. **Failure surface**: `rbw-cC.Charge.tadmor.sh` → sentry container exit 42 inside ~16s. Sentry stderr (captured before any quench): `FATAL: Cannot resolve www.internic.net via 8.8.8.8`. Reproduces deterministically (identical log checksum across attempts).\n2. **Why dig fails**: `dig` packet egresses on enclave interface (default route), not uplink. Sentry's OUTPUT-chain ACCEPT rule for UDP/53 to `${RBRR_DNS_SERVER}` is `-o ${RBJ_UPLINK_IF}` qualified, doesn't match.\n3. **Why default route is wrong**: compose attaches networks alphabetically (enclave before transit); Docker installs default route via first-attached network's gateway. `priority: 1000` is ignored on this engine.\n4. **The host network itself is healthy**: clean alpine on `canrbhl-tadmor_transit` resolves 8.8.8.8 fine; host iptables NAT rules are correctly installed for both `172.18.0.0/16` (transit) and the enclave subnet.\n\n## Mac questions to answer at mount time\n\n1. Does mac Docker honor `services.networks.<name>.priority` for default-route selection? (If yes, mac may not exhibit this bug.)\n2. With the same alphabetical attach order, what default route does mac install for a multi-network container?\n3. Has BBABC been exercised under crucible charge on mac since landing? If yes, evidence one way or another already exists in mac-side logs.\n4. If mac is healthy and linux is broken, is the bug a genuine cross-version Docker behavior gap, or is one platform's behavior the recently-introduced regression?\n\n## Candidate fix shapes (kept open — pick after cross-platform evidence)\n\n- **A. Sentry-side route management**: in `rbjs_sentry.sh` after `RBJ_UPLINK_IF` discovery, explicitly `ip route replace default via <uplink-gw> dev ${RBJ_UPLINK_IF}` (gateway derived from connected route on uplink). Sentry takes ownership of its own routing; survives Docker engine drift across versions and platforms.\n- **B. Revert BBABC's `default → transit` rename**: smallest delta; restores compose's special handling of `default`. Undoes BBABC's deliberate \"eliminate implicit default\" cleanup and ripples into RBSCC / RBSSS spec quoins that BBABC also touched.\n- **C. Compose-extended directives**: investigate whether any Docker-version-portable compose field forces default-route ownership onto a specific network. May not exist; even if it does, `priority` already failed under empirical test.\n\nA and C survive future engine changes; B is fragile if Docker ever changes `default`-network handling. Choice depends on what mac evidence reveals about whether `priority` itself has fix-grade reliability.\n\n## Out of scope\n\n- Re-running the full gauntlet here. BBABA already exists for that and remains the structural release-qualification gate.\n- Lost-sentry-stderr observability gap (worth its own pace later — fixture / charge should capture sentry container logs to `../logs-buk/` before quench so future failures aren't unobservable).\n- DNS resolve-then-freeze brittleness (no retry on transient `dig` failure) — separable concern; surfaces if dig ever times out for non-routing reasons.\n\n## Cross-pace relationships\n\n- Blocks BBAAX and BBABA implicitly: both depend on tadmor charge succeeding. No cross-heat reference; in-heat ordering carries the dependency.\n- BBABC is the suspected regression source; this pace is BBABC's first downstream surface.",
+              "silks": "sentry-default-route-regression",
+              "commit": "4bb180b"
             }
           ]
         }
