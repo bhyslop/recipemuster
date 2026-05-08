@@ -303,6 +303,9 @@ zbujb_workload_home_capture() {
 # code. Each positional statement should be a complete shell statement;
 # the joiner inserts ';' between them so the body fits one line (cmd.exe
 # handles multi-line args poorly).
+#
+# This function does NOT transform $. Body authors are responsible for
+# per-letter $-escape discipline (see WSG).
 zbujb_admin_exec() {
   zbujb_sentinel
   local z_letter="${1:-}"
@@ -712,17 +715,16 @@ zbujb_garrison_step4_place_trust() {
         "chown -R '${z_wlu}' '${z_authkeys_dir}'"
       ;;
     w)
-      # No chown: POSIX ownership on /mnt/c/... is meaningless to Windows
-      # OpenSSH, which inspects NTFS ACLs. Inherited NTFS ACL from the
-      # parent profile directory is admin-owned and read-only for
-      # non-admins — satisfies StrictModes. Explicit icacls hardening is
-      # deferred unless a real host kicks back.
       zbujb_admin_exec w                                                  \
         "set -euo pipefail"                                               \
         "mkdir -p   '${z_authkeys_dir}'"                                  \
         "chmod 700  '${z_authkeys_dir}'"                                  \
         "echo '${z_authkeys_line}' > '${z_authkeys_dir}/authorized_keys'" \
         "chmod 600  '${z_authkeys_dir}/authorized_keys'"
+
+      local z_authkeys_win="C:\\Users\\${z_wlu}\\.ssh\\authorized_keys"
+      zbujb_admin_powershell \
+        "icacls '${z_authkeys_win}' /inheritance:r /grant 'SYSTEM:F' /grant '${z_wlu}:F' | Out-Null; if (\$LASTEXITCODE -ne 0) { throw 'icacls grant failed' }; icacls '${z_authkeys_win}' /setowner '${z_wlu}' | Out-Null; if (\$LASTEXITCODE -ne 0) { throw 'icacls setowner failed' }"
       ;;
   esac
 }
@@ -758,10 +760,10 @@ zbujb_garrison_step5_plant_key() {
       zbujb_admin_exec "${z_letter}"                                      \
         "set -euo pipefail"                                               \
         "ztmp=\$(mktemp)"                                                 \
-        "trap 'rm -f \"\${ztmp}\"' EXIT"                                  \
-        "echo '${z_key_b64}' | openssl enc -base64 -d -A > \"\${ztmp}\"" \
+        "trap 'rm -f \"\\\${ztmp}\"' EXIT"                                \
+        "echo '${z_key_b64}' | openssl enc -base64 -d -A > \"\\\${ztmp}\"" \
         "${z_sudo_prefix}mkdir -p   '${z_target_dir}'"                    \
-        "${z_sudo_prefix}install -m 600 -o '${z_wlu}' -g '${z_wlu}' \"\${ztmp}\" '${z_target}'"
+        "${z_sudo_prefix}install -m 600 -o '${z_wlu}' -g '${z_wlu}' \"\\\${ztmp}\" '${z_target}'"
       ;;
     c)
       zbujb_admin_exec c                                                  \
