@@ -9543,9 +9543,10 @@
       "order": [
         "₢BEAAA",
         "₢BEAAB",
-        "₢BEAAC"
+        "₢BEAAC",
+        "₢BEAAD"
       ],
-      "next_pace_seed": "AAD",
+      "next_pace_seed": "AAE",
       "paces": {
         "₢BEAAA": {
           "tacks": [
@@ -9577,6 +9578,17 @@
               "text": "## Character\n\nApply the paddock's migration recipe to the remaining `jjrg_Heat` properties and the `jjrg_HeatStatus` enum. Mechanical; sonnet-friendly.\n\n## Targets\n\nFive `jjrg_Heat` properties — `jjghn_creation_time`, `jjghn_status`, `jjghn_order`, `jjghn_next_pace_seed`, `jjghn_paces`. Three `jjrg_HeatStatus` variants — `jjghe_racing`, `jjghe_stabled`, `jjghe_retired`. Remove `#[serde(rename_all = \"lowercase\")]` from `jjrg_HeatStatus`.\n\n## Done when\n\n- `tt/vow-b.Build.sh` clean; `tt/vow-t.Test.sh` green.\n- Gallops file: zero bare versions of those five property names on heat objects; zero bare HeatStatus values; `jjghn_*` and `jjghe_*` present.\n- Transitional `alias` lines removed.\n- JJS0 Sprue Vocabulary section gains eight entries.",
               "silks": "mint-heat-rest-and-status",
               "commit": "b7ecefa"
+            }
+          ]
+        },
+        "₢BEAAD": {
+          "tacks": [
+            {
+              "ts": "260508-1046",
+              "state": "rough",
+              "text": "## Character\n\nApply the paddock's migration recipe to `jjrg_Pace` and `jjrg_Tack`. Mechanical, larger surface (7 sprues); sonnet-friendly.\n\n## Targets\n\n`jjgpn_tacks` on `jjrg_Pace`. Six `jjrg_Tack` properties — `jjgtn_ts`, `jjgtn_state`, `jjgtn_text`, `jjgtn_silks`, `jjgtn_basis`, `jjgtn_direction`. The `basis` field's existing `#[serde(rename = \"commit\")]` retires — minted name follows the Rust field name, dropping the historical `commit` wire-name.\n\n## Done when\n\n- `tt/vow-b.Build.sh` clean; `tt/vow-t.Test.sh` green.\n- Gallops file: zero bare versions of `tacks`, `ts`, `state`, `text`, tack-level `silks`, `commit`, `direction`; `jjgpn_tacks` and `jjgtn_*` present.\n- Transitional `alias` lines removed.\n- JJS0 Sprue Vocabulary section gains seven entries.",
+              "silks": "mint-pace-and-tack-sprues",
+              "commit": "214c6db"
             }
           ]
         }
