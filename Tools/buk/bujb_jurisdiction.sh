@@ -118,6 +118,10 @@ zbujb_kindle() {
   readonly ZBUJB_OBLITERATE_STDOUT="${BURD_TEMP_DIR}/bujb_obliterate_stdout.txt"
   readonly ZBUJB_OBLITERATE_STDERR="${BURD_TEMP_DIR}/bujb_obliterate_stderr.txt"
 
+  # Step 4 per-call captures (reused; diag_dump copies to per-label files).
+  readonly ZBUJB_STEP4_STDOUT="${BURD_TEMP_DIR}/bujb_step4_stdout.txt"
+  readonly ZBUJB_STEP4_STDERR="${BURD_TEMP_DIR}/bujb_step4_stderr.txt"
+
   readonly ZBUJB_KINDLED=1
 }
 
@@ -401,6 +405,21 @@ zbujb_obliterate_diag_dump() {
   local z_err_dst="${BURD_TEMP_DIR}/bujb_obliterate_${z_label}_stderr.txt"
   cp "${ZBUJB_OBLITERATE_STDOUT}" "${z_out_dst}"
   cp "${ZBUJB_OBLITERATE_STDERR}" "${z_err_dst}"
+  local z_out_bytes z_err_bytes z_out_preview z_err_preview
+  z_out_bytes=$(wc -c < "${z_out_dst}" | tr -d ' ')
+  z_err_bytes=$(wc -c < "${z_err_dst}" | tr -d ' ')
+  z_out_preview=$(head -c 240 < "${z_out_dst}" | tr -d '\r' | tr '\n' '|')
+  z_err_preview=$(head -c 240 < "${z_err_dst}" | tr -d '\r' | tr '\n' '|')
+  buc_step "      [diag/${z_label}] stdout (${z_out_bytes}B): ${z_out_preview}"
+  buc_step "      [diag/${z_label}] stderr (${z_err_bytes}B): ${z_err_preview}"
+}
+
+zbujb_garrison_step4_diag_dump() {
+  local z_label="${1:-}"
+  local z_out_dst="${BURD_TEMP_DIR}/bujb_step4_${z_label}_stdout.txt"
+  local z_err_dst="${BURD_TEMP_DIR}/bujb_step4_${z_label}_stderr.txt"
+  cp "${ZBUJB_STEP4_STDOUT}" "${z_out_dst}"
+  cp "${ZBUJB_STEP4_STDERR}" "${z_err_dst}"
   local z_out_bytes z_err_bytes z_out_preview z_err_preview
   z_out_bytes=$(wc -c < "${z_out_dst}" | tr -d ' ')
   z_err_bytes=$(wc -c < "${z_err_dst}" | tr -d ' ')
@@ -729,14 +748,36 @@ zbujb_garrison_step4_place_trust() {
       z_authkeys_b64=$(<"${ZBUJB_AUTHKEYS_B64_STDOUT}")
       z_authkeys_b64="${z_authkeys_b64//$'\n'/}"
 
-      zbujb_admin_exec w "mkdir -p '${z_authkeys_dir}'"
-      zbujb_admin_exec w "chmod 700 '${z_authkeys_dir}'"
-      zbujb_admin_exec w "set -o pipefail; echo '${z_authkeys_b64}' | openssl enc -base64 -d -A > '${z_authkeys_dir}/authorized_keys'"
-      zbujb_admin_exec w "chmod 600 '${z_authkeys_dir}/authorized_keys'"
+      buc_step "    [diag/curia] z_authkeys_line ${#z_authkeys_line}B; z_authkeys_b64 ${#z_authkeys_b64}B"
+
+      zbujb_admin_exec w "mkdir -p '${z_authkeys_dir}'"                                                                         \
+          > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
+      zbujb_garrison_step4_diag_dump "mkdir"
+
+      zbujb_admin_exec w "chmod 700 '${z_authkeys_dir}'"                                                                        \
+          > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
+      zbujb_garrison_step4_diag_dump "chmod-dir"
+
+      zbujb_admin_exec w "set -o pipefail; echo '${z_authkeys_b64}' | openssl enc -base64 -d -A > '${z_authkeys_dir}/authorized_keys'" \
+          > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
+      zbujb_garrison_step4_diag_dump "decode-write"
+
+      zbujb_admin_exec w "chmod 600 '${z_authkeys_dir}/authorized_keys'"                                                        \
+          > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
+      zbujb_garrison_step4_diag_dump "chmod-file"
 
       local z_authkeys_win="C:\\Users\\${z_wlu}\\.ssh\\authorized_keys"
-      zbujb_admin_powershell "icacls '${z_authkeys_win}' /inheritance:r /grant 'SYSTEM:F' /grant '${z_wlu}:F'"
-      zbujb_admin_powershell "icacls '${z_authkeys_win}' /setowner '${z_wlu}'"
+      zbujb_admin_powershell "icacls '${z_authkeys_win}' /inheritance:r /grant 'SYSTEM:F' /grant '${z_wlu}:F'"                    \
+          > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
+      zbujb_garrison_step4_diag_dump "icacls-grant"
+
+      zbujb_admin_powershell "icacls '${z_authkeys_win}' /setowner '${z_wlu}'"                                                    \
+          > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
+      zbujb_garrison_step4_diag_dump "icacls-setowner"
+
+      zbujb_admin_exec c "cat '/cygdrive/c/Users/${z_wlu}/.ssh/authorized_keys'"                                                  \
+          > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
+      zbujb_garrison_step4_diag_dump "readback-cygwin"
       ;;
   esac
 }
