@@ -789,6 +789,16 @@ zbujb_garrison_step4_place_trust() {
       zbujb_admin_powershell "icacls '${z_authkeys_dir_win}' /setowner '${z_wlu}'"                                                \
           > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
       zbujb_garrison_step4_diag_dump "icacls-dir-setowner"
+
+      local z_home_win="C:\\Users\\${z_wlu}"
+
+      zbujb_admin_powershell "icacls '${z_home_win}' /inheritance:r /grant 'SYSTEM:F' /grant 'BUILTIN\\Administrators:F' /grant '${z_wlu}:F'" \
+          > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
+      zbujb_garrison_step4_diag_dump "icacls-home-grant"
+
+      zbujb_admin_powershell "icacls '${z_home_win}' /setowner '${z_wlu}'"                                                        \
+          > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
+      zbujb_garrison_step4_diag_dump "icacls-home-setowner"
       ;;
   esac
 }
