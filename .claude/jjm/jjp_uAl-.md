@@ -27,10 +27,11 @@ BUS0. Architectural spine in BUS0 §Remote Node Access.
   investiture. The BURP directory name must match a BURN profile dir;
   the 1:1 correspondence is enforced by file-presence check at load time.
 
-**BURC addition:**
+**BUJB constant:**
 
-- `BURC_WORKLOAD_USER` — project-wide convention name for the workload OS
+- `BUJB_workload_user` — project-wide convention name for the workload OS
   user that garrison provisions on every node. Single source of truth.
+  Lives in `bujb_jurisdiction.sh` as a tinder constant.
 
 **Two verbs (Fenestrate, Garrison):**
 
@@ -131,7 +132,7 @@ Phase 2 (key auth only):
 2. Destroy existing workload user (if present) via `userdel -r` or platform
    equivalent — removes account + home directory; stray files outside home
    are workload's own concern, not garrison's.
-3. Create fresh workload user named `BURC_WORKLOAD_USER` (unprivileged: no
+3. Create fresh workload user named `BUJB_workload_user` (unprivileged: no
    sudo, no admin group, ssh-only access).
 4. Place workload pubkey in workload's authorized_keys with the
    shell-letter's `command=` directive.
