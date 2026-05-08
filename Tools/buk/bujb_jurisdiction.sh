@@ -769,6 +769,14 @@ zbujb_garrison_step4_place_trust() {
       local z_authkeys_win="C:\\Users\\${z_wlu}\\.ssh\\authorized_keys"
       local z_authkeys_dir_win="C:\\Users\\${z_wlu}\\.ssh"
 
+      zbujb_admin_powershell "icacls '${z_authkeys_win}' /inheritance:r /grant 'SYSTEM:F' /grant '${z_wlu}:F'"                    \
+          > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
+      zbujb_garrison_step4_diag_dump "icacls-grant"
+
+      zbujb_admin_powershell "icacls '${z_authkeys_win}' /setowner '${z_wlu}'"                                                    \
+          > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
+      zbujb_garrison_step4_diag_dump "icacls-setowner"
+
       zbujb_admin_powershell "icacls '${z_authkeys_dir_win}' /inheritance:r /grant 'SYSTEM:F' /grant '${z_wlu}:F'"                \
           > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
       zbujb_garrison_step4_diag_dump "icacls-dir-grant"
@@ -777,13 +785,13 @@ zbujb_garrison_step4_place_trust() {
           > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
       zbujb_garrison_step4_diag_dump "icacls-dir-setowner"
 
-      zbujb_admin_powershell "icacls '${z_authkeys_win}' /inheritance:r /grant 'SYSTEM:F' /grant '${z_wlu}:F'"                    \
+      zbujb_admin_powershell "icacls '${z_authkeys_win}'"                                                                         \
           > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
-      zbujb_garrison_step4_diag_dump "icacls-grant"
+      zbujb_garrison_step4_diag_dump "acl-final-file"
 
-      zbujb_admin_powershell "icacls '${z_authkeys_win}' /setowner '${z_wlu}'"                                                    \
+      zbujb_admin_powershell "icacls '${z_authkeys_dir_win}'"                                                                     \
           > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
-      zbujb_garrison_step4_diag_dump "icacls-setowner"
+      zbujb_garrison_step4_diag_dump "acl-final-dir"
 
       zbujb_admin_exec c "cat '/cygdrive/c/Users/${z_wlu}/.ssh/authorized_keys'"                                                  \
           > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
