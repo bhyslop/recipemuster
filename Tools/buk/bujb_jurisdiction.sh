@@ -784,18 +784,6 @@ zbujb_garrison_step4_place_trust() {
       zbujb_admin_powershell "icacls '${z_authkeys_dir_win}' /setowner '${z_wlu}'"                                                \
           > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
       zbujb_garrison_step4_diag_dump "icacls-dir-setowner"
-
-      zbujb_admin_powershell "icacls '${z_authkeys_win}'"                                                                         \
-          > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
-      zbujb_garrison_step4_diag_dump "acl-final-file"
-
-      zbujb_admin_powershell "icacls '${z_authkeys_dir_win}'"                                                                     \
-          > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
-      zbujb_garrison_step4_diag_dump "acl-final-dir"
-
-      zbujb_admin_exec c "cat '/cygdrive/c/Users/${z_wlu}/.ssh/authorized_keys'"                                                  \
-          > "${ZBUJB_STEP4_STDOUT}" 2> "${ZBUJB_STEP4_STDERR}"
-      zbujb_garrison_step4_diag_dump "readback-cygwin"
       ;;
   esac
 }
