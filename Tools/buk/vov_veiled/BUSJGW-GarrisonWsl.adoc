@@ -3,30 +3,53 @@
 
 NOTE: {busn_garrison} ceremony with WSL bash as the workload shell,
 for Windows nodes reached via the WSL distribution `rbtww-main`
-(hardcoded in {bujb_jurisdiction}).
-On Windows the workload identity inhabits *two namespaces*:
-a Windows local user (created via `net.exe user /add`) provides the
-SSH authentication boundary that Windows OpenSSH discovers, and a
-Linux user inside `rbtww-main` (created via `useradd`) provides the
-WSL execution context entered by the forced command. The Windows
-user is the same shape minted by the c branch ({bust_garrison_cygwin}),
-so Windows OpenSSH treats inbound auth identically; the WSL-side
-`useradd` is layered on top so the SSH session lands as the named
-WSL user (via `wsl.exe --user`) rather than the distro's default user.
-Workload-only: garrison destroys any prior workload account named
-{bujb_workload_user} via the letter-agnostic
-`zbujb_obliterate_workload` helper in {bujb_jurisdiction} — the
-single greppable destroy verb. The covenant scope spans every
-namespace a prior garrison of any letter could have written to: the
-Windows SAM entry, the `C:\Users\<user>\` Windows profile directory,
-the `C:\cygwin64\home\<user>\` Cygwin home, and the WSL-side
-`/home/<user>` inside `rbtww-main`. Each step is idempotent on
-absent state.
+(hardcoded in {bujb_jurisdiction}). On Windows the workload identity
+inhabits *three namespaces*: a Windows local user (created via
+`net.exe user /add` plus profile registration in
+`HKLM\...\ProfileList`) provides the SSH authentication boundary that
+Windows OpenSSH discovers; the workload user's *own* registered WSL
+distribution (populated in their `HKCU\Lxss` via `wsl --import` from
+a seed tarball) provides the distribution registration the workload's
+session resolves; and a Linux user inside that workload-owned
+distribution (created via `useradd`) provides the WSL execution
+context entered by the locked-down `command=` directive. The third
+namespace is forced by Microsoft's per-user WSL design: distributions
+register only in the running user's `HKCU\Lxss`, and admin's
+distributions are invisible to workload sessions.
+
+The mechanism is *SSH-as-workload conducted by the privileged
+orchestrator*. The orchestrator never runs `wsl` as the workload
+user directly. Instead it places a *bare* workload authorized_keys
+entry (no `command=`), opens a workload SSH session through that
+entry — which constitutes a real Windows logon for
+{bujb_workload_user}, with HKCU mounted — and from inside that
+session runs `wsl --import` (writing to the workload's HKCU), the
+inner-WSL `useradd` + `passwd --lock`, and the workload privkey
+placement. The orchestrator then replaces the bare entry with the
+locked-down `command=` form and validates the round-trip through
+that locked form.
+
+The Windows workload user is the same shape minted by the c branch
+({bust_garrison_cygwin}); the workload-owned WSL distribution and
+its inner Linux user are layered on top so the SSH session lands as
+the named WSL user (via the locked-down `command=` directive's
+`wsl.exe --user`) rather than the distribution's default user.
+
+Workload-only: garrison destroys any prior workload state across all
+three namespaces via `zbujb_obliterate_workload` in
+{bujb_jurisdiction} — the single greppable destroy verb. The
+covenant scope spans the Windows SAM entry, the `C:\Users\<user>\`
+Windows profile directory (by convention containing the workload's
+WSL filesystem root, so purging the profile transitively destroys
+the workload's WSL distribution registration's on-disk filesystem
+and the HKCU hive that referenced it), the `C:\cygwin64\home\<user>\`
+Cygwin home, and the WSL-side Linux user inside admin's `rbtww-main`
+(vestige from prior garrison shapes; idempotent on absent state).
+
 Garrison never reads or writes any `sshd_config` and never modifies
 admin authorized_keys; admin trust is established beforehand by
-{busn_fenestrate}
-on the Windows OpenSSH server, while sshd hardening inside the WSL
-distribution remains operator-manual.
+{busn_fenestrate} on the Windows OpenSSH server, while sshd hardening
+inside the WSL distribution remains operator-manual.
 
 //axhopt_typed_parameter
 {burp_investiture}
@@ -37,17 +60,22 @@ referenced {burn_regime} profile is reachable.
 
 //axhoq_precondition
 The WSL distribution `rbtww-main` (hardcoded as `BUJB_wsl_distribution`
-in {bujb_jurisdiction}) is installed on the Windows host. Garrison-w
-verifies this in a pre-flight after admin SSH succeeds; absence
-surfaces a diagnostic naming the constant and emitting copy-paste
-operator hints in the `tt/buw-jpS <investiture> '…'` shape rather
-than letting an opaque `wsl.exe` failure escape downstream.
+in {bujb_jurisdiction}) is installed on the Windows host *under the
+admin user* and is the seed source for workload distributions. Admin
+keeps rbtww-main pristine per handbook discipline; garrison-w exports
+it to a seed tarball and the workload imports that tarball into its
+own HKCU. Garrison-w verifies admin's rbtww-main in a pre-flight
+after admin SSH succeeds; absence surfaces a diagnostic naming the
+constant and emitting copy-paste operator hints in the
+`tt/buw-jpS <investiture> '…'` shape rather than letting an opaque
+`wsl.exe` failure escape downstream.
 
 //axhoq_precondition
 {busn_fenestrate} has run for this {burp_investiture} so that
 {burp_privileged_user} can authenticate by key alone using
 {burp_privileged_key_file} into the Windows OpenSSH host (the admin
-entry point); the WSL session is then opened from that foothold.
+entry point); the workload SSH session is then opened from that
+foothold using the workload pubkey just placed by garrison.
 
 //axhoq_precondition
 {burp_workload_key_file} is unencrypted and exists on the operator's
@@ -59,42 +87,84 @@ station.
 only. Failure here surfaces a missing or stale admin trust.
 
 //axhos_step
-. *Pre-flight WSL distribution*: assert `BUJB_wsl_distribution` is
-installed on the host (`wsl.exe --list --quiet` via the admin
-session). Absence dies with a diagnostic naming the constant and
-emitting `tt/buw-jpS` install hints; presence proceeds.
+. *Pre-flight + export seed*: assert admin's `BUJB_wsl_distribution`
+is installed (`wsl.exe --list --quiet` via the admin session).
+Absence dies with a diagnostic naming the constant and emitting
+`tt/buw-jpS` install hints; presence proceeds. Then export admin's
+rbtww-main to a workload-readable seed tarball under a path inside
+the workload's profile (admin can write there before workload first
+logs in, and the workload's session can read it). The tarball is
+the sole on-disk artifact carrying admin's rbtww-main contents into
+the workload's identity scope; garrison removes it on success.
 
 //axhos_step
 . *Obliterate workload*: invoke `zbujb_obliterate_workload`, the
 letter-agnostic destroy helper. On Windows the helper executes a
 single PowerShell session over admin SSH that purges the Windows
 SAM entry (`net.exe user /delete`), the Windows profile directory
-(`C:\Users\<user>\`), the Cygwin home (`C:\cygwin64\home\<user>\`),
-and the WSL-side Linux user inside `rbtww-main`
-(`wsl.exe --user root userdel -r`).
-Each operation is idempotent on absent state.
+(`C:\Users\<user>\`, including any prior workload-owned WSL
+filesystem under that path), the Cygwin home
+(`C:\cygwin64\home\<user>\`), and the WSL-side Linux user inside
+admin's `rbtww-main` (vestige from prior garrison shapes;
+idempotent on absent state).
 
 //axhos_step
-. *Create workload*: provision {bujb_workload_user} in *both*
-namespaces — the Windows user via `net.exe user /add /passwordreq:no
-/active:yes` (matching the c branch) and the WSL Linux user via
-`useradd --create-home --shell /bin/bash`.
+. *Create Windows workload account*: provision {bujb_workload_user}
+as a Windows local user via
+`net.exe user /add /passwordreq:no /active:yes` (matching the c
+branch), then register the resulting SID under
+`HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList` so
+Windows OpenSSH builds a complete logon session for the workload
+on inbound SSH (Win32-OpenSSH issue #1383). No Linux user is
+created inside admin's rbtww-main; the workload's Linux user is
+minted inside the workload's *own* imported distribution in the
+SSH-as-workload step below.
 
 //axhos_step
-. *Place workload trust*: write the workload pubkey
-(derived via `ssh-keygen -y`) to the Windows-side authorized_keys at
+. *Place bare workload trust*: write the workload pubkey (derived
+via `ssh-keygen -y` from {burp_workload_key_file}) to the
+Windows-side authorized_keys at
 `/mnt/c/Users/${BUJB_workload_user}/.ssh/authorized_keys` so Windows
-OpenSSH discovers it natively (the SSH auth boundary is the Windows
-user). The directory is created with `mkdir -p` and chmod 700; the
-file is written and chmod 600. No POSIX `chown` is performed —
-`/mnt/c/...` ownership is meaningless to Windows OpenSSH, which
-inspects NTFS ACLs; the inherited NTFS ACL from the parent profile
-directory is admin-owned and read-only for non-admins, satisfying
-StrictModes.
-The line carries the shell-letter `w` `command=` directive below —
+OpenSSH discovers it natively. The directory is created with
+`mkdir -p` and chmod 700; the file is written and chmod 600. No
+POSIX `chown` is performed — `/mnt/c/...` ownership is meaningless
+to Windows OpenSSH, which inspects NTFS ACLs; the inherited NTFS
+ACL from the parent profile directory is admin-owned and read-only
+for non-admins, satisfying StrictModes. The entry is *bare* — no
+`command=` directive — because the locked-down `command=` would
+route through a WSL distribution that has not yet been imported
+under the workload's HKCU. The bare-then-lockdown pattern is
+structural to this ceremony; the workload pubkey is derived from
+{burp_workload_key_file} and owned by the operator, so the brief
+window in which the bare entry is in place exposes only the
+operator's own running garrison.
+
+//axhos_step
+. *Initialize workload's WSL via SSH-as-workload*: open an SSH
+session as {bujb_workload_user} using {burp_workload_key_file}
+through the just-placed bare authorized_keys entry. This session
+constitutes a real Windows logon for the workload, with HKCU
+mounted. Inside that session, perform in order: `wsl.exe --import
+rbtww-main <workload-wsl-root> <seed-tarball-path>` to register
+the workload's own rbtww-main in `HKCU\Lxss`, where
+`<workload-wsl-root>` is a workload-writable directory inside the
+workload's Windows profile by convention;
+`wsl.exe --distribution rbtww-main --user root useradd
+--create-home --shell /bin/bash ${BUJB_workload_user}` to mint
+the inner Linux workload user; `passwd --lock` (root inside the
+distribution) on that Linux user to enforce SSH-key-only on the
+inner account; and plant {burp_workload_key_file}'s contents at
+`/home/${BUJB_workload_user}/.ssh/id_ed25519` (chmod 600) inside
+the workload's distribution so the Linux session can use it for
+outbound (e.g., GitHub). On exit, remove the seed tarball from
+the admin side — the seed has served its purpose.
+
+//axhos_step
+. *Lock down workload trust*: from the admin session, replace the
+bare authorized_keys entry with the locked-down `command=` form —
 locked spec content, mirrored at `BUJB_command_w` in
-{bujb_jurisdiction}; `${BUJB_workload_user}` is substituted with the
-canonical workload user at directive-emit time:
+{bujb_jurisdiction}; `${BUJB_workload_user}` is substituted with
+the canonical workload user at directive-emit time:
 +
 [listing]
 ----
@@ -102,22 +172,23 @@ command="C:/Windows/System32/wsl.exe --distribution rbtww-main --user ${BUJB_wor
 ----
 
 //axhos_step
-. *Plant workload key*: copy {burp_workload_key_file} to the WSL-side
-workload home at the shell-letter `w` destination path hardcoded in
-{bujb_jurisdiction} (`/home/${BUJB_workload_user}/.ssh/id_ed25519`),
-so the Linux session reads it natively for outbound to GitHub.
-
-//axhos_step
-. *Validate round-trip*: SSH as workload, run a no-op command, verify
-exit 0.
+. *Validate round-trip*: SSH as workload, run a no-op command,
+verify exit 0. Validates the *locked-down* form: the workload
+session is routed through `command=`, which dispatches to the
+workload's own imported `rbtww-main` distribution and runs the
+inner Linux user's shell.
 
 //axhog_guarantee
 On success the node has exactly one workload identity named
-{bujb_workload_user} mirrored across the Windows user (auth boundary)
-and the WSL Linux user (execution context inside `rbtww-main`).
+{bujb_workload_user} mirrored across all three namespaces: the
+Windows local user (auth boundary, with profile registered in
+`HKLM\...\ProfileList`), the workload-owned WSL distribution
+`rbtww-main` (registered in workload's `HKCU\Lxss`), and the
+WSL Linux user inside that distribution (execution context).
 
 //axhoc_completion
 Exit 0 when the round-trip validation succeeds.
-Non-zero on WSL distribution absence (pre-flight), admin SSH failure,
-account-management failure in either namespace, key-write failure, or
-workload validation failure.
+Non-zero on admin SSH failure, admin's rbtww-main absence
+(pre-flight), seed tarball export failure, account-management
+failure in any namespace, `wsl --import` failure, key-write failure,
+or workload validation failure.
