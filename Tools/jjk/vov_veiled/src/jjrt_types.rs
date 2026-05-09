@@ -30,13 +30,15 @@ pub enum jjrg_PaceState {
 
 /// Heat status values
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
 pub enum jjrg_HeatStatus {
     /// Heat is actively being worked
+    #[serde(rename = "jjghe_racing", alias = "racing")]
     Racing,
     /// Heat is paused, not actively worked
+    #[serde(rename = "jjghe_stabled", alias = "stabled")]
     Stabled,
     /// Heat is complete and archived (terminal state)
+    #[serde(rename = "jjghe_retired", alias = "retired")]
     Retired,
 }
 
@@ -67,10 +69,15 @@ pub const JJRT_PENSUM_SEED_INIT: &str = "AA";
 pub struct jjrg_Heat {
     #[serde(rename = "jjghn_silks")]
     pub silks: String,
+    #[serde(rename = "jjghn_creation_time", alias = "creation_time")]
     pub creation_time: String,
+    #[serde(rename = "jjghn_status", alias = "status")]
     pub status: jjrg_HeatStatus,
+    #[serde(rename = "jjghn_order", alias = "order")]
     pub order: Vec<String>,
+    #[serde(rename = "jjghn_next_pace_seed", alias = "next_pace_seed")]
     pub next_pace_seed: String,
+    #[serde(rename = "jjghn_paces", alias = "paces")]
     pub paces: BTreeMap<String, jjrg_Pace>,
 }
 
