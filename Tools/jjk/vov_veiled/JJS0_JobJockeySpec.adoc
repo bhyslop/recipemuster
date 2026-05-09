@@ -1243,20 +1243,22 @@ Singleton record persisted at `.claude/jjm/jjg_gallops.json`.
 ==== Members
 
 * [[jjdgm_seed]]
-//axl_voices axr_member axd_required
+//axl_voices axr_member axd_required axd_property
 {jjdgm_seed}
 is the next
 {jjdt_firemark}
 to allocate, stored as 2 base64 characters.
 Incremented by
 {jjdo_create}.
+Serialized as `jjgrn_next_heat_seed` in JSON.
 
 * [[jjdgm_order]]
-//axl_voices axr_member axd_required axd_repeated
+//axl_voices axr_member axd_required axd_repeated axd_property
 {jjdgm_order}
 is the ordered list of
 {jjdt_firemark_s}
 defining heat display and selection order.
+Serialized as `jjgrn_heat_order` in JSON.
 Populated from sorted
 {jjdgm_heats}
 keys on first load of old-format files (migration);
@@ -1274,17 +1276,18 @@ is the authoritative source for display and selection order, not
 key order.
 
 * [[jjdgm_version]]
-//axl_voices axr_member axd_optional axt_number
+//axl_voices axr_member axd_optional axt_number axd_property
 {jjdgm_version}
 is the schema version number.
 Absent in V3 files; present in V4+ as an unsigned integer.
+Serialized as `jjgrn_schema_version` in JSON.
 {jjdr_load}
 detects migration mode when absent or when
 {jjdgm_order}
 is empty.
 
 * [[jjdgm_heats]]
-//axl_voices axr_member axd_required axt_map
+//axl_voices axr_member axd_required axt_map axd_property
 {jjdgm_heats}
 {jjdt_firemark}
 {jjdhr_heat}
@@ -1292,6 +1295,7 @@ is the dictionary of all
 {jjdhr_heat_s}
 keyed by
 {jjdt_firemark}.
+Serialized as `jjgrn_heats` in JSON.
 Serialized with lexicographic key order for deterministic output.
 Display and selection order governed by
 {jjdgm_order},
@@ -1312,34 +1316,38 @@ Keyed in JSON by
 ==== Members
 
 * [[jjdhm_firemark]]
-//axl_voices axr_member axd_required
+//axl_voices axr_member axd_required axd_positional
 {jjdhm_firemark}
 is the
 {jjdhr_heat_p}
 primary key.
 Type:
 {jjdt_firemark}.
-Implicit from JSON key; not stored as separate field.
+Encoded as the JSON map key of this Heat's entry in
+{jjdgm_heats};
+no separate property name.
 
 * [[jjdhm_silks]]
-//axl_voices axr_member axd_required
+//axl_voices axr_member axd_required axd_property
 {jjdhm_silks}
 is the
 {jjdhr_heat_p}
 display name.
 Type:
 {jjdt_silks}.
+Serialized as `jjghn_silks` in JSON.
 
 * [[jjdhm_created]]
-//axl_voices axr_member axd_required
+//axl_voices axr_member axd_required axd_property
 {jjdhm_created}
 records when the
 {jjdhr_heat}
 was nominated.
 Format: YYMMDD.
+Serialized as `jjghn_creation_time` in JSON.
 
 * [[jjdhm_status]]
-//axl_voices axr_member axd_required
+//axl_voices axr_member axd_required axd_property
 {jjdhm_status}
 indicates the
 {jjdhr_heat_p}
@@ -1349,27 +1357,29 @@ Values:
 {jjdhe_stabled},
 or
 {jjdhe_retired}.
+Serialized as `jjghn_status` in JSON.
 
 * [[jjdhm_order]]
-//axl_voices axr_member axd_required axd_repeated
+//axl_voices axr_member axd_required axd_repeated axd_property
 {jjdhm_order}
 lists
 {jjdt_coronet_s}
 in execution sequence.
 May be reordered via
 {jjdo_reorder}.
+Serialized as `jjghn_order` in JSON.
 
 * [[jjdhm_seed]]
-//axl_voices axr_member axd_required
+//axl_voices axr_member axd_required axd_property
 {jjdhm_seed}
 is the next
 {jjdt_coronet}
 index to allocate, stored as 3 {jjdz_charset} characters.
 Incremented by
 {jjdo_enroll}.
+Serialized as `jjghn_next_pace_seed` in JSON.
 
 * [[jjdhm_pensum_seed]]
-//axl_voices axr_member axd_ephemeral
 {jjdhm_pensum_seed}
 is the next
 {jjdt_pensum}
@@ -1391,7 +1401,6 @@ Pensum tokens are session-scoped ephemeral correlation labels — they do not be
 Cross-officium seed collision is acceptable.
 
 * [[jjdhm_paddock]]
-//axl_voices axr_member axd_derived
 {jjdhm_paddock}
 is the path to the paddock file containing
 {jjdhr_heat}
@@ -1422,7 +1431,7 @@ machinery is required for projects that have already adopted the encoded
 format.
 
 * [[jjdhm_paces]]
-//axl_voices axr_member axd_required axt_map
+//axl_voices axr_member axd_required axt_map axd_property
 {jjdhm_paces}
 {jjdt_coronet}
 {jjdpr_pace}
@@ -1432,7 +1441,7 @@ within this
 {jjdhr_heat},
 keyed by
 {jjdt_coronet}.
-Serialized with lexicographic key order for deterministic output.
+Serialized as `jjghn_paces` in JSON, with lexicographic key order for deterministic output.
 Execution order governed by
 {jjdhm_order},
 not key order.
@@ -1473,17 +1482,19 @@ Keyed in JSON by
 ==== Members
 
 * [[jjdpm_coronet]]
-//axl_voices axr_member axd_required
+//axl_voices axr_member axd_required axd_positional
 {jjdpm_coronet}
 is the
 {jjdpr_pace_p}
 globally unique identity.
 Type:
 {jjdt_coronet}.
-Implicit from JSON key; not stored as separate field.
+Encoded as the JSON map key of this Pace's entry in
+{jjdhm_paces};
+no separate property name.
 
 * [[jjdpm_tacks]]
-//axl_voices axr_member axd_required axd_repeated
+//axl_voices axr_member axd_required axd_repeated axd_property
 {jjdpm_tacks}
 is the ordered history of state snapshots for this
 {jjdpr_pace}.
@@ -1492,6 +1503,7 @@ Element type:
 Index 0 is the current (most recent) tack;
 {jjsgmpt_prepend_tack}
 inserts at position zero.
+Serialized as `jjgpn_tacks` in JSON.
 
 ==== State Values
 
@@ -1557,12 +1569,13 @@ The tack at index 0 is always the current state.
 ==== Members
 
 * [[jjdcm_ts]]
-//axl_voices axr_member axd_required axt_string
+//axl_voices axr_member axd_required axt_string axd_property
 {jjdcm_ts}
 is the ISO 8601 timestamp of this snapshot.
+Serialized as `jjgtn_ts` in JSON.
 
 * [[jjdcm_state]]
-//axl_voices axr_member axd_required axt_enumeration
+//axl_voices axr_member axd_required axt_enumeration axd_property
 {jjdcm_state}
 is the pace state at this snapshot.
 Values:
@@ -1570,31 +1583,35 @@ Values:
 {jjdpe_complete},
 {jjdpe_abandoned},
 {jjdpe_bridled} (V3-legacy, deprecated).
+Serialized as `jjgtn_state` in JSON.
 
 * [[jjdcm_text]]
-//axl_voices axr_member axd_required axt_string
+//axl_voices axr_member axd_required axt_string axd_property
 {jjdcm_text}
 is the docket text at this snapshot.
+Serialized as `jjgtn_text` in JSON.
 
 * [[jjdcm_silks]]
-//axl_voices axr_member axd_required axt_string
+//axl_voices axr_member axd_required axt_string axd_property
 {jjdcm_silks}
 is the pace display name at this snapshot.
 May change across tacks when a pace is relabeled.
+Serialized as `jjgtn_silks` in JSON.
 
 * [[jjdcm_basis]]
-//axl_voices axr_member axd_required axt_string
+//axl_voices axr_member axd_required axt_string axd_property
 {jjdcm_basis}
 is the basis commit SHA at the time of this snapshot.
-Serialized as `commit` in JSON (Rust field `basis`, serde rename).
+Serialized as `jjgtn_basis` in JSON.
 Format: 7-character abbreviated SHA, or `0000000` when basis cannot be determined.
 
 * [[jjdcm_direction]]
-//axl_voices axr_member axd_optional axt_string
+//axl_voices axr_member axd_optional axt_string axd_property
 {jjdcm_direction}
 is the plan or warrant text.
 V3-legacy: present only when state is {jjdpe_bridled}; absent otherwise.
 Will become vestigial when {jjdpe_bridled} is removed by ₣An.
+Serialized as `jjgtn_direction` in JSON.
 
 === {jjdyr_table}
 
