@@ -9555,6 +9555,7 @@
       "creation_time": "260508",
       "status": "racing",
       "order": [
+        "₢BEAAG",
         "₢BEAAA",
         "₢BEAAB",
         "₢BEAAC",
@@ -9562,7 +9563,7 @@
         "₢BEAAE",
         "₢BEAAF"
       ],
-      "next_pace_seed": "AAG",
+      "next_pace_seed": "AAH",
       "paces": {
         "₢BEAAA": {
           "tacks": [
@@ -9634,6 +9635,17 @@
               "text": "## Character\n\nMechanical revert + verification. Sonnet-friendly.\n\n## Locked decisions\n\nRestore the strict round-trip byte-compare check in `Tools/jjk/vov_veiled/src/jjri_io.rs` that was disabled during the sprue rename window. The bypass site carries the marker `SPRUE_MIGRATION_BYPASS` — find it via grep, restore the original `if !is_migration_mode { ... }` block, and remove the `#[allow(dead_code)]` from `zjjdr_find_first_diff`.\n\nThe verification step: build, then run any state-mutating jjx call (e.g., `jjx_paddock` setter with a no-op note). It must succeed — proving the gallops file is now canonical for the current source attributes and strict round-trip passes.\n\n## Out of scope\n\nThe serde rename attributes themselves (those are the intended permanent state). Any further sprue-rename work (handled by the four batch paces).\n\n## Done when\n\n- `SPRUE_MIGRATION_BYPASS` marker absent from `jjri_io.rs`.\n- `#[allow(dead_code)]` removed from `zjjdr_find_first_diff`.\n- Build clean.\n- A state-mutating jjx call succeeds without \"Round-trip validation failed\" — proves the canonical file passes strict validation under the restored check.\n\n## Discovery hints\n\n`grep -n SPRUE_MIGRATION_BYPASS Tools/jjk/vov_veiled/src/jjri_io.rs`. The original check is preserved verbatim inside the marker comment block.",
               "silks": "restore-roundtrip-check",
               "commit": "a831487"
+            }
+          ]
+        },
+        "₢BEAAG": {
+          "tacks": [
+            {
+              "ts": "260509-1046",
+              "state": "jjgte_rough",
+              "text": "## Character\n\nEditorial sweep applying axd_string to axt_enum_value voicings outside the gallops surface. Per-site mechanical; the breadth (~30 sites across RBS0/BUS0/JJSTF/JJSCGZ + JJS0 column-align/pensum-report families) earns a dedicated pace.\n\n## Targets\n\nEach axt_enum_value voicing in the foreign specs receives axd_string on its //axl_voices line and a body line of the canonical form `Serialized as `<existing-wire>` in <carrier>.` — wire token unchanged (no rename), carrier names the surrounding format (JSON, bash regime variable value, etc.).\n\n## Out of scope\n\nProperty-name voicings (already carry axd_property/axd_positional). Gallops surface enums (pre-discharged by the heat-affiliated AXLA-mechanism touch). Sites whose enumeration genuinely lacks a string-encoded wire form — document and skip; future encoding dimensions (axd_integer, axd_object, etc.) cover them.\n\n## Done when\n\n- No bare `//axl_voices axt_enum_value` line remains in RBS0, BUS0, JJSTF, JJSCGZ, or the non-gallops JJS0 enum families, except documented non-string-wire skips.\n- Build green.\n\n## Discovery hints\n\n`grep -rnE '^//axl_voices axt_enum_value$' Tools/{rbk,buk,jjk}/vov_veiled/*.adoc` enumerates the foreign sites.",
+              "silks": "axla-extension-and-foreign-sweep",
+              "commit": "f222dde"
             }
           ]
         }
