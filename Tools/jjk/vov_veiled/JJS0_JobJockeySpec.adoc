@@ -741,31 +741,35 @@ returns a liveness report for each
 {jjdxp_pensum}:
 
 [[jjdxpe_running]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {jjdxpe_running}::
 `burx.env` present, PID alive, no `BURX_EXIT_STATUS`.
 The dispatch is still executing.
+Serialized as `running` in pensum liveness report.
 
 [[jjdxpe_orphaned]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {jjdxpe_orphaned}::
 `burx.env` present, PID dead, no `BURX_EXIT_STATUS`.
 The dispatch crashed without writing terminal status.
+Serialized as `orphaned` in pensum liveness report.
 
 [[jjdxpe_stopped]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {jjdxpe_stopped}::
 `BURX_EXIT_STATUS` present.
 The dispatch completed; exit code available.
 On terminal status,
 {jjdo_check}
 additionally returns the temp dir file list.
+Serialized as `stopped` in pensum liveness report.
 
 [[jjdxpe_lost]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {jjdxpe_lost}::
 `burx.env` file missing.
 The dispatch's temp dir was not found at the stored path.
+Serialized as `lost` in pensum liveness report.
 
 == Premises
 

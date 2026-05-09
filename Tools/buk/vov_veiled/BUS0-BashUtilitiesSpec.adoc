@@ -716,10 +716,11 @@ Written by bud_dispatch.sh via
 at dispatch start, with terminal fields appended at completion.
 
 [[buf_ext_alias]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {buf_ext_alias}::
 Registered BUK-domain extension constant for BURN alias observation facts (`BUF_EXT_ALIAS="buf_ext_alias"`).
 Written by `burn_list_capture` (in `burn_regime.sh`) once per discovered alias profile, with empty content — presence-of-file is the fact, not file content.
+Serialized as `buf_ext_alias` in fact-file extension token.
 +
 First and currently sole member of the
 {busff_multi_fact}

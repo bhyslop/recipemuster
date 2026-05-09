@@ -3146,21 +3146,24 @@ Build mode for
 Determines which variable group is active.
 
 [[rbrv_vessel_mode_bind]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {rbrv_vessel_mode_bind}::
 Selects binding configuration: vessel uses an existing upstream image.
+Serialized as `bind` in bash regime variable value.
 
 [[rbrv_vessel_mode_conjure]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {rbrv_vessel_mode_conjure}::
 Selects conjuring configuration: vessel is built from a Dockerfile.
+Serialized as `conjure` in bash regime variable value.
 
 [[rbrv_vessel_mode_graft]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {rbrv_vessel_mode_graft}::
 Selects grafting configuration: vessel accepts a locally-built image pushed to GAR.
 The name comes from botanical grafting — foreign material spliced onto rootstock.
 The graft may take or may not; the metaphor fits the trust posture exactly.
+Serialized as `graft` in bash regime variable value.
 
 [[rbrv_group_binding]]
 //axvr_group axd_conditional
@@ -3330,14 +3333,16 @@ Human-readable description of the service purpose; 0-120 characters.
 Container runtime for service deployment.
 
 [[rbrn_runtime_docker]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {rbrn_runtime_docker}::
 Use Docker container runtime.
+Serialized as `docker` in bash regime variable value.
 
 [[rbrn_runtime_podman]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {rbrn_runtime_podman}::
 Use Podman container runtime.
+Serialized as `podman` in bash regime variable value.
 
 [[rbrn_sentry_vessel]]
 //axvr_variable axd_required rbst_xname
@@ -3365,14 +3370,16 @@ Hallmark timestamp for the bottle container image.
 Mode for user-initiated entry functionality.
 
 [[rbrn_entry_mode_disabled]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {rbrn_entry_mode_disabled}::
 Entry functionality is disabled; no user-initiated connections.
+Serialized as `disabled` in bash regime variable value.
 
 [[rbrn_entry_mode_enabled]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {rbrn_entry_mode_enabled}::
 Entry functionality is enabled; user-initiated connections accepted.
+Serialized as `enabled` in bash regime variable value.
 
 [[rbrn_entry_port_workstation]]
 //axvr_variable axd_conditional rbst_port
@@ -3415,19 +3422,22 @@ Minimum port number for bottle-initiated outbound connections.
 DNS resolution mode for bottle-initiated requests.
 
 [[rbrn_uplink_dns_mode_disabled]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {rbrn_uplink_dns_mode_disabled}::
 DNS resolution disabled; no bottle-initiated DNS queries.
+Serialized as `disabled` in bash regime variable value.
 
 [[rbrn_uplink_dns_mode_global]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {rbrn_uplink_dns_mode_global}::
 DNS resolution globally enabled; all domains resolvable.
+Serialized as `global` in bash regime variable value.
 
 [[rbrn_uplink_dns_mode_allowlist]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {rbrn_uplink_dns_mode_allowlist}::
 DNS resolution restricted to allowed domains.
+Serialized as `allowlist` in bash regime variable value.
 
 [[rbrn_uplink_access_mode]]
 //axvr_variable axd_required axt_enumeration
@@ -3435,19 +3445,22 @@ DNS resolution restricted to allowed domains.
 IP access mode for bottle-initiated connections.
 
 [[rbrn_uplink_access_mode_disabled]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {rbrn_uplink_access_mode_disabled}::
 IP access disabled; no bottle-initiated outbound connections.
+Serialized as `disabled` in bash regime variable value.
 
 [[rbrn_uplink_access_mode_global]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {rbrn_uplink_access_mode_global}::
 IP access globally enabled; all destinations reachable.
+Serialized as `global` in bash regime variable value.
 
 [[rbrn_uplink_access_mode_allowlist]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {rbrn_uplink_access_mode_allowlist}::
 IP access restricted to allowed CIDR ranges.
+Serialized as `allowlist` in bash regime variable value.
 
 [[rbrn_uplink_allowed_cidrs]]
 //axvr_variable axd_conditional rbst_cidr_list

@@ -53,7 +53,7 @@ testing.
 ==== Happy-Path Profile
 
 [[jjdxf_full]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {jjdxf_full}::
 Full happy-path account.
 User: `jjfu_full`.
@@ -67,6 +67,7 @@ Full suite:
 (both instant probe and polled await),
 {jjdo_fetch},
 {jjdo_plant}.
+Serialized as `jjfu_full` in fundus OS account name.
 
 ==== Failure-Mode Profiles
 
@@ -75,16 +76,17 @@ Failure-mode profiles each break exactly one
 precondition to validate a specific error path.
 
 [[jjdxf_nokey]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {jjdxf_nokey}::
 No SSH key configured for this account.
 User: `jjfu_nokey`.
 Expected:
 {jjdo_bind}
 fails with authentication error.
+Serialized as `jjfu_nokey` in fundus OS account name.
 
 [[jjdxf_norepo]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {jjdxf_norepo}::
 SSH access works but no project at
 {jjdt_reldir}.
@@ -94,9 +96,10 @@ Expected:
 fails at Layer 3 probe per
 {jjdk_reldir_safety}
 (resolved-path check fails).
+Serialized as `jjfu_norepo` in fundus OS account name.
 
 [[jjdxf_nogit]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {jjdxf_nogit}::
 SSH access and project directory exist, but git remote is not configured.
 User: `jjfu_nogit`.
@@ -107,6 +110,7 @@ Expected:
 fails (no origin to fetch from).
 {jjdo_send}
 still works (BUD dispatch does not require git).
+Serialized as `jjfu_nogit` in fundus OS account name.
 
 ==== Preflight Contract
 

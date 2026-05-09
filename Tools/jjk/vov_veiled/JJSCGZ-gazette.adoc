@@ -30,36 +30,40 @@ Lede may be absent for slug types that identify a single item; at most one lede-
 Each use site constructs a gazette with a vocabulary that is a subset of these values.
 
 [[jjezs_slate]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {jjezs_slate}::
 Pace creation docket.
 Direction: input.
 Lede: {jjdt_silks} of the new pace (no {jjdt_coronet} exists yet).
 Content: docket text for the initial tack.
+Serialized as `jjezs_slate` in gazette markdown.
 
 [[jjezs_reslate]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {jjezs_reslate}::
 Pace docket update.
 Direction: input.
 Lede: {jjdt_coronet} of the target pace.
 Content: replacement docket text.
+Serialized as `jjezs_reslate` in gazette markdown.
 
 [[jjezs_paddock]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {jjezs_paddock}::
 Heat paddock content.
 Direction: bidirectional.
 Lede: {jjdt_firemark} of the target heat.
 Content: paddock markdown.
+Serialized as `jjezs_paddock` in gazette markdown.
 
 [[jjezs_pace]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {jjezs_pace}::
 Per-pace content keyed by coronet for mass operations.
 Direction: output.
 Lede: {jjdt_coronet} of the target pace.
 Content: operation-specific per-pace text.
+Serialized as `jjezs_pace` in gazette markdown.
 
 == File Exchange Protocol
 
