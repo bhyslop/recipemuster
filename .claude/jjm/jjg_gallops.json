@@ -9650,6 +9650,13 @@
         "₢BEAAB": {
           "tacks": [
             {
+              "ts": "260509-1120",
+              "state": "jjgte_complete",
+              "text": "## Character\n\nApply the paddock's migration recipe to the four `jjrg_Gallops` root properties. Mechanical; sonnet-friendly.\n\n## Targets\n\n`jjgrn_schema_version`, `jjgrn_next_heat_seed`, `jjgrn_heat_order`, `jjgrn_heats`.\n\n## Done when\n\n- `tt/vow-b.Build.sh` clean; `tt/vow-t.Test.sh` green.\n- Gallops file: zero bare `schema_version`, `next_heat_seed`, `heat_order`, `heats` at the root path; `jjgrn_*` present.\n- Transitional `alias` lines removed.",
+              "silks": "mint-gallops-root-sprues",
+              "commit": "0dd4edc"
+            },
+            {
               "ts": "260509-1046",
               "state": "jjgte_rough",
               "text": "## Character\n\nApply the paddock's migration recipe to the four `jjrg_Gallops` root properties. Mechanical; sonnet-friendly.\n\n## Targets\n\n`jjgrn_schema_version`, `jjgrn_next_heat_seed`, `jjgrn_heat_order`, `jjgrn_heats`.\n\n## Done when\n\n- `tt/vow-b.Build.sh` clean; `tt/vow-t.Test.sh` green.\n- Gallops file: zero bare `schema_version`, `next_heat_seed`, `heat_order`, `heats` at the root path; `jjgrn_*` present.\n- Transitional `alias` lines removed.",
