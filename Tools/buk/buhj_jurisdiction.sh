@@ -86,6 +86,50 @@ zbuhj_render_linux_mac_note() {
   buh_code     "ssh-copy-id -i ~/.ssh/<admin-pubkey>.pub <admin-user>@<host>"
 }
 
+zbuhj_render_windows_availability() {
+  buh_section  "Windows: Host Availability (optional)"
+  buh_line     "Skip this section if an operator logs the host in after every restart."
+  buh_line     "If the host lives in a physically-secured single-occupant room and"
+  buh_line     "must come back from power loss or OS-update reboots without a console"
+  buh_line     "operator, configure Tailscale unattended mode and Windows auto-login"
+  buh_line     "before the sshd-reachability ceremony below."
+  buh_e
+  buh_section  "Precondition:"
+  buh_line     "- Host lives in a physically-secured, single-occupant room."
+  buh_line     "  Auto-login removes the keyboard barrier; physical access becomes"
+  buh_line     "  total access."
+  buh_e
+
+  buh_step1    "Install Tailscale:"
+  buh_link     "" "Tailscale for Windows" "https://tailscale.com/download/windows"
+  buh_line     "The installer registers a per-user auto-start; default behavior is fine."
+  buh_e
+
+  buyy_ui_yawp "Preferences"; local -r z_prefs="${z_buym_yelp}"
+  buyy_ui_yawp "Run unattended"; local -r z_unatt="${z_buym_yelp}"
+  buh_step1    "Enable Run Unattended (tunnel survives without an interactive session):"
+  buh_line     "Right-click the Tailscale tray icon, hover ${z_prefs}, select ${z_unatt}."
+  buh_warn     "First boot quirk: the tunnel may require one interactive login before"
+  buh_warn     "unattended mode settles (Tailscale issue #3186). Log in once, reboot,"
+  buh_warn     "then verify from another node before walking away."
+  buh_e
+
+  buyy_cmd_yawp "netplwiz"; local -r z_netplwiz="${z_buym_yelp}"
+  buyy_ui_yawp "Users must enter a user name and password to use this computer"; local -r z_checkbox="${z_buym_yelp}"
+  buh_step1    "Configure Windows Auto-Login via netplwiz:"
+  buh_line     "Press Win+R, enter ${z_netplwiz}, press Enter."
+  buh_line     "Select the target user. Uncheck ${z_checkbox}."
+  buh_line     "Click Apply. Enter the user's password twice when prompted."
+  buh_e
+
+  buyy_cmd_yawp "regedit"; local -r z_regedit="${z_buym_yelp}"
+  buh_step2    "If the checkbox is absent (Microsoft account on Windows 11):"
+  buh_line     "Open ${z_regedit} and set:"
+  buh_code     "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\PasswordLess\\Device"
+  buh_code     "    DevicePasswordLessBuildVersion = 0   (DWORD)"
+  buh_line     "Reopen netplwiz; the checkbox now appears."
+}
+
 zbuhj_render_windows_bootstrap() {
   buh_section  "Windows: sshd Reachability"
   buh_line     "All steps run on the Windows host in an elevated PowerShell."
@@ -95,6 +139,7 @@ zbuhj_render_windows_bootstrap() {
   buh_section  "Preconditions:"
   buh_line     "- Windows host with administrator access"
   buh_line     "- Network reachable on TCP/${BUBC_windows_ssh_port} from operator's station"
+  buh_line     "  (for unattended power-on, see 'Windows: Host Availability' above)"
   buh_e
 
   buh_step1    "Set or Confirm Admin Password:"
@@ -196,6 +241,8 @@ buhj_top() {
   zbuhj_render_landing
   buh_e
   zbuhj_render_linux_mac_note
+  buh_e
+  zbuhj_render_windows_availability
   buh_e
   zbuhj_render_windows_bootstrap
   buh_e
