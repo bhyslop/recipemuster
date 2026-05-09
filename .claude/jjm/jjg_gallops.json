@@ -1,7 +1,7 @@
 {
-  "schema_version": 4,
-  "next_heat_seed": "BF",
-  "heat_order": [
+  "jjgrn_schema_version": 4,
+  "jjgrn_next_heat_seed": "BF",
+  "jjgrn_heat_order": [
     "₣BE",
     "₣BD",
     "₣BB",
@@ -30,7 +30,7 @@
     "₣Au",
     "₣BC"
   ],
-  "heats": {
+  "jjgrn_heats": {
     "₣A-": {
       "jjghn_silks": "rbk-mvp-3-draft-windows-procedures",
       "creation_time": "260412",
