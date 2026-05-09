@@ -378,6 +378,40 @@ zbujb_admin_powershell() {
       "powershell -NoProfile -Command \"\$ErrorActionPreference = 'Stop'; \$env:WSL_UTF8 = 1; \$LASTEXITCODE = 0; ${z_body}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE }\""
 }
 
+# zbujb_powershell_capture ROLE BODY -- run a single PS expression on the
+# remote node as the named role and emit its stdout. Windows CR is stripped
+# via bash parameter expansion (no subprocess) so $(...) yields a clean
+# value. Single-expression discipline per WSG-PS-5; multi-statement bodies
+# do not belong here. Caller || buc_die on capture failure.
+# ROLE: zbujb_privileged | zbujb_workload
+zbujb_powershell_capture() {
+  zbujb_sentinel
+  test $# -ge 2 \
+    || buc_die "zbujb_powershell_capture: ROLE BODY required"
+  local -r z_role="$1"; shift
+  local -r z_body="$*"
+
+  local z_key z_user
+  case "${z_role}" in
+    zbujb_privileged) z_key="${BURP_PRIVILEGED_KEY_FILE}"; z_user="${BURP_PRIVILEGED_USER}" ;;
+    zbujb_workload)   z_key="${BURP_WORKLOAD_KEY_FILE}";   z_user="${BUJB_workload_user}"   ;;
+    *)                buc_die "zbujb_powershell_capture: unknown role '${z_role}' (zbujb_privileged|zbujb_workload)" ;;
+  esac
+
+  local z_out z_exit=0
+  z_out=$(ssh -i "${z_key}"                          \
+              -o IdentitiesOnly=yes                  \
+              -o BatchMode=yes                       \
+              -o StrictHostKeyChecking=accept-new    \
+              -o ConnectTimeout=15                   \
+              "${z_user}@${BURN_HOST}"               \
+              "powershell -NoProfile -Command \"\$ErrorActionPreference = 'Stop'; \$env:WSL_UTF8 = 1; \$LASTEXITCODE = 0; ${z_body}\"") \
+    || z_exit=$?
+
+  printf '%s' "${z_out//$'\r'/}"
+  return "${z_exit}"
+}
+
 ######################################################################
 # Internal: Garrison steps (6-step ceremony per BUSJG{B,C,W})
 
@@ -712,7 +746,15 @@ zbujb_garrison_step3_create() {
       # OpenSSH-Win32 silently closes at preauth if the workload SID has
       # no HKLM\...\ProfileList entry. net.exe user /add creates the SAM
       # entry but not the profile registration. Win32-OpenSSH issue #1383.
-      zbujb_admin_powershell "\$sid=(Get-LocalUser '${z_wlu}').SID.Value; \$path='HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\' + \$sid; New-Item \$path -Force | Out-Null; New-ItemProperty \$path -Name 'ProfileImagePath' -Value 'C:\\Users\\${z_wlu}' -PropertyType ExpandString -Force | Out-Null"
+      # Bash-orchestrated per WSG-PS-5: capture SID, build registry path
+      # in bash, then two atomic single-expression PS calls.
+      local z_sid z_regkey z_homepath
+      z_sid=$(zbujb_powershell_capture zbujb_privileged "(Get-LocalUser '${z_wlu}').SID.Value") \
+        || buc_die "step 3 (w): could not resolve SID for ${z_wlu}"
+      z_regkey="HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\${z_sid}"
+      z_homepath="%SystemDrive%\\Users\\${z_wlu}"
+      zbujb_admin_powershell "New-Item -Path '${z_regkey}' -Force | Out-Null"
+      zbujb_admin_powershell "New-ItemProperty -Path '${z_regkey}' -Name 'ProfileImagePath' -Value '${z_homepath}' -PropertyType ExpandString -Force | Out-Null"
       ;;
   esac
 }

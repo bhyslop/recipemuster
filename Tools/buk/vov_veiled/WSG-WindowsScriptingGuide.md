@@ -311,6 +311,89 @@ Default discipline remains SH-2; SH-8 applies only when bodies don't fit
 one line. See `Memos/memo-20260508-windows-transport-experiments.md`
 §OQ-7.
 
+### ❌ PS-5: PowerShell bodies are single expressions
+
+A `zbujb_admin_powershell` (or `zbujb_powershell_capture`) body is exactly
+one expression: one cmdlet call, one native binary call, or one native
+binary with an inner-shell body. Bodies that `;`-join multiple statements
+with intermediate `$var` assignments are forbidden. If a fix needs N
+intermediate values, run N ssh round-trips and capture in bash. Bash owns
+the state machine; the remote-side body is one effect.
+
+Empirical baseline: every `zbujb_admin_powershell` call site in the module
+follows single-expression shape — `Get-LocalUser ...`, `Test-Path ...`,
+`Get-Acl ...`, `icacls ...`, `wsl.exe ... bash -c "..."`, etc. The lone
+violator (`bujb_jurisdiction.sh:715`, profile registration via
+`$sid=...; $path=...; New-Item; New-ItemProperty`) produced a quoting
+failure (reg.exe `Invalid syntax` on the `Windows NT` space) because the
+compound shape interleaved PS interpolation, native-binary argv handling,
+and registry-path building in one body. Decomposing into bash-orchestrated
+single-expression calls eliminated the failure class.
+
+Exception: the wrapper-side prelude
+(`$ErrorActionPreference='Stop'; $env:WSL_UTF8=1; $LASTEXITCODE=0; ${z_body}; if ...`)
+is library code written once and exercised by all callers. Caller-side
+bodies follow the single-expression rule.
+
+```bash
+# ❌ Compound state machine in PS body
+zbujb_admin_powershell "\$sid=(Get-LocalUser '${z_wlu}').SID.Value; \$path='HKLM:\\...\\' + \$sid; New-Item \$path -Force | Out-Null; New-ItemProperty \$path -Name 'X' -Value 'Y' -Force | Out-Null"
+
+# ✅ Bash-orchestrated single-expression calls
+z_sid=$(zbujb_powershell_capture zbujb_privileged "(Get-LocalUser '${z_wlu}').SID.Value") || buc_die "..."
+z_regkey="HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\${z_sid}"
+zbujb_admin_powershell "New-Item -Path '${z_regkey}' -Force | Out-Null"
+zbujb_admin_powershell "New-ItemProperty -Path '${z_regkey}' -Name 'X' -Value 'Y' -Force | Out-Null"
+```
+
+### ❌ PS-6: Don't interpolate strings via PowerShell when bash can build them
+
+If a remote command needs a string with embedded variables (registry path,
+file path, SID), the bash caller builds the string by expanding
+`${bash_var}` into the body before sending. The PS body receives the
+already-resolved string as a literal (PS single-quoted, or
+argument-bound).
+
+Rationale: bash escape rules cascade once. The bash → ssh → cmd.exe →
+PS-literal-string chain is well-understood. Adding PS-side interpolation
+(`"...$var..."`) layers another substitution model on top; subtle bugs
+(like the PS-7 native-binary space-quoting trap) compound across layers
+and become harder to diagnose.
+
+```bash
+# ❌ PS-side string concatenation
+zbujb_admin_powershell "\$path='HKLM:\\...\\' + \$sid; New-Item \$path -Force | Out-Null"
+
+# ✅ Bash builds the string; PS receives a literal
+z_path="HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\${z_sid}"
+zbujb_admin_powershell "New-Item -Path '${z_path}' -Force | Out-Null"
+```
+
+### ❌ PS-7: Don't interpolate variables through PowerShell to native binaries
+
+PowerShell's argv handling for native Windows binaries (reg.exe, sc.exe,
+schtasks.exe) has documented quirks with embedded spaces and quotes.
+A registry path containing `Windows NT` (one space) breaks `reg.exe`
+invoked through PS even when the path is held in a PS variable — empirical
+in this session's diagnostic cycle (`bujb_jurisdiction.sh:715`,
+pre-decomposition).
+
+Rule: for PS-native effects (registry as PS-drive via `New-Item` /
+`New-ItemProperty`, ACLs via `Get-Acl`, account ops via `Get-LocalUser`),
+use PS cmdlets — they handle their own paths transparently. For
+native-binary effects (reg.exe, schtasks.exe), either pass already-resolved
+bash literals that don't traverse PS interpolation, or drop the PS layer
+entirely and invoke through cmd.exe directly (OpenSSH-Win32's default
+shell).
+
+```bash
+# ❌ Native binary with PS interpolation — argv quoting may eat path spaces
+zbujb_admin_powershell "reg.exe add \"HKLM\\SOFTWARE\\Microsoft\\Windows NT\\...\\\$sid\" /v X /t REG_SZ /d Y /f"
+
+# ✅ PS cmdlet handles PS-drive registry paths cleanly
+zbujb_admin_powershell "New-ItemProperty -Path '${z_regkey}' -Name 'X' -Value 'Y' -Force | Out-Null"
+```
+
 ## Wrapper Discipline
 
 ### PowerShell wrapper (proven shape)
