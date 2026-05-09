@@ -32,13 +32,13 @@ pub enum jjrg_PaceState {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum jjrg_HeatStatus {
     /// Heat is actively being worked
-    #[serde(rename = "jjghe_racing", alias = "racing")]
+    #[serde(rename = "jjghe_racing")]
     Racing,
     /// Heat is paused, not actively worked
-    #[serde(rename = "jjghe_stabled", alias = "stabled")]
+    #[serde(rename = "jjghe_stabled")]
     Stabled,
     /// Heat is complete and archived (terminal state)
-    #[serde(rename = "jjghe_retired", alias = "retired")]
+    #[serde(rename = "jjghe_retired")]
     Retired,
 }
 
@@ -69,15 +69,15 @@ pub const JJRT_PENSUM_SEED_INIT: &str = "AA";
 pub struct jjrg_Heat {
     #[serde(rename = "jjghn_silks")]
     pub silks: String,
-    #[serde(rename = "jjghn_creation_time", alias = "creation_time")]
+    #[serde(rename = "jjghn_creation_time")]
     pub creation_time: String,
-    #[serde(rename = "jjghn_status", alias = "status")]
+    #[serde(rename = "jjghn_status")]
     pub status: jjrg_HeatStatus,
-    #[serde(rename = "jjghn_order", alias = "order")]
+    #[serde(rename = "jjghn_order")]
     pub order: Vec<String>,
-    #[serde(rename = "jjghn_next_pace_seed", alias = "next_pace_seed")]
+    #[serde(rename = "jjghn_next_pace_seed")]
     pub next_pace_seed: String,
-    #[serde(rename = "jjghn_paces", alias = "paces")]
+    #[serde(rename = "jjghn_paces")]
     pub paces: BTreeMap<String, jjrg_Pace>,
 }
 
