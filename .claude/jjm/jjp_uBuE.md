@@ -14,10 +14,10 @@ The suffix after the underscore is the Rust field name (for properties) or the l
 
 ## Migration recipe
 
-Per target, two edits:
+Per target, two edits with an MCP restart between them:
 
-1. Add `#[serde(rename = "<minted>", alias = "<old-wire-name>")]`. Build. Run any state-mutating jjx call to round-trip the gallops file through the new wire-names.
-2. Remove the transitional `alias` line.
+1. Add `#[serde(rename = "<minted>", alias = "<old-wire-name>")]`. Build. **Restart the chat session** so MCP loads the fresh binary. Run a *gallops-mutating* jjx call (e.g., `jjx_alter` setting racing on the heat) to round-trip the gallops file through the new wire-names. `jjx_record` and `jjx_paddock`-setter do **not** call `save()` on `jjg_gallops.json` — only heat/pace/tack mutations do, so only those round-trip.
+2. Remove the transitional `alias` line. Build.
 
 The blanket `#[serde(rename_all = "lowercase")]` comes off `jjrg_PaceState` and `jjrg_HeatStatus` once explicit per-variant renames replace it. The pre-existing `alias = "primed"` on `Bridled` stays as legacy compat — outside this heat's window.
 
