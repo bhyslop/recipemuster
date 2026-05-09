@@ -81,6 +81,8 @@
 :axd_nullable:                        <<axd_nullable,Nullable>>
 :axd_optional:                        <<axd_optional,Optional>>
 :axd_periodic:                        <<axd_periodic,Periodic>>
+:axd_positional:                      <<axd_positional,Positional>>
+:axd_property:                        <<axd_property,Property>>
 :axd_repeated:                        <<axd_repeated,Repeated>>
 :axd_required:                        <<axd_required,Required>>
 :axd_attended:                        <<axd_attended,Attended>>
@@ -893,11 +895,11 @@ Fixed layout with explicit size and alignment.
 {axr_member}::
 A
 {axl_motif}
-representing a named, typed element within an
+representing a typed element within an
 {axr_record}.
 Inherits serialization format from parent
 {axr_record}.
-1-arity: reads one
+Default 1-arity: reads one
 {mcm_sprue}
 from following text — the serialized property name (e.g., the JSON key).
 The
@@ -916,6 +918,19 @@ Qualified by
 in
 {axl_annotation}:
 `//axl_voices axr_member axd_required axt_string`
++
+Under
+{axr_record_json},
+exactly one of
+{axd_property}
+or
+{axd_positional}
+must qualify the
+{axr_member}.
+{axd_property}
+preserves the 1-arity sprue contract.
+{axd_positional}
+suppresses it (0-arity for sprue) since the member's value provides the parent map's key directly and no separate sprue exists in the wire form.
 
 == Axial JSON Terms
 
@@ -1501,6 +1516,54 @@ Forbidden for JSON, XML, YAML, protobuf.
 Whether XML member is attribute or child element.
 Required for XML format.
 Forbidden for JSON, YAML, protobuf, binary.
+
+[[axd_property]]
+{axd_property}::
+JSON
+{axr_member}
+encoded as a named property within its containing
+{axr_record_json}.
+The wire-level key is a fixed sprue declared at the definition site;
+the 1-arity sprue lookahead applies and is fulfilled by a backtick-delimited
+{mcm_sprue}
+in the following text.
+Required for JSON
+{axr_member_s}
+whose value sits at a named slot.
+Forbidden for protobuf, XML, YAML, binary.
+
+[[axd_positional]]
+{axd_positional}::
+JSON
+{axr_member}
+encoded by structural position rather than by a named property.
+The member's value provides the parent map's key directly;
+no separate sprue exists in the wire form.
+Suppresses the 1-arity sprue lookahead — under
+{axd_positional},
+{axr_member}
+becomes 0-arity for sprue.
+Required for JSON
+{axr_member_s}
+whose value is the parent map's key (e.g., a record's identity field encoded as the map entry's key).
+Forbidden for protobuf, XML, YAML, binary.
+
+Exactly one of
+{axd_property}
+or
+{axd_positional}
+must be present on every
+{axr_member}
+under an
+{axr_record_json}
+carrier whose value participates in the JSON wire form.
+Members that are computed, ephemeral, or stored outside the JSON wire are not
+{axr_member_s}
+of the
+{axr_record_json}
+and should not carry the
+{axr_member}
+voicing in the first place.
 
 === Lifecycle Dimensions
 
