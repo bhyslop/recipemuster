@@ -946,13 +946,13 @@ zbujb_garrison_step6_validate() {
   buc_step "  [6/6] Validate workload round-trip"
 
   local z_exit=0
-  ssh -i "${BURP_WORKLOAD_KEY_FILE}"     \
-      -o IdentitiesOnly=yes                       \
-      -o BatchMode=yes                            \
-      -o StrictHostKeyChecking=accept-new         \
-      -o ConnectTimeout=10                        \
-      "${BUJB_workload_user}@${BURN_HOST}" \
-      true                                        \
+  zbujb_validate_run "knock-ssh" ssh -i "${BURP_WORKLOAD_KEY_FILE}" \
+      -o IdentitiesOnly=yes                                          \
+      -o BatchMode=yes                                               \
+      -o StrictHostKeyChecking=accept-new                            \
+      -o ConnectTimeout=10                                           \
+      "${BUJB_workload_user}@${BURN_HOST}"                           \
+      true                                                           \
     || z_exit=$?
 
   if test "${z_exit}" -ne 0; then
