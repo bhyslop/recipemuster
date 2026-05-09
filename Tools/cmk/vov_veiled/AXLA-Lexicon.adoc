@@ -90,6 +90,7 @@
 :axd_imprint:                         <<axd_imprint,Imprint>>
 :axd_internal:                        <<axd_internal,Internal>>
 :axd_slash_command:                   <<axd_slash_command,Slash Command>>
+:axd_string:                          <<axd_string,String Value>>
 :axd_tabtarget:                       <<axd_tabtarget,Tabtarget>>
 :axd_fact:                            <<axd_fact,Fact>>
 :axd_tally:                           <<axd_tally,Tally>>
@@ -782,6 +783,22 @@ A
 representing single allowed option within an
 {axt_enumeration}.
 Must be explicitly listed in enumeration definition.
++
+Encoding is carried by an
+{axd_dimension}
+on the voicing line — e.g.,
+{axd_string}
+for string-token-encoded values.
+The encoding
+{axd_dimension}
+specifies the
+{mcm_sprue}
+arity for the wire-level value.
+Exactly one encoding dimension must qualify every
+{axt_enum_value}
+voicing whose
+{axt_enumeration}
+participates in a wire form.
 
 [[axt_insignia]]
 {axt_insignia}::
@@ -1564,6 +1581,23 @@ of the
 and should not carry the
 {axr_member}
 voicing in the first place.
+
+[[axd_string]]
+{axd_string}::
+{axt_enum_value}
+encoded as a literal string token in the wire form.
+Carries a 1-arity sprue lookahead, fulfilled by a backtick-delimited
+{mcm_sprue}
+in the following text — the literal wire-level value as it appears in the carrier.
+The
+{mcm_sprue}
+is the exact wire-name; the
+{mcm_quoin}
+is the conceptual enum-value identity.
+Carrier-agnostic: applies wherever an
+{axt_enumeration}
+serializes its values as string tokens (JSON strings, bash regime values, YAML scalars, env-var values).
+Forbidden when the wire form is non-string (numeric, bitmask, object-tagged, positional, untagged variant) — those encodings will mint companion dimensions.
 
 === Lifecycle Dimensions
 
