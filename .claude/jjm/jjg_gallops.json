@@ -36,6 +36,7 @@
       "creation_time": "260412",
       "status": "racing",
       "order": [
+        "₢A-AA2",
         "₢A-AA1",
         "₢A-AA0",
         "₢A-AAv",
@@ -87,7 +88,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "next_pace_seed": "AA2",
+      "next_pace_seed": "AA3",
       "paces": {
         "₢A-AA0": {
           "tacks": [
@@ -115,6 +116,17 @@
               "text": "## Character\nIterate-until-it-works — unknown-discovery zone, bounded. If cycle count\nexceeds ~3-4 without progress, wrap with findings and chivvy a fresh design\npace rather than accreting.\n\n## Docket\nMake garrison-w complete step 6 round-trip end-to-end against the\ncommitted code from the redesign+implement pace.\n\nEach cycle = mechanism + one targeted repair + run + diagnose. Not\nspeculative cascading fixes.\n\nDone when:\n- tt/buw-jpGw.GarrisonWsl.sh bujn-winpc returns exit 0 with workload\n  identity bujuw_user.\n- tt/buw-jwc and tt/buw-jws end-to-end operations succeed against the\n  same node.\n- BUSJGW still coherent against implemented behavior.\n- Diag instrumentation decision recorded (kept-with-note vs pruned).\n\nOut of scope: c-letter (Cygwin) inherited defect — separate pace\npost-w-confirmation.",
               "silks": "empirical-garrison-w-workload-wsl",
               "commit": "452507d"
+            }
+          ]
+        },
+        "₢A-AA2": {
+          "tacks": [
+            {
+              "ts": "260509-1102",
+              "state": "jjgte_rough",
+              "text": "## Character\nDesign conversation (BUSJGW redraft) then mechanical implementation.\nLocked by the spike pace's empirical outcome.\n\n## Docket\nRefactor garrison-w: workload owns its WSL distribution. Admin no longer\ninstalls rbtww-main globally; garrison creates the workload's own WSL\ninstance from a seed tarball, registered in workload's HKCU\\Lxss.\n\nDesign decisions (informed by spike):\n- Profile bootstrap (operator-manual interactive logon vs automated).\n- Seed tarball source (admin pre-stages? per-host bootstrap?).\n- Fate of `passwd --lock` in step 3 (vestigial or load-bearing?).\n- BUSJGW namespace framing: was \"Windows + WSL-Linux\"; now adds\n  workload's WSL distribution registration as third namespace.\n\nImplementation: garrison-w step structure update in bujb_jurisdiction.sh;\nBUSJGW spec redraft to match; BUHJ handbook update for any operator-manual\nprerequisites the spike surfaces.\n\nDone when:\n- BUSJGW reads coherently against implementation intent.\n- bash -n green; tt/buw-st.BukSelfTest.sh green;\n  tt/rbtd-s.TestSuite.fast.sh green at baseline.\n- Empirical end-to-end deferred to the empirical pace.",
+              "silks": "redesign-garrison-w-workload-owns-wsl",
+              "commit": "7dd295a"
             }
           ]
         },
