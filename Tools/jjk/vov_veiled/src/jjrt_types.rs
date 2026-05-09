@@ -77,11 +77,13 @@ pub struct jjrg_Heat {
 /// Root Gallops structure
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct jjrg_Gallops {
-    #[serde(default)]
+    #[serde(default, rename = "jjgrn_schema_version", alias = "schema_version")]
     pub schema_version: Option<u32>,
+    #[serde(rename = "jjgrn_next_heat_seed", alias = "next_heat_seed")]
     pub next_heat_seed: String,
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[serde(default, skip_serializing_if = "Vec::is_empty", rename = "jjgrn_heat_order", alias = "heat_order")]
     pub heat_order: Vec<String>,
+    #[serde(rename = "jjgrn_heats", alias = "heats")]
     pub heats: BTreeMap<String, jjrg_Heat>,
 }
 
