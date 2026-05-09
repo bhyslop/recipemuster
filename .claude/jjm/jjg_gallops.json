@@ -2,12 +2,12 @@
   "jjgrn_schema_version": 4,
   "jjgrn_next_heat_seed": "BF",
   "jjgrn_heat_order": [
-    "₣BE",
     "₣BD",
     "₣BB",
     "₣BA",
     "₣A_",
     "₣A-",
+    "₣BE",
     "₣Ah",
     "₣A9",
     "₣Az",
@@ -33,9 +33,9 @@
   "jjgrn_heats": {
     "₣A-": {
       "jjghn_silks": "rbk-mvp-3-draft-windows-procedures",
-      "creation_time": "260412",
-      "status": "racing",
-      "order": [
+      "jjghn_creation_time": "260412",
+      "jjghn_status": "jjghe_racing",
+      "jjghn_order": [
         "₢A-AA3",
         "₢A-AA2",
         "₢A-AA1",
@@ -89,8 +89,8 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "next_pace_seed": "AA4",
-      "paces": {
+      "jjghn_next_pace_seed": "AA4",
+      "jjghn_paces": {
         "₢A-AA0": {
           "tacks": [
             {
@@ -1395,17 +1395,17 @@
     },
     "₣A5": {
       "jjghn_silks": "garlanded-rbk-mvp-3-public-docs-refresh-01",
-      "creation_time": "260409",
-      "status": "stabled",
-      "order": [
+      "jjghn_creation_time": "260409",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [
         "₢A5AAA",
         "₢A5AAB",
         "₢A5AAC",
         "₢A5AAI",
         "₢A5AAJ"
       ],
-      "next_pace_seed": "AAK",
-      "paces": {
+      "jjghn_next_pace_seed": "AAK",
+      "jjghn_paces": {
         "₢A5AAA": {
           "tacks": [
             {
@@ -1542,9 +1542,9 @@
     },
     "₣A6": {
       "jjghn_silks": "rbk-mvp-3-handbook-restart",
-      "creation_time": "260409",
-      "status": "racing",
-      "order": [
+      "jjghn_creation_time": "260409",
+      "jjghn_status": "jjghe_racing",
+      "jjghn_order": [
         "₢A6AA6",
         "₢A6AA7",
         "₢A6AA8",
@@ -1605,8 +1605,8 @@
         "₢A6AAz",
         "₢A6AA9"
       ],
-      "next_pace_seed": "AA-",
-      "paces": {
+      "jjghn_next_pace_seed": "AA-",
+      "jjghn_paces": {
         "₢A6AA0": {
           "tacks": [
             {
@@ -3065,13 +3065,13 @@
     },
     "₣A7": {
       "jjghn_silks": "rbk-mvp-3-regime-scrub",
-      "creation_time": "260409",
-      "status": "racing",
-      "order": [
+      "jjghn_creation_time": "260409",
+      "jjghn_status": "jjghe_racing",
+      "jjghn_order": [
         "₢A7AAA"
       ],
-      "next_pace_seed": "AAB",
-      "paces": {
+      "jjghn_next_pace_seed": "AAB",
+      "jjghn_paces": {
         "₢A7AAA": {
           "tacks": [
             {
@@ -3087,9 +3087,9 @@
     },
     "₣A9": {
       "jjghn_silks": "apck-anns-phi-clipbuddy-kit",
-      "creation_time": "260410",
-      "status": "stabled",
-      "order": [
+      "jjghn_creation_time": "260410",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [
         "₢A9AAf",
         "₢A9AAV",
         "₢A9AAZ",
@@ -3123,8 +3123,8 @@
         "₢A9AAN",
         "₢A9AAU"
       ],
-      "next_pace_seed": "AAg",
-      "paces": {
+      "jjghn_next_pace_seed": "AAg",
+      "jjghn_paces": {
         "₢A9AAA": {
           "tacks": [
             {
@@ -3803,9 +3803,9 @@
     },
     "₣AD": {
       "jjghn_silks": "vos-spec-and-tooling",
-      "creation_time": "260117",
-      "status": "stabled",
-      "order": [
+      "jjghn_creation_time": "260117",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [
         "₢ADAAG",
         "₢ADAAF",
         "₢ADAAK",
@@ -3820,8 +3820,8 @@
         "₢ADAAI",
         "₢ADAAJ"
       ],
-      "next_pace_seed": "AAN",
-      "paces": {
+      "jjghn_next_pace_seed": "AAN",
+      "jjghn_paces": {
         "₢ADAAA": {
           "tacks": [
             {
@@ -4200,16 +4200,16 @@
     },
     "₣AI": {
       "jjghn_silks": "vok-post-mvp-polish",
-      "creation_time": "260121",
-      "status": "stabled",
-      "order": [
+      "jjghn_creation_time": "260121",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [
         "₢AIAAA",
         "₢AIAAB",
         "₢AIAAC",
         "₢AIAAD"
       ],
-      "next_pace_seed": "AAE",
-      "paces": {
+      "jjghn_next_pace_seed": "AAE",
+      "jjghn_paces": {
         "₢AIAAA": {
           "tacks": [
             {
@@ -4300,14 +4300,14 @@
     },
     "₣AJ": {
       "jjghn_silks": "vok-liturgical-linter",
-      "creation_time": "260122",
-      "status": "stabled",
-      "order": [
+      "jjghn_creation_time": "260122",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [
         "₢AJAAA",
         "₢AJAAB"
       ],
-      "next_pace_seed": "AAC",
-      "paces": {
+      "jjghn_next_pace_seed": "AAC",
+      "jjghn_paces": {
         "₢AJAAA": {
           "tacks": [
             {
@@ -4334,17 +4334,17 @@
     },
     "₣AN": {
       "jjghn_silks": "trophy-alpha-reporting",
-      "creation_time": "260124",
-      "status": "stabled",
-      "order": [
+      "jjghn_creation_time": "260124",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [
         "₢ANAAA",
         "₢ANAAB",
         "₢ANAAC",
         "₢ANAAD",
         "₢ANAAE"
       ],
-      "next_pace_seed": "AAF",
-      "paces": {
+      "jjghn_next_pace_seed": "AAF",
+      "jjghn_paces": {
         "₢ANAAA": {
           "tacks": [
             {
@@ -4439,13 +4439,13 @@
     },
     "₣AQ": {
       "jjghn_silks": "rbw-gcb-builder-control",
-      "creation_time": "260125",
-      "status": "stabled",
-      "order": [
+      "jjghn_creation_time": "260125",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [
         "₢AQAAA"
       ],
-      "next_pace_seed": "AAB",
-      "paces": {
+      "jjghn_next_pace_seed": "AAB",
+      "jjghn_paces": {
         "₢AQAAA": {
           "tacks": [
             {
@@ -4461,9 +4461,9 @@
     },
     "₣AU": {
       "jjghn_silks": "rbk-mvp-3-release-finalize",
-      "creation_time": "260131",
-      "status": "racing",
-      "order": [
+      "jjghn_creation_time": "260131",
+      "jjghn_status": "jjghe_racing",
+      "jjghn_order": [
         "₢AUAA3",
         "₢AUAAx",
         "₢AUAAv",
@@ -4518,8 +4518,8 @@
         "₢AUAA5",
         "₢AUAA6"
       ],
-      "next_pace_seed": "AA7",
-      "paces": {
+      "jjghn_next_pace_seed": "AA7",
+      "jjghn_paces": {
         "₢AUAA0": {
           "tacks": [
             {
@@ -5730,25 +5730,25 @@
     },
     "₣AV": {
       "jjghn_silks": "rbw-implement-gar-mirroring",
-      "creation_time": "260201",
-      "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
-      "paces": {}
+      "jjghn_creation_time": "260201",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [],
+      "jjghn_next_pace_seed": "AAA",
+      "jjghn_paces": {}
     },
     "₣AZ": {
       "jjghn_silks": "cmk-diptych-prototype",
-      "creation_time": "260209",
-      "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
-      "paces": {}
+      "jjghn_creation_time": "260209",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [],
+      "jjghn_next_pace_seed": "AAA",
+      "jjghn_paces": {}
     },
     "₣A_": {
       "jjghn_silks": "rbk-mvp-3-resource-prefix-and-depot-regen",
-      "creation_time": "260415",
-      "status": "racing",
-      "order": [
+      "jjghn_creation_time": "260415",
+      "jjghn_status": "jjghe_racing",
+      "jjghn_order": [
         "₢A_AAQ",
         "₢A_AAR",
         "₢A_AAI",
@@ -5770,8 +5770,8 @@
         "₢A_AAa",
         "₢A_AAJ"
       ],
-      "next_pace_seed": "AAb",
-      "paces": {
+      "jjghn_next_pace_seed": "AAb",
+      "jjghn_paces": {
         "₢A_AAA": {
           "tacks": [
             {
@@ -6290,14 +6290,14 @@
     },
     "₣Aa": {
       "jjghn_silks": "rbw-test-improvement-ideas",
-      "creation_time": "260210",
-      "status": "stabled",
-      "order": [
+      "jjghn_creation_time": "260210",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [
         "₢AaAAA",
         "₢AaAAB"
       ],
-      "next_pace_seed": "AAC",
-      "paces": {
+      "jjghn_next_pace_seed": "AAC",
+      "jjghn_paces": {
         "₢AaAAA": {
           "tacks": [
             {
@@ -6324,9 +6324,9 @@
     },
     "₣Ah": {
       "jjghn_silks": "jjk-v4-4-school-breeze-founding",
-      "creation_time": "260222",
-      "status": "stabled",
-      "order": [
+      "jjghn_creation_time": "260222",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [
         "₢AhAAV",
         "₢AhAAS",
         "₢AhAAN",
@@ -6348,8 +6348,8 @@
         "₢AhAAK",
         "₢AhAAX"
       ],
-      "next_pace_seed": "AAY",
-      "paces": {
+      "jjghn_next_pace_seed": "AAY",
+      "jjghn_paces": {
         "₢AhAAA": {
           "tacks": [
             {
@@ -6875,9 +6875,9 @@
     },
     "₣Am": {
       "jjghn_silks": "jjk-v5-notional",
-      "creation_time": "260304",
-      "status": "stabled",
-      "order": [
+      "jjghn_creation_time": "260304",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [
         "₢AmAAA",
         "₢AmAAB",
         "₢AmAAC",
@@ -6886,8 +6886,8 @@
         "₢AmAAF",
         "₢AmAAI"
       ],
-      "next_pace_seed": "AAP",
-      "paces": {
+      "jjghn_next_pace_seed": "AAP",
+      "jjghn_paces": {
         "₢AmAAA": {
           "tacks": [
             {
@@ -7102,25 +7102,25 @@
     },
     "₣An": {
       "jjghn_silks": "jjk-v4-5-release-and-legacy-removal",
-      "creation_time": "260304",
-      "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
-      "paces": {}
+      "jjghn_creation_time": "260304",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [],
+      "jjghn_next_pace_seed": "AAA",
+      "jjghn_paces": {}
     },
     "₣Ap": {
       "jjghn_silks": "rbk-use-bash-remits",
-      "creation_time": "260307",
-      "status": "stabled",
-      "order": [
+      "jjghn_creation_time": "260307",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [
         "₢ApAAA",
         "₢ApAAB",
         "₢ApAAC",
         "₢ApAAD",
         "₢ApAAE"
       ],
-      "next_pace_seed": "AAF",
-      "paces": {
+      "jjghn_next_pace_seed": "AAF",
+      "jjghn_paces": {
         "₢ApAAA": {
           "tacks": [
             {
@@ -7250,15 +7250,15 @@
     },
     "₣Aq": {
       "jjghn_silks": "rbk-post-release-ideas",
-      "creation_time": "260307",
-      "status": "stabled",
-      "order": [
+      "jjghn_creation_time": "260307",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [
         "₢AqAAA",
         "₢AqAAB",
         "₢AqAAC"
       ],
-      "next_pace_seed": "AAD",
-      "paces": {
+      "jjghn_next_pace_seed": "AAD",
+      "jjghn_paces": {
         "₢AqAAA": {
           "tacks": [
             {
@@ -7331,25 +7331,25 @@
     },
     "₣Au": {
       "jjghn_silks": "hairpin-peer-access",
-      "creation_time": "260314",
-      "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
-      "paces": {}
+      "jjghn_creation_time": "260314",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [],
+      "jjghn_next_pace_seed": "AAA",
+      "jjghn_paces": {}
     },
     "₣Az": {
       "jjghn_silks": "rbk-vocabulary-debt-ark-rubric",
-      "creation_time": "260330",
-      "status": "stabled",
-      "order": [],
-      "next_pace_seed": "AAA",
-      "paces": {}
+      "jjghn_creation_time": "260330",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [],
+      "jjghn_next_pace_seed": "AAA",
+      "jjghn_paces": {}
     },
     "₣BA": {
       "jjghn_silks": "rbk-mvp-3-cleanups-and-imageops",
-      "creation_time": "260426",
-      "status": "racing",
-      "order": [
+      "jjghn_creation_time": "260426",
+      "jjghn_status": "jjghe_racing",
+      "jjghn_order": [
         "₢BAAAD",
         "₢BAAAE",
         "₢BAAAG",
@@ -7360,8 +7360,8 @@
         "₢BAAAI",
         "₢BAAAF"
       ],
-      "next_pace_seed": "AAJ",
-      "paces": {
+      "jjghn_next_pace_seed": "AAJ",
+      "jjghn_paces": {
         "₢BAAAA": {
           "tacks": [
             {
@@ -7570,9 +7570,9 @@
     },
     "₣BB": {
       "jjghn_silks": "rbk-mvp-3-release-qualification",
-      "creation_time": "260426",
-      "status": "racing",
-      "order": [
+      "jjghn_creation_time": "260426",
+      "jjghn_status": "jjghe_racing",
+      "jjghn_order": [
         "₢BBABE",
         "₢BBABD",
         "₢BBABC",
@@ -7639,8 +7639,8 @@
         "₢BBAA1",
         "₢BBAA5"
       ],
-      "next_pace_seed": "ABF",
-      "paces": {
+      "jjghn_next_pace_seed": "ABF",
+      "jjghn_paces": {
         "₢BBAA-": {
           "tacks": [
             {
@@ -9249,16 +9249,16 @@
     },
     "₣BC": {
       "jjghn_silks": "rbk-mvp-3-theurge-self-test",
-      "creation_time": "260428",
-      "status": "stabled",
-      "order": [
+      "jjghn_creation_time": "260428",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [
         "₢BCAAA",
         "₢BCAAB",
         "₢BCAAC",
         "₢BCAAD"
       ],
-      "next_pace_seed": "AAE",
-      "paces": {
+      "jjghn_next_pace_seed": "AAE",
+      "jjghn_paces": {
         "₢BCAAA": {
           "tacks": [
             {
@@ -9349,9 +9349,9 @@
     },
     "₣BD": {
       "jjghn_silks": "jjk-v4-1-fast-tweaks",
-      "creation_time": "260507",
-      "status": "racing",
-      "order": [
+      "jjghn_creation_time": "260507",
+      "jjghn_status": "jjghe_racing",
+      "jjghn_order": [
         "₢BDAAA",
         "₢BDAAB",
         "₢BDAAC",
@@ -9361,8 +9361,8 @@
         "₢BDAAH",
         "₢BDAAF"
       ],
-      "next_pace_seed": "AAI",
-      "paces": {
+      "jjghn_next_pace_seed": "AAI",
+      "jjghn_paces": {
         "₢BDAAA": {
           "tacks": [
             {
@@ -9609,9 +9609,9 @@
     },
     "₣BE": {
       "jjghn_silks": "jjk-v4-2-sprue",
-      "creation_time": "260508",
-      "status": "racing",
-      "order": [
+      "jjghn_creation_time": "260508",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [
         "₢BEAAG",
         "₢BEAAA",
         "₢BEAAB",
@@ -9620,8 +9620,8 @@
         "₢BEAAE",
         "₢BEAAF"
       ],
-      "next_pace_seed": "AAH",
-      "paces": {
+      "jjghn_next_pace_seed": "AAH",
+      "jjghn_paces": {
         "₢BEAAA": {
           "tacks": [
             {
