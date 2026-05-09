@@ -1449,25 +1449,28 @@ not key order.
 ==== Status Values
 
 [[jjdhe_racing]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {jjdhe_racing}::
 The
 {jjdhr_heat}
 is actively being worked.
+Serialized as `jjghe_racing` in JSON.
 
 [[jjdhe_stabled]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {jjdhe_stabled}::
 The
 {jjdhr_heat}
 is paused, not actively worked.
+Serialized as `jjghe_stabled` in JSON.
 
 [[jjdhe_retired]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {jjdhe_retired}::
 The
 {jjdhr_heat}
 is complete and archived.
+Serialized as `jjghe_retired` in JSON.
 
 === {jjdpr_pace}
 
@@ -1508,30 +1511,34 @@ Serialized as `jjgpn_tacks` in JSON.
 ==== State Values
 
 [[jjdpe_rough]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {jjdpe_rough}::
 The
 {jjdpr_pace}
 needs clarification before work can proceed.
+Serialized as `jjgte_rough` in JSON.
 
 [[jjdpe_complete]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {jjdpe_complete}::
 The
 {jjdpr_pace}
 has been successfully finished.
+Serialized as `jjgte_complete` in JSON.
 
 [[jjdpe_abandoned]]
-//axl_voices axt_enum_value
+//axl_voices axt_enum_value axd_string
 {jjdpe_abandoned}::
 The
 {jjdpr_pace}
 was stopped without completion.
+Serialized as `jjgte_abandoned` in JSON.
 
 [[jjdpe_bridled]]
-//axl_voices axt_enum_value axd_internal
+//axl_voices axt_enum_value axd_string axd_internal
 {jjdpe_bridled}::
-V3-legacy state: human-claimed for interactive work (serde alias: `primed`).
+V3-legacy state: human-claimed for interactive work.
+Serialized as `jjgte_bridled` in JSON (serde alias: `primed`).
 Present in code but deprecated.
 Removal deferred to ₣An (jjk-v4-release-and-legacy-removal).
 New operations MUST NOT produce this state.
