@@ -34,7 +34,7 @@ Subsequent dockets reference these by silks rather than re-listing targets.
 
 ## Spec touch
 
-JJS0 grows a "Sprue Vocabulary" section — seeded by batch 1 with five entries plus one worked example of the Rust-field-to-sprue mapping pattern. Each fan-out batch extends cumulatively. Final: 24 entries, one example.
+JJS0's prescriptive sprue declarations follow the AXLA mechanism: property-name sites (`axr_member` under `axr_record_json`) carry `axd_property` or `axd_positional` with the sprue inlined in body prose; enum-value sites (`axt_enum_value`) carry `axd_string` with the sprue in a `Serialized as <sprue> in JSON.` body line. JJS0 already carries these declarations for the gallops surface; the four mint paces below carry no JJS0 obligation — only the Rust serde renames and gallops-file rewrite. The same AXLA discipline extends across other specs via the foreign-sweep pace, which adds `axd_string` to existing-wire enum-value voicings outside the gallops surface.
 
 ## Out of scope
 
@@ -42,4 +42,4 @@ JJS0 grows a "Sprue Vocabulary" section — seeded by batch 1 with five entries 
 
 ## Done when
 
-`.claude/jjm/jjg_gallops.json` carries zero bare property names from the original 16 and zero bare enum values from the original 7. JJS0 has the Sprue Vocabulary section with all 24 entries plus the worked example. Build green; tests green.
+`.claude/jjm/jjg_gallops.json` carries zero bare property names from the original 16 and zero bare enum values from the original 7. Build green; tests green.
