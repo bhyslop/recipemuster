@@ -36,6 +36,7 @@
       "creation_time": "260412",
       "status": "racing",
       "order": [
+        "₢A-AA1",
         "₢A-AA0",
         "₢A-AAv",
         "₢A-AAz",
@@ -86,7 +87,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "next_pace_seed": "AA1",
+      "next_pace_seed": "AA2",
       "paces": {
         "₢A-AA0": {
           "tacks": [
@@ -103,6 +104,17 @@
               "text": "## Character\nMatrix-driven empirical probing; mechanical and delegate-friendly. Sonnet/haiku\nagents iterate the probe matrix without needing high-context judgment.\n\n## Docket\n\nLocked decisions:\n\n- WSG (`Tools/buk/vov_veiled/WSG-WindowsScriptingGuide.md`) is the spec this\n  pace populates. Its \"Open Questions\" section enumerates OQ-1 through OQ-7;\n  this pace closes them by experiment, then promotes resolved questions into\n  WSG's \"Established Rules\" section with proven probes.\n- Probes use `./tt/buw-jpS.PrivilegedSsh.sh bujn-winpc <command>` as the\n  uniform vehicle. Each probe records: (a) exact local command-line built,\n  (b) stdout bytes (od -An -c when textual ambiguity matters), (c) stderr\n  bytes, (d) exit code. Results land in a forensic markdown file under\n  `Tools/buk/vov_veiled/wsg-experiments/<oq-id>.md` for each open question.\n- Each OQ resolves to one of: a new ❌/✅ rule in WSG with a verification\n  probe pair, OR an explicit \"deferred — out of release-1 scope\" entry in\n  WSG with rationale. No OQ is left vague.\n- Mount-time agent assembles the matrix per the OQ list. Each cell of the\n  matrix is independent; agents may parallelize across OQs but must run\n  probes sequentially against `bujn-winpc` (shared remote state).\n- State pollution after probes is cleaned by running a garrison-w cycle\n  before pace close (or by manual obliterate via the diagnostic patterns\n  from the parent pace ₢A-AAv).\n\nDone when:\n- Every WSG OQ-N has a corresponding `wsg-experiments/oq-N.md` artifact\n  with reproducible probes\n- WSG's Open Questions section is replaced by Established Rules entries\n  (PS-N or SH-N numbering), each with a probe pair\n- Bash-via-wsl.exe wrapper discipline section in WSG is filled in (no\n  longer \"open\"), with the canonical body-authoring rules for `${var}` and\n  `$(cmd)` expansions\n- WSG renders as a complete, BCG-paralleled guide ready for citation by\n  future Windows-transport work\n- `bash -n` clean on any wrapper code touched\n- `tt/buw-st.BukSelfTest.sh` and `tt/rbtd-s.TestSuite.fast.sh` green\n\nDiscovery recipe for delegated agents:\n- Read WSG first; the OQ list IS the work breakdown\n- Probe template is in WSG's \"Verification Probe Template\" section\n- For OQ-1 specifically: bisect the chain (cmd.exe alone vs cmd.exe +\n  wsl.exe vs wsl.exe + bash) to localize the `$`-eating layer; once\n  identified, prove the canonical escape via probe pair\n\nOut of scope: ₢A-AAv's actual repair (step 5's planted-key issue). That\nremains parked in ₢A-AAv's docket; this pace produces the WSG content\nthat ₢A-AAv's resumption will cite.",
               "silks": "windows-transport-experiments",
               "commit": "f586695"
+            }
+          ]
+        },
+        "₢A-AA1": {
+          "tacks": [
+            {
+              "ts": "260509-1101",
+              "state": "jjgte_rough",
+              "text": "## Character\nIterate-until-it-works — unknown-discovery zone, bounded. If cycle count\nexceeds ~3-4 without progress, wrap with findings and chivvy a fresh design\npace rather than accreting.\n\n## Docket\nMake garrison-w complete step 6 round-trip end-to-end against the\ncommitted code from the redesign+implement pace.\n\nEach cycle = mechanism + one targeted repair + run + diagnose. Not\nspeculative cascading fixes.\n\nDone when:\n- tt/buw-jpGw.GarrisonWsl.sh bujn-winpc returns exit 0 with workload\n  identity bujuw_user.\n- tt/buw-jwc and tt/buw-jws end-to-end operations succeed against the\n  same node.\n- BUSJGW still coherent against implemented behavior.\n- Diag instrumentation decision recorded (kept-with-note vs pruned).\n\nOut of scope: c-letter (Cygwin) inherited defect — separate pace\npost-w-confirmation.",
+              "silks": "empirical-garrison-w-workload-wsl",
+              "commit": "452507d"
             }
           ]
         },
