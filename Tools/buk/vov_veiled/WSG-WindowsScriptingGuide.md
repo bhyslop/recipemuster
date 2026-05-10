@@ -40,6 +40,15 @@ is toward defensive instrumentation: surface every non-zero exit, every
 empty stdout, every unflushed buffer, with a forensic temp file naming the
 boundary that swallowed it.
 
+**Rules enumerate; they don't illustrate.** Each rule below names a closed
+set of allowed shapes. Anything not enumerated is forbidden, even if it
+*looks* morally similar to an allowed form. Do not reason "this is *like*
+one expression because it's *like* one effect" — that path admits a fourth
+shape the rule never sanctioned, and the rationalization propagates to
+every call site that copies the precedent. When in doubt, decompose into
+more round-trips: the cost of an extra ssh hop is small; the cost of a
+loophole is structural.
+
 ## Transport Stack
 
 A typical chain for `zbujb_admin_powershell` or `zbujb_admin_exec`:
@@ -352,22 +361,43 @@ redesign (BUSJGW).
 
 ### ❌ PS-5: PowerShell bodies are single expressions
 
-A `zbujb_admin_powershell` (or `zbujb_powershell_capture`) body is exactly
-one expression: one cmdlet call, one native binary call, or one native
-binary with an inner-shell body. Bodies that `;`-join multiple statements
-with intermediate `$var` assignments are forbidden. If a fix needs N
-intermediate values, run N ssh round-trips and capture in bash. Bash owns
-the state machine; the remote-side body is one effect.
+A `zbujb_admin_powershell` (or `zbujb_powershell_capture`) body MUST be
+exactly one of these three shapes — no others:
+
+1. One cmdlet call (with arguments, parameters, and pipelined formatters
+   like `| Out-String` or `| Out-Null`).
+2. One native binary call (with arguments).
+3. One native binary with an inner-shell body (e.g.
+   `wsl.exe ... bash -c "..."`).
+
+The enumeration is constructive (Core Philosophy, *Rules enumerate; they
+don't illustrate*). No other PowerShell construct may appear at the body's
+top level. Forbidden constructs include `if`, `try`/`catch`, `foreach`,
+`while`, `switch`, `do`, `&&`/`||` operators, `;`-separated statements,
+intermediate `$var` assignments, and ternary `?:`. A single `if`-guarded
+effect like `if (Test-Path '...') { Remove-Item '...' }` is also forbidden
+— even though it has only one "real" effect, the body contains a decision
+(the test) and an action (the consequent). Decisions belong in bash. See
+"Capture-Decide-Dispatch Pattern" below for the canonical procedure.
+
+If a body needs N intermediate values or N decisions, run N round-trips:
+capture state via `zbujb_powershell_capture` into bash variables, decide
+in bash, dispatch unconditional effects via `zbujb_admin_powershell`. Bash
+owns the state machine; the remote-side body is one effect.
 
 Empirical baseline: every `zbujb_admin_powershell` call site in the module
 follows single-expression shape — `Get-LocalUser ...`, `Test-Path ...`,
-`Get-Acl ...`, `icacls ...`, `wsl.exe ... bash -c "..."`, etc. The lone
+`Get-Acl ...`, `icacls ...`, `wsl.exe ... bash -c "..."`, etc. The original
 violator (`bujb_jurisdiction.sh:715`, profile registration via
 `$sid=...; $path=...; New-Item; New-ItemProperty`) produced a quoting
 failure (reg.exe `Invalid syntax` on the `Windows NT` space) because the
 compound shape interleaved PS interpolation, native-binary argv handling,
 and registry-path building in one body. Decomposing into bash-orchestrated
-single-expression calls eliminated the failure class.
+single-expression calls eliminated the failure class. A second documented
+violation cycle in
+`Memos/memo-20260510-windows-transport-ps5-anti-rationalization.md` records
+the `if`-as-guard rationalization that motivates the explicit
+forbidden-constructs list above.
 
 Exception: the wrapper-side prelude
 (`$ErrorActionPreference='Stop'; $env:WSL_UTF8=1; $LASTEXITCODE=0; ${z_body}; if ...`)
@@ -378,11 +408,20 @@ bodies follow the single-expression rule.
 # ❌ Compound state machine in PS body
 zbujb_admin_powershell "\$sid=(Get-LocalUser '${z_wlu}').SID.Value; \$path='HKLM:\\...\\' + \$sid; New-Item \$path -Force | Out-Null; New-ItemProperty \$path -Name 'X' -Value 'Y' -Force | Out-Null"
 
+# ❌ Single `if`-guard — body decides AND acts; state machine belongs in bash
+zbujb_admin_powershell "if (Test-Path '${z_tar_path}') { Remove-Item -Force '${z_tar_path}' }"
+
 # ✅ Bash-orchestrated single-expression calls
 z_sid=$(zbujb_powershell_capture zbujb_privileged "(Get-LocalUser '${z_wlu}').SID.Value") || buc_die "..."
 z_regkey="HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\${z_sid}"
 zbujb_admin_powershell "New-Item -Path '${z_regkey}' -Force | Out-Null"
 zbujb_admin_powershell "New-ItemProperty -Path '${z_regkey}' -Name 'X' -Value 'Y' -Force | Out-Null"
+
+# ✅ Single guarded effect repaired via Capture-Decide-Dispatch
+z_present=$(zbujb_powershell_capture zbujb_privileged "Test-Path '${z_tar_path}'") || buc_die "..."
+if [[ "${z_present}" == "True" ]]; then
+  zbujb_admin_powershell "Remove-Item -Force '${z_tar_path}'" || buc_die "..."
+fi
 ```
 
 ### ❌ PS-6: Don't interpolate strings via PowerShell when bash can build them
@@ -431,6 +470,228 @@ zbujb_admin_powershell "reg.exe add \"HKLM\\SOFTWARE\\Microsoft\\Windows NT\\...
 
 # ✅ PS cmdlet handles PS-drive registry paths cleanly
 zbujb_admin_powershell "New-ItemProperty -Path '${z_regkey}' -Name 'X' -Value 'Y' -Force | Out-Null"
+```
+
+### ❌ PS-8: Error suppression is not idempotency
+
+When a destructive cmdlet (`Remove-Item`, `Unregister-*`, `Stop-Service`,
+`Remove-LocalUser`) might fail because its target is absent, the temptation
+is to reach for an error-suppression flag and call the body "idempotent":
+
+- `-ErrorAction Ignore`
+- `-ErrorAction SilentlyContinue`
+- `2>$null` redirection
+- `try { ... } catch { }` with empty or discarding catch
+
+Forbidden on destructive actions. Error-suppression flags swallow **every**
+error class, not just "target absent." Permission denied, file locked, ACL
+refusal, path-too-long, provider-not-loaded — all silently absorbed. The
+cmdlet returns success, `$LASTEXITCODE` stays 0, the wrapper's trailer
+takes the no-fire branch, and bash sees a clean exit. The destructive
+action might not have actually happened, and we have no way to know.
+
+This is the "silently swallowed" failure class WSG opens with (Core
+Philosophy, *Trap, don't trust*). Idempotency MUST come from explicit
+state capture in bash followed by a conditional unconditional action — see
+"Capture-Decide-Dispatch Pattern" below.
+
+Distinguish suppressing **output** from suppressing **errors**. `New-Item
+... | Out-Null` discards the cmdlet's *return object* and is a routine
+hygiene practice (the cmdlet still throws on actual error). `Remove-Item
+... -ErrorAction Ignore` suppresses *errors*, converting "permission
+denied" into apparent success. PS-8 forbids the latter on destructive
+actions.
+
+Probe-side use is permitted. `Get-LocalUser -Name '...' -ErrorAction
+SilentlyContinue` on a non-destructive query, where "user not found" is
+the answer we want and stdout-empty is how we read it, is exactly correct.
+The carve-out: error suppression is permitted on cmdlets whose purpose is
+to *return state*, forbidden on cmdlets whose purpose is to *change state*.
+
+```bash
+# ❌ Error-suppression masquerading as idempotency
+zbujb_admin_powershell "Remove-Item -Force '${z_tar_path}' -ErrorAction Ignore"
+zbujb_admin_powershell "Remove-Item -Recurse -Force '${z_dir}' -ErrorAction SilentlyContinue"
+zbujb_admin_powershell "wsl.exe --unregister ${dist} 2>\$null; \$LASTEXITCODE = 0"
+
+# ✅ CDD: capture, decide, dispatch unconditionally
+z_present=$(zbujb_powershell_capture zbujb_privileged "Test-Path '${z_tar_path}'") || buc_die "..."
+if [[ "${z_present}" == "True" ]]; then
+  zbujb_admin_powershell "Remove-Item -Force '${z_tar_path}'" || buc_die "..."
+fi
+
+# ✅ Probe-side suppression — Get-LocalUser is non-destructive, "user not found" is the answer
+zbujb_admin_powershell "Get-LocalUser -Name '${z_user}' -ErrorAction SilentlyContinue"
+```
+
+Empirical site: this rule was minted after a session in which `-ErrorAction
+Ignore` was reached for to escape a PS-5 `if`-guard violation, substituting
+an OQ-1 silent-swallow for the structural one. See
+`Memos/memo-20260510-windows-transport-ps5-anti-rationalization.md`.
+
+## Capture-Decide-Dispatch Pattern
+
+PS-5's closing line — *"Bash owns the state machine; the remote-side body
+is one effect"* — names the canonical procedure for any decision that
+would otherwise live in a PS body. Capture-Decide-Dispatch (CDD) is a
+three-step recipe:
+
+1. **Capture** — `zbujb_powershell_capture ROLE "<single-expression probe>"`
+   runs a PS-5-clean probe (cmdlet call or native binary call, no `if`,
+   no compounds) and returns its stdout into a bash variable. The wrapper
+   strips Windows CR (`bujb_jurisdiction.sh:487`); the bash variable holds
+   clean text. Absorb capture failure with `|| buc_die "..."` if the probe
+   must succeed, or `|| z_var=""` if a fundus-side absence is tolerable
+   (e.g. probing for state on a host that may not yet have the relevant
+   subsystem installed).
+
+2. **Decide** — bash conditional. For PS booleans, see "PowerShell boolean
+   serialization" below. For text/list output, use
+   `grep -qFx PATTERN <<<"$z_var"` for exact-line membership, or
+   `case ... in ... esac` / `[[ "$z_var" == ... ]]` for value compare.
+
+3. **Dispatch** — `zbujb_admin_powershell "<single-expression effect>"`
+   runs the unconditional action only on the bash-side branches that need
+   it. Each branch uses one zbujb call.
+
+Concrete shapes for common cases — file/dir presence, WSL distro
+membership, local user existence, service state, registry key existence —
+appear in the "Idempotency Exemplars" section below.
+
+### PowerShell boolean serialization
+
+`Test-Path`, `Test-Connection`, and other PS-bool-emitting cmdlets serialize
+as the literal strings `"True"` or `"False"` through
+`zbujb_powershell_capture` (after WSL_UTF8 normalization and CR stripping).
+Canonical bash check:
+
+```bash
+if [[ "${z_var}" == "True" ]]; then ...
+```
+
+Do not use `[[ -n "${z_var}" ]]` — `False` is also non-empty.
+
+### Capture failure absorption
+
+The capture call's bash exit-status is non-zero on any of: ssh transport
+failure, PS body trapping its own error under `$ErrorActionPreference=Stop`,
+native binary in the body returning non-zero, or wrapper-trailer fire on
+`$LASTEXITCODE`. Two absorption shapes:
+
+```bash
+# Probe must succeed — die loudly on transport/body failure
+z_present=$(zbujb_powershell_capture zbujb_privileged "Test-Path '${z_path}'") \
+  || buc_die "Failed to probe ${z_path}"
+
+# Empty result on probe failure is a valid pre-state — absorb silently
+z_wsl_list=""
+z_wsl_list=$(zbujb_powershell_capture zbujb_privileged "wsl.exe --list --quiet") \
+  || z_wsl_list=""
+```
+
+Use the loud form by default. Use the silent form only when the absent
+state is a legitimate pre-condition (e.g. WSL not yet installed during
+first-run purge — the next steps install it).
+
+### Open question: bool-returning predicate variant
+
+A `zbujb_powershell_predicate` (BCG `_predicate` class — never dies, status
+only, idiomatic in `if`/`while`) would collapse the capture+compare pair
+into `if zbujb_powershell_predicate ROLE "Test-Path '...'"; then ...`. The
+shape was tabled because ssh-layer transport failure adds a third value
+that doesn't fit either bool answer cleanly: strict BCG predicate semantics
+("never dies, status only") would conflate transport failure with "false,"
+reintroducing the OQ-1 silent-swallow this section is meant to close. The
+canonical CDD shape uses `zbujb_powershell_capture` + `[[ "$x" == "True" ]]`
+explicitly so transport failures stay loud. The predicate variant remains
+an open design question.
+
+## Idempotency Exemplars
+
+Ready-made CDD shapes for the patterns this codebase actually uses. Copy
+and adjust the variable names; do not derive from principles each time.
+Adding a new exemplar earns a paragraph here once verified.
+
+### File presence → conditional remove
+
+```bash
+local z_present
+z_present=$(zbujb_powershell_capture zbujb_privileged "Test-Path '${z_path}'") \
+  || buc_die "Failed to probe ${z_path}"
+if [[ "${z_present}" == "True" ]]; then
+  zbujb_admin_powershell "Remove-Item -Force '${z_path}'" \
+    || buc_die "Failed to remove ${z_path}"
+fi
+```
+
+### Directory presence → conditional remove (recursive)
+
+```bash
+local z_present
+z_present=$(zbujb_powershell_capture zbujb_privileged "Test-Path '${z_dir}'") \
+  || buc_die "Failed to probe ${z_dir}"
+if [[ "${z_present}" == "True" ]]; then
+  zbujb_admin_powershell "Remove-Item -Recurse -Force '${z_dir}'" \
+    || buc_die "Failed to remove ${z_dir}"
+fi
+```
+
+### WSL distro membership → conditional unregister
+
+A fresh-WSL host with no installed distros is a legitimate pre-state, so
+the list capture absorbs failure silently rather than dying.
+
+```bash
+local z_wsl_list=""
+z_wsl_list=$(zbujb_powershell_capture zbujb_privileged "wsl.exe --list --quiet") \
+  || z_wsl_list=""
+if grep -qFx "${z_dist}" <<<"${z_wsl_list}"; then
+  zbujb_admin_powershell "wsl.exe --unregister ${z_dist}" \
+    || buc_die "Failed to unregister ${z_dist}"
+fi
+```
+
+### Local user existence → conditional removal
+
+`Get-LocalUser`'s `-ErrorAction SilentlyContinue` is permitted here per
+PS-8's probe-side carve-out — the cmdlet is non-destructive and "user
+absent" reads as empty stdout.
+
+```bash
+local z_user_state
+z_user_state=$(zbujb_powershell_capture zbujb_privileged \
+  "Get-LocalUser -Name '${z_user}' -ErrorAction SilentlyContinue") \
+  || buc_die "Failed to probe local user ${z_user}"
+z_user_state="${z_user_state//[$'\r\n\t ']/}"
+if [[ -n "${z_user_state}" ]]; then
+  zbujb_admin_powershell "Remove-LocalUser -Name '${z_user}'" \
+    || buc_die "Failed to remove local user ${z_user}"
+fi
+```
+
+### Service running state → conditional start
+
+```bash
+local z_service_state
+z_service_state=$(zbujb_powershell_capture zbujb_privileged \
+  "(Get-Service -Name '${z_svc}').Status") \
+  || buc_die "Failed to probe service ${z_svc}"
+if [[ "${z_service_state}" == "Stopped" ]]; then
+  zbujb_admin_powershell "Start-Service -Name '${z_svc}'" \
+    || buc_die "Failed to start service ${z_svc}"
+fi
+```
+
+### Registry key absence → conditional creation
+
+```bash
+local z_present
+z_present=$(zbujb_powershell_capture zbujb_privileged "Test-Path '${z_regkey}'") \
+  || buc_die "Failed to probe registry key ${z_regkey}"
+if [[ "${z_present}" != "True" ]]; then
+  zbujb_admin_powershell "New-Item -Path '${z_regkey}' -Force | Out-Null" \
+    || buc_die "Failed to create registry key ${z_regkey}"
+fi
 ```
 
 ## Wrapper Discipline
@@ -513,6 +774,11 @@ Active references:
 
 - `Memos/memo-20260508-windows-transport-experiments.md` — initial OQ-1
   through OQ-7 resolution matrix run against `bujn-winpc` (pace `₢A-AA0`).
+- `Memos/memo-20260510-windows-transport-ps5-anti-rationalization.md` —
+  PS-5 `if`-as-guard rationalization and `-ErrorAction Ignore` substitution
+  cycles; motivates the "Rules enumerate" Core Philosophy clause, the PS-5
+  exclusive-enumeration tightening, the new PS-8 rule, and the
+  Capture-Decide-Dispatch named pattern.
 
 ### Convention for future Windows-transport experiments
 

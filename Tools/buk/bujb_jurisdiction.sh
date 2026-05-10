@@ -1553,9 +1553,30 @@ bujb_wsl_install() {
   buc_step "WSL Install: ${BUJB_wsl_distribution} on ${BURN_HOST} (seed: ${BUJB_wsl_seed_distribution})"
 
   buc_step "  [1/6] Purge prior state (idempotent: unregister both, remove tar+dir)"
-  local -r z_purge_body="if ((wsl.exe --list --quiet) -match '${BUJB_wsl_distribution}') { wsl.exe --unregister ${BUJB_wsl_distribution}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE } }; if ((wsl.exe --list --quiet) -match '${BUJB_wsl_seed_distribution}') { wsl.exe --unregister ${BUJB_wsl_seed_distribution}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE } }; if (Test-Path '${z_tar_path}') { Remove-Item -Force '${z_tar_path}' }; if (Test-Path '${z_distro_dir}') { Remove-Item -Recurse -Force '${z_distro_dir}' }"
-  zbujb_admin_powershell "${z_purge_body}" \
-    || buc_die "Purge step failed"
+  local z_wsl_list=""
+  z_wsl_list=$(zbujb_powershell_capture zbujb_privileged "wsl.exe --list --quiet") \
+    || z_wsl_list=""
+  if grep -qFx "${BUJB_wsl_distribution}" <<<"${z_wsl_list}"; then
+    zbujb_admin_powershell "wsl.exe --unregister ${BUJB_wsl_distribution}" \
+      || buc_die "Failed to unregister prior ${BUJB_wsl_distribution}"
+  fi
+  if grep -qFx "${BUJB_wsl_seed_distribution}" <<<"${z_wsl_list}"; then
+    zbujb_admin_powershell "wsl.exe --unregister ${BUJB_wsl_seed_distribution}" \
+      || buc_die "Failed to unregister prior ${BUJB_wsl_seed_distribution}"
+  fi
+  local z_tar_present z_dir_present
+  z_tar_present=$(zbujb_powershell_capture zbujb_privileged "Test-Path '${z_tar_path}'") \
+    || buc_die "Failed to probe ${z_tar_path}"
+  z_dir_present=$(zbujb_powershell_capture zbujb_privileged "Test-Path '${z_distro_dir}'") \
+    || buc_die "Failed to probe ${z_distro_dir}"
+  if [[ "${z_tar_present}" == "True" ]]; then
+    zbujb_admin_powershell "Remove-Item -Force '${z_tar_path}'" \
+      || buc_die "Failed to remove prior ${z_tar_path}"
+  fi
+  if [[ "${z_dir_present}" == "True" ]]; then
+    zbujb_admin_powershell "Remove-Item -Recurse -Force '${z_distro_dir}'" \
+      || buc_die "Failed to remove prior ${z_distro_dir}"
+  fi
 
   buc_step "  [2/6] Ensure ${BUJB_path_win_wsl_install_root} directory"
   zbujb_admin_powershell "New-Item -ItemType Directory -Path '${BUJB_path_win_wsl_install_root}' -Force | Out-Null" \
@@ -1574,9 +1595,14 @@ bujb_wsl_install() {
     || buc_die "Failed to import ${BUJB_wsl_distribution}"
 
   buc_step "  [6/6] Cleanup: unregister ${BUJB_wsl_seed_distribution} and remove .tar"
-  local -r z_cleanup_body="wsl.exe --unregister ${BUJB_wsl_seed_distribution}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE }; if (Test-Path '${z_tar_path}') { Remove-Item -Force '${z_tar_path}' }"
-  zbujb_admin_powershell "${z_cleanup_body}" \
-    || buc_die "Cleanup step failed"
+  zbujb_admin_powershell "wsl.exe --unregister ${BUJB_wsl_seed_distribution}" \
+    || buc_die "Failed to unregister ${BUJB_wsl_seed_distribution}"
+  z_tar_present=$(zbujb_powershell_capture zbujb_privileged "Test-Path '${z_tar_path}'") \
+    || buc_die "Failed to probe ${z_tar_path}"
+  if [[ "${z_tar_present}" == "True" ]]; then
+    zbujb_admin_powershell "Remove-Item -Force '${z_tar_path}'" \
+      || buc_die "Failed to remove ${z_tar_path}"
+  fi
 
   buc_step "WSL Install succeeded"
 }
