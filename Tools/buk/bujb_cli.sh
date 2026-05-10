@@ -220,6 +220,7 @@ zbujb_furnish() {
   source "${BURD_BUK_DIR}/buz_zipper.sh"
   source "${BURD_BUK_DIR}/buwz_zipper.sh"
   source "${BURD_BUK_DIR}/bujb_jurisdiction.sh"
+  source "${BURD_BUK_DIR}/bujp_preflight.sh"
 
   zbuv_kindle
   zburd_kindle
@@ -239,6 +240,7 @@ zbujb_furnish() {
   zbuz_kindle
   zbuwz_kindle
   zbujb_kindle
+  zbujp_kindle
 
   test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
 

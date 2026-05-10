@@ -25,8 +25,7 @@
 # the canonical WSL distribution name, and the Windows OpenSSH sshd_config
 # hardening directive set.
 #
-# Sub-letter b in bujb signals the bash-format implementation. A future
-# PowerShell sibling would mint as bujp_jurisdiction.ps1.
+# Sub-letter b in bujb signals the bash-format implementation.
 
 set -euo pipefail
 
@@ -250,10 +249,6 @@ zbujb_kindle() {
   # for transport to remote).
   readonly ZBUJB_AUTHKEYS_B64_STDOUT="${BURD_TEMP_DIR}/bujb_authkeys_b64_stdout.txt"
   readonly ZBUJB_AUTHKEYS_B64_STDERR="${BURD_TEMP_DIR}/bujb_authkeys_b64_stderr.txt"
-
-  # WSL distribution preflight captures (garrison-w only).
-  readonly ZBUJB_WSL_PREFLIGHT_STDOUT="${BURD_TEMP_DIR}/bujb_wsl_preflight_stdout.txt"
-  readonly ZBUJB_WSL_PREFLIGHT_STDERR="${BURD_TEMP_DIR}/bujb_wsl_preflight_stderr.txt"
 
   # Obliterate per-call captures (reused across the Windows sub-step
   # sequence — last call's content is what's preserved at die time).
@@ -612,29 +607,8 @@ zbujb_workload_ssh() {
 ######################################################################
 # Internal: Garrison steps (6-step ceremony per BUSJG{B,C,W})
 
-# Step 1 -- open admin SSH (test reachability under key-only auth).
-zbujb_garrison_step1_admin_open() {
-  local z_letter="${1:-}"
-  buc_step "  [1/6] Open admin SSH (${BURP_PRIVILEGED_USER}@${BURN_HOST})"
-
-  local z_exit=0
-  case "${z_letter}" in
-    b) zbujb_admin_exec_native 'exit 0' || z_exit=$? ;;
-    c) zbujb_admin_exec_cygwin 'exit 0' || z_exit=$? ;;
-    w) zbujb_admin_exec_wsl    'exit 0' || z_exit=$? ;;
-    *) buc_die "step1: invalid shell-letter '${z_letter}'" ;;
-  esac
-  if test "${z_exit}" -ne 0; then
-    case "${BURN_PLATFORM}" in
-      bubep_windows)
-        buc_die "Admin SSH failed (exit ${z_exit}). Run fenestrate first: tt/buw-jpF.Fenestrate.sh ${BUZ_FOLIO}"
-        ;;
-      *)
-        buc_die "Admin SSH failed (exit ${z_exit}). Place admin pubkey via 'ssh-copy-id -i ${BURP_PRIVILEGED_KEY_FILE}.pub ${BURP_PRIVILEGED_USER}@${BURN_HOST}' first."
-        ;;
-    esac
-  fi
-}
+# Step 1 -- preflight gate. Subsumed by bujp_preflight (Tools/buk/bujp_preflight.sh).
+# Garrison dispatcher calls bujp_preflight directly; no zbujb wrapper.
 
 # zbujb_obliterate_diag_dump LABEL -- diagnostic helper: preserve the
 # current ZBUJB_OBLITERATE_STDOUT/STDERR contents under per-label paths
@@ -1177,45 +1151,9 @@ zbujb_garrison_step5_plant_key() {
   esac
 }
 
-# zbujb_garrison_w_preflight -- pre-flight for shell-letter w only.
-# Asserts BUJB_wsl_distribution is installed on the Windows host before any
-# WSL-targeted action runs; replaces opaque downstream wsl.exe failures with
-# a copy-paste-ready operator hint pointing at the privileged-SSH tabtarget.
-zbujb_garrison_w_preflight() {
-  zbujb_sentinel
-  buc_step "  [w-preflight] Verify WSL distribution '${BUJB_wsl_distribution}' is installed"
-
-  local z_exit=0
-  zbujb_admin_powershell "wsl.exe --list --quiet" \
-      > "${ZBUJB_WSL_PREFLIGHT_STDOUT}"           \
-      2> "${ZBUJB_WSL_PREFLIGHT_STDERR}"          \
-    || z_exit=$?
-
-  test "${z_exit}" -eq 0 \
-    || buc_die "WSL list query failed (ssh exit ${z_exit}); see ${ZBUJB_WSL_PREFLIGHT_STDERR}"
-
-  local z_output
-  z_output=$(<"${ZBUJB_WSL_PREFLIGHT_STDOUT}")
-  z_output="${z_output//$'\r'/}"
-
-  case $'\n'"${z_output}"$'\n' in
-    *$'\n'"${BUJB_wsl_distribution}"$'\n'*) return 0 ;;
-  esac
-
-  buc_die "WSL distribution '${BUJB_wsl_distribution}' (BUJB_wsl_distribution) not installed on ${BURN_HOST}.
-
-Distributions present on host:
-${z_output:-<none reported>}
-
-Install the canonical distribution before retrying garrison-w:
-
-  tt/buw-jpW.WslInstall.sh ${BUZ_FOLIO}
-
-Or inspect what is currently installed:
-
-  tt/buw-jpS.PrivilegedSsh.sh ${BUZ_FOLIO} 'powershell -NoProfile -Command \"\$env:WSL_UTF8=1; wsl.exe --list --verbose\"'
-"
-}
+# zbujb_garrison_w_preflight -- migrated to bujp_preflight.sh as
+# zbujp_probe_wsl_distribution. Garrison dispatcher invokes bujp_preflight
+# at step 1; the WSL distribution presence check is the w-letter branch.
 
 # zbujb_garrison_w_export_seed -- export admin's BUJB_wsl_distribution
 # (the seed source) to a workload-readable path inside the workload's
@@ -1395,10 +1333,7 @@ bujb_garrison() {
 
   buc_step "Garrison-${z_letter}: ${BUZ_FOLIO} (${BURN_HOST})"
 
-  case "${z_letter}" in
-    w) zbujb_garrison_w_preflight ;;
-  esac
-  zbujb_garrison_step1_admin_open    "${z_letter}"
+  bujp_preflight                     "${z_letter}"
   zbujb_obliterate_workload
   zbujb_garrison_step3_create        "${z_letter}"
   zbujb_garrison_step4_place_trust   "${z_letter}"

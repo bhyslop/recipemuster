@@ -125,6 +125,7 @@ Full read and edit access is pre-approved for all files in:
 - **BUTT** → `buk/butt_testbench.sh` (BUK test framework self-test — kick-tires + bure-tweak, 9 cases)
 - **BURC** → `buk/burc_cli.sh`, `buk/burc_regime.sh` (regime configuration)
 - **BURS** → `buk/burs_cli.sh`, `buk/burs_regime.sh` (regime station)
+- **BUJP** → `buk/bujp_preflight.sh` (garrison step-1 preflight gate)
 
 #### GAD Subdirectory (`Tools/gad/`)
 - **See `Tools/gad/CLAUDE.md` for complete GAD acronym mappings**

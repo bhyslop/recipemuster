@@ -30,10 +30,12 @@
 // bush_:  Handbook Control (control verbs for human-following-rendered-doc execution; voices axc_*)
 // bus_:   Specification umbrella concept (e.g., bus_jurisdiction)
 // bujb_:  Jurisdiction implementation seat — sub-letter `b` = bash format.
-//         Future PowerShell sibling would mint as bujp_; under Quoin
-//         Sub-Letter Discipline, sub-letter Y is monosemic per domain
-//         (b → bash, p → powershell — never reused for other concepts
-//         within the buj* tree).
+// bujp_:  Jurisdiction preflight module — sub-letter `p` = preflight.
+//         Under Quoin Sub-Letter Discipline, each sub-letter is monosemic
+//         per domain. A prior version reserved `p` for a hypothetical
+//         PowerShell-format jurisdiction sibling; that reservation is
+//         withdrawn — if a PowerShell sibling is ever minted, it takes a
+//         different sub-letter.
 //
 // Variant patterns:
 //   _s: plural form
@@ -138,6 +140,7 @@
 :bus_jurisdiction:                 <<bus_jurisdiction,Jurisdiction>>
 :bujb_jurisdiction:                <<bujb_jurisdiction,bujb_jurisdiction.sh>>
 :bujb_workload_user:               <<bujb_workload_user,BUJB_workload_user>>
+:bujp_preflight:                   <<bujp_preflight,bujp_preflight.sh>>
 
 // BURP Regime: Privileged + Workload Credentials (per-station-user)
 :burp_regime:                      <<burp_regime,BURP Regime>>
@@ -1706,6 +1709,16 @@ identity (the Windows local user that
 {busn_garrison} (`w`) creates via `net.exe user /add` and the Linux
 user inside `rbtww-main` it creates via `useradd`).
 
+[[bujp_preflight]]
+{bujp_preflight}::
+Garrison's precondition layer — a BCG-compliant sibling module
+(`Tools/buk/bujp_preflight.sh`) that owns step 1 of every garrison
+ceremony. SSH-connectivity is probed universally; letter- and
+platform-specific probes layer on top per the elevation matrix
+named under {busn_garrison}. Sudoers posture is operator-managed
+(like the existing `ssh-copy-id` prerequisite) — preflight verifies
+effective behavior, not file contents.
+
 === Privileges
 
 A
@@ -2020,24 +2033,31 @@ A single tabtarget per shell-letter
 runs the same destructive ceremony with the shell-letter selecting
 remote shell mappings via
 {bujb_jurisdiction}.
+Garrison-`b` is the native-bash workload-shell flavor on both Linux
+and macOS; step bodies branch on {burn_platform}.
+The elevation matrix differs across letters:
+garrison-`b` runs destructive ops via `sudo -n` (Linux + Mac);
+garrison-`c` rides on {busn_caparison}'s Windows-admin key trust;
+garrison-`w` runs inner-WSL ops as `wsl.exe --user root` without
+sudo.
 Garrison never reads or writes any `sshd_config` and never alters
-admin authorized_keys; first-step admin SSH must succeed by key auth
-alone, surfacing any missing admin trust immediately.
+admin authorized_keys; step 1 is a uniform preflight gate provided
+by {bujp_preflight}.
 Idempotent on re-run; destructive of any prior workload state.
 +
 Ceremony steps:
 +
-. SSH as
-{burp_privileged_user}
-using
-{burp_privileged_key_file};
-key-auth only (no password fallback). Across platforms, this
-presupposes
+. Preflight gate via {bujp_preflight}: probe admin SSH reachability
+under key-only auth; layer letter-specific probes (sudo NOPASSWD
+on garrison-`b`/linux; admin-group + sudo on garrison-`b`/mac;
+WSL distribution presence on garrison-`w`; nothing additional for
+garrison-`c`).
+Across platforms this presupposes
 {busn_caparison}
 has run for this {burp_investiture};
 {busn_invigilate}
-runs as the precondition assertion before this SSH attempt to
-surface posture failures with specific guidance.
+runs as the posture precondition before preflight to surface
+caparison-managed posture drift with specific guidance.
 . Obliterate any existing workload account named
 {bujb_workload_user}
 via `zbujb_obliterate_workload` — the letter-agnostic, platform-aware
