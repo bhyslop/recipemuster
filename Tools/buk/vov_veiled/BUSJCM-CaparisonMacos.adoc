@@ -1,11 +1,94 @@
 //axhob_operation
 {bust_caparison_macos}
 
-NOTE: {busn_caparison} ceremony on macOS — admin host posture
-establishment. Wraps ssh-copy-id orchestration, Remote Login enable,
-`pmset` power configuration, and Tailscale service auto-start. Closes
-with {busn_invigilate} post-completion check. Operator-managed scope
-per {bust_handbook_macos}.
+NOTE: {busn_caparison} ceremony on macOS — single-phase admin host
+posture establishment over an already-established key-auth admin SSH
+session. Operator-managed scope per {bust_handbook_macos} covers the
+one-time SSH-trust setup: enable Remote Login on the host, then run
+`ssh-copy-id` from the operator's station to place the admin pubkey.
+Caparison wraps that operator-manual flow rather than performing
+autonomous SSH-trust hardening — only Windows OpenSSH has the
+autonomous phase-1/phase-2 ceremony. Once admin key trust is in place,
+caparison reinforces Remote Login (idempotent), applies `pmset` power
+configuration, and sets the Tailscale system daemon to load at boot.
+Nuclear: every invocation purges and re-establishes the
+caparison-managed posture from scratch — no skip-if-present logic.
+Closing step runs {bust_invigilate_macos} as the post-completion
+check.
 
-TODO: subsequent pace fleshes preconditions, step list, guarantee, and
-completion clauses.
+//axhopt_typed_parameter
+{burp_investiture}
+
+//axhoq_precondition
+A {burp_regime} profile exists at the given {burp_investiture} and its
+referenced {burn_regime} profile targets a macOS node.
+
+//axhoq_precondition
+{bust_handbook_macos} operator-manual scope is complete: Remote Login
+has been enabled at least once so the host accepts SSH, `ssh-copy-id`
+has been run by the operator from their station to place the admin
+pubkey, Tailscale (standalone download) has been installed and
+authenticated to the operator's tailnet, and a sudoers entry grants
+NOPASSWD execution to {burp_privileged_user} for the
+caparison-managed commands. Consult {bust_handbook_macos} for the
+full list; caparison presupposes this scope, neither writes nor
+repairs it.
+
+//axhoq_precondition
+{burp_privileged_user} is a member of the admin group and authenticates
+by key alone via {burp_privileged_key_file}.
+
+//axhoq_precondition
+{burp_privileged_key_file} is unencrypted and exists on the operator's
+station.
+
+//axhos_step
+. *Open admin SSH*: connect as {burp_privileged_user} using
+{burp_privileged_key_file}; key-auth only (no password fallback).
+Failure here surfaces a missing or stale admin trust — the diagnostic
+points to {bust_handbook_macos} since admin trust is operator-managed
+(ssh-copy-id).
+
+//axhos_step
+. *Enable Remote Login*: invoke `sudo -n systemsetup -setremotelogin
+on`. Idempotent on already-enabled state. Operator established this
+once via System Settings so ssh-copy-id could reach the host;
+caparison reinforces the setting so a manual toggle-off does not
+silently drop the node.
+
+//axhos_step
+. *Apply power configuration*: invoke `sudo -n pmset -a sleep 0`,
+`sudo -n pmset -a disablesleep 1`, and `sudo -n pmset -a hibernatemode
+0`. Idempotent. The settings span all power sources so battery hosts
+behave identically to wall-powered hosts.
+
+//axhos_step
+. *Set Tailscale daemon to auto-load*: invoke `sudo -n launchctl
+enable system/com.tailscale.tailscaled` followed by `sudo -n launchctl
+kickstart -k system/com.tailscale.tailscaled`. Idempotent. The
+Tailscale standalone installer registers the daemon as a system
+LaunchDaemon; caparison only ensures it loads at boot and is currently
+running. Tailscale itself was installed and authenticated by the
+operator per {bust_handbook_macos}; caparison only sets the daemon
+shape.
+
+//axhos_step
+. *Post-completion check — run invigilate-macos*: invoke
+{bust_invigilate_macos} for this {burp_investiture}. Non-zero exit
+indicates a caparison operation did not take or an operator-managed
+posture fact is missing; the diagnostic from {bust_invigilate_macos}
+names the failing fact and points the operator at the right repair
+surface.
+
+//axhog_guarantee
+On success the node has admin SSH reachable under key-only auth as
+{burp_privileged_user}, Remote Login enabled, pmset sleep and
+hibernate disabled across all power sources, the Tailscale system
+daemon loaded and running with auto-start at boot, and
+{bust_invigilate_macos} has confirmed every posture fact end-to-end.
+
+//axhoc_completion
+Exit 0 when the post-completion {bust_invigilate_macos} passes.
+Non-zero on admin SSH failure, `systemsetup` failure, any `pmset`
+failure, Tailscale `launchctl enable` or `kickstart` failure, or
+post-completion invigilate failure.

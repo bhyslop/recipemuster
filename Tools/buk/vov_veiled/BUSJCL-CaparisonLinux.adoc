@@ -1,11 +1,94 @@
 //axhob_operation
 {bust_caparison_linux}
 
-NOTE: {busn_caparison} ceremony on Linux — admin host posture
-establishment. Wraps ssh-copy-id orchestration, systemctl sleep target
-masking (laptop/desktop hosts), and tailscaled enable. Closes with
-{busn_invigilate} post-completion check. Operator-managed scope per
-{bust_handbook_linux}.
+NOTE: {busn_caparison} ceremony on Linux — single-phase admin host
+posture establishment over an already-established key-auth admin SSH
+session. Operator-managed scope per {bust_handbook_linux} covers the
+one-time SSH-trust setup: install and enable OpenSSH server, then run
+`ssh-copy-id` from the operator's station to place the admin pubkey.
+Caparison wraps that operator-manual flow rather than performing
+autonomous SSH-trust hardening — only Windows OpenSSH has the
+autonomous phase-1/phase-2 ceremony. Once admin key trust is in
+place, caparison reinforces the sshd service (idempotent), masks
+systemd sleep targets on laptop/desktop hosts, and enables the
+`tailscaled` service. Nuclear: every invocation purges and
+re-establishes the caparison-managed posture from scratch — no
+skip-if-present logic. Closing step runs {bust_invigilate_linux} as
+the post-completion check.
 
-TODO: subsequent pace fleshes preconditions, step list, guarantee, and
-completion clauses.
+//axhopt_typed_parameter
+{burp_investiture}
+
+//axhoq_precondition
+A {burp_regime} profile exists at the given {burp_investiture} and its
+referenced {burn_regime} profile targets a Linux node running systemd.
+
+//axhoq_precondition
+{bust_handbook_linux} operator-manual scope is complete: OpenSSH
+server is installed and reachable, `ssh-copy-id` has been run by the
+operator from their station to place the admin pubkey, Tailscale has
+been installed and authenticated to the operator's tailnet, and a
+sudoers entry grants NOPASSWD execution to {burp_privileged_user} for
+the caparison-managed commands. Consult {bust_handbook_linux} for the
+full list; caparison presupposes this scope, neither writes nor
+repairs it.
+
+//axhoq_precondition
+{burp_privileged_user} is a member of the sudo (or wheel) group and
+authenticates by key alone via {burp_privileged_key_file}.
+
+//axhoq_precondition
+{burp_privileged_key_file} is unencrypted and exists on the operator's
+station.
+
+//axhos_step
+. *Open admin SSH*: connect as {burp_privileged_user} using
+{burp_privileged_key_file}; key-auth only (no password fallback).
+Failure here surfaces a missing or stale admin trust — the diagnostic
+points to {bust_handbook_linux} since admin trust is operator-managed
+(ssh-copy-id).
+
+//axhos_step
+. *Reinforce sshd service*: invoke `sudo -n systemctl enable --now
+sshd`. Idempotent. Operator established sshd reachability once per
+{bust_handbook_linux}; caparison reinforces the enabled+active shape
+so a manual `systemctl disable` does not silently drop the node on
+next boot.
+
+//axhos_step
+. *Mask sleep targets on laptop/desktop hosts*: when the BURN profile
+identifies the host as a laptop or desktop class (servers skip this
+step — they typically do not advertise sleep targets), invoke
+`sudo -n systemctl mask sleep.target suspend.target hibernate.target
+hybrid-sleep.target`. Idempotent on already-masked state. Masking
+prevents systemd from honouring sleep requests from upower or login
+managers; the host stays reachable across lid-close events and idle
+timers.
+
+//axhos_step
+. *Enable tailscaled service*: invoke `sudo -n systemctl enable --now
+tailscaled`. Idempotent. The Tailscale install drops the systemd unit;
+caparison only ensures it is enabled at boot and currently active.
+Tailscale itself was installed and authenticated by the operator per
+{bust_handbook_linux}; caparison only sets the service shape.
+
+//axhos_step
+. *Post-completion check — run invigilate-linux*: invoke
+{bust_invigilate_linux} for this {burp_investiture}. Non-zero exit
+indicates a caparison operation did not take or an operator-managed
+posture fact is missing; the diagnostic from {bust_invigilate_linux}
+names the failing fact and points the operator at the right repair
+surface.
+
+//axhog_guarantee
+On success the node has admin SSH reachable under key-only auth as
+{burp_privileged_user}, sshd enabled and active, sleep targets masked
+where the BURN class warrants it, the `tailscaled` service enabled
+and active, and {bust_invigilate_linux} has confirmed every posture
+fact end-to-end.
+
+//axhoc_completion
+Exit 0 when the post-completion {bust_invigilate_linux} passes.
+Non-zero on admin SSH failure, sshd `systemctl` failure, sleep-target
+mask failure, tailscaled `systemctl` failure, or post-completion
+invigilate failure.

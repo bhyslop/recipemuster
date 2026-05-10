@@ -3,13 +3,85 @@
 
 NOTE: {busn_invigilate} ceremony on macOS — read-only host posture
 verification. Asserts each posture fact (admin SSH key trust, Remote
-Login enabled, `pmset` sleep state, Tailscale service auto-start)
-matches its expected value. No mutations, no remediation. Failure
-pointers discriminate operator-managed posture (→ {bust_handbook_macos})
-from caparison-managed posture (→ {bust_caparison_macos}).
+Login state, `pmset` sleep and hibernate disabled, Tailscale system
+daemon registered and running) matches its expected value. No
+mutations, no remediation. Failure pointers discriminate
+operator-managed posture (→ {bust_handbook_macos}) from
+caparison-managed posture (→ {bust_caparison_macos}).
 
-Invocation contexts: {bust_caparison_macos} post-completion check;
-{bust_garrison_bash} precondition check on macOS nodes.
+Invocation contexts: {bust_caparison_macos} runs invigilate-macos as
+its post-completion check (a non-zero exit signals that a caparison
+operation did not take or that the operator-managed posture is not in
+place); {bust_garrison_bash} runs it as its precondition assertion
+before any destructive workload work on macOS nodes, so a missing or
+stale admin posture surfaces with fact-named guidance rather than an
+opaque downstream failure.
 
-TODO: subsequent pace fleshes preconditions, fact-by-fact step list,
-guarantee, and completion clauses.
+Read commands run over the admin SSH session opened with
+{burp_privileged_key_file}: `systemsetup -getremotelogin` for Remote
+Login state, `pmset -g custom` for current sleep settings, `launchctl
+print system/com.tailscale.tailscaled` for the Tailscale daemon. Bash
+-side BCG-compliant matching extracts each fact and compares to its
+expected value.
+
+//axhopt_typed_parameter
+{burp_investiture}
+
+//axhoq_precondition
+A {burp_regime} profile exists at the given {burp_investiture} and its
+referenced {burn_regime} profile targets a macOS node reachable as
+{burp_privileged_user} under key-only authentication using
+{burp_privileged_key_file}. Invigilate does not establish that trust —
+it presupposes it; admin SSH failure surfaces as the first posture
+fact.
+
+//axhos_step
+. *Open admin SSH*: connect as {burp_privileged_user} using
+{burp_privileged_key_file}; key-auth only (no password fallback).
+Failure here is the first posture fact and surfaces a missing or
+stale admin trust — the diagnostic points to {bust_handbook_macos}
+since admin trust on macOS is operator-managed (ssh-copy-id).
+
+//axhos_step
+. *Assert Remote Login enabled*: invoke `systemsetup -getremotelogin`
+and assert the output reports `Remote Login: On`. Mismatch points to
+{bust_caparison_macos} — caparison reinforces Remote Login on every
+invocation, so a disabled state indicates caparison either did not
+run or its `systemsetup` operation did not take.
+
+//axhos_step
+. *Assert pmset sleep disabled*: invoke `pmset -g custom` and assert
+the `sleep`, `disablesleep`, and `hibernatemode` values match
+caparison's settings (`0`, `1`, `0` respectively) on every advertised
+power source. Mismatch points to {bust_caparison_macos} — these are
+the values caparison's `pmset -a` calls set; drift indicates
+caparison either did not run or a power-management GUI undid the
+setting.
+
+//axhos_step
+. *Assert Tailscale daemon registered*: invoke `launchctl print
+system/com.tailscale.tailscaled` and assert the daemon record exists.
+Absence indicates Tailscale was never installed (the standalone
+installer registers this system LaunchDaemon); the diagnostic points
+to {bust_handbook_macos}.
+
+//axhos_step
+. *Assert Tailscale daemon running*: from the same `launchctl print`
+output, extract the `state` field and assert it equals `running`.
+A non-running state points to {bust_caparison_macos} — caparison
+issues `launchctl kickstart` after `enable`, so a stopped daemon
+indicates caparison either did not run or the kickstart failed.
+
+//axhog_guarantee
+On success every posture fact has been asserted to match its expected
+value, the running admin SSH session was used only for read commands,
+and no remote or local mutation occurred. The node is in the shape
+{bust_caparison_macos} produces and {bust_garrison_bash} requires on
+macOS.
+
+//axhoc_completion
+Exit 0 when every posture fact matches its expected value.
+Non-zero on the first mismatch, with a diagnostic naming the failing
+fact, its expected value, its observed value, and the pointer
+({bust_handbook_macos} for operator-managed facts;
+{bust_caparison_macos} for caparison-managed facts).
