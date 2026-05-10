@@ -56,7 +56,7 @@ BUJB_wsl_root_basename='rbtww-fs'
 
 # Cygwin install root in two slash conventions. Forward-slash form
 # survives `command="..."` directives and cmd.exe / PS argv layers
-# without escape pain (used in BUJB_command_c and zbujb_admin_exec).
+# without escape pain (used in BUJB_command_c and zbujb_admin_exec_cygwin).
 # Back-slash form is for PowerShell path arguments where Test-Path /
 # Remove-Item expect native Windows separators (used by the obliterate
 # Cygwin-home probe/remove). Do not collapse — the divergence is
@@ -167,11 +167,6 @@ zbujb_kindle() {
   readonly ZBUJB_PUBKEY_STDERR_WORK="${BURD_TEMP_DIR}/bujb_pubkey_work_stderr.txt"
   readonly ZBUJB_PUBKEY_STDOUT_PRIV="${BURD_TEMP_DIR}/bujb_pubkey_priv_stdout.txt"
   readonly ZBUJB_PUBKEY_STDERR_PRIV="${BURD_TEMP_DIR}/bujb_pubkey_priv_stderr.txt"
-
-  # base64 capture (garrison step5 = workload privkey b64-encoded for
-  # heredoc transport to remote).
-  readonly ZBUJB_KEY_B64_STDOUT="${BURD_TEMP_DIR}/bujb_key_b64_stdout.txt"
-  readonly ZBUJB_KEY_B64_STDERR="${BURD_TEMP_DIR}/bujb_key_b64_stderr.txt"
 
   # base64 capture (garrison step4 w-branch = authorized_keys line b64-encoded
   # for transport to remote).
@@ -384,44 +379,61 @@ zbujb_workload_home_capture() {
   esac
 }
 
-# zbujb_admin_exec LETTER STMT [STMT ...] -- run statements as the privileged
-# user on the remote node. Statements are IFS-joined with ';' and shipped
-# as the bash -c argument; embedded " characters are escaped to \" so the
-# outer "..." of `bash -c "..."` survives the cmd.exe / Windows argv-parser
-# layer (relevant for c/w letters via Windows OpenSSH). Linux bash inside
-# "..." applies the same \" → " rule, so b letter gets equivalent semantics.
+# zbujb_admin_exec_{native,cygwin,wsl} STMT -- run a single bash statement as
+# the privileged user on the remote node, in the named shell environment.
+# Variant functions per platform (no cryptic letter parameter): the call
+# site picks the shell by name, and the function selects the matching
+# remote invoker (`bash`, cygwin's bash --login, or wsl.exe ... bash).
+# Embedded " characters are escaped to \" so the outer "..." of
+# `bash -c "..."` survives the cmd.exe / Windows argv-parser layer
+# (relevant for cygwin/wsl variants via Windows OpenSSH).
 #
-# No stdin pipe to ssh, no inner shell process reading a script source,
-# no base64 detour, no pipeline-in-$() (BCG line 502), no temp file. The
-# remote bash receives the script as its -c argument and executes it
-# directly. Caller redirects stdout/stderr for capture; returns ssh exit
-# code. Each positional statement should be a complete shell statement;
-# the joiner inserts ';' between them so the body fits one line (cmd.exe
-# handles multi-line args poorly).
+# Single-statement contract per WSG SH-10: STMT must be exactly one of
+# (1) one simple command with arguments and redirections, (2) one pipeline
+# optionally preceded by `set -o pipefail`, or (3) one simple command
+# whose argument is itself an inner-shell body. Multi-statement work
+# decomposes into multiple round-trips per the Capture-Decide-Dispatch
+# pattern; bash on the curia owns the state machine.
 #
-# This function does NOT transform $. Body authors are responsible for
-# per-letter $-escape discipline (see WSG).
-zbujb_admin_exec() {
-  zbujb_sentinel
-  local z_letter="${1:-}"
-  zbujb_assert_shell_letter "${z_letter}"
-  shift
-  test $# -ge 1 \
-    || buc_die "zbujb_admin_exec: at least one statement required"
+# Caller may pipe stdin into any variant (e.g.
+#   `zbujb_admin_exec_native "install ... /dev/stdin '<target>'" < <file>`)
+# — bash redirection attaches the file to FD 0, ssh inherits it, sshd
+# forwards it to the remote command's FD 0, the body's single command
+# reads from /dev/stdin. Used by garrison step5 to plant the workload
+# key without ever materializing the plaintext on either side's disk.
+#
+# Caller redirects stdout/stderr for capture; returns ssh exit code.
+# These functions do NOT transform $. Body authors are responsible for
+# per-shell $-escape discipline (see WSG SH-6: only the wsl variant's
+# bodies need `\$name` escaping).
+zbujb_admin_exec_native() {
+  zbujb_admin_exec_impl 'bash' "$@"
+}
 
-  # IFS-local join with ';' — pure parameter expansion, no subprocess.
-  local IFS=';'
-  local z_body="$*"
+zbujb_admin_exec_cygwin() {
+  zbujb_admin_exec_impl "${BUJB_path_cygwin_root_fwd}/bin/bash --login" "$@"
+}
+
+zbujb_admin_exec_wsl() {
+  zbujb_admin_exec_impl "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash" "$@"
+}
+
+# zbujb_admin_exec_impl REMOTE_INVOKER STMT -- shared body for the three
+# zbujb_admin_exec_{native,cygwin,wsl} variants. Not called directly by
+# step code; callers always go through one of the named variants so the
+# call site declares its target shell.
+zbujb_admin_exec_impl() {
+  zbujb_sentinel
+  local z_remote_invoker="${1:-}"
+  test -n "${z_remote_invoker}" \
+    || buc_die "zbujb_admin_exec_impl: REMOTE_INVOKER required (call via zbujb_admin_exec_{native,cygwin,wsl})"
+  shift
+  test $# -eq 1 \
+    || buc_die "zbujb_admin_exec_*: requires exactly one statement (got $#); decompose multi-statement work via Capture-Decide-Dispatch per WSG SH-10"
+  local z_body="$1"
 
   # Escape " → \" for the cmd.exe / Windows argv-parser layer.
   local z_body_escaped="${z_body//\"/\\\"}"
-
-  local z_remote_invoker
-  case "${z_letter}" in
-    b) z_remote_invoker='bash' ;;
-    c) z_remote_invoker="${BUJB_path_cygwin_root_fwd}/bin/bash --login" ;;
-    w) z_remote_invoker="wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash" ;;
-  esac
 
   ssh -i "${BURP_PRIVILEGED_KEY_FILE}"        \
       "${ZBUJB_SSH_BASE_ARGS[@]}"             \
@@ -519,7 +531,12 @@ zbujb_garrison_step1_admin_open() {
   buc_step "  [1/6] Open admin SSH (${BURP_PRIVILEGED_USER}@${BURN_HOST})"
 
   local z_exit=0
-  zbujb_admin_exec "${z_letter}" 'exit 0' || z_exit=$?
+  case "${z_letter}" in
+    b) zbujb_admin_exec_native 'exit 0' || z_exit=$? ;;
+    c) zbujb_admin_exec_cygwin 'exit 0' || z_exit=$? ;;
+    w) zbujb_admin_exec_wsl    'exit 0' || z_exit=$? ;;
+    *) buc_die "step1: invalid shell-letter '${z_letter}'" ;;
+  esac
   if test "${z_exit}" -ne 0; then
     case "${BURN_PLATFORM}" in
       bubep_windows)
@@ -787,16 +804,16 @@ zbujb_obliterate_workload() {
 
   case "${BURN_PLATFORM}" in
     bubep_linux)
-      zbujb_admin_exec b                                              \
-        "set -uo pipefail"                                            \
-        "sudo -n userdel -r '${BUJB_workload_user}' 2>/dev/null || true"           \
-        "sudo -n rm -rf '${BUJB_path_posix_user_home}' 2>/dev/null || true"
+      # Best-effort destructive ops; per-call `|| true` on the curia absorbs
+      # the user/home-dir-absent pre-state without invoking PS-8's error-
+      # suppression-as-idempotency hazard (which governs PS bodies, not
+      # bash). A future tightening could lift these into CDD probes.
+      zbujb_admin_exec_native "sudo -n userdel -r '${BUJB_workload_user}' 2>/dev/null" || true
+      zbujb_admin_exec_native "sudo -n rm -rf '${BUJB_path_posix_user_home}' 2>/dev/null" || true
       ;;
     bubep_mac)
-      zbujb_admin_exec b                                              \
-        "set -uo pipefail"                                            \
-        "sudo -n sysadminctl -deleteUser '${BUJB_workload_user}' 2>/dev/null || true" \
-        "sudo -n rm -rf '${BUJB_path_mac_user_home}' 2>/dev/null || true"
+      zbujb_admin_exec_native "sudo -n sysadminctl -deleteUser '${BUJB_workload_user}' 2>/dev/null" || true
+      zbujb_admin_exec_native "sudo -n rm -rf '${BUJB_path_mac_user_home}' 2>/dev/null" || true
       ;;
     bubep_windows)
       zbujb_obliterate_windows_namespaces
@@ -816,30 +833,32 @@ zbujb_garrison_step3_create() {
     b)
       case "${BURN_PLATFORM}" in
         bubep_linux)
-          zbujb_admin_exec b                                              \
-            "set -euo pipefail"                                           \
-            "sudo -n useradd --create-home --shell /bin/bash '${BUJB_workload_user}'"  \
-            "sudo -n passwd  --lock '${BUJB_workload_user}'"
+          zbujb_admin_exec_native "sudo -n useradd --create-home --shell /bin/bash '${BUJB_workload_user}'" \
+            || buc_die "step3 (b/linux): useradd failed for ${BUJB_workload_user}"
+          zbujb_admin_exec_native "sudo -n passwd --lock '${BUJB_workload_user}'" \
+            || buc_die "step3 (b/linux): passwd --lock failed for ${BUJB_workload_user}"
           ;;
         bubep_mac)
           # Mac uses dscl/sysadminctl; left for in-environment refinement.
           # Operator may need to seat a more idiomatic primary group ID.
-          zbujb_admin_exec b                                              \
-            "set -euo pipefail"                                           \
-            "sudo -n sysadminctl -addUser '${BUJB_workload_user}' -roleAccount"        \
-            "sudo -n dscl . -create '${BUJB_path_mac_user_home}' UserShell /bin/bash"
+          zbujb_admin_exec_native "sudo -n sysadminctl -addUser '${BUJB_workload_user}' -roleAccount" \
+            || buc_die "step3 (b/mac): sysadminctl -addUser failed for ${BUJB_workload_user}"
+          zbujb_admin_exec_native "sudo -n dscl . -create '${BUJB_path_mac_user_home}' UserShell /bin/bash" \
+            || buc_die "step3 (b/mac): dscl UserShell create failed for ${BUJB_path_mac_user_home}"
           ;;
       esac
       ;;
     c)
       # Cygwin reflects Windows user accounts; mint via net.exe with a
       # disabled-password posture (we want ssh-key-only).
-      zbujb_admin_exec c                                                  \
-        "set -euo pipefail"                                               \
-        "net.exe user '${BUJB_workload_user}' /add /passwordreq:no /active:yes > /dev/null" \
-        "mkpasswd -l -u '${BUJB_workload_user}' >> /etc/passwd"                        \
-        "mkdir -p '${BUJB_path_posix_user_home}'"                         \
-        "chown -R '${BUJB_workload_user}' '${BUJB_path_posix_user_home}'"
+      zbujb_admin_exec_cygwin "net.exe user '${BUJB_workload_user}' /add /passwordreq:no /active:yes > /dev/null" \
+        || buc_die "step3 (c): net.exe user /add failed for ${BUJB_workload_user}"
+      zbujb_admin_exec_cygwin "mkpasswd -l -u '${BUJB_workload_user}' >> /etc/passwd" \
+        || buc_die "step3 (c): mkpasswd append to /etc/passwd failed for ${BUJB_workload_user}"
+      zbujb_admin_exec_cygwin "mkdir -p '${BUJB_path_posix_user_home}'" \
+        || buc_die "step3 (c): mkdir of ${BUJB_path_posix_user_home} failed"
+      zbujb_admin_exec_cygwin "chown -R '${BUJB_workload_user}' '${BUJB_path_posix_user_home}'" \
+        || buc_die "step3 (c): chown of ${BUJB_path_posix_user_home} failed"
       ;;
     w)
       # Windows-side workload account only. The WSL-side Linux user is
@@ -847,9 +866,8 @@ zbujb_garrison_step3_create() {
       # distribution by zbujb_garrison_w_init_wsl — admin's WSL is not
       # the workload's runtime distribution under the redesigned
       # garrison-w (Microsoft per-user WSL constraint, BUSJGW).
-      zbujb_admin_exec w                                                  \
-        "set -euo pipefail"                                               \
-        "net.exe user '${BUJB_workload_user}' /add /passwordreq:no /active:yes > /dev/null"
+      zbujb_admin_exec_wsl "net.exe user '${BUJB_workload_user}' /add /passwordreq:no /active:yes > /dev/null" \
+        || buc_die "step3 (w): net.exe user /add failed for ${BUJB_workload_user}"
       # OpenSSH-Win32 silently closes at preauth if the workload SID has
       # no HKLM\...\ProfileList entry. net.exe user /add creates the SAM
       # entry but not the profile registration. Win32-OpenSSH issue #1383.
@@ -918,25 +936,31 @@ zbujb_garrison_step4_place_trust() {
 
   case "${z_letter}" in
     b)
-      zbujb_admin_exec b                                                  \
-        "set -euo pipefail"                                               \
-        "${z_sudo_prefix}mkdir -p   '${z_authkeys_dir}'"                  \
-        "${z_sudo_prefix}chmod 700  '${z_authkeys_dir}'"                  \
-        "echo '${z_authkeys_line}' | ${z_sudo_prefix}tee '${z_authkeys_dir}/authorized_keys' > /dev/null" \
-        "${z_sudo_prefix}chmod 600  '${z_authkeys_dir}/authorized_keys'"  \
-        "${z_sudo_prefix}chown -R '${BUJB_workload_user}:${BUJB_workload_user}' '${z_authkeys_dir}'"
+      zbujb_admin_exec_native "${z_sudo_prefix}mkdir -p '${z_authkeys_dir}'" \
+        || buc_die "step4 (b): mkdir of ${z_authkeys_dir} failed"
+      zbujb_admin_exec_native "${z_sudo_prefix}chmod 700 '${z_authkeys_dir}'" \
+        || buc_die "step4 (b): chmod 700 of ${z_authkeys_dir} failed"
+      zbujb_admin_exec_native "echo '${z_authkeys_line}' | ${z_sudo_prefix}tee '${z_authkeys_dir}/authorized_keys' > /dev/null" \
+        || buc_die "step4 (b): write to ${z_authkeys_dir}/authorized_keys failed"
+      zbujb_admin_exec_native "${z_sudo_prefix}chmod 600 '${z_authkeys_dir}/authorized_keys'" \
+        || buc_die "step4 (b): chmod 600 of authorized_keys failed"
+      zbujb_admin_exec_native "${z_sudo_prefix}chown -R '${BUJB_workload_user}:${BUJB_workload_user}' '${z_authkeys_dir}'" \
+        || buc_die "step4 (b): chown of ${z_authkeys_dir} failed"
       ;;
     c)
       # In Cygwin, file ownership/permissions interplay with NTFS ACLs.
       # mkdir/chmod/chown are Cygwin-mediated; run as the admin user
       # without sudo (Windows admins already have privilege).
-      zbujb_admin_exec c                                                  \
-        "set -euo pipefail"                                               \
-        "mkdir -p   '${z_authkeys_dir}'"                                  \
-        "chmod 700  '${z_authkeys_dir}'"                                  \
-        "echo '${z_authkeys_line}' > '${z_authkeys_dir}/authorized_keys'" \
-        "chmod 600  '${z_authkeys_dir}/authorized_keys'"                  \
-        "chown -R '${BUJB_workload_user}' '${z_authkeys_dir}'"
+      zbujb_admin_exec_cygwin "mkdir -p '${z_authkeys_dir}'" \
+        || buc_die "step4 (c): mkdir of ${z_authkeys_dir} failed"
+      zbujb_admin_exec_cygwin "chmod 700 '${z_authkeys_dir}'" \
+        || buc_die "step4 (c): chmod 700 of ${z_authkeys_dir} failed"
+      zbujb_admin_exec_cygwin "echo '${z_authkeys_line}' > '${z_authkeys_dir}/authorized_keys'" \
+        || buc_die "step4 (c): write to ${z_authkeys_dir}/authorized_keys failed"
+      zbujb_admin_exec_cygwin "chmod 600 '${z_authkeys_dir}/authorized_keys'" \
+        || buc_die "step4 (c): chmod 600 of authorized_keys failed"
+      zbujb_admin_exec_cygwin "chown -R '${BUJB_workload_user}' '${z_authkeys_dir}'" \
+        || buc_die "step4 (c): chown of ${z_authkeys_dir} failed"
       ;;
     w)
       printf '%s' "${z_authkeys_line}"                                    \
@@ -951,11 +975,11 @@ zbujb_garrison_step4_place_trust() {
       buc_step "    [diag/curia] z_authkeys_line ${#z_authkeys_line}B; z_authkeys_b64 ${#z_authkeys_b64}B"
       buc_step "    [diag/curia-pubkey] z_pubkey ${#z_pubkey}B: ${z_pubkey}"
 
-      zbujb_place_trust_run "mkdir"            zbujb_admin_exec w "mkdir -p '${z_authkeys_dir}'"
-      zbujb_place_trust_run "chmod-dir"        zbujb_admin_exec w "chmod 700 '${z_authkeys_dir}'"
-      zbujb_place_trust_run "decode-write"     zbujb_admin_exec w "set -o pipefail; echo '${z_authkeys_b64}' | openssl enc -base64 -d -A > '${z_authkeys_dir}/authorized_keys'"
-      zbujb_place_trust_run "chmod-file"       zbujb_admin_exec w "chmod 600 '${z_authkeys_dir}/authorized_keys'"
-      zbujb_place_trust_run "prelock-readback" zbujb_admin_exec c "cat '${BUJB_path_cyg_user_authkeys}'"
+      zbujb_place_trust_run "mkdir"            zbujb_admin_exec_wsl    "mkdir -p '${z_authkeys_dir}'"
+      zbujb_place_trust_run "chmod-dir"        zbujb_admin_exec_wsl    "chmod 700 '${z_authkeys_dir}'"
+      zbujb_place_trust_run "decode-write"     zbujb_admin_exec_wsl    "set -o pipefail; echo '${z_authkeys_b64}' | openssl enc -base64 -d -A > '${z_authkeys_dir}/authorized_keys'"
+      zbujb_place_trust_run "chmod-file"       zbujb_admin_exec_wsl    "chmod 600 '${z_authkeys_dir}/authorized_keys'"
+      zbujb_place_trust_run "prelock-readback" zbujb_admin_exec_cygwin "cat '${BUJB_path_cyg_user_authkeys}'"
 
       local z_authkeys_win="${BUJB_path_win_user_authkeys}"
       local z_authkeys_dir_win="${BUJB_path_win_user_ssh}"
@@ -979,40 +1003,43 @@ zbujb_garrison_step5_plant_key() {
   z_wlhome=$(zbujb_workload_home_capture "${z_letter}") \
     || buc_die "step5: workload home unresolvable for letter='${z_letter}' platform='${BURN_PLATFORM}'"
   local z_target="${z_wlhome}/${BUJB_workload_keypath}"
-  local z_target_dir="${z_target%/*}"  # parameter expansion replaces dirname
   buc_step "  [5/6] Plant workload privkey (${z_target})"
 
-  openssl enc -base64 -A < "${BURP_WORKLOAD_KEY_FILE}" \
-      > "${ZBUJB_KEY_B64_STDOUT}" \
-      2> "${ZBUJB_KEY_B64_STDERR}" \
-    || buc_die "base64 encode failed for workload key: ${BURP_WORKLOAD_KEY_FILE} — see ${ZBUJB_KEY_B64_STDERR}"
-  local z_key_b64
-  z_key_b64=$(<"${ZBUJB_KEY_B64_STDOUT}")
-  z_key_b64="${z_key_b64//$'\n'/}"
-
-  local z_sudo_prefix=""
-  test "${z_letter}" != "b" || z_sudo_prefix="sudo -n "
-
+  # Single ssh-stdin pipeline per shell (pace ₢A-AA9): the workload key
+  # file flows from BURP_WORKLOAD_KEY_FILE on the curia, over ssh stdin
+  # (FD 0), into the remote shell, into install's /dev/stdin, and lands
+  # at z_target with mode + owner atomically set by install -D. No
+  # plaintext on either side's disk; no remote temp file, trap, or
+  # mktemp; no curia-side base64 encode; no key material in argv.
+  # See WSG SH-10 for the single-statement-body contract.
   case "${z_letter}" in
-    b|w)
-      zbujb_admin_exec "${z_letter}"                                      \
-        "set -euo pipefail"                                               \
-        "ztmp=\$(mktemp)"                                                 \
-        "trap 'rm -f \"\\\${ztmp}\"' EXIT"                                \
-        "echo '${z_key_b64}' | openssl enc -base64 -d -A > \"\\\${ztmp}\"" \
-        "${z_sudo_prefix}mkdir -p   '${z_target_dir}'"                    \
-        "${z_sudo_prefix}install -m 600 -o '${BUJB_workload_user}' -g '${BUJB_workload_user}' \"\\\${ztmp}\" '${z_target}'"
+    b)
+      # Linux/Mac: privileged user needs sudo to write into workload's
+      # home; both -o and -g supplied because useradd auto-mints a
+      # self-named primary group on Linux/Mac.
+      zbujb_admin_exec_native \
+          "sudo -n install -D -m 600 -o '${BUJB_workload_user}' -g '${BUJB_workload_user}' /dev/stdin '${z_target}'" \
+          < "${BURP_WORKLOAD_KEY_FILE}" \
+        || buc_die "step5 (b): failed to plant workload key at ${z_target}"
+      ;;
+    w)
+      # WSL: wsl.exe --user root provides root inside the distribution,
+      # no sudo needed. -o and -g supplied (WSL distro is Linux-flavoured;
+      # useradd inside it mints a self-named group).
+      zbujb_admin_exec_wsl \
+          "install -D -m 600 -o '${BUJB_workload_user}' -g '${BUJB_workload_user}' /dev/stdin '${z_target}'" \
+          < "${BURP_WORKLOAD_KEY_FILE}" \
+        || buc_die "step5 (w): failed to plant workload key at ${z_target}"
       ;;
     c)
-      zbujb_admin_exec c                                                  \
-        "set -euo pipefail"                                               \
-        "ztmp=\$(mktemp)"                                                 \
-        "trap 'rm -f \"\${ztmp}\"' EXIT"                                  \
-        "echo '${z_key_b64}' | openssl enc -base64 -d -A > \"\${ztmp}\"" \
-        "mkdir -p   '${z_target_dir}'"                                    \
-        "cp \"\${ztmp}\" '${z_target}'"                                   \
-        "chmod 600  '${z_target}'"                                        \
-        "chown      '${BUJB_workload_user}' '${z_target}'"
+      # Cygwin: privileged user is a Windows admin; chown works via NTFS
+      # ACL without sudo. -g omitted because Windows accounts (minted via
+      # net.exe user /add) do not get an auto-self-named group; passing
+      # -g '${BUJB_workload_user}' would fail.
+      zbujb_admin_exec_cygwin \
+          "install -D -m 600 -o '${BUJB_workload_user}' /dev/stdin '${z_target}'" \
+          < "${BURP_WORKLOAD_KEY_FILE}" \
+        || buc_die "step5 (c): failed to plant workload key at ${z_target}"
       ;;
   esac
 }
