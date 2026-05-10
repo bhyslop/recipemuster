@@ -34,7 +34,55 @@ set -euo pipefail
 test -z "${ZBUJB_SOURCED:-}" || buc_die "Module bujb multiply sourced - check sourcing hierarchy"
 ZBUJB_SOURCED=1
 
-# Tinder constants (pure string literals — available at source time)
+# Tinder constants (pure string literals or tinder-on-tinder composition —
+# available at source time)
+
+# Canonical workload OS user name provisioned on every node by garrison.
+# Project-wide convention; consumed by every account-relative path tinder
+# below, substituted into BUJB_command_w via bujb_command_for_capture,
+# and consumed by garrison/cli display strings.
+BUJB_workload_user='bujuw_user'
+
+# Canonical WSL distribution name reached by garrison-w.
+BUJB_wsl_distribution='rbtww-main'
+
+# Path segment shared by every account-relative SSH state directory.
+BUJB_path_dotssh='.ssh'
+
+# WSL artifact basenames placed under the workload Windows profile by the
+# garrison-w seed/import sequence.
+BUJB_seed_basename='rbtww-seed.tar'
+BUJB_wsl_root_basename='rbtww-fs'
+
+# Cygwin install root (back-slash form for PowerShell path arguments
+# where Test-Path / Remove-Item expect native Windows separators). The
+# forward-slash sibling is embedded in BUJB_command_c.
+BUJB_path_cygwin_root_bs='C:\\cygwin64'
+
+# Workload home directories per coordinate system. Tinder-on-tinder so a
+# future BUJB_workload_user rename is a one-line edit.
+BUJB_path_win_user_home="C:\\Users\\${BUJB_workload_user}"
+BUJB_path_winenv_user_home="%SystemDrive%\\Users\\${BUJB_workload_user}"
+BUJB_path_wsl_user_home="/mnt/c/Users/${BUJB_workload_user}"
+BUJB_path_cyg_user_home="/cygdrive/c/Users/${BUJB_workload_user}"
+BUJB_path_mac_user_home="/Users/${BUJB_workload_user}"
+BUJB_path_posix_user_home="/home/${BUJB_workload_user}"
+BUJB_path_cygwin_user_home="${BUJB_path_cygwin_root_bs}\\home\\${BUJB_workload_user}"
+
+# .ssh directories under each home.
+BUJB_path_win_user_ssh="${BUJB_path_win_user_home}\\${BUJB_path_dotssh}"
+BUJB_path_wsl_user_ssh="${BUJB_path_wsl_user_home}/${BUJB_path_dotssh}"
+BUJB_path_cyg_user_ssh="${BUJB_path_cyg_user_home}/${BUJB_path_dotssh}"
+BUJB_path_posix_user_ssh="${BUJB_path_posix_user_home}/${BUJB_path_dotssh}"
+
+# authorized_keys file under each .ssh.
+BUJB_path_win_user_authkeys="${BUJB_path_win_user_ssh}\\authorized_keys"
+BUJB_path_wsl_user_authkeys="${BUJB_path_wsl_user_ssh}/authorized_keys"
+BUJB_path_cyg_user_authkeys="${BUJB_path_cyg_user_ssh}/authorized_keys"
+
+# WSL artifacts under the Windows workload profile.
+BUJB_path_win_seed_tarball="${BUJB_path_win_user_home}\\${BUJB_seed_basename}"
+BUJB_path_win_wsl_root="${BUJB_path_win_user_home}\\${BUJB_wsl_root_basename}"
 
 # Shell-letter -> command= directive mappings.
 # Forced commands routed through SSH_ORIGINAL_COMMAND keep workload account
@@ -49,14 +97,6 @@ BUJB_command_w='command="C:/Windows/System32/wsl.exe --distribution rbtww-main -
 BUJB_workload_keypath_b='.ssh/id_ed25519'
 BUJB_workload_keypath_c='.ssh/id_ed25519'
 BUJB_workload_keypath_w='.ssh/id_ed25519'
-
-# Canonical WSL distribution name reached by garrison-w.
-BUJB_wsl_distribution='rbtww-main'
-
-# Canonical workload OS user name provisioned on every node by garrison.
-# Project-wide convention; substituted into BUJB_command_w via
-# bujb_command_for_capture and consumed by garrison/cli display strings.
-BUJB_workload_user='bujuw_user'
 
 # Windows OpenSSH sshd_config hardening directive set written by
 # fenestrate phase 1. Newline-joined; each directive is asserted by
@@ -299,12 +339,12 @@ zbujb_workload_home_capture() {
   case "${z_letter}" in
     b)
       case "${BURN_PLATFORM}" in
-        bubep_linux) echo "/home/${z_wlu}" ;;
-        bubep_mac)   echo "/Users/${z_wlu}" ;;
+        bubep_linux) echo "${BUJB_path_posix_user_home}" ;;
+        bubep_mac)   echo "${BUJB_path_mac_user_home}"   ;;
         *)           return 1 ;;
       esac
       ;;
-    c|w) echo "/home/${z_wlu}" ;;
+    c|w) echo "${BUJB_path_posix_user_home}" ;;
     *)   return 1 ;;
   esac
 }
@@ -588,8 +628,8 @@ zbujb_obliterate_windows_namespaces() {
   }
 
   # Windows profile directory.
-  buc_step "    [Profile] Probe C:\\Users\\${z_wlu}"
-  zbujb_admin_powershell "Test-Path 'C:\\Users\\${z_wlu}'" \
+  buc_step "    [Profile] Probe ${BUJB_path_win_user_home}"
+  zbujb_admin_powershell "Test-Path '${BUJB_path_win_user_home}'" \
       > "${ZBUJB_OBLITERATE_STDOUT}" \
       2> "${ZBUJB_OBLITERATE_STDERR}" \
     || buc_die "Profile-dir probe failed — see ${ZBUJB_OBLITERATE_STDERR}"
@@ -598,23 +638,23 @@ zbujb_obliterate_windows_namespaces() {
   z_state="${z_state//[$'\r\n']/}"
   case "${z_state}" in
     True)
-      buc_step "    [Profile] Remove C:\\Users\\${z_wlu}"
-      zbujb_admin_powershell "Remove-Item -Recurse -Force 'C:\\Users\\${z_wlu}'" \
+      buc_step "    [Profile] Remove ${BUJB_path_win_user_home}"
+      zbujb_admin_powershell "Remove-Item -Recurse -Force '${BUJB_path_win_user_home}'" \
           > "${ZBUJB_OBLITERATE_STDOUT}" \
           2> "${ZBUJB_OBLITERATE_STDERR}" \
-        || buc_die "Remove C:\\Users\\${z_wlu} failed — see ${ZBUJB_OBLITERATE_STDERR}"
+        || buc_die "Remove ${BUJB_path_win_user_home} failed — see ${ZBUJB_OBLITERATE_STDERR}"
       zbujb_obliterate_diag_dump profile_remove
       ;;
     False)
       ;;
     *)
-      buc_die "Test-Path on C:\\Users\\${z_wlu} returned unexpected: '${z_state}'"
+      buc_die "Test-Path on ${BUJB_path_win_user_home} returned unexpected: '${z_state}'"
       ;;
   esac
 
   # Cygwin home directory.
-  buc_step "    [Cygwin] Probe C:\\cygwin64\\home\\${z_wlu}"
-  zbujb_admin_powershell "Test-Path 'C:\\cygwin64\\home\\${z_wlu}'" \
+  buc_step "    [Cygwin] Probe ${BUJB_path_cygwin_user_home}"
+  zbujb_admin_powershell "Test-Path '${BUJB_path_cygwin_user_home}'" \
       > "${ZBUJB_OBLITERATE_STDOUT}" \
       2> "${ZBUJB_OBLITERATE_STDERR}" \
     || buc_die "Cygwin-home probe failed — see ${ZBUJB_OBLITERATE_STDERR}"
@@ -623,17 +663,17 @@ zbujb_obliterate_windows_namespaces() {
   z_state="${z_state//[$'\r\n']/}"
   case "${z_state}" in
     True)
-      buc_step "    [Cygwin] Remove C:\\cygwin64\\home\\${z_wlu}"
-      zbujb_admin_powershell "Remove-Item -Recurse -Force 'C:\\cygwin64\\home\\${z_wlu}'" \
+      buc_step "    [Cygwin] Remove ${BUJB_path_cygwin_user_home}"
+      zbujb_admin_powershell "Remove-Item -Recurse -Force '${BUJB_path_cygwin_user_home}'" \
           > "${ZBUJB_OBLITERATE_STDOUT}" \
           2> "${ZBUJB_OBLITERATE_STDERR}" \
-        || buc_die "Remove C:\\cygwin64\\home\\${z_wlu} failed — see ${ZBUJB_OBLITERATE_STDERR}"
+        || buc_die "Remove ${BUJB_path_cygwin_user_home} failed — see ${ZBUJB_OBLITERATE_STDERR}"
       zbujb_obliterate_diag_dump cygwin_remove
       ;;
     False)
       ;;
     *)
-      buc_die "Test-Path on C:\\cygwin64\\home\\${z_wlu} returned unexpected: '${z_state}'"
+      buc_die "Test-Path on ${BUJB_path_cygwin_user_home} returned unexpected: '${z_state}'"
       ;;
   esac
 
@@ -660,8 +700,8 @@ zbujb_obliterate_windows_namespaces() {
       # uses a PS single-quoted string ('' escapes an embedded single
       # quote) so no double quotes appear inside the cmd.exe-level
       # powershell -Command token.
-      buc_step "    [WSL] Probe orphan home (/home/${z_wlu}) inside ${BUJB_wsl_distribution}"
-      zbujb_admin_powershell "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c 'test -e /home/''${z_wlu}'' && echo PRESENT || true'" \
+      buc_step "    [WSL] Probe orphan home (${BUJB_path_posix_user_home}) inside ${BUJB_wsl_distribution}"
+      zbujb_admin_powershell "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c 'test -e ''${BUJB_path_posix_user_home}'' && echo PRESENT || true'" \
           > "${ZBUJB_OBLITERATE_STDOUT}" \
           2> "${ZBUJB_OBLITERATE_STDERR}" \
         || buc_die "WSL orphan-home probe failed — see ${ZBUJB_OBLITERATE_STDERR}"
@@ -669,8 +709,8 @@ zbujb_obliterate_windows_namespaces() {
       z_state=$(<"${ZBUJB_OBLITERATE_STDOUT}")
       z_state="${z_state//[$'\r\n']/}"
       test "${z_state}" != "PRESENT" || {
-        buc_step "    [WSL] Remove orphan home (/home/${z_wlu}) inside ${BUJB_wsl_distribution}"
-        zbujb_admin_powershell "wsl.exe --distribution ${BUJB_wsl_distribution} --user root rm -rf '/home/${z_wlu}'" \
+        buc_step "    [WSL] Remove orphan home (${BUJB_path_posix_user_home}) inside ${BUJB_wsl_distribution}"
+        zbujb_admin_powershell "wsl.exe --distribution ${BUJB_wsl_distribution} --user root rm -rf '${BUJB_path_posix_user_home}'" \
             > "${ZBUJB_OBLITERATE_STDOUT}" \
             2> "${ZBUJB_OBLITERATE_STDERR}" \
           || buc_die "WSL orphan-home removal failed — see ${ZBUJB_OBLITERATE_STDERR}"
@@ -722,13 +762,13 @@ zbujb_obliterate_workload() {
       zbujb_admin_exec b                                              \
         "set -uo pipefail"                                            \
         "sudo -n userdel -r '${z_wlu}' 2>/dev/null || true"           \
-        "sudo -n rm -rf '/home/${z_wlu}' 2>/dev/null || true"
+        "sudo -n rm -rf '${BUJB_path_posix_user_home}' 2>/dev/null || true"
       ;;
     bubep_mac)
       zbujb_admin_exec b                                              \
         "set -uo pipefail"                                            \
         "sudo -n sysadminctl -deleteUser '${z_wlu}' 2>/dev/null || true" \
-        "sudo -n rm -rf '/Users/${z_wlu}' 2>/dev/null || true"
+        "sudo -n rm -rf '${BUJB_path_mac_user_home}' 2>/dev/null || true"
       ;;
     bubep_windows)
       zbujb_obliterate_windows_namespaces "${z_wlu}"
@@ -760,7 +800,7 @@ zbujb_garrison_step3_create() {
           zbujb_admin_exec b                                              \
             "set -euo pipefail"                                           \
             "sudo -n sysadminctl -addUser '${z_wlu}' -roleAccount"        \
-            "sudo -n dscl . -create '/Users/${z_wlu}' UserShell /bin/bash"
+            "sudo -n dscl . -create '${BUJB_path_mac_user_home}' UserShell /bin/bash"
           ;;
       esac
       ;;
@@ -771,8 +811,8 @@ zbujb_garrison_step3_create() {
         "set -euo pipefail"                                               \
         "net.exe user '${z_wlu}' /add /passwordreq:no /active:yes > /dev/null" \
         "mkpasswd -l -u '${z_wlu}' >> /etc/passwd"                        \
-        "mkdir -p '/home/${z_wlu}'"                                       \
-        "chown -R '${z_wlu}' '/home/${z_wlu}'"
+        "mkdir -p '${BUJB_path_posix_user_home}'"                         \
+        "chown -R '${z_wlu}' '${BUJB_path_posix_user_home}'"
       ;;
     w)
       # Windows-side workload account only. The WSL-side Linux user is
@@ -788,13 +828,12 @@ zbujb_garrison_step3_create() {
       # entry but not the profile registration. Win32-OpenSSH issue #1383.
       # Bash-orchestrated per WSG-PS-5: capture SID, build registry path
       # in bash, then two atomic single-expression PS calls.
-      local z_sid z_regkey z_homepath
+      local z_sid z_regkey
       z_sid=$(zbujb_powershell_capture zbujb_privileged "(Get-LocalUser '${z_wlu}').SID.Value") \
         || buc_die "step 3 (w): could not resolve SID for ${z_wlu}"
       z_regkey="HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\${z_sid}"
-      z_homepath="%SystemDrive%\\Users\\${z_wlu}"
       zbujb_admin_powershell "New-Item -Path '${z_regkey}' -Force | Out-Null"
-      zbujb_admin_powershell "New-ItemProperty -Path '${z_regkey}' -Name 'ProfileImagePath' -Value '${z_homepath}' -PropertyType ExpandString -Force | Out-Null"
+      zbujb_admin_powershell "New-ItemProperty -Path '${z_regkey}' -Name 'ProfileImagePath' -Value '${BUJB_path_winenv_user_home}' -PropertyType ExpandString -Force | Out-Null"
       ;;
   esac
 }
@@ -813,8 +852,8 @@ zbujb_garrison_step4_place_trust() {
   # discovers it natively (the SSH auth boundary is the Windows user).
   local z_authkeys_dir
   case "${z_letter}" in
-    b|c) z_authkeys_dir="${z_wlhome}/.ssh" ;;
-    w)   z_authkeys_dir="/mnt/c/Users/${z_wlu}/.ssh" ;;
+    b|c) z_authkeys_dir="${z_wlhome}/${BUJB_path_dotssh}" ;;
+    w)   z_authkeys_dir="${BUJB_path_wsl_user_ssh}" ;;
   esac
   buc_step "  [4/6] Place workload trust (${z_authkeys_dir}/authorized_keys)"
 
@@ -890,11 +929,11 @@ zbujb_garrison_step4_place_trust() {
       zbujb_place_trust_run "chmod-dir"        zbujb_admin_exec w "chmod 700 '${z_authkeys_dir}'"
       zbujb_place_trust_run "decode-write"     zbujb_admin_exec w "set -o pipefail; echo '${z_authkeys_b64}' | openssl enc -base64 -d -A > '${z_authkeys_dir}/authorized_keys'"
       zbujb_place_trust_run "chmod-file"       zbujb_admin_exec w "chmod 600 '${z_authkeys_dir}/authorized_keys'"
-      zbujb_place_trust_run "prelock-readback" zbujb_admin_exec c "cat '/cygdrive/c/Users/${z_wlu}/.ssh/authorized_keys'"
+      zbujb_place_trust_run "prelock-readback" zbujb_admin_exec c "cat '${BUJB_path_cyg_user_authkeys}'"
 
-      local z_authkeys_win="C:\\Users\\${z_wlu}\\.ssh\\authorized_keys"
-      local z_authkeys_dir_win="C:\\Users\\${z_wlu}\\.ssh"
-      local z_home_win="C:\\Users\\${z_wlu}"
+      local z_authkeys_win="${BUJB_path_win_user_authkeys}"
+      local z_authkeys_dir_win="${BUJB_path_win_user_ssh}"
+      local z_home_win="${BUJB_path_win_user_home}"
 
       zbujb_place_trust_run "icacls-grant"         zbujb_admin_powershell "icacls '${z_authkeys_win}' /inheritance:r /grant 'SYSTEM:F' /grant '${z_wlu}:F'"
       zbujb_place_trust_run "icacls-setowner"      zbujb_admin_powershell "icacls '${z_authkeys_win}' /setowner '${z_wlu}'"
@@ -1007,7 +1046,7 @@ zbujb_garrison_w_export_seed() {
   local z_wlu="${BUJB_workload_user}"
   buc_step "  [w-export-seed] Export admin's ${BUJB_wsl_distribution} to workload-readable seed"
 
-  local z_seed_win="C:\\Users\\${z_wlu}\\rbtww-seed.tar"
+  local z_seed_win="${BUJB_path_win_seed_tarball}"
 
   # PowerShell-routed: single quotes are literal-string delimiters that
   # PS strips before invoking wsl.exe.
@@ -1034,8 +1073,8 @@ zbujb_garrison_w_init_wsl() {
   local z_wlu="${BUJB_workload_user}"
   buc_step "  [w-init-wsl] SSH-as-workload: import distribution, provision Linux user, plant privkey"
 
-  local z_seed_win="C:\\Users\\${z_wlu}\\rbtww-seed.tar"
-  local z_wsl_root_win="C:\\Users\\${z_wlu}\\rbtww-fs"
+  local z_seed_win="${BUJB_path_win_seed_tarball}"
+  local z_wsl_root_win="${BUJB_path_win_wsl_root}"
 
   # cmd.exe-routed (workload's default Win32-OpenSSH shell): double-quote
   # Windows paths so cmd.exe's argv parser passes them as single args to
@@ -1066,7 +1105,7 @@ zbujb_garrison_w_init_wsl() {
   z_key_b64="${z_key_b64//$'\n'/}"
 
   local z_wsl_bash_body
-  z_wsl_bash_body="mkdir -p /home/${z_wlu}/.ssh && echo '${z_key_b64}' | openssl enc -base64 -d -A > /home/${z_wlu}/.ssh/id_ed25519 && chown -R ${z_wlu}:${z_wlu} /home/${z_wlu}/.ssh && chmod 700 /home/${z_wlu}/.ssh && chmod 600 /home/${z_wlu}/.ssh/id_ed25519"
+  z_wsl_bash_body="mkdir -p ${BUJB_path_posix_user_ssh} && echo '${z_key_b64}' | openssl enc -base64 -d -A > ${BUJB_path_posix_user_ssh}/id_ed25519 && chown -R ${z_wlu}:${z_wlu} ${BUJB_path_posix_user_ssh} && chmod 700 ${BUJB_path_posix_user_ssh} && chmod 600 ${BUJB_path_posix_user_ssh}/id_ed25519"
 
   zbujb_w_init_run "wsl-plant-privkey" zbujb_workload_ssh \
     "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c \"${z_wsl_bash_body}\"" \
@@ -1108,7 +1147,7 @@ zbujb_garrison_w_lockdown() {
   local z_authkeys_b64=$(<"${ZBUJB_AUTHKEYS_B64_STDOUT}")
   z_authkeys_b64="${z_authkeys_b64//$'\n'/}"
 
-  local z_authkeys_path="/mnt/c/Users/${z_wlu}/.ssh/authorized_keys"
+  local z_authkeys_path="${BUJB_path_wsl_user_authkeys}"
   local z_wsl_body
   z_wsl_body="echo '${z_authkeys_b64}' | openssl enc -base64 -d -A > '${z_authkeys_path}'"
 
@@ -1127,7 +1166,7 @@ zbujb_garrison_w_seed_cleanup() {
   local z_wlu="${BUJB_workload_user}"
   buc_step "  [w-seed-cleanup] Remove seed tarball"
 
-  local z_seed_win="C:\\Users\\${z_wlu}\\rbtww-seed.tar"
+  local z_seed_win="${BUJB_path_win_seed_tarball}"
   zbujb_w_init_run "seed-cleanup" zbujb_admin_powershell \
     "Remove-Item -Path '${z_seed_win}' -Force -ErrorAction SilentlyContinue" \
     || buc_die "w-seed-cleanup: failed to remove seed tarball — see ${ZBUJB_W_INIT_PREFIX}*seed-cleanup*"
@@ -1152,11 +1191,11 @@ zbujb_garrison_step6_validate() {
     zbujb_validate_run "eventlog-operational" zbujb_admin_powershell "Get-WinEvent -FilterHashtable @{LogName='OpenSSH/Operational'; StartTime=(Get-Date).AddSeconds(-30)} -ErrorAction SilentlyContinue | Format-List TimeCreated, Message | Out-String" || true
     zbujb_validate_run "eventlog-admin"       zbujb_admin_powershell "Get-WinEvent -FilterHashtable @{LogName='OpenSSH/Admin'; StartTime=(Get-Date).AddSeconds(-30)} -ErrorAction SilentlyContinue | Format-List TimeCreated, Message | Out-String"       || true
     zbujb_validate_run "sshd-config"          zbujb_admin_powershell "Get-Content \$env:ProgramData\\ssh\\sshd_config | Out-String"                                                                                                                       || true
-    zbujb_validate_run "acl-home"             zbujb_admin_powershell "icacls 'C:\\Users\\${BUJB_workload_user}'"                                                                                                                                          || true
-    zbujb_validate_run "acl-dotssh"           zbujb_admin_powershell "icacls 'C:\\Users\\${BUJB_workload_user}\\.ssh'"                                                                                                                                    || true
-    zbujb_validate_run "getacl-home"          zbujb_admin_powershell "Get-Acl 'C:\\Users\\${BUJB_workload_user}' | Format-List | Out-String"                                                                                                              || true
-    zbujb_validate_run "getacl-dotssh"        zbujb_admin_powershell "Get-Acl 'C:\\Users\\${BUJB_workload_user}\\.ssh' | Format-List | Out-String"                                                                                                        || true
-    zbujb_validate_run "getacl-authkeys"      zbujb_admin_powershell "Get-Acl 'C:\\Users\\${BUJB_workload_user}\\.ssh\\authorized_keys' | Format-List | Out-String"                                                                                       || true
+    zbujb_validate_run "acl-home"             zbujb_admin_powershell "icacls '${BUJB_path_win_user_home}'"                                                                                                                                                || true
+    zbujb_validate_run "acl-dotssh"           zbujb_admin_powershell "icacls '${BUJB_path_win_user_ssh}'"                                                                                                                                                 || true
+    zbujb_validate_run "getacl-home"          zbujb_admin_powershell "Get-Acl '${BUJB_path_win_user_home}' | Format-List | Out-String"                                                                                                                    || true
+    zbujb_validate_run "getacl-dotssh"        zbujb_admin_powershell "Get-Acl '${BUJB_path_win_user_ssh}' | Format-List | Out-String"                                                                                                                     || true
+    zbujb_validate_run "getacl-authkeys"      zbujb_admin_powershell "Get-Acl '${BUJB_path_win_user_authkeys}' | Format-List | Out-String"                                                                                                                || true
     zbujb_validate_run "localuser"            zbujb_admin_powershell "Get-LocalUser '${BUJB_workload_user}' | Format-List | Out-String"                                                                                                                   || true
     zbujb_validate_run "service-sshd"         zbujb_admin_powershell "Get-Service sshd | Format-List | Out-String"                                                                                                                                        || true
     zbujb_validate_run "sshdir-listing"       zbujb_admin_powershell "Get-ChildItem \$env:ProgramData\\ssh -ErrorAction SilentlyContinue | Format-List Name, Length, LastWriteTime | Out-String"                                                          || true
