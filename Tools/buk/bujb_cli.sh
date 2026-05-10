@@ -119,17 +119,6 @@ bujb_command_file() {
   buc_step "Capture complete"
 }
 
-# bujb_fenestrate - fenestrate ceremony (Windows OpenSSH only).
-bujb_fenestrate_command() {
-  zbujb_sentinel
-  buc_doc_brief "Fenestrate — admin SSH key trust + sshd_config harden (Windows)"
-  buc_doc_shown || return 0
-
-  test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
-  bujb_resolve_investiture
-  bujb_fenestrate
-}
-
 # bujb_privileged_ssh_command - run an arbitrary command as BURP_PRIVILEGED_USER.
 # Pass-through: argv joined into ssh's remote-command position; no shell wrapping.
 bujb_privileged_ssh_command() {
@@ -143,6 +132,17 @@ bujb_privileged_ssh_command() {
 
   bujb_resolve_investiture
   bujb_privileged_ssh "$@"
+}
+
+# bujb_caparison_windows_command - caparison ceremony, Windows admin host posture.
+bujb_caparison_windows_command() {
+  zbujb_sentinel
+  buc_doc_brief "Caparison — admin host posture for a bubep_windows node (admin SSH trust, sshd harden, WSL stage, sleep disable, Tailscale auto-start)"
+  buc_doc_shown || return 0
+
+  test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
+  bujb_resolve_investiture
+  bujb_caparison_windows
 }
 
 # bujb_caparison_macos_command - caparison ceremony, macOS admin host posture.
@@ -165,17 +165,6 @@ bujb_caparison_linux_command() {
   test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
   bujb_resolve_investiture
   bujb_caparison_linux
-}
-
-# bujb_wsl_install_command - idempotently provision the canonical WSL distro.
-bujb_wsl_install_command() {
-  zbujb_sentinel
-  buc_doc_brief "WSL Install — provision canonical WSL distribution from Ubuntu-24.04 seed (Windows, idempotent)"
-  buc_doc_shown || return 0
-
-  test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
-  bujb_resolve_investiture
-  bujb_wsl_install
 }
 
 # bujb_garrison_bash - garrison ceremony, native bash workload shell (Linux/Mac).

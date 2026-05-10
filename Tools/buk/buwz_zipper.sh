@@ -91,18 +91,13 @@ zbuwz_kindle() {
   buz_enroll BUWZ_JW_COMMAND_FILE   "buw-jwc"   "${z_mod}" "bujb_command_file"        "param1"  "Run command file as workload, capture outputs"
   buz_enroll BUWZ_JW_INTERACTIVE    "buw-jws"   "${z_mod}" "bujb_interactive_session" "param1"  "Interactive SSH session as workload"
 
-  # Jurisdiction operational — fenestrate (bujb_cli.sh)
-  buz_enroll BUWZ_JP_FENESTRATE       "buw-jpF"   "${z_mod}" "bujb_fenestrate_command" "param1"  "Fenestrate — admin SSH trust + sshd_config harden (Windows)"
-
   # Jurisdiction operational — caparison ceremonies (bujb_cli.sh)
-  buz_enroll BUWZ_JP_CAPARISON_MAC    "buw-jpCM"  "${z_mod}" "bujb_caparison_macos_command" "param1"  "Caparison — admin host posture (Remote Login, pmset, tailscaled) on a bubep_mac node"
-  buz_enroll BUWZ_JP_CAPARISON_LIN    "buw-jpCL"  "${z_mod}" "bujb_caparison_linux_command" "param1"  "Caparison — admin host posture (sshd, sleep mask, tailscaled) on a bubep_linux node"
+  buz_enroll BUWZ_JP_CAPARISON_WIN    "buw-jpCW"  "${z_mod}" "bujb_caparison_windows_command" "param1"  "Caparison — admin host posture (admin SSH trust, sshd harden, WSL stage, sleep disable, Tailscale auto-start) on a bubep_windows node"
+  buz_enroll BUWZ_JP_CAPARISON_MAC    "buw-jpCM"  "${z_mod}" "bujb_caparison_macos_command"   "param1"  "Caparison — admin host posture (Remote Login, pmset, tailscaled) on a bubep_mac node"
+  buz_enroll BUWZ_JP_CAPARISON_LIN    "buw-jpCL"  "${z_mod}" "bujb_caparison_linux_command"   "param1"  "Caparison — admin host posture (sshd, sleep mask, tailscaled) on a bubep_linux node"
 
   # Jurisdiction operational — privileged SSH pass-through (bujb_cli.sh)
   buz_enroll BUWZ_JP_PRIVILEGED_SSH   "buw-jpS"   "${z_mod}" "bujb_privileged_ssh_command" "param1"  "Privileged SSH — run a command on a node as BURP_PRIVILEGED_USER"
-
-  # Jurisdiction operational — WSL install (bujb_cli.sh, Windows only)
-  buz_enroll BUWZ_JP_WSL_INSTALL      "buw-jpW"   "${z_mod}" "bujb_wsl_install_command"    "param1"  "WSL Install — provision canonical WSL distribution from Ubuntu-24.04 seed (Windows, idempotent)"
 
   # Jurisdiction operational — garrison ceremonies (bujb_cli.sh)
   buz_enroll BUWZ_JP_GARRISON_BASH    "buw-jpGb"  "${z_mod}" "bujb_garrison_bash"     "param1"  "Garrison workload (shell-letter b: native bash, Linux/Mac)"

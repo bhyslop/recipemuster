@@ -74,22 +74,10 @@ zbujp_probe_ssh_connect() {
 
   case "${BURN_PLATFORM}" in
     bubep_windows)
-      buc_die "Admin SSH unreachable for ${BURP_PRIVILEGED_USER}@${BURN_HOST} (key=${BURP_PRIVILEGED_KEY_FILE}, exit ${z_exit}).
-
-Run fenestrate first:
-  tt/buw-jpF.Fenestrate.sh ${BUZ_FOLIO}
-
-ssh stderr (see ${ZBUJP_SSH_PROBE_PREFIX}stderr.txt):
-$(<"${ZBUJP_SSH_PROBE_PREFIX}stderr.txt")"
+      buc_die "Admin SSH unreachable for ${BURP_PRIVILEGED_USER}@${BURN_HOST} (key=${BURP_PRIVILEGED_KEY_FILE}, exit ${z_exit}) — run caparison-windows first (see ${ZBUJP_SSH_PROBE_PREFIX}stderr.txt)"
       ;;
     *)
-      buc_die "Admin SSH unreachable for ${BURP_PRIVILEGED_USER}@${BURN_HOST} (key=${BURP_PRIVILEGED_KEY_FILE}, exit ${z_exit}).
-
-Place admin pubkey via:
-  ssh-copy-id -i ${BURP_PRIVILEGED_KEY_FILE}.pub ${BURP_PRIVILEGED_USER}@${BURN_HOST}
-
-ssh stderr (see ${ZBUJP_SSH_PROBE_PREFIX}stderr.txt):
-$(<"${ZBUJP_SSH_PROBE_PREFIX}stderr.txt")"
+      buc_die "Admin SSH unreachable for ${BURP_PRIVILEGED_USER}@${BURN_HOST} (key=${BURP_PRIVILEGED_KEY_FILE}, exit ${z_exit}) — place admin pubkey via ssh-copy-id (see ${ZBUJP_SSH_PROBE_PREFIX}stderr.txt)"
       ;;
   esac
 }
