@@ -2,96 +2,130 @@
 {bust_garrison_cygwin}
 
 NOTE: {busn_garrison} ceremony with Cygwin bash as the workload shell,
-for Windows nodes reached via Cygwin sshd.
-Workload-only: garrison destroys any prior workload account named
-{bujb_workload_user} via the letter-agnostic
-`zbujb_obliterate_workload` helper in {bujb_jurisdiction} — the
-single greppable destroy verb. The covenant scope spans every
-namespace a prior garrison of any letter could have written to: the
-Windows SAM entry, the `C:\Users\<user>\` Windows profile directory,
-the `C:\cygwin64\home\<user>\` Cygwin home, and the WSL-side
-`/home/<user>` inside `rbtww-main` (when `rbtww-main` is installed).
-Each step is idempotent on absent state.
-Garrison never reads or writes any `sshd_config` and never modifies
-admin authorized_keys; admin trust is established beforehand by
-{busn_caparison}
-on the Windows OpenSSH server, while Cygwin sshd hardening (if used
-in addition to Windows OpenSSH) remains operator-manual.
+for Windows nodes reached via Cygwin sshd. Workload-only -- garrison
+never touches `sshd_config` and never modifies admin authorized_keys.
+
+NOTE: Destruction is letter-agnostic via `zbujb_obliterate_workload`
+in {bujb_jurisdiction} -- the single greppable destroy verb. Covenant
+spans the Windows SAM entry, `C:\Users\<user>\` profile, the
+`C:\cygwin64\home\<user>\` Cygwin home, and the WSL-side
+`/home/<user>` inside `rbtww-main` when present. Each step idempotent
+on absent state.
+
+NOTE: Admin trust is the responsibility of {busn_caparison} on the
+Windows OpenSSH server; Cygwin sshd hardening (when run alongside
+Windows OpenSSH) remains operator-manual.
+
+The {busn_garrison} operation on Windows via Cygwin:
 
 //axhopt_typed_parameter
 {burp_investiture}
 
 //axhoq_precondition
 A {burp_regime} profile exists at the given {burp_investiture} and its
-referenced {burn_regime} profile is reachable.
+{burn_regime} targets a Windows node with Cygwin sshd installed,
+reachable as {burp_privileged_user} under key-only auth using
+{burp_privileged_key_file}.
 
 //axhoq_precondition
-{busn_caparison} has run for this {burp_investiture} so that
-{burp_privileged_user} can authenticate by key alone using
-{burp_privileged_key_file} (Windows OpenSSH path). Cygwin sshd is
-installed on the node.
-
-//axhoq_precondition
-{bust_invigilate_windows} passes for this {burp_investiture}: admin
-SSH key trust is in place, operator-managed registry posture is
-correct, Tailscale service is set to Automatic, and powercfg
-sleep/hibernate are disabled. Garrison runs invigilate as its first
-action so a missing or stale admin posture surfaces with a
-fact-named diagnostic rather than as an opaque downstream failure.
+{busn_caparison} has run for this {burp_investiture} -- admin SSH
+trust established by Windows OpenSSH key-only auth.
 
 //axhoq_precondition
 {burp_workload_key_file} is unencrypted and exists on the operator's
 station.
 
 //axhos_step
-. *Assert admin posture*: invoke `{bust_invigilate_windows}` for this
-{burp_investiture}. Failure surfaces a fact-named diagnostic
-({bust_handbook_windows} pointer for operator-managed facts;
-{bust_caparison_windows} pointer for caparison-managed facts) and
-aborts garrison before any destructive workload work.
+. *Assert admin posture*:
+.. {busc_call}
+{bust_invigilate_windows} for this {burp_investiture}
+.. {busc_store}
+`«INVIGILATE_RESULT»`
+.. {busc_require}
+`«INVIGILATE_RESULT»` is zero
+.. {busc_fatal}
+on non-zero -- {bust_handbook_windows} scope (operator-managed) or
+{bust_caparison_windows} scope (caparison-managed); diagnostic
+surfaced verbatim
 
 //axhos_step
-. *Open admin SSH*: connect as {burp_privileged_user} using
-{burp_privileged_key_file}; key-auth only. Failure here surfaces a
-missing or stale admin trust.
+. *Open admin SSH session*:
+.. {busc_call}
+ssh as {burp_privileged_user} with {burp_privileged_key_file}; key-auth only
+.. {busc_store}
+`«ADMIN_SESSION»`
+.. {busc_fatal}
+on connection failure -- {bust_caparison_windows} scope
 
 //axhos_step
-. *Obliterate workload*: invoke `zbujb_obliterate_workload`. On
-Windows the helper executes a single PowerShell session over admin
-SSH that purges the Windows SAM entry, the Windows profile directory,
-the Cygwin home, and (when `rbtww-main` is installed) the WSL-side
-Linux user. Idempotent on absent state.
+. *Obliterate prior workload*:
+.. {busc_call}
+`zbujb_obliterate_workload` over `«ADMIN_SESSION»` -- single
+PowerShell session purges the Windows SAM entry, profile directory,
+Cygwin home, and (when `rbtww-main` is installed) the WSL-side Linux
+user
+.. nuclear -- idempotent on absent state
+.. {busc_fatal}
+on PowerShell session failure -- {bust_handbook_windows} scope
 
 //axhos_step
-. *Create workload*: provision {bujb_workload_user} as an unprivileged,
-ssh-only Cygwin account.
+. *Create workload account*:
+.. provision {bujb_workload_user} as an unprivileged ssh-only Cygwin
+account over `«ADMIN_SESSION»`
+.. {busc_fatal}
+on Cygwin account-management failure -- prior obliterate left state
 
 //axhos_step
-. *Place workload trust*: write the workload pubkey
-(derived via `ssh-keygen -y`) to the workload's authorized_keys with
-the shell-letter `c` `command=` directive below — locked spec content,
-mirrored at `BUJB_command_c` in {bujb_jurisdiction}:
+. *Place workload trust*:
+.. {busc_call}
+`ssh-keygen -y` on {burp_workload_key_file}
+.. {busc_store}
+`«WORKLOAD_PUBKEY»` from stdout
+.. write `«WORKLOAD_PUBKEY»` to the workload's authorized_keys with
+the shell-letter `c` `command=` directive (canonical:
+`BUJB_command_c` in {bujb_jurisdiction}):
 +
 [listing]
 ----
 command="C:/cygwin64/bin/bash --login -c \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding
 ----
+.. {busc_fatal}
+on key-write failure -- workload account left without trust
 
 //axhos_step
-. *Plant workload key*: copy {burp_workload_key_file} to the workload
-account at the shell-letter `c` destination path hardcoded in
-{bujb_jurisdiction}.
+. *Plant workload key*:
+.. copy {burp_workload_key_file} to the workload account at the
+shell-letter `c` destination path (canonical: `BUJB_workload_keypath_c`
+in {bujb_jurisdiction})
+.. {busc_fatal}
+on copy failure -- workload account reachable but key absent
 
 //axhos_step
-. *Validate round-trip*: SSH as workload, run a no-op command, verify
-exit 0.
+. *Validate round-trip*:
+.. {busc_call}
+ssh as {bujb_workload_user} with {burp_workload_key_file}; run a
+no-op command
+.. {busc_store}
+`«WORKLOAD_RT_RESULT»`
+.. {busc_require}
+`«WORKLOAD_RT_RESULT»` is zero
+.. {busc_fatal}
+on non-zero -- workload trust placed but unreachable
 
 //axhog_guarantee
-On success the node has exactly one workload account named
-{bujb_workload_user} reachable via Cygwin bash.
+On success:
+
+* Exactly one workload account named {bujb_workload_user} exists on
+  the node, reachable via Cygwin bash.
+* Workload authorized_keys carries `«WORKLOAD_PUBKEY»` with the
+  shell-letter `c` `command=` directive.
+* {burp_workload_key_file} planted at the shell-letter `c` destination
+  authenticates the workload round-trip.
+* Admin posture is unchanged -- no `sshd_config` writes, no admin
+  authorized_keys writes.
 
 //axhoc_completion
-Exit 0 when the round-trip validation succeeds.
-Non-zero on invigilate-windows assertion failure, admin SSH failure,
-Cygwin account-management failure, key-write failure, or workload
-validation failure.
+Exit 0 when the round-trip validation succeeds. Non-zero on
+invigilate-windows assertion failure, admin SSH failure, obliterate
+failure, Cygwin account-management failure, key-write failure, or
+workload round-trip failure.

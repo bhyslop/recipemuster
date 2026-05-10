@@ -1,134 +1,176 @@
 //axhob_operation
 {bust_handbook_windows}
 
-NOTE: Per-platform handbook surface for Windows — operator-manual scope
-that {busn_caparison} cannot or should not automate. Renders to the
-operator's terminal as the entry point into Windows-specific bootstrap
-procedures: OpenSSH server install + reachability, security-sensitive
-registry edits (UAC-required, e.g.,
-`DevicePasswordLessBuildVersion`), Tailscale install + Run-Unattended
-toggle + first auth, netplwiz auto-login, and any other Windows
-posture an operator must establish before {bust_caparison_windows} can
-run. No remote contact and no profile mutation. Steps missing from
-this procedure will cause {bust_caparison_windows} to fail at the
-point that depends on them.
+NOTE: Operator-manual scope for Windows -- posture {busn_caparison}
+cannot or should not automate. No remote contact, no profile mutation.
+
+NOTE: Steps establish OpenSSH server reachability,
+security-sensitive registry edits, Tailscale install + Run-Unattended
++ first auth, and netplwiz auto-login. Mismatches surface from
+{bust_invigilate_windows} as failure pointers back to this handbook.
+
+NOTE: Steps missing here cause {bust_caparison_windows} to fail at
+the point that depends on them.
+
+The {bust_handbook_windows} procedure:
 
 //axhos_step
-. *Install OpenSSH Server*: enable the OpenSSH Server optional feature.
-  GUI path: Settings → Apps → Optional features → Add a feature →
-  search "OpenSSH Server" → Install.
-  Elevated PowerShell equivalent:
-  `Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0`
-  Verify installation with `Get-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0`.
+. *Install OpenSSH Server*:
+.. {bush_show}
+GUI path: Settings → Apps → Optional features → Add a feature →
+search "OpenSSH Server" → Install
+.. Elevated PowerShell equivalent:
++
+----
+Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
+----
+.. {bush_require}
+`Get-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0`
+reports `Installed`
 
 //axhos_step
-. *Set sshd to Automatic and start*: from an elevated PowerShell prompt,
-  run `Set-Service -Name sshd -StartupType Automatic` then
-  `Start-Service -Name sshd`.
-  Verify the service is running with `Get-Service sshd` and confirm
-  `Status` is `Running`.
+. *Set sshd to Automatic and start*: from an elevated PowerShell
+prompt:
++
+----
+Set-Service -Name sshd -StartupType Automatic
+Start-Service -Name sshd
+----
+.. {bush_require}
+`Get-Service sshd` reports `Status` as `Running`
 
 //axhos_step
 . *Open the SSH port through Windows Firewall*: from an elevated
-  PowerShell prompt, run:
-  `New-NetFirewallRule -Name sshd -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22`
-  (substitute the non-default port if the BURN profile carries one).
-  Recent Windows builds create this rule automatically during the
-  OpenSSH install; this step is a verify-and-add fallback. Confirm
-  the rule exists with `Get-NetFirewallRule -Name sshd`.
-
-//axhos_step
-. *Enable temporary password authentication*: open
-  `C:\ProgramData\ssh\sshd_config` in an editor running as
-  Administrator. Set `PasswordAuthentication yes`, save, then restart
-  the service with `Restart-Service sshd`. This setting is
-  intentionally temporary — {bust_caparison_windows} flips it back to
-  `no` during phase 1. Caparison's first-run admin SSH session uses
-  `PreferredAuthentications=publickey,password` and falls through to a
-  TTY password prompt; this step makes that fall-through possible on a
-  fresh node before any key has been installed.
-
-//axhos_step
-. *Ensure the admin user has a known password*: {burp_privileged_user}
-  must be a member of the Administrators group and must have a password
-  the operator knows. This credential is required for caparison's
-  phase-1 password fallback — the operator types it once on `/dev/tty`;
-  caparison itself never handles the password. Verify or set with
-  `lusrmgr.msc` (GUI) or from an elevated cmd prompt:
-  `net user <username> <newpassword>`.
-
-//axhos_step
-. *Apply security-sensitive registry edits*: each entry requires
-  elevation. Use `reg add` from an elevated cmd prompt or
-  `New-ItemProperty` from an elevated PowerShell prompt.
+PowerShell prompt:
 +
-`DevicePasswordLessBuildVersion` = `0` (DWORD) under
+----
+New-NetFirewallRule -Name sshd -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
+----
+.. {bush_show}
+substitute the non-default port if the BURN profile carries one
+.. {bush_show}
+recent Windows builds create this rule automatically during the
+OpenSSH install -- this step is a verify-and-add fallback
+.. {bush_require}
+`Get-NetFirewallRule -Name sshd` returns the rule
+
+//axhos_step
+. *Enable temporary password authentication*:
+.. open `C:\ProgramData\ssh\sshd_config` in an editor running as
+Administrator
+.. set `PasswordAuthentication yes`, save
+.. restart the service:
++
+----
+Restart-Service sshd
+----
+.. {bush_show}
+intentionally temporary -- {bust_caparison_windows} flips it back
+to `no` during phase 1; this step makes the first-run TTY password
+fall-through possible before any key is installed
+
+//axhos_step
+. *Ensure the admin user has a known password*:
+.. {bush_require}
+{burp_privileged_user} is a member of the Administrators group with
+a password the operator knows
+.. set or verify via `lusrmgr.msc` (GUI) or from an elevated cmd
+prompt:
++
+----
+net user <username> <newpassword>
+----
+.. {bush_show}
+required for caparison's phase-1 password fallback -- operator types
+it once on `/dev/tty`; caparison itself never handles the password
+
+//axhos_step
+. *Apply security-sensitive registry edits*:
+.. {bush_warn}
+each entry requires elevation -- use `reg add` from an elevated cmd
+prompt or `New-ItemProperty` from an elevated PowerShell prompt
+.. `DevicePasswordLessBuildVersion` = `0` (DWORD) under
 `HKLM\Software\Microsoft\Windows\CurrentVersion\PasswordLess\Device`:
 +
 ----
 reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\PasswordLess\Device" /v DevicePasswordLessBuildVersion /t REG_DWORD /d 0 /f
 ----
-+
-Required for the netplwiz auto-login GUI to expose the "Users must
-enter a user name and password" checkbox on Windows 10/11. Without
-this key the netplwiz step has no checkbox to uncheck.
-+
-`PlatformAoAcOverride` = `0` (DWORD) under
+.. {bush_show}
+exposes the netplwiz "Users must enter a user name and password"
+checkbox on Windows 10/11
+.. `PlatformAoAcOverride` = `0` (DWORD) under
 `HKLM\System\CurrentControlSet\Control\Power`:
 +
 ----
 reg add "HKLM\System\CurrentControlSet\Control\Power" /v PlatformAoAcOverride /t REG_DWORD /d 0 /f
 ----
-+
-Required on Modern Standby (AlwaysOnAlwaysConnected) systems so
-caparison's `powercfg` sleep/hibernate disable will actually take.
-Without the override, `powercfg /change standby-timeout-ac 0` is
-silently demoted to a no-op.
-+
-Both keys are asserted by {bust_invigilate_windows} as
-operator-managed posture facts; mismatches there point back at this
-handbook step.
+.. {bush_show}
+required on Modern Standby (AlwaysOnAlwaysConnected) systems --
+without it, caparison's `powercfg /change standby-timeout-ac 0` is
+silently demoted to a no-op
+.. {bush_require}
+both keys present -- asserted by {bust_invigilate_windows}
 
 //axhos_step
-. *Install Tailscale*: download the Tailscale for Windows MSI from
-  https://tailscale.com/download and run the installer. The installer
-  registers a Windows service named `Tailscale` and adds a system-tray
-  icon. No configuration is needed at this stage.
+. *Install Tailscale*:
+.. download the Tailscale for Windows MSI from
+https://tailscale.com/download
+.. run the installer
+.. {bush_require}
+Windows service named `Tailscale` is registered and a system-tray
+icon is present
 
 //axhos_step
-. *Toggle Tailscale Run-Unattended*: open the Tailscale system-tray
-  icon → Preferences → enable "Run unattended". This lets the Tailscale
-  service start at boot and stay up without an interactive desktop
-  session — required because the host runs without a console login
-  during automated tests. Note: {bust_caparison_windows} sets the
-  Tailscale service `StartupType` to `Automatic`, but the service can
-  only deliver useful traffic once Run-Unattended is on.
+. *Toggle Tailscale Run-Unattended*:
+.. open the Tailscale system-tray icon → Preferences → enable "Run
+unattended"
+.. {bush_show}
+required because the host runs without a console login during
+automated tests -- {bust_caparison_windows} sets the service
+`StartupType` to `Automatic`, but useful traffic only flows once
+Run-Unattended is on
 
 //axhos_step
-. *Authenticate Tailscale to the operator's tailnet*: open the
-  Tailscale system-tray icon → Sign in → complete the browser-based
-  first-time authentication. This binds the host to the operator's
-  tailnet so the BURN profile's tailnet hostname (or `100.x.y.z`
-  address) becomes a stable transport address that persists across
-  reboots.
+. *Authenticate Tailscale to the operator's tailnet*:
+.. open the Tailscale system-tray icon → Sign in
+.. complete the browser-based first-time authentication
+.. {bush_show}
+binds the host to the tailnet so the BURN profile's tailnet
+hostname (or `100.x.y.z` address) becomes a stable transport
+address that persists across reboots
 
 //axhos_step
-. *Configure netplwiz auto-login*: press Windows + R, type `netplwiz`,
-  press Enter. In the User Accounts dialog, select {burp_privileged_user}.
-  Uncheck "Users must enter a user name and password to use this
-  computer" (this checkbox is visible only after the
-  `DevicePasswordLessBuildVersion` registry edit in the step above).
-  Click Apply, then enter the admin password twice when prompted. The
-  host now boots straight to a logged-in admin desktop, which is the
-  substrate Tailscale Run-Unattended and the OpenSSH server depend on
-  for unattended operation.
+. *Configure netplwiz auto-login*:
+.. {bush_warn}
+depends on `DevicePasswordLessBuildVersion` from the registry step
+above -- without it the checkbox is not visible
+.. press Windows + R, type `netplwiz`, press Enter
+.. select {burp_privileged_user} in the User Accounts dialog
+.. uncheck "Users must enter a user name and password to use this
+computer"
+.. click Apply, then enter the admin password twice when prompted
+.. {bush_show}
+host now boots straight to a logged-in admin desktop -- the
+substrate Tailscale Run-Unattended and OpenSSH depend on for
+unattended operation
 
 //axhog_guarantee
-No remote contact occurred and no local file was written by the
-handbook itself. The operator has the procedure rendered; performing
-the steps above establishes the operator-managed posture scope that
-{bust_caparison_windows} and {bust_invigilate_windows} depend on.
+On completion:
+
+* No remote contact occurred and no local file was written by the
+  handbook itself.
+* OpenSSH Server is installed, reachable, and reachable through the
+  firewall with temporary password auth enabled.
+* {burp_privileged_user} has a known password and Administrators
+  membership.
+* `DevicePasswordLessBuildVersion` and `PlatformAoAcOverride`
+  registry values are set.
+* Tailscale is installed, Run-Unattended is on, and the host is
+  authenticated to the operator's tailnet.
+* netplwiz auto-login is configured for {burp_privileged_user}.
+* The operator-managed posture scope that {bust_caparison_windows}
+  and {bust_invigilate_windows} depend on is established.
 
 //axhoc_completion
-Exit 0 after the handbook content is printed.
-Non-zero only when the handbook content cannot be located or rendered.
+Exit 0 after handbook content is printed. Non-zero only when content
+cannot be located or rendered.
