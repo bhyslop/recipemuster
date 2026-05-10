@@ -45,24 +45,24 @@ pub enum jjrg_HeatStatus {
 /// Tack record - snapshot of Pace state and plan
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct jjrg_Tack {
-    #[serde(rename = "jjgtn_ts", alias = "ts")]
+    #[serde(rename = "jjgtn_ts")]
     pub ts: String,
-    #[serde(rename = "jjgtn_state", alias = "state")]
+    #[serde(rename = "jjgtn_state")]
     pub state: jjrg_PaceState,
-    #[serde(rename = "jjgtn_text", alias = "text")]
+    #[serde(rename = "jjgtn_text")]
     pub text: String,
-    #[serde(rename = "jjgtn_silks", alias = "silks")]
+    #[serde(rename = "jjgtn_silks")]
     pub silks: String,
-    #[serde(rename = "jjgtn_basis", alias = "commit")]
+    #[serde(rename = "jjgtn_basis")]
     pub basis: String,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "jjgtn_direction", alias = "direction")]
+    #[serde(skip_serializing_if = "Option::is_none", rename = "jjgtn_direction")]
     pub direction: Option<String>,
 }
 
 /// Pace record - discrete action within a Heat
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct jjrg_Pace {
-    #[serde(rename = "jjgpn_tacks", alias = "tacks")]
+    #[serde(rename = "jjgpn_tacks")]
     pub tacks: Vec<jjrg_Tack>,
 }
 
