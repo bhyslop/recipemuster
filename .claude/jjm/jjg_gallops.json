@@ -35,6 +35,7 @@
       "jjghn_creation_time": "260412",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢A-AA7",
         "₢A-AA6",
         "₢A-AA5",
         "₢A-AA4",
@@ -91,7 +92,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "jjghn_next_pace_seed": "AA7",
+      "jjghn_next_pace_seed": "AA8",
       "jjghn_paces": {
         "₢A-AA0": {
           "jjgpn_tacks": [
@@ -195,6 +196,17 @@
               "jjgtn_text": "## Character\nSpec content rewrite — non-Windows platform depth (lighter than Windows).\n\n## Goal\nFlesh BUSJPCm/l, BUSJIm/l, BUSJHM/L; align garrison-bash precondition list to reference invigilate-{macos,linux}.\n\n## Boundary\n- BUSJPCm: enable Remote Login (`systemsetup -setremotelogin on`), ssh-copy-id orchestration, `pmset` power config, Tailscale install/service.\n- BUSJPCl: ssh-copy-id orchestration, systemctl mask sleep targets (laptop/desktop hosts), tailscaled enable/start.\n- BUSJIm/l: posture fact lists with read commands and expected values; failure messages point at handbook (operator-managed) or caparison (caparison-managed).\n- BUSJHM/L: operator-manual scope per platform — Tailscale install + login, anything genuinely operator-side.\n- BUSJGB: precondition list references invigilate-{macos,linux}.\n- No bash code edits.\n\n## Done when\n- All non-Windows platform specs render coherently end-to-end.\n- BUSJGB preconditions align with invigilate-{macos,linux} references.\n- bash -n green; tt/buw-st.BukSelfTest.sh green; tt/rbtd-s.TestSuite.fast.sh green.",
               "jjgtn_silks": "caparison-invigilate-mac-linux-content",
               "jjgtn_basis": "19ab010"
+            }
+          ]
+        },
+        "₢A-AA7": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260510-0923",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nSpec content rewrite — Windows-side depth.\n\n## Goal\nFlesh BUSJPCw, BUSJIw, BUSJHW with substantive content; align garrison-w/c preconditions to reference invigilate-windows.\n\n## Boundary\n- BUSJPCw: rewrite from fenestrate's lineage to broader caparison-windows scope. Preconditions, steps for SSH trust + WSL stage (always-purge-and-reimport, no skip-if-present) + power/sleep config (powercfg) + Tailscale service Set-Service Automatic, post-state assertion via invigilate-windows reference.\n- BUSJIw: posture fact list — operator-managed registry keys, Tailscale service StartupType, powercfg standby/hibernate state, AoAc override, admin's rbtww-main presence. Read commands (`Get-ItemPropertyValue`, `Get-Service`, `powercfg /a`, `wsl --list`) with expected values. Failure messages discriminate operator-pointer (handbook) vs caparison-pointer.\n- BUSJHW: operator-manual Windows-only scope — sshd reachability bootstrap, security-sensitive registry edits (DevicePasswordLessBuildVersion), Tailscale install + Run-Unattended toggle + first auth, netplwiz auto-login.\n- BUSJGW + BUSJGC: precondition lists reference invigilate-windows. Remove the \"WSL distribution rbtww-main installed under admin\" wording from BUSJGW (caparison-windows owns that posture now).\n- No bash code edits.\n\n## Done when\n- Three Windows specs render coherently end-to-end against each other.\n- BUSJGW/C preconditions align with invigilate-windows references.\n- bash -n green; tt/buw-st.BukSelfTest.sh green; tt/rbtd-s.TestSuite.fast.sh green.",
+              "jjgtn_silks": "caparison-invigilate-windows-content",
+              "jjgtn_basis": "65d6310"
             }
           ]
         },
