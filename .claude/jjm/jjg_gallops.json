@@ -9637,9 +9637,10 @@
         "₢BEAAC",
         "₢BEAAD",
         "₢BEAAE",
-        "₢BEAAF"
+        "₢BEAAF",
+        "₢BEAAH"
       ],
-      "jjghn_next_pace_seed": "AAH",
+      "jjghn_next_pace_seed": "AAI",
       "jjghn_paces": {
         "₢BEAAA": {
           "jjgpn_tacks": [
@@ -9778,6 +9779,17 @@
               "jjgtn_text": "## Character\n\nEditorial sweep applying axd_string to axt_enum_value voicings outside the gallops surface. Per-site mechanical; the breadth (~30 sites across RBS0/BUS0/JJSTF/JJSCGZ + JJS0 column-align/pensum-report families) earns a dedicated pace.\n\n## Targets\n\nEach axt_enum_value voicing in the foreign specs receives axd_string on its //axl_voices line and a body line of the canonical form `Serialized as `<existing-wire>` in <carrier>.` — wire token unchanged (no rename), carrier names the surrounding format (JSON, bash regime variable value, etc.).\n\n## Out of scope\n\nProperty-name voicings (already carry axd_property/axd_positional). Gallops surface enums (pre-discharged by the heat-affiliated AXLA-mechanism touch). Sites whose enumeration genuinely lacks a string-encoded wire form — document and skip; future encoding dimensions (axd_integer, axd_object, etc.) cover them.\n\n## Done when\n\n- No bare `//axl_voices axt_enum_value` line remains in RBS0, BUS0, JJSTF, JJSCGZ, or the non-gallops JJS0 enum families, except documented non-string-wire skips.\n- Build green.\n\n## Discovery hints\n\n`grep -rnE '^//axl_voices axt_enum_value$' Tools/{rbk,buk,jjk}/vov_veiled/*.adoc` enumerates the foreign sites.",
               "jjgtn_silks": "axla-extension-and-foreign-sweep",
               "jjgtn_basis": "f222dde"
+            }
+          ]
+        },
+        "₢BEAAH": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260510-0802",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nRefactor `vvc` to support genuine marker commits — index-invariant, guard-free. Three jjk call sites today set `allow_empty + no_stage` but use `git commit --allow-empty`, which still bundles pre-staged content into the marker; the size guard fires against a tree the marker doesn't author. Surfaced from ₢BEAAD's flip-pattern, when staged round-trip content blocked `jjx_open`'s invitatory.\n\n## Targets\n\n- `Tools/vvc/src/vvcc_commit.rs` — add `marker_only: bool` (or new `vvcc_marker_commit` primitive). When set: skip staging, skip size guard, use `git commit-tree HEAD^{tree} -p HEAD -m \"...\"` + `git update-ref HEAD <sha>` for true empty commit invariant to index state.\n- Three call sites migrate to the new path: `jjrm_mcp.rs:695` (invitatory), `jjrld_landing.rs:60` (landing), `jjrch_chalk.rs:78` (chalk).\n- `JJSRPS-persist.adoc` — replace stale `jjdo_mark` reference with the actual marker family (invitatory + landing + chalk) and document the marker-only contract.\n\n## Done when\n\n- Build clean; unit tests green.\n- New test: with pre-staged dirty content, a marker commit produces an empty diff against parent AND the pre-staged content remains staged afterward (index-invariance).\n- All three call sites use the new path.\n- JJSRPS lexicon current.",
+              "jjgtn_silks": "marker-commit-primitive",
+              "jjgtn_basis": "b1ed6eb"
             }
           ]
         }
