@@ -62,7 +62,7 @@ BUJB_wsl_root_basename='rbtww-fs'
 # Cygwin-home probe/remove). Do not collapse — the divergence is
 # load-bearing per the layer that consumes each form.
 BUJB_path_cygwin_root_fwd='C:/cygwin64'
-BUJB_path_cygwin_root_bs='C:\\cygwin64'
+BUJB_path_cygwin_root_bs="C:\\cygwin64"
 
 # Windows-OpenSSH path to wsl.exe, embedded in the locked-down command=
 # directive for shell-letter w. Forward-slash form per the same argv-layer
@@ -93,6 +93,21 @@ BUJB_path_cyg_user_authkeys="${BUJB_path_cyg_user_ssh}/authorized_keys"
 # WSL artifacts under the Windows workload profile.
 BUJB_path_win_seed_tarball="${BUJB_path_win_user_home}\\${BUJB_seed_basename}"
 BUJB_path_win_wsl_root="${BUJB_path_win_user_home}\\${BUJB_wsl_root_basename}"
+
+# WSL-install seed distribution: the Microsoft-published distribution that
+# bujb_wsl_install fetches via `wsl.exe --install --no-launch -d`, exports
+# to .tar, then re-imports under BUJB_wsl_distribution.
+BUJB_wsl_seed_distribution='Ubuntu-24.04'
+
+# Windows-side install directory housing both seed and canonical
+# distribution VHD trees plus the intermediate .tar export.
+BUJB_path_win_wsl_install_root='C:\WSL'
+
+# Windows ACL principal names used in icacls /grant arguments. The :F
+# permission suffix is appended at use sites alongside ${BUJB_workload_user}:F
+# so all three principals follow the same `<principal>:F` shape.
+BUJB_acl_principal_system='SYSTEM'
+BUJB_acl_principal_admins='BUILTIN\Administrators'
 
 # Shell-letter -> command= directive mappings.
 # Forced commands routed through SSH_ORIGINAL_COMMAND keep workload account
@@ -939,11 +954,11 @@ zbujb_garrison_step4_place_trust() {
       local z_authkeys_dir_win="${BUJB_path_win_user_ssh}"
       local z_home_win="${BUJB_path_win_user_home}"
 
-      zbujb_place_trust_run "icacls-grant"         zbujb_admin_powershell "icacls '${z_authkeys_win}' /inheritance:r /grant 'SYSTEM:F' /grant '${BUJB_workload_user}:F'"
+      zbujb_place_trust_run "icacls-grant"         zbujb_admin_powershell "icacls '${z_authkeys_win}' /inheritance:r /grant '${BUJB_acl_principal_system}:F' /grant '${BUJB_workload_user}:F'"
       zbujb_place_trust_run "icacls-setowner"      zbujb_admin_powershell "icacls '${z_authkeys_win}' /setowner '${BUJB_workload_user}'"
-      zbujb_place_trust_run "icacls-dir-grant"     zbujb_admin_powershell "icacls '${z_authkeys_dir_win}' /inheritance:r /grant 'SYSTEM:F' /grant '${BUJB_workload_user}:F'"
+      zbujb_place_trust_run "icacls-dir-grant"     zbujb_admin_powershell "icacls '${z_authkeys_dir_win}' /inheritance:r /grant '${BUJB_acl_principal_system}:F' /grant '${BUJB_workload_user}:F'"
       zbujb_place_trust_run "icacls-dir-setowner"  zbujb_admin_powershell "icacls '${z_authkeys_dir_win}' /setowner '${BUJB_workload_user}'"
-      zbujb_place_trust_run "icacls-home-grant"    zbujb_admin_powershell "icacls '${z_home_win}' /inheritance:r /grant 'SYSTEM:F' /grant 'BUILTIN\\Administrators:F' /grant '${BUJB_workload_user}:F'"
+      zbujb_place_trust_run "icacls-home-grant"    zbujb_admin_powershell "icacls '${z_home_win}' /inheritance:r /grant '${BUJB_acl_principal_system}:F' /grant '${BUJB_acl_principal_admins}:F' /grant '${BUJB_workload_user}:F'"
       zbujb_place_trust_run "icacls-home-setowner" zbujb_admin_powershell "icacls '${z_home_win}' /setowner '${BUJB_workload_user}'"
       ;;
   esac
@@ -1402,7 +1417,7 @@ if (\$existingLines -notcontains \$pubkey) {
 }
 
 # icacls lockdown (idempotent)
-icacls \$adminAuthKeys /inheritance:r /grant 'SYSTEM:F' /grant 'BUILTIN\\Administrators:F' 2>&1 | Out-Null
+icacls \$adminAuthKeys /inheritance:r /grant '${BUJB_acl_principal_system}:F' /grant '${BUJB_acl_principal_admins}:F' 2>&1 | Out-Null
 if (\$LASTEXITCODE -ne 0) { throw "icacls failed (exit \$LASTEXITCODE)" }
 
 # Idempotent sshd_config harden — replace the first matching line for
@@ -1519,36 +1534,34 @@ bujb_wsl_install() {
 
   zbujb_wsl_install_assert_platform
 
-  local -r z_seed='Ubuntu-24.04'
-  local -r z_install_dir='C:\WSL'
-  local -r z_distro_dir="${z_install_dir}\\${BUJB_wsl_distribution}"
-  local -r z_tar_path="${z_install_dir}\\${BUJB_wsl_distribution}.tar"
+  local -r z_distro_dir="${BUJB_path_win_wsl_install_root}\\${BUJB_wsl_distribution}"
+  local -r z_tar_path="${BUJB_path_win_wsl_install_root}\\${BUJB_wsl_distribution}.tar"
 
-  buc_step "WSL Install: ${BUJB_wsl_distribution} on ${BURN_HOST} (seed: ${z_seed})"
+  buc_step "WSL Install: ${BUJB_wsl_distribution} on ${BURN_HOST} (seed: ${BUJB_wsl_seed_distribution})"
 
   buc_step "  [1/6] Purge prior state (idempotent: unregister both, remove tar+dir)"
-  local -r z_purge_body="if ((wsl.exe --list --quiet) -match '${BUJB_wsl_distribution}') { wsl.exe --unregister ${BUJB_wsl_distribution}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE } }; if ((wsl.exe --list --quiet) -match '${z_seed}') { wsl.exe --unregister ${z_seed}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE } }; if (Test-Path '${z_tar_path}') { Remove-Item -Force '${z_tar_path}' }; if (Test-Path '${z_distro_dir}') { Remove-Item -Recurse -Force '${z_distro_dir}' }"
+  local -r z_purge_body="if ((wsl.exe --list --quiet) -match '${BUJB_wsl_distribution}') { wsl.exe --unregister ${BUJB_wsl_distribution}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE } }; if ((wsl.exe --list --quiet) -match '${BUJB_wsl_seed_distribution}') { wsl.exe --unregister ${BUJB_wsl_seed_distribution}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE } }; if (Test-Path '${z_tar_path}') { Remove-Item -Force '${z_tar_path}' }; if (Test-Path '${z_distro_dir}') { Remove-Item -Recurse -Force '${z_distro_dir}' }"
   zbujb_admin_powershell "${z_purge_body}" \
     || buc_die "Purge step failed"
 
-  buc_step "  [2/6] Ensure ${z_install_dir} directory"
-  zbujb_admin_powershell "New-Item -ItemType Directory -Path '${z_install_dir}' -Force | Out-Null" \
-    || buc_die "Failed to create ${z_install_dir}"
+  buc_step "  [2/6] Ensure ${BUJB_path_win_wsl_install_root} directory"
+  zbujb_admin_powershell "New-Item -ItemType Directory -Path '${BUJB_path_win_wsl_install_root}' -Force | Out-Null" \
+    || buc_die "Failed to create ${BUJB_path_win_wsl_install_root}"
 
-  buc_step "  [3/6] Install ${z_seed} seed distribution"
-  zbujb_admin_powershell "wsl.exe --install --no-launch -d ${z_seed}" \
-    || buc_die "Failed to install ${z_seed} seed"
+  buc_step "  [3/6] Install ${BUJB_wsl_seed_distribution} seed distribution"
+  zbujb_admin_powershell "wsl.exe --install --no-launch -d ${BUJB_wsl_seed_distribution}" \
+    || buc_die "Failed to install ${BUJB_wsl_seed_distribution} seed"
 
-  buc_step "  [4/6] Export ${z_seed} to ${z_tar_path}"
-  zbujb_admin_powershell "wsl.exe --export ${z_seed} '${z_tar_path}'" \
-    || buc_die "Failed to export ${z_seed}"
+  buc_step "  [4/6] Export ${BUJB_wsl_seed_distribution} to ${z_tar_path}"
+  zbujb_admin_powershell "wsl.exe --export ${BUJB_wsl_seed_distribution} '${z_tar_path}'" \
+    || buc_die "Failed to export ${BUJB_wsl_seed_distribution}"
 
   buc_step "  [5/6] Import ${BUJB_wsl_distribution} from ${z_tar_path}"
   zbujb_admin_powershell "wsl.exe --import ${BUJB_wsl_distribution} '${z_distro_dir}' '${z_tar_path}'" \
     || buc_die "Failed to import ${BUJB_wsl_distribution}"
 
-  buc_step "  [6/6] Cleanup: unregister ${z_seed} and remove .tar"
-  local -r z_cleanup_body="wsl.exe --unregister ${z_seed}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE }; if (Test-Path '${z_tar_path}') { Remove-Item -Force '${z_tar_path}' }"
+  buc_step "  [6/6] Cleanup: unregister ${BUJB_wsl_seed_distribution} and remove .tar"
+  local -r z_cleanup_body="wsl.exe --unregister ${BUJB_wsl_seed_distribution}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE }; if (Test-Path '${z_tar_path}') { Remove-Item -Force '${z_tar_path}' }"
   zbujb_admin_powershell "${z_cleanup_body}" \
     || buc_die "Cleanup step failed"
 
