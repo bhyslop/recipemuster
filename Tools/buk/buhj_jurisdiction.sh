@@ -134,17 +134,6 @@ zbuhj_render_windows_availability() {
 }
 
 zbuhj_render_windows_bootstrap() {
-  buh_section  "Windows: sshd Reachability"
-  buh_line     "All steps run on the Windows host in an elevated PowerShell."
-  buh_line     "Right-click Start, Terminal (Admin), or search 'PowerShell' and"
-  buh_line     "Run as Administrator."
-  buh_e
-  buh_section  "Preconditions:"
-  buh_line     "- Windows host with administrator access"
-  buh_line     "- Network reachable on TCP/${BUBC_windows_ssh_port} from operator's station"
-  buh_line     "  (for unattended power-on, see 'Windows: Host Availability' above)"
-  buh_e
-
   buh_step1    "Set or Confirm Admin Password:"
   buh_line     "Caparison-Windows's phase-1 admin SSH session authenticates via"
   buh_line     "password (once) before installing the pubkey. If you already know"
