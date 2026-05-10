@@ -1966,6 +1966,45 @@ bujb_invigilate_macos() {
          "${z_pid:-<empty>}" \
          "caparison-macos (BUSJCM) — Tailscale launchd auto-start"
 
+  buc_step "  Fact: admin-group membership for ${BURP_PRIVILEGED_USER}"
+  z_exit=0
+  zbujb_admin_exec_native "dseditgroup -o checkmember -m '${BURP_PRIVILEGED_USER}' admin" \
+      > "${ZBUJB_INVIGILATE_STDOUT}" \
+      2> "${ZBUJB_INVIGILATE_STDERR}" \
+    || z_exit=$?
+  test "${z_exit}" -eq 0 \
+    || zbujb_invigilate_fact_die \
+         "admin-group membership" \
+         "${BURP_PRIVILEGED_USER} is a member of admin" \
+         "dseditgroup checkmember exit ${z_exit} (see ${ZBUJB_INVIGILATE_STDOUT})" \
+         "operator handbook BUSJHM (admin-group membership prerequisite)"
+
+  buc_step "  Fact: sudo NOPASSWD available (sudo -n true)"
+  z_exit=0
+  zbujb_admin_exec_native 'sudo -n true' \
+      > "${ZBUJB_INVIGILATE_STDOUT}" \
+      2> "${ZBUJB_INVIGILATE_STDERR}" \
+    || z_exit=$?
+  test "${z_exit}" -eq 0 \
+    || zbujb_invigilate_fact_die \
+         "sudo NOPASSWD availability" \
+         "sudo -n true exits 0" \
+         "sudo -n true exit ${z_exit} (see ${ZBUJB_INVIGILATE_STDERR})" \
+         "operator handbook BUSJHM (sudoers NOPASSWD entry)"
+
+  buc_step "  Fact: sudo scope covers garrison commands (sudo -ln sysadminctl)"
+  z_exit=0
+  zbujb_admin_exec_native 'sudo -ln sysadminctl' \
+      > "${ZBUJB_INVIGILATE_STDOUT}" \
+      2> "${ZBUJB_INVIGILATE_STDERR}" \
+    || z_exit=$?
+  test "${z_exit}" -eq 0 \
+    || zbujb_invigilate_fact_die \
+         "sudo scope for sysadminctl" \
+         "sudo -ln sysadminctl exits 0" \
+         "sudo -ln sysadminctl exit ${z_exit} (see ${ZBUJB_INVIGILATE_STDERR})" \
+         "operator handbook BUSJHM (sudoers entry too narrow for garrison's command set)"
+
   buc_step "Invigilate-macos succeeded"
 }
 
@@ -2082,6 +2121,32 @@ bujb_invigilate_linux() {
          "active" \
          "${z_val:-<unreported>}" \
          "caparison-linux (BUSJCL)"
+
+  buc_step "  Fact: sudo NOPASSWD available (sudo -n true)"
+  z_exit=0
+  zbujb_admin_exec_native 'sudo -n true' \
+      > "${ZBUJB_INVIGILATE_STDOUT}" \
+      2> "${ZBUJB_INVIGILATE_STDERR}" \
+    || z_exit=$?
+  test "${z_exit}" -eq 0 \
+    || zbujb_invigilate_fact_die \
+         "sudo NOPASSWD availability" \
+         "sudo -n true exits 0" \
+         "sudo -n true exit ${z_exit} (see ${ZBUJB_INVIGILATE_STDERR})" \
+         "operator handbook BUSJHL (sudoers NOPASSWD entry)"
+
+  buc_step "  Fact: sudo scope covers garrison commands (sudo -ln userdel)"
+  z_exit=0
+  zbujb_admin_exec_native 'sudo -ln userdel' \
+      > "${ZBUJB_INVIGILATE_STDOUT}" \
+      2> "${ZBUJB_INVIGILATE_STDERR}" \
+    || z_exit=$?
+  test "${z_exit}" -eq 0 \
+    || zbujb_invigilate_fact_die \
+         "sudo scope for userdel" \
+         "sudo -ln userdel exits 0" \
+         "sudo -ln userdel exit ${z_exit} (see ${ZBUJB_INVIGILATE_STDERR})" \
+         "operator handbook BUSJHL (sudoers entry too narrow for garrison's command set)"
 
   buc_step "Invigilate-linux succeeded"
 }

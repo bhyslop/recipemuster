@@ -81,6 +81,42 @@ fields of the tailscaled label
 .. {busc_fatal}
 on mismatch -- {bust_caparison_macos} scope (Tailscale launchd auto-start)
 
+//axhos_step
+. *Assert admin-group membership*:
+.. {busc_call}
+`dseditgroup -o checkmember -m {burp_privileged_user} admin` over
+`«ADMIN_SESSION»`
+.. {busc_store}
+`«ADMIN_GROUP_EXIT»`
+.. {busc_require}
+`«ADMIN_GROUP_EXIT»` equals `0`
+.. {busc_fatal}
+on mismatch -- {bust_handbook_macos} scope (admin-group membership
+prerequisite)
+
+//axhos_step
+. *Assert sudo NOPASSWD available*:
+.. {busc_call}
+`sudo -n true` over `«ADMIN_SESSION»`
+.. {busc_store}
+`«SUDO_NOPASSWD_EXIT»`
+.. {busc_require}
+`«SUDO_NOPASSWD_EXIT»` equals `0`
+.. {busc_fatal}
+on mismatch -- {bust_handbook_macos} scope (sudoers NOPASSWD entry)
+
+//axhos_step
+. *Assert sudo scope covers garrison commands*:
+.. {busc_call}
+`sudo -ln sysadminctl` over `«ADMIN_SESSION»`
+.. {busc_store}
+`«SUDO_SCOPE_EXIT»`
+.. {busc_require}
+`«SUDO_SCOPE_EXIT»` equals `0`
+.. {busc_fatal}
+on mismatch -- {bust_handbook_macos} scope (sudoers entry too narrow
+for garrison's command set)
+
 //axhog_guarantee
 On success:
 

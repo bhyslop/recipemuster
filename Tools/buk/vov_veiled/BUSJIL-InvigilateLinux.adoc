@@ -95,6 +95,29 @@ unit-not-found; otherwise {bust_caparison_linux} scope
 .. {busc_fatal}
 on mismatch -- {bust_caparison_linux} scope
 
+//axhos_step
+. *Assert sudo NOPASSWD available*:
+.. {busc_call}
+`sudo -n true` over `«ADMIN_SESSION»`
+.. {busc_store}
+`«SUDO_NOPASSWD_EXIT»`
+.. {busc_require}
+`«SUDO_NOPASSWD_EXIT»` equals `0`
+.. {busc_fatal}
+on mismatch -- {bust_handbook_linux} scope (sudoers NOPASSWD entry)
+
+//axhos_step
+. *Assert sudo scope covers garrison commands*:
+.. {busc_call}
+`sudo -ln userdel` over `«ADMIN_SESSION»`
+.. {busc_store}
+`«SUDO_SCOPE_EXIT»`
+.. {busc_require}
+`«SUDO_SCOPE_EXIT»` equals `0`
+.. {busc_fatal}
+on mismatch -- {bust_handbook_linux} scope (sudoers entry too narrow for
+garrison's command set)
+
 //axhog_guarantee
 On success:
 
