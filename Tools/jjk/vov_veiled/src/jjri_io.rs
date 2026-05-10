@@ -42,7 +42,6 @@ impl jjdr_ValidatedGallops {
 }
 
 /// Find first byte position where two byte slices differ
-#[allow(dead_code)] // SPRUE_MIGRATION_BYPASS — restored by closing pace `restore-roundtrip-check` (heat ₣BE)
 fn zjjdr_find_first_diff(a: &[u8], b: &[u8]) -> usize {
     a.iter()
         .zip(b.iter())
@@ -102,24 +101,15 @@ pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
         || gallops.schema_version.is_none()
         || needs_pensum_seed_removal;
 
-    // SPRUE_MIGRATION_BYPASS — heat ₣BE (jjk-v4-2-sprue): round-trip
-    // validation disabled during the wire-name rename window so old-format
-    // gallops files can pass through the loader, get re-serialized into the
-    // canonical new sprue format, and be written back. Restored — and
-    // verified against the fully-migrated gallops — by closing pace
-    // `restore-roundtrip-check`.
-    //
-    // Original behavior:
-    //
-    //   if !is_migration_mode {
-    //       let reserialized = serde_json::to_string_pretty(&gallops)
-    //           .map_err(|e| format!("Failed to reserialize JSON: {}", e))?;
-    //
-    //       if reserialized.as_bytes() != original_bytes {
-    //           let diff_pos = zjjdr_find_first_diff(&original_bytes, reserialized.as_bytes());
-    //           return Err(format!("Round-trip validation failed at byte {}", diff_pos));
-    //       }
-    //   }
+    if !is_migration_mode {
+        let reserialized = serde_json::to_string_pretty(&gallops)
+            .map_err(|e| format!("Failed to reserialize JSON: {}", e))?;
+
+        if reserialized.as_bytes() != original_bytes {
+            let diff_pos = zjjdr_find_first_diff(&original_bytes, reserialized.as_bytes());
+            return Err(format!("Round-trip validation failed at byte {}", diff_pos));
+        }
+    }
 
     // Populate missing fields on first load of old-format file.
     // BTreeMap guarantees sorted key order for heat_order.
