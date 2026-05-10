@@ -1665,6 +1665,13 @@
         "₢A-ABC": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260510-1523",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nLargest implementation pace — fenestrate transition plus new phase 3. Handbook recast moved to ₢A-ABF (parallelizable).\n\n## Goal\nBuild caparison-windows verb per BUSJCW: phases 1+2 (SSH-trust hardening, currently inhabited by fenestrate) and phase 3 (WSL stage, powercfg sleep disable, Tailscale auto-start). Delete fenestrate bash implementation.\n\n## Boundary\n- caparison-windows is the new entry; fenestrate disappears from bash: function family, dispatcher, `buw-jpF` tabtarget, zipper enrollment.\n- Phase 3 ops are new bash; phases 1+2 carry forward existing logic re-homed under the new verb.\n- Closes with invigilate-windows post-completion check (depends on ₢A-ABD, already landed).\n- Handbook rewrite is out of scope — owned by ₢A-ABF.\n\n## Done when\n- `buw-jpCW` exists; runs phases 1-3 idempotently end-to-end.\n- `grep -ri fenestrate` over `bujb_jurisdiction.sh`, `bujb_cli.sh`, `buwz_zipper.sh`, `bujp_preflight.sh`, and `tt/` returns zero.\n- bash -n; tt/buw-st.BukSelfTest.sh; tt/rbtd-s.TestSuite.fast.sh.",
+              "jjgtn_silks": "implement-caparison-windows",
+              "jjgtn_basis": "08c31d4"
+            },
+            {
               "jjgtn_ts": "260510-1436",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nLargest implementation pace — fenestrate transition plus new phase 3. Handbook recast moved to ₢A-ABF (parallelizable).\n\n## Goal\nBuild caparison-windows verb per BUSJCW: phases 1+2 (SSH-trust hardening, currently inhabited by fenestrate) and phase 3 (WSL stage, powercfg sleep disable, Tailscale auto-start). Delete fenestrate bash implementation.\n\n## Boundary\n- caparison-windows is the new entry; fenestrate disappears from bash: function family, dispatcher, `buw-jpF` tabtarget, zipper enrollment.\n- Phase 3 ops are new bash; phases 1+2 carry forward existing logic re-homed under the new verb.\n- Closes with invigilate-windows post-completion check (depends on ₢A-ABD, already landed).\n- Handbook rewrite is out of scope — owned by ₢A-ABF.\n\n## Done when\n- `buw-jpCW` exists; runs phases 1-3 idempotently end-to-end.\n- `grep -ri fenestrate` over `bujb_jurisdiction.sh`, `bujb_cli.sh`, `buwz_zipper.sh`, `bujp_preflight.sh`, and `tt/` returns zero.\n- bash -n; tt/buw-st.BukSelfTest.sh; tt/rbtd-s.TestSuite.fast.sh.",
