@@ -149,29 +149,37 @@ useradd 'foo'                       # may silently never run
 SCRIPT
 
 # ✅ Body as bash -c argument; bash reads body from -c, not FD 0
-ssh ... "wsl.exe ... bash -c \"set -euo pipefail; net.exe ...; useradd 'foo'\""
+# (one statement per ssh round-trip, per SH-10; the multi-statement
+#  shape this fix originally used was retired by pace ₢A-AA9)
+ssh ... "wsl.exe ... bash -c \"net.exe user 'foo' /add ...\""
 ```
 
 Verification: cycle-1 vs cycle-3 of correct-wsl-user-model (`₢A-AAv`).
 Heredoc form silently dropped useradd; args form propagated correctly,
 proven by `getent passwd bujuw_user` returning the entry post-step-3.
 
-### ❌ SH-2: Multi-line bodies through cmd.exe
+### ❌ SH-2: Newlines in bodies through cmd.exe
 
 Cmd.exe is line-oriented. Newlines in `"..."` quoted args are unreliable
-across the cmd.exe → child-binary boundary. Use `;` as the bash command
-separator and ship the body as one line.
+across the cmd.exe → child-binary boundary. Bodies must be single-line.
+
+Under SH-10 a body is a single statement anyway, so the line-orientation
+constraint is rarely the binding one — but it still applies to the
+characters inside that one statement (e.g. no newlines inside a long
+pipeline written for readability).
 
 ```bash
 # ❌ Newlines in body; cmd.exe may fragment
 ssh ... "wsl.exe ... bash -c \"
-set -e
 useradd foo
 \""
 
-# ✅ Single-line body with ; separators
-ssh ... "wsl.exe ... bash -c \"set -e;useradd foo\""
+# ✅ Single-line, single-statement body
+ssh ... "wsl.exe ... bash -c \"useradd foo\""
 ```
+
+`;`-joining multiple statements onto one line is **forbidden separately**
+by SH-10 (single-statement contract). SH-2 is purely about newlines.
 
 ### ✅ SH-3: Outer `"..."` with `\"` for embedded double-quotes
 
@@ -182,11 +190,15 @@ the bytes to the child whose argv parser handles the escape.
 
 ```bash
 # ✅ Embedded " in body
-ssh ... "wsl.exe ... bash -c \"trap 'rm -f \\\"\$path\\\"' EXIT\""
+ssh ... "wsl.exe ... bash -c \"echo SAW: \\\"hello\\\"\""
 ```
 
 Probe: `bash -c "echo SAW: \"hello\""` → stdout `SAW: hello` (quotes
 stripped by bash's own parsing of the unescaped `"`).
+
+(The previous illustrative `trap 'rm -f ...' EXIT` example was retired
+in pace ₢A-AA9: `trap` is a state-machine construct, forbidden in
+single-statement bodies per SH-10.)
 
 ### ✅ PS-3: PowerShell single-quoted strings survive nesting
 
@@ -238,10 +250,13 @@ execution are both subject to BCG. In particular:
 - **No unguarded `$()`.** Remote bodies that use command substitution must
   guard against silent failure the same way curia code does.
 
-The `mktemp` exception in BCG line 1473 (introspection allowlist) carries
-through; remote bodies may use `$(mktemp)` for temp file creation. Top-level
-pipelines (not inside `$()`) are not banned by BCG and are permitted in
-remote bodies (see e.g. step-5's `openssl enc -base64 -d`).
+Top-level pipelines (not inside `$()`) are permitted in remote bodies as
+shape 2 of SH-10 (a pipeline is one operation, optionally preceded by
+`set -o pipefail`). The historical `$(mktemp)` allowance for remote bodies
+was retired by pace ₢A-AA9 along with the multi-statement contract: any
+pattern that needed a remote temp file (e.g. the original plant-key) was a
+multi-statement state machine and is now forbidden by SH-10. Bash on the
+curia owns the state machine; the remote-side body is one effect.
 
 ### ❌ SH-6: wsl.exe substitutes `$name` and `${name}` in argv
 
@@ -261,7 +276,10 @@ Per-letter escape table:
 | c      | cmd.exe → cygwin bash                      | none        | none          | none     |
 | w      | cmd.exe → wsl.exe → bash                   | `\$name`    | `\${name}`    | none     |
 
-Probe pair (verification, w-letter):
+Probe pair (verification, w-letter — invoked through `bujb_privileged_ssh`,
+which is a pass-through wrapper not bound by SH-10's single-statement
+contract; the multi-statement body is essential to demonstrate the
+substitution behavior):
 
 ```
 # ❌ Fails on w-letter — wsl.exe substitutes $ztmp to empty before bash runs
@@ -280,15 +298,22 @@ See `Memos/memo-20260508-windows-transport-experiments.md` §OQ-1, §OQ-2,
 
 Non-zero exit codes propagate cleanly through every tested transport:
 cmd.exe direct, wsl.exe → bash, cygwin bash, PowerShell, and native
-Windows binaries called via wsl.exe interop. `set -e` aborts the script
-on first failure and the failing exit reaches the curia unchanged.
-Bodies that need to fail-loud should use `set -e` or explicit `exit N`.
+Windows binaries called via wsl.exe interop. The single statement in the
+body's shape (per SH-10) is also the body's exit code — it reaches the
+curia unchanged via the wrapper's ssh exit status, and the caller absorbs
+it via `|| buc_die "..."`. No `set -e` discipline is needed inside the
+body, because there is nothing after the single statement that `set -e`
+would protect.
 
-Probe (w-letter, set -e + false):
+`set -o pipefail` IS needed for shape 2 (pipeline) when the pipeline's
+intent is to fail if any stage fails — pipefail is a precondition of
+the pipeline's exit-code semantics, not a separate operation, and is
+permitted inside the same statement (see SH-10 exception).
+
+Probe (w-letter, false propagation):
 
 ```
-./tt/buw-jpS.PrivilegedSsh.sh <node> 'wsl.exe --distribution rbtww-main --user root bash -c "set -e; false; echo UNREACHED"'; echo "EXIT=$?"
-# (no UNREACHED in stdout)
+./tt/buw-jpS.PrivilegedSsh.sh <node> 'wsl.exe --distribution rbtww-main --user root bash -c "false"'; echo "EXIT=$?"
 # EXIT=1
 ```
 
@@ -358,6 +383,84 @@ the transport stack:
 Empirical site: `zbujb_garrison_w_init_wsl` in `bujb_jurisdiction.sh`
 — the `wsl --import` invocation in garrison-w's three-namespace
 redesign (BUSJGW).
+
+### ❌ SH-10: Bash bodies are single statements
+
+A `zbujb_admin_exec` body MUST be exactly one of these three shapes — no
+others:
+
+1. One simple command (with arguments, options, and redirections).
+2. One pipeline (`cmd1 | cmd2 | ...`), optionally preceded by
+   `set -o pipefail` to make the pipeline's exit status surface the
+   first non-zero stage.
+3. One simple command whose argument is itself an inner-shell body
+   (e.g. `wsl.exe --user root install ...`, `sudo -n install ...`).
+
+The enumeration is constructive (Core Philosophy, *Rules enumerate; they
+don't illustrate*). No other bash construct may appear at the body's
+top level. Forbidden constructs include `if`/`then`/`else`/`fi`,
+`for`/`while`/`until`, `case`, `&&`/`||` chains, `;`-separated
+statements, intermediate `var=...` assignments, `trap`, function
+definitions, and `(...)` subshells used to scope state. A single
+`if`-guarded effect like
+`if test -e '...'; then sudo -n rm '...'; fi` is also forbidden — even
+though it has only one "real" effect, the body contains a decision
+(the test) and an action (the consequent). Decisions belong in bash on
+the curia. See "Capture-Decide-Dispatch Pattern" below for the
+canonical procedure.
+
+If a body needs N intermediate values or N decisions, run N round-trips:
+capture state via `zbujb_admin_exec` (its stdout flows through `$(...)`
+on the curia), decide in bash, dispatch unconditional effects via
+`zbujb_admin_exec`. Bash on the curia owns the state machine; the
+remote-side body is one effect.
+
+Exception: `set -o pipefail` is permitted INSIDE the same statement as
+a pipeline (shape 2), since pipefail is a precondition of the
+pipeline's exit-code semantics, not a separate operation.
+
+Empirical baseline: every `zbujb_admin_exec` call site in
+`bujb_jurisdiction.sh` follows the single-statement shape after pace
+₢A-AA9. The historical violator was `zbujb_garrison_step5_plant_key`,
+which used a six-statement state machine
+(`set -euo pipefail; ztmp=$(mktemp); trap 'rm -f "$ztmp"' EXIT;
+echo b64 | openssl > "$ztmp"; install ... "$ztmp" target`) with
+cross-statement `$ztmp` and a cleanup trap. The repair eliminated the
+state machine entirely by piping the workload key from the curia over
+ssh stdin into `install /dev/stdin`, leaving one simple command.
+
+```bash
+# ❌ Compound state machine — six statements, cross-statement variable, trap
+zbujb_admin_exec b "set -euo pipefail" \
+  "ztmp=\$(mktemp)" \
+  "trap 'rm -f \"\${ztmp}\"' EXIT" \
+  "echo '<b64>' | openssl enc -base64 -d -A > \"\${ztmp}\"" \
+  "sudo -n install -m 600 -o user -g user \"\${ztmp}\" '<target>'"
+
+# ❌ Single `if`-guarded effect — body decides AND acts
+zbujb_admin_exec b "if test -e '${z_path}'; then sudo -n rm '${z_path}'; fi"
+
+# ✅ Single simple command; key flows from curia file via ssh stdin into /dev/stdin
+zbujb_admin_exec b "sudo -n install -m 600 -o '${z_wlu}' -g '${z_wlu}' /dev/stdin '${z_target}'" \
+  < "${BURP_WORKLOAD_KEY_FILE}"
+
+# ✅ Single guarded effect repaired via Capture-Decide-Dispatch
+local z_exit=0
+zbujb_admin_exec b "stat '${z_path}' > /dev/null 2>&1" || z_exit=$?
+if [[ ${z_exit} -eq 0 ]]; then
+  zbujb_admin_exec b "sudo -n rm '${z_path}'" || buc_die "Failed to remove ${z_path}"
+fi
+```
+
+The `< "${BURP_WORKLOAD_KEY_FILE}"` redirection on the curia attaches
+the file to bash's FD 0, which the wrapper's ssh inherits, which
+sshd forwards to the remote command's FD 0, which the remote bash
+exposes to its single-statement body as `/dev/stdin`. The body itself
+remains shape 1 (one simple command with options + path argument);
+the file content never appears in argv. SH-1's stdin-consumption
+hazard is structurally avoided because the body is a single command
+that explicitly reads `/dev/stdin` — no second command exists to be
+silently starved by leftover bytes.
 
 ### ❌ PS-5: PowerShell bodies are single expressions
 
@@ -531,28 +634,34 @@ an OQ-1 silent-swallow for the structural one. See
 
 ## Capture-Decide-Dispatch Pattern
 
-PS-5's closing line — *"Bash owns the state machine; the remote-side body
-is one effect"* — names the canonical procedure for any decision that
-would otherwise live in a PS body. Capture-Decide-Dispatch (CDD) is a
-three-step recipe:
+PS-5's and SH-10's shared closing line — *"Bash owns the state machine;
+the remote-side body is one effect"* — names the canonical procedure for
+any decision that would otherwise live in a remote body (PS or bash).
+Capture-Decide-Dispatch (CDD) is a three-step recipe:
 
-1. **Capture** — `zbujb_powershell_capture ROLE "<single-expression probe>"`
-   runs a PS-5-clean probe (cmdlet call or native binary call, no `if`,
-   no compounds) and returns its stdout into a bash variable. The wrapper
-   strips Windows CR (`bujb_jurisdiction.sh:487`); the bash variable holds
-   clean text. Absorb capture failure with `|| buc_die "..."` if the probe
-   must succeed, or `|| z_var=""` if a fundus-side absence is tolerable
-   (e.g. probing for state on a host that may not yet have the relevant
-   subsystem installed).
+1. **Capture** — run a single-expression probe and return its stdout
+   into a bash variable on the curia.
+   - PS bodies: `zbujb_powershell_capture ROLE "<single-expression probe>"`
+     (PS-5-clean: cmdlet call or native binary call, no `if`, no
+     compounds). The wrapper strips Windows CR
+     (`bujb_jurisdiction.sh:487`); the bash variable holds clean text.
+   - Bash bodies: `$(zbujb_admin_exec LETTER "<single-statement probe>")`
+     (SH-10-clean: one simple command with redirections, e.g.
+     `stat '${z_path}' > /dev/null 2>&1`).
+   - Absorb capture failure with `|| buc_die "..."` if the probe must
+     succeed, or `|| z_var=""` (PS) / `|| z_exit=$?` (bash, when probing
+     by exit status) if a fundus-side absence is a legitimate pre-state.
 
-2. **Decide** — bash conditional. For PS booleans, see "PowerShell boolean
-   serialization" below. For text/list output, use
+2. **Decide** — bash conditional. For PS booleans, see "PowerShell
+   boolean serialization" below. For text/list output, use
    `grep -qFx PATTERN <<<"$z_var"` for exact-line membership, or
    `case ... in ... esac` / `[[ "$z_var" == ... ]]` for value compare.
+   For bash exit-status probes, `[[ ${z_exit} -eq 0 ]]`.
 
 3. **Dispatch** — `zbujb_admin_powershell "<single-expression effect>"`
-   runs the unconditional action only on the bash-side branches that need
-   it. Each branch uses one zbujb call.
+   or `zbujb_admin_exec LETTER "<single-statement effect>"` runs the
+   unconditional action only on the bash-side branches that need it.
+   Each branch uses one zbujb call.
 
 Concrete shapes for common cases — file/dir presence, WSL distro
 membership, local user existence, service state, registry key existence —
@@ -716,9 +825,9 @@ Discipline:
 
 ### Bash-via-wsl.exe wrapper (proven shape, w-letter)
 
-Mirrors `zbujb_admin_exec w` after the cycle-3 BCG-clean repair. Body is
-`;`-joined for one-line transit (SH-2), `"` escaped to `\"` (SH-3), and
-all `$name`/`${name}` references escaped to `\$name`/`\${name}` for
+Mirrors `zbujb_admin_exec w`. Body is a single statement (SH-10),
+single-line (SH-2), `"` escaped to `\"` (SH-3), and all
+`$name`/`${name}` references escaped to `\$name`/`\${name}` for
 deferred bash-side expansion (SH-6). `$(...)` command substitution does
 not need escape (SH-6).
 
@@ -728,12 +837,14 @@ ssh ... "${USER}@${HOST}" \
 ```
 
 Body authoring discipline:
-- Statements joined with `;` (SH-2)
+- One statement per body (SH-10) — pipelines OK as shape 2, `;`-joins forbidden
 - Embedded `"` → `\"` (SH-3)
 - `$name` → `\$name`; `${name}` → `\${name}` (SH-6)
 - `$(...)` left as-is (SH-6)
 - No heredocs, no `bash -s`, no inner pipe-then-bash (SH-1, SH-5)
-- No newlines in body (SH-2); use SH-8 if the body genuinely won't fit
+- No newlines in body (SH-2)
+- Multi-statement work decomposes into multiple round-trips per the
+  Capture-Decide-Dispatch pattern, not into a longer body
 
 ### Bash-via-cygwin wrapper (proven shape, c-letter)
 
@@ -746,10 +857,13 @@ ssh ... "${USER}@${HOST}" \
 ```
 
 Body authoring discipline:
-- Statements joined with `;` (SH-2)
+- One statement per body (SH-10) — pipelines OK as shape 2, `;`-joins forbidden
 - Embedded `"` → `\"` (SH-3)
 - `$name`, `${name}`, `$(...)` all unescaped — bash sees them directly (SH-6)
 - No heredocs, no `bash -s` (SH-1, SH-5)
+- No newlines in body (SH-2)
+- Multi-statement work decomposes into multiple round-trips per the
+  Capture-Decide-Dispatch pattern, not into a longer body
 
 ## Deferred — out of release-1 scope
 
