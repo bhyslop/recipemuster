@@ -9720,6 +9720,13 @@
         "₢BEAAD": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260510-0809",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\n\nApply the paddock's migration recipe to `jjrg_Pace` and `jjrg_Tack`. Mechanical, larger surface (7 sprues); sonnet-friendly.\n\n## Targets\n\n`jjgpn_tacks` on `jjrg_Pace`. Six `jjrg_Tack` properties — `jjgtn_ts`, `jjgtn_state`, `jjgtn_text`, `jjgtn_silks`, `jjgtn_basis`, `jjgtn_direction`. The `basis` field's existing `#[serde(rename = \"commit\")]` retires — minted name follows the Rust field name, dropping the historical `commit` wire-name.\n\n## Done when\n\n- `tt/vow-b.Build.sh` clean; `tt/vow-t.Test.sh` green.\n- Gallops file: zero bare versions of `tacks`, `ts`, `state`, `text`, tack-level `silks`, `commit`, `direction`; `jjgpn_tacks` and `jjgtn_*` present.\n- Transitional `alias` lines removed.",
+              "jjgtn_silks": "mint-pace-and-tack-sprues",
+              "jjgtn_basis": "6b505a5"
+            },
+            {
               "jjgtn_ts": "260509-1046",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\n\nApply the paddock's migration recipe to `jjrg_Pace` and `jjrg_Tack`. Mechanical, larger surface (7 sprues); sonnet-friendly.\n\n## Targets\n\n`jjgpn_tacks` on `jjrg_Pace`. Six `jjrg_Tack` properties — `jjgtn_ts`, `jjgtn_state`, `jjgtn_text`, `jjgtn_silks`, `jjgtn_basis`, `jjgtn_direction`. The `basis` field's existing `#[serde(rename = \"commit\")]` retires — minted name follows the Rust field name, dropping the historical `commit` wire-name.\n\n## Done when\n\n- `tt/vow-b.Build.sh` clean; `tt/vow-t.Test.sh` green.\n- Gallops file: zero bare versions of `tacks`, `ts`, `state`, `text`, tack-level `silks`, `commit`, `direction`; `jjgpn_tacks` and `jjgtn_*` present.\n- Transitional `alias` lines removed.",
