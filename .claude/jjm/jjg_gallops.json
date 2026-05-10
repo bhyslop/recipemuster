@@ -35,6 +35,7 @@
       "jjghn_creation_time": "260412",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢A-AA9",
         "₢A-AA8",
         "₢A-AA7",
         "₢A-AA6",
@@ -93,7 +94,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "jjghn_next_pace_seed": "AA9",
+      "jjghn_next_pace_seed": "AA-",
       "jjghn_paces": {
         "₢A-AA0": {
           "jjgpn_tacks": [
@@ -233,6 +234,17 @@
               "jjgtn_text": "## Character\nMechanical structural reshape — vocabulary establishment, no behavior change.\n\n## Goal\nLock the BUS0 architecture for the caparison/invigilate/garrison triad and the per-platform handbook split. Subsequent paces flesh content into the skeleton this pace creates.\n\n## Boundary\n- `git mv BUSJPF-Fenestrate.adoc → BUSJPCw-CaparisonWindows.adoc`. Content stays as-is in this pace; pace 2 rewrites it.\n- Create skeleton stubs (header + scope NOTE only, \"TODO: content in subsequent pace\") for BUSJHW/M/L, BUSJPCm/l, BUSJIw/m/l.\n- BUS0 edits: jurisdiction definition references caparison + invigilate as the two privilege-side ceremony types; Garrison-Destructive Model section's \"out of scope\" sentence widens from \"sshd_config\" to \"host posture\"; tabtarget catalog updated (jpW removed; jpF→jpCw; new jpCm/jpCl/jpIw/jpIm/jpIl/hjW/hjM/hjL); count \"fifteen tabtargets\" corrected to new total.\n- BUSJH0 edits to dispatch to per-platform handbook tabtargets.\n- Verb name \"caparison\" replaces \"fenestrate\" at the BUS0 motif/quoin level. {busn_fenestrate} renames to {busn_caparison} (or whatever quoin-form fits MCM minting discipline); references across BUSJG{B,C,W} and BUSJPS update.\n- No bash code edits.\n\n## Done when\n- All renames staged via git mv (rename detection clean per `git status -M`).\n- BUS0 reads coherently against new architecture; motif/quoin updates consistent across all BUSJ* referencing files.\n- Skeleton specs render via existing buw-hj0 chain (or its dispatched per-platform tabtargets if those land here).\n- bash -n green; tt/buw-st.BukSelfTest.sh green; tt/rbtd-s.TestSuite.fast.sh green.",
               "jjgtn_silks": "bus0-caparison-invigilate-skeleton",
               "jjgtn_basis": "e2700d7"
+            }
+          ]
+        },
+        "₢A-AA9": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260510-1005",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nIntricate but mechanical — most call sites split trivially; plant-key needs a no-temp-file rewrite first.\n\n## Goal\nEvery `zbujb_admin_exec` and `zbujb_admin_powershell` invocation in `Tools/buk/bujb_jurisdiction.sh` carries exactly one logical operation (a single command, or a single pipeline optionally preceded by `set -o pipefail`). The variadic STMT-list contract on `zbujb_admin_exec` is removed.\n\n## Locked decisions\n- `zbujb_admin_exec` signature becomes `LETTER STMT` (single, not variadic); dies on extra args; docstring updated.\n- Plant-key (`zbujb_garrison_step5_plant_key`) is rewritten to a single ssh-stdin pipeline: `install -m 600 -o <wlu> -g <wlu> /dev/stdin <target>` reading the workload key from `${BURP_WORKLOAD_KEY_FILE}` over ssh stdin. No remote staging file. The curia-side `openssl enc -base64 -A` encode step and the `ZBUJB_KEY_B64_*` constants are removed. Mount agent probes (a) BSD `install` on macOS accepts `/dev/stdin`, (b) ssh stdin flows cleanly through `wsl.exe --user root install` for letter `w`. Probe failure → re-discuss with operator, do not improvise a substitute.\n- `bujb_wsl_install`'s two `;`-chained PS bodies (purge, cleanup) split using the Test-Path → conditional Remove-Item pattern already established in `zbujb_obliterate_windows_namespaces`.\n\n## Done\n- No `zbujb_admin_exec`/`_powershell` body contains `;` outside a single-pipeline context (leading `set -o pipefail` permitted).\n- No `set -euo pipefail` prefix statement remains in admin_exec calls.\n- Each split site preserves exit-on-failure via `|| buc_die \"<step>\"`.\n- `Tools/buk/vov_veiled/WSG-WindowsScriptingGuide.md` examples and contract description match the new single-statement shape (no `;`-stitched bodies depicted as canonical).\n- Garrison + fenestrate + wsl-install workflows still pass end-to-end on a fresh BURN node (operator-verified).\n\n## Discovery\nMulti-statement admin_exec sites: continuation-line statements found via `grep -nE '^\\s+\"[^\"]+\"\\s*\\\\$' Tools/buk/bujb_jurisdiction.sh`. PS `;`-chains: `grep -n 'zbujb_admin_powershell.*;' <same file>`. Splitting precedent: `zbujb_place_trust_run` callers (one stmt per call, exit-on-failure via the wrapper).",
+              "jjgtn_silks": "one-command-per-ssh-session",
+              "jjgtn_basis": "8fdf0fd"
             }
           ]
         },
