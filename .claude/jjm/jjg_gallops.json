@@ -36,6 +36,7 @@
       "jjghn_creation_time": "260412",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢A-ABC",
         "₢A-ABB",
         "₢A-AA_",
         "₢A-ABA",
@@ -99,7 +100,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "jjghn_next_pace_seed": "ABC",
+      "jjghn_next_pace_seed": "ABD",
       "jjghn_paces": {
         "₢A-AA-": {
           "jjgpn_tacks": [
@@ -1648,6 +1649,17 @@
               "jjgtn_text": "## Character\nMechanical translation — BUSJC{M,L} locked; parallel structure, smaller than caparison-windows.\n\n## Goal\nBuild caparison-macos and caparison-linux verbs per BUSJC{M,L} with `buw-jpC{M,L}` tabtargets: ssh-copy-id orchestration plus per-platform host posture per spec.\n\n## Boundary\n- ssh-copy-id is operator-managed (paddock standing note); caparison-{mac,linux} verifies and applies the rest.\n- Each closes with invigilate-{platform} post-completion check (depends on first implementation pace).\n\n## Done when\n- buw-jpC{M,L} run idempotently end-to-end against a Mac and a Linux node.\n- bash -n; tt/buw-st.BukSelfTest.sh; tt/rbtd-s.TestSuite.fast.sh.",
               "jjgtn_silks": "implement-caparison-mac-linux",
               "jjgtn_basis": "4acccae"
+            }
+          ]
+        },
+        "₢A-ABC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260510-1404",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nLargest implementation pace — fenestrate transition plus new phase 3.\n\n## Goal\nBuild caparison-windows verb per BUSJCW: phases 1+2 (SSH-trust hardening, currently inhabited by fenestrate) and phase 3 (WSL stage, powercfg sleep disable, Tailscale auto-start). Delete fenestrate completely.\n\n## Boundary\n- caparison-windows is the new entry; fenestrate disappears: function family, dispatcher, buw-jpF tabtarget, zipper enrollment, all handbook references (buhj_jurisdiction.sh, rbhw0_top.sh).\n- Phase 3 ops are new bash; phases 1+2 carry forward existing logic re-homed under the new verb.\n- Closes with invigilate-windows post-completion check (depends on prior pace).\n\n## Done when\n- buw-jpCW exists; runs phases 1-3 idempotently end-to-end.\n- grep -ri fenestrate Tools/ tt/ returns zero hits.\n- buhj_jurisdiction.sh handbook text recast around caparison-windows.\n- bash -n; tt/buw-st.BukSelfTest.sh; tt/rbtd-s.TestSuite.fast.sh.",
+              "jjgtn_silks": "implement-caparison-windows",
+              "jjgtn_basis": "0faf49e"
             }
           ]
         }
