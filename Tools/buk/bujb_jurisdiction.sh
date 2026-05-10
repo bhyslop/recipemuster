@@ -275,6 +275,12 @@ zbujb_kindle() {
   # numbered file, so probe and destructive ops both leave evidence.
   readonly ZBUJB_OBLITERATE_PREFIX="${BURD_TEMP_DIR}/bujb_obliterate_run_"
 
+  # Invigilate per-fact stdout/stderr captures — last fact's evidence is
+  # what's preserved at die time (the spec's "first mismatch" semantics
+  # make a single shared pair sufficient).
+  readonly ZBUJB_INVIGILATE_STDOUT="${BURD_TEMP_DIR}/bujb_invigilate_stdout.txt"
+  readonly ZBUJB_INVIGILATE_STDERR="${BURD_TEMP_DIR}/bujb_invigilate_stderr.txt"
+
   # Single shared emission counter across all _run wrappers — file numbers
   # are continuous across originating functions so chronological order is
   # readable from the embedded number even when prefixes differ.
@@ -1733,6 +1739,346 @@ bujb_privileged_ssh() {
       "$@"                                       \
     || z_exit=$?
   return "${z_exit}"
+}
+
+######################################################################
+# Public: Invigilate verbs (BUSJI{W,M,L} — read-only host posture)
+#
+# Invigilate covers host-posture facts: registry/service/sleep/distribution
+# state established by caparison or operator handbook. Workload-precondition
+# probes (sudo NOPASSWD, admin-group) are a separate category and live in
+# bujp_preflight — the locked BUSJI specs do not list them.
+
+zbujb_invigilate_assert_platform() {
+  zbujb_sentinel
+  local -r z_required="${1:-}"
+  test "${BURN_PLATFORM}" = "${z_required}" \
+    || buc_die "invigilate requires ${z_required}, got '${BURN_PLATFORM}'"
+}
+
+# zbujb_invigilate_fact_die FACT EXPECTED OBSERVED POINTER -- uniform
+# fact-named diagnostic per BUSJI{W,M,L} axhoc_completion contract.
+zbujb_invigilate_fact_die() {
+  local -r z_fact="${1:-}"
+  local -r z_expected="${2:-}"
+  local -r z_observed="${3:-}"
+  local -r z_pointer="${4:-}"
+  buc_die "Invigilate fact failed: ${z_fact}
+  Expected:    ${z_expected}
+  Observed:    ${z_observed}
+  Remediation: ${z_pointer}"
+}
+
+# bujb_invigilate_windows -- BUSJIW read-only host posture verification.
+bujb_invigilate_windows() {
+  zbujb_sentinel
+  test "${ZBUJB_RESOLVED:-}" = "1" \
+    || buc_die "bujb_invigilate_windows: call bujb_resolve_investiture first"
+  zbujb_invigilate_assert_platform bubep_windows
+
+  buc_step "Invigilate-windows: ${BUZ_FOLIO} (${BURN_HOST})"
+
+  buc_step "  Fact: admin SSH reachable (key-only)"
+  local z_exit=0
+  zbujb_admin_powershell 'exit 0' \
+      > "${ZBUJB_INVIGILATE_STDOUT}" \
+      2> "${ZBUJB_INVIGILATE_STDERR}" \
+    || z_exit=$?
+  test "${z_exit}" -eq 0 \
+    || zbujb_invigilate_fact_die \
+         "admin SSH session" \
+         "exit 0 under key-only auth" \
+         "ssh exit ${z_exit} (see ${ZBUJB_INVIGILATE_STDERR})" \
+         "caparison-windows (BUSJCW) — re-run fenestrate: tt/buw-jpF.Fenestrate.sh ${BUZ_FOLIO}"
+
+  buc_step "  Fact: registry DevicePasswordLessBuildVersion = 0"
+  local z_reg=""
+  z_reg=$(zbujb_powershell_capture zbujb_privileged \
+      "Get-ItemPropertyValue -Path 'HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\PasswordLess\\Device' -Name 'DevicePasswordLessBuildVersion'") \
+    || z_reg="<unreadable>"
+  test "${z_reg}" = "0" \
+    || zbujb_invigilate_fact_die \
+         "registry DevicePasswordLessBuildVersion" \
+         "0" \
+         "${z_reg:-<empty>}" \
+         "operator handbook BUSJHW (Windows registry step)"
+
+  buc_step "  Fact: registry PlatformAoAcOverride = 0"
+  z_reg=""
+  z_reg=$(zbujb_powershell_capture zbujb_privileged \
+      "Get-ItemPropertyValue -Path 'HKLM:\\System\\CurrentControlSet\\Control\\Power' -Name 'PlatformAoAcOverride'") \
+    || z_reg="<unreadable>"
+  test "${z_reg}" = "0" \
+    || zbujb_invigilate_fact_die \
+         "registry PlatformAoAcOverride" \
+         "0" \
+         "${z_reg:-<empty>}" \
+         "operator handbook BUSJHW (Modern Standby override)"
+
+  buc_step "  Fact: Tailscale service registered"
+  local z_svc=""
+  z_svc=$(zbujb_powershell_capture zbujb_privileged \
+      "Get-Service Tailscale -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name") \
+    || z_svc=""
+  test -n "${z_svc}" \
+    || zbujb_invigilate_fact_die \
+         "Tailscale service" \
+         "non-empty Get-Service Tailscale" \
+         "<absent>" \
+         "operator handbook BUSJHW (install + Run-Unattended + first auth)"
+
+  buc_step "  Fact: Tailscale service StartType = Automatic"
+  local z_start=""
+  z_start=$(zbujb_powershell_capture zbujb_privileged \
+      "(Get-Service Tailscale).StartType") \
+    || z_start="<unreadable>"
+  test "${z_start}" = "Automatic" \
+    || zbujb_invigilate_fact_die \
+         "Tailscale StartType" \
+         "Automatic" \
+         "${z_start:-<empty>}" \
+         "caparison-windows (BUSJCW)"
+
+  buc_step "  Fact: powercfg /a reports no Standby or Hibernate available"
+  zbujb_admin_powershell 'powercfg /a' \
+      > "${ZBUJB_INVIGILATE_STDOUT}" \
+      2> "${ZBUJB_INVIGILATE_STDERR}" \
+    || buc_die "powercfg /a failed on ${BURN_HOST} (see ${ZBUJB_INVIGILATE_STDERR})"
+  local z_pcfg
+  z_pcfg=$(<"${ZBUJB_INVIGILATE_STDOUT}")
+  z_pcfg="${z_pcfg//$'\r'/}"
+  local z_available_section="${z_pcfg%%not available on this system*}"
+  case "${z_available_section}" in
+    *Standby*|*Hibernate*)
+      zbujb_invigilate_fact_die \
+         "powercfg available sleep states" \
+         "neither Standby nor Hibernate listed as available" \
+         "see ${ZBUJB_INVIGILATE_STDOUT}" \
+         "caparison-windows (BUSJCW) — or AoAc override missing"
+      ;;
+  esac
+
+  buc_step "  Fact: WSL distribution ${BUJB_wsl_distribution} registered"
+  zbujb_admin_powershell 'wsl.exe --list --quiet' \
+      > "${ZBUJB_INVIGILATE_STDOUT}" \
+      2> "${ZBUJB_INVIGILATE_STDERR}" \
+    || buc_die "wsl.exe --list --quiet failed on ${BURN_HOST} (see ${ZBUJB_INVIGILATE_STDERR})"
+  local z_wsl
+  z_wsl=$(<"${ZBUJB_INVIGILATE_STDOUT}")
+  z_wsl="${z_wsl//$'\r'/}"
+  case $'\n'"${z_wsl}"$'\n' in
+    *$'\n'"${BUJB_wsl_distribution}"$'\n'*) ;;
+    *)
+      zbujb_invigilate_fact_die \
+         "WSL distribution ${BUJB_wsl_distribution}" \
+         "present in wsl.exe --list --quiet" \
+         "${z_wsl:-<none reported>}" \
+         "caparison-windows (BUSJCW) — or tt/buw-jpW.WslInstall.sh ${BUZ_FOLIO}"
+      ;;
+  esac
+
+  buc_step "Invigilate-windows succeeded"
+}
+
+# bujb_invigilate_macos -- BUSJIM read-only host posture verification.
+bujb_invigilate_macos() {
+  zbujb_sentinel
+  test "${ZBUJB_RESOLVED:-}" = "1" \
+    || buc_die "bujb_invigilate_macos: call bujb_resolve_investiture first"
+  zbujb_invigilate_assert_platform bubep_mac
+
+  buc_step "Invigilate-macos: ${BUZ_FOLIO} (${BURN_HOST})"
+
+  buc_step "  Fact: admin SSH reachable (key-only)"
+  local z_exit=0
+  zbujb_admin_exec_native 'exit 0' \
+      > "${ZBUJB_INVIGILATE_STDOUT}" \
+      2> "${ZBUJB_INVIGILATE_STDERR}" \
+    || z_exit=$?
+  test "${z_exit}" -eq 0 \
+    || zbujb_invigilate_fact_die \
+         "admin SSH session" \
+         "exit 0 under key-only auth" \
+         "ssh exit ${z_exit} (see ${ZBUJB_INVIGILATE_STDERR})" \
+         "caparison-macos (BUSJCM) — admin pubkey not placed; rerun ssh-copy-id"
+
+  buc_step "  Fact: systemsetup -getremotelogin reports On"
+  zbujb_admin_exec_native 'systemsetup -getremotelogin' \
+      > "${ZBUJB_INVIGILATE_STDOUT}" \
+      2> "${ZBUJB_INVIGILATE_STDERR}" \
+    || buc_die "systemsetup -getremotelogin failed on ${BURN_HOST} (see ${ZBUJB_INVIGILATE_STDERR})"
+  local z_rl
+  z_rl=$(<"${ZBUJB_INVIGILATE_STDOUT}")
+  case "${z_rl}" in
+    *"Remote Login: On"*) ;;
+    *)
+      zbujb_invigilate_fact_die \
+         "Remote Login state" \
+         "On" \
+         "${z_rl}" \
+         "caparison-macos (BUSJCM) — systemsetup -setremotelogin on"
+      ;;
+  esac
+
+  buc_step "  Fact: pmset sleep=0, displaysleep=0, hibernatemode=0"
+  zbujb_admin_exec_native 'pmset -g' \
+      > "${ZBUJB_INVIGILATE_STDOUT}" \
+      2> "${ZBUJB_INVIGILATE_STDERR}" \
+    || buc_die "pmset -g failed on ${BURN_HOST} (see ${ZBUJB_INVIGILATE_STDERR})"
+  local z_pmset z_pm_field z_pm_val
+  z_pmset=$(<"${ZBUJB_INVIGILATE_STDOUT}")
+  for z_pm_field in sleep displaysleep hibernatemode; do
+    z_pm_val=$(printf '%s\n' "${z_pmset}" | awk -v f="${z_pm_field}" '$1==f { print $2; exit }')
+    test "${z_pm_val}" = "0" \
+      || zbujb_invigilate_fact_die \
+           "pmset ${z_pm_field}" \
+           "0" \
+           "${z_pm_val:-<not reported>}" \
+           "caparison-macos (BUSJCM) — pmset -a ${z_pm_field} 0"
+  done
+
+  buc_step "  Fact: tailscaled launchd label present"
+  zbujb_admin_exec_native 'launchctl list' \
+      > "${ZBUJB_INVIGILATE_STDOUT}" \
+      2> "${ZBUJB_INVIGILATE_STDERR}" \
+    || buc_die "launchctl list failed on ${BURN_HOST} (see ${ZBUJB_INVIGILATE_STDERR})"
+  local z_ts_line
+  z_ts_line=$(grep -i 'tailscale' "${ZBUJB_INVIGILATE_STDOUT}" || true)
+  test -n "${z_ts_line}" \
+    || zbujb_invigilate_fact_die \
+         "tailscaled launchd label" \
+         "non-empty match for 'tailscale' in launchctl list" \
+         "<absent>" \
+         "operator handbook BUSJHM (install + first auth)"
+
+  buc_step "  Fact: tailscaled PID live (not '-')"
+  local z_pid
+  z_pid=$(printf '%s\n' "${z_ts_line}" | awk 'NR==1 { print $1 }')
+  test -n "${z_pid}" -a "${z_pid}" != "-" \
+    || zbujb_invigilate_fact_die \
+         "tailscaled PID" \
+         "live PID (not '-')" \
+         "${z_pid:-<empty>}" \
+         "caparison-macos (BUSJCM) — Tailscale launchd auto-start"
+
+  buc_step "Invigilate-macos succeeded"
+}
+
+# bujb_invigilate_linux -- BUSJIL read-only host posture verification.
+bujb_invigilate_linux() {
+  zbujb_sentinel
+  test "${ZBUJB_RESOLVED:-}" = "1" \
+    || buc_die "bujb_invigilate_linux: call bujb_resolve_investiture first"
+  zbujb_invigilate_assert_platform bubep_linux
+
+  buc_step "Invigilate-linux: ${BUZ_FOLIO} (${BURN_HOST})"
+
+  buc_step "  Fact: admin SSH reachable (key-only)"
+  local z_exit=0
+  zbujb_admin_exec_native 'exit 0' \
+      > "${ZBUJB_INVIGILATE_STDOUT}" \
+      2> "${ZBUJB_INVIGILATE_STDERR}" \
+    || z_exit=$?
+  test "${z_exit}" -eq 0 \
+    || zbujb_invigilate_fact_die \
+         "admin SSH session" \
+         "exit 0 under key-only auth" \
+         "ssh exit ${z_exit} (see ${ZBUJB_INVIGILATE_STDERR})" \
+         "caparison-linux (BUSJCL) — admin pubkey not placed; rerun ssh-copy-id"
+
+  local z_val
+
+  buc_step "  Fact: systemctl is-enabled sshd = enabled"
+  z_exit=0
+  zbujb_admin_exec_native 'systemctl is-enabled sshd' \
+      > "${ZBUJB_INVIGILATE_STDOUT}" \
+      2> "${ZBUJB_INVIGILATE_STDERR}" \
+    || z_exit=$?
+  z_val=$(<"${ZBUJB_INVIGILATE_STDOUT}")
+  z_val="${z_val//$'\n'/}"
+  if test "${z_exit}" -ne 0 && grep -qiE 'no such|not found|not-found' "${ZBUJB_INVIGILATE_STDERR}"; then
+    zbujb_invigilate_fact_die \
+       "sshd unit enablement" \
+       "enabled" \
+       "<unit not found>" \
+       "operator handbook BUSJHL (apt install openssh-server)"
+  fi
+  test "${z_val}" = "enabled" \
+    || zbujb_invigilate_fact_die \
+         "sshd unit enablement" \
+         "enabled" \
+         "${z_val:-<unreported>}" \
+         "caparison-linux (BUSJCL)"
+
+  buc_step "  Fact: systemctl is-active sshd = active"
+  zbujb_admin_exec_native 'systemctl is-active sshd' \
+      > "${ZBUJB_INVIGILATE_STDOUT}" \
+      2> "${ZBUJB_INVIGILATE_STDERR}" \
+    || true
+  z_val=$(<"${ZBUJB_INVIGILATE_STDOUT}")
+  z_val="${z_val//$'\n'/}"
+  test "${z_val}" = "active" \
+    || zbujb_invigilate_fact_die \
+         "sshd unit activeness" \
+         "active" \
+         "${z_val:-<unreported>}" \
+         "caparison-linux (BUSJCL)"
+
+  buc_step "  Fact: sleep/suspend/hibernate/hybrid-sleep targets masked"
+  zbujb_admin_exec_native 'systemctl is-enabled sleep.target suspend.target hibernate.target hybrid-sleep.target' \
+      > "${ZBUJB_INVIGILATE_STDOUT}" \
+      2> "${ZBUJB_INVIGILATE_STDERR}" \
+    || true
+  local z_targets z_target z_i=1
+  z_targets=$(<"${ZBUJB_INVIGILATE_STDOUT}")
+  for z_target in sleep.target suspend.target hibernate.target hybrid-sleep.target; do
+    z_val=$(printf '%s\n' "${z_targets}" | sed -n "${z_i}p")
+    test "${z_val}" = "masked" \
+      || zbujb_invigilate_fact_die \
+           "${z_target} mask state" \
+           "masked" \
+           "${z_val:-<unreported>}" \
+           "caparison-linux (BUSJCL)"
+    z_i=$((z_i + 1))
+  done
+
+  buc_step "  Fact: systemctl is-enabled tailscaled = enabled"
+  z_exit=0
+  zbujb_admin_exec_native 'systemctl is-enabled tailscaled' \
+      > "${ZBUJB_INVIGILATE_STDOUT}" \
+      2> "${ZBUJB_INVIGILATE_STDERR}" \
+    || z_exit=$?
+  z_val=$(<"${ZBUJB_INVIGILATE_STDOUT}")
+  z_val="${z_val//$'\n'/}"
+  if test "${z_exit}" -ne 0 && grep -qiE 'no such|not found|not-found' "${ZBUJB_INVIGILATE_STDERR}"; then
+    zbujb_invigilate_fact_die \
+       "tailscaled unit enablement" \
+       "enabled" \
+       "<unit not found>" \
+       "operator handbook BUSJHL (install + first auth)"
+  fi
+  test "${z_val}" = "enabled" \
+    || zbujb_invigilate_fact_die \
+         "tailscaled unit enablement" \
+         "enabled" \
+         "${z_val:-<unreported>}" \
+         "caparison-linux (BUSJCL)"
+
+  buc_step "  Fact: systemctl is-active tailscaled = active"
+  zbujb_admin_exec_native 'systemctl is-active tailscaled' \
+      > "${ZBUJB_INVIGILATE_STDOUT}" \
+      2> "${ZBUJB_INVIGILATE_STDERR}" \
+    || true
+  z_val=$(<"${ZBUJB_INVIGILATE_STDOUT}")
+  z_val="${z_val//$'\n'/}"
+  test "${z_val}" = "active" \
+    || zbujb_invigilate_fact_die \
+         "tailscaled unit activeness" \
+         "active" \
+         "${z_val:-<unreported>}" \
+         "caparison-linux (BUSJCL)"
+
+  buc_step "Invigilate-linux succeeded"
 }
 
 # eof

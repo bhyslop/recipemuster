@@ -156,6 +156,39 @@ bujb_wsl_install_command() {
   bujb_wsl_install
 }
 
+# bujb_invigilate_windows_command - BUSJIW read-only host posture verification.
+bujb_invigilate_windows_command() {
+  zbujb_sentinel
+  buc_doc_brief "Invigilate Windows — read-only host posture verification (Windows)"
+  buc_doc_shown || return 0
+
+  test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
+  bujb_resolve_investiture
+  bujb_invigilate_windows
+}
+
+# bujb_invigilate_macos_command - BUSJIM read-only host posture verification.
+bujb_invigilate_macos_command() {
+  zbujb_sentinel
+  buc_doc_brief "Invigilate macOS — read-only host posture verification (macOS)"
+  buc_doc_shown || return 0
+
+  test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
+  bujb_resolve_investiture
+  bujb_invigilate_macos
+}
+
+# bujb_invigilate_linux_command - BUSJIL read-only host posture verification.
+bujb_invigilate_linux_command() {
+  zbujb_sentinel
+  buc_doc_brief "Invigilate Linux — read-only host posture verification (Linux)"
+  buc_doc_shown || return 0
+
+  test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
+  bujb_resolve_investiture
+  bujb_invigilate_linux
+}
+
 # bujb_garrison_bash - garrison ceremony, native bash workload shell (Linux/Mac).
 bujb_garrison_bash() {
   zbujb_sentinel

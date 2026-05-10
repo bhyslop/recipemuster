@@ -45,8 +45,6 @@ zbujp_kindle() {
   # Per-probe stdout/stderr captures.
   readonly ZBUJP_SSH_PROBE_PREFIX="${BURD_TEMP_DIR}/bujp_ssh_probe_"
   readonly ZBUJP_SUDO_PROBE_PREFIX="${BURD_TEMP_DIR}/bujp_sudo_probe_"
-  readonly ZBUJP_WSL_PROBE_STDOUT="${BURD_TEMP_DIR}/bujp_wsl_probe_stdout.txt"
-  readonly ZBUJP_WSL_PROBE_STDERR="${BURD_TEMP_DIR}/bujp_wsl_probe_stderr.txt"
   readonly ZBUJP_ADMIN_GROUP_STDOUT="${BURD_TEMP_DIR}/bujp_admin_group_stdout.txt"
   readonly ZBUJP_ADMIN_GROUP_STDERR="${BURD_TEMP_DIR}/bujp_admin_group_stderr.txt"
 
@@ -260,47 +258,15 @@ Alternative for a personal workstation — blanket NOPASSWD: ALL:
   sudo chmod ${BUJP_sudoers_mode} /etc/sudoers.d/${BUJP_sudoers_filename}"
 }
 
-# zbujp_probe_wsl_distribution -- exit 0 if BUJB_wsl_distribution is
-# installed on the Windows admin host; die naming buw-jpW.WslInstall
-# otherwise.
-zbujp_probe_wsl_distribution() {
-  zbujp_sentinel
-
-  local z_exit=0
-  zbujb_admin_powershell "wsl.exe --list --quiet" \
-      > "${ZBUJP_WSL_PROBE_STDOUT}" \
-      2> "${ZBUJP_WSL_PROBE_STDERR}" \
-    || z_exit=$?
-
-  test "${z_exit}" -eq 0 \
-    || buc_die "WSL list query failed on ${BURN_HOST} (ssh exit ${z_exit}); see ${ZBUJP_WSL_PROBE_STDERR}"
-
-  local z_output
-  z_output=$(<"${ZBUJP_WSL_PROBE_STDOUT}")
-  z_output="${z_output//$'\r'/}"
-
-  case $'\n'"${z_output}"$'\n' in
-    *$'\n'"${BUJB_wsl_distribution}"$'\n'*) return 0 ;;
-  esac
-
-  buc_die "WSL distribution '${BUJB_wsl_distribution}' (BUJB_wsl_distribution) not installed on ${BURN_HOST}.
-
-Distributions present:
-${z_output:-<none reported>}
-
-Install with:
-
-  tt/buw-jpW.WslInstall.sh ${BUZ_FOLIO}
-
-Or inspect what is currently installed:
-
-  tt/buw-jpS.PrivilegedSsh.sh ${BUZ_FOLIO} 'powershell -NoProfile -Command \"\$env:WSL_UTF8=1; wsl.exe --list --verbose\"'"
-}
-
 ######################################################################
 # Public: Preflight ceremony
 
-# bujp_preflight LETTER -- garrison step-1 gate.
+# bujp_preflight LETTER -- garrison step-1 gate. Three-part shape:
+#   (a) Workload shell-environment reachability per letter (b/c/w).
+#   (b) Host-posture verification per platform — delegates to invigilate
+#       (single source of truth for "correctly-configured", BUSJI{W,M,L}).
+#   (c) Workload-precondition probes that are not host-posture
+#       (privilege grants on the admin account: sudo NOPASSWD, admin-group).
 bujp_preflight() {
   zbujp_sentinel
   local z_letter="${1:-}"
@@ -308,6 +274,13 @@ bujp_preflight() {
   buc_step "  [1/6] Preflight (${BURP_PRIVILEGED_USER}@${BURN_HOST}, letter=${z_letter})"
 
   zbujp_probe_ssh_connect "${z_letter}"
+
+  case "${BURN_PLATFORM}" in
+    bubep_linux)   bujb_invigilate_linux   ;;
+    bubep_mac)     bujb_invigilate_macos   ;;
+    bubep_windows) bujb_invigilate_windows ;;
+    *) buc_die "bujp_preflight: unsupported BURN_PLATFORM '${BURN_PLATFORM}'" ;;
+  esac
 
   case "${z_letter}" in
     b)
@@ -324,11 +297,8 @@ bujp_preflight() {
           ;;
       esac
       ;;
-    c)
-      : # SSH-connect only; fenestrate covers Windows-admin trust + elevation.
-      ;;
-    w)
-      zbujp_probe_wsl_distribution
+    c|w)
+      : # Windows: invigilate-windows covers WSL distribution + admin posture.
       ;;
     *)
       buc_die "bujp_preflight: invalid shell-letter '${z_letter}'"
