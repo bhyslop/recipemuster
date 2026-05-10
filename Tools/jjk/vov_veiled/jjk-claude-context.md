@@ -37,6 +37,19 @@ Job Jockey (JJ) is installed for managing project initiatives.
 
 When a command takes a firemark or coronet, provide the identity, not the silks.
 
+**Display discipline (agent text output to user):**
+- **Always show full coronets and firemarks; never abbreviate.** Write
+  `₢A-AA-`, never `AA-`. Write `₣A-`, never `A-`. The operator works in
+  several heats simultaneously; a bare 3-char pace suffix is ambiguous and
+  forces re-derivation of the heat from context. The ₣/₢ glyph + heat half
+  is part of the identity, not decoration. This holds in prose, tables,
+  bullets, headers, and casual back-references.
+- **Prefer coronets over silks in references.** Coronets are precise and
+  immutable; silks change via `jjx_relabel`. Lead with the coronet; silks
+  may follow parenthetically for human readability (e.g.,
+  `₢A-AA- (wsg-trim-to-spec-shape)`). The coronet alone is always
+  sufficient; the silks alone never are.
+
 **Case sensitivity**: Firemarks and coronets are case-sensitive. `Av` ≠ `AV` ≠ `av`. Passing the wrong case produces a confusing "not found" error. Copy identities exactly as displayed — the final character's case distinguishes heats (e.g., `₣Av` vs `₣AV` are different heats).
 
 - Target repo dir: `.`
