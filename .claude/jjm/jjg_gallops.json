@@ -1589,6 +1589,13 @@
         "₢A-ABA": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260510-1246",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nMechanical style translation against the locked BUSJIW exemplar; parallel-agent candidate once exemplar is in hand.\n\n## Goal\nRefactor BUSJCW, BUSJHW, BUSJGC to match BUSJIW exemplar style established in the prior pace.\n\n## Boundary\n- Files in scope: BUSJCW, BUSJHW, BUSJGC.\n- BUSJCW, BUSJGC use `busc_*`; BUSJHW uses `bush_*`.\n- `«VAR»` names align with BUSJIW's posture-fact names where shared.\n- BUSJGW out of scope — written natively against exemplar vocabulary by the later garrison-w redraft pace; styling it here would be erased.\n- No BUS0 edits — vocabulary already minted.\n- No bash code edits.\n\n## Done when\n- All three files read as siblings of BUSJIW in style.\n- `tt/buw-st.BukSelfTest.sh` and `tt/rbtd-s.TestSuite.fast.sh` green.",
+              "jjgtn_silks": "windows-spec-style-refactor",
+              "jjgtn_basis": "1b46e95"
+            },
+            {
               "jjgtn_ts": "260510-1126",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nMechanical style translation against the locked BUSJIW exemplar; parallel-agent candidate once exemplar is in hand.\n\n## Goal\nRefactor BUSJCW, BUSJHW, BUSJGC to match BUSJIW exemplar style established in the prior pace.\n\n## Boundary\n- Files in scope: BUSJCW, BUSJHW, BUSJGC.\n- BUSJCW, BUSJGC use `busc_*`; BUSJHW uses `bush_*`.\n- `«VAR»` names align with BUSJIW's posture-fact names where shared.\n- BUSJGW out of scope — written natively against exemplar vocabulary by the later garrison-w redraft pace; styling it here would be erased.\n- No BUS0 edits — vocabulary already minted.\n- No bash code edits.\n\n## Done when\n- All three files read as siblings of BUSJIW in style.\n- `tt/buw-st.BukSelfTest.sh` and `tt/rbtd-s.TestSuite.fast.sh` green.",
