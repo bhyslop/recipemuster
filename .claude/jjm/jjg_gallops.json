@@ -36,6 +36,7 @@
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢A-AA_",
+        "₢A-ABA",
         "₢A-AA-",
         "₢A-AA9",
         "₢A-AA8",
@@ -96,7 +97,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "jjghn_next_pace_seed": "ABA",
+      "jjghn_next_pace_seed": "ABB",
       "jjghn_paces": {
         "₢A-AA-": {
           "jjgpn_tacks": [
@@ -1504,6 +1505,17 @@
               "jjgtn_text": "## Character\nMechanical preflight mirroring the existing WSL preflight pattern.\n\n## Docket\n\nLocked decisions:\n\n- Mirror zbujb_garrison_w_preflight for the b letter: at garrison entry,\n  probe `sudo -n true` over admin SSH on linux/mac platforms; die with\n  a diagnostic that names BURP_PRIVILEGED_USER and emits a copy-paste\n  visudo line for the operator. Gate on BURN_PLATFORM in (bubep_linux,\n  bubep_mac); c/w letters do not use sudo and do not need this.\n- Wire via the same case-dispatch shape used for the w preflight (per\n  the BCG line-1290 fix already applied) — runs before step 1 on the\n  b branch.\n- Paddock Standing Note: add one line declaring NOPASSWD for\n  BURP_PRIVILEGED_USER as an operator-managed precondition on Linux/Mac\n  hosts.\n\nDone when:\n- bash -n green on bujb_jurisdiction.sh\n- tt/buw-st.BukSelfTest.sh green\n- tt/rbtd-s.TestSuite.fast.sh green at baseline\n- Absent-NOPASSWD diagnostic produces a buc_die message with the visudo\n  snippet in operator-readable form (verifiable by inspection)\n- Paddock Standing Note for NOPASSWD-as-precondition added",
               "jjgtn_silks": "garrison-b-nopasswd-preflight",
               "jjgtn_basis": "929cfbd"
+            }
+          ]
+        },
+        "₢A-ABA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260510-1046",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical style translation against the locked BUSJIW exemplar; parallel-agent candidate once exemplar is in hand.\n\n## Goal\nRefactor BUSJCW, BUSJHW, BUSJGW, BUSJGC to match BUSJIW exemplar style established in the prior pace.\n\n## Boundary\n- BUSJCW, BUSJGW, BUSJGC use `busc_*`; BUSJHW uses `bush_*`.\n- `«VAR»` names align with BUSJIW's posture-fact names where shared.\n- No BUS0 edits — vocabulary already minted.\n- No bash code edits.\n\n## Done when\n- All four files read as siblings of BUSJIW in style.\n- `tt/buw-st.BukSelfTest.sh` and `tt/rbtd-s.TestSuite.fast.sh` green.",
+              "jjgtn_silks": "windows-spec-style-refactor",
+              "jjgtn_basis": "895ab4c"
             }
           ]
         }
