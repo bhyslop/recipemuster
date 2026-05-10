@@ -1,20 +1,23 @@
 //axhob_operation
 {bust_caparison_windows}
 
-NOTE: Pace-1 skeleton retains the prior fenestrate SSH-trust phases
-verbatim for git-history continuity; pace 2 rewrites this file with
-the broader caparison-windows scope (WSL stage, powercfg, Tailscale
-service auto-start, post-state invigilate-windows check). Below is
-the inherited fenestrate spec text.
-
-NOTE: {busn_caparison} ceremony — Windows OpenSSH only. Establishes
-admin SSH key trust and hardens `sshd_config` to key-only
-authentication on the node, leaving it ready for {busn_garrison} to
-provision the workload account. Two-phase remote-run because
-`Restart-Service sshd` terminates its own ssh session: phase 1 places
-admin trust, writes the hardened `sshd_config`, validates it, and
-restarts sshd; phase 2 reconnects via key auth alone to verify the
-post-restart state.
+NOTE: {busn_caparison} ceremony on Windows — three phases. Phase 1
+(over a password-or-key admin SSH session) places the admin pubkey in
+`administrators_authorized_keys`, applies icacls lockdown, writes
+hardened `sshd_config` directives, validates via `sshd -t`, and
+restarts sshd. The structural disconnect after `Restart-Service sshd`
+is forced: sshd terminates its own ssh session on restart; the bash
+orchestrator treats it as the expected phase boundary, not a failure.
+Phase 2 (key-auth-only reconnect) verifies the post-restart admin
+session authenticates by key alone and the running sshd serves the
+hardened configuration. Phase 3 (over the phase-2 admin session)
+applies post-trust admin posture: stages the `rbtww-main` WSL
+distribution under the admin user, disables sleep and hibernate via
+`powercfg`, and sets the Tailscale service to Automatic and running.
+Nuclear: every invocation purges and re-establishes the
+caparison-managed posture from scratch — no skip-if-present logic.
+Closing step runs {bust_invigilate_windows} as the post-completion
+check.
 
 //axhopt_typed_parameter
 {burp_investiture}
@@ -24,16 +27,17 @@ A {burp_regime} profile exists at the given {burp_investiture} and its
 referenced {burn_regime} profile targets a Windows OpenSSH node.
 
 //axhoq_precondition
-The Windows handbook bootstrap is complete: OpenSSH Server installed,
-sshd started and set to Automatic, firewall opens the configured SSH
-port, and `sshd_config` carries `PasswordAuthentication yes` so that
-fenestrate's phase-1 admin SSH session can fall through to a password
-prompt on a fresh node.
+{bust_handbook_windows} operator-manual scope is complete: OpenSSH
+Server is installed and reachable, security-sensitive registry edits
+have been applied (DevicePasswordLessBuildVersion,
+PlatformAoAcOverride), Tailscale is installed with Run-Unattended
+toggle set and first auth completed, netplwiz auto-login is
+configured, and the admin user has a known password. Consult
+{bust_handbook_windows} for the full list; caparison presupposes this
+scope, neither writes nor repairs it.
 
 //axhoq_precondition
-{burp_privileged_user} is a member of the Administrators group with a
-known password (typed once on phase-1 first run when ssh prompts on
-/dev/tty; fenestrate itself never sees the password).
+{burp_privileged_user} is a member of the Administrators group.
 
 //axhoq_precondition
 {burp_privileged_key_file} is unencrypted and exists on the operator's
@@ -46,19 +50,17 @@ station.
 prompts on /dev/tty for the admin password; operator types it once.
 
 //axhos_step
-. *Phase 1 — place admin trust*: idempotently install the admin pubkey
-(derived from {burp_privileged_key_file} via `ssh-keygen -y`) in
-Windows OpenSSH `administrators_authorized_keys` as a bare key entry
-(no `command=` directive — fenestrate is uniform across shell-letters).
-Re-runs converge as a no-op when the line is already present. Performed
-before any sshd_config change so that key auth is available for
-phase 2's reconnect.
+. *Phase 1 — place admin trust*: install the admin pubkey (derived
+from {burp_privileged_key_file} via `ssh-keygen -y`) in Windows
+OpenSSH `administrators_authorized_keys` as a bare key entry — no
+`command=` directive. Performed before any sshd_config change so that
+key auth is available for phase 2's reconnect. Nuclear: the file is
+replaced each invocation; no skip-if-present logic.
 
 //axhos_step
 . *Phase 1 — lock down administrators_authorized_keys*: apply
-`icacls` so only SYSTEM and the Administrators group hold ACL
-entries; Windows OpenSSH refuses to read the file otherwise.
-Idempotent.
+`icacls` so only SYSTEM and the Administrators group hold ACL entries;
+Windows OpenSSH refuses to read the file otherwise. Idempotent.
 
 //axhos_step
 . *Phase 1 — write hardened directives*: set `PubkeyAuthentication yes`,
@@ -70,13 +72,12 @@ same byte sequence on re-run.
 . *Phase 1 — verify written state*: PowerShell `Get-Content` returns
 the raw `sshd_config` bytes; bash-side BCG-compliant matching extracts
 each effective directive value and asserts it matches the intended
-hardened value. Keeps PowerShell out of the parsing business (its
-error semantics are unreliable).
+hardened value. Keeps PowerShell out of the parsing business.
 
 //axhos_step
 . *Phase 1 — validate sshd_config*: `sshd -t` runs as the penultimate
-atomic op of phase 1. A malformed config aborts fenestrate before it
-could brick the running sshd.
+atomic op of phase 1. A malformed config aborts the caparison ceremony
+before it could brick the running sshd.
 
 //axhos_step
 . *Phase 1 — restart sshd*: `Restart-Service sshd` is the final atomic
@@ -91,18 +92,55 @@ manual password no longer opens a session.
 
 //axhos_step
 . *Phase 2 — verify post-state*: confirm the post-restart admin
-session authenticates by key and the running sshd serves the hardened
-configuration.
+session authenticates by key alone and the running sshd serves the
+hardened configuration.
+
+//axhos_step
+. *Phase 3 — stage WSL distribution*: import the `rbtww-main` WSL
+distribution under the admin user via `wsl.exe --import` from an
+Ubuntu-24.04 seed. Nuclear: always purge-and-reimport — no
+skip-if-present logic. Canonical distribution name is hardcoded as
+`BUJB_wsl_distribution` in {bujb_jurisdiction}.
+
+//axhos_step
+. *Phase 3 — disable sleep and hibernate*: invoke `powercfg /change
+standby-timeout-ac 0`, `powercfg /change standby-timeout-dc 0`, and
+`powercfg /hibernate off`. Idempotent. Depends on the
+operator-managed `PlatformAoAcOverride` having been set per
+{bust_handbook_windows} — {bust_invigilate_windows} asserts that
+override; on a Modern Standby system without it the powercfg calls
+are silently demoted to a no-op, which the post-completion invigilate
+surfaces.
+
+//axhos_step
+. *Phase 3 — set Tailscale service Automatic and running*: invoke
+`Set-Service -Name Tailscale -StartupType Automatic` followed by
+`Start-Service -Name Tailscale`. Idempotent. Tailscale itself was
+installed and authenticated by the operator per {bust_handbook_windows};
+caparison only sets the service shape.
+
+//axhos_step
+. *Post-completion check — run invigilate-windows*: invoke
+{bust_invigilate_windows} for this {burp_investiture}. Non-zero exit
+indicates a caparison operation did not take or an operator-managed
+posture fact is missing; the diagnostic from {bust_invigilate_windows}
+names the failing fact and points the operator at the right repair
+surface.
 
 //axhog_guarantee
 On success the node has admin SSH hardened to key-only with the
 operator's admin pubkey installed in `administrators_authorized_keys`
 under correct ACLs, `sshd_config` carries the three hardening
-directives, and the post-restart admin session has been verified to
-authenticate by key without password fallback.
+directives, the post-restart admin session has been verified to
+authenticate by key alone, the `rbtww-main` WSL distribution is
+registered under the admin user, powercfg sleep and hibernate are
+disabled, the Tailscale service is set to Automatic and running, and
+{bust_invigilate_windows} has confirmed every posture fact end-to-end.
 
 //axhoc_completion
-Exit 0 when phase 2 verification succeeds.
+Exit 0 when the post-completion {bust_invigilate_windows} passes.
 Non-zero on phase-1 admin SSH failure, pubkey-write failure, ACL
 lockdown failure, sshd_config write failure, parsed-state mismatch,
-`sshd -t` failure, or phase-2 key-auth failure.
+`sshd -t` failure, phase-2 key-auth failure, `wsl --import` failure,
+powercfg failure, Tailscale `Set-Service` or `Start-Service` failure,
+or post-completion invigilate failure.

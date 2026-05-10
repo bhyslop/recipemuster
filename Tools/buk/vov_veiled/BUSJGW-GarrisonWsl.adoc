@@ -59,18 +59,6 @@ A {burp_regime} profile exists at the given {burp_investiture} and its
 referenced {burn_regime} profile is reachable.
 
 //axhoq_precondition
-The WSL distribution `rbtww-main` (hardcoded as `BUJB_wsl_distribution`
-in {bujb_jurisdiction}) is installed on the Windows host *under the
-admin user* and is the seed source for workload distributions. Admin
-keeps rbtww-main pristine per handbook discipline; garrison-w exports
-it to a seed tarball and the workload imports that tarball into its
-own HKCU. Garrison-w verifies admin's rbtww-main in a pre-flight
-after admin SSH succeeds; absence surfaces a diagnostic naming the
-constant and emitting copy-paste operator hints in the
-`tt/buw-jpS <investiture> '…'` shape rather than letting an opaque
-`wsl.exe` failure escape downstream.
-
-//axhoq_precondition
 {busn_caparison} has run for this {burp_investiture} so that
 {burp_privileged_user} can authenticate by key alone using
 {burp_privileged_key_file} into the Windows OpenSSH host (the admin
@@ -78,8 +66,26 @@ entry point); the workload SSH session is then opened from that
 foothold using the workload pubkey just placed by garrison.
 
 //axhoq_precondition
+{bust_invigilate_windows} passes for this {burp_investiture}: admin
+SSH key trust is in place, the operator-managed registry posture is
+correct, the Tailscale service is registered and set to Automatic,
+powercfg sleep/hibernate are disabled, and the `rbtww-main` WSL
+distribution (canonical name hardcoded as `BUJB_wsl_distribution` in
+{bujb_jurisdiction}) is registered under the admin user. Garrison
+runs invigilate as its first action so a missing or stale admin
+posture surfaces with a fact-named diagnostic rather than as an
+opaque downstream failure.
+
+//axhoq_precondition
 {burp_workload_key_file} is unencrypted and exists on the operator's
 station.
+
+//axhos_step
+. *Assert admin posture*: invoke `{bust_invigilate_windows}` for this
+{burp_investiture}. Failure surfaces a fact-named diagnostic
+({bust_handbook_windows} pointer for operator-managed facts;
+{bust_caparison_windows} pointer for caparison-managed facts) and
+aborts garrison before any destructive workload work.
 
 //axhos_step
 . *Open admin SSH*: connect as {burp_privileged_user} using
@@ -87,15 +93,14 @@ station.
 only. Failure here surfaces a missing or stale admin trust.
 
 //axhos_step
-. *Pre-flight + export seed*: assert admin's `BUJB_wsl_distribution`
-is installed (`wsl.exe --list --quiet` via the admin session).
-Absence dies with a diagnostic naming the constant and emitting
-`tt/buw-jpS` install hints; presence proceeds. Then export admin's
-rbtww-main to a workload-readable seed tarball under a path inside
-the workload's profile (admin can write there before workload first
-logs in, and the workload's session can read it). The tarball is
-the sole on-disk artifact carrying admin's rbtww-main contents into
-the workload's identity scope; garrison removes it on success.
+. *Export seed*: export admin's `rbtww-main` distribution to a
+workload-readable seed tarball under a path inside the workload's
+profile (admin can write there before the workload first logs in,
+and the workload's session can read it). Caparison has staged
+`rbtww-main` and invigilate has verified its presence as a
+precondition; this step takes that presence as given. The tarball
+is the sole on-disk artifact carrying admin's `rbtww-main` contents
+into the workload's identity scope; garrison removes it on success.
 
 //axhos_step
 . *Obliterate workload*: invoke `zbujb_obliterate_workload`, the
@@ -192,7 +197,7 @@ WSL Linux user inside that distribution (execution context).
 
 //axhoc_completion
 Exit 0 when the round-trip validation succeeds.
-Non-zero on admin SSH failure, admin's rbtww-main absence
-(pre-flight), seed tarball export failure, account-management
-failure in any namespace, `wsl --import` failure, key-write failure,
-or workload validation failure.
+Non-zero on invigilate-windows assertion failure, admin SSH failure,
+seed tarball export failure, account-management failure in any
+namespace, `wsl --import` failure, key-write failure, or workload
+validation failure.

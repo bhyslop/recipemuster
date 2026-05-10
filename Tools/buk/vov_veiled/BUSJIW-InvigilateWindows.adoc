@@ -3,16 +3,113 @@
 
 NOTE: {busn_invigilate} ceremony on Windows — read-only host posture
 verification. Asserts each posture fact (admin SSH key trust,
-`sshd_config` hardening, `rbtww-main` WSL distribution presence under
-admin, powercfg sleep/hibernate state, Tailscale service StartupType,
-operator-managed registry keys) matches its expected value. No
-mutations, no remediation. Failure pointers discriminate
-operator-managed posture (→ {bust_handbook_windows}) from
-caparison-managed posture (→ {bust_caparison_windows}).
+operator-managed registry keys, Tailscale service StartupType,
+powercfg sleep/hibernate state, AoAc override, admin's `rbtww-main`
+WSL distribution presence) matches its expected value. No mutations,
+no remediation. Failure pointers discriminate operator-managed
+posture (→ {bust_handbook_windows}) from caparison-managed posture
+(→ {bust_caparison_windows}).
 
-Invocation contexts: {bust_caparison_windows} post-completion check;
-garrison precondition check on Windows nodes
-({bust_garrison_cygwin}, {bust_garrison_wsl}).
+Invocation contexts: {bust_caparison_windows} runs invigilate-windows
+as its post-completion check (a non-zero exit signals that a
+caparison operation did not take or that the operator-managed posture
+is not in place); {bust_garrison_cygwin} and {bust_garrison_wsl} run
+it as their precondition assertion before any destructive workload
+work, so a missing or stale admin posture surfaces with platform-aware
+guidance rather than an opaque downstream failure.
 
-TODO: subsequent pace fleshes preconditions, fact-by-fact step list,
-guarantee, and completion clauses.
+Read commands are PowerShell-side (via the admin SSH session opened
+with {burp_privileged_key_file}): `Get-ItemPropertyValue` for registry
+facts, `Get-Service` for service state, `powercfg /a` for sleep
+states, `wsl.exe --list --quiet` for WSL distribution registration.
+Bash-side BCG-compliant matching extracts each fact and compares to
+its expected value; PowerShell stays out of the parsing business.
+
+//axhopt_typed_parameter
+{burp_investiture}
+
+//axhoq_precondition
+A {burp_regime} profile exists at the given {burp_investiture} and its
+referenced {burn_regime} profile targets a Windows OpenSSH node
+reachable as {burp_privileged_user} under key-only authentication
+using {burp_privileged_key_file}. Invigilate does not establish that
+trust — it presupposes it; admin SSH failure surfaces as the first
+posture fact.
+
+//axhos_step
+. *Open admin SSH*: connect as {burp_privileged_user} using
+{burp_privileged_key_file}; key-auth only (no password fallback).
+Failure here is the first posture fact and surfaces a missing or
+stale admin trust — the diagnostic points to {bust_caparison_windows}
+since admin trust is caparison-managed.
+
+//axhos_step
+. *Assert operator-managed registry keys*: read each
+{bust_handbook_windows}-established registry value via
+`Get-ItemPropertyValue` and compare to its expected value. The
+canonical fact in this group is `DevicePasswordLessBuildVersion`
+(under `HKLM\Software\Microsoft\Windows\CurrentVersion\PasswordLess\Device`),
+the registry key the netplwiz auto-login GUI requires before it will
+expose the "Users must enter a user name and password" checkbox.
+Mismatch surfaces a diagnostic naming the key, its expected value,
+and pointing to {bust_handbook_windows} — these edits are
+security-sensitive and operator-manual; caparison neither writes
+nor repairs them.
+
+//axhos_step
+. *Assert AoAc override*: read
+`HKLM\System\CurrentControlSet\Control\Power\PlatformAoAcOverride`
+via `Get-ItemPropertyValue` and assert it equals `0`. Modern Standby
+(AlwaysOnAlwaysConnected) systems silently demote `powercfg`
+sleep/hibernate disable to a no-op until this override is in place;
+the override is a registry write that requires elevation and is
+established once by the operator per {bust_handbook_windows}.
+Mismatch points to {bust_handbook_windows}.
+
+//axhos_step
+. *Assert Tailscale service registered*: read the Tailscale service
+record via `Get-Service Tailscale`. Absence indicates Tailscale was
+never installed; the diagnostic points to {bust_handbook_windows}
+(install + Run-Unattended toggle + first auth are operator-manual).
+
+//axhos_step
+. *Assert Tailscale service StartupType*: read the Tailscale service
+StartupType via `Get-Service Tailscale | Select-Object StartType`
+and assert it equals `Automatic`. Mismatch points to
+{bust_caparison_windows} — caparison sets the StartupType after
+Tailscale is installed, so a non-Automatic value indicates caparison
+either did not run or its `Set-Service` operation did not take.
+
+//axhos_step
+. *Assert powercfg sleep/hibernate disabled*: invoke `powercfg /a`
+and assert the output reports neither standby nor hibernate as
+available. Mismatch points to {bust_caparison_windows} — disabling
+sleep and hibernate is caparison's phase-3 operation; a node still
+advertising those states means caparison either did not run or its
+`powercfg` calls were demoted to no-ops by a missing AoAc override
+(in which case the prior step has already pointed the operator to
+the handbook).
+
+//axhos_step
+. *Assert admin's rbtww-main WSL distribution registered*: invoke
+`wsl.exe --list --quiet` over the admin SSH session and assert
+`rbtww-main` (canonical name hardcoded as `BUJB_wsl_distribution`
+in {bujb_jurisdiction}) appears in the output. Absence points to
+{bust_caparison_windows} — caparison's phase-3 `wsl --import` from
+the Ubuntu-24.04 seed stages this distribution under the admin user;
+a missing registration means caparison either did not run or its
+import step failed without surfacing.
+
+//axhog_guarantee
+On success every posture fact has been asserted to match its expected
+value, the running admin SSH session was used only for read commands,
+and no remote or local mutation occurred. The node is in the shape
+{bust_caparison_windows} produces and {bust_garrison_cygwin} /
+{bust_garrison_wsl} require.
+
+//axhoc_completion
+Exit 0 when every posture fact matches its expected value.
+Non-zero on the first mismatch, with a diagnostic naming the failing
+fact, its expected value, its observed value, and the pointer
+({bust_handbook_windows} for operator-managed facts;
+{bust_caparison_windows} for caparison-managed facts).

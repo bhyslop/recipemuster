@@ -32,8 +32,23 @@ referenced {burn_regime} profile is reachable.
 installed on the node.
 
 //axhoq_precondition
+{bust_invigilate_windows} passes for this {burp_investiture}: admin
+SSH key trust is in place, operator-managed registry posture is
+correct, Tailscale service is set to Automatic, and powercfg
+sleep/hibernate are disabled. Garrison runs invigilate as its first
+action so a missing or stale admin posture surfaces with a
+fact-named diagnostic rather than as an opaque downstream failure.
+
+//axhoq_precondition
 {burp_workload_key_file} is unencrypted and exists on the operator's
 station.
+
+//axhos_step
+. *Assert admin posture*: invoke `{bust_invigilate_windows}` for this
+{burp_investiture}. Failure surfaces a fact-named diagnostic
+({bust_handbook_windows} pointer for operator-managed facts;
+{bust_caparison_windows} pointer for caparison-managed facts) and
+aborts garrison before any destructive workload work.
 
 //axhos_step
 . *Open admin SSH*: connect as {burp_privileged_user} using
@@ -77,5 +92,6 @@ On success the node has exactly one workload account named
 
 //axhoc_completion
 Exit 0 when the round-trip validation succeeds.
-Non-zero on admin SSH failure, Cygwin account-management failure,
-key-write failure, or workload validation failure.
+Non-zero on invigilate-windows assertion failure, admin SSH failure,
+Cygwin account-management failure, key-write failure, or workload
+validation failure.
