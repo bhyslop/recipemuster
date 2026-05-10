@@ -1647,6 +1647,13 @@
         "₢A-ABB": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260510-1437",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nMechanical translation — BUSJC{M,L} locked; parallel structure, smaller than caparison-windows.\n\n## Goal\nBuild caparison-macos and caparison-linux verbs per BUSJC{M,L} with `buw-jpC{M,L}` tabtargets: ssh-copy-id orchestration plus per-platform host posture per spec.\n\n## Boundary\n- ssh-copy-id is operator-managed (paddock standing note); caparison-{mac,linux} verifies and applies the rest.\n- Each closes with invigilate-{platform} post-completion check (depends on first implementation pace).\n\n## Done when\n- buw-jpC{M,L} run idempotently end-to-end against a Mac and a Linux node.\n- bash -n; tt/buw-st.BukSelfTest.sh; tt/rbtd-s.TestSuite.fast.sh.",
+              "jjgtn_silks": "implement-caparison-mac-linux",
+              "jjgtn_basis": "5757226"
+            },
+            {
               "jjgtn_ts": "260510-1404",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nMechanical translation — BUSJC{M,L} locked; parallel structure, smaller than caparison-windows.\n\n## Goal\nBuild caparison-macos and caparison-linux verbs per BUSJC{M,L} with `buw-jpC{M,L}` tabtargets: ssh-copy-id orchestration plus per-platform host posture per spec.\n\n## Boundary\n- ssh-copy-id is operator-managed (paddock standing note); caparison-{mac,linux} verifies and applies the rest.\n- Each closes with invigilate-{platform} post-completion check (depends on first implementation pace).\n\n## Done when\n- buw-jpC{M,L} run idempotently end-to-end against a Mac and a Linux node.\n- bash -n; tt/buw-st.BukSelfTest.sh; tt/rbtd-s.TestSuite.fast.sh.",
