@@ -1,11 +1,91 @@
 //axhob_operation
 {bust_caparison_macos}
 
-NOTE: {busn_caparison} ceremony on macOS — admin host posture
-establishment. Wraps ssh-copy-id orchestration, Remote Login enable,
-`pmset` power configuration, and Tailscale service auto-start. Closes
-with {busn_invigilate} post-completion check. Operator-managed scope
-per {bust_handbook_macos}.
+NOTE: {busn_caparison} on macOS -- single-phase admin-shell ceremony
+under pre-trusted key auth. {bust_handbook_macos} owns operator-manual
+posture (Tailscale install + first-run auth, ssh-copy-id);
+caparison owns the idempotent admin-shell remainder.
 
-TODO: subsequent pace fleshes preconditions, step list, guarantee, and
-completion clauses.
+NOTE: Operations are idempotent re-applications, not nuclear teardowns
+-- `systemsetup -setremotelogin on`, `pmset -a`, and `launchctl
+load`/`enable` no-op when already in the desired state. Closes with
+{bust_invigilate_macos}.
+
+The {busn_caparison} operation on macOS:
+
+//axhopt_typed_parameter
+{burp_investiture}
+
+//axhoq_precondition
+A {burp_regime} profile exists at the given {burp_investiture} and its
+{burn_regime} targets a macOS node.
+
+//axhoq_precondition
+{bust_handbook_macos} operator-manual scope is complete -- Tailscale
+installed and first-run-authenticated, `ssh-copy-id` run so
+{burp_privileged_user} authenticates by key, sudoers NOPASSWD where
+required. Caparison presupposes this scope.
+
+//axhoq_precondition
+{burp_privileged_key_file} is unencrypted.
+
+//axhos_step
+. *Open admin SSH session*:
+.. {busc_call}
+ssh as {burp_privileged_user} with {burp_privileged_key_file}; key-auth only
+.. {busc_store}
+`«ADMIN_SESSION»`
+.. {busc_fatal}
+on connection failure -- {bust_handbook_macos} scope (ssh-copy-id is
+operator-managed)
+
+//axhos_step
+. *Enable Remote Login*:
+.. {busc_call}
+`systemsetup -setremotelogin on` over `«ADMIN_SESSION»`; idempotent
+.. {busc_fatal}
+on invocation failure -- {bust_handbook_macos} scope
+
+//axhos_step
+. *Disable sleep, displaysleep, and hibernate via pmset*:
+.. {busc_call}
+`pmset -a sleep 0 displaysleep 0 hibernatemode 0` over
+`«ADMIN_SESSION»`; idempotent
+.. {busc_fatal}
+on `pmset` failure -- {bust_handbook_macos} scope
+
+//axhos_step
+. *Ensure Tailscale launchd service auto-start and running*:
+.. {busc_call}
+`launchctl load` (or `enable`) the Tailscale launchd plist over
+`«ADMIN_SESSION»` then start the service if not already running;
+idempotent
+.. {busc_fatal}
+on `launchctl` failure -- {bust_handbook_macos} scope (install +
+first-run auth)
+
+//axhos_step
+. *Post-completion check -- run invigilate-macos*:
+.. {busc_call}
+{bust_invigilate_macos} for this {burp_investiture}
+.. {busc_store}
+`«INVIGILATE_RESULT»`
+.. {busc_require}
+`«INVIGILATE_RESULT»` is zero
+.. {busc_fatal}
+on non-zero -- invigilate diagnostic surfaced verbatim
+
+//axhog_guarantee
+On success:
+
+* Admin SSH authenticates as {burp_privileged_user} by key alone.
+* Remote Login is enabled.
+* `pmset` sleep, displaysleep, and hibernate are disabled.
+* Tailscale launchd service is auto-start and running.
+* {bust_invigilate_macos} confirms every posture fact end-to-end.
+
+//axhoc_completion
+Exit 0 when the post-completion {bust_invigilate_macos} passes.
+Non-zero on admin SSH failure, any host-posture op failure
+(`systemsetup`, `pmset`, Tailscale launchd), or post-completion
+invigilate failure.

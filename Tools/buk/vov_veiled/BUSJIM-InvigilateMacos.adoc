@@ -1,15 +1,97 @@
 //axhob_operation
 {bust_invigilate_macos}
 
-NOTE: {busn_invigilate} ceremony on macOS — read-only host posture
-verification. Asserts each posture fact (admin SSH key trust, Remote
-Login enabled, `pmset` sleep state, Tailscale service auto-start)
-matches its expected value. No mutations, no remediation. Failure
-pointers discriminate operator-managed posture (→ {bust_handbook_macos})
-from caparison-managed posture (→ {bust_caparison_macos}).
+NOTE: {busn_invigilate} on macOS -- read-only host posture
+verification. Asserts each posture fact matches expected; no
+mutations.
 
-Invocation contexts: {bust_caparison_macos} post-completion check;
-{bust_garrison_bash} precondition check on macOS nodes.
+NOTE: Invocation: {bust_caparison_macos} post-completion check;
+{bust_garrison_bash} precondition on macOS nodes.
 
-TODO: subsequent pace fleshes preconditions, fact-by-fact step list,
-guarantee, and completion clauses.
+NOTE: Failure pointers discriminate operator-managed
+({bust_handbook_macos}) from caparison-managed
+({bust_caparison_macos}). Reads via `systemsetup -getremotelogin`,
+`pmset -g`, `launchctl list`; bash-side BCG-compliant matching
+extracts each fact.
+
+The {busn_invigilate} operation on macOS:
+
+//axhopt_typed_parameter
+{burp_investiture}
+
+//axhoq_precondition
+A {burp_regime} profile exists at the given {burp_investiture} and its
+{burn_regime} targets a macOS node reachable as
+{burp_privileged_user} under key-only auth using
+{burp_privileged_key_file}. Admin SSH failure surfaces as the first
+posture fact -- invigilate presupposes trust, does not establish it.
+
+//axhos_step
+. *Open admin SSH session*:
+.. {busc_call}
+ssh as {burp_privileged_user} with {burp_privileged_key_file}; key-auth only
+.. {busc_store}
+`«ADMIN_SESSION»`
+.. {busc_fatal}
+on connection failure -- {bust_caparison_macos} scope
+
+//axhos_step
+. *Assert Remote Login enabled*:
+.. {busc_call}
+`systemsetup -getremotelogin` over `«ADMIN_SESSION»`
+.. {busc_store}
+`«REMOTE_LOGIN_STATE»`
+.. {busc_require}
+`«REMOTE_LOGIN_STATE»` reports `On`
+.. {busc_fatal}
+on mismatch -- {bust_caparison_macos} scope
+
+//axhos_step
+. *Assert pmset sleep, displaysleep, and hibernate disabled*:
+.. {busc_call}
+`pmset -g` over `«ADMIN_SESSION»`
+.. {busc_store}
+`«PMSET_REPORT»`
+.. {busc_require}
+`«PMSET_REPORT»` parses to `sleep 0`, `displaysleep 0`, and
+`hibernatemode 0` (BCG-compliant matching)
+.. {busc_fatal}
+on mismatch -- {bust_caparison_macos} scope
+
+//axhos_step
+. *Assert Tailscale launchd service registered*:
+.. {busc_call}
+`launchctl list` over `«ADMIN_SESSION»` filtered for the tailscaled label
+.. {busc_store}
+`«SVC_TAILSCALED_MAC»`
+.. {busc_require}
+`«SVC_TAILSCALED_MAC»` is non-empty
+.. {busc_fatal}
+on absence -- {bust_handbook_macos} scope (install + first auth)
+
+//axhos_step
+. *Assert Tailscale launchd service loaded and running*:
+.. {busc_call}
+`launchctl list` over `«ADMIN_SESSION»` parsed for PID and last-exit
+fields of the tailscaled label
+.. {busc_store}
+`«SVC_TAILSCALED_STATE»`
+.. {busc_require}
+`«SVC_TAILSCALED_STATE»` reports a live PID (not `-`)
+.. {busc_fatal}
+on mismatch -- {bust_caparison_macos} scope (Tailscale launchd auto-start)
+
+//axhog_guarantee
+On success:
+
+* Every posture fact matches its expected value.
+* `«ADMIN_SESSION»` was used only for read commands.
+* No mutation occurred.
+* The node is in the shape {bust_caparison_macos} produces and
+  {bust_garrison_bash} requires.
+
+//axhoc_completion
+Exit 0 when every posture fact matches expected. Non-zero on first
+mismatch with diagnostic naming the failing fact, expected value,
+observed value, and pointer ({bust_handbook_macos} for
+operator-managed; {bust_caparison_macos} for caparison-managed).

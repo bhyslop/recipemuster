@@ -1,12 +1,114 @@
 //axhob_operation
 {bust_handbook_macos}
 
-NOTE: Per-platform handbook surface for macOS — operator-manual scope
-that {busn_caparison} cannot or should not automate. Renders to the
-operator's terminal as the entry point into macOS-specific bootstrap
-procedures: Tailscale install + login, any keychain/Privacy &
-Security prompts that require interactive consent, and any other
-macOS posture an operator must establish before {bust_caparison_macos}
-can run. No remote contact and no profile mutation.
+NOTE: Operator-manual scope for macOS -- posture {busn_caparison}
+cannot or should not automate. No remote contact, no profile mutation.
 
-TODO: subsequent pace fleshes the step list and prose content.
+NOTE: Steps establish Tailscale install + first auth, a known
+{burp_privileged_user} password for the first-run `ssh-copy-id`
+exchange, sudoers NOPASSWD entry, and the Remote Login surface that
+{bust_caparison_macos} (re)asserts. Mismatches surface from
+{bust_invigilate_macos} as failure pointers back to this handbook.
+
+NOTE: Steps missing here cause {bust_caparison_macos} to fail at the
+point that depends on them.
+
+The {bust_handbook_macos} procedure:
+
+//axhos_step
+. *Install Tailscale*:
+.. {bush_show}
+install via the Mac App Store version or download the pkg from
+https://tailscale.com/download
+.. {bush_require}
+`Tailscale.app` is present in `/Applications`
+
+//axhos_step
+. *First-run Tailscale authentication*:
+.. open the Tailscale menu-bar icon, click Sign In, complete the
+browser-based authentication flow
+.. {bush_require}
+the host appears in the operator's tailnet admin console
+.. {bush_show}
+binds the host to the tailnet so the BURN profile's tailnet hostname
+(or `100.x.y.z` address) becomes a stable transport address that
+persists across reboots
+
+//axhos_step
+. *Ensure {burp_privileged_user} has a known password*:
+.. {bush_require}
+{burp_privileged_user} has a password the operator knows
+.. set or verify via System Settings → Users & Groups, or from a
+local Terminal:
++
+----
+dscl . -passwd /Users/<username> <newpassword>
+----
+.. {bush_show}
+required for the operator-manual `ssh-copy-id` step below -- operator
+types it once during the first-run exchange; neither this handbook
+nor {bust_caparison_macos} ever handles the password
+
+//axhos_step
+. *First-run `ssh-copy-id`*:
+.. from the operator's station, install the operator's public key on
+the host:
++
+----
+ssh-copy-id -i <pubkey-path> {burp_privileged_user}@<host>
+----
+.. {bush_show}
+operator types the {burp_privileged_user} password once when
+prompted -- last point at which a password traverses the wire
+.. {bush_require}
+subsequent key-auth ssh as {burp_privileged_user} succeeds without
+a password prompt
+
+//axhos_step
+. *Configure sudoers NOPASSWD entry*:
+.. {bush_warn}
+syntax mistakes in the sudoers file can lock the operator out of
+admin -- `visudo` validates before saving, but review the line
+carefully before exiting the editor
+.. if {burp_privileged_user} is not already a passwordless-sudo
+user, edit sudoers:
++
+----
+sudo visudo
+----
+.. add the line:
++
+----
+<username> ALL=(ALL) NOPASSWD: ALL
+----
+.. {bush_require}
+`sudo -n true` as {burp_privileged_user} returns success without
+prompting
+
+//axhos_step
+. *Verify Remote Login is enableable*:
+.. open System Settings → General → Sharing → Remote Login
+.. {bush_show}
+operator may enable Remote Login here as a first-run alternative,
+or leave it for {bust_caparison_macos} -- caparison invokes
+`systemsetup -setremotelogin on` and (re)asserts the on state
+regardless
+
+//axhog_guarantee
+On completion:
+
+* No remote contact occurred and no local file was written by the
+  handbook itself.
+* Tailscale is installed and the host is authenticated to the
+  operator's tailnet.
+* {burp_privileged_user} has a known password and the operator's
+  public key is installed via `ssh-copy-id`.
+* Sudoers NOPASSWD entry for {burp_privileged_user} is in place.
+* The Remote Login surface is enableable and ready for
+  {bust_caparison_macos} to (re)assert.
+* The operator-managed posture scope that {bust_caparison_macos}
+  and {bust_invigilate_macos} depend on is established.
+
+//axhoc_completion
+Exit 0 after handbook content is printed. Non-zero only when content
+cannot be located or rendered.

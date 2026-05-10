@@ -28,8 +28,27 @@ SSH-trust hardening (only Windows OpenSSH has the autonomous
 phase-1/phase-2 ceremony).
 
 //axhoq_precondition
+{bust_invigilate_macos} or {bust_invigilate_linux} passes for this
+{burp_investiture} (selected by the BURN-targeted OS): admin SSH
+key trust is in place and host posture (Remote Login + pmset +
+Tailscale launchd on macOS; sshd + sleep-target mask + tailscaled on
+Linux) is correct. Garrison runs invigilate as its first action so a
+missing or stale admin posture surfaces with a fact-named diagnostic
+rather than as an opaque downstream failure.
+
+//axhoq_precondition
 {burp_workload_key_file} is unencrypted and exists on the operator's
 station.
+
+//axhos_step
+. *Assert admin posture*: invoke `{bust_invigilate_macos}` or
+`{bust_invigilate_linux}` for this {burp_investiture} (selected by
+the BURN-targeted OS). Failure surfaces a fact-named diagnostic
+({bust_handbook_macos}/{bust_handbook_linux} pointer for
+operator-managed facts;
+{bust_caparison_macos}/{bust_caparison_linux} pointer for
+caparison-managed facts) and aborts garrison before any destructive
+workload work.
 
 //axhos_step
 . *Open admin SSH*: connect as {burp_privileged_user} using
@@ -73,5 +92,6 @@ outbound (to GitHub or equivalent) key trust in place.
 
 //axhoc_completion
 Exit 0 when the round-trip validation succeeds.
-Non-zero on admin SSH failure, account-management failure, key-write
-failure, or workload validation failure.
+Non-zero on invigilate assertion failure, admin SSH failure,
+account-management failure, key-write failure, or workload validation
+failure.

@@ -1,16 +1,111 @@
 //axhob_operation
 {bust_invigilate_linux}
 
-NOTE: {busn_invigilate} ceremony on Linux — read-only host posture
-verification. Asserts each posture fact (admin SSH key trust, sshd
-service state, sleep target mask state on laptop/desktop hosts,
-tailscaled enabled) matches its expected value. No mutations, no
-remediation. Failure pointers discriminate operator-managed posture
-(→ {bust_handbook_linux}) from caparison-managed posture
-(→ {bust_caparison_linux}).
+NOTE: {busn_invigilate} on Linux -- read-only host posture
+verification. Asserts each posture fact matches expected; no
+mutations.
 
-Invocation contexts: {bust_caparison_linux} post-completion check;
-{bust_garrison_bash} precondition check on Linux nodes.
+NOTE: Invocation: {bust_caparison_linux} post-completion check;
+{bust_garrison_bash} precondition on Linux nodes.
 
-TODO: subsequent pace fleshes preconditions, fact-by-fact step list,
-guarantee, and completion clauses.
+NOTE: Failure pointers discriminate operator-managed
+({bust_handbook_linux}) from caparison-managed
+({bust_caparison_linux}). Canonical service unit name is `sshd`
+(systemd) -- on Debian-family hosts where the unit is `ssh`, the
+caller substitutes; bash-side BCG-compliant matching extracts each
+fact from `systemctl is-enabled` / `is-active` output.
+
+The {busn_invigilate} operation on Linux:
+
+//axhopt_typed_parameter
+{burp_investiture}
+
+//axhoq_precondition
+A {burp_regime} profile exists at the given {burp_investiture} and its
+{burn_regime} targets a systemd Linux node reachable as
+{burp_privileged_user} under key-only auth using
+{burp_privileged_key_file}. Admin SSH failure surfaces as the first
+posture fact -- invigilate presupposes trust, does not establish it.
+
+//axhos_step
+. *Open admin SSH session*:
+.. {busc_call}
+ssh as {burp_privileged_user} with {burp_privileged_key_file}; key-auth only
+.. {busc_store}
+`«ADMIN_SESSION»`
+.. {busc_fatal}
+on connection failure -- {bust_caparison_linux} scope
+
+//axhos_step
+. *Assert sshd unit enabled*:
+.. {busc_call}
+`systemctl is-enabled sshd` over `«ADMIN_SESSION»`
+.. {busc_store}
+`«SSHD_ENABLED»`
+.. {busc_require}
+`«SSHD_ENABLED»` equals `enabled`
+.. {busc_fatal}
+on mismatch -- {bust_handbook_linux} scope (openssh-server install) on
+unit-not-found; otherwise {bust_caparison_linux} scope
+
+//axhos_step
+. *Assert sshd unit active*:
+.. {busc_call}
+`systemctl is-active sshd` over `«ADMIN_SESSION»`
+.. {busc_store}
+`«SSHD_ACTIVE»`
+.. {busc_require}
+`«SSHD_ACTIVE»` equals `active`
+.. {busc_fatal}
+on mismatch -- {bust_caparison_linux} scope
+
+//axhos_step
+. *Assert sleep targets masked*:
+.. {busc_call}
+`systemctl is-enabled sleep.target suspend.target hibernate.target
+hybrid-sleep.target` over `«ADMIN_SESSION»`
+.. {busc_store}
+`«SLEEP_TARGETS_STATE»`
+.. {busc_require}
+`«SLEEP_TARGETS_STATE»` reports `masked` for each of the four targets
+(BCG-compliant matching)
+.. {busc_fatal}
+on mismatch -- {bust_caparison_linux} scope
+
+//axhos_step
+. *Assert tailscaled unit enabled*:
+.. {busc_call}
+`systemctl is-enabled tailscaled` over `«ADMIN_SESSION»`
+.. {busc_store}
+`«TAILSCALED_ENABLED»`
+.. {busc_require}
+`«TAILSCALED_ENABLED»` equals `enabled`
+.. {busc_fatal}
+on mismatch -- {bust_handbook_linux} scope (install + first auth) on
+unit-not-found; otherwise {bust_caparison_linux} scope
+
+//axhos_step
+. *Assert tailscaled unit active*:
+.. {busc_call}
+`systemctl is-active tailscaled` over `«ADMIN_SESSION»`
+.. {busc_store}
+`«TAILSCALED_ACTIVE»`
+.. {busc_require}
+`«TAILSCALED_ACTIVE»` equals `active`
+.. {busc_fatal}
+on mismatch -- {bust_caparison_linux} scope
+
+//axhog_guarantee
+On success:
+
+* Every posture fact matches its expected value.
+* `«ADMIN_SESSION»` was used only for read commands.
+* No mutation occurred.
+* The node is in the shape {bust_caparison_linux} produces and
+  {bust_garrison_bash} requires.
+
+//axhoc_completion
+Exit 0 when every posture fact matches expected. Non-zero on first
+mismatch with diagnostic naming the failing fact, expected value,
+observed value, and pointer ({bust_handbook_linux} for
+operator-managed; {bust_caparison_linux} for caparison-managed).
