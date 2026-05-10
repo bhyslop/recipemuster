@@ -35,6 +35,7 @@
       "jjghn_creation_time": "260412",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢A-AA6",
         "₢A-AA5",
         "₢A-AA4",
         "₢A-AA3",
@@ -90,7 +91,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "jjghn_next_pace_seed": "AA6",
+      "jjghn_next_pace_seed": "AA7",
       "jjghn_paces": {
         "₢A-AA0": {
           "jjgpn_tacks": [
@@ -183,6 +184,17 @@
               "jjgtn_text": "## Character\nLight comment-only bash touch — preserves chain of custody for review cycles.\n\n## Goal\nBind existing bash function symbols to new spec sections via comment headers without renaming any symbol. Greppability holds still through subsequent review cycles.\n\n## Boundary\n- One-line comment near each affected function naming its new spec section (e.g., `# Implements caparison-windows §SSH-trust phases; see BUSJPCw.`).\n- Comment annotations on zipper enrollment lines if they help spec→code lookup.\n- No symbol renames: functions, constants, env vars, file names all stay.\n- `bujb_fenestrate` stays `bujb_fenestrate`. `bujb_garrison_wsl` stays. `BUJB_command_b/c/w` constants stay named as-is.\n\n## Done when\n- Every public bash function whose spec home moved or was newly created has a comment header pointing at the new spec.\n- bash -n green; tt/buw-st.BukSelfTest.sh green; tt/rbtd-s.TestSuite.fast.sh green.",
               "jjgtn_silks": "bash-spec-link-comments",
               "jjgtn_basis": "cb9c60a"
+            }
+          ]
+        },
+        "₢A-AA6": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260510-0923",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nSpec content rewrite — non-Windows platform depth (lighter than Windows).\n\n## Goal\nFlesh BUSJPCm/l, BUSJIm/l, BUSJHM/L; align garrison-bash precondition list to reference invigilate-{macos,linux}.\n\n## Boundary\n- BUSJPCm: enable Remote Login (`systemsetup -setremotelogin on`), ssh-copy-id orchestration, `pmset` power config, Tailscale install/service.\n- BUSJPCl: ssh-copy-id orchestration, systemctl mask sleep targets (laptop/desktop hosts), tailscaled enable/start.\n- BUSJIm/l: posture fact lists with read commands and expected values; failure messages point at handbook (operator-managed) or caparison (caparison-managed).\n- BUSJHM/L: operator-manual scope per platform — Tailscale install + login, anything genuinely operator-side.\n- BUSJGB: precondition list references invigilate-{macos,linux}.\n- No bash code edits.\n\n## Done when\n- All non-Windows platform specs render coherently end-to-end.\n- BUSJGB preconditions align with invigilate-{macos,linux} references.\n- bash -n green; tt/buw-st.BukSelfTest.sh green; tt/rbtd-s.TestSuite.fast.sh green.",
+              "jjgtn_silks": "caparison-invigilate-mac-linux-content",
+              "jjgtn_basis": "19ab010"
             }
           ]
         },
