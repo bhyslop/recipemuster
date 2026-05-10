@@ -192,6 +192,11 @@ zbujb_kindle() {
   # (export-seed, init-wsl, lockdown, seed-cleanup).
   readonly ZBUJB_W_INIT_PREFIX="${BURD_TEMP_DIR}/bujb_w_init_"
 
+  # Per-call forensic capture for obliterate sub-steps (counter pattern,
+  # like the other _run wrappers). Each ssh call lands at a uniquely
+  # numbered file, so probe and destructive ops both leave evidence.
+  readonly ZBUJB_OBLITERATE_PREFIX="${BURD_TEMP_DIR}/bujb_obliterate_run_"
+
   # Single shared emission counter across all _run wrappers — file numbers
   # are continuous across originating functions so chronological order is
   # readable from the embedded number even when prefixes differ.
@@ -625,6 +630,20 @@ zbujb_w_init_run() {
   return ${z_exit}
 }
 
+zbujb_obliterate_run() {
+  local z_label="${1:-}"
+  shift
+  local z_idx_str
+  printf -v z_idx_str '%02d' "${z_bujb_emit_index}"
+  local z_out="${ZBUJB_OBLITERATE_PREFIX}${z_idx_str}_${z_label}_stdout.txt"
+  local z_err="${ZBUJB_OBLITERATE_PREFIX}${z_idx_str}_${z_label}_stderr.txt"
+  z_bujb_emit_index=$((z_bujb_emit_index + 1))
+  local z_exit=0
+  "$@" > "${z_out}" 2> "${z_err}" || z_exit=$?
+  zbujb_diag_dump_pair "${z_label}" "${z_out}" "${z_err}"
+  return ${z_exit}
+}
+
 # zbujb_obliterate_windows_namespaces -- run the four-namespace Windows
 # obliterate sequence as a series of atomic PowerShell calls. Operates on
 # BUJB_workload_user (the project-wide canonical workload identity).
@@ -804,16 +823,36 @@ zbujb_obliterate_workload() {
 
   case "${BURN_PLATFORM}" in
     bubep_linux)
-      # Best-effort destructive ops; per-call `|| true` on the curia absorbs
-      # the user/home-dir-absent pre-state without invoking PS-8's error-
-      # suppression-as-idempotency hazard (which governs PS bodies, not
-      # bash). A future tightening could lift these into CDD probes.
-      zbujb_admin_exec_native "sudo -n userdel -r '${BUJB_workload_user}' 2>/dev/null" || true
-      zbujb_admin_exec_native "sudo -n rm -rf '${BUJB_path_posix_user_home}' 2>/dev/null" || true
+      # CDD via the counter-based zbujb_obliterate_run wrapper: per-call
+      # forensic capture under ZBUJB_OBLITERATE_PREFIX, no inline
+      # redirection boilerplate, no `|| true` (BCG-forbidden silent
+      # absorption), no body-side `2>/dev/null`.
+      local z_present=0
+      zbujb_obliterate_run "user-probe" zbujb_admin_exec_native "id '${BUJB_workload_user}'" || z_present=$?
+      if test "${z_present}" -eq 0; then
+        zbujb_obliterate_run "userdel"  zbujb_admin_exec_native "sudo -n userdel -r '${BUJB_workload_user}'" \
+          || buc_die "obliterate (b/linux): userdel failed for ${BUJB_workload_user} — see ${ZBUJB_OBLITERATE_PREFIX}*userdel*"
+      fi
+      z_present=0
+      zbujb_obliterate_run "home-probe" zbujb_admin_exec_native "test -d '${BUJB_path_posix_user_home}'" || z_present=$?
+      if test "${z_present}" -eq 0; then
+        zbujb_obliterate_run "rm-home"  zbujb_admin_exec_native "sudo -n rm -rf '${BUJB_path_posix_user_home}'" \
+          || buc_die "obliterate (b/linux): rm -rf of ${BUJB_path_posix_user_home} failed — see ${ZBUJB_OBLITERATE_PREFIX}*rm-home*"
+      fi
       ;;
     bubep_mac)
-      zbujb_admin_exec_native "sudo -n sysadminctl -deleteUser '${BUJB_workload_user}' 2>/dev/null" || true
-      zbujb_admin_exec_native "sudo -n rm -rf '${BUJB_path_mac_user_home}' 2>/dev/null" || true
+      local z_present=0
+      zbujb_obliterate_run "user-probe" zbujb_admin_exec_native "id '${BUJB_workload_user}'" || z_present=$?
+      if test "${z_present}" -eq 0; then
+        zbujb_obliterate_run "userdel"  zbujb_admin_exec_native "sudo -n sysadminctl -deleteUser '${BUJB_workload_user}'" \
+          || buc_die "obliterate (b/mac): sysadminctl -deleteUser failed for ${BUJB_workload_user} — see ${ZBUJB_OBLITERATE_PREFIX}*userdel*"
+      fi
+      z_present=0
+      zbujb_obliterate_run "home-probe" zbujb_admin_exec_native "test -d '${BUJB_path_mac_user_home}'" || z_present=$?
+      if test "${z_present}" -eq 0; then
+        zbujb_obliterate_run "rm-home"  zbujb_admin_exec_native "sudo -n rm -rf '${BUJB_path_mac_user_home}'" \
+          || buc_die "obliterate (b/mac): rm -rf of ${BUJB_path_mac_user_home} failed — see ${ZBUJB_OBLITERATE_PREFIX}*rm-home*"
+      fi
       ;;
     bubep_windows)
       zbujb_obliterate_windows_namespaces
