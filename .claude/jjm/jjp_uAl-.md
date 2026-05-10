@@ -11,9 +11,9 @@ WSL is named in §Deferred for the shared-kernel-iptables reason.
 
 **Jurisdiction** is the BUK feature-area for reaching out to remote nodes
 deterministically. Logical-only umbrella concept; `bujb_jurisdiction.sh` is
-its implementation seat (BCG-compliant module housing both verbs). Neither
-the umbrella nor the implementation module earns AXLA-entity voicing in
-BUS0. Architectural spine in BUS0 §Remote Node Access.
+its implementation seat (BCG-compliant module housing all three verbs).
+Neither the umbrella nor the implementation module earns AXLA-entity voicing
+in BUS0. Architectural spine in BUS0 §Remote Node Access.
 
 **Two regimes (BURN, BURP):**
 
@@ -33,20 +33,25 @@ BUS0. Architectural spine in BUS0 §Remote Node Access.
   user that garrison provisions on every node. Single source of truth.
   Lives in `bujb_jurisdiction.sh` as a tinder constant.
 
-**Two verbs (Fenestrate, Garrison):**
+**Three verbs (Caparison, Invigilate, Garrison):**
 
-- **Fenestrate** — Windows-OpenSSH-only `sshd_config` harden plus admin SSH
-  key-trust establishment. Uniform across shell-letters (no variant).
-  Two-phase ceremony forced by `Restart-Service sshd` killing its own
-  session. Tabtarget `buw-jpF` (capital F = persistent config application).
-- **Garrison** — workload account provisioning only. Per-shell-letter
-  (b/c/w). Never reads or writes any `sshd_config`; never alters admin
-  authorized_keys. First action is admin SSH via key auth; failure surfaces
-  immediately.
-- For Linux/Mac there is no fenestrate verb — admin trust is operator-manual
-  (e.g., `ssh-copy-id`); garrison runs against an existing key-trusted admin
-  foothold. For Cygwin/WSL sshd hardening on Windows nodes (in addition to
-  Windows OpenSSH), hardening is operator-manual.
+- **Caparison** — admin host posture establishment, per platform
+  (Windows/macOS/Linux). Nuclear: every invocation purges and re-establishes
+  the caparison-managed posture from scratch — no skip-if-present logic.
+  Operator handbook owns security-sensitive edits (UAC-required registry
+  keys, Tailscale interactive auth, etc.); caparison owns idempotent
+  admin-shell operations.
+- **Invigilate** — read-only host posture verification, per platform. Pure
+  precondition assertions; no mutations. Each posture fact has a read
+  command, expected value, and failure pointer to either the operator
+  handbook (for operator-managed posture) or caparison (for
+  caparison-managed posture). Single source of truth for "correctly-configured"
+  per platform. Used twice: caparison's post-completion check, garrison's
+  precondition check.
+- **Garrison** — workload account provisioning only. Per shell-letter
+  (b/c/w). First step is invigilate-{platform}; failure surfaces immediately.
+  Never reads or writes any `sshd_config`; never alters admin
+  authorized_keys.
 
 **Garrison-destructive model:**
 
@@ -54,8 +59,8 @@ BUS0. Architectural spine in BUS0 §Remote Node Access.
   or operator runs it. Node runtime state belongs to whoever last garrisoned.
 - One workload user per node, ever. No conscript / discharge / withdraw /
   vanquish / inventory verbs; garrison subsumes them.
-- Admin-side sshd configuration is fenestrate's scope on Windows;
-  operator-manual elsewhere.
+- Admin-side host posture is caparison's scope; the security-sensitive
+  remainder is the per-platform handbook's scope.
 
 **Cross-cutting premises:**
 
@@ -64,52 +69,54 @@ BUS0. Architectural spine in BUS0 §Remote Node Access.
 - `bus_keys_operator_owned` — system never generates or modifies SSH key
   material; operator owns all key administration.
 
-**Tabtarget colophons (14 total; b/c/w shell support, PowerShell deferred):**
+**Tabtarget colophons (23 total; b/c/w shell support, PowerShell deferred):**
 
 - `buw-r[np][lrv]` — BURN/BURP regime config (List/Render/Validate) — 6
-- `buw-jpF` — Fenestrate (Windows OpenSSH only; uniform) — 1
+- `buw-jpC[WML]` — Caparison per platform (W=Windows; M=macOS; L=Linux) — 3
+- `buw-jpI[WML]` — Invigilate per platform — 3
 - `buw-jpG[bcw]` — Garrison per shell-letter (b=native bash for Linux/Mac;
   c=Cygwin; w=WSL) — 3
+- `buw-jpS` — Privileged SSH (admin pass-through, all platforms) — 1
 - `buw-jwk` — Knock (probe workload reachability) — 1
 - `buw-jwc` — Run command file as workload (shell determined by garrison) — 1
 - `buw-jws` — Interactive SSH as workload — 1
-- `buw-hj0` — Handbook jurisdiction top — 1
+- `buw-hj0` — Handbook jurisdiction top (dispatches to per-platform) — 1
+- `buw-hj[WML]` — Handbook per platform — 3
 
 **Operational seat (`bujb_jurisdiction.sh` + `bujb_cli.sh`):**
 
-BCG-compliant module housing both fenestrate and garrison implementations,
-hardcoding the three shell-letter→`command=` directive mappings (b/c/w)
-used by garrison on the workload account, the workload privkey destination
-path on remote per shell-letter, the canonical WSL distribution name
-(`rbtww-main`), and the Windows OpenSSH `sshd_config` hardening directive
-set used by fenestrate. SSH transport mechanics live in code; BURP carries
-no shell selection.
+BCG-compliant module housing caparison, invigilate, and garrison
+implementations, hardcoding the three shell-letter→`command=` directive
+mappings (b/c/w) used by garrison on the workload account, the workload
+privkey destination path on remote per shell-letter, the canonical WSL
+distribution name (`rbtww-main`), and the Windows OpenSSH `sshd_config`
+hardening directive set used by caparison-windows. SSH transport mechanics
+live in code; BURP carries no shell selection.
 
-**Fenestrate ceremony (Windows OpenSSH only; uniform):**
+**Caparison-Windows ceremony (admin posture; Windows OpenSSH host):**
 
-Two-phase remote-run because `Restart-Service sshd` terminates its own
-ssh session.
+Three-phase: SSH-trust hardening (former fenestrate scope), then post-trust
+admin posture, then post-completion verification.
 
 Phase 1 (over the password-or-key admin SSH session):
 
 1. SSH-as-`BURP_PRIVILEGED_USER` with
    `PreferredAuthentications=publickey,password`. Steady-state:
    `BURP_PRIVILEGED_KEY_FILE` authenticates by key. First-run: ssh prompts
-   on /dev/tty; operator types the Windows admin password once. Fenestrate
+   on /dev/tty; operator types the Windows admin password once. Caparison
    process never sees the password.
 2. Idempotently place admin pubkey (derived from `BURP_PRIVILEGED_KEY_FILE`
    via `ssh-keygen -y`) in `administrators_authorized_keys` as a bare entry
-   (no `command=`; fenestrate is uniform). Performed before any sshd_config
-   change so key auth is available for phase 2's reconnect.
+   (no `command=`; uniform across shell-letters). Performed before any
+   sshd_config change so key auth is available for phase 2's reconnect.
 3. `icacls` lockdown on `administrators_authorized_keys`.
 4. Write hardened directives to `sshd_config`: `PubkeyAuthentication yes`,
    `PasswordAuthentication no`, `PermitEmptyPasswords no`. Idempotent.
 5. Verify written state via PowerShell `Get-Content` returning raw bytes,
    then bash-side BCG-compliant matching extracting effective directive
-   values. Keeps PowerShell out of parsing (its error semantics are
-   unreliable).
+   values.
 6. `sshd -t` validates the config (penultimate atomic op of phase 1; a
-   malformed config aborts fenestrate before it could brick running sshd).
+   malformed config aborts caparison before it could brick running sshd).
 7. `Restart-Service sshd` (final atomic op of phase 1; ssh session
    terminates here — bash orchestrator treats the disconnect as the
    expected phase boundary).
@@ -120,38 +127,78 @@ Phase 2 (key auth only):
    `PreferredAuthentications=publickey` (no password fallback). Failure
    here surfaces a brick — the operator's manual password no longer opens
    a session.
-9. Verify post-state: the admin session authenticates by key alone and the
-   running sshd serves the hardened configuration.
+9. Verify post-restart admin session authenticates by key alone.
+
+Phase 3 (post-trust admin posture):
+
+10. Stage `rbtww-main` WSL distribution under admin user via `wsl --import`
+    from Ubuntu-24.04 seed. Always purge-and-reimport; no skip-if-present.
+11. Apply powercfg sleep/hibernate disable (idempotent).
+12. Set Tailscale service StartupType Automatic; start service
+    (idempotent).
+13. Run invigilate-windows post-completion check; non-zero indicates
+    caparison's operations did not take or operator-managed posture is
+    wrong.
+
+**Caparison-macOS ceremony (admin posture; macOS host):**
+
+Compact: enable Remote Login (`systemsetup -setremotelogin on`), orchestrate
+ssh-copy-id, apply `pmset` power config, ensure Tailscale service
+auto-start. Closes with invigilate-macos post-check.
+
+**Caparison-Linux ceremony (admin posture; Linux host):**
+
+Compact: orchestrate ssh-copy-id, mask sleep/suspend/hibernate targets via
+systemctl (laptop/desktop hosts only), enable tailscaled. Closes with
+invigilate-linux post-check.
+
+**Invigilate ceremony (per platform; read-only):**
+
+Each invigilate-{platform} reads its posture fact list and asserts each
+fact matches expected. Failure surfaces a diagnostic naming the wrong fact
+and pointing to either the operator handbook (for operator-managed
+posture) or caparison (for caparison-managed posture). No mutations, no
+remediation. Invocation contexts: caparison's post-completion check,
+garrison's precondition check.
 
 **Garrison ceremony (per shell-letter; workload-only):**
 
-1. SSH-as-`BURP_PRIVILEGED_USER` with `BURP_PRIVILEGED_KEY_FILE`; key auth
-   only (no password fallback). On Windows, presupposes fenestrate has run
-   for this investiture. On Linux/Mac, admin trust is operator-managed
-   (e.g., `ssh-copy-id` placed the admin pubkey).
-2. Destroy existing workload user (if present) via `userdel -r` or platform
-   equivalent — removes account + home directory; stray files outside home
-   are workload's own concern, not garrison's.
-3. Create fresh workload user named `BUJB_workload_user` (unprivileged: no
+1. Invigilate-{platform} precondition check; failure surfaces a missing or
+   stale admin posture before any destructive workload work.
+2. SSH-as-`BURP_PRIVILEGED_USER` with `BURP_PRIVILEGED_KEY_FILE`; key auth
+   only (no password fallback).
+3. Destroy existing workload user (if present) via `userdel -r` or
+   platform equivalent — removes account + home directory; stray files
+   outside home are workload's own concern, not garrison's.
+4. Create fresh workload user named `BUJB_workload_user` (unprivileged: no
    sudo, no admin group, ssh-only access).
-4. Place workload pubkey in workload's authorized_keys with the
+5. Place workload pubkey in workload's authorized_keys with the
    shell-letter's `command=` directive.
-5. Copy workload privkey to remote workload account at the path hardcoded in
-   `bujb_jurisdiction.sh` per shell-letter (so workload can authenticate
-   outbound to GitHub).
-6. Validate round-trip — SSH as workload + exec no-op + verify exit 0.
+6. Copy workload privkey to remote workload account at the path hardcoded
+   in `bujb_jurisdiction.sh` per shell-letter (so workload can
+   authenticate outbound to GitHub).
+7. Validate round-trip — SSH as workload + exec no-op + verify exit 0.
 
 ## Heat Sequence
 
 **Spec foundation:**
 - spec-bus0-jurisdiction — BUS0 rewrite reflecting current concept
 - introduce-fenestrate-narrow-garrison — split admin trust + sshd harden
-  out of garrison into a uniform fenestrate verb
+  out of garrison into a uniform fenestrate verb (since broadened to
+  caparison)
 
 **Implementation:**
 - implement-jurisdiction — four-field BURP, `BURC_WORKLOAD_USER`,
-  `bujb_jurisdiction.sh` module, 14 tabtargets, fenestrate + garrison
-  ceremonies, cleanup superseded colophons + handbook entries
+  `bujb_jurisdiction.sh` module, fenestrate + garrison ceremonies, cleanup
+  superseded colophons + handbook entries
+
+**Caparison/Invigilate restructuring:**
+- BUS0 vocabulary + skeleton stubs (BUSJPF→BUSJCW; new BUSJC[ML],
+  BUSJI[WML], BUSJH[WML])
+- Per-platform caparison and invigilate spec content (Windows depth first,
+  then macOS/Linux)
+- Bash alignment via comment annotations (no symbol renames; preserves
+  grep-archaeology for the upcoming spec/implementation review cycles)
 
 **Investigation (independent, runs anytime):**
 - localhost-fundus-parallel-saturation diagnosis
@@ -176,10 +223,10 @@ Phase 2 (key auth only):
   centralized SSH key storage, non-`.pub`-suffix layouts.
 - **Localhost garrison/dispatch variants** — deferred; remote nodes only.
 - **Git normalization on remote** — JJK has `jjx_plant`; BUK doesn't duplicate.
-- **Cygwin / WSL sshd hardening verb** — fenestrate covers Windows OpenSSH
+- **Cygwin / WSL inner sshd hardening** — caparison covers Windows OpenSSH
   only. If c/w garrisons ever require their own sshd to be hardened
   programmatically (rather than operator-managed), that is a future
-  fenestrate sibling.
+  caparison phase or sibling verb.
 - **Native dockerd inside `rbtww-main`** — Docker Desktop and a per-distro
   native daemon cannot safely coexist on the same Windows host: WSL2 distros
   share one network namespace, so two daemons fight for kernel iptables/NAT
@@ -192,33 +239,40 @@ Phase 2 (key auth only):
 
 ## Standing Notes
 
-- **Fenestrate handles first-time admin trust establishment on Windows.**
-  On a fresh node, ssh's `PreferredAuthentications=publickey,password` falls
-  through to a /dev/tty password prompt; operator types the Windows admin
-  password once. Fenestrate then installs the admin pubkey, sets the icacls
-  ACL, hardens sshd_config (`PasswordAuthentication no`), restarts sshd,
-  and reconnects to verify by key. Subsequent runs use key auth
-  automatically. The operator's manual Windows scope reduces to: install
-  OpenSSH server, enable the service, set `PasswordAuthentication yes`
-  temporarily, allow the firewall port, ensure the admin user has a known
-  password.
-- **Linux/Mac admin trust is operator-managed.** No fenestrate verb;
-  operator places admin pubkey via `ssh-copy-id` (or equivalent), and
-  garrison's first admin SSH succeeds by key alone.
-- **Two-phase fenestrate is structural, not optional.** `Restart-Service
-  sshd` kills its own ssh session, so any post-restart verification must
-  happen over a fresh session. Bash orchestrator treats the post-restart
-  disconnect as the expected phase boundary, not a failure.
+- **Caparison-Windows handles first-time admin trust establishment plus the
+  broader admin posture (WSL distribution staging, sleep/hibernate disable,
+  Tailscale service auto-start).** SSH-trust phases retain the prior
+  fenestrate two-phase structure (password fallback on /dev/tty for first
+  run; key auth thereafter; sshd restart kills the phase-1 session).
+  Operator-manual Windows scope: install OpenSSH server, enable the
+  service, set `PasswordAuthentication yes` temporarily, allow the firewall
+  port, ensure the admin user has a known password, apply
+  security-sensitive registry edits per BUSJHW
+  (DevicePasswordLessBuildVersion etc.), install Tailscale + Run-Unattended
+  + first auth, configure netplwiz auto-login.
+- **Linux/Mac admin trust enters caparison via ssh-copy-id orchestration.**
+  Caparison-{linux,macos} wraps the operator-manual ssh-copy-id flow plus
+  per-platform host posture (sleep masking, Tailscale service). The
+  operator still does the actual ssh-copy-id one-time setup (or equivalent
+  pubkey-placement); caparison verifies and applies the rest.
+- **Two-phase SSH-trust within caparison-windows is structural, not
+  optional.** `Restart-Service sshd` kills its own ssh session, so any
+  post-restart verification must happen over a fresh session. Bash
+  orchestrator treats the post-restart disconnect as the expected phase
+  boundary, not a failure. The post-trust admin posture phases (WSL stage,
+  powercfg, Tailscale service) run after the phase-2 reconnect.
 - **Encrypted (passphrase-protected) privkeys not supported.** `ssh-keygen -y`
-  prompts interactively; fenestrate and garrison would hang. Operator
+  prompts interactively; caparison and garrison would hang. Operator
   policy: privkeys unencrypted; station-level security covers
   privkey-at-rest protection.
-- **Workload pubkey must be pre-registered with GitHub out-of-band.** Operator
-  pastes the pubkey into GitHub (deploy key per repo or personal SSH key)
-  before garrison runs. Garrison cannot validate this; it is a precondition.
+- **Workload pubkey must be pre-registered with GitHub out-of-band.**
+  Operator pastes the pubkey into GitHub (deploy key per repo or personal
+  SSH key) before garrison runs. Garrison cannot validate this; it is a
+  precondition.
 - **WSL distribution is hardcoded to `rbtww-main`** in
-  `bujb_jurisdiction.sh`. If the current default WSL distribution differs,
-  garrison-WSL fails fast with a clear error.
+  `bujb_jurisdiction.sh`. Caparison-Windows stages it; garrison-WSL
+  exports it as a seed for the workload's HKCU\\Lxss. Invigilate-windows
+  asserts its presence as a posture fact.
 - **Docker Desktop is the release-1 container runtime on Windows.** WSL
   shells reach the daemon via Docker Desktop's per-distro WSL integration
   toggle (Settings → Resources → WSL Integration), enabled for `rbtww-main`.
@@ -226,11 +280,11 @@ Phase 2 (key auth only):
   Docker context. No separate dockerd inside the WSL distro; only one
   daemon ever runs concurrently.
 - **Some `BURP_PRIVILEGED_USER` values may contain spaces** (e.g., Windows
-  admin user `b hyslop`); audit shell quoting at every variable expansion and
-  path construction.
+  admin user `b hyslop`); audit shell quoting at every variable expansion
+  and path construction.
 - Tailscale provides stable transport (Mac sees `rocket` as `100.x.y.z` /
   tailnet hostname); not adopted as a BUK dependency.
 - PowerShell-from-WSL pattern: bash owns control flow, PowerShell is the
   Windows syscall layer; one atomic command per call.
-- `command=` in authorized_keys is OpenSSH-standard (used by gitolite, GitHub,
-  rsync, borg); shrinks key blast radius rather than expanding it.
+- `command=` in authorized_keys is OpenSSH-standard (used by gitolite,
+  GitHub, rsync, borg); shrinks key blast radius rather than expanding it.
