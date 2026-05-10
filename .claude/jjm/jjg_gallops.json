@@ -2,12 +2,12 @@
   "jjgrn_schema_version": 4,
   "jjgrn_next_heat_seed": "BF",
   "jjgrn_heat_order": [
+    "₣BE",
     "₣BD",
     "₣BB",
     "₣BA",
     "₣A_",
     "₣A-",
-    "₣BE",
     "₣Ah",
     "₣A9",
     "₣Az",
@@ -9610,7 +9610,7 @@
     "₣BE": {
       "jjghn_silks": "jjk-v4-2-sprue",
       "jjghn_creation_time": "260508",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BEAAG",
         "₢BEAAA",
