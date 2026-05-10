@@ -1,0 +1,12 @@
+//axhob_operation
+{bust_handbook_macos}
+
+NOTE: Per-platform handbook surface for macOS — operator-manual scope
+that {busn_caparison} cannot or should not automate. Renders to the
+operator's terminal as the entry point into macOS-specific bootstrap
+procedures: Tailscale install + login, any keychain/Privacy &
+Security prompts that require interactive consent, and any other
+macOS posture an operator must establish before {bust_caparison_macos}
+can run. No remote contact and no profile mutation.
+
+TODO: subsequent pace fleshes the step list and prose content.

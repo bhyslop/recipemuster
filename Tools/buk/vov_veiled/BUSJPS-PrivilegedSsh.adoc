@@ -6,10 +6,11 @@ node as {burp_privileged_user} under key-only auth. The remote command
 position is handed to ssh verbatim — no shell wrapping by BUK; the
 operator prepends `powershell -Command`, `bash -c`, or whatever the
 target platform requires. Scope: any {burp_investiture}, regardless of
-{burn_platform}; admin trust on Linux/Mac comes from operator-managed
-`ssh-copy-id`, on Windows from {busn_fenestrate}, and the privileged-key
-auth path surfaces success or failure uniformly without platform
-branching at this layer.
+{burn_platform}; admin trust on every platform comes via
+{busn_caparison} (which wraps `ssh-copy-id` on Linux/Mac and the
+SSH-trust ceremony on Windows OpenSSH), and the privileged-key auth
+path surfaces success or failure uniformly without platform branching
+at this layer.
 
 //axhopt_typed_parameter
 {burp_investiture}
@@ -21,8 +22,8 @@ command tail dies with a usage diagnostic.
 //axhoq_precondition
 A {burp_regime} profile exists at the given {burp_investiture} and its
 {burp_privileged_key_file} is currently trusted by the node for
-{burp_privileged_user} (Windows: {busn_fenestrate} has run; Linux/Mac:
-operator has placed the admin pubkey out-of-band).
+{burp_privileged_user} ({busn_caparison} has run for this
+{burp_investiture}).
 
 //axhos_step
 . *Open admin SSH*: connect as {burp_privileged_user} using

@@ -1,0 +1,11 @@
+//axhob_operation
+{bust_caparison_macos}
+
+NOTE: {busn_caparison} ceremony on macOS — admin host posture
+establishment. Wraps ssh-copy-id orchestration, Remote Login enable,
+`pmset` power configuration, and Tailscale service auto-start. Closes
+with {busn_invigilate} post-completion check. Operator-managed scope
+per {bust_handbook_macos}.
+
+TODO: subsequent pace fleshes preconditions, step list, guarantee, and
+completion clauses.

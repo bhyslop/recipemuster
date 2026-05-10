@@ -1,0 +1,14 @@
+//axhob_operation
+{bust_handbook_windows}
+
+NOTE: Per-platform handbook surface for Windows — operator-manual scope
+that {busn_caparison} cannot or should not automate. Renders to the
+operator's terminal as the entry point into Windows-specific bootstrap
+procedures: OpenSSH server install + reachability, security-sensitive
+registry edits (UAC-required, e.g.,
+`DevicePasswordLessBuildVersion`), Tailscale install + Run-Unattended
+toggle + first auth, netplwiz auto-login, and any other Windows
+posture an operator must establish before {bust_caparison_windows} can
+run. No remote contact and no profile mutation.
+
+TODO: subsequent pace fleshes the step list and prose content.

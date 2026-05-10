@@ -1,0 +1,15 @@
+//axhob_operation
+{bust_invigilate_macos}
+
+NOTE: {busn_invigilate} ceremony on macOS — read-only host posture
+verification. Asserts each posture fact (admin SSH key trust, Remote
+Login enabled, `pmset` sleep state, Tailscale service auto-start)
+matches its expected value. No mutations, no remediation. Failure
+pointers discriminate operator-managed posture (→ {bust_handbook_macos})
+from caparison-managed posture (→ {bust_caparison_macos}).
+
+Invocation contexts: {bust_caparison_macos} post-completion check;
+{bust_garrison_bash} precondition check on macOS nodes.
+
+TODO: subsequent pace fleshes preconditions, fact-by-fact step list,
+guarantee, and completion clauses.

@@ -1,7 +1,13 @@
 //axhob_operation
-{bust_fenestrate}
+{bust_caparison_windows}
 
-NOTE: {busn_fenestrate} ceremony — Windows OpenSSH only. Establishes
+NOTE: Pace-1 skeleton retains the prior fenestrate SSH-trust phases
+verbatim for git-history continuity; pace 2 rewrites this file with
+the broader caparison-windows scope (WSL stage, powercfg, Tailscale
+service auto-start, post-state invigilate-windows check). Below is
+the inherited fenestrate spec text.
+
+NOTE: {busn_caparison} ceremony — Windows OpenSSH only. Establishes
 admin SSH key trust and hardens `sshd_config` to key-only
 authentication on the node, leaving it ready for {busn_garrison} to
 provision the workload account. Two-phase remote-run because

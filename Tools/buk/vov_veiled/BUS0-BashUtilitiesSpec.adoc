@@ -42,7 +42,12 @@
 :bust_tabtarget:        <<bust_tabtarget,Tabtarget Vesture>>
 
 // Jurisdiction Tabtargets
-:bust_fenestrate:                  <<bust_fenestrate,Fenestrate>>
+:bust_caparison_windows:           <<bust_caparison_windows,Caparison Windows>>
+:bust_caparison_macos:             <<bust_caparison_macos,Caparison macOS>>
+:bust_caparison_linux:             <<bust_caparison_linux,Caparison Linux>>
+:bust_invigilate_windows:          <<bust_invigilate_windows,Invigilate Windows>>
+:bust_invigilate_macos:            <<bust_invigilate_macos,Invigilate macOS>>
+:bust_invigilate_linux:            <<bust_invigilate_linux,Invigilate Linux>>
 :bust_privileged_ssh:              <<bust_privileged_ssh,Privileged SSH>>
 :bust_garrison_bash:               <<bust_garrison_bash,Garrison Bash>>
 :bust_garrison_cygwin:             <<bust_garrison_cygwin,Garrison Cygwin>>
@@ -51,6 +56,9 @@
 :bust_command_file:                <<bust_command_file,Command File>>
 :bust_interactive_session:         <<bust_interactive_session,Interactive Session>>
 :bust_handbook_jurisdiction_top:   <<bust_handbook_jurisdiction_top,Handbook Jurisdiction Top>>
+:bust_handbook_windows:            <<bust_handbook_windows,Handbook Windows>>
+:bust_handbook_macos:              <<bust_handbook_macos,Handbook macOS>>
+:bust_handbook_linux:              <<bust_handbook_linux,Handbook Linux>>
 
 // Regime Config Tabtargets
 :bust_node_regime_list:            <<bust_node_regime_list,Node Regime List>>
@@ -136,7 +144,8 @@
 :burp_workload_key_file:           <<burp_workload_key_file,BURP_WORKLOAD_KEY_FILE>>
 
 // BUSN: Node Access (verbs for remote node management)
-:busn_fenestrate:                  <<busn_fenestrate,Fenestrate>>
+:busn_caparison:                   <<busn_caparison,Caparison>>
+:busn_invigilate:                  <<busn_invigilate,Invigilate>>
 :busn_garrison:                    <<busn_garrison,Garrison>>
 
 // BURS Regime: Station (developer-level BUK settings)
@@ -1122,16 +1131,13 @@ no separate pubkey path is stored.
 {busn_garrison}
 authenticates using this key only.
 First-time admin trust is established by
-{busn_fenestrate}
-on Windows nodes, or operator-manually
-(e.g., `ssh-copy-id`) on Linux/Mac nodes.
-{busn_fenestrate}
-itself uses
+{busn_caparison}
+per platform: Windows uses
 `PreferredAuthentications=publickey,password`
-on its phase-1 admin SSH session so that on a fresh Windows node ssh
-prompts on /dev/tty for the admin password once; fenestrate then
-installs the admin pubkey and hardens sshd, after which all
-subsequent admin authentication is by key alone.
+on its phase-1 admin SSH session so that on a fresh node ssh prompts
+on /dev/tty for the admin password once; Linux/Mac wrap the
+operator-manual `ssh-copy-id` flow. After caparison, all subsequent
+admin authentication is by key alone.
 
 [[burp_workload_key_file]]
 //axvr_variable axd_required axtu_path
@@ -1488,12 +1494,15 @@ node, provisions one workload account, and dispatches commands to it.
 [[bus_jurisdiction]]
 {bus_jurisdiction}::
 The BUK feature-area for reaching remote nodes deterministically.
-Two verbs cover the privileged-side ceremonies:
-{busn_fenestrate}
-hardens admin SSH trust and `sshd_config` on Windows OpenSSH nodes
-(operator-manual on Linux/Mac, e.g., `ssh-copy-id`); {busn_garrison}
-provisions and refreshes a workload account from an existing admin
-SSH foothold. The workload-side tabtargets
+Three verbs cover the privileged-side ceremonies:
+{busn_caparison}
+establishes admin host posture per platform (SSH key trust,
+`sshd_config` hardening on Windows OpenSSH, host-availability
+state); {busn_invigilate} verifies that posture read-only as a
+precondition for {busn_garrison} and as a post-completion check for
+{busn_caparison}; {busn_garrison} provisions and refreshes a workload
+account from an existing admin SSH foothold. The workload-side
+tabtargets
 ({bust_knock}, {bust_command_file}, {bust_interactive_session})
 dispatch work to that account.
 +
@@ -1506,8 +1515,9 @@ Its implementation seat is
 {bujb_jurisdiction}::
 The BCG-compliant module
 (`Tools/buk/bujb_jurisdiction.sh` plus its `bujb_cli.sh` companion)
-that houses both
-{busn_fenestrate}
+that houses
+{busn_caparison},
+{busn_invigilate},
 and
 {busn_garrison}
 implementations and hardcodes the
@@ -1521,7 +1531,7 @@ used by garrison on the workload account,
 the workload private-key destination paths on the remote per shell-letter,
 the canonical WSL distribution name (`rbtww-main`),
 and the Windows OpenSSH `sshd_config` hardening directive set used by
-fenestrate.
+caparison-windows.
 +
 SSH transport mechanics live in code;
 {burp_regime}
@@ -1563,10 +1573,12 @@ authenticates as
 {burp_privileged_user}
 using
 {burp_privileged_key_file}
-by key alone; admin trust is established beforehand by
-{busn_fenestrate}
-on Windows (which uses a one-time password fallback on its own
-phase-1 admin SSH session) or operator-manually on Linux/Mac.
+by key alone; admin trust and host posture are established
+beforehand by
+{busn_caparison}
+per platform (Windows uses a one-time password fallback on its own
+phase-1 admin SSH session for first-run trust; Linux/Mac wrap
+ssh-copy-id orchestration).
 Workload account is unprivileged, ssh-only, and named by
 {bujb_workload_user}
 (project-wide convention, single source of truth).
@@ -1584,15 +1596,21 @@ Garrison subsumes the workload-account lifecycle: there is no separate
 verb to materialize, remove, or enumerate workload accounts — every
 garrison rebuilds from a clean slate.
 +
-Admin-side sshd configuration is out of garrison's scope.
-{busn_fenestrate}
-owns Windows OpenSSH `sshd_config` hardening; on Linux/Mac the
-operator manages sshd directly.
+Admin-side host posture is out of garrison's scope.
+{busn_caparison}
+owns it per platform: Windows OpenSSH `sshd_config` hardening, WSL
+distribution staging, sleep/hibernate disable, and Tailscale service
+auto-start on Windows; Remote Login + pmset + Tailscale on macOS;
+ssh-copy-id orchestration + sleep target masking + tailscaled on
+Linux.
+{busn_invigilate}
+verifies the posture as garrison's precondition.
 
 === Tabtarget Catalog
 
-Fifteen tabtargets cover regime configuration, fenestrate, privileged
-SSH, garrison ceremony, and workload dispatch.
+Twenty-three tabtargets cover regime configuration, caparison,
+invigilate, privileged SSH, garrison ceremony, workload dispatch,
+and per-platform handbooks.
 PowerShell garrison and dispatch are deferred and not enumerated below.
 
 ==== Regime Configuration
@@ -1637,15 +1655,55 @@ Render a single {burp_regime} profile
 Validate a single {burp_regime} profile
 ({burp_investiture} passed as positional argument).
 
-==== Fenestrate (Windows OpenSSH only)
+==== Caparison (per platform)
 
-[[bust_fenestrate]]
+[[bust_caparison_windows]]
 //axvo_tabtarget
-{bust_fenestrate}::
-`buw-jpF` —
-{busn_fenestrate} ceremony: hardens admin SSH trust and `sshd_config`
-on a Windows OpenSSH node (uniform; no shell-letter variant).
-Capital `F` marks this as a persistent-config-application tabtarget.
+{bust_caparison_windows}::
+`buw-jpCW` —
+{busn_caparison} ceremony on a Windows OpenSSH node: SSH-trust
+hardening, WSL distribution staging, powercfg sleep/hibernate
+disable, and Tailscale service auto-start.
+Capital `C` marks the verb (Caparison); capital `W` marks the
+platform (Windows).
+
+[[bust_caparison_macos]]
+//axvo_tabtarget
+{bust_caparison_macos}::
+`buw-jpCM` —
+{busn_caparison} ceremony on a macOS node: Remote Login enable,
+ssh-copy-id orchestration, pmset power configuration, Tailscale
+service auto-start.
+
+[[bust_caparison_linux]]
+//axvo_tabtarget
+{bust_caparison_linux}::
+`buw-jpCL` —
+{busn_caparison} ceremony on a Linux node: ssh-copy-id orchestration,
+systemctl sleep target masking, tailscaled enable.
+
+==== Invigilate (per platform)
+
+[[bust_invigilate_windows]]
+//axvo_tabtarget
+{bust_invigilate_windows}::
+`buw-jpIW` —
+{busn_invigilate} ceremony on a Windows OpenSSH node: read-only
+posture verification.
+
+[[bust_invigilate_macos]]
+//axvo_tabtarget
+{bust_invigilate_macos}::
+`buw-jpIM` —
+{busn_invigilate} ceremony on a macOS node: read-only posture
+verification.
+
+[[bust_invigilate_linux]]
+//axvo_tabtarget
+{bust_invigilate_linux}::
+`buw-jpIL` —
+{busn_invigilate} ceremony on a Linux node: read-only posture
+verification.
 
 ==== Privileged SSH
 
@@ -1659,9 +1717,9 @@ Pass-through: argv after the {burp_investiture} is handed to ssh
 as the remote command without shell wrapping; the operator
 prepends `powershell -Command`, `bash -c`, or whatever the
 target platform requires.
-Scope spans every {burn_platform} — Linux/Mac admin trust comes
-from operator-managed `ssh-copy-id`, Windows admin trust from
-{busn_fenestrate}.
+Scope spans every {burn_platform} — admin trust on every platform
+is established by {busn_caparison} (which wraps `ssh-copy-id` on
+Linux/Mac and the SSH-trust ceremony on Windows OpenSSH).
 Capital `S` marks the admin-side scope (privileged user) and
 distinguishes it from `buw-jws` (workload interactive session).
 
@@ -1718,51 +1776,86 @@ Open an interactive SSH session to the workload account.
 //axvo_tabtarget
 {bust_handbook_jurisdiction_top}::
 `buw-hj0` —
-Top-level handbook landing for jurisdiction procedures
-(sshd-reachability bootstrap, fenestrate and garrison hand-off,
-dispatch usage).
+Top-level handbook landing for jurisdiction procedures; dispatches
+to the per-platform handbooks below.
+
+[[bust_handbook_windows]]
+//axvo_tabtarget
+{bust_handbook_windows}::
+`buw-hjW` —
+Per-platform handbook for Windows operator-manual scope: OpenSSH
+server install + reachability, security-sensitive registry edits,
+Tailscale install + Run-Unattended + first auth, netplwiz
+auto-login.
+
+[[bust_handbook_macos]]
+//axvo_tabtarget
+{bust_handbook_macos}::
+`buw-hjM` —
+Per-platform handbook for macOS operator-manual scope: Tailscale
+install + login, Privacy & Security consent prompts.
+
+[[bust_handbook_linux]]
+//axvo_tabtarget
+{bust_handbook_linux}::
+`buw-hjL` —
+Per-platform handbook for Linux operator-manual scope: Tailscale
+install + login, sshd install/enable on minimal distros.
 
 === Verb Definitions
 
-[[busn_fenestrate]]
+[[busn_caparison]]
 //axl_voices axt_command
-{busn_fenestrate}::
-Establish admin SSH key trust and harden Windows OpenSSH
-`sshd_config` to key-only on a node, leaving it ready for
-{busn_garrison}.
-Uniform across shell-letters — one tabtarget (`buw-jpF`).
-Targets Windows OpenSSH only; Linux/Mac sshd hardening is
-operator-manual outside BUK.
-Idempotent on re-run.
+{busn_caparison}::
+Establish admin host posture per platform — SSH key trust plus the
+host-side state (sshd_config hardening on Windows OpenSSH, WSL
+distribution staging, power/sleep configuration, Tailscale service
+auto-start where applicable) — leaving the host ready for
+{busn_garrison} and {busn_invigilate} verification.
+Per-platform tabtargets
+(`buw-jpCW`, `buw-jpCM`, `buw-jpCL`);
+each implements its platform's posture establishment from a single
+operator-facing verb.
+Nuclear: every invocation purges and re-establishes the
+caparison-managed posture from scratch — no skip-if-present logic.
+Operator-managed scope (security-sensitive registry edits, Tailscale
+interactive auth, etc.) is documented per-platform in
+{bust_handbook_windows},
+{bust_handbook_macos},
+and
+{bust_handbook_linux};
+caparison cannot or does not automate that scope.
 +
-Two-phase ceremony forced by `Restart-Service sshd` terminating its
-own ssh session:
-+
-* Phase 1: SSH as
-{burp_privileged_user}
-with `PreferredAuthentications=publickey,password` (one-time password
-fallback on a fresh node);
-idempotently place the admin pubkey
-(derived from
-{burp_privileged_key_file}
-via `ssh-keygen -y`)
-in `administrators_authorized_keys` as a bare entry (no `command=`);
-apply `icacls` lockdown;
-write the hardening directives to `sshd_config`
-(`PubkeyAuthentication yes`,
-`PasswordAuthentication no`,
-`PermitEmptyPasswords no`);
-verify written state via PowerShell `Get-Content` + bash-side
-parsing;
-run `sshd -t` as the penultimate atomic op; restart sshd as the
-final atomic op.
-* Phase 2: reconnect using
-{burp_privileged_key_file}
-with `PreferredAuthentications=publickey` (no password fallback);
-verify the post-restart admin session authenticates by key alone.
-+
-The bash orchestrator treats the disconnect immediately after
+On Windows the SSH-trust phases retain a structural two-phase shape
+forced by `Restart-Service sshd` terminating its own ssh session:
+phase 1 (over the password-or-key admin SSH session) places the
+admin pubkey, applies icacls lockdown, writes hardened sshd_config
+directives, validates via `sshd -t`, and restarts sshd; phase 2
+(key-auth-only reconnect) verifies the post-restart admin session
+authenticates by key alone. Post-trust admin posture (WSL stage,
+powercfg, Tailscale service) runs after phase 2. The bash
+orchestrator treats the disconnect immediately after
 `Restart-Service sshd` as the expected phase boundary, not a failure.
+
+[[busn_invigilate]]
+//axl_voices axt_command
+{busn_invigilate}::
+Verify admin host posture per platform, read-only — assert each
+posture fact (admin SSH key trust, service states, registry values,
+power configuration, host-availability resources) matches its
+expected value, with no mutations and no remediation.
+Per-platform tabtargets
+(`buw-jpIW`, `buw-jpIM`, `buw-jpIL`);
+each owns its platform's posture fact list.
+Failure pointers discriminate operator-managed posture
+(→ the per-platform handbook) from caparison-managed posture
+(→ the per-platform caparison).
++
+Used twice: as
+{busn_caparison}'s post-completion check (caparison runs invigilate
+after applying its operations to verify they took), and as
+{busn_garrison}'s precondition check (garrison runs invigilate
+before any destructive workload work).
 
 [[busn_garrison]]
 //axl_voices axt_command
@@ -1785,10 +1878,13 @@ Ceremony steps:
 {burp_privileged_user}
 using
 {burp_privileged_key_file};
-key-auth only (no password fallback). On Windows, this presupposes
-that
-{busn_fenestrate}
-has run for this {burp_investiture}.
+key-auth only (no password fallback). Across platforms, this
+presupposes
+{busn_caparison}
+has run for this {burp_investiture};
+{busn_invigilate}
+runs as the precondition assertion before this SSH attempt to
+surface posture failures with specific guidance.
 . Obliterate any existing workload account named
 {bujb_workload_user}
 via `zbujb_obliterate_workload` — the letter-agnostic, platform-aware
@@ -1835,7 +1931,17 @@ include::BUSTPR-PrivilegeRegimeRender.adoc[]
 
 include::BUSTPV-PrivilegeRegimeValidate.adoc[]
 
-include::BUSJPF-Fenestrate.adoc[]
+include::BUSJCW-CaparisonWindows.adoc[]
+
+include::BUSJCM-CaparisonMacos.adoc[]
+
+include::BUSJCL-CaparisonLinux.adoc[]
+
+include::BUSJIW-InvigilateWindows.adoc[]
+
+include::BUSJIM-InvigilateMacos.adoc[]
+
+include::BUSJIL-InvigilateLinux.adoc[]
 
 include::BUSJPS-PrivilegedSsh.adoc[]
 
@@ -1852,3 +1958,9 @@ include::BUSJWC-CommandFile.adoc[]
 include::BUSJWS-InteractiveSession.adoc[]
 
 include::BUSJH0-HandbookJurisdictionTop.adoc[]
+
+include::BUSJHW-HandbookWindows.adoc[]
+
+include::BUSJHM-HandbookMacos.adoc[]
+
+include::BUSJHL-HandbookLinux.adoc[]

@@ -48,7 +48,7 @@ Cygwin home, and the WSL-side Linux user inside admin's `rbtww-main`
 
 Garrison never reads or writes any `sshd_config` and never modifies
 admin authorized_keys; admin trust is established beforehand by
-{busn_fenestrate} on the Windows OpenSSH server, while sshd hardening
+{busn_caparison} on the Windows OpenSSH server, while sshd hardening
 inside the WSL distribution remains operator-manual.
 
 //axhopt_typed_parameter
@@ -71,7 +71,7 @@ constant and emitting copy-paste operator hints in the
 `wsl.exe` failure escape downstream.
 
 //axhoq_precondition
-{busn_fenestrate} has run for this {burp_investiture} so that
+{busn_caparison} has run for this {burp_investiture} so that
 {burp_privileged_user} can authenticate by key alone using
 {burp_privileged_key_file} into the Windows OpenSSH host (the admin
 entry point); the workload SSH session is then opened from that

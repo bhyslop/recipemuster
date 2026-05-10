@@ -1,0 +1,16 @@
+//axhob_operation
+{bust_invigilate_linux}
+
+NOTE: {busn_invigilate} ceremony on Linux — read-only host posture
+verification. Asserts each posture fact (admin SSH key trust, sshd
+service state, sleep target mask state on laptop/desktop hosts,
+tailscaled enabled) matches its expected value. No mutations, no
+remediation. Failure pointers discriminate operator-managed posture
+(→ {bust_handbook_linux}) from caparison-managed posture
+(→ {bust_caparison_linux}).
+
+Invocation contexts: {bust_caparison_linux} post-completion check;
+{bust_garrison_bash} precondition check on Linux nodes.
+
+TODO: subsequent pace fleshes preconditions, fact-by-fact step list,
+guarantee, and completion clauses.

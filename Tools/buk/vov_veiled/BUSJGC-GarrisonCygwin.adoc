@@ -14,7 +14,7 @@ the `C:\cygwin64\home\<user>\` Cygwin home, and the WSL-side
 Each step is idempotent on absent state.
 Garrison never reads or writes any `sshd_config` and never modifies
 admin authorized_keys; admin trust is established beforehand by
-{busn_fenestrate}
+{busn_caparison}
 on the Windows OpenSSH server, while Cygwin sshd hardening (if used
 in addition to Windows OpenSSH) remains operator-manual.
 
@@ -26,7 +26,7 @@ A {burp_regime} profile exists at the given {burp_investiture} and its
 referenced {burn_regime} profile is reachable.
 
 //axhoq_precondition
-{busn_fenestrate} has run for this {burp_investiture} so that
+{busn_caparison} has run for this {burp_investiture} so that
 {burp_privileged_user} can authenticate by key alone using
 {burp_privileged_key_file} (Windows OpenSSH path). Cygwin sshd is
 installed on the node.

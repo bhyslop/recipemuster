@@ -1,0 +1,11 @@
+//axhob_operation
+{bust_caparison_linux}
+
+NOTE: {busn_caparison} ceremony on Linux — admin host posture
+establishment. Wraps ssh-copy-id orchestration, systemctl sleep target
+masking (laptop/desktop hosts), and tailscaled enable. Closes with
+{busn_invigilate} post-completion check. Operator-managed scope per
+{bust_handbook_linux}.
+
+TODO: subsequent pace fleshes preconditions, step list, guarantee, and
+completion clauses.

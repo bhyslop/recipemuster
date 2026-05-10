@@ -1,16 +1,21 @@
 //axhob_operation
 {bust_handbook_jurisdiction_top}
 
-NOTE: Top-level landing surface for the {bus_jurisdiction} handbook.
-Renders handbook prose to the operator's terminal as the entry point
-into bootstrap, garrison, and dispatch procedures.
+NOTE: Top-level dispatcher for the {bus_jurisdiction} handbook.
+Renders the per-platform handbook entry points
+({bust_handbook_windows}, {bust_handbook_macos},
+{bust_handbook_linux}) plus cross-platform pointers to
+{busn_caparison}, {busn_invigilate}, and {busn_garrison}.
 No remote contact and no profile mutation.
 
 //axhos_step
-. *Render landing*: emit the jurisdiction handbook landing content,
-including pointers to the admin SSH bootstrap procedure (operator-
-manual prerequisite to {busn_garrison}), the per-shell-letter
-garrison tabtargets, and the workload dispatch tabtargets.
+. *Render dispatcher*: emit the jurisdiction handbook top content —
+pointers to the per-platform handbook tabtargets
+({bust_handbook_windows}, {bust_handbook_macos},
+{bust_handbook_linux}), the verb dispatch chain
+({busn_caparison} → {busn_invigilate} → {busn_garrison}), and
+the workload dispatch tabtargets ({bust_knock},
+{bust_command_file}, {bust_interactive_session}).
 
 //axhog_guarantee
 No remote contact occurred and no local file was written.

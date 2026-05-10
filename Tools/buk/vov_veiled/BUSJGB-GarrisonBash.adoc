@@ -21,9 +21,11 @@ referenced {burn_regime} profile is reachable.
 
 //axhoq_precondition
 sshd is reachable on the node and {burp_privileged_user} authenticates
-by key alone using {burp_privileged_key_file}. On Linux/Mac this
-admin trust is operator-managed (e.g., placed via `ssh-copy-id`) —
-there is no `busn_fenestrate` for non-Windows-OpenSSH nodes.
+by key alone using {burp_privileged_key_file}. On Linux/Mac admin
+trust is established via {busn_caparison}, which wraps the
+operator-managed `ssh-copy-id` flow rather than performing autonomous
+SSH-trust hardening (only Windows OpenSSH has the autonomous
+phase-1/phase-2 ceremony).
 
 //axhoq_precondition
 {burp_workload_key_file} is unencrypted and exists on the operator's
