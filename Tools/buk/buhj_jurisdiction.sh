@@ -19,14 +19,15 @@
 # Bash Utility Handbook - Jurisdiction Procedures
 #
 # Handbook content for BUK's remote-node feature area (BUS0 §Remote
-# Node Access). On Windows, fenestrate handles first-run admin trust
-# establishment and sshd_config hardening (password-fallback on
+# Node Access). On Windows, caparison-windows handles first-run admin
+# trust establishment and sshd_config hardening (password-fallback on
 # /dev/tty during its phase-1 admin session, then key-only
 # thereafter); garrison handles workload account provisioning. The
 # operator's manual scope is just making sshd reachable on the
 # network with a known admin password. Linux/Mac admin trust is
-# operator-manual (e.g., ssh-copy-id); BUK ships no fenestrate for
-# non-Windows-OpenSSH nodes.
+# operator-manual (e.g., ssh-copy-id); caparison-{linux,macos}
+# orchestrates per-platform host posture after the operator's
+# ssh-copy-id step.
 
 set -euo pipefail
 
@@ -53,25 +54,27 @@ zbuhj_sentinel() {
 
 zbuhj_render_landing() {
   buh_section  "Jurisdiction Handbook"
-  buh_line     "BUK reaches remote nodes through two ceremonies. Fenestrate"
-  buh_line     "(Windows OpenSSH only) hardens admin SSH trust and sshd_config"
-  buh_line     "to key-only; Garrison provisions the workload account. BUK"
-  buh_line     "never generates or modifies SSH key material; the operator owns"
-  buh_line     "all key administration."
+  buh_line     "BUK reaches remote nodes through two operator-facing ceremonies."
+  buh_line     "Caparison establishes admin host posture per platform"
+  buh_line     "(Windows/macOS/Linux); Garrison provisions the workload account."
+  buh_line     "BUK never generates or modifies SSH key material; the operator"
+  buh_line     "owns all key administration."
   buh_e
-  buh_line     "On Windows, fenestrate handles first-run admin trust itself: its"
-  buh_line     "phase-1 admin SSH session uses PreferredAuthentications="
-  buh_line     "publickey,password, falls through to a /dev/tty password prompt"
-  buh_line     "on a fresh node, the operator types the admin password once,"
-  buh_line     "fenestrate installs the admin pubkey + sshd hardening + restarts"
-  buh_line     "sshd, and phase 2 reconnects by key alone. Subsequent fenestrate"
-  buh_line     "and garrison runs use key auth automatically. The operator's"
-  buh_line     "manual scope on Windows reduces to: make sshd reachable on the"
-  buh_line     "network with a known admin password."
+  buh_line     "On Windows, caparison-windows handles first-run admin trust"
+  buh_line     "itself: its phase-1 admin SSH session uses"
+  buh_line     "PreferredAuthentications=publickey,password, falls through to a"
+  buh_line     "/dev/tty password prompt on a fresh node, the operator types the"
+  buh_line     "admin password once, caparison-windows installs the admin pubkey"
+  buh_line     "+ sshd hardening + restarts sshd, and phase 2 reconnects by key"
+  buh_line     "alone. Subsequent caparison-windows and garrison runs use key"
+  buh_line     "auth automatically. The operator's manual scope on Windows"
+  buh_line     "reduces to: make sshd reachable on the network with a known"
+  buh_line     "admin password."
   buh_e
-  buh_line     "On Linux/Mac there is no fenestrate verb; admin trust is"
-  buh_line     "operator-manual (ssh-copy-id or equivalent). Garrison runs"
-  buh_line     "directly against an existing key-trusted admin foothold."
+  buh_line     "On Linux/Mac, admin trust is operator-manual (ssh-copy-id or"
+  buh_line     "equivalent); caparison-{linux,macos} runs after that to apply"
+  buh_line     "per-platform host posture. Garrison then provisions the workload"
+  buh_line     "account against the key-trusted admin foothold."
 }
 
 zbuhj_render_linux_mac_note() {
@@ -79,9 +82,9 @@ zbuhj_render_linux_mac_note() {
   buh_line     "sshd is typically already installed and reachable. The operator's"
   buh_line     "manual scope is: confirm sshd is running and the host is reachable,"
   buh_line     "then place the admin pubkey via ssh-copy-id (or equivalent) so"
-  buh_line     "garrison's first admin SSH succeeds by key alone. There is no"
-  buh_line     "fenestrate verb for non-Windows-OpenSSH nodes; sshd hardening is"
-  buh_line     "operator-managed."
+  buh_line     "garrison's first admin SSH succeeds by key alone. Caparison-"
+  buh_line     "{linux,macos} then applies per-platform host posture; sshd"
+  buh_line     "hardening on non-Windows-OpenSSH nodes is operator-managed."
   buh_e
   buh_code     "ssh-copy-id -i ~/.ssh/<admin-pubkey>.pub <admin-user>@<host>"
 }
@@ -143,13 +146,13 @@ zbuhj_render_windows_bootstrap() {
   buh_e
 
   buh_step1    "Set or Confirm Admin Password:"
-  buh_line     "Fenestrate's phase-1 admin SSH session authenticates via password"
-  buh_line     "(once) before installing the pubkey. If you already know your local"
-  buh_line     "admin password, skip. Otherwise set it to a known value:"
+  buh_line     "Caparison-Windows's phase-1 admin SSH session authenticates via"
+  buh_line     "password (once) before installing the pubkey. If you already know"
+  buh_line     "your local admin password, skip. Otherwise set it to a known value:"
   buh_code     "net user <admin-user> <temp-password>"
-  buh_line     "After fenestrate runs, sshd is hardened to key-only and this value"
-  buh_line     "stops affecting SSH (it remains your Windows logon password — leave"
-  buh_line     "it or reset to taste)."
+  buh_line     "After caparison-windows runs, sshd is hardened to key-only and"
+  buh_line     "this value stops affecting SSH (it remains your Windows logon"
+  buh_line     "password — leave it or reset to taste)."
   buh_e
 
   buh_step1    "Install OpenSSH Server:"
@@ -166,7 +169,7 @@ zbuhj_render_windows_bootstrap() {
   buyy_cmd_yawp "${BUBC_windows_sshd_config}"; local -r z_sshd_config_yelp="${z_buym_yelp}"
   buh_step1    "Enable Password Authentication in sshd_config:"
   buh_line     "Windows OpenSSH ships with sshd_config in a state that blocks"
-  buh_line     "fenestrate's phase-1 password fallback (the wire protocol"
+  buh_line     "caparison-windows's phase-1 password fallback (the wire protocol"
   buh_line     "advertises keyboard-interactive but the server refuses to"
   buh_line     "actually prompt). Open sshd_config in an editor; notepad"
   buh_line     "inherits your elevated context so SYSTEM-owned writes succeed."
@@ -180,9 +183,9 @@ zbuhj_render_windows_bootstrap() {
   buh_code     "PasswordAuthentication yes"
   buh_e
   buh_line     "If no PasswordAuthentication line exists, add one. Save."
-  buh_line     "Fenestrate flips this back to 'no' as part of its hardening"
-  buh_line     "step, so this is a temporary state. Restart sshd to pick up"
-  buh_line     "the change:"
+  buh_line     "Caparison-Windows flips this back to 'no' as part of its"
+  buh_line     "hardening step, so this is a temporary state. Restart sshd to"
+  buh_line     "pick up the change:"
   buh_e
   buh_code     "Restart-Service sshd"
   buh_e
@@ -193,29 +196,30 @@ zbuhj_render_windows_bootstrap() {
 
   buh_section  "Verify Reachability"
   buh_line     "From the operator's station, confirm sshd answers (a password"
-  buh_line     "prompt is expected and correct — fenestrate's phase-1 admin"
-  buh_line     "session will type it through to ssh on /dev/tty):"
+  buh_line     "prompt is expected and correct — caparison-windows's phase-1"
+  buh_line     "admin session will type it through to ssh on /dev/tty):"
   buh_e
   buh_code     "ssh <admin-user>@<windows-host>"
 }
 
 zbuhj_render_post_bootstrap() {
-  buh_section  "Run Fenestrate, then Garrison"
-  buh_line     "On Windows: with sshd reachable, run fenestrate first. Fenestrate"
-  buh_line     "establishes admin trust (typing the admin password once when its"
-  buh_line     "phase-1 ssh prompts on /dev/tty), hardens sshd_config to"
-  buh_line     "key-only, restarts sshd, and reconnects to verify. After"
-  buh_line     "fenestrate succeeds, run garrison for the chosen workload shell:"
+  buh_section  "Run Caparison, then Garrison"
+  buh_line     "On Windows: with sshd reachable, run caparison-windows first."
+  buh_line     "Caparison-Windows establishes admin trust (typing the admin"
+  buh_line     "password once when its phase-1 ssh prompts on /dev/tty), hardens"
+  buh_line     "sshd_config to key-only, restarts sshd, and reconnects to"
+  buh_line     "verify. After caparison-windows succeeds, run garrison for the"
+  buh_line     "chosen workload shell:"
   buh_e
-  buh_line     "  buw-jpF  <investiture>  — fenestrate (Windows OpenSSH only)"
+  buh_line     "  buw-jpCW <investiture>  — caparison-windows (Windows OpenSSH only)"
   buh_e
   buh_line     "  buw-jpGb <investiture>  — native bash workload (Linux, macOS)"
   buh_line     "  buw-jpGc <investiture>  — Cygwin bash workload (Windows)"
   buh_line     "  buw-jpGw <investiture>  — WSL bash workload (Windows)"
   buh_e
   buh_line     "Choose c or w for Windows by which workload runtime you need."
-  buh_line     "Both share fenestrate's admin SSH harden; the shell-letter on"
-  buh_line     "garrison only routes the workload account ceremony."
+  buh_line     "Both share caparison-windows's admin SSH harden; the shell-letter"
+  buh_line     "on garrison only routes the workload account ceremony."
   buh_e
   buh_line     "garrison-w prerequisite: the admin user must have"
   buh_line     "WSL distribution rbtww-main installed (run wsl --install"
@@ -227,10 +231,13 @@ zbuhj_render_post_bootstrap() {
   buh_line     "pristine; admin's customizations propagate to workload"
   buh_line     "via the seed."
   buh_e
-  buh_line     "On Linux/Mac: skip fenestrate (no equivalent verb). Run garrison"
-  buh_line     "directly against an existing key-trusted admin foothold (place"
-  buh_line     "the admin pubkey via ssh-copy-id beforehand if not already in"
-  buh_line     "place)."
+  buh_line     "On Linux/Mac: place the admin pubkey via ssh-copy-id (if not"
+  buh_line     "already in place), then run caparison-{linux,macos} to apply"
+  buh_line     "host posture. Run garrison against the key-trusted admin"
+  buh_line     "foothold:"
+  buh_e
+  buh_line     "  buw-jpCM <investiture>  — caparison-macos"
+  buh_line     "  buw-jpCL <investiture>  — caparison-linux"
   buh_e
   buh_line     "After garrison succeeds, dispatch work via the workload"
   buh_line     "tabtargets:"

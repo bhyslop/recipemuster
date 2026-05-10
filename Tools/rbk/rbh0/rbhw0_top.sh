@@ -41,7 +41,7 @@ rbhw_top() {
   buh_line     "  2. SSH client key generation:          Generate SSH client key per vendor docs (e.g., 'ssh-keygen -t ed25519')"
   buh_e
   buh_section  "Phase 2: Admin Trust + sshd Harden (BUK — jurisdiction)"
-  buh_tt       "  3. Fenestrate (admin SSH + harden):    " "${BUWZ_JP_FENESTRATE}" "" " <investiture>"
+  buh_tt       "  3. Caparison-Windows (admin SSH + harden): " "${BUWZ_JP_CAPARISON_WIN}" "" " <investiture>"
   buh_e
   buh_section  "Phase 3: Environments (BUK — generic OS install)"
   buh_line     "  4. WSL distribution setup:             Install WSL and create distribution per vendor docs"
