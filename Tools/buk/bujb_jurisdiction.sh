@@ -1139,24 +1139,21 @@ zbujb_garrison_w_init_wsl() {
     "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c \"passwd --lock ${BUJB_workload_user}\"" \
     || buc_die "w-init-wsl: passwd --lock failed for inner Linux user"
 
-  # Base64-encode the privkey on the operator's station, then ship the
-  # b64 string into a single bash -c body that decodes + writes inside
-  # the workload's distribution. Same transport pattern as step 5 for
-  # b/c letters — the encoding survives cmd.exe + wsl.exe + bash argv
-  # layers because b64 is [A-Za-z0-9+/=] only.
-  openssl enc -base64 -A < "${BURP_WORKLOAD_KEY_FILE}" \
-      > "${ZBUJB_KEY_B64_STDOUT}" \
-      2> "${ZBUJB_KEY_B64_STDERR}" \
-    || buc_die "w-init-wsl: base64 encode failed for workload key — see ${ZBUJB_KEY_B64_STDERR}"
-  local z_key_b64=$(<"${ZBUJB_KEY_B64_STDOUT}")
-  z_key_b64="${z_key_b64//$'\n'/}"
-
-  local z_wsl_bash_body
-  z_wsl_bash_body="mkdir -p ${BUJB_path_posix_user_ssh} && echo '${z_key_b64}' | openssl enc -base64 -d -A > ${BUJB_path_posix_user_home}/${BUJB_workload_keypath} && chown -R ${BUJB_workload_user}:${BUJB_workload_user} ${BUJB_path_posix_user_ssh} && chmod 700 ${BUJB_path_posix_user_ssh} && chmod 600 ${BUJB_path_posix_user_home}/${BUJB_workload_keypath}"
+  # Plant the workload privkey inside the workload's WSL distribution
+  # via two atomic install ops (pace ₢A-AA9): no curia-side b64 encode,
+  # no remote b64 decode, no key material in argv, no `&&`-chained body.
+  # The key file flows from BURP_WORKLOAD_KEY_FILE on the curia, over
+  # ssh stdin, through wsl.exe, into the inner bash, and into install's
+  # /dev/stdin where mode + owner are set atomically. See WSG SH-10 for
+  # the single-statement-body contract.
+  zbujb_w_init_run "wsl-plant-sshdir" zbujb_workload_ssh \
+      "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c \"install -d -m 700 -o ${BUJB_workload_user} -g ${BUJB_workload_user} '${BUJB_path_posix_user_ssh}'\"" \
+    || buc_die "w-init-wsl: failed to create ${BUJB_path_posix_user_ssh} inside workload's distribution"
 
   zbujb_w_init_run "wsl-plant-privkey" zbujb_workload_ssh \
-    "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c \"${z_wsl_bash_body}\"" \
-    || buc_die "w-init-wsl: privkey plant failed inside workload's distribution"
+      "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c \"install -m 600 -o ${BUJB_workload_user} -g ${BUJB_workload_user} /dev/stdin '${BUJB_path_posix_user_home}/${BUJB_workload_keypath}'\"" \
+      < "${BURP_WORKLOAD_KEY_FILE}" \
+    || buc_die "w-init-wsl: failed to plant workload privkey inside workload's distribution"
 }
 
 # zbujb_garrison_w_lockdown -- replace the bare workload authorized_keys
