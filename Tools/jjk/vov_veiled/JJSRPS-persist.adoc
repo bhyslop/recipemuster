@@ -85,8 +85,16 @@ extract from message prefix (`n:`, `A:`, `W:`, `F:`, `d:`)
 {jjdo_archive}
 — uses custom commit logic for trophy archival (stages trophy file, gallops, and paddock deletion; uses 200KB limit)
 *
-{jjdo_mark}
-— creates empty commits only, no gallops changes
+{jjdo_open}
+({jjdxo_invitatory}),
+{jjdo_landing},
+{jjdo_chalk}
+— marker commits (event records, not content commits). Use the
+`vvc::marker` primitive: index-invariant (skips staging), guard-free
+(skips size check), and minted via plumbing (`git commit-tree HEAD^{tree} -p HEAD`
++ `git update-ref HEAD`) so any pre-staged content survives untouched in
+the index. Markers carry no payload; their purpose is to record an event
+in git history, not to author tree content.
 *
 {jjdo_record}
 — commits work artifacts, not gallops state

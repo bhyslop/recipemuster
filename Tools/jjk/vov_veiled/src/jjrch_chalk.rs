@@ -75,15 +75,11 @@ pub fn jjrx_run_chalk(args: jjrx_ChalkArgs) -> (i32, String) {
         return (1, output.vvco_finish());
     };
 
-    let commit_args = vvc::vvcc_CommitArgs {
+    let marker_args = vvc::vvcc_MarkerArgs {
         prefix: None,
-        message: Some(message),
-        allow_empty: true,
-        no_stage: true,
-        size_limit: vvc::VVCG_SIZE_LIMIT,
-        warn_limit: vvc::VVCG_WARN_LIMIT,
+        message,
     };
 
-    let rc = vvc::commit(&commit_args, &mut output);
+    let rc = vvc::marker(&marker_args, &mut output);
     (rc, output.vvco_finish())
 }

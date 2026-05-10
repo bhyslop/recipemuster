@@ -369,7 +369,6 @@ pub struct jjrm_LandingParams {
     pub coronet: String,
     pub agent: String,
     pub content: Option<String>,
-    pub size_limit: Option<u64>,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
@@ -692,30 +691,17 @@ async fn zjjrm_handle_open() -> Result<CallToolResult, McpError> {
         Some(&body),
     );
 
-    let commit_args = vvc::vvcc_CommitArgs {
+    let marker_args = vvc::vvcc_MarkerArgs {
         prefix: None,
-        message: Some(message),
-        allow_empty: true,
-        no_stage: true,
-        size_limit: vvc::VVCG_SIZE_LIMIT,
-        warn_limit: vvc::VVCG_WARN_LIMIT,
+        message,
     };
 
-    match vvc::vvcc_CommitLock::vvcc_acquire() {
-        Ok(lock) => {
-            let mut commit_output = vvc::vvco_Output::buffer();
-            if let Err(e) = lock.vvcc_commit(&commit_args, &mut commit_output) {
-                return Ok(CallToolResult::error(vec![Content::text(
-                    format!("{}: invitatory commit error: {}", cn, e),
-                )]));
-            }
-        }
-        Err(e) => {
-            return Ok(CallToolResult::error(vec![Content::text(
-                format!("{}: lock error: {}", cn, e),
-            )]));
-        }
-    };
+    let mut marker_output = vvc::vvco_Output::buffer();
+    if vvc::marker(&marker_args, &mut marker_output) != 0 {
+        return Ok(CallToolResult::error(vec![Content::text(
+            format!("{}: invitatory commit error: {}", cn, marker_output.vvco_finish()),
+        )]));
+    }
 
     if reaped > 0 || active > 0 {
         vvco_out!(output, "Exsanguination: {} active, {} reaped", active, reaped);
@@ -1092,7 +1078,6 @@ impl jjrm_McpServer {
                 jjrm_result(jjrld_run_landing(jjrld_LandingArgs {
                     coronet: p.coronet,
                     agent: p.agent,
-                    size_limit: p.size_limit,
                 }, p.content.unwrap_or_default()))
             }
             JJRM_CMD_NAME_BIND => {

@@ -104,7 +104,7 @@ jjx_relabel        {coronet, silks}
 jjx_drop           {coronet}
 jjx_brief      {coronet}
 jjx_coronets   {firemark, remaining?, rough?}
-jjx_landing        {coronet, agent, content?, size_limit?}
+jjx_landing        {coronet, agent, content?}
 jjx_validate       {}
 jjx_bind           {alias, reldir}                                  # remote: create legatio session (alias resolves BURN profile)
 jjx_send           {legatio, command}                               # remote: synchronous exec on fundus
@@ -243,7 +243,7 @@ Use `jjx_record` with `{identity: "FIREMARK", files: ["file1", "file2"], intent:
 
 Synthesize intent from the conversation — describe *what* was accomplished, not *how*.
 
-**Size guard — ALL commands accepting `size_limit?` (record, close, archive, paddock, enroll, redocket, landing, transfer)**: If ANY jjx command fails due to size limits, STOP. Report the byte count, limit, and per-file breakdown to the user, then WAIT for the user's review. The guard is a byte-sanity review step — its purpose is catching unintended bulk (e.g., a binary that snuck in), not gating decomposition. The default is uniform 50KB across all eight commands. Expected outcome: the user confirms the bytes are legitimate and directs you to raise the limit. Do NOT offer splitting as a parallel option — splitting enters the picture only if the user explicitly raises it, because the work genuinely decomposes. NEVER auto-override `size_limit`.
+**Size guard — ALL commands accepting `size_limit?` (record, close, archive, paddock, enroll, redocket, transfer)**: If ANY jjx command fails due to size limits, STOP. Report the byte count, limit, and per-file breakdown to the user, then WAIT for the user's review. The guard is a byte-sanity review step — its purpose is catching unintended bulk (e.g., a binary that snuck in), not gating decomposition. The default is uniform 50KB across all seven commands. Expected outcome: the user confirms the bytes are legitimate and directs you to raise the limit. Do NOT offer splitting as a parallel option — splitting enters the picture only if the user explicitly raises it, because the work genuinely decomposes. NEVER auto-override `size_limit`.
 
 When user says "notch", determine context (pace or heat affiliated) and invoke `jjx_record` with the appropriate identity and explicit file list.
 

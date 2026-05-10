@@ -23,10 +23,6 @@ pub struct jjrld_LandingArgs {
 
     /// Agent tier that executed the pace
     pub agent: String,
-
-    /// Override commit size guard limit in bytes
-    #[arg(long)]
-    pub size_limit: Option<u64>,
 }
 
 /// Execute the landing command
@@ -56,16 +52,11 @@ pub fn jjrld_run_landing(args: jjrld_LandingArgs, content: String) -> (i32, Stri
         format!("{}\n\n{}", base_message, content.trim())
     };
 
-    // Create empty landing commit
-    let commit_args = vvc::vvcc_CommitArgs {
+    let marker_args = vvc::vvcc_MarkerArgs {
         prefix: None,
-        message: Some(message),
-        allow_empty: true,
-        no_stage: true,
-        size_limit: args.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT),
-        warn_limit: vvc::VVCG_WARN_LIMIT,
+        message,
     };
 
-    let rc = vvc::commit(&commit_args, &mut output);
+    let rc = vvc::marker(&marker_args, &mut output);
     (rc, output.vvco_finish())
 }
