@@ -31,11 +31,6 @@
 // bus_:   Specification umbrella concept (e.g., bus_jurisdiction)
 // bujb_:  Jurisdiction implementation seat — sub-letter `b` = bash format.
 // bujp_:  Jurisdiction preflight module — sub-letter `p` = preflight.
-//         Under Quoin Sub-Letter Discipline, each sub-letter is monosemic
-//         per domain. A prior version reserved `p` for a hypothetical
-//         PowerShell-format jurisdiction sibling; that reservation is
-//         withdrawn — if a PowerShell sibling is ever minted, it takes a
-//         different sub-letter.
 //
 // Variant patterns:
 //   _s: plural form
