@@ -107,11 +107,10 @@ BUJB_command_b="command=\"/bin/bash -lc \\\"\$SSH_ORIGINAL_COMMAND\\\"\",no-port
 BUJB_command_c="command=\"${BUJB_path_cygwin_root_fwd}/bin/bash --login -c \\\"\$SSH_ORIGINAL_COMMAND\\\"\",no-port-forwarding,no-X11-forwarding,no-agent-forwarding"
 BUJB_command_w="command=\"${BUJB_path_wsl_exe} --distribution ${BUJB_wsl_distribution} --user ${BUJB_workload_user} --exec /bin/bash -lc \\\"\$SSH_ORIGINAL_COMMAND\\\"\",no-port-forwarding,no-X11-forwarding,no-agent-forwarding"
 
-# Shell-letter -> workload privkey destination path on the remote
-# (relative to the workload account home directory).
-BUJB_workload_keypath_b='.ssh/id_ed25519'
-BUJB_workload_keypath_c='.ssh/id_ed25519'
-BUJB_workload_keypath_w='.ssh/id_ed25519'
+# Workload privkey destination path on the remote (relative to the workload
+# account home directory). Uniform across shell-letters under the current
+# design — if a future shell needs a divergent keypath, fan out per-letter.
+BUJB_workload_keypath='.ssh/id_ed25519'
 
 # Windows OpenSSH sshd_config hardening directive set written by
 # fenestrate phase 1. Newline-joined; each directive is asserted by
@@ -295,20 +294,6 @@ bujb_command_for_capture() {
     b) echo "${BUJB_command_b}" ;;
     c) echo "${BUJB_command_c}" ;;
     w) echo "${BUJB_command_w}" ;;
-    *) return 1 ;;
-  esac
-}
-
-# bujb_workload_keypath_for_capture SHELL_LETTER -- emit the workload privkey
-# remote destination path (relative to workload home) for b, c, or w.
-# Returns 1 on invalid letter; callers must `|| buc_die`.
-bujb_workload_keypath_for_capture() {
-  zbujb_sentinel
-  local z_letter="${1:-}"
-  case "${z_letter}" in
-    b) echo "${BUJB_workload_keypath_b}" ;;
-    c) echo "${BUJB_workload_keypath_c}" ;;
-    w) echo "${BUJB_workload_keypath_w}" ;;
     *) return 1 ;;
   esac
 }
@@ -969,10 +954,7 @@ zbujb_garrison_step5_plant_key() {
   local z_wlhome
   z_wlhome=$(zbujb_workload_home_capture "${z_letter}") \
     || buc_die "step5: workload home unresolvable for letter='${z_letter}' platform='${BURN_PLATFORM}'"
-  local z_keypath
-  z_keypath=$(bujb_workload_keypath_for_capture "${z_letter}") \
-    || buc_die "step5: bujb_workload_keypath_for_capture failed for letter='${z_letter}'"
-  local z_target="${z_wlhome}/${z_keypath}"
+  local z_target="${z_wlhome}/${BUJB_workload_keypath}"
   local z_target_dir="${z_target%/*}"  # parameter expansion replaces dirname
   buc_step "  [5/6] Plant workload privkey (${z_target})"
 
@@ -1121,7 +1103,7 @@ zbujb_garrison_w_init_wsl() {
   z_key_b64="${z_key_b64//$'\n'/}"
 
   local z_wsl_bash_body
-  z_wsl_bash_body="mkdir -p ${BUJB_path_posix_user_ssh} && echo '${z_key_b64}' | openssl enc -base64 -d -A > ${BUJB_path_posix_user_ssh}/id_ed25519 && chown -R ${z_wlu}:${z_wlu} ${BUJB_path_posix_user_ssh} && chmod 700 ${BUJB_path_posix_user_ssh} && chmod 600 ${BUJB_path_posix_user_ssh}/id_ed25519"
+  z_wsl_bash_body="mkdir -p ${BUJB_path_posix_user_ssh} && echo '${z_key_b64}' | openssl enc -base64 -d -A > ${BUJB_path_posix_user_home}/${BUJB_workload_keypath} && chown -R ${z_wlu}:${z_wlu} ${BUJB_path_posix_user_ssh} && chmod 700 ${BUJB_path_posix_user_ssh} && chmod 600 ${BUJB_path_posix_user_home}/${BUJB_workload_keypath}"
 
   zbujb_w_init_run "wsl-plant-privkey" zbujb_workload_ssh \
     "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c \"${z_wsl_bash_body}\"" \
