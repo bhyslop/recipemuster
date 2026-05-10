@@ -39,6 +39,7 @@
         "₢A-ABD",
         "₢A-ABE",
         "₢A-ABC",
+        "₢A-ABF",
         "₢A-ABB",
         "₢A-AA_",
         "₢A-ABA",
@@ -102,7 +103,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "jjghn_next_pace_seed": "ABF",
+      "jjghn_next_pace_seed": "ABG",
       "jjghn_paces": {
         "₢A-AA-": {
           "jjgpn_tacks": [
@@ -1691,6 +1692,17 @@
               "jjgtn_text": "## Character\nSpec edit + small implementation migration.\n\n## Goal\nClose the spec gap surfaced during ₢A-ABD: BUSJIL/BUSJIM omit operator-managed\nprecondition facts (sudo NOPASSWD; admin-group on mac). Extend each spec with\nhandbook-scope facts in the existing step pattern. Migrate the corresponding\nprobes from bujp_preflight into the invigilate verbs.\n\n## Boundary\n- Mirror existing BUSJI{L,M} step shape (`busc_call`/`busc_store`/`busc_require`/\n  `busc_fatal`); no new operation kinds.\n- Simplify bujp_preflight's current scp+visudo-cf snippet-staging diagnostic to\n  a handbook-pointer fatal — recovery copy belongs in BUSJHL/BUSJHM.\n- After this pace, bujp_preflight is pure verb-delegation: invigilate-{platform}\n  + workload-shell reachability probe (the per-letter reachability check is\n  not host-posture, retained).\n\n## Done when\n- Specs extended; handbook-render fixture green.\n- bujp_preflight devoid of inline posture probes.\n- bash -n; tt/buw-st.BukSelfTest.sh; tt/rbtd-s.TestSuite.fast.sh.",
               "jjgtn_silks": "extend-busji-operator-precondition-facts",
               "jjgtn_basis": "dbcbc9a"
+            }
+          ]
+        },
+        "₢A-ABF": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260510-1435",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nProse-only rewrite — fenestrate vocabulary in the operator handbook moves to caparison-windows verb naming. Touches files disjoint from ABC's bash implementation, so parallelizable.\n\n## Goal\nRecast all fenestrate references in the operator handbook around caparison-windows verb vocabulary; update tabtarget pointer from `buw-jpF` to `buw-jpCW`.\n\n## Boundary\n- File scope: `buhj_jurisdiction.sh` + `rbhw0_top.sh`.\n- Prose work only — no implementation of caparison-windows (that lives in ₢A-ABC).\n- The `buw-jpCW` name is locked by spec and may be referenced in handbook prose before the tabtarget physically exists.\n- Standing Notes in the paddock already use caparison vocabulary; no paddock changes.\n\n## Done when\n- `grep -n fenestrate` on `buhj_jurisdiction.sh` + `rbhw0_top.sh` returns zero.\n- Handbook prose names caparison-windows verb + `buw-jpCW` where it previously named fenestrate + `buw-jpF`.\n- bash -n on touched files; `tt/buw-hj0.HandbookJurisdictionTop.sh` renders cleanly.",
+              "jjgtn_silks": "handbook-caparison-windows-recast",
+              "jjgtn_basis": "634e1ec"
             }
           ]
         }
