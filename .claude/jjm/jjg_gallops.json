@@ -36,6 +36,7 @@
       "jjghn_creation_time": "260412",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢A-AA4",
         "₢A-AA3",
         "₢A-AA2",
         "₢A-AA1",
@@ -89,7 +90,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "jjghn_next_pace_seed": "AA4",
+      "jjghn_next_pace_seed": "AA5",
       "jjghn_paces": {
         "₢A-AA0": {
           "jjgpn_tacks": [
@@ -153,6 +154,17 @@
               "jjgtn_text": "## Character\nSurgical mechanism-validation spike — one experiment, decisive. Locks the\nshape of the redesign pace.\n\n## Docket\nValidate that schtasks-as-bujuw_user can run `wsl --import rbtww-main` and\nhave the registration land in workload's HKCU\\Lxss, so the workload's\n`command=` directive can subsequently resolve `wsl --distribution\nrbtww-main` cleanly.\n\nShape: set workload password (clears LimitBlankPasswordUse), pre-stage\nrbtww-main tarball at a workload-readable path, schedule a one-shot\ntask as workload running `wsl --import`, run the task, probe HKCU\\Lxss\nfor the new entry.\n\nOpen question this spike resolves: does HKCU need pre-loading via a\none-time interactive logon, or does schtasks-launch handle it?\nmicrosoft/WSL #10732, #8835, #3918 document run-time WSL failures from\nschtasks without a loaded profile — but those are about RUNNING wsl, not\nIMPORTING. Spike tests import-time specifically.\n\nDone when:\n- HKCU\\Lxss probe shows rbtww-main registered for bujuw_user; OR\n- Mechanism fails with enough detail (schtasks error, registry-write\n  failure, profile-not-loaded error) to redirect the redesign pace.\n- No garrison-w changes, no BUSJGW redraft, no end-to-end run.",
               "jjgtn_silks": "spike-validate-workload-wsl-import",
               "jjgtn_basis": "f30a50d"
+            }
+          ]
+        },
+        "₢A-AA4": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260510-0753",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical string-scan plus constant promotion in a single file.\n\n## Goal\nPromote repeated string literals in `Tools/buk/bujb_jurisdiction.sh` to BCG tinder constants (`BUJB_lower_name` — pure literals at source time) or kindle constants (`ZBUJB_NAME` — runtime-derived inside `zbujb_kindle()` with `readonly`). BCG line 138 governs the choice.\n\n## Boundary\n- Touch only `Tools/buk/bujb_jurisdiction.sh`.\n- Leave the three `BUJB_command_{b,c,w}` directives byte-identical — comments mark them locked spec content mirrored in BUSJG{B,C,W}. Reordering the tinder block so `BUJB_wsl_distribution` precedes the directives and gets interpolated is permitted (tinder-on-tinder, BCG line 138).\n- Apply BCG load-bearing test: promote only where a literal repeats enough, or carries enough meaning, to earn a name. Resist over-extraction.\n\n## Discovery\nRe-scan the file at mount. High-value zones from a prior survey: `authorized_keys` and `.ssh` path fragments, Windows profile root (`C:\\Users\\` and the forward-slash variant), seed tarball plus distro-fs paths (`rbtww-seed.tar`, `rbtww-fs`), SSH option set (IdentitiesOnly / BatchMode / StrictHostKeyChecking / ConnectTimeout), PowerShell prelude (`$ErrorActionPreference`, `$env:WSL_UTF8`, `$LASTEXITCODE` initialization), Ubuntu seed name and install dir, `/home/` and `/Users/` home-root prefixes, `set -euo pipefail` first-arg pattern. Verify each candidate's repeat count before promoting.\n\n## Done when\n- Identified duplicates promoted to tinder or kindle and collapsed at usage sites.\n- `BUJB_command_{b,c,w}` byte-identical.\n- File sources cleanly through its consuming CLIs.",
+              "jjgtn_silks": "bujb-tinder-kindle-extraction",
+              "jjgtn_basis": "86b7390"
             }
           ]
         },
