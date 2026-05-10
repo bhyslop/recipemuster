@@ -1668,6 +1668,13 @@
         "₢A-ABD": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260510-1427",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nMechanical translation — BUSJI{W,M,L} are locked; read-only posture verifiers.\n\n## Goal\nBuild invigilate-{windows,macos,linux} verbs per BUSJI{W,M,L}, with `buw-jpI{W,M,L}` tabtargets. Rewire bujp_preflight to delegate platform probes to the new verbs.\n\n## Boundary\n- Invigilate is read-only: no mutations, no remediation. Failure surfaces a fact-named diagnostic with operator-handbook vs caparison pointer per spec.\n- Platform probes currently inline in bujp_preflight (sudo NOPASSWD, admin-group, WSL distribution) move under the invigilate verb that owns them; bujp becomes verb-delegation.\n\n## Done when\n- buw-jpI{W,M,L} exit 0 against a correctly-configured node; exit non-zero with fact-named diagnostic against a misconfigured node.\n- bujp_preflight calls invigilate-{platform} at step 1 of garrison; zero inline posture probes remain.\n- bash -n; tt/buw-st.BukSelfTest.sh; tt/rbtd-s.TestSuite.fast.sh.",
+              "jjgtn_silks": "implement-invigilate-all",
+              "jjgtn_basis": "ef14026"
+            },
+            {
               "jjgtn_ts": "260510-1404",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nMechanical translation — BUSJI{W,M,L} are locked; read-only posture verifiers.\n\n## Goal\nBuild invigilate-{windows,macos,linux} verbs per BUSJI{W,M,L}, with `buw-jpI{W,M,L}` tabtargets. Rewire bujp_preflight to delegate platform probes to the new verbs.\n\n## Boundary\n- Invigilate is read-only: no mutations, no remediation. Failure surfaces a fact-named diagnostic with operator-handbook vs caparison pointer per spec.\n- Platform probes currently inline in bujp_preflight (sudo NOPASSWD, admin-group, WSL distribution) move under the invigilate verb that owns them; bujp becomes verb-delegation.\n\n## Done when\n- buw-jpI{W,M,L} exit 0 against a correctly-configured node; exit non-zero with fact-named diagnostic against a misconfigured node.\n- bujp_preflight calls invigilate-{platform} at step 1 of garrison; zero inline posture probes remain.\n- bash -n; tt/buw-st.BukSelfTest.sh; tt/rbtd-s.TestSuite.fast.sh.",
