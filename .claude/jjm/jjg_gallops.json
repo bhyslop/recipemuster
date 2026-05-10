@@ -1701,6 +1701,13 @@
         "₢A-ABE": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260510-1441",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nSpec edit + small implementation migration.\n\n## Goal\nClose the spec gap surfaced during ₢A-ABD: BUSJIL/BUSJIM omit operator-managed\nprecondition facts (sudo NOPASSWD; admin-group on mac). Extend each spec with\nhandbook-scope facts in the existing step pattern. Migrate the corresponding\nprobes from bujp_preflight into the invigilate verbs.\n\n## Boundary\n- Mirror existing BUSJI{L,M} step shape (`busc_call`/`busc_store`/`busc_require`/\n  `busc_fatal`); no new operation kinds.\n- Simplify bujp_preflight's current scp+visudo-cf snippet-staging diagnostic to\n  a handbook-pointer fatal — recovery copy belongs in BUSJHL/BUSJHM.\n- After this pace, bujp_preflight is pure verb-delegation: invigilate-{platform}\n  + workload-shell reachability probe (the per-letter reachability check is\n  not host-posture, retained).\n\n## Done when\n- Specs extended; handbook-render fixture green.\n- bujp_preflight devoid of inline posture probes.\n- bash -n; tt/buw-st.BukSelfTest.sh; tt/rbtd-s.TestSuite.fast.sh.",
+              "jjgtn_silks": "extend-busji-operator-precondition-facts",
+              "jjgtn_basis": "40effad"
+            },
+            {
               "jjgtn_ts": "260510-1414",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nSpec edit + small implementation migration.\n\n## Goal\nClose the spec gap surfaced during ₢A-ABD: BUSJIL/BUSJIM omit operator-managed\nprecondition facts (sudo NOPASSWD; admin-group on mac). Extend each spec with\nhandbook-scope facts in the existing step pattern. Migrate the corresponding\nprobes from bujp_preflight into the invigilate verbs.\n\n## Boundary\n- Mirror existing BUSJI{L,M} step shape (`busc_call`/`busc_store`/`busc_require`/\n  `busc_fatal`); no new operation kinds.\n- Simplify bujp_preflight's current scp+visudo-cf snippet-staging diagnostic to\n  a handbook-pointer fatal — recovery copy belongs in BUSJHL/BUSJHM.\n- After this pace, bujp_preflight is pure verb-delegation: invigilate-{platform}\n  + workload-shell reachability probe (the per-letter reachability check is\n  not host-posture, retained).\n\n## Done when\n- Specs extended; handbook-render fixture green.\n- bujp_preflight devoid of inline posture probes.\n- bash -n; tt/buw-st.BukSelfTest.sh; tt/rbtd-s.TestSuite.fast.sh.",
