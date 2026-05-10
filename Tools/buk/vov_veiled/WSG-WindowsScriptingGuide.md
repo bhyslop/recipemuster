@@ -311,6 +311,45 @@ Default discipline remains SH-2; SH-8 applies only when bodies don't fit
 one line. See `Memos/memo-20260508-windows-transport-experiments.md`
 §OQ-7.
 
+### ❌ SH-9: Single quotes are LITERAL characters in cmd.exe-direct transport
+
+When a command line is routed `bash (curia) → ssh → Windows OpenSSH →
+cmd.exe → <Windows-native binary>` with no PowerShell or remote bash
+layer to interpret quotes, single quotes around args are passed
+through to the binary as part of its argv. This is the negative form
+of PS-3.
+
+```bash
+# ❌ Single quotes survive cmd.exe and become part of wsl.exe's argv.
+# wsl.exe sees the path as `'C:\path'` (literal quotes) and fails.
+ssh "$WORKLOAD@$HOST" "wsl.exe --import dist 'C:\Users\u\rbtww-fs' '...' --version 2"
+
+# ✅ Double quotes via `\"...\"`. After bash escape they reach the wire
+# as `"..."`; cmd.exe strips them per its native argv parser; wsl.exe
+# receives clean paths.
+ssh "$WORKLOAD@$HOST" "wsl.exe --import dist \"C:\Users\u\rbtww-fs\" \"...\" --version 2"
+```
+
+The asymmetry: PS-3 (single quotes survive nesting) applies when there
+is a PowerShell layer that recognizes `'...'` as a string-literal
+delimiter. SH-9 applies when there is no such layer — only cmd.exe
+between the wire and the binary. Single quotes are not a
+transport-universal "safe" choice; they require a layer that
+interprets them.
+
+Decision rule: pick the quote form by the **innermost interpreter** in
+the transport stack:
+
+| Innermost interpreter | Quote form for embedded args |
+|-----------------------|-------------------------------|
+| PowerShell            | `'...'` (PS string literal)   |
+| Remote bash (`bash -c "..."`) | inner `'...'` (bash strips)  |
+| cmd.exe → native binary       | `\"...\"` (becomes literal `"..."` on the wire; cmd.exe strips) |
+
+Empirical site: `zbujb_garrison_w_init_wsl` in `bujb_jurisdiction.sh`
+— the `wsl --import` invocation in garrison-w's three-namespace
+redesign (BUSJGW).
+
 ### ❌ PS-5: PowerShell bodies are single expressions
 
 A `zbujb_admin_powershell` (or `zbujb_powershell_capture`) body is exactly

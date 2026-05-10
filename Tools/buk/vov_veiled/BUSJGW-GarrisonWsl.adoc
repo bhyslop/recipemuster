@@ -160,11 +160,15 @@ outbound (e.g., GitHub). On exit, remove the seed tarball from
 the admin side — the seed has served its purpose.
 
 //axhos_step
-. *Lock down workload trust*: from the admin session, replace the
-bare authorized_keys entry with the locked-down `command=` form —
-locked spec content, mirrored at `BUJB_command_w` in
-{bujb_jurisdiction}; `${BUJB_workload_user}` is substituted with
-the canonical workload user at directive-emit time:
+. *Lock down workload trust*: rewrite the workload's authorized_keys
+file with the locked-down `command=` form, replacing the bare entry
+placed earlier. The rewrite happens from a workload SSH session
+because the file is workload-owned (per the icacls grants in step 5)
+and the workload's session has direct write privilege without
+ownership gymnastics. The directive content is locked spec text,
+mirrored at `BUJB_command_w` in {bujb_jurisdiction};
+`${BUJB_workload_user}` is substituted with the canonical workload
+user at directive-emit time:
 +
 [listing]
 ----

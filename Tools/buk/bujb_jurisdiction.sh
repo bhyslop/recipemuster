@@ -124,6 +124,10 @@ zbujb_kindle() {
   # Per-call captures for zbujb_garrison_step6_validate.
   readonly ZBUJB_VALIDATE_PREFIX="${BURD_TEMP_DIR}/bujb_validate_"
 
+  # Per-call captures for the garrison-w SSH-as-workload phases
+  # (export-seed, init-wsl, lockdown, seed-cleanup).
+  readonly ZBUJB_W_INIT_PREFIX="${BURD_TEMP_DIR}/bujb_w_init_"
+
   # Single shared emission counter across all _run wrappers — file numbers
   # are continuous across originating functions so chronological order is
   # readable from the embedded number even when prefixes differ.
@@ -412,6 +416,29 @@ zbujb_powershell_capture() {
   return "${z_exit}"
 }
 
+# zbujb_workload_ssh REMOTE_CMD -- execute a Windows-native command line
+# as the workload user via SSH. The default Windows OpenSSH shell is
+# cmd.exe; the command line goes through cmd.exe's argv layer to the named
+# binary. Used by garrison-w for `wsl.exe --import` (which writes to the
+# workload's HKCU\Lxss because the SSH session is a real workload logon)
+# and `wsl.exe --distribution rbtww-main --user root bash -c "..."`
+# invocations that follow the import. Caller redirects stdout/stderr;
+# returns ssh's exit code.
+zbujb_workload_ssh() {
+  zbujb_sentinel
+  test $# -ge 1 \
+    || buc_die "zbujb_workload_ssh: REMOTE_CMD required"
+  local -r z_remote_cmd="$*"
+
+  ssh -i "${BURP_WORKLOAD_KEY_FILE}"      \
+      -o IdentitiesOnly=yes                \
+      -o BatchMode=yes                     \
+      -o StrictHostKeyChecking=accept-new  \
+      -o ConnectTimeout=15                 \
+      "${BUJB_workload_user}@${BURN_HOST}" \
+      "${z_remote_cmd}"
+}
+
 ######################################################################
 # Internal: Garrison steps (6-step ceremony per BUSJG{B,C,W})
 
@@ -489,6 +516,20 @@ zbujb_validate_run() {
   printf -v z_idx_str '%02d' "${z_bujb_emit_index}"
   local z_out="${ZBUJB_VALIDATE_PREFIX}${z_idx_str}_${z_label}_stdout.txt"
   local z_err="${ZBUJB_VALIDATE_PREFIX}${z_idx_str}_${z_label}_stderr.txt"
+  z_bujb_emit_index=$((z_bujb_emit_index + 1))
+  local z_exit=0
+  "$@" > "${z_out}" 2> "${z_err}" || z_exit=$?
+  zbujb_diag_dump_pair "${z_label}" "${z_out}" "${z_err}"
+  return ${z_exit}
+}
+
+zbujb_w_init_run() {
+  local z_label="${1:-}"
+  shift
+  local z_idx_str
+  printf -v z_idx_str '%02d' "${z_bujb_emit_index}"
+  local z_out="${ZBUJB_W_INIT_PREFIX}${z_idx_str}_${z_label}_stdout.txt"
+  local z_err="${ZBUJB_W_INIT_PREFIX}${z_idx_str}_${z_label}_stderr.txt"
   z_bujb_emit_index=$((z_bujb_emit_index + 1))
   local z_exit=0
   "$@" > "${z_out}" 2> "${z_err}" || z_exit=$?
@@ -734,15 +775,14 @@ zbujb_garrison_step3_create() {
         "chown -R '${z_wlu}' '/home/${z_wlu}'"
       ;;
     w)
-      # Mirrored identity: net.exe creates the Windows user (SSH auth
-      # boundary), useradd creates the Linux user inside WSL (execution
-      # context). Same Windows-user shape as the c branch above; the
-      # WSL-side useradd layered on top.
+      # Windows-side workload account only. The WSL-side Linux user is
+      # provisioned later inside the workload's *own* imported rbtww-main
+      # distribution by zbujb_garrison_w_init_wsl — admin's WSL is not
+      # the workload's runtime distribution under the redesigned
+      # garrison-w (Microsoft per-user WSL constraint, BUSJGW).
       zbujb_admin_exec w                                                  \
         "set -euo pipefail"                                               \
-        "net.exe user '${z_wlu}' /add /passwordreq:no /active:yes > /dev/null" \
-        "useradd --create-home --shell /bin/bash '${z_wlu}'"              \
-        "passwd  --lock '${z_wlu}'"
+        "net.exe user '${z_wlu}' /add /passwordreq:no /active:yes > /dev/null"
       # OpenSSH-Win32 silently closes at preauth if the workload SID has
       # no HKLM\...\ProfileList entry. net.exe user /add creates the SAM
       # entry but not the profile registration. Win32-OpenSSH issue #1383.
@@ -778,9 +818,20 @@ zbujb_garrison_step4_place_trust() {
   esac
   buc_step "  [4/6] Place workload trust (${z_authkeys_dir}/authorized_keys)"
 
-  local z_command_directive
-  z_command_directive=$(bujb_command_for_capture "${z_letter}") \
-    || buc_die "step4: bujb_command_for_capture failed for letter='${z_letter}'"
+  # For w letter, step 4 writes a BARE authorized_keys entry (pubkey only,
+  # no command= directive) so the SSH-as-workload session opened by
+  # zbujb_garrison_w_init_wsl can drop into a normal cmd.exe shell and run
+  # `wsl --import` (which would fail under the locked-down command= form
+  # because rbtww-main is not yet registered in the workload's HKCU).
+  # The command= form is written later by zbujb_garrison_w_lockdown.
+  # b/c letters keep the locked-down directive in step 4 as before.
+  local z_command_directive=""
+  case "${z_letter}" in
+    b|c)
+      z_command_directive=$(bujb_command_for_capture "${z_letter}") \
+        || buc_die "step4: bujb_command_for_capture failed for letter='${z_letter}'"
+      ;;
+  esac
 
   ssh-keygen -y -P '' -f "${BURP_WORKLOAD_KEY_FILE}" \
       > "${ZBUJB_PUBKEY_STDOUT_WORK}" \
@@ -790,7 +841,12 @@ zbujb_garrison_step4_place_trust() {
   z_pubkey=$(<"${ZBUJB_PUBKEY_STDOUT_WORK}")
   z_pubkey="${z_pubkey//$'\n'/}"
 
-  local z_authkeys_line="${z_command_directive} ${z_pubkey}"$'\n'
+  local z_authkeys_line
+  if test -n "${z_command_directive}"; then
+    z_authkeys_line="${z_command_directive} ${z_pubkey}"$'\n'
+  else
+    z_authkeys_line="${z_pubkey}"$'\n'
+  fi
 
   local z_sudo_prefix=""
   test "${z_letter}" != "b" || z_sudo_prefix="sudo -n "
@@ -940,6 +996,143 @@ Or inspect what is currently installed:
 "
 }
 
+# zbujb_garrison_w_export_seed -- export admin's BUJB_wsl_distribution
+# (the seed source) to a workload-readable path inside the workload's
+# Windows profile. Runs from admin context. The tarball is the sole
+# on-disk artifact carrying admin's rbtww-main contents into the
+# workload's identity scope; zbujb_garrison_w_seed_cleanup removes it
+# after the import has consumed it.
+zbujb_garrison_w_export_seed() {
+  zbujb_sentinel
+  local z_wlu="${BUJB_workload_user}"
+  buc_step "  [w-export-seed] Export admin's ${BUJB_wsl_distribution} to workload-readable seed"
+
+  local z_seed_win="C:\\Users\\${z_wlu}\\rbtww-seed.tar"
+
+  # PowerShell-routed: single quotes are literal-string delimiters that
+  # PS strips before invoking wsl.exe.
+  zbujb_w_init_run "wsl-export" zbujb_admin_powershell \
+    "wsl.exe --export ${BUJB_wsl_distribution} '${z_seed_win}'" \
+    || buc_die "w-export-seed: wsl --export failed (admin's ${BUJB_wsl_distribution} not exportable?) — see ${ZBUJB_W_INIT_PREFIX}*wsl-export*"
+}
+
+# zbujb_garrison_w_init_wsl -- SSH-as-workload session that imports the
+# workload's own rbtww-main, provisions the inner Linux workload user,
+# and plants the workload privkey for outbound auth. The session is a
+# real Windows logon for BUJB_workload_user (HKCU mounted), so wsl.exe
+# --import writes the registration to the workload's HKCU\Lxss naturally
+# rather than admin's. The bare authorized_keys placed by step 4 lets
+# this session open without the locked-down command= directive routing
+# through an unimported wsl distribution.
+#
+# Each phase is a separate ssh-as-workload connection, wrapped in
+# zbujb_w_init_run for per-call diag capture. Connection setup is fast
+# on Windows OpenSSH after first auth; the clarity of one-call-per-step
+# outweighs the connection overhead.
+zbujb_garrison_w_init_wsl() {
+  zbujb_sentinel
+  local z_wlu="${BUJB_workload_user}"
+  buc_step "  [w-init-wsl] SSH-as-workload: import distribution, provision Linux user, plant privkey"
+
+  local z_seed_win="C:\\Users\\${z_wlu}\\rbtww-seed.tar"
+  local z_wsl_root_win="C:\\Users\\${z_wlu}\\rbtww-fs"
+
+  # cmd.exe-routed (workload's default Win32-OpenSSH shell): double-quote
+  # Windows paths so cmd.exe's argv parser passes them as single args to
+  # wsl.exe. Single quotes would be literal chars (cmd.exe doesn't strip
+  # them) and break path resolution.
+  zbujb_w_init_run "wsl-import" zbujb_workload_ssh \
+    "wsl.exe --import ${BUJB_wsl_distribution} \"${z_wsl_root_win}\" \"${z_seed_win}\" --version 2" \
+    || buc_die "w-init-wsl: wsl --import failed (see ${ZBUJB_W_INIT_PREFIX}*wsl-import*)"
+
+  zbujb_w_init_run "wsl-useradd" zbujb_workload_ssh \
+    "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c \"useradd --create-home --shell /bin/bash ${z_wlu}\"" \
+    || buc_die "w-init-wsl: useradd failed inside workload's distribution"
+
+  zbujb_w_init_run "wsl-passwd-lock" zbujb_workload_ssh \
+    "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c \"passwd --lock ${z_wlu}\"" \
+    || buc_die "w-init-wsl: passwd --lock failed for inner Linux user"
+
+  # Base64-encode the privkey on the operator's station, then ship the
+  # b64 string into a single bash -c body that decodes + writes inside
+  # the workload's distribution. Same transport pattern as step 5 for
+  # b/c letters — the encoding survives cmd.exe + wsl.exe + bash argv
+  # layers because b64 is [A-Za-z0-9+/=] only.
+  openssl enc -base64 -A < "${BURP_WORKLOAD_KEY_FILE}" \
+      > "${ZBUJB_KEY_B64_STDOUT}" \
+      2> "${ZBUJB_KEY_B64_STDERR}" \
+    || buc_die "w-init-wsl: base64 encode failed for workload key — see ${ZBUJB_KEY_B64_STDERR}"
+  local z_key_b64=$(<"${ZBUJB_KEY_B64_STDOUT}")
+  z_key_b64="${z_key_b64//$'\n'/}"
+
+  local z_wsl_bash_body
+  z_wsl_bash_body="mkdir -p /home/${z_wlu}/.ssh && echo '${z_key_b64}' | openssl enc -base64 -d -A > /home/${z_wlu}/.ssh/id_ed25519 && chown -R ${z_wlu}:${z_wlu} /home/${z_wlu}/.ssh && chmod 700 /home/${z_wlu}/.ssh && chmod 600 /home/${z_wlu}/.ssh/id_ed25519"
+
+  zbujb_w_init_run "wsl-plant-privkey" zbujb_workload_ssh \
+    "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c \"${z_wsl_bash_body}\"" \
+    || buc_die "w-init-wsl: privkey plant failed inside workload's distribution"
+}
+
+# zbujb_garrison_w_lockdown -- replace the bare workload authorized_keys
+# (placed by step 4 for w letter) with the locked-down command= form
+# from BUJB_command_w. The rewrite happens via SSH-as-workload + wsl.exe
+# bash; the file is workload-owned per step 4's icacls grants, so the
+# workload's session has direct write privilege without requiring admin
+# ownership transfers.
+zbujb_garrison_w_lockdown() {
+  zbujb_sentinel
+  local z_wlu="${BUJB_workload_user}"
+  buc_step "  [w-lockdown] Replace bare authorized_keys with command= directive"
+
+  local z_command_directive
+  z_command_directive=$(bujb_command_for_capture w) \
+    || buc_die "w-lockdown: bujb_command_for_capture failed for letter='w'"
+
+  ssh-keygen -y -P '' -f "${BURP_WORKLOAD_KEY_FILE}" \
+      > "${ZBUJB_PUBKEY_STDOUT_WORK}" \
+      2> "${ZBUJB_PUBKEY_STDERR_WORK}" \
+    || buc_die "w-lockdown: ssh-keygen -y failed — see ${ZBUJB_PUBKEY_STDERR_WORK}"
+  local z_pubkey=$(<"${ZBUJB_PUBKEY_STDOUT_WORK}")
+  z_pubkey="${z_pubkey//$'\n'/}"
+
+  local z_authkeys_line="${z_command_directive} ${z_pubkey}"$'\n'
+
+  # Base64 transport so the embedded $SSH_ORIGINAL_COMMAND, $-substitution,
+  # and special chars in the directive survive the bash + cmd.exe + wsl
+  # argv layers cleanly. Same encode pattern as step 4 w-branch.
+  printf '%s' "${z_authkeys_line}"                           \
+      | openssl enc -base64 -A                               \
+          > "${ZBUJB_AUTHKEYS_B64_STDOUT}"                   \
+          2> "${ZBUJB_AUTHKEYS_B64_STDERR}"                  \
+    || buc_die "w-lockdown: base64 encode failed for authorized_keys line — see ${ZBUJB_AUTHKEYS_B64_STDERR}"
+  local z_authkeys_b64=$(<"${ZBUJB_AUTHKEYS_B64_STDOUT}")
+  z_authkeys_b64="${z_authkeys_b64//$'\n'/}"
+
+  local z_authkeys_path="/mnt/c/Users/${z_wlu}/.ssh/authorized_keys"
+  local z_wsl_body
+  z_wsl_body="echo '${z_authkeys_b64}' | openssl enc -base64 -d -A > '${z_authkeys_path}'"
+
+  zbujb_w_init_run "lockdown-write" zbujb_workload_ssh \
+    "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c \"${z_wsl_body}\"" \
+    || buc_die "w-lockdown: failed to overwrite authorized_keys with command= form"
+}
+
+# zbujb_garrison_w_seed_cleanup -- remove the seed tarball placed by
+# zbujb_garrison_w_export_seed. Admin context (workload session post-
+# lockdown is routed through the command= directive and cannot run
+# arbitrary native commands; admin retains full access to the workload
+# profile dir per the icacls grant in step 4).
+zbujb_garrison_w_seed_cleanup() {
+  zbujb_sentinel
+  local z_wlu="${BUJB_workload_user}"
+  buc_step "  [w-seed-cleanup] Remove seed tarball"
+
+  local z_seed_win="C:\\Users\\${z_wlu}\\rbtww-seed.tar"
+  zbujb_w_init_run "seed-cleanup" zbujb_admin_powershell \
+    "Remove-Item -Path '${z_seed_win}' -Force -ErrorAction SilentlyContinue" \
+    || buc_die "w-seed-cleanup: failed to remove seed tarball — see ${ZBUJB_W_INIT_PREFIX}*seed-cleanup*"
+}
+
 # Step 6 -- workload-side round-trip validation (knock).
 zbujb_garrison_step6_validate() {
   local z_letter="${1:-}"
@@ -996,7 +1189,20 @@ bujb_garrison() {
   zbujb_obliterate_workload
   zbujb_garrison_step3_create        "${z_letter}"
   zbujb_garrison_step4_place_trust   "${z_letter}"
-  zbujb_garrison_step5_plant_key     "${z_letter}"
+  case "${z_letter}" in
+    w)
+      # Three-namespace garrison-w (BUSJGW): the workload owns its own
+      # WSL distribution. Privileged orchestrator conducts; workload's
+      # SSH logon session executes the per-user-HKCU work.
+      zbujb_garrison_w_export_seed
+      zbujb_garrison_w_init_wsl
+      zbujb_garrison_w_lockdown
+      zbujb_garrison_w_seed_cleanup
+      ;;
+    *)
+      zbujb_garrison_step5_plant_key   "${z_letter}"
+      ;;
+  esac
   zbujb_garrison_step6_validate      "${z_letter}"
 
   buc_step "Garrison-${z_letter} succeeded"

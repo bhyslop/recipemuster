@@ -217,6 +217,16 @@ zbuhj_render_post_bootstrap() {
   buh_line     "Both share fenestrate's admin SSH harden; the shell-letter on"
   buh_line     "garrison only routes the workload account ceremony."
   buh_e
+  buh_line     "garrison-w prerequisite: the admin user must have"
+  buh_line     "WSL distribution rbtww-main installed (run wsl --install"
+  buh_line     "or buw-jpW) before garrison-w runs. garrison-w exports"
+  buh_line     "admin's rbtww-main to a seed tarball and imports that"
+  buh_line     "tarball under the workload user's HKCU\\Lxss — Microsoft's"
+  buh_line     "per-user WSL design forces the workload to own its own"
+  buh_line     "distribution registration. Keep admin's rbtww-main"
+  buh_line     "pristine; admin's customizations propagate to workload"
+  buh_line     "via the seed."
+  buh_e
   buh_line     "On Linux/Mac: skip fenestrate (no equivalent verb). Run garrison"
   buh_line     "directly against an existing key-trusted admin foothold (place"
   buh_line     "the admin pubkey via ssh-copy-id beforehand if not already in"
