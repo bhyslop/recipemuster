@@ -1,6 +1,6 @@
 {
   "jjgrn_schema_version": 4,
-  "jjgrn_next_heat_seed": "BF",
+  "jjgrn_next_heat_seed": "BG",
   "jjgrn_heat_order": [
     "₣BD",
     "₣BB",
@@ -27,7 +27,8 @@
     "₣Ap",
     "₣Aq",
     "₣Au",
-    "₣BC"
+    "₣BC",
+    "₣BF"
   ],
   "jjgrn_heats": {
     "₣A-": {
@@ -9741,6 +9742,14 @@
           ]
         }
       }
+    },
+    "₣BF": {
+      "jjghn_silks": "jjk-v4-2-add-tackle",
+      "jjghn_creation_time": "260510",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [],
+      "jjghn_next_pace_seed": "AAA",
+      "jjghn_paces": {}
     }
   }
 }
