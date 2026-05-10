@@ -317,6 +317,7 @@ pub struct jjrm_AlterParams {
     #[serde(default)]
     pub stabled: bool,
     pub silks: Option<String>,
+    pub size_limit: Option<u64>,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
@@ -1003,6 +1004,7 @@ impl jjrm_McpServer {
                     racing: p.racing,
                     stabled: p.stabled,
                     silks: p.silks,
+                    size_limit: p.size_limit,
                 }))
             }
             JJRM_CMD_NAME_CLOSE => {

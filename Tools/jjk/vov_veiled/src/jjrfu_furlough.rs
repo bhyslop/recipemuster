@@ -37,6 +37,10 @@ pub struct jjrfu_FurloughArgs {
     /// New silks (rename heat)
     #[arg(long, short = 's')]
     pub silks: Option<String>,
+
+    /// Override size limit for staged content guard (bytes)
+    #[arg(long)]
+    pub size_limit: Option<u64>,
 }
 
 /// Handler for jjx_furlough command
@@ -86,7 +90,7 @@ pub fn jjrfu_run_furlough(args: jjrfu_FurloughArgs) -> (i32, String) {
             let fm = Firemark::jjrf_parse(&firemark_str).expect("furlough given invalid firemark");
             let message = format_heat_message(&fm, HeatAction::Furlough, &description);
 
-            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, vvc::VVCG_SIZE_LIMIT, &mut output) {
+            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, args.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT), &mut output) {
                 Ok(hash) => {
                     vvco_out!(output, "{}: committed {}", cn, &hash[..8]);
                 }
