@@ -26,6 +26,8 @@
 // buf_:   Fact Module (dual-write fact-file primitives)
 // busy_:  Yelp (pre-rendered formatted string capture)
 // burx_:  Exchange Regime (cross-project dispatch state)
+// busc_:  Bash Console Control (control verbs for bash-shell-with-operator execution; voices axc_*)
+// bush_:  Handbook Control (control verbs for human-following-rendered-doc execution; voices axc_*)
 // bus_:   Specification umbrella concept (e.g., bus_jurisdiction)
 // bujb_:  Jurisdiction implementation seat — sub-letter `b` = bash format.
 //         Future PowerShell sibling would mint as bujp_; under Quoin
@@ -252,6 +254,30 @@
 :burx_label:                      <<burx_label,BURX_LABEL>>
 :burx_exit_status:                <<burx_exit_status,BURX_EXIT_STATUS>>
 :burx_ended_at:                   <<burx_ended_at,BURX_ENDED_AT>>
+
+// External Spec Cross-References
+:xref_AXLA:                       Axial Lexicon Specification
+
+// BUSC Bash Console Control Terms (busc_* - voices axc_*)
+:busc_await:                      <<busc_await,AWAIT>>
+:busc_call:                       <<busc_call,CALL>>
+:busc_fatal:                      <<busc_fatal,FATAL>>
+:busc_poll:                       <<busc_poll,POLL>>
+:busc_prompt:                     <<busc_prompt,PROMPT>>
+:busc_require:                    <<busc_require,REQUIRE>>
+:busc_show:                       <<busc_show,SHOW>>
+:busc_store:                      <<busc_store,STORE>>
+:busc_submit:                     <<busc_submit,SUBMIT>>
+:busc_use:                        <<busc_use,USE>>
+:busc_variable:                   <<busc_variable,VARIABLE>>
+:busc_warn:                       <<busc_warn,WARN>>
+
+// BUSH Handbook Control Terms (bush_* - voices axc_*)
+:bush_fatal:                      <<bush_fatal,STOP>>
+:bush_require:                    <<bush_require,VERIFY>>
+:bush_show:                       <<bush_show,NOTE>>
+:bush_store:                      <<bush_store,RECORD>>
+:bush_warn:                       <<bush_warn,CAUTION>>
 
 // end::mapping-section[]
 
@@ -798,6 +824,133 @@ Resolution order: structured markers (HREF, LINK) via BASH_REMATCH extraction, t
 A `buyc_*` function called before kindle to set the formatting mode flag.
 Three configurators exist: `buyc_dispatch` (probe TERM/NO_COLOR/BURD_*), `buyc_unconditional` (always color), `buyc_plain` (never color).
 Kindle reads the mode flag and defines the readonly `BUYC_*` public color palette and hyperlink mode.
+
+== Control Voicings
+
+=== Bash Console Control Voicings
+
+Control terms for BUK operations executing in a bash shell with human operator present.
+Each term voices the corresponding
+{xref_AXLA}
+control motif.
+
+[[busc_variable]]
+//axl_voices axc_variable
+{busc_variable}::
+A shell variable denoted by guillemets `«NAME»` storing intermediate results.
+Implemented as bash variables or associative array entries.
+
+[[busc_fatal]]
+//axl_voices axc_fatal
+{busc_fatal}::
+Red console text followed by `exit 1`.
+Script terminates immediately. Human operator must intervene.
+
+[[busc_warn]]
+//axl_voices axc_warn
+{busc_warn}::
+Yellow console text indicating non-blocking concern.
+Script continues execution. Human operator may note for later.
+
+[[busc_store]]
+//axl_voices axc_store
+{busc_store}::
+Capture of a value from command output or API response into a
+{busc_variable}.
+Typically via bash assignment or jq extraction.
+
+[[busc_use]]
+//axl_voices axc_use
+{busc_use}::
+Reference to a previously stored
+{busc_variable}
+value.
+Expanded via bash variable substitution.
+
+[[busc_require]]
+//axl_voices axc_require
+{busc_require}::
+Validation check that confirms an expected condition.
+Triggers
+{busc_fatal}
+if condition not met.
+
+[[busc_poll]]
+//axl_voices axc_poll
+{busc_poll}::
+Repeated execution of a command at defined intervals until condition satisfied or timeout.
+Implemented as bash while loop with sleep.
+
+[[busc_call]]
+//axl_voices axc_call
+{busc_call}::
+Synchronous invocation of an external command or API endpoint.
+Captures status and response. Returns when result received.
+
+[[busc_submit]]
+//axl_voices axc_submit
+{busc_submit}::
+Asynchronous invocation that returns a handle for later
+{busc_await}.
+Returns immediately with operation identifier.
+
+[[busc_await]]
+//axl_voices axc_await
+{busc_await}::
+Blocking wait on a submitted operation until completion.
+Polls operation status until done, then returns result.
+
+[[busc_show]]
+//axl_voices axc_show
+{busc_show}::
+Presentation of operational facts to the console.
+Formatted output via echo or printf to stdout.
+
+[[busc_prompt]]
+//axl_voices axc_prompt
+{busc_prompt}::
+Interactive request for human operator confirmation before proceeding.
+Displays message and waits for user input.
+Script pauses until response received; continues on affirmative, triggers
+{busc_fatal}
+on decline or timeout.
+
+=== Handbook Control Voicings
+
+Control terms for BUK procedures executed by a human operator following a rendered document while interacting with external systems (web console, GUI, remote shell).
+Each term voices the corresponding
+{xref_AXLA}
+control motif.
+
+[[bush_fatal]]
+//axl_voices axc_fatal
+{bush_fatal}::
+Instruction to abort the procedure immediately.
+Human must not proceed. May require rollback or support contact.
+
+[[bush_warn]]
+//axl_voices axc_warn
+{bush_warn}::
+Cautionary note requiring human acknowledgment before proceeding.
+Highlights potential issues or irreversible actions.
+
+[[bush_store]]
+//axl_voices axc_store
+{bush_store}::
+Instruction for human to record a value for later use.
+Typically written down, copied to clipboard, or saved to a file.
+
+[[bush_require]]
+//axl_voices axc_require
+{bush_require}::
+Verification checkpoint where human confirms a condition before proceeding.
+May involve visual inspection or testing in an external UI.
+
+[[bush_show]]
+//axl_voices axc_show
+{bush_show}::
+Presentation of an informational fact to the operator within the rendered document.
+Highlighted or set off from procedural prose.
 
 == Regime Configuration
 
