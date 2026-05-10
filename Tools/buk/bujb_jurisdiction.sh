@@ -218,13 +218,12 @@ BUJB_winreg_profilelist_subpath='SOFTWARE\Microsoft\Windows NT\CurrentVersion\Pr
 zbujb_kindle() {
   test -z "${ZBUJB_KINDLED:-}" || buc_die "Module bujb already kindled"
 
-  # Per-call captures for caparison-windows phases (autonumbered).
-  # Each ssh call gets numbered stdout/stderr at
-  # ${PREFIX}${idx}_${label}_stdout.txt — phase1's stdout is re-read post
-  # call by verify_directives, so the caller bumps the counter, builds the
-  # path locally, and passes it to exec_* and verify_directives. Phase 3's
-  # simple admin_powershell calls go through zbujb_caparison_windows_run.
-  readonly ZBUJB_CAPARISON_WINDOWS_PREFIX="${BURD_TEMP_DIR}/bujb_caparison_windows_"
+  # Per-call captures for caparison (autonumbered). Each ssh call gets
+  # numbered stdout/stderr at ${PREFIX}${idx}_${label}_stdout.txt. Most
+  # callsites route through zbujb_caparison_run; caparison-windows phase
+  # 1/2 callers bump the counter and build paths locally because
+  # verify_directives must re-read phase 1's stdout after the call.
+  readonly ZBUJB_CAPARISON_PREFIX="${BURD_TEMP_DIR}/bujb_caparison_"
 
   # stat captures (per-key-slot for parallel forensics on resolve).
   readonly ZBUJB_STAT_STDOUT_PRIV="${BURD_TEMP_DIR}/bujb_stat_priv_stdout.txt"
@@ -280,11 +279,6 @@ zbujb_kindle() {
   # make a single shared pair sufficient).
   readonly ZBUJB_INVIGILATE_STDOUT="${BURD_TEMP_DIR}/bujb_invigilate_stdout.txt"
   readonly ZBUJB_INVIGILATE_STDERR="${BURD_TEMP_DIR}/bujb_invigilate_stderr.txt"
-
-  # Caparison per-step stdout/stderr captures — last sub-step's evidence
-  # preserved at die time, matching invigilate's shared-pair pattern.
-  readonly ZBUJB_CAPARISON_STDOUT="${BURD_TEMP_DIR}/bujb_caparison_stdout.txt"
-  readonly ZBUJB_CAPARISON_STDERR="${BURD_TEMP_DIR}/bujb_caparison_stderr.txt"
 
   # Single shared emission counter across all _run wrappers — file numbers
   # are continuous across originating functions so chronological order is
@@ -733,13 +727,13 @@ zbujb_obliterate_run() {
   return ${z_exit}
 }
 
-zbujb_caparison_windows_run() {
+zbujb_caparison_run() {
   local -r z_label="${1:-}"
   shift
   local z_idx_str
   zbujb_emit_index_advance z_idx_str
-  local -r z_out="${ZBUJB_CAPARISON_WINDOWS_PREFIX}${z_idx_str}_${z_label}_stdout.txt"
-  local -r z_err="${ZBUJB_CAPARISON_WINDOWS_PREFIX}${z_idx_str}_${z_label}_stderr.txt"
+  local -r z_out="${ZBUJB_CAPARISON_PREFIX}${z_idx_str}_${z_label}_stdout.txt"
+  local -r z_err="${ZBUJB_CAPARISON_PREFIX}${z_idx_str}_${z_label}_stderr.txt"
   local z_exit=0
   "$@" > "${z_out}" 2> "${z_err}" || z_exit=$?
   zbujb_diag_dump_pair "${z_label}" "${z_out}" "${z_err}"
@@ -1535,8 +1529,8 @@ zbujb_caparison_windows_phase1() {
 
   local z_idx_chunk_a
   zbujb_emit_index_advance z_idx_chunk_a
-  local -r z_chunk_a_stdout="${ZBUJB_CAPARISON_WINDOWS_PREFIX}${z_idx_chunk_a}_phase1_chunkA_stdout.txt"
-  local -r z_chunk_a_stderr="${ZBUJB_CAPARISON_WINDOWS_PREFIX}${z_idx_chunk_a}_phase1_chunkA_stderr.txt"
+  local -r z_chunk_a_stdout="${ZBUJB_CAPARISON_PREFIX}${z_idx_chunk_a}_phase1_chunkA_stdout.txt"
+  local -r z_chunk_a_stderr="${ZBUJB_CAPARISON_PREFIX}${z_idx_chunk_a}_phase1_chunkA_stderr.txt"
   zbujb_caparison_windows_exec_with_password_fallback \
       "${z_chunk_a_stdout}"  \
       "${z_chunk_a_stderr}"  \
@@ -1602,8 +1596,8 @@ PS1
   buc_step "  [Phase 1] Chunk B: Restart-Service sshd (disconnect expected — exit code ignored)"
   local z_idx_chunk_b
   zbujb_emit_index_advance z_idx_chunk_b
-  local -r z_chunk_b_stdout="${ZBUJB_CAPARISON_WINDOWS_PREFIX}${z_idx_chunk_b}_phase1_chunkB_stdout.txt"
-  local -r z_chunk_b_stderr="${ZBUJB_CAPARISON_WINDOWS_PREFIX}${z_idx_chunk_b}_phase1_chunkB_stderr.txt"
+  local -r z_chunk_b_stdout="${ZBUJB_CAPARISON_PREFIX}${z_idx_chunk_b}_phase1_chunkB_stdout.txt"
+  local -r z_chunk_b_stderr="${ZBUJB_CAPARISON_PREFIX}${z_idx_chunk_b}_phase1_chunkB_stderr.txt"
   zbujb_caparison_windows_exec_with_password_fallback \
       "${z_chunk_b_stdout}"  \
       "${z_chunk_b_stderr}"  \
@@ -1625,8 +1619,8 @@ zbujb_caparison_windows_phase2() {
 
   local z_idx_phase2
   zbujb_emit_index_advance z_idx_phase2
-  local -r z_phase2_stdout="${ZBUJB_CAPARISON_WINDOWS_PREFIX}${z_idx_phase2}_phase2_stdout.txt"
-  local -r z_phase2_stderr="${ZBUJB_CAPARISON_WINDOWS_PREFIX}${z_idx_phase2}_phase2_stderr.txt"
+  local -r z_phase2_stdout="${ZBUJB_CAPARISON_PREFIX}${z_idx_phase2}_phase2_stdout.txt"
+  local -r z_phase2_stderr="${ZBUJB_CAPARISON_PREFIX}${z_idx_phase2}_phase2_stderr.txt"
   zbujb_caparison_windows_exec_keyonly  \
       "${z_phase2_stdout}"  \
       "${z_phase2_stderr}"  \
@@ -1642,7 +1636,7 @@ PS1
 # canonical WSL distribution, disable powercfg sleep/hibernate, and set
 # the Tailscale service to Automatic + running. WSL stage delegates to
 # zbujb_caparison_windows_stage_wsl. Each remaining op is one
-# zbujb_admin_powershell call routed through zbujb_caparison_windows_run
+# zbujb_admin_powershell call routed through zbujb_caparison_run
 # so per-call evidence lands at the autonumbered file. On failure the
 # wrapper's diag preview already names the file; buc_die just adds the
 # BUSJHW pointer.
@@ -1653,27 +1647,27 @@ zbujb_caparison_windows_phase3() {
   zbujb_caparison_windows_stage_wsl
 
   buc_step "  [Phase 3] Disable standby (AC)"
-  zbujb_caparison_windows_run "powercfg-standby-ac" \
+  zbujb_caparison_run "powercfg-standby-ac" \
       zbujb_admin_powershell 'powercfg /change standby-timeout-ac 0' \
     || buc_die "Phase 3: powercfg /change standby-timeout-ac 0 failed — BUSJHW (Modern Standby AoAc override may demote to no-op)"
 
   buc_step "  [Phase 3] Disable standby (DC)"
-  zbujb_caparison_windows_run "powercfg-standby-dc" \
+  zbujb_caparison_run "powercfg-standby-dc" \
       zbujb_admin_powershell 'powercfg /change standby-timeout-dc 0' \
     || buc_die "Phase 3: powercfg /change standby-timeout-dc 0 failed — BUSJHW (Modern Standby AoAc override may demote to no-op)"
 
   buc_step "  [Phase 3] Disable hibernate"
-  zbujb_caparison_windows_run "powercfg-hibernate-off" \
+  zbujb_caparison_run "powercfg-hibernate-off" \
       zbujb_admin_powershell 'powercfg /hibernate off' \
     || buc_die "Phase 3: powercfg /hibernate off failed — BUSJHW (Modern Standby AoAc override may demote to no-op)"
 
   buc_step "  [Phase 3] Set Tailscale service StartupType Automatic"
-  zbujb_caparison_windows_run "tailscale-set-service" \
+  zbujb_caparison_run "tailscale-set-service" \
       zbujb_admin_powershell 'Set-Service -Name Tailscale -StartupType Automatic' \
     || buc_die "Phase 3: Set-Service -Name Tailscale -StartupType Automatic failed — BUSJHW (Tailscale install + Run-Unattended + first auth)"
 
   buc_step "  [Phase 3] Start Tailscale service"
-  zbujb_caparison_windows_run "tailscale-start-service" \
+  zbujb_caparison_run "tailscale-start-service" \
       zbujb_admin_powershell 'Start-Service -Name Tailscale' \
     || buc_die "Phase 3: Start-Service -Name Tailscale failed — BUSJHW (Tailscale install + Run-Unattended + first auth)"
 }
@@ -2095,34 +2089,24 @@ bujb_caparison_macos() {
   buc_step "Caparison-macos: ${BUZ_FOLIO} (${BURN_HOST})"
 
   buc_step "  Open admin SSH (key-only)"
-  zbujb_admin_exec_native 'exit 0' \
-      > "${ZBUJB_CAPARISON_STDOUT}" \
-      2> "${ZBUJB_CAPARISON_STDERR}" \
-    || buc_die "Caparison-macos: admin SSH (key-only) failed (see ${ZBUJB_CAPARISON_STDERR}) — operator handbook BUSJHM (ssh-copy-id; admin pubkey placement)"
+  zbujb_caparison_run "ssh-probe" zbujb_admin_exec_native 'exit 0' \
+    || buc_die "Caparison-macos: admin SSH (key-only) failed — operator handbook BUSJHM (ssh-copy-id; admin pubkey placement)"
 
   buc_step "  Enable Remote Login"
-  zbujb_admin_exec_native 'sudo -n systemsetup -setremotelogin on' \
-      > "${ZBUJB_CAPARISON_STDOUT}" \
-      2> "${ZBUJB_CAPARISON_STDERR}" \
-    || buc_die "Caparison-macos: systemsetup -setremotelogin on failed (see ${ZBUJB_CAPARISON_STDERR}) — operator handbook BUSJHM (sudo NOPASSWD)"
+  zbujb_caparison_run "remotelogin-on" zbujb_admin_exec_native 'sudo -n systemsetup -setremotelogin on' \
+    || buc_die "Caparison-macos: systemsetup -setremotelogin on failed — operator handbook BUSJHM (sudo NOPASSWD)"
 
   buc_step "  Disable sleep, displaysleep, hibernate via pmset"
-  zbujb_admin_exec_native 'sudo -n pmset -a sleep 0 displaysleep 0 hibernatemode 0' \
-      > "${ZBUJB_CAPARISON_STDOUT}" \
-      2> "${ZBUJB_CAPARISON_STDERR}" \
-    || buc_die "Caparison-macos: pmset -a sleep 0 displaysleep 0 hibernatemode 0 failed (see ${ZBUJB_CAPARISON_STDERR}) — operator handbook BUSJHM"
+  zbujb_caparison_run "pmset-disable" zbujb_admin_exec_native 'sudo -n pmset -a sleep 0 displaysleep 0 hibernatemode 0' \
+    || buc_die "Caparison-macos: pmset -a sleep 0 displaysleep 0 hibernatemode 0 failed — operator handbook BUSJHM"
 
   buc_step "  Enable tailscaled launchd service"
-  zbujb_admin_exec_native 'sudo -n launchctl enable system/com.tailscale.tailscaled' \
-      > "${ZBUJB_CAPARISON_STDOUT}" \
-      2> "${ZBUJB_CAPARISON_STDERR}" \
-    || buc_die "Caparison-macos: launchctl enable system/com.tailscale.tailscaled failed (see ${ZBUJB_CAPARISON_STDERR}) — operator handbook BUSJHM (Tailscale install + first-run auth)"
+  zbujb_caparison_run "tailscale-enable" zbujb_admin_exec_native 'sudo -n launchctl enable system/com.tailscale.tailscaled' \
+    || buc_die "Caparison-macos: launchctl enable system/com.tailscale.tailscaled failed — operator handbook BUSJHM (Tailscale install + first-run auth)"
 
   buc_step "  Start tailscaled launchd service"
-  zbujb_admin_exec_native 'sudo -n launchctl kickstart -k system/com.tailscale.tailscaled' \
-      > "${ZBUJB_CAPARISON_STDOUT}" \
-      2> "${ZBUJB_CAPARISON_STDERR}" \
-    || buc_die "Caparison-macos: launchctl kickstart -k system/com.tailscale.tailscaled failed (see ${ZBUJB_CAPARISON_STDERR}) — operator handbook BUSJHM (Tailscale install + first-run auth)"
+  zbujb_caparison_run "tailscale-kickstart" zbujb_admin_exec_native 'sudo -n launchctl kickstart -k system/com.tailscale.tailscaled' \
+    || buc_die "Caparison-macos: launchctl kickstart -k system/com.tailscale.tailscaled failed — operator handbook BUSJHM (Tailscale install + first-run auth)"
 
   buc_step "  Post-completion check: invigilate-macos"
   bujb_invigilate_macos
@@ -2141,28 +2125,20 @@ bujb_caparison_linux() {
   buc_step "Caparison-linux: ${BUZ_FOLIO} (${BURN_HOST})"
 
   buc_step "  Open admin SSH (key-only)"
-  zbujb_admin_exec_native 'exit 0' \
-      > "${ZBUJB_CAPARISON_STDOUT}" \
-      2> "${ZBUJB_CAPARISON_STDERR}" \
-    || buc_die "Caparison-linux: admin SSH (key-only) failed (see ${ZBUJB_CAPARISON_STDERR}) — operator handbook BUSJHL (ssh-copy-id; admin pubkey placement)"
+  zbujb_caparison_run "ssh-probe" zbujb_admin_exec_native 'exit 0' \
+    || buc_die "Caparison-linux: admin SSH (key-only) failed — operator handbook BUSJHL (ssh-copy-id; admin pubkey placement)"
 
   buc_step "  Enable and start sshd"
-  zbujb_admin_exec_native 'sudo -n systemctl enable --now sshd' \
-      > "${ZBUJB_CAPARISON_STDOUT}" \
-      2> "${ZBUJB_CAPARISON_STDERR}" \
-    || buc_die "Caparison-linux: systemctl enable --now sshd failed (see ${ZBUJB_CAPARISON_STDERR}) — operator handbook BUSJHL (apt install openssh-server on minimal distros)"
+  zbujb_caparison_run "sshd-enable" zbujb_admin_exec_native 'sudo -n systemctl enable --now sshd' \
+    || buc_die "Caparison-linux: systemctl enable --now sshd failed — operator handbook BUSJHL (apt install openssh-server on minimal distros)"
 
   buc_step "  Mask sleep/suspend/hibernate/hybrid-sleep targets"
-  zbujb_admin_exec_native 'sudo -n systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target' \
-      > "${ZBUJB_CAPARISON_STDOUT}" \
-      2> "${ZBUJB_CAPARISON_STDERR}" \
-    || buc_die "Caparison-linux: systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target failed (see ${ZBUJB_CAPARISON_STDERR}) — operator handbook BUSJHL"
+  zbujb_caparison_run "sleep-mask" zbujb_admin_exec_native 'sudo -n systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target' \
+    || buc_die "Caparison-linux: systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target failed — operator handbook BUSJHL"
 
   buc_step "  Enable and start tailscaled"
-  zbujb_admin_exec_native 'sudo -n systemctl enable --now tailscaled' \
-      > "${ZBUJB_CAPARISON_STDOUT}" \
-      2> "${ZBUJB_CAPARISON_STDERR}" \
-    || buc_die "Caparison-linux: systemctl enable --now tailscaled failed (see ${ZBUJB_CAPARISON_STDERR}) — operator handbook BUSJHL (Tailscale install + first-run 'tailscale up')"
+  zbujb_caparison_run "tailscaled-enable" zbujb_admin_exec_native 'sudo -n systemctl enable --now tailscaled' \
+    || buc_die "Caparison-linux: systemctl enable --now tailscaled failed — operator handbook BUSJHL (Tailscale install + first-run 'tailscale up')"
 
   buc_step "  Post-completion check: invigilate-linux"
   bujb_invigilate_linux
