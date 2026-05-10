@@ -281,6 +281,11 @@ zbujb_kindle() {
   readonly ZBUJB_INVIGILATE_STDOUT="${BURD_TEMP_DIR}/bujb_invigilate_stdout.txt"
   readonly ZBUJB_INVIGILATE_STDERR="${BURD_TEMP_DIR}/bujb_invigilate_stderr.txt"
 
+  # Caparison per-step stdout/stderr captures — last sub-step's evidence
+  # preserved at die time, matching invigilate's shared-pair pattern.
+  readonly ZBUJB_CAPARISON_STDOUT="${BURD_TEMP_DIR}/bujb_caparison_stdout.txt"
+  readonly ZBUJB_CAPARISON_STDERR="${BURD_TEMP_DIR}/bujb_caparison_stderr.txt"
+
   # Single shared emission counter across all _run wrappers — file numbers
   # are continuous across originating functions so chronological order is
   # readable from the embedded number even when prefixes differ.
@@ -2079,6 +2084,129 @@ bujb_invigilate_linux() {
          "caparison-linux (BUSJCL)"
 
   buc_step "Invigilate-linux succeeded"
+}
+
+######################################################################
+# Public: Caparison verbs (BUSJC{M,L} — admin host posture establishment)
+#
+# Caparison covers the idempotent admin-shell remainder of host posture
+# (Remote Login / sshd enable, sleep/hibernate disable, Tailscale service
+# auto-start). Operator handbook (BUSJH{M,L}) owns ssh-copy-id and the
+# Tailscale install + first-run auth. Each verb closes with a
+# post-completion invigilate-{platform} check that surfaces drift.
+
+# zbujb_caparison_op_die OP HANDBOOK -- uniform fatal for caparison
+# host-posture operation failures, pointing at handbook scope.
+zbujb_caparison_op_die() {
+  local -r z_op="${1:-}"
+  local -r z_handbook="${2:-}"
+  buc_die "Caparison op failed: ${z_op}
+  Evidence:    ${ZBUJB_CAPARISON_STDOUT} / ${ZBUJB_CAPARISON_STDERR}
+  Remediation: ${z_handbook}"
+}
+
+# bujb_caparison_macos -- BUSJCM admin host-posture ceremony.
+bujb_caparison_macos() {
+  zbujb_sentinel
+  test "${ZBUJB_RESOLVED:-}" = "1" \
+    || buc_die "bujb_caparison_macos: call bujb_resolve_investiture first"
+  test "${BURN_PLATFORM}" = "bubep_mac" \
+    || buc_die "bujb_caparison_macos: requires bubep_mac, got '${BURN_PLATFORM}'"
+
+  buc_step "Caparison-macos: ${BUZ_FOLIO} (${BURN_HOST})"
+
+  buc_step "  Open admin SSH (key-only)"
+  zbujb_admin_exec_native 'exit 0' \
+      > "${ZBUJB_CAPARISON_STDOUT}" \
+      2> "${ZBUJB_CAPARISON_STDERR}" \
+    || zbujb_caparison_op_die \
+         "admin SSH (key-only)" \
+         "operator handbook BUSJHM (ssh-copy-id; admin pubkey placement)"
+
+  buc_step "  Enable Remote Login"
+  zbujb_admin_exec_native 'sudo -n systemsetup -setremotelogin on' \
+      > "${ZBUJB_CAPARISON_STDOUT}" \
+      2> "${ZBUJB_CAPARISON_STDERR}" \
+    || zbujb_caparison_op_die \
+         "systemsetup -setremotelogin on" \
+         "operator handbook BUSJHM (sudo NOPASSWD)"
+
+  buc_step "  Disable sleep, displaysleep, hibernate via pmset"
+  zbujb_admin_exec_native 'sudo -n pmset -a sleep 0 displaysleep 0 hibernatemode 0' \
+      > "${ZBUJB_CAPARISON_STDOUT}" \
+      2> "${ZBUJB_CAPARISON_STDERR}" \
+    || zbujb_caparison_op_die \
+         "pmset -a sleep 0 displaysleep 0 hibernatemode 0" \
+         "operator handbook BUSJHM"
+
+  buc_step "  Enable tailscaled launchd service"
+  zbujb_admin_exec_native 'sudo -n launchctl enable system/com.tailscale.tailscaled' \
+      > "${ZBUJB_CAPARISON_STDOUT}" \
+      2> "${ZBUJB_CAPARISON_STDERR}" \
+    || zbujb_caparison_op_die \
+         "launchctl enable system/com.tailscale.tailscaled" \
+         "operator handbook BUSJHM (Tailscale install + first-run auth)"
+
+  buc_step "  Start tailscaled launchd service"
+  zbujb_admin_exec_native 'sudo -n launchctl kickstart -k system/com.tailscale.tailscaled' \
+      > "${ZBUJB_CAPARISON_STDOUT}" \
+      2> "${ZBUJB_CAPARISON_STDERR}" \
+    || zbujb_caparison_op_die \
+         "launchctl kickstart -k system/com.tailscale.tailscaled" \
+         "operator handbook BUSJHM (Tailscale install + first-run auth)"
+
+  buc_step "  Post-completion check: invigilate-macos"
+  bujb_invigilate_macos
+
+  buc_step "Caparison-macos succeeded"
+}
+
+# bujb_caparison_linux -- BUSJCL admin host-posture ceremony.
+bujb_caparison_linux() {
+  zbujb_sentinel
+  test "${ZBUJB_RESOLVED:-}" = "1" \
+    || buc_die "bujb_caparison_linux: call bujb_resolve_investiture first"
+  test "${BURN_PLATFORM}" = "bubep_linux" \
+    || buc_die "bujb_caparison_linux: requires bubep_linux, got '${BURN_PLATFORM}'"
+
+  buc_step "Caparison-linux: ${BUZ_FOLIO} (${BURN_HOST})"
+
+  buc_step "  Open admin SSH (key-only)"
+  zbujb_admin_exec_native 'exit 0' \
+      > "${ZBUJB_CAPARISON_STDOUT}" \
+      2> "${ZBUJB_CAPARISON_STDERR}" \
+    || zbujb_caparison_op_die \
+         "admin SSH (key-only)" \
+         "operator handbook BUSJHL (ssh-copy-id; admin pubkey placement)"
+
+  buc_step "  Enable and start sshd"
+  zbujb_admin_exec_native 'sudo -n systemctl enable --now sshd' \
+      > "${ZBUJB_CAPARISON_STDOUT}" \
+      2> "${ZBUJB_CAPARISON_STDERR}" \
+    || zbujb_caparison_op_die \
+         "systemctl enable --now sshd" \
+         "operator handbook BUSJHL (apt install openssh-server on minimal distros)"
+
+  buc_step "  Mask sleep/suspend/hibernate/hybrid-sleep targets"
+  zbujb_admin_exec_native 'sudo -n systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target' \
+      > "${ZBUJB_CAPARISON_STDOUT}" \
+      2> "${ZBUJB_CAPARISON_STDERR}" \
+    || zbujb_caparison_op_die \
+         "systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target" \
+         "operator handbook BUSJHL"
+
+  buc_step "  Enable and start tailscaled"
+  zbujb_admin_exec_native 'sudo -n systemctl enable --now tailscaled' \
+      > "${ZBUJB_CAPARISON_STDOUT}" \
+      2> "${ZBUJB_CAPARISON_STDERR}" \
+    || zbujb_caparison_op_die \
+         "systemctl enable --now tailscaled" \
+         "operator handbook BUSJHL (Tailscale install + first-run 'tailscale up')"
+
+  buc_step "  Post-completion check: invigilate-linux"
+  bujb_invigilate_linux
+
+  buc_step "Caparison-linux succeeded"
 }
 
 # eof

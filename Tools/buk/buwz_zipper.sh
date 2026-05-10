@@ -94,6 +94,10 @@ zbuwz_kindle() {
   # Jurisdiction operational — fenestrate (bujb_cli.sh)
   buz_enroll BUWZ_JP_FENESTRATE       "buw-jpF"   "${z_mod}" "bujb_fenestrate_command" "param1"  "Fenestrate — admin SSH trust + sshd_config harden (Windows)"
 
+  # Jurisdiction operational — caparison ceremonies (bujb_cli.sh)
+  buz_enroll BUWZ_JP_CAPARISON_MAC    "buw-jpCM"  "${z_mod}" "bujb_caparison_macos_command" "param1"  "Caparison — admin host posture (Remote Login, pmset, tailscaled) on a bubep_mac node"
+  buz_enroll BUWZ_JP_CAPARISON_LIN    "buw-jpCL"  "${z_mod}" "bujb_caparison_linux_command" "param1"  "Caparison — admin host posture (sshd, sleep mask, tailscaled) on a bubep_linux node"
+
   # Jurisdiction operational — privileged SSH pass-through (bujb_cli.sh)
   buz_enroll BUWZ_JP_PRIVILEGED_SSH   "buw-jpS"   "${z_mod}" "bujb_privileged_ssh_command" "param1"  "Privileged SSH — run a command on a node as BURP_PRIVILEGED_USER"
 

@@ -145,6 +145,28 @@ bujb_privileged_ssh_command() {
   bujb_privileged_ssh "$@"
 }
 
+# bujb_caparison_macos_command - caparison ceremony, macOS admin host posture.
+bujb_caparison_macos_command() {
+  zbujb_sentinel
+  buc_doc_brief "Caparison — admin host posture for a bubep_mac node (Remote Login, pmset, tailscaled)"
+  buc_doc_shown || return 0
+
+  test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
+  bujb_resolve_investiture
+  bujb_caparison_macos
+}
+
+# bujb_caparison_linux_command - caparison ceremony, Linux admin host posture.
+bujb_caparison_linux_command() {
+  zbujb_sentinel
+  buc_doc_brief "Caparison — admin host posture for a bubep_linux node (sshd, sleep mask, tailscaled)"
+  buc_doc_shown || return 0
+
+  test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
+  bujb_resolve_investiture
+  bujb_caparison_linux
+}
+
 # bujb_wsl_install_command - idempotently provision the canonical WSL distro.
 bujb_wsl_install_command() {
   zbujb_sentinel
