@@ -202,6 +202,17 @@ zbujb_kindle() {
   # readable from the embedded number even when prefixes differ.
   z_bujb_emit_index=0
 
+  # SSH base options shared by every ssh invocation in this module:
+  # IdentitiesOnly pins the key to ssh -i; StrictHostKeyChecking=accept-new
+  # records first-contact host keys without prompting. BatchMode,
+  # ConnectTimeout, and PreferredAuthentications vary per call site so they
+  # remain inline at each ssh — visible to security review.
+  ZBUJB_SSH_BASE_ARGS=(
+    -o IdentitiesOnly=yes
+    -o StrictHostKeyChecking=accept-new
+  )
+  readonly ZBUJB_SSH_BASE_ARGS
+
   readonly ZBUJB_KINDLED=1
 }
 
@@ -412,12 +423,11 @@ zbujb_admin_exec() {
     w) z_remote_invoker="wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash" ;;
   esac
 
-  ssh -i "${BURP_PRIVILEGED_KEY_FILE}"     \
-      -o IdentitiesOnly=yes                         \
-      -o BatchMode=yes                              \
-      -o StrictHostKeyChecking=accept-new           \
-      -o ConnectTimeout=15                          \
-      "${BURP_PRIVILEGED_USER}@${BURN_HOST}" \
+  ssh -i "${BURP_PRIVILEGED_KEY_FILE}"        \
+      "${ZBUJB_SSH_BASE_ARGS[@]}"             \
+      -o BatchMode=yes                        \
+      -o ConnectTimeout=15                    \
+      "${BURP_PRIVILEGED_USER}@${BURN_HOST}"  \
       "${z_remote_invoker} -c \"${z_body_escaped}\""
 }
 
@@ -437,12 +447,11 @@ zbujb_admin_powershell() {
     || buc_die "zbujb_admin_powershell: PowerShell command body required"
   local -r z_body="$*"
 
-  ssh -i "${BURP_PRIVILEGED_KEY_FILE}"            \
-      -o IdentitiesOnly=yes                       \
-      -o BatchMode=yes                             \
-      -o StrictHostKeyChecking=accept-new          \
-      -o ConnectTimeout=15                         \
-      "${BURP_PRIVILEGED_USER}@${BURN_HOST}"       \
+  ssh -i "${BURP_PRIVILEGED_KEY_FILE}"        \
+      "${ZBUJB_SSH_BASE_ARGS[@]}"             \
+      -o BatchMode=yes                        \
+      -o ConnectTimeout=15                    \
+      "${BURP_PRIVILEGED_USER}@${BURN_HOST}"  \
       "powershell -NoProfile -Command \"\$ErrorActionPreference = 'Stop'; \$env:WSL_UTF8 = 1; \$LASTEXITCODE = 0; ${z_body}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE }\""
 }
 
@@ -467,12 +476,11 @@ zbujb_powershell_capture() {
   esac
 
   local z_out z_exit=0
-  z_out=$(ssh -i "${z_key}"                          \
-              -o IdentitiesOnly=yes                  \
-              -o BatchMode=yes                       \
-              -o StrictHostKeyChecking=accept-new    \
-              -o ConnectTimeout=15                   \
-              "${z_user}@${BURN_HOST}"               \
+  z_out=$(ssh -i "${z_key}"                      \
+              "${ZBUJB_SSH_BASE_ARGS[@]}"        \
+              -o BatchMode=yes                   \
+              -o ConnectTimeout=15               \
+              "${z_user}@${BURN_HOST}"           \
               "powershell -NoProfile -Command \"\$ErrorActionPreference = 'Stop'; \$env:WSL_UTF8 = 1; \$LASTEXITCODE = 0; ${z_body}\"") \
     || z_exit=$?
 
@@ -494,10 +502,9 @@ zbujb_workload_ssh() {
     || buc_die "zbujb_workload_ssh: REMOTE_CMD required"
   local -r z_remote_cmd="$*"
 
-  ssh -i "${BURP_WORKLOAD_KEY_FILE}"      \
-      -o IdentitiesOnly=yes                \
+  ssh -i "${BURP_WORKLOAD_KEY_FILE}"       \
+      "${ZBUJB_SSH_BASE_ARGS[@]}"          \
       -o BatchMode=yes                     \
-      -o StrictHostKeyChecking=accept-new  \
       -o ConnectTimeout=15                 \
       "${BUJB_workload_user}@${BURN_HOST}" \
       "${z_remote_cmd}"
@@ -1190,9 +1197,8 @@ zbujb_garrison_step6_validate() {
 
   local z_exit=0
   zbujb_validate_run "knock-ssh" ssh -i "${BURP_WORKLOAD_KEY_FILE}" \
-      -o IdentitiesOnly=yes                                          \
+      "${ZBUJB_SSH_BASE_ARGS[@]}"                                    \
       -o BatchMode=yes                                               \
-      -o StrictHostKeyChecking=accept-new                            \
       -o ConnectTimeout=10                                           \
       "${BUJB_workload_user}@${BURN_HOST}"                           \
       true                                                           \
@@ -1288,15 +1294,14 @@ zbujb_fenestrate_exec_with_password_fallback() {
   test -n "${z_stdout_file}" || buc_die "zbujb_fenestrate_exec_with_password_fallback: stdout_file required"
   test -n "${z_stderr_file}" || buc_die "zbujb_fenestrate_exec_with_password_fallback: stderr_file required"
 
-  ssh -i "${BURP_PRIVILEGED_KEY_FILE}"            \
-      -o IdentitiesOnly=yes                                \
-      -o BatchMode=no                                      \
-      -o PreferredAuthentications=publickey,password       \
-      -o StrictHostKeyChecking=accept-new                  \
-      -o ConnectTimeout=15                                 \
-      "${BURP_PRIVILEGED_USER}@${BURN_HOST}" \
-      'powershell -NoProfile -File -'                      \
-      > "${z_stdout_file}"                                 \
+  ssh -i "${BURP_PRIVILEGED_KEY_FILE}"           \
+      "${ZBUJB_SSH_BASE_ARGS[@]}"                \
+      -o BatchMode=no                            \
+      -o PreferredAuthentications=publickey,password \
+      -o ConnectTimeout=15                       \
+      "${BURP_PRIVILEGED_USER}@${BURN_HOST}"     \
+      'powershell -NoProfile -File -'            \
+      > "${z_stdout_file}"                       \
       2> "${z_stderr_file}"
 }
 
@@ -1309,15 +1314,14 @@ zbujb_fenestrate_exec_keyonly() {
   test -n "${z_stdout_file}" || buc_die "zbujb_fenestrate_exec_keyonly: stdout_file required"
   test -n "${z_stderr_file}" || buc_die "zbujb_fenestrate_exec_keyonly: stderr_file required"
 
-  ssh -i "${BURP_PRIVILEGED_KEY_FILE}"            \
-      -o IdentitiesOnly=yes                                \
-      -o BatchMode=yes                                     \
-      -o PreferredAuthentications=publickey                \
-      -o StrictHostKeyChecking=accept-new                  \
-      -o ConnectTimeout=15                                 \
-      "${BURP_PRIVILEGED_USER}@${BURN_HOST}" \
-      'powershell -NoProfile -File -'                      \
-      > "${z_stdout_file}"                                 \
+  ssh -i "${BURP_PRIVILEGED_KEY_FILE}"           \
+      "${ZBUJB_SSH_BASE_ARGS[@]}"                \
+      -o BatchMode=yes                           \
+      -o PreferredAuthentications=publickey      \
+      -o ConnectTimeout=15                       \
+      "${BURP_PRIVILEGED_USER}@${BURN_HOST}"     \
+      'powershell -NoProfile -File -'            \
+      > "${z_stdout_file}"                       \
       2> "${z_stderr_file}"
 }
 
@@ -1397,6 +1401,18 @@ zbujb_fenestrate_phase1() {
 
   buc_step "  [Phase 1] Chunk A: pubkey + icacls + sshd_config + sshd -t + emit (operator may be prompted for admin password on first run)"
 
+  # Build the PS hashtable block from BUJB_sshd_hardening so the bash-side
+  # tinder is the sole source of truth for directive names + expected
+  # values; phase 2's verify and the PS-side rewrite cannot drift.
+  local z_ps_directives_block=""
+  local z_pair="" z_dir="" z_val=""
+  while IFS= read -r z_pair; do
+    test -n "${z_pair}" || continue
+    z_dir="${z_pair%% *}"
+    z_val="${z_pair#* }"
+    z_ps_directives_block+="  '${z_dir}' = '${z_val}'"$'\n'
+  done <<<"${BUJB_sshd_hardening}"
+
   zbujb_fenestrate_exec_with_password_fallback \
       "${ZBUJB_FENESTRATE_PHASE1_STDOUT}"      \
       "${ZBUJB_FENESTRATE_PHASE1_STDERR}"      \
@@ -1424,10 +1440,7 @@ if (\$LASTEXITCODE -ne 0) { throw "icacls failed (exit \$LASTEXITCODE)" }
 # each directive (commented or otherwise) and drop subsequent duplicates;
 # append directives that are absent. Convergent on re-run.
 \$directives = [ordered]@{
-  'PubkeyAuthentication'   = 'yes'
-  'PasswordAuthentication' = 'no'
-  'PermitEmptyPasswords'   = 'no'
-}
+${z_ps_directives_block}}
 
 \$lines = @(Get-Content \$sshConfig)
 \$out   = New-Object System.Collections.Generic.List[string]
@@ -1587,13 +1600,12 @@ bujb_privileged_ssh() {
   buc_step "Privileged SSH: ${BURP_PRIVILEGED_USER}@${BURN_HOST} (${BUZ_FOLIO})"
 
   local z_exit=0
-  ssh -i "${BURP_PRIVILEGED_KEY_FILE}"            \
-      -o IdentitiesOnly=yes                       \
-      -o BatchMode=yes                            \
-      -o StrictHostKeyChecking=accept-new         \
-      -o ConnectTimeout=15                        \
-      "${BURP_PRIVILEGED_USER}@${BURN_HOST}"      \
-      "$@"                                        \
+  ssh -i "${BURP_PRIVILEGED_KEY_FILE}"           \
+      "${ZBUJB_SSH_BASE_ARGS[@]}"                \
+      -o BatchMode=yes                           \
+      -o ConnectTimeout=15                       \
+      "${BURP_PRIVILEGED_USER}@${BURN_HOST}"     \
+      "$@"                                       \
     || z_exit=$?
   return "${z_exit}"
 }
