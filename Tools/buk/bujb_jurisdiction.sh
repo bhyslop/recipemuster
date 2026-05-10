@@ -267,6 +267,15 @@ zbujb_check_key_file() {
 # as the I-have-been-validated sentinel. Callers reference the regime vars
 # directly (BURP_*, BURN_*, BURC_*); no separate published namespace.
 # Single-call-per-process; subsequent calls die.
+#
+# BCG deviation: ZBUJB_RESOLVED is a kindle-shaped (SCREAMING + readonly)
+# constant set outside zbujb_kindle. The deviation is load-bearing —
+# resolve-investiture runs ssh-keygen dry-loads against private keys, which
+# kindle cannot do (kindle establishes module state at sourcing time, not
+# after BURP regime enforcement). This matches the regime archetype's
+# "enforce after kindle, lock after enforce" pattern (BCG line 113); we
+# just spell the lock as a discrete sentinel because there's no enrolled-
+# variable set to readonly in this module.
 bujb_resolve_investiture() {
   zbujb_sentinel
   zburc_sentinel
@@ -336,7 +345,6 @@ zbujb_garrison_assert_platform() {
 zbujb_workload_home_capture() {
   zbujb_sentinel
   local z_letter="${1:-}"
-  local z_wlu="${BUJB_workload_user}"
   case "${z_letter}" in
     b)
       case "${BURN_PLATFORM}" in
@@ -578,8 +586,9 @@ zbujb_w_init_run() {
   return ${z_exit}
 }
 
-# zbujb_obliterate_windows_namespaces WLU -- run the four-namespace
-# Windows obliterate sequence as a series of atomic PowerShell calls.
+# zbujb_obliterate_windows_namespaces -- run the four-namespace Windows
+# obliterate sequence as a series of atomic PowerShell calls. Operates on
+# BUJB_workload_user (the project-wide canonical workload identity).
 # Each PS call does ONE thing: a probe (emits raw text) or a destructive
 # operation (Remove-LocalUser / Remove-Item / wsl.exe userdel). All
 # conditional logic lives bash-side via `test ... || { … }` per BCG.
@@ -592,9 +601,6 @@ zbujb_w_init_run() {
 # (see [diag/baseline] for known-good control reference).
 zbujb_obliterate_windows_namespaces() {
   zbujb_sentinel
-  local -r z_wlu="${1:-}"
-  test -n "${z_wlu}" \
-    || buc_die "zbujb_obliterate_windows_namespaces: workload user required"
 
   local z_state
 
@@ -611,8 +617,8 @@ zbujb_obliterate_windows_namespaces() {
 
   # SAM entry — Get-LocalUser emits object table if present, empty if
   # absent (SilentlyContinue swallows the not-found error).
-  buc_step "    [SAM] Probe Windows local user (${z_wlu})"
-  zbujb_admin_powershell "Get-LocalUser -Name '${z_wlu}' -ErrorAction SilentlyContinue" \
+  buc_step "    [SAM] Probe Windows local user (${BUJB_workload_user})"
+  zbujb_admin_powershell "Get-LocalUser -Name '${BUJB_workload_user}' -ErrorAction SilentlyContinue" \
       > "${ZBUJB_OBLITERATE_STDOUT}" \
       2> "${ZBUJB_OBLITERATE_STDERR}" \
     || buc_die "SAM probe failed — see ${ZBUJB_OBLITERATE_STDERR}"
@@ -620,8 +626,8 @@ zbujb_obliterate_windows_namespaces() {
   z_state=$(<"${ZBUJB_OBLITERATE_STDOUT}")
   z_state="${z_state//[$'\r\n\t ']/}"
   test -z "${z_state}" || {
-    buc_step "    [SAM] Remove Windows local user (${z_wlu})"
-    zbujb_admin_powershell "Remove-LocalUser -Name '${z_wlu}'" \
+    buc_step "    [SAM] Remove Windows local user (${BUJB_workload_user})"
+    zbujb_admin_powershell "Remove-LocalUser -Name '${BUJB_workload_user}'" \
         > "${ZBUJB_OBLITERATE_STDOUT}" \
         2> "${ZBUJB_OBLITERATE_STDERR}" \
       || buc_die "Remove-LocalUser failed — see ${ZBUJB_OBLITERATE_STDERR}"
@@ -718,8 +724,8 @@ zbujb_obliterate_windows_namespaces() {
         zbujb_obliterate_diag_dump wsl_home_remove
       }
 
-      buc_step "    [WSL] Probe Linux user (${z_wlu}) inside ${BUJB_wsl_distribution}"
-      zbujb_admin_powershell "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c 'getent passwd ''${z_wlu}'' 2>/dev/null || true'" \
+      buc_step "    [WSL] Probe Linux user (${BUJB_workload_user}) inside ${BUJB_wsl_distribution}"
+      zbujb_admin_powershell "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c 'getent passwd ''${BUJB_workload_user}'' 2>/dev/null || true'" \
           > "${ZBUJB_OBLITERATE_STDOUT}" \
           2> "${ZBUJB_OBLITERATE_STDERR}" \
         || buc_die "WSL user probe failed — see ${ZBUJB_OBLITERATE_STDERR}"
@@ -727,11 +733,11 @@ zbujb_obliterate_windows_namespaces() {
       z_state=$(<"${ZBUJB_OBLITERATE_STDOUT}")
       z_state="${z_state//[$'\r\n']/}"
       test -z "${z_state}" || {
-        buc_step "    [WSL] Remove Linux user (${z_wlu}) inside ${BUJB_wsl_distribution}"
-        zbujb_admin_powershell "wsl.exe --distribution ${BUJB_wsl_distribution} --user root userdel '${z_wlu}'" \
+        buc_step "    [WSL] Remove Linux user (${BUJB_workload_user}) inside ${BUJB_wsl_distribution}"
+        zbujb_admin_powershell "wsl.exe --distribution ${BUJB_wsl_distribution} --user root userdel '${BUJB_workload_user}'" \
             > "${ZBUJB_OBLITERATE_STDOUT}" \
             2> "${ZBUJB_OBLITERATE_STDERR}" \
-          || buc_die "WSL userdel failed for ${z_wlu} — see ${ZBUJB_OBLITERATE_STDERR}"
+          || buc_die "WSL userdel failed for ${BUJB_workload_user} — see ${ZBUJB_OBLITERATE_STDERR}"
         zbujb_obliterate_diag_dump wsl_user_remove
       }
       ;;
@@ -755,24 +761,23 @@ zbujb_obliterate_windows_namespaces() {
 # Mac scope: sysadminctl -deleteUser and home purge.
 zbujb_obliterate_workload() {
   zbujb_sentinel
-  local -r z_wlu="${BUJB_workload_user}"
-  buc_step "  [2/6] Obliterate workload (${z_wlu}) on ${BURN_PLATFORM}"
+  buc_step "  [2/6] Obliterate workload (${BUJB_workload_user}) on ${BURN_PLATFORM}"
 
   case "${BURN_PLATFORM}" in
     bubep_linux)
       zbujb_admin_exec b                                              \
         "set -uo pipefail"                                            \
-        "sudo -n userdel -r '${z_wlu}' 2>/dev/null || true"           \
+        "sudo -n userdel -r '${BUJB_workload_user}' 2>/dev/null || true"           \
         "sudo -n rm -rf '${BUJB_path_posix_user_home}' 2>/dev/null || true"
       ;;
     bubep_mac)
       zbujb_admin_exec b                                              \
         "set -uo pipefail"                                            \
-        "sudo -n sysadminctl -deleteUser '${z_wlu}' 2>/dev/null || true" \
+        "sudo -n sysadminctl -deleteUser '${BUJB_workload_user}' 2>/dev/null || true" \
         "sudo -n rm -rf '${BUJB_path_mac_user_home}' 2>/dev/null || true"
       ;;
     bubep_windows)
-      zbujb_obliterate_windows_namespaces "${z_wlu}"
+      zbujb_obliterate_windows_namespaces
       ;;
     *)
       buc_die "obliterate: unsupported BURN_PLATFORM '${BURN_PLATFORM}'"
@@ -783,8 +788,7 @@ zbujb_obliterate_workload() {
 # Step 3 -- create the workload account fresh, ssh-only, no privilege.
 zbujb_garrison_step3_create() {
   local z_letter="${1:-}"
-  local z_wlu="${BUJB_workload_user}"
-  buc_step "  [3/6] Create workload (${z_wlu})"
+  buc_step "  [3/6] Create workload (${BUJB_workload_user})"
 
   case "${z_letter}" in
     b)
@@ -792,15 +796,15 @@ zbujb_garrison_step3_create() {
         bubep_linux)
           zbujb_admin_exec b                                              \
             "set -euo pipefail"                                           \
-            "sudo -n useradd --create-home --shell /bin/bash '${z_wlu}'"  \
-            "sudo -n passwd  --lock '${z_wlu}'"
+            "sudo -n useradd --create-home --shell /bin/bash '${BUJB_workload_user}'"  \
+            "sudo -n passwd  --lock '${BUJB_workload_user}'"
           ;;
         bubep_mac)
           # Mac uses dscl/sysadminctl; left for in-environment refinement.
           # Operator may need to seat a more idiomatic primary group ID.
           zbujb_admin_exec b                                              \
             "set -euo pipefail"                                           \
-            "sudo -n sysadminctl -addUser '${z_wlu}' -roleAccount"        \
+            "sudo -n sysadminctl -addUser '${BUJB_workload_user}' -roleAccount"        \
             "sudo -n dscl . -create '${BUJB_path_mac_user_home}' UserShell /bin/bash"
           ;;
       esac
@@ -810,10 +814,10 @@ zbujb_garrison_step3_create() {
       # disabled-password posture (we want ssh-key-only).
       zbujb_admin_exec c                                                  \
         "set -euo pipefail"                                               \
-        "net.exe user '${z_wlu}' /add /passwordreq:no /active:yes > /dev/null" \
-        "mkpasswd -l -u '${z_wlu}' >> /etc/passwd"                        \
+        "net.exe user '${BUJB_workload_user}' /add /passwordreq:no /active:yes > /dev/null" \
+        "mkpasswd -l -u '${BUJB_workload_user}' >> /etc/passwd"                        \
         "mkdir -p '${BUJB_path_posix_user_home}'"                         \
-        "chown -R '${z_wlu}' '${BUJB_path_posix_user_home}'"
+        "chown -R '${BUJB_workload_user}' '${BUJB_path_posix_user_home}'"
       ;;
     w)
       # Windows-side workload account only. The WSL-side Linux user is
@@ -823,15 +827,15 @@ zbujb_garrison_step3_create() {
       # garrison-w (Microsoft per-user WSL constraint, BUSJGW).
       zbujb_admin_exec w                                                  \
         "set -euo pipefail"                                               \
-        "net.exe user '${z_wlu}' /add /passwordreq:no /active:yes > /dev/null"
+        "net.exe user '${BUJB_workload_user}' /add /passwordreq:no /active:yes > /dev/null"
       # OpenSSH-Win32 silently closes at preauth if the workload SID has
       # no HKLM\...\ProfileList entry. net.exe user /add creates the SAM
       # entry but not the profile registration. Win32-OpenSSH issue #1383.
       # Bash-orchestrated per WSG-PS-5: capture SID, build registry path
       # in bash, then two atomic single-expression PS calls.
       local z_sid z_regkey
-      z_sid=$(zbujb_powershell_capture zbujb_privileged "(Get-LocalUser '${z_wlu}').SID.Value") \
-        || buc_die "step 3 (w): could not resolve SID for ${z_wlu}"
+      z_sid=$(zbujb_powershell_capture zbujb_privileged "(Get-LocalUser '${BUJB_workload_user}').SID.Value") \
+        || buc_die "step 3 (w): could not resolve SID for ${BUJB_workload_user}"
       z_regkey="HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\${z_sid}"
       zbujb_admin_powershell "New-Item -Path '${z_regkey}' -Force | Out-Null"
       zbujb_admin_powershell "New-ItemProperty -Path '${z_regkey}' -Name 'ProfileImagePath' -Value '${BUJB_path_winenv_user_home}' -PropertyType ExpandString -Force | Out-Null"
@@ -843,7 +847,6 @@ zbujb_garrison_step3_create() {
 # directive and the workload pubkey (derived locally from the privkey).
 zbujb_garrison_step4_place_trust() {
   local z_letter="${1:-}"
-  local z_wlu="${BUJB_workload_user}"
   local z_wlhome
   z_wlhome=$(zbujb_workload_home_capture "${z_letter}") \
     || buc_die "step4: workload home unresolvable for letter='${z_letter}' platform='${BURN_PLATFORM}'"
@@ -899,7 +902,7 @@ zbujb_garrison_step4_place_trust() {
         "${z_sudo_prefix}chmod 700  '${z_authkeys_dir}'"                  \
         "echo '${z_authkeys_line}' | ${z_sudo_prefix}tee '${z_authkeys_dir}/authorized_keys' > /dev/null" \
         "${z_sudo_prefix}chmod 600  '${z_authkeys_dir}/authorized_keys'"  \
-        "${z_sudo_prefix}chown -R '${z_wlu}:${z_wlu}' '${z_authkeys_dir}'"
+        "${z_sudo_prefix}chown -R '${BUJB_workload_user}:${BUJB_workload_user}' '${z_authkeys_dir}'"
       ;;
     c)
       # In Cygwin, file ownership/permissions interplay with NTFS ACLs.
@@ -911,7 +914,7 @@ zbujb_garrison_step4_place_trust() {
         "chmod 700  '${z_authkeys_dir}'"                                  \
         "echo '${z_authkeys_line}' > '${z_authkeys_dir}/authorized_keys'" \
         "chmod 600  '${z_authkeys_dir}/authorized_keys'"                  \
-        "chown -R '${z_wlu}' '${z_authkeys_dir}'"
+        "chown -R '${BUJB_workload_user}' '${z_authkeys_dir}'"
       ;;
     w)
       printf '%s' "${z_authkeys_line}"                                    \
@@ -936,12 +939,12 @@ zbujb_garrison_step4_place_trust() {
       local z_authkeys_dir_win="${BUJB_path_win_user_ssh}"
       local z_home_win="${BUJB_path_win_user_home}"
 
-      zbujb_place_trust_run "icacls-grant"         zbujb_admin_powershell "icacls '${z_authkeys_win}' /inheritance:r /grant 'SYSTEM:F' /grant '${z_wlu}:F'"
-      zbujb_place_trust_run "icacls-setowner"      zbujb_admin_powershell "icacls '${z_authkeys_win}' /setowner '${z_wlu}'"
-      zbujb_place_trust_run "icacls-dir-grant"     zbujb_admin_powershell "icacls '${z_authkeys_dir_win}' /inheritance:r /grant 'SYSTEM:F' /grant '${z_wlu}:F'"
-      zbujb_place_trust_run "icacls-dir-setowner"  zbujb_admin_powershell "icacls '${z_authkeys_dir_win}' /setowner '${z_wlu}'"
-      zbujb_place_trust_run "icacls-home-grant"    zbujb_admin_powershell "icacls '${z_home_win}' /inheritance:r /grant 'SYSTEM:F' /grant 'BUILTIN\\Administrators:F' /grant '${z_wlu}:F'"
-      zbujb_place_trust_run "icacls-home-setowner" zbujb_admin_powershell "icacls '${z_home_win}' /setowner '${z_wlu}'"
+      zbujb_place_trust_run "icacls-grant"         zbujb_admin_powershell "icacls '${z_authkeys_win}' /inheritance:r /grant 'SYSTEM:F' /grant '${BUJB_workload_user}:F'"
+      zbujb_place_trust_run "icacls-setowner"      zbujb_admin_powershell "icacls '${z_authkeys_win}' /setowner '${BUJB_workload_user}'"
+      zbujb_place_trust_run "icacls-dir-grant"     zbujb_admin_powershell "icacls '${z_authkeys_dir_win}' /inheritance:r /grant 'SYSTEM:F' /grant '${BUJB_workload_user}:F'"
+      zbujb_place_trust_run "icacls-dir-setowner"  zbujb_admin_powershell "icacls '${z_authkeys_dir_win}' /setowner '${BUJB_workload_user}'"
+      zbujb_place_trust_run "icacls-home-grant"    zbujb_admin_powershell "icacls '${z_home_win}' /inheritance:r /grant 'SYSTEM:F' /grant 'BUILTIN\\Administrators:F' /grant '${BUJB_workload_user}:F'"
+      zbujb_place_trust_run "icacls-home-setowner" zbujb_admin_powershell "icacls '${z_home_win}' /setowner '${BUJB_workload_user}'"
       ;;
   esac
 }
@@ -950,7 +953,6 @@ zbujb_garrison_step4_place_trust() {
 # hardcoded destination path, with workload ownership and 0600 mode.
 zbujb_garrison_step5_plant_key() {
   local z_letter="${1:-}"
-  local z_wlu="${BUJB_workload_user}"
   local z_wlhome
   z_wlhome=$(zbujb_workload_home_capture "${z_letter}") \
     || buc_die "step5: workload home unresolvable for letter='${z_letter}' platform='${BURN_PLATFORM}'"
@@ -977,7 +979,7 @@ zbujb_garrison_step5_plant_key() {
         "trap 'rm -f \"\\\${ztmp}\"' EXIT"                                \
         "echo '${z_key_b64}' | openssl enc -base64 -d -A > \"\\\${ztmp}\"" \
         "${z_sudo_prefix}mkdir -p   '${z_target_dir}'"                    \
-        "${z_sudo_prefix}install -m 600 -o '${z_wlu}' -g '${z_wlu}' \"\\\${ztmp}\" '${z_target}'"
+        "${z_sudo_prefix}install -m 600 -o '${BUJB_workload_user}' -g '${BUJB_workload_user}' \"\\\${ztmp}\" '${z_target}'"
       ;;
     c)
       zbujb_admin_exec c                                                  \
@@ -988,7 +990,7 @@ zbujb_garrison_step5_plant_key() {
         "mkdir -p   '${z_target_dir}'"                                    \
         "cp \"\${ztmp}\" '${z_target}'"                                   \
         "chmod 600  '${z_target}'"                                        \
-        "chown      '${z_wlu}' '${z_target}'"
+        "chown      '${BUJB_workload_user}' '${z_target}'"
       ;;
   esac
 }
@@ -1041,7 +1043,6 @@ Or inspect what is currently installed:
 # after the import has consumed it.
 zbujb_garrison_w_export_seed() {
   zbujb_sentinel
-  local z_wlu="${BUJB_workload_user}"
   buc_step "  [w-export-seed] Export admin's ${BUJB_wsl_distribution} to workload-readable seed"
 
   local z_seed_win="${BUJB_path_win_seed_tarball}"
@@ -1068,7 +1069,6 @@ zbujb_garrison_w_export_seed() {
 # outweighs the connection overhead.
 zbujb_garrison_w_init_wsl() {
   zbujb_sentinel
-  local z_wlu="${BUJB_workload_user}"
   buc_step "  [w-init-wsl] SSH-as-workload: import distribution, provision Linux user, plant privkey"
 
   local z_seed_win="${BUJB_path_win_seed_tarball}"
@@ -1083,11 +1083,11 @@ zbujb_garrison_w_init_wsl() {
     || buc_die "w-init-wsl: wsl --import failed (see ${ZBUJB_W_INIT_PREFIX}*wsl-import*)"
 
   zbujb_w_init_run "wsl-useradd" zbujb_workload_ssh \
-    "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c \"useradd --create-home --shell /bin/bash ${z_wlu}\"" \
+    "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c \"useradd --create-home --shell /bin/bash ${BUJB_workload_user}\"" \
     || buc_die "w-init-wsl: useradd failed inside workload's distribution"
 
   zbujb_w_init_run "wsl-passwd-lock" zbujb_workload_ssh \
-    "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c \"passwd --lock ${z_wlu}\"" \
+    "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c \"passwd --lock ${BUJB_workload_user}\"" \
     || buc_die "w-init-wsl: passwd --lock failed for inner Linux user"
 
   # Base64-encode the privkey on the operator's station, then ship the
@@ -1103,7 +1103,7 @@ zbujb_garrison_w_init_wsl() {
   z_key_b64="${z_key_b64//$'\n'/}"
 
   local z_wsl_bash_body
-  z_wsl_bash_body="mkdir -p ${BUJB_path_posix_user_ssh} && echo '${z_key_b64}' | openssl enc -base64 -d -A > ${BUJB_path_posix_user_home}/${BUJB_workload_keypath} && chown -R ${z_wlu}:${z_wlu} ${BUJB_path_posix_user_ssh} && chmod 700 ${BUJB_path_posix_user_ssh} && chmod 600 ${BUJB_path_posix_user_home}/${BUJB_workload_keypath}"
+  z_wsl_bash_body="mkdir -p ${BUJB_path_posix_user_ssh} && echo '${z_key_b64}' | openssl enc -base64 -d -A > ${BUJB_path_posix_user_home}/${BUJB_workload_keypath} && chown -R ${BUJB_workload_user}:${BUJB_workload_user} ${BUJB_path_posix_user_ssh} && chmod 700 ${BUJB_path_posix_user_ssh} && chmod 600 ${BUJB_path_posix_user_home}/${BUJB_workload_keypath}"
 
   zbujb_w_init_run "wsl-plant-privkey" zbujb_workload_ssh \
     "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c \"${z_wsl_bash_body}\"" \
@@ -1118,7 +1118,6 @@ zbujb_garrison_w_init_wsl() {
 # ownership transfers.
 zbujb_garrison_w_lockdown() {
   zbujb_sentinel
-  local z_wlu="${BUJB_workload_user}"
   buc_step "  [w-lockdown] Replace bare authorized_keys with command= directive"
 
   local z_command_directive
@@ -1161,7 +1160,6 @@ zbujb_garrison_w_lockdown() {
 # profile dir per the icacls grant in step 4).
 zbujb_garrison_w_seed_cleanup() {
   zbujb_sentinel
-  local z_wlu="${BUJB_workload_user}"
   buc_step "  [w-seed-cleanup] Remove seed tarball"
 
   local z_seed_win="${BUJB_path_win_seed_tarball}"
