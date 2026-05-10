@@ -33,6 +33,7 @@ source "${BURD_BUK_DIR}/buc_command.sh"
 # bujb_resolve - diagnostic: load investiture and print resolved fields.
 # No remote action; verifies regime + key-file health for a target.
 bujb_resolve() {
+  zbujb_sentinel
   buc_doc_brief "Cross-validate an investiture and display the regime fields it resolves"
   buc_doc_shown || return 0
 
@@ -51,6 +52,7 @@ bujb_resolve() {
 
 # bujb_knock - probe workload reachability (workload SSH + remote no-op).
 bujb_knock() {
+  zbujb_sentinel
   buc_doc_brief "Probe workload SSH reachability for an investiture"
   buc_doc_shown || return 0
 
@@ -77,13 +79,14 @@ bujb_knock() {
 # returns 0 when dispatch + capture complete (independent of remote exit);
 # non-zero on SSH-level failure (exit 255).
 bujb_command_file() {
+  zbujb_sentinel
   buc_doc_brief "Execute a local command file as workload; capture stdout/stderr/exit"
   buc_doc_param "command_file" "Local file streamed as the remote command body"
   buc_doc_shown || return 0
 
   test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
 
-  local z_command_file="${1:-}"
+  local -r z_command_file="${1:-}"
   test -n "${z_command_file}"   || buc_usage_die
   test -f "${z_command_file}"   || buc_die "Command file not found: ${z_command_file}"
   test -r "${z_command_file}"   || buc_die "Command file not readable: ${z_command_file}"
@@ -102,14 +105,15 @@ bujb_command_file() {
       "${BUJB_workload_user}@${BURN_HOST}" \
       'bash -s'                                   \
       < "${z_command_file}"                       \
-      > "${BURD_OUTPUT_DIR}/stdout.log"           \
-      2> "${BURD_OUTPUT_DIR}/stderr.log"          \
+      > "${ZBUJB_OUTPUT_STDOUT}"                  \
+      2> "${ZBUJB_OUTPUT_STDERR}"                 \
     || z_exit=$?
 
-  echo "${z_exit}" > "${BURD_OUTPUT_DIR}/exitcode"
+  echo "${z_exit}" > "${ZBUJB_OUTPUT_EXITCODE}" \
+    || buc_die "Failed to write exit-code capture: ${ZBUJB_OUTPUT_EXITCODE}"
 
   test "${z_exit}" -ne 255 \
-    || buc_die "SSH connection or authentication failed (exit 255). See ${BURD_OUTPUT_DIR}/stderr.log"
+    || buc_die "SSH connection or authentication failed (exit 255). See ${ZBUJB_OUTPUT_STDERR}"
 
   buc_step "Remote exit code: ${z_exit}"
   buc_step "Capture complete"
@@ -117,6 +121,7 @@ bujb_command_file() {
 
 # bujb_fenestrate - fenestrate ceremony (Windows OpenSSH only).
 bujb_fenestrate_command() {
+  zbujb_sentinel
   buc_doc_brief "Fenestrate — admin SSH key trust + sshd_config harden (Windows)"
   buc_doc_shown || return 0
 
@@ -128,6 +133,7 @@ bujb_fenestrate_command() {
 # bujb_privileged_ssh_command - run an arbitrary command as BURP_PRIVILEGED_USER.
 # Pass-through: argv joined into ssh's remote-command position; no shell wrapping.
 bujb_privileged_ssh_command() {
+  zbujb_sentinel
   buc_doc_brief "Privileged SSH — run a command on a node as BURP_PRIVILEGED_USER"
   buc_doc_param "command..." "Command tokens executed on the remote node (pass-through)"
   buc_doc_shown || return 0
@@ -141,6 +147,7 @@ bujb_privileged_ssh_command() {
 
 # bujb_wsl_install_command - idempotently provision the canonical WSL distro.
 bujb_wsl_install_command() {
+  zbujb_sentinel
   buc_doc_brief "WSL Install — provision canonical WSL distribution from Ubuntu-24.04 seed (Windows, idempotent)"
   buc_doc_shown || return 0
 
@@ -151,6 +158,7 @@ bujb_wsl_install_command() {
 
 # bujb_garrison_bash - garrison ceremony, native bash workload shell (Linux/Mac).
 bujb_garrison_bash() {
+  zbujb_sentinel
   buc_doc_brief "Garrison workload account on a bubep_linux/bubep_mac node (shell-letter b)"
   buc_doc_shown || return 0
 
@@ -161,6 +169,7 @@ bujb_garrison_bash() {
 
 # bujb_garrison_cygwin - garrison ceremony, Cygwin bash workload shell (Windows).
 bujb_garrison_cygwin() {
+  zbujb_sentinel
   buc_doc_brief "Garrison workload account on a bubep_windows node via Cygwin (shell-letter c)"
   buc_doc_shown || return 0
 
@@ -171,6 +180,7 @@ bujb_garrison_cygwin() {
 
 # bujb_garrison_wsl - garrison ceremony, WSL bash workload shell (Windows).
 bujb_garrison_wsl() {
+  zbujb_sentinel
   buc_doc_brief "Garrison workload account on a bubep_windows node via WSL (shell-letter w)"
   buc_doc_shown || return 0
 
@@ -181,6 +191,7 @@ bujb_garrison_wsl() {
 
 # bujb_interactive_session - hand control to ssh as workload.
 bujb_interactive_session() {
+  zbujb_sentinel
   buc_doc_brief "Interactive SSH session as workload"
   buc_doc_shown || return 0
 

@@ -255,6 +255,11 @@ zbujb_kindle() {
   readonly ZBUJB_OBLITERATE_STDOUT="${BURD_TEMP_DIR}/bujb_obliterate_stdout.txt"
   readonly ZBUJB_OBLITERATE_STDERR="${BURD_TEMP_DIR}/bujb_obliterate_stderr.txt"
 
+  # Output capture paths for bujb_command_file (workload stdout/stderr/exit).
+  readonly ZBUJB_OUTPUT_STDOUT="${BURD_OUTPUT_DIR}/stdout.log"
+  readonly ZBUJB_OUTPUT_STDERR="${BURD_OUTPUT_DIR}/stderr.log"
+  readonly ZBUJB_OUTPUT_EXITCODE="${BURD_OUTPUT_DIR}/exitcode"
+
   # Per-call captures for zbujb_garrison_step4_place_trust.
   readonly ZBUJB_PLACE_TRUST_PREFIX="${BURD_TEMP_DIR}/bujb_place_trust_"
 
@@ -303,9 +308,9 @@ zbujb_sentinel() {
 # (priv|work) selects the kindle temp-file pair used for stat + dry-load
 # stdout/stderr capture so failures preserve forensic evidence per BCG.
 zbujb_check_key_file() {
-  local z_path="${1:-}"
-  local z_varname="${2:-}"
-  local z_slot="${3:-}"
+  local -r z_path="${1:-}"
+  local -r z_varname="${2:-}"
+  local -r z_slot="${3:-}"
 
   test -n "${z_path}"    || buc_die "${z_varname}: empty path"
   test -f "${z_path}"    || buc_die "${z_varname}: file not found: ${z_path}"
@@ -401,7 +406,7 @@ bujb_resolve_investiture() {
 # source time — uniform letter-case, no per-letter substitution gymnastics.
 bujb_command_for_capture() {
   zbujb_sentinel
-  local z_letter="${1:-}"
+  local -r z_letter="${1:-}"
   case "${z_letter}" in
     b) echo "${BUJB_command_b}" ;;
     c) echo "${BUJB_command_c}" ;;
@@ -414,7 +419,7 @@ bujb_command_for_capture() {
 # Internal: Garrison helpers
 
 zbujb_assert_shell_letter() {
-  local z_letter="${1:-}"
+  local -r z_letter="${1:-}"
   case "${z_letter}" in
     b|c|w) ;;
     *) buc_die "Invalid shell-letter (expected b/c/w): '${z_letter}'" ;;
@@ -425,7 +430,7 @@ zbujb_assert_shell_letter() {
 # matches the shell-letter's required platform set.
 zbujb_garrison_assert_platform() {
   zbujb_sentinel
-  local z_letter="${1:-}"
+  local -r z_letter="${1:-}"
   zbujb_assert_shell_letter "${z_letter}"
   case "${z_letter}" in
     b)
@@ -447,7 +452,7 @@ zbujb_garrison_assert_platform() {
 # `|| buc_die`.
 zbujb_workload_home_capture() {
   zbujb_sentinel
-  local z_letter="${1:-}"
+  local -r z_letter="${1:-}"
   case "${z_letter}" in
     b)
       case "${BURN_PLATFORM}" in
@@ -506,16 +511,16 @@ zbujb_admin_exec_wsl() {
 # call site declares its target shell.
 zbujb_admin_exec_impl() {
   zbujb_sentinel
-  local z_remote_invoker="${1:-}"
+  local -r z_remote_invoker="${1:-}"
   test -n "${z_remote_invoker}" \
     || buc_die "zbujb_admin_exec_impl: REMOTE_INVOKER required (call via zbujb_admin_exec_{native,cygwin,wsl})"
   shift
   test $# -eq 1 \
     || buc_die "zbujb_admin_exec_*: requires exactly one statement (got $#); decompose multi-statement work via Capture-Decide-Dispatch per WSG SH-10"
-  local z_body="$1"
+  local -r z_body="$1"
 
   # Escape " → \" for the cmd.exe / Windows argv-parser layer.
-  local z_body_escaped="${z_body//\"/\\\"}"
+  local -r z_body_escaped="${z_body//\"/\\\"}"
 
   ssh -i "${BURP_PRIVILEGED_KEY_FILE}"        \
       "${ZBUJB_SSH_BASE_ARGS[@]}"             \
@@ -617,11 +622,13 @@ zbujb_workload_ssh() {
 # preview stays one line. Inserted after every PS call in the obliterate
 # flow so post-mortem inspection has full per-step traces.
 zbujb_obliterate_diag_dump() {
-  local z_label="${1:-}"
-  local z_out_dst="${BURD_TEMP_DIR}/bujb_obliterate_${z_label}_stdout.txt"
-  local z_err_dst="${BURD_TEMP_DIR}/bujb_obliterate_${z_label}_stderr.txt"
-  cp "${ZBUJB_OBLITERATE_STDOUT}" "${z_out_dst}"
-  cp "${ZBUJB_OBLITERATE_STDERR}" "${z_err_dst}"
+  local -r z_label="${1:-}"
+  local -r z_out_dst="${BURD_TEMP_DIR}/bujb_obliterate_${z_label}_stdout.txt"
+  local -r z_err_dst="${BURD_TEMP_DIR}/bujb_obliterate_${z_label}_stderr.txt"
+  cp "${ZBUJB_OBLITERATE_STDOUT}" "${z_out_dst}" \
+    || buc_die "diag-dump (${z_label}): cp stdout failed: ${z_out_dst}"
+  cp "${ZBUJB_OBLITERATE_STDERR}" "${z_err_dst}" \
+    || buc_die "diag-dump (${z_label}): cp stderr failed: ${z_err_dst}"
   local z_out_bytes z_err_bytes z_out_preview z_err_preview
   z_out_bytes=$(wc -c < "${z_out_dst}" | tr -d ' ')
   z_err_bytes=$(wc -c < "${z_err_dst}" | tr -d ' ')
@@ -632,9 +639,9 @@ zbujb_obliterate_diag_dump() {
 }
 
 zbujb_diag_dump_pair() {
-  local z_label="${1:-}"
-  local z_stdout="${2:-}"
-  local z_stderr="${3:-}"
+  local -r z_label="${1:-}"
+  local -r z_stdout="${2:-}"
+  local -r z_stderr="${3:-}"
   local z_out_bytes z_err_bytes z_out_preview z_err_preview
   z_out_bytes=$(wc -c < "${z_stdout}" | tr -d ' ')
   z_err_bytes=$(wc -c < "${z_stderr}" | tr -d ' ')
@@ -661,12 +668,12 @@ zbujb_emit_index_advance() {
 }
 
 zbujb_place_trust_run() {
-  local z_label="${1:-}"
+  local -r z_label="${1:-}"
   shift
   local z_idx_str
   zbujb_emit_index_advance z_idx_str
-  local z_out="${ZBUJB_PLACE_TRUST_PREFIX}${z_idx_str}_${z_label}_stdout.txt"
-  local z_err="${ZBUJB_PLACE_TRUST_PREFIX}${z_idx_str}_${z_label}_stderr.txt"
+  local -r z_out="${ZBUJB_PLACE_TRUST_PREFIX}${z_idx_str}_${z_label}_stdout.txt"
+  local -r z_err="${ZBUJB_PLACE_TRUST_PREFIX}${z_idx_str}_${z_label}_stderr.txt"
   local z_exit=0
   "$@" > "${z_out}" 2> "${z_err}" || z_exit=$?
   zbujb_diag_dump_pair "${z_label}" "${z_out}" "${z_err}"
@@ -674,12 +681,12 @@ zbujb_place_trust_run() {
 }
 
 zbujb_validate_run() {
-  local z_label="${1:-}"
+  local -r z_label="${1:-}"
   shift
   local z_idx_str
   zbujb_emit_index_advance z_idx_str
-  local z_out="${ZBUJB_VALIDATE_PREFIX}${z_idx_str}_${z_label}_stdout.txt"
-  local z_err="${ZBUJB_VALIDATE_PREFIX}${z_idx_str}_${z_label}_stderr.txt"
+  local -r z_out="${ZBUJB_VALIDATE_PREFIX}${z_idx_str}_${z_label}_stdout.txt"
+  local -r z_err="${ZBUJB_VALIDATE_PREFIX}${z_idx_str}_${z_label}_stderr.txt"
   local z_exit=0
   "$@" > "${z_out}" 2> "${z_err}" || z_exit=$?
   zbujb_diag_dump_pair "${z_label}" "${z_out}" "${z_err}"
@@ -687,12 +694,12 @@ zbujb_validate_run() {
 }
 
 zbujb_w_init_run() {
-  local z_label="${1:-}"
+  local -r z_label="${1:-}"
   shift
   local z_idx_str
   zbujb_emit_index_advance z_idx_str
-  local z_out="${ZBUJB_W_INIT_PREFIX}${z_idx_str}_${z_label}_stdout.txt"
-  local z_err="${ZBUJB_W_INIT_PREFIX}${z_idx_str}_${z_label}_stderr.txt"
+  local -r z_out="${ZBUJB_W_INIT_PREFIX}${z_idx_str}_${z_label}_stdout.txt"
+  local -r z_err="${ZBUJB_W_INIT_PREFIX}${z_idx_str}_${z_label}_stderr.txt"
   local z_exit=0
   "$@" > "${z_out}" 2> "${z_err}" || z_exit=$?
   zbujb_diag_dump_pair "${z_label}" "${z_out}" "${z_err}"
@@ -700,12 +707,12 @@ zbujb_w_init_run() {
 }
 
 zbujb_obliterate_run() {
-  local z_label="${1:-}"
+  local -r z_label="${1:-}"
   shift
   local z_idx_str
   zbujb_emit_index_advance z_idx_str
-  local z_out="${ZBUJB_OBLITERATE_PREFIX}${z_idx_str}_${z_label}_stdout.txt"
-  local z_err="${ZBUJB_OBLITERATE_PREFIX}${z_idx_str}_${z_label}_stderr.txt"
+  local -r z_out="${ZBUJB_OBLITERATE_PREFIX}${z_idx_str}_${z_label}_stdout.txt"
+  local -r z_err="${ZBUJB_OBLITERATE_PREFIX}${z_idx_str}_${z_label}_stderr.txt"
   local z_exit=0
   "$@" > "${z_out}" 2> "${z_err}" || z_exit=$?
   zbujb_diag_dump_pair "${z_label}" "${z_out}" "${z_err}"
@@ -933,7 +940,7 @@ zbujb_obliterate_workload() {
 
 # Step 3 -- create the workload account fresh, ssh-only, no privilege.
 zbujb_garrison_step3_create() {
-  local z_letter="${1:-}"
+  local -r z_letter="${1:-}"
   buc_step "  [3/6] Create workload (${BUJB_workload_user})"
 
   case "${z_letter}" in
@@ -993,7 +1000,7 @@ zbujb_garrison_step3_create() {
 # Step 4 -- write workload authorized_keys with the shell-letter command=
 # directive and the workload pubkey (derived locally from the privkey).
 zbujb_garrison_step4_place_trust() {
-  local z_letter="${1:-}"
+  local -r z_letter="${1:-}"
   local z_wlhome
   z_wlhome=$(zbujb_workload_home_capture "${z_letter}") \
     || buc_die "step4: workload home unresolvable for letter='${z_letter}' platform='${BURN_PLATFORM}'"
@@ -1088,9 +1095,9 @@ zbujb_garrison_step4_place_trust() {
       zbujb_place_trust_run "chmod-file"       zbujb_admin_exec_wsl    "chmod 600 '${z_authkeys_dir}/${BUJB_authkeys_basename}'"
       zbujb_place_trust_run "prelock-readback" zbujb_admin_exec_cygwin "cat '${BUJB_path_cyg_user_authkeys}'"
 
-      local z_authkeys_win="${BUJB_path_win_user_authkeys}"
-      local z_authkeys_dir_win="${BUJB_path_win_user_ssh}"
-      local z_home_win="${BUJB_path_win_user_home}"
+      local -r z_authkeys_win="${BUJB_path_win_user_authkeys}"
+      local -r z_authkeys_dir_win="${BUJB_path_win_user_ssh}"
+      local -r z_home_win="${BUJB_path_win_user_home}"
 
       zbujb_place_trust_run "icacls-grant"         zbujb_admin_powershell "icacls '${z_authkeys_win}' /inheritance:r /grant '${BUJB_acl_principal_system}:F' /grant '${BUJB_workload_user}:F'"
       zbujb_place_trust_run "icacls-setowner"      zbujb_admin_powershell "icacls '${z_authkeys_win}' /setowner '${BUJB_workload_user}'"
@@ -1105,11 +1112,11 @@ zbujb_garrison_step4_place_trust() {
 # Step 5 -- copy workload privkey to the remote at the shell-letter's
 # hardcoded destination path, with workload ownership and 0600 mode.
 zbujb_garrison_step5_plant_key() {
-  local z_letter="${1:-}"
+  local -r z_letter="${1:-}"
   local z_wlhome
   z_wlhome=$(zbujb_workload_home_capture "${z_letter}") \
     || buc_die "step5: workload home unresolvable for letter='${z_letter}' platform='${BURN_PLATFORM}'"
-  local z_target="${z_wlhome}/${BUJB_workload_keypath}"
+  local -r z_target="${z_wlhome}/${BUJB_workload_keypath}"
   buc_step "  [5/6] Plant workload privkey (${z_target})"
 
   # Single ssh-stdin pipeline per shell (pace ₢A-AA9): the workload key
@@ -1287,7 +1294,7 @@ zbujb_garrison_w_seed_cleanup() {
 
 # Step 6 -- workload-side round-trip validation (knock).
 zbujb_garrison_step6_validate() {
-  local z_letter="${1:-}"
+  local -r z_letter="${1:-}"
   buc_step "  [6/6] Validate workload round-trip"
 
   local z_exit=0
@@ -1328,7 +1335,7 @@ bujb_garrison() {
   test "${ZBUJB_RESOLVED:-}" = "1" \
     || buc_die "bujb_garrison: call bujb_resolve_investiture first"
 
-  local z_letter="${1:-}"
+  local -r z_letter="${1:-}"
   zbujb_garrison_assert_platform "${z_letter}"
 
   buc_step "Garrison-${z_letter}: ${BUZ_FOLIO} (${BURN_HOST})"
