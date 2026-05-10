@@ -54,10 +54,20 @@ BUJB_path_dotssh='.ssh'
 BUJB_seed_basename='rbtww-seed.tar'
 BUJB_wsl_root_basename='rbtww-fs'
 
-# Cygwin install root (back-slash form for PowerShell path arguments
-# where Test-Path / Remove-Item expect native Windows separators). The
-# forward-slash sibling is embedded in BUJB_command_c.
+# Cygwin install root in two slash conventions. Forward-slash form
+# survives `command="..."` directives and cmd.exe / PS argv layers
+# without escape pain (used in BUJB_command_c and zbujb_admin_exec).
+# Back-slash form is for PowerShell path arguments where Test-Path /
+# Remove-Item expect native Windows separators (used by the obliterate
+# Cygwin-home probe/remove). Do not collapse — the divergence is
+# load-bearing per the layer that consumes each form.
+BUJB_path_cygwin_root_fwd='C:/cygwin64'
 BUJB_path_cygwin_root_bs='C:\\cygwin64'
+
+# Windows-OpenSSH path to wsl.exe, embedded in the locked-down command=
+# directive for shell-letter w. Forward-slash form per the same argv-layer
+# rule as BUJB_path_cygwin_root_fwd.
+BUJB_path_wsl_exe='C:/Windows/System32/wsl.exe'
 
 # Workload home directories per coordinate system. Tinder-on-tinder so a
 # future BUJB_workload_user rename is a one-line edit.
@@ -88,9 +98,14 @@ BUJB_path_win_wsl_root="${BUJB_path_win_user_home}\\${BUJB_wsl_root_basename}"
 # Forced commands routed through SSH_ORIGINAL_COMMAND keep workload account
 # behaviour pinned to the chosen shell regardless of what the SSH client
 # requests. Locked spec content; mirrored in BUSJG{B,C,W}.
-BUJB_command_b='command="/bin/bash -lc \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding'
-BUJB_command_c='command="C:/cygwin64/bin/bash --login -c \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding'
-BUJB_command_w='command="C:/Windows/System32/wsl.exe --distribution rbtww-main --user ${BUJB_workload_user} --exec /bin/bash -lc \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding'
+# Tinder-on-tinder source-time interpolation: cygwin/wsl/distribution/user
+# resolve at source time so the value is a fully-baked literal by the time
+# bujb_command_for_capture echoes it. \"...\" pairs are literal escaped
+# quotes the remote sshd parser expects around the command directive's
+# argument; \$SSH_ORIGINAL_COMMAND defers expansion to the remote shell.
+BUJB_command_b="command=\"/bin/bash -lc \\\"\$SSH_ORIGINAL_COMMAND\\\"\",no-port-forwarding,no-X11-forwarding,no-agent-forwarding"
+BUJB_command_c="command=\"${BUJB_path_cygwin_root_fwd}/bin/bash --login -c \\\"\$SSH_ORIGINAL_COMMAND\\\"\",no-port-forwarding,no-X11-forwarding,no-agent-forwarding"
+BUJB_command_w="command=\"${BUJB_path_wsl_exe} --distribution ${BUJB_wsl_distribution} --user ${BUJB_workload_user} --exec /bin/bash -lc \\\"\$SSH_ORIGINAL_COMMAND\\\"\",no-port-forwarding,no-X11-forwarding,no-agent-forwarding"
 
 # Shell-letter -> workload privkey destination path on the remote
 # (relative to the workload account home directory).
@@ -271,14 +286,15 @@ bujb_resolve_investiture() {
 # bujb_command_for_capture SHELL_LETTER -- emit the workload authorized_keys
 # command= directive for shell-letter b, c, or w. _capture form so callers
 # may use `$()` per BCG line 502; returns 1 on invalid letter, callers must
-# `|| buc_die`.
+# `|| buc_die`. All tinder-on-tinder interpolation already resolved at
+# source time — uniform letter-case, no per-letter substitution gymnastics.
 bujb_command_for_capture() {
   zbujb_sentinel
   local z_letter="${1:-}"
   case "${z_letter}" in
     b) echo "${BUJB_command_b}" ;;
     c) echo "${BUJB_command_c}" ;;
-    w) echo "${BUJB_command_w//\$\{BUJB_workload_user\}/${BUJB_workload_user}}" ;;
+    w) echo "${BUJB_command_w}" ;;
     *) return 1 ;;
   esac
 }
@@ -384,7 +400,7 @@ zbujb_admin_exec() {
   local z_remote_invoker
   case "${z_letter}" in
     b) z_remote_invoker='bash' ;;
-    c) z_remote_invoker='C:/cygwin64/bin/bash --login' ;;
+    c) z_remote_invoker="${BUJB_path_cygwin_root_fwd}/bin/bash --login" ;;
     w) z_remote_invoker="wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash" ;;
   esac
 
