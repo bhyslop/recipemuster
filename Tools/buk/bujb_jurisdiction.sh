@@ -588,14 +588,29 @@ zbujb_diag_dump_pair() {
   buc_step "      [diag/${z_label}] stderr (${z_err_bytes}B): ${z_err_preview}"
 }
 
+# zbujb_emit_index_advance OUT_REF -- validate the module-level
+# z_bujb_emit_index counter is a non-negative integer, format it as %02d
+# into OUT_REF via printf -v, then bump the counter. Single source of
+# truth for the four _run wrappers (place_trust, validate, w_init,
+# obliterate) so format-and-bump is not inlined four times. Dies on
+# non-numeric counter (corruption guard) or missing OUT_REF.
+zbujb_emit_index_advance() {
+  local -r z_ref="${1:-}"
+  test -n "${z_ref}" \
+    || buc_die "zbujb_emit_index_advance: OUT_REF (caller var name) required"
+  test "${z_bujb_emit_index:-x}" -ge 0 2>/dev/null \
+    || buc_die "zbujb_emit_index_advance: z_bujb_emit_index is not a non-negative integer (got '${z_bujb_emit_index:-<unset>}')"
+  printf -v "${z_ref}" '%02d' "${z_bujb_emit_index}"
+  z_bujb_emit_index=$((z_bujb_emit_index + 1))
+}
+
 zbujb_place_trust_run() {
   local z_label="${1:-}"
   shift
   local z_idx_str
-  printf -v z_idx_str '%02d' "${z_bujb_emit_index}"
+  zbujb_emit_index_advance z_idx_str
   local z_out="${ZBUJB_PLACE_TRUST_PREFIX}${z_idx_str}_${z_label}_stdout.txt"
   local z_err="${ZBUJB_PLACE_TRUST_PREFIX}${z_idx_str}_${z_label}_stderr.txt"
-  z_bujb_emit_index=$((z_bujb_emit_index + 1))
   local z_exit=0
   "$@" > "${z_out}" 2> "${z_err}" || z_exit=$?
   zbujb_diag_dump_pair "${z_label}" "${z_out}" "${z_err}"
@@ -606,10 +621,9 @@ zbujb_validate_run() {
   local z_label="${1:-}"
   shift
   local z_idx_str
-  printf -v z_idx_str '%02d' "${z_bujb_emit_index}"
+  zbujb_emit_index_advance z_idx_str
   local z_out="${ZBUJB_VALIDATE_PREFIX}${z_idx_str}_${z_label}_stdout.txt"
   local z_err="${ZBUJB_VALIDATE_PREFIX}${z_idx_str}_${z_label}_stderr.txt"
-  z_bujb_emit_index=$((z_bujb_emit_index + 1))
   local z_exit=0
   "$@" > "${z_out}" 2> "${z_err}" || z_exit=$?
   zbujb_diag_dump_pair "${z_label}" "${z_out}" "${z_err}"
@@ -620,10 +634,9 @@ zbujb_w_init_run() {
   local z_label="${1:-}"
   shift
   local z_idx_str
-  printf -v z_idx_str '%02d' "${z_bujb_emit_index}"
+  zbujb_emit_index_advance z_idx_str
   local z_out="${ZBUJB_W_INIT_PREFIX}${z_idx_str}_${z_label}_stdout.txt"
   local z_err="${ZBUJB_W_INIT_PREFIX}${z_idx_str}_${z_label}_stderr.txt"
-  z_bujb_emit_index=$((z_bujb_emit_index + 1))
   local z_exit=0
   "$@" > "${z_out}" 2> "${z_err}" || z_exit=$?
   zbujb_diag_dump_pair "${z_label}" "${z_out}" "${z_err}"
@@ -634,10 +647,9 @@ zbujb_obliterate_run() {
   local z_label="${1:-}"
   shift
   local z_idx_str
-  printf -v z_idx_str '%02d' "${z_bujb_emit_index}"
+  zbujb_emit_index_advance z_idx_str
   local z_out="${ZBUJB_OBLITERATE_PREFIX}${z_idx_str}_${z_label}_stdout.txt"
   local z_err="${ZBUJB_OBLITERATE_PREFIX}${z_idx_str}_${z_label}_stderr.txt"
-  z_bujb_emit_index=$((z_bujb_emit_index + 1))
   local z_exit=0
   "$@" > "${z_out}" 2> "${z_err}" || z_exit=$?
   zbujb_diag_dump_pair "${z_label}" "${z_out}" "${z_err}"
