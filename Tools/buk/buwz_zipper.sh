@@ -100,11 +100,6 @@ zbuwz_kindle() {
   # Jurisdiction operational — WSL install (bujb_cli.sh, Windows only)
   buz_enroll BUWZ_JP_WSL_INSTALL      "buw-jpW"   "${z_mod}" "bujb_wsl_install_command"    "param1"  "WSL Install — provision canonical WSL distribution from Ubuntu-24.04 seed (Windows, idempotent)"
 
-  # Jurisdiction operational — invigilate ceremonies (bujb_cli.sh)
-  buz_enroll BUWZ_JP_INVIGILATE_WIN   "buw-jpIW"  "${z_mod}" "bujb_invigilate_windows_command" "param1"  "Invigilate Windows — read-only host posture verification"
-  buz_enroll BUWZ_JP_INVIGILATE_MAC   "buw-jpIM"  "${z_mod}" "bujb_invigilate_macos_command"   "param1"  "Invigilate macOS — read-only host posture verification"
-  buz_enroll BUWZ_JP_INVIGILATE_LIN   "buw-jpIL"  "${z_mod}" "bujb_invigilate_linux_command"   "param1"  "Invigilate Linux — read-only host posture verification"
-
   # Jurisdiction operational — garrison ceremonies (bujb_cli.sh)
   buz_enroll BUWZ_JP_GARRISON_BASH    "buw-jpGb"  "${z_mod}" "bujb_garrison_bash"     "param1"  "Garrison workload (shell-letter b: native bash, Linux/Mac)"
   buz_enroll BUWZ_JP_GARRISON_CYGWIN  "buw-jpGc"  "${z_mod}" "bujb_garrison_cygwin"   "param1"  "Garrison workload (shell-letter c: Cygwin bash, Windows)"
