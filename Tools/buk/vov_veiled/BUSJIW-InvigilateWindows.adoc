@@ -1,21 +1,18 @@
 //axhob_operation
 {bust_invigilate_windows}
 
-NOTE: The {busn_invigilate} ceremony on Windows — read-only host posture
-verification. Asserts each posture fact matches its expected value; no
-mutations, no remediation.
+NOTE: {busn_invigilate} on Windows -- read-only host posture
+verification. Asserts each posture fact matches expected; no
+mutations.
 
-NOTE: Invocation contexts: {bust_caparison_windows} runs invigilate-windows
-as its post-completion check; {bust_garrison_cygwin} and
-{bust_garrison_wsl} run it as their precondition assertion before any
-destructive workload work.
+NOTE: Invocation: {bust_caparison_windows} post-completion check;
+{bust_garrison_cygwin} and {bust_garrison_wsl} precondition.
 
-NOTE: Failure pointers discriminate operator-managed posture (→
-{bust_handbook_windows}) from caparison-managed posture (→
-{bust_caparison_windows}). PowerShell-side reads use
-`Get-ItemPropertyValue`, `Get-Service`, `powercfg /a`, and `wsl.exe
---list --quiet`; bash-side BCG-compliant matching extracts each fact —
-PowerShell stays out of the parsing business.
+NOTE: Failure pointers discriminate operator-managed
+({bust_handbook_windows}) from caparison-managed
+({bust_caparison_windows}). PowerShell reads via
+`Get-ItemPropertyValue`, `Get-Service`, `powercfg /a`, `wsl.exe --list
+--quiet`; bash-side BCG-compliant matching extracts each fact.
 
 The {busn_invigilate} operation on Windows:
 
@@ -24,38 +21,33 @@ The {busn_invigilate} operation on Windows:
 
 //axhoq_precondition
 A {burp_regime} profile exists at the given {burp_investiture} and its
-referenced {burn_regime} profile targets a Windows OpenSSH node
-reachable as {burp_privileged_user} under key-only authentication using
-{burp_privileged_key_file}. Invigilate does not establish that trust —
-it presupposes it; admin SSH failure surfaces as the first posture
-fact.
+{burn_regime} targets a Windows OpenSSH node reachable as
+{burp_privileged_user} under key-only auth using
+{burp_privileged_key_file}. Admin SSH failure surfaces as the first
+posture fact -- invigilate presupposes trust, does not establish it.
 
 //axhos_step
 . *Open admin SSH session*:
 .. {busc_call}
-ssh as {burp_privileged_user} using {burp_privileged_key_file};
-key-auth only (no password fallback)
+ssh as {burp_privileged_user} with {burp_privileged_key_file}; key-auth only
 .. {busc_store}
-`«ADMIN_SESSION»` for subsequent posture reads
+`«ADMIN_SESSION»`
 .. {busc_fatal}
-on connection failure with pointer to {bust_caparison_windows} —
-admin trust is caparison-managed
+on connection failure -- {bust_caparison_windows} scope
 
 //axhos_step
 . *Assert operator-managed registry keys*:
 .. For each {bust_handbook_windows}-established registry value
 (canonical: `DevicePasswordLessBuildVersion` under
 `HKLM\Software\Microsoft\Windows\CurrentVersion\PasswordLess\Device`):
-.. {busc_call}
+... {busc_call}
 PowerShell `Get-ItemPropertyValue` over `«ADMIN_SESSION»`
-.. {busc_store}
-`«REG_VALUE»` from the response
-.. {busc_require}
-{busc_use}
-`«REG_VALUE»` matches the expected value
-.. {busc_fatal}
-on mismatch with pointer to {bust_handbook_windows} — these edits
-are security-sensitive and operator-manual
+... {busc_store}
+`«REG_VALUE»`
+... {busc_require}
+`«REG_VALUE»` matches expected
+... {busc_fatal}
+on mismatch -- {bust_handbook_windows} scope
 
 //axhos_step
 . *Assert AoAc override*:
@@ -63,88 +55,68 @@ are security-sensitive and operator-manual
 PowerShell `Get-ItemPropertyValue` for
 `HKLM\System\CurrentControlSet\Control\Power\PlatformAoAcOverride`
 .. {busc_store}
-`«REG_AOAC»` from the response
+`«REG_AOAC»`
 .. {busc_require}
-{busc_use}
 `«REG_AOAC»` equals `0`
 .. {busc_fatal}
-on mismatch with pointer to {bust_handbook_windows} — Modern Standby
-silently demotes `powercfg` operations until this override is in
-place; it is a registry write requiring elevation, established once
-by the operator
+on mismatch -- {bust_handbook_windows} scope (Modern Standby override)
 
 //axhos_step
 . *Assert Tailscale service registered*:
 .. {busc_call}
 PowerShell `Get-Service Tailscale`
 .. {busc_store}
-`«SVC_TAILSCALE»` from the response
+`«SVC_TAILSCALE»`
 .. {busc_require}
-{busc_use}
 `«SVC_TAILSCALE»` is non-empty
 .. {busc_fatal}
-on absence with pointer to {bust_handbook_windows} — install +
-Run-Unattended toggle + first auth are operator-manual
+on absence -- {bust_handbook_windows} scope (install + Run-Unattended + first auth)
 
 //axhos_step
 . *Assert Tailscale service StartupType*:
 .. {busc_call}
 PowerShell `Get-Service Tailscale | Select-Object StartType`
 .. {busc_store}
-`«SVC_STARTTYPE»` from the response
+`«SVC_STARTTYPE»`
 .. {busc_require}
-{busc_use}
 `«SVC_STARTTYPE»` equals `Automatic`
 .. {busc_fatal}
-on mismatch with pointer to {bust_caparison_windows} — caparison
-sets the StartupType after Tailscale is installed; non-Automatic
-indicates caparison either did not run or its `Set-Service`
-operation did not take
+on mismatch -- {bust_caparison_windows} scope
 
 //axhos_step
 . *Assert powercfg sleep/hibernate disabled*:
 .. {busc_call}
 `powercfg /a` over `«ADMIN_SESSION»`
 .. {busc_store}
-`«POWERCFG_REPORT»` from stdout
+`«POWERCFG_REPORT»`
 .. {busc_require}
-{busc_use}
-`«POWERCFG_REPORT»` reports neither standby nor hibernate as
-available
+`«POWERCFG_REPORT»` reports neither standby nor hibernate as available
 .. {busc_fatal}
-on mismatch with pointer to {bust_caparison_windows} — disabling
-sleep and hibernate is caparison's phase-3 operation; a node still
-advertising those states means caparison either did not run or its
-`powercfg` calls were demoted to no-ops by a missing AoAc override
+on mismatch -- {bust_caparison_windows} scope (or AoAc override missing)
 
 //axhos_step
 . *Assert admin's rbtww-main WSL distribution registered*:
 .. {busc_call}
 `wsl.exe --list --quiet` over `«ADMIN_SESSION»`
 .. {busc_store}
-`«WSL_DISTRO_LIST»` from stdout
+`«WSL_DISTRO_LIST»`
 .. {busc_require}
-{busc_use}
-`«WSL_DISTRO_LIST»` contains `rbtww-main` (canonical name hardcoded
-as `BUJB_wsl_distribution` in {bujb_jurisdiction})
+`«WSL_DISTRO_LIST»` contains `rbtww-main` (canonical:
+`BUJB_wsl_distribution` in {bujb_jurisdiction})
 .. {busc_fatal}
-on absence with pointer to {bust_caparison_windows} — caparison's
-phase-3 `wsl --import` from the Ubuntu-24.04 seed stages this
-distribution; missing registration means caparison either did not
-run or its import step failed without surfacing
+on absence -- {bust_caparison_windows} scope
 
 //axhog_guarantee
 On success:
 
-* Every posture fact has been asserted to match its expected value.
+* Every posture fact matches its expected value.
 * `«ADMIN_SESSION»` was used only for read commands.
-* No remote or local mutation occurred.
+* No mutation occurred.
 * The node is in the shape {bust_caparison_windows} produces and
   {bust_garrison_cygwin} / {bust_garrison_wsl} require.
 
 //axhoc_completion
-Exit 0 when every posture fact matches its expected value.
-Non-zero on the first mismatch, with a diagnostic naming the failing
-fact, its expected value, its observed value, and the pointer
-({bust_handbook_windows} for operator-managed facts;
-{bust_caparison_windows} for caparison-managed facts).
+Exit 0 when every posture fact matches expected. Non-zero on first
+mismatch with diagnostic naming the failing fact, expected value,
+observed value, and pointer ({bust_handbook_windows} for
+operator-managed; {bust_caparison_windows} for caparison-managed).
