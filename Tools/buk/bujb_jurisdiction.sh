@@ -46,8 +46,32 @@ BUJB_workload_user='bujuw_user'
 # Canonical WSL distribution name reached by garrison-w.
 BUJB_wsl_distribution='rbtww-main'
 
+# wsl.exe invocation prefix for running a bash body as root inside the
+# canonical workload distribution from any non-bash transport (PS heredoc,
+# cmd.exe argv). Tinder-on-tinder so a future BUJB_wsl_distribution rename
+# is a one-line edit. Bare wsl.exe relies on Windows PATH resolution from
+# system32; the absolute-path form ${BUJB_path_wsl_exe} applies only in
+# the BUJB_command_w directive where SSH-auth-time resolution requires a
+# fully qualified path.
+BUJB_wsl_root_bash_c="wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c"
+
 # Path segment shared by every account-relative SSH state directory.
 BUJB_path_dotssh='.ssh'
+
+# authorized_keys basename — OpenSSH-defined filename. Used tinder-on-tinder
+# in the per-coordinate-system authkeys paths and inline in garrison step4's
+# authkeys writes.
+BUJB_authkeys_basename='authorized_keys'
+
+# Absolute path to bash on Linux/Mac/WSL — pinned to /bin/bash rather than
+# the PATH-resolved bare 'bash' for command= directives and user-shell
+# declarations where the absolute form is required.
+BUJB_shell_bash='/bin/bash'
+
+# POSIX stdin pseudo-device path — used by the install -D pattern in
+# garrison step5 to plant the workload privkey atomically without any
+# plaintext temp file on either side's disk.
+BUJB_path_devstdin='/dev/stdin'
 
 # WSL artifact basenames placed under the workload Windows profile by the
 # garrison-w seed/import sequence.
@@ -86,9 +110,9 @@ BUJB_path_cyg_user_ssh="${BUJB_path_cyg_user_home}/${BUJB_path_dotssh}"
 BUJB_path_posix_user_ssh="${BUJB_path_posix_user_home}/${BUJB_path_dotssh}"
 
 # authorized_keys file under each .ssh.
-BUJB_path_win_user_authkeys="${BUJB_path_win_user_ssh}\\authorized_keys"
-BUJB_path_wsl_user_authkeys="${BUJB_path_wsl_user_ssh}/authorized_keys"
-BUJB_path_cyg_user_authkeys="${BUJB_path_cyg_user_ssh}/authorized_keys"
+BUJB_path_win_user_authkeys="${BUJB_path_win_user_ssh}\\${BUJB_authkeys_basename}"
+BUJB_path_wsl_user_authkeys="${BUJB_path_wsl_user_ssh}/${BUJB_authkeys_basename}"
+BUJB_path_cyg_user_authkeys="${BUJB_path_cyg_user_ssh}/${BUJB_authkeys_basename}"
 
 # WSL artifacts under the Windows workload profile.
 BUJB_path_win_seed_tarball="${BUJB_path_win_user_home}\\${BUJB_seed_basename}"
@@ -118,9 +142,9 @@ BUJB_acl_principal_admins='BUILTIN\Administrators'
 # bujb_command_for_capture echoes it. \"...\" pairs are literal escaped
 # quotes the remote sshd parser expects around the command directive's
 # argument; \$SSH_ORIGINAL_COMMAND defers expansion to the remote shell.
-BUJB_command_b="command=\"/bin/bash -lc \\\"\$SSH_ORIGINAL_COMMAND\\\"\",no-port-forwarding,no-X11-forwarding,no-agent-forwarding"
+BUJB_command_b="command=\"${BUJB_shell_bash} -lc \\\"\$SSH_ORIGINAL_COMMAND\\\"\",no-port-forwarding,no-X11-forwarding,no-agent-forwarding"
 BUJB_command_c="command=\"${BUJB_path_cygwin_root_fwd}/bin/bash --login -c \\\"\$SSH_ORIGINAL_COMMAND\\\"\",no-port-forwarding,no-X11-forwarding,no-agent-forwarding"
-BUJB_command_w="command=\"${BUJB_path_wsl_exe} --distribution ${BUJB_wsl_distribution} --user ${BUJB_workload_user} --exec /bin/bash -lc \\\"\$SSH_ORIGINAL_COMMAND\\\"\",no-port-forwarding,no-X11-forwarding,no-agent-forwarding"
+BUJB_command_w="command=\"${BUJB_path_wsl_exe} --distribution ${BUJB_wsl_distribution} --user ${BUJB_workload_user} --exec ${BUJB_shell_bash} -lc \\\"\$SSH_ORIGINAL_COMMAND\\\"\",no-port-forwarding,no-X11-forwarding,no-agent-forwarding"
 
 # Workload privkey destination path on the remote (relative to the workload
 # account home directory). Uniform across shell-letters under the current
@@ -133,6 +157,60 @@ BUJB_workload_keypath='.ssh/id_ed25519'
 BUJB_sshd_hardening='PubkeyAuthentication yes
 PasswordAuthentication no
 PermitEmptyPasswords no'
+
+# User-provisioning argument sets per platform tooling.
+#
+# BUJB_useradd_workload_args — Linux/WSL useradd flags declaring the
+# workload account policy (home-directory creation + absolute shell).
+# Used in step3 b (linux), step3 b (mac via dscl UserShell), and
+# w_init wsl-useradd.
+# BUJB_netuser_add_args — Windows net.exe user /add flags declaring the
+# password-not-required + active workload posture (used in step3 c and
+# step3 w).
+BUJB_useradd_workload_args="--create-home --shell ${BUJB_shell_bash}"
+BUJB_netuser_add_args='/add /passwordreq:no /active:yes'
+
+# ssh-keygen invocation prefix for emitting the public key derived from a
+# private key under empty-passphrase dry-load. Idiom used for admin-key
+# resolve-investiture validation and for workload/admin pubkey emission in
+# garrison step4, w-lockdown, and fenestrate phase 1.
+BUJB_sshkeygen_emit_pubkey="ssh-keygen -y -P '' -f"
+
+# SSH option values used inline at every ssh call alongside
+# ZBUJB_SSH_BASE_ARGS. BatchMode=yes / ConnectTimeout=15 is the dominant
+# pair; fenestrate's password-fallback case uses BatchMode=no inline and
+# step6_validate's knock uses ConnectTimeout=10 inline.
+BUJB_ssh_opt_batchmode_yes='BatchMode=yes'
+BUJB_ssh_opt_connecttimeout_15='ConnectTimeout=15'
+
+# PowerShell CLI invocation forms. _command for one-shot string invocations
+# (the dominant case); _file_stdin for streaming a PS script body from
+# stdin (fenestrate phases).
+BUJB_ps_invoke_command='powershell -NoProfile -Command'
+BUJB_ps_invoke_file_stdin='powershell -NoProfile -File -'
+
+# PowerShell session discipline prelude shared by admin_powershell and
+# powershell_capture:
+#   $ErrorActionPreference = 'Stop'  — PS errors terminate the session.
+#   $env:WSL_UTF8 = 1                — wsl.exe emits UTF-8 (not UTF-16).
+#   $LASTEXITCODE = 0                — initialize so a trailing if-check
+#     does not trip on the $null default ($null -ne 0 evaluates True in
+#     PowerShell typed comparison, which would fire `exit $null` and
+#     discard buffered object-formatter output for cmdlets like
+#     Get-LocalUser whose tables have not flushed to stdout yet).
+BUJB_ps_prelude="\$ErrorActionPreference = 'Stop'; \$env:WSL_UTF8 = 1; \$LASTEXITCODE = 0;"
+
+# PowerShell-form path to the Windows OpenSSH sshd_config. Bash-side
+# substitution at the use site expands this tinder, baking the literal
+# $env:ProgramData\ssh\sshd_config into the constructed PS body.
+BUJB_ps_sshd_config_path='$env:ProgramData\ssh\sshd_config'
+
+# Windows registry subpath under HKLM for the per-SID ProfileList key
+# created by step3 w to register the workload user's profile with Windows.
+# Two consumers prefix it differently: PS-drive form 'HKLM:' for
+# New-Item / New-ItemProperty, and reg.exe hive form 'HKLM' for the
+# validate-diag dump.
+BUJB_winreg_profilelist_subpath='SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList'
 
 ######################################################################
 # Internal Functions (zbujb_*)
@@ -204,9 +282,13 @@ zbujb_kindle() {
 
   # SSH base options shared by every ssh invocation in this module:
   # IdentitiesOnly pins the key to ssh -i; StrictHostKeyChecking=accept-new
-  # records first-contact host keys without prompting. BatchMode,
-  # ConnectTimeout, and PreferredAuthentications vary per call site so they
-  # remain inline at each ssh — visible to security review.
+  # records first-contact host keys without prompting. The dominant
+  # BatchMode=yes / ConnectTimeout=15 pair lives in tinder constants
+  # (BUJB_ssh_opt_batchmode_yes, BUJB_ssh_opt_connecttimeout_15) referenced
+  # inline at each ssh — security review reads one source-of-truth
+  # declaration. PreferredAuthentications and the variant cases
+  # (BatchMode=no for password-fallback, ConnectTimeout=10 for knock) stay
+  # inline at their lone call sites.
   ZBUJB_SSH_BASE_ARGS=(
     -o IdentitiesOnly=yes
     -o StrictHostKeyChecking=accept-new
@@ -269,7 +351,7 @@ zbujb_check_key_file() {
   test "${z_mode}" = "600" \
     || buc_die "${z_varname}: mode must be 0600, got ${z_mode}: ${z_path}"
 
-  ssh-keygen -y -P '' -f "${z_path}" \
+  ${BUJB_sshkeygen_emit_pubkey} "${z_path}" \
       > "${z_dry_stdout}" \
       2> "${z_dry_stderr}" \
     || buc_die "${z_varname}: ssh-keygen -y dry-load failed (passphrase-protected or malformed): ${z_path} — see ${z_dry_stderr}"
@@ -442,8 +524,8 @@ zbujb_admin_exec_impl() {
 
   ssh -i "${BURP_PRIVILEGED_KEY_FILE}"        \
       "${ZBUJB_SSH_BASE_ARGS[@]}"             \
-      -o BatchMode=yes                        \
-      -o ConnectTimeout=15                    \
+      -o "${BUJB_ssh_opt_batchmode_yes}"      \
+      -o "${BUJB_ssh_opt_connecttimeout_15}"  \
       "${BURP_PRIVILEGED_USER}@${BURN_HOST}"  \
       "${z_remote_invoker} -c \"${z_body_escaped}\""
 }
@@ -466,10 +548,10 @@ zbujb_admin_powershell() {
 
   ssh -i "${BURP_PRIVILEGED_KEY_FILE}"        \
       "${ZBUJB_SSH_BASE_ARGS[@]}"             \
-      -o BatchMode=yes                        \
-      -o ConnectTimeout=15                    \
+      -o "${BUJB_ssh_opt_batchmode_yes}"      \
+      -o "${BUJB_ssh_opt_connecttimeout_15}"  \
       "${BURP_PRIVILEGED_USER}@${BURN_HOST}"  \
-      "powershell -NoProfile -Command \"\$ErrorActionPreference = 'Stop'; \$env:WSL_UTF8 = 1; \$LASTEXITCODE = 0; ${z_body}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE }\""
+      "${BUJB_ps_invoke_command} \"${BUJB_ps_prelude} ${z_body}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE }\""
 }
 
 # zbujb_powershell_capture ROLE BODY -- run a single PS expression on the
@@ -493,12 +575,12 @@ zbujb_powershell_capture() {
   esac
 
   local z_out z_exit=0
-  z_out=$(ssh -i "${z_key}"                      \
-              "${ZBUJB_SSH_BASE_ARGS[@]}"        \
-              -o BatchMode=yes                   \
-              -o ConnectTimeout=15               \
-              "${z_user}@${BURN_HOST}"           \
-              "powershell -NoProfile -Command \"\$ErrorActionPreference = 'Stop'; \$env:WSL_UTF8 = 1; \$LASTEXITCODE = 0; ${z_body}\"") \
+  z_out=$(ssh -i "${z_key}"                       \
+              "${ZBUJB_SSH_BASE_ARGS[@]}"         \
+              -o "${BUJB_ssh_opt_batchmode_yes}"  \
+              -o "${BUJB_ssh_opt_connecttimeout_15}" \
+              "${z_user}@${BURN_HOST}"            \
+              "${BUJB_ps_invoke_command} \"${BUJB_ps_prelude} ${z_body}\"") \
     || z_exit=$?
 
   printf '%s' "${z_out//$'\r'/}"
@@ -521,8 +603,8 @@ zbujb_workload_ssh() {
 
   ssh -i "${BURP_WORKLOAD_KEY_FILE}"       \
       "${ZBUJB_SSH_BASE_ARGS[@]}"          \
-      -o BatchMode=yes                     \
-      -o ConnectTimeout=15                 \
+      -o "${BUJB_ssh_opt_batchmode_yes}"   \
+      -o "${BUJB_ssh_opt_connecttimeout_15}" \
       "${BUJB_workload_user}@${BURN_HOST}" \
       "${z_remote_cmd}"
 }
@@ -778,7 +860,7 @@ zbujb_obliterate_windows_namespaces() {
       # quote) so no double quotes appear inside the cmd.exe-level
       # powershell -Command token.
       buc_step "    [WSL] Probe orphan home (${BUJB_path_posix_user_home}) inside ${BUJB_wsl_distribution}"
-      zbujb_admin_powershell "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c 'test -e ''${BUJB_path_posix_user_home}'' && echo PRESENT || true'" \
+      zbujb_admin_powershell "${BUJB_wsl_root_bash_c} 'test -e ''${BUJB_path_posix_user_home}'' && echo PRESENT || true'" \
           > "${ZBUJB_OBLITERATE_STDOUT}" \
           2> "${ZBUJB_OBLITERATE_STDERR}" \
         || buc_die "WSL orphan-home probe failed — see ${ZBUJB_OBLITERATE_STDERR}"
@@ -795,7 +877,7 @@ zbujb_obliterate_windows_namespaces() {
       }
 
       buc_step "    [WSL] Probe Linux user (${BUJB_workload_user}) inside ${BUJB_wsl_distribution}"
-      zbujb_admin_powershell "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c 'getent passwd ''${BUJB_workload_user}'' 2>/dev/null || true'" \
+      zbujb_admin_powershell "${BUJB_wsl_root_bash_c} 'getent passwd ''${BUJB_workload_user}'' 2>/dev/null || true'" \
           > "${ZBUJB_OBLITERATE_STDOUT}" \
           2> "${ZBUJB_OBLITERATE_STDERR}" \
         || buc_die "WSL user probe failed — see ${ZBUJB_OBLITERATE_STDERR}"
@@ -884,7 +966,7 @@ zbujb_garrison_step3_create() {
     b)
       case "${BURN_PLATFORM}" in
         bubep_linux)
-          zbujb_admin_exec_native "sudo -n useradd --create-home --shell /bin/bash '${BUJB_workload_user}'" \
+          zbujb_admin_exec_native "sudo -n useradd ${BUJB_useradd_workload_args} '${BUJB_workload_user}'" \
             || buc_die "step3 (b/linux): useradd failed for ${BUJB_workload_user}"
           zbujb_admin_exec_native "sudo -n passwd --lock '${BUJB_workload_user}'" \
             || buc_die "step3 (b/linux): passwd --lock failed for ${BUJB_workload_user}"
@@ -894,7 +976,7 @@ zbujb_garrison_step3_create() {
           # Operator may need to seat a more idiomatic primary group ID.
           zbujb_admin_exec_native "sudo -n sysadminctl -addUser '${BUJB_workload_user}' -roleAccount" \
             || buc_die "step3 (b/mac): sysadminctl -addUser failed for ${BUJB_workload_user}"
-          zbujb_admin_exec_native "sudo -n dscl . -create '${BUJB_path_mac_user_home}' UserShell /bin/bash" \
+          zbujb_admin_exec_native "sudo -n dscl . -create '${BUJB_path_mac_user_home}' UserShell ${BUJB_shell_bash}" \
             || buc_die "step3 (b/mac): dscl UserShell create failed for ${BUJB_path_mac_user_home}"
           ;;
       esac
@@ -902,7 +984,7 @@ zbujb_garrison_step3_create() {
     c)
       # Cygwin reflects Windows user accounts; mint via net.exe with a
       # disabled-password posture (we want ssh-key-only).
-      zbujb_admin_exec_cygwin "net.exe user '${BUJB_workload_user}' /add /passwordreq:no /active:yes > /dev/null" \
+      zbujb_admin_exec_cygwin "net.exe user '${BUJB_workload_user}' ${BUJB_netuser_add_args} > /dev/null" \
         || buc_die "step3 (c): net.exe user /add failed for ${BUJB_workload_user}"
       zbujb_admin_exec_cygwin "mkpasswd -l -u '${BUJB_workload_user}' >> /etc/passwd" \
         || buc_die "step3 (c): mkpasswd append to /etc/passwd failed for ${BUJB_workload_user}"
@@ -917,7 +999,7 @@ zbujb_garrison_step3_create() {
       # distribution by zbujb_garrison_w_init_wsl — admin's WSL is not
       # the workload's runtime distribution under the redesigned
       # garrison-w (Microsoft per-user WSL constraint, BUSJGW).
-      zbujb_admin_exec_wsl "net.exe user '${BUJB_workload_user}' /add /passwordreq:no /active:yes > /dev/null" \
+      zbujb_admin_exec_wsl "net.exe user '${BUJB_workload_user}' ${BUJB_netuser_add_args} > /dev/null" \
         || buc_die "step3 (w): net.exe user /add failed for ${BUJB_workload_user}"
       # OpenSSH-Win32 silently closes at preauth if the workload SID has
       # no HKLM\...\ProfileList entry. net.exe user /add creates the SAM
@@ -927,7 +1009,7 @@ zbujb_garrison_step3_create() {
       local z_sid z_regkey
       z_sid=$(zbujb_powershell_capture zbujb_privileged "(Get-LocalUser '${BUJB_workload_user}').SID.Value") \
         || buc_die "step 3 (w): could not resolve SID for ${BUJB_workload_user}"
-      z_regkey="HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\${z_sid}"
+      z_regkey="HKLM:\\${BUJB_winreg_profilelist_subpath}\\${z_sid}"
       zbujb_admin_powershell "New-Item -Path '${z_regkey}' -Force | Out-Null"
       zbujb_admin_powershell "New-ItemProperty -Path '${z_regkey}' -Name 'ProfileImagePath' -Value '${BUJB_path_winenv_user_home}' -PropertyType ExpandString -Force | Out-Null"
       ;;
@@ -950,7 +1032,7 @@ zbujb_garrison_step4_place_trust() {
     b|c) z_authkeys_dir="${z_wlhome}/${BUJB_path_dotssh}" ;;
     w)   z_authkeys_dir="${BUJB_path_wsl_user_ssh}" ;;
   esac
-  buc_step "  [4/6] Place workload trust (${z_authkeys_dir}/authorized_keys)"
+  buc_step "  [4/6] Place workload trust (${z_authkeys_dir}/${BUJB_authkeys_basename})"
 
   # For w letter, step 4 writes a BARE authorized_keys entry (pubkey only,
   # no command= directive) so the SSH-as-workload session opened by
@@ -967,7 +1049,7 @@ zbujb_garrison_step4_place_trust() {
       ;;
   esac
 
-  ssh-keygen -y -P '' -f "${BURP_WORKLOAD_KEY_FILE}" \
+  ${BUJB_sshkeygen_emit_pubkey} "${BURP_WORKLOAD_KEY_FILE}" \
       > "${ZBUJB_PUBKEY_STDOUT_WORK}" \
       2> "${ZBUJB_PUBKEY_STDERR_WORK}" \
     || buc_die "ssh-keygen -y failed for workload key: ${BURP_WORKLOAD_KEY_FILE} — see ${ZBUJB_PUBKEY_STDERR_WORK}"
@@ -991,10 +1073,10 @@ zbujb_garrison_step4_place_trust() {
         || buc_die "step4 (b): mkdir of ${z_authkeys_dir} failed"
       zbujb_admin_exec_native "${z_sudo_prefix}chmod 700 '${z_authkeys_dir}'" \
         || buc_die "step4 (b): chmod 700 of ${z_authkeys_dir} failed"
-      zbujb_admin_exec_native "echo '${z_authkeys_line}' | ${z_sudo_prefix}tee '${z_authkeys_dir}/authorized_keys' > /dev/null" \
-        || buc_die "step4 (b): write to ${z_authkeys_dir}/authorized_keys failed"
-      zbujb_admin_exec_native "${z_sudo_prefix}chmod 600 '${z_authkeys_dir}/authorized_keys'" \
-        || buc_die "step4 (b): chmod 600 of authorized_keys failed"
+      zbujb_admin_exec_native "echo '${z_authkeys_line}' | ${z_sudo_prefix}tee '${z_authkeys_dir}/${BUJB_authkeys_basename}' > /dev/null" \
+        || buc_die "step4 (b): write to ${z_authkeys_dir}/${BUJB_authkeys_basename} failed"
+      zbujb_admin_exec_native "${z_sudo_prefix}chmod 600 '${z_authkeys_dir}/${BUJB_authkeys_basename}'" \
+        || buc_die "step4 (b): chmod 600 of ${BUJB_authkeys_basename} failed"
       zbujb_admin_exec_native "${z_sudo_prefix}chown -R '${BUJB_workload_user}:${BUJB_workload_user}' '${z_authkeys_dir}'" \
         || buc_die "step4 (b): chown of ${z_authkeys_dir} failed"
       ;;
@@ -1006,10 +1088,10 @@ zbujb_garrison_step4_place_trust() {
         || buc_die "step4 (c): mkdir of ${z_authkeys_dir} failed"
       zbujb_admin_exec_cygwin "chmod 700 '${z_authkeys_dir}'" \
         || buc_die "step4 (c): chmod 700 of ${z_authkeys_dir} failed"
-      zbujb_admin_exec_cygwin "echo '${z_authkeys_line}' > '${z_authkeys_dir}/authorized_keys'" \
-        || buc_die "step4 (c): write to ${z_authkeys_dir}/authorized_keys failed"
-      zbujb_admin_exec_cygwin "chmod 600 '${z_authkeys_dir}/authorized_keys'" \
-        || buc_die "step4 (c): chmod 600 of authorized_keys failed"
+      zbujb_admin_exec_cygwin "echo '${z_authkeys_line}' > '${z_authkeys_dir}/${BUJB_authkeys_basename}'" \
+        || buc_die "step4 (c): write to ${z_authkeys_dir}/${BUJB_authkeys_basename} failed"
+      zbujb_admin_exec_cygwin "chmod 600 '${z_authkeys_dir}/${BUJB_authkeys_basename}'" \
+        || buc_die "step4 (c): chmod 600 of ${BUJB_authkeys_basename} failed"
       zbujb_admin_exec_cygwin "chown -R '${BUJB_workload_user}' '${z_authkeys_dir}'" \
         || buc_die "step4 (c): chown of ${z_authkeys_dir} failed"
       ;;
@@ -1018,7 +1100,7 @@ zbujb_garrison_step4_place_trust() {
         | openssl enc -base64 -A                                          \
             > "${ZBUJB_AUTHKEYS_B64_STDOUT}"                              \
             2> "${ZBUJB_AUTHKEYS_B64_STDERR}"                             \
-        || buc_die "base64 encode failed for authorized_keys line — see ${ZBUJB_AUTHKEYS_B64_STDERR}"
+        || buc_die "base64 encode failed for ${BUJB_authkeys_basename} line — see ${ZBUJB_AUTHKEYS_B64_STDERR}"
       local z_authkeys_b64
       z_authkeys_b64=$(<"${ZBUJB_AUTHKEYS_B64_STDOUT}")
       z_authkeys_b64="${z_authkeys_b64//$'\n'/}"
@@ -1028,8 +1110,8 @@ zbujb_garrison_step4_place_trust() {
 
       zbujb_place_trust_run "mkdir"            zbujb_admin_exec_wsl    "mkdir -p '${z_authkeys_dir}'"
       zbujb_place_trust_run "chmod-dir"        zbujb_admin_exec_wsl    "chmod 700 '${z_authkeys_dir}'"
-      zbujb_place_trust_run "decode-write"     zbujb_admin_exec_wsl    "set -o pipefail; echo '${z_authkeys_b64}' | openssl enc -base64 -d -A > '${z_authkeys_dir}/authorized_keys'"
-      zbujb_place_trust_run "chmod-file"       zbujb_admin_exec_wsl    "chmod 600 '${z_authkeys_dir}/authorized_keys'"
+      zbujb_place_trust_run "decode-write"     zbujb_admin_exec_wsl    "set -o pipefail; echo '${z_authkeys_b64}' | openssl enc -base64 -d -A > '${z_authkeys_dir}/${BUJB_authkeys_basename}'"
+      zbujb_place_trust_run "chmod-file"       zbujb_admin_exec_wsl    "chmod 600 '${z_authkeys_dir}/${BUJB_authkeys_basename}'"
       zbujb_place_trust_run "prelock-readback" zbujb_admin_exec_cygwin "cat '${BUJB_path_cyg_user_authkeys}'"
 
       local z_authkeys_win="${BUJB_path_win_user_authkeys}"
@@ -1069,7 +1151,7 @@ zbujb_garrison_step5_plant_key() {
       # home; both -o and -g supplied because useradd auto-mints a
       # self-named primary group on Linux/Mac.
       zbujb_admin_exec_native \
-          "sudo -n install -D -m 600 -o '${BUJB_workload_user}' -g '${BUJB_workload_user}' /dev/stdin '${z_target}'" \
+          "sudo -n install -D -m 600 -o '${BUJB_workload_user}' -g '${BUJB_workload_user}' ${BUJB_path_devstdin} '${z_target}'" \
           < "${BURP_WORKLOAD_KEY_FILE}" \
         || buc_die "step5 (b): failed to plant workload key at ${z_target}"
       ;;
@@ -1078,7 +1160,7 @@ zbujb_garrison_step5_plant_key() {
       # no sudo needed. -o and -g supplied (WSL distro is Linux-flavoured;
       # useradd inside it mints a self-named group).
       zbujb_admin_exec_wsl \
-          "install -D -m 600 -o '${BUJB_workload_user}' -g '${BUJB_workload_user}' /dev/stdin '${z_target}'" \
+          "install -D -m 600 -o '${BUJB_workload_user}' -g '${BUJB_workload_user}' ${BUJB_path_devstdin} '${z_target}'" \
           < "${BURP_WORKLOAD_KEY_FILE}" \
         || buc_die "step5 (w): failed to plant workload key at ${z_target}"
       ;;
@@ -1088,7 +1170,7 @@ zbujb_garrison_step5_plant_key() {
       # net.exe user /add) do not get an auto-self-named group; passing
       # -g '${BUJB_workload_user}' would fail.
       zbujb_admin_exec_cygwin \
-          "install -D -m 600 -o '${BUJB_workload_user}' /dev/stdin '${z_target}'" \
+          "install -D -m 600 -o '${BUJB_workload_user}' ${BUJB_path_devstdin} '${z_target}'" \
           < "${BURP_WORKLOAD_KEY_FILE}" \
         || buc_die "step5 (c): failed to plant workload key at ${z_target}"
       ;;
@@ -1183,11 +1265,11 @@ zbujb_garrison_w_init_wsl() {
     || buc_die "w-init-wsl: wsl --import failed (see ${ZBUJB_W_INIT_PREFIX}*wsl-import*)"
 
   zbujb_w_init_run "wsl-useradd" zbujb_workload_ssh \
-    "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c \"useradd --create-home --shell /bin/bash ${BUJB_workload_user}\"" \
+    "${BUJB_wsl_root_bash_c} \"useradd ${BUJB_useradd_workload_args} ${BUJB_workload_user}\"" \
     || buc_die "w-init-wsl: useradd failed inside workload's distribution"
 
   zbujb_w_init_run "wsl-passwd-lock" zbujb_workload_ssh \
-    "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c \"passwd --lock ${BUJB_workload_user}\"" \
+    "${BUJB_wsl_root_bash_c} \"passwd --lock ${BUJB_workload_user}\"" \
     || buc_die "w-init-wsl: passwd --lock failed for inner Linux user"
 
   # Plant the workload privkey inside the workload's WSL distribution
@@ -1198,11 +1280,11 @@ zbujb_garrison_w_init_wsl() {
   # /dev/stdin where mode + owner are set atomically. See WSG SH-10 for
   # the single-statement-body contract.
   zbujb_w_init_run "wsl-plant-sshdir" zbujb_workload_ssh \
-      "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c \"install -d -m 700 -o ${BUJB_workload_user} -g ${BUJB_workload_user} '${BUJB_path_posix_user_ssh}'\"" \
+      "${BUJB_wsl_root_bash_c} \"install -d -m 700 -o ${BUJB_workload_user} -g ${BUJB_workload_user} '${BUJB_path_posix_user_ssh}'\"" \
     || buc_die "w-init-wsl: failed to create ${BUJB_path_posix_user_ssh} inside workload's distribution"
 
   zbujb_w_init_run "wsl-plant-privkey" zbujb_workload_ssh \
-      "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c \"install -m 600 -o ${BUJB_workload_user} -g ${BUJB_workload_user} /dev/stdin '${BUJB_path_posix_user_home}/${BUJB_workload_keypath}'\"" \
+      "${BUJB_wsl_root_bash_c} \"install -m 600 -o ${BUJB_workload_user} -g ${BUJB_workload_user} ${BUJB_path_devstdin} '${BUJB_path_posix_user_home}/${BUJB_workload_keypath}'\"" \
       < "${BURP_WORKLOAD_KEY_FILE}" \
     || buc_die "w-init-wsl: failed to plant workload privkey inside workload's distribution"
 }
@@ -1215,13 +1297,13 @@ zbujb_garrison_w_init_wsl() {
 # ownership transfers.
 zbujb_garrison_w_lockdown() {
   zbujb_sentinel
-  buc_step "  [w-lockdown] Replace bare authorized_keys with command= directive"
+  buc_step "  [w-lockdown] Replace bare ${BUJB_authkeys_basename} with command= directive"
 
   local z_command_directive
   z_command_directive=$(bujb_command_for_capture w) \
     || buc_die "w-lockdown: bujb_command_for_capture failed for letter='w'"
 
-  ssh-keygen -y -P '' -f "${BURP_WORKLOAD_KEY_FILE}" \
+  ${BUJB_sshkeygen_emit_pubkey} "${BURP_WORKLOAD_KEY_FILE}" \
       > "${ZBUJB_PUBKEY_STDOUT_WORK}" \
       2> "${ZBUJB_PUBKEY_STDERR_WORK}" \
     || buc_die "w-lockdown: ssh-keygen -y failed — see ${ZBUJB_PUBKEY_STDERR_WORK}"
@@ -1237,7 +1319,7 @@ zbujb_garrison_w_lockdown() {
       | openssl enc -base64 -A                               \
           > "${ZBUJB_AUTHKEYS_B64_STDOUT}"                   \
           2> "${ZBUJB_AUTHKEYS_B64_STDERR}"                  \
-    || buc_die "w-lockdown: base64 encode failed for authorized_keys line — see ${ZBUJB_AUTHKEYS_B64_STDERR}"
+    || buc_die "w-lockdown: base64 encode failed for ${BUJB_authkeys_basename} line — see ${ZBUJB_AUTHKEYS_B64_STDERR}"
   local z_authkeys_b64=$(<"${ZBUJB_AUTHKEYS_B64_STDOUT}")
   z_authkeys_b64="${z_authkeys_b64//$'\n'/}"
 
@@ -1246,8 +1328,8 @@ zbujb_garrison_w_lockdown() {
   z_wsl_body="echo '${z_authkeys_b64}' | openssl enc -base64 -d -A > '${z_authkeys_path}'"
 
   zbujb_w_init_run "lockdown-write" zbujb_workload_ssh \
-    "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash -c \"${z_wsl_body}\"" \
-    || buc_die "w-lockdown: failed to overwrite authorized_keys with command= form"
+    "${BUJB_wsl_root_bash_c} \"${z_wsl_body}\"" \
+    || buc_die "w-lockdown: failed to overwrite ${BUJB_authkeys_basename} with command= form"
 }
 
 # zbujb_garrison_w_seed_cleanup -- remove the seed tarball placed by
@@ -1273,7 +1355,7 @@ zbujb_garrison_step6_validate() {
   local z_exit=0
   zbujb_validate_run "knock-ssh" ssh -i "${BURP_WORKLOAD_KEY_FILE}" \
       "${ZBUJB_SSH_BASE_ARGS[@]}"                                    \
-      -o BatchMode=yes                                               \
+      -o "${BUJB_ssh_opt_batchmode_yes}"                             \
       -o ConnectTimeout=10                                           \
       "${BUJB_workload_user}@${BURN_HOST}"                           \
       true                                                           \
@@ -1282,7 +1364,7 @@ zbujb_garrison_step6_validate() {
   if test "${z_exit}" -ne 0; then
     zbujb_validate_run "eventlog-operational" zbujb_admin_powershell "Get-WinEvent -FilterHashtable @{LogName='OpenSSH/Operational'; StartTime=(Get-Date).AddSeconds(-30)} -ErrorAction SilentlyContinue | Format-List TimeCreated, Message | Out-String" || true
     zbujb_validate_run "eventlog-admin"       zbujb_admin_powershell "Get-WinEvent -FilterHashtable @{LogName='OpenSSH/Admin'; StartTime=(Get-Date).AddSeconds(-30)} -ErrorAction SilentlyContinue | Format-List TimeCreated, Message | Out-String"       || true
-    zbujb_validate_run "sshd-config"          zbujb_admin_powershell "Get-Content \$env:ProgramData\\ssh\\sshd_config | Out-String"                                                                                                                       || true
+    zbujb_validate_run "sshd-config"          zbujb_admin_powershell "Get-Content ${BUJB_ps_sshd_config_path} | Out-String"                                                                                                                                  || true
     zbujb_validate_run "acl-home"             zbujb_admin_powershell "icacls '${BUJB_path_win_user_home}'"                                                                                                                                                || true
     zbujb_validate_run "acl-dotssh"           zbujb_admin_powershell "icacls '${BUJB_path_win_user_ssh}'"                                                                                                                                                 || true
     zbujb_validate_run "getacl-home"          zbujb_admin_powershell "Get-Acl '${BUJB_path_win_user_home}' | Format-List | Out-String"                                                                                                                    || true
@@ -1292,7 +1374,7 @@ zbujb_garrison_step6_validate() {
     zbujb_validate_run "service-sshd"         zbujb_admin_powershell "Get-Service sshd | Format-List | Out-String"                                                                                                                                        || true
     zbujb_validate_run "sshdir-listing"       zbujb_admin_powershell "Get-ChildItem \$env:ProgramData\\ssh -ErrorAction SilentlyContinue | Format-List Name, Length, LastWriteTime | Out-String"                                                          || true
     zbujb_validate_run "limit-blank-password" zbujb_admin_powershell "reg.exe query 'HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa' /v LimitBlankPasswordUse 2>\$null | Out-String"                                                                        || true
-    zbujb_validate_run "profile-list"         zbujb_admin_powershell "reg.exe query 'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList' /s 2>\$null | Out-String"                                                                        || true
+    zbujb_validate_run "profile-list"         zbujb_admin_powershell "reg.exe query 'HKLM\\${BUJB_winreg_profilelist_subpath}' /s 2>\$null | Out-String"                                                                                                     || true
 
     buc_die "Workload round-trip failed (ssh exit ${z_exit}); the new account did not accept its own key."
   fi
@@ -1373,9 +1455,9 @@ zbujb_fenestrate_exec_with_password_fallback() {
       "${ZBUJB_SSH_BASE_ARGS[@]}"                \
       -o BatchMode=no                            \
       -o PreferredAuthentications=publickey,password \
-      -o ConnectTimeout=15                       \
+      -o "${BUJB_ssh_opt_connecttimeout_15}"     \
       "${BURP_PRIVILEGED_USER}@${BURN_HOST}"     \
-      'powershell -NoProfile -File -'            \
+      "${BUJB_ps_invoke_file_stdin}"             \
       > "${z_stdout_file}"                       \
       2> "${z_stderr_file}"
 }
@@ -1391,11 +1473,11 @@ zbujb_fenestrate_exec_keyonly() {
 
   ssh -i "${BURP_PRIVILEGED_KEY_FILE}"           \
       "${ZBUJB_SSH_BASE_ARGS[@]}"                \
-      -o BatchMode=yes                           \
+      -o "${BUJB_ssh_opt_batchmode_yes}"         \
       -o PreferredAuthentications=publickey      \
-      -o ConnectTimeout=15                       \
+      -o "${BUJB_ssh_opt_connecttimeout_15}"     \
       "${BURP_PRIVILEGED_USER}@${BURN_HOST}"     \
-      'powershell -NoProfile -File -'            \
+      "${BUJB_ps_invoke_file_stdin}"             \
       > "${z_stdout_file}"                       \
       2> "${z_stderr_file}"
 }
@@ -1466,7 +1548,7 @@ zbujb_fenestrate_verify_directives() {
 zbujb_fenestrate_phase1() {
   zbujb_sentinel
 
-  ssh-keygen -y -P '' -f "${BURP_PRIVILEGED_KEY_FILE}" \
+  ${BUJB_sshkeygen_emit_pubkey} "${BURP_PRIVILEGED_KEY_FILE}" \
       > "${ZBUJB_PUBKEY_STDOUT_PRIV}" \
       2> "${ZBUJB_PUBKEY_STDERR_PRIV}" \
     || buc_die "ssh-keygen -y failed for admin key: ${BURP_PRIVILEGED_KEY_FILE} — see ${ZBUJB_PUBKEY_STDERR_PRIV}"
@@ -1496,7 +1578,7 @@ zbujb_fenestrate_phase1() {
 
 \$pubkey = '${z_pubkey}'
 \$adminAuthKeys = "\$env:ProgramData\\ssh\\administrators_authorized_keys"
-\$sshConfig    = "\$env:ProgramData\\ssh\\sshd_config"
+\$sshConfig    = "${BUJB_ps_sshd_config_path}"
 
 # Idempotent admin pubkey install
 if (-not (Test-Path \$adminAuthKeys)) {
@@ -1573,9 +1655,9 @@ zbujb_fenestrate_phase2() {
   zbujb_fenestrate_exec_keyonly                 \
       "${ZBUJB_FENESTRATE_PHASE2_STDOUT}"       \
       "${ZBUJB_FENESTRATE_PHASE2_STDERR}"       \
-    <<'PS1' || buc_die "Phase 2 reconnect failed — possible brick: admin pubkey not honored after restart or sshd did not come back up; see ${ZBUJB_FENESTRATE_PHASE2_STDERR}"
-$ErrorActionPreference = 'Stop'
-Get-Content "$env:ProgramData\ssh\sshd_config" -Raw
+    <<PS1 || buc_die "Phase 2 reconnect failed — possible brick: admin pubkey not honored after restart or sshd did not come back up; see ${ZBUJB_FENESTRATE_PHASE2_STDERR}"
+\$ErrorActionPreference = 'Stop'
+Get-Content "${BUJB_ps_sshd_config_path}" -Raw
 PS1
 
   zbujb_fenestrate_verify_directives "${ZBUJB_FENESTRATE_PHASE2_STDOUT}"
@@ -1703,8 +1785,8 @@ bujb_privileged_ssh() {
   local z_exit=0
   ssh -i "${BURP_PRIVILEGED_KEY_FILE}"           \
       "${ZBUJB_SSH_BASE_ARGS[@]}"                \
-      -o BatchMode=yes                           \
-      -o ConnectTimeout=15                       \
+      -o "${BUJB_ssh_opt_batchmode_yes}"         \
+      -o "${BUJB_ssh_opt_connecttimeout_15}"     \
       "${BURP_PRIVILEGED_USER}@${BURN_HOST}"     \
       "$@"                                       \
     || z_exit=$?
