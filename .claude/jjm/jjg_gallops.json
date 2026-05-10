@@ -35,6 +35,7 @@
       "jjghn_creation_time": "260412",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢A-AA-",
         "₢A-AA9",
         "₢A-AA8",
         "₢A-AA7",
@@ -94,8 +95,19 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "jjghn_next_pace_seed": "AA-",
+      "jjghn_next_pace_seed": "AA_",
       "jjghn_paces": {
+        "₢A-AA-": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260510-1035",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nDesign conversation requiring judgment. Mostly mechanical excision but\nseveral calls about which cross-references and meta-paragraphs earn their\nplace. Read WSG end-to-end; do not derive cuts from this docket alone.\n\n## Goal\n\nReshape WSG into a project-independent rule reference whose shape matches\nBCG's: each rule self-contained, mechanism + wrong/right code + done.\n\n## Locked constraints\n\n- WSG must be portable. **No reference to any concrete bash function,\n  wrapper, file path, or call-site in this codebase.** Where a rule needs\n  to show shape (e.g. capture-then-dispatch), invent notional function\n  names — `priv_ssh`, `ps_capture`, `bash_exec`, etc. — clearly notional,\n  not matching anything real.\n- No pace coronets, memo URLs, or \"this rule was minted after…\" narration\n  in rule prose. Spec is timeless; events live in git log.\n- No defensive cross-rule references. A rule that needs to mention another\n  may name it once; do not re-litigate boundaries between rules.\n- Keep the rules themselves. Their content is sound — only the\n  surrounding narration is overgrown.\n\n## Cuts the operator already endorses\n\n- Coronet refs and \"the historical violator was…\" sentences throughout.\n- Memo URLs in rule bodies (`Memos/memo-...` citations).\n- \"Rules enumerate; they don't illustrate\" as a named, back-referenced\n  Core Philosophy clause. The rules already enumerate.\n- Empirical Record + Convention for future experiments sections.\n- \"Open question: bool-returning predicate variant\" inside CDD.\n- Verbatim duplication between PS-5 and SH-10 (the \"If N intermediate\n  values\" recipe and the closing line about the state machine).\n\n## Judgment calls left to mount-time\n\n- How aggressively to dedupe PS-5/SH-10 — extract a shared \"single-effect\n  bodies\" rule, or keep two thinner rules.\n- Whether CDD + Idempotency Exemplars stay (they read cleanly) or get\n  trimmed further once the notional-functions constraint lands.\n- Whether to keep the per-letter escape table (SH-6) as-is or trim.\n\n## Done looks like\n\nWSG roughly halves in line count without losing prescription. A reader\nunfamiliar with this project can apply every rule. No grep of the new\nWSG returns a real function name, file path, coronet, or memo filename.\n\n## Out of scope\n\n- Editing BCG.\n- Editing any source file that WSG currently references.\n- Re-running probes. The empirical work stands; only its expression in\n  WSG changes.",
+              "jjgtn_silks": "wsg-trim-to-spec-shape",
+              "jjgtn_basis": "6fed467"
+            }
+          ]
+        },
         "₢A-AA0": {
           "jjgpn_tacks": [
             {
