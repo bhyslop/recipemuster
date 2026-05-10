@@ -35,6 +35,7 @@
       "jjghn_creation_time": "260412",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢A-AA8",
         "₢A-AA7",
         "₢A-AA6",
         "₢A-AA5",
@@ -92,7 +93,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "jjghn_next_pace_seed": "AA8",
+      "jjghn_next_pace_seed": "AA9",
       "jjghn_paces": {
         "₢A-AA0": {
           "jjgpn_tacks": [
@@ -207,6 +208,17 @@
               "jjgtn_text": "## Character\nSpec content rewrite — Windows-side depth.\n\n## Goal\nFlesh BUSJPCw, BUSJIw, BUSJHW with substantive content; align garrison-w/c preconditions to reference invigilate-windows.\n\n## Boundary\n- BUSJPCw: rewrite from fenestrate's lineage to broader caparison-windows scope. Preconditions, steps for SSH trust + WSL stage (always-purge-and-reimport, no skip-if-present) + power/sleep config (powercfg) + Tailscale service Set-Service Automatic, post-state assertion via invigilate-windows reference.\n- BUSJIw: posture fact list — operator-managed registry keys, Tailscale service StartupType, powercfg standby/hibernate state, AoAc override, admin's rbtww-main presence. Read commands (`Get-ItemPropertyValue`, `Get-Service`, `powercfg /a`, `wsl --list`) with expected values. Failure messages discriminate operator-pointer (handbook) vs caparison-pointer.\n- BUSJHW: operator-manual Windows-only scope — sshd reachability bootstrap, security-sensitive registry edits (DevicePasswordLessBuildVersion), Tailscale install + Run-Unattended toggle + first auth, netplwiz auto-login.\n- BUSJGW + BUSJGC: precondition lists reference invigilate-windows. Remove the \"WSL distribution rbtww-main installed under admin\" wording from BUSJGW (caparison-windows owns that posture now).\n- No bash code edits.\n\n## Done when\n- Three Windows specs render coherently end-to-end against each other.\n- BUSJGW/C preconditions align with invigilate-windows references.\n- bash -n green; tt/buw-st.BukSelfTest.sh green; tt/rbtd-s.TestSuite.fast.sh green.",
               "jjgtn_silks": "caparison-invigilate-windows-content",
               "jjgtn_basis": "65d6310"
+            }
+          ]
+        },
+        "₢A-AA8": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260510-0924",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical structural reshape — vocabulary establishment, no behavior change.\n\n## Goal\nLock the BUS0 architecture for the caparison/invigilate/garrison triad and the per-platform handbook split. Subsequent paces flesh content into the skeleton this pace creates.\n\n## Boundary\n- `git mv BUSJPF-Fenestrate.adoc → BUSJPCw-CaparisonWindows.adoc`. Content stays as-is in this pace; pace 2 rewrites it.\n- Create skeleton stubs (header + scope NOTE only, \"TODO: content in subsequent pace\") for BUSJHW/M/L, BUSJPCm/l, BUSJIw/m/l.\n- BUS0 edits: jurisdiction definition references caparison + invigilate as the two privilege-side ceremony types; Garrison-Destructive Model section's \"out of scope\" sentence widens from \"sshd_config\" to \"host posture\"; tabtarget catalog updated (jpW removed; jpF→jpCw; new jpCm/jpCl/jpIw/jpIm/jpIl/hjW/hjM/hjL); count \"fifteen tabtargets\" corrected to new total.\n- BUSJH0 edits to dispatch to per-platform handbook tabtargets.\n- Verb name \"caparison\" replaces \"fenestrate\" at the BUS0 motif/quoin level. {busn_fenestrate} renames to {busn_caparison} (or whatever quoin-form fits MCM minting discipline); references across BUSJG{B,C,W} and BUSJPS update.\n- No bash code edits.\n\n## Done when\n- All renames staged via git mv (rename detection clean per `git status -M`).\n- BUS0 reads coherently against new architecture; motif/quoin updates consistent across all BUSJ* referencing files.\n- Skeleton specs render via existing buw-hj0 chain (or its dispatched per-platform tabtargets if those land here).\n- bash -n green; tt/buw-st.BukSelfTest.sh green; tt/rbtd-s.TestSuite.fast.sh green.",
+              "jjgtn_silks": "bus0-caparison-invigilate-skeleton",
+              "jjgtn_basis": "e2700d7"
             }
           ]
         },
