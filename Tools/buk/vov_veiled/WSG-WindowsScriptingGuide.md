@@ -8,11 +8,6 @@ layer. WSG extends BCG's bash discipline into the ssh-to-Windows transport
 stack — where curia bash code authors a string that traverses ssh → Windows
 OpenSSH → cmd.exe → child shell → script execution.
 
-WSG is empirically derived. Every established rule has a verification probe
-that demonstrates the failure mode the rule prevents. Open questions are
-flagged explicitly and resolved by separate experiment paces, not by
-conjecture.
-
 ## Core Philosophy
 
 **Every layer is a fault domain.** A character that means one thing in curia
@@ -30,9 +25,8 @@ bite even bodies that look bash-correct from the curia.
 output (Write-Host, Write-Output of strings) eagerly; some cmdlets'
 formatter cycles flush only on full pipeline completion, so calling
 `exit` mid-body (or trailer-side) discards their unformatted output.
-The set of lazy cmdlets is not universal — `Get-LocalUser` is proven
-lazy, `Get-Item` is proven eager. Treat the lazy default as the safe
-assumption (PS-2). String emission always survives.
+The set of lazy cmdlets is not universal — treat the lazy default as
+the safe assumption (PS-2). String emission always survives.
 
 **Trap, don't trust.** Each rule below assumes that any error which can
 plausibly be silenced WILL be silenced if not explicitly trapped. The bias
@@ -40,18 +34,9 @@ is toward defensive instrumentation: surface every non-zero exit, every
 empty stdout, every unflushed buffer, with a forensic temp file naming the
 boundary that swallowed it.
 
-**Rules enumerate; they don't illustrate.** Each rule below names a closed
-set of allowed shapes. Anything not enumerated is forbidden, even if it
-*looks* morally similar to an allowed form. Do not reason "this is *like*
-one expression because it's *like* one effect" — that path admits a fourth
-shape the rule never sanctioned, and the rationalization propagates to
-every call site that copies the precedent. When in doubt, decompose into
-more round-trips: the cost of an extra ssh hop is small; the cost of a
-loophole is structural.
-
 ## Transport Stack
 
-A typical chain for `zbujb_admin_powershell` or `zbujb_admin_exec`:
+A typical chain:
 
 ```
 1. Local bash (curia)            builds ssh argument string
@@ -90,30 +75,13 @@ powershell -Command "$LASTEXITCODE = 0;
                      if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }"
 ```
 
-Probe pair (verification):
-
-```
-./tt/buw-jpS.PrivilegedSsh.sh <node> \
-  "powershell -NoProfile -Command \"Get-LocalUser -Name 'foo'; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE }\""
-# stdout → CRLF only
-
-./tt/buw-jpS.PrivilegedSsh.sh <node> \
-  "powershell -NoProfile -Command \"\$LASTEXITCODE = 0; Get-LocalUser -Name 'foo'; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE }\""
-# stdout → full LocalUser table
-```
-
 ### ❌ PS-2: `exit` mid-body before object formatters flush
 
 PowerShell flushes string output eagerly but *some* cmdlet object outputs
 lazily (Out-Default → Format-Table → render). `exit` aborts the formatter
-pipeline. Lazy outputs that haven't flushed are discarded. The cmdlets
-that exhibit this lazy behavior are formatter-cycle-specific: `Get-LocalUser`
-from `Microsoft.PowerShell.LocalAccounts` is proven lazy (empty stdout
-when followed by `exit 0`); `Get-Item` from the FileSystem provider is
-proven eager (table survives `exit 0`). Treat the rule as the safe
-default: assume any cmdlet output is lazy unless you've checked. See
-the OQ-6 section of `Memos/memo-20260508-windows-transport-experiments.md`
-for the empirical baseline.
+pipeline. Lazy outputs that haven't flushed are discarded. Whether a given
+cmdlet is lazy is formatter-cycle-specific: assume any cmdlet output is
+lazy unless you have verified otherwise.
 
 ```powershell
 # ❌ Get-LocalUser's table is lost; Get-Date's string survives
@@ -137,9 +105,6 @@ FD 0, connected to the script-providing pipe. A child that reads FD 0
 bash hadn't yet parsed. Bash hits EOF prematurely, exits 0 without errors,
 and remaining commands silently never execute.
 
-This is BCG's stdin-consumption discipline (BCG line 1388) at a different
-scope.
-
 ```bash
 # ❌ Script via heredoc/stdin; net.exe (or any FD-0 reader) eats bytes
 ssh ... "wsl.exe ... bash -s" <<SCRIPT
@@ -149,24 +114,14 @@ useradd 'foo'                       # may silently never run
 SCRIPT
 
 # ✅ Body as bash -c argument; bash reads body from -c, not FD 0
-# (one statement per ssh round-trip, per SH-10; the multi-statement
-#  shape this fix originally used was retired by pace ₢A-AA9)
 ssh ... "wsl.exe ... bash -c \"net.exe user 'foo' /add ...\""
 ```
-
-Verification: cycle-1 vs cycle-3 of correct-wsl-user-model (`₢A-AAv`).
-Heredoc form silently dropped useradd; args form propagated correctly,
-proven by `getent passwd bujuw_user` returning the entry post-step-3.
 
 ### ❌ SH-2: Newlines in bodies through cmd.exe
 
 Cmd.exe is line-oriented. Newlines in `"..."` quoted args are unreliable
-across the cmd.exe → child-binary boundary. Bodies must be single-line.
-
-Under SH-10 a body is a single statement anyway, so the line-orientation
-constraint is rarely the binding one — but it still applies to the
-characters inside that one statement (e.g. no newlines inside a long
-pipeline written for readability).
+across the cmd.exe → child-binary boundary. Bodies must be single-line —
+including the characters inside one long pipeline written for readability.
 
 ```bash
 # ❌ Newlines in body; cmd.exe may fragment
@@ -174,12 +129,9 @@ ssh ... "wsl.exe ... bash -c \"
 useradd foo
 \""
 
-# ✅ Single-line, single-statement body
+# ✅ Single-line body
 ssh ... "wsl.exe ... bash -c \"useradd foo\""
 ```
-
-`;`-joining multiple statements onto one line is **forbidden separately**
-by SH-10 (single-statement contract). SH-2 is purely about newlines.
 
 ### ✅ SH-3: Outer `"..."` with `\"` for embedded double-quotes
 
@@ -196,10 +148,6 @@ ssh ... "wsl.exe ... bash -c \"echo SAW: \\\"hello\\\"\""
 Probe: `bash -c "echo SAW: \"hello\""` → stdout `SAW: hello` (quotes
 stripped by bash's own parsing of the unescaped `"`).
 
-(The previous illustrative `trap 'rm -f ...' EXIT` example was retired
-in pace ₢A-AA9: `trap` is a state-machine construct, forbidden in
-single-statement bodies per SH-10.)
-
 ### ✅ PS-3: PowerShell single-quoted strings survive nesting
 
 Inside the outer `"..."` of `powershell -Command "..."`, single-quoted
@@ -209,11 +157,11 @@ PowerShell parses its body and recognizes `'...'` as PS string literals.
 
 ```bash
 # ✅ Single-quoted PS literals inside outer "..."
-ssh ... "powershell -NoProfile -Command \"Get-LocalUser -Name 'bujuw_user'\""
+ssh ... "powershell -NoProfile -Command \"Get-LocalUser -Name 'username'\""
 ```
 
-This is why `zbujb_admin_powershell` consistently uses single quotes for PS
-string literals — they nest reliably through every layer.
+Use single quotes for PS string literals — they nest reliably through every
+layer.
 
 ### ✅ PS-4: PS-2's lazy-flush behavior is transport-agnostic
 
@@ -222,41 +170,32 @@ PowerShell was launched. The same `Get-LocalUser; exit 0` body emits
 empty stdout via direct cmd.exe→powershell, cygwin→powershell.exe, and
 wsl.exe→bash→powershell.exe. The fix (Out-String materialization, or
 PS-1's `$LASTEXITCODE = 0` so the trailer doesn't fire) is also
-transport-agnostic. See `Memos/memo-20260508-windows-transport-experiments.md`
-§OQ-6.
+transport-agnostic.
 
 ### ❌ SH-4: cmd.exe does NOT process `$()` or `$var`
 
-Verified by direct probe: `cmd.exe /c echo "SHELL=$0 X=$(uname)"` emits the
-literal string `"SHELL=$0 X=$(uname)"` with no expansion. Cmd.exe's
-variable syntax is `%var%` and it has no command substitution. Therefore
-the outer cmd.exe layer is NOT the layer that processes shell variable
-expansion or command substitution in transit.
-
-This rule is structural; the corollary is OQ-1 (something else does eat `$`
-in some chains).
+Direct probe: `cmd.exe /c echo "SHELL=$0 X=$(uname)"` emits the literal
+string `"SHELL=$0 X=$(uname)"` with no expansion. Cmd.exe's variable
+syntax is `%var%` and it has no command substitution. The outer cmd.exe
+layer is NOT the layer that processes shell variable expansion or
+command substitution in transit.
 
 ### ❌ SH-5: BCG bans extend across the transport boundary
 
-The bash code we author at the curia AND the bash code we author for remote
-execution are both subject to BCG. In particular:
+Bash authored at the curia AND bash authored for remote execution are
+both subject to BCG. In particular:
 
 - **No heredocs anywhere.** The transport must not use `bash -s` with
-  heredoc input (SH-1 covers the failure mode); module callers must not
-  build remote bodies via heredoc.
-- **No pipelines inside `$()`.** This applies to module code (e.g. the
-  ill-fated `z_b64=$(printf ... | base64 | tr -d ...)` transport) and to
-  bodies authored for remote execution.
+  heredoc input (SH-1); module callers must not build remote bodies via
+  heredoc.
+- **No pipelines inside `$()`.** Applies to curia code and to bodies
+  authored for remote execution.
 - **No unguarded `$()`.** Remote bodies that use command substitution must
   guard against silent failure the same way curia code does.
 
 Top-level pipelines (not inside `$()`) are permitted in remote bodies as
 shape 2 of SH-10 (a pipeline is one operation, optionally preceded by
-`set -o pipefail`). The historical `$(mktemp)` allowance for remote bodies
-was retired by pace ₢A-AA9 along with the multi-statement contract: any
-pattern that needed a remote temp file (e.g. the original plant-key) was a
-multi-statement state machine and is now forbidden by SH-10. Bash on the
-curia owns the state machine; the remote-side body is one effect.
+`set -o pipefail`).
 
 ### ❌ SH-6: wsl.exe substitutes `$name` and `${name}` in argv
 
@@ -276,23 +215,15 @@ Per-letter escape table:
 | c      | cmd.exe → cygwin bash                      | none        | none          | none     |
 | w      | cmd.exe → wsl.exe → bash                   | `\$name`    | `\${name}`    | none     |
 
-Probe pair (verification, w-letter — invoked through `bujb_privileged_ssh`,
-which is a pass-through wrapper not bound by SH-10's single-statement
-contract; the multi-statement body is essential to demonstrate the
-substitution behavior):
-
-```
+```bash
 # ❌ Fails on w-letter — wsl.exe substitutes $ztmp to empty before bash runs
-./tt/buw-jpS.PrivilegedSsh.sh <node> 'wsl.exe --distribution rbtww-main --user root bash -c "ztmp=HELLO; echo $ztmp"'
+ssh ... 'wsl.exe --distribution <dist> --user root bash -c "ztmp=HELLO; echo $ztmp"'
 # stdout: (empty)
 
 # ✅ \$ defers expansion to bash
-./tt/buw-jpS.PrivilegedSsh.sh <node> 'wsl.exe --distribution rbtww-main --user root bash -c "ztmp=HELLO; echo \$ztmp"'
+ssh ... 'wsl.exe --distribution <dist> --user root bash -c "ztmp=HELLO; echo \$ztmp"'
 # stdout: HELLO
 ```
-
-See `Memos/memo-20260508-windows-transport-experiments.md` §OQ-1, §OQ-2,
-§OQ-4.
 
 ### ✅ SH-7: Exit-code propagation is reliable across transports
 
@@ -301,29 +232,26 @@ cmd.exe direct, wsl.exe → bash, cygwin bash, PowerShell, and native
 Windows binaries called via wsl.exe interop. The single statement in the
 body's shape (per SH-10) is also the body's exit code — it reaches the
 curia unchanged via the wrapper's ssh exit status, and the caller absorbs
-it via `|| buc_die "..."`. No `set -e` discipline is needed inside the
-body, because there is nothing after the single statement that `set -e`
-would protect.
+it via `|| die "..."`. No `set -e` discipline is needed inside the body,
+because there is nothing after the single statement that `set -e` would
+protect.
 
 `set -o pipefail` IS needed for shape 2 (pipeline) when the pipeline's
 intent is to fail if any stage fails — pipefail is a precondition of
 the pipeline's exit-code semantics, not a separate operation, and is
 permitted inside the same statement (see SH-10 exception).
 
-Probe (w-letter, false propagation):
-
-```
-./tt/buw-jpS.PrivilegedSsh.sh <node> 'wsl.exe --distribution rbtww-main --user root bash -c "false"'; echo "EXIT=$?"
+```bash
+# Probe: false propagation through w-letter
+ssh ... 'wsl.exe --distribution <dist> --user root bash -c "false"'; echo "EXIT=$?"
 # EXIT=1
 ```
 
-See `Memos/memo-20260508-windows-transport-experiments.md` §OQ-5.
-
 ### ✅ SH-8: Multi-line bodies via file feed (when SH-2 doesn't fit)
 
-When a body materially exceeds what `;`-join (SH-2) can express, the
-canonical pattern is two-phase: phase 1 ships the body as a remote file
-via PowerShell `Set-Content` or `[System.IO.File]::WriteAllText`; phase 2
+When a body materially exceeds what `;`-join can express, the canonical
+pattern is two-phase: phase 1 ships the body as a remote file via
+PowerShell `Set-Content` or `[System.IO.File]::WriteAllText`; phase 2
 runs `wsl.exe ... bash /path/to/file` (or `cygwin bash --login -c "bash
 /path/to/file"`). Side benefit: bypasses wsl.exe's argv `$`-substitution
 (SH-6) since the script body comes from disk, not argv.
@@ -341,9 +269,8 @@ Caveats:
 - The two-phase approach is not atomic; the caller flow must clean up
   the remote temp file.
 
-Default discipline remains SH-2; SH-8 applies only when bodies don't fit
-one line. See `Memos/memo-20260508-windows-transport-experiments.md`
-§OQ-7.
+Default discipline remains single-line single-statement (SH-2 + SH-10);
+SH-8 applies only when bodies don't fit one line.
 
 ### ❌ SH-9: Single quotes are LITERAL characters in cmd.exe-direct transport
 
@@ -356,38 +283,28 @@ of PS-3.
 ```bash
 # ❌ Single quotes survive cmd.exe and become part of wsl.exe's argv.
 # wsl.exe sees the path as `'C:\path'` (literal quotes) and fails.
-ssh "$WORKLOAD@$HOST" "wsl.exe --import dist 'C:\Users\u\rbtww-fs' '...' --version 2"
+ssh "${USER}@${HOST}" "wsl.exe --import dist 'C:\Users\u\dist-fs' '...' --version 2"
 
 # ✅ Double quotes via `\"...\"`. After bash escape they reach the wire
 # as `"..."`; cmd.exe strips them per its native argv parser; wsl.exe
 # receives clean paths.
-ssh "$WORKLOAD@$HOST" "wsl.exe --import dist \"C:\Users\u\rbtww-fs\" \"...\" --version 2"
+ssh "${USER}@${HOST}" "wsl.exe --import dist \"C:\Users\u\dist-fs\" \"...\" --version 2"
 ```
 
-The asymmetry: PS-3 (single quotes survive nesting) applies when there
-is a PowerShell layer that recognizes `'...'` as a string-literal
-delimiter. SH-9 applies when there is no such layer — only cmd.exe
-between the wire and the binary. Single quotes are not a
-transport-universal "safe" choice; they require a layer that
-interprets them.
+Single quotes are not a transport-universal "safe" choice; they
+require a layer that interprets them. Pick the quote form by the
+**innermost interpreter** in the transport stack:
 
-Decision rule: pick the quote form by the **innermost interpreter** in
-the transport stack:
-
-| Innermost interpreter | Quote form for embedded args |
-|-----------------------|-------------------------------|
-| PowerShell            | `'...'` (PS string literal)   |
-| Remote bash (`bash -c "..."`) | inner `'...'` (bash strips)  |
-| cmd.exe → native binary       | `\"...\"` (becomes literal `"..."` on the wire; cmd.exe strips) |
-
-Empirical site: `zbujb_garrison_w_init_wsl` in `bujb_jurisdiction.sh`
-— the `wsl --import` invocation in garrison-w's three-namespace
-redesign (BUSJGW).
+| Innermost interpreter         | Quote form for embedded args                                       |
+|-------------------------------|--------------------------------------------------------------------|
+| PowerShell                    | `'...'` (PS string literal)                                        |
+| Remote bash (`bash -c "..."`) | inner `'...'` (bash strips)                                        |
+| cmd.exe → native binary       | `\"...\"` (becomes literal `"..."` on the wire; cmd.exe strips)    |
 
 ### ❌ SH-10: Bash bodies are single statements
 
-A `zbujb_admin_exec` body MUST be exactly one of these three shapes — no
-others:
+A remote-bash body (`bash -c "<body>"`) MUST be exactly one of these
+three shapes — no others:
 
 1. One simple command (with arguments, options, and redirections).
 2. One pipeline (`cmd1 | cmd2 | ...`), optionally preceded by
@@ -396,76 +313,59 @@ others:
 3. One simple command whose argument is itself an inner-shell body
    (e.g. `wsl.exe --user root install ...`, `sudo -n install ...`).
 
-The enumeration is constructive (Core Philosophy, *Rules enumerate; they
-don't illustrate*). No other bash construct may appear at the body's
-top level. Forbidden constructs include `if`/`then`/`else`/`fi`,
-`for`/`while`/`until`, `case`, `&&`/`||` chains, `;`-separated
+The enumeration is constructive. No other bash construct may appear at
+the body's top level. Forbidden constructs include `if`/`then`/`else`/
+`fi`, `for`/`while`/`until`, `case`, `&&`/`||` chains, `;`-separated
 statements, intermediate `var=...` assignments, `trap`, function
 definitions, and `(...)` subshells used to scope state. A single
 `if`-guarded effect like
 `if test -e '...'; then sudo -n rm '...'; fi` is also forbidden — even
-though it has only one "real" effect, the body contains a decision
-(the test) and an action (the consequent). Decisions belong in bash on
-the curia. See "Capture-Decide-Dispatch Pattern" below for the
-canonical procedure.
-
-If a body needs N intermediate values or N decisions, run N round-trips:
-capture state via `zbujb_admin_exec` (its stdout flows through `$(...)`
-on the curia), decide in bash, dispatch unconditional effects via
-`zbujb_admin_exec`. Bash on the curia owns the state machine; the
-remote-side body is one effect.
+though it has only one "real" effect, the body contains a decision (the
+test) and an action (the consequent). Decisions belong in bash on the
+curia. See "Capture-Decide-Dispatch Pattern" below for the canonical
+procedure.
 
 Exception: `set -o pipefail` is permitted INSIDE the same statement as
 a pipeline (shape 2), since pipefail is a precondition of the
 pipeline's exit-code semantics, not a separate operation.
 
-Empirical baseline: every `zbujb_admin_exec` call site in
-`bujb_jurisdiction.sh` follows the single-statement shape after pace
-₢A-AA9. The historical violator was `zbujb_garrison_step5_plant_key`,
-which used a six-statement state machine
-(`set -euo pipefail; ztmp=$(mktemp); trap 'rm -f "$ztmp"' EXIT;
-echo b64 | openssl > "$ztmp"; install ... "$ztmp" target`) with
-cross-statement `$ztmp` and a cleanup trap. The repair eliminated the
-state machine entirely by piping the workload key from the curia over
-ssh stdin into `install /dev/stdin`, leaving one simple command.
-
 ```bash
 # ❌ Compound state machine — six statements, cross-statement variable, trap
-zbujb_admin_exec b "set -euo pipefail" \
+priv_bash b "set -euo pipefail" \
   "ztmp=\$(mktemp)" \
   "trap 'rm -f \"\${ztmp}\"' EXIT" \
   "echo '<b64>' | openssl enc -base64 -d -A > \"\${ztmp}\"" \
   "sudo -n install -m 600 -o user -g user \"\${ztmp}\" '<target>'"
 
 # ❌ Single `if`-guarded effect — body decides AND acts
-zbujb_admin_exec b "if test -e '${z_path}'; then sudo -n rm '${z_path}'; fi"
+priv_bash b "if test -e '${z_path}'; then sudo -n rm '${z_path}'; fi"
 
 # ✅ Single simple command; key flows from curia file via ssh stdin into /dev/stdin
-zbujb_admin_exec b "sudo -n install -m 600 -o '${z_wlu}' -g '${z_wlu}' /dev/stdin '${z_target}'" \
-  < "${BURP_WORKLOAD_KEY_FILE}"
+priv_bash b "sudo -n install -m 600 -o '${z_user}' -g '${z_user}' /dev/stdin '${z_target}'" \
+  < "${KEY_FILE}"
 
 # ✅ Single guarded effect repaired via Capture-Decide-Dispatch
 local z_exit=0
-zbujb_admin_exec b "stat '${z_path}' > /dev/null 2>&1" || z_exit=$?
+priv_bash b "stat '${z_path}' > /dev/null 2>&1" || z_exit=$?
 if [[ ${z_exit} -eq 0 ]]; then
-  zbujb_admin_exec b "sudo -n rm '${z_path}'" || buc_die "Failed to remove ${z_path}"
+  priv_bash b "sudo -n rm '${z_path}'" || die "Failed to remove ${z_path}"
 fi
 ```
 
-The `< "${BURP_WORKLOAD_KEY_FILE}"` redirection on the curia attaches
-the file to bash's FD 0, which the wrapper's ssh inherits, which
-sshd forwards to the remote command's FD 0, which the remote bash
-exposes to its single-statement body as `/dev/stdin`. The body itself
-remains shape 1 (one simple command with options + path argument);
-the file content never appears in argv. SH-1's stdin-consumption
-hazard is structurally avoided because the body is a single command
-that explicitly reads `/dev/stdin` — no second command exists to be
-silently starved by leftover bytes.
+The `< "${KEY_FILE}"` redirection on the curia attaches the file to
+bash's FD 0, which the wrapper's ssh inherits, which sshd forwards to
+the remote command's FD 0, which the remote bash exposes to its
+single-statement body as `/dev/stdin`. The body itself remains shape 1
+(one simple command with options + path argument); the file content
+never appears in argv. SH-1's stdin-consumption hazard is structurally
+avoided because the body is a single command that explicitly reads
+`/dev/stdin` — no second command exists to be silently starved by
+leftover bytes.
 
 ### ❌ PS-5: PowerShell bodies are single expressions
 
-A `zbujb_admin_powershell` (or `zbujb_powershell_capture`) body MUST be
-exactly one of these three shapes — no others:
+A PowerShell body (`powershell -Command "<body>"` or its capture variant)
+MUST be exactly one of these three shapes — no others:
 
 1. One cmdlet call (with arguments, parameters, and pipelined formatters
    like `| Out-String` or `| Out-Null`).
@@ -473,57 +373,38 @@ exactly one of these three shapes — no others:
 3. One native binary with an inner-shell body (e.g.
    `wsl.exe ... bash -c "..."`).
 
-The enumeration is constructive (Core Philosophy, *Rules enumerate; they
-don't illustrate*). No other PowerShell construct may appear at the body's
-top level. Forbidden constructs include `if`, `try`/`catch`, `foreach`,
-`while`, `switch`, `do`, `&&`/`||` operators, `;`-separated statements,
-intermediate `$var` assignments, and ternary `?:`. A single `if`-guarded
-effect like `if (Test-Path '...') { Remove-Item '...' }` is also forbidden
-— even though it has only one "real" effect, the body contains a decision
-(the test) and an action (the consequent). Decisions belong in bash. See
+The enumeration is constructive. No other PowerShell construct may
+appear at the body's top level. Forbidden constructs include `if`,
+`try`/`catch`, `foreach`, `while`, `switch`, `do`, `&&`/`||` operators,
+`;`-separated statements, intermediate `$var` assignments, and ternary
+`?:`. A single `if`-guarded effect like
+`if (Test-Path '...') { Remove-Item '...' }` is also forbidden — even
+though it has only one "real" effect, the body contains a decision (the
+test) and an action (the consequent). Decisions belong in bash. See
 "Capture-Decide-Dispatch Pattern" below for the canonical procedure.
 
-If a body needs N intermediate values or N decisions, run N round-trips:
-capture state via `zbujb_powershell_capture` into bash variables, decide
-in bash, dispatch unconditional effects via `zbujb_admin_powershell`. Bash
-owns the state machine; the remote-side body is one effect.
-
-Empirical baseline: every `zbujb_admin_powershell` call site in the module
-follows single-expression shape — `Get-LocalUser ...`, `Test-Path ...`,
-`Get-Acl ...`, `icacls ...`, `wsl.exe ... bash -c "..."`, etc. The original
-violator (`bujb_jurisdiction.sh:715`, profile registration via
-`$sid=...; $path=...; New-Item; New-ItemProperty`) produced a quoting
-failure (reg.exe `Invalid syntax` on the `Windows NT` space) because the
-compound shape interleaved PS interpolation, native-binary argv handling,
-and registry-path building in one body. Decomposing into bash-orchestrated
-single-expression calls eliminated the failure class. A second documented
-violation cycle in
-`Memos/memo-20260510-windows-transport-ps5-anti-rationalization.md` records
-the `if`-as-guard rationalization that motivates the explicit
-forbidden-constructs list above.
-
 Exception: the wrapper-side prelude
-(`$ErrorActionPreference='Stop'; $env:WSL_UTF8=1; $LASTEXITCODE=0; ${z_body}; if ...`)
+(`$ErrorActionPreference='Stop'; $env:WSL_UTF8=1; $LASTEXITCODE=0; <body>; if ...`)
 is library code written once and exercised by all callers. Caller-side
 bodies follow the single-expression rule.
 
 ```bash
 # ❌ Compound state machine in PS body
-zbujb_admin_powershell "\$sid=(Get-LocalUser '${z_wlu}').SID.Value; \$path='HKLM:\\...\\' + \$sid; New-Item \$path -Force | Out-Null; New-ItemProperty \$path -Name 'X' -Value 'Y' -Force | Out-Null"
+priv_ps "\$sid=(Get-LocalUser '${z_user}').SID.Value; \$path='HKLM:\\...\\' + \$sid; New-Item \$path -Force | Out-Null; New-ItemProperty \$path -Name 'X' -Value 'Y' -Force | Out-Null"
 
 # ❌ Single `if`-guard — body decides AND acts; state machine belongs in bash
-zbujb_admin_powershell "if (Test-Path '${z_tar_path}') { Remove-Item -Force '${z_tar_path}' }"
+priv_ps "if (Test-Path '${z_tar_path}') { Remove-Item -Force '${z_tar_path}' }"
 
 # ✅ Bash-orchestrated single-expression calls
-z_sid=$(zbujb_powershell_capture zbujb_privileged "(Get-LocalUser '${z_wlu}').SID.Value") || buc_die "..."
+z_sid=$(ps_capture "(Get-LocalUser '${z_user}').SID.Value") || die "..."
 z_regkey="HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\${z_sid}"
-zbujb_admin_powershell "New-Item -Path '${z_regkey}' -Force | Out-Null"
-zbujb_admin_powershell "New-ItemProperty -Path '${z_regkey}' -Name 'X' -Value 'Y' -Force | Out-Null"
+priv_ps "New-Item -Path '${z_regkey}' -Force | Out-Null"
+priv_ps "New-ItemProperty -Path '${z_regkey}' -Name 'X' -Value 'Y' -Force | Out-Null"
 
 # ✅ Single guarded effect repaired via Capture-Decide-Dispatch
-z_present=$(zbujb_powershell_capture zbujb_privileged "Test-Path '${z_tar_path}'") || buc_die "..."
+z_present=$(ps_capture "Test-Path '${z_tar_path}'") || die "..."
 if [[ "${z_present}" == "True" ]]; then
-  zbujb_admin_powershell "Remove-Item -Force '${z_tar_path}'" || buc_die "..."
+  priv_ps "Remove-Item -Force '${z_tar_path}'" || die "..."
 fi
 ```
 
@@ -543,11 +424,11 @@ and become harder to diagnose.
 
 ```bash
 # ❌ PS-side string concatenation
-zbujb_admin_powershell "\$path='HKLM:\\...\\' + \$sid; New-Item \$path -Force | Out-Null"
+priv_ps "\$path='HKLM:\\...\\' + \$sid; New-Item \$path -Force | Out-Null"
 
 # ✅ Bash builds the string; PS receives a literal
 z_path="HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\${z_sid}"
-zbujb_admin_powershell "New-Item -Path '${z_path}' -Force | Out-Null"
+priv_ps "New-Item -Path '${z_path}' -Force | Out-Null"
 ```
 
 ### ❌ PS-7: Don't interpolate variables through PowerShell to native binaries
@@ -555,9 +436,7 @@ zbujb_admin_powershell "New-Item -Path '${z_path}' -Force | Out-Null"
 PowerShell's argv handling for native Windows binaries (reg.exe, sc.exe,
 schtasks.exe) has documented quirks with embedded spaces and quotes.
 A registry path containing `Windows NT` (one space) breaks `reg.exe`
-invoked through PS even when the path is held in a PS variable — empirical
-in this session's diagnostic cycle (`bujb_jurisdiction.sh:715`,
-pre-decomposition).
+invoked through PS even when the path is held in a PS variable.
 
 Rule: for PS-native effects (registry as PS-drive via `New-Item` /
 `New-ItemProperty`, ACLs via `Get-Acl`, account ops via `Get-LocalUser`),
@@ -569,10 +448,10 @@ shell).
 
 ```bash
 # ❌ Native binary with PS interpolation — argv quoting may eat path spaces
-zbujb_admin_powershell "reg.exe add \"HKLM\\SOFTWARE\\Microsoft\\Windows NT\\...\\\$sid\" /v X /t REG_SZ /d Y /f"
+priv_ps "reg.exe add \"HKLM\\SOFTWARE\\Microsoft\\Windows NT\\...\\\$sid\" /v X /t REG_SZ /d Y /f"
 
 # ✅ PS cmdlet handles PS-drive registry paths cleanly
-zbujb_admin_powershell "New-ItemProperty -Path '${z_regkey}' -Name 'X' -Value 'Y' -Force | Out-Null"
+priv_ps "New-ItemProperty -Path '${z_regkey}' -Name 'X' -Value 'Y' -Force | Out-Null"
 ```
 
 ### ❌ PS-8: Error suppression is not idempotency
@@ -595,7 +474,7 @@ action might not have actually happened, and we have no way to know.
 
 This is the "silently swallowed" failure class WSG opens with (Core
 Philosophy, *Trap, don't trust*). Idempotency MUST come from explicit
-state capture in bash followed by a conditional unconditional action — see
+state capture in bash followed by an unconditional action — see
 "Capture-Decide-Dispatch Pattern" below.
 
 Distinguish suppressing **output** from suppressing **errors**. `New-Item
@@ -613,42 +492,35 @@ to *return state*, forbidden on cmdlets whose purpose is to *change state*.
 
 ```bash
 # ❌ Error-suppression masquerading as idempotency
-zbujb_admin_powershell "Remove-Item -Force '${z_tar_path}' -ErrorAction Ignore"
-zbujb_admin_powershell "Remove-Item -Recurse -Force '${z_dir}' -ErrorAction SilentlyContinue"
-zbujb_admin_powershell "wsl.exe --unregister ${dist} 2>\$null; \$LASTEXITCODE = 0"
+priv_ps "Remove-Item -Force '${z_tar_path}' -ErrorAction Ignore"
+priv_ps "Remove-Item -Recurse -Force '${z_dir}' -ErrorAction SilentlyContinue"
+priv_ps "wsl.exe --unregister ${dist} 2>\$null; \$LASTEXITCODE = 0"
 
 # ✅ CDD: capture, decide, dispatch unconditionally
-z_present=$(zbujb_powershell_capture zbujb_privileged "Test-Path '${z_tar_path}'") || buc_die "..."
+z_present=$(ps_capture "Test-Path '${z_tar_path}'") || die "..."
 if [[ "${z_present}" == "True" ]]; then
-  zbujb_admin_powershell "Remove-Item -Force '${z_tar_path}'" || buc_die "..."
+  priv_ps "Remove-Item -Force '${z_tar_path}'" || die "..."
 fi
 
 # ✅ Probe-side suppression — Get-LocalUser is non-destructive, "user not found" is the answer
-zbujb_admin_powershell "Get-LocalUser -Name '${z_user}' -ErrorAction SilentlyContinue"
+priv_ps "Get-LocalUser -Name '${z_user}' -ErrorAction SilentlyContinue"
 ```
-
-Empirical site: this rule was minted after a session in which `-ErrorAction
-Ignore` was reached for to escape a PS-5 `if`-guard violation, substituting
-an OQ-1 silent-swallow for the structural one. See
-`Memos/memo-20260510-windows-transport-ps5-anti-rationalization.md`.
 
 ## Capture-Decide-Dispatch Pattern
 
-PS-5's and SH-10's shared closing line — *"Bash owns the state machine;
-the remote-side body is one effect"* — names the canonical procedure for
-any decision that would otherwise live in a remote body (PS or bash).
-Capture-Decide-Dispatch (CDD) is a three-step recipe:
+Bash owns the state machine; the remote-side body is one effect. Any
+decision that would otherwise live in a remote body (PS or bash)
+decomposes into three steps on the curia:
 
 1. **Capture** — run a single-expression probe and return its stdout
    into a bash variable on the curia.
-   - PS bodies: `zbujb_powershell_capture ROLE "<single-expression probe>"`
-     (PS-5-clean: cmdlet call or native binary call, no `if`, no
-     compounds). The wrapper strips Windows CR
-     (`bujb_jurisdiction.sh:487`); the bash variable holds clean text.
-   - Bash bodies: `$(zbujb_admin_exec LETTER "<single-statement probe>")`
+   - PS bodies: `ps_capture "<single-expression probe>"` (PS-5-clean:
+     cmdlet call or native binary call, no `if`, no compounds). The
+     wrapper strips Windows CR; the bash variable holds clean text.
+   - Bash bodies: `$(priv_bash LETTER "<single-statement probe>")`
      (SH-10-clean: one simple command with redirections, e.g.
      `stat '${z_path}' > /dev/null 2>&1`).
-   - Absorb capture failure with `|| buc_die "..."` if the probe must
+   - Absorb capture failure with `|| die "..."` if the probe must
      succeed, or `|| z_var=""` (PS) / `|| z_exit=$?` (bash, when probing
      by exit status) if a fundus-side absence is a legitimate pre-state.
 
@@ -658,21 +530,16 @@ Capture-Decide-Dispatch (CDD) is a three-step recipe:
    `case ... in ... esac` / `[[ "$z_var" == ... ]]` for value compare.
    For bash exit-status probes, `[[ ${z_exit} -eq 0 ]]`.
 
-3. **Dispatch** — `zbujb_admin_powershell "<single-expression effect>"`
-   or `zbujb_admin_exec LETTER "<single-statement effect>"` runs the
-   unconditional action only on the bash-side branches that need it.
-   Each branch uses one zbujb call.
-
-Concrete shapes for common cases — file/dir presence, WSL distro
-membership, local user existence, service state, registry key existence —
-appear in the "Idempotency Exemplars" section below.
+3. **Dispatch** — `priv_ps "<single-expression effect>"` or
+   `priv_bash LETTER "<single-statement effect>"` runs the unconditional
+   action only on the bash-side branches that need it. Each branch uses
+   one privileged call.
 
 ### PowerShell boolean serialization
 
 `Test-Path`, `Test-Connection`, and other PS-bool-emitting cmdlets serialize
-as the literal strings `"True"` or `"False"` through
-`zbujb_powershell_capture` (after WSL_UTF8 normalization and CR stripping).
-Canonical bash check:
+as the literal strings `"True"` or `"False"` through `ps_capture` (after
+WSL_UTF8 normalization and CR stripping). Canonical bash check:
 
 ```bash
 if [[ "${z_var}" == "True" ]]; then ...
@@ -689,47 +556,33 @@ native binary in the body returning non-zero, or wrapper-trailer fire on
 
 ```bash
 # Probe must succeed — die loudly on transport/body failure
-z_present=$(zbujb_powershell_capture zbujb_privileged "Test-Path '${z_path}'") \
-  || buc_die "Failed to probe ${z_path}"
+z_present=$(ps_capture "Test-Path '${z_path}'") \
+  || die "Failed to probe ${z_path}"
 
 # Empty result on probe failure is a valid pre-state — absorb silently
 z_wsl_list=""
-z_wsl_list=$(zbujb_powershell_capture zbujb_privileged "wsl.exe --list --quiet") \
+z_wsl_list=$(ps_capture "wsl.exe --list --quiet") \
   || z_wsl_list=""
 ```
 
 Use the loud form by default. Use the silent form only when the absent
-state is a legitimate pre-condition (e.g. WSL not yet installed during
-first-run purge — the next steps install it).
-
-### Open question: bool-returning predicate variant
-
-A `zbujb_powershell_predicate` (BCG `_predicate` class — never dies, status
-only, idiomatic in `if`/`while`) would collapse the capture+compare pair
-into `if zbujb_powershell_predicate ROLE "Test-Path '...'"; then ...`. The
-shape was tabled because ssh-layer transport failure adds a third value
-that doesn't fit either bool answer cleanly: strict BCG predicate semantics
-("never dies, status only") would conflate transport failure with "false,"
-reintroducing the OQ-1 silent-swallow this section is meant to close. The
-canonical CDD shape uses `zbujb_powershell_capture` + `[[ "$x" == "True" ]]`
-explicitly so transport failures stay loud. The predicate variant remains
-an open design question.
+state is a legitimate pre-condition.
 
 ## Idempotency Exemplars
 
-Ready-made CDD shapes for the patterns this codebase actually uses. Copy
-and adjust the variable names; do not derive from principles each time.
-Adding a new exemplar earns a paragraph here once verified.
+Ready-made CDD shapes for the patterns this discipline routinely uses.
+Copy and adjust the variable names; do not derive from principles each
+time.
 
 ### File presence → conditional remove
 
 ```bash
 local z_present
-z_present=$(zbujb_powershell_capture zbujb_privileged "Test-Path '${z_path}'") \
-  || buc_die "Failed to probe ${z_path}"
+z_present=$(ps_capture "Test-Path '${z_path}'") \
+  || die "Failed to probe ${z_path}"
 if [[ "${z_present}" == "True" ]]; then
-  zbujb_admin_powershell "Remove-Item -Force '${z_path}'" \
-    || buc_die "Failed to remove ${z_path}"
+  priv_ps "Remove-Item -Force '${z_path}'" \
+    || die "Failed to remove ${z_path}"
 fi
 ```
 
@@ -737,11 +590,11 @@ fi
 
 ```bash
 local z_present
-z_present=$(zbujb_powershell_capture zbujb_privileged "Test-Path '${z_dir}'") \
-  || buc_die "Failed to probe ${z_dir}"
+z_present=$(ps_capture "Test-Path '${z_dir}'") \
+  || die "Failed to probe ${z_dir}"
 if [[ "${z_present}" == "True" ]]; then
-  zbujb_admin_powershell "Remove-Item -Recurse -Force '${z_dir}'" \
-    || buc_die "Failed to remove ${z_dir}"
+  priv_ps "Remove-Item -Recurse -Force '${z_dir}'" \
+    || die "Failed to remove ${z_dir}"
 fi
 ```
 
@@ -752,11 +605,11 @@ the list capture absorbs failure silently rather than dying.
 
 ```bash
 local z_wsl_list=""
-z_wsl_list=$(zbujb_powershell_capture zbujb_privileged "wsl.exe --list --quiet") \
+z_wsl_list=$(ps_capture "wsl.exe --list --quiet") \
   || z_wsl_list=""
 if grep -qFx "${z_dist}" <<<"${z_wsl_list}"; then
-  zbujb_admin_powershell "wsl.exe --unregister ${z_dist}" \
-    || buc_die "Failed to unregister ${z_dist}"
+  priv_ps "wsl.exe --unregister ${z_dist}" \
+    || die "Failed to unregister ${z_dist}"
 fi
 ```
 
@@ -768,13 +621,13 @@ absent" reads as empty stdout.
 
 ```bash
 local z_user_state
-z_user_state=$(zbujb_powershell_capture zbujb_privileged \
+z_user_state=$(ps_capture \
   "Get-LocalUser -Name '${z_user}' -ErrorAction SilentlyContinue") \
-  || buc_die "Failed to probe local user ${z_user}"
+  || die "Failed to probe local user ${z_user}"
 z_user_state="${z_user_state//[$'\r\n\t ']/}"
 if [[ -n "${z_user_state}" ]]; then
-  zbujb_admin_powershell "Remove-LocalUser -Name '${z_user}'" \
-    || buc_die "Failed to remove local user ${z_user}"
+  priv_ps "Remove-LocalUser -Name '${z_user}'" \
+    || die "Failed to remove local user ${z_user}"
 fi
 ```
 
@@ -782,12 +635,12 @@ fi
 
 ```bash
 local z_service_state
-z_service_state=$(zbujb_powershell_capture zbujb_privileged \
+z_service_state=$(ps_capture \
   "(Get-Service -Name '${z_svc}').Status") \
-  || buc_die "Failed to probe service ${z_svc}"
+  || die "Failed to probe service ${z_svc}"
 if [[ "${z_service_state}" == "Stopped" ]]; then
-  zbujb_admin_powershell "Start-Service -Name '${z_svc}'" \
-    || buc_die "Failed to start service ${z_svc}"
+  priv_ps "Start-Service -Name '${z_svc}'" \
+    || die "Failed to start service ${z_svc}"
 fi
 ```
 
@@ -795,118 +648,61 @@ fi
 
 ```bash
 local z_present
-z_present=$(zbujb_powershell_capture zbujb_privileged "Test-Path '${z_regkey}'") \
-  || buc_die "Failed to probe registry key ${z_regkey}"
+z_present=$(ps_capture "Test-Path '${z_regkey}'") \
+  || die "Failed to probe registry key ${z_regkey}"
 if [[ "${z_present}" != "True" ]]; then
-  zbujb_admin_powershell "New-Item -Path '${z_regkey}' -Force | Out-Null" \
-    || buc_die "Failed to create registry key ${z_regkey}"
+  priv_ps "New-Item -Path '${z_regkey}' -Force | Out-Null" \
+    || die "Failed to create registry key ${z_regkey}"
 fi
 ```
 
 ## Wrapper Discipline
 
-### PowerShell wrapper (proven shape)
-
-Mirrors `zbujb_admin_powershell` after the LASTEXITCODE-init repair:
+### PowerShell wrapper
 
 ```bash
 ssh ... "${USER}@${HOST}" \
     "powershell -NoProfile -Command \"\$ErrorActionPreference = 'Stop'; \$env:WSL_UTF8 = 1; \$LASTEXITCODE = 0; ${z_body}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE }\""
 ```
 
-Discipline:
+Wrapper prelude:
 - `\$ErrorActionPreference = 'Stop'` — PS errors terminate
 - `\$env:WSL_UTF8 = 1` — wsl.exe (when called from PS body) emits UTF-8
 - `\$LASTEXITCODE = 0` — initialize to defeat the null trap (PS-1)
 - Trailing `if ... exit ...` — propagate native command exit codes
-- Body uses single quotes for PS literals (PS-3)
-- Body avoids object-emitting cmdlets immediately before exit, or pipes
-  them through Out-String first (PS-2)
 
-### Bash-via-wsl.exe wrapper (proven shape, w-letter)
+Body authoring follows PS-2 through PS-8.
 
-Mirrors `zbujb_admin_exec w`. Body is a single statement (SH-10),
-single-line (SH-2), `"` escaped to `\"` (SH-3), and all
-`$name`/`${name}` references escaped to `\$name`/`\${name}` for
-deferred bash-side expansion (SH-6). `$(...)` command substitution does
-not need escape (SH-6).
+### Bash-via-wsl.exe wrapper (w-letter)
 
 ```bash
 ssh ... "${USER}@${HOST}" \
     "wsl.exe --distribution ${DIST} --user root bash -c \"${z_body}\""
 ```
 
-Body authoring discipline:
-- One statement per body (SH-10) — pipelines OK as shape 2, `;`-joins forbidden
-- Embedded `"` → `\"` (SH-3)
-- `$name` → `\$name`; `${name}` → `\${name}` (SH-6)
-- `$(...)` left as-is (SH-6)
-- No heredocs, no `bash -s`, no inner pipe-then-bash (SH-1, SH-5)
-- No newlines in body (SH-2)
-- Multi-statement work decomposes into multiple round-trips per the
-  Capture-Decide-Dispatch pattern, not into a longer body
+Body authoring follows SH-1 through SH-10, with SH-6's w-letter escape
+table: `$name` → `\$name`; `${name}` → `\${name}`; `$(...)` unescaped.
 
-### Bash-via-cygwin wrapper (proven shape, c-letter)
-
-Cygwin's path is simpler. cmd.exe → C:/cygwin64/bin/bash.exe. No wsl.exe,
-no Windows-side `$` substitution.
+### Bash-via-cygwin wrapper (c-letter)
 
 ```bash
 ssh ... "${USER}@${HOST}" \
     "C:/cygwin64/bin/bash --login -c \"${z_body}\""
 ```
 
-Body authoring discipline:
-- One statement per body (SH-10) — pipelines OK as shape 2, `;`-joins forbidden
-- Embedded `"` → `\"` (SH-3)
-- `$name`, `${name}`, `$(...)` all unescaped — bash sees them directly (SH-6)
-- No heredocs, no `bash -s` (SH-1, SH-5)
-- No newlines in body (SH-2)
-- Multi-statement work decomposes into multiple round-trips per the
-  Capture-Decide-Dispatch pattern, not into a longer body
+Body authoring follows SH-1 through SH-10. Per SH-6's c-letter row,
+`$name`, `${name}`, and `$(...)` all pass unescaped — cmd.exe alone does
+no shell substitution.
 
-## Deferred — out of release-1 scope
+## Deferred
 
-### b-letter (Linux/Mac native ssh) verification
+### Non-Windows (b-letter) verification
 
-No Linux or Mac BURN profile is registered in the release-1 matrix; only
-`bujn-winpc` (`BURN_PLATFORM=bubep_windows`). The b-letter path bypasses
-every Windows-specific layer (no cmd.exe DefaultShell, no wsl.exe argv
-substitution, no Windows argv parser); standard BCG body discipline
-applies. If a Linux/Mac BURN profile is added, run the OQ-1 probes from
-`Memos/memo-20260508-windows-transport-experiments.md` (probes 1A, 1G,
-1J, 1P) substituting plain bash for wsl.exe / cygwin to confirm absence
-of Windows-layer quirks. See §OQ-3 of that memo.
-
-## Empirical Record
-
-Probe matrices, raw transcripts, and the bisection narratives that
-generated the rules in this document are filed under `Memos/`. WSG cites
-those memos but does not duplicate their contents.
-
-Active references:
-
-- `Memos/memo-20260508-windows-transport-experiments.md` — initial OQ-1
-  through OQ-7 resolution matrix run against `bujn-winpc` (pace `₢A-AA0`).
-- `Memos/memo-20260510-windows-transport-ps5-anti-rationalization.md` —
-  PS-5 `if`-as-guard rationalization and `-ErrorAction Ignore` substitution
-  cycles; motivates the "Rules enumerate" Core Philosophy clause, the PS-5
-  exclusive-enumeration tightening, the new PS-8 rule, and the
-  Capture-Decide-Dispatch named pattern.
-
-### Convention for future Windows-transport experiments
-
-When a new open question surfaces around the Windows transport stack
-(wsl.exe, cygwin, cmd.exe, OpenSSH-Win32, PowerShell), file the probe
-matrix and resolution at:
-
-```
-Memos/memo-YYYYMMDD-windows-transport-{topic}.md
-```
-
-Cite the memo from WSG once findings stabilize into rules. WSG retains
-the distilled rules and one-line probe pairs; memos retain the full
-empirical record.
+The b-letter path (direct ssh to Linux/Mac) bypasses every Windows-specific
+layer (no cmd.exe DefaultShell, no wsl.exe argv substitution, no Windows
+argv parser); standard BCG body discipline applies. When adding a
+non-Windows target, run analog probes substituting plain bash for
+wsl.exe / cygwin to confirm absence of Windows-layer quirks.
 
 ## Verification Probe Template
 
@@ -917,18 +713,17 @@ fix. Standard form:
 # Probe N: <claim>
 # Pre-state: <relevant remote state>
 
-./tt/buw-jpS.PrivilegedSsh.sh <node> "<failing form>"
+<priv-ssh wrapper> <node> "<failing form>"
 # stdout: <observed>
 # exit:   <observed>
 
-./tt/buw-jpS.PrivilegedSsh.sh <node> "<repaired form>"
+<priv-ssh wrapper> <node> "<repaired form>"
 # stdout: <observed>
 # exit:   <observed>
 ```
 
 Probes are read-only and idempotent where possible. Probes that mutate
-remote state (creating users, files) must declare cleanup or rely on a
-subsequent obliterate cycle.
+remote state (creating users, files) must declare cleanup.
 
 ## Acronym Registry
 
@@ -936,16 +731,9 @@ subsequent obliterate cycle.
 |------|-----------|
 | WSG | Windows Scripting Guide (this document) |
 | OpenSSH-Win32 | The Win32 port of OpenSSH bundled with Windows 10+ |
-| Curia | The local invoking machine (per JJK terminology) |
-| Fundus | The remote target machine (per JJK terminology) |
-| LASTEXITCODE-null trap | The `$null -ne 0 → True` issue in PS-1 |
-| Stdin-consumption | The FD-0-inherited-by-child issue in SH-1 |
-| Body-as-arg | The `bash -c "<body>"` shape that avoids SH-1 |
+| Curia | The local invoking machine |
+| Fundus | The remote target machine |
 
 ## Related Documents
 
-- BCG (`Tools/buk/vov_veiled/BCG-BashConsoleGuide.md`) — base bash discipline
-- BUS0 (`Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc`) — BUK utilities
-  spec; covers temp file forensic preservation under `BURD_TEMP_DIR`
-- `Tools/buk/bujb_jurisdiction.sh` — current implementation seat for
-  fenestrate/garrison wrappers (`zbujb_admin_powershell`, `zbujb_admin_exec`)
+- BCG — base bash discipline
