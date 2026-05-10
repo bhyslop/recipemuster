@@ -288,3 +288,33 @@ garrison's precondition check.
   Windows syscall layer; one atomic command per call.
 - `command=` in authorized_keys is OpenSSH-standard (used by gitolite,
   GitHub, rsync, borg); shrinks key blast radius rather than expanding it.
+- **Mac Remote Login enabled is an operator prerequisite for any Mac BURN
+  target (including the operator's own machine).** Caparison-macOS enables
+  it via `systemsetup -setremotelogin on`, but the initial admin SSH
+  reachability that caparison's phase 1 itself needs presumes the operator
+  has flipped this in System Settings → General → Sharing on the very
+  first run. Surfaces as an SSH-connectivity probe failure in
+  bujp_preflight on b-mac.
+- **Linux nodes require `openssh-server` installed and `sshd` enabled.**
+  Operator-managed; not in caparison's scope. On a fresh Linux node, run
+  the distribution's install/enable pair (e.g., apt: `sudo apt install
+  openssh-server && sudo systemctl enable --now ssh`) before any
+  caparison/garrison invocation. Surfaces as an SSH-connectivity probe
+  failure in bujp_preflight on b-linux.
+- **Sudo NOPASSWD for `BURP_PRIVILEGED_USER` is operator-managed on the
+  three sudo-affected garrison flavors** (b-linux, b-mac, w-inside-WSL).
+  bujp_preflight verifies effective behavior via `sudo -n true` plus a
+  representative-command `sudo -ln` probe; on miss, renders a scoped
+  NOPASSWD `/etc/sudoers.d/bujb-garrison` snippet, stages it to the
+  remote home-cache, validates with `visudo -cf` over SSH, then dies
+  with a copy-paste-safe `sudo install` line. Blanket `NOPASSWD: ALL`
+  is acceptable on personal workstations and called out in the
+  diagnostic. On Mac, bujp_preflight additionally probes admin-group
+  membership via `dseditgroup -o checkmember`; failure names the
+  `dseditgroup -o edit` fix path.
+- **Workload shell `/bin/bash` is forced on every platform** regardless
+  of the platform default. Linux useradd via `--shell /bin/bash`; Mac
+  via `dscl . -create UserShell /bin/bash` (or sysadminctl `-shell`);
+  WSL inside `rbtww-main` via useradd. macOS ships /bin/bash 3.2 at
+  the canonical path — bash is the BUK execution substrate everywhere
+  and the workload shell never diverges from it.
