@@ -246,24 +246,43 @@ zbuhj_render_post_bootstrap() {
   buh_line     "  buw-jws <investiture>           — interactive workload session"
 }
 
+zbuhj_render_windows_pointer() {
+  buh_section  "Windows: first-time host setup"
+  buh_line     "On a Windows host that has never had caparison-windows run"
+  buh_line     "against it, complete the first-time host preparation"
+  buh_line     "(optional Tailscale autonomy, OpenSSH install, sshd"
+  buh_line     "reachability) before proceeding to caparison/garrison:"
+  buh_e
+  buh_tt       "  " "${BUWZ_HJW_WINDOWS}"
+}
+
 ######################################################################
 # External Functions (buhj_*)
 
 buhj_top() {
   zbuhj_sentinel
 
-  buc_doc_brief "Display jurisdiction handbook landing + sshd-reachability procedures"
+  buc_doc_brief "Display jurisdiction handbook landing + tabtarget catalog (top level)"
   buc_doc_shown || return 0
 
   zbuhj_render_landing
   buh_e
   zbuhj_render_linux_mac_note
   buh_e
+  zbuhj_render_windows_pointer
+  buh_e
+  zbuhj_render_post_bootstrap
+}
+
+buhj_windows() {
+  zbuhj_sentinel
+
+  buc_doc_brief "Display Windows first-time host setup (Tailscale autonomy + sshd reachability)"
+  buc_doc_shown || return 0
+
   zbuhj_render_windows_availability
   buh_e
   zbuhj_render_windows_bootstrap
-  buh_e
-  zbuhj_render_post_bootstrap
 }
 
 # eof

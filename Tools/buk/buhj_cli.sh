@@ -32,8 +32,12 @@ zbuhj_furnish() {
   source "${BURD_BUK_DIR}/bubc_constants.sh"     || buc_die "Failed to source bubc_constants.sh"
   source "${BURD_BUK_DIR}/buym_yelp.sh"          || buc_die "Failed to source buym_yelp.sh"
   source "${BURD_BUK_DIR}/buh_handbook.sh"       || buc_die "Failed to source buh_handbook.sh"
+  source "${BURD_BUK_DIR}/buz_zipper.sh"         || buc_die "Failed to source buz_zipper.sh"
+  source "${BURD_BUK_DIR}/buwz_zipper.sh"        || buc_die "Failed to source buwz_zipper.sh"
   source "${BURD_BUK_DIR}/buhj_jurisdiction.sh"  || buc_die "Failed to source buhj_jurisdiction.sh"
 
+  zbuz_kindle
+  zbuwz_kindle
   zbuhj_kindle
 }
 

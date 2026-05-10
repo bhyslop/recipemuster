@@ -83,7 +83,8 @@ zbuwz_kindle() {
 
   # Handbook — jurisdiction (buhj_cli.sh)
   z_mod="buhj_cli.sh"
-  buz_enroll BUWZ_HJ0_TOP           "buw-hj0"   "${z_mod}" "buhj_top"                ""        "Jurisdiction handbook landing + admin SSH bootstrap"
+  buz_enroll BUWZ_HJ0_TOP           "buw-hj0"   "${z_mod}" "buhj_top"                ""        "Jurisdiction handbook landing + tabtarget catalog (top level)"
+  buz_enroll BUWZ_HJW_WINDOWS       "buw-hjw"   "${z_mod}" "buhj_windows"            ""        "Windows first-time host setup (Tailscale autonomy + sshd reachability)"
 
   # Jurisdiction operational — workload ceremonies (bujb_cli.sh)
   z_mod="bujb_cli.sh"
