@@ -36,6 +36,7 @@
       "jjghn_creation_time": "260412",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢A-ABD",
         "₢A-ABC",
         "₢A-ABB",
         "₢A-AA_",
@@ -100,7 +101,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "jjghn_next_pace_seed": "ABD",
+      "jjghn_next_pace_seed": "ABE",
       "jjghn_paces": {
         "₢A-AA-": {
           "jjgpn_tacks": [
@@ -1660,6 +1661,17 @@
               "jjgtn_text": "## Character\nLargest implementation pace — fenestrate transition plus new phase 3.\n\n## Goal\nBuild caparison-windows verb per BUSJCW: phases 1+2 (SSH-trust hardening, currently inhabited by fenestrate) and phase 3 (WSL stage, powercfg sleep disable, Tailscale auto-start). Delete fenestrate completely.\n\n## Boundary\n- caparison-windows is the new entry; fenestrate disappears: function family, dispatcher, buw-jpF tabtarget, zipper enrollment, all handbook references (buhj_jurisdiction.sh, rbhw0_top.sh).\n- Phase 3 ops are new bash; phases 1+2 carry forward existing logic re-homed under the new verb.\n- Closes with invigilate-windows post-completion check (depends on prior pace).\n\n## Done when\n- buw-jpCW exists; runs phases 1-3 idempotently end-to-end.\n- grep -ri fenestrate Tools/ tt/ returns zero hits.\n- buhj_jurisdiction.sh handbook text recast around caparison-windows.\n- bash -n; tt/buw-st.BukSelfTest.sh; tt/rbtd-s.TestSuite.fast.sh.",
               "jjgtn_silks": "implement-caparison-windows",
               "jjgtn_basis": "0faf49e"
+            }
+          ]
+        },
+        "₢A-ABD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260510-1404",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical translation — BUSJI{W,M,L} are locked; read-only posture verifiers.\n\n## Goal\nBuild invigilate-{windows,macos,linux} verbs per BUSJI{W,M,L}, with `buw-jpI{W,M,L}` tabtargets. Rewire bujp_preflight to delegate platform probes to the new verbs.\n\n## Boundary\n- Invigilate is read-only: no mutations, no remediation. Failure surfaces a fact-named diagnostic with operator-handbook vs caparison pointer per spec.\n- Platform probes currently inline in bujp_preflight (sudo NOPASSWD, admin-group, WSL distribution) move under the invigilate verb that owns them; bujp becomes verb-delegation.\n\n## Done when\n- buw-jpI{W,M,L} exit 0 against a correctly-configured node; exit non-zero with fact-named diagnostic against a misconfigured node.\n- bujp_preflight calls invigilate-{platform} at step 1 of garrison; zero inline posture probes remain.\n- bash -n; tt/buw-st.BukSelfTest.sh; tt/rbtd-s.TestSuite.fast.sh.",
+              "jjgtn_silks": "implement-invigilate-all",
+              "jjgtn_basis": "f983dd4"
             }
           ]
         }
