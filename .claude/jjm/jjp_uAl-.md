@@ -69,11 +69,15 @@ in BUS0. Architectural spine in BUS0 §Remote Node Access.
 - `bus_keys_operator_owned` — system never generates or modifies SSH key
   material; operator owns all key administration.
 
-**Tabtarget colophons (23 total; b/c/w shell support, PowerShell deferred):**
+**Tabtarget colophons (20 total; b/c/w shell support, PowerShell deferred):**
+
+Invigilate has no tabtarget — it is invoked only internally (caparison
+post-completion, garrison precondition via bujp_preflight). The
+`bujb_invigilate_{windows,macos,linux}` functions exist; no standalone
+operator invocation.
 
 - `buw-r[np][lrv]` — BURN/BURP regime config (List/Render/Validate) — 6
 - `buw-jpC[WML]` — Caparison per platform (W=Windows; M=macOS; L=Linux) — 3
-- `buw-jpI[WML]` — Invigilate per platform — 3
 - `buw-jpG[bcw]` — Garrison per shell-letter (b=native bash for Linux/Mac;
   c=Cygwin; w=WSL) — 3
 - `buw-jpS` — Privileged SSH (admin pass-through, all platforms) — 1
