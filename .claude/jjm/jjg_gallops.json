@@ -946,6 +946,13 @@
         "₢A-AA_": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260510-1203",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nVocabulary mint plus single-file exemplar; the exemplar validates the vocabulary on first use.\n\n## Goal\nAdd `== Control Voicings` to BUS0 declaring `busc_*` (bash console) and `bush_*` (handbook/operator) quoin families. Refactor BUSJIW as the worked exemplar.\n\n## Boundary\n- Vocabulary modeled on RBS0 §Control Voicings (`rbbc_*`, `rbhg_*`); each verb is its own quoin with anchor + attribute reference + short semantic.\n- BUSJIW refactor: sub-step grammar with control verbs, `«VAR»` names for cross-state, bounded NOTEs only, decomposed guarantee.\n- Other BUSJ* spec files out of scope — that is pace 2.\n- No bash code edits.\n\n## Done when\n- BUS0 mapping section + Control Voicings section land both families.\n- BUSJIW reads as a sibling of RBSAC/RBSAV in style.\n- `tt/buw-st.BukSelfTest.sh` and `tt/rbtd-s.TestSuite.fast.sh` green.",
+              "jjgtn_silks": "bus-control-voicings-mint-and-exemplar",
+              "jjgtn_basis": "6940c1b"
+            },
+            {
               "jjgtn_ts": "260510-1045",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nVocabulary mint plus single-file exemplar; the exemplar validates the vocabulary on first use.\n\n## Goal\nAdd `== Control Voicings` to BUS0 declaring `busc_*` (bash console) and `bush_*` (handbook/operator) quoin families. Refactor BUSJIW as the worked exemplar.\n\n## Boundary\n- Vocabulary modeled on RBS0 §Control Voicings (`rbbc_*`, `rbhg_*`); each verb is its own quoin with anchor + attribute reference + short semantic.\n- BUSJIW refactor: sub-step grammar with control verbs, `«VAR»` names for cross-state, bounded NOTEs only, decomposed guarantee.\n- Other BUSJ* spec files out of scope — that is pace 2.\n- No bash code edits.\n\n## Done when\n- BUS0 mapping section + Control Voicings section land both families.\n- BUSJIW reads as a sibling of RBSAC/RBSAV in style.\n- `tt/buw-st.BukSelfTest.sh` and `tt/rbtd-s.TestSuite.fast.sh` green.",
