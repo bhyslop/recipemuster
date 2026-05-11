@@ -1023,7 +1023,7 @@ assignment file.
 [[burc_tabtarget_dir]]
 //axvr_variable axd_required axtu_path
 {burc_tabtarget_dir}::
-Directory containing
+Project dir containing
 {busdl_launcher}
 scripts.
 
@@ -1037,12 +1037,12 @@ inscriptions.
 [[burc_tools_dir]]
 //axvr_variable axd_required axtu_path
 {burc_tools_dir}::
-Directory containing BUK utilities and project tool scripts.
+Project dir containing BUK utilities and project tool scripts.
 
 [[burc_project_root]]
 //axvr_variable axd_required axtu_path
 {burc_project_root}::
-Path from assignment file location to the project root directory.
+Repo root, expressed relative to the assignment file's location.
 
 [[burc_managed_kits]]
 //axvr_variable axd_required axtu_string
@@ -1054,12 +1054,12 @@ At install time, must exactly match the parcel's kit list.
 [[burc_temp_root_dir]]
 //axvr_variable axd_required axtu_path
 {burc_temp_root_dir}::
-Root directory for BUK temporary files.
+Parent directory for per-dispatch scratch subdirs (temp-<stamp>).
 
 [[burc_output_root_dir]]
 //axvr_variable axd_required axtu_path
 {burc_output_root_dir}::
-Root directory for BUK command output files.
+Parent directory containing `current/`, cleared and recreated each dispatch.
 
 [[burc_log_last]]
 //axvr_variable axd_required axtu_xname
