@@ -1785,6 +1785,13 @@
         "₢A-ABI": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260511-1520",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nMechanical sweep across `Tools/buk/bujb_jurisdiction.sh`.\n\n## Shape\nMove auto-numbered forensic capture into `zbujb_admin_powershell` and `_with_password_fallback`. New signature: `CHIT BODY...`. Internal redirect to `${BURD_TEMP_DIR}/bujb_${CHIT}${idx}_{stdout,stderr}.txt`; expose `ZBUJB_LAST_AP_STDOUT` / `ZBUJB_LAST_AP_STDERR`. Single shared `z_bujb_emit_index` counter across all chits.\n\n## Kindle\nFive `ZBUJB_CHIT_*` namespace fragments (`caparison-`, `place-trust-`, `w-init-`, `obliterate-`, `validate-`) replace the five `ZBUJB_*_PREFIX` constants. Orthogonality is grep-auditable: each fragment should appear only inside its owning phase function.\n\n## Deletes\nFive `_run` wrappers (`zbujb_{place_trust,validate,w_init,obliterate,caparison}_run`); `zbujb_obliterate_diag_dump` and its `ZBUJB_OBLITERATE_STDOUT`/`STDERR` singleton constants (no callers).\n\n## Done\nAll `zbujb_admin_powershell*` call sites converted; parse sites read `$(<\"${ZBUJB_LAST_AP_STDOUT}\")`; probes ignore globals. `bash -n` and `tt/buw-st.BukSelfTest.sh` green. Field exercise on bujn-winpc deferred to operator's next garrison-w run.",
+              "jjgtn_silks": "admin-powershell-chit-capture",
+              "jjgtn_basis": "8eeb180"
+            },
+            {
               "jjgtn_ts": "260511-1220",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nMechanical sweep across `Tools/buk/bujb_jurisdiction.sh`.\n\n## Shape\nMove auto-numbered forensic capture into `zbujb_admin_powershell` and `_with_password_fallback`. New signature: `CHIT BODY...`. Internal redirect to `${BURD_TEMP_DIR}/bujb_${CHIT}${idx}_{stdout,stderr}.txt`; expose `ZBUJB_LAST_AP_STDOUT` / `ZBUJB_LAST_AP_STDERR`. Single shared `z_bujb_emit_index` counter across all chits.\n\n## Kindle\nFive `ZBUJB_CHIT_*` namespace fragments (`caparison-`, `place-trust-`, `w-init-`, `obliterate-`, `validate-`) replace the five `ZBUJB_*_PREFIX` constants. Orthogonality is grep-auditable: each fragment should appear only inside its owning phase function.\n\n## Deletes\nFive `_run` wrappers (`zbujb_{place_trust,validate,w_init,obliterate,caparison}_run`); `zbujb_obliterate_diag_dump` and its `ZBUJB_OBLITERATE_STDOUT`/`STDERR` singleton constants (no callers).\n\n## Done\nAll `zbujb_admin_powershell*` call sites converted; parse sites read `$(<\"${ZBUJB_LAST_AP_STDOUT}\")`; probes ignore globals. `bash -n` and `tt/buw-st.BukSelfTest.sh` green. Field exercise on bujn-winpc deferred to operator's next garrison-w run.",
