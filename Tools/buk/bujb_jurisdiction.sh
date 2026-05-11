@@ -205,6 +205,14 @@ BUJB_sshkeygen_emit_pubkey="ssh-keygen -y -P '' -f"
 # step6_validate's knock uses ConnectTimeout=10 inline.
 BUJB_ssh_opt_batchmode_yes='BatchMode=yes'
 BUJB_ssh_opt_connecttimeout_15='ConnectTimeout=15'
+BUJB_ssh_opt_connecttimeout_5='ConnectTimeout=5'
+
+# Reboot-and-await polling cadence (zbujb_reboot_and_await_ssh). Interval
+# is the bash sleep between SSH probes; cap is the total wait ceiling
+# tolerating pending Windows-update install on first boot after a patch
+# day. max_attempts derives in-helper from cap / interval.
+BUJB_reboot_poll_interval_s='7'
+BUJB_reboot_poll_cap_s='600'
 
 # PowerShell CLI invocation form for one-shot string bodies. After the
 # Phase 1 decomposition into single-cmdlet zbujb_admin_powershell calls
@@ -1017,29 +1025,32 @@ zbujb_reboot_and_await_ssh() {
     || buc_die "reboot: pre-reboot LastBootUpTime probe failed on ${BURN_HOST}"
   buc_step "    Pre-reboot LastBootUpTime: ${z_pre_boot}"
 
-  # Issue Restart-Computer. SSH terminates as the host goes down; the
-  # non-zero exit is expected and absorbed.
+  # WSp-108 exception: successful Restart-Computer manifests as a
+  # connection drop (ssh returns 255 mid-command), so the dispatch's
+  # non-zero exit is not load-bearing. The downstream LastBootUpTime
+  # advance check is the concrete end-state verification — a host that
+  # silently failed to reboot will be caught there, not here.
   zbujb_admin_powershell "Restart-Computer -Force" > /dev/null 2>&1 || true
 
-  buc_step "    Polling for SSH return (cap: 600s)"
+  buc_step "    Polling for SSH return (cap: ${BUJB_reboot_poll_cap_s}s, interval: ${BUJB_reboot_poll_interval_s}s)"
   local z_attempt=0
-  local -r z_max_attempts=85   # 85 * 7s = 595s ≈ 10 min
+  local -r z_max_attempts=$(( BUJB_reboot_poll_cap_s / BUJB_reboot_poll_interval_s ))
   while [[ "${z_attempt}" -lt "${z_max_attempts}" ]]; do
     z_attempt=$((z_attempt + 1))
     if ssh -i "${BURP_PRIVILEGED_KEY_FILE}"             \
            "${ZBUJB_SSH_BASE_ARGS[@]}"                  \
            -o "${BUJB_ssh_opt_batchmode_yes}"           \
-           -o ConnectTimeout=5                          \
+           -o "${BUJB_ssh_opt_connecttimeout_5}"        \
            "${BURP_PRIVILEGED_USER}@${BURN_HOST}"       \
            "exit 0" > /dev/null 2>&1; then
       break
     fi
-    sleep 7
+    sleep "${BUJB_reboot_poll_interval_s}"
   done
   test "${z_attempt}" -lt "${z_max_attempts}" \
-    || buc_die "reboot: SSH did not return within $((z_max_attempts * 7))s on ${BURN_HOST} (host stuck on updates? boot failed? check console)"
+    || buc_die "reboot: SSH did not return within ${BUJB_reboot_poll_cap_s}s on ${BURN_HOST} (host stuck on updates? boot failed? check console)"
 
-  buc_step "    SSH back at attempt ${z_attempt} (~$((z_attempt * 7))s)"
+  buc_step "    SSH back at attempt ${z_attempt} (~$(( z_attempt * BUJB_reboot_poll_interval_s ))s)"
 
   local z_post_boot=""
   z_post_boot=$(zbujb_powershell_capture zbujb_privileged \
