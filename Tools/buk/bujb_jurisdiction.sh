@@ -567,13 +567,14 @@ zbujb_admin_powershell() {
   test $# -ge 1 \
     || buc_die "zbujb_admin_powershell: PowerShell command body required"
   local -r z_body="$*"
+  local -r z_body_escaped="${z_body//\"/\\\"}"   # WSp-109
 
   ssh -i "${BURP_PRIVILEGED_KEY_FILE}"        \
       "${ZBUJB_SSH_BASE_ARGS[@]}"             \
       -o "${BUJB_ssh_opt_batchmode_yes}"      \
       -o "${BUJB_ssh_opt_connecttimeout_15}"  \
       "${BURP_PRIVILEGED_USER}@${BURN_HOST}"  \
-      "${BUJB_ps_invoke_command} \"${BUJB_ps_prelude} ${z_body}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE }\""
+      "${BUJB_ps_invoke_command} \"${BUJB_ps_prelude} ${z_body_escaped}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE }\""
 }
 
 # zbujb_powershell_capture ROLE BODY -- run a single PS expression on the
@@ -588,6 +589,7 @@ zbujb_powershell_capture() {
     || buc_die "zbujb_powershell_capture: ROLE BODY required"
   local -r z_role="$1"; shift
   local -r z_body="$*"
+  local -r z_body_escaped="${z_body//\"/\\\"}"   # WSp-109
 
   local z_key z_user
   case "${z_role}" in
@@ -602,7 +604,7 @@ zbujb_powershell_capture() {
               -o "${BUJB_ssh_opt_batchmode_yes}"  \
               -o "${BUJB_ssh_opt_connecttimeout_15}" \
               "${z_user}@${BURN_HOST}"            \
-              "${BUJB_ps_invoke_command} \"${BUJB_ps_prelude} ${z_body}\"") \
+              "${BUJB_ps_invoke_command} \"${BUJB_ps_prelude} ${z_body_escaped}\"") \
     || z_exit=$?
 
   printf '%s' "${z_out//$'\r'/}"
@@ -1514,6 +1516,8 @@ zbujb_caparison_windows_verify_directives() {
 # next non-blank line is the AuthorizedKeysFile directive resolving to
 # ${BUJB_path_sshd_workload_authkeys}. Indentation on the AuthorizedKeysFile
 # line is stripped before comparison (sshd accepts indented continuations).
+# Failure pointer is BUSJCW (Match block is caparison-windows's deliverable);
+# invigilate reuses this helper for its sshd-config-shape fact.
 zbujb_caparison_windows_verify_match_block() {
   zbujb_sentinel
   local -r z_remote_file="${1:-}"
@@ -1521,7 +1525,7 @@ zbujb_caparison_windows_verify_match_block() {
   test -f "${z_remote_file}" || buc_die "zbujb_caparison_windows_verify_match_block: remote_file not found: ${z_remote_file}"
 
   local -r z_raw_bytes=$(<"${z_remote_file}")
-  test -n "${z_raw_bytes}" || buc_die "zbujb_caparison_windows_verify_match_block: empty remote sshd_config bytes: ${z_remote_file}"
+  test -n "${z_raw_bytes}" || buc_die "Match block verify: empty remote sshd_config bytes (see ${z_remote_file}) — caparison-windows (BUSJCW)"
   local -r z_clean_bytes="${z_raw_bytes//$'\r'/}"
 
   local z_lines_roll=()
@@ -1542,7 +1546,7 @@ zbujb_caparison_windows_verify_match_block() {
   done
 
   test "${z_header_idx}" -ge 0 \
-    || buc_die "Match block verify: header '${z_expected_header}' missing from sshd_config"
+    || buc_die "Match block verify: header '${z_expected_header}' missing from sshd_config (see ${z_remote_file}) — caparison-windows (BUSJCW)"
 
   # Find the next non-blank line after the header; strip leading whitespace
   # before comparing to z_expected_akf.
@@ -1558,9 +1562,9 @@ zbujb_caparison_windows_verify_match_block() {
   done
 
   test "${z_next_idx}" -lt "${z_max}" \
-    || buc_die "Match block verify: header '${z_expected_header}' present but no AuthorizedKeysFile directive follows"
+    || buc_die "Match block verify: header '${z_expected_header}' present but no AuthorizedKeysFile directive follows (see ${z_remote_file}) — caparison-windows (BUSJCW)"
   test "${z_stripped}" = "${z_expected_akf}" \
-    || buc_die "Match block verify: AuthorizedKeysFile: expected '${z_expected_akf}', got '${z_stripped}'"
+    || buc_die "Match block verify: AuthorizedKeysFile: expected '${z_expected_akf}', got '${z_stripped}' (see ${z_remote_file}) — caparison-windows (BUSJCW)"
 }
 
 ######################################################################
@@ -2021,13 +2025,15 @@ zbujb_invigilate_windows_op_facts() {
     || buc_die "Tailscale service: expected non-empty Get-Service Tailscale, got <absent> — operator handbook BUSJHW (install + Run-Unattended + first auth)"
 }
 
-# zbujb_invigilate_windows_caparison_facts -- the four caparison-windows
-# deliverables (Tailscale auto-start, sleep policy = never auto-sleep,
-# hibernate disabled, WSL distribution registered). Shared between
-# bujb_caparison_windows post-completion (verify our work landed without
-# re-running the operator-precondition facts already checked at preflight)
-# and bujb_invigilate_windows (full audit). Requires admin SSH established
-# under key-only auth.
+# zbujb_invigilate_windows_caparison_facts -- caparison-windows deliverables:
+# Phase 1 SSH-trust posture (sshd_config Match block resolves, workload
+# authkeys directory present with admins+SYSTEM-only ACL) and Phase 3
+# post-trust admin posture (Tailscale auto-start, sleep policy = never
+# auto-sleep, hibernate disabled, WSL distribution registered). Shared
+# between bujb_caparison_windows post-completion (verify our work landed
+# without re-running the operator-precondition facts already checked at
+# preflight) and bujb_invigilate_windows (full audit). Requires admin
+# SSH established under key-only auth.
 #
 # The standby check intentionally verifies POLICY (standby-timeout 0)
 # rather than CAPABILITY (powercfg /a "available" list). On legacy-S3
@@ -2037,6 +2043,48 @@ zbujb_invigilate_windows_op_facts() {
 # caparison actually sets is the timeout, so that's what we verify.
 zbujb_invigilate_windows_caparison_facts() {
   zbujb_sentinel
+
+  buc_step "  Fact: sshd_config Match User ${BUJB_workload_user} routes AuthorizedKeysFile to absolute path"
+  zbujb_admin_powershell "Get-Content (\$env:ProgramData + '\\ssh\\sshd_config') -Raw" \
+      > "${ZBUJB_INVIGILATE_STDOUT}" \
+      2> "${ZBUJB_INVIGILATE_STDERR}" \
+    || buc_die "Get-Content sshd_config failed on ${BURN_HOST} (see ${ZBUJB_INVIGILATE_STDERR}) — caparison-windows (BUSJCW)"
+  zbujb_caparison_windows_verify_match_block "${ZBUJB_INVIGILATE_STDOUT}"
+
+  buc_step "  Fact: workload authkeys directory present at \$env:ProgramData\\ssh\\users\\${BUJB_workload_user}"
+  local z_dir_present=""
+  z_dir_present=$(zbujb_powershell_capture zbujb_privileged \
+      "Test-Path (\$env:ProgramData + '\\ssh\\users\\${BUJB_workload_user}')") \
+    || buc_die "Test-Path workload authkeys directory failed on ${BURN_HOST} — caparison-windows (BUSJCW)"
+  z_dir_present="${z_dir_present//[$'\r\n']/}"
+  test "${z_dir_present}" = "True" \
+    || buc_die "workload authkeys directory: expected present at \$env:ProgramData\\ssh\\users\\${BUJB_workload_user}, got Test-Path '${z_dir_present:-<empty>}' — caparison-windows (BUSJCW)"
+
+  buc_step "  Fact: workload authkeys directory ACL = admins+SYSTEM Full Control only"
+  zbujb_admin_powershell "icacls (\$env:ProgramData + '\\ssh\\users\\${BUJB_workload_user}')" \
+      > "${ZBUJB_INVIGILATE_STDOUT}" \
+      2> "${ZBUJB_INVIGILATE_STDERR}" \
+    || buc_die "icacls workload authkeys directory failed on ${BURN_HOST} (see ${ZBUJB_INVIGILATE_STDERR}) — caparison-windows (BUSJCW)"
+  local z_acl
+  z_acl=$(<"${ZBUJB_INVIGILATE_STDOUT}")
+  z_acl="${z_acl//$'\r'/}"
+  z_acl="${z_acl%%Successfully processed*}"
+  case "${z_acl}" in
+    *"${BUJB_acl_principal_admins}"*) ;;
+    *) buc_die "workload authkeys ACL: missing '${BUJB_acl_principal_admins}' (see ${ZBUJB_INVIGILATE_STDOUT}) — caparison-windows (BUSJCW)" ;;
+  esac
+  case "${z_acl}" in
+    *"NT AUTHORITY\\SYSTEM"*|*"${BUJB_acl_principal_system}:"*) ;;
+    *) buc_die "workload authkeys ACL: missing NT AUTHORITY\\SYSTEM (see ${ZBUJB_INVIGILATE_STDOUT}) — caparison-windows (BUSJCW)" ;;
+  esac
+  case "${z_acl}" in
+    *"BUILTIN\\Users"*)
+      buc_die "workload authkeys ACL: BUILTIN\\Users present — directory must be admins+SYSTEM only (see ${ZBUJB_INVIGILATE_STDOUT}) — caparison-windows (BUSJCW)" ;;
+    *"Authenticated Users"*)
+      buc_die "workload authkeys ACL: Authenticated Users present — directory must be admins+SYSTEM only (see ${ZBUJB_INVIGILATE_STDOUT}) — caparison-windows (BUSJCW)" ;;
+    *"${BUJB_workload_user}"*)
+      buc_die "workload authkeys ACL: workload user ${BUJB_workload_user} present — directory must be admins+SYSTEM only; sshd reads as NT AUTHORITY\\SYSTEM (see ${ZBUJB_INVIGILATE_STDOUT}) — caparison-windows (BUSJCW)" ;;
+  esac
 
   buc_step "  Fact: Tailscale service StartType = Automatic"
   local z_start=""

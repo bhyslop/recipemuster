@@ -276,6 +276,48 @@ is non-destructive. Dispatch-side suppression requires all three
 conditions because the cmdlet changes state and the suppression hides
 non-absent failures by construction.
 
+### ✅ WSp-109: Wrapper helpers escape body `"` unconditionally
+
+Any bash helper that wraps caller-provided `${z_body}` inside outer
+`"..."` argv quoting MUST apply `${z_body//\"/\\\"}` before
+interpolation. The transform is a helper-author invariant, not a
+body-author burden — body authors stay free to write inner `"`
+literally (e.g., `Get-CimInstance -Filter "LocalPath='...'"`), and the
+wrapper guarantees passthrough across the cmd.exe argv layer.
+
+WSt-102 describes the mechanism (cmd.exe's tokenizer honors `\"`
+inside `"..."`); WSp-109 names the helper-author obligation. Omitting
+the transform produces malformed argv on the wire: cmd.exe terminates
+the outer quoted string at the first inner `"`, and the remote
+interpreter sees fragmented positional arguments. Failure signature:
+
+```
+... : A positional parameter cannot be found that accepts argument '<token>'.
+```
+
+The token is whatever followed the unescaped `"`.
+
+```bash
+# ❌ Wrapper omits the transform; bodies with inner " break.
+ps_capture() {
+  local -r z_body="$*"
+  ssh ... "powershell -NoProfile -Command \"<prelude> ${z_body}\""
+}
+
+# ✅ Wrapper applies the transform unconditionally.
+ps_capture() {
+  local -r z_body="$*"
+  local -r z_body_escaped="${z_body//\"/\\\"}"
+  ssh ... "powershell -NoProfile -Command \"<prelude> ${z_body_escaped}\""
+}
+```
+
+Scope: every wrapper in §Wrapper Discipline (PowerShell, bash-via-wsl,
+bash-via-cygwin). Wrappers that pass `${z_remote_cmd}` directly as the
+ssh arg without composing outer `"..."` (e.g., a thin `ssh "$user@$host"
+"$cmd"` passthrough) are out of scope — there's no inner-quote collision
+to defend against.
+
 ### ❌ WSs-101: Script via stdin to bash (heredoc form / `bash -s`)
 
 When ssh feeds a script to bash via stdin (`bash -s`, heredoc), bash
@@ -595,11 +637,15 @@ fi
 
 ## Wrapper Discipline
 
+All three wrappers compose outer `"..."` around `${z_body}` and so apply
+the WSp-109 escape transform unconditionally.
+
 ### PowerShell wrapper
 
 ```bash
+local -r z_body_escaped="${z_body//\"/\\\"}"   # WSp-109
 ssh ... "${USER}@${HOST}" \
-    "powershell -NoProfile -Command \"\$ErrorActionPreference = 'Stop'; \$env:WSL_UTF8 = 1; \$LASTEXITCODE = 0; ${z_body}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE }\""
+    "powershell -NoProfile -Command \"\$ErrorActionPreference = 'Stop'; \$env:WSL_UTF8 = 1; \$LASTEXITCODE = 0; ${z_body_escaped}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE }\""
 ```
 
 Wrapper prelude:
@@ -613,8 +659,9 @@ Body authoring follows WSp-102 through WSp-108.
 ### Bash-via-wsl.exe wrapper (w-letter)
 
 ```bash
+local -r z_body_escaped="${z_body//\"/\\\"}"   # WSp-109
 ssh ... "${USER}@${HOST}" \
-    "wsl.exe --distribution ${DIST} --user root bash -c \"${z_body}\""
+    "wsl.exe --distribution ${DIST} --user root bash -c \"${z_body_escaped}\""
 ```
 
 Body authoring follows the WSs- and WSt- rule families, with WSt-104's
@@ -624,8 +671,9 @@ w-letter escape table: `$name` → `\$name`; `${name}` → `\${name}`;
 ### Bash-via-cygwin wrapper (c-letter)
 
 ```bash
+local -r z_body_escaped="${z_body//\"/\\\"}"   # WSp-109
 ssh ... "${USER}@${HOST}" \
-    "C:/cygwin64/bin/bash --login -c \"${z_body}\""
+    "C:/cygwin64/bin/bash --login -c \"${z_body_escaped}\""
 ```
 
 Body authoring follows the WSs- and WSt- rule families. Per WSt-104's

@@ -73,6 +73,54 @@ PowerShell `Get-Service Tailscale`
 on absence -- {bust_handbook_windows} scope (install + Run-Unattended + first auth)
 
 //axhos_step
+. *Assert sshd_config Match block routes workload to absolute-path authkeys*:
+.. {busc_call}
+PowerShell `Get-Content ($env:ProgramData + '\ssh\sshd_config') -Raw` over `«ADMIN_SESSION»`
+.. {busc_store}
+`«SSHD_CONFIG_RAW»`
+.. {busc_require}
+`«SSHD_CONFIG_RAW»` contains a `Match User ${BUJB_workload_user}` header
+whose next non-blank line is `AuthorizedKeysFile
+__PROGRAMDATA__/ssh/users/${BUJB_workload_user}/authorized_keys`
+(indentation tolerated; sshd accepts indented continuations)
+.. {busc_fatal}
+on absence or mismatch -- {bust_caparison_windows} scope (Phase 1 SSH-trust
+hardening). Workload SSH auth depends on this block: without it, sshd
+falls back to the workload's profile-relative `authorized_keys` path and
+exposes the demotion failure mode that absolute-path Match defends against.
+
+//axhos_step
+. *Assert workload authkeys directory present*:
+.. {busc_call}
+PowerShell `Test-Path ($env:ProgramData + '\ssh\users\${BUJB_workload_user}')` over `«ADMIN_SESSION»`
+.. {busc_store}
+`«AUTHKEYS_DIR_PRESENT»`
+.. {busc_require}
+`«AUTHKEYS_DIR_PRESENT»` equals `True`
+.. {busc_fatal}
+on `False` or transport failure -- {bust_caparison_windows} scope (Phase
+1). {busn_garrison} on `w` writes the bare workload authkeys file into
+this directory and the lockdown rewrite overwrites it; absence here
+guarantees garrison-w fails at place-bare-trust with `DirectoryNotFoundException`.
+
+//axhos_step
+. *Assert workload authkeys directory ACL = admins+SYSTEM only*:
+.. {busc_call}
+PowerShell `icacls ($env:ProgramData + '\ssh\users\${BUJB_workload_user}')` over `«ADMIN_SESSION»`
+.. {busc_store}
+`«AUTHKEYS_DIR_ACL»`
+.. {busc_require}
+`«AUTHKEYS_DIR_ACL»` lists both `BUILTIN\Administrators` and `NT AUTHORITY\SYSTEM`
+as Full-Control principals AND contains none of `BUILTIN\Users`,
+`Authenticated Users`, or `${BUJB_workload_user}` (sshd reads as NT
+AUTHORITY\SYSTEM and does not need workload-side grants; parallel to
+`administrators_authorized_keys`'s admins+SYSTEM-only ACL discipline).
+.. {busc_fatal}
+on missing required principal or forbidden principal present --
+{bust_caparison_windows} scope (Phase 1 icacls
+`/inheritance:r /grant SYSTEM:F /grant BUILTIN\Administrators:F`).
+
+//axhos_step
 . *Assert Tailscale service StartupType*:
 .. {busc_call}
 PowerShell `Get-Service Tailscale | Select-Object StartType`
