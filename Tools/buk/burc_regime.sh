@@ -52,8 +52,8 @@ zburc_kindle() {
   buv_string_enroll  BURC_MANAGED_KITS          1  512  "Comma-separated kit list for vvx"
 
   buv_group_enroll "Build Output"
-  buv_string_enroll  BURC_TEMP_ROOT_DIR         1  512  "Root directory for temporary files"
-  buv_string_enroll  BURC_OUTPUT_ROOT_DIR       1  512  "Root directory for command output"
+  buv_string_enroll  BURC_TEMP_ROOT_DIR         1  512  "Parent dir for per-dispatch scratch subdirs (temp-<stamp>)"
+  buv_string_enroll  BURC_OUTPUT_ROOT_DIR       1  512  "Parent dir containing 'current/', cleared and recreated each dispatch"
 
   buv_group_enroll "Logging"
   buv_xname_enroll   BURC_LOG_LAST              1   64  "Filename stem for last-run log"
