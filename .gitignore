@@ -39,6 +39,7 @@ NUL
 # Claude Code - ignore machine-specific settings
 .claude/settings.local.json
 .claude/settings.json
+.claude/scheduled_tasks.lock
 
 ### Python ###
 __pycache__/
