@@ -36,6 +36,7 @@
       "jjghn_creation_time": "260412",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢A-ABH",
         "₢A-ABG",
         "₢A-ABD",
         "₢A-ABE",
@@ -104,7 +105,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "jjghn_next_pace_seed": "ABH",
+      "jjghn_next_pace_seed": "ABI",
       "jjghn_paces": {
         "₢A-AA-": {
           "jjgpn_tacks": [
@@ -1757,6 +1758,17 @@
               "jjgtn_text": "## Character\nInteractive operator-driven iteration. Spec and code both in\nmotion; BUS*.adoc is working-draft, not load-bearing yet. No\nbounded cycle count.\n\n## Goal\nFirst-time Windows setup converges end-to-end on bujn-winpc —\ncaparison-windows lands, garrison-w lands, workload reach\n(jwk/jwc/jws) round-trips. Spec and code in mutual agreement\nat close.\n\n## Working posture\nSpec edits, bash edits, and live ceremony runs interleave.\nHeat-affiliated commits acceptable for spec-only design pivots\nthat outpace implementation; pace-affiliated when code+spec\nland together. Cleanly-separable follow-ons (Cygwin path,\nhandbook recast, comment annotations, downstream practice)\nget their own pace rather than accreting here.\n\n## Done when\nOperator declares Windows setup converged with spec and code\ncoherent against observed Windows OpenSSH behavior on\nbujn-winpc.",
               "jjgtn_silks": "windows-setup-first-time-debug",
               "jjgtn_basis": "5419d87"
+            }
+          ]
+        },
+        "₢A-ABH": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260511-1133",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical decomposition guided by ₢A-ABG chat decisions: helper layer\ndeletions, Phase 1 callsite restructure into single-cmdlet steps, BUSJCW\nspec rewrite as orchestration-style exemplar, field re-test on bujn-winpc.\nNo new design surface — implementation against locked decisions.\n\n## Goal\nCaparison-windows Phase 1 runs as ~13 single-cmdlet steps per WSp-105.\nThe `powershell -NoProfile -File -` heredoc-fed invocation pattern leaves\ncaparison entirely. Password-fallback transport bounded to one operation\n(admin pubkey install via single `Add-Content`) and gated by a key-auth\nCDD probe — first-caparison-ever on a host prompts once for password;\nevery re-run is key-only end-to-end. BUSJCW Phase 1 follows the\norchestration-style discipline minted by the BUSJGW restructure\n(461c65aa) with 13 axhos_steps; \"chunk A / chunk B\" vocabulary retires.\n\n## Locked decisions (from ₢A-ABG chat)\n- Password-fallback session = single `Add-Content` cmdlet. No existing\n  WSp exemption covers bounded compound bodies; simple form chosen.\n- Key-auth probe at caparison start (`zbujb_admin_powershell 'exit 0'`);\n  skip the password-fallback session when key auth already works.\n- Restart-Service is key-only — admin pubkey installed by that point;\n  password-fallback at restart guards an impossible failure mode.\n- 13 axhos_steps in BUSJCW Phase 1; no grouping.\n- Delete: `zbujb_caparison_windows_exec_with_password_fallback`,\n  `zbujb_caparison_windows_exec_keyonly`, `BUJB_ps_invoke_file_stdin`.\n\n## Done when\nCaparison-windows on bujn-winpc converges with the decomposed shape (at\nmost one password prompt on a fresh host, zero on re-runs). Spec and\nbash coherent. Gates green (bash -n, buw-st, handbook-render, fast).\nGarrison-w then re-runs cleanly against the post-caparison posture as\nthe gate back to ₢A-ABG's iterative debug.",
+              "jjgtn_silks": "caparison-windows-decompose",
+              "jjgtn_basis": "6c2154a"
             }
           ]
         }
