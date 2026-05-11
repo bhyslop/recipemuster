@@ -242,12 +242,31 @@ BUJB_ps_sshd_config_path='$env:ProgramData\ssh\sshd_config'
 zbujb_kindle() {
   test -z "${ZBUJB_KINDLED:-}" || buc_die "Module bujb already kindled"
 
-  # Per-call captures for caparison (autonumbered). Each ssh call gets
-  # numbered stdout/stderr at ${PREFIX}${idx}_${label}_stdout.txt. Most
-  # callsites route through zbujb_caparison_run; caparison-windows phase
-  # 1/2 callers bump the counter and build paths locally because
-  # verify_directives must re-read phase 1's stdout after the call.
-  readonly ZBUJB_CAPARISON_PREFIX="${BURD_TEMP_DIR}/bujb_caparison_"
+  # Per-call forensic capture is housed inside the five interaction
+  # helpers (zbujb_admin_powershell, _with_password_fallback,
+  # zbujb_admin_exec_impl, zbujb_workload_ssh). Each call advances the
+  # shared z_bujb_emit_index counter and writes stdout/stderr to
+  # ${BURD_TEMP_DIR}/bujb_${CHIT}${idx}_{stdout,stderr}.txt; the helper
+  # exposes the resulting paths via ZBUJB_LAST_AP_STDOUT /
+  # ZBUJB_LAST_AP_STDERR so parse sites can read the latest call's
+  # output. CHIT is supplied by each call site as a concatenation of one
+  # of the ZBUJB_CHIT_* namespace fragments (below) and a per-step
+  # label, e.g. "${ZBUJB_CHIT_caparison}p1-sshd-read-". Fragment
+  # orthogonality is grep-auditable: each fragment should appear only
+  # inside its owning phase function.
+  readonly ZBUJB_CHIT_caparison="caparison-"
+  readonly ZBUJB_CHIT_invigilate="invigilate-"
+  readonly ZBUJB_CHIT_w_init="w-init-"
+  readonly ZBUJB_CHIT_obliterate="obliterate-"
+  readonly ZBUJB_CHIT_garrison_step="garrison-step-"
+  readonly ZBUJB_CHIT_stage_wsl="stage-wsl-"
+
+  # Latest-call forensic paths set by every interaction helper. Parse
+  # sites read `$(<"${ZBUJB_LAST_AP_STDOUT}")` immediately after the
+  # call (next call overwrites the variable). Probes that only inspect
+  # exit code ignore these.
+  ZBUJB_LAST_AP_STDOUT=""
+  ZBUJB_LAST_AP_STDERR=""
 
   # stat captures (per-key-slot for parallel forensics on resolve).
   readonly ZBUJB_STAT_STDOUT_PRIV="${BURD_TEMP_DIR}/bujb_stat_priv_stdout.txt"
@@ -273,42 +292,17 @@ zbujb_kindle() {
   readonly ZBUJB_AUTHKEYS_B64_STDOUT="${BURD_TEMP_DIR}/bujb_authkeys_b64_stdout.txt"
   readonly ZBUJB_AUTHKEYS_B64_STDERR="${BURD_TEMP_DIR}/bujb_authkeys_b64_stderr.txt"
 
-  # Obliterate per-call captures (reused across the Windows sub-step
-  # sequence — last call's content is what's preserved at die time).
-  readonly ZBUJB_OBLITERATE_STDOUT="${BURD_TEMP_DIR}/bujb_obliterate_stdout.txt"
-  readonly ZBUJB_OBLITERATE_STDERR="${BURD_TEMP_DIR}/bujb_obliterate_stderr.txt"
-
   # Output capture paths for bujb_command_file (workload stdout/stderr/exit).
   readonly ZBUJB_OUTPUT_STDOUT="${BURD_OUTPUT_DIR}/stdout.log"
   readonly ZBUJB_OUTPUT_STDERR="${BURD_OUTPUT_DIR}/stderr.log"
   readonly ZBUJB_OUTPUT_EXITCODE="${BURD_OUTPUT_DIR}/exitcode"
 
-  # Per-call captures for zbujb_garrison_step4_place_trust.
-  readonly ZBUJB_PLACE_TRUST_PREFIX="${BURD_TEMP_DIR}/bujb_place_trust_"
-
-  # Per-call captures for zbujb_garrison_step6_validate.
-  readonly ZBUJB_VALIDATE_PREFIX="${BURD_TEMP_DIR}/bujb_validate_"
-
-  # Per-call captures for the garrison-w SSH-as-workload phases
-  # (export-seed, init-wsl, lockdown, seed-cleanup).
-  readonly ZBUJB_W_INIT_PREFIX="${BURD_TEMP_DIR}/bujb_w_init_"
-
-  # Per-call forensic capture for obliterate sub-steps (counter pattern,
-  # like the other _run wrappers). Each ssh call lands at a uniquely
-  # numbered file, so probe and destructive ops both leave evidence.
-  readonly ZBUJB_OBLITERATE_PREFIX="${BURD_TEMP_DIR}/bujb_obliterate_run_"
-
-  # Invigilate per-fact stdout/stderr captures — last fact's evidence is
-  # what's preserved at die time (the spec's "first mismatch" semantics
-  # make a single shared pair sufficient).
-  readonly ZBUJB_INVIGILATE_STDOUT="${BURD_TEMP_DIR}/bujb_invigilate_stdout.txt"
-  readonly ZBUJB_INVIGILATE_STDERR="${BURD_TEMP_DIR}/bujb_invigilate_stderr.txt"
-
-  # Single shared emission counter across all _run wrappers — file numbers
-  # are continuous across originating functions so chronological order is
-  # readable from the embedded number even when prefixes differ. Seeded
-  # at 100 so all _run-emitted filenames carry 3-digit indices; %02d in
-  # zbujb_emit_index_advance is minimum-width and renders 100+ correctly.
+  # Single shared emission counter across all interaction helpers — file
+  # numbers are continuous regardless of which helper ran so chronological
+  # order is readable from the embedded number even when CHIT fragments
+  # differ. Seeded at 100 so all emitted filenames carry 3-digit indices;
+  # %02d in zbujb_emit_index_advance is minimum-width and renders 100+
+  # correctly.
   z_bujb_emit_index=100
 
   # SSH base options shared by every ssh invocation in this module:
@@ -497,14 +491,15 @@ zbujb_workload_home_capture() {
   esac
 }
 
-# zbujb_admin_exec_{native,cygwin,wsl} STMT -- run a single bash statement as
-# the privileged user on the remote node, in the named shell environment.
-# Variant functions per platform (no cryptic letter parameter): the call
-# site picks the shell by name, and the function selects the matching
-# remote invoker (`bash`, cygwin's bash --login, or wsl.exe ... bash).
-# Embedded " characters are escaped to \" so the outer "..." of
-# `bash -c "..."` survives the cmd.exe / Windows argv-parser layer
-# (relevant for cygwin/wsl variants via Windows OpenSSH).
+# zbujb_admin_exec_{native,cygwin,wsl} CHIT STMT -- run a single bash
+# statement as the privileged user on the remote node, in the named
+# shell environment. Variant functions per platform (no cryptic letter
+# parameter): the call site picks the shell by name, and the function
+# selects the matching remote invoker (`bash`, cygwin's bash --login,
+# or wsl.exe ... bash). Embedded " characters are escaped to \" so the
+# outer "..." of `bash -c "..."` survives the cmd.exe / Windows
+# argv-parser layer (relevant for cygwin/wsl variants via Windows
+# OpenSSH).
 #
 # Single-statement contract per WSG SH-10: STMT must be exactly one of
 # (1) one simple command with arguments and redirections, (2) one pipeline
@@ -514,16 +509,17 @@ zbujb_workload_home_capture() {
 # pattern; bash on the curia owns the state machine.
 #
 # Caller may pipe stdin into any variant (e.g.
-#   `zbujb_admin_exec_native "install ... /dev/stdin '<target>'" < <file>`)
+#   `zbujb_admin_exec_native CHIT "install ... /dev/stdin '<target>'" < <file>`)
 # — bash redirection attaches the file to FD 0, ssh inherits it, sshd
 # forwards it to the remote command's FD 0, the body's single command
 # reads from /dev/stdin. Used by garrison step5 to plant the workload
 # key without ever materializing the plaintext on either side's disk.
 #
-# Caller redirects stdout/stderr for capture; returns ssh exit code.
-# These functions do NOT transform $. Body authors are responsible for
-# per-shell $-escape discipline (see WSG SH-6: only the wsl variant's
-# bodies need `\$name` escaping).
+# stdout/stderr land at indexed paths exposed via ZBUJB_LAST_AP_STDOUT /
+# _STDERR (the same shared CHIT-capture pattern as the PowerShell
+# helpers); returns ssh exit code. These functions do NOT transform $.
+# Body authors are responsible for per-shell $-escape discipline (see
+# WSG SH-6: only the wsl variant's bodies need `\$name` escaping).
 zbujb_admin_exec_native() {
   zbujb_admin_exec_impl 'bash' "$@"
 }
@@ -536,32 +532,56 @@ zbujb_admin_exec_wsl() {
   zbujb_admin_exec_impl "wsl.exe --distribution ${BUJB_wsl_distribution} --user root bash" "$@"
 }
 
-# zbujb_admin_exec_impl REMOTE_INVOKER STMT -- shared body for the three
-# zbujb_admin_exec_{native,cygwin,wsl} variants. Not called directly by
-# step code; callers always go through one of the named variants so the
-# call site declares its target shell.
+# zbujb_admin_exec_impl REMOTE_INVOKER CHIT STMT -- shared body for the
+# three zbujb_admin_exec_{native,cygwin,wsl} variants. Not called
+# directly by step code; callers always go through one of the named
+# variants so the call site declares its target shell.
 zbujb_admin_exec_impl() {
   zbujb_sentinel
   local -r z_remote_invoker="${1:-}"
   test -n "${z_remote_invoker}" \
     || buc_die "zbujb_admin_exec_impl: REMOTE_INVOKER required (call via zbujb_admin_exec_{native,cygwin,wsl})"
   shift
-  test $# -eq 1 \
-    || buc_die "zbujb_admin_exec_*: requires exactly one statement (got $#); decompose multi-statement work via Capture-Decide-Dispatch per WSG SH-10"
-  local -r z_body="$1"
+  test $# -eq 2 \
+    || buc_die "zbujb_admin_exec_*: requires CHIT STMT (got $# args); decompose multi-statement work via Capture-Decide-Dispatch per WSG SH-10"
+  local -r z_chit="$1"
+  local -r z_body="$2"
 
   # Escape " → \" for the cmd.exe / Windows argv-parser layer.
   local -r z_body_escaped="${z_body//\"/\\\"}"
 
+  zbujb_chit_open "${z_chit}"
+  local z_exit=0
   ssh -i "${BURP_PRIVILEGED_KEY_FILE}"        \
       "${ZBUJB_SSH_BASE_ARGS[@]}"             \
       -o "${BUJB_ssh_opt_batchmode_yes}"      \
       -o "${BUJB_ssh_opt_connecttimeout_15}"  \
       "${BURP_PRIVILEGED_USER}@${BURN_HOST}"  \
-      "${z_remote_invoker} -c \"${z_body_escaped}\""
+      "${z_remote_invoker} -c \"${z_body_escaped}\"" \
+      > "${ZBUJB_LAST_AP_STDOUT}" \
+      2> "${ZBUJB_LAST_AP_STDERR}" \
+    || z_exit=$?
+  zbujb_diag_dump_pair "${z_chit}" "${ZBUJB_LAST_AP_STDOUT}" "${ZBUJB_LAST_AP_STDERR}"
+  return ${z_exit}
 }
 
-# zbujb_admin_powershell BODY... -- run a PowerShell statement chain on
+# zbujb_chit_open CHIT -- advance the shared emit counter and set
+# ZBUJB_LAST_AP_STDOUT / ZBUJB_LAST_AP_STDERR to the indexed forensic
+# capture paths for this call. Called by every interaction helper
+# immediately before ssh. CHIT is a free-form fragment built by the call
+# site as `${ZBUJB_CHIT_<group>}<label>-` (e.g.
+# "${ZBUJB_CHIT_caparison}p1-sshd-read-").
+zbujb_chit_open() {
+  local -r z_chit="${1:-}"
+  test -n "${z_chit}" \
+    || buc_die "zbujb_chit_open: CHIT required"
+  local z_idx_str
+  zbujb_emit_index_advance z_idx_str
+  ZBUJB_LAST_AP_STDOUT="${BURD_TEMP_DIR}/bujb_${z_chit}${z_idx_str}_stdout.txt"
+  ZBUJB_LAST_AP_STDERR="${BURD_TEMP_DIR}/bujb_${z_chit}${z_idx_str}_stderr.txt"
+}
+
+# zbujb_admin_powershell CHIT BODY -- run a PowerShell statement chain on
 # the remote node as the privileged user. Prepends discipline prelude:
 # $ErrorActionPreference='Stop' (PS errors terminate), $env:WSL_UTF8=1
 # (wsl.exe emits UTF-8), $LASTEXITCODE=0 (initialize so the trailing
@@ -570,23 +590,33 @@ zbujb_admin_exec_impl() {
 # discard buffered object-formatter output for cmdlets like Get-LocalUser
 # whose tables haven't flushed to stdout yet). Trailing if-check
 # propagates $LASTEXITCODE on non-zero from native commands in the body.
-# Caller redirects stdout/stderr; returns ssh's exit code.
+# stdout/stderr land at indexed paths exposed via ZBUJB_LAST_AP_STDOUT /
+# _STDERR; a single-line diag preview is emitted via
+# zbujb_diag_dump_pair after the call. Returns ssh's exit code.
 zbujb_admin_powershell() {
   zbujb_sentinel
-  test $# -ge 1 \
-    || buc_die "zbujb_admin_powershell: PowerShell command body required"
+  test $# -ge 2 \
+    || buc_die "zbujb_admin_powershell: CHIT BODY required"
+  local -r z_chit="$1"; shift
   local -r z_body="$*"
   local -r z_body_escaped="${z_body//\"/\\\"}"   # WSp-109
 
+  zbujb_chit_open "${z_chit}"
+  local z_exit=0
   ssh -i "${BURP_PRIVILEGED_KEY_FILE}"        \
       "${ZBUJB_SSH_BASE_ARGS[@]}"             \
       -o "${BUJB_ssh_opt_batchmode_yes}"      \
       -o "${BUJB_ssh_opt_connecttimeout_15}"  \
       "${BURP_PRIVILEGED_USER}@${BURN_HOST}"  \
-      "${BUJB_ps_invoke_command} \"${BUJB_ps_prelude} ${z_body_escaped}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE }\""
+      "${BUJB_ps_invoke_command} \"${BUJB_ps_prelude} ${z_body_escaped}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE }\"" \
+      > "${ZBUJB_LAST_AP_STDOUT}" \
+      2> "${ZBUJB_LAST_AP_STDERR}" \
+    || z_exit=$?
+  zbujb_diag_dump_pair "${z_chit}" "${ZBUJB_LAST_AP_STDOUT}" "${ZBUJB_LAST_AP_STDERR}"
+  return ${z_exit}
 }
 
-# zbujb_admin_powershell_with_password_fallback BODY... -- mirror of
+# zbujb_admin_powershell_with_password_fallback CHIT BODY -- mirror of
 # zbujb_admin_powershell but with BatchMode=no and
 # PreferredAuthentications=publickey,password so ssh can fall through
 # to a /dev/tty password prompt on first-caparison-ever when the admin
@@ -595,23 +625,31 @@ zbujb_admin_powershell() {
 # Bounded to a single call site: caparison-windows phase 1 step 3
 # (admin pubkey install via single Add-Content) gated by the key-auth
 # CDD probe; every other admin-shell op uses the key-only
-# zbujb_admin_powershell. Same discipline prelude/postlude as
-# zbujb_admin_powershell; same WSp-105 single-cmdlet body discipline;
-# same WSp-109 escape transform.
+# zbujb_admin_powershell. Same discipline prelude/postlude, same
+# WSp-105 single-cmdlet body discipline, same WSp-109 escape transform,
+# same internal forensic capture as zbujb_admin_powershell.
 zbujb_admin_powershell_with_password_fallback() {
   zbujb_sentinel
-  test $# -ge 1 \
-    || buc_die "zbujb_admin_powershell_with_password_fallback: PowerShell command body required"
+  test $# -ge 2 \
+    || buc_die "zbujb_admin_powershell_with_password_fallback: CHIT BODY required"
+  local -r z_chit="$1"; shift
   local -r z_body="$*"
   local -r z_body_escaped="${z_body//\"/\\\"}"   # WSp-109
 
+  zbujb_chit_open "${z_chit}"
+  local z_exit=0
   ssh -i "${BURP_PRIVILEGED_KEY_FILE}"             \
       "${ZBUJB_SSH_BASE_ARGS[@]}"                  \
       -o BatchMode=no                              \
       -o PreferredAuthentications=publickey,password \
       -o "${BUJB_ssh_opt_connecttimeout_15}"       \
       "${BURP_PRIVILEGED_USER}@${BURN_HOST}"       \
-      "${BUJB_ps_invoke_command} \"${BUJB_ps_prelude} ${z_body_escaped}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE }\""
+      "${BUJB_ps_invoke_command} \"${BUJB_ps_prelude} ${z_body_escaped}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE }\"" \
+      > "${ZBUJB_LAST_AP_STDOUT}" \
+      2> "${ZBUJB_LAST_AP_STDERR}" \
+    || z_exit=$?
+  zbujb_diag_dump_pair "${z_chit}" "${ZBUJB_LAST_AP_STDOUT}" "${ZBUJB_LAST_AP_STDERR}"
+  return ${z_exit}
 }
 
 # zbujb_powershell_capture ROLE BODY -- run a single PS expression on the
@@ -648,26 +686,35 @@ zbujb_powershell_capture() {
   return "${z_exit}"
 }
 
-# zbujb_workload_ssh REMOTE_CMD -- execute a Windows-native command line
-# as the workload user via SSH. The default Windows OpenSSH shell is
+# zbujb_workload_ssh CHIT REMOTE_CMD -- execute a Windows-native command
+# line as the workload user via SSH. The default Windows OpenSSH shell is
 # cmd.exe; the command line goes through cmd.exe's argv layer to the named
 # binary. Used by garrison-w for `wsl.exe --import` (which writes to the
 # workload's HKCU\Lxss because the SSH session is a real workload logon)
 # and `wsl.exe --distribution rbtww-main --user root bash -c "..."`
-# invocations that follow the import. Caller redirects stdout/stderr;
-# returns ssh's exit code.
+# invocations that follow the import. stdout/stderr land at indexed paths
+# exposed via ZBUJB_LAST_AP_STDOUT / _STDERR (shared CHIT-capture pattern
+# with the admin helpers); returns ssh's exit code.
 zbujb_workload_ssh() {
   zbujb_sentinel
-  test $# -ge 1 \
-    || buc_die "zbujb_workload_ssh: REMOTE_CMD required"
+  test $# -ge 2 \
+    || buc_die "zbujb_workload_ssh: CHIT REMOTE_CMD required"
+  local -r z_chit="$1"; shift
   local -r z_remote_cmd="$*"
 
+  zbujb_chit_open "${z_chit}"
+  local z_exit=0
   ssh -i "${BURP_WORKLOAD_KEY_FILE}"       \
       "${ZBUJB_SSH_BASE_ARGS[@]}"          \
       -o "${BUJB_ssh_opt_batchmode_yes}"   \
       -o "${BUJB_ssh_opt_connecttimeout_15}" \
       "${BUJB_workload_user}@${BURN_HOST}" \
-      "${z_remote_cmd}"
+      "${z_remote_cmd}" \
+      > "${ZBUJB_LAST_AP_STDOUT}" \
+      2> "${ZBUJB_LAST_AP_STDERR}" \
+    || z_exit=$?
+  zbujb_diag_dump_pair "${z_chit}" "${ZBUJB_LAST_AP_STDOUT}" "${ZBUJB_LAST_AP_STDERR}"
+  return ${z_exit}
 }
 
 ######################################################################
@@ -675,29 +722,6 @@ zbujb_workload_ssh() {
 
 # Step 1 -- preflight gate. Subsumed by bujp_preflight (Tools/buk/bujp_preflight.sh).
 # Garrison dispatcher calls bujp_preflight directly; no zbujb wrapper.
-
-# zbujb_obliterate_diag_dump LABEL -- diagnostic helper: preserve the
-# current ZBUJB_OBLITERATE_STDOUT/STDERR contents under per-label paths
-# (so subsequent calls don't overwrite them) and emit a single-line
-# preview to buc_step. CR stripped, newlines rendered as `|` so the
-# preview stays one line. Inserted after every PS call in the obliterate
-# flow so post-mortem inspection has full per-step traces.
-zbujb_obliterate_diag_dump() {
-  local -r z_label="${1:-}"
-  local -r z_out_dst="${BURD_TEMP_DIR}/bujb_obliterate_${z_label}_stdout.txt"
-  local -r z_err_dst="${BURD_TEMP_DIR}/bujb_obliterate_${z_label}_stderr.txt"
-  cp "${ZBUJB_OBLITERATE_STDOUT}" "${z_out_dst}" \
-    || buc_die "diag-dump (${z_label}): cp stdout failed: ${z_out_dst}"
-  cp "${ZBUJB_OBLITERATE_STDERR}" "${z_err_dst}" \
-    || buc_die "diag-dump (${z_label}): cp stderr failed: ${z_err_dst}"
-  local z_out_bytes z_err_bytes z_out_preview z_err_preview
-  z_out_bytes=$(wc -c < "${z_out_dst}" | tr -d ' ')
-  z_err_bytes=$(wc -c < "${z_err_dst}" | tr -d ' ')
-  z_out_preview=$(head -c 240 < "${z_out_dst}" | tr -d '\r' | tr '\n' '|')
-  z_err_preview=$(head -c 240 < "${z_err_dst}" | tr -d '\r' | tr '\n' '|')
-  buc_step "      [diag/${z_label}] stdout (${z_out_bytes}B): ${z_out_preview}"
-  buc_step "      [diag/${z_label}] stderr (${z_err_bytes}B): ${z_err_preview}"
-}
 
 zbujb_diag_dump_pair() {
   local -r z_label="${1:-}"
@@ -714,11 +738,10 @@ zbujb_diag_dump_pair() {
 
 # zbujb_emit_index_advance OUT_REF -- validate the module-level
 # z_bujb_emit_index counter is a non-negative integer, format it as %02d
-# into OUT_REF via printf -v, then bump the counter. Single source of
-# truth for the five _run wrappers (place_trust, validate, w_init,
-# obliterate, caparison_windows) so format-and-bump is not inlined five
-# times. Dies on non-numeric counter (corruption guard) or missing
-# OUT_REF.
+# into OUT_REF via printf -v, then bump the counter. Called by
+# zbujb_chit_open inside every interaction helper so format-and-bump is
+# single-sourced. Dies on non-numeric counter (corruption guard) or
+# missing OUT_REF.
 zbujb_emit_index_advance() {
   local -r z_ref="${1:-}"
   test -n "${z_ref}" \
@@ -729,78 +752,14 @@ zbujb_emit_index_advance() {
   z_bujb_emit_index=$((z_bujb_emit_index + 1))
 }
 
-zbujb_place_trust_run() {
-  local -r z_label="${1:-}"
-  shift
-  local z_idx_str
-  zbujb_emit_index_advance z_idx_str
-  local -r z_out="${ZBUJB_PLACE_TRUST_PREFIX}${z_idx_str}_${z_label}_stdout.txt"
-  local -r z_err="${ZBUJB_PLACE_TRUST_PREFIX}${z_idx_str}_${z_label}_stderr.txt"
-  local z_exit=0
-  "$@" > "${z_out}" 2> "${z_err}" || z_exit=$?
-  zbujb_diag_dump_pair "${z_label}" "${z_out}" "${z_err}"
-  return ${z_exit}
-}
-
-zbujb_validate_run() {
-  local -r z_label="${1:-}"
-  shift
-  local z_idx_str
-  zbujb_emit_index_advance z_idx_str
-  local -r z_out="${ZBUJB_VALIDATE_PREFIX}${z_idx_str}_${z_label}_stdout.txt"
-  local -r z_err="${ZBUJB_VALIDATE_PREFIX}${z_idx_str}_${z_label}_stderr.txt"
-  local z_exit=0
-  "$@" > "${z_out}" 2> "${z_err}" || z_exit=$?
-  zbujb_diag_dump_pair "${z_label}" "${z_out}" "${z_err}"
-  return ${z_exit}
-}
-
-zbujb_w_init_run() {
-  local -r z_label="${1:-}"
-  shift
-  local z_idx_str
-  zbujb_emit_index_advance z_idx_str
-  local -r z_out="${ZBUJB_W_INIT_PREFIX}${z_idx_str}_${z_label}_stdout.txt"
-  local -r z_err="${ZBUJB_W_INIT_PREFIX}${z_idx_str}_${z_label}_stderr.txt"
-  local z_exit=0
-  "$@" > "${z_out}" 2> "${z_err}" || z_exit=$?
-  zbujb_diag_dump_pair "${z_label}" "${z_out}" "${z_err}"
-  return ${z_exit}
-}
-
-zbujb_obliterate_run() {
-  local -r z_label="${1:-}"
-  shift
-  local z_idx_str
-  zbujb_emit_index_advance z_idx_str
-  local -r z_out="${ZBUJB_OBLITERATE_PREFIX}${z_idx_str}_${z_label}_stdout.txt"
-  local -r z_err="${ZBUJB_OBLITERATE_PREFIX}${z_idx_str}_${z_label}_stderr.txt"
-  local z_exit=0
-  "$@" > "${z_out}" 2> "${z_err}" || z_exit=$?
-  zbujb_diag_dump_pair "${z_label}" "${z_out}" "${z_err}"
-  return ${z_exit}
-}
-
-zbujb_caparison_run() {
-  local -r z_label="${1:-}"
-  shift
-  local z_idx_str
-  zbujb_emit_index_advance z_idx_str
-  local -r z_out="${ZBUJB_CAPARISON_PREFIX}${z_idx_str}_${z_label}_stdout.txt"
-  local -r z_err="${ZBUJB_CAPARISON_PREFIX}${z_idx_str}_${z_label}_stderr.txt"
-  local z_exit=0
-  "$@" > "${z_out}" 2> "${z_err}" || z_exit=$?
-  zbujb_diag_dump_pair "${z_label}" "${z_out}" "${z_err}"
-  return ${z_exit}
-}
-
 # zbujb_obliterate_windows_namespaces -- five-phase nuclear cleanup of
 # every namespace a prior garrison of any letter could have populated for
 # BUJB_workload_user. Each phase is a series of atomic admin SSH calls
-# (one cmdlet or one native binary per body) wrapped in zbujb_obliterate_run
-# for per-call forensic capture. Capture-decide-dispatch: probes return
-# state to bash; bash decides; destructive calls run unconditionally on the
-# selected branch (no error-suppression-as-idempotency per WSp-108).
+# (one cmdlet or one native binary per body) tagged with the
+# ${ZBUJB_CHIT_obliterate} fragment for per-call forensic capture.
+# Capture-decide-dispatch: probes return state to bash; bash decides;
+# destructive calls run unconditionally on the selected branch (no
+# error-suppression-as-idempotency per WSp-108).
 #
 # Phase 1 - Release hives: wsl --shutdown host-wide, then CDD-conditional
 #   Stop-Process for any wslhost/wslservice helpers still alive.
@@ -827,8 +786,7 @@ zbujb_obliterate_windows_namespaces() {
   # Phase 1 — Release hives
 
   buc_step "    [Phase 1] wsl --shutdown (release NTUSER.DAT hive handles)"
-  zbujb_obliterate_run "p1-wsl-shutdown" \
-      zbujb_admin_powershell 'wsl.exe --shutdown' \
+  zbujb_admin_powershell "${ZBUJB_CHIT_obliterate}p1-wsl-shutdown-" 'wsl.exe --shutdown' \
     || buc_die "obliterate phase 1: wsl --shutdown failed"
 
   buc_step "    [Phase 1] Probe WSL helper processes (wslhost,wslservice)"
@@ -838,8 +796,7 @@ zbujb_obliterate_windows_namespaces() {
     || z_helpers=""
   if test -n "${z_helpers}"; then
     buc_step "    [Phase 1] Stop-Process wslhost,wslservice (PIDs present)"
-    zbujb_obliterate_run "p1-stop-helpers" \
-        zbujb_admin_powershell 'Stop-Process -Name wslhost,wslservice -Force' \
+    zbujb_admin_powershell "${ZBUJB_CHIT_obliterate}p1-stop-helpers-" 'Stop-Process -Name wslhost,wslservice -Force' \
       || buc_die "obliterate phase 1: Stop-Process wslhost,wslservice failed"
   fi
 
@@ -888,8 +845,8 @@ zbujb_obliterate_windows_namespaces() {
     z_path="${z_profiles_roll[$z_i]}"
     z_path_wql="${z_path//\\/\\\\}"
     buc_step "    [Phase 2] Remove-CimInstance Win32_UserProfile LocalPath='${z_path}'"
-    zbujb_obliterate_run "p2-remove-${z_i}" \
-        zbujb_admin_powershell "Remove-CimInstance -Query \"SELECT * FROM Win32_UserProfile WHERE LocalPath = '${z_path_wql}'\"" \
+    zbujb_admin_powershell "${ZBUJB_CHIT_obliterate}p2-remove-${z_i}-" \
+        "Remove-CimInstance -Query \"SELECT * FROM Win32_UserProfile WHERE LocalPath = '${z_path_wql}'\"" \
       || buc_die "obliterate phase 2: Remove-CimInstance failed for ${z_path}"
   done
 
@@ -903,8 +860,8 @@ zbujb_obliterate_windows_namespaces() {
   # silent partial cleanup left a SID behind.
 
   buc_step "    [Phase 3] Remove-LocalUser ${BUJB_workload_user} (collapsed, -EAS)"
-  zbujb_obliterate_run "p3-remove-localuser" \
-      zbujb_admin_powershell "Remove-LocalUser -Name '${BUJB_workload_user}' -ErrorAction SilentlyContinue" \
+  zbujb_admin_powershell "${ZBUJB_CHIT_obliterate}p3-remove-localuser-" \
+      "Remove-LocalUser -Name '${BUJB_workload_user}' -ErrorAction SilentlyContinue" \
     || buc_die "obliterate phase 3: SSH transport failed for Remove-LocalUser ${BUJB_workload_user}"
 
   ##############
@@ -935,8 +892,8 @@ zbujb_obliterate_windows_namespaces() {
   for z_i in "${!z_dirs_roll[@]}"; do
     z_dir="${z_dirs_roll[$z_i]}"
     buc_step "    [Phase 4] Remove-Item -Recurse -Force ${z_dir}"
-    zbujb_obliterate_run "p4-fsremove-${z_i}" \
-        zbujb_admin_powershell "Remove-Item -Recurse -Force -LiteralPath '${z_dir}'" \
+    zbujb_admin_powershell "${ZBUJB_CHIT_obliterate}p4-fsremove-${z_i}-" \
+        "Remove-Item -Recurse -Force -LiteralPath '${z_dir}'" \
       || buc_die "obliterate phase 4: Remove-Item failed for ${z_dir}"
   done
 
@@ -949,8 +906,8 @@ zbujb_obliterate_windows_namespaces() {
   case "${z_cyg}" in
     True)
       buc_step "    [Phase 4] Remove Cygwin home ${BUJB_path_cygwin_user_home}"
-      zbujb_obliterate_run "p4-cygwin-remove" \
-          zbujb_admin_powershell "Remove-Item -Recurse -Force '${BUJB_path_cygwin_user_home}'" \
+      zbujb_admin_powershell "${ZBUJB_CHIT_obliterate}p4-cygwin-remove-" \
+          "Remove-Item -Recurse -Force '${BUJB_path_cygwin_user_home}'" \
         || buc_die "obliterate phase 4: Remove-Item failed for ${BUJB_path_cygwin_user_home}"
       ;;
     False)
@@ -978,16 +935,16 @@ zbujb_obliterate_windows_namespaces() {
 
   buc_step "    [Phase 5] wsl userdel ${BUJB_workload_user} (exit 6 = absent, treated as no-op)"
   local z_userdel_exit=0
-  zbujb_obliterate_run "p5-wsl-userdel" \
-      zbujb_admin_powershell "wsl.exe --distribution ${BUJB_wsl_distribution} --user root userdel ${BUJB_workload_user}" \
+  zbujb_admin_powershell "${ZBUJB_CHIT_obliterate}p5-wsl-userdel-" \
+      "wsl.exe --distribution ${BUJB_wsl_distribution} --user root userdel ${BUJB_workload_user}" \
     || z_userdel_exit=$?
   if test "${z_userdel_exit}" -ne 0 && test "${z_userdel_exit}" -ne 6; then
     buc_die "obliterate phase 5: wsl userdel returned exit ${z_userdel_exit} (acceptable: 0 or 6) for ${BUJB_workload_user}"
   fi
 
   buc_step "    [Phase 5] wsl rm -rf ${BUJB_path_posix_user_home} (idempotent on absent)"
-  zbujb_obliterate_run "p5-wsl-rm-home" \
-      zbujb_admin_powershell "wsl.exe --distribution ${BUJB_wsl_distribution} --user root rm -rf ${BUJB_path_posix_user_home}" \
+  zbujb_admin_powershell "${ZBUJB_CHIT_obliterate}p5-wsl-rm-home-" \
+      "wsl.exe --distribution ${BUJB_wsl_distribution} --user root rm -rf ${BUJB_path_posix_user_home}" \
     || buc_die "obliterate phase 5: wsl rm -rf failed for ${BUJB_path_posix_user_home}"
 }
 
@@ -1036,7 +993,7 @@ zbujb_reboot_and_await_ssh() {
   # is not load-bearing. The downstream LastBootUpTime advance check is
   # the concrete end-state verification — a host that silently failed to
   # reboot will be caught there, not here.
-  zbujb_admin_powershell "shutdown.exe /full /r /f /t 0" > /dev/null 2>&1 || true
+  zbujb_admin_powershell "${ZBUJB_CHIT_caparison}reboot-shutdown-" "shutdown.exe /full /r /f /t 0" || true
 
   buc_step "    Polling for SSH return (cap: ${BUJB_reboot_poll_cap_s}s, interval: ${BUJB_reboot_poll_interval_s}s)"
   local z_attempt=0
@@ -1090,35 +1047,43 @@ zbujb_obliterate_workload() {
 
   case "${BURN_PLATFORM}" in
     bubep_linux)
-      # CDD via the counter-based zbujb_obliterate_run wrapper: per-call
-      # forensic capture under ZBUJB_OBLITERATE_PREFIX, no inline
-      # redirection boilerplate, no `|| true` (BCG-forbidden silent
+      # CDD via per-call CHIT capture inside zbujb_admin_exec_native: each
+      # call lands at ${BURD_TEMP_DIR}/bujb_obliterate-<label>-<idx>_*.txt;
+      # no inline redirection, no `|| true` (BCG-forbidden silent
       # absorption), no body-side `2>/dev/null`.
       local z_present=0
-      zbujb_obliterate_run "user-probe" zbujb_admin_exec_native "id '${BUJB_workload_user}'" || z_present=$?
+      zbujb_admin_exec_native "${ZBUJB_CHIT_obliterate}user-probe-" \
+          "id '${BUJB_workload_user}'" || z_present=$?
       if test "${z_present}" -eq 0; then
-        zbujb_obliterate_run "userdel"  zbujb_admin_exec_native "sudo -n userdel -r '${BUJB_workload_user}'" \
-          || buc_die "obliterate (b/linux): userdel failed for ${BUJB_workload_user} — see ${ZBUJB_OBLITERATE_PREFIX}*userdel*"
+        zbujb_admin_exec_native "${ZBUJB_CHIT_obliterate}userdel-" \
+            "sudo -n userdel -r '${BUJB_workload_user}'" \
+          || buc_die "obliterate (b/linux): userdel failed for ${BUJB_workload_user} — see ${ZBUJB_LAST_AP_STDERR}"
       fi
       z_present=0
-      zbujb_obliterate_run "home-probe" zbujb_admin_exec_native "test -d '${BUJB_path_posix_user_home}'" || z_present=$?
+      zbujb_admin_exec_native "${ZBUJB_CHIT_obliterate}home-probe-" \
+          "test -d '${BUJB_path_posix_user_home}'" || z_present=$?
       if test "${z_present}" -eq 0; then
-        zbujb_obliterate_run "rm-home"  zbujb_admin_exec_native "sudo -n rm -rf '${BUJB_path_posix_user_home}'" \
-          || buc_die "obliterate (b/linux): rm -rf of ${BUJB_path_posix_user_home} failed — see ${ZBUJB_OBLITERATE_PREFIX}*rm-home*"
+        zbujb_admin_exec_native "${ZBUJB_CHIT_obliterate}rm-home-" \
+            "sudo -n rm -rf '${BUJB_path_posix_user_home}'" \
+          || buc_die "obliterate (b/linux): rm -rf of ${BUJB_path_posix_user_home} failed — see ${ZBUJB_LAST_AP_STDERR}"
       fi
       ;;
     bubep_mac)
       local z_present=0
-      zbujb_obliterate_run "user-probe" zbujb_admin_exec_native "id '${BUJB_workload_user}'" || z_present=$?
+      zbujb_admin_exec_native "${ZBUJB_CHIT_obliterate}user-probe-" \
+          "id '${BUJB_workload_user}'" || z_present=$?
       if test "${z_present}" -eq 0; then
-        zbujb_obliterate_run "userdel"  zbujb_admin_exec_native "sudo -n sysadminctl -deleteUser '${BUJB_workload_user}'" \
-          || buc_die "obliterate (b/mac): sysadminctl -deleteUser failed for ${BUJB_workload_user} — see ${ZBUJB_OBLITERATE_PREFIX}*userdel*"
+        zbujb_admin_exec_native "${ZBUJB_CHIT_obliterate}userdel-" \
+            "sudo -n sysadminctl -deleteUser '${BUJB_workload_user}'" \
+          || buc_die "obliterate (b/mac): sysadminctl -deleteUser failed for ${BUJB_workload_user} — see ${ZBUJB_LAST_AP_STDERR}"
       fi
       z_present=0
-      zbujb_obliterate_run "home-probe" zbujb_admin_exec_native "test -d '${BUJB_path_mac_user_home}'" || z_present=$?
+      zbujb_admin_exec_native "${ZBUJB_CHIT_obliterate}home-probe-" \
+          "test -d '${BUJB_path_mac_user_home}'" || z_present=$?
       if test "${z_present}" -eq 0; then
-        zbujb_obliterate_run "rm-home"  zbujb_admin_exec_native "sudo -n rm -rf '${BUJB_path_mac_user_home}'" \
-          || buc_die "obliterate (b/mac): rm -rf of ${BUJB_path_mac_user_home} failed — see ${ZBUJB_OBLITERATE_PREFIX}*rm-home*"
+        zbujb_admin_exec_native "${ZBUJB_CHIT_obliterate}rm-home-" \
+            "sudo -n rm -rf '${BUJB_path_mac_user_home}'" \
+          || buc_die "obliterate (b/mac): rm -rf of ${BUJB_path_mac_user_home} failed — see ${ZBUJB_LAST_AP_STDERR}"
       fi
       ;;
     bubep_windows)
@@ -1139,17 +1104,21 @@ zbujb_garrison_step3_create() {
     b)
       case "${BURN_PLATFORM}" in
         bubep_linux)
-          zbujb_admin_exec_native "sudo -n useradd ${BUJB_useradd_workload_args} '${BUJB_workload_user}'" \
+          zbujb_admin_exec_native "${ZBUJB_CHIT_garrison_step}3-linux-useradd-" \
+              "sudo -n useradd ${BUJB_useradd_workload_args} '${BUJB_workload_user}'" \
             || buc_die "step3 (b/linux): useradd failed for ${BUJB_workload_user}"
-          zbujb_admin_exec_native "sudo -n passwd --lock '${BUJB_workload_user}'" \
+          zbujb_admin_exec_native "${ZBUJB_CHIT_garrison_step}3-linux-passwd-lock-" \
+              "sudo -n passwd --lock '${BUJB_workload_user}'" \
             || buc_die "step3 (b/linux): passwd --lock failed for ${BUJB_workload_user}"
           ;;
         bubep_mac)
           # Mac uses dscl/sysadminctl; left for in-environment refinement.
           # Operator may need to seat a more idiomatic primary group ID.
-          zbujb_admin_exec_native "sudo -n sysadminctl -addUser '${BUJB_workload_user}' -roleAccount" \
+          zbujb_admin_exec_native "${ZBUJB_CHIT_garrison_step}3-mac-adduser-" \
+              "sudo -n sysadminctl -addUser '${BUJB_workload_user}' -roleAccount" \
             || buc_die "step3 (b/mac): sysadminctl -addUser failed for ${BUJB_workload_user}"
-          zbujb_admin_exec_native "sudo -n dscl . -create '${BUJB_path_mac_user_home}' UserShell ${BUJB_shell_bash}" \
+          zbujb_admin_exec_native "${ZBUJB_CHIT_garrison_step}3-mac-dscl-shell-" \
+              "sudo -n dscl . -create '${BUJB_path_mac_user_home}' UserShell ${BUJB_shell_bash}" \
             || buc_die "step3 (b/mac): dscl UserShell create failed for ${BUJB_path_mac_user_home}"
           ;;
       esac
@@ -1157,13 +1126,17 @@ zbujb_garrison_step3_create() {
     c)
       # Cygwin reflects Windows user accounts; mint via net.exe with a
       # disabled-password posture (we want ssh-key-only).
-      zbujb_admin_exec_cygwin "net.exe user '${BUJB_workload_user}' ${BUJB_netuser_add_args} > /dev/null" \
+      zbujb_admin_exec_cygwin "${ZBUJB_CHIT_garrison_step}3-c-netuser-add-" \
+          "net.exe user '${BUJB_workload_user}' ${BUJB_netuser_add_args} > /dev/null" \
         || buc_die "step3 (c): net.exe user /add failed for ${BUJB_workload_user}"
-      zbujb_admin_exec_cygwin "mkpasswd -l -u '${BUJB_workload_user}' >> /etc/passwd" \
+      zbujb_admin_exec_cygwin "${ZBUJB_CHIT_garrison_step}3-c-mkpasswd-" \
+          "mkpasswd -l -u '${BUJB_workload_user}' >> /etc/passwd" \
         || buc_die "step3 (c): mkpasswd append to /etc/passwd failed for ${BUJB_workload_user}"
-      zbujb_admin_exec_cygwin "mkdir -p '${BUJB_path_posix_user_home}'" \
+      zbujb_admin_exec_cygwin "${ZBUJB_CHIT_garrison_step}3-c-mkdir-home-" \
+          "mkdir -p '${BUJB_path_posix_user_home}'" \
         || buc_die "step3 (c): mkdir of ${BUJB_path_posix_user_home} failed"
-      zbujb_admin_exec_cygwin "chown -R '${BUJB_workload_user}' '${BUJB_path_posix_user_home}'" \
+      zbujb_admin_exec_cygwin "${ZBUJB_CHIT_garrison_step}3-c-chown-home-" \
+          "chown -R '${BUJB_workload_user}' '${BUJB_path_posix_user_home}'" \
         || buc_die "step3 (c): chown of ${BUJB_path_posix_user_home} failed"
       ;;
     w)
@@ -1176,7 +1149,8 @@ zbujb_garrison_step3_create() {
       # workload-profile state. The workload's first SSH session
       # (zbujb_garrison_w_session_import) creates the profile naturally
       # via User Profile Service.
-      zbujb_admin_exec_wsl "net.exe user '${BUJB_workload_user}' ${BUJB_netuser_add_args} > /dev/null" \
+      zbujb_admin_exec_wsl "${ZBUJB_CHIT_garrison_step}3-w-netuser-add-" \
+          "net.exe user '${BUJB_workload_user}' ${BUJB_netuser_add_args} > /dev/null" \
         || buc_die "step3 (w): net.exe user /add failed for ${BUJB_workload_user}"
       ;;
   esac
@@ -1217,30 +1191,40 @@ zbujb_garrison_step4_place_trust() {
 
   case "${z_letter}" in
     b)
-      zbujb_admin_exec_native "${z_sudo_prefix}mkdir -p '${z_authkeys_dir}'" \
+      zbujb_admin_exec_native "${ZBUJB_CHIT_garrison_step}4-b-mkdir-" \
+          "${z_sudo_prefix}mkdir -p '${z_authkeys_dir}'" \
         || buc_die "step4 (b): mkdir of ${z_authkeys_dir} failed"
-      zbujb_admin_exec_native "${z_sudo_prefix}chmod 700 '${z_authkeys_dir}'" \
+      zbujb_admin_exec_native "${ZBUJB_CHIT_garrison_step}4-b-chmod-dir-" \
+          "${z_sudo_prefix}chmod 700 '${z_authkeys_dir}'" \
         || buc_die "step4 (b): chmod 700 of ${z_authkeys_dir} failed"
-      zbujb_admin_exec_native "echo '${z_authkeys_line}' | ${z_sudo_prefix}tee '${z_authkeys_dir}/${BUJB_authkeys_basename}' > /dev/null" \
+      zbujb_admin_exec_native "${ZBUJB_CHIT_garrison_step}4-b-write-authkeys-" \
+          "echo '${z_authkeys_line}' | ${z_sudo_prefix}tee '${z_authkeys_dir}/${BUJB_authkeys_basename}' > /dev/null" \
         || buc_die "step4 (b): write to ${z_authkeys_dir}/${BUJB_authkeys_basename} failed"
-      zbujb_admin_exec_native "${z_sudo_prefix}chmod 600 '${z_authkeys_dir}/${BUJB_authkeys_basename}'" \
+      zbujb_admin_exec_native "${ZBUJB_CHIT_garrison_step}4-b-chmod-file-" \
+          "${z_sudo_prefix}chmod 600 '${z_authkeys_dir}/${BUJB_authkeys_basename}'" \
         || buc_die "step4 (b): chmod 600 of ${BUJB_authkeys_basename} failed"
-      zbujb_admin_exec_native "${z_sudo_prefix}chown -R '${BUJB_workload_user}:${BUJB_workload_user}' '${z_authkeys_dir}'" \
+      zbujb_admin_exec_native "${ZBUJB_CHIT_garrison_step}4-b-chown-" \
+          "${z_sudo_prefix}chown -R '${BUJB_workload_user}:${BUJB_workload_user}' '${z_authkeys_dir}'" \
         || buc_die "step4 (b): chown of ${z_authkeys_dir} failed"
       ;;
     c)
       # In Cygwin, file ownership/permissions interplay with NTFS ACLs.
       # mkdir/chmod/chown are Cygwin-mediated; run as the admin user
       # without sudo (Windows admins already have privilege).
-      zbujb_admin_exec_cygwin "mkdir -p '${z_authkeys_dir}'" \
+      zbujb_admin_exec_cygwin "${ZBUJB_CHIT_garrison_step}4-c-mkdir-" \
+          "mkdir -p '${z_authkeys_dir}'" \
         || buc_die "step4 (c): mkdir of ${z_authkeys_dir} failed"
-      zbujb_admin_exec_cygwin "chmod 700 '${z_authkeys_dir}'" \
+      zbujb_admin_exec_cygwin "${ZBUJB_CHIT_garrison_step}4-c-chmod-dir-" \
+          "chmod 700 '${z_authkeys_dir}'" \
         || buc_die "step4 (c): chmod 700 of ${z_authkeys_dir} failed"
-      zbujb_admin_exec_cygwin "echo '${z_authkeys_line}' > '${z_authkeys_dir}/${BUJB_authkeys_basename}'" \
+      zbujb_admin_exec_cygwin "${ZBUJB_CHIT_garrison_step}4-c-write-authkeys-" \
+          "echo '${z_authkeys_line}' > '${z_authkeys_dir}/${BUJB_authkeys_basename}'" \
         || buc_die "step4 (c): write to ${z_authkeys_dir}/${BUJB_authkeys_basename} failed"
-      zbujb_admin_exec_cygwin "chmod 600 '${z_authkeys_dir}/${BUJB_authkeys_basename}'" \
+      zbujb_admin_exec_cygwin "${ZBUJB_CHIT_garrison_step}4-c-chmod-file-" \
+          "chmod 600 '${z_authkeys_dir}/${BUJB_authkeys_basename}'" \
         || buc_die "step4 (c): chmod 600 of ${BUJB_authkeys_basename} failed"
-      zbujb_admin_exec_cygwin "chown -R '${BUJB_workload_user}' '${z_authkeys_dir}'" \
+      zbujb_admin_exec_cygwin "${ZBUJB_CHIT_garrison_step}4-c-chown-" \
+          "chown -R '${BUJB_workload_user}' '${z_authkeys_dir}'" \
         || buc_die "step4 (c): chown of ${z_authkeys_dir} failed"
       ;;
   esac
@@ -1268,7 +1252,7 @@ zbujb_garrison_step5_plant_key() {
       # Linux/Mac: privileged user needs sudo to write into workload's
       # home; both -o and -g supplied because useradd auto-mints a
       # self-named primary group on Linux/Mac.
-      zbujb_admin_exec_native \
+      zbujb_admin_exec_native "${ZBUJB_CHIT_garrison_step}5-b-install-" \
           "sudo -n install -D -m 600 -o '${BUJB_workload_user}' -g '${BUJB_workload_user}' ${BUJB_path_devstdin} '${z_target}'" \
           < "${BURP_WORKLOAD_KEY_FILE}" \
         || buc_die "step5 (b): failed to plant workload key at ${z_target}"
@@ -1277,7 +1261,7 @@ zbujb_garrison_step5_plant_key() {
       # WSL: wsl.exe --user root provides root inside the distribution,
       # no sudo needed. -o and -g supplied (WSL distro is Linux-flavoured;
       # useradd inside it mints a self-named group).
-      zbujb_admin_exec_wsl \
+      zbujb_admin_exec_wsl "${ZBUJB_CHIT_garrison_step}5-w-install-" \
           "install -D -m 600 -o '${BUJB_workload_user}' -g '${BUJB_workload_user}' ${BUJB_path_devstdin} '${z_target}'" \
           < "${BURP_WORKLOAD_KEY_FILE}" \
         || buc_die "step5 (w): failed to plant workload key at ${z_target}"
@@ -1287,7 +1271,7 @@ zbujb_garrison_step5_plant_key() {
       # ACL without sudo. -g omitted because Windows accounts (minted via
       # net.exe user /add) do not get an auto-self-named group; passing
       # -g '${BUJB_workload_user}' would fail.
-      zbujb_admin_exec_cygwin \
+      zbujb_admin_exec_cygwin "${ZBUJB_CHIT_garrison_step}5-c-install-" \
           "install -D -m 600 -o '${BUJB_workload_user}' ${BUJB_path_devstdin} '${z_target}'" \
           < "${BURP_WORKLOAD_KEY_FILE}" \
         || buc_die "step5 (c): failed to plant workload key at ${z_target}"
@@ -1336,7 +1320,7 @@ zbujb_garrison_w_place_bare_trust() {
   z_b64=$(<"${ZBUJB_AUTHKEYS_B64_STDOUT}")
   z_b64="${z_b64//$'\n'/}"
 
-  zbujb_w_init_run "place-bare-trust" zbujb_admin_powershell \
+  zbujb_admin_powershell "${ZBUJB_CHIT_w_init}place-bare-trust-" \
       "[System.IO.File]::WriteAllBytes((\$env:ProgramData + '\\ssh\\users\\${BUJB_workload_user}\\authorized_keys'), [System.Convert]::FromBase64String('${z_b64}'))" \
     || buc_die "w-place-bare-trust: failed to write bare authorized_keys"
 }
@@ -1350,9 +1334,9 @@ zbujb_garrison_w_export_seed() {
   zbujb_sentinel
   buc_step "  [w-export-seed] Export admin's ${BUJB_wsl_distribution} to ${BUJB_path_win_seed_tarball}"
 
-  zbujb_w_init_run "wsl-export" zbujb_admin_powershell \
-    "wsl.exe --export ${BUJB_wsl_distribution} '${BUJB_path_win_seed_tarball}'" \
-    || buc_die "w-export-seed: wsl --export failed (admin's ${BUJB_wsl_distribution} not exportable?) — see ${ZBUJB_W_INIT_PREFIX}*wsl-export*"
+  zbujb_admin_powershell "${ZBUJB_CHIT_w_init}wsl-export-" \
+      "wsl.exe --export ${BUJB_wsl_distribution} '${BUJB_path_win_seed_tarball}'" \
+    || buc_die "w-export-seed: wsl --export failed (admin's ${BUJB_wsl_distribution} not exportable?) — see ${ZBUJB_LAST_AP_STDERR}"
 }
 
 # zbujb_garrison_w_session_import -- workload SSH session 1 of 4. Imports
@@ -1368,9 +1352,9 @@ zbujb_garrison_w_session_import() {
   zbujb_sentinel
   buc_step "  [w-session-1/4] wsl --import (registers rbtww-main in workload's HKCU\\Lxss)"
 
-  zbujb_w_init_run "session-import" zbujb_workload_ssh \
+  zbujb_workload_ssh "${ZBUJB_CHIT_w_init}session-import-" \
       "wsl.exe --import ${BUJB_wsl_distribution} \"${BUJB_path_win_wsl_root}\" \"${BUJB_path_win_seed_tarball}\" --version 2" \
-    || buc_die "w-session-import: wsl --import failed — see ${ZBUJB_W_INIT_PREFIX}*session-import*"
+    || buc_die "w-session-import: wsl --import failed — see ${ZBUJB_LAST_AP_STDERR}"
 }
 
 # zbujb_garrison_w_session_useradd -- workload SSH session 2 of 4. Mints
@@ -1380,7 +1364,7 @@ zbujb_garrison_w_session_useradd() {
   zbujb_sentinel
   buc_step "  [w-session-2/4] wsl useradd (locked by default per /etc/shadow convention)"
 
-  zbujb_w_init_run "session-useradd" zbujb_workload_ssh \
+  zbujb_workload_ssh "${ZBUJB_CHIT_w_init}session-useradd-" \
       "wsl.exe --distribution ${BUJB_wsl_distribution} --user root useradd ${BUJB_useradd_workload_args} ${BUJB_workload_user}" \
     || buc_die "w-session-useradd: useradd failed inside workload's ${BUJB_wsl_distribution}"
 }
@@ -1398,7 +1382,7 @@ zbujb_garrison_w_session_privkey() {
   zbujb_sentinel
   buc_step "  [w-session-3/4] wsl install -D /dev/stdin (workload privkey)"
 
-  zbujb_w_init_run "session-privkey" zbujb_workload_ssh \
+  zbujb_workload_ssh "${ZBUJB_CHIT_w_init}session-privkey-" \
       "wsl.exe --distribution ${BUJB_wsl_distribution} --user root install -D -m 600 -o ${BUJB_workload_user} -g ${BUJB_workload_user} ${BUJB_path_devstdin} ${BUJB_path_posix_user_home}/${BUJB_workload_keypath}" \
       < "${BURP_WORKLOAD_KEY_FILE}" \
     || buc_die "w-session-privkey: failed to plant workload privkey inside workload's ${BUJB_wsl_distribution}"
@@ -1412,9 +1396,9 @@ zbujb_garrison_w_session_shutdown() {
   zbujb_sentinel
   buc_step "  [w-session-4/4] wsl --shutdown (release NTUSER.DAT hive handles before logon exit)"
 
-  zbujb_w_init_run "session-shutdown" zbujb_workload_ssh \
+  zbujb_workload_ssh "${ZBUJB_CHIT_w_init}session-shutdown-" \
       "wsl.exe --shutdown" \
-    || buc_die "w-session-shutdown: wsl --shutdown failed — see ${ZBUJB_W_INIT_PREFIX}*session-shutdown*"
+    || buc_die "w-session-shutdown: wsl --shutdown failed — see ${ZBUJB_LAST_AP_STDERR}"
 }
 
 # zbujb_garrison_w_lockdown_rewrite -- admin overwrites the absolute-path
@@ -1446,7 +1430,7 @@ zbujb_garrison_w_lockdown_rewrite() {
   z_b64=$(<"${ZBUJB_AUTHKEYS_B64_STDOUT}")
   z_b64="${z_b64//$'\n'/}"
 
-  zbujb_w_init_run "lockdown-rewrite" zbujb_admin_powershell \
+  zbujb_admin_powershell "${ZBUJB_CHIT_w_init}lockdown-rewrite-" \
       "[System.IO.File]::WriteAllBytes((\$env:ProgramData + '\\ssh\\users\\${BUJB_workload_user}\\authorized_keys'), [System.Convert]::FromBase64String('${z_b64}'))" \
     || buc_die "w-lockdown-rewrite: failed to overwrite ${BUJB_authkeys_basename} with command= form"
 }
@@ -1467,7 +1451,7 @@ zbujb_garrison_w_seed_cleanup() {
   z_present="${z_present//[$'\r\n']/}"
   case "${z_present}" in
     True)
-      zbujb_w_init_run "seed-cleanup" zbujb_admin_powershell \
+      zbujb_admin_powershell "${ZBUJB_CHIT_w_init}seed-cleanup-" \
           "Remove-Item -Path '${BUJB_path_win_seed_tarball}' -Force" \
         || buc_die "w-seed-cleanup: Remove-Item failed for ${BUJB_path_win_seed_tarball}"
       ;;
@@ -1687,22 +1671,15 @@ zbujb_caparison_windows_phase1() {
   z_pubkey="${z_pubkey//$'\n'/}"
 
   buc_step "  [Phase 1] [Step 2/13] Probe key-auth availability (non-fatal — both outcomes valid)"
-  local z_idx_probe
-  zbujb_emit_index_advance z_idx_probe
-  local -r z_probe_stdout="${ZBUJB_CAPARISON_PREFIX}${z_idx_probe}_p1-keyauth-probe_stdout.txt"
-  local -r z_probe_stderr="${ZBUJB_CAPARISON_PREFIX}${z_idx_probe}_p1-keyauth-probe_stderr.txt"
   local z_key_auth_available="False"
-  if zbujb_admin_powershell 'exit 0' \
-      > "${z_probe_stdout}" \
-      2> "${z_probe_stderr}"; then
+  if zbujb_admin_powershell "${ZBUJB_CHIT_caparison}p1-keyauth-probe-" 'exit 0'; then
     z_key_auth_available="True"
   fi
   buc_step "    Key auth available: ${z_key_auth_available}"
 
   if [[ "${z_key_auth_available}" == "False" ]]; then
     buc_step "  [Phase 1] [Step 3/13] Install admin pubkey via password-fallback Add-Content (operator may be prompted once for admin password)"
-    zbujb_caparison_run "p1-install-admin-pubkey" \
-        zbujb_admin_powershell_with_password_fallback \
+    zbujb_admin_powershell_with_password_fallback "${ZBUJB_CHIT_caparison}p1-install-admin-pubkey-" \
         "Add-Content -Path (\$env:ProgramData + '\\ssh\\administrators_authorized_keys') -Value '${z_pubkey}' -Encoding ASCII" \
       || buc_die "Phase 1 step 3: Add-Content for admin pubkey install failed (operator password rejected, write denied, or file locked)"
   else
@@ -1710,20 +1687,15 @@ zbujb_caparison_windows_phase1() {
   fi
 
   buc_step "  [Phase 1] [Step 4/13] icacls lockdown on administrators_authorized_keys"
-  zbujb_caparison_run "p1-icacls-admin-authkeys" \
-      zbujb_admin_powershell \
+  zbujb_admin_powershell "${ZBUJB_CHIT_caparison}p1-icacls-admin-authkeys-" \
       "icacls (\$env:ProgramData + '\\ssh\\administrators_authorized_keys') /inheritance:r /grant '${BUJB_acl_principal_system}:F' /grant '${BUJB_acl_principal_admins}:F'" \
     || buc_die "Phase 1 step 4: icacls on administrators_authorized_keys failed — subsequent key-auth ops would not authenticate"
 
   buc_step "  [Phase 1] [Step 5/13] Read current sshd_config"
-  local z_idx_read
-  zbujb_emit_index_advance z_idx_read
-  local -r z_sshd_current_stdout="${ZBUJB_CAPARISON_PREFIX}${z_idx_read}_p1-sshd-read_stdout.txt"
-  local -r z_sshd_current_stderr="${ZBUJB_CAPARISON_PREFIX}${z_idx_read}_p1-sshd-read_stderr.txt"
-  zbujb_admin_powershell "Get-Content (\$env:ProgramData + '\\ssh\\sshd_config') -Raw" \
-      > "${z_sshd_current_stdout}" \
-      2> "${z_sshd_current_stderr}" \
-    || buc_die "Phase 1 step 5: Get-Content on sshd_config failed — see ${z_sshd_current_stderr}"
+  zbujb_admin_powershell "${ZBUJB_CHIT_caparison}p1-sshd-read-" \
+      "Get-Content (\$env:ProgramData + '\\ssh\\sshd_config') -Raw" \
+    || buc_die "Phase 1 step 5: Get-Content on sshd_config failed — see ${ZBUJB_LAST_AP_STDERR}"
+  local -r z_sshd_current_stdout="${ZBUJB_LAST_AP_STDOUT}"
 
   buc_step "  [Phase 1] [Step 6/13] Build new sshd_config content (curia-side: replace hardening directives + strip prior Match block + append canonical Match block)"
   local z_current_raw=""
@@ -1816,8 +1788,7 @@ zbujb_caparison_windows_phase1() {
   z_sshd_b64=$(<"${ZBUJB_AUTHKEYS_B64_STDOUT}")
   z_sshd_b64="${z_sshd_b64//$'\n'/}"
 
-  zbujb_caparison_run "p1-sshd-write" \
-      zbujb_admin_powershell \
+  zbujb_admin_powershell "${ZBUJB_CHIT_caparison}p1-sshd-write-" \
       "[System.IO.File]::WriteAllBytes((\$env:ProgramData + '\\ssh\\sshd_config'), [System.Convert]::FromBase64String('${z_sshd_b64}'))" \
     || buc_die "Phase 1 step 7: WriteAllBytes on sshd_config failed — restart would still serve unhardened auth"
 
@@ -1833,8 +1804,7 @@ zbujb_caparison_windows_phase1() {
       ;;
     False)
       buc_step "    Creating workload authkeys directory"
-      zbujb_caparison_run "p1-mkdir-authkeys-dir" \
-          zbujb_admin_powershell \
+      zbujb_admin_powershell "${ZBUJB_CHIT_caparison}p1-mkdir-authkeys-dir-" \
           "New-Item -ItemType Directory -Path (\$env:ProgramData + '\\ssh\\users\\${BUJB_workload_user}') -Force | Out-Null" \
         || buc_die "Phase 1 step 8: New-Item on workload authkeys directory failed — workload auth path would not resolve"
       ;;
@@ -1844,33 +1814,28 @@ zbujb_caparison_windows_phase1() {
   esac
 
   buc_step "  [Phase 1] [Step 9/13] icacls lockdown on workload authkeys directory"
-  zbujb_caparison_run "p1-icacls-authkeys-dir" \
-      zbujb_admin_powershell \
+  zbujb_admin_powershell "${ZBUJB_CHIT_caparison}p1-icacls-authkeys-dir-" \
       "icacls (\$env:ProgramData + '\\ssh\\users\\${BUJB_workload_user}') /inheritance:r /grant '${BUJB_acl_principal_system}:F' /grant '${BUJB_acl_principal_admins}:F'" \
     || buc_die "Phase 1 step 9: icacls on workload authkeys directory failed — sshd would refuse the workload trust file"
 
   buc_step "  [Phase 1] [Step 10/13] Validate sshd_config (sshd -t)"
-  zbujb_caparison_run "p1-sshd-t" \
-      zbujb_admin_powershell "& 'C:\\Windows\\System32\\OpenSSH\\sshd.exe' -t" \
+  zbujb_admin_powershell "${ZBUJB_CHIT_caparison}p1-sshd-t-" \
+      "& 'C:\\Windows\\System32\\OpenSSH\\sshd.exe' -t" \
     || buc_die "Phase 1 step 10: sshd -t failed — config malformed; aborting preserves running sshd"
 
   buc_step "  [Phase 1] [Step 11/13] Re-read sshd_config (post-write)"
-  local z_idx_verify
-  zbujb_emit_index_advance z_idx_verify
-  local -r z_sshd_verify_stdout="${ZBUJB_CAPARISON_PREFIX}${z_idx_verify}_p1-sshd-verify_stdout.txt"
-  local -r z_sshd_verify_stderr="${ZBUJB_CAPARISON_PREFIX}${z_idx_verify}_p1-sshd-verify_stderr.txt"
-  zbujb_admin_powershell "Get-Content (\$env:ProgramData + '\\ssh\\sshd_config') -Raw" \
-      > "${z_sshd_verify_stdout}" \
-      2> "${z_sshd_verify_stderr}" \
-    || buc_die "Phase 1 step 11: Get-Content on sshd_config (verify pass) failed — see ${z_sshd_verify_stderr}"
+  zbujb_admin_powershell "${ZBUJB_CHIT_caparison}p1-sshd-verify-" \
+      "Get-Content (\$env:ProgramData + '\\ssh\\sshd_config') -Raw" \
+    || buc_die "Phase 1 step 11: Get-Content on sshd_config (verify pass) failed — see ${ZBUJB_LAST_AP_STDERR}"
+  local -r z_sshd_verify_stdout="${ZBUJB_LAST_AP_STDOUT}"
 
   buc_step "  [Phase 1] [Step 12/13] Verify hardened directives and Match block (curia-side)"
   zbujb_caparison_windows_verify_directives "${z_sshd_verify_stdout}"
   zbujb_caparison_windows_verify_match_block "${z_sshd_verify_stdout}"
 
   buc_step "  [Phase 1] [Step 13/13] Restart-Service sshd (disconnect expected — exit code absorbed; Phase 2 reconnect validates)"
-  zbujb_caparison_run "p1-restart-sshd" \
-      zbujb_admin_powershell "Restart-Service sshd" \
+  zbujb_admin_powershell "${ZBUJB_CHIT_caparison}p1-restart-sshd-" \
+      "Restart-Service sshd" \
     || true
 }
 
@@ -1888,14 +1853,10 @@ zbujb_caparison_windows_phase2() {
   # Allow sshd a moment to come back from Restart-Service.
   sleep 3
 
-  local z_idx_phase2
-  zbujb_emit_index_advance z_idx_phase2
-  local -r z_phase2_stdout="${ZBUJB_CAPARISON_PREFIX}${z_idx_phase2}_phase2_stdout.txt"
-  local -r z_phase2_stderr="${ZBUJB_CAPARISON_PREFIX}${z_idx_phase2}_phase2_stderr.txt"
-  zbujb_admin_powershell "Get-Content (\$env:ProgramData + '\\ssh\\sshd_config') -Raw" \
-      > "${z_phase2_stdout}" \
-      2> "${z_phase2_stderr}" \
-    || buc_die "Phase 2 reconnect failed — possible brick: admin pubkey not honored after restart or sshd did not come back up; see ${z_phase2_stderr}"
+  zbujb_admin_powershell "${ZBUJB_CHIT_caparison}phase2-sshd-read-" \
+      "Get-Content (\$env:ProgramData + '\\ssh\\sshd_config') -Raw" \
+    || buc_die "Phase 2 reconnect failed — possible brick: admin pubkey not honored after restart or sshd did not come back up; see ${ZBUJB_LAST_AP_STDERR}"
+  local -r z_phase2_stdout="${ZBUJB_LAST_AP_STDOUT}"
 
   zbujb_caparison_windows_verify_directives "${z_phase2_stdout}"
   zbujb_caparison_windows_verify_match_block "${z_phase2_stdout}"
@@ -1905,10 +1866,10 @@ zbujb_caparison_windows_phase2() {
 # canonical WSL distribution, disable powercfg sleep/hibernate, and set
 # the Tailscale service to Automatic + running. WSL stage delegates to
 # zbujb_caparison_windows_stage_wsl. Each remaining op is one
-# zbujb_admin_powershell call routed through zbujb_caparison_run
-# so per-call evidence lands at the autonumbered file. On failure the
-# wrapper's diag preview already names the file; buc_die just adds the
-# BUSJHW pointer.
+# zbujb_admin_powershell call tagged with the ${ZBUJB_CHIT_caparison}
+# fragment so per-call evidence lands at an autonumbered file. On failure
+# the helper's diag preview already names the file; buc_die just adds
+# the BUSJHW pointer.
 zbujb_caparison_windows_phase3() {
   zbujb_sentinel
 
@@ -1916,28 +1877,28 @@ zbujb_caparison_windows_phase3() {
   zbujb_caparison_windows_stage_wsl
 
   buc_step "  [Phase 3] Disable standby (AC)"
-  zbujb_caparison_run "powercfg-standby-ac" \
-      zbujb_admin_powershell 'powercfg /change standby-timeout-ac 0' \
+  zbujb_admin_powershell "${ZBUJB_CHIT_caparison}powercfg-standby-ac-" \
+      'powercfg /change standby-timeout-ac 0' \
     || buc_die "Phase 3: powercfg /change standby-timeout-ac 0 failed — BUSJHW (Modern Standby AoAc override may demote to no-op)"
 
   buc_step "  [Phase 3] Disable standby (DC)"
-  zbujb_caparison_run "powercfg-standby-dc" \
-      zbujb_admin_powershell 'powercfg /change standby-timeout-dc 0' \
+  zbujb_admin_powershell "${ZBUJB_CHIT_caparison}powercfg-standby-dc-" \
+      'powercfg /change standby-timeout-dc 0' \
     || buc_die "Phase 3: powercfg /change standby-timeout-dc 0 failed — BUSJHW (Modern Standby AoAc override may demote to no-op)"
 
   buc_step "  [Phase 3] Disable hibernate"
-  zbujb_caparison_run "powercfg-hibernate-off" \
-      zbujb_admin_powershell 'powercfg /hibernate off' \
+  zbujb_admin_powershell "${ZBUJB_CHIT_caparison}powercfg-hibernate-off-" \
+      'powercfg /hibernate off' \
     || buc_die "Phase 3: powercfg /hibernate off failed — BUSJHW (Modern Standby AoAc override may demote to no-op)"
 
   buc_step "  [Phase 3] Set Tailscale service StartupType Automatic"
-  zbujb_caparison_run "tailscale-set-service" \
-      zbujb_admin_powershell 'Set-Service -Name Tailscale -StartupType Automatic' \
+  zbujb_admin_powershell "${ZBUJB_CHIT_caparison}tailscale-set-service-" \
+      'Set-Service -Name Tailscale -StartupType Automatic' \
     || buc_die "Phase 3: Set-Service -Name Tailscale -StartupType Automatic failed — BUSJHW (Tailscale install + Run-Unattended + first auth)"
 
   buc_step "  [Phase 3] Start Tailscale service"
-  zbujb_caparison_run "tailscale-start-service" \
-      zbujb_admin_powershell 'Start-Service -Name Tailscale' \
+  zbujb_admin_powershell "${ZBUJB_CHIT_caparison}tailscale-start-service-" \
+      'Start-Service -Name Tailscale' \
     || buc_die "Phase 3: Start-Service -Name Tailscale failed — BUSJHW (Tailscale install + Run-Unattended + first auth)"
 }
 
@@ -2002,18 +1963,21 @@ zbujb_caparison_windows_stage_wsl() {
   z_wsl_list=$(zbujb_powershell_capture zbujb_privileged "wsl.exe --list --quiet") \
     || z_wsl_list=""
   if grep -qFx "${BUJB_wsl_distribution}" <<<"${z_wsl_list}"; then
-    zbujb_admin_powershell "wsl.exe --unregister ${BUJB_wsl_distribution}" \
+    zbujb_admin_powershell "${ZBUJB_CHIT_stage_wsl}unregister-dist-" \
+        "wsl.exe --unregister ${BUJB_wsl_distribution}" \
       || buc_die "Failed to unregister prior ${BUJB_wsl_distribution}"
   fi
   if grep -qFx "${BUJB_wsl_seed_distribution}" <<<"${z_wsl_list}"; then
-    zbujb_admin_powershell "wsl.exe --unregister ${BUJB_wsl_seed_distribution}" \
+    zbujb_admin_powershell "${ZBUJB_CHIT_stage_wsl}unregister-seed-" \
+        "wsl.exe --unregister ${BUJB_wsl_seed_distribution}" \
       || buc_die "Failed to unregister prior ${BUJB_wsl_seed_distribution}"
   fi
   local z_dir_present
   z_dir_present=$(zbujb_powershell_capture zbujb_privileged "Test-Path '${z_distro_dir}'") \
     || buc_die "Failed to probe ${z_distro_dir}"
   if [[ "${z_dir_present}" == "True" ]]; then
-    zbujb_admin_powershell "Remove-Item -Recurse -Force '${z_distro_dir}'" \
+    zbujb_admin_powershell "${ZBUJB_CHIT_stage_wsl}remove-distro-dir-" \
+        "Remove-Item -Recurse -Force '${z_distro_dir}'" \
       || buc_die "Failed to remove prior ${z_distro_dir}"
   fi
   # DEV CACHE: the from-scratch path also removed a stale ${BUJB_wsl_distribution}.tar
@@ -2022,7 +1986,8 @@ zbujb_caparison_windows_stage_wsl() {
   # [3/6]/[4/6]/[6/6] uncommenting if reverting.
 
   buc_step "  [2/6] Ensure ${BUJB_path_win_wsl_install_root} directory"
-  zbujb_admin_powershell "New-Item -ItemType Directory -Path '${BUJB_path_win_wsl_install_root}' -Force | Out-Null" \
+  zbujb_admin_powershell "${ZBUJB_CHIT_stage_wsl}mkdir-install-root-" \
+      "New-Item -ItemType Directory -Path '${BUJB_path_win_wsl_install_root}' -Force | Out-Null" \
     || buc_die "Failed to create ${BUJB_path_win_wsl_install_root}"
 
   # DEV CACHE: [3/6] Install seed — skipped; cache tar at ${z_tar_path} pre-staged once.
@@ -2036,7 +2001,8 @@ zbujb_caparison_windows_stage_wsl() {
   #   || buc_die "Failed to export ${BUJB_wsl_seed_distribution}"
 
   buc_step "  [5/6] Import ${BUJB_wsl_distribution} from ${z_tar_path}"
-  zbujb_admin_powershell "wsl.exe --import ${BUJB_wsl_distribution} '${z_distro_dir}' '${z_tar_path}'" \
+  zbujb_admin_powershell "${ZBUJB_CHIT_stage_wsl}wsl-import-" \
+      "wsl.exe --import ${BUJB_wsl_distribution} '${z_distro_dir}' '${z_tar_path}'" \
     || buc_die "Failed to import ${BUJB_wsl_distribution}"
 
   # DEV CACHE: [6/6] Cleanup seed + remove tar — skipped; preserve the cache tar across runs.
@@ -2152,11 +2118,10 @@ zbujb_invigilate_windows_caparison_facts() {
   zbujb_sentinel
 
   buc_step "  Fact: sshd_config Match User ${BUJB_workload_user} routes AuthorizedKeysFile to absolute path"
-  zbujb_admin_powershell "Get-Content (\$env:ProgramData + '\\ssh\\sshd_config') -Raw" \
-      > "${ZBUJB_INVIGILATE_STDOUT}" \
-      2> "${ZBUJB_INVIGILATE_STDERR}" \
-    || buc_die "Get-Content sshd_config failed on ${BURN_HOST} (see ${ZBUJB_INVIGILATE_STDERR}) — caparison-windows (BUSJCW)"
-  zbujb_caparison_windows_verify_match_block "${ZBUJB_INVIGILATE_STDOUT}"
+  zbujb_admin_powershell "${ZBUJB_CHIT_invigilate}sshd-config-read-" \
+      "Get-Content (\$env:ProgramData + '\\ssh\\sshd_config') -Raw" \
+    || buc_die "Get-Content sshd_config failed on ${BURN_HOST} (see ${ZBUJB_LAST_AP_STDERR}) — caparison-windows (BUSJCW)"
+  zbujb_caparison_windows_verify_match_block "${ZBUJB_LAST_AP_STDOUT}"
 
   buc_step "  Fact: workload authkeys directory present at \$env:ProgramData\\ssh\\users\\${BUJB_workload_user}"
   local z_dir_present=""
@@ -2168,30 +2133,30 @@ zbujb_invigilate_windows_caparison_facts() {
     || buc_die "workload authkeys directory: expected present at \$env:ProgramData\\ssh\\users\\${BUJB_workload_user}, got Test-Path '${z_dir_present:-<empty>}' — caparison-windows (BUSJCW)"
 
   buc_step "  Fact: workload authkeys directory ACL = admins+SYSTEM Full Control only"
-  zbujb_admin_powershell "icacls (\$env:ProgramData + '\\ssh\\users\\${BUJB_workload_user}')" \
-      > "${ZBUJB_INVIGILATE_STDOUT}" \
-      2> "${ZBUJB_INVIGILATE_STDERR}" \
-    || buc_die "icacls workload authkeys directory failed on ${BURN_HOST} (see ${ZBUJB_INVIGILATE_STDERR}) — caparison-windows (BUSJCW)"
+  zbujb_admin_powershell "${ZBUJB_CHIT_invigilate}authkeys-dir-icacls-" \
+      "icacls (\$env:ProgramData + '\\ssh\\users\\${BUJB_workload_user}')" \
+    || buc_die "icacls workload authkeys directory failed on ${BURN_HOST} (see ${ZBUJB_LAST_AP_STDERR}) — caparison-windows (BUSJCW)"
+  local -r z_icacls_stdout="${ZBUJB_LAST_AP_STDOUT}"
   local z_acl
-  z_acl=$(<"${ZBUJB_INVIGILATE_STDOUT}")
+  z_acl=$(<"${z_icacls_stdout}")
   z_acl="${z_acl//$'\r'/}"
   z_acl="${z_acl%%Successfully processed*}"
   z_acl="${z_acl#* }"
   case "${z_acl}" in
     *"${BUJB_acl_principal_admins}"*) ;;
-    *) buc_die "workload authkeys ACL: missing '${BUJB_acl_principal_admins}' (see ${ZBUJB_INVIGILATE_STDOUT}) — caparison-windows (BUSJCW)" ;;
+    *) buc_die "workload authkeys ACL: missing '${BUJB_acl_principal_admins}' (see ${z_icacls_stdout}) — caparison-windows (BUSJCW)" ;;
   esac
   case "${z_acl}" in
     *"NT AUTHORITY\\SYSTEM"*|*"${BUJB_acl_principal_system}:"*) ;;
-    *) buc_die "workload authkeys ACL: missing NT AUTHORITY\\SYSTEM (see ${ZBUJB_INVIGILATE_STDOUT}) — caparison-windows (BUSJCW)" ;;
+    *) buc_die "workload authkeys ACL: missing NT AUTHORITY\\SYSTEM (see ${z_icacls_stdout}) — caparison-windows (BUSJCW)" ;;
   esac
   case "${z_acl}" in
     *"BUILTIN\\Users"*)
-      buc_die "workload authkeys ACL: BUILTIN\\Users present — directory must be admins+SYSTEM only (see ${ZBUJB_INVIGILATE_STDOUT}) — caparison-windows (BUSJCW)" ;;
+      buc_die "workload authkeys ACL: BUILTIN\\Users present — directory must be admins+SYSTEM only (see ${z_icacls_stdout}) — caparison-windows (BUSJCW)" ;;
     *"Authenticated Users"*)
-      buc_die "workload authkeys ACL: Authenticated Users present — directory must be admins+SYSTEM only (see ${ZBUJB_INVIGILATE_STDOUT}) — caparison-windows (BUSJCW)" ;;
+      buc_die "workload authkeys ACL: Authenticated Users present — directory must be admins+SYSTEM only (see ${z_icacls_stdout}) — caparison-windows (BUSJCW)" ;;
     *"${BUJB_workload_user}"*)
-      buc_die "workload authkeys ACL: workload user ${BUJB_workload_user} present — directory must be admins+SYSTEM only; sshd reads as NT AUTHORITY\\SYSTEM (see ${ZBUJB_INVIGILATE_STDOUT}) — caparison-windows (BUSJCW)" ;;
+      buc_die "workload authkeys ACL: workload user ${BUJB_workload_user} present — directory must be admins+SYSTEM only; sshd reads as NT AUTHORITY\\SYSTEM (see ${z_icacls_stdout}) — caparison-windows (BUSJCW)" ;;
   esac
 
   buc_step "  Fact: Tailscale service StartType = Automatic"
@@ -2203,43 +2168,42 @@ zbujb_invigilate_windows_caparison_facts() {
     || buc_die "Tailscale StartType: expected Automatic, got '${z_start:-<empty>}' — caparison-windows (BUSJCW)"
 
   buc_step "  Fact: standby-timeout = 0 (AC and DC)"
-  zbujb_admin_powershell 'powercfg /query SCHEME_CURRENT SUB_SLEEP STANDBYIDLE' \
-      > "${ZBUJB_INVIGILATE_STDOUT}" \
-      2> "${ZBUJB_INVIGILATE_STDERR}" \
-    || buc_die "powercfg /query failed on ${BURN_HOST} (see ${ZBUJB_INVIGILATE_STDERR})"
+  zbujb_admin_powershell "${ZBUJB_CHIT_invigilate}powercfg-standby-" \
+      'powercfg /query SCHEME_CURRENT SUB_SLEEP STANDBYIDLE' \
+    || buc_die "powercfg /query failed on ${BURN_HOST} (see ${ZBUJB_LAST_AP_STDERR})"
+  local z_pcfg_stdout="${ZBUJB_LAST_AP_STDOUT}"
   local z_pcfg
-  z_pcfg=$(<"${ZBUJB_INVIGILATE_STDOUT}")
+  z_pcfg=$(<"${z_pcfg_stdout}")
   z_pcfg="${z_pcfg//$'\r'/}"
   case "${z_pcfg}" in
     *"Current AC Power Setting Index: 0x00000000"*) ;;
-    *) buc_die "powercfg standby-timeout AC: expected 0x00000000 (see ${ZBUJB_INVIGILATE_STDOUT}) — caparison-windows (BUSJCW)" ;;
+    *) buc_die "powercfg standby-timeout AC: expected 0x00000000 (see ${z_pcfg_stdout}) — caparison-windows (BUSJCW)" ;;
   esac
   case "${z_pcfg}" in
     *"Current DC Power Setting Index: 0x00000000"*) ;;
-    *) buc_die "powercfg standby-timeout DC: expected 0x00000000 (see ${ZBUJB_INVIGILATE_STDOUT}) — caparison-windows (BUSJCW)" ;;
+    *) buc_die "powercfg standby-timeout DC: expected 0x00000000 (see ${z_pcfg_stdout}) — caparison-windows (BUSJCW)" ;;
   esac
 
   buc_step "  Fact: hibernate disabled"
-  zbujb_admin_powershell 'powercfg /a' \
-      > "${ZBUJB_INVIGILATE_STDOUT}" \
-      2> "${ZBUJB_INVIGILATE_STDERR}" \
-    || buc_die "powercfg /a failed on ${BURN_HOST} (see ${ZBUJB_INVIGILATE_STDERR})"
-  z_pcfg=$(<"${ZBUJB_INVIGILATE_STDOUT}")
+  zbujb_admin_powershell "${ZBUJB_CHIT_invigilate}powercfg-hibernate-" \
+      'powercfg /a' \
+    || buc_die "powercfg /a failed on ${BURN_HOST} (see ${ZBUJB_LAST_AP_STDERR})"
+  z_pcfg_stdout="${ZBUJB_LAST_AP_STDOUT}"
+  z_pcfg=$(<"${z_pcfg_stdout}")
   z_pcfg="${z_pcfg//$'\r'/}"
   local z_available_section="${z_pcfg%%not available on this system*}"
   case "${z_available_section}" in
     *Hibernate*)
-      buc_die "hibernate: expected absent from powercfg /a available section, got Hibernate listed as available (see ${ZBUJB_INVIGILATE_STDOUT}) — caparison-windows (BUSJCW)"
+      buc_die "hibernate: expected absent from powercfg /a available section, got Hibernate listed as available (see ${z_pcfg_stdout}) — caparison-windows (BUSJCW)"
       ;;
   esac
 
   buc_step "  Fact: WSL distribution ${BUJB_wsl_distribution} registered"
-  zbujb_admin_powershell 'wsl.exe --list --quiet' \
-      > "${ZBUJB_INVIGILATE_STDOUT}" \
-      2> "${ZBUJB_INVIGILATE_STDERR}" \
-    || buc_die "wsl.exe --list --quiet failed on ${BURN_HOST} (see ${ZBUJB_INVIGILATE_STDERR})"
+  zbujb_admin_powershell "${ZBUJB_CHIT_invigilate}wsl-list-" \
+      'wsl.exe --list --quiet' \
+    || buc_die "wsl.exe --list --quiet failed on ${BURN_HOST} (see ${ZBUJB_LAST_AP_STDERR})"
   local z_wsl
-  z_wsl=$(<"${ZBUJB_INVIGILATE_STDOUT}")
+  z_wsl=$(<"${ZBUJB_LAST_AP_STDOUT}")
   z_wsl="${z_wsl//$'\r'/}"
   case $'\n'"${z_wsl}"$'\n' in
     *$'\n'"${BUJB_wsl_distribution}"$'\n'*) ;;
@@ -2265,10 +2229,8 @@ bujb_invigilate_windows() {
   buc_step "Invigilate-windows: ${BUZ_FOLIO} (${BURN_HOST})"
 
   buc_step "  Fact: admin SSH reachable (key-only)"
-  zbujb_admin_powershell 'exit 0' \
-      > "${ZBUJB_INVIGILATE_STDOUT}" \
-      2> "${ZBUJB_INVIGILATE_STDERR}" \
-    || buc_die "admin SSH session unreachable under key-only auth (see ${ZBUJB_INVIGILATE_STDERR}) — caparison-windows (BUSJCW)"
+  zbujb_admin_powershell "${ZBUJB_CHIT_invigilate}admin-ssh-probe-" 'exit 0' \
+    || buc_die "admin SSH session unreachable under key-only auth (see ${ZBUJB_LAST_AP_STDERR}) — caparison-windows (BUSJCW)"
 
   zbujb_invigilate_windows_op_facts
 
@@ -2287,18 +2249,14 @@ bujb_invigilate_macos() {
   buc_step "Invigilate-macos: ${BUZ_FOLIO} (${BURN_HOST})"
 
   buc_step "  Fact: admin SSH reachable (key-only)"
-  zbujb_admin_exec_native 'exit 0' \
-      > "${ZBUJB_INVIGILATE_STDOUT}" \
-      2> "${ZBUJB_INVIGILATE_STDERR}" \
-    || buc_die "admin SSH session unreachable under key-only auth (see ${ZBUJB_INVIGILATE_STDERR}) — caparison-macos (BUSJCM); admin pubkey not placed (rerun ssh-copy-id)"
+  zbujb_admin_exec_native "${ZBUJB_CHIT_invigilate}admin-ssh-probe-" 'exit 0' \
+    || buc_die "admin SSH session unreachable under key-only auth (see ${ZBUJB_LAST_AP_STDERR}) — caparison-macos (BUSJCM); admin pubkey not placed (rerun ssh-copy-id)"
 
   buc_step "  Fact: systemsetup -getremotelogin reports On"
-  zbujb_admin_exec_native 'systemsetup -getremotelogin' \
-      > "${ZBUJB_INVIGILATE_STDOUT}" \
-      2> "${ZBUJB_INVIGILATE_STDERR}" \
-    || buc_die "systemsetup -getremotelogin failed on ${BURN_HOST} (see ${ZBUJB_INVIGILATE_STDERR})"
+  zbujb_admin_exec_native "${ZBUJB_CHIT_invigilate}remotelogin-" 'systemsetup -getremotelogin' \
+    || buc_die "systemsetup -getremotelogin failed on ${BURN_HOST} (see ${ZBUJB_LAST_AP_STDERR})"
   local z_rl
-  z_rl=$(<"${ZBUJB_INVIGILATE_STDOUT}")
+  z_rl=$(<"${ZBUJB_LAST_AP_STDOUT}")
   case "${z_rl}" in
     *"Remote Login: On"*) ;;
     *)
@@ -2307,12 +2265,10 @@ bujb_invigilate_macos() {
   esac
 
   buc_step "  Fact: pmset sleep=0, displaysleep=0, hibernatemode=0"
-  zbujb_admin_exec_native 'pmset -g' \
-      > "${ZBUJB_INVIGILATE_STDOUT}" \
-      2> "${ZBUJB_INVIGILATE_STDERR}" \
-    || buc_die "pmset -g failed on ${BURN_HOST} (see ${ZBUJB_INVIGILATE_STDERR})"
+  zbujb_admin_exec_native "${ZBUJB_CHIT_invigilate}pmset-" 'pmset -g' \
+    || buc_die "pmset -g failed on ${BURN_HOST} (see ${ZBUJB_LAST_AP_STDERR})"
   local z_pmset z_pm_field z_pm_val
-  z_pmset=$(<"${ZBUJB_INVIGILATE_STDOUT}")
+  z_pmset=$(<"${ZBUJB_LAST_AP_STDOUT}")
   for z_pm_field in sleep displaysleep hibernatemode; do
     z_pm_val=$(printf '%s\n' "${z_pmset}" | awk -v f="${z_pm_field}" '$1==f { print $2; exit }')
     test "${z_pm_val}" = "0" \
@@ -2320,12 +2276,11 @@ bujb_invigilate_macos() {
   done
 
   buc_step "  Fact: tailscaled launchd label present"
-  zbujb_admin_exec_native 'launchctl list' \
-      > "${ZBUJB_INVIGILATE_STDOUT}" \
-      2> "${ZBUJB_INVIGILATE_STDERR}" \
-    || buc_die "launchctl list failed on ${BURN_HOST} (see ${ZBUJB_INVIGILATE_STDERR})"
+  zbujb_admin_exec_native "${ZBUJB_CHIT_invigilate}launchctl-list-" 'launchctl list' \
+    || buc_die "launchctl list failed on ${BURN_HOST} (see ${ZBUJB_LAST_AP_STDERR})"
+  local -r z_launchctl_stdout="${ZBUJB_LAST_AP_STDOUT}"
   local z_ts_line
-  z_ts_line=$(grep -i 'tailscale' "${ZBUJB_INVIGILATE_STDOUT}" || true)
+  z_ts_line=$(grep -i 'tailscale' "${z_launchctl_stdout}" || true)
   test -n "${z_ts_line}" \
     || buc_die "tailscaled launchd label: expected non-empty match for 'tailscale' in launchctl list, got <absent> — operator handbook BUSJHM (install + first auth)"
 
@@ -2336,22 +2291,17 @@ bujb_invigilate_macos() {
     || buc_die "tailscaled PID: expected live PID (not '-'), got '${z_pid:-<empty>}' — caparison-macos (BUSJCM) — Tailscale launchd auto-start"
 
   buc_step "  Fact: admin-group membership for ${BURP_PRIVILEGED_USER}"
-  zbujb_admin_exec_native "dseditgroup -o checkmember -m '${BURP_PRIVILEGED_USER}' admin" \
-      > "${ZBUJB_INVIGILATE_STDOUT}" \
-      2> "${ZBUJB_INVIGILATE_STDERR}" \
-    || buc_die "admin-group membership: ${BURP_PRIVILEGED_USER} is not a member of admin (see ${ZBUJB_INVIGILATE_STDOUT}) — operator handbook BUSJHM (admin-group membership prerequisite)"
+  zbujb_admin_exec_native "${ZBUJB_CHIT_invigilate}admin-group-" \
+      "dseditgroup -o checkmember -m '${BURP_PRIVILEGED_USER}' admin" \
+    || buc_die "admin-group membership: ${BURP_PRIVILEGED_USER} is not a member of admin (see ${ZBUJB_LAST_AP_STDOUT}) — operator handbook BUSJHM (admin-group membership prerequisite)"
 
   buc_step "  Fact: sudo NOPASSWD available (sudo -n true)"
-  zbujb_admin_exec_native 'sudo -n true' \
-      > "${ZBUJB_INVIGILATE_STDOUT}" \
-      2> "${ZBUJB_INVIGILATE_STDERR}" \
-    || buc_die "sudo NOPASSWD availability: sudo -n true failed (see ${ZBUJB_INVIGILATE_STDERR}) — operator handbook BUSJHM (sudoers NOPASSWD entry)"
+  zbujb_admin_exec_native "${ZBUJB_CHIT_invigilate}sudo-n-true-" 'sudo -n true' \
+    || buc_die "sudo NOPASSWD availability: sudo -n true failed (see ${ZBUJB_LAST_AP_STDERR}) — operator handbook BUSJHM (sudoers NOPASSWD entry)"
 
   buc_step "  Fact: sudo scope covers garrison commands (sudo -ln sysadminctl)"
-  zbujb_admin_exec_native 'sudo -ln sysadminctl' \
-      > "${ZBUJB_INVIGILATE_STDOUT}" \
-      2> "${ZBUJB_INVIGILATE_STDERR}" \
-    || buc_die "sudo scope for sysadminctl: sudo -ln sysadminctl failed (see ${ZBUJB_INVIGILATE_STDERR}) — operator handbook BUSJHM (sudoers entry too narrow for garrison's command set)"
+  zbujb_admin_exec_native "${ZBUJB_CHIT_invigilate}sudo-ln-sysadminctl-" 'sudo -ln sysadminctl' \
+    || buc_die "sudo scope for sysadminctl: sudo -ln sysadminctl failed (see ${ZBUJB_LAST_AP_STDERR}) — operator handbook BUSJHM (sudoers entry too narrow for garrison's command set)"
 
   buc_step "Invigilate-macos succeeded"
 }
@@ -2366,43 +2316,38 @@ bujb_invigilate_linux() {
   buc_step "Invigilate-linux: ${BUZ_FOLIO} (${BURN_HOST})"
 
   buc_step "  Fact: admin SSH reachable (key-only)"
-  zbujb_admin_exec_native 'exit 0' \
-      > "${ZBUJB_INVIGILATE_STDOUT}" \
-      2> "${ZBUJB_INVIGILATE_STDERR}" \
-    || buc_die "admin SSH session unreachable under key-only auth (see ${ZBUJB_INVIGILATE_STDERR}) — caparison-linux (BUSJCL); admin pubkey not placed (rerun ssh-copy-id)"
+  zbujb_admin_exec_native "${ZBUJB_CHIT_invigilate}admin-ssh-probe-" 'exit 0' \
+    || buc_die "admin SSH session unreachable under key-only auth (see ${ZBUJB_LAST_AP_STDERR}) — caparison-linux (BUSJCL); admin pubkey not placed (rerun ssh-copy-id)"
 
-  local z_val
+  local z_val z_stdout z_stderr
 
   buc_step "  Fact: systemctl is-enabled sshd = enabled"
-  zbujb_admin_exec_native 'systemctl is-enabled sshd' \
-      > "${ZBUJB_INVIGILATE_STDOUT}" \
-      2> "${ZBUJB_INVIGILATE_STDERR}" \
+  zbujb_admin_exec_native "${ZBUJB_CHIT_invigilate}sshd-is-enabled-" 'systemctl is-enabled sshd' \
     || true
-  z_val=$(<"${ZBUJB_INVIGILATE_STDOUT}")
+  z_stdout="${ZBUJB_LAST_AP_STDOUT}"
+  z_stderr="${ZBUJB_LAST_AP_STDERR}"
+  z_val=$(<"${z_stdout}")
   z_val="${z_val//$'\n'/}"
-  if grep -qiE 'no such|not found|not-found' "${ZBUJB_INVIGILATE_STDERR}"; then
+  if grep -qiE 'no such|not found|not-found' "${z_stderr}"; then
     buc_die "sshd unit enablement: <unit not found> — operator handbook BUSJHL (apt install openssh-server)"
   fi
   test "${z_val}" = "enabled" \
     || buc_die "sshd unit enablement: expected enabled, got '${z_val:-<unreported>}' — caparison-linux (BUSJCL)"
 
   buc_step "  Fact: systemctl is-active sshd = active"
-  zbujb_admin_exec_native 'systemctl is-active sshd' \
-      > "${ZBUJB_INVIGILATE_STDOUT}" \
-      2> "${ZBUJB_INVIGILATE_STDERR}" \
+  zbujb_admin_exec_native "${ZBUJB_CHIT_invigilate}sshd-is-active-" 'systemctl is-active sshd' \
     || true
-  z_val=$(<"${ZBUJB_INVIGILATE_STDOUT}")
+  z_val=$(<"${ZBUJB_LAST_AP_STDOUT}")
   z_val="${z_val//$'\n'/}"
   test "${z_val}" = "active" \
     || buc_die "sshd unit activeness: expected active, got '${z_val:-<unreported>}' — caparison-linux (BUSJCL)"
 
   buc_step "  Fact: sleep/suspend/hibernate/hybrid-sleep targets masked"
-  zbujb_admin_exec_native 'systemctl is-enabled sleep.target suspend.target hibernate.target hybrid-sleep.target' \
-      > "${ZBUJB_INVIGILATE_STDOUT}" \
-      2> "${ZBUJB_INVIGILATE_STDERR}" \
+  zbujb_admin_exec_native "${ZBUJB_CHIT_invigilate}sleep-targets-" \
+      'systemctl is-enabled sleep.target suspend.target hibernate.target hybrid-sleep.target' \
     || true
   local z_targets z_target z_i=1
-  z_targets=$(<"${ZBUJB_INVIGILATE_STDOUT}")
+  z_targets=$(<"${ZBUJB_LAST_AP_STDOUT}")
   for z_target in sleep.target suspend.target hibernate.target hybrid-sleep.target; do
     z_val=$(printf '%s\n' "${z_targets}" | sed -n "${z_i}p")
     test "${z_val}" = "masked" \
@@ -2411,39 +2356,33 @@ bujb_invigilate_linux() {
   done
 
   buc_step "  Fact: systemctl is-enabled tailscaled = enabled"
-  zbujb_admin_exec_native 'systemctl is-enabled tailscaled' \
-      > "${ZBUJB_INVIGILATE_STDOUT}" \
-      2> "${ZBUJB_INVIGILATE_STDERR}" \
+  zbujb_admin_exec_native "${ZBUJB_CHIT_invigilate}tailscaled-is-enabled-" 'systemctl is-enabled tailscaled' \
     || true
-  z_val=$(<"${ZBUJB_INVIGILATE_STDOUT}")
+  z_stdout="${ZBUJB_LAST_AP_STDOUT}"
+  z_stderr="${ZBUJB_LAST_AP_STDERR}"
+  z_val=$(<"${z_stdout}")
   z_val="${z_val//$'\n'/}"
-  if grep -qiE 'no such|not found|not-found' "${ZBUJB_INVIGILATE_STDERR}"; then
+  if grep -qiE 'no such|not found|not-found' "${z_stderr}"; then
     buc_die "tailscaled unit enablement: <unit not found> — operator handbook BUSJHL (install + first auth)"
   fi
   test "${z_val}" = "enabled" \
     || buc_die "tailscaled unit enablement: expected enabled, got '${z_val:-<unreported>}' — caparison-linux (BUSJCL)"
 
   buc_step "  Fact: systemctl is-active tailscaled = active"
-  zbujb_admin_exec_native 'systemctl is-active tailscaled' \
-      > "${ZBUJB_INVIGILATE_STDOUT}" \
-      2> "${ZBUJB_INVIGILATE_STDERR}" \
+  zbujb_admin_exec_native "${ZBUJB_CHIT_invigilate}tailscaled-is-active-" 'systemctl is-active tailscaled' \
     || true
-  z_val=$(<"${ZBUJB_INVIGILATE_STDOUT}")
+  z_val=$(<"${ZBUJB_LAST_AP_STDOUT}")
   z_val="${z_val//$'\n'/}"
   test "${z_val}" = "active" \
     || buc_die "tailscaled unit activeness: expected active, got '${z_val:-<unreported>}' — caparison-linux (BUSJCL)"
 
   buc_step "  Fact: sudo NOPASSWD available (sudo -n true)"
-  zbujb_admin_exec_native 'sudo -n true' \
-      > "${ZBUJB_INVIGILATE_STDOUT}" \
-      2> "${ZBUJB_INVIGILATE_STDERR}" \
-    || buc_die "sudo NOPASSWD availability: sudo -n true failed (see ${ZBUJB_INVIGILATE_STDERR}) — operator handbook BUSJHL (sudoers NOPASSWD entry)"
+  zbujb_admin_exec_native "${ZBUJB_CHIT_invigilate}sudo-n-true-" 'sudo -n true' \
+    || buc_die "sudo NOPASSWD availability: sudo -n true failed (see ${ZBUJB_LAST_AP_STDERR}) — operator handbook BUSJHL (sudoers NOPASSWD entry)"
 
   buc_step "  Fact: sudo scope covers garrison commands (sudo -ln userdel)"
-  zbujb_admin_exec_native 'sudo -ln userdel' \
-      > "${ZBUJB_INVIGILATE_STDOUT}" \
-      2> "${ZBUJB_INVIGILATE_STDERR}" \
-    || buc_die "sudo scope for userdel: sudo -ln userdel failed (see ${ZBUJB_INVIGILATE_STDERR}) — operator handbook BUSJHL (sudoers entry too narrow for garrison's command set)"
+  zbujb_admin_exec_native "${ZBUJB_CHIT_invigilate}sudo-ln-userdel-" 'sudo -ln userdel' \
+    || buc_die "sudo scope for userdel: sudo -ln userdel failed (see ${ZBUJB_LAST_AP_STDERR}) — operator handbook BUSJHL (sudoers entry too narrow for garrison's command set)"
 
   buc_step "Invigilate-linux succeeded"
 }
@@ -2468,23 +2407,27 @@ bujb_caparison_macos() {
   buc_step "Caparison-macos: ${BUZ_FOLIO} (${BURN_HOST})"
 
   buc_step "  Open admin SSH (key-only)"
-  zbujb_caparison_run "ssh-probe" zbujb_admin_exec_native 'exit 0' \
+  zbujb_admin_exec_native "${ZBUJB_CHIT_caparison}mac-ssh-probe-" 'exit 0' \
     || buc_die "Caparison-macos: admin SSH (key-only) failed — operator handbook BUSJHM (ssh-copy-id; admin pubkey placement)"
 
   buc_step "  Enable Remote Login"
-  zbujb_caparison_run "remotelogin-on" zbujb_admin_exec_native 'sudo -n systemsetup -setremotelogin on' \
+  zbujb_admin_exec_native "${ZBUJB_CHIT_caparison}mac-remotelogin-on-" \
+      'sudo -n systemsetup -setremotelogin on' \
     || buc_die "Caparison-macos: systemsetup -setremotelogin on failed — operator handbook BUSJHM (sudo NOPASSWD)"
 
   buc_step "  Disable sleep, displaysleep, hibernate via pmset"
-  zbujb_caparison_run "pmset-disable" zbujb_admin_exec_native 'sudo -n pmset -a sleep 0 displaysleep 0 hibernatemode 0' \
+  zbujb_admin_exec_native "${ZBUJB_CHIT_caparison}mac-pmset-disable-" \
+      'sudo -n pmset -a sleep 0 displaysleep 0 hibernatemode 0' \
     || buc_die "Caparison-macos: pmset -a sleep 0 displaysleep 0 hibernatemode 0 failed — operator handbook BUSJHM"
 
   buc_step "  Enable tailscaled launchd service"
-  zbujb_caparison_run "tailscale-enable" zbujb_admin_exec_native 'sudo -n launchctl enable system/com.tailscale.tailscaled' \
+  zbujb_admin_exec_native "${ZBUJB_CHIT_caparison}mac-tailscale-enable-" \
+      'sudo -n launchctl enable system/com.tailscale.tailscaled' \
     || buc_die "Caparison-macos: launchctl enable system/com.tailscale.tailscaled failed — operator handbook BUSJHM (Tailscale install + first-run auth)"
 
   buc_step "  Start tailscaled launchd service"
-  zbujb_caparison_run "tailscale-kickstart" zbujb_admin_exec_native 'sudo -n launchctl kickstart -k system/com.tailscale.tailscaled' \
+  zbujb_admin_exec_native "${ZBUJB_CHIT_caparison}mac-tailscale-kickstart-" \
+      'sudo -n launchctl kickstart -k system/com.tailscale.tailscaled' \
     || buc_die "Caparison-macos: launchctl kickstart -k system/com.tailscale.tailscaled failed — operator handbook BUSJHM (Tailscale install + first-run auth)"
 
   buc_step "  Post-completion check: invigilate-macos"
@@ -2504,19 +2447,22 @@ bujb_caparison_linux() {
   buc_step "Caparison-linux: ${BUZ_FOLIO} (${BURN_HOST})"
 
   buc_step "  Open admin SSH (key-only)"
-  zbujb_caparison_run "ssh-probe" zbujb_admin_exec_native 'exit 0' \
+  zbujb_admin_exec_native "${ZBUJB_CHIT_caparison}linux-ssh-probe-" 'exit 0' \
     || buc_die "Caparison-linux: admin SSH (key-only) failed — operator handbook BUSJHL (ssh-copy-id; admin pubkey placement)"
 
   buc_step "  Enable and start sshd"
-  zbujb_caparison_run "sshd-enable" zbujb_admin_exec_native 'sudo -n systemctl enable --now sshd' \
+  zbujb_admin_exec_native "${ZBUJB_CHIT_caparison}linux-sshd-enable-" \
+      'sudo -n systemctl enable --now sshd' \
     || buc_die "Caparison-linux: systemctl enable --now sshd failed — operator handbook BUSJHL (apt install openssh-server on minimal distros)"
 
   buc_step "  Mask sleep/suspend/hibernate/hybrid-sleep targets"
-  zbujb_caparison_run "sleep-mask" zbujb_admin_exec_native 'sudo -n systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target' \
+  zbujb_admin_exec_native "${ZBUJB_CHIT_caparison}linux-sleep-mask-" \
+      'sudo -n systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target' \
     || buc_die "Caparison-linux: systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target failed — operator handbook BUSJHL"
 
   buc_step "  Enable and start tailscaled"
-  zbujb_caparison_run "tailscaled-enable" zbujb_admin_exec_native 'sudo -n systemctl enable --now tailscaled' \
+  zbujb_admin_exec_native "${ZBUJB_CHIT_caparison}linux-tailscaled-enable-" \
+      'sudo -n systemctl enable --now tailscaled' \
     || buc_die "Caparison-linux: systemctl enable --now tailscaled failed — operator handbook BUSJHL (Tailscale install + first-run 'tailscale up')"
 
   buc_step "  Post-completion check: invigilate-linux"
