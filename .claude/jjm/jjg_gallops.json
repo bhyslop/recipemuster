@@ -2,6 +2,7 @@
   "jjgrn_schema_version": 4,
   "jjgrn_next_heat_seed": "BH",
   "jjgrn_heat_order": [
+    "₣BG",
     "₣BF",
     "₣BD",
     "₣BB",
@@ -28,8 +29,7 @@
     "₣Ap",
     "₣Aq",
     "₣Au",
-    "₣BC",
-    "₣BG"
+    "₣BC"
   ],
   "jjgrn_heats": {
     "₣A-": {
@@ -9988,7 +9988,7 @@
     "₣BG": {
       "jjghn_silks": "rbk-mvp-3-orchestration-scrub",
       "jjghn_creation_time": "260511",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [],
       "jjghn_next_pace_seed": "AAA",
       "jjghn_paces": {}
