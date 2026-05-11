@@ -83,15 +83,12 @@ where
 
 // ── Crucible lifecycle hooks (setup/teardown) ────────────────
 
-/// Setup hook for crucible fixtures: charge → CrucibleActive assertion →
-/// readiness delay (for service-bearing nameplates). Reads ctx from thread-
-/// local. Returns Err on any step failure; engine surfaces this as a fixture
-/// failure and runs teardown anyway.
+/// Setup hook for crucible fixtures: charge → CrucibleActive assertion.
+/// Reads ctx from thread-local. Returns Err on any step failure; engine
+/// surfaces this as a fixture failure and runs teardown anyway.
 ///
-/// Readiness-delay handling currently consults a hardcoded service-fixture
-/// set; pace ₢BBAAt migrates the delay to a per-nameplate fact
-/// (`RBRN_BOTTLE_READINESS_DELAY_SEC`) read by the charge tabtarget itself,
-/// at which point this function loses the wait entirely.
+/// Service-readiness waits are folded into the charge tabtarget itself,
+/// driven by the per-nameplate `RBRN_BOTTLE_READINESS_DELAY_SEC` fact.
 pub fn rbtdrc_charge_crucible() -> Result<(), String> {
     RBTDRC_CTX.with(|c| {
         let mut opt = c.borrow_mut();
@@ -150,16 +147,6 @@ fn zrbtdrc_charge_impl(ctx: &mut rbtdri_Context) -> Result<(), String> {
         }
     }
 
-    if zrbtdrc_needs_readiness_delay(&fixture) {
-        eprintln!(
-            "Waiting {}s for service readiness...",
-            RBTDRC_SERVICE_READINESS_DELAY_SECS
-        );
-        std::thread::sleep(std::time::Duration::from_secs(
-            RBTDRC_SERVICE_READINESS_DELAY_SECS,
-        ));
-    }
-
     Ok(())
 }
 
@@ -190,17 +177,6 @@ fn zrbtdrc_quench_impl(ctx: &mut rbtdri_Context) {
             );
         }
     }
-}
-
-/// Readiness-delay membership: srjcl/pluml have services that need warmup
-/// after charge; tadmor doesn't. ₢BBAAt replaces this with a per-nameplate
-/// fact and folds the wait into the charge tabtarget itself.
-fn zrbtdrc_needs_readiness_delay(fixture: &str) -> bool {
-    matches!(
-        fixture,
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_SRJCL
-            | crate::rbtdrm_manifest::RBTDRM_FIXTURE_PLUML
-    )
 }
 
 // ── Helpers ──────────────────────────────────────────────────
@@ -2117,12 +2093,6 @@ fn rbtdrc_pluml_malformed_diagram(dir: &Path) -> rbtdre_Verdict {
 }
 
 // ── Section registry ─────────────────────────────────────────
-
-/// Readiness delay in seconds after charge for service-bearing nameplates.
-/// Matches RBCC_BOTTLE_TEST_READINESS_DELAY_SEC from rbcc_Constants.sh.
-/// Pace ₢BBAAt migrates this to a per-nameplate fact read by the charge
-/// tabtarget, at which point this constant goes away.
-pub const RBTDRC_SERVICE_READINESS_DELAY_SECS: u64 = 30;
 
 // ── Crucible fixtures (charge/quench lifecycle) ──────────────
 

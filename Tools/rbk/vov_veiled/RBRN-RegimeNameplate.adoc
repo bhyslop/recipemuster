@@ -54,6 +54,18 @@ Vessel identifier for the bottle container image.
 
 Hallmark timestamp for the bottle container image.
 
+//axhrgb_group
+{rbrn_group_service_readiness}
+
+Service readiness configuration controls post-charge wait behavior for bottle services that need warmup time before responding to traffic.
+
+//axhrgv_variable
+{rbrn_bottle_readiness_delay_sec}
+
+Seconds to wait after compose-up returns before the charge tabtarget completes.
+A fixed sleep, not a probe — generous values are cheap and reliable.
+Set to 0 when the bottle has no warmup phase (e.g., adversarial-only nameplates).
+
 //axhrv_variable
 {rbrn_entry_mode}
 

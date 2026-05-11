@@ -49,6 +49,9 @@ zrbrn_kindle() {
   buv_fqin_enroll    RBRN_SENTRY_HALLMARK      1  128  "Hallmark tag for Sentry Image"
   buv_fqin_enroll    RBRN_BOTTLE_HALLMARK      1  128  "Hallmark tag for Bottle Image"
 
+  buv_group_enroll "Service Readiness"
+  buv_decimal_enroll RBRN_BOTTLE_READINESS_DELAY_SEC  0  300  "Seconds to wait after compose-up for bottle services to become ready (0 = no wait)"
+
   buv_group_enroll "Entry Service Configuration"
   buv_enum_enroll    RBRN_ENTRY_MODE                           "Entry functionality: disabled or enabled" \
                      disabled enabled

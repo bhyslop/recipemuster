@@ -466,6 +466,11 @@ rbob_charge() {
   zrbob_compose --profile sessile up -d --wait
 
   buc_step "Crucible started: ${RBRN_MONIKER}"
+
+  if test "${RBRN_BOTTLE_READINESS_DELAY_SEC}" -gt 0; then
+    buc_step "Waiting ${RBRN_BOTTLE_READINESS_DELAY_SEC}s for bottle service readiness"
+    sleep "${RBRN_BOTTLE_READINESS_DELAY_SEC}"
+  fi
 }
 
 # Check whether the crucible is charged (compose project has running containers).

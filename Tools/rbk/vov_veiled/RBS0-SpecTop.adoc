@@ -467,7 +467,9 @@
 :rbrn_regime:                       <<rbrn_regime,RBRN Regime>>
 :rbrn_group_access_allowlist:       <<rbrn_group_access_allowlist,Access Allowlist Group>>
 :rbrn_group_ark_reference:          <<rbrn_group_ark_reference,Ark Reference Group>>
+:rbrn_group_service_readiness:      <<rbrn_group_service_readiness,Service Readiness Group>>
 :rbrn_bottle_hallmark:              <<rbrn_bottle_hallmark,RBRN_BOTTLE_HALLMARK>>
+:rbrn_bottle_readiness_delay_sec:   <<rbrn_bottle_readiness_delay_sec,RBRN_BOTTLE_READINESS_DELAY_SEC>>
 :rbrn_bottle_vessel:                <<rbrn_bottle_vessel,RBRN_BOTTLE_VESSEL>>
 :rbrn_description:                  <<rbrn_description,RBRN_DESCRIPTION>>
 :rbrn_enclave_base_ip:              <<rbrn_enclave_base_ip,RBRN_ENCLAVE_BASE_IP>>
