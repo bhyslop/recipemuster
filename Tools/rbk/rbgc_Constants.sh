@@ -70,6 +70,13 @@ zrbgc_kindle() {
   readonly RBGC_SA_KEY_CONSUMER_RETRY_INITIAL_DELAY_SEC=2
   readonly RBGC_SA_KEY_CONSUMER_RETRY_MAX_DELAY_SEC=15
 
+  # HTTP transient-failure retry — bounded retry on curl-network blips
+  # (connection refused 7, timeout 28, TLS handshake 35, recv failure 56).
+  # Shared by rbgu_http_json and the OAuth token-mint POST. Other curl exits
+  # are configuration-deterministic and fail fast.
+  readonly RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS=3
+  readonly RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC=3
+
   # URL Roots & Well-known Endpoints
   readonly RBGC_OAUTH_TOKEN_URL="https://oauth2.googleapis.com/token"
   readonly RBGC_API_ROOT_IAM="https://iam.googleapis.com"

@@ -67,7 +67,10 @@ zrbgo_base64url_encode_capture() {
 
   # Base64url encode: -A suppresses line wrapping, then URL-safe transform and remove padding
   local z_encoded
-  z_encoded=$(printf '%s' "${z_input}" | openssl enc -base64 -A) || return 1
+  z_encoded=$(printf '%s' "${z_input}" | openssl enc -base64 -A 2>"${ZRBGO_OPENSSL_STDERR_FILE}") || {
+    buc_warn "openssl base64url encode failed: $(<"${ZRBGO_OPENSSL_STDERR_FILE}")"
+    return 1
+  }
   z_encoded="${z_encoded//+/-}"
   z_encoded="${z_encoded//\//_}"
   z_encoded="${z_encoded//=/}"
@@ -125,11 +128,17 @@ zrbgo_build_jwt_capture() {
   openssl dgst -sha256 \
     -sign <(printf '%b' "${RBRA_PRIVATE_KEY}\n") \
     -out "${ZRBGO_JWT_SIGNATURE_FILE}" \
-    "${ZRBGO_JWT_UNSIGNED_FILE}" 2>"${ZRBGO_OPENSSL_STDERR_FILE}" || return 1
+    "${ZRBGO_JWT_UNSIGNED_FILE}" 2>"${ZRBGO_OPENSSL_STDERR_FILE}" || {
+      buc_warn "openssl RSA256 sign failed: $(<"${ZRBGO_OPENSSL_STDERR_FILE}")"
+      return 1
+    }
 
   buc_log_args "Base64url encode signature"
   local z_signature
-  z_signature=$(openssl enc -base64 -A < "${ZRBGO_JWT_SIGNATURE_FILE}") || return 1
+  z_signature=$(openssl enc -base64 -A < "${ZRBGO_JWT_SIGNATURE_FILE}" 2>"${ZRBGO_OPENSSL_STDERR_FILE}") || {
+    buc_warn "openssl signature base64 encode failed: $(<"${ZRBGO_OPENSSL_STDERR_FILE}")"
+    return 1
+  }
   z_signature="${z_signature//+/-}"
   z_signature="${z_signature//\//_}"
   z_signature="${z_signature//=/}"
@@ -143,16 +152,29 @@ zrbgo_exchange_jwt_capture() {
 
   local -r z_jwt="$1"
 
-  buc_log_args "Exchange JWT for OAuth token"
-  curl -sS -X POST "${RBGC_OAUTH_TOKEN_URL}"                                        \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}"                           \
-    --max-time "${RBCC_CURL_MAX_TIME_SEC}"                                         \
-    -H "Content-Type: application/x-www-form-urlencoded"                           \
-    -d "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${z_jwt}" \
-    > "${ZRBGO_OAUTH_RESPONSE_FILE}" 2>"${ZRBGO_CURL_STDERR_FILE}" || {
-      buc_warn "OAuth curl failed: $(<"${ZRBGO_CURL_STDERR_FILE}")"
-      return 1
-    }
+  local z_attempt=0
+  local z_curl_status=0
+  while :; do
+    z_attempt=$((z_attempt + 1))
+
+    buc_log_args "Exchange JWT for OAuth token (attempt ${z_attempt}/${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS})"
+    z_curl_status=0
+    curl -sS -X POST "${RBGC_OAUTH_TOKEN_URL}"                                        \
+      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}"                           \
+      --max-time "${RBCC_CURL_MAX_TIME_SEC}"                                         \
+      -H "Content-Type: application/x-www-form-urlencoded"                           \
+      -d "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${z_jwt}" \
+      > "${ZRBGO_OAUTH_RESPONSE_FILE}" 2>"${ZRBGO_CURL_STDERR_FILE}" || z_curl_status=$?
+
+    test "${z_curl_status}" -eq 0 && break
+
+    buc_warn "OAuth curl exit ${z_curl_status}: $(<"${ZRBGO_CURL_STDERR_FILE}")"
+    rbgu_curl_status_is_transient_predicate "${z_curl_status}" || return 1
+    test "${z_attempt}" -lt "${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS}" || return 1
+
+    buc_step "OAuth token mint: transient curl ${z_curl_status}, retry ${z_attempt}/${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS} in ${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}s"
+    sleep "${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}"
+  done
 
   buc_log_args "Debug: Show the actual response (minus secrets)"
   jq 'del(.access_token, .refresh_token)

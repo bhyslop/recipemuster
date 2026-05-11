@@ -89,6 +89,14 @@ rbgu_role_member_exists_predicate() {
     "${z_json_file}" >/dev/null 2>&1
 }
 
+# Stateless — no sentinel; safe to call from any module regardless of kindle order.
+rbgu_curl_status_is_transient_predicate() {
+  case "${1:-}" in
+    7|28|35|56) return 0 ;;
+    *)          return 1 ;;
+  esac
+}
+
 ######################################################################
 # Capture Functions
 
@@ -290,8 +298,6 @@ rbgu_http_json() {
 
   local z_curl_status=0
   local z_attempt=0
-  local -r z_max_attempts=3
-  local -r z_retry_sleep=3
 
   while :; do
     z_curl_status=0
@@ -340,18 +346,14 @@ rbgu_http_json() {
     # Success — break out of retry loop
     test "${z_curl_status}" -ne 0 || break
 
-    # Retry on transient curl errors: 7=connection refused, 28=timeout,
-    # 35=SSL error, 56=recv failure. Die immediately on all others.
-    case "${z_curl_status}" in
-      7|28|35|56) ;;
-      *) buc_die "HTTP request failed (curl exit ${z_curl_status})" ;;
-    esac
+    rbgu_curl_status_is_transient_predicate "${z_curl_status}" \
+      || buc_die "HTTP request failed (curl exit ${z_curl_status})"
 
-    test "${z_attempt}" -lt "${z_max_attempts}" \
-      || buc_die "HTTP request failed after ${z_max_attempts} attempts (curl exit ${z_curl_status})"
+    test "${z_attempt}" -lt "${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS}" \
+      || buc_die "HTTP request failed after ${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS} attempts (curl exit ${z_curl_status})"
 
-    buc_log_args "Transient curl error (exit ${z_curl_status}), retry ${z_attempt}/${z_max_attempts} in ${z_retry_sleep}s"
-    sleep "${z_retry_sleep}"
+    buc_log_args "Transient curl error (exit ${z_curl_status}), retry ${z_attempt}/${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS} in ${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}s"
+    sleep "${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}"
   done
 
   # Register successful attempt under bare infix for capture functions
