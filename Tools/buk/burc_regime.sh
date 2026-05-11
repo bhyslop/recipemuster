@@ -43,11 +43,11 @@ zburc_kindle() {
   buv_string_enroll  BURC_STATION_FILE          1  512  "Path to developer's BURS station file"
 
   buv_group_enroll "Tabtarget Infrastructure"
-  buv_string_enroll  BURC_TABTARGET_DIR         1  128  "Directory containing launcher scripts"
+  buv_string_enroll  BURC_TABTARGET_DIR         1  128  "Project dir containing launcher scripts"
   buv_string_enroll  BURC_TABTARGET_DELIMITER   1    1  "Token separator in tabtarget filenames"
 
   buv_group_enroll "Project Structure"
-  buv_string_enroll  BURC_TOOLS_DIR             1  128  "Directory containing tool scripts"
+  buv_string_enroll  BURC_TOOLS_DIR             1  128  "Project dir containing tool scripts"
   buv_string_enroll  BURC_PROJECT_ROOT          1  512  "Path from burc.env to project root"
   buv_string_enroll  BURC_MANAGED_KITS          1  512  "Comma-separated kit list for vvx"
 
