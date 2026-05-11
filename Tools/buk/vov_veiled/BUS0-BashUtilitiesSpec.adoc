@@ -1943,7 +1943,7 @@ to the per-platform handbooks below.
 [[bust_handbook_windows]]
 //axvo_tabtarget
 {bust_handbook_windows}::
-`buw-hjW` —
+`buw-hjw` —
 Per-platform handbook for Windows operator-manual scope: OpenSSH
 server install + reachability, security-sensitive registry edits,
 Tailscale install + Run-Unattended + first auth, netplwiz
@@ -1952,14 +1952,14 @@ auto-login.
 [[bust_handbook_macos]]
 //axvo_tabtarget
 {bust_handbook_macos}::
-`buw-hjM` —
+`buw-hjm` —
 Per-platform handbook for macOS operator-manual scope: Tailscale
 install + login, Privacy & Security consent prompts.
 
 [[bust_handbook_linux]]
 //axvo_tabtarget
 {bust_handbook_linux}::
-`buw-hjL` —
+`buw-hjl` —
 Per-platform handbook for Linux operator-manual scope: Tailscale
 install + login, sshd install/enable on minimal distros.
 
@@ -1993,10 +1993,16 @@ phase 1 (over the password-or-key admin SSH session) places the
 admin pubkey, applies icacls lockdown, writes hardened sshd_config
 directives, validates via `sshd -t`, and restarts sshd; phase 2
 (key-auth-only reconnect) verifies the post-restart admin session
-authenticates by key alone. Post-trust admin posture (WSL stage,
-powercfg, Tailscale service) runs after phase 2. The bash
-orchestrator treats the disconnect immediately after
-`Restart-Service sshd` as the expected phase boundary, not a failure.
+authenticates by key alone. Between phase 2 and the post-trust
+admin posture, caparison-windows runs a preflight gate that asserts
+{busn_invigilate}'s operator-precondition fact subset (the registry
+keys + Tailscale-service-presence facts whose pointer is
+{bust_handbook_windows}); the gate fails fast on missing operator
+posture rather than after the multi-minute WSL-distribution
+download. Post-trust admin posture (WSL stage, powercfg, Tailscale
+service) runs after the preflight passes. The bash orchestrator
+treats the disconnect immediately after `Restart-Service sshd` as
+the expected phase boundary, not a failure.
 
 [[busn_invigilate]]
 //axl_voices axt_command
@@ -2012,11 +2018,17 @@ Failure pointers discriminate operator-managed posture
 (→ the per-platform handbook) from caparison-managed posture
 (→ the per-platform caparison).
 +
-Used twice: as
-{busn_caparison}'s post-completion check (caparison runs invigilate
-after applying its operations to verify they took), and as
-{busn_garrison}'s precondition check (garrison runs invigilate
-before any destructive workload work).
+Used three times in the caparison/garrison flow: as
+{busn_caparison}'s preflight gate (caparison runs invigilate's
+operator-precondition fact subset between phase 2 and post-trust
+posture, so missing operator scope fails fast rather than after
+expensive admin-posture work), as {busn_caparison}'s post-completion
+check (caparison runs invigilate's caparison-deliverable fact subset
+after applying its operations to verify they took — operator facts
+already verified at preflight do not re-run within a single
+caparison run), and as {busn_garrison}'s precondition check
+(garrison runs the full invigilate before any destructive workload
+work). Standalone invocation runs the full fact list.
 
 [[busn_garrison]]
 //axl_voices axt_command

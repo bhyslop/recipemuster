@@ -129,6 +129,21 @@ on reconnect failure -- brick (manual password no longer opens a
 session); recover via operator's local console
 
 //axhos_step
+. *Preflight — verify operator-precondition facts before phase 3*:
+.. {busc_call}
+{bust_invigilate_windows} operator-precondition fact subset
+(`DevicePasswordLessBuildVersion` registry, `PlatformAoAcOverride`
+registry, Tailscale service registered) over `«ADMIN_SESSION_P2»`
+.. {busc_store}
+`«PREFLIGHT_RESULT»`
+.. {busc_require}
+`«PREFLIGHT_RESULT»` is zero
+.. {busc_fatal}
+on non-zero -- {bust_handbook_windows} scope; preflight fails fast
+before the multi-minute WSL stage so missing operator posture does
+not waste a download cycle
+
+//axhos_step
 . *Phase 3 — stage rbtww-main WSL distribution*:
 .. {busc_call}
 `wsl.exe --import` from the Ubuntu-24.04 seed over
@@ -159,13 +174,18 @@ on `Set-Service` or `Start-Service` failure --
 {bust_handbook_windows} scope (install + Run-Unattended + first auth)
 
 //axhos_step
-. *Post-completion check — run invigilate-windows*:
+. *Post-completion — verify caparison deliverables*:
 .. {busc_call}
-{bust_invigilate_windows} for this {burp_investiture}
+{bust_invigilate_windows} caparison-deliverable fact subset
+(Tailscale service `Automatic`, standby-timeout policy = 0 AC+DC,
+hibernate disabled, `rbtww-main` WSL distribution registered) over
+`«ADMIN_SESSION_P2»`. Operator-precondition facts already verified
+at preflight do not re-run, and admin SSH is not re-probed because
+phase 2 just established it
 .. {busc_store}
-`«INVIGILATE_RESULT»`
+`«DELIVERABLES_RESULT»`
 .. {busc_require}
-`«INVIGILATE_RESULT»` is zero
+`«DELIVERABLES_RESULT»` is zero
 .. {busc_fatal}
 on non-zero -- invigilate diagnostic surfaced verbatim
 
@@ -180,11 +200,16 @@ On success:
 * `rbtww-main` WSL distribution is registered under the admin user.
 * `powercfg` sleep and hibernate are disabled.
 * Tailscale service is Automatic and running.
-* {bust_invigilate_windows} confirms every posture fact end-to-end.
+* {bust_invigilate_windows}'s caparison-deliverable fact subset
+  confirms each post-trust posture fact (operator-precondition facts
+  were verified at the phase 2/3 preflight gate); a standalone
+  {bust_invigilate_windows} run after caparison succeeds asserts the
+  full fact list end-to-end.
 
 //axhoc_completion
-Exit 0 when the post-completion {bust_invigilate_windows} passes.
-Non-zero on any phase-1 op failure (admin SSH, pubkey, ACL,
-`sshd_config`, `sshd -t`), phase-2 reconnect failure, any phase-3 op
-failure (`wsl --import`, `powercfg`, Tailscale), or post-completion
-invigilate failure.
+Exit 0 when the post-completion deliverables-subset
+{bust_invigilate_windows} passes. Non-zero on any phase-1 op failure
+(admin SSH, pubkey, ACL, `sshd_config`, `sshd -t`), phase-2 reconnect
+failure, preflight failure (operator-precondition facts), any phase-3
+op failure (`wsl --import`, `powercfg`, Tailscale), or post-completion
+deliverables-subset failure.

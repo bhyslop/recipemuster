@@ -90,10 +90,10 @@ it once on `/dev/tty`; caparison itself never handles the password
 each entry requires elevation -- use `reg add` from an elevated cmd
 prompt or `New-ItemProperty` from an elevated PowerShell prompt
 .. `DevicePasswordLessBuildVersion` = `0` (DWORD) under
-`HKLM\Software\Microsoft\Windows\CurrentVersion\PasswordLess\Device`:
+`HKLM\Software\Microsoft\Windows NT\CurrentVersion\PasswordLess\Device`:
 +
 ----
-reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\PasswordLess\Device" /v DevicePasswordLessBuildVersion /t REG_DWORD /d 0 /f
+reg add "HKLM\Software\Microsoft\Windows NT\CurrentVersion\PasswordLess\Device" /v DevicePasswordLessBuildVersion /t REG_DWORD /d 0 /f
 ----
 .. {bush_show}
 exposes the netplwiz "Users must enter a user name and password"

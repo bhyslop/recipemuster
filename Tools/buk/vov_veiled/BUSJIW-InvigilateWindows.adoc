@@ -39,7 +39,7 @@ on connection failure -- {bust_caparison_windows} scope
 . *Assert operator-managed registry keys*:
 .. For each {bust_handbook_windows}-established registry value
 (canonical: `DevicePasswordLessBuildVersion` under
-`HKLM\Software\Microsoft\Windows\CurrentVersion\PasswordLess\Device`):
+`HKLM\Software\Microsoft\Windows NT\CurrentVersion\PasswordLess\Device`):
 ... {busc_call}
 PowerShell `Get-ItemPropertyValue` over `«ADMIN_SESSION»`
 ... {busc_store}
@@ -84,15 +84,32 @@ PowerShell `Get-Service Tailscale | Select-Object StartType`
 on mismatch -- {bust_caparison_windows} scope
 
 //axhos_step
-. *Assert powercfg sleep/hibernate disabled*:
+. *Assert standby-timeout policy = 0 (AC and DC)*:
+.. {busc_call}
+`powercfg /query SCHEME_CURRENT SUB_SLEEP STANDBYIDLE` over `«ADMIN_SESSION»`
+.. {busc_store}
+`«POWERCFG_STANDBYIDLE»`
+.. {busc_require}
+`«POWERCFG_STANDBYIDLE»` carries `Current AC Power Setting Index: 0x00000000`
+and `Current DC Power Setting Index: 0x00000000`
+.. {busc_fatal}
+on mismatch -- {bust_caparison_windows} scope. Verifies the policy
+{busn_caparison} sets (`powercfg /change standby-timeout-ac/dc 0`),
+not the firmware-supplied "available" capability list -- legacy-S3
+hardware always reports Standby (S3) as available regardless of
+auto-sleep timeout policy.
+
+//axhos_step
+. *Assert hibernate disabled*:
 .. {busc_call}
 `powercfg /a` over `«ADMIN_SESSION»`
 .. {busc_store}
 `«POWERCFG_REPORT»`
 .. {busc_require}
-`«POWERCFG_REPORT»` reports neither standby nor hibernate as available
+`«POWERCFG_REPORT»` does not list Hibernate in its "available on this
+system" section
 .. {busc_fatal}
-on mismatch -- {bust_caparison_windows} scope (or AoAc override missing)
+on Hibernate present -- {bust_caparison_windows} scope
 
 //axhos_step
 . *Assert admin's rbtww-main WSL distribution registered*:
