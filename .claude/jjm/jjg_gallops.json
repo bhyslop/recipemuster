@@ -9,10 +9,10 @@
     "₣BA",
     "₣A_",
     "₣A-",
+    "₣Az",
     "₣Ap",
     "₣Ah",
     "₣A9",
-    "₣Az",
     "₣An",
     "₣Am",
     "₣AD",
@@ -7708,7 +7708,7 @@
       "jjghn_paces": {}
     },
     "₣Az": {
-      "jjghn_silks": "rbk-vocabulary-debt-ark-rubric",
+      "jjghn_silks": "rbk-deferred-ark-concept-debt",
       "jjghn_creation_time": "260330",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [],
