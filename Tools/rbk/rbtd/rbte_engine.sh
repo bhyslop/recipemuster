@@ -159,13 +159,11 @@ rbte_suite() {
 rbte_single() {
   zrbte_sentinel
 
-  local z_fixture="${BURD_TOKEN_3:-}"
-  test -n "${z_fixture}" || buc_die "No fixture imprint — use tabtarget with imprint (e.g. rbtd-s.FixtureCase.tadmor.sh)"
-
   zrbte_build_binary
 
-  local z_case="${1:-}"
-  "${ZRBTE_BINARY}" single "${ZRBTE_FULL_MANIFEST}" "${z_fixture}" ${z_case:+"${z_case}"}
+  local z_fixture="${1:-}"
+  local z_case="${2:-}"
+  "${ZRBTE_BINARY}" single "${ZRBTE_FULL_MANIFEST}" ${z_fixture:+"${z_fixture}"} ${z_case:+"${z_case}"}
 }
 
 rbte_probe() {

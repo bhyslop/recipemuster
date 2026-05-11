@@ -51,9 +51,9 @@ When iterating on a specific failing test case:
    ```
 2. Run individual cases against the live crucible:
    ```
-   tt/rbtd-s.FixtureCase.tadmor.sh case-name
+   tt/rbtd-s.FixtureCase.sh tadmor case-name
    ```
-   Omit the case name to list all available cases.
+   Omit the case name to list all available cases. Omit the fixture name to list all available fixtures.
 3. Edit code, rebuild as needed (kludge for ifrit, `tt/rbtd-b.Build.sh` for theurge), re-run the single case. Repeat.
 4. Quench when done:
    ```
@@ -116,7 +116,7 @@ Cases group by purpose in source order (no formal section structure):
    ```
 3. Verify each new/changed case individually against the live crucible:
    ```
-   tt/rbtd-s.FixtureCase.tadmor.sh rbtdrc_sortie_new_case_name
+   tt/rbtd-s.FixtureCase.sh tadmor rbtdrc_sortie_new_case_name
    ```
 4. Only after all targeted cases pass, run the full fixture for regression:
    ```
