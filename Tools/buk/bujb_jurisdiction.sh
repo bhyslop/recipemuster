@@ -1876,11 +1876,14 @@ zbujb_caparison_windows_stage_wsl() {
   zbujb_sentinel
 
   local -r z_distro_dir="${BUJB_path_win_wsl_install_root}\\${BUJB_wsl_distribution}"
-  local -r z_tar_path="${BUJB_path_win_wsl_install_root}\\${BUJB_wsl_distribution}.tar"
+  # DEV CACHE: skip seed download/export; import directly from a pre-staged tar at C:\rbtww-seed.tar.
+  # Operator pre-staged once via: wsl --install -d Ubuntu-24.04 --no-launch; wsl --export Ubuntu-24.04 C:\rbtww-seed.tar; wsl --unregister Ubuntu-24.04.
+  # Restore the commented-out [3/6]/[4/6]/[6/6] blocks below to return to the from-scratch path.
+  local -r z_tar_path='C:\rbtww-seed.tar'
 
-  buc_step "  Stage WSL: ${BUJB_wsl_distribution} on ${BURN_HOST} (seed: ${BUJB_wsl_seed_distribution})"
+  buc_step "  Stage WSL: ${BUJB_wsl_distribution} on ${BURN_HOST} (seed: ${BUJB_wsl_seed_distribution}) [DEV CACHE: ${z_tar_path}]"
 
-  buc_step "  [1/6] Purge prior state (idempotent: unregister both, remove tar+dir)"
+  buc_step "  [1/6] Purge prior state (idempotent: unregister both, remove dir; cache tar preserved)"
   local z_wsl_list=""
   z_wsl_list=$(zbujb_powershell_capture zbujb_privileged "wsl.exe --list --quiet") \
     || z_wsl_list=""
@@ -1892,45 +1895,47 @@ zbujb_caparison_windows_stage_wsl() {
     zbujb_admin_powershell "wsl.exe --unregister ${BUJB_wsl_seed_distribution}" \
       || buc_die "Failed to unregister prior ${BUJB_wsl_seed_distribution}"
   fi
-  local z_tar_present z_dir_present
-  z_tar_present=$(zbujb_powershell_capture zbujb_privileged "Test-Path '${z_tar_path}'") \
-    || buc_die "Failed to probe ${z_tar_path}"
+  local z_dir_present
   z_dir_present=$(zbujb_powershell_capture zbujb_privileged "Test-Path '${z_distro_dir}'") \
     || buc_die "Failed to probe ${z_distro_dir}"
-  if [[ "${z_tar_present}" == "True" ]]; then
-    zbujb_admin_powershell "Remove-Item -Force '${z_tar_path}'" \
-      || buc_die "Failed to remove prior ${z_tar_path}"
-  fi
   if [[ "${z_dir_present}" == "True" ]]; then
     zbujb_admin_powershell "Remove-Item -Recurse -Force '${z_distro_dir}'" \
       || buc_die "Failed to remove prior ${z_distro_dir}"
   fi
+  # DEV CACHE: the from-scratch path also removed a stale ${BUJB_wsl_distribution}.tar
+  # under BUJB_path_win_wsl_install_root; with the cache active we no longer write
+  # to that path, so the corresponding purge has been dropped. Restore alongside
+  # [3/6]/[4/6]/[6/6] uncommenting if reverting.
 
   buc_step "  [2/6] Ensure ${BUJB_path_win_wsl_install_root} directory"
   zbujb_admin_powershell "New-Item -ItemType Directory -Path '${BUJB_path_win_wsl_install_root}' -Force | Out-Null" \
     || buc_die "Failed to create ${BUJB_path_win_wsl_install_root}"
 
-  buc_step "  [3/6] Install ${BUJB_wsl_seed_distribution} seed distribution"
-  zbujb_admin_powershell "wsl.exe --install --no-launch -d ${BUJB_wsl_seed_distribution}" \
-    || buc_die "Failed to install ${BUJB_wsl_seed_distribution} seed"
+  # DEV CACHE: [3/6] Install seed — skipped; cache tar at ${z_tar_path} pre-staged once.
+  # buc_step "  [3/6] Install ${BUJB_wsl_seed_distribution} seed distribution"
+  # zbujb_admin_powershell "wsl.exe --install --no-launch -d ${BUJB_wsl_seed_distribution}" \
+  #   || buc_die "Failed to install ${BUJB_wsl_seed_distribution} seed"
 
-  buc_step "  [4/6] Export ${BUJB_wsl_seed_distribution} to ${z_tar_path}"
-  zbujb_admin_powershell "wsl.exe --export ${BUJB_wsl_seed_distribution} '${z_tar_path}'" \
-    || buc_die "Failed to export ${BUJB_wsl_seed_distribution}"
+  # DEV CACHE: [4/6] Export seed — skipped; cache tar at ${z_tar_path} pre-staged once.
+  # buc_step "  [4/6] Export ${BUJB_wsl_seed_distribution} to ${z_tar_path}"
+  # zbujb_admin_powershell "wsl.exe --export ${BUJB_wsl_seed_distribution} '${z_tar_path}'" \
+  #   || buc_die "Failed to export ${BUJB_wsl_seed_distribution}"
 
   buc_step "  [5/6] Import ${BUJB_wsl_distribution} from ${z_tar_path}"
   zbujb_admin_powershell "wsl.exe --import ${BUJB_wsl_distribution} '${z_distro_dir}' '${z_tar_path}'" \
     || buc_die "Failed to import ${BUJB_wsl_distribution}"
 
-  buc_step "  [6/6] Cleanup: unregister ${BUJB_wsl_seed_distribution} and remove .tar"
-  zbujb_admin_powershell "wsl.exe --unregister ${BUJB_wsl_seed_distribution}" \
-    || buc_die "Failed to unregister ${BUJB_wsl_seed_distribution}"
-  z_tar_present=$(zbujb_powershell_capture zbujb_privileged "Test-Path '${z_tar_path}'") \
-    || buc_die "Failed to probe ${z_tar_path}"
-  if [[ "${z_tar_present}" == "True" ]]; then
-    zbujb_admin_powershell "Remove-Item -Force '${z_tar_path}'" \
-      || buc_die "Failed to remove ${z_tar_path}"
-  fi
+  # DEV CACHE: [6/6] Cleanup seed + remove tar — skipped; preserve the cache tar across runs.
+  # buc_step "  [6/6] Cleanup: unregister ${BUJB_wsl_seed_distribution} and remove .tar"
+  # zbujb_admin_powershell "wsl.exe --unregister ${BUJB_wsl_seed_distribution}" \
+  #   || buc_die "Failed to unregister ${BUJB_wsl_seed_distribution}"
+  # local z_tar_present
+  # z_tar_present=$(zbujb_powershell_capture zbujb_privileged "Test-Path '${z_tar_path}'") \
+  #   || buc_die "Failed to probe ${z_tar_path}"
+  # if [[ "${z_tar_present}" == "True" ]]; then
+  #   zbujb_admin_powershell "Remove-Item -Force '${z_tar_path}'" \
+  #     || buc_die "Failed to remove ${z_tar_path}"
+  # fi
 
   buc_step "  Stage WSL succeeded"
 }
