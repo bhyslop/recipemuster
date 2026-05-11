@@ -1699,8 +1699,8 @@ bujb_caparison_windows() {
 
   zbujb_caparison_windows_phase3
 
-  buc_step "  Post-completion check: invigilate-windows"
-  bujb_invigilate_windows
+  buc_step "  Post-completion: verify caparison deliverables"
+  zbujb_invigilate_windows_caparison_facts
 
   buc_step "Caparison-windows succeeded"
 }
@@ -1856,22 +1856,22 @@ zbujb_invigilate_windows_op_facts() {
     || buc_die "Tailscale service: expected non-empty Get-Service Tailscale, got <absent> — operator handbook BUSJHW (install + Run-Unattended + first auth)"
 }
 
-# bujb_invigilate_windows -- BUSJIW read-only host posture verification.
-bujb_invigilate_windows() {
+# zbujb_invigilate_windows_caparison_facts -- the four caparison-windows
+# deliverables (Tailscale auto-start, sleep policy = never auto-sleep,
+# hibernate disabled, WSL distribution registered). Shared between
+# bujb_caparison_windows post-completion (verify our work landed without
+# re-running the operator-precondition facts already checked at preflight)
+# and bujb_invigilate_windows (full audit). Requires admin SSH established
+# under key-only auth.
+#
+# The standby check intentionally verifies POLICY (standby-timeout 0)
+# rather than CAPABILITY (powercfg /a "available" list). On legacy-S3
+# hardware, S3 stays in the available list regardless of timeout policy
+# because the firmware supports it; only AoAc-override on Modern Standby
+# (S0) hardware coincidentally removes a state from "available". What
+# caparison actually sets is the timeout, so that's what we verify.
+zbujb_invigilate_windows_caparison_facts() {
   zbujb_sentinel
-  test "${ZBUJB_RESOLVED:-}" = "1" \
-    || buc_die "bujb_invigilate_windows: call bujb_resolve_investiture first"
-  zbujb_invigilate_assert_platform bubep_windows
-
-  buc_step "Invigilate-windows: ${BUZ_FOLIO} (${BURN_HOST})"
-
-  buc_step "  Fact: admin SSH reachable (key-only)"
-  zbujb_admin_powershell 'exit 0' \
-      > "${ZBUJB_INVIGILATE_STDOUT}" \
-      2> "${ZBUJB_INVIGILATE_STDERR}" \
-    || buc_die "admin SSH session unreachable under key-only auth (see ${ZBUJB_INVIGILATE_STDERR}) — caparison-windows (BUSJCW)"
-
-  zbujb_invigilate_windows_op_facts
 
   buc_step "  Fact: Tailscale service StartType = Automatic"
   local z_start=""
@@ -1881,18 +1881,34 @@ bujb_invigilate_windows() {
   test "${z_start}" = "Automatic" \
     || buc_die "Tailscale StartType: expected Automatic, got '${z_start:-<empty>}' — caparison-windows (BUSJCW)"
 
-  buc_step "  Fact: powercfg /a reports no Standby or Hibernate available"
+  buc_step "  Fact: standby-timeout = 0 (AC and DC)"
+  zbujb_admin_powershell 'powercfg /query SCHEME_CURRENT SUB_SLEEP STANDBYIDLE' \
+      > "${ZBUJB_INVIGILATE_STDOUT}" \
+      2> "${ZBUJB_INVIGILATE_STDERR}" \
+    || buc_die "powercfg /query failed on ${BURN_HOST} (see ${ZBUJB_INVIGILATE_STDERR})"
+  local z_pcfg
+  z_pcfg=$(<"${ZBUJB_INVIGILATE_STDOUT}")
+  z_pcfg="${z_pcfg//$'\r'/}"
+  case "${z_pcfg}" in
+    *"Current AC Power Setting Index: 0x00000000"*) ;;
+    *) buc_die "powercfg standby-timeout AC: expected 0x00000000 (see ${ZBUJB_INVIGILATE_STDOUT}) — caparison-windows (BUSJCW)" ;;
+  esac
+  case "${z_pcfg}" in
+    *"Current DC Power Setting Index: 0x00000000"*) ;;
+    *) buc_die "powercfg standby-timeout DC: expected 0x00000000 (see ${ZBUJB_INVIGILATE_STDOUT}) — caparison-windows (BUSJCW)" ;;
+  esac
+
+  buc_step "  Fact: hibernate disabled"
   zbujb_admin_powershell 'powercfg /a' \
       > "${ZBUJB_INVIGILATE_STDOUT}" \
       2> "${ZBUJB_INVIGILATE_STDERR}" \
     || buc_die "powercfg /a failed on ${BURN_HOST} (see ${ZBUJB_INVIGILATE_STDERR})"
-  local z_pcfg
   z_pcfg=$(<"${ZBUJB_INVIGILATE_STDOUT}")
   z_pcfg="${z_pcfg//$'\r'/}"
   local z_available_section="${z_pcfg%%not available on this system*}"
   case "${z_available_section}" in
-    *Standby*|*Hibernate*)
-      buc_die "powercfg available sleep states: expected neither Standby nor Hibernate listed as available (see ${ZBUJB_INVIGILATE_STDOUT}) — caparison-windows (BUSJCW) — or AoAc override missing"
+    *Hibernate*)
+      buc_die "hibernate: expected absent from powercfg /a available section, got Hibernate listed as available (see ${ZBUJB_INVIGILATE_STDOUT}) — caparison-windows (BUSJCW)"
       ;;
   esac
 
@@ -1910,6 +1926,26 @@ bujb_invigilate_windows() {
       buc_die "WSL distribution ${BUJB_wsl_distribution}: expected present in wsl.exe --list --quiet, got '${z_wsl:-<none reported>}' — caparison-windows (BUSJCW)"
       ;;
   esac
+}
+
+# bujb_invigilate_windows -- BUSJIW read-only host posture verification.
+bujb_invigilate_windows() {
+  zbujb_sentinel
+  test "${ZBUJB_RESOLVED:-}" = "1" \
+    || buc_die "bujb_invigilate_windows: call bujb_resolve_investiture first"
+  zbujb_invigilate_assert_platform bubep_windows
+
+  buc_step "Invigilate-windows: ${BUZ_FOLIO} (${BURN_HOST})"
+
+  buc_step "  Fact: admin SSH reachable (key-only)"
+  zbujb_admin_powershell 'exit 0' \
+      > "${ZBUJB_INVIGILATE_STDOUT}" \
+      2> "${ZBUJB_INVIGILATE_STDERR}" \
+    || buc_die "admin SSH session unreachable under key-only auth (see ${ZBUJB_INVIGILATE_STDERR}) — caparison-windows (BUSJCW)"
+
+  zbujb_invigilate_windows_op_facts
+
+  zbujb_invigilate_windows_caparison_facts
 
   buc_step "Invigilate-windows succeeded"
 }
