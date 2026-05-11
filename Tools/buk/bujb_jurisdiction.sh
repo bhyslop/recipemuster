@@ -840,15 +840,24 @@ zbujb_obliterate_windows_namespaces() {
   #
   # WMI Filter syntax: SQL-style LIKE with % wildcard. Exact-match for the
   # canonical path OR LIKE 'C:\Users\<user>.%' for prior-demotion fallbacks
-  # named C:\Users\<user>.<host>.NNN. Belt-and-suspenders: this filter is
-  # already tight; no bash-side tightening needed.
+  # named C:\Users\<user>.<host>.NNN.
+  #
+  # WQL backslash-escape: in WQL string literals (both LIKE patterns AND
+  # equality comparisons), a single backslash is treated as the literal-
+  # escape character; the path value must double each backslash or the
+  # provider returns WBEM_E_INVALID_QUERY (0x80041017). Bash-side derives
+  # z_canonical_wql / z_path_wql by replacing each `\` with `\\` before
+  # injection into the filter string. The capture below treats a non-zero
+  # ssh/PowerShell exit as fatal (not "no rows") to keep query breakage
+  # from masquerading as a clean empty result.
 
   buc_step "    [Phase 2] Probe Win32_UserProfile rows"
   local z_canonical_win="C:\\Users\\${BUJB_workload_user}"
+  local z_canonical_wql="${z_canonical_win//\\/\\\\}"
   local z_profiles_raw=""
   z_profiles_raw=$(zbujb_powershell_capture zbujb_privileged \
-      "Get-CimInstance -ClassName Win32_UserProfile -Filter \"LocalPath = '${z_canonical_win}' OR LocalPath LIKE '${z_canonical_win}.%'\" | Select-Object -ExpandProperty LocalPath") \
-    || z_profiles_raw=""
+      "Get-CimInstance -ClassName Win32_UserProfile -Filter \"LocalPath = '${z_canonical_wql}' OR LocalPath LIKE '${z_canonical_wql}.%'\" | Select-Object -ExpandProperty LocalPath") \
+    || buc_die "obliterate phase 2: Get-CimInstance Win32_UserProfile probe failed"
 
   local z_profiles_roll=()
   local z_line=""
@@ -859,11 +868,13 @@ zbujb_obliterate_windows_namespaces() {
 
   local z_i=0
   local z_path=""
+  local z_path_wql=""
   for z_i in "${!z_profiles_roll[@]}"; do
     z_path="${z_profiles_roll[$z_i]}"
+    z_path_wql="${z_path//\\/\\\\}"
     buc_step "    [Phase 2] Remove-CimInstance Win32_UserProfile LocalPath='${z_path}'"
     zbujb_obliterate_run "p2-remove-${z_i}" \
-        zbujb_admin_powershell "Remove-CimInstance -Query \"SELECT * FROM Win32_UserProfile WHERE LocalPath = '${z_path}'\"" \
+        zbujb_admin_powershell "Remove-CimInstance -Query \"SELECT * FROM Win32_UserProfile WHERE LocalPath = '${z_path_wql}'\"" \
       || buc_die "obliterate phase 2: Remove-CimInstance failed for ${z_path}"
   done
 
