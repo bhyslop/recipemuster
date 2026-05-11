@@ -125,17 +125,14 @@ fn rbtdtk_disposition_is_state_progressing() {
     assert_eq!(fixture.disposition, rbtdre_Disposition::StateProgressing);
 }
 
-/// Sections lookup binds the fixture name to the registry array and yields
-/// exactly four cases under one section ("canonical-establish-arc").
+/// Case lookup binds the fixture name to the registry array and yields
+/// exactly the four expected cases.
 #[test]
-fn rbtdtk_sections_registered() {
+fn rbtdtk_cases_registered() {
     let fixture = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_CANONICAL_ESTABLISH)
         .expect("canonical-establish is registered");
-    let sections = fixture.sections;
-    assert_eq!(sections.len(), 1, "expected one section");
-    assert_eq!(sections[0].name, "canonical-establish-arc");
-    assert_eq!(sections[0].cases.len(), 4, "expected four cases");
-    let names: Vec<&str> = sections[0].cases.iter().map(|c| c.name).collect();
+    assert_eq!(fixture.cases.len(), 4, "expected four cases");
+    let names: Vec<&str> = fixture.cases.iter().map(|c| c.name).collect();
     assert!(names.iter().any(|n| n.contains("rbtdrk_depot_levy")));
     assert!(names.iter().any(|n| n.contains("rbtdrk_governor_mantle")));
     assert!(names.iter().any(|n| n.contains("rbtdrk_retriever_invest")));

@@ -27,7 +27,7 @@ use std::process::Command;
 use crate::case;
 use crate::rbtdrb_probe::{rbtdrb_assert, rbtdrb_Probe};
 use crate::rbtdrc_crucible::rbtdrc_with_ctx;
-use crate::rbtdre_engine::{rbtdre_Disposition, rbtdre_Fixture, rbtdre_Section, rbtdre_Verdict};
+use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
 use crate::rbtdri_invocation::{
     rbtdri_invoke_global, rbtdri_invoke_imprint, rbtdri_read_burv_fact, rbtdri_Context,
     RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP, RBTDRI_BURV_OUTPUT_SUBDIR,
@@ -1231,22 +1231,14 @@ fn rbtdrp_depot_tear_down_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_V
     ))
 }
 
-// ── Section registry ─────────────────────────────────────────
+// ── Case registry ────────────────────────────────────────────
 
-pub static RBTDRP_SECTIONS_PRISTINE_LIFECYCLE: &[rbtdre_Section] = &[
-    rbtdre_Section {
-        name: "pristine-lifecycle-gate",
-        cases: &[case!(rbtdrp_marshal_zero_attestation)],
-    },
-    rbtdre_Section {
-        name: "pristine-lifecycle-arc",
-        cases: &[
-            case!(rbtdrp_depot_stand_up),
-            case!(rbtdrp_sa_cycle),
-            case!(rbtdrp_depot_live_disqualify),
-            case!(rbtdrp_depot_tear_down),
-        ],
-    },
+pub static RBTDRP_CASES_PRISTINE_LIFECYCLE: &[rbtdre_Case] = &[
+    case!(rbtdrp_marshal_zero_attestation),
+    case!(rbtdrp_depot_stand_up),
+    case!(rbtdrp_sa_cycle),
+    case!(rbtdrp_depot_live_disqualify),
+    case!(rbtdrp_depot_tear_down),
 ];
 
 pub static RBTDRP_FIXTURE_PRISTINE_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
@@ -1254,5 +1246,5 @@ pub static RBTDRP_FIXTURE_PRISTINE_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     disposition: rbtdre_Disposition::StateProgressing,
     setup: None,
     teardown: None,
-    sections: RBTDRP_SECTIONS_PRISTINE_LIFECYCLE,
+    cases: RBTDRP_CASES_PRISTINE_LIFECYCLE,
 };

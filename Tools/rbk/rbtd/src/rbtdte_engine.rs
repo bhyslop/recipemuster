@@ -36,7 +36,6 @@ const RBTDTE_COLORS: rbtdre_Colors = rbtdre_Colors {
     green: "",
     red: "",
     yellow: "",
-    white: "",
     reset: "",
 };
 
@@ -54,13 +53,9 @@ fn rbtdte_counts_all_verdict_types() {
         rbtdre_Case { name: "s1", func: rbtdte_skip },
         rbtdre_Case { name: "f1", func: rbtdte_fail },
     ];
-    static SECTIONS: &[rbtdre_Section] = &[rbtdre_Section {
-        name: "counting",
-        cases: CASES,
-    }];
 
     let tmp = rbtdte_make_temp("counts");
-    let result = rbtdre_run_sections(SECTIONS, &RBTDTE_COLORS, false, &tmp).unwrap();
+    let result = rbtdre_run_cases(CASES, &RBTDTE_COLORS, false, &tmp).unwrap();
     assert_eq!(result.passed, 2);
     assert_eq!(result.failed, 1);
     assert_eq!(result.skipped, 1);
@@ -73,13 +68,9 @@ fn rbtdte_fail_fast_stops_after_first_failure() {
         rbtdre_Case { name: "ff-f1", func: rbtdte_fail },
         rbtdre_Case { name: "ff-p1", func: rbtdte_pass },
     ];
-    static SECTIONS: &[rbtdre_Section] = &[rbtdre_Section {
-        name: "fast",
-        cases: CASES,
-    }];
 
     let tmp = rbtdte_make_temp("failfast");
-    let result = rbtdre_run_sections(SECTIONS, &RBTDTE_COLORS, true, &tmp).unwrap();
+    let result = rbtdre_run_cases(CASES, &RBTDTE_COLORS, true, &tmp).unwrap();
     assert_eq!(result.failed, 1);
     assert_eq!(result.passed, 0);
     let _ = std::fs::remove_dir_all(&tmp);
@@ -97,13 +88,9 @@ fn rbtdte_trace_files_written() {
             func: rbtdte_fail,
         },
     ];
-    static SECTIONS: &[rbtdre_Section] = &[rbtdre_Section {
-        name: "tracing",
-        cases: CASES,
-    }];
 
     let tmp = rbtdte_make_temp("trace");
-    let _ = rbtdre_run_sections(SECTIONS, &RBTDTE_COLORS, false, &tmp).unwrap();
+    let _ = rbtdre_run_cases(CASES, &RBTDTE_COLORS, false, &tmp).unwrap();
 
     let pass_trace =
         std::fs::read_to_string(tmp.join("traced-pass").join("trace.txt")).unwrap();
@@ -118,90 +105,28 @@ fn rbtdte_trace_files_written() {
 }
 
 #[test]
-fn rbtdte_multiple_sections_run_sequentially() {
-    static CASES_A: &[rbtdre_Case] = &[rbtdre_Case {
-        name: "ms-a1",
-        func: rbtdte_pass,
-    }];
-    static CASES_B: &[rbtdre_Case] = &[
-        rbtdre_Case {
-            name: "ms-b1",
-            func: rbtdte_pass,
-        },
-        rbtdre_Case {
-            name: "ms-b2",
-            func: rbtdte_skip,
-        },
-    ];
-    static SECTIONS: &[rbtdre_Section] = &[
-        rbtdre_Section {
-            name: "section-a",
-            cases: CASES_A,
-        },
-        rbtdre_Section {
-            name: "section-b",
-            cases: CASES_B,
-        },
+fn rbtdte_cases_run_in_declaration_order() {
+    static CASES: &[rbtdre_Case] = &[
+        rbtdre_Case { name: "ord-a", func: rbtdte_pass },
+        rbtdre_Case { name: "ord-b", func: rbtdte_pass },
+        rbtdre_Case { name: "ord-c", func: rbtdte_skip },
     ];
 
-    let tmp = rbtdte_make_temp("multi");
-    let result = rbtdre_run_sections(SECTIONS, &RBTDTE_COLORS, false, &tmp).unwrap();
+    let tmp = rbtdte_make_temp("order");
+    let result = rbtdre_run_cases(CASES, &RBTDTE_COLORS, false, &tmp).unwrap();
     assert_eq!(result.passed, 2);
     assert_eq!(result.skipped, 1);
     assert_eq!(result.failed, 0);
     let _ = std::fs::remove_dir_all(&tmp);
 }
 
-#[test]
-fn rbtdte_fail_fast_stops_across_sections() {
-    static CASES_A: &[rbtdre_Case] = &[rbtdre_Case {
-        name: "ffs-f1",
-        func: rbtdte_fail,
-    }];
-    static CASES_B: &[rbtdre_Case] = &[rbtdre_Case {
-        name: "ffs-p1",
-        func: rbtdte_pass,
-    }];
-    static SECTIONS: &[rbtdre_Section] = &[
-        rbtdre_Section {
-            name: "fails",
-            cases: CASES_A,
-        },
-        rbtdre_Section {
-            name: "never-reached",
-            cases: CASES_B,
-        },
-    ];
-
-    let tmp = rbtdte_make_temp("failacross");
-    let result = rbtdre_run_sections(SECTIONS, &RBTDTE_COLORS, true, &tmp).unwrap();
-    assert_eq!(result.failed, 1);
-    assert_eq!(result.passed, 0);
-    assert!(!tmp.join("ffs-p1").exists());
-    let _ = std::fs::remove_dir_all(&tmp);
-}
-
 // ── Edge cases ───────────────────────────────────────────────
 
 #[test]
-fn rbtdte_zero_sections() {
-    static SECTIONS: &[rbtdre_Section] = &[];
-    let tmp = rbtdte_make_temp("zerosec");
-    let result = rbtdre_run_sections(SECTIONS, &RBTDTE_COLORS, false, &tmp).unwrap();
-    assert_eq!(result.passed, 0);
-    assert_eq!(result.failed, 0);
-    assert_eq!(result.skipped, 0);
-    let _ = std::fs::remove_dir_all(&tmp);
-}
-
-#[test]
-fn rbtdte_section_with_zero_cases() {
-    static SECTIONS: &[rbtdre_Section] = &[rbtdre_Section {
-        name: "empty",
-        cases: &[],
-    }];
+fn rbtdte_zero_cases() {
+    static CASES: &[rbtdre_Case] = &[];
     let tmp = rbtdte_make_temp("zerocases");
-    let result = rbtdre_run_sections(SECTIONS, &RBTDTE_COLORS, false, &tmp).unwrap();
+    let result = rbtdre_run_cases(CASES, &RBTDTE_COLORS, false, &tmp).unwrap();
     assert_eq!(result.passed, 0);
     assert_eq!(result.failed, 0);
     assert_eq!(result.skipped, 0);
@@ -215,13 +140,9 @@ fn rbtdte_all_skip() {
         rbtdre_Case { name: "sk2", func: rbtdte_skip },
         rbtdre_Case { name: "sk3", func: rbtdte_skip },
     ];
-    static SECTIONS: &[rbtdre_Section] = &[rbtdre_Section {
-        name: "all-skip",
-        cases: CASES,
-    }];
 
     let tmp = rbtdte_make_temp("allskip");
-    let result = rbtdre_run_sections(SECTIONS, &RBTDTE_COLORS, false, &tmp).unwrap();
+    let result = rbtdre_run_cases(CASES, &RBTDTE_COLORS, false, &tmp).unwrap();
     assert_eq!(result.passed, 0);
     assert_eq!(result.failed, 0);
     assert_eq!(result.skipped, 3);
@@ -234,13 +155,9 @@ fn rbtdte_single_case_pass() {
         name: "solo-pass",
         func: rbtdte_pass,
     }];
-    static SECTIONS: &[rbtdre_Section] = &[rbtdre_Section {
-        name: "solo",
-        cases: CASES,
-    }];
 
     let tmp = rbtdte_make_temp("solopass");
-    let result = rbtdre_run_sections(SECTIONS, &RBTDTE_COLORS, false, &tmp).unwrap();
+    let result = rbtdre_run_cases(CASES, &RBTDTE_COLORS, false, &tmp).unwrap();
     assert_eq!(result.passed, 1);
     assert_eq!(result.failed, 0);
     assert_eq!(result.skipped, 0);
@@ -253,13 +170,9 @@ fn rbtdte_single_case_fail() {
         name: "solo-fail",
         func: rbtdte_fail,
     }];
-    static SECTIONS: &[rbtdre_Section] = &[rbtdre_Section {
-        name: "solo",
-        cases: CASES,
-    }];
 
     let tmp = rbtdte_make_temp("solofail");
-    let result = rbtdre_run_sections(SECTIONS, &RBTDTE_COLORS, false, &tmp).unwrap();
+    let result = rbtdre_run_cases(CASES, &RBTDTE_COLORS, false, &tmp).unwrap();
     assert_eq!(result.passed, 0);
     assert_eq!(result.failed, 1);
     assert_eq!(result.skipped, 0);
@@ -276,13 +189,9 @@ fn rbtdte_run_all_executes_every_case_despite_failures() {
         rbtdre_Case { name: "ra-f2", func: rbtdte_fail },
         rbtdre_Case { name: "ra-p2", func: rbtdte_pass },
     ];
-    static SECTIONS: &[rbtdre_Section] = &[rbtdre_Section {
-        name: "run-all",
-        cases: CASES,
-    }];
 
     let tmp = rbtdte_make_temp("runall");
-    let result = rbtdre_run_sections(SECTIONS, &RBTDTE_COLORS, false, &tmp).unwrap();
+    let result = rbtdre_run_cases(CASES, &RBTDTE_COLORS, false, &tmp).unwrap();
     assert_eq!(result.passed, 2);
     assert_eq!(result.failed, 2);
     // All four case dirs were created — every case ran
@@ -306,13 +215,9 @@ fn rbtdte_temp_dirs_are_distinct_and_isolated() {
         rbtdre_Case { name: "iso-a", func: rbtdte_write_marker },
         rbtdre_Case { name: "iso-b", func: rbtdte_write_marker },
     ];
-    static SECTIONS: &[rbtdre_Section] = &[rbtdre_Section {
-        name: "isolation",
-        cases: CASES,
-    }];
 
     let tmp = rbtdte_make_temp("isolation");
-    let _ = rbtdre_run_sections(SECTIONS, &RBTDTE_COLORS, false, &tmp).unwrap();
+    let _ = rbtdre_run_cases(CASES, &RBTDTE_COLORS, false, &tmp).unwrap();
 
     let dir_a = tmp.join("iso-a");
     let dir_b = tmp.join("iso-b");
@@ -378,13 +283,9 @@ fn rbtdte_trace_file_skip_contains_reason() {
         name: "traced-skip",
         func: rbtdte_skip,
     }];
-    static SECTIONS: &[rbtdre_Section] = &[rbtdre_Section {
-        name: "skip-trace",
-        cases: CASES,
-    }];
 
     let tmp = rbtdte_make_temp("skiptrace");
-    let _ = rbtdre_run_sections(SECTIONS, &RBTDTE_COLORS, false, &tmp).unwrap();
+    let _ = rbtdre_run_cases(CASES, &RBTDTE_COLORS, false, &tmp).unwrap();
 
     let trace = std::fs::read_to_string(tmp.join("traced-skip").join("trace.txt")).unwrap();
     assert!(trace.contains("SKIPPED"));
@@ -405,13 +306,9 @@ fn rbtdte_case_output_files_survive_in_trace_dir() {
         name: "output-case",
         func: write_output,
     }];
-    static SECTIONS: &[rbtdre_Section] = &[rbtdre_Section {
-        name: "output",
-        cases: CASES,
-    }];
 
     let tmp = rbtdte_make_temp("caseoutput");
-    let _ = rbtdre_run_sections(SECTIONS, &RBTDTE_COLORS, false, &tmp).unwrap();
+    let _ = rbtdre_run_cases(CASES, &RBTDTE_COLORS, false, &tmp).unwrap();
 
     let output = std::fs::read_to_string(tmp.join("output-case").join("output.txt")).unwrap();
     assert!(output.contains("custom output data"));

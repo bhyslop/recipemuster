@@ -24,7 +24,7 @@ use std::path::Path;
 use std::process::Command;
 
 use crate::case;
-use crate::rbtdre_engine::{rbtdre_Disposition, rbtdre_Fixture, rbtdre_Section, rbtdre_Verdict};
+use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
 use crate::rbtdri_invocation::rbtdri_find_tabtarget_global;
 use crate::rbtdrm_manifest::{
     RBTDRM_FIXTURE_ENROLLMENT_VALIDATION, RBTDRM_FIXTURE_REGIME_SMOKE,
@@ -1312,161 +1312,98 @@ fn rbtdrf_rs_unmake_empty_arg_refusal(dir: &Path) -> rbtdre_Verdict {
     rbtdre_Verdict::Pass
 }
 
-// ── Section arrays ──────────────────────────────────────────
+// ── Case arrays ─────────────────────────────────────────────
 
-pub static RBTDRF_SECTIONS_ENROLLMENT_VALIDATION: &[rbtdre_Section] = &[
-    rbtdre_Section {
-        name: "ev-length-types",
-        cases: &[
-            case!(rbtdrf_ev_string_valid),
-            case!(rbtdrf_ev_string_empty_optional),
-            case!(rbtdrf_ev_string_too_short),
-            case!(rbtdrf_ev_string_too_long),
-            case!(rbtdrf_ev_string_empty_required),
-            case!(rbtdrf_ev_xname_valid),
-            case!(rbtdrf_ev_xname_invalid),
-            case!(rbtdrf_ev_gname_valid),
-            case!(rbtdrf_ev_gname_invalid),
-            case!(rbtdrf_ev_fqin_valid),
-            case!(rbtdrf_ev_fqin_invalid),
-        ],
-    },
-    rbtdre_Section {
-        name: "ev-choice-types",
-        cases: &[
-            case!(rbtdrf_ev_bool_valid),
-            case!(rbtdrf_ev_bool_invalid),
-            case!(rbtdrf_ev_bool_empty),
-            case!(rbtdrf_ev_enum_valid),
-            case!(rbtdrf_ev_enum_invalid),
-            case!(rbtdrf_ev_enum_empty),
-        ],
-    },
-    rbtdre_Section {
-        name: "ev-numeric-types",
-        cases: &[
-            case!(rbtdrf_ev_decimal_valid),
-            case!(rbtdrf_ev_decimal_below),
-            case!(rbtdrf_ev_decimal_above),
-            case!(rbtdrf_ev_decimal_empty),
-            case!(rbtdrf_ev_ipv4_valid),
-            case!(rbtdrf_ev_ipv4_invalid),
-            case!(rbtdrf_ev_port_valid),
-            case!(rbtdrf_ev_port_invalid),
-        ],
-    },
-    rbtdre_Section {
-        name: "ev-reference-types",
-        cases: &[
-            case!(rbtdrf_ev_odref_valid),
-            case!(rbtdrf_ev_odref_no_digest),
-            case!(rbtdrf_ev_odref_malformed),
-            case!(rbtdrf_ev_odref_empty),
-        ],
-    },
-    rbtdre_Section {
-        name: "ev-list-types",
-        cases: &[
-            case!(rbtdrf_ev_list_string_valid),
-            case!(rbtdrf_ev_list_string_empty),
-            case!(rbtdrf_ev_list_string_bad_item),
-            case!(rbtdrf_ev_list_ipv4_valid),
-            case!(rbtdrf_ev_list_ipv4_invalid),
-            case!(rbtdrf_ev_list_ipv4_empty),
-            case!(rbtdrf_ev_list_gname_valid),
-            case!(rbtdrf_ev_list_gname_invalid),
-        ],
-    },
-    rbtdre_Section {
-        name: "ev-gating",
-        cases: &[
-            case!(rbtdrf_ev_gate_active_valid),
-            case!(rbtdrf_ev_gate_active_invalid),
-            case!(rbtdrf_ev_gate_inactive),
-            case!(rbtdrf_ev_gate_multi),
-        ],
-    },
-    rbtdre_Section {
-        name: "ev-enforce-report",
-        cases: &[
-            case!(rbtdrf_ev_enforce_all_pass),
-            case!(rbtdrf_ev_enforce_first_bad),
-            case!(rbtdrf_ev_report_all_pass),
-            case!(rbtdrf_ev_report_mixed),
-            case!(rbtdrf_ev_report_gated),
-            case!(rbtdrf_ev_multiscope),
-        ],
-    },
+pub static RBTDRF_CASES_ENROLLMENT_VALIDATION: &[rbtdre_Case] = &[
+    case!(rbtdrf_ev_string_valid),
+    case!(rbtdrf_ev_string_empty_optional),
+    case!(rbtdrf_ev_string_too_short),
+    case!(rbtdrf_ev_string_too_long),
+    case!(rbtdrf_ev_string_empty_required),
+    case!(rbtdrf_ev_xname_valid),
+    case!(rbtdrf_ev_xname_invalid),
+    case!(rbtdrf_ev_gname_valid),
+    case!(rbtdrf_ev_gname_invalid),
+    case!(rbtdrf_ev_fqin_valid),
+    case!(rbtdrf_ev_fqin_invalid),
+    case!(rbtdrf_ev_bool_valid),
+    case!(rbtdrf_ev_bool_invalid),
+    case!(rbtdrf_ev_bool_empty),
+    case!(rbtdrf_ev_enum_valid),
+    case!(rbtdrf_ev_enum_invalid),
+    case!(rbtdrf_ev_enum_empty),
+    case!(rbtdrf_ev_decimal_valid),
+    case!(rbtdrf_ev_decimal_below),
+    case!(rbtdrf_ev_decimal_above),
+    case!(rbtdrf_ev_decimal_empty),
+    case!(rbtdrf_ev_ipv4_valid),
+    case!(rbtdrf_ev_ipv4_invalid),
+    case!(rbtdrf_ev_port_valid),
+    case!(rbtdrf_ev_port_invalid),
+    case!(rbtdrf_ev_odref_valid),
+    case!(rbtdrf_ev_odref_no_digest),
+    case!(rbtdrf_ev_odref_malformed),
+    case!(rbtdrf_ev_odref_empty),
+    case!(rbtdrf_ev_list_string_valid),
+    case!(rbtdrf_ev_list_string_empty),
+    case!(rbtdrf_ev_list_string_bad_item),
+    case!(rbtdrf_ev_list_ipv4_valid),
+    case!(rbtdrf_ev_list_ipv4_invalid),
+    case!(rbtdrf_ev_list_ipv4_empty),
+    case!(rbtdrf_ev_list_gname_valid),
+    case!(rbtdrf_ev_list_gname_invalid),
+    case!(rbtdrf_ev_gate_active_valid),
+    case!(rbtdrf_ev_gate_active_invalid),
+    case!(rbtdrf_ev_gate_inactive),
+    case!(rbtdrf_ev_gate_multi),
+    case!(rbtdrf_ev_enforce_all_pass),
+    case!(rbtdrf_ev_enforce_first_bad),
+    case!(rbtdrf_ev_report_all_pass),
+    case!(rbtdrf_ev_report_mixed),
+    case!(rbtdrf_ev_report_gated),
+    case!(rbtdrf_ev_multiscope),
 ];
 
-pub static RBTDRF_SECTIONS_REGIME_VALIDATION: &[rbtdre_Section] = &[
-    rbtdre_Section {
-        name: "rv-rbrr-negative",
-        cases: &[
-            case!(rbtdrf_rv_rbrr_missing_moniker),
-            case!(rbtdrf_rv_rbrr_bad_timeout),
-            case!(rbtdrf_rv_rbrr_bad_moniker),
-            case!(rbtdrf_rv_rbrr_unexpected_var),
-            case!(rbtdrf_rv_rbrr_bad_vessel_dir),
-            case!(rbtdrf_rv_rbrr_bad_secrets_dir),
-            case!(rbtdrf_rv_rbrr_bad_cloud_prefix_uppercase),
-            case!(rbtdrf_rv_rbrr_bad_cloud_prefix_no_trailing_hyphen),
-            case!(rbtdrf_rv_rbrr_bad_cloud_prefix_too_long),
-            case!(rbtdrf_rv_rbrr_bad_runtime_prefix_uppercase),
-            case!(rbtdrf_rv_rbrr_bad_runtime_prefix_no_trailing_hyphen),
-            case!(rbtdrf_rv_rbrr_bad_runtime_prefix_too_long),
-        ],
-    },
-    rbtdre_Section {
-        name: "rv-rbrv-negative",
-        cases: &[
-            case!(rbtdrf_rv_rbrv_missing_sigil),
-            case!(rbtdrf_rv_rbrv_no_bind_image),
-            case!(rbtdrf_rv_rbrv_unexpected_var),
-            case!(rbtdrf_rv_rbrv_partial_conjure),
-        ],
-    },
-    rbtdre_Section {
-        name: "rv-rbrn-negative",
-        cases: &[
-            case!(rbtdrf_rv_rbrn_missing_moniker),
-            case!(rbtdrf_rv_rbrn_invalid_runtime),
-            case!(rbtdrf_rv_rbrn_invalid_entry_mode),
-            case!(rbtdrf_rv_rbrn_invalid_dns_mode),
-            case!(rbtdrf_rv_rbrn_invalid_access_mode),
-            case!(rbtdrf_rv_rbrn_port_conflict),
-            case!(rbtdrf_rv_rbrn_unexpected_var),
-            case!(rbtdrf_rv_rbrn_bad_ip),
-        ],
-    },
-    rbtdre_Section {
-        name: "rv-positive",
-        cases: &[
-            case!(rbtdrf_rv_rbrr_repo),
-            case!(rbtdrf_rv_rbrv_all_vessels),
-            case!(rbtdrf_rv_rbrn_all_nameplates),
-        ],
-    },
+pub static RBTDRF_CASES_REGIME_VALIDATION: &[rbtdre_Case] = &[
+    case!(rbtdrf_rv_rbrr_missing_moniker),
+    case!(rbtdrf_rv_rbrr_bad_timeout),
+    case!(rbtdrf_rv_rbrr_bad_moniker),
+    case!(rbtdrf_rv_rbrr_unexpected_var),
+    case!(rbtdrf_rv_rbrr_bad_vessel_dir),
+    case!(rbtdrf_rv_rbrr_bad_secrets_dir),
+    case!(rbtdrf_rv_rbrr_bad_cloud_prefix_uppercase),
+    case!(rbtdrf_rv_rbrr_bad_cloud_prefix_no_trailing_hyphen),
+    case!(rbtdrf_rv_rbrr_bad_cloud_prefix_too_long),
+    case!(rbtdrf_rv_rbrr_bad_runtime_prefix_uppercase),
+    case!(rbtdrf_rv_rbrr_bad_runtime_prefix_no_trailing_hyphen),
+    case!(rbtdrf_rv_rbrr_bad_runtime_prefix_too_long),
+    case!(rbtdrf_rv_rbrv_missing_sigil),
+    case!(rbtdrf_rv_rbrv_no_bind_image),
+    case!(rbtdrf_rv_rbrv_unexpected_var),
+    case!(rbtdrf_rv_rbrv_partial_conjure),
+    case!(rbtdrf_rv_rbrn_missing_moniker),
+    case!(rbtdrf_rv_rbrn_invalid_runtime),
+    case!(rbtdrf_rv_rbrn_invalid_entry_mode),
+    case!(rbtdrf_rv_rbrn_invalid_dns_mode),
+    case!(rbtdrf_rv_rbrn_invalid_access_mode),
+    case!(rbtdrf_rv_rbrn_port_conflict),
+    case!(rbtdrf_rv_rbrn_unexpected_var),
+    case!(rbtdrf_rv_rbrn_bad_ip),
+    case!(rbtdrf_rv_rbrr_repo),
+    case!(rbtdrf_rv_rbrv_all_vessels),
+    case!(rbtdrf_rv_rbrn_all_nameplates),
 ];
 
-pub static RBTDRF_SECTIONS_REGIME_SMOKE: &[rbtdre_Section] = &[
-    rbtdre_Section {
-        name: "regime-smoke",
-        cases: &[
-            case!(rbtdrf_rs_burc),
-            case!(rbtdrf_rs_burs),
-            case!(rbtdrf_rs_rbrn),
-            case!(rbtdrf_rs_rbrr),
-            case!(rbtdrf_rs_rbrr_nonempty_prefix),
-            case!(rbtdrf_rs_rbrv),
-            case!(rbtdrf_rs_rbrp),
-            case!(rbtdrf_rs_burd),
-        ],
-    },
-    rbtdre_Section {
-        name: "rs-tabtarget-refusals",
-        cases: &[case!(rbtdrf_rs_unmake_empty_arg_refusal)],
-    },
+pub static RBTDRF_CASES_REGIME_SMOKE: &[rbtdre_Case] = &[
+    case!(rbtdrf_rs_burc),
+    case!(rbtdrf_rs_burs),
+    case!(rbtdrf_rs_rbrn),
+    case!(rbtdrf_rs_rbrr),
+    case!(rbtdrf_rs_rbrr_nonempty_prefix),
+    case!(rbtdrf_rs_rbrv),
+    case!(rbtdrf_rs_rbrp),
+    case!(rbtdrf_rs_burd),
+    case!(rbtdrf_rs_unmake_empty_arg_refusal),
 ];
 
 // ── Fixture statics ──────────────────────────────────────────
@@ -1476,7 +1413,7 @@ pub static RBTDRF_FIXTURE_ENROLLMENT_VALIDATION: rbtdre_Fixture = rbtdre_Fixture
     disposition: rbtdre_Disposition::Independent,
     setup: None,
     teardown: None,
-    sections: RBTDRF_SECTIONS_ENROLLMENT_VALIDATION,
+    cases: RBTDRF_CASES_ENROLLMENT_VALIDATION,
 };
 
 pub static RBTDRF_FIXTURE_REGIME_VALIDATION: rbtdre_Fixture = rbtdre_Fixture {
@@ -1484,7 +1421,7 @@ pub static RBTDRF_FIXTURE_REGIME_VALIDATION: rbtdre_Fixture = rbtdre_Fixture {
     disposition: rbtdre_Disposition::Independent,
     setup: None,
     teardown: None,
-    sections: RBTDRF_SECTIONS_REGIME_VALIDATION,
+    cases: RBTDRF_CASES_REGIME_VALIDATION,
 };
 
 pub static RBTDRF_FIXTURE_REGIME_SMOKE: rbtdre_Fixture = rbtdre_Fixture {
@@ -1492,5 +1429,5 @@ pub static RBTDRF_FIXTURE_REGIME_SMOKE: rbtdre_Fixture = rbtdre_Fixture {
     disposition: rbtdre_Disposition::Independent,
     setup: None,
     teardown: None,
-    sections: RBTDRF_SECTIONS_REGIME_SMOKE,
+    cases: RBTDRF_CASES_REGIME_SMOKE,
 };

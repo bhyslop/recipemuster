@@ -206,26 +206,26 @@ fn run_single(args: &[String]) -> ExitCode {
 
     rbtdrc_set_context(ctx);
 
-    let sections = fixture_def.sections;
+    let cases = fixture_def.cases;
 
     // No case argument — list all cases
     let case_name = match args.get(2) {
         None => {
-            rbtdre_list_cases(sections);
+            rbtdre_list_cases(cases);
             return ExitCode::SUCCESS;
         }
         Some(n) => n,
     };
 
     // Find the case
-    let case = match rbtdre_find_case(sections, case_name) {
+    let case = match rbtdre_find_case(cases, case_name) {
         Some(c) => c,
         None => {
             eprintln!(
                 "rbtd single: case '{}' not found in fixture '{}'",
                 case_name, fixture
             );
-            rbtdre_list_cases(sections);
+            rbtdre_list_cases(cases);
             return ExitCode::FAILURE;
         }
     };

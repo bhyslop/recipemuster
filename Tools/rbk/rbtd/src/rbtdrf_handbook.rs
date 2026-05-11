@@ -28,7 +28,7 @@ use std::path::Path;
 use std::process::Command;
 
 use crate::case;
-use crate::rbtdre_engine::{rbtdre_Disposition, rbtdre_Fixture, rbtdre_Section, rbtdre_Verdict};
+use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
 use crate::rbtdri_invocation::rbtdri_find_tabtarget_global;
 use crate::rbtdrm_manifest::{
     RBTDRM_COLOPHON_HANDBOOK_TOP, RBTDRM_COLOPHON_HANDBOOK_WINDOWS,
@@ -150,39 +150,24 @@ fn rbtdrf_hb_quota_build(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_hb_render(dir, RBTDRM_COLOPHON_QUOTA_BUILD, "quota-build")
 }
 
-// ── Section array ───────────────────────────────────────────
+// ── Case array ──────────────────────────────────────────────
 
-pub static RBTDRF_SECTIONS_HANDBOOK_RENDER: &[rbtdre_Section] = &[
-    rbtdre_Section {
-        name: "hb-onboarding",
-        cases: &[
-            case!(rbtdrf_hb_onboard_start_here),
-            case!(rbtdrf_hb_onboard_crash_course),
-            case!(rbtdrf_hb_onboard_cred_retriever),
-            case!(rbtdrf_hb_onboard_cred_director),
-            case!(rbtdrf_hb_onboard_first_crucible),
-            case!(rbtdrf_hb_onboard_dir_first_build),
-            case!(rbtdrf_hb_onboard_payor_hb),
-            case!(rbtdrf_hb_onboard_governor_hb),
-        ],
-    },
-    rbtdre_Section {
-        name: "hb-windows",
-        cases: &[
-            case!(rbtdrf_hb_handbook_top),
-            case!(rbtdrf_hb_handbook_windows),
-            case!(rbtdrf_hb_hw_docker_desktop),
-            case!(rbtdrf_hb_hw_docker_context),
-        ],
-    },
-    rbtdre_Section {
-        name: "hb-payor",
-        cases: &[
-            case!(rbtdrf_hb_payor_establish),
-            case!(rbtdrf_hb_payor_refresh),
-            case!(rbtdrf_hb_quota_build),
-        ],
-    },
+pub static RBTDRF_CASES_HANDBOOK_RENDER: &[rbtdre_Case] = &[
+    case!(rbtdrf_hb_onboard_start_here),
+    case!(rbtdrf_hb_onboard_crash_course),
+    case!(rbtdrf_hb_onboard_cred_retriever),
+    case!(rbtdrf_hb_onboard_cred_director),
+    case!(rbtdrf_hb_onboard_first_crucible),
+    case!(rbtdrf_hb_onboard_dir_first_build),
+    case!(rbtdrf_hb_onboard_payor_hb),
+    case!(rbtdrf_hb_onboard_governor_hb),
+    case!(rbtdrf_hb_handbook_top),
+    case!(rbtdrf_hb_handbook_windows),
+    case!(rbtdrf_hb_hw_docker_desktop),
+    case!(rbtdrf_hb_hw_docker_context),
+    case!(rbtdrf_hb_payor_establish),
+    case!(rbtdrf_hb_payor_refresh),
+    case!(rbtdrf_hb_quota_build),
 ];
 
 // ── Fixture static ───────────────────────────────────────────
@@ -192,5 +177,5 @@ pub static RBTDRF_FIXTURE_HANDBOOK_RENDER: rbtdre_Fixture = rbtdre_Fixture {
     disposition: rbtdre_Disposition::Independent,
     setup: None,
     teardown: None,
-    sections: RBTDRF_SECTIONS_HANDBOOK_RENDER,
+    cases: RBTDRF_CASES_HANDBOOK_RENDER,
 };

@@ -67,7 +67,7 @@ pub fn rbtdre_resolve_fail_fast(
     }
 }
 
-// ── Case and Section ───────────────────────────────────────────
+// ── Case and Fixture ───────────────────────────────────────────
 
 /// A named test case with a function that receives its isolated temp directory.
 /// The `name` field holds the raw stringified function name (from the `case!` macro).
@@ -76,16 +76,8 @@ pub struct rbtdre_Case {
     pub func: fn(&Path) -> rbtdre_Verdict,
 }
 
-/// A named group of test cases, printed as a section header during execution.
-pub struct rbtdre_Section {
-    pub name: &'static str,
-    pub cases: &'static [rbtdre_Case],
-}
-
 /// A complete fixture definition — name, disposition, optional setup/teardown
-/// hooks, and section array. All fixture-level metadata in one place; replaces
-/// the prior side-channel matchers (sections_for_fixture, fixture_disposition,
-/// needs_charge, needs_readiness_delay) keyed off the fixture name string.
+/// hooks, and case array.
 ///
 /// `setup` runs before any cases. Failure aborts the fixture; cases do not run;
 /// `teardown` still runs (finally-shaped) for any partial-state cleanup.
@@ -100,7 +92,7 @@ pub struct rbtdre_Fixture {
     pub disposition: rbtdre_Disposition,
     pub setup: Option<fn() -> Result<(), String>>,
     pub teardown: Option<fn()>,
-    pub sections: &'static [rbtdre_Section],
+    pub cases: &'static [rbtdre_Case],
 }
 
 /// Case registration macro. Derives case name from function name via `stringify!`.
@@ -122,7 +114,6 @@ pub struct rbtdre_Colors {
     pub green: &'static str,
     pub red: &'static str,
     pub yellow: &'static str,
-    pub white: &'static str,
     pub reset: &'static str,
 }
 
@@ -133,14 +124,12 @@ pub fn rbtdre_detect_colors() -> rbtdre_Colors {
             green: "\x1b[1;32m",
             red: "\x1b[1;31m",
             yellow: "\x1b[1;33m",
-            white: "\x1b[1;37m",
             reset: "\x1b[0m",
         },
         _ => rbtdre_Colors {
             green: "",
             red: "",
             yellow: "",
-            white: "",
             reset: "",
         },
     }
@@ -162,7 +151,7 @@ fn rbtdre_write_trace(case_dir: &Path, display_name: &str, verdict: &rbtdre_Verd
 
 // ── Dispatch ───────────────────────────────────────────────────
 
-/// Aggregate results from running sections.
+/// Aggregate results from running a fixture's cases.
 pub struct rbtdre_RunResult {
     pub passed: usize,
     pub failed: usize,
@@ -170,9 +159,9 @@ pub struct rbtdre_RunResult {
     pub temp_dir: PathBuf,
 }
 
-/// Run all sections sequentially, dispatching each case with per-case temp dir isolation.
-pub fn rbtdre_run_sections(
-    sections: &[rbtdre_Section],
+/// Run all cases sequentially, dispatching each with per-case temp dir isolation.
+pub fn rbtdre_run_cases(
+    cases: &[rbtdre_Case],
     colors: &rbtdre_Colors,
     fail_fast: bool,
     root_temp: &Path,
@@ -181,40 +170,33 @@ pub fn rbtdre_run_sections(
     let mut failed = 0usize;
     let mut skipped = 0usize;
 
-    'outer: for section in sections {
-        eprintln!(
-            "\n{}--- {} ---{}",
-            colors.white, section.name, colors.reset
-        );
+    for case in cases {
+        let case_dir = root_temp.join(case.name);
+        std::fs::create_dir_all(&case_dir).map_err(|e| {
+            format!("rbtd: failed to create case dir '{}': {}", case.name, e)
+        })?;
 
-        for case in section.cases {
-            let case_dir = root_temp.join(case.name);
-            std::fs::create_dir_all(&case_dir).map_err(|e| {
-                format!("rbtd: failed to create case dir '{}': {}", case.name, e)
-            })?;
+        let verdict = (case.func)(&case_dir);
+        rbtdre_write_trace(&case_dir, case.name, &verdict);
 
-            let verdict = (case.func)(&case_dir);
-            rbtdre_write_trace(&case_dir, case.name, &verdict);
-
-            match &verdict {
-                rbtdre_Verdict::Pass => {
-                    eprintln!("{}PASSED:{} {}", colors.green, colors.reset, case.name);
-                    passed += 1;
+        match &verdict {
+            rbtdre_Verdict::Pass => {
+                eprintln!("{}PASSED:{} {}", colors.green, colors.reset, case.name);
+                passed += 1;
+            }
+            rbtdre_Verdict::Fail(_) => {
+                eprintln!("{}FAILED:{} {}", colors.red, colors.reset, case.name);
+                failed += 1;
+                if fail_fast {
+                    break;
                 }
-                rbtdre_Verdict::Fail(_) => {
-                    eprintln!("{}FAILED:{} {}", colors.red, colors.reset, case.name);
-                    failed += 1;
-                    if fail_fast {
-                        break 'outer;
-                    }
-                }
-                rbtdre_Verdict::Skip(_) => {
-                    eprintln!(
-                        "{}SKIPPED:{} {}",
-                        colors.yellow, colors.reset, case.name
-                    );
-                    skipped += 1;
-                }
+            }
+            rbtdre_Verdict::Skip(_) => {
+                eprintln!(
+                    "{}SKIPPED:{} {}",
+                    colors.yellow, colors.reset, case.name
+                );
+                skipped += 1;
             }
         }
     }
@@ -245,28 +227,18 @@ pub fn rbtdre_print_summary(result: &rbtdre_RunResult, colors: &rbtdre_Colors) {
 
 // ── Single-case operations ───────────────────────────────────
 
-/// Find a case by name within sections.
+/// Find a case by name in a flat case array.
 pub fn rbtdre_find_case<'a>(
-    sections: &'a [rbtdre_Section],
+    cases: &'a [rbtdre_Case],
     target: &str,
 ) -> Option<&'a rbtdre_Case> {
-    for section in sections {
-        for case in section.cases {
-            if case.name == target {
-                return Some(case);
-            }
-        }
-    }
-    None
+    cases.iter().find(|c| c.name == target)
 }
 
-/// List all cases grouped by section.
-pub fn rbtdre_list_cases(sections: &[rbtdre_Section]) {
-    for section in sections {
-        eprintln!("\n--- {} ---", section.name);
-        for case in section.cases {
-            eprintln!("  {}", case.name);
-        }
+/// List all cases by name.
+pub fn rbtdre_list_cases(cases: &[rbtdre_Case]) {
+    for case in cases {
+        eprintln!("  {}", case.name);
     }
 }
 
@@ -292,7 +264,7 @@ pub fn rbtdre_run_fixture(
         Ok(()) => {
             let fail_fast = rbtdre_resolve_fail_fast(fixture.disposition, false)
                 .expect("disposition-default mode never fails policy resolution");
-            rbtdre_run_sections(fixture.sections, colors, fail_fast, root_temp)
+            rbtdre_run_cases(fixture.cases, colors, fail_fast, root_temp)
         }
         Err(msg) => Err(format!("rbtd: fixture '{}' setup failed: {}", fixture.name, msg)),
     };

@@ -20,7 +20,7 @@
 // vessel-construction mode, invoking the handbook's prescribed tabtargets
 // in the prescribed order. Case order and per-case docs live with the
 // functions below; the registered order is the source of truth (see the
-// `cases:` array in RBTDRO_SECTIONS_ONBOARDING_SEQUENCE).
+// `RBTDRO_CASES_ONBOARDING_SEQUENCE` array).
 //
 // Disposition: StateProgressing. Build-only — no charge, no test. Cases stop
 // when each handbook-prescribed hallmark lands in GAR. Per-case precondition
@@ -42,7 +42,7 @@ use crate::rbtdrc_crucible::{
     RBTDRC_ARK_BASENAME_VOUCH, RBTDRC_FACT_ARK_STEM, RBTDRC_FACT_GAR_ROOT, RBTDRC_FACT_HALLMARK,
     RBTDRC_FACT_RELIQUARY, RBTDRC_GAR_CATEGORY_HALLMARKS,
 };
-use crate::rbtdre_engine::{rbtdre_Disposition, rbtdre_Fixture, rbtdre_Section, rbtdre_Verdict};
+use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
 use crate::rbtdri_invocation::{
     rbtdri_invoke_global, rbtdri_read_burv_fact, rbtdri_Context, rbtdri_InvokeResult,
     RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP,
@@ -1228,26 +1228,23 @@ fn rbtdro_onboarding_ordain_graft_impl(ctx: &mut rbtdri_Context, dir: &Path) -> 
     rbtdre_Verdict::Pass
 }
 
-// ── Section registry ─────────────────────────────────────────
+// ── Case registry ────────────────────────────────────────────
 
-pub static RBTDRO_SECTIONS_ONBOARDING_SEQUENCE: &[rbtdre_Section] = &[rbtdre_Section {
-    name: "onboarding-arc",
-    cases: &[
-        case!(rbtdro_onboarding_inscribe_reliquary),
-        case!(rbtdro_onboarding_kludge_tadmor),
-        case!(rbtdro_onboarding_kludge_ccyolo),
-        case!(rbtdro_onboarding_ordain_conjure),
-        case!(rbtdro_onboarding_conjure_srjcl),
-        case!(rbtdro_onboarding_ordain_airgap),
-        case!(rbtdro_onboarding_ordain_bind),
-        case!(rbtdro_onboarding_ordain_graft),
-    ],
-}];
+pub static RBTDRO_CASES_ONBOARDING_SEQUENCE: &[rbtdre_Case] = &[
+    case!(rbtdro_onboarding_inscribe_reliquary),
+    case!(rbtdro_onboarding_kludge_tadmor),
+    case!(rbtdro_onboarding_kludge_ccyolo),
+    case!(rbtdro_onboarding_ordain_conjure),
+    case!(rbtdro_onboarding_conjure_srjcl),
+    case!(rbtdro_onboarding_ordain_airgap),
+    case!(rbtdro_onboarding_ordain_bind),
+    case!(rbtdro_onboarding_ordain_graft),
+];
 
 pub static RBTDRO_FIXTURE_ONBOARDING_SEQUENCE: rbtdre_Fixture = rbtdre_Fixture {
     name: RBTDRM_FIXTURE_ONBOARDING_SEQUENCE,
     disposition: rbtdre_Disposition::StateProgressing,
     setup: None,
     teardown: None,
-    sections: RBTDRO_SECTIONS_ONBOARDING_SEQUENCE,
+    cases: RBTDRO_CASES_ONBOARDING_SEQUENCE,
 };

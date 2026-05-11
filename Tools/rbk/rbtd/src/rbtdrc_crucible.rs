@@ -27,7 +27,7 @@ use std::process::{Command, Stdio};
 
 use crate::case;
 use crate::rbtdre_engine::{
-    rbtdre_Disposition, rbtdre_Fixture, rbtdre_Section, rbtdre_Verdict,
+    rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict,
 };
 use crate::rbtdri_invocation::{
     rbtdri_Context, rbtdri_invoke, rbtdri_invoke_global, rbtdri_invoke_imprint,
@@ -2092,7 +2092,7 @@ fn rbtdrc_pluml_malformed_diagram(dir: &Path) -> rbtdre_Verdict {
     })
 }
 
-// ── Section registry ─────────────────────────────────────────
+// ── Case registry ────────────────────────────────────────────
 
 // ── Crucible fixtures (charge/quench lifecycle) ──────────────
 
@@ -2101,18 +2101,18 @@ pub static RBTDRC_FIXTURE_TADMOR: rbtdre_Fixture = rbtdre_Fixture {
     disposition: rbtdre_Disposition::Independent,
     setup: Some(rbtdrc_charge_crucible),
     teardown: Some(rbtdrc_quench_crucible),
-    sections: RBTDRC_SECTIONS_SECURITY,
+    cases: RBTDRC_CASES_SECURITY,
 };
 
 // Moriah is the airgap-bottle nameplate; runtime semantics are identical
-// to tadmor so the fixture shares RBTDRC_SECTIONS_SECURITY. The distinction
+// to tadmor so the fixture shares RBTDRC_CASES_SECURITY. The distinction
 // is provenance (cloud-built airgap vs local kludge), not behavior.
 pub static RBTDRC_FIXTURE_MORIAH: rbtdre_Fixture = rbtdre_Fixture {
     name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_MORIAH,
     disposition: rbtdre_Disposition::Independent,
     setup: Some(rbtdrc_charge_crucible),
     teardown: Some(rbtdrc_quench_crucible),
-    sections: RBTDRC_SECTIONS_SECURITY,
+    cases: RBTDRC_CASES_SECURITY,
 };
 
 pub static RBTDRC_FIXTURE_SRJCL: rbtdre_Fixture = rbtdre_Fixture {
@@ -2120,7 +2120,7 @@ pub static RBTDRC_FIXTURE_SRJCL: rbtdre_Fixture = rbtdre_Fixture {
     disposition: rbtdre_Disposition::Independent,
     setup: Some(rbtdrc_charge_crucible),
     teardown: Some(rbtdrc_quench_crucible),
-    sections: RBTDRC_SECTIONS_SRJCL,
+    cases: RBTDRC_CASES_SRJCL,
 };
 
 pub static RBTDRC_FIXTURE_PLUML: rbtdre_Fixture = rbtdre_Fixture {
@@ -2128,7 +2128,7 @@ pub static RBTDRC_FIXTURE_PLUML: rbtdre_Fixture = rbtdre_Fixture {
     disposition: rbtdre_Disposition::Independent,
     setup: Some(rbtdrc_charge_crucible),
     teardown: Some(rbtdrc_quench_crucible),
-    sections: RBTDRC_SECTIONS_PLUML,
+    cases: RBTDRC_CASES_PLUML,
 };
 
 // ── Bare fixtures owned by rbtdrc (no charge/quench) ─────────
@@ -2138,7 +2138,7 @@ pub static RBTDRC_FIXTURE_HALLMARK_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     disposition: rbtdre_Disposition::Independent,
     setup: None,
     teardown: None,
-    sections: RBTDRC_SECTIONS_HALLMARK_LIFECYCLE,
+    cases: RBTDRC_CASES_HALLMARK_LIFECYCLE,
 };
 
 pub static RBTDRC_FIXTURE_BATCH_VOUCH: rbtdre_Fixture = rbtdre_Fixture {
@@ -2146,7 +2146,7 @@ pub static RBTDRC_FIXTURE_BATCH_VOUCH: rbtdre_Fixture = rbtdre_Fixture {
     disposition: rbtdre_Disposition::Independent,
     setup: None,
     teardown: None,
-    sections: RBTDRC_SECTIONS_BATCH_VOUCH,
+    cases: RBTDRC_CASES_BATCH_VOUCH,
 };
 
 pub static RBTDRC_FIXTURE_ACCESS_PROBE: rbtdre_Fixture = rbtdre_Fixture {
@@ -2154,7 +2154,7 @@ pub static RBTDRC_FIXTURE_ACCESS_PROBE: rbtdre_Fixture = rbtdre_Fixture {
     disposition: rbtdre_Disposition::Independent,
     setup: None,
     teardown: None,
-    sections: RBTDRC_SECTIONS_ACCESS_PROBE,
+    cases: RBTDRC_CASES_ACCESS_PROBE,
 };
 
 /// Resolve a fixture name to its registered Fixture definition. Returns None
@@ -2206,124 +2206,77 @@ pub fn rbtdrc_lookup_fixture(fixture: &str) -> Option<&'static rbtdre_Fixture> {
     }
 }
 
-pub static RBTDRC_SECTIONS_SRJCL: &[rbtdre_Section] = &[rbtdre_Section {
-    name: "srjcl-jupyter",
-    cases: &[
-        case!(rbtdrc_srjcl_jupyter_running),
-        case!(rbtdrc_srjcl_jupyter_connectivity),
-        case!(rbtdrc_srjcl_websocket_kernel),
-    ],
-}];
+pub static RBTDRC_CASES_SRJCL: &[rbtdre_Case] = &[
+    case!(rbtdrc_srjcl_jupyter_running),
+    case!(rbtdrc_srjcl_jupyter_connectivity),
+    case!(rbtdrc_srjcl_websocket_kernel),
+];
 
-pub static RBTDRC_SECTIONS_PLUML: &[rbtdre_Section] = &[rbtdre_Section {
-    name: "pluml-diagram",
-    cases: &[
-        case!(rbtdrc_pluml_text_rendering),
-        case!(rbtdrc_pluml_local_diagram),
-        case!(rbtdrc_pluml_http_headers),
-        case!(rbtdrc_pluml_invalid_hash),
-        case!(rbtdrc_pluml_malformed_diagram),
-    ],
-}];
+pub static RBTDRC_CASES_PLUML: &[rbtdre_Case] = &[
+    case!(rbtdrc_pluml_text_rendering),
+    case!(rbtdrc_pluml_local_diagram),
+    case!(rbtdrc_pluml_http_headers),
+    case!(rbtdrc_pluml_invalid_hash),
+    case!(rbtdrc_pluml_malformed_diagram),
+];
 
 // Bottle/sentry security cases — shared by RBTDRC_FIXTURE_TADMOR and
-// RBTDRC_FIXTURE_MORIAH. Section names omit fixture prefix; the engine
-// surfaces fixture identity in its own output.
-static RBTDRC_SECTIONS_SECURITY: &[rbtdre_Section] = &[
-    rbtdre_Section {
-        name: "basic-infra",
-        cases: &[
-            case!(rbtdrc_pentacle_dnsmasq_responds),
-            case!(rbtdrc_pentacle_ping_sentry),
-        ],
-    },
-    rbtdre_Section {
-        name: "ifrit-attacks",
-        cases: &[
-            case!(rbtdrc_ifrit_dns_allowed),
-            case!(rbtdrc_ifrit_dns_allowed_example_org),
-            case!(rbtdrc_ifrit_dns_blocked),
-            case!(rbtdrc_ifrit_apt_blocked),
-            case!(rbtdrc_ifrit_dns_nonexistent),
-            case!(rbtdrc_ifrit_dns_tcp),
-            case!(rbtdrc_ifrit_dns_udp),
-            case!(rbtdrc_ifrit_dns_block_direct),
-            case!(rbtdrc_ifrit_dns_block_altport),
-            case!(rbtdrc_ifrit_dns_block_cloudflare),
-            case!(rbtdrc_ifrit_dns_block_quad9),
-            case!(rbtdrc_ifrit_dns_block_zonetransfer),
-            case!(rbtdrc_ifrit_dns_block_ipv6),
-            case!(rbtdrc_ifrit_dns_block_multicast),
-            case!(rbtdrc_ifrit_dns_block_spoofing),
-            case!(rbtdrc_ifrit_dns_block_tunneling),
-        ],
-    },
-    rbtdre_Section {
-        name: "observation",
-        cases: &[
-            case!(rbtdrc_sentry_iptables_loaded),
-            case!(rbtdrc_dns_blocked_with_observation),
-        ],
-    },
-    rbtdre_Section {
-        name: "correlated",
-        cases: &[
-            case!(rbtdrc_tcp443_allow_example),
-            case!(rbtdrc_tcp443_block_google),
-            case!(rbtdrc_icmp_first_hop),
-            case!(rbtdrc_icmp_second_hop_blocked),
-            case!(rbtdrc_udp_non_dns_blocked),
-            case!(rbtdrc_cidr_all_ports_allowed),
-        ],
-    },
-    rbtdre_Section {
-        name: "sortie-attacks",
-        cases: &[
-            case!(rbtdrc_sortie_dns_exfil_subdomain),
-            case!(rbtdrc_sortie_meta_cloud_endpoint),
-            case!(rbtdrc_sortie_net_forbidden_cidr),
-            case!(rbtdrc_sortie_direct_sentry_probe),
-            case!(rbtdrc_sortie_icmp_exfil_payload),
-            case!(rbtdrc_sortie_net_ipv6_escape),
-            case!(rbtdrc_sortie_net_srcip_spoof),
-            case!(rbtdrc_sortie_proto_smuggle_rawsock),
-            case!(rbtdrc_sortie_net_fragment_evasion),
-            case!(rbtdrc_sortie_direct_arp_poison),
-            case!(rbtdrc_sortie_ns_capability_escape),
-            case!(rbtdrc_sortie_dns_rebinding),
-            case!(rbtdrc_sortie_proc_sys_write),
-            case!(rbtdrc_sortie_http_end_to_end),
-            case!(rbtdrc_sortie_conntrack_spoofed_ack),
-            case!(rbtdrc_sortie_sentry_udp_non_dns),
-        ],
-    },
-    rbtdre_Section {
-        name: "unilateral-novel",
-        cases: &[
-            case!(rbtdrc_sortie_net_route_manipulation),
-            case!(rbtdrc_sortie_net_enclave_subnet_escape),
-            case!(rbtdrc_sortie_net_dnat_entry_reflection),
-        ],
-    },
-    rbtdre_Section {
-        name: "coordinated-attacks",
-        cases: &[
-            case!(rbtdrc_coordinated_arp_gratuitous),
-            case!(rbtdrc_coordinated_arp_gateway_poison),
-            case!(rbtdrc_coordinated_arp_table_stability),
-        ],
-    },
-    rbtdre_Section {
-        name: "coordinated-integrity",
-        cases: &[
-            case!(rbtdrc_coordinated_sentry_integrity),
-            case!(rbtdrc_coordinated_dns_cache_integrity),
-            case!(rbtdrc_coordinated_mac_flood_resilience),
-            case!(rbtdrc_coordinated_tcp_rst_hijack),
-            case!(rbtdrc_coordinated_sentry_egress_lockdown),
-            case!(rbtdrc_coordinated_dnsmasq_query_audit),
-        ],
-    },
+// RBTDRC_FIXTURE_MORIAH. The engine surfaces fixture identity in its own output.
+static RBTDRC_CASES_SECURITY: &[rbtdre_Case] = &[
+    case!(rbtdrc_pentacle_dnsmasq_responds),
+    case!(rbtdrc_pentacle_ping_sentry),
+    case!(rbtdrc_ifrit_dns_allowed),
+    case!(rbtdrc_ifrit_dns_allowed_example_org),
+    case!(rbtdrc_ifrit_dns_blocked),
+    case!(rbtdrc_ifrit_apt_blocked),
+    case!(rbtdrc_ifrit_dns_nonexistent),
+    case!(rbtdrc_ifrit_dns_tcp),
+    case!(rbtdrc_ifrit_dns_udp),
+    case!(rbtdrc_ifrit_dns_block_direct),
+    case!(rbtdrc_ifrit_dns_block_altport),
+    case!(rbtdrc_ifrit_dns_block_cloudflare),
+    case!(rbtdrc_ifrit_dns_block_quad9),
+    case!(rbtdrc_ifrit_dns_block_zonetransfer),
+    case!(rbtdrc_ifrit_dns_block_ipv6),
+    case!(rbtdrc_ifrit_dns_block_multicast),
+    case!(rbtdrc_ifrit_dns_block_spoofing),
+    case!(rbtdrc_ifrit_dns_block_tunneling),
+    case!(rbtdrc_sentry_iptables_loaded),
+    case!(rbtdrc_dns_blocked_with_observation),
+    case!(rbtdrc_tcp443_allow_example),
+    case!(rbtdrc_tcp443_block_google),
+    case!(rbtdrc_icmp_first_hop),
+    case!(rbtdrc_icmp_second_hop_blocked),
+    case!(rbtdrc_udp_non_dns_blocked),
+    case!(rbtdrc_cidr_all_ports_allowed),
+    case!(rbtdrc_sortie_dns_exfil_subdomain),
+    case!(rbtdrc_sortie_meta_cloud_endpoint),
+    case!(rbtdrc_sortie_net_forbidden_cidr),
+    case!(rbtdrc_sortie_direct_sentry_probe),
+    case!(rbtdrc_sortie_icmp_exfil_payload),
+    case!(rbtdrc_sortie_net_ipv6_escape),
+    case!(rbtdrc_sortie_net_srcip_spoof),
+    case!(rbtdrc_sortie_proto_smuggle_rawsock),
+    case!(rbtdrc_sortie_net_fragment_evasion),
+    case!(rbtdrc_sortie_direct_arp_poison),
+    case!(rbtdrc_sortie_ns_capability_escape),
+    case!(rbtdrc_sortie_dns_rebinding),
+    case!(rbtdrc_sortie_proc_sys_write),
+    case!(rbtdrc_sortie_http_end_to_end),
+    case!(rbtdrc_sortie_conntrack_spoofed_ack),
+    case!(rbtdrc_sortie_sentry_udp_non_dns),
+    case!(rbtdrc_sortie_net_route_manipulation),
+    case!(rbtdrc_sortie_net_enclave_subnet_escape),
+    case!(rbtdrc_sortie_net_dnat_entry_reflection),
+    case!(rbtdrc_coordinated_arp_gratuitous),
+    case!(rbtdrc_coordinated_arp_gateway_poison),
+    case!(rbtdrc_coordinated_arp_table_stability),
+    case!(rbtdrc_coordinated_sentry_integrity),
+    case!(rbtdrc_coordinated_dns_cache_integrity),
+    case!(rbtdrc_coordinated_mac_flood_resilience),
+    case!(rbtdrc_coordinated_tcp_rst_hijack),
+    case!(rbtdrc_coordinated_sentry_egress_lockdown),
+    case!(rbtdrc_coordinated_dnsmasq_query_audit),
 ];
 
 // ── Hallmark / ark vocabulary and docker helpers ─────────────
@@ -2566,10 +2519,7 @@ fn rbtdrc_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
     })
 }
 
-pub static RBTDRC_SECTIONS_HALLMARK_LIFECYCLE: &[rbtdre_Section] = &[rbtdre_Section {
-    name: "ordain-abjure-roundtrip",
-    cases: &[case!(rbtdrc_hallmark_lifecycle)],
-}];
+pub static RBTDRC_CASES_HALLMARK_LIFECYCLE: &[rbtdre_Case] = &[case!(rbtdrc_hallmark_lifecycle)];
 
 
 // Batch-vouch fixture — exercises rbfv_batch_vouch's two-pass pending→vouched
@@ -2680,10 +2630,7 @@ fn rbtdrc_batch_vouch_lifecycle(dir: &Path) -> rbtdre_Verdict {
     })
 }
 
-pub static RBTDRC_SECTIONS_BATCH_VOUCH: &[rbtdre_Section] = &[rbtdre_Section {
-    name: "batch-vouch",
-    cases: &[case!(rbtdrc_batch_vouch_lifecycle)],
-}];
+pub static RBTDRC_CASES_BATCH_VOUCH: &[rbtdre_Case] = &[case!(rbtdrc_batch_vouch_lifecycle)];
 
 // ── Access probe cases (bare fixture, imprint-scoped) ────────
 
@@ -2721,12 +2668,9 @@ fn rbtdrc_oauth_payor(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, "payor", dir))
 }
 
-pub static RBTDRC_SECTIONS_ACCESS_PROBE: &[rbtdre_Section] = &[rbtdre_Section {
-    name: "access-probe",
-    cases: &[
-        case!(rbtdrc_jwt_governor),
-        case!(rbtdrc_jwt_director),
-        case!(rbtdrc_jwt_retriever),
-        case!(rbtdrc_oauth_payor),
-    ],
-}];
+pub static RBTDRC_CASES_ACCESS_PROBE: &[rbtdre_Case] = &[
+    case!(rbtdrc_jwt_governor),
+    case!(rbtdrc_jwt_director),
+    case!(rbtdrc_jwt_retriever),
+    case!(rbtdrc_oauth_payor),
+];

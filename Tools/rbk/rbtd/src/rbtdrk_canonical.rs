@@ -34,7 +34,7 @@ use std::process::Command;
 use crate::case;
 use crate::rbtdrb_probe::{rbtdrb_assert, rbtdrb_Probe};
 use crate::rbtdrc_crucible::rbtdrc_with_ctx;
-use crate::rbtdre_engine::{rbtdre_Disposition, rbtdre_Fixture, rbtdre_Section, rbtdre_Verdict};
+use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
 use crate::rbtdri_invocation::{
     rbtdri_invoke_global, rbtdri_invoke_imprint, rbtdri_read_burv_fact, rbtdri_Context,
     rbtdri_InvokeResult, RBTDRI_BURV_OUTPUT_SUBDIR,
@@ -715,20 +715,17 @@ fn rbtdrk_role_invest_impl(
 
 // ── Section registry ─────────────────────────────────────────
 
-pub static RBTDRK_SECTIONS_CANONICAL_ESTABLISH: &[rbtdre_Section] = &[rbtdre_Section {
-    name: "canonical-establish-arc",
-    cases: &[
-        case!(rbtdrk_depot_levy),
-        case!(rbtdrk_governor_mantle),
-        case!(rbtdrk_retriever_invest),
-        case!(rbtdrk_director_invest),
-    ],
-}];
+pub static RBTDRK_CASES_CANONICAL_ESTABLISH: &[rbtdre_Case] = &[
+    case!(rbtdrk_depot_levy),
+    case!(rbtdrk_governor_mantle),
+    case!(rbtdrk_retriever_invest),
+    case!(rbtdrk_director_invest),
+];
 
 pub static RBTDRK_FIXTURE_CANONICAL_ESTABLISH: rbtdre_Fixture = rbtdre_Fixture {
     name: RBTDRM_FIXTURE_CANONICAL_ESTABLISH,
     disposition: rbtdre_Disposition::StateProgressing,
     setup: None,
     teardown: None,
-    sections: RBTDRK_SECTIONS_CANONICAL_ESTABLISH,
+    cases: RBTDRK_CASES_CANONICAL_ESTABLISH,
 };

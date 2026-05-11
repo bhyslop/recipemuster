@@ -51,7 +51,7 @@ fn rbtdtl_make_tempdir(label: &str) -> PathBuf {
 fn rbtdtl_run_case(fixture: &'static str, case_name: &str) -> (rbtdre_Verdict, PathBuf) {
     let fix = rbtdrc_lookup_fixture(fixture)
         .unwrap_or_else(|| panic!("fixture '{}' not registered", fixture));
-    let case = rbtdre_find_case(fix.sections, case_name)
+    let case = rbtdre_find_case(fix.cases, case_name)
         .unwrap_or_else(|| panic!("case '{}' not found in fixture '{}'", case_name, fixture));
     let dir = rbtdtl_make_tempdir(case_name);
     let verdict = (case.func)(&dir);
@@ -141,48 +141,34 @@ fn rbtdtl_dispositions() {
     );
 }
 
-// ── sections registration ───────────────────────────────────
+// ── case registration ───────────────────────────────────────
 
 #[test]
-fn rbtdtl_verdicts_sections_registered() {
+fn rbtdtl_verdicts_cases_registered() {
     let fix = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_CALIBRANT_VERDICTS)
         .expect("calibrant-verdicts is registered");
-    let sections = fix.sections;
-    assert_eq!(sections.len(), 1, "expected one section");
-    assert_eq!(sections[0].name, "calibrant-verdicts");
-    assert_eq!(sections[0].cases.len(), 4, "expected four cases");
+    assert_eq!(fix.cases.len(), 4, "expected four cases");
 }
 
 #[test]
-fn rbtdtl_fail_fast_sections_registered() {
+fn rbtdtl_fail_fast_cases_registered() {
     let fix = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST)
         .expect("calibrant-fail-fast is registered");
-    let sections = fix.sections;
-    assert_eq!(sections.len(), 2, "expected two sections (intra + inter)");
-    assert_eq!(sections[0].name, "fail-fast-intra-section");
-    assert_eq!(sections[0].cases.len(), 3, "intra section expects 3 cases");
-    assert_eq!(sections[1].name, "fail-fast-inter-section");
-    assert_eq!(sections[1].cases.len(), 1, "inter section expects 1 case");
+    assert_eq!(fix.cases.len(), 3, "expected three cases");
 }
 
 #[test]
-fn rbtdtl_progressing_sections_registered() {
+fn rbtdtl_progressing_cases_registered() {
     let fix = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_CALIBRANT_PROGRESSING)
         .expect("calibrant-progressing is registered");
-    let sections = fix.sections;
-    assert_eq!(sections.len(), 1, "expected one section");
-    assert_eq!(sections[0].name, "calibrant-progressing");
-    assert_eq!(sections[0].cases.len(), 2, "expected two cases");
+    assert_eq!(fix.cases.len(), 2, "expected two cases");
 }
 
 #[test]
-fn rbtdtl_sentinel_sections_registered() {
+fn rbtdtl_sentinel_cases_registered() {
     let fix = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_CALIBRANT_SENTINEL)
         .expect("calibrant-sentinel is registered");
-    let sections = fix.sections;
-    assert_eq!(sections.len(), 1, "expected one section");
-    assert_eq!(sections[0].name, "calibrant-sentinel");
-    assert_eq!(sections[0].cases.len(), 1, "expected one case");
+    assert_eq!(fix.cases.len(), 1, "expected one case");
 }
 
 // ── per-case verdicts ───────────────────────────────────────
@@ -252,34 +238,20 @@ fn rbtdtl_failfast_pass_writes_no_sentinel() {
 fn rbtdtl_failfast_fail_returns_fail() {
     let (verdict, dir) =
         rbtdtl_run_case(RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST, "rbtdrl_failfast_fail");
-    rbtdtl_assert_fail_with(&verdict, "intra-section", "failfast_fail");
+    rbtdtl_assert_fail_with(&verdict, "fail trigger", "failfast_fail");
     let _ = std::fs::remove_dir_all(&dir);
 }
 
 #[test]
-fn rbtdtl_failfast_not_reached_intra_writes_sentinel_when_run() {
+fn rbtdtl_failfast_not_reached_writes_sentinel_when_run() {
     let (verdict, dir) = rbtdtl_run_case(
         RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST,
-        "rbtdrl_failfast_not_reached_intra",
+        "rbtdrl_failfast_not_reached",
     );
-    rbtdtl_assert_pass(&verdict, "not_reached_intra");
+    rbtdtl_assert_pass(&verdict, "not_reached");
     assert!(
         dir.join(RBTDRL_SENTINEL_FILE).exists(),
-        "intra not_reached must write sentinel when run"
-    );
-    let _ = std::fs::remove_dir_all(&dir);
-}
-
-#[test]
-fn rbtdtl_failfast_not_reached_inter_writes_sentinel_when_run() {
-    let (verdict, dir) = rbtdtl_run_case(
-        RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST,
-        "rbtdrl_failfast_not_reached_inter",
-    );
-    rbtdtl_assert_pass(&verdict, "not_reached_inter");
-    assert!(
-        dir.join(RBTDRL_SENTINEL_FILE).exists(),
-        "inter not_reached must write sentinel when run"
+        "not_reached must write sentinel when run"
     );
     let _ = std::fs::remove_dir_all(&dir);
 }

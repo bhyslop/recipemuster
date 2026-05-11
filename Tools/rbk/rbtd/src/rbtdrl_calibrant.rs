@@ -22,7 +22,7 @@
 // rbtdrc_crucible.rs:
 //
 //   calibrant-verdicts      Independent       4 cases   verdict-path coverage
-//   calibrant-fail-fast     Independent       4 cases   intra/inter-section fail-fast
+//   calibrant-fail-fast     Independent       3 cases   fail-fast halts subsequent cases
 //   calibrant-progressing   StateProgressing  2 cases   probe Ok/Err dispatch
 //   calibrant-sentinel      Independent       1 case    suite-fail-fast pivot
 //
@@ -37,7 +37,7 @@ use std::path::Path;
 
 use crate::case;
 use crate::rbtdrb_probe::{rbtdrb_assert, rbtdrb_Probe};
-use crate::rbtdre_engine::{rbtdre_Disposition, rbtdre_Fixture, rbtdre_Section, rbtdre_Verdict};
+use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
 use crate::rbtdrm_manifest::{
     RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST, RBTDRM_FIXTURE_CALIBRANT_PROGRESSING,
     RBTDRM_FIXTURE_CALIBRANT_SENTINEL, RBTDRM_FIXTURE_CALIBRANT_VERDICTS,
@@ -84,15 +84,12 @@ fn rbtdrl_verdicts_pass_with_output(dir: &Path) -> rbtdre_Verdict {
     rbtdre_Verdict::Pass
 }
 
-pub static RBTDRL_SECTIONS_VERDICTS: &[rbtdre_Section] = &[rbtdre_Section {
-    name: "calibrant-verdicts",
-    cases: &[
-        case!(rbtdrl_verdicts_pass),
-        case!(rbtdrl_verdicts_fail),
-        case!(rbtdrl_verdicts_skip),
-        case!(rbtdrl_verdicts_pass_with_output),
-    ],
-}];
+pub static RBTDRL_CASES_VERDICTS: &[rbtdre_Case] = &[
+    case!(rbtdrl_verdicts_pass),
+    case!(rbtdrl_verdicts_fail),
+    case!(rbtdrl_verdicts_skip),
+    case!(rbtdrl_verdicts_pass_with_output),
+];
 
 // ── calibrant-fail-fast ─────────────────────────────────────
 
@@ -101,41 +98,23 @@ fn rbtdrl_failfast_pass(_dir: &Path) -> rbtdre_Verdict {
 }
 
 fn rbtdrl_failfast_fail(_dir: &Path) -> rbtdre_Verdict {
-    rbtdre_Verdict::Fail("calibrant intra-section fail trigger".to_string())
+    rbtdre_Verdict::Fail("calibrant fail-fast fail trigger".to_string())
 }
 
-/// Section-A trailing case. Under default fail-fast it never runs and its
-/// sentinel must be absent; under keep-going it runs and writes the sentinel.
-fn rbtdrl_failfast_not_reached_intra(dir: &Path) -> rbtdre_Verdict {
+/// Trailing case after the deterministic fail. Under default fail-fast it
+/// never runs and its sentinel must be absent; under keep-going it runs and
+/// writes the sentinel.
+fn rbtdrl_failfast_not_reached(dir: &Path) -> rbtdre_Verdict {
     if let Err(v) = rbtdrl_write_sentinel(dir) {
         return v;
     }
     rbtdre_Verdict::Pass
 }
 
-/// Section-B sole case. Under default fail-fast no §B case runs; under
-/// keep-going it runs and writes the sentinel. Distinguishes inter-section
-/// fail-fast from the intra-section variant.
-fn rbtdrl_failfast_not_reached_inter(dir: &Path) -> rbtdre_Verdict {
-    if let Err(v) = rbtdrl_write_sentinel(dir) {
-        return v;
-    }
-    rbtdre_Verdict::Pass
-}
-
-pub static RBTDRL_SECTIONS_FAIL_FAST: &[rbtdre_Section] = &[
-    rbtdre_Section {
-        name: "fail-fast-intra-section",
-        cases: &[
-            case!(rbtdrl_failfast_pass),
-            case!(rbtdrl_failfast_fail),
-            case!(rbtdrl_failfast_not_reached_intra),
-        ],
-    },
-    rbtdre_Section {
-        name: "fail-fast-inter-section",
-        cases: &[case!(rbtdrl_failfast_not_reached_inter)],
-    },
+pub static RBTDRL_CASES_FAIL_FAST: &[rbtdre_Case] = &[
+    case!(rbtdrl_failfast_pass),
+    case!(rbtdrl_failfast_fail),
+    case!(rbtdrl_failfast_not_reached),
 ];
 
 // ── calibrant-progressing ───────────────────────────────────
@@ -178,13 +157,10 @@ fn rbtdrl_progressing_probe_err(_dir: &Path) -> rbtdre_Verdict {
     rbtdre_Verdict::Fail("calibrant probe-err case body executed unexpectedly".to_string())
 }
 
-pub static RBTDRL_SECTIONS_PROGRESSING: &[rbtdre_Section] = &[rbtdre_Section {
-    name: "calibrant-progressing",
-    cases: &[
-        case!(rbtdrl_progressing_probe_ok),
-        case!(rbtdrl_progressing_probe_err),
-    ],
-}];
+pub static RBTDRL_CASES_PROGRESSING: &[rbtdre_Case] = &[
+    case!(rbtdrl_progressing_probe_ok),
+    case!(rbtdrl_progressing_probe_err),
+];
 
 // ── calibrant-sentinel ──────────────────────────────────────
 
@@ -198,10 +174,7 @@ fn rbtdrl_sentinel_marks(dir: &Path) -> rbtdre_Verdict {
     rbtdre_Verdict::Pass
 }
 
-pub static RBTDRL_SECTIONS_SENTINEL: &[rbtdre_Section] = &[rbtdre_Section {
-    name: "calibrant-sentinel",
-    cases: &[case!(rbtdrl_sentinel_marks)],
-}];
+pub static RBTDRL_CASES_SENTINEL: &[rbtdre_Case] = &[case!(rbtdrl_sentinel_marks)];
 
 // ── Fixture statics ──────────────────────────────────────────
 
@@ -210,7 +183,7 @@ pub static RBTDRL_FIXTURE_VERDICTS: rbtdre_Fixture = rbtdre_Fixture {
     disposition: rbtdre_Disposition::Independent,
     setup: None,
     teardown: None,
-    sections: RBTDRL_SECTIONS_VERDICTS,
+    cases: RBTDRL_CASES_VERDICTS,
 };
 
 pub static RBTDRL_FIXTURE_FAIL_FAST: rbtdre_Fixture = rbtdre_Fixture {
@@ -218,7 +191,7 @@ pub static RBTDRL_FIXTURE_FAIL_FAST: rbtdre_Fixture = rbtdre_Fixture {
     disposition: rbtdre_Disposition::Independent,
     setup: None,
     teardown: None,
-    sections: RBTDRL_SECTIONS_FAIL_FAST,
+    cases: RBTDRL_CASES_FAIL_FAST,
 };
 
 pub static RBTDRL_FIXTURE_PROGRESSING: rbtdre_Fixture = rbtdre_Fixture {
@@ -226,7 +199,7 @@ pub static RBTDRL_FIXTURE_PROGRESSING: rbtdre_Fixture = rbtdre_Fixture {
     disposition: rbtdre_Disposition::StateProgressing,
     setup: None,
     teardown: None,
-    sections: RBTDRL_SECTIONS_PROGRESSING,
+    cases: RBTDRL_CASES_PROGRESSING,
 };
 
 pub static RBTDRL_FIXTURE_SENTINEL: rbtdre_Fixture = rbtdre_Fixture {
@@ -234,5 +207,5 @@ pub static RBTDRL_FIXTURE_SENTINEL: rbtdre_Fixture = rbtdre_Fixture {
     disposition: rbtdre_Disposition::Independent,
     setup: None,
     teardown: None,
-    sections: RBTDRL_SECTIONS_SENTINEL,
+    cases: RBTDRL_CASES_SENTINEL,
 };

@@ -76,20 +76,20 @@ Kludge builds are for rapid local iteration. Once all tests pass with the kludge
 
 **Hallmark prefixes** tell you what you have: `k` = kludge (local build), `c` = conjured (Cloud Build ordained).
 
-### Test Sections
+### Test Cases
 
-Bottle/sentry security cases — shared verbatim by the `tadmor` and `moriah` fixtures (`RBTDRC_SECTIONS_SECURITY` in `rbtdrc_crucible.rs`). The two fixtures differ only in provenance: tadmor runs against a locally-kludged bottle, moriah against the cloud-built airgap bottle. Runtime semantics are identical.
+Bottle/sentry security cases — shared verbatim by the `tadmor` and `moriah` fixtures (`RBTDRC_CASES_SECURITY` in `rbtdrc_crucible.rs`). The two fixtures differ only in provenance: tadmor runs against a locally-kludged bottle, moriah against the cloud-built airgap bottle. Runtime semantics are identical.
 
-| Section | Pattern | Example |
-|---------|---------|---------|
-| `basic-infra` | Smoke tests — containers up, DNS responding | pentacle ping, dnsmasq responds |
-| `ifrit-attacks` | Single ifrit attack, verdict from inside only | dns-allowed, dns-blocked, apt blocked |
-| `observation` | Sentry-side observation of bottle behavior | iptables loaded, blocked-with-observation |
-| `correlated` | Theurge resolves on sentry, ifrit attacks with result | tcp443 allow/block, ICMP hop tests |
-| `sortie-attacks` | Multi-step ifrit sorties (complex attack sequences) | DNS exfil, metadata probe, raw socket smuggle |
-| `unilateral-novel` | Ifrit sorties testing novel attack vectors | route manipulation, subnet escape, DNAT reflection |
-| `coordinated-attacks` | Simultaneous attack + observation | ARP gratuitous/poison, table stability |
-| `coordinated-integrity` | Attack then verify sentry state unchanged | sentry integrity, DNS cache integrity, MAC flood |
+Cases group by purpose in source order (no formal section structure):
+
+- **basic-infra** — smoke tests: pentacle ping, dnsmasq responds
+- **ifrit-attacks** — single ifrit attack, verdict from inside only: dns-allowed/blocked, apt blocked
+- **observation** — sentry-side observation of bottle behavior: iptables loaded, blocked-with-observation
+- **correlated** — theurge resolves on sentry, ifrit attacks with result: tcp443 allow/block, ICMP hop tests
+- **sortie-attacks** — multi-step ifrit sorties: DNS exfil, metadata probe, raw socket smuggle
+- **unilateral-novel** — ifrit sorties testing novel attack vectors: route manipulation, subnet escape, DNAT reflection
+- **coordinated-attacks** — simultaneous attack + observation: ARP gratuitous/poison, table stability
+- **coordinated-integrity** — attack then verify sentry state unchanged: sentry integrity, DNS cache integrity, MAC flood
 
 ### Adding a New Test
 
@@ -97,13 +97,13 @@ Bottle/sentry security cases — shared verbatim by the `tadmor` and `moriah` fi
 1. Add constant, enum variant, `from_selector`/`selector`/`all_selectors` entries in `rbida_attacks.rs`
 2. Add dispatch arm in `rbida_run()`
 3. Add theurge case function calling `rbtdrc_invoke_ifrit(ctx, "selector-name", dir)`
-4. Register in appropriate section
+4. Register in `RBTDRC_CASES_SECURITY` (or the relevant fixture's case array)
 
 **New ifrit sortie** (complex multi-step attack):
 1. Add `pub fn sortie_name()` in `rbida_sorties.rs`
 2. Add constant, enum variant, and dispatch in `rbida_attacks.rs` (same as above)
 3. Add theurge case — sorties may need coordinated observation (writ/fiat before/after)
-4. Register in appropriate section
+4. Register in `RBTDRC_CASES_SECURITY` (or the relevant fixture's case array)
 
 **Crucible verification workflow** (applies to all new tests and changes):
 

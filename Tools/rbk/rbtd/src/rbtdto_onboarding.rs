@@ -29,17 +29,14 @@ fn rbtdto_disposition_is_state_progressing() {
     assert_eq!(fix.disposition, rbtdre_Disposition::StateProgressing);
 }
 
-/// Sections lookup binds the fixture name to the registry array and yields
-/// exactly eight cases under one section ("onboarding-arc").
+/// Case lookup binds the fixture name to the registry array and yields
+/// exactly eight cases.
 #[test]
-fn rbtdto_sections_registered() {
+fn rbtdto_cases_registered() {
     let fix = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_ONBOARDING_SEQUENCE)
         .expect("onboarding-sequence is registered");
-    let sections = fix.sections;
-    assert_eq!(sections.len(), 1, "expected one section");
-    assert_eq!(sections[0].name, "onboarding-arc");
-    assert_eq!(sections[0].cases.len(), 8, "expected eight cases");
-    let names: Vec<&str> = sections[0].cases.iter().map(|c| c.name).collect();
+    assert_eq!(fix.cases.len(), 8, "expected eight cases");
+    let names: Vec<&str> = fix.cases.iter().map(|c| c.name).collect();
     assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_inscribe_reliquary")));
     assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_kludge_tadmor")));
     assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_kludge_ccyolo")));
@@ -56,8 +53,7 @@ fn rbtdto_sections_registered() {
 fn rbtdto_inscribe_precedes_reliquary_consumers() {
     let fix = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_ONBOARDING_SEQUENCE)
         .expect("onboarding-sequence is registered");
-    let sections = fix.sections;
-    let names: Vec<&str> = sections[0].cases.iter().map(|c| c.name).collect();
+    let names: Vec<&str> = fix.cases.iter().map(|c| c.name).collect();
     let inscribe_idx = names
         .iter()
         .position(|n| n.contains("rbtdro_onboarding_inscribe_reliquary"))
