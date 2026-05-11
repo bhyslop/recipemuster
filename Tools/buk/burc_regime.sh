@@ -48,7 +48,7 @@ zburc_kindle() {
 
   buv_group_enroll "Project Structure"
   buv_string_enroll  BURC_TOOLS_DIR             1  128  "Project dir containing tool scripts"
-  buv_string_enroll  BURC_PROJECT_ROOT          1  512  "Path from burc.env to project root"
+  buv_string_enroll  BURC_PROJECT_ROOT          1  512  "Repo root, expressed relative to burc.env"
   buv_string_enroll  BURC_MANAGED_KITS          1  512  "Comma-separated kit list for vvx"
 
   buv_group_enroll "Build Output"
