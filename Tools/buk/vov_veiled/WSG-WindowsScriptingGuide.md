@@ -221,6 +221,61 @@ fi
 priv_ps "Get-LocalUser -Name '${z_user}' -ErrorAction SilentlyContinue"
 ```
 
+**Exception — nuclear-cleanup absent-state collapse.** When a step's
+semantic intent is "state X is absent" rather than "transition X from
+present to absent," dispatch-side `-ErrorAction SilentlyContinue` on the
+destructive cmdlet is permitted under **all** of:
+
+a. **Narrow failure spectrum at the callsite.** The realistic non-absent
+   failure modes are catastrophic environmental conditions (admin
+   permission revoked, OS / kernel corruption, transport collapse) that
+   would also break adjacent operations in the same SSH session — not
+   file-locking, ACL friction, path-encoding, or concurrent-writer races.
+   The callsite's context must justify this narrowness explicitly (e.g.,
+   admin-context SAM operations on a fixed user name; not arbitrary
+   filesystem paths).
+
+b. **Downstream verification.** A later step in the same orchestration
+   asserts an end-state that would fail if the collapsed step silently
+   failed — typically a provision step that errors on "already exists,"
+   or an explicit invigilate-style absence probe. A head NOTE describing
+   the phase as best-effort does NOT satisfy this leg; there must be a
+   concrete downstream operation whose failure surfaces silent partial
+   cleanup.
+
+c. **Single suppression point, named form.** Exactly one
+   `-ErrorAction SilentlyContinue` on the destructive cmdlet itself — not
+   `-ErrorAction Ignore` (which discards the error from `$Error`,
+   destroying the forensic trail), not `2>$null`, not
+   `try { ... } catch { }`, not stacked with any of the above.
+   `SilentlyContinue` retains the error in `$Error` for post-mortem
+   inspection; the other forms forfeit that.
+
+When ANY of (a)-(c) fail, probe-then-act per the main rule remains
+required.
+
+```bash
+# ✅ Exception qualifies — Remove-LocalUser in nuclear-cleanup obliterate phase
+# (a) narrow spectrum: admin context, SAM database, fixed workload user name;
+#     realistic failures are "absent" or SAM-level catastrophic.
+# (b) downstream catch: subsequent New-LocalUser fails on "account already exists".
+# (c) single -ErrorAction SilentlyContinue on the destructive cmdlet.
+priv_ps "Remove-LocalUser -Name '${z_user}' -ErrorAction SilentlyContinue"
+
+# ❌ Exception does NOT qualify — arbitrary filesystem path
+# (a) fails: Remove-Item on Cygwin home / user-chosen path has rich failure
+#     classes (NTFS ACL friction, junction loops, file-locked-by-process).
+# Stay on probe-then-act per the main rule.
+priv_ps "Remove-Item -Recurse -Force '${z_dir}' -ErrorAction SilentlyContinue"
+```
+
+The probe-side carve-out (`Get-LocalUser -ErrorAction SilentlyContinue`,
+returning state) and this dispatch-side exception are complementary, not
+interchangeable. Probe-side suppression is always safe because the cmdlet
+is non-destructive. Dispatch-side suppression requires all three
+conditions because the cmdlet changes state and the suppression hides
+non-absent failures by construction.
+
 ### ❌ WSs-101: Script via stdin to bash (heredoc form / `bash -s`)
 
 When ssh feeds a script to bash via stdin (`bash -s`, heredoc), bash

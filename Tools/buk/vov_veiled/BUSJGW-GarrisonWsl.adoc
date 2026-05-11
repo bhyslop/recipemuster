@@ -154,15 +154,15 @@ scope
 //axhos_step
 . *Obliterate Phase 3 -- SAM scrub*:
 .. {busc_call}
-`Get-LocalUser -Name '${BUJB_workload_user}' -ErrorAction
-SilentlyContinue` over `«ADMIN_SESSION»` -- emits user object if
-present, empty if absent
-.. On presence, {busc_call}
-`Remove-LocalUser -Name '${BUJB_workload_user}'` over
-`«ADMIN_SESSION»` -- severs lingering references so step 9's
-`New-LocalUser` claims a new SID
+`Remove-LocalUser -Name '${BUJB_workload_user}' -ErrorAction
+SilentlyContinue` over `«ADMIN_SESSION»` -- collapsed dispatch per
+the WSG WSp-108 nuclear-cleanup carve-out: narrow failure spectrum
+at this callsite (admin context, SAM database, fixed workload user
+name); step 9's `New-LocalUser` provides the downstream verification
+by erroring on "account already exists" if a silent partial cleanup
+left a SID behind
 .. {busc_fatal}
-on remove failure --
+on SSH transport failure --
 {bust_handbook_windows}
 scope
 
@@ -171,38 +171,42 @@ scope
 .. {busc_call}
 `Get-ChildItem -Path 'C:\\Users' -Filter '${BUJB_workload_user}*'
 -Directory -ErrorAction SilentlyContinue` over `«ADMIN_SESSION»` --
-emits zero or more directory rows that survived Phase 2
+dynamic discovery; emits zero or more directory rows that survived
+Phase 2 (canonical and any numbered fallback dirs)
 .. For each row, {busc_call}
 `Remove-Item -Recurse -Force -LiteralPath '<row.FullName>'` over
 `«ADMIN_SESSION»`
 .. {busc_call}
 `Test-Path 'C:\\cygwin64\\home\\${BUJB_workload_user}'` over
-`«ADMIN_SESSION»` -- Cygwin home probe
-.. On `True`, {busc_call}
+`«ADMIN_SESSION»` -- non-destructive probe; returns state
+.. {busc_store}
+`«CYGWIN_HOME_PRESENT»` (`True` or `False`)
+.. On `«CYGWIN_HOME_PRESENT»` equal to `True`, {busc_call}
 `Remove-Item -Recurse -Force
-'C:\\cygwin64\\home\\${BUJB_workload_user}'` over
-`«ADMIN_SESSION»`
+'C:\\cygwin64\\home\\${BUJB_workload_user}'` over `«ADMIN_SESSION»`
+-- probe-then-act per WSp-108 main rule; the nuclear-cleanup
+carve-out does not qualify for arbitrary filesystem paths (NTFS ACL
+friction, junction loops, file-locked-by-process expand the failure
+spectrum beyond the carve-out's narrow-spectrum condition)
 .. {busc_fatal}
-on probe or remove failure --
+on Windows-side probe or per-row remove failure --
 {bust_handbook_windows}
 scope
 
 //axhos_step
 . *Obliterate Phase 5 -- WSL vestige*:
 .. {busc_call}
-`wsl.exe --distribution rbtww-main --user root id
-${BUJB_workload_user}` over `«ADMIN_SESSION»` -- exit 0 if user
-present in admin's rbtww-main, non-zero if absent
-.. On exit 0, {busc_call}
 `wsl.exe --distribution rbtww-main --user root userdel
-${BUJB_workload_user}` over `«ADMIN_SESSION»`
+${BUJB_workload_user}` over `«ADMIN_SESSION»` -- absent-state
+(userdel exit code 6) is acceptable and treated as no-op; user
+lives inside admin's `rbtww-main` as vestige from prior garrison
+shapes
 .. {busc_call}
 `wsl.exe --distribution rbtww-main --user root rm -rf
 /home/${BUJB_workload_user}` over `«ADMIN_SESSION»` -- always-run
 cleanup of orphan home from any prior partial garrison
 .. {busc_fatal}
-on userdel failure (the always-run `rm -rf` is best-effort and
-never fatal) --
+on userdel exit code other than 0 or 6, or on `rm -rf` failure --
 {bust_handbook_windows}
 scope
 
@@ -335,19 +339,6 @@ Exit 0 when step 12's admin-context lockdown rewrite completes
 after step 11's `wsl.exe --shutdown` and seed cleanup. Non-zero on
 any step's
 {busc_fatal}.
-
-==== Runtime Values
-
-[cols="2,1,3,2",options="header"]
-|===
-|Variable              |Origin |Source                                                     |Consumers
-
-|`«INVIGILATE_RESULT»` |1      |{bust_invigilate_windows} exit status                      |1
-|`«ADMIN_SESSION»`     |2      |ssh as {burp_privileged_user} with {burp_privileged_key_file} |3, 4, 5, 6, 7, 8, 9, 10, 11, 12
-|`«SEED_TARBALL»`      |3      |Operator-chosen path inside workload's Windows profile     |11
-|`«WORKLOAD_PUBKEY»`   |10     |`ssh-keygen -y` on {burp_workload_key_file}                |10, 12
-|`«WORKLOAD_SESSION»`  |11     |ssh as {bujb_workload_user} via bare authorized_keys entry |11
-|===
 
 ==== Rationale
 
