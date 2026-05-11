@@ -1796,6 +1796,13 @@
         "₢A-ABJ": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260511-1328",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nArchitectural promotion of a debug-loop accelerator, not a revert.\n\n## Goal\nPromote the DEV CACHE shape in `zbujb_caparison_windows_stage_wsl` to\nformal architecture under the admin-no-WSL principle: admin produces\nthe seed tar on disk and never registers rbtww-main in admin's\nHKCU\\Lxss. Drop garrison-w's `[w-export-seed]` step (which only\nexisted to export admin's running rbtww-main; admin no longer has\none).\n\nConcretely:\n- Remove the DEV CACHE comment-block scaffolding; the shape becomes\n  the canonical implementation.\n- Decide and document the canonical cache path (currently\n  `C:\\rbtww-seed.tar`) and where caparison places it: rename if\n  warranted, or formalize the current path with rationale.\n- Caparison Phase 3 retains [3/6] install + [4/6] export to the\n  cache path, and [6/6] unregister of the Ubuntu-24.04 seed; drops\n  [5/6] import-into-admin and the tar-removal half of [6/6].\n- Garrison-w drops `zbujb_garrison_w_export_seed` and its\n  `[w-seed-cleanup]` companion; `[w-session-1/4]` imports directly\n  from the canonical cache path.\n- Operator must still drive a one-time cache pre-stage on hosts\n  where caparison has never produced the tar (or caparison must\n  produce it idempotently on first run).\n\n## Done when\n- Caparison-windows on a fresh bujn-winpc (or equivalent) lands the\n  cache tar at the canonical path and does NOT register rbtww-main\n  in admin's HKCU\\Lxss (verify: admin's wsl.exe --list does not\n  show rbtww-main).\n- Garrison-w on the same host imports rbtww-main into workload's\n  HKCU\\Lxss from the cache tar, without going through any admin-\n  side rbtww-main export.\n- BUSJCW and BUSJGW specs reflect the admin-no-WSL shape (this\n  intersects with ₢A-ABK's scope — coordinate at mount time).",
+              "jjgtn_silks": "revert-wsl-stage-dev-cache",
+              "jjgtn_basis": "a0a3b51"
+            },
+            {
               "jjgtn_ts": "260511-1226",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nSurgical revert of a debug-loop accelerator.\n\n## Goal\nRemove the DEV CACHE shortcut from `zbujb_caparison_windows_stage_wsl` in\n`Tools/buk/bujb_jurisdiction.sh` so caparison-windows again creates the\nseed tar from scratch every run (download Ubuntu-24.04, export, import,\nunregister, delete tar). Restore the four commented-out blocks: [3/6]\ninstall, [4/6] export, [6/6] cleanup, and the `${BUJB_wsl_distribution}.tar`\npurge that was dropped from [1/6]. Restore the `z_tar_path` local back to\n`${BUJB_path_win_wsl_install_root}\\${BUJB_wsl_distribution}.tar` (drop the\nhardcoded `C:\\rbtww-seed.tar`).\n\n## Done when\n- Phase 3 stage_wsl matches its pre-cache shape (no DEV CACHE comments,\n  no hardcoded C:\\rbtww-seed.tar).\n- A caparison-windows run on bujn-winpc completes Phase 3 end-to-end with\n  the from-scratch download/export/import/cleanup path.\n- Operator manually removes the pre-staged `C:\\rbtww-seed.tar` from\n  bujn-winpc (one privileged-ssh Remove-Item) so no stale cache lingers.",
@@ -1806,6 +1813,13 @@
         },
         "₢A-ABK": {
           "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260511-1328",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nSpec coherence to match unconditional-reboot architecture\nlanded under ₢A-ABG, plus admin-no-WSL shape landing under ₢A-ABJ.\n\n## Goal\nBUS*.adoc specs reflect both the reboot-as-precondition shape and\nthe admin-no-WSL caparison/garrison restructure:\n- BUSJGW gains the reboot step + simplified Phase 2; drops\n  [w-export-seed] / [w-seed-cleanup] step descriptions.\n- BUSJCW adds a cross-reference noting caparison's role as the\n  reboot helper's enabling contract (sshd-at-boot, Tailscale\n  autostart, authkeys persistence). Caparison Phase 3 spec\n  reflects the admin-no-WSL shape (cache produced, no admin\n  registration).\n- WSG mints (or doesn't) a WSp item codifying reboot-as-canonical\n  -Windows-state-reset for destructive cleanup. Decision recorded\n  either way.\n- All three documents cross-reference the design memo at\n  `Memos/memo-20260511-windows-hive-cleanup-reboot-decision.md`,\n  which captures the rejected alternatives (Tier 1 in-process\n  unload, Tier 2 handle-hunt, Tier 3 UserProfileSvc cycle, Level 3\n  offline NTUSER.DAT injection) and the rationale for the chosen\n  primitive. Cross-references prevent the rationale from being\n  re-discovered every time someone reads the helper.\n\n## Done when\n- BUSJGW step numbering and prose match landed bash.\n- BUSJCW cross-references the reboot dependency + admin-no-WSL\n  caparison shape.\n- WSG decision recorded (new WSp or \"deemed not load-bearing as a\n  separate principle\").\n- All three specs cite `Memos/memo-20260511-windows-hive-cleanup-\n  reboot-decision.md` at the appropriate sections.\n- Implementation commits under ₢A-ABG (reboot) and ₢A-ABJ (admin-\n  no-WSL) cited in spec edits.",
+              "jjgtn_silks": "windows-reboot-primitive-spec-coherence",
+              "jjgtn_basis": "a0a3b51"
+            },
             {
               "jjgtn_ts": "260511-1310",
               "jjgtn_state": "jjgte_rough",
