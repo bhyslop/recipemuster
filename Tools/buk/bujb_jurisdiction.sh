@@ -1025,12 +1025,18 @@ zbujb_reboot_and_await_ssh() {
     || buc_die "reboot: pre-reboot LastBootUpTime probe failed on ${BURN_HOST}"
   buc_step "    Pre-reboot LastBootUpTime: ${z_pre_boot}"
 
-  # WSp-108 exception: successful Restart-Computer manifests as a
-  # connection drop (ssh returns 255 mid-command), so the dispatch's
-  # non-zero exit is not load-bearing. The downstream LastBootUpTime
-  # advance check is the concrete end-state verification — a host that
-  # silently failed to reboot will be caught there, not here.
-  zbujb_admin_powershell "Restart-Computer -Force" > /dev/null 2>&1 || true
+  # Explicit cold restart via shutdown.exe /full /r /f /t 0:
+  #   /full — bypass Fast Startup (documented hatch; redundant on /r
+  #           today but robust to future Windows default changes).
+  #   /r    — restart (not shutdown-and-power-off).
+  #   /f    — force-close apps with no prompt.
+  #   /t 0  — zero-second countdown.
+  # WSp-108 exception: successful shutdown.exe manifests as a connection
+  # drop (ssh returns 255 mid-command), so the dispatch's non-zero exit
+  # is not load-bearing. The downstream LastBootUpTime advance check is
+  # the concrete end-state verification — a host that silently failed to
+  # reboot will be caught there, not here.
+  zbujb_admin_powershell "shutdown.exe /full /r /f /t 0" > /dev/null 2>&1 || true
 
   buc_step "    Polling for SSH return (cap: ${BUJB_reboot_poll_cap_s}s, interval: ${BUJB_reboot_poll_interval_s}s)"
   local z_attempt=0
