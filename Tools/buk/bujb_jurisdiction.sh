@@ -113,10 +113,6 @@ BUJB_path_win_user_authkeys="${BUJB_path_win_user_ssh}\\${BUJB_authkeys_basename
 BUJB_path_wsl_user_authkeys="${BUJB_path_wsl_user_ssh}/${BUJB_authkeys_basename}"
 BUJB_path_cyg_user_authkeys="${BUJB_path_cyg_user_ssh}/${BUJB_authkeys_basename}"
 
-# WSL artifacts under the Windows workload profile.
-BUJB_path_win_seed_tarball="${BUJB_path_win_user_home}\\${BUJB_seed_basename}"
-BUJB_path_win_wsl_root="${BUJB_path_win_user_home}\\${BUJB_wsl_root_basename}"
-
 # WSL-install seed distribution: the Microsoft-published distribution that
 # zbujb_caparison_windows_stage_wsl fetches via `wsl.exe --install --no-launch -d`, exports
 # to .tar, then re-imports under BUJB_wsl_distribution.
@@ -125,6 +121,18 @@ BUJB_wsl_seed_distribution='Ubuntu-24.04'
 # Windows-side install directory housing both seed and canonical
 # distribution VHD trees plus the intermediate .tar export.
 BUJB_path_win_wsl_install_root='C:\WSL'
+
+# WSL artifacts.
+# Seed tarball lives under C:\WSL (caparison-windows-created;
+# inherits BUILTIN\Users:ReadAndExecute + Authenticated Users:Modify
+# ACL so the SSH-as-workload `wsl --import` reads it without an icacls
+# fix-up step). Writing the seed under the workload profile would
+# inherit admin's logon-SID ACL excluding the workload user, since
+# admin runs the wsl --export. The workload's installed-VHD root
+# stays under the workload profile (workload owns it; created by the
+# workload's own wsl --import).
+BUJB_path_win_seed_tarball="${BUJB_path_win_wsl_install_root}\\${BUJB_seed_basename}"
+BUJB_path_win_wsl_root="${BUJB_path_win_user_home}\\${BUJB_wsl_root_basename}"
 
 # Windows ACL principal names used in icacls /grant arguments. The :F
 # permission suffix is appended at use sites alongside ${BUJB_workload_user}:F
@@ -1301,8 +1309,8 @@ zbujb_garrison_w_lockdown() {
 # zbujb_garrison_w_seed_cleanup -- remove the seed tarball placed by
 # zbujb_garrison_w_export_seed. Admin context (workload session post-
 # lockdown is routed through the command= directive and cannot run
-# arbitrary native commands; admin retains full access to the workload
-# profile dir per the icacls grant in step 4).
+# arbitrary native commands; admin holds Administrators FullControl on
+# C:\WSL where the seed lives).
 zbujb_garrison_w_seed_cleanup() {
   zbujb_sentinel
   buc_step "  [w-seed-cleanup] Remove seed tarball"
