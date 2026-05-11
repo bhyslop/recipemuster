@@ -36,6 +36,7 @@
       "jjghn_creation_time": "260412",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢A-ABG",
         "₢A-ABD",
         "₢A-ABE",
         "₢A-ABC",
@@ -103,7 +104,7 @@
         "₢A-AAI",
         "₢A-AAP"
       ],
-      "jjghn_next_pace_seed": "ABG",
+      "jjghn_next_pace_seed": "ABH",
       "jjghn_paces": {
         "₢A-AA-": {
           "jjgpn_tacks": [
@@ -1745,6 +1746,17 @@
               "jjgtn_text": "## Character\nProse-only rewrite — fenestrate vocabulary in the operator handbook moves to caparison-windows verb naming. Touches files disjoint from ABC's bash implementation, so parallelizable.\n\n## Goal\nRecast all fenestrate references in the operator handbook around caparison-windows verb vocabulary; update tabtarget pointer from `buw-jpF` to `buw-jpCW`.\n\n## Boundary\n- File scope: `buhj_jurisdiction.sh` + `rbhw0_top.sh`.\n- Prose work only — no implementation of caparison-windows (that lives in ₢A-ABC).\n- The `buw-jpCW` name is locked by spec and may be referenced in handbook prose before the tabtarget physically exists.\n- Standing Notes in the paddock already use caparison vocabulary; no paddock changes.\n\n## Done when\n- `grep -n fenestrate` on `buhj_jurisdiction.sh` + `rbhw0_top.sh` returns zero.\n- Handbook prose names caparison-windows verb + `buw-jpCW` where it previously named fenestrate + `buw-jpF`.\n- bash -n on touched files; `tt/buw-hj0.HandbookJurisdictionTop.sh` renders cleanly.",
               "jjgtn_silks": "handbook-caparison-windows-recast",
               "jjgtn_basis": "634e1ec"
+            }
+          ]
+        },
+        "₢A-ABG": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260511-0759",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nInteractive operator-driven iteration. Spec and code both in\nmotion; BUS*.adoc is working-draft, not load-bearing yet. No\nbounded cycle count.\n\n## Goal\nFirst-time Windows setup converges end-to-end on bujn-winpc —\ncaparison-windows lands, garrison-w lands, workload reach\n(jwk/jwc/jws) round-trips. Spec and code in mutual agreement\nat close.\n\n## Working posture\nSpec edits, bash edits, and live ceremony runs interleave.\nHeat-affiliated commits acceptable for spec-only design pivots\nthat outpace implementation; pace-affiliated when code+spec\nland together. Cleanly-separable follow-ons (Cygwin path,\nhandbook recast, comment annotations, downstream practice)\nget their own pace rather than accreting here.\n\n## Done when\nOperator declares Windows setup converged with spec and code\ncoherent against observed Windows OpenSSH behavior on\nbujn-winpc.",
+              "jjgtn_silks": "windows-setup-first-time-debug",
+              "jjgtn_basis": "5419d87"
             }
           ]
         }
