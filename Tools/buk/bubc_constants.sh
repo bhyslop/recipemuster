@@ -46,4 +46,15 @@ BUBC_windows_ssh_port="22"
 BUBC_windows_fw_rule_name="sshd"
 BUBC_windows_fw_display_name="OpenSSH Server"
 
+# Windows registry preconditions for unattended power-on posture.
+# Operator-handbook step (BUSJHW Windows: Host Availability) sets these;
+# bujb_invigilate_windows reads them. Single source of truth so the path
+# the handbook tells the operator to set is the path invigilate queries.
+# PowerShell-canonical form (HKLM:\ prefix, mixed case — registry is
+# case-insensitive at the OS level so display case is purely cosmetic).
+BUBC_windows_passwordless_path='HKLM:\Software\Microsoft\Windows NT\CurrentVersion\PasswordLess\Device'
+BUBC_windows_passwordless_value='DevicePasswordLessBuildVersion'
+BUBC_windows_aoac_path='HKLM:\System\CurrentControlSet\Control\Power'
+BUBC_windows_aoac_value='PlatformAoAcOverride'
+
 # eof

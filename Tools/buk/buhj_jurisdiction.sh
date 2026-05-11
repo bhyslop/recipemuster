@@ -128,9 +128,18 @@ zbuhj_render_windows_availability() {
   buyy_cmd_yawp "regedit"; local -r z_regedit="${z_buym_yelp}"
   buh_step2    "If the checkbox is absent (Microsoft account on Windows 11):"
   buh_line     "Open ${z_regedit} and set:"
-  buh_code     "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\PasswordLess\\Device"
-  buh_code     "    DevicePasswordLessBuildVersion = 0   (DWORD)"
+  buh_code     "${BUBC_windows_passwordless_path}"
+  buh_code     "    ${BUBC_windows_passwordless_value} = 0   (DWORD)"
   buh_line     "Reopen netplwiz; the checkbox now appears."
+  buh_e
+
+  buh_step1    "Disable Modern Standby (so powercfg sleep-disable actually takes effect):"
+  buh_line     "On Modern Standby (S0 low-power idle) systems, powercfg's standby/"
+  buh_line     "hibernate disable that caparison-windows applies is silently ignored"
+  buh_line     "unless this override is set first. Open ${z_regedit} and set:"
+  buh_code     "${BUBC_windows_aoac_path}"
+  buh_code     "    ${BUBC_windows_aoac_value} = 0   (DWORD)"
+  buh_line     "Reboot for the override to take effect."
 }
 
 zbuhj_render_windows_bootstrap() {

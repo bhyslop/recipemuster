@@ -1693,6 +1693,10 @@ bujb_caparison_windows() {
 
   zbujb_caparison_windows_phase1
   zbujb_caparison_windows_phase2
+
+  buc_step "  [Preflight] Operator-handbook preconditions (gate before phase 3 WSL stage)"
+  zbujb_invigilate_windows_op_facts
+
   zbujb_caparison_windows_phase3
 
   buc_step "  Post-completion check: invigilate-windows"
@@ -1818,6 +1822,40 @@ zbujb_invigilate_assert_platform() {
     || buc_die "invigilate requires ${z_required}, got '${BURN_PLATFORM}'"
 }
 
+# zbujb_invigilate_windows_op_facts -- the three operator-handbook
+# preconditions that gate caparison-windows phase 3 (the WSL stage's
+# multi-minute download). Shared between bujb_caparison_windows preflight
+# (early-fail before WSL) and bujb_invigilate_windows (post-completion
+# audit + standalone runs). Requires admin SSH already established under
+# key-only auth.
+zbujb_invigilate_windows_op_facts() {
+  zbujb_sentinel
+
+  buc_step "  Fact: registry ${BUBC_windows_passwordless_value} = 0"
+  local z_reg=""
+  z_reg=$(zbujb_powershell_capture zbujb_privileged \
+      "Get-ItemPropertyValue -Path '${BUBC_windows_passwordless_path}' -Name '${BUBC_windows_passwordless_value}'") \
+    || z_reg="<unreadable>"
+  test "${z_reg}" = "0" \
+    || buc_die "registry ${BUBC_windows_passwordless_value}: expected 0, got '${z_reg:-<empty>}' — operator handbook BUSJHW (Windows registry step)"
+
+  buc_step "  Fact: registry ${BUBC_windows_aoac_value} = 0"
+  z_reg=""
+  z_reg=$(zbujb_powershell_capture zbujb_privileged \
+      "Get-ItemPropertyValue -Path '${BUBC_windows_aoac_path}' -Name '${BUBC_windows_aoac_value}'") \
+    || z_reg="<unreadable>"
+  test "${z_reg}" = "0" \
+    || buc_die "registry ${BUBC_windows_aoac_value}: expected 0, got '${z_reg:-<empty>}' — operator handbook BUSJHW (Modern Standby override)"
+
+  buc_step "  Fact: Tailscale service registered"
+  local z_svc=""
+  z_svc=$(zbujb_powershell_capture zbujb_privileged \
+      "Get-Service Tailscale -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name") \
+    || z_svc=""
+  test -n "${z_svc}" \
+    || buc_die "Tailscale service: expected non-empty Get-Service Tailscale, got <absent> — operator handbook BUSJHW (install + Run-Unattended + first auth)"
+}
+
 # bujb_invigilate_windows -- BUSJIW read-only host posture verification.
 bujb_invigilate_windows() {
   zbujb_sentinel
@@ -1833,29 +1871,7 @@ bujb_invigilate_windows() {
       2> "${ZBUJB_INVIGILATE_STDERR}" \
     || buc_die "admin SSH session unreachable under key-only auth (see ${ZBUJB_INVIGILATE_STDERR}) — caparison-windows (BUSJCW)"
 
-  buc_step "  Fact: registry DevicePasswordLessBuildVersion = 0"
-  local z_reg=""
-  z_reg=$(zbujb_powershell_capture zbujb_privileged \
-      "Get-ItemPropertyValue -Path 'HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\PasswordLess\\Device' -Name 'DevicePasswordLessBuildVersion'") \
-    || z_reg="<unreadable>"
-  test "${z_reg}" = "0" \
-    || buc_die "registry DevicePasswordLessBuildVersion: expected 0, got '${z_reg:-<empty>}' — operator handbook BUSJHW (Windows registry step)"
-
-  buc_step "  Fact: registry PlatformAoAcOverride = 0"
-  z_reg=""
-  z_reg=$(zbujb_powershell_capture zbujb_privileged \
-      "Get-ItemPropertyValue -Path 'HKLM:\\System\\CurrentControlSet\\Control\\Power' -Name 'PlatformAoAcOverride'") \
-    || z_reg="<unreadable>"
-  test "${z_reg}" = "0" \
-    || buc_die "registry PlatformAoAcOverride: expected 0, got '${z_reg:-<empty>}' — operator handbook BUSJHW (Modern Standby override)"
-
-  buc_step "  Fact: Tailscale service registered"
-  local z_svc=""
-  z_svc=$(zbujb_powershell_capture zbujb_privileged \
-      "Get-Service Tailscale -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name") \
-    || z_svc=""
-  test -n "${z_svc}" \
-    || buc_die "Tailscale service: expected non-empty Get-Service Tailscale, got <absent> — operator handbook BUSJHW (install + Run-Unattended + first auth)"
+  zbujb_invigilate_windows_op_facts
 
   buc_step "  Fact: Tailscale service StartType = Automatic"
   local z_start=""
