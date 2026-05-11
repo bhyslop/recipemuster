@@ -9,6 +9,7 @@
     "₣BA",
     "₣A_",
     "₣A-",
+    "₣Ap",
     "₣Ah",
     "₣A9",
     "₣Az",
@@ -26,7 +27,6 @@
     "₣AV",
     "₣AZ",
     "₣Aa",
-    "₣Ap",
     "₣Aq",
     "₣Au",
     "₣BC"
@@ -7479,7 +7479,7 @@
       "jjghn_paces": {}
     },
     "₣Ap": {
-      "jjghn_silks": "rbk-use-bash-remits",
+      "jjghn_silks": "rbk-deferred-add-bcg-remit-pattern",
       "jjghn_creation_time": "260307",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
