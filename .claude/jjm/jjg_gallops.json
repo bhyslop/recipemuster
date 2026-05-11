@@ -1,6 +1,6 @@
 {
   "jjgrn_schema_version": 4,
-  "jjgrn_next_heat_seed": "BH",
+  "jjgrn_next_heat_seed": "BI",
   "jjgrn_heat_order": [
     "₣BG",
     "₣BF",
@@ -27,7 +27,8 @@
     "₣AZ",
     "₣Aa",
     "₣Au",
-    "₣BC"
+    "₣BC",
+    "₣BH"
   ],
   "jjgrn_heats": {
     "₣A-": {
@@ -9915,6 +9916,14 @@
       "jjghn_silks": "rbk-mvp-3-orchestration-scrub",
       "jjghn_creation_time": "260511",
       "jjghn_status": "jjghe_racing",
+      "jjghn_order": [],
+      "jjghn_next_pace_seed": "AAA",
+      "jjghn_paces": {}
+    },
+    "₣BH": {
+      "jjghn_silks": "rbk-postmvp-1-triple-enshrine",
+      "jjghn_creation_time": "260511",
+      "jjghn_status": "jjghe_stabled",
       "jjghn_order": [],
       "jjghn_next_pace_seed": "AAA",
       "jjghn_paces": {}
