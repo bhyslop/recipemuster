@@ -25,7 +25,7 @@
 use std::process::ExitCode;
 
 use rbtd::rbtdrc_crucible::{
-    rbtdrc_lookup_fixture, rbtdrc_set_context, rbtdrc_take_context,
+    rbtdrc_lookup_fixture, rbtdrc_set_context, rbtdrc_take_context, RBTDRC_FIXTURES,
 };
 use rbtd::rbtdre_engine::{
     rbtdre_detect_colors, rbtdre_find_case, rbtdre_list_cases, rbtdre_print_summary,
@@ -144,9 +144,16 @@ fn run_single(args: &[String]) -> ExitCode {
         Some(f) => f,
         None => {
             eprintln!("rbtd single: no fixture argument");
+            list_fixtures();
             return ExitCode::FAILURE;
         }
     };
+
+    if !RBTDRC_FIXTURES.iter().any(|f| f.name == *fixture) {
+        eprintln!("rbtd single: unknown fixture '{}'", fixture);
+        list_fixtures();
+        return ExitCode::FAILURE;
+    }
 
     if let Err(msg) = rbtdrm_verify(manifest, fixture) {
         eprintln!("{}", msg);
@@ -245,5 +252,12 @@ fn run_single(args: &[String]) -> ExitCode {
         ExitCode::FAILURE
     } else {
         ExitCode::SUCCESS
+    }
+}
+
+fn list_fixtures() {
+    eprintln!("available fixtures:");
+    for f in RBTDRC_FIXTURES {
+        eprintln!("  {}", f.name);
     }
 }

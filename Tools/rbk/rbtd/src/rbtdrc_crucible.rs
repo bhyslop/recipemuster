@@ -2157,53 +2157,35 @@ pub static RBTDRC_FIXTURE_ACCESS_PROBE: rbtdre_Fixture = rbtdre_Fixture {
     cases: RBTDRC_CASES_ACCESS_PROBE,
 };
 
+/// Registry of all fixtures known to theurge. Single source of truth: drives
+/// rbtdrc_lookup_fixture and the helpful "list valid fixtures" diagnostic the
+/// single-case tabtarget emits on missing/unknown fixture arg. Declaration
+/// order is also the listing order operators see.
+pub static RBTDRC_FIXTURES: &[&'static rbtdre_Fixture] = &[
+    &RBTDRC_FIXTURE_TADMOR,
+    &RBTDRC_FIXTURE_MORIAH,
+    &RBTDRC_FIXTURE_SRJCL,
+    &RBTDRC_FIXTURE_PLUML,
+    &RBTDRC_FIXTURE_HALLMARK_LIFECYCLE,
+    &RBTDRC_FIXTURE_BATCH_VOUCH,
+    &RBTDRC_FIXTURE_ACCESS_PROBE,
+    &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
+    &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
+    &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_SMOKE,
+    &crate::rbtdrf_handbook::RBTDRF_FIXTURE_HANDBOOK_RENDER,
+    &crate::rbtdrp_pristine::RBTDRP_FIXTURE_PRISTINE_LIFECYCLE,
+    &crate::rbtdrk_canonical::RBTDRK_FIXTURE_CANONICAL_ESTABLISH,
+    &crate::rbtdro_onboarding::RBTDRO_FIXTURE_ONBOARDING_SEQUENCE,
+    &crate::rbtdrl_calibrant::RBTDRL_FIXTURE_VERDICTS,
+    &crate::rbtdrl_calibrant::RBTDRL_FIXTURE_FAIL_FAST,
+    &crate::rbtdrl_calibrant::RBTDRL_FIXTURE_PROGRESSING,
+    &crate::rbtdrl_calibrant::RBTDRL_FIXTURE_SENTINEL,
+];
+
 /// Resolve a fixture name to its registered Fixture definition. Returns None
-/// for unregistered names; callers decide whether that is fatal (main.rs
-/// surfaces it as an error after rbtdrm_verify already accepted the name).
+/// for unregistered names; callers decide whether that is fatal.
 pub fn rbtdrc_lookup_fixture(fixture: &str) -> Option<&'static rbtdre_Fixture> {
-    match fixture {
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_TADMOR => Some(&RBTDRC_FIXTURE_TADMOR),
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_MORIAH => Some(&RBTDRC_FIXTURE_MORIAH),
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_SRJCL => Some(&RBTDRC_FIXTURE_SRJCL),
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_PLUML => Some(&RBTDRC_FIXTURE_PLUML),
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_HALLMARK_LIFECYCLE => Some(&RBTDRC_FIXTURE_HALLMARK_LIFECYCLE),
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_BATCH_VOUCH => Some(&RBTDRC_FIXTURE_BATCH_VOUCH),
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_ACCESS_PROBE => Some(&RBTDRC_FIXTURE_ACCESS_PROBE),
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_ENROLLMENT_VALIDATION => {
-            Some(&crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION)
-        }
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_REGIME_VALIDATION => {
-            Some(&crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION)
-        }
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_REGIME_SMOKE => {
-            Some(&crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_SMOKE)
-        }
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_HANDBOOK_RENDER => {
-            Some(&crate::rbtdrf_handbook::RBTDRF_FIXTURE_HANDBOOK_RENDER)
-        }
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_PRISTINE_LIFECYCLE => {
-            Some(&crate::rbtdrp_pristine::RBTDRP_FIXTURE_PRISTINE_LIFECYCLE)
-        }
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_CANONICAL_ESTABLISH => {
-            Some(&crate::rbtdrk_canonical::RBTDRK_FIXTURE_CANONICAL_ESTABLISH)
-        }
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_ONBOARDING_SEQUENCE => {
-            Some(&crate::rbtdro_onboarding::RBTDRO_FIXTURE_ONBOARDING_SEQUENCE)
-        }
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_CALIBRANT_VERDICTS => {
-            Some(&crate::rbtdrl_calibrant::RBTDRL_FIXTURE_VERDICTS)
-        }
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST => {
-            Some(&crate::rbtdrl_calibrant::RBTDRL_FIXTURE_FAIL_FAST)
-        }
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_CALIBRANT_PROGRESSING => {
-            Some(&crate::rbtdrl_calibrant::RBTDRL_FIXTURE_PROGRESSING)
-        }
-        crate::rbtdrm_manifest::RBTDRM_FIXTURE_CALIBRANT_SENTINEL => {
-            Some(&crate::rbtdrl_calibrant::RBTDRL_FIXTURE_SENTINEL)
-        }
-        _ => None,
-    }
+    RBTDRC_FIXTURES.iter().find(|f| f.name == fixture).copied()
 }
 
 pub static RBTDRC_CASES_SRJCL: &[rbtdre_Case] = &[
