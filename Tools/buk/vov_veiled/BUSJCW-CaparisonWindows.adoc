@@ -81,8 +81,24 @@ on `icacls` failure -- phase 2 reconnect would fail
 .. write `PubkeyAuthentication yes`, `PasswordAuthentication no`,
 `PermitEmptyPasswords no` to `sshd_config` over `«ADMIN_SESSION_P1»`;
 idempotent
+.. ensure `sshd_config` carries a `Match User ${BUJB_workload_user}`
+block routing `AuthorizedKeysFile` to
+`__PROGRAMDATA__/ssh/users/${BUJB_workload_user}/authorized_keys` --
+absolute path decouples sshd's workload authorized_keys lookup from
+workload's `$HOME` (so a future profile demotion cannot lock out
+auth); parallel to the built-in `Match Group administrators` block
+routing to `administrators_authorized_keys`. Idempotent
+.. provision the parent directory
+`__PROGRAMDATA__\\ssh\\users\\${BUJB_workload_user}\\` over
+`«ADMIN_SESSION_P1»` with ACL: admins/SYSTEM Full Control,
+${BUJB_workload_user} Read only, non-admin users no access -- ACL
+discipline parallels `administrators_authorized_keys`. Idempotent.
+The directory persists across {busn_garrison} destroy-and-recreate
+cycles -- garrison rewrites the file contents but never touches the
+directory
 .. {busc_fatal}
-on write failure -- restart would still serve password auth
+on write or ACL failure -- restart would still serve unhardened auth
+or workload auth path would not resolve
 
 //axhos_step
 . *Phase 1 — verify hardened directives took*:
@@ -93,7 +109,10 @@ PowerShell `Get-Content` on `sshd_config` over `«ADMIN_SESSION_P1»`
 .. {busc_require}
 `«SSHD_CONFIG_BYTES»` parses to `PubkeyAuthentication yes`,
 `PasswordAuthentication no`, `PermitEmptyPasswords no` as effective
-directive values (BCG-compliant matching)
+directive values (BCG-compliant matching), AND contains a
+`Match User ${BUJB_workload_user}` block whose `AuthorizedKeysFile`
+resolves to
+`__PROGRAMDATA__/ssh/users/${BUJB_workload_user}/authorized_keys`
 .. {busc_fatal}
 on mismatch -- prior write did not take or stale override shadows
 
@@ -195,7 +214,14 @@ On success:
 * Admin SSH is key-only with admin pubkey installed in
   `administrators_authorized_keys` under correct ACLs.
 * `sshd_config` carries `PubkeyAuthentication yes`,
-  `PasswordAuthentication no`, `PermitEmptyPasswords no`.
+  `PasswordAuthentication no`, `PermitEmptyPasswords no`, AND a
+  `Match User ${BUJB_workload_user}` block routing
+  `AuthorizedKeysFile` to the admin-owned absolute path
+  `__PROGRAMDATA__/ssh/users/${BUJB_workload_user}/authorized_keys`.
+* `__PROGRAMDATA__\\ssh\\users\\${BUJB_workload_user}\\` directory
+  exists with admins-FullControl + workload-Read ACL, ready for
+  {busn_garrison} to write the trust file content (the file itself
+  is garrison's responsibility, not caparison's).
 * Post-restart admin session authenticates by key alone.
 * `rbtww-main` WSL distribution is registered under the admin user.
 * `powercfg` sleep and hibernate are disabled.

@@ -13,20 +13,29 @@ register only in the running user's `HKCU\Lxss`; admin's distributions
 are invisible to workload sessions.
 
 NOTE: Mechanism is *SSH-as-workload conducted by the privileged
-orchestrator* -- bare workload authorized_keys → single workload SSH
-session imports `rbtww-main` into workload's `HKCU\Lxss`, mints inner
-Linux user, plants privkey, rewrites authorized_keys with the
-locked-down `command=` form as its final file operation, then runs
-`wsl.exe --shutdown` to release the `NTUSER.DAT` hive cleanly before
-session exit. The single-session discipline closes the Windows User
-Profile Service demotion path -- WSL helpers hold the `NTUSER.DAT`
-hive while a workload's WSL VM is running, and a second workload
-logon during the holding window would resolve to a numbered fallback
-profile directory (`bujuw_user.<host>.NNN`) where the just-written
-authorized_keys is invisible to sshd. Round-trip validation under the
-locked-down directive is deferred to {bust_invigilate_windows}. The
-brief bare-authorized_keys window exposes only the operator's own
-running garrison -- workload pubkey derived from operator-owned
+orchestrator* against an *admin-owned absolute-path authorized_keys*.
+{busn_caparison} installs `Match User ${BUJB_workload_user}` in
+`sshd_config` routing `AuthorizedKeysFile` to
+`__PROGRAMDATA__/ssh/users/${BUJB_workload_user}/authorized_keys` --
+the documented Microsoft pattern (parallel to the built-in
+`Match Group administrators` redirect to
+`administrators_authorized_keys`). Sshd's trust-file lookup never
+resolves the workload's `$HOME`, so workload SSH auth is *decoupled*
+from any workload-profile state -- a future profile demotion cannot
+lock out auth. Garrison writes the bare workload pubkey to that admin
+path in admin context, opens a *single* workload SSH session to import
+`rbtww-main` into workload's `HKCU\Lxss`, mint the inner Linux user,
+plant the privkey, then runs `wsl.exe --shutdown` as the final act
+before session exit to release the `NTUSER.DAT` hive cleanly, then
+rewrites the absolute-path authorized_keys with the locked-down
+`command=` form (still admin context). The single-session-with-shutdown
+discipline keeps the Windows User Profile Service demotion path closed
+during garrison-w itself, so `wsl --import` lands in the canonical
+profile's `HKCU\Lxss` and not a numbered fallback dir
+(`bujuw_user.<host>.NNN`). Round-trip validation under the locked-down
+directive is deferred to {bust_invigilate_windows}. The brief
+bare-authorized_keys window exposes only the operator's own running
+garrison -- workload pubkey derived from operator-owned
 {burp_workload_key_file}.
 
 NOTE: Destruction is letter-agnostic via `zbujb_obliterate_workload` in
@@ -68,7 +77,11 @@ A {burp_regime} profile exists at the given {burp_investiture} and its
 established, `rbtww-main` staged under the admin user (canonical:
 `BUJB_wsl_distribution` in {bujb_jurisdiction}), operator-managed
 registry posture / Tailscale / powercfg all in the shape
-{bust_invigilate_windows} expects.
+{bust_invigilate_windows} expects, AND `sshd_config` carries the
+`Match User ${BUJB_workload_user}` block routing `AuthorizedKeysFile`
+to `__PROGRAMDATA__/ssh/users/${BUJB_workload_user}/authorized_keys`
+(with the parent directory pre-provisioned, admins-FullControl +
+workload-Read ACL).
 
 //axhoq_precondition
 {burp_workload_key_file} is unencrypted and exists on the operator's
@@ -112,41 +125,71 @@ or admin HKCU\\Lxss corrupted)
 . *Obliterate prior workload*:
 .. {busc_call}
 `zbujb_obliterate_workload` over `«ADMIN_SESSION»` -- five-phase
-nuclear cleanup running each phase as one or more atomic admin-context
-PowerShell calls; all phases idempotent on absent state and tolerant
-of partial prior destruction
-.. *Phase 1 -- Release hives*: `wsl.exe --shutdown` host-wide;
-supplement with `Stop-Process -Name wslhost,wslservice -Force
--ErrorAction SilentlyContinue` for any orphan helpers that survive the
-shutdown. Releases `NTUSER.DAT` handles held by WSL helpers from any
-previous garrison-w run. Without this phase, Windows User Profile
-Service can demote a subsequent workload logon to a numbered fallback
-profile directory (`bujuw_user.<host>.NNN`), rewriting
-`ProfileImagePath` in `HKLM\...\ProfileList\<SID>` -- a permanent
-corruption that survives reboot
-.. *Phase 2 -- Profile destruction via `Win32_UserProfile`*:
-`Get-CimInstance Win32_UserProfile` filtered on
-`LocalPath -like 'C:\Users\${BUJB_workload_user}*'` (wildcard catches
-canonical AND numbered fallback dirs from prior demotions), piped to
-`Remove-CimInstance`. This is the documented Microsoft path: User
-Profile Service handles `ProfileList` SID key removal (canonical AND
-`.bak` variants), `NTUSER.DAT` hive unload, and folder deletion
-atomically
-.. *Phase 3 -- SAM scrub*: `Get-LocalUser` probe →
-`Remove-LocalUser` if present. Fresh local user is created in step 5
-claiming a new SID; removing the old SAM entry severs lingering
-references and guarantees the next `New-LocalUser` is not a no-op
-.. *Phase 4 -- Filesystem sweep*: `Remove-Item -Recurse -Force` over
-any `C:\Users\${BUJB_workload_user}*` paths still present after
-Phase 2 (belt-and-braces when the previous `ProfileList` pointer no
-longer matched the on-disk path), and over
-`C:\cygwin64\home\${BUJB_workload_user}\` Cygwin home
+nuclear cleanup. Each phase is composed of discrete atomic admin SSH
+calls per WSG WSp-105 (one cmdlet or one native binary per SSH body;
+bash drives probe + decide + per-target dispatch between calls).
+SSH sessions are cheap; compound PowerShell bodies are not used. All
+phases idempotent on absent state and tolerant of partial prior
+destruction. The workload's authorized_keys at
+`__PROGRAMDATA__/ssh/users/${BUJB_workload_user}/authorized_keys`
+lives outside the workload profile and is *not* touched by this step;
+caparison provisioned the directory, step 6 overwrites the file
+contents
+.. *Phase 1 -- Release hives* (two SSH calls): first call
+`wsl.exe --shutdown` (host-wide WSL VM teardown); second call
+`Stop-Process -Name wslhost,wslservice -Force -ErrorAction
+SilentlyContinue` for helpers that survive shutdown. Releases
+`NTUSER.DAT` handles held by WSL helpers from any previous
+garrison-w run. Without this phase, Windows User Profile Service can
+demote a subsequent workload logon to a numbered fallback profile
+directory (`bujuw_user.<host>.NNN`), rewriting `ProfileImagePath` in
+`HKLM\...\ProfileList\<SID>` -- a permanent corruption that
+survives reboot
+.. *Phase 2 -- Profile destruction via `Win32_UserProfile`* (probe +
+iterate + per-target dispatch): probe call
+`Get-CimInstance -ClassName Win32_UserProfile -Filter "LocalPath LIKE
+'C:\\Users\\${BUJB_workload_user}%' OR LocalPath LIKE
+'C:\\Users\\${BUJB_workload_user}.%'"` -- two `LIKE` patterns catch
+canonical AND numbered fallback dirs from prior demotions; emits one
+row per matching profile. Bash parses `LocalPath` per row, then for
+each row issues one Remove call:
+`Remove-CimInstance -Query "SELECT * FROM Win32_UserProfile WHERE
+LocalPath = '<row.LocalPath>'"`. This is the documented Microsoft
+path: User Profile Service handles `ProfileList` SID key removal
+(canonical AND `.bak` variants), `NTUSER.DAT` hive unload, and folder
+deletion atomically
+.. *Phase 3 -- SAM scrub* (probe + conditional dispatch): probe call
+`Get-LocalUser -Name '${BUJB_workload_user}' -ErrorAction
+SilentlyContinue` -- emits the user object if present, empty if
+absent. Bash checks emptiness; if present, dispatch call
+`Remove-LocalUser -Name '${BUJB_workload_user}'`. Fresh local user is
+created in step 5 claiming a new SID; removing the old SAM entry
+severs lingering references and guarantees the next `New-LocalUser`
+is not a no-op
+.. *Phase 4 -- Filesystem sweep* (belt-and-braces for paths that
+survived Phase 2): Windows-side probe call
+`Get-ChildItem -Path 'C:\\Users' -Filter '${BUJB_workload_user}*'
+-Directory -ErrorAction SilentlyContinue` emits zero or more
+directory rows; bash iterates, and for each row dispatches one call
+`Remove-Item -Recurse -Force -LiteralPath '<row.FullName>'`. Cygwin
+probe call `Test-Path 'C:\\cygwin64\\home\\${BUJB_workload_user}'`;
+bash branches on `True` / `False`, and on `True` dispatches
+`Remove-Item -Recurse -Force
+'C:\\cygwin64\\home\\${BUJB_workload_user}'`
 .. *Phase 5 -- WSL vestige*: workload's Linux user inside admin's
-`rbtww-main` distribution -- vestige from prior garrison shapes; the
-workload's own distribution lives in its own `HKCU\Lxss`, populated
-in step 7. `wsl.exe --distribution rbtww-main --user root userdel` +
-`rm -rf /home/${BUJB_workload_user}` for any orphan home. Run inside
-admin's distribution which {busn_caparison} provisioned
+`rbtww-main` distribution -- vestige from prior garrison shapes;
+the workload's own distribution lives in its own `HKCU\Lxss`,
+populated in step 7. Probe call
+`wsl.exe --distribution rbtww-main --user root id
+${BUJB_workload_user}` -- exit 0 if user present, non-zero if absent.
+Bash checks exit; if present, dispatch call
+`wsl.exe --distribution rbtww-main --user root userdel
+${BUJB_workload_user}`. Always-run cleanup call
+`wsl.exe --distribution rbtww-main --user root rm -rf
+/home/${BUJB_workload_user}` (orphan home from prior partial garrison).
+Each `wsl.exe` invocation is one native binary call (WSp-105 #2);
+inner shell delegation via `wsl.exe ... bash -c "..."` (WSp-105 #3)
+is acceptable but unnecessary at this scope
 .. NOTE: Cleanup is best-effort. Windows User Profile Service
 performs asynchronous bookkeeping (`.bak` SID lifecycle,
 mounted-state markers) so a 100% pristine state is not always
@@ -158,7 +201,8 @@ operational behavior
 ("Profile loading fails", "Scripts to clean profile folder and
 prevent TEMP user profile creation"); helgeklein.com (Delprof2)
 .. {busc_fatal}
-on PowerShell session failure -- {bust_handbook_windows} scope
+on any individual SSH call's failure -- {bust_handbook_windows}
+scope
 
 //axhos_step
 . *Create Windows workload account*:
@@ -180,25 +224,32 @@ on Windows account-management failure -- prior obliterate left state
 `ssh-keygen -y` on {burp_workload_key_file}
 .. {busc_store}
 `«WORKLOAD_PUBKEY»` from stdout
-.. over `«ADMIN_SESSION»` create
-`/mnt/c/Users/${BUJB_workload_user}/.ssh/` (mkdir -p, chmod 700) and
-write `«WORKLOAD_PUBKEY»` to `authorized_keys` (chmod 600) as a bare
-entry -- locked-down `command=` would route through workload's
-`HKCU\Lxss` before the import lands
-.. NTFS ACLs inherited from the parent profile (admin-owned, non-admin
-read-only) satisfy StrictModes -- POSIX `chown` meaningless to Windows
-OpenSSH which inspects NTFS ACLs not POSIX modes
+.. write `«WORKLOAD_PUBKEY»` to the admin-owned absolute path
+`__PROGRAMDATA__/ssh/users/${BUJB_workload_user}/authorized_keys`
+over `«ADMIN_SESSION»` as a bare entry (no `command=` directive) --
+locked-down `command=` would route through workload's `HKCU\Lxss`
+before the import lands. Directory pre-provisioned by
+{busn_caparison} with admins-FullControl + workload-Read ACL;
+single `Set-Content` cmdlet per WSp-105
+.. file is admin-owned throughout its lifetime, no ownership-transfer
+gymnastics; ACL parallel to `administrators_authorized_keys`
+satisfies sshd's Windows-OpenSSH StrictModes-equivalent check.
+Caparison's `Match User ${BUJB_workload_user}` block in `sshd_config`
+routes `AuthorizedKeysFile` to this path directly -- no `$HOME`
+resolution involved at any point in workload auth
 .. {busc_fatal}
 on key-write failure -- workload account left without trust
 
 //axhos_step
-. *Provision workload's WSL and lock down trust (single SSH-as-workload session)*:
+. *Provision workload's WSL (single SSH-as-workload session)*:
 .. {busc_call}
 ssh as {bujb_workload_user} with {burp_workload_key_file} through the
-just-placed bare entry -- session is a real Windows logon for the
-workload, HKCU mounted. This is the *only* SSH-as-workload session
-inside garrison-w; round-trip validation under the locked-down
-directive is deferred to {bust_invigilate_windows}
+bare entry at the absolute-path authorized_keys -- session is a real
+Windows logon for the workload, HKCU mounted. This is the *only*
+SSH-as-workload session inside garrison-w; the lockdown rewrite
+moves to step 8 (admin context, same absolute path), and round-trip
+validation under the locked-down directive is deferred to
+{bust_invigilate_windows}
 .. {busc_store}
 `«WORKLOAD_SESSION»`
 .. over `«WORKLOAD_SESSION»` run `wsl.exe --import rbtww-main
@@ -208,18 +259,40 @@ workload-writable directory inside the workload's Windows profile
 .. then `wsl.exe --distribution rbtww-main --user root useradd
 --create-home --shell /bin/bash ${BUJB_workload_user}` -- mints the
 inner Linux workload user
-.. then `passwd --lock ${BUJB_workload_user}` (root inside the
-distribution) -- enforces SSH-key-only on the inner Linux account
+.. then `wsl.exe --distribution rbtww-main --user root passwd --lock
+${BUJB_workload_user}` -- enforces SSH-key-only on the inner Linux
+account
 .. then plant {burp_workload_key_file}'s contents at
 `/home/${BUJB_workload_user}/.ssh/id_ed25519` (chmod 600) inside the
 distribution -- workload's outbound auth, e.g., GitHub
-.. then overwrite the workload's authorized_keys at
-`/mnt/c/Users/${BUJB_workload_user}/.ssh/authorized_keys` with the
-locked-down `command=` form, replacing the bare entry placed in
-step 6 -- workload-owned file, workload-driven write avoids
-ownership-transfer gymnastics. SSH server reads authorized_keys at
-connection time only, so the running session is unaffected by the
-rewrite
+.. *Final act before session exit*: `wsl.exe --shutdown` --
+terminates the workload's WSL VM and helper processes (`wslhost.exe`,
+`wslservice`), releasing the `NTUSER.DAT` hive handle BEFORE Windows
+unloads the logon session. Required even with absolute-path
+authorized_keys: `wsl --import` registered state in the canonical
+profile's `HKCU\Lxss`, and a stray demotion during this session
+would relocate the registration to a fallback profile that
+subsequent operational sessions would not see (auth would still
+succeed by virtue of the absolute-path authorized_keys, but
+`wsl.exe --distribution rbtww-main` in the locked-down `command=`
+would fail to find the distribution)
+.. on session exit, delete `«SEED_TARBALL»` over `«ADMIN_SESSION»` --
+seed has served its purpose
+.. {busc_fatal}
+on workload session failure, `wsl --import` failure, inner `useradd` /
+`passwd` failure, privkey plant failure, `wsl --shutdown` failure,
+or seed delete failure -- workload state partially provisioned across
+namespaces; revalidate from a clean garrison
+
+//axhos_step
+. *Lock down workload trust (admin rewrite)*:
+.. over `«ADMIN_SESSION»` overwrite the absolute-path authorized_keys
+at
+`__PROGRAMDATA__/ssh/users/${BUJB_workload_user}/authorized_keys`,
+replacing the bare entry from step 6 with the locked-down `command=`
+form -- single `Set-Content` cmdlet per WSp-105. File is admin-owned
+throughout; no ownership-transfer gymnastics, no in-session rewrite
+race
 .. canonical directive content: `BUJB_command_w` in {bujb_jurisdiction}
 with `${BUJB_workload_user}` substituted at directive-emit time:
 +
@@ -227,22 +300,10 @@ with `${BUJB_workload_user}` substituted at directive-emit time:
 ----
 command="C:/Windows/System32/wsl.exe --distribution rbtww-main --user ${BUJB_workload_user} --exec /bin/bash -lc \"$SSH_ORIGINAL_COMMAND\"",no-port-forwarding,no-X11-forwarding,no-agent-forwarding
 ----
-.. *Final act before session exit*: `wsl.exe --shutdown` --
-terminates the workload's WSL VM and helper processes (`wslhost.exe`,
-`wslservice`), releasing the `NTUSER.DAT` hive handle BEFORE Windows
-unloads the logon session. Without this release, any subsequent
-workload logon during the helper-holding window resolves to a
-numbered fallback profile directory and the just-written
-authorized_keys becomes invisible to sshd (see {busn_garrison}
-mechanism NOTE for the demotion-bug rationale)
-.. on session exit, delete `«SEED_TARBALL»` over `«ADMIN_SESSION»` --
-seed has served its purpose
 .. {busc_fatal}
-on workload session failure, `wsl --import` failure, inner `useradd` /
-`passwd` failure, privkey plant failure, authorized_keys lockdown
-rewrite failure, `wsl --shutdown` failure, or seed delete failure --
-workload state partially provisioned across namespaces; revalidate
-from a clean garrison
+on rewrite failure -- bare trust still in place; subsequent workload
+SSH would bypass the locked-down route. Revalidate from a clean
+garrison
 
 //axhog_guarantee
 On success:
@@ -255,14 +316,19 @@ On success:
   (distribution namespace).
 * WSL Linux user inside that distribution (execution context entered
   by the locked-down `command=` directive's `wsl.exe --user`).
-* Workload authorized_keys carries `«WORKLOAD_PUBKEY»` with the
-  shell-letter `w` `command=` directive.
+* Workload authorized_keys at
+  `__PROGRAMDATA__/ssh/users/${BUJB_workload_user}/authorized_keys`
+  carries `«WORKLOAD_PUBKEY»` with the shell-letter `w` `command=`
+  directive -- admin-owned absolute path; auth lookup decoupled
+  from workload `$HOME` via caparison-installed `Match User
+  ${BUJB_workload_user}` block.
 * {burp_workload_key_file} planted at `/home/${BUJB_workload_user}/.ssh/id_ed25519`
   inside the workload's distribution.
 * `wsl.exe --shutdown` executed inside the workload session before
   exit; no orphan `NTUSER.DAT` hive handles outlive garrison-w.
 * Admin posture is unchanged -- no `sshd_config` writes, no admin
-  authorized_keys writes.
+  authorized_keys writes (caparison-managed Match block governs
+  the workload authorized_keys location).
 
 Garrison-w does *not* self-validate the locked-down round-trip;
 {bust_invigilate_windows} asserts the round-trip as a post-completion
@@ -270,10 +336,12 @@ fact. Operator runs invigilate after garrison-w to confirm the
 locked-down directive routes end-to-end through workload's WSL.
 
 //axhoc_completion
-Exit 0 when the authorized_keys lockdown rewrite, `wsl.exe --shutdown`,
-and seed cleanup all complete. Non-zero on invigilate-windows
+Exit 0 when the admin-context lockdown rewrite at the absolute-path
+authorized_keys (step 8) completes, after `wsl.exe --shutdown` from
+the workload session and seed cleanup. Non-zero on invigilate-windows
 precondition failure, admin SSH failure, seed export failure,
-obliterate failure, Windows account-management failure, key-write
-failure, workload SSH session failure, `wsl --import` failure, inner
-account-management failure, privkey plant failure, lockdown rewrite
-failure, hive-release failure, or seed cleanup failure.
+obliterate failure (any phase or per-target SSH call), Windows
+account-management failure, bare key-write failure, workload SSH
+session failure, `wsl --import` failure, inner account-management
+failure, privkey plant failure, hive-release failure, seed cleanup
+failure, or lockdown rewrite failure.
