@@ -85,6 +85,8 @@ zbuwz_kindle() {
   z_mod="buhj_cli.sh"
   buz_enroll BUWZ_HJ0_TOP           "buw-hj0"   "${z_mod}" "buhj_top"                ""        "Jurisdiction handbook landing + tabtarget catalog (top level)"
   buz_enroll BUWZ_HJW_WINDOWS       "buw-hjw"   "${z_mod}" "buhj_windows"            ""        "Windows first-time host setup (Tailscale autonomy + sshd reachability)"
+  buz_enroll BUWZ_HJM_MACOS         "buw-hjm"   "${z_mod}" "buhj_macos"              ""        "macOS first-time host setup (Tailscale install + login, ssh-copy-id admin trust)"
+  buz_enroll BUWZ_HJL_LINUX         "buw-hjl"   "${z_mod}" "buhj_linux"              ""        "Linux first-time host setup (Tailscale, sshd on minimal distros, ssh-copy-id admin trust)"
 
   # Jurisdiction operational — workload ceremonies (bujb_cli.sh)
   z_mod="bujb_cli.sh"

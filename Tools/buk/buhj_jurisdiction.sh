@@ -77,15 +77,61 @@ zbuhj_render_landing() {
   buh_line     "account against the key-trusted admin foothold."
 }
 
-zbuhj_render_linux_mac_note() {
-  buh_section  "Linux and macOS"
-  buh_line     "sshd is typically already installed and reachable. The operator's"
-  buh_line     "manual scope is: confirm sshd is running and the host is reachable,"
-  buh_line     "then place the admin pubkey via ssh-copy-id (or equivalent) so"
-  buh_line     "garrison's first admin SSH succeeds by key alone. Caparison-"
-  buh_line     "{linux,macos} then applies per-platform host posture; sshd"
-  buh_line     "hardening on non-Windows-OpenSSH nodes is operator-managed."
+zbuhj_render_macos() {
+  buh_section  "macOS: First-Time Host Setup"
+  buh_line     "Operator-manual scope for macOS: install Tailscale (handling"
+  buh_line     "Privacy & Security consent prompts), log in to your tailnet,"
+  buh_line     "and place the admin pubkey via ssh-copy-id so caparison-macos's"
+  buh_line     "first admin SSH succeeds by key alone. Caparison-macos enables"
+  buh_line     "Remote Login (sshd) and applies pmset/tailscaled posture."
   buh_e
+
+  buh_step1    "Install Tailscale:"
+  buh_link     "" "Tailscale for macOS" "https://tailscale.com/download/mac"
+  buh_line     "Approve each Privacy & Security prompt (System Extension,"
+  buh_line     "network extension, login-at-startup); Tailscale cannot"
+  buh_line     "establish a tunnel without them."
+  buh_e
+
+  buh_step1    "Log in to Tailscale:"
+  buh_line     "Click the Tailscale menu bar icon and complete the sign-in"
+  buh_line     "flow for your tailnet. Verify reachability from another node."
+  buh_e
+
+  buh_step1    "Place the admin pubkey via ssh-copy-id:"
+  buh_code     "ssh-copy-id -i ~/.ssh/<admin-pubkey>.pub <admin-user>@<host>"
+}
+
+zbuhj_render_linux() {
+  buh_section  "Linux: First-Time Host Setup"
+  buh_line     "Operator-manual scope for Linux: install Tailscale, log in,"
+  buh_line     "install/enable sshd on minimal distributions, and place the"
+  buh_line     "admin pubkey via ssh-copy-id so caparison-linux's first admin"
+  buh_line     "SSH succeeds by key alone. Caparison-linux applies sshd,"
+  buh_line     "sleep-mask, and tailscaled posture."
+  buh_e
+
+  buh_step1    "Install Tailscale:"
+  buh_link     "" "Tailscale for Linux" "https://tailscale.com/download/linux"
+  buh_line     "Distribution-specific install commands are at the link above"
+  buh_line     "(apt/dnf/pacman variants). The installer enables and starts"
+  buh_line     "tailscaled by default."
+  buh_e
+
+  buh_step1    "Authenticate to Tailscale:"
+  buh_code     "sudo tailscale up"
+  buh_line     "Complete the auth URL in a browser; verify reachability from"
+  buh_line     "another node."
+  buh_e
+
+  buh_step1    "Install and enable sshd (skip if openssh-server is already present):"
+  buh_line     "Debian/Ubuntu:"
+  buh_code     "sudo apt-get install -y openssh-server && sudo systemctl enable --now ssh"
+  buh_line     "RHEL/Fedora:"
+  buh_code     "sudo dnf install -y openssh-server && sudo systemctl enable --now sshd"
+  buh_e
+
+  buh_step1    "Place the admin pubkey via ssh-copy-id:"
   buh_code     "ssh-copy-id -i ~/.ssh/<admin-pubkey>.pub <admin-user>@<host>"
 }
 
@@ -200,58 +246,86 @@ zbuhj_render_windows_bootstrap() {
   buh_code     "ssh <admin-user>@<windows-host>"
 }
 
-zbuhj_render_post_bootstrap() {
-  buh_section  "Run Caparison, then Garrison"
-  buh_line     "On Windows: with sshd reachable, run caparison-windows first."
-  buh_line     "Caparison-Windows establishes admin trust (typing the admin"
-  buh_line     "password once when its phase-1 ssh prompts on /dev/tty), hardens"
-  buh_line     "sshd_config to key-only, restarts sshd, and reconnects to"
-  buh_line     "verify. After caparison-windows succeeds, run garrison for the"
-  buh_line     "chosen workload shell:"
+zbuhj_render_top_windows_section() {
+  buyy_tt_yawp "${BUWZ_JP_CAPARISON_WIN}"   ; local -r z_capw="${z_buym_yelp}"
+  buyy_tt_yawp "${BUWZ_JP_GARRISON_CYGWIN}" ; local -r z_garc="${z_buym_yelp}"
+  buyy_tt_yawp "${BUWZ_JP_GARRISON_WSL}"    ; local -r z_garw="${z_buym_yelp}"
+
+  buh_section  "Windows: first-time host setup"
+  buh_line     "Complete the first-time host preparation (optional Tailscale"
+  buh_line     "autonomy, OpenSSH install, sshd reachability):"
+  buh_tt       "  " "${BUWZ_HJW_WINDOWS}"
   buh_e
-  buh_line     "  buw-jpCW <investiture>  — caparison-windows (Windows OpenSSH only)"
+  buh_line     "Then establish admin host posture (admin SSH trust, sshd"
+  buh_line     "harden, WSL distribution stage, sleep disable, Tailscale"
+  buh_line     "auto-start):"
+  buh_line     "  ${z_capw} <investiture>"
   buh_e
-  buh_line     "  buw-jpGb <investiture>  — native bash workload (Linux, macOS)"
-  buh_line     "  buw-jpGc <investiture>  — Cygwin bash workload (Windows)"
-  buh_line     "  buw-jpGw <investiture>  — WSL bash workload (Windows)"
+  buh_line     "Then run garrison for the workload shell of choice:"
+  buh_line     "  ${z_garc} <investiture>"
+  buh_line     "    Cygwin bash workload"
+  buh_line     "  ${z_garw} <investiture>"
+  buh_line     "    WSL bash workload"
   buh_e
-  buh_line     "Choose c or w for Windows by which workload runtime you need."
-  buh_line     "Both share caparison-windows's admin SSH harden; the shell-letter"
-  buh_line     "on garrison only routes the workload account ceremony."
-  buh_e
-  buh_line     "garrison-w prerequisite: the admin user must have"
-  buh_line     "WSL distribution rbtww-main installed (run wsl --install"
-  buh_line     "or buw-jpW) before garrison-w runs. garrison-w exports"
-  buh_line     "admin's rbtww-main to a seed tarball and imports that"
-  buh_line     "tarball under the workload user's HKCU\\Lxss — Microsoft's"
-  buh_line     "per-user WSL design forces the workload to own its own"
-  buh_line     "distribution registration. Keep admin's rbtww-main"
-  buh_line     "pristine; admin's customizations propagate to workload"
-  buh_line     "via the seed."
-  buh_e
-  buh_line     "On Linux/Mac: place the admin pubkey via ssh-copy-id (if not"
-  buh_line     "already in place), then run caparison-{linux,macos} to apply"
-  buh_line     "host posture. Run garrison against the key-trusted admin"
-  buh_line     "foothold:"
-  buh_e
-  buh_line     "  buw-jpCM <investiture>  — caparison-macos"
-  buh_line     "  buw-jpCL <investiture>  — caparison-linux"
-  buh_e
-  buh_line     "After garrison succeeds, dispatch work via the workload"
-  buh_line     "tabtargets:"
-  buh_line     "  buw-jwk <investiture>           — probe workload reachability"
-  buh_line     "  buw-jwc <investiture> <file>    — run a command file"
-  buh_line     "  buw-jws <investiture>           — interactive workload session"
+  buh_line     "Choose c or w by which workload runtime you need. Both share"
+  buh_line     "caparison-windows's admin SSH harden; the shell-letter on"
+  buh_line     "garrison only routes the workload account ceremony. garrison-w"
+  buh_line     "inherits the admin's rbtww-main WSL distribution that"
+  buh_line     "caparison-windows staged — admin's distribution stays pristine"
+  buh_line     "and its customizations propagate to the workload via a seed"
+  buh_line     "tarball (Microsoft's per-user WSL design forces the workload"
+  buh_line     "to own its own distribution registration)."
 }
 
-zbuhj_render_windows_pointer() {
-  buh_section  "Windows: first-time host setup"
-  buh_line     "On a Windows host that has never had caparison-windows run"
-  buh_line     "against it, complete the first-time host preparation"
-  buh_line     "(optional Tailscale autonomy, OpenSSH install, sshd"
-  buh_line     "reachability) before proceeding to caparison/garrison:"
+zbuhj_render_top_macos_section() {
+  buyy_tt_yawp "${BUWZ_JP_CAPARISON_MAC}"  ; local -r z_capm="${z_buym_yelp}"
+  buyy_tt_yawp "${BUWZ_JP_GARRISON_BASH}"  ; local -r z_garb="${z_buym_yelp}"
+
+  buh_section  "macOS: first-time host setup"
+  buh_line     "Complete the operator-manual prerequisites (Tailscale install"
+  buh_line     "+ login, ssh-copy-id admin trust):"
+  buh_tt       "  " "${BUWZ_HJM_MACOS}"
   buh_e
-  buh_tt       "  " "${BUWZ_HJW_WINDOWS}"
+  buh_line     "Then establish admin host posture (Remote Login, pmset,"
+  buh_line     "tailscaled):"
+  buh_line     "  ${z_capm} <investiture>"
+  buh_e
+  buh_line     "Then run garrison for the native bash workload:"
+  buh_line     "  ${z_garb} <investiture>"
+}
+
+zbuhj_render_top_linux_section() {
+  buyy_tt_yawp "${BUWZ_JP_CAPARISON_LIN}"  ; local -r z_capl="${z_buym_yelp}"
+  buyy_tt_yawp "${BUWZ_JP_GARRISON_BASH}"  ; local -r z_garb="${z_buym_yelp}"
+
+  buh_section  "Linux: first-time host setup"
+  buh_line     "Complete the operator-manual prerequisites (Tailscale install"
+  buh_line     "+ login, sshd install/enable on minimal distros, ssh-copy-id"
+  buh_line     "admin trust):"
+  buh_tt       "  " "${BUWZ_HJL_LINUX}"
+  buh_e
+  buh_line     "Then establish admin host posture (sshd, sleep mask,"
+  buh_line     "tailscaled):"
+  buh_line     "  ${z_capl} <investiture>"
+  buh_e
+  buh_line     "Then run garrison for the native bash workload:"
+  buh_line     "  ${z_garb} <investiture>"
+}
+
+zbuhj_render_workload_dispatch() {
+  buyy_tt_yawp "${BUWZ_JW_KNOCK}"         ; local -r z_jwk="${z_buym_yelp}"
+  buyy_tt_yawp "${BUWZ_JW_COMMAND_FILE}"  ; local -r z_jwc="${z_buym_yelp}"
+  buyy_tt_yawp "${BUWZ_JW_INTERACTIVE}"   ; local -r z_jws="${z_buym_yelp}"
+
+  buh_section  "After garrison: workload dispatch"
+  buh_line     "Once garrison succeeds, dispatch work via the workload"
+  buh_line     "tabtargets (platform-agnostic):"
+  buh_line     "  ${z_jwk} <investiture>"
+  buh_line     "    Probe workload reachability"
+  buh_line     "  ${z_jwc} <investiture> <file>"
+  buh_line     "    Run a command file"
+  buh_line     "  ${z_jws} <investiture>"
+  buh_line     "    Interactive workload session"
 }
 
 ######################################################################
@@ -265,11 +339,13 @@ buhj_top() {
 
   zbuhj_render_landing
   buh_e
-  zbuhj_render_linux_mac_note
+  zbuhj_render_top_windows_section
   buh_e
-  zbuhj_render_windows_pointer
+  zbuhj_render_top_macos_section
   buh_e
-  zbuhj_render_post_bootstrap
+  zbuhj_render_top_linux_section
+  buh_e
+  zbuhj_render_workload_dispatch
 }
 
 buhj_windows() {
@@ -281,6 +357,24 @@ buhj_windows() {
   zbuhj_render_windows_availability
   buh_e
   zbuhj_render_windows_bootstrap
+}
+
+buhj_macos() {
+  zbuhj_sentinel
+
+  buc_doc_brief "Display macOS first-time host setup (Tailscale install + login, ssh-copy-id admin trust)"
+  buc_doc_shown || return 0
+
+  zbuhj_render_macos
+}
+
+buhj_linux() {
+  zbuhj_sentinel
+
+  buc_doc_brief "Display Linux first-time host setup (Tailscale, sshd on minimal distros, ssh-copy-id admin trust)"
+  buc_doc_shown || return 0
+
+  zbuhj_render_linux
 }
 
 # eof
