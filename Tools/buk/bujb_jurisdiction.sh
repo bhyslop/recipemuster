@@ -2057,6 +2057,7 @@ zbujb_invigilate_windows_caparison_facts() {
   z_acl=$(<"${ZBUJB_INVIGILATE_STDOUT}")
   z_acl="${z_acl//$'\r'/}"
   z_acl="${z_acl%%Successfully processed*}"
+  z_acl="${z_acl#* }"
   case "${z_acl}" in
     *"${BUJB_acl_principal_admins}"*) ;;
     *) buc_die "workload authkeys ACL: missing '${BUJB_acl_principal_admins}' (see ${ZBUJB_INVIGILATE_STDOUT}) — caparison-windows (BUSJCW)" ;;
