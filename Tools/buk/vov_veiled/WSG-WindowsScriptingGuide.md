@@ -132,7 +132,13 @@ body decides AND acts; decisions belong in bash. See CDD below.
 
 The wrapper-side prelude
 (`$ErrorActionPreference='Stop'; $env:WSL_UTF8=1; $LASTEXITCODE=0; <body>; if ...`)
-is library code; the rule constrains caller bodies only.
+is library code; the rule constrains caller bodies only. The wrapper's
+exact three-slot shape (prelude / body / postlude) is the minimum-viable
+scaffolding given WSp-101, WSp-102, WSp-105, and WSp-109 acting in
+combination — see
+`Memos/memo-20260511-windows-transport-wrapper-postlude-synthesis.md`
+for the integrative rationale and the elimination argument showing why
+each token is load-bearing.
 
 ```bash
 # ❌ Compound state machine in PS body
