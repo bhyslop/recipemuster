@@ -39,6 +39,7 @@
         "₢A-ABH",
         "₢A-ABG",
         "₢A-ABJ",
+        "₢A-ABK",
         "₢A-ABD",
         "₢A-ABE",
         "₢A-ABC",
@@ -107,7 +108,7 @@
         "₢A-AAP",
         "₢A-ABI"
       ],
-      "jjghn_next_pace_seed": "ABK",
+      "jjghn_next_pace_seed": "ABL",
       "jjghn_paces": {
         "₢A-AA-": {
           "jjgpn_tacks": [
@@ -1800,6 +1801,17 @@
               "jjgtn_text": "## Character\nSurgical revert of a debug-loop accelerator.\n\n## Goal\nRemove the DEV CACHE shortcut from `zbujb_caparison_windows_stage_wsl` in\n`Tools/buk/bujb_jurisdiction.sh` so caparison-windows again creates the\nseed tar from scratch every run (download Ubuntu-24.04, export, import,\nunregister, delete tar). Restore the four commented-out blocks: [3/6]\ninstall, [4/6] export, [6/6] cleanup, and the `${BUJB_wsl_distribution}.tar`\npurge that was dropped from [1/6]. Restore the `z_tar_path` local back to\n`${BUJB_path_win_wsl_install_root}\\${BUJB_wsl_distribution}.tar` (drop the\nhardcoded `C:\\rbtww-seed.tar`).\n\n## Done when\n- Phase 3 stage_wsl matches its pre-cache shape (no DEV CACHE comments,\n  no hardcoded C:\\rbtww-seed.tar).\n- A caparison-windows run on bujn-winpc completes Phase 3 end-to-end with\n  the from-scratch download/export/import/cleanup path.\n- Operator manually removes the pre-staged `C:\\rbtww-seed.tar` from\n  bujn-winpc (one privileged-ssh Remove-Item) so no stale cache lingers.",
               "jjgtn_silks": "revert-wsl-stage-dev-cache",
               "jjgtn_basis": "924987f"
+            }
+          ]
+        },
+        "₢A-ABK": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260511-1310",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nSpec coherence to match unconditional-reboot architecture\nlanded under ₢A-ABG.\n\n## Goal\nBUS*.adoc specs reflect the reboot-as-precondition shape:\nBUSJGW gains the reboot step + simplified Phase 2; BUSJCW\nadds a cross-reference noting caparison's role as the\nreboot helper's enabling contract; WSG mints (or doesn't)\na WSp item codifying reboot-as-canonical-state-reset for\nWindows destructive cleanup.\n\n## Done when\n- BUSJGW step numbering and prose match landed bash.\n- BUSJCW cross-references the reboot dependency.\n- WSG decision recorded (new WSp or \"deemed not load-\n  bearing as a separate principle\").\n- Implementation commits under ₢A-ABG cited in spec edits.",
+              "jjgtn_silks": "windows-reboot-primitive-spec-coherence",
+              "jjgtn_basis": "78c15bc"
             }
           ]
         }
