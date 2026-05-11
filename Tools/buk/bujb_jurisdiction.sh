@@ -850,6 +850,14 @@ zbujb_obliterate_windows_namespaces() {
   # injection into the filter string. The capture below treats a non-zero
   # ssh/PowerShell exit as fatal (not "no rows") to keep query breakage
   # from masquerading as a clean empty result.
+  #
+  # Hive-loaded precondition: Win32_UserProfile.Delete() (via Remove-
+  # CimInstance) fails with "The process cannot access the file because
+  # it is being used by another process" when the profile's NTUSER.DAT
+  # is still mounted under HKEY_USERS\<SID>. The garrison-w prelude
+  # (zbujb_reboot_and_await_ssh) reboots the host before reaching
+  # obliterate, guaranteeing all workload hives are unmounted at this
+  # point — no in-process unload remediation needed here.
 
   buc_step "    [Phase 2] Probe Win32_UserProfile rows"
   local z_canonical_win="C:\\Users\\${BUJB_workload_user}"
@@ -867,8 +875,7 @@ zbujb_obliterate_windows_namespaces() {
   done <<<"${z_profiles_raw}"
 
   local z_i=0
-  local z_path=""
-  local z_path_wql=""
+  local z_path="" z_path_wql=""
   for z_i in "${!z_profiles_roll[@]}"; do
     z_path="${z_profiles_roll[$z_i]}"
     z_path_wql="${z_path//\\/\\\\}"
@@ -974,6 +981,75 @@ zbujb_obliterate_windows_namespaces() {
   zbujb_obliterate_run "p5-wsl-rm-home" \
       zbujb_admin_powershell "wsl.exe --distribution ${BUJB_wsl_distribution} --user root rm -rf ${BUJB_path_posix_user_home}" \
     || buc_die "obliterate phase 5: wsl rm -rf failed for ${BUJB_path_posix_user_home}"
+}
+
+# zbujb_reboot_and_await_ssh -- force a Windows host reboot via privileged
+# SSH, then poll for SSH reachability until the host returns. Guarantees a
+# clean HKEY_USERS / hive-mount baseline for subsequent destructive admin
+# operations (specifically obliterate Phase 2 Win32_UserProfile delete,
+# which fails with "file in use by another process" when a workload hive
+# is sticky-loaded from a prior SSH-as-workload session). Reboot is the
+# canonical Windows state-reset primitive — preferred over handle-hunt /
+# UserProfileSvc-cycle remediation because it is undocumented-internals-
+# free and 100% reliable as long as the host boots.
+#
+# Preconditions (all guaranteed by caparison-windows on this BURN node):
+#   - sshd is a Windows service starting at boot.
+#   - Tailscale service StartType=Automatic (BURN_HOST resolves on Tailnet
+#     after reboot without operator action).
+#   - administrators_authorized_keys + sshd_config Match block survive
+#     reboot (they live in C:\ProgramData\ssh).
+#
+# Mechanism: capture LastBootUpTime, issue Restart-Computer -Force (SSH
+# session drops; non-zero exit absorbed), poll SSH with ConnectTimeout=5
+# every 7 seconds up to a 10-minute cap (generous to tolerate pending
+# Windows updates), then verify LastBootUpTime advanced (catches the
+# "reboot did not fire" case — Group Policy block, pending operations,
+# etc.).
+zbujb_reboot_and_await_ssh() {
+  zbujb_sentinel
+
+  buc_step "  Reboot host ${BURN_HOST} (unconditional clean-baseline precondition)"
+
+  local z_pre_boot=""
+  z_pre_boot=$(zbujb_powershell_capture zbujb_privileged \
+      "(Get-CimInstance Win32_OperatingSystem).LastBootUpTime.ToString('o')") \
+    || buc_die "reboot: pre-reboot LastBootUpTime probe failed on ${BURN_HOST}"
+  buc_step "    Pre-reboot LastBootUpTime: ${z_pre_boot}"
+
+  # Issue Restart-Computer. SSH terminates as the host goes down; the
+  # non-zero exit is expected and absorbed.
+  zbujb_admin_powershell "Restart-Computer -Force" > /dev/null 2>&1 || true
+
+  buc_step "    Polling for SSH return (cap: 600s)"
+  local z_attempt=0
+  local -r z_max_attempts=85   # 85 * 7s = 595s ≈ 10 min
+  while [[ "${z_attempt}" -lt "${z_max_attempts}" ]]; do
+    z_attempt=$((z_attempt + 1))
+    if ssh -i "${BURP_PRIVILEGED_KEY_FILE}"             \
+           "${ZBUJB_SSH_BASE_ARGS[@]}"                  \
+           -o "${BUJB_ssh_opt_batchmode_yes}"           \
+           -o ConnectTimeout=5                          \
+           "${BURP_PRIVILEGED_USER}@${BURN_HOST}"       \
+           "exit 0" > /dev/null 2>&1; then
+      break
+    fi
+    sleep 7
+  done
+  test "${z_attempt}" -lt "${z_max_attempts}" \
+    || buc_die "reboot: SSH did not return within $((z_max_attempts * 7))s on ${BURN_HOST} (host stuck on updates? boot failed? check console)"
+
+  buc_step "    SSH back at attempt ${z_attempt} (~$((z_attempt * 7))s)"
+
+  local z_post_boot=""
+  z_post_boot=$(zbujb_powershell_capture zbujb_privileged \
+      "(Get-CimInstance Win32_OperatingSystem).LastBootUpTime.ToString('o')") \
+    || buc_die "reboot: post-reboot LastBootUpTime probe failed on ${BURN_HOST}"
+
+  test "${z_pre_boot}" != "${z_post_boot}" \
+    || buc_die "reboot: LastBootUpTime unchanged (${z_pre_boot}) on ${BURN_HOST} — Restart-Computer did not fire (Group Policy / pending operations?)"
+
+  buc_step "    Post-reboot LastBootUpTime: ${z_post_boot}"
 }
 
 # zbujb_obliterate_workload -- letter-agnostic, platform-dispatched destroy
@@ -1406,6 +1482,16 @@ bujb_garrison() {
   buc_step "Garrison-${z_letter}: ${BUZ_FOLIO} (${BURN_HOST})"
 
   bujp_preflight                     "${z_letter}"
+
+  # Reboot precondition (Windows only): guarantees a clean HKEY_USERS
+  # baseline so obliterate Phase 2 Win32_UserProfile delete is not
+  # blocked by a sticky-loaded workload hive from a prior SSH-as-
+  # workload session. Reboot is the canonical Windows state-reset
+  # primitive; see zbujb_reboot_and_await_ssh for the rationale.
+  case "${BURN_PLATFORM}" in
+    bubep_windows) zbujb_reboot_and_await_ssh ;;
+  esac
+
   zbujb_obliterate_workload
   zbujb_garrison_step3_create        "${z_letter}"
 
