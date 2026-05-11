@@ -91,11 +91,12 @@ routing to `administrators_authorized_keys`. Idempotent
 .. provision the parent directory
 `__PROGRAMDATA__\\ssh\\users\\${BUJB_workload_user}\\` over
 `«ADMIN_SESSION_P1»` with ACL: admins/SYSTEM Full Control,
-${BUJB_workload_user} Read only, non-admin users no access -- ACL
-discipline parallels `administrators_authorized_keys`. Idempotent.
-The directory persists across {busn_garrison} destroy-and-recreate
-cycles -- garrison rewrites the file contents but never touches the
-directory
+inheritance disabled, no workload grant -- sshd reads as
+`NT AUTHORITY\\SYSTEM` and accesses the trust file under its own
+identity, parallel to `administrators_authorized_keys` ACL
+discipline. Idempotent. The directory persists across
+{busn_garrison} destroy-and-recreate cycles -- garrison rewrites
+the file contents but never touches the directory
 .. {busc_fatal}
 on write or ACL failure -- restart would still serve unhardened auth
 or workload auth path would not resolve
@@ -163,11 +164,27 @@ before the multi-minute WSL stage so missing operator posture does
 not waste a download cycle
 
 //axhos_step
+. *Phase 3 — provision C:\\bujb-wsl directory*:
+.. {busc_call}
+`New-Item -ItemType Directory -Path 'C:\\bujb-wsl' -Force` over
+`«ADMIN_SESSION_P2»` -- idempotent. Holds admin's `rbtww-main`
+distribution VHD tree AND serves as the admin↔workload handoff
+point for the seed tarball that {busn_garrison} (WSL letter) writes
+during step 3. Default ACL inheritance from `C:\\` grants
+`BUILTIN\\Users:ReadAndExecute`, which is what allows the workload
+SSH session in garrison-w step 11 to read the seed -- the seed must
+NOT live under workload's Windows profile because admin's
+`wsl --export` writes file ACLs that exclude the workload user
+.. {busc_fatal}
+on directory-creation failure -- {bust_handbook_windows} scope
+
+//axhos_step
 . *Phase 3 — stage rbtww-main WSL distribution*:
 .. {busc_call}
 `wsl.exe --import` from the Ubuntu-24.04 seed over
 `«ADMIN_SESSION_P2»` to register `rbtww-main` under the admin user
-(canonical: `BUJB_wsl_distribution` in {bujb_jurisdiction})
+at `C:\\bujb-wsl\\rbtww-main` (canonical: `BUJB_wsl_distribution`
+in {bujb_jurisdiction})
 .. nuclear -- always purge-and-reimport
 .. {busc_fatal}
 on import failure -- WSL feature disabled, seed unavailable, or
@@ -219,11 +236,15 @@ On success:
   `AuthorizedKeysFile` to the admin-owned absolute path
   `__PROGRAMDATA__/ssh/users/${BUJB_workload_user}/authorized_keys`.
 * `__PROGRAMDATA__\\ssh\\users\\${BUJB_workload_user}\\` directory
-  exists with admins-FullControl + workload-Read ACL, ready for
-  {busn_garrison} to write the trust file content (the file itself
-  is garrison's responsibility, not caparison's).
+  exists with admins/SYSTEM FullControl, inheritance disabled, no
+  workload grant -- sshd reads as SYSTEM, ready for {busn_garrison}
+  to write the trust file content (the file itself is garrison's
+  responsibility, not caparison's).
 * Post-restart admin session authenticates by key alone.
-* `rbtww-main` WSL distribution is registered under the admin user.
+* `C:\\bujb-wsl\\` directory exists (admin↔workload handoff point;
+  default-inherited ACL grants workload `BUILTIN\\Users:ReadAndExecute`).
+* `rbtww-main` WSL distribution is registered under the admin user
+  at `C:\\bujb-wsl\\rbtww-main`.
 * `powercfg` sleep and hibernate are disabled.
 * Tailscale service is Automatic and running.
 * {bust_invigilate_windows}'s caparison-deliverable fact subset

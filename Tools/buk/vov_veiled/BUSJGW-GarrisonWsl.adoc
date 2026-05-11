@@ -19,12 +19,16 @@ installs `Match User ${BUJB_workload_user}` in `sshd_config` routing
 `__PROGRAMDATA__/ssh/users/${BUJB_workload_user}/authorized_keys`.
 Sshd's trust-file lookup never resolves the workload's `$HOME`.
 
-NOTE: All workload state changes occur within a *single*
-SSH-as-workload session (step 11) terminated by `wsl.exe --shutdown`
-as its final act, releasing the `NTUSER.DAT` hive before Windows
-unloads the logon. This discipline prevents Windows User Profile
-Service from demoting subsequent workload logons to numbered
-fallback profile directories. See Rationale.
+NOTE: Workload provisioning runs as *four* atomic SSH-as-workload
+sessions (step 11), each carrying a single cmdlet or native-binary
+call per WSG WSp-105. The fourth session is `wsl.exe --shutdown`
+alone, releasing the `NTUSER.DAT` hive before Windows unloads that
+logon. Best-effort minimum-session-count: WSG-strict single-cmdlet
+bodies and single-session-with-shutdown are mutually exclusive in
+the transport stack, so multi-session demotion risk during sessions
+1-3 is accepted; Layer 1 (caparison-installed absolute-path Match
+block + admin-owned authorized_keys) is the auth defense if
+demotion occurs. See Rationale.
 
 NOTE: Cleanup (steps 4-8) is best-effort. Windows User Profile
 Service performs asynchronous internal bookkeeping after profile
@@ -33,10 +37,11 @@ achievable; discipline is sufficient sweep that step 9's
 `New-LocalUser` lands on a clean SID with the canonical profile
 path.
 
-NOTE: Round-trip validation under the locked-down directive is
-deferred to
-{bust_invigilate_windows}
-as a post-completion fact; garrison-w does not self-validate.
+NOTE: Garrison-w does not self-validate the locked-down round-trip.
+The operator's first workload-SSH invocation post-garrison
+(`buw-jwk`, `buw-jwc`, `buw-jws`) IS the round-trip validation; an
+explicit invigilate fact for this assertion was retired as
+overdesign once those operational tabtargets existed.
 
 The
 {busn_garrison}
@@ -62,11 +67,12 @@ under key-only auth using
 has run for this
 {burp_investiture}
 -- admin SSH trust established, `rbtww-main` staged under the admin
-user, sshd_config carries the `Match User ${BUJB_workload_user}`
-block routing `AuthorizedKeysFile` to
+user at `C:\\bujb-wsl\\rbtww-main`, sshd_config carries the `Match
+User ${BUJB_workload_user}` block routing `AuthorizedKeysFile` to
 `__PROGRAMDATA__/ssh/users/${BUJB_workload_user}/authorized_keys`
-(parent directory pre-provisioned, admins-FullControl +
-workload-Read ACL).
+(parent directory pre-provisioned with admins/SYSTEM FullControl,
+no workload grant -- sshd reads as SYSTEM, parallel to
+`administrators_authorized_keys`).
 
 //axhoq_precondition
 {burp_workload_key_file}
@@ -107,12 +113,16 @@ scope
 //axhos_step
 . *Export admin's rbtww-main as workload-readable seed*:
 .. {busc_call}
-`wsl.exe --export rbtww-main <seed-path>` over `«ADMIN_SESSION»` to
-a path inside the workload's Windows profile -- admin can write
-there before the workload first logs in, workload session can read
-it
+`wsl.exe --export rbtww-main C:\\bujb-wsl\\rbtww-seed.tar` over
+`«ADMIN_SESSION»` -- writes the seed at the
+{busn_caparison}-provisioned `C:\\bujb-wsl\\` directory whose default
+inheritance from `C:\\` grants `BUILTIN\\Users:ReadAndExecute`,
+making the seed readable by the workload SSH session in step 11.
+Writing under the workload's Windows profile fails because admin's
+`wsl --export` inherits admin's logon-SID ACL on the resulting file,
+excluding the workload user
 .. {busc_store}
-`«SEED_TARBALL»` (the chosen path)
+`«SEED_TARBALL»` = `C:\\bujb-wsl\\rbtww-seed.tar`
 .. {busc_fatal}
 on export failure --
 {bust_caparison_windows}
@@ -135,11 +145,13 @@ scope
 //axhos_step
 . *Obliterate Phase 2 -- Profile destruction via Win32_UserProfile*:
 .. {busc_call}
-`Get-CimInstance -ClassName Win32_UserProfile -Filter "LocalPath
-LIKE 'C:\\Users\\${BUJB_workload_user}%' OR LocalPath LIKE
-'C:\\Users\\${BUJB_workload_user}.%'"` over `«ADMIN_SESSION»` -- two
-LIKE patterns catch canonical AND numbered fallback dirs from prior
-demotions; emits one row per matching profile
+`Get-CimInstance -ClassName Win32_UserProfile -Filter "LocalPath =
+'C:\\Users\\${BUJB_workload_user}' OR LocalPath LIKE
+'C:\\Users\\${BUJB_workload_user}.%'"` over `«ADMIN_SESSION»` --
+exact-match for canonical path + LIKE for numbered fallback dirs
+from prior demotions; the unbounded `<user>%` form is forbidden
+because it would prefix-match unrelated accounts like
+`${BUJB_workload_user}_alt`. Emits one row per matching profile
 .. For each row, {busc_call}
 `Remove-CimInstance -Query "SELECT * FROM Win32_UserProfile WHERE
 LocalPath = '<row.LocalPath>'"` over `«ADMIN_SESSION»` -- one SSH
@@ -214,11 +226,14 @@ scope
 . *Create Windows workload account*:
 .. {busc_call}
 `net.exe user /add /passwordreq:no /active:yes
-${BUJB_workload_user}` over `«ADMIN_SESSION»` -- provisions
+${BUJB_workload_user}` over `«ADMIN_SESSION»` -- creates
 {bujb_workload_user}
-as a Windows local user and registers its SID under
-`HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList`
-so Windows OpenSSH builds a complete logon session on inbound SSH
+in the SAM database
+(`HKLM\\SAM\\SAM\\Domains\\Account\\Users`). The
+`HKLM\\...\\ProfileList\\<SID>` entry is *not* written by
+`net.exe user /add`; User Profile Service populates it on the first
+interactive logon, which the step 11 workload SSH session triggers
+via `wsl.exe --import` and the surrounding logon ceremony
 .. No Linux user is created inside admin's `rbtww-main` -- the
 workload's Linux user is minted inside the workload's *own*
 imported distribution in step 11
@@ -239,48 +254,56 @@ a bare entry (no `command=` directive) to
 -- single cmdlet per WSG WSp-105; admin-owned file throughout its
 lifetime; directory pre-provisioned by
 {busn_caparison}
-with admins-FullControl + workload-Read ACL
+with admins/SYSTEM FullControl only (sshd reads as SYSTEM, parallel
+to `administrators_authorized_keys`)
 .. {busc_fatal}
 on key-write failure
 
 //axhos_step
-. *Provision workload's WSL (single SSH-as-workload session)*:
+. *Provision workload's WSL (four atomic SSH-as-workload sessions per WSG WSp-105)*:
 .. {busc_call}
-ssh as
+*Session 1 (import)*: ssh as
 {bujb_workload_user}
 with
 {burp_workload_key_file}
-through the bare entry at the absolute-path authorized_keys -- real
-Windows logon for the workload, HKCU mounted; this is the *only*
-SSH-as-workload session inside garrison-w
-.. {busc_store}
-`«WORKLOAD_SESSION»`
+running `wsl.exe --import rbtww-main <workload-wsl-root>
+«SEED_TARBALL»` -- registers the workload's own `rbtww-main` in
+workload's `HKCU\\Lxss`; `<workload-wsl-root>` is a workload-writable
+directory inside the workload's Windows profile. The bare entry at
+the absolute-path authorized_keys authenticates this session
 .. {busc_call}
-`wsl.exe --import rbtww-main <workload-wsl-root> «SEED_TARBALL»`
-over `«WORKLOAD_SESSION»` -- registers the workload's own
-`rbtww-main` in workload's `HKCU\\Lxss`; `<workload-wsl-root>` is a
-workload-writable directory inside the workload's Windows profile
+*Session 2 (useradd)*: ssh as
+{bujb_workload_user}
+running `wsl.exe --distribution rbtww-main --user root useradd
+--create-home --shell /bin/bash ${BUJB_workload_user}` -- mints the
+inner Linux workload user. `useradd` produces a locked-by-default
+account per `/etc/shadow` convention (shadow entry `!` when `-p`
+is not supplied); no separate `passwd --lock` session required
 .. {busc_call}
-`wsl.exe --distribution rbtww-main --user root useradd --create-home
---shell /bin/bash ${BUJB_workload_user}` over `«WORKLOAD_SESSION»`
--- mints the inner Linux workload user
+*Session 3 (privkey)*: ssh as
+{bujb_workload_user}
+running `wsl.exe --distribution rbtww-main --user root install -D
+-m 600 -o ${BUJB_workload_user} -g ${BUJB_workload_user} /dev/stdin
+/home/${BUJB_workload_user}/.ssh/id_ed25519`, redirecting
+{burp_workload_key_file}
+to ssh's stdin -- the key flows through ssh FD 0 -> cmd.exe -> wsl.exe
+-> Linux child, where `install -D /dev/stdin` sets mode and owner
+atomically and creates the parent `.ssh/` directory. No plaintext
+key on either side's disk, no remote temp file, no key material
+in argv
 .. {busc_call}
-`wsl.exe --distribution rbtww-main --user root passwd --lock
-${BUJB_workload_user}` over `«WORKLOAD_SESSION»` -- enforces
-SSH-key-only on the inner Linux account
-.. {busc_call}
-plant
-{burp_workload_key_file}'s
-contents at `/home/${BUJB_workload_user}/.ssh/id_ed25519` (chmod
-600) inside the distribution -- workload's outbound auth, e.g.,
-GitHub
-.. {busc_call}
-`wsl.exe --shutdown` over `«WORKLOAD_SESSION»` -- final act before
-session exit
+*Session 4 (shutdown)*: ssh as
+{bujb_workload_user}
+running `wsl.exe --shutdown` -- releases the WSL VM and helper-
+process hive handles (wslhost.exe, wslservice) before this session's
+Windows logon unloads. Best-effort defense against demotion
+accumulation across the four sessions; Layer 1
+({busn_caparison}-installed absolute-path Match block) is the auth
+defense if a stray demotion occurs
 .. {busc_call}
 delete `«SEED_TARBALL»` over `«ADMIN_SESSION»`
 .. {busc_fatal}
-on any sub-call failure -- workload state partially provisioned
+on any session's failure -- workload state partially provisioned
 across namespaces; revalidate from a clean garrison
 
 //axhos_step
@@ -342,20 +365,24 @@ any step's
 
 ==== Rationale
 
-*Single-session-with-shutdown (step 11)*::
-The session does `wsl --import` + inner provisioning + `wsl
---shutdown` in one logon. The shutdown is required as the
-session's final act because `wsl --import` registers state in
-canonical `HKCU\Lxss`, and a stray Windows User Profile Service
-demotion during this session would relocate the registration to a
-numbered fallback profile (`bujuw_user.<host>.NNN`). Auth would
-still succeed (absolute-path authorized_keys bypasses `$HOME`),
-but `wsl.exe --distribution rbtww-main` in the locked-down
-`command=` would fail to find the distribution. The shutdown
-releases the `NTUSER.DAT` hive cleanly before Windows unloads the
-logon, closing the demotion path. The lockdown rewrite (step 12)
-runs in admin context after the workload session exits -- no
-in-session rewrite race.
+*Four-session shape with final shutdown (step 11)*::
+WSG WSp-105 (one cmdlet or native binary per body) forbids the
+compound session shape (wsl --import + useradd + install-D + wsl
+--shutdown all on one workload SSH connection). Each cmdlet
+therefore opens its own session. Across sessions 1-3, helper
+processes (wslhost.exe, wslservice) spawned by `wsl --import`
+outlive their parent session and lock the NTUSER.DAT hive of the
+workload's logon, exposing the demotion path (User Profile Service
+relocating the canonical profile to `bujuw_user.<host>.NNN` on the
+next logon). Session 4 is `wsl.exe --shutdown` as its only act,
+releasing the WSL VM and the helper-process hive handles before
+that session's logon unloads -- best-effort cleanup that limits but
+does not eliminate the demotion risk across sessions 1-3. Layer 1
+({busn_caparison}-installed absolute-path Match block + admin-owned
+authorized_keys) is the auth defense if demotion still occurs:
+sshd reads as SYSTEM from the absolute path and never resolves the
+workload's `$HOME`. The lockdown rewrite (step 12) runs in admin
+context after session 4 exits -- no in-session rewrite race.
 
 *Two LIKE patterns in Phase 2*::
 The query matches `LocalPath LIKE

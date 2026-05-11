@@ -130,18 +130,21 @@ BUJB_sshd_match_block_text="Match User ${BUJB_workload_user}
 BUJB_wsl_seed_distribution='Ubuntu-24.04'
 
 # Windows-side install directory housing both seed and canonical
-# distribution VHD trees plus the intermediate .tar export.
-BUJB_path_win_wsl_install_root='C:\WSL'
+# distribution VHD trees plus the intermediate .tar export. The
+# bujb- prefix names the BUK module that owns this directory, so
+# the path is unambiguously project-controlled rather than reading
+# as a Microsoft-default location (the prior C:\WSL value did).
+BUJB_path_win_wsl_install_root='C:\bujb-wsl'
 
 # WSL artifacts.
-# Seed tarball lives under C:\WSL (caparison-windows-created;
-# inherits BUILTIN\Users:ReadAndExecute + Authenticated Users:Modify
-# ACL so the SSH-as-workload `wsl --import` reads it without an icacls
-# fix-up step). Writing the seed under the workload profile would
-# inherit admin's logon-SID ACL excluding the workload user, since
-# admin runs the wsl --export. The workload's installed-VHD root
-# stays under the workload profile (workload owns it; created by the
-# workload's own wsl --import).
+# Seed tarball lives under C:\bujb-wsl (caparison-windows-created;
+# inherits BUILTIN\Users:ReadAndExecute from C:\ default ACL, which
+# is what allows the SSH-as-workload `wsl --import` to read the
+# seed without an icacls fix-up step). Writing the seed under the
+# workload profile would inherit admin's logon-SID ACL excluding
+# the workload user, since admin runs the wsl --export. The
+# workload's installed-VHD root stays under the workload profile
+# (workload owns it; created by the workload's own wsl --import).
 BUJB_path_win_seed_tarball="${BUJB_path_win_wsl_install_root}\\${BUJB_seed_basename}"
 BUJB_path_win_wsl_root="${BUJB_path_win_user_home}\\${BUJB_wsl_root_basename}"
 
@@ -765,16 +768,19 @@ zbujb_caparison_run() {
 # Phase 2 - Win32_UserProfile destruction: WMI Filter matches canonical
 #   profile dir AND .NNN numbered fallback dirs from prior demotions;
 #   per-row Remove-CimInstance with -Query (single-cmdlet shape).
-# Phase 3 - SAM scrub: Get-LocalUser probe + conditional Remove-LocalUser.
+# Phase 3 - SAM scrub: Remove-LocalUser collapsed dispatch with
+#   -ErrorAction SilentlyContinue, per WSG WSp-108 nuclear-cleanup
+#   carve-out (narrow failure spectrum at SAM-database callsite;
+#   downstream New-LocalUser catches silent partial cleanup).
 # Phase 4 - Filesystem sweep: Get-ChildItem under C:\Users filtered by
 #   workload prefix, bash-side tightening to exact-or-.NNN, then per-row
-#   Remove-Item. Cygwin home: Test-Path + conditional Remove-Item.
-# Phase 5 - WSL vestige inside admin's rbtww-main: id probe + conditional
-#   userdel, then unconditional rm -rf of /home/<user> for the orphan-
-#   home case (rm of a non-existent path returns non-zero on most
-#   variants — wsl-inside bash handles the predicate inline... but per
-#   WSs-104 we keep the body as one simple command and tolerate failure
-#   on absent home by running the probe first, see comment below).
+#   Remove-Item. Cygwin home: Test-Path + conditional Remove-Item
+#   (arbitrary filesystem path; WSp-108 main rule, no carve-out).
+# Phase 5 - WSL vestige inside admin's rbtww-main: userdel collapsed
+#   dispatch with exit-code-6 tolerance (POSIX false-branches principle
+#   from the orchestration-style memo; NOT WSp-108 since userdel is a
+#   Linux native binary). Then unconditional rm -rf of /home/<user>
+#   (rm -rf is idempotent on absent paths).
 zbujb_obliterate_windows_namespaces() {
   zbujb_sentinel
 
@@ -832,18 +838,17 @@ zbujb_obliterate_windows_namespaces() {
 
   ##############
   # Phase 3 — SAM scrub (Windows local user)
+  #
+  # Collapsed dispatch per WSG WSp-108 nuclear-cleanup carve-out: narrow
+  # failure spectrum at this callsite (admin context, SAM database, fixed
+  # workload user name); subsequent step's New-LocalUser provides the
+  # downstream verification by erroring on "account already exists" if a
+  # silent partial cleanup left a SID behind.
 
-  buc_step "    [Phase 3] Probe Get-LocalUser ${BUJB_workload_user}"
-  local z_sam=""
-  z_sam=$(zbujb_powershell_capture zbujb_privileged \
-      "Get-LocalUser -Name '${BUJB_workload_user}' -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name") \
-    || z_sam=""
-  if test -n "${z_sam}"; then
-    buc_step "    [Phase 3] Remove-LocalUser ${BUJB_workload_user}"
-    zbujb_obliterate_run "p3-remove-localuser" \
-        zbujb_admin_powershell "Remove-LocalUser -Name '${BUJB_workload_user}'" \
-      || buc_die "obliterate phase 3: Remove-LocalUser failed for ${BUJB_workload_user}"
-  fi
+  buc_step "    [Phase 3] Remove-LocalUser ${BUJB_workload_user} (collapsed, -EAS)"
+  zbujb_obliterate_run "p3-remove-localuser" \
+      zbujb_admin_powershell "Remove-LocalUser -Name '${BUJB_workload_user}' -ErrorAction SilentlyContinue" \
+    || buc_die "obliterate phase 3: SSH transport failed for Remove-LocalUser ${BUJB_workload_user}"
 
   ##############
   # Phase 4 — Filesystem sweep
@@ -907,19 +912,20 @@ zbujb_obliterate_windows_namespaces() {
   # HKCU\Lxss (created later by zbujb_garrison_w_session_import) and is
   # not visible from admin's wsl.exe.
   #
-  # userdel needs a probe (userdel of an absent user returns non-zero).
-  # rm -rf is idempotent on absent paths — run unconditionally.
+  # Collapsed dispatch per the orchestration-style memo's POSIX
+  # false-branches principle (NOT WSp-108 — userdel is a Linux native
+  # binary, not a PowerShell destructive cmdlet). userdel returns exit
+  # code 6 when the target user is absent; we accept 6 as no-op. Any
+  # other non-zero exit is fatal. rm -rf is idempotent on absent paths
+  # and runs unconditionally.
 
-  buc_step "    [Phase 5] Probe Linux user ${BUJB_workload_user} inside ${BUJB_wsl_distribution}"
-  local z_wsl_id_exit=0
-  zbujb_obliterate_run "p5-wsl-id" \
-      zbujb_admin_powershell "wsl.exe --distribution ${BUJB_wsl_distribution} --user root id ${BUJB_workload_user}" \
-    || z_wsl_id_exit=$?
-  if test "${z_wsl_id_exit}" -eq 0; then
-    buc_step "    [Phase 5] wsl userdel ${BUJB_workload_user}"
-    zbujb_obliterate_run "p5-wsl-userdel" \
-        zbujb_admin_powershell "wsl.exe --distribution ${BUJB_wsl_distribution} --user root userdel ${BUJB_workload_user}" \
-      || buc_die "obliterate phase 5: wsl userdel failed for ${BUJB_workload_user}"
+  buc_step "    [Phase 5] wsl userdel ${BUJB_workload_user} (exit 6 = absent, treated as no-op)"
+  local z_userdel_exit=0
+  zbujb_obliterate_run "p5-wsl-userdel" \
+      zbujb_admin_powershell "wsl.exe --distribution ${BUJB_wsl_distribution} --user root userdel ${BUJB_workload_user}" \
+    || z_userdel_exit=$?
+  if test "${z_userdel_exit}" -ne 0 && test "${z_userdel_exit}" -ne 6; then
+    buc_die "obliterate phase 5: wsl userdel returned exit ${z_userdel_exit} (acceptable: 0 or 6) for ${BUJB_workload_user}"
   fi
 
   buc_step "    [Phase 5] wsl rm -rf ${BUJB_path_posix_user_home} (idempotent on absent)"
@@ -2087,34 +2093,13 @@ zbujb_invigilate_windows_caparison_facts() {
   esac
 }
 
-# zbujb_invigilate_windows_roundtrip_fact -- exercise the locked-down workload
-# SSH path end-to-end. A successful workload `ssh ... true` validates: the
-# caparison-installed Match User block routing AuthorizedKeysFile to the
-# absolute admin-owned path, the garrison-installed command= directive in
-# that file, and the wsl.exe --user --exec --bash redirect into the
-# workload's distribution. Only valid AFTER garrison-w has completed for
-# this investiture; not called from caparison/garrison precondition paths.
-zbujb_invigilate_windows_roundtrip_fact() {
-  zbujb_sentinel
-
-  buc_step "  Fact: workload SSH round-trip via locked-down command= directive"
-  ssh -i "${BURP_WORKLOAD_KEY_FILE}"               \
-      "${ZBUJB_SSH_BASE_ARGS[@]}"                  \
-      -o "${BUJB_ssh_opt_batchmode_yes}"           \
-      -o "${BUJB_ssh_opt_connecttimeout_15}"       \
-      "${BUJB_workload_user}@${BURN_HOST}"         \
-      true                                         \
-      > "${ZBUJB_INVIGILATE_STDOUT}"               \
-      2> "${ZBUJB_INVIGILATE_STDERR}"              \
-    || buc_die "workload SSH round-trip: ssh as ${BUJB_workload_user} returned non-zero (see ${ZBUJB_INVIGILATE_STDERR}) — caparison-windows Match block or garrison-w lockdown_rewrite may be malformed"
-}
-
 # bujb_invigilate_windows -- BUSJIW read-only host posture verification.
-# Three fact groups: operator-handbook preconditions (op_facts), caparison
-# deliverables (caparison_facts), and workload round-trip (roundtrip_fact).
-# Round-trip fact is post-garrison-w only; callers that need to invoke
-# invigilate before garrison-w (caparison preflight, garrison precondition)
-# must call the helper functions directly rather than this full audit.
+# Two fact groups: operator-handbook preconditions (op_facts) and caparison
+# deliverables (caparison_facts). Round-trip validation under the locked-
+# down command= directive is NOT an invigilate fact; the operator's first
+# workload-SSH invocation post-garrison (buw-jwk / buw-jwc / buw-jws) IS
+# the round-trip. An explicit invigilate fact for this assertion was
+# retired as overdesign once those operational tabtargets existed.
 bujb_invigilate_windows() {
   zbujb_sentinel
   test "${ZBUJB_RESOLVED:-}" = "1" \
@@ -2132,8 +2117,6 @@ bujb_invigilate_windows() {
   zbujb_invigilate_windows_op_facts
 
   zbujb_invigilate_windows_caparison_facts
-
-  zbujb_invigilate_windows_roundtrip_fact
 
   buc_step "Invigilate-windows succeeded"
 }
