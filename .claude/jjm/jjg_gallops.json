@@ -24,7 +24,6 @@
     "₣A6",
     "₣AU",
     "₣AQ",
-    "₣AV",
     "₣AZ",
     "₣Aa",
     "₣Au",
@@ -6018,14 +6017,6 @@
           ]
         }
       }
-    },
-    "₣AV": {
-      "jjghn_silks": "rbw-implement-gar-mirroring",
-      "jjghn_creation_time": "260201",
-      "jjghn_status": "jjghe_stabled",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
     },
     "₣AZ": {
       "jjghn_silks": "cmk-diptych-prototype",

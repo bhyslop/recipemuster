@@ -1,3 +1,12 @@
+# Heat Trophy: rbw-implement-gar-mirroring
+
+**Firemark:** ₣AV
+**Created:** 260201
+**Retired:** 260511
+**Status:** retired
+
+## Paddock
+
 # Paddock: rbw-implement-gar-mirroring
 
 ## Context
@@ -45,3 +54,18 @@ This aligns mirroring with the ark build infrastructure.
 ## Heat Nature
 
 **Planning/design heat** — no paces yet. Accumulate ideas here, then slate paces when ready to implement.
+
+## Paces
+
+## Commit Activity
+
+```
+File-touch bitmap: (no work file changes)
+```
+
+## Steeplechase
+
+### 2026-02-01 20:30 - Heat - N
+
+rbw-implement-gar-mirroring
+
