@@ -9,6 +9,7 @@
     "₣BA",
     "₣A_",
     "₣A-",
+    "₣Aq",
     "₣Az",
     "₣Ap",
     "₣Ah",
@@ -27,7 +28,6 @@
     "₣AV",
     "₣AZ",
     "₣Aa",
-    "₣Aq",
     "₣Au",
     "₣BC"
   ],
@@ -7619,7 +7619,7 @@
       }
     },
     "₣Aq": {
-      "jjghn_silks": "rbk-post-release-ideas",
+      "jjghn_silks": "rbk-deferred-simple-things",
       "jjghn_creation_time": "260307",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
