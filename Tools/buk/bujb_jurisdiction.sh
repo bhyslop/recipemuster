@@ -199,17 +199,18 @@ BUJB_sshkeygen_emit_pubkey="ssh-keygen -y -P '' -f"
 
 # SSH option values used inline at every ssh call alongside
 # ZBUJB_SSH_BASE_ARGS. BatchMode=yes / ConnectTimeout=15 is the dominant
-# pair; caparison-windows phase 1's password-fallback case uses
-# BatchMode=no inline and step6_validate's knock uses ConnectTimeout=10
-# inline.
+# pair; the BatchMode=no + PreferredAuthentications=publickey,password
+# variant lives in zbujb_admin_powershell_with_password_fallback for the
+# single bounded Add-Content callsite (caparison-windows phase 1 step 3);
+# step6_validate's knock uses ConnectTimeout=10 inline.
 BUJB_ssh_opt_batchmode_yes='BatchMode=yes'
 BUJB_ssh_opt_connecttimeout_15='ConnectTimeout=15'
 
-# PowerShell CLI invocation forms. _command for one-shot string invocations
-# (the dominant case); _file_stdin for streaming a PS script body from
-# stdin (caparison-windows phases 1 and 2).
+# PowerShell CLI invocation form for one-shot string bodies. After the
+# Phase 1 decomposition into single-cmdlet zbujb_admin_powershell calls
+# this is the only form caparison uses; the prior `powershell -NoProfile
+# -File -` stdin-fed form retired with the heredoc helpers.
 BUJB_ps_invoke_command='powershell -NoProfile -Command'
-BUJB_ps_invoke_file_stdin='powershell -NoProfile -File -'
 
 # PowerShell session discipline prelude shared by admin_powershell and
 # powershell_capture:
@@ -574,6 +575,34 @@ zbujb_admin_powershell() {
       -o "${BUJB_ssh_opt_batchmode_yes}"      \
       -o "${BUJB_ssh_opt_connecttimeout_15}"  \
       "${BURP_PRIVILEGED_USER}@${BURN_HOST}"  \
+      "${BUJB_ps_invoke_command} \"${BUJB_ps_prelude} ${z_body_escaped}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE }\""
+}
+
+# zbujb_admin_powershell_with_password_fallback BODY... -- mirror of
+# zbujb_admin_powershell but with BatchMode=no and
+# PreferredAuthentications=publickey,password so ssh can fall through
+# to a /dev/tty password prompt on first-caparison-ever when the admin
+# pubkey is not yet authorized. The caparison process never sees the
+# password; the prompt is handled by the operator's local ssh client.
+# Bounded to a single call site: caparison-windows phase 1 step 3
+# (admin pubkey install via single Add-Content) gated by the key-auth
+# CDD probe; every other admin-shell op uses the key-only
+# zbujb_admin_powershell. Same discipline prelude/postlude as
+# zbujb_admin_powershell; same WSp-105 single-cmdlet body discipline;
+# same WSp-109 escape transform.
+zbujb_admin_powershell_with_password_fallback() {
+  zbujb_sentinel
+  test $# -ge 1 \
+    || buc_die "zbujb_admin_powershell_with_password_fallback: PowerShell command body required"
+  local -r z_body="$*"
+  local -r z_body_escaped="${z_body//\"/\\\"}"   # WSp-109
+
+  ssh -i "${BURP_PRIVILEGED_KEY_FILE}"             \
+      "${ZBUJB_SSH_BASE_ARGS[@]}"                  \
+      -o BatchMode=no                              \
+      -o PreferredAuthentications=publickey,password \
+      -o "${BUJB_ssh_opt_connecttimeout_15}"       \
+      "${BURP_PRIVILEGED_USER}@${BURN_HOST}"       \
       "${BUJB_ps_invoke_command} \"${BUJB_ps_prelude} ${z_body_escaped}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE }\""
 }
 
@@ -1402,57 +1431,13 @@ bujb_garrison() {
 ######################################################################
 # Internal: Caparison-windows helpers (BUSJCW — Windows OpenSSH only)
 #
-# Each phase 1 chunk is a separate ssh call with publickey,password preferred
-# auth. On a fresh node, chunk A's first publickey attempt fails and ssh
-# falls through to /dev/tty password prompt — operator types once. After
-# chunk A places the admin pubkey, chunk B's publickey attempt succeeds
-# (the running sshd's old config still permits pubkey auth and now reads
-# the updated authorized_keys), so no further prompt. Phase 2 is key-only.
-# No ControlMaster, no traps, no 2>/dev/null.
-
-# zbujb_caparison_windows_exec_with_password_fallback STDOUT_FILE STDERR_FILE
-# Reads a PowerShell script from stdin and runs it on the remote node as
-# the privileged user. publickey,password preferred (BatchMode=no allows
-# /dev/tty password prompt on first run). Default Windows OpenSSH shell is
-# cmd.exe; we explicitly invoke `powershell -NoProfile -File -` to feed
-# the script via stdin. Returns ssh's exit code (caller decides).
-zbujb_caparison_windows_exec_with_password_fallback() {
-  zbujb_sentinel
-  local -r z_stdout_file="${1:-}"
-  local -r z_stderr_file="${2:-}"
-  test -n "${z_stdout_file}" || buc_die "zbujb_caparison_windows_exec_with_password_fallback: stdout_file required"
-  test -n "${z_stderr_file}" || buc_die "zbujb_caparison_windows_exec_with_password_fallback: stderr_file required"
-
-  ssh -i "${BURP_PRIVILEGED_KEY_FILE}"           \
-      "${ZBUJB_SSH_BASE_ARGS[@]}"                \
-      -o BatchMode=no                            \
-      -o PreferredAuthentications=publickey,password \
-      -o "${BUJB_ssh_opt_connecttimeout_15}"     \
-      "${BURP_PRIVILEGED_USER}@${BURN_HOST}"     \
-      "${BUJB_ps_invoke_file_stdin}"             \
-      > "${z_stdout_file}"                       \
-      2> "${z_stderr_file}"
-}
-
-# zbujb_caparison_windows_exec_keyonly STDOUT_FILE STDERR_FILE
-# Same as above but BatchMode=yes (no password fallback). Used for phase 2.
-zbujb_caparison_windows_exec_keyonly() {
-  zbujb_sentinel
-  local -r z_stdout_file="${1:-}"
-  local -r z_stderr_file="${2:-}"
-  test -n "${z_stdout_file}" || buc_die "zbujb_caparison_windows_exec_keyonly: stdout_file required"
-  test -n "${z_stderr_file}" || buc_die "zbujb_caparison_windows_exec_keyonly: stderr_file required"
-
-  ssh -i "${BURP_PRIVILEGED_KEY_FILE}"           \
-      "${ZBUJB_SSH_BASE_ARGS[@]}"                \
-      -o "${BUJB_ssh_opt_batchmode_yes}"         \
-      -o PreferredAuthentications=publickey      \
-      -o "${BUJB_ssh_opt_connecttimeout_15}"     \
-      "${BURP_PRIVILEGED_USER}@${BURN_HOST}"     \
-      "${BUJB_ps_invoke_file_stdin}"             \
-      > "${z_stdout_file}"                       \
-      2> "${z_stderr_file}"
-}
+# Phase 1 decomposes into 13 single-cmdlet steps per WSG WSp-105 bounded
+# by a key-auth CDD probe: zbujb_admin_powershell 'exit 0' decides
+# whether the bounded password-fallback Add-Content (step 3) runs via
+# zbujb_admin_powershell_with_password_fallback or no-ops. Every other
+# step is key-only via zbujb_admin_powershell. Phase 2 reconnects under
+# key-only auth and re-verifies the served sshd_config. No
+# ControlMaster, no traps, no 2>/dev/null.
 
 # zbujb_caparison_windows_verify_directives REMOTE_FILE -- load REMOTE_FILE (raw
 # sshd_config bytes from PowerShell Get-Content), strip CR, then assert
@@ -1570,126 +1555,89 @@ zbujb_caparison_windows_verify_match_block() {
 ######################################################################
 # Internal: Caparison-windows phases
 
-# zbujb_caparison_windows_phase1 -- chunk A (install admin pubkey idempotently +
-# icacls + merge sshd_config hardening + sshd -t + emit raw bytes); bash-
-# side parse + verify; then chunk B (Restart-Service sshd, disconnect
-# expected — exit code ignored).
+# zbujb_caparison_windows_phase1 -- 13 single-cmdlet steps per WSG WSp-105,
+# bounded by a key-auth CDD probe so steady-state re-runs are key-only
+# end-to-end and only first-caparison-ever issues a single TTY password
+# prompt for the admin pubkey install (step 3). See BUSJCW for the
+# axhos_step list and the per-step contract.
 zbujb_caparison_windows_phase1() {
   zbujb_sentinel
 
+  buc_step "  [Phase 1] [Step 1/13] Derive admin pubkey"
   ${BUJB_sshkeygen_emit_pubkey} "${BURP_PRIVILEGED_KEY_FILE}" \
       > "${ZBUJB_PUBKEY_STDOUT_PRIV}" \
       2> "${ZBUJB_PUBKEY_STDERR_PRIV}" \
-    || buc_die "ssh-keygen -y failed for admin key: ${BURP_PRIVILEGED_KEY_FILE} — see ${ZBUJB_PUBKEY_STDERR_PRIV}"
+    || buc_die "Phase 1 step 1: ssh-keygen -y failed for admin key: ${BURP_PRIVILEGED_KEY_FILE} — see ${ZBUJB_PUBKEY_STDERR_PRIV}"
   local z_pubkey
   z_pubkey=$(<"${ZBUJB_PUBKEY_STDOUT_PRIV}")
   z_pubkey="${z_pubkey//$'\n'/}"
 
-  buc_step "  [Phase 1] Chunk A: pubkey + icacls + sshd_config + sshd -t + emit (operator may be prompted for admin password on first run)"
+  buc_step "  [Phase 1] [Step 2/13] Probe key-auth availability (non-fatal — both outcomes valid)"
+  local z_idx_probe
+  zbujb_emit_index_advance z_idx_probe
+  local -r z_probe_stdout="${ZBUJB_CAPARISON_PREFIX}${z_idx_probe}_p1-keyauth-probe_stdout.txt"
+  local -r z_probe_stderr="${ZBUJB_CAPARISON_PREFIX}${z_idx_probe}_p1-keyauth-probe_stderr.txt"
+  local z_key_auth_available="False"
+  if zbujb_admin_powershell 'exit 0' \
+      > "${z_probe_stdout}" \
+      2> "${z_probe_stderr}"; then
+    z_key_auth_available="True"
+  fi
+  buc_step "    Key auth available: ${z_key_auth_available}"
 
-  # Build the PS hashtable block from BUJB_sshd_hardening so the bash-side
-  # tinder is the sole source of truth for directive names + expected
-  # values; phase 2's verify and the PS-side rewrite cannot drift.
-  local z_ps_directives_block=""
-  local z_pair="" z_dir="" z_val=""
-  while IFS= read -r z_pair; do
+  if [[ "${z_key_auth_available}" == "False" ]]; then
+    buc_step "  [Phase 1] [Step 3/13] Install admin pubkey via password-fallback Add-Content (operator may be prompted once for admin password)"
+    zbujb_caparison_run "p1-install-admin-pubkey" \
+        zbujb_admin_powershell_with_password_fallback \
+        "Add-Content -Path (\$env:ProgramData + '\\ssh\\administrators_authorized_keys') -Value '${z_pubkey}' -Encoding ASCII" \
+      || buc_die "Phase 1 step 3: Add-Content for admin pubkey install failed (operator password rejected, write denied, or file locked)"
+  else
+    buc_step "  [Phase 1] [Step 3/13] Install admin pubkey: SKIP (key auth already works; pubkey by construction already authorized)"
+  fi
+
+  buc_step "  [Phase 1] [Step 4/13] icacls lockdown on administrators_authorized_keys"
+  zbujb_caparison_run "p1-icacls-admin-authkeys" \
+      zbujb_admin_powershell \
+      "icacls (\$env:ProgramData + '\\ssh\\administrators_authorized_keys') /inheritance:r /grant '${BUJB_acl_principal_system}:F' /grant '${BUJB_acl_principal_admins}:F'" \
+    || buc_die "Phase 1 step 4: icacls on administrators_authorized_keys failed — subsequent key-auth ops would not authenticate"
+
+  buc_step "  [Phase 1] [Step 5/13] Read current sshd_config"
+  local z_idx_read
+  zbujb_emit_index_advance z_idx_read
+  local -r z_sshd_current_stdout="${ZBUJB_CAPARISON_PREFIX}${z_idx_read}_p1-sshd-read_stdout.txt"
+  local -r z_sshd_current_stderr="${ZBUJB_CAPARISON_PREFIX}${z_idx_read}_p1-sshd-read_stderr.txt"
+  zbujb_admin_powershell "Get-Content (\$env:ProgramData + '\\ssh\\sshd_config') -Raw" \
+      > "${z_sshd_current_stdout}" \
+      2> "${z_sshd_current_stderr}" \
+    || buc_die "Phase 1 step 5: Get-Content on sshd_config failed — see ${z_sshd_current_stderr}"
+
+  buc_step "  [Phase 1] [Step 6/13] Build new sshd_config content (curia-side: replace hardening directives + strip prior Match block + append canonical Match block)"
+  local z_current_raw=""
+  z_current_raw=$(<"${z_sshd_current_stdout}")
+  local z_current_clean="${z_current_raw//$'\r'/}"
+
+  local z_directives_roll=()
+  local z_pair=""
+  while IFS= read -r z_pair || test -n "${z_pair}"; do
     test -n "${z_pair}" || continue
-    z_dir="${z_pair%% *}"
-    z_val="${z_pair#* }"
-    z_ps_directives_block+="  '${z_dir}' = '${z_val}'"$'\n'
+    z_directives_roll+=("${z_pair}")
   done <<<"${BUJB_sshd_hardening}"
 
-  local z_idx_chunk_a
-  zbujb_emit_index_advance z_idx_chunk_a
-  local -r z_chunk_a_stdout="${ZBUJB_CAPARISON_PREFIX}${z_idx_chunk_a}_phase1_chunkA_stdout.txt"
-  local -r z_chunk_a_stderr="${ZBUJB_CAPARISON_PREFIX}${z_idx_chunk_a}_phase1_chunkA_stderr.txt"
-  zbujb_caparison_windows_exec_with_password_fallback \
-      "${z_chunk_a_stdout}"  \
-      "${z_chunk_a_stderr}"  \
-    <<PS1 || buc_die "Phase 1 chunk A failed — admin pubkey/icacls/sshd_config/sshd -t did not all succeed; see ${z_chunk_a_stderr}"
-\$ErrorActionPreference = 'Stop'
-
-\$pubkey = '${z_pubkey}'
-\$adminAuthKeys = "\$env:ProgramData\\ssh\\administrators_authorized_keys"
-\$sshConfig    = "${BUJB_ps_sshd_config_path}"
-
-# Idempotent admin pubkey install
-if (-not (Test-Path \$adminAuthKeys)) {
-  New-Item -Path \$adminAuthKeys -ItemType File -Force | Out-Null
-}
-\$existingLines = @(Get-Content \$adminAuthKeys -ErrorAction SilentlyContinue)
-if (\$existingLines -notcontains \$pubkey) {
-  Add-Content -Path \$adminAuthKeys -Value \$pubkey -Encoding ASCII
-}
-
-# icacls lockdown (idempotent)
-icacls \$adminAuthKeys /inheritance:r /grant '${BUJB_acl_principal_system}:F' /grant '${BUJB_acl_principal_admins}:F' 2>&1 | Out-Null
-if (\$LASTEXITCODE -ne 0) { throw "icacls failed (exit \$LASTEXITCODE)" }
-
-# Idempotent sshd_config harden — replace the first matching line for
-# each directive (commented or otherwise) and drop subsequent duplicates;
-# append directives that are absent. Convergent on re-run.
-\$directives = [ordered]@{
-${z_ps_directives_block}}
-
-\$lines = @(Get-Content \$sshConfig)
-\$out   = New-Object System.Collections.Generic.List[string]
-\$seen  = @{}
-foreach (\$line in \$lines) {
-  \$matched = \$false
-  foreach (\$k in \$directives.Keys) {
-    if (\$line -match "^\\s*#*\\s*\$k\\s+\\S") {
-      if (-not \$seen.ContainsKey(\$k)) {
-        \$out.Add("\$k \$(\$directives[\$k])")
-        \$seen[\$k] = \$true
-      }
-      \$matched = \$true
-      break
-    }
-  }
-  if (-not \$matched) { \$out.Add(\$line) }
-}
-foreach (\$k in \$directives.Keys) {
-  if (-not \$seen.ContainsKey(\$k)) { \$out.Add("\$k \$(\$directives[\$k])") }
-}
-Set-Content -Path \$sshConfig -Value \$out -Encoding ASCII
-
-# sshd -t — penultimate atomic op; aborts before restart on bad config
-& 'C:\\Windows\\System32\\OpenSSH\\sshd.exe' -t
-if (\$LASTEXITCODE -ne 0) { throw "sshd -t failed (exit \$LASTEXITCODE)" }
-
-# Emit raw bytes for bash-side parse (last op so output is clean)
-Get-Content \$sshConfig -Raw
-PS1
-
-  buc_step "  [Phase 1] Verify hardened directives via bash-side parse"
-  zbujb_caparison_windows_verify_directives "${z_chunk_a_stdout}"
-
-  ##############
-  # Phase 1 extension — install Match User block + provision authkeys directory
-  # per BUSJCW step 5. Atomic single-cmdlet/single-binary SSH calls; bash owns
-  # the state machine via Capture-Decide-Dispatch.
-
-  buc_step "  [Phase 1] Capture-Decide-Dispatch: Match User ${BUJB_workload_user} block"
-  local z_existing_sshd=""
-  z_existing_sshd=$(<"${z_chunk_a_stdout}")
-  # Normalize to LF endings — WriteAllBytes will write whatever we encode.
-  z_existing_sshd="${z_existing_sshd//$'\r'/}"
-
-  # Always strip any prior "Match User <workload>" block (lines from that
-  # header until the next "Match " line or EOF), then append the canonical
-  # block. This is nuclear-idempotent regardless of prior content.
-  local z_new_sshd=""
-  local z_skip_block=0
+  local z_current_lines_roll=()
   local z_line=""
-  local z_existing_lines_roll=()
   while IFS= read -r z_line || test -n "${z_line}"; do
-    z_existing_lines_roll+=("${z_line}")
-  done <<<"${z_existing_sshd}"
+    z_current_lines_roll+=("${z_line}")
+  done <<<"${z_current_clean}"
 
-  local z_i=0
-  for z_i in "${!z_existing_lines_roll[@]}"; do
-    z_line="${z_existing_lines_roll[$z_i]}"
+  local z_out_lines_roll=()
+  local z_seen_roll=()
+  local z_skip_block=0
+  local z_i=0 z_j=0 z_k=0
+  local z_directive="" z_value="" z_check="" z_first_word=""
+  local z_is_directive=0 z_already_seen=0
+  for z_i in "${!z_current_lines_roll[@]}"; do
+    z_line="${z_current_lines_roll[$z_i]}"
+
     case "${z_line}" in
       "Match User ${BUJB_workload_user}")
         z_skip_block=1
@@ -1699,89 +1647,129 @@ PS1
         z_skip_block=0
         ;;
     esac
-    test "${z_skip_block}" -eq 1 || z_new_sshd+="${z_line}"$'\n'
+    test "${z_skip_block}" -eq 1 && continue
+
+    z_check="${z_line#"${z_line%%[![:space:]]*}"}"
+    z_check="${z_check#\#}"
+    z_check="${z_check#"${z_check%%[![:space:]]*}"}"
+    z_first_word="${z_check%% *}"
+
+    z_is_directive=0
+    for z_j in "${!z_directives_roll[@]}"; do
+      z_directive="${z_directives_roll[$z_j]%% *}"
+      z_value="${z_directives_roll[$z_j]#* }"
+      if [[ "${z_first_word}" == "${z_directive}" ]]; then
+        z_already_seen=0
+        for z_k in "${!z_seen_roll[@]}"; do
+          test "${z_seen_roll[$z_k]}" = "${z_directive}" && { z_already_seen=1; break; }
+        done
+        if [[ "${z_already_seen}" -eq 0 ]]; then
+          z_out_lines_roll+=("${z_directive} ${z_value}")
+          z_seen_roll+=("${z_directive}")
+        fi
+        z_is_directive=1
+        break
+      fi
+    done
+    test "${z_is_directive}" -eq 1 && continue
+
+    z_out_lines_roll+=("${z_line}")
   done
 
-  # Append canonical Match block (trailing newline so any future appends
-  # start on a fresh line).
+  for z_j in "${!z_directives_roll[@]}"; do
+    z_directive="${z_directives_roll[$z_j]%% *}"
+    z_value="${z_directives_roll[$z_j]#* }"
+    local z_was_seen=0
+    for z_k in "${!z_seen_roll[@]}"; do
+      test "${z_seen_roll[$z_k]}" = "${z_directive}" && { z_was_seen=1; break; }
+    done
+    test "${z_was_seen}" -eq 0 && z_out_lines_roll+=("${z_directive} ${z_value}")
+  done
+
+  local z_new_sshd=""
+  for z_line in "${z_out_lines_roll[@]}"; do
+    z_new_sshd+="${z_line}"$'\n'
+  done
   z_new_sshd+="${BUJB_sshd_match_block_text}"$'\n'
 
-  buc_step "  [Phase 1] Encode new sshd_config bytes for transport"
-  printf '%s' "${z_new_sshd}"                                  \
-      | openssl enc -base64 -A                                 \
-          > "${ZBUJB_AUTHKEYS_B64_STDOUT}"                     \
-          2> "${ZBUJB_AUTHKEYS_B64_STDERR}"                    \
-    || buc_die "Phase 1: base64 encode of sshd_config failed — see ${ZBUJB_AUTHKEYS_B64_STDERR}"
+  buc_step "  [Phase 1] [Step 7/13] Write new sshd_config (base64 transport via WriteAllBytes)"
+  printf '%s' "${z_new_sshd}" \
+      | openssl enc -base64 -A \
+        > "${ZBUJB_AUTHKEYS_B64_STDOUT}" \
+        2> "${ZBUJB_AUTHKEYS_B64_STDERR}" \
+    || buc_die "Phase 1 step 7: base64 encode of sshd_config failed — see ${ZBUJB_AUTHKEYS_B64_STDERR}"
   local z_sshd_b64=""
   z_sshd_b64=$(<"${ZBUJB_AUTHKEYS_B64_STDOUT}")
   z_sshd_b64="${z_sshd_b64//$'\n'/}"
 
-  buc_step "  [Phase 1] Write new sshd_config with Match block"
-  zbujb_caparison_run "p1-sshd-config-write" \
-      zbujb_admin_powershell "[System.IO.File]::WriteAllBytes((\$env:ProgramData + '\\ssh\\sshd_config'), [System.Convert]::FromBase64String('${z_sshd_b64}'))" \
-    || buc_die "Phase 1: failed to write sshd_config with Match block"
+  zbujb_caparison_run "p1-sshd-write" \
+      zbujb_admin_powershell \
+      "[System.IO.File]::WriteAllBytes((\$env:ProgramData + '\\ssh\\sshd_config'), [System.Convert]::FromBase64String('${z_sshd_b64}'))" \
+    || buc_die "Phase 1 step 7: WriteAllBytes on sshd_config failed — restart would still serve unhardened auth"
 
-  buc_step "  [Phase 1] CDD: workload authkeys directory presence"
+  buc_step "  [Phase 1] [Step 8/13] Provision workload authkeys parent directory (CDD)"
   local z_dir_present=""
   z_dir_present=$(zbujb_powershell_capture zbujb_privileged \
       "Test-Path (\$env:ProgramData + '\\ssh\\users\\${BUJB_workload_user}')") \
-    || buc_die "Phase 1: Test-Path on workload authkeys directory failed"
+    || buc_die "Phase 1 step 8: Test-Path on workload authkeys directory failed"
   z_dir_present="${z_dir_present//[$'\r\n']/}"
   case "${z_dir_present}" in
     True)
+      buc_step "    Workload authkeys directory already present"
       ;;
     False)
-      buc_step "  [Phase 1] Create workload authkeys directory"
+      buc_step "    Creating workload authkeys directory"
       zbujb_caparison_run "p1-mkdir-authkeys-dir" \
-          zbujb_admin_powershell "New-Item -ItemType Directory -Path (\$env:ProgramData + '\\ssh\\users\\${BUJB_workload_user}') -Force | Out-Null" \
-        || buc_die "Phase 1: failed to create workload authkeys directory"
+          zbujb_admin_powershell \
+          "New-Item -ItemType Directory -Path (\$env:ProgramData + '\\ssh\\users\\${BUJB_workload_user}') -Force | Out-Null" \
+        || buc_die "Phase 1 step 8: New-Item on workload authkeys directory failed — workload auth path would not resolve"
       ;;
     *)
-      buc_die "Phase 1: Test-Path returned unexpected '${z_dir_present}' for workload authkeys directory"
+      buc_die "Phase 1 step 8: Test-Path returned unexpected '${z_dir_present}' for workload authkeys directory"
       ;;
   esac
 
-  buc_step "  [Phase 1] icacls workload authkeys directory (admins+SYSTEM FullControl, inheritance disabled)"
+  buc_step "  [Phase 1] [Step 9/13] icacls lockdown on workload authkeys directory"
   zbujb_caparison_run "p1-icacls-authkeys-dir" \
-      zbujb_admin_powershell "icacls (\$env:ProgramData + '\\ssh\\users\\${BUJB_workload_user}') /inheritance:r /grant '${BUJB_acl_principal_system}:F' /grant '${BUJB_acl_principal_admins}:F'" \
-    || buc_die "Phase 1: icacls on workload authkeys directory failed"
+      zbujb_admin_powershell \
+      "icacls (\$env:ProgramData + '\\ssh\\users\\${BUJB_workload_user}') /inheritance:r /grant '${BUJB_acl_principal_system}:F' /grant '${BUJB_acl_principal_admins}:F'" \
+    || buc_die "Phase 1 step 9: icacls on workload authkeys directory failed — sshd would refuse the workload trust file"
 
-  buc_step "  [Phase 1] sshd -t (re-validate after Match block append)"
-  zbujb_caparison_run "p1-sshd-t-rev" \
+  buc_step "  [Phase 1] [Step 10/13] Validate sshd_config (sshd -t)"
+  zbujb_caparison_run "p1-sshd-t" \
       zbujb_admin_powershell "& 'C:\\Windows\\System32\\OpenSSH\\sshd.exe' -t" \
-    || buc_die "Phase 1: sshd -t failed after Match block append — config malformed"
+    || buc_die "Phase 1 step 10: sshd -t failed — config malformed; aborting preserves running sshd"
 
-  buc_step "  [Phase 1] Re-read sshd_config and verify Match block resolved"
+  buc_step "  [Phase 1] [Step 11/13] Re-read sshd_config (post-write)"
   local z_idx_verify
   zbujb_emit_index_advance z_idx_verify
-  local -r z_verify_stdout="${ZBUJB_CAPARISON_PREFIX}${z_idx_verify}_phase1_match_verify_stdout.txt"
-  local -r z_verify_stderr="${ZBUJB_CAPARISON_PREFIX}${z_idx_verify}_phase1_match_verify_stderr.txt"
+  local -r z_sshd_verify_stdout="${ZBUJB_CAPARISON_PREFIX}${z_idx_verify}_p1-sshd-verify_stdout.txt"
+  local -r z_sshd_verify_stderr="${ZBUJB_CAPARISON_PREFIX}${z_idx_verify}_p1-sshd-verify_stderr.txt"
   zbujb_admin_powershell "Get-Content (\$env:ProgramData + '\\ssh\\sshd_config') -Raw" \
-      > "${z_verify_stdout}" \
-      2> "${z_verify_stderr}" \
-    || buc_die "Phase 1: Get-Content sshd_config (verify pass) failed — see ${z_verify_stderr}"
-  zbujb_caparison_windows_verify_match_block "${z_verify_stdout}"
+      > "${z_sshd_verify_stdout}" \
+      2> "${z_sshd_verify_stderr}" \
+    || buc_die "Phase 1 step 11: Get-Content on sshd_config (verify pass) failed — see ${z_sshd_verify_stderr}"
 
-  buc_step "  [Phase 1] Chunk B: Restart-Service sshd (disconnect expected — exit code ignored)"
-  local z_idx_chunk_b
-  zbujb_emit_index_advance z_idx_chunk_b
-  local -r z_chunk_b_stdout="${ZBUJB_CAPARISON_PREFIX}${z_idx_chunk_b}_phase1_chunkB_stdout.txt"
-  local -r z_chunk_b_stderr="${ZBUJB_CAPARISON_PREFIX}${z_idx_chunk_b}_phase1_chunkB_stderr.txt"
-  zbujb_caparison_windows_exec_with_password_fallback \
-      "${z_chunk_b_stdout}"  \
-      "${z_chunk_b_stderr}"  \
-    <<'PS1' || true
-$ErrorActionPreference = 'Continue'
-Restart-Service sshd
-PS1
+  buc_step "  [Phase 1] [Step 12/13] Verify hardened directives and Match block (curia-side)"
+  zbujb_caparison_windows_verify_directives "${z_sshd_verify_stdout}"
+  zbujb_caparison_windows_verify_match_block "${z_sshd_verify_stdout}"
+
+  buc_step "  [Phase 1] [Step 13/13] Restart-Service sshd (disconnect expected — exit code absorbed; Phase 2 reconnect validates)"
+  zbujb_caparison_run "p1-restart-sshd" \
+      zbujb_admin_powershell "Restart-Service sshd" \
+    || true
 }
 
-# zbujb_caparison_windows_phase2 -- reconnect via key-only auth and re-verify the
-# hardened directives served by the running sshd.
+# zbujb_caparison_windows_phase2 -- reconnect under key-only auth and
+# re-verify the served sshd_config. The successful reconnect IS the
+# proof of key-auth restoration after Phase 1's Restart-Service; the
+# Get-Content body satisfies WSG WSp-105 with a single cmdlet and lets
+# the bash-side verifiers fast-fail on directive or Match-block drift
+# before Phase 3's multi-minute WSL stage burns.
 zbujb_caparison_windows_phase2() {
   zbujb_sentinel
 
-  buc_step "  [Phase 2] Reconnect under key-only auth + re-verify"
+  buc_step "  [Phase 2] Reconnect under key-only auth + re-verify served sshd_config"
 
   # Allow sshd a moment to come back from Restart-Service.
   sleep 3
@@ -1790,15 +1778,13 @@ zbujb_caparison_windows_phase2() {
   zbujb_emit_index_advance z_idx_phase2
   local -r z_phase2_stdout="${ZBUJB_CAPARISON_PREFIX}${z_idx_phase2}_phase2_stdout.txt"
   local -r z_phase2_stderr="${ZBUJB_CAPARISON_PREFIX}${z_idx_phase2}_phase2_stderr.txt"
-  zbujb_caparison_windows_exec_keyonly  \
-      "${z_phase2_stdout}"  \
-      "${z_phase2_stderr}"  \
-    <<PS1 || buc_die "Phase 2 reconnect failed — possible brick: admin pubkey not honored after restart or sshd did not come back up; see ${z_phase2_stderr}"
-\$ErrorActionPreference = 'Stop'
-Get-Content "${BUJB_ps_sshd_config_path}" -Raw
-PS1
+  zbujb_admin_powershell "Get-Content (\$env:ProgramData + '\\ssh\\sshd_config') -Raw" \
+      > "${z_phase2_stdout}" \
+      2> "${z_phase2_stderr}" \
+    || buc_die "Phase 2 reconnect failed — possible brick: admin pubkey not honored after restart or sshd did not come back up; see ${z_phase2_stderr}"
 
   zbujb_caparison_windows_verify_directives "${z_phase2_stdout}"
+  zbujb_caparison_windows_verify_match_block "${z_phase2_stdout}"
 }
 
 # zbujb_caparison_windows_phase3 -- post-trust admin posture: stage the
@@ -1845,11 +1831,13 @@ zbujb_caparison_windows_phase3() {
 # Public: Caparison-windows ceremony
 
 # bujb_caparison_windows -- run the three-phase caparison-windows ceremony
-# for a Windows OpenSSH node. Phase 1: admin pubkey install + sshd_config
-# harden + sshd -t + Restart-Service sshd. Phase 2: reconnect under
-# key-only auth + re-verify directives. Phase 3: WSL distribution stage +
-# powercfg sleep/hibernate disable + Tailscale service auto-start. Closes
-# with post-completion invigilate-windows. Caller must have invoked
+# for a Windows OpenSSH node. Phase 1: 13 single-cmdlet steps (admin
+# pubkey install gated by key-auth CDD probe + ACL lockdown + sshd_config
+# rewrite with Match block + sshd -t + Restart-Service sshd). Phase 2:
+# reconnect under key-only auth + re-verify served sshd_config (directives
+# + Match block). Phase 3: WSL distribution stage + powercfg sleep/
+# hibernate disable + Tailscale service auto-start. Closes with
+# post-completion invigilate-windows. Caller must have invoked
 # bujb_resolve_investiture beforehand.
 bujb_caparison_windows() {
   zbujb_sentinel

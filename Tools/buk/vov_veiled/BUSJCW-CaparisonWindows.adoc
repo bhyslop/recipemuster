@@ -2,9 +2,14 @@
 {bust_caparison_windows}
 
 NOTE: {busn_caparison} on Windows -- three phases. Phase 1: admin SSH
-key trust + `sshd_config` hardening. Phase 2: key-only reconnect.
-Phase 3: post-trust admin posture (WSL distribution, powercfg,
-Tailscale service). Closes with {bust_invigilate_windows}.
+key trust + `sshd_config` hardening, decomposed into single-cmdlet
+calls over the admin-shell helper in {bujb_jurisdiction} bounded by a
+key-auth CDD probe so steady-state re-runs are key-only end-to-end
+and only first-caparison-ever on a host issues a single TTY password
+prompt for the admin pubkey install. Phase 2: key-only reconnect +
+served-config re-verify. Phase 3: post-trust admin posture (WSL
+distribution, powercfg, Tailscale service). Closes with
+{bust_invigilate_windows}.
 
 NOTE: Nuclear -- every invocation purges and re-establishes the
 caparison-managed posture; no skip-if-present logic.
@@ -13,10 +18,19 @@ the idempotent admin-shell remainder.
 
 NOTE: Phase 1's `Restart-Service sshd` terminates its own ssh session
 -- the post-restart disconnect is the expected phase boundary, not a
-failure. PowerShell-side operations use `Get-Content`, `Set-Service`,
-`Start-Service`, `Restart-Service`, `wsl.exe --import`; bash-side
-BCG-compliant matching extracts effective `sshd_config` directives
-from the raw bytes.
+failure. Every Phase 1 PowerShell body is one cmdlet or one native-
+binary call per WSG WSp-105; the wrapper-side prelude/postlude lives
+in {bujb_jurisdiction}'s admin-shell helpers, not in caller bodies.
+Bash-side BCG-compliant matching extracts effective `sshd_config`
+directives from the raw bytes emitted by `Get-Content -Raw`.
+
+NOTE: Password-fallback transport is bounded to a single `Add-Content`
+cmdlet (admin pubkey install) gated by the key-auth CDD probe. On
+first-caparison-ever the probe returns False and the bounded session
+prompts on /dev/tty; every re-run sees the probe return True and the
+install step no-ops because the admin pubkey is by construction
+already authorized. Every other Phase 1 step is key-only via
+{bujb_jurisdiction}'s admin-shell helper.
 
 The {busn_caparison} operation on Windows:
 
@@ -40,87 +54,132 @@ Caparison presupposes this scope.
 {burp_privileged_key_file} is unencrypted.
 
 //axhos_step
-. *Phase 1 — open admin SSH session*:
+. *Phase 1 -- derive admin pubkey*:
 .. {busc_call}
-ssh as {burp_privileged_user} with
-`PreferredAuthentications=publickey,password` (steady-state: key via
-{burp_privileged_key_file}; first run: TTY password)
-.. {busc_store}
-`«ADMIN_SESSION_P1»` for phase 1 operations
-.. {busc_fatal}
-on connection failure -- {bust_handbook_windows} scope
-
-//axhos_step
-. *Phase 1 — derive admin pubkey*:
-.. {busc_call}
-`ssh-keygen -y` on {burp_privileged_key_file}
+`ssh-keygen -y` on {burp_privileged_key_file} (curia-side)
 .. {busc_store}
 `«ADMIN_PUBKEY»` from stdout
 .. {busc_fatal}
 on derivation failure -- privkey encrypted (unsupported) or unreadable
 
 //axhos_step
-. *Phase 1 — install admin pubkey*:
-.. write `«ADMIN_PUBKEY»` to `administrators_authorized_keys` over
-`«ADMIN_SESSION_P1»` as a bare key entry (no `command=`)
-.. nuclear -- file replaced, not merged
-.. {busc_fatal}
-on write failure -- {bust_handbook_windows} scope
-
-//axhos_step
-. *Phase 1 — lock down administrators_authorized_keys ACL*:
+. *Phase 1 -- probe key-auth availability (CDD probe)*:
 .. {busc_call}
-`icacls` over `«ADMIN_SESSION_P1»` -- ACL restricted to SYSTEM and
-Administrators (Windows OpenSSH refuses the file otherwise);
-idempotent
-.. {busc_fatal}
-on `icacls` failure -- phase 2 reconnect would fail
-
-//axhos_step
-. *Phase 1 — write hardened sshd_config directives*:
-.. write `PubkeyAuthentication yes`, `PasswordAuthentication no`,
-`PermitEmptyPasswords no` to `sshd_config` over `«ADMIN_SESSION_P1»`;
-idempotent
-.. ensure `sshd_config` carries a `Match User ${BUJB_workload_user}`
-block routing `AuthorizedKeysFile` to
-`__PROGRAMDATA__/ssh/users/${BUJB_workload_user}/authorized_keys` --
-absolute path decouples sshd's workload authorized_keys lookup from
-workload's `$HOME` (so a future profile demotion cannot lock out
-auth); parallel to the built-in `Match Group administrators` block
-routing to `administrators_authorized_keys`. Idempotent
-.. provision the parent directory
-`__PROGRAMDATA__\\ssh\\users\\${BUJB_workload_user}\\` over
-`«ADMIN_SESSION_P1»` with ACL: admins/SYSTEM Full Control,
-inheritance disabled, no workload grant -- sshd reads as
-`NT AUTHORITY\\SYSTEM` and accesses the trust file under its own
-identity, parallel to `administrators_authorized_keys` ACL
-discipline. Idempotent. The directory persists across
-{busn_garrison} destroy-and-recreate cycles -- garrison rewrites
-the file contents but never touches the directory
-.. {busc_fatal}
-on write or ACL failure -- restart would still serve unhardened auth
-or workload auth path would not resolve
-
-//axhos_step
-. *Phase 1 — verify hardened directives took*:
-.. {busc_call}
-PowerShell `Get-Content` on `sshd_config` over `«ADMIN_SESSION_P1»`
+ssh as {burp_privileged_user} with
+`PreferredAuthentications=publickey` using
+{burp_privileged_key_file}, running `exit 0` via the admin-shell
+helper -- single-statement PS body per WSG WSp-105
 .. {busc_store}
-`«SSHD_CONFIG_BYTES»`
-.. {busc_require}
-`«SSHD_CONFIG_BYTES»` parses to `PubkeyAuthentication yes`,
-`PasswordAuthentication no`, `PermitEmptyPasswords no` as effective
-directive values (BCG-compliant matching), AND contains a
-`Match User ${BUJB_workload_user}` block whose `AuthorizedKeysFile`
-resolves to
-`__PROGRAMDATA__/ssh/users/${BUJB_workload_user}/authorized_keys`
-.. {busc_fatal}
-on mismatch -- prior write did not take or stale override shadows
+`«KEY_AUTH_AVAILABLE»` = `True` on exit 0, `False` on transport or
+auth failure (absorbed silently -- both outcomes are valid
+pre-conditions; first-caparison-ever vs. re-run)
 
 //axhos_step
-. *Phase 1 — validate sshd_config*:
+. *Phase 1 -- install admin pubkey if absent (CDD dispatch)*:
+.. On `«KEY_AUTH_AVAILABLE»` equal to `False`, {busc_call}
+ssh as {burp_privileged_user} with
+`PreferredAuthentications=publickey,password` (`BatchMode=no` allows
+the /dev/tty password prompt on first-caparison-ever; operator types
+once; caparison never sees the password), running a single
+`Add-Content -Path "$env:ProgramData\\ssh\\administrators_authorized_keys"
+-Value '«ADMIN_PUBKEY»' -Encoding ASCII` over a password-fallback
+admin-shell helper -- single cmdlet body per WSG WSp-105.
+`Add-Content` creates the file when absent
+.. On `«KEY_AUTH_AVAILABLE»` equal to `True`, no-op -- the admin
+pubkey is by construction already authorized (proven by step 2's
+success)
+.. {busc_fatal}
+on `Add-Content` failure -- write denied, file locked, or
+operator-typed password rejected
+
+//axhos_step
+. *Phase 1 -- lock down administrators_authorized_keys ACL*:
 .. {busc_call}
-`sshd -t` over `«ADMIN_SESSION_P1»` -- penultimate atomic op of phase 1
+`icacls "$env:ProgramData\\ssh\\administrators_authorized_keys"
+/inheritance:r /grant 'NT AUTHORITY\\SYSTEM:F' /grant
+'BUILTIN\\Administrators:F'` over key-only ssh -- Windows OpenSSH
+refuses the file otherwise; idempotent
+.. {busc_fatal}
+on `icacls` failure -- subsequent key-auth ops would not authenticate
+
+//axhos_step
+. *Phase 1 -- read current sshd_config*:
+.. {busc_call}
+`Get-Content "$env:ProgramData\\ssh\\sshd_config" -Raw` over key-only
+ssh -- raw bytes for curia-side construction; single cmdlet
+.. {busc_store}
+`«SSHD_CONFIG_CURRENT»`
+.. {busc_fatal}
+on read failure -- {bust_handbook_windows} scope (sshd_config missing
+or unreadable)
+
+//axhos_step
+. *Phase 1 -- build new sshd_config content (curia-side)*:
+.. strip CR bytes from `«SSHD_CONFIG_CURRENT»` and walk lines: for
+each hardening directive (`PubkeyAuthentication yes`,
+`PasswordAuthentication no`, `PermitEmptyPasswords no`), replace the
+first matching line (commented or otherwise) with the canonical
+value and drop subsequent duplicates; append any absent directive
+.. strip any prior `Match User ${BUJB_workload_user}` block (lines
+from that header to the next `Match ` line or EOF), then append the
+canonical block:
++
+[listing]
+----
+Match User ${BUJB_workload_user}
+    AuthorizedKeysFile __PROGRAMDATA__/ssh/users/${BUJB_workload_user}/authorized_keys
+----
+.. the absolute path decouples sshd's workload authorized_keys
+lookup from workload's `$HOME`, so a future profile demotion cannot
+lock out auth; parallel to the built-in `Match Group administrators`
+block routing to `administrators_authorized_keys`
+.. {busc_store}
+`«SSHD_CONFIG_NEW»` (curia bytes)
+
+//axhos_step
+. *Phase 1 -- write new sshd_config*:
+.. {busc_call}
+base64-encode `«SSHD_CONFIG_NEW»` on curia, then over key-only ssh
+run `[System.IO.File]::WriteAllBytes("$env:ProgramData\\ssh\\sshd_config",
+[System.Convert]::FromBase64String('<b64>'))` -- single-statement PS
+body. Base64 transport avoids in-flight encoding drift across the
+cmd.exe argv layer
+.. {busc_fatal}
+on WriteAllBytes failure -- restart would still serve unhardened auth
+
+//axhos_step
+. *Phase 1 -- provision workload authkeys parent directory (CDD)*:
+.. {busc_call}
+`Test-Path "$env:ProgramData\\ssh\\users\\${BUJB_workload_user}"`
+over key-only ssh
+.. {busc_store}
+`«WORKLOAD_AUTHKEYS_DIR_PRESENT»` = `True` or `False`
+.. On `«WORKLOAD_AUTHKEYS_DIR_PRESENT»` equal to `False`, {busc_call}
+`New-Item -ItemType Directory -Path
+"$env:ProgramData\\ssh\\users\\${BUJB_workload_user}" -Force |
+Out-Null` over key-only ssh -- single cmdlet. The directory persists
+across {busn_garrison} destroy-and-recreate cycles -- garrison
+rewrites the file contents but never touches the directory
+.. {busc_fatal}
+on probe or create failure -- workload auth path would not resolve
+
+//axhos_step
+. *Phase 1 -- lock down workload authkeys parent directory ACL*:
+.. {busc_call}
+`icacls "$env:ProgramData\\ssh\\users\\${BUJB_workload_user}"
+/inheritance:r /grant 'NT AUTHORITY\\SYSTEM:F' /grant
+'BUILTIN\\Administrators:F'` over key-only ssh -- admins/SYSTEM Full
+Control, inheritance disabled, no workload grant; sshd reads as
+SYSTEM, parallel to administrators_authorized_keys discipline;
+idempotent
+.. {busc_fatal}
+on `icacls` failure -- sshd would refuse the workload trust file
+
+//axhos_step
+. *Phase 1 -- validate sshd_config*:
+.. {busc_call}
+`& "C:\\Windows\\System32\\OpenSSH\\sshd.exe" -t` over key-only ssh
+-- single-statement PS body; penultimate atomic op of phase 1
 .. {busc_store}
 `«SSHD_TEST_RESULT»`
 .. {busc_require}
@@ -129,31 +188,63 @@ on mismatch -- prior write did not take or stale override shadows
 on non-zero -- aborting preserves the running sshd
 
 //axhos_step
-. *Phase 1 — restart sshd*:
+. *Phase 1 -- re-read sshd_config (post-write)*:
 .. {busc_call}
-`Restart-Service sshd` over `«ADMIN_SESSION_P1»` -- final atomic op
-of phase 1
+`Get-Content "$env:ProgramData\\ssh\\sshd_config" -Raw` over key-only
+ssh
+.. {busc_store}
+`«SSHD_CONFIG_VERIFY»`
+.. {busc_fatal}
+on read failure -- post-write state unverifiable
+
+//axhos_step
+. *Phase 1 -- verify directives and Match block (curia-side)*:
+.. {busc_require}
+`«SSHD_CONFIG_VERIFY»` parses to `PubkeyAuthentication yes`,
+`PasswordAuthentication no`, `PermitEmptyPasswords no` as effective
+directive values (BCG-compliant matching) AND contains a `Match User
+${BUJB_workload_user}` block whose `AuthorizedKeysFile` resolves to
+`__PROGRAMDATA__/ssh/users/${BUJB_workload_user}/authorized_keys`
+.. {busc_fatal}
+on mismatch -- prior write did not take or stale override shadows
+
+//axhos_step
+. *Phase 1 -- restart sshd*:
+.. {busc_call}
+`Restart-Service sshd` over key-only ssh -- final atomic op of
+phase 1; admin pubkey is installed by step 3 and authkeys ACL
+locked down by step 4, so key auth is available for the
+restart-issuing call itself
 .. {busc_fatal}
 on invocation failure (the post-restart disconnect itself is the
-expected phase boundary)
+expected phase boundary, not a failure)
 
 //axhos_step
-. *Phase 2 — reconnect under key-only auth*:
+. *Phase 2 -- reconnect + re-verify served sshd_config*:
 .. {busc_call}
-ssh as {burp_privileged_user} with
-`PreferredAuthentications=publickey` using {burp_privileged_key_file}
+`Get-Content "$env:ProgramData\\ssh\\sshd_config" -Raw` over key-only
+ssh -- the successful reconnect IS the proof of key-auth restoration
+after restart; the Get-Content body satisfies WSG WSp-105 with a
+single cmdlet
 .. {busc_store}
-`«ADMIN_SESSION_P2»` for phase 3 operations
+`«SSHD_CONFIG_SERVED»`
+.. {busc_require}
+`«SSHD_CONFIG_SERVED»` parses to the three hardening directives AND
+the canonical `Match User ${BUJB_workload_user}` block (BCG-compliant
+matching; same shape as step 12)
 .. {busc_fatal}
 on reconnect failure -- brick (manual password no longer opens a
-session); recover via operator's local console
+session); recover via operator's local console. On directive or
+Match-block mismatch -- post-restart drift between pre-restart write
+and on-disk state; fast-fail forensic before phase 3's multi-minute
+WSL stage burns
 
 //axhos_step
-. *Preflight — verify operator-precondition facts before phase 3*:
+. *Preflight -- verify operator-precondition facts before phase 3*:
 .. {busc_call}
 {bust_invigilate_windows} operator-precondition fact subset
 (`DevicePasswordLessBuildVersion` registry, `PlatformAoAcOverride`
-registry, Tailscale service registered) over `«ADMIN_SESSION_P2»`
+registry, Tailscale service registered) over key-only ssh
 .. {busc_store}
 `«PREFLIGHT_RESULT»`
 .. {busc_require}
@@ -164,13 +255,13 @@ before the multi-minute WSL stage so missing operator posture does
 not waste a download cycle
 
 //axhos_step
-. *Phase 3 — provision C:\\bujb-wsl directory*:
+. *Phase 3 -- provision C:\\bujb-wsl directory*:
 .. {busc_call}
 `New-Item -ItemType Directory -Path 'C:\\bujb-wsl' -Force` over
-`«ADMIN_SESSION_P2»` -- idempotent. Holds admin's `rbtww-main`
-distribution VHD tree AND serves as the admin↔workload handoff
-point for the seed tarball that {busn_garrison} (WSL letter) writes
-during step 3. Default ACL inheritance from `C:\\` grants
+key-only ssh -- idempotent. Holds admin's `rbtww-main` distribution
+VHD tree AND serves as the admin↔workload handoff point for the
+seed tarball that {busn_garrison} (WSL letter) writes during step
+3. Default ACL inheritance from `C:\\` grants
 `BUILTIN\\Users:ReadAndExecute`, which is what allows the workload
 SSH session in garrison-w step 11 to read the seed -- the seed must
 NOT live under workload's Windows profile because admin's
@@ -179,44 +270,44 @@ NOT live under workload's Windows profile because admin's
 on directory-creation failure -- {bust_handbook_windows} scope
 
 //axhos_step
-. *Phase 3 — stage rbtww-main WSL distribution*:
+. *Phase 3 -- stage rbtww-main WSL distribution*:
 .. {busc_call}
-`wsl.exe --import` from the Ubuntu-24.04 seed over
-`«ADMIN_SESSION_P2»` to register `rbtww-main` under the admin user
-at `C:\\bujb-wsl\\rbtww-main` (canonical: `BUJB_wsl_distribution`
-in {bujb_jurisdiction})
+`wsl.exe --import` from the Ubuntu-24.04 seed over key-only ssh to
+register `rbtww-main` under the admin user at
+`C:\\bujb-wsl\\rbtww-main` (canonical: `BUJB_wsl_distribution` in
+{bujb_jurisdiction})
 .. nuclear -- always purge-and-reimport
 .. {busc_fatal}
 on import failure -- WSL feature disabled, seed unavailable, or
 admin user's HKCU\\Lxss state corrupted
 
 //axhos_step
-. *Phase 3 — disable powercfg sleep and hibernate*:
+. *Phase 3 -- disable powercfg sleep and hibernate*:
 .. {busc_call}
 `powercfg /change standby-timeout-ac 0`,
 `powercfg /change standby-timeout-dc 0`,
-`powercfg /hibernate off` over `«ADMIN_SESSION_P2»`; idempotent
+`powercfg /hibernate off` over key-only ssh; idempotent
 .. {busc_fatal}
 on `powercfg` failure -- {bust_handbook_windows} scope (Modern
 Standby AoAc override demotes calls to no-ops)
 
 //axhos_step
-. *Phase 3 — set Tailscale service Automatic and running*:
+. *Phase 3 -- set Tailscale service Automatic and running*:
 .. {busc_call}
 `Set-Service -Name Tailscale -StartupType Automatic` then
-`Start-Service -Name Tailscale` over `«ADMIN_SESSION_P2»`; idempotent
+`Start-Service -Name Tailscale` over key-only ssh; idempotent
 .. {busc_fatal}
 on `Set-Service` or `Start-Service` failure --
 {bust_handbook_windows} scope (install + Run-Unattended + first auth)
 
 //axhos_step
-. *Post-completion — verify caparison deliverables*:
+. *Post-completion -- verify caparison deliverables*:
 .. {busc_call}
 {bust_invigilate_windows} caparison-deliverable fact subset
 (Tailscale service `Automatic`, standby-timeout policy = 0 AC+DC,
 hibernate disabled, `rbtww-main` WSL distribution registered) over
-`«ADMIN_SESSION_P2»`. Operator-precondition facts already verified
-at preflight do not re-run, and admin SSH is not re-probed because
+key-only ssh. Operator-precondition facts already verified at
+preflight do not re-run, and admin SSH is not re-probed because
 phase 2 just established it
 .. {busc_store}
 `«DELIVERABLES_RESULT»`
@@ -240,7 +331,8 @@ On success:
   workload grant -- sshd reads as SYSTEM, ready for {busn_garrison}
   to write the trust file content (the file itself is garrison's
   responsibility, not caparison's).
-* Post-restart admin session authenticates by key alone.
+* Post-restart admin session authenticates by key alone; both Phase
+  2's Get-Content reconnect and Phase 3's key-only ops confirm this.
 * `C:\\bujb-wsl\\` directory exists (admin↔workload handoff point;
   default-inherited ACL grants workload `BUILTIN\\Users:ReadAndExecute`).
 * `rbtww-main` WSL distribution is registered under the admin user
@@ -256,7 +348,11 @@ On success:
 //axhoc_completion
 Exit 0 when the post-completion deliverables-subset
 {bust_invigilate_windows} passes. Non-zero on any phase-1 op failure
-(admin SSH, pubkey, ACL, `sshd_config`, `sshd -t`), phase-2 reconnect
-failure, preflight failure (operator-precondition facts), any phase-3
-op failure (`wsl --import`, `powercfg`, Tailscale), or post-completion
+(the key-auth probe is non-fatal -- both `True` and `False` are
+valid pre-conditions -- but admin pubkey install, ACL, sshd_config
+read/build/write, workload authkeys dir provision/ACL, `sshd -t`,
+post-write verify, and restart can each fatal), phase-2 reconnect
+or served-config-verify failure, preflight failure
+(operator-precondition facts), any phase-3 op failure (`wsl
+--import`, `powercfg`, Tailscale), or post-completion
 deliverables-subset failure.
