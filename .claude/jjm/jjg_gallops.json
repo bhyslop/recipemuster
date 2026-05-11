@@ -38,6 +38,7 @@
       "jjghn_order": [
         "₢A-ABH",
         "₢A-ABG",
+        "₢A-ABJ",
         "₢A-ABD",
         "₢A-ABE",
         "₢A-ABC",
@@ -106,7 +107,7 @@
         "₢A-AAP",
         "₢A-ABI"
       ],
-      "jjghn_next_pace_seed": "ABJ",
+      "jjghn_next_pace_seed": "ABK",
       "jjghn_paces": {
         "₢A-AA-": {
           "jjgpn_tacks": [
@@ -1788,6 +1789,17 @@
               "jjgtn_text": "## Character\nMechanical sweep across `Tools/buk/bujb_jurisdiction.sh`.\n\n## Shape\nMove auto-numbered forensic capture into `zbujb_admin_powershell` and `_with_password_fallback`. New signature: `CHIT BODY...`. Internal redirect to `${BURD_TEMP_DIR}/bujb_${CHIT}${idx}_{stdout,stderr}.txt`; expose `ZBUJB_LAST_AP_STDOUT` / `ZBUJB_LAST_AP_STDERR`. Single shared `z_bujb_emit_index` counter across all chits.\n\n## Kindle\nFive `ZBUJB_CHIT_*` namespace fragments (`caparison-`, `place-trust-`, `w-init-`, `obliterate-`, `validate-`) replace the five `ZBUJB_*_PREFIX` constants. Orthogonality is grep-auditable: each fragment should appear only inside its owning phase function.\n\n## Deletes\nFive `_run` wrappers (`zbujb_{place_trust,validate,w_init,obliterate,caparison}_run`); `zbujb_obliterate_diag_dump` and its `ZBUJB_OBLITERATE_STDOUT`/`STDERR` singleton constants (no callers).\n\n## Done\nAll `zbujb_admin_powershell*` call sites converted; parse sites read `$(<\"${ZBUJB_LAST_AP_STDOUT}\")`; probes ignore globals. `bash -n` and `tt/buw-st.BukSelfTest.sh` green. Field exercise on bujn-winpc deferred to operator's next garrison-w run.",
               "jjgtn_silks": "admin-powershell-chit-capture",
               "jjgtn_basis": "1e1510e"
+            }
+          ]
+        },
+        "₢A-ABJ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260511-1226",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nSurgical revert of a debug-loop accelerator.\n\n## Goal\nRemove the DEV CACHE shortcut from `zbujb_caparison_windows_stage_wsl` in\n`Tools/buk/bujb_jurisdiction.sh` so caparison-windows again creates the\nseed tar from scratch every run (download Ubuntu-24.04, export, import,\nunregister, delete tar). Restore the four commented-out blocks: [3/6]\ninstall, [4/6] export, [6/6] cleanup, and the `${BUJB_wsl_distribution}.tar`\npurge that was dropped from [1/6]. Restore the `z_tar_path` local back to\n`${BUJB_path_win_wsl_install_root}\\${BUJB_wsl_distribution}.tar` (drop the\nhardcoded `C:\\rbtww-seed.tar`).\n\n## Done when\n- Phase 3 stage_wsl matches its pre-cache shape (no DEV CACHE comments,\n  no hardcoded C:\\rbtww-seed.tar).\n- A caparison-windows run on bujn-winpc completes Phase 3 end-to-end with\n  the from-scratch download/export/import/cleanup path.\n- Operator manually removes the pre-staged `C:\\rbtww-seed.tar` from\n  bujn-winpc (one privileged-ssh Remove-Item) so no stale cache lingers.",
+              "jjgtn_silks": "revert-wsl-stage-dev-cache",
+              "jjgtn_basis": "924987f"
             }
           ]
         }
