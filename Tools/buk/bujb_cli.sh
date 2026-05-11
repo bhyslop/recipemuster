@@ -267,7 +267,11 @@ zbujb_furnish() {
   test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
 
   local -r z_burp_file="${BURD_CONFIG_DIR}/${BUBC_rbmu_users_subdir}/${BURS_USER}/${BUZ_FOLIO}/burp.env"
-  test -f "${z_burp_file}" || buc_die "BURP profile not found: ${z_burp_file}"
+  if ! test -f "${z_burp_file}"; then
+    buc_warn "Unknown BURP investiture: '${BUZ_FOLIO}'."
+    burp_emit_available_investitures
+    buc_die "Unknown BURP investiture: '${BUZ_FOLIO}'."
+  fi
   source "${z_burp_file}"  || buc_die "Failed to source BURP: ${z_burp_file}"
   zburp_kindle
   zburp_enforce
