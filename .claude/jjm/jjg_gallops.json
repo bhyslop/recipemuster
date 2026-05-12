@@ -6092,9 +6092,10 @@
         "₢A_AAf",
         "₢A_AAg",
         "₢A_AAh",
-        "₢A_AAi"
+        "₢A_AAi",
+        "₢A_AAj"
       ],
-      "jjghn_next_pace_seed": "AAj",
+      "jjghn_next_pace_seed": "AAk",
       "jjghn_paces": {
         "₢A_AAA": {
           "jjgpn_tacks": [
@@ -6730,6 +6731,17 @@
               "jjgtn_text": "## Character\n\nTooling consideration — coverage extension.\n\n## Docket\n\nDecide whether scry's host-side bridge capture should extend to the\ndocker runtime. Today the bridge capture is gated on\n`RBRN_RUNTIME=podman` and traverses `podman machine ssh`; on linux\nDocker Engine the bridge interface is host-visible (no VM in the\npath), so a `sudo tcpdump -i <bridge_iface>` could give a third\ncorrelation point — host arrival vs container arrival — that is\ncurrently a blind spot for cross-platform investigation.\n\nDiscovery of the bridge interface for a docker network is via\n`docker network inspect <name> --format '{{.NetworkInterface}}'`,\nmirroring the existing podman path.",
               "jjgtn_silks": "scry-docker-bridge-capture",
               "jjgtn_basis": "fb0c269"
+            }
+          ]
+        },
+        "₢A_AAj": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260512-1057",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nTooling consideration — minor convenience.\n\n## Docket\n\nDecide whether scry should support a `--plain` output mode that omits\nANSI color codes from its line prefixes. Today every emitted line\ncarries embedded escape sequences (`\\033[37m\\033[1m[SENTRY]\\033[0m`)\nwhich complicate grep/awk processing for programmatic consumers.\nDefault = current colored output for terminal use.",
+              "jjgtn_silks": "scry-plain-output-mode",
+              "jjgtn_basis": "67a0440"
             }
           ]
         }
