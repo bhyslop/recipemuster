@@ -7,9 +7,21 @@
 
 ## TL;DR
 
-Revert the topology reframe. Restore sentry-as-publisher in `.rbk/rbob_compose.yml` (symmetric `7999:7999` port mapping). Re-introduce the entry-port iptables block in `rbev-vessels/common-sentry-context/rbjs_sentry.sh`, in interface-agnostic form with empirically-validated predicates: PREROUTING DNAT classified by destination port AND `! -s ${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}` (source-CIDR exclusion); POSTROUTING MASQUERADE on the entry-port path; RBM-FORWARD ACCEPT via conntrack DNAT-state; baseline ESTABLISHED,RELATED rule confirmed in RBM-FORWARD; **`rp_filter=2` (loose) on sentry's network namespace when `RBRN_ENTRY_MODE=enabled`** — strict mode drops legitimate Docker-Desktop-delivered entry-port traffic at kernel routing before iptables can act, so loose is empirically required. Keep three things from the failed reframe: the `ip_forward` lift (independent hygiene), the `cap_drop: [NET_ADMIN]` addition on bottle (defense in depth), the `tt/rbw-cs.Scry.sh` tabtarget (new diagnostic capability).
+Revert the topology reframe. Restore sentry-as-publisher in `.rbk/rbob_compose.yml` (symmetric `7999:7999` port mapping). Re-introduce the entry-port iptables block in `rbev-vessels/common-sentry-context/rbjs_sentry.sh`. Fix shape (current hypothesis, per the empirical correction history below):
 
-**Empirical status:** three-fixture parallel green (srjcl 3/3, pluml 5/5, tadmor 54/54 including the decisive `direct_sentry_probe`, `net_dnat_entry_reflection`, and `net_srcip_spoof` cases) on macOS Docker Desktop 28.x; Linux Docker Engine 28.x verification in progress (linux operator reports test infrastructure issues, not architectural-fix issues). Cross-platform pristine gauntlet on both is the canonical declaration gate.
+- PREROUTING classification by destination port + **per-IP source exclusion of the two enclave-internal containers** (sentry's enclave IP and bottle's enclave IP) via RETURN-short-circuit pattern. NOT whole-CIDR exclusion — the latter collides with Linux Docker Engine's host-as-bridge-peer model (host appears with bridge gateway IP `.1`, which IS inside the enclave CIDR by construction).
+- POSTROUTING MASQUERADE on the entry-port path.
+- RBM-FORWARD ACCEPT via conntrack DNAT-state.
+- Baseline ESTABLISHED,RELATED rule confirmed in RBM-FORWARD.
+- `rp_filter=2` (loose) on sentry's network namespace when `RBRN_ENTRY_MODE=enabled`.
+
+Keep three things from the failed reframe: the `ip_forward` lift (independent hygiene), the `cap_drop: [NET_ADMIN]` addition on bottle (defense in depth), the `tt/rbw-cs.Scry.sh` tabtarget (new diagnostic capability).
+
+**Empirical status:**
+- macOS Docker Desktop 28.x: three-fixture parallel **green under PRIOR fix shape (whole-CIDR exclusion)** — srjcl 3/3, pluml 5/5, tadmor 54/54 including the decisive `direct_sentry_probe`, `net_dnat_entry_reflection`, `net_srcip_spoof` cases. NOT yet re-verified under the current per-IP-exclusion hypothesis.
+- Linux Docker Engine 28.x: **whole-CIDR exclusion FAILS** — cerebro diagnostic confirmed sentry's PREROUTING DNAT fires 0 times because the host's source IP (`10.242.2.1`, the enclave bridge gateway) is inside the enclave CIDR and the `! -s ENCLAVE_CIDR` predicate rejects every legitimate host SYN. Per-IP exclusion hypothesis is the proposed fix; not yet tested.
+
+**Canonical declaration gate**: three-fixture green AND pristine gauntlet green on BOTH platforms under the per-IP-exclusion form. Currently no platform is canonically green under the current hypothesis; both need re-verification.
 
 ## Decisive empirical evidence
 
@@ -38,23 +50,41 @@ The topology reframe (publisher on pentacle) broke this because the bottle saw t
 
 The companion memo's "Topology-Level Reframing: Publisher on Pentacle" section: **empirically refuted.** The pattern is valid in isolation (Round 4 confirmed), but incompatible with our egress-gate-via-default-route security model. Mark in the companion memo when convenient; not blocking.
 
-The companion memo's "Refined Fix Shape" (Round 3) included **source-CIDR exclusion at PREROUTING** — which is correct and empirically required. This anchor memo's original "drop source-CIDR for cleanness" reasoning was empirically falsified by Ifrit's `direct_sentry_probe` (an enclave attacker dialing sentry's entry port matched the dport-only DNAT, redirected to bottle, BREACH). Source-CIDR exclusion is the load-bearing predicate enforcing the `net-dnat-entry-reflection` invariant. Round 3 had this right.
+The companion memo's "Refined Fix Shape" (Round 3) included **source-CIDR exclusion at PREROUTING** in *whole-CIDR* form. This was *more right* than this anchor memo's earlier "drop source-CIDR" reasoning (which the Ifrit `direct_sentry_probe` empirically falsified — confusing capability calculation with contractual invariant). Source-IP-based exclusion of enclave-internal containers IS the load-bearing predicate enforcing the `net-dnat-entry-reflection` invariant.
 
-Round 3 missed two things that the empirical experiment surfaced:
+But Round 3's *whole-CIDR* form is itself empirically falsified on Linux Docker Engine (cerebro diagnostic): the host attaches to the enclave bridge as a peer with bridge gateway IP (`.1`), which is inside the enclave CIDR by Docker convention. Whole-CIDR exclusion rejects every legitimate host SYN. The current hypothesis (per-IP exclusion) replaces whole-CIDR with per-container-IP RETURN short-circuits.
 
-1. **MASQUERADE on the entry-port path was missing in Round 3's description.** Round 3's reasoning held that "conntrack DNAT-state alone authorizes the return" — true for the FORWARD authorization predicate, but the MASQUERADE serves a different purpose (keeping the bottle's reply destination in-enclave so it routes cleanly back through sentry's conntrack). Without MASQUERADE, the reply destination is whatever the runtime put as the source IP, which on Docker Desktop is in hostile address space.
+Round 3 also missed two things the empirical experiment surfaced:
+
+1. **MASQUERADE on the entry-port path was missing in Round 3's description.** Round 3's reasoning held that "conntrack DNAT-state alone authorizes the return" — true for the FORWARD authorization predicate, but MASQUERADE serves a different purpose (keeping the bottle's reply destination in-enclave so it routes cleanly back through sentry's conntrack). Without MASQUERADE, the reply destination is whatever the runtime put as the source IP, which on Docker Desktop is in hostile address space.
 2. **`rp_filter=2` (loose mode) was not in Round 3's recipe.** Strict rp_filter (the kernel default and the project's pre-existing spec commitment in RBSAX) drops legitimate Docker-Desktop-delivered entry-port traffic at routing time, before iptables can act. Loose mode is required for the post-BBABC delivery topology. Discovered during empirical scry-based diagnosis; not anticipated by any prior research round.
 
-Round 3's principled stance — interface-agnostic rules, conntrack DNAT-state for FORWARD authorization, no dependence on undocumented Docker heuristics — is retained. The omissions are filled in this memo. **The earlier "drop source-CIDR" reasoning in this anchor memo was wrong; restored, empirically validated by tadmor 54/54 on macOS.**
+Round 3's principled stance — interface-agnostic rules, conntrack DNAT-state for FORWARD authorization, no dependence on undocumented Docker heuristics — is retained. The two omissions are filled, and the CIDR-vs-per-IP choice is the latest empirical correction (still pending cross-platform validation under the per-IP form).
 
 ## The fix recipe (architectural; agent reads source for exact syntax)
 
 In `rbev-vessels/common-sentry-context/rbjs_sentry.sh`, the entry-port iptables block has four clauses plus one kernel sysctl. Read the file for current variable names, function structure, and surrounding rule order; do not blind-copy snippets. All clauses below are empirically validated by the three-fixture parallel green on macOS Docker Desktop 28.x.
 
-**PREROUTING DNAT — classification (destination port AND source-CIDR exclusion):**
-match on destination port (`${RBRN_ENTRY_PORT_WORKSTATION}`) AND `! -s ${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}`. No interface filter (`-i ...` removed — that was the BBABC-broken assumption). Destination NAT to `${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE}` (port translation performed by the DNAT, not by the compose `ports:` mapping).
+**PREROUTING — classification via per-IP source exclusion + DNAT (current hypothesis):**
 
-Rationale: destination port is the stable classifier; source-CIDR exclusion enforces the `net-dnat-entry-reflection` invariant (enclave-internal sources MUST NOT reach sentry's entry port — empirically validated by `rbtdrc_sortie_direct_sentry_probe`). Both halves are load-bearing; the destination-port-only form proposed in an earlier draft of this memo was empirically falsified.
+The whole-CIDR exclusion form (`! -s ENCLAVE_CIDR`) was empirically falsified on Linux Docker Engine — the host attaches to the enclave bridge as a peer with `.1` IP, which is inside the enclave CIDR by Docker convention, so CIDR exclusion rejects every legitimate host SYN. The replacement is per-IP source exclusion of the two enclave-internal container IPs only, implemented as a RETURN short-circuit pattern (the standard iptables idiom for "block these specific sources, allow everything else"):
+
+```
+iptables -t nat -A PREROUTING -p tcp --dport ${RBRN_ENTRY_PORT_WORKSTATION} \
+         -s ${RBRN_ENCLAVE_SENTRY_IP} -j RETURN
+iptables -t nat -A PREROUTING -p tcp --dport ${RBRN_ENTRY_PORT_WORKSTATION} \
+         -s ${RBRN_ENCLAVE_BOTTLE_IP} -j RETURN
+iptables -t nat -A PREROUTING -p tcp --dport ${RBRN_ENTRY_PORT_WORKSTATION} \
+         -j DNAT --to-destination ${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE}
+```
+
+Rationale: the `net-dnat-entry-reflection` invariant says "enclave-internal sources MUST NOT reach sentry's entry port via DNAT reflection." The enclave-internal containers are exactly two (sentry and bottle; pentacle shares bottle's namespace, so they share the IP). Excluding those two specific IPs expresses the threat model directly. The bridge gateway (`.1` on linux), the Docker Desktop VM gateway (`192.168.65.1`), the rootlesskit synthetic source (`10.0.2.100`), and any external LAN client all pass the predicate naturally because none equals sentry or bottle IP.
+
+Implementation note — single-rule alternative: `iptables ... ! -s SENTRY_IP ! -s BOTTLE_IP -j DNAT ...` may work but `iptables-extensions(8)` semantics of multiple `! -s` predicates in a single rule are uncertain (some references say only the last `-s` is honored). The RETURN short-circuit pattern above is the unambiguous iptables idiom and should be the implementation form unless empirically verified that the single-rule multi-`! -s` form works on all target runtimes.
+
+Maintenance note: if future architecture adds a third enclave-internal container (e.g., a sidecar to the bottle), its IP must be added to the RETURN list. The whole-CIDR form didn't have this burden but was empirically broken; this is the trade-off.
+
+No interface filter (`-i ...` removed — that was the BBABC-broken assumption). Destination NAT performs the port translation (`7999 → 8000` for srjcl, `7999 → 8080` for pluml).
 
 **POSTROUTING MASQUERADE — return-path-symmetry preservation:**
 match the entry-port path on the outgoing direction (`-d ${RBRN_ENCLAVE_BOTTLE_IP} --dport ${RBRN_ENTRY_PORT_ENCLAVE}`).
@@ -134,11 +164,16 @@ The companion memo's verification gate (cross-platform pristine gauntlet green) 
 
 ## Empirical validation status
 
-| Platform | Three-fixture parallel | Full pristine gauntlet | Notes |
-|---|---|---|---|
-| macOS Docker Desktop 28.x | **Green** — srjcl 3/3, pluml 5/5, tadmor 54/54 | Pending | Tadmor pass includes the decisive cases: `rbtdrc_sortie_direct_sentry_probe` ✓ (source-CIDR exclusion enforces `net-dnat-entry-reflection`), `rbtdrc_sortie_net_dnat_entry_reflection` ✓ (secondary check of same invariant), `rbtdrc_sortie_net_srcip_spoof` ✓ (existing spoof patterns blocked at iptables; rp_filter=2 did not regress). |
-| Linux Docker Engine 28.x | In progress | Pending | Linux operator reports test-infrastructure issues, not architectural-fix issues. Cross-platform pass is the canonical declaration gate; until it lands, the fix is "validated on one platform" and any cross-runtime claim is provisional. |
-| Podman (any flavor) | Not exercised | Not exercised | Future work; deferred to Podman validation pace (not yet slated). The fix is interface-agnostic and source-IP-classification-only-via-our-own-rules, so cross-runtime portability is plausible by construction. Empirical confirmation pending. |
+The fix shape has evolved through three empirical corrections. The current hypothesis (per-IP exclusion via RETURN short-circuit) has not yet been tested on any platform. Status table:
+
+| Platform | Whole-CIDR exclusion (PRIOR fix shape) | Per-IP exclusion (current hypothesis) |
+|---|---|---|
+| macOS Docker Desktop 28.x | **Three-fixture green** — srjcl 3/3, pluml 5/5, tadmor 54/54 including `direct_sentry_probe`, `net_dnat_entry_reflection`, `net_srcip_spoof`. Pristine gauntlet not yet exercised. | **Not yet tested.** Re-verification needed under the new form; expected green by analysis (per-IP exclusion is a strict subset of whole-CIDR in terms of what it blocks, and macOS host source is `192.168.65.1` which is outside enclave CIDR and outside the per-IP block list, so it passes both). |
+| Linux Docker Engine 28.x | **FAILED** — cerebro empirical diagnostic: sentry's PREROUTING DNAT fires 0 times because the host attaches to the enclave bridge as a peer with IP `.1` (inside enclave CIDR by Docker convention); `! -s ENCLAVE_CIDR` rejects every legitimate host SYN. | **Not yet tested.** Expected green by analysis: host source `.1` is neither sentry IP nor bottle IP, so per-IP exclusion allows it. |
+| Podman rootful (netavark) | Not exercised | Not exercised. Plausible by analysis but no Podman cross-runtime testing has been done. |
+| Podman rootless (rootlesskit / pasta / slirp4netns) | Not exercised | Not exercised. Rootlesskit's `10.0.2.100` source is outside both enclave CIDR and the per-IP block list, so per-IP exclusion would allow it; pasta preserves original source IP, also outside; slirp4netns can't be used with user-defined networks (topology incompatible). |
+
+**Canonical declaration gate**: cross-platform three-fixture parallel green AND full pristine gauntlet green on BOTH macOS Docker Desktop AND Linux Docker Engine, under the per-IP-exclusion form. Currently NO platform meets the gate under the current hypothesis. The next experiment (per-IP exclusion implementation, then re-run three-fixture cross-platform) is what produces the empirical data that either confirms the hypothesis or surfaces another structural surprise.
 
 ## Ifrit coverage limitation (subject of ₢A_AAc)
 
@@ -160,24 +195,29 @@ The three-attempt arc plus the empirical correction, briefly (full lineage in th
 
 4. **Option E (this memo's first proposal) — destination-port-only DNAT + MASQUERADE + conntrack FORWARD + rp_filter=2.** Failed at tadmor `rbtdrc_sortie_direct_sentry_probe`: an enclave attacker dialing sentry's entry port matched the dport-only DNAT, redirected to bottle, BREACH. The architect's "drop source-CIDR" reasoning ("enclave already has bottle access so DNAT'ing adds no capability") confused capability calculation with contractual invariant. The `net-dnat-entry-reflection` invariant is a contract, empirically tested; source-CIDR exclusion is the load-bearing predicate that enforces it.
 
-5. **Option E corrected (this memo's current proposal) — source-CIDR exclusion + MASQUERADE + conntrack FORWARD + ESTABLISHED,RELATED + rp_filter=2.** Empirically green on macOS three-fixture parallel run (54/54 tadmor including all critical regression cases). The combination of Round 3's source-CIDR (correct) + the anchor memo's MASQUERADE (Round 3 missed) + rp_filter=2 (neither prior round identified) is the empirical answer.
+5. **Option E corrected (whole-CIDR exclusion) — source-CIDR + MASQUERADE + conntrack FORWARD + ESTABLISHED,RELATED + rp_filter=2.** Empirically green on macOS three-fixture parallel (54/54 tadmor). Reached Linux cross-platform verification — **FAILED**. Cerebro diagnostic: the host attaches to the enclave bridge as a peer with IP `.1` (Docker's bridge-gateway convention), which is inside the enclave CIDR by construction; `! -s ENCLAVE_CIDR` rejects every legitimate host SYN. This was a third structural Docker fact not anticipated by any prior round.
 
-The fix in this memo is **what pre-BBABC's design would have looked like if written defensively against future framework changes**: the same DNAT + MASQUERADE + FORWARD-ACCEPT shape, but with classification by destination port + source-CIDR (not interface), authorization by conntrack state (not interface), and explicit kernel sysctl for rp_filter to accommodate the post-BBABC delivery interface. The original design's principle — sentry takes ownership of its security envelope — is preserved.
+6. **Option E corrected v2 (per-IP exclusion) — destination port + RETURN short-circuit for sentry/bottle IPs + DNAT + MASQUERADE + conntrack FORWARD + ESTABLISHED,RELATED + rp_filter=2.** Current hypothesis. Threat model expressed directly (the only enclave-internal sources are sentry and bottle; block exactly those, allow everything else). Cross-platform analysis suggests it works on all target runtimes; empirical confirmation pending.
+
+The fix in this memo is **what pre-BBABC's design would have looked like if written defensively against the structural Docker facts we've now learned about**: the same DNAT + MASQUERADE + FORWARD-ACCEPT shape, but with classification by destination port + per-IP source exclusion (not interface, not whole-CIDR), authorization by conntrack state (not interface), and explicit kernel sysctl for rp_filter to accommodate the post-BBABC delivery interface. The original design's principle — sentry takes ownership of its security envelope — is preserved.
 
 ### Meta-lesson: layered defenses are load-bearing by default
 
-The arc exposed a pattern. Four "redundant" defenses were stripped in different attempts and each turned out to be load-bearing:
+The arc exposed a pattern. Architectural reasoning produced clean-looking fixes; each got empirically falsified by a structural Docker fact we hadn't anticipated. Five empirical surprises (counted now), each invalidating a "this is the clean shape" argument:
 
-- Interface filter (`-i UPLINK_IF`) — broken by BBABC. Original architecture relied on it via accident.
+- Interface filter (`-i UPLINK_IF`) — broken by BBABC's alphabetical-first network selection. Original architecture relied on it via accident.
 - Default-route ownership accident (compose `default` magic) — also broken by BBABC. Recovered explicitly by BBABE.
-- The entire entry-port block (topology reframe) — failed at routing-asymmetry.
-- Source-CIDR exclusion — failed at the `direct_sentry_probe` invariant.
+- The entire entry-port block (topology reframe) — failed at return-path asymmetry. Sentry's MASQUERADE was structurally load-bearing for symmetric return, not decorative.
+- Source-CIDR exclusion (in destination-port-only Option E) — failed at the `direct_sentry_probe` Ifrit invariant. Architect's "drop source-CIDR because clean" was empirically wrong; source-CIDR was load-bearing.
+- Whole-CIDR exclusion (in CIDR-form Option E corrected) — failed on Linux because the host is a peer on the enclave bridge with `.1` IP, which is inside the enclave CIDR by Docker convention. Architect's "CIDR exclusion is the obvious form of source-IP filter" was empirically wrong on Linux Engine.
 
 Plus one defense that wasn't stripped but needed re-evaluation:
 
 - rp_filter strict — empirically incompatible with the post-BBABC delivery topology. Relaxed to loose; iptables-layer enforcement compensates.
 
-The lesson: **the original architecture's defenses are load-bearing by default. Only remove a defense after the security suite passes empirically without it.** Architectural reasoning is insufficient — every "this seems redundant, let's simplify" decision in this work required empirical validation, and several were wrong despite plausible architectural logic. The Ifrit framework is what made the catch possible; the project's adversarial-validation discipline is correct and should be trusted over architect-imagined "cleanness."
+The lesson is now sharper than "load-bearing defenses." It's about **the structural facts of the framework**: every time architectural reasoning has produced a "clean" shape, an undocumented structural Docker fact has invalidated it. The Ifrit framework + cross-platform empirical validation are the discipline that catches this; architectural reasoning without empirical validation has failed every time in this work.
+
+The pattern itself is the institutional value to capture: **future architecture changes touching network configuration must be empirically validated on Linux Docker Engine AND macOS Docker Desktop AND (eventually) Podman before declaring confidence.** Each platform exposes different structural facts. macOS Desktop's VM-proxy structure hides Linux's host-bridge-peer fact. Linux's host-bridge-peer fact is hidden by Desktop's VM. Only cross-platform testing surfaces both. Probably Podman will surface a third class of structural fact when tested; expect more surprises, design the iteration discipline for them.
 
 ## Spec alignment findings (input for ₢A_AAd)
 
@@ -207,7 +247,7 @@ These are the concrete changes ₢A_AAd applies. Each delta names file + region 
 
 **Delta 2 — RBSAX:21-24 (MASQUERADE):** Extend the POSTROUTING MASQUERADE description to articulate BOTH roles: (a) outbound from enclave to internet (current spec content); (b) entry-port path inbound, so the bottle sees sentry's enclave IP as source, keeping the reply destination in-enclave for conntrack-mediated symmetric return. The second role is load-bearing for the post-BBABC delivery topology.
 
-**Delta 3 — RBSSS:32 (entry-port DNAT predicates):** Replace "Entry port DNAT if enabled" with enumerated predicates: (a) PREROUTING DNAT classified by destination port + source-CIDR exclusion (`! -s ENCLAVE_CIDR`); (b) POSTROUTING MASQUERADE on the entry-port path to enclave; (c) RBM-FORWARD ACCEPT matched on destination + conntrack `--ctstate DNAT`; (d) RBM-FORWARD baseline `--ctstate ESTABLISHED,RELATED` ACCEPT (already covered by RBSII state tracking but cross-reference here); (e) kernel sysctl `rp_filter=2` per Delta 1. Each clause enforces a distinct invariant; removing any clause requires empirical re-validation, not architectural reasoning.
+**Delta 3 — RBSSS:32 (entry-port DNAT predicates):** Replace "Entry port DNAT if enabled" with enumerated predicates: (a) PREROUTING per-IP source exclusion of the enclave-internal containers via RETURN short-circuit pattern (`-s ${RBRN_ENCLAVE_SENTRY_IP} -j RETURN`; `-s ${RBRN_ENCLAVE_BOTTLE_IP} -j RETURN`) followed by unconditional DNAT on destination port; (b) POSTROUTING MASQUERADE on the entry-port path to enclave; (c) RBM-FORWARD ACCEPT matched on destination + conntrack `--ctstate DNAT`; (d) RBM-FORWARD baseline `--ctstate ESTABLISHED,RELATED` ACCEPT (already covered by RBSII state tracking but cross-reference here); (e) kernel sysctl `rp_filter=2` per Delta 1. Each clause enforces a distinct invariant; removing any clause requires empirical re-validation, not architectural reasoning. The per-IP RETURN pattern (instead of whole-CIDR exclusion) is required because Linux Docker Engine attaches the host to bridge networks as a peer with the bridge gateway IP — which is inside the enclave CIDR by construction, so whole-CIDR exclusion rejects legitimate host SYNs. The per-IP list MUST be maintained as the enclave-internal container set evolves (sidecar additions, etc.).
 
 **Delta 4 — RBSSS:19-25 (don't-trust-Docker elevation):** Elevate the "don't trust Docker" framing from default-route-specific to architectural principle. Suggested addition after the existing default-route discussion: "Sentry takes ownership of any runtime-implicit behavior its security envelope depends on. This applies to: interface naming (IP-based discovery, already articulated), default-route selection (explicit override post-discovery, already articulated), published-port target selection (iptables rules that don't depend on which interface Docker chose for delivery), and any future runtime-implicit ordering that emerges. The principle: kernel + sentry's own iptables are the source of truth; framework-implicit ordering is not load-bearing."
 
@@ -227,17 +267,21 @@ Narrowed considerably after empirical validation. Status:
 
 1. **ESTABLISHED,RELATED rule in RBM-FORWARD** — **resolved.** Empirically verified present in current `rbjs_sentry.sh`; egress-mode blocks rely on it; the empirical three-fixture green confirms return-path traversal works. No action needed in this implementation; documented in the fix recipe for posterity.
 
-2. **Linux Docker Engine 28.x verification** — **in progress.** Linux operator reports test-infrastructure issues, not architectural-fix issues. Cross-platform pristine gauntlet green on both platforms is the canonical declaration gate; until linux green lands, the fix is "validated on one platform" and any cross-runtime claim is provisional.
+2. **Linux Docker Engine 28.x verification under per-IP-exclusion form** — **load-bearing next experiment.** Whole-CIDR exclusion was empirically falsified on Linux (cerebro diagnostic). Per-IP exclusion is the current hypothesis. The next experiment runs the three-fixture parallel under the new form. If green: macOS re-verification under same form, then canonical declaration. If red: another structural surprise has surfaced; iterate the hypothesis.
 
-3. **Docker Desktop reflection-through-transit mechanism** — interesting but not blocking. The fix is independent of this behavior. Defer to a future research round if Podman parity work needs deeper trace of Desktop networking internals.
+3. **macOS re-verification under per-IP-exclusion form** — pending. The prior macOS green was under whole-CIDR; per-IP is a strict subset of CIDR's block set (only blocks two specific IPs vs the whole subnet), so macOS green is expected by analysis, but empirical confirmation required before canonical declaration.
 
-4. **iptables vs nftables inside sentry under Podman** — still open from the companion memo. Run `iptables -V` and `iptables-save` inside sentry under Podman Netavark when Podman validation begins.
+4. **Docker Desktop reflection-through-transit mechanism** — interesting but not blocking. The fix is independent of this behavior. Defer to a future research round if Podman parity work needs deeper trace of Desktop networking internals.
 
-5. **Spoof-as-arbitrary-external-routable-IP attack vector** — subject of pace **₢A_AAc**. See "Ifrit coverage limitation" section above. Either resolves via the existing iptables rules (RBM-INGRESS or related), or requires a targeted mitigation (selective rp_filter-strict at iptables raw table, or "drop non-enclave-source on enclave interface" rule). Decision deferred to empirical result.
+5. **iptables vs nftables inside sentry under Podman** — still open from the companion memo. Run `iptables -V` and `iptables-save` inside sentry under Podman Netavark when Podman validation begins.
 
-6. **Spec deltas application** — subject of pace **₢A_AAd**. See "Spec alignment findings" section above. Hold until canonical cross-platform pass. Deltas list is the contract; ₢A_AAd's docket has the editing discipline.
+6. **Spoof-as-arbitrary-external-routable-IP attack vector** — subject of pace **₢A_AAc**. See "Ifrit coverage limitation" section above. Either resolves via the existing iptables rules (RBM-INGRESS or related), or requires a targeted mitigation (selective rp_filter-strict at iptables raw table, or "drop non-enclave-source on enclave interface" rule). Decision deferred to empirical result.
 
-7. **Future entry-mode use cases requiring original-client IP** — out of scope. The fix preserves the same source-IP-visibility property the original architecture had (bottle sees sentry's enclave IP, not the original client); if a future use case needs original-client IP, add an application-layer proxy. Documented in the companion memo's Round 4 listener-source-IP table.
+7. **Spec deltas application** — subject of pace **₢A_AAd**. See "Spec alignment findings" section above. Hold until canonical cross-platform pass. Deltas list is the contract; ₢A_AAd's docket has the editing discipline. Note: Delta 3's per-IP-exclusion form depends on the current hypothesis being empirically validated; if a future structural surprise changes the PREROUTING shape, Delta 3 must be updated before ₢A_AAd mounts.
+
+8. **Future entry-mode use cases requiring original-client IP** — out of scope. The fix preserves the same source-IP-visibility property the original architecture had (bottle sees sentry's enclave IP, not the original client); if a future use case needs original-client IP, add an application-layer proxy. Documented in the companion memo's Round 4 listener-source-IP table.
+
+9. **Multi-`! -s` iptables semantics empirical confirmation** — minor open item. The RETURN short-circuit pattern in the Fix Recipe is unambiguous. The single-rule form (`iptables ... ! -s SENTRY_IP ! -s BOTTLE_IP -j DNAT ...`) MAY work cleaner but is not empirically confirmed. If during ₢A_AAd or follow-up work someone wants to simplify, verify the single-rule form's behavior on Linux + macOS Docker first; default is the RETURN pattern.
 
 ## References
 
