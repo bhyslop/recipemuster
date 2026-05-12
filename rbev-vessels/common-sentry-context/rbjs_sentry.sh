@@ -118,6 +118,18 @@ echo "RBJp2: Enabling IP forwarding (required whenever sentry forwards on behalf
 echo 1 > /proc/sys/net/ipv4/ip_forward || exit 25
 
 if test "${RBRN_ENTRY_MODE}" = "enabled"; then
+  echo "RBJp2c: Relaxing rp_filter to loose mode (required for interface-agnostic ingress)"
+  # rp_filter=1 (strict) requires the packet's source-IP reverse-path to match the
+  # ingress interface. Inbound published-port traffic from the framework gateway
+  # (e.g., Docker Desktop 192.168.65.1) arrives on whichever interface Docker chose
+  # for port-publish delivery, but its reverse route is always via the default
+  # gateway on uplink — strict mode mismatches and drops at routing time, before
+  # the iptables FORWARD chain ever sees the packet. Loose mode (rp_filter=2)
+  # allows any source IP that's reachable via any interface, which is the actual
+  # invariant for entry-port traffic. Iptables rules below still gate authorization;
+  # rp_filter is not the load-bearing security control.
+  echo 2 > /proc/sys/net/ipv4/conf/all/rp_filter || exit 25
+
   echo "RBJp2c: Configuring entry-port DNAT + MASQUERADE + FORWARD-ACCEPT"
   # Classification: destination port only. Interface (-i ...) and source IP (! -s ...) are
   # NOT trust labels — Docker's chosen ingress interface and runtime SNAT'd source IP are
@@ -156,7 +168,6 @@ if test "${RBRN_UPLINK_ACCESS_MODE}" = "disabled"; then
 else
   echo "RBJp3: Setting up uplink network hardening"
   echo 0 > /proc/sys/net/ipv6/conf/all/disable_ipv6    || exit 31
-  echo 1 > /proc/sys/net/ipv4/conf/all/rp_filter       || exit 31
   echo 1 > /proc/sys/net/ipv4/conf/${RBJ_UPLINK_IF}/route_localnet || exit 31
 
   echo "RBJp3: Configuring NAT"
