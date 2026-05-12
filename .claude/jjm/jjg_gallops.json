@@ -6088,9 +6088,10 @@
         "₢A_AAa",
         "₢A_AAJ",
         "₢A_AAc",
-        "₢A_AAe"
+        "₢A_AAe",
+        "₢A_AAf"
       ],
-      "jjghn_next_pace_seed": "AAf",
+      "jjghn_next_pace_seed": "AAg",
       "jjghn_paces": {
         "₢A_AAA": {
           "jjgpn_tacks": [
@@ -6682,6 +6683,17 @@
               "jjgtn_text": "## Character\n\nTooling consideration — small change, clear motivation.\n\n## Docket\n\nDecide how to broaden scry's sentry-side capture beyond the hardcoded\n`-i eth1`. On linux Docker Engine, port-publish traffic delivered to\nsentry's enclave bridge arrives on the enclave interface; scry's\ncurrent capture misses it entirely. Pentacle's capture is unaffected\n(single interface).\n\nOptions to weigh: `-i any` on sentry, parameterize the interface,\nor mirror rbjs_sentry.sh's IP-based discovery.\n\n### References\n\n- `Tools/rbk/rboo_observe.sh` — `rboo_observe()` and the sentry exec.",
               "jjgtn_silks": "scry-sentry-interface-coverage",
               "jjgtn_basis": "2d8dbf1"
+            }
+          ]
+        },
+        "₢A_AAf": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260512-1057",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nTooling consideration — workflow gap.\n\n## Docket\n\nDecide whether scry should tolerate the case where target containers\ndon't exist yet at launch. Today scry's `docker exec tcpdump` children\nfail fast when containers are absent, the launcher's `wait` returns,\nand scry exits cleanly without ever capturing — making the workflow\n\"start scry, then charge in another shell\" impossible.\n\nOptions: poll-and-wait for containers with a timeout (default true),\nexplicit `--await` flag (opt-in), or no change (document the ordering\nrequirement).",
+              "jjgtn_silks": "scry-charge-aware-lifecycle",
+              "jjgtn_basis": "a7108cf"
             }
           ]
         }
