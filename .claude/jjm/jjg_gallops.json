@@ -6088,6 +6088,7 @@
         "₢A_AAa",
         "₢A_AAJ",
         "₢A_AAc",
+        "₢A_AAk",
         "₢A_AAe",
         "₢A_AAf",
         "₢A_AAg",
@@ -6095,7 +6096,7 @@
         "₢A_AAi",
         "₢A_AAj"
       ],
-      "jjghn_next_pace_seed": "AAk",
+      "jjghn_next_pace_seed": "AAl",
       "jjghn_paces": {
         "₢A_AAA": {
           "jjgpn_tacks": [
@@ -6756,6 +6757,17 @@
               "jjgtn_text": "## Character\n\nTooling consideration — minor convenience.\n\n## Docket\n\nDecide whether scry should support a `--plain` output mode that omits\nANSI color codes from its line prefixes. Today every emitted line\ncarries embedded escape sequences (`\\033[37m\\033[1m[SENTRY]\\033[0m`)\nwhich complicate grep/awk processing for programmatic consumers.\nDefault = current colored output for terminal use.",
               "jjgtn_silks": "scry-plain-output-mode",
               "jjgtn_basis": "67a0440"
+            }
+          ]
+        },
+        "₢A_AAk": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260512-1202",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nIn-bottle empirical regression backstop for POSTROUTING MASQUERADE return-path symmetry. Currently only cerebro validates this at iptables-counter level; a silent regression of the MASQUERADE clause would pass every existing tadmor case while breaking entry-port flow.\n\n## Docket\n\nAdd a coordinated sortie: ifrit binds a TCP listener on the bottle's enclave-side entry port (`RBRN_ENTRY_PORT_ENCLAVE`), theurge initiates an external TCP connect to sentry's published port (`RBRN_ENTRY_PORT_WORKSTATION`), ifrit accepts and reads peer-source via `getpeername`.\n\nVerdict: PASS iff observed source IP equals `RBRN_ENCLAVE_SENTRY_IP`. Real external client IP indicates MASQUERADE didn't fire (asymmetric return path, architecture broken). Any other value indicates unknown deviation.\n\n### References\n\n- `rbev-vessels/common-ifrit-context/src/rbida_sorties.rs` — sortie body site; theurge-observes-ifrit-effect patterns near `sortie_arp_send_gratuitous` (role reversed here: theurge sends, ifrit observes).\n- `rbev-vessels/common-ifrit-context/src/rbida_attacks.rs` — adversary registration.\n- `Memos/memo-20260512-sentry-entry-port-repair-anchor.md` — MASQUERADE rationale.\n- Pace ₢A_AAb — architecture this validates from the receiver side.",
+              "jjgtn_silks": "ifrit-sortie-dnat-source-observation",
+              "jjgtn_basis": "73695c3"
             }
           ]
         }
