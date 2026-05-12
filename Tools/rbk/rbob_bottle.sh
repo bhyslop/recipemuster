@@ -341,8 +341,9 @@ zrbob_detect_nameplate_collision() {
       z_net_label="${z_labels%%|*}"
       z_proj_label="${z_labels#*|}"
 
-      # Network must be enclave or transit
-      test "${z_net_label}" = "enclave" || test "${z_net_label}" = "transit" \
+      # Network must be enclave or auplink
+      # [experiment ₢A_AAb: 'transit' renamed to 'auplink' in compose; allowlist tracks]
+      test "${z_net_label}" = "enclave" || test "${z_net_label}" = "auplink" \
         || continue
 
       # Skip our own current project; compose-down already removed it (defensive)

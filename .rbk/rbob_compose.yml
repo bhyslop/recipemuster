@@ -12,7 +12,9 @@
 #   2. Container environment forwarding (bare names in environment: sections)
 #
 # Network topology:
-#   sentry: transit (uplink to internet via bridge) + enclave (down to bottle)
+#   sentry: auplink (uplink to internet via bridge) + enclave (down to bottle)
+#           [experiment ₢A_AAb: 'transit' renamed to 'auplink' so it sorts
+#            alphabetically before 'enclave' — test of port-publish target rule]
 #     Interface naming and default-route assignment are NOT controlled by compose:
 #       - eth0/eth1 ordering is Docker-engine-defined (sentry IP-discovers via RBRN_ENCLAVE_SENTRY_IP)
 #       - default route is assigned to the alphabetically-first attached network's gateway
@@ -30,7 +32,7 @@ services:
     container_name: ${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}-sentry
     privileged: true
     networks:
-      transit: {}
+      auplink: {}
       enclave:
         ipv4_address: ${RBRN_ENCLAVE_SENTRY_IP}
     ports:
@@ -96,7 +98,7 @@ services:
       - sessile
 
 networks:
-  transit:
+  auplink:
     driver: bridge
   enclave:
     driver: bridge
