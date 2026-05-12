@@ -560,6 +560,11 @@ fn rbtdrc_sortie_net_srcip_spoof(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "net-srcip-spoof", dir))
 }
 
+// Regression backstop for the residual spoof-as-arbitrary-external case
+// left open by per-IP RETURN exclusion + rp_filter=2 loose. Empirically
+// passes on macOS Docker Desktop 28.x because Docker's bridge enforces
+// source-IP at egress below iptables — see sortie_net_srcip_spoof_external
+// in rbida_sorties.rs for the empirical-finding note.
 fn rbtdrc_sortie_net_srcip_spoof_external(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "net-srcip-spoof-external", dir))
 }

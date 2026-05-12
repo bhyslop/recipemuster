@@ -1110,18 +1110,39 @@ pub fn sortie_net_srcip_spoof(_extra_args: &[&str]) -> rbida_Verdict {
 // per-IP RETURN short-circuit exclusion at sentry's PREROUTING DNAT: an
 // enclave-internal source spoofing as an arbitrary external-routable IP
 // (neither sentry-IP, bottle-IP, loopback, nor enclave CIDR) and aiming
-// at sentry's workstation entry port. Under per-IP RETURN + rp_filter=2
-// loose, the spoofed source matches neither RETURN rule, DNAT fires, the
-// FORWARD chain accepts via conntrack-DNAT-state, and the packet reaches
-// the bottle's enclave entry port. Strict rp_filter would have blocked at
-// the kernel layer; that defense was traded for source-IP-flexibility on
-// Docker Desktop delivery.
+// at sentry's workstation entry port. The docket's architectural argument:
+// under per-IP RETURN + rp_filter=2 loose, the spoofed source matches
+// neither RETURN rule, DNAT should fire, FORWARD should accept via
+// conntrack-DNAT-state, and the packet should reach the bottle's enclave
+// entry port — making the iptables layer the load-bearing spoof gate.
 //
 // Detection: open a raw IPPROTO_TCP listener in bottle's namespace, send
 // the spoofed SYN with a distinctive source port, then sniff for the
 // reflected SYN matching dst-port = RBRN_ENTRY_PORT_ENCLAVE (post-DNAT)
 // and src-port = our distinctive port. The post-MASQUERADE source seen at
 // bottle is sentry's bridge IP, but src-port survives unchanged.
+//
+// EMPIRICAL FINDING (260512, macOS Docker Desktop 28.x, tadmor 0/0/0
+// PREROUTING NAT counters at dport=8890 after the sortie ran): the spoof
+// is blocked, but not by the iptables layer the docket reasoned about.
+// Sentry's PREROUTING never saw the packet — it was dropped at a lower
+// layer between the bottle's raw-socket emission and sentry's netfilter
+// hooks. The mechanism is consistent with Docker bridge's per-veth source-
+// IP enforcement (Docker drops packets whose source IP does not match the
+// originating container's IP, regardless of CAP_NET_RAW + IP_HDRINCL in
+// the container's namespace). This is a structural Docker fact in the
+// same family as the anchor memo's "host attaches to enclave bridge as a
+// peer with bridge gateway IP" finding from the per-IP transition arc.
+//
+// Consequence: the architectural argument that traded rp_filter=1 for
+// source-IP-flexibility is mooted at this attack class — Docker's bridge
+// enforcement already blocks the spoof at a layer below iptables. The
+// sortie remains useful as a regression backstop: if a future change
+// (different runtime, custom network mode, raw bridge config) removes the
+// Docker bridge enforcement, this sortie would report BREACH instead of
+// SECURE, surfacing the regression. Cross-platform verification on Linux
+// Docker Engine + alternative container runtimes (Podman) is open work
+// before this PASS can be declared canonical across the matrix.
 pub fn sortie_net_srcip_spoof_external(_extra_args: &[&str]) -> rbida_Verdict {
     let sentry_ip = match env_require("RBRN_ENCLAVE_SENTRY_IP") {
         Ok(v) => v,
