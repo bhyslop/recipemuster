@@ -64,8 +64,10 @@ zrbgc_kindle() {
 
   # JWT-bearer consumer-side retry — every RBRA consumer absorbs the post-write
   # race where Google's OAuth backend has not yet accepted a freshly-minted SA
-  # key, surfaced as `invalid_grant` + `Invalid JWT Signature` on token mint.
-  # 90s budget locked by ₣BB pristine-tier contract; cadence below.
+  # or its key, surfaced as `invalid_grant` paired with either
+  # `Invalid JWT Signature.` (fresh-key lag) or `Invalid grant: account not
+  # found` (fresh-SA lag). 90s budget locked by ₣BB pristine-tier contract;
+  # cadence below.
   readonly RBGC_SA_KEY_CONSUMER_RETRY_BUDGET_SEC=90
   readonly RBGC_SA_KEY_CONSUMER_RETRY_INITIAL_DELAY_SEC=2
   readonly RBGC_SA_KEY_CONSUMER_RETRY_MAX_DELAY_SEC=15

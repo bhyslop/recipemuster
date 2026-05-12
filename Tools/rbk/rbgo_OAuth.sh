@@ -236,22 +236,27 @@ rbgo_get_token_capture() {
       return 0
     fi
 
-    # Discriminate failure: only `invalid_grant` + `Invalid JWT Signature.` is
-    # the post-write propagation race. Any other shape fails fast.
+    # Discriminate failure: only the SA-propagation race shapes retry —
+    #   `invalid_grant` + `Invalid JWT Signature.`         (fresh-key propagation lag)
+    #   `invalid_grant` + `Invalid grant: account not found` (fresh-SA propagation lag)
+    # Any other shape fails fast.
     z_err=$(jq -r '.error // ""'             "${ZRBGO_OAUTH_RESPONSE_FILE}" 2>"${ZRBGO_JQ_STDERR_FILE}") || z_err=""
     z_err_desc=$(jq -r '.error_description // ""' "${ZRBGO_OAUTH_RESPONSE_FILE}" 2>"${ZRBGO_JQ_STDERR_FILE}") || z_err_desc=""
 
-    test "${z_err}" = "invalid_grant" && test "${z_err_desc}" = "Invalid JWT Signature." \
-      || return 1
+    test "${z_err}" = "invalid_grant" || return 1
+    case "${z_err_desc}" in
+      "Invalid JWT Signature."|"Invalid grant: account not found") ;;
+      *) return 1 ;;
+    esac
 
     cp "${ZRBGO_OAUTH_RESPONSE_FILE}" "${ZRBGO_CONSUMER_RETRY_BODY_FILE}" || return 1
 
     if test "${z_elapsed}" -ge "${RBGC_SA_KEY_CONSUMER_RETRY_BUDGET_SEC}"; then
-      buc_warn "Token mint: JWT propagation race timeout after ${z_elapsed}s (${z_attempt} attempts); last body: ${ZRBGO_CONSUMER_RETRY_BODY_FILE}"
+      buc_warn "Token mint: SA propagation race timeout after ${z_elapsed}s (${z_attempt} attempts); last body: ${ZRBGO_CONSUMER_RETRY_BODY_FILE}"
       return 1
     fi
 
-    buc_step "Token mint: attempt ${z_attempt} hit JWT propagation race at ${z_elapsed}s, sleep ${z_delay}s"
+    buc_step "Token mint: attempt ${z_attempt} hit SA propagation race (${z_err_desc}) at ${z_elapsed}s, sleep ${z_delay}s"
     sleep "${z_delay}"
     z_elapsed=$((z_elapsed + z_delay))
     z_delay=$((z_delay * 2))
