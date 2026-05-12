@@ -6089,6 +6089,7 @@
         "₢A_AAJ",
         "₢A_AAc",
         "₢A_AAk",
+        "₢A_AAl",
         "₢A_AAe",
         "₢A_AAf",
         "₢A_AAg",
@@ -6096,7 +6097,7 @@
         "₢A_AAi",
         "₢A_AAj"
       ],
-      "jjghn_next_pace_seed": "AAl",
+      "jjghn_next_pace_seed": "AAm",
       "jjghn_paces": {
         "₢A_AAA": {
           "jjgpn_tacks": [
@@ -6768,6 +6769,17 @@
               "jjgtn_text": "## Character\n\nIn-bottle empirical regression backstop for POSTROUTING MASQUERADE return-path symmetry. Currently only cerebro validates this at iptables-counter level; a silent regression of the MASQUERADE clause would pass every existing tadmor case while breaking entry-port flow.\n\n## Docket\n\nAdd a coordinated sortie: ifrit binds a TCP listener on the bottle's enclave-side entry port (`RBRN_ENTRY_PORT_ENCLAVE`), theurge initiates an external TCP connect to sentry's published port (`RBRN_ENTRY_PORT_WORKSTATION`), ifrit accepts and reads peer-source via `getpeername`.\n\nVerdict: PASS iff observed source IP equals `RBRN_ENCLAVE_SENTRY_IP`. Real external client IP indicates MASQUERADE didn't fire (asymmetric return path, architecture broken). Any other value indicates unknown deviation.\n\n### References\n\n- `rbev-vessels/common-ifrit-context/src/rbida_sorties.rs` — sortie body site; theurge-observes-ifrit-effect patterns near `sortie_arp_send_gratuitous` (role reversed here: theurge sends, ifrit observes).\n- `rbev-vessels/common-ifrit-context/src/rbida_attacks.rs` — adversary registration.\n- `Memos/memo-20260512-sentry-entry-port-repair-anchor.md` — MASQUERADE rationale.\n- Pace ₢A_AAb — architecture this validates from the receiver side.",
               "jjgtn_silks": "ifrit-sortie-dnat-source-observation",
               "jjgtn_basis": "73695c3"
+            }
+          ]
+        },
+        "₢A_AAl": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260512-1202",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nDeferred — needs host-side raw-socket sending, not in-bottle ifrit invocation. Different harness surface from the rest of the sortie family. Mount only if sentry-local services grow beyond dnsmasq, or a specific spoof-from-outside concern surfaces.\n\n## Docket\n\nTest the inbound mirror of ₢A_AAc: host-side attacker spoofs source as `RBRN_ENCLAVE_SENTRY_IP` or `RBRN_ENCLAVE_BOTTLE_IP`, aimed at sentry's external IP at the published entry port. PREROUTING per-IP RETURN short-circuits DNAT — packet is locally received by sentry instead. Verify no sentry-local service accepts under those spoofed sources.\n\nWhy low-priority now: sentry-local surface is dnsmasq on enclave-IP:53 only; existing `sortie_sentry_udp_non_dns` covers the realistic concern. The gap is theoretical until the sentry grows other listeners. Architectural watchpoint: any new sentry-local service is a trigger to mount.\n\n### References\n\n- `Memos/memo-20260512-sentry-entry-port-repair-anchor.md` — per-IP RETURN architecture creates this mirror gap.\n- `rbev-vessels/common-ifrit-context/src/rbida_sorties.rs` — `sortie_direct_sentry_probe` (defensive sentry-port baseline) and `sortie_sentry_udp_non_dns`.\n- Pace ₢A_AAc — outbound mirror of this attack class.",
+              "jjgtn_silks": "ifrit-sortie-spoof-from-outside-as-enclave-ip",
+              "jjgtn_basis": "09f0ce8"
             }
           ]
         }
