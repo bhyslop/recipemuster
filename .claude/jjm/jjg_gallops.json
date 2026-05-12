@@ -6085,9 +6085,10 @@
         "₢A_AAZ",
         "₢A_AAG",
         "₢A_AAa",
-        "₢A_AAJ"
+        "₢A_AAJ",
+        "₢A_AAc"
       ],
-      "jjghn_next_pace_seed": "AAc",
+      "jjghn_next_pace_seed": "AAd",
       "jjghn_paces": {
         "₢A_AAA": {
           "jjgpn_tacks": [
@@ -6646,6 +6647,17 @@
               "jjgtn_text": "## Character\n\nRepair execution — diagnosis is complete in the memo; this pace\napplies the proposed sentry-side fix and verifies on both platforms.\n\n## Docket\n\nApply the sentry-side repair described in\n`Memos/memo-20260512-srjcl-port-publish-regression.md`. Both halves\nmust land — the PREROUTING DNAT rescope AND the RBM-FORWARD rescope.\nmacOS empirical evidence in the memo shows the DNAT half alone is\ninsufficient.\n\nPristine-gauntlet srjcl connectivity green on BOTH macOS and linux is\nthe verification gate. Non-negotiable — see the memo's \"Verification\nGate\" section.\n\nSentry image is shared between srjcl and pluml; the vessel re-kludge\ncovers both nameplates. Hallmark refresh on each affected nameplate\nfollows.\n\n### References\n\n- `Memos/memo-20260512-srjcl-port-publish-regression.md` — primary\n  source: symptom, root cause, lineage (₢BBABC + ₢BBABE), fix shape,\n  files, verification gate, crucible state at memo-writing time.",
               "jjgtn_silks": "sentry-entry-port-dnat-forward-rescope",
               "jjgtn_basis": "9eb7588"
+            }
+          ]
+        },
+        "₢A_AAc": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260512-1025",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nAdversarial test for a residual security envelope gap identified during ₢A_AAb. Mount after ₢A_AAb canonical green on both platforms.\n\n## Docket\n\nAdd Ifrit sortie(s) covering enclave-internal source spoofing as arbitrary external-routable IPs. Existing `sortie_net_srcip_spoof` covers spoof-as-sentry, spoof-as-allowed-cidr, spoof-as-loopback — none cover spoof-as-external-routable-IP (e.g., Docker Desktop gateway `192.168.65.1`, or any non-enclave non-loopback non-sentry IP that has a route in sentry's routing table).\n\nUnder ₢A_AAb's Option E architecture (source-CIDR exclusion at PREROUTING + rp_filter loose), this spoof variant is theoretically reachable: the claimed source is outside enclave CIDR (so source-CIDR exclusion allows it), the spoofed IP has a route (so loose rp_filter allows it), DNAT fires, packet reaches bottle. Strict rp_filter would have blocked this at kernel layer; the architecture trades that for source-IP-flexibility on Docker Desktop delivery.\n\nThe new sortie verifies the iptables-layer enforcement holds without rp_filter=1's kernel-layer protection.\n\nIf empirically blocked: security envelope is sound; the sortie becomes regression backstop and the architecture's \"iptables, not rp_filter, is the load-bearing spoof gate\" claim is now empirically validated for this attack class too.\n\nIf empirically allowed: architecture needs targeted fix. Candidate mitigations include (a) selectively re-implementing rp_filter-strict-for-enclave-interface at iptables raw table (`iptables -t raw -A PREROUTING -i ENCLAVE_IF ! -s ENCLAVE_CIDR -j DROP`), or (b) adding an explicit \"drop non-enclave-source on enclave interface\" rule. Either preserves rp_filter loose for legitimate Docker Desktop delivery while restoring the spoof block.\n\n### References\n\n- `Memos/memo-20260512-sentry-entry-port-repair-anchor.md` — full architectural context for why this gap exists post-Option E.\n- `rbev-vessels/common-ifrit-context/src/rbida_sorties.rs:1042-1102` — `sortie_net_srcip_spoof` as template for the new sortie shape.\n- `rbev-vessels/common-ifrit-context/src/rbida_attacks.rs` — adversary registration entry to add.\n- Pace ₢A_AAb — the architecture this sortie validates.",
+              "jjgtn_silks": "ifrit-sortie-enclave-spoof-external",
+              "jjgtn_basis": "6102ed2"
             }
           ]
         }
