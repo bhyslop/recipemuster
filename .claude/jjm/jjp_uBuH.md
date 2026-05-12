@@ -1,123 +1,69 @@
-## Context
+## Shape
 
-Recipe Bottle's existing enshrinement (RBSAE `ark_enshrine`) is narrowly scoped: mirror upstream OCI base images into GAR with cloud-built provenance for vessel Dockerfile consumption. Two new capture needs have surfaced that share gestalt with that operation:
+Generalize today's narrow `enshrine` (base OCI mirror) into a universal verb for project-controlled capture of upstream artifacts. The verb spans heterogeneous content kinds — base images, build-time tools, WSL substrate, and podman machine images — under a single recipe noun, **Lode**, paralleling Vessel on the built side.
 
-1. **WSL substrate**. Workload garrison-w on Windows imports a Linux rootfs tarball via `wsl --import`. Today caparison-w sources the seed by downloading `Ubuntu-24.04` via `wsl --install` under the admin user, then garrison-w `wsl --export`s admin's distro to produce the tar. The source is uncontrolled, mutable, and outside the SLSA trust chain.
+The analogy:
 
-2. **Podman VM substrate**. Podman machine images live on quay with hostile lifecycle properties — new images every ~3 hours, retention measured in days. Without project-controlled mirroring, past artifacts become unreachable within a week of release.
+| Built side | Captured side |
+|-----------|---------------|
+| Vessel (recipe) | Lode (recipe) |
+| Hallmark (specific build) | {INSTANCE_NOUN} (specific capture) |
 
-Both share the existing enshrinement gestalt: pull from upstream, wrap with cloud-built provenance, store in GAR with SLSA attestation. Rule of Three applies — three concrete instances (existing base + WSL + podman-vm) make the verb-generalization load-bearing.
+A Lode declares author intent (kind + kind-specific primitives + sigil); the enshrine pipeline resolves upstream coordinates from kind conventions, captures bytes into GAR, and emits a resolved {INSTANCE_NOUN} that consumers reference. Lode .env stays declarative-only — no FQIN field, no resolved-identity field. Kindle code computes upstream FQINs and GAR tags from primitives at module-startup, mirroring the existing `ZRBV_VMIMAGE_TAG_PREFIX` pattern in `rbv_PodmanVM.sh`.
 
-## Locked decisions
+Variable groups within the Lode regime gate on the kind enum exactly as RBRV's groups gate on `RBRV_VESSEL_MODE`. RBRV's existing ORIGIN/ANCHOR pattern (RBSRV lines 119-144) — author declares ORIGIN intent, foundry resolves and writes back ANCHOR — is the universal precedent the Lode model generalizes: Lode .env carries author intent only; enshrine writes the resolved capture identity to wherever consumers read it.
 
-### Enshrine as a verb across three kinds
+## Kinds
 
-Keep `enshrine` as the verb. Apply it to three kinds: `base` (current), `wsl`, `podman-vm`. Each kind is a parameter to the verb, not a new domain noun.
+| Kind | Atomic / Compound | Upstream source |
+|------|-------------------|-----------------|
+| `base` | atomic | upstream OCI registry, consumed as FROM line |
+| `tool` | atomic | upstream OCI registry, consumed at build time |
+| `reliquary` | compound | date-cohort of `tool` sub-Lodes (replaces today's reliquary noun) |
+| `wsl` | atomic | rootfs tar from Microsoft Store distro via `wsl --export` |
+| `podvm-wsl` | compound | `quay.io/podman/machine-os-wsl` — platform fan-out, consumed by Windows podman |
+| `podvm-native` | compound | `quay.io/podman/machine-os` — platform fan-out, consumed by macOS/Linux podman |
 
-Pattern mirrors the SA-noun resolution: when verbs `invest`/`divest`/`roster` came to span Director and Retriever SA kinds, the resolution was sibling specs per noun-kind (RBSDK director_invest ↔ RBSRK retriever_invest) and tabtargets encoding the kind in the colophon (`rbw-arI` ↔ `rbw-adI`). No master parameterized spec.
+Compound Lodes hold a manifest of sub-Lode references; sub-Lodes are first-class addressable (each has its own {INSTANCE_NOUN}) but the compound is the typical reference target.
 
-Applied here:
+`wsl` and `podvm-wsl` both touch WSL but are entirely distinct: `wsl` is the Linux distro tarball that hosts everything on the Windows workload, `podvm-wsl` is the podman machine image that runs *inside* that distro. Names kept visibly different.
 
-- **Specs**: sibling per kind. RBSAE stays scoped to base. New siblings for WSL and podman-vm kinds (acronym letters open; see below).
-- **Tabtargets**: rename `rbw-dE` → `rbw-dEb` (DirectorEnshrinesBaseImage). Add `rbw-dEw` (WSL) and `rbw-dEv` (podman-vm).
-- **Cloud Build pipelines**: three, one per kind. Each kind's spec describes its own pipeline.
+## Revised from prior paddock
 
-### Production forks, management polymorphs
+- Three kinds (base / wsl / podman-vm) → six kinds. `tool` and `reliquary` enter scope (subsume today's reliquary-as-noun and the mirror verb); `podman-vm` splits into `podvm-wsl` and `podvm-native` to honor the structural asymmetry confirmed by `rbv_PodmanVM.sh`.
+- Sibling specs per kind → unified Lode regime with kind-dispatched pipelines (mirrors RBRV's enum-gated-groups pattern).
+- Sibling tabtargets `rbw-dEb/w/v` → leaning toward unified `rbw-dE` with kind argument; pending firm decision.
+- Single-layer OCI universal wire format survives, but compound Lodes carry a manifest-of-references payload rather than a single payload byte-stream.
 
-Production differs per kind (upstream source, repackaging recipe, payload shape) and warrants per-kind specs and pipelines. Management ops on enshrinements operate at GAR-object level where kind is invisible — they stay polymorphic:
+## Carried forward from prior paddock
 
-- `rbw-iJe` DirectorJettisonsEnshrinement — delete by GAR object identity; kind-agnostic
-- `rbw-iae` DirectorAuditsEnshrinements — list all enshrinements; gains a kind column
-- `rbw-iwe` DirectorWrestsEnshrinedImage — pull wrapper bytes; consumer decides what to do with payload
+- Caparison-w / garrison-w consequences for `wsl` kind: admin's WSL distribution disappears when the kind lands; the pre-existing revert pace in ₣A- targeting the WSL-stage DEV CACHE shortcut becomes obsolete and wants dropping or transferring when this heat commits to development.
+- Refresh cadence variability (now per-kind, may diverge between `podvm-wsl` and `podvm-native`).
+- "Mirror" verb retires entirely; absorbed into enshrine + `tool` / `reliquary` kinds.
 
-### Single-layer OCI as universal wire format
+## Discovery recipes — work to enumerate when paces approach
 
-Store all enshrined artifacts in GAR as single-layer OCI images carrying the payload as the layer's content. Mild abuse of OCI semantics for non-base kinds (the "image" isn't meant to be run) but preserves the entire existing summon/vouch/SLSA chain unchanged.
+- **Verb redesign blast radius unaudited.** Discovery recipe: scan `Tools/rbk/vov_veiled/RBSA*.adoc` and `RBSI*.adoc` for verbs touching captured artifacts; for each, classify per-kind variance (unchanged / split / retired). Yoke is the headline because consumer-landing target differs per kind; other splits expected but uncatalogued. Keeping this as a recipe rather than an enumeration is deliberate — premature listing inflates the paddock and ages poorly.
+- **Non-vessel consumer landing regime.** For `wsl` and `podvm-*` kinds, the resolved {INSTANCE_NOUN} has no vessel rbrv.env to yoke into. Decision deferred until the first non-vessel Lode pace mounts and forces the choice; candidates include station-regime extensions, a Lode-side current-resolution field, or a new host-config regime.
+- **Spec letter allocation for the new Lode spec.** Consult CLAUDE.md Prefix Naming Discipline and Quoin Sub-Letter Discipline before minting; check terminal exclusivity against the existing RBS* tree.
 
-Per kind:
+## Vocabulary parked
 
-- `base`: native OCI image; payload IS the layers
-- `wsl`: rootfs tar (produced by Cloud Build `docker create` + `docker export`) wrapped as the single layer
-- `podman-vm`: qcow2 bytes mirrored from quay, wrapped as the single layer
-
-### Curia is byte pass-through
-
-For non-base kinds, consumption requires getting the payload from GAR onto the target host:
-
-- `wsl`: retriever pulls the enshrined artifact, extracts the layer payload (rootfs tar), `scp.exe`s to admin host's `C:\bujb-wsl\rbtww-seed.tar` over admin SSH; garrison-w `wsl --import` consumes it
-- `podman-vm`: retriever pulls, extracts qcow2, hands to local podman machine
-
-Curia performs no transformation — pulls bytes, forwards bytes. SLSA covers GAR-side production; curia is outside the trust boundary by design.
-
-### Caparison-w / garrison-w consequences
-
-When WSL-kind enshrinement is live, admin's WSL distribution disappears entirely:
-
-- Caparison-w Phase 3 drops `wsl --install`, the multi-minute Ubuntu install cycle, and admin's `wsl --import` of rbtww-main
-- Garrison-w Step 3 (admin `wsl --export` to seed tarball) deletes — seed already staged from GAR
-- Garrison-w Phase 5 (workload-user vestige cleanup inside admin's rbtww-main) deletes — no admin distro exists
-- Workload's `wsl --import` (Step 11 Session 1) is unchanged — still consumes a tar at the staged path
-- Invigilate fact "rbtww-main WSL distribution registered (admin)" replaced with "C:\bujb-wsl\rbtww-seed.tar present, matching expected hallmark digest"
-
-A pre-existing revert pace in ₣A- targeting the WSL-stage DEV CACHE shortcut becomes obsolete — the from-scratch path it would restore is itself being deleted. That pace wants to be dropped or transferred when this heat commits to development.
-
-## Open decisions for expansion
-
-### Spec acronym letters
-
-Per discipline, 5-letter spec acronyms. Candidates need to follow RBSAE's tree without collision:
-
-- Symmetric rename: RBSAE → RBSAEB (base), siblings RBSAEW (wsl), RBSAEV (podman-vm). Mirrors the `rbw-dEb`/`rbw-dEw`/`rbw-dEv` tabtarget shape.
-- Asymmetric: leave RBSAE as base, mint RBSAEW and RBSAEV as siblings.
-
-Defer until spec discipline is consulted and tinder/terminal-exclusivity rules are checked against the existing tree.
-
-### Consumption verb for WSL and podman-vm kinds
-
-Today's verbs:
-
-- Base-kind enshrinements consumed by Cloud Build during conjure (implicit pull, no operator-facing verb)
-- Hallmarks consumed by retriever via `summon` (`rbw-fs`)
-
-WSL and podman-vm kinds need an operator-facing consumption op (pull + extract + transport). Two paths:
-
-1. Broaden `summon` to cover any retriever-pulled GAR thing with kind switch. Risks blurring summon's clean current identity (vessel hallmarks specifically).
-2. Mint a sibling consumption verb for substrate kinds. Cleaner taxonomically but adds vocabulary.
-
-Defer until the first WSL retrieval op is sketched in code — implementation reveals what natural shape feels right.
-
-### Delivery sequencing
-
-Two options on heat content scope:
-
-1. **All three kinds in one heat**: ship abstraction + base narrowing + WSL stack + podman-vm stack end-to-end. The Rule of Three earns its keep only with three real implementations — partial delivery is premature abstraction.
-2. **Abstraction + WSL only**: ship the verb-generalization and prove it with WSL (operationally urgent for caparison-w unblock). Podman-vm slots in as a sibling heat once the pattern proves out.
-
-Lean toward option 1 — designing for three with only two real implementations is the failure mode Rule of Three is supposed to prevent. But option 2 ships unblocking value sooner. Decision pending commit-to-development.
-
-### WSL Dockerfile content
-
-A bare `FROM ubuntu:24.04` rootfs has dpkg minimization (`policy-rc.d`, removed locales, no `/etc/wsl.conf`) that Microsoft's appx-delivered Ubuntu silently works around. The WSL-kind Dockerfile adds a thin layer re-adding those bits — small but must exist and be tested with the four-session garrison ceremony. Invigilate fact needed: `useradd`, `install`, `bash -lc` round-trip work inside the imported distro.
-
-### Tarball transport for WSL
-
-`scp.exe` over admin SSH from curia → Windows host: should work, but Windows OpenSSH has historically surprised people on binary transfers. Verify once before committing the transport pattern.
-
-### Podman-vm source format and refresh cadence
-
-Quay's hostile lifecycle (new image every ~3 hours, retention measured in days) means the podman-vm enshrinement pipeline needs scheduled or trigger-driven refresh, not on-demand. Pin discipline open: which quay digest gets enshrined, how often, who triggers, how aging is managed. Probably wants its own paddock subsection once design lands.
+- **Lode** chosen as the universal recipe noun. **Unction** held as the strongest rejected alternative (religious register, RBRU_ free, but verb-coupled meaning). **Oblate** rejected — RBRO_ collides with OAuth regime.
+- **Reliquary** demoted from top-level noun to a kind enum value. Word survives; cult-vocabulary weight reduced.
+- **{INSTANCE_NOUN}** (the specific-capture noun, parallel to Hallmark) is open. Letter-collision constraint with established project nouns leaves few unused letters; review needed before naming. Anchor was floated as the natural-preserving choice but flagged as uncertain.
+- Three cohort options considered: α Reliquary-as-grouping abstraction, β Compound Lode, γ no grouping concept. γ rejected by date-cohort load-bearing test (vessels constrain Cloud Build toolsets by cohort); α rejected as wrong-direction (promotes a cult noun rather than reducing); β chosen.
 
 ## Heat nature
 
-Planning/design heat — no paces yet. Paddock captures locked decisions and open decisions for expansion once development is committed. Will revisit and slate paces against this content when surrounding heats clear and this work fits the queue.
+Planning/design heat — no paces yet. Paddock encodes the model and the recipes for follow-up work; specific verb-fate, landing-regime, and instance-noun decisions defer until paces commit. Heat silks (`rbk-29-win-enshrine-triple`) now mismatches scope and wants relabeling once the model is approved.
 
 ## References
 
-- ₣AV `rbw-implement-gar-mirroring` (retired 260511) — predecessor heat; absorbed motivation (Quay concern, pin discipline, hostile-upstream mirroring). Predated the enshrinement noun's formalization.
-- RBSAE `ark_enshrine` — current narrow-scope enshrinement spec
-- RBSAS `ark_summon` — retriever consumption of hallmarks (not enshrinements)
-- RBSDK `director_invest` / RBSRK `retriever_invest` — sibling-specs-per-noun-kind pattern; verb-sharing precedent
-- RBSIA Image Audit — three current artifact domains (hallmarks, reliquaries, enshrinements); enshrinement-domain audit ops gain kind column
-- BUSJCW CaparisonWindows — Phase 3 WSL provisioning that will be deleted
-- BUSJGW GarrisonWsl — Step 3 admin `wsl --export` and Phase 5 vestige cleanup that will be deleted
-- BUSJIW InvigilateWindows — admin WSL distribution fact replaced with seed-tarball presence/digest fact
+- ₣AV `rbw-implement-gar-mirroring` (retired 260511) — predecessor heat
+- RBSAE `ark_enshrine` — current narrow-scope spec; becomes the `base`-kind pipeline under unification
+- RBSAS `ark_summon`, RBSDI `depot_inscribe`, RBSDY `director_yoke` — verbs within the blast radius
+- RBSRV `RegimeVessel` (lines 119-144 in particular) — ORIGIN/ANCHOR precedent; enum-gated-variable-groups pattern is the structural model
+- `Tools/rbk/vov_veiled/FUTURE/rbv_PodmanVM.sh` — concrete podman-vm pipeline; reveals fan-out structure and two-source quay split
+- BUSJCW CaparisonWindows, BUSJGW GarrisonWsl, BUSJIW InvigilateWindows — `wsl` kind consequences on Windows workload
+- CLAUDE.md "Prefix Naming Discipline" and "Quoin Sub-Letter Discipline" — guide spec letter allocation
