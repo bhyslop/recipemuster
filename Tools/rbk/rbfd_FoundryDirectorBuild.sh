@@ -1237,7 +1237,7 @@ rbfd_build() {
 
   # Mint hallmark on host — same pattern as bind/graft: inscribe + realized
   buc_step "Minting hallmark on host"
-  local -r z_inscribe_ts="c${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
+  local -r z_inscribe_ts="${RBGC_HALLMARK_PREFIX_CONJURE}${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
   local -r z_realized_ts_file="${BURD_TEMP_DIR}/rbfd_realized_ts.txt"
   date -u +%y%m%d%H%M%S > "${z_realized_ts_file}" \
     || buc_die "Failed to generate realized timestamp"
@@ -1390,10 +1390,9 @@ rbfd_kludge() {
   done
   test ${#z_build_args[@]} -gt 0 || buc_die "No RBRV_IMAGE_n_ORIGIN found in vessel config"
 
-  # Generate kludge hallmark (k prefix distinguishes from conjure c, bind b)
   # Timestamp for chronological sorting, git describe for commit provenance
   # BURD_GIT_CONTEXT is exported by bud_dispatch; dirty-tree guard above ensures clean tree
-  local -r z_hallmark="k${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}-${BURD_GIT_CONTEXT}"
+  local -r z_hallmark="${RBGC_HALLMARK_PREFIX_KLUDGE}${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}-${BURD_GIT_CONTEXT}"
 
   # Construct image refs matching compose/vouch-gate format (new layout — hallmark-as-tag).
   local -r z_image_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"
@@ -1491,7 +1490,7 @@ rbfd_mirror() {
   local -r z_gar_base="${z_gar_host}/${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
 
   # Generate hallmark timestamps: bYYMMDDHHMMSS-rYYMMDDHHMMSS
-  local -r z_mirror_ts="b${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
+  local -r z_mirror_ts="${RBGC_HALLMARK_PREFIX_BIND}${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
   local -r z_build_ts_file="${ZRBFD_MIRROR_PREFIX}build_ts.txt"
   date -u +'%y%m%d%H%M%S' > "${z_build_ts_file}" || buc_die "Failed to generate build timestamp"
   local z_build_ts
@@ -1767,7 +1766,7 @@ rbfd_graft() {
   z_created_clean="${z_created_clean%Z}"    # Handle edge case
   local -r z_cdate="${z_created_clean%%T*}"
   local -r z_ctime="${z_created_clean##*T}"
-  local -r z_graft_ts="g${z_cdate:2:2}${z_cdate:5:2}${z_cdate:8:2}${z_ctime:0:2}${z_ctime:3:2}${z_ctime:6:2}"
+  local -r z_graft_ts="${RBGC_HALLMARK_PREFIX_GRAFT}${z_cdate:2:2}${z_cdate:5:2}${z_cdate:8:2}${z_ctime:0:2}${z_ctime:3:2}${z_ctime:6:2}"
 
   # Authenticate as Director
   buc_step "Loading Director RBRA credentials"

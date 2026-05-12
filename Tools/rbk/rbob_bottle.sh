@@ -224,6 +224,16 @@ zrbob_compose() {
 ######################################################################
 # Auto-Summon Helpers
 
+# Discriminate kludge hallmarks (local-only, no GAR presence) from conjure /
+# bind / graft hallmarks. Used by charge preflight to redirect the diagnostic
+# away from the summon path, which is guaranteed to fail for kludge stamps.
+zrbob_hallmark_is_kludge() {
+  case "${1}" in
+    "${RBGC_HALLMARK_PREFIX_KLUDGE}"*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
 # Pull all three arks (image, about, vouch) for a hallmark to local runtime.
 # Used when charge detects a missing local artifact and needs to bootstrap.
 # Mirrors rbfr_summon's all-three-arks semantics; called inline rather than
@@ -429,21 +439,33 @@ rbob_charge() {
   # as not-yet-summoned and all three arks are pulled together. Image-only
   # auto-summon below is defense-in-depth for partial-state cases.
   if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_SENTRY_VOUCH}" >/dev/null 2>&1; then
+    if zrbob_hallmark_is_kludge "${RBRN_SENTRY_HALLMARK}"; then
+      buc_die "Kludge sentry hallmark not built locally: ${RBRN_SENTRY_HALLMARK}"
+    fi
     buc_warn "Sentry vouch artifact missing locally: ${ZRBOB_SENTRY_VOUCH}"
     zrbob_summon_full_hallmark "${RBRN_SENTRY_HALLMARK}"
   fi
 
   if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_BOTTLE_VOUCH}" >/dev/null 2>&1; then
+    if zrbob_hallmark_is_kludge "${RBRN_BOTTLE_HALLMARK}"; then
+      buc_die "Kludge bottle hallmark not built locally: ${RBRN_BOTTLE_HALLMARK}"
+    fi
     buc_warn "Bottle vouch artifact missing locally: ${ZRBOB_BOTTLE_VOUCH}"
     zrbob_summon_full_hallmark "${RBRN_BOTTLE_HALLMARK}"
   fi
 
   if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_SENTRY_IMAGE}" >/dev/null 2>&1; then
+    if zrbob_hallmark_is_kludge "${RBRN_SENTRY_HALLMARK}"; then
+      buc_die "Kludge sentry hallmark not built locally: ${RBRN_SENTRY_HALLMARK}"
+    fi
     buc_warn "Sentry image not found locally: ${ZRBOB_SENTRY_IMAGE}"
     zrbob_vouch_gate_and_summon "${RBRN_SENTRY_VESSEL}" "${RBRN_SENTRY_HALLMARK}" "${ZRBOB_SENTRY_IMAGE}"
   fi
 
   if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_BOTTLE_IMAGE}" >/dev/null 2>&1; then
+    if zrbob_hallmark_is_kludge "${RBRN_BOTTLE_HALLMARK}"; then
+      buc_die "Kludge bottle hallmark not built locally: ${RBRN_BOTTLE_HALLMARK}"
+    fi
     buc_warn "Bottle image not found locally: ${ZRBOB_BOTTLE_IMAGE}"
     zrbob_vouch_gate_and_summon "${RBRN_BOTTLE_VESSEL}" "${RBRN_BOTTLE_HALLMARK}" "${ZRBOB_BOTTLE_IMAGE}"
   fi

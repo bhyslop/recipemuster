@@ -141,6 +141,14 @@ zrbgc_kindle() {
   readonly RBGC_ARK_BASENAME_ATTEST="attest"
   readonly RBGC_ARK_BASENAME_POUCH="pouch"
 
+  # Hallmark Prefix Letters
+  # Encode artifact provenance in the leading character of a hallmark stamp.
+  # Kludge hallmarks are local-only; the other three originate in GAR.
+  readonly RBGC_HALLMARK_PREFIX_CONJURE="c"
+  readonly RBGC_HALLMARK_PREFIX_KLUDGE="k"
+  readonly RBGC_HALLMARK_PREFIX_BIND="b"
+  readonly RBGC_HALLMARK_PREFIX_GRAFT="g"
+
   # GAR Categorical Namespaces (₢A_AAK layout)
   # Top-level namespaces under which hallmark/reliquary/enshrine arks are
   # stored as plain basename siblings. Consumed by rbgl_GarLayout.sh.
