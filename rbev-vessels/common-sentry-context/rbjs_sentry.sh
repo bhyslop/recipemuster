@@ -122,12 +122,19 @@ if test "${RBRN_ENTRY_MODE}" = "enabled"; then
   echo 1 > /proc/sys/net/ipv4/ip_forward || exit 25
 
   echo "RBJp2: DNAT incoming connections on entry port to bottle"
-  iptables -t nat -A PREROUTING -i ${RBJ_UPLINK_IF} -p tcp --dport "${RBRN_ENTRY_PORT_WORKSTATION}" \
+  # Source-IP exclusion (not -i UPLINK_IF) encodes the actual invariant:
+  # entry-port traffic originating outside the enclave subnet. Decouples from
+  # Docker's choice of port-publish delivery interface (alphabetical fallback,
+  # see header comment of rbob_compose.yml).
+  iptables -t nat -A PREROUTING -p tcp --dport "${RBRN_ENTRY_PORT_WORKSTATION}" \
+           ! -s "${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" \
            -j DNAT --to-destination "${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE}" || exit 25
 
   echo "RBJp2: Allow forwarding of DNATted entry traffic to bottle"
-  iptables -A RBM-FORWARD -i ${RBJ_UPLINK_IF} -o ${RBJ_ENCLAVE_IF} -p tcp \
-           -d "${RBRN_ENCLAVE_BOTTLE_IP}" --dport "${RBRN_ENTRY_PORT_ENCLAVE}" -j ACCEPT || exit 25
+  iptables -A RBM-FORWARD -p tcp \
+           -d "${RBRN_ENCLAVE_BOTTLE_IP}" --dport "${RBRN_ENTRY_PORT_ENCLAVE}" \
+           ! -s "${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" \
+           -j ACCEPT || exit 25
 
   echo "RBJp2: MASQUERADE return traffic so bottle replies to sentry"
   iptables -t nat -A POSTROUTING -o ${RBJ_ENCLAVE_IF} -p tcp \
