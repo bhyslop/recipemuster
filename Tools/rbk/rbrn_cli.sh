@@ -108,7 +108,8 @@ rbrn_render() {
     rbrn_list
     buc_die "Nameplate moniker required"
   fi
-  buv_render RBRN "RBRN - Recipe Bottle Regime Nameplate"
+  local z_nameplate_file="${RBBC_dot_dir}/${BUZ_FOLIO}/${RBCC_rbrn_file}"
+  buv_render RBRN "RBRN - Recipe Bottle Regime Nameplate" "${z_nameplate_file}"
 }
 
 # Command: survey - fleet info table across all nameplates

@@ -40,7 +40,7 @@ rbrr_render() {
   buc_doc_brief "Display diagnostic view of RBRR repo regime configuration"
   buc_doc_shown || return 0
 
-  buv_render RBRR "RBRR - Recipe Bottle Regime Repo"
+  buv_render RBRR "RBRR - Recipe Bottle Regime Repo" "${RBBC_rbrr_file}"
 }
 
 ######################################################################

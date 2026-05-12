@@ -1003,7 +1003,7 @@ Checks all type and constraint requirements via buv_env_* validators.
 {bukro_render}::
 Diagnostic display of Bash Utility Kit
 {axrg_regime}
-state.
+state, including the source-file path from which the regime was sourced.
 
 === BURC Regime
 

@@ -786,8 +786,9 @@ zbuv_req_status() {
   fi
 }
 
-# buv_render SCOPE "Label" — render all enrolled vars via bupr_ presentation
+# buv_render SCOPE "Label" [FILE_PATH] — render all enrolled vars via bupr_ presentation
 # Walks enrollment rolls grouped by group, applying group-level gates.
+# Optional FILE_PATH displays a gray "File: <path>" line under the title; empty/omitted skips it.
 # Requires bupr (PresentationRegime) to be kindled.
 buv_render() {
   zbuv_sentinel
@@ -795,6 +796,7 @@ buv_render() {
 
   local z_scope="${1:-}"
   local z_label="${2:-}"
+  local z_file_path="${3:-}"
   test -n "${z_scope}" || buc_die "buv_render: scope required"
   test -n "${z_label}" || buc_die "buv_render: label required"
 
@@ -807,6 +809,9 @@ buv_render() {
 
   echo ""
   echo "${BUC_white}${z_label}${BUC_reset}"
+  if test -n "${z_file_path}"; then
+    echo "  ${BUC_gray}File: ${z_file_path}${BUC_reset}"
+  fi
   echo ""
 
   for z_i in "${!z_buv_scope_roll[@]}"; do

@@ -38,7 +38,7 @@ rbrp_render() {
   buc_doc_brief "Display diagnostic view of RBRP payor regime configuration"
   buc_doc_shown || return 0
 
-  buv_render RBRP "RBRP - Recipe Bottle Regime Payor"
+  buv_render RBRP "RBRP - Recipe Bottle Regime Payor" "${RBBC_rbrp_file}"
 }
 
 ######################################################################

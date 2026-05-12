@@ -41,7 +41,7 @@ bure_render() {
   buc_doc_brief "Display diagnostic view of BURE environment regime"
   buc_doc_shown || return 0
 
-  buv_render BURE "BURE - Bash Utility Environment Regime (ambient)"
+  buv_render BURE "BURE - Bash Utility Environment Regime (ambient)" ""
 }
 
 ######################################################################

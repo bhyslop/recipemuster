@@ -44,7 +44,8 @@ burn_render() {
   buc_doc_shown || return 0
 
   test -n "${BUZ_FOLIO:-}" || burn_die_no_folio
-  buv_render BURN "BURN - Bash Utility Node Regime"
+  local z_profile_file="${BURD_CONFIG_DIR}/${BUBC_rbmn_nodes_subdir}/${BUZ_FOLIO}/burn.env"
+  buv_render BURN "BURN - Bash Utility Node Regime" "${z_profile_file}"
 }
 
 burn_list() {

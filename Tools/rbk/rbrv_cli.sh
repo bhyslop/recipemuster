@@ -49,7 +49,8 @@ rbrv_render() {
     rbrv_list
     buc_die "Vessel sigil required"
   fi
-  buv_render RBRV "RBRV - Recipe Bottle Regime Vessel"
+  local z_vessel_file="${RBRR_VESSEL_DIR}/${BUZ_FOLIO}/rbrv.env"
+  buv_render RBRV "RBRV - Recipe Bottle Regime Vessel" "${z_vessel_file}"
 }
 
 # Command: list - show available vessel sigils

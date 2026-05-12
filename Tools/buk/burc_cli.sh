@@ -38,7 +38,7 @@ burc_render() {
   buc_doc_brief "Display diagnostic view of BURC configuration regime"
   buc_doc_shown || return 0
 
-  buv_render BURC "BURC - Bash Utility Configuration Regime"
+  buv_render BURC "BURC - Bash Utility Configuration Regime" "${BURD_REGIME_FILE}"
 }
 
 ######################################################################

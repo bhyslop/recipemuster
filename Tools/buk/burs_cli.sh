@@ -38,7 +38,7 @@ burs_render() {
   buc_doc_brief "Display diagnostic view of BURS station regime configuration"
   buc_doc_shown || return 0
 
-  buv_render BURS "BURS - Bash Utility Station Regime"
+  buv_render BURS "BURS - Bash Utility Station Regime" "${BURD_STATION_FILE}"
 }
 
 ######################################################################

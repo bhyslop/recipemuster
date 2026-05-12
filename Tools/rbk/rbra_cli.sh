@@ -67,7 +67,9 @@ rbra_render() {
     rbra_list
     buc_die "RBRA role required"
   fi
-  buv_render RBRA "RBRA - Recipe Bottle Authentication Regime"
+  local z_rbra_file
+  z_rbra_file=$(zrbra_resolve_role "${BUZ_FOLIO}")
+  buv_render RBRA "RBRA - Recipe Bottle Authentication Regime" "${z_rbra_file}"
 }
 
 rbra_list() {

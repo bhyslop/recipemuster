@@ -44,7 +44,8 @@ burp_render() {
   buc_doc_shown || return 0
 
   test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
-  buv_render BURP "BURP - Bash Utility Privileged Regime"
+  local z_profile_file="${BURD_CONFIG_DIR}/${BUBC_rbmu_users_subdir}/${BURS_USER}/${BUZ_FOLIO}/burp.env"
+  buv_render BURP "BURP - Bash Utility Privileged Regime" "${z_profile_file}"
 }
 
 burp_list() {
