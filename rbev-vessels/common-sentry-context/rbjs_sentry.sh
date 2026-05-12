@@ -117,6 +117,33 @@ iptables -A RBM-EGRESS  -o ${RBJ_ENCLAVE_IF} -p icmp -j ACCEPT || exit 20
 echo "RBJp2: Enabling IP forwarding (required whenever sentry forwards on behalf of the enclave)"
 echo 1 > /proc/sys/net/ipv4/ip_forward || exit 25
 
+if test "${RBRN_ENTRY_MODE}" = "enabled"; then
+  echo "RBJp2c: Configuring entry-port DNAT + MASQUERADE + FORWARD-ACCEPT"
+  # Classification: destination port only. Interface (-i ...) and source IP (! -s ...) are
+  # NOT trust labels — Docker's chosen ingress interface and runtime SNAT'd source IP are
+  # framework-dependent and have caused two prior regressions. Destination port is the
+  # stable identity of "this is entry-port traffic."
+  iptables -t nat -A PREROUTING -p tcp --dport "${RBRN_ENTRY_PORT_WORKSTATION}" \
+           -j DNAT --to-destination "${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE}" || exit 25
+
+  # Return-path symmetry: MASQUERADE rewrites the source of the post-DNAT packet to
+  # sentry's enclave IP, so the bottle's reply destination is in-enclave. The bottle then
+  # routes via its directly-connected enclave route back to sentry, where conntrack reverses
+  # the NAT cleanly. Without this, the bottle would reply to the original (possibly
+  # framework-rewritten) source IP, traversing default-via-sentry into transit — empirically
+  # broken on Docker Desktop per the topology-reframe scry diagnostic.
+  iptables -t nat -A POSTROUTING -o ${RBJ_ENCLAVE_IF} -p tcp \
+           -d "${RBRN_ENCLAVE_BOTTLE_IP}" --dport "${RBRN_ENTRY_PORT_ENCLAVE}" -j MASQUERADE || exit 25
+
+  # Authorization: only flows that sentry's own PREROUTING DNAT created conntrack state
+  # for are allowed to forward. Conntrack DNAT-state is unforgeable from either bridge.
+  # The parent FORWARD chain's ESTABLISHED,RELATED ACCEPT (line above) handles the return
+  # path before reaching RBM-FORWARD.
+  iptables -A RBM-FORWARD -p tcp \
+           -d "${RBRN_ENCLAVE_BOTTLE_IP}" --dport "${RBRN_ENTRY_PORT_ENCLAVE}" \
+           -m conntrack --ctstate DNAT -j ACCEPT || exit 25
+fi
+
 echo "RBJp2b: Blocking ICMP cross-boundary traffic"
 iptables -A RBM-FORWARD         -p icmp -j DROP || exit 28
 iptables -A RBM-EGRESS  -o ${RBJ_UPLINK_IF} -p icmp -j DROP || exit 28

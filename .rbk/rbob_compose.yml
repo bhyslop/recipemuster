@@ -33,6 +33,8 @@ services:
       transit: {}
       enclave:
         ipv4_address: ${RBRN_ENCLAVE_SENTRY_IP}
+    ports:
+      - "${RBRN_ENTRY_PORT_WORKSTATION}:${RBRN_ENTRY_PORT_WORKSTATION}"
     environment:
       - RBRN_ENCLAVE_BASE_IP
       - RBRN_ENCLAVE_NETMASK
@@ -62,8 +64,6 @@ services:
     networks:
       enclave:
         ipv4_address: ${RBRN_ENCLAVE_BOTTLE_IP}
-    ports:
-      - "${RBRN_ENTRY_PORT_WORKSTATION}:${RBRN_ENTRY_PORT_ENCLAVE}"
     environment:
       - RBRN_ENCLAVE_SENTRY_IP
     command: ["/opt/rbk/rbjp_pentacle.sh"]
@@ -85,6 +85,7 @@ services:
       - label:disable
     cap_drop:
       - NET_RAW
+      - NET_ADMIN
     environment:
       - RBOB_HOST_UID
       - RBOB_HOST_GID
