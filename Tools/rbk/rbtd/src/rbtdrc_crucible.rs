@@ -560,6 +560,10 @@ fn rbtdrc_sortie_net_srcip_spoof(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "net-srcip-spoof", dir))
 }
 
+fn rbtdrc_sortie_net_srcip_spoof_external(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "net-srcip-spoof-external", dir))
+}
+
 fn rbtdrc_sortie_proto_smuggle_rawsock(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "proto-smuggle-rawsock", dir))
 }
@@ -2238,6 +2242,7 @@ static RBTDRC_CASES_SECURITY: &[rbtdre_Case] = &[
     case!(rbtdrc_sortie_icmp_exfil_payload),
     case!(rbtdrc_sortie_net_ipv6_escape),
     case!(rbtdrc_sortie_net_srcip_spoof),
+    case!(rbtdrc_sortie_net_srcip_spoof_external),
     case!(rbtdrc_sortie_proto_smuggle_rawsock),
     case!(rbtdrc_sortie_net_fragment_evasion),
     case!(rbtdrc_sortie_direct_arp_poison),

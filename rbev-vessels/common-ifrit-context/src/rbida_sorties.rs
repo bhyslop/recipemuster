@@ -1102,6 +1102,159 @@ pub fn sortie_net_srcip_spoof(_extra_args: &[&str]) -> rbida_Verdict {
     )
 }
 
+// ── Sortie 7b: net_srcip_spoof_external ──────────────────────
+//
+// Companion to sortie_net_srcip_spoof. That sortie probes spoof-as-sentry,
+// spoof-as-allowed-cidr, spoof-as-loopback targeting a forbidden external
+// destination. This sortie probes the residual case left open by the
+// per-IP RETURN short-circuit exclusion at sentry's PREROUTING DNAT: an
+// enclave-internal source spoofing as an arbitrary external-routable IP
+// (neither sentry-IP, bottle-IP, loopback, nor enclave CIDR) and aiming
+// at sentry's workstation entry port. Under per-IP RETURN + rp_filter=2
+// loose, the spoofed source matches neither RETURN rule, DNAT fires, the
+// FORWARD chain accepts via conntrack-DNAT-state, and the packet reaches
+// the bottle's enclave entry port. Strict rp_filter would have blocked at
+// the kernel layer; that defense was traded for source-IP-flexibility on
+// Docker Desktop delivery.
+//
+// Detection: open a raw IPPROTO_TCP listener in bottle's namespace, send
+// the spoofed SYN with a distinctive source port, then sniff for the
+// reflected SYN matching dst-port = RBRN_ENTRY_PORT_ENCLAVE (post-DNAT)
+// and src-port = our distinctive port. The post-MASQUERADE source seen at
+// bottle is sentry's bridge IP, but src-port survives unchanged.
+pub fn sortie_net_srcip_spoof_external(_extra_args: &[&str]) -> rbida_Verdict {
+    let sentry_ip = match env_require("RBRN_ENCLAVE_SENTRY_IP") {
+        Ok(v) => v,
+        Err(e) => return fail(format!("ERROR: {}", e)),
+    };
+    let ws_port: u16 = match env_require("RBRN_ENTRY_PORT_WORKSTATION") {
+        Ok(v) => match v.parse() {
+            Ok(p) => p,
+            Err(_) => return fail(format!("ERROR: bad RBRN_ENTRY_PORT_WORKSTATION: {}", v)),
+        },
+        Err(e) => return fail(format!("ERROR: {}", e)),
+    };
+    let enc_port: u16 = match env_require("RBRN_ENTRY_PORT_ENCLAVE") {
+        Ok(v) => match v.parse() {
+            Ok(p) => p,
+            Err(_) => return fail(format!("ERROR: bad RBRN_ENTRY_PORT_ENCLAVE: {}", v)),
+        },
+        Err(e) => return fail(format!("ERROR: {}", e)),
+    };
+
+    // Spoofed source: external-routable IP, not enclave, not sentry, not
+    // bottle, not loopback, not in any allowed CIDR (so it cannot be
+    // confused with the spoof-as-allowed-cidr case in net_srcip_spoof).
+    // 8.8.8.8 satisfies these on any platform; sentry's default route
+    // serves the reverse-path lookup under loose rp_filter so kernel
+    // routing accepts the packet on the enclave interface.
+    let spoofed_src = "8.8.8.8";
+    // Distinctive ephemeral source port distinguishes the reflected SYN
+    // from unrelated TCP traffic the raw listener may observe.
+    let src_port: u16 = 40021;
+    let timeout = Duration::from_secs(3);
+
+    // Open the raw IPPROTO_TCP listener before sending so the reflected
+    // SYN (if it arrives) is queued for us.
+    let listen_sock = match socket2::Socket::new(
+        socket2::Domain::IPV4,
+        socket2::Type::RAW,
+        Some(socket2::Protocol::from(libc::IPPROTO_TCP as i32)),
+    ) {
+        Ok(s) => s,
+        Err(e) => return fail(format!("ERROR: open raw TCP listener: {}", e)),
+    };
+    if let Err(e) = listen_sock.set_read_timeout(Some(timeout)) {
+        return fail(format!("ERROR: set listener timeout: {}", e));
+    }
+
+    let tcp_syn = build_tcp_syn(src_port, ws_port);
+    let ip_hdr = match build_ip_header(6, spoofed_src, &sentry_ip, tcp_syn.len()) {
+        Ok(h) => h,
+        Err(e) => return fail(format!("ERROR: build IP header: {}", e)),
+    };
+    let mut packet = ip_hdr;
+    packet.extend_from_slice(&tcp_syn);
+
+    let send_sock = match socket2::Socket::new(
+        socket2::Domain::IPV4,
+        socket2::Type::RAW,
+        Some(socket2::Protocol::from(libc::IPPROTO_RAW as i32)),
+    ) {
+        Ok(s) => s,
+        Err(e) => return fail(format!("ERROR: open raw send socket: {}", e)),
+    };
+    unsafe {
+        let val: libc::c_int = 1;
+        libc::setsockopt(
+            send_sock.as_raw_fd(),
+            libc::IPPROTO_IP,
+            libc::IP_HDRINCL,
+            &val as *const _ as *const libc::c_void,
+            std::mem::size_of::<libc::c_int>() as libc::socklen_t,
+        );
+    }
+    let sentry_addr: Ipv4Addr = match sentry_ip.parse() {
+        Ok(a) => a,
+        Err(e) => return fail(format!("ERROR: bad sentry IP: {}", e)),
+    };
+    let send_dst = socket2::SockAddr::from(SocketAddrV4::new(sentry_addr, 0));
+    if let Err(e) = send_sock.send_to(&packet, &send_dst) {
+        return fail(format!("ERROR: send spoofed SYN: {}", e));
+    }
+
+    let mut buf = [0u8; 4096];
+    let deadline = Instant::now() + timeout;
+    loop {
+        let remaining = deadline.saturating_duration_since(Instant::now());
+        if remaining.is_zero() {
+            return pass(format!(
+                "SECURE: spoofed SYN (src={}, dst={}:{}) did not reflect via DNAT to bottle:{} within {:?}",
+                spoofed_src, sentry_ip, ws_port, enc_port, timeout
+            ));
+        }
+        let _ = listen_sock.set_read_timeout(Some(remaining));
+        match listen_sock.recv_from(as_uninit(&mut buf)) {
+            Ok((n, addr)) => {
+                if n < 40 {
+                    continue;
+                }
+                let ihl = ((buf[0] & 0x0f) as usize) * 4;
+                if ihl < 20 || ihl + 4 > n {
+                    continue;
+                }
+                let pkt_src_port = u16::from_be_bytes([buf[ihl], buf[ihl + 1]]);
+                let pkt_dst_port = u16::from_be_bytes([buf[ihl + 2], buf[ihl + 3]]);
+                if pkt_src_port == src_port && pkt_dst_port == enc_port {
+                    let observed_src = addr
+                        .as_socket_ipv4()
+                        .map(|a| a.ip().to_string())
+                        .unwrap_or_default();
+                    return fail(format!(
+                        "BREACH: spoofed SYN (src={}, dst={}:{}) reflected via DNAT — bottle observed inbound TCP from {} at dst-port {} (src-port {}). Per-IP RETURN exclusion does not block arbitrary external spoofed sources; rp_filter=2 loose does not block at kernel layer.",
+                        spoofed_src, sentry_ip, ws_port, observed_src, pkt_dst_port, pkt_src_port
+                    ));
+                }
+            }
+            Err(e)
+                if e.kind() == std::io::ErrorKind::WouldBlock
+                    || e.kind() == std::io::ErrorKind::TimedOut =>
+            {
+                return pass(format!(
+                    "SECURE: spoofed SYN (src={}, dst={}:{}) did not reflect via DNAT to bottle:{} (listener timeout)",
+                    spoofed_src, sentry_ip, ws_port, enc_port
+                ));
+            }
+            Err(_) => {
+                return pass(format!(
+                    "SECURE: spoofed SYN (src={}, dst={}:{}) — listener error suggests blocked path",
+                    spoofed_src, sentry_ip, ws_port
+                ));
+            }
+        }
+    }
+}
+
 // ── Sortie 8: proto_smuggle_rawsock ──────────────────────────
 
 pub fn sortie_proto_smuggle_rawsock(_extra_args: &[&str]) -> rbida_Verdict {

@@ -58,6 +58,7 @@ const RBIDA_SEL_DIRECT_SENTRY_PROBE: &str = "direct-sentry-probe";
 const RBIDA_SEL_ICMP_EXFIL_PAYLOAD: &str = "icmp-exfil-payload";
 const RBIDA_SEL_NET_IPV6_ESCAPE: &str = "net-ipv6-escape";
 const RBIDA_SEL_NET_SRCIP_SPOOF: &str = "net-srcip-spoof";
+const RBIDA_SEL_NET_SRCIP_SPOOF_EXTERNAL: &str = "net-srcip-spoof-external";
 const RBIDA_SEL_PROTO_SMUGGLE_RAWSOCK: &str = "proto-smuggle-rawsock";
 const RBIDA_SEL_NET_FRAGMENT_EVASION: &str = "net-fragment-evasion";
 const RBIDA_SEL_DIRECT_ARP_POISON: &str = "direct-arp-poison";
@@ -138,6 +139,10 @@ pub enum rbida_Attack {
     NetIpv6Escape,
     /// Source IP spoofing via raw sockets
     NetSrcipSpoof,
+    /// Spoof source as arbitrary external-routable IP, target sentry's entry
+    /// port — probes whether per-IP RETURN exclusion + rp_filter=2 loose
+    /// allows DNAT-reflection back to the bottle
+    NetSrcipSpoofExternal,
     /// Protocol smuggling via raw sockets (GRE, SCTP, IP-in-IP)
     ProtoSmuggleRawsock,
     /// IP fragment reassembly bypass
@@ -226,6 +231,7 @@ impl rbida_Attack {
             RBIDA_SEL_ICMP_EXFIL_PAYLOAD => Some(Self::IcmpExfilPayload),
             RBIDA_SEL_NET_IPV6_ESCAPE => Some(Self::NetIpv6Escape),
             RBIDA_SEL_NET_SRCIP_SPOOF => Some(Self::NetSrcipSpoof),
+            RBIDA_SEL_NET_SRCIP_SPOOF_EXTERNAL => Some(Self::NetSrcipSpoofExternal),
             RBIDA_SEL_PROTO_SMUGGLE_RAWSOCK => Some(Self::ProtoSmuggleRawsock),
             RBIDA_SEL_NET_FRAGMENT_EVASION => Some(Self::NetFragmentEvasion),
             RBIDA_SEL_DIRECT_ARP_POISON => Some(Self::DirectArpPoison),
@@ -279,6 +285,7 @@ impl rbida_Attack {
             Self::IcmpExfilPayload => RBIDA_SEL_ICMP_EXFIL_PAYLOAD,
             Self::NetIpv6Escape => RBIDA_SEL_NET_IPV6_ESCAPE,
             Self::NetSrcipSpoof => RBIDA_SEL_NET_SRCIP_SPOOF,
+            Self::NetSrcipSpoofExternal => RBIDA_SEL_NET_SRCIP_SPOOF_EXTERNAL,
             Self::ProtoSmuggleRawsock => RBIDA_SEL_PROTO_SMUGGLE_RAWSOCK,
             Self::NetFragmentEvasion => RBIDA_SEL_NET_FRAGMENT_EVASION,
             Self::DirectArpPoison => RBIDA_SEL_DIRECT_ARP_POISON,
@@ -331,6 +338,7 @@ impl rbida_Attack {
             RBIDA_SEL_ICMP_EXFIL_PAYLOAD,
             RBIDA_SEL_NET_IPV6_ESCAPE,
             RBIDA_SEL_NET_SRCIP_SPOOF,
+            RBIDA_SEL_NET_SRCIP_SPOOF_EXTERNAL,
             RBIDA_SEL_PROTO_SMUGGLE_RAWSOCK,
             RBIDA_SEL_NET_FRAGMENT_EVASION,
             RBIDA_SEL_DIRECT_ARP_POISON,
@@ -483,6 +491,7 @@ pub fn rbida_run(attack: &rbida_Attack, extra_args: &[&str]) -> rbida_Verdict {
         rbida_Attack::IcmpExfilPayload => rbida_sorties::sortie_icmp_exfil_payload(extra_args),
         rbida_Attack::NetIpv6Escape => rbida_sorties::sortie_net_ipv6_escape(extra_args),
         rbida_Attack::NetSrcipSpoof => rbida_sorties::sortie_net_srcip_spoof(extra_args),
+        rbida_Attack::NetSrcipSpoofExternal => rbida_sorties::sortie_net_srcip_spoof_external(extra_args),
         rbida_Attack::ProtoSmuggleRawsock => rbida_sorties::sortie_proto_smuggle_rawsock(extra_args),
         rbida_Attack::NetFragmentEvasion => rbida_sorties::sortie_net_fragment_evasion(extra_args),
         rbida_Attack::DirectArpPoison => rbida_sorties::sortie_direct_arp_poison(extra_args),
