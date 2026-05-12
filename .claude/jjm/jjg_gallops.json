@@ -6090,6 +6090,7 @@
         "₢A_AAc",
         "₢A_AAk",
         "₢A_AAl",
+        "₢A_AAm",
         "₢A_AAe",
         "₢A_AAf",
         "₢A_AAg",
@@ -6097,7 +6098,7 @@
         "₢A_AAi",
         "₢A_AAj"
       ],
-      "jjghn_next_pace_seed": "AAm",
+      "jjghn_next_pace_seed": "AAn",
       "jjghn_paces": {
         "₢A_AAA": {
           "jjgpn_tacks": [
@@ -6780,6 +6781,17 @@
               "jjgtn_text": "## Character\n\nDeferred — needs host-side raw-socket sending, not in-bottle ifrit invocation. Different harness surface from the rest of the sortie family. Mount only if sentry-local services grow beyond dnsmasq, or a specific spoof-from-outside concern surfaces.\n\n## Docket\n\nTest the inbound mirror of ₢A_AAc: host-side attacker spoofs source as `RBRN_ENCLAVE_SENTRY_IP` or `RBRN_ENCLAVE_BOTTLE_IP`, aimed at sentry's external IP at the published entry port. PREROUTING per-IP RETURN short-circuits DNAT — packet is locally received by sentry instead. Verify no sentry-local service accepts under those spoofed sources.\n\nWhy low-priority now: sentry-local surface is dnsmasq on enclave-IP:53 only; existing `sortie_sentry_udp_non_dns` covers the realistic concern. The gap is theoretical until the sentry grows other listeners. Architectural watchpoint: any new sentry-local service is a trigger to mount.\n\n### References\n\n- `Memos/memo-20260512-sentry-entry-port-repair-anchor.md` — per-IP RETURN architecture creates this mirror gap.\n- `rbev-vessels/common-ifrit-context/src/rbida_sorties.rs` — `sortie_direct_sentry_probe` (defensive sentry-port baseline) and `sortie_sentry_udp_non_dns`.\n- Pace ₢A_AAc — outbound mirror of this attack class.",
               "jjgtn_silks": "ifrit-sortie-spoof-from-outside-as-enclave-ip",
               "jjgtn_basis": "09f0ce8"
+            }
+          ]
+        },
+        "₢A_AAm": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260512-1202",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nRefactor decision. Mount-time choice between folding ₢A_AAc's external-spoof into the existing `sortie_net_srcip_spoof` body or keeping the two sorties separate. Mount only after ₢A_AAc lands.\n\n## Docket\n\n`sortie_net_srcip_spoof` in `rbev-vessels/common-ifrit-context/src/rbida_sorties.rs` has a `spoof_tests` table with three rows: spoof-as-sentry, spoof-as-allowed-cidr, spoof-as-loopback. ₢A_AAc adds a fourth class: spoof-as-external-routable-IP (`192.168.65.1`, and possibly `169.254.169.254`, `0.0.0.0`, `224.0.0.1`).\n\nDecision:\n- **Fold in**: extend the existing table, single adversary entry, smaller maintenance surface.\n- **Keep separate**: preserve docket-level distinction between spoof-as-known-actor and spoof-as-arbitrary-routable; two adversary entries, two selectors.\n\nIf folding: drop the separate sortie + adversary registration, update tadmor fixture's expected adversary set, rename the consolidated case if the new scope warrants it.\n\n### References\n\n- `rbev-vessels/common-ifrit-context/src/rbida_sorties.rs` — `sortie_net_srcip_spoof` and its `spoof_tests` table.\n- `rbev-vessels/common-ifrit-context/src/rbida_attacks.rs` — adversary registration site.\n- Pace ₢A_AAc — the new sortie subject to consolidation.",
+              "jjgtn_silks": "consolidate-srcip-spoof-parameterization",
+              "jjgtn_basis": "1eddf37"
             }
           ]
         }
