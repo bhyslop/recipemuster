@@ -114,32 +114,8 @@ echo "RBJp2: Allowing ICMP within enclave only"
 iptables -A RBM-INGRESS -i ${RBJ_ENCLAVE_IF} -p icmp -j ACCEPT || exit 20
 iptables -A RBM-EGRESS  -o ${RBJ_ENCLAVE_IF} -p icmp -j ACCEPT || exit 20
 
-echo "RBJp2: Phase 2: Port Setup"
-if test "${RBRN_ENTRY_MODE}" = "enabled"; then
-  echo "RBJp2: Configuring entry port via iptables DNAT (no userspace proxy)"
-
-  echo "RBJp2: Enabling IP forwarding for entry port DNAT"
-  echo 1 > /proc/sys/net/ipv4/ip_forward || exit 25
-
-  echo "RBJp2: DNAT incoming connections on entry port to bottle"
-  # Source-IP exclusion (not -i UPLINK_IF) encodes the actual invariant:
-  # entry-port traffic originating outside the enclave subnet. Decouples from
-  # Docker's choice of port-publish delivery interface (alphabetical fallback,
-  # see header comment of rbob_compose.yml).
-  iptables -t nat -A PREROUTING -p tcp --dport "${RBRN_ENTRY_PORT_WORKSTATION}" \
-           ! -s "${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" \
-           -j DNAT --to-destination "${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE}" || exit 25
-
-  echo "RBJp2: Allow forwarding of DNATted entry traffic to bottle"
-  iptables -A RBM-FORWARD -p tcp \
-           -d "${RBRN_ENCLAVE_BOTTLE_IP}" --dport "${RBRN_ENTRY_PORT_ENCLAVE}" \
-           ! -s "${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" \
-           -j ACCEPT || exit 25
-
-  echo "RBJp2: MASQUERADE return traffic so bottle replies to sentry"
-  iptables -t nat -A POSTROUTING -o ${RBJ_ENCLAVE_IF} -p tcp \
-           -d "${RBRN_ENCLAVE_BOTTLE_IP}" --dport "${RBRN_ENTRY_PORT_ENCLAVE}" -j MASQUERADE || exit 25
-fi
+echo "RBJp2: Enabling IP forwarding (required whenever sentry forwards on behalf of the enclave)"
+echo 1 > /proc/sys/net/ipv4/ip_forward || exit 25
 
 echo "RBJp2b: Blocking ICMP cross-boundary traffic"
 iptables -A RBM-FORWARD         -p icmp -j DROP || exit 28
@@ -151,8 +127,7 @@ if test "${RBRN_UPLINK_ACCESS_MODE}" = "disabled"; then
   iptables -A RBM-EGRESS  -o ${RBJ_UPLINK_IF} -j DROP || exit 30
   iptables -A RBM-FORWARD -i ${RBJ_ENCLAVE_IF} -j DROP || exit 30
 else
-  echo "RBJp3: Setting up network forwarding"
-  echo 1 > /proc/sys/net/ipv4/ip_forward               || exit 31
+  echo "RBJp3: Setting up uplink network hardening"
   echo 0 > /proc/sys/net/ipv6/conf/all/disable_ipv6    || exit 31
   echo 1 > /proc/sys/net/ipv4/conf/all/rp_filter       || exit 31
   echo 1 > /proc/sys/net/ipv4/conf/${RBJ_UPLINK_IF}/route_localnet || exit 31
