@@ -131,11 +131,15 @@ if test "${RBRN_ENTRY_MODE}" = "enabled"; then
   echo 2 > /proc/sys/net/ipv4/conf/all/rp_filter || exit 25
 
   echo "RBJp2c: Configuring entry-port DNAT + MASQUERADE + FORWARD-ACCEPT"
-  # Classification: destination port only. Interface (-i ...) and source IP (! -s ...) are
-  # NOT trust labels — Docker's chosen ingress interface and runtime SNAT'd source IP are
-  # framework-dependent and have caused two prior regressions. Destination port is the
-  # stable identity of "this is entry-port traffic."
+  # Classification: destination port + source-NOT-in-enclave-CIDR. Interface (-i ...) is
+  # NOT a trust label (Docker's chosen ingress interface is framework-dependent and caused
+  # the original BBABC regression). Source-CIDR exclusion encodes the project-contractual
+  # invariant "enclave-internal sources MUST NOT reach sentry's entry port" (enforced by
+  # ifrit's direct_sentry_probe and net_dnat_entry_reflection sorties in the tadmor suite).
+  # The previous -i UPLINK_IF rule satisfied this only by interface accident; dropping the
+  # classifier entirely is empirically refuted (direct_sentry_probe BREACH).
   iptables -t nat -A PREROUTING -p tcp --dport "${RBRN_ENTRY_PORT_WORKSTATION}" \
+           ! -s "${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" \
            -j DNAT --to-destination "${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE}" || exit 25
 
   # Return-path symmetry: MASQUERADE rewrites the source of the post-DNAT packet to
