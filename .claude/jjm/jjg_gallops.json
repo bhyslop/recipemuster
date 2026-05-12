@@ -6091,9 +6091,10 @@
         "₢A_AAe",
         "₢A_AAf",
         "₢A_AAg",
-        "₢A_AAh"
+        "₢A_AAh",
+        "₢A_AAi"
       ],
-      "jjghn_next_pace_seed": "AAi",
+      "jjghn_next_pace_seed": "AAj",
       "jjghn_paces": {
         "₢A_AAA": {
           "jjgpn_tacks": [
@@ -6718,6 +6719,17 @@
               "jjgtn_text": "## Character\n\nTooling consideration — signal-to-noise.\n\n## Docket\n\nDecide whether scry should accept an optional positional tcpdump filter\nexpression. Today scry runs unfiltered captures; output is dominated by\nroutine mDNS (5353), ICMPv6 router solicitations, and ARP chatter, and\nthe interesting traffic gets buried. With a filter arg the targeted\nform becomes `tt/rbw-cs.Scry.sh srjcl 'tcp port 7999 or tcp port 8000'`.\n\nDefault = no filter (current behavior). Quoting/escaping of the\nexpression across the BUK dispatch layer needs verification.",
               "jjgtn_silks": "scry-filter-argument",
               "jjgtn_basis": "315911e"
+            }
+          ]
+        },
+        "₢A_AAi": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260512-1057",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nTooling consideration — coverage extension.\n\n## Docket\n\nDecide whether scry's host-side bridge capture should extend to the\ndocker runtime. Today the bridge capture is gated on\n`RBRN_RUNTIME=podman` and traverses `podman machine ssh`; on linux\nDocker Engine the bridge interface is host-visible (no VM in the\npath), so a `sudo tcpdump -i <bridge_iface>` could give a third\ncorrelation point — host arrival vs container arrival — that is\ncurrently a blind spot for cross-platform investigation.\n\nDiscovery of the bridge interface for a docker network is via\n`docker network inspect <name> --format '{{.NetworkInterface}}'`,\nmirroring the existing podman path.",
+              "jjgtn_silks": "scry-docker-bridge-capture",
+              "jjgtn_basis": "fb0c269"
             }
           ]
         }
