@@ -201,7 +201,7 @@ Both halves edit `rbev-vessels/common-sentry-context/rbjs_sentry.sh`, which is *
 
 `RBSSS` step 2 already carries BBABE's "sentry takes ownership of routing" framing. Extend it to "sentry takes ownership of routing AND of entry-port DNAT scope, decoupled from Docker's choice of published-port delivery interface." `RBS0` quoins around the sentry container narrative may need a sentence on the port-publish-half mirror of the default-route fragility.
 
-> The iptables forms above are superseded by the **Refined Fix Shape** in the Post-Diagnosis Research section below. The principle ("sentry takes ownership") survives unchanged; the concrete rules gain source-CIDR exclusion on the PREROUTING DNAT (classification predicate), conntrack DNAT-state matching on the RBM-FORWARD ACCEPT (authorization predicate), a multi-CIDR rejection guardrail, and a runtime source-IP probe to handle deployment contexts (notably Docker Desktop and Docker Engine) where the source IP visible to the target container is not documented.
+> The iptables forms above were superseded across two rounds of post-diagnosis research, and may themselves be superseded by the topology-level reframing in **"Topology-Level Reframing: Publisher on Pentacle"** below. Round 3 (in Refined Fix Shape, below) drops source-CIDR exclusion at PREROUTING as structurally broken in the bridge-gateway-source-rewrite case, retains conntrack DNAT-state matching at RBM-FORWARD as the authorization predicate, and demotes the runtime source-IP probe to a diagnostic-only role. The pentacle reframing then asks whether sentry should be the publisher at all — if not, the entire entry-port iptables block (PREROUTING DNAT + RBM-FORWARD ACCEPT + POSTROUTING MASQUERADE) becomes deletable.
 
 ## Post-Diagnosis Research
 
@@ -216,6 +216,7 @@ Follow-on web research was commissioned to verify the memo's working presumption
 | Compose `services.<svc>.networks.<net>.priority:` is ignored for gateway and port-publish | **Confirmed by docs** | Docker's Compose service reference explicitly states `priority:` controls *connection order* and may determine which network gets a service-level `mac_address`. It explicitly does NOT select the default gateway or interface name. |
 | Compose long-form `ports:` exposes no `container_ip` selector | **Confirmed** | Compose long-form `ports:` exposes `target`, `published`, `host_ip`, `protocol`, `app_protocol`, `mode`, `name`. No `container_ip` / `network` / `destination_network` field exists. |
 | macOS Docker Desktop drops hairpinned post-DNAT | **Observed only** | Desktop runs Engine in a LinuxKit VM with userspace networking interposition; sufficient to treat as materially different but specific failure mode not traced to `accept_local`, vpnkit, or kernel hairpin semantics. |
+| Source IP at sentry's PREROUTING for hairpinned host-published-port traffic is the enclave bridge gateway IP (e.g., `${ENCLAVE_BASE}.1`) | **Strongly plausible, not formally documented** | Docker docs describe bridge masquerading and `docker-proxy`'s userspace forwarding role (default `--userland-proxy=true`); a `docker/docs#17312` issue clarifies that with userland-proxy enabled, hairpin paths route through the userland proxy. Empirical community evidence (`moby/libnetwork#1994`) shows host-originated traffic appearing at the container with source equal to the docker bridge gateway IP. No formal "source IP seen by target container" contract is published. The bridge gateway is inside the bridge subnet by configuration (defaults to `.1` in both Docker and Podman; both runtimes allow `--gateway` override). This makes source-CIDR exclusion at PREROUTING **structurally broken**: any enclave CIDR contains its own gateway, so the gateway IP is always in `${ENCLAVE_CIDR}` by topological necessity. Renumbering does not help. |
 
 **New finding the original memo missed**: Docker Compose 2.33.1+ introduces `gw_priority`, which DOES select the default gateway among multiple networks (highest value wins). This does *not* control port-publish target selection, but it provides a Compose-level alternative to BBABE's sentry-side `ip route replace default`. See "Compose-level hardening" below.
 
@@ -267,20 +268,21 @@ The researcher's primary recommendation is **D** (source-CIDR exclusion) with ex
 
 ### Refined Fix Shape
 
-The research validates the in-place fix path (alternative D) and refines it further: the RBM-FORWARD rule should match on conntrack DNAT state rather than source-CIDR, since post-DNAT flows carry stronger semantic evidence than source-IP. The PREROUTING DNAT rule itself must still classify on source-CIDR (no conntrack state exists yet at PREROUTING). The "drop `-i ${RBJ_UPLINK_IF}`" proposal earlier in this memo is replaced by:
+**Round 3 simplification.** A third round of research established that source-CIDR exclusion at PREROUTING is structurally broken in the bridge-gateway-source-rewrite case (see the new row in the Documented vs Observed table above), not merely fragile. The Round 2 fix proposed source-CIDR exclusion as the classification predicate at PREROUTING; that predicate cannot work when the source IP of hairpinned published-port traffic is the enclave bridge gateway, because the gateway lies inside any enclave CIDR by topological necessity. Renumbering produces a new gateway at `.1` of the new CIDR. The classification predicate must change.
+
+Round 3's resolution: **drop source-IP filtering at PREROUTING entirely.** Classify by destination port only; authorize via conntrack DNAT-state at RBM-FORWARD. The destination port is the stable classifier; the conntrack DNAT state is the stable authorization predicate.
 
 ```sh
-# Classification — only workstation-facing ingress (not enclave-originated)
-# is DNATed to the bottle. Source-CIDR is the classification predicate.
+# Classification: ANY inbound traffic to the workstation port is DNATed
+# to the bottle. No source-IP filter — source IP at PREROUTING is not a
+# stable trust label across the bridge-gateway, docker-proxy, Desktop
+# backend, and rootlesskit paths.
 iptables -t nat -A PREROUTING -p tcp \
          --dport "${RBRN_ENTRY_PORT_WORKSTATION}" \
-         ! -s "${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" \
          -j DNAT --to-destination "${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE}"
 
-# Authorization — only flows actually DNATed by sentry's own PREROUTING rule
-# may forward to the bottle. Conntrack DNAT-state is the authorization
-# predicate. Strictly stronger than source-CIDR exclusion at FORWARD time:
-# conntrack state is created by sentry's own NAT and cannot be forged by an
+# Authorization: only flows actually DNATed by sentry's PREROUTING may
+# forward to the bottle. Conntrack DNAT-state cannot be forged by an
 # attacker on either bridge.
 iptables -A RBM-FORWARD -p tcp \
          -d "${RBRN_ENCLAVE_BOTTLE_IP}" --dport "${RBRN_ENTRY_PORT_ENCLAVE}" \
@@ -288,68 +290,29 @@ iptables -A RBM-FORWARD -p tcp \
          -j ACCEPT
 ```
 
-The PREROUTING rule replaces interface matching (`-i ${RBJ_UPLINK_IF}`) with source-CIDR exclusion; the interface match was over-specification using interface name as a proxy for "from outside the enclave." The RBM-FORWARD rule replaces interface matching with conntrack-state matching; this is the stronger invariant. Neither rule depends on which interface the runtime chose for port-publish delivery.
+**What this drops, relative to Round 2:**
+- The `! -s ${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}` clause from PREROUTING (structurally broken).
+- The multi-CIDR rejection guardrail (no longer necessary — when PREROUTING does not source-filter, no overlap matters; rootlesskit's `10.0.2.100` rewrite, `127.0.0.0/8` localhost forwarding, etc., all just pass through and get DNATed correctly).
+- The "belt-and-suspenders" form combining source-CIDR with conntrack (the source-CIDR predicate cannot survive the bridge-gateway case, so the conjunction's failure mode is the same as the prior fix's).
 
-**Optional belt-and-suspenders FORWARD form** — adds the source-CIDR predicate to conntrack matching:
+**What this retains:**
+- The conntrack DNAT-state RBM-FORWARD rule (the actual authorization gate).
+- The runtime source-IP probe, demoted from "required guardrail" to "diagnostic-only" — still useful for understanding what the runtime is actually doing, but no longer load-bearing.
 
-```sh
-iptables -A RBM-FORWARD -p tcp \
-         -d "${RBRN_ENCLAVE_BOTTLE_IP}" --dport "${RBRN_ENTRY_PORT_ENCLAVE}" \
-         ! -s "${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" \
-         -m conntrack --ctstate DNAT \
-         -j ACCEPT
-```
+**Why source-CIDR was a mistake, not a defense (Round 3 finding).** The Round 2 fix's source-CIDR exclusion was trying to encode "from outside the enclave" using source IP as the trust label. In bridge NAT and proxy hairpin paths, source IP is not a stable trust label: it may be the bridge gateway, Docker-proxy, Docker Desktop backend, rootlesskit synthetic address, or original client, depending on runtime. The stable classifier is the destination port; the stable authorization predicate is conntrack DNAT state. The defensive value the source-CIDR predicate appeared to provide was illusory — an enclave attacker already has direct enclave access to `${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE}`, so denying their workstation-port-to-bottle DNAT path adds no capability gate.
 
-The conjunction adds nothing in the normal case (conntrack DNAT state implies sentry's PREROUTING already classified the source as non-enclave), but defends against a hypothetical future bug in the PREROUTING rule. The default is the conntrack-only form; the belt-and-suspenders form should be adopted only after empirical confirmation that no runtime/proxy rewrites legitimate external traffic into a source address that overlaps `${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}`.
-
-**Required guardrail — runtime source-rewrite overlap rejection.** Sentry's startup must refuse to install rules if the enclave CIDR overlaps any known runtime/proxy source-rewrite range. The static rejection list (illustrative bash; the implementation should match project discipline):
+**Diagnostic probe (optional, demoted from required).** Useful for understanding the actual source-IP visibility in a deployment context:
 
 ```sh
-# Refuse enclave CIDRs that overlap runtime/proxy source-rewrite ranges.
-# Without this guard, source-CIDR-exclusion on PREROUTING would silently
-# misclassify legitimate rewritten external traffic.
-reject_overlap() {
-  local cidr="$1" forbidden="$2"
-  python3 - "${cidr}" "${forbidden}" <<'PY'
-import ipaddress, sys
-a = ipaddress.ip_network(sys.argv[1], strict=False)
-b = ipaddress.ip_network(sys.argv[2], strict=False)
-sys.exit(0 if a.overlaps(b) else 1)
-PY
-}
-
-for forbidden in \
-  "10.0.2.100/32" \
-  "10.0.2.0/24" \
-  "127.0.0.0/8"
-do
-  if reject_overlap "${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" "${forbidden}"; then
-    buc_die "Enclave CIDR overlaps runtime/proxy source-rewrite range ${forbidden}"
-  fi
-done
-```
-
-Rationale for the list:
-- `10.0.2.100/32` — Podman rootlesskit's documented rewrite address.
-- `10.0.2.0/24` — defensive expansion (Podman docs say `10.0.2.100` is "usually" the rewrite address, not the only possibility).
-- `127.0.0.0/8` — defensive rejection for same-host localhost forwarding paths; netavark-firewalld documents same-host connections requiring IPv4 localhost on that path.
-
-The list is not exhaustive. Docker Engine and Docker Desktop do not document the exact source IP visible to the target container for published-port traffic; the static rejection must therefore be paired with a runtime probe.
-
-**Required runtime probe — first-time observation of source IP.** Because Docker Engine and Docker Desktop do not document published-port source addresses visible to the target container, sentry should log the source IP of the first matching inbound SYN until empirical confirmation is in hand for each deployment context:
-
-```sh
-# Diagnostic probe: log source IPs of inbound published-port SYNs.
-# Install during onboarding / first-run; remove after empirical confirmation.
+# Diagnostic probe: log source IPs of inbound workstation-port SYNs.
 iptables -t raw -I PREROUTING 1 -p tcp \
          --dport "${RBRN_ENTRY_PORT_WORKSTATION}" \
          -j LOG --log-prefix "RBJ_PUBLISH_SRC: "
 ```
 
-Pass condition: observed source IP NOT in `${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}`.
-Fail condition: observed source IP IN `${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}`. Mitigation: change the enclave CIDR to a non-overlapping range; do not special-case the rule.
+The probe is no longer a gate (the fix doesn't depend on the source IP), but the observation is still informative for cross-runtime mental model.
 
-**IPv6 — explicit design choice required.** The proposed fix is IPv4-only. If IPv6 published-port ingress is intended, mirror the rules with `ip6tables` (or nftables) using IPv6 versions of the enclave prefix and bottle IP. Note Docker's documented behavior: when the bridge is IPv4-only and `--userland-proxy=true` (the default), host IPv6 addresses can map to the container's IPv4 address via the userland proxy; the source IP visible to the container in that path is not documented. netavark-firewalld documents IPv6 localhost forwarding as "not possible" with the firewalld driver due to kernel limitations. The current recipe-bottle entry-port architecture is IPv4-only; introducing IPv6 published-port ingress is a future-work item, out of scope for this fix.
+**IPv6 — design choice unchanged.** The fix is IPv4-only. If IPv6 published-port ingress is intended, mirror the rules with `ip6tables` (or nftables) using IPv6 versions of the bottle IP. Docker's IPv6-to-IPv4 userland-proxy mapping with `--userland-proxy=true` has undocumented source-IP visibility; netavark-firewalld documents IPv6 localhost forwarding as "not possible" with the firewalld driver. The current recipe-bottle entry-port architecture is IPv4-only.
 
 **Compose-level hardening (optional, conditional on Compose ≥ 2.33.1).** Add `gw_priority` to sentry's network declarations to make default-gateway selection explicit at the Compose level:
 
@@ -363,36 +326,218 @@ services:
         gw_priority: 0
 ```
 
-`gw_priority` does NOT affect port-publish target selection (no documented selector exists). This addition only deduplicates with BBABE's sentry-side default-route override — a Compose-level expression of the same intent. Whether to retain BBABE's iptables-side override after adding `gw_priority` is a defense-in-depth question, not a correctness one. The iptables refined fix above remains necessary regardless.
+`gw_priority` does NOT affect port-publish target selection. This addition only deduplicates with BBABE's sentry-side default-route override.
 
-### Refined Fix — Per-Runtime Coverage
+**Multi-port discipline.** If sentry publishes multiple workstation-facing ports, each port needs its own exact DNAT rule. Do not broaden `--dport` to a port range unless every port in the range maps intentionally.
 
-Per-runtime evaluation of the refined fix (source-CIDR PREROUTING + conntrack RBM-FORWARD + multi-CIDR guardrail + runtime probe):
+**Sentry-self-loop note.** A local process inside sentry connecting to `${RBRN_ENTRY_PORT_WORKSTATION}` may hit the OUTPUT chain rather than PREROUTING; the rule above does not affect OUTPUT. If sentry-local clients to its own workstation port matter, add an explicit OUTPUT DNAT rule, but only after testing.
 
-| Runtime | Source-CIDR PREROUTING | Conntrack RBM-FORWARD | Overall refined fix |
-|---|---|---|---|
-| Docker Engine Linux | Works; source IP not fully documented | Works (sentry's NAT creates state) | **Works with runtime probe** |
-| Docker Desktop macOS | Works under proxy/backend path; exact source not documented | Works | **Works with runtime probe** |
-| Docker Desktop Windows WSL2 | Same Desktop caveat | Works | **Works with runtime probe** |
-| Docker Desktop Windows Hyper-V | Same Desktop caveat | Works | **Works with runtime probe** |
-| Podman rootful Netavark nftables | Works unless source overlaps enclave | Works if sentry iptables/nft compat works | **Works with iptables/nft validation** |
-| Podman rootful CNI legacy | Source trace not closed; CNI deprecated | Works | **Works with probe** |
-| Podman rootless Netavark + pasta | Works; source preserved | Works | **Works** |
-| Podman rootless + slirp4netns | Works; source preserved, but slirp4netns cannot be used with user-defined networks | Works | **Topology blocker if user-defined networks are required** |
-| Podman rootless + rootlesskit | Works only if enclave avoids `10.0.2.100/10.0.2.0/24` | Works | **Works with static CIDR rejection** |
+### Refined Fix — Per-Runtime Coverage (Round 3)
+
+| Runtime | Status | Notes |
+|---|---|---|
+| Docker Engine Linux | **Works** | No source-IP dependence; works under both `--userland-proxy=true` and `--userland-proxy=false`. |
+| Docker Desktop macOS | **Works** | No source-IP dependence; backend-proxy source rewrite no longer matters. |
+| Docker Desktop Windows WSL2 | **Works** | Same as Desktop macOS. |
+| Docker Desktop Windows Hyper-V | **Works** | Same as Desktop macOS. |
+| Podman rootful Netavark nftables | **Works** | Confirm `iptables`/`nft` frontend availability inside sentry; if missing, port rule installer to nftables. |
+| Podman rootful CNI legacy | **Works** | CNI deprecated upstream but rules are runtime-agnostic from sentry's namespace. |
+| Podman rootless Netavark + pasta | **Works** | Source preserved; no source filter, so it doesn't matter. |
+| Podman rootless + slirp4netns | **Topology blocker** | slirp4netns cannot be used with user-defined networks; topology is incompatible regardless of fix shape. |
+| Podman rootless + rootlesskit | **Works** | rootlesskit's `10.0.2.100` source rewrite no longer relevant — no source filter. |
+
+The Round 2 portability matrix is superseded by this Round 3 version; the source-CIDR-driven "Caveat" cells collapse to "Works" because the source-IP question is no longer load-bearing.
+
+**Fallback if Round 3's Candidate A fails empirically:** the publisher-sidecar topology (Round 2's "Alternative A"). See the topology-level reframing below for a project-native form of this fallback that uses the existing pentacle container as the publisher.
 
 ### Open Empirical Questions
 
-Status after follow-up research; remaining open items below:
+Status after three rounds of research; remaining open items below:
 
-1. **Docker exact selector source path** — **Partially resolved.** Alphabetical behavior is source-traced through compose-go's `NetworksByPriority()` (lexicographic tie-break) and Docker Compose's `primaryNetworkKey` derivation. The connection from "Compose primary network" to "port-publish DNAT target" remains empirical; the runtime source-IP probe (in Refined Fix Shape) provides ongoing empirical validation rather than one-time confirmation.
-2. **Docker Desktop hairpin failure mechanism** — Still open. Not blocking; the refined fix is independent of which interface Docker Desktop chooses to deliver on.
-3. **Podman Netavark current rule order** — **Partially resolved at source level.** Netavark emits per-network DNAT rules via shared chains; the exact ordering mechanism for multi-network duplicate same-host-port rules is implementation-incidental. An empirical reproduction on current Podman 5.x / Netavark 1.x is no longer load-bearing for the fix (conntrack-based RBM-FORWARD is netavark-rule-order-agnostic), but would close the source-traced-but-not-empirically-confirmed gap.
-4. **Rootless Podman source-IP under user-defined networks** — **Documented** as rewriting to `10.0.2.100` per Podman docs. The startup guardrail rejects this and the surrounding `/24`. An empirical confirmation on Podman 5.x rootless against sentry remains a cross-runtime acceptance gate.
-5. **iptables vs nftables availability inside sentry under Podman** — Still open. Run `iptables -V` and `iptables-save` inside sentry under Podman Netavark; if iptables compatibility is missing or restricted, port sentry's rule installer to nftables. Affects the refined fix's portability claim for Podman rootful Netavark.
-6. **Docker Engine / Desktop published-port source-IP visibility** — **Newly surfaced; not documented by Docker.** The runtime source-IP probe (in Refined Fix Shape) is the standing mitigation. Confirm observed source IPs for each deployment context (Linux Engine, Desktop macOS, Desktop Windows WSL2, Desktop Windows Hyper-V) before declaring the cross-platform fix complete.
-7. **IPv6 published-port behavior** — Out of scope for the current IPv4-only entry-port architecture; flagged for future-work attention if IPv6 ingress is added. Userland-proxy IPv6-on-IPv4 path source-IP visibility is also undocumented.
-8. **Post-restart published-port reachability** — Sentry's own rules are restart-stable, but netavark host-side port-forward state has had teardown/reload drift in past releases. Verify that pristine-charge → quench → re-charge preserves expected reachability on both Docker and Podman.
+1. **Docker exact selector source path** — **Partially resolved.** Alphabetical behavior is source-traced through compose-go's `NetworksByPriority()` (lexicographic tie-break) and Docker Compose's `primaryNetworkKey` derivation. The connection from "Compose primary network" to "port-publish DNAT target" remains empirical. After Round 3 the question is moot for the bottle-bound path (no source-IP dependence in the refined fix).
+2. **Docker Desktop hairpin failure mechanism** — Still open. Not blocking; the refined fix is independent of which interface Docker Desktop delivers on, and independent of any source rewrite the Desktop backend applies.
+3. **Podman Netavark current rule order** — **Partially resolved at source level.** Netavark emits per-network DNAT rules via shared chains; the exact ordering mechanism for multi-network duplicate same-host-port rules is implementation-incidental. After Round 3 the question is moot for the bottle-bound path (conntrack-based RBM-FORWARD is netavark-rule-order-agnostic, and PREROUTING no longer source-filters).
+4. **Rootless Podman source-IP under user-defined networks** — **Documented** as rewriting to `10.0.2.100` per Podman docs. After Round 3 this is no longer a fix-blocker (no source filter at PREROUTING), but remains an interesting empirical data point for the diagnostic probe.
+5. **iptables vs nftables availability inside sentry under Podman** — Still open. Run `iptables -V` and `iptables-save` inside sentry under Podman Netavark; if iptables compatibility is missing or restricted, port sentry's rule installer to nftables. This is now the primary remaining portability question for the Round 3 fix.
+6. **Docker Engine / Desktop published-port source-IP visibility** — **Strongly plausible as the bridge gateway IP** per Round 3's combined source-trace + community-evidence analysis, but not formally documented. After Round 3 this is no longer load-bearing; the diagnostic probe captures the actual value if curiosity demands.
+7. **IPv6 published-port behavior** — Out of scope for the current IPv4-only entry-port architecture; flagged for future-work attention if IPv6 ingress is added.
+8. **Post-restart published-port reachability** — Sentry's own rules are restart-stable, but runtime-side host port-forward state has had teardown/reload drift in past releases. Verify that pristine-charge → quench → re-charge preserves expected reachability on both Docker and Podman.
+9. **Pentacle-publisher topology validity** — Newly surfaced. The Round 3 fix is in-place; the topology reframing below proposes moving the `ports:` directive from sentry to pentacle, eliminating the disambiguation problem at the architectural level rather than mitigating it in iptables rules. Empirical verification pending — see Topology-Level Reframing below.
+
+## Topology-Level Reframing: Publisher on Pentacle
+
+After three rounds of iptables-focused research, the deeper architectural question surfaced: should sentry be the publisher at all? The pentacle is single-network-attached by design (enclave only), and the bottle shares the pentacle's namespace via `network_mode: service:pentacle`. Moving the `ports:` directive from sentry to pentacle eliminates the multi-network publish-target disambiguation problem at its source — no fix-via-iptables is needed because the runtime has only one network to publish to.
+
+**Status: architecturally strong hypothesis, empirically pending.** This section captures the reframe so future readers can evaluate it; the Verification Gate below applies to whichever fix lands.
+
+### The architectural observation
+
+The current topology (per `.rbk/rbob_compose.yml`):
+
+```
+sentry   : networks { auplink, enclave }   <- dual-attached (egress gatekeeper)
+pentacle : networks { enclave }            <- single-attached (namespace host)
+bottle   : network_mode: service:pentacle  <- shares pentacle's namespace
+ports:   : declared on sentry              <- publisher on dual-attached container
+```
+
+The publisher (sentry) is dual-attached. Docker/Podman must therefore choose one of its networks for port-publish target. Compose offers no portable knob to control that choice. Every iptables fix the prior research rounds proposed is downstream of this single architectural decision: putting the gatekeeper on the publisher.
+
+The pentacle is single-attached precisely because it is the right shape for the publisher role. It has exactly one network to target; there is no ambiguity. The bottle, via shared namespace, is the actual listener on `0.0.0.0:${RBRN_ENTRY_PORT_ENCLAVE}` — Docker's port-publish to pentacle's namespace reaches the bottle's listener directly with no sentry indirection.
+
+The reframed topology:
+
+```
+sentry   : networks { auplink, enclave }   <- dual-attached (egress gatekeeper, unchanged)
+pentacle : networks { enclave }            <- single-attached + publisher
+bottle   : network_mode: service:pentacle  <- shares pentacle's namespace + actual listener
+ports:   : declared on pentacle            <- publisher on single-attached container
+```
+
+### What becomes deletable
+
+The entire entry-port iptables block in `rbev-vessels/common-sentry-context/rbjs_sentry.sh` disappears:
+
+- **RBJp2 PREROUTING DNAT** (`rbjs_sentry.sh:125`) — no longer needed. Docker port-publish delivers directly to bottle via pentacle namespace.
+- **RBM-FORWARD ACCEPT for the entry port** (`rbjs_sentry.sh:129`) — no longer needed. Sentry is not on the inbound path.
+- **POSTROUTING MASQUERADE for the entry port** (if present in sentry's startup) — no longer needed. No DNAT happens, no return-path masquerade is required.
+
+The Round 3 Candidate A iptables form (above) becomes moot for the bottle-bound path — there is no DNAT anywhere in sentry's namespace.
+
+### What sentry retains
+
+Sentry's egress-gatekeeper role is unchanged:
+
+- The bottle's default route is still through sentry (via pentacle startup script's route assignment at `rbev-vessels/common-sentry-context/rbjp_pentacle.sh:47`).
+- DNS is still through sentry.
+- Outbound iptables enforcement (RBJp3 and RBJp4) is untouched.
+- The dual-attachment (uplink + enclave) remains correct for the egress role: sentry needs the uplink to forward bottle-initiated outbound traffic, and the enclave to receive it from the bottle.
+
+The "trust-boundary container with two interfaces" concept survives. What changes is the narrative: the dual attachment is for *outbound* traffic the bottle initiates, not for *inbound* traffic the world initiates toward the bottle.
+
+### Honest narrative correction
+
+The prior spec language ("all traffic flows through sentry") was inaccurate even before this reframing. Pre-regression, sentry's entry-port DNAT was a thin shim with no inspection or policy enforcement — packets were rewritten and forwarded, full stop. Removing the shim does not lose any policy enforcement that existed; it just makes the narrative match what was actually happening: **sentry enforces policy on outbound traffic; inbound published-port traffic reaches the bottle's listener via the enclave bridge.**
+
+### Security envelope checks
+
+- **`net-dnat-entry-reflection` invariant** ("enclave-internal sources MUST NOT reach sentry's entry port"): preserved trivially — sentry has no entry port. The crucible test case passes vacuously after the reframe.
+- **Ifrit on enclave reaching the bottle directly**: already permitted under the current architecture (`Tools/rbk/rbtd/src/rbida_sorties.rs:2025-2042` documents this as expected — "Connected is expected if a service is listening — that's the bottle's own port"). No new attack surface.
+- **External clients reaching the bottle**: same effective surface — host could already reach the bottle's logical service via `sentry:7999`; post-reframe it reaches the same service via the direct path.
+
+No security envelope shrinks under the reframe.
+
+### Spec deltas (post-empirical-verification only)
+
+To be applied after the experiment proves the reframe works on both platforms:
+
+- `RBS0:2429` ("ensuring security policies are enforced from the first packet") — accurate today only for outbound. Rescope to "outbound traffic enforcement from the first packet."
+- `RBSSR` step 2 ("dual network attachment") — still correct for sentry; add a clarifying sentence that the dual attachment is for the uplink-control role, not for inbound port publish.
+- New entry-mode wording: "Entry-port traffic is published on the pentacle, not the sentry. The pentacle's single-network attachment is the load-bearing simplification — it eliminates the multi-network publish-target disambiguation problem that no portable Compose/runtime API can solve."
+
+Spec edits do NOT block the experiment. Memo first, code experiment second, spec language third.
+
+### Experiment protocol
+
+1. **Move the `ports:` directive** in `.rbk/rbob_compose.yml` from the `sentry` service block to the `pentacle` service block. The directive value (`"${RBRN_ENTRY_PORT_WORKSTATION}:${RBRN_ENTRY_PORT_WORKSTATION}"`) is unchanged.
+2. **Strip the entry-port iptables block** from `rbev-vessels/common-sentry-context/rbjs_sentry.sh`: the PREROUTING DNAT at line 125, the RBM-FORWARD ACCEPT at line 129, and any POSTROUTING MASQUERADE associated with the entry port. Leave the egress iptables (RBJp3, RBJp4) untouched.
+3. **(Recommended, same change-set) Add `NET_ADMIN` to bottle's `cap_drop:`** in `.rbk/rbob_compose.yml` (the bottle service block). Per Round 4's security envelope refinement; not required to validate the topology but should land in the same change.
+4. **Kludge the sentry vessel** locally (`tt/rbw-fk.LocalKludge.sh rbev-sentry-deb-tether`).
+5. **Refresh hallmarks** on srjcl and pluml (both share the sentry image; both have `RBRN_ENTRY_MODE=enabled`).
+6. **Run the pristine gauntlet** on both platforms:
+   - macOS: `tt/rbw-tP.QualifyPristine.sh`
+   - linux: same.
+7. **Verification gate**: `rbtdrc_srjcl_jupyter_connectivity` green on both platforms via full pristine gauntlet. Same gate as the iptables-fix path.
+
+### Empirical observations to record during the experiment
+
+Round 4 specified four observations that should be captured during the experiment, both to confirm the topology behaves as predicted and to firm up cross-runtime understanding for future Podman work:
+
+**A. Guest-publishing rejection (confirm defensive engine behavior).** After charge, inspect the bottle's container configuration:
+
+```sh
+docker inspect <bottle-container> --format '{{.HostConfig.NetworkMode}} {{json .HostConfig.PortBindings}}'
+```
+
+Expected: bottle's `NetworkMode` references the pentacle's namespace; bottle's `PortBindings` is null/empty; pentacle's `PortBindings` has the expected host port. If bottle has any `PortBindings`, the experiment has a configuration error.
+
+**B. Source-IP visibility at bottle's listener.** While the connectivity test is running:
+
+```sh
+# Inside bottle (or pentacle namespace; same thing):
+tcpdump -ni any "tcp port ${RBRN_ENTRY_PORT_ENCLAVE}" -c 5
+```
+
+Record the observed peer source IP per runtime. Round 4's prediction: Docker Desktop and Docker Engine will show runtime-dependent values (likely bridge gateway or proxy address); Podman rootful Netavark will show a DNAT path source; rootless paths follow the rootlesskit/pasta/slirp4netns split. Not a pass/fail; data collection for future entry-mode use cases.
+
+**C. Pentacle-restart-alone behavior (confirm or refute lifecycle coupling).** After the connectivity test passes, exercise the docker/compose#10263 hazard:
+
+```sh
+# Restart pentacle alone (NOT recommended in production; this is a probe):
+docker compose -p ${RBRN_MONIKER} restart pentacle
+sleep 5
+curl -v http://localhost:${RBRN_ENTRY_PORT_WORKSTATION}/lab
+
+# Then restart bottle:
+docker compose -p ${RBRN_MONIKER} restart bottle
+sleep 5
+curl -v http://localhost:${RBRN_ENTRY_PORT_WORKSTATION}/lab
+```
+
+If the first curl fails and the second succeeds, the lifecycle-coupling hazard is real in our deployment context, and rbob_charge / rbob_quench guards may be needed to prevent pentacle-alone-restart.
+
+**D. Startup window (port advertised before listener bound).** During pristine-conjure, observe whether external curl sees connection-refused or timeout during the window between pentacle becoming healthy and bottle's listener binding. The 120s readiness delay in srjcl's nameplate is designed to absorb this. If curl fails BEFORE the delay completes, the window is exposed; the readiness delay handles it. If curl succeeds before the delay completes, the underlying timing has improved post-reframe (because there is no DNAT-shim in the way) — could justify reducing the delay back toward 30s.
+
+### Round 4 cross-runtime findings
+
+A web research round (Round 4) investigated the topology's cross-runtime robustness. Verdict: **architecturally valid and recommended, with two operationalizable caveats: lifecycle coupling and listener-source-IP non-portability.**
+
+**`ports:`-on-namespace-host validity matrix:**
+
+| Runtime / Compose path | Verdict | Notes |
+|---|---|---|
+| Docker Compose v2 + Docker Engine | **Supported** | `network_mode: service:{name}` is documented in the Compose spec; `ports:` on the namespace owner is the correct location. |
+| Docker Compose v2, `ports:` on namespace guest | **Engine-level rejection** | Docker/Moby returns "conflicting options: port publishing and the container type network mode." This is a defensive property — a misconfiguration is caught at engine init rather than silently doing the wrong thing. |
+| Docker Desktop macOS / Windows | **Supported with same semantics** | Compose model unchanged; Desktop changes port-forward plumbing only. |
+| `podman compose` (built-in wrapper) | **Provider-dependent** | Thin wrapper around `docker-compose` or `podman-compose`; Compose semantics depend on which provider is installed. |
+| `podman-compose` (Python) | **Supported-with-caveat** | Project claims Compose Spec implementation; no primary-source guarantee for this exact `network_mode: service:X` + publisher-host pattern. Empirical confirmation required. |
+| Podman native `--network container:X` | **Concept supported; publish belongs to namespace owner** | Equivalent semantic — port-publish on the original namespace owner. |
+| Podman native pod (`podman pod create`) | **Strongly supported** | Podman docs explicitly: "You must not publish ports of containers in the pod individually, but only by the pod itself." Cleanest semantic for Podman-native deployment. |
+
+**Listener source-IP visibility (key caveat — the topology fixes publish-target determinism, NOT source-IP fidelity):**
+
+| Runtime / proxy | Expected listener source IP |
+|---|---|
+| Docker Engine Linux, `--userland-proxy=true` | Runtime-dependent; may be proxy/bridge-gateway. Undocumented. |
+| Docker Engine Linux, `--userland-proxy=false` | Likely netfilter path; preservation possible for remote clients, hairpin may still show host/bridge-derived source. Undocumented. |
+| Docker Desktop macOS / Windows | Backend/VM proxy path; undocumented. Must probe. |
+| Podman rootful Netavark | DNAT path; exact host-hairpin source undocumented. |
+| Podman rootless + rootlesskit | Usually `10.0.2.100` (documented). |
+| Podman rootless + pasta | Original source IP preserved (documented). |
+| Podman rootless + slirp4netns | Source preserved, but topology compatibility with user-defined networks is weak. |
+
+If original client IP capture ever matters for an entry-mode use case, add an application-layer proxy upstream of bottle that forwards PROXY protocol or `X-Forwarded-For`. The topology does not solve original-client IP fidelity. The current `rbtdrc_srjcl_jupyter_connectivity` case does not need original-client IP; this is forward guidance for future entry-mode use cases.
+
+**Lifecycle coupling caveat.** If pentacle is recreated alone, bottle's joined network namespace can become stale or broken. Docker Compose issue `docker/compose#10263` reproduces this class of failure with `network_mode: service:pause`: restarting the namespace owner broke the guest until the guest was restarted too. This is empirical evidence rather than spec, but it operationalizes as a working rule:
+
+- **Pentacle and bottle restart as a unit.** Never restart pentacle alone.
+- For tooling and operator runbooks: `docker compose restart pentacle bottle` (or `podman compose ...`). Project-side, this may need a guard in rbob_charge / rbob_quench paths to ensure pentacle and bottle are always charged/quenched together.
+- For Podman-native deployments, prefer a Podman pod — its infra container coordinates shared-namespace lifecycle and the failure mode is harder to trigger.
+
+**Startup window.** The host port can be advertised before bottle binds its listener. External clients during the window between pentacle healthy and bottle bound observe connection refused or timeout. Same underlying behavior the prior architecture had (sentry's PREROUTING was up before bottle's listener); the prior `RBRN_BOTTLE_READINESS_DELAY_SEC` 30→120s bump on srjcl in ₢A_AAP was for exactly this window. The reframe does not change the underlying timing; it relocates where the "port published but listener not ready" gap shows up. The readiness-delay machinery in rbob_charge remains the correct mitigation.
+
+**Security envelope refinement.** Containers sharing a network namespace share interfaces, IP addresses, port space, routes, iptables/nft rules, and conntrack state for that namespace. This is the same model Kubernetes pods use intentionally. Two project-specific implications:
+
+1. **Drop `CAP_NET_ADMIN` from bottle.** Without it, bottle cannot modify rules pentacle installed in the shared namespace. With it, bottle could alter port-publish forwarding. The current `cap_drop: [NET_RAW]` on bottle (per `.rbk/rbob_compose.yml:89`) is insufficient for this topology; extend to also drop `NET_ADMIN`. This is research-recommended security hygiene; not required to validate the topology empirically, but should land in the same change-set.
+2. **Avoid extra port-binding processes in bottle's image.** Two containers in the same namespace see the same port space; an unintended bind in bottle would conflict with the workstation port.
+
+The namespace-sharing model intentionally removes network isolation between pentacle and bottle. They are pod-like peers by design — and were already pod-like peers in the existing architecture via `network_mode: service:pentacle`. Round 4's contribution is identifying the right capability hygiene (`NET_ADMIN` drop).
+
+**Pod-equivalent posture.** Compose's `network_mode: service:X` is a single-host approximation of Kubernetes pod / Podman pod semantics. For Docker-first deployment, the Compose form is the more portable expression. For Podman-native deployment, a Podman pod is semantically cleaner and offers stronger lifecycle coordination via the infra container. Project path: keep the Compose form as the primary YAML (works on Docker and Podman via Compose); evaluate a Podman-pod variant later as an optimization for Podman-native operators if `podman compose` semantics turn out to be too thin.
+
+### Hypothesis posture
+
+The reframe is **research-validated (Round 4) with two operationalizable caveats** (lifecycle coupling, source-IP non-portability), and remains empirically pending. The experiment is cheap to run and easy to revert (one compose-yml edit, one iptables-block deletion, one optional `cap_drop` addition for bottle). If the experiment confirms cross-platform green, the iptables-focused Round 3 fix becomes a fallback rather than the primary recommendation, and the Podman-pod variant joins the future-work list. If the experiment fails, the iptables fix remains in-place as the working solution and the reframe joins the future-work list.
 
 ## Verification Gate
 
@@ -444,3 +589,21 @@ Both crucibles are non-canonical with respect to the shipped sentry image (post-
 - Netavark release notes — port-forward rule removal and firewall reload behavior history — https://raw.githubusercontent.com/containers/netavark/main/RELEASE_NOTES.md
 - netavark-firewalld(7) source (current) — same-host localhost forwarding limitation, IPv6 localhost forwarding "not possible" — https://github.com/containers/netavark/blob/main/docs/netavark-firewalld.7.md
 - podman-network(1) — Netavark default, CNI deprecated — https://docs.podman.io/en/stable/markdown/podman-network.1.html
+
+### Round 3 research sources (bridge-gateway-source-rewrite finding and Candidate A justification)
+
+- Docker docs issue #17312 — `--userland-proxy` impact on hairpin paths — https://github.com/docker/docs/issues/17312
+- moby/libnetwork issue #1994 — empirical evidence of source-IP rewrite to bridge gateway IP — https://github.com/moby/libnetwork/issues/1994
+- Docker `docker network create` reference — `--gateway` selection and defaults — https://docs.docker.com/reference/cli/docker/network/create/
+- Docker bridge network driver — bridge gateway placement and subnet conventions — https://docs.docker.com/engine/network/drivers/bridge/
+- Podman `podman-network-create(1)` — Netavark `managed` mode masquerading and DNAT for published ports; `--gateway` override — https://docs.podman.io/en/stable/markdown/podman-network-create.1.html
+
+### Round 4 research sources (pentacle-publisher topology validity and cross-runtime caveats)
+
+- Compose Spec (`network_mode: service:{name}` definition; `ports:` location rules) — https://github.com/compose-spec/compose-spec/blob/master/spec.md
+- Docker Compose issue #10263 — restart behavior when using `network_mode: service:X`; empirical evidence of namespace-guest breakage on namespace-owner restart — https://github.com/docker/compose/issues/10263
+- Docker Compose source `pkg/compose/create.go` — `HostConfig.NetworkMode` and `PortBindings` assembly path (engine-level rejection of `ports:` on namespace guest) — https://raw.githubusercontent.com/docker/compose/main/pkg/compose/create.go
+- `podman-compose(1)` — Podman's built-in compose wrapper; provider-dependent semantics — https://docs.podman.io/en/latest/markdown/podman-compose.1.html
+- containers/podman-compose (Python implementation) — https://github.com/containers/podman-compose
+- `podman-run(1)` — `--network container:X` semantics and namespace-sharing security implications — https://docs.podman.io/en/latest/markdown/podman-run.1.html
+- Kubernetes networking concepts — pod network namespace model as semantic comparison — https://kubernetes.io/docs/concepts/services-networking/
