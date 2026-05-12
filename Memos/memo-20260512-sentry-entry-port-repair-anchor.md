@@ -17,48 +17,46 @@ Revert the topology reframe. Restore sentry-as-publisher in `.rbk/rbob_compose.y
 
 Keep three things from the failed reframe: the `ip_forward` lift (independent hygiene), the `cap_drop: [NET_ADMIN]` addition on bottle (defense in depth), the `tt/rbw-cs.Scry.sh` tabtarget (new diagnostic capability).
 
-**Empirical status:**
-- macOS Docker Desktop 28.x: three-fixture parallel **green under PRIOR fix shape (whole-CIDR exclusion)** — srjcl 3/3, pluml 5/5, tadmor 54/54 including the decisive `direct_sentry_probe`, `net_dnat_entry_reflection`, `net_srcip_spoof` cases. NOT yet re-verified under the current per-IP-exclusion hypothesis.
-- Linux Docker Engine 28.x: **whole-CIDR exclusion FAILS** — cerebro diagnostic confirmed sentry's PREROUTING DNAT fires 0 times because the host's source IP (`10.242.2.1`, the enclave bridge gateway) is inside the enclave CIDR and the `! -s ENCLAVE_CIDR` predicate rejects every legitimate host SYN. Per-IP exclusion hypothesis is the proposed fix; not yet tested.
+**Empirical status (cross-platform validated under per-IP form):**
+- macOS Docker Desktop 28.x: three-fixture parallel **green under per-IP form** — srjcl 3/3, pluml 5/5, tadmor 54/54 including the decisive `direct_sentry_probe`, `net_dnat_entry_reflection`, `net_srcip_spoof` cases.
+- Linux Docker Engine 28.x: three-fixture parallel **green under per-IP form** — srjcl 3/3, pluml 5/5, tadmor 54/54 including the decisive cases. Cerebro diagnostic captured mechanism-level confirmation: sentry's PREROUTING DNAT counter incremented (1 packet under per-IP vs 0 under whole-CIDR for the same host); source IP flow traced as `10.242.2.1` (host bridge gateway) → sentry PREROUTING → DNAT → MASQUERADE rewrites source to `10.242.2.2` (sentry's enclave IP) → bottle sees enclave-internal peer. Return-path symmetry working as predicted by the architecture.
 
-**Canonical declaration gate**: three-fixture green AND pristine gauntlet green on BOTH platforms under the per-IP-exclusion form. Currently no platform is canonically green under the current hypothesis; both need re-verification.
+**Canonical declaration gate**: three-fixture green is achieved on both platforms. Full pristine gauntlet (`tt/rbw-tP.QualifyPristine.sh`) on both platforms remains for canonical declaration. Three-fixture covers the targeted regression and the decisive security invariants; pristine gauntlet adds the four-mode lifecycle fixtures (build/publish paths, orthogonal to runtime network topology). Pristine gauntlet is hardening margin rather than load-bearing for architectural correctness, but per project discipline it's the canonical gate.
 
-## Reset handoff notes (current in-flight state)
+## Reset handoff notes (current state)
 
 This memo has been updated multiple times during ₢A_AAb's iteration. If you arrive on a cold chat-reset mount, read this section first.
 
-**Where we are right now:**
+**Where we are right now (post-empirical-validation):**
 
-- Source tree: contains the PRIOR whole-CIDR exclusion form. This is empirically falsified on Linux Docker Engine but was green on macOS Docker Desktop. The source tree and the memo's Fix Recipe DIFFER — that's the in-flight state, by design.
-- Memo Fix Recipe (below): specifies the per-IP-exclusion via RETURN short-circuit pattern. Current hypothesis. Not yet implemented or tested.
-- Three slated paces in this heat: ₢A_AAb (this one — in-flight), ₢A_AAd (RBS spec deltas, mount-gated on canonical pass), ₢A_AAc (Ifrit spoof sortie, after ₢A_AAd by current ordering).
+- Source tree: contains the per-IP exclusion form (per-IP RETURN short-circuit + DNAT). Empirically validated on BOTH macOS Docker Desktop 28.x and Linux Docker Engine 28.x via three-fixture parallel green (srjcl 3/3, pluml 5/5, tadmor 54/54 each) including all decisive security cases.
+- Memo Fix Recipe (below) and source tree are aligned. The mechanism-level confirmation from cerebro (DNAT counter incrementing; source IP flow traced through MASQUERADE creating the symmetric return path) confirms not just outcome but architecture-as-designed.
+- Three slated paces in this heat: ₢A_AAb (this one — three-fixture green, pristine gauntlet pending), ₢A_AAd (RBS spec deltas, mount-gated on canonical pass), ₢A_AAc (Ifrit spoof sortie, after ₢A_AAd by current ordering).
 
 **Your first move on cold mount:**
 
-1. Verify the divergence between source tree and memo Fix Recipe is what you expect. Run `grep -n 'ENCLAVE_BASE_IP/.*ENCLAVE_NETMASK' rbev-vessels/common-sentry-context/rbjs_sentry.sh` — if you see the whole-CIDR form in the PREROUTING DNAT rule, that's the prior state. The memo's per-IP form is what you'll implement.
-2. Read the Fix Recipe section below in full. Each clause is load-bearing per the Lessons captured section; do not optimize.
-3. Run the next experiment per the Verification Protocol section.
-
-**Next experiment (the bounded next step):**
-
-Implement per-IP exclusion via the RETURN short-circuit pattern from the Fix Recipe. Kludge sentry. Refresh hallmarks on srjcl + pluml + tadmor. Run three-fixture parallel on this platform. Coordinate cross-platform verification (macOS + Linux). Report results; do NOT improvise architectural changes if a case fails.
+1. Run `grep -n 'RBRN_ENCLAVE_SENTRY_IP.*RETURN' rbev-vessels/common-sentry-context/rbjs_sentry.sh` to confirm the per-IP RETURN short-circuit pattern is in place. If yes (expected): source tree matches the architecture; no implementation work remaining.
+2. Read the Fix Recipe section below for context on what each clause enforces. Do not "optimize" or remove clauses; each is load-bearing per Lessons captured.
+3. The next bounded step is the canonical declaration gate: full pristine gauntlet (`tt/rbw-tP.QualifyPristine.sh`) on both macOS Docker Desktop AND Linux Docker Engine. Three-fixture green is achieved; pristine adds the four-mode lifecycle fixtures (orthogonal to runtime network topology) for hardening margin.
 
 **What "done" looks like:**
 
-- Three-fixture parallel green on BOTH macOS Docker Desktop AND Linux Docker Engine under the per-IP form. Decisive tadmor cases: `direct_sentry_probe`, `net_dnat_entry_reflection`, `net_srcip_spoof`. srjcl `_jupyter_connectivity` green on both platforms. pluml `_text_rendering` green on both.
-- THEN full pristine gauntlet (`tt/rbw-tP.QualifyPristine.sh`) on both platforms for canonical declaration.
-- THEN ₢A_AAb is ready to wrap; ₢A_AAd's spec deltas can be edited per its rigorous docket discipline; ₢A_AAc's Ifrit test work can begin.
+- Pristine gauntlet green on BOTH macOS Docker Desktop AND Linux Docker Engine under the per-IP form. THIS IS THE CANONICAL DECLARATION GATE.
+- THEN ₢A_AAb is ready to wrap. ₢A_AAd's spec deltas can be edited per its rigorous docket discipline. ₢A_AAc's Ifrit test work can begin.
 
-**If the per-IP experiment fails on either platform:**
+**If pristine gauntlet fails on either platform:**
 
-Expect another structural Docker fact has surfaced (this would be the *sixth* empirical surprise in this work's arc — see the Meta-lesson section below for the running tally). Apply the iteration pattern: process the result with scry/tcpdump data, update the memo with the new hypothesis, run the next experiment. The pattern has been: each iteration is shorter than the last because the model is better-built; trust the iteration discipline.
+The three-fixture cases passed under per-IP form; pristine failures would most likely be in the four-mode lifecycle (build/publish path) and would point at a regression in something other than the entry-port architecture. Diagnose specifically; don't reflexively assume the entry-port fix needs further iteration. Could also be platform-specific build-path infrastructure (e.g., Linux operator's earlier "test-infrastructure issues" report).
 
 **Anti-patterns to avoid:**
 
-- DO NOT "simplify" the Fix Recipe before validating the current form empirically. Every prior such instinct in this work has been wrong. Each clause is load-bearing.
-- DO NOT skip cross-platform testing. macOS and Linux expose different structural facts; declaring green on one platform is not canonical.
-- DO NOT abandon the architecture if the current hypothesis fails. Iterate within the architecture; the Ifrit framework is the empirical safety net.
-- DO NOT change the source tree state until you've committed the per-IP form via the experiment. The whole-CIDR form is what's currently committed and it must remain committed until the per-IP form lands as a successor commit, so we have a clean revert path.
+- DO NOT "simplify" the Fix Recipe. Every prior such instinct in this work has been empirically wrong. Each clause is load-bearing.
+- DO NOT skip cross-platform pristine validation. Three-fixture green on both platforms is not the canonical gate; pristine green on both is.
+- DO NOT abandon the architecture if pristine surfaces a regression in some other code path. The entry-port fix is empirically validated; an unrelated regression is its own problem.
+
+**Operational note (cerebro stale-hallmark observation, not architectural):**
+
+During Linux verification, cerebro's tadmor charge initially failed because `RBRN_BOTTLE_HALLMARK` referenced a local-kludge hash from cross-host work, not present in cerebro's GAR cache nor pullable. Resolved manually by re-kludging the ifrit-tether bottle locally on cerebro. Surfaces a workflow concern: hallmark refs from local-kludge cycles are host-specific; cross-host operators may need explicit hallmark-refresh discipline or centralized distribution. Not blocking this pace; worth flagging in operational documentation or as a future-work item.
 
 ## Decisive empirical evidence
 
@@ -201,16 +199,16 @@ The companion memo's verification gate (cross-platform pristine gauntlet green) 
 
 ## Empirical validation status
 
-The fix shape has evolved through three empirical corrections. The current hypothesis (per-IP exclusion via RETURN short-circuit) has not yet been tested on any platform. Status table:
+The fix shape has evolved through three empirical corrections. The current form (per-IP exclusion via RETURN short-circuit) is empirically validated on both target platforms at the three-fixture level. Status table:
 
-| Platform | Whole-CIDR exclusion (PRIOR fix shape) | Per-IP exclusion (current hypothesis) |
+| Platform | Whole-CIDR exclusion (PRIOR fix shape) | Per-IP exclusion (current form) |
 |---|---|---|
-| macOS Docker Desktop 28.x | **Three-fixture green** — srjcl 3/3, pluml 5/5, tadmor 54/54 including `direct_sentry_probe`, `net_dnat_entry_reflection`, `net_srcip_spoof`. Pristine gauntlet not yet exercised. | **Not yet tested.** Re-verification needed under the new form; expected green by analysis (per-IP exclusion is a strict subset of whole-CIDR in terms of what it blocks, and macOS host source is `192.168.65.1` which is outside enclave CIDR and outside the per-IP block list, so it passes both). |
-| Linux Docker Engine 28.x | **FAILED** — cerebro empirical diagnostic: sentry's PREROUTING DNAT fires 0 times because the host attaches to the enclave bridge as a peer with IP `.1` (inside enclave CIDR by Docker convention); `! -s ENCLAVE_CIDR` rejects every legitimate host SYN. | **Not yet tested.** Expected green by analysis: host source `.1` is neither sentry IP nor bottle IP, so per-IP exclusion allows it. |
-| Podman rootful (netavark) | Not exercised | Not exercised. Plausible by analysis but no Podman cross-runtime testing has been done. |
-| Podman rootless (rootlesskit / pasta / slirp4netns) | Not exercised | Not exercised. Rootlesskit's `10.0.2.100` source is outside both enclave CIDR and the per-IP block list, so per-IP exclusion would allow it; pasta preserves original source IP, also outside; slirp4netns can't be used with user-defined networks (topology incompatible). |
+| macOS Docker Desktop 28.x | Three-fixture green | **Three-fixture green** — srjcl 3/3, pluml 5/5, tadmor 54/54 including `direct_sentry_probe`, `net_dnat_entry_reflection`, `net_srcip_spoof`. Pristine gauntlet not yet exercised. |
+| Linux Docker Engine 28.x | FAILED (DNAT counter 0 packets; cerebro diagnostic) | **Three-fixture green** — srjcl 3/3 (including the prior-regression target `rbtdrc_srjcl_jupyter_connectivity`), pluml 5/5, tadmor 54/54. Cerebro reported mechanism-level confirmation: DNAT counter 1 packet under per-IP form (was 0 under whole-CIDR on same host); source IP flow traced as `10.242.2.1` (host bridge gateway) → sentry PREROUTING → DNAT → MASQUERADE rewrites source to `10.242.2.2` (sentry's enclave IP) → bottle sees enclave-internal peer. Architecture-as-designed empirically. Pristine gauntlet not yet exercised. |
+| Podman rootful (netavark) | Not exercised | Not exercised. Plausible by analysis; no Podman cross-runtime testing has been done. Future work. |
+| Podman rootless (rootlesskit / pasta / slirp4netns) | Not exercised | Not exercised. Rootlesskit's `10.0.2.100` source is outside the per-IP block list, so per-IP exclusion allows it; pasta preserves original source IP, also outside; slirp4netns can't be used with user-defined networks (topology incompatible). Future work. |
 
-**Canonical declaration gate**: cross-platform three-fixture parallel green AND full pristine gauntlet green on BOTH macOS Docker Desktop AND Linux Docker Engine, under the per-IP-exclusion form. Currently NO platform meets the gate under the current hypothesis. The next experiment (per-IP exclusion implementation, then re-run three-fixture cross-platform) is what produces the empirical data that either confirms the hypothesis or surfaces another structural surprise.
+**Canonical declaration gate**: full pristine gauntlet (`tt/rbw-tP.QualifyPristine.sh`) green on BOTH macOS Docker Desktop AND Linux Docker Engine, under the per-IP-exclusion form. Three-fixture parallel green has been achieved on both. Pristine gauntlet adds the four-mode lifecycle fixtures (build/publish paths, orthogonal to runtime network topology) — hardening margin, not load-bearing for the architectural correctness of the entry-port fix, but it's the canonical gate per project discipline.
 
 ## Ifrit coverage limitation (subject of ₢A_AAc)
 
@@ -234,7 +232,7 @@ The three-attempt arc plus the empirical correction, briefly (full lineage in th
 
 5. **Option E corrected (whole-CIDR exclusion) — source-CIDR + MASQUERADE + conntrack FORWARD + ESTABLISHED,RELATED + rp_filter=2.** Empirically green on macOS three-fixture parallel (54/54 tadmor). Reached Linux cross-platform verification — **FAILED**. Cerebro diagnostic: the host attaches to the enclave bridge as a peer with IP `.1` (Docker's bridge-gateway convention), which is inside the enclave CIDR by construction; `! -s ENCLAVE_CIDR` rejects every legitimate host SYN. This was a third structural Docker fact not anticipated by any prior round.
 
-6. **Option E corrected v2 (per-IP exclusion) — destination port + RETURN short-circuit for sentry/bottle IPs + DNAT + MASQUERADE + conntrack FORWARD + ESTABLISHED,RELATED + rp_filter=2.** Current hypothesis. Threat model expressed directly (the only enclave-internal sources are sentry and bottle; block exactly those, allow everything else). Cross-platform analysis suggests it works on all target runtimes; empirical confirmation pending.
+6. **Option E corrected v2 (per-IP exclusion) — destination port + RETURN short-circuit for sentry/bottle IPs + DNAT + MASQUERADE + conntrack FORWARD + ESTABLISHED,RELATED + rp_filter=2.** **Empirically validated cross-platform at three-fixture level (macOS Docker Desktop 28.x AND Linux Docker Engine 28.x, both 54/54 tadmor including the decisive security cases).** Cerebro provided mechanism-level confirmation (DNAT counter incrementing under per-IP form vs zero under whole-CIDR on same host; source IP flow tracing the architecture-as-designed). Threat model expressed directly (the only enclave-internal sources are sentry and bottle; block exactly those, allow everything else). Pristine gauntlet remains pending on both platforms for canonical declaration.
 
 The fix in this memo is **what pre-BBABC's design would have looked like if written defensively against the structural Docker facts we've now learned about**: the same DNAT + MASQUERADE + FORWARD-ACCEPT shape, but with classification by destination port + per-IP source exclusion (not interface, not whole-CIDR), authorization by conntrack state (not interface), and explicit kernel sysctl for rp_filter to accommodate the post-BBABC delivery interface. The original design's principle — sentry takes ownership of its security envelope — is preserved.
 
@@ -304,9 +302,11 @@ Narrowed considerably after empirical validation. Status:
 
 1. **ESTABLISHED,RELATED rule in RBM-FORWARD** — **resolved.** Empirically verified present in current `rbjs_sentry.sh`; egress-mode blocks rely on it; the empirical three-fixture green confirms return-path traversal works. No action needed in this implementation; documented in the fix recipe for posterity.
 
-2. **Linux Docker Engine 28.x verification under per-IP-exclusion form** — **load-bearing next experiment.** Whole-CIDR exclusion was empirically falsified on Linux (cerebro diagnostic). Per-IP exclusion is the current hypothesis. The next experiment runs the three-fixture parallel under the new form. If green: macOS re-verification under same form, then canonical declaration. If red: another structural surprise has surfaced; iterate the hypothesis.
+2. **Linux Docker Engine 28.x verification under per-IP-exclusion form** — **resolved (green).** Three-fixture parallel green on cerebro under per-IP form; cerebro provided mechanism-level confirmation (DNAT counter incrementing; source IP flow traced through MASQUERADE creating symmetric return path).
 
-3. **macOS re-verification under per-IP-exclusion form** — pending. The prior macOS green was under whole-CIDR; per-IP is a strict subset of CIDR's block set (only blocks two specific IPs vs the whole subnet), so macOS green is expected by analysis, but empirical confirmation required before canonical declaration.
+3. **macOS re-verification under per-IP-exclusion form** — **resolved (green).** Three-fixture parallel green on macOS Docker Desktop under per-IP form; all decisive cases confirmed.
+
+3a. **Pristine gauntlet on both platforms under per-IP form** — load-bearing for canonical declaration. Three-fixture is the early-signal gate; pristine adds four-mode lifecycle (build/publish paths, orthogonal to runtime network topology). Pristine is the canonical gate per project discipline.
 
 4. **Docker Desktop reflection-through-transit mechanism** — interesting but not blocking. The fix is independent of this behavior. Defer to a future research round if Podman parity work needs deeper trace of Desktop networking internals.
 
