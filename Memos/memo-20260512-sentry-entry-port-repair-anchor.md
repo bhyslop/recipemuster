@@ -23,6 +23,43 @@ Keep three things from the failed reframe: the `ip_forward` lift (independent hy
 
 **Canonical declaration gate**: three-fixture green AND pristine gauntlet green on BOTH platforms under the per-IP-exclusion form. Currently no platform is canonically green under the current hypothesis; both need re-verification.
 
+## Reset handoff notes (current in-flight state)
+
+This memo has been updated multiple times during ₢A_AAb's iteration. If you arrive on a cold chat-reset mount, read this section first.
+
+**Where we are right now:**
+
+- Source tree: contains the PRIOR whole-CIDR exclusion form. This is empirically falsified on Linux Docker Engine but was green on macOS Docker Desktop. The source tree and the memo's Fix Recipe DIFFER — that's the in-flight state, by design.
+- Memo Fix Recipe (below): specifies the per-IP-exclusion via RETURN short-circuit pattern. Current hypothesis. Not yet implemented or tested.
+- Three slated paces in this heat: ₢A_AAb (this one — in-flight), ₢A_AAd (RBS spec deltas, mount-gated on canonical pass), ₢A_AAc (Ifrit spoof sortie, after ₢A_AAd by current ordering).
+
+**Your first move on cold mount:**
+
+1. Verify the divergence between source tree and memo Fix Recipe is what you expect. Run `grep -n 'ENCLAVE_BASE_IP/.*ENCLAVE_NETMASK' rbev-vessels/common-sentry-context/rbjs_sentry.sh` — if you see the whole-CIDR form in the PREROUTING DNAT rule, that's the prior state. The memo's per-IP form is what you'll implement.
+2. Read the Fix Recipe section below in full. Each clause is load-bearing per the Lessons captured section; do not optimize.
+3. Run the next experiment per the Verification Protocol section.
+
+**Next experiment (the bounded next step):**
+
+Implement per-IP exclusion via the RETURN short-circuit pattern from the Fix Recipe. Kludge sentry. Refresh hallmarks on srjcl + pluml + tadmor. Run three-fixture parallel on this platform. Coordinate cross-platform verification (macOS + Linux). Report results; do NOT improvise architectural changes if a case fails.
+
+**What "done" looks like:**
+
+- Three-fixture parallel green on BOTH macOS Docker Desktop AND Linux Docker Engine under the per-IP form. Decisive tadmor cases: `direct_sentry_probe`, `net_dnat_entry_reflection`, `net_srcip_spoof`. srjcl `_jupyter_connectivity` green on both platforms. pluml `_text_rendering` green on both.
+- THEN full pristine gauntlet (`tt/rbw-tP.QualifyPristine.sh`) on both platforms for canonical declaration.
+- THEN ₢A_AAb is ready to wrap; ₢A_AAd's spec deltas can be edited per its rigorous docket discipline; ₢A_AAc's Ifrit test work can begin.
+
+**If the per-IP experiment fails on either platform:**
+
+Expect another structural Docker fact has surfaced (this would be the *sixth* empirical surprise in this work's arc — see the Meta-lesson section below for the running tally). Apply the iteration pattern: process the result with scry/tcpdump data, update the memo with the new hypothesis, run the next experiment. The pattern has been: each iteration is shorter than the last because the model is better-built; trust the iteration discipline.
+
+**Anti-patterns to avoid:**
+
+- DO NOT "simplify" the Fix Recipe before validating the current form empirically. Every prior such instinct in this work has been wrong. Each clause is load-bearing.
+- DO NOT skip cross-platform testing. macOS and Linux expose different structural facts; declaring green on one platform is not canonical.
+- DO NOT abandon the architecture if the current hypothesis fails. Iterate within the architecture; the Ifrit framework is the empirical safety net.
+- DO NOT change the source tree state until you've committed the per-IP form via the experiment. The whole-CIDR form is what's currently committed and it must remain committed until the per-IP form lands as a successor commit, so we have a clean revert path.
+
 ## Decisive empirical evidence
 
 A `tt/rbw-cs.Scry.sh srjcl` capture during the topology-reframe failure produced the data that resolved every prior hypothesis. The captured packet path on macOS Docker Desktop:
