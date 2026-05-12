@@ -201,6 +201,107 @@ Both halves edit `rbev-vessels/common-sentry-context/rbjs_sentry.sh`, which is *
 
 `RBSSS` step 2 already carries BBABE's "sentry takes ownership of routing" framing. Extend it to "sentry takes ownership of routing AND of entry-port DNAT scope, decoupled from Docker's choice of published-port delivery interface." `RBS0` quoins around the sentry container narrative may need a sentence on the port-publish-half mirror of the default-route fragility.
 
+> The iptables forms above are superseded by the **Refined Fix Shape** in the Post-Diagnosis Research section below. The principle ("sentry takes ownership") survives unchanged; the concrete rules gain explicit source-CIDR exclusion and a rootless-overlap guardrail.
+
+## Post-Diagnosis Research
+
+Follow-on web research was commissioned to verify the memo's working presumptions against primary sources and to determine the correct fix under cross-runtime constraints (the project must eventually run under both Docker and Podman, so the original "rely on Docker's alphabetical-first heuristic" is not acceptable as the fix). The research brief framed every presumption as a falsifiable proposition and required source-citable answers. Findings below refine the fix shape; the principle ("sentry owns its networking, don't trust the runtime's selection") is unchanged.
+
+### Documented vs Observed (Docker / Compose)
+
+| Presumption | Status | Notes |
+|---|---|---|
+| Docker selects port-publish target by alphabetical-first network name | **Observed only — not documented** | Moby v28.0.0 source builds port bindings as a sandbox-level libnetwork option and iterates `ctr.NetworkSettings.Networks` (a Go map). No user-facing ordering contract found. Observed "alphabetical" behavior could be Compose serialization, daemon map iteration, libnetwork endpoint order, or Desktop proxy behavior. Not a contract. |
+| `default`-name magic confers port-publish/default-route primacy | **Not documented as primacy** | Compose docs describe `<project>_default` as the auto-created service-discovery network; no documented primacy rule for multi-network published-port target selection. The "magic" pre-BBABC was real in effect but undocumented in source. |
+| Compose `services.<svc>.networks.<net>.priority:` is ignored for gateway and port-publish | **Confirmed by docs** | Docker's Compose service reference explicitly states `priority:` controls *connection order* and may determine which network gets a service-level `mac_address`. It explicitly does NOT select the default gateway or interface name. |
+| Compose long-form `ports:` exposes no `container_ip` selector | **Confirmed** | Compose long-form `ports:` exposes `target`, `published`, `host_ip`, `protocol`, `app_protocol`, `mode`, `name`. No `container_ip` / `network` / `destination_network` field exists. |
+| macOS Docker Desktop drops hairpinned post-DNAT | **Observed only** | Desktop runs Engine in a LinuxKit VM with userspace networking interposition; sufficient to treat as materially different but specific failure mode not traced to `accept_local`, vpnkit, or kernel hairpin semantics. |
+
+**New finding the original memo missed**: Docker Compose 2.33.1+ introduces `gw_priority`, which DOES select the default gateway among multiple networks (highest value wins). This does *not* control port-publish target selection, but it provides a Compose-level alternative to BBABE's sentry-side `ip route replace default`. See "Compose-level hardening" below.
+
+### Podman Parity
+
+- **Netavark has the same publish-target ambiguity.** Podman discussion `containers/podman#22746` documents that on multi-bridge containers with published ports, Netavark adds DNAT rules for every (port, network) pair, and the first matching rule wins. Rule order was observed to vary across recreations. No documented selector exists. The architectural problem is shared, not Docker-specific.
+- **No `default`-magic in Podman compose paths.** Neither `podman compose` (built-in) nor `podman-compose` (Python wrapper) documents Compose-style `default` primacy beyond ordinary Compose compatibility.
+- **`priority:` doesn't help on Podman either.** No Podman/Netavark primary source treats `priority:` as a port-publish selector.
+- **No portable runtime-level "primary network" field.** Neither CNI conflist, Netavark JSON, nor Compose YAML offers a field both runtimes honor as "this network is the published-port destination."
+- **Rootless source-IP rewriting — load-bearing for the fix.** Podman's rootless networking path through rootlesskit rewrites incoming source IPs to a container-namespace address (commonly `10.0.2.100`). The `pasta` forwarder preserves the original source IP. `slirp4netns` preserves source IP but cannot be used with user-defined networks. This directly affects source-CIDR-based filtering: the source IP visible to sentry's iptables under rootless Podman may not be the host-originating client's IP. Any source-CIDR-exclusion fix must assert non-overlap with runtime rewrite ranges.
+- **iptables vs nftables.** Netavark uses nftables or iptables as host-side firewall drivers. Sentry's rules run inside sentry's own network namespace, not on the host, so they are not directly tied to Netavark's choice. The sentry image must carry a working `iptables` frontend backed by kernel netfilter compatibility, or migrate to nftables for future-proofing.
+
+### Portability Matrix (Researcher's Evaluation)
+
+Legend: **Works** = architecturally sound; **Caveat** = likely viable with runtime-specific constraints; **No** = incompatible; **Unknown** = source-backed conclusion not available.
+
+| Alternative | Docker Engine Linux | Docker Desktop | Podman rootful Netavark | Podman rootful CNI | Podman rootless Netavark+pasta | Podman rootless Netavark+slirp4netns |
+|---|---|---|---|---|---|---|
+| A. One-network publisher sidecar | Works | Works | Works | Caveat | Caveat | Caveat |
+| B. Sentry self-managed veth | Caveat | Caveat | Caveat | Caveat | No / severe | No / severe |
+| C. `network_mode: host` + host iptables | Works | No / caveat | Works | Works | No | No |
+| D. Source-CIDR-exclusion in sentry iptables | Works | Caveat | Works | Caveat | Caveat | Caveat |
+| E. Conntrack-state-based rules | Caveat | Unknown | Caveat | Caveat | Unknown | Unknown |
+| F. Runtime-level primary-publish declaration | No known field | No known field | No known field | No known field | No known field | No known field |
+
+The researcher's primary recommendation is **D** (source-CIDR exclusion) with explicit guardrails. The secondary recommendation is **A** (one-network publisher sidecar) for topology-level certainty if the source-CIDR invariant is too fragile across deployment contexts.
+
+### Refined Fix Shape
+
+The research validates the in-place fix path (alternative D) and refines the iptables form. The "drop `-i ${RBJ_UPLINK_IF}`" proposal earlier in this memo is replaced by:
+
+```sh
+# DNAT: entry-port traffic from anywhere not in the enclave goes to the bottle
+iptables -t nat -A PREROUTING -p tcp \
+         --dport "${RBRN_ENTRY_PORT_WORKSTATION}" \
+         ! -s "${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" \
+         -j DNAT --to-destination "${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE}"
+
+# FORWARD: entry-port-bound traffic to bottle, from outside enclave, allowed
+iptables -A RBM-FORWARD -p tcp \
+         -d "${RBRN_ENCLAVE_BOTTLE_IP}" --dport "${RBRN_ENTRY_PORT_ENCLAVE}" \
+         ! -s "${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" \
+         -j ACCEPT
+```
+
+This form replaces interface matching (`-i ${RBJ_UPLINK_IF}`) with source-CIDR exclusion. The interface match was over-specification using interface name as a proxy for "from outside the enclave"; the source-CIDR form expresses that invariant directly in terms of project-controlled nameplate values, with no dependence on the runtime's interface-selection choice.
+
+**Required guardrail — rootless overlap discipline.** When the project runs under rootless Podman, `${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}` must not overlap rootlesskit's source-rewrite address (`10.0.2.100` per Podman docs) or any other runtime/proxy source range. Sentry's startup should refuse to install rules under an overlapping enclave CIDR:
+
+```sh
+# Refuse enclave CIDRs that overlap known runtime source-rewrite ranges.
+# Without this guard, source-CIDR-exclusion would silently filter
+# legitimate rewritten external traffic on rootless Podman.
+case "${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" in
+  10.0.2.0/24)
+    buc_die "Enclave CIDR overlaps rootlesskit source-rewrite range"
+    ;;
+esac
+```
+
+The check should be generalized to all known runtime source-rewrite ranges discovered in deployment; the `10.0.2.0/24` case is the documented one but is not exhaustive.
+
+**Compose-level hardening (optional, conditional on Compose ≥ 2.33.1).** Add `gw_priority` to sentry's network declarations to make default-gateway selection explicit at the Compose level:
+
+```yaml
+services:
+  sentry:
+    networks:
+      auplink:
+        gw_priority: 100
+      enclave:
+        gw_priority: 0
+```
+
+`gw_priority` does NOT affect port-publish target selection (no documented selector exists). This addition only deduplicates with BBABE's sentry-side default-route override — providing a Compose-level expression of the same intent. Whether to retain BBABE's iptables-side override after adding `gw_priority` is a defense-in-depth question, not a correctness one. The iptables source-CIDR fix above remains necessary regardless.
+
+### Open Empirical Questions
+
+The research flagged five empirical tests that should be run before declaring the fix understood (not before applying it — the fix is independent of runtime selection by construction):
+
+1. **Docker exact selector source path.** The "alphabetical-first" claim is empirical only. Test with three networks, randomized creation order, randomized Compose YAML order; inspect `docker inspect` plus `iptables-save` to determine the actual selection rule.
+2. **Docker Desktop hairpin failure mechanism.** Need packet capture inside sentry and inside the LinuxKit VM to trace the DROP. Not blocking — the source-CIDR fix removes the dependence — but a known unknown.
+3. **Podman Netavark current rule order.** The `#22746` discussion describes nondeterministic first-rule-wins. A current Podman 5.x / Netavark 1.x reproduction should confirm.
+4. **Rootless Podman source-IP under user-defined networks.** Confirm sentry sees rootlesskit's rewritten source as `10.0.2.100` (or another runtime-internal address) when accessed via published port under rootless Podman. This is the key test for the source-CIDR-exclusion fix's robustness.
+5. **iptables vs nftables availability inside sentry under Podman.** Test `iptables -V` and `iptables-save` inside sentry under both Docker and Podman Netavark to confirm the rule installer's frontend assumptions hold.
+
 ## Verification Gate
 
 **Both platforms must pass before declaring the fix landed.** This is non-negotiable based on macOS-side empirical evidence:
@@ -225,3 +326,15 @@ Both crucibles are non-canonical with respect to the shipped sentry image (post-
 - Commit `6d836814` (₢BBABC) — `default → transit` rename; introduces the latent regression
 - Commit `ed898867` (₢BBABE) — default-route half fix; precedent for sentry-side don't-trust-Docker discipline
 - Commit `28d1411f` (₢A_AAP) — branch tip both platforms tested against; readiness-delay bump (unrelated to root cause)
+
+### Research sources (Post-Diagnosis Research section)
+
+- Docker Compose service reference (`priority:`, `gw_priority`, long-form `ports:` fields) — https://docs.docker.com/reference/compose-file/services/
+- Docker Compose networking overview — https://docs.docker.com/compose/how-tos/networking/
+- Docker port publishing and mapping — https://docs.docker.com/engine/network/port-publishing/
+- Docker Desktop networking — https://docs.docker.com/desktop/features/networking/
+- Docker host network driver — https://docs.docker.com/engine/network/drivers/host/
+- Moby v28.0.0 `daemon/container_operations.go` — port binding sandbox option and network iteration — https://raw.githubusercontent.com/moby/moby/v28.0.0/daemon/container_operations.go
+- Podman pod create reference (rootless networking, source-IP rewriting, pasta/slirp4netns) — https://docs.podman.io/en/stable/markdown/podman-pod-create.1.html
+- Podman discussion #22746 — DNAT destination when using multiple bridges and publishing ports — https://github.com/containers/podman/discussions/22746
+- netavark-firewalld(7) man page — host-side firewall interaction — https://www.mankier.com/7/netavark-firewalld
