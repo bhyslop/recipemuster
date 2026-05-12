@@ -2,6 +2,7 @@
   "jjgrn_schema_version": 4,
   "jjgrn_next_heat_seed": "BI",
   "jjgrn_heat_order": [
+    "₣BH",
     "₣BG",
     "₣BF",
     "₣BD",
@@ -27,8 +28,7 @@
     "₣AZ",
     "₣Aa",
     "₣Au",
-    "₣BC",
-    "₣BH"
+    "₣BC"
   ],
   "jjgrn_heats": {
     "₣A-": {
@@ -10017,7 +10017,7 @@
     "₣BH": {
       "jjghn_silks": "rbk-29-win-enshrine-triple",
       "jjghn_creation_time": "260511",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [],
       "jjghn_next_pace_seed": "AAA",
       "jjghn_paces": {}
