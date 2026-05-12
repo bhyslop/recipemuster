@@ -131,15 +131,25 @@ if test "${RBRN_ENTRY_MODE}" = "enabled"; then
   echo 2 > /proc/sys/net/ipv4/conf/all/rp_filter || exit 25
 
   echo "RBJp2c: Configuring entry-port DNAT + MASQUERADE + FORWARD-ACCEPT"
-  # Classification: destination port + source-NOT-in-enclave-CIDR. Interface (-i ...) is
-  # NOT a trust label (Docker's chosen ingress interface is framework-dependent and caused
-  # the original BBABC regression). Source-CIDR exclusion encodes the project-contractual
-  # invariant "enclave-internal sources MUST NOT reach sentry's entry port" (enforced by
-  # ifrit's direct_sentry_probe and net_dnat_entry_reflection sorties in the tadmor suite).
-  # The previous -i UPLINK_IF rule satisfied this only by interface accident; dropping the
-  # classifier entirely is empirically refuted (direct_sentry_probe BREACH).
+  # Classification: destination port + per-IP source exclusion of the two enclave-internal
+  # containers (sentry and bottle/pentacle). RETURN short-circuit pattern — if source matches
+  # either enclave container IP, skip the DNAT; otherwise the unconditional DNAT below fires.
+  #
+  # Why per-IP and not whole-CIDR (! -s ENCLAVE_CIDR): on linux Docker Engine the host
+  # attaches to the enclave bridge as a peer with the bridge gateway IP (.1), which is inside
+  # the enclave CIDR by Docker convention. Whole-CIDR exclusion rejects every legitimate host
+  # SYN (empirically confirmed on cerebro: PREROUTING DNAT fired 0 times). Per-IP excludes
+  # exactly the threat surface — the two enclave container IPs known to compose — and lets
+  # the bridge gateway, Desktop's VM gateway (192.168.65.1), rootlesskit's synthetic source
+  # (10.0.2.100), and external clients all pass.
+  #
+  # Invariant defended: "enclave-internal sources MUST NOT reach sentry's entry port via DNAT"
+  # (ifrit's direct_sentry_probe and net_dnat_entry_reflection sorties).
   iptables -t nat -A PREROUTING -p tcp --dport "${RBRN_ENTRY_PORT_WORKSTATION}" \
-           ! -s "${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" \
+           -s "${RBRN_ENCLAVE_SENTRY_IP}" -j RETURN || exit 25
+  iptables -t nat -A PREROUTING -p tcp --dport "${RBRN_ENTRY_PORT_WORKSTATION}" \
+           -s "${RBRN_ENCLAVE_BOTTLE_IP}" -j RETURN || exit 25
+  iptables -t nat -A PREROUTING -p tcp --dport "${RBRN_ENTRY_PORT_WORKSTATION}" \
            -j DNAT --to-destination "${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE}" || exit 25
 
   # Return-path symmetry: MASQUERADE rewrites the source of the post-DNAT packet to
