@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y \
     iputils-ping    `# ICMP tests (pentacle role)`            \
     dnsutils        `# dig/nslookup (pentacle role)`          \
     procps          `# pidof/ps for process inspection`       \
+    tcpdump         `# Network probe diagnostic (scry)`       \
     && rm -rf /var/lib/apt/lists/*
 
 # Pin iptables-legacy backend (nftables not available in slim)
