@@ -6089,9 +6089,10 @@
         "₢A_AAJ",
         "₢A_AAc",
         "₢A_AAe",
-        "₢A_AAf"
+        "₢A_AAf",
+        "₢A_AAg"
       ],
-      "jjghn_next_pace_seed": "AAg",
+      "jjghn_next_pace_seed": "AAh",
       "jjghn_paces": {
         "₢A_AAA": {
           "jjgpn_tacks": [
@@ -6694,6 +6695,17 @@
               "jjgtn_text": "## Character\n\nTooling consideration — workflow gap.\n\n## Docket\n\nDecide whether scry should tolerate the case where target containers\ndon't exist yet at launch. Today scry's `docker exec tcpdump` children\nfail fast when containers are absent, the launcher's `wait` returns,\nand scry exits cleanly without ever capturing — making the workflow\n\"start scry, then charge in another shell\" impossible.\n\nOptions: poll-and-wait for containers with a timeout (default true),\nexplicit `--await` flag (opt-in), or no change (document the ordering\nrequirement).",
               "jjgtn_silks": "scry-charge-aware-lifecycle",
               "jjgtn_basis": "a7108cf"
+            }
+          ]
+        },
+        "₢A_AAg": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260512-1057",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nTooling consideration — agentic composability.\n\n## Docket\n\nDecide whether scry should support a bounded-run mode. Today scry\nruns until Ctrl+C; agentic and scripted callers need a `--duration N`\n(seconds) or `--packets N` (per-stream count) so the captured window\nis finite and `wait` returns naturally without signal handling.\n\nImplementation: propagate the bound to each tcpdump child via\n`timeout N` or `tcpdump -c N`. Default = current unbounded behavior.",
+              "jjgtn_silks": "scry-finite-duration-exit",
+              "jjgtn_basis": "fb55cfb"
             }
           ]
         }
