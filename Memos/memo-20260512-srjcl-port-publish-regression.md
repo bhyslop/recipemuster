@@ -439,15 +439,14 @@ Spec edits do NOT block the experiment. Memo first, code experiment second, spec
 
 ### Experiment protocol
 
-1. **Move the `ports:` directive** in `.rbk/rbob_compose.yml` from the `sentry` service block to the `pentacle` service block. The directive value (`"${RBRN_ENTRY_PORT_WORKSTATION}:${RBRN_ENTRY_PORT_WORKSTATION}"`) is unchanged.
+1. **Move the `ports:` directive** in `.rbk/rbob_compose.yml` from the `sentry` service block to the `pentacle` service block, AND change the mapping to the asymmetric form `"${RBRN_ENTRY_PORT_WORKSTATION}:${RBRN_ENTRY_PORT_ENCLAVE}"`. The prior `7999:7999` mapping relied on sentry's PREROUTING DNAT to translate port 7999 to bottle's 8000 (srjcl) or 8080 (pluml); without DNAT in the path, the publish itself must perform the port translation. For srjcl this becomes `"7999:8000"`; for pluml `"7999:8080"` (per nameplate `RBRN_ENTRY_PORT_ENCLAVE`).
 2. **Strip the entry-port iptables block** from `rbev-vessels/common-sentry-context/rbjs_sentry.sh`: the PREROUTING DNAT at line 125, the RBM-FORWARD ACCEPT at line 129, and any POSTROUTING MASQUERADE associated with the entry port. Leave the egress iptables (RBJp3, RBJp4) untouched.
-3. **(Recommended, same change-set) Add `NET_ADMIN` to bottle's `cap_drop:`** in `.rbk/rbob_compose.yml` (the bottle service block). Per Round 4's security envelope refinement; not required to validate the topology but should land in the same change.
-4. **Kludge the sentry vessel** locally (`tt/rbw-fk.LocalKludge.sh rbev-sentry-deb-tether`).
-5. **Refresh hallmarks** on srjcl and pluml (both share the sentry image; both have `RBRN_ENTRY_MODE=enabled`).
-6. **Run the pristine gauntlet** on both platforms:
-   - macOS: `tt/rbw-tP.QualifyPristine.sh`
-   - linux: same.
-7. **Verification gate**: `rbtdrc_srjcl_jupyter_connectivity` green on both platforms via full pristine gauntlet. Same gate as the iptables-fix path.
+3. **Lift `ip_forward` enablement out of the entry-port block.** The current entry-port block enables `ip_forward=1` as a side-effect (at `rbjs_sentry.sh:121-122`). For srjcl (allowlist) and ccyolo (global), `ip_forward` is re-enabled later (line ~148), so deletion is functionally a no-op. For pluml (access_mode=disabled), deletion leaves `ip_forward=0`. Lift the enablement to an unconditional earlier line in `rbjs_sentry.sh` so kernel-forward state is independent of which iptables installation block runs. Pluml's outbound remains iptables-blocked by the access-mode disabled path; lifting only normalizes the kernel state.
+4. **(Recommended, same change-set) Add `NET_ADMIN` to bottle's `cap_drop:`** in `.rbk/rbob_compose.yml` (the bottle service block, currently `cap_drop: [NET_RAW]` at line ~89). Per Round 4's security envelope refinement.
+5. **Kludge the sentry vessel** locally (`tt/rbw-fk.LocalKludge.sh rbev-sentry-deb-tether`).
+6. **Refresh hallmarks on EVERY nameplate exercised in the test iteration.** The sentry vessel is shared across srjcl, pluml, tadmor, moriah, and ccyolo; if any of these nameplates run in the iteration with an unrefreshed hallmark, that fixture exercises the OLD sentry image and its pass/fail tells you nothing about the new image. For the three-fixture iteration (srjcl + pluml + tadmor): refresh all three (`tt/rbw-cKS.KludgeSentry.sh srjcl`, same for pluml, same for tadmor). For the full pristine gauntlet: refresh every nameplate that uses the sentry vessel.
+7. **Run the test suite.** For an iteration: sequential three-fixture run (srjcl + pluml + tadmor). For canonical verification: `tt/rbw-tP.QualifyPristine.sh` on both platforms.
+8. **Verification gate**: `rbtdrc_srjcl_jupyter_connectivity` green on both platforms via full pristine gauntlet. The three-fixture iteration is an early-signal cycle; canonical pass requires the full gauntlet.
 
 ### Empirical observations to record during the experiment
 
