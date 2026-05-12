@@ -6090,9 +6090,10 @@
         "₢A_AAc",
         "₢A_AAe",
         "₢A_AAf",
-        "₢A_AAg"
+        "₢A_AAg",
+        "₢A_AAh"
       ],
-      "jjghn_next_pace_seed": "AAh",
+      "jjghn_next_pace_seed": "AAi",
       "jjghn_paces": {
         "₢A_AAA": {
           "jjgpn_tacks": [
@@ -6706,6 +6707,17 @@
               "jjgtn_text": "## Character\n\nTooling consideration — agentic composability.\n\n## Docket\n\nDecide whether scry should support a bounded-run mode. Today scry\nruns until Ctrl+C; agentic and scripted callers need a `--duration N`\n(seconds) or `--packets N` (per-stream count) so the captured window\nis finite and `wait` returns naturally without signal handling.\n\nImplementation: propagate the bound to each tcpdump child via\n`timeout N` or `tcpdump -c N`. Default = current unbounded behavior.",
               "jjgtn_silks": "scry-finite-duration-exit",
               "jjgtn_basis": "fb55cfb"
+            }
+          ]
+        },
+        "₢A_AAh": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260512-1057",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nTooling consideration — signal-to-noise.\n\n## Docket\n\nDecide whether scry should accept an optional positional tcpdump filter\nexpression. Today scry runs unfiltered captures; output is dominated by\nroutine mDNS (5353), ICMPv6 router solicitations, and ARP chatter, and\nthe interesting traffic gets buried. With a filter arg the targeted\nform becomes `tt/rbw-cs.Scry.sh srjcl 'tcp port 7999 or tcp port 8000'`.\n\nDefault = no filter (current behavior). Quoting/escaping of the\nexpression across the BUK dispatch layer needs verification.",
+              "jjgtn_silks": "scry-filter-argument",
+              "jjgtn_basis": "315911e"
             }
           ]
         }
