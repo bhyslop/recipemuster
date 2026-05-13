@@ -515,7 +515,7 @@ zrbgp_create_gcs_bucket() {
 rbgp_payor_install() {
   zrbgp_sentinel
 
-  local -r z_oauth_json_file="${1:-}"
+  local -r z_oauth_json_file="${BUZ_FOLIO:-}"
 
   buc_doc_brief "Install Payor OAuth credentials from client JSON file following RBAGS specification"
   buc_doc_param "oauth_json_file" "Path to downloaded OAuth client JSON file from establish procedure"
