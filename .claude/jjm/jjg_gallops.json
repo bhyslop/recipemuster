@@ -6695,6 +6695,13 @@
         "₢A_AAo": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260513-1218",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\n\nDone-pending hybrid: structural fix landed this session; data-state\ncleanup remains. Open this pace next session to do the cleanup.\n\n## What landed\n\nDepot fact files moved to `<cloud_prefix>/<moniker>.depot` layout to\nprevent same-moniker collisions across cloud_prefixes. Surfaced when\n`rbw-dl` FATAL'd on `canest2bhm100002` existing under both `cancbhl`\nand `cancbhm`. See the notch that affiliates with this pace for the\ndiff and rationale.\n\n## What remains: delete all existing depots\n\nThe current depot population (39 projects) predates the fix and\nincludes the live moniker duplicate. Wiping it gives future levies a\nclean substrate matching the new invariants.\n\n- Re-list: `rbw-dl.PayorListsDepots.sh`\n- For each ACTIVE depot: `rbw-dU.PayorUnmakesDepot.sh <project_id>`\n- 24 are already in DELETE_REQUESTED; ~15 to unmake by hand\n\nDone when `rbw-dl` reports zero COMPLETE depots (only\nDELETE_REQUESTED remain).",
+              "jjgtn_silks": "depot-fact-files-namespaced-by-cloud-prefix",
+              "jjgtn_basis": "17a712e"
+            },
+            {
               "jjgtn_ts": "260513-0823",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\n\nDone-pending hybrid: structural fix landed this session; data-state\ncleanup remains. Open this pace next session to do the cleanup.\n\n## What landed\n\nDepot fact files moved to `<cloud_prefix>/<moniker>.depot` layout to\nprevent same-moniker collisions across cloud_prefixes. Surfaced when\n`rbw-dl` FATAL'd on `canest2bhm100002` existing under both `cancbhl`\nand `cancbhm`. See the notch that affiliates with this pace for the\ndiff and rationale.\n\n## What remains: delete all existing depots\n\nThe current depot population (39 projects) predates the fix and\nincludes the live moniker duplicate. Wiping it gives future levies a\nclean substrate matching the new invariants.\n\n- Re-list: `rbw-dl.PayorListsDepots.sh`\n- For each ACTIVE depot: `rbw-dU.PayorUnmakesDepot.sh <project_id>`\n- 24 are already in DELETE_REQUESTED; ~15 to unmake by hand\n\nDone when `rbw-dl` reports zero COMPLETE depots (only\nDELETE_REQUESTED remain).",
