@@ -652,11 +652,16 @@ rbgu_extract_json_to_rbra() {
   fi
 
   buc_log_args 'Write RBRA file'
+  # CAUTION: jq -r unescapes JSON \n to real newlines, so z_private_key holds a
+  # multi-line PEM string. printf '%s' below preserves real newlines into the
+  # RBRA file. Consumer (rbgo_OAuth.sh:zrbgo_build_jwt_capture) tolerates either
+  # real-newline or '\n'-escape form via printf '%b'; do not "normalize" to one
+  # form without auditing the consumer.
   {
-    printf 'RBRA_CLIENT_EMAIL="%s"\n'      "$z_client_email"
-    printf 'RBRA_PRIVATE_KEY="'; printf '%s' "$z_private_key"; printf '"\n'
-    printf 'RBRA_PROJECT_ID="%s"\n'        "$z_project_id"
-    printf 'RBRA_TOKEN_LIFETIME_SEC=%s\n'  "$z_lifetime_sec"
+    printf 'RBRA_CLIENT_EMAIL="%s"\n'      "${z_client_email}"
+    printf 'RBRA_PRIVATE_KEY="'; printf '%s' "${z_private_key}"; printf '"\n'
+    printf 'RBRA_PROJECT_ID="%s"\n'        "${z_project_id}"
+    printf 'RBRA_TOKEN_LIFETIME_SEC=%s\n'  "${z_lifetime_sec}"
   } > "${z_rbra_path}" || buc_die "Failed to write RBRA file ${z_rbra_path}"
 
   test -f "${z_rbra_path}" || buc_die "Failed to write RBRA file: ${z_rbra_path}"
@@ -839,7 +844,11 @@ rbgu_rbra_load() {
 }
 
 # RBTOE: RBRO Load Pattern
-# Loads and validates RBRO credentials
+# Thin wrapper: defensively sources rbro_regime.sh (callers don't need to know
+# its path, which moved under AAD's payor/ subdirectory migration), then
+# delegates to rbro_load. Parallels rbgu_rbra_load at the call-signature level
+# even though that function carries its own validation; the uniform rbgu_*
+# load-through-utility convention is the load-bearing reason this wrapper exists.
 rbgu_rbro_load() {
   zrbgu_sentinel
 

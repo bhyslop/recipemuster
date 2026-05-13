@@ -47,7 +47,6 @@ zrbgo_kindle() {
   readonly ZRBGO_JWT_UNSIGNED_FILE="${BURD_TEMP_DIR}/rbgo_jwt_unsigned.txt"
   readonly ZRBGO_JWT_SIGNATURE_FILE="${BURD_TEMP_DIR}/rbgo_jwt_signature.txt"
   readonly ZRBGO_OAUTH_RESPONSE_FILE="${BURD_TEMP_DIR}/rbgo_oauth_response.json"
-  readonly ZRBGO_PRIVATE_KEY_FILE="${BURD_TEMP_DIR}/rbgo_private_key.pem"
   readonly ZRBGO_OPENSSL_STDERR_FILE="${BURD_TEMP_DIR}/rbgo_openssl_stderr.txt"
   readonly ZRBGO_CURL_STDERR_FILE="${BURD_TEMP_DIR}/rbgo_curl_stderr.txt"
   readonly ZRBGO_JQ_STDERR_FILE="${BURD_TEMP_DIR}/rbgo_jq_stderr.txt"
@@ -83,7 +82,9 @@ zrbgo_build_jwt_capture() {
   local -r z_rbra_file="$1"
 
   # RBRA_* expected: CLIENT_EMAIL, PRIVATE_KEY, TOKEN_LIFETIME_SEC
-  # RBRA_PRIVATE_KEY contains \n sequences that must become real newlines for openssl
+  # RBRA_PRIVATE_KEY is sourced as a multi-line string (real newlines from PEM).
+  # printf '%b' below is defensive and tolerates either real-newline or '\n'-escape
+  # form; PEM keys contain no backslashes so %b is otherwise a no-op.
   # Only source if not already loaded (avoids readonly conflict in subshells)
   if test -z "${RBRA_CLIENT_EMAIL:-}"; then
     buc_log_args "Source RBRA file"
@@ -176,6 +177,12 @@ zrbgo_exchange_jwt_capture() {
     sleep "${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}"
   done
 
+  # Scrubber filters by field NAME, not value. Deliberate best-effort log hygiene:
+  # explicitly deletes access_token/refresh_token, then drops any field whose key
+  # matches token|secret|key|password (case-insensitive) — catches id_token,
+  # client_secret, etc. If the OAuth provider ever returns a new secret-carrying
+  # field whose name doesn't match this regex, the scrub would miss it; update
+  # the regex here when that happens.
   buc_log_args "Debug: Show the actual response (minus secrets)"
   jq 'del(.access_token, .refresh_token)
       | with_entries(select(.key | test("token|secret|key|password"; "i") | not))' \

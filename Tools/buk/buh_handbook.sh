@@ -236,6 +236,18 @@ buh_prompt() {
   printf '%s' "${z_input}"
 }
 
+# buh_prompt_secret "prompt text"
+# Like buh_prompt but suppresses terminal echo of typed/pasted input.
+# Emits a trailing newline to stderr so subsequent output starts on a fresh line.
+buh_prompt_secret() {
+  zbuh_sentinel
+  printf '%s' "${1:-}" >&2
+  local z_input
+  read -rs z_input
+  printf '\n' >&2
+  printf '%s' "${z_input}"
+}
+
 # buh_prompt_required "prompt text" "error message"
 # Like buh_prompt but dies if input is empty
 buh_prompt_required() {

@@ -38,6 +38,11 @@ set -euo pipefail
 test -z "${ZRBGG_SOURCED:-}" || buc_die "Module rbgg multiply sourced - check sourcing hierarchy"
 ZRBGG_SOURCED=1
 
+# shellcheck disable=SC2153
+# ZRBGU_PREFIX and ZRBGU_POSTFIX_* are defined in rbgu_Utility.sh and shared
+# across modules via the kindle/sentinel chain (zrbgu_sentinel asserted in
+# zrbgg_kindle). Shellcheck cannot follow the runtime sourcing graph.
+
 ######################################################################
 # Internal Functions (zrbgg_*)
 
@@ -279,11 +284,16 @@ zrbgg_create_service_account_with_key() {
     || buc_die "Failed to extract project_id from key JSON"
 
   buc_step 'Write RBRA file' "${z_rbra_file}"
+  # CAUTION: jq -r unescapes JSON \n to real newlines, so z_private_key holds a
+  # multi-line PEM string. printf '%s' below preserves real newlines into the
+  # RBRA file. Consumer (rbgo_OAuth.sh:zrbgo_build_jwt_capture) tolerates either
+  # real-newline or '\n'-escape form via printf '%b'; do not "normalize" to one
+  # form without auditing the consumer.
   {
     printf 'RBRA_ROLE=%s\n'                  "${z_role}"
-    printf 'RBRA_CLIENT_EMAIL="%s"\n'      "$z_client_email"
-    printf 'RBRA_PRIVATE_KEY="'; printf '%s' "$z_private_key"; printf '"\n'
-    printf 'RBRA_PROJECT_ID="%s"\n'        "$z_project_id"
+    printf 'RBRA_CLIENT_EMAIL="%s"\n'      "${z_client_email}"
+    printf 'RBRA_PRIVATE_KEY="'; printf '%s' "${z_private_key}"; printf '"\n'
+    printf 'RBRA_PROJECT_ID="%s"\n'        "${z_project_id}"
     printf 'RBRA_TOKEN_LIFETIME_SEC=1800\n'
   } > "${z_rbra_file}" || buc_die "Failed to write RBRA file ${z_rbra_file}"
 

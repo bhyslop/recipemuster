@@ -17,12 +17,28 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # Recipe Bottle GCP Payor - Billing and Destructive Lifecycle Operations
+#
+# Scope: this file mixes two concerns; entry points are interleaved.
+#   OAuth credential flow:
+#     zrbgp_refresh_capture         (~76)   refresh-token exchange
+#     zrbgp_authenticate_capture    (~122)  load + exchange
+#     rbgp_payor_install            (~400)  full install ceremony
+#     rbgp_payor_oauth_refresh      (~1229) display refresh procedure
+#   Depot lifecycle operations:
+#     zrbgp_billing_attach/detach, liens, bucket helpers (~196-395)
+#     rbgp_depot_levy / unmake / list (~568-1163)
+#     rbgp_governor_mantle          (~1268) Governor SA reset (writes RBRA)
 
 set -euo pipefail
 
 # Multiple inclusion detection
 test -z "${ZRBGP_SOURCED:-}" || buc_die "Module rbgp multiply sourced - check sourcing hierarchy"
 ZRBGP_SOURCED=1
+
+# shellcheck disable=SC2153
+# ZRBGU_PREFIX and ZRBGU_POSTFIX_* are defined in rbgu_Utility.sh and shared
+# across modules via the kindle/sentinel chain (zrbgu_sentinel asserted in
+# zrbgp_kindle). Shellcheck cannot follow the runtime sourcing graph.
 
 ######################################################################
 # Internal Functions (zrbgp_*)
@@ -43,24 +59,17 @@ zrbgp_kindle() {
   readonly ZRBGP_SCRATCH_FILE="${BURD_TEMP_DIR}/rbgp_scratch.txt"
 
   # Infix values for HTTP operations
-  readonly ZRBGP_INFIX_PROJECT_DELETE="project_delete"
-  readonly ZRBGP_INFIX_PROJECT_RESTORE="project_restore"
-  readonly ZRBGP_INFIX_PROJECT_STATE="project_state"
   readonly ZRBGP_INFIX_LIST_LIENS="list_liens"
   readonly ZRBGP_INFIX_DELETE_LIEN="delete_lien"
   readonly ZRBGP_INFIX_BILLING_ATTACH="billing_attach"
   readonly ZRBGP_INFIX_BILLING_DETACH="billing_detach"
-  readonly ZRBGP_INFIX_CREATE_REPO="create_repo"
-  readonly ZRBGP_INFIX_VERIFY_REPO="verify_repo"
   readonly ZRBGP_INFIX_PROJECT_INFO="project_info"
   readonly ZRBGP_INFIX_BUCKET_CREATE="bucket_create"
   readonly ZRBGP_INFIX_API_CHECK="api_checking"
   readonly ZRBGP_INFIX_GOV_LIST_SA="gov_list_sa"
   readonly ZRBGP_INFIX_GOV_DELETE_SA="gov_delete_sa"
   readonly ZRBGP_INFIX_GOV_CREATE_SA="gov_create_sa"
-  readonly ZRBGP_INFIX_GOV_VERIFY_SA="gov_verify_sa"
   readonly ZRBGP_INFIX_GOV_KEY="gov_key"
-  readonly ZRBGP_INFIX_GOV_IAM="gov_iam"
 
   readonly ZRBGP_KINDLED=1
 }
@@ -99,7 +108,7 @@ zrbgp_refresh_capture() {
       --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
       -H "Content-Type: application/json" \
       -d @- \
-      "https://oauth2.googleapis.com/token") || buc_die "Failed to execute OAuth refresh request"
+      "${RBGC_OAUTH_TOKEN_URL}") || buc_die "Failed to execute OAuth refresh request"
 
   # Check for error in response
   local z_error
@@ -118,7 +127,11 @@ zrbgp_refresh_capture() {
 }
 
 # RBTOE: Payor OAuth Authentication Pattern
-# Establishes Payor OAuth context by loading RBRO credentials and obtaining access token
+# Establishes Payor OAuth context by loading RBRO credentials and obtaining access token.
+# Tokens are deliberately not cached — each call refreshes. Rationale: simplicity
+# and freshness; refresh tokens are long-lived so the extra roundtrips are cheap
+# relative to the depot operations they authorize, and uncached tokens can't grow
+# stale between distinct Payor ceremonies.
 zrbgp_authenticate_capture() {
   zrbgp_sentinel
   
@@ -542,7 +555,7 @@ rbgp_payor_install() {
 
   local z_refresh_token=""
   buc_step 'OAuth authorization flow'
-  local -r z_auth_url="https://accounts.google.com/o/oauth2/v2/auth?client_id=${z_client_id}&redirect_uri=urn:ietf:wg:oauth:2.0:oob&scope=openid%20email%20https://www.googleapis.com/auth/cloud-platform%20https://www.googleapis.com/auth/cloud-billing&response_type=code&access_type=offline"
+  local -r z_auth_url="${RBGC_OAUTH_AUTHORIZE_URL}?client_id=${z_client_id}&redirect_uri=urn:ietf:wg:oauth:2.0:oob&scope=openid%20email%20https://www.googleapis.com/auth/cloud-platform%20https://www.googleapis.com/auth/cloud-billing&response_type=code&access_type=offline"
 
   buh_e
   buh_link "Open this URL in your browser: " "Google OAuth Authorization" "${z_auth_url}"
@@ -560,7 +573,7 @@ rbgp_payor_install() {
   buh_line "  4. Authorization code will be displayed"
   buh_e
   local z_auth_code
-  z_auth_code=$(buh_prompt "Copy the authorization code and paste here: ")
+  z_auth_code=$(buh_prompt_secret "Copy the authorization code and paste here: ")
   test -n "${z_auth_code}" || buc_die "Authorization code is required"
 
   buc_log_args "Exchanging authorization code for tokens"
@@ -584,7 +597,7 @@ rbgp_payor_install() {
       --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
       -H "Content-Type: application/json" \
       -d @- \
-      "https://oauth2.googleapis.com/token") || buc_die "Failed to execute token exchange request"
+      "${RBGC_OAUTH_TOKEN_URL}") || buc_die "Failed to execute token exchange request"
 
   # Check for error in response
   local z_error
@@ -604,10 +617,13 @@ rbgp_payor_install() {
   chmod 700 "${z_rbro_dir}" || buc_die "Failed to set credentials directory permissions"
 
   buc_step 'Store OAuth credentials'
-  {
-    echo "RBRO_CLIENT_SECRET=${z_client_secret}"
-    echo "RBRO_REFRESH_TOKEN=${z_refresh_token}"
-  } > "${z_rbro_file}" || buc_die "Failed to write RBRO credentials file"
+  (
+    umask 077
+    {
+      echo "RBRO_CLIENT_SECRET=${z_client_secret}"
+      echo "RBRO_REFRESH_TOKEN=${z_refresh_token}"
+    } > "${z_rbro_file}"
+  ) || buc_die "Failed to write RBRO credentials file"
   chmod 600 "${z_rbro_file}" || buc_die "Failed to set RBRO file permissions"
   
   buc_step 'Validate public configuration'
@@ -637,7 +653,7 @@ rbgp_payor_install() {
   test -n "${z_access_token}" || buc_die "OAuth authentication test returned empty token"
   
   buc_step 'Discover operator email'
-  rbgu_http_json "GET" "https://www.googleapis.com/oauth2/v3/userinfo" "${z_access_token}" "payor_userinfo"
+  rbgu_http_json "GET" "${RBGC_OAUTH_USERINFO_URL}" "${z_access_token}" "payor_userinfo"
   rbgu_http_require_ok "Discover operator email" "payor_userinfo"
   local z_operator_email
   z_operator_email=$(rbgu_json_field_capture "payor_userinfo" '.email') \
@@ -1454,6 +1470,11 @@ rbgp_governor_mantle() {
   test -n "${z_project_id}" || buc_die "Empty project_id in key JSON"
 
   buc_step 'Write RBRA file' "${z_rbra_file}"
+  # CAUTION: jq -r unescapes JSON \n to real newlines, so z_private_key holds a
+  # multi-line PEM string. printf '%s' below preserves real newlines into the
+  # RBRA file. Consumer (rbgo_OAuth.sh:zrbgo_build_jwt_capture) tolerates either
+  # real-newline or '\n'-escape form via printf '%b'; do not "normalize" to one
+  # form without auditing the consumer.
   {
     printf 'RBRA_ROLE=%s\n' "${RBCC_role_governor}"
     printf 'RBRA_CLIENT_EMAIL="%s"\n'      "${z_client_email}"

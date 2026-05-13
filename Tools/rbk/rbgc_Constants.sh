@@ -81,6 +81,8 @@ zrbgc_kindle() {
 
   # URL Roots & Well-known Endpoints
   readonly RBGC_OAUTH_TOKEN_URL="https://oauth2.googleapis.com/token"
+  readonly RBGC_OAUTH_AUTHORIZE_URL="https://accounts.google.com/o/oauth2/v2/auth"
+  readonly RBGC_OAUTH_USERINFO_URL="https://www.googleapis.com/oauth2/v3/userinfo"
   readonly RBGC_API_ROOT_IAM="https://iam.googleapis.com"
   readonly RBGC_API_ROOT_CRM="https://cloudresourcemanager.googleapis.com"
   readonly RBGC_API_ROOT_SERVICEUSAGE="https://serviceusage.googleapis.com"

@@ -46,6 +46,9 @@ zrbrp_kindle() {
   buv_string_enroll  RBRP_BILLING_ACCOUNT_ID  0  20  "Billing account for depot projects"
 
   buv_group_enroll "OAuth Configuration"
+  # min=0 deliberate — not every operator has a Payor identity (Retriever-only
+  # operators authenticate via JWT SA, never via Payor OAuth). Required-at-use
+  # is enforced by test -n in rbgp_Payor.sh consumers. Do not tighten to min=1.
   buv_string_enroll  RBRP_OAUTH_CLIENT_ID  0  256  "OAuth 2.0 client identifier"
 
   buv_group_enroll "Operator Identity"
