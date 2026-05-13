@@ -68,6 +68,8 @@ link:https://github.com/opencontainers/distribution-spec/blob/main/spec.md#delet
 HTTP 202 (Accepted) or 204 (No Content) response
 .. {rbbc_fatal}
 if jettison fails: "Jettison failed with HTTP «STATUS_CODE»"
+.. NOTE: V2 DELETE-by-tag has producer-side asymmetric semantics. For single-platform pushes (`docker push`), the tag points to a single image manifest; DELETE removes it, the package becomes empty, and GAR drops the package container from `ListPackages`. For multi-platform pushes (`docker buildx --push`, `skopeo copy --all`), the tag points to an OCI image index referencing N per-platform child manifests; DELETE removes only the index, leaving the N children as untagged orphan content. The package container persists in `ListPackages` because it still holds those untagged child manifests.
+.. NOTE: The orphan-children residue is reclaimed autonomously by the depot's GAR cleanup policy — see {rbtgo_depot_levy} step *Create Container Repository* for the policy install, schema-verification sources, and cadence semantics. User-facing display surfaces ({rbtgo_hallmark_tally} and {rbtgo_image_rekon}) filter out packages with zero live tags, so tooling output reflects the correct post-jettison state immediately even though GAR-side reclamation is lazy. External observers querying GAR REST `ListPackages` directly will see the walking-dead package container until the cleanup policy's next run.
 
 //axhoot_typed_output
 {rbst_locator}

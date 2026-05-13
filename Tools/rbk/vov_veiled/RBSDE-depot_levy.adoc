@@ -128,8 +128,28 @@ link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.
 ... format: `DOCKER`
 ... location: `{rbrr_gcp_region}`
 ... parent: `projects/«DEPOT_PROJECT_ID»/locations/{rbrr_gcp_region}`
+... cleanupPolicyDryRun: `false` (active mode — eligible artifacts are deleted, not just logged)
+... cleanupPolicies: a map keyed by policy ID with a single entry:
++
+----
+{
+  "rb-delete-untagged": {
+    "id": "rb-delete-untagged",
+    "action": "DELETE",
+    "condition": {
+      "tagState": "UNTAGGED",
+      "olderThan": "86400s"
+    }
+  }
+}
+----
 .. {rbbc_await}
 returned operation
+.. NOTE: The cleanup policy underwrites the multi-platform contract documented in {rbtgo_image_delete}. V2 DELETE-by-tag against an OCI image index removes only the parent manifest, leaving per-platform children as untagged orphan content. GAR's cleanup background job (executes ~daily on Google's schedule, exact time unspecified) deletes manifests matching this policy on its next run; layer storage is reclaimed by GAR's separate daily layer-GC job. The 86400s (1-day) `olderThan` is measured from manifest creation time, not from when the manifest became untagged — orphans become eligible once they have existed in GAR for at least one day and are reaped on the next subsequent daily cleanup execution.
+.. NOTE: REST schema verified against canonical sources. `cleanupPolicies` is a *map* keyed by policy ID, not an array — the gcloud CLI policy-file format used with `gcloud artifacts repositories set-cleanup-policies --policy=FILE` is a different (array, nested `{type: "Delete"}` action) schema that does not apply to this REST call. `action` is a *string enum* with values `ACTION_UNSPECIFIED | DELETE | KEEP`. `condition.tagState` enum values: `TAGGED | UNTAGGED | ANY`. `condition.olderThan` is a Duration-format string (seconds + `s` suffix). Maximum 10 cleanup policies per repository (this clause uses one). Schema sources for future re-verification:
+... link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories[Repository resource reference] — `cleanupPolicies` and `cleanupPolicyDryRun` field shapes
+... link:https://artifactregistry.googleapis.com/$discovery/rest?version=v1[Discovery document v1] — canonical CleanupPolicy / CleanupPolicyCondition schemas (authoritative for action enum values, condition field types)
+... link:https://cloud.google.com/artifact-registry/docs/repositories/cleanup-policy[Configure cleanup policies] — concept guide, daily-cadence statement, dry-run semantics
 
 //axhos_step
 . *Create

@@ -53,8 +53,10 @@ link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.
 .. {rbbc_require}
 HTTP 200 response
 .. Extract `.packages[].name`, strip the resource prefix, URL-decode `%2F` back to `/`, and retain only entries beginning with `«HALLMARKS_ROOT»/`
+.. For each retained `<hallmark>/<basename>` package, {rbbc_call}
+link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.packages.tags/list[GAR REST API: tags.list] for the package and {rbbc_require} at least one tag returned (HTTP 200 with non-empty `.tags[]`). Skip packages with zero tags — these are post-jettison walking-dead awaiting the depot's cleanup policy (see {rbtgo_depot_levy} step *Create Container Repository*). Filtering at this read site decouples the display from GAR's lazy reclamation cadence.
 .. {rbbc_store}
-`«HALLMARK_ROWS»` as `«HALLMARK» «BASENAME»` pairs derived from those entries (a 2-deep enumeration)
+`«HALLMARK_ROWS»` as `«HALLMARK» «BASENAME»` pairs derived from the live-tagged entries (a 2-deep enumeration)
 
 //axhos_step
 . *Filter to Input Hallmark*:
@@ -118,8 +120,10 @@ link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.
 .. {rbbc_require}
 HTTP 200 response
 .. Extract `.packages[].name`, strip the resource prefix, URL-decode `%2F` back to `/`, and retain only entries beginning with `«RELIQUARIES_ROOT»/`
+.. For each retained `<stamp>/<tool>` package, {rbbc_call}
+link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.packages.tags/list[GAR REST API: tags.list] for the package and {rbbc_require} at least one tag returned (HTTP 200 with non-empty `.tags[]`). Skip packages with zero tags — these are post-jettison walking-dead awaiting the depot's cleanup policy (see {rbtgo_depot_levy} step *Create Container Repository*). Filtering at this read site decouples the display from GAR's lazy reclamation cadence.
 .. {rbbc_store}
-`«RELIQUARY_ROWS»` as `«STAMP» «TOOL»` pairs derived from those entries (a 2-deep enumeration)
+`«RELIQUARY_ROWS»` as `«STAMP» «TOOL»` pairs derived from the live-tagged entries (a 2-deep enumeration)
 
 //axhos_step
 . *Filter to Input Stamp*:

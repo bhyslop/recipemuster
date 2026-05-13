@@ -39,8 +39,10 @@ link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.
 HTTP 200 response
 .. Extract `.packages[].name` from the response, strip the resource prefix, and URL-decode `%2F` back to `/`
 .. Filter to names whose path under `«HALLMARKS_ROOT»/` is exactly two segments (`<hallmark>/<basename>`); excludes both shallower and deeper entries, and excludes anything outside `{gar_hallmarks_namespace}/` (reliquaries, enshrines)
+.. For each retained `<hallmark>/<basename>` package, {rbbc_call}
+link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.packages.tags/list[GAR REST API: tags.list] for the package and {rbbc_require} at least one tag returned (HTTP 200 with non-empty `.tags[]`). Skip packages with zero tags — these are post-jettison walking-dead: their parent manifest has been deleted by {rbtgo_image_delete} but their orphan children persist until the depot's cleanup policy (see {rbtgo_depot_levy} step *Create Container Repository*) reaps them on its next daily run. Filtering at this read site makes the display reflect the post-jettison user-facing state immediately, decoupling it from GAR's lazy reclamation cadence.
 .. {rbbc_store}
-`«PAIRS»` as sorted `<hallmark> <basename>` pairs (one per line). An empty result is a valid outcome — no hallmarks in the repository.
+`«PAIRS»` as sorted `<hallmark> <basename>` pairs (one per line) for packages with at least one live tag. An empty result is a valid outcome — no hallmarks in the repository.
 
 //axhos_step
 . *Classify Health Per Hallmark*:
