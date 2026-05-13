@@ -69,7 +69,7 @@ Compound Lodes hold a manifest of sub-Lode references; sub-Lodes are first-class
 
 ## Vocabulary parked
 
-- **Lode** chosen as the universal recipe noun. **Unction** held as the strongest rejected alternative (religious register, RBRU_ free, but verb-coupled meaning). **Oblate** rejected — RBRO_ collides with OAuth regime.
+- **Lode** chosen as the universal recipe noun. **Unction** held as the strongest rejected alternative (religious register, RBRU_ free, but verb-coupled meaning). **Oblate** rejected — RBRO_ collides with OAuth regime. Namespace collision discovered post-paddock: the AWS-side delivered-artifact prose vocabulary in RBSHR's Cross-cloud cluster previously used "Lode" (informal, never a quoin). That occupant was renamed to **Bullion** — financial-vault register fits S3-Object-Lock semantics, content-addressed bullion-bar metaphor maps cleanly to the actual content-addressing scheme, and the rename clears the namespace so Lode-as-universal-recipe-noun is unambiguous.
 - **Reliquary** demoted from top-level noun to a kind enum value. Word survives; cult-vocabulary weight reduced.
 - **{INSTANCE_NOUN}** (the specific-capture noun, parallel to Hallmark) is open. Letter-collision constraint with established project nouns leaves few unused letters; review needed before naming. Anchor was floated as the natural-preserving choice but flagged as uncertain.
 - Three cohort options considered: α Reliquary-as-grouping abstraction, β Compound Lode, γ no grouping concept. γ rejected by date-cohort load-bearing test (vessels constrain Cloud Build toolsets by cohort); α rejected as wrong-direction (promotes a cult noun rather than reducing); β chosen.
@@ -87,3 +87,5 @@ Planning/design heat — no paces yet. Paddock encodes the model and the recipes
 - `Tools/rbk/vov_veiled/FUTURE/rbv_PodmanVM.sh` — concrete podman-vm pipeline; reveals fan-out structure and two-source quay split
 - BUSJCW CaparisonWindows, BUSJGW GarrisonWsl, BUSJIW InvigilateWindows — `wsl` kind consequences on Windows workload
 - CLAUDE.md "Prefix Naming Discipline" and "Quoin Sub-Letter Discipline" — guide spec letter allocation
+- RBSHR-HorizonRoadmap.adoc — public-facing horizon entries for revised enshrine and Windows host workstation support
+- README.md — Host-platform-scope note and Windows-host-support Roadmap entry consistent with this heat's intent
