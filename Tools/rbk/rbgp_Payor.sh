@@ -560,17 +560,19 @@ rbgp_payor_install() {
   buh_e
   buh_link "Open this URL in your browser: " "Google OAuth Authorization" "${z_auth_url}"
   buh_e
-  buh_line "You will see three or four screens:"
+  buh_line "You will see four or five screens:"
   buyy_ui_yawp "Choose an account"; local -r z_yelp_choose="${z_buym_yelp}"
   buh_line "  1. ${z_yelp_choose} - Select the Google account for this payor"
+  buyy_ui_yawp "Sign in to Recipe Bottle Payor"; local -r z_yelp_signin="${z_buym_yelp}"
+  buyy_ui_yawp "Continue"; local -r z_yelp_continue="${z_buym_yelp}"
+  buh_line "  2. ${z_yelp_signin} - Confirms account selection and previews the email-address scope; click ${z_yelp_continue}"
   buyy_ui_yawp "Google hasn't verified this app"; local -r z_yelp_unverified="${z_buym_yelp}"
-  buh_line "  2. If screen says ${z_yelp_unverified}, click Continue"
+  buh_line "  3. If screen says ${z_yelp_unverified}, click ${z_yelp_continue}"
   buh_line "     Otherwise, proceed to next step"
   buyy_ui_yawp "Recipe Bottle Payor wants access"; local -r z_yelp_access="${z_buym_yelp}"
-  buh_line "  3. ${z_yelp_access} - Review the requested permissions"
-  buyy_ui_yawp "Continue"; local -r z_yelp_continue="${z_buym_yelp}"
+  buh_line "  4. ${z_yelp_access} - Review the requested permissions"
   buh_line "     Check the permission checkboxes to grant access, then click ${z_yelp_continue}"
-  buh_line "  4. Authorization code will be displayed"
+  buh_line "  5. Authorization code will be displayed"
   buh_e
   local z_auth_code
   z_auth_code=$(buh_prompt_secret "Copy the authorization code and paste here: ")
