@@ -1,8 +1,9 @@
 //axhob_operation
 {scr_port_setup}
 
-If {rbrn_entry_mode} is disabled, this sequence is skipped.
-If {rbrn_entry_mode} is enabled, this sequence configures entry port forwarding using kernel-level iptables DNAT.
+This operation sets kernel network state for sentry's forwarding role.
+IP forwarding (Step 1) and the ephemeral port range (Step 2) are unconditional.
+Reverse path filtering (Step 3) and the entry-port iptables rules (Steps 4-6) apply when {rbrn_entry_mode} is enabled; if {rbrn_entry_mode} is disabled, those steps are skipped.
 No userspace proxy is involved; the kernel forwards packets directly.
 
 //axhos_step
