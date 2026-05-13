@@ -184,7 +184,7 @@ Cross-reference: the existing "CIDR allowlist granularity vs CDN-hosted domains"
 Recipe Bottle governs identities and infrastructure only in GCP.
 AWS-side presence is shaped as delivered artifacts and policy templates, not owned principals — no AWS-Director, no AWS-Mason, no AWS-Retriever.
 If Recipe Bottle ever needs to *build* in AWS rather than deliver to it, that would be a deliberate architectural decision triggering a full parallel role hierarchy, not an incremental drift.
-Vocabulary used in related entries — embassy, envoy, lode, entrust, accredit, recall, chantry — is tentative working language from a design conversation; concepts are firmer than the words.
+Vocabulary used in related entries — embassy, envoy, bullion, entrust, accredit, recall, chantry — is tentative working language from a design conversation; concepts are firmer than the words.
 _Trigger_: when AWS-side work moves into a heat with real scope.
 _Reference_: this roadmap entry; design conversation pending heat.
 
@@ -209,12 +209,12 @@ Preserves credential locality: Director holds only GCP credentials on the workst
 _Trigger_: embassy entry above.
 _Reference_: this roadmap entry.
 
-**Lode — AWS-side content-addressed artifact.**
+**Bullion — AWS-side content-addressed artifact.**
 Recipe Bottle's delivered artifact in an embassy bucket: a content-addressed filesystem image (squashfs/erofs, optionally with dm-verity) with Object Lock applied for compliance-grade retention.
-A lode may carry a vessel image payload (the "Director pushes a vessel to AWS" motivator), model weights, or any other content-addressed corpus.
+A bullion may carry a vessel image payload (the "Director pushes a vessel to AWS" motivator), model weights, or any other content-addressed corpus.
 Sibling-but-distinct from the hoard: hoards stay GCS-native and depot-resident, preserving the existing provenance story;
-lodes are the new AWS-side citizen with S3-native retention semantics.
-Provenance transports as naming-convention sibling objects (attestation JSON adjacent to the image blob), not as OCI referring artifacts, because the lode is not an OCI artifact.
+bullions are the new AWS-side citizen with S3-native retention semantics.
+Provenance transports as naming-convention sibling objects (attestation JSON adjacent to the image blob), not as OCI referring artifacts, because the bullion is not an OCI artifact.
 _Trigger_: embassy entry above.
 _Reference_: this roadmap entry;
 Artifact Preservation section (hoard entry) for the GCP sibling concept.
@@ -236,11 +236,11 @@ _Trigger_: embassy entry above.
 _Reference_: this roadmap entry.
 
 **Chantry — Bedrock-hosted inference endpoint.**
-Architecturally distinct from the embassy/lode pattern.
+Architecturally distinct from the embassy/bullion pattern.
 A chantry is a Bedrock-registered custom model (or a native Bedrock foundation model) invoked by a
 {at_bottle_container}
 over the crucible conduit architecture — not an artifact Recipe Bottle delivers, but a foreign-sovereign service a bottle consumes.
-Weights may originate as a lode (entrusted to an embassy, then consumed by Bedrock Custom Model Import on the AWS side), but the chantry itself is the registered-and-invocable endpoint, not the weight storage.
+Weights may originate as a bullion (entrusted to an embassy, then consumed by Bedrock Custom Model Import on the AWS side), but the chantry itself is the registered-and-invocable endpoint, not the weight storage.
 Pairs with the "Cloud service conduit nameplate" entry for the invocation path.
 _Trigger_: first concrete Bedrock inference requirement;
 near-term per the Crucible Conduit Architecture section above.
