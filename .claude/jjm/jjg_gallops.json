@@ -8104,9 +8104,10 @@
         "₢BBAAy",
         "₢BBAA1",
         "₢BBAA5",
-        "₢BBABF"
+        "₢BBABF",
+        "₢BBABG"
       ],
-      "jjghn_next_pace_seed": "ABG",
+      "jjghn_next_pace_seed": "ABH",
       "jjghn_paces": {
         "₢BBAA-": {
           "jjgpn_tacks": [
@@ -9762,6 +9763,17 @@
               "jjgtn_text": "## Character\n\nMechanical. Shape is locked; resist loop-skeleton extraction (bash higher-order is ugly — deferred).\n\n## Source\n\n`Memos/memo-20260513-iam-propagation-race-director-invest-gar.md` — fresh-depot `rbgg_invest_director` failed at AR `getIamPolicy` HTTP 403 because the governor's `roles/owner` grant had not yet reached the AR-resource-scope IAM cache. Existing `zrbgi_propagation_error_predicate` recognizes only class A/B (HTTP 400 + body match for \"does not exist\" / \"is not deleted\"). Class C — HTTP 403 because the *caller* is recently-empowered — has no rule today.\n\n## Locked decisions\n\n- **403 retry is time-bounded only — no body fingerprinting.** The bound itself is the discriminator: real propagation succeeds within budget, real denial waits the budget and fails cleanly. Same model already proven in `rbgv_jwt_sa_probe`.\n- **Single IAM-grant budget profile.** Mint `RBGC_PROPAGATION_INITIAL_DELAY_SEC` / `_MAX_DELAY_SEC` / `_DEADLINE_SEC` in `rbgc_Constants.sh` (values 3 / 20 / 420 per RBSCIP). Every IAM-grant retry reads from there — no more inline literals.\n- **Predicate parameterized by per-site tolerance list.** `zrbgi_propagation_error_predicate` takes (code, body-glob) pairs; empty glob = match any body. Each grant site declares its own tolerance up front. Resource-scope sites add (403, \"\"). Other sites retain just the (400, \"*does not exist*\") / (400, \"*is not deleted*\") pair.\n- **Loop skeleton stays per-site.** Each `rbgi_*` grant function keeps its own nested GET-modify-SET loop. JWT probe (180s budget) untouched — different cost-of-waiting profile, separate constant if standardized later.\n\n## Scope\n\nCode:\n- `rbgc_Constants.sh` — mint `RBGC_PROPAGATION_*` constants\n- `rbgi_IAM.sh` — generalize predicate; thread constants through all grant fns; update each site's tolerance list (resource-scope sites add 403)\n- `rbgg_Governor.sh` — apply same harness to inline GAR retry in `rbgg_invest_director`; add 403 tolerance\n\nSpecs (Tier A, load-bearing):\n- `RBSCIP-IamPropagation.adoc` — document class C; replace inline 3/20/420 with constant references\n- `RBSCIG-IamGrantContracts.adoc` — add 403 row to propagation-error catalog with time-bound rationale\n- `RBSDK-director_invest.adoc` — mention 403 tolerance at AR step\n\nSpecs (Tier B, coherence cross-refs):\n- `RBSGM-governor_mantle.adoc`, `RBSDE-depot_levy.adoc`, `RBSRK-retriever_invest.adoc`\n\nTier C drift (RBS0 mapping, RBSHR closure, RBSAJ cross-refs) deferred to BBAAq's running-list mechanism.\n\n## Wrap criterion\n\nFresh-depot PayorMantle → InvestRetriever → InvestDirector succeeds in one shot, no divest-reinvest workaround. Spec and code coherent on class C across Tier A+B documents.",
               "jjgtn_silks": "iam-grant-propagation-tolerance-share",
               "jjgtn_basis": "0332265"
+            }
+          ]
+        },
+        "₢BBABG": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260513-1443",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nMechanical. Fold the two fast-codebase-check entry points into one tier, parallelize the slow one, expand its coverage, and bring its baseline to zero.\n\n## Locked decisions\n\n- **One fast-tier shellcheck entry.** `rbq_qualify_fast` absorbs `buq_shellcheck`; standalone `tt/buw-qsc.QualifyShellCheck.sh` retires. The primitive function stays; only the standalone tabtarget retires. `rbw-tr` drops its now-redundant shellcheck phase.\n- **Parallelize via xargs -P.** Replace the single shellcheck invocation with xargs-driven parallel invocation; aggregate exit code into one verdict. Target ~1–2s wall-clock for the file set (down from ~9s).\n- **Coverage expansion.** `.buk/rbbc_constants.sh` joins the shellcheck file set. Mount-time call on scope-generalization shape (multi-root parameter vs explicit outside-Tools list).\n- **Baseline zero.** Every current shellcheck finding either fixed in-place or moved to `busc_shellcheckrc` with BCG-structural rationale. Fast-tier exits zero on clean tree after wrap.\n\n## Wrap criterion\n\n`tt/rbw-tf.QualifyFast.sh` exits zero, runs in ~2s wall-clock, covers `Tools/` plus `.buk/rbbc_constants.sh`. `tt/buw-qsc.QualifyShellCheck.sh` no longer exists. `tt/rbw-tr.QualifyRelease.sh` no longer makes a separate shellcheck call.\n\n## Out of scope\n\n- `tt/*.sh` shellcheck coverage (`buq_tabtargets` shape-check is the appropriate gate for generated shims)\n- `.buk/launcher.*.sh` (3–4 line trivial shims; capture as itch if ever produces a finding)\n- `Tools/rbk/vov_veiled/FUTURE/` subtree — operator call at mount (exempt vs fix)",
+              "jjgtn_silks": "fast-qualify-shellcheck-fold-cover-zero",
+              "jjgtn_basis": "85a6c45"
             }
           ]
         }
