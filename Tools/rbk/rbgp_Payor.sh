@@ -867,7 +867,23 @@ rbgp_depot_levy() {
   local -r z_create_repo_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_parent}/repositories?repositoryId=${RBDC_GAR_REPOSITORY}"
   local -r z_create_repo_body="${BURD_TEMP_DIR}/rbgp_create_repo.json"
   
-  jq -n '{format:"DOCKER"}' > "${z_create_repo_body}" || buc_die "Failed to build create-repo body"
+  jq -n \
+    --arg policy_id "${RBGC_GAR_CLEANUP_POLICY_ID}" \
+    --arg older_than "${RBGC_GAR_CLEANUP_OLDER_THAN_SEC}" \
+    '{
+      format: "DOCKER",
+      cleanupPolicyDryRun: false,
+      cleanupPolicies: {
+        ($policy_id): {
+          id: $policy_id,
+          action: "DELETE",
+          condition: {
+            tagState: "UNTAGGED",
+            olderThan: $older_than
+          }
+        }
+      }
+    }' > "${z_create_repo_body}" || buc_die "Failed to build create-repo body"
 
   rbgu_http_json_lro_ok \
     "Create container repository" \

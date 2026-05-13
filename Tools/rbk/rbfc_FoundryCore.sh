@@ -622,8 +622,31 @@ zrbfc_list_packages_capture() {
   ' "${z_resp_file}" > "${z_raw_file}" \
     || buc_die "Failed to extract GAR package list"
 
-  sort "${z_raw_file}" > "${ZRBFC_PACKAGE_LIST_FILE}" \
+  local -r z_sorted_file="${BURD_TEMP_DIR}/rbfc_package_list_sorted.txt"
+  sort "${z_raw_file}" > "${z_sorted_file}" \
     || buc_die "Failed to sort GAR package list"
+
+  # Per-package tags.list filter: skip packages with zero live tags. Post-jettison
+  # walking-dead packages persist in GAR's package container until the depot cleanup
+  # policy reaps the orphan children on its daily run; filtering at this read site
+  # decouples display state from GAR's lazy reclamation cadence. See RBSCL / RBSIR.
+  : > "${ZRBFC_PACKAGE_LIST_FILE}"
+  local z_element z_basename z_pkg_name z_pkg_encoded z_tag_infix z_tag_count
+  local -i z_tag_idx=0
+  while IFS=' ' read -r z_element z_basename; do
+    test -n "${z_element}" || continue
+    z_pkg_name="${z_subtree}${z_element}/${z_basename}"
+    z_pkg_encoded="${z_pkg_name//\//%2F}"
+    z_tag_infix=$(printf 'rbfc_tags_%04d' "${z_tag_idx}")
+    z_tag_idx=$((z_tag_idx + 1))
+    local z_tags_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1"
+    rbgu_http_json "GET" "${z_tags_url}" "${z_token}" "${z_tag_infix}"
+    rbgu_http_require_ok "List tags for ${z_pkg_name}" "${z_tag_infix}"
+    z_tag_count=$(rbgu_json_field_capture "${z_tag_infix}" '(.tags // []) | length') \
+      || buc_die "Failed to count tags for ${z_pkg_name}"
+    test "${z_tag_count}" -gt 0 || continue
+    echo "${z_element} ${z_basename}" >> "${ZRBFC_PACKAGE_LIST_FILE}"
+  done < "${z_sorted_file}"
 }
 
 # Internal: enumerate every <anchor> directly under <subtree-root>/ via GAR REST.
