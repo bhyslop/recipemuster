@@ -10301,9 +10301,10 @@
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BKAAA",
-        "₢BKAAB"
+        "₢BKAAB",
+        "₢BKAAC"
       ],
-      "jjghn_next_pace_seed": "AAC",
+      "jjghn_next_pace_seed": "AAD",
       "jjghn_paces": {
         "₢BKAAA": {
           "jjgpn_tacks": [
@@ -10324,6 +10325,17 @@
               "jjgtn_text": "## Character\n\nLoad-bearing mechanism. Workbench cwd audit gates the mass rewire — silent breakage vector if skipped.\n\n## Goal\n\n`tt/z-launcher.sh` exists, every tabtarget routes through it, and no workbench broke from the cwd semantic change.\n\n## Work\n\n### Workbench cwd audit (gates the rewire)\n\nz-launcher.sh chdirs to repo root before dispatching the named launcher. Today, workbenches start with cwd = wherever-user-invoked. Any workbench code assuming user-invocation-cwd breaks silently after the rewire.\n\nSurvey before rewiring:\n\n- `grep` every `*w_workbench.sh` and dispatched module for `$PWD`, `cd \"${0%/*}\"`, and unqualified relative paths.\n- Note each site; classify as cwd-stable (fine), cwd-sensitive-fixable (fix in this pace), or cwd-sensitive-requires-rework (surface as a blocker, do not proceed).\n\n### Trampoline introduction\n\n- Create `tt/z-launcher.sh`:\n  - Resolves its own dir via `${BASH_SOURCE[0]%/*}`.\n  - chdirs to repo root.\n  - Hardcodes the moorings-launchers path as a literal string. Initial value points at `../.buk/launcher.${1}_workbench.sh` (transitional — pace 4 flips this literal to the new layout).\n  - `exec`s the named launcher with positional args forwarded.\n\n### Tabtarget rewire\n\n- Rewrite every `tt/*.sh` from the current `${BURD_LAUNCHER}` pattern to `exec \"${BASH_SOURCE[0]%/*}/z-launcher.sh\" <workbench-id> \"${@}\"`.\n- The workbench-id is the existing colophon prefix's workbench identifier (e.g., `rbw`, `buw`, `jjw`).\n\n### Wrap criteria\n\n- `tt/rbtd-s.TestSuite.fast.sh` passes.\n- Spot-check sampling of tabtargets executes correctly from at least three different cwd locations.\n\n## Sources\n\n- ₣A_/₢A_AAJ docket — \"Trampoline design\", \"Execution-context normalization\"\n- `Tools/buk/vov_veiled/BCG-BashConsoleGuide.md` sections 171-181 — dispatch-provided `BURD_*`, the pattern this extends\n- Any `*w_workbench.sh` under `Tools/` — audit surface",
               "jjgtn_silks": "z-launcher-trampoline-introduce",
               "jjgtn_basis": "3b6c338"
+            }
+          ]
+        },
+        "₢BKAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260513-1258",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nMigrate consumer-side bootstrap into kit-side fact locale. Light judgment per item; sensitive to behavioral change.\n\n## Goal\n\n`Tools/rbk/rbcc_Constants.sh` is the sole RBK fact locale. Consumer-side `.buk/rbbc_constants.sh` source line is gone; moorings path constants are minted.\n\n## Work\n\n### rbbc consumer-content audit\n\nThe current `rbcc_Constants.sh` sources `${BURD_CONFIG_DIR}/rbbc_constants.sh` at source-time. Before eliminating that line, read what `rbbc_constants.sh` currently provides:\n\n- Inspect `.buk/rbbc_constants.sh` in this tree.\n- Classify each constant: kit-default (safe to absorb), consumer-customized (behavioral change to absorb — flag and decide), or obsolete (delete).\n- Eliminating real consumer overrides without surfacing the change is a behavioral regression. If overrides exist, document them in the wrap commit message.\n\n### Absorb survivors\n\n- Move surviving constants from `rbbc_constants.sh` into `rbcc_Constants.sh` directly, in the appropriate section.\n- Remove the `source \"${BURD_CONFIG_DIR}/rbbc_constants.sh\"` line and its `BURD_CONFIG_DIR` precondition check from `rbcc_Constants.sh`.\n- Delete `.buk/rbbc_constants.sh` (file itself; pace 4 handles the directory move).\n\n### Mint moorings constants\n\nAdd to `rbcc_Constants.sh` (in the literal-constants section near `RBCC_rbrn_file`):\n\n- `RBCC_moorings_dir` — value per AAJ table (`rbmm_moorings`)\n- `RBCC_launchers_subdir` — value per AAJ table (`rbml_launchers`)\n- `RBCC_users_subdir` — match BUBC parallel (`rbmu_users`)\n- `RBCC_vessels_subdir` — value per AAJ table (`rbmv_vessels`)\n- Any additional moorings paths surfaced by pace 1's `rbmn_` reconciliation.\n\nMatch the BUBC naming pattern where the concept is parallel (BUBC_rbmu_users_subdir already exists with value `rbmu_users` — RBCC should hold the same value, the symbol on each side).\n\n### Wrap criteria\n\n- `tt/rbtd-s.TestSuite.fast.sh` passes.\n- No call-site changes in this pace — that's pace 5.\n\n## Sources\n\n- `Tools/rbk/rbcc_Constants.sh` — RBK fact locale (extend, don't replace)\n- `Tools/buk/bubc_constants.sh` — parallel BUK locale, naming reference\n- `.buk/rbbc_constants.sh` — consumer-side file being eliminated\n- ₣A_/₢A_AAJ docket — Renames table, Symbolic-constant discipline",
+              "jjgtn_silks": "rbcc-establish-fact-locale",
+              "jjgtn_basis": "748e87d"
             }
           ]
         }
