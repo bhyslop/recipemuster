@@ -110,6 +110,7 @@ link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.
 HTTP 200 response confirming IAM propagation complete
 .. {rbbc_fatal}
 if timeout: "IAM propagation timeout - artifactregistry API not accessible"
+.. NOTE: This poll gates the project-scope artifactregistry API surface, not the per-repository resource-scope IAM cache.  Resource-scope cache lag (class C, see <<rbscig_iam_grant_contracts>>) is absorbed in-band by the IAM grant harness when {rbtgo_director_invest} subsequently issues `getIamPolicy` against the AR repo — not by this preflight poll.
 
 //axhos_step
 . *Create Build Bucket*:

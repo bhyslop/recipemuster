@@ -72,6 +72,18 @@ zrbgc_kindle() {
   readonly RBGC_SA_KEY_CONSUMER_RETRY_INITIAL_DELAY_SEC=2
   readonly RBGC_SA_KEY_CONSUMER_RETRY_MAX_DELAY_SEC=15
 
+  # IAM-grant propagation retry — exponential-backoff budget shared by every
+  # get-modify-set IAM grant site in rbgi_IAM.sh plus the inline GAR retry in
+  # rbgg_invest_director. Recognizes three propagation classes against the
+  # same time budget: (A) forward member-visibility (HTTP 400 "does not
+  # exist"), (B) backward member-visibility (HTTP 400 "is not deleted"),
+  # (C) caller-recently-empowered (HTTP 403 from resource-scope IAM caches).
+  # Class C is time-bounded only — real propagation succeeds within budget,
+  # real denial waits the budget and fails cleanly. RBSCIP locks the profile.
+  readonly RBGC_PROPAGATION_INITIAL_DELAY_SEC=3
+  readonly RBGC_PROPAGATION_MAX_DELAY_SEC=20
+  readonly RBGC_PROPAGATION_DEADLINE_SEC=420
+
   # HTTP transient-failure retry — bounded retry on curl-network blips
   # (connection refused 7, timeout 28, TLS handshake 35, recv failure 56).
   # Shared by rbgu_http_json and the OAuth token-mint POST. Other curl exits

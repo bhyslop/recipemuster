@@ -234,16 +234,46 @@ All resources that accept allow policies are created with default allow policies
 `getIamPolicy` returns 200 with an empty-ish policy (no bindings, but etag and
 version present) for resources that have never had explicit IAM configuration.
 
-===== Propagation Error Strings
+===== Propagation Error Catalog
+
+Three propagation classes feed into `zrbgi_propagation_error_predicate`'s
+per-site tolerance list (see <<rbscip_trade_study>> for the shared backoff
+profile):
+
+[cols="1,1,2,2,2",options="header"]
+|===
+|Class
+|HTTP code
+|Body glob
+|Scope applicability
+|Discriminator
+
+|A — forward member-visibility
+|400
+|`*does not exist*`
+|All grant sites (project + resource scope)
+|Body match; message content stable across ecosystem
+
+|B — backward member-visibility
+|400
+|`*is not deleted*`
+|All grant sites (project + resource scope)
+|Body match; message content stable across ecosystem
+
+|C — caller-recently-empowered
+|403
+|`""` (empty — match any body)
+|Resource-scope sites only ({rbtoe_iam_grant_repo}, {rbtoe_iam_grant_sa}, {rbtoe_iam_grant_bucket}, {rbtoe_iam_grant_secret}, plus the inline GAR retry in {rbtgo_director_invest})
+|Time-bound only; no body fingerprinting
+|===
 
 The HTTP 400 errors containing `"does not exist"` and `"is not deleted"` that
-the grant functions retry on (per <<rbscip_trade_study>> backoff profile) are
-**empirically stable but not contractually guaranteed**.
-Google does not document error message text as stable API surface.
-The HTTP status code (400) is the stable signal; the message content is
-diagnostic, not machine-parseable contract.
+the grant functions retry on are **empirically stable but not contractually
+guaranteed**.  Google does not document error message text as stable API
+surface.  The HTTP status code (400) is the stable signal; the message
+content is diagnostic, not machine-parseable contract.
 
-The two patterns represent different propagation directions:
+The two 400 patterns represent different propagation directions:
 
 * `"does not exist"` — forward propagation: a newly-created {giam_service_account}
   is not yet visible to the IAM policy service as a valid member.  The SA
@@ -261,6 +291,30 @@ The Terraform Google provider explicitly treats HTTP 400 as retryable in IAM
 contexts (issue #8280), which constitutes strong ecosystem evidence that this
 pattern is reliable enough for major infrastructure tools.
 The practical risk of string instability is low but nonzero.
+
+The HTTP 403 class C pattern represents **caller-empowerment propagation**
+into resource-scope IAM caches: the caller (governor) has been freshly
+granted `roles/owner` on the depot project, but the artifact-registry
+resource-scope IAM cache has not yet learned about the grant, even though
+project-scope and SA-scope caches already have (the asymmetry observed
+2026-05-13 against `artifactregistry.repositories.getIamPolicy` on a
+fresh-depot AR repo, with `roles/owner` granted ~30 seconds prior).
+Cumulative additional propagation observed: ~30 seconds.
+
+Class C uses **time-bound discrimination** rather than body matching: real
+propagation succeeds within the `RBGC_PROPAGATION_DEADLINE_SEC` budget;
+real denial waits the budget and fails cleanly.  This avoids the trap of
+treating "denied because forbidden" as "denied because lagging" — the
+distinction is observational, not parseable from the 403 response.  The
+same time-bound discriminator is already proven in
+{rbtgo_access_jwt_probe}'s `invalid_grant` retry harness.
+
+Class C tolerance is **scope-discriminated**: project-scope grant sites
+({rbtoe_iam_grant_project}) do not declare 403 tolerance because the
+governor's `roles/owner` reaches the project-scope cache effectively
+instantly (no observed lag).  Adding spurious 403 tolerance at project
+scope would slow down real-denial diagnosis without absorbing any known
+race.
 
 **SA email vs numeric ID propagation.**
 Google's documentation recommends using a service account's numeric ID rather

@@ -107,6 +107,7 @@ Read Access*:
 .. Policy version: 3
 .. {rbbc_require}
 IAM policy update successful
+.. NOTE: This grant is project-scope (against the depot project's IAM policy), not resource-scope.  Project-scope IAM caches absorb the governor's `roles/owner` propagation effectively instantly, so this step does not need class C (HTTP 403) propagation tolerance — only class A/B (HTTP 400 member-visibility) coverage from the grant harness.  See <<rbscig_iam_grant_contracts>> propagation catalog.
 
 //axhoot_typed_output
 {rbtgi_rbra_file}

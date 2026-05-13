@@ -4,8 +4,28 @@ IAM propagation delays for Cloud Build v2 connection creation are handled by
 connection-creation retry with exponential backoff, not by an impersonation
 readiness gate or fixed sleep delays.
 
-* **SA binding propagation**: `setIamPolicy` and `getIamPolicy` calls that fail with HTTP 400 "does not exist"
-  (newly-created service account not yet visible to the IAM policy service) are retried with exponential backoff.
+Three propagation classes are recognized by the IAM grant harness in
+`zrbgi_propagation_error_predicate`, all sharing the same exponential-backoff
+budget defined by the `RBGC_PROPAGATION_*` constants:
+
+* **Class A — forward member-visibility**: `setIamPolicy` and `getIamPolicy`
+  calls fail with HTTP 400 "does not exist" when a newly-created service
+  account is not yet visible to the IAM policy service as a valid member.
+* **Class B — backward member-visibility**: `setIamPolicy` and `getIamPolicy`
+  calls fail with HTTP 400 "is not deleted" when a recently-deleted service
+  account is still referenced in existing policy bindings.
+* **Class C — caller-recently-empowered**: `getIamPolicy` / `setIamPolicy`
+  on a resource-scope target (AR repo, SA, bucket, secret) returns HTTP 403
+  because the caller's recently-granted role (e.g. fresh `roles/owner` on a
+  newly-levied depot) has not yet reached the resource-scope IAM cache,
+  even though it has reached project- and SA-scope caches.
+
+Class C is time-bounded only — no body fingerprinting. The bound itself is
+the discriminator: real propagation succeeds within budget, real denial
+waits the budget and fails cleanly. The same model is already proven in
+{rbtgo_access_jwt_probe}. Resource-scope grant sites declare 403 tolerance
+with an empty body-glob; project-scope sites do not.
+
 * **Secret access readiness**: The CB v2 connection creation LRO itself serves as the propagation test.
   If the Cloud Build Service Agent cannot yet access the secrets (IAM grant not propagated), the LRO fails.
   The caller retries with exponential backoff, deleting the zombie connection resource between attempts.
@@ -104,15 +124,22 @@ and any need for `roles/iam.serviceAccountTokenCreator` grants for the readiness
 
 ==== Backoff Profile
 
-All propagation retries use the same profile:
+All IAM-grant propagation retries — every site in `rbgi_IAM.sh` plus the
+inline GAR retry in `rbgg_invest_director` — use the same single profile
+locked in `rbgc_Constants.sh`:
 
-* Initial delay: 3 seconds
-* Multiplier: 2x
-* Cap: 20 seconds
-* Deadline: 420 seconds (7 minutes)
+* Initial delay: `RBGC_PROPAGATION_INITIAL_DELAY_SEC` (3 seconds)
+* Multiplier: 2x (per-site arithmetic, not a kindle constant)
+* Cap: `RBGC_PROPAGATION_MAX_DELAY_SEC` (20 seconds)
+* Deadline: `RBGC_PROPAGATION_DEADLINE_SEC` (420 seconds; 7 minutes)
 
 This profile accommodates Google's documented "typically < 2 minutes" with margin for worst-case
-propagation while avoiding indefinite waits.
+propagation while avoiding indefinite waits. It is the single budget shared
+across all three propagation classes (A: forward member-visibility, B:
+backward member-visibility, C: caller-recently-empowered); operator value
+changes propagate to every grant site by editing the constants once. The
+JWT-bearer consumer-side retry uses its own budget
+(`RBGC_SA_KEY_CONSUMER_RETRY_*`) — different cost-of-waiting profile.
 
 ==== References
 

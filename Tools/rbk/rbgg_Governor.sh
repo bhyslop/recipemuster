@@ -648,14 +648,21 @@ rbgg_invest_director() {
   local -r z_gar_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_gar_resource}:getIamPolicy?options.requestedPolicyVersion=3"
   local -r z_gar_set_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_gar_resource}:setIamPolicy"
 
-  local z_gar_prop_delay=3
+  # Propagation retry — AR repo is resource-scope: member-visibility 400s plus
+  # caller-recently-empowered 403 from the resource-scope IAM cache (the
+  # governor's roles/owner grant may not yet have reached the AR cache).
+  local -ra z_gar_tolerance=(
+    "400" "*does not exist*"
+    "400" "*is not deleted*"
+    "403" ""
+  )
+  local z_gar_prop_delay=${RBGC_PROPAGATION_INITIAL_DELAY_SEC}
   local z_gar_prop_elapsed=0
-  local -r z_gar_prop_deadline=420
+  local -r z_gar_prop_deadline=${RBGC_PROPAGATION_DEADLINE_SEC}
   local z_gar_prop_attempt=0
   local z_gar_get_infix=""
   local z_gar_set_infix=""
   local z_gar_get_code=""
-  local z_gar_get_err=""
 
   while :; do
     z_gar_prop_attempt=$((z_gar_prop_attempt + 1))
@@ -665,21 +672,17 @@ rbgg_invest_director() {
     rbgu_http_json "GET" "${z_gar_get_url}" "${z_token}" "${z_gar_get_infix}"
     z_gar_get_code=$(rbgu_http_code_capture "${z_gar_get_infix}") || z_gar_get_code=""
 
-    # Propagation retry: newly-created Director SA may not be visible yet
-    if test "${z_gar_get_code}" = "400"; then
-      z_gar_get_err=$(rbgu_error_message_capture "${z_gar_get_infix}") || z_gar_get_err=""
-      case "${z_gar_get_err}" in
-        *"does not exist"*|*"is not deleted"*)
-          test "${z_gar_prop_elapsed}" -lt "${z_gar_prop_deadline}" \
-            || buc_die "GAR IAM: propagation timeout after ${z_gar_prop_elapsed}s"
-          buc_log_args "GAR getIamPolicy propagation delay (attempt ${z_gar_prop_attempt}, ${z_gar_prop_elapsed}s)"
-          sleep "${z_gar_prop_delay}"
-          z_gar_prop_elapsed=$((z_gar_prop_elapsed + z_gar_prop_delay))
-          z_gar_prop_delay=$((z_gar_prop_delay * 2))
-          test "${z_gar_prop_delay}" -le 20 || z_gar_prop_delay=20
-          continue
-          ;;
-      esac
+    # Propagation retry on GET — covers newly-empowered governor (403) and
+    # newly-created Director SA member-visibility lag (400 patterns).
+    if zrbgi_propagation_error_predicate "${z_gar_get_infix}" "${z_gar_get_code}" "${z_gar_tolerance[@]}"; then
+      test "${z_gar_prop_elapsed}" -lt "${z_gar_prop_deadline}" \
+        || buc_die "GAR IAM: propagation timeout after ${z_gar_prop_elapsed}s"
+      buc_log_args "GAR getIamPolicy returned ${z_gar_get_code} (propagation delay; attempt ${z_gar_prop_attempt}, ${z_gar_prop_elapsed}s)"
+      sleep "${z_gar_prop_delay}"
+      z_gar_prop_elapsed=$((z_gar_prop_elapsed + z_gar_prop_delay))
+      z_gar_prop_delay=$((z_gar_prop_delay * 2))
+      test "${z_gar_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_gar_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
+      continue
     fi
 
     rbgu_http_require_ok "Get GAR repo IAM policy" "${z_gar_get_infix}"
@@ -707,22 +710,16 @@ rbgg_invest_director() {
     local z_gar_set_code
     z_gar_set_code=$(rbgu_http_code_capture "${z_gar_set_infix}") || buc_die "No HTTP code from GAR setIamPolicy"
 
-    # Propagation retry on SET
-    if test "${z_gar_set_code}" = "400"; then
-      local z_gar_set_err=""
-      z_gar_set_err=$(rbgu_error_message_capture "${z_gar_set_infix}") || z_gar_set_err=""
-      case "${z_gar_set_err}" in
-        *"does not exist"*|*"is not deleted"*)
-          test "${z_gar_prop_elapsed}" -lt "${z_gar_prop_deadline}" \
-            || buc_die "GAR IAM: propagation timeout after ${z_gar_prop_elapsed}s"
-          buc_log_args "GAR setIamPolicy propagation delay (attempt ${z_gar_prop_attempt}, ${z_gar_prop_elapsed}s)"
-          sleep "${z_gar_prop_delay}"
-          z_gar_prop_elapsed=$((z_gar_prop_elapsed + z_gar_prop_delay))
-          z_gar_prop_delay=$((z_gar_prop_delay * 2))
-          test "${z_gar_prop_delay}" -le 20 || z_gar_prop_delay=20
-          continue
-          ;;
-      esac
+    # Propagation retry on SET — same tolerance list as GET.
+    if zrbgi_propagation_error_predicate "${z_gar_set_infix}" "${z_gar_set_code}" "${z_gar_tolerance[@]}"; then
+      test "${z_gar_prop_elapsed}" -lt "${z_gar_prop_deadline}" \
+        || buc_die "GAR IAM: propagation timeout after ${z_gar_prop_elapsed}s"
+      buc_log_args "GAR setIamPolicy returned ${z_gar_set_code} (propagation delay; attempt ${z_gar_prop_attempt}, ${z_gar_prop_elapsed}s)"
+      sleep "${z_gar_prop_delay}"
+      z_gar_prop_elapsed=$((z_gar_prop_elapsed + z_gar_prop_delay))
+      z_gar_prop_delay=$((z_gar_prop_delay * 2))
+      test "${z_gar_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_gar_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
+      continue
     fi
 
     rbgu_http_require_ok "Set GAR repo IAM policy (complete)" "${z_gar_set_infix}"

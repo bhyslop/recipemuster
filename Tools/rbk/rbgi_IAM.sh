@@ -83,25 +83,52 @@ zrbgi_sentinel() {
   test "${ZRBGI_KINDLED:-}" = "1" || buc_die "Module rbgi not kindled - call zrbgi_kindle first"
 }
 
-# Check if an HTTP response is a 400 with a transient IAM propagation error.
-# Two known patterns:
-#   - "does not exist": newly-created SA not yet visible to policy service
-#   - "is not deleted": recently-deleted SA still referenced in policy bindings
-# Returns 0 (true) if retryable propagation error, 1 otherwise.
+# Classify an HTTP response against a caller-supplied tolerance list.
+# Each tolerance is a (code, body-glob) pair passed as two positional args
+# after the infix and code. An empty body-glob matches any response body
+# for that code — short-circuits without loading the error message.
+#
+# Three propagation classes are encoded as tolerance pairs:
+#   (400, "*does not exist*") — forward member-visibility lag
+#   (400, "*is not deleted*") — backward member-visibility lag
+#   (403, "")                 — caller-recently-empowered (resource-scope cache lag)
+#
+# Project-scope sites declare only the two 400 patterns; resource-scope sites
+# (AR repo, SA, bucket, secret) add the 403 pair. Time-bound on 403 is the
+# discriminator: real propagation succeeds within budget, real denial waits
+# the budget and fails cleanly.
+#
+# Returns 0 (true) if response matches any tolerance pair, 1 otherwise.
 zrbgi_propagation_error_predicate() {
   local -r z_infix="${1}"
   local -r z_code="${2}"
-
-  test "${z_code}" = "400" || return 1
+  shift 2
 
   local z_err_msg=""
-  z_err_msg=$(rbgu_error_message_capture "${z_infix}") || z_err_msg=""
+  local z_err_loaded=0
+  local z_tol_code=""
+  local z_tol_glob=""
 
-  case "${z_err_msg}" in
-    *"does not exist"*) return 0 ;;
-    *"is not deleted"*) return 0 ;;
-    *)                  return 1 ;;
-  esac
+  while test "$#" -ge 2; do
+    z_tol_code="${1}"
+    z_tol_glob="${2}"
+    shift 2
+
+    test "${z_code}" = "${z_tol_code}" || continue
+
+    test -n "${z_tol_glob}" || return 0
+
+    if test "${z_err_loaded}" = "0"; then
+      z_err_msg=$(rbgu_error_message_capture "${z_infix}") || z_err_msg=""
+      z_err_loaded=1
+    fi
+
+    case "${z_err_msg}" in
+      ${z_tol_glob}) return 0 ;;
+    esac
+  done
+
+  return 1
 }
 
 ######################################################################
@@ -132,12 +159,16 @@ rbgi_add_project_iam_role() {
 
   buc_log_args "${z_label}: add ${z_member} to ${z_role}"
 
-  # Propagation retry: steps 1-3 may fail with HTTP 400 "does not exist"
-  # when a newly-created SA hasn't propagated to the IAM policy service.
-  # Exponential backoff: 3s initial, 2x multiplier, 20s cap, 420s deadline.
-  local z_prop_delay=3
+  # Propagation retry — project-scope tolerance: forward/backward
+  # member-visibility (400 patterns). Class C (403 resource-scope cache lag)
+  # does not apply at project scope.
+  local -ra z_tolerance=(
+    "400" "*does not exist*"
+    "400" "*is not deleted*"
+  )
+  local z_prop_delay=${RBGC_PROPAGATION_INITIAL_DELAY_SEC}
   local z_prop_elapsed=0
-  local z_prop_deadline=420
+  local -r z_prop_deadline=${RBGC_PROPAGATION_DEADLINE_SEC}
   local z_prop_attempt=0
   local z_prop_succeeded=0
 
@@ -155,15 +186,15 @@ rbgi_add_project_iam_role() {
     z_get_code=$(rbgu_http_code_capture "${z_get_infix}") || buc_die "No HTTP code from getIamPolicy"
 
     # Check for propagation error on GET
-    if zrbgi_propagation_error_predicate "${z_get_infix}" "${z_get_code}"; then
-      buc_log_args "${z_label}: getIamPolicy returned 400 'does not exist' (propagation delay)"
+    if zrbgi_propagation_error_predicate "${z_get_infix}" "${z_get_code}" "${z_tolerance[@]}"; then
+      buc_log_args "${z_label}: getIamPolicy returned ${z_get_code} (propagation delay)"
       test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
         || buc_die "${z_label}: propagation timeout after ${z_prop_elapsed}s waiting for member visibility"
       buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
       sleep "${z_prop_delay}"
       z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
       z_prop_delay=$((z_prop_delay * 2))
-      test "${z_prop_delay}" -le 20 || z_prop_delay=20
+      test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
       continue
     fi
 
@@ -197,8 +228,8 @@ rbgi_add_project_iam_role() {
       z_code=$(rbgu_http_code_capture "${z_set_infix}") || buc_die "No HTTP code"
 
       # Check for propagation error on SET — break inner loop to retry outer
-      if zrbgi_propagation_error_predicate "${z_set_infix}" "${z_code}"; then
-        buc_log_args "${z_label}: setIamPolicy returned 400 'does not exist' (propagation delay)"
+      if zrbgi_propagation_error_predicate "${z_set_infix}" "${z_code}" "${z_tolerance[@]}"; then
+        buc_log_args "${z_label}: setIamPolicy returned ${z_code} (propagation delay)"
         break
       fi
 
@@ -224,7 +255,7 @@ rbgi_add_project_iam_role() {
     sleep "${z_prop_delay}"
     z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
     z_prop_delay=$((z_prop_delay * 2))
-    test "${z_prop_delay}" -le 20 || z_prop_delay=20
+    test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
   done
 
   test "${z_prop_succeeded}" = "1" || buc_die "${z_label}: propagation retry loop exited without success"
@@ -276,12 +307,16 @@ rbgi_add_repo_iam_role() {
   buc_log_args 'Adding repo-scoped IAM role' \
                " ${z_role} to ${z_account_email} on ${z_location}/${z_repository}"
 
-  # Propagation retry: get-modify-set may fail with HTTP 400 "does not exist"
-  # when a newly-created SA hasn't propagated to the IAM policy service.
-  # Exponential backoff: 3s initial, 2x multiplier, 20s cap, 420s deadline.
-  local z_prop_delay=3
+  # Propagation retry — AR repo is resource-scope: member-visibility 400s
+  # plus caller-recently-empowered 403 from the resource-scope IAM cache.
+  local -ra z_tolerance=(
+    "400" "*does not exist*"
+    "400" "*is not deleted*"
+    "403" ""
+  )
+  local z_prop_delay=${RBGC_PROPAGATION_INITIAL_DELAY_SEC}
   local z_prop_elapsed=0
-  local z_prop_deadline=420
+  local -r z_prop_deadline=${RBGC_PROPAGATION_DEADLINE_SEC}
   local z_prop_attempt=0
 
   local z_prop_succeeded=0
@@ -297,15 +332,15 @@ rbgi_add_repo_iam_role() {
     z_get_code=$(rbgu_http_code_capture "${z_get_infix}") || buc_die "No HTTP code from repo getIamPolicy"
 
     # Check for propagation error on GET
-    if zrbgi_propagation_error_predicate "${z_get_infix}" "${z_get_code}"; then
-      buc_log_args "Repo getIamPolicy returned 400 'does not exist' (propagation delay)"
+    if zrbgi_propagation_error_predicate "${z_get_infix}" "${z_get_code}" "${z_tolerance[@]}"; then
+      buc_log_args "Repo getIamPolicy returned ${z_get_code} (propagation delay)"
       test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
         || buc_die "Repo IAM: propagation timeout after ${z_prop_elapsed}s"
       buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
       sleep "${z_prop_delay}"
       z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
       z_prop_delay=$((z_prop_delay * 2))
-      test "${z_prop_delay}" -le 20 || z_prop_delay=20
+      test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
       continue
     fi
 
@@ -341,8 +376,8 @@ rbgi_add_repo_iam_role() {
       z_set_code=$(rbgu_http_code_capture "${z_set_infix}") || buc_die "No HTTP code from setIamPolicy"
 
       # Check for propagation error on SET — break inner loop to retry outer
-      if zrbgi_propagation_error_predicate "${z_set_infix}" "${z_set_code}"; then
-        buc_log_args "Repo setIamPolicy returned 400 'does not exist' (propagation delay)"
+      if zrbgi_propagation_error_predicate "${z_set_infix}" "${z_set_code}" "${z_tolerance[@]}"; then
+        buc_log_args "Repo setIamPolicy returned ${z_set_code} (propagation delay)"
         break
       fi
 
@@ -368,7 +403,7 @@ rbgi_add_repo_iam_role() {
     sleep "${z_prop_delay}"
     z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
     z_prop_delay=$((z_prop_delay * 2))
-    test "${z_prop_delay}" -le 20 || z_prop_delay=20
+    test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
   done
 
   test "${z_prop_succeeded}" = "1" || buc_die "Repo IAM: propagation retry loop exited without success"
@@ -407,12 +442,16 @@ rbgi_add_sa_iam_role() {
 
   local -r z_sa_resource="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_target_encoded}"
 
-  # Propagation retry: get-modify-set may fail with HTTP 400 "does not exist"
-  # when a newly-created SA hasn't propagated to the IAM policy service.
-  # Exponential backoff: 3s initial, 2x multiplier, 20s cap, 420s deadline.
-  local z_prop_delay=3
+  # Propagation retry — SA is resource-scope: member-visibility 400s plus
+  # caller-recently-empowered 403 from the resource-scope IAM cache.
+  local -ra z_tolerance=(
+    "400" "*does not exist*"
+    "400" "*is not deleted*"
+    "403" ""
+  )
+  local z_prop_delay=${RBGC_PROPAGATION_INITIAL_DELAY_SEC}
   local z_prop_elapsed=0
-  local z_prop_deadline=420
+  local -r z_prop_deadline=${RBGC_PROPAGATION_DEADLINE_SEC}
   local z_prop_attempt=0
 
   local z_prop_succeeded=0
@@ -429,15 +468,15 @@ rbgi_add_sa_iam_role() {
     z_code=$(rbgu_http_code_capture "${z_get_infix}") || buc_die "No HTTP code from SA getIamPolicy"
 
     # Check for propagation error on GET
-    if zrbgi_propagation_error_predicate "${z_get_infix}" "${z_code}"; then
-      buc_log_args "SA getIamPolicy returned 400 'does not exist' (propagation delay)"
+    if zrbgi_propagation_error_predicate "${z_get_infix}" "${z_code}" "${z_tolerance[@]}"; then
+      buc_log_args "SA getIamPolicy returned ${z_code} (propagation delay)"
       test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
         || buc_die "SA IAM: propagation timeout after ${z_prop_elapsed}s"
       buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
       sleep "${z_prop_delay}"
       z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
       z_prop_delay=$((z_prop_delay * 2))
-      test "${z_prop_delay}" -le 20 || z_prop_delay=20
+      test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
       continue
     fi
 
@@ -474,8 +513,8 @@ rbgi_add_sa_iam_role() {
       z_set_code=$(rbgu_http_code_capture "${z_set_infix}") || buc_die "No HTTP code from setIamPolicy"
 
       # Check for propagation error on SET — break inner loop to retry outer
-      if zrbgi_propagation_error_predicate "${z_set_infix}" "${z_set_code}"; then
-        buc_log_args "SA setIamPolicy returned 400 'does not exist' (propagation delay)"
+      if zrbgi_propagation_error_predicate "${z_set_infix}" "${z_set_code}" "${z_tolerance[@]}"; then
+        buc_log_args "SA setIamPolicy returned ${z_set_code} (propagation delay)"
         break
       fi
 
@@ -501,7 +540,7 @@ rbgi_add_sa_iam_role() {
     sleep "${z_prop_delay}"
     z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
     z_prop_delay=$((z_prop_delay * 2))
-    test "${z_prop_delay}" -le 20 || z_prop_delay=20
+    test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
   done
 
   test "${z_prop_succeeded}" = "1" || buc_die "SA IAM: propagation retry loop exited without success"
@@ -524,12 +563,16 @@ rbgi_add_bucket_iam_role() {
 
   local -r z_iam_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/iam"
 
-  # Propagation retry: get-modify-set may fail with HTTP 400 "does not exist"
-  # when a newly-created SA hasn't propagated to the IAM policy service.
-  # Exponential backoff: 3s initial, 2x multiplier, 20s cap, 420s deadline.
-  local z_prop_delay=3
+  # Propagation retry — bucket is resource-scope: member-visibility 400s plus
+  # caller-recently-empowered 403 from the resource-scope IAM cache.
+  local -ra z_tolerance=(
+    "400" "*does not exist*"
+    "400" "*is not deleted*"
+    "403" ""
+  )
+  local z_prop_delay=${RBGC_PROPAGATION_INITIAL_DELAY_SEC}
   local z_prop_elapsed=0
-  local z_prop_deadline=420
+  local -r z_prop_deadline=${RBGC_PROPAGATION_DEADLINE_SEC}
   local z_prop_attempt=0
 
   local z_prop_succeeded=0
@@ -545,15 +588,15 @@ rbgi_add_bucket_iam_role() {
     z_code=$(rbgu_http_code_capture "${z_get_infix}") || buc_die "No HTTP code from bucket getIamPolicy"
 
     # Check for propagation error on GET
-    if zrbgi_propagation_error_predicate "${z_get_infix}" "${z_code}"; then
-      buc_log_args "Bucket getIamPolicy returned 400 'does not exist' (propagation delay)"
+    if zrbgi_propagation_error_predicate "${z_get_infix}" "${z_code}" "${z_tolerance[@]}"; then
+      buc_log_args "Bucket getIamPolicy returned ${z_code} (propagation delay)"
       test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
         || buc_die "Bucket IAM: propagation timeout after ${z_prop_elapsed}s"
       buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
       sleep "${z_prop_delay}"
       z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
       z_prop_delay=$((z_prop_delay * 2))
-      test "${z_prop_delay}" -le 20 || z_prop_delay=20
+      test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
       continue
     fi
 
@@ -589,8 +632,8 @@ rbgi_add_bucket_iam_role() {
       z_set_code=$(rbgu_http_code_capture "${z_set_infix}") || buc_die "No HTTP code from setIamPolicy"
 
       # Check for propagation error on SET — break inner loop to retry outer
-      if zrbgi_propagation_error_predicate "${z_set_infix}" "${z_set_code}"; then
-        buc_log_args "Bucket setIamPolicy returned 400 'does not exist' (propagation delay)"
+      if zrbgi_propagation_error_predicate "${z_set_infix}" "${z_set_code}" "${z_tolerance[@]}"; then
+        buc_log_args "Bucket setIamPolicy returned ${z_set_code} (propagation delay)"
         break
       fi
 
@@ -617,7 +660,7 @@ rbgi_add_bucket_iam_role() {
     sleep "${z_prop_delay}"
     z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
     z_prop_delay=$((z_prop_delay * 2))
-    test "${z_prop_delay}" -le 20 || z_prop_delay=20
+    test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
   done
 
   test "${z_prop_succeeded}" = "1" || buc_die "Bucket IAM: propagation retry loop exited without success"
@@ -647,12 +690,16 @@ rbgi_grant_secret_iam() {
   local -r z_get_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_resource_path}:getIamPolicy?options.requestedPolicyVersion=3"
   local -r z_set_url="${RBGC_API_ROOT_SECRETMANAGER}${RBGC_SECRETMANAGER_V1}/${z_secret_resource_path}:setIamPolicy"
 
-  # Propagation retry: get-modify-set may fail with HTTP 400 "does not exist"
-  # when a newly-created SA hasn't propagated to the IAM policy service.
-  # Exponential backoff: 3s initial, 2x multiplier, 20s cap, 420s deadline.
-  local z_prop_delay=3
+  # Propagation retry — secret is resource-scope: member-visibility 400s plus
+  # caller-recently-empowered 403 from the resource-scope IAM cache.
+  local -ra z_tolerance=(
+    "400" "*does not exist*"
+    "400" "*is not deleted*"
+    "403" ""
+  )
+  local z_prop_delay=${RBGC_PROPAGATION_INITIAL_DELAY_SEC}
   local z_prop_elapsed=0
-  local z_prop_deadline=420
+  local -r z_prop_deadline=${RBGC_PROPAGATION_DEADLINE_SEC}
   local z_prop_attempt=0
 
   local z_prop_succeeded=0
@@ -668,15 +715,15 @@ rbgi_grant_secret_iam() {
     z_get_code=$(rbgu_http_code_capture "${z_get_infix}") || buc_die "No HTTP code from secret getIamPolicy"
 
     # Check for propagation error on GET
-    if zrbgi_propagation_error_predicate "${z_get_infix}" "${z_get_code}"; then
-      buc_log_args "Secret getIamPolicy returned 400 'does not exist' (propagation delay)"
+    if zrbgi_propagation_error_predicate "${z_get_infix}" "${z_get_code}" "${z_tolerance[@]}"; then
+      buc_log_args "Secret getIamPolicy returned ${z_get_code} (propagation delay)"
       test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
         || buc_die "Secret IAM: propagation timeout after ${z_prop_elapsed}s"
       buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
       sleep "${z_prop_delay}"
       z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
       z_prop_delay=$((z_prop_delay * 2))
-      test "${z_prop_delay}" -le 20 || z_prop_delay=20
+      test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
       continue
     fi
 
@@ -712,8 +759,8 @@ rbgi_grant_secret_iam() {
       z_set_code=$(rbgu_http_code_capture "${z_set_infix}") || buc_die "No HTTP code from setIamPolicy"
 
       # Check for propagation error on SET — break inner loop to retry outer
-      if zrbgi_propagation_error_predicate "${z_set_infix}" "${z_set_code}"; then
-        buc_log_args "Secret setIamPolicy returned 400 'does not exist' (propagation delay)"
+      if zrbgi_propagation_error_predicate "${z_set_infix}" "${z_set_code}" "${z_tolerance[@]}"; then
+        buc_log_args "Secret setIamPolicy returned ${z_set_code} (propagation delay)"
         break
       fi
 
@@ -739,7 +786,7 @@ rbgi_grant_secret_iam() {
     sleep "${z_prop_delay}"
     z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
     z_prop_delay=$((z_prop_delay * 2))
-    test "${z_prop_delay}" -le 20 || z_prop_delay=20
+    test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
   done
 
   test "${z_prop_succeeded}" = "1" || buc_die "Secret IAM: propagation retry loop exited without success"

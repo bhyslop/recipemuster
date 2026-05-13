@@ -111,6 +111,7 @@ to update IAM policy on
 .. Set policy version: 3 for conditional binding support
 .. {rbbc_require}
 IAM policy update successful
+.. NOTE: The `roles/owner` grant propagates to project-scope and SA-scope IAM caches effectively immediately, but resource-scope IAM caches (AR repo, bucket, secret) may lag.  Downstream operations that target resource-scope endpoints (notably {rbtgo_director_invest}'s AR repo IAM step) absorb this lag via the class C propagation tolerance in the grant harness.  See <<rbscig_iam_grant_contracts>> propagation catalog.
 
 //axhos_step
 . *Generate

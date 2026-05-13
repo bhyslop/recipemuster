@@ -150,6 +150,7 @@ link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.
 .. NOTE:
 {gar_registry}
 proto specifies GET for `getIamPolicy` with no `additional_bindings` for POST. Using POST fails intermittently with HTTP 404 (transcoding layer rejection, not missing repository). See <<rbscig_iam_grant_contracts>>.
+.. NOTE: Resource-scope IAM cache lag — on a freshly-levied depot, the governor's `roles/owner` grant may not yet have reached the AR-resource-scope IAM cache, even though it has reached project-scope and SA-scope caches.  This surfaces as HTTP 403 on the very first `getIamPolicy` call.  The grant harness absorbs this via class C tolerance (HTTP 403 with empty body-glob, time-bounded against `RBGC_PROPAGATION_DEADLINE_SEC`) — see <<rbscig_iam_grant_contracts>> propagation catalog.  Real propagation succeeds within budget; real denial waits the budget and fails cleanly.
 .. {rbbc_require}
 HTTP 200 — 404 means repository does not exist (real error, not empty policy)
 .. {rbbc_call}
