@@ -308,6 +308,17 @@ fn rbtdrc_filter_writ_output(output: &str) -> String {
         .join("\n")
 }
 
+/// Read a named environment variable from sentry's process environment via writ.
+fn rbtdrc_read_sentry_env(ctx: &mut rbtdri_Context, var: &str) -> Result<String, String> {
+    let output = rbtdrc_writ(ctx, &["printenv", var])?;
+    rbtdrc_filter_writ_output(&output)
+        .lines()
+        .map(|l| l.trim())
+        .find(|l| !l.is_empty())
+        .map(|l| l.to_string())
+        .ok_or_else(|| format!("printenv {} returned no value", var))
+}
+
 // ── Basic infra cases (fiat) ──────────────────────────────────
 
 fn rbtdrc_pentacle_dnsmasq_responds(dir: &Path) -> rbtdre_Verdict {
@@ -439,6 +450,177 @@ fn rbtdrc_sentry_iptables_loaded(dir: &Path) -> rbtdre_Verdict {
             return rbtdre_Verdict::Fail(format!(
                 "iptables rules incomplete (missing -P or -A):\n{}",
                 output
+            ));
+        }
+        rbtdre_Verdict::Pass
+    })
+}
+
+// Structural-presence backstops for the load-bearing iptables clauses and
+// kernel sysctl set by rbjs_sentry.sh. Each case is a fast read-and-check
+// against sentry's runtime state — fail loudly if a future change strips a
+// defensive clause the architecture depends on.
+
+fn rbtdrc_sentry_config_rp_filter(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        let entry_mode = match rbtdrc_read_sentry_env(ctx, "RBRN_ENTRY_MODE") {
+            Ok(m) => m,
+            Err(e) => return rbtdre_Verdict::Fail(format!("read RBRN_ENTRY_MODE: {}", e)),
+        };
+        let output = match rbtdrc_writ(ctx, &["cat", "/proc/sys/net/ipv4/conf/all/rp_filter"]) {
+            Ok(o) => o,
+            Err(e) => return rbtdre_Verdict::Fail(format!("writ error: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("rp_filter.txt"), &output);
+
+        let value = rbtdrc_filter_writ_output(&output)
+            .lines()
+            .map(|l| l.trim())
+            .find(|l| !l.is_empty())
+            .map(|l| l.to_string())
+            .unwrap_or_default();
+
+        let expected = match entry_mode.as_str() {
+            "enabled" => "2",
+            "disabled" => "1",
+            other => {
+                return rbtdre_Verdict::Fail(format!("unexpected RBRN_ENTRY_MODE '{}'", other));
+            }
+        };
+
+        if value != expected {
+            return rbtdre_Verdict::Fail(format!(
+                "rp_filter = {} (expected {} for entry-mode {})",
+                value, expected, entry_mode
+            ));
+        }
+        rbtdre_Verdict::Pass
+    })
+}
+
+fn rbtdrc_sentry_config_prerouting_dnat(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        let entry_mode = match rbtdrc_read_sentry_env(ctx, "RBRN_ENTRY_MODE") {
+            Ok(m) => m,
+            Err(e) => return rbtdre_Verdict::Fail(format!("read RBRN_ENTRY_MODE: {}", e)),
+        };
+        if entry_mode != "enabled" {
+            return rbtdre_Verdict::Skip(format!("entry-mode={}", entry_mode));
+        }
+        let output = match rbtdrc_writ(ctx, &["iptables", "-t", "nat", "-S", "PREROUTING"]) {
+            Ok(o) => o,
+            Err(e) => return rbtdre_Verdict::Fail(format!("writ error: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("prerouting.txt"), &output);
+
+        let append_rules: Vec<&str> = output
+            .lines()
+            .filter(|l| l.trim().starts_with("-A "))
+            .collect();
+
+        let return_positions: Vec<usize> = append_rules
+            .iter()
+            .enumerate()
+            .filter(|(_, r)| r.contains("-j RETURN"))
+            .map(|(i, _)| i)
+            .collect();
+        let dnat_positions: Vec<usize> = append_rules
+            .iter()
+            .enumerate()
+            .filter(|(_, r)| r.contains("-j DNAT"))
+            .map(|(i, _)| i)
+            .collect();
+
+        if return_positions.len() != 2 {
+            return rbtdre_Verdict::Fail(format!(
+                "PREROUTING RETURN rule count = {} (expected 2)",
+                return_positions.len()
+            ));
+        }
+        if dnat_positions.is_empty() {
+            return rbtdre_Verdict::Fail("PREROUTING DNAT rule absent".to_string());
+        }
+        let max_return = *return_positions.iter().max().unwrap();
+        let min_dnat = *dnat_positions.iter().min().unwrap();
+        if max_return >= min_dnat {
+            return rbtdre_Verdict::Fail(format!(
+                "PREROUTING RETURN at position {} not before DNAT at position {}",
+                max_return, min_dnat
+            ));
+        }
+        rbtdre_Verdict::Pass
+    })
+}
+
+fn rbtdrc_sentry_config_postrouting_masquerade(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        let entry_mode = match rbtdrc_read_sentry_env(ctx, "RBRN_ENTRY_MODE") {
+            Ok(m) => m,
+            Err(e) => return rbtdre_Verdict::Fail(format!("read RBRN_ENTRY_MODE: {}", e)),
+        };
+        if entry_mode != "enabled" {
+            return rbtdre_Verdict::Skip(format!("entry-mode={}", entry_mode));
+        }
+        let output = match rbtdrc_writ(ctx, &["iptables", "-t", "nat", "-S", "POSTROUTING"]) {
+            Ok(o) => o,
+            Err(e) => return rbtdre_Verdict::Fail(format!("writ error: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("postrouting.txt"), &output);
+
+        // Entry-port MASQUERADE has -p tcp and --dport; the egress MASQUERADE
+        // (uplink path, set when uplink access-mode != disabled) has neither.
+        let entry_masq = output
+            .lines()
+            .any(|l| l.contains("-j MASQUERADE") && l.contains("-p tcp") && l.contains("--dport"));
+
+        if !entry_masq {
+            return rbtdre_Verdict::Fail(
+                "POSTROUTING entry-port MASQUERADE rule absent".to_string(),
+            );
+        }
+        rbtdre_Verdict::Pass
+    })
+}
+
+fn rbtdrc_sentry_config_forward_estab_related(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        let output = match rbtdrc_writ(ctx, &["iptables", "-S", "FORWARD"]) {
+            Ok(o) => o,
+            Err(e) => return rbtdre_Verdict::Fail(format!("writ error: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("forward.txt"), &output);
+
+        let append_rules: Vec<&str> = output
+            .lines()
+            .filter(|l| l.trim().starts_with("-A "))
+            .collect();
+
+        let estab_pos = append_rules
+            .iter()
+            .position(|r| r.contains("RELATED") && r.contains("ESTABLISHED") && r.contains("-j ACCEPT"));
+        let jump_pos = append_rules
+            .iter()
+            .position(|r| r.contains("-j RBM-FORWARD"));
+
+        let estab_pos = match estab_pos {
+            Some(p) => p,
+            None => {
+                return rbtdre_Verdict::Fail(
+                    "FORWARD ESTABLISHED,RELATED ACCEPT rule absent".to_string(),
+                );
+            }
+        };
+        let jump_pos = match jump_pos {
+            Some(p) => p,
+            None => {
+                return rbtdre_Verdict::Fail("FORWARD -j RBM-FORWARD jump absent".to_string());
+            }
+        };
+
+        if estab_pos >= jump_pos {
+            return rbtdre_Verdict::Fail(format!(
+                "FORWARD ESTABLISHED,RELATED at position {} not before RBM-FORWARD jump at position {}",
+                estab_pos, jump_pos
             ));
         }
         rbtdre_Verdict::Pass
@@ -2233,6 +2415,10 @@ static RBTDRC_CASES_SECURITY: &[rbtdre_Case] = &[
     case!(rbtdrc_ifrit_dns_block_spoofing),
     case!(rbtdrc_ifrit_dns_block_tunneling),
     case!(rbtdrc_sentry_iptables_loaded),
+    case!(rbtdrc_sentry_config_rp_filter),
+    case!(rbtdrc_sentry_config_prerouting_dnat),
+    case!(rbtdrc_sentry_config_postrouting_masquerade),
+    case!(rbtdrc_sentry_config_forward_estab_related),
     case!(rbtdrc_dns_blocked_with_observation),
     case!(rbtdrc_tcp443_allow_example),
     case!(rbtdrc_tcp443_block_google),
