@@ -62,3 +62,8 @@ The recovery posture (divest+re-invest) is operationally workable but mints a fr
 ## Why this is filed
 
 The failure surfaces only on a fresh-depot SA chain reconstruction (rare path — happens at depot levy time, not during ongoing operation). The "disappeared on retry" character means a single test run can show green or red depending on cumulative propagation time across the chain. Capture so the next encounter surfaces a known-quantity rather than a fresh diagnostic.
+
+## Tracked in
+
+- **₢BBABF (iam-grant-propagation-tolerance-share)** — primary repair. Generalizes `zrbgi_propagation_error_predicate` to take a per-site tolerance list, mints `RBGC_PROPAGATION_*` constants, adds time-bounded HTTP 403 tolerance to resource-scope IAM grant sites (including the inline GAR retry in `rbgg_invest_director`). Recognizes a third propagation class — caller-recently-empowered (HTTP 403 from resource-scope cache) — alongside the existing two member-visibility classes (HTTP 400 "does not exist" / "is not deleted"). Includes Tier A+B spec sync to `RBSCIP-IamPropagation.adoc`, `RBSCIG-IamGrantContracts.adoc`, `RBSDK-director_invest.adoc`, with coherence touches in `RBSGM-governor_mantle.adoc`, `RBSDE-depot_levy.adoc`, `RBSRK-retriever_invest.adoc`.
+- **₢BBAAq (rbs0-sync-sweep-from-bb-changes)** — sibling spec-sync pace. Already tracks the parallel 403-absorption work landed on `rbgv_AccessProbe.sh` (RBSAJ). Picks up any Tier C drift (RBS0 mapping, RBSHR closure, RBSAJ cross-refs) on its next mount via its running-list mechanism — no preemptive update needed.
