@@ -2,7 +2,7 @@
 {mkr_bottle_launch}
 
 NOTE: Bottle container creation is managed by Docker Compose.
-The bottle service definition specifies the bottle image, `network_mode: "service:pentacle"` (shares pentacle's network namespace), and a `sessile` profile gate.
+The bottle service definition specifies the bottle image, `network_mode: "service:pentacle"` (shares pentacle's network namespace), `cap_drop: NET_RAW, NET_ADMIN` and `security_opt: label:disable` (kernel-layer capability bounds), and a `sessile` profile gate.
 Volume mounts are declared in the per-nameplate compose fragment (`«moniker».compose.yml`), not in nameplate env variables.
 
 //axhos_step
@@ -10,6 +10,13 @@ Volume mounts are declared in the per-nameplate compose fragment (`«moniker».c
 .. The bottle's `depends_on` with `condition: service_healthy` ensures the pentacle has completed routing setup before the bottle starts
 .. The bottle inherits the pentacle's network namespace — it sees the enclave interface with routing through the sentry already configured
 .. No network configuration occurs inside the bottle container
+
+//axhos_step
+. *Capability and label bounds*:
+.. `cap_drop: NET_RAW, NET_ADMIN` removes the bottle process's ability to create raw sockets or modify network configuration from inside its namespace.
+   These bounds are kernel-layer defense-in-depth peer to the iptables-layer enforcement at sentry.
+.. `security_opt: label:disable` disables SELinux/AppArmor labelling for the bottle, required for the volume bind-mount workflow used by per-nameplate compose fragments.
+   The capability bounds above are the load-bearing kernel-layer controls; label:disable does not weaken them.
 
 //axhoc_completion
 The bottle starts with a pre-configured network path through the sentry.

@@ -7,7 +7,7 @@ Establishes foundational security state:
 . Base Chain Configuration:
 * Flush all rules from filter and nat tables
 * Set policy DROP on all base chains (INPUT, FORWARD, OUTPUT)
-* Accept loopback interface traffic unconditionally via first rule in INPUT chain
+* Accept loopback interface traffic unconditionally as the first rule in the INPUT chain and as the first rule in the OUTPUT chain
 
 //axhos_step
 . State Tracking Setup:
@@ -26,3 +26,13 @@ Establishes foundational security state:
 ** INPUT jumps to RBM-INGRESS
 ** OUTPUT jumps to RBM-EGRESS
 ** FORWARD jumps to RBM-FORWARD
+
+//axhos_step
+. ICMP Within Enclave:
+* Accept ICMP arriving on the interface attached to {at_enclave_network} in RBM-INGRESS
+* Accept ICMP departing on the interface attached to {at_enclave_network} in RBM-EGRESS
+
+//axhos_step
+. ICMP Cross-Boundary Block:
+* Drop all ICMP in RBM-FORWARD
+* Drop ICMP departing on the interface attached to {at_transit_network} in RBM-EGRESS

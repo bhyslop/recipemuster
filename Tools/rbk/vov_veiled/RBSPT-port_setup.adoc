@@ -10,27 +10,48 @@ No userspace proxy is involved; the kernel forwards packets directly.
 * Enable IPv4 forwarding via `/proc/sys/net/ipv4/ip_forward`
 
 //axhos_step
-. DNAT Rule:
-* Add PREROUTING rule in nat table:
-** Input interface eth0 ({at_transit_network})
-** Protocol TCP
-** Destination port {rbrn_entry_port_workstation}
-** DNAT to {rbrn_enclave_bottle_ip}:{rbrn_entry_port_enclave}
+. Ephemeral Port Range:
+* Set the kernel's ephemeral port auto-allocation floor to {rbrn_uplink_port_min} via `/proc/sys/net/ipv4/ip_local_port_range` (floor through 65535)
+* Keeps low ports clear of NAT and access-control rules; {rbrn_entry_port_workstation} and {rbrn_entry_port_enclave} must both be below {rbrn_uplink_port_min}
+
+//axhos_step
+. Reverse Path Filtering:
+* Set rp_filter to loose mode (value 2) on all interfaces via `/proc/sys/net/ipv4/conf/all/rp_filter`
+* Strict mode (value 1) requires the source-IP reverse-path to match the ingress interface.
+  Inbound published-port traffic from the framework's gateway arrives on whichever interface the framework chose for port-publish delivery, but its reverse route is always via the default gateway on the interface attached to {at_transit_network} — strict mode mismatches and drops at routing time, before the FORWARD chain ever sees the packet.
+  Loose mode allows any source IP that is reachable via any interface, which is the actual invariant for entry-port traffic.
+  Iptables rules below still gate authorization; rp_filter is not the load-bearing security control.
+
+//axhos_step
+. DNAT Rules:
+* Add three PREROUTING rules in nat table, each matching protocol TCP and destination port {rbrn_entry_port_workstation}:
+** Source {rbrn_enclave_sentry_ip}: RETURN (short-circuits the DNAT)
+** Source {rbrn_enclave_bottle_ip}: RETURN (short-circuits the DNAT)
+** No source filter: DNAT to {rbrn_enclave_bottle_ip}:{rbrn_entry_port_enclave}
+* The per-IP source exclusion of the two enclave-internal containers is the load-bearing classification axis.
+  Whole-CIDR exclusion of the enclave subnet is incorrect: on linux Docker Engine the host attaches to the enclave bridge as a peer with the bridge gateway IP, which is inside the enclave CIDR; whole-CIDR exclusion rejects every legitimate host SYN.
+  Per-IP exclusion narrows the rejection to exactly the threat surface and lets the bridge gateway, the framework VM gateway, the rootlesskit synthetic source, and external clients all pass.
+* Invariant defended: enclave-internal sources MUST NOT reach the entry port via DNAT.
 
 //axhos_step
 . Forward Filter:
 * Add rule to RBM-FORWARD accepting DNATted entry traffic:
-** Input interface eth0, output interface eth1
 ** Protocol TCP
 ** Destination {rbrn_enclave_bottle_ip}
 ** Destination port {rbrn_entry_port_enclave}
+** Conntrack state DNAT (`-m conntrack --ctstate DNAT`)
+* The conntrack DNAT-state match IS the authorization: only flows that sentry's own PREROUTING DNAT created conntrack state for are allowed to forward.
+  Conntrack DNAT-state is unforgeable from either bridge.
+* The return path is handled by the parent FORWARD chain's RELATED,ESTABLISHED ACCEPT (see {scr_iptables_init} state tracking) before reaching RBM-FORWARD.
 
 //axhos_step
 . MASQUERADE Rule:
 * Add POSTROUTING rule in nat table:
-** Output interface eth1 ({at_enclave_network})
+** Output interface attached to {at_enclave_network}
 ** Protocol TCP
 ** Destination {rbrn_enclave_bottle_ip}
 ** Destination port {rbrn_entry_port_enclave}
 ** MASQUERADE (rewrites source to sentry enclave IP)
-* Return traffic is handled by RELATED,ESTABLISHED tracking in the FORWARD chain ({scr_iptables_init} state tracking)
+* Return-path symmetry: the MASQUERADE rewrites the source of the post-DNAT packet to sentry's enclave IP, so the bottle's reply destination is in-enclave.
+  The bottle then routes via its directly-connected enclave route back to sentry, where conntrack reverses the NAT cleanly.
+  Without this, the bottle would reply to the original (possibly framework-rewritten) source IP, traversing default-via-sentry into transit — empirically broken on the Docker Desktop runtime.

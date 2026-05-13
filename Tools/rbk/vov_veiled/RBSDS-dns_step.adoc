@@ -5,8 +5,8 @@ Configures sentry DNS resolution via `/etc/resolv.conf` pointing to {rbrr_dns_se
 
 If {rbrn_uplink_dns_mode} is disabled, the {at_sentry_container}:
 
-* Blocks all DNS traffic in RBM-FORWARD from eth1 (UDP and TCP port 53)
-* Blocks all DNS traffic in RBM-EGRESS to eth0 (UDP and TCP port 53)
+* Blocks all DNS traffic in RBM-FORWARD from the interface attached to {at_enclave_network} (UDP and TCP port 53)
+* Blocks all DNS traffic in RBM-EGRESS to the interface attached to {at_transit_network} (UDP and TCP port 53)
 
 If {rbrn_uplink_dns_mode} is global or allowlist, the {at_sentry_container} executes this sequence:
 
@@ -15,11 +15,11 @@ If {rbrn_uplink_dns_mode} is global or allowlist, the {at_sentry_container} exec
 +
 --
 * Core Settings:
-** Bind strictly to {at_enclave_network} interface eth1
+** Bind strictly to the interface attached to {at_enclave_network}
 ** Listen on {rbrn_enclave_sentry_ip}
 ** DNS service only — all DHCP functionality disabled (no-dhcp-interface)
 ** Isolated from host resolver (no-resolv)
-** Exclude eth0 from listening (except-interface)
+** Exclude the interface attached to {at_transit_network} from listening (except-interface)
 ** Security: bogus-priv, domain-needed, strict-order
 ** Forwarding concurrency: dns-forward-max=150
 ** Source port range: 4096-65535
@@ -54,9 +54,9 @@ If {rbrn_uplink_dns_mode} is global or allowlist, the {at_sentry_container} exec
 +
 --
 * Accept DNS queries arriving at sentry from enclave:
-** RBM-INGRESS: eth1 UDP port 53
-** RBM-INGRESS: eth1 TCP port 53
+** RBM-INGRESS: interface attached to {at_enclave_network}, UDP port 53
+** RBM-INGRESS: interface attached to {at_enclave_network}, TCP port 53
 * Accept sentry upstream DNS forwarding:
-** RBM-EGRESS: eth0 UDP port 53 to {rbrr_dns_server}
-** RBM-EGRESS: eth0 TCP port 53 to {rbrr_dns_server}
+** RBM-EGRESS: interface attached to {at_transit_network}, UDP port 53 to {rbrr_dns_server}
+** RBM-EGRESS: interface attached to {at_transit_network}, TCP port 53 to {rbrr_dns_server}
 --
