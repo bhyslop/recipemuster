@@ -1378,17 +1378,74 @@ rbfd_kludge() {
   test -d "${RBRV_CONJURE_BLDCONTEXT}" \
     || buc_die "Build context not found: ${RBRV_CONJURE_BLDCONTEXT}"
 
-  # Resolve base images (use ORIGIN directly — no GAR enshrine lookup for local builds)
+  # Resolve base images — mirror conjure's anchor-aware resolution so an enshrined
+  # vessel built via kludge resolves the same GAR-anchored layers as conjure.
+  # Kludge stays uncredentialed: anchored refs must be pre-wrested into the local
+  # cache, origin refs pre-pulled. --pull=never on the build enforces no-network.
+  local -r z_gar_repo_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
   local z_build_args=()
-  local z_slot="" z_origin_var="" z_origin=""
+  local z_slot="" z_origin_var="" z_anchor_var="" z_origin="" z_anchor=""
+  local z_slot_ref="" z_pkg_path="" z_tag="" z_miss=""
+  local z_anchored_misses=()
+  local z_origin_misses=()
   for z_slot in 1 2 3; do
     z_origin_var="RBRV_IMAGE_${z_slot}_ORIGIN"
+    z_anchor_var="RBRV_IMAGE_${z_slot}_ANCHOR"
     z_origin="${!z_origin_var:-}"
+    z_anchor="${!z_anchor_var:-}"
+
+    if test -z "${z_origin}" && test -n "${z_anchor}"; then
+      buc_die "Malformed regime: ${z_anchor_var}=${z_anchor} set but ${z_origin_var} is empty"
+    fi
     test -n "${z_origin}" || continue
-    z_build_args+=("--build-arg" "RBF_IMAGE_${z_slot}=${z_origin}")
-    buc_info "Image slot ${z_slot}: ${z_origin}"
+
+    if test -n "${z_anchor}"; then
+      case "${z_anchor}" in
+        *:*) : ;;
+        *)   buc_die "Invalid ${z_anchor_var} locator format (expected package-path:tag): ${z_anchor}" ;;
+      esac
+      z_pkg_path="${z_anchor%:*}"
+      z_tag="${z_anchor##*:}"
+      test -n "${z_pkg_path}" || buc_die "Package path is empty in ${z_anchor_var}: ${z_anchor}"
+      test -n "${z_tag}"      || buc_die "Tag is empty in ${z_anchor_var}: ${z_anchor}"
+      z_slot_ref="${z_gar_repo_base}/${z_pkg_path}:${z_tag}"
+      buc_info "Image slot ${z_slot} (anchored): ${z_slot_ref}"
+      if ! docker image inspect "${z_slot_ref}" >/dev/null 2>&1; then
+        z_anchored_misses+=("${z_anchor}")
+      fi
+    else
+      z_slot_ref="${z_origin}"
+      buc_info "Image slot ${z_slot} (pass-through): ${z_slot_ref}"
+      if ! docker image inspect "${z_slot_ref}" >/dev/null 2>&1; then
+        z_origin_misses+=("${z_origin}")
+      fi
+    fi
+
+    z_build_args+=("--build-arg" "RBF_IMAGE_${z_slot}=${z_slot_ref}")
   done
   test ${#z_build_args[@]} -gt 0 || buc_die "No RBRV_IMAGE_n_ORIGIN found in vessel config"
+
+  if test "${#z_anchored_misses[@]}" -gt 0 || test "${#z_origin_misses[@]}" -gt 0; then
+    buc_warn "Kludge cannot proceed — base image(s) not cached locally"
+    buc_bare "  Kludge runs uncredentialed and never reaches a registry. All declared"
+    buc_bare "  base images must be in the local docker cache before kludge runs."
+    buc_bare ""
+    if test "${#z_anchored_misses[@]}" -gt 0; then
+      buc_bare "  Anchored slots (wrest from GAR):"
+      for z_miss in "${z_anchored_misses[@]}"; do
+        buc_tabtarget "${RBZ_WREST_ENSHRINED_IMAGE}" "${z_miss}"
+      done
+      buc_bare ""
+    fi
+    if test "${#z_origin_misses[@]}" -gt 0; then
+      buc_bare "  Origin slots (docker pull from upstream):"
+      for z_miss in "${z_origin_misses[@]}"; do
+        buc_bare "    docker pull ${z_miss}"
+      done
+      buc_bare ""
+    fi
+    buc_die "Local image cache incomplete — see remediation above"
+  fi
 
   # Timestamp for chronological sorting, git describe for commit provenance
   # BURD_GIT_CONTEXT is exported by bud_dispatch; dirty-tree guard above ensures clean tree
@@ -1402,9 +1459,12 @@ rbfd_kludge() {
   buc_info "Hallmark: ${z_hallmark}"
   buc_info "Image tag: ${z_image_ref}"
 
-  # Build locally (host platform only — no multi-arch for dev builds)
+  # Build locally (host platform only — no multi-arch for dev builds).
+  # --pull=never enforces the no-network contract — kludge consumes the local
+  # cache exclusively; presence guard above has already verified every slot.
   buc_step "Building image locally"
   docker build \
+    --pull=never \
     "${z_build_args[@]}" \
     -f "${RBRV_CONJURE_DOCKERFILE}" \
     -t "${z_image_ref}" \

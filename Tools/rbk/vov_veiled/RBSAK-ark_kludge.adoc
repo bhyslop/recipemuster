@@ -1,9 +1,9 @@
 //axhob_operation
 {rbtgo_ark_kludge}
 
-NOTE: This operation builds a vessel image locally on the workstation using `docker build`, bypassing Cloud Build and GAR entirely. It produces a
+NOTE: This operation builds a vessel image locally on the workstation using `docker build`, without authenticating to or fetching from Cloud Build or GAR. It produces a
 {rbtga_hallmark}
-with a `k` prefix (kludge) that composes cleanly with the nameplate and compose infrastructure but is obviously not a production hallmark.
+with a `k` prefix (kludge) that composes cleanly with the nameplate and compose infrastructure but is obviously not a production hallmark. Kludge resolves the same {rbrv_image_anchor} declarations that {rbtgo_ark_conjure} does — so an enshrined vessel built via kludge consumes the same GAR-anchored base layers as the conjure path — but the layers must be pre-cached locally; the credentialed fetch happens out-of-band via {rbtgo_image_retrieve}.
 
 NOTE: Kludge is a deliberate development shortcut for fast edit-build-test cycles. It enables iterating on vessel Dockerfiles, entrypoint scripts, and package lists without waiting for a Cloud Build round-trip. The ugly name is intentional -- this is not part of the production hallmark pipeline.
 
@@ -25,8 +25,21 @@ vessel has conjuring configuration (RBRV_CONJURE_DOCKERFILE, RBRV_CONJURE_BLDCON
 . *Resolve Base Images*:
 .. For each indexed slot (n = 1, 2, 3) where
 {rbrv_image_origin}
-is set, use the origin directly as the `RBF_IMAGE_n` build-arg
-.. No enshrine anchor resolution -- kludge pulls base images from upstream registries
+is set:
+... If {rbrv_image_anchor} is also set, resolve the slot's `RBF_IMAGE_n` build-arg to the full GAR reference composed from the locator (`«REGISTRY_HOST»/«PROJECT»/«REPOSITORY»/«PACKAGE_PATH»:«TAG»`) — same shape conjure produces
+... If {rbrv_image_anchor} is empty, pass {rbrv_image_origin} through verbatim as the build-arg
+.. {rbbc_fatal}
+if a slot has {rbrv_image_anchor} set but {rbrv_image_origin} empty: "Malformed regime — anchor without origin"
+
+//axhos_step
+. *Verify Local Image Presence*:
+.. For each resolved slot ref, query the local container runtime (`docker image inspect`) to confirm the image is cached locally
+.. Accumulate per-slot misses, distinguishing anchored from pass-through
+.. {rbbc_fatal}
+if any miss is present, emit a remediation block and abort before invoking docker build:
+... Anchored misses point at {rbtgo_image_retrieve} with the locator
+... Pass-through misses point at `docker pull «origin»`
+.. The credentialed fetch is deliberately out-of-band — kludge never authenticates and never reaches a registry
 
 //axhos_step
 . *Assign Kludge Hallmark*:
@@ -36,7 +49,8 @@ is set, use the origin directly as the `RBF_IMAGE_n` build-arg
 
 //axhos_step
 . *Build Image Locally*:
-.. Run `docker build` with resolved `RBF_IMAGE_n` build-args
+.. Run `docker build --pull=never` with resolved `RBF_IMAGE_n` build-args
+.. `--pull=never` enforces the no-network contract — the presence check above has already verified every slot, so the flag is a backstop against hardcoded `FROM` stages that bypass the `RBF_IMAGE_n` parameterization
 .. Build for host platform only (no multi-arch -- development builds run where they are built)
 .. Tag as `«GAR_BASE»/{gar_hallmarks_namespace}/«HALLMARK»/image:«HALLMARK»` to match compose YAML interpolation format
 
@@ -54,6 +68,7 @@ is set, use the origin directly as the `RBF_IMAGE_n` build-arg
 == Limitations
 
 * Requires GCP depot configuration (foundry kindle validates `RBDC_DIRECTOR_RBRA_FILE` exists, though kludge does not use credentials)
+* All declared base images must be cached locally before kludge runs — anchored slots via {rbtgo_image_retrieve}, pass-through slots via plain `docker pull`. Kludge never reaches a registry, so the cold-cache path is two operator steps (pre-cache, then kludge), not one.
 * Host platform only -- a kludge-built `linux/arm64` image on Apple Silicon will not run on `linux/amd64` hosts
 * No about artifact, no provenance chain -- the vouch alias carries no attestation content
 * Not suitable for release or delivery -- use {rbtgo_ark_conjure} for production hallmarks
@@ -64,6 +79,7 @@ is set, use the origin directly as the `RBF_IMAGE_n` build-arg
 
 == See Also
 
-* {rbtgo_ark_conjure} -- production image build via Cloud Build
+* {rbtgo_ark_conjure} -- production image build via Cloud Build; shares anchor-resolution semantics with kludge
+* {rbtgo_image_retrieve} -- credentialed wrest of an enshrined base image into the local cache (remediation target when an anchored slot is missing)
 * {rbtgo_ark_vouch} -- provenance attestation (kludge bypasses this entirely)
 * {rbtgo_ark_summon} -- pull from GAR (not needed for kludge -- image is already local)
