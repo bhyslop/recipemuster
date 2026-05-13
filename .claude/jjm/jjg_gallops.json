@@ -10306,9 +10306,10 @@
         "₢BKAAD",
         "₢BKAAE",
         "₢BKAAF",
-        "₢BKAAG"
+        "₢BKAAG",
+        "₢BKAAH"
       ],
-      "jjghn_next_pace_seed": "AAH",
+      "jjghn_next_pace_seed": "AAI",
       "jjghn_paces": {
         "₢BKAAA": {
           "jjgpn_tacks": [
@@ -10384,6 +10385,17 @@
               "jjgtn_text": "## Character\n\nCodification. Prose largely drafted in AAJ docket; integrate into BCG's voice and structure.\n\n## Goal\n\nBCG carries a \"Tabtarget Path Indirection\" subsection peer to \"Dispatch-Provided Directory Variables.\" Future readers learn the trampoline pattern from BCG rather than tribal knowledge.\n\n## Work\n\n- Locate the \"Dispatch-Provided Directory Variables\" section in `Tools/buk/vov_veiled/BCG-BashConsoleGuide.md`.\n- Add a peer subsection titled \"Tabtarget Path Indirection.\"\n- Content based on AAJ docket's BCG codification section. Adapt for BCG's voice; align with BCG's CLI-as-Module-Gateway principle (sections 44-77).\n- Key teaching points:\n  - Single tabtarget (`tt/z-launcher.sh`) resolves moorings location.\n  - Trampoline normalizes cwd to repo root before launcher dispatch.\n  - All other tabtargets invoke trampoline with a workbench identifier.\n  - Moorings location is single-point-of-customization at the tabtarget layer (parallel to BURC at the CLI layer).\n  - Workbenches start with deterministic cwd regardless of user invocation directory.\n\n### Wrap criteria\n\n- BCG renders cleanly.\n- Cross-references to related BCG sections (load-bearing complexity, CLI as module gateway, dispatch-provided BURD_*) are coherent.\n- `tt/rbtd-s.TestSuite.fast.sh` passes (defensive — should be a no-op for doc-only changes).\n\n## Sources\n\n- `Tools/buk/vov_veiled/BCG-BashConsoleGuide.md` — target file\n- ₣A_/₢A_AAJ docket — BCG codification section, prose draft",
               "jjgtn_silks": "bcg-tabtarget-path-indirection-section",
               "jjgtn_basis": "267a127"
+            }
+          ]
+        },
+        "₢BKAAH": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260513-1259",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nMechanical with linked-term subtlety. Parallel-internal: two agents, one per doc subtree.\n\n## Goal\n\nNo document teaches `.buk/`, `.rbk/`, or `rbev-vessels/` to a reader. AsciiDoc linked terms reflect the new vocabulary coherently.\n\n## Work\n\n### Parallel dispatch\n\nSpawn two sonnet agents working on disjoint doc subtrees:\n\n- **handbook-agent** — onboarding tracks and human-facing handbook content:\n  - `Tools/rbk/rbh0/` (rbho/rbhp/rbhw families — onboarding CLIs)\n  - Any handbook display strings, probe outputs, learner-facing examples\n  - Tabtargets surfaced in onboarding flows (`rbw-O*` series)\n\n- **specs-agent** — specifications and meta-docs:\n  - `Tools/rbk/vov_veiled/RBS*.adoc` family (start with RBS0, RBRN, RBSRR, RBSRP, RBSRV)\n  - `README.md`, `CLAUDE.md`\n  - Consumer CLAUDE: `Tools/rbk/vov_veiled/CLAUDE.consumer.md`\n  - AsciiDoc linked terms — attribute references, anchors, replacement text — must stay coherent. A linked term whose definition mentions the old path needs both the definition text AND any anchor/attribute name updated if those embed the old vocabulary.\n\n### Substitution rules (both agents)\n\n- `.buk/` → `rbmm_moorings/` (subdirs determine specific final path)\n- `.rbk/` → `rbmm_moorings/` (subdirs determine specific final path)\n- `rbev-vessels/` → `rbmm_moorings/rbmv_vessels/`\n- `.buk/users/` → `rbmm_moorings/rbmu_users/`\n- `.buk/launcher.*` → `rbmm_moorings/rbml_launchers/launcher.*`\n\nWhere prose teaches the directory structure as a concept (not just a path), update both the path and any prose that describes the old structure (e.g., \"consumer config under `.buk/`\" → \"consumer config under `rbmm_moorings/`\").\n\n### Coherence\n\nTwo agents on disjoint trees, but both applying the same substitution rules. Substitution rule consistency is the docket's contract — if either agent invents a different substitution, both wraps need to align before this pace wraps.\n\n### Wrap criteria\n\n- `grep -rE '\\.(buk|rbk)/|rbev-vessels' Tools/rbk/vov_veiled/ Tools/rbk/rbh0/ README.md CLAUDE.md` returns empty (or only documented exceptions).\n- Spot-render an onboarding track (`tt/rbw-Occ.OnboardingConfigureEnvironment.sh` etc.) and read through; vocabulary reads natural.\n- AsciiDoc linked terms resolve.\n- `tt/rbtd-s.TestSuite.fast.sh` passes.\n\n## Sources\n\n- `Tools/rbk/rbh0/` — handbook surface\n- `Tools/rbk/vov_veiled/RBS*.adoc` — spec surface\n- ₣A_/₢A_AAJ docket — Handbook and specs section",
+              "jjgtn_silks": "docs-vocabulary-sweep",
+              "jjgtn_basis": "1d62953"
             }
           ]
         }
