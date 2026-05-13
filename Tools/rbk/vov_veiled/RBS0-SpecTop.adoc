@@ -607,6 +607,10 @@ must be healthy before the
 {at_bottle_container}
 starts.
 This prevents firewall bypass — the bottle cannot send traffic before security policies are enforced.
+The "first packet" guarantee is enforceable because sentry's iptables are installed before the pentacle is healthy, the pentacle's namespace is shared with the bottle (so the bottle inherits the routing-and-firewall state already configured), and sentry sits on every inbound path by virtue of the published-port directive being on the sentry service (not pentacle) and the bottle's default route being via sentry.
+Topology changes that violate any of these commitments require re-validation against the
+{at_recipe_bottle}
+Ifrit suite before declaring the security properties preserved.
 Per-nameplate compose fragments (e.g., `«moniker».compose.yml`) add volume mount declarations.
 Env-files passed via `--env-file` serve a dual purpose: YAML interpolation (`${VAR}` references in compose files resolve image refs, subnet, container names) and container environment forwarding (bare variable names in `environment:` sections inject values into containers at runtime).
 
@@ -673,6 +677,10 @@ is enabled
 {at_bottle_container}
 
 These properties hold across all operations and failure modes.
+They depend on a layered-defense structure in which each layer is independently load-bearing for at least one invariant: network namespace isolation, capability bounds on the
+{at_bottle_container}
+(`cap_drop: NET_RAW, NET_ADMIN`), kernel reverse-path filtering, iptables filter chains (RBM-INGRESS, RBM-EGRESS, RBM-FORWARD), iptables NAT (PREROUTING DNAT, POSTROUTING MASQUERADE), and conntrack state tracking.
+Removing or weakening a layer requires Ifrit-suite empirical validation to confirm the security envelope remains intact; architectural reasoning alone has been empirically insufficient.
 
 === Adversarial Validation: The Ifrit
 

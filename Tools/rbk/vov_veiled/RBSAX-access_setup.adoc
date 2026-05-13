@@ -20,6 +20,8 @@ If {rbrn_uplink_access_mode} is global or allowlist, this sequence:
 ** Source from enclave subnet ({rbrn_enclave_base_ip}/{rbrn_enclave_netmask})
 ** Exclude enclave-to-enclave traffic
 ** MASQUERADE to the transit-side interface IP
+* This MASQUERADE rule covers the outbound-from-enclave path only.
+  The entry-port path requires a separate POSTROUTING MASQUERADE rule for return-path symmetry — see {scr_port_setup} MASQUERADE Rule.
 
 //axhos_step
 . Filter Configuration:
