@@ -10308,9 +10308,10 @@
         "₢BKAAF",
         "₢BKAAG",
         "₢BKAAH",
-        "₢BKAAI"
+        "₢BKAAI",
+        "₢BKAAJ"
       ],
-      "jjghn_next_pace_seed": "AAJ",
+      "jjghn_next_pace_seed": "AAK",
       "jjghn_paces": {
         "₢BKAAA": {
           "jjgpn_tacks": [
@@ -10408,6 +10409,17 @@
               "jjgtn_text": "## Character\n\nTidy. Mechanical file moves + CLAUDE.md updates.\n\n## Goal\n\nStranded items relocated to their proper homes. Acronym registry reflects the new `rbm*_` family.\n\n## Work\n\n### File relocations (use `git mv`)\n\n- `Tools/rbk/rbmP_laterSecurityAudit.md` → `Memos/`. Orphan memo; reclaims `rbm*` namespace for the moorings family.\n- `.rbk/rbob_compose.yml` → `Tools/rbk/rbob_compose.yml`. Kit machinery (crucible topology), not consumer-tunable. (If pace 4 already moved this as part of the rename, verify and skip.)\n\n### CLAUDE.md acronym registration\n\nRegister the `rbm*_` family in `/Users/bhyslop/projects/rbm_alpha_recipemuster/CLAUDE.md` File Acronym Mappings under the RBK subdirectory section:\n\n- `rbmm_` — Moorings umbrella (the directory itself)\n- `rbml_` — Moorings launchers\n- `rbmu_` — Moorings users (remote profiles)\n- `rbmv_` — Moorings vessels\n- Plus `rbmn_` per ₢BKAAA outcome if it joined the family\n\n### Wrap criteria\n\n- Both files at new locations; old locations gone.\n- CLAUDE.md acronym table includes the family.\n- No references to old locations survive in code (handled by ₢BKAAE) or docs (handled by ₢BKAAH); if any do, they're bugs to file, not bugs to fix in this pace.\n- `tt/rbtd-s.TestSuite.fast.sh` passes.\n\n## Sources\n\n- `Tools/rbk/rbmP_laterSecurityAudit.md` — orphan memo\n- `.rbk/rbob_compose.yml` (or `rbmm_moorings/rbob_compose.yml` if pace 4 staged it under moorings)\n- `CLAUDE.md` — acronym registry\n- ₣A_/₢A_AAJ docket — Cleanup section",
               "jjgtn_silks": "kit-cleanup",
               "jjgtn_basis": "f1650fd"
+            }
+          ]
+        },
+        "₢BKAAJ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260513-1300",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nTwo-platform gauntlet exit. Operator-driven; failure triage is opus-grade — a failure here is a real cutover bug, not exploration.\n\n## Goal\n\n`tt/rbw-tP.QualifyPristine.sh` passes on macOS and linux against the new layout.\n\n## Work\n\nRun sequentially, never concurrent:\n\n- macOS branch off the ₣BK heat branch: `tt/rbw-tP.QualifyPristine.sh`.\n- linux branch off the ₣BK heat branch: `tt/rbw-tP.QualifyPristine.sh`.\n\nThe gauntlet runs canonical-establish (depot regen) + qualification in one pass. Per-platform branches keep canonical-depot commits isolated.\n\n### Triage on failure\n\n- **Grammar bug** (literal that escaped the sweep, wrong constant) — fix inline, re-run.\n- **Contract bug** (cwd assumption that escaped the audit, layout assumption in untested code path) — fix inline if mechanical, spin off a pace if architectural.\n- **Genuine architectural surprise** — stop, surface, decide. The cutover is wide enough that something subtle could surface only under the full gauntlet.\n\n### Wrap criteria\n\n- Both platform runs green.\n- Any inline fixes are themselves committed as `jjx_record` entries against this pace.\n\n## Sources\n\n- `Tools/rbk/rbq_Qualify.sh` — pristine entry point\n- `Tools/rbk/rbtd/rbte_engine.sh` — gauntlet suite contents\n- `Tools/rbk/rbtd/src/rbtdrk_canonical.rs` — canonical-establish performs the depot regen\n- ₣A_/₢A_AAP — template pace pattern for two-platform acceptance",
+              "jjgtn_silks": "moorings-acceptance",
+              "jjgtn_basis": "c516406"
             }
           ]
         }
