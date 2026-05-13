@@ -9874,9 +9874,10 @@
         "₢BDAAE",
         "₢BDAAG",
         "₢BDAAH",
-        "₢BDAAF"
+        "₢BDAAF",
+        "₢BDAAI"
       ],
-      "jjghn_next_pace_seed": "AAI",
+      "jjghn_next_pace_seed": "AAJ",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -10117,6 +10118,17 @@
               "jjgtn_text": "Design and implement a \"snip\" operation for paces.\n\n## Concept\n\nMidway through executing a pace, the runner realizes a chunk of remaining work belongs in a separate pace (typically the one immediately following). The snip operation:\n\n1. Creates a new pace positioned immediately after the current pace\n2. Moves the \"snipped\" steps from the current pace's docket into the new pace's docket\n3. Revises the current pace's docket to remove those steps\n\n## Context\n\nThis typically arises at wrap time — the runner wants to wrap the current pace but recognizes some planned steps weren't done and belong in their own pace rather than being abandoned or crammed in.\n\n## Vocabulary TBD\n\nNeed good naming. Candidates to consider:\n- snip (cutting thread)\n- cleave (splitting)\n- shear (cutting wool — fits equestrian theme)\n- fork (splitting path)\n- calve (splitting off)\n\nThe verb should feel natural in the JJ equestrian vocabulary.\n\n## Schema Implications\n\nMay need a new CLI command (jjx_snip or similar). Likely composes existing primitives (enroll + revise_docket) but having a dedicated command ensures atomicity and correct positioning.\n\n## Open Questions\n\n- Should snip only work on the currently-active pace, or any pace?\n- Should it auto-position after current, or allow positioning?\n- How to handle the docket split — interactive, or provide both halves?\n- Should the snipped pace inherit any properties (markers, state)?",
               "jjgtn_silks": "pace-snip-operation",
               "jjgtn_basis": "3b1e8db"
+            }
+          ]
+        },
+        "₢BDAAI": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260513-1421",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nMechanical scout enhancement.\n\n## Locked decisions\n\n- **Regex-metachar detection set:** `.*+?[](){}|^$\\` — any of these in the pattern triggers regex mode.\n- **Plain mode (no metachars):** three-tier word search. Tier 1 `\\bWORD\\b` (whole), tier 2 `\\bWORD` (prefix), tier 3 `WORD` (substring). Per-pace results carry a tier provenance marker (`[whole]` / `[prefix]` / `[substring]`); results presented in tier order.\n- **Regex mode:** single pass with the raw pattern, no permutations.\n- **Word-frequency summary (always):** header block showing distinct matched-text strings with occurrence counts. In plain mode this surfaces `ark` / `arks` / `hallmark` / etc. with counts; in regex mode it counts distinct match spans (operator chose regex deliberately).\n- **Drop silks from result rows entirely:** heat group header keeps `₣XX heat-silks`; pace rows show `₢XXXXX [state]` + match excerpt only. No pace silks on pace rows.\n- Heat grouping retained.\n\n## Sources\n\n- `Tools/jjk/vov_veiled/JJSCSC-scout.adoc` — spec, update to match new behavior.\n\n## Done when\n\n- Spec reflects new behavior.\n- `scout ark` returns frequency summary + tiered results with provenance markers.\n- `scout '\\bark\\b'` returns single-pass regex results + frequency summary.\n- Silks no longer appear on result rows.",
+              "jjgtn_silks": "scout-tier-and-word-frequency",
+              "jjgtn_basis": "12969f0"
             }
           ]
         }
