@@ -54,7 +54,7 @@ The Folio column shows how each tabtarget receives it:
 
 | Colophon | Frontispiece | Folio | Purpose |
 |----------|-------------|-------|---------|
-| `rbw-gPI` | PayorInstall | — | Ingest OAuth credentials from JSON key file |
+| `rbw-gPI` | PayorInstall | param1 | Ingest OAuth credentials from JSON key file |
 | `rbw-gPE` | PayorEstablish | — | Guided Manor establishment — GCP project + OAuth consent screen |
 | `rbw-gPR` | PayorRefresh | — | Refresh expired OAuth tokens |
 | `rbw-gq` | QuotaBuild | — | Display Cloud Build capacity review procedure |

@@ -355,8 +355,8 @@ zbud_main() {
   # Execute coordinator with logging
   set +e
   zBURD_STATUS_FILE="${BURD_TEMP_DIR}/status-$$"
-  if test -n "${BURD_INTERACTIVE:-}"; then
-    # Interactive mode: uncurated logging to historical log, preserves line buffering
+  if test -n "${BURD_INTERACTIVE:-}" && test -z "${BURD_NO_LOG:-}"; then
+    # Interactive mode with logging: uncurated tee to historical log, preserves line buffering
     "${z_invocation[@]}" 2>&1 | tee -a "${BURD_LOG_HIST}"
     zBURD_EXIT_STATUS=${PIPESTATUS[0]}
     echo "${zBURD_EXIT_STATUS}" > "${zBURD_STATUS_FILE}"
