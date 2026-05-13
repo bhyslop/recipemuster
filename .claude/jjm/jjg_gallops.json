@@ -13,7 +13,6 @@
     "₣BG",
     "₣BH",
     "₣Aq",
-    "₣Az",
     "₣Ap",
     "₣Ah",
     "₣A9",
@@ -7758,14 +7757,6 @@
     "₣Au": {
       "jjghn_silks": "hairpin-peer-access",
       "jjghn_creation_time": "260314",
-      "jjghn_status": "jjghe_stabled",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
-    },
-    "₣Az": {
-      "jjghn_silks": "rbk-90-deferred-ark-concept-debt",
-      "jjghn_creation_time": "260330",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [],
       "jjghn_next_pace_seed": "AAA",

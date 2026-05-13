@@ -1,3 +1,12 @@
+# Heat Trophy: rbk-90-deferred-ark-concept-debt
+
+**Firemark:** ₣Az
+**Created:** 260330
+**Retired:** 260513
+**Status:** retired
+
+## Paddock
+
 ## Context
 
 Two concept-removal debts identified during ₣Ax (bottle lifecycle vocabulary) work. Both are deletion/simplification — removing concepts that don't carry their weight. Verb renames discovered in the same conversation live in ₣Ax where the execution happens.
@@ -46,3 +55,50 @@ Two concept-removal debts identified during ₣Ax (bottle lifecycle vocabulary) 
 - RBS0-SpecTop.adoc lines 75-81 (ark mappings), 960-969 (inscribe deferred), 1507-1534 (ark definition), 1720+ (rubric definition)
 - rbf_Foundry.sh lines 848-870 (inscribe), 575+ (ark suffixes)
 - 260330 conversation: ark assessment, inscribe discovery
+
+## Paces
+
+## Commit Activity
+
+```
+File-touch bitmap: (no work file changes)
+```
+
+## Steeplechase
+
+### 2026-05-11 15:40 - Heat - f
+
+silks=rbk-90-deferred-ark-concept-debt
+
+### 2026-05-11 13:22 - Heat - f
+
+silks=rbk-99-deferred-ark-concept-debt
+
+### 2026-05-11 09:36 - Heat - f
+
+stabled, silks=rbk-deferred-ark-concept-debt
+
+### 2026-03-30 16:17 - Heat - d
+
+paddock curried: added sequencing dependency on Ax ark quoin names
+
+### 2026-03-30 16:10 - Heat - d
+
+paddock curried: trimmed verb decisions to Ax, kept only ark + rubric inscribe removal
+
+### 2026-03-30 16:05 - Heat - d
+
+paddock curried: added Group A (role/regime) and Group B (image-level) verb decisions
+
+### 2026-03-30 14:30 - Heat - f
+
+stabled
+
+### 2026-03-30 14:30 - Heat - d
+
+paddock curried: initial paddock from Ax ark/inscribe discovery
+
+### 2026-03-30 14:29 - Heat - N
+
+rbk-vocabulary-debt-ark-rubric
+
