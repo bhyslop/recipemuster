@@ -2,6 +2,7 @@
   "jjgrn_schema_version": 4,
   "jjgrn_next_heat_seed": "BK",
   "jjgrn_heat_order": [
+    "₣BJ",
     "₣BF",
     "₣BD",
     "₣BB",
@@ -28,8 +29,7 @@
     "₣Aa",
     "₣Au",
     "₣BC",
-    "₣BI",
-    "₣BJ"
+    "₣BI"
   ],
   "jjgrn_heats": {
     "₣A-": {
@@ -10230,7 +10230,7 @@
     "₣BJ": {
       "jjghn_silks": "rbk-14-mvp-testing-simplification",
       "jjghn_creation_time": "260512",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BJAAA"
       ],
