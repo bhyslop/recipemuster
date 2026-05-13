@@ -10300,9 +10300,10 @@
       "jjghn_creation_time": "260513",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
-        "₢BKAAA"
+        "₢BKAAA",
+        "₢BKAAB"
       ],
-      "jjghn_next_pace_seed": "AAB",
+      "jjghn_next_pace_seed": "AAC",
       "jjghn_paces": {
         "₢BKAAA": {
           "jjgpn_tacks": [
@@ -10312,6 +10313,17 @@
               "jjgtn_text": "## Character\n\nNaming-family decision. Opus-grade judgment, no code change.\n\n## Goal\n\nResolve whether `rbmn_` joins the `rbm*_` moorings family or splits off.\n\n## Context\n\n`Tools/buk/bubc_constants.sh` defines `BUBC_rbmn_nodes_subdir=\"rbmn_nodes\"`, using the `rbmn_` prefix. AAJ docket's `rbm*_` family table lists only `rbmm_`, `rbml_`, `rbmu_`, `rbmv_` — `rbmn_` is absent. Either AAJ's table is now stale (and `rbmn_` joins the family), or `rbmn_` belongs to a different concept warranting its own family.\n\n## Work\n\n- Read `Tools/buk/bubc_constants.sh` to see how `BUBC_rbmn_nodes_subdir` is used.\n- Grep the kit for `rbmn_` references to understand the concept.\n- Decide: joins `rbm*_` family or splits off.\n- If joins: update the heat paddock and pace 9's CLAUDE.md registration scope.\n- If splits: document the new family's gestalt in the wrap commit message and consider whether it also needs CLAUDE.md registration.\n\nPace 1 outcome shapes the constants minted in pace 3 (rbcc-establish-fact-locale) — wrap before pace 3 mounts.\n\n## Sources\n\n- `Tools/buk/bubc_constants.sh` — site of divergence\n- ₣A_/₢A_AAJ docket — `rbm*_` family table",
               "jjgtn_silks": "bubc-rbmn-prefix-reconciliation",
               "jjgtn_basis": "7f09d64"
+            }
+          ]
+        },
+        "₢BKAAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260513-1257",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nLoad-bearing mechanism. Workbench cwd audit gates the mass rewire — silent breakage vector if skipped.\n\n## Goal\n\n`tt/z-launcher.sh` exists, every tabtarget routes through it, and no workbench broke from the cwd semantic change.\n\n## Work\n\n### Workbench cwd audit (gates the rewire)\n\nz-launcher.sh chdirs to repo root before dispatching the named launcher. Today, workbenches start with cwd = wherever-user-invoked. Any workbench code assuming user-invocation-cwd breaks silently after the rewire.\n\nSurvey before rewiring:\n\n- `grep` every `*w_workbench.sh` and dispatched module for `$PWD`, `cd \"${0%/*}\"`, and unqualified relative paths.\n- Note each site; classify as cwd-stable (fine), cwd-sensitive-fixable (fix in this pace), or cwd-sensitive-requires-rework (surface as a blocker, do not proceed).\n\n### Trampoline introduction\n\n- Create `tt/z-launcher.sh`:\n  - Resolves its own dir via `${BASH_SOURCE[0]%/*}`.\n  - chdirs to repo root.\n  - Hardcodes the moorings-launchers path as a literal string. Initial value points at `../.buk/launcher.${1}_workbench.sh` (transitional — pace 4 flips this literal to the new layout).\n  - `exec`s the named launcher with positional args forwarded.\n\n### Tabtarget rewire\n\n- Rewrite every `tt/*.sh` from the current `${BURD_LAUNCHER}` pattern to `exec \"${BASH_SOURCE[0]%/*}/z-launcher.sh\" <workbench-id> \"${@}\"`.\n- The workbench-id is the existing colophon prefix's workbench identifier (e.g., `rbw`, `buw`, `jjw`).\n\n### Wrap criteria\n\n- `tt/rbtd-s.TestSuite.fast.sh` passes.\n- Spot-check sampling of tabtargets executes correctly from at least three different cwd locations.\n\n## Sources\n\n- ₣A_/₢A_AAJ docket — \"Trampoline design\", \"Execution-context normalization\"\n- `Tools/buk/vov_veiled/BCG-BashConsoleGuide.md` sections 171-181 — dispatch-provided `BURD_*`, the pattern this extends\n- Any `*w_workbench.sh` under `Tools/` — audit surface",
+              "jjgtn_silks": "z-launcher-trampoline-introduce",
+              "jjgtn_basis": "3b6c338"
             }
           ]
         }
