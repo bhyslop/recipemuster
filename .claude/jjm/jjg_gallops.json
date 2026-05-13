@@ -10299,9 +10299,23 @@
       "jjghn_silks": "rbk-12-mvp-moorings-cutover",
       "jjghn_creation_time": "260513",
       "jjghn_status": "jjghe_racing",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
+      "jjghn_order": [
+        "₢BKAAA"
+      ],
+      "jjghn_next_pace_seed": "AAB",
+      "jjghn_paces": {
+        "₢BKAAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260513-1257",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nNaming-family decision. Opus-grade judgment, no code change.\n\n## Goal\n\nResolve whether `rbmn_` joins the `rbm*_` moorings family or splits off.\n\n## Context\n\n`Tools/buk/bubc_constants.sh` defines `BUBC_rbmn_nodes_subdir=\"rbmn_nodes\"`, using the `rbmn_` prefix. AAJ docket's `rbm*_` family table lists only `rbmm_`, `rbml_`, `rbmu_`, `rbmv_` — `rbmn_` is absent. Either AAJ's table is now stale (and `rbmn_` joins the family), or `rbmn_` belongs to a different concept warranting its own family.\n\n## Work\n\n- Read `Tools/buk/bubc_constants.sh` to see how `BUBC_rbmn_nodes_subdir` is used.\n- Grep the kit for `rbmn_` references to understand the concept.\n- Decide: joins `rbm*_` family or splits off.\n- If joins: update the heat paddock and pace 9's CLAUDE.md registration scope.\n- If splits: document the new family's gestalt in the wrap commit message and consider whether it also needs CLAUDE.md registration.\n\nPace 1 outcome shapes the constants minted in pace 3 (rbcc-establish-fact-locale) — wrap before pace 3 mounts.\n\n## Sources\n\n- `Tools/buk/bubc_constants.sh` — site of divergence\n- ₣A_/₢A_AAJ docket — `rbm*_` family table",
+              "jjgtn_silks": "bubc-rbmn-prefix-reconciliation",
+              "jjgtn_basis": "7f09d64"
+            }
+          ]
+        }
+      }
     }
   }
 }
