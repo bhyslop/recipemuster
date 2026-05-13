@@ -26,7 +26,6 @@
     "₣AU",
     "₣AQ",
     "₣AZ",
-    "₣Aa",
     "₣Au",
     "₣BC",
     "₣BI"
@@ -6656,40 +6655,6 @@
               "jjgtn_text": "## Character\n\nStructural backstops for the load-bearing iptables clauses and kernel sysctls identified by ₢A_AAb's iteration arc. Each assertion is a fast structural check that catches a specific class of regression — the kind where a future architect (human or agent) decides a defensive clause is \"redundant\" and removes it. The current adversarial Ifrit suite catches behavioral regressions; these add fast structural-presence checks that fail loudly before the behavioral suite even has to run.\n\nMount only after ₢A_AAb canonical pristine pass.\n\n## Docket\n\nAdd structural/configuration-presence assertion tests covering the load-bearing clauses the anchor memo's Lessons captured section identifies. Each assertion targets a specific class of regression the iteration arc taught us to defend against.\n\nVenue (mount-time decision): probably new crucible cases under `Tools/rbk/rbtd/src/rbtdrc_*.rs` (since they probe live container state, not file content). Alternative venue: new Ifrit sortie family. Inspect existing patterns and choose; document the decision in the implementation.\n\n**Assertions to add:**\n\n1. **rp_filter sysctl assertion.** Inside sentry's network namespace when `RBRN_ENTRY_MODE=enabled`: read `/proc/sys/net/ipv4/conf/all/rp_filter` and assert value is `2` (loose). Catches regression where ₢A_AAd's spec edits or a future cleanup re-introduces strict mode (RBSAX's pre-existing commitment); strict mode silently breaks Linux Docker Engine delivery per the cerebro empirical evidence.\n\n2. **PREROUTING per-IP RETURN structural assertion.** Parse sentry's `iptables -t nat -L PREROUTING -n` output; assert two RETURN rules for `${RBRN_ENCLAVE_SENTRY_IP}` and `${RBRN_ENCLAVE_BOTTLE_IP}` are present and positioned BEFORE the DNAT rule. Catches regression where someone \"simplifies\" back to whole-CIDR exclusion (which re-breaks Linux per cerebro evidence) or removes the RETURN clauses entirely (which would let enclave-internal sources reach the bottle via entry-port DNAT, violating `net-dnat-entry-reflection`).\n\n3. **POSTROUTING MASQUERADE structural assertion.** Parse sentry's `iptables -t nat -L POSTROUTING -n` output; assert MASQUERADE rule on the entry-port path (matching `-d ${RBRN_ENCLAVE_BOTTLE_IP} --dport ${RBRN_ENTRY_PORT_ENCLAVE}`) is present. Complements ₢A_AAk's behavioral check (bottle sees sentry's enclave IP); ₢A_AAk tests the property, this tests the implementation. Both should fail under MASQUERADE removal, but they fail in different ways — useful for diagnosis.\n\n4. **RBM-FORWARD ESTABLISHED,RELATED assertion.** Parse sentry's `iptables -L RBM-FORWARD -n` output; assert `-m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT` rule is present and positioned EARLY in the chain (before per-destination access-mode filtering). Catches regression where this baseline rule is removed or repositioned late; return paths through sentry would break asymmetrically.\n\n**Optional fifth assertion (lower priority):**\n\n5. **NET_ADMIN capability drop assertion.** From inside the bottle, attempt `iptables -L` (or equivalent capability probe); assert operation-not-permitted. Catches regression where bottle's `cap_drop: [NET_ADMIN]` in `rbob_compose.yml` is reverted (the namespace-sharing security hygiene Round 4 recommended). Lower priority because the failure mode is \"compromised bottle could alter pentacle/sentry rules,\" which is escalation rather than direct invariant violation.\n\n**Implementation discipline:**\n\n- Each assertion should produce a clear failure message naming which clause regressed and pointing at the anchor memo section explaining why the clause is load-bearing. The point of these tests is to catch regressions early AND educate the agent who triggered them about why their change broke things.\n- Assertions can run as part of the existing tadmor fixture (extending its 54-case suite) or as a new dedicated fixture. Operator picks at mount.\n- These are CHEAP to run (read /proc, parse iptables output). They should be fast-fail early-warning, not slow gauntlet additions.\n\n### References\n\n- `Memos/memo-20260512-sentry-entry-port-repair-anchor.md` — Lessons captured section identifies each load-bearing clause these assertions backstop; Fix Recipe section names the exact form expected.\n- `rbev-vessels/common-sentry-context/rbjs_sentry.sh` — the file these assertions verify the state of (post-startup).\n- `rbev-vessels/common-ifrit-context/src/rbida_sorties.rs` — pattern reference if using Ifrit framework.\n- `Tools/rbk/rbtd/src/rbtdrc_crucible.rs` — pattern reference if using crucible test cases.\n- ₢A_AAk (slated) — behavioral counterpart to assertion 3.",
               "jjgtn_silks": "sentry-config-presence-assertions",
               "jjgtn_basis": "55bba1a"
-            }
-          ]
-        }
-      }
-    },
-    "₣Aa": {
-      "jjghn_silks": "rbw-test-improvement-ideas",
-      "jjghn_creation_time": "260210",
-      "jjghn_status": "jjghe_stabled",
-      "jjghn_order": [
-        "₢AaAAA",
-        "₢AaAAB"
-      ],
-      "jjghn_next_pace_seed": "AAC",
-      "jjghn_paces": {
-        "₢AaAAA": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260210-1459",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": "Add a suite-level precondition that fails fast if the local repo is not clean and aligned with its remote. This addresses failures caused by misalignment between local repo state and cloud state. The precondition should check that the working tree is clean (no uncommitted changes) and that the local branch is in sync with the remote, aborting the suite early with a clear error message if not.",
-              "jjgtn_silks": "suite-git-precondition",
-              "jjgtn_basis": "f3d6f91"
-            }
-          ]
-        },
-        "₢AaAAB": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260216-0547",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": "Decide whether regime validators should reject non-empty variables belonging to inactive gates.\n\n## Context\n\nDuring the ATAAp regime voicing audit, we aligned RBRV with the AXLA gated-group pattern\n(axhrgc_gate). The current implementation (matching RBRN) is permissive: variables from\ninactive gates are kindled and listed in z_known but not validated. For example,\nRBRV_VESSEL_MODE=bind with RBRV_CONJURE_DOCKERFILE set would silently carry the conjure\nvalue without error.\n\nThe AXLA spec defines activation semantics for groups but does not mandate rejection of\ncompeting groups' members.\n\n## Options\n\n1. **Permissive (status quo):** Inactive gate vars are silently ignored. Simple, forgiving,\n   matches current RBRN behavior.\n2. **Warn:** Log a warning for non-empty vars in inactive gates, but do not die.\n3. **Strict:** Die if non-empty vars belong to an inactive gate. Catches misconfiguration\n   but may break workflows that template all vars and select mode separately.\n\n## Scope\n\nIf we decide to add strictness:\n- Define the behavior in AXLA (normative spec)\n- Implement in RBRN and RBRV validators as the pattern\n- Audit other regimes with conditional groups\n\n## Decision criteria\n- Does silent carriage of inactive vars cause real bugs?\n- Would strictness break reasonable workflows (e.g., template files with all vars)?\n- Is the complexity of enforcement worth the safety gain?",
-              "jjgtn_silks": "decide-inactive-gate-strictness",
-              "jjgtn_basis": "6ca040f"
             }
           ]
         }
