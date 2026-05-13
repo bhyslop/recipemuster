@@ -10302,9 +10302,10 @@
       "jjghn_order": [
         "₢BKAAA",
         "₢BKAAB",
-        "₢BKAAC"
+        "₢BKAAC",
+        "₢BKAAD"
       ],
-      "jjghn_next_pace_seed": "AAD",
+      "jjghn_next_pace_seed": "AAE",
       "jjghn_paces": {
         "₢BKAAA": {
           "jjgpn_tacks": [
@@ -10336,6 +10337,17 @@
               "jjgtn_text": "## Character\n\nMigrate consumer-side bootstrap into kit-side fact locale. Light judgment per item; sensitive to behavioral change.\n\n## Goal\n\n`Tools/rbk/rbcc_Constants.sh` is the sole RBK fact locale. Consumer-side `.buk/rbbc_constants.sh` source line is gone; moorings path constants are minted.\n\n## Work\n\n### rbbc consumer-content audit\n\nThe current `rbcc_Constants.sh` sources `${BURD_CONFIG_DIR}/rbbc_constants.sh` at source-time. Before eliminating that line, read what `rbbc_constants.sh` currently provides:\n\n- Inspect `.buk/rbbc_constants.sh` in this tree.\n- Classify each constant: kit-default (safe to absorb), consumer-customized (behavioral change to absorb — flag and decide), or obsolete (delete).\n- Eliminating real consumer overrides without surfacing the change is a behavioral regression. If overrides exist, document them in the wrap commit message.\n\n### Absorb survivors\n\n- Move surviving constants from `rbbc_constants.sh` into `rbcc_Constants.sh` directly, in the appropriate section.\n- Remove the `source \"${BURD_CONFIG_DIR}/rbbc_constants.sh\"` line and its `BURD_CONFIG_DIR` precondition check from `rbcc_Constants.sh`.\n- Delete `.buk/rbbc_constants.sh` (file itself; pace 4 handles the directory move).\n\n### Mint moorings constants\n\nAdd to `rbcc_Constants.sh` (in the literal-constants section near `RBCC_rbrn_file`):\n\n- `RBCC_moorings_dir` — value per AAJ table (`rbmm_moorings`)\n- `RBCC_launchers_subdir` — value per AAJ table (`rbml_launchers`)\n- `RBCC_users_subdir` — match BUBC parallel (`rbmu_users`)\n- `RBCC_vessels_subdir` — value per AAJ table (`rbmv_vessels`)\n- Any additional moorings paths surfaced by pace 1's `rbmn_` reconciliation.\n\nMatch the BUBC naming pattern where the concept is parallel (BUBC_rbmu_users_subdir already exists with value `rbmu_users` — RBCC should hold the same value, the symbol on each side).\n\n### Wrap criteria\n\n- `tt/rbtd-s.TestSuite.fast.sh` passes.\n- No call-site changes in this pace — that's pace 5.\n\n## Sources\n\n- `Tools/rbk/rbcc_Constants.sh` — RBK fact locale (extend, don't replace)\n- `Tools/buk/bubc_constants.sh` — parallel BUK locale, naming reference\n- `.buk/rbbc_constants.sh` — consumer-side file being eliminated\n- ₣A_/₢A_AAJ docket — Renames table, Symbolic-constant discipline",
               "jjgtn_silks": "rbcc-establish-fact-locale",
               "jjgtn_basis": "748e87d"
+            }
+          ]
+        },
+        "₢BKAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260513-1258",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nHard cutover. The atomic move: filesystem rename + trampoline literal flip + test-fixture path updates, all in one commit.\n\n## Goal\n\n`rbmm_moorings/` exists with the new layout. Old `.buk/`, `.rbk/`, and `rbev-vessels/` directories are gone. Trampoline literal points at the new launcher path. All tabtargets still execute.\n\n## Work\n\n### File moves (use `git mv` so history follows)\n\nPer AAJ Renames table:\n\n- `.buk/launcher.*.sh` → `rbmm_moorings/rbml_launchers/launcher.*.sh` (drop the `_workbench` part per AAJ docket if applicable; preserve otherwise — verify against docket text)\n- `.buk/users/` → `rbmm_moorings/rbmu_users/`\n- `.buk/burc.env` → `rbmm_moorings/burc.env`\n- `.rbk/rbrr.env` → `rbmm_moorings/rbrr.env`\n- `.rbk/rbrp.env` → `rbmm_moorings/rbrp.env`\n- `.rbk/<nameplate>/` → `rbmm_moorings/<nameplate>/` (each nameplate dir with its `rbrn.env` and `compose.yml`)\n- `rbev-vessels/` → `rbmm_moorings/rbmv_vessels/`\n\n`.rbk/rbob_compose.yml` and `Tools/rbk/rbmP_laterSecurityAudit.md` are pace 9 (kit-cleanup) — NOT this pace.\n\n### Trampoline literal flip\n\nEdit `tt/z-launcher.sh` to point at `../rbmm_moorings/rbml_launchers/launcher.${id}.sh` (or whatever exact form pace 2 settled on). Single literal edit.\n\n### Test-fixture path updates\n\nAny test fixture that creates `.buk/`, `.rbk/`, or `rbev-vessels/` paths in its setup must be updated in this same pace so the test suite still functions:\n\n- Sweep `Tools/rbk/rbtd/` and test infrastructure for setup code creating these paths.\n- Update fixture setup to create `rbmm_moorings/`-shaped trees.\n- This is mechanical but bulky.\n\n### Wrap criteria\n\n- `tt/rbtd-s.TestSuite.fast.sh` passes.\n- A representative tabtarget from each colophon family (rbw, buw, jjw, vvw) executes correctly.\n\n## Risk\n\nThis is the highest-risk pace in the heat. Recovery is `git revert` of the wrap commit. Avoid mixing this pace's work with anything else — keep the commit pure rename + literal + fixture-paths.\n\n## Sources\n\n- ₣A_/₢A_AAJ docket — Renames table, Final layout\n- `tt/z-launcher.sh` (created in ₢BKAAB) — literal to flip\n- `Tools/rbk/rbtd/` — test fixture surface",
+              "jjgtn_silks": "moorings-filesystem-rename",
+              "jjgtn_basis": "05ec997"
             }
           ]
         }
