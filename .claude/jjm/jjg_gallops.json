@@ -1,6 +1,6 @@
 {
   "jjgrn_schema_version": 4,
-  "jjgrn_next_heat_seed": "BL",
+  "jjgrn_next_heat_seed": "BM",
   "jjgrn_heat_order": [
     "₣BK",
     "₣BJ",
@@ -28,7 +28,8 @@
     "₣AZ",
     "₣Au",
     "₣BC",
-    "₣BI"
+    "₣BI",
+    "₣BL"
   ],
   "jjgrn_heats": {
     "₣A-": {
@@ -10514,6 +10515,14 @@
           ]
         }
       }
+    },
+    "₣BL": {
+      "jjghn_silks": "rbk-99-performance-study",
+      "jjghn_creation_time": "260513",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [],
+      "jjghn_next_pace_seed": "AAA",
+      "jjghn_paces": {}
     }
   }
 }
