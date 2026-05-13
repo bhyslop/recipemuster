@@ -10303,9 +10303,10 @@
         "₢BKAAA",
         "₢BKAAB",
         "₢BKAAC",
-        "₢BKAAD"
+        "₢BKAAD",
+        "₢BKAAE"
       ],
-      "jjghn_next_pace_seed": "AAE",
+      "jjghn_next_pace_seed": "AAF",
       "jjghn_paces": {
         "₢BKAAA": {
           "jjgpn_tacks": [
@@ -10348,6 +10349,17 @@
               "jjgtn_text": "## Character\n\nHard cutover. The atomic move: filesystem rename + trampoline literal flip + test-fixture path updates, all in one commit.\n\n## Goal\n\n`rbmm_moorings/` exists with the new layout. Old `.buk/`, `.rbk/`, and `rbev-vessels/` directories are gone. Trampoline literal points at the new launcher path. All tabtargets still execute.\n\n## Work\n\n### File moves (use `git mv` so history follows)\n\nPer AAJ Renames table:\n\n- `.buk/launcher.*.sh` → `rbmm_moorings/rbml_launchers/launcher.*.sh` (drop the `_workbench` part per AAJ docket if applicable; preserve otherwise — verify against docket text)\n- `.buk/users/` → `rbmm_moorings/rbmu_users/`\n- `.buk/burc.env` → `rbmm_moorings/burc.env`\n- `.rbk/rbrr.env` → `rbmm_moorings/rbrr.env`\n- `.rbk/rbrp.env` → `rbmm_moorings/rbrp.env`\n- `.rbk/<nameplate>/` → `rbmm_moorings/<nameplate>/` (each nameplate dir with its `rbrn.env` and `compose.yml`)\n- `rbev-vessels/` → `rbmm_moorings/rbmv_vessels/`\n\n`.rbk/rbob_compose.yml` and `Tools/rbk/rbmP_laterSecurityAudit.md` are pace 9 (kit-cleanup) — NOT this pace.\n\n### Trampoline literal flip\n\nEdit `tt/z-launcher.sh` to point at `../rbmm_moorings/rbml_launchers/launcher.${id}.sh` (or whatever exact form pace 2 settled on). Single literal edit.\n\n### Test-fixture path updates\n\nAny test fixture that creates `.buk/`, `.rbk/`, or `rbev-vessels/` paths in its setup must be updated in this same pace so the test suite still functions:\n\n- Sweep `Tools/rbk/rbtd/` and test infrastructure for setup code creating these paths.\n- Update fixture setup to create `rbmm_moorings/`-shaped trees.\n- This is mechanical but bulky.\n\n### Wrap criteria\n\n- `tt/rbtd-s.TestSuite.fast.sh` passes.\n- A representative tabtarget from each colophon family (rbw, buw, jjw, vvw) executes correctly.\n\n## Risk\n\nThis is the highest-risk pace in the heat. Recovery is `git revert` of the wrap commit. Avoid mixing this pace's work with anything else — keep the commit pure rename + literal + fixture-paths.\n\n## Sources\n\n- ₣A_/₢A_AAJ docket — Renames table, Final layout\n- `tt/z-launcher.sh` (created in ₢BKAAB) — literal to flip\n- `Tools/rbk/rbtd/` — test fixture surface",
               "jjgtn_silks": "moorings-filesystem-rename",
               "jjgtn_basis": "05ec997"
+            }
+          ]
+        },
+        "₢BKAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260513-1258",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nMechanical with light context judgment. Parallel-internal: two agents, one per kit subtree.\n\n## Goal\n\nNo string literals matching `.buk`, `.rbk`, or `rbev-vessels` survive in kit code under `Tools/{rbk,buk}/*.sh`. Every reference goes through a named constant from RBCC or BUBC.\n\n## Work\n\n### Parallel dispatch\n\nSpawn two sonnet agents:\n\n- **rbk-agent** — sweep `Tools/rbk/**/*.sh`, replace literals with RBCC constants minted in ₢BKAAC. Decide per-site which RBCC constant fits (the moorings dir alone, a subpath joined from constants, or a more specific named constant if the locale calls for one).\n- **buk-agent** — sweep `Tools/buk/**/*.sh`, replace literals with BUBC constants from `bubc_constants.sh`. Mint additional BUBC constants if a needed concept is absent.\n\nBoth agents work on disjoint file trees — no merge conflicts. Each agent's wrap criterion is its own grep returning empty for the literals.\n\n### Selection discipline\n\n- If a site uses `.buk/X` where X is a stable subpath, prefer a single composed reference (`\"${RBCC_moorings_dir}/X\"`) over minting a one-off constant.\n- If a site uses `.buk/X` where X is a kit-defined identifier already constant-bound, compose via both constants (`\"${RBCC_moorings_dir}/${RBCC_launchers_subdir}\"`).\n- If a literal recurs three or more times for the same concept, mint a constant rather than scattering composed references.\n\n### Survivors\n\nAfter both agents wrap, `grep -rE '\\.(buk|rbk)|rbev-vessels' Tools/{rbk,buk}/*.sh` should return only the constant-definition sites themselves and any documented exceptions.\n\nIf RBK literals genuinely survive after the sweep, that's the docket's open RBK-locale question answering itself empirically: surface the count and pattern in the wrap commit message — pace 9 may need to register a finding.\n\n### Wrap criteria\n\n- `tt/rbtd-s.TestSuite.fast.sh` passes.\n- Literal grep returns expected sites only.\n\n## Sources\n\n- `Tools/rbk/rbcc_Constants.sh` — RBCC constants minted in ₢BKAAC\n- `Tools/buk/bubc_constants.sh` — BUBC constants\n- ₣A_/₢A_AAJ docket — Symbolic-constant discipline section",
+              "jjgtn_silks": "kit-literal-sweep",
+              "jjgtn_basis": "ba0bd6e"
             }
           ]
         }
