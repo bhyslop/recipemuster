@@ -364,15 +364,13 @@ rbfl_jettison() {
   # Jettison by tag reference
   local z_status_file="${ZRBFL_DELETE_PREFIX}status.txt"
   local z_response_file="${ZRBFL_DELETE_PREFIX}response.json"
+  local z_stderr_file="${ZRBFL_DELETE_PREFIX}stderr.txt"
 
-  curl -X DELETE -s                                   \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-    --max-time "${RBCC_CURL_MAX_TIME_SEC}"             \
-    -H "Authorization: Bearer ${z_token}"             \
-    -w "%{http_code}"                                 \
-    -o "${z_response_file}"                           \
-    "${ZRBFC_REGISTRY_API_BASE}/${z_pkg_path}/manifests/${z_tag}" \
-    > "${z_status_file}" || buc_die "DELETE request failed"
+  rbgu_http_request "DELETE"                                                  \
+                    "${ZRBFC_REGISTRY_API_BASE}/${z_pkg_path}/manifests/${z_tag}" \
+                    "${z_token}"                                              \
+                    "${z_response_file}" "${z_status_file}" "${z_stderr_file}" \
+    || buc_die "DELETE request failed — see ${z_stderr_file}"
 
   local z_http_code
   z_http_code=$(<"${z_status_file}")

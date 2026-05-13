@@ -120,17 +120,8 @@ zrbgv_http_get_with_5xx_retry() {
     buc_log_args "${z_label}: HTTP GET attempt ${z_attempt}/${ZRBGV_HTTP_RETRY_ATTEMPTS}"
 
     z_curl_status=0
-    curl                                                     \
-        -sS                                                  \
-        -X GET                                               \
-        -H "Authorization: Bearer ${z_token}"                \
-        -H "Accept: application/json"                        \
-        -o "${z_resp_file}"                                  \
-        -w "%{http_code}"                                    \
-        --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-        --max-time "${RBCC_CURL_MAX_TIME_SEC}"               \
-        "${z_url}" > "${z_code_file}"                        \
-                   2> "${z_stderr_file}"                     \
+    rbgu_http_request "GET" "${z_url}" "${z_token}"          \
+                      "${z_resp_file}" "${z_code_file}" "${z_stderr_file}" \
       || z_curl_status=$?
 
     buc_log_args "${z_label}: curl exit status ${z_curl_status}"
