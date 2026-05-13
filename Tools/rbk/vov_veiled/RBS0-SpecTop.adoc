@@ -68,7 +68,7 @@
 :rbtgi_payor_project:        <<rbtgi_payor_project,RB Payor Project>>
 :rbtgi_rbra_file:            <<rbtgi_rbra_file,RBRA File>>
 :rbtgi_rbra_file_s:          <<rbtgi_rbra_file,RBRA Files>>
-// CB v2 Connection and Repository eliminated (₣Av) — builds.create + ark pouch replaces triggers
+// CB v2 Connection and Repository eliminated — builds.create + ark pouch replaces triggers
 :rbtgi_cbv2_connection:   CB v2 Connection (eliminated)
 :rbtgi_cbv2_repository:  CB v2 Repository (eliminated)
 
@@ -145,7 +145,7 @@
 :rbtgog_rubric:                   <<rbtgog_rubric,Build Definition Group>>
 
 // Recipe Bottle Term Colophon (tabtarget entry points)
-// rbtc_refresh_gcb_pins eliminated (₣Av) — RBRG regime removed, reliquaries replace pin refresh
+// rbtc_refresh_gcb_pins eliminated — RBRG regime removed, reliquaries replace pin refresh
 :rbtc_plumb_full:                <<rbtc_plumb_full,rbw-fpf>>
 :rbtc_plumb_compact:             <<rbtc_plumb_compact,rbw-fpc>>
 
@@ -335,7 +335,7 @@
 // Recipe Bottle GCP Constants (rbgc_*) — pure-literal tinder, available source-time
 :rbgc_depot_project_infix:   <<rbgc_depot_project_infix,RBGC_depot_project_infix>>
 
-// RBRG regime eliminated (₣Av) — reliquaries replace pin-based tool image management
+// RBRG regime eliminated — reliquaries replace pin-based tool image management
 :rbrm_chosen_identity:       <<rbrm_chosen_identity,RBRM_CHOSEN_IDENTITY>>
 :rbrm_chosen_podman_version: <<rbrm_chosen_podman_version,RBRM_CHOSEN_PODMAN_VERSION>>
 :rbrm_chosen_vmimage_origin: <<rbrm_chosen_vmimage_origin,RBRM_CHOSEN_VMIMAGE_ORIGIN>>
@@ -353,7 +353,7 @@
 :rbra_project_id:            <<rbra_project_id,RBRA_PROJECT_ID>>
 :rbra_token_lifetime_sec:    <<rbra_token_lifetime_sec,RBRA_TOKEN_LIFETIME_SEC>>
 
-// RBRG regime eliminated (₣Av) — reliquaries replace pin-based tool image management
+// RBRG regime eliminated — reliquaries replace pin-based tool image management
 
 // Recipe Bottle Regime: Machine (Podman VM Supply Chain)
 :rbrm_regime:                <<rbrm_regime,RBRM Regime>>
@@ -1166,7 +1166,7 @@ include::RBSRL-retriever_roster.adoc[]
 //axvo_method axd_transient axd_grouped
 === {rbtgo_trigger_build}
 
-ELIMINATED (₣Av): Trigger dispatch replaced by direct `builds.create` API submission.
+ELIMINATED: Trigger dispatch replaced by direct `builds.create` API submission.
 Build context delivered via {rbtga_ark_pouch} (FROM SCRATCH OCI image in GAR).
 Hallmark minted on the host before submission, passed to Cloud Build via `_RBGY_HALLMARK` substitution variable.
 
@@ -1906,7 +1906,7 @@ Content is architecture-independent metadata; multi-platform is for pull ergonom
 **Vouch depends on about**: {rbtgo_ark_vouch} gates on `about` package existence before submission.
 The about pipeline must complete before vouch can run.
 +
-**DSSE envelope verification** (conjure mode only, ₣Av):
+**DSSE envelope verification** (conjure mode only):
 Provenance signatures verified against embedded GCB attestor public keys from `projects/verified-builder` KMS.
 Step 1 (Alpine) writes the attestor public key to `/workspace/keys/`.
 Step 2 (gcloud/Python 3) fetches provenance via `gcloud artifacts docker images describe --show-provenance`, extracts the v1.0 DSSE envelope, decodes base64url payload + signature, reconstructs PAE, and verifies via `openssl dgst -sha256 -verify` subprocess against the embedded attestor key.
@@ -1929,7 +1929,7 @@ Discovered constraints from implementation:
     Step 3 (Docker) assembles and pushes the vouch container (`docker buildx build --push` for multi-platform).
   * **GCB dollar escaping**: Step scripts embedded in Build JSON require `$$` for literal `$` and un-escaped `${_RBGV_*}` for GCB substitution variables, following the same `sed` pattern as conjure's `${_RBGY_*}`.
   * **DSSE verification**: Provenance envelope signatures verified against embedded GCB attestor public keys (`projects/verified-builder` KMS). PAE reconstruction + `openssl dgst -sha256 -verify` subprocess. No slsa-verifier, no jq — Python 3 standard library only.
-    builds.create provenance achieves SLSA Build Level 3 (₢AvAAB research confirmed).
+    builds.create provenance achieves SLSA Build Level 3 (research confirmed).
 +
 **Idempotent re-vouch**:
 Re-running {rbtgo_ark_vouch} on a hallmark that already has a `vouch` package re-executes verification.
@@ -2047,7 +2047,7 @@ Cloud Build pre-populates Docker credentials for all GAR regions, so explicit do
 +
 **Single-arch vessels**: `buildx --load` places the built image into the local Docker daemon's store.
 The `images:` field in {rbtgr_build_json} causes Cloud Build to push the image and generate SLSA v1.0 Level 3 provenance.
-Verified on builds.create submissions — rbev-busybox on depot10030 (3 platforms: amd64, arm64, armv7) with DSSE envelope signature verification (₣Av ₢AvAAD).
+Verified on builds.create submissions — rbev-busybox on depot10030 (3 platforms: amd64, arm64, armv7) with DSSE envelope signature verification.
 +
 **Single-arch pipeline** (3 steps + `images:` push, single build invocation):
 +
@@ -2630,8 +2630,8 @@ A network node that serves as the entry point between two networks.
 === Tabtarget Colophons
 
 
-// rbtc_refresh_gcb_pins eliminated (₣Av) — RBRG regime removed, reliquaries replace pin refresh
-// rbtc_refresh_binary_pins eliminated (₣Av) — slsa-verifier dropped
+// rbtc_refresh_gcb_pins eliminated — RBRG regime removed, reliquaries replace pin refresh
+// rbtc_refresh_binary_pins eliminated — slsa-verifier dropped
 
 [[rbtc_plumb_full]]
 {rbtc_plumb_full}::
@@ -2850,7 +2850,7 @@ Maximum duration for Cloud Build operations.
 {rbrr_public_docs_url}::
 Public docs URL — readme target for buh_tlt glossary links, updated per-release or per-incorporation.
 
-// RBRG variable definitions eliminated (₣Av) — reliquaries replace pin-based tool image management
+// RBRG variable definitions eliminated — reliquaries replace pin-based tool image management
 // Tool images (gcloud, docker, alpine, syft, binfmt, skopeo) now sourced from reliquary at ordain time
 
 [[rbrr_group_public_docs]]
@@ -2880,7 +2880,7 @@ Container image build process configuration.
 {rbrr_group_cbv2}::
 include::RBSRR-RegimeRepo.adoc[]
 
-// RBRG regime eliminated (₣Av) — reliquaries replace pin-based tool image management
+// RBRG regime eliminated — reliquaries replace pin-based tool image management
 // Tool images now sourced from datestamped reliquary namespace in GAR at ordain time
 
 === Recipe Bottle GCP Constants (RBGC)

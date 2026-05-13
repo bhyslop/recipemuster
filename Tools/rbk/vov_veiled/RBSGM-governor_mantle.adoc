@@ -107,7 +107,7 @@ to update IAM policy on
 `«GOVERNOR_SERVICE_ACCOUNT»` as principal
 .. Add role: `roles/owner` (excluding billing permissions maintained by
 {rbtr_payor})
-// roles/cloudbuild.connectionViewer eliminated (₣Av) — CB v2 connections no longer used
+// roles/cloudbuild.connectionViewer eliminated — CB v2 connections no longer used
 .. Set policy version: 3 for conditional binding support
 .. {rbbc_require}
 IAM policy update successful
@@ -137,7 +137,7 @@ already exists (will be overwritten)
 .. {rbbc_require}
 RBRA file creation successful
 
-// CB v2 Connection Viewer verification step eliminated (₣Av) — CB v2 connections no longer used
+// CB v2 Connection Viewer verification step eliminated — CB v2 connections no longer used
 
 //axhoot_typed_output
 {rbtr_governor}

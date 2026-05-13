@@ -10,8 +10,7 @@ customer-visible surfaces.
 
 Renamed from index.adoc (last committed 84323c31, 2025-08-18). Full git
 lineage: 31 commits from 2642121c through 84323c31. Significant Events
-timeline relocated to RBSPH-ProjectHistory.adoc during ₣A5
-(rbk-mvp-3-public-docs-refresh). Requires RBS0-SpecTop.adoc mapping
+timeline relocated to RBSPH-ProjectHistory.adoc. Requires RBS0-SpecTop.adoc mapping
 section for attribute resolution.
 
 == Overview

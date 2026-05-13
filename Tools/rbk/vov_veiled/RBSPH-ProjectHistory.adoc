@@ -6,8 +6,7 @@ Terse by design — dates, one-line events, no narrative wrapping.
 Commented-out entries are historical notes preserved for possible
 reactivation.
 
-Extracted from RBSCO-CosmologyIntro.adoc during ₣A5
-(rbk-mvp-3-public-docs-refresh). Requires RBS0-SpecTop.adoc mapping
+Extracted from RBSCO-CosmologyIntro.adoc. Requires RBS0-SpecTop.adoc mapping
 section for attribute resolution — entries cite `{at_*}` and `{st_*}`
 attributes.
 
