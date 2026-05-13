@@ -6221,6 +6221,13 @@
         "₢A_AAF": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260513-1324",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nNarrower validation, macOS only — AAP carries the two-host gauntlet exit. This pace exercises operator-config prefixes (rbm-/dev-) against the live substrate (canest2bhm100003), which AAP's throwaway-prefix posture won't cover.\n\n## Work\n\nRun sequentially on macOS:\n\n- `tt/rbtd-s.TestSuite.fast.sh`\n- `tt/rbtd-s.TestSuite.service.sh`\n- Kludge tadmor's vessels: `rbw-cKS tadmor`, `rbw-cKB tadmor` (bottle vessel name resolved from tadmor's nameplate at mount-time).\n- `tt/rbtd-r.FixtureRun.tadmor.sh` (charge → 34 security cases → quench).\n\nDiagnose failures into AAB (prefix gap) or AAK (layout gap) back-fixes. srjcl, pluml, moriah deliberately out of scope. Linux coverage deferred to AAP.",
+              "jjgtn_silks": "run-complete-test-suite",
+              "jjgtn_basis": "b233bde"
+            },
+            {
               "jjgtn_ts": "260513-1228",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nNarrower validation, macOS only — AAP carries the two-host gauntlet exit. This pace exercises operator-config prefixes (rbm-/dev-) against the live substrate (canest2bhm100003), which AAP's throwaway-prefix posture won't cover.\n\n## Work\n\nRun sequentially on macOS:\n\n- `tt/rbtd-s.TestSuite.fast.sh`\n- `tt/rbtd-s.TestSuite.service.sh`\n- Kludge tadmor's vessels: `rbw-cKS tadmor`, `rbw-cKB tadmor` (bottle vessel name resolved from tadmor's nameplate at mount-time).\n- `tt/rbtd-r.FixtureRun.tadmor.sh` (charge → 34 security cases → quench).\n\nDiagnose failures into AAB (prefix gap) or AAK (layout gap) back-fixes. srjcl, pluml, moriah deliberately out of scope. Linux coverage deferred to AAP.",
