@@ -69,9 +69,6 @@ rbfv_vouch_gate() {
   test -n "${z_vessel}"       || buc_die "rbfv_vouch_gate: vessel required"
   test -n "${z_hallmark}" || buc_die "rbfv_vouch_gate: hallmark required"
 
-  local -r z_registry_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
-  local -r z_registry_api_base="https://${z_registry_host}/v2/${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
-
   # Vouch package = rbi_hm/<H>/vouch, tag = <H> (hallmark-as-tag).
   local -r z_vouch_tag="${z_hallmark}"
   buc_step "Vouch gate: checking ${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}:${z_vouch_tag}"
@@ -87,7 +84,7 @@ rbfv_vouch_gate() {
     -H "Authorization: Bearer ${z_token}" \
     -o /dev/null \
     -w "%{http_code}" \
-    "${z_registry_api_base}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}/manifests/${z_vouch_tag}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}/manifests/${z_vouch_tag}" \
     > "${ZRBFC_SCRATCH_FILE}" \
     || buc_die "rbfv_vouch_gate: HEAD request failed for ${z_vessel}:${z_vouch_tag}"
   z_vouch_http_code=$(<"${ZRBFC_SCRATCH_FILE}")
