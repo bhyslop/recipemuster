@@ -137,8 +137,8 @@ GAR-mirrored, content-addressed anchor for the base image.
 Written by
 {rbtgo_ark_enshrine}.
 Format: `{sanitized-origin}-{10-char-sha256}`.
-When present, conjure substitutes the full GAR reference.
-When absent, conjure passes
+When present, both {rbtgo_ark_conjure} and {rbtgo_ark_kludge} substitute the full GAR reference; kludge additionally requires the referenced image to be present in the local container runtime cache (see {rbtgo_image_retrieve} for the credentialed wrest path).
+When absent, both operations pass
 {rbrv_image_origin}
 through as the upstream tag.
 Optional; 0-512 characters per slot.

@@ -107,6 +107,7 @@
 :rbtgo_ark_vouch:                 <<rbtgo_ark_vouch,rbfv_vouch>>
 :rbtgo_ark_about:                 <<rbtgo_ark_about,rbfv_about>>
 :rbtgo_ark_graft:                 <<rbtgo_ark_graft,rbfd_graft>>
+:rbtgo_ark_kludge:                <<rbtgo_ark_kludge,rbfd_kludge>>
 :rbtgo_ark_summon:                <<rbtgo_ark_summon,rbfr_summon>>
 :rbtgo_ark_enshrine:             <<rbtgo_ark_enshrine,rbfd_enshrine>>
 :rbtgo_ark_inspect:              <<rbtgo_ark_inspect,rbfc_plumb>>
@@ -1308,6 +1309,21 @@ via native docker/podman push.
 The image push itself is local (no Cloud Build); about and vouch follow as Cloud Build jobs.
 
 include::RBSAG-ark_graft.adoc[]
+
+[[rbtgo_ark_kludge]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_ark_kludge}
+
+Kludges a locally-built container image for development iteration
+({rbtgog_ark}).
+No registry push, no Cloud Build, no credentials — `docker build` runs against the workstation cache and produces a `k`-prefixed
+{rbtga_hallmark}
+that composes cleanly with nameplate and compose infrastructure but is obviously not a production hallmark.
+Kludge resolves
+{rbrv_image_anchor}
+declarations to GAR references identically to {rbtgo_ark_conjure}, but the referenced images must already be locally cached; the credentialed fetch happens out-of-band via {rbtgo_image_retrieve}.
+
+include::RBSAK-ark_kludge.adoc[]
 
 [[rbtgo_ark_about]]
 //axvo_method axd_transient axd_grouped
