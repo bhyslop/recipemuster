@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC2153  # kindle chain - per BCG
 #
 # Copyright 2025 Scale Invariant, Inc.
 #
@@ -37,11 +38,6 @@ set -euo pipefail
 # Multiple inclusion detection
 test -z "${ZRBGG_SOURCED:-}" || buc_die "Module rbgg multiply sourced - check sourcing hierarchy"
 ZRBGG_SOURCED=1
-
-# shellcheck disable=SC2153
-# ZRBGU_PREFIX and ZRBGU_POSTFIX_* are defined in rbgu_Utility.sh and shared
-# across modules via the kindle/sentinel chain (zrbgu_sentinel asserted in
-# zrbgg_kindle). Shellcheck cannot follow the runtime sourcing graph.
 
 ######################################################################
 # Internal Functions (zrbgg_*)
