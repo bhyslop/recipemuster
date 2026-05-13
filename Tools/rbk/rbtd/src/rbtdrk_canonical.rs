@@ -72,6 +72,11 @@ const RBTDRK_IDENTITY_DIRECTOR: &str = "canest-dir";
 const RBTDRK_FAMILY_NUMERIC_FLOOR: u32 = 100000;
 const RBTDRK_FAMILY_NUMERIC_WIDTH: usize = 6;
 
+// rbgp_depot_list emits fact files at
+// `<cloud_prefix>/<moniker>.depot` (state) and
+// `<cloud_prefix>/<moniker>.depot-project` (project_id). The cloud_prefix
+// subdir prevents collisions between same-moniker depots under different
+// cloud_prefixes.
 const RBTDRK_FACT_EXT_DEPOT: &str = "depot";
 const RBTDRK_FACT_EXT_DEPOT_PROJECT: &str = "depot-project";
 const RBTDRK_FACT_GOVERNOR_SA_EMAIL: &str = "rbgp_fact_governor_sa_email";
@@ -260,9 +265,24 @@ fn rbtdrk_compose_project_id(root: &Path, moniker: &str) -> Result<String, Strin
     Ok(format!("{}d-{}", cloud_prefix, moniker))
 }
 
+/// Cloud-prefix subdir name used in depot fact-file layout
+/// (`<cloud_prefix>/<moniker>.depot`). Derived from RBRR_CLOUD_PREFIX with
+/// the structural trailing `-` stripped so it matches the filesystem layout
+/// emitted by zrbgp_depot_state_emit.
+fn rbtdrk_cloud_prefix_subdir(root: &Path) -> Result<String, String> {
+    let rbrr = root.join(RBTDRK_RBRR_FILE);
+    let cloud_prefix = rbtdrk_read_env_value(&rbrr, RBTDRK_FIELD_RBRR_CLOUD_PREFIX)
+        .ok_or_else(|| format!("RBRR_CLOUD_PREFIX missing from {}", rbrr.display()))?;
+    Ok(cloud_prefix.trim_end_matches('-').to_string())
+}
+
 /// Pick the next free moniker for `family_stem` by walking the depot_list
-/// invocation's BURV output dir for `<family>NNNNNN.depot` files. Returns
+/// invocation's BURV output dir for `<family>NNNNNN.depot` files under the
+/// current cloud_prefix subdir. Returns
 /// `<family>RBTDRK_FAMILY_NUMERIC_FLOOR` when no matching files exist.
+/// Restricting the walk to the current cloud_prefix is what makes allocation
+/// collision-safe: a same-numbered moniker under a foreign cloud_prefix is
+/// correctly ignored.
 ///
 /// Caller contract: `list_result` MUST be from a freshly-invoked depot_list
 /// that ran in the current process. The fact-file scan IS the collision
@@ -270,9 +290,14 @@ fn rbtdrk_compose_project_id(root: &Path, moniker: &str) -> Result<String, Strin
 /// `list_result` across cases or pass an operator-cached value.
 fn rbtdrk_pick_next_moniker(
     list_result: &rbtdri_InvokeResult,
+    root: &Path,
     family_stem: &str,
 ) -> Result<String, String> {
-    let dir = list_result.burv_output.join(RBTDRI_BURV_OUTPUT_SUBDIR);
+    let prefix_dir = rbtdrk_cloud_prefix_subdir(root)?;
+    let dir = list_result
+        .burv_output
+        .join(RBTDRI_BURV_OUTPUT_SUBDIR)
+        .join(&prefix_dir);
     let entries = match std::fs::read_dir(&dir) {
         Ok(e) => e,
         Err(_) => {
@@ -421,7 +446,7 @@ fn rbtdrk_depot_levy_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdic
         Err(e) => return rbtdre_Verdict::Fail(format!("read BURS_TINCTURE: {}", e)),
     };
     let family_stem = rbtdrk_family_stem(&tincture);
-    let moniker = match rbtdrk_pick_next_moniker(&list_pre, &family_stem) {
+    let moniker = match rbtdrk_pick_next_moniker(&list_pre, &root, &family_stem) {
         Ok(m) => m,
         Err(e) => return rbtdre_Verdict::Fail(format!("pick next moniker: {}", e)),
     };
@@ -465,9 +490,14 @@ fn rbtdrk_depot_levy_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdic
         ));
     }
 
+    let prefix_dir = match rbtdrk_cloud_prefix_subdir(&root) {
+        Ok(p) => p,
+        Err(e) => return rbtdre_Verdict::Fail(format!("resolve cloud_prefix subdir: {}", e)),
+    };
     let fact_path = list_present
         .burv_output
         .join(RBTDRI_BURV_OUTPUT_SUBDIR)
+        .join(&prefix_dir)
         .join(format!("{}.{}", moniker, RBTDRK_FACT_EXT_DEPOT_PROJECT));
     let fact_project_id = match std::fs::read_to_string(&fact_path) {
         Ok(s) => s.trim().to_string(),

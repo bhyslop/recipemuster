@@ -158,11 +158,14 @@ zrbgp_authenticate_capture() {
 # query "displayName:RBGC-DEPOT*" returns ACTIVE and DELETE_REQUESTED
 # projects together (no billing-account enumeration required).  Moniker is
 # derived by stripping the "${RBGC_DEPOT_DISPLAY_PREFIX} " prefix from each
-# project's displayName.  Per-moniker fact files named
-# "<moniker>.${RBCC_fact_ext_depot}" (state) and
-# "<moniker>.${RBCC_fact_ext_depot_project}" (project_id) are written via
-# buf_write_fact_multi; consumers walk the emitted files in BURD_OUTPUT_DIR /
-# BURD_TEMP_DIR (filesystem is the data bus).
+# project's displayName.  Fact files are namespaced by cloud_prefix to keep
+# same-moniker depots under different cloud_prefixes from colliding:
+# "<cloud_prefix>/<moniker>.${RBCC_fact_ext_depot}" (state) and
+# "<cloud_prefix>/<moniker>.${RBCC_fact_ext_depot_project}" (project_id) are
+# written via buf_write_fact_multi; the cloud_prefix subdir is derived from
+# projectId (everything before the "-d-" infix). Consumers walking by
+# moniker alone restrict to their own subdir; consumers auditing across all
+# depots walk all subdirs.
 #
 # No RBRP_BILLING_ACCOUNT_ID required for enumeration; no Mason SA IAM scan.
 # The displayName anchor is the sole discriminator.  Projects whose
@@ -202,6 +205,7 @@ zrbgp_depot_state_emit() {
   local z_get_url=""
   local z_get_infix=""
   local z_get_code=""
+  local z_prefix_dir=""
 
   z_query_enc=$(rbgu_urlencode_capture "${z_search_query}") \
     || buc_die "Failed to URL-encode CRM v3 search query"
@@ -278,8 +282,15 @@ zrbgp_depot_state_emit() {
         continue
       fi
 
-      buf_write_fact_multi "${z_moniker}" "${RBCC_fact_ext_depot}"         "${z_state}"
-      buf_write_fact_multi "${z_moniker}" "${RBCC_fact_ext_depot_project}" "${z_project_id}"
+      # Namespace per cloud_prefix so two depots that share a moniker under
+      # different cloud_prefixes can coexist (see fact-file layout note above).
+      z_prefix_dir="${z_project_id%%-d-*}"
+      mkdir -p "${BURD_OUTPUT_DIR}/${z_prefix_dir}" \
+        || buc_die "Failed to mkdir output cloud_prefix subdir: ${z_prefix_dir}"
+      mkdir -p "${BURD_TEMP_DIR}/${z_prefix_dir}" \
+        || buc_die "Failed to mkdir temp cloud_prefix subdir: ${z_prefix_dir}"
+      buf_write_fact_multi "${z_prefix_dir}/${z_moniker}" "${RBCC_fact_ext_depot}"         "${z_state}"
+      buf_write_fact_multi "${z_prefix_dir}/${z_moniker}" "${RBCC_fact_ext_depot_project}" "${z_project_id}"
 
       z_index=$((z_index + 1))
     done
@@ -1209,14 +1220,17 @@ rbgp_depot_list() {
   local z_project_id=""
   local z_project_fact_path=""
   local z_state=""
+  local z_dir_path=""
 
-  # Walk emitted depot fact files; stem is the moniker, content is the state.
-  # The sidecar depot-project fact file carries the canonical project_id.
+  # Walk emitted depot fact files; layout is <cloud_prefix>/<moniker>.depot,
+  # stem is the moniker, content is the state. The sidecar depot-project fact
+  # file (same parent dir) carries the canonical project_id.
   shopt -s nullglob
-  for z_fact_path in "${BURD_OUTPUT_DIR}"/*.${RBCC_fact_ext_depot}; do
+  for z_fact_path in "${BURD_OUTPUT_DIR}"/*/*.${RBCC_fact_ext_depot}; do
     z_basename="${z_fact_path##*/}"
     z_moniker="${z_basename%.${RBCC_fact_ext_depot}}"
-    z_project_fact_path="${BURD_OUTPUT_DIR}/${z_moniker}.${RBCC_fact_ext_depot_project}"
+    z_dir_path="${z_fact_path%/*}"
+    z_project_fact_path="${z_dir_path}/${z_moniker}.${RBCC_fact_ext_depot_project}"
     z_state=$(<"${z_fact_path}")
     test -n "${z_state}" || buc_die "Empty state in fact file: ${z_fact_path}"
     test -f "${z_project_fact_path}" || buc_die "Missing depot-project fact file: ${z_project_fact_path}"

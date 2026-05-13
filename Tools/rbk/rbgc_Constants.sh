@@ -180,8 +180,10 @@ zrbgc_kindle() {
   readonly RBGP_FACT_GOVERNOR_SA_EMAIL="rbgp_fact_governor_sa_email"
 
   # Depot lifecycle-state vocabulary. Fact-file extensions live in RBCC.
-  # rbgp_depot_list emits one fact file per known depot named
-  # "<moniker>.${RBCC_fact_ext_depot}" with content equal to one of the values below.
+  # rbgp_depot_list emits one fact file per known depot at
+  # "<cloud_prefix>/<moniker>.${RBCC_fact_ext_depot}" with content equal to
+  # one of the values below. The cloud_prefix subdir prevents collisions
+  # between same-moniker depots under different cloud_prefixes.
   readonly RBGP_DEPOT_STATE_COMPLETE="COMPLETE"
   readonly RBGP_DEPOT_STATE_DELETE_REQUESTED="DELETE_REQUESTED"
 

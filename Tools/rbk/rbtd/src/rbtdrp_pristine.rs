@@ -96,12 +96,14 @@ const RBTDRP_FAMILY_NUMERIC_FLOOR: u32 = 100000;
 const RBTDRP_FAMILY_NUMERIC_WIDTH: usize = 6;
 
 /// Fact-file extension mirror of RBCC_fact_ext_depot in rbcc_Constants.sh.
-/// rbgp_depot_list emits `<moniker>.depot` files with state content.
+/// rbgp_depot_list emits `<cloud_prefix>/<moniker>.depot` files with state
+/// content; the cloud_prefix subdir prevents collisions between same-moniker
+/// depots under different cloud_prefixes.
 const RBTDRP_FACT_EXT_DEPOT: &str = "depot";
 
 /// Fact-file extension mirror of RBCC_fact_ext_depot_project in
-/// rbcc_Constants.sh. rbgp_depot_list emits `<moniker>.depot-project` files
-/// with project_id content.
+/// rbcc_Constants.sh. rbgp_depot_list emits
+/// `<cloud_prefix>/<moniker>.depot-project` files with project_id content.
 const RBTDRP_FACT_EXT_DEPOT_PROJECT: &str = "depot-project";
 
 /// Fact-file name for the governor SA email (mirror of
@@ -483,17 +485,23 @@ pub(crate) fn rbtdrp_install_throwaway_prefixes(root: &Path) -> Result<(), Strin
 }
 
 /// Pick the next free moniker for `family_stem` by walking the depot_list
-/// invocation's BURV output dir for `<family>NNNNNN.depot` files, parsing
-/// the numeric suffix from each, and returning `<family><max + 1>`. Returns
+/// invocation's BURV output dir for `<family>NNNNNN.depot` files under the
+/// current cloud_prefix subdir, parsing the numeric suffix from each, and
+/// returning `<family><max + 1>`. Returns
 /// `<family>RBTDRP_FAMILY_NUMERIC_FLOOR` when no matching files exist or the
-/// output dir is missing (first run, no prior depots).
+/// output dir is missing (first run, no prior depots). Restricting the walk
+/// to the current cloud_prefix is what makes allocation collision-safe: a
+/// same-numbered moniker under a foreign cloud_prefix is correctly ignored.
 fn rbtdrp_pick_next_moniker(
     list_result: &crate::rbtdri_invocation::rbtdri_InvokeResult,
+    root: &Path,
     family_stem: &str,
 ) -> Result<String, String> {
+    let prefix_dir = rbtdrp_cloud_prefix_subdir(root)?;
     let dir = list_result
         .burv_output
-        .join(crate::rbtdri_invocation::RBTDRI_BURV_OUTPUT_SUBDIR);
+        .join(crate::rbtdri_invocation::RBTDRI_BURV_OUTPUT_SUBDIR)
+        .join(&prefix_dir);
 
     let entries = match std::fs::read_dir(&dir) {
         Ok(e) => e,
@@ -543,6 +551,18 @@ fn rbtdrp_compose_project_id(root: &Path, moniker: &str) -> Result<String, Strin
     let cloud_prefix = rbtdrp_read_env_value(&rbrr, RBTDRP_FIELD_RBRR_CLOUD_PREFIX)
         .ok_or_else(|| format!("RBRR_CLOUD_PREFIX missing from {}", rbrr.display()))?;
     Ok(format!("{}d-{}", cloud_prefix, moniker))
+}
+
+/// Cloud-prefix subdir name used in depot fact-file layout
+/// (`<cloud_prefix>/<moniker>.depot`). Derived from RBRR_CLOUD_PREFIX with
+/// the structural trailing `-` stripped so it matches the filesystem layout
+/// emitted by zrbgp_depot_state_emit (which derives the subdir from
+/// projectId via `${project_id%%-d-*}`).
+fn rbtdrp_cloud_prefix_subdir(root: &Path) -> Result<String, String> {
+    let rbrr = root.join(RBTDRP_RBRR_FILE);
+    let cloud_prefix = rbtdrp_read_env_value(&rbrr, RBTDRP_FIELD_RBRR_CLOUD_PREFIX)
+        .ok_or_else(|| format!("RBRR_CLOUD_PREFIX missing from {}", rbrr.display()))?;
+    Ok(cloud_prefix.trim_end_matches('-').to_string())
 }
 
 /// Set `RBRR_DEPOT_MONIKER` in rbrr.env to `moniker` and commit. Cases 2-3
@@ -684,7 +704,7 @@ fn rbtdrp_depot_stand_up_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Ve
         Err(e) => return rbtdre_Verdict::Fail(format!("read BURS_TINCTURE: {}", e)),
     };
     let family_stem = rbtdrp_family_stem_arc(&tincture);
-    let moniker = match rbtdrp_pick_next_moniker(&list_pre, &family_stem) {
+    let moniker = match rbtdrp_pick_next_moniker(&list_pre, &root, &family_stem) {
         Ok(m) => m,
         Err(e) => return rbtdre_Verdict::Fail(format!("pick next moniker: {}", e)),
     };
@@ -728,9 +748,14 @@ fn rbtdrp_depot_stand_up_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Ve
         ));
     }
 
+    let prefix_dir = match rbtdrp_cloud_prefix_subdir(&root) {
+        Ok(p) => p,
+        Err(e) => return rbtdre_Verdict::Fail(format!("resolve cloud_prefix subdir: {}", e)),
+    };
     let fact_path = list_present
         .burv_output
         .join(RBTDRI_BURV_OUTPUT_SUBDIR)
+        .join(&prefix_dir)
         .join(format!("{}.{}", moniker, RBTDRP_FACT_EXT_DEPOT_PROJECT));
     let fact_project_id = match std::fs::read_to_string(&fact_path) {
         Ok(s) => s.trim().to_string(),
@@ -1200,9 +1225,14 @@ fn rbtdrp_depot_tear_down_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_V
         ));
     }
 
+    let prefix_dir = match rbtdrp_cloud_prefix_subdir(&root) {
+        Ok(p) => p,
+        Err(e) => return rbtdre_Verdict::Fail(format!("resolve cloud_prefix subdir: {}", e)),
+    };
     let depot_fact_path = list_after
         .burv_output
         .join(RBTDRI_BURV_OUTPUT_SUBDIR)
+        .join(&prefix_dir)
         .join(format!("{}.{}", moniker, RBTDRP_FACT_EXT_DEPOT));
 
     if !depot_fact_path.exists() {
