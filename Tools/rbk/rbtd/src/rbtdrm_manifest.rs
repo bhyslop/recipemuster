@@ -89,7 +89,7 @@ pub const RBTDRM_COLOPHON_ONBOARD_FIRST_CRUCIBLE: &str = "rbw-Ofc";
 pub const RBTDRM_COLOPHON_ONBOARD_DIR_FIRST_BUILD: &str = "rbw-Odf";
 pub const RBTDRM_COLOPHON_ONBOARD_PAYOR_HB: &str = "rbw-Op";
 pub const RBTDRM_COLOPHON_ONBOARD_GOVERNOR_HB: &str = "rbw-Og";
-// Windows group (4 of 5 — rbw-HWdw uses param1 channel, deferred to ₢A-AAS)
+// Windows group
 pub const RBTDRM_COLOPHON_HANDBOOK_TOP: &str = "rbw-h0";
 pub const RBTDRM_COLOPHON_HANDBOOK_WINDOWS: &str = "rbw-hw";
 pub const RBTDRM_COLOPHON_HW_DOCKER_DESKTOP: &str = "rbw-HWdd";

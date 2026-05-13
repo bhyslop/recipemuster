@@ -59,9 +59,7 @@ rbhw_top() {
   buh_e
   buh_section  "Phase 6: Docker (RBK — project-specific)"
   buh_tt       "  9. Docker Desktop install:             " "${RBZ_HW_DOCKER_DESKTOP}"
-  buh_tt       " 10. Native dockerd in WSL:              " "${RBZ_HW_DOCKER_WSL_NATIVE}"
-  buh_line "     Pass distro name: ${z_wsl_distro_yelp}"
-  buh_tt       " 11. Docker context discipline:          " "${RBZ_HW_DOCKER_CONTEXT}"
+  buh_tt       " 10. Docker context discipline:          " "${RBZ_HW_DOCKER_CONTEXT}"
 
 }
 

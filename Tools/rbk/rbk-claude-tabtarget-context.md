@@ -166,6 +166,5 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-h0` | HandbookTOP | — | Top-level handbook index across all groups |
 | `rbw-hw` | HandbookWindows | — | Windows test infrastructure orchestrator |
 | `rbw-HWdd` | DockerDesktop | — | Docker Desktop install |
-| `rbw-HWdw` | DockerWSLNative | param1 | Native dockerd in WSL |
 | `rbw-HWdc` | DockerContextDiscipline | — | Deterministic daemon selection |
 

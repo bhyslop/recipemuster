@@ -191,7 +191,6 @@ zrbz_kindle() {
   buz_enroll RBZ_HANDBOOK_TOP           "rbw-h0"    "${z_mod}" "rbhw_handbook_top"              ""        "Top-level handbook index across all groups"
   buz_enroll RBZ_HANDBOOK_WINDOWS       "rbw-hw"    "${z_mod}" "rbhw_top"                       ""        "Windows test infrastructure orchestrator"
   buz_enroll RBZ_HW_DOCKER_DESKTOP     "rbw-HWdd"  "${z_mod}" "rbhw_docker_desktop"            ""        "Docker Desktop install"
-  buz_enroll RBZ_HW_DOCKER_WSL_NATIVE  "rbw-HWdw"  "${z_mod}" "rbhw_docker_wsl_native"         "param1"  "Native dockerd in WSL"
   buz_enroll RBZ_HW_DOCKER_CONTEXT     "rbw-HWdc"  "${z_mod}" "rbhw_docker_context_discipline" ""        "Deterministic daemon selection"
 
   readonly ZRBZ_COLOPHON_MANIFEST="${z_buz_colophon_roll[*]}"

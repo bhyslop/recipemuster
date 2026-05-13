@@ -18,11 +18,6 @@
 //
 // Exercises every handbook display tabtarget and reports per-case pass/fail.
 // Each case invokes a handbook colophon with no arguments and asserts exit 0.
-//
-// Scope note: `rbw-HWdw` (RBZ_HW_DOCKER_WSL_NATIVE) uses the param1 channel
-// and is deferred to ₢A-AAS (handbook-render-param1-coverage) in ₣A- — the
-// fixture's uniform "invoke and check exit 0" pattern cannot supply the
-// required WSL-target argument.
 
 use std::path::Path;
 use std::process::Command;
@@ -118,7 +113,7 @@ fn rbtdrf_hb_onboard_governor_hb(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_hb_render(dir, RBTDRM_COLOPHON_ONBOARD_GOVERNOR_HB, "onboard-governor-hb")
 }
 
-// ── Windows cases (4 of 5 — rbw-HWdw deferred to ₢A-AAS) ────
+// ── Windows cases ───────────────────────────────────────────
 
 fn rbtdrf_hb_handbook_top(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_hb_render(dir, RBTDRM_COLOPHON_HANDBOOK_TOP, "handbook-top")

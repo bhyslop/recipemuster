@@ -50,7 +50,6 @@ zrbhw_furnish() {
   source "${z_rbk_kit_dir}/rbh0/rbhwht_handbook_top.sh"                || buc_die "Failed to source rbhwht_handbook_top.sh"
   source "${z_rbk_kit_dir}/rbh0/rbhw0_top.sh"                          || buc_die "Failed to source rbhw0_top.sh"
   source "${z_rbk_kit_dir}/rbh0/rbhwdd_docker_desktop.sh"              || buc_die "Failed to source rbhwdd_docker_desktop.sh"
-  source "${z_rbk_kit_dir}/rbh0/rbhwdn_docker_wsl_native.sh"           || buc_die "Failed to source rbhwdn_docker_wsl_native.sh"
   source "${z_rbk_kit_dir}/rbh0/rbhwcd_docker_context_discipline.sh"   || buc_die "Failed to source rbhwcd_docker_context_discipline.sh"
 
   zrbhw_kindle
