@@ -1843,6 +1843,7 @@
       "jjghn_creation_time": "260409",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢A6AA-",
         "₢A6AA6",
         "₢A6AA7",
         "₢A6AA8",
@@ -1903,8 +1904,19 @@
         "₢A6AAz",
         "₢A6AA9"
       ],
-      "jjghn_next_pace_seed": "AA-",
+      "jjghn_next_pace_seed": "AA_",
       "jjghn_paces": {
+        "₢A6AA-": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260513-0747",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nPattern-application sweep. Pattern is articulated; per-site execution is mount-time work. Methodical, BCG-disciplined, one site at a time.\n\n## Docket\n\nReplace the \"tell operator what to type into rbr*.env\" pattern with in-place editing across RBR*.env-touching commands.\n\n### Pattern\n\n1. Pre-flight: assert target rbr*.env is clean (no uncommitted changes); fail early naming the file if dirty\n2. Determine the new values via the existing work\n3. BCG-compliant in-place edit of the rbr*.env file writing those values, then surface the change with a commit reminder\n\n### Trigger case\n\n`rbgp_payor_install` (invoked by `tt/rbw-gPI.PayorInstall.sh`) currently emits \"Configuration required in rbrp.env: RBRP_...\" instructions rather than writing the values. Four fields involved; `RBRP_BILLING_ACCOUNT_ID` is operator-supplied and may remain a placeholder or get its own prompt.\n\n### Discovery\n\nGrep `Tools/rbk/` for \"Configuration required in\" and analogous hand-edit emissions to enumerate sites at mount-time.\n\n### Done\n\nEvery site emitting hand-edit instructions for an RBR*.env file applies the three-step pattern.",
+              "jjgtn_silks": "rbr-env-in-place-edit-pattern",
+              "jjgtn_basis": "d4c8c0f"
+            }
+          ]
+        },
         "₢A6AA0": {
           "jjgpn_tacks": [
             {
