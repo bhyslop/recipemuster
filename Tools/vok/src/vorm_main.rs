@@ -190,6 +190,9 @@ fn vosr_init() {
     if std::env::var("CLAUDE_CODE_DISABLE_AUTO_MEMORY").as_deref() != Ok("1") {
         panic!("CLAUDE_CODE_DISABLE_AUTO_MEMORY must be 1");
     }
+    if std::env::var("MAX_MCP_OUTPUT_TOKENS").as_deref() != Ok("200000") {
+        panic!("MAX_MCP_OUTPUT_TOKENS must be 200000");
+    }
 }
 
 #[tokio::main]
