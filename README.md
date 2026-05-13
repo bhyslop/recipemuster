@@ -15,6 +15,8 @@
 > If you evaluate or deploy this, you are contributing to its hardening.
 > Security-focused contributors and responsible disclosure are especially valued.
 
+**Host platform scope.** [Recipe Bottle](#RecipeBottle) is qualified for release-1 only on Linux and macOS with Docker. Windows host support is planned but not yet tested — see [Roadmap](#Roadmap) for the upcoming supply-chain and transport work that enables it.
+
 [Recipe Bottle](#RecipeBottle) is a set of bash scripts enabling enterprise grade container image management intended for incorporation into any project.
 The dependency footprint is deliberately narrow — `bash 3.2` and a handful of standard tools — with no Python runtime, no language-specific package manager, and no `gcloud` CLI.
 After initial manual setup, all cloud API calls use `openssl` + `curl`.
@@ -34,13 +36,13 @@ The two compose but neither requires the other.
 
 ### Supported Platforms
 
-[Recipe Bottle's](#RecipeBottle) [Crucible](#Crucible) runtime is qualified for release-1 against **Docker** as the container runtime, on three host families:
+[Recipe Bottle's](#RecipeBottle) [Crucible](#Crucible) runtime is qualified for release-1 against **Docker** as the container runtime, on two host families:
 
 - **Linux host** — native Docker Engine (Docker CE / `docker.io`) running directly on the host kernel; no VM. Tested on Ubuntu LTS with cgroup v2 and a 6.x kernel.
-- **Windows host** — Docker Desktop for Windows with the WSL2 backend, and per-distro WSL integration enabled for the Recipe Bottle WSL distribution. Single-daemon model: Docker Desktop's daemon serves all shells (Windows, Cygwin, WSL) via the default Docker context.
 - **macOS host** — Docker Desktop for Mac on a supported macOS release. Apple Silicon hosts use the Apple Virtualization framework or Docker VMM hypervisor backend.
 
-Podman support is architecturally accommodated by the spec but deferred — see §Future Work.
+Windows host support is planned but not yet tested — see [Roadmap](#Roadmap).
+Podman support is architecturally accommodated by the spec but deferred — see [Roadmap](#Roadmap).
 
 <a id="Regime"></a>All configuration flows through [Regimes](#Regime) — structured `.env` files with typed validation, each with its own render and validate commands.
 Some regimes are committed in the repo: [Vessel](#Vessel) definitions ([RBRV](#RBRV)), [Nameplate](#Nameplate) configurations ([RBRN](#RBRN)), [Depot](#Depot) identity ([RBRR](#RBRR)), and [Payor](#Payor) identity ([RBRP](#RBRP)).
@@ -476,7 +478,7 @@ A [Tethered](#Tethered) build of the base image followed by an [Airgapped](#Airg
 **Regulatory alignment.**
 No framework mandates build-time network blocking by name, but egress-locked builds are the simplest way to evidence several common controls: FedRAMP CM-7 (least functionality) and SC-7 (boundary protection), SOC 2 CC6.1 (logical access) and CC8.1 (change management), and SLSA Level 3's hermetic build requirement.
 
-## Appendix: Roadmap
+## <a id="Roadmap"></a>Appendix: Roadmap
 
 The following features are not yet implemented but are under consideration:
 
@@ -502,6 +504,10 @@ A tighter mechanism is recognized but not yet designed.
 - **Podman support** - The spec accommodates Podman as an alternative container runtime, but support is deferred.
 On macOS, both Docker and Podman run Linux containers inside a hidden Linux VM — there is no native container runtime on Darwin.
 Podman support would require managing that VM's lifecycle within the customer's [Depot](#Depot), adding infrastructure complexity with no architectural advantage over Docker Desktop.
+
+- **Windows host support** - Two strands of work are required before Recipe Bottle can claim qualified Windows host support.
+The supply chain needs to widen: today's [Enshrine](#Enshrine) ceremony mirrors only upstream base images, and a planned revision generalizes it into a universal capture verb covering build-time tools, a project-controlled WSL distribution, and Podman VM disk images — closing the gap that today leaves the Windows path dependent on Microsoft Store distributions that change without notice.
+Independently, the bash transport stack that traverses cmd.exe, PowerShell, Cygwin's `bash.exe`, and `wsl.exe` needs per-leg hardening across all tabtargets, with green test coverage from a Windows test fundus.
 
 - **[Crucible](#Crucible)-to-[Crucible](#Crucible) networking** - Under the current [Sentry](#Sentry) model, [Bottles](#Bottle) have no direct network path to each other; any inter-[Bottle](#Bottle) communication would route through their respective [Sentries](#Sentry).
 The plumbing is feasible but not implemented, pending a concrete use case.
