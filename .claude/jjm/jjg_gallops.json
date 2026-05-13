@@ -10307,9 +10307,10 @@
         "₢BKAAE",
         "₢BKAAF",
         "₢BKAAG",
-        "₢BKAAH"
+        "₢BKAAH",
+        "₢BKAAI"
       ],
-      "jjghn_next_pace_seed": "AAI",
+      "jjghn_next_pace_seed": "AAJ",
       "jjghn_paces": {
         "₢BKAAA": {
           "jjgpn_tacks": [
@@ -10396,6 +10397,17 @@
               "jjgtn_text": "## Character\n\nMechanical with linked-term subtlety. Parallel-internal: two agents, one per doc subtree.\n\n## Goal\n\nNo document teaches `.buk/`, `.rbk/`, or `rbev-vessels/` to a reader. AsciiDoc linked terms reflect the new vocabulary coherently.\n\n## Work\n\n### Parallel dispatch\n\nSpawn two sonnet agents working on disjoint doc subtrees:\n\n- **handbook-agent** — onboarding tracks and human-facing handbook content:\n  - `Tools/rbk/rbh0/` (rbho/rbhp/rbhw families — onboarding CLIs)\n  - Any handbook display strings, probe outputs, learner-facing examples\n  - Tabtargets surfaced in onboarding flows (`rbw-O*` series)\n\n- **specs-agent** — specifications and meta-docs:\n  - `Tools/rbk/vov_veiled/RBS*.adoc` family (start with RBS0, RBRN, RBSRR, RBSRP, RBSRV)\n  - `README.md`, `CLAUDE.md`\n  - Consumer CLAUDE: `Tools/rbk/vov_veiled/CLAUDE.consumer.md`\n  - AsciiDoc linked terms — attribute references, anchors, replacement text — must stay coherent. A linked term whose definition mentions the old path needs both the definition text AND any anchor/attribute name updated if those embed the old vocabulary.\n\n### Substitution rules (both agents)\n\n- `.buk/` → `rbmm_moorings/` (subdirs determine specific final path)\n- `.rbk/` → `rbmm_moorings/` (subdirs determine specific final path)\n- `rbev-vessels/` → `rbmm_moorings/rbmv_vessels/`\n- `.buk/users/` → `rbmm_moorings/rbmu_users/`\n- `.buk/launcher.*` → `rbmm_moorings/rbml_launchers/launcher.*`\n\nWhere prose teaches the directory structure as a concept (not just a path), update both the path and any prose that describes the old structure (e.g., \"consumer config under `.buk/`\" → \"consumer config under `rbmm_moorings/`\").\n\n### Coherence\n\nTwo agents on disjoint trees, but both applying the same substitution rules. Substitution rule consistency is the docket's contract — if either agent invents a different substitution, both wraps need to align before this pace wraps.\n\n### Wrap criteria\n\n- `grep -rE '\\.(buk|rbk)/|rbev-vessels' Tools/rbk/vov_veiled/ Tools/rbk/rbh0/ README.md CLAUDE.md` returns empty (or only documented exceptions).\n- Spot-render an onboarding track (`tt/rbw-Occ.OnboardingConfigureEnvironment.sh` etc.) and read through; vocabulary reads natural.\n- AsciiDoc linked terms resolve.\n- `tt/rbtd-s.TestSuite.fast.sh` passes.\n\n## Sources\n\n- `Tools/rbk/rbh0/` — handbook surface\n- `Tools/rbk/vov_veiled/RBS*.adoc` — spec surface\n- ₣A_/₢A_AAJ docket — Handbook and specs section",
               "jjgtn_silks": "docs-vocabulary-sweep",
               "jjgtn_basis": "1d62953"
+            }
+          ]
+        },
+        "₢BKAAI": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260513-1259",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nTidy. Mechanical file moves + CLAUDE.md updates.\n\n## Goal\n\nStranded items relocated to their proper homes. Acronym registry reflects the new `rbm*_` family.\n\n## Work\n\n### File relocations (use `git mv`)\n\n- `Tools/rbk/rbmP_laterSecurityAudit.md` → `Memos/`. Orphan memo; reclaims `rbm*` namespace for the moorings family.\n- `.rbk/rbob_compose.yml` → `Tools/rbk/rbob_compose.yml`. Kit machinery (crucible topology), not consumer-tunable. (If pace 4 already moved this as part of the rename, verify and skip.)\n\n### CLAUDE.md acronym registration\n\nRegister the `rbm*_` family in `/Users/bhyslop/projects/rbm_alpha_recipemuster/CLAUDE.md` File Acronym Mappings under the RBK subdirectory section:\n\n- `rbmm_` — Moorings umbrella (the directory itself)\n- `rbml_` — Moorings launchers\n- `rbmu_` — Moorings users (remote profiles)\n- `rbmv_` — Moorings vessels\n- Plus `rbmn_` per ₢BKAAA outcome if it joined the family\n\n### Wrap criteria\n\n- Both files at new locations; old locations gone.\n- CLAUDE.md acronym table includes the family.\n- No references to old locations survive in code (handled by ₢BKAAE) or docs (handled by ₢BKAAH); if any do, they're bugs to file, not bugs to fix in this pace.\n- `tt/rbtd-s.TestSuite.fast.sh` passes.\n\n## Sources\n\n- `Tools/rbk/rbmP_laterSecurityAudit.md` — orphan memo\n- `.rbk/rbob_compose.yml` (or `rbmm_moorings/rbob_compose.yml` if pace 4 staged it under moorings)\n- `CLAUDE.md` — acronym registry\n- ₣A_/₢A_AAJ docket — Cleanup section",
+              "jjgtn_silks": "kit-cleanup",
+              "jjgtn_basis": "f1650fd"
             }
           ]
         }
