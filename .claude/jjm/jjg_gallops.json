@@ -6464,6 +6464,13 @@
         "₢A_AAP": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260514-1129",
+              "jjgtn_state": "jjgte_abandoned",
+              "jjgtn_text": "## Character\n\nTwo-platform AAK acceptance gate via the gauntlet. Mechanical\nexecution; a failure here is a real AAK-cutover bug, not exploration.\n\n## Docket\n\nRun `tt/rbw-tP.QualifyPristine.sh` on macOS and linux, each on its\nown branch. The gauntlet handles depot regen + qualification in one\npass — no separate AAE step is needed if both runs go green.\n\n- One branch per platform — keeps each run's canonical-depot\n  commits isolated from main\n- Sequential, never concurrent — canonical-establish picks a fresh\n  moniker but two concurrent runs could still collide on\n  station/GAR identifiers\n- Triage on failure: grammar (fix-inline), contract (fix-inline),\n  or spinoff pace with explicit handoff\n\n### References\n\n- `Tools/rbk/rbq_Qualify.sh:187-200` — pristine entry point\n- `Tools/rbk/rbtd/rbte_engine.sh:57-69` — gauntlet suite contents\n- `Tools/rbk/rbtd/src/rbtdrk_canonical.rs:382-501` — canonical-\n  establish performs the depot regen",
+              "jjgtn_silks": "aak-acceptance-tP-macos-linux",
+              "jjgtn_basis": "92c2d8e"
+            },
+            {
               "jjgtn_ts": "260511-1552",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\n\nTwo-platform AAK acceptance gate via the gauntlet. Mechanical\nexecution; a failure here is a real AAK-cutover bug, not exploration.\n\n## Docket\n\nRun `tt/rbw-tP.QualifyPristine.sh` on macOS and linux, each on its\nown branch. The gauntlet handles depot regen + qualification in one\npass — no separate AAE step is needed if both runs go green.\n\n- One branch per platform — keeps each run's canonical-depot\n  commits isolated from main\n- Sequential, never concurrent — canonical-establish picks a fresh\n  moniker but two concurrent runs could still collide on\n  station/GAR identifiers\n- Triage on failure: grammar (fix-inline), contract (fix-inline),\n  or spinoff pace with explicit handoff\n\n### References\n\n- `Tools/rbk/rbq_Qualify.sh:187-200` — pristine entry point\n- `Tools/rbk/rbtd/rbte_engine.sh:57-69` — gauntlet suite contents\n- `Tools/rbk/rbtd/src/rbtdrk_canonical.rs:382-501` — canonical-\n  establish performs the depot regen",
