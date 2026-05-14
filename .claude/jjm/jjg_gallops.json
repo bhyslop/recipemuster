@@ -9776,9 +9776,10 @@
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BOAAA",
-        "₢BOAAB"
+        "₢BOAAB",
+        "₢BOAAC"
       ],
-      "jjghn_next_pace_seed": "AAC",
+      "jjghn_next_pace_seed": "AAD",
       "jjghn_paces": {
         "₢BOAAA": {
           "jjgpn_tacks": [
@@ -9799,6 +9800,17 @@
               "jjgtn_text": "## Character\nDesign conversation requiring judgment — pull the depot regime work forward\nfrom the 'win' timeframe into the MVP-tactical window. Assess shape, locked\nconstraints, and what done looks like for the near-term cut.",
               "jjgtn_silks": "depot-regime-now",
               "jjgtn_basis": "c9d199f"
+            }
+          ]
+        },
+        "₢BOAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260514-1511",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical with one design beat — reverify the srjcl jupyter notebook still\nfunctions and can reach Anthropic. Consider surfacing the local port during\ncrucible charge so the operator doesn't have to fish for it.",
+              "jjgtn_silks": "srjcl-jupyter-reverify",
+              "jjgtn_basis": "dae5ec1"
             }
           ]
         }
