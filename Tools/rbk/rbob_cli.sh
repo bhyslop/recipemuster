@@ -125,6 +125,7 @@ zrbob_furnish() {
   source "${z_rbk_kit_dir}/rbgo_OAuth.sh"
   source "${z_rbk_kit_dir}/rbob_bottle.sh"
   source "${BURD_BUK_DIR}/buf_fact.sh"
+  source "${z_rbk_kit_dir}/rbfh_FoundryHygiene.sh"
   source "${z_rbk_kit_dir}/rbfd_FoundryDirectorBuild.sh"
   source "${z_rbk_kit_dir}/rbfk_kludge.sh"
   source "${z_rbk_kit_dir}/rboo_observe.sh"
@@ -177,6 +178,10 @@ zrbob_furnish() {
   zrbgd_kindle
   zrbgo_kindle
   zrbob_kindle
+
+  # rbfh kindle (Dockerfile hygiene) — load-bearing for both kludge and ordain
+  # since both wired callsites invoke rbfh_dockerfile_check.
+  zrbfh_kindle
 
   # Differential kindle: kludge uses uncredentialed rbfk; ordain needs full rbfd
   case "${z_command}" in
