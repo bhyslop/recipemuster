@@ -9774,9 +9774,23 @@
       "jjghn_silks": "rbk-11-mvp-tactical",
       "jjghn_creation_time": "260514",
       "jjghn_status": "jjghe_racing",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
+      "jjghn_order": [
+        "₢BOAAA"
+      ],
+      "jjghn_next_pace_seed": "AAB",
+      "jjghn_paces": {
+        "₢BOAAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260514-1511",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical — work through issues uncovered while running the gauntlet with the\ne2-highcpu-32 GCB machine tweak. Fix what breaks, note what's flaky.",
+              "jjgtn_silks": "gauntlet-32cpu-shakedown",
+              "jjgtn_basis": "fde26cb"
+            }
+          ]
+        }
+      }
     }
   }
 }
