@@ -7077,6 +7077,7 @@
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BBABI",
+        "₢BBABJ",
         "₢BBABE",
         "₢BBABD",
         "₢BBABC",
@@ -7146,7 +7147,7 @@
         "₢BBABF",
         "₢BBABG"
       ],
-      "jjghn_next_pace_seed": "ABJ",
+      "jjghn_next_pace_seed": "ABK",
       "jjghn_paces": {
         "₢BBAA-": {
           "jjgpn_tacks": [
@@ -8863,6 +8864,17 @@
               "jjgtn_text": "## Character\n\nBBABH dropped `--pull=never` because buildx rejects tri-state values (docker/buildx#1889 has been dormant 6 years); forcing `DOCKER_BUILDKIT=0` time-bombs against classic-builder deprecation. RBSAK Step 6 currently acknowledges the lost hygiene as an open gap. Project-imposed Dockerfile syntax constraint lets a trivial bash parser restore that hygiene, builder-agnostic and decoupled from Docker flag evolution.\n\n## Scope\n\nAdd `zrbfk_dockerfile_hygiene_check` to `rbfk_kludge.sh`, called after slot resolution and before `docker build`. Rules — filter `#`-column-0 comment lines, then for every line starting `FROM ` at column 0:\n\n1. The second whitespace-delimited token must match `${RBF_IMAGE_n}` (n in 1..3) or the literal `scratch`\n2. The line must not end with `\\` (no continuation)\n\nViolation → line-number-precise diagnostic + buc_die before docker is invoked.\n\nSurvey `rbev-vessels/**/Dockerfile` for current compliance and report any non-compliers before the check goes live.\n\n## Constraints\n\n- BCG-clean from the start in rbfk_kludge.sh: split the two multi-var `local` declarations into one-per-line; extract the two `if ! docker image inspect ... >/dev/null 2>&1` sites to a `zrbfk_image_present_predicate` function (consolidates stderr handling); brace+quote the `${#z_build_args[@]}` test\n- Project rule applies to vessel Dockerfiles only — hygiene is kludge's concern, not Cloud Build's\n\n## Spec sync\n\nRBSAK Step 6 — replace BBABH's gap-acknowledging prose with the three rules, the scratch exception, and the rationale.\n\n## Out of scope\n\n- Applying the hygiene check to cloud-build paths\n- `FROM --platform=...` accommodation",
               "jjgtn_silks": "kludge-dockerfile-from-hygiene",
               "jjgtn_basis": "ff28ac8"
+            }
+          ]
+        },
+        "₢BBABJ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260514-1141",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nMechanical: mint a thin BCG CLI + two tabtargets for the `rbfh` module landed in `₢BBABI`, then add a ~9-case theurge fixture in the fast tier for regression coverage of the Dockerfile hygiene contract. Patterns follow `regime-validation` for both reach (path-mode tabtarget per synthetic case, single all-vessels case with bash-side iteration) and shape (inline Rust string constants for synthetic Dockerfile bodies, mirroring `rbtdrf_rv_*` setup strings).\n\n## Mint\n\n- `Tools/rbk/rbfh_cli.sh` — BCG CLI paired with the existing `rbfh_FoundryHygiene.sh` library module (sourced therein). Kindle chain loads buc + rbfc (FoundryCore — needed for vessel resolution) + rbrr regime (for `RBRR_VESSEL_DIR`) + rbrv regime + rbfh. No credentials, no GCP machinery.\n- Public functions:\n  - `rbfh_check <dockerfile-path>` — direct path check; wraps `rbfh_dockerfile_check` after sentinel.\n  - `rbfh_check_vessel <vessel-sigil-or-path>` — resolves via `zrbfc_resolve_vessel`, sources vessel rbrv.env, asserts conjure-mode (refuses bind/graft with operator-actionable message), runs check on `RBRV_CONJURE_DOCKERFILE`. No-arg → list available vessels and die helpfully (match `rbfd_build`'s pattern at `rbfd_FoundryDirectorBuild.sh:1178`).\n- Tabtargets (both param1 channel; lowercase `h` since hygiene is read-only/local, paralleling `rbw-fpf`/`rbw-fpc`):\n  - `tt/rbw-fhc.HygieneCheck.sh` → `rbfh_check`\n  - `tt/rbw-fhv.HygieneCheckVessel.sh` → `rbfh_check_vessel`\n- Zipper entries in `rbz_zipper.sh`: `RBZ_HYGIENE_CHECK` and `RBZ_HYGIENE_CHECK_VESSEL`.\n\n## Fixture\n\n- New theurge fixture `dockerfile-hygiene` defined in `rbtdrf_fast.rs`, registered in `rbtdrm_manifest.rs`, assigned to the fast suite.\n- Synthetic cases (~8): Dockerfile bodies as inline Rust `&'static str` constants; each case writes the body to a temp file in the case's `dir`, invokes `tt/rbw-fhc <tempfile>` via `rbtdrf_run_tt`, asserts verdict. Coverage:\n  - `dh_accept_parameterized` (positive — `FROM ${RBF_IMAGE_1}`)\n  - `dh_accept_scratch` (positive — `FROM scratch`)\n  - `dh_accept_multistage_as` (positive — `AS builder` coda admissible)\n  - `dh_accept_empty` (positive — empty file passes silently)\n  - `dh_accept_comments_only` (positive — column-0 `#` lines only)\n  - `dh_reject_hardcoded_literal` (negative — `FROM python:3.12-slim`)\n  - `dh_reject_tab_in_from` (negative — tab anywhere on FROM line)\n  - `dh_reject_trailing_backslash` (negative — line ends with `\\`)\n- One all-vessels case `dh_all_vessels_pass`: bash script iterates `${RBRR_VESSEL_DIR}/*` (mirroring `rbtdrf_rv_rbrv_all_vessels` at `rbtdrf_fast.rs:967`), sources each `rbrv.env` in a subshell to read `RBRV_VESSEL_MODE`, skips non-conjure modes, invokes `tt/rbw-fhv <sigil>` per conjure vessel, fails on any non-zero. No hardcoded vessel paths in theurge — discovery flows through the regime's own pointer.\n\n## Touches\n\n- CLAUDE.md File Acronym Mappings: extend the RBFH entry to mention the CLI counterpart, or add a sibling `rbfh_cli.sh` line.\n- Regenerate `rbk-claude-tabtarget-context.md` via `tt/rbw-MG.MarshalGenerate.sh` so the two new tabtargets appear in the Foundry table.\n- No spec edits required: `RBSFH-dockerfile_hygiene.adoc` describes the rule itself, not the test surface. `RBSAK`/`RBSAC` references to `{rbsfh_dockerfile_hygiene}` already landed in `₢BBABI`.\n\n## Verification\n\n- `bash -n` clean on `rbfh_cli.sh` and any touched modules.\n- `tt/rbtd-s.TestSuite.fast.sh` green (case count grows ~98 → ~107).\n- Sanity-check: temporarily flip one synthetic case's `expect_ok` flag, confirm the fixture reports the case as failed (verdict assertion is wired correctly), then revert.\n\n## Out of scope\n\n- Handbook prose for the new tabtargets — operators discover via `ls tt/` plus context. Chivvy a doc itch if drift becomes noticeable.\n- Spec subdoc edits to RBSFH for the test surface — fixture is implementation detail, not contract.\n- Decomposing `rbfh_check_vessel`'s no-arg list-and-die into a separate `rbfh_list_vessels` function — premature factoring.\n\n## Silks\n\nCurrent proposal `rbfh-cli-and-theurge-fixture` fits if `cli` and `fixture` both feel load-bearing at mount time. If just one (probably the fixture) ends up doing most of the work, consider relabeling.",
+              "jjgtn_silks": "rbfh-cli-and-theurge-fixture",
+              "jjgtn_basis": "82426bb"
             }
           ]
         }
