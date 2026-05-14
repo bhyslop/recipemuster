@@ -71,6 +71,12 @@ Compound Lodes hold a manifest of sub-Lode references; sub-Lodes are first-class
 - **Non-vessel consumer landing regime.** For `wsl` and `podvm-*` kinds, the resolved {INSTANCE_NOUN} has no vessel rbrv.env to yoke into. Decision deferred until the first non-vessel Lode pace mounts and forces the choice; candidates include station-regime extensions, a Lode-side current-resolution field, or a new host-config regime.
 - **Spec letter allocation for the new Lode spec.** Consult CLAUDE.md Prefix Naming Discipline and Quoin Sub-Letter Discipline before minting; check terminal exclusivity against the existing RBS* tree.
 
+## Test coverage gate before deploy
+
+Lifecycle test fixtures against the new Lode-side surface must be slated and landed before this heat deploys. Fixtures exercise capture / list / inspect / wrest / delete end-to-end against live GAR for each kind, bookended by prereq-sweep at head and muster-absent at tail. Compound kinds (`reliquary`, `podvm-wsl`, `podvm-native`) carry a manifest-of-references payload where interior-hole regressions hide — concrete absence assertions after piecemeal delete are mandatory for those kinds.
+
+The fixture surface scales with the operation surface; test paces are not optional polish. Manual operator testing during the planning interval is the accepted bridge, not a substitute.
+
 ## Vocabulary parked
 
 - **Lode** chosen as the universal recipe noun. **Unction** held as the strongest rejected alternative (religious register, RBRU_ free, but verb-coupled meaning). **Oblate** rejected — RBRO_ collides with OAuth regime. Namespace collision discovered post-paddock: the AWS-side delivered-artifact prose vocabulary in RBSHR's Cross-cloud cluster previously used "Lode" (informal, never a quoin). That occupant was renamed to **Bullion** — financial-vault register fits S3-Object-Lock semantics, content-addressed bullion-bar metaphor maps cleanly to the actual content-addressing scheme, and the rename clears the namespace so Lode-as-universal-recipe-noun is unambiguous.
