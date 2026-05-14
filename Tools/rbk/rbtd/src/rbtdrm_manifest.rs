@@ -35,6 +35,8 @@ pub const RBTDRM_COLOPHON_VOUCH: &str = "rbw-fV";
 pub const RBTDRM_COLOPHON_SUMMON: &str = "rbw-fs";
 pub const RBTDRM_COLOPHON_PLUMB_FULL: &str = "rbw-fpf";
 pub const RBTDRM_COLOPHON_PLUMB_COMPACT: &str = "rbw-fpc";
+pub const RBTDRM_COLOPHON_HYGIENE_CHECK: &str = "rbw-fhc";
+pub const RBTDRM_COLOPHON_HYGIENE_CHECK_VESSEL: &str = "rbw-fhv";
 
 // Image colophons (global — no nameplate imprint)
 // Three-domain symmetric: hallmarks (h), reliquaries (r), enshrinements (e).
@@ -114,6 +116,7 @@ pub const RBTDRM_FIXTURE_ENROLLMENT_VALIDATION: &str = "enrollment-validation";
 pub const RBTDRM_FIXTURE_REGIME_VALIDATION: &str = "regime-validation";
 pub const RBTDRM_FIXTURE_REGIME_SMOKE: &str = "regime-smoke";
 pub const RBTDRM_FIXTURE_HANDBOOK_RENDER: &str = "handbook-render";
+pub const RBTDRM_FIXTURE_DOCKERFILE_HYGIENE: &str = "dockerfile-hygiene";
 // Pristine-lifecycle fixture (gate + SA/depot lifecycle cases)
 pub const RBTDRM_FIXTURE_PRISTINE_LIFECYCLE: &str = "pristine-lifecycle";
 // Gauntlet canonical-establish fixture (§2: canonical depot levy + governor
@@ -182,6 +185,10 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         | RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST
         | RBTDRM_FIXTURE_CALIBRANT_PROGRESSING
         | RBTDRM_FIXTURE_CALIBRANT_SENTINEL => Some(&[]),
+        RBTDRM_FIXTURE_DOCKERFILE_HYGIENE => Some(&[
+            RBTDRM_COLOPHON_HYGIENE_CHECK,
+            RBTDRM_COLOPHON_HYGIENE_CHECK_VESSEL,
+        ]),
         RBTDRM_FIXTURE_PRISTINE_LIFECYCLE => Some(&[
             RBTDRM_COLOPHON_DEPOT_LEVY,
             RBTDRM_COLOPHON_DEPOT_LIST,

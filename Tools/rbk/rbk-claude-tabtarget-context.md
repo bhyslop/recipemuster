@@ -88,6 +88,8 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-fs` | RetrieverSummonsHallmark | param1 | Summon vouched hallmark image locally |
 | `rbw-fpf` | RetrieverPlumbsFull | param1 | Full provenance display (SBOM, build info, Dockerfile) |
 | `rbw-fpc` | RetrieverPlumbsCompact | param1 | Compact provenance summary |
+| `rbw-fhc` | HygieneCheck | param1 | Check a Dockerfile against the FROM-line hygiene contract |
+| `rbw-fhv` | HygieneCheckVessel | param1 | Check a vessel's conjure Dockerfile against the FROM-line hygiene contract |
 
 ### Ifrit — Attack binary (`rbw-I`)
 

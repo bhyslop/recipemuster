@@ -2363,6 +2363,7 @@ pub static RBTDRC_FIXTURES: &[&'static rbtdre_Fixture] = &[
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_SMOKE,
+    &crate::rbtdrf_fast::RBTDRF_FIXTURE_DOCKERFILE_HYGIENE,
     &crate::rbtdrf_handbook::RBTDRF_FIXTURE_HANDBOOK_RENDER,
     &crate::rbtdrp_pristine::RBTDRP_FIXTURE_PRISTINE_LIFECYCLE,
     &crate::rbtdrk_canonical::RBTDRK_FIXTURE_CANONICAL_ESTABLISH,

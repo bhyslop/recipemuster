@@ -27,8 +27,9 @@ use crate::case;
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
 use crate::rbtdri_invocation::rbtdri_find_tabtarget_global;
 use crate::rbtdrm_manifest::{
-    RBTDRM_FIXTURE_ENROLLMENT_VALIDATION, RBTDRM_FIXTURE_REGIME_SMOKE,
-    RBTDRM_FIXTURE_REGIME_VALIDATION,
+    RBTDRM_COLOPHON_HYGIENE_CHECK, RBTDRM_COLOPHON_HYGIENE_CHECK_VESSEL,
+    RBTDRM_FIXTURE_DOCKERFILE_HYGIENE, RBTDRM_FIXTURE_ENROLLMENT_VALIDATION,
+    RBTDRM_FIXTURE_REGIME_SMOKE, RBTDRM_FIXTURE_REGIME_VALIDATION,
 };
 
 // ── Helpers ──────────────────────────────────────────────────
@@ -196,6 +197,36 @@ fn rbtdrf_run_tt(
             colophon,
             code,
             String::from_utf8_lossy(&output.stderr),
+        ));
+    }
+    Ok(())
+}
+
+/// Run a tabtarget that is expected to fail. Inverts rbtdrf_run_tt:
+/// non-zero exit returns Ok(()), zero exit returns Err. Invocation errors
+/// (tabtarget not found, launcher failure) still propagate as Err.
+fn rbtdrf_run_tt_neg(
+    project_root: &Path,
+    colophon: &str,
+    args: &[&str],
+    dir: &Path,
+    label: &str,
+) -> Result<(), String> {
+    let tt = rbtdri_find_tabtarget_global(project_root, colophon)?;
+    let output = Command::new(&tt)
+        .args(args)
+        .current_dir(project_root)
+        .output()
+        .map_err(|e| format!("{}: failed to run {}: {}", label, tt.display(), e))?;
+
+    let code = output.status.code().unwrap_or(-1);
+    let _ = std::fs::write(dir.join(format!("{}-stdout.txt", label)), &output.stdout);
+    let _ = std::fs::write(dir.join(format!("{}-stderr.txt", label)), &output.stderr);
+
+    if code == 0 {
+        return Err(format!(
+            "{}: {} expected failure, got exit 0",
+            label, colophon,
         ));
     }
     Ok(())
@@ -1312,6 +1343,193 @@ fn rbtdrf_rs_unmake_empty_arg_refusal(dir: &Path) -> rbtdre_Verdict {
     rbtdre_Verdict::Pass
 }
 
+// ── Dockerfile-hygiene cases ────────────────────────────────
+//
+// Drives the Dockerfile FROM-line hygiene contract through the rbw-fhc and
+// rbw-fhv tabtargets — exercising the contract surface, not module internals.
+// Eight synthetic cases (5 positive, 3 negative) feed inline Dockerfile bodies
+// to rbw-fhc; one all-vessels case iterates real conjure vessels through
+// rbw-fhv with a Rust-side counter that fails verdict on zero iterations.
+
+const RBTDRF_DH_BODY_PARAMETERIZED: &str = "FROM ${RBF_IMAGE_1}\n";
+const RBTDRF_DH_BODY_SCRATCH: &str = "FROM scratch\n";
+const RBTDRF_DH_BODY_MULTISTAGE_AS: &str = "FROM ${RBF_IMAGE_1} AS builder\n";
+const RBTDRF_DH_BODY_EMPTY: &str = "";
+const RBTDRF_DH_BODY_COMMENTS_ONLY: &str = "# top-level comment\n# another comment\n";
+const RBTDRF_DH_BODY_HARDCODED_LITERAL: &str = "FROM python:3.12-slim\n";
+const RBTDRF_DH_BODY_TAB_IN_FROM: &str = "FROM\t${RBF_IMAGE_1}\n";
+const RBTDRF_DH_BODY_TRAILING_BACKSLASH: &str = "FROM ${RBF_IMAGE_1} \\\n";
+
+fn rbtdrf_dh_run_synthetic(
+    dir: &Path,
+    label: &str,
+    body: &str,
+    expect_pass: bool,
+) -> rbtdre_Verdict {
+    let root = match std::env::current_dir() {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+    };
+    let dockerfile = dir.join(format!("{}-Dockerfile", label));
+    if let Err(e) = std::fs::write(&dockerfile, body) {
+        return rbtdre_Verdict::Fail(format!("{}: write Dockerfile failed: {}", label, e));
+    }
+    let path_str = dockerfile.to_string_lossy().into_owned();
+    let result = if expect_pass {
+        rbtdrf_run_tt(&root, RBTDRM_COLOPHON_HYGIENE_CHECK, &[&path_str], dir, label)
+    } else {
+        rbtdrf_run_tt_neg(&root, RBTDRM_COLOPHON_HYGIENE_CHECK, &[&path_str], dir, label)
+    };
+    match result {
+        Ok(()) => rbtdre_Verdict::Pass,
+        Err(e) => rbtdre_Verdict::Fail(e),
+    }
+}
+
+fn rbtdrf_dh_accept_parameterized(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_dh_run_synthetic(dir, "dh-accept-parameterized", RBTDRF_DH_BODY_PARAMETERIZED, true)
+}
+
+fn rbtdrf_dh_accept_scratch(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_dh_run_synthetic(dir, "dh-accept-scratch", RBTDRF_DH_BODY_SCRATCH, true)
+}
+
+fn rbtdrf_dh_accept_multistage_as(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_dh_run_synthetic(dir, "dh-accept-multistage-as", RBTDRF_DH_BODY_MULTISTAGE_AS, true)
+}
+
+fn rbtdrf_dh_accept_empty(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_dh_run_synthetic(dir, "dh-accept-empty", RBTDRF_DH_BODY_EMPTY, true)
+}
+
+fn rbtdrf_dh_accept_comments_only(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_dh_run_synthetic(dir, "dh-accept-comments-only", RBTDRF_DH_BODY_COMMENTS_ONLY, true)
+}
+
+fn rbtdrf_dh_reject_hardcoded_literal(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_dh_run_synthetic(dir, "dh-reject-hardcoded-literal", RBTDRF_DH_BODY_HARDCODED_LITERAL, false)
+}
+
+fn rbtdrf_dh_reject_tab_in_from(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_dh_run_synthetic(dir, "dh-reject-tab-in-from", RBTDRF_DH_BODY_TAB_IN_FROM, false)
+}
+
+fn rbtdrf_dh_reject_trailing_backslash(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_dh_run_synthetic(dir, "dh-reject-trailing-backslash", RBTDRF_DH_BODY_TRAILING_BACKSLASH, false)
+}
+
+fn rbtdrf_dh_all_vessels_pass(dir: &Path) -> rbtdre_Verdict {
+    let root = match std::env::current_dir() {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+    };
+
+    // Resolve RBRR_VESSEL_DIR via one-shot bash (kindle ceremony unavoidable
+    // for derived-path resolution).
+    let buv = root.join("Tools/buk/buv_validation.sh");
+    let rbk = root.join("Tools/rbk");
+    let resolve_script = format!(
+        "set -euo pipefail\n\
+         source '{}'\n\
+         source '{}/rbcc_Constants.sh'\n\
+         source '{}/rbgc_Constants.sh'\n\
+         source '{}/rbrr_regime.sh'\n\
+         source '{}/rbdc_DerivedConstants.sh'\n\
+         zbuv_kindle\nzrbcc_kindle\n\
+         source \"${{PWD}}/.rbk/rbrr.env\"\n\
+         zrbrr_kindle\nzrbrr_enforce\nzrbdc_kindle\n\
+         printf '%s' \"${{RBRR_VESSEL_DIR}}\"",
+        buv.display(),
+        rbk.display(), rbk.display(), rbk.display(), rbk.display(),
+    );
+    let vessel_dir = match rbtdrf_run_bash(&root, &resolve_script, dir, "resolve-vessel-dir") {
+        Ok((0, stdout, _)) => stdout,
+        Ok((code, _, stderr)) => {
+            return rbtdre_Verdict::Fail(format!(
+                "resolve RBRR_VESSEL_DIR failed (exit {}): {}",
+                code, stderr
+            ));
+        }
+        Err(e) => return rbtdre_Verdict::Fail(e),
+    };
+    let vessel_dir = vessel_dir.trim();
+    if vessel_dir.is_empty() {
+        return rbtdre_Verdict::Fail("RBRR_VESSEL_DIR resolved to empty string".to_string());
+    }
+
+    let entries = match std::fs::read_dir(vessel_dir) {
+        Ok(e) => e,
+        Err(e) => {
+            return rbtdre_Verdict::Fail(format!(
+                "read_dir({}) failed: {}",
+                vessel_dir, e
+            ));
+        }
+    };
+
+    let mut conjure_count: usize = 0;
+    for entry in entries {
+        let entry = match entry {
+            Ok(e) => e,
+            Err(e) => return rbtdre_Verdict::Fail(format!("dir entry error: {}", e)),
+        };
+        let path = entry.path();
+        if !path.is_dir() {
+            continue;
+        }
+        let rbrv = path.join("rbrv.env");
+        if !rbrv.is_file() {
+            continue;
+        }
+        let sigil = match path.file_name().and_then(|s| s.to_str()) {
+            Some(s) => s.to_string(),
+            None => continue,
+        };
+
+        // One-shot bash to resolve RBRV_VESSEL_MODE for this vessel. Vessel
+        // rbrv.env files interpolate RBRR_VESSEL_DIR (e.g., for derived
+        // Dockerfile paths), so we pass it via env to keep set -u clean.
+        let mode_script = format!(
+            "set -euo pipefail\nexport RBRR_VESSEL_DIR='{}'\nsource '{}'\nprintf '%s' \"${{RBRV_VESSEL_MODE:-}}\"",
+            vessel_dir,
+            rbrv.display()
+        );
+        let mode = match rbtdrf_run_bash(&root, &mode_script, dir, &format!("mode-{}", sigil)) {
+            Ok((0, stdout, _)) => stdout.trim().to_string(),
+            Ok((code, _, stderr)) => {
+                return rbtdre_Verdict::Fail(format!(
+                    "{}: read RBRV_VESSEL_MODE failed (exit {}): {}",
+                    sigil, code, stderr
+                ));
+            }
+            Err(e) => return rbtdre_Verdict::Fail(format!("{}: {}", sigil, e)),
+        };
+        if mode != "conjure" {
+            continue;
+        }
+
+        if let Err(e) = rbtdrf_run_tt(
+            &root,
+            RBTDRM_COLOPHON_HYGIENE_CHECK_VESSEL,
+            &[&sigil],
+            dir,
+            &format!("vessel-{}", sigil),
+        ) {
+            return rbtdre_Verdict::Fail(e);
+        }
+        conjure_count += 1;
+    }
+
+    if conjure_count == 0 {
+        return rbtdre_Verdict::Fail(format!(
+            "zero conjure vessels iterated under {} — silent-zero-iteration trap",
+            vessel_dir
+        ));
+    }
+
+    rbtdre_Verdict::Pass
+}
+
 // ── Case arrays ─────────────────────────────────────────────
 
 pub static RBTDRF_CASES_ENROLLMENT_VALIDATION: &[rbtdre_Case] = &[
@@ -1430,4 +1648,24 @@ pub static RBTDRF_FIXTURE_REGIME_SMOKE: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRF_CASES_REGIME_SMOKE,
+};
+
+pub static RBTDRF_CASES_DOCKERFILE_HYGIENE: &[rbtdre_Case] = &[
+    case!(rbtdrf_dh_accept_parameterized),
+    case!(rbtdrf_dh_accept_scratch),
+    case!(rbtdrf_dh_accept_multistage_as),
+    case!(rbtdrf_dh_accept_empty),
+    case!(rbtdrf_dh_accept_comments_only),
+    case!(rbtdrf_dh_reject_hardcoded_literal),
+    case!(rbtdrf_dh_reject_tab_in_from),
+    case!(rbtdrf_dh_reject_trailing_backslash),
+    case!(rbtdrf_dh_all_vessels_pass),
+];
+
+pub static RBTDRF_FIXTURE_DOCKERFILE_HYGIENE: rbtdre_Fixture = rbtdre_Fixture {
+    name: RBTDRM_FIXTURE_DOCKERFILE_HYGIENE,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    cases: RBTDRF_CASES_DOCKERFILE_HYGIENE,
 };

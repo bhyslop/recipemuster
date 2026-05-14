@@ -13,7 +13,7 @@ Full read and edit access is pre-approved for all files in:
 #### RBK Subdirectory (`Tools/rbk/`)
 - **RBDC** → `rbk/rbdc_DerivedConstants.sh`
 - **RBF**  → `rbk/rbf_Foundry.sh`
-- **RBFH** → `rbk/rbfh_FoundryHygiene.sh` (Foundry Hygiene — Dockerfile FROM-line constraint shared by kludge and conjure)
+- **RBFH** → `rbk/rbfh_FoundryHygiene.sh` (Foundry Hygiene — Dockerfile FROM-line constraint shared by kludge and conjure; thin BCG CLI partner `rbk/rbfh_cli.sh` surfaces the contract via `rbw-fhc`/`rbw-fhv`)
 - **RBGA** → `rbk/rbga_ArtifactRegistry.sh`
 - **RBGB** → `rbk/rbgb_Buckets.sh`
 - **RBGC** → `rbk/rbgc_Constants.sh`

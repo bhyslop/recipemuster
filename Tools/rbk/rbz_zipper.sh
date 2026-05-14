@@ -112,6 +112,9 @@ zrbz_kindle() {
   z_mod="rbfc_cli.sh"
   buz_enroll RBZ_PLUMB_FULL             "rbw-fpf" "${z_mod}" "rbfc_plumb_full"      "param1"  "Full provenance display (SBOM, build info, Dockerfile)"
   buz_enroll RBZ_PLUMB_COMPACT          "rbw-fpc" "${z_mod}" "rbfc_plumb_compact"   "param1"  "Compact provenance summary"
+  z_mod="rbfh_cli.sh"
+  buz_enroll RBZ_HYGIENE_CHECK_DOCKERFILE "rbw-fhc" "${z_mod}" "rbfh_check"         "param1"  "Check a Dockerfile against the FROM-line hygiene contract"
+  buz_enroll RBZ_HYGIENE_CHECK_VESSEL   "rbw-fhv" "${z_mod}" "rbfh_check_vessel"    "param1"  "Check a vessel's conjure Dockerfile against the FROM-line hygiene contract"
 
   # Ifrit — attack binary (rbw-I)
   buz_group RBZ__GROUP_IFRIT      "rbw-I"   "Ifrit — Attack binary"
