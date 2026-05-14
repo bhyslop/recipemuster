@@ -310,6 +310,9 @@
 :scr_port_setup:             <<scr_port_setup,Port Configuration Sequence>>
 :scr_dns_step:               <<scr_dns_step,DNS Configuration Sequence>>
 
+// Foundry Internals (build-side hygiene contracts shared across modes)
+:rbsfh_dockerfile_hygiene:   <<rbsfh_dockerfile_hygiene,Dockerfile Hygiene>>
+
 // Recipe Bottle Regime: Repo
 :rbrr_bottle_workspace:      <<rbrr_bottle_workspace,RBRR_BOTTLE_WORKSPACE>>
 :rbrr_director_rbra_file:    <<rbrr_director_rbra_file,RBRR_DIRECTOR_RBRA_FILE>>
@@ -4116,6 +4119,22 @@ include::RBSAX-access_setup.adoc[]
 Configures DNS resolution controls and domain access restrictions.
 
 include::RBSDS-dns_step.adoc[]
+
+== Foundry Internals
+
+Detailed implementation reference for hygiene contracts enforced inside the
+foundry build pipeline.
+
+[[rbsfh_dockerfile_hygiene]]
+//axvo_procedure axd_transient axd_internal
+=== {rbsfh_dockerfile_hygiene}
+
+Validates that vessel Dockerfiles preserve the `ARG`/`${RBF_IMAGE_n}`
+parameterization contract on which {rbtgo_ark_kludge} and
+{rbtgo_ark_conjure} rely. Enforced as a fail-fast precondition in both
+the local kludge and Cloud Build conjure paths.
+
+include::RBSFH-dockerfile_hygiene.adoc[]
 
 == Trade Studies
 

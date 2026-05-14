@@ -42,6 +42,7 @@ zrbfk_furnish() {
   source "${RBBC_rbrr_file}"
   source "${z_rbk_kit_dir}/rbgo_OAuth.sh"
   source "${z_rbk_kit_dir}/rbgu_Utility.sh"
+  source "${z_rbk_kit_dir}/rbfh_FoundryHygiene.sh"
   source "${z_rbk_kit_dir}/rbfk_kludge.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh"
   source "${z_rbk_kit_dir}/rbz_zipper.sh"
@@ -72,6 +73,7 @@ zrbfk_furnish() {
   zrbgd_kindle
   zrbgo_kindle
   zrbgu_kindle
+  zrbfh_kindle
   zrbfk_kindle
 
   zbuz_kindle

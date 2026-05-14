@@ -38,6 +38,8 @@ The conjure operation:
 vessel provided as first argument
 .. {rbbc_require}
 vessel contains conjuring configuration (RBRV_CONJURE_DOCKERFILE, RBRV_CONJURE_BLDCONTEXT)
+.. {rbbc_require}
+vessel Dockerfile passes {rbsfh_dockerfile_hygiene} — any column-0 `FROM` line must use `${RBF_IMAGE_1}`, `${RBF_IMAGE_2}`, `${RBF_IMAGE_3}`, or `scratch` as its image token; hardcoded literals abort before {gcb_service} submission
 
 //axhos_step
 . *Registry Preflight*:

@@ -36,12 +36,35 @@ zrbfk_kindle() {
   buc_log_args 'Kindle shared Foundry Core infrastructure'
   zrbfc_kindle
 
+  buc_log_args 'Define forensic temp prefix for docker image inspect stderr capture'
+  readonly ZRBFK_INSPECT_STDERR_PREFIX="${BURD_TEMP_DIR}/rbfk_inspect_stderr_"
+
+  buc_log_args 'Initialize mutable image-presence inspect counter'
+  z_rbfk_inspect_counter=0
+
   readonly ZRBFK_KINDLED=1
 }
 
 zrbfk_sentinel() {
   zrbfc_sentinel
   test "${ZRBFK_KINDLED:-}" = "1" || buc_die "Module rbfk not kindled - call zrbfk_kindle first"
+}
+
+# Image-Presence Predicate
+#
+# Wraps `docker image inspect` so stderr lands in a counter-discriminated
+# forensic temp file rather than the terminal. Returns docker's exit
+# status; callers consume via `if zrbfk_image_present_predicate ...` or
+# `... || ...`. The forensic files persist in BURD_TEMP_DIR for the
+# command's lifetime, available for post-mortem inspection.
+zrbfk_image_present_predicate() {
+  zrbfk_sentinel
+  local -r z_ref="${1:-}"
+  test -n "${z_ref}" || buc_die "zrbfk_image_present_predicate: image ref required"
+  z_rbfk_inspect_counter=$(( z_rbfk_inspect_counter + 1 ))
+  docker image inspect "${z_ref}" \
+    >/dev/null \
+    2>"${ZRBFK_INSPECT_STDERR_PREFIX}${z_rbfk_inspect_counter}"
 }
 
 ######################################################################
@@ -101,8 +124,15 @@ rbfk_kludge() {
   # docker build (buildx default: no re-pull) runs against the cached image.
   local -r z_gar_repo_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
   local z_build_args=()
-  local z_slot="" z_origin_var="" z_anchor_var="" z_origin="" z_anchor=""
-  local z_slot_ref="" z_pkg_path="" z_tag="" z_miss=""
+  local z_slot=""
+  local z_origin_var=""
+  local z_anchor_var=""
+  local z_origin=""
+  local z_anchor=""
+  local z_slot_ref=""
+  local z_pkg_path=""
+  local z_tag=""
+  local z_miss=""
   local z_anchored_misses=()
   for z_slot in 1 2 3; do
     z_origin_var="RBRV_IMAGE_${z_slot}_ORIGIN"
@@ -126,26 +156,25 @@ rbfk_kludge() {
       test -n "${z_tag}"      || buc_die "Tag is empty in ${z_anchor_var}: ${z_anchor}"
       z_slot_ref="${z_gar_repo_base}/${z_pkg_path}:${z_tag}"
       buc_info "Image slot ${z_slot} (anchored): ${z_slot_ref}"
-      if ! docker image inspect "${z_slot_ref}" >/dev/null 2>&1; then
-        z_anchored_misses+=("${z_anchor}")
-      fi
+      zrbfk_image_present_predicate "${z_slot_ref}" \
+        || z_anchored_misses+=("${z_anchor}")
     else
       z_slot_ref="${z_origin}"
       buc_info "Image slot ${z_slot} (pass-through): ${z_slot_ref}"
-      if ! docker image inspect "${z_slot_ref}" >/dev/null 2>&1; then
+      if ! zrbfk_image_present_predicate "${z_slot_ref}"; then
         buc_info "Origin image not cached — pulling from upstream: ${z_slot_ref}"
         docker pull "${z_slot_ref}" \
           || buc_die "docker pull failed for origin slot ${z_slot}: ${z_slot_ref}"
-        docker image inspect "${z_slot_ref}" >/dev/null 2>&1 \
+        zrbfk_image_present_predicate "${z_slot_ref}" \
           || buc_die "Origin image still absent from local cache after pull: ${z_slot_ref}"
       fi
     fi
 
     z_build_args+=("--build-arg" "RBF_IMAGE_${z_slot}=${z_slot_ref}")
   done
-  test ${#z_build_args[@]} -gt 0 || buc_die "No RBRV_IMAGE_n_ORIGIN found in vessel config"
+  (( ${#z_build_args[@]} )) || buc_die "No RBRV_IMAGE_n_ORIGIN found in vessel config"
 
-  if test "${#z_anchored_misses[@]}" -gt 0; then
+  if (( ${#z_anchored_misses[@]} )); then
     buc_warn "Kludge cannot proceed — anchored base image(s) not cached locally"
     buc_bare "  Anchored slots point into GAR and require credentials. Kludge runs"
     buc_bare "  uncredentialed, so anchored images must be wrested into the local"
@@ -158,6 +187,9 @@ rbfk_kludge() {
     buc_bare ""
     buc_die "Local image cache incomplete — see remediation above"
   fi
+
+  buc_step "Validating Dockerfile hygiene"
+  rbfh_dockerfile_check "${RBRV_CONJURE_DOCKERFILE}"
 
   # Timestamp for chronological sorting, git describe for commit provenance
   # BURD_GIT_CONTEXT is exported by bud_dispatch; dirty-tree guard above ensures clean tree

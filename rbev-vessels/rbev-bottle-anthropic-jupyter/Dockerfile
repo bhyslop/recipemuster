@@ -1,4 +1,6 @@
-FROM python:3.12.7-slim-bookworm
+# Base image resolved by Foundry (anchored GAR ref or upstream pass-through)
+ARG RBF_IMAGE_1
+FROM ${RBF_IMAGE_1}
 
 # Define ARG and ENV: defaults for building remotely, from nameplate when used locally
 ARG RBEV_BOTTLE_JUPYTER_PORT=8000

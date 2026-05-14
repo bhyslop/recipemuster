@@ -1197,6 +1197,9 @@ rbfd_build() {
   test -f "${RBRV_CONJURE_DOCKERFILE}" || buc_die "Dockerfile not found: ${RBRV_CONJURE_DOCKERFILE}"
   test -d "${RBRV_CONJURE_BLDCONTEXT}" || buc_die "Build context not found: ${RBRV_CONJURE_BLDCONTEXT}"
 
+  buc_step "Validating Dockerfile hygiene"
+  rbfh_dockerfile_check "${RBRV_CONJURE_DOCKERFILE}"
+
   buc_info "Building vessel image: ${RBRV_SIGIL}"
 
   # Resolve tool images from reliquary (required for step image references)

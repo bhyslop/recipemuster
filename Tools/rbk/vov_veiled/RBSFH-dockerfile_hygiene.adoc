@@ -1,0 +1,15 @@
+//axhob_operation
+{rbsfh_dockerfile_hygiene}
+
+Enforces project-wide constraints on Dockerfile `FROM` lines so that the `ARG`/`${RBF_IMAGE_n}` parameterization stays the sole source of base-image origin. Hygiene violations short-circuit before any build, in both the local {rbtgo_ark_kludge} path and the Cloud Build {rbtgo_ark_conjure} path.
+
+Rules apply to every line at column 0 starting with `FROM` followed by whitespace, after column-0 `#` comments are filtered out. A violation emits `«path»:«lineno»: «rule» — «offending line»` precision and aborts the operation ({rbbc_fatal}). Multi-stage `AS «name»` codas after token 2 are admissible — the rule constrains token 2 only. An empty Dockerfile, or one with no column-0 `FROM` line, passes silently; Docker handles its own rejection.
+
+//axhos_step
+. *No tab character anywhere on the FROM line*. Tabs frustrate downstream tooling that whitespace-tokenizes the line and have no semantic role in modern Dockerfile syntax.
+
+//axhos_step
+. *Second whitespace-delimited token is exactly* `${RBF_IMAGE_1}`*,* `${RBF_IMAGE_2}`*,* `${RBF_IMAGE_3}`*, or* `scratch` *(lowercase only)*. Load-bearing — this keeps {rbrv_image_origin} declarations the sole authority over what upstream a vessel pulls. Hardcoded literals (e.g. `python:3.12-slim`) bypass {rbrv_image_origin} and the {rbtgo_ark_enshrine} chain, defeating the supply-chain anchor that {rbtgo_ark_conjure} and {rbtgo_ark_kludge} rely on.
+
+//axhos_step
+. *Line does not end with* `\`. Backslash continuations on `FROM` lines complicate the column-0 contract and carry no semantic value — the substantive directive fits on one line by construction.

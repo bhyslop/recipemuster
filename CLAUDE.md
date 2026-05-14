@@ -13,6 +13,7 @@ Full read and edit access is pre-approved for all files in:
 #### RBK Subdirectory (`Tools/rbk/`)
 - **RBDC** → `rbk/rbdc_DerivedConstants.sh`
 - **RBF**  → `rbk/rbf_Foundry.sh`
+- **RBFH** → `rbk/rbfh_FoundryHygiene.sh` (Foundry Hygiene — Dockerfile FROM-line constraint shared by kludge and conjure)
 - **RBGA** → `rbk/rbga_ArtifactRegistry.sh`
 - **RBGB** → `rbk/rbgb_Buckets.sh`
 - **RBGC** → `rbk/rbgc_Constants.sh`
@@ -76,6 +77,7 @@ Full read and edit access is pre-approved for all files in:
 - **RBSDU** → `rbk/vov_veiled/RBSDU-depot_unmake.adoc`
 - **RBSDV** → `rbk/vov_veiled/RBSDV-director_vouch.adoc`
 - **RBSDY** → `rbk/vov_veiled/RBSDY-director_yoke.adoc` (Yoke operation — director validates reliquary stamp and conjure vessel, then rewrites RBRV_RELIQUARY in rbrv.env)
+- **RBSFH** → `rbk/vov_veiled/RBSFH-dockerfile_hygiene.adoc` (Dockerfile Hygiene — FROM-line constraint enforced by rbfh, shared across kludge and conjure paths)
 - **RBSGD** → `rbk/vov_veiled/RBSGD-gdc_establish.adoc`
 - **RBSGM** → `rbk/vov_veiled/RBSGM-governor_mantle.adoc`
 - **RBSGS** → `rbk/vov_veiled/RBSGS-GettingStarted.adoc`
