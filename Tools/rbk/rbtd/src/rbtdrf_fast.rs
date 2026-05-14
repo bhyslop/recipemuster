@@ -1467,7 +1467,11 @@ fn rbtdrf_dh_all_vessels_pass(dir: &Path) -> rbtdre_Verdict {
         }
     };
 
-    let mut conjure_count: usize = 0;
+    // rbw-fhv silently succeeds on non-conjure vessels (hygiene contract is
+    // vacuously satisfied where there's no local Dockerfile), so theurge
+    // iterates without pre-filtering — surface integrity stays intact and
+    // no rbrv.env internals are touched here.
+    let mut count: usize = 0;
     for entry in entries {
         let entry = match entry {
             Ok(e) => e,
@@ -1477,36 +1481,13 @@ fn rbtdrf_dh_all_vessels_pass(dir: &Path) -> rbtdre_Verdict {
         if !path.is_dir() {
             continue;
         }
-        let rbrv = path.join("rbrv.env");
-        if !rbrv.is_file() {
+        if !path.join("rbrv.env").is_file() {
             continue;
         }
         let sigil = match path.file_name().and_then(|s| s.to_str()) {
             Some(s) => s.to_string(),
             None => continue,
         };
-
-        // One-shot bash to resolve RBRV_VESSEL_MODE for this vessel. Vessel
-        // rbrv.env files interpolate RBRR_VESSEL_DIR (e.g., for derived
-        // Dockerfile paths), so we pass it via env to keep set -u clean.
-        let mode_script = format!(
-            "set -euo pipefail\nexport RBRR_VESSEL_DIR='{}'\nsource '{}'\nprintf '%s' \"${{RBRV_VESSEL_MODE:-}}\"",
-            vessel_dir,
-            rbrv.display()
-        );
-        let mode = match rbtdrf_run_bash(&root, &mode_script, dir, &format!("mode-{}", sigil)) {
-            Ok((0, stdout, _)) => stdout.trim().to_string(),
-            Ok((code, _, stderr)) => {
-                return rbtdre_Verdict::Fail(format!(
-                    "{}: read RBRV_VESSEL_MODE failed (exit {}): {}",
-                    sigil, code, stderr
-                ));
-            }
-            Err(e) => return rbtdre_Verdict::Fail(format!("{}: {}", sigil, e)),
-        };
-        if mode != "conjure" {
-            continue;
-        }
 
         if let Err(e) = rbtdrf_run_tt(
             &root,
@@ -1517,12 +1498,12 @@ fn rbtdrf_dh_all_vessels_pass(dir: &Path) -> rbtdre_Verdict {
         ) {
             return rbtdre_Verdict::Fail(e);
         }
-        conjure_count += 1;
+        count += 1;
     }
 
-    if conjure_count == 0 {
+    if count == 0 {
         return rbtdre_Verdict::Fail(format!(
-            "zero conjure vessels iterated under {} — silent-zero-iteration trap",
+            "zero vessels iterated under {} — busted RBRR_VESSEL_DIR resolution",
             vessel_dir
         ));
     }

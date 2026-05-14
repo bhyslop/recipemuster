@@ -64,9 +64,13 @@ rbfh_check_vessel() {
   # Source the vessel's rbrv.env to pick up RBRV_VESSEL_MODE and RBRV_CONJURE_DOCKERFILE
   source "${z_vessel_dir}/rbrv.env" || buc_die "Failed to source vessel rbrv.env: ${z_vessel_dir}/rbrv.env"
 
-  # Hygiene applies to local Dockerfiles; bind/graft vessels have no Dockerfile to check
-  test "${RBRV_VESSEL_MODE:-}" = "conjure" \
-    || buc_die "Vessel '${RBRV_SIGIL:-${z_vessel_dir}}' is mode '${RBRV_VESSEL_MODE:-<unset>}' — hygiene check applies only to conjure vessels"
+  # Hygiene is a property of the FROM line; non-conjure vessels have no
+  # local Dockerfile, so the contract is vacuously satisfied. Exit silently
+  # so callers iterating the whole fleet need not pre-filter by mode.
+  if test "${RBRV_VESSEL_MODE:-}" != "conjure"; then
+    buc_info "Vessel '${RBRV_SIGIL:-${z_vessel_dir}}' is mode '${RBRV_VESSEL_MODE:-<unset>}' — no Dockerfile to check"
+    return 0
+  fi
 
   test -n "${RBRV_CONJURE_DOCKERFILE:-}" \
     || buc_die "Vessel '${RBRV_SIGIL:-${z_vessel_dir}}' has no RBRV_CONJURE_DOCKERFILE"
