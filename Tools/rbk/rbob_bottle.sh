@@ -638,8 +638,8 @@ rbob_kludge() {
   buc_step "Kludge: ${RBRN_MONIKER} (${RBRN_BOTTLE_VESSEL})"
 
   # Delegate build to foundry kludge — override BUZ_FOLIO with the vessel sigil
-  # for the duration of the call (rbfd_kludge reads BUZ_FOLIO as its operand).
-  BUZ_FOLIO="${RBRN_BOTTLE_VESSEL}" rbfd_kludge
+  # for the duration of the call (rbfk_kludge reads BUZ_FOLIO as its operand).
+  BUZ_FOLIO="${RBRN_BOTTLE_VESSEL}" rbfk_kludge
 
   # Read hallmark from fact file
   local z_hallmark=""
@@ -665,7 +665,7 @@ rbob_kludge_sentry() {
 
   buc_step "Kludge: ${RBRN_MONIKER} (${RBRN_SENTRY_VESSEL})"
 
-  BUZ_FOLIO="${RBRN_SENTRY_VESSEL}" rbfd_kludge
+  BUZ_FOLIO="${RBRN_SENTRY_VESSEL}" rbfk_kludge
 
   # Read hallmark from fact file
   local z_hallmark=""

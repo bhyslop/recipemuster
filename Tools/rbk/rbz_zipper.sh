@@ -101,7 +101,7 @@ zrbz_kindle() {
   buz_group RBZ__GROUP_FOUNDRY    "rbw-f"   "Foundry — Registry artifact lifecycle"
   z_mod="rbfd_cli.sh"
   buz_enroll RBZ_ORDAIN_HALLMARK        "rbw-fO"  "${z_mod}" "rbfd_ordain"          "param1"  "Ordain hallmark: conjure, bind, or graft based on vessel mode"
-  buz_enroll RBZ_KLUDGE_VESSEL          "rbw-fk"  "${z_mod}" "rbfd_kludge"          "param1"  "Kludge a vessel image locally for development"
+  buz_enroll RBZ_KLUDGE_VESSEL          "rbw-fk"  "rbfk_cli.sh" "rbfk_kludge"       "param1"  "Kludge a vessel image locally for development"
   z_mod="rbfl_cli.sh"
   buz_enroll RBZ_ABJURE_HALLMARK        "rbw-fA"  "${z_mod}" "rbfl_abjure"          "param1"  "Abjure a hallmark (delete artifacts from GAR)"
   buz_enroll RBZ_TALLY_HALLMARKS        "rbw-ft"  "${z_mod}" "rbfl_tally"           ""  "Tally hallmarks by health state"

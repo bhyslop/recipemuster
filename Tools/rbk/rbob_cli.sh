@@ -126,6 +126,7 @@ zrbob_furnish() {
   source "${z_rbk_kit_dir}/rbob_bottle.sh"
   source "${BURD_BUK_DIR}/buf_fact.sh"
   source "${z_rbk_kit_dir}/rbfd_FoundryDirectorBuild.sh"
+  source "${z_rbk_kit_dir}/rbfk_kludge.sh"
   source "${z_rbk_kit_dir}/rboo_observe.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh"
   source "${z_rbk_kit_dir}/rbz_zipper.sh"
@@ -177,9 +178,12 @@ zrbob_furnish() {
   zrbgo_kindle
   zrbob_kindle
 
-  # Differential kindle: foundry modules for kludge/ordain commands
+  # Differential kindle: kludge uses uncredentialed rbfk; ordain needs full rbfd
   case "${z_command}" in
-    rbob_kludge|rbob_kludge_bottle|rbob_kludge_sentry|rbob_ordain)
+    rbob_kludge|rbob_kludge_bottle|rbob_kludge_sentry)
+      zrbfk_kindle
+      ;;
+    rbob_ordain)
       zrbfd_kindle
       ;;
   esac
