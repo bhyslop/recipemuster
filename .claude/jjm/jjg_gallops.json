@@ -9775,9 +9775,10 @@
       "jjghn_creation_time": "260514",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
-        "₢BOAAA"
+        "₢BOAAA",
+        "₢BOAAB"
       ],
-      "jjghn_next_pace_seed": "AAB",
+      "jjghn_next_pace_seed": "AAC",
       "jjghn_paces": {
         "₢BOAAA": {
           "jjgpn_tacks": [
@@ -9787,6 +9788,17 @@
               "jjgtn_text": "## Character\nMechanical — work through issues uncovered while running the gauntlet with the\ne2-highcpu-32 GCB machine tweak. Fix what breaks, note what's flaky.",
               "jjgtn_silks": "gauntlet-32cpu-shakedown",
               "jjgtn_basis": "fde26cb"
+            }
+          ]
+        },
+        "₢BOAAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260514-1511",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nDesign conversation requiring judgment — pull the depot regime work forward\nfrom the 'win' timeframe into the MVP-tactical window. Assess shape, locked\nconstraints, and what done looks like for the near-term cut.",
+              "jjgtn_silks": "depot-regime-now",
+              "jjgtn_basis": "c9d199f"
             }
           ]
         }
