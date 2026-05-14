@@ -8028,6 +8028,7 @@
       "jjghn_creation_time": "260426",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BBABI",
         "₢BBABE",
         "₢BBABD",
         "₢BBABC",
@@ -8097,7 +8098,7 @@
         "₢BBABF",
         "₢BBABG"
       ],
-      "jjghn_next_pace_seed": "ABI",
+      "jjghn_next_pace_seed": "ABJ",
       "jjghn_paces": {
         "₢BBAA-": {
           "jjgpn_tacks": [
@@ -9782,6 +9783,17 @@
               "jjgtn_text": "## Character\n\n`rbfd_kludge`'s presence guard at `rbfd_FoundryDirectorBuild.sh:1391-1448` lumps anchored-slot and origin-slot misses under one \"kludge stays uncredentialed\" refusal. The framing is over-broad: anchored slots point into GAR and need GCP auth (wrest stays out-of-band, correct); origin slots are public upstream pulls that need no credentials. The over-broad refusal forces operators and fixtures into an extra step that buys nothing.\n\nSurfaced by ₢BBAAX's first gauntlet run: `onboarding-sequence/rbtdro_onboarding_kludge_tadmor` failed in pristine state because `debian:bookworm-slim` (tadmor sentry's only slot, unanchored pass-through) wasn't cached locally. In any pristine kludge flow every slot is unanchored — anchors don't land until an `ordain conjure` — so the operator-facing diagnostic prescribes `docker pull` for every slot, which kludge itself could just do.\n\n## Scope\n\n- `rbfd_kludge` auto-pulls origin-slot misses inline (announcing each pull at info level for teaching/visibility)\n- Anchored-slot miss path unchanged: refusal + wrest remediation, preserving the credentialed-out-of-band property\n- `--pull=never` backstop on the build stays as tag-drift defense\n- Comment block at `rbfd_FoundryDirectorBuild.sh:1381-1384` updated to distinguish the two slot types\n\n## Constraints\n\n- No new tabtargets, no handbook edits, no fixture edits\n- Origin pull must announce itself — preserve the teaching moment that the current diagnostic provides\n- `docker image inspect` re-check after pull stays as a sanity gate before kludge continues\n\n## Cross-pace dependencies\n\n- Blocks ₢BBAAX's next attempt (next `rbw-tP` run after this lands)\n\n## Out of scope\n\n- Anchored-slot ergonomics (separate question, not surfaced by this run)\n- `--pull=never` backstop rethink\n- Handbook prose update — handbook currently says nothing about pre-pulling, which becomes accurate again once this lands",
               "jjgtn_silks": "kludge-origin-slot-auto-pull",
               "jjgtn_basis": "37c9003"
+            }
+          ]
+        },
+        "₢BBABI": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260513-2148",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nBBABH dropped `--pull=never` because buildx rejects tri-state values (docker/buildx#1889 has been dormant 6 years); forcing `DOCKER_BUILDKIT=0` time-bombs against classic-builder deprecation. RBSAK Step 6 currently acknowledges the lost hygiene as an open gap. Project-imposed Dockerfile syntax constraint lets a trivial bash parser restore that hygiene, builder-agnostic and decoupled from Docker flag evolution.\n\n## Scope\n\nAdd `zrbfk_dockerfile_hygiene_check` to `rbfk_kludge.sh`, called after slot resolution and before `docker build`. Rules — filter `#`-column-0 comment lines, then for every line starting `FROM ` at column 0:\n\n1. The second whitespace-delimited token must match `${RBF_IMAGE_n}` (n in 1..3) or the literal `scratch`\n2. The line must not end with `\\` (no continuation)\n\nViolation → line-number-precise diagnostic + buc_die before docker is invoked.\n\nSurvey `rbev-vessels/**/Dockerfile` for current compliance and report any non-compliers before the check goes live.\n\n## Constraints\n\n- BCG-clean from the start in rbfk_kludge.sh: split the two multi-var `local` declarations into one-per-line; extract the two `if ! docker image inspect ... >/dev/null 2>&1` sites to a `zrbfk_image_present_predicate` function (consolidates stderr handling); brace+quote the `${#z_build_args[@]}` test\n- Project rule applies to vessel Dockerfiles only — hygiene is kludge's concern, not Cloud Build's\n\n## Spec sync\n\nRBSAK Step 6 — replace BBABH's gap-acknowledging prose with the three rules, the scratch exception, and the rationale.\n\n## Out of scope\n\n- Applying the hygiene check to cloud-build paths\n- `FROM --platform=...` accommodation",
+              "jjgtn_silks": "kludge-dockerfile-from-hygiene",
+              "jjgtn_basis": "ff28ac8"
             }
           ]
         }
