@@ -4804,9 +4804,10 @@
         "₢AUAA1",
         "₢AUAA4",
         "₢AUAA5",
-        "₢AUAA6"
+        "₢AUAA6",
+        "₢AUAA7"
       ],
-      "jjghn_next_pace_seed": "AA7",
+      "jjghn_next_pace_seed": "AA8",
       "jjghn_paces": {
         "₢AUAA0": {
           "jjgpn_tacks": [
@@ -4885,6 +4886,24 @@
               "jjgtn_text": "## Character\nDeferred decision — slate now, judge later.\n\n## Problem\n`openssl enc -base64 ... -A` duplicated across 6 sites with no load-bearing variation. AUAAr cycle 4 showed the cost: missed `-A` on one site during standardization, dormant ~26 days, surfaces only on live API path.\n\n## Sites\n- Decode: `rbgg_Governor.sh:242`, `rbgp_Payor.sh:1355`, `rbfd_FoundryDirectorBuild.sh:959`, `rbfd_FoundryDirectorBuild.sh:1187`\n- Encode: `rbgo_OAuth.sh:69`, `rbgo_OAuth.sh:131`\n\n## Proposal\nThin helpers in `rbgu_Utility.sh`:\n- `zrbgu_base64_decode_file_to_file(input, output)`\n- `zrbgu_base64_decode_string_to_file(b64, output)`\n- Matching encode pair; `rbgo_OAuth.sh:69` is legitimately a `_capture` (returns string).\n\nNot `_capture` for the decode pair — output is a file, not a stdout value.\n\n## Done\nAll 6 sites call helpers; `openssl enc -base64` lives only in `rbgu_Utility.sh`. OR: closed won't-fix with rationale recorded.\n\n## Reference\nCommit f3cd71c4 (AUAAr cycle 4 fault analysis).",
               "jjgtn_silks": "factor-openssl-base64-helpers",
               "jjgtn_basis": "980c643"
+            }
+          ]
+        },
+        "₢AUAA7": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260514-1128",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Drafted from ₢A_AAG in ₣A_.\n\n## Character\nEnd-to-end validation — user perspective. Every handbook track must complete cleanly.\n\n## Work\nWalk every onboarding track in sequence: Crash Course, Credential Retriever, Credential Director, First Crucible, Director First Cloud Build, Payor, Governor. Verify all handbook windows render correctly with prefixed resource names. Confirm probe outputs show the correct prefixed container/image identifiers. Fix any display or functional issues.",
+              "jjgtn_silks": "run-all-onboarding-tracks",
+              "jjgtn_basis": "d44a7d7"
+            },
+            {
+              "jjgtn_ts": "260415-1505",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nEnd-to-end validation — user perspective. Every handbook track must complete cleanly.\n\n## Work\nWalk every onboarding track in sequence: Crash Course, Credential Retriever, Credential Director, First Crucible, Director First Cloud Build, Payor, Governor. Verify all handbook windows render correctly with prefixed resource names. Confirm probe outputs show the correct prefixed container/image identifiers. Fix any display or functional issues.",
+              "jjgtn_silks": "run-all-onboarding-tracks",
+              "jjgtn_basis": "51b0838"
             }
           ]
         },
@@ -6047,7 +6066,6 @@
         "₢A_AAU",
         "₢A_AAE",
         "₢A_AAF",
-        "₢A_AAG",
         "₢A_AAa",
         "₢A_AAJ",
         "₢A_AAc",
@@ -6245,17 +6263,6 @@
               "jjgtn_text": "## Character\nValidation — patience and diagnostic attention. Failures are the point.\n\n## Work\nRun `tt/rbtd-s.TestSuite.complete.sh` — the full 122-case suite covering enrollment-validation, regime-validation, regime-smoke, access-probe, four-mode, tadmor-security, srjcl-jupyter, and pluml-diagram. All container names and image references should now carry the configured prefixes. Diagnose and fix any failures caused by the prefix wiring.",
               "jjgtn_silks": "run-complete-test-suite",
               "jjgtn_basis": "10e0c95"
-            }
-          ]
-        },
-        "₢A_AAG": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260415-1505",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": "## Character\nEnd-to-end validation — user perspective. Every handbook track must complete cleanly.\n\n## Work\nWalk every onboarding track in sequence: Crash Course, Credential Retriever, Credential Director, First Crucible, Director First Cloud Build, Payor, Governor. Verify all handbook windows render correctly with prefixed resource names. Confirm probe outputs show the correct prefixed container/image identifiers. Fix any display or functional issues.",
-              "jjgtn_silks": "run-all-onboarding-tracks",
-              "jjgtn_basis": "51b0838"
             }
           ]
         },
