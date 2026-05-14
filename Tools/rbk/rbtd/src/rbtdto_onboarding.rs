@@ -40,11 +40,11 @@ fn rbtdto_cases_registered() {
     assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_inscribe_reliquary")));
     assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_kludge_tadmor")));
     assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_kludge_ccyolo")));
-    assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_ordain_conjure")));
-    assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_conjure_srjcl")));
-    assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_ordain_airgap")));
-    assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_ordain_bind")));
-    assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_ordain_graft")));
+    assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_ordain_conjure_sentry")));
+    assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_ordain_conjure_jupyter")));
+    assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_ordain_airgap_chain")));
+    assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_ordain_bind_plantuml")));
+    assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_ordain_graft_demo")));
 }
 
 /// Case order is load-bearing for StateProgressing — inscribe must precede
@@ -68,19 +68,19 @@ fn rbtdto_inscribe_precedes_reliquary_consumers() {
         .expect("kludge-ccyolo case present");
     let conjure_idx = names
         .iter()
-        .position(|n| n.contains("rbtdro_onboarding_ordain_conjure"))
+        .position(|n| n.contains("rbtdro_onboarding_ordain_conjure_sentry"))
         .expect("ordain-conjure case present");
     let srjcl_idx = names
         .iter()
-        .position(|n| n.contains("rbtdro_onboarding_conjure_srjcl"))
+        .position(|n| n.contains("rbtdro_onboarding_ordain_conjure_jupyter"))
         .expect("conjure-srjcl case present");
     let airgap_idx = names
         .iter()
-        .position(|n| n.contains("rbtdro_onboarding_ordain_airgap"))
+        .position(|n| n.contains("rbtdro_onboarding_ordain_airgap_chain"))
         .expect("airgap case present");
     let bind_idx = names
         .iter()
-        .position(|n| n.contains("rbtdro_onboarding_ordain_bind"))
+        .position(|n| n.contains("rbtdro_onboarding_ordain_bind_plantuml"))
         .expect("ordain-bind case present");
     assert!(inscribe_idx < kludge_tadmor_idx);
     assert!(inscribe_idx < kludge_ccyolo_idx);

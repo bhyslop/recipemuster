@@ -689,7 +689,7 @@ fn rbtdro_onboarding_kludge_ccyolo_impl(ctx: &mut rbtdri_Context, dir: &Path) ->
 /// Ordain rbev-sentry-deb-tether (conjure mode). Case 1 yoked the reliquary
 /// stamp into the vessel. Propagates the resulting hallmark to all sentry-tether
 /// consumers (moriah, srjcl, pluml) via RBRN_SENTRY_HALLMARK.
-fn rbtdro_onboarding_ordain_conjure(dir: &Path) -> rbtdre_Verdict {
+fn rbtdro_onboarding_ordain_conjure_sentry(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "reliquary stamp captured",
         check: rbtdro_probe_reliquary_stamp,
@@ -698,10 +698,10 @@ fn rbtdro_onboarding_ordain_conjure(dir: &Path) -> rbtdre_Verdict {
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;
     }
-    rbtdrc_with_ctx(|ctx| rbtdro_onboarding_ordain_conjure_impl(ctx, dir))
+    rbtdrc_with_ctx(|ctx| rbtdro_onboarding_ordain_conjure_sentry_impl(ctx, dir))
 }
 
-fn rbtdro_onboarding_ordain_conjure_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
+fn rbtdro_onboarding_ordain_conjure_sentry_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
     let root = ctx.project_root().to_path_buf();
 
     let (hallmark, gar_root, ark_stem) = match rbtdro_ordain_capture_full(
@@ -831,7 +831,7 @@ fn rbtdro_onboarding_ordain_conjure_impl(ctx: &mut rbtdri_Context, dir: &Path) -
 
 /// Ordain rbev-bottle-anthropic-jupyter (conjure mode). Propagates the
 /// resulting hallmark to srjcl via RBRN_BOTTLE_HALLMARK.
-fn rbtdro_onboarding_conjure_srjcl(dir: &Path) -> rbtdre_Verdict {
+fn rbtdro_onboarding_ordain_conjure_jupyter(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "reliquary stamp captured",
         check: rbtdro_probe_reliquary_stamp,
@@ -840,10 +840,10 @@ fn rbtdro_onboarding_conjure_srjcl(dir: &Path) -> rbtdre_Verdict {
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;
     }
-    rbtdrc_with_ctx(|ctx| rbtdro_onboarding_conjure_srjcl_impl(ctx, dir))
+    rbtdrc_with_ctx(|ctx| rbtdro_onboarding_ordain_conjure_jupyter_impl(ctx, dir))
 }
 
-fn rbtdro_onboarding_conjure_srjcl_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
+fn rbtdro_onboarding_ordain_conjure_jupyter_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
     let root = ctx.project_root().to_path_buf();
 
     let hallmark = match rbtdro_ordain_capture(
@@ -883,7 +883,7 @@ fn rbtdro_onboarding_conjure_srjcl_impl(ctx: &mut rbtdri_Context, dir: &Path) ->
 /// directly), conjure the airgap bottle.
 /// Case 1 yoked the reliquary stamp into both forge and airgap vessels.
 /// Propagates airgap-bottle hallmark to moriah via RBRN_BOTTLE_HALLMARK.
-fn rbtdro_onboarding_ordain_airgap(dir: &Path) -> rbtdre_Verdict {
+fn rbtdro_onboarding_ordain_airgap_chain(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "reliquary stamp captured",
         check: rbtdro_probe_reliquary_stamp,
@@ -892,10 +892,10 @@ fn rbtdro_onboarding_ordain_airgap(dir: &Path) -> rbtdre_Verdict {
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;
     }
-    rbtdrc_with_ctx(|ctx| rbtdro_onboarding_ordain_airgap_impl(ctx, dir))
+    rbtdrc_with_ctx(|ctx| rbtdro_onboarding_ordain_airgap_chain_impl(ctx, dir))
 }
 
-fn rbtdro_onboarding_ordain_airgap_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
+fn rbtdro_onboarding_ordain_airgap_chain_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
     let root = ctx.project_root().to_path_buf();
 
     let forge_sigil = RBTDRO_VESSEL_DIR_AIRGAP_FORGE
@@ -990,7 +990,7 @@ fn rbtdro_onboarding_ordain_airgap_impl(ctx: &mut rbtdri_Context, dir: &Path) ->
 /// rbev-bottle-plantuml/rbrv.env and mirrors the digest into GAR via Cloud
 /// Build (skopeo from reliquary + about/vouch metadata). Propagates plantuml
 /// hallmark to pluml via RBRN_BOTTLE_HALLMARK.
-fn rbtdro_onboarding_ordain_bind(dir: &Path) -> rbtdre_Verdict {
+fn rbtdro_onboarding_ordain_bind_plantuml(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "reliquary stamp captured",
         check: rbtdro_probe_reliquary_stamp,
@@ -999,10 +999,10 @@ fn rbtdro_onboarding_ordain_bind(dir: &Path) -> rbtdre_Verdict {
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;
     }
-    rbtdrc_with_ctx(|ctx| rbtdro_onboarding_ordain_bind_impl(ctx, dir))
+    rbtdrc_with_ctx(|ctx| rbtdro_onboarding_ordain_bind_plantuml_impl(ctx, dir))
 }
 
-fn rbtdro_onboarding_ordain_bind_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
+fn rbtdro_onboarding_ordain_bind_plantuml_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
     let root = ctx.project_root().to_path_buf();
 
     let hallmark = match rbtdro_ordain_capture(
@@ -1128,7 +1128,7 @@ fn rbtdro_onboarding_ordain_bind_impl(ctx: &mut rbtdri_Context, dir: &Path) -> r
 /// Pull the graft source image, then ordain rbev-graft-demo with a
 /// BURE_TWEAK overriding RBRV_GRAFT_IMAGE in-process. No consumers —
 /// graft-demo is terminal.
-fn rbtdro_onboarding_ordain_graft(dir: &Path) -> rbtdre_Verdict {
+fn rbtdro_onboarding_ordain_graft_demo(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "reliquary stamp captured",
         check: rbtdro_probe_reliquary_stamp,
@@ -1137,10 +1137,10 @@ fn rbtdro_onboarding_ordain_graft(dir: &Path) -> rbtdre_Verdict {
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;
     }
-    rbtdrc_with_ctx(|ctx| rbtdro_onboarding_ordain_graft_impl(ctx, dir))
+    rbtdrc_with_ctx(|ctx| rbtdro_onboarding_ordain_graft_demo_impl(ctx, dir))
 }
 
-fn rbtdro_onboarding_ordain_graft_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
+fn rbtdro_onboarding_ordain_graft_demo_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
     if let Err(e) = rbtdro_docker_pull(RBTDRO_GRAFT_SOURCE_IMAGE) {
         return rbtdre_Verdict::Fail(format!(
             "docker pull {}: {}",
@@ -1234,11 +1234,11 @@ pub static RBTDRO_CASES_ONBOARDING_SEQUENCE: &[rbtdre_Case] = &[
     case!(rbtdro_onboarding_inscribe_reliquary),
     case!(rbtdro_onboarding_kludge_tadmor),
     case!(rbtdro_onboarding_kludge_ccyolo),
-    case!(rbtdro_onboarding_ordain_conjure),
-    case!(rbtdro_onboarding_conjure_srjcl),
-    case!(rbtdro_onboarding_ordain_airgap),
-    case!(rbtdro_onboarding_ordain_bind),
-    case!(rbtdro_onboarding_ordain_graft),
+    case!(rbtdro_onboarding_ordain_conjure_sentry),
+    case!(rbtdro_onboarding_ordain_conjure_jupyter),
+    case!(rbtdro_onboarding_ordain_airgap_chain),
+    case!(rbtdro_onboarding_ordain_bind_plantuml),
+    case!(rbtdro_onboarding_ordain_graft_demo),
 ];
 
 pub static RBTDRO_FIXTURE_ONBOARDING_SEQUENCE: rbtdre_Fixture = rbtdre_Fixture {
