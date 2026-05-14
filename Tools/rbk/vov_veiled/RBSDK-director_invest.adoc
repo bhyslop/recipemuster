@@ -73,6 +73,8 @@ service account accessible by email
 . *Preflight: Ensure Pristine Key State*:
 .. {rbbc_call}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts.keys/list[serviceAccounts.keys.list] for `«DIRECTOR_EMAIL»`
+.. Retry up to `RBGC_SA_KEY_CREATE_RETRY_MAX` times on HTTP 404 with `RBGC_SA_KEY_CREATE_RETRY_DELAY_SEC` delay between attempts
+.. NOTE: Keys subresource read-path may lag SA email-path readiness — the SA GET probe (previous step) can return 200 while `keys.list` on the same email immediately returns 404, observed as a non-monotonic 200→200→404 flap on freshly-minted depots. The 404 confirms `keys.list` returned no state, making retry safe. Shares budget with step 7 keys.create — same underlying physics (subresource visibility after parent creation). See `Memos/memo-20260514-pristine-gauntlet-iam-flap.md` for transcript evidence and <<rbscip_iam_propagation>> for the doctrinal pattern.
 .. {rbbc_store}
 `«EXISTING_KEYS»` from response `.keys[]`
 .. {rbbc_require}

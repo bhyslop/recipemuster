@@ -80,7 +80,6 @@ zrbgg_kindle() {
   readonly ZRBGG_INFIX_API_CHECK="api_checking"
   readonly ZRBGG_INFIX_DELETE="delete"
   readonly ZRBGG_INFIX_LIST_KEYS="list_keys"
-  readonly ZRBGG_INFIX_KEYS_PROBE="keys_probe"
   readonly ZRBGG_INFIX_BUCKET_CREATE="bucket_create"
   readonly ZRBGG_INFIX_BUCKET_DELETE="bucket_delete"
   readonly ZRBGG_INFIX_BUCKET_LIST="bucket_list"
@@ -197,19 +196,37 @@ zrbgg_create_service_account_with_key() {
 
   buc_step 'Preflight: ensure no existing USER_MANAGED keys (manual cleanup path)'
 
-  rbgu_poll_until_ok "Keys subresource propagation"                           \
-    "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}${RBGC_PATH_KEYS}"        \
-                                      "${z_token}" "${ZRBGG_INFIX_KEYS_PROBE}"
+  # Subresource read-path can lag SA email-path readiness — flap observed
+  # 200→200→404 on freshly-minted depots. Retry on the actual call, not a
+  # proxy probe (see RBSCIP "SA keys subresource propagation").
+  local z_list_attempt=0
+  local z_list_infix=""
+  local z_list_code=""
+  while :; do
+    z_list_attempt=$((z_list_attempt + 1))
+    z_list_infix="${ZRBGG_INFIX_LIST_KEYS}-attempt${z_list_attempt}"
+    rbgu_http_json "GET"                                                        \
+      "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}${RBGC_PATH_KEYS}"        \
+                                        "${z_token}" "${z_list_infix}"
 
-  buc_log_args 'List keys'
-  rbgu_http_json "GET"                                                        \
-    "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}${RBGC_PATH_KEYS}"        \
-                                      "${z_token}" "${ZRBGG_INFIX_LIST_KEYS}"
-  rbgu_http_require_ok "List service account keys" "${ZRBGG_INFIX_LIST_KEYS}"
+    z_list_code=$(rbgu_http_code_capture "${z_list_infix}") || z_list_code=""
+
+    if test "${z_list_code}" = "200"; then
+      break
+    fi
+
+    if test "${z_list_code}" = "404" && test "${z_list_attempt}" -lt "${RBGC_SA_KEY_CREATE_RETRY_MAX}"; then
+      buc_warn "keys.list returned 404 (SA read-path propagation delay), retry ${z_list_attempt}/${RBGC_SA_KEY_CREATE_RETRY_MAX} in ${RBGC_SA_KEY_CREATE_RETRY_DELAY_SEC}s..."
+      sleep "${RBGC_SA_KEY_CREATE_RETRY_DELAY_SEC}"
+      continue
+    fi
+
+    rbgu_http_require_ok "List service account keys" "${z_list_infix}"
+  done
 
   buc_log_args 'Count existing user-managed keys'
   local z_user_keys
-  z_user_keys=$(rbgu_json_field_capture "${ZRBGG_INFIX_LIST_KEYS}" \
+  z_user_keys=$(rbgu_json_field_capture "${z_list_infix}" \
                  '[.keys[]? | select(.keyType=="USER_MANAGED")] | length') \
     || buc_die "Failed to parse service account keys"
 

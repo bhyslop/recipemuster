@@ -36,6 +36,19 @@ with an empty body-glob; project-scope sites do not.
   `rbgu_poll_until_ok` polls each secret's `getIamPolicy` endpoint until 200 before proceeding to
   grant IAM bindings.
 
+* **SA keys subresource propagation**: After
+  link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/create[serviceAccounts.create]
+  returns 200, the keys subresource read path
+  (link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts.keys/list[serviceAccounts.keys.list])
+  can lag the SA email path independently — empirically observed as a non-monotonic 200→200→404 flap where
+  both the SA GET probe and a keys subresource `rbgu_poll_until_ok` probe return 200 while the real
+  `keys.list` call immediately returns 404 on the same URL.  Mitigation: retry the actual `keys.list`
+  call on HTTP 404 using the same backoff budget as step 7 keys.create (`RBGC_SA_KEY_CREATE_RETRY_*`) —
+  same underlying physics (subresource visibility after parent creation).  A separate
+  `rbgu_poll_until_ok` proxy probe before `keys.list` was found insufficient: it returned 200 in the
+  same flap window that the real call observed 404, exemplifying why proxy probes are not retained as
+  correctness gates (see "What Dies" below).  See evidence row below.
+
 ==== Rationale
 
 The connection creation LRO tests the actual operation, not a proxy.
@@ -97,6 +110,9 @@ and any need for `roles/iam.serviceAccountTokenCreator` grants for the readiness
 
 |CB v2 connection creation uses the Cloud Build Service Agent to read secrets
 |https://cloud.google.com/build/docs/automating-builds/github/connect-repo-github[Connect a GitHub host] -- the Cloud Build Service Agent must have `roles/secretmanager.secretAccessor` on the secrets used by the connection
+
+|SA keys subresource read-path can flap non-monotonically (200→200→404) after SA create
+|`Memos/memo-20260514-pristine-gauntlet-iam-flap.md` -- transcript-level evidence, pristine depot `prlcbhl-d-pristlbhl100009`, 2026-05-14
 |===
 
 ==== What Dies
