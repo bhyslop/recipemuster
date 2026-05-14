@@ -97,7 +97,8 @@ rbfk_kludge() {
   # Slot types diverge by credential need: anchored refs point into GAR and need
   # GCP auth, so misses refuse with a wrest remediation (credentialed-out-of-band).
   # Origin refs are public upstream and need no credentials, so misses auto-pull
-  # inline. --pull=never on the build is a tag-drift defense from there on.
+  # inline. The presence guard's local-cache assertion is the tag-drift defense:
+  # docker build (buildx default: no re-pull) runs against the cached image.
   local -r z_gar_repo_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
   local z_build_args=()
   local z_slot="" z_origin_var="" z_anchor_var="" z_origin="" z_anchor=""
@@ -171,11 +172,10 @@ rbfk_kludge() {
   buc_info "Image tag: ${z_image_ref}"
 
   # Build locally (host platform only — no multi-arch for dev builds).
-  # --pull=never enforces the no-network contract — kludge consumes the local
-  # cache exclusively; presence guard above has already verified every slot.
+  # Buildx defaults to not re-pulling base images; the presence guard above has
+  # already verified every slot is in the local cache, so the build never networks.
   buc_step "Building image locally"
   docker build \
-    --pull=never \
     "${z_build_args[@]}" \
     -f "${RBRV_CONJURE_DOCKERFILE}" \
     -t "${z_image_ref}" \

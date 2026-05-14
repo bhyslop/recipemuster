@@ -48,8 +48,8 @@ if any anchored miss accumulated, emit a remediation block pointing at {rbtgo_im
 
 //axhos_step
 . *Build Image Locally*:
-.. Run `docker build --pull=never` with resolved `RBF_IMAGE_n` build-args
-.. `--pull=never` enforces the no-network contract — the presence check above has already verified every slot, so the flag is a backstop against hardcoded `FROM` stages that bypass the `RBF_IMAGE_n` parameterization
+.. Run `docker build` with resolved `RBF_IMAGE_n` build-args
+.. The no-network property comes from the presence check above (every slot verified in the local cache — origin auto-pulled if absent, anchored refused if absent) combined with buildx's default behavior of not re-pulling base images. Hardcoded `FROM` stages that bypass `RBF_IMAGE_n` parameterization remain a residual risk; buildx no longer exposes a `--pull=never` analog, so explicit assertion of the no-network contract at build time is no longer available
 .. Build for host platform only (no multi-arch -- development builds run where they are built)
 .. Tag as `«GAR_BASE»/{gar_hallmarks_namespace}/«HALLMARK»/image:«HALLMARK»` to match compose YAML interpolation format
 
