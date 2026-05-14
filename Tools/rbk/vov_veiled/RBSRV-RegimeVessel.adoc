@@ -140,7 +140,7 @@ Format: `{sanitized-origin}-{10-char-sha256}`.
 When present, both {rbtgo_ark_conjure} and {rbtgo_ark_kludge} substitute the full GAR reference; kludge additionally requires the referenced image to be present in the local container runtime cache (see {rbtgo_image_retrieve} for the credentialed wrest path).
 When absent, both operations pass
 {rbrv_image_origin}
-through as the upstream tag.
+through as the upstream tag; kludge auto-pulls the origin inline if it's not already cached locally.
 Optional; 0-512 characters per slot.
 
 //axhrgb_group

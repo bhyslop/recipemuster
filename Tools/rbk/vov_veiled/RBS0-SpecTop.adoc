@@ -1321,7 +1321,7 @@ No registry push, no Cloud Build, no credentials — `docker build` runs against
 that composes cleanly with nameplate and compose infrastructure but is obviously not a production hallmark.
 Kludge resolves
 {rbrv_image_anchor}
-declarations to GAR references identically to {rbtgo_ark_conjure}, but the referenced images must already be locally cached; the credentialed fetch happens out-of-band via {rbtgo_image_retrieve}.
+declarations to GAR references identically to {rbtgo_ark_conjure}, but anchored images must already be locally cached; the credentialed fetch happens out-of-band via {rbtgo_image_retrieve}. Origin-only slots auto-pull inline — no credentials required for public upstream.
 
 include::RBSAK-ark_kludge.adoc[]
 

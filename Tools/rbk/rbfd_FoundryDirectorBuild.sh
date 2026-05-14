@@ -1380,14 +1380,15 @@ rbfd_kludge() {
 
   # Resolve base images — mirror conjure's anchor-aware resolution so an enshrined
   # vessel built via kludge resolves the same GAR-anchored layers as conjure.
-  # Kludge stays uncredentialed: anchored refs must be pre-wrested into the local
-  # cache, origin refs pre-pulled. --pull=never on the build enforces no-network.
+  # Slot types diverge by credential need: anchored refs point into GAR and need
+  # GCP auth, so misses refuse with a wrest remediation (credentialed-out-of-band).
+  # Origin refs are public upstream and need no credentials, so misses auto-pull
+  # inline. --pull=never on the build is a tag-drift defense from there on.
   local -r z_gar_repo_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
   local z_build_args=()
   local z_slot="" z_origin_var="" z_anchor_var="" z_origin="" z_anchor=""
   local z_slot_ref="" z_pkg_path="" z_tag="" z_miss=""
   local z_anchored_misses=()
-  local z_origin_misses=()
   for z_slot in 1 2 3; do
     z_origin_var="RBRV_IMAGE_${z_slot}_ORIGIN"
     z_anchor_var="RBRV_IMAGE_${z_slot}_ANCHOR"
@@ -1417,7 +1418,11 @@ rbfd_kludge() {
       z_slot_ref="${z_origin}"
       buc_info "Image slot ${z_slot} (pass-through): ${z_slot_ref}"
       if ! docker image inspect "${z_slot_ref}" >/dev/null 2>&1; then
-        z_origin_misses+=("${z_origin}")
+        buc_info "Origin image not cached — pulling from upstream: ${z_slot_ref}"
+        docker pull "${z_slot_ref}" \
+          || buc_die "docker pull failed for origin slot ${z_slot}: ${z_slot_ref}"
+        docker image inspect "${z_slot_ref}" >/dev/null 2>&1 \
+          || buc_die "Origin image still absent from local cache after pull: ${z_slot_ref}"
       fi
     fi
 
@@ -1425,25 +1430,17 @@ rbfd_kludge() {
   done
   test ${#z_build_args[@]} -gt 0 || buc_die "No RBRV_IMAGE_n_ORIGIN found in vessel config"
 
-  if test "${#z_anchored_misses[@]}" -gt 0 || test "${#z_origin_misses[@]}" -gt 0; then
-    buc_warn "Kludge cannot proceed — base image(s) not cached locally"
-    buc_bare "  Kludge runs uncredentialed and never reaches a registry. All declared"
-    buc_bare "  base images must be in the local docker cache before kludge runs."
+  if test "${#z_anchored_misses[@]}" -gt 0; then
+    buc_warn "Kludge cannot proceed — anchored base image(s) not cached locally"
+    buc_bare "  Anchored slots point into GAR and require credentials. Kludge runs"
+    buc_bare "  uncredentialed, so anchored images must be wrested into the local"
+    buc_bare "  docker cache out-of-band before kludge runs."
     buc_bare ""
-    if test "${#z_anchored_misses[@]}" -gt 0; then
-      buc_bare "  Anchored slots (wrest from GAR):"
-      for z_miss in "${z_anchored_misses[@]}"; do
-        buc_tabtarget "${RBZ_WREST_ENSHRINED_IMAGE}" "${z_miss}"
-      done
-      buc_bare ""
-    fi
-    if test "${#z_origin_misses[@]}" -gt 0; then
-      buc_bare "  Origin slots (docker pull from upstream):"
-      for z_miss in "${z_origin_misses[@]}"; do
-        buc_bare "    docker pull ${z_miss}"
-      done
-      buc_bare ""
-    fi
+    buc_bare "  Anchored slots (wrest from GAR):"
+    for z_miss in "${z_anchored_misses[@]}"; do
+      buc_tabtarget "${RBZ_WREST_ENSHRINED_IMAGE}" "${z_miss}"
+    done
+    buc_bare ""
     buc_die "Local image cache incomplete — see remediation above"
   fi
 
