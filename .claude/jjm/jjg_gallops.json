@@ -8087,6 +8087,7 @@
         "₢BBAAg",
         "₢BBAAr",
         "₢BBAA7",
+        "₢BBABH",
         "₢BBAAX",
         "₢BBABA",
         "₢BBAA8",
@@ -8107,7 +8108,7 @@
         "₢BBABF",
         "₢BBABG"
       ],
-      "jjghn_next_pace_seed": "ABH",
+      "jjghn_next_pace_seed": "ABI",
       "jjghn_paces": {
         "₢BBAA-": {
           "jjgpn_tacks": [
@@ -9781,6 +9782,17 @@
               "jjgtn_text": "## Character\n\nMechanical. Fold the two fast-codebase-check entry points into one tier, parallelize the slow one, expand its coverage, and bring its baseline to zero.\n\n## Locked decisions\n\n- **One fast-tier shellcheck entry.** `rbq_qualify_fast` absorbs `buq_shellcheck`; standalone `tt/buw-qsc.QualifyShellCheck.sh` retires. The primitive function stays; only the standalone tabtarget retires. `rbw-tr` drops its now-redundant shellcheck phase.\n- **Parallelize via xargs -P.** Replace the single shellcheck invocation with xargs-driven parallel invocation; aggregate exit code into one verdict. Target ~1–2s wall-clock for the file set (down from ~9s).\n- **Coverage expansion.** `.buk/rbbc_constants.sh` joins the shellcheck file set. Mount-time call on scope-generalization shape (multi-root parameter vs explicit outside-Tools list).\n- **Baseline zero.** Every current shellcheck finding either fixed in-place or moved to `busc_shellcheckrc` with BCG-structural rationale. Fast-tier exits zero on clean tree after wrap.\n\n## Wrap criterion\n\n`tt/rbw-tf.QualifyFast.sh` exits zero, runs in ~2s wall-clock, covers `Tools/` plus `.buk/rbbc_constants.sh`. `tt/buw-qsc.QualifyShellCheck.sh` no longer exists. `tt/rbw-tr.QualifyRelease.sh` no longer makes a separate shellcheck call.\n\n## Out of scope\n\n- `tt/*.sh` shellcheck coverage (`buq_tabtargets` shape-check is the appropriate gate for generated shims)\n- `.buk/launcher.*.sh` (3–4 line trivial shims; capture as itch if ever produces a finding)\n- `Tools/rbk/vov_veiled/FUTURE/` subtree — operator call at mount (exempt vs fix)",
               "jjgtn_silks": "fast-qualify-shellcheck-fold-cover-zero",
               "jjgtn_basis": "85a6c45"
+            }
+          ]
+        },
+        "₢BBABH": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260514-0122",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\n`rbfd_kludge`'s presence guard at `rbfd_FoundryDirectorBuild.sh:1391-1448` lumps anchored-slot and origin-slot misses under one \"kludge stays uncredentialed\" refusal. The framing is over-broad: anchored slots point into GAR and need GCP auth (wrest stays out-of-band, correct); origin slots are public upstream pulls that need no credentials. The over-broad refusal forces operators and fixtures into an extra step that buys nothing.\n\nSurfaced by ₢BBAAX's first gauntlet run: `onboarding-sequence/rbtdro_onboarding_kludge_tadmor` failed in pristine state because `debian:bookworm-slim` (tadmor sentry's only slot, unanchored pass-through) wasn't cached locally. In any pristine kludge flow every slot is unanchored — anchors don't land until an `ordain conjure` — so the operator-facing diagnostic prescribes `docker pull` for every slot, which kludge itself could just do.\n\n## Scope\n\n- `rbfd_kludge` auto-pulls origin-slot misses inline (announcing each pull at info level for teaching/visibility)\n- Anchored-slot miss path unchanged: refusal + wrest remediation, preserving the credentialed-out-of-band property\n- `--pull=never` backstop on the build stays as tag-drift defense\n- Comment block at `rbfd_FoundryDirectorBuild.sh:1381-1384` updated to distinguish the two slot types\n\n## Constraints\n\n- No new tabtargets, no handbook edits, no fixture edits\n- Origin pull must announce itself — preserve the teaching moment that the current diagnostic provides\n- `docker image inspect` re-check after pull stays as a sanity gate before kludge continues\n\n## Cross-pace dependencies\n\n- Blocks ₢BBAAX's next attempt (next `rbw-tP` run after this lands)\n\n## Out of scope\n\n- Anchored-slot ergonomics (separate question, not surfaced by this run)\n- `--pull=never` backstop rethink\n- Handbook prose update — handbook currently says nothing about pre-pulling, which becomes accurate again once this lands",
+              "jjgtn_silks": "kludge-origin-slot-auto-pull",
+              "jjgtn_basis": "37c9003"
             }
           ]
         }
