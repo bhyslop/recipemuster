@@ -8,166 +8,13 @@ Full read and edit access is pre-approved for all files in:
 
 ## File Acronym Mappings
 
-### Tools Directory (`Tools/`)
-
-#### RBK Subdirectory (`Tools/rbk/`)
-- **RBDC** → `rbk/rbdc_DerivedConstants.sh`
-- **RBF**  → `rbk/rbf_Foundry.sh`
-- **RBFH** → `rbk/rbfh_FoundryHygiene.sh` (Foundry Hygiene — Dockerfile FROM-line constraint shared by kludge and conjure; thin BCG CLI partner `rbk/rbfh_cli.sh` surfaces the contract via `rbw-fhc`/`rbw-fhv`)
-- **RBGA** → `rbk/rbga_ArtifactRegistry.sh`
-- **RBGB** → `rbk/rbgb_Buckets.sh`
-- **RBGC** → `rbk/rbgc_Constants.sh`
-- **RBGG** → `rbk/rbgg_Governor.sh`
-- **RBGI** → `rbk/rbgi_IAM.sh`
-- **RBGO** → `rbk/rbgo_OAuth.sh`
-- **RBGP** → `rbk/rbgp_Payor.sh`
-- **RBGU** → `rbk/rbgu_Utility.sh`
-- **RBGV** → `rbk/rbgv_AccessProbe.sh` (Google Verification — JWT SA and Payor OAuth access probes)
-- **RBH0** → `rbk/rbh0/` (Handbook directory — decomposed one-function-per-file)
-  - `rbh*` is the Handbook family (human-facing procedures), parallel to `rbg*` (Google machinery). Three groups: `RBHO` onboarding, `RBHP` payor, `RBHW` windows. Colophon pattern: `rbw-h0` (HandbookTOP index), `rbw-h{o,p,w}` (group tops), `rbw-H{O,P,W}*` (subordinate procedures).
-  - **RBHO0** → `rbk/rbh0/rbho0_cli.sh` (Onboarding CLI — thin furnish, probe-only dependencies)
-  - **RBHOB** → `rbk/rbh0/rbhob_base.sh` (Onboarding base — kindle, sentinel, probes, shared helpers)
-  - **RBHP0** → `rbk/rbh0/rbhp0_cli.sh` (Payor CLI — full regime + OAuth + IAM dependencies)
-  - **RBHPB** → `rbk/rbh0/rbhpb_base.sh` (Payor base — kindle, sentinel, enforce)
-  - **RBHW0** → `rbk/rbh0/rbhw0_cli.sh` (Windows CLI — handbook display + zipper dependencies)
-  - **RBHWB** → `rbk/rbh0/rbhwb_base.sh` (Windows base — kindle, sentinel)
-- **RBID** → `rbev-vessels/common-ifrit-context/` (Ifrit — in-bottle attack binary for crucible testing; shared source across tether/airgap variants)
-- **RBJ**  → Jailer prefix (non-terminal: children rbjs, rbjp, rbje, rbjh)
-- **RBJS** → `rbk/rbjs_sentry.sh` (Jailer Sentry - container security setup: iptables, dnsmasq, enclave network)
-- **RBLM** → `rbk/rblm_cli.sh` (Lifecycle Marshal - zero regime to blank template, proof repo for release testing)
-- **RBOB** → `rbk/rbob_bottle.sh`
-- **RBYC** → `rbk/rbyc_common.sh` (Common vocabulary — linked term constants for handbook yelp fragments)
-- **RBQ**  → `rbk/rbq_Qualify.sh` (Qualification orchestrator - tabtarget/colophon/nameplate health)
-- **RBTD** → `rbk/rbtd/` (Theurge — crucible test orchestrator)
-- **RBTW** → `rbk/rbtd/rbtw_workbench.sh` (Theurge workbench — build/test routing, orthogonal from VOW)
-- **RBS0** → `rbk/vov_veiled/RBS0-SpecTop.adoc`
-- **RBSAA** → `rbk/vov_veiled/RBSAA-ark_abjure.adoc`
-- **RBSAB** → `rbk/vov_veiled/RBSAB-ark_about.adoc` (Standalone Cloud Build about pipeline - syft SBOM + mode-aware build_info)
-- **RBSAC** → `rbk/vov_veiled/RBSAC-ark_conjure.adoc`
-- **RBSAE** → `rbk/vov_veiled/RBSAE-ark_enshrine.adoc`
-- **RBSAG** → `rbk/vov_veiled/RBSAG-ark_graft.adoc` (Graft operation - local image push to GAR)
-- **RBSAJ** → `rbk/vov_veiled/RBSAJ-access_jwt_probe.adoc`
-- **RBSAK** → `rbk/vov_veiled/RBSAK-ark_kludge.adoc` (Kludge operation - local vessel build for development)
-- **RBSAO** → `rbk/vov_veiled/RBSAO-access_oauth_probe.adoc`
-- **RBSAP** → `rbk/vov_veiled/RBSAP-ark_plumb.adoc`
-- **RBSAS** → `rbk/vov_veiled/RBSAS-ark_summon.adoc`
-- **RBSAV** → `rbk/vov_veiled/RBSAV-ark_vouch.adoc`
-- **RBSAX** → `rbk/vov_veiled/RBSAX-access_setup.adoc`
-- **RBSBC** → `rbk/vov_veiled/RBSBC-bottle_create.adoc`
-- **RBSBK** → `rbk/vov_veiled/RBSBK-bottle_cleanup.adoc`
-- **RBSBL** → `rbk/vov_veiled/RBSBL-bottle_launch.adoc`
-- **RBSCB** → `rbk/vov_veiled/RBSCB-CloudBuildPosture.adoc` (Cloud Build security posture and deferred hardening)
-- **RBSCC** → `rbk/vov_veiled/RBSCC-crucible_charge.adoc`
-- **RBSCE** → `rbk/vov_veiled/RBSCE-command_exec.adoc`
-- **RBSCIG** → `rbk/vov_veiled/RBSCIG-IamGrantContracts.adoc` (IAM Grant API Contracts - verified behavioral contracts per resource type)
-- **RBSCIP** → `rbk/vov_veiled/RBSCIP-IamPropagation.adoc`
-- **RBSCJ** → `rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc`
-- **RBSCL** → `rbk/vov_veiled/RBSCL-consecration_tally.adoc` (Hallmark Tally - registry ark inventory with health status)
-- **RBSCN** → `rbk/vov_veiled/RBSCN-crucible_enjoin.adoc`
-- **RBSCO** → `rbk/vov_veiled/RBSCO-CosmologyIntro.adoc`
-- **RBSCTD** → `rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc`
-- **RBSDD** → `rbk/vov_veiled/RBSDD-director_divest.adoc` (Governor divests a director SA — zero-arg by-role lookup)
-- **RBSDE** → `rbk/vov_veiled/RBSDE-depot_levy.adoc`
-- **RBSDI** → `rbk/vov_veiled/RBSDI-depot_inscribe.adoc` (Reliquary creation — director mirrors tool images to datestamped GAR namespace)
-- **RBSDK** → `rbk/vov_veiled/RBSDK-director_invest.adoc` (Governor invests a director SA — singleton-per-role)
-- **RBSDL** → `rbk/vov_veiled/RBSDL-depot_list.adoc`
-- **RBSDN** → `rbk/vov_veiled/RBSDN-depot_initialize.adoc`
-- **RBSDR** → `rbk/vov_veiled/RBSDR-director_roster.adoc` (Governor rosters director SAs — fact-multi emission, presence-as-fact)
-- **RBSDS** → `rbk/vov_veiled/RBSDS-dns_step.adoc`
-- **RBSDU** → `rbk/vov_veiled/RBSDU-depot_unmake.adoc`
-- **RBSDV** → `rbk/vov_veiled/RBSDV-director_vouch.adoc`
-- **RBSDY** → `rbk/vov_veiled/RBSDY-director_yoke.adoc` (Yoke operation — director validates reliquary stamp and conjure vessel, then rewrites RBRV_RELIQUARY in rbrv.env)
-- **RBSFH** → `rbk/vov_veiled/RBSFH-dockerfile_hygiene.adoc` (Dockerfile Hygiene — FROM-line constraint enforced by rbfh, shared across kludge and conjure paths)
-- **RBSGD** → `rbk/vov_veiled/RBSGD-gdc_establish.adoc`
-- **RBSGM** → `rbk/vov_veiled/RBSGM-governor_mantle.adoc`
-- **RBSGS** → `rbk/vov_veiled/RBSGS-GettingStarted.adoc`
-- **RBSHR** → `rbk/vov_veiled/RBSHR-HorizonRoadmap.adoc` (Horizon Roadmap - single collection point for defined-but-unscoped future work)
-- **RBSII** → `rbk/vov_veiled/RBSII-iptables_init.adoc`
-- **RBSIJ** → `rbk/vov_veiled/RBSIJ-image_jettison.adoc`
-- **RBSIA** → `rbk/vov_veiled/RBSIA-image_audit.adoc` (Image Audit — three-domain catalog listing: hallmarks, reliquaries, enshrinements)
-- **RBSIP** → `rbk/vov_veiled/RBSIP-ifrit_pentester.adoc` (Ifrit Pentester — adversarial AI escape testing framework)
-- **RBSIR** → `rbk/vov_veiled/RBSIR-image_rekon.adoc` (Image Rekon — director-only canonical-member presence under hallmark/reliquary subtrees)
-- **RBSIW** → `rbk/vov_veiled/RBSIW-image_wrest.adoc`
-- **RBSNC** → `rbk/vov_veiled/RBSNC-network_create.adoc`
-- **RBSNX** → `rbk/vov_veiled/RBSNX-network_connect.adoc`
-- **RBSOB** → `rbk/vov_veiled/RBSOB-oci_layout_bridge.adoc`
-- **RBSPE** → `rbk/vov_veiled/RBSPE-payor_establish.adoc`
-- **RBSPI** → `rbk/vov_veiled/RBSPI-payor_install.adoc`
-- **RBSPR** → `rbk/vov_veiled/RBSPR-payor_refresh.adoc`
-- **RBSPT** → `rbk/vov_veiled/RBSPT-port_setup.adoc`
-- **RBSQB** → `rbk/vov_veiled/RBSQB-quota_build.adoc`
-- **RBSRA** → `rbk/vov_veiled/RBSRA-CredentialFormat.adoc`
-- **RBSRD** → `rbk/vov_veiled/RBSRD-retriever_divest.adoc` (Governor divests a retriever SA — zero-arg by-role lookup)
-- **RBSRG** → `rbk/vov_veiled/RBSRG-RegimeGcbPins.adoc`
-- **RBSRK** → `rbk/vov_veiled/RBSRK-retriever_invest.adoc` (Governor invests a retriever SA — singleton-per-role)
-- **RBSRL** → `rbk/vov_veiled/RBSRL-retriever_roster.adoc` (Governor rosters retriever SAs — fact-multi emission, presence-as-fact)
-- **RBRN**  → `rbk/vov_veiled/RBRN-RegimeNameplate.adoc`
-- **RBSRM** → `rbk/vov_veiled/RBSRM-RegimeMachine.adoc`
-- **RBSRO** → `rbk/vov_veiled/RBSRO-RegimeOauth.adoc`
-- **RBSRP** → `rbk/vov_veiled/RBSRP-RegimePayor.adoc`
-- **RBSRR** → `rbk/vov_veiled/RBSRR-RegimeRepo.adoc`
-- **RBSRS** → `rbk/vov_veiled/RBSRS-RegimeStation.adoc`
-- **RBSRV** → `rbk/vov_veiled/RBSRV-RegimeVessel.adoc`
-- **RBSSC** → `rbk/vov_veiled/RBSSC-security_config.adoc`
-- **RBSSR** → `rbk/vov_veiled/RBSSR-sentry_run.adoc`
-- **RBSSS** → `rbk/vov_veiled/RBSSS-sentry_start.adoc`
-- **RBSTB** → `rbk/vov_veiled/RBSTB-trigger_build.adoc`
-
-#### BUK Subdirectory (`Tools/buk/`)
-- **BCG**  → `buk/vov_veiled/BCG-BashConsoleGuide.md` (Bash Console Guide - enterprise bash patterns)
-- **WSG**  → `buk/vov_veiled/WSG-WindowsScriptingGuide.md` (Windows Scripting Guide - ssh-to-Windows transport discipline; extends BCG into the wsl.exe / cygwin / PowerShell stack)
-- **BUS0** → `buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc` (Bash Utilities Specification - tabtarget dispatch vocabulary)
-- **BUC**  → `buk/buc_command.sh` (command utilities, buc_* functions)
-- **BUD**  → `buk/bud_dispatch.sh` (dispatch utilities, zbud_* functions)
-- **BUH**  → `buk/buh_handbook.sh` (handbook utilities, buh_* functions - always-visible user interaction)
-- **BUT**  → `buk/but_test.sh` (test utilities, but_* functions)
-- **BUYM** → `buk/buym_yelp.sh` (yelp module — diastema wire format, yawp functions, format resolver, legacy captures)
-- **BUV**  → `buk/buv_validation.sh` (validation utilities, buv_* functions)
-- **BUW**  → `buk/buw_workbench.sh` (workbench utilities, buw_* functions)
-- **BUTT** → `buk/butt_testbench.sh` (BUK test framework self-test — kick-tires + bure-tweak, 9 cases)
-- **BURC** → `buk/burc_cli.sh`, `buk/burc_regime.sh` (regime configuration)
-- **BURS** → `buk/burs_cli.sh`, `buk/burs_regime.sh` (regime station)
-- **BUJP** → `buk/bujp_preflight.sh` (garrison step-1 preflight gate)
-
-#### GAD Subdirectory (`Tools/gad/`)
-- **See `Tools/gad/CLAUDE.md` for complete GAD acronym mappings**
-- Quick reference: GADF (factory), GADI* (inspector), GADS (spec), GADP (planner), GADM* (memos)
-
-#### CMK Subdirectory (`Tools/cmk/`)
-- **MCM**   → `cmk/vov_veiled/MCM-MetaConceptModel.adoc`
-- **AXLA**  → `cmk/vov_veiled/AXLA-Lexicon.adoc`
-- **AXMCM** → `cmk/vov_veiled/AXMCM-ClaudeMarkConceptMemo.md`
-
-#### JJK Subdirectory (`Tools/jjk/`)
-- **JJS0** → `jjk/vov_veiled/JJS0_JobJockeySpec.adoc` (Job Jockey specification - main file)
-- **JJSCCH** → `jjk/vov_veiled/JJSCCH-chalk.adoc`
-- **JJSCCU** → `jjk/vov_veiled/JJSCCU-curry.adoc` (Paddock operation - read/write heat paddock files)
-- **JJSCDR** → `jjk/vov_veiled/JJSCDR-draft.adoc`
-- **JJSCFU** → `jjk/vov_veiled/JJSCFU-furlough.adoc`
-- **JJSCMU** → `jjk/vov_veiled/JJSCMU-muster.adoc`
-- **JJSCNC** → `jjk/vov_veiled/JJSCNC-notch.adoc`
-- **JJSCNO** → `jjk/vov_veiled/JJSCNO-nominate.adoc`
-- **JJSCPD** → `jjk/vov_veiled/JJSCPD-parade.adoc`
-- **JJSCRL** → `jjk/vov_veiled/JJSCRL-rail.adoc`
-- **JJSCRN** → `jjk/vov_veiled/JJSCRN-rein.adoc`
-- **JJSCRT** → `jjk/vov_veiled/JJSCRT-retire.adoc`
-- **JJSCSC** → `jjk/vov_veiled/JJSCSC-scout.adoc`
-- **JJSCSD** → `jjk/vov_veiled/JJSCSD-saddle.adoc`
-- **JJSCSL** → `jjk/vov_veiled/JJSCSL-slate.adoc`
-- **JJSCTL** → `jjk/vov_veiled/JJSCTL-tally.adoc`
-- **JJSCVL** → `jjk/vov_veiled/JJSCVL-validate.adoc`
-- **JJSCWP** → `jjk/vov_veiled/JJSCWP-wrap.adoc` (Close/wrap operation - mark pace complete and commit)
-- **JJSRLD** → `jjk/vov_veiled/JJSRLD-load.adoc`
-- **JJSRPS** → `jjk/vov_veiled/JJSRPS-persist.adoc`
-- **JJSRSV** → `jjk/vov_veiled/JJSRSV-save.adoc`
-- **JJSRWP** → `jjk/vov_veiled/JJSRWP-wrap.adoc`
-- **JJSTF** → `jjk/vov_veiled/JJSTF-test-fundus.adoc` (Test Fundus — fundus scenario profiles and preflight contracts)
-- **JJW**  → `jjk/jjw_workbench.sh` (workbench)
-
-#### VOK Subdirectory (`Tools/vok/`)
-- **RCG**  → `vok/vov_veiled/RCG-RustCodingGuide.md` (Rust Coding Guide - project Rust conventions)
-- **VLS**  → `vok/vov_veiled/VLS-VoxLiturgicalSpec.adoc` (Vox Liturgical Specification - universal naming vocabulary)
-- **VOS0**  → `vok/vov_veiled/VOS0-VoxObscuraSpec.adoc` (Vox Obscura specification)
+Per-kit acronym mappings live in each kit's context file (loaded via `@` includes below).
+- RBK: `@Tools/rbk/rbk-claude-acronyms.md`
+- BUK: `@Tools/buk/buk-claude-context.md`
+- CMK: `@Tools/cmk/vov_veiled/cmk-claude-context.md`
+- JJK: `@Tools/jjk/vov_veiled/jjk-claude-context.md`
+- VOK: `@Tools/vok/vok-claude-context.md`
+- GAD: `Tools/gad/CLAUDE.md` (not `@`-included — loaded only when working in that kit)
 
 ### CNMP Lenses Directory (`../cnmp_CellNodeMessagePrototype/lenses/`)
 - **ANCIENT** → `a-roe-ANCIENT.md`
@@ -385,11 +232,15 @@ When evaluating any new pattern, extraction, or structural choice, the litmus te
 
 @Tools/cmk/vov_veiled/cmk-claude-context.md
 
+@Tools/vok/vok-claude-context.md
+
 ## Current Context
 - Primary focus: Recipe Bottle infrastructure and tooling
 - Architecture: Bash-based CLI tools with Google Cloud integration
 - Documentation format: AsciiDoc (.adoc) for specs, Markdown (.md) for guides
 - Public project page: https://scaleinv.github.io/recipebottle
+
+@Tools/rbk/rbk-claude-acronyms.md
 
 @Tools/rbk/rbk-claude-tabtarget-context.md
 

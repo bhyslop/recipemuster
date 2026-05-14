@@ -1,3 +1,20 @@
+## File Acronym Mappings — BUK Subdirectory (`Tools/buk/`)
+
+- **BCG**  → `buk/vov_veiled/BCG-BashConsoleGuide.md` (Bash Console Guide - enterprise bash patterns)
+- **WSG**  → `buk/vov_veiled/WSG-WindowsScriptingGuide.md` (Windows Scripting Guide - ssh-to-Windows transport discipline; extends BCG into the wsl.exe / cygwin / PowerShell stack)
+- **BUS0** → `buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc` (Bash Utilities Specification - tabtarget dispatch vocabulary)
+- **BUC**  → `buk/buc_command.sh` (command utilities, buc_* functions)
+- **BUD**  → `buk/bud_dispatch.sh` (dispatch utilities, zbud_* functions)
+- **BUH**  → `buk/buh_handbook.sh` (handbook utilities, buh_* functions - always-visible user interaction)
+- **BUT**  → `buk/but_test.sh` (test utilities, but_* functions)
+- **BUYM** → `buk/buym_yelp.sh` (yelp module — diastema wire format, yawp functions, format resolver, legacy captures)
+- **BUV**  → `buk/buv_validation.sh` (validation utilities, buv_* functions)
+- **BUW**  → `buk/buw_workbench.sh` (workbench utilities, buw_* functions)
+- **BUTT** → `buk/butt_testbench.sh` (BUK test framework self-test — kick-tires + bure-tweak, 9 cases)
+- **BURC** → `buk/burc_cli.sh`, `buk/burc_regime.sh` (regime configuration)
+- **BURS** → `buk/burs_cli.sh`, `buk/burs_regime.sh` (regime station)
+- **BUJP** → `buk/bujp_preflight.sh` (garrison step-1 preflight gate)
+
 ## Bash Utility Kit (BUK) Concepts
 
 BUK provides tabtarget/launcher infrastructure for bash-based tooling.
