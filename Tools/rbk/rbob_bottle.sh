@@ -474,7 +474,7 @@ rbob_charge() {
   fi
 
   # Tear down any prior state (tolerates missing project)
-  buc_step "Cleaning up any prior state"
+  buc_step "Cleaning up any prior state (this can take a couple of minutes)"
   zrbob_compose --profile sessile down --remove-orphans 2>/dev/null || true
 
   # Charge invariant: at most one crucible per nameplate per system. The
