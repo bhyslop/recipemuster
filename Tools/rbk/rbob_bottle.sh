@@ -117,8 +117,11 @@ zrbob_kindle() {
   readonly ZRBOB_COMPOSE_BASE="${RBBC_dot_dir}/rbob_compose.yml"
   test -f "${ZRBOB_COMPOSE_BASE}" || buc_die "Base compose file not found: ${ZRBOB_COMPOSE_BASE}"
 
-  readonly ZRBOB_COMPOSE_FRAGMENT="${RBBC_dot_dir}/${RBRN_MONIKER}/compose.yml"
+  readonly ZRBOB_COMPOSE_FRAGMENT="${RBBC_dot_dir}/${RBRN_MONIKER}/rbnnh_compose.yml"
   # Fragment is optional — existence checked at compose invocation time
+
+  readonly ZRBOB_POST_CHARGE_HOOK="${RBBC_dot_dir}/${RBRN_MONIKER}/rbnnh_post_charge.sh"
+  # Hook is optional — existence + executable bit checked at charge tail
 
   # Env file paths (for compose --env-file: YAML interpolation + container env forwarding)
   readonly ZRBOB_ENV_RBRR="${RBBC_dot_dir}/rbrr.env"
@@ -492,6 +495,11 @@ rbob_charge() {
   if test "${RBRN_BOTTLE_READINESS_DELAY_SEC}" -gt 0; then
     buc_step "Waiting ${RBRN_BOTTLE_READINESS_DELAY_SEC}s for bottle service readiness"
     sleep "${RBRN_BOTTLE_READINESS_DELAY_SEC}"
+  fi
+
+  if test -x "${ZRBOB_POST_CHARGE_HOOK}"; then
+    buc_step "Running post-charge hook: ${ZRBOB_POST_CHARGE_HOOK}"
+    "${ZRBOB_POST_CHARGE_HOOK}" || buc_die "Post-charge hook failed: ${ZRBOB_POST_CHARGE_HOOK}"
   fi
 }
 
