@@ -9818,6 +9818,13 @@
         "₢BOAAD": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260515-1536",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nAfter levy creates pools and GAR, probe each pool with a Cloud Build\nsubmission that materializes the quota row, asserts the pool's intended\negress posture, and (lean: yes) exercises GAR write.\n\n## Shape\n- Builder image: Google-hosted only. Airgap can't reach docker.io.\n- Fresh-levy expected outcome: HTTP 400 at quota gate. This is the\n  desired materialization side-effect, not a failure to surface.\n- Egress-posture asserted in-build:\n    tether — public reachable AND Google reachable\n    airgap — public blocked AND Google reachable\n  Assertion failure is a hard infra-drift signal.\n- GAR push (if included): under a probe-namespace path that the\n  hallmark / reliquary / enshrinement enumerators ignore.\n\n## What done looks like\nLevy emits a per-pool probe block. Onboarding handbook points to a\nconsole where the quota row is populated, both pools have build records,\nand (if push) the probe artifacts are visible at their isolated path.",
+              "jjgtn_silks": "levy-establish-probes",
+              "jjgtn_basis": "54ea2c8"
+            },
+            {
               "jjgtn_ts": "260515-1431",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nAfter levy creates pools and GAR, probe each pool with a Cloud Build\nsubmission that materializes the quota row, asserts the pool's intended\negress posture, and (lean: yes) exercises GAR write.\n\n## Shape\n- Builder image: Google-hosted only. Airgap can't reach docker.io.\n- Fresh-levy expected outcome: HTTP 400 at quota gate. This is the\n  desired materialization side-effect, not a failure to surface.\n- Egress-posture asserted in-build:\n    tether — public reachable AND Google reachable\n    airgap — public blocked AND Google reachable\n  Assertion failure is a hard infra-drift signal.\n- GAR push (if included): under a probe-namespace path that the\n  hallmark / reliquary / enshrinement enumerators ignore.\n\n## What done looks like\nLevy emits a per-pool probe block. Onboarding handbook points to a\nconsole where the quota row is populated, both pools have build records,\nand (if push) the probe artifacts are visible at their isolated path.",
