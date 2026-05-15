@@ -313,6 +313,10 @@
 // Foundry Internals (build-side hygiene contracts shared across modes)
 :rbsfh_dockerfile_hygiene:   <<rbsfh_dockerfile_hygiene,Dockerfile Hygiene>>
 
+// Nameplate Customization (optional per-nameplate hooks and overlay fragments)
+:rbnnh_compose_fragment:     <<rbnnh_compose_fragment,Nameplate Compose Fragment>>
+:rbnnh_post_charge_hook:     <<rbnnh_post_charge_hook,Post-Charge Hook>>
+
 // Recipe Bottle Regime: Repo
 :rbrr_bottle_workspace:      <<rbrr_bottle_workspace,RBRR_BOTTLE_WORKSPACE>>
 :rbrr_director_rbra_file:    <<rbrr_director_rbra_file,RBRR_DIRECTOR_RBRA_FILE>>
@@ -4135,6 +4139,24 @@ parameterization contract on which {rbtgo_ark_kludge} and
 the local kludge and Cloud Build conjure paths.
 
 include::RBSFH-dockerfile_hygiene.adoc[]
+
+== Nameplate Customization Internals
+
+Optional per-nameplate files that the {rbsc_charge} operation auto-detects
+and incorporates into the charge pipeline. Each lives in the nameplate's
+regime directory; absence is silently tolerated. The mechanism exists to
+keep nameplate-specific concerns out of the cross-nameplate base compose
+file and the charge core.
+
+[[rbnnh_post_charge_hook]]
+//axvo_procedure axd_transient axd_internal
+=== {rbnnh_post_charge_hook}
+
+Defines the two optional customization files (the {rbnnh_compose_fragment}
+and the {rbnnh_post_charge_hook} script) — what they are, where they live,
+how {rbsc_charge} detects them, and the exit-status contract.
+
+include::RBSCH-charge_hook.adoc[]
 
 == Trade Studies
 

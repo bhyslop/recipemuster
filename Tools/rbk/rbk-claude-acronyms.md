@@ -24,6 +24,7 @@
 - **RBJ**  → Jailer prefix (non-terminal: children rbjs, rbjp, rbje, rbjh)
 - **RBJS** → `rbk/rbjs_sentry.sh` (Jailer Sentry - container security setup: iptables, dnsmasq, enclave network)
 - **RBLM** → `rbk/rblm_cli.sh` (Lifecycle Marshal - zero regime to blank template, proof repo for release testing)
+- **RBNNH** → `rbnnh_` prefix family — optional per-nameplate customization files in `.rbk/{moniker}/`: `rbnnh_compose.yml` (Compose overlay fragment) and `rbnnh_post_charge.sh` (post-charge hook script). Contract: `Tools/rbk/vov_veiled/RBSCH-charge_hook.adoc`.
 - **RBOB** → `rbk/rbob_bottle.sh`
 - **RBYC** → `rbk/rbyc_common.sh` (Common vocabulary — linked term constants for handbook yelp fragments)
 - **RBQ**  → `rbk/rbq_Qualify.sh` (Qualification orchestrator - tabtarget/colophon/nameplate health)
@@ -46,6 +47,7 @@
 - **RBSBK** → `rbk/vov_veiled/RBSBK-bottle_cleanup.adoc`
 - **RBSBL** → `rbk/vov_veiled/RBSBL-bottle_launch.adoc`
 - **RBSCB** → `rbk/vov_veiled/RBSCB-CloudBuildPosture.adoc` (Cloud Build security posture and deferred hardening)
+- **RBSCH** → `rbk/vov_veiled/RBSCH-charge_hook.adoc` (Nameplate Customization — rbnnh_compose_fragment + rbnnh_post_charge_hook contract)
 - **RBSCC** → `rbk/vov_veiled/RBSCC-crucible_charge.adoc`
 - **RBSCE** → `rbk/vov_veiled/RBSCE-command_exec.adoc`
 - **RBSCIG** → `rbk/vov_veiled/RBSCIG-IamGrantContracts.adoc` (IAM Grant API Contracts - verified behavioral contracts per resource type)

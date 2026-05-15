@@ -1,0 +1,16 @@
+//axhob_operation
+{rbnnh_post_charge_hook}
+
+Defines two optional per-nameplate customization files that the {rbsc_charge} operation auto-detects and incorporates. Both live in the nameplate's regime directory; absence is silently tolerated. The mechanism keeps nameplate-specific concerns out of the cross-nameplate compose base and the charge core, while admitting per-nameplate UX affordances and Compose overlays without spec churn.
+
+[[rbnnh_compose_fragment]]
+{rbnnh_compose_fragment}::
+An optional Docker Compose YAML overlay at `«moniker»/rbnnh_compose.yml`, merged with the base file via `-f base -f fragment` at compose-up time. Adds nameplate-specific bind mounts, environment passthroughs, or service customizations. Paths inside the fragment resolve relative to the first compose file's directory (the regime root). Detected and included by {rbsc_charge} at compose invocation time; bare-name `environment:` entries inherit from the shell that invoked the charge.
+
+[[rbnnh_post_charge_hook]]
+{rbnnh_post_charge_hook}::
+An optional executable script at `«moniker»/rbnnh_post_charge.sh`, invoked as the last step of {rbsc_charge} after the bottle readiness wait. The hook runs on the host with the charge's full `RBRN_*` and `RBRR_*` exported environment available. By contract the hook is self-contained: it must not depend on BUK/RBK utility modules, so that nameplate authors may compose hooks without learning the kit's internal idioms.
+
+//axhoc_completion
+{rbbc_fatal}
+if the hook is present, executable, and exits nonzero — the hook's exit code propagates through {rbsc_charge}, since a present hook expresses a precondition the operator wants enforced.

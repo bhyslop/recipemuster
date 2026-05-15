@@ -34,9 +34,16 @@ if any foreign network occupies this subnet (catches non-compose networks not co
 //axhos_step
 . *Start via Compose*:
 .. {rbbc_call}
-`docker compose --profile sessile up -d` with base compose file, optional nameplate fragment, and env-files for both repo regime and nameplate regime
+`docker compose --profile sessile up -d` with base compose file, optional {rbnnh_compose_fragment}, and env-files for both repo regime and nameplate regime
 .. Compose creates networks, starts sentry, waits for health, starts pentacle, waits for health, starts bottle
 .. The `sessile` profile includes the bottle container; omitting it starts only sentry and pentacle (infrastructure mode for agile dispatch)
+
+//axhos_step
+. *Invoke Post-Charge Hook (Conditional)*:
+.. If `«moniker»/rbnnh_post_charge.sh` exists and is executable, invoke it as the last charge step (after the bottle readiness wait) with `RBRN_*` and `RBRR_*` exported in the environment
+.. Absence or non-executable bit is silently tolerated (no warning, no error)
+.. {rbbc_fatal}
+if the hook exits nonzero — the exit status propagates through {rbsc_charge}, since a present hook expresses a precondition the operator wants enforced; contract details: {rbnnh_post_charge_hook}
 
 //axhoc_completion
 Successful execution establishes a new
