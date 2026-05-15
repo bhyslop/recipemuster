@@ -167,8 +167,7 @@ def name_help(category='english singluar nouns', themes=None, precedents=None, m
         that match the theme. 
         """,
         messages=[
-            {"role": "user", "content": composite_hint },
-            {"role": "assistant", "content": "Your words are:"}  # Prefill
+            {"role": "user", "content": composite_hint + "\n\nYour words are:"}
         ]
     )
     content = message.content[0].text.strip().split('\n')
