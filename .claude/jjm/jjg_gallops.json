@@ -9775,11 +9775,12 @@
       "jjghn_creation_time": "260514",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BOAAD",
         "₢BOAAA",
         "₢BOAAB",
         "₢BOAAC"
       ],
-      "jjghn_next_pace_seed": "AAD",
+      "jjghn_next_pace_seed": "AAE",
       "jjghn_paces": {
         "₢BOAAA": {
           "jjgpn_tacks": [
@@ -9811,6 +9812,17 @@
               "jjgtn_text": "## Character\nMechanical with one design beat — reverify the srjcl jupyter notebook still\nfunctions and can reach Anthropic. Consider surfacing the local port during\ncrucible charge so the operator doesn't have to fish for it.",
               "jjgtn_silks": "srjcl-jupyter-reverify",
               "jjgtn_basis": "dae5ec1"
+            }
+          ]
+        },
+        "₢BOAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260515-1431",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nAfter levy creates pools and GAR, probe each pool with a Cloud Build\nsubmission that materializes the quota row, asserts the pool's intended\negress posture, and (lean: yes) exercises GAR write.\n\n## Shape\n- Builder image: Google-hosted only. Airgap can't reach docker.io.\n- Fresh-levy expected outcome: HTTP 400 at quota gate. This is the\n  desired materialization side-effect, not a failure to surface.\n- Egress-posture asserted in-build:\n    tether — public reachable AND Google reachable\n    airgap — public blocked AND Google reachable\n  Assertion failure is a hard infra-drift signal.\n- GAR push (if included): under a probe-namespace path that the\n  hallmark / reliquary / enshrinement enumerators ignore.\n\n## What done looks like\nLevy emits a per-pool probe block. Onboarding handbook points to a\nconsole where the quota row is populated, both pools have build records,\nand (if push) the probe artifacts are visible at their isolated path.",
+              "jjgtn_silks": "levy-establish-probes",
+              "jjgtn_basis": "4fe8f50"
             }
           ]
         }
