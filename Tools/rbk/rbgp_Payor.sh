@@ -516,6 +516,118 @@ zrbgp_create_gcs_bucket() {
   esac
 }
 
+# Submit a Cloud Build probe to a freshly-levied worker pool. Three effects:
+# submission materializes the pool's per-resource quota row (HTTP 400 on
+# fresh levy is the expected side-effect, not a failure to surface);
+# in-build curl asserts egress posture; docker step pushes a tiny
+# FROM-scratch marker to rbi_df under a filename the enumerators ignore.
+# Builder images are Google-hosted only — airgap cannot reach docker.io.
+# Fire-and-forget — operators read pass/fail from the console link.
+# Args: token pool_variant pool_id mason_email egress_script_file
+zrbgp_pool_probe_submit() {
+  zrbgp_sentinel
+
+  local -r z_token="${1}"
+  local -r z_pool_variant="${2}"
+  local -r z_pool_id="${3}"
+  local -r z_mason_email="${4}"
+  local -r z_egress_script_file="${5}"
+
+  local -r z_region="${RBRR_GCP_REGION}"
+  local -r z_pool_resource="projects/${RBDC_DEPOT_PROJECT_ID}/locations/${z_region}/workerPools/${z_pool_id}"
+  local -r z_mason_sa="projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts/${z_mason_email}"
+  local -r z_probe_ref="${z_region}${RBGC_GAR_HOST_SUFFIX}/${RBDC_DEPOT_PROJECT_ID}/${RBDC_GAR_REPOSITORY}/${RBGC_GAR_CATEGORY_DEPOT_FACTS}/probe-${z_pool_variant}:probe"
+
+  # Push script — pool-specific values baked in at host-side, so Cloud Build
+  # sees a fully-resolved script with no substitutions. Heredocs inside this
+  # file are cloud-side bash (executed by the build worker); BCG host-side
+  # heredoc prohibition does not apply to content destined for cloud execution.
+  local -r z_push_script_file="${BURD_TEMP_DIR}/rbgp_probe_${z_pool_variant}_push.sh"
+  printf '%s\n' \
+    '#!/bin/bash' \
+    'set -euo pipefail' \
+    'mkdir -p /workspace/probe' \
+    'cat > /workspace/probe/probe-marker.txt <<MARKER' \
+    'RecipeBottle depot levy probe' \
+    "pool:    ${z_pool_id}" \
+    "variant: ${z_pool_variant}" \
+    "depot:   ${RBDC_DEPOT_PROJECT_ID}" \
+    'MARKER' \
+    'cat > /workspace/probe/Dockerfile <<DF' \
+    'FROM scratch' \
+    'COPY probe-marker.txt /' \
+    'DF' \
+    "docker build -t \"${z_probe_ref}\" /workspace/probe" \
+    "docker push \"${z_probe_ref}\"" \
+    "echo \"GAR push OK: ${z_probe_ref}\"" \
+    > "${z_push_script_file}" \
+    || buc_die "Failed to write probe push script for ${z_pool_variant}"
+
+  local -r z_build_file="${BURD_TEMP_DIR}/rbgp_probe_${z_pool_variant}_build.json"
+  jq -n \
+    --arg     posture_image   "gcr.io/google.com/cloudsdktool/cloud-sdk:alpine" \
+    --arg     docker_image    "gcr.io/cloud-builders/docker" \
+    --rawfile egress_script   "${z_egress_script_file}" \
+    --rawfile push_script     "${z_push_script_file}" \
+    --arg     pool_resource   "${z_pool_resource}" \
+    --arg     service_account "${z_mason_sa}" \
+    '{
+      steps: [
+        {
+          name:   $posture_image,
+          id:     "assert-egress-posture",
+          script: $egress_script
+        },
+        {
+          name:   $docker_image,
+          id:     "probe-gar-push",
+          script: $push_script
+        }
+      ],
+      serviceAccount: $service_account,
+      options: {
+        logging: "CLOUD_LOGGING_ONLY",
+        pool: { name: $pool_resource }
+      }
+    }' > "${z_build_file}" \
+    || buc_die "Failed to compose probe build JSON for ${z_pool_variant}"
+
+  local -r z_build_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/locations/${z_region}/builds"
+  local -r z_infix="depot_probe_${z_pool_variant}_submit"
+
+  rbgu_http_json "POST" "${z_build_url}" "${z_token}" "${z_infix}" "${z_build_file}"
+  local z_submit_code
+  z_submit_code=$(rbgu_http_code_capture "${z_infix}") \
+    || buc_die "Bad probe submission HTTP code for ${z_pool_variant}"
+
+  buc_info "Per-pool probe: ${z_pool_variant}"
+  buc_info "  Pool:     ${z_pool_id}"
+  buc_info "  Artifact: ${z_probe_ref}"
+
+  case "${z_submit_code}" in
+    200|201)
+      local z_build_id
+      z_build_id=$(rbgu_json_field_capture "${z_infix}" '.metadata.build.id') || z_build_id=""
+      if test -n "${z_build_id}"; then
+        buc_info "  Build:    ${z_build_id} (submitted — runs async)"
+        buc_link "  " "Open probe build in Cloud Console" \
+          "${RBGC_CONSOLE_URL}cloud-build/builds;region=${z_region}/${z_build_id}?project=${RBDC_DEPOT_PROJECT_ID}"
+      else
+        buc_info "  Build:    submitted (HTTP ${z_submit_code} — build ID not in response)"
+      fi
+      ;;
+    400)
+      buc_info "  Build:    HTTP 400 — quota row materialized (expected on fresh levy)"
+      buc_info "  Hint:     Request a quota increase via the depot Cloud Build console, then re-run levy to exercise the probe end-to-end"
+      ;;
+    *)
+      local z_err
+      z_err=$(rbgu_json_field_capture "${z_infix}" '.error.message') || z_err="HTTP ${z_submit_code}"
+      buc_die "Probe submission failed for ${z_pool_variant}: ${z_err}"
+      ;;
+  esac
+}
+
 ######################################################################
 # External Functions (rbgp_*)
 
@@ -951,6 +1063,40 @@ rbgp_depot_levy() {
 
   buc_step 'Enable Cloud Build service agent to impersonate Mason'
   rbgi_add_sa_iam_role "${z_token}" "${z_mason_sa_email}" "${z_cb_service_agent}" "roles/iam.serviceAccountTokenCreator"
+
+  buc_step 'Submit per-pool probe builds (materialize quota rows + assert egress posture + GAR write)'
+
+  # Tether posture: public reachable AND Google reachable.
+  local -r z_tether_egress_file="${BURD_TEMP_DIR}/rbgp_probe_tether_egress.sh"
+  printf '%s\n' \
+    '#!/bin/bash' \
+    'set -euo pipefail' \
+    'curl -fsS --max-time 10 https://example.com > /dev/null' \
+    'echo "tether: public reachable OK"' \
+    'curl -fsS --max-time 10 https://storage.googleapis.com > /dev/null' \
+    'echo "tether: google reachable OK"' \
+    > "${z_tether_egress_file}" \
+    || buc_die "Failed to write tether egress script"
+
+  # Airgap posture: public BLOCKED AND Google reachable. Public-reachable is
+  # a hard infra-drift signal — curl's connection error surfaces in the build
+  # log as the assertion fails.
+  local -r z_airgap_egress_file="${BURD_TEMP_DIR}/rbgp_probe_airgap_egress.sh"
+  printf '%s\n' \
+    '#!/bin/bash' \
+    'set -euo pipefail' \
+    'if curl -fsS --max-time 10 https://example.com > /dev/null; then' \
+    '  echo "airgap: ERROR public is reachable (expected blocked)" >&2' \
+    '  exit 1' \
+    'fi' \
+    'echo "airgap: public blocked OK"' \
+    'curl -fsS --max-time 10 https://storage.googleapis.com > /dev/null' \
+    'echo "airgap: google reachable OK"' \
+    > "${z_airgap_egress_file}" \
+    || buc_die "Failed to write airgap egress script"
+
+  zrbgp_pool_probe_submit "${z_token}" "tether" "${z_tether_id}" "${z_mason_sa_email}" "${z_tether_egress_file}"
+  zrbgp_pool_probe_submit "${z_token}" "airgap" "${z_airgap_id}" "${z_mason_sa_email}" "${z_airgap_egress_file}"
 
   buc_step 'Update depot tracking'
   zrbgp_depot_list_update || buc_die "Failed to update depot tracking after creation"
