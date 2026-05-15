@@ -158,8 +158,7 @@ def name_help(category='english singluar nouns', themes=None, precedents=None, m
 
     client = anthropic.Anthropic()
     message = client.messages.create(
-        # model="claude-3-haiku-20240307",
-        model="claude-3-5-sonnet-20240620",
+        model="claude-sonnet-4-6",
         max_tokens=1000,
         temperature=temperature,
         system="""
