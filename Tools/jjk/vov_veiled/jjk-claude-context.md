@@ -191,6 +191,20 @@ Each notice is a `#`-header line with slug and lede, followed by content body. W
 
 **Critical: `#` (H1) in gazette_in.md is a wire format delimiter, NOT a markdown heading.** For single-notice commands (enroll, paddock set), use exactly ONE `#` line. For mass reslate, each `# jjezs_reslate` line starts a new notice. All markdown headings within body content must use `##` or deeper — a bare `#` line inside content will be parsed as a notice boundary.
 
+Wrong (parsed as TWO notices, fails with `unknown slug 'Paddock:'`):
+```
+# jjezs_paddock ₣BO
+# Paddock: rbk-11-mvp-tactical
+body...
+```
+
+Right:
+```
+# jjezs_paddock ₣BO
+## Paddock: rbk-11-mvp-tactical
+body...
+```
+
 **On failure:** If a gazette setter command fails, `gazette_in.md` is already consumed (deleted on entry). You must re-write it from scratch before retrying — there is nothing to re-read.
 
 | Command | Write to `gazette_in.md` | Then call with params |
