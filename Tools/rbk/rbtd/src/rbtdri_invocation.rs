@@ -44,6 +44,23 @@ pub const RBTDRI_BURE_CONFIRM_KEY: &str = "BURE_CONFIRM";
 /// Value paired with `RBTDRI_BURE_CONFIRM_KEY` to skip the confirmation prompt.
 pub const RBTDRI_BURE_CONFIRM_SKIP: &str = "skip";
 
+/// BUK dispatch env var carrying the temp root for theurge — anchors BURV
+/// per-invoke temp dirs under temp-buk/ rather than /tmp/. Required: theurge
+/// fails at startup if unset. Set by bud_dispatch.sh on every tabtarget call.
+pub const RBTDRI_BURD_TEMP_DIR_KEY: &str = "BURD_TEMP_DIR";
+
+/// BUK dispatch env var carrying the output root for theurge — anchors BURV
+/// per-invoke output dirs under output-buk/. Same lifecycle as BURD_TEMP_DIR.
+pub const RBTDRI_BURD_OUTPUT_DIR_KEY: &str = "BURD_OUTPUT_DIR";
+
+/// BURV invoke-directory name from a zero-based invoke count.
+///
+/// Single source of truth for the `invoke-NNNNN` naming pattern; tests call
+/// this rather than hand-expanding the literal.
+pub fn rbtdri_invoke_dir_name(invoke_num: u32) -> String {
+    format!("invoke-{:05}", invoke_num)
+}
+
 // ── Invocation result ────────────────────────────────────────
 
 /// Captured output from a tabtarget invocation.
@@ -200,7 +217,7 @@ fn rbtdri_invoke_impl(
     let invoke_num = ctx.invoke_count;
     ctx.invoke_count += 1;
 
-    let dir_name = format!("invoke-{:05}", invoke_num);
+    let dir_name = rbtdri_invoke_dir_name(invoke_num);
     let burv_output = ctx.burv_output_root.join(&dir_name);
     let burv_temp = ctx.burv_temp_root.join(&dir_name);
 

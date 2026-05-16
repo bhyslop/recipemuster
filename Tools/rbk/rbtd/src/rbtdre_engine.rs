@@ -16,6 +16,8 @@
 //
 // RBTDRE — case execution engine for theurge
 
+// RCG output discipline: all emission via rbtdrg_*! — no direct println!/eprintln!
+
 use std::path::Path;
 use std::path::PathBuf;
 
@@ -181,18 +183,18 @@ pub fn rbtdre_run_cases(
 
         match &verdict {
             rbtdre_Verdict::Pass => {
-                eprintln!("{}PASSED:{} {}", colors.green, colors.reset, case.name);
+                crate::rbtdrg_info_now!("{}PASSED:{} {}", colors.green, colors.reset, case.name);
                 passed += 1;
             }
             rbtdre_Verdict::Fail(_) => {
-                eprintln!("{}FAILED:{} {}", colors.red, colors.reset, case.name);
+                crate::rbtdrg_info_now!("{}FAILED:{} {}", colors.red, colors.reset, case.name);
                 failed += 1;
                 if fail_fast {
                     break;
                 }
             }
             rbtdre_Verdict::Skip(_) => {
-                eprintln!(
+                crate::rbtdrg_info_now!(
                     "{}SKIPPED:{} {}",
                     colors.yellow, colors.reset, case.name
                 );
@@ -218,11 +220,11 @@ pub fn rbtdre_print_summary(result: &rbtdre_RunResult, colors: &rbtdre_Colors) {
         (colors.green, colors.reset)
     };
 
-    eprintln!(
-        "\n{}{} passed, {} failed, {} skipped ({} total){}",
+    crate::rbtdrg_info_now!(
+        "{}{} passed, {} failed, {} skipped ({} total){}",
         color, result.passed, result.failed, result.skipped, total, end_color,
     );
-    eprintln!("Trace dir: {}", result.temp_dir.display());
+    crate::rbtdrg_info_now!("Trace dir: {}", result.temp_dir.display());
 }
 
 // ── Single-case operations ───────────────────────────────────
@@ -238,7 +240,7 @@ pub fn rbtdre_find_case<'a>(
 /// List all cases by name.
 pub fn rbtdre_list_cases(cases: &[rbtdre_Case]) {
     for case in cases {
-        eprintln!("  {}", case.name);
+        crate::rbtdrg_info_now!("  {}", case.name);
     }
 }
 
@@ -291,15 +293,15 @@ pub fn rbtdre_run_single_case(
 
     let (passed, failed, skipped) = match &verdict {
         rbtdre_Verdict::Pass => {
-            eprintln!("{}PASSED:{} {}", colors.green, colors.reset, case.name);
+            crate::rbtdrg_info_now!("{}PASSED:{} {}", colors.green, colors.reset, case.name);
             (1, 0, 0)
         }
         rbtdre_Verdict::Fail(_) => {
-            eprintln!("{}FAILED:{} {}", colors.red, colors.reset, case.name);
+            crate::rbtdrg_info_now!("{}FAILED:{} {}", colors.red, colors.reset, case.name);
             (0, 1, 0)
         }
         rbtdre_Verdict::Skip(_) => {
-            eprintln!("{}SKIPPED:{} {}", colors.yellow, colors.reset, case.name);
+            crate::rbtdrg_info_now!("{}SKIPPED:{} {}", colors.yellow, colors.reset, case.name);
             (0, 0, 1)
         }
     };

@@ -200,8 +200,8 @@ fn rbtdti_invoke_creates_burv_dirs() {
     let result = rbtdri_invoke(&mut ctx, "rbw-cb", &[]);
 
     assert!(result.is_ok());
-    assert!(burv_output_root.join("invoke-00000").is_dir());
-    assert!(burv_temp_root.join("invoke-00000").is_dir());
+    assert!(burv_output_root.join(rbtdri_invoke_dir_name(0)).is_dir());
+    assert!(burv_temp_root.join(rbtdri_invoke_dir_name(0)).is_dir());
     assert_eq!(ctx.invoke_count, 1);
 
     let _ = std::fs::remove_dir_all(&tmp);
@@ -221,11 +221,11 @@ fn rbtdti_invoke_sequential_burv_isolation() {
     let _ = rbtdri_invoke(&mut ctx, "rbw-cb", &[]).unwrap();
 
     assert_eq!(ctx.invoke_count, 2);
-    assert!(burv_output_root.join("invoke-00000").is_dir());
-    assert!(burv_output_root.join("invoke-00001").is_dir());
+    assert!(burv_output_root.join(rbtdri_invoke_dir_name(0)).is_dir());
+    assert!(burv_output_root.join(rbtdri_invoke_dir_name(1)).is_dir());
     assert_ne!(
-        burv_output_root.join("invoke-00000"),
-        burv_output_root.join("invoke-00001"),
+        burv_output_root.join(rbtdri_invoke_dir_name(0)),
+        burv_output_root.join(rbtdri_invoke_dir_name(1)),
     );
 
     let _ = std::fs::remove_dir_all(&tmp);
@@ -311,8 +311,8 @@ fn rbtdti_invoke_sets_burv_env_vars() {
     let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
     let result = rbtdri_invoke(&mut ctx, "rbw-cb", &[]).unwrap();
 
-    let expected_output = burv_output_root.join("invoke-00000");
-    let expected_temp = burv_temp_root.join("invoke-00000");
+    let expected_output = burv_output_root.join(rbtdri_invoke_dir_name(0));
+    let expected_temp = burv_temp_root.join(rbtdri_invoke_dir_name(0));
     assert!(result.stdout.contains(&format!("OUT:{}", expected_output.display())));
     assert!(result.stdout.contains(&format!("TMP:{}", expected_temp.display())));
 
@@ -332,7 +332,7 @@ fn rbtdti_invoke_returns_burv_output_path() {
     let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
     let result = rbtdri_invoke(&mut ctx, "rbw-cb", &[]).unwrap();
 
-    assert_eq!(result.burv_output, burv_output_root.join("invoke-00000"));
+    assert_eq!(result.burv_output, burv_output_root.join(rbtdri_invoke_dir_name(0)));
     assert!(result.burv_output.is_dir());
 
     let _ = std::fs::remove_dir_all(&tmp);
@@ -483,8 +483,8 @@ fn rbtdti_invoke_fails_no_tabtarget() {
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("no tabtarget"));
     // BURV dirs should NOT have been created since discovery failed first
-    assert!(!burv_output_root.join("invoke-00000").exists());
-    assert!(!burv_temp_root.join("invoke-00000").exists());
+    assert!(!burv_output_root.join(rbtdri_invoke_dir_name(0)).exists());
+    assert!(!burv_temp_root.join(rbtdri_invoke_dir_name(0)).exists());
 
     let _ = std::fs::remove_dir_all(&tmp);
 }

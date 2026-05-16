@@ -22,6 +22,8 @@
 //   rbtd single <manifest> <fixture> [case]
 //     Single-case runner — no charge/quench. List cases or run one.
 
+// RCG output discipline: all emission via rbtdrg_*! — no direct println!/eprintln!
+
 #![allow(non_camel_case_types)]
 #![allow(private_interfaces)]
 #![deny(warnings)]
@@ -36,7 +38,10 @@ use rbtd::rbtdre_engine::{
     rbtdre_detect_colors, rbtdre_find_case, rbtdre_list_cases, rbtdre_print_summary,
     rbtdre_run_fixture, rbtdre_run_single_case,
 };
-use rbtd::rbtdri_invocation::{rbtdri_Context, rbtdri_invoke_global};
+use rbtd::rbtdri_invocation::{
+    rbtdri_Context, rbtdri_invoke_global,
+    RBTDRI_BURD_OUTPUT_DIR_KEY, RBTDRI_BURD_TEMP_DIR_KEY,
+};
 use rbtd::rbtdrm_manifest::{rbtdrm_verify, RBTDRM_COLOPHON_CRUCIBLE_ACTIVE};
 
 fn main() -> ExitCode {
@@ -66,8 +71,8 @@ struct rbtdb_Roots {
 }
 
 fn rbtdb_allocate_roots() -> Result<rbtdb_Roots, String> {
-    let burd_temp = rbtdb_read_dispatch_dir("BURD_TEMP_DIR")?;
-    let burd_output = rbtdb_read_dispatch_dir("BURD_OUTPUT_DIR")?;
+    let burd_temp = rbtdb_read_dispatch_dir(RBTDRI_BURD_TEMP_DIR_KEY)?;
+    let burd_output = rbtdb_read_dispatch_dir(RBTDRI_BURD_OUTPUT_DIR_KEY)?;
 
     let trace_root = burd_temp.join("rbtd");
     let burv_temp_root = trace_root.join("burv");
@@ -88,42 +93,29 @@ fn rbtdb_allocate_roots() -> Result<rbtdb_Roots, String> {
 fn rbtdb_run_suite(args: &[String]) -> ExitCode {
     let manifest = match args.first() {
         Some(m) => m,
-        None => {
-            eprintln!(
-                "rbtd: usage: rbtd <manifest> <fixture>\n\
-                 theurge must be launched via tabtarget (e.g. tt/rbtd-r.FixtureRun.tadmor.sh)"
-            );
-            return ExitCode::FAILURE;
-        }
+        None => rbtd::rbtdrg_fatal_now!(
+            "rbtd: usage: rbtd <manifest> <fixture>\n\
+             theurge must be launched via tabtarget (e.g. tt/rbtd-r.FixtureRun.tadmor.sh)"
+        ),
     };
 
     let fixture = match args.get(1) {
         Some(n) => n,
-        None => {
-            eprintln!("rbtd: no fixture argument — which test fixture to run?");
-            return ExitCode::FAILURE;
-        }
+        None => rbtd::rbtdrg_fatal_now!("rbtd: no fixture argument — which test fixture to run?"),
     };
 
     if let Err(msg) = rbtdrm_verify(manifest, fixture) {
-        eprintln!("{}", msg);
-        return ExitCode::FAILURE;
+        rbtd::rbtdrg_fatal_now!("{}", msg);
     }
 
     let project_root = match std::env::current_dir() {
         Ok(p) => p,
-        Err(e) => {
-            eprintln!("rbtd: cannot determine working directory: {}", e);
-            return ExitCode::FAILURE;
-        }
+        Err(e) => rbtd::rbtdrg_fatal_now!("rbtd: cannot determine working directory: {}", e),
     };
 
     let roots = match rbtdb_allocate_roots() {
         Ok(r) => r,
-        Err(msg) => {
-            eprintln!("{}", msg);
-            return ExitCode::FAILURE;
-        }
+        Err(msg) => rbtd::rbtdrg_fatal_now!("{}", msg),
     };
 
     let ctx = rbtdri_Context::new(
@@ -135,15 +127,12 @@ fn rbtdb_run_suite(args: &[String]) -> ExitCode {
 
     let fixture_def = match rbtdrc_lookup_fixture(fixture) {
         Some(f) => f,
-        None => {
-            eprintln!(
-                "rbtd: fixture '{}' has no registered Fixture — \
-                 manifest verification accepted the name but no Fixture static is bound. \
-                 Update rbtdrc_lookup_fixture in rbtdrc_crucible.rs.",
-                fixture
-            );
-            return ExitCode::FAILURE;
-        }
+        None => rbtd::rbtdrg_fatal_now!(
+            "rbtd: fixture '{}' has no registered Fixture — \
+             manifest verification accepted the name but no Fixture static is bound. \
+             Update rbtdrc_lookup_fixture in rbtdrc_crucible.rs.",
+            fixture
+        ),
     };
 
     rbtdrc_set_context(ctx);
@@ -155,16 +144,13 @@ fn rbtdb_run_suite(args: &[String]) -> ExitCode {
 
     let result = match run_result {
         Ok(r) => r,
-        Err(msg) => {
-            eprintln!("rbtd: {}", msg);
-            return ExitCode::FAILURE;
-        }
+        Err(msg) => rbtd::rbtdrg_fatal_now!("rbtd: {}", msg),
     };
 
     rbtdre_print_summary(&result, &colors);
 
     if result.failed > 0 {
-        eprintln!("rbtd: {} case(s) failed", result.failed);
+        rbtd::rbtdrg_error_now!("rbtd: {} case(s) failed", result.failed);
         ExitCode::FAILURE
     } else {
         ExitCode::SUCCESS
@@ -176,50 +162,40 @@ fn rbtdb_run_suite(args: &[String]) -> ExitCode {
 fn rbtdb_run_single(args: &[String]) -> ExitCode {
     let manifest = match args.first() {
         Some(m) => m,
-        None => {
-            eprintln!(
-                "rbtd single: usage: rbtd single <manifest> <fixture> [case]\n\
-                 omit case to list all cases for the fixture"
-            );
-            return ExitCode::FAILURE;
-        }
+        None => rbtd::rbtdrg_fatal_now!(
+            "rbtd single: usage: rbtd single <manifest> <fixture> [case]\n\
+             omit case to list all cases for the fixture"
+        ),
     };
 
     let fixture = match args.get(1) {
         Some(f) => f,
         None => {
-            eprintln!("rbtd single: no fixture argument");
+            rbtd::rbtdrg_error_now!("rbtd single: no fixture argument");
             rbtdb_list_fixtures();
             return ExitCode::FAILURE;
         }
     };
 
     if !RBTDRC_FIXTURES.iter().any(|f| f.name == *fixture) {
-        eprintln!("rbtd single: unknown fixture '{}'", fixture);
+        rbtd::rbtdrg_error_now!("rbtd single: unknown fixture '{}'", fixture);
         rbtdb_list_fixtures();
         return ExitCode::FAILURE;
     }
 
     if let Err(msg) = rbtdrm_verify(manifest, fixture) {
-        eprintln!("{}", msg);
-        return ExitCode::FAILURE;
+        rbtd::rbtdrg_fatal_now!("{}", msg);
     }
 
     // Set up execution context early — needed for charge check and case execution
     let project_root = match std::env::current_dir() {
         Ok(p) => p,
-        Err(e) => {
-            eprintln!("rbtd: cannot determine working directory: {}", e);
-            return ExitCode::FAILURE;
-        }
+        Err(e) => rbtd::rbtdrg_fatal_now!("rbtd: cannot determine working directory: {}", e),
     };
 
     let roots = match rbtdb_allocate_roots() {
         Ok(r) => r,
-        Err(msg) => {
-            eprintln!("{}", msg);
-            return ExitCode::FAILURE;
-        }
+        Err(msg) => rbtd::rbtdrg_fatal_now!("{}", msg),
     };
 
     // Context is required for every case execution path (rbtdrc_with_ctx).
@@ -234,13 +210,10 @@ fn rbtdb_run_single(args: &[String]) -> ExitCode {
 
     let fixture_def = match rbtdrc_lookup_fixture(fixture) {
         Some(f) => f,
-        None => {
-            eprintln!(
-                "rbtd single: fixture '{}' has no registered Fixture",
-                fixture
-            );
-            return ExitCode::FAILURE;
-        }
+        None => rbtd::rbtdrg_fatal_now!(
+            "rbtd single: fixture '{}' has no registered Fixture",
+            fixture
+        ),
     };
 
     if fixture_def.setup.is_some() {
@@ -251,14 +224,11 @@ fn rbtdb_run_single(args: &[String]) -> ExitCode {
             &[],
         ) {
             Ok(r) if r.exit_code == 0 => {}
-            _ => {
-                eprintln!(
-                    "rbtd single: crucible not charged for '{}'\n\
-                     charge first: tt/rbw-cC.Charge.{}.sh",
-                    fixture, fixture
-                );
-                return ExitCode::FAILURE;
-            }
+            _ => rbtd::rbtdrg_fatal_now!(
+                "rbtd single: crucible not charged for '{}'\n\
+                 charge first: tt/rbw-cC.Charge.{}.sh",
+                fixture, fixture
+            ),
         }
     }
 
@@ -279,7 +249,7 @@ fn rbtdb_run_single(args: &[String]) -> ExitCode {
     let case = match rbtdre_find_case(cases, case_name) {
         Some(c) => c,
         None => {
-            eprintln!(
+            rbtd::rbtdrg_error_now!(
                 "rbtd single: case '{}' not found in fixture '{}'",
                 case_name, fixture
             );
@@ -291,10 +261,7 @@ fn rbtdb_run_single(args: &[String]) -> ExitCode {
     let colors = rbtdre_detect_colors();
     let result = match rbtdre_run_single_case(case, &colors, &roots.trace_root) {
         Ok(r) => r,
-        Err(msg) => {
-            eprintln!("rbtd: case execution error: {}", msg);
-            return ExitCode::FAILURE;
-        }
+        Err(msg) => rbtd::rbtdrg_fatal_now!("rbtd: case execution error: {}", msg),
     };
 
     rbtdre_print_summary(&result, &colors);
@@ -307,8 +274,8 @@ fn rbtdb_run_single(args: &[String]) -> ExitCode {
 }
 
 fn rbtdb_list_fixtures() {
-    eprintln!("available fixtures:");
+    rbtd::rbtdrg_info_now!("available fixtures:");
     for f in RBTDRC_FIXTURES {
-        eprintln!("  {}", f.name);
+        rbtd::rbtdrg_info_now!("  {}", f.name);
     }
 }

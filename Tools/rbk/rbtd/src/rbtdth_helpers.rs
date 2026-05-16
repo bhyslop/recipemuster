@@ -23,14 +23,17 @@
 
 use std::path::PathBuf;
 
+use crate::rbtdri_invocation::RBTDRI_BURD_TEMP_DIR_KEY;
+
 /// Return the scratch root for test tempdirs. Panics if BURD_TEMP_DIR is
 /// unset — tests must be launched via the BUK tabtarget so artifacts land
 /// under temp-buk and survive reboot.
 pub(crate) fn rbtdth_scratch_root() -> PathBuf {
-    match std::env::var("BURD_TEMP_DIR") {
+    match std::env::var(RBTDRI_BURD_TEMP_DIR_KEY) {
         Ok(v) if !v.is_empty() => PathBuf::from(v),
         _ => panic!(
-            "rbtdth: BURD_TEMP_DIR is not set — run tests via `tt/rbtd-t.Test.sh`"
+            "rbtdth: {} is not set — run tests via `tt/rbtd-t.Test.sh`",
+            RBTDRI_BURD_TEMP_DIR_KEY
         ),
     }
 }

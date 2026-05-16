@@ -20,6 +20,8 @@
 // Thread-local context bridges the static case function signature with
 // the mutable invocation context needed for tabtarget calls.
 
+// RCG output discipline: all emission via rbtdrg_*! — no direct println!/eprintln!
+
 use std::cell::RefCell;
 use std::io::Write;
 use std::path::Path;
@@ -108,17 +110,17 @@ pub fn rbtdrc_quench_crucible() {
         if let Some(ctx) = opt.as_mut() {
             zrbtdrc_quench_impl(ctx);
         } else {
-            eprintln!("Warning: rbtdrc: no invocation context for quench — skipped");
+            crate::rbtdrg_error_now!("rbtdrc: no invocation context for quench — skipped");
         }
     });
 }
 
 fn zrbtdrc_charge_impl(ctx: &mut rbtdri_Context) -> Result<(), String> {
     let fixture = ctx.fixture().to_string();
-    eprintln!("\nCharging crucible for nameplate '{}'...", fixture);
+    crate::rbtdrg_info_now!("Charging crucible for nameplate '{}'...", fixture);
     match rbtdri_invoke(ctx, RBTDRM_COLOPHON_CHARGE, &[]) {
         Ok(r) if r.exit_code == 0 => {
-            eprintln!("Crucible charged");
+            crate::rbtdrg_info_now!("Crucible charged");
         }
         Ok(r) => {
             return Err(format!("Charge failed (exit {})\n{}", r.exit_code, r.stderr));
@@ -128,10 +130,10 @@ fn zrbtdrc_charge_impl(ctx: &mut rbtdri_Context) -> Result<(), String> {
         }
     }
 
-    eprintln!("Verifying crucible is active after charge...");
+    crate::rbtdrg_info_now!("Verifying crucible is active after charge...");
     match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_CRUCIBLE_ACTIVE, &[&fixture], &[]) {
         Ok(r) if r.exit_code == 0 => {
-            eprintln!("Crucible active confirmed");
+            crate::rbtdrg_info_now!("Crucible active confirmed");
         }
         Ok(r) => {
             return Err(format!(
@@ -152,27 +154,27 @@ fn zrbtdrc_charge_impl(ctx: &mut rbtdri_Context) -> Result<(), String> {
 
 fn zrbtdrc_quench_impl(ctx: &mut rbtdri_Context) {
     let fixture = ctx.fixture().to_string();
-    eprintln!("\nQuenching crucible...");
+    crate::rbtdrg_info_now!("Quenching crucible...");
     match rbtdri_invoke(ctx, RBTDRM_COLOPHON_QUENCH, &[]) {
-        Ok(r) if r.exit_code == 0 => eprintln!("Crucible quenched"),
-        Ok(r) => eprintln!("Warning: quench exited {}", r.exit_code),
-        Err(e) => eprintln!("Warning: quench invocation failed: {}", e),
+        Ok(r) if r.exit_code == 0 => crate::rbtdrg_info_now!("Crucible quenched"),
+        Ok(r) => crate::rbtdrg_error_now!("quench exited {}", r.exit_code),
+        Err(e) => crate::rbtdrg_error_now!("quench invocation failed: {}", e),
     }
 
-    eprintln!("Verifying crucible is inactive after quench...");
+    crate::rbtdrg_info_now!("Verifying crucible is inactive after quench...");
     match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_CRUCIBLE_ACTIVE, &[&fixture], &[]) {
         Ok(r) if r.exit_code != 0 => {
-            eprintln!("Crucible inactive confirmed");
+            crate::rbtdrg_info_now!("Crucible inactive confirmed");
         }
         Ok(r) => {
-            eprintln!(
-                "Warning: crucible still active after quench (exit {})",
+            crate::rbtdrg_error_now!(
+                "crucible still active after quench (exit {})",
                 r.exit_code
             );
         }
         Err(e) => {
-            eprintln!(
-                "Warning: CrucibleActive invocation failed after quench: {}",
+            crate::rbtdrg_error_now!(
+                "CrucibleActive invocation failed after quench: {}",
                 e
             );
         }
