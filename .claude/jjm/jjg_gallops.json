@@ -9904,6 +9904,13 @@
         "₢BOAAG": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260516-0911",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nDesign-conversation — read theurge source first to understand why\n`/tmp/rbtd-NNN/` was chosen originally. The fix shape isn't obvious until\nthat's known. Not mechanical.\n\n## Goal\nTheurge-sandboxed workbench invocations should write their workbench\n`BURD_TEMP_DIR` and output dir under BUK roots (`../temp-buk/`,\n`../output-buk/`) rather than under `/tmp/rbtd-NNN/`. Forensic artifacts\nfrom failing gauntlet runs — specifically the per-call HTTP captures\nwritten by `rbgu_http_json` — should survive reboot and\nsystemd-tmpfiles cleanup, matching standalone-workbench behavior.\n\n## Done\nAfter a failing fixture-case under theurge, the failed workbench\ninvocation's per-call HTTP captures remain reachable via BUK conventions\nand survive reboot.",
+              "jjgtn_silks": "theurge-buk-temp-discipline",
+              "jjgtn_basis": "78f1ca6"
+            },
+            {
               "jjgtn_ts": "260516-1529",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nDesign-conversation — read theurge source first to understand why\n`/tmp/rbtd-NNN/` was chosen originally. The fix shape isn't obvious until\nthat's known. Not mechanical.\n\n## Goal\nTheurge-sandboxed workbench invocations should write their workbench\n`BURD_TEMP_DIR` and output dir under BUK roots (`../temp-buk/`,\n`../output-buk/`) rather than under `/tmp/rbtd-NNN/`. Forensic artifacts\nfrom failing gauntlet runs — specifically the per-call HTTP captures\nwritten by `rbgu_http_json` — should survive reboot and\nsystemd-tmpfiles cleanup, matching standalone-workbench behavior.\n\n## Done\nAfter a failing fixture-case under theurge, the failed workbench\ninvocation's per-call HTTP captures remain reachable via BUK conventions\nand survive reboot.",
