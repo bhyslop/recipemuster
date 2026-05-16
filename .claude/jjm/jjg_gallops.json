@@ -9780,9 +9780,10 @@
         "₢BOAAE",
         "₢BOAAB",
         "₢BOAAC",
-        "₢BOAAF"
+        "₢BOAAF",
+        "₢BOAAG"
       ],
-      "jjghn_next_pace_seed": "AAG",
+      "jjghn_next_pace_seed": "AAH",
       "jjghn_paces": {
         "₢BOAAA": {
           "jjgpn_tacks": [
@@ -9875,6 +9876,17 @@
               "jjgtn_text": "## Character\nMechanical — the existing `{rbbc_await} returned operation` pattern in\nRBSDE-depot_levy (used at \"Create Depot Project\" and \"Create Container\nRepository\") is the template. Match it.\n\n## Goal\nMake `workerPools.create` await its LRO terminal state before any\ndownstream code uses the pool. Surface terminal errors (e.g., machine-type\nquota denial) at the create step rather than as a misleading \"workerpool\nnot found\" five steps later at the new probe-submission step.\n\n## Boundary\n- Code: `rbgp_Payor.sh` pool-create call sites — match the existing\n  project-create / repo-create LRO handling in the same module.\n- Spec: RBSDE-depot_levy \"Create Private Worker Pool\" step gains\n  `{rbbc_await} returned operation`, matching project-create and\n  repo-create steps in the same spec.\n- Spec drift in the same step: convert singular `WORKER_POOL_STEM`\n  description to dual `[tether, airgap]` iteration matching the existing\n  \"Submit Per-Pool Probe Builds\" step.\n\n## Done\n- pristine-lifecycle fixture's `depot_stand_up` case clears the\n  \"workerpool not found\" failure that surfaced the e2-highcpu-32\n  gauntlet attempt.\n- RBSDE create and probe steps are internally consistent on pool count.",
               "jjgtn_silks": "levy-pool-lro-await",
               "jjgtn_basis": "1d8f877"
+            }
+          ]
+        },
+        "₢BOAAG": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260516-1529",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nDesign-conversation — read theurge source first to understand why\n`/tmp/rbtd-NNN/` was chosen originally. The fix shape isn't obvious until\nthat's known. Not mechanical.\n\n## Goal\nTheurge-sandboxed workbench invocations should write their workbench\n`BURD_TEMP_DIR` and output dir under BUK roots (`../temp-buk/`,\n`../output-buk/`) rather than under `/tmp/rbtd-NNN/`. Forensic artifacts\nfrom failing gauntlet runs — specifically the per-call HTTP captures\nwritten by `rbgu_http_json` — should survive reboot and\nsystemd-tmpfiles cleanup, matching standalone-workbench behavior.\n\n## Done\nAfter a failing fixture-case under theurge, the failed workbench\ninvocation's per-call HTTP captures remain reachable via BUK conventions\nand survive reboot.",
+              "jjgtn_silks": "theurge-buk-temp-discipline",
+              "jjgtn_basis": "c14c131"
             }
           ]
         }
