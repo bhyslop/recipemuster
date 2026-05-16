@@ -26,6 +26,7 @@ use crate::rbtdrk_canonical::{
     RBTDRK_CANONICAL_RUNTIME_BASE, RBTDRK_FAMILY_STEM_BASE,
 };
 use crate::rbtdrm_manifest::RBTDRM_FIXTURE_CANONICAL_ESTABLISH;
+use crate::rbtdth_helpers::rbtdth_scratch_root;
 
 /// Canonical-prefix base shape: lowercase letters, distinct cloud/runtime
 /// pair, no trailing hyphen (the composer adds it). Cases 2-4 rely on the
@@ -143,7 +144,7 @@ fn rbtdtk_cases_registered() {
 /// helper does not silently succeed against a missing regime file.
 #[test]
 fn rbtdtk_install_canonical_prefixes_rejects_missing_rbrr() {
-    let tmp: PathBuf = std::env::temp_dir().join("rbtdtk-nonexistent-root-xyz");
+    let tmp: PathBuf = rbtdth_scratch_root().join("rbtdtk-nonexistent-root-xyz");
     let _ = std::fs::remove_dir_all(&tmp);
     std::fs::create_dir_all(&tmp).expect("create tempdir");
     let result = rbtdrk_install_canonical_prefixes(&tmp);

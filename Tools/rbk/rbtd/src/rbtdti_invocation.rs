@@ -21,9 +21,10 @@ use std::path::PathBuf;
 use super::rbtdre_engine::rbtdre_Verdict;
 use super::rbtdri_invocation::*;
 use super::rbtdrm_manifest::RBTDRM_COLOPHON_ORDAIN;
+use super::rbtdth_helpers::rbtdth_scratch_root;
 
 fn rbtdti_make_temp(label: &str) -> PathBuf {
-    let dir = std::env::temp_dir().join(format!("rbtd-test-{}-{}", std::process::id(), label));
+    let dir = rbtdth_scratch_root().join(format!("rbtd-test-{}-{}", std::process::id(), label));
     std::fs::create_dir_all(&dir).unwrap();
     dir
 }
@@ -193,13 +194,14 @@ fn rbtdti_invoke_creates_burv_dirs() {
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(&tt, "rbw-cb.Bark.testplate.sh", "exit 0\n");
 
-    let burv_root = tmp.join("burv");
-    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_root);
+    let burv_temp_root = tmp.join("burv-temp");
+    let burv_output_root = tmp.join("burv-output");
+    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
     let result = rbtdri_invoke(&mut ctx, "rbw-cb", &[]);
 
     assert!(result.is_ok());
-    assert!(burv_root.join("invoke-00000").join("output").is_dir());
-    assert!(burv_root.join("invoke-00000").join("temp").is_dir());
+    assert!(burv_output_root.join("invoke-00000").is_dir());
+    assert!(burv_temp_root.join("invoke-00000").is_dir());
     assert_eq!(ctx.invoke_count, 1);
 
     let _ = std::fs::remove_dir_all(&tmp);
@@ -211,19 +213,19 @@ fn rbtdti_invoke_sequential_burv_isolation() {
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(&tt, "rbw-cb.Bark.testplate.sh", "exit 0\n");
 
-    let burv_root = tmp.join("burv");
-    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_root);
+    let burv_temp_root = tmp.join("burv-temp");
+    let burv_output_root = tmp.join("burv-output");
+    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
 
     let _ = rbtdri_invoke(&mut ctx, "rbw-cb", &[]).unwrap();
     let _ = rbtdri_invoke(&mut ctx, "rbw-cb", &[]).unwrap();
 
     assert_eq!(ctx.invoke_count, 2);
-    assert!(burv_root.join("invoke-00000").join("output").is_dir());
-    assert!(burv_root.join("invoke-00001").join("output").is_dir());
-    // Dirs are distinct
+    assert!(burv_output_root.join("invoke-00000").is_dir());
+    assert!(burv_output_root.join("invoke-00001").is_dir());
     assert_ne!(
-        burv_root.join("invoke-00000"),
-        burv_root.join("invoke-00001"),
+        burv_output_root.join("invoke-00000"),
+        burv_output_root.join("invoke-00001"),
     );
 
     let _ = std::fs::remove_dir_all(&tmp);
@@ -235,8 +237,9 @@ fn rbtdti_invoke_captures_stdout() {
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(&tt, "rbw-cb.Bark.testplate.sh", "echo 'hello stdout'\n");
 
-    let burv_root = tmp.join("burv");
-    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_root);
+    let burv_temp_root = tmp.join("burv-temp");
+    let burv_output_root = tmp.join("burv-output");
+    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
     let result = rbtdri_invoke(&mut ctx, "rbw-cb", &[]).unwrap();
 
     assert!(result.stdout.contains("hello stdout"));
@@ -251,8 +254,9 @@ fn rbtdti_invoke_captures_stderr() {
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(&tt, "rbw-cb.Bark.testplate.sh", "echo 'hello stderr' >&2\n");
 
-    let burv_root = tmp.join("burv");
-    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_root);
+    let burv_temp_root = tmp.join("burv-temp");
+    let burv_output_root = tmp.join("burv-output");
+    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
     let result = rbtdri_invoke(&mut ctx, "rbw-cb", &[]).unwrap();
 
     assert!(result.stderr.contains("hello stderr"));
@@ -266,8 +270,9 @@ fn rbtdti_invoke_captures_nonzero_exit() {
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(&tt, "rbw-cb.Bark.testplate.sh", "exit 7\n");
 
-    let burv_root = tmp.join("burv");
-    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_root);
+    let burv_temp_root = tmp.join("burv-temp");
+    let burv_output_root = tmp.join("burv-output");
+    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
     let result = rbtdri_invoke(&mut ctx, "rbw-cb", &[]).unwrap();
 
     assert_eq!(result.exit_code, 7);
@@ -281,8 +286,9 @@ fn rbtdti_invoke_passes_args() {
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(&tt, "rbw-cb.Bark.testplate.sh", "echo \"args: $*\"\n");
 
-    let burv_root = tmp.join("burv");
-    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_root);
+    let burv_temp_root = tmp.join("burv-temp");
+    let burv_output_root = tmp.join("burv-output");
+    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
     let result = rbtdri_invoke(&mut ctx, "rbw-cb", &["alpha", "bravo"]).unwrap();
 
     assert!(result.stdout.contains("args: alpha bravo"));
@@ -300,12 +306,13 @@ fn rbtdti_invoke_sets_burv_env_vars() {
         "echo \"OUT:${BURV_OUTPUT_ROOT_DIR}\"\necho \"TMP:${BURV_TEMP_ROOT_DIR}\"\n",
     );
 
-    let burv_root = tmp.join("burv");
-    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_root);
+    let burv_temp_root = tmp.join("burv-temp");
+    let burv_output_root = tmp.join("burv-output");
+    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
     let result = rbtdri_invoke(&mut ctx, "rbw-cb", &[]).unwrap();
 
-    let expected_output = burv_root.join("invoke-00000").join("output");
-    let expected_temp = burv_root.join("invoke-00000").join("temp");
+    let expected_output = burv_output_root.join("invoke-00000");
+    let expected_temp = burv_temp_root.join("invoke-00000");
     assert!(result.stdout.contains(&format!("OUT:{}", expected_output.display())));
     assert!(result.stdout.contains(&format!("TMP:{}", expected_temp.display())));
 
@@ -320,11 +327,12 @@ fn rbtdti_invoke_returns_burv_output_path() {
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(&tt, "rbw-cb.Bark.testplate.sh", "exit 0\n");
 
-    let burv_root = tmp.join("burv");
-    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_root);
+    let burv_temp_root = tmp.join("burv-temp");
+    let burv_output_root = tmp.join("burv-output");
+    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
     let result = rbtdri_invoke(&mut ctx, "rbw-cb", &[]).unwrap();
 
-    assert_eq!(result.burv_output, burv_root.join("invoke-00000").join("output"));
+    assert_eq!(result.burv_output, burv_output_root.join("invoke-00000"));
     assert!(result.burv_output.is_dir());
 
     let _ = std::fs::remove_dir_all(&tmp);
@@ -385,8 +393,9 @@ fn rbtdti_invoke_global_passes_extra_env() {
         "echo \"TWEAK:${BURE_TWEAK_NAME}\"\n",
     );
 
-    let burv_root = tmp.join("burv");
-    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_root);
+    let burv_temp_root = tmp.join("burv-temp");
+    let burv_output_root = tmp.join("burv-output");
+    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
     let result = rbtdri_invoke_global(
         &mut ctx,
         RBTDRM_COLOPHON_ORDAIN,
@@ -409,8 +418,9 @@ fn rbtdti_invoke_imprint_finds_correct_target() {
     rbtdti_write_script(&tt, "rbtd-ap.AccessProbe.governor.sh", "echo 'governor'\n");
     rbtdti_write_script(&tt, "rbtd-ap.AccessProbe.director.sh", "echo 'director'\n");
 
-    let burv_root = tmp.join("burv");
-    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_root);
+    let burv_temp_root = tmp.join("burv-temp");
+    let burv_output_root = tmp.join("burv-output");
+    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
     let result = rbtdri_invoke_imprint(&mut ctx, "rbtd-ap", "governor", &[]).unwrap();
 
     assert!(result.stdout.contains("governor"));
@@ -430,8 +440,9 @@ fn rbtdti_read_burv_fact_reads_value() {
         "mkdir -p \"${BURV_OUTPUT_ROOT_DIR}/current\"\necho 'c260305-r260305' > \"${BURV_OUTPUT_ROOT_DIR}/current/rbf_fact_hallmark\"\n",
     );
 
-    let burv_root = tmp.join("burv");
-    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_root);
+    let burv_temp_root = tmp.join("burv-temp");
+    let burv_output_root = tmp.join("burv-output");
+    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
     let result = rbtdri_invoke(&mut ctx, "rbw-cb", &[]).unwrap();
 
     let fact = rbtdri_read_burv_fact(&result, "rbf_fact_hallmark").unwrap();
@@ -446,8 +457,9 @@ fn rbtdti_read_burv_fact_rejects_missing() {
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(&tt, "rbw-cb.Bark.testplate.sh", "exit 0\n");
 
-    let burv_root = tmp.join("burv");
-    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_root);
+    let burv_temp_root = tmp.join("burv-temp");
+    let burv_output_root = tmp.join("burv-output");
+    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
     let result = rbtdri_invoke(&mut ctx, "rbw-cb", &[]).unwrap();
 
     let fact = rbtdri_read_burv_fact(&result, "rbf_fact_hallmark");
@@ -463,14 +475,16 @@ fn rbtdti_invoke_fails_no_tabtarget() {
     let tmp = rbtdti_make_temp("invoke-notarget");
     let _tt = rbtdti_make_tt_dir(&tmp);
 
-    let burv_root = tmp.join("burv");
-    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_root);
+    let burv_temp_root = tmp.join("burv-temp");
+    let burv_output_root = tmp.join("burv-output");
+    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
     let result = rbtdri_invoke(&mut ctx, "rbw-cb", &[]);
 
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("no tabtarget"));
     // BURV dirs should NOT have been created since discovery failed first
-    assert!(!burv_root.join("invoke-00000").exists());
+    assert!(!burv_output_root.join("invoke-00000").exists());
+    assert!(!burv_temp_root.join("invoke-00000").exists());
 
     let _ = std::fs::remove_dir_all(&tmp);
 }

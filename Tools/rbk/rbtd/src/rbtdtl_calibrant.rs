@@ -33,16 +33,15 @@ use crate::rbtdrm_manifest::{
     RBTDRM_FIXTURE_CALIBRANT_PROGRESSING, RBTDRM_FIXTURE_CALIBRANT_SENTINEL,
     RBTDRM_FIXTURE_CALIBRANT_VERDICTS,
 };
+use crate::rbtdth_helpers::rbtdth_scratch_root;
 
-/// Allocate a unique tempdir for a case under std::env::temp_dir.
-/// Caller is responsible for cleanup.
 fn rbtdtl_make_tempdir(label: &str) -> PathBuf {
     let pid = std::process::id();
     let nanos = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_nanos())
         .unwrap_or(0);
-    let dir = std::env::temp_dir().join(format!("rbtdtl-{}-{}-{}", label, pid, nanos));
+    let dir = rbtdth_scratch_root().join(format!("rbtdtl-{}-{}-{}", label, pid, nanos));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).expect("create tempdir");
     dir

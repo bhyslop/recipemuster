@@ -33,6 +33,8 @@ pub mod rbtdro_onboarding;
 pub mod rbtdrp_pristine;
 
 #[cfg(test)]
+mod rbtdth_helpers;
+#[cfg(test)]
 mod rbtdtb_probe;
 #[cfg(test)]
 mod rbtdte_engine;

@@ -19,6 +19,7 @@
 use std::path::{Path, PathBuf};
 
 use super::rbtdre_engine::*;
+use super::rbtdth_helpers::rbtdth_scratch_root;
 
 fn rbtdte_pass(_dir: &Path) -> rbtdre_Verdict {
     rbtdre_Verdict::Pass
@@ -40,7 +41,7 @@ const RBTDTE_COLORS: rbtdre_Colors = rbtdre_Colors {
 };
 
 fn rbtdte_make_temp(label: &str) -> PathBuf {
-    let dir = std::env::temp_dir().join(format!("rbtd-test-{}-{}", std::process::id(), label));
+    let dir = rbtdth_scratch_root().join(format!("rbtd-test-{}-{}", std::process::id(), label));
     std::fs::create_dir_all(&dir).unwrap();
     dir
 }

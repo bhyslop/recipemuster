@@ -70,16 +70,23 @@ pub struct rbtdri_InvokeResult {
 pub struct rbtdri_Context {
     pub(crate) project_root: PathBuf,
     pub(crate) fixture: String,
-    pub(crate) burv_root: PathBuf,
+    pub(crate) burv_temp_root: PathBuf,
+    pub(crate) burv_output_root: PathBuf,
     pub(crate) invoke_count: u32,
 }
 
 impl rbtdri_Context {
-    pub fn new(project_root: &Path, fixture: &str, burv_root: &Path) -> Self {
+    pub fn new(
+        project_root: &Path,
+        fixture: &str,
+        burv_temp_root: &Path,
+        burv_output_root: &Path,
+    ) -> Self {
         Self {
             project_root: project_root.to_path_buf(),
             fixture: fixture.to_string(),
-            burv_root: burv_root.to_path_buf(),
+            burv_temp_root: burv_temp_root.to_path_buf(),
+            burv_output_root: burv_output_root.to_path_buf(),
             invoke_count: 0,
         }
     }
@@ -193,9 +200,9 @@ fn rbtdri_invoke_impl(
     let invoke_num = ctx.invoke_count;
     ctx.invoke_count += 1;
 
-    let invoke_dir = ctx.burv_root.join(format!("invoke-{:05}", invoke_num));
-    let burv_output = invoke_dir.join("output");
-    let burv_temp = invoke_dir.join("temp");
+    let dir_name = format!("invoke-{:05}", invoke_num);
+    let burv_output = ctx.burv_output_root.join(&dir_name);
+    let burv_temp = ctx.burv_temp_root.join(&dir_name);
 
     std::fs::create_dir_all(&burv_output)
         .map_err(|e| format!("rbtdri: failed to create BURV output dir: {}", e))?;

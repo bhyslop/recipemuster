@@ -22,6 +22,11 @@
 //   rbtd single <manifest> <fixture> [case]
 //     Single-case runner — no charge/quench. List cases or run one.
 
+#![allow(non_camel_case_types)]
+#![allow(private_interfaces)]
+#![deny(warnings)]
+
+use std::path::PathBuf;
 use std::process::ExitCode;
 
 use rbtd::rbtdrc_crucible::{
@@ -38,15 +43,49 @@ fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().collect();
 
     if args.get(1).map(|s| s.as_str()) == Some("single") {
-        return run_single(&args[2..]);
+        return rbtdb_run_single(&args[2..]);
     }
 
-    run_suite(&args[1..])
+    rbtdb_run_suite(&args[1..])
+}
+
+fn rbtdb_read_dispatch_dir(name: &str) -> Result<PathBuf, String> {
+    match std::env::var(name) {
+        Ok(v) if !v.is_empty() => Ok(PathBuf::from(v)),
+        _ => Err(format!(
+            "rbtd: {} is not set — theurge must be launched via BUK tabtarget",
+            name
+        )),
+    }
+}
+
+struct rbtdb_Roots {
+    trace_root: PathBuf,
+    burv_temp_root: PathBuf,
+    burv_output_root: PathBuf,
+}
+
+fn rbtdb_allocate_roots() -> Result<rbtdb_Roots, String> {
+    let burd_temp = rbtdb_read_dispatch_dir("BURD_TEMP_DIR")?;
+    let burd_output = rbtdb_read_dispatch_dir("BURD_OUTPUT_DIR")?;
+
+    let trace_root = burd_temp.join("rbtd");
+    let burv_temp_root = trace_root.join("burv");
+    let burv_output_root = burd_output.join("rbtd").join("burv");
+
+    std::fs::create_dir_all(&trace_root)
+        .map_err(|e| format!("rbtd: failed to create trace root '{}': {}", trace_root.display(), e))?;
+    std::fs::create_dir_all(&burv_temp_root)
+        .map_err(|e| format!("rbtd: failed to create burv temp root '{}': {}", burv_temp_root.display(), e))?;
+    std::fs::create_dir_all(&burv_output_root)
+        .map_err(|e| format!("rbtd: failed to create burv output root '{}': {}", burv_output_root.display(), e))?;
+
+    Ok(rbtdb_Roots { trace_root, burv_temp_root, burv_output_root })
 }
 
 // ── Suite runner ─────────────────────────────────────────────
 
-fn run_suite(args: &[String]) -> ExitCode {
+fn rbtdb_run_suite(args: &[String]) -> ExitCode {
     let manifest = match args.first() {
         Some(m) => m,
         None => {
@@ -79,14 +118,20 @@ fn run_suite(args: &[String]) -> ExitCode {
         }
     };
 
-    let root_temp = std::env::temp_dir().join(format!("rbtd-{}", std::process::id()));
-    if let Err(e) = std::fs::create_dir_all(&root_temp) {
-        eprintln!("rbtd: failed to create temp dir: {}", e);
-        return ExitCode::FAILURE;
-    }
+    let roots = match rbtdb_allocate_roots() {
+        Ok(r) => r,
+        Err(msg) => {
+            eprintln!("{}", msg);
+            return ExitCode::FAILURE;
+        }
+    };
 
-    let burv_root = root_temp.join("burv");
-    let ctx = rbtdri_Context::new(&project_root, fixture, &burv_root);
+    let ctx = rbtdri_Context::new(
+        &project_root,
+        fixture,
+        &roots.burv_temp_root,
+        &roots.burv_output_root,
+    );
 
     let fixture_def = match rbtdrc_lookup_fixture(fixture) {
         Some(f) => f,
@@ -104,7 +149,7 @@ fn run_suite(args: &[String]) -> ExitCode {
     rbtdrc_set_context(ctx);
 
     let colors = rbtdre_detect_colors();
-    let run_result = rbtdre_run_fixture(fixture_def, &colors, &root_temp);
+    let run_result = rbtdre_run_fixture(fixture_def, &colors, &roots.trace_root);
 
     let _ctx = rbtdrc_take_context();
 
@@ -128,7 +173,7 @@ fn run_suite(args: &[String]) -> ExitCode {
 
 // ── Single-case runner ───────────────────────────────────────
 
-fn run_single(args: &[String]) -> ExitCode {
+fn rbtdb_run_single(args: &[String]) -> ExitCode {
     let manifest = match args.first() {
         Some(m) => m,
         None => {
@@ -144,14 +189,14 @@ fn run_single(args: &[String]) -> ExitCode {
         Some(f) => f,
         None => {
             eprintln!("rbtd single: no fixture argument");
-            list_fixtures();
+            rbtdb_list_fixtures();
             return ExitCode::FAILURE;
         }
     };
 
     if !RBTDRC_FIXTURES.iter().any(|f| f.name == *fixture) {
         eprintln!("rbtd single: unknown fixture '{}'", fixture);
-        list_fixtures();
+        rbtdb_list_fixtures();
         return ExitCode::FAILURE;
     }
 
@@ -169,17 +214,23 @@ fn run_single(args: &[String]) -> ExitCode {
         }
     };
 
-    let root_temp = std::env::temp_dir().join(format!("rbtd-{}", std::process::id()));
-    if let Err(e) = std::fs::create_dir_all(&root_temp) {
-        eprintln!("rbtd: failed to create temp dir: {}", e);
-        return ExitCode::FAILURE;
-    }
+    let roots = match rbtdb_allocate_roots() {
+        Ok(r) => r,
+        Err(msg) => {
+            eprintln!("{}", msg);
+            return ExitCode::FAILURE;
+        }
+    };
 
     // Context is required for every case execution path (rbtdrc_with_ctx).
     // Fixtures with a setup hook (crucible charge) additionally verify their
     // crucible is charged externally — single-case mode never charges.
-    let burv_root = root_temp.join("burv");
-    let mut ctx = rbtdri_Context::new(&project_root, fixture, &burv_root);
+    let mut ctx = rbtdri_Context::new(
+        &project_root,
+        fixture,
+        &roots.burv_temp_root,
+        &roots.burv_output_root,
+    );
 
     let fixture_def = match rbtdrc_lookup_fixture(fixture) {
         Some(f) => f,
@@ -238,7 +289,7 @@ fn run_single(args: &[String]) -> ExitCode {
     };
 
     let colors = rbtdre_detect_colors();
-    let result = match rbtdre_run_single_case(case, &colors, &root_temp) {
+    let result = match rbtdre_run_single_case(case, &colors, &roots.trace_root) {
         Ok(r) => r,
         Err(msg) => {
             eprintln!("rbtd: case execution error: {}", msg);
@@ -255,7 +306,7 @@ fn run_single(args: &[String]) -> ExitCode {
     }
 }
 
-fn list_fixtures() {
+fn rbtdb_list_fixtures() {
     eprintln!("available fixtures:");
     for f in RBTDRC_FIXTURES {
         eprintln!("  {}", f.name);

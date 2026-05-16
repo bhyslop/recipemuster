@@ -23,6 +23,7 @@ use crate::rbtdrp_pristine::{
     rbtdrp_throwaway_runtime_prefix, RBTDRP_THROWAWAY_CLOUD_BASE,
     RBTDRP_THROWAWAY_RUNTIME_BASE,
 };
+use crate::rbtdth_helpers::rbtdth_scratch_root;
 
 /// Throwaway-prefix base shape: lowercase letters, distinct cloud/runtime
 /// pair, no trailing hyphen (the composer adds it). Cases 2-5 rely on the
@@ -112,7 +113,7 @@ fn rbtdtp_pristine_dual_station_disjoint() {
 /// not silently succeed when the regime file is missing.
 #[test]
 fn rbtdtp_install_throwaway_prefixes_rejects_missing_rbrr() {
-    let tmp: PathBuf = std::env::temp_dir().join("rbtdtp-nonexistent-root-xyz");
+    let tmp: PathBuf = rbtdth_scratch_root().join("rbtdtp-nonexistent-root-xyz");
     let _ = std::fs::remove_dir_all(&tmp);
     std::fs::create_dir_all(&tmp).expect("create tempdir");
     let result = rbtdrp_install_throwaway_prefixes(&tmp);
