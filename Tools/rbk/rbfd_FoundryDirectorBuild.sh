@@ -320,14 +320,32 @@ zrbfd_registry_preflight() {
     # a non-empty origin guarantees runtime build failure.
     if test -z "${z_anchor}"; then
       if test "${RBRV_EGRESS_MODE:-}" = "airgap"; then
-        buc_warn "Airgap vessel ${RBRV_SIGIL} has empty ${z_anchor_var} but non-empty ${z_origin_var}=${z_origin}"
-        buc_bare "  Airgap conjure cannot reach upstream — base images must be enshrined first."
-        buc_bare "  The anchor locator points at the enshrined image inside GAR. Without it,"
-        buc_bare "  the airgap worker pool has no source for the base image and the build fails."
-        buc_bare "  Run enshrine, then re-run ordain:"
-        buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir}"
-        buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir}"
-        buc_die "Registry preflight failed — airgap vessel missing required anchor"
+        # Two anchor-population paths per RBSAE: enshrine (origin is a public
+        # upstream) and hallmark-pin (origin names a producer vessel in this
+        # repo). Discriminate by whether origin resolves to a vessel directory.
+        if test -d "${RBRR_VESSEL_DIR}/${z_origin}"; then
+          buc_warn "Airgap vessel ${RBRV_SIGIL} has empty ${z_anchor_var}; origin ${z_origin} names a producer vessel"
+          buc_bare "  ${z_anchor_var} is a hallmark-pin, not an enshrine locator — enshrine is not invoked on this vessel."
+          buc_bare "  Ordain the producer vessel first, then write its hallmark into ${z_anchor_var}."
+          buc_bare "  Canonical handbook path:"
+          buc_tabtarget "${RBZ_ONBOARD_DIR_AIRGAP}"
+          buc_bare "  Minimal manual sequence:"
+          buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${RBRR_VESSEL_DIR}/${z_origin}"
+          buc_bare "    export PRODUCER_HALLMARK=\$(cat \${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK})"
+          buc_bare "    # set ${z_anchor_var}=rbi_hm/\${PRODUCER_HALLMARK}/image:\${PRODUCER_HALLMARK}"
+          buc_bare "    # in ${z_vessel_dir}/rbrv.env, then:"
+          buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir}"
+          buc_die "Registry preflight failed — airgap vessel missing hallmark-pin anchor"
+        else
+          buc_warn "Airgap vessel ${RBRV_SIGIL} has empty ${z_anchor_var} but non-empty ${z_origin_var}=${z_origin}"
+          buc_bare "  Airgap conjure cannot reach upstream — base images must be enshrined first."
+          buc_bare "  The anchor locator points at the enshrined image inside GAR. Without it,"
+          buc_bare "  the airgap worker pool has no source for the base image and the build fails."
+          buc_bare "  Run enshrine, then re-run ordain:"
+          buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir}"
+          buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir}"
+          buc_die "Registry preflight failed — airgap vessel missing required anchor"
+        fi
       fi
       continue
     fi
