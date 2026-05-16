@@ -9777,10 +9777,11 @@
       "jjghn_order": [
         "₢BOAAD",
         "₢BOAAA",
+        "₢BOAAE",
         "₢BOAAB",
         "₢BOAAC"
       ],
-      "jjghn_next_pace_seed": "AAE",
+      "jjghn_next_pace_seed": "AAF",
       "jjghn_paces": {
         "₢BOAAA": {
           "jjgpn_tacks": [
@@ -9851,6 +9852,17 @@
               "jjgtn_text": "## Character\nAfter levy creates pools and GAR, probe each pool with a Cloud Build\nsubmission that materializes the quota row, asserts the pool's intended\negress posture, and (lean: yes) exercises GAR write.\n\n## Shape\n- Builder image: Google-hosted only. Airgap can't reach docker.io.\n- Fresh-levy expected outcome: HTTP 400 at quota gate. This is the\n  desired materialization side-effect, not a failure to surface.\n- Egress-posture asserted in-build:\n    tether — public reachable AND Google reachable\n    airgap — public blocked AND Google reachable\n  Assertion failure is a hard infra-drift signal.\n- GAR push (if included): under a probe-namespace path that the\n  hallmark / reliquary / enshrinement enumerators ignore.\n\n## What done looks like\nLevy emits a per-pool probe block. Onboarding handbook points to a\nconsole where the quota row is populated, both pools have build records,\nand (if push) the probe artifacts are visible at their isolated path.",
               "jjgtn_silks": "levy-establish-probes",
               "jjgtn_basis": "4fe8f50"
+            }
+          ]
+        },
+        "₢BOAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260516-0824",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nMechanical config rollback. Decision posture from the bench pace's\nmemo recommendation — keep highcpu, roll back, or pick a middle value.\n\n## What\n\nTwo locations carry the experiment's `e2-highcpu-32` setting:\n\n  - `.rbk/rbrr.env` operational value (commit ba3b7b3d installed\n    the bump)\n  - marshal-zero default in the rblm CLI, raised together so\n    regime resets preserved the experiment (commit a7a98cd8\n    establishes the wiring location)\n\nBoth revert together to whatever the bench memo lands on.\n\n## Constraints\n\n  - Take-effect on rbrr.env requires re-levy of the depot. The\n    current depot carries a 96-core quota; a relevy at default\n    2-cpu forfeits it. Operator decides whether the re-levy\n    happens under this pace or is deferred.\n  - Skip entirely if the bench memo recommends keeping highcpu.",
+              "jjgtn_silks": "machine-type-restore-e2-standard-2",
+              "jjgtn_basis": "a4f9b7e"
             }
           ]
         }
