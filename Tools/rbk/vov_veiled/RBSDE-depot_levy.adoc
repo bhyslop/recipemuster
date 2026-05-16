@@ -78,12 +78,13 @@ with service name and `«DEPOT_PROJECT_ID»`
 all APIs enabled successfully
 
 //axhos_step
-. *Create Private Worker Pool*:
-.. {rbbc_call}
+. *Create Private Worker Pools*:
+.. For each worker pool variant in [`tether`, `airgap`]:
+... {rbbc_submit}
 link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.workerPools/create[workerPools.create] with:
-... parent: `projects/«DEPOT_PROJECT_ID»/locations/{rbrr_gcp_region}`
-... workerPoolId: `«WORKER_POOL_STEM»`
-... body:
+.... parent: `projects/«DEPOT_PROJECT_ID»/locations/{rbrr_gcp_region}`
+.... workerPoolId: `«WORKER_POOL_STEM»-«VARIANT»`
+.... body for `tether`:
 +
 ----
 {
@@ -94,11 +95,27 @@ link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.location
   }
 }
 ----
+.... body for `airgap`:
++
+----
+{
+  "privatePoolV1Config": {
+    "workerConfig": {
+      "machineType": "«RBRR_GCB_MACHINE_TYPE»"
+    },
+    "networkConfig": {
+      "egressOption": "NO_PUBLIC_EGRESS"
+    }
+  }
+}
+----
+... {rbbc_await}
+returned operation
 .. NOTE:
 {rbrr_gcb_machine_type}
 is a Compute Engine machine type (e.g., `e2-standard-2`), consumed at pool creation time.
 Pool scales to zero workers when idle — no idle cost accrues.
-.. Treat HTTP 409 CONFLICT as success (pool already exists — idempotent)
+.. NOTE: The two variants differ only in egress posture. The `airgap` body declares `networkConfig.egressOption: NO_PUBLIC_EGRESS`, which Cloud Build enforces at pool level — builds routed through the airgap pool cannot reach the public internet regardless of build configuration. Awaiting the LRO terminal state at create time surfaces machine-type quota denial here rather than as a downstream "workerpool not found" at the subsequent per-pool probe submission step.
 
 //axhos_step
 . *Verify IAM Propagation*:

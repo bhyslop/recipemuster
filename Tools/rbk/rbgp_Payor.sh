@@ -901,14 +901,17 @@ rbgp_depot_levy() {
       }
     }' > "${z_tether_create_body}" || buc_die "Failed to build tether pool creation body"
 
-  rbgu_http_json "POST" "${z_tether_create_url}" "${z_token}" "depot_pool_tether_create" "${z_tether_create_body}"
-  local z_tether_create_code
-  z_tether_create_code=$(rbgu_http_code_capture "depot_pool_tether_create") || buc_die "Bad tether pool creation HTTP code"
-  case "${z_tether_create_code}" in
-    200|201) buc_log_args "Tether pool ${z_tether_id} created" ;;
-    409)     buc_log_args "Tether pool ${z_tether_id} already exists (idempotent)" ;;
-    *)       buc_die "Failed to create tether pool: HTTP ${z_tether_create_code}" ;;
-  esac
+  rbgu_http_json_lro_ok \
+    "Create tether worker pool" \
+    "${z_token}" \
+    "${z_tether_create_url}" \
+    "depot_pool_tether_create" \
+    "${z_tether_create_body}" \
+    ".name" \
+    "${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}" \
+    "${RBGC_OP_PREFIX_GLOBAL}" \
+    "${RBGC_EVENTUAL_CONSISTENCY_SEC}" \
+    "${RBGC_MAX_CONSISTENCY_SEC}"
 
   # Airgap pool (NO_PUBLIC_EGRESS — no public internet)
   local -r z_airgap_id="${RBDC_GCB_POOL_STEM}${RBGC_POOL_SUFFIX_AIRGAP}"
@@ -927,14 +930,17 @@ rbgp_depot_levy() {
       }
     }' > "${z_airgap_create_body}" || buc_die "Failed to build airgap pool creation body"
 
-  rbgu_http_json "POST" "${z_airgap_create_url}" "${z_token}" "depot_pool_airgap_create" "${z_airgap_create_body}"
-  local z_airgap_create_code
-  z_airgap_create_code=$(rbgu_http_code_capture "depot_pool_airgap_create") || buc_die "Bad airgap pool creation HTTP code"
-  case "${z_airgap_create_code}" in
-    200|201) buc_log_args "Airgap pool ${z_airgap_id} created" ;;
-    409)     buc_log_args "Airgap pool ${z_airgap_id} already exists (idempotent)" ;;
-    *)       buc_die "Failed to create airgap pool: HTTP ${z_airgap_create_code}" ;;
-  esac
+  rbgu_http_json_lro_ok \
+    "Create airgap worker pool" \
+    "${z_token}" \
+    "${z_airgap_create_url}" \
+    "depot_pool_airgap_create" \
+    "${z_airgap_create_body}" \
+    ".name" \
+    "${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}" \
+    "${RBGC_OP_PREFIX_GLOBAL}" \
+    "${RBGC_EVENTUAL_CONSISTENCY_SEC}" \
+    "${RBGC_MAX_CONSISTENCY_SEC}"
 
   local -r z_pool_resource="projects/${RBDC_DEPOT_PROJECT_ID}/locations/${z_region}/workerPools/${RBDC_GCB_POOL_STEM}"
   buc_log_args "Pool stem: ${z_pool_resource}"
