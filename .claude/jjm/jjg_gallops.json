@@ -9916,6 +9916,13 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260516-1003",
+              "jjgtn_state": "jjgte_abandoned",
+              "jjgtn_text": "## Character\n\nThrowaway. Sole purpose is to advance the BO pace-seed past AAH so\nnew paces don't collide with the orphan ₢BOAAH coronet that exists\nin git history (alpha-side theurge RCG retrofit, commit d7145e0c)\nbut not in beta's gallops state after the 2026-05-16 reconciliation.\n\nTo be dropped immediately after enroll.",
+              "jjgtn_silks": "seed-skip-orphan-boaah",
+              "jjgtn_basis": "aa98a29"
+            },
+            {
+              "jjgtn_ts": "260516-1003",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\n\nThrowaway. Sole purpose is to advance the BO pace-seed past AAH so\nnew paces don't collide with the orphan ₢BOAAH coronet that exists\nin git history (alpha-side theurge RCG retrofit, commit d7145e0c)\nbut not in beta's gallops state after the 2026-05-16 reconciliation.\n\nTo be dropped immediately after enroll.",
               "jjgtn_silks": "seed-skip-orphan-boaah",
