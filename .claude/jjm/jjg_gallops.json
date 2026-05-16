@@ -9779,9 +9779,10 @@
         "₢BOAAA",
         "₢BOAAE",
         "₢BOAAB",
-        "₢BOAAC"
+        "₢BOAAC",
+        "₢BOAAF"
       ],
-      "jjghn_next_pace_seed": "AAF",
+      "jjghn_next_pace_seed": "AAG",
       "jjghn_paces": {
         "₢BOAAA": {
           "jjgpn_tacks": [
@@ -9863,6 +9864,17 @@
               "jjgtn_text": "## Character\n\nMechanical config rollback. Decision posture from the bench pace's\nmemo recommendation — keep highcpu, roll back, or pick a middle value.\n\n## What\n\nTwo locations carry the experiment's `e2-highcpu-32` setting:\n\n  - `.rbk/rbrr.env` operational value (commit ba3b7b3d installed\n    the bump)\n  - marshal-zero default in the rblm CLI, raised together so\n    regime resets preserved the experiment (commit a7a98cd8\n    establishes the wiring location)\n\nBoth revert together to whatever the bench memo lands on.\n\n## Constraints\n\n  - Take-effect on rbrr.env requires re-levy of the depot. The\n    current depot carries a 96-core quota; a relevy at default\n    2-cpu forfeits it. Operator decides whether the re-levy\n    happens under this pace or is deferred.\n  - Skip entirely if the bench memo recommends keeping highcpu.",
               "jjgtn_silks": "machine-type-restore-e2-standard-2",
               "jjgtn_basis": "a4f9b7e"
+            }
+          ]
+        },
+        "₢BOAAF": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260516-1528",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical — the existing `{rbbc_await} returned operation` pattern in\nRBSDE-depot_levy (used at \"Create Depot Project\" and \"Create Container\nRepository\") is the template. Match it.\n\n## Goal\nMake `workerPools.create` await its LRO terminal state before any\ndownstream code uses the pool. Surface terminal errors (e.g., machine-type\nquota denial) at the create step rather than as a misleading \"workerpool\nnot found\" five steps later at the new probe-submission step.\n\n## Boundary\n- Code: `rbgp_Payor.sh` pool-create call sites — match the existing\n  project-create / repo-create LRO handling in the same module.\n- Spec: RBSDE-depot_levy \"Create Private Worker Pool\" step gains\n  `{rbbc_await} returned operation`, matching project-create and\n  repo-create steps in the same spec.\n- Spec drift in the same step: convert singular `WORKER_POOL_STEM`\n  description to dual `[tether, airgap]` iteration matching the existing\n  \"Submit Per-Pool Probe Builds\" step.\n\n## Done\n- pristine-lifecycle fixture's `depot_stand_up` case clears the\n  \"workerpool not found\" failure that surfaced the e2-highcpu-32\n  gauntlet attempt.\n- RBSDE create and probe steps are internally consistent on pool count.",
+              "jjgtn_silks": "levy-pool-lro-await",
+              "jjgtn_basis": "1d8f877"
             }
           ]
         }
