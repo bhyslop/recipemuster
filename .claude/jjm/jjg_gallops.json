@@ -9781,9 +9781,10 @@
         "₢BOAAB",
         "₢BOAAC",
         "₢BOAAF",
-        "₢BOAAG"
+        "₢BOAAG",
+        "₢BOAAH"
       ],
-      "jjghn_next_pace_seed": "AAH",
+      "jjghn_next_pace_seed": "AAI",
       "jjghn_paces": {
         "₢BOAAA": {
           "jjgpn_tacks": [
@@ -9901,6 +9902,17 @@
               "jjgtn_text": "## Character\nDesign-conversation — read theurge source first to understand why\n`/tmp/rbtd-NNN/` was chosen originally. The fix shape isn't obvious until\nthat's known. Not mechanical.\n\n## Goal\nTheurge-sandboxed workbench invocations should write their workbench\n`BURD_TEMP_DIR` and output dir under BUK roots (`../temp-buk/`,\n`../output-buk/`) rather than under `/tmp/rbtd-NNN/`. Forensic artifacts\nfrom failing gauntlet runs — specifically the per-call HTTP captures\nwritten by `rbgu_http_json` — should survive reboot and\nsystemd-tmpfiles cleanup, matching standalone-workbench behavior.\n\n## Done\nAfter a failing fixture-case under theurge, the failed workbench\ninvocation's per-call HTTP captures remain reachable via BUK conventions\nand survive reboot.",
               "jjgtn_silks": "theurge-buk-temp-discipline",
               "jjgtn_basis": "c14c131"
+            }
+          ]
+        },
+        "₢BOAAH": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260516-0908",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nMechanical RCG retrofit. Spec is in RCG; this pace executes against it.\nThree independent RCG violations surfaced during the theurge-buk-temp-\ndiscipline pace's review.\n\n## Goal\n\nBring `Tools/rbk/rbtd/` into compliance with three RCG sections:\n\n1. **Output Discipline** — Introduce an `rbtdrl_log` module providing\n   the four severity-level macros, then replace all naked\n   `eprintln!`/`println!` calls throughout the crate. JJK's output\n   module is the in-repo reference implementation.\n\n2. **Constant Discipline** — Env-var names `BURD_TEMP_DIR` and\n   `BURD_OUTPUT_DIR` appear as bare string literals at multiple call\n   sites in the crate. Extract to consts; all sites reference the\n   single definition.\n\n3. **String Boundary Discipline** — The BURV invoke-dir naming pattern\n   `format!(\"invoke-{:05}\", n)` is emitted once by production code and\n   asserted as hand-expanded literals (`\"invoke-00000\"`,\n   `\"invoke-00001\"`, …) in tests. Introduce one helper that both\n   production and tests call.\n\n## Done\n\n`grep -rn 'println!\\|eprintln!' Tools/rbk/rbtd/src/` returns only\nmatches inside the new output module. The env-var names and the\ninvoke-dir pattern each have exactly one definition in the crate.\nBuild clean (theurge already runs under `#![deny(warnings)]`), unit\ntests green, fast suite green.\n\n## Constraints\n\nNo behavior changes — this is naming/structural cleanup only.",
+              "jjgtn_silks": "rbtd-rcg-output-and-const-debt",
+              "jjgtn_basis": "df0fb26"
             }
           ]
         }
