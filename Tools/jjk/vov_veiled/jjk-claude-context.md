@@ -50,6 +50,7 @@ Job Jockey (JJ) is installed for managing project initiatives.
 - Site enumerations. Write a discovery recipe (`grep "pattern" Tools/rbk/`) instead of listing six file:line entries.
 - Body over ~15 lines warrants suspicion of overprescription.
 - **Plan-step structure stays in the plan.** Docket phase/step labels (A/B/C, "Phase 1", "first/then/finally") must not appear as code comments — the plan won't exist at maintenance time, and line order already conveys execution.
+- **Absolute paths to working trees.** Don't pin a docket to a specific repo clone (`/Users/foo/projects/rbm_alpha_recipemuster`, `~/proj/`). Mount may legitimately run against a different clone — if work needs to happen in *the* working directory, say so without naming it. Cross-repo coupling, if real, belongs in the paddock as a heat-shape note, not pace prose. Absolute paths *are* acceptable for external data roots (log dirs, `/tmp/...` scratch, machine-pinned data) — but flag those as operator-mutable rather than identity.
 
 **Reference discipline.** Pace order is the dependency tree — single-operator workflow runs paces in heat order, so explicit dependency markers in docket prose are usually overspecified. Coronet cross-refs in dockets earn their keep only when the dependency crosses heats or skips order — rare, not never.
 
