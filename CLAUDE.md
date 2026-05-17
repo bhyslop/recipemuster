@@ -240,6 +240,27 @@ When evaluating any new pattern, extraction, or structural choice, the litmus te
 - Documentation format: AsciiDoc (.adoc) for specs, Markdown (.md) for guides
 - Public project page: https://scaleinv.github.io/recipebottle
 
+## Test Environments
+
+Operator-specific test machines reachable from this station.
+
+- **bujn-winpc** — Windows host (tailnet hostname `rocket`). Formal BURN profile
+  at `.buk/rbmn_nodes/bujn-winpc/` for BUK caparison/garrison/invigilate work
+  under heat ₣A-.
+  - Admin SSH: `tt/buw-jpS bujn-winpc <cmd>` (as `bhyslop`).
+  - Formal workload: `tt/buw-jws bujn-winpc` (as `bujuw_user`; current garrison
+    routes to WSL `rbtww-main`).
+  - **Ad-hoc hack — `ssh brad@rocket`** — unprivileged Cygwin login shell.
+    Independent of the formal caparison/garrison machinery; safe scratch for
+    ad-hoc Windows testing. Setup recipe, gotchas, and teardown live in
+    `Memos/memo-20260516-windows-headless-account-anatomy.md`. Repo cloned at
+    `~/projects/rbm_alpha_recipemuster` inside brad's session.
+- **cerebro** — Linux test host used by JJK fundus scenario tests
+  (`Tools/jjk/jjfp_fundus.sh:518`). Tabtargets:
+  `tt/jjw-tfP2.ProvisionPhase2.cerebro.sh`,
+  `tt/jjw-tfs.TestFundusScenario.cerebro.sh`. Scenario tests marked
+  `#[ignore]`; `--ignored` is required to exercise them.
+
 @Tools/rbk/rbk-claude-acronyms.md
 
 @Tools/rbk/rbk-claude-tabtarget-context.md
