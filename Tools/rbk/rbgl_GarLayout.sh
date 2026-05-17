@@ -26,7 +26,6 @@
 #   "${z_gar_base}/${RBGL_HALLMARKS_ROOT}/<hallmark>/<basename>:<hallmark>"
 #   "${z_gar_base}/${RBGL_RELIQUARIES_ROOT}/<date>/<tool>:<date>"
 #   "${z_gar_base}/${RBGL_ENSHRINES_ROOT}/<anchor>:<anchor>"
-#   "${z_gar_base}/${RBGL_DEPOT_FACTS_ROOT}/<filename>:<tag>"
 
 set -euo pipefail
 
@@ -47,7 +46,6 @@ zrbgl_kindle() {
   readonly RBGL_HALLMARKS_ROOT="${RBGC_GAR_CATEGORY_HALLMARKS}"
   readonly RBGL_RELIQUARIES_ROOT="${RBGC_GAR_CATEGORY_RELIQUARIES}"
   readonly RBGL_ENSHRINES_ROOT="${RBGC_GAR_CATEGORY_ENSHRINES}"
-  readonly RBGL_DEPOT_FACTS_ROOT="${RBGC_GAR_CATEGORY_DEPOT_FACTS}"
 
   readonly ZRBGL_KINDLED=1
 }

@@ -206,27 +206,6 @@ Permissions*:
 .. {rbbc_require}
 IAM binding successful
 
-//axhos_step
-. *Submit Per-Pool Probe Builds*:
-.. For each worker pool variant in [`tether`, `airgap`]:
-... {rbbc_submit}
-link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.builds/create[builds.create] with:
-.... `serviceAccount`: `projects/«DEPOT_PROJECT_ID»/serviceAccounts/«MASON_EMAIL»`
-.... `options.pool.name`: full pool resource path for the variant
-.... `options.logging`: `CLOUD_LOGGING_ONLY`
-.... `steps[0]`: egress-posture assertion (builder: `gcr.io/google.com/cloudsdktool/cloud-sdk:alpine`)
-..... tether asserts `https://example.com` reachable AND `https://storage.googleapis.com` reachable
-..... airgap asserts `https://example.com` blocked AND `https://storage.googleapis.com` reachable
-.... `steps[1]`: GAR write probe (builder: `gcr.io/cloud-builders/docker`) — `FROM scratch` image with a single marker file, pushed to `«REGION»-docker.pkg.dev/«DEPOT_PROJECT_ID»/«GAR_REPOSITORY»/rbi_df/probe-«VARIANT»:probe`
-... {rbbc_require}
-submission returns HTTP 200/201 (build accepted) OR HTTP 400 (per-pool quota row absent — see below). All other codes are fatal.
-... {rbbc_show}
-per-pool probe block carrying the pool ID, GAR artifact reference, and either the build ID + Cloud Build console link (HTTP 200/201) or a quota-row-materialized notice (HTTP 400).
-.. NOTE: Builder images are Google-hosted only (`gcr.io/...`). The airgap pool cannot reach `docker.io`; any non-Google builder would hang the build.
-.. NOTE: On fresh levy the pool's per-resource concurrent-build quota row does not yet exist. Cloud Build's quota gate refuses the submission with HTTP 400, and that refusal IS the materialization side-effect that creates the quota row — not a failure to surface. The operator can subsequently request a quota increase against the now-existing row, then re-run levy (or any subsequent build submission) to exercise the probe end-to-end.
-.. NOTE: Submission is non-blocking; the build runs asynchronously. In-build assertion failure (e.g., airgap pool reaching the public internet) surfaces in the build's terminal status as a hard infra-drift signal — operators inspect via the console link in the probe block.
-.. NOTE: The `rbi_df` namespace is a flat sibling of `rbi_hm` / `rbi_rq` / `rbi_es` under the GAR repository. {rbtgo_image_audit} / {rbtgo_image_rekon} enumerators ignore it by design — probe artifacts are operational, not part of the hallmark / reliquary / enshrine image catalogue. Filenames under `rbi_df` form a flat sea (no subdirs); each filename names one depot-scoped OCI artifact.
-
 //axhoot_typed_output
 {rbtgi_depot}
 . *Confirm Depot Creation*:
