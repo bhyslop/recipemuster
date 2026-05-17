@@ -328,6 +328,151 @@ The wedge mechanism past the correlation is speculative. Specifically:
   (`post-levy-quota-bump-flow`), per the bench memo's "Decision
   implications" and the pre/post-rebase notes in `c5a2a9978`.
 
+## Addendum (2026-05-17 ~18:50 UTC): anchor test pinpoints code regression
+
+After the body above was written, an anchor test ran the gauntlet from
+an earlier commit known to pass cleanly. **Result: pass.** That changes
+the diagnosis — the wedge is not environmental drift on Google's side,
+it is a regression we introduced in our own code.
+
+### Regression bounds (precise)
+
+- **Last known good: `ad3ea5e22`** — 2026-05-14 22:10 UTC, "Pristine
+  qualification passed" in `../logs-buk/hist-rbw-tP-sh-20260514-203134-1368806-985.txt`.
+- **First known bad: `e14654739` or later** — 2026-05-15 15:10 UTC at
+  the earliest. The bench memo's wedge on `canest2bhl100012` (2026-05-16
+  ~22:54 UTC) is in this commit's descendants. Today's reproduction on
+  `canest2bhl100013` (2026-05-17 ~17:59 UTC) is also.
+- **Anchor test of record:** branch `temp-bisect-may14`, started from
+  `ad3ea5e22`, no cherry-picks, MZ no-op (anchor commit was itself a
+  marshal-zero state), fresh canest levy at default 2-vCPU quota, full
+  tP gauntlet. Outcome: `Suite 'gauntlet' complete (12 fixtures)` and
+  `Pristine qualification passed`.
+
+### Trial counts so far
+
+- `ad3ea5e22` against today's Google: 1 trial, 1 pass.
+- `f7e0a2952` (HEAD before today's memo commits) against today's Google:
+  2 trials, 2 wedges (2026-05-16 bench + 2026-05-17 reproduction).
+
+One pass is not statistically conclusive against a possibly-probabilistic
+scheduler. But a 0/2 → 1/1 swing across a tractable code window is
+strong enough to commit to "code regression" as the working hypothesis
+and bisect within those commits.
+
+### The 12-commit search space
+
+Restricted to `Tools/rbk/` (everything else is test framework / docs /
+kit infra unlikely to affect Cloud Build dispatch). Of 12 commits, only
+two touch the Cloud-Build dispatch path:
+
+| Commit | Date | Touches | Relevance |
+|--------|------|---------|-----------|
+| `e14654739` | 05-15 | `rbgp_Payor.sh` (+146), `rbgc_Constants.sh` (+24), `rbgl_GarLayout.sh`, `RBSDE-depot_levy.adoc` | **Adds per-pool probe build submission to levy.** Direct cause candidate. |
+| `df0fb2651` | 05-16 | `rbgp_Payor.sh`, `RBSDE-depot_levy.adoc` | Wraps `workerPools.create` with LRO-await. Timing-of-pool-readiness change. |
+| `fc179e39f` | 05-16 | `rbfd_FoundryDirectorBuild.sh` | Preflight diagnostic refinement (airgap empty-anchor). Branches a diagnostic path; does not touch dispatch. |
+| `a7a98cd87` | 05-15 | `rblm_cli.sh` | MZ default changed to `e2-highcpu-32`. Reverted today by `f7e0a2952`. Both states resolve to `e2-standard-2` at bench/today, so this doesn't gate the wedge. |
+| `37e454344` | 05-14 | `rbtdro_onboarding.rs` | Renames onboarding fixture cases (cosmetic). |
+| `f7e0a2952` | 05-17 | `rblm_cli.sh` | Today's MZ-default revert. |
+| `02d3439f4`, `4edd23206`, `fa2a6794f`, `331579824` | 05-15 | Crucible charge / `rbnnh_` per-nameplate hooks | Local crucible mechanics, not Cloud Build path. |
+| `d7145e0c0` | 05-16 | `rbtd/` Rust | Theurge RCG cleanup, log macros. No dispatch impact. |
+| `00d99794b` | 05-16 | `rbtd/` Rust | Theurge BURV sandbox anchoring. No dispatch impact. |
+
+### Four theories, ranked most→least likely
+
+**Theory 1 — `e14654739` (per-pool probe submission) is the cause.**
+
+The commit adds 146 lines of new behavior at levy time: each pool gets
+a Cloud Build submitted that materializes the quota row, asserts egress
+posture, and pushes a marker to `rbi_df`. Two probe builds dispatch
+within seconds of pool creation — *before* any other gauntlet work.
+
+The "late-clearing-probe-collision" pattern documented above in the
+main body is *exactly this commit's behavior*. Both timeline files
+(`timeline-may16.txt`, `timeline-may17.txt`) show the airgap probe
+sitting queued for ~19 minutes and draining at the exact moment the
+next tether conjure is dispatched. The wedge bites that next tether
+conjure. At `ad3ea5e22` no probes exist, no late-clearing collision is
+possible, no wedge observed.
+
+Plausible micro-mechanisms (any or all):
+- The airgap probe holds quota state in Cloud Build's scheduler in a
+  way that, when it finally releases, leaves a dangling slot that the
+  next dispatch can't bind to.
+- Project-scoped 2-vCPU quota means tether probe + queued airgap probe
+  + queued inscribes + the first tether conjures all compete in a
+  single 2-vCPU slot; the wedge candidate is the unlucky build that
+  arrives during a transition.
+- The probe writes to `rbi_df` (a brand-new GAR category); something
+  about IAM propagation or repository-readiness for that category may
+  interact with the worker bring-up.
+
+Confidence: high. Mechanism + correlation + reach (this is the only
+commit that touches the dispatched-builds queue at levy time).
+
+**Theory 2 — `df0fb2651` (LRO-await for `workerPools.create`) is the cause.**
+
+The commit changes `workerPools.create` to wait for the LRO to reach
+its terminal `RUNNING` state before levy proceeds. Previously the levy
+moved on after the POST returned the operation handle, allowing
+subsequent steps (including probe submission per Theory 1) to fire
+against a pool that was technically still spinning up.
+
+If the wedge is sensitive to *when* a build is dispatched relative to
+pool-state transitions, the LRO-await change could be the culprit: it
+made pool-vs-build timing more deterministic in a way that exposes the
+wedge. Without LRO-await (pre-`df0fb2651`), probes might have hit
+not-yet-ready pools and been silently absorbed; with LRO-await, they
+hit just-became-ready pools and tickle a scheduler edge.
+
+Confidence: medium. Direct mechanism is weaker than Theory 1, but this
+is one of only two commits that touch the right code.
+
+**Theory 3 — combined effect of `e14654739` + `df0fb2651`.**
+
+The two commits landed close together (May 15 evening → May 16) and
+were both authored under bench-pace work in ₣BO. Each in isolation
+might be benign; together they create the conditions for the wedge —
+probes dispatch deterministically against a just-ready pool, and the
+scheduler's response is the wedge.
+
+This is mechanically the same as Theory 1 + Theory 2 stacked, but
+worth its own line because reverting just one of the two may not
+suffice. A bisect that reverts `e14654739` alone and still wedges
+should immediately suspect this theory before declaring `df0fb2651`
+the culprit.
+
+Confidence: medium. Distinguishable from Theory 1 only by experiment.
+
+**Theory 4 — something else, unidentified in the remaining 10 commits.**
+
+The residual commits touch: crucible charge mechanics, the test
+framework's Rust internals, per-nameplate hooks, MZ defaults, fixture
+renames, and preflight diagnostics. None of these are *expected* to
+affect Cloud Build worker-pool scheduling. But a subtle interaction —
+an env var that leaks into the build context, a shellcheck-driven
+refactor that altered an `if` arm by one character, a build-step body
+that's now a few bytes longer — could in principle change worker
+behavior without being obvious.
+
+Confidence: low. Listed for humility; if Theories 1–3 all bisect away
+without resolving the wedge, this is where to look next.
+
+### Suggested next experiment
+
+Bisect within the 2-commit window first. Cheapest first cut: revert
+`e14654739` on a branch off current main, run tP, observe. If wedge
+clears, Theory 1 is confirmed. If wedge persists, suspect Theory 2 or
+3 and test by reverting `df0fb2651` (alone, or together with
+`e14654739` reverted).
+
+The probes themselves serve a real purpose per `e14654739`'s commit
+message ("materializes its quota row," "asserts intended egress
+posture"). If Theory 1 is confirmed, the fix is probably not "remove
+probes" but "submit probes serially, or one at a time, or wait between
+them so they don't collide." That design conversation belongs to a
+follow-on pace, not this memo.
+
 ## How to recognize this if it recurs
 
 Symptoms:
