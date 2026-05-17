@@ -1,0 +1,21 @@
+{
+  "id": "20805fb1-8b0c-46df-8da0-a5165d296f6e",
+  "status": "EXPIRED",
+  "createTime": "2026-05-16T22:54:51.627592770Z",
+  "startTime": "2026-05-17T01:27:29.841822453Z",
+  "finishTime": "2026-05-17T01:27:29.938059837Z",
+  "timeout": "2700s",
+  "projectId": "cancbhl-d-canest2bhl100012",
+  "options": {
+    "requestedVerifyOption": "VERIFIED",
+    "logging": "CLOUD_LOGGING_ONLY",
+    "pool": {
+      "name": "projects/cancbhl-d-canest2bhl100012/locations/us-central1/workerPools/cancbhl-canest2bhl100012-pool-tether"
+    },
+    "automapSubstitutions": true
+  },
+  "logUrl": "https://console.cloud.google.com/cloud-build/builds;region=us-central1/20805fb1-8b0c-46df-8da0-a5165d296f6e?project=880560920539",
+  "queueTtl": "3600s",
+  "serviceAccount": "projects/cancbhl-d-canest2bhl100012/serviceAccounts/mason-canest2bhl100012@cancbhl-d-canest2bhl100012.iam.gserviceaccount.com",
+  "name": "projects/880560920539/locations/us-central1/builds/20805fb1-8b0c-46df-8da0-a5165d296f6e"
+}

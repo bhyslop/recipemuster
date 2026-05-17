@@ -1,0 +1,17 @@
+{
+  "name": "projects/629861114343/locations/us-central1/workerPools/cancbhl-canest2bhl100013-pool-tether",
+  "uid": "1f55ddf3-a6ff-4d6b-8598-8d6382e39d12",
+  "createTime": "2026-05-17T17:39:16.432868878Z",
+  "updateTime": "2026-05-17T17:39:16.432868878Z",
+  "state": "RUNNING",
+  "etag": "W/\"45a479d8ca9feed1b17334faff72e55fdbce97ac42146c9e5c97ba4f07790468\"",
+  "privatePoolV1Config": {
+    "workerConfig": {
+      "machineType": "e2-standard-2",
+      "diskSizeGb": "100"
+    },
+    "networkConfig": {
+      "egressOption": "PUBLIC_EGRESS"
+    }
+  }
+}

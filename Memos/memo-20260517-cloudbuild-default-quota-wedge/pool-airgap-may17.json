@@ -1,0 +1,17 @@
+{
+  "name": "projects/629861114343/locations/us-central1/workerPools/cancbhl-canest2bhl100013-pool-airgap",
+  "uid": "66f9738e-d488-4b09-8ef1-ac311f3839bb",
+  "createTime": "2026-05-17T17:39:59.350067007Z",
+  "updateTime": "2026-05-17T17:39:59.350067007Z",
+  "state": "RUNNING",
+  "etag": "W/\"b680faca9fe7cda9bf8a181a64d0191ddad95a7702682f8f0aa7a8cefa58115d\"",
+  "privatePoolV1Config": {
+    "workerConfig": {
+      "machineType": "e2-standard-2",
+      "diskSizeGb": "100"
+    },
+    "networkConfig": {
+      "egressOption": "NO_PUBLIC_EGRESS"
+    }
+  }
+}
