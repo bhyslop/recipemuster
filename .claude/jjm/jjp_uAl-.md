@@ -307,3 +307,17 @@ garrison's precondition check.
 - **Workload shell is `/bin/bash` on every platform** regardless of
   platform default. macOS ships /bin/bash 3.2 at the canonical path —
   bash is the BUK execution substrate everywhere.
+- **Headless-account anatomy memo gates mounting of remaining rough paces.**
+  `Memos/memo-20260516-windows-headless-account-anatomy.md` captures the
+  chain from `net user /add` through SSH-reachable (profile registration,
+  GetUserProfileDirectoryW, Match-block-as-load-bearing, orphan
+  `C:\Users\<name>` causing `.machinename` suffix, Cygwin split-HOME,
+  StrictModes ACL allowlist). Required reading at mount-time for the
+  rough paces that follow. Two specific items surfaced 2026-05-16 that
+  do not have explicit paces yet: (a) `BUJB_command_w` drops workload
+  stdout via UTF-16LE because `$env:WSL_UTF8=1` is not set in the
+  forced-command directive — diagnose+repair fits naturally inside ABG's
+  convergence scope; (b) garrison obliterate may need wildcard cleanup
+  of `C:\Users\bujuw_user.*` orphans to prevent silent profile-suffix
+  mints on the next cycle — fits naturally inside ABJ's obliterate
+  reshaping. ABK and AAx carry explicit memo citations in their dockets.
