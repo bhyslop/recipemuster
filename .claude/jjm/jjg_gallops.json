@@ -9799,9 +9799,10 @@
         "₢BOAAH",
         "₢BOAAI",
         "₢BOAAJ",
-        "₢BOAAK"
+        "₢BOAAK",
+        "₢BOAAL"
       ],
-      "jjghn_next_pace_seed": "AAL",
+      "jjghn_next_pace_seed": "AAM",
       "jjghn_paces": {
         "₢BOAAA": {
           "jjgpn_tacks": [
@@ -10005,6 +10006,17 @@
               "jjgtn_text": "## Character\n\nIntricate but mechanical. Established host-docker and image-extract\npatterns throughout.\n\n## Goal\n\nMake depot-immutable drift fail loud. Levy inscribes a FROM-scratch\nimage carrying rbrd.env to GAR; every cloud-submitting command pulls\nand exact-match diffs the file before proceeding.\n\n## Locked decisions\n\n- rbrd_check and rbrd_inscribe are public functions in a separate\n  bespoke implementation module — not in rbrd_regime.sh (which must\n  stay uniform with sibling regimes) and not in rbrd_cli.sh's body.\n  rbrd_cli.sh sources the bespoke module and exposes both via dispatch\n  with differential furnish. New tabtargets rbw-rdc and rbw-rdi.\n- Consuming CLIs source the bespoke module, kindle it, call rbrd_check\n  inline before cloud submission. No tabtarget preflight orchestration.\n- rbrd_check takes a bearer token parameter; role-agnostic. Each\n  consuming CLI passes its role's token. No new IAM grants.\n- rbrd_inscribe runs host-side at end of successful levy using Payor's\n  OAuth access token. Cloud Build is not involved.\n- Pre-push existence guard via docker manifest inspect: present → fatal\n  \"already inscribed, unmake and relevy\"; absent → proceed.\n- Exact byte-match diff on rbrd.env contents — comments, whitespace,\n  line ordering all participate.\n- Image lives under rbi_df namespace; specific tag is a mount-time call.\n\n## Done\n\n- Fresh levy ends with the rbrd.env image present in GAR.\n- Re-levy on an already-inscribed depot dies with overwrite-fatal.\n- Every cloud-submitting command pulls + diffs before submitting; drift\n  produces a diff + recovery guidance + fatal; image absent → fatal.\n- RBSDE updated for the inscribe step at end of levy; the spec covering\n  the kindle-time check identified and updated.\n- Handbook documents drift, missing image, and re-inscribe overwrite\n  failure modes with recovery guidance.",
               "jjgtn_silks": "rbrd-tripwire-wire",
               "jjgtn_basis": "4fb737e"
+            }
+          ]
+        },
+        "₢BOAAL": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260517-0907",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nDesign conversation requiring judgment. The convention is already in\nuse by code (rbnnh_ for nameplate hooks, rbndf_ for depot facts, rbndb_\nfor depot regime bespoke helpers); this pace decides where its formal\ndocumentation lives and writes it there.\n\n## Goal\n\nLift the self-contained mint record from rbndb_base.sh into the\ncanonical project documentation location for the rbn{R}{X}_ convention.\n\n## Locked decisions\n\n- Convention: `rbn{regime-letter}{kind-letter}_` is a regime-affiliated\n  namespace that allows minting under a terminal regime prefix. Decode:\n  `rb` (project) + `n` (extension marker, sidesteps terminal exclusivity\n  on regime prefixes) + regime letter + kind letter. Existing uses to\n  enumerate: rbnnh_ (nameplate hook), rbndf_ (depot fact image),\n  rbndb_ (depot regime bespoke helpers).\n\n## What to decide at mount\n\n- Canonical doc home — candidates: CLAUDE.md prefix registry section,\n  a buk*.md guide, BCG addendum, the acronym-selection minting study\n  memo (Memos/memo-20260110-...), or a new dedicated location.\n  Decide based on the convention's character: project-level naming\n  rule (CLAUDE.md fits), BUK-pattern (buk*.md fits), or BCG-internal\n  discipline (BCG fits).\n- Cross-references: regardless of canonical home, CLAUDE.md's Project\n  Prefix Registry or minting workflow should reference the convention\n  so future minters discover it.\n\n## Done\n\n- Convention documented in the chosen location with letter-position\n  decoding, existing uses enumerated, guidance for future application.\n- rbndb_base.sh header trimmed to point at the canonical location\n  rather than restating the convention.\n- CLAUDE.md references the convention (at minimum a pointer; full\n  prose may live elsewhere depending on the home decision).",
+              "jjgtn_silks": "rbnRX-convention-document",
+              "jjgtn_basis": "801d765"
             }
           ]
         }
