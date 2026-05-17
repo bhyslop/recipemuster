@@ -9783,9 +9783,10 @@
         "₢BOAAF",
         "₢BOAAG",
         "₢BOAAH",
-        "₢BOAAI"
+        "₢BOAAI",
+        "₢BOAAJ"
       ],
-      "jjghn_next_pace_seed": "AAJ",
+      "jjghn_next_pace_seed": "AAK",
       "jjghn_paces": {
         "₢BOAAA": {
           "jjgpn_tacks": [
@@ -9967,6 +9968,17 @@
               "jjgtn_text": "## Character\n\nPlanning conversation. Design a tighter integration of the quota-bump\nprocedure into the levy flow, exploiting the fact that the levy's\ndegenerate build now unlocks Google's \"Edit Quotas\" Console option\nimmediately on the freshly-levied project.\n\n## Motivation\n\nPhase 3 of ₢BOAAA surfaced that fresh-project Cloud Build vCPU defaults\nhave dropped from the historical 10 vCPU baseline (encoded in stale\nrbrr.env / rbhpq_quota_build.sh wording as \"fits 5 concurrent in 10-CPU\nquota\") down to 2 vCPU. The first multi-arch ordain on a freshly-levied\ne2-standard-2 depot now wedges in QUEUED because 2 vCPU only supports 1\nconcurrent build, not the 3 RBRR_GCB_MIN_CONCURRENT_BUILDS demands.\n\nThe rbw-gq handbook exists but is a separate ceremony the operator must\nknow to invoke. Levy completion is the natural moment to surface the\nquota URL and the bump procedure, since the degenerate build inside levy\nhas just made Edit Quotas accessible on the new project.\n\n## What done looks like\n\n- Design notes capturing the proposed integration shape: where in the\n  levy completion banner the quota guidance should appear, how strongly\n  it should gate downstream operations, what the operator's action loop\n  looks like.\n- Implementation paces slated separately.\n- Cleanup ticket for the stale \"10-CPU quota\" wording in rbrr.env\n  comments and rbhpq_quota_build.sh prose.\n\n## Constraints\n\n- Plan-only; no implementation in this pace.\n- Reference ₢BOAAA's empirical finding rather than restating it.",
               "jjgtn_silks": "post-levy-quota-bump-flow",
               "jjgtn_basis": "1027cea"
+            }
+          ]
+        },
+        "₢BOAAJ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260517-0904",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nIntricate but mechanical. Sibling-regime archetype is well-established.\n\n## Goal\n\nMint a new RBRD regime, peeling the four depot-time-immutable settings\nout of RBRR. After this pace, names communicate the lifecycle category;\nenforcement is the next pace.\n\n## Locked decisions\n\n- Four settings move: RBRR_CLOUD_PREFIX, RBRR_DEPOT_MONIKER,\n  RBRR_GCP_REGION, RBRR_GCB_MACHINE_TYPE → RBRD_*. The remaining eight\n  RBRR settings stay unchanged in RBRR.\n- rbrd_regime.sh follows the sibling regime archetype uniformly — no\n  bespoke code. New RBSRD-RegimeDepot.adoc parallels RBSRP and RBSRR.\n- Lifecycle marshal (rblm_cli.sh) emits an rbrd.env blank alongside the\n  rbrr.env blank.\n- rbgc_Constants.sh's rbi_df comment block carries a stale \"future RBRD\n  in rbi_df\" promise that becomes wrong with the next pace's decision\n  (RBRD ships as its own image at a separate tag). Refresh the comment\n  to reflect actual shape.\n- No tripwire wiring in this pace. After this pace, names are right but\n  a hand-edit of rbrd.env post-levy is still a silent no-op.\n\n## Done\n\n- rbw-rdr / rbw-rdv operate cleanly against a fresh rbrd.env blank.\n- The four moved variables are absent from rbrr.env, present in rbrd.env.\n- All consumers (rbgp_Payor.sh, rbdc_DerivedConstants.sh, anywhere else\n  they are referenced) use the RBRD_* names.\n- RBSDE rename pass complete; RBS0 index has the RBSRD entry.\n- README regime list, file tree, and appendix entry mention RBRD.\n- Handbook surfaces the new regime category.",
+              "jjgtn_silks": "rbrd-regime-split",
+              "jjgtn_basis": "3266ff3"
             }
           ]
         }
