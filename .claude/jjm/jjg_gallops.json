@@ -9800,9 +9800,10 @@
         "₢BOAAI",
         "₢BOAAJ",
         "₢BOAAK",
-        "₢BOAAL"
+        "₢BOAAL",
+        "₢BOAAM"
       ],
-      "jjghn_next_pace_seed": "AAM",
+      "jjghn_next_pace_seed": "AAN",
       "jjghn_paces": {
         "₢BOAAA": {
           "jjgpn_tacks": [
@@ -10024,6 +10025,17 @@
               "jjgtn_text": "## Character\n\nDesign conversation requiring judgment. The convention is already in\nuse by code (rbnnh_ for nameplate hooks, rbndf_ for depot facts, rbndb_\nfor depot regime bespoke helpers); this pace decides where its formal\ndocumentation lives and writes it there.\n\n## Goal\n\nLift the self-contained mint record from rbndb_base.sh into the\ncanonical project documentation location for the rbn{R}{X}_ convention.\n\n## Locked decisions\n\n- Convention: `rbn{regime-letter}{kind-letter}_` is a regime-affiliated\n  namespace that allows minting under a terminal regime prefix. Decode:\n  `rb` (project) + `n` (extension marker, sidesteps terminal exclusivity\n  on regime prefixes) + regime letter + kind letter. Existing uses to\n  enumerate: rbnnh_ (nameplate hook), rbndf_ (depot fact image),\n  rbndb_ (depot regime bespoke helpers).\n\n## What to decide at mount\n\n- Canonical doc home — candidates: CLAUDE.md prefix registry section,\n  a buk*.md guide, BCG addendum, the acronym-selection minting study\n  memo (Memos/memo-20260110-...), or a new dedicated location.\n  Decide based on the convention's character: project-level naming\n  rule (CLAUDE.md fits), BUK-pattern (buk*.md fits), or BCG-internal\n  discipline (BCG fits).\n- Cross-references: regardless of canonical home, CLAUDE.md's Project\n  Prefix Registry or minting workflow should reference the convention\n  so future minters discover it.\n\n## Done\n\n- Convention documented in the chosen location with letter-position\n  decoding, existing uses enumerated, guidance for future application.\n- rbndb_base.sh header trimmed to point at the canonical location\n  rather than restating the convention.\n- CLAUDE.md references the convention (at minimum a pointer; full\n  prose may live elsewhere depending on the home decision).",
               "jjgtn_silks": "rbnRX-convention-document",
               "jjgtn_basis": "801d765"
+            }
+          ]
+        },
+        "₢BOAAM": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260517-1005",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nExperimental — outcome uncertain. Three boundary classes, one chokepoint\neach; if theurge clears but BUK-side bash stumbles surface as the next\nblocker, stop and reassess rather than chase BUK fixes in this pace.\n\n## Goal\nMake `tt/rbtd-s.TestSuite.fast.sh` reach a verdict (pass or content-fail)\non a Cygwin shell against an `x86_64-pc-windows-gnu` theurge binary, by\nsystematizing POSIX↔Windows path conversion at theurge's bash/Rust\nboundary. Currently the gauntlet aborts in `enrollment-validation` with\na substrate-level path mangling — Rust's `PathBuf::join` produces mixed\n`/cygdrive/c/...\\rbtd` paths Windows resolves unpredictably.\n\n## Shape\nNew platform module under `Tools/rbk/rbtd/src/` with two helpers:\nPOSIX→native PathBuf for intake, native Path→POSIX String for outflow.\nCygwin detected at runtime (cache once); identity on Linux/macOS so\nexisting platforms unaffected. Apply at three boundary classes:\n\n- env-var intake from Cygwin bash — single chokepoint\n  `rbtdb_read_dispatch_dir` in `Tools/rbk/rbtd/src/main.rs`\n- script-embedded paths handed to `Command::new(\"bash\")` — discoverable\n  via `grep -rn \"source '{}'\" Tools/rbk/rbtd/src/` and adjacent\n  `format!()` interpolations of `path.display()`\n- env vars on spawned tabtarget invocations — re-convert to POSIX\n  before `Command::env`\n\nWindows-native tool spawns (git, curl, docker) need no conversion.\n\n## Test surface\n`brad@rocket` Cygwin login (Memos/memo-20260516-windows-headless-account-anatomy.md).\nRust toolchain already installed there as `x86_64-pc-windows-gnu` via\n`rustup-init.exe` from Cygwin shell.",
+              "jjgtn_silks": "cygwin-theurge-path-transmute",
+              "jjgtn_basis": "42fd180"
             }
           ]
         }
