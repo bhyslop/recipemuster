@@ -9784,9 +9784,10 @@
         "₢BOAAG",
         "₢BOAAH",
         "₢BOAAI",
-        "₢BOAAJ"
+        "₢BOAAJ",
+        "₢BOAAK"
       ],
-      "jjghn_next_pace_seed": "AAK",
+      "jjghn_next_pace_seed": "AAL",
       "jjghn_paces": {
         "₢BOAAA": {
           "jjgpn_tacks": [
@@ -9979,6 +9980,17 @@
               "jjgtn_text": "## Character\n\nIntricate but mechanical. Sibling-regime archetype is well-established.\n\n## Goal\n\nMint a new RBRD regime, peeling the four depot-time-immutable settings\nout of RBRR. After this pace, names communicate the lifecycle category;\nenforcement is the next pace.\n\n## Locked decisions\n\n- Four settings move: RBRR_CLOUD_PREFIX, RBRR_DEPOT_MONIKER,\n  RBRR_GCP_REGION, RBRR_GCB_MACHINE_TYPE → RBRD_*. The remaining eight\n  RBRR settings stay unchanged in RBRR.\n- rbrd_regime.sh follows the sibling regime archetype uniformly — no\n  bespoke code. New RBSRD-RegimeDepot.adoc parallels RBSRP and RBSRR.\n- Lifecycle marshal (rblm_cli.sh) emits an rbrd.env blank alongside the\n  rbrr.env blank.\n- rbgc_Constants.sh's rbi_df comment block carries a stale \"future RBRD\n  in rbi_df\" promise that becomes wrong with the next pace's decision\n  (RBRD ships as its own image at a separate tag). Refresh the comment\n  to reflect actual shape.\n- No tripwire wiring in this pace. After this pace, names are right but\n  a hand-edit of rbrd.env post-levy is still a silent no-op.\n\n## Done\n\n- rbw-rdr / rbw-rdv operate cleanly against a fresh rbrd.env blank.\n- The four moved variables are absent from rbrr.env, present in rbrd.env.\n- All consumers (rbgp_Payor.sh, rbdc_DerivedConstants.sh, anywhere else\n  they are referenced) use the RBRD_* names.\n- RBSDE rename pass complete; RBS0 index has the RBSRD entry.\n- README regime list, file tree, and appendix entry mention RBRD.\n- Handbook surfaces the new regime category.",
               "jjgtn_silks": "rbrd-regime-split",
               "jjgtn_basis": "3266ff3"
+            }
+          ]
+        },
+        "₢BOAAK": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260517-0904",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nIntricate but mechanical. Established host-docker and image-extract\npatterns throughout.\n\n## Goal\n\nMake depot-immutable drift fail loud. Levy inscribes a FROM-scratch\nimage carrying rbrd.env to GAR; every cloud-submitting command pulls\nand exact-match diffs the file before proceeding.\n\n## Locked decisions\n\n- rbrd_check and rbrd_inscribe are public functions in a separate\n  bespoke implementation module — not in rbrd_regime.sh (which must\n  stay uniform with sibling regimes) and not in rbrd_cli.sh's body.\n  rbrd_cli.sh sources the bespoke module and exposes both via dispatch\n  with differential furnish. New tabtargets rbw-rdc and rbw-rdi.\n- Consuming CLIs source the bespoke module, kindle it, call rbrd_check\n  inline before cloud submission. No tabtarget preflight orchestration.\n- rbrd_check takes a bearer token parameter; role-agnostic. Each\n  consuming CLI passes its role's token. No new IAM grants.\n- rbrd_inscribe runs host-side at end of successful levy using Payor's\n  OAuth access token. Cloud Build is not involved.\n- Pre-push existence guard via docker manifest inspect: present → fatal\n  \"already inscribed, unmake and relevy\"; absent → proceed.\n- Exact byte-match diff on rbrd.env contents — comments, whitespace,\n  line ordering all participate.\n- Image lives under rbi_df namespace; specific tag is a mount-time call.\n\n## Done\n\n- Fresh levy ends with the rbrd.env image present in GAR.\n- Re-levy on an already-inscribed depot dies with overwrite-fatal.\n- Every cloud-submitting command pulls + diffs before submitting; drift\n  produces a diff + recovery guidance + fatal; image absent → fatal.\n- RBSDE updated for the inscribe step at end of levy; the spec covering\n  the kindle-time check identified and updated.\n- Handbook documents drift, missing image, and re-inscribe overwrite\n  failure modes with recovery guidance.",
+              "jjgtn_silks": "rbrd-tripwire-wire",
+              "jjgtn_basis": "4fb737e"
             }
           ]
         }
