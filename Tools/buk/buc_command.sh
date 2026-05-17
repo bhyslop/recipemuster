@@ -340,8 +340,8 @@ buc_require() {
   test -z "${BURE_CONFIRM:-}" || buc_die "BURE_CONFIRM must be 'skip' or unset, got '${BURE_CONFIRM}'"
 
   sleep 1
-  printf '%b\n' "${BUC_yellow}${z_prompt}${BUC_reset}" >/dev/tty
-  printf 'Type %s to confirm: ' "${z_required_value}" >/dev/tty
+  printf '%b\n' "${BUC_yellow}${z_prompt}${BUC_reset}" >&2
+  printf 'Type %s to confirm: ' "${z_required_value}" >&2
   local z_input
   read -r z_input </dev/tty
   test "${z_input}" = "${z_required_value}" || buc_die "Confirmation failed — expected '${z_required_value}', got '${z_input}'"
