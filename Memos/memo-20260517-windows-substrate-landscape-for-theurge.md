@@ -238,7 +238,10 @@ substrate to invest in next.
 
 - `Memos/memo-20260516-windows-headless-account-anatomy.md` — SSH
   account auth chain (recipe for both `cygwin@rocket` and
-  `wsl@rocket` setup)
+  `wsl@rocket` setup); the "Noninteractive forced-command variants"
+  section covers the noninteractive personas and the WSL per-user
+  registration finding (`wsl --install` needs admin; `wsl --import`
+  does not)
 - `Memos/memo-20260508-windows-transport-experiments.md` and the
   `memo-2026051*-windows-transport-*` series — broader empirical
   record of cmd.exe / PowerShell / wsl.exe transport quoting; the
