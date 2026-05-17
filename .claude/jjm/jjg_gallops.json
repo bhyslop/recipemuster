@@ -9782,9 +9782,10 @@
         "₢BOAAC",
         "₢BOAAF",
         "₢BOAAG",
-        "₢BOAAH"
+        "₢BOAAH",
+        "₢BOAAI"
       ],
-      "jjghn_next_pace_seed": "AAI",
+      "jjghn_next_pace_seed": "AAJ",
       "jjghn_paces": {
         "₢BOAAA": {
           "jjgpn_tacks": [
@@ -9948,6 +9949,17 @@
               "jjgtn_text": "## Character\n\nThrowaway. Sole purpose is to advance the BO pace-seed past AAH so\nnew paces don't collide with the orphan ₢BOAAH coronet that exists\nin git history (alpha-side theurge RCG retrofit, commit d7145e0c)\nbut not in beta's gallops state after the 2026-05-16 reconciliation.\n\nTo be dropped immediately after enroll.",
               "jjgtn_silks": "seed-skip-orphan-boaah",
               "jjgtn_basis": "25a54c7"
+            }
+          ]
+        },
+        "₢BOAAI": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260517-0034",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nPlanning conversation. Design a tighter integration of the quota-bump\nprocedure into the levy flow, exploiting the fact that the levy's\ndegenerate build now unlocks Google's \"Edit Quotas\" Console option\nimmediately on the freshly-levied project.\n\n## Motivation\n\nPhase 3 of ₢BOAAA surfaced that fresh-project Cloud Build vCPU defaults\nhave dropped from the historical 10 vCPU baseline (encoded in stale\nrbrr.env / rbhpq_quota_build.sh wording as \"fits 5 concurrent in 10-CPU\nquota\") down to 2 vCPU. The first multi-arch ordain on a freshly-levied\ne2-standard-2 depot now wedges in QUEUED because 2 vCPU only supports 1\nconcurrent build, not the 3 RBRR_GCB_MIN_CONCURRENT_BUILDS demands.\n\nThe rbw-gq handbook exists but is a separate ceremony the operator must\nknow to invoke. Levy completion is the natural moment to surface the\nquota URL and the bump procedure, since the degenerate build inside levy\nhas just made Edit Quotas accessible on the new project.\n\n## What done looks like\n\n- Design notes capturing the proposed integration shape: where in the\n  levy completion banner the quota guidance should appear, how strongly\n  it should gate downstream operations, what the operator's action loop\n  looks like.\n- Implementation paces slated separately.\n- Cleanup ticket for the stale \"10-CPU quota\" wording in rbrr.env\n  comments and rbhpq_quota_build.sh prose.\n\n## Constraints\n\n- Plan-only; no implementation in this pace.\n- Reference ₢BOAAA's empirical finding rather than restating it.",
+              "jjgtn_silks": "post-levy-quota-bump-flow",
+              "jjgtn_basis": "1027cea"
             }
           ]
         }
