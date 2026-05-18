@@ -164,11 +164,31 @@ zrbgc_kindle() {
   readonly RBGC_HALLMARK_PREFIX_GRAFT="g"
 
   # GAR Categorical Namespaces (₢A_AAK layout)
-  # Top-level namespaces under which hallmark/reliquary/enshrine arks are
-  # stored as plain basename siblings. Consumed by rbgl_GarLayout.sh.
+  # Top-level namespaces under which arks are stored. Consumed by rbgl_GarLayout.sh.
+  # The hm/rq/es siblings hold Director-authored image families; rbi_df holds
+  # Payor-authored depot-scoped OCI artifacts produced during depot lifetime.
   readonly RBGC_GAR_CATEGORY_HALLMARKS="rbi_hm"
   readonly RBGC_GAR_CATEGORY_RELIQUARIES="rbi_rq"
   readonly RBGC_GAR_CATEGORY_ENSHRINES="rbi_es"
+  readonly RBGC_GAR_CATEGORY_DEPOT_FACTS="rbi_df"
+
+  # rbi_df layout: flat sea of files. No subdirs. Each filename names one
+  # depot-scoped artifact whose content is its assignment.
+  #
+  # Today (BO levy-establish-probes):
+  #   probe-tether:probe   — tether pool levy-time capability probe
+  #   probe-airgap:probe   — airgap pool levy-time capability probe
+  #
+  # Future: each new filename is intended to be an RBRD variable name (planned
+  # uBuN heat — peel depot-time-immutable settings out of RBRR). The file's
+  # content is that variable's assignment.
+  #
+  # Explicitly NOT in rbi_df: the uBuN depot-manifest tripwire lives in GCS,
+  # not GAR — different mechanism, different shape.
+  #
+  # Enumerators (rbw-iah / rbw-iar / rbw-iae) ignore rbi_df by design — its
+  # contents are operational, not part of the hallmark/reliquary/enshrine
+  # image catalogue.
 
   # Reliquary Tool Basenames (₢A_AAK layout)
   # Canonical tool names under rbi_rq/<date>/. Authoritative
