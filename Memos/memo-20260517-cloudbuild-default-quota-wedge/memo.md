@@ -473,6 +473,117 @@ probes" but "submit probes serially, or one at a time, or wait between
 them so they don't collide." That design conversation belongs to a
 follow-on pace, not this memo.
 
+## Addendum (2026-05-18 ~01:00 UTC): Theory 1 confirmed, proximate cause is fire-and-forget probe submission
+
+**Theory 1 experiment ran on main with `e14654739` reverted (revert
+commit `936a7607b`). Outcome: `Suite 'gauntlet' complete (12 fixtures)`
+and `Pristine qualification passed` on a fresh canest depot
+(`canest2bhl100015`) at default 2-vCPU quota.** Same Google environment
+as the wedges, same fixture sequence, same machine type. Just the probe
+feature removed.
+
+Updated trial tally:
+
+| Config | Trials | Passes | Wedges |
+|--------|--------|--------|--------|
+| No probes (`ad3ea5e22`) | 1 | 1 | 0 |
+| No probes (revert on main, `67604bdff`) | 1 | 1 | 0 |
+| Probes active (`f7e0a2952`) | 2 | 0 | 2 |
+
+Two passes with probes removed across two different commits; two
+wedges with probes active across two independent depots. Theory 1
+holds.
+
+### Proximate cause: levy is fire-and-forget on probes
+
+Inspection of `e14654739:Tools/rbk/rbgp_Payor.sh` line ~614 confirms
+the probe submission is non-awaiting. The relevant code path:
+
+```bash
+rbgu_http_json "POST" "${z_build_url}" "${z_token}" "${z_infix}" "${z_build_file}"
+z_submit_code=$(rbgu_http_code_capture "${z_infix}")
+# ...
+case "${z_submit_code}" in
+  200|201)
+    z_build_id=$(rbgu_json_field_capture "${z_infix}" '.metadata.build.id')
+    buc_info "  Build:    ${z_build_id} (submitted — runs async)"
+    ;;
+  400) ... ;;
+  *)   buc_die ... ;;
+esac
+```
+
+The "submitted — runs async" log line is explicit: after submission,
+control returns to `rbgp_depot_levy`, which returns to the gauntlet
+fixture, which marks `rbtdrk_depot_levy` PASSED and proceeds to the
+next case. **Two builds are now in `QUEUED` with no one awaiting
+them.**
+
+### Why fire-and-forget causes the wedge
+
+Combined with the 2-vCPU project-scoped quota:
+
+1. Tether probe and airgap probe both submitted within 1 second.
+2. Tether probe gets the project's 2-vCPU slot first (alphabetical or
+   submit-order priority — empirically tether wins).
+3. Airgap probe queues.
+4. Tether probe runs ~30 s and finishes. Slot freed.
+5. Levy returns. Gauntlet proceeds. `canonical-establish` →
+   `onboarding-sequence`. The first inscribe-reliquary build dispatches
+   on the tether pool, takes the just-freed slot, runs ~5 minutes.
+6. Each subsequent inscribe / kludge / sentry-conjure build similarly
+   steals the slot the airgap probe should have gotten next.
+7. ~19 minutes after levy started, the gauntlet runs out of contending
+   builds momentarily. Airgap probe finally gets a slot, runs, finishes.
+8. **At the exact moment the airgap probe finishes**, the next tether
+   conjure (jupyter) is dispatched. It enters `QUEUED` and never
+   transitions to `WORKING`. Eventually expires at `queueTtl=3600s`.
+
+The 0-vs-2 pass/wedge split is consistent with this mechanism: when
+no probes exist, no late-clearing collision is possible; when probes
+exist without an await, the collision is statistically near-certain
+because the gauntlet immediately follows the levy with a rapid burst
+of dispatches.
+
+### The repair
+
+**Synchronize the levy on probe terminal state.** After submitting a
+probe build via `builds.create`, poll its status until any terminal
+state (SUCCESS | FAILURE | CANCELLED | TIMEOUT | EXPIRED |
+INTERNAL_ERROR). All terminal states are acceptable — the probe is
+designed to FAILURE (HTTP 400 inside the build asserts egress
+posture); what matters is that the levy *waits* for that terminal
+status before returning to the caller.
+
+Open sub-decision (slated for the repair pace, not this memo): submit
+both probes in parallel then await both, vs. submit-await-submit-await
+serial. Parallel is preferred because:
+- Wall-clock cost = `max(tether_wall, airgap_wall)` (parallel) vs.
+  `tether_wall + airgap_wall` (serial). Airgap is the long pole
+  regardless.
+- The wedge cause is *external dispatchers stealing the airgap
+  probe's slot*, not the two probes contending with each other. With
+  no external dispatchers running during the await window, the two
+  probes coexist fine on a 2-vCPU quota (tether finishes, then
+  airgap gets the slot — same dynamics as before, just without the
+  inscribe builds racing).
+
+The probe's three documented purposes (quota row materialization,
+egress posture assertion, `rbi_df` marker push) all survive this
+repair — the probe still gets to do its work, the levy just waits
+for it.
+
+### Cost of the repair
+
+Levy wall-clock grows by the airgap probe's runtime, which the
+timelines suggest is dominated by airgap pool warm-up (~10–15 min on
+fresh-levy) plus the probe's own ~30 s execution. So levy goes from
+~2 minutes to ~15 minutes. That cost is *already being paid* — it
+just currently manifests as a wedge in `ordain_conjure_jupyter` (60+
+min wall-clock to discover, requires operator intervention) rather
+than as a longer levy step (15 min wall-clock, no operator action
+needed). The repair moves the cost to the right place.
+
 ## How to recognize this if it recurs
 
 Symptoms:
