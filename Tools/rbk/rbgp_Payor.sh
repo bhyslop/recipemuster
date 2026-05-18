@@ -522,7 +522,14 @@ zrbgp_create_gcs_bucket() {
 # in-build curl asserts egress posture; docker step pushes a tiny
 # FROM-scratch marker to rbi_df under a filename the enumerators ignore.
 # Builder images are Google-hosted only — airgap cannot reach docker.io.
-# Fire-and-forget — operators read pass/fail from the console link.
+# Synchronous: awaits the dispatched build to terminal state inline so the
+# levy returns only after probes have run. The previous fire-and-forget
+# pattern caused the late-clearing-probe-collision wedge documented in
+# Memos/memo-20260517-cloudbuild-default-quota-wedge/. Any terminal state
+# (SUCCESS / FAILURE / CANCELLED / TIMEOUT / EXPIRED / INTERNAL_ERROR) is
+# acceptable — the probe is designed to FAILURE for egress assertion; what
+# matters is that the levy waits, so no concurrent dispatcher can steal
+# the probe's worker-pool slot.
 # Args: token pool_variant pool_id mason_email egress_script_file
 zrbgp_pool_probe_submit() {
   zrbgp_sentinel
@@ -608,13 +615,31 @@ zrbgp_pool_probe_submit() {
     200|201)
       local z_build_id
       z_build_id=$(rbgu_json_field_capture "${z_infix}" '.metadata.build.id') || z_build_id=""
-      if test -n "${z_build_id}"; then
-        buc_info "  Build:    ${z_build_id} (submitted — runs async)"
-        buc_link "  " "Open probe build in Cloud Console" \
-          "${RBGC_CONSOLE_URL}cloud-build/builds;region=${z_region}/${z_build_id}?project=${RBDC_DEPOT_PROJECT_ID}"
-      else
-        buc_info "  Build:    submitted (HTTP ${z_submit_code} — build ID not in response)"
+      if test -z "${z_build_id}"; then
+        buc_info "  Build:    submitted (HTTP ${z_submit_code} — build ID not in response, cannot await)"
+        return
       fi
+      buc_info "  Build:    ${z_build_id} (awaiting terminal state)"
+      buc_link "  " "Open probe build in Cloud Console" \
+        "${RBGC_CONSOLE_URL}cloud-build/builds;region=${z_region}/${z_build_id}?project=${RBDC_DEPOT_PROJECT_ID}"
+
+      local -r z_build_get_url="${z_build_url}/${z_build_id}"
+      local -r z_max_polls=480
+      local z_status="PENDING"
+      local z_polls=0
+      local z_poll_infix=""
+      while true; do
+        case "${z_status}" in PENDING|QUEUED|WORKING) : ;; *) break ;; esac
+        sleep 5
+        z_polls=$((z_polls + 1))
+        test "${z_polls}" -le "${z_max_polls}" \
+          || buc_die "Probe ${z_pool_variant}: timeout after ${z_max_polls} polls (5s interval); last status=${z_status}"
+        z_poll_infix="depot_probe_${z_pool_variant}_poll_${z_polls}"
+        rbgu_http_json "GET" "${z_build_get_url}" "${z_token}" "${z_poll_infix}"
+        z_status=$(rbgu_json_field_capture "${z_poll_infix}" '.status') || z_status="UNKNOWN"
+        buc_info "  Probe ${z_pool_variant}: ${z_status} (poll ${z_polls}/${z_max_polls})"
+      done
+      buc_info "  Probe ${z_pool_variant}: terminal = ${z_status}"
       ;;
     400)
       buc_info "  Build:    HTTP 400 — quota row materialized (expected on fresh levy)"
