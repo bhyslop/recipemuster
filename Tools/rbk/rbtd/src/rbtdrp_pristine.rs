@@ -77,7 +77,7 @@ pub(crate) const RBTDRP_THROWAWAY_RUNTIME_BASE: &str = "prlr";
 pub(crate) const RBTDRP_FAMILY_STEM_ARC_BASE: &str = "pristl";
 
 /// Placeholder moniker installed by tear_down before invoking rbw-dU. With the
-/// throwaway moniker still in rbrr.env, RBDC composes to the throwaway's own
+/// throwaway moniker still in rbrd.env, RBDC composes to the throwaway's own
 /// project_id and rbgp_depot_unmake's live-disqualify guard refuses the call
 /// (rbgp_Payor.sh:948-952). Rotating to a value outside the family stem makes
 /// RBDC compose to a different value so the guard lets the unmake through.
@@ -716,7 +716,7 @@ fn rbtdrp_canonical_rbra(root: &Path, role: &str) -> Result<PathBuf, String> {
 /// moniker in the `pristl` family, levies the depot, re-lists to refresh
 /// facts, reads project_id from the `<moniker>.depot-project` fact file, and
 /// cross-checks it against the RBDC compose derivation. The moniker survives
-/// in rbrr.env for cases 3 and 4.
+/// in rbrd.env for cases 3 and 4.
 fn rbtdrp_depot_stand_up(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrp_depot_stand_up_impl(ctx, dir))
 }
@@ -840,7 +840,7 @@ fn rbtdrp_depot_stand_up_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Ve
 // ── Case 3: SA cycle ─────────────────────────────────────────
 
 /// Case 3 — SA cycle. Pre-condition: depot stood up by case 2 (moniker in
-/// rbrr.env). Mantles governor (RBRA lands in BURV output; copy to canonical),
+/// rbrd.env). Mantles governor (RBRA lands in BURV output; copy to canonical),
 /// then for each role: invest → copy assay → canonical → access-probe.
 /// Divests both roles in reverse order, verifies BBAAN's
 /// divest-deletes-production-RBRA contract via canonical-path absence checks.
@@ -852,12 +852,12 @@ fn rbtdrp_sa_cycle(dir: &Path) -> rbtdre_Verdict {
 fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
     let root = ctx.project_root().to_path_buf();
 
-    let rbrr = root.join(RBTDRP_RBRR_FILE);
-    let moniker = match rbtdrp_read_env_value(&rbrr, RBTDRP_FIELD_RBRD_DEPOT_MONIKER) {
+    let rbrd = root.join(RBTDRP_RBRD_FILE);
+    let moniker = match rbtdrp_read_env_value(&rbrd, RBTDRP_FIELD_RBRD_DEPOT_MONIKER) {
         Some(m) if !m.is_empty() => m,
         _ => {
             return rbtdre_Verdict::Fail(
-                "case 2 (stand-up) did not run or rbrr.env is missing the moniker \
+                "case 2 (stand-up) did not run or rbrd.env is missing the moniker \
                  (RBRD_DEPOT_MONIKER is blank)"
                     .to_string(),
             )
@@ -1147,8 +1147,8 @@ fn rbtdrp_depot_live_disqualify_impl(
 ) -> rbtdre_Verdict {
     let root = ctx.project_root().to_path_buf();
 
-    let rbrr = root.join(RBTDRP_RBRR_FILE);
-    let moniker = match rbtdrp_read_env_value(&rbrr, RBTDRP_FIELD_RBRD_DEPOT_MONIKER) {
+    let rbrd = root.join(RBTDRP_RBRD_FILE);
+    let moniker = match rbtdrp_read_env_value(&rbrd, RBTDRP_FIELD_RBRD_DEPOT_MONIKER) {
         Some(m) if !m.is_empty() => m,
         _ => {
             return rbtdre_Verdict::Fail(
@@ -1199,7 +1199,7 @@ fn rbtdrp_depot_live_disqualify_impl(
 // ── Case 5: depot tear-down ──────────────────────────────────
 
 /// Case 5 — depot tear-down. Pre-condition: depot exists from case 2. Reads
-/// moniker from rbrr.env, composes the throwaway's project_id from it,
+/// moniker from rbrd.env, composes the throwaway's project_id from it,
 /// rotates RBRD_DEPOT_MONIKER to a placeholder so rbgp_depot_unmake's
 /// live-disqualify guard lets the unmake through, invokes rbw-dU with the
 /// captured project_id (BURE_CONFIRM=skip), re-lists, and verifies the
@@ -1212,12 +1212,12 @@ fn rbtdrp_depot_tear_down(dir: &Path) -> rbtdre_Verdict {
 fn rbtdrp_depot_tear_down_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
     let root = ctx.project_root().to_path_buf();
 
-    let rbrr = root.join(RBTDRP_RBRR_FILE);
-    let moniker = match rbtdrp_read_env_value(&rbrr, RBTDRP_FIELD_RBRD_DEPOT_MONIKER) {
+    let rbrd = root.join(RBTDRP_RBRD_FILE);
+    let moniker = match rbtdrp_read_env_value(&rbrd, RBTDRP_FIELD_RBRD_DEPOT_MONIKER) {
         Some(m) if !m.is_empty() => m,
         _ => {
             return rbtdre_Verdict::Fail(
-                "case 2 (stand-up) did not run or rbrr.env is missing the moniker \
+                "case 2 (stand-up) did not run or rbrd.env is missing the moniker \
                  (RBRD_DEPOT_MONIKER is blank)"
                     .to_string(),
             )

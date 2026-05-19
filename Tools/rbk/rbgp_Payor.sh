@@ -974,7 +974,7 @@ rbgp_payor_install() {
   buc_info "  RBRP_BILLING_ACCOUNT_ID=<obtain from Cloud Console Billing>"
   buc_info ""
   buc_info "Next: rbgp_depot_levy"
-  buc_info "  (set RBRD_DEPOT_MONIKER and RBRD_GCP_REGION in rbrr.env first)"
+  buc_info "  (set RBRD_DEPOT_MONIKER and RBRD_GCP_REGION in rbrd.env first)"
 }
 
 rbgp_depot_levy() {
@@ -1289,8 +1289,8 @@ rbgp_depot_unmake() {
   fi
 
   if test "${z_project_id}" = "${RBDC_DEPOT_PROJECT_ID}"; then
-    buc_warn "Refusing to unmake the live RBRR-selected depot: ${z_project_id}"
-    buc_info "Recovery: rename RBRD_DEPOT_MONIKER in rbrr.env, or run rbw-MZ to zero regime, then retry."
+    buc_warn "Refusing to unmake the live RBRD-selected depot: ${z_project_id}"
+    buc_info "Recovery: rename RBRD_DEPOT_MONIKER in rbrd.env, or run rbw-MZ to zero regime, then retry."
     buc_die "Live depot cannot be unmade — would orphan local regime state"
   fi
 
@@ -1652,7 +1652,7 @@ rbgp_governor_mantle() {
   buc_doc_shown || return 0
 
   buc_step 'Validate input parameters'
-  test -n "${z_depot_project_id}" || buc_die "RBDC_DEPOT_PROJECT_ID is empty — set RBRD_CLOUD_PREFIX and RBRD_DEPOT_MONIKER in rbrr.env"
+  test -n "${z_depot_project_id}" || buc_die "RBDC_DEPOT_PROJECT_ID is empty — set RBRD_CLOUD_PREFIX and RBRD_DEPOT_MONIKER in rbrd.env"
 
   buc_step 'Authenticate as Payor'
   test -n "${RBRP_PAYOR_PROJECT_ID:-}" || buc_die "RBRP_PAYOR_PROJECT_ID is not set"
