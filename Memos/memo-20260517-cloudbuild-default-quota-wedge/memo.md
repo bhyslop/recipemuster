@@ -605,3 +605,38 @@ First-line recovery (until ₢BOAAI lands):
   depot project from 2 to ≥ 6 in Cloud Console.
 - Re-dispatch the conjure. The wedged build will expire at queueTtl
   but is otherwise harmless.
+
+## Addendum (2026-05-19): probe semantics redesigned, two folkloric framings retired
+
+The ₢BOAAP repair landed and supersedes two confused mental models
+this memo originally carried forward without scrutiny.
+
+**"Designed to FAILURE" was wrong.** The earlier framing — that the
+probe was designed to terminate in FAILURE because "HTTP 400 inside
+the build asserts egress posture" — conflated two unrelated 400s. The
+in-build `curl -fsS https://storage.googleapis.com` exited with curl
+code 22 (or 56, depending on HTTP version) because `-f` turns any
+HTTP 4xx response into a non-zero curl exit; `set -e` then tripped
+the build step. The build's FAILURE terminal state was therefore not
+an "egress assertion" — it was an unintended consequence of the curl
+idiom. SUCCESS-terminal probes are the correct design: drop `-f`, so
+HTTP 4xx from a reached server still counts as "reached", and the
+distinction the assertion actually tests is reachability vs.
+connection failure. The marker push (`steps[1]`) now runs whenever
+posture is correct, populating `rbi_df` as originally intended.
+
+**"Quota row materialization via HTTP 400 on submission" was
+folklore.** The earlier framing — that the first `builds.create`
+against a fresh pool deterministically returns HTTP 400, and that
+refusal IS the quota-row-creating side-effect — has no GCP API-doc
+support. What Google's preflight calls "after some build activity"
+appears to be the submission itself populating the per-pool quota
+row in the Cloud Console UI, not the HTTP response code being
+specifically 400. A SUCCESS-terminal probe materializes the row the
+same way; the 400-tolerant branch in `zrbgp_pool_probe_submit` was
+defending against a phantom and silently swallowing real
+diagnostics (malformed JSON, IAM drift). The branch has been
+removed; any non-200/201 is now fatal with a dumped error message.
+
+See updated `RBSDE-depot_levy.adoc` Submit-Per-Pool-Probe-Builds
+section for the current contract.

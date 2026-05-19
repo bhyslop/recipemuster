@@ -67,6 +67,14 @@ zrbgp_kindle() {
   readonly ZRBGP_INFIX_GOV_CREATE_SA="gov_create_sa"
   readonly ZRBGP_INFIX_GOV_KEY="gov_key"
 
+  # Pool build await budget — applies to any Cloud Build dispatched against
+  # one of the depot's worker pools (probe at levy, posture check at info).
+  # 120 polls × 5s = 10-minute ceiling, generous for cold-start worker
+  # assignment and image pulls, well under Cloud Build's default
+  # queueTtl=3600s. Foundry builds use their own independent budgets.
+  readonly ZRBGP_BUILD_POLL_CEILING=120
+  readonly ZRBGP_BUILD_POLL_INTERVAL=5
+
   readonly ZRBGP_KINDLED=1
 }
 
@@ -516,21 +524,148 @@ zrbgp_create_gcs_bucket() {
   esac
 }
 
-# Submit a Cloud Build probe to a freshly-levied worker pool. Three effects:
-# submission materializes the pool's per-resource quota row (HTTP 400 on
-# fresh levy is the expected side-effect, not a failure to surface);
-# in-build curl asserts egress posture; docker step pushes a tiny
-# FROM-scratch marker to rbi_df under a filename the enumerators ignore.
+# Write the posture-check assertion script for a pool variant to the
+# caller-provided path. Side-effect only — caller hands the same path
+# to the pool-build submitter. The script is cloud-side bash run as
+# step 1 of the per-pool build (probe or posture-only). SUCCESS terminal
+# exit means reality matches the pool's stamped egress posture. Curl is
+# deliberately used WITHOUT -f so HTTP 4xx/5xx responses from a reached
+# server still count as "reached" — the test is reachability vs
+# connection failure, not authorization. Only honest curl failures (DNS,
+# connection refused, timeout) trip the assertion.
+# Args: variant (tether|airgap) path
+zrbgp_write_posture_check() {
+  zrbgp_sentinel
+
+  local -r z_variant="${1:-}"
+  local -r z_path="${2:-}"
+  test -n "${z_variant}" || buc_die "zrbgp_write_posture_check: variant required"
+  test -n "${z_path}"    || buc_die "zrbgp_write_posture_check: path required"
+
+  case "${z_variant}" in
+    tether)
+      printf '%s\n' \
+        '#!/bin/bash' \
+        'set -euo pipefail' \
+        'curl -sS -o /dev/null --max-time 10 https://example.com || { echo "tether: ERROR public unreachable (connection failure)" >&2; exit 1; }' \
+        'echo "tether: public reached"' \
+        'curl -sS -o /dev/null --max-time 10 https://storage.googleapis.com || { echo "tether: ERROR google unreachable (connection failure)" >&2; exit 1; }' \
+        'echo "tether: google reached"' \
+        > "${z_path}" \
+        || buc_die "Failed to write tether posture check"
+      ;;
+    airgap)
+      printf '%s\n' \
+        '#!/bin/bash' \
+        'set -euo pipefail' \
+        'if curl -sS -o /dev/null --max-time 10 https://example.com; then echo "airgap: ERROR public is reachable (expected blocked)" >&2; exit 1; fi' \
+        'echo "airgap: public blocked"' \
+        'curl -sS -o /dev/null --max-time 10 https://storage.googleapis.com || { echo "airgap: ERROR google unreachable (connection failure)" >&2; exit 1; }' \
+        'echo "airgap: google reached"' \
+        > "${z_path}" \
+        || buc_die "Failed to write airgap posture check"
+      ;;
+    *)
+      buc_die "Unknown pool variant: ${z_variant}"
+      ;;
+  esac
+}
+
+# Submit a pre-composed Cloud Build against one of the depot's worker pools
+# and await its terminal state. Shared primitive between the levy probe
+# (which dispatches a 2-step build: posture check + marker push) and the
+# depot-info posture submit (which dispatches the posture check alone).
+# Pool builds are intentionally tiny; wall-clock is dominated by Cloud
+# Build infrastructure overhead (worker assignment, image pulls). Typical
+# happy path is 60-120s; budget is ZRBGP_BUILD_POLL_CEILING ×
+# ZRBGP_BUILD_POLL_INTERVAL = 10 minutes, well under Cloud Build's default
+# queueTtl=3600s. Synchronous: the levy/info caller blocks until terminal.
+# The previous fire-and-forget pattern caused the late-clearing-probe-
+# collision wedge documented in Memos/memo-20260517-cloudbuild-default-
+# quota-wedge/. SUCCESS terminal is the happy path; any non-2xx submission
+# is fatal (the prior 400-tolerance branch defended a folkloric "quota
+# row materialization" theory that has been retired).
+# Args: token pool_variant pool_id build_json_file infix_prefix operation_label artifact_ref
+#   artifact_ref empty → omit the "  Artifact: …" line (posture path)
+zrbgp_pool_build_submit_await() {
+  zrbgp_sentinel
+
+  local -r z_token="${1:-}"
+  local -r z_pool_variant="${2:-}"
+  local -r z_pool_id="${3:-}"
+  local -r z_build_json_file="${4:-}"
+  local -r z_infix_prefix="${5:-}"
+  local -r z_operation_label="${6:-}"
+  local -r z_artifact_ref="${7:-}"
+
+  test -n "${z_token}"           || buc_die "zrbgp_pool_build_submit_await: token required"
+  test -n "${z_pool_variant}"    || buc_die "zrbgp_pool_build_submit_await: pool_variant required"
+  test -n "${z_pool_id}"         || buc_die "zrbgp_pool_build_submit_await: pool_id required"
+  test -n "${z_build_json_file}" || buc_die "zrbgp_pool_build_submit_await: build_json_file required"
+  test -n "${z_infix_prefix}"    || buc_die "zrbgp_pool_build_submit_await: infix_prefix required"
+  test -n "${z_operation_label}" || buc_die "zrbgp_pool_build_submit_await: operation_label required"
+
+  local -r z_region="${RBRR_GCP_REGION}"
+  local -r z_build_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/locations/${z_region}/builds"
+  local -r z_infix="${z_infix_prefix}_${z_pool_variant}_submit"
+
+  rbgu_http_json "POST" "${z_build_url}" "${z_token}" "${z_infix}" "${z_build_json_file}"
+  local z_submit_code
+  z_submit_code=$(rbgu_http_code_capture "${z_infix}") \
+    || buc_die "Bad ${z_operation_label} submission HTTP code for ${z_pool_variant}"
+
+  buc_info "${z_operation_label}: ${z_pool_variant}"
+  buc_info "  Pool:     ${z_pool_id}"
+  if test -n "${z_artifact_ref}"; then
+    buc_info "  Artifact: ${z_artifact_ref}"
+  fi
+
+  case "${z_submit_code}" in
+    200|201) : ;;
+    *)
+      local z_err
+      z_err=$(rbgu_json_field_capture "${z_infix}" '.error.message') || z_err="HTTP ${z_submit_code}"
+      buc_die "${z_operation_label} submission failed for ${z_pool_variant}: ${z_err}"
+      ;;
+  esac
+
+  local z_build_id
+  z_build_id=$(rbgu_json_field_capture "${z_infix}" '.metadata.build.id') || z_build_id=""
+  test -n "${z_build_id}" \
+    || buc_die "${z_operation_label} submission for ${z_pool_variant} returned no build ID (HTTP ${z_submit_code})"
+
+  buc_info "  Build:    ${z_build_id} (awaiting terminal state)"
+  buc_link "  " "Open ${z_operation_label} build in Cloud Console" \
+    "${RBGC_CONSOLE_URL}cloud-build/builds;region=${z_region}/${z_build_id}?project=${RBDC_DEPOT_PROJECT_ID}"
+
+  local -r z_build_get_url="${z_build_url}/${z_build_id}"
+  local z_status="PENDING"
+  local z_polls=0
+  local z_poll_infix=""
+  while true; do
+    case "${z_status}" in PENDING|QUEUED|WORKING) : ;; *) break ;; esac
+    sleep "${ZRBGP_BUILD_POLL_INTERVAL}"
+    z_polls=$((z_polls + 1))
+    test "${z_polls}" -le "${ZRBGP_BUILD_POLL_CEILING}" \
+      || buc_die "${z_operation_label} ${z_pool_variant}: timeout after ${ZRBGP_BUILD_POLL_CEILING} polls (${ZRBGP_BUILD_POLL_INTERVAL}s interval); last status=${z_status}"
+    z_poll_infix="${z_infix_prefix}_${z_pool_variant}_poll_${z_polls}"
+    rbgu_http_json "GET" "${z_build_get_url}" "${z_token}" "${z_poll_infix}"
+    z_status=$(rbgu_json_field_capture "${z_poll_infix}" '.status') || z_status="UNKNOWN"
+    buc_info "  ${z_operation_label} ${z_pool_variant}: ${z_status} (poll ${z_polls}/${ZRBGP_BUILD_POLL_CEILING})"
+  done
+  buc_info "  ${z_operation_label} ${z_pool_variant}: terminal = ${z_status}"
+}
+
+# Levy-time per-pool probe. Composes a 2-step Cloud Build (posture check
+# + marker push) and delegates to zrbgp_pool_build_submit_await. The
+# probe's effects: (1) submission itself populates the per-pool quota row
+# in Google's console UI; (2) step 1 confirms the pool exhibits its
+# stamped egress posture; (3) step 2 confirms the worker can authenticate
+# and push to rbi_df under the depot's GAR repository. SUCCESS is the
+# expected terminal; FAILURE means the in-build posture assertion tripped
+# and the operator should inspect via the console link.
 # Builder images are Google-hosted only — airgap cannot reach docker.io.
-# Synchronous: awaits the dispatched build to terminal state inline so the
-# levy returns only after probes have run. The previous fire-and-forget
-# pattern caused the late-clearing-probe-collision wedge documented in
-# Memos/memo-20260517-cloudbuild-default-quota-wedge/. Any terminal state
-# (SUCCESS / FAILURE / CANCELLED / TIMEOUT / EXPIRED / INTERNAL_ERROR) is
-# acceptable — the probe is designed to FAILURE for egress assertion; what
-# matters is that the levy waits, so no concurrent dispatcher can steal
-# the probe's worker-pool slot.
-# Args: token pool_variant pool_id mason_email egress_script_file
+# Args: token pool_variant pool_id mason_email posture_check_file
 zrbgp_pool_probe_submit() {
   zrbgp_sentinel
 
@@ -538,7 +673,7 @@ zrbgp_pool_probe_submit() {
   local -r z_pool_variant="${2}"
   local -r z_pool_id="${3}"
   local -r z_mason_email="${4}"
-  local -r z_egress_script_file="${5}"
+  local -r z_posture_check_file="${5}"
 
   local -r z_region="${RBRR_GCP_REGION}"
   local -r z_pool_resource="projects/${RBDC_DEPOT_PROJECT_ID}/locations/${z_region}/workerPools/${z_pool_id}"
@@ -574,7 +709,7 @@ zrbgp_pool_probe_submit() {
   jq -n \
     --arg     posture_image   "gcr.io/google.com/cloudsdktool/cloud-sdk:alpine" \
     --arg     docker_image    "gcr.io/cloud-builders/docker" \
-    --rawfile egress_script   "${z_egress_script_file}" \
+    --rawfile posture_check   "${z_posture_check_file}" \
     --rawfile push_script     "${z_push_script_file}" \
     --arg     pool_resource   "${z_pool_resource}" \
     --arg     service_account "${z_mason_sa}" \
@@ -583,7 +718,7 @@ zrbgp_pool_probe_submit() {
         {
           name:   $posture_image,
           id:     "assert-egress-posture",
-          script: $egress_script
+          script: $posture_check
         },
         {
           name:   $docker_image,
@@ -599,58 +734,63 @@ zrbgp_pool_probe_submit() {
     }' > "${z_build_file}" \
     || buc_die "Failed to compose probe build JSON for ${z_pool_variant}"
 
-  local -r z_build_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/locations/${z_region}/builds"
-  local -r z_infix="depot_probe_${z_pool_variant}_submit"
+  zrbgp_pool_build_submit_await \
+    "${z_token}" "${z_pool_variant}" "${z_pool_id}" \
+    "${z_build_file}" "depot_probe" "Per-pool probe" "${z_probe_ref}"
+}
 
-  rbgu_http_json "POST" "${z_build_url}" "${z_token}" "${z_infix}" "${z_build_file}"
-  local z_submit_code
-  z_submit_code=$(rbgu_http_code_capture "${z_infix}") \
-    || buc_die "Bad probe submission HTTP code for ${z_pool_variant}"
+# Depot-info per-pool posture check. Composes a 1-step Cloud Build that
+# runs the posture-check assertion against an existing worker pool and
+# delegates to zrbgp_pool_build_submit_await. Distinct from the levy's
+# 2-step probe: no marker push, no GAR write — purely an egress-posture
+# diagnostic against a pool that has already been levied and probed.
+# SUCCESS terminal = pool's egress posture matches its stamped config;
+# FAILURE = drift worth investigating via the console link.
+# Args: token pool_variant pool_id mason_email posture_check_file
+zrbgp_pool_posture_submit() {
+  zrbgp_sentinel
 
-  buc_info "Per-pool probe: ${z_pool_variant}"
-  buc_info "  Pool:     ${z_pool_id}"
-  buc_info "  Artifact: ${z_probe_ref}"
+  local -r z_token="${1:-}"
+  local -r z_pool_variant="${2:-}"
+  local -r z_pool_id="${3:-}"
+  local -r z_mason_email="${4:-}"
+  local -r z_posture_check_file="${5:-}"
 
-  case "${z_submit_code}" in
-    200|201)
-      local z_build_id
-      z_build_id=$(rbgu_json_field_capture "${z_infix}" '.metadata.build.id') || z_build_id=""
-      if test -z "${z_build_id}"; then
-        buc_info "  Build:    submitted (HTTP ${z_submit_code} — build ID not in response, cannot await)"
-        return
-      fi
-      buc_info "  Build:    ${z_build_id} (awaiting terminal state)"
-      buc_link "  " "Open probe build in Cloud Console" \
-        "${RBGC_CONSOLE_URL}cloud-build/builds;region=${z_region}/${z_build_id}?project=${RBDC_DEPOT_PROJECT_ID}"
+  test -n "${z_token}"              || buc_die "zrbgp_pool_posture_submit: token required"
+  test -n "${z_pool_variant}"       || buc_die "zrbgp_pool_posture_submit: pool_variant required"
+  test -n "${z_pool_id}"            || buc_die "zrbgp_pool_posture_submit: pool_id required"
+  test -n "${z_mason_email}"        || buc_die "zrbgp_pool_posture_submit: mason_email required"
+  test -n "${z_posture_check_file}" || buc_die "zrbgp_pool_posture_submit: posture_check_file required"
 
-      local -r z_build_get_url="${z_build_url}/${z_build_id}"
-      local -r z_max_polls=480
-      local z_status="PENDING"
-      local z_polls=0
-      local z_poll_infix=""
-      while true; do
-        case "${z_status}" in PENDING|QUEUED|WORKING) : ;; *) break ;; esac
-        sleep 5
-        z_polls=$((z_polls + 1))
-        test "${z_polls}" -le "${z_max_polls}" \
-          || buc_die "Probe ${z_pool_variant}: timeout after ${z_max_polls} polls (5s interval); last status=${z_status}"
-        z_poll_infix="depot_probe_${z_pool_variant}_poll_${z_polls}"
-        rbgu_http_json "GET" "${z_build_get_url}" "${z_token}" "${z_poll_infix}"
-        z_status=$(rbgu_json_field_capture "${z_poll_infix}" '.status') || z_status="UNKNOWN"
-        buc_info "  Probe ${z_pool_variant}: ${z_status} (poll ${z_polls}/${z_max_polls})"
-      done
-      buc_info "  Probe ${z_pool_variant}: terminal = ${z_status}"
-      ;;
-    400)
-      buc_info "  Build:    HTTP 400 — quota row materialized (expected on fresh levy)"
-      buc_info "  Hint:     Request a quota increase via the depot Cloud Build console, then re-run levy to exercise the probe end-to-end"
-      ;;
-    *)
-      local z_err
-      z_err=$(rbgu_json_field_capture "${z_infix}" '.error.message') || z_err="HTTP ${z_submit_code}"
-      buc_die "Probe submission failed for ${z_pool_variant}: ${z_err}"
-      ;;
-  esac
+  local -r z_region="${RBRR_GCP_REGION}"
+  local -r z_pool_resource="projects/${RBDC_DEPOT_PROJECT_ID}/locations/${z_region}/workerPools/${z_pool_id}"
+  local -r z_mason_sa="projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts/${z_mason_email}"
+
+  local -r z_build_file="${BURD_TEMP_DIR}/rbgp_posture_${z_pool_variant}_build.json"
+  jq -n \
+    --arg     posture_image   "gcr.io/google.com/cloudsdktool/cloud-sdk:alpine" \
+    --rawfile posture_check   "${z_posture_check_file}" \
+    --arg     pool_resource   "${z_pool_resource}" \
+    --arg     service_account "${z_mason_sa}" \
+    '{
+      steps: [
+        {
+          name:   $posture_image,
+          id:     "assert-egress-posture",
+          script: $posture_check
+        }
+      ],
+      serviceAccount: $service_account,
+      options: {
+        logging: "CLOUD_LOGGING_ONLY",
+        pool: { name: $pool_resource }
+      }
+    }' > "${z_build_file}" \
+    || buc_die "Failed to compose posture build JSON for ${z_pool_variant}"
+
+  zrbgp_pool_build_submit_await \
+    "${z_token}" "${z_pool_variant}" "${z_pool_id}" \
+    "${z_build_file}" "depot_posture" "Posture check" ""
 }
 
 ######################################################################
@@ -1095,39 +1235,16 @@ rbgp_depot_levy() {
   buc_step 'Enable Cloud Build service agent to impersonate Mason'
   rbgi_add_sa_iam_role "${z_token}" "${z_mason_sa_email}" "${z_cb_service_agent}" "roles/iam.serviceAccountTokenCreator"
 
-  buc_step 'Submit per-pool probe builds (materialize quota rows + assert egress posture + GAR write)'
+  buc_step 'Submit per-pool probe builds (populate quota rows + assert egress posture + GAR write)'
 
-  # Tether posture: public reachable AND Google reachable.
-  local -r z_tether_egress_file="${BURD_TEMP_DIR}/rbgp_probe_tether_egress.sh"
-  printf '%s\n' \
-    '#!/bin/bash' \
-    'set -euo pipefail' \
-    'curl -fsS --max-time 10 https://example.com > /dev/null' \
-    'echo "tether: public reachable OK"' \
-    'curl -fsS --max-time 10 https://storage.googleapis.com > /dev/null' \
-    'echo "tether: google reachable OK"' \
-    > "${z_tether_egress_file}" \
-    || buc_die "Failed to write tether egress script"
+  local -r z_tether_posture_check="${BURD_TEMP_DIR}/rbgp_tether_posture_check.sh"
+  local -r z_airgap_posture_check="${BURD_TEMP_DIR}/rbgp_airgap_posture_check.sh"
 
-  # Airgap posture: public BLOCKED AND Google reachable. Public-reachable is
-  # a hard infra-drift signal — curl's connection error surfaces in the build
-  # log as the assertion fails.
-  local -r z_airgap_egress_file="${BURD_TEMP_DIR}/rbgp_probe_airgap_egress.sh"
-  printf '%s\n' \
-    '#!/bin/bash' \
-    'set -euo pipefail' \
-    'if curl -fsS --max-time 10 https://example.com > /dev/null; then' \
-    '  echo "airgap: ERROR public is reachable (expected blocked)" >&2' \
-    '  exit 1' \
-    'fi' \
-    'echo "airgap: public blocked OK"' \
-    'curl -fsS --max-time 10 https://storage.googleapis.com > /dev/null' \
-    'echo "airgap: google reachable OK"' \
-    > "${z_airgap_egress_file}" \
-    || buc_die "Failed to write airgap egress script"
+  zrbgp_write_posture_check tether "${z_tether_posture_check}"
+  zrbgp_write_posture_check airgap "${z_airgap_posture_check}"
 
-  zrbgp_pool_probe_submit "${z_token}" "tether" "${z_tether_id}" "${z_mason_sa_email}" "${z_tether_egress_file}"
-  zrbgp_pool_probe_submit "${z_token}" "airgap" "${z_airgap_id}" "${z_mason_sa_email}" "${z_airgap_egress_file}"
+  zrbgp_pool_probe_submit "${z_token}" "tether" "${z_tether_id}" "${z_mason_sa_email}" "${z_tether_posture_check}"
+  zrbgp_pool_probe_submit "${z_token}" "airgap" "${z_airgap_id}" "${z_mason_sa_email}" "${z_airgap_posture_check}"
 
   buc_step 'Update depot tracking'
   zrbgp_depot_list_update || buc_die "Failed to update depot tracking after creation"
@@ -1445,6 +1562,36 @@ rbgp_depot_list() {
   buc_info "Total depots:     ${z_total_count}"
   buc_info "Complete:         ${z_complete_count}"
   buc_info "Delete-requested: ${z_delete_requested_count}"
+}
+
+rbgp_depot_info() {
+  zrbgp_sentinel
+
+  buc_doc_brief "Run egress posture checks against the live depot's tether and airgap worker pools"
+  buc_doc_shown || return 0
+
+  buc_step 'Authenticate as Payor'
+  local z_token
+  z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
+
+  local -r z_mason_email="${RBCC_role_mason}-${RBRR_DEPOT_MONIKER}@${RBDC_DEPOT_PROJECT_ID}.${RBGC_SA_EMAIL_DOMAIN}"
+  local -r z_tether_id="${RBDC_GCB_POOL_STEM}${RBGC_POOL_SUFFIX_TETHER}"
+  local -r z_airgap_id="${RBDC_GCB_POOL_STEM}${RBGC_POOL_SUFFIX_AIRGAP}"
+
+  local -r z_tether_posture_check="${BURD_TEMP_DIR}/rbgp_tether_posture_check.sh"
+  local -r z_airgap_posture_check="${BURD_TEMP_DIR}/rbgp_airgap_posture_check.sh"
+
+  buc_step 'Write posture-check scripts'
+  zrbgp_write_posture_check tether "${z_tether_posture_check}"
+  zrbgp_write_posture_check airgap "${z_airgap_posture_check}"
+
+  buc_step 'Probe tether pool posture'
+  zrbgp_pool_posture_submit "${z_token}" "tether" "${z_tether_id}" "${z_mason_email}" "${z_tether_posture_check}"
+
+  buc_step 'Probe airgap pool posture'
+  zrbgp_pool_posture_submit "${z_token}" "airgap" "${z_airgap_id}" "${z_mason_email}" "${z_airgap_posture_check}"
+
+  buc_success 'Posture checks complete'
 }
 
 rbgp_payor_oauth_refresh() {

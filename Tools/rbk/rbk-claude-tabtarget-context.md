@@ -46,6 +46,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-dL` | PayorLeviesDepot | — | Provision GCP depot project |
 | `rbw-dU` | PayorUnmakesDepot | param1 | Permanently remove a depot (operator supplies depot project ID) |
 | `rbw-dl` | PayorListsDepots | — | List all active depots |
+| `rbw-di` | DepotInfo | — | Run egress posture checks against the live depot's worker pools |
 | `rbw-dE` | DirectorEnshrinesVessel | param1 | Enshrine upstream base images to GAR via Cloud Build |
 | `rbw-dI` | DirectorInscribesReliquary | — | Create reliquary: mirror tool images from upstream to GAR |
 | `rbw-dY` | DirectorYokesReliquaryAllVessels | param1 | Yoke a reliquary stamp into every vessel's rbrv.env (wildcard fan-out) |

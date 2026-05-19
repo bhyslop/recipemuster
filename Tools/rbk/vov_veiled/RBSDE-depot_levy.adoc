@@ -214,20 +214,20 @@ link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.location
 .... `serviceAccount`: `projects/«DEPOT_PROJECT_ID»/serviceAccounts/«MASON_EMAIL»`
 .... `options.pool.name`: full pool resource path for the variant
 .... `options.logging`: `CLOUD_LOGGING_ONLY`
-.... `steps[0]`: egress-posture assertion (builder: `gcr.io/google.com/cloudsdktool/cloud-sdk:alpine`)
-..... tether asserts `https://example.com` reachable AND `https://storage.googleapis.com` reachable
-..... airgap asserts `https://example.com` blocked AND `https://storage.googleapis.com` reachable
+.... `steps[0]`: posture-check assertion (builder: `gcr.io/google.com/cloudsdktool/cloud-sdk:alpine`)
+..... tether asserts `https://example.com` reachable AND `https://storage.googleapis.com` reachable (curl without `-f`; any HTTP response counts as reached)
+..... airgap asserts `https://example.com` connection blocked AND `https://storage.googleapis.com` reachable
 .... `steps[1]`: GAR write probe (builder: `gcr.io/cloud-builders/docker`) — `FROM scratch` image with a single marker file, pushed to `«REGION»-docker.pkg.dev/«DEPOT_PROJECT_ID»/«GAR_REPOSITORY»/rbi_df/probe-«VARIANT»:probe`
 ... {rbbc_require}
-submission returns HTTP 200/201 (build accepted) OR HTTP 400 (per-pool quota row absent — see below). All other codes are fatal.
+submission returns HTTP 200/201 (build accepted). All other codes are fatal.
 ... {rbbc_await}
-(HTTP 200/201 only) build terminal state via `builds.get` polled every 5s, with a 480-poll (40-minute) ceiling. Any terminal state — SUCCESS / FAILURE / CANCELLED / TIMEOUT / EXPIRED / INTERNAL_ERROR — is acceptable; the probe is designed to FAILURE for egress posture assertion. The HTTP 400 branch has no build to await.
+build terminal state via `builds.get` polled every `ZRBGP_BUILD_POLL_INTERVAL` seconds, with a `ZRBGP_BUILD_POLL_CEILING` ceiling (10 minutes total). SUCCESS is the expected terminal state on correct posture; FAILURE means the in-build assertion tripped (egress-posture mismatch) and operators investigate via the console link. Any other terminal state (CANCELLED / TIMEOUT / EXPIRED / INTERNAL_ERROR) indicates Cloud Build infrastructure trouble and is similarly diagnostic, not silently accepted.
 ... {rbbc_show}
-per-pool probe block carrying the pool ID, GAR artifact reference, and either the build ID + Cloud Build console link + terminal status (HTTP 200/201) or a quota-row-materialized notice (HTTP 400).
+per-pool probe block carrying the pool ID, GAR artifact reference, build ID + Cloud Build console link, and terminal status.
 .. NOTE: Builder images are Google-hosted only (`gcr.io/...`). The airgap pool cannot reach `docker.io`; any non-Google builder would hang the build.
-.. NOTE: On fresh levy the pool's per-resource concurrent-build quota row does not yet exist. Cloud Build's quota gate refuses the submission with HTTP 400, and that refusal IS the materialization side-effect that creates the quota row — not a failure to surface. The operator can subsequently request a quota increase against the now-existing row, then re-run levy (or any subsequent build submission) to exercise the probe end-to-end.
+.. NOTE: Submission itself populates the per-pool concurrent-build quota row in Google's Cloud Build console UI — what the preflight diagnostic calls "after some build activity." A SUCCESS terminal probe confirms three things end-to-end: the pool can dispatch builds, the worker exhibits the egress posture stamped into its network config, and the worker can authenticate to GAR and push to `rbi_df`. Operators bump per-pool quota afterward via the now-populated console row to enable subsequent parallel gauntlet activity.
 .. NOTE: Submission awaits terminal state inline. The two iterations of the loop run serially because the await blocks the loop body before the next submission; this is load-bearing. An earlier non-awaiting variant caused the late-clearing-probe-collision wedge — the airgap probe queued for ~19 minutes behind subsequent gauntlet dispatches, and when it finally cleared, the next tether conjure (e.g., `ordain_conjure_jupyter`) wedged in `QUEUED` until `queueTtl=3600s` expired the build. See `Memos/memo-20260517-cloudbuild-default-quota-wedge/`. The serialized await also makes the airgap probe's slot acquisition fast in the no-contention case, since no other gauntlet builds are competing during the levy window.
-.. NOTE: In-build assertion failure (e.g., airgap pool reaching the public internet) surfaces in the build's terminal status as a hard infra-drift signal — operators inspect via the console link in the probe block.
+.. NOTE: In-build posture-assertion failure (e.g., airgap pool reaching the public internet, tether pool unable to resolve `storage.googleapis.com`) surfaces in the build's terminal status as FAILURE — a hard infra-drift signal. The posture-check script uses `curl` without `-f` so that HTTP 4xx/5xx responses from a reached server still count as "reached"; only honest network failures (DNS, connection refused, timeout) trip the assertion.
 .. NOTE: The `rbi_df` namespace is a flat sibling of `rbi_hm` / `rbi_rq` / `rbi_es` under the GAR repository. {rbtgo_image_audit} / {rbtgo_image_rekon} enumerators ignore it by design — probe artifacts are operational, not part of the hallmark / reliquary / enshrine image catalogue. Filenames under `rbi_df` form a flat sea (no subdirs); each filename names one depot-scoped OCI artifact.
 
 //axhoot_typed_output
