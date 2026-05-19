@@ -399,6 +399,8 @@ zrbfv_graft_metadata_submit() {
 
   buc_log_args "Combined about+vouch build JSON: ${z_build_file}"
 
+  rbrd_check "${z_token}"
+
   buc_step "Submitting combined about+vouch Cloud Build"
   rbgu_http_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
     "graft_meta_build_create" "${z_build_file}"
@@ -561,6 +563,8 @@ zrbfv_about_submit() {
     || buc_die "Failed to compose about build JSON"
 
   buc_log_args "About build JSON: ${z_about_build_file}"
+
+  rbrd_check "${z_token}"
 
   buc_step "Submitting about Cloud Build"
   rbgu_http_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
@@ -797,6 +801,8 @@ zrbfv_vouch_submit() {
     || buc_die "Failed to compose vouch build JSON"
 
   buc_log_args "Vouch build JSON: ${z_vouch_build_file}"
+
+  rbrd_check "${z_token}"
 
   buc_step "Submitting vouch Cloud Build"
   rbgu_http_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \

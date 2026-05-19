@@ -43,11 +43,13 @@ zrbgp_furnish() {
   source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
   source "${RBBC_rbrr_file}"
   source "${RBBC_rbrd_file}"
+  source "${z_rbk_kit_dir}/rbgl_GarLayout.sh"
   source "${z_rbk_kit_dir}/rbgo_OAuth.sh"
   source "${z_rbk_kit_dir}/rbgu_Utility.sh"
   source "${z_rbk_kit_dir}/rbgi_IAM.sh"
   source "${z_rbk_kit_dir}/rbrp_regime.sh"
   source "${z_rbk_kit_dir}/rbgp_Payor.sh"
+  source "${z_rbk_kit_dir}/rbndb_base.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh"
   source "${z_rbk_kit_dir}/rbz_zipper.sh"
 
@@ -65,6 +67,7 @@ zrbgp_furnish() {
   zrbdc_kindle
 
   zrbgc_kindle
+  zrbgl_kindle
 
   source "${RBBC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBBC_rbrp_file}"
   zrbrp_kindle
@@ -74,6 +77,7 @@ zrbgp_furnish() {
   zrbgu_kindle
   zrbgi_kindle
   zrbgp_kindle
+  zrbndb_kindle
 
   zbuz_kindle
   zrbz_kindle

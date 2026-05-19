@@ -144,6 +144,8 @@ zrbfl_inscribe_submit() {
 
   buc_log_args "Inscribe build JSON: ${z_build_file}"
 
+  rbrd_check "${z_token}"
+
   buc_step "Submitting inscribe Cloud Build"
   rbgu_http_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
     "reliquary_build_create" "${z_build_file}"

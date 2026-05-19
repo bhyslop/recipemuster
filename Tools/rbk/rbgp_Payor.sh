@@ -1257,6 +1257,9 @@ rbgp_depot_levy() {
   buc_step 'Update depot tracking'
   zrbgp_depot_list_update || buc_die "Failed to update depot tracking after creation"
 
+  buc_step 'Inscribe RBRD tripwire image'
+  rbrd_inscribe "${z_token}"
+
   buc_success 'Depot creation successful'
   buc_info "Next: mantle Governor for this depot:"
   buc_tabtarget "${RBZ_MANTLE_GOVERNOR}"

@@ -1041,6 +1041,8 @@ zrbfd_enshrine_submit() {
 
   buc_log_args "Enshrine build JSON: ${z_build_file}"
 
+  rbrd_check "${z_token}"
+
   buc_step "Submitting enshrine Cloud Build"
   rbgu_http_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
     "enshrine_build_create" "${z_build_file}"
@@ -1277,6 +1279,8 @@ rbfd_build() {
   buc_step "Stitching build JSON"
   local -r z_build_file="${ZRBFD_CONTEXT_PREFIX}build.json"
   zrbfd_stitch_build_json "${z_build_file}" "${z_hallmark}" "${z_context_tag}"
+
+  rbrd_check "${z_token}"
 
   # Submit via builds.create (no source — context delivered via GAR image)
   buc_step "Submitting build via builds.create"
@@ -1605,6 +1609,8 @@ zrbfd_mirror_submit() {
     || buc_die "Failed to compose mirror build JSON"
 
   buc_log_args "Mirror build JSON: ${z_mirror_build_file}"
+
+  rbrd_check "${z_token}"
 
   buc_step "Submitting combined mirror Cloud Build"
   rbgu_http_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \

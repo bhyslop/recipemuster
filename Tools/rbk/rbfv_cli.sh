@@ -44,6 +44,7 @@ zrbfv_furnish() {
   source "${z_rbk_kit_dir}/rbgo_OAuth.sh"
   source "${z_rbk_kit_dir}/rbgu_Utility.sh"
   source "${z_rbk_kit_dir}/rbfv_FoundryVerify.sh"
+  source "${z_rbk_kit_dir}/rbndb_base.sh"
 
   zbuv_kindle
 
@@ -68,6 +69,7 @@ zrbfv_furnish() {
   zrbgu_kindle
   zrbfc_kindle
   zrbfv_kindle
+  zrbndb_kindle
 }
 
 buc_execute rbfv_ "Recipe Bottle Foundry Verify" zrbfv_furnish "$@"
