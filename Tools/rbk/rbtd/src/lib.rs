@@ -32,6 +32,7 @@ pub mod rbtdrl_calibrant;
 pub mod rbtdrm_manifest;
 pub mod rbtdro_onboarding;
 pub mod rbtdrp_pristine;
+pub mod rbtdrx_platform;
 
 #[cfg(test)]
 mod rbtdth_helpers;
@@ -51,3 +52,5 @@ mod rbtdtm_manifest;
 mod rbtdto_onboarding;
 #[cfg(test)]
 mod rbtdtp_pristine;
+#[cfg(test)]
+mod rbtdtx_platform;

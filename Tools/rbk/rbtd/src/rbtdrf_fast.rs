@@ -31,6 +31,7 @@ use crate::rbtdrm_manifest::{
     RBTDRM_FIXTURE_DOCKERFILE_HYGIENE, RBTDRM_FIXTURE_ENROLLMENT_VALIDATION,
     RBTDRM_FIXTURE_REGIME_SMOKE, RBTDRM_FIXTURE_REGIME_VALIDATION,
 };
+use crate::rbtdrx_platform::rbtdrx_native_to_posix;
 
 // ── Helpers ──────────────────────────────────────────────────
 
@@ -97,7 +98,7 @@ fn rbtdrf_run_ev(
     for (i, sub) in subs.iter().enumerate() {
         let script = format!(
             "set -euo pipefail\nsource '{}'\nzbuv_kindle\nzbuv_reset_enrollment\n{}\n{}\n{}",
-            buv.display(),
+            rbtdrx_native_to_posix(&buv),
             enrollment,
             sub.setup,
             sub.command,
@@ -137,6 +138,8 @@ fn rbtdrf_run_rv(
     let buv = root.join("Tools/buk/buv_validation.sh");
     let rbk = root.join("Tools/rbk");
 
+    let buv_p = rbtdrx_native_to_posix(&buv);
+    let rbk_p = rbtdrx_native_to_posix(&rbk);
     let script = format!(
         "set -euo pipefail\n\
          source '{}'\n\
@@ -149,9 +152,9 @@ fn rbtdrf_run_rv(
          zbuv_kindle\nzrbcc_kindle\n\
          {}\n\
          {}",
-        buv.display(),
-        rbk.display(), rbk.display(), rbk.display(),
-        rbk.display(), rbk.display(), rbk.display(),
+        buv_p,
+        rbk_p, rbk_p, rbk_p,
+        rbk_p, rbk_p, rbk_p,
         preamble, setup,
     );
 
@@ -501,7 +504,7 @@ fn rbtdrf_ev_odref_valid(dir: &Path) -> rbtdre_Verdict {
         "set -euo pipefail\nsource '{}'\nzbuv_kindle\nzbuv_reset_enrollment\n\
          buv_regime_enroll \"TEST\"\nbuv_group_enroll \"References\"\n\
          buv_odref_enroll TEST_IMAGE \"Container image\"",
-        buv.display(),
+        rbtdrx_native_to_posix(&buv),
     );
     let d = RBTDRF_VALID_DIGEST;
 
@@ -769,7 +772,7 @@ fn rbtdrf_ev_multiscope(dir: &Path) -> rbtdre_Verdict {
          buv_regime_enroll \"BETA\"\nbuv_group_enroll \"Beta Vars\"\n\
          buv_bool_enroll TEST_BETA_FLAG \"Beta flag\"\n\
          export TEST_ALPHA_FLAG=\"1\"\nexport TEST_BETA_FLAG=\"bad\"\n",
-        buv.display(),
+        rbtdrx_native_to_posix(&buv),
     );
 
     // Sub 1: vet ALPHA passes (BETA is bad but not in scope)
@@ -1003,6 +1006,8 @@ fn rbtdrf_rv_rbrv_all_vessels(dir: &Path) -> rbtdre_Verdict {
     let buv = root.join("Tools/buk/buv_validation.sh");
     let rbk = root.join("Tools/rbk");
 
+    let buv_p = rbtdrx_native_to_posix(&buv);
+    let rbk_p = rbtdrx_native_to_posix(&rbk);
     // Script: source rbrr, kindle, iterate vessels, kindle+enforce each
     let script = format!(
         "set -euo pipefail\n\
@@ -1024,8 +1029,8 @@ fn rbtdrf_rv_rbrv_all_vessels(dir: &Path) -> rbtdre_Verdict {
              zrbrv_enforce\n\
            )\n\
          done",
-        buv.display(),
-        rbk.display(), rbk.display(), rbk.display(), rbk.display(), rbk.display(),
+        buv_p,
+        rbk_p, rbk_p, rbk_p, rbk_p, rbk_p,
     );
 
     match rbtdrf_run_bash(&root, &script, dir, "rbrv-all-vessels") {
@@ -1045,6 +1050,8 @@ fn rbtdrf_rv_rbrn_all_nameplates(dir: &Path) -> rbtdre_Verdict {
     let buv = root.join("Tools/buk/buv_validation.sh");
     let rbk = root.join("Tools/rbk");
 
+    let buv_p = rbtdrx_native_to_posix(&buv);
+    let rbk_p = rbtdrx_native_to_posix(&rbk);
     // Script: source modules, iterate nameplates, kindle+enforce each
     let script = format!(
         "set -euo pipefail\n\
@@ -1060,8 +1067,8 @@ fn rbtdrf_rv_rbrn_all_nameplates(dir: &Path) -> rbtdre_Verdict {
              zrbrn_enforce\n\
            )\n\
          done",
-        buv.display(),
-        rbk.display(), rbk.display(),
+        buv_p,
+        rbk_p, rbk_p,
     );
 
     match rbtdrf_run_bash(&root, &script, dir, "rbrn-all-nameplates") {
@@ -1149,6 +1156,8 @@ fn rbtdrf_rs_rbrr_nonempty_prefix(dir: &Path) -> rbtdre_Verdict {
     let buv = root.join("Tools/buk/buv_validation.sh");
     let rbk = root.join("Tools/rbk");
 
+    let buv_p = rbtdrx_native_to_posix(&buv);
+    let rbk_p = rbtdrx_native_to_posix(&rbk);
     let script = format!(
         "set -euo pipefail\n\
          source '{}'\n\
@@ -1163,8 +1172,8 @@ fn rbtdrf_rs_rbrr_nonempty_prefix(dir: &Path) -> rbtdre_Verdict {
          zrbrr_kindle\nzrbrr_enforce\nzrbgl_kindle\n\
          echo \"hallmarks_root=${{RBGL_HALLMARKS_ROOT}}\"\n\
          echo \"runtime_prefix=${{{runtime_var}}}\"",
-        buv.display(),
-        rbk.display(), rbk.display(), rbk.display(), rbk.display(),
+        buv_p,
+        rbk_p, rbk_p, rbk_p, rbk_p,
         cloud_var = RBTDRF_VAR_RBRR_CLOUD_PREFIX,
         runtime_var = RBTDRF_VAR_RBRR_RUNTIME_PREFIX,
     );
@@ -1209,6 +1218,8 @@ fn rbtdrf_rs_rbrv(dir: &Path) -> rbtdre_Verdict {
     let buv = root.join("Tools/buk/buv_validation.sh");
     let rbk = root.join("Tools/rbk");
 
+    let buv_p = rbtdrx_native_to_posix(&buv);
+    let rbk_p = rbtdrx_native_to_posix(&rbk);
     let script = format!(
         "set -euo pipefail\n\
          source '{}'\n\
@@ -1220,8 +1231,8 @@ fn rbtdrf_rs_rbrv(dir: &Path) -> rbtdre_Verdict {
          source \"${{PWD}}/.rbk/rbrr.env\"\n\
          zrbrr_kindle\nzrbrr_enforce\nzrbdc_kindle\n\
          echo \"${{RBRR_VESSEL_DIR}}\"",
-        buv.display(),
-        rbk.display(), rbk.display(), rbk.display(), rbk.display(),
+        buv_p,
+        rbk_p, rbk_p, rbk_p, rbk_p,
     );
 
     let vessel_dir = match rbtdrf_run_bash(&root, &script, dir, "rbrv-discover") {
@@ -1428,6 +1439,8 @@ fn rbtdrf_dh_all_vessels_pass(dir: &Path) -> rbtdre_Verdict {
     // for derived-path resolution).
     let buv = root.join("Tools/buk/buv_validation.sh");
     let rbk = root.join("Tools/rbk");
+    let buv_p = rbtdrx_native_to_posix(&buv);
+    let rbk_p = rbtdrx_native_to_posix(&rbk);
     let resolve_script = format!(
         "set -euo pipefail\n\
          source '{}'\n\
@@ -1439,8 +1452,8 @@ fn rbtdrf_dh_all_vessels_pass(dir: &Path) -> rbtdre_Verdict {
          source \"${{PWD}}/.rbk/rbrr.env\"\n\
          zrbrr_kindle\nzrbrr_enforce\nzrbdc_kindle\n\
          printf '%s' \"${{RBRR_VESSEL_DIR}}\"",
-        buv.display(),
-        rbk.display(), rbk.display(), rbk.display(), rbk.display(),
+        buv_p,
+        rbk_p, rbk_p, rbk_p, rbk_p,
     );
     let vessel_dir = match rbtdrf_run_bash(&root, &resolve_script, dir, "resolve-vessel-dir") {
         Ok((0, stdout, _)) => stdout,

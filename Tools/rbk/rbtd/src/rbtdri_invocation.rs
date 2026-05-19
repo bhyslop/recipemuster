@@ -29,6 +29,7 @@ use std::process::Command;
 
 use crate::rbtdre_engine::rbtdre_Verdict;
 use crate::rbtdrm_manifest::RBTDRM_COLOPHON_BARK;
+use crate::rbtdrx_platform::rbtdrx_native_to_posix;
 
 /// Ifrit binary name inside the bottle container.
 const RBTDRI_IFRIT_BINARY: &str = "rbid";
@@ -229,8 +230,8 @@ fn rbtdri_invoke_impl(
     let mut cmd = Command::new(tabtarget);
     cmd.args(args)
         .current_dir(&ctx.project_root)
-        .env("BURV_OUTPUT_ROOT_DIR", &burv_output)
-        .env("BURV_TEMP_ROOT_DIR", &burv_temp);
+        .env("BURV_OUTPUT_ROOT_DIR", rbtdrx_native_to_posix(&burv_output))
+        .env("BURV_TEMP_ROOT_DIR", rbtdrx_native_to_posix(&burv_temp));
 
     for (key, value) in extra_env {
         cmd.env(key, value);

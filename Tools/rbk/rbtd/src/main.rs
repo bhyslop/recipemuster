@@ -43,6 +43,7 @@ use rbtd::rbtdri_invocation::{
     RBTDRI_BURD_OUTPUT_DIR_KEY, RBTDRI_BURD_TEMP_DIR_KEY,
 };
 use rbtd::rbtdrm_manifest::{rbtdrm_verify, RBTDRM_COLOPHON_CRUCIBLE_ACTIVE};
+use rbtd::rbtdrx_platform::rbtdrx_posix_to_native;
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().collect();
@@ -56,7 +57,7 @@ fn main() -> ExitCode {
 
 fn rbtdb_read_dispatch_dir(name: &str) -> Result<PathBuf, String> {
     match std::env::var(name) {
-        Ok(v) if !v.is_empty() => Ok(PathBuf::from(v)),
+        Ok(v) if !v.is_empty() => rbtdrx_posix_to_native(&v),
         _ => Err(format!(
             "rbtd: {} is not set — theurge must be launched via BUK tabtarget",
             name
