@@ -11,7 +11,7 @@ The load-bearing mechanism is `tt/z-launcher.sh` — a trampoline that resolves 
 - **`bubc_constants.sh` is the BUK-side fact locale.** Established 2026-05-10, ready.
 - **Trampoline hardcodes the moorings path literal.** Bash constant pools (RBCC, BUBC) are downstream consumers of trampoline-established execution context, not its inputs.
 - **z-launcher.sh chdirs to repo root** before dispatching to the named launcher. Workbenches start with deterministic cwd regardless of user invocation directory.
-- **`rbm*_` prefix family**: `rbmm_` (umbrella), `rbml_` (launchers), `rbmu_` (users), `rbmv_` (vessels). `rbmn_` disposition is pace 1.
+- **`rbm*_` prefix family**: `rbmm_` (umbrella), `rbml_` (launchers), `rbmn_` (nodes), `rbmu_` (users), `rbmv_` (vessels). `rbmn_` and `rbmu_` are the BURN/BURP regime pair — sibling consumer-authored profile subtrees under `.buk/`, defined side-by-side in BUBC; `rbmn_` joins the family rather than splitting off (₢BKAAA resolved).
 - **AAJ stays in ₣A_.** Nomination happened in agent conversation; AAJ's reslated form becomes "update A_ paddock with rbm*_ findings + verify ₣BK nominated + wrap."
 
 ## Discipline
