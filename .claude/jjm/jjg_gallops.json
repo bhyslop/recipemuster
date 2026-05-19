@@ -9804,9 +9804,10 @@
         "₢BOAAL",
         "₢BOAAN",
         "₢BOAAM",
-        "₢BOAAO"
+        "₢BOAAO",
+        "₢BOAAQ"
       ],
-      "jjghn_next_pace_seed": "AAQ",
+      "jjghn_next_pace_seed": "AAR",
       "jjghn_paces": {
         "₢BOAAA": {
           "jjgpn_tacks": [
@@ -10100,6 +10101,17 @@
               "jjgtn_text": "## Character\nMechanical implementation with discipline-reading and spec-update prerequisites.\n\n## Goal\nRepair the tether and airgap egress assertion scripts in\n`rbgp_Payor.sh` (~lines 1101-1127) so the probes actually validate\negress posture. Currently both probes fail at step 0 because\n`curl -fsS https://storage.googleapis.com` exits 22 (HTTP 400 on root\npath); the failure has been silently tolerated by the framework's\nany-terminal-state policy, defeating the probe's stated purpose and\npreventing step 2 (the `rbi_df` marker push) from ever running.\n\n## Locked\n- **Read BCG (`Tools/buk/vov_veiled/BCG-BashConsoleGuide.md`) before\n  writing any bash** — the assertion scripts are cloud-side bash but\n  their host-side composition must be BCG-compliant.\n- **Update `RBSDE-depot_levy.adoc`** to reflect the new assertion\n  semantics. The spec currently describes the assertion in idealized\n  terms; new text must accurately describe what the assertion tests\n  (likely connectivity-vs-authorization distinction).\n\n## Done\nProbes return SUCCESS terminal state on a fresh-levy trial under\nnormal conditions; the `rbi_df` marker reaches GAR (step 2 runs to\ncompletion). Egress assertion distinguishes reachability from\nauthorization and produces a clear diagnostic when posture is\nactually wrong. Spec updated. A levy fixture trial confirms.",
               "jjgtn_silks": "probe-egress-assertion-repair",
               "jjgtn_basis": "cf4ab1b"
+            }
+          ]
+        },
+        "₢BOAAQ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260519-1116",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nDesign conversation requiring judgment — enumerate, name, possibly\nrename. Mint phase.\n\n## Goal\nAudit magic numbers governing Cloud Build dispatch await/poll/timeout\nbehavior across `rbgp_Payor.sh`, `rbfd_FoundryDirectorBuild.sh`,\n`rbfv_FoundryVerify.sh`, and the cloud-side `curl --max-time` values in\n`zrbgp_write_posture_check`. Mint a coherent naming scheme that encodes\npolicy in the name, not the value. Where call sites share semantics\n(e.g., \"Cloud Build terminal-state poll budget\"), names should share too.\n\n## Locked\n- Read BCG before touching bash — kindle vs tinder placement turns on\n  source-time dependency.\n- Scope: build dispatch path only. Do not sweep unrelated magic numbers\n  (test framework intervals, CLI rendering, regime values).\n\n## Done\nEvery magic timeout/poll/interval in the build dispatch path is a named\nconstant whose identifier reflects the policy it encodes. The two\nconstants minted in ₢BOAAP (`ZRBGP_BUILD_POLL_CEILING`,\n`ZRBGP_BUILD_POLL_INTERVAL`) are reviewed against the broader scheme and\nrenamed if the audit suggests better names. Any cross-module naming\nagreement is documented in the heat's paddock or via spec annotation.",
+              "jjgtn_silks": "cloud-build-timeout-naming-audit",
+              "jjgtn_basis": "48b975d"
             }
           ]
         }
