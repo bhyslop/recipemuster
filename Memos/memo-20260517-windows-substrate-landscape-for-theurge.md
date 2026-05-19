@@ -103,6 +103,151 @@ patterns could surface as the next blocker. The mechanical theurge fix
 unlocks visibility into the next layer; whether that layer is clean is
 empirically unknown.
 
+## Cygwin substrate, revisited 2026-05-19
+
+Pace ₢BOAAM (path-transmute) landed at commit `ea2d04b` and was
+verified on `cygwin@rocket`. The path-transmutation code itself is
+correct, but two BUK-side / theurge-invocation blockers surface
+behind it. This section retires the "Unknown tail" prediction with
+empirical content.
+
+### Path-transmutation is correct but doesn't engage by default
+
+`Tools/rbk/rbtd/src/rbtdrx_platform.rs:45` keys Cygwin detection on
+`std::env::var("OSTYPE").as_deref() == Ok("cygwin")`. The module
+docstring (line 42) asserts *"the launching bash exports
+`OSTYPE=cygwin`"* — empirically false. Bash sets `OSTYPE` as a
+non-exported shell variable; `env | grep ^OSTYPE=` from a Cygwin
+session returns nothing, and the Windows-native `rbtd.exe` spawned
+by a tabtarget sees no such env var. `rbtdrx_is_cygwin()` returns
+false, so every intake/outflow site in the module operates as
+identity. The mixed-separator failure described in "Observed
+failure mode" above reproduces unchanged on the landed code.
+
+Forcing `export OSTYPE` in the parent shell before invoking
+`tt/rbtd-s.TestSuite.fast.sh` exercises the transmutation. Same
+suite, two runs:
+
+```
+default:        Trace dir: /cygdrive/c/Users/.../temp-...\rbtd
+                                      (mixed-slash, no rbtd/ created)
+export OSTYPE:  Trace dir: C:\Users\cygwin\projects\...\temp-...\rbtd
+                                      (clean native, rbtd/ exists)
+```
+
+`grep -rn OSTYPE Tools/buk Tools/rbk/rbtd` finds zero export sites
+in the launcher chain. Either the BUK launcher needs to learn
+`export OSTYPE`, or `rbtdrx_is_cygwin()` needs a detection signal
+that does propagate to child processes (e.g., `cygpath --version`
+succeeding, or shelling out to `uname -o` returning `Cygwin`).
+
+### `Command::new("bash")` finds Windows WSL stub, not Cygwin bash
+
+With OSTYPE forcibly exported, path-transmutation produces clean
+native trace paths and the per-case directory is created. The
+first case (`rbtdrf_ev_string_valid`) then fails with UTF-16LE
+stderr from `wsl.exe`:
+
+```
+Windows Subsystem for Linux has no installed distributions.
+```
+
+`Tools/rbk/rbtd/src/rbtdrf_fast.rs:68` calls
+`Command::new("bash").arg("-c").arg(script)`. From a Windows-
+native process, `CreateProcessW` uses the standard search order:
+application directory, current directory, *system directory
+(`C:\Windows\System32`)*, Windows directory, then `PATH`.
+System32 ships `bash.exe` — the WSL launcher stub installed by
+default on Windows 10+. Cygwin's `C:\cygwin64\bin\bash.exe`
+appears later via `PATH` and is never reached.
+
+`cmd.exe /c where bash` from a Cygwin shell returns
+`C:\cygwin64\bin\bash.exe` first because `where` performs a
+`PATH`-only lookup; CreateProcessW's broader search is what trips
+the Rust call. Reproduced with a 10-line standalone Rust binary
+independent of theurge.
+
+Fix path (out of scope for ₢BOAAM): resolve the bash absolute
+path once at startup (e.g., via `cygpath -w /usr/bin/bash` →
+`C:\cygwin64\bin\bash.exe`) and pass it to `Command::new`, rather
+than relying on lookup order. Affects `rbtdrf_run_bash` and any
+sibling site that spawns `bash` (or other Cygwin utilities whose
+name collides with a System32 binary).
+
+### Done condition for ₢BOAAM, literal vs effective
+
+The pace's Done condition was *"`tt/rbtd-s.TestSuite.fast.sh`
+reaches a verdict on Cygwin."* Literally: met — the binary
+terminates with exit 1 and emits `0 passed, 1 failed (1 total)`.
+Effectively: the suite exercises only 1 of 75 cases before the
+bash-lookup blocker stops it, which is not a transmutation gap.
+The transmutation code does what it claims when its detection
+signal is present.
+
+### rustup install prerequisites on Cygwin
+
+Standing up a fresh `cygwin@rocket` → x86_64-pc-windows-gnu
+rustup install. Three gotchas not in the rustup docs:
+
+1. **No MinGW system install needed.** Rust 1.95.0's
+   `x86_64-pc-windows-gnu` toolchain ships a self-contained
+   linker. `cargo build` on theurge linked clean without
+   `mingw64-x86_64-gcc-core` or any `setup-x86_64.exe -P`
+   step. This eliminates the elevation barrier — the cygwin
+   user does not need admin to install rust.
+
+2. **`TMPDIR` must be a Windows-form path.** PATH on rocket
+   resolves `curl` to `C:\WINDOWS\system32\curl.exe` (Schannel-
+   backed Windows curl), not Cygwin's curl. rustup-init.sh's
+   bootstrap downloader hands curl a Cygwin POSIX `/tmp/...`
+   destination; Windows curl writes ~5KB then fails with
+   `curl: (23) client returned ERROR on write` (curl error 23
+   is "write failed"). Workaround:
+
+   ```
+   mkdir -p ~/rust-install-tmp
+   export TMPDIR="$(cygpath -w ~/rust-install-tmp)"
+   sh rustup-init.sh -y --default-toolchain stable \
+       --profile minimal --no-modify-path
+   ```
+
+3. **Do not pass `--default-host`.** The rustup-init.sh wrapper
+   detects Cygwin via uname and inserts its own
+   `--default-host x86_64-pc-windows-gnu` before invoking the
+   downloaded rustup-init.exe. Passing the flag again from the
+   command line produces:
+
+   ```
+   error: the argument '--default-host <DEFAULT_HOST>' cannot
+   be used multiple times
+   ```
+
+   Let the wrapper auto-detect; the installer line
+   `info: setting default host triple to x86_64-pc-windows-gnu`
+   confirms the correct host was chosen.
+
+### SSH transport detail for cygwin@rocket
+
+`memo-20260516-windows-headless-account-anatomy.md`'s
+noninteractive forced-command for `cygwin@rocket` is
+`bash --login -c "$SSH_ORIGINAL_COMMAND"`. Empirically, argv-mode
+commands containing `$var` references arrive at the remote bash
+without parameter expansion:
+
+```
+$ ssh cygwin@rocket 'echo $OSTYPE'
+$OSTYPE                                  # literal, not 'cygwin'
+$ printf '%s\n' 'echo $OSTYPE' | ssh cygwin@rocket bash -l
+cygwin                                   # correct
+```
+
+Cause unconfirmed (the forced-command's shell quoting interacts
+with how sshd reconstructs `SSH_ORIGINAL_COMMAND` through Windows
+OpenSSH's argv-to-string join); the empirical pattern is
+reliable. For noninteractive automation against `cygwin@rocket`,
+use the stdin-pipe form. Argv-mode is acceptable for commands
+that contain no `$` expansion and no operator chaining.
+
 ## The WSL substrate, today
 
 ### Observed result
@@ -218,11 +363,15 @@ network transport.
 
 Two paces in heat ₣BO carry the substrate work forward:
 
-- **₢BOAAM (cygwin-theurge-path-transmute)** — the experiment described
-  in the "Three boundary classes" section above. Slated as
-  *experimental, outcome uncertain*; stop and reassess if BUK-side
-  bash assumptions surface as the next blocker after theurge is
-  path-clean.
+- **₢BOAAM (cygwin-theurge-path-transmute)** — landed at commit
+  `ea2d04b` on 2026-05-19, verified on `cygwin@rocket`. The
+  path-transmutation code itself is correct, but two follow-on
+  BUK-side / theurge-invocation blockers surface behind it (OSTYPE
+  not exported by bash so the detection signal never reaches the
+  Windows-native binary; `Command::new("bash")` resolves to
+  System32's WSL stub before Cygwin's bash via CreateProcessW
+  search order). Detail in the "Cygwin substrate, revisited
+  2026-05-19" section above.
 - **₢BOAAN (cygwin-wsl-noninteractive-ssh-personas)** — set up
   `cygwin@rocket` and `wsl@rocket` as parallel headless SSH accounts,
   each forced-command'd to one substrate. Independent of the
