@@ -503,11 +503,29 @@ rbob_charge() {
   fi
 }
 
-# Check whether the crucible is charged (compose project has running containers).
-# BCG predicate: returns 0 if charged, 1 if not. Never dies, no output.
+# Check whether the crucible is charged — sentry, pentacle, and bottle must each
+# be individually `running`. BCG predicate: returns 0 if charged, 1 if not.
+# Never dies, no output. Compose stderr captured to BURD_TEMP_DIR for operator
+# inspection on verify-active failures.
 rbob_charged_predicate() {
   zrbob_sentinel
-  "${ZRBOB_RUNTIME}" compose -p "${ZRBOB_PROJECT}" ps -q --status running 2>/dev/null | grep -q .
+
+  local z_service=""
+  local z_ids_file=""
+  local z_stderr_file=""
+
+  for z_service in sentry pentacle bottle; do
+    z_ids_file="${BURD_TEMP_DIR}/zrbob_charged_${z_service}_ids.txt"
+    z_stderr_file="${BURD_TEMP_DIR}/zrbob_charged_${z_service}_stderr.txt"
+
+    "${ZRBOB_RUNTIME}" compose -p "${ZRBOB_PROJECT}" ps "${z_service}" --status running -q \
+      > "${z_ids_file}" 2>"${z_stderr_file}" \
+      || return 1
+
+    test -s "${z_ids_file}" || return 1
+  done
+
+  return 0
 }
 
 # Stop the crucible via compose
