@@ -46,7 +46,14 @@ rbrd_render() {
 ######################################################################
 # Furnish and Main
 
+# Furnish receives the dispatched command name as $1 (per buc_execute's
+# contract), enabling per-command differential setup: validate/render
+# stay lightweight (just RBRD enrollment); check/inscribe need the full
+# GAR-coordinate machinery (RBRR + RBDC + RBGC + RBGL) plus the rbndb
+# bespoke module for the tripwire image FQN.
 zrbrd_furnish() {
+  local -r z_command="${1:-}"
+
   buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
   buc_doc_env_done || return 0
@@ -70,6 +77,24 @@ zrbrd_furnish() {
   zrbrd_enforce
 
   zbupr_kindle
+
+  case "${z_command}" in
+    rbrd_check|rbrd_inscribe)
+      source "${z_rbk_kit_dir}/rbrr_regime.sh"
+      source "${RBBC_rbrr_file}"
+      source "${z_rbk_kit_dir}/rbgc_Constants.sh"
+      source "${z_rbk_kit_dir}/rbgl_GarLayout.sh"
+      source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
+      source "${z_rbk_kit_dir}/rbndb_base.sh"
+
+      zrbrr_kindle
+      zrbrr_enforce
+      zrbgc_kindle
+      zrbgl_kindle
+      zrbdc_kindle
+      zrbndb_kindle
+      ;;
+  esac
 }
 
 buc_execute rbrd_ "Recipe Bottle Depot Regime" zrbrd_furnish "$@"

@@ -172,17 +172,24 @@ zrbgc_kindle() {
   readonly RBGC_GAR_CATEGORY_ENSHRINES="rbi_es"
   readonly RBGC_GAR_CATEGORY_DEPOT_FACTS="rbi_df"
 
-  # rbi_df layout: flat sea of files. No subdirs. Each filename names one
-  # depot-scoped artifact whose content is its assignment.
+  # rbi_df layout: flat namespace. No subdirs. Each filename names one
+  # depot-scoped artifact; tag varies by artifact role.
   #
-  # Today: levy-time capability probes
+  # Current artifacts:
   #   probe-tether:probe   — tether pool levy-time capability probe
+  #                          (cloud-pushed marker image, FROM scratch)
   #   probe-airgap:probe   — airgap pool levy-time capability probe
+  #                          (cloud-pushed marker image, FROM scratch)
+  #   rbrd:tripwire        — depot regime tripwire (FROM-scratch image
+  #                          carrying .rbk/rbrd.env). Host-inscribed by
+  #                          Payor at end of levy; pulled + byte-diffed
+  #                          by every cloud-submitting command. See
+  #                          Tools/rbk/rbndb_base.sh.
   #
   # The depot-time-immutable identity and pool settings (CLOUD_PREFIX,
   # DEPOT_MONIKER, GCP_REGION, GCB_MACHINE_TYPE) live in the RBRD regime
-  # rather than in rbi_df — RBRD ships as its own image at a separate tag
-  # and is consulted at depot kindle time, not as flat-file lookups.
+  # and are also inscribed into rbi_df at the rbrd:tripwire tag so post-
+  # levy drift can be detected at every subsequent cloud submission.
   #
   # Enumerators (rbw-iah / rbw-iar / rbw-iae) ignore rbi_df by design — its
   # contents are operational, not part of the hallmark/reliquary/enshrine
