@@ -346,6 +346,7 @@
 :rbrd_group_depot_identity:  <<rbrd_group_depot_identity,Depot Identity Group>>
 :rbrd_group_region:          <<rbrd_group_region,GCP Region Group>>
 :rbrd_group_pool:            <<rbrd_group_pool,Cloud Build Pool Group>>
+:rbrd_tripwire:              <<rbrd_tripwire,RBRD Tripwire>>
 // Recipe Bottle GCP Constants (rbgc_*) — pure-literal tinder, available source-time
 :rbgc_depot_project_infix:   <<rbgc_depot_project_infix,RBGC_depot_project_infix>>
 

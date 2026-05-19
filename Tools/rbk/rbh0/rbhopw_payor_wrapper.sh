@@ -91,6 +91,40 @@ rbho_payor_handbook() {
   buh_line "${RBYC_PAYOR} can list Depots for verification:"
   buh_tt  "  " "${RBZ_LIST_DEPOT}"
   buh_e
+
+  buh_line "At the end of a successful ${RBYC_LEVY}, the depot-immutable"
+  buh_line "settings in ${RBYC_RBRD} (cloud prefix, depot moniker, region, and"
+  buh_line "Cloud Build machine type) are inscribed into the Depot as a"
+  buh_line "tripwire image. Every later cloud build pulls that image and"
+  buh_line "byte-compares it against your local ${RBYC_RBRD} file before"
+  buh_line "submitting, so an accidental post-levy edit fails loud instead of"
+  buh_line "silently pointing builds at the wrong project or worker pool."
+  buh_e
+  buh_line "Three failure modes you may meet, and how to recover:"
+  buh_e
+  buh_warn "Drift — a cloud build dies reporting a ${RBYC_RBRD} mismatch."
+  buh_line "  Your local ${RBYC_RBRD} no longer matches what the Depot was"
+  buh_line "  levied with. Restore the file to its inscribed contents (the"
+  buh_line "  failure prints a diff), or if the change is intentional, unmake"
+  buh_line "  and re-levy the Depot — ${RBYC_RBRD} is frozen for its lifetime:"
+  buh_tt  "    " "${RBZ_UNMAKE_DEPOT}" "" " <depot-project-id>"
+  buh_tt  "    " "${RBZ_LEVY_DEPOT}"
+  buh_e
+  buh_warn "Missing tripwire — a cloud build dies reporting the image is absent."
+  buh_line "  The Depot was levied before the tripwire existed, or the image"
+  buh_line "  was removed. Inscribe it once against the current ${RBYC_RBRD}"
+  buh_line "  (supply a fresh access token):"
+  buh_tt  "    " "${RBZ_INSCRIBE_DEPOT}" "" " \$(gcloud auth print-access-token)"
+  buh_e
+  buh_warn "Re-inscribe refused — re-running levy on an inscribed Depot dies."
+  buh_line "  The tripwire is already present and is never overwritten in"
+  buh_line "  place. To refresh it, unmake the Depot and levy fresh:"
+  buh_tt  "    " "${RBZ_UNMAKE_DEPOT}" "" " <depot-project-id>"
+  buh_tt  "    " "${RBZ_LEVY_DEPOT}"
+  buh_e
+  buh_line "To verify alignment at any time without submitting a build:"
+  buh_tt  "  " "${RBZ_CHECK_DEPOT}" "" " \$(gcloud auth print-access-token)"
+  buh_e
   buh_line "${RBYC_PAYOR} creates the Governor service account:"
   buh_tt  "  " "${RBZ_MANTLE_GOVERNOR}"
   buh_e

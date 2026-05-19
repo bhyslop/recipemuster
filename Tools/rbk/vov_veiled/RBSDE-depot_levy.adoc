@@ -245,6 +245,16 @@ follow-up hint
 {rbtoe_depot_list_update}
 to refresh per-moniker depot fact files
 
+//axhoot_typed_output
+{rbtgi_depot}
+. *Inscribe Depot Regime Tripwire*:
+.. Build a `FROM scratch` image carrying `.rbk/rbrd.env` and push it host-side to `«REGION»-docker.pkg.dev/«DEPOT_PROJECT_ID»/«GAR_REPOSITORY»/rbi_df/rbrd:tripwire`, authenticating to GAR with the Payor OAuth access token already in scope.
+.. {rbbc_require}
+pre-push existence guard via `docker manifest inspect`: image absent → proceed with build + push; image present → fatal (depot already inscribed; unmake and relevy to refresh).
+.. NOTE: The tripwire freezes the depot-time-immutable
+{rbrd_regime}
+(CLOUD_PREFIX, DEPOT_MONIKER, GCP_REGION, GCB_MACHINE_TYPE) into GAR. Every cloud-submitting command thereafter pulls and exact-byte-diffs the inscribed copy against local `.rbk/rbrd.env` before submitting, so a post-levy hand-edit fails loud rather than silently diverging from the depot's actual worker-pool quotas, region, and identity. Implemented host-side (Cloud Build is not involved) by `rbrd_inscribe` in `Tools/rbk/rbndb_base.sh`. The tripwire push runs after the depot-tracking refresh; a failure here leaves the depot live but un-inscribed, recoverable via `tt/rbw-rdi.sh` once the cause is resolved.
+
 //axhoc_completion
 Successful execution creates depot infrastructure with configured build bucket, container repository, Mason service account, and private worker pool — all derived from `(RBRD_CLOUD_PREFIX, RBRD_DEPOT_MONIKER)`.
 Proceed to
