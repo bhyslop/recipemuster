@@ -107,6 +107,22 @@ zrbfc_kindle() {
   z_rbfc_tool_binfmt=""
   z_rbfc_tool_skopeo=""
 
+  # Foundry build LRO poll policy — host-side wait_build_completion governance.
+  # Each *_CEILING is the per-build-kind poll budget (wall clock = ceiling ×
+  # INTERVAL_SEC). RETRY_TOLERANCE absorbs transient curl/empty-response
+  # glitches before declaring the poll fatal. Distinct from the pool-build
+  # policy in rbgp (ZRBGP_POOL_BUILD_POLL_*) — foundry builds carry user
+  # payload; pool builds are diagnostic.
+  readonly ZRBFC_BUILD_POLL_INTERVAL_SEC=5
+  readonly ZRBFC_BUILD_POLL_RETRY_TOLERANCE=3
+  readonly ZRBFC_BUILD_POLL_CEILING_INSCRIBE=120
+  readonly ZRBFC_BUILD_POLL_CEILING_ENSHRINE=50
+  readonly ZRBFC_BUILD_POLL_CEILING_CONJURE=960
+  readonly ZRBFC_BUILD_POLL_CEILING_MIRROR=100
+  readonly ZRBFC_BUILD_POLL_CEILING_ABOUT_VOUCH=100
+  readonly ZRBFC_BUILD_POLL_CEILING_ABOUT=50
+  readonly ZRBFC_BUILD_POLL_CEILING_VOUCH=50
+
   readonly ZRBFC_KINDLED=1
 }
 
@@ -250,7 +266,6 @@ zrbfc_wait_build_completion() {
   local z_polls=0
   local z_queued_advisory_shown=0
   local z_consecutive_failures=0
-  local -r z_max_consecutive_failures=3
   local z_response_file=""
   local z_code_file=""
   local z_stderr_file=""
@@ -261,7 +276,7 @@ zrbfc_wait_build_completion() {
 
   while true; do
     case "${z_status}" in PENDING|QUEUED|WORKING) : ;; *) break;; esac
-    sleep 5
+    sleep "${ZRBFC_BUILD_POLL_INTERVAL_SEC}"
 
     z_polls=$((z_polls + 1))
     test "${z_polls}" -le "${z_max_polls}" || buc_die "${z_label}: Build timeout after ${z_max_polls} polls"
@@ -281,27 +296,27 @@ zrbfc_wait_build_completion() {
 
     if test "${z_curl_rc}" -ne 0; then
       z_consecutive_failures=$((z_consecutive_failures + 1))
-      buc_warn "Curl failed (rc=${z_curl_rc}; ${z_consecutive_failures}/${z_max_consecutive_failures} consecutive) — see ${z_stderr_file}"
+      buc_warn "Curl failed (rc=${z_curl_rc}; ${z_consecutive_failures}/${ZRBFC_BUILD_POLL_RETRY_TOLERANCE} consecutive) — see ${z_stderr_file}"
       buc_log_pipe < "${z_stderr_file}"
-      test ${z_consecutive_failures} -ge ${z_max_consecutive_failures} \
-        && buc_die "Failed to get build status after ${z_max_consecutive_failures} consecutive failures (last rc=${z_curl_rc}; see ${z_stderr_file})"
+      test ${z_consecutive_failures} -ge ${ZRBFC_BUILD_POLL_RETRY_TOLERANCE} \
+        && buc_die "Failed to get build status after ${ZRBFC_BUILD_POLL_RETRY_TOLERANCE} consecutive failures (last rc=${z_curl_rc}; see ${z_stderr_file})"
       continue
     fi
 
     if ! test -s "${z_response_file}"; then
       z_consecutive_failures=$((z_consecutive_failures + 1))
-      buc_warn "Empty response (poll ${z_polls}; ${z_consecutive_failures}/${z_max_consecutive_failures} consecutive) — see ${z_response_file}"
-      test ${z_consecutive_failures} -ge ${z_max_consecutive_failures} \
-        && buc_die "Empty build status after ${z_max_consecutive_failures} consecutive failures"
+      buc_warn "Empty response (poll ${z_polls}; ${z_consecutive_failures}/${ZRBFC_BUILD_POLL_RETRY_TOLERANCE} consecutive) — see ${z_response_file}"
+      test ${z_consecutive_failures} -ge ${ZRBFC_BUILD_POLL_RETRY_TOLERANCE} \
+        && buc_die "Empty build status after ${ZRBFC_BUILD_POLL_RETRY_TOLERANCE} consecutive failures"
       continue
     fi
 
     jq -r '.error.code // empty' "${z_response_file}" > "${z_err_check_file}" 2>/dev/null
     if test -s "${z_err_check_file}"; then
       z_consecutive_failures=$((z_consecutive_failures + 1))
-      buc_warn "HTTP error $(<"${z_err_check_file}") (poll ${z_polls}; ${z_consecutive_failures}/${z_max_consecutive_failures} consecutive) — see ${z_response_file}"
-      test ${z_consecutive_failures} -ge ${z_max_consecutive_failures} \
-        && buc_die "HTTP errors after ${z_max_consecutive_failures} consecutive failures"
+      buc_warn "HTTP error $(<"${z_err_check_file}") (poll ${z_polls}; ${z_consecutive_failures}/${ZRBFC_BUILD_POLL_RETRY_TOLERANCE} consecutive) — see ${z_response_file}"
+      test ${z_consecutive_failures} -ge ${ZRBFC_BUILD_POLL_RETRY_TOLERANCE} \
+        && buc_die "HTTP errors after ${ZRBFC_BUILD_POLL_RETRY_TOLERANCE} consecutive failures"
       continue
     fi
 

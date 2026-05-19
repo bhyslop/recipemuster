@@ -1055,7 +1055,7 @@ zrbfd_enshrine_submit() {
   buc_info "Enshrine build submitted: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
-  zrbfc_wait_build_completion 50 "Enshrine"  # ~4 minutes at 5s intervals
+  zrbfc_wait_build_completion "${ZRBFC_BUILD_POLL_CEILING_ENSHRINE}" "Enshrine"
 }
 
 # Internal: Extract anchor results from completed enshrine build and write to vessel regime
@@ -1294,7 +1294,7 @@ rbfd_build() {
   buc_info "Build dispatched: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
-  zrbfc_wait_build_completion 960 "Conjure"  # 80 minutes at 5s intervals
+  zrbfc_wait_build_completion "${ZRBFC_BUILD_POLL_CEILING_CONJURE}" "Conjure"
 
   # Consistency assert: verify Cloud Build echoed back the same hallmark we minted
   buc_step "Verifying hallmark consistency"
@@ -1620,7 +1620,7 @@ zrbfd_mirror_submit() {
   buc_info "Mirror build submitted: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
-  zrbfc_wait_build_completion 100 "Mirror"  # ~8 minutes at 5s intervals (image copy + about steps)
+  zrbfc_wait_build_completion "${ZRBFC_BUILD_POLL_CEILING_MIRROR}" "Mirror"
 }
 
 ######################################################################

@@ -71,9 +71,16 @@ zrbgp_kindle() {
   # one of the depot's worker pools (probe at levy, posture check at info).
   # 120 polls × 5s = 10-minute ceiling, generous for cold-start worker
   # assignment and image pulls, well under Cloud Build's default
-  # queueTtl=3600s. Foundry builds use their own independent budgets.
-  readonly ZRBGP_BUILD_POLL_CEILING=120
-  readonly ZRBGP_BUILD_POLL_INTERVAL=5
+  # queueTtl=3600s. Foundry builds carry user payload and use the
+  # ZRBFC_BUILD_POLL_CEILING_* family kindled in rbfc.
+  readonly ZRBGP_POOL_BUILD_POLL_CEILING=120
+  readonly ZRBGP_POOL_BUILD_POLL_INTERVAL_SEC=5
+
+  # Posture-check per-request ceiling — cloud-side curl --max-time used by
+  # the posture assertion script (zrbgp_write_posture_check) when probing
+  # public/Google reachability from inside a Cloud Build worker. Value is
+  # interpolated host-side into the cloud-destined script.
+  readonly ZRBGP_POSTURE_REQUEST_MAX_TIME_SEC=10
 
   readonly ZRBGP_KINDLED=1
 }
@@ -547,9 +554,9 @@ zrbgp_write_posture_check() {
       printf '%s\n' \
         '#!/bin/bash' \
         'set -euo pipefail' \
-        'curl -sS -o /dev/null --max-time 10 https://example.com || { echo "tether: ERROR public unreachable (connection failure)" >&2; exit 1; }' \
+        "curl -sS -o /dev/null --max-time ${ZRBGP_POSTURE_REQUEST_MAX_TIME_SEC} https://example.com || { echo \"tether: ERROR public unreachable (connection failure)\" >&2; exit 1; }" \
         'echo "tether: public reached"' \
-        'curl -sS -o /dev/null --max-time 10 https://storage.googleapis.com || { echo "tether: ERROR google unreachable (connection failure)" >&2; exit 1; }' \
+        "curl -sS -o /dev/null --max-time ${ZRBGP_POSTURE_REQUEST_MAX_TIME_SEC} https://storage.googleapis.com || { echo \"tether: ERROR google unreachable (connection failure)\" >&2; exit 1; }" \
         'echo "tether: google reached"' \
         > "${z_path}" \
         || buc_die "Failed to write tether posture check"
@@ -558,9 +565,9 @@ zrbgp_write_posture_check() {
       printf '%s\n' \
         '#!/bin/bash' \
         'set -euo pipefail' \
-        'if curl -sS -o /dev/null --max-time 10 https://example.com; then echo "airgap: ERROR public is reachable (expected blocked)" >&2; exit 1; fi' \
+        "if curl -sS -o /dev/null --max-time ${ZRBGP_POSTURE_REQUEST_MAX_TIME_SEC} https://example.com; then echo \"airgap: ERROR public is reachable (expected blocked)\" >&2; exit 1; fi" \
         'echo "airgap: public blocked"' \
-        'curl -sS -o /dev/null --max-time 10 https://storage.googleapis.com || { echo "airgap: ERROR google unreachable (connection failure)" >&2; exit 1; }' \
+        "curl -sS -o /dev/null --max-time ${ZRBGP_POSTURE_REQUEST_MAX_TIME_SEC} https://storage.googleapis.com || { echo \"airgap: ERROR google unreachable (connection failure)\" >&2; exit 1; }" \
         'echo "airgap: google reached"' \
         > "${z_path}" \
         || buc_die "Failed to write airgap posture check"
@@ -577,9 +584,10 @@ zrbgp_write_posture_check() {
 # depot-info posture submit (which dispatches the posture check alone).
 # Pool builds are intentionally tiny; wall-clock is dominated by Cloud
 # Build infrastructure overhead (worker assignment, image pulls). Typical
-# happy path is 60-120s; budget is ZRBGP_BUILD_POLL_CEILING ×
-# ZRBGP_BUILD_POLL_INTERVAL = 10 minutes, well under Cloud Build's default
-# queueTtl=3600s. Synchronous: the levy/info caller blocks until terminal.
+# happy path is 60-120s; budget is ZRBGP_POOL_BUILD_POLL_CEILING ×
+# ZRBGP_POOL_BUILD_POLL_INTERVAL_SEC = 10 minutes, well under Cloud Build's
+# default queueTtl=3600s. Synchronous: the levy/info caller blocks until
+# terminal.
 # The previous fire-and-forget pattern caused the late-clearing-probe-
 # collision wedge documented in Memos/memo-20260517-cloudbuild-default-
 # quota-wedge/. SUCCESS terminal is the happy path; any non-2xx submission
@@ -644,14 +652,14 @@ zrbgp_pool_build_submit_await() {
   local z_poll_infix=""
   while true; do
     case "${z_status}" in PENDING|QUEUED|WORKING) : ;; *) break ;; esac
-    sleep "${ZRBGP_BUILD_POLL_INTERVAL}"
+    sleep "${ZRBGP_POOL_BUILD_POLL_INTERVAL_SEC}"
     z_polls=$((z_polls + 1))
-    test "${z_polls}" -le "${ZRBGP_BUILD_POLL_CEILING}" \
-      || buc_die "${z_operation_label} ${z_pool_variant}: timeout after ${ZRBGP_BUILD_POLL_CEILING} polls (${ZRBGP_BUILD_POLL_INTERVAL}s interval); last status=${z_status}"
+    test "${z_polls}" -le "${ZRBGP_POOL_BUILD_POLL_CEILING}" \
+      || buc_die "${z_operation_label} ${z_pool_variant}: timeout after ${ZRBGP_POOL_BUILD_POLL_CEILING} polls (${ZRBGP_POOL_BUILD_POLL_INTERVAL_SEC}s interval); last status=${z_status}"
     z_poll_infix="${z_infix_prefix}_${z_pool_variant}_poll_${z_polls}"
     rbgu_http_json "GET" "${z_build_get_url}" "${z_token}" "${z_poll_infix}"
     z_status=$(rbgu_json_field_capture "${z_poll_infix}" '.status') || z_status="UNKNOWN"
-    buc_info "  ${z_operation_label} ${z_pool_variant}: ${z_status} (poll ${z_polls}/${ZRBGP_BUILD_POLL_CEILING})"
+    buc_info "  ${z_operation_label} ${z_pool_variant}: ${z_status} (poll ${z_polls}/${ZRBGP_POOL_BUILD_POLL_CEILING})"
   done
   buc_info "  ${z_operation_label} ${z_pool_variant}: terminal = ${z_status}"
 }

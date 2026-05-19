@@ -158,7 +158,7 @@ zrbfl_inscribe_submit() {
   buc_info "Inscribe build submitted: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
-  zrbfc_wait_build_completion 120 "Inscribe"  # ~10 minutes at 5s intervals (7 images to pull+push)
+  zrbfc_wait_build_completion "${ZRBFC_BUILD_POLL_CEILING_INSCRIBE}" "Inscribe"
 }
 
 ######################################################################

@@ -413,7 +413,7 @@ zrbfv_graft_metadata_submit() {
   buc_info "Combined about+vouch build submitted: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
-  zrbfc_wait_build_completion 100 "About+Vouch"  # ~8 minutes at 5s intervals
+  zrbfc_wait_build_completion "${ZRBFC_BUILD_POLL_CEILING_ABOUT_VOUCH}" "About+Vouch"
 
   buc_success "About+Vouch complete: ${z_hallmark}"
   buc_info "About artifact: ${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_ABOUT}:${z_hallmark}"
@@ -576,7 +576,7 @@ zrbfv_about_submit() {
   buc_info "About build submitted: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
-  zrbfc_wait_build_completion 50 "About"  # ~4 minutes at 5s intervals (private pool)
+  zrbfc_wait_build_completion "${ZRBFC_BUILD_POLL_CEILING_ABOUT}" "About"
 }
 
 ######################################################################
@@ -812,7 +812,7 @@ zrbfv_vouch_submit() {
   buc_info "Vouch build submitted: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
-  zrbfc_wait_build_completion 50 "Vouch"  # ~4 minutes at 5s intervals (private pool is slower)
+  zrbfc_wait_build_completion "${ZRBFC_BUILD_POLL_CEILING_VOUCH}" "Vouch"
 }
 
 ######################################################################
