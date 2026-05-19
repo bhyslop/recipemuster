@@ -9803,9 +9803,10 @@
         "₢BOAAL",
         "₢BOAAN",
         "₢BOAAM",
-        "₢BOAAO"
+        "₢BOAAO",
+        "₢BOAAP"
       ],
-      "jjghn_next_pace_seed": "AAP",
+      "jjghn_next_pace_seed": "AAQ",
       "jjghn_paces": {
         "₢BOAAA": {
           "jjgpn_tacks": [
@@ -10067,6 +10068,17 @@
               "jjgtn_text": "## Character\nMechanical implementation with discipline-reading prerequisite.\n\n## Goal\nReplace `rbob_charged_predicate` in `Tools/rbk/rbob_bottle.sh` with an\nexplicit per-service check: sentry, pentacle, and bottle must each be\nindividually `running` for the predicate to return 0.\n\n## Locked\n- **Read BCG (`Tools/buk/vov_veiled/BCG-BashConsoleGuide.md`) before\n  writing any bash.** The current predicate's `2>/dev/null` is itself\n  a BCG violation being corrected here; the replacement must not\n  introduce others.\n- **Capture compose stderr to a file under `BURD_TEMP_DIR`** — do not\n  redirect to `/dev/null`. Operators need to inspect daemon errors\n  after a verify-active failure.\n\n## Done\nPredicate checks the three named services individually; stderr\ncaptured to a temp file; behavioral contract unchanged from caller's\nview (0 = charged, 1 = not, never dies). A moriah fixture trial\nconfirms the new predicate behaves correctly.",
               "jjgtn_silks": "named-service-charge-predicate",
               "jjgtn_basis": "e5e528a"
+            }
+          ]
+        },
+        "₢BOAAP": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260519-1654",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical implementation with discipline-reading and spec-update prerequisites.\n\n## Goal\nRepair the tether and airgap egress assertion scripts in\n`rbgp_Payor.sh` (~lines 1101-1127) so the probes actually validate\negress posture. Currently both probes fail at step 0 because\n`curl -fsS https://storage.googleapis.com` exits 22 (HTTP 400 on root\npath); the failure has been silently tolerated by the framework's\nany-terminal-state policy, defeating the probe's stated purpose and\npreventing step 2 (the `rbi_df` marker push) from ever running.\n\n## Locked\n- **Read BCG (`Tools/buk/vov_veiled/BCG-BashConsoleGuide.md`) before\n  writing any bash** — the assertion scripts are cloud-side bash but\n  their host-side composition must be BCG-compliant.\n- **Update `RBSDE-depot_levy.adoc`** to reflect the new assertion\n  semantics. The spec currently describes the assertion in idealized\n  terms; new text must accurately describe what the assertion tests\n  (likely connectivity-vs-authorization distinction).\n\n## Done\nProbes return SUCCESS terminal state on a fresh-levy trial under\nnormal conditions; the `rbi_df` marker reaches GAR (step 2 runs to\ncompletion). Egress assertion distinguishes reachability from\nauthorization and produces a clear diagnostic when posture is\nactually wrong. Spec updated. A levy fixture trial confirms.",
+              "jjgtn_silks": "probe-egress-assertion-repair",
+              "jjgtn_basis": "cf4ab1b"
             }
           ]
         }
