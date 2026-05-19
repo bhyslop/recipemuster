@@ -61,9 +61,9 @@ if missing: "Vessel not configured for conjuring"
 .. {rbbc_store}
 `«DIRECTOR_TOKEN»` for subsequent API calls
 .. {rbbc_store}
-`«DEPOT_PROJECT_ID»` as `${RBRR_CLOUD_PREFIX}d-${RBRR_DEPOT_MONIKER}` (resolved by `RBDC_DEPOT_PROJECT_ID`)
+`«DEPOT_PROJECT_ID»` as `${RBRD_CLOUD_PREFIX}d-${RBRD_DEPOT_MONIKER}` (resolved by `RBDC_DEPOT_PROJECT_ID`)
 .. {rbbc_store}
-`«GAR_REPOSITORY»` as `${RBRR_CLOUD_PREFIX}${RBRR_DEPOT_MONIKER}-gar` (resolved by `RBDC_GAR_REPOSITORY`)
+`«GAR_REPOSITORY»` as `${RBRD_CLOUD_PREFIX}${RBRD_DEPOT_MONIKER}-gar` (resolved by `RBDC_GAR_REPOSITORY`)
 
 //axhos_step
 . *Resolve Trigger Identity*:
@@ -74,7 +74,7 @@ link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.location
 ... project:
 `«DEPOT_PROJECT_ID»`
 ... location:
-{rbrr_gcp_region}
+{rbrd_gcp_region}
 ... filter matching `«TRIGGER_NAME»`
 .. {rbbc_require}
 exactly one trigger matches
@@ -92,7 +92,7 @@ link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.location
 ... project:
 `«DEPOT_PROJECT_ID»`
 ... location:
-{rbrr_gcp_region}
+{rbrd_gcp_region}
 ... triggerId: `«TRIGGER_ID»`
 ... source.repoSource.commitSha: `«RUBRIC_COMMIT»`
 .. Zero custom substitution overrides — all `_RBGY_*` values baked in
@@ -133,7 +133,7 @@ link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.location
 ... project:
 `«DEPOT_PROJECT_ID»`
 ... location:
-{rbrr_gcp_region}
+{rbrd_gcp_region}
 ... buildId: `«BUILD_ID»`
 .. Poll every 5 seconds for up to 20 minutes (240 attempts)
 .. {rbbc_store}
@@ -184,9 +184,9 @@ Cloud Build resolves these from the committed JSON — no values are overridden 
 *Registry coordinates*::
 [cols="1,2"]
 |===
-| `_RBGY_GAR_LOCATION` | Artifact Registry region. Source: {rbrr_gcp_region}.
-| `_RBGY_GAR_PROJECT` | Depot project ID. Source: derived `RBDC_DEPOT_PROJECT_ID` from `RBRR_CLOUD_PREFIX` + `RBRR_DEPOT_MONIKER`.
-| `_RBGY_GAR_REPOSITORY` | GAR repository name. Source: derived `RBDC_GAR_REPOSITORY` from `RBRR_CLOUD_PREFIX` + `RBRR_DEPOT_MONIKER`.
+| `_RBGY_GAR_LOCATION` | Artifact Registry region. Source: {rbrd_gcp_region}.
+| `_RBGY_GAR_PROJECT` | Depot project ID. Source: derived `RBDC_DEPOT_PROJECT_ID` from `RBRD_CLOUD_PREFIX` + `RBRD_DEPOT_MONIKER`.
+| `_RBGY_GAR_REPOSITORY` | GAR repository name. Source: derived `RBDC_GAR_REPOSITORY` from `RBRD_CLOUD_PREFIX` + `RBRD_DEPOT_MONIKER`.
 | `_RBGY_GAR_HOST_SUFFIX` | GAR Docker host suffix. Source: RBGC constant.
 | `_RBGY_ARK_BASENAME_IMAGE` | Image artifact basename under the hallmark subtree. Source: RBGC constant.
 | `_RBGY_CRANE_TAR_GZ` | Crane release tarball URL. Source: RBGC constant.

@@ -33,13 +33,13 @@ zrbgd_kindle() {
 
   # Depot-specific Constants — derive from RBDC kindle constants.
   # RBDC_DEPOT_PROJECT_ID and RBDC_GCS_BUCKET are themselves derived from
-  # (RBRR_CLOUD_PREFIX, RBRR_DEPOT_MONIKER) at zrbdc_kindle time.
+  # (RBRD_CLOUD_PREFIX, RBRD_DEPOT_MONIKER) at zrbdc_kindle time.
 
   # Service-specific Aliases
   readonly RBGD_GAR_PROJECT_ID="${RBDC_DEPOT_PROJECT_ID}"
-  readonly RBGD_GAR_LOCATION="${RBRR_GCP_REGION}"
+  readonly RBGD_GAR_LOCATION="${RBRD_GCP_REGION}"
   readonly RBGD_GCB_PROJECT_ID="${RBDC_DEPOT_PROJECT_ID}"
-  readonly RBGD_GCB_REGION="${RBRR_GCP_REGION}"
+  readonly RBGD_GCB_REGION="${RBRD_GCP_REGION}"
 
   # Project-dependent API Paths
   readonly RBGD_PROJECT_RESOURCE="${RBGC_PATH_PROJECTS}/${RBDC_DEPOT_PROJECT_ID}"
@@ -56,7 +56,7 @@ zrbgd_kindle() {
   # Depot name (the moniker) and bucket — both inputs to RBGD_MASON_EMAIL and
   # bucket-IAM operations. Moniker is the operator-set RBRR field; bucket is
   # already derived in RBDC.
-  readonly RBGD_DEPOT_NAME="${RBRR_DEPOT_MONIKER}"
+  readonly RBGD_DEPOT_NAME="${RBRD_DEPOT_MONIKER}"
   readonly RBGD_GCS_BUCKET="${RBDC_GCS_BUCKET}"
   readonly RBGD_MASON_EMAIL="${RBCC_role_mason}-${RBGD_DEPOT_NAME}@${RBGD_SA_EMAIL_FULL}"
 

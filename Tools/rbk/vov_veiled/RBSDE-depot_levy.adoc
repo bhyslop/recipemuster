@@ -10,7 +10,7 @@ The
 {rbtr_payor}
 creates a new depot infrastructure from the
 {rbtgi_payor_project}.
-The operation accepts no CLI parameters; depot identity is read from the kindled regime as `(RBRR_CLOUD_PREFIX, RBRR_DEPOT_MONIKER)`.
+The operation accepts no CLI parameters; depot identity is read from the kindled regime as `(RBRD_CLOUD_PREFIX, RBRD_DEPOT_MONIKER)`.
 
 //axhos_step
 . *Authenticate as
@@ -23,26 +23,26 @@ The operation accepts no CLI parameters; depot identity is read from the kindled
 .. {rbbc_call}
 link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations/list[locations.list] for the authenticated project
 .. {rbbc_require}
-`{rbrr_gcp_region}` present in the returned location set
+`{rbrd_gcp_region}` present in the returned location set
 
 //axhos_step
 . *Derive Depot Identity*:
 .. {rbbc_store}
-`«DEPOT_PROJECT_ID»` as `${RBRR_CLOUD_PREFIX}d-${RBRR_DEPOT_MONIKER}` (resolved by `RBDC_DEPOT_PROJECT_ID`)
+`«DEPOT_PROJECT_ID»` as `${RBRD_CLOUD_PREFIX}d-${RBRD_DEPOT_MONIKER}` (resolved by `RBDC_DEPOT_PROJECT_ID`)
 .. {rbbc_store}
-`«GAR_REPOSITORY»` as `${RBRR_CLOUD_PREFIX}${RBRR_DEPOT_MONIKER}-gar` (resolved by `RBDC_GAR_REPOSITORY`)
+`«GAR_REPOSITORY»` as `${RBRD_CLOUD_PREFIX}${RBRD_DEPOT_MONIKER}-gar` (resolved by `RBDC_GAR_REPOSITORY`)
 .. {rbbc_store}
-`«WORKER_POOL_STEM»` as `${RBRR_CLOUD_PREFIX}${RBRR_DEPOT_MONIKER}-pool` (resolved by `RBDC_GCB_POOL_STEM`)
+`«WORKER_POOL_STEM»` as `${RBRD_CLOUD_PREFIX}${RBRD_DEPOT_MONIKER}-pool` (resolved by `RBDC_GCB_POOL_STEM`)
 .. {rbbc_store}
-`«BUILD_BUCKET»` as `${RBRR_CLOUD_PREFIX}b-${RBRR_DEPOT_MONIKER}` (resolved by `RBDC_GCS_BUCKET`)
-.. NOTE: Joint length `${RBRR_CLOUD_PREFIX}` + `d-` + `${RBRR_DEPOT_MONIKER}` ≤ 30 chars (GCP project ID limit) is enforced upstream by `zrbrr_enforce` at regime kindle time, so this step performs no length validation.
+`«BUILD_BUCKET»` as `${RBRD_CLOUD_PREFIX}b-${RBRD_DEPOT_MONIKER}` (resolved by `RBDC_GCS_BUCKET`)
+.. NOTE: Joint length `${RBRD_CLOUD_PREFIX}` + `d-` + `${RBRD_DEPOT_MONIKER}` ≤ 30 chars (GCP project ID limit) is enforced upstream by `zrbrd_enforce` at regime kindle time, so this step performs no length validation.
 
 //axhos_step
 . *Create Depot Project*:
 .. {rbbc_submit}
 link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/create[projects.create] with:
 ... projectId: `«DEPOT_PROJECT_ID»`
-... displayName: `«RBGC_DEPOT_DISPLAY_PREFIX» «RBRR_DEPOT_MONIKER»`
+... displayName: `«RBGC_DEPOT_DISPLAY_PREFIX» «RBRD_DEPOT_MONIKER»`
 ... NOTE: This displayName prefix anchors CRM v3 search-based depot discrimination used by {rbtgo_depot_list}.
 ... parent: `{rbrp_parent_type}s/{rbrp_parent_id}` (if parent_type != `none`)
 .. {rbbc_await}
@@ -82,7 +82,7 @@ all APIs enabled successfully
 .. For each worker pool variant in [`tether`, `airgap`]:
 ... {rbbc_submit}
 link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.workerPools/create[workerPools.create] with:
-.... parent: `projects/«DEPOT_PROJECT_ID»/locations/{rbrr_gcp_region}`
+.... parent: `projects/«DEPOT_PROJECT_ID»/locations/{rbrd_gcp_region}`
 .... workerPoolId: `«WORKER_POOL_STEM»-«VARIANT»`
 .... body for `tether`:
 +
@@ -90,7 +90,7 @@ link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.location
 {
   "privatePoolV1Config": {
     "workerConfig": {
-      "machineType": "«RBRR_GCB_MACHINE_TYPE»"
+      "machineType": "«RBRD_GCB_MACHINE_TYPE»"
     }
   }
 }
@@ -101,7 +101,7 @@ link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.location
 {
   "privatePoolV1Config": {
     "workerConfig": {
-      "machineType": "«RBRR_GCB_MACHINE_TYPE»"
+      "machineType": "«RBRD_GCB_MACHINE_TYPE»"
     },
     "networkConfig": {
       "egressOption": "NO_PUBLIC_EGRESS"
@@ -112,7 +112,7 @@ link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.location
 ... {rbbc_await}
 returned operation
 .. NOTE:
-{rbrr_gcb_machine_type}
+{rbrd_gcb_machine_type}
 is a Compute Engine machine type (e.g., `e2-standard-2`), consumed at pool creation time.
 Pool scales to zero workers when idle — no idle cost accrues.
 .. NOTE: The two variants differ only in egress posture. The `airgap` body declares `networkConfig.egressOption: NO_PUBLIC_EGRESS`, which Cloud Build enforces at pool level — builds routed through the airgap pool cannot reach the public internet regardless of build configuration. Awaiting the LRO terminal state at create time surfaces machine-type quota denial here rather than as a downstream "workerpool not found" at the subsequent per-pool probe submission step.
@@ -121,7 +121,7 @@ Pool scales to zero workers when idle — no idle cost accrues.
 . *Verify IAM Propagation*:
 .. NOTE: After API enablement, IAM permissions may not be immediately available due to eventual consistency.
 .. {rbbc_poll}
-link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/list[artifactregistry.repositories.list] for `«DEPOT_PROJECT_ID»` in `{rbrr_gcp_region}`
+link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/list[artifactregistry.repositories.list] for `«DEPOT_PROJECT_ID»` in `{rbrd_gcp_region}`
 .. Poll at `RBGC_EVENTUAL_CONSISTENCY_SEC` intervals until HTTP 200 or `RBGC_MAX_CONSISTENCY_SEC` timeout
 .. {rbbc_require}
 HTTP 200 response confirming IAM propagation complete
@@ -134,7 +134,7 @@ if timeout: "IAM propagation timeout - artifactregistry API not accessible"
 .. {rbbc_call}
 link:https://cloud.google.com/storage/docs/json_api/v1/buckets/insert[storage.buckets.insert] with:
 ... name: `«BUILD_BUCKET»`
-... location: `{rbrr_gcp_region}`
+... location: `{rbrd_gcp_region}`
 ... project: `«DEPOT_PROJECT_ID»`
 ... lifecycle rule: delete objects after 1 day
 
@@ -144,8 +144,8 @@ link:https://cloud.google.com/storage/docs/json_api/v1/buckets/insert[storage.bu
 link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/create[artifactregistry.repositories.create] with:
 ... repositoryId: `«GAR_REPOSITORY»`
 ... format: `DOCKER`
-... location: `{rbrr_gcp_region}`
-... parent: `projects/«DEPOT_PROJECT_ID»/locations/{rbrr_gcp_region}`
+... location: `{rbrd_gcp_region}`
+... parent: `projects/«DEPOT_PROJECT_ID»/locations/{rbrd_gcp_region}`
 ... cleanupPolicyDryRun: `false` (active mode — eligible artifacts are deleted, not just logged)
 ... cleanupPolicies: a map keyed by policy ID with a single entry:
 +
@@ -178,8 +178,8 @@ Service Account*:
 replaces Cloud Build's implicit service account to provide deterministic permissions and predictable authorization within the depot infrastructure.
 .. {rbbc_call}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/create[iam.serviceAccounts.create] with:
-... accountId: `mason-«RBRR_DEPOT_MONIKER»`
-... displayName: `«RBGC_DEPOT_DISPLAY_PREFIX» mason «RBRR_DEPOT_MONIKER»`
+... accountId: `mason-«RBRD_DEPOT_MONIKER»`
+... displayName: `«RBGC_DEPOT_DISPLAY_PREFIX» mason «RBRD_DEPOT_MONIKER»`
 ... project: `«DEPOT_PROJECT_ID»`
 .. {rbbc_store}
 `«MASON_EMAIL»` from response `.email` field
@@ -246,7 +246,7 @@ follow-up hint
 to refresh per-moniker depot fact files
 
 //axhoc_completion
-Successful execution creates depot infrastructure with configured build bucket, container repository, Mason service account, and private worker pool — all derived from `(RBRR_CLOUD_PREFIX, RBRR_DEPOT_MONIKER)`.
+Successful execution creates depot infrastructure with configured build bucket, container repository, Mason service account, and private worker pool — all derived from `(RBRD_CLOUD_PREFIX, RBRD_DEPOT_MONIKER)`.
 Proceed to
 {rbtgo_governor_mantle}
 to create the

@@ -199,10 +199,10 @@ zrbgv_jwt_ar_probe_once_capture() {
 
   buc_log_args "Build Artifact Registry packages.list URL"
   test -n "${RBDC_DEPOT_PROJECT_ID:-}" || buc_die "RBDC_DEPOT_PROJECT_ID is not set"
-  test -n "${RBRR_GCP_REGION:-}"       || buc_die "RBRR_GCP_REGION is not set"
+  test -n "${RBRD_GCP_REGION:-}"       || buc_die "RBRD_GCP_REGION is not set"
   test -n "${RBDC_GAR_REPOSITORY:-}"   || buc_die "RBDC_GAR_REPOSITORY is not set"
 
-  local -r z_ar_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/locations/${RBRR_GCP_REGION}/repositories/${RBDC_GAR_REPOSITORY}/packages"
+  local -r z_ar_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/locations/${RBRD_GCP_REGION}/repositories/${RBDC_GAR_REPOSITORY}/packages"
   local -r z_ar_label="JWT SA probe [${z_role}] attempt ${z_attempt}"
 
   buc_log_args "Call Artifact Registry packages.list (with transient-5xx retry)"

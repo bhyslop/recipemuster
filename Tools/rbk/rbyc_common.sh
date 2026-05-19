@@ -118,6 +118,7 @@ zrbyc_kindle() {
   # Regime file types
   zrbyc_yk RBYC_RBRP      "${z_docs}" "RBRP"
   zrbyc_yk RBYC_RBRR      "${z_docs}" "RBRR"
+  zrbyc_yk RBYC_RBRD      "${z_docs}" "RBRD"
   zrbyc_yk RBYC_RBRN      "${z_docs}" "RBRN"
   zrbyc_yk RBYC_RBRV      "${z_docs}" "RBRV"
   zrbyc_yk RBYC_BURC      "${z_docs}" "BURC"

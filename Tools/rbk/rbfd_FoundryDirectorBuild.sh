@@ -197,15 +197,15 @@ zrbfd_quota_preflight() {
   test -n "${z_token}" || buc_die "zrbfd_quota_preflight: token required"
 
   # Extract vCPU count from machine type (last segment after final hyphen)
-  local -r z_vcpus="${RBRR_GCB_MACHINE_TYPE##*-}"
+  local -r z_vcpus="${RBRD_GCB_MACHINE_TYPE##*-}"
   case "${z_vcpus}" in
     ""|0|*[!0-9]*)
-      buc_warn "Cannot parse vCPU count from RBRR_GCB_MACHINE_TYPE='${RBRR_GCB_MACHINE_TYPE}' -- skipping quota preflight"
+      buc_warn "Cannot parse vCPU count from RBRD_GCB_MACHINE_TYPE='${RBRD_GCB_MACHINE_TYPE}' -- skipping quota preflight"
       return 0
       ;;
   esac
 
-  buc_log_args "Machine type ${RBRR_GCB_MACHINE_TYPE} = ${z_vcpus} vCPUs"
+  buc_log_args "Machine type ${RBRD_GCB_MACHINE_TYPE} = ${z_vcpus} vCPUs"
 
   # Query Service Usage consumer quota API for concurrent_private_pool_build_cpus
   local -r z_metric_encoded="cloudbuild.googleapis.com%2Fconcurrent_private_pool_build_cpus"
@@ -223,7 +223,7 @@ zrbfd_quota_preflight() {
 
   # Filter quota response to region-specific bucket via intermediate file
   rbgu_jq_file_to_file_ok "quota_preflight" "quota_region" \
-    "[.consumerQuotaLimits[0].quotaBuckets[] | select(.dimensions.region == \"${RBRR_GCP_REGION}\")] | .[0] // {}" \
+    "[.consumerQuotaLimits[0].quotaBuckets[] | select(.dimensions.region == \"${RBRD_GCP_REGION}\")] | .[0] // {}" \
     || true
 
   # Extract effective limit from region bucket, then fallback to first bucket

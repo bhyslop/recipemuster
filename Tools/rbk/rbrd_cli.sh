@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2025 Scale Invariant, Inc.
+# Copyright 2026 Scale Invariant, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,55 +16,62 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle GCP Governor - Command Line Interface
+# RBRD CLI - Command line interface for RBRD depot regime operations
 
 set -euo pipefail
 
 source "${BURD_BUK_DIR}/buc_command.sh"
 
-zrbgg_furnish() {
+######################################################################
+# Command Functions
+
+# Command: validate - enrollment-based validation report
+rbrd_validate() {
+  buc_doc_brief "Validate RBRD depot regime configuration via enrollment report"
+  buc_doc_shown || return 0
+
+  buc_step "Validating RBRD depot regime file: ${RBBC_rbrd_file}"
+  buv_report RBRD "Depot Regime"
+  buc_step "RBRD depot regime valid"
+}
+
+# Command: render - diagnostic display of all RBRD fields
+rbrd_render() {
+  buc_doc_brief "Display diagnostic view of RBRD depot regime configuration"
+  buc_doc_shown || return 0
+
+  buv_render RBRD "RBRD - Recipe Bottle Regime Depot" "${RBBC_rbrd_file}"
+}
+
+######################################################################
+# Furnish and Main
+
+zrbrd_furnish() {
   buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
-  buc_doc_env "BURD_TEMP_DIR         " "Temporary directory for intermediate files"
-  buc_doc_env "BURD_OUTPUT_DIR       " "Directory for command outputs"
   buc_doc_env_done || return 0
 
   source "${BURD_CONFIG_DIR}/rbbc_constants.sh"
   local z_rbk_kit_dir="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}"
+
   source "${BURD_BUK_DIR}/buv_validation.sh"
   source "${BURD_BUK_DIR}/burd_regime.sh"
-  source "${BURD_BUK_DIR}/buf_fact.sh"
+  source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
   source "${z_rbk_kit_dir}/rbcc_Constants.sh"
-  source "${z_rbk_kit_dir}/rbgc_Constants.sh"
-  source "${z_rbk_kit_dir}/rbgd_DepotConstants.sh"
-  source "${z_rbk_kit_dir}/rbgo_OAuth.sh"
-  source "${z_rbk_kit_dir}/rbgu_Utility.sh"
-  source "${z_rbk_kit_dir}/rbgi_IAM.sh"
-  source "${z_rbk_kit_dir}/rbrr_regime.sh"
   source "${z_rbk_kit_dir}/rbrd_regime.sh"
-  source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
-  source "${RBBC_rbrr_file}"
   source "${RBBC_rbrd_file}"
-  source "${z_rbk_kit_dir}/rbgg_Governor.sh"
 
   zbuv_kindle
   zburd_kindle
+  zburd_enforce
   zrbcc_kindle
 
-  zrbrr_kindle
   zrbrd_kindle
-  zrbrr_enforce
   zrbrd_enforce
-  zrbdc_kindle
 
-  zrbgc_kindle
-  zrbgd_kindle
-  zrbgo_kindle
-  zrbgu_kindle
-  zrbgi_kindle
-  zrbgg_kindle
+  zbupr_kindle
 }
 
-buc_execute rbgg_ "Governor Procedures" zrbgg_furnish "$@"
+buc_execute rbrd_ "Recipe Bottle Depot Regime" zrbrd_furnish "$@"
 
 # eof

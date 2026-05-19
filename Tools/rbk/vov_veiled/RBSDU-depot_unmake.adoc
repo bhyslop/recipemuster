@@ -29,10 +29,10 @@ operator confirmation with exact depot project ID (interactive)
 . *Refuse live depot target*:
 .. {rbbc_fatal}
 if argument equals the live depot derivation
-`{rbrr_cloud_prefix}{rbgc_depot_project_infix}{rbrr_depot_moniker}`
+`{rbrd_cloud_prefix}{rbgc_depot_project_infix}{rbrd_depot_moniker}`
 (i.e., the value materialised as `RBDC_DEPOT_PROJECT_ID`).
 Recovery: rename
-{rbrr_depot_moniker}
+{rbrd_depot_moniker}
 in `rbrr.env`, or run marshal-zero (`rbw-MZ`), then retry.
 .. Local string comparison; zero network traffic. Defense against orphaning local regime state by destroying the depot the regime currently points to.
 
@@ -96,7 +96,7 @@ billing unlink successful (HTTP 200)
 //axhos_step
 . *Delete Dual Worker Pools*:
 .. For each pool suffix (`-tether`, `-airgap`):
-... Construct pool resource name: `projects/«DEPOT_PROJECT_ID»/locations/{rbrr_gcp_region}/workerPools/rbw-«INPUT_DEPOT_NAME»-pool«SUFFIX»`
+... Construct pool resource name: `projects/«DEPOT_PROJECT_ID»/locations/{rbrd_gcp_region}/workerPools/rbw-«INPUT_DEPOT_NAME»-pool«SUFFIX»`
 ... {rbbc_call}
 link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.workerPools/delete[workerPools.delete] for the pool resource name
 ... Treat HTTP 404 as success (pool already gone — tolerated)

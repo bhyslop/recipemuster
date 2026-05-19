@@ -39,8 +39,10 @@ zrbgp_furnish() {
   source "${z_rbk_kit_dir}/rbgc_Constants.sh"
   source "${z_rbk_kit_dir}/rbcc_Constants.sh"
   source "${z_rbk_kit_dir}/rbrr_regime.sh"
+  source "${z_rbk_kit_dir}/rbrd_regime.sh"
   source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
   source "${RBBC_rbrr_file}"
+  source "${RBBC_rbrd_file}"
   source "${z_rbk_kit_dir}/rbgo_OAuth.sh"
   source "${z_rbk_kit_dir}/rbgu_Utility.sh"
   source "${z_rbk_kit_dir}/rbgi_IAM.sh"
@@ -55,8 +57,10 @@ zrbgp_furnish() {
   zrbcc_kindle
 
   zrbrr_kindle
+  zrbrd_kindle
   if test "${z_command}" != "rbgp_depot_list"; then
     zrbrr_enforce
+    zrbrd_enforce
   fi
   zrbdc_kindle
 

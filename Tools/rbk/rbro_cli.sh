@@ -66,6 +66,7 @@ zrbro_furnish() {
   source "${z_rbk_kit_dir}/rbcc_Constants.sh"
   source "${z_rbk_kit_dir}/rbgc_Constants.sh"
   source "${z_rbk_kit_dir}/rbrr_regime.sh"
+  source "${z_rbk_kit_dir}/rbrd_regime.sh"
   source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
   source "${z_rbk_kit_dir}/rbro_regime.sh"
 
@@ -75,8 +76,11 @@ zrbro_furnish() {
   zrbcc_kindle
 
   source "${RBBC_rbrr_file}" || buc_die "Failed to source RBRR: ${RBBC_rbrr_file}"
+  source "${RBBC_rbrd_file}" || buc_die "Failed to source RBRD: ${RBBC_rbrd_file}"
   zrbrr_kindle
+  zrbrd_kindle
   zrbrr_enforce
+  zrbrd_enforce
   zrbdc_kindle
 
   rbro_load

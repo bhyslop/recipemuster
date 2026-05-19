@@ -22,8 +22,8 @@ for a specified
 {rbtgi_depot_project}
 . *Validate Input Parameters*:
 .. {rbbc_store}
-`«DEPOT_PROJECT_ID»` as `${RBRR_CLOUD_PREFIX}d-${RBRR_DEPOT_MONIKER}` (resolved by `RBDC_DEPOT_PROJECT_ID`)
-.. NOTE: Format and joint length of `${RBRR_CLOUD_PREFIX}` + `d-` + `${RBRR_DEPOT_MONIKER}` are enforced upstream by `zrbrr_enforce` at regime kindle time, so this step performs no shape validation.
+`«DEPOT_PROJECT_ID»` as `${RBRD_CLOUD_PREFIX}d-${RBRD_DEPOT_MONIKER}` (resolved by `RBDC_DEPOT_PROJECT_ID`)
+.. NOTE: Format and joint length of `${RBRD_CLOUD_PREFIX}` + `d-` + `${RBRD_DEPOT_MONIKER}` are enforced upstream by `zrbrd_enforce` at regime kindle time, so this step performs no shape validation.
 
 //axhos_step
 . *Authenticate as
@@ -77,7 +77,7 @@ link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccount
 to create service account in
 `«INPUT_DEPOT_PROJECT_ID»`
 .. Set `accountId` to `«GOVERNOR_ACCOUNT_ID»`
-.. Use display name: `«RBGC_DEPOT_DISPLAY_PREFIX» governor «RBRR_DEPOT_MONIKER»`
+.. Use display name: `«RBGC_DEPOT_DISPLAY_PREFIX» governor «RBRD_DEPOT_MONIKER»`
 .. {rbbc_store}
 `«GOVERNOR_SERVICE_ACCOUNT»` from response `.email` field
 .. {rbbc_require}

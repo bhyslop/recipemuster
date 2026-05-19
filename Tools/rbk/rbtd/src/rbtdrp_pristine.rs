@@ -43,18 +43,23 @@ use crate::rbtdrm_manifest::{
 /// RBRR field names referenced by the pristine-lifecycle fixture. Field
 /// identifiers extracted as consts so the blank-field array and the
 /// throwaway-prefix install helper share a single definition site.
-const RBTDRP_FIELD_RBRR_CLOUD_PREFIX: &str = "RBRR_CLOUD_PREFIX";
+const RBTDRP_FIELD_RBRD_CLOUD_PREFIX: &str = "RBRD_CLOUD_PREFIX";
 const RBTDRP_FIELD_RBRR_RUNTIME_PREFIX: &str = "RBRR_RUNTIME_PREFIX";
-const RBTDRP_FIELD_RBRR_DEPOT_MONIKER: &str = "RBRR_DEPOT_MONIKER";
+const RBTDRP_FIELD_RBRD_DEPOT_MONIKER: &str = "RBRD_DEPOT_MONIKER";
 
-/// Site-specific RBRR fields that rblm_zero blanks. These three fields define
-/// the depot-bound site identity (project ID, GAR repo, pool stem, and bucket
-/// derive from CLOUD_PREFIX + DEPOT_MONIKER at kindle); an empty value is the
-/// post-marshal-zero invariant.
+/// Site-specific RBRR field rblm_zero blanks. Currently just the runtime
+/// prefix — depot identity (CLOUD_PREFIX, DEPOT_MONIKER) moved to RBRD.
 const RBTDRP_RBRR_BLANK_FIELDS: &[&str] = &[
-    RBTDRP_FIELD_RBRR_CLOUD_PREFIX,
     RBTDRP_FIELD_RBRR_RUNTIME_PREFIX,
-    RBTDRP_FIELD_RBRR_DEPOT_MONIKER,
+];
+
+/// Site-specific RBRD fields rblm_zero blanks. Both define the depot-bound
+/// site identity (project ID, GAR repo, pool stem, and bucket derive from
+/// CLOUD_PREFIX + DEPOT_MONIKER at kindle); an empty value is the post-
+/// marshal-zero invariant.
+const RBTDRP_RBRD_BLANK_FIELDS: &[&str] = &[
+    RBTDRP_FIELD_RBRD_CLOUD_PREFIX,
+    RBTDRP_FIELD_RBRD_DEPOT_MONIKER,
 ];
 
 /// Throwaway RBRR prefix bases stamped into rbrr.env by
@@ -124,6 +129,7 @@ const RBTDRP_RBRN_BLANK_FIELDS: &[&str] = &["RBRN_SENTRY_HALLMARK", "RBRN_BOTTLE
 /// File-relative constants matching rbbc_constants.sh / rbcc_Constants.sh.
 const RBTDRP_DOT_DIR: &str = ".rbk";
 const RBTDRP_RBRR_FILE: &str = ".rbk/rbrr.env";
+const RBTDRP_RBRD_FILE: &str = ".rbk/rbrd.env";
 const RBTDRP_RBRA_FILE: &str = "rbra.env";
 const RBTDRP_RBRN_FILE: &str = "rbrn.env";
 const RBTDRP_RBRV_FILE: &str = "rbrv.env";
@@ -143,7 +149,7 @@ pub(crate) fn rbtdrp_burs_tincture() -> Result<String, String> {
         .ok_or_else(|| format!("BURS_TINCTURE not in {}", path.display()))
 }
 
-/// Compose throwaway RBRR_CLOUD_PREFIX with the given tincture.
+/// Compose throwaway RBRD_CLOUD_PREFIX with the given tincture.
 pub(crate) fn rbtdrp_throwaway_cloud_prefix(tincture: &str) -> String {
     format!("{}{}-", RBTDRP_THROWAWAY_CLOUD_BASE, tincture)
 }
@@ -164,29 +170,29 @@ pub(crate) fn rbtdrp_family_stem_arc(tincture: &str) -> String {
 // so the probe reads the project root from current_dir() — theurge always
 // launches from the project root.
 
-/// Live-disqualify case probe: depot levied (RBRR_CLOUD_PREFIX +
-/// RBRR_DEPOT_MONIKER both non-blank, RBDC kindle composes a non-empty
+/// Live-disqualify case probe: depot levied (RBRD_CLOUD_PREFIX +
+/// RBRD_DEPOT_MONIKER both non-blank, RBDC kindle composes a non-empty
 /// project_id). Established by case 2 (rbtdrp_depot_stand_up).
 fn rbtdrp_probe_depot_levied() -> Result<(), String> {
     let root = std::env::current_dir()
         .map_err(|e| format!("cannot resolve project root: {}", e))?;
-    let rbrr = root.join(RBTDRP_RBRR_FILE);
+    let rbrd = root.join(RBTDRP_RBRD_FILE);
 
-    let cloud = rbtdrp_read_env_value(&rbrr, RBTDRP_FIELD_RBRR_CLOUD_PREFIX).unwrap_or_default();
+    let cloud = rbtdrp_read_env_value(&rbrd, RBTDRP_FIELD_RBRD_CLOUD_PREFIX).unwrap_or_default();
     if cloud.is_empty() {
         return Err(format!(
             "{} blank in {} — throwaway prefixes not installed",
-            RBTDRP_FIELD_RBRR_CLOUD_PREFIX,
-            rbrr.display()
+            RBTDRP_FIELD_RBRD_CLOUD_PREFIX,
+            rbrd.display()
         ));
     }
 
-    let moniker = rbtdrp_read_env_value(&rbrr, RBTDRP_FIELD_RBRR_DEPOT_MONIKER).unwrap_or_default();
+    let moniker = rbtdrp_read_env_value(&rbrd, RBTDRP_FIELD_RBRD_DEPOT_MONIKER).unwrap_or_default();
     if moniker.is_empty() {
         return Err(format!(
             "{} blank in {} — depot stand-up did not run",
-            RBTDRP_FIELD_RBRR_DEPOT_MONIKER,
-            rbrr.display()
+            RBTDRP_FIELD_RBRD_DEPOT_MONIKER,
+            rbrd.display()
         ));
     }
 
@@ -248,7 +254,7 @@ fn rbtdrp_check_tree_clean(root: &Path, violations: &mut Vec<String>) {
     }
 }
 
-/// Class B — five site-specific RBRR fields are blank.
+/// Class B — site-specific RBRR/RBRD fields are blank.
 fn rbtdrp_check_rbrr_fields(rbrr: &Path, violations: &mut Vec<String>) {
     for field in RBTDRP_RBRR_BLANK_FIELDS {
         if let Some(value) = rbtdrp_read_env_value(rbrr, field) {
@@ -258,6 +264,21 @@ fn rbtdrp_check_rbrr_fields(rbrr: &Path, violations: &mut Vec<String>) {
                     field,
                     value,
                     rbrr.display()
+                ));
+            }
+        }
+    }
+}
+
+fn rbtdrp_check_rbrd_fields(rbrd: &Path, violations: &mut Vec<String>) {
+    for field in RBTDRP_RBRD_BLANK_FIELDS {
+        if let Some(value) = rbtdrp_read_env_value(rbrd, field) {
+            if !value.is_empty() {
+                violations.push(format!(
+                    "RBRD field non-blank: {}={} (in {})",
+                    field,
+                    value,
+                    rbrd.display()
                 ));
             }
         }
@@ -408,8 +429,18 @@ fn rbtdrp_replace_env_fields(content: &str, pairs: &[(&str, &str)]) -> String {
 /// `git add <file> && git commit -m <message>` from `root`. Bubbles the
 /// underlying stderr on either step's failure.
 fn rbtdrp_git_add_and_commit(root: &Path, file: &str, message: &str) -> Result<(), String> {
+    rbtdrp_git_add_and_commit_paths(root, &[file], message)
+}
+
+fn rbtdrp_git_add_and_commit_paths(
+    root: &Path,
+    files: &[&str],
+    message: &str,
+) -> Result<(), String> {
+    let mut add_args: Vec<&str> = vec!["add"];
+    add_args.extend_from_slice(files);
     let add = Command::new("git")
-        .args(["add", file])
+        .args(&add_args)
         .current_dir(root)
         .output()
         .map_err(|e| format!("rbtdrp: git add invocation failed: {}", e))?;
@@ -443,7 +474,7 @@ fn rbtdrp_git_add_and_commit(root: &Path, file: &str, message: &str) -> Result<(
 ///
 /// Pristine-lifecycle cases that need non-blank prefixes (depot/governor/
 /// retriever/director lifecycle) call this as their first step. The helper
-/// reads current values; if `RBRR_CLOUD_PREFIX` and `RBRR_RUNTIME_PREFIX`
+/// reads current values; if `RBRD_CLOUD_PREFIX` and `RBRR_RUNTIME_PREFIX`
 /// already match the throwaway markers, returns `Ok(())` with no side
 /// effect. Otherwise rewrites both lines in place, then `git add` +
 /// `git commit` the change. One commit per fixture run regardless of which
@@ -453,11 +484,12 @@ fn rbtdrp_git_add_and_commit(root: &Path, file: &str, message: &str) -> Result<(
 /// matching the pristine fixture's start-over-from-zero failure mode.
 pub(crate) fn rbtdrp_install_throwaway_prefixes(root: &Path) -> Result<(), String> {
     let rbrr = root.join(RBTDRP_RBRR_FILE);
+    let rbrd = root.join(RBTDRP_RBRD_FILE);
     let tincture = rbtdrp_burs_tincture()?;
     let cloud_target = rbtdrp_throwaway_cloud_prefix(&tincture);
     let runtime_target = rbtdrp_throwaway_runtime_prefix(&tincture);
 
-    let cloud = rbtdrp_read_env_value(&rbrr, RBTDRP_FIELD_RBRR_CLOUD_PREFIX).unwrap_or_default();
+    let cloud = rbtdrp_read_env_value(&rbrd, RBTDRP_FIELD_RBRD_CLOUD_PREFIX).unwrap_or_default();
     let runtime =
         rbtdrp_read_env_value(&rbrr, RBTDRP_FIELD_RBRR_RUNTIME_PREFIX).unwrap_or_default();
 
@@ -465,23 +497,33 @@ pub(crate) fn rbtdrp_install_throwaway_prefixes(root: &Path) -> Result<(), Strin
         return Ok(());
     }
 
-    let content = std::fs::read_to_string(&rbrr)
-        .map_err(|e| format!("rbtdrp: read {}: {}", rbrr.display(), e))?;
-    let new_content = rbtdrp_replace_env_fields(
-        &content,
-        &[
-            (RBTDRP_FIELD_RBRR_CLOUD_PREFIX, cloud_target.as_str()),
-            (RBTDRP_FIELD_RBRR_RUNTIME_PREFIX, runtime_target.as_str()),
-        ],
-    );
-    std::fs::write(&rbrr, &new_content)
-        .map_err(|e| format!("rbtdrp: write {}: {}", rbrr.display(), e))?;
+    if cloud != cloud_target {
+        let content = std::fs::read_to_string(&rbrd)
+            .map_err(|e| format!("rbtdrp: read {}: {}", rbrd.display(), e))?;
+        let new_content = rbtdrp_replace_env_fields(
+            &content,
+            &[(RBTDRP_FIELD_RBRD_CLOUD_PREFIX, cloud_target.as_str())],
+        );
+        std::fs::write(&rbrd, &new_content)
+            .map_err(|e| format!("rbtdrp: write {}: {}", rbrd.display(), e))?;
+    }
+
+    if runtime != runtime_target {
+        let content = std::fs::read_to_string(&rbrr)
+            .map_err(|e| format!("rbtdrp: read {}: {}", rbrr.display(), e))?;
+        let new_content = rbtdrp_replace_env_fields(
+            &content,
+            &[(RBTDRP_FIELD_RBRR_RUNTIME_PREFIX, runtime_target.as_str())],
+        );
+        std::fs::write(&rbrr, &new_content)
+            .map_err(|e| format!("rbtdrp: write {}: {}", rbrr.display(), e))?;
+    }
 
     let commit_msg = format!(
-        "pristine-lifecycle fixture: install throwaway RBRR prefixes ({}/{})",
+        "pristine-lifecycle fixture: install throwaway prefixes ({}/{})",
         cloud_target, runtime_target
     );
-    rbtdrp_git_add_and_commit(root, RBTDRP_RBRR_FILE, &commit_msg)
+    rbtdrp_git_add_and_commit_paths(root, &[RBTDRP_RBRR_FILE, RBTDRP_RBRD_FILE], &commit_msg)
 }
 
 /// Pick the next free moniker for `family_stem` by walking the depot_list
@@ -543,48 +585,48 @@ fn rbtdrp_pick_next_moniker(
 }
 
 /// Compose the depot project_id from kindled regime values. Mirrors RBDC's
-/// derivation: `${RBRR_CLOUD_PREFIX}d-${moniker}`. Used by cases 2 and 3 to
+/// derivation: `${RBRD_CLOUD_PREFIX}d-${moniker}`. Used by cases 2 and 3 to
 /// recover the project_id post-levy without re-reading a fact file (the
 /// pre-collapse `rbgp_fact_depot_project_id` producer is gone).
 fn rbtdrp_compose_project_id(root: &Path, moniker: &str) -> Result<String, String> {
-    let rbrr = root.join(RBTDRP_RBRR_FILE);
-    let cloud_prefix = rbtdrp_read_env_value(&rbrr, RBTDRP_FIELD_RBRR_CLOUD_PREFIX)
-        .ok_or_else(|| format!("RBRR_CLOUD_PREFIX missing from {}", rbrr.display()))?;
+    let rbrd = root.join(RBTDRP_RBRD_FILE);
+    let cloud_prefix = rbtdrp_read_env_value(&rbrd, RBTDRP_FIELD_RBRD_CLOUD_PREFIX)
+        .ok_or_else(|| format!("RBRD_CLOUD_PREFIX missing from {}", rbrd.display()))?;
     Ok(format!("{}d-{}", cloud_prefix, moniker))
 }
 
 /// Cloud-prefix subdir name used in depot fact-file layout
-/// (`<cloud_prefix>/<moniker>.depot`). Derived from RBRR_CLOUD_PREFIX with
+/// (`<cloud_prefix>/<moniker>.depot`). Derived from RBRD_CLOUD_PREFIX with
 /// the structural trailing `-` stripped so it matches the filesystem layout
 /// emitted by zrbgp_depot_state_emit (which derives the subdir from
 /// projectId via `${project_id%%-d-*}`).
 fn rbtdrp_cloud_prefix_subdir(root: &Path) -> Result<String, String> {
-    let rbrr = root.join(RBTDRP_RBRR_FILE);
-    let cloud_prefix = rbtdrp_read_env_value(&rbrr, RBTDRP_FIELD_RBRR_CLOUD_PREFIX)
-        .ok_or_else(|| format!("RBRR_CLOUD_PREFIX missing from {}", rbrr.display()))?;
+    let rbrd = root.join(RBTDRP_RBRD_FILE);
+    let cloud_prefix = rbtdrp_read_env_value(&rbrd, RBTDRP_FIELD_RBRD_CLOUD_PREFIX)
+        .ok_or_else(|| format!("RBRD_CLOUD_PREFIX missing from {}", rbrd.display()))?;
     Ok(cloud_prefix.trim_end_matches('-').to_string())
 }
 
-/// Set `RBRR_DEPOT_MONIKER` in rbrr.env to `moniker` and commit. Cases 2-3
+/// Set `RBRD_DEPOT_MONIKER` in rbrd.env to `moniker` and commit. Cases 2-3
 /// use this to install a moniker that drives `RBDC_DEPOT_PROJECT_ID` via
 /// kindle derivation. The commit is separate from the throwaway-prefix
 /// commit so the audit trail shows the moniker landing as its own pace.
 fn rbtdrp_install_depot_moniker(root: &Path, moniker: &str) -> Result<(), String> {
-    let rbrr = root.join(RBTDRP_RBRR_FILE);
-    let content = std::fs::read_to_string(&rbrr)
-        .map_err(|e| format!("rbtdrp: read {}: {}", rbrr.display(), e))?;
+    let rbrd = root.join(RBTDRP_RBRD_FILE);
+    let content = std::fs::read_to_string(&rbrd)
+        .map_err(|e| format!("rbtdrp: read {}: {}", rbrd.display(), e))?;
     let new_content = rbtdrp_replace_env_fields(
         &content,
-        &[(RBTDRP_FIELD_RBRR_DEPOT_MONIKER, moniker)],
+        &[(RBTDRP_FIELD_RBRD_DEPOT_MONIKER, moniker)],
     );
-    std::fs::write(&rbrr, &new_content)
-        .map_err(|e| format!("rbtdrp: write {}: {}", rbrr.display(), e))?;
+    std::fs::write(&rbrd, &new_content)
+        .map_err(|e| format!("rbtdrp: write {}: {}", rbrd.display(), e))?;
 
     let commit_msg = format!(
         "pristine-lifecycle fixture: set {}={}",
-        RBTDRP_FIELD_RBRR_DEPOT_MONIKER, moniker
+        RBTDRP_FIELD_RBRD_DEPOT_MONIKER, moniker
     );
-    rbtdrp_git_add_and_commit(root, RBTDRP_RBRR_FILE, &commit_msg)
+    rbtdrp_git_add_and_commit(root, RBTDRP_RBRD_FILE, &commit_msg)
 }
 
 // ── Case ─────────────────────────────────────────────────────
@@ -602,6 +644,10 @@ fn rbtdrp_marshal_zero_attestation(_dir: &Path) -> rbtdre_Verdict {
     if !rbrr.exists() {
         return rbtdre_Verdict::Fail(format!("RBRR file not found: {}", rbrr.display()));
     }
+    let rbrd = root.join(RBTDRP_RBRD_FILE);
+    if !rbrd.exists() {
+        return rbtdre_Verdict::Fail(format!("RBRD file not found: {}", rbrd.display()));
+    }
 
     let secrets_dir = rbtdrp_read_env_value(&rbrr, "RBRR_SECRETS_DIR").unwrap_or_default();
     let vessel_dir = rbtdrp_read_env_value(&rbrr, "RBRR_VESSEL_DIR").unwrap_or_default();
@@ -610,6 +656,7 @@ fn rbtdrp_marshal_zero_attestation(_dir: &Path) -> rbtdre_Verdict {
 
     rbtdrp_check_tree_clean(&root, &mut violations);
     rbtdrp_check_rbrr_fields(&rbrr, &mut violations);
+    rbtdrp_check_rbrd_fields(&rbrd, &mut violations);
     rbtdrp_check_rbra_files(&root, &secrets_dir, &mut violations);
     rbtdrp_check_nameplate_hallmarks(&root, &mut violations);
     rbtdrp_check_vessel_depot_fields(&root, &vessel_dir, &mut violations);
@@ -806,12 +853,12 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
     let root = ctx.project_root().to_path_buf();
 
     let rbrr = root.join(RBTDRP_RBRR_FILE);
-    let moniker = match rbtdrp_read_env_value(&rbrr, RBTDRP_FIELD_RBRR_DEPOT_MONIKER) {
+    let moniker = match rbtdrp_read_env_value(&rbrr, RBTDRP_FIELD_RBRD_DEPOT_MONIKER) {
         Some(m) if !m.is_empty() => m,
         _ => {
             return rbtdre_Verdict::Fail(
                 "case 2 (stand-up) did not run or rbrr.env is missing the moniker \
-                 (RBRR_DEPOT_MONIKER is blank)"
+                 (RBRD_DEPOT_MONIKER is blank)"
                     .to_string(),
             )
         }
@@ -1070,21 +1117,21 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
 
 /// Recovery-diagnostic substring emitted by `rbgp_depot_unmake`'s
 /// live-disqualify branch (rbgp_Payor.sh:944-948). The branch names
-/// `RBRR_DEPOT_MONIKER` rename or `rbw-MZ` as recovery paths; the
+/// `RBRD_DEPOT_MONIKER` rename or `rbw-MZ` as recovery paths; the
 /// assertion matches on the field-name token, which is invariant
 /// across cosmetic message edits.
-const RBTDRP_LIVE_DISQUALIFY_RECOVERY: &str = "RBRR_DEPOT_MONIKER";
+const RBTDRP_LIVE_DISQUALIFY_RECOVERY: &str = "RBRD_DEPOT_MONIKER";
 
 /// Case 4 (new) — live-disqualify refusal. Pre-condition: depot levied
-/// by case 2 (probe asserts both RBRR_CLOUD_PREFIX and RBRR_DEPOT_MONIKER
+/// by case 2 (probe asserts both RBRD_CLOUD_PREFIX and RBRD_DEPOT_MONIKER
 /// are non-blank). Composes the live RBDC_DEPOT_PROJECT_ID and invokes
 /// `rbw-dU` with it as $1; expects non-zero exit + recovery diagnostic
-/// naming `RBRR_DEPOT_MONIKER` (BBAA9 contract). The refusal lands
+/// naming `RBRD_DEPOT_MONIKER` (BBAA9 contract). The refusal lands
 /// before authenticate (rbgp_Payor.sh:944-948), so no GCP traffic
 /// occurs — assertion is on exit-code + diagnostic shape only.
 fn rbtdrp_depot_live_disqualify(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
-        name: "depot levied (RBRR_CLOUD_PREFIX + RBRR_DEPOT_MONIKER set)",
+        name: "depot levied (RBRD_CLOUD_PREFIX + RBRD_DEPOT_MONIKER set)",
         check: rbtdrp_probe_depot_levied,
         remediation: "rerun case 2 (rbtdrp_depot_stand_up) before this case",
     };
@@ -1101,11 +1148,11 @@ fn rbtdrp_depot_live_disqualify_impl(
     let root = ctx.project_root().to_path_buf();
 
     let rbrr = root.join(RBTDRP_RBRR_FILE);
-    let moniker = match rbtdrp_read_env_value(&rbrr, RBTDRP_FIELD_RBRR_DEPOT_MONIKER) {
+    let moniker = match rbtdrp_read_env_value(&rbrr, RBTDRP_FIELD_RBRD_DEPOT_MONIKER) {
         Some(m) if !m.is_empty() => m,
         _ => {
             return rbtdre_Verdict::Fail(
-                "RBRR_DEPOT_MONIKER blank — probe should have caught this".to_string(),
+                "RBRD_DEPOT_MONIKER blank — probe should have caught this".to_string(),
             )
         }
     };
@@ -1153,7 +1200,7 @@ fn rbtdrp_depot_live_disqualify_impl(
 
 /// Case 5 — depot tear-down. Pre-condition: depot exists from case 2. Reads
 /// moniker from rbrr.env, composes the throwaway's project_id from it,
-/// rotates RBRR_DEPOT_MONIKER to a placeholder so rbgp_depot_unmake's
+/// rotates RBRD_DEPOT_MONIKER to a placeholder so rbgp_depot_unmake's
 /// live-disqualify guard lets the unmake through, invokes rbw-dU with the
 /// captured project_id (BURE_CONFIRM=skip), re-lists, and verifies the
 /// depot is absent or in DELETE_REQUESTED state via fact-file content read
@@ -1166,12 +1213,12 @@ fn rbtdrp_depot_tear_down_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_V
     let root = ctx.project_root().to_path_buf();
 
     let rbrr = root.join(RBTDRP_RBRR_FILE);
-    let moniker = match rbtdrp_read_env_value(&rbrr, RBTDRP_FIELD_RBRR_DEPOT_MONIKER) {
+    let moniker = match rbtdrp_read_env_value(&rbrr, RBTDRP_FIELD_RBRD_DEPOT_MONIKER) {
         Some(m) if !m.is_empty() => m,
         _ => {
             return rbtdre_Verdict::Fail(
                 "case 2 (stand-up) did not run or rbrr.env is missing the moniker \
-                 (RBRR_DEPOT_MONIKER is blank)"
+                 (RBRD_DEPOT_MONIKER is blank)"
                     .to_string(),
             )
         }

@@ -45,7 +45,7 @@ Windows host support is planned but not yet tested — see [Roadmap](#Roadmap).
 Podman support is architecturally accommodated by the spec but deferred — see [Roadmap](#Roadmap).
 
 <a id="Regime"></a>All configuration flows through [Regimes](#Regime) — structured `.env` files with typed validation, each with its own render and validate commands.
-Some regimes are committed in the repo: [Vessel](#Vessel) definitions ([RBRV](#RBRV)), [Nameplate](#Nameplate) configurations ([RBRN](#RBRN)), [Depot](#Depot) identity ([RBRR](#RBRR)), and [Payor](#Payor) identity ([RBRP](#RBRP)).
+Some regimes are committed in the repo: [Vessel](#Vessel) definitions ([RBRV](#RBRV)), [Nameplate](#Nameplate) configurations ([RBRN](#RBRN)), [Depot](#Depot) identity ([RBRD](#RBRD)), repository-wide settings ([RBRR](#RBRR)), and [Payor](#Payor) identity ([RBRP](#RBRP)).
 Others live on the filesystem outside revision control: OAuth credentials ([RBRO](#RBRO)), role credentials ([RBRA](#RBRA)), and developer workstation paths ([BURS](#BURS)).
 
 <a id="Tabtarget"></a>Every operation is launched through a [Tabtarget](#Tabtarget) — a shell script in the `tt/` directory.
@@ -529,7 +529,8 @@ The annotated tree below maps its files to the concepts defined above.
 | `├── .buk/` | [BURC](#BURC) project structure [Regime](#Regime) |
 | `├── .rbk/` | [Regime](#Regime) configuration root |
 | `│   ├── rbrp.env` | [RBRP](#RBRP) — [Payor](#Payor) identity for this [Depot](#Depot) |
-| `│   ├── rbrr.env` | [RBRR](#RBRR) — [Depot](#Depot) identity and build configuration |
+| `│   ├── rbrr.env` | [RBRR](#RBRR) — Repository-wide configuration shared across all operations |
+| `│   ├── rbrd.env` | [RBRD](#RBRD) — [Depot](#Depot) identity (frozen at [Levy](#Levy)) |
 | `│   ├── ccyolo/` | [Nameplate](#Nameplate) — [ccyolo](#ccyolo) Claude Code sandbox |
 | `│   │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + Claude Code, Anthropic-only allowlist |
 | `│   ├── tadmor/` | [Nameplate](#Nameplate) — [tadmor](#tadmor) adversarial testing |
@@ -581,7 +582,9 @@ The annotated tree below maps its files to the concepts defined above.
 Not in git.
 Log directory, station paths.
 
-<a id="RBRR"></a>**[RBRR](#RBRR)** — [Depot](#Depot) identity and build configuration — populated during [Levy](#Levy), consumed by [Director](#Director) and [Retriever](#Retriever) operations.
+<a id="RBRR"></a>**[RBRR](#RBRR)** — Repository-wide configuration: runtime container prefix, vessel directory, container DNS, Cloud Build timeouts, secrets directory, public docs URL.
+
+<a id="RBRD"></a>**[RBRD](#RBRD)** — [Depot](#Depot) identity — cloud prefix, depot moniker, GCP region, Cloud Build pool machine type — populated during [Levy](#Levy) and frozen for the depot's productive lifetime; changing any field after [Levy](#Levy) requires a fresh [Depot](#Depot).
 
 <a id="RBRP"></a>**[RBRP](#RBRP)** — [Manor](#Manor) identity — billing account, OAuth client ID, operator email, and the [Manor's](#Manor) GCP project.
 In the repo.

@@ -613,7 +613,7 @@ zrbgp_pool_build_submit_await() {
   test -n "${z_infix_prefix}"    || buc_die "zrbgp_pool_build_submit_await: infix_prefix required"
   test -n "${z_operation_label}" || buc_die "zrbgp_pool_build_submit_await: operation_label required"
 
-  local -r z_region="${RBRR_GCP_REGION}"
+  local -r z_region="${RBRD_GCP_REGION}"
   local -r z_build_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/locations/${z_region}/builds"
   local -r z_infix="${z_infix_prefix}_${z_pool_variant}_submit"
 
@@ -683,7 +683,7 @@ zrbgp_pool_probe_submit() {
   local -r z_mason_email="${4}"
   local -r z_posture_check_file="${5}"
 
-  local -r z_region="${RBRR_GCP_REGION}"
+  local -r z_region="${RBRD_GCP_REGION}"
   local -r z_pool_resource="projects/${RBDC_DEPOT_PROJECT_ID}/locations/${z_region}/workerPools/${z_pool_id}"
   local -r z_mason_sa="projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts/${z_mason_email}"
   local -r z_probe_ref="${z_region}${RBGC_GAR_HOST_SUFFIX}/${RBDC_DEPOT_PROJECT_ID}/${RBDC_GAR_REPOSITORY}/${RBGC_GAR_CATEGORY_DEPOT_FACTS}/probe-${z_pool_variant}:probe"
@@ -770,7 +770,7 @@ zrbgp_pool_posture_submit() {
   test -n "${z_mason_email}"        || buc_die "zrbgp_pool_posture_submit: mason_email required"
   test -n "${z_posture_check_file}" || buc_die "zrbgp_pool_posture_submit: posture_check_file required"
 
-  local -r z_region="${RBRR_GCP_REGION}"
+  local -r z_region="${RBRD_GCP_REGION}"
   local -r z_pool_resource="projects/${RBDC_DEPOT_PROJECT_ID}/locations/${z_region}/workerPools/${z_pool_id}"
   local -r z_mason_sa="projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts/${z_mason_email}"
 
@@ -974,13 +974,13 @@ rbgp_payor_install() {
   buc_info "  RBRP_BILLING_ACCOUNT_ID=<obtain from Cloud Console Billing>"
   buc_info ""
   buc_info "Next: rbgp_depot_levy"
-  buc_info "  (set RBRR_DEPOT_MONIKER and RBRR_GCP_REGION in rbrr.env first)"
+  buc_info "  (set RBRD_DEPOT_MONIKER and RBRD_GCP_REGION in rbrr.env first)"
 }
 
 rbgp_depot_levy() {
   zrbgp_sentinel
 
-  local -r z_region="${RBRR_GCP_REGION}"
+  local -r z_region="${RBRD_GCP_REGION}"
 
   buc_doc_brief "Create new depot infrastructure following RBAGS specification"
   buc_doc_shown || return 0
@@ -1007,7 +1007,7 @@ rbgp_depot_levy() {
   # OAuth users create projects without parent (per MPCR)
   jq -n \
     --arg projectId "${RBDC_DEPOT_PROJECT_ID}" \
-    --arg displayName "${RBGC_DEPOT_DISPLAY_PREFIX} ${RBRR_DEPOT_MONIKER}" \
+    --arg displayName "${RBGC_DEPOT_DISPLAY_PREFIX} ${RBRD_DEPOT_MONIKER}" \
     '{
       projectId: $projectId,
       displayName: $displayName
@@ -1065,7 +1065,7 @@ rbgp_depot_levy() {
   local -r z_tether_create_url="${z_pool_parent}?workerPoolId=${z_tether_id}"
   local -r z_tether_create_body="${BURD_TEMP_DIR}/rbgp_pool_tether_create.json"
 
-  jq -n --arg machineType "${RBRR_GCB_MACHINE_TYPE}" \
+  jq -n --arg machineType "${RBRD_GCB_MACHINE_TYPE}" \
     '{
       privatePoolV1Config: {
         workerConfig: {
@@ -1091,7 +1091,7 @@ rbgp_depot_levy() {
   local -r z_airgap_create_url="${z_pool_parent}?workerPoolId=${z_airgap_id}"
   local -r z_airgap_create_body="${BURD_TEMP_DIR}/rbgp_pool_airgap_create.json"
 
-  jq -n --arg machineType "${RBRR_GCB_MACHINE_TYPE}" \
+  jq -n --arg machineType "${RBRD_GCB_MACHINE_TYPE}" \
     '{
       privatePoolV1Config: {
         workerConfig: {
@@ -1189,8 +1189,8 @@ rbgp_depot_levy() {
   rbgu_poll_until_ok "IAM API" "${z_iam_preflight_url}" "${z_token}" "iam_sa_preflight"
 
   buc_step 'Create Mason service account'
-  local -r z_mason_name="${RBCC_role_mason}-${RBRR_DEPOT_MONIKER}"
-  local -r z_mason_display_name="${RBGC_DEPOT_DISPLAY_PREFIX} mason ${RBRR_DEPOT_MONIKER}"
+  local -r z_mason_name="${RBCC_role_mason}-${RBRD_DEPOT_MONIKER}"
+  local -r z_mason_display_name="${RBGC_DEPOT_DISPLAY_PREFIX} mason ${RBRD_DEPOT_MONIKER}"
   local -r z_create_sa_body="${BURD_TEMP_DIR}/rbgp_create_mason.json"
 
   jq -n \
@@ -1290,7 +1290,7 @@ rbgp_depot_unmake() {
 
   if test "${z_project_id}" = "${RBDC_DEPOT_PROJECT_ID}"; then
     buc_warn "Refusing to unmake the live RBRR-selected depot: ${z_project_id}"
-    buc_info "Recovery: rename RBRR_DEPOT_MONIKER in rbrr.env, or run rbw-MZ to zero regime, then retry."
+    buc_info "Recovery: rename RBRD_DEPOT_MONIKER in rbrr.env, or run rbw-MZ to zero regime, then retry."
     buc_die "Live depot cannot be unmade — would orphan local regime state"
   fi
 
@@ -1431,7 +1431,7 @@ rbgp_depot_unmake() {
   buc_step 'Delete dual worker pools (if exist)'
   # Delete tether pool
   local -r z_tether_del_id="${z_pool_stem}${RBGC_POOL_SUFFIX_TETHER}"
-  local -r z_tether_del_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${z_project_id}/locations/${RBRR_GCP_REGION}${RBGC_PATH_WORKER_POOLS}/${z_tether_del_id}"
+  local -r z_tether_del_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${z_project_id}/locations/${RBRD_GCP_REGION}${RBGC_PATH_WORKER_POOLS}/${z_tether_del_id}"
   rbgu_http_json "DELETE" "${z_tether_del_url}" "${z_token}" "depot_destroy_pool_tether"
   local z_tether_del_code
   z_tether_del_code=$(rbgu_http_code_capture "depot_destroy_pool_tether") || z_tether_del_code=""
@@ -1442,7 +1442,7 @@ rbgp_depot_unmake() {
 
   # Delete airgap pool
   local -r z_airgap_del_id="${z_pool_stem}${RBGC_POOL_SUFFIX_AIRGAP}"
-  local -r z_airgap_del_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${z_project_id}/locations/${RBRR_GCP_REGION}${RBGC_PATH_WORKER_POOLS}/${z_airgap_del_id}"
+  local -r z_airgap_del_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${z_project_id}/locations/${RBRD_GCP_REGION}${RBGC_PATH_WORKER_POOLS}/${z_airgap_del_id}"
   rbgu_http_json "DELETE" "${z_airgap_del_url}" "${z_token}" "depot_destroy_pool_airgap"
   local z_airgap_del_code
   z_airgap_del_code=$(rbgu_http_code_capture "depot_destroy_pool_airgap") || z_airgap_del_code=""
@@ -1582,7 +1582,7 @@ rbgp_depot_info() {
   local z_token
   z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
 
-  local -r z_mason_email="${RBCC_role_mason}-${RBRR_DEPOT_MONIKER}@${RBDC_DEPOT_PROJECT_ID}.${RBGC_SA_EMAIL_DOMAIN}"
+  local -r z_mason_email="${RBCC_role_mason}-${RBRD_DEPOT_MONIKER}@${RBDC_DEPOT_PROJECT_ID}.${RBGC_SA_EMAIL_DOMAIN}"
   local -r z_tether_id="${RBDC_GCB_POOL_STEM}${RBGC_POOL_SUFFIX_TETHER}"
   local -r z_airgap_id="${RBDC_GCB_POOL_STEM}${RBGC_POOL_SUFFIX_AIRGAP}"
 
@@ -1648,11 +1648,11 @@ rbgp_governor_mantle() {
 
   buc_doc_brief "Create or replace Governor service account in a depot"
   buc_doc_lines "This operation is idempotent: existing governor-* SAs are deleted before creating a new one"
-  buc_doc_lines "Targets depot derived from RBRR_CLOUD_PREFIX + RBRR_DEPOT_MONIKER (RBDC_DEPOT_PROJECT_ID)"
+  buc_doc_lines "Targets depot derived from RBRD_CLOUD_PREFIX + RBRD_DEPOT_MONIKER (RBDC_DEPOT_PROJECT_ID)"
   buc_doc_shown || return 0
 
   buc_step 'Validate input parameters'
-  test -n "${z_depot_project_id}" || buc_die "RBDC_DEPOT_PROJECT_ID is empty — set RBRR_CLOUD_PREFIX and RBRR_DEPOT_MONIKER in rbrr.env"
+  test -n "${z_depot_project_id}" || buc_die "RBDC_DEPOT_PROJECT_ID is empty — set RBRD_CLOUD_PREFIX and RBRD_DEPOT_MONIKER in rbrr.env"
 
   buc_step 'Authenticate as Payor'
   test -n "${RBRP_PAYOR_PROJECT_ID:-}" || buc_die "RBRP_PAYOR_PROJECT_ID is not set"
@@ -1743,7 +1743,7 @@ rbgp_governor_mantle() {
   local -r z_create_sa_body="${BURD_TEMP_DIR}/rbgp_create_governor.json"
   jq -n \
     --arg accountId "${z_governor_account_id}" \
-    --arg displayName "${RBGC_DEPOT_DISPLAY_PREFIX} governor ${RBRR_DEPOT_MONIKER}" \
+    --arg displayName "${RBGC_DEPOT_DISPLAY_PREFIX} governor ${RBRD_DEPOT_MONIKER}" \
     '{
       accountId: $accountId,
       serviceAccount: {

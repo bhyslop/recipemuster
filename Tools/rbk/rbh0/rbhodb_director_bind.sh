@@ -51,11 +51,11 @@ rbho_director_bind() {
   fi
 
   local z_has_depot=0
-  if test -f "${RBBC_rbrr_file}"; then
+  if test -f "${RBBC_rbrd_file}"; then
     local z_line=""
     while IFS= read -r z_line; do
-      case "${z_line}" in RBRR_DEPOT_MONIKER=?*) z_has_depot=1; break ;; esac
-    done < "${RBBC_rbrr_file}"
+      case "${z_line}" in RBRD_DEPOT_MONIKER=?*) z_has_depot=1; break ;; esac
+    done < "${RBBC_rbrd_file}"
   fi
 
   local z_sentry_ready=0
@@ -112,7 +112,7 @@ rbho_director_bind() {
     buh_tt "      " "${RBZ_ONBOARD_CRED_DIRECTOR}"
   fi
   if test "${z_has_depot}" = "1"; then
-    buh_line "${RBYC_PROBE_YES}${RBYC_DEPOT} configured (RBRR_DEPOT_MONIKER populated)"
+    buh_line "${RBYC_PROBE_YES}${RBYC_DEPOT} configured (RBRD_DEPOT_MONIKER populated)"
   else
     buh_line "${RBYC_PROBE_NO}${RBYC_DEPOT} not configured — the ${RBYC_PAYOR} must establish the ${RBYC_DEPOT}:"
     buh_tt "      " "${RBZ_ONBOARD_PAYOR_HB}"

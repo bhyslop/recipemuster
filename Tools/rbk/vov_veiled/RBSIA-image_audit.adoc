@@ -37,7 +37,7 @@ audits hallmark identifiers:
 //axhos_step
 . *Enumerate Packages Under Hallmarks Root*:
 .. {rbbc_store}
-`«HALLMARKS_ROOT»` from `RBGL_HALLMARKS_ROOT` (kindled as `RBRR_CLOUD_PREFIX` + `hallmarks`)
+`«HALLMARKS_ROOT»` from `RBGL_HALLMARKS_ROOT` (kindled as `RBRD_CLOUD_PREFIX` + `hallmarks`)
 .. {rbbc_store}
 `«REPO_BASE»` as the GAR REST API repository base (`projects/«PROJECT»/locations/«REGION»/repositories/«REPOSITORY»`)
 .. {rbbc_call}
@@ -89,7 +89,7 @@ audits reliquary stamps:
 //axhos_step
 . *Enumerate Packages Under Reliquaries Root*:
 .. {rbbc_store}
-`«RELIQUARIES_ROOT»` from `RBGL_RELIQUARIES_ROOT` (kindled as `RBRR_CLOUD_PREFIX` + `reliquaries`)
+`«RELIQUARIES_ROOT»` from `RBGL_RELIQUARIES_ROOT` (kindled as `RBRD_CLOUD_PREFIX` + `reliquaries`)
 .. {rbbc_store}
 `«REPO_BASE»` as the GAR REST API repository base
 .. {rbbc_call}
@@ -141,7 +141,7 @@ audits enshrined base anchors:
 //axhos_step
 . *Enumerate Anchors Under Enshrines Root*:
 .. {rbbc_store}
-`«ENSHRINES_ROOT»` from `RBGL_ENSHRINES_ROOT` (kindled as `RBRR_CLOUD_PREFIX` + `enshrines`)
+`«ENSHRINES_ROOT»` from `RBGL_ENSHRINES_ROOT` (kindled as `RBRD_CLOUD_PREFIX` + `enshrines`)
 .. {rbbc_store}
 `«REPO_BASE»` as the GAR REST API repository base
 .. {rbbc_call}

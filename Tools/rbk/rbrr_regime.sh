@@ -37,8 +37,7 @@ zrbrr_kindle() {
 
   buv_regime_enroll RBRR
 
-  buv_group_enroll "Resource Prefixing"
-  buv_string_enroll  RBRR_CLOUD_PREFIX         2   11  "Prefix for cloud-visible resource names (depot project, GAR repo, GCS bucket, pool stem)"
+  buv_group_enroll "Runtime Prefix"
   buv_string_enroll  RBRR_RUNTIME_PREFIX       2   11  "Prefix prepended to local container and network names"
 
   buv_group_enroll "Vessel and Local Configuration"
@@ -46,12 +45,7 @@ zrbrr_kindle() {
   buv_string_enroll  RBRR_BOTTLE_WORKSPACE     1   64  "Container workspace path for bottle working directory"
   buv_ipv4_enroll    RBRR_DNS_SERVER                   "DNS server for containers"
 
-  buv_group_enroll "GCP Infrastructure"
-  buv_string_enroll  RBRR_DEPOT_MONIKER            1   26  "Depot moniker — paired with CLOUD_PREFIX to derive depot project ID, GAR repo, pool stem, and bucket"
-  buv_gname_enroll   RBRR_GCP_REGION               1   32  "GCP region"
-
   buv_group_enroll "Google Cloud Build Configuration"
-  buv_gname_enroll   RBRR_GCB_MACHINE_TYPE           3   64  "Machine type for Cloud Build (CE format)"
   buv_string_enroll  RBRR_GCB_TIMEOUT                2   10  "Build timeout (e.g., 1200s)"
   buv_decimal_enroll RBRR_GCB_MIN_CONCURRENT_BUILDS  1  999  "Min concurrent builds required"
 
@@ -91,34 +85,8 @@ zrbrr_enforce() {
   [[ "${RBRR_GCB_TIMEOUT}" =~ ^[0-9]+s$ ]] \
     || buc_die "Invalid RBRR_GCB_TIMEOUT format: ${RBRR_GCB_TIMEOUT} (expected NNNs)"
 
-  [[ "${RBRR_DEPOT_MONIKER}" =~ ^[a-z][a-z0-9]*$ ]] \
-    || buc_die "Invalid RBRR_DEPOT_MONIKER format: ${RBRR_DEPOT_MONIKER} (expected lowercase alphanumeric starting with letter; no hyphens)"
-
-  [[ "${RBRR_CLOUD_PREFIX}"   =~ ^[a-z][a-z0-9-]*-$ ]] \
-    || buc_die "Invalid RBRR_CLOUD_PREFIX format: ${RBRR_CLOUD_PREFIX}   (expected lowercase starting with letter, ending in hyphen)"
-
   [[ "${RBRR_RUNTIME_PREFIX}" =~ ^[a-z][a-z0-9-]*-$ ]] \
     || buc_die "Invalid RBRR_RUNTIME_PREFIX format: ${RBRR_RUNTIME_PREFIX} (expected lowercase starting with letter, ending in hyphen)"
-
-  # Joint-length cap: GCP project IDs max 30 chars. RBDC_DEPOT_PROJECT_ID
-  # composes as "${RBRR_CLOUD_PREFIX}d-${RBRR_DEPOT_MONIKER}".
-  #
-  # Test fixtures (rbtdrp_pristine, rbtdrk_canonical) compose BURS_TINCTURE
-  # (1-3 chars) into BOTH the prefix and the moniker before writing rbrr.env
-  # for parallel-station disjointness on a shared payor manor. The cap below
-  # applies to whatever is in rbrr.env at validation time — production-
-  # authored or fixture-written. Fixture bases are short (≤7 chars) so
-  # tinctured fixture values stay well under the cap; the joint check exists
-  # to catch operator-authored prefix+moniker pairs that would overflow.
-  # The validator does not cross-reference BURS_TINCTURE (BURS may not be
-  # kindled in every RBRR-enforce context); the literal field values are
-  # the contract.
-  local -r z_prefix_len=${#RBRR_CLOUD_PREFIX}
-  local -r z_moniker_len=${#RBRR_DEPOT_MONIKER}
-  local -r z_joint_len=$(( z_prefix_len + 2 + z_moniker_len ))
-  test "${z_joint_len}" -le 30 \
-    || buc_die "Joint length exceeds 30-char GCP project ID limit: RBRR_CLOUD_PREFIX(${z_prefix_len}) + 'd-'(2) + RBRR_DEPOT_MONIKER(${z_moniker_len}) = ${z_joint_len}"
-
 }
 
 # eof

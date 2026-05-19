@@ -146,6 +146,7 @@ fn rbtdrf_run_rv(
          source '{}/rbcc_Constants.sh'\n\
          source '{}/rbgc_Constants.sh'\n\
          source '{}/rbrr_regime.sh'\n\
+         source '{}/rbrd_regime.sh'\n\
          source '{}/rbrv_regime.sh'\n\
          source '{}/rbrn_regime.sh'\n\
          source '{}/rbdc_DerivedConstants.sh'\n\
@@ -154,7 +155,7 @@ fn rbtdrf_run_rv(
          {}",
         buv_p,
         rbk_p, rbk_p, rbk_p,
-        rbk_p, rbk_p, rbk_p,
+        rbk_p, rbk_p, rbk_p, rbk_p,
         preamble, setup,
     );
 
@@ -802,7 +803,7 @@ fn rbtdrf_ev_multiscope(dir: &Path) -> rbtdre_Verdict {
 
 // Env-var name consts — single source of truth for prefix-related env vars
 // referenced across rv_rbrr negatives and rs_rbrr_nonempty_prefix smoke.
-const RBTDRF_VAR_RBRR_CLOUD_PREFIX: &str = "RBRR_CLOUD_PREFIX";
+const RBTDRF_VAR_RBRD_CLOUD_PREFIX: &str = "RBRD_CLOUD_PREFIX";
 const RBTDRF_VAR_RBRR_RUNTIME_PREFIX: &str = "RBRR_RUNTIME_PREFIX";
 
 // Expected RBGL_HALLMARKS_ROOT value — must match RBGC_GAR_CATEGORY_HALLMARKS.
@@ -812,14 +813,14 @@ const RBTDRF_VAL_HALLMARKS_ROOT: &str = "rbi_hm";
 
 fn rbtdrf_rv_rbrr_neg(dir: &Path, label: &str, setup: &str) -> rbtdre_Verdict {
     rbtdrf_run_rv(dir,
-        "source \"${PWD}/.rbk/rbrr.env\"",
-        &format!("{}\nzrbrr_kindle\nzrbrr_enforce", setup),
+        "source \"${PWD}/.rbk/rbrr.env\"\nsource \"${PWD}/.rbk/rbrd.env\"",
+        &format!("{}\nzrbrr_kindle\nzrbrd_kindle\nzrbrr_enforce\nzrbrd_enforce", setup),
         false, label,
     )
 }
 
 fn rbtdrf_rv_rbrr_missing_moniker(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_rv_rbrr_neg(dir, "rbrr-missing-moniker", "unset RBRR_DEPOT_MONIKER")
+    rbtdrf_rv_rbrr_neg(dir, "rbrr-missing-moniker", "unset RBRD_DEPOT_MONIKER")
 }
 
 fn rbtdrf_rv_rbrr_bad_timeout(dir: &Path) -> rbtdre_Verdict {
@@ -827,7 +828,7 @@ fn rbtdrf_rv_rbrr_bad_timeout(dir: &Path) -> rbtdre_Verdict {
 }
 
 fn rbtdrf_rv_rbrr_bad_moniker(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_rv_rbrr_neg(dir, "rbrr-bad-moniker", "export RBRR_DEPOT_MONIKER=\"BAD-MONIKER\"")
+    rbtdrf_rv_rbrr_neg(dir, "rbrr-bad-moniker", "export RBRD_DEPOT_MONIKER=\"BAD-MONIKER\"")
 }
 
 fn rbtdrf_rv_rbrr_unexpected_var(dir: &Path) -> rbtdre_Verdict {
@@ -849,17 +850,17 @@ fn rbtdrf_rv_rbrr_bad_secrets_dir(dir: &Path) -> rbtdre_Verdict {
 
 fn rbtdrf_rv_rbrr_bad_cloud_prefix_uppercase(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_rv_rbrr_neg(dir, "rbrr-bad-cloud-prefix-uppercase",
-        &format!("export {}=\"BAD-\"", RBTDRF_VAR_RBRR_CLOUD_PREFIX))
+        &format!("export {}=\"BAD-\"", RBTDRF_VAR_RBRD_CLOUD_PREFIX))
 }
 
 fn rbtdrf_rv_rbrr_bad_cloud_prefix_no_trailing_hyphen(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_rv_rbrr_neg(dir, "rbrr-bad-cloud-prefix-no-trailing-hyphen",
-        &format!("export {}=\"acme\"", RBTDRF_VAR_RBRR_CLOUD_PREFIX))
+        &format!("export {}=\"acme\"", RBTDRF_VAR_RBRD_CLOUD_PREFIX))
 }
 
 fn rbtdrf_rv_rbrr_bad_cloud_prefix_too_long(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_rv_rbrr_neg(dir, "rbrr-bad-cloud-prefix-too-long",
-        &format!("export {}=\"twelvechars-\"", RBTDRF_VAR_RBRR_CLOUD_PREFIX))
+        &format!("export {}=\"twelvechars-\"", RBTDRF_VAR_RBRD_CLOUD_PREFIX))
 }
 
 fn rbtdrf_rv_rbrr_bad_runtime_prefix_uppercase(dir: &Path) -> rbtdre_Verdict {
@@ -992,8 +993,8 @@ fn rbtdrf_rv_rbrn_bad_ip(dir: &Path) -> rbtdre_Verdict {
 
 fn rbtdrf_rv_rbrr_repo(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_run_rv(dir,
-        "source \"${PWD}/.rbk/rbrr.env\"",
-        "zrbrr_kindle\nzrbrr_enforce",
+        "source \"${PWD}/.rbk/rbrr.env\"\nsource \"${PWD}/.rbk/rbrd.env\"",
+        "zrbrr_kindle\nzrbrd_kindle\nzrbrr_enforce\nzrbrd_enforce",
         true, "rbrr-repo",
     )
 }
@@ -1008,18 +1009,20 @@ fn rbtdrf_rv_rbrv_all_vessels(dir: &Path) -> rbtdre_Verdict {
 
     let buv_p = rbtdrx_native_to_posix(&buv);
     let rbk_p = rbtdrx_native_to_posix(&rbk);
-    // Script: source rbrr, kindle, iterate vessels, kindle+enforce each
+    // Script: source rbrr+rbrd, kindle, iterate vessels, kindle+enforce each
     let script = format!(
         "set -euo pipefail\n\
          source '{}'\n\
          source '{}/rbcc_Constants.sh'\n\
          source '{}/rbgc_Constants.sh'\n\
          source '{}/rbrr_regime.sh'\n\
+         source '{}/rbrd_regime.sh'\n\
          source '{}/rbrv_regime.sh'\n\
          source '{}/rbdc_DerivedConstants.sh'\n\
          zbuv_kindle\nzrbcc_kindle\n\
          source \"${{PWD}}/.rbk/rbrr.env\"\n\
-         zrbrr_kindle\nzrbrr_enforce\nzrbdc_kindle\n\
+         source \"${{PWD}}/.rbk/rbrd.env\"\n\
+         zrbrr_kindle\nzrbrd_kindle\nzrbrr_enforce\nzrbrd_enforce\nzrbdc_kindle\n\
          for z_d in \"${{RBRR_VESSEL_DIR}}\"/*; do\n\
            test -d \"$z_d\" || continue\n\
            test -f \"$z_d/rbrv.env\" || continue\n\
@@ -1030,7 +1033,7 @@ fn rbtdrf_rv_rbrv_all_vessels(dir: &Path) -> rbtdre_Verdict {
            )\n\
          done",
         buv_p,
-        rbk_p, rbk_p, rbk_p, rbk_p, rbk_p,
+        rbk_p, rbk_p, rbk_p, rbk_p, rbk_p, rbk_p,
     );
 
     match rbtdrf_run_bash(&root, &script, dir, "rbrv-all-vessels") {
@@ -1164,17 +1167,19 @@ fn rbtdrf_rs_rbrr_nonempty_prefix(dir: &Path) -> rbtdre_Verdict {
          source '{}/rbcc_Constants.sh'\n\
          source '{}/rbgc_Constants.sh'\n\
          source '{}/rbrr_regime.sh'\n\
+         source '{}/rbrd_regime.sh'\n\
          source '{}/rbgl_GarLayout.sh'\n\
          zbuv_kindle\nzrbcc_kindle\nzrbgc_kindle\n\
          source \"${{PWD}}/.rbk/rbrr.env\"\n\
+         source \"${{PWD}}/.rbk/rbrd.env\"\n\
          {cloud_var}=\"acme-\"\n\
          {runtime_var}=\"acme-\"\n\
-         zrbrr_kindle\nzrbrr_enforce\nzrbgl_kindle\n\
+         zrbrr_kindle\nzrbrd_kindle\nzrbrr_enforce\nzrbrd_enforce\nzrbgl_kindle\n\
          echo \"hallmarks_root=${{RBGL_HALLMARKS_ROOT}}\"\n\
          echo \"runtime_prefix=${{{runtime_var}}}\"",
         buv_p,
-        rbk_p, rbk_p, rbk_p, rbk_p,
-        cloud_var = RBTDRF_VAR_RBRR_CLOUD_PREFIX,
+        rbk_p, rbk_p, rbk_p, rbk_p, rbk_p,
+        cloud_var = RBTDRF_VAR_RBRD_CLOUD_PREFIX,
         runtime_var = RBTDRF_VAR_RBRR_RUNTIME_PREFIX,
     );
 
@@ -1226,13 +1231,15 @@ fn rbtdrf_rs_rbrv(dir: &Path) -> rbtdre_Verdict {
          source '{}/rbcc_Constants.sh'\n\
          source '{}/rbgc_Constants.sh'\n\
          source '{}/rbrr_regime.sh'\n\
+         source '{}/rbrd_regime.sh'\n\
          source '{}/rbdc_DerivedConstants.sh'\n\
          zbuv_kindle\nzrbcc_kindle\n\
          source \"${{PWD}}/.rbk/rbrr.env\"\n\
-         zrbrr_kindle\nzrbrr_enforce\nzrbdc_kindle\n\
+         source \"${{PWD}}/.rbk/rbrd.env\"\n\
+         zrbrr_kindle\nzrbrd_kindle\nzrbrr_enforce\nzrbrd_enforce\nzrbdc_kindle\n\
          echo \"${{RBRR_VESSEL_DIR}}\"",
         buv_p,
-        rbk_p, rbk_p, rbk_p, rbk_p,
+        rbk_p, rbk_p, rbk_p, rbk_p, rbk_p,
     );
 
     let vessel_dir = match rbtdrf_run_bash(&root, &script, dir, "rbrv-discover") {
@@ -1447,13 +1454,15 @@ fn rbtdrf_dh_all_vessels_pass(dir: &Path) -> rbtdre_Verdict {
          source '{}/rbcc_Constants.sh'\n\
          source '{}/rbgc_Constants.sh'\n\
          source '{}/rbrr_regime.sh'\n\
+         source '{}/rbrd_regime.sh'\n\
          source '{}/rbdc_DerivedConstants.sh'\n\
          zbuv_kindle\nzrbcc_kindle\n\
          source \"${{PWD}}/.rbk/rbrr.env\"\n\
-         zrbrr_kindle\nzrbrr_enforce\nzrbdc_kindle\n\
+         source \"${{PWD}}/.rbk/rbrd.env\"\n\
+         zrbrr_kindle\nzrbrd_kindle\nzrbrr_enforce\nzrbrd_enforce\nzrbdc_kindle\n\
          printf '%s' \"${{RBRR_VESSEL_DIR}}\"",
         buv_p,
-        rbk_p, rbk_p, rbk_p, rbk_p,
+        rbk_p, rbk_p, rbk_p, rbk_p, rbk_p,
     );
     let vessel_dir = match rbtdrf_run_bash(&root, &resolve_script, dir, "resolve-vessel-dir") {
         Ok((0, stdout, _)) => stdout,

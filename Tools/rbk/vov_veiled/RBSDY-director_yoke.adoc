@@ -29,14 +29,14 @@ yokes a reliquary stamp across every vessel:
 //axhos_step
 . *List Reliquary Packages in GAR*:
 .. {rbbc_store}
-`«DEPOT_PROJECT_ID»` as `${RBRR_CLOUD_PREFIX}d-${RBRR_DEPOT_MONIKER}` (resolved by `RBDC_DEPOT_PROJECT_ID`)
+`«DEPOT_PROJECT_ID»` as `${RBRD_CLOUD_PREFIX}d-${RBRD_DEPOT_MONIKER}` (resolved by `RBDC_DEPOT_PROJECT_ID`)
 .. {rbbc_store}
-`«GAR_REPOSITORY»` as `${RBRR_CLOUD_PREFIX}${RBRR_DEPOT_MONIKER}-gar` (resolved by `RBDC_GAR_REPOSITORY`)
+`«GAR_REPOSITORY»` as `${RBRD_CLOUD_PREFIX}${RBRD_DEPOT_MONIKER}-gar` (resolved by `RBDC_GAR_REPOSITORY`)
 .. {rbbc_call}
 link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.packages/list[packages.list] for
 `«DEPOT_PROJECT_ID»`
 /
-{rbrr_gcp_region}
+{rbrd_gcp_region}
 /
 `«GAR_REPOSITORY»`
 with `pageSize=1000`

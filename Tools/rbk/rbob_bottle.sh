@@ -22,6 +22,7 @@
 # Requires: buc_command.sh sourced
 # Requires: rbrn_regime.sh sourced
 # Requires: rbrr_regime.sh sourced
+# Requires: rbrd_regime.sh sourced
 
 set -euo pipefail
 
@@ -125,6 +126,7 @@ zrbob_kindle() {
 
   # Env file paths (for compose --env-file: YAML interpolation + container env forwarding)
   readonly ZRBOB_ENV_RBRR="${RBBC_dot_dir}/rbrr.env"
+  readonly ZRBOB_ENV_RBRD="${RBBC_dot_dir}/rbrd.env"
   readonly ZRBOB_ENV_RBJE="${RBBC_dot_dir}/rbje_compose_probe.env"
   readonly ZRBOB_ENV_RBRN="${RBBC_dot_dir}/${RBRN_MONIKER}/${RBCC_rbrn_file}"
 
@@ -207,6 +209,7 @@ zrbob_compose() {
   local z_args=()
   z_args+=("compose")
   z_args+=("--env-file" "${ZRBOB_ENV_RBRR}")
+  z_args+=("--env-file" "${ZRBOB_ENV_RBRD}")
   z_args+=("--env-file" "${ZRBOB_ENV_RBDC}")
   z_args+=("--env-file" "${ZRBOB_ENV_RBJE}")
   z_args+=("--env-file" "${ZRBOB_ENV_RBRN}")

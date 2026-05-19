@@ -35,6 +35,7 @@ zrbv_furnish() {
   local z_rbk_kit_dir="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}"
   source "${BURD_BUK_DIR}/buv_validation.sh"
   source "${z_rbk_kit_dir}/rbrr_regime.sh"
+  source "${z_rbk_kit_dir}/rbrd_regime.sh"
   source "${z_rbk_kit_dir}/rbrm_regime.sh"
   source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
   source "${z_rbk_kit_dir}/rbrs_regime.sh"
@@ -48,10 +49,13 @@ zrbv_furnish() {
   buv_file_exists "${RBV_RBRS_FILE}"
 
   # Source config files (CLI handles all sourcing)
-  source              "${RBV_RBRR_FILE}" || buc_die "Failed to source RBRR config"
-  source              ".rbk/rbrm.env"    || buc_die "Failed to source RBRM config"
+  source              "${RBV_RBRR_FILE}"   || buc_die "Failed to source RBRR config"
+  source              "${RBBC_rbrd_file}"  || buc_die "Failed to source RBRD config"
+  source              "${RBBC_rbrm_file}"  || buc_die "Failed to source RBRM config"
   zrbrr_kindle
+  zrbrd_kindle
   zrbrr_enforce
+  zrbrd_enforce
   zrbrm_kindle
   zrbrm_enforce
   zrbdc_kindle

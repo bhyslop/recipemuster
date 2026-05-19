@@ -12,7 +12,7 @@ access.
 The
 {rbtr_governor}
 mints the SA, generates its credential key, and writes the RBRA bytes to the assay output slot.
-The operation is singleton-per-role: no instance argument; the SA identity is derived from regime constants as `${RBCC_role_retriever}-${RBRR_DEPOT_MONIKER}`.
+The operation is singleton-per-role: no instance argument; the SA identity is derived from regime constants as `${RBCC_role_retriever}-${RBRD_DEPOT_MONIKER}`.
 Fatal if the SA already exists — operator must
 {rbtgo_retriever_divest}
 first to re-key.
@@ -30,11 +30,11 @@ first to re-key.
 {rbtr_retriever}
 Service Account Identity*:
 .. {rbbc_store}
-`«RETRIEVER_ACCOUNT_NAME»` as `${RBCC_role_retriever}-${RBRR_DEPOT_MONIKER}` (regime-kindled from
-{rbrr_depot_moniker})
+`«RETRIEVER_ACCOUNT_NAME»` as `${RBCC_role_retriever}-${RBRD_DEPOT_MONIKER}` (regime-kindled from
+{rbrd_depot_moniker})
 .. {rbbc_store}
 `«RETRIEVER_EMAIL»` as `«RETRIEVER_ACCOUNT_NAME»@${RBDC_DEPOT_PROJECT_ID}.iam.gserviceaccount.com`
-.. NOTE: `RBDC_DEPOT_PROJECT_ID` is derived from `(RBRR_CLOUD_PREFIX, RBRR_DEPOT_MONIKER)` at regime kindle time; no operator-supplied project ID field is referenced.
+.. NOTE: `RBDC_DEPOT_PROJECT_ID` is derived from `(RBRD_CLOUD_PREFIX, RBRD_DEPOT_MONIKER)` at regime kindle time; no operator-supplied project ID field is referenced.
 
 //axhos_step
 . *Preflight: Confirm Service Account Does Not Exist*:
@@ -55,7 +55,7 @@ Service Account*:
 link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/create[iam.serviceAccounts.create] with:
 ... accountId: `«RETRIEVER_ACCOUNT_NAME»`
 ... displayName: `Recipe Bottle Retriever`
-... description: `Read-only access to Google Artifact Registry for depot ${RBRR_DEPOT_MONIKER}`
+... description: `Read-only access to Google Artifact Registry for depot ${RBRD_DEPOT_MONIKER}`
 ... project:
 {rbtgi_depot_project}
 .. {rbbc_require}

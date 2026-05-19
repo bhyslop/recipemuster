@@ -85,6 +85,7 @@ zrbrv_furnish() {
   source "${z_rbk_kit_dir}/rbcc_Constants.sh"
   source "${z_rbk_kit_dir}/rbgc_Constants.sh"
   source "${z_rbk_kit_dir}/rbrr_regime.sh"
+  source "${z_rbk_kit_dir}/rbrd_regime.sh"
   source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
   source "${z_rbk_kit_dir}/rbrv_regime.sh"
 
@@ -97,8 +98,11 @@ zrbrv_furnish() {
 
   # Load and kindle repo regime (needed for RBRR_VESSEL_DIR)
   source "${RBBC_rbrr_file}"
+  source "${RBBC_rbrd_file}"
   zrbrr_kindle
+  zrbrd_kindle
   zrbrr_enforce
+  zrbrd_enforce
   zrbdc_kindle
 
   # If BUZ_FOLIO is set, load and kindle the specified vessel

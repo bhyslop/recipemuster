@@ -29,11 +29,11 @@ rbho_crash_course() {
   buc_doc_brief "Configure your Repo's Environment — tabtargets, regimes, station setup, logs"
   buc_doc_shown || return 0
 
-  local z_rbrr_project=""
-  local z_rbrr_populated=0
-  if test -f "${RBBC_rbrr_file}"; then
-    z_rbrr_project=$(zrbho_po_extract_capture "${RBBC_rbrr_file}" "RBRR_DEPOT_MONIKER") || z_rbrr_project=""
-    test -n "${z_rbrr_project}" && z_rbrr_populated=1
+  local z_rbrd_project=""
+  local z_rbrd_populated=0
+  if test -f "${RBBC_rbrd_file}"; then
+    z_rbrd_project=$(zrbho_po_extract_capture "${RBBC_rbrd_file}" "RBRD_DEPOT_MONIKER") || z_rbrd_project=""
+    test -n "${z_rbrd_project}" && z_rbrd_populated=1
   fi
 
   local z_station_present=0
@@ -97,23 +97,26 @@ rbho_crash_course() {
   fi
   buh_e
 
-  buh_step1 "Validate the repo regime"
+  buh_step1 "Validate the repo and depot regimes"
   buh_e
-  buh_line "The repository regime (${RBYC_RBRR}) holds your team's ${RBYC_DEPOT}"
-  buh_line "identity — the GCP project where container images are built and stored."
-  buh_line "Run the validator:"
+  buh_line "The repository regime (${RBYC_RBRR}) holds installation-wide settings —"
+  buh_line "runtime container prefix, vessel directory, Cloud Build timeouts."
+  buh_line "The depot regime (${RBYC_RBRD}) holds your team's ${RBYC_DEPOT} identity —"
+  buh_line "the GCP project where container images are built and stored, frozen at ${RBYC_LEVY}."
+  buh_line "Run the validators:"
   buh_e
   buh_tt   "   " "${RBZ_VALIDATE_REPO}"
+  buh_tt   "   " "${RBZ_VALIDATE_DEPOT}"
   buh_e
-  buh_line "On a bare fork, ${RBYC_RBRR} fields are blank and validation will fail —"
+  buh_line "On a bare fork, ${RBYC_RBRD} fields are blank and validation will fail —"
   buh_line "you need a ${RBYC_PAYOR} account and a ${RBYC_DEPOT} to populate them."
   buh_line "On a team repo, they are already populated and validation passes."
   buh_line "Either way, read the output — it tells you exactly what state you're in."
   buh_e
-  if test "${z_rbrr_populated}" = "1"; then
-    zrbho_po_status 1 "RBRR populated — depot project: ${z_rbrr_project}"
+  if test "${z_rbrd_populated}" = "1"; then
+    zrbho_po_status 1 "${RBYC_RBRD} populated — depot project: ${z_rbrd_project}"
   else
-    zrbho_po_status 0 "RBRR not populated — depot identity fields are blank"
+    zrbho_po_status 0 "${RBYC_RBRD} not populated — depot identity fields are blank"
   fi
   buh_e
 
@@ -151,6 +154,8 @@ rbho_crash_course() {
   buyy_tt_yawp "${BUWZ_RS_VALIDATE}";      local -r z_rs_v="${z_buym_yelp}"
   buyy_tt_yawp "${RBZ_RENDER_REPO}";       local -r z_rr_r="${z_buym_yelp}"
   buyy_tt_yawp "${RBZ_VALIDATE_REPO}";     local -r z_rr_v="${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_RENDER_DEPOT}";      local -r z_rd_r="${z_buym_yelp}"
+  buyy_tt_yawp "${RBZ_VALIDATE_DEPOT}";    local -r z_rd_v="${z_buym_yelp}"
   buyy_tt_yawp "${RBZ_RENDER_PAYOR}";      local -r z_rp_r="${z_buym_yelp}"
   buyy_tt_yawp "${RBZ_VALIDATE_PAYOR}";    local -r z_rp_v="${z_buym_yelp}"
   buyy_tt_yawp "${RBZ_RENDER_OAUTH}";      local -r z_ro_r="${z_buym_yelp}"
@@ -164,6 +169,7 @@ rbho_crash_course() {
   buh_line "   c  ${RBYC_BURC}  ${z_rc_r}   ${z_rc_v}"
   buh_line "   s  ${RBYC_BURS}  ${z_rs_r}  ${z_rs_v}"
   buh_line "   r  ${RBYC_RBRR}  ${z_rr_r}     ${z_rr_v}"
+  buh_line "   d  ${RBYC_RBRD}  ${z_rd_r}    ${z_rd_v}"
   buh_line "   p  ${RBYC_RBRP}  ${z_rp_r}    ${z_rp_v}"
   buh_line "   o  ${RBYC_RBRO}  ${z_ro_r}    ${z_ro_v}"
   buh_e

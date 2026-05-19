@@ -26,7 +26,7 @@ test -z "${ZRBGC_SOURCED:-}" || buc_die "Module rbgc multiply sourced - check so
 ZRBGC_SOURCED=1
 
 # Tinder constants (pure string literals, no variable expansion — available at source time)
-# Depot project ID infix between RBRR_CLOUD_PREFIX and RBRR_DEPOT_MONIKER, consumed
+# Depot project ID infix between RBRD_CLOUD_PREFIX and RBRD_DEPOT_MONIKER, consumed
 # by rbdc_DerivedConstants.sh's RBDC_DEPOT_PROJECT_ID derivation.
 RBGC_depot_project_infix="d-"
 
@@ -175,16 +175,14 @@ zrbgc_kindle() {
   # rbi_df layout: flat sea of files. No subdirs. Each filename names one
   # depot-scoped artifact whose content is its assignment.
   #
-  # Today (BO levy-establish-probes):
+  # Today: levy-time capability probes
   #   probe-tether:probe   — tether pool levy-time capability probe
   #   probe-airgap:probe   — airgap pool levy-time capability probe
   #
-  # Future: each new filename is intended to be an RBRD variable name (planned
-  # uBuN heat — peel depot-time-immutable settings out of RBRR). The file's
-  # content is that variable's assignment.
-  #
-  # Explicitly NOT in rbi_df: the uBuN depot-manifest tripwire lives in GCS,
-  # not GAR — different mechanism, different shape.
+  # The depot-time-immutable identity and pool settings (CLOUD_PREFIX,
+  # DEPOT_MONIKER, GCP_REGION, GCB_MACHINE_TYPE) live in the RBRD regime
+  # rather than in rbi_df — RBRD ships as its own image at a separate tag
+  # and is consulted at depot kindle time, not as flat-file lookups.
   #
   # Enumerators (rbw-iah / rbw-iar / rbw-iae) ignore rbi_df by design — its
   # contents are operational, not part of the hallmark/reliquary/enshrine

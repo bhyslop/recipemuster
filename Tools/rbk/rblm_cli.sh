@@ -30,7 +30,9 @@ rblm_zero() {
   buc_doc_shown || return 0
 
   local -r z_rbrr="${RBBC_rbrr_file}"
+  local -r z_rbrd="${RBBC_rbrd_file}"
   test -f "${z_rbrr}" || buc_die "RBRR file not found: ${z_rbrr}"
+  test -f "${z_rbrd}" || buc_die "RBRD file not found: ${z_rbrd}"
 
   # Pre-checks: working tree clean and HEAD pushed.
   # Marshal-zero auto-commits its mutations; both invariants must hold to keep
@@ -62,16 +64,22 @@ rblm_zero() {
   done < "${z_rbrr}"
 
   buh_section "Marshal Zero"
-  buh_line "  Target: ${z_rbrr}"
+  buh_line "  Targets: ${z_rbrr}"
+  buh_line "           ${z_rbrd}"
   buh_e
   buh_line "  RBRR fields blanked (zeroed to onboarding start):"
-  buh_line "    RBRR_CLOUD_PREFIX, RBRR_RUNTIME_PREFIX,"
-  buh_line "    RBRR_DEPOT_MONIKER"
+  buh_line "    RBRR_RUNTIME_PREFIX"
   buh_e
   buh_line "  RBRR fields pre-filled to defaults:"
-  buh_line "    RBRR_DNS_SERVER, RBRR_GCB_MACHINE_TYPE, RBRR_GCB_TIMEOUT,"
-  buh_line "    RBRR_GCB_MIN_CONCURRENT_BUILDS, RBRR_GCP_REGION,"
+  buh_line "    RBRR_DNS_SERVER, RBRR_GCB_TIMEOUT,"
+  buh_line "    RBRR_GCB_MIN_CONCURRENT_BUILDS,"
   buh_line "    RBRR_VESSEL_DIR, RBRR_SECRETS_DIR"
+  buh_e
+  buh_line "  RBRD fields blanked (depot identity — operator decision):"
+  buh_line "    RBRD_CLOUD_PREFIX, RBRD_DEPOT_MONIKER"
+  buh_e
+  buh_line "  RBRD fields pre-filled to defaults:"
+  buh_line "    RBRD_GCP_REGION, RBRD_GCB_MACHINE_TYPE"
   buh_e
   buh_line "  Depot credentials DELETED (tied to prior depot):"
   if test -n "${z_secrets_dir}"; then
@@ -126,21 +134,31 @@ rblm_zero() {
     case "${z_line}" in
       # Pre-selected defaults
       RBRR_DNS_SERVER=*)                    printf '%s\n' "RBRR_DNS_SERVER=8.8.8.8"                     ;;
-      RBRR_GCB_MACHINE_TYPE=*)              printf '%s\n' "RBRR_GCB_MACHINE_TYPE=e2-standard-2"          ;;
       RBRR_GCB_TIMEOUT=*)                   printf '%s\n' "RBRR_GCB_TIMEOUT=2700s"                      ;;
       RBRR_GCB_MIN_CONCURRENT_BUILDS=*)     printf '%s\n' "RBRR_GCB_MIN_CONCURRENT_BUILDS=3"            ;;
-      RBRR_GCP_REGION=*)                    printf '%s\n' "RBRR_GCP_REGION=us-central1"                 ;;
       RBRR_VESSEL_DIR=*)                    printf '%s\n' "RBRR_VESSEL_DIR=rbev-vessels"                ;;
       RBRR_SECRETS_DIR=*)                   printf '%s\n' "RBRR_SECRETS_DIR=../station-files/secrets"   ;;
       # Site-specific fields blanked
-      RBRR_CLOUD_PREFIX=*)                  printf '%s\n' "RBRR_CLOUD_PREFIX="                          ;;
       RBRR_RUNTIME_PREFIX=*)                printf '%s\n' "RBRR_RUNTIME_PREFIX="                        ;;
-      RBRR_DEPOT_MONIKER=*)                 printf '%s\n' "RBRR_DEPOT_MONIKER="                         ;;
-      RBRR_GCB_WORKER_POOL=*)               continue                                                      ;;
       # Everything else passes through (comments, shebang, blanks)
       *)                                    printf '%s\n' "${z_line}"                                   ;;
     esac
   done < "${z_rbrr}" > "${z_tmp}" && mv "${z_tmp}" "${z_rbrr}"
+
+  # Apply equivalent transform to rbrd.env.
+  local -r z_rbrd_tmp="${z_rbrd}.tmp"
+  while IFS= read -r z_line; do
+    case "${z_line}" in
+      # Pre-selected defaults
+      RBRD_GCP_REGION=*)                    printf '%s\n' "RBRD_GCP_REGION=us-central1"                 ;;
+      RBRD_GCB_MACHINE_TYPE=*)              printf '%s\n' "RBRD_GCB_MACHINE_TYPE=e2-standard-2"         ;;
+      # Site-specific fields blanked
+      RBRD_CLOUD_PREFIX=*)                  printf '%s\n' "RBRD_CLOUD_PREFIX="                          ;;
+      RBRD_DEPOT_MONIKER=*)                 printf '%s\n' "RBRD_DEPOT_MONIKER="                         ;;
+      # Everything else passes through (comments, shebang, blanks)
+      *)                                    printf '%s\n' "${z_line}"                                   ;;
+    esac
+  done < "${z_rbrd}" > "${z_rbrd_tmp}" && mv "${z_rbrd_tmp}" "${z_rbrd}"
 
   # Remove depot-scoped RBRA files (governor, director, retriever).
   # z_secrets_dir already extracted above for pre-confirmation inventory.
@@ -195,12 +213,14 @@ rblm_zero() {
   fi
 
   buh_line "  Zero complete: ${z_rbrr}"
+  buh_line "                 ${z_rbrd}"
   buh_e
 
   # Auto-commit the in-tree mutations so post-zero state is captured as a single
   # commit. RBRA deletions (outside repo) are not staged.
   buc_step "Committing marshal-zero state"
   git add "${z_rbrr}" || buc_die "Failed to stage RBRR file"
+  git add "${z_rbrd}" || buc_die "Failed to stage RBRD file"
 
   local z_stage=""
   for z_stage in "${RBBC_dot_dir}"/*/rbrn.env; do

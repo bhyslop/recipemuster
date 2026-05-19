@@ -142,6 +142,8 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-rvv` | ValidateVesselRegime | param1 | Validate vessel regime |
 | `rbw-rrr` | RenderRepoRegime | — | Render repo regime |
 | `rbw-rrv` | ValidateRepoRegime | — | Validate repo regime |
+| `rbw-rdr` | RenderDepotRegime | — | Render depot regime |
+| `rbw-rdv` | ValidateDepotRegime | — | Validate depot regime |
 | `rbw-rpr` | RenderPayorRegime | — | Render payor regime |
 | `rbw-rpv` | ValidatePayorRegime | — | Validate payor regime |
 | `rbw-ror` | RenderOauthRegime | — | Render OAuth regime |

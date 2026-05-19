@@ -1,0 +1,85 @@
+//axhrb_regime
+{rbrd_regime}
+
+This regime specifies depot-time-immutable identity and infrastructure settings.
+Each
+{rbrd_regime}
+instance pins the values that
+{rbtgo_depot_levy}
+consumes at depot creation — the identity tuple `(RBRD_CLOUD_PREFIX, RBRD_DEPOT_MONIKER)` (from which depot project ID, GAR repository, pool stem, and bucket fall out as RBDC constants), the GCP region, and the Cloud Build private worker pool machine type.
+RBRD assignment files are found in the operator's local filesystem (typically `.rbk/rbrd.env`) and are frozen for the productive lifetime of the depot.
+Changing any field after levy requires a fresh depot.
+
+//axhrgb_group
+{rbrd_group_depot_identity}
+
+The cloud-namespace identity tuple consumed by
+{rbtgo_depot_levy}
+to derive every depot-scoped GCP resource name.
+Both fields must be populated — the marshal-zero path blanks them so a fresh regime requires an explicit operator decision before `rbrd_validate` passes.
+
+//axhrgv_variable
+{rbrd_cloud_prefix}
+
+Prefix prepended to all cloud-visible resource names under the depot: GAR image paths, vessel package names,
+{gcb_service}
+substitutions, and other GCP-scoped identifiers.
+Must be 2–11 characters, start with a lowercase letter, and end with a hyphen (regex `^[a-z][a-z0-9-]*-$`).
+
+//axhrgv_variable
+{rbrd_depot_moniker}
+
+Stem identifier that combines with
+{rbrd_cloud_prefix}
+to form the depot identity tuple.
+Must be 1–26 characters, start with a lowercase letter, and contain only lowercase alphanumerics (regex `^[a-z][a-z0-9]*$`).
+The tuple derives `RBDC_DEPOT_PROJECT_ID`, `RBDC_GAR_REPOSITORY`, `RBDC_GCB_POOL_STEM`, and `RBDC_GCS_BUCKET` at kindle time.
+
+//axhrgb_group
+{rbrd_group_region}
+
+The default
+{gcp_service}
+region for regional services like
+{gar_service}
+and
+{gcb_service}.
+
+//axhrgv_variable
+{rbrd_gcp_region}
+
+Applied when creating repositories and submitting builds unless overridden by operation-specific configuration.
+
+//axhrgb_group
+{rbrd_group_pool}
+
+{gcb_service}
+private worker pool configuration consumed at pool creation time by
+{rbtgo_depot_levy}.
+
+//axhrgv_variable
+{rbrd_gcb_machine_type}
+
+Compute Engine machine type for the private worker pool.
+Valid families: `e2`, `n2d`, `c3`.
+Examples: `e2-standard-2`, `e2-highcpu-8`, `n2d-standard-4`.
+Pool scales to zero workers when idle — no idle cost accrues.
+
+//axhro_kindle
+{rbkro_kindle}
+
+Kindles the {rbrd_regime} fields by enrolling each field with its type-specific constraints under named groups.
+Detects unexpected RBRD_ variables.
+Locks the regime against further modification.
+
+//axhro_validate
+{rbkro_validate}
+
+Validates enrolled fields against type-specific constraints from enrollment.
+Enforces format constraints on {rbrd_cloud_prefix} and {rbrd_depot_moniker}, and the joint-length cap on `${RBRD_CLOUD_PREFIX}d-${RBRD_DEPOT_MONIKER}` (≤30 chars per the GCP project ID limit).
+
+//axhro_render
+{rbkro_render}
+
+Renders the {rbrd_regime} grouped by section with presentation gates per group.
+Sections: Depot Identity, GCP Region, Google Cloud Build Pool.

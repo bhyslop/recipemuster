@@ -11,7 +11,7 @@ to verify that the *Concurrent Build CPUs (Private Pool)* quota supports the des
 
 All depots use two private worker pools (tether and airgap).
 Machine type is set at pool creation time via
-{rbrr_gcb_machine_type}
+{rbrd_gcb_machine_type}
 (a Compute Engine type such as `e2-standard-2`); individual build requests do not specify machine type.
 Each
 {rbtgo_ark_conjure}
@@ -23,7 +23,7 @@ Both tether and airgap pools draw from the same quota bucket.
 Plan capacity for concurrent operations across both pools — for example, a simultaneous conjure (tether) and vouch (airgap) each consume vCPUs from the shared limit.
 
 The primary control for concurrent build capacity is the pool's machine type (set via
-{rbrr_gcb_machine_type}
+{rbrd_gcb_machine_type}
 at pool creation).
 Common Compute Engine types and their vCPU counts:
 
@@ -65,7 +65,7 @@ current usage percentage — if near 100% with one build running, the machine ty
 . *Evaluate Machine Type vs CPU Quota*:
 .. {rbhg_store}
 current
-{rbrr_gcb_machine_type}
+{rbrd_gcb_machine_type}
 from the regime configuration
 .. Compute maximum concurrent builds: `«CPU_QUOTA»` ÷ vCPUs per pool machine type
 .. {rbhg_require}
@@ -74,7 +74,7 @@ the result meets or exceeds
 (the regime's minimum concurrent build target)
 .. Machine type is set at pool creation time.
 To change it, the pool must be recreated with a different
-{rbrr_gcb_machine_type}
+{rbrd_gcb_machine_type}
 (e.g., `e2-standard-2` for 2 vCPUs, `e2-highcpu-8` for 8 vCPUs).
 .. If machine type adjustment alone cannot satisfy capacity requirements, a CPU quota increase can be requested via *Edit Quotas*.
 This is a last resort and rarely necessary.
@@ -99,7 +99,7 @@ NOTE: All depots use two private worker pools — tether and airgap — created 
 {rbtgo_depot_levy}.
 The relevant quota metric is *Concurrent Build CPUs (Private Pool)* on the pool's host project.
 Machine type is set at pool creation time via
-{rbrr_gcb_machine_type};
+{rbrd_gcb_machine_type};
 individual build requests do not specify machine type.
 The
 {rbtgo_ark_conjure}

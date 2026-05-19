@@ -81,12 +81,13 @@ const RBTDRK_FACT_EXT_DEPOT: &str = "depot";
 const RBTDRK_FACT_EXT_DEPOT_PROJECT: &str = "depot-project";
 const RBTDRK_FACT_GOVERNOR_SA_EMAIL: &str = "rbgp_fact_governor_sa_email";
 
-const RBTDRK_FIELD_RBRR_CLOUD_PREFIX: &str = "RBRR_CLOUD_PREFIX";
+const RBTDRK_FIELD_RBRD_CLOUD_PREFIX: &str = "RBRD_CLOUD_PREFIX";
 const RBTDRK_FIELD_RBRR_RUNTIME_PREFIX: &str = "RBRR_RUNTIME_PREFIX";
-const RBTDRK_FIELD_RBRR_DEPOT_MONIKER: &str = "RBRR_DEPOT_MONIKER";
+const RBTDRK_FIELD_RBRD_DEPOT_MONIKER: &str = "RBRD_DEPOT_MONIKER";
 const RBTDRK_FIELD_RBRR_SECRETS_DIR: &str = "RBRR_SECRETS_DIR";
 
 const RBTDRK_RBRR_FILE: &str = ".rbk/rbrr.env";
+const RBTDRK_RBRD_FILE: &str = ".rbk/rbrd.env";
 const RBTDRK_RBRA_FILE: &str = "rbra.env";
 
 /// BURS station-file env var (exported by bul_launcher.sh) — absolute path
@@ -104,7 +105,7 @@ pub(crate) fn rbtdrk_burs_tincture() -> Result<String, String> {
         .ok_or_else(|| format!("BURS_TINCTURE not in {}", path.display()))
 }
 
-/// Compose canonical RBRR_CLOUD_PREFIX with the given tincture.
+/// Compose canonical RBRD_CLOUD_PREFIX with the given tincture.
 pub(crate) fn rbtdrk_canonical_cloud_prefix(tincture: &str) -> String {
     format!("{}{}-", RBTDRK_CANONICAL_CLOUD_BASE, tincture)
 }
@@ -167,8 +168,18 @@ fn rbtdrk_replace_env_fields(content: &str, pairs: &[(&str, &str)]) -> String {
 }
 
 fn rbtdrk_git_add_and_commit(root: &Path, file: &str, message: &str) -> Result<(), String> {
+    rbtdrk_git_add_and_commit_paths(root, &[file], message)
+}
+
+fn rbtdrk_git_add_and_commit_paths(
+    root: &Path,
+    files: &[&str],
+    message: &str,
+) -> Result<(), String> {
+    let mut add_args: Vec<&str> = vec!["add"];
+    add_args.extend_from_slice(files);
     let add = Command::new("git")
-        .args(["add", file])
+        .args(&add_args)
         .current_dir(root)
         .output()
         .map_err(|e| format!("rbtdrk: git add invocation failed: {}", e))?;
@@ -209,70 +220,88 @@ pub(crate) fn rbtdrk_canonical_rbra(root: &Path, role: &str) -> Result<PathBuf, 
 
 // ── Canonical-prefix install (case 1) ───────────────────────
 
-/// Idempotently install canc-/canr- prefixes into rbrr.env. Returns Ok
-/// without committing when prefixes already match the canonical markers;
-/// otherwise rewrites both lines and commits.
+/// Idempotently install canc-/canr- prefixes. CLOUD_PREFIX lands in rbrd.env,
+/// RUNTIME_PREFIX lands in rbrr.env. Returns Ok without committing when both
+/// already match the canonical markers; otherwise rewrites both files and
+/// commits in one go.
 pub(crate) fn rbtdrk_install_canonical_prefixes(root: &Path) -> Result<(), String> {
     let rbrr = root.join(RBTDRK_RBRR_FILE);
+    let rbrd = root.join(RBTDRK_RBRD_FILE);
     let tincture = rbtdrk_burs_tincture()?;
     let cloud_target = rbtdrk_canonical_cloud_prefix(&tincture);
     let runtime_target = rbtdrk_canonical_runtime_prefix(&tincture);
 
-    let cloud = rbtdrk_read_env_value(&rbrr, RBTDRK_FIELD_RBRR_CLOUD_PREFIX).unwrap_or_default();
+    let cloud = rbtdrk_read_env_value(&rbrd, RBTDRK_FIELD_RBRD_CLOUD_PREFIX).unwrap_or_default();
     let runtime =
         rbtdrk_read_env_value(&rbrr, RBTDRK_FIELD_RBRR_RUNTIME_PREFIX).unwrap_or_default();
     if cloud == cloud_target && runtime == runtime_target {
         return Ok(());
     }
-    let content = std::fs::read_to_string(&rbrr)
-        .map_err(|e| format!("rbtdrk: read {}: {}", rbrr.display(), e))?;
-    let new_content = rbtdrk_replace_env_fields(
-        &content,
-        &[
-            (RBTDRK_FIELD_RBRR_CLOUD_PREFIX, cloud_target.as_str()),
-            (RBTDRK_FIELD_RBRR_RUNTIME_PREFIX, runtime_target.as_str()),
-        ],
-    );
-    std::fs::write(&rbrr, &new_content)
-        .map_err(|e| format!("rbtdrk: write {}: {}", rbrr.display(), e))?;
+
+    if cloud != cloud_target {
+        let content = std::fs::read_to_string(&rbrd)
+            .map_err(|e| format!("rbtdrk: read {}: {}", rbrd.display(), e))?;
+        let new_content = rbtdrk_replace_env_fields(
+            &content,
+            &[(RBTDRK_FIELD_RBRD_CLOUD_PREFIX, cloud_target.as_str())],
+        );
+        std::fs::write(&rbrd, &new_content)
+            .map_err(|e| format!("rbtdrk: write {}: {}", rbrd.display(), e))?;
+    }
+
+    if runtime != runtime_target {
+        let content = std::fs::read_to_string(&rbrr)
+            .map_err(|e| format!("rbtdrk: read {}: {}", rbrr.display(), e))?;
+        let new_content = rbtdrk_replace_env_fields(
+            &content,
+            &[(RBTDRK_FIELD_RBRR_RUNTIME_PREFIX, runtime_target.as_str())],
+        );
+        std::fs::write(&rbrr, &new_content)
+            .map_err(|e| format!("rbtdrk: write {}: {}", rbrr.display(), e))?;
+    }
+
     let commit_msg = format!(
-        "canonical-establish fixture: install canonical RBRR prefixes ({}/{})",
+        "canonical-establish fixture: install canonical prefixes ({}/{})",
         cloud_target, runtime_target
     );
-    rbtdrk_git_add_and_commit(root, RBTDRK_RBRR_FILE, &commit_msg)
+    rbtdrk_git_add_and_commit_paths(
+        root,
+        &[RBTDRK_RBRR_FILE, RBTDRK_RBRD_FILE],
+        &commit_msg,
+    )
 }
 
 fn rbtdrk_install_depot_moniker(root: &Path, moniker: &str) -> Result<(), String> {
-    let rbrr = root.join(RBTDRK_RBRR_FILE);
-    let content = std::fs::read_to_string(&rbrr)
-        .map_err(|e| format!("rbtdrk: read {}: {}", rbrr.display(), e))?;
+    let rbrd = root.join(RBTDRK_RBRD_FILE);
+    let content = std::fs::read_to_string(&rbrd)
+        .map_err(|e| format!("rbtdrk: read {}: {}", rbrd.display(), e))?;
     let new_content =
-        rbtdrk_replace_env_fields(&content, &[(RBTDRK_FIELD_RBRR_DEPOT_MONIKER, moniker)]);
-    std::fs::write(&rbrr, &new_content)
-        .map_err(|e| format!("rbtdrk: write {}: {}", rbrr.display(), e))?;
+        rbtdrk_replace_env_fields(&content, &[(RBTDRK_FIELD_RBRD_DEPOT_MONIKER, moniker)]);
+    std::fs::write(&rbrd, &new_content)
+        .map_err(|e| format!("rbtdrk: write {}: {}", rbrd.display(), e))?;
     let commit_msg = format!(
         "canonical-establish fixture: set {}={}",
-        RBTDRK_FIELD_RBRR_DEPOT_MONIKER, moniker
+        RBTDRK_FIELD_RBRD_DEPOT_MONIKER, moniker
     );
-    rbtdrk_git_add_and_commit(root, RBTDRK_RBRR_FILE, &commit_msg)
+    rbtdrk_git_add_and_commit(root, RBTDRK_RBRD_FILE, &commit_msg)
 }
 
 /// Compose depot project_id from kindled regime values: <CLOUD>d-<moniker>.
 fn rbtdrk_compose_project_id(root: &Path, moniker: &str) -> Result<String, String> {
-    let rbrr = root.join(RBTDRK_RBRR_FILE);
-    let cloud_prefix = rbtdrk_read_env_value(&rbrr, RBTDRK_FIELD_RBRR_CLOUD_PREFIX)
-        .ok_or_else(|| format!("RBRR_CLOUD_PREFIX missing from {}", rbrr.display()))?;
+    let rbrd = root.join(RBTDRK_RBRD_FILE);
+    let cloud_prefix = rbtdrk_read_env_value(&rbrd, RBTDRK_FIELD_RBRD_CLOUD_PREFIX)
+        .ok_or_else(|| format!("RBRD_CLOUD_PREFIX missing from {}", rbrd.display()))?;
     Ok(format!("{}d-{}", cloud_prefix, moniker))
 }
 
 /// Cloud-prefix subdir name used in depot fact-file layout
-/// (`<cloud_prefix>/<moniker>.depot`). Derived from RBRR_CLOUD_PREFIX with
+/// (`<cloud_prefix>/<moniker>.depot`). Derived from RBRD_CLOUD_PREFIX with
 /// the structural trailing `-` stripped so it matches the filesystem layout
 /// emitted by zrbgp_depot_state_emit.
 fn rbtdrk_cloud_prefix_subdir(root: &Path) -> Result<String, String> {
-    let rbrr = root.join(RBTDRK_RBRR_FILE);
-    let cloud_prefix = rbtdrk_read_env_value(&rbrr, RBTDRK_FIELD_RBRR_CLOUD_PREFIX)
-        .ok_or_else(|| format!("RBRR_CLOUD_PREFIX missing from {}", rbrr.display()))?;
+    let rbrd = root.join(RBTDRK_RBRD_FILE);
+    let cloud_prefix = rbtdrk_read_env_value(&rbrd, RBTDRK_FIELD_RBRD_CLOUD_PREFIX)
+        .ok_or_else(|| format!("RBRD_CLOUD_PREFIX missing from {}", rbrd.display()))?;
     Ok(cloud_prefix.trim_end_matches('-').to_string())
 }
 
@@ -370,19 +399,19 @@ fn rbtdrk_probe_rbrr_present() -> Result<(), String> {
     Ok(())
 }
 
-/// Case 2 probe: canonical depot moniker installed in rbrr.env. Established
-/// by case 1; absence means depot-levy didn't run or rbrr.env was rewritten.
+/// Case 2 probe: canonical depot moniker installed in rbrd.env. Established
+/// by case 1; absence means depot-levy didn't run or rbrd.env was rewritten.
 fn rbtdrk_probe_canonical_moniker() -> Result<(), String> {
     let root = rbtdrk_probe_root()?;
-    let rbrr = root.join(RBTDRK_RBRR_FILE);
+    let rbrd = root.join(RBTDRK_RBRD_FILE);
     let tincture = rbtdrk_burs_tincture()?;
     let family_stem = rbtdrk_family_stem(&tincture);
     let moniker =
-        rbtdrk_read_env_value(&rbrr, RBTDRK_FIELD_RBRR_DEPOT_MONIKER).unwrap_or_default();
+        rbtdrk_read_env_value(&rbrd, RBTDRK_FIELD_RBRD_DEPOT_MONIKER).unwrap_or_default();
     if !moniker.starts_with(&family_stem) {
         return Err(format!(
             "{}={:?} does not begin with '{}' — canonical depot moniker not installed",
-            RBTDRK_FIELD_RBRR_DEPOT_MONIKER, moniker, family_stem
+            RBTDRK_FIELD_RBRD_DEPOT_MONIKER, moniker, family_stem
         ));
     }
     Ok(())

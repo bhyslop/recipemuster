@@ -49,6 +49,7 @@ zrbte_furnish_probe() {
 
   local z_rbk="${ZRBTE_CLI_DIR}/.."
   source "${z_rbk}/rbrr_regime.sh"
+  source "${z_rbk}/rbrd_regime.sh"
   source "${z_rbk}/rbrp_regime.sh"
   source "${z_rbk}/rbcc_Constants.sh"
   source "${z_rbk}/rbgc_Constants.sh"
@@ -60,7 +61,9 @@ zrbte_furnish_probe() {
   source "${z_rbk}/rbgv_AccessProbe.sh"
 
   source "${RBBC_rbrr_file}" || buc_die "Failed to source ${RBBC_rbrr_file}"
+  source "${RBBC_rbrd_file}" || buc_die "Failed to source RBRD: ${RBBC_rbrd_file}"
   zrbrr_kindle
+  zrbrd_kindle
 
   # Payor probe is depot-agnostic: skip RBRR enforcement so it runs against
   # blank-template RBRR. zrbdc_kindle still runs to derive RBDC_PAYOR_RBRO_FILE
@@ -70,6 +73,7 @@ zrbte_furnish_probe() {
   local z_role="${BURD_TOKEN_3:-}"
   if test "${z_role}" != "payor"; then
     zrbrr_enforce
+    zrbrd_enforce
   fi
   zrbcc_kindle
   zrbdc_kindle

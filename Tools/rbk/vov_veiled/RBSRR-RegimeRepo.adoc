@@ -5,47 +5,22 @@ This regime specifies variables that define repository-wide configuration and in
 Each
 {rbrr_regime}
 instance represents foundational infrastructure configuration that rarely changes and is shared across all Recipe Bottle operations.
-RBRR assignment files are found in the operator's local filesystem (typically `../station-files/rbrr.env`) and configure the depot identity tuple `(RBRR_CLOUD_PREFIX, RBRR_DEPOT_MONIKER)` (from which depot project ID, GAR repository, pool stem, and bucket fall out as RBDC constants), regional settings, and service account credential file paths.
+RBRR assignment files are found in the operator's local filesystem (typically `.rbk/rbrr.env`) and configure the runtime container prefix, vessel directory, container DNS, Cloud Build timeouts, secrets directory, and public docs URL.
+Depot-time-immutable identity and pool configuration live in the sibling
+{rbrd_regime}.
 
 //axhrgb_group
 {rbrr_group_resource_prefixing}
 
-Operator-chosen identifiers that scope resource names across the cloud and local-runtime namespaces.
-Enables multi-regime isolation on shared infrastructure — distinct depots or developers can coexist in the same GCP project or on the same developer workstation without name collisions.
-All three variables must be populated — the marshal-zero path blanks them so a fresh regime requires an explicit operator decision before `rbrr_validate` passes.
-The two prefixes must be 2–11 characters, start with a lowercase letter, and end with a hyphen (regex `^[a-z][a-z0-9-]*-$`).
-
-//axhrgv_variable
-{rbrr_cloud_prefix}
-
-Prefix prepended to all cloud-visible resource names under the depot: GAR image paths, vessel package names,
-{gcb_service}
-substitutions, and other GCP-scoped identifiers.
-
-//axhrgv_variable
-{rbrr_depot_moniker}
-
-Stem identifier that combines with
-{rbrr_cloud_prefix}
-to form the depot identity tuple.
-Must be 1–26 characters, start with a lowercase letter, and contain only lowercase alphanumerics (regex `^[a-z][a-z0-9]*$`).
-The tuple derives `RBDC_DEPOT_PROJECT_ID`, `RBDC_GAR_REPOSITORY`, `RBDC_GCB_POOL_STEM`, and `RBDC_GCS_BUCKET` at kindle time.
+Operator-chosen identifier that scopes machine-local resource names — container names, Docker network names, and other runtime identifiers on the operator's workstation.
+Enables multi-regime isolation on shared infrastructure — distinct developers can coexist on the same workstation without name collisions.
+Must be populated — the marshal-zero path blanks it so a fresh regime requires an explicit operator decision before `rbrr_validate` passes.
+Must be 2–11 characters, start with a lowercase letter, and end with a hyphen (regex `^[a-z][a-z0-9-]*-$`).
 
 //axhrgv_variable
 {rbrr_runtime_prefix}
 
 Prefix prepended to machine-local resource names: container names, Docker network names, and other runtime identifiers on the operator's workstation.
-
-//axhrv_variable
-{rbrr_gcp_region}
-
-The default
-{gcp_service}
-region for regional services like
-{gar_service}
-and
-{gcb_service}.
-Applied when creating repositories and submitting builds unless overridden by operation-specific configuration.
 
 //axhrgb_group
 {rbrr_group_service_accounts}
@@ -123,18 +98,9 @@ Injected into container environment to control DNS behavior.
 
 Operator-chosen
 {gcb_service}
-build parameters.
-Builder images are sourced from the reliquary;
-platform targets and VM supply chain are in the
-{rbrm_regime}.
-
-//axhrgv_variable
-{rbrr_gcb_machine_type}
-
-Compute Engine machine type for the private worker pool, consumed at pool creation time by
-{rbtgo_depot_levy}.
-Valid families: `e2`, `n2d`, `c3`.
-Examples: `e2-standard-2`, `e2-highcpu-8`, `n2d-standard-4`.
+build parameters that may change across builds within a depot's lifetime.
+Depot-time-immutable machine type lives in the
+{rbrd_regime}.
 
 //axhrgv_variable
 {rbrr_gcb_min_concurrent_builds}
@@ -173,10 +139,10 @@ Composes the docker environment injection set and locks the regime against furth
 
 Validates enrolled fields against type-specific constraints from enrollment.
 Validates directory existence for {rbrr_vessel_dir} and {rbrr_secrets_dir}.
-Enforces format constraints on {rbrr_cloud_prefix} and {rbrr_depot_moniker}, and the joint-length cap on `${RBRR_CLOUD_PREFIX}d-${RBRR_DEPOT_MONIKER}` (≤30 chars per the GCP project ID limit).
+Enforces format constraints on {rbrr_runtime_prefix}.
 
 //axhro_render
 {rbkro_render}
 
 Renders the {rbrr_regime} grouped by section with presentation gates per group.
-Sections: Resource Prefixing, Vessel and Local Configuration, GCP Infrastructure, Google Cloud Build Configuration, Secrets Directory, Public Docs.
+Sections: Runtime Prefix, Vessel and Local Configuration, Google Cloud Build Configuration, Secrets Directory, Public Docs.

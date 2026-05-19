@@ -4,7 +4,7 @@
 # Recipe Bottle base compose file — static infrastructure
 #
 # Invoked via:
-#   docker compose --env-file .rbk/rbrr.env --env-file .rbk/{moniker}/rbrn.env \
+#   docker compose --env-file .rbk/rbrr.env --env-file .rbk/rbrd.env --env-file .rbk/{moniker}/rbrn.env \
 #     -f .rbk/rbob_compose.yml [-f .rbk/{moniker}/compose.yml] -p {moniker} up -d
 #
 # Env-file variables serve dual purpose:
@@ -26,7 +26,7 @@
 
 services:
   sentry:
-    image: ${RBRR_GCP_REGION}-docker.pkg.dev/${RBDC_DEPOT_PROJECT_ID}/${RBDC_GAR_REPOSITORY}/rbi_hm/${RBRN_SENTRY_HALLMARK}/image:${RBRN_SENTRY_HALLMARK}
+    image: ${RBRD_GCP_REGION}-docker.pkg.dev/${RBDC_DEPOT_PROJECT_ID}/${RBDC_GAR_REPOSITORY}/rbi_hm/${RBRN_SENTRY_HALLMARK}/image:${RBRN_SENTRY_HALLMARK}
     container_name: ${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}-sentry
     privileged: true
     networks:
@@ -58,7 +58,7 @@ services:
       start_period: 5s
 
   pentacle:
-    image: ${RBRR_GCP_REGION}-docker.pkg.dev/${RBDC_DEPOT_PROJECT_ID}/${RBDC_GAR_REPOSITORY}/rbi_hm/${RBRN_SENTRY_HALLMARK}/image:${RBRN_SENTRY_HALLMARK}
+    image: ${RBRD_GCP_REGION}-docker.pkg.dev/${RBDC_DEPOT_PROJECT_ID}/${RBDC_GAR_REPOSITORY}/rbi_hm/${RBRN_SENTRY_HALLMARK}/image:${RBRN_SENTRY_HALLMARK}
     container_name: ${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}-pentacle
     privileged: true
     networks:
@@ -78,7 +78,7 @@ services:
       start_period: 5s
 
   bottle:
-    image: ${RBRR_GCP_REGION}-docker.pkg.dev/${RBDC_DEPOT_PROJECT_ID}/${RBDC_GAR_REPOSITORY}/rbi_hm/${RBRN_BOTTLE_HALLMARK}/image:${RBRN_BOTTLE_HALLMARK}
+    image: ${RBRD_GCP_REGION}-docker.pkg.dev/${RBDC_DEPOT_PROJECT_ID}/${RBDC_GAR_REPOSITORY}/rbi_hm/${RBRN_BOTTLE_HALLMARK}/image:${RBRN_BOTTLE_HALLMARK}
     container_name: ${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}-bottle
     network_mode: "service:pentacle"
     security_opt:

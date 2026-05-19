@@ -53,11 +53,11 @@ rbho_director_graft() {
   fi
 
   local z_has_depot=0
-  if test -f "${RBBC_rbrr_file}"; then
+  if test -f "${RBBC_rbrd_file}"; then
     local z_line=""
     while IFS= read -r z_line; do
-      case "${z_line}" in RBRR_DEPOT_MONIKER=?*) z_has_depot=1; break ;; esac
-    done < "${RBBC_rbrr_file}"
+      case "${z_line}" in RBRD_DEPOT_MONIKER=?*) z_has_depot=1; break ;; esac
+    done < "${RBBC_rbrd_file}"
   fi
 
   local z_vessel_ready=0
@@ -78,9 +78,9 @@ rbho_director_graft() {
   if command -v docker >/dev/null 2>&1; then
     local z_project_id=""
     local z_region=""
-    if test -f "${RBBC_rbrr_file}"; then
-      z_project_id=$(zrbho_po_extract_capture "${RBBC_rbrr_file}" "RBRR_DEPOT_MONIKER") || z_project_id=""
-      z_region=$(zrbho_po_extract_capture "${RBBC_rbrr_file}" "RBRR_GCP_REGION") || z_region=""
+    if test -f "${RBBC_rbrd_file}"; then
+      z_project_id=$(zrbho_po_extract_capture "${RBBC_rbrd_file}" "RBRD_DEPOT_MONIKER") || z_project_id=""
+      z_region=$(zrbho_po_extract_capture "${RBBC_rbrd_file}" "RBRD_GCP_REGION") || z_region=""
     fi
     if test -n "${z_region}" && test -n "${z_project_id}"; then
       local -r z_gar_prefix="${z_region}${RBGC_GAR_HOST_SUFFIX}/${z_project_id}/"
@@ -126,7 +126,7 @@ rbho_director_graft() {
     buh_tt "      " "${RBZ_ONBOARD_CRED_DIRECTOR}"
   fi
   if test "${z_has_depot}" = "1"; then
-    buh_line "${RBYC_PROBE_YES}${RBYC_DEPOT} configured (RBRR_DEPOT_MONIKER populated)"
+    buh_line "${RBYC_PROBE_YES}${RBYC_DEPOT} configured (RBRD_DEPOT_MONIKER populated)"
   else
     buh_line "${RBYC_PROBE_NO}${RBYC_DEPOT} not configured — the ${RBYC_PAYOR} must establish the ${RBYC_DEPOT}:"
     buh_tt "      " "${RBZ_ONBOARD_PAYOR_HB}"

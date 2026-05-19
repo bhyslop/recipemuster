@@ -9,7 +9,7 @@ into the
 The
 {rbtr_governor}
 mints the SA, generates its credential key, and writes the RBRA bytes to the assay output slot.
-The operation is singleton-per-role: no instance argument; the SA identity is derived from regime constants as `${RBCC_role_director}-${RBRR_DEPOT_MONIKER}`.
+The operation is singleton-per-role: no instance argument; the SA identity is derived from regime constants as `${RBCC_role_director}-${RBRD_DEPOT_MONIKER}`.
 Fatal if the SA already exists — operator must
 {rbtgo_director_divest}
 first to re-key.
@@ -27,10 +27,10 @@ first to re-key.
 {rbtr_director}
 Service Account Identity*:
 .. {rbbc_store}
-`«DIRECTOR_ACCOUNT_NAME»` as `${RBCC_role_director}-${RBRR_DEPOT_MONIKER}` (singleton per role per depot, regime-kindled via
-{rbrr_depot_moniker})
+`«DIRECTOR_ACCOUNT_NAME»` as `${RBCC_role_director}-${RBRD_DEPOT_MONIKER}` (singleton per role per depot, regime-kindled via
+{rbrd_depot_moniker})
 .. {rbbc_store}
-`«DIRECTOR_EMAIL»` as `«DIRECTOR_ACCOUNT_NAME»@${RBDC_DEPOT_PROJECT_ID}.iam.gserviceaccount.com` (depot project ID derived from `(RBRR_CLOUD_PREFIX, RBRR_DEPOT_MONIKER)`)
+`«DIRECTOR_EMAIL»` as `«DIRECTOR_ACCOUNT_NAME»@${RBDC_DEPOT_PROJECT_ID}.iam.gserviceaccount.com` (depot project ID derived from `(RBRD_CLOUD_PREFIX, RBRD_DEPOT_MONIKER)`)
 
 //axhos_step
 . *Preflight: Confirm Service Account Does Not Exist*:
@@ -51,7 +51,7 @@ Service Account*:
 link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/create[iam.serviceAccounts.create] with:
 ... accountId: `«DIRECTOR_ACCOUNT_NAME»`
 ... displayName: `Recipe Bottle Director`
-... description: `Create/destroy container images for depot ${RBRR_DEPOT_MONIKER}`
+... description: `Create/destroy container images for depot ${RBRD_DEPOT_MONIKER}`
 ... project:
 {rbtgi_depot_project}
 .. {rbbc_require}

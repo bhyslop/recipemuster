@@ -38,8 +38,10 @@ zrbfk_furnish() {
   source "${z_rbk_kit_dir}/rbgl_GarLayout.sh"
   source "${z_rbk_kit_dir}/rbgd_DepotConstants.sh"
   source "${z_rbk_kit_dir}/rbrr_regime.sh"
+  source "${z_rbk_kit_dir}/rbrd_regime.sh"
   source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
   source "${RBBC_rbrr_file}"
+  source "${RBBC_rbrd_file}"
   source "${z_rbk_kit_dir}/rbgo_OAuth.sh"
   source "${z_rbk_kit_dir}/rbgu_Utility.sh"
   source "${z_rbk_kit_dir}/rbfh_FoundryHygiene.sh"
@@ -62,7 +64,9 @@ zrbfk_furnish() {
   zrbcc_kindle
 
   zrbrr_kindle
+  zrbrd_kindle
   zrbrr_enforce
+  zrbrd_enforce
   zrbdc_kindle
 
   source "${z_rbk_kit_dir}/rbrv_regime.sh"
