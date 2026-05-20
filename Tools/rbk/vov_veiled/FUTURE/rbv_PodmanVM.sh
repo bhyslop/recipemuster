@@ -431,7 +431,7 @@ rbv_mirror() {
 
   buc_step "Update your RBRM configuration:"
   buc_code ""
-  buc_code "# Add to .rbk/rbrm.env:"
+  buc_code "# Add to rbmm_moorings/rbrm.env:"
   buc_code "RBRM_CHOSEN_IDENTITY=${z_new_identity}  # ${RBRM_MANIFEST_PLATFORMS}"
   buc_code ""
 

@@ -29,8 +29,8 @@ rblm_zero() {
   buc_doc_brief "Zero regime to blank template for release qualification"
   buc_doc_shown || return 0
 
-  local -r z_rbrr="${RBBC_rbrr_file}"
-  local -r z_rbrd="${RBBC_rbrd_file}"
+  local -r z_rbrr="${RBCC_rbrr_file}"
+  local -r z_rbrd="${RBCC_rbrd_file}"
   test -f "${z_rbrr}" || buc_die "RBRR file not found: ${z_rbrr}"
   test -f "${z_rbrd}" || buc_die "RBRD file not found: ${z_rbrd}"
 
@@ -99,7 +99,7 @@ rblm_zero() {
   buh_line "  Vessel hallmarks BLANKED (stale after depot change):"
   local z_np_preview=""
   local z_any_np=0
-  for z_np_preview in "${RBBC_dot_dir}"/*/rbrn.env; do
+  for z_np_preview in "${RBCC_moorings_dir}"/*/rbrn.env; do
     test -f "${z_np_preview}" || continue
     buh_line "    ${z_np_preview}"
     z_any_np=1
@@ -178,7 +178,7 @@ rblm_zero() {
   # to require conjure & vouch before declaring setup complete.
   local z_np=""
   local z_np_tmp=""
-  for z_np in "${RBBC_dot_dir}"/*/rbrn.env; do
+  for z_np in "${RBCC_moorings_dir}"/*/rbrn.env; do
     test -f "${z_np}" || continue
     z_np_tmp="${z_np}.tmp"
     while IFS= read -r z_line; do
@@ -223,7 +223,7 @@ rblm_zero() {
   git add "${z_rbrd}" || buc_die "Failed to stage RBRD file"
 
   local z_stage=""
-  for z_stage in "${RBBC_dot_dir}"/*/rbrn.env; do
+  for z_stage in "${RBCC_moorings_dir}"/*/rbrn.env; do
     test -f "${z_stage}" || continue
     git add "${z_stage}" || buc_die "Failed to stage: ${z_stage}"
   done
@@ -382,7 +382,7 @@ rblm_generate() {
   buc_doc_brief "Generate tabtarget context markdown from zipper registry"
   buc_doc_shown || return 0
 
-  local -r z_target="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}/rbk-claude-tabtarget-context.md"
+  local -r z_target="${RBCC_KIT_DIR}/rbk-claude-tabtarget-context.md"
   local -r z_tmp="${BURD_TEMP_DIR}/rbk-claude-tabtarget-context.md"
 
   buz_emit_context "${BURD_TABTARGET_DIR}" > "${z_tmp}" || buc_die "Failed to generate context"

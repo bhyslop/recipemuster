@@ -39,7 +39,7 @@ zrbhp_kindle() {
     *)      readonly ZRBHP_CLICK_MOD="Ctrl" ;;
   esac
 
-  readonly ZRBHP_RBRP_FILE="${RBBC_rbrp_file}"
+  readonly ZRBHP_RBRP_FILE="${RBCC_rbrp_file}"
   readonly ZRBHP_RBRP_FILE_BASENAME="${ZRBHP_RBRP_FILE##*/}"
 
   readonly ZRBHP_KINDLED=1

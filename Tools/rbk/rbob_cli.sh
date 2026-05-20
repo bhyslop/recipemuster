@@ -117,8 +117,8 @@ zrbob_furnish() {
   source "${z_rbk_kit_dir}/rbrr_regime.sh"
   source "${z_rbk_kit_dir}/rbrd_regime.sh"
   source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
-  source "${RBBC_rbrr_file}"
-  source "${RBBC_rbrd_file}"
+  source "${RBCC_rbrr_file}"
+  source "${RBCC_rbrd_file}"
   source "${z_rbk_kit_dir}/rbgc_Constants.sh"
   source "${z_rbk_kit_dir}/rbgl_GarLayout.sh"
   source "${z_rbk_kit_dir}/rbgd_DepotConstants.sh"
@@ -147,7 +147,7 @@ zrbob_furnish() {
     done
     buc_die "Nameplate moniker required (pass as argument)"
   fi
-  local z_nameplate_file="${RBBC_dot_dir}/${z_folio}/${RBCC_rbrn_file}"
+  local z_nameplate_file="${RBCC_moorings_dir}/${z_folio}/${RBCC_rbrn_file}"
   test -f "${z_nameplate_file}" || buc_die "Nameplate not found: ${z_nameplate_file}"
   source "${z_nameplate_file}" || buc_die "Failed to source nameplate: ${z_nameplate_file}"
   zrbrn_kindle

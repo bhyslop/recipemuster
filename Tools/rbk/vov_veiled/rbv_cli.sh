@@ -48,8 +48,8 @@ zrbv_furnish() {
 
   # Source config files (CLI handles all sourcing)
   source              "${RBV_RBRR_FILE}"   || buc_die "Failed to source RBRR config"
-  source              "${RBBC_rbrd_file}"  || buc_die "Failed to source RBRD config"
-  source              "${RBBC_rbrm_file}"  || buc_die "Failed to source RBRM config"
+  source              "${RBCC_rbrd_file}"  || buc_die "Failed to source RBRD config"
+  source              "${RBCC_rbrm_file}"  || buc_die "Failed to source RBRM config"
   zrbrr_kindle
   zrbrd_kindle
   zrbrr_enforce

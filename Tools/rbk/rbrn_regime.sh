@@ -120,12 +120,12 @@ zrbrn_enforce() {
 # Public Functions (rbrn_*)
 
 # List available nameplate monikers as space-separated tokens
-# Prerequisite: RBCC sourced (needs RBBC_dot_dir, RBCC_rbrn_file)
+# Prerequisite: RBCC sourced (needs RBCC_moorings_dir, RBCC_rbrn_file)
 rbrn_list_capture() {
   zrbcc_sentinel
 
   local z_result=""
-  local z_files=("${RBBC_dot_dir}/"*"/${RBCC_rbrn_file}")
+  local z_files=("${RBCC_moorings_dir}/"*"/${RBCC_rbrn_file}")
   local z_i=""
   for z_i in "${!z_files[@]}"; do
     test -f "${z_files[$z_i]}" || continue
@@ -167,7 +167,7 @@ rbrn_preflight() {
   zrbcc_sentinel
 
   # Collect structured data from all nameplates via isolation subshells
-  local z_nameplate_files=("${RBBC_dot_dir}/"*"/${RBCC_rbrn_file}")
+  local z_nameplate_files=("${RBCC_moorings_dir}/"*"/${RBCC_rbrn_file}")
   local z_data_lines=()
   local z_nf_i=""
   for z_nf_i in "${!z_nameplate_files[@]}"; do

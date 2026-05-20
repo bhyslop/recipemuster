@@ -1063,7 +1063,7 @@ fn rbtdrf_rv_rbrn_all_nameplates(dir: &Path) -> rbtdre_Verdict {
          source '{}/rbcc_Constants.sh'\n\
          source '{}/rbrn_regime.sh'\n\
          zbuv_kindle\nzrbcc_kindle\n\
-         for z_f in \"${{RBBC_dot_dir}}\"/*/${{RBCC_rbrn_file}}; do\n\
+         for z_f in \"${{RBCC_moorings_dir}}\"/*/${{RBCC_rbrn_file}}; do\n\
            test -f \"$z_f\" || continue\n\
            (\n\
              source \"$z_f\"\n\

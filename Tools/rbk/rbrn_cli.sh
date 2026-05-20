@@ -45,7 +45,7 @@ zrbrn_fleet_survey() {
   printf "${z_row_fmt}" \
     "--------" "-----" "------" "------" "-----------------" "--------------" "--------------" "---" "---"
 
-  local z_sv_files=("${RBBC_dot_dir}/"*"/${RBCC_rbrn_file}")
+  local z_sv_files=("${RBCC_moorings_dir}/"*"/${RBCC_rbrn_file}")
   local z_sv_i=""
   for z_sv_i in "${!z_sv_files[@]}"; do
     test -f "${z_sv_files[$z_sv_i]}" || continue
@@ -108,7 +108,7 @@ rbrn_render() {
     rbrn_list
     buc_die "Nameplate moniker required"
   fi
-  local z_nameplate_file="${RBBC_dot_dir}/${BUZ_FOLIO}/${RBCC_rbrn_file}"
+  local z_nameplate_file="${RBCC_moorings_dir}/${BUZ_FOLIO}/${RBCC_rbrn_file}"
   buv_render RBRN "RBRN - Recipe Bottle Regime Nameplate" "${z_nameplate_file}"
 }
 
@@ -187,8 +187,8 @@ zrbrn_furnish() {
   # Heavy kindles (survey/audit only)
   case "${z_command}" in
     rbrn_survey|rbrn_audit)
-      source "${RBBC_rbrr_file}"
-      source "${RBBC_rbrd_file}"
+      source "${RBCC_rbrr_file}"
+      source "${RBCC_rbrd_file}"
       zrbgc_kindle
       zrbgl_kindle
       zrbrr_kindle
@@ -203,7 +203,7 @@ zrbrn_furnish() {
 
   # If BUZ_FOLIO is set, load and kindle the specified nameplate
   if test -n "${BUZ_FOLIO:-}"; then
-    local z_nameplate_file="${RBBC_dot_dir}/${BUZ_FOLIO}/${RBCC_rbrn_file}"
+    local z_nameplate_file="${RBCC_moorings_dir}/${BUZ_FOLIO}/${RBCC_rbrn_file}"
     test -f "${z_nameplate_file}" || buc_die "Nameplate not found: ${z_nameplate_file}"
     source "${z_nameplate_file}" || buc_die "Failed to source nameplate: ${z_nameplate_file}"
     zrbrn_kindle

@@ -38,8 +38,8 @@ zrbfr_furnish() {
   source "${z_rbk_kit_dir}/rbrd_regime.sh"
   source "${z_rbk_kit_dir}/rbrv_regime.sh"
   source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
-  source "${RBBC_rbrr_file}"
-  source "${RBBC_rbrd_file}"
+  source "${RBCC_rbrr_file}"
+  source "${RBCC_rbrd_file}"
   source "${z_rbk_kit_dir}/rbgo_OAuth.sh"
   source "${z_rbk_kit_dir}/rbfr_FoundryRetriever.sh"
 

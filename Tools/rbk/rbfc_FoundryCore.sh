@@ -177,7 +177,7 @@ rbfc_require_vessel_sigil() {
 }
 
 # Resolve vessel argument: accepts a sigil (e.g., rbev-sentry-deb-tether) or a path
-# (e.g., rbev-vessels/rbev-sentry-deb-tether).  On no-arg or invalid arg, lists
+# (e.g., rbmv_vessels/rbev-sentry-deb-tether).  On no-arg or invalid arg, lists
 # available vessels and dies.  On success, writes resolved path to ZRBFC_VESSEL_RESOLVED_DIR_FILE.
 zrbfc_resolve_vessel() {
   zrbfc_sentinel

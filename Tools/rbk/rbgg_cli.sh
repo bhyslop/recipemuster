@@ -41,8 +41,8 @@ zrbgg_furnish() {
   source "${z_rbk_kit_dir}/rbrr_regime.sh"
   source "${z_rbk_kit_dir}/rbrd_regime.sh"
   source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
-  source "${RBBC_rbrr_file}"
-  source "${RBBC_rbrd_file}"
+  source "${RBCC_rbrr_file}"
+  source "${RBCC_rbrd_file}"
   source "${z_rbk_kit_dir}/rbgg_Governor.sh"
 
   zbuv_kindle

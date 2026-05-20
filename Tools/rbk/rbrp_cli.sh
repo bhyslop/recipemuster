@@ -29,7 +29,7 @@ rbrp_validate() {
   buc_doc_brief "Validate RBRP payor regime configuration via enrollment report"
   buc_doc_shown || return 0
 
-  buc_step "Validating RBRP payor file: ${RBBC_rbrp_file}"
+  buc_step "Validating RBRP payor file: ${RBCC_rbrp_file}"
   buv_report RBRP "Payor Regime"
   buc_step "RBRP payor valid"
 }
@@ -38,7 +38,7 @@ rbrp_render() {
   buc_doc_brief "Display diagnostic view of RBRP payor regime configuration"
   buc_doc_shown || return 0
 
-  buv_render RBRP "RBRP - Recipe Bottle Regime Payor" "${RBBC_rbrp_file}"
+  buv_render RBRP "RBRP - Recipe Bottle Regime Payor" "${RBCC_rbrp_file}"
 }
 
 ######################################################################
@@ -62,7 +62,7 @@ zrbrp_furnish() {
   zrbcc_kindle
   zrbgc_kindle
 
-  source "${RBBC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBBC_rbrp_file}"
+  source "${RBCC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBCC_rbrp_file}"
 
   zrbrp_kindle
   zrbrp_enforce

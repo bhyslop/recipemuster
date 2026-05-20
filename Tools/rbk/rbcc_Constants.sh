@@ -31,9 +31,9 @@ ZRBCC_SOURCED=1
 readonly RBCC_KIT_DIR="${BASH_SOURCE[0]%/*}"
 
 # ── Moorings inventory constants ──────────────────────────────────────────
-# New names holding FUTURE moorings-relative values. No kit code reads these
-# yet — they are inventory for the filesystem move (value-flip in lockstep)
-# and the subsequent literal sweep. Source-time literals, no kindle dependency.
+# Moorings-relative path values. Every consumer reads these names directly
+# (the transitional RBBC_* aliases were retired by the literal-sweep pace).
+# Source-time literals, no kindle dependency.
 RBCC_moorings_dir="rbmm_moorings"
 RBCC_launchers_subdir="rbml_launchers"
 RBCC_users_subdir="rbmu_users"
@@ -43,19 +43,6 @@ RBCC_rbrr_file="${RBCC_moorings_dir}/rbrr.env"
 RBCC_rbrp_file="${RBCC_moorings_dir}/rbrp.env"
 RBCC_rbrm_file="${RBCC_moorings_dir}/rbrm.env"
 RBCC_rbrd_file="${RBCC_moorings_dir}/rbrd.env"
-
-# ── RBBC transitional aliases ─────────────────────────────────────────────
-# RBBC (formerly a separate bootstrap file) absorbed into RBCC. Non-furnish
-# kit code (rbob_bottle, rblm_cli, rbh0/*, etc.) and the config-source lines in
-# the furnishes read these names. RBBC_dot_dir now resolves to the moorings
-# layout (flipped at the filesystem-move pace); the composed *_file aliases
-# follow. A later literal-sweep pace retires the names in favor of RBCC_*.
-RBBC_kit_subdir="rbk"
-RBBC_dot_dir="rbmm_moorings"
-RBBC_rbrr_file="${RBBC_dot_dir}/rbrr.env"
-RBBC_rbrd_file="${RBBC_dot_dir}/rbrd.env"
-RBBC_rbrm_file="${RBBC_dot_dir}/rbrm.env"
-RBBC_rbrp_file="${RBBC_dot_dir}/rbrp.env"
 
 # Literal constants (pure string literals, no variable expansion — available at source time)
 RBCC_rbrs_file="../station-files/rbrs.env"

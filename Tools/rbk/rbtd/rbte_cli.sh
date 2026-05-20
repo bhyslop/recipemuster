@@ -60,8 +60,8 @@ zrbte_furnish_probe() {
   source "${z_rbk}/rbgp_Payor.sh"
   source "${z_rbk}/rbgv_AccessProbe.sh"
 
-  source "${RBBC_rbrr_file}" || buc_die "Failed to source ${RBBC_rbrr_file}"
-  source "${RBBC_rbrd_file}" || buc_die "Failed to source RBRD: ${RBBC_rbrd_file}"
+  source "${RBCC_rbrr_file}" || buc_die "Failed to source ${RBCC_rbrr_file}"
+  source "${RBCC_rbrd_file}" || buc_die "Failed to source RBRD: ${RBCC_rbrd_file}"
   zrbrr_kindle
   zrbrd_kindle
 

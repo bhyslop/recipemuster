@@ -20,7 +20,7 @@
 # Recipe Bottle Depot Regime Bespoke - Tripwire helpers
 #
 # Implements the depot-immutable tripwire. At end of successful levy
-# the Payor inscribes a FROM-scratch image carrying .rbk/rbrd.env to
+# the Payor inscribes a FROM-scratch image carrying rbmm_moorings/rbrd.env to
 # GAR at rbi_df/rbrd:tripwire. Every cloud-submitting command pulls
 # that image and exact-byte-diffs the file before submitting, so any
 # post-levy hand-edit of rbrd.env dies loudly instead of silently
@@ -127,11 +127,11 @@ rbrd_inscribe() {
     buc_die "Cannot inscribe over existing tripwire (would mask drift)"
   fi
 
-  buc_log_args "Build FROM-scratch image carrying .rbk/rbrd.env"
+  buc_log_args "Build FROM-scratch image carrying ${RBCC_rbrd_file}"
   mkdir -p "${z_build_dir}" || buc_die "Failed to create build dir ${z_build_dir}"
 
-  cp "${RBBC_rbrd_file}" "${z_rbrd_copy}" \
-    || buc_die "Failed to copy ${RBBC_rbrd_file} into build context"
+  cp "${RBCC_rbrd_file}" "${z_rbrd_copy}" \
+    || buc_die "Failed to copy ${RBCC_rbrd_file} into build context"
 
   printf '%s\n' \
     'FROM scratch' \
@@ -151,7 +151,7 @@ rbrd_inscribe() {
   buc_success "Tripwire inscribed: ${ZRBNDB_TRIPWIRE_IMAGE}"
 }
 
-# Check local .rbk/rbrd.env against the inscribed tripwire image
+# Check local rbmm_moorings/rbrd.env against the inscribed tripwire image
 # before submitting cloud work. Exact-byte mismatch, missing image,
 # or registry/auth failure all fatal with recovery guidance.
 # Token sources mirror rbrd_inscribe: positional $1 then BUZ_FOLIO.
@@ -219,18 +219,18 @@ rbrd_check() {
   # cmp is authoritative for byte-match; diff is for human display on mismatch.
   # diff exits 1 when differences exist — expected since cmp already detected
   # them. Exit ≥ 2 is a real diff error; capture explicit status and fatal.
-  if ! cmp -s "${z_inscribed_file}" "${RBBC_rbrd_file}"; then
+  if ! cmp -s "${z_inscribed_file}" "${RBCC_rbrd_file}"; then
     local z_diff_status=0
-    diff -u "${z_inscribed_file}" "${RBBC_rbrd_file}" \
+    diff -u "${z_inscribed_file}" "${RBCC_rbrd_file}" \
         > "${z_diff_file}" 2>"${z_diff_stderr}" \
       || z_diff_status=$?
     test "${z_diff_status}" -le 1 \
       || buc_die "diff failed (status ${z_diff_status}) generating drift report — see ${z_diff_stderr}"
     buc_warn "RBRD drift detected"
-    buc_info "Local ${RBBC_rbrd_file} differs from the depot-inscribed copy."
+    buc_info "Local ${RBCC_rbrd_file} differs from the depot-inscribed copy."
     buc_info "Full diff (inscribed → local) at: ${z_diff_file}"
     buc_info "Recovery options:"
-    buc_info "  (a) Restore .rbk/rbrd.env to match the inscribed copy (preserves depot)."
+    buc_info "  (a) Restore ${RBCC_rbrd_file} to match the inscribed copy (preserves depot)."
     buc_info "  (b) Unmake and re-levy the depot if rbrd.env genuinely needs to change:"
     buc_info "        rbw-dU \$(rbw-dl)"
     buc_info "        rbw-dL"

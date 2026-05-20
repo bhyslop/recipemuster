@@ -33,8 +33,8 @@ rbho_director_first_build() {
 
   local z_has_director=0
   local z_secrets_dir=""
-  if test -f "${RBBC_rbrr_file}"; then
-    z_secrets_dir=$(zrbho_po_extract_capture "${RBBC_rbrr_file}" "RBRR_SECRETS_DIR") || z_secrets_dir=""
+  if test -f "${RBCC_rbrr_file}"; then
+    z_secrets_dir=$(zrbho_po_extract_capture "${RBCC_rbrr_file}" "RBRR_SECRETS_DIR") || z_secrets_dir=""
   fi
   if test -n "${z_secrets_dir}" && \
      test -f "${z_secrets_dir}/${RBCC_role_director}/${RBCC_rbra_file}"; then
@@ -42,20 +42,20 @@ rbho_director_first_build() {
   fi
 
   local z_has_depot=0
-  if test -f "${RBBC_rbrd_file}"; then
+  if test -f "${RBCC_rbrd_file}"; then
     local z_line=""
     while IFS= read -r z_line; do
       case "${z_line}" in RBRD_DEPOT_MONIKER=?*) z_has_depot=1; break ;; esac
-    done < "${RBBC_rbrd_file}"
+    done < "${RBCC_rbrd_file}"
   fi
 
   local z_conjure_summoned=0
   if command -v docker >/dev/null 2>&1; then
     local z_project_id=""
     local z_region=""
-    if test -f "${RBBC_rbrd_file}"; then
-      z_project_id=$(zrbho_po_extract_capture "${RBBC_rbrd_file}" "RBRD_DEPOT_MONIKER") || z_project_id=""
-      z_region=$(zrbho_po_extract_capture "${RBBC_rbrd_file}" "RBRD_GCP_REGION") || z_region=""
+    if test -f "${RBCC_rbrd_file}"; then
+      z_project_id=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_DEPOT_MONIKER") || z_project_id=""
+      z_region=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_GCP_REGION") || z_region=""
     fi
     if test -n "${z_region}" && test -n "${z_project_id}"; then
       local -r z_gar_prefix="${z_region}${RBGC_GAR_HOST_SUFFIX}/${z_project_id}/"

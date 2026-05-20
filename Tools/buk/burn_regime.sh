@@ -19,7 +19,7 @@
 # BURN Regime - Bash Utility Regime Node Module
 #
 # BURN is a multi-instance regime — one file per node investiture.
-# Each instance lives at .buk/rbmn_nodes/<investiture>/burn.env and is
+# Each instance lives at rbmm_moorings/rbmn_nodes/<investiture>/burn.env and is
 # project-global (git-tracked, shared across station users).
 
 set -euo pipefail
@@ -99,15 +99,15 @@ burn_die_no_folio() {
   local z_aliases=""
   if z_aliases=$(burn_list_capture 2>/dev/null); then
     buc_warn "BURN investiture required as first argument."
-    buc_step "Available investitures under .buk/${BUBC_rbmn_nodes_subdir}/:"
+    buc_step "Available investitures under ${BUBC_moorings_dir}/${BUBC_rbmn_nodes_subdir}/:"
     local z_v=""
     for z_v in ${z_aliases}; do
       buc_bare "        ${z_v}"
     done
   else
     buc_warn "BURN investiture required as first argument."
-    buc_step "No profiles found under .buk/${BUBC_rbmn_nodes_subdir}/."
-    buc_bare "        Author one at .buk/${BUBC_rbmn_nodes_subdir}/<investiture>/burn.env"
+    buc_step "No profiles found under ${BUBC_moorings_dir}/${BUBC_rbmn_nodes_subdir}/."
+    buc_bare "        Author one at ${BUBC_moorings_dir}/${BUBC_rbmn_nodes_subdir}/<investiture>/burn.env"
   fi
   buc_die "No BURN investiture supplied."
 }

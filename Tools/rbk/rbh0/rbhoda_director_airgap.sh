@@ -40,13 +40,13 @@ rbho_director_airgap() {
   local -r z_airgap_vessel="rbev-bottle-ifrit-airgap"
   local -r z_tether_vessel="rbev-bottle-ifrit-tether"
   local -r z_airgap_rbrv="${RBRR_VESSEL_DIR}/${z_airgap_vessel}/rbrv.env"
-  local -r z_moriah_rbrn="${RBBC_dot_dir}/${z_moniker}/${RBCC_rbrn_file}"
-  local -r z_tether_rbrn="${RBBC_dot_dir}/${z_tether_moniker}/${RBCC_rbrn_file}"
+  local -r z_moriah_rbrn="${RBCC_moorings_dir}/${z_moniker}/${RBCC_rbrn_file}"
+  local -r z_tether_rbrn="${RBCC_moorings_dir}/${z_tether_moniker}/${RBCC_rbrn_file}"
 
   local z_has_director=0
   local z_secrets_dir=""
-  if test -f "${RBBC_rbrr_file}"; then
-    z_secrets_dir=$(zrbho_po_extract_capture "${RBBC_rbrr_file}" "RBRR_SECRETS_DIR") || z_secrets_dir=""
+  if test -f "${RBCC_rbrr_file}"; then
+    z_secrets_dir=$(zrbho_po_extract_capture "${RBCC_rbrr_file}" "RBRR_SECRETS_DIR") || z_secrets_dir=""
   fi
   if test -n "${z_secrets_dir}" && \
      test -f "${z_secrets_dir}/${RBCC_role_director}/${RBCC_rbra_file}"; then
@@ -54,11 +54,11 @@ rbho_director_airgap() {
   fi
 
   local z_has_depot=0
-  if test -f "${RBBC_rbrd_file}"; then
+  if test -f "${RBCC_rbrd_file}"; then
     local z_line=""
     while IFS= read -r z_line; do
       case "${z_line}" in RBRD_DEPOT_MONIKER=?*) z_has_depot=1; break ;; esac
-    done < "${RBBC_rbrd_file}"
+    done < "${RBCC_rbrd_file}"
   fi
 
   local z_airgap_base_enshrined=0

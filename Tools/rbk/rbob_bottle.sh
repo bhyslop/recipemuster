@@ -119,17 +119,17 @@ zrbob_kindle() {
   readonly ZRBOB_COMPOSE_BASE="${RBCC_KIT_DIR}/rbob_compose.yml"
   test -f "${ZRBOB_COMPOSE_BASE}" || buc_die "Base compose file not found: ${ZRBOB_COMPOSE_BASE}"
 
-  readonly ZRBOB_COMPOSE_FRAGMENT="${RBBC_dot_dir}/${RBRN_MONIKER}/rbnnh_compose.yml"
+  readonly ZRBOB_COMPOSE_FRAGMENT="${RBCC_moorings_dir}/${RBRN_MONIKER}/rbnnh_compose.yml"
   # Fragment is optional — existence checked at compose invocation time
 
-  readonly ZRBOB_POST_CHARGE_HOOK="${RBBC_dot_dir}/${RBRN_MONIKER}/rbnnh_post_charge.sh"
+  readonly ZRBOB_POST_CHARGE_HOOK="${RBCC_moorings_dir}/${RBRN_MONIKER}/rbnnh_post_charge.sh"
   # Hook is optional — existence + executable bit checked at charge tail
 
   # Env file paths (for compose --env-file: YAML interpolation + container env forwarding)
-  readonly ZRBOB_ENV_RBRR="${RBBC_dot_dir}/rbrr.env"
-  readonly ZRBOB_ENV_RBRD="${RBBC_dot_dir}/rbrd.env"
+  readonly ZRBOB_ENV_RBRR="${RBCC_rbrr_file}"
+  readonly ZRBOB_ENV_RBRD="${RBCC_rbrd_file}"
   readonly ZRBOB_ENV_RBJE="${RBCC_KIT_DIR}/rbje_compose_probe.env"
-  readonly ZRBOB_ENV_RBRN="${RBBC_dot_dir}/${RBRN_MONIKER}/${RBCC_rbrn_file}"
+  readonly ZRBOB_ENV_RBRN="${RBCC_moorings_dir}/${RBRN_MONIKER}/${RBCC_rbrn_file}"
 
   # RBDC env file — RBDC_* are bash-kindle constants invisible to compose
   # without an env-file bridge. Write the subset compose interpolates into
@@ -215,7 +215,7 @@ zrbob_compose() {
   # fragment (rbnnh_compose.yml) relative paths — env_file, volume mounts —
   # are authored relative to this root, so it must be set explicitly. CLI
   # --env-file paths resolve against CWD (repo root) and are unaffected.
-  z_args+=("--project-directory" "${RBBC_dot_dir}")
+  z_args+=("--project-directory" "${RBCC_moorings_dir}")
   z_args+=("--env-file" "${ZRBOB_ENV_RBRR}")
   z_args+=("--env-file" "${ZRBOB_ENV_RBRD}")
   z_args+=("--env-file" "${ZRBOB_ENV_RBDC}")

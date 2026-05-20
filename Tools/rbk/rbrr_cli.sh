@@ -30,7 +30,7 @@ rbrr_validate() {
   buc_doc_brief "Validate RBRR repo regime configuration via enrollment report"
   buc_doc_shown || return 0
 
-  buc_step "Validating RBRR repo regime file: ${RBBC_rbrr_file}"
+  buc_step "Validating RBRR repo regime file: ${RBCC_rbrr_file}"
   buv_report RBRR "Repository Regime"
   buc_step "RBRR repo regime valid"
 }
@@ -40,7 +40,7 @@ rbrr_render() {
   buc_doc_brief "Display diagnostic view of RBRR repo regime configuration"
   buc_doc_shown || return 0
 
-  buv_render RBRR "RBRR - Recipe Bottle Regime Repo" "${RBBC_rbrr_file}"
+  buv_render RBRR "RBRR - Recipe Bottle Regime Repo" "${RBCC_rbrr_file}"
 }
 
 ######################################################################
@@ -59,8 +59,8 @@ zrbrr_furnish() {
   source "${z_rbk_kit_dir}/rbrr_regime.sh"
   source "${z_rbk_kit_dir}/rbrd_regime.sh"
   source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
-  source "${RBBC_rbrr_file}"
-  source "${RBBC_rbrd_file}"
+  source "${RBCC_rbrr_file}"
+  source "${RBCC_rbrd_file}"
   source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
 
   zbuv_kindle

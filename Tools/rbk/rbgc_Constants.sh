@@ -181,7 +181,7 @@ zrbgc_kindle() {
   #   probe-airgap:probe   — airgap pool levy-time capability probe
   #                          (cloud-pushed marker image, FROM scratch)
   #   rbrd:tripwire        — depot regime tripwire (FROM-scratch image
-  #                          carrying .rbk/rbrd.env). Host-inscribed by
+  #                          carrying rbmm_moorings/rbrd.env). Host-inscribed by
   #                          Payor at end of levy; pulled + byte-diffed
   #                          by every cloud-submitting command. See
   #                          Tools/rbk/rbndb_base.sh.

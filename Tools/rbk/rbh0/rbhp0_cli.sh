@@ -42,8 +42,8 @@ zrbhp_furnish() {
   source "${z_rbk_kit_dir}/rbrr_regime.sh"                 || buc_die "Failed to source rbrr_regime.sh"
   source "${z_rbk_kit_dir}/rbrd_regime.sh"                 || buc_die "Failed to source rbrd_regime.sh"
   source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"       || buc_die "Failed to source rbdc_DerivedConstants.sh"
-  source "${RBBC_rbrr_file}"                               || buc_die "Failed to source ${RBBC_rbrr_file}"
-  source "${RBBC_rbrd_file}" || buc_die "Failed to source RBRD: ${RBBC_rbrd_file}"
+  source "${RBCC_rbrr_file}"                               || buc_die "Failed to source ${RBCC_rbrr_file}"
+  source "${RBCC_rbrd_file}" || buc_die "Failed to source RBRD: ${RBCC_rbrd_file}"
   source "${z_rbk_kit_dir}/rbrp_regime.sh"                 || buc_die "Failed to source rbrp_regime.sh"
   source "${z_rbk_kit_dir}/rbgo_OAuth.sh"                  || buc_die "Failed to source rbgo_OAuth.sh"
   source "${z_rbk_kit_dir}/rbgu_Utility.sh"                || buc_die "Failed to source rbgu_Utility.sh"
@@ -68,7 +68,7 @@ zrbhp_furnish() {
 
   zrbgc_kindle
 
-  source "${RBBC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBBC_rbrp_file}"
+  source "${RBCC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBCC_rbrp_file}"
   zrbrp_kindle
   zrbrp_enforce
 

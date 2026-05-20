@@ -196,7 +196,7 @@ rbte_probe() {
       local -r z_iterations=5
       local -r z_delay_ms=1500
       buc_step "Payor OAuth access probe"
-      source "${RBBC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBBC_rbrp_file}"
+      source "${RBCC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBCC_rbrp_file}"
       zrbrp_kindle
       zrbrp_enforce
       rbgv_payor_oauth_probe "${z_iterations}" "${z_delay_ms}"

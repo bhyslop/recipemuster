@@ -88,8 +88,8 @@ zrbho_credential_install() {
   local -r z_role_constant="${1}"
 
   local z_secrets_dir=""
-  if test -f "${RBBC_rbrr_file}"; then
-    z_secrets_dir=$(zrbho_po_extract_capture "${RBBC_rbrr_file}" "RBRR_SECRETS_DIR") || z_secrets_dir=""
+  if test -f "${RBCC_rbrr_file}"; then
+    z_secrets_dir=$(zrbho_po_extract_capture "${RBCC_rbrr_file}" "RBRR_SECRETS_DIR") || z_secrets_dir=""
   fi
 
   local z_cred_present=0

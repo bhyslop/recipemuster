@@ -30,7 +30,7 @@ rbrd_validate() {
   buc_doc_brief "Validate RBRD depot regime configuration via enrollment report"
   buc_doc_shown || return 0
 
-  buc_step "Validating RBRD depot regime file: ${RBBC_rbrd_file}"
+  buc_step "Validating RBRD depot regime file: ${RBCC_rbrd_file}"
   buv_report RBRD "Depot Regime"
   buc_step "RBRD depot regime valid"
 }
@@ -40,7 +40,7 @@ rbrd_render() {
   buc_doc_brief "Display diagnostic view of RBRD depot regime configuration"
   buc_doc_shown || return 0
 
-  buv_render RBRD "RBRD - Recipe Bottle Regime Depot" "${RBBC_rbrd_file}"
+  buv_render RBRD "RBRD - Recipe Bottle Regime Depot" "${RBCC_rbrd_file}"
 }
 
 ######################################################################
@@ -64,7 +64,7 @@ zrbrd_furnish() {
   source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
   source "${z_rbk_kit_dir}/rbcc_Constants.sh"
   source "${z_rbk_kit_dir}/rbrd_regime.sh"
-  source "${RBBC_rbrd_file}"
+  source "${RBCC_rbrd_file}"
 
   zbuv_kindle
   zburd_kindle
@@ -79,7 +79,7 @@ zrbrd_furnish() {
   case "${z_command}" in
     rbrd_check|rbrd_inscribe)
       source "${z_rbk_kit_dir}/rbrr_regime.sh"
-      source "${RBBC_rbrr_file}"
+      source "${RBCC_rbrr_file}"
       source "${z_rbk_kit_dir}/rbgc_Constants.sh"
       source "${z_rbk_kit_dir}/rbgl_GarLayout.sh"
       source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
