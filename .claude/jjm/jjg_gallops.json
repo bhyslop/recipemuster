@@ -9889,9 +9889,10 @@
         "₢BMAAB",
         "₢BMAAC",
         "₢BMAAD",
-        "₢BMAAE"
+        "₢BMAAE",
+        "₢BMAAF"
       ],
-      "jjghn_next_pace_seed": "AAF",
+      "jjghn_next_pace_seed": "AAG",
       "jjghn_paces": {
         "₢BMAAA": {
           "jjgpn_tacks": [
@@ -9945,6 +9946,17 @@
               "jjgtn_text": "## Character\n\nMechanical. The one pace that touches BUK files and the one place this heat\noverlaps ₣BK *semantically* — coordinate with ₣BK before mounting.\n\n## Goal\n\n`BURN_PLATFORM` values `bubep_linux`/`bubep_mac`/`bubep_windows` →\n`bunne_linux`/`bunne_mac`/`bunne_windows`. The two-shape wart (5-char\n`bubep_` vs 4-char convention) eliminated.\n\n## Boundary\n\nBUK subtree (`Tools/buk/`) + `BUS0` spec. Confirm with ₣BK that its BUK\nsweeps have settled before editing these files.\n\n## Recipe\n\n- `grep -rn 'bubep_' Tools/ tt/` — ~41 sites / 7 files; replace all.\n- Flip the `buv_enum_enroll BURN_PLATFORM` declaration and its description\n  string (`\"(bubep_* identifier)\"` → `bunne_*`).\n- Update the BUS0 spec mention.\n\n## Acceptance\n\n- `grep -rn bubep_` returns nothing; `grep -rn bunne_` shows the cluster.\n- `tt/buw-st.BukSelfTest.sh` + `tt/rbtd-s.TestSuite.fast.sh` green.",
               "jjgtn_silks": "bubep-to-bunne-harmonize",
               "jjgtn_basis": "7d565ed"
+            }
+          ]
+        },
+        "₢BMAAF": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260520-1301",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nGauntlet exit. A failure here is a real migration bug (a missed site), not\nexploration — triage is opus-grade.\n\n## Goal\n\nThe whole sprue migration proven end-to-end, and the discoverability promise\nverified: one grep per family returns the complete cluster, no bare values\nsurvive.\n\n## Recipe\n\n- Run the gauntlet (`tt/rbw-tP.QualifyPristine.sh`) — pre-flight `rbw-MZ`,\n  all crucibles quenched, per burn-bridges posture.\n- Grep audit:\n  - `grep -rn rbnve_ Tools/` / `rbnne_` / `bunne_` each return a complete,\n    coherent cluster.\n  - `grep -rn bubep_` returns nothing.\n  - Spot bare-value audit: surviving `conjure`/`graft`/`tether`/`airgap`/\n    `disabled`/`enabled`/`global`/`allowlist` hits are all class-1/3/4\n    (prose, identifiers, coupled derived strings), zero class-2.\n\n## Acceptance\n\n- Gauntlet green.\n- Grep audit clean per above.",
+              "jjgtn_silks": "final-regression-and-grep-audit",
+              "jjgtn_basis": "55ede21"
             }
           ]
         }
