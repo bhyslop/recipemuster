@@ -50,11 +50,13 @@ buq_tabtargets() {
 
   # Prescribed tabtarget form (from buut_tabtarget.sh generator):
   #   Line 1:      #!/bin/bash
-  #   Line 2:      export BURD_LAUNCHER="<launcher_path>"
-  #   Lines 3..N-1: optional export BURD_*=* flag lines
-  #   Last line:   exec "${BASH_SOURCE[0]%/*}/../${BURD_LAUNCHER}" "${0##*/}" "${@}"
+  #   Lines 2..N-1: optional export BURD_*=* flag lines
+  #   Last line:   exec "${BASH_SOURCE[0]%/*}/z-launcher.sh" <sprue> "${0##*/}" "${@}"
+  # The <sprue> is a minted moorings-launcher token {owner}ml_{launcher-id};
+  # z-launcher.sh recovers the launcher-id by stripping the *ml_ prefix.
   local z_prescribed_shebang='#!/bin/bash'
-  local z_prescribed_exec='exec "${BASH_SOURCE[0]%/*}/../${BURD_LAUNCHER}" "${0##*/}" "${@}"'
+  local z_exec_prefix='exec "${BASH_SOURCE[0]%/*}/z-launcher.sh" '
+  local z_exec_suffix=' "${0##*/}" "${@}"'
 
   local z_file=""
   for z_file in "${z_tt_dir}"/*.sh; do
@@ -85,10 +87,10 @@ buq_tabtargets() {
 
     local z_num_lines=${#z_lines[@]}
 
-    # Must have at least 3 lines: shebang, BURD_LAUNCHER, exec
-    test "${z_num_lines}" -ge 3 || {
+    # Must have at least 2 lines: shebang, exec
+    test "${z_num_lines}" -ge 2 || {
       z_fail_files+=("${z_basename}")
-      z_fail_reasons+=("too few lines: ${z_num_lines} (minimum 3)")
+      z_fail_reasons+=("too few lines: ${z_num_lines} (minimum 2)")
       continue
     }
 
@@ -99,23 +101,9 @@ buq_tabtargets() {
       continue
     }
 
-    # Line 2: must be export BURD_LAUNCHER="..."
-    case "${z_lines[1]}" in
-      'export BURD_LAUNCHER="'*'"') ;;
-      *)
-        z_fail_files+=("${z_basename}")
-        z_fail_reasons+=("line 2: expected 'export BURD_LAUNCHER=\"...\"', got '${z_lines[1]}'")
-        continue
-        ;;
-    esac
-
-    # Extract launcher path for existence check
-    local z_launcher_rhs="${z_lines[1]#export BURD_LAUNCHER=\"}"
-    local z_launcher_path="${z_launcher_rhs%\"}"
-
-    # Middle lines (3..N-1): must be export BURD_*=*
+    # Middle lines (2..N-1): must be export BURD_*=*
     local z_middle_ok=1
-    local z_i=2
+    local z_i=1
     local z_last_idx=$((z_num_lines - 1))
     while test "${z_i}" -lt "${z_last_idx}"; do
       case "${z_lines[$z_i]}" in
@@ -131,17 +119,39 @@ buq_tabtargets() {
     done
     test "${z_middle_ok}" = "1" || continue
 
-    # Last line: prescribed exec (parameter expansion, not dirname)
-    test "${z_lines[$z_last_idx]}" = "${z_prescribed_exec}" || {
-      z_fail_files+=("${z_basename}")
-      z_fail_reasons+=("last line: expected prescribed exec, got '${z_lines[$z_last_idx]}'")
-      continue
-    }
+    # Last line: prescribed exec through the z-launcher trampoline.
+    # Shape: <prefix><sprue><suffix>; extract and validate the sprue.
+    local z_exec_line="${z_lines[$z_last_idx]}"
+    case "${z_exec_line}" in
+      "${z_exec_prefix}"*"${z_exec_suffix}") ;;
+      *)
+        z_fail_files+=("${z_basename}")
+        z_fail_reasons+=("last line: expected z-launcher exec, got '${z_exec_line}'")
+        continue
+        ;;
+    esac
+    local z_sprue="${z_exec_line#"${z_exec_prefix}"}"
+    z_sprue="${z_sprue%"${z_exec_suffix}"}"
 
-    # Launcher file must exist
+    # Sprue must be a single {owner}ml_{id} token and resolve to a launcher.
+    case "${z_sprue}" in
+      ''|*' '*)
+        z_fail_files+=("${z_basename}")
+        z_fail_reasons+=("malformed sprue: '${z_sprue}'")
+        continue
+        ;;
+      *ml_*) ;;
+      *)
+        z_fail_files+=("${z_basename}")
+        z_fail_reasons+=("sprue missing ml_ marker: '${z_sprue}'")
+        continue
+        ;;
+    esac
+    local z_launcher_id="${z_sprue#*ml_}"
+    local z_launcher_path=".buk/launcher.${z_launcher_id}_workbench.sh"
     test -f "${z_project_root}/${z_launcher_path}" || {
       z_fail_files+=("${z_basename}")
-      z_fail_reasons+=("launcher not found: ${z_launcher_path}")
+      z_fail_reasons+=("launcher not found for sprue '${z_sprue}': ${z_launcher_path}")
       continue
     }
   done
