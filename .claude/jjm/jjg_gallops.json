@@ -2,13 +2,13 @@
   "jjgrn_schema_version": 4,
   "jjgrn_next_heat_seed": "BQ",
   "jjgrn_heat_order": [
+    "₣BP",
     "₣BM",
     "₣BK",
     "₣BJ",
     "₣BF",
     "₣BD",
     "₣BB",
-    "₣BP",
     "₣BN",
     "₣A-",
     "₣BG",
@@ -10006,7 +10006,7 @@
     "₣BP": {
       "jjghn_silks": "rbk-13-mvp-redundancy-cleanup",
       "jjghn_creation_time": "260520",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BPAAA",
         "₢BPAAB"
