@@ -407,8 +407,7 @@ zrblm_furnish() {
   buc_doc_env "BURD_TABTARGET_DIR    " "Tabtarget directory (dispatch-provided)"
   buc_doc_env_done || return 0
 
-  source "${BURD_CONFIG_DIR}/rbbc_constants.sh"
-  local z_rbk_kit_dir="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}"
+  local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
   source "${z_rbk_kit_dir}/rbcc_Constants.sh" || buc_die "Failed to source rbcc_Constants.sh"
 
   source "${BURD_BUK_DIR}/buym_yelp.sh"         || buc_die "Failed to source buym_yelp.sh"

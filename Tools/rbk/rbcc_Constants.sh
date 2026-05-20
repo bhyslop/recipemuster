@@ -24,9 +24,38 @@ set -euo pipefail
 test -z "${ZRBCC_SOURCED:-}" || buc_die "Module rbcc multiply sourced - check sourcing hierarchy"
 ZRBCC_SOURCED=1
 
-# Source RBBC bootstrap constants (source-time, before kindle)
-test -n "${BURD_CONFIG_DIR:-}" || buc_die "BURD_CONFIG_DIR not set - rbcc requires launcher environment"
-source "${BURD_CONFIG_DIR}/rbbc_constants.sh" || buc_die "Failed to source rbbc_constants.sh"
+# Kit directory — source-time self-location. rbcc lives at the RBK kit root,
+# so its own directory IS the kit dir. No launcher environment dependency;
+# available the instant this file is sourced (BCG kit-self-location pattern,
+# canon: rbtd/rbte_cli.sh).
+readonly RBCC_KIT_DIR="${BASH_SOURCE[0]%/*}"
+
+# ── Moorings inventory constants ──────────────────────────────────────────
+# New names holding FUTURE moorings-relative values. No kit code reads these
+# yet — they are inventory for the filesystem move (value-flip in lockstep)
+# and the subsequent literal sweep. Source-time literals, no kindle dependency.
+RBCC_moorings_dir="rbmm_moorings"
+RBCC_launchers_subdir="rbml_launchers"
+RBCC_users_subdir="rbmu_users"
+RBCC_nodes_subdir="rbmn_nodes"
+RBCC_vessels_subdir="rbmv_vessels"
+RBCC_rbrr_file="${RBCC_moorings_dir}/rbrr.env"
+RBCC_rbrp_file="${RBCC_moorings_dir}/rbrp.env"
+RBCC_rbrm_file="${RBCC_moorings_dir}/rbrm.env"
+RBCC_rbrd_file="${RBCC_moorings_dir}/rbrd.env"
+
+# ── RBBC transitional aliases ─────────────────────────────────────────────
+# RBBC (formerly a separate .buk bootstrap file) absorbed into RBCC. Non-furnish
+# kit code (rbob_bottle, rblm_cli, rbh0/*, etc.) and the config-source lines in
+# the furnishes still read these names against the CURRENT .rbk/ layout. The
+# filesystem-move pace flips RBBC_dot_dir to moorings; the literal-sweep pace
+# retires the names entirely.
+RBBC_kit_subdir="rbk"
+RBBC_dot_dir=".rbk"
+RBBC_rbrr_file="${RBBC_dot_dir}/rbrr.env"
+RBBC_rbrd_file="${RBBC_dot_dir}/rbrd.env"
+RBBC_rbrm_file="${RBBC_dot_dir}/rbrm.env"
+RBBC_rbrp_file="${RBBC_dot_dir}/rbrp.env"
 
 # Literal constants (pure string literals, no variable expansion — available at source time)
 RBCC_rbrs_file="../station-files/rbrs.env"
@@ -62,10 +91,6 @@ RBCC_fact_ext_audit_hallmark="audit-hallmark"
 
 zrbcc_kindle() {
   test -z "${ZRBCC_KINDLED:-}" || buc_die "Module rbcc already kindled"
-  test -n "${BURC_TOOLS_DIR:-}" || buc_die "BURC_TOOLS_DIR not set - rbcc requires BURC environment"
-
-  # Kindle constants (depend on runtime state)
-  readonly RBCC_KIT_DIR="${BURC_TOOLS_DIR}/${RBBC_kit_subdir}"
 
   # Curl timeout bounds — all actionable curl sites use these
   readonly RBCC_CURL_CONNECT_TIMEOUT_SEC=10

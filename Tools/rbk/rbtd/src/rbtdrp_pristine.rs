@@ -126,7 +126,7 @@ const RBTDRP_RBRA_ROLES: &[&str] = &["governor", "director", "retriever", "assay
 /// Nameplate hallmark fields rblm_zero blanks.
 const RBTDRP_RBRN_BLANK_FIELDS: &[&str] = &["RBRN_SENTRY_HALLMARK", "RBRN_BOTTLE_HALLMARK"];
 
-/// File-relative constants matching rbbc_constants.sh / rbcc_Constants.sh.
+/// File-relative constants matching the RBBC aliases in rbcc_Constants.sh.
 const RBTDRP_DOT_DIR: &str = ".rbk";
 const RBTDRP_RBRR_FILE: &str = ".rbk/rbrr.env";
 const RBTDRP_RBRD_FILE: &str = ".rbk/rbrd.env";

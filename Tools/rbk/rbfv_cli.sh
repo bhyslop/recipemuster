@@ -23,13 +23,11 @@ source "${BURD_BUK_DIR}/buc_command.sh"
 
 zrbfv_furnish() {
   buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
-  buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
   buc_doc_env "BURD_TEMP_DIR         " "Bash Dispatch Utility provided temporary directory, empty at start of command"
   buc_doc_env "BURD_NOW_STAMP        " "Bash Dispatch Utility provided string unique between invocations"
   buc_doc_env_done || return 0
 
-  source "${BURD_CONFIG_DIR}/rbbc_constants.sh"
-  local z_rbk_kit_dir="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}"
+  local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
   source "${BURD_BUK_DIR}/buv_validation.sh"
   source "${BURD_BUK_DIR}/burd_regime.sh"
   source "${z_rbk_kit_dir}/rbcc_Constants.sh"

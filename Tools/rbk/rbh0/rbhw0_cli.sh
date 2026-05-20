@@ -28,12 +28,10 @@ source "${BURD_BUK_DIR}/buc_command.sh"
 
 zrbhw_furnish() {
   buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
-  buc_doc_env "BURD_CONFIG_DIR       " "Configuration directory (dispatch-provided)"
   buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
   buc_doc_env_done || return 0
 
-  source "${BURD_CONFIG_DIR}/rbbc_constants.sh"  || buc_die "Failed to source rbbc_constants.sh"
-  local -r z_rbk_kit_dir="${BURD_TOOLS_DIR}/${RBBC_kit_subdir}"
+  local -r z_rbk_kit_dir="${BASH_SOURCE[0]%/*}/.."
   local -r z_jjk_kit_dir="${BURD_TOOLS_DIR}/jjk"
 
   source "${BURD_BUK_DIR}/buym_yelp.sh"                                || buc_die "Failed to source buym_yelp.sh"
