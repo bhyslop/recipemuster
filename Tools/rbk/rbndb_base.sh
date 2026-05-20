@@ -199,7 +199,11 @@ rbrd_check() {
     || buc_die "docker pull failed for ${ZRBNDB_TRIPWIRE_IMAGE} — see ${z_pull_stderr}"
 
   buc_log_args "Create temp container to extract /rbrd.env"
-  docker create "${ZRBNDB_TRIPWIRE_IMAGE}" \
+  # The tripwire is FROM-scratch (no CMD/ENTRYPOINT); the Linux daemon rejects
+  # docker create on such an image with "no command specified". The container
+  # is never started — only docker cp + docker rm touch it — so a never-executed
+  # placeholder command satisfies the create-time requirement harmlessly.
+  docker create "${ZRBNDB_TRIPWIRE_IMAGE}" /rbrd.env \
       > "${z_create_stdout}" 2>"${z_create_stderr}" \
     || buc_die "docker create failed for ${ZRBNDB_TRIPWIRE_IMAGE} — see ${z_create_stderr}"
 
