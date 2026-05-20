@@ -209,6 +209,13 @@ zrbob_compose() {
 
   local z_args=()
   z_args+=("compose")
+  # Pin the project directory to the moorings (consumer-config) root. Compose
+  # otherwise derives it from the first -f file's location — and the base
+  # compose now lives with the kit (Tools/rbk), not in moorings. Nameplate
+  # fragment (rbnnh_compose.yml) relative paths — env_file, volume mounts —
+  # are authored relative to this root, so it must be set explicitly. CLI
+  # --env-file paths resolve against CWD (repo root) and are unaffected.
+  z_args+=("--project-directory" "${RBBC_dot_dir}")
   z_args+=("--env-file" "${ZRBOB_ENV_RBRR}")
   z_args+=("--env-file" "${ZRBOB_ENV_RBRD}")
   z_args+=("--env-file" "${ZRBOB_ENV_RBDC}")
