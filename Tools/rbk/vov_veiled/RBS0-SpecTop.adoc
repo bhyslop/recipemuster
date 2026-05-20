@@ -337,6 +337,12 @@
 :rbrr_runtime_prefix:        <<rbrr_runtime_prefix,RBRR_RUNTIME_PREFIX>>
 :rbrr_group_resource_prefixing: <<rbrr_group_resource_prefixing,Runtime Prefix Group>>
 
+// Consumer moorings root — the single place the literal moorings directory name appears.
+// Mirrors bash fact-locale RBCC_moorings_dir / BUBC_moorings_dir. Each regime's file
+// location composes from this quoin in that regime's definition; there are no per-file
+// quoins — the regime quoin owns its file location.
+:rbsld_moorings:             <<rbsld_moorings,rbmm_moorings/>>
+
 // Recipe Bottle Regime: Depot (depot-time-immutable identity and infrastructure)
 :rbrd_regime:                <<rbrd_regime,RBRD Regime>>
 :rbrd_cloud_prefix:          <<rbrd_cloud_prefix,RBRD_CLOUD_PREFIX>>
@@ -2717,6 +2723,15 @@ Recipe Bottle Nameplate Regime
 {rbrs_prefix}::
 Recipe Bottle Station Regime
 
+=== Consumer Filesystem Layout
+
+[[rbsld_moorings]]
+//axl_voices axtu_path
+{rbsld_moorings}::
+The moorings directory — the single root for all {rbtr_consumer} configuration.
+At its root sit the installation-wide regime assignment files; each {at_nameplate} adds a subdirectory named by its {rbrn_moniker}, and vessel definitions live under {rbrr_vessel_dir}.
+Each regime's exact file location is stated in that regime's definition.
+
 === Repository Regime (RBRR)
 
 The
@@ -2734,6 +2749,7 @@ operations.
 Repository-wide configuration and installation-wide settings shared across all
 {at_recipe_bottle}
 operations.
+File-sourced singleton at {rbsld_moorings}rbrr.env.
 
 [[rbrr_secrets_dir]]
 //axl_voices axrg_variable axtu_path
@@ -2900,6 +2916,7 @@ Changing any field after levy requires a fresh depot.
 //axvr_regime axf_bash axrd_file_sourced axrd_singleton
 {rbrd_regime}::
 Depot-time-immutable identity and infrastructure settings shared by all operations targeting a single depot.
+File-sourced singleton at {rbsld_moorings}rbrd.env.
 
 [[rbrd_cloud_prefix]]
 //axl_voices axrg_variable axtu_string
@@ -2992,7 +3009,7 @@ displayName discriminator.
 //axvr_regime axf_bash axrd_file_sourced axrd_singleton
 {rbrm_regime}::
 Podman VM supply chain configuration including container runtime tool versions, platform targets, and VM image selection.
-Located at `.rbk/rbrm.env`.
+File-sourced singleton at {rbsld_moorings}rbrm.env.
 
 include::RBSRM-RegimeMachine.adoc[]
 
@@ -3208,6 +3225,7 @@ Renders all fields before validation so complete state is visible on failure.
 //axvr_regime axf_bash axrd_file_sourced axrd_manifold
 {rbrv_regime}::
 Configuration regime for container image build specifications.
+File-sourced, one per vessel: an rbrv.env in each vessel subdirectory under {rbrr_vessel_dir}, the subdirectory named by the vessel's {rbrv_sigil}.
 
 [[rbrv_sigil]]
 //axvr_variable axd_required rbst_xname
@@ -3409,7 +3427,8 @@ include::RBSRV-RegimeVessel.adoc[]
 //axvr_regime axf_bash axrd_file_sourced axrd_manifold
 {rbrn_regime}::
 Configuration regime for crucible deployment.
-RBRN assignment files in `.rbk/{moniker}/rbrn.env` define container deployment and network security settings.
+File-sourced, one per nameplate: an rbrn.env in each nameplate subdirectory under {rbsld_moorings}, the subdirectory named by the nameplate's {rbrn_moniker}.
+Defines container deployment and network security settings.
 
 [[rbrn_moniker]]
 //axvr_variable axd_required rbst_xname

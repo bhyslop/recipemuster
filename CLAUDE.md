@@ -245,7 +245,7 @@ When evaluating any new pattern, extraction, or structural choice, the litmus te
 Operator-specific test machines reachable from this station.
 
 - **bujn-winpc** — Windows host (tailnet hostname `rocket`). Formal BURN profile
-  at `.buk/rbmn_nodes/bujn-winpc/` for BUK caparison/garrison/invigilate work
+  at `rbmm_moorings/rbmn_nodes/bujn-winpc/` for BUK caparison/garrison/invigilate work
   under heat ₣A-.
   - Admin SSH: `tt/buw-jpS bujn-winpc <cmd>` (as `bhyslop`).
   - Formal workload: `tt/buw-jws bujn-winpc` (as `bujuw_user`; current garrison

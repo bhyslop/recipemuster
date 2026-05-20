@@ -161,7 +161,7 @@ Three potential mitigations, in order of increasing ambition:
 +
 _Trigger_: when allowed domains require CIDRs broader than /24, or when the threat model requires preventing lateral reachability within a CDN range.
 _Reference_: rbjs_sentry.sh (Phase 3 CIDR rules);
-.rbk/tadmor/rbrn.env (current CIDR configuration).
+the tadmor nameplate's {rbrn_regime} assignment file (current CIDR configuration).
 
 **Encrypted tunnel conduit (WireGuard in sentry).**
 Add WireGuard to the sentry image so the sentry terminates an encrypted tunnel directly to a VPC hosting PrivateLink endpoints for cloud services.

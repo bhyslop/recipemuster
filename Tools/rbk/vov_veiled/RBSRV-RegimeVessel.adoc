@@ -5,7 +5,7 @@ This regime specifies variables that define container vessel configurations with
 Each
 {rbrv_regime}
 instance represents a vessel image source: bound from an external registry, conjured from a Dockerfile, or grafted from a local build.
-RBRV assignment files are found in `rbev-vessels/*/rbrv.env` and configure image sourcing for bottle deployments.
+RBRV assignment files are found one per vessel subdirectory under {rbrr_vessel_dir} and configure image sourcing for bottle deployments.
 
 //axhrv_variable
 {rbrv_sigil}

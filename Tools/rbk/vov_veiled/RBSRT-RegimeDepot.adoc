@@ -7,7 +7,7 @@ Each
 instance pins the values that
 {rbtgo_depot_levy}
 consumes at depot creation — the identity tuple `(RBRD_CLOUD_PREFIX, RBRD_DEPOT_MONIKER)` (from which depot project ID, GAR repository, pool stem, and bucket fall out as RBDC constants), the GCP region, and the Cloud Build private worker pool machine type.
-RBRD assignment files are found in the operator's local filesystem (typically `.rbk/rbrd.env`) and are frozen for the productive lifetime of the depot.
+RBRD assignment files are found in the operator's local filesystem and are frozen for the productive lifetime of the depot.
 Changing any field after levy requires a fresh depot.
 
 //axhrgb_group
@@ -86,15 +86,15 @@ Sections: Depot Identity, GCP Region, Google Cloud Build Pool.
 
 [[rbrd_tripwire]]
 {rbrd_tripwire}::
-A `FROM scratch` GAR image carrying the verbatim `.rbk/rbrd.env` assignment file, inscribed at `«REGION»-docker.pkg.dev/«DEPOT_PROJECT_ID»/«GAR_REPOSITORY»/rbi_df/rbrd:tripwire`.
-The tripwire makes the depot-time-immutable contract enforceable: because every RBDC-derived resource name (project ID, GAR repository, pool stem, bucket) is computed from the {rbrd_regime} at kindle time, a silent post-levy edit of `.rbk/rbrd.env` would point subsequent operations at a different depot identity or worker-pool configuration than the one actually provisioned.
+A `FROM scratch` GAR image carrying the verbatim {rbrd_regime} assignment file, inscribed at `«REGION»-docker.pkg.dev/«DEPOT_PROJECT_ID»/«GAR_REPOSITORY»/rbi_df/rbrd:tripwire`.
+The tripwire makes the depot-time-immutable contract enforceable: because every RBDC-derived resource name (project ID, GAR repository, pool stem, bucket) is computed from the {rbrd_regime} at kindle time, a silent post-levy edit of the {rbrd_regime} assignment file would point subsequent operations at a different depot identity or worker-pool configuration than the one actually provisioned.
 +
 The tripwire is _produced_ exactly once, host-side, at the tail of
 {rbtgo_depot_levy}
 — after the depot-tracking refresh, using the Payor OAuth access token already in scope.
 A pre-push existence guard (`docker manifest inspect`) makes inscription idempotent-by-refusal: an already-present tripwire is fatal, since RBRD is frozen for the depot's productive lifetime and refreshing it requires a fresh depot (unmake + relevy).
 +
-The tripwire is _consumed_ inline by every cloud-submitting command before it dispatches a build: the command pulls the image, extracts `/rbrd.env`, and exact-byte-compares it (comments, whitespace, and line ordering all participate) against the local `.rbk/rbrd.env`.
+The tripwire is _consumed_ inline by every cloud-submitting command before it dispatches a build: the command pulls the image, extracts `/rbrd.env`, and exact-byte-compares it (comments, whitespace, and line ordering all participate) against the local {rbrd_regime} assignment file.
 A mismatch, a missing image, or a registry/auth failure is fatal with recovery guidance — the command refuses to submit cloud work against a drifted or unverifiable depot regime.
 The check takes a bearer token parameter and is role-agnostic; each consuming command passes its own role's token (no new IAM grants).
 +

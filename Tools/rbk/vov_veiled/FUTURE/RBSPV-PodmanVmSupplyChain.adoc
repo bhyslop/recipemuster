@@ -97,7 +97,7 @@ The regime configuration includes several key variables. RBRM_IGNITE_MACHINE_NAM
 
 The station configuration includes variables that vary by workstation. RBRS_PODMAN_ROOT_DIR points to the base directory where Podman stores machine data. RBRS_VMIMAGE_CACHE_DIR specifies where fetched disk images should be cached locally. RBRS_VM_PLATFORM identifies which platform variant the local machine should use, such as mow_amd64_wsl or mos_arm64_base.
 
-These variables are defined in the RBRM (Machine) regime at `.rbk/rbrm.env`, separated from the broader RBRR configuration to clarify the distinction between Recipe Bottle's application-level configuration and the underlying VM infrastructure configuration.
+These variables are defined in the RBRM (Machine) regime at `rbmm_moorings/rbrm.env`, separated from the broader RBRR configuration to clarify the distinction between Recipe Bottle's application-level configuration and the underlying VM infrastructure configuration.
 
 An important transitional note concerns GHCR-era variables. The original implementation targeted GitHub Container Registry and used variables like RBRR_REGISTRY_OWNER, RBRR_REGISTRY_NAME, and RBRR_GITHUB_PAT_ENV to manage authentication and registry addressing. These variables are being deleted as part of ongoing work. When Google Artifact Registry support is implemented, new properly scoped variables will be minted following the project's prefix naming discipline.
 
