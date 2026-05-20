@@ -17,8 +17,32 @@ the sweep.
 The inventory pace has been completed (see heat log / slate commit
 messages for depth). This paddock records the resolved scope and the
 durable findings; line-numbered site lists deliberately live in the
-discovery recipe, not here, because ₣BK churns this heat's file surface
-(see Heat-shape note below).
+discovery recipe, not here.
+
+## MCM grounding — "sprue" is `mcm_sprue`, prefix discipline makes it an inlay
+
+"Sprue" here is not a coined word — it is the MCM quoin `mcm_sprue`: *a
+literal wire-level token representing a serialized name — the exact
+character sequence as it appears in a wire format (a JSON property key, an
+API field name, a protocol identifier).* Our regime enum values are
+textbook sprues: `rbnve_conjure` is the verbatim token that appears in
+`rbrv.env`, in the `_RBGA_VESSEL_MODE` Cloud Build substitution, in
+build-info JSON, and in Python/shell comparisons.
+
+MCM also states: *a sprue that follows the prefix naming discipline is also
+an `mcm_inlay`* (prefix-recognized, not lexicon-catalogued). So precisely,
+the values are *already* sprues even while bare; what this heat adds is the
+prefix discipline that makes each sprue **also an inlay**. The spec pace
+(₢BMAAA) should cite `mcm_sprue` + `mcm_inlay` for grounding rather than
+inventing rationale.
+
+Note on a sibling usage: ₣BK independently uses "sprue" for tabtarget
+dispatch tokens (`{owner}ml_{launcher-id}`, e.g. `rbml_rbw`) and wrote a
+local gloss in BCG/CLAUDE.md. That is *also* a valid `mcm_sprue` instance
+(a literal dispatch-wire token) — not a competing definition, a sibling
+one. Both heats correctly name wire-level literal tokens "sprue." ₣BK's BCG
+text would ideally cite `mcm_sprue` rather than read as a freshly-minted
+concept, but that is ₣BK's documentation concern, not a blocker here.
 
 ## Convention — locked
 
@@ -161,25 +185,26 @@ gate rejects a non-prefixed value once the declaration is updated. The
 remote Cloud Build comparisons are the exception — see the detection gap
 above.
 
-## Heat-shape note — ₣BK file-surface overlap
+## Heat-shape note — ₣BK relationship (BK coding landed)
 
-₣BK (moorings-cutover) is racing in parallel and sweeps essentially this
-heat's entire file surface (`Tools/rbk/**/*.sh`, `rbtd/src/*.rs`,
-`RBS*.adoc`) — but for path literals, not enum values. The two heats are
-**semantically orthogonal** (different concerns, mostly different lines),
-yet share files, so ₣BK causes continuous line-number churn here. This is
-why this paddock records shape over site lists.
+₣BK (moorings-cutover) swept essentially this heat's file surface
+(`Tools/rbk/**/*.sh`, `rbtd/src/*.rs`, `RBS*.adoc`) — but for path literals,
+not enum values. The two heats are **semantically orthogonal** (different
+concerns, mostly different lines). ₣BK's *coding* has landed (BKAAI
+wrapped); the prior file-surface-churn concern is now historical — the tree
+is settled and the re-validation confirmed the enum-value sites survived
+intact.
 
-Implications, durable:
-- Implement this heat against a **settled** tree (after ₣BK's literal and
-  doc sweeps land), or interleave with git-pull discipline between
-  commits. Avoid running two tree-wide sweeps blind.
-- Sharpest co-edit point: the fast-fixture Rust file (₣BK's canonical
-  sweep example and home of this heat's `export RBRV_*_MODE` baselines)
-  and the `RBS*.adoc` specs.
-- The bubep→bunne harmonize touches BUK files and is the one place this
-  heat and ₣BK overlap *semantically*. It is the natural last slice;
-  coordinate with ₣BK before mounting it.
+What remains and matters:
+- **Start gate:** ₣BK's two-platform gauntlet acceptance is still pending.
+  Begin this heat only after ₣BK's gauntlet passes on linux + macos and any
+  cutover bugfixes land — so a known-good cutover baseline exists and every
+  ₣BM gauntlet signal is unambiguously about enums, not the cutover.
+- **Residual churn risk:** only late ₣BK bugfixes from its gauntlet runs.
+  Low; re-grep before editing if BK commits land meanwhile.
+- The bubep→bunne harmonize touches BUK files (₣BK's other subtree). ₣BK's
+  BUK code has landed, so no hard coordination remains — just awareness of
+  any late bugfix churn there.
 
 ## What done looks like
 
@@ -210,8 +235,9 @@ Implications, durable:
 Resolved cadence is per-variable-family, ordered cheap-pilot-first:
 
 1. Convention spec authoring — formalize the convention as a spec section,
-   including the class-4 "coupled derived string stays bare" rule (two
-   witnesses) and the `RBRN_RUNTIME` exclusion rationale.
+   citing `mcm_sprue` + `mcm_inlay` for grounding, plus the class-4
+   "coupled derived string stays bare" rule (two witnesses) and the
+   `RBRN_RUNTIME` exclusion rationale.
 2. Egress-mode pilot — `rbnve_tether`/`_airgap`. Smallest, cleanest;
    proves the mechanical pattern and the class-4 distinction.
 3. Vessel-mode — `rbnve_bind`/`_conjure`/`_graft`. Heaviest; crosses
@@ -219,7 +245,7 @@ Resolved cadence is per-variable-family, ordered cheap-pilot-first:
    graft cloud build.
 4. Node-mode — `rbnne_*` for ENTRY/DNS/ACCESS. High English-word noise,
    heavy classification.
-5. bubep → bunne harmonize — BUK files; last slice, coordinate with ₣BK.
+5. bubep → bunne harmonize — BUK files; last slice.
 6. Final regression sweep — gauntlet end-to-end + per-family grep audit.
 
 Slate as thin dockets at mount-time (depth in slate commit messages); do
