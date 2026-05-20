@@ -813,7 +813,7 @@ const RBTDRF_VAL_HALLMARKS_ROOT: &str = "rbi_hm";
 
 fn rbtdrf_rv_rbrr_neg(dir: &Path, label: &str, setup: &str) -> rbtdre_Verdict {
     rbtdrf_run_rv(dir,
-        "source \"${PWD}/.rbk/rbrr.env\"\nsource \"${PWD}/.rbk/rbrd.env\"",
+        concat!("source \"${PWD}/", crate::rbtd_moorings_dir!(), "/rbrr.env\"\nsource \"${PWD}/", crate::rbtd_moorings_dir!(), "/rbrd.env\""),
         &format!("{}\nzrbrr_kindle\nzrbrd_kindle\nzrbrr_enforce\nzrbrd_enforce", setup),
         false, label,
     )
@@ -993,7 +993,7 @@ fn rbtdrf_rv_rbrn_bad_ip(dir: &Path) -> rbtdre_Verdict {
 
 fn rbtdrf_rv_rbrr_repo(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_run_rv(dir,
-        "source \"${PWD}/.rbk/rbrr.env\"\nsource \"${PWD}/.rbk/rbrd.env\"",
+        concat!("source \"${PWD}/", crate::rbtd_moorings_dir!(), "/rbrr.env\"\nsource \"${PWD}/", crate::rbtd_moorings_dir!(), "/rbrd.env\""),
         "zrbrr_kindle\nzrbrd_kindle\nzrbrr_enforce\nzrbrd_enforce",
         true, "rbrr-repo",
     )
@@ -1020,8 +1020,8 @@ fn rbtdrf_rv_rbrv_all_vessels(dir: &Path) -> rbtdre_Verdict {
          source '{}/rbrv_regime.sh'\n\
          source '{}/rbdc_DerivedConstants.sh'\n\
          zbuv_kindle\nzrbcc_kindle\n\
-         source \"${{PWD}}/.rbk/rbrr.env\"\n\
-         source \"${{PWD}}/.rbk/rbrd.env\"\n\
+         source \"${{PWD}}/{moorings}/rbrr.env\"\n\
+         source \"${{PWD}}/{moorings}/rbrd.env\"\n\
          zrbrr_kindle\nzrbrd_kindle\nzrbrr_enforce\nzrbrd_enforce\nzrbdc_kindle\n\
          for z_d in \"${{RBRR_VESSEL_DIR}}\"/*; do\n\
            test -d \"$z_d\" || continue\n\
@@ -1034,6 +1034,7 @@ fn rbtdrf_rv_rbrv_all_vessels(dir: &Path) -> rbtdre_Verdict {
          done",
         buv_p,
         rbk_p, rbk_p, rbk_p, rbk_p, rbk_p, rbk_p,
+        moorings = crate::RBTD_MOORINGS_DIR,
     );
 
     match rbtdrf_run_bash(&root, &script, dir, "rbrv-all-vessels") {
@@ -1113,11 +1114,11 @@ fn rbtdrf_rs_rbrn(dir: &Path) -> rbtdre_Verdict {
         Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
 
-    // Discover nameplates by listing .rbk/*/rbrn.env
-    let rbk_dir = root.join(".rbk");
+    // Discover nameplates by listing rbmm_moorings/*/rbrn.env
+    let rbk_dir = root.join(crate::RBTD_MOORINGS_DIR);
     let entries = match std::fs::read_dir(&rbk_dir) {
         Ok(e) => e,
-        Err(e) => return rbtdre_Verdict::Fail(format!("cannot read .rbk: {}", e)),
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot read {}: {}", crate::RBTD_MOORINGS_DIR, e)),
     };
 
     let mut found = false;
@@ -1142,7 +1143,7 @@ fn rbtdrf_rs_rbrn(dir: &Path) -> rbtdre_Verdict {
     }
 
     if !found {
-        return rbtdre_Verdict::Fail("no nameplates found in .rbk/".to_string());
+        return rbtdre_Verdict::Fail(format!("no nameplates found in {}/", crate::RBTD_MOORINGS_DIR));
     }
     rbtdre_Verdict::Pass
 }
@@ -1170,8 +1171,8 @@ fn rbtdrf_rs_rbrr_nonempty_prefix(dir: &Path) -> rbtdre_Verdict {
          source '{}/rbrd_regime.sh'\n\
          source '{}/rbgl_GarLayout.sh'\n\
          zbuv_kindle\nzrbcc_kindle\nzrbgc_kindle\n\
-         source \"${{PWD}}/.rbk/rbrr.env\"\n\
-         source \"${{PWD}}/.rbk/rbrd.env\"\n\
+         source \"${{PWD}}/{moorings}/rbrr.env\"\n\
+         source \"${{PWD}}/{moorings}/rbrd.env\"\n\
          {cloud_var}=\"acme-\"\n\
          {runtime_var}=\"acme-\"\n\
          zrbrr_kindle\nzrbrd_kindle\nzrbrr_enforce\nzrbrd_enforce\nzrbgl_kindle\n\
@@ -1181,6 +1182,7 @@ fn rbtdrf_rs_rbrr_nonempty_prefix(dir: &Path) -> rbtdre_Verdict {
         rbk_p, rbk_p, rbk_p, rbk_p, rbk_p,
         cloud_var = RBTDRF_VAR_RBRD_CLOUD_PREFIX,
         runtime_var = RBTDRF_VAR_RBRR_RUNTIME_PREFIX,
+        moorings = crate::RBTD_MOORINGS_DIR,
     );
 
     match rbtdrf_run_bash(&root, &script, dir, "rbrr-nonempty-prefix") {
@@ -1234,12 +1236,13 @@ fn rbtdrf_rs_rbrv(dir: &Path) -> rbtdre_Verdict {
          source '{}/rbrd_regime.sh'\n\
          source '{}/rbdc_DerivedConstants.sh'\n\
          zbuv_kindle\nzrbcc_kindle\n\
-         source \"${{PWD}}/.rbk/rbrr.env\"\n\
-         source \"${{PWD}}/.rbk/rbrd.env\"\n\
+         source \"${{PWD}}/{moorings}/rbrr.env\"\n\
+         source \"${{PWD}}/{moorings}/rbrd.env\"\n\
          zrbrr_kindle\nzrbrd_kindle\nzrbrr_enforce\nzrbrd_enforce\nzrbdc_kindle\n\
          echo \"${{RBRR_VESSEL_DIR}}\"",
         buv_p,
         rbk_p, rbk_p, rbk_p, rbk_p, rbk_p,
+        moorings = crate::RBTD_MOORINGS_DIR,
     );
 
     let vessel_dir = match rbtdrf_run_bash(&root, &script, dir, "rbrv-discover") {
@@ -1457,12 +1460,13 @@ fn rbtdrf_dh_all_vessels_pass(dir: &Path) -> rbtdre_Verdict {
          source '{}/rbrd_regime.sh'\n\
          source '{}/rbdc_DerivedConstants.sh'\n\
          zbuv_kindle\nzrbcc_kindle\n\
-         source \"${{PWD}}/.rbk/rbrr.env\"\n\
-         source \"${{PWD}}/.rbk/rbrd.env\"\n\
+         source \"${{PWD}}/{moorings}/rbrr.env\"\n\
+         source \"${{PWD}}/{moorings}/rbrd.env\"\n\
          zrbrr_kindle\nzrbrd_kindle\nzrbrr_enforce\nzrbrd_enforce\nzrbdc_kindle\n\
          printf '%s' \"${{RBRR_VESSEL_DIR}}\"",
         buv_p,
         rbk_p, rbk_p, rbk_p, rbk_p, rbk_p,
+        moorings = crate::RBTD_MOORINGS_DIR,
     );
     let vessel_dir = match rbtdrf_run_bash(&root, &resolve_script, dir, "resolve-vessel-dir") {
         Ok((0, stdout, _)) => stdout,

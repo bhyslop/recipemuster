@@ -45,13 +45,13 @@ RBCC_rbrm_file="${RBCC_moorings_dir}/rbrm.env"
 RBCC_rbrd_file="${RBCC_moorings_dir}/rbrd.env"
 
 # ── RBBC transitional aliases ─────────────────────────────────────────────
-# RBBC (formerly a separate .buk bootstrap file) absorbed into RBCC. Non-furnish
+# RBBC (formerly a separate bootstrap file) absorbed into RBCC. Non-furnish
 # kit code (rbob_bottle, rblm_cli, rbh0/*, etc.) and the config-source lines in
-# the furnishes still read these names against the CURRENT .rbk/ layout. The
-# filesystem-move pace flips RBBC_dot_dir to moorings; the literal-sweep pace
-# retires the names entirely.
+# the furnishes read these names. RBBC_dot_dir now resolves to the moorings
+# layout (flipped at the filesystem-move pace); the composed *_file aliases
+# follow. A later literal-sweep pace retires the names in favor of RBCC_*.
 RBBC_kit_subdir="rbk"
-RBBC_dot_dir=".rbk"
+RBBC_dot_dir="rbmm_moorings"
 RBBC_rbrr_file="${RBBC_dot_dir}/rbrr.env"
 RBBC_rbrd_file="${RBBC_dot_dir}/rbrd.env"
 RBBC_rbrm_file="${RBBC_dot_dir}/rbrm.env"

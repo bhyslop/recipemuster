@@ -24,7 +24,14 @@
 test -z "${ZBUBC_SOURCED:-}" || return 0
 ZBUBC_SOURCED=1
 
-# Source-time literal constants
+# Source-time literal constants.
+#
+# BUBC_moorings_dir mirrors the irreducible bootstrap anchor in bul_launcher.sh
+# (which cannot derive it — it must locate the config dir before sourcing
+# anything). Non-bootstrap consumers derive their moorings paths from here
+# rather than re-literaling the directory name.
+BUBC_moorings_dir="rbmm_moorings"
+BUBC_launchers_subdir="rbml_launchers"
 BUBC_rbmn_nodes_subdir="rbmn_nodes"
 BUBC_rbmu_users_subdir="rbmu_users"
 

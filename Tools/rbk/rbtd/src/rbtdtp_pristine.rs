@@ -120,6 +120,7 @@ fn rbtdtp_install_throwaway_prefixes_rejects_missing_rbrr() {
     let _ = std::fs::remove_dir_all(&tmp);
     assert!(
         result.is_err(),
-        "expected Err when .rbk/rbrr.env is absent"
+        "expected Err when {}/rbrr.env is absent",
+        crate::RBTD_MOORINGS_DIR
     );
 }

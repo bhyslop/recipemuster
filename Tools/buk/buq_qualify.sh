@@ -23,9 +23,10 @@ set -euo pipefail
 test -z "${ZBUQ_INCLUDED:-}" || return 0
 ZBUQ_INCLUDED=1
 
-# Source the console utility library
+# Source the console utility library + moorings-layout names (launcher subdir)
 ZBUQ_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 source "${ZBUQ_SCRIPT_DIR}/buc_command.sh"
+source "${ZBUQ_SCRIPT_DIR}/bubc_constants.sh"
 
 ######################################################################
 # Tabtarget structural qualification
@@ -148,7 +149,7 @@ buq_tabtargets() {
         ;;
     esac
     local z_launcher_id="${z_sprue#*ml_}"
-    local z_launcher_path=".buk/launcher.${z_launcher_id}_workbench.sh"
+    local z_launcher_path="${BUBC_moorings_dir}/${BUBC_launchers_subdir}/launcher.${z_launcher_id}_workbench.sh"
     test -f "${z_project_root}/${z_launcher_path}" || {
       z_fail_files+=("${z_basename}")
       z_fail_reasons+=("launcher not found for sprue '${z_sprue}': ${z_launcher_path}")

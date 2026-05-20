@@ -20,6 +20,32 @@
 #![allow(non_camel_case_types)]
 #![allow(private_interfaces)]
 
+/// Single source of truth for the moorings directory name, mirroring bash
+/// RBCC_moorings_dir across the language boundary. Defined as a macro, not a
+/// const, so bundled path constants can compose from it at compile time:
+/// `concat!` rejects a const *identifier* (an opaque name by expansion time)
+/// but eagerly expands a `macro_rules!` invocation, consuming the literal
+/// token it produces. Zero dependency, zero runtime cost, no textual
+/// repetition — every moorings path derives from this one literal.
+#[macro_export]
+macro_rules! rbtd_moorings_dir {
+    () => {
+        "rbmm_moorings"
+    };
+}
+
+/// Vessels directory, composed from the moorings dir (single-sources both the
+/// `rbmm_moorings` root and the `rbmv_vessels` subdir).
+#[macro_export]
+macro_rules! rbtd_vessels_dir {
+    () => {
+        concat!($crate::rbtd_moorings_dir!(), "/rbmv_vessels")
+    };
+}
+
+/// Runtime `&str` form for `Path::join` sites that take a value, not a literal.
+pub const RBTD_MOORINGS_DIR: &str = rbtd_moorings_dir!();
+
 pub mod rbtdrb_probe;
 pub mod rbtdrc_crucible;
 pub mod rbtdre_engine;

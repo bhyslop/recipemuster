@@ -274,7 +274,7 @@ vob_freshen() {
   buc_doc_brief "Freshen CLAUDE.md managed sections from kit forge templates"
   buc_doc_shown || return 0
 
-  local z_burc_file="${PWD}/.buk/burc.env"
+  local z_burc_file="${BURD_REGIME_FILE}"
   local z_vvx="${VVB_VVX_BINARY}"
 
   buv_file_exists "${z_burc_file}"

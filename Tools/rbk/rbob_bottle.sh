@@ -114,8 +114,9 @@ zrbob_kindle() {
   # Network name (compose names as {project}_{network}; used by observe and info)
   readonly ZRBOB_NETWORK="${ZRBOB_PROJECT}_enclave"
 
-  # Compose file paths (relative to project root, where compose runs)
-  readonly ZRBOB_COMPOSE_BASE="${RBBC_dot_dir}/rbob_compose.yml"
+  # Base compose file and the compose-quoting probe are kit machinery, not
+  # consumer config — they live with the kit (RBCC_KIT_DIR), not in moorings.
+  readonly ZRBOB_COMPOSE_BASE="${RBCC_KIT_DIR}/rbob_compose.yml"
   test -f "${ZRBOB_COMPOSE_BASE}" || buc_die "Base compose file not found: ${ZRBOB_COMPOSE_BASE}"
 
   readonly ZRBOB_COMPOSE_FRAGMENT="${RBBC_dot_dir}/${RBRN_MONIKER}/rbnnh_compose.yml"
@@ -127,7 +128,7 @@ zrbob_kindle() {
   # Env file paths (for compose --env-file: YAML interpolation + container env forwarding)
   readonly ZRBOB_ENV_RBRR="${RBBC_dot_dir}/rbrr.env"
   readonly ZRBOB_ENV_RBRD="${RBBC_dot_dir}/rbrd.env"
-  readonly ZRBOB_ENV_RBJE="${RBBC_dot_dir}/rbje_compose_probe.env"
+  readonly ZRBOB_ENV_RBJE="${RBCC_KIT_DIR}/rbje_compose_probe.env"
   readonly ZRBOB_ENV_RBRN="${RBBC_dot_dir}/${RBRN_MONIKER}/${RBCC_rbrn_file}"
 
   # RBDC env file — RBDC_* are bash-kindle constants invisible to compose

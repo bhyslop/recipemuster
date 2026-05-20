@@ -136,7 +136,7 @@ rblm_zero() {
       RBRR_DNS_SERVER=*)                    printf '%s\n' "RBRR_DNS_SERVER=8.8.8.8"                     ;;
       RBRR_GCB_TIMEOUT=*)                   printf '%s\n' "RBRR_GCB_TIMEOUT=2700s"                      ;;
       RBRR_GCB_MIN_CONCURRENT_BUILDS=*)     printf '%s\n' "RBRR_GCB_MIN_CONCURRENT_BUILDS=3"            ;;
-      RBRR_VESSEL_DIR=*)                    printf '%s\n' "RBRR_VESSEL_DIR=rbev-vessels"                ;;
+      RBRR_VESSEL_DIR=*)                    printf '%s\n' "RBRR_VESSEL_DIR=${RBCC_moorings_dir}/${RBCC_vessels_subdir}" ;;
       RBRR_SECRETS_DIR=*)                   printf '%s\n' "RBRR_SECRETS_DIR=../station-files/secrets"   ;;
       # Site-specific fields blanked
       RBRR_RUNTIME_PREFIX=*)                printf '%s\n' "RBRR_RUNTIME_PREFIX="                        ;;

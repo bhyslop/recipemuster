@@ -126,10 +126,11 @@ const RBTDRP_RBRA_ROLES: &[&str] = &["governor", "director", "retriever", "assay
 /// Nameplate hallmark fields rblm_zero blanks.
 const RBTDRP_RBRN_BLANK_FIELDS: &[&str] = &["RBRN_SENTRY_HALLMARK", "RBRN_BOTTLE_HALLMARK"];
 
-/// File-relative constants matching the RBBC aliases in rbcc_Constants.sh.
-const RBTDRP_DOT_DIR: &str = ".rbk";
-const RBTDRP_RBRR_FILE: &str = ".rbk/rbrr.env";
-const RBTDRP_RBRD_FILE: &str = ".rbk/rbrd.env";
+/// File-relative constants matching the RBBC aliases in rbcc_Constants.sh,
+/// composed from the crate-canonical moorings dir (single source of truth).
+const RBTDRP_DOT_DIR: &str = crate::rbtd_moorings_dir!();
+const RBTDRP_RBRR_FILE: &str = concat!(crate::rbtd_moorings_dir!(), "/rbrr.env");
+const RBTDRP_RBRD_FILE: &str = concat!(crate::rbtd_moorings_dir!(), "/rbrd.env");
 const RBTDRP_RBRA_FILE: &str = "rbra.env";
 const RBTDRP_RBRN_FILE: &str = "rbrn.env";
 const RBTDRP_RBRV_FILE: &str = "rbrv.env";
@@ -470,7 +471,7 @@ fn rbtdrp_git_add_and_commit_paths(
 
 // ── Throwaway-prefix install ─────────────────────────────────
 
-/// Idempotently install throwaway RBRR prefixes into `.rbk/rbrr.env`.
+/// Idempotently install throwaway RBRR prefixes into `rbmm_moorings/rbrr.env`.
 ///
 /// Pristine-lifecycle cases that need non-blank prefixes (depot/governor/
 /// retriever/director lifecycle) call this as their first step. The helper

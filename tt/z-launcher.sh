@@ -33,10 +33,9 @@
 # var the tabtarget exports ahead of dispatch (bul_launcher skips the BURS
 # station load under it). The former separate nolog launcher was collapsed.
 #
-# The moorings-launchers path is hardcoded as a literal below (transitional —
-# a later pace flips it to the post-rename layout; the *ml_ strip survives
-# that flip unchanged). CLAUDE.md registration of the sprue universe is a
-# later pace.
+# The moorings-launchers path is hardcoded as a literal below; the *ml_ strip
+# survives unchanged. CLAUDE.md registration of the sprue universe is a later
+# pace.
 
 set -u
 
@@ -52,7 +51,7 @@ test -n "${z_sprue}" || { echo "z-launcher: no sprue given" >&2; exit 1; }
 
 # Recover the launcher-id by stripping the *ml_ ownership prefix.
 z_launcher_id="${z_sprue#*ml_}"
-z_launcher="${z_dir}/../.buk/launcher.${z_launcher_id}_workbench.sh"
+z_launcher="${z_dir}/../rbmm_moorings/rbml_launchers/launcher.${z_launcher_id}_workbench.sh"
 
 # Fail loud on a mistyped sprue rather than dispatching silently to nothing.
 test -f "${z_launcher}" || {
@@ -66,7 +65,7 @@ cd -P "${z_dir}/.." || { echo "z-launcher: cannot cd to repo root" >&2; exit 1; 
 # Preserve the BURD_LAUNCHER regime contract (required by burd_regime,
 # consumed by every post-dispatch zburd_enforce). Repo-relative form matches
 # the value the tabtarget exported before the trampoline.
-export BURD_LAUNCHER=".buk/launcher.${z_launcher_id}_workbench.sh"
+export BURD_LAUNCHER="rbmm_moorings/rbml_launchers/launcher.${z_launcher_id}_workbench.sh"
 
 # Forward everything after the sprue: tabtarget basename + user args.
 exec "${z_launcher}" "${@:2}"

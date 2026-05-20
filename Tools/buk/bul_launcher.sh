@@ -18,7 +18,7 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # BUL Launcher - Shared launcher logic for BUK workbenches.
-# Sourced by individual launcher stubs in .buk/
+# Sourced by individual launcher stubs in rbmm_moorings/rbml_launchers/
 # Compatible with Bash 3.2 (e.g., macOS default shell)
 #
 # NOTE: This is bootstrap infrastructure, not a full BCG module.
@@ -28,13 +28,18 @@
 test -z "${ZBUL_LAUNCHER_SOURCED:-}" || return 0
 ZBUL_LAUNCHER_SOURCED=1
 
-# Establish project root from the sourcing launcher's location
-ZBUL_PROJECT_ROOT="${BASH_SOURCE[1]%/*}/.."
-cd -P "${ZBUL_PROJECT_ROOT}" || exit 1 # buc_die not available yet
+# Establish project root. z-launcher.sh (the universal trampoline that exec's
+# every launcher stub) has already chdir'd to repo root, so trust PWD rather
+# than counting directory hops back from the stub's location — the latter
+# couples to where the launcher dir sits and breaks whenever it moves.
 ZBUL_PROJECT_ROOT="${PWD}"
 
-# Establish config directory — canonical locator for .buk/
-export BURD_CONFIG_DIR="${ZBUL_PROJECT_ROOT}/.buk"
+# Establish config directory — canonical locator for the moorings dir. This
+# literal is the irreducible bootstrap anchor: the launcher must find the
+# config dir before it can source anything, so the moorings-dir name cannot be
+# derived from a sourced constant here. BUBC_moorings_dir mirrors this value
+# for non-bootstrap consumers to derive from.
+export BURD_CONFIG_DIR="${ZBUL_PROJECT_ROOT}/rbmm_moorings"
 
 # Load BURC configuration
 export BURD_REGIME_FILE="${BURD_CONFIG_DIR}/burc.env"
@@ -48,6 +53,7 @@ BURC_TEMP_ROOT_DIR="${BURV_TEMP_ROOT_DIR:-${BURC_TEMP_ROOT_DIR}}"
 export BURD_STATION_FILE="${ZBUL_PROJECT_ROOT}/${BURC_STATION_FILE}"
 source "${BURC_TOOLS_DIR}/buk/buc_command.sh" || exit 1 # buc_die not available yet
 source "${BURC_TOOLS_DIR}/buk/buv_validation.sh" || buc_die "Failed to source buv_validation.sh"
+source "${BURC_TOOLS_DIR}/buk/bubc_constants.sh" || buc_die "Failed to source bubc_constants.sh"
 zbuv_kindle
 
 # Load and kindle BURC
@@ -114,7 +120,7 @@ if test -z "${BURD_NO_LOG:-}"; then
     buh_line    "  often signals which convention a project prefers."
     buh_e
     buh_line    "  BURS_USER is your local developer username (1-32 chars). Per-user"
-    buh_line    "  profile lookups under .buk/rbmu_users/<BURS_USER>/ key on this name."
+    buh_line    "  profile lookups under ${BUBC_moorings_dir}/${BUBC_rbmu_users_subdir}/<BURS_USER>/ key on this name."
     buh_e
     buh_line    "  BURS_TINCTURE is a 1-3 char tag (lowercase alphanumeric, leading"
     buh_line    "  letter, no hyphen). Use 'a' until you have a reason to change it;"

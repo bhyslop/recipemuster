@@ -61,12 +61,13 @@ use crate::rbtdrm_manifest::{
 
 // ── Vessel directories ────────────────────────────────────────
 
-const RBTDRO_VESSEL_DIR_SENTRY_TETHER: &str = "rbev-vessels/rbev-sentry-deb-tether";
-const RBTDRO_VESSEL_DIR_AIRGAP_FORGE: &str = "rbev-vessels/rbev-bottle-ifrit-forge";
-const RBTDRO_VESSEL_DIR_AIRGAP_BOTTLE: &str = "rbev-vessels/rbev-bottle-ifrit-airgap";
-const RBTDRO_VESSEL_DIR_PLANTUML: &str = "rbev-vessels/rbev-bottle-plantuml";
-const RBTDRO_VESSEL_DIR_JUPYTER: &str = "rbev-vessels/rbev-bottle-anthropic-jupyter";
-const RBTDRO_VESSEL_DIR_GRAFT: &str = "rbev-vessels/rbev-graft-demo";
+// Vessel dirs composed from the crate-canonical vessels dir (single source).
+const RBTDRO_VESSEL_DIR_SENTRY_TETHER: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev-sentry-deb-tether");
+const RBTDRO_VESSEL_DIR_AIRGAP_FORGE: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev-bottle-ifrit-forge");
+const RBTDRO_VESSEL_DIR_AIRGAP_BOTTLE: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev-bottle-ifrit-airgap");
+const RBTDRO_VESSEL_DIR_PLANTUML: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev-bottle-plantuml");
+const RBTDRO_VESSEL_DIR_JUPYTER: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev-bottle-anthropic-jupyter");
+const RBTDRO_VESSEL_DIR_GRAFT: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev-graft-demo");
 
 // ── Nameplate monikers ────────────────────────────────────────
 
@@ -76,7 +77,7 @@ const RBTDRO_NAMEPLATE_MORIAH: &str = "moriah";
 const RBTDRO_NAMEPLATE_SRJCL: &str = "srjcl";
 const RBTDRO_NAMEPLATE_PLUML: &str = "pluml";
 
-// ── Nameplate hallmark variable names (lines in .rbk/<nameplate>/rbrn.env) ──
+// ── Nameplate hallmark variable names (lines in rbmm_moorings/<nameplate>/rbrn.env) ──
 
 const RBTDRO_HALLMARK_VAR_BOTTLE: &str = "RBRN_BOTTLE_HALLMARK";
 const RBTDRO_HALLMARK_VAR_SENTRY: &str = "RBRN_SENTRY_HALLMARK";
@@ -447,7 +448,7 @@ fn rbtdro_drive_hallmark(
     var_name: &str,
     hallmark: &str,
 ) -> Result<(), String> {
-    let rbrn_path = root.join(".rbk").join(nameplate).join("rbrn.env");
+    let rbrn_path = root.join(crate::RBTD_MOORINGS_DIR).join(nameplate).join("rbrn.env");
     let file = std::fs::File::open(&rbrn_path)
         .map_err(|e| format!("open rbrn.env for {}: {}", nameplate, e))?;
 
@@ -472,13 +473,13 @@ fn rbtdro_drive_hallmark(
 
     if !found {
         return Err(format!(
-            "variable {} not found in .rbk/{}/rbrn.env",
-            var_name, nameplate
+            "variable {} not found in {}/{}/rbrn.env",
+            var_name, crate::RBTD_MOORINGS_DIR, nameplate
         ));
     }
 
     let tmp_path = root
-        .join(".rbk")
+        .join(crate::RBTD_MOORINGS_DIR)
         .join(nameplate)
         .join("rbrn.env.drive_tmp");
     {

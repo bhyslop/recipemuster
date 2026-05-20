@@ -86,8 +86,9 @@ const RBTDRK_FIELD_RBRR_RUNTIME_PREFIX: &str = "RBRR_RUNTIME_PREFIX";
 const RBTDRK_FIELD_RBRD_DEPOT_MONIKER: &str = "RBRD_DEPOT_MONIKER";
 const RBTDRK_FIELD_RBRR_SECRETS_DIR: &str = "RBRR_SECRETS_DIR";
 
-const RBTDRK_RBRR_FILE: &str = ".rbk/rbrr.env";
-const RBTDRK_RBRD_FILE: &str = ".rbk/rbrd.env";
+// Bundled moorings paths, composed from the crate-canonical moorings dir.
+const RBTDRK_RBRR_FILE: &str = concat!(crate::rbtd_moorings_dir!(), "/rbrr.env");
+const RBTDRK_RBRD_FILE: &str = concat!(crate::rbtd_moorings_dir!(), "/rbrd.env");
 const RBTDRK_RBRA_FILE: &str = "rbra.env";
 
 /// BURS station-file env var (exported by bul_launcher.sh) — absolute path

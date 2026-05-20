@@ -42,7 +42,8 @@ vslw_show() {
 
 # Load BURC configuration
 vslw_load_burc() {
-  local z_burc_file="${PWD}/.buk/burc.env"
+  # BURD_REGIME_FILE is the dispatch-resolved burc.env path (exported by bul_launcher).
+  local z_burc_file="${BURD_REGIME_FILE}"
 
   test -f "${z_burc_file}" || buc_die "BURC file not found: ${z_burc_file}"
 

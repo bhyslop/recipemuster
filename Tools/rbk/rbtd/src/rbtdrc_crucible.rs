@@ -1710,7 +1710,7 @@ fn rbtdrc_coordinated_mac_flood_resilience(dir: &Path) -> rbtdre_Verdict {
 fn rbtdrc_read_nameplate_port(ctx: &rbtdri_Context) -> Result<u16, String> {
     let env_path = ctx
         .project_root()
-        .join(".rbk")
+        .join(crate::RBTD_MOORINGS_DIR)
         .join(ctx.fixture())
         .join("rbrn.env");
     let content = std::fs::read_to_string(&env_path)
@@ -2560,7 +2560,7 @@ pub(crate) fn rbtdrc_docker_layers_capture(image_ref: &str) -> Result<String, St
 // rbev-busybox is the load-bearing vessel — small, fast, conjure-mode
 // (full ark inventory). Also referenced by rbtdrc_batch_vouch_lifecycle.
 
-pub(crate) const RBTDRC_BUSYBOX_VESSEL_DIR: &str = "rbev-vessels/rbev-busybox";
+pub(crate) const RBTDRC_BUSYBOX_VESSEL_DIR: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev-busybox");
 
 /// All five ark basenames produced by a conjure-mode hallmark.
 const ZRBTDRC_ARK_BASENAMES_ALL: &[&str] = &[

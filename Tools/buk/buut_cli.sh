@@ -36,8 +36,8 @@ zbuut_furnish() {
   zbuv_kindle
   zburd_kindle
 
-  # Load BURC configuration
-  local z_burc_file="${PWD}/.buk/burc.env"
+  # Load BURC configuration (BURD_REGIME_FILE is the dispatch-resolved burc.env path)
+  local z_burc_file="${BURD_REGIME_FILE}"
   buv_file_exists "${z_burc_file}"
   source "${z_burc_file}" || buc_die "Failed to source BURC file"
 
