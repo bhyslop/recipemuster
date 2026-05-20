@@ -9886,9 +9886,10 @@
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BMAAA",
-        "₢BMAAB"
+        "₢BMAAB",
+        "₢BMAAC"
       ],
-      "jjghn_next_pace_seed": "AAC",
+      "jjghn_next_pace_seed": "AAD",
       "jjghn_paces": {
         "₢BMAAA": {
           "jjgpn_tacks": [
@@ -9909,6 +9910,17 @@
               "jjgtn_text": "## Character\n\nMechanical with the class-4 distinction as the one judgment edge. Smallest,\ncleanest enum (~10 sites each, no Python, no Cloud Build boundary) — this is\nthe pilot that proves the pattern before the heavy paces.\n\n## Goal\n\n`RBRV_EGRESS_MODE` values `tether`/`airgap` → `rbnve_tether`/`rbnve_airgap`\nat every site where the bare word *is* the enum value. Declaration gate\nupdated so bare values are rejected.\n\n## Boundary\n\nCode + regime files now. Class-4 derived strings stay bare (pool suffixes\n`-tether`/`-airgap`, `RBGC_POOL_SUFFIX_*`, vessel sigils `rbev-*-tether`) —\nmigrate only the dispatch that selects them. AsciiDoc *prose* touches defer\nuntil the parallel RBS*.adoc repairs settle.\n\n## Recipe\n\n- `grep -rn '\\b(tether|airgap)\\b' Tools/ tt/`; classify each hit (paddock's\n  four classes); migrate class-2, leave 1/3/4.\n- Flip the `buv_enum_enroll RBRV_EGRESS_MODE` declaration to the new values.\n- Update any `rbrv.env` regime files in place.\n- If a Rust fixture baseline carries the value, rebuild (`tt/vow-b`).\n\n## Acceptance\n\n- `tt/rbtd-s.TestSuite.fast.sh` green (regime-validation gate now enforces\n  `rbnve_*`).\n- `grep -rn rbnve_ Tools/` shows the egress cluster; pool-suffix strings\n  still bare.",
               "jjgtn_silks": "egress-mode-sprue-pilot",
               "jjgtn_basis": "da5cb74"
+            }
+          ]
+        },
+        "₢BMAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260520-1300",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nHeaviest pace. Crosses bash, AsciiDoc, Python (Cloud Build steps), and Rust\nfixtures; `conjure` is the noisiest value in the heat (heavy phase-prose),\n`bind` carries English-word noise. The proof bar is non-obvious — see\nAcceptance.\n\n## Goal\n\n`RBRV_VESSEL_MODE` values `bind`/`conjure`/`graft` → `rbnve_bind`/\n`rbnve_conjure`/`rbnve_graft` across all four ecosystems, including the\nCloud Build substitution boundary. Declaration + gates updated.\n\n## Boundary\n\nClass-4 hallmark-prefix constants (`RBGC_HALLMARK_PREFIX_*` = `c`/`b`/`g`)\nstay bare; migrate only their selecting dispatch. AsciiDoc wire-value tables\n(e.g. RBSAV/RBSAB `(conjure, bind, or graft)`) are class-2 (migrate) but\nlive in RBS*.adoc — defer until the parallel repairs settle, then update.\n\n## Recipe\n\n- `grep -rn '\\b(conjure|bind|graft)\\b' Tools/ tt/`; also `grep ':-conjure'`\n  / `:-bind` / `:-graft` for default-value defaults a `==` grep misses.\n- Trace the substitution boundary: `_RBG[AV]_VESSEL_MODE` through `rbfd_*`/\n  `rbfv_*` step assembly into the `rbgja*`/`rbgjv*` Python+shell steps —\n  hardcoded literals AND `$zjq_vessel_mode` source must move together.\n- Migrate the Rust fast-fixture `export RBRV_VESSEL_MODE=\"...\"` baselines;\n  rebuild (`tt/vow-b`). Leave onboarding-scenario step labels (class-3).\n- Flip the `buv_enum_enroll` declaration + gated `buv_gate_enroll` arms.\n\n## Acceptance\n\n- `regime-validation` + `dockerfile-hygiene` + `gauntlet` green — but NOT\n  sufficient alone: the Cloud Build step-shell/Python comparisons run\n  remotely. Prove with a real **conjure + graft cloud build** (full ordain).\n- `grep -rn rbnve_` shows the complete vessel cluster.",
+              "jjgtn_silks": "vessel-mode-sprue-migration",
+              "jjgtn_basis": "3c36083"
             }
           ]
         }
