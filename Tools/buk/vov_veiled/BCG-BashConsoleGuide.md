@@ -180,6 +180,34 @@ This table defines scope: «prefix»_* is public, z«prefix»_* is internal.
 
 Placement is load-bearing. shellcheck honors file-scope directives only when they precede every executable statement; placing the directive after `set -euo pipefail` or `Z«PREFIX»_SOURCED=1` reduces it to next-statement scope and the disable becomes silently inert — warnings continue to fire. The `set -u` clause of `set -euo pipefail` is the runtime backstop for the same typo class SC2153 catches statically: misspelled cross-module references die at first reference rather than silently expanding to empty.
 
+### Tabtarget Path Indirection
+
+A tabtarget in `tt/` is a colophon, not a program — it names *what* to run, never *how* to reach it. A single trampoline, `tt/z-launcher.sh`, owns the "how." Every other tabtarget is a one-line `exec` into it:
+
+```bash
+#!/bin/bash
+exec "${BASH_SOURCE[0]%/*}/z-launcher.sh" rbml_rbw "${0##*/}" "${@}"
+```
+
+The trampoline has exactly two responsibilities:
+
+1. **Resolve the moorings location.** The consumer's configuration tree (launchers, regimes) lives under a moorings directory whose path the trampoline holds as a single hardcoded literal. This is the single point of customization at the tabtarget layer — the parallel to BURC at the CLI layer. Move the moorings, edit one line; every tabtarget follows.
+2. **Normalize cwd to repo root.** The trampoline `cd`s to the repo root before dispatching, so every workbench starts from a deterministic directory regardless of where the user invoked the tabtarget. Downstream code relies on a known cwd rather than reconstructing one.
+
+**The sprue.** The first positional a tabtarget passes is not a workbench-id — it is a minted moorings-launcher *sprue* of the form `{owner}ml_{launcher-id}`:
+
+| Sprue | launcher-id | Sprue | launcher-id |
+|-------|-------------|-------|-------------|
+| `rbml_rbw` | `rbw` | `buml_jjw` | `jjw` |
+| `rbml_rbtw` | `rbtw` | `buml_vow` | `vow` |
+| `buml_buw` | `buw` | `buml_vvw` | `vvw` |
+
+The owner prefix is **ownership-semantic, not a location selector**: `rbml_` marks an RBK-authored launcher, `buml_` marks BUK launcher infrastructure hosting another kit. Every launcher file co-locates in the same moorings launchers directory regardless of owner, so the trampoline recovers the launcher-id by stripping the prefix (`${1#*ml_}`) and dispatch stays a single literal across both families. A kit that later earns its own moorings migrates its sprue from `buml_` to `{kit}ml_` — an ownership change, not a move.
+
+Why a sprue and not the bare workbench-id? **The distinction is load-bearing.** Colophons live in the hyphenated namespace (`rbw-cC`, `buw-st`); launcher dispatch tokens must live in the underscore-shaped Primary Universe. Passing a bare `rbw` would conflate the two universes and invite a name collision the moment a colophon and a launcher-id coincide. The `*ml_` shape keeps dispatch tokens unambiguously in the underscore universe — the Load-Bearing Complexity test applies directly: the prefix earns its existence by closing that collision class, not by selecting a path.
+
+This indirection is the tabtarget-layer instance of CLI as Module Gateway: a tabtarget is external code, and it reaches module functionality only through a launcher the trampoline resolves — never by sourcing or kindling directly. The launcher → dispatch chain it hands off to is what provides the Dispatch-Provided Directory Variables described next.
+
 ### Dispatch-Provided Directory Variables
 
 Three BURD variables carry directory paths across the exec boundary into CLI processes. These are derived from BURC configuration and exported by bud_dispatch.sh during zbud_setup():
