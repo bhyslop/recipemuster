@@ -9866,9 +9866,10 @@
       "jjghn_creation_time": "260520",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
-        "₢BPAAA"
+        "₢BPAAA",
+        "₢BPAAB"
       ],
-      "jjghn_next_pace_seed": "AAB",
+      "jjghn_next_pace_seed": "AAC",
       "jjghn_paces": {
         "₢BPAAA": {
           "jjgpn_tacks": [
@@ -9878,6 +9879,17 @@
               "jjgtn_text": "## Character\nCross-cutting removal: spec reframe requiring judgment, then mechanical code/registry deletion + regen.\n\nRetire Claude Code from the ifrit entirely. The ifrit becomes a purely scripted\nadversary (the `rbid` binary + the sortie adjutant); the live-agent role belongs\nto `rbev-bottle-ccyolo`, which hosts `@anthropic-ai/claude-code` and is reached\nvia the SSH model (`rbw-cS`). The ifrit Dockerfiles already install no node/npm/\nclaude — this pace makes the spec and the launcher machinery match that reality.\n\nTwo parts:\n\n- **Spec reframe (judgment).** `Tools/rbk/vov_veiled/RBSIP-ifrit_pentester.adoc`.\n  The SYSTEM CONCEPT currently defines an Ifrit *as* an adversarial AI agent with\n  Anthropic-API connectivity. Reframe to scripted-adversary; drop the Claude Code\n  runtime package rows and the \"API connectivity for Claude Code\" framing. While\n  there, reconcile the package-list drift: scapy and git are listed in the spec\n  but absent from the actual Dockerfiles — decide at mount whether they return to\n  the Dockerfiles or leave the spec (the sortie adjutant does run python3).\n\n- **Rip `rbw-Ic` IfritClient (mechanical).** It's dead (`exec ... claude` with no\n  claude installed) and redundant with `rbw-cS`. Remove the launcher, its zipper\n  enrollment, the per-nameplate tabtargets, and the generated context-doc row.\n  Discovery: `grep -rin \"ifrit_client\\|IfritClient\\|rbw-Ic\" Tools/rbk/ tt/`.\n  Regenerate the tabtarget context via the marshal-generate path after removal.\n\n## Done looks like\nifrit is scripted-adversary only; ccyolo owns the live-agent role; `rbw-Ic` and\nits enrollment/tabtargets/doc-row are gone; the regenerated context reflects it.",
               "jjgtn_silks": "ifrit-retire-claude-code",
               "jjgtn_basis": "309c4f2"
+            }
+          ]
+        },
+        "₢BPAAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260520-1019",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nDesign-locked from an extended design session; multi-step — decompose into sub-paces at groom. Mechanical once the locked decisions are held. Gated: do not start until ₣BK closes.\n\n## Goal\n\nReplace the hand-maintained bash↔Rust constant mirrors with build-time generation from the canonical bash source, so cross-language drift becomes structurally impossible for everything projected. (Today the colophons are a hand-copied Rust mirror guarded only by a runtime assertion — `rbtdrm_verify` against the zipper's manifest string — which detects drift but does not prevent it.)\n\n## Precondition\n\n₣BK closed: RBCC stable, moorings layout settled, RBBC aliases retired. Building the projector against an in-flight RBCC is the one thing the design explicitly forbids.\n\n## Locked shape\n\n- **Two manifests, two projectors.** rbz (registry/colophons) → a generic BUK emitter over the zipper rolls; RBCC (flat tinder: moorings dir, `.env` filenames, roles) → an RBK projector. BUK provides mechanism and stays RBK-ignorant; RBK owns domain content. Dependency points RBK→BUK only. The proven precedent is `buz_emit_context`, which already generates the markdown command reference from the same kindled rolls — the Rust emitter is a sibling target, not new machinery.\n- **Naming: carry the enroll varname verbatim.** The rbz enroll varname is the cross-language symbol; the generated Rust const takes that exact name, so BUK names nothing. Retires the curated `RBTDRM_COLOPHON_*` names (a rename across their reference sites).\n- **Scope gate: single canonical bash author, or out.** Colophons and RBCC tinder qualify. Fixtures / operations / container-roles are out — no single bash author (held across `rbte_engine.sh` arrays, disk imprints, and Rust).\n- **Engine change (BUK):** `buz_enroll` must retain the enroll varname in a roll; today it is `printf -v`'d into the caller and discarded, so the registry has no stable symbol for the emitter to name consts after.\n- **Wiring:** generated file checked in; regenerated at the BUK-available layer before every Rust build; a build inside a minimal container consumes the committed artifact (never regenerates); a `git diff --exit-code` qualify gate makes a stale commit fail loud. This supersedes `rbtdrm_verify`'s drift role with exact equality.\n\n## What done looks like\n\n- The rbtd colophon consts and the RBCC-derived consts are generated, not hand-written; `rbtdrm_verify` is retired; inline colophon literals (e.g. in the fast suite) reference the generated consts; the diff-gate is wired into qualify.\n\n## Sources\n\n- `Tools/buk/buz_zipper.sh` — `buz_emit_context` is the bash→artifact template; engine that needs the varname roll\n- `Tools/rbk/rbz_zipper.sh` — colophon registry (one source)\n- `Tools/rbk/rbcc_Constants.sh` — RBCC flat tinder (the other source; already self-described as projection inventory)\n- `Tools/rbk/rbtd/src/rbtdrm_manifest.rs` — current hand-mirror + `rbtdrm_verify` (the target to replace)\n- `Tools/rbk/rbtd/src/lib.rs` — `rbtd_moorings_dir!` macro (already-landed single-source precedent)",
+              "jjgtn_silks": "cross-language-constant-codegen",
+              "jjgtn_basis": "33c2bce"
             }
           ]
         }
