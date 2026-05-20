@@ -9887,9 +9887,10 @@
       "jjghn_order": [
         "₢BMAAA",
         "₢BMAAB",
-        "₢BMAAC"
+        "₢BMAAC",
+        "₢BMAAD"
       ],
-      "jjghn_next_pace_seed": "AAD",
+      "jjghn_next_pace_seed": "AAE",
       "jjghn_paces": {
         "₢BMAAA": {
           "jjgpn_tacks": [
@@ -9921,6 +9922,17 @@
               "jjgtn_text": "## Character\n\nHeaviest pace. Crosses bash, AsciiDoc, Python (Cloud Build steps), and Rust\nfixtures; `conjure` is the noisiest value in the heat (heavy phase-prose),\n`bind` carries English-word noise. The proof bar is non-obvious — see\nAcceptance.\n\n## Goal\n\n`RBRV_VESSEL_MODE` values `bind`/`conjure`/`graft` → `rbnve_bind`/\n`rbnve_conjure`/`rbnve_graft` across all four ecosystems, including the\nCloud Build substitution boundary. Declaration + gates updated.\n\n## Boundary\n\nClass-4 hallmark-prefix constants (`RBGC_HALLMARK_PREFIX_*` = `c`/`b`/`g`)\nstay bare; migrate only their selecting dispatch. AsciiDoc wire-value tables\n(e.g. RBSAV/RBSAB `(conjure, bind, or graft)`) are class-2 (migrate) but\nlive in RBS*.adoc — defer until the parallel repairs settle, then update.\n\n## Recipe\n\n- `grep -rn '\\b(conjure|bind|graft)\\b' Tools/ tt/`; also `grep ':-conjure'`\n  / `:-bind` / `:-graft` for default-value defaults a `==` grep misses.\n- Trace the substitution boundary: `_RBG[AV]_VESSEL_MODE` through `rbfd_*`/\n  `rbfv_*` step assembly into the `rbgja*`/`rbgjv*` Python+shell steps —\n  hardcoded literals AND `$zjq_vessel_mode` source must move together.\n- Migrate the Rust fast-fixture `export RBRV_VESSEL_MODE=\"...\"` baselines;\n  rebuild (`tt/vow-b`). Leave onboarding-scenario step labels (class-3).\n- Flip the `buv_enum_enroll` declaration + gated `buv_gate_enroll` arms.\n\n## Acceptance\n\n- `regime-validation` + `dockerfile-hygiene` + `gauntlet` green — but NOT\n  sufficient alone: the Cloud Build step-shell/Python comparisons run\n  remotely. Prove with a real **conjure + graft cloud build** (full ordain).\n- `grep -rn rbnve_` shows the complete vessel cluster.",
               "jjgtn_silks": "vessel-mode-sprue-migration",
               "jjgtn_basis": "3c36083"
+            }
+          ]
+        },
+        "₢BMAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260520-1300",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nHigh English-word noise (`disabled`/`enabled`/`global`/`allowlist`), so the\nclassification grind is the work. Mechanical edits, heavy judgment per hit.\n\n## Goal\n\n`RBRN_ENTRY_MODE`, `RBRN_UPLINK_DNS_MODE`, `RBRN_UPLINK_ACCESS_MODE` values\n→ shared `rbnne_*` family (`rbnne_disabled`/`_enabled`/`_global`/\n`_allowlist`). Declarations + gates updated.\n\n## Boundary\n\n`RBRN_RUNTIME` (`docker`/`podman`) stays bare — excluded by paddock decision\n(executable-name coupling). The three node-modes share `rbnne_disabled`\ndeliberately; that is intended family-sharing, not a collision.\n\n## Recipe\n\n- `grep -rn '\\b(disabled|enabled|global|allowlist)\\b' Tools/ tt/` per value;\n  expect heavy class-1 noise — these words appear constantly in prose. Migrate\n  only case arms / equality tests against the three RBRN_* variables.\n- Flip the three `buv_enum_enroll` declarations + their `buv_gate_enroll`\n  arms (e.g. gate `RBRN_ENTRY_MODE rbnne_enabled`).\n- Update `rbrn.env` regime files in place.\n\n## Acceptance\n\n- `tt/rbtd-s.TestSuite.fast.sh` green (regime-validation enforces values).\n- `crucible` suite green — DNS/access modes drive sentry network setup, so a\n  charged crucible is the behavioral proof.\n- `grep -rn rbnne_` shows the node cluster; `RBRN_RUNTIME` still bare.",
+              "jjgtn_silks": "node-mode-sprue-migration",
+              "jjgtn_basis": "4e351f1"
             }
           ]
         }
