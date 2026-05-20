@@ -33,7 +33,7 @@ if argument equals the live depot derivation
 (i.e., the value materialised as `RBDC_DEPOT_PROJECT_ID`).
 Recovery: rename
 {rbrd_depot_moniker}
-in `rbrr.env`, or run marshal-zero (`rbw-MZ`), then retry.
+in the {rbrr_regime}, or run marshal-zero (`rbw-MZ`), then retry.
 .. Local string comparison; zero network traffic. Defense against orphaning local regime state by destroying the depot the regime currently points to.
 
 //axhos_step

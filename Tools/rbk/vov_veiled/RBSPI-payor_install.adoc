@@ -55,12 +55,12 @@ Never commit `~/.rbw/payor/rbro.env` to version control
 
 //axhoot_typed_output
 {rbrp_regime}
-* Installation displays payor configuration values needed in `rbrp.env`:
+* Installation displays payor configuration values needed in the {rbrp_regime}:
 ** `RBRP_PAYOR_PROJECT_ID`: Payor project ID from OAuth JSON
 ** `RBRP_OAUTH_CLIENT_ID`: OAuth client ID from OAuth JSON
 ** `RBRP_BILLING_ACCOUNT_ID`: Already provided before installation
 
 //axhoc_completion
 Successful execution stores OAuth credentials and displays payor configuration values.
-Record configuration values for `rbrp.env` setup.
+Record configuration values for {rbrp_regime} setup.
 Use {rbtgo_depot_levy} to create depot projects.

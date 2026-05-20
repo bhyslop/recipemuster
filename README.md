@@ -127,7 +127,7 @@ The [Retriever](#Retriever) [Summons](#Summon) [Vouched](#Vouch) images for loca
 ### <a id="Vessel"></a>Vessel
 
 A specification for a container image — built from source ([Conjure](#Conjure)), mirrored from upstream ([Bind](#Bind)), or pushed from local ([Graft](#Graft)).
-Each [Vessel](#Vessel) is a directory under `rbev-vessels/` containing at minimum an `rbrv.env` configuration file; [Conjure](#Conjure) [Vessels](#Vessel) also include a Dockerfile.
+Each [Vessel](#Vessel) is a directory under `rbmm_moorings/rbmv_vessels/` containing at minimum an `rbrv.env` configuration file; [Conjure](#Conjure) [Vessels](#Vessel) also include a Dockerfile.
 A fourth mode, [Kludge](#Kludge), builds locally for development without involving the [Depot](#Depot).
 
 ### <a id="Hallmark"></a>Hallmark
@@ -526,52 +526,53 @@ The annotated tree below maps its files to the concepts defined above.
 | `├── Tools/` | |
 | `│   ├── buk/` | Bash Utility Kit — portable CLI infrastructure |
 | `│   └── rbk/` | Recipe Bottle Kit — domain logic |
-| `├── .buk/` | [BURC](#BURC) project structure [Regime](#Regime) |
-| `├── .rbk/` | [Regime](#Regime) configuration root |
-| `│   ├── rbrp.env` | [RBRP](#RBRP) — [Payor](#Payor) identity for this [Depot](#Depot) |
-| `│   ├── rbrr.env` | [RBRR](#RBRR) — Repository-wide configuration shared across all operations |
-| `│   ├── rbrd.env` | [RBRD](#RBRD) — [Depot](#Depot) identity (frozen at [Levy](#Levy)) |
-| `│   ├── ccyolo/` | [Nameplate](#Nameplate) — [ccyolo](#ccyolo) Claude Code sandbox |
-| `│   │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + Claude Code, Anthropic-only allowlist |
-| `│   ├── tadmor/` | [Nameplate](#Nameplate) — [tadmor](#tadmor) adversarial testing |
-| `│   │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + [Ifrit](#Ifrit), restrictive allowlist |
-| `│   ├── moriah/` | [Nameplate](#Nameplate) — [moriah](#moriah) airgap-built adversarial testing |
-| `│   │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + [Ifrit](#Ifrit), restrictive allowlist |
-| `│   ├── srjcl/` | [Nameplate](#Nameplate) — Jupyter notebook |
-| `│   │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + Jupyter, academic-domain allowlist |
-| `│   └── pluml/` | [Nameplate](#Nameplate) — PlantUML diagram server |
-| `│       └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + PlantUML, no-egress allowlist |
-| `└── rbev-vessels/` | [Vessel](#Vessel) definitions |
-| `    ├── common-sentry-context/` | Shared [Sentry](#Sentry)/[Pentacle](#Pentacle) build context |
-| `    │   ├── Dockerfile` | debian-slim + iptables + dnsmasq |
-| `    │   ├── rbjs_sentry.sh` | [Sentry](#Sentry) runtime — policy engine |
-| `    │   └── rbjp_pentacle.sh` | [Pentacle](#Pentacle) runtime — namespace setup |
-| `    ├── rbev-sentry-deb-tether/` | [Conjure](#Conjure) — [Sentry](#Sentry) (tethered, upstream pull) |
-| `    │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode, tether egress |
-| `    ├── rbev-sentry-deb-airgap/` | [Conjure](#Conjure) — [Sentry](#Sentry) (airgapped, enshrined bases) |
-| `    │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode, airgap egress |
-| `    ├── rbev-bottle-ccyolo/` | [Conjure](#Conjure) — [ccyolo](#ccyolo) Claude Code sandbox |
-| `    │   ├── Dockerfile` | node:22-slim + SSH + Claude Code |
-| `    │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode |
-| `    ├── common-ifrit-context/` | Shared [Ifrit](#Ifrit) build context (tether + airgap variants) |
-| `    │   ├── Dockerfile.tether` | Rust binary + network attack tools (tether build) |
-| `    │   ├── Dockerfile.airgap` | Same image built `FROM` the forge ([Airgap](#Airgap) build, no upstream pull) |
-| `    │   ├── Cargo.toml` | Ifrit crate manifest |
-| `    │   └── src/` | Ifrit source (rbid binary) |
-| `    ├── common-ifrit-forge-context/` | Build context for the [Ifrit](#Ifrit) forge — warms cargo cache + pre-stages apt deps |
-| `    │   └── Dockerfile` | Forge image; consumed by `Dockerfile.airgap` as its base |
-| `    ├── rbev-bottle-ifrit-tether/` | [Conjure](#Conjure) (tether) — [Ifrit](#Ifrit) attack binary |
-| `    │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode, tether egress |
-| `    ├── rbev-bottle-ifrit-airgap/` | [Conjure](#Conjure) ([Airgap](#Airgap)) — [Ifrit](#Ifrit) attack binary, [Ordained](#Ordain) without upstream pull |
-| `    │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode, airgap egress |
-| `    ├── rbev-bottle-ifrit-forge/` | [Conjure](#Conjure) (tether) — Build-time forge fixture for [Airgap](#Airgap) [Ifrit](#Ifrit) |
-| `    │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode, tether egress |
-| `    ├── rbev-bottle-plantuml/` | [Bind](#Bind) — upstream image pinned by digest |
-| `    │   └── rbrv.env` | [RBRV](#RBRV) — [Bind](#Bind) mode, digest reference |
-| `    ├── rbev-bottle-anthropic-jupyter/` | [Conjure](#Conjure) — Jupyter notebook server |
-| `    │   ├── Dockerfile` | |
-| `    │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode |
-| `    └── (4 additional test vessels)` | busybox variants for [Theurge](#Theurge) fixture coverage |
+| `└── rbmm_moorings/` | Consumer config root — [BURC](#BURC) + Recipe Bottle [Regimes](#Regime) + [Vessels](#Vessel) |
+| `    ├── burc.env` | [BURC](#BURC) — project structure (tabtarget, tools, temp/output dirs) |
+| `    ├── rbrp.env` | [RBRP](#RBRP) — [Payor](#Payor) identity for this [Depot](#Depot) |
+| `    ├── rbrr.env` | [RBRR](#RBRR) — Repository-wide configuration shared across all operations |
+| `    ├── rbrd.env` | [RBRD](#RBRD) — [Depot](#Depot) identity (frozen at [Levy](#Levy)) |
+| `    ├── ccyolo/` | [Nameplate](#Nameplate) — [ccyolo](#ccyolo) Claude Code sandbox |
+| `    │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + Claude Code, Anthropic-only allowlist |
+| `    ├── tadmor/` | [Nameplate](#Nameplate) — [tadmor](#tadmor) adversarial testing |
+| `    │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + [Ifrit](#Ifrit), restrictive allowlist |
+| `    ├── moriah/` | [Nameplate](#Nameplate) — [moriah](#moriah) airgap-built adversarial testing |
+| `    │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + [Ifrit](#Ifrit), restrictive allowlist |
+| `    ├── srjcl/` | [Nameplate](#Nameplate) — Jupyter notebook |
+| `    │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + Jupyter, academic-domain allowlist |
+| `    ├── pluml/` | [Nameplate](#Nameplate) — PlantUML diagram server |
+| `    │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + PlantUML, no-egress allowlist |
+| `    ├── rbml_launchers/` | Launcher scripts (environment gates) — `launcher.*.sh` |
+| `    └── rbmv_vessels/` | [Vessel](#Vessel) definitions |
+| `        ├── common-sentry-context/` | Shared [Sentry](#Sentry)/[Pentacle](#Pentacle) build context |
+| `        │   ├── Dockerfile` | debian-slim + iptables + dnsmasq |
+| `        │   ├── rbjs_sentry.sh` | [Sentry](#Sentry) runtime — policy engine |
+| `        │   └── rbjp_pentacle.sh` | [Pentacle](#Pentacle) runtime — namespace setup |
+| `        ├── rbev-sentry-deb-tether/` | [Conjure](#Conjure) — [Sentry](#Sentry) (tethered, upstream pull) |
+| `        │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode, tether egress |
+| `        ├── rbev-sentry-deb-airgap/` | [Conjure](#Conjure) — [Sentry](#Sentry) (airgapped, enshrined bases) |
+| `        │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode, airgap egress |
+| `        ├── rbev-bottle-ccyolo/` | [Conjure](#Conjure) — [ccyolo](#ccyolo) Claude Code sandbox |
+| `        │   ├── Dockerfile` | node:22-slim + SSH + Claude Code |
+| `        │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode |
+| `        ├── common-ifrit-context/` | Shared [Ifrit](#Ifrit) build context (tether + airgap variants) |
+| `        │   ├── Dockerfile.tether` | Rust binary + network attack tools (tether build) |
+| `        │   ├── Dockerfile.airgap` | Same image built `FROM` the forge ([Airgap](#Airgap) build, no upstream pull) |
+| `        │   ├── Cargo.toml` | Ifrit crate manifest |
+| `        │   └── src/` | Ifrit source (rbid binary) |
+| `        ├── common-ifrit-forge-context/` | Build context for the [Ifrit](#Ifrit) forge — warms cargo cache + pre-stages apt deps |
+| `        │   └── Dockerfile` | Forge image; consumed by `Dockerfile.airgap` as its base |
+| `        ├── rbev-bottle-ifrit-tether/` | [Conjure](#Conjure) (tether) — [Ifrit](#Ifrit) attack binary |
+| `        │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode, tether egress |
+| `        ├── rbev-bottle-ifrit-airgap/` | [Conjure](#Conjure) ([Airgap](#Airgap)) — [Ifrit](#Ifrit) attack binary, [Ordained](#Ordain) without upstream pull |
+| `        │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode, airgap egress |
+| `        ├── rbev-bottle-ifrit-forge/` | [Conjure](#Conjure) (tether) — Build-time forge fixture for [Airgap](#Airgap) [Ifrit](#Ifrit) |
+| `        │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode, tether egress |
+| `        ├── rbev-bottle-plantuml/` | [Bind](#Bind) — upstream image pinned by digest |
+| `        │   └── rbrv.env` | [RBRV](#RBRV) — [Bind](#Bind) mode, digest reference |
+| `        ├── rbev-bottle-anthropic-jupyter/` | [Conjure](#Conjure) — Jupyter notebook server |
+| `        │   ├── Dockerfile` | |
+| `        │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode |
+| `        └── (4 additional test vessels)` | busybox variants for [Theurge](#Theurge) fixture coverage |
 
 ## Appendix: Specific Regimes
 

@@ -5,7 +5,7 @@ This regime specifies variables that define administrative payor configuration w
 Each
 {rbrp_regime}
 instance represents the administrative control plane that creates and manages depot projects, links billing accounts, and configures OAuth authentication.
-RBRP assignment files are found at the project root (`rbrp.env`) and configure payor project identification, billing account linkage, and OAuth client settings.
+RBRP assignment files are found in the operator's local filesystem and configure payor project identification, billing account linkage, and OAuth client settings.
 
 //axhrv_variable
 {rbrp_payor_project_id}

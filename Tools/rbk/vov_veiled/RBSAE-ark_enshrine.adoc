@@ -103,7 +103,7 @@ containing all upstream platforms
 . *Extract Locators and Write Regime*:
 .. Read `buildStepOutputs[0]` from the completed build result (base64-decoded JSON)
 .. For each slot present in the result:
-... Write locator string to `RBRV_IMAGE_n_ANCHOR` in the vessel's `rbrv.env`, overwriting any prior value
+... Write locator string to `RBRV_IMAGE_n_ANCHOR` in the vessel's {rbrv_regime} file, overwriting any prior value
 
 //axhoot_typed_output
 {rbrv_image_anchor}

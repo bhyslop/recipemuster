@@ -27,7 +27,7 @@ dispatches a trigger-based remote container build:
 .. {rbbc_require}
 `«INPUT_VESSEL_DIR»` is an existing directory
 .. {rbbc_store}
-`«VESSEL_ENV_FILE»` as `«INPUT_VESSEL_DIR»/rbrv.env`
+`«VESSEL_ENV_FILE»` as the {rbrv_regime} file within `«INPUT_VESSEL_DIR»`
 .. {rbbc_require}
 `«VESSEL_ENV_FILE»` exists
 .. {rbbc_fatal}

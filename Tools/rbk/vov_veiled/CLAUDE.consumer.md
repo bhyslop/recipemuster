@@ -156,10 +156,10 @@ Cross-regime operations: `rbw-ni` (nameplate info/survey), `rbw-nv` (validate al
 A Config Regime is a structured configuration system: a specification document, a shell-sourceable assignment file (`.env`), and validation/render scripts. Each regime uses a unique uppercase variable prefix to prevent collisions.
 
 **Two layers shared by all tools:**
-- **BURC** (`.buk/burc.env`) — project structure: tabtarget dir, tools dir, temp/output dirs
+- **BURC** (`rbmm_moorings/burc.env`) — project structure: tabtarget dir, tools dir, temp/output dirs
 - **BURS** (`../station-files/burs.env`) — developer machine: log directory. Not in git.
 
-**Recipe Bottle regimes** (in `.rbk/`):
+**Recipe Bottle regimes** (in `rbmm_moorings/`):
 - **RBRP** — Payor project identity. Set `RBRP_PAYOR_PROJECT_ID` to your GCP project.
 - **RBRR** — Repository/depot configuration. Region, machine type, vessel directory, secrets directory, depot project ID.
 - **RBRN** — Nameplate. Per-vessel: runtime (`docker`), vessel names, hallmark values (set after builds complete).
@@ -170,18 +170,17 @@ A Config Regime is a structured configuration system: a specification document, 
 
 ```
 Project Root/
-├── .buk/                    # BUK launcher directory
-│   ├── burc.env             # Project structure config
-│   └── launcher.*.sh        # Launcher scripts (environment gates)
-├── .rbk/                    # Recipe Bottle config regimes
-│   ├── rbrp.env             # Payor regime
-│   ├── rbrr.env             # Repo/depot regime
-│   └── {moniker}/rbrn.env   # Nameplate regimes (per vessel)
+├── rbmm_moorings/           # Consumer config root (BUK + Recipe Bottle)
+│   ├── burc.env             # BURC — project structure config
+│   ├── rbrp.env             # RBRP — Payor regime
+│   ├── rbrr.env             # RBRR — Repo/depot regime
+│   ├── {moniker}/rbrn.env   # RBRN — Nameplate regimes (per vessel)
+│   ├── rbml_launchers/      # Launcher scripts (environment gates)
+│   └── rbmv_vessels/        # Vessel definitions (rbrv.env + optional Dockerfile per vessel)
 ├── tt/                      # TabTargets (ls this to see all commands)
-├── Tools/
-│   ├── buk/                 # Bash Utility Kit (portable infrastructure)
-│   └── rbk/                 # Recipe Bottle Kit (domain logic)
-└── rbev-vessels/            # Vessel definitions (rbrv.env + optional Dockerfile per vessel)
+└── Tools/
+    ├── buk/                 # Bash Utility Kit (portable infrastructure)
+    └── rbk/                 # Recipe Bottle Kit (domain logic)
 ```
 
 ## Bash Conventions

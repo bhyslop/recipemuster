@@ -65,4 +65,4 @@ with value `«RELIQUARY»`
 
 //axhoc_completion
 Successful execution mirrors all tool images into the reliquary namespace.
-Set `RBRV_RELIQUARY=«RELIQUARY»` in vessel `rbrv.env` files to use this reliquary for subsequent conjure operations.
+Set `RBRV_RELIQUARY=«RELIQUARY»` in vessel {rbrv_regime} files to use this reliquary for subsequent conjure operations.

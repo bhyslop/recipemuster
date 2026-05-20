@@ -41,7 +41,7 @@ hallmark provided as second argument
 
 //axhos_step
 . *Load Vessel Configuration*:
-.. Source vessel configuration from `rbrv.env`
+.. Source vessel configuration from the {rbrv_regime}
 .. {rbbc_store}
 `«VESSEL_MODE»` from {rbrv_vessel_mode}
 

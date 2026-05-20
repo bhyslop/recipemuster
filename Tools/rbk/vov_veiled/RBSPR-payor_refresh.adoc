@@ -27,7 +27,7 @@ and for renewal operations.
 ... Store secure credentials in `~/.rbw/payor/rbro.env`
 ... Test the authentication
 ... Initialize depot tracking
-... Update `RBRP_OAUTH_CLIENT_ID` in `rbrp.env`
+... Update `RBRP_OAUTH_CLIENT_ID` in the {rbrp_regime}
 
 //axhog_guarantee
 * `rbgp_depot_list` successfully displays current depots without authentication errors

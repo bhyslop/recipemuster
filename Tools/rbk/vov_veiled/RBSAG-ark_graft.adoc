@@ -34,7 +34,7 @@ vessel mode is {rbrv_vessel_mode_graft}
 
 //axhos_step
 . *Load Vessel Configuration*:
-.. Source vessel configuration from `rbrv.env`
+.. Source vessel configuration from the {rbrv_regime}
 .. {rbbc_store}
 `«VESSEL_SIGIL»` from {rbrv_sigil}
 .. {rbbc_store}

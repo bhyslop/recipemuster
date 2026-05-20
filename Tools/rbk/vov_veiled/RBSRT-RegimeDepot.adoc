@@ -94,7 +94,7 @@ The tripwire is _produced_ exactly once, host-side, at the tail of
 — after the depot-tracking refresh, using the Payor OAuth access token already in scope.
 A pre-push existence guard (`docker manifest inspect`) makes inscription idempotent-by-refusal: an already-present tripwire is fatal, since RBRD is frozen for the depot's productive lifetime and refreshing it requires a fresh depot (unmake + relevy).
 +
-The tripwire is _consumed_ inline by every cloud-submitting command before it dispatches a build: the command pulls the image, extracts `/rbrd.env`, and exact-byte-compares it (comments, whitespace, and line ordering all participate) against the local {rbrd_regime} assignment file.
+The tripwire is _consumed_ inline by every cloud-submitting command before it dispatches a build: the command pulls the image, extracts the embedded {rbrd_regime} assignment file, and exact-byte-compares it (comments, whitespace, and line ordering all participate) against the local copy.
 A mismatch, a missing image, or a registry/auth failure is fatal with recovery guidance — the command refuses to submit cloud work against a drifted or unverifiable depot regime.
 The check takes a bearer token parameter and is role-agnostic; each consuming command passes its own role's token (no new IAM grants).
 +

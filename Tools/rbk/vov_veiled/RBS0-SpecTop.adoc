@@ -1213,7 +1213,7 @@ include::RBSDI-depot_inscribe.adoc[]
 
 Yokes a reliquary stamp across every vessel's
 {rbrv_regime}:
-validates the stamp once against GAR, then rewrites `RBRV_RELIQUARY` in every `rbrv.env` under `${RBRR_VESSEL_DIR}`
+validates the stamp once against GAR, then rewrites `RBRV_RELIQUARY` in every {rbrv_regime} file under `${RBRR_VESSEL_DIR}`
 ({rbtgog_depot}).
 
 include::RBSDY-director_yoke.adoc[]
@@ -2017,7 +2017,7 @@ stamped with a
 {rbtga_hallmark}
 on each successful build.
 +
-A vessel's regime file (`rbrv.env`) declares its mode, Dockerfile path (conjure), upstream reference (bind), or local image (graft), along with platform targets and build configuration.
+A vessel's {rbrv_regime} declares its mode, Dockerfile path (conjure), upstream reference (bind), or local image (graft), along with platform targets and build configuration.
 The vessel name appears in all artifact tags as the stem before the hallmark.
 
 === Foundry Fact Files
@@ -3063,6 +3063,7 @@ Administrative
 configuration for managing
 {at_recipe_bottle}
 infrastructure.
+File-sourced singleton at {rbsld_moorings}rbrp.env.
 
 [[rbrp_payor_project_id]]
 //axl_voices axrg_variable axtg_project_id
@@ -3962,7 +3963,7 @@ OAuth context:
 . executes
 {rbtoe_rbro_load}
 to load OAuth credentials,
-. loads RBRP_OAUTH_CLIENT_ID from rbrp.env configuration,
+. loads RBRP_OAUTH_CLIENT_ID from the {rbrp_regime} configuration,
 . executes
 {rbtoe_oauth_refresh}
 to obtain access token,
