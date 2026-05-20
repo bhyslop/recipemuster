@@ -138,6 +138,8 @@ Tabtargets follow: `{colophon}.{frontispiece}[.{imprint}].sh`
 
 Colophons must reference valid Primary Universe prefixes. See **BUK Concepts** in the BUK include for terminology (colophon, frontispiece, imprint, workbench).
 
+Tabtargets dispatch through `tt/z-launcher.sh` by passing a moorings-launcher *sprue* `{owner}ml_{launcher-id}` (`rbml_*` RBK-authored, `buml_*` BUK-hosted) — an underscore-universe dispatch token kept distinct from the hyphenated colophon. See BCG "Tabtarget Path Indirection" for the rationale.
+
 ### Extended Namespace Checklist
 
 When minting, enumerate ALL namespaces the system touches:

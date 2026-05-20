@@ -103,3 +103,15 @@
 - **RBSSR** → `rbk/vov_veiled/RBSSR-sentry_run.adoc`
 - **RBSSS** → `rbk/vov_veiled/RBSSS-sentry_start.adoc`
 - **RBSTB** → `rbk/vov_veiled/RBSTB-trigger_build.adoc`
+
+## Moorings Filesystem Family (`rbm*_`)
+
+RBK-owned directory namespace for the consumer-config moorings tree (`rbmm_moorings/`) — distinct from the `Tools/rbk/` code files above. Branches of the `rbm` prefix (terminal-exclusivity: `rbm` HAS children, never names a thing):
+
+- **`rbmm_`** → moorings umbrella — the directory itself (`rbmm_moorings/`)
+- **`rbml_`** → moorings launchers — shared directory holding every kit's `launcher.{wb}_workbench.sh`
+- **`rbmn_`** → moorings nodes — remote BURN node profiles
+- **`rbmu_`** → moorings users — remote BURP user profiles
+- **`rbmv_`** → moorings vessels — vessel build contexts
+
+Tabtargets dispatch through `tt/z-launcher.sh` by passing a launcher *sprue* `{owner}ml_{launcher-id}` (`rbml_*` RBK-authored, `buml_*` BUK-hosted — see the BUK include). Sprue rationale lives in BCG "Tabtarget Path Indirection"; this entry is the allocation record only.
