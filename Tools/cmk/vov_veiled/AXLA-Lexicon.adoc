@@ -1866,8 +1866,8 @@ a
 regime has one carrier per instance.
 Only a
 {axrd_file_sourced}
-carrier has a path locus — a singleton's locus is named by one quoin whose replacement text is that path,
-while a manifold's loci are templated and composed in prose.
+carrier has a path locus: the singleton case resolves to a single path, the manifold case to one templated path per instance.
+Whether that locus earns a dedicated quoin or is composed in prose from a root quoin plus a literal leaf is a per-specification judgment, not a property of the motif.
 Virtual carriers
 ({axrd_constructed},
 {axrd_env_inherited})
