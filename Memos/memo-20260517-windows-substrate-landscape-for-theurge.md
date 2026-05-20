@@ -383,6 +383,95 @@ Two paces in heat ₣BO carry the substrate work forward:
 Both paces remain live. This memo records what we know, not which
 substrate to invest in next.
 
+## WSL gauntlet bring-up, revisited 2026-05-20
+
+A push toward an actual gauntlet (`tt/rbw-tP.QualifyPristine.sh`) run on
+the headless `wsl@rocket` distro, against the `winmess-002` branch (in
+its Marshal-Zero release-qualification state). The fast-tier substrate
+result from "The WSL substrate, today" reproduced exactly — 47/47
+enrollment-validation, 24/25 regime-validation, the lone failure again
+`rbtdrf_rv_rbrr_repo` → `RBRR_CLOUD_PREFIX must not be empty` (the
+zeroed-`rbrr.env` config gap, OS-independent). Pushing past fast tier
+surfaced four findings below.
+
+### Native dockerd is the crucible-tier runtime; Docker Desktop socket-reuse fails
+
+This retires the open Docker-coexistence cost named in "Why this memo
+exists." The crucible's tadmor nameplate bind-mounts the WSL repo into
+the bottle (`../Tools/rbk/rbtid` and `../` in
+`rbmm_moorings/tadmor/rbnnh_compose.yml`). Docker Desktop's daemon runs
+in its own LinuxKit VM that can see only `/mnt/c` and *integrated*
+distros — not a headless distro's ext4. So a reused Docker Desktop
+socket resolves those bind-mounts to nothing in the daemon's VM, and
+the headless `wsl` account's distro is not visible to Docker Desktop's
+per-Windows-user WSL integration in any case.
+
+The resulting trilemma:
+
+| Path | Bind-mounts | Fidelity |
+|---|---|---|
+| ext4 clone + Docker Desktop socket | broken (daemon can't see ext4) | — |
+| `/mnt/c` clone + Docker Desktop socket | work | reintroduces the FS-metadata/perf problems the ext4 clone was chosen to avoid |
+| ext4 clone + **native `dockerd` in the distro** | work | Linux-faithful — real netns/iptables, what the sentry tier exercises |
+
+Native `dockerd` is the only path that is both correct and faithful.
+Bring-up was clean: the imported distro already ran systemd as PID 1
+(`/etc/wsl.conf` already had `[boot] systemd=true`), so no restart
+dance — `apt-get install -y docker.io` (29.1.3, overlayfs driver,
+cgroup v1), `systemctl enable --now docker`, `hello-world` runs. It is
+a fully separate daemon (own `/var/lib/docker`, own socket) that
+coexists with Docker Desktop without conflict.
+
+### Minimal host toolchain for the WSL gauntlet: only `jq` was missing
+
+Fresh Ubuntu-24.04 already had curl, openssl, git, python3, base64,
+envsubst. The depot stand-up's first failure was simply
+`rbgp_depot_list: jq not found`. `gcloud`, `syft`, and `cosign` are
+**not** host-side dependencies — they run inside Cloud Build containers
+(reliquary tool images pulled from GAR); the rbk source mentions are
+in-build tooling and reliquary inventory listings, not host
+invocations. So the host-tool delta for a WSL gauntlet is `jq` plus
+the container runtime above.
+
+### WSL VM idle-shutdown wipes `/tmp` on reboot
+
+When a `nohup`'d async job exits and the SSH session ends, the WSL2 VM
+idle-shuts-down; the next `ssh` reboots it (observed uptime ~1 min) and
+systemd-tmpfiles clears `/tmp` on boot — *even though `/tmp` is on-disk
+ext4 here, not tmpfs*. A dispatched gauntlet's `/tmp/*.pid` and
+console-capture files vanished between dispatch and the next poll for
+exactly this reason. **Monitor async/foray jobs via the repo's ext4
+self-logs (`../logs-buk/`, `../temp-buk/`), never `/tmp` scratch.** The
+`nohup`'d job itself is unaffected — it keeps the VM alive while running
+and reaches its verdict; only the inter-session scratch is lost.
+
+### Push from the headless WSL distro is blocked both ways
+
+The pristine flow commits throwaway RBRR prefixes on each run, and
+`rbw-MZ` refuses to reset over an unpushed HEAD ("HEAD has unpushed
+commits — push before marshal-zero"). On the headless WSL clone,
+neither push target works:
+
+- To the `/mnt/c` local-path remote (the `brad.rocket` Windows
+  checkout): `remote unpack failed: unable to create temporary object
+  directory` — WSL-root cannot create git temp objects on the Windows
+  filesystem through `/mnt/c`.
+- To GitHub: `Permission denied (publickey)` — the headless account has
+  no key.
+
+And the existing keys cannot be borrowed: every Windows-side `.ssh`
+(`/mnt/c/Users/bhyslop`, `/mnt/c/Users/brad.rocket`,
+`/mnt/c/cygwin64/home/{brad,bhyslop}`) returns Permission denied,
+because WSL touches `/mnt/c` as the unprivileged `wsl` Windows account.
+**Injecting a push credential into a headless WSL distro therefore
+requires an admin/owner Windows session — it cannot be self-served from
+inside the distro.** (The admin route that could, `buw-jpS`, was
+separately broken on the curia with `BUBC_moorings_dir: unbound
+variable` during this session.) Practical implication: a self-contained
+gauntlet loop on a headless WSL distro needs either a pre-planted deploy
+key with push access, or an `rbw-MZ` path that tolerates unpushed HEAD
+on a throwaway qualification branch.
+
 ## See also
 
 - `Memos/memo-20260516-windows-headless-account-anatomy.md` — SSH
