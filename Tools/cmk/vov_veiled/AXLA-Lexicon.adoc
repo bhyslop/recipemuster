@@ -111,6 +111,8 @@
 // Axial Regime Terms
 :axrg_assignment:                     <<axrg_assignment,Assignment>>
 :axrg_assignment_s:                   <<axrg_assignment,Assignments>>
+:axrg_carrier:                        <<axrg_carrier,Carrier>>
+:axrg_carrier_s:                      <<axrg_carrier,Carriers>>
 :axrg_prefix:                         <<axrg_prefix,Regime Prefix>>
 :axrg_prefix_s:                       <<axrg_prefix,Regime Prefixes>>
 :axrg_regime:                         <<axrg_regime,Regime>>
@@ -130,7 +132,7 @@
 :axhrb_regime:                        <<axhrb_regime,Hierarchy Regime>>
 :axhrv_variable:                      <<axhrv_variable,Hierarchy Variable>>
 
-// Axial Regime Provenance Dimensions (assignment origin)
+// Axial Regime Provenance Dimensions (carrier provenance)
 :axrd_constructed:                    <<axrd_constructed,Constructed>>
 :axrd_env_inherited:                  <<axrd_env_inherited,Environment-Inherited>>
 :axrd_file_sourced:                   <<axrd_file_sourced,File-Sourced>>
@@ -1831,13 +1833,45 @@ A
 {axl_motif}
 representing a specific value bound to an
 {axrg_variable}.
+A single binding — one variable, one value.
 {axrg_assignment_s}
-are carried in files of a particular
+are conveyed by an
+{axrg_carrier},
+whose concrete form and
 {axf_format}
-(bash, makefile, JSON, etc.).
-Multiple assignment files may exist for the same
-{axrg_regime},
-each providing different configuration instances.
+depend on the regime's provenance.
+
+[[axrg_carrier]]
+{axrg_carrier}::
+A
+{axl_motif}
+representing the artifact holding one instance's complete set of
+{axrg_assignment_s}
+for a single
+{axrg_regime}.
+The carrier's concrete form is selected by its provenance
+{axd_dimension}:
+{axrd_file_sourced}
+manifests as a file at a path (encoding via
+{axf_format});
+{axrd_constructed}
+as values assembled by a defining module and sourced into consumers;
+{axrd_env_inherited}
+as an inherited process environment scope.
+A
+{axrd_singleton}
+regime has exactly one carrier;
+a
+{axrd_manifold}
+regime has one carrier per instance.
+Only a
+{axrd_file_sourced}
+carrier has a path locus — a singleton's locus is named by one quoin whose replacement text is that path,
+while a manifold's loci are templated and composed in prose.
+Virtual carriers
+({axrd_constructed},
+{axrd_env_inherited})
+have no consumer-facing path.
 
 [[axrg_prefix]]
 {axrg_prefix}::
@@ -1857,14 +1891,16 @@ requires coordinated refactoring across all consuming artifacts.
 
 == Axial Regime Provenance Dimensions
 
-Provenance dimensions qualify
-{axrg_assignment}
-to declare how values arrive at
+Provenance dimensions qualify an
+{axrg_carrier}
+to declare its concrete form and how its
+{axrg_assignment_s}
+arrive at
 {axvr_kindle}
 time.
-These are valid dimensions on
+They are declared on
 {axvr_regime}
-declaring which provenance(s) a regime supports.
+to state which provenance(s) a regime's carrier supports.
 
 [[axrd_file_sourced]]
 {axrd_file_sourced}::
