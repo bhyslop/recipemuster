@@ -10047,9 +10047,10 @@
         "₢BPAAB",
         "₢BPAAC",
         "₢BPAAD",
-        "₢BPAAE"
+        "₢BPAAE",
+        "₢BPAAF"
       ],
-      "jjghn_next_pace_seed": "AAF",
+      "jjghn_next_pace_seed": "AAG",
       "jjghn_paces": {
         "₢BPAAA": {
           "jjgpn_tacks": [
@@ -10110,6 +10111,17 @@
               "jjgtn_text": "## Character\n\nSelf-contained RBK projector; supersedes one existing macro hand-mirror. Watch the `concat!`-composability constraint.\n\n## Goal\n\nProject the in-scope RBCC flat tinder (moorings dir, `.env` filenames, roles) to generated Rust consts, replacing the hand-maintained `rbtd_moorings_dir!` macro mirror.\n\n## Shape\n\n- An RBK projector (RBK owns domain content) emits the in-scope RBCC tinder to a checked-in generated Rust file.\n- Supersedes the `rbtd_moorings_dir!` / `rbtd_vessels_dir!` macros and `RBTD_MOORINGS_DIR` in `lib.rs`.\n- Constraint: the macro form exists because `concat!` needs a literal token, not a const identifier (see the `lib.rs` comment). Preserve literal-composability for any `concat!` path-composition sites, or migrate those sites.\n- Scope: single-canonical-author source-time literals only. Composed/kindled values lacking a clean single-author projection stay as-is.\n\n## Sources\n\n- `Tools/rbk/rbcc_Constants.sh` — flat tinder (self-described projection inventory)\n- `Tools/rbk/rbtd/src/lib.rs` — `rbtd_moorings_dir!` macro (current hand-mirror to supersede)\n\n## What done looks like\n\n- RBCC tinder consts are generated; the moorings macro mirror is retired or fed from generation; Rust builds; moorings paths resolve unchanged.",
               "jjgtn_silks": "rbcc-tinder-codegen-projection",
               "jjgtn_basis": "b73ab86"
+            }
+          ]
+        },
+        "₢BPAAF": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260520-1738",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nTouches qualify infrastructure and build ordering; subtle — the regenerate-vs-consume distinction is load-bearing.\n\n## Goal\n\nWire generation into the build lifecycle so the committed artifact is regenerated at the BUK-available layer before every Rust build, never regenerated inside the container, and a stale commit fails qualify loud.\n\n## Shape\n\n- Regenerate the generated file(s) before every Rust build, at the layer where BUK is available.\n- A build inside the minimal container consumes the committed artifact and never regenerates (no BUK present there).\n- Add a `git diff --exit-code` qualify gate so a stale committed artifact fails loud. This supersedes the drift role that `rbtdrm_verify` formerly held, with exact equality.\n\n## Sources\n\n- `Tools/rbk/rbtd/rbtw_workbench.sh` and the rbtd build tabtargets — Rust build entry\n- `tt/rbw-tf.QualifyFast.sh`, `tt/rbw-tr.QualifyRelease.sh`, `tt/rbw-tP.QualifyPristine.sh` — qualify gates\n- Any existing diff-gate around the `buz_emit_context`-generated markdown context — precedent for the regeneration wiring\n\n## What done looks like\n\n- The generated artifact is regenerated pre-build outside the container; the container build consumes the commit; qualify fails on a deliberately-staled artifact.",
+              "jjgtn_silks": "codegen-build-wiring-and-diff-gate",
+              "jjgtn_basis": "3f61ac5"
             }
           ]
         }
