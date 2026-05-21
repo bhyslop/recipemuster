@@ -187,7 +187,7 @@ rbhp_establish() {
   buh_line     "        - Click ${z_ui_next_step3}"
   buh_line     "      Step 4 - Finish:"
   buyy_ui_yawp "I agree to the Google API Services: User Data Policy"; local -r z_ui_agree_policy="${z_buym_yelp}"
-  buh_line     "        - Check ${z_ui_agree_policy}"
+  buh_line     "        - Read the linked terms, then (if you accept) check ${z_ui_agree_policy}"
   buyy_ui_yawp "Continue"; local -r z_ui_continue="${z_buym_yelp}"
   buh_line     "        - Click ${z_ui_continue}"
   buyy_ui_yawp "Create"; local -r z_ui_create_consent="${z_buym_yelp}"
