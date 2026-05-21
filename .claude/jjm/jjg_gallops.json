@@ -9991,9 +9991,10 @@
       "jjghn_order": [
         "₢BQAAA",
         "₢BQAAB",
-        "₢BQAAC"
+        "₢BQAAC",
+        "₢BQAAD"
       ],
-      "jjghn_next_pace_seed": "AAD",
+      "jjghn_next_pace_seed": "AAE",
       "jjghn_paces": {
         "₢BQAAA": {
           "jjgpn_tacks": [
@@ -10025,6 +10026,17 @@
               "jjgtn_text": "## Character\nMechanical, broad but shallow — many functions, each a thin rewrite.\n\nRoute every public `buc_*` display function through the new internal path with\nits semantic ambient color (step = white, success = green, warn = yellow prefix,\ndie = red prefix, code/bare = cyan, info = default). Signatures and observable\noutput stay unchanged except for terminal-awareness. Retire `buc`'s private\n`BUC_*` palette.\n\nSource: `Tools/buk/buc_command.sh` for the public wrappers. The few files outside\n`buc_command.sh` that reference raw `BUC_*` constants must migrate to the kindled\npalette — discover them with\n`grep -rl 'BUC_\\(red\\|yellow\\|green\\|cyan\\|white\\|gray\\|reset\\)' Tools/ --include=*.sh`.\n\nDone: all `buc_*` render via the shared core; the private palette is gone;\n`bash -n` clean and the `fast` suite green.",
               "jjgtn_silks": "reexpress-buc-public-on-core",
               "jjgtn_basis": "d63dc5c"
+            }
+          ]
+        },
+        "₢BQAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260521-1009",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nSmall, self-contained dedup.\n\n`buc_tabtarget` re-implements the colophon-to-filename glob that `buyy_tt_yawp`\nalready owns. Make `buc_tabtarget` delegate to the yawp resolver so a single glob\nexists in the kit.\n\nSource: `buc_tabtarget` in `Tools/buk/buc_command.sh`; `buyy_tt_yawp` in\n`Tools/buk/buym_yelp.sh`.\n\nDone: one resolver; existing `buc_tabtarget` call sites render unchanged.",
+              "jjgtn_silks": "collapse-tabtarget-glob-clone",
+              "jjgtn_basis": "4f2ea0a"
             }
           ]
         }
