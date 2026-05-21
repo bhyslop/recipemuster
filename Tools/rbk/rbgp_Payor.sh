@@ -970,14 +970,45 @@ rbgp_payor_install() {
   buc_success "Payor OAuth installation completed successfully"
   buc_info "Credentials stored: ${z_rbro_file}"
   buc_info ""
-  buc_info "Configuration required in ${RBCC_rbrp_file}:"
-  buc_info "  RBRP_PAYOR_PROJECT_ID=${z_project_id}"
-  buc_info "  RBRP_OAUTH_CLIENT_ID=${z_client_id}"
-  buc_info "  RBRP_OPERATOR_EMAIL=${z_operator_email}"
-  buc_info "  RBRP_BILLING_ACCOUNT_ID=<obtain from Cloud Console Billing>"
+  buc_info "Verifying ${RBCC_rbrp_file} against the installed credentials:"
+
+  local z_config_ok="true"
+
+  if test "${RBRP_PAYOR_PROJECT_ID:-}" = "${z_project_id}"; then
+    buc_info "  RBRP_PAYOR_PROJECT_ID=${z_project_id}"
+  else
+    buc_warn "RBRP_PAYOR_PROJECT_ID is '${RBRP_PAYOR_PROJECT_ID:-<unset>}'; expected '${z_project_id}'"
+    z_config_ok="false"
+  fi
+
+  if test "${RBRP_OAUTH_CLIENT_ID:-}" = "${z_client_id}"; then
+    buc_info "  RBRP_OAUTH_CLIENT_ID=${z_client_id}"
+  else
+    buc_warn "RBRP_OAUTH_CLIENT_ID is '${RBRP_OAUTH_CLIENT_ID:-<unset>}'; expected '${z_client_id}'"
+    z_config_ok="false"
+  fi
+
+  if test "${RBRP_OPERATOR_EMAIL:-}" = "${z_operator_email}"; then
+    buc_info "  RBRP_OPERATOR_EMAIL=${z_operator_email}"
+  else
+    buc_warn "RBRP_OPERATOR_EMAIL is '${RBRP_OPERATOR_EMAIL:-<unset>}'; expected '${z_operator_email}' (the authorized account)"
+    z_config_ok="false"
+  fi
+
+  if test -n "${RBRP_BILLING_ACCOUNT_ID:-}"; then
+    buc_info "  RBRP_BILLING_ACCOUNT_ID=${RBRP_BILLING_ACCOUNT_ID}"
+  else
+    buc_warn "RBRP_BILLING_ACCOUNT_ID is unset; obtain it from the Cloud Console Billing page and set it in ${RBCC_rbrp_file}"
+    z_config_ok="false"
+  fi
+
   buc_info ""
-  buc_info "Next: levy the depot (set RBRD_DEPOT_MONIKER and RBRD_GCP_REGION in rbrd.env first):"
-  buc_tabtarget "${RBZ_LEVY_DEPOT}"
+  if test "${z_config_ok}" = "true"; then
+    buc_info "Next: levy the depot (set RBRD_DEPOT_MONIKER and RBRD_GCP_REGION in rbrd.env first):"
+    buc_tabtarget "${RBZ_LEVY_DEPOT}"
+  else
+    buc_warn "Resolve the items above in ${RBCC_rbrp_file} before levying the depot."
+  fi
 }
 
 rbgp_depot_levy() {
