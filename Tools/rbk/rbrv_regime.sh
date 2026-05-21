@@ -49,7 +49,7 @@ zrbrv_kindle() {
 
   buv_group_enroll "Egress Mode"
   buv_enum_enroll   RBRV_EGRESS_MODE                   "Pool routing for primary build operation" \
-                    tether airgap
+                    rbnve_tether rbnve_airgap
 
   buv_group_enroll "Binding Configuration"
   buv_gate_enroll   RBRV_VESSEL_MODE  bind

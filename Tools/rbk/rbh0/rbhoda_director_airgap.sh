@@ -187,7 +187,7 @@ rbho_director_airgap() {
   buh_e
   buh_line "Build it on the ${RBYC_TETHERED} pool — its ${RBYC_RBRV} declares:"
   buh_e
-  buh_code "   RBRV_EGRESS_MODE=tether"
+  buh_code "   RBRV_EGRESS_MODE=rbnve_tether"
   buh_e
   buh_line "${RBYC_ORDAIN} reads this and routes to the ${RBYC_TETHERED} pool:"
   buh_e

@@ -319,7 +319,7 @@ zrbfd_registry_preflight() {
     # because the worker pool has no upstream egress — an empty anchor with
     # a non-empty origin guarantees runtime build failure.
     if test -z "${z_anchor}"; then
-      if test "${RBRV_EGRESS_MODE:-}" = "airgap"; then
+      if test "${RBRV_EGRESS_MODE:-}" = "rbnve_airgap"; then
         # Two anchor-population paths per RBSAE: enshrine (origin is a public
         # upstream) and hallmark-pin (origin names a producer vessel in this
         # repo). Discriminate by whether origin resolves to a vessel directory.
@@ -718,8 +718,8 @@ zrbfd_stitch_build_json() {
   # Pool routing: conjure/bind use vessel's egress mode
   local z_conjure_pool=""
   case "${RBRV_EGRESS_MODE}" in
-    tether) z_conjure_pool="${RBDC_POOL_TETHER}" ;;
-    airgap) z_conjure_pool="${RBDC_POOL_AIRGAP}" ;;
+    rbnve_tether) z_conjure_pool="${RBDC_POOL_TETHER}" ;;
+    rbnve_airgap) z_conjure_pool="${RBDC_POOL_AIRGAP}" ;;
     *) buc_die "Unknown RBRV_EGRESS_MODE: ${RBRV_EGRESS_MODE}" ;;
   esac
 
@@ -1537,8 +1537,8 @@ zrbfd_mirror_submit() {
   # Pool routing: bind uses vessel's egress mode (tether for upstream pulls, airgap if pre-staged)
   local z_mirror_pool=""
   case "${RBRV_EGRESS_MODE}" in
-    tether) z_mirror_pool="${RBDC_POOL_TETHER}" ;;
-    airgap) z_mirror_pool="${RBDC_POOL_AIRGAP}" ;;
+    rbnve_tether) z_mirror_pool="${RBDC_POOL_TETHER}" ;;
+    rbnve_airgap) z_mirror_pool="${RBDC_POOL_AIRGAP}" ;;
     *) buc_die "Unknown RBRV_EGRESS_MODE: ${RBRV_EGRESS_MODE}" ;;
   esac
 
