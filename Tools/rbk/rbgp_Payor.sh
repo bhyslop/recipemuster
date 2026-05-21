@@ -976,8 +976,8 @@ rbgp_payor_install() {
   buc_info "  RBRP_OPERATOR_EMAIL=${z_operator_email}"
   buc_info "  RBRP_BILLING_ACCOUNT_ID=<obtain from Cloud Console Billing>"
   buc_info ""
-  buc_info "Next: rbgp_depot_levy"
-  buc_info "  (set RBRD_DEPOT_MONIKER and RBRD_GCP_REGION in rbrd.env first)"
+  buc_info "Next: levy the depot (set RBRD_DEPOT_MONIKER and RBRD_GCP_REGION in rbrd.env first):"
+  buc_tabtarget "${RBZ_LEVY_DEPOT}"
 }
 
 rbgp_depot_levy() {

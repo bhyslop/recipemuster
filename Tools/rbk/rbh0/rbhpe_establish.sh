@@ -232,7 +232,7 @@ rbhp_establish() {
   buh_e
   buh_section  "10. Install OAuth Credentials:"
   buh_line     "   Run:"
-  buh_code     "   rbgp_payor_install ~/Downloads/payor-oauth.json"
+  buh_tt       "      " "${RBZ_PAYOR_INSTALL}" "" " ~/Downloads/client_secret_*.json"
   buh_line     "   This will guide you through OAuth authorization and complete the setup."
 
 }
