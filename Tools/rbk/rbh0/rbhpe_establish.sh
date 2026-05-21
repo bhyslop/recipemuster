@@ -161,6 +161,8 @@ rbhp_establish() {
   buh_line     "      - ${z_cmd_iam_sa_credentials_api}"
   buyy_cmd_yawp "Artifact Registry API"; local -r z_cmd_artifact_registry_api="${z_buym_yelp}"
   buh_line     "      - ${z_cmd_artifact_registry_api}"
+  buyy_cmd_yawp "Cloud Build API"; local -r z_cmd_cloud_build_api="${z_buym_yelp}"
+  buh_line     "      - ${z_cmd_cloud_build_api} (depot levy polls Cloud Build worker-pool operations against this payor project)"
   buh_line     "   These enable programmatic depot management operations."
   buh_e
   buh_section  "8. Configure OAuth Consent Screen:"
