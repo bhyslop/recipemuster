@@ -9781,6 +9781,7 @@
       "jjghn_creation_time": "260520",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BPAAI",
         "₢BPAAA",
         "₢BPAAB",
         "₢BPAAC",
@@ -9790,7 +9791,7 @@
         "₢BPAAH",
         "₢BPAAF"
       ],
-      "jjghn_next_pace_seed": "AAI",
+      "jjghn_next_pace_seed": "AAJ",
       "jjghn_paces": {
         "₢BPAAA": {
           "jjgpn_tacks": [
@@ -9940,6 +9941,17 @@
               "jjgtn_text": "## Character\n\nThe one pace that does bash tidying before projecting — judgment lives in choosing the single home. Honors the heat's single-author rule rather than weakening it.\n\n## Goal\n\nGive operation verbs and container roles a single canonical bash home, then project them to Rust consts via the generic emitter, retiring their hand-mirror in `rbtdrm_manifest.rs`.\n\n## Shape\n\n- Operation verbs and container roles are co-maintained today but lack a single bash owner — operations are implicit in tabtarget/zipper definitions, container roles implicit across `rbob_*.sh`. The heat's locked rule forbids projecting a constant without one canonical author.\n- First settle a single bash home for each group (a small refactor — the home, not new behavior), then feed them through the generic emitter like the other groups.\n- The bash-home step is depot-free and emitter-independent; only the projection step needs the emitter pace.\n- Migrate the manifest consumers onto the generated consts; keep the runtime drift check alive until the diff-gate lands.\n\n## Sources\n\n- `Tools/rbk/rbz_zipper.sh` — operation verbs (implicit in tabtarget defs)\n- `Tools/rbk/rbob_*.sh` — container roles (implicit)\n- `Tools/rbk/rbtd/src/rbtdrm_manifest.rs` — operation/container hand-mirror\n\n## What done looks like\n\n- Operation verbs and container roles each have one canonical bash home; their consts are generated from it; the manifest hand-mirror is retired for these groups; Rust builds and the fast suite is green.",
               "jjgtn_silks": "scattered-const-canonicalize",
               "jjgtn_basis": "d09583e"
+            }
+          ]
+        },
+        "₢BPAAI": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260520-2035",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nPure bash refactor — depot-free, emitter-independent, do-now-able. Judgment lives in choosing the single home; no behavior change.\n\n## Goal\n\nGive operation verbs and container roles each a single canonical bash home, so they become projectable under the heat's single-author rule. No Rust touched here.\n\n## Shape\n\n- Today these are implicit/scattered: operation verbs across tabtarget/zipper definitions (rbz), container roles across `rbob_*.sh`. Neither has one owner.\n- Settle a single bash module that canonically declares each group as a named list — the home, not new behavior. Existing call sites reference the new home.\n- Terms to home (verify against live files first): operation verbs — inscribe, yoke, ordain, enshrine, kludge; container roles — sentry, bottle.\n- Prerequisite for the projection pace; touches no Rust and no manifest.\n\n## Sources\n\n- `Tools/rbk/rbz_zipper.sh` — operation verbs (implicit in tabtarget defs)\n- `Tools/rbk/rbob_*.sh` — container roles (implicit)\n\n## What done looks like\n\n- Operation verbs and container roles each declared once in a canonical bash home; call sites reference it; bash behavior unchanged; fast suite green.",
+              "jjgtn_silks": "scattered-const-bash-home",
+              "jjgtn_basis": "e3c254b"
             }
           ]
         }
