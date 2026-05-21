@@ -9787,9 +9787,10 @@
         "₢BPAAD",
         "₢BPAAE",
         "₢BPAAG",
+        "₢BPAAH",
         "₢BPAAF"
       ],
-      "jjghn_next_pace_seed": "AAH",
+      "jjghn_next_pace_seed": "AAI",
       "jjghn_paces": {
         "₢BPAAA": {
           "jjgpn_tacks": [
@@ -9928,6 +9929,17 @@
               "jjgtn_text": "## Character\n\nMechanical projection over a single-homed group; mirrors the colophon pace's shape against a different bash owner.\n\n## Goal\n\nGenerate the rbtd fixture-name consts from their canonical bash owner via the generic emitter and migrate consumers off the hand-mirror in `rbtdrm_manifest.rs`.\n\n## Shape\n\n- Fixture names are canonically authored in `Tools/rbk/rbtd/rbte_engine.sh` and hand-copied into `rbtdrm_manifest.rs`. Single home exists — projectable without a tidy step.\n- Feed the names through the generic emitter as name/value pairs to a checked-in generated file; migrate manifest consumers and any inline fixture literals onto the generated consts.\n- Keep the runtime drift check alive until the diff-gate lands (same handover discipline as the colophon pace).\n\n## Sources\n\n- `Tools/rbk/rbtd/rbte_engine.sh` — fixture-name canonical author\n- `Tools/rbk/rbtd/src/rbtdrm_manifest.rs` — fixture hand-mirror\n\n## What done looks like\n\n- Fixture consts are generated, not hand-written; consumers reference the generated names; Rust builds and the fast suite is green.",
               "jjgtn_silks": "fixture-codegen-projection",
               "jjgtn_basis": "55daad2"
+            }
+          ]
+        },
+        "₢BPAAH": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260520-2034",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nThe one pace that does bash tidying before projecting — judgment lives in choosing the single home. Honors the heat's single-author rule rather than weakening it.\n\n## Goal\n\nGive operation verbs and container roles a single canonical bash home, then project them to Rust consts via the generic emitter, retiring their hand-mirror in `rbtdrm_manifest.rs`.\n\n## Shape\n\n- Operation verbs and container roles are co-maintained today but lack a single bash owner — operations are implicit in tabtarget/zipper definitions, container roles implicit across `rbob_*.sh`. The heat's locked rule forbids projecting a constant without one canonical author.\n- First settle a single bash home for each group (a small refactor — the home, not new behavior), then feed them through the generic emitter like the other groups.\n- The bash-home step is depot-free and emitter-independent; only the projection step needs the emitter pace.\n- Migrate the manifest consumers onto the generated consts; keep the runtime drift check alive until the diff-gate lands.\n\n## Sources\n\n- `Tools/rbk/rbz_zipper.sh` — operation verbs (implicit in tabtarget defs)\n- `Tools/rbk/rbob_*.sh` — container roles (implicit)\n- `Tools/rbk/rbtd/src/rbtdrm_manifest.rs` — operation/container hand-mirror\n\n## What done looks like\n\n- Operation verbs and container roles each have one canonical bash home; their consts are generated from it; the manifest hand-mirror is retired for these groups; Rust builds and the fast suite is green.",
+              "jjgtn_silks": "scattered-const-canonicalize",
+              "jjgtn_basis": "d09583e"
             }
           ]
         }
