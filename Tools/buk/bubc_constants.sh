@@ -35,15 +35,15 @@ BUBC_launchers_subdir="rbml_launchers"
 BUBC_rbmn_nodes_subdir="rbmn_nodes"
 BUBC_rbmu_users_subdir="rbmu_users"
 
-# Platform identifiers (bubep_* — bub/bube/bubep_* tree).
+# Platform identifiers (bunne_* — BURN node-regime enum sprue family).
 # These values are the canonical OS-family identifiers used in BURN_PLATFORM
 # enrollment and in per-tabtarget platform invariant assertions.
 # BUBC_platforms_<family> tinder constants provide single source of truth so
 # code refers to the identifier by family name rather than hardcoding the
 # literal token at every comparison site.
-BUBC_platforms_linux="bubep_linux"
-BUBC_platforms_mac="bubep_mac"
-BUBC_platforms_windows="bubep_windows"
+BUBC_platforms_linux="bunne_linux"
+BUBC_platforms_mac="bunne_mac"
+BUBC_platforms_windows="bunne_windows"
 
 # Windows OpenSSH layout — forward slashes throughout so identical strings
 # work in PowerShell, terminal display, and icacls invocations.

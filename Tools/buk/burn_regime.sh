@@ -41,7 +41,7 @@ zburn_kindle() {
 
   buv_group_enroll "Node Identity"
   buv_string_enroll  BURN_HOST      1  253  "IP address or hostname of the remote node"
-  buv_enum_enroll    BURN_PLATFORM  "OS family of the node (bubep_* identifier)"  bubep_linux bubep_mac bubep_windows
+  buv_enum_enroll    BURN_PLATFORM  "OS family of the node (bunne_* identifier)"  bunne_linux bunne_mac bunne_windows
 
   # Guard against unexpected BURN_ variables not in enrollment
   buv_scope_sentinel BURN BURN_

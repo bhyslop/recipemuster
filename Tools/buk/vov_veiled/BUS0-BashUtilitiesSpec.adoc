@@ -1039,11 +1039,6 @@ BURN node regime (`bunne_`):
 
 * `BURN_PLATFORM` — linux/mac/windows → `bunne_linux` / `bunne_mac` / `bunne_windows`
 
-NOTE: `BURN_PLATFORM` is presently spelled `bubep_linux` / `bubep_mac` /
-`bubep_windows` — an earlier, differently-shaped exemplar of the same idea.
-The convention harmonizes it to `bunne_*` rather than grandfathering the
-second shape.
-
 ==== Use-Site Classification
 
 A bare-word grep on a value yields four classes; only two of them migrate.
@@ -1237,7 +1232,7 @@ Used by handbook diagnostics; the
 implementation in
 {bujb_jurisdiction}
 selects shell mappings by garrison shell-letter rather than by node platform.
-Values: `bubep_linux`, `bubep_mac`, `bubep_windows`.
+Values: `bunne_linux`, `bunne_mac`, `bunne_windows`.
 
 === BURN/BURP Identifier Vocabulary
 
