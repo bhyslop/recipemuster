@@ -60,10 +60,14 @@ pub(crate) const RBTDRK_CANONICAL_RUNTIME_BASE: &str = "canr";
 /// run. Depots persist post-success for operator inspection; reruns pick the
 /// next free suffix by walking depot_list output. Per-station tincture is
 /// composed in at runtime so each station's monikers fact-file-walk against
-/// a disjoint family stem. Era-bumped past the prior `canest` family to
+/// a disjoint family stem. Era-bumped past `canest` and `canest2` to
 /// side-step pending-delete projectId reservations from burned-bridges
-/// teardown.
-pub(crate) const RBTDRK_FAMILY_STEM_BASE: &str = "canest2";
+/// teardown. The `canest2` bump was forced when the prior gmail-identity
+/// payor's deleted `canest2bhm100000` depot held the global projectId in
+/// DELETE_REQUESTED: project IDs are globally unique and reserved ~30 days
+/// post-delete, and the active-only, single-identity allocator re-derives a
+/// reserved ID it can neither see nor own.
+pub(crate) const RBTDRK_FAMILY_STEM_BASE: &str = "canest3";
 
 /// Static identities for the canonical SA cycle. Stable across runs because
 /// each run uses a fresh canest depot project.
