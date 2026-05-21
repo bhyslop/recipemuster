@@ -128,7 +128,6 @@ zrbz_kindle() {
   # Ifrit — attack binary (rbw-I)
   buz_group RBZ__GROUP_IFRIT      "rbw-I"   "Ifrit — Attack binary"
   z_mod="rbob_cli.sh"
-  buz_enroll RBZ_BOTTLE_IFRIT   "rbw-Ic"  "${z_mod}" "rbob_ifrit_client"  "imprint"  "Launch Claude Code inside a running bottle for escape testing"
   buz_enroll RBZ_BOTTLE_SORTIE  "rbw-Is"  "${z_mod}" "rbob_ifrit_sortie"  "imprint"  "Run automated security test scripts inside the bottle"
 
   # Image — container image operations (rbw-i, UPPER=mutates, lower=read)

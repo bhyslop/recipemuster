@@ -117,7 +117,7 @@ iptables -A RBM-EGRESS  -o ${RBJ_ENCLAVE_IF} -p icmp -j ACCEPT || exit 20
 echo "RBJp2: Enabling IP forwarding (required whenever sentry forwards on behalf of the enclave)"
 echo 1 > /proc/sys/net/ipv4/ip_forward || exit 25
 
-if test "${RBRN_ENTRY_MODE}" = "enabled"; then
+if test "${RBRN_ENTRY_MODE}" = "rbnne_enabled"; then
   echo "RBJp2c: Relaxing rp_filter to loose mode (required for interface-agnostic ingress)"
   # rp_filter=1 (strict) requires the packet's source-IP reverse-path to match the
   # ingress interface. Inbound published-port traffic from the framework gateway
@@ -175,7 +175,7 @@ iptables -A RBM-FORWARD         -p icmp -j DROP || exit 28
 iptables -A RBM-EGRESS  -o ${RBJ_UPLINK_IF} -p icmp -j DROP || exit 28
 
 echo "RBJp3: Phase 3: Access Setup"
-if test "${RBRN_UPLINK_ACCESS_MODE}" = "disabled"; then
+if test "${RBRN_UPLINK_ACCESS_MODE}" = "rbnne_disabled"; then
   echo "RBJp3: Blocking all non-port traffic"
   iptables -A RBM-EGRESS  -o ${RBJ_UPLINK_IF} -j DROP || exit 30
   iptables -A RBM-FORWARD -i ${RBJ_ENCLAVE_IF} -j DROP || exit 30
@@ -189,7 +189,7 @@ else
                                        ! -d "${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" \
                                        -j MASQUERADE || exit 31
 
-  if test "${RBRN_UPLINK_ACCESS_MODE}" = "global"; then
+  if test "${RBRN_UPLINK_ACCESS_MODE}" = "rbnne_global"; then
     echo "RBJp3: Enabling global access"
     iptables -A RBM-EGRESS  -o ${RBJ_UPLINK_IF} -j ACCEPT || exit 31
     iptables -A RBM-FORWARD -i ${RBJ_ENCLAVE_IF} -j ACCEPT || exit 31
@@ -215,7 +215,7 @@ echo "RBJp4: Configuring DNS services"
 echo "RBJp4: Configuring sentry DNS resolution"
 echo "nameserver ${RBRR_DNS_SERVER}" > /etc/resolv.conf   || exit 40
 
-if test "${RBRN_UPLINK_DNS_MODE}" = "disabled"; then
+if test "${RBRN_UPLINK_DNS_MODE}" = "rbnne_disabled"; then
   echo "RBJp4: Blocking all DNS traffic"
   iptables -A RBM-FORWARD -i ${RBJ_ENCLAVE_IF} -p udp --dport 53 -j DROP || exit 40
   iptables -A RBM-FORWARD -i ${RBJ_ENCLAVE_IF} -p tcp --dport 53 -j DROP || exit 40
@@ -248,7 +248,7 @@ else
   echo "log-dhcp"                                               >> /etc/dnsmasq.conf || exit 41
   echo "log-debug"                                              >> /etc/dnsmasq.conf || exit 41
   echo "log-async=20"                                           >> /etc/dnsmasq.conf || exit 41
-  if test "${RBRN_UPLINK_DNS_MODE}" = "global"; then
+  if test "${RBRN_UPLINK_DNS_MODE}" = "rbnne_global"; then
     echo "RBJp4: Enabling global DNS resolution"
     echo "server=${RBRR_DNS_SERVER}"                          >> /etc/dnsmasq.conf || exit 41
   else

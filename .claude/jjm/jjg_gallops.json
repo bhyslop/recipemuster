@@ -2,12 +2,12 @@
   "jjgrn_schema_version": 4,
   "jjgrn_next_heat_seed": "BQ",
   "jjgrn_heat_order": [
+    "₣BP",
     "₣BM",
     "₣BJ",
     "₣BF",
     "₣BD",
     "₣BB",
-    "₣BP",
     "₣BN",
     "₣A-",
     "₣BG",
@@ -9617,12 +9617,12 @@
       }
     },
     "₣BM": {
-      "jjghn_silks": "rbk-15-mvp-regime-sprues",
+      "jjghn_silks": "rbk-12-mvp-regime-sprues",
       "jjghn_creation_time": "260514",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
-        "₢BMAAA",
         "₢BMAAB",
+        "₢BMAAA",
         "₢BMAAC",
         "₢BMAAD",
         "₢BMAAE",
@@ -9632,6 +9632,20 @@
       "jjghn_paces": {
         "₢BMAAA": {
           "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260520-1847",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\n\nCodification. The synthesis already lives in the paddock; this pace gives it\na permanent home a future minter will find. Light judgment on *where* the\nsection lives.\n\n## Goal\n\nThe sprue convention exists as a written spec section: grounded in\n`mcm_sprue` + `mcm_inlay`, with the full target table, the four-class\nuse-site model (incl. class-4 \"coupled derived string stays bare\", two\nwitnesses), and the `RBRN_RUNTIME` exclusion rationale.\n\n## Boundary\n\nDocumentation only — no value migration.\n\n## Recipe\n\n- Cite `mcm_sprue` (the values are wire-level literal tokens) and\n  `mcm_inlay` (prefix discipline makes each sprue prefix-recognized). Do\n  not invent rationale the MCM quoins already carry.\n- Pick the host doc at mount: a regime spec (RBRN/RBRV) section, or a\n  convention section near the BUS0/RBS0 vocabulary. Decide by where a future\n  minter would look first.\n- Lift the convention + four-class model + exclusion rationale from the\n  paddock; do not re-derive.\n\n## Acceptance\n\n- Spec renders cleanly; convention + class-4 rule + RBRN_RUNTIME exclusion\n  are discoverable without reading this heat's history, and grounded in the\n  existing MCM vocabulary.",
+              "jjgtn_silks": "sprue-convention-spec-authoring",
+              "jjgtn_basis": "e97f6ad"
+            },
+            {
+              "jjgtn_ts": "260520-1317",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nCodification. The synthesis already lives in the paddock; this pace gives it\na permanent home a future minter will find. Light judgment on *where* the\nsection lives.\n\n## Goal\n\nThe sprue convention exists as a written spec section: grounded in\n`mcm_sprue` + `mcm_inlay`, with the full target table, the four-class\nuse-site model (incl. class-4 \"coupled derived string stays bare\", two\nwitnesses), and the `RBRN_RUNTIME` exclusion rationale.\n\n## Boundary\n\nDocumentation only — no value migration.\n\n## Recipe\n\n- Cite `mcm_sprue` (the values are wire-level literal tokens) and\n  `mcm_inlay` (prefix discipline makes each sprue prefix-recognized). Do\n  not invent rationale the MCM quoins already carry.\n- Pick the host doc at mount: a regime spec (RBRN/RBRV) section, or a\n  convention section near the BUS0/RBS0 vocabulary. Decide by where a future\n  minter would look first.\n- Lift the convention + four-class model + exclusion rationale from the\n  paddock; do not re-derive.\n\n## Acceptance\n\n- Spec renders cleanly; convention + class-4 rule + RBRN_RUNTIME exclusion\n  are discoverable without reading this heat's history, and grounded in the\n  existing MCM vocabulary.",
+              "jjgtn_silks": "sprue-convention-spec-authoring",
+              "jjgtn_basis": "34811eb"
+            },
             {
               "jjgtn_ts": "260520-1259",
               "jjgtn_state": "jjgte_rough",
@@ -9644,6 +9658,20 @@
         "₢BMAAB": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260520-1731",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\n\nMechanical with the class-4 distinction as the one judgment edge. Smallest,\ncleanest enum (~10 sites each, no Python, no Cloud Build boundary) — this is\nthe pilot that proves the pattern before the heavy paces.\n\n## Goal\n\n`RBRV_EGRESS_MODE` values `tether`/`airgap` → `rbnve_tether`/`rbnve_airgap`\nat every site where the bare word *is* the enum value. Declaration gate\nupdated so bare values are rejected.\n\n## Boundary\n\nCode, regime files, and AsciiDoc prose — all in-pace (the tree is settled).\nClass-4 derived strings stay bare (pool suffixes `-tether`/`-airgap`,\n`RBGC_POOL_SUFFIX_*`, vessel sigils `rbev-*-tether`) — migrate only the\ndispatch that selects them. Most egress adoc hits are class-1 handbook\nprose (\"the airgap build\") — leave those.\n\n## Recipe\n\n- `grep -rn '\\b(tether|airgap)\\b' Tools/ tt/`; classify each hit (paddock's\n  four classes); migrate class-2, leave 1/3/4.\n- Flip the `buv_enum_enroll RBRV_EGRESS_MODE` declaration to the new values.\n- Update `rbrv.env` regime files in place (now under\n  `rbmm_moorings/rbmv_vessels/*/`).\n- If a Rust fixture baseline carries the value, rebuild (`tt/vow-b`).\n\n## Acceptance\n\n- `tt/rbtd-s.TestSuite.fast.sh` green (regime-validation gate now enforces\n  `rbnve_*`).\n- `grep -rn rbnve_ Tools/` shows the egress cluster; pool-suffix strings\n  still bare.",
+              "jjgtn_silks": "egress-mode-sprue-pilot",
+              "jjgtn_basis": "1759af5"
+            },
+            {
+              "jjgtn_ts": "260520-1317",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nMechanical with the class-4 distinction as the one judgment edge. Smallest,\ncleanest enum (~10 sites each, no Python, no Cloud Build boundary) — this is\nthe pilot that proves the pattern before the heavy paces.\n\n## Goal\n\n`RBRV_EGRESS_MODE` values `tether`/`airgap` → `rbnve_tether`/`rbnve_airgap`\nat every site where the bare word *is* the enum value. Declaration gate\nupdated so bare values are rejected.\n\n## Boundary\n\nCode, regime files, and AsciiDoc prose — all in-pace (the tree is settled).\nClass-4 derived strings stay bare (pool suffixes `-tether`/`-airgap`,\n`RBGC_POOL_SUFFIX_*`, vessel sigils `rbev-*-tether`) — migrate only the\ndispatch that selects them. Most egress adoc hits are class-1 handbook\nprose (\"the airgap build\") — leave those.\n\n## Recipe\n\n- `grep -rn '\\b(tether|airgap)\\b' Tools/ tt/`; classify each hit (paddock's\n  four classes); migrate class-2, leave 1/3/4.\n- Flip the `buv_enum_enroll RBRV_EGRESS_MODE` declaration to the new values.\n- Update `rbrv.env` regime files in place (now under\n  `rbmm_moorings/rbmv_vessels/*/`).\n- If a Rust fixture baseline carries the value, rebuild (`tt/vow-b`).\n\n## Acceptance\n\n- `tt/rbtd-s.TestSuite.fast.sh` green (regime-validation gate now enforces\n  `rbnve_*`).\n- `grep -rn rbnve_ Tools/` shows the egress cluster; pool-suffix strings\n  still bare.",
+              "jjgtn_silks": "egress-mode-sprue-pilot",
+              "jjgtn_basis": "34811eb"
+            },
+            {
               "jjgtn_ts": "260520-1300",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\n\nMechanical with the class-4 distinction as the one judgment edge. Smallest,\ncleanest enum (~10 sites each, no Python, no Cloud Build boundary) — this is\nthe pilot that proves the pattern before the heavy paces.\n\n## Goal\n\n`RBRV_EGRESS_MODE` values `tether`/`airgap` → `rbnve_tether`/`rbnve_airgap`\nat every site where the bare word *is* the enum value. Declaration gate\nupdated so bare values are rejected.\n\n## Boundary\n\nCode + regime files now. Class-4 derived strings stay bare (pool suffixes\n`-tether`/`-airgap`, `RBGC_POOL_SUFFIX_*`, vessel sigils `rbev-*-tether`) —\nmigrate only the dispatch that selects them. AsciiDoc *prose* touches defer\nuntil the parallel RBS*.adoc repairs settle.\n\n## Recipe\n\n- `grep -rn '\\b(tether|airgap)\\b' Tools/ tt/`; classify each hit (paddock's\n  four classes); migrate class-2, leave 1/3/4.\n- Flip the `buv_enum_enroll RBRV_EGRESS_MODE` declaration to the new values.\n- Update any `rbrv.env` regime files in place.\n- If a Rust fixture baseline carries the value, rebuild (`tt/vow-b`).\n\n## Acceptance\n\n- `tt/rbtd-s.TestSuite.fast.sh` green (regime-validation gate now enforces\n  `rbnve_*`).\n- `grep -rn rbnve_ Tools/` shows the egress cluster; pool-suffix strings\n  still bare.",
@@ -9654,6 +9682,20 @@
         },
         "₢BMAAC": {
           "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260520-1908",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\n\nHeaviest pace. Crosses bash, AsciiDoc, Python (Cloud Build steps), and Rust\nfixtures; `conjure` is the noisiest value in the heat (heavy phase-prose),\n`bind` carries English-word noise. The proof bar is non-obvious — see\nAcceptance.\n\n## Goal\n\n`RBRV_VESSEL_MODE` values `bind`/`conjure`/`graft` → `rbnve_bind`/\n`rbnve_conjure`/`rbnve_graft` across all four ecosystems, including the\nCloud Build substitution boundary. Declaration + gates updated.\n\n## Boundary\n\nClass-4 hallmark-prefix constants (`RBGC_HALLMARK_PREFIX_*` = `c`/`b`/`g`)\nstay bare; migrate only their selecting dispatch. AsciiDoc wire-value tables\n(e.g. RBSAV/RBSAB `(conjure, bind, or graft)`) are class-2 — migrate\nin-pace (the tree is settled).\n\n## Recipe\n\n- `grep -rn '\\b(conjure|bind|graft)\\b' Tools/ tt/`; also `grep ':-conjure'`\n  / `:-bind` / `:-graft` for default-value defaults a `==` grep misses.\n- Trace the substitution boundary: `_RBG[AV]_VESSEL_MODE` through `rbfd_*`/\n  `rbfv_*` step assembly into the `rbgja*`/`rbgjv*` Python+shell steps —\n  hardcoded literals AND `$zjq_vessel_mode` source must move together.\n- Migrate the Rust fast-fixture `export RBRV_VESSEL_MODE=\"...\"` baselines;\n  rebuild (`tt/vow-b`). Leave onboarding-scenario step labels (class-3).\n- Flip the `buv_enum_enroll` declaration + gated `buv_gate_enroll` arms.\n\n## Acceptance\n\n- `regime-validation` + `dockerfile-hygiene` + `gauntlet` green — but NOT\n  sufficient alone: the Cloud Build step-shell/Python comparisons run\n  remotely. Prove with a real **conjure + graft cloud build** (full ordain).\n- `grep -rn rbnve_` shows the complete vessel cluster.",
+              "jjgtn_silks": "vessel-mode-sprue-migration",
+              "jjgtn_basis": "5422e9a"
+            },
+            {
+              "jjgtn_ts": "260520-1317",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nHeaviest pace. Crosses bash, AsciiDoc, Python (Cloud Build steps), and Rust\nfixtures; `conjure` is the noisiest value in the heat (heavy phase-prose),\n`bind` carries English-word noise. The proof bar is non-obvious — see\nAcceptance.\n\n## Goal\n\n`RBRV_VESSEL_MODE` values `bind`/`conjure`/`graft` → `rbnve_bind`/\n`rbnve_conjure`/`rbnve_graft` across all four ecosystems, including the\nCloud Build substitution boundary. Declaration + gates updated.\n\n## Boundary\n\nClass-4 hallmark-prefix constants (`RBGC_HALLMARK_PREFIX_*` = `c`/`b`/`g`)\nstay bare; migrate only their selecting dispatch. AsciiDoc wire-value tables\n(e.g. RBSAV/RBSAB `(conjure, bind, or graft)`) are class-2 — migrate\nin-pace (the tree is settled).\n\n## Recipe\n\n- `grep -rn '\\b(conjure|bind|graft)\\b' Tools/ tt/`; also `grep ':-conjure'`\n  / `:-bind` / `:-graft` for default-value defaults a `==` grep misses.\n- Trace the substitution boundary: `_RBG[AV]_VESSEL_MODE` through `rbfd_*`/\n  `rbfv_*` step assembly into the `rbgja*`/`rbgjv*` Python+shell steps —\n  hardcoded literals AND `$zjq_vessel_mode` source must move together.\n- Migrate the Rust fast-fixture `export RBRV_VESSEL_MODE=\"...\"` baselines;\n  rebuild (`tt/vow-b`). Leave onboarding-scenario step labels (class-3).\n- Flip the `buv_enum_enroll` declaration + gated `buv_gate_enroll` arms.\n\n## Acceptance\n\n- `regime-validation` + `dockerfile-hygiene` + `gauntlet` green — but NOT\n  sufficient alone: the Cloud Build step-shell/Python comparisons run\n  remotely. Prove with a real **conjure + graft cloud build** (full ordain).\n- `grep -rn rbnve_` shows the complete vessel cluster.",
+              "jjgtn_silks": "vessel-mode-sprue-migration",
+              "jjgtn_basis": "34811eb"
+            },
             {
               "jjgtn_ts": "260520-1300",
               "jjgtn_state": "jjgte_rough",
@@ -9666,6 +9708,13 @@
         "₢BMAAD": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260520-1926",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\n\nHigh English-word noise (`disabled`/`enabled`/`global`/`allowlist`), so the\nclassification grind is the work. Mechanical edits, heavy judgment per hit.\n\n## Goal\n\n`RBRN_ENTRY_MODE`, `RBRN_UPLINK_DNS_MODE`, `RBRN_UPLINK_ACCESS_MODE` values\n→ shared `rbnne_*` family (`rbnne_disabled`/`_enabled`/`_global`/\n`_allowlist`). Declarations + gates updated.\n\n## Boundary\n\n`RBRN_RUNTIME` (`docker`/`podman`) stays bare — excluded by paddock decision\n(executable-name coupling). The three node-modes share `rbnne_disabled`\ndeliberately; that is intended family-sharing, not a collision.\n\n## Recipe\n\n- `grep -rn '\\b(disabled|enabled|global|allowlist)\\b' Tools/ tt/` per value;\n  expect heavy class-1 noise — these words appear constantly in prose. Migrate\n  only case arms / equality tests against the three RBRN_* variables.\n- Flip the three `buv_enum_enroll` declarations + their `buv_gate_enroll`\n  arms (e.g. gate `RBRN_ENTRY_MODE rbnne_enabled`).\n- Update `rbrn.env` regime files in place.\n\n## Acceptance\n\n- `tt/rbtd-s.TestSuite.fast.sh` green (regime-validation enforces values).\n- `crucible` suite green — DNS/access modes drive sentry network setup, so a\n  charged crucible is the behavioral proof.\n- `grep -rn rbnne_` shows the node cluster; `RBRN_RUNTIME` still bare.",
+              "jjgtn_silks": "node-mode-sprue-migration",
+              "jjgtn_basis": "af2073d"
+            },
+            {
               "jjgtn_ts": "260520-1300",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\n\nHigh English-word noise (`disabled`/`enabled`/`global`/`allowlist`), so the\nclassification grind is the work. Mechanical edits, heavy judgment per hit.\n\n## Goal\n\n`RBRN_ENTRY_MODE`, `RBRN_UPLINK_DNS_MODE`, `RBRN_UPLINK_ACCESS_MODE` values\n→ shared `rbnne_*` family (`rbnne_disabled`/`_enabled`/`_global`/\n`_allowlist`). Declarations + gates updated.\n\n## Boundary\n\n`RBRN_RUNTIME` (`docker`/`podman`) stays bare — excluded by paddock decision\n(executable-name coupling). The three node-modes share `rbnne_disabled`\ndeliberately; that is intended family-sharing, not a collision.\n\n## Recipe\n\n- `grep -rn '\\b(disabled|enabled|global|allowlist)\\b' Tools/ tt/` per value;\n  expect heavy class-1 noise — these words appear constantly in prose. Migrate\n  only case arms / equality tests against the three RBRN_* variables.\n- Flip the three `buv_enum_enroll` declarations + their `buv_gate_enroll`\n  arms (e.g. gate `RBRN_ENTRY_MODE rbnne_enabled`).\n- Update `rbrn.env` regime files in place.\n\n## Acceptance\n\n- `tt/rbtd-s.TestSuite.fast.sh` green (regime-validation enforces values).\n- `crucible` suite green — DNS/access modes drive sentry network setup, so a\n  charged crucible is the behavioral proof.\n- `grep -rn rbnne_` shows the node cluster; `RBRN_RUNTIME` still bare.",
@@ -9676,6 +9725,13 @@
         },
         "₢BMAAE": {
           "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260520-1317",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nMechanical. Touches BUK files — ₣BK's other subtree. ₣BK's BUK code has\nlanded, so no hard coordination remains; just watch for late bugfix churn.\n\n## Goal\n\n`BURN_PLATFORM` values `bubep_linux`/`bubep_mac`/`bubep_windows` →\n`bunne_linux`/`bunne_mac`/`bunne_windows`. The two-shape wart (5-char\n`bubep_` vs 4-char convention) eliminated.\n\n## Boundary\n\nBUK subtree (`Tools/buk/`) + `BUS0` spec.\n\n## Recipe\n\n- `grep -rn 'bubep_' Tools/ tt/` — ~41 sites / 7 files; replace all.\n- Flip the `buv_enum_enroll BURN_PLATFORM` declaration and its description\n  string (`\"(bubep_* identifier)\"` → `bunne_*`).\n- Update the BUS0 spec mention.\n\n## Acceptance\n\n- `grep -rn bubep_` returns nothing; `grep -rn bunne_` shows the cluster.\n- `tt/buw-st.BukSelfTest.sh` + `tt/rbtd-s.TestSuite.fast.sh` green.",
+              "jjgtn_silks": "bubep-to-bunne-harmonize",
+              "jjgtn_basis": "34811eb"
+            },
             {
               "jjgtn_ts": "260520-1300",
               "jjgtn_state": "jjgte_rough",
@@ -9709,15 +9765,26 @@
     "₣BP": {
       "jjghn_silks": "rbk-13-mvp-redundancy-cleanup",
       "jjghn_creation_time": "260520",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BPAAA",
-        "₢BPAAB"
+        "₢BPAAB",
+        "₢BPAAC",
+        "₢BPAAD",
+        "₢BPAAE",
+        "₢BPAAF"
       ],
-      "jjghn_next_pace_seed": "AAC",
+      "jjghn_next_pace_seed": "AAG",
       "jjghn_paces": {
         "₢BPAAA": {
           "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260520-1731",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nCross-cutting removal: spec reframe requiring judgment, then mechanical code/registry deletion + regen.\n\nRetire Claude Code from the ifrit entirely. The ifrit becomes a purely scripted\nadversary (the `rbid` binary + the sortie adjutant); the live-agent role belongs\nto `rbev-bottle-ccyolo`, which hosts `@anthropic-ai/claude-code` and is reached\nvia the SSH model (`rbw-cS`). The ifrit Dockerfiles already install no node/npm/\nclaude — this pace makes the spec and the launcher machinery match that reality.\n\nTwo parts:\n\n- **Spec reframe (judgment).** `Tools/rbk/vov_veiled/RBSIP-ifrit_pentester.adoc`.\n  The SYSTEM CONCEPT currently defines an Ifrit *as* an adversarial AI agent with\n  Anthropic-API connectivity. Reframe to scripted-adversary; drop the Claude Code\n  runtime package rows and the \"API connectivity for Claude Code\" framing. While\n  there, reconcile the package-list drift: scapy and git are listed in the spec\n  but absent from the actual Dockerfiles — decide at mount whether they return to\n  the Dockerfiles or leave the spec (the sortie adjutant does run python3).\n\n- **Rip `rbw-Ic` IfritClient (mechanical).** It's dead (`exec ... claude` with no\n  claude installed) and redundant with `rbw-cS`. Remove the launcher, its zipper\n  enrollment, the per-nameplate tabtargets, and the generated context-doc row.\n  Discovery: `grep -rin \"ifrit_client\\|IfritClient\\|rbw-Ic\" Tools/rbk/ tt/`.\n  Regenerate the tabtarget context via the marshal-generate path after removal.\n\n## Done looks like\nifrit is scripted-adversary only; ccyolo owns the live-agent role; `rbw-Ic` and\nits enrollment/tabtargets/doc-row are gone; the regenerated context reflects it.",
+              "jjgtn_silks": "ifrit-retire-claude-code",
+              "jjgtn_basis": "c9edfbd"
+            },
             {
               "jjgtn_ts": "260520-1018",
               "jjgtn_state": "jjgte_rough",
@@ -9730,11 +9797,90 @@
         "₢BPAAB": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260520-1738",
+              "jjgtn_state": "jjgte_abandoned",
+              "jjgtn_text": "## Character\n\nDesign-locked from an extended design session; multi-step — decompose into sub-paces at groom. Mechanical once the locked decisions are held. Gated: do not start until ₣BK closes.\n\n## Goal\n\nReplace the hand-maintained bash↔Rust constant mirrors with build-time generation from the canonical bash source, so cross-language drift becomes structurally impossible for everything projected. (Today the colophons are a hand-copied Rust mirror guarded only by a runtime assertion — `rbtdrm_verify` against the zipper's manifest string — which detects drift but does not prevent it.)\n\n## Precondition\n\n₣BK closed: RBCC stable, moorings layout settled, RBBC aliases retired. Building the projector against an in-flight RBCC is the one thing the design explicitly forbids.\n\n## Locked shape\n\n- **Two manifests, two projectors.** rbz (registry/colophons) → a generic BUK emitter over the zipper rolls; RBCC (flat tinder: moorings dir, `.env` filenames, roles) → an RBK projector. BUK provides mechanism and stays RBK-ignorant; RBK owns domain content. Dependency points RBK→BUK only. The proven precedent is `buz_emit_context`, which already generates the markdown command reference from the same kindled rolls — the Rust emitter is a sibling target, not new machinery.\n- **Naming: carry the enroll varname verbatim.** The rbz enroll varname is the cross-language symbol; the generated Rust const takes that exact name, so BUK names nothing. Retires the curated `RBTDRM_COLOPHON_*` names (a rename across their reference sites).\n- **Scope gate: single canonical bash author, or out.** Colophons and RBCC tinder qualify. Fixtures / operations / container-roles are out — no single bash author (held across `rbte_engine.sh` arrays, disk imprints, and Rust).\n- **Engine change (BUK):** `buz_enroll` must retain the enroll varname in a roll; today it is `printf -v`'d into the caller and discarded, so the registry has no stable symbol for the emitter to name consts after.\n- **Wiring:** generated file checked in; regenerated at the BUK-available layer before every Rust build; a build inside a minimal container consumes the committed artifact (never regenerates); a `git diff --exit-code` qualify gate makes a stale commit fail loud. This supersedes `rbtdrm_verify`'s drift role with exact equality.\n\n## What done looks like\n\n- The rbtd colophon consts and the RBCC-derived consts are generated, not hand-written; `rbtdrm_verify` is retired; inline colophon literals (e.g. in the fast suite) reference the generated consts; the diff-gate is wired into qualify.\n\n## Sources\n\n- `Tools/buk/buz_zipper.sh` — `buz_emit_context` is the bash→artifact template; engine that needs the varname roll\n- `Tools/rbk/rbz_zipper.sh` — colophon registry (one source)\n- `Tools/rbk/rbcc_Constants.sh` — RBCC flat tinder (the other source; already self-described as projection inventory)\n- `Tools/rbk/rbtd/src/rbtdrm_manifest.rs` — current hand-mirror + `rbtdrm_verify` (the target to replace)\n- `Tools/rbk/rbtd/src/lib.rs` — `rbtd_moorings_dir!` macro (already-landed single-source precedent)",
+              "jjgtn_silks": "cross-language-constant-codegen",
+              "jjgtn_basis": "b8e6c33"
+            },
+            {
               "jjgtn_ts": "260520-1019",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\n\nDesign-locked from an extended design session; multi-step — decompose into sub-paces at groom. Mechanical once the locked decisions are held. Gated: do not start until ₣BK closes.\n\n## Goal\n\nReplace the hand-maintained bash↔Rust constant mirrors with build-time generation from the canonical bash source, so cross-language drift becomes structurally impossible for everything projected. (Today the colophons are a hand-copied Rust mirror guarded only by a runtime assertion — `rbtdrm_verify` against the zipper's manifest string — which detects drift but does not prevent it.)\n\n## Precondition\n\n₣BK closed: RBCC stable, moorings layout settled, RBBC aliases retired. Building the projector against an in-flight RBCC is the one thing the design explicitly forbids.\n\n## Locked shape\n\n- **Two manifests, two projectors.** rbz (registry/colophons) → a generic BUK emitter over the zipper rolls; RBCC (flat tinder: moorings dir, `.env` filenames, roles) → an RBK projector. BUK provides mechanism and stays RBK-ignorant; RBK owns domain content. Dependency points RBK→BUK only. The proven precedent is `buz_emit_context`, which already generates the markdown command reference from the same kindled rolls — the Rust emitter is a sibling target, not new machinery.\n- **Naming: carry the enroll varname verbatim.** The rbz enroll varname is the cross-language symbol; the generated Rust const takes that exact name, so BUK names nothing. Retires the curated `RBTDRM_COLOPHON_*` names (a rename across their reference sites).\n- **Scope gate: single canonical bash author, or out.** Colophons and RBCC tinder qualify. Fixtures / operations / container-roles are out — no single bash author (held across `rbte_engine.sh` arrays, disk imprints, and Rust).\n- **Engine change (BUK):** `buz_enroll` must retain the enroll varname in a roll; today it is `printf -v`'d into the caller and discarded, so the registry has no stable symbol for the emitter to name consts after.\n- **Wiring:** generated file checked in; regenerated at the BUK-available layer before every Rust build; a build inside a minimal container consumes the committed artifact (never regenerates); a `git diff --exit-code` qualify gate makes a stale commit fail loud. This supersedes `rbtdrm_verify`'s drift role with exact equality.\n\n## What done looks like\n\n- The rbtd colophon consts and the RBCC-derived consts are generated, not hand-written; `rbtdrm_verify` is retired; inline colophon literals (e.g. in the fast suite) reference the generated consts; the diff-gate is wired into qualify.\n\n## Sources\n\n- `Tools/buk/buz_zipper.sh` — `buz_emit_context` is the bash→artifact template; engine that needs the varname roll\n- `Tools/rbk/rbz_zipper.sh` — colophon registry (one source)\n- `Tools/rbk/rbcc_Constants.sh` — RBCC flat tinder (the other source; already self-described as projection inventory)\n- `Tools/rbk/rbtd/src/rbtdrm_manifest.rs` — current hand-mirror + `rbtdrm_verify` (the target to replace)\n- `Tools/rbk/rbtd/src/lib.rs` — `rbtd_moorings_dir!` macro (already-landed single-source precedent)",
               "jjgtn_silks": "cross-language-constant-codegen",
               "jjgtn_basis": "33c2bce"
+            }
+          ]
+        },
+        "₢BPAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260520-1743",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nNovel BUK mechanism — design judgment lives in the emitter shape; the engine change is additive and low-risk. RBK-ignorant: BUK provides mechanism only, names nothing of its own.\n\n## Goal\n\nGive the zipper registry a stable cross-language symbol per enrolled colophon, and a generic emitter that projects those symbols to Rust consts — mirroring the existing bash-to-artifact pattern of `buz_emit_context`.\n\n## Shape\n\n- `buz_enroll` must retain the enroll varname in a new roll. Today it `printf -v`'s the colophon into the caller and discards the varname, so the registry has no stable symbol for an emitter to name consts after. Additive: `printf -v` stays, existing callers untouched.\n- Add a generic Rust-const emitter (sibling target to `buz_emit_context`) over the kindled rolls. The generated const name is the enroll varname verbatim.\n- Open design question to settle here: does this emitter stay zipper-roll-only (the RBCC projector in the next paces being separate machinery), or is it shaped to accept arbitrary name/value pairs so the RBK RBCC projector can reuse it? The original locked shape says \"BUK provides mechanism, RBK owns domain content\" but also frames them as two distinct projectors — resolve before building.\n\n## Sources\n\n- `Tools/buk/buz_zipper.sh` — `buz_enroll` (varname discard site) and `buz_emit_context` (the bash-to-artifact template)\n\n## What done looks like\n\n- A roll carries enroll varnames; a BUK emitter turns the rolls into `pub const NAME: &str = \"...\";` lines.\n- Acceptance is the emitter's own output: run it against the rbz rolls and confirm the emitted consts match the expected colophons. The BUK self-test is a no-regression check, not emitter verification.",
+              "jjgtn_silks": "buz-rust-const-emitter",
+              "jjgtn_basis": "da00eb5"
+            },
+            {
+              "jjgtn_ts": "260520-1737",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nNovel BUK mechanism — design judgment lives in the emitter shape; the engine change is additive and low-risk. RBK-ignorant: BUK provides mechanism only, names nothing of its own.\n\n## Goal\n\nGive the zipper registry a stable cross-language symbol per enrolled colophon, and a generic emitter that projects those symbols to Rust consts — mirroring the existing bash-to-artifact pattern of `buz_emit_context`.\n\n## Shape\n\n- `buz_enroll` must retain the enroll varname in a new roll. Today it `printf -v`'s the colophon into the caller and discards the varname, so the registry has no stable symbol for an emitter to name consts after. Additive: `printf -v` stays, existing callers untouched.\n- Add a generic Rust-const emitter (sibling target to `buz_emit_context`) over the kindled rolls. The generated const name is the enroll varname verbatim.\n- Generic and domain-agnostic — emits whatever rolls it is handed. Dependency points RBK to BUK only.\n\n## Sources\n\n- `Tools/buk/buz_zipper.sh` — `buz_enroll` (varname discard site) and `buz_emit_context` (the bash-to-artifact template)\n\n## What done looks like\n\n- A roll carries enroll varnames; a BUK emitter turns the rolls into `pub const NAME: &str = \"...\";` lines; the BUK self-test stays green.",
+              "jjgtn_silks": "buz-rust-const-emitter",
+              "jjgtn_basis": "aacac44"
+            }
+          ]
+        },
+        "₢BPAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260520-1743",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nMechanical once the emitter exists, but broad — a consumer rename across the rbtd Rust sources.\n\n## Goal\n\nGenerate the rbtd colophon consts from the rbz registry via the BUK emitter and migrate every consumer to the generated names, retiring the hand-mirror. The runtime drift check stays alive here and is retired only when the diff-gate replaces it.\n\n## Shape\n\n- Wire the rbz colophon rolls through the BUK emitter to a checked-in generated Rust file.\n- Generated const names carry the enroll varname verbatim — this retires the curated `RBTDRM_COLOPHON_*` names, a rename across their reference sites.\n- Migrate the Rust consumers off `RBTDRM_COLOPHON_*` and the inline colophon literals (e.g. the fast suite) onto the generated consts. Discover sites with `grep -rln \"RBTDRM_COLOPHON\" Tools/rbk/rbtd/src/`.\n- Repoint `rbtdrm_required_colophons` to the generated names but keep `rbtdrm_verify` running. Do NOT retire verify here — that belongs with the diff-gate landing, so drift protection is continuous (no gap between this pace and the gate).\n- Out of scope, left hand-written: `RBTDRM_FIXTURE_*`, `RBTDRM_OPERATION_*`, `RBTDRM_CONTAINER_*` — no single canonical bash author.\n\n## Sources\n\n- `Tools/rbk/rbz_zipper.sh` — colophon registry\n- `Tools/rbk/rbtd/src/rbtdrm_manifest.rs` — hand-mirror + `rbtdrm_verify` + `rbtdrm_required_colophons`\n\n## What done looks like\n\n- Colophon consts are generated, not hand-written; consumers and inline literals reference the generated names; `rbtdrm_verify` still runs (against generated consts); Rust builds and the fast suite is green.",
+              "jjgtn_silks": "colophon-codegen-projection",
+              "jjgtn_basis": "da00eb5"
+            },
+            {
+              "jjgtn_ts": "260520-1737",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nMechanical once the emitter exists, but broad — an 11-site consumer rename plus a retirement.\n\n## Goal\n\nGenerate the rbtd colophon consts from the rbz registry via the BUK emitter, migrate every consumer to the generated names, and retire the hand-mirror plus its runtime drift check.\n\n## Shape\n\n- Wire the rbz colophon rolls through the BUK emitter to a checked-in generated Rust file.\n- Generated const names carry the enroll varname verbatim — this retires the curated `RBTDRM_COLOPHON_*` names, a rename across their reference sites.\n- Migrate the Rust consumers off `RBTDRM_COLOPHON_*` and the inline colophon literals (e.g. the fast suite) onto the generated consts.\n- Retire `rbtdrm_verify` — exact-equality generation supersedes its drift-detection role.\n- Out of scope, left hand-written: `RBTDRM_FIXTURE_*`, `RBTDRM_OPERATION_*`, `RBTDRM_CONTAINER_*` — no single canonical bash author.\n\n## Sources\n\n- `Tools/rbk/rbz_zipper.sh` — colophon registry\n- `Tools/rbk/rbtd/src/rbtdrm_manifest.rs` — hand-mirror + `rbtdrm_verify` (target to replace)\n- `grep -rln \"RBTDRM_COLOPHON\\|rbtdrm_verify\" Tools/rbk/rbtd/src/` — consumer sites\n\n## What done looks like\n\n- Colophon consts are generated, not hand-written; consumers and inline literals reference the generated names; `rbtdrm_verify` is gone; Rust builds and the fast suite is green.",
+              "jjgtn_silks": "colophon-codegen-projection",
+              "jjgtn_basis": "29de766"
+            }
+          ]
+        },
+        "₢BPAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260520-1743",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nSelf-contained RBK projector; supersedes one existing macro hand-mirror. Carries an unresolved scope question — settle it before projecting.\n\n## Goal\n\nProject the in-scope RBCC flat tinder to generated Rust consts via an RBK-owned projector, replacing the hand-maintained `rbtd_moorings_dir!` macro mirror.\n\n## Shape\n\n- Scope question to resolve first: the heat's theme is removing constants *redundantly held in two places*. Today only `RBCC_moorings_dir` has a Rust mirror (the macro); `.env` filenames and roles live only in bash and are already single-homed. The original locked shape names \"moorings dir, .env filenames, roles\" as the projector input — but projecting the single-homed ones would *create* a second home, against the heat theme. Decide at mount: project only constants with a Rust mirror today, or the full named tinder set.\n- Relationship to the BUK emitter (decided in the emitter pace): either the RBK projector reuses that mechanism by feeding RBCC values as name/value pairs, or it is standalone RBK codegen. This pace does not depend on the colophon-projection pace — independent sibling, ordered after only for sequential convenience.\n- Supersedes the `rbtd_moorings_dir!` / `rbtd_vessels_dir!` macros and `RBTD_MOORINGS_DIR` in `lib.rs`.\n- Constraint: the macro form exists because `concat!` needs a literal token, not a const identifier (see the `lib.rs` comment). Preserve literal-composability for any `concat!` path-composition sites, or migrate those sites to runtime join.\n\n## Sources\n\n- `Tools/rbk/rbcc_Constants.sh` — flat tinder (self-described projection inventory)\n- `Tools/rbk/rbtd/src/lib.rs` — `rbtd_moorings_dir!` macro (current hand-mirror to supersede)\n\n## What done looks like\n\n- The in-scope RBCC consts are generated; the moorings macro mirror is retired or fed from generation; Rust builds; moorings paths resolve unchanged.",
+              "jjgtn_silks": "rbcc-tinder-codegen-projection",
+              "jjgtn_basis": "da00eb5"
+            },
+            {
+              "jjgtn_ts": "260520-1737",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nSelf-contained RBK projector; supersedes one existing macro hand-mirror. Watch the `concat!`-composability constraint.\n\n## Goal\n\nProject the in-scope RBCC flat tinder (moorings dir, `.env` filenames, roles) to generated Rust consts, replacing the hand-maintained `rbtd_moorings_dir!` macro mirror.\n\n## Shape\n\n- An RBK projector (RBK owns domain content) emits the in-scope RBCC tinder to a checked-in generated Rust file.\n- Supersedes the `rbtd_moorings_dir!` / `rbtd_vessels_dir!` macros and `RBTD_MOORINGS_DIR` in `lib.rs`.\n- Constraint: the macro form exists because `concat!` needs a literal token, not a const identifier (see the `lib.rs` comment). Preserve literal-composability for any `concat!` path-composition sites, or migrate those sites.\n- Scope: single-canonical-author source-time literals only. Composed/kindled values lacking a clean single-author projection stay as-is.\n\n## Sources\n\n- `Tools/rbk/rbcc_Constants.sh` — flat tinder (self-described projection inventory)\n- `Tools/rbk/rbtd/src/lib.rs` — `rbtd_moorings_dir!` macro (current hand-mirror to supersede)\n\n## What done looks like\n\n- RBCC tinder consts are generated; the moorings macro mirror is retired or fed from generation; Rust builds; moorings paths resolve unchanged.",
+              "jjgtn_silks": "rbcc-tinder-codegen-projection",
+              "jjgtn_basis": "b73ab86"
+            }
+          ]
+        },
+        "₢BPAAF": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260520-1743",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nTouches qualify infrastructure and build ordering; subtle — the regenerate-vs-consume distinction is load-bearing. Closes out the drift-protection handover.\n\n## Goal\n\nWire generation into the build lifecycle so the committed artifact is regenerated at the BUK-available layer before every Rust build, never regenerated inside the container, and a stale commit fails qualify loud — then retire the runtime drift check the gate replaces.\n\n## Shape\n\n- Regenerate the generated file(s) before every Rust build, at the layer where BUK is available.\n- A build inside the minimal container consumes the committed artifact and never regenerates (no BUK present there).\n- Add a `git diff --exit-code` qualify gate so a stale committed artifact fails loud.\n- Retire `rbtdrm_verify` here, once the gate is live — exact equality supersedes its drift role. Retiring verify likely strands `rbtdrm_required_colophons` (its only consumer); remove that map too if nothing else reads it.\n\n## Sources\n\n- `Tools/rbk/rbtd/rbtw_workbench.sh` and the rbtd build tabtargets — Rust build entry\n- `tt/rbw-tf.QualifyFast.sh`, `tt/rbw-tr.QualifyRelease.sh`, `tt/rbw-tP.QualifyPristine.sh` — qualify gates\n- Any existing diff-gate around the `buz_emit_context`-generated markdown context — precedent for the regeneration wiring\n\n## What done looks like\n\n- The generated artifact is regenerated pre-build outside the container; the container build consumes the commit; qualify fails on a deliberately-staled artifact; `rbtdrm_verify` is gone.",
+              "jjgtn_silks": "codegen-build-wiring-and-diff-gate",
+              "jjgtn_basis": "da00eb5"
+            },
+            {
+              "jjgtn_ts": "260520-1738",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nTouches qualify infrastructure and build ordering; subtle — the regenerate-vs-consume distinction is load-bearing.\n\n## Goal\n\nWire generation into the build lifecycle so the committed artifact is regenerated at the BUK-available layer before every Rust build, never regenerated inside the container, and a stale commit fails qualify loud.\n\n## Shape\n\n- Regenerate the generated file(s) before every Rust build, at the layer where BUK is available.\n- A build inside the minimal container consumes the committed artifact and never regenerates (no BUK present there).\n- Add a `git diff --exit-code` qualify gate so a stale committed artifact fails loud. This supersedes the drift role that `rbtdrm_verify` formerly held, with exact equality.\n\n## Sources\n\n- `Tools/rbk/rbtd/rbtw_workbench.sh` and the rbtd build tabtargets — Rust build entry\n- `tt/rbw-tf.QualifyFast.sh`, `tt/rbw-tr.QualifyRelease.sh`, `tt/rbw-tP.QualifyPristine.sh` — qualify gates\n- Any existing diff-gate around the `buz_emit_context`-generated markdown context — precedent for the regeneration wiring\n\n## What done looks like\n\n- The generated artifact is regenerated pre-build outside the container; the container build consumes the commit; qualify fails on a deliberately-staled artifact.",
+              "jjgtn_silks": "codegen-build-wiring-and-diff-gate",
+              "jjgtn_basis": "3f61ac5"
             }
           ]
         }

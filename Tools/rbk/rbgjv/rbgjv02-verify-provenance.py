@@ -136,12 +136,12 @@ def main():
     with open("/workspace/vouch_platforms.txt") as f:
         print(f"Platforms: {f.read()}")
 
-    if vessel_mode == "conjure":
+    if vessel_mode == "rbnve_conjure":
         _verify_conjure(manifest, is_index, config, token, gar_host, gar_path,
                         hallmarks_root, hallmark, vessel)
-    elif vessel_mode == "bind":
+    elif vessel_mode == "rbnve_bind":
         _verify_bind(token, image_registry_base, hallmark, vessel)
-    elif vessel_mode == "graft":
+    elif vessel_mode == "rbnve_graft":
         _verify_graft(hallmark, vessel)
     else:
         die(f"Unknown vessel mode: {vessel_mode}")
@@ -287,7 +287,7 @@ def _verify_conjure(manifest, is_index, config, token, gar_host, gar_path,
     vouch_summary = {
         "hallmark": hallmark,
         "vessel": vessel,
-        "vessel_mode": "conjure",
+        "vessel_mode": "rbnve_conjure",
         "verify_method": "dsse-envelope",
         "base_images": [],
         "platforms": [],
@@ -335,7 +335,7 @@ def _verify_bind(token, image_registry_base, hallmark, vessel):
     vouch_summary = {
         "hallmark": hallmark,
         "vessel": vessel,
-        "vessel_mode": "bind",
+        "vessel_mode": "rbnve_bind",
         "verification": {
             "method": "digest-pin",
             "bind_source": bind_source,
@@ -356,7 +356,7 @@ def _verify_graft(hallmark, vessel):
     vouch_summary = {
         "hallmark": hallmark,
         "vessel": vessel,
-        "vessel_mode": "graft",
+        "vessel_mode": "rbnve_graft",
         "verification": {
             "method": "none",
             "graft_source": graft_source,

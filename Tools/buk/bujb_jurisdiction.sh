@@ -460,13 +460,13 @@ zbujb_garrison_assert_platform() {
   case "${z_letter}" in
     b)
       case "${BURN_PLATFORM}" in
-        bubep_linux|bubep_mac) ;;
-        *) buc_die "garrison-b requires bubep_linux or bubep_mac, got '${BURN_PLATFORM}'" ;;
+        bunne_linux|bunne_mac) ;;
+        *) buc_die "garrison-b requires bunne_linux or bunne_mac, got '${BURN_PLATFORM}'" ;;
       esac
       ;;
     c|w)
-      test "${BURN_PLATFORM}" = "bubep_windows" \
-        || buc_die "garrison-${z_letter} requires bubep_windows, got '${BURN_PLATFORM}'"
+      test "${BURN_PLATFORM}" = "bunne_windows" \
+        || buc_die "garrison-${z_letter} requires bunne_windows, got '${BURN_PLATFORM}'"
       ;;
   esac
 }
@@ -481,8 +481,8 @@ zbujb_workload_home_capture() {
   case "${z_letter}" in
     b)
       case "${BURN_PLATFORM}" in
-        bubep_linux) echo "${BUJB_path_posix_user_home}" ;;
-        bubep_mac)   echo "${BUJB_path_mac_user_home}"   ;;
+        bunne_linux) echo "${BUJB_path_posix_user_home}" ;;
+        bunne_mac)   echo "${BUJB_path_mac_user_home}"   ;;
         *)           return 1 ;;
       esac
       ;;
@@ -1046,7 +1046,7 @@ zbujb_obliterate_workload() {
   buc_step "  [2/6] Obliterate workload (${BUJB_workload_user}) on ${BURN_PLATFORM}"
 
   case "${BURN_PLATFORM}" in
-    bubep_linux)
+    bunne_linux)
       # CDD via per-call CHIT capture inside zbujb_admin_exec_native: each
       # call lands at ${BURD_TEMP_DIR}/bujb_obliterate-<label>-<idx>_*.txt;
       # no inline redirection, no `|| true` (BCG-forbidden silent
@@ -1068,7 +1068,7 @@ zbujb_obliterate_workload() {
           || buc_die "obliterate (b/linux): rm -rf of ${BUJB_path_posix_user_home} failed — see ${ZBUJB_LAST_AP_STDERR}"
       fi
       ;;
-    bubep_mac)
+    bunne_mac)
       local z_present=0
       zbujb_admin_exec_native "${ZBUJB_CHIT_obliterate}user-probe-" \
           "id '${BUJB_workload_user}'" || z_present=$?
@@ -1086,7 +1086,7 @@ zbujb_obliterate_workload() {
           || buc_die "obliterate (b/mac): rm -rf of ${BUJB_path_mac_user_home} failed — see ${ZBUJB_LAST_AP_STDERR}"
       fi
       ;;
-    bubep_windows)
+    bunne_windows)
       zbujb_obliterate_windows_namespaces
       ;;
     *)
@@ -1103,7 +1103,7 @@ zbujb_garrison_step3_create() {
   case "${z_letter}" in
     b)
       case "${BURN_PLATFORM}" in
-        bubep_linux)
+        bunne_linux)
           zbujb_admin_exec_native "${ZBUJB_CHIT_garrison_step}3-linux-useradd-" \
               "sudo -n useradd ${BUJB_useradd_workload_args} '${BUJB_workload_user}'" \
             || buc_die "step3 (b/linux): useradd failed for ${BUJB_workload_user}"
@@ -1111,7 +1111,7 @@ zbujb_garrison_step3_create() {
               "sudo -n passwd --lock '${BUJB_workload_user}'" \
             || buc_die "step3 (b/linux): passwd --lock failed for ${BUJB_workload_user}"
           ;;
-        bubep_mac)
+        bunne_mac)
           # Mac uses dscl/sysadminctl; left for in-environment refinement.
           # Operator may need to seat a more idiomatic primary group ID.
           zbujb_admin_exec_native "${ZBUJB_CHIT_garrison_step}3-mac-adduser-" \
@@ -1490,7 +1490,7 @@ bujb_garrison() {
   # workload session. Reboot is the canonical Windows state-reset
   # primitive; see zbujb_reboot_and_await_ssh for the rationale.
   case "${BURN_PLATFORM}" in
-    bubep_windows) zbujb_reboot_and_await_ssh ;;
+    bunne_windows) zbujb_reboot_and_await_ssh ;;
   esac
 
   zbujb_obliterate_workload
@@ -1918,8 +1918,8 @@ bujb_caparison_windows() {
   zbujb_sentinel
   test "${ZBUJB_RESOLVED:-}" = "1" \
     || buc_die "bujb_caparison_windows: call bujb_resolve_investiture first"
-  test "${BURN_PLATFORM}" = "bubep_windows" \
-    || buc_die "bujb_caparison_windows: requires bubep_windows, got '${BURN_PLATFORM}'"
+  test "${BURN_PLATFORM}" = "bunne_windows" \
+    || buc_die "bujb_caparison_windows: requires bunne_windows, got '${BURN_PLATFORM}'"
 
   buc_step "Caparison-windows: ${BUZ_FOLIO} (${BURN_HOST})"
 
@@ -1945,7 +1945,7 @@ bujb_caparison_windows() {
 # Ubuntu-24.04 seed, exporting it to a .tar, importing under the
 # canonical name, then unregistering the seed and removing the .tar.
 # Caller is bujb_caparison_windows phase 3, which has already asserted
-# resolve + bubep_windows. Each step propagates failure via
+# resolve + bunne_windows. Each step propagates failure via
 # zbujb_admin_powershell + || buc_die.
 zbujb_caparison_windows_stage_wsl() {
   zbujb_sentinel
@@ -2224,7 +2224,7 @@ bujb_invigilate_windows() {
   zbujb_sentinel
   test "${ZBUJB_RESOLVED:-}" = "1" \
     || buc_die "bujb_invigilate_windows: call bujb_resolve_investiture first"
-  zbujb_invigilate_assert_platform bubep_windows
+  zbujb_invigilate_assert_platform bunne_windows
 
   buc_step "Invigilate-windows: ${BUZ_FOLIO} (${BURN_HOST})"
 
@@ -2244,7 +2244,7 @@ bujb_invigilate_macos() {
   zbujb_sentinel
   test "${ZBUJB_RESOLVED:-}" = "1" \
     || buc_die "bujb_invigilate_macos: call bujb_resolve_investiture first"
-  zbujb_invigilate_assert_platform bubep_mac
+  zbujb_invigilate_assert_platform bunne_mac
 
   buc_step "Invigilate-macos: ${BUZ_FOLIO} (${BURN_HOST})"
 
@@ -2311,7 +2311,7 @@ bujb_invigilate_linux() {
   zbujb_sentinel
   test "${ZBUJB_RESOLVED:-}" = "1" \
     || buc_die "bujb_invigilate_linux: call bujb_resolve_investiture first"
-  zbujb_invigilate_assert_platform bubep_linux
+  zbujb_invigilate_assert_platform bunne_linux
 
   buc_step "Invigilate-linux: ${BUZ_FOLIO} (${BURN_HOST})"
 
@@ -2401,8 +2401,8 @@ bujb_caparison_macos() {
   zbujb_sentinel
   test "${ZBUJB_RESOLVED:-}" = "1" \
     || buc_die "bujb_caparison_macos: call bujb_resolve_investiture first"
-  test "${BURN_PLATFORM}" = "bubep_mac" \
-    || buc_die "bujb_caparison_macos: requires bubep_mac, got '${BURN_PLATFORM}'"
+  test "${BURN_PLATFORM}" = "bunne_mac" \
+    || buc_die "bujb_caparison_macos: requires bunne_mac, got '${BURN_PLATFORM}'"
 
   buc_step "Caparison-macos: ${BUZ_FOLIO} (${BURN_HOST})"
 
@@ -2441,8 +2441,8 @@ bujb_caparison_linux() {
   zbujb_sentinel
   test "${ZBUJB_RESOLVED:-}" = "1" \
     || buc_die "bujb_caparison_linux: call bujb_resolve_investiture first"
-  test "${BURN_PLATFORM}" = "bubep_linux" \
-    || buc_die "bujb_caparison_linux: requires bubep_linux, got '${BURN_PLATFORM}'"
+  test "${BURN_PLATFORM}" = "bunne_linux" \
+    || buc_die "bujb_caparison_linux: requires bunne_linux, got '${BURN_PLATFORM}'"
 
   buc_step "Caparison-linux: ${BUZ_FOLIO} (${BURN_HOST})"
 

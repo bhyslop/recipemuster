@@ -883,7 +883,7 @@ fn rbtdrf_rv_rbrr_bad_runtime_prefix_too_long(dir: &Path) -> rbtdre_Verdict {
 const RBTDRF_RBRV_BASELINE_CONJURE: &str = "\
 export RBRV_SIGIL=\"test-vessel\"\n\
 export RBRV_DESCRIPTION=\"Test vessel for validation\"\n\
-export RBRV_VESSEL_MODE=\"conjure\"\n\
+export RBRV_VESSEL_MODE=\"rbnve_conjure\"\n\
 export RBRV_CONJURE_DOCKERFILE=\"path/to/Dockerfile\"\n\
 export RBRV_CONJURE_BLDCONTEXT=\"path/to\"\n\
 export RBRV_CONJURE_PLATFORMS=\"linux/amd64\"";
@@ -891,7 +891,7 @@ export RBRV_CONJURE_PLATFORMS=\"linux/amd64\"";
 const RBTDRF_RBRV_BASELINE_BIND: &str = "\
 export RBRV_SIGIL=\"test-vessel\"\n\
 export RBRV_DESCRIPTION=\"Test vessel for validation\"\n\
-export RBRV_VESSEL_MODE=\"bind\"\n\
+export RBRV_VESSEL_MODE=\"rbnve_bind\"\n\
 export RBRV_BIND_IMAGE=\"us-docker.pkg.dev/project/repo/image:latest\"";
 
 fn rbtdrf_rv_rbrv_neg(dir: &Path, label: &str, baseline: &str, override_: &str) -> rbtdre_Verdict {
@@ -931,14 +931,14 @@ export RBRN_SENTRY_VESSEL=\"test-sentry\"\n\
 export RBRN_BOTTLE_VESSEL=\"test-bottle\"\n\
 export RBRN_SENTRY_HALLMARK=\"c260101000000-r260101000000\"\n\
 export RBRN_BOTTLE_HALLMARK=\"c260101000000-r260101000000\"\n\
-export RBRN_ENTRY_MODE=\"disabled\"\n\
+export RBRN_ENTRY_MODE=\"rbnne_disabled\"\n\
 export RBRN_ENCLAVE_BASE_IP=\"10.200.0.0\"\n\
 export RBRN_ENCLAVE_NETMASK=\"24\"\n\
 export RBRN_ENCLAVE_SENTRY_IP=\"10.200.0.2\"\n\
 export RBRN_ENCLAVE_BOTTLE_IP=\"10.200.0.3\"\n\
 export RBRN_UPLINK_PORT_MIN=\"10000\"\n\
-export RBRN_UPLINK_DNS_MODE=\"disabled\"\n\
-export RBRN_UPLINK_ACCESS_MODE=\"disabled\"";
+export RBRN_UPLINK_DNS_MODE=\"rbnne_disabled\"\n\
+export RBRN_UPLINK_ACCESS_MODE=\"rbnne_disabled\"";
 
 fn rbtdrf_rv_rbrn_neg(dir: &Path, label: &str, override_: &str) -> rbtdre_Verdict {
     rbtdrf_run_rv(dir, "",
@@ -971,7 +971,7 @@ fn rbtdrf_rv_rbrn_port_conflict(dir: &Path) -> rbtdre_Verdict {
     // Use enabled baseline with port conflict: workstation >= uplink min
     rbtdrf_run_rv(dir, "",
         &format!("{}\n\
-            export RBRN_ENTRY_MODE=\"enabled\"\n\
+            export RBRN_ENTRY_MODE=\"rbnne_enabled\"\n\
             export RBRN_ENTRY_PORT_WORKSTATION=\"10001\"\n\
             export RBRN_ENTRY_PORT_ENCLAVE=\"8888\"\n\
             export RBRN_UPLINK_PORT_MIN=\"10000\"\n\

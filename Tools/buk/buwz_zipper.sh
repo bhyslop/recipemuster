@@ -95,9 +95,9 @@ zbuwz_kindle() {
   buz_enroll BUWZ_JW_INTERACTIVE    "buw-jws"   "${z_mod}" "bujb_interactive_session" "param1"  "Interactive SSH session as workload"
 
   # Jurisdiction operational — caparison ceremonies (bujb_cli.sh)
-  buz_enroll BUWZ_JP_CAPARISON_WIN    "buw-jpCW"  "${z_mod}" "bujb_caparison_windows_command" "param1"  "Caparison — admin host posture (admin SSH trust, sshd harden, WSL stage, sleep disable, Tailscale auto-start) on a bubep_windows node"
-  buz_enroll BUWZ_JP_CAPARISON_MAC    "buw-jpCM"  "${z_mod}" "bujb_caparison_macos_command"   "param1"  "Caparison — admin host posture (Remote Login, pmset, tailscaled) on a bubep_mac node"
-  buz_enroll BUWZ_JP_CAPARISON_LIN    "buw-jpCL"  "${z_mod}" "bujb_caparison_linux_command"   "param1"  "Caparison — admin host posture (sshd, sleep mask, tailscaled) on a bubep_linux node"
+  buz_enroll BUWZ_JP_CAPARISON_WIN    "buw-jpCW"  "${z_mod}" "bujb_caparison_windows_command" "param1"  "Caparison — admin host posture (admin SSH trust, sshd harden, WSL stage, sleep disable, Tailscale auto-start) on a bunne_windows node"
+  buz_enroll BUWZ_JP_CAPARISON_MAC    "buw-jpCM"  "${z_mod}" "bujb_caparison_macos_command"   "param1"  "Caparison — admin host posture (Remote Login, pmset, tailscaled) on a bunne_mac node"
+  buz_enroll BUWZ_JP_CAPARISON_LIN    "buw-jpCL"  "${z_mod}" "bujb_caparison_linux_command"   "param1"  "Caparison — admin host posture (sshd, sleep mask, tailscaled) on a bunne_linux node"
 
   # Jurisdiction operational — privileged SSH pass-through (bujb_cli.sh)
   buz_enroll BUWZ_JP_PRIVILEGED_SSH   "buw-jpS"   "${z_mod}" "bujb_privileged_ssh_command" "param1"  "Privileged SSH — run a command on a node as BURP_PRIVILEGED_USER"

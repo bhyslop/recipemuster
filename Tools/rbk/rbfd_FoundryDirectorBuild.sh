@@ -319,7 +319,7 @@ zrbfd_registry_preflight() {
     # because the worker pool has no upstream egress — an empty anchor with
     # a non-empty origin guarantees runtime build failure.
     if test -z "${z_anchor}"; then
-      if test "${RBRV_EGRESS_MODE:-}" = "airgap"; then
+      if test "${RBRV_EGRESS_MODE:-}" = "rbnve_airgap"; then
         # Two anchor-population paths per RBSAE: enshrine (origin is a public
         # upstream) and hallmark-pin (origin names a producer vessel in this
         # repo). Discriminate by whether origin resolves to a vessel directory.
@@ -718,8 +718,8 @@ zrbfd_stitch_build_json() {
   # Pool routing: conjure/bind use vessel's egress mode
   local z_conjure_pool=""
   case "${RBRV_EGRESS_MODE}" in
-    tether) z_conjure_pool="${RBDC_POOL_TETHER}" ;;
-    airgap) z_conjure_pool="${RBDC_POOL_AIRGAP}" ;;
+    rbnve_tether) z_conjure_pool="${RBDC_POOL_TETHER}" ;;
+    rbnve_airgap) z_conjure_pool="${RBDC_POOL_AIRGAP}" ;;
     *) buc_die "Unknown RBRV_EGRESS_MODE: ${RBRV_EGRESS_MODE}" ;;
   esac
 
@@ -790,7 +790,7 @@ zrbfd_stitch_build_json() {
         _RBGA_HALLMARKS_ROOT:      $zjq_hallmarks_root,
         _RBGA_HALLMARK:            $zjq_hallmark,
         _RBGA_VESSEL:              $zjq_vessel,
-        _RBGA_VESSEL_MODE:         "conjure",
+        _RBGA_VESSEL_MODE:         "rbnve_conjure",
         _RBGA_GIT_COMMIT:          $zjq_git_commit,
         _RBGA_GIT_BRANCH:          $zjq_git_branch,
         _RBGA_GIT_REPO:            $zjq_git_repo,
@@ -889,7 +889,7 @@ rbfd_enshrine() {
   local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
   test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
   zrbfc_load_vessel "${z_vessel_dir}"
-  test "${RBRV_VESSEL_MODE:-}" = "conjure" \
+  test "${RBRV_VESSEL_MODE:-}" = "rbnve_conjure" \
     || buc_die "Vessel '${RBRV_SIGIL}' is not a conjure vessel (mode: ${RBRV_VESSEL_MODE:-unset})"
 
   # Check at least one slot declares an upstream ORIGIN. ANCHOR is a derived
@@ -1150,12 +1150,12 @@ rbfd_ordain() {
       RBRV_VESSEL_MODE=*) z_mode="${z_mode_line#RBRV_VESSEL_MODE=}"; break ;;
     esac
   done < "${z_rbrv_file}"
-  z_mode="${z_mode:-conjure}"
+  z_mode="${z_mode:-rbnve_conjure}"
   case "${z_mode}" in
-    conjure) rbfd_build "${z_vessel_dir}" ;;
-    bind)    rbfd_mirror "${z_vessel_dir}" ;;
-    graft)   rbfd_graft "${z_vessel_dir}" ;;
-    *)       buc_die "Unknown vessel mode: ${z_mode}" ;;
+    rbnve_conjure) rbfd_build "${z_vessel_dir}" ;;
+    rbnve_bind)    rbfd_mirror "${z_vessel_dir}" ;;
+    rbnve_graft)   rbfd_graft "${z_vessel_dir}" ;;
+    *)             buc_die "Unknown vessel mode: ${z_mode}" ;;
   esac
 
   # Chaining: read hallmark persisted by mode dispatch
@@ -1167,14 +1167,14 @@ rbfd_ordain() {
 
   # Metadata pipeline: graft uses combined about+vouch; conjure/bind already have about, need standalone vouch
   case "${z_mode}" in
-    conjure)
+    rbnve_conjure)
       buc_info "About produced by combined conjure job — proceeding to vouch"
       rbfv_vouch "${z_vessel_dir}" "${z_hallmark}"
       ;;
-    graft)
+    rbnve_graft)
       zrbfv_graft_metadata_submit "${z_vessel_dir}" "${z_hallmark}"
       ;;
-    bind)
+    rbnve_bind)
       buc_info "About produced by combined bind job — proceeding to vouch"
       rbfv_vouch "${z_vessel_dir}" "${z_hallmark}"
       ;;
@@ -1385,7 +1385,7 @@ rbfd_mirror() {
 
   # Load and validate vessel
   zrbfc_load_vessel "${z_vessel_dir}"
-  test "${RBRV_VESSEL_MODE:-}" = "bind" \
+  test "${RBRV_VESSEL_MODE:-}" = "rbnve_bind" \
     || buc_die "Vessel '${RBRV_SIGIL}' is not a bind vessel (mode: ${RBRV_VESSEL_MODE:-unset})"
   test -n "${RBRV_BIND_IMAGE:-}" \
     || buc_die "RBRV_BIND_IMAGE not set for bind vessel '${RBRV_SIGIL}'"
@@ -1537,8 +1537,8 @@ zrbfd_mirror_submit() {
   # Pool routing: bind uses vessel's egress mode (tether for upstream pulls, airgap if pre-staged)
   local z_mirror_pool=""
   case "${RBRV_EGRESS_MODE}" in
-    tether) z_mirror_pool="${RBDC_POOL_TETHER}" ;;
-    airgap) z_mirror_pool="${RBDC_POOL_AIRGAP}" ;;
+    rbnve_tether) z_mirror_pool="${RBDC_POOL_TETHER}" ;;
+    rbnve_airgap) z_mirror_pool="${RBDC_POOL_AIRGAP}" ;;
     *) buc_die "Unknown RBRV_EGRESS_MODE: ${RBRV_EGRESS_MODE}" ;;
   esac
 
@@ -1554,7 +1554,7 @@ zrbfd_mirror_submit() {
     --arg zjq_hallmarks_root "${RBGL_HALLMARKS_ROOT}" \
     --arg zjq_hallmark       "${z_hallmark}" \
     --arg zjq_vessel         "${RBRV_SIGIL}" \
-    --arg zjq_vessel_mode    "bind" \
+    --arg zjq_vessel_mode    "rbnve_bind" \
     --arg zjq_git_commit     "${z_git_commit}" \
     --arg zjq_git_branch     "${z_git_branch}" \
     --arg zjq_git_repo       "${z_git_repo}" \
@@ -1656,7 +1656,7 @@ rbfd_graft() {
 
   # Load and validate vessel
   zrbfc_load_vessel "${z_vessel_dir}"
-  test "${RBRV_VESSEL_MODE:-}" = "graft" \
+  test "${RBRV_VESSEL_MODE:-}" = "rbnve_graft" \
     || buc_die "Vessel '${RBRV_SIGIL}' is not a graft vessel (mode: ${RBRV_VESSEL_MODE:-unset})"
 
   # Tweak override: test infrastructure can inject graft image via ambient regime variable

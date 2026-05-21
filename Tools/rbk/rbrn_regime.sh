@@ -54,8 +54,8 @@ zrbrn_kindle() {
 
   buv_group_enroll "Entry Service Configuration"
   buv_enum_enroll    RBRN_ENTRY_MODE                           "Entry functionality: disabled or enabled" \
-                     disabled enabled
-  buv_gate_enroll    RBRN_ENTRY_MODE  enabled
+                     rbnne_disabled rbnne_enabled
+  buv_gate_enroll    RBRN_ENTRY_MODE  rbnne_enabled
   buv_port_enroll    RBRN_ENTRY_PORT_WORKSTATION               "External port on Transit Network"
   buv_port_enroll    RBRN_ENTRY_PORT_ENCLAVE                   "Enclave port between Sentry and Bottle"
 
@@ -68,16 +68,16 @@ zrbrn_kindle() {
   buv_group_enroll "Uplink Core"
   buv_port_enroll    RBRN_UPLINK_PORT_MIN                      "Minimum port for outbound connections"
   buv_enum_enroll    RBRN_UPLINK_DNS_MODE                      "DNS mode: disabled, global, or allowlist" \
-                     disabled global allowlist
+                     rbnne_disabled rbnne_global rbnne_allowlist
   buv_enum_enroll    RBRN_UPLINK_ACCESS_MODE                   "IP access mode: disabled, global, or allowlist" \
-                     disabled global allowlist
+                     rbnne_disabled rbnne_global rbnne_allowlist
 
   buv_group_enroll "Uplink DNS Allowlist"
-  buv_gate_enroll    RBRN_UPLINK_DNS_MODE  allowlist
+  buv_gate_enroll    RBRN_UPLINK_DNS_MODE  rbnne_allowlist
   buv_list_domain_enroll RBRN_UPLINK_ALLOWED_DOMAINS           "Allowed DNS domains"
 
   buv_group_enroll "Uplink Access Allowlist"
-  buv_gate_enroll    RBRN_UPLINK_ACCESS_MODE  allowlist
+  buv_gate_enroll    RBRN_UPLINK_ACCESS_MODE  rbnne_allowlist
   buv_list_cidr_enroll   RBRN_UPLINK_ALLOWED_CIDRS             "Allowed CIDR ranges"
 
   # Guard against unexpected RBRN_ variables not in enrollment
@@ -104,7 +104,7 @@ zrbrn_enforce() {
   zrbrn_ip_in_subnet RBRN_ENCLAVE_BOTTLE_IP "${RBRN_ENCLAVE_BOTTLE_IP}" "${RBRN_ENCLAVE_BASE_IP}" "${RBRN_ENCLAVE_NETMASK}"
 
   # Cross-port check (entry ports must be less than uplink port min)
-  if test "${RBRN_ENTRY_MODE}" = "enabled"; then
+  if test "${RBRN_ENTRY_MODE}" = "rbnne_enabled"; then
     test "${RBRN_ENTRY_PORT_WORKSTATION}" -lt "${RBRN_UPLINK_PORT_MIN}" || \
       buc_die "RBRN_ENTRY_PORT_WORKSTATION must be less than RBRN_UPLINK_PORT_MIN"
     test "${RBRN_ENTRY_PORT_ENCLAVE}" -lt "${RBRN_UPLINK_PORT_MIN}" || \
@@ -207,7 +207,7 @@ rbrn_preflight() {
     test -n "${z_mon}" || continue
 
     # Workstation and enclave port uniqueness (enabled entries only)
-    if test "${z_entry}" = "enabled"; then
+    if test "${z_entry}" = "rbnne_enabled"; then
       local z_i
       for z_i in "${!z_ws_port_keys[@]}"; do
         if test "${z_ws_port_keys[$z_i]}" = "${z_ws}"; then

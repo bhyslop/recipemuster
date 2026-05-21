@@ -67,7 +67,7 @@ zrbrn_fleet_survey() {
 
       local z_ws_port="${RBRN_ENTRY_PORT_WORKSTATION:-}"
       local z_enc_port="${RBRN_ENTRY_PORT_ENCLAVE:-}"
-      if [[ "${RBRN_ENTRY_MODE}" != "enabled" ]]; then
+      if [[ "${RBRN_ENTRY_MODE}" != "rbnne_enabled" ]]; then
         z_ws_port="-"
         z_enc_port="-"
       fi

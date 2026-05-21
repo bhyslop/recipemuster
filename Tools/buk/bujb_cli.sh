@@ -137,7 +137,7 @@ bujb_privileged_ssh_command() {
 # bujb_caparison_windows_command - caparison ceremony, Windows admin host posture.
 bujb_caparison_windows_command() {
   zbujb_sentinel
-  buc_doc_brief "Caparison — admin host posture for a bubep_windows node (admin SSH trust, sshd harden, WSL stage, sleep disable, Tailscale auto-start)"
+  buc_doc_brief "Caparison — admin host posture for a bunne_windows node (admin SSH trust, sshd harden, WSL stage, sleep disable, Tailscale auto-start)"
   buc_doc_shown || return 0
 
   test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
@@ -148,7 +148,7 @@ bujb_caparison_windows_command() {
 # bujb_caparison_macos_command - caparison ceremony, macOS admin host posture.
 bujb_caparison_macos_command() {
   zbujb_sentinel
-  buc_doc_brief "Caparison — admin host posture for a bubep_mac node (Remote Login, pmset, tailscaled)"
+  buc_doc_brief "Caparison — admin host posture for a bunne_mac node (Remote Login, pmset, tailscaled)"
   buc_doc_shown || return 0
 
   test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
@@ -159,7 +159,7 @@ bujb_caparison_macos_command() {
 # bujb_caparison_linux_command - caparison ceremony, Linux admin host posture.
 bujb_caparison_linux_command() {
   zbujb_sentinel
-  buc_doc_brief "Caparison — admin host posture for a bubep_linux node (sshd, sleep mask, tailscaled)"
+  buc_doc_brief "Caparison — admin host posture for a bunne_linux node (sshd, sleep mask, tailscaled)"
   buc_doc_shown || return 0
 
   test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
@@ -170,7 +170,7 @@ bujb_caparison_linux_command() {
 # bujb_garrison_bash - garrison ceremony, native bash workload shell (Linux/Mac).
 bujb_garrison_bash() {
   zbujb_sentinel
-  buc_doc_brief "Garrison workload account on a bubep_linux/bubep_mac node (shell-letter b)"
+  buc_doc_brief "Garrison workload account on a bunne_linux/bunne_mac node (shell-letter b)"
   buc_doc_shown || return 0
 
   test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
@@ -181,7 +181,7 @@ bujb_garrison_bash() {
 # bujb_garrison_cygwin - garrison ceremony, Cygwin bash workload shell (Windows).
 bujb_garrison_cygwin() {
   zbujb_sentinel
-  buc_doc_brief "Garrison workload account on a bubep_windows node via Cygwin (shell-letter c)"
+  buc_doc_brief "Garrison workload account on a bunne_windows node via Cygwin (shell-letter c)"
   buc_doc_shown || return 0
 
   test -n "${BUZ_FOLIO:-}" || burp_die_no_folio
@@ -192,7 +192,7 @@ bujb_garrison_cygwin() {
 # bujb_garrison_wsl - garrison ceremony, WSL bash workload shell (Windows).
 bujb_garrison_wsl() {
   zbujb_sentinel
-  buc_doc_brief "Garrison workload account on a bubep_windows node via WSL (shell-letter w)"
+  buc_doc_brief "Garrison workload account on a bunne_windows node via WSL (shell-letter w)"
   buc_doc_shown || return 0
 
   test -n "${BUZ_FOLIO:-}" || burp_die_no_folio

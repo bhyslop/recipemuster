@@ -73,7 +73,7 @@ zbujp_probe_ssh_connect() {
   test "${z_exit}" -eq 0 && return 0
 
   case "${BURN_PLATFORM}" in
-    bubep_windows)
+    bunne_windows)
       buc_die "Admin SSH unreachable for ${BURP_PRIVILEGED_USER}@${BURN_HOST} (key=${BURP_PRIVILEGED_KEY_FILE}, exit ${z_exit}) — run caparison-windows first (see ${ZBUJP_SSH_PROBE_PREFIX}stderr.txt)"
       ;;
     *)
@@ -100,9 +100,9 @@ bujp_preflight() {
   zbujp_probe_ssh_connect "${z_letter}"
 
   case "${BURN_PLATFORM}" in
-    bubep_linux)   bujb_invigilate_linux   ;;
-    bubep_mac)     bujb_invigilate_macos   ;;
-    bubep_windows) bujb_invigilate_windows ;;
+    bunne_linux)   bujb_invigilate_linux   ;;
+    bunne_mac)     bujb_invigilate_macos   ;;
+    bunne_windows) bujb_invigilate_windows ;;
     *) buc_die "bujp_preflight: unsupported BURN_PLATFORM '${BURN_PLATFORM}'" ;;
   esac
 }

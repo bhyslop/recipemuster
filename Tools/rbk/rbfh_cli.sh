@@ -67,7 +67,7 @@ rbfh_check_vessel() {
   # Hygiene is a property of the FROM line; non-conjure vessels have no
   # local Dockerfile, so the contract is vacuously satisfied. Exit silently
   # so callers iterating the whole fleet need not pre-filter by mode.
-  if test "${RBRV_VESSEL_MODE:-}" != "conjure"; then
+  if test "${RBRV_VESSEL_MODE:-}" != "rbnve_conjure"; then
     buc_info "Vessel '${RBRV_SIGIL:-${z_vessel_dir}}' is mode '${RBRV_VESSEL_MODE:-<unset>}' — no Dockerfile to check"
     return 0
   fi

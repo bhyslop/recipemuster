@@ -115,7 +115,7 @@ def main():
             },
         }
 
-        if vessel_mode == "conjure":
+        if vessel_mode == "rbnve_conjure":
             build_id = get_build_id()
             info["build"] = {
                 "build_id": build_id,
@@ -131,9 +131,9 @@ def main():
                 ],
                 "provenance_builder_id": "https://cloudbuild.googleapis.com/GoogleHostedWorker",
             }
-        elif vessel_mode == "bind":
+        elif vessel_mode == "rbnve_bind":
             info["bind"] = {"source": os.environ.get("_RBGA_BIND_SOURCE", "")}
-        elif vessel_mode == "graft":
+        elif vessel_mode == "rbnve_graft":
             info["graft"] = {"source": os.environ.get("_RBGA_GRAFT_SOURCE", "")}
         else:
             die(f"Unknown vessel mode: {vessel_mode}")
