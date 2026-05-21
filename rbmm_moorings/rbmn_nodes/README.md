@@ -14,7 +14,7 @@ Each subdirectory is a BURN investiture — one node identity. The `<investiture
 
 ```
 BURN_HOST=<ip-or-hostname>       # IP address or hostname of the remote node
-BURN_PLATFORM=<platform>         # bubep_linux | bubep_mac | bubep_windows
+BURN_PLATFORM=<platform>         # bunne_linux | bunne_mac | bunne_windows
 ```
 
 ## Git Safety
