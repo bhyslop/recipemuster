@@ -2,11 +2,15 @@
 
 Grab-bag cleanup heat. Theme: consolidate to the single rightful owner — remove capability and constants that are redundantly held in more than one place. Collects post-cutover RBK cleanups of that nature.
 
+The constant-projection thread is the bulk of the heat. A survey found the co-maintained set is broader than colophons alone — colophons, credential roles, fixture names, .env filenames, operation verbs, and container roles all live in bash and are hand-copied into the rbtd Rust manifest or lib.rs, kept in sync only by a runtime drift check. The work builds one generic bash→Rust const emitter and points every co-maintained group through it.
+
 ## Locked decisions
 
 - **Work that reads RBCC or the moorings layout is gated on ₣BK (moorings cutover) closing** — stable RBCC, settled layout, RBBC aliases retired. Cleanups touching neither are free to run.
-- **Constant-projection scope: single canonical bash author, or out.** A constant is projectable to another language only if exactly one bash module canonically owns it (the zipper registry, RBCC flat tinder). Constants whose identity is distributed across bash, disk, and Rust are excluded unless a separate canonical-author decision is taken first.
+- **Constant-projection scope: single canonical bash author, or out.** A constant is projectable to another language only if exactly one bash module canonically owns it. Constants whose identity is distributed across bash, disk, and Rust are excluded unless a separate canonical-author decision is taken first.
+- **Emitter is generic.** One BUK mechanism takes name/value pairs and emits Rust consts; every projector (colophon, RBCC, fixture, scattered) reuses it rather than each owning bespoke codegen.
+- **Full co-maintained set is in scope** — not just colophons + moorings dir. Groups with a single bash home are projected directly: colophons (rbz), the RBCC tinder set incl. credential roles and .env filenames (rbcc), fixture names (rbte). Groups scattered across bash today — operation verbs and container roles — earn a canonical-author tidy first (give them one bash home), then project. This honors the single-author rule rather than weakening it.
 
 ## What done looks like
 
-The redundancies in scope are gone: no capability that has a better-owned home elsewhere survives in two places, and no constant is hand-maintained on both sides of a language boundary that a single canonical source could feed.
+The redundancies in scope are gone: no capability that has a better-owned home elsewhere survives in two places, and no co-maintained constant group is hand-maintained on both sides of the bash↔Rust boundary. The rbtd manifest's hand-mirrored groups and the lib.rs path macros are fed from generation; the runtime drift check is retired in favor of a build-time diff gate.
