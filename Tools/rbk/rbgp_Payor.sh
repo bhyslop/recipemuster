@@ -924,19 +924,19 @@ rbgp_payor_install() {
   buc_log_args "Validating RBRP_OAUTH_CLIENT_ID matches OAuth JSON"
 
   if test -z "${RBRP_OAUTH_CLIENT_ID:-}"; then
-    buc_info "RBRP_OAUTH_CLIENT_ID missing from rbrp.env"
-    buc_info "Add this line to rbrp.env and commit:"
-    buc_code "echo 'RBRP_OAUTH_CLIENT_ID=${z_client_id}' >> rbrp.env"
+    buc_info "RBRP_OAUTH_CLIENT_ID missing from ${RBCC_rbrp_file}"
+    buc_info "Add this line to ${RBCC_rbrp_file} and commit:"
+    buc_code "echo 'RBRP_OAUTH_CLIENT_ID=${z_client_id}' >> ${RBCC_rbrp_file}"
     buc_die "RBRP_OAUTH_CLIENT_ID must be configured before payor_install"
   fi
 
   if test "${RBRP_OAUTH_CLIENT_ID}" != "${z_client_id}"; then
     buc_info "RBRP_OAUTH_CLIENT_ID mismatch"
-    buc_info "  rbrp.env has: ${RBRP_OAUTH_CLIENT_ID}"
+    buc_info "  ${RBCC_rbrp_file} has: ${RBRP_OAUTH_CLIENT_ID}"
     buc_info "  OAuth JSON:   ${z_client_id}"
     buc_info "Fix with:"
-    buc_code "sed -i '' 's|^RBRP_OAUTH_CLIENT_ID=.*|RBRP_OAUTH_CLIENT_ID=${z_client_id}|' rbrp.env"
-    buc_die "RBRP_OAUTH_CLIENT_ID in rbrp.env does not match OAuth JSON"
+    buc_code "sed -i '' 's|^RBRP_OAUTH_CLIENT_ID=.*|RBRP_OAUTH_CLIENT_ID=${z_client_id}|' ${RBCC_rbrp_file}"
+    buc_die "RBRP_OAUTH_CLIENT_ID in ${RBCC_rbrp_file} does not match OAuth JSON"
   fi
 
   buc_log_args "RBRP_OAUTH_CLIENT_ID validated: ${z_client_id}"
@@ -967,7 +967,7 @@ rbgp_payor_install() {
   buc_success "Payor OAuth installation completed successfully"
   buc_info "Credentials stored: ${z_rbro_file}"
   buc_info ""
-  buc_info "Configuration required in rbrp.env:"
+  buc_info "Configuration required in ${RBCC_rbrp_file}:"
   buc_info "  RBRP_PAYOR_PROJECT_ID=${z_project_id}"
   buc_info "  RBRP_OAUTH_CLIENT_ID=${z_client_id}"
   buc_info "  RBRP_OPERATOR_EMAIL=${z_operator_email}"
