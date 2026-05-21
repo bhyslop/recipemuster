@@ -105,7 +105,6 @@ The Folio column shows how each tabtarget receives it:
 
 | Colophon | Frontispiece | Folio | Purpose |
 |----------|-------------|-------|---------|
-| `rbw-Ic` | IfritClient | imprint | Launch Claude Code inside a running bottle for escape testing |
 | `rbw-Is` | IfritSortie | imprint | Run automated security test scripts inside the bottle |
 
 ### Image — Container image operations (`rbw-i`)

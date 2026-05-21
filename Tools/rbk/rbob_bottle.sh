@@ -575,13 +575,6 @@ rbob_bark() {
   exec ${ZRBOB_RUNTIME} exec "${ZRBOB_BOTTLE}" "$@"
 }
 
-# Launch Claude Code client inside bottle (ifrit engagement)
-rbob_ifrit_client() {
-  zrbob_sentinel
-  buc_step "Launching Claude Code client in bottle: ${ZRBOB_BOTTLE}"
-  exec ${ZRBOB_RUNTIME} exec -it -w "${RBRR_BOTTLE_WORKSPACE}" "${ZRBOB_BOTTLE}" claude
-}
-
 # Run ifrit sortie adjutant inside bottle (security test dispatch)
 rbob_ifrit_sortie() {
   zrbob_sentinel
