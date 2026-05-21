@@ -9992,9 +9992,10 @@
         "₢BQAAA",
         "₢BQAAB",
         "₢BQAAC",
-        "₢BQAAD"
+        "₢BQAAD",
+        "₢BQAAE"
       ],
-      "jjghn_next_pace_seed": "AAE",
+      "jjghn_next_pace_seed": "AAF",
       "jjghn_paces": {
         "₢BQAAA": {
           "jjgpn_tacks": [
@@ -10037,6 +10038,17 @@
               "jjgtn_text": "## Character\nSmall, self-contained dedup.\n\n`buc_tabtarget` re-implements the colophon-to-filename glob that `buyy_tt_yawp`\nalready owns. Make `buc_tabtarget` delegate to the yawp resolver so a single glob\nexists in the kit.\n\nSource: `buc_tabtarget` in `Tools/buk/buc_command.sh`; `buyy_tt_yawp` in\n`Tools/buk/buym_yelp.sh`.\n\nDone: one resolver; existing `buc_tabtarget` call sites render unchanged.",
               "jjgtn_silks": "collapse-tabtarget-glob-clone",
               "jjgtn_basis": "4f2ea0a"
+            }
+          ]
+        },
+        "₢BQAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260521-1009",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nVerification — proves the refactor is a no-op except the intended capability.\n\nConfirm the merge changed nothing observable but terminal-awareness. Exercise a\nsampling of operational output (e.g. a payor or regime command) and handbook\noutput (e.g. `tt/rbw-gPE.PayorEstablish.sh`) under three terminal modes: default,\n`NO_COLOR=1`, and `TERM=dumb`. Color must suppress cleanly in the latter two, and\nthe gray operation sigil must never appear on handbook prose (the two-register\nguarantee).\n\nDone: all three modes verified across both registers; full `fast` suite green.",
+              "jjgtn_silks": "verify-terminal-awareness-both-registers",
+              "jjgtn_basis": "9527eb0"
             }
           ]
         }
