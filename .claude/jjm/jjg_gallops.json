@@ -9990,9 +9990,10 @@
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BQAAA",
-        "₢BQAAB"
+        "₢BQAAB",
+        "₢BQAAC"
       ],
-      "jjghn_next_pace_seed": "AAC",
+      "jjghn_next_pace_seed": "AAD",
       "jjghn_paces": {
         "₢BQAAA": {
           "jjgpn_tacks": [
@@ -10013,6 +10014,17 @@
               "jjgtn_text": "## Character\nThe risk pace. Careful — touches the busiest output path and the error path.\n\nIntroduce `buc`'s internal display path: gate on `BURE_VERBOSE`, apply the gray\n`ZBUC_CONTEXT` operation sigil, and render the message through the shared\n`buyf_format_yawp` (color) — superseding the current raw-string display in\n`zbuc_print`. Wire the transcript half to render plain via the strip resolver so\nlogs carry neither ANSI nor diastema bytes.\n\nLocked hazard: `buc` color shifts from source-time literals to kindle-time\n`BUYC_*` readonlys, so display now depends on `buym` having kindled. A cold\n`buc_die` (no prior kindle) must not throw unbound-variable inside the error\npath. Guard with `zbuym_sentinel`; prove with an explicit cold-`buc_die` test.\n\nSource: `Tools/buk/buc_command.sh` — `zbuc_print`, `zbuc_tag_args`, `buc_die`.\n\nDone: the internal path renders terminal-aware and logs plain; the cold-die test\nis green.",
               "jjgtn_silks": "buc-shared-render-path-kindle-safe",
               "jjgtn_basis": "868d167"
+            }
+          ]
+        },
+        "₢BQAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260521-1009",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical, broad but shallow — many functions, each a thin rewrite.\n\nRoute every public `buc_*` display function through the new internal path with\nits semantic ambient color (step = white, success = green, warn = yellow prefix,\ndie = red prefix, code/bare = cyan, info = default). Signatures and observable\noutput stay unchanged except for terminal-awareness. Retire `buc`'s private\n`BUC_*` palette.\n\nSource: `Tools/buk/buc_command.sh` for the public wrappers. The few files outside\n`buc_command.sh` that reference raw `BUC_*` constants must migrate to the kindled\npalette — discover them with\n`grep -rl 'BUC_\\(red\\|yellow\\|green\\|cyan\\|white\\|gray\\|reset\\)' Tools/ --include=*.sh`.\n\nDone: all `buc_*` render via the shared core; the private palette is gone;\n`bash -n` clean and the `fast` suite green.",
+              "jjgtn_silks": "reexpress-buc-public-on-core",
+              "jjgtn_basis": "d63dc5c"
             }
           ]
         }
