@@ -10045,9 +10045,10 @@
       "jjghn_order": [
         "₢BPAAA",
         "₢BPAAB",
-        "₢BPAAC"
+        "₢BPAAC",
+        "₢BPAAD"
       ],
-      "jjghn_next_pace_seed": "AAD",
+      "jjghn_next_pace_seed": "AAE",
       "jjghn_paces": {
         "₢BPAAA": {
           "jjgpn_tacks": [
@@ -10086,6 +10087,17 @@
               "jjgtn_text": "## Character\n\nNovel BUK mechanism — design judgment lives in the emitter shape; the engine change is additive and low-risk. RBK-ignorant: BUK provides mechanism only, names nothing of its own.\n\n## Goal\n\nGive the zipper registry a stable cross-language symbol per enrolled colophon, and a generic emitter that projects those symbols to Rust consts — mirroring the existing bash-to-artifact pattern of `buz_emit_context`.\n\n## Shape\n\n- `buz_enroll` must retain the enroll varname in a new roll. Today it `printf -v`'s the colophon into the caller and discards the varname, so the registry has no stable symbol for an emitter to name consts after. Additive: `printf -v` stays, existing callers untouched.\n- Add a generic Rust-const emitter (sibling target to `buz_emit_context`) over the kindled rolls. The generated const name is the enroll varname verbatim.\n- Generic and domain-agnostic — emits whatever rolls it is handed. Dependency points RBK to BUK only.\n\n## Sources\n\n- `Tools/buk/buz_zipper.sh` — `buz_enroll` (varname discard site) and `buz_emit_context` (the bash-to-artifact template)\n\n## What done looks like\n\n- A roll carries enroll varnames; a BUK emitter turns the rolls into `pub const NAME: &str = \"...\";` lines; the BUK self-test stays green.",
               "jjgtn_silks": "buz-rust-const-emitter",
               "jjgtn_basis": "aacac44"
+            }
+          ]
+        },
+        "₢BPAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260520-1737",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nMechanical once the emitter exists, but broad — an 11-site consumer rename plus a retirement.\n\n## Goal\n\nGenerate the rbtd colophon consts from the rbz registry via the BUK emitter, migrate every consumer to the generated names, and retire the hand-mirror plus its runtime drift check.\n\n## Shape\n\n- Wire the rbz colophon rolls through the BUK emitter to a checked-in generated Rust file.\n- Generated const names carry the enroll varname verbatim — this retires the curated `RBTDRM_COLOPHON_*` names, a rename across their reference sites.\n- Migrate the Rust consumers off `RBTDRM_COLOPHON_*` and the inline colophon literals (e.g. the fast suite) onto the generated consts.\n- Retire `rbtdrm_verify` — exact-equality generation supersedes its drift-detection role.\n- Out of scope, left hand-written: `RBTDRM_FIXTURE_*`, `RBTDRM_OPERATION_*`, `RBTDRM_CONTAINER_*` — no single canonical bash author.\n\n## Sources\n\n- `Tools/rbk/rbz_zipper.sh` — colophon registry\n- `Tools/rbk/rbtd/src/rbtdrm_manifest.rs` — hand-mirror + `rbtdrm_verify` (target to replace)\n- `grep -rln \"RBTDRM_COLOPHON\\|rbtdrm_verify\" Tools/rbk/rbtd/src/` — consumer sites\n\n## What done looks like\n\n- Colophon consts are generated, not hand-written; consumers and inline literals reference the generated names; `rbtdrm_verify` is gone; Rust builds and the fast suite is green.",
+              "jjgtn_silks": "colophon-codegen-projection",
+              "jjgtn_basis": "29de766"
             }
           ]
         }
