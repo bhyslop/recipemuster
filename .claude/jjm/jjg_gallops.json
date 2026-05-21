@@ -9786,9 +9786,10 @@
         "₢BPAAC",
         "₢BPAAD",
         "₢BPAAE",
+        "₢BPAAG",
         "₢BPAAF"
       ],
-      "jjghn_next_pace_seed": "AAG",
+      "jjghn_next_pace_seed": "AAH",
       "jjghn_paces": {
         "₢BPAAA": {
           "jjgpn_tacks": [
@@ -9916,6 +9917,17 @@
               "jjgtn_text": "## Character\n\nTouches qualify infrastructure and build ordering; subtle — the regenerate-vs-consume distinction is load-bearing.\n\n## Goal\n\nWire generation into the build lifecycle so the committed artifact is regenerated at the BUK-available layer before every Rust build, never regenerated inside the container, and a stale commit fails qualify loud.\n\n## Shape\n\n- Regenerate the generated file(s) before every Rust build, at the layer where BUK is available.\n- A build inside the minimal container consumes the committed artifact and never regenerates (no BUK present there).\n- Add a `git diff --exit-code` qualify gate so a stale committed artifact fails loud. This supersedes the drift role that `rbtdrm_verify` formerly held, with exact equality.\n\n## Sources\n\n- `Tools/rbk/rbtd/rbtw_workbench.sh` and the rbtd build tabtargets — Rust build entry\n- `tt/rbw-tf.QualifyFast.sh`, `tt/rbw-tr.QualifyRelease.sh`, `tt/rbw-tP.QualifyPristine.sh` — qualify gates\n- Any existing diff-gate around the `buz_emit_context`-generated markdown context — precedent for the regeneration wiring\n\n## What done looks like\n\n- The generated artifact is regenerated pre-build outside the container; the container build consumes the commit; qualify fails on a deliberately-staled artifact.",
               "jjgtn_silks": "codegen-build-wiring-and-diff-gate",
               "jjgtn_basis": "3f61ac5"
+            }
+          ]
+        },
+        "₢BPAAG": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260520-2034",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nMechanical projection over a single-homed group; mirrors the colophon pace's shape against a different bash owner.\n\n## Goal\n\nGenerate the rbtd fixture-name consts from their canonical bash owner via the generic emitter and migrate consumers off the hand-mirror in `rbtdrm_manifest.rs`.\n\n## Shape\n\n- Fixture names are canonically authored in `Tools/rbk/rbtd/rbte_engine.sh` and hand-copied into `rbtdrm_manifest.rs`. Single home exists — projectable without a tidy step.\n- Feed the names through the generic emitter as name/value pairs to a checked-in generated file; migrate manifest consumers and any inline fixture literals onto the generated consts.\n- Keep the runtime drift check alive until the diff-gate lands (same handover discipline as the colophon pace).\n\n## Sources\n\n- `Tools/rbk/rbtd/rbte_engine.sh` — fixture-name canonical author\n- `Tools/rbk/rbtd/src/rbtdrm_manifest.rs` — fixture hand-mirror\n\n## What done looks like\n\n- Fixture consts are generated, not hand-written; consumers reference the generated names; Rust builds and the fast suite is green.",
+              "jjgtn_silks": "fixture-codegen-projection",
+              "jjgtn_basis": "55daad2"
             }
           ]
         }
