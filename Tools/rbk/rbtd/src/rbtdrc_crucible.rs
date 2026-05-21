@@ -484,8 +484,8 @@ fn rbtdrc_sentry_config_rp_filter(dir: &Path) -> rbtdre_Verdict {
             .unwrap_or_default();
 
         let expected = match entry_mode.as_str() {
-            "enabled" => "2",
-            "disabled" => "1",
+            "rbnne_enabled" => "2",
+            "rbnne_disabled" => "1",
             other => {
                 return rbtdre_Verdict::Fail(format!("unexpected RBRN_ENTRY_MODE '{}'", other));
             }
@@ -507,7 +507,7 @@ fn rbtdrc_sentry_config_prerouting_dnat(dir: &Path) -> rbtdre_Verdict {
             Ok(m) => m,
             Err(e) => return rbtdre_Verdict::Fail(format!("read RBRN_ENTRY_MODE: {}", e)),
         };
-        if entry_mode != "enabled" {
+        if entry_mode != "rbnne_enabled" {
             return rbtdre_Verdict::Skip(format!("entry-mode={}", entry_mode));
         }
         let output = match rbtdrc_writ(ctx, &["iptables", "-t", "nat", "-S", "PREROUTING"]) {
@@ -561,7 +561,7 @@ fn rbtdrc_sentry_config_postrouting_masquerade(dir: &Path) -> rbtdre_Verdict {
             Ok(m) => m,
             Err(e) => return rbtdre_Verdict::Fail(format!("read RBRN_ENTRY_MODE: {}", e)),
         };
-        if entry_mode != "enabled" {
+        if entry_mode != "rbnne_enabled" {
             return rbtdre_Verdict::Skip(format!("entry-mode={}", entry_mode));
         }
         let output = match rbtdrc_writ(ctx, &["iptables", "-t", "nat", "-S", "POSTROUTING"]) {

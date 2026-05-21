@@ -3487,13 +3487,13 @@ Mode for user-initiated entry functionality.
 //axl_voices axt_enum_value axd_string
 {rbrn_entry_mode_disabled}::
 Entry functionality is disabled; no user-initiated connections.
-Serialized as `disabled` in bash regime variable value.
+Serialized as `rbnne_disabled` in bash regime variable value.
 
 [[rbrn_entry_mode_enabled]]
 //axl_voices axt_enum_value axd_string
 {rbrn_entry_mode_enabled}::
 Entry functionality is enabled; user-initiated connections accepted.
-Serialized as `enabled` in bash regime variable value.
+Serialized as `rbnne_enabled` in bash regime variable value.
 
 [[rbrn_entry_port_workstation]]
 //axvr_variable axd_conditional rbst_port
@@ -3539,19 +3539,19 @@ DNS resolution mode for bottle-initiated requests.
 //axl_voices axt_enum_value axd_string
 {rbrn_uplink_dns_mode_disabled}::
 DNS resolution disabled; no bottle-initiated DNS queries.
-Serialized as `disabled` in bash regime variable value.
+Serialized as `rbnne_disabled` in bash regime variable value.
 
 [[rbrn_uplink_dns_mode_global]]
 //axl_voices axt_enum_value axd_string
 {rbrn_uplink_dns_mode_global}::
 DNS resolution globally enabled; all domains resolvable.
-Serialized as `global` in bash regime variable value.
+Serialized as `rbnne_global` in bash regime variable value.
 
 [[rbrn_uplink_dns_mode_allowlist]]
 //axl_voices axt_enum_value axd_string
 {rbrn_uplink_dns_mode_allowlist}::
 DNS resolution restricted to allowed domains.
-Serialized as `allowlist` in bash regime variable value.
+Serialized as `rbnne_allowlist` in bash regime variable value.
 
 [[rbrn_uplink_access_mode]]
 //axvr_variable axd_required axt_enumeration
@@ -3562,19 +3562,19 @@ IP access mode for bottle-initiated connections.
 //axl_voices axt_enum_value axd_string
 {rbrn_uplink_access_mode_disabled}::
 IP access disabled; no bottle-initiated outbound connections.
-Serialized as `disabled` in bash regime variable value.
+Serialized as `rbnne_disabled` in bash regime variable value.
 
 [[rbrn_uplink_access_mode_global]]
 //axl_voices axt_enum_value axd_string
 {rbrn_uplink_access_mode_global}::
 IP access globally enabled; all destinations reachable.
-Serialized as `global` in bash regime variable value.
+Serialized as `rbnne_global` in bash regime variable value.
 
 [[rbrn_uplink_access_mode_allowlist]]
 //axl_voices axt_enum_value axd_string
 {rbrn_uplink_access_mode_allowlist}::
 IP access restricted to allowed CIDR ranges.
-Serialized as `allowlist` in bash regime variable value.
+Serialized as `rbnne_allowlist` in bash regime variable value.
 
 [[rbrn_uplink_allowed_cidrs]]
 //axvr_variable axd_conditional rbst_cidr_list

@@ -931,14 +931,14 @@ export RBRN_SENTRY_VESSEL=\"test-sentry\"\n\
 export RBRN_BOTTLE_VESSEL=\"test-bottle\"\n\
 export RBRN_SENTRY_HALLMARK=\"c260101000000-r260101000000\"\n\
 export RBRN_BOTTLE_HALLMARK=\"c260101000000-r260101000000\"\n\
-export RBRN_ENTRY_MODE=\"disabled\"\n\
+export RBRN_ENTRY_MODE=\"rbnne_disabled\"\n\
 export RBRN_ENCLAVE_BASE_IP=\"10.200.0.0\"\n\
 export RBRN_ENCLAVE_NETMASK=\"24\"\n\
 export RBRN_ENCLAVE_SENTRY_IP=\"10.200.0.2\"\n\
 export RBRN_ENCLAVE_BOTTLE_IP=\"10.200.0.3\"\n\
 export RBRN_UPLINK_PORT_MIN=\"10000\"\n\
-export RBRN_UPLINK_DNS_MODE=\"disabled\"\n\
-export RBRN_UPLINK_ACCESS_MODE=\"disabled\"";
+export RBRN_UPLINK_DNS_MODE=\"rbnne_disabled\"\n\
+export RBRN_UPLINK_ACCESS_MODE=\"rbnne_disabled\"";
 
 fn rbtdrf_rv_rbrn_neg(dir: &Path, label: &str, override_: &str) -> rbtdre_Verdict {
     rbtdrf_run_rv(dir, "",
@@ -971,7 +971,7 @@ fn rbtdrf_rv_rbrn_port_conflict(dir: &Path) -> rbtdre_Verdict {
     // Use enabled baseline with port conflict: workstation >= uplink min
     rbtdrf_run_rv(dir, "",
         &format!("{}\n\
-            export RBRN_ENTRY_MODE=\"enabled\"\n\
+            export RBRN_ENTRY_MODE=\"rbnne_enabled\"\n\
             export RBRN_ENTRY_PORT_WORKSTATION=\"10001\"\n\
             export RBRN_ENTRY_PORT_ENCLAVE=\"8888\"\n\
             export RBRN_UPLINK_PORT_MIN=\"10000\"\n\
