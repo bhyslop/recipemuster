@@ -899,6 +899,9 @@ rbgp_payor_install() {
   if test -n "${z_error}"; then
     local z_error_desc
     z_error_desc=$(jq -r '.error_description // .error // "Unknown error"' <<<"${z_response}")
+    buc_info "OAuth token exchange failed (Google reported: ${z_error} - ${z_error_desc})"
+    buc_info "Authorization codes are single-use and expire within minutes."
+    buc_info "Re-run this command, then copy the full code and paste it promptly."
     buc_die "OAuth token exchange failed: ${z_error_desc}"
   fi
 
