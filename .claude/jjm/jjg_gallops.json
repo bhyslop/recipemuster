@@ -9527,9 +9527,10 @@
       "jjghn_order": [
         "₢BJAAA",
         "₢BJAAB",
+        "₢BJAAD",
         "₢BJAAC"
       ],
-      "jjghn_next_pace_seed": "AAD",
+      "jjghn_next_pace_seed": "AAE",
       "jjghn_paces": {
         "₢BJAAA": {
           "jjgpn_tacks": [
@@ -9582,6 +9583,17 @@
               "jjgtn_text": "## Character\n\nDesign conversation. Inventory + migration plan only — no rename, no\ncode edits. Mount-time picks the output format and spawns subsequent\nmigration paces that consume the inventory.\n\n## Goal\n\nProduce a complete listing of regime enum values across the project\nthat need to be sprue-prefixed, plus the data subsequent paces need\nto decide migration cadence. Convention shape was locked in the\nBBABJ wrap-thread: `<proj><n><regime><e>_<value>` — e.g.\n`rbnve_conjure` for rb-vessel-regime, `bunne_linux` for bu-node-regime.\nExisting `bubep_*` (BURN_PLATFORM) is the older-shape exemplar;\ninventory explicitly recommends harmonize vs grandfather.\n\n## Sweep scope — all languages\n\nBash, AsciiDoc specs, Python Cloud Build steps, Cloud Build YAML\nsubstitutions, Rust test fixtures. Both declaration sites\n(`buv_enum_enroll`, `buv_gate_enroll`) and every consuming use site\n(equality test, case-statement arm, JSON literal, prose mention)\nclassified by language for cadence costing. Cadence decisions\nthemselves are deferred to the migration paces — this pace just\ngathers the data they need.\n\n## Discovery recipe\n\n- `grep -rn 'buv_enum_enroll' Tools/{buk,rbk}/` → declarations + values\n- Per discovered value V: `grep -rn '\\bV\\b' Tools/` filtered by\n  extension; cross-check regime `.adoc` specs (RBSRV, RBSRN, BUS0,\n  and any other `RB[SR]*` / `BU[S]*` regime-touching spec) for prose\n  mentions\n- Verify no enum missed: cross-walk `buv_gate_enroll` invocations\n  against the discovered enum set\n\n## Posture\n\nBurn-bridges migration — no backwards compatibility. Depots reform\non execution. Single-sweep target; deep testing (regime-validation,\ndockerfile-hygiene, gauntlet) catches stragglers post-migration.\nInventory is a consumable working artifact, not a permanent spec\nfossil.\n\n## Decision support to surface for migration paces\n\n- Per-regime vs per-variable migration ordering (site counts inform)\n- Which fixtures gate which migrations\n- Harmonize-or-grandfather recommendation for `bubep_*`\n\n## Out of scope\n\nRename execution. Cadence decision. Convention spec authoring (lives\nwith the migration paces). Sub-letter map design (locked: `n` for\nnamespace, regime-letter from the rbr*/bur* family, `e` for enum).",
               "jjgtn_silks": "regime-enum-sprue-inventory",
               "jjgtn_basis": "79b61b0"
+            }
+          ]
+        },
+        "₢BJAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260520-2043",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nDesign sub-task, forced by the ₢BJAAB step gate. Interface design + minting\nfirst, then mechanical migration. Not a mechanical pace.\n\n## Goal\n\nMigrate the 24 regime-validation *negative* cases in `rbtdrf_fast.rs` off their\nbypass (RBRR: source real regime + `export`-override one var; RBRV/RBRN: fully\nsynthetic env baselines; all then call `z`-private kindle/enforce) onto a\ndeclared file-accepting validate entry point. Verdicts unchanged; each negative\nmust fail for the same reason.\n\n## Why a new entry is required (step-gate finding — do not re-derive)\n\nExisting validate tabtargets (`rbw-rrv`/`rvv`/`rnv`) read the fixed real moorings\ntree: `RBCC_moorings_dir` is a non-overridable relative literal, and\n`tt/z-launcher.sh` pins CWD to the real repo root (`cd -P` to `tt/..`). So\nstaging a malformed regime via cwd or env is impossible, and physically staging\nmalformed files under `rbmm_moorings/` pollutes the tree AND breaks the positive\nall-`*` glob cases. The malformed state the negatives inject lives in-shell and\ncannot cross a tabtarget process boundary.\n\n## Shape\n\n- Declare a public/test entry validating an arbitrary regime file — sketch\n  `<prefix>_t_validate <regime>` on rbrr/rbrv/rbrn. NOT a test-only tabtarget.\n  Mint per prefix discipline.\n- Migrate the 24 negatives (12 RBRR, 4 RBRV, 8 RBRN) to write a staged malformed\n  regime to the case temp dir and drive that entry against it.\n\n## Reliability\n\nBaseline at `/tmp/bjaab-fast-baseline.md` (re-capture if stale). Post-migration\nverdict set matches exactly; each negative fails for the SAME diagnostic\n(spot-check, not just exit status).\n\n## References\n\n- `Tools/rbk/rbtd/src/rbtdrf_fast.rs` — `rbtdrf_run_rv` + the 24 negative cases\n- `Tools/rbk/rbrr_cli.sh`, `rbrv_cli.sh`, `rbrn_cli.sh` — `*_validate` entries\n- `Tools/rbk/rbcc_Constants.sh` — `RBCC_moorings_dir`; `tt/z-launcher.sh` — CWD pin",
+              "jjgtn_silks": "rv-negative-test-api",
+              "jjgtn_basis": "169ea0c"
             }
           ]
         }
