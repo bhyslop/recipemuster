@@ -38,12 +38,6 @@ zrbte_kindle() {
   readonly RBTE_MANIFEST="${z_dir}/Cargo.toml"
   readonly ZRBTE_BINARY="${z_dir}/target/debug/rbtd"
 
-  # Theurge-own colophons (routed by rbte_dispatch, not the RBK zipper)
-  readonly ZRBTE_COLOPHONS="rbtd-ap"
-
-  # Combined manifest: RBK zipper colophons + theurge-own colophons
-  readonly ZRBTE_FULL_MANIFEST="${ZRBZ_COLOPHON_MANIFEST} ${ZRBTE_COLOPHONS}"
-
   # Suite-to-fixture mappings
   ZRBTE_SUITE_FAST=(
     "enrollment-validation"
@@ -138,7 +132,7 @@ rbte_run() {
   zrbte_build_binary
 
   buc_step "Running theurge fixture '${z_fixture}'"
-  "${ZRBTE_BINARY}" "${ZRBTE_FULL_MANIFEST}" "${z_fixture}"
+  "${ZRBTE_BINARY}" "${ZRBZ_COLOPHON_MANIFEST}" "${z_fixture}"
 }
 
 rbte_suite() {
@@ -156,7 +150,7 @@ rbte_suite() {
   local z_fixture
   for z_fixture in ${z_fixture_list}; do
     buc_step "Running theurge fixture '${z_fixture}'"
-    "${ZRBTE_BINARY}" "${ZRBTE_FULL_MANIFEST}" "${z_fixture}"
+    "${ZRBTE_BINARY}" "${ZRBZ_COLOPHON_MANIFEST}" "${z_fixture}"
     z_count=$((z_count + 1))
   done
 
@@ -170,42 +164,7 @@ rbte_single() {
 
   local z_fixture="${1:-}"
   local z_case="${2:-}"
-  "${ZRBTE_BINARY}" single "${ZRBTE_FULL_MANIFEST}" ${z_fixture:+"${z_fixture}"} ${z_case:+"${z_case}"}
-}
-
-rbte_probe() {
-  zrbte_sentinel
-
-  local -r z_role="${BURD_TOKEN_3:-}"
-  test -n "${z_role}" || buc_die "No role imprint — use tabtarget with imprint (e.g. rbtd-ap.AccessProbe.governor.sh)"
-
-  case "${z_role}" in
-    governor|director|retriever)
-      # JWT SA propagation-absorbing budget: 60 attempts × 3000ms ≈ 180s worst case.
-      # Happy path exits on first 2xx; budget consumed only when post-mint IAM
-      # propagation lags. Each retry mints a fresh JWT-OAuth token, so the inner
-      # rbgo_get_token_capture race (BBAAp) is exercised independently per attempt.
-      local -r z_iterations=60
-      local -r z_delay_ms=3000
-      buc_step "JWT SA access probe: ${z_role}"
-      rbgv_jwt_sa_probe "${z_role}" "${z_iterations}" "${z_delay_ms}"
-      buc_success "${z_role} JWT access probe passed"
-      ;;
-    payor)
-      # Payor probe semantic unchanged: stability-sample loop.
-      local -r z_iterations=5
-      local -r z_delay_ms=1500
-      buc_step "Payor OAuth access probe"
-      source "${RBCC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBCC_rbrp_file}"
-      zrbrp_kindle
-      zrbrp_enforce
-      rbgv_payor_oauth_probe "${z_iterations}" "${z_delay_ms}"
-      buc_success "Payor OAuth access probe passed"
-      ;;
-    *)
-      buc_die "Unknown access-probe role: ${z_role} (expected governor|director|retriever|payor)"
-      ;;
-  esac
+  "${ZRBTE_BINARY}" single "${ZRBZ_COLOPHON_MANIFEST}" ${z_fixture:+"${z_fixture}"} ${z_case:+"${z_case}"}
 }
 
 # eof

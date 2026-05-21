@@ -22,6 +22,15 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-arr` | GovernorRostersRetrievers | — | Roster Retriever service accounts (emit per-identity fact files) |
 | `rbw-adr` | GovernorRostersDirectors | — | Roster Director service accounts (emit per-identity fact files) |
 
+### Access — Credential access probes (`rbw-ac`)
+
+| Colophon | Frontispiece | Folio | Purpose |
+|----------|-------------|-------|---------|
+| `rbw-acg` | CheckGovernorCredential | — | Check the governor credential reaches Google Cloud (JWT SA access probe) |
+| `rbw-acr` | CheckRetrieverCredential | — | Check the retriever credential reaches Google Cloud (JWT SA access probe) |
+| `rbw-acd` | CheckDirectorCredential | — | Check the director credential reaches Google Cloud (JWT SA access probe) |
+| `rbw-acp` | CheckPayorCredential | — | Check the payor credential reaches Google Cloud (OAuth access probe) |
+
 ### Crucible — Container runtime (`rbw-c`)
 
 | Colophon | Frontispiece | Folio | Purpose |

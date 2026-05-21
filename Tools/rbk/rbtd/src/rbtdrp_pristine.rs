@@ -29,15 +29,16 @@ use crate::rbtdrb_probe::{rbtdrb_assert, rbtdrb_Probe};
 use crate::rbtdrc_crucible::rbtdrc_with_ctx;
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
 use crate::rbtdri_invocation::{
-    rbtdri_invoke_global, rbtdri_invoke_imprint, rbtdri_read_burv_fact, rbtdri_Context,
+    rbtdri_invoke_global, rbtdri_read_burv_fact, rbtdri_Context,
     RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP, RBTDRI_BURV_OUTPUT_SUBDIR,
 };
 use crate::rbtdrm_manifest::{
-    RBTDRM_COLOPHON_ACCESS_PROBE, RBTDRM_COLOPHON_DEPOT_LEVY, RBTDRM_COLOPHON_DEPOT_LIST,
-    RBTDRM_COLOPHON_DEPOT_UNMAKE, RBTDRM_COLOPHON_GOV_DIVEST_DIRECTOR,
+    RBTDRM_COLOPHON_CHECK_DIRECTOR, RBTDRM_COLOPHON_CHECK_RETRIEVER, RBTDRM_COLOPHON_DEPOT_LEVY,
+    RBTDRM_COLOPHON_DEPOT_LIST, RBTDRM_COLOPHON_DEPOT_UNMAKE, RBTDRM_COLOPHON_GOV_DIVEST_DIRECTOR,
     RBTDRM_COLOPHON_GOV_DIVEST_RETRIEVER, RBTDRM_COLOPHON_GOV_INVEST_DIRECTOR,
     RBTDRM_COLOPHON_GOV_INVEST_RETRIEVER, RBTDRM_COLOPHON_GOV_MANTLE,
-    RBTDRM_FIXTURE_PRISTINE_LIFECYCLE,
+    RBTDRM_FIXTURE_PRISTINE_LIFECYCLE, RBTDRM_ROLE_DIRECTOR, RBTDRM_ROLE_GOVERNOR,
+    RBTDRM_ROLE_RETRIEVER,
 };
 
 /// RBRR field names referenced by the pristine-lifecycle fixture. Field
@@ -120,8 +121,14 @@ const RBTDRP_FACT_GOVERNOR_SA_EMAIL: &str = "rbgp_fact_governor_sa_email";
 /// after a soft-delete, used by case 2 to relax the post-unmake assertion.
 const RBTDRP_DELETE_REQUESTED: &str = "DELETE_REQUESTED";
 
-/// Roles whose RBRA credential files rblm_zero deletes.
-const RBTDRP_RBRA_ROLES: &[&str] = &["governor", "director", "retriever", "assay"];
+/// Roles whose RBRA credential files rblm_zero deletes. "assay" is the
+/// invest-drop slot, not a credential role, so it stays a bare literal.
+const RBTDRP_RBRA_ROLES: &[&str] = &[
+    RBTDRM_ROLE_GOVERNOR,
+    RBTDRM_ROLE_DIRECTOR,
+    RBTDRM_ROLE_RETRIEVER,
+    "assay",
+];
 
 /// Nameplate hallmark fields rblm_zero blanks.
 const RBTDRP_RBRN_BLANK_FIELDS: &[&str] = &["RBRN_SENTRY_HALLMARK", "RBRN_BOTTLE_HALLMARK"];
@@ -902,7 +909,7 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
         ));
     }
 
-    let governor_canonical = match rbtdrp_canonical_rbra(&root, "governor") {
+    let governor_canonical = match rbtdrp_canonical_rbra(&root, RBTDRM_ROLE_GOVERNOR) {
         Ok(p) => p,
         Err(e) => return rbtdre_Verdict::Fail(format!("canonical governor RBRA path: {}", e)),
     };
@@ -949,7 +956,7 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
         ));
     }
 
-    let retriever_canonical = match rbtdrp_canonical_rbra(&root, "retriever") {
+    let retriever_canonical = match rbtdrp_canonical_rbra(&root, RBTDRM_ROLE_RETRIEVER) {
         Ok(p) => p,
         Err(e) => return rbtdre_Verdict::Fail(format!("canonical retriever RBRA path: {}", e)),
     };
@@ -970,10 +977,10 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
         ));
     }
 
-    let probe_ret = match rbtdri_invoke_imprint(
+    let probe_ret = match rbtdri_invoke_global(
         ctx,
-        RBTDRM_COLOPHON_ACCESS_PROBE,
-        "retriever",
+        RBTDRM_COLOPHON_CHECK_RETRIEVER,
+        &[],
         &[],
     ) {
         Ok(r) => r,
@@ -1015,7 +1022,7 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
             assay_canonical.display()
         ));
     }
-    let director_canonical = match rbtdrp_canonical_rbra(&root, "director") {
+    let director_canonical = match rbtdrp_canonical_rbra(&root, RBTDRM_ROLE_DIRECTOR) {
         Ok(p) => p,
         Err(e) => return rbtdre_Verdict::Fail(format!("canonical director RBRA path: {}", e)),
     };
@@ -1036,10 +1043,10 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
         ));
     }
 
-    let probe_dir = match rbtdri_invoke_imprint(
+    let probe_dir = match rbtdri_invoke_global(
         ctx,
-        RBTDRM_COLOPHON_ACCESS_PROBE,
-        "director",
+        RBTDRM_COLOPHON_CHECK_DIRECTOR,
+        &[],
         &[],
     ) {
         Ok(r) => r,

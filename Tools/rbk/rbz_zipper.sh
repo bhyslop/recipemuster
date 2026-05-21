@@ -45,6 +45,14 @@ zrbz_kindle() {
   buz_enroll RBZ_ROSTER_RETRIEVERS       "rbw-arr" "${z_mod}" "rbgg_roster_retrievers"     ""        "Roster Retriever service accounts (emit per-identity fact files)"
   buz_enroll RBZ_ROSTER_DIRECTORS        "rbw-adr" "${z_mod}" "rbgg_roster_directors"      ""        "Roster Director service accounts (emit per-identity fact files)"
 
+  # Access — credential access probes (rbw-ac), one colophon per role
+  buz_group RBZ__GROUP_ACCESS     "rbw-ac"  "Access — Credential access probes"
+  z_mod="rbgv_cli.sh"
+  buz_enroll RBZ_CHECK_GOVERNOR          "rbw-acg" "${z_mod}" "rbgv_check_governor"        ""        "Check the governor credential reaches Google Cloud (JWT SA access probe)"
+  buz_enroll RBZ_CHECK_RETRIEVER         "rbw-acr" "${z_mod}" "rbgv_check_retriever"       ""        "Check the retriever credential reaches Google Cloud (JWT SA access probe)"
+  buz_enroll RBZ_CHECK_DIRECTOR          "rbw-acd" "${z_mod}" "rbgv_check_director"        ""        "Check the director credential reaches Google Cloud (JWT SA access probe)"
+  buz_enroll RBZ_CHECK_PAYOR             "rbw-acp" "${z_mod}" "rbgv_check_payor"           ""        "Check the payor credential reaches Google Cloud (OAuth access probe)"
+
   # Crucible — container runtime (rbw-c)
   buz_group RBZ__GROUP_CRUCIBLE   "rbw-c"   "Crucible — Container runtime"
   z_mod="rbob_cli.sh"

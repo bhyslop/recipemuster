@@ -20,7 +20,9 @@ use std::path::PathBuf;
 
 use super::rbtdre_engine::rbtdre_Verdict;
 use super::rbtdri_invocation::*;
-use super::rbtdrm_manifest::RBTDRM_COLOPHON_ORDAIN;
+use super::rbtdrm_manifest::{
+    RBTDRM_COLOPHON_CHARGE, RBTDRM_COLOPHON_ORDAIN, RBTDRM_FIXTURE_SRJCL, RBTDRM_FIXTURE_TADMOR,
+};
 use super::rbtdth_helpers::rbtdth_scratch_root;
 
 fn rbtdti_make_temp(label: &str) -> PathBuf {
@@ -415,15 +417,18 @@ fn rbtdti_invoke_global_passes_extra_env() {
 fn rbtdti_invoke_imprint_finds_correct_target() {
     let tmp = rbtdti_make_temp("invoke-imprint");
     let tt = rbtdti_make_tt_dir(&tmp);
-    rbtdti_write_script(&tt, "rbtd-ap.AccessProbe.governor.sh", "echo 'governor'\n");
-    rbtdti_write_script(&tt, "rbtd-ap.AccessProbe.director.sh", "echo 'director'\n");
+    let charge_tadmor = format!("{}.Charge.{}.sh", RBTDRM_COLOPHON_CHARGE, RBTDRM_FIXTURE_TADMOR);
+    let charge_srjcl = format!("{}.Charge.{}.sh", RBTDRM_COLOPHON_CHARGE, RBTDRM_FIXTURE_SRJCL);
+    rbtdti_write_script(&tt, &charge_tadmor, &format!("echo '{}'\n", RBTDRM_FIXTURE_TADMOR));
+    rbtdti_write_script(&tt, &charge_srjcl, &format!("echo '{}'\n", RBTDRM_FIXTURE_SRJCL));
 
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
     let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
-    let result = rbtdri_invoke_imprint(&mut ctx, "rbtd-ap", "governor", &[]).unwrap();
+    let result =
+        rbtdri_invoke_imprint(&mut ctx, RBTDRM_COLOPHON_CHARGE, RBTDRM_FIXTURE_TADMOR, &[]).unwrap();
 
-    assert!(result.stdout.contains("governor"));
+    assert!(result.stdout.contains(RBTDRM_FIXTURE_TADMOR));
 
     let _ = std::fs::remove_dir_all(&tmp);
 }
