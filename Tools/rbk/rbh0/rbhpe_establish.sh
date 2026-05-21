@@ -140,7 +140,7 @@ rbhp_establish() {
   buh_line     "   5. If project is NOT listed and billing needs to be enabled:"
   buyy_href_yawp "https://console.cloud.google.com/billing/linkedaccount?project=${RBRP_PAYOR_PROJECT_ID}" "Project Billing"; local -r z_href_project_billing="${z_buym_yelp}"
   buh_line     "      - Go to: ${z_href_project_billing}"
-  buyy_ui_yawp "Link a Billing Account"; local -r z_ui_link_billing_account="${z_buym_yelp}"
+  buyy_ui_yawp "Link a billing account"; local -r z_ui_link_billing_account="${z_buym_yelp}"
   buh_line     "      - Click ${z_ui_link_billing_account}"
   buh_line     "      - Select your billing account and confirm"
   buh_e
