@@ -105,6 +105,10 @@
 :burp_prefix:                      <<burp_prefix,BURP_>>
 :burs_prefix:                      <<burs_prefix,BURS_>>
 
+// Regime Enum Sprue Convention (cross-kit enum-value naming)
+:bus_enum_sprue:                   <<bus_enum_sprue,Regime Enum Sprue>>
+:bus_enum_sprue_s:                 <<bus_enum_sprue,Regime Enum Sprues>>
+
 // BURC Regime: Configuration (project-level BUK settings)
 :burc_regime:                      <<burc_regime,BURC Regime>>
 :burc_station_file:                <<burc_station_file,BURC_STATION_FILE>>
@@ -981,6 +985,98 @@ Bash Utility Regime Node
 //axl_voices axrg_prefix
 {bure_prefix}::
 Bash Utility Environment Regime
+
+=== Regime Enum Sprue Convention
+
+{axrg_regime_s} across BUK and the kits layered on it (Recipe Bottle's
+RBRV/RBRN families among them) declare enumerated {axrg_variable_s} through
+`buv_enum_enroll`.
+This convention governs how the *values* of those enumerations are named, so
+that each value is discoverable from its enum family by a single grep.
+
+[[bus_enum_sprue]]
+//axl_voices axt_enum_value
+{bus_enum_sprue}::
+A regime enum value carried in prefix-disciplined form rather than as a bare
+English word.
+The value is a sprue in the MCM sense (`mcm_sprue`): a literal wire-level
+token appearing verbatim in regime assignment files, Cloud Build
+substitutions, build-info JSON, and shell/Python comparisons.
+Bare, the token is invisible to its enum family; a recognizable prefix makes
+it also an MCM inlay (`mcm_inlay`) — recognized by pattern, so a `grep` on
+the family prefix returns the whole cluster.
++
+Pattern: `<proj><n><regime><e>_<value>`
++
+* `<proj>` — project cipher (`rb` Recipe Bottle, `bu` BUK)
+* `<n>` — regime-namespace signal (`n`; `r` is taken by the regime-variable
+  family `rbr*`/`bur*`)
+* `<regime>` — regime family letter (`v` vessel, `n` node, `c` config,
+  `s` station, `e` environment)
+* `<e>` — enum-value signal
+* `_<value>` — the canonical value name
++
+Family-sharing is deliberate, not accidental: vessel-mode and egress-mode
+both carry `rbnve_` (both vessel-regime); the three node-mode enums share
+`rbnne_`, so `rbnne_disabled` is voiced alike by ENTRY, DNS, and ACCESS.
+Uniqueness lives in the full value plus its owning {axrg_variable}, not in
+the shared prefix — one grep per family returns the complete cluster.
+
+==== Target Enums
+
+Vessel regime (`rbnve_`):
+
+* `RBRV_VESSEL_MODE` — bind/conjure/graft → `rbnve_bind` / `rbnve_conjure` / `rbnve_graft`
+* `RBRV_EGRESS_MODE` — tether/airgap → `rbnve_tether` / `rbnve_airgap`
+
+Node regime (`rbnne_`):
+
+* `RBRN_ENTRY_MODE` — disabled/enabled → `rbnne_disabled` / `rbnne_enabled`
+* `RBRN_UPLINK_DNS_MODE` — disabled/global/allowlist → `rbnne_disabled` / `rbnne_global` / `rbnne_allowlist`
+* `RBRN_UPLINK_ACCESS_MODE` — disabled/global/allowlist → same `rbnne_*` set
+
+BURN node regime (`bunne_`):
+
+* `BURN_PLATFORM` — linux/mac/windows → `bunne_linux` / `bunne_mac` / `bunne_windows`
+
+NOTE: `BURN_PLATFORM` is presently spelled `bubep_linux` / `bubep_mac` /
+`bubep_windows` — an earlier, differently-shaped exemplar of the same idea.
+The convention harmonizes it to `bunne_*` rather than grandfathering the
+second shape.
+
+==== Use-Site Classification
+
+A bare-word grep on a value yields four classes; only two of them migrate.
+
+. *Phase / concept references* — "the conjure phase", "the airgap build":
+  name the workflow, not the enum value. *Leave bare.*
+. *Enum-value references* — equality tests, case arms, JSON literals, and
+  default-value defaults (`${z_mode:-conjure}`): the actual variable value.
+  *Migrate.*
+. *Identifier embeds* — `RBSAC-ark_conjure.adoc`, sigils like
+  `rbev-bottle-ifrit-airgap`, test-step labels like `ordain-conjure`: the
+  word is part of a larger identifier. *Leave bare.*
+. *Coupled derived strings* — the value drives a derived token living in
+  resource-name space that must itself stay bare. *Leave the derived string
+  bare; migrate only the dispatch that selects it.* Two confirmed witnesses:
+  egress → worker-pool suffixes (`RBGC_POOL_SUFFIX_*`, the `-tether` /
+  `-airgap` fragments in pool paths), and vessel-mode → hallmark prefixes
+  (`RBGC_HALLMARK_PREFIX_*`).
+  Because of class 4, even a class-2 case arm is not blind find/replace: the
+  arm becomes `rbnve_tether)` while the pool string it maps to stays
+  `-tether`.
+
+==== RBRN_RUNTIME Exclusion
+
+`RBRN_RUNTIME` (`docker` / `podman`) is deliberately *excluded* — its value
+stays bare.
+It is consumed as the literal executable name
+(`command -v "${RBRN_RUNTIME}"`, `${RBRN_RUNTIME} image inspect`).
+Adopting the convention would demand a permanent value→binary indirection
+layer at every dispatch site — a runtime cost paid for grep-discoverability
+of two values that `RBRN_RUNTIME` itself already marks.
+This is the one regime enum where the convention would cost more than it
+returns; the exclusion is a decision, not an oversight.
 
 === Kit Regime Operations
 
