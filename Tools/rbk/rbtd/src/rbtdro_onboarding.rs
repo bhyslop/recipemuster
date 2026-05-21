@@ -56,7 +56,7 @@ use crate::rbtdrm_manifest::{
     RBTDRM_COLOPHON_WREST_HALLMARK_IMAGE, RBTDRM_COLOPHON_YOKE_RELIQUARY, RBTDRM_CONTAINER_BOTTLE,
     RBTDRM_CONTAINER_SENTRY, RBTDRM_FIXTURE_ONBOARDING_SEQUENCE, RBTDRM_OPERATION_ENSHRINE,
     RBTDRM_OPERATION_INSCRIBE, RBTDRM_OPERATION_KLUDGE, RBTDRM_OPERATION_ORDAIN,
-    RBTDRM_OPERATION_YOKE,
+    RBTDRM_OPERATION_YOKE, RBTDRM_ROLE_GOVERNOR,
 };
 
 // ── Vessel directories ────────────────────────────────────────
@@ -169,7 +169,7 @@ fn rbtdro_read_env_value(path: &Path, key: &str) -> Option<String> {
 /// Established by canonical-establish §2 (rbtdrk_governor_mantle).
 fn rbtdro_probe_governor_rbra() -> Result<(), String> {
     let root = rbtdro_probe_root()?;
-    let path = rbtdrk_canonical_rbra(&root, "governor")?;
+    let path = rbtdrk_canonical_rbra(&root, RBTDRM_ROLE_GOVERNOR)?;
     if !path.exists() {
         return Err(format!("governor RBRA absent at {}", path.display()));
     }

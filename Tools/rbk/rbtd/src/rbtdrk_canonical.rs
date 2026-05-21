@@ -36,13 +36,14 @@ use crate::rbtdrb_probe::{rbtdrb_assert, rbtdrb_Probe};
 use crate::rbtdrc_crucible::rbtdrc_with_ctx;
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
 use crate::rbtdri_invocation::{
-    rbtdri_invoke_global, rbtdri_invoke_imprint, rbtdri_read_burv_fact, rbtdri_Context,
+    rbtdri_invoke_global, rbtdri_read_burv_fact, rbtdri_Context,
     rbtdri_InvokeResult, RBTDRI_BURV_OUTPUT_SUBDIR,
 };
 use crate::rbtdrm_manifest::{
-    RBTDRM_COLOPHON_ACCESS_PROBE, RBTDRM_COLOPHON_DEPOT_LEVY, RBTDRM_COLOPHON_DEPOT_LIST,
+    rbtdrm_credential_check_colophon, RBTDRM_COLOPHON_DEPOT_LEVY, RBTDRM_COLOPHON_DEPOT_LIST,
     RBTDRM_COLOPHON_GOV_INVEST_DIRECTOR, RBTDRM_COLOPHON_GOV_INVEST_RETRIEVER,
-    RBTDRM_COLOPHON_GOV_MANTLE, RBTDRM_FIXTURE_CANONICAL_ESTABLISH,
+    RBTDRM_COLOPHON_GOV_MANTLE, RBTDRM_FIXTURE_CANONICAL_ESTABLISH, RBTDRM_ROLE_DIRECTOR,
+    RBTDRM_ROLE_GOVERNOR, RBTDRM_ROLE_RETRIEVER,
 };
 
 // ── Canonical-fixture identities ─────────────────────────────
@@ -422,7 +423,7 @@ fn rbtdrk_probe_canonical_moniker() -> Result<(), String> {
 /// Established by case 2's mantle + canonical-copy step.
 fn rbtdrk_probe_governor_rbra() -> Result<(), String> {
     let root = rbtdrk_probe_root()?;
-    let path = rbtdrk_canonical_rbra(&root, "governor")?;
+    let path = rbtdrk_canonical_rbra(&root, RBTDRM_ROLE_GOVERNOR)?;
     if !path.exists() {
         return Err(format!("governor RBRA absent at {}", path.display()));
     }
@@ -615,7 +616,7 @@ fn rbtdrk_governor_mantle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_V
         ));
     }
 
-    let canonical = match rbtdrk_canonical_rbra(&root, "governor") {
+    let canonical = match rbtdrk_canonical_rbra(&root, RBTDRM_ROLE_GOVERNOR) {
         Ok(p) => p,
         Err(e) => return rbtdre_Verdict::Fail(format!("canonical governor RBRA path: {}", e)),
     };
@@ -657,7 +658,7 @@ fn rbtdrk_retriever_invest(dir: &Path) -> rbtdre_Verdict {
             dir,
             RBTDRM_COLOPHON_GOV_INVEST_RETRIEVER,
             RBTDRK_IDENTITY_RETRIEVER,
-            "retriever",
+            RBTDRM_ROLE_RETRIEVER,
         )
     })
 }
@@ -678,7 +679,7 @@ fn rbtdrk_director_invest(dir: &Path) -> rbtdre_Verdict {
             dir,
             RBTDRM_COLOPHON_GOV_INVEST_DIRECTOR,
             RBTDRK_IDENTITY_DIRECTOR,
-            "director",
+            RBTDRM_ROLE_DIRECTOR,
         )
     })
 }
@@ -749,7 +750,11 @@ fn rbtdrk_role_invest_impl(
         ));
     }
 
-    let probe_result = match rbtdri_invoke_imprint(ctx, RBTDRM_COLOPHON_ACCESS_PROBE, role, &[]) {
+    let probe_colophon = match rbtdrm_credential_check_colophon(role) {
+        Some(c) => c,
+        None => return rbtdre_Verdict::Fail(format!("unknown credential role: {}", role)),
+    };
+    let probe_result = match rbtdri_invoke_global(ctx, probe_colophon, &[], &[]) {
         Ok(r) => r,
         Err(e) => {
             return rbtdre_Verdict::Fail(format!("access-probe {} invocation: {}", role, e))

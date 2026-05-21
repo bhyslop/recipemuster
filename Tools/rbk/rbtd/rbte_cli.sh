@@ -20,7 +20,6 @@
 #
 # Sourced by rbtw_workbench.sh. Provides rbte_dispatch() for command routing.
 # Light furnish: buv + burd + buz + rbz + rbte (all commands)
-# Heavy furnish: regime + constants + OAuth + IAM + Payor (probe only)
 
 set -euo pipefail
 
@@ -40,50 +39,6 @@ zburd_kindle
 zbuz_kindle
 zrbz_kindle
 zrbte_kindle
-
-######################################################################
-# Heavy furnish — regime + full module chain for access probe
-
-zrbte_furnish_probe() {
-  zburd_sentinel
-
-  local z_rbk="${ZRBTE_CLI_DIR}/.."
-  source "${z_rbk}/rbrr_regime.sh"
-  source "${z_rbk}/rbrd_regime.sh"
-  source "${z_rbk}/rbrp_regime.sh"
-  source "${z_rbk}/rbcc_Constants.sh"
-  source "${z_rbk}/rbgc_Constants.sh"
-  source "${z_rbk}/rbdc_DerivedConstants.sh"
-  source "${z_rbk}/rbgo_OAuth.sh"
-  source "${z_rbk}/rbgu_Utility.sh"
-  source "${z_rbk}/rbgi_IAM.sh"
-  source "${z_rbk}/rbgp_Payor.sh"
-  source "${z_rbk}/rbgv_AccessProbe.sh"
-
-  source "${RBCC_rbrr_file}" || buc_die "Failed to source ${RBCC_rbrr_file}"
-  source "${RBCC_rbrd_file}" || buc_die "Failed to source RBRD: ${RBCC_rbrd_file}"
-  zrbrr_kindle
-  zrbrd_kindle
-
-  # Payor probe is depot-agnostic: skip RBRR enforcement so it runs against
-  # blank-template RBRR. zrbdc_kindle still runs to derive RBDC_PAYOR_RBRO_FILE
-  # (credential path needed by the probe); depot-identity RBDC_* values it
-  # also composes are unread on the Payor path. Mirrors BBAAS pattern in
-  # rbgp_cli.sh:56-60 for rbgp_depot_list.
-  local z_role="${BURD_TOKEN_3:-}"
-  if test "${z_role}" != "payor"; then
-    zrbrr_enforce
-    zrbrd_enforce
-  fi
-  zrbcc_kindle
-  zrbdc_kindle
-  zrbgc_kindle
-  zrbgo_kindle
-  zrbgu_kindle
-  zrbgi_kindle
-  zrbgp_kindle
-  zrbgv_kindle
-}
 
 ######################################################################
 # Dispatch
@@ -116,11 +71,6 @@ rbte_dispatch() {
         FixtureCase)  rbte_single "$@" ;;
         *)            buc_die "Unknown frontispiece for rbtd-s: ${z_frontispiece} (expected TestSuite|FixtureCase)" ;;
       esac
-      ;;
-
-    rbtd-ap)
-      zrbte_furnish_probe
-      rbte_probe "$@"
       ;;
 
     *)

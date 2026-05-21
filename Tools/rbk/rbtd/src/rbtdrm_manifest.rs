@@ -60,8 +60,32 @@ pub const RBTDRM_COLOPHON_KLUDGE_BOTTLE: &str = "rbw-cKB";
 // Crucible active check (param1 channel — nameplate as argument)
 pub const RBTDRM_COLOPHON_CRUCIBLE_ACTIVE: &str = "rbw-cic";
 
-// Access probe colophon (imprint-scoped by role)
-pub const RBTDRM_COLOPHON_ACCESS_PROBE: &str = "rbtd-ap";
+// Credential role consts — the credential vocabulary that crosses the
+// access-probe CLI boundary (role → colophon mapping, fact-file labels,
+// diagnostics). Single definition per String Boundary Discipline.
+pub const RBTDRM_ROLE_GOVERNOR: &str = "governor";
+pub const RBTDRM_ROLE_RETRIEVER: &str = "retriever";
+pub const RBTDRM_ROLE_DIRECTOR: &str = "director";
+pub const RBTDRM_ROLE_PAYOR: &str = "payor";
+
+// Credential access-probe colophons (global — one per role, no imprint)
+pub const RBTDRM_COLOPHON_CHECK_GOVERNOR: &str = "rbw-acg";
+pub const RBTDRM_COLOPHON_CHECK_RETRIEVER: &str = "rbw-acr";
+pub const RBTDRM_COLOPHON_CHECK_DIRECTOR: &str = "rbw-acd";
+pub const RBTDRM_COLOPHON_CHECK_PAYOR: &str = "rbw-acp";
+
+/// Map a credential role to its access-probe colophon. Returns None for
+/// unknown roles. Replaces the former role-as-imprint scheme: each role now
+/// names its own global tabtarget under the rbw-ac* family.
+pub fn rbtdrm_credential_check_colophon(role: &str) -> Option<&'static str> {
+    match role {
+        RBTDRM_ROLE_GOVERNOR => Some(RBTDRM_COLOPHON_CHECK_GOVERNOR),
+        RBTDRM_ROLE_RETRIEVER => Some(RBTDRM_COLOPHON_CHECK_RETRIEVER),
+        RBTDRM_ROLE_DIRECTOR => Some(RBTDRM_COLOPHON_CHECK_DIRECTOR),
+        RBTDRM_ROLE_PAYOR => Some(RBTDRM_COLOPHON_CHECK_PAYOR),
+        _ => None,
+    }
+}
 
 // Payor depot colophons (global — no nameplate imprint)
 pub const RBTDRM_COLOPHON_DEPOT_LEVY: &str = "rbw-dL";
@@ -177,7 +201,12 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDRM_COLOPHON_VOUCH,
             RBTDRM_COLOPHON_TALLY,
         ]),
-        RBTDRM_FIXTURE_ACCESS_PROBE => Some(&[RBTDRM_COLOPHON_ACCESS_PROBE]),
+        RBTDRM_FIXTURE_ACCESS_PROBE => Some(&[
+            RBTDRM_COLOPHON_CHECK_GOVERNOR,
+            RBTDRM_COLOPHON_CHECK_RETRIEVER,
+            RBTDRM_COLOPHON_CHECK_DIRECTOR,
+            RBTDRM_COLOPHON_CHECK_PAYOR,
+        ]),
         RBTDRM_FIXTURE_ENROLLMENT_VALIDATION
         | RBTDRM_FIXTURE_REGIME_VALIDATION
         | RBTDRM_FIXTURE_REGIME_SMOKE
@@ -198,7 +227,8 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDRM_COLOPHON_GOV_INVEST_DIRECTOR,
             RBTDRM_COLOPHON_GOV_DIVEST_RETRIEVER,
             RBTDRM_COLOPHON_GOV_DIVEST_DIRECTOR,
-            RBTDRM_COLOPHON_ACCESS_PROBE,
+            RBTDRM_COLOPHON_CHECK_RETRIEVER,
+            RBTDRM_COLOPHON_CHECK_DIRECTOR,
         ]),
         RBTDRM_FIXTURE_CANONICAL_ESTABLISH => Some(&[
             RBTDRM_COLOPHON_DEPOT_LEVY,
@@ -206,7 +236,8 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDRM_COLOPHON_GOV_MANTLE,
             RBTDRM_COLOPHON_GOV_INVEST_RETRIEVER,
             RBTDRM_COLOPHON_GOV_INVEST_DIRECTOR,
-            RBTDRM_COLOPHON_ACCESS_PROBE,
+            RBTDRM_COLOPHON_CHECK_RETRIEVER,
+            RBTDRM_COLOPHON_CHECK_DIRECTOR,
         ]),
         RBTDRM_FIXTURE_ONBOARDING_SEQUENCE => Some(&[
             RBTDRM_COLOPHON_INSCRIBE_RELIQUARY,

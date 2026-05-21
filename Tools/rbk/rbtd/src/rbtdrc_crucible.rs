@@ -32,16 +32,17 @@ use crate::rbtdre_engine::{
     rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict,
 };
 use crate::rbtdri_invocation::{
-    rbtdri_Context, rbtdri_invoke, rbtdri_invoke_global, rbtdri_invoke_imprint,
+    rbtdri_Context, rbtdri_invoke, rbtdri_invoke_global,
     rbtdri_parse_ifrit_verdict, rbtdri_read_burv_fact, rbtdri_read_burv_facts_multi,
     RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP,
 };
 use crate::rbtdrm_manifest::{
-    RBTDRM_COLOPHON_ABJURE, RBTDRM_COLOPHON_ACCESS_PROBE, RBTDRM_COLOPHON_AUDIT_HALLMARKS,
+    rbtdrm_credential_check_colophon, RBTDRM_COLOPHON_ABJURE, RBTDRM_COLOPHON_AUDIT_HALLMARKS,
     RBTDRM_COLOPHON_BARK, RBTDRM_COLOPHON_CHARGE, RBTDRM_COLOPHON_CRUCIBLE_ACTIVE,
     RBTDRM_COLOPHON_FIAT, RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE, RBTDRM_COLOPHON_ORDAIN,
     RBTDRM_COLOPHON_QUENCH, RBTDRM_COLOPHON_REKON_HALLMARK, RBTDRM_COLOPHON_TALLY,
-    RBTDRM_COLOPHON_VOUCH, RBTDRM_COLOPHON_WRIT,
+    RBTDRM_COLOPHON_VOUCH, RBTDRM_COLOPHON_WRIT, RBTDRM_ROLE_DIRECTOR, RBTDRM_ROLE_GOVERNOR,
+    RBTDRM_ROLE_PAYOR, RBTDRM_ROLE_RETRIEVER,
 };
 
 // ── Thread-local invocation context ──────────────────────────
@@ -2815,9 +2816,13 @@ pub static RBTDRC_CASES_BATCH_VOUCH: &[rbtdre_Case] = &[case!(rbtdrc_batch_vouch
 
 // ── Access probe cases (bare fixture, imprint-scoped) ────────
 
-/// Invoke an access probe tabtarget by role imprint, check exit code.
+/// Invoke a credential access-probe tabtarget by role, check exit code.
 fn rbtdrc_access_probe_role(ctx: &mut rbtdri_Context, role: &str, dir: &Path) -> rbtdre_Verdict {
-    let result = match rbtdri_invoke_imprint(ctx, RBTDRM_COLOPHON_ACCESS_PROBE, role, &[]) {
+    let colophon = match rbtdrm_credential_check_colophon(role) {
+        Some(c) => c,
+        None => return rbtdre_Verdict::Fail(format!("unknown credential role: {}", role)),
+    };
+    let result = match rbtdri_invoke_global(ctx, colophon, &[], &[]) {
         Ok(r) => r,
         Err(e) => return rbtdre_Verdict::Fail(format!("{} probe invocation: {}", role, e)),
     };
@@ -2834,19 +2839,19 @@ fn rbtdrc_access_probe_role(ctx: &mut rbtdri_Context, role: &str, dir: &Path) ->
 }
 
 fn rbtdrc_jwt_governor(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, "governor", dir))
+    rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, RBTDRM_ROLE_GOVERNOR, dir))
 }
 
 fn rbtdrc_jwt_director(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, "director", dir))
+    rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, RBTDRM_ROLE_DIRECTOR, dir))
 }
 
 fn rbtdrc_jwt_retriever(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, "retriever", dir))
+    rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, RBTDRM_ROLE_RETRIEVER, dir))
 }
 
 fn rbtdrc_oauth_payor(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, "payor", dir))
+    rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, RBTDRM_ROLE_PAYOR, dir))
 }
 
 pub static RBTDRC_CASES_ACCESS_PROBE: &[rbtdre_Case] = &[
