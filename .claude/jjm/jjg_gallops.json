@@ -10046,9 +10046,10 @@
         "₢BPAAA",
         "₢BPAAB",
         "₢BPAAC",
-        "₢BPAAD"
+        "₢BPAAD",
+        "₢BPAAE"
       ],
-      "jjghn_next_pace_seed": "AAE",
+      "jjghn_next_pace_seed": "AAF",
       "jjghn_paces": {
         "₢BPAAA": {
           "jjgpn_tacks": [
@@ -10098,6 +10099,17 @@
               "jjgtn_text": "## Character\n\nMechanical once the emitter exists, but broad — an 11-site consumer rename plus a retirement.\n\n## Goal\n\nGenerate the rbtd colophon consts from the rbz registry via the BUK emitter, migrate every consumer to the generated names, and retire the hand-mirror plus its runtime drift check.\n\n## Shape\n\n- Wire the rbz colophon rolls through the BUK emitter to a checked-in generated Rust file.\n- Generated const names carry the enroll varname verbatim — this retires the curated `RBTDRM_COLOPHON_*` names, a rename across their reference sites.\n- Migrate the Rust consumers off `RBTDRM_COLOPHON_*` and the inline colophon literals (e.g. the fast suite) onto the generated consts.\n- Retire `rbtdrm_verify` — exact-equality generation supersedes its drift-detection role.\n- Out of scope, left hand-written: `RBTDRM_FIXTURE_*`, `RBTDRM_OPERATION_*`, `RBTDRM_CONTAINER_*` — no single canonical bash author.\n\n## Sources\n\n- `Tools/rbk/rbz_zipper.sh` — colophon registry\n- `Tools/rbk/rbtd/src/rbtdrm_manifest.rs` — hand-mirror + `rbtdrm_verify` (target to replace)\n- `grep -rln \"RBTDRM_COLOPHON\\|rbtdrm_verify\" Tools/rbk/rbtd/src/` — consumer sites\n\n## What done looks like\n\n- Colophon consts are generated, not hand-written; consumers and inline literals reference the generated names; `rbtdrm_verify` is gone; Rust builds and the fast suite is green.",
               "jjgtn_silks": "colophon-codegen-projection",
               "jjgtn_basis": "29de766"
+            }
+          ]
+        },
+        "₢BPAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260520-1737",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nSelf-contained RBK projector; supersedes one existing macro hand-mirror. Watch the `concat!`-composability constraint.\n\n## Goal\n\nProject the in-scope RBCC flat tinder (moorings dir, `.env` filenames, roles) to generated Rust consts, replacing the hand-maintained `rbtd_moorings_dir!` macro mirror.\n\n## Shape\n\n- An RBK projector (RBK owns domain content) emits the in-scope RBCC tinder to a checked-in generated Rust file.\n- Supersedes the `rbtd_moorings_dir!` / `rbtd_vessels_dir!` macros and `RBTD_MOORINGS_DIR` in `lib.rs`.\n- Constraint: the macro form exists because `concat!` needs a literal token, not a const identifier (see the `lib.rs` comment). Preserve literal-composability for any `concat!` path-composition sites, or migrate those sites.\n- Scope: single-canonical-author source-time literals only. Composed/kindled values lacking a clean single-author projection stay as-is.\n\n## Sources\n\n- `Tools/rbk/rbcc_Constants.sh` — flat tinder (self-described projection inventory)\n- `Tools/rbk/rbtd/src/lib.rs` — `rbtd_moorings_dir!` macro (current hand-mirror to supersede)\n\n## What done looks like\n\n- RBCC tinder consts are generated; the moorings macro mirror is retired or fed from generation; Rust builds; moorings paths resolve unchanged.",
+              "jjgtn_silks": "rbcc-tinder-codegen-projection",
+              "jjgtn_basis": "b73ab86"
             }
           ]
         }
