@@ -21,6 +21,10 @@ The secure-by-default managed constraints and their RBK bearing:
 
    Gap the memo does not close: it covers human-driven operations only and explicitly leaves headless paths (Cloud Build itself, automated fixtures, Ifrit scenarios, the gauntlet) on keyfiles-or-workload-identity. Under a secure-by-default org those automated paths stay blocked, so this heat must add a **workload-identity-federation** story for them. So ₣BS scope = memo Approach C (human-driven roles) + a WIF answer (headless/automated), not the memo alone.
 
+## Constraints
+
+- Bash paces read **BCG** (Bash Console Guide) first. `rbgp_Payor.sh` is a complex BCG-compliant module; do not write bash against it without the guide.
+
 ## What done looks like
 
 A decision on override vs identity-keyless (plausibly override-to-unblock now, keyless as the durable target); an audit verdict on each bundle constraint against RBK flows; a workload-identity-federation answer for headless paths; and, for the chosen path, the concrete changes to credential install, regime files, and the RBS* depot / SA-invest specs. Until that decision lands, this heat holds shape only.
