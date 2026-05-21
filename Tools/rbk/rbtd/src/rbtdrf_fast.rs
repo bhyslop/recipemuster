@@ -992,11 +992,14 @@ fn rbtdrf_rv_rbrn_bad_ip(dir: &Path) -> rbtdre_Verdict {
 // --- Positive tests ---
 
 fn rbtdrf_rv_rbrr_repo(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_run_rv(dir,
-        concat!("source \"${PWD}/", crate::rbtd_moorings_dir!(), "/rbrr.env\"\nsource \"${PWD}/", crate::rbtd_moorings_dir!(), "/rbrd.env\""),
-        "zrbrr_kindle\nzrbrd_kindle\nzrbrr_enforce\nzrbrd_enforce",
-        true, "rbrr-repo",
-    )
+    let root = match std::env::current_dir() {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+    };
+    match rbtdrf_run_tt(&root, "rbw-rrv", &[], dir, "rbrr-repo-validate") {
+        Ok(()) => rbtdre_Verdict::Pass,
+        Err(e) => rbtdre_Verdict::Fail(e),
+    }
 }
 
 fn rbtdrf_rv_rbrv_all_vessels(dir: &Path) -> rbtdre_Verdict {
@@ -1004,12 +1007,12 @@ fn rbtdrf_rv_rbrv_all_vessels(dir: &Path) -> rbtdre_Verdict {
         Ok(r) => r,
         Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
+
+    // Discover vessels: source rbrr.env to get RBRR_VESSEL_DIR, scan it
     let buv = root.join("Tools/buk/buv_validation.sh");
     let rbk = root.join("Tools/rbk");
-
     let buv_p = rbtdrx_native_to_posix(&buv);
     let rbk_p = rbtdrx_native_to_posix(&rbk);
-    // Script: source rbrr+rbrd, kindle, iterate vessels, kindle+enforce each
     let script = format!(
         "set -euo pipefail\n\
          source '{}'\n\
@@ -1017,33 +1020,51 @@ fn rbtdrf_rv_rbrv_all_vessels(dir: &Path) -> rbtdre_Verdict {
          source '{}/rbgc_Constants.sh'\n\
          source '{}/rbrr_regime.sh'\n\
          source '{}/rbrd_regime.sh'\n\
-         source '{}/rbrv_regime.sh'\n\
          source '{}/rbdc_DerivedConstants.sh'\n\
          zbuv_kindle\nzrbcc_kindle\n\
          source \"${{PWD}}/{moorings}/rbrr.env\"\n\
          source \"${{PWD}}/{moorings}/rbrd.env\"\n\
          zrbrr_kindle\nzrbrd_kindle\nzrbrr_enforce\nzrbrd_enforce\nzrbdc_kindle\n\
-         for z_d in \"${{RBRR_VESSEL_DIR}}\"/*; do\n\
-           test -d \"$z_d\" || continue\n\
-           test -f \"$z_d/rbrv.env\" || continue\n\
-           (\n\
-             source \"$z_d/rbrv.env\"\n\
-             zrbrv_kindle\n\
-             zrbrv_enforce\n\
-           )\n\
-         done",
+         echo \"${{RBRR_VESSEL_DIR}}\"",
         buv_p,
-        rbk_p, rbk_p, rbk_p, rbk_p, rbk_p, rbk_p,
+        rbk_p, rbk_p, rbk_p, rbk_p, rbk_p,
         moorings = crate::RBTD_MOORINGS_DIR,
     );
 
-    match rbtdrf_run_bash(&root, &script, dir, "rbrv-all-vessels") {
-        Ok((0, _, _)) => rbtdre_Verdict::Pass,
+    let vessel_dir = match rbtdrf_run_bash(&root, &script, dir, "rbrv-discover") {
+        Ok((0, stdout, _)) => stdout.trim().to_string(),
         Ok((code, _, _)) => {
-            rbtdre_Verdict::Fail(format!("vessel validation failed (exit {})", code))
+            return rbtdre_Verdict::Fail(format!("vessel discovery failed (exit {})", code));
         }
-        Err(e) => rbtdre_Verdict::Fail(e),
+        Err(e) => return rbtdre_Verdict::Fail(e),
+    };
+
+    let entries = match std::fs::read_dir(&vessel_dir) {
+        Ok(e) => e,
+        Err(e) => {
+            return rbtdre_Verdict::Fail(format!("cannot read {}: {}", vessel_dir, e));
+        }
+    };
+
+    let mut found = false;
+    for entry in entries.filter_map(|e| e.ok()) {
+        let path = entry.path();
+        if path.is_dir() && path.join("rbrv.env").exists() {
+            found = true;
+            let sigil = entry.file_name().to_string_lossy().to_string();
+            if let Err(e) = rbtdrf_run_tt(
+                &root, "rbw-rvv", &[&sigil], dir,
+                &format!("rbrv-{}-validate", sigil),
+            ) {
+                return rbtdre_Verdict::Fail(e);
+            }
+        }
     }
+
+    if !found {
+        return rbtdre_Verdict::Fail(format!("no vessels found in {}", vessel_dir));
+    }
+    rbtdre_Verdict::Pass
 }
 
 fn rbtdrf_rv_rbrn_all_nameplates(dir: &Path) -> rbtdre_Verdict {
@@ -1051,37 +1072,33 @@ fn rbtdrf_rv_rbrn_all_nameplates(dir: &Path) -> rbtdre_Verdict {
         Ok(r) => r,
         Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
-    let buv = root.join("Tools/buk/buv_validation.sh");
-    let rbk = root.join("Tools/rbk");
 
-    let buv_p = rbtdrx_native_to_posix(&buv);
-    let rbk_p = rbtdrx_native_to_posix(&rbk);
-    // Script: source modules, iterate nameplates, kindle+enforce each
-    let script = format!(
-        "set -euo pipefail\n\
-         source '{}'\n\
-         source '{}/rbcc_Constants.sh'\n\
-         source '{}/rbrn_regime.sh'\n\
-         zbuv_kindle\nzrbcc_kindle\n\
-         for z_f in \"${{RBCC_moorings_dir}}\"/*/${{RBCC_rbrn_file}}; do\n\
-           test -f \"$z_f\" || continue\n\
-           (\n\
-             source \"$z_f\"\n\
-             zrbrn_kindle\n\
-             zrbrn_enforce\n\
-           )\n\
-         done",
-        buv_p,
-        rbk_p, rbk_p,
-    );
+    // Discover nameplates by listing rbmm_moorings/*/rbrn.env
+    let rbk_dir = root.join(crate::RBTD_MOORINGS_DIR);
+    let entries = match std::fs::read_dir(&rbk_dir) {
+        Ok(e) => e,
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot read {}: {}", crate::RBTD_MOORINGS_DIR, e)),
+    };
 
-    match rbtdrf_run_bash(&root, &script, dir, "rbrn-all-nameplates") {
-        Ok((0, _, _)) => rbtdre_Verdict::Pass,
-        Ok((code, _, _)) => {
-            rbtdre_Verdict::Fail(format!("nameplate validation failed (exit {})", code))
+    let mut found = false;
+    for entry in entries.filter_map(|e| e.ok()) {
+        let path = entry.path();
+        if path.is_dir() && path.join("rbrn.env").exists() {
+            found = true;
+            let moniker = entry.file_name().to_string_lossy().to_string();
+            if let Err(e) = rbtdrf_run_tt(
+                &root, "rbw-rnv", &[&moniker], dir,
+                &format!("rbrn-{}-validate", moniker),
+            ) {
+                return rbtdre_Verdict::Fail(e);
+            }
         }
-        Err(e) => rbtdre_Verdict::Fail(e),
     }
+
+    if !found {
+        return rbtdre_Verdict::Fail(format!("no nameplates found in {}/", crate::RBTD_MOORINGS_DIR));
+    }
+    rbtdre_Verdict::Pass
 }
 
 // ── Regime-smoke cases ──────────────────────────────────────
