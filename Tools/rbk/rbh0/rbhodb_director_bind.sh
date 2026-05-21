@@ -214,7 +214,7 @@ rbho_director_bind() {
   buh_line "${RBYC_BIND} mode mirrors an upstream image into your ${RBYC_DEPOT} by"
   buh_line "content hash. The ${RBYC_VESSEL} ${RBYC_RBRV} declares the upstream digest:"
   buh_e
-  buh_code "   RBRV_VESSEL_MODE=bind"
+  buh_code "   RBRV_VESSEL_MODE=rbnve_bind"
   buh_code "   RBRV_BIND_IMAGE=docker.io/plantuml/plantuml-server@sha256:cd3d67a..."
   buh_e
   buh_line "${RBYC_ORDAIN} reads the mode from the ${RBYC_RBRV} and routes accordingly."

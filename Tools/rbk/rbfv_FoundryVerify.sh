@@ -350,7 +350,7 @@ zrbfv_graft_metadata_submit() {
         _RBGA_HALLMARKS_ROOT:        $zjq_hallmarks_root,
         _RBGA_HALLMARK:              $zjq_hallmark,
         _RBGA_VESSEL:                $zjq_vessel,
-        _RBGA_VESSEL_MODE:           "graft",
+        _RBGA_VESSEL_MODE:           "rbnve_graft",
         _RBGA_GIT_COMMIT:            $zjq_git_commit,
         _RBGA_GIT_BRANCH:            $zjq_git_branch,
         _RBGA_GIT_REPO:              $zjq_git_repo,
@@ -367,7 +367,7 @@ zrbfv_graft_metadata_submit() {
         _RBGV_HALLMARKS_ROOT:        $zjq_hallmarks_root,
         _RBGV_HALLMARK:              $zjq_hallmark,
         _RBGV_VESSEL:                $zjq_vessel,
-        _RBGV_VESSEL_MODE:           "graft",
+        _RBGV_VESSEL_MODE:           "rbnve_graft",
         _RBGV_BIND_SOURCE:           "",
         _RBGV_GRAFT_SOURCE:          $zjq_graft_source,
         _RBGV_IMAGE_1:               $zjq_vi_ref_1,
@@ -447,7 +447,7 @@ zrbfv_about_submit() {
   local -r z_df_size_file="${ZRBFV_ABOUT_PREFIX}df_size.txt"
 
   case "${z_vessel_mode}" in
-    conjure)
+    rbnve_conjure)
       # Extract inscribe timestamp from hallmark (e.g., c260305133650 from c260305133650-r260305160530)
       z_inscribe_ts="${z_hallmark%%-r*}"
       # Read Dockerfile content for recipe.txt
@@ -464,7 +464,7 @@ zrbfv_about_submit() {
         fi
       fi
       ;;
-    bind)
+    rbnve_bind)
       z_bind_source="${RBRV_BIND_IMAGE:-}"
       if test -n "${RBRV_BIND_OPTIONAL_DOCKERFILE:-}" && test -f "${RBRV_BIND_OPTIONAL_DOCKERFILE}"; then
         wc -c < "${RBRV_BIND_OPTIONAL_DOCKERFILE}" > "${z_df_size_file}" \
@@ -479,7 +479,7 @@ zrbfv_about_submit() {
         fi
       fi
       ;;
-    graft)
+    rbnve_graft)
       z_graft_source="${RBRV_GRAFT_IMAGE:-}"
       if test -n "${RBRV_GRAFT_OPTIONAL_DOCKERFILE:-}" && test -f "${RBRV_GRAFT_OPTIONAL_DOCKERFILE}"; then
         wc -c < "${RBRV_GRAFT_OPTIONAL_DOCKERFILE}" > "${z_df_size_file}" \
@@ -697,10 +697,10 @@ zrbfv_vouch_submit() {
   local z_graft_source=""
 
   case "${RBRV_VESSEL_MODE}" in
-    conjure) : ;;  # DSSE verification uses embedded keys, no extra substitutions
-    bind)    z_bind_source="${RBRV_BIND_IMAGE:-}" ;;
-    graft)   z_graft_source="${RBRV_GRAFT_IMAGE:-}" ;;
-    *)       buc_die "Unknown vessel mode: ${RBRV_VESSEL_MODE}" ;;
+    rbnve_conjure) : ;;  # DSSE verification uses embedded keys, no extra substitutions
+    rbnve_bind)    z_bind_source="${RBRV_BIND_IMAGE:-}" ;;
+    rbnve_graft)   z_graft_source="${RBRV_GRAFT_IMAGE:-}" ;;
+    *)             buc_die "Unknown vessel mode: ${RBRV_VESSEL_MODE}" ;;
   esac
 
   # Resolve base image provenance (for vouch summary recording)

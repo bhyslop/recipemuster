@@ -928,7 +928,7 @@ zrbfc_plumb_core() {
   fi
 
   # Bind vessels: fallback to static display if no about ark
-  if test "${RBRV_VESSEL_MODE}" = "bind" && test "${z_has_about}" = "false"; then
+  if test "${RBRV_VESSEL_MODE}" = "rbnve_bind" && test "${z_has_about}" = "false"; then
     zrbfc_plumb_show_bind "${z_vessel}" "${z_hallmark}" "${z_mode}"
     return 0
   fi
@@ -1002,16 +1002,16 @@ zrbfc_plumb_show_sections() {
   local -r z_bkmeta="${z_dir}/buildkit_metadata.json"
 
   # Determine vessel mode from build_info.json
-  local z_vessel_mode="conjure"
+  local z_vessel_mode="rbnve_conjure"
   if test -f "${z_bi}"; then
     local z_mode_raw
-    jq -r '.mode // "conjure"' "${z_bi}" > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null \
-      || echo "conjure" > "${ZRBFC_SCRATCH_FILE}"
+    jq -r '.mode // "rbnve_conjure"' "${z_bi}" > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null \
+      || echo "rbnve_conjure" > "${ZRBFC_SCRATCH_FILE}"
     z_mode_raw=$(<"${ZRBFC_SCRATCH_FILE}")
     z_vessel_mode="${z_mode_raw}"
   fi
 
-  if test -f "${z_bi}" && test "${z_vessel_mode}" = "bind"; then
+  if test -f "${z_bi}" && test "${z_vessel_mode}" = "rbnve_bind"; then
     # ── Bind vessel sections ──────────────────────────────────────────
     # Batch extract bind fields from build_info.json
     local z_bi_moniker="" z_bi_source_img="" z_bi_mirror_ts="" z_bi_hallmark=""
@@ -1168,7 +1168,7 @@ zrbfc_plumb_show_sections() {
   fi
 
   # Base image section — conjure only (bind has no Dockerfile)
-  if test "${z_vessel_mode}" != "bind"; then
+  if test "${z_vessel_mode}" != "rbnve_bind"; then
     echo ""
     echo "  -- Base Image ---------------------------------------------------"
     echo "  The upstream image this build started FROM and the OS syft detected."
@@ -1196,7 +1196,7 @@ zrbfc_plumb_show_sections() {
   fi
 
   # Build output — conjure only (bind has no buildx step)
-  if test "${z_vessel_mode}" != "bind" && test -f "${z_bkmeta}"; then
+  if test "${z_vessel_mode}" != "rbnve_bind" && test -f "${z_bkmeta}"; then
     echo ""
     echo "  -- Build Output -------------------------------------------------"
     echo "  The container image manifest produced by this buildx invocation."
@@ -1235,7 +1235,7 @@ zrbfc_plumb_show_sections() {
   fi
 
   # Build cache delta — conjure only
-  if test "${z_vessel_mode}" != "bind"; then
+  if test "${z_vessel_mode}" != "rbnve_bind"; then
     local -r z_cache_before="${z_dir}/cache_before.json"
     local -r z_cache_after="${z_dir}/cache_after.json"
     if test -f "${z_cache_after}"; then
@@ -1318,7 +1318,7 @@ zrbfc_plumb_show_sections() {
   # Vouch — branched by vessel mode
   echo ""
   echo "  -- Vouch Results ------------------------------------------------"
-  if test "${z_vessel_mode}" = "bind"; then
+  if test "${z_vessel_mode}" = "rbnve_bind"; then
     echo "  Bind verification: was the mirrored image verified against its digest pin?"
     echo ""
     if test "${z_has_vouch}" = "true" && test -f "${z_vs}"; then
@@ -1351,7 +1351,7 @@ zrbfc_plumb_show_sections() {
     else
       echo "  Vouch artifact not found in GAR"
     fi
-  elif test "${z_vessel_mode}" = "graft"; then
+  elif test "${z_vessel_mode}" = "rbnve_graft"; then
     echo "  Graft acknowledgment: no provenance chain — GRAFTED verdict"
     echo ""
     if test "${z_has_vouch}" = "true" && test -f "${z_vs}"; then

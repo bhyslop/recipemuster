@@ -104,7 +104,7 @@ rbfk_kludge() {
   zrbfc_load_vessel "${z_vessel_dir}"
 
   # Validate conjure mode (bind and graft don't have local Dockerfiles)
-  test "${RBRV_VESSEL_MODE}" = "conjure" \
+  test "${RBRV_VESSEL_MODE}" = "rbnve_conjure" \
     || buc_die "Kludge only supports conjure vessels (got: ${RBRV_VESSEL_MODE})"
   test -n "${RBRV_CONJURE_DOCKERFILE:-}" \
     || buc_die "Vessel '${RBRV_SIGIL}' has no RBRV_CONJURE_DOCKERFILE"

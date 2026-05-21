@@ -883,7 +883,7 @@ fn rbtdrf_rv_rbrr_bad_runtime_prefix_too_long(dir: &Path) -> rbtdre_Verdict {
 const RBTDRF_RBRV_BASELINE_CONJURE: &str = "\
 export RBRV_SIGIL=\"test-vessel\"\n\
 export RBRV_DESCRIPTION=\"Test vessel for validation\"\n\
-export RBRV_VESSEL_MODE=\"conjure\"\n\
+export RBRV_VESSEL_MODE=\"rbnve_conjure\"\n\
 export RBRV_CONJURE_DOCKERFILE=\"path/to/Dockerfile\"\n\
 export RBRV_CONJURE_BLDCONTEXT=\"path/to\"\n\
 export RBRV_CONJURE_PLATFORMS=\"linux/amd64\"";
@@ -891,7 +891,7 @@ export RBRV_CONJURE_PLATFORMS=\"linux/amd64\"";
 const RBTDRF_RBRV_BASELINE_BIND: &str = "\
 export RBRV_SIGIL=\"test-vessel\"\n\
 export RBRV_DESCRIPTION=\"Test vessel for validation\"\n\
-export RBRV_VESSEL_MODE=\"bind\"\n\
+export RBRV_VESSEL_MODE=\"rbnve_bind\"\n\
 export RBRV_BIND_IMAGE=\"us-docker.pkg.dev/project/repo/image:latest\"";
 
 fn rbtdrf_rv_rbrv_neg(dir: &Path, label: &str, baseline: &str, override_: &str) -> rbtdre_Verdict {

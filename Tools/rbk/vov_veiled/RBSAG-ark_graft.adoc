@@ -40,7 +40,7 @@ vessel mode is {rbrv_vessel_mode_graft}
 .. {rbbc_store}
 `«VESSEL_MODE»` from {rbrv_vessel_mode}
 .. {rbbc_require}
-`«VESSEL_MODE»` is `graft`
+`«VESSEL_MODE»` is `rbnve_graft`
 
 //axhos_step
 . *Verify Local Image Exists*:

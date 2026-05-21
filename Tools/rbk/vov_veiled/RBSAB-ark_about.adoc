@@ -130,7 +130,7 @@ All `_RBGA_*` substitution variables are passed in the `builds.create` request b
 | `_RBGA_GAR_PATH` | GAR repository path. Source: regime constants.
 | `_RBGA_VESSEL` | Vessel sigil. Source: loaded vessel configuration.
 | `_RBGA_HALLMARK` | Full hallmark string. Source: input parameter.
-| `_RBGA_VESSEL_MODE` | Vessel mode (`conjure`, `bind`, or `graft`). Source: loaded vessel configuration.
+| `_RBGA_VESSEL_MODE` | Vessel mode (`rbnve_conjure`, `rbnve_bind`, or `rbnve_graft`). Source: loaded vessel configuration.
 | `_RBGA_ARK_BASENAME_IMAGE` | Ark basename for image artifact. Source: `RBGC_ARK_BASENAME_IMAGE` constant.
 | `_RBGA_ARK_BASENAME_ABOUT` | Ark basename for about artifact. Source: `RBGC_ARK_BASENAME_ABOUT` constant.
 | `_RBGA_ARK_BASENAME_DIAGS` | Ark basename for diags artifact. Source: `RBGC_ARK_BASENAME_DIAGS` constant.

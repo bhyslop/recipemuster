@@ -8,7 +8,7 @@ set -eu
 echo "=== Prepare verification keys ==="
 
 # Conjure-only: write GCB attestor public key for DSSE envelope verification
-if [ "${_RBGV_VESSEL_MODE}" = "conjure" ]; then
+if [ "${_RBGV_VESSEL_MODE}" = "rbnve_conjure" ]; then
   mkdir -p /workspace/keys
   # KMS: projects/verified-builder/locations/global/keyRings/attestor/cryptoKeys/google-hosted-worker/cryptoKeyVersions/1
   cat > /workspace/keys/google-hosted-worker.pub << 'KEYEOF'

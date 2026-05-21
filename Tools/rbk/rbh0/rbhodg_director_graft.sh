@@ -64,7 +64,7 @@ rbho_director_graft() {
   if test -f "${z_vessel_rbrv}"; then
     local z_mode=""
     z_mode=$(zrbho_po_extract_capture "${z_vessel_rbrv}" "RBRV_VESSEL_MODE") || z_mode=""
-    test "${z_mode}" = "graft" && z_vessel_ready=1
+    test "${z_mode}" = "rbnve_graft" && z_vessel_ready=1
   fi
 
   local z_vessel_yoked=0
@@ -132,7 +132,7 @@ rbho_director_graft() {
     buh_tt "      " "${RBZ_ONBOARD_PAYOR_HB}"
   fi
   if test "${z_vessel_ready}" = "1"; then
-    buh_line "${RBYC_PROBE_YES}${z_lk_vessel} ${RBYC_REGIME} present (RBRV_VESSEL_MODE=graft)"
+    buh_line "${RBYC_PROBE_YES}${z_lk_vessel} ${RBYC_REGIME} present (RBRV_VESSEL_MODE=rbnve_graft)"
   else
     buyy_cmd_yawp "${z_vessel_rbrv}"; local -r z_lk_rbrv_missing="${z_buym_yelp}"
     buh_line "${RBYC_PROBE_NO}${z_lk_vessel} ${RBYC_REGIME} missing or not a graft vessel: ${z_lk_rbrv_missing}"
@@ -175,7 +175,7 @@ rbho_director_graft() {
   buh_step1 "Build a local image"
   buh_e
   buh_line "${z_lk_vessel} ships with no Dockerfile. The ${RBYC_VESSEL} ${RBYC_REGIME}"
-  buh_line "declares RBRV_VESSEL_MODE=graft and names the local image tag the"
+  buh_line "declares RBRV_VESSEL_MODE=rbnve_graft and names the local image tag the"
   buh_line "${RBYC_GRAFT} operation will push — everything else about the image"
   buh_line "is your concern. Any local Docker image works; we use busybox as"
   buh_line "a deliberately trivial target so the focus stays on the trust"
@@ -299,7 +299,7 @@ rbho_director_graft() {
   buh_e
   buh_line "${z_lk_vessel} has no ${RBYC_NAMEPLATE} and never runs in a ${RBYC_CRUCIBLE}"
   buh_line "— it is pure teaching contrast. For production ${RBYC_GRAFT} usage,"
-  buh_line "the pattern is the same: declare RBRV_VESSEL_MODE=graft, point"
+  buh_line "the pattern is the same: declare RBRV_VESSEL_MODE=rbnve_graft, point"
   buh_line "RBRV_GRAFT_IMAGE at your local tag, ${RBYC_ORDAIN}, and ${RBYC_VOUCH}"
   buh_line "will record GRAFTED against that ${RBYC_HALLMARK}."
   buh_e

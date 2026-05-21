@@ -42,7 +42,7 @@ zrbrv_kindle() {
   buv_string_enroll RBRV_DESCRIPTION       0  512  "Human-readable description"
   buv_string_enroll RBRV_USER              0   64  "Container runtime user (unset means image default)"
   buv_enum_enroll   RBRV_VESSEL_MODE               "Operation mode: bind, conjure, or graft" \
-                    bind conjure graft
+                    rbnve_bind rbnve_conjure rbnve_graft
 
   buv_group_enroll "Tool Image Reliquary"
   buv_string_enroll RBRV_RELIQUARY             1   14  "Reliquary datestamp (e.g., r260324193326) — identifies tool image set in GAR"
@@ -52,18 +52,18 @@ zrbrv_kindle() {
                     rbnve_tether rbnve_airgap
 
   buv_group_enroll "Binding Configuration"
-  buv_gate_enroll   RBRV_VESSEL_MODE  bind
+  buv_gate_enroll   RBRV_VESSEL_MODE  rbnve_bind
   buv_fqin_enroll   RBRV_BIND_IMAGE                1  512  "Source image to copy from registry"
   buv_string_enroll RBRV_BIND_OPTIONAL_DOCKERFILE  0  512  "Optional Dockerfile for about recipe.txt"
 
   buv_group_enroll "Conjuring Configuration"
-  buv_gate_enroll   RBRV_VESSEL_MODE  conjure
+  buv_gate_enroll   RBRV_VESSEL_MODE  rbnve_conjure
   buv_string_enroll RBRV_CONJURE_DOCKERFILE    1  512  "Dockerfile path relative to repo root"
   buv_string_enroll RBRV_CONJURE_BLDCONTEXT    1  512  "Build context relative to repo root"
   buv_string_enroll RBRV_CONJURE_PLATFORMS     1  512  "Space-separated target platforms"
 
   buv_group_enroll "Image Group"
-  buv_gate_enroll   RBRV_VESSEL_MODE  conjure
+  buv_gate_enroll   RBRV_VESSEL_MODE  rbnve_conjure
   buv_string_enroll RBRV_IMAGE_1_ORIGIN   0  512  "Upstream base image tag slot 1 (e.g., python:3.11-slim)"
   buv_string_enroll RBRV_IMAGE_1_ANCHOR   0  512  "GAR-mirrored anchor locator slot 1 (package-path:tag, written by enshrine)"
   buv_string_enroll RBRV_IMAGE_2_ORIGIN   0  512  "Upstream base image tag slot 2"
@@ -72,7 +72,7 @@ zrbrv_kindle() {
   buv_string_enroll RBRV_IMAGE_3_ANCHOR   0  512  "GAR-mirrored anchor locator slot 3 (package-path:tag, written by enshrine)"
 
   buv_group_enroll "Grafting Configuration"
-  buv_gate_enroll   RBRV_VESSEL_MODE  graft
+  buv_gate_enroll   RBRV_VESSEL_MODE  rbnve_graft
   buv_string_enroll RBRV_GRAFT_IMAGE                1  512  "Local image reference for graft operations"
   buv_string_enroll RBRV_GRAFT_OPTIONAL_DOCKERFILE  0  512  "Optional Dockerfile for about recipe.txt"
 
