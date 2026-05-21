@@ -1,6 +1,6 @@
 {
   "jjgrn_schema_version": 4,
-  "jjgrn_next_heat_seed": "BR",
+  "jjgrn_next_heat_seed": "BS",
   "jjgrn_heat_order": [
     "₣BQ",
     "₣BP",
@@ -30,7 +30,8 @@
     "₣Au",
     "₣BC",
     "₣BI",
-    "₣BL"
+    "₣BL",
+    "₣BR"
   ],
   "jjgrn_heats": {
     "₣A-": {
@@ -10053,6 +10054,14 @@
           ]
         }
       }
+    },
+    "₣BR": {
+      "jjghn_silks": "rbk-16-gcp-hardening",
+      "jjghn_creation_time": "260521",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [],
+      "jjghn_next_pace_seed": "AAA",
+      "jjghn_paces": {}
     }
   }
 }
