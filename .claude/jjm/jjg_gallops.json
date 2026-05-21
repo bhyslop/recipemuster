@@ -10044,9 +10044,10 @@
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BPAAA",
-        "₢BPAAB"
+        "₢BPAAB",
+        "₢BPAAC"
       ],
-      "jjghn_next_pace_seed": "AAC",
+      "jjghn_next_pace_seed": "AAD",
       "jjghn_paces": {
         "₢BPAAA": {
           "jjgpn_tacks": [
@@ -10074,6 +10075,17 @@
               "jjgtn_text": "## Character\n\nDesign-locked from an extended design session; multi-step — decompose into sub-paces at groom. Mechanical once the locked decisions are held. Gated: do not start until ₣BK closes.\n\n## Goal\n\nReplace the hand-maintained bash↔Rust constant mirrors with build-time generation from the canonical bash source, so cross-language drift becomes structurally impossible for everything projected. (Today the colophons are a hand-copied Rust mirror guarded only by a runtime assertion — `rbtdrm_verify` against the zipper's manifest string — which detects drift but does not prevent it.)\n\n## Precondition\n\n₣BK closed: RBCC stable, moorings layout settled, RBBC aliases retired. Building the projector against an in-flight RBCC is the one thing the design explicitly forbids.\n\n## Locked shape\n\n- **Two manifests, two projectors.** rbz (registry/colophons) → a generic BUK emitter over the zipper rolls; RBCC (flat tinder: moorings dir, `.env` filenames, roles) → an RBK projector. BUK provides mechanism and stays RBK-ignorant; RBK owns domain content. Dependency points RBK→BUK only. The proven precedent is `buz_emit_context`, which already generates the markdown command reference from the same kindled rolls — the Rust emitter is a sibling target, not new machinery.\n- **Naming: carry the enroll varname verbatim.** The rbz enroll varname is the cross-language symbol; the generated Rust const takes that exact name, so BUK names nothing. Retires the curated `RBTDRM_COLOPHON_*` names (a rename across their reference sites).\n- **Scope gate: single canonical bash author, or out.** Colophons and RBCC tinder qualify. Fixtures / operations / container-roles are out — no single bash author (held across `rbte_engine.sh` arrays, disk imprints, and Rust).\n- **Engine change (BUK):** `buz_enroll` must retain the enroll varname in a roll; today it is `printf -v`'d into the caller and discarded, so the registry has no stable symbol for the emitter to name consts after.\n- **Wiring:** generated file checked in; regenerated at the BUK-available layer before every Rust build; a build inside a minimal container consumes the committed artifact (never regenerates); a `git diff --exit-code` qualify gate makes a stale commit fail loud. This supersedes `rbtdrm_verify`'s drift role with exact equality.\n\n## What done looks like\n\n- The rbtd colophon consts and the RBCC-derived consts are generated, not hand-written; `rbtdrm_verify` is retired; inline colophon literals (e.g. in the fast suite) reference the generated consts; the diff-gate is wired into qualify.\n\n## Sources\n\n- `Tools/buk/buz_zipper.sh` — `buz_emit_context` is the bash→artifact template; engine that needs the varname roll\n- `Tools/rbk/rbz_zipper.sh` — colophon registry (one source)\n- `Tools/rbk/rbcc_Constants.sh` — RBCC flat tinder (the other source; already self-described as projection inventory)\n- `Tools/rbk/rbtd/src/rbtdrm_manifest.rs` — current hand-mirror + `rbtdrm_verify` (the target to replace)\n- `Tools/rbk/rbtd/src/lib.rs` — `rbtd_moorings_dir!` macro (already-landed single-source precedent)",
               "jjgtn_silks": "cross-language-constant-codegen",
               "jjgtn_basis": "33c2bce"
+            }
+          ]
+        },
+        "₢BPAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260520-1737",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nNovel BUK mechanism — design judgment lives in the emitter shape; the engine change is additive and low-risk. RBK-ignorant: BUK provides mechanism only, names nothing of its own.\n\n## Goal\n\nGive the zipper registry a stable cross-language symbol per enrolled colophon, and a generic emitter that projects those symbols to Rust consts — mirroring the existing bash-to-artifact pattern of `buz_emit_context`.\n\n## Shape\n\n- `buz_enroll` must retain the enroll varname in a new roll. Today it `printf -v`'s the colophon into the caller and discards the varname, so the registry has no stable symbol for an emitter to name consts after. Additive: `printf -v` stays, existing callers untouched.\n- Add a generic Rust-const emitter (sibling target to `buz_emit_context`) over the kindled rolls. The generated const name is the enroll varname verbatim.\n- Generic and domain-agnostic — emits whatever rolls it is handed. Dependency points RBK to BUK only.\n\n## Sources\n\n- `Tools/buk/buz_zipper.sh` — `buz_enroll` (varname discard site) and `buz_emit_context` (the bash-to-artifact template)\n\n## What done looks like\n\n- A roll carries enroll varnames; a BUK emitter turns the rolls into `pub const NAME: &str = \"...\";` lines; the BUK self-test stays green.",
+              "jjgtn_silks": "buz-rust-const-emitter",
+              "jjgtn_basis": "aacac44"
             }
           ]
         }
