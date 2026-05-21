@@ -32,8 +32,6 @@ rbhw_handbook_top() {
   buh_section  "Recipe Bottle Handbook"
   buh_line     "Three handbook groups covering setup, operations, and maintenance."
   buh_e
-  buh_index_buk
-  buh_e
   buh_section  "Onboarding — role-based walkthroughs"
   buh_line     "  Per-role setup guides with health probes."
   buh_tt       "  Start here:   " "${RBZ_ONBOARD_START_HERE}"
