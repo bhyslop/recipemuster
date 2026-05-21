@@ -9733,6 +9733,13 @@
         "₢BMAAE": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260520-2008",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\n\nMechanical. Touches BUK files — ₣BK's other subtree. ₣BK's BUK code has\nlanded, so no hard coordination remains; just watch for late bugfix churn.\n\n## Goal\n\n`BURN_PLATFORM` values `bubep_linux`/`bubep_mac`/`bubep_windows` →\n`bunne_linux`/`bunne_mac`/`bunne_windows`. The two-shape wart (5-char\n`bubep_` vs 4-char convention) eliminated.\n\n## Boundary\n\nBUK subtree (`Tools/buk/`) + `BUS0` spec.\n\n## Recipe\n\n- `grep -rn 'bubep_' Tools/ tt/` — ~41 sites / 7 files; replace all.\n- Flip the `buv_enum_enroll BURN_PLATFORM` declaration and its description\n  string (`\"(bubep_* identifier)\"` → `bunne_*`).\n- Update the BUS0 spec mention.\n\n## Acceptance\n\n- `grep -rn bubep_` returns nothing; `grep -rn bunne_` shows the cluster.\n- `tt/buw-st.BukSelfTest.sh` + `tt/rbtd-s.TestSuite.fast.sh` green.",
+              "jjgtn_silks": "bubep-to-bunne-harmonize",
+              "jjgtn_basis": "8b14c9a"
+            },
+            {
               "jjgtn_ts": "260520-1317",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\n\nMechanical. Touches BUK files — ₣BK's other subtree. ₣BK's BUK code has\nlanded, so no hard coordination remains; just watch for late bugfix churn.\n\n## Goal\n\n`BURN_PLATFORM` values `bubep_linux`/`bubep_mac`/`bubep_windows` →\n`bunne_linux`/`bunne_mac`/`bunne_windows`. The two-shape wart (5-char\n`bubep_` vs 4-char convention) eliminated.\n\n## Boundary\n\nBUK subtree (`Tools/buk/`) + `BUS0` spec.\n\n## Recipe\n\n- `grep -rn 'bubep_' Tools/ tt/` — ~41 sites / 7 files; replace all.\n- Flip the `buv_enum_enroll BURN_PLATFORM` declaration and its description\n  string (`\"(bubep_* identifier)\"` → `bunne_*`).\n- Update the BUS0 spec mention.\n\n## Acceptance\n\n- `grep -rn bubep_` returns nothing; `grep -rn bunne_` shows the cluster.\n- `tt/buw-st.BukSelfTest.sh` + `tt/rbtd-s.TestSuite.fast.sh` green.",
