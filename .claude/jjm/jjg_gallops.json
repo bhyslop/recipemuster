@@ -10069,9 +10069,10 @@
       "jjghn_creation_time": "260521",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
-        "₢BSAAA"
+        "₢BSAAA",
+        "₢BSAAB"
       ],
-      "jjghn_next_pace_seed": "AAB",
+      "jjghn_next_pace_seed": "AAC",
       "jjghn_paces": {
         "₢BSAAA": {
           "jjgpn_tacks": [
@@ -10081,6 +10082,17 @@
               "jjgtn_text": "## Character\nMechanical cleanup; confirm dead-ness, then delete.\n\n`RBRP_PARENT_TYPE` and `RBRP_PARENT_ID` are defined in `rbrp.env` and string-enrolled in `rbrp_regime.sh`, but nothing reads them — depot project creation is parentless and GCP auto-parents under the org. `RBSDE-depot_levy.adoc`'s create-project step describes a `parent:` it never actually sets — a spec/code divergence.\n\nDone: both fields removed from `rbrp.env` and the rbrp regime validator; the RBSDE create-project step rewritten to describe the parentless create + GCP auto-parenting reality. Before deleting, `grep RBRP_PARENT` across the tree confirms zero non-definition readers.",
               "jjgtn_silks": "delete-dead-rbrp-parent-fields",
               "jjgtn_basis": "489d740"
+            }
+          ]
+        },
+        "₢BSAAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260521-1606",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nSmall helper; the reliable signal is the live API, never config.\n\nThe levy preflight and the override step both need to know whether the depot project is under an organization (and which one). The only trustworthy source is the project's live `parent` from the Resource Manager API — never a regime field (the just-deleted `RBRP_PARENT_TYPE` proved config diverges from reality: it read `none` while GCP auto-parented under the org).\n\nDone: a helper the levy uses, post-create, to classify \"under org (capture org id)\" vs \"no org\" from the created project's actual parent. Consumed by the preflight and override paces that follow.",
+              "jjgtn_silks": "org-detection-from-live-parent",
+              "jjgtn_basis": "21c7556"
             }
           ]
         }
