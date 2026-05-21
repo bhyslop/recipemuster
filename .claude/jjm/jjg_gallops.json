@@ -9988,9 +9988,23 @@
       "jjghn_silks": "buk-12-console-register-merge",
       "jjghn_creation_time": "260521",
       "jjghn_status": "jjghe_racing",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
+      "jjghn_order": [
+        "₢BQAAA"
+      ],
+      "jjghn_next_pace_seed": "AAB",
+      "jjghn_paces": {
+        "₢BQAAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260521-1009",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical, purely additive to the render core.\n\nGive `buym` the two capabilities `buc` will need as a front-end, without changing\nany existing behavior:\n\n- A gray ambient suitable for `buc`'s operation sigil — the current handbook\n  palette has no gray. It must honor the existing terminal-capability kindle\n  (empty when color is off).\n- A plain resolver that strips diastema markers to text (no color; hyperlinks\n  degrade to \"text <url>\"), for `buc`'s transcript path. Sibling to the existing\n  color resolver, independent of terminal mode.\n\nSource: `Tools/buk/buym_yelp.sh` — palette lives in the kindle block; the color\nresolver `buyf_format_yawp` is the structural sibling for the strip variant.\n\nDone: the two additions exist with unit coverage; existing `buym` and `buh`\noutput is byte-unchanged.",
+              "jjgtn_silks": "extend-render-core-gray-and-strip",
+              "jjgtn_basis": "1fcd7a4"
+            }
+          ]
+        }
+      }
     }
   }
 }
