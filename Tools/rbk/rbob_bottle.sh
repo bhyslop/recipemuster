@@ -313,27 +313,32 @@ zrbob_vouch_gate_and_summon() {
 }
 
 ######################################################################
-# Charge Invariant — Network Collision Detection
+# Charge Invariant — Subnet-Keyed Reclaim
 
-# Die if any compose-managed network with our nameplate exists from a foreign
-# project. Catches pre-prefix-era residue (project=tadmor without RBRR
-# prefix) and any other compose project whose name is the bare moniker or
-# ends with "-{moniker}". Match is by labels — independent of how compose
-# joined project + network into the network name.
-zrbob_detect_nameplate_collision() {
+# At most one crucible per nameplate per system. A crucible's subnet derives
+# from the nameplate (RBRN_ENCLAVE_BASE_IP), not from the project prefix, so
+# two same-nameplate crucibles can never coexist on one daemon. Free the
+# nameplate's subnet by tearing down whatever network occupies it — regardless
+# of prefix or how the network was created (compose or manual `docker network
+# create`). Match on the subnet, a structural fact, not on inferred name
+# lineage. Our own compose network is excluded; compose-down already handled it.
+zrbob_reclaim_subnet() {
   zrbob_sentinel
 
-  local -r z_networks_file="${BURD_TEMP_DIR}/zrbob_collision_networks.txt"
-  local -r z_networks_stderr="${BURD_TEMP_DIR}/zrbob_collision_networks_stderr.txt"
-  local -r z_inspect_prefix="${BURD_TEMP_DIR}/zrbob_collision_inspect_"
+  local -r z_target_subnet="${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}"
+  local -r z_networks_file="${BURD_TEMP_DIR}/zrbob_reclaim_networks.txt"
+  local -r z_networks_stderr="${BURD_TEMP_DIR}/zrbob_reclaim_networks_stderr.txt"
+  local -r z_inspect_prefix="${BURD_TEMP_DIR}/zrbob_reclaim_inspect_"
+  local -r z_containers_prefix="${BURD_TEMP_DIR}/zrbob_reclaim_containers_"
+  local -r z_crm_prefix="${BURD_TEMP_DIR}/zrbob_reclaim_crm_"
+  local -r z_nrm_prefix="${BURD_TEMP_DIR}/zrbob_reclaim_nrm_"
 
-  ${ZRBOB_RUNTIME} network ls \
-    --filter 'label=com.docker.compose.project' \
-    --filter 'label=com.docker.compose.network' \
-    --format '{{.Name}}' \
+  ${ZRBOB_RUNTIME} network ls --format '{{.Name}}' \
     > "${z_networks_file}" 2>"${z_networks_stderr}" \
-    || buc_die "Failed to list Docker networks for collision detection — see ${z_networks_stderr}"
+    || buc_die "Failed to list Docker networks — see ${z_networks_stderr}"
 
+  # Load network names (load-then-iterate per BCG; names are captured before any
+  # reclaim, so removing networks mid-loop cannot disturb the iteration)
   local z_names=()
   local z_line=""
   while IFS= read -r z_line || test -n "${z_line}"; do
@@ -341,93 +346,69 @@ zrbob_detect_nameplate_collision() {
     z_names+=("${z_line}")
   done < "${z_networks_file}"
 
-  local z_offenders=()
   local z_index=0
   local z_name=""
-  local z_inspect_file=""
-  local z_inspect_stderr=""
-  local z_labels=""
-  local z_net_label=""
-  local z_proj_label=""
+  local z_subnet_file=""
+  local z_subnet_stderr=""
+  local z_subnet=""
+  local z_containers_file=""
+  local z_containers_stderr=""
+  local z_crm_file=""
+  local z_nrm_file=""
 
   if (( ${#z_names[@]} )); then
     for z_name in "${z_names[@]}"; do
-      z_inspect_file="${z_inspect_prefix}${z_index}.txt"
-      z_inspect_stderr="${z_inspect_prefix}${z_index}_stderr.txt"
+      z_subnet_file="${z_inspect_prefix}${z_index}.txt"
+      z_subnet_stderr="${z_inspect_prefix}${z_index}_stderr.txt"
+      z_containers_file="${z_containers_prefix}${z_index}.txt"
+      z_containers_stderr="${z_containers_prefix}${z_index}_stderr.txt"
+      z_crm_file="${z_crm_prefix}${z_index}.txt"
+      z_nrm_file="${z_nrm_prefix}${z_index}.txt"
       z_index=$((z_index + 1))
 
+      # Skip our own compose network — compose down already handled it
+      test "${z_name}" != "${ZRBOB_NETWORK}" || continue
+
+      # A network in the list may vanish or lack IPAM config between ls and
+      # inspect; tolerate by skipping (stderr preserved for forensics)
       ${ZRBOB_RUNTIME} network inspect "${z_name}" \
-        --format '{{index .Labels "com.docker.compose.network"}}|{{index .Labels "com.docker.compose.project"}}' \
-        > "${z_inspect_file}" 2>"${z_inspect_stderr}" \
+        --format '{{range .IPAM.Config}}{{.Subnet}}{{end}}' \
+        > "${z_subnet_file}" 2>"${z_subnet_stderr}" \
         || continue
 
-      z_labels=$(<"${z_inspect_file}")
-      z_net_label="${z_labels%%|*}"
-      z_proj_label="${z_labels#*|}"
+      z_subnet=$(<"${z_subnet_file}")
+      test "${z_subnet}" = "${z_target_subnet}" || continue
 
-      # Network must be enclave or transit
-      test "${z_net_label}" = "enclave" || test "${z_net_label}" = "transit" \
-        || continue
+      buc_warn "Subnet ${z_target_subnet} occupied by stale network '${z_name}' — reclaiming"
 
-      # Skip our own current project; compose-down already removed it (defensive)
-      test "${z_proj_label}" != "${ZRBOB_PROJECT}" || continue
+      ${ZRBOB_RUNTIME} ps -aq --filter "network=${z_name}" \
+        > "${z_containers_file}" 2>"${z_containers_stderr}" \
+        || buc_die "Failed to list containers on '${z_name}' — see ${z_containers_stderr}"
 
-      # Match: bare moniker, or any prefix ending in "-{moniker}"
-      if test "${z_proj_label}" = "${RBRN_MONIKER}"; then
-        z_offenders+=("${z_name}")
-      elif test "${z_proj_label}" != "${z_proj_label%-"${RBRN_MONIKER}"}"; then
-        z_offenders+=("${z_name}")
+      local z_containers=()
+      local z_cline=""
+      while IFS= read -r z_cline || test -n "${z_cline}"; do
+        test -n "${z_cline}" || continue
+        z_containers+=("${z_cline}")
+      done < "${z_containers_file}"
+
+      # Force-remove attached containers first (a mid-run-killed crucible may
+      # leave them running). Non-fatal: a container may already be exiting; the
+      # network rm below is the real gate — if removal truly failed there, that
+      # rm fails and dies.
+      if (( ${#z_containers[@]} )); then
+        ${ZRBOB_RUNTIME} rm -f "${z_containers[@]}" \
+          > "${z_crm_file}" 2>&1 \
+          || buc_warn "Some containers on '${z_name}' resisted removal — see ${z_crm_file}"
       fi
+
+      ${ZRBOB_RUNTIME} network rm "${z_name}" \
+        > "${z_nrm_file}" 2>&1 \
+        || buc_die "Failed to reclaim subnet ${z_target_subnet}: could not remove network '${z_name}' — see ${z_nrm_file}"
+
+      buc_info "Reclaimed subnet ${z_target_subnet} from '${z_name}'"
     done
   fi
-
-  test "${#z_offenders[@]}" -gt 0 || return 0
-
-  local z_msg="Nameplate '${RBRN_MONIKER}' collision: ${#z_offenders[@]} foreign compose network(s) match — clean up before charging:"
-  local z_offender=""
-  for z_offender in "${z_offenders[@]}"; do
-    z_msg="${z_msg}"$'\n'"  docker rm \$(docker ps -aq --filter network=${z_offender}) 2>/dev/null; docker network rm ${z_offender}"
-  done
-  buc_die "${z_msg}"
-}
-
-# Die if another Docker network already occupies this nameplate's subnet.
-# Catches non-compose networks (manual `docker network create`) that the
-# label-based scan above can't see. Our own network is excluded.
-zrbob_detect_subnet_conflict() {
-  zrbob_sentinel
-
-  local z_target_subnet="${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}"
-  local z_networks_file="${BURD_TEMP_DIR}/zrbob_detect_networks.txt"
-  local z_subnet_file="${BURD_TEMP_DIR}/zrbob_detect_subnet.txt"
-
-  # List all Docker network names
-  ${ZRBOB_RUNTIME} network ls --format '{{.Name}}' > "${z_networks_file}" \
-    || buc_die "Failed to list Docker networks"
-
-  # Load network names (load-then-iterate per BCG)
-  local z_names=()
-  while IFS= read -r z_line || test -n "${z_line}"; do
-    z_names+=("${z_line}")
-  done < "${z_networks_file}"
-
-  # Inspect each network's subnet
-  local z_name=""
-  for z_name in "${z_names[@]}"; do
-    # Skip our own compose network — compose down already handled it
-    test "${z_name}" != "${ZRBOB_NETWORK}" || continue
-
-    ${ZRBOB_RUNTIME} network inspect "${z_name}" \
-      --format '{{range .IPAM.Config}}{{.Subnet}}{{end}}' \
-      > "${z_subnet_file}" 2>/dev/null || continue
-
-    local z_subnet=""
-    z_subnet=$(<"${z_subnet_file}")
-
-    if test "${z_subnet}" = "${z_target_subnet}"; then
-      buc_die "Subnet ${z_target_subnet} already claimed by stale network '${z_name}' — clean up manually: docker rm \$(docker ps -aq --filter network=${z_name}) 2>/dev/null; docker network rm ${z_name}"
-    fi
-  done
 }
 
 ######################################################################
@@ -488,13 +469,12 @@ rbob_charge() {
   buc_step "Cleaning up any prior state (quenching any preexisting can take a couple of minutes)"
   zrbob_compose --profile sessile down --remove-orphans 2>/dev/null || true
 
-  # Charge invariant: at most one crucible per nameplate per system. The
-  # collision scan refuses on any foreign compose project whose network
-  # bears our moniker (catches pre-prefix-era residue independent of the
-  # current run's project name); the subnet scan catches non-compose
-  # networks that bypass label-based detection.
-  zrbob_detect_nameplate_collision
-  zrbob_detect_subnet_conflict
+  # Charge invariant: at most one crucible per nameplate per system. A
+  # crucible's subnet derives from the nameplate, not the prefix, so freeing
+  # the nameplate's subnet — tearing down whatever network occupies it,
+  # regardless of prefix or creation method — is sufficient and subsumes any
+  # name-lineage collision check.
+  zrbob_reclaim_subnet
 
   # Start services via compose (--profile sessile includes bottle)
   # --wait blocks until all health checks pass (sentry → pentacle → bottle chain)
