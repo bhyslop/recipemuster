@@ -10070,9 +10070,10 @@
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
         "₢BSAAA",
-        "₢BSAAB"
+        "₢BSAAB",
+        "₢BSAAC"
       ],
-      "jjghn_next_pace_seed": "AAC",
+      "jjghn_next_pace_seed": "AAD",
       "jjghn_paces": {
         "₢BSAAA": {
           "jjgpn_tacks": [
@@ -10093,6 +10094,17 @@
               "jjgtn_text": "## Character\nSmall helper; the reliable signal is the live API, never config.\n\nThe levy preflight and the override step both need to know whether the depot project is under an organization (and which one). The only trustworthy source is the project's live `parent` from the Resource Manager API — never a regime field (the just-deleted `RBRP_PARENT_TYPE` proved config diverges from reality: it read `none` while GCP auto-parented under the org).\n\nDone: a helper the levy uses, post-create, to classify \"under org (capture org id)\" vs \"no org\" from the created project's actual parent. Consumed by the preflight and override paces that follow.",
               "jjgtn_silks": "org-detection-from-live-parent",
               "jjgtn_basis": "21c7556"
+            }
+          ]
+        },
+        "₢BSAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260521-1606",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nHandbook + spec; documents a manual one-time operator step. Org-affiliated payors only.\n\nUnder a secure-by-default org, the payor needs `roles/orgpolicy.policyAdmin` to set the per-project key-creation override the levy performs. Org owners do NOT hold this by default — it must be granted deliberately. No-org payors never need it.\n\nDone: the payor-establish handbook (`RBHPE` / `rbhpe_establish.sh`) gains a step under its existing org-affiliation (advanced) branch directing the operator to grant their identity Organization Policy Administrator on the org; `RBSPE-payor_establish.adoc` updated to match. The no-org path is untouched.",
+              "jjgtn_silks": "establish-grants-payor-policy-authority",
+              "jjgtn_basis": "627ef9d"
             }
           ]
         }
