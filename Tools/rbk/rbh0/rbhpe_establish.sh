@@ -99,7 +99,7 @@ rbhp_establish() {
   buyy_href_yawp "https://console.cloud.google.com/billing" "Google Cloud Billing"; local -r z_href_billing="${z_buym_yelp}"
   buh_line     "   1. Go to: ${z_href_billing}"
   buh_line     "      If no billing accounts exist:"
-  buyy_ui_yawp "CREATE ACCOUNT"; local -r z_ui_create_account="${z_buym_yelp}"
+  buyy_ui_yawp "Create account"; local -r z_ui_create_account="${z_buym_yelp}"
   buh_line     "          a. Click ${z_ui_create_account}"
   buh_line     "          b. Configure payment method and submit"
   buyy_ui_yawp "Account ID"; local -r z_ui_account_id_new="${z_buym_yelp}"
