@@ -9682,9 +9682,10 @@
         "₢BMAAC",
         "₢BMAAD",
         "₢BMAAE",
-        "₢BMAAF"
+        "₢BMAAF",
+        "₢BMAAH"
       ],
-      "jjghn_next_pace_seed": "AAH",
+      "jjghn_next_pace_seed": "AAI",
       "jjghn_paces": {
         "₢BMAAA": {
           "jjgpn_tacks": [
@@ -9823,6 +9824,17 @@
               "jjgtn_text": "## Character\n\nTheurge robustness fix; mostly mechanical, with one empirical timing check.\n\n## Problem\n\ncanonical-invest reruns against a standing depot fail: `rbgg_invest_retriever`\nand `rbgg_invest_director` are create-only and return HTTP 409 when the SA\nalready exists from a prior run. `governor_mantle` does NOT have this problem —\nit deletes existing `governor-*` SAs before recreating (\"Clean up existing\ngovernor-* service accounts (404-tolerant)\"). Skirmish is designed to rerun\nagainst a standing depot, so this breaks every run after the first.\n\n## Fix\n\nGive the retriever/director invests the same self-heal the mantle already has: a\ndelete-first-tolerate-404 prelude inside the invest operation. The\nGovernorDivests verbs (`rbw-arD` / `rbw-adD`, zero-arg by-role) already exist to\ndo the deletion. Preferred over a sequence-level divest step in the\ncanonical-invest fixture, because folding it into the operation also makes\nstandalone single-case reruns idempotent and co-locates cleanup with creation,\nmatching the governor precedent.\n\n## Caveat to verify\n\nTight delete→recreate timing. SA deletion has propagation latency and GCP can\nbalk at recreating a just-deleted SA name (soft-delete tombstone). Proven this\nsession that delete-then-recreate works with ~1 min of intervening delay; an\nimmediate divest→invest is tighter. The mantle already carries a \"Wait for SA\npropagation\" step — the invest self-heal likely needs the same settle. One\ntight-timing rerun confirms.\n\n## Done\n\ncanonical-invest reruns clean against a standing depot — no 409 — both as the\nfull skirmish suite and as a standalone single-case rerun.",
               "jjgtn_silks": "idempotent-canonical-invests",
               "jjgtn_basis": "4d25848"
+            }
+          ]
+        },
+        "₢BMAAH": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260522-1326",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nTest-infrastructure fixture; mechanical once shape is set. A cheap cloud-depot\nsmoke test — a skirmish-alternative for fast confidence that the build/retrieve\npath works, without skirmish's project churn.\n\n## Goal\nA fixture proving the cloud-depot build-and-retrieve path produces a *runnable*\nartifact: conjure `rbev-busybox` → summon → bare runtime run of a degenerate\ncommand (assert exit 0) → abjure. Runs against an operator-levied standing depot\n(no per-run project levy), modeled on `canonical-invest`'s no-levy idiom.\n\n## Locked constraints\n- **No crucible.** This proves build/depot/access viability, NOT containment —\n  an orthogonal axis the crucible owns. A bare `<runtime> run --rm <ref> true`\n  is sufficient; no sentry/pentacle/bottle/network.\n- **Runtime hardcoded to docker behind one named constant** (podman deferred).\n  The \"runtime belongs in a Director-governed regime field\" decision rides along\n  with the podman work, after ₣BS settles the regime/credential shape — do NOT\n  add a regime field now.\n- `rbev-busybox` is the load-bearing small conjure vessel (already shared by\n  hallmark-lifecycle / batch-vouch).\n- summon proves the retriever pull path; the run proves executability — both\n  cheap, keep both as distinct steps.\n\n## Done\nA fixture + single-case run path that conjures busybox, summons it, runs a\ndegenerate command proving executability, and abjures — green against a standing\ndepot with no crucible charged.",
+              "jjgtn_silks": "cloud-depot-build-viability-fixture",
+              "jjgtn_basis": "038c78a"
             }
           ]
         }
