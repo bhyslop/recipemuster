@@ -290,3 +290,41 @@ mode is: a human proves identity (device flow), the project holds no role
 secrets, roles are reached by impersonation, and authority is granted and revoked
 centrally in IAM. Reauth is not the obstacle; it is the compass that forces the
 model to be honest.
+
+---
+
+## 13. Resolutions (decided)
+
+Decided answers to §11, banked as they settle. Implementation heat TBD.
+
+### R1 — Payor stays distinct; the three lower tiers unify (resolves §11 "Does Payor stay distinct?")
+
+The keyless reorientation erases the *credential* axis that today's specs use to
+set Payor apart (RBSGS: "the Payor stands apart"; OAuth vs RBRA keyfile). Once
+Governor/Director/Retriever are reached by impersonation, all four tiers share the
+human-OAuth front door — OAuth-vs-keyfile distinguishes nothing.
+
+What remains distinguishing Payor is non-credential and durable:
+
+- **Bootstrap root** — Payor's authority is project ownership, with no API path to
+  bootstrap (RBSPE); the impersonation chain must bottom out on an authority that
+  is not itself an impersonation grant. Payor is that floor.
+- **Scope** — multi-depot + billing, vs Governor's single depot.
+
+Collapse statement: **Governor/Director/Retriever become one primitive — "a human
+granted `roles/iam.serviceAccountTokenCreator` on a role SA by the tier above."
+Payor is the axiom the recursion bottoms out on, authorized by ownership.**
+
+Verb redefinition implied:
+
+- **mantle** (Payor→Governor): project-owner-OAuth human grants `user:X`
+  token-creator on the governor SA (was: create SA + mint downloadable key).
+- **invest** (Governor→Dir/Ret): human impersonating the governor SA (which keeps
+  owner-on-depot, RBSGM) grants `user:Y` token-creator on the dir/ret SA.
+
+Role SA principals persist (§5 "SA principals preserved"); only the human reach
+changes from keyfile to impersonation.
+
+Org/no-org consistent: project ownership is the root in both worlds. Membership
+eligibility differs only via `iam.allowedPolicyMemberDomains` (an org may restrict
+designees to its own domain).
