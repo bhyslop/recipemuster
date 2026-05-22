@@ -43,6 +43,18 @@ HTTP 200 response OR HTTP 404 (already divested)
 if HTTP 404: "Retriever service account not found in cloud (already divested)"
 
 //axhos_step
+. *Confirm Deletion Propagated*:
+.. {rbbc_poll}
+the SA GET endpoint until HTTP 404 confirms the
+{giam_service_account}
+is gone — a delete-accepted response precedes propagation, so an immediately following same-name
+{rbtgo_retriever_invest}
+would otherwise race a still-visible account
+.. NOTE: skipped when the DELETE returned HTTP 404 — the account was already absent, so there is nothing to wait for
+.. {rbbc_require}
+HTTP 404 within the eventual-consistency deadline
+
+//axhos_step
 . *Remove Production RBRA File*:
 .. Remove the retriever's RBRA file at
 {rbrr_retriever_rbra_file}

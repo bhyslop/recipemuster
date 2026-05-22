@@ -43,6 +43,8 @@ use crate::rbtdrm_manifest::{
     rbtdrm_credential_check_colophon,
     RBTDRM_COLOPHON_DEPOT_LEVY,
     RBTDRM_COLOPHON_DEPOT_LIST,
+    RBTDRM_COLOPHON_GOV_DIVEST_DIRECTOR,
+    RBTDRM_COLOPHON_GOV_DIVEST_RETRIEVER,
     RBTDRM_COLOPHON_GOV_INVEST_DIRECTOR,
     RBTDRM_COLOPHON_GOV_INVEST_RETRIEVER,
     RBTDRM_COLOPHON_GOV_MANTLE,
@@ -667,6 +669,7 @@ fn rbtdrk_retriever_invest(dir: &Path) -> rbtdre_Verdict {
         rbtdrk_role_invest_impl(
             ctx,
             dir,
+            RBTDRM_COLOPHON_GOV_DIVEST_RETRIEVER,
             RBTDRM_COLOPHON_GOV_INVEST_RETRIEVER,
             RBTDRK_IDENTITY_RETRIEVER,
             RBTDRM_ROLE_RETRIEVER,
@@ -688,6 +691,7 @@ fn rbtdrk_director_invest(dir: &Path) -> rbtdre_Verdict {
         rbtdrk_role_invest_impl(
             ctx,
             dir,
+            RBTDRM_COLOPHON_GOV_DIVEST_DIRECTOR,
             RBTDRM_COLOPHON_GOV_INVEST_DIRECTOR,
             RBTDRK_IDENTITY_DIRECTOR,
             RBTDRM_ROLE_DIRECTOR,
@@ -700,6 +704,7 @@ fn rbtdrk_director_invest(dir: &Path) -> rbtdre_Verdict {
 fn rbtdrk_role_invest_impl(
     ctx: &mut rbtdri_Context,
     dir: &Path,
+    divest_colophon: &str,
     invest_colophon: &str,
     identity: &str,
     role: &str,
@@ -710,6 +715,30 @@ fn rbtdrk_role_invest_impl(
         Ok(p) => p,
         Err(e) => return rbtdre_Verdict::Fail(format!("canonical assay RBRA path: {}", e)),
     };
+
+    // Invest is fail-loud if the SA already exists (RBSRK/RBSDK preflight), so a
+    // standing-depot rerun must clear the prior SA first. The divest tabtarget is
+    // 404-tolerant and confirms the SA is gone before returning, so on a
+    // freshly-levied depot (canonical-establish) this is a clean no-op and on a
+    // rerun (canonical-invest) it leaves the invest race-free.
+    let label_divest = format!("divest-{}", role);
+    let divest = match rbtdrk_invoke_logged(
+        ctx,
+        divest_colophon,
+        &[identity],
+        &[],
+        dir,
+        &label_divest,
+    ) {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("divest {}: {}", role, e)),
+    };
+    if divest.exit_code != 0 {
+        return rbtdre_Verdict::Fail(format!(
+            "divest {} exit {}\n{}",
+            role, divest.exit_code, divest.stderr
+        ));
+    }
 
     let label_invest = format!("invest-{}", role);
     let invest = match rbtdrk_invoke_logged(

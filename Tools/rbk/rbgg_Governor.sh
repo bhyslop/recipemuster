@@ -60,6 +60,7 @@ zrbgg_kindle() {
 
   # Infix values for HTTP operations
   readonly ZRBGG_INFIX_CREATE="create"
+  readonly ZRBGG_INFIX_PREFLIGHT="preflight"
   readonly ZRBGG_INFIX_VERIFY="verify"
   readonly ZRBGG_INFIX_KEY="key"
   readonly ZRBGG_INFIX_API_IAM_ENABLE="api_iam_enable"
@@ -79,6 +80,7 @@ zrbgg_kindle() {
   readonly ZRBGG_INFIX_ROSTER="roster"
   readonly ZRBGG_INFIX_API_CHECK="api_checking"
   readonly ZRBGG_INFIX_DELETE="delete"
+  readonly ZRBGG_INFIX_DELETE_GONE="delete_gone"
   readonly ZRBGG_INFIX_LIST_KEYS="list_keys"
   readonly ZRBGG_INFIX_BUCKET_CREATE="bucket_create"
   readonly ZRBGG_INFIX_BUCKET_DELETE="bucket_delete"
@@ -167,6 +169,20 @@ zrbgg_create_service_account_with_key() {
   buc_step 'Get OAuth token from admin'
   local z_token
   z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
+
+  buc_step "Preflight: confirm ${z_account_name} does not already exist"
+  # Invest is fail-loud by design (RBSRK/RBSDK): a pre-existing SA is treated as
+  # state drift, not an idempotent rerun. The operator clears it with the
+  # matching GovernorDivests verb (rbw-arD/rbw-adD) before re-investing.
+  rbgu_http_json "GET" "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}" "${z_token}" \
+                                                 "${ZRBGG_INFIX_PREFLIGHT}"
+  local z_preflight_code
+  z_preflight_code=$(rbgu_http_code_capture "${ZRBGG_INFIX_PREFLIGHT}") || z_preflight_code=""
+  case "${z_preflight_code}" in
+    404) buc_log_args "Service account ${z_account_email} absent — clear to create" ;;
+    200) buc_die "Service account ${z_account_email} already exists — run the matching GovernorDivests verb (rbw-arD/rbw-adD) first to re-key" ;;
+    *)   buc_die "Preflight GET for ${z_account_email} returned unexpected HTTP ${z_preflight_code}" ;;
+  esac
 
   buc_step "Create request JSON for ${z_account_name}"
   jq -n                                      \
@@ -773,6 +789,18 @@ zrbgg_divest_role() {
                                                  "${ZRBGG_INFIX_DELETE}"
   rbgu_http_require_ok "Delete service account" "${ZRBGG_INFIX_DELETE}" \
     404 "not found (already deleted)"
+
+  buc_log_args 'Confirm deletion propagated before any same-name recreate'
+  # When the DELETE actually removed an SA, wait until the GET path reports it
+  # gone — a delete-accepted response precedes propagation, and an immediately
+  # following same-name invest would otherwise race a still-visible account.
+  # Skipped on 404: the account was already absent, nothing to wait for.
+  local z_delete_code
+  z_delete_code=$(rbgu_http_code_capture "${ZRBGG_INFIX_DELETE}") || z_delete_code=""
+  if test "${z_delete_code}" != "404"; then
+    rbgu_poll_until_gone "Service account ${z_account_email}" \
+      "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}" "${z_token}" "${ZRBGG_INFIX_DELETE_GONE}"
+  fi
 
   buc_log_args 'Opportunistic role-RBRA cleanup if installed credential matches'
   if test -f "${z_role_rbra_file}"; then
