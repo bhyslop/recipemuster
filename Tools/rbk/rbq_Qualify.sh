@@ -218,14 +218,16 @@ rbq_qualify_skirmish() {
 rbq_qualify_tadmor() {
   zrbq_sentinel
 
-  # Tadmor self-contained — fully local, no GCP/depot/project. Kludge the
-  # tadmor vessel locally, then drive the existing tadmor crucible fixture
-  # (charge + security cases + quench). Build and run are composed here at the
-  # command level rather than as one fixture, because the crucible cases
-  # resolve their nameplate from the fixture name (a separate fixture reusing
-  # the security cases would have to be named "tadmor" and collide).
-  buc_step "Kludging tadmor vessel (local build)"
-  "${ZRBQ_PROJECT_ROOT}/tt/rbw-tK.KludgeCycle.tadmor.sh"
+  # Tadmor self-contained — fully local, no GCP/depot/project. Two fixtures in
+  # sequence: kludge-tadmor builds BOTH vessels (sentry + bottle) locally and
+  # commits each hallmark (the fixture owns the notch — same precedent as
+  # onboarding's rbtdro_kludge_nameplate); then the tadmor crucible fixture
+  # charges against the now-clean nameplate, runs the security cases, quenches.
+  # The build is a separate fixture (nameplate passed explicitly) rather than a
+  # self-charging tadmor fixture, because the crucible security cases resolve
+  # their nameplate from the fixture name and would collide on "tadmor".
+  buc_step "Building tadmor vessels locally (kludge sentry + bottle, commit hallmarks)"
+  "${ZRBQ_PROJECT_ROOT}/tt/rbtd-r.FixtureRun.kludge-tadmor.sh"
 
   buc_step "Running tadmor crucible fixture (charge + security + quench)"
   "${ZRBQ_PROJECT_ROOT}/tt/rbtd-r.FixtureRun.tadmor.sh"

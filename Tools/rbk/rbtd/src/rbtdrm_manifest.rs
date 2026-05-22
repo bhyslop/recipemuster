@@ -156,6 +156,11 @@ pub const RBTDRM_FIXTURE_CANONICAL_INVEST: &str = "canonical-invest";
 // construction — inscribe reliquary, enshrine bases, kludge tadmor/ccyolo,
 // plus one ordain-* case per director-mode handbook track, build-only)
 pub const RBTDRM_FIXTURE_ONBOARDING_SEQUENCE: &str = "onboarding-sequence";
+// Self-contained tadmor build fixture (rbw-tT): kludges tadmor sentry+bottle
+// locally and commits each hallmark (so the subsequent tadmor crucible fixture
+// charges against a clean nameplate). Reuses onboarding's kludge helper minus
+// its reliquary-stamp witness probe — local kludge has no GCP/reliquary dep.
+pub const RBTDRM_FIXTURE_KLUDGE_TADMOR: &str = "kludge-tadmor";
 // Calibrant fixtures — synthetic deterministic-verdict fixtures driving the
 // bash blackbox testbench. Internal framework-test plumbing.
 pub const RBTDRM_FIXTURE_CALIBRANT_VERDICTS: &str = "calibrant-verdicts";
@@ -254,6 +259,12 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDRM_COLOPHON_GOV_INVEST_DIRECTOR,
             RBTDRM_COLOPHON_CHECK_RETRIEVER,
             RBTDRM_COLOPHON_CHECK_DIRECTOR,
+        ]),
+        // kludge-tadmor builds both vessels locally; only the two kludge
+        // colophons are exercised (no charge/credential colophons here).
+        RBTDRM_FIXTURE_KLUDGE_TADMOR => Some(&[
+            RBTDRM_COLOPHON_KLUDGE_SENTRY,
+            RBTDRM_COLOPHON_KLUDGE_BOTTLE,
         ]),
         RBTDRM_FIXTURE_ONBOARDING_SEQUENCE => Some(&[
             RBTDRM_COLOPHON_INSCRIBE_RELIQUARY,

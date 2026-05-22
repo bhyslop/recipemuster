@@ -49,14 +49,29 @@ use crate::rbtdri_invocation::{
 };
 use crate::rbtdrk_canonical::rbtdrk_canonical_rbra;
 use crate::rbtdrm_manifest::{
-    RBTDRM_COLOPHON_ABJURE, RBTDRM_COLOPHON_ENSHRINE_VESSEL, RBTDRM_COLOPHON_INSCRIBE_RELIQUARY,
-    RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE, RBTDRM_COLOPHON_KLUDGE_BOTTLE,
-    RBTDRM_COLOPHON_KLUDGE_SENTRY, RBTDRM_COLOPHON_ORDAIN, RBTDRM_COLOPHON_PLUMB_COMPACT,
-    RBTDRM_COLOPHON_PLUMB_FULL, RBTDRM_COLOPHON_REKON_HALLMARK, RBTDRM_COLOPHON_SUMMON,
-    RBTDRM_COLOPHON_WREST_HALLMARK_IMAGE, RBTDRM_COLOPHON_YOKE_RELIQUARY, RBTDRM_CONTAINER_BOTTLE,
-    RBTDRM_CONTAINER_SENTRY, RBTDRM_FIXTURE_ONBOARDING_SEQUENCE, RBTDRM_OPERATION_ENSHRINE,
-    RBTDRM_OPERATION_INSCRIBE, RBTDRM_OPERATION_KLUDGE, RBTDRM_OPERATION_ORDAIN,
-    RBTDRM_OPERATION_YOKE, RBTDRM_ROLE_GOVERNOR,
+    RBTDRM_COLOPHON_ABJURE,
+    RBTDRM_COLOPHON_ENSHRINE_VESSEL,
+    RBTDRM_COLOPHON_INSCRIBE_RELIQUARY,
+    RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE,
+    RBTDRM_COLOPHON_KLUDGE_BOTTLE,
+    RBTDRM_COLOPHON_KLUDGE_SENTRY,
+    RBTDRM_COLOPHON_ORDAIN,
+    RBTDRM_COLOPHON_PLUMB_COMPACT,
+    RBTDRM_COLOPHON_PLUMB_FULL,
+    RBTDRM_COLOPHON_REKON_HALLMARK,
+    RBTDRM_COLOPHON_SUMMON,
+    RBTDRM_COLOPHON_WREST_HALLMARK_IMAGE,
+    RBTDRM_COLOPHON_YOKE_RELIQUARY,
+    RBTDRM_CONTAINER_BOTTLE,
+    RBTDRM_CONTAINER_SENTRY,
+    RBTDRM_FIXTURE_KLUDGE_TADMOR,
+    RBTDRM_FIXTURE_ONBOARDING_SEQUENCE,
+    RBTDRM_OPERATION_ENSHRINE,
+    RBTDRM_OPERATION_INSCRIBE,
+    RBTDRM_OPERATION_KLUDGE,
+    RBTDRM_OPERATION_ORDAIN,
+    RBTDRM_OPERATION_YOKE,
+    RBTDRM_ROLE_GOVERNOR,
 };
 
 // ── Vessel directories ────────────────────────────────────────
@@ -665,6 +680,27 @@ fn rbtdro_onboarding_kludge_tadmor_impl(ctx: &mut rbtdri_Context, dir: &Path) ->
         Err(v) => v,
     }
 }
+
+/// Standalone tadmor kludge for the self-contained build+run path (rbw-tT).
+/// Same build+commit of both vessels as the onboarding case, but WITHOUT the
+/// reliquary-stamp probe: that probe is an onboarding-sequence sequencing
+/// witness, not a local-kludge dependency (kludge is local docker, no GCP, no
+/// reliquary). Drives + commits the sentry and bottle hallmarks so the tadmor
+/// crucible fixture that follows charges against a clean nameplate.
+fn rbtdro_kludge_tadmor_standalone(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdro_onboarding_kludge_tadmor_impl(ctx, dir))
+}
+
+pub static RBTDRO_CASES_KLUDGE_TADMOR: &[rbtdre_Case] =
+    &[case!(rbtdro_kludge_tadmor_standalone)];
+
+pub static RBTDRO_FIXTURE_KLUDGE_TADMOR: rbtdre_Fixture = rbtdre_Fixture {
+    name: RBTDRM_FIXTURE_KLUDGE_TADMOR,
+    disposition: rbtdre_Disposition::StateProgressing,
+    setup: None,
+    teardown: None,
+    cases: RBTDRO_CASES_KLUDGE_TADMOR,
+};
 
 /// Build ccyolo sentry and bottle locally. Kludge is local docker — no GCP.
 /// Probe: reliquary scratch present (confirms case 1 completed).
