@@ -54,14 +54,10 @@ zrbrr_furnish() {
 
   source "${BURD_BUK_DIR}/buv_validation.sh"
   source "${BURD_BUK_DIR}/burd_regime.sh"
-  source "${z_rbk_kit_dir}/rbcc_Constants.sh"
-  source "${z_rbk_kit_dir}/rbgc_Constants.sh"
-  source "${z_rbk_kit_dir}/rbrr_regime.sh"
-  source "${z_rbk_kit_dir}/rbrd_regime.sh"
-  source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
-  source "${RBCC_rbrr_file}"
-  source "${RBCC_rbrd_file}"
   source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
+  source "${z_rbk_kit_dir}/rbcc_Constants.sh"
+  source "${z_rbk_kit_dir}/rbrr_regime.sh"
+  source "${RBCC_rbrr_file}"
 
   zbuv_kindle
   zburd_kindle
@@ -69,10 +65,7 @@ zrbrr_furnish() {
   zrbcc_kindle
 
   zrbrr_kindle
-  zrbrd_kindle
   zrbrr_enforce
-  zrbrd_enforce
-  zrbdc_kindle
 
   zbupr_kindle
 }
