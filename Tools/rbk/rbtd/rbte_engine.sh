@@ -68,6 +68,27 @@ zrbte_kindle() {
     "srjcl"
     "pluml"
   )
+  # Skirmish — the "mini gauntlet": the depot->build->crucible chain WITHOUT
+  # project-ID churn. canonical-invest reuses a standing operator-levied depot
+  # (no levy, no unmake) where the gauntlet's pristine-lifecycle/canonical
+  # -establish each levy a fresh project; pristine-lifecycle is dropped
+  # entirely. onboarding-sequence then builds the crucible images (local kludge
+  # + cloud ordain into the standing depot) and the four crucibles charge+run.
+  # OPERATOR PRECONDITION: a canonical depot already levied — install canonical
+  # prefixes and run rbw-dL by hand before this suite. Spends cloud build/GAR
+  # but creates no GCP project per run.
+  ZRBTE_SUITE_SKIRMISH=(
+    "enrollment-validation"
+    "regime-validation"
+    "regime-smoke"
+    "dockerfile-hygiene"
+    "canonical-invest"
+    "onboarding-sequence"
+    "tadmor"
+    "moriah"
+    "srjcl"
+    "pluml"
+  )
 
   readonly ZRBTE_KINDLED=1
 }
@@ -98,7 +119,8 @@ zrbte_resolve_suite() {
     crucible) echo "${ZRBTE_SUITE_CRUCIBLE[*]}" ;;
     complete) echo "${ZRBTE_SUITE_COMPLETE[*]}" ;;
     gauntlet) echo "${ZRBTE_SUITE_GAUNTLET[*]}" ;;
-    *)        buc_die "Unknown suite: ${z_suite} (expected fast|service|crucible|complete|gauntlet)" ;;
+    skirmish) echo "${ZRBTE_SUITE_SKIRMISH[*]}" ;;
+    *)        buc_die "Unknown suite: ${z_suite} (expected fast|service|crucible|complete|gauntlet|skirmish)" ;;
   esac
 }
 

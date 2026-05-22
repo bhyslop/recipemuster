@@ -200,4 +200,37 @@ rbq_qualify_pristine() {
   buc_step "Pristine qualification passed"
 }
 
+rbq_qualify_skirmish() {
+  zrbq_sentinel
+
+  # Skirmish — the mini-gauntlet. Runs the depot->build->crucible chain against
+  # a depot the operator has already levied by hand: canonical-invest skips the
+  # levy and pristine-lifecycle is dropped, so no GCP project is created per
+  # run (cloud build/GAR are still spent). The release gate stays rbw-tP; this
+  # is the project-lifecycle-frugal substitute for iterative runs.
+  # PRECONDITION: install canonical prefixes + levy a depot (rbw-dL) by hand.
+  buc_step "Running skirmish qualification (mini-gauntlet test suite)"
+  "${ZRBQ_PROJECT_ROOT}/tt/rbtd-s.TestSuite.skirmish.sh"
+
+  buc_step "Skirmish qualification passed"
+}
+
+rbq_qualify_tadmor() {
+  zrbq_sentinel
+
+  # Tadmor self-contained — fully local, no GCP/depot/project. Kludge the
+  # tadmor vessel locally, then drive the existing tadmor crucible fixture
+  # (charge + security cases + quench). Build and run are composed here at the
+  # command level rather than as one fixture, because the crucible cases
+  # resolve their nameplate from the fixture name (a separate fixture reusing
+  # the security cases would have to be named "tadmor" and collide).
+  buc_step "Kludging tadmor vessel (local build)"
+  "${ZRBQ_PROJECT_ROOT}/tt/rbw-tK.KludgeCycle.tadmor.sh"
+
+  buc_step "Running tadmor crucible fixture (charge + security + quench)"
+  "${ZRBQ_PROJECT_ROOT}/tt/rbtd-r.FixtureRun.tadmor.sh"
+
+  buc_step "Tadmor self-contained qualification passed"
+}
+
 # eof

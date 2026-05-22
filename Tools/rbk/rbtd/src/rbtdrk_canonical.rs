@@ -40,10 +40,17 @@ use crate::rbtdri_invocation::{
     rbtdri_InvokeResult, RBTDRI_BURV_OUTPUT_SUBDIR,
 };
 use crate::rbtdrm_manifest::{
-    rbtdrm_credential_check_colophon, RBTDRM_COLOPHON_DEPOT_LEVY, RBTDRM_COLOPHON_DEPOT_LIST,
-    RBTDRM_COLOPHON_GOV_INVEST_DIRECTOR, RBTDRM_COLOPHON_GOV_INVEST_RETRIEVER,
-    RBTDRM_COLOPHON_GOV_MANTLE, RBTDRM_FIXTURE_CANONICAL_ESTABLISH, RBTDRM_ROLE_DIRECTOR,
-    RBTDRM_ROLE_GOVERNOR, RBTDRM_ROLE_RETRIEVER,
+    rbtdrm_credential_check_colophon,
+    RBTDRM_COLOPHON_DEPOT_LEVY,
+    RBTDRM_COLOPHON_DEPOT_LIST,
+    RBTDRM_COLOPHON_GOV_INVEST_DIRECTOR,
+    RBTDRM_COLOPHON_GOV_INVEST_RETRIEVER,
+    RBTDRM_COLOPHON_GOV_MANTLE,
+    RBTDRM_FIXTURE_CANONICAL_ESTABLISH,
+    RBTDRM_FIXTURE_CANONICAL_INVEST,
+    RBTDRM_ROLE_DIRECTOR,
+    RBTDRM_ROLE_GOVERNOR,
+    RBTDRM_ROLE_RETRIEVER,
 };
 
 // ── Canonical-fixture identities ─────────────────────────────
@@ -797,4 +804,26 @@ pub static RBTDRK_FIXTURE_CANONICAL_ESTABLISH: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRK_CASES_CANONICAL_ESTABLISH,
+};
+
+// canonical-invest — the skirmish suite's no-levy variant. Reuses the three
+// investiture case fns verbatim but omits `depot_levy`: skirmish runs against
+// a depot the operator has levied by hand, so no GCP project is created per
+// run. Each investiture case carries its own precondition probe (governor
+// mantle probes the standing depot's moniker; the invests probe the governor),
+// so the cases compose against an operator-levied depot exactly as they do
+// after canonical-establish's case 1. Sharing the case fns is the same
+// provenance-vs-behavior split tadmor/moriah exploit with RBTDRC_CASES_SECURITY.
+pub static RBTDRK_CASES_CANONICAL_INVEST: &[rbtdre_Case] = &[
+    case!(rbtdrk_governor_mantle),
+    case!(rbtdrk_retriever_invest),
+    case!(rbtdrk_director_invest),
+];
+
+pub static RBTDRK_FIXTURE_CANONICAL_INVEST: rbtdre_Fixture = rbtdre_Fixture {
+    name: RBTDRM_FIXTURE_CANONICAL_INVEST,
+    disposition: rbtdre_Disposition::StateProgressing,
+    setup: None,
+    teardown: None,
+    cases: RBTDRK_CASES_CANONICAL_INVEST,
 };

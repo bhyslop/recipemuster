@@ -200,6 +200,8 @@ zrbz_kindle() {
   buz_enroll RBZ_QUALIFY_FAST     "rbw-tf"   "${z_mod}" "rbq_qualify_fast"     ""        "Fast qualify: tabtargets, colophons, nameplate health"
   buz_enroll RBZ_QUALIFY_RELEASE  "rbw-tr"   "${z_mod}" "rbq_qualify_release"  ""        "Release qualify: + shellcheck, full test suite"
   buz_enroll RBZ_QUALIFY_PRISTINE "rbw-tP"   "${z_mod}" "rbq_qualify_pristine" ""        "Pristine qualify: gauntlet test suite (release gate)"
+  buz_enroll RBZ_QUALIFY_SKIRMISH "rbw-tS"   "${z_mod}" "rbq_qualify_skirmish" ""        "Skirmish qualify: mini-gauntlet suite (reuses standing depot, no project churn)"
+  buz_enroll RBZ_QUALIFY_TADMOR   "rbw-tT"   "${z_mod}" "rbq_qualify_tadmor"   ""        "Tadmor self-contained: local kludge build + charge + security cases (no cloud)"
 
   # Handbook — human-facing procedures (rbw-h0 index, rbw-hw/HW* windows)
   buz_group RBZ__GROUP_HANDBOOK   "rbw-HW"  "Handbook — Human-facing procedures"

@@ -2370,6 +2370,7 @@ pub static RBTDRC_FIXTURES: &[&'static rbtdre_Fixture] = &[
     &crate::rbtdrf_handbook::RBTDRF_FIXTURE_HANDBOOK_RENDER,
     &crate::rbtdrp_pristine::RBTDRP_FIXTURE_PRISTINE_LIFECYCLE,
     &crate::rbtdrk_canonical::RBTDRK_FIXTURE_CANONICAL_ESTABLISH,
+    &crate::rbtdrk_canonical::RBTDRK_FIXTURE_CANONICAL_INVEST,
     &crate::rbtdro_onboarding::RBTDRO_FIXTURE_ONBOARDING_SEQUENCE,
     &crate::rbtdrl_calibrant::RBTDRL_FIXTURE_VERDICTS,
     &crate::rbtdrl_calibrant::RBTDRL_FIXTURE_FAIL_FAST,

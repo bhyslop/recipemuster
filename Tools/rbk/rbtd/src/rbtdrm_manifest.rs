@@ -146,6 +146,12 @@ pub const RBTDRM_FIXTURE_PRISTINE_LIFECYCLE: &str = "pristine-lifecycle";
 // Gauntlet canonical-establish fixture (§2: canonical depot levy + governor
 // mantle + retriever/director invest with per-case precondition probes)
 pub const RBTDRM_FIXTURE_CANONICAL_ESTABLISH: &str = "canonical-establish";
+// Skirmish canonical-invest fixture — the no-levy variant of
+// canonical-establish. Reuses the three investiture cases (governor mantle +
+// retriever/director invest) against a depot the operator has already levied
+// by hand; omits depot-levy so the skirmish suite creates no GCP project per
+// run. Distinction from canonical-establish is precondition, not behavior.
+pub const RBTDRM_FIXTURE_CANONICAL_INVEST: &str = "canonical-invest";
 // Gauntlet onboarding-sequence fixture (§3: handbook-walked vessel
 // construction — inscribe reliquary, enshrine bases, kludge tadmor/ccyolo,
 // plus one ordain-* case per director-mode handbook track, build-only)
@@ -232,6 +238,16 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         ]),
         RBTDRM_FIXTURE_CANONICAL_ESTABLISH => Some(&[
             RBTDRM_COLOPHON_DEPOT_LEVY,
+            RBTDRM_COLOPHON_DEPOT_LIST,
+            RBTDRM_COLOPHON_GOV_MANTLE,
+            RBTDRM_COLOPHON_GOV_INVEST_RETRIEVER,
+            RBTDRM_COLOPHON_GOV_INVEST_DIRECTOR,
+            RBTDRM_COLOPHON_CHECK_RETRIEVER,
+            RBTDRM_COLOPHON_CHECK_DIRECTOR,
+        ]),
+        // canonical-invest reuses canonical-establish's investiture cases sans
+        // levy — same colophons minus DEPOT_LEVY (depot is operator-provided).
+        RBTDRM_FIXTURE_CANONICAL_INVEST => Some(&[
             RBTDRM_COLOPHON_DEPOT_LIST,
             RBTDRM_COLOPHON_GOV_MANTLE,
             RBTDRM_COLOPHON_GOV_INVEST_RETRIEVER,
