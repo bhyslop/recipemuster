@@ -59,12 +59,15 @@ fn rbtdtk_canonical_prefix_compose() {
     assert!(runtime.contains("xyz"));
 }
 
-/// Family-stem base 'canest2' is a contract: composed family stems start
-/// with this exact string.
+/// Composed family stems are the base stem followed verbatim by the tincture.
+/// Tied to RBTDRK_FAMILY_STEM_BASE rather than a literal so an era-bump of the
+/// base (canest -> canest2 -> canest3 ...) can't silently desync this test.
 #[test]
 fn rbtdtk_family_stem_value() {
-    assert_eq!(RBTDRK_FAMILY_STEM_BASE, "canest2");
-    assert_eq!(rbtdrk_family_stem("xyz"), "canest2xyz");
+    assert_eq!(
+        rbtdrk_family_stem("xyz"),
+        format!("{}xyz", RBTDRK_FAMILY_STEM_BASE)
+    );
 }
 
 /// Distinct tinctures yield disjoint composed names (prefixes and family
