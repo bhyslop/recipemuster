@@ -9059,9 +9059,10 @@
         "₢BDAAG",
         "₢BDAAH",
         "₢BDAAF",
-        "₢BDAAI"
+        "₢BDAAI",
+        "₢BDAAJ"
       ],
-      "jjghn_next_pace_seed": "AAJ",
+      "jjghn_next_pace_seed": "AAK",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -9313,6 +9314,17 @@
               "jjgtn_text": "## Character\n\nMechanical scout enhancement.\n\n## Locked decisions\n\n- **Regex-metachar detection set:** `.*+?[](){}|^$\\` — any of these in the pattern triggers regex mode.\n- **Plain mode (no metachars):** three-tier word search. Tier 1 `\\bWORD\\b` (whole), tier 2 `\\bWORD` (prefix), tier 3 `WORD` (substring). Per-pace results carry a tier provenance marker (`[whole]` / `[prefix]` / `[substring]`); results presented in tier order.\n- **Regex mode:** single pass with the raw pattern, no permutations.\n- **Word-frequency summary (always):** header block showing distinct matched-text strings with occurrence counts. In plain mode this surfaces `ark` / `arks` / `hallmark` / etc. with counts; in regex mode it counts distinct match spans (operator chose regex deliberately).\n- **Drop silks from result rows entirely:** heat group header keeps `₣XX heat-silks`; pace rows show `₢XXXXX [state]` + match excerpt only. No pace silks on pace rows.\n- Heat grouping retained.\n\n## Sources\n\n- `Tools/jjk/vov_veiled/JJSCSC-scout.adoc` — spec, update to match new behavior.\n\n## Done when\n\n- Spec reflects new behavior.\n- `scout ark` returns frequency summary + tiered results with provenance markers.\n- `scout '\\bark\\b'` returns single-pass regex results + frequency summary.\n- Silks no longer appear on result rows.",
               "jjgtn_silks": "scout-tier-and-word-frequency",
               "jjgtn_basis": "12969f0"
+            }
+          ]
+        },
+        "₢BDAAJ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260522-0825",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nSmall JJK robustness fix; the trap is a doc/convention ambiguity surfaced by an\nuninformative error — not deep logic.\n\n## Spook (what happened)\n\nAn officium wrote `gazette_in.md` into `…/officia/☉<id>/` (officium id verbatim,\n☉ glyph included), but the server's exchange dir strips the glyph\n(`…/officia/<id>/`). `jjx_enroll` read the stripped dir, found nothing, and died\nwith `requires gazette_in.md with jjezs_slate notice` — naming no path, so the\ncause looked like a content error, not a wrong-dir error. A spurious ☉-named\ndirectory was also littered.\n\n## Root cause\n\nThe protocol says pass the ☉-id verbatim in the MCP `officium` field (dispatcher\nstrips it) AND documents gazette paths as\n`…/officia/<officium-id>/gazette_in.md`. Substituting the returned id into\n`<officium-id>` yields the glyph path — wrong. Nothing states the on-disk dir is\nthe stripped form.\n\n## What done looks like\n\nAn agent cannot land gazette files in the wrong dir, and a miss is\nself-diagnosing. Candidate directions (decide at mount): emit the exact absolute\ngazette paths from `jjx_open` / `jjx_orient` so agents never build them; have\ngazette-consuming errors name the resolved path they checked; tolerate the\nglyph-named dir server-side; or at minimum document the strip explicitly. The\nsilent-wrong-dir + pathless-error failure mode is gone.",
+              "jjgtn_silks": "gazette-dir-glyph-strip-mismatch",
+              "jjgtn_basis": "47225d1"
             }
           ]
         }
