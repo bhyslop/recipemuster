@@ -9669,6 +9669,7 @@
       "jjghn_creation_time": "260514",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BMAAG",
         "₢BMAAB",
         "₢BMAAA",
         "₢BMAAC",
@@ -9676,7 +9677,7 @@
         "₢BMAAE",
         "₢BMAAF"
       ],
-      "jjghn_next_pace_seed": "AAG",
+      "jjghn_next_pace_seed": "AAH",
       "jjghn_paces": {
         "₢BMAAA": {
           "jjgpn_tacks": [
@@ -9804,6 +9805,17 @@
               "jjgtn_text": "## Character\n\nGauntlet exit. A failure here is a real migration bug (a missed site), not\nexploration — triage is opus-grade.\n\n## Goal\n\nThe whole sprue migration proven end-to-end, and the discoverability promise\nverified: one grep per family returns the complete cluster, no bare values\nsurvive.\n\n## Recipe\n\n- Run the gauntlet (`tt/rbw-tP.QualifyPristine.sh`) — pre-flight `rbw-MZ`,\n  all crucibles quenched, per burn-bridges posture.\n- Grep audit:\n  - `grep -rn rbnve_ Tools/` / `rbnne_` / `bunne_` each return a complete,\n    coherent cluster.\n  - `grep -rn bubep_` returns nothing.\n  - Spot bare-value audit: surviving `conjure`/`graft`/`tether`/`airgap`/\n    `disabled`/`enabled`/`global`/`allowlist` hits are all class-1/3/4\n    (prose, identifiers, coupled derived strings), zero class-2.\n\n## Acceptance\n\n- Gauntlet green.\n- Grep audit clean per above.",
               "jjgtn_silks": "final-regression-and-grep-audit",
               "jjgtn_basis": "55ede21"
+            }
+          ]
+        },
+        "₢BMAAG": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260522-0837",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nTheurge robustness fix; mostly mechanical, with one empirical timing check.\n\n## Problem\n\ncanonical-invest reruns against a standing depot fail: `rbgg_invest_retriever`\nand `rbgg_invest_director` are create-only and return HTTP 409 when the SA\nalready exists from a prior run. `governor_mantle` does NOT have this problem —\nit deletes existing `governor-*` SAs before recreating (\"Clean up existing\ngovernor-* service accounts (404-tolerant)\"). Skirmish is designed to rerun\nagainst a standing depot, so this breaks every run after the first.\n\n## Fix\n\nGive the retriever/director invests the same self-heal the mantle already has: a\ndelete-first-tolerate-404 prelude inside the invest operation. The\nGovernorDivests verbs (`rbw-arD` / `rbw-adD`, zero-arg by-role) already exist to\ndo the deletion. Preferred over a sequence-level divest step in the\ncanonical-invest fixture, because folding it into the operation also makes\nstandalone single-case reruns idempotent and co-locates cleanup with creation,\nmatching the governor precedent.\n\n## Caveat to verify\n\nTight delete→recreate timing. SA deletion has propagation latency and GCP can\nbalk at recreating a just-deleted SA name (soft-delete tombstone). Proven this\nsession that delete-then-recreate works with ~1 min of intervening delay; an\nimmediate divest→invest is tighter. The mantle already carries a \"Wait for SA\npropagation\" step — the invest self-heal likely needs the same settle. One\ntight-timing rerun confirms.\n\n## Done\n\ncanonical-invest reruns clean against a standing depot — no 409 — both as the\nfull skirmish suite and as a standalone single-case rerun.",
+              "jjgtn_silks": "idempotent-canonical-invests",
+              "jjgtn_basis": "4d25848"
             }
           ]
         }
