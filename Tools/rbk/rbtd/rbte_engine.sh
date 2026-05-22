@@ -79,11 +79,11 @@ zrbte_kindle() {
   # but creates no GCP project per run.
   ZRBTE_SUITE_SKIRMISH=(
     "enrollment-validation"
+    "canonical-invest"
+    "onboarding-sequence"
     "regime-validation"
     "regime-smoke"
     "dockerfile-hygiene"
-    "canonical-invest"
-    "onboarding-sequence"
     "tadmor"
     "moriah"
     "srjcl"
