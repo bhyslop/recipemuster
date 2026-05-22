@@ -173,6 +173,8 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-tf` | QualifyFast | — | Fast qualify: tabtargets, colophons, nameplate health |
 | `rbw-tr` | QualifyRelease | — | Release qualify: + shellcheck, full test suite |
 | `rbw-tP` | QualifyPristine | — | Pristine qualify: gauntlet test suite (release gate) |
+| `rbw-tS` | QualifySkirmish | — | Skirmish qualify: mini-gauntlet suite (reuses standing depot, no project churn) |
+| `rbw-tT` | QualifyTadmor | — | Tadmor self-contained: local kludge build + charge + security cases (no cloud) |
 
 ### Handbook — Human-facing procedures (`rbw-HW`)
 
