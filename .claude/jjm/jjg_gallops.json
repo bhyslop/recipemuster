@@ -10076,13 +10076,14 @@
       "jjghn_creation_time": "260521",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
+        "₢BSAAF",
         "₢BSAAA",
         "₢BSAAB",
         "₢BSAAC",
         "₢BSAAD",
         "₢BSAAE"
       ],
-      "jjghn_next_pace_seed": "AAF",
+      "jjghn_next_pace_seed": "AAG",
       "jjghn_paces": {
         "₢BSAAA": {
           "jjgpn_tacks": [
@@ -10136,6 +10137,17 @@
               "jjgtn_text": "## Character\nSpec + impl; the payoff step. The propagation wait is load-bearing. Org-affiliated payors only.\n\nFor org-affiliated depots, after the project exists the levy sets a project-scoped override clearing `iam.disableServiceAccountKeyCreation`, so governor/retriever/director key creation succeeds. Verified this session: a v1 `setOrgPolicy` `enforced:false` at project scope works, and key creation unblocks roughly a minute later. The step MUST wait out that propagation (mirroring the levy's existing IAM-propagation gate) before any SA-key-dependent step, or the subsequent governor mantle races the lag and fails.\n\nDone: `RBSDE-depot_levy.adoc` gains the override step (org branch only) with an explicit propagation wait/verify before proceeding. No-org branch unaffected. Pairs with the establish grant and the preflight that guards it.",
               "jjgtn_silks": "levy-sets-project-scoped-key-override",
               "jjgtn_basis": "ea41242"
+            }
+          ]
+        },
+        "₢BSAAF": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260522-0756",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nInteractive design conversation requiring operator judgment — do NOT\nimplement. A strategic reorientation that should reshape this heat's tactical\npaces before they are cut; its product is an agreed direction, not code.\n\n## Trigger\n\nSurfaced live while first-running the ₣BM skirmish suite. The project's active\nPayor moved from a **consumer** Google account (`bhyslop@gmail.com`, no org) to\nan **org-affiliated** Workspace identity (`bhyslop@scaleinvariant.org`, org\n`247899326218`). The operator's read: this is a major use-style change, not a\none-off config tweak, and the project must be reoriented to treat\norg-affiliated accounts as a first-class mode.\n\n## What we proved this session (the durable reminder)\n\nOrg-affiliated identities inherit secure-by-default posture the prior consumer\naccount never had — two distinct behaviors, two distinct layers:\n\n- **Reauth cadence.** The org's session/reauth policy refuses the payor OAuth\n  refresh token after a short window (a ~22h-old token returned `invalid_rapt`;\n  `rbw-gPI` re-auth cleared it). `rbw-gPR` is stale here — its text assumes the\n  consumer \"6-month idle expiry\" model, which no longer describes reality.\n- **Key-creation block.** `iam.disableServiceAccountKeyCreation` is `enforced`\n  by default on the standing depot, so governor/retriever/director SA-key\n  creation will be refused — the wall the mantle would hit next.\n- The payor **lacks** `orgpolicy.policy.set` but **holds**\n  `resourcemanager.organizations.setIamPolicy` (so it could self-grant\n  policyAdmin). The standing depot is ACTIVE under the org; no levy needed.\n\n## Goal\n\nDecide, honestly and with the operator, how org-affiliated accounts become a\nsupported use style: where reauth cadence and the key-creation override are\nsurfaced, owned, and documented across establish / levy / onboarding — and\nwhether the tactical org-policy paces already slated in this heat are the right\nshape or need recasting in light of the above. Output: an agreed design\ndirection written back into the paddock, with the downstream paces reshaped to\nmatch.\n\n## Constraint\n\nProduces understanding and a reshaped plan, not code. Implementation belongs to\nthe downstream paces, governed by this pace's conclusions.",
+              "jjgtn_silks": "org-affiliated-account-reorientation",
+              "jjgtn_basis": "64f648a"
             }
           ]
         }
