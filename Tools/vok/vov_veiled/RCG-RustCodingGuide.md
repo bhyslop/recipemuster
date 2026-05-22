@@ -28,6 +28,47 @@ Every Rust file that serves as a crate root must include these attributes. This 
 
 The `allow` directives must appear after `deny(warnings)` to override it for RCG-specific naming patterns. The `deny` directive ensures warnings never accumulate — a warning today becomes a mystery tomorrow.
 
+## Import Discipline
+
+`use` blocks churn more than almost anything else in a file — every new symbol referenced adds an import, every removed reference drops one. Format them for **change-proportional diffs**: one item per line, alphabetically ordered.
+
+### Rule
+
+A braced `use` list with 2+ items places each item on its own line, in alphabetical order, with a trailing comma:
+
+```rust
+// ✅ One per line, sorted — adding/removing a symbol is a single-line diff
+// at a deterministic position
+use crate::rbtdrm_manifest::{
+    RBTDRM_COLOPHON_KLUDGE_BOTTLE,
+    RBTDRM_COLOPHON_KLUDGE_SENTRY,
+    RBTDRM_FIXTURE_KLUDGE_TADMOR,
+};
+
+// ❌ Width-packed — adding one symbol reflows the line; two branches each
+//    adding an import to the same packed line collide on merge
+use crate::rbtdrm_manifest::{
+    RBTDRM_COLOPHON_KLUDGE_BOTTLE, RBTDRM_COLOPHON_KLUDGE_SENTRY,
+};
+```
+
+### Rationale
+
+The diff of an import edit should be proportional to the change: one symbol added = one line added, never a reflow of neighbors. One-per-line keeps `git blame` precise (each import traces to the commit that introduced it) and removes the spurious merge conflicts width-packing creates. Alphabetical order makes the insertion point deterministic — there is no "where does this go" decision, and two branches adding different symbols sort to different positions, so they don't collide.
+
+### Note on rustfmt
+
+This project does not run `cargo fmt`; this discipline is review-enforced. Two of rustfmt's behaviors bear on it:
+
+- **Alphabetization** is rustfmt's stable default (`reorder_imports`, on by default) — consistent with this rule.
+- **One-per-line** (`imports_layout = "Vertical"`) is **nightly-only**. On the stable toolchain, setting it in `rustfmt.toml` is rejected with a warning and silently ignored (measured: `Warning: can't set imports_layout = Vertical, unstable features are only available in nightly channel`). `max_width = 1` would force verticality but is a global sledgehammer — it maximally wraps *all* expressions, not just imports — so it is not a targeted substitute.
+
+Net: until a nightly `cargo fmt` is adopted (a larger decision — rustfmt has no imports-only mode and would reformat the whole codebase), one-per-line is held by review, alphabetization happens to match rustfmt's stable default.
+
+### Smell Test
+
+If a single `use` line carries more than one imported item, or the items are not in sorted order, split and sort.
+
 ## File Naming
 
 ### Source Files
