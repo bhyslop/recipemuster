@@ -299,6 +299,11 @@ Decided answers to §11, banked as they settle. Implementation heat TBD.
 
 ### R1 — Payor stays distinct; the three lower tiers unify (resolves §11 "Does Payor stay distinct?")
 
+> **Superseded in part by R2:** R1's impersonation / `tokenCreator`-on-role-SA
+> mechanism is replaced by direct human capability grants (Model Y). R1's durable
+> conclusions survive — Payor as ownership root, the erased credential axis, central
+> revoke, org/no-org consistency; only "humans impersonate role SAs" is dropped.
+
 The keyless reorientation erases the *credential* axis that today's specs use to
 set Payor apart (RBSGS: "the Payor stands apart"; OAuth vs RBRA keyfile). Once
 Governor/Director/Retriever are reached by impersonation, all four tiers share the
@@ -328,3 +333,45 @@ changes from keyfile to impersonation.
 Org/no-org consistent: project ownership is the root in both worlds. Membership
 eligibility differs only via `iam.allowedPolicyMemberDomains` (an org may restrict
 designees to its own domain).
+
+### R2 — Roles are direct human capability grants (Model Y); SAs survive only as runtime identities (revises R1's mechanism)
+
+A role is a named set of IAM capabilities granted DIRECTLY to a human (`user:…`) on
+the depot. Humans call APIs as themselves, carrying the capabilities the org
+granted. No human ever impersonates a per-role service account.
+
+What survives from R1 unchanged: Payor is the ownership-rooted bootstrap floor; the
+OAuth-vs-keyfile credential axis is erased (all humans use one browser/device
+login); revocation is central (delete the human's grant); audit names the human —
+now directly, not via `delegationInfo`; org/no-org consistent via project ownership
+as the universal root.
+
+Verified separation that makes this sound (`rbfd_FoundryDirectorBuild.sh:812`,
+RBSDE-depot_levy):
+
+- Builds never ran as director. They run as **mason**, a per-depot runtime SA whose
+  email is derived from depot config (`RBGD_MASON_EMAIL`). Director only submits
+  builds and pushes the build-context pouch.
+- Every director permission is `user:`-grantable — `cloudbuild.builds.editor`,
+  `viewer`, `cloudbuild.workerPoolUser`, `serviceAccountUser` on mason (actAs),
+  `artifactregistry.repoAdmin`. Retriever = `artifactregistry.reader` alone.
+- Mason is impersonated only by Google's Cloud Build service agent
+  (machine-to-machine), never by a human.
+
+Consequences:
+
+- Service accounts retreat to pure runtime plumbing (mason), addressed via
+  depot-derived config, never held or worn by a human.
+- Zero per-role files. The only on-disk human credential is the one OAuth login.
+  The role-SA addressing/naming question — and the Governor timestamp — evaporates:
+  there is no per-role SA a human names. This is the maximal form of §6 dissolution.
+- Verb redefinition: mantle (Payor→Governor) = Payor grants a human the Governor
+  capability-set (project `setIamPolicy`). invest (Governor→Dir/Ret) = Governor
+  grants a human the Director/Retriever capability-set. Both are IAM grants naming
+  `user:…`, no SA minting.
+- Trade-off accepted: standing privilege rather than just-in-time elevation. Bounded
+  by org reauth cadence; strictly better than today's durable keyfiles; JIT is
+  addable later without re-architecture.
+
+Resolves §11 "one human credential vs anything per-role": one login, nothing
+per-role at all.
