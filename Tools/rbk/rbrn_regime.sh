@@ -119,6 +119,18 @@ zrbrn_enforce() {
 ######################################################################
 # Public Functions (rbrn_*)
 
+# Source an arbitrary RBRN regime file and run the full kindle->enforce
+# chain against it, failing on first fault. Test-facing contract surface:
+# theurge drives synthetic-malformed regime files through this without
+# reaching module internals. Prerequisite: buv kindled.
+rbrn_probate() {
+  local -r z_file="${1:-}"
+  test -n "${z_file}" || buc_die "rbrn_probate: regime file argument required"
+  source "${z_file}"  || buc_die "rbrn_probate: cannot source ${z_file}"
+  zrbrn_kindle
+  zrbrn_enforce
+}
+
 # List available nameplate monikers as space-separated tokens
 # Prerequisite: RBCC sourced (needs RBCC_moorings_dir, RBCC_rbrn_file)
 rbrn_list_capture() {

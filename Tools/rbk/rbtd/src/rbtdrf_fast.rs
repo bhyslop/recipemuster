@@ -27,9 +27,20 @@ use crate::case;
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
 use crate::rbtdri_invocation::rbtdri_find_tabtarget_global;
 use crate::rbtdrm_manifest::{
-    RBTDRM_COLOPHON_HYGIENE_CHECK, RBTDRM_COLOPHON_HYGIENE_CHECK_VESSEL,
-    RBTDRM_FIXTURE_DOCKERFILE_HYGIENE, RBTDRM_FIXTURE_ENROLLMENT_VALIDATION,
-    RBTDRM_FIXTURE_REGIME_SMOKE, RBTDRM_FIXTURE_REGIME_VALIDATION,
+    RBTDRM_COLOPHON_HYGIENE_CHECK,
+    RBTDRM_COLOPHON_HYGIENE_CHECK_VESSEL,
+    RBTDRM_FIXTURE_DOCKERFILE_HYGIENE,
+    RBTDRM_FIXTURE_ENROLLMENT_VALIDATION,
+    RBTDRM_FIXTURE_REGIME_SMOKE,
+    RBTDRM_FIXTURE_REGIME_VALIDATION,
+    RBTDRM_MODULE_RBRD,
+    RBTDRM_MODULE_RBRN,
+    RBTDRM_MODULE_RBRR,
+    RBTDRM_MODULE_RBRV,
+    RBTDRM_PROBATE_RBRD,
+    RBTDRM_PROBATE_RBRN,
+    RBTDRM_PROBATE_RBRR,
+    RBTDRM_PROBATE_RBRV,
 };
 use crate::rbtdrx_platform::rbtdrx_native_to_posix;
 
@@ -123,11 +134,19 @@ fn rbtdrf_run_ev(
     rbtdre_Verdict::Pass
 }
 
-/// Run a regime-validation case: source modules, set up state, kindle+enforce.
-fn rbtdrf_run_rv(
+/// Drive a regime's public `*_probate` function against a synthetic
+/// baseline+override written to the case temp dir. `expect_ok` selects the
+/// verdict polarity: pass-anchors validate the pristine baseline (true);
+/// negatives apply one violating override and expect non-zero (false).
+/// Sources only the contract surface — `buv_validation.sh` plus the one regime
+/// module — mirroring the `buv_vet` bridge that enrollment-validation uses: no
+/// internal-module chain, no z-private reach.
+fn rbtdrf_run_probate(
     dir: &Path,
-    preamble: &str,
-    setup: &str,
+    module: &str,
+    probate_fn: &str,
+    baseline: &str,
+    override_: &str,
     expect_ok: bool,
     label: &str,
 ) -> rbtdre_Verdict {
@@ -136,40 +155,36 @@ fn rbtdrf_run_rv(
         Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
     let buv = root.join("Tools/buk/buv_validation.sh");
-    let rbk = root.join("Tools/rbk");
+    let module_path = root.join("Tools/rbk").join(module);
 
-    let buv_p = rbtdrx_native_to_posix(&buv);
-    let rbk_p = rbtdrx_native_to_posix(&rbk);
+    let env_file = dir.join(format!("{}.env", label));
+    let body = format!("{}\n{}\n", baseline, override_);
+    if let Err(e) = std::fs::write(&env_file, &body) {
+        return rbtdre_Verdict::Fail(format!("{}: write env failed: {}", label, e));
+    }
+
     let script = format!(
         "set -euo pipefail\n\
          source '{}'\n\
-         source '{}/rbcc_Constants.sh'\n\
-         source '{}/rbgc_Constants.sh'\n\
-         source '{}/rbrr_regime.sh'\n\
-         source '{}/rbrd_regime.sh'\n\
-         source '{}/rbrv_regime.sh'\n\
-         source '{}/rbrn_regime.sh'\n\
-         source '{}/rbdc_DerivedConstants.sh'\n\
-         zbuv_kindle\nzrbcc_kindle\n\
-         {}\n\
-         {}",
-        buv_p,
-        rbk_p, rbk_p, rbk_p,
-        rbk_p, rbk_p, rbk_p, rbk_p,
-        preamble, setup,
+         source '{}'\n\
+         zbuv_kindle\n\
+         {} '{}'",
+        rbtdrx_native_to_posix(&buv),
+        rbtdrx_native_to_posix(&module_path),
+        probate_fn,
+        rbtdrx_native_to_posix(&env_file),
     );
 
     match rbtdrf_run_bash(&root, &script, dir, label) {
         Ok((code, _, _)) => {
             let ok = code == 0;
-            if ok != expect_ok {
-                return if expect_ok {
-                    rbtdre_Verdict::Fail(format!("{}: expected ok, got exit {}", label, code))
-                } else {
-                    rbtdre_Verdict::Fail(format!("{}: expected failure, got exit 0", label))
-                };
+            if ok == expect_ok {
+                rbtdre_Verdict::Pass
+            } else if expect_ok {
+                rbtdre_Verdict::Fail(format!("{}: expected ok, got exit {}", label, code))
+            } else {
+                rbtdre_Verdict::Fail(format!("{}: expected failure, got exit 0", label))
             }
-            rbtdre_Verdict::Pass
         }
         Err(e) => rbtdre_Verdict::Fail(format!("{}: {}", label, e)),
     }
@@ -811,24 +826,32 @@ const RBTDRF_VAL_HALLMARKS_ROOT: &str = "rbi_hm";
 
 // --- RBRR negative tests ---
 
-fn rbtdrf_rv_rbrr_neg(dir: &Path, label: &str, setup: &str) -> rbtdre_Verdict {
-    rbtdrf_run_rv(dir,
-        concat!("source \"${PWD}/", crate::rbtd_moorings_dir!(), "/rbrr.env\"\nsource \"${PWD}/", crate::rbtd_moorings_dir!(), "/rbrd.env\""),
-        &format!("{}\nzrbrr_kindle\nzrbrd_kindle\nzrbrr_enforce\nzrbrd_enforce", setup),
-        false, label,
-    )
+// Valid synthetic RBRR baseline — every enrolled field passes kindle+enforce.
+// VESSEL_DIR/SECRETS_DIR point at /tmp (existence-checked by buv_dir_exists;
+// the bad-dir cases below override to a nonexistent path). Each negative
+// applies exactly one violating override.
+const RBTDRF_RBRR_BASELINE: &str = "\
+export RBRR_RUNTIME_PREFIX=\"rb-\"\n\
+export RBRR_VESSEL_DIR=\"/tmp\"\n\
+export RBRR_BOTTLE_WORKSPACE=\"/workspace\"\n\
+export RBRR_DNS_SERVER=\"8.8.8.8\"\n\
+export RBRR_GCB_TIMEOUT=\"1200s\"\n\
+export RBRR_GCB_MIN_CONCURRENT_BUILDS=\"1\"\n\
+export RBRR_SECRETS_DIR=\"/tmp\"\n\
+export RBRR_PUBLIC_DOCS_URL=\"https://example.com/docs\"";
+
+fn rbtdrf_rv_rbrr_neg(dir: &Path, label: &str, override_: &str) -> rbtdre_Verdict {
+    rbtdrf_run_probate(dir, RBTDRM_MODULE_RBRR, RBTDRM_PROBATE_RBRR,
+        RBTDRF_RBRR_BASELINE, override_, false, label)
 }
 
-fn rbtdrf_rv_rbrr_missing_moniker(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_rv_rbrr_neg(dir, "rbrr-missing-moniker", "unset RBRD_DEPOT_MONIKER")
+fn rbtdrf_rv_rbrr_baseline_valid(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_run_probate(dir, RBTDRM_MODULE_RBRR, RBTDRM_PROBATE_RBRR,
+        RBTDRF_RBRR_BASELINE, "", true, "rbrr-baseline-valid")
 }
 
 fn rbtdrf_rv_rbrr_bad_timeout(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_rv_rbrr_neg(dir, "rbrr-bad-timeout", "export RBRR_GCB_TIMEOUT=\"1200\"")
-}
-
-fn rbtdrf_rv_rbrr_bad_moniker(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_rv_rbrr_neg(dir, "rbrr-bad-moniker", "export RBRD_DEPOT_MONIKER=\"BAD-MONIKER\"")
 }
 
 fn rbtdrf_rv_rbrr_unexpected_var(dir: &Path) -> rbtdre_Verdict {
@@ -845,23 +868,8 @@ fn rbtdrf_rv_rbrr_bad_secrets_dir(dir: &Path) -> rbtdre_Verdict {
         "export RBRR_SECRETS_DIR=\"/tmp/nonexistent-rbtdrf-secrets-dir\"")
 }
 
-// Cloud-prefix format rule: ^[a-z][a-z0-9-]*-$ length 2..=11 (rbrr_regime.sh).
+// Runtime-prefix format rule: ^[a-z][a-z0-9-]*-$ length 2..=11 (rbrr_regime.sh).
 // Three independent failure modes — one case each.
-
-fn rbtdrf_rv_rbrr_bad_cloud_prefix_uppercase(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_rv_rbrr_neg(dir, "rbrr-bad-cloud-prefix-uppercase",
-        &format!("export {}=\"BAD-\"", RBTDRF_VAR_RBRD_CLOUD_PREFIX))
-}
-
-fn rbtdrf_rv_rbrr_bad_cloud_prefix_no_trailing_hyphen(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_rv_rbrr_neg(dir, "rbrr-bad-cloud-prefix-no-trailing-hyphen",
-        &format!("export {}=\"acme\"", RBTDRF_VAR_RBRD_CLOUD_PREFIX))
-}
-
-fn rbtdrf_rv_rbrr_bad_cloud_prefix_too_long(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_rv_rbrr_neg(dir, "rbrr-bad-cloud-prefix-too-long",
-        &format!("export {}=\"twelvechars-\"", RBTDRF_VAR_RBRD_CLOUD_PREFIX))
-}
 
 fn rbtdrf_rv_rbrr_bad_runtime_prefix_uppercase(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_rv_rbrr_neg(dir, "rbrr-bad-runtime-prefix-uppercase",
@@ -878,12 +886,62 @@ fn rbtdrf_rv_rbrr_bad_runtime_prefix_too_long(dir: &Path) -> rbtdre_Verdict {
         &format!("export {}=\"twelvechars-\"", RBTDRF_VAR_RBRR_RUNTIME_PREFIX))
 }
 
+// --- RBRD negative tests ---
+
+// Valid synthetic RBRD baseline — every enrolled field passes kindle+enforce
+// (joint prefix+moniker length 16 <= 30). Recategorized here from the former
+// rbrr-named block: these exercise RBRD_DEPOT_MONIKER and RBRD_CLOUD_PREFIX,
+// independent of RBRR after the RBRD-from-RBRR split.
+const RBTDRF_RBRD_BASELINE: &str = "\
+export RBRD_CLOUD_PREFIX=\"acme-\"\n\
+export RBRD_DEPOT_MONIKER=\"testdepot\"\n\
+export RBRD_GCP_REGION=\"us-central1\"\n\
+export RBRD_GCB_MACHINE_TYPE=\"e2-standard-2\"";
+
+fn rbtdrf_rv_rbrd_neg(dir: &Path, label: &str, override_: &str) -> rbtdre_Verdict {
+    rbtdrf_run_probate(dir, RBTDRM_MODULE_RBRD, RBTDRM_PROBATE_RBRD,
+        RBTDRF_RBRD_BASELINE, override_, false, label)
+}
+
+fn rbtdrf_rv_rbrd_baseline_valid(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_run_probate(dir, RBTDRM_MODULE_RBRD, RBTDRM_PROBATE_RBRD,
+        RBTDRF_RBRD_BASELINE, "", true, "rbrd-baseline-valid")
+}
+
+fn rbtdrf_rv_rbrd_missing_moniker(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_rv_rbrd_neg(dir, "rbrd-missing-moniker", "unset RBRD_DEPOT_MONIKER")
+}
+
+fn rbtdrf_rv_rbrd_bad_moniker(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_rv_rbrd_neg(dir, "rbrd-bad-moniker", "export RBRD_DEPOT_MONIKER=\"BAD-MONIKER\"")
+}
+
+// Cloud-prefix format rule: ^[a-z][a-z0-9-]*-$ length 2..=11 (rbrd_regime.sh).
+// Three independent failure modes — one case each.
+
+fn rbtdrf_rv_rbrd_bad_cloud_prefix_uppercase(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_rv_rbrd_neg(dir, "rbrd-bad-cloud-prefix-uppercase",
+        &format!("export {}=\"BAD-\"", RBTDRF_VAR_RBRD_CLOUD_PREFIX))
+}
+
+fn rbtdrf_rv_rbrd_bad_cloud_prefix_no_trailing_hyphen(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_rv_rbrd_neg(dir, "rbrd-bad-cloud-prefix-no-trailing-hyphen",
+        &format!("export {}=\"acme\"", RBTDRF_VAR_RBRD_CLOUD_PREFIX))
+}
+
+fn rbtdrf_rv_rbrd_bad_cloud_prefix_too_long(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_rv_rbrd_neg(dir, "rbrd-bad-cloud-prefix-too-long",
+        &format!("export {}=\"twelvechars-\"", RBTDRF_VAR_RBRD_CLOUD_PREFIX))
+}
+
 // --- RBRV negative tests ---
 
 const RBTDRF_RBRV_BASELINE_CONJURE: &str = "\
 export RBRV_SIGIL=\"test-vessel\"\n\
 export RBRV_DESCRIPTION=\"Test vessel for validation\"\n\
 export RBRV_VESSEL_MODE=\"rbnve_conjure\"\n\
+export RBRV_RELIQUARY=\"r260101000000\"\n\
+export RBRV_EGRESS_MODE=\"rbnve_tether\"\n\
 export RBRV_CONJURE_DOCKERFILE=\"path/to/Dockerfile\"\n\
 export RBRV_CONJURE_BLDCONTEXT=\"path/to\"\n\
 export RBRV_CONJURE_PLATFORMS=\"linux/amd64\"";
@@ -892,13 +950,22 @@ const RBTDRF_RBRV_BASELINE_BIND: &str = "\
 export RBRV_SIGIL=\"test-vessel\"\n\
 export RBRV_DESCRIPTION=\"Test vessel for validation\"\n\
 export RBRV_VESSEL_MODE=\"rbnve_bind\"\n\
+export RBRV_RELIQUARY=\"r260101000000\"\n\
+export RBRV_EGRESS_MODE=\"rbnve_tether\"\n\
 export RBRV_BIND_IMAGE=\"us-docker.pkg.dev/project/repo/image:latest\"";
 
 fn rbtdrf_rv_rbrv_neg(dir: &Path, label: &str, baseline: &str, override_: &str) -> rbtdre_Verdict {
-    rbtdrf_run_rv(dir, "",
-        &format!("{}\n{}\nzrbrv_kindle\nzrbrv_enforce", baseline, override_),
-        false, label,
-    )
+    rbtdrf_run_probate(dir, RBTDRM_MODULE_RBRV, RBTDRM_PROBATE_RBRV, baseline, override_, false, label)
+}
+
+fn rbtdrf_rv_rbrv_conjure_baseline_valid(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_run_probate(dir, RBTDRM_MODULE_RBRV, RBTDRM_PROBATE_RBRV,
+        RBTDRF_RBRV_BASELINE_CONJURE, "", true, "rbrv-conjure-baseline-valid")
+}
+
+fn rbtdrf_rv_rbrv_bind_baseline_valid(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_run_probate(dir, RBTDRM_MODULE_RBRV, RBTDRM_PROBATE_RBRV,
+        RBTDRF_RBRV_BASELINE_BIND, "", true, "rbrv-bind-baseline-valid")
 }
 
 fn rbtdrf_rv_rbrv_missing_sigil(dir: &Path) -> rbtdre_Verdict {
@@ -931,6 +998,7 @@ export RBRN_SENTRY_VESSEL=\"test-sentry\"\n\
 export RBRN_BOTTLE_VESSEL=\"test-bottle\"\n\
 export RBRN_SENTRY_HALLMARK=\"c260101000000-r260101000000\"\n\
 export RBRN_BOTTLE_HALLMARK=\"c260101000000-r260101000000\"\n\
+export RBRN_BOTTLE_READINESS_DELAY_SEC=\"0\"\n\
 export RBRN_ENTRY_MODE=\"rbnne_disabled\"\n\
 export RBRN_ENCLAVE_BASE_IP=\"10.200.0.0\"\n\
 export RBRN_ENCLAVE_NETMASK=\"24\"\n\
@@ -941,10 +1009,13 @@ export RBRN_UPLINK_DNS_MODE=\"rbnne_disabled\"\n\
 export RBRN_UPLINK_ACCESS_MODE=\"rbnne_disabled\"";
 
 fn rbtdrf_rv_rbrn_neg(dir: &Path, label: &str, override_: &str) -> rbtdre_Verdict {
-    rbtdrf_run_rv(dir, "",
-        &format!("{}\n{}\nzrbrn_kindle\nzrbrn_enforce", RBTDRF_RBRN_BASELINE_DISABLED, override_),
-        false, label,
-    )
+    rbtdrf_run_probate(dir, RBTDRM_MODULE_RBRN, RBTDRM_PROBATE_RBRN,
+        RBTDRF_RBRN_BASELINE_DISABLED, override_, false, label)
+}
+
+fn rbtdrf_rv_rbrn_baseline_valid(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_run_probate(dir, RBTDRM_MODULE_RBRN, RBTDRM_PROBATE_RBRN,
+        RBTDRF_RBRN_BASELINE_DISABLED, "", true, "rbrn-baseline-valid")
 }
 
 fn rbtdrf_rv_rbrn_missing_moniker(dir: &Path) -> rbtdre_Verdict {
@@ -968,17 +1039,13 @@ fn rbtdrf_rv_rbrn_invalid_access_mode(dir: &Path) -> rbtdre_Verdict {
 }
 
 fn rbtdrf_rv_rbrn_port_conflict(dir: &Path) -> rbtdre_Verdict {
-    // Use enabled baseline with port conflict: workstation >= uplink min
-    rbtdrf_run_rv(dir, "",
-        &format!("{}\n\
-            export RBRN_ENTRY_MODE=\"rbnne_enabled\"\n\
-            export RBRN_ENTRY_PORT_WORKSTATION=\"10001\"\n\
-            export RBRN_ENTRY_PORT_ENCLAVE=\"8888\"\n\
-            export RBRN_UPLINK_PORT_MIN=\"10000\"\n\
-            zrbrn_kindle\nzrbrn_enforce",
-            RBTDRF_RBRN_BASELINE_DISABLED),
-        false, "rbrn-port-conflict",
-    )
+    // Enabled-mode override with workstation port >= uplink min trips the
+    // cross-port enforce check.
+    rbtdrf_rv_rbrn_neg(dir, "rbrn-port-conflict",
+        "export RBRN_ENTRY_MODE=\"rbnne_enabled\"\n\
+         export RBRN_ENTRY_PORT_WORKSTATION=\"10001\"\n\
+         export RBRN_ENTRY_PORT_ENCLAVE=\"8888\"\n\
+         export RBRN_UPLINK_PORT_MIN=\"10000\"")
 }
 
 fn rbtdrf_rv_rbrn_unexpected_var(dir: &Path) -> rbtdre_Verdict {
@@ -1607,22 +1674,27 @@ pub static RBTDRF_CASES_ENROLLMENT_VALIDATION: &[rbtdre_Case] = &[
 ];
 
 pub static RBTDRF_CASES_REGIME_VALIDATION: &[rbtdre_Case] = &[
-    case!(rbtdrf_rv_rbrr_missing_moniker),
+    case!(rbtdrf_rv_rbrr_baseline_valid),
     case!(rbtdrf_rv_rbrr_bad_timeout),
-    case!(rbtdrf_rv_rbrr_bad_moniker),
     case!(rbtdrf_rv_rbrr_unexpected_var),
     case!(rbtdrf_rv_rbrr_bad_vessel_dir),
     case!(rbtdrf_rv_rbrr_bad_secrets_dir),
-    case!(rbtdrf_rv_rbrr_bad_cloud_prefix_uppercase),
-    case!(rbtdrf_rv_rbrr_bad_cloud_prefix_no_trailing_hyphen),
-    case!(rbtdrf_rv_rbrr_bad_cloud_prefix_too_long),
     case!(rbtdrf_rv_rbrr_bad_runtime_prefix_uppercase),
     case!(rbtdrf_rv_rbrr_bad_runtime_prefix_no_trailing_hyphen),
     case!(rbtdrf_rv_rbrr_bad_runtime_prefix_too_long),
+    case!(rbtdrf_rv_rbrd_baseline_valid),
+    case!(rbtdrf_rv_rbrd_missing_moniker),
+    case!(rbtdrf_rv_rbrd_bad_moniker),
+    case!(rbtdrf_rv_rbrd_bad_cloud_prefix_uppercase),
+    case!(rbtdrf_rv_rbrd_bad_cloud_prefix_no_trailing_hyphen),
+    case!(rbtdrf_rv_rbrd_bad_cloud_prefix_too_long),
+    case!(rbtdrf_rv_rbrv_conjure_baseline_valid),
+    case!(rbtdrf_rv_rbrv_bind_baseline_valid),
     case!(rbtdrf_rv_rbrv_missing_sigil),
     case!(rbtdrf_rv_rbrv_no_bind_image),
     case!(rbtdrf_rv_rbrv_unexpected_var),
     case!(rbtdrf_rv_rbrv_partial_conjure),
+    case!(rbtdrf_rv_rbrn_baseline_valid),
     case!(rbtdrf_rv_rbrn_missing_moniker),
     case!(rbtdrf_rv_rbrn_invalid_runtime),
     case!(rbtdrf_rv_rbrn_invalid_entry_mode),

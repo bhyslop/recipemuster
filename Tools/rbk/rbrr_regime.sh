@@ -89,4 +89,19 @@ zrbrr_enforce() {
     || buc_die "Invalid RBRR_RUNTIME_PREFIX format: ${RBRR_RUNTIME_PREFIX} (expected lowercase starting with letter, ending in hyphen)"
 }
 
+######################################################################
+# Public Functions (rbrr_*)
+
+# Source an arbitrary RBRR regime file and run the full kindle->enforce
+# chain against it, failing on first fault. Test-facing contract surface:
+# theurge drives synthetic-malformed regime files through this without
+# reaching module internals. Prerequisite: buv kindled.
+rbrr_probate() {
+  local -r z_file="${1:-}"
+  test -n "${z_file}" || buc_die "rbrr_probate: regime file argument required"
+  source "${z_file}"  || buc_die "rbrr_probate: cannot source ${z_file}"
+  zrbrr_kindle
+  zrbrr_enforce
+}
+
 # eof

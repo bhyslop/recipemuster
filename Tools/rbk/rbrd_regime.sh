@@ -92,4 +92,19 @@ zrbrd_enforce() {
     || buc_die "Joint length exceeds 30-char GCP project ID limit: RBRD_CLOUD_PREFIX(${z_prefix_len}) + 'd-'(2) + RBRD_DEPOT_MONIKER(${z_moniker_len}) = ${z_joint_len}"
 }
 
+######################################################################
+# Public Functions (rbrd_*)
+
+# Source an arbitrary RBRD regime file and run the full kindle->enforce
+# chain against it, failing on first fault. Test-facing contract surface:
+# theurge drives synthetic-malformed regime files through this without
+# reaching module internals. Prerequisite: buv kindled.
+rbrd_probate() {
+  local -r z_file="${1:-}"
+  test -n "${z_file}" || buc_die "rbrd_probate: regime file argument required"
+  source "${z_file}"  || buc_die "rbrd_probate: cannot source ${z_file}"
+  zrbrd_kindle
+  zrbrd_enforce
+}
+
 # eof

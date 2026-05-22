@@ -185,6 +185,18 @@ pub const RBTDRM_OPERATION_KLUDGE: &str = "kludge";
 pub const RBTDRM_CONTAINER_SENTRY: &str = "sentry";
 pub const RBTDRM_CONTAINER_BOTTLE: &str = "bottle";
 
+// Regime-validation contract surfaces — the regime module theurge sources and
+// the public *_probate entry it calls to drive a staged regime file through
+// kindle+enforce. Single definition per String Boundary Discipline.
+pub const RBTDRM_MODULE_RBRR: &str = "rbrr_regime.sh";
+pub const RBTDRM_PROBATE_RBRR: &str = "rbrr_probate";
+pub const RBTDRM_MODULE_RBRD: &str = "rbrd_regime.sh";
+pub const RBTDRM_PROBATE_RBRD: &str = "rbrd_probate";
+pub const RBTDRM_MODULE_RBRV: &str = "rbrv_regime.sh";
+pub const RBTDRM_PROBATE_RBRV: &str = "rbrv_probate";
+pub const RBTDRM_MODULE_RBRN: &str = "rbrn_regime.sh";
+pub const RBTDRM_PROBATE_RBRN: &str = "rbrn_probate";
+
 /// Per-fixture required colophons. Returns None for unknown fixtures.
 pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str]> {
     match fixture {
