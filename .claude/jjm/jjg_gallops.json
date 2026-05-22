@@ -2,6 +2,7 @@
   "jjgrn_schema_version": 4,
   "jjgrn_next_heat_seed": "BT",
   "jjgrn_heat_order": [
+    "₣BS",
     "₣BQ",
     "₣BP",
     "₣BM",
@@ -9,7 +10,6 @@
     "₣BF",
     "₣BD",
     "₣BB",
-    "₣BS",
     "₣BR",
     "₣BN",
     "₣A-",
@@ -10098,7 +10098,7 @@
     "₣BS": {
       "jjghn_silks": "rbk-10-mvp-modern-organization-features",
       "jjghn_creation_time": "260521",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BSAAF",
         "₢BSAAA",
