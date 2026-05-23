@@ -10160,6 +10160,13 @@
         "₢BSAAC": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260523-1505",
+              "jjgtn_state": "jjgte_abandoned",
+              "jjgtn_text": "## Character\nHandbook + spec; documents a manual one-time operator step. Org-affiliated payors only.\n\nUnder a secure-by-default org, the payor needs `roles/orgpolicy.policyAdmin` to set the per-project key-creation override the levy performs. Org owners do NOT hold this by default — it must be granted deliberately. No-org payors never need it.\n\nDone: the payor-establish handbook (`RBHPE` / `rbhpe_establish.sh`) gains a step under its existing org-affiliation (advanced) branch directing the operator to grant their identity Organization Policy Administrator on the org; `RBSPE-payor_establish.adoc` updated to match. The no-org path is untouched.",
+              "jjgtn_silks": "establish-grants-payor-policy-authority",
+              "jjgtn_basis": "cc9252a"
+            },
+            {
               "jjgtn_ts": "260521-1606",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nHandbook + spec; documents a manual one-time operator step. Org-affiliated payors only.\n\nUnder a secure-by-default org, the payor needs `roles/orgpolicy.policyAdmin` to set the per-project key-creation override the levy performs. Org owners do NOT hold this by default — it must be granted deliberately. No-org payors never need it.\n\nDone: the payor-establish handbook (`RBHPE` / `rbhpe_establish.sh`) gains a step under its existing org-affiliation (advanced) branch directing the operator to grant their identity Organization Policy Administrator on the org; `RBSPE-payor_establish.adoc` updated to match. The no-org path is untouched.",
