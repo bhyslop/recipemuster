@@ -375,3 +375,32 @@ Consequences:
 
 Resolves §11 "one human credential vs anything per-role": one login, nothing
 per-role at all.
+
+### R3 — Three credential models are tiers on one axis; MVP ships RBRA; the keyless successor is deferred and unchosen
+
+The option-map (not a committed ladder). Three ways an actor proves identity to
+reach depot capabilities, along one axis:
+
+1. **RBRA keyfile** — consumer / bootstrap. Works only where SA-key creation is
+   permitted (no-org, or an org that allows it). Already built. **MVP ships this.**
+2. **Direct Google grants (Model Y, R2)** — org baseline. Keyless. Users need *a*
+   Google account (a free gmail suffices; they do not join the owner's org). Natural
+   fit for Google-Workspace orgs, whose IdP already is Google.
+3. **Federation** — org-only (federation pools are org-level). Users authenticate via
+   an external OIDC/SAML IdP; no Google account; keyless. Opt-in / candidate paid
+   tier. IdP is commoditized by *standards*, not vendor: GCP federation accepts any
+   compliant OIDC/SAML issuer; self-hostable (Dex/Keycloak) or GCP Identity Platform
+   as an in-house IdP. Abstraction boundary: "any OIDC/SAML issuer with stable
+   subject claims."
+
+These are tiers, not alternatives. **The real cost is multi-mode coexistence**, not
+any single tier — so the judicious frame is "which one keyless successor eventually
+*replaces* RBRA," run one mode at a time, not an accreting stack.
+
+Decision: MVP ships RBRA (no rework). The keyless successor is **deferred and
+unchosen** — do not commit build order while the complexity budget is tight. Bank
+the map, choose the tier when org adoption actually demands keyless.
+
+Note: this federation is *ingress* identity (operators reaching the depot), distinct
+from the roadmap's envoy entry, which uses federation for *egress* (GCP→AWS
+cross-post). Same mechanism family, opposite direction — keep them unconflated.
