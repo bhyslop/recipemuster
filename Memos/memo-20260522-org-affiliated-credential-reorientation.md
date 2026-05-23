@@ -300,7 +300,7 @@ Decided answers to §11, banked as they settle. Implementation heat TBD.
 ### R1 — Payor stays distinct; the three lower tiers unify (resolves §11 "Does Payor stay distinct?")
 
 > **Superseded in part by R2:** R1's impersonation / `tokenCreator`-on-role-SA
-> mechanism is replaced by direct human capability grants (Model Y). R1's durable
+> mechanism is replaced by direct human capability grants. R1's durable
 > conclusions survive — Payor as ownership root, the erased credential axis, central
 > revoke, org/no-org consistency; only "humans impersonate role SAs" is dropped.
 
@@ -334,7 +334,7 @@ Org/no-org consistent: project ownership is the root in both worlds. Membership
 eligibility differs only via `iam.allowedPolicyMemberDomains` (an org may restrict
 designees to its own domain).
 
-### R2 — Roles are direct human capability grants (Model Y); SAs survive only as runtime identities (revises R1's mechanism)
+### R2 — Roles are direct human capability grants; SAs survive only as runtime identities (revises R1's mechanism)
 
 A role is a named set of IAM capabilities granted DIRECTLY to a human (`user:…`) on
 the depot. Humans call APIs as themselves, carrying the capabilities the org
@@ -383,7 +383,7 @@ reach depot capabilities, along one axis:
 
 1. **RBRA keyfile** — consumer / bootstrap. Works only where SA-key creation is
    permitted (no-org, or an org that allows it). Already built. **MVP ships this.**
-2. **Direct Google grants (Model Y, R2)** — org baseline. Keyless. Users need *a*
+2. **Direct Google grants (R2)** — org baseline. Keyless. Users need *a*
    Google account (a free gmail suffices; they do not join the owner's org). Natural
    fit for Google-Workspace orgs, whose IdP already is Google.
 3. **Federation** — org-only (federation pools are org-level). Users authenticate via
