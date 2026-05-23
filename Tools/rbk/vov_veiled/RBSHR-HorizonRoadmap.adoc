@@ -305,16 +305,28 @@ Requires reproducible toolchains — a vessel-author discipline, not a pipeline 
 _Trigger_: vessel ecosystem maturity and external distribution.
 _Reference_: RBSCB-CloudBuildPosture.adoc (Deferred Items: Reproducibility).
 
-**Browser-OAuth human authentication for Governor / Director / Retriever.**
-Replace SA-keyfile distribution (the RBRA model) with a browser-based OAuth flow that mints short-lived SA tokens via service-account impersonation, eliminating credential artifact distribution.
-User authenticates once at `accounts.google.com` (no gcloud dependency — reuses the existing curl/openssl/jq stack and the Payor OAuth pattern from RBGP/RBGO);
-refresh token cached locally;
-per-operation, the system mints a user access token and calls `iamcredentials.googleapis.com:generateAccessToken` against the target SA to obtain a short-lived SA token.
-The grant lives in IAM policy on the SA itself (`roles/iam.serviceAccountTokenCreator` for `user:alice@example.com`), administered by Governor as a new verb sibling to mantle/charter/knight/forfeit.
-Distribution dissolves (nothing to ship);
-revocation becomes one IAM binding deletion or OAuth consent revocation;
-audit logs gain `delegationInfo` attributing actions to the human behind the SA.
-Additive in the near term — RBRA keyfiles remain necessary for headless paths (Cloud Build itself, automated fixtures, Ifrit-style scenarios), and a regime mode field selects per-role credential mode.
-Open questions remain (storage location, OAuth client scope, probe coexistence) — see memo for full design.
-_Trigger_: first concrete external-user request for browser-based onboarding, or first time keyfile distribution materially blocks adoption rather than being theoretically frictionful.
-_Reference_: `Memos/memo-20260427-google-native-human-auth.md`.
+**Operator federation — external-IdP identity for depot participants.**
+Recipe Bottle grants
+{rbtgi_depot}
+capabilities to identities the depot's IAM recognizes.
+The near-term keyless model grants them to Google identities directly (an
+{at_operator}
+holds a Google account; the depot lists `user:…`).
+Operator federation is the heavyweight tier for the case that model cannot serve — participants who cannot or will not hold Google accounts.
+The depot owner configures the
+{rbtgi_depot}
+to trust an external OIDC/SAML identity provider (any compliant issuer — self-hosted Dex/Keycloak, or GCP Identity Platform as an in-house IdP), then grants capabilities to those federated `principal://` subjects: keyless, no Google accounts for participants, revocation central at the depot.
+The
+{rbtgi_depot}
+remains the home of the participant roster (the role-to-identity mapping); the IdP owns only identity proofing.
+Org-only — federation pools are organization-level, so a no-org
+{rbtr_payor}
+cannot use this tier.
+Distinct from the envoy's egress federation (GCP-to-AWS delivery): this is
+{at_operator}
+*access* identity arriving the other way.
+_Trigger_: first concrete need to admit
+{at_operator}s
+who cannot hold Google accounts, or when Google-account / keyfile requirements materially block adoption rather than being theoretically frictionful.
+_Reference_: `Memos/memo-20260522-org-affiliated-credential-reorientation.md` (R1/R2/R3 — credential model, the three-tier ladder, federation as far tier, and the deliberate deferral of the keyless successor);
+`Memos/memo-20260427-google-native-human-auth.md` (impersonation mechanism detail — its human-auth *framing* is superseded by the 2026-05-22 memo).
