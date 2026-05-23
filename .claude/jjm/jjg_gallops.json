@@ -10171,6 +10171,13 @@
         "₢BSAAD": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260523-1505",
+              "jjgtn_state": "jjgte_abandoned",
+              "jjgtn_text": "## Character\nSpec + impl; fail-fast guard in the levy's cheapest-first ordering. Org-affiliated payors only.\n\nIf the depot is org-affiliated, the levy must confirm the payor holds org-policy-set authority BEFORE creating any resource — otherwise it half-builds a depot it cannot finish (the exact failure hit this session: project created, governor key generation refused). Org-ness comes from the live-parent helper; the permission via `testIamPermissions` on the org.\n\nDone: `RBSDE-depot_levy.adoc` gains a preflight step (after authenticate-as-payor, before create-project) that, for org-affiliated payors, requires the set-policy permission and otherwise dies with a clear message pointing at the establish-time grant. No-org payors skip it.",
+              "jjgtn_silks": "levy-preflight-confirms-policy-authority",
+              "jjgtn_basis": "70dc67a"
+            },
+            {
               "jjgtn_ts": "260521-1606",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nSpec + impl; fail-fast guard in the levy's cheapest-first ordering. Org-affiliated payors only.\n\nIf the depot is org-affiliated, the levy must confirm the payor holds org-policy-set authority BEFORE creating any resource — otherwise it half-builds a depot it cannot finish (the exact failure hit this session: project created, governor key generation refused). Org-ness comes from the live-parent helper; the permission via `testIamPermissions` on the org.\n\nDone: `RBSDE-depot_levy.adoc` gains a preflight step (after authenticate-as-payor, before create-project) that, for org-affiliated payors, requires the set-policy permission and otherwise dies with a clear message pointing at the establish-time grant. No-org payors skip it.",
