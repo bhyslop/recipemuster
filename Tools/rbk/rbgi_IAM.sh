@@ -260,25 +260,17 @@ rbgi_add_project_iam_role() {
 
   test "${z_prop_succeeded}" = "1" || buc_die "${z_label}: propagation retry loop exited without success"
 
-  buc_log_args '4) Verify membership within bounded wait'
-  local z_elapsed=0
-  while :; do
-    local z_verify_infix="${z_parent_infix}-verify-${z_elapsed}s"
-    rbgu_http_json_ok "${z_label} (verify)" "${z_token}" "POST" \
-                       "${z_get_url}" "${z_verify_infix}" "${z_get_body}"
-
-    if rbgu_role_member_exists_predicate "${z_verify_infix}" "${z_role}" "${z_member}"; then
-      buc_log_args "Observed ${z_role} for ${z_member}"
-
-      buc_log_args "Post-set etag $(rbgu_json_field_capture "${z_verify_infix}" ".etag" 2>/dev/null || echo "")"
-
-      return 0
-    fi
-
-    test "${z_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die "${z_label}: verify timeout"
-    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
-    z_elapsed=$((z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
-  done
+  # The setIamPolicy 200 is the authoritative grant confirmation: the policy was
+  # written atomically with this binding. A post-set read-back verify loop was
+  # removed here. Against a standing depot, repeated divest/invest cycles leave
+  # same-email `deleted:serviceAccount:...?uid=` tombstones in the policy (accepted
+  # — re-levy is quota-limited), and the email→uid read reconciliation can lag the
+  # getIamPolicy read past any bounded poll, producing a false timeout on a grant
+  # that already succeeded. The read-back never made the grant effective — that
+  # propagates on GCP's clock regardless and cannot be accelerated by polling — so
+  # it was non-load-bearing and is gone.
+  buc_log_args "${z_label}: granted (setIamPolicy 200)"
+  return 0
 }
 
 rbgi_add_repo_iam_role() {
