@@ -71,24 +71,6 @@ rbgu_json_valid_predicate() {
   jq -e . "${z_json_file}" >/dev/null 2>&1
 }
 
-rbgu_role_member_exists_predicate() {
-  zrbgu_sentinel
-  local -r z_infix="${1:-}"
-  local -r z_role="${2:-}"
-  local -r z_member="${3:-}"
-
-  test -n "${z_infix}" || return 1
-  test -n "${z_role}"  || return 1
-  test -n "${z_member}" || return 1
-
-  local -r z_json_file="${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"
-  test -f "${z_json_file}" || return 1
-
-  jq -e --arg r "${z_role}" --arg m "${z_member}" \
-    'any(.bindings[]? | select(.role==$r) | .members[]?; . == $m)' \
-    "${z_json_file}" >/dev/null 2>&1
-}
-
 # Stateless — no sentinel; safe to call from any module regardless of kindle order.
 rbgu_curl_status_is_transient_predicate() {
   case "${1:-}" in
@@ -455,27 +437,6 @@ rbgu_http_require_ok() {
   fi
 
   buc_die "${z_ctx} (HTTP ${z_code}): ${z_err}"
-}
-
-rbgu_http_json_ok() {
-  zrbgu_sentinel
-
-  local -r z_label="$1"
-  local -r z_token="$2"
-  local -r z_method="$3"
-  local -r z_url="$4"
-  local -r z_infix="$5"
-  local -r z_body_file="$6"
-  local -r z_warn_code="${7:-}"
-  local -r z_warn_message="${8:-}"
-
-  buc_log_args "${z_label}"
-
-  # Perform HTTP request (body file may be "")
-  rbgu_http_json "${z_method}" "${z_url}" "${z_token}" "${z_infix}" "${z_body_file:-}"
-
-  # Enforce success (warn/ignore if optional params provided)
-  rbgu_http_require_ok "${z_label}" "${z_infix}" "${z_warn_code:-}" "${z_warn_message:-}"
 }
 
 # POST + strict LRO handling (no heuristics)
