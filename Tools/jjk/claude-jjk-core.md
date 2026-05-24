@@ -1,30 +1,3 @@
-## File Acronym Mappings — JJK Subdirectory (`Tools/jjk/`)
-
-- **JJS0** → `jjk/vov_veiled/JJS0_JobJockeySpec.adoc` (Job Jockey specification - main file)
-- **JJSCCH** → `jjk/vov_veiled/JJSCCH-chalk.adoc`
-- **JJSCCU** → `jjk/vov_veiled/JJSCCU-curry.adoc` (Paddock operation - read/write heat paddock files)
-- **JJSCDR** → `jjk/vov_veiled/JJSCDR-draft.adoc`
-- **JJSCFU** → `jjk/vov_veiled/JJSCFU-furlough.adoc`
-- **JJSCMU** → `jjk/vov_veiled/JJSCMU-muster.adoc`
-- **JJSCNC** → `jjk/vov_veiled/JJSCNC-notch.adoc`
-- **JJSCNO** → `jjk/vov_veiled/JJSCNO-nominate.adoc`
-- **JJSCPD** → `jjk/vov_veiled/JJSCPD-parade.adoc`
-- **JJSCRL** → `jjk/vov_veiled/JJSCRL-rail.adoc`
-- **JJSCRN** → `jjk/vov_veiled/JJSCRN-rein.adoc`
-- **JJSCRT** → `jjk/vov_veiled/JJSCRT-retire.adoc`
-- **JJSCSC** → `jjk/vov_veiled/JJSCSC-scout.adoc`
-- **JJSCSD** → `jjk/vov_veiled/JJSCSD-saddle.adoc`
-- **JJSCSL** → `jjk/vov_veiled/JJSCSL-slate.adoc`
-- **JJSCTL** → `jjk/vov_veiled/JJSCTL-tally.adoc`
-- **JJSCVL** → `jjk/vov_veiled/JJSCVL-validate.adoc`
-- **JJSCWP** → `jjk/vov_veiled/JJSCWP-wrap.adoc` (Close/wrap operation - mark pace complete and commit)
-- **JJSRLD** → `jjk/vov_veiled/JJSRLD-load.adoc`
-- **JJSRPS** → `jjk/vov_veiled/JJSRPS-persist.adoc`
-- **JJSRSV** → `jjk/vov_veiled/JJSRSV-save.adoc`
-- **JJSRWP** → `jjk/vov_veiled/JJSRWP-wrap.adoc`
-- **JJSTF** → `jjk/vov_veiled/JJSTF-test-fundus.adoc` (Test Fundus — fundus scenario profiles and preflight contracts)
-- **JJW**  → `jjk/jjw_workbench.sh` (workbench)
-
 ## Job Jockey Configuration
 
 Job Jockey (JJ) is installed for managing project initiatives.
@@ -50,7 +23,7 @@ Job Jockey (JJ) is installed for managing project initiatives.
 - Site enumerations. Write a discovery recipe (`grep "pattern" Tools/rbk/`) instead of listing six file:line entries.
 - Body over ~15 lines warrants suspicion of overprescription.
 - **Plan-step structure stays in the plan.** Docket phase/step labels (A/B/C, "Phase 1", "first/then/finally") must not appear as code comments — the plan won't exist at maintenance time, and line order already conveys execution.
-- **Absolute paths to working trees.** Don't pin a docket to a specific repo clone (`/Users/foo/projects/rbm_alpha_recipemuster`, `~/proj/`). Mount may legitimately run against a different clone — if work needs to happen in *the* working directory, say so without naming it. Cross-repo coupling, if real, belongs in the paddock as a heat-shape note, not pace prose. Absolute paths *are* acceptable for external data roots (log dirs, `/tmp/...` scratch, machine-pinned data) — but flag those as operator-mutable rather than identity.
+- **Absolute paths to working trees.** Don't pin a docket to a specific repo clone (`/Users/foo/projects/your-project`, `~/proj/`). Mount may legitimately run against a different clone — if work needs to happen in *the* working directory, say so without naming it. Cross-repo coupling, if real, belongs in the paddock as a heat-shape note, not pace prose. Absolute paths *are* acceptable for external data roots (log dirs, `/tmp/...` scratch, machine-pinned data) — but flag those as operator-mutable rather than identity.
 
 **Reference discipline.** Pace order is the dependency tree — single-operator workflow runs paces in heat order, so explicit dependency markers in docket prose are usually overspecified. Coronet cross-refs in dockets earn their keep only when the dependency crosses heats or skips order — rare, not never.
 
@@ -263,13 +236,11 @@ When user says "foray" or asks to run something on a remote machine:
 - **Pensum**: An async dispatched job within a legatio. Created by `jjx_relay`, identified by a `₱`-prefixed token. Each pensum maps to a remote temp directory on the fundus.
 - **Curia**: The invoking side (where Claude runs). **Fundus**: The executing side (where the tabtarget runs).
 
-**Fundus constants** (use these for `jjx_bind`):
-- Default reldir: `projects/rbm_alpha_recipemuster`
-- BURN alias: use the alias from the target's BUK Regime Node profile (e.g., `winhost-wsl`, `winhost-cyg`)
+**Fundus constants** (use these for `jjx_bind`): the default reldir and BURN alias are project-specific — get them from your project's veiled `claude-jjk-*.md` (if present) or the target's BUK Regime Node profile.
 
 **Workflow:**
 
-1. **Bind** (once per session per host): `jjx_bind` with `{alias: "<BURN_ALIAS>", reldir: "projects/rbm_alpha_recipemuster"}`. Resolves the BURN profile on the curia to extract host/user/command, then probes via SSH. Returns legatio token.
+1. **Bind** (once per session per host): `jjx_bind` with `{alias: "<BURN_ALIAS>", reldir: "<your-project-reldir>"}`. Resolves the BURN profile on the curia to extract host/user/command, then probes via SSH. Returns legatio token.
 2. **Ensure curia is clean and pushed**: notch if needed, `git push` if needed. `jjx_relay` will refuse dispatch if working tree is dirty or HEAD is unpushed.
 3. **Plant**: `jjx_plant` with `{legatio: "L0", commit: "<HEAD SHA>"}`. Resets fundus to exact commit.
 4. **Relay**: `jjx_relay` with `{legatio: "L0", tabtarget: "<filename>.sh", timeout: <seconds>, firemark: "<heat>"}`. Returns pensum token.
@@ -284,7 +255,7 @@ When user says "foray" or asks to run something on a remote machine:
 
 **`jjx_send`** is for synchronous one-off commands (no pensum, no polling). Use when the command is short and you need inline results.
 
-**Windows fundus body discipline:** When the fundus is a Windows host, both `jjx_send` and `jjx_relay`-dispatched tabtargets traverse the cmd.exe → wsl.exe / cygwin / PowerShell transport stack. Body authoring rules (escape `\$name` for w-letter wsl.exe transit, no heredocs, single-line `;`-joined for cmd.exe transit, lazy-flush avoidance for PowerShell cmdlets, etc.) live in WSG (`Tools/buk/vov_veiled/WSG-WindowsScriptingGuide.md`). Empirical record under `Memos/memo-YYYYMMDD-windows-transport-{topic}.md`.
+**Windows fundus body discipline:** When the fundus is a Windows host, both `jjx_send` and `jjx_relay`-dispatched tabtargets traverse the cmd.exe → wsl.exe / cygwin / PowerShell transport stack. Body authoring rules (escape `\$name` for w-letter wsl.exe transit, no heredocs, single-line `;`-joined for cmd.exe transit, lazy-flush avoidance for PowerShell cmdlets, etc.) live in your project's Windows scripting guide, if present. Empirical record under `Memos/memo-YYYYMMDD-windows-transport-{topic}.md`.
 
 ### Commit Discipline
 
@@ -322,11 +293,6 @@ Multiple Claude officia (concurrent chat sessions, each with its own ☉-prefixe
 - Made a mistake? Make a new commit that fixes it — additive, not destructive
 - Confused by repo state? ASK the user — another officium may be mid-work
 - Need to undo something? Explain the situation to the user and let them decide
-
-**Build & Run Discipline:**
-Always run these after Rust code changes:
-- `tt/vow-b.Build.sh` — Build
-- `tt/vvw-r.RunVVX.sh` — Run VVX
 
 **JJX Commands Are Self-Committing:**
 `jjx_enroll`, `jjx_close`, `jjx_record`, and other state-mutating jjx commands create git commits internally. **`jjx_close` (wrap) commits ALL uncommitted changes** — code files and gallops state together in one commit. Do NOT follow `jjx_record` or `jjx_close` with another commit command — the tree will already be clean. If a commit command says "Nothing to commit", check `git status --short` and accept the result.

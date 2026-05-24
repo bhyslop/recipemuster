@@ -10,9 +10,9 @@ Full read and edit access is pre-approved for all files in:
 
 Per-kit acronym mappings live in each kit's context file (loaded via `@` includes below).
 - RBK: `@Tools/rbk/rbk-claude-acronyms.md`
-- BUK: `@Tools/buk/buk-claude-context.md`
-- CMK: `@Tools/cmk/vov_veiled/cmk-claude-context.md`
-- JJK: `@Tools/jjk/vov_veiled/jjk-claude-context.md`
+- BUK: `@Tools/buk/claude-buk-core.md`
+- CMK: `@Tools/cmk/claude-cmk-core.md`
+- JJK: `@Tools/jjk/claude-jjk-core.md` (+ veiled `@Tools/jjk/vov_veiled/claude-jjk-bhyslop.md`)
 - VOK: `@Tools/vok/vok-claude-context.md`
 - GAD: `Tools/gad/CLAUDE.md` (not `@`-included — loaded only when working in that kit)
 
@@ -230,9 +230,18 @@ This principle is instantiated in domain-specific forms:
 
 When evaluating any new pattern, extraction, or structural choice, the litmus test is: "Does this element earn its existence?" If not, it doesn't belong.
 
-@Tools/buk/buk-claude-context.md
+<!-- Distributable-kit guidance: managed @-include block (mirrors what consumer
+     repos receive via vvx_emplace). Edit content in the @-targets, not here;
+     `tt/vow-F.Freshen.sh` regenerates this block from the kit registry. -->
+<!-- MANAGED:VVK-INCLUDES:BEGIN -->
+@Tools/buk/claude-buk-core.md
+@Tools/cmk/claude-cmk-core.md
+@Tools/jjk/claude-jjk-core.md
+@Tools/vvk/claude-vvk-core.md
+<!-- MANAGED:VVK-INCLUDES:END -->
 
-@Tools/cmk/vov_veiled/cmk-claude-context.md
+<!-- rbm-only veiled guidance (never distributed); hand-maintained outside the block -->
+@Tools/jjk/vov_veiled/claude-jjk-bhyslop.md
 
 @Tools/vok/vok-claude-context.md
 
@@ -268,9 +277,5 @@ Operator-specific test machines reachable from this station.
 @Tools/rbk/rbk-claude-tabtarget-context.md
 
 For theurge/ifrit crucible testing work, read `Tools/rbk/rbk-claude-theurge-ifrit-context.md` — covers the iteration loop (kludge, charge, test, ordain), architecture of the two Rust binaries, and how to add new security test cases.
-
-@Tools/jjk/vov_veiled/jjk-claude-context.md
-
-@Tools/vvk/vov_veiled/vvk-claude-context.md
 
 @Tools/apck/apck-claude-context.md

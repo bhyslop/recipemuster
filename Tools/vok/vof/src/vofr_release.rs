@@ -113,9 +113,9 @@ pub fn vofr_collect(
         total_files += count;
         commands_routed += cmd_count;
 
-        // Copy managed section templates from vov_veiled/ to templates/
-        let template_count = zvofr_copy_templates(&kit_source, &kit_staging, kit)?;
-        total_files += template_count;
+        // Public claude-{kit}-*.md guidance files ride along via the normal kit
+        // walk above (they live in the kit root, not vov_veiled). No separate
+        // template copy: CLAUDE.md content is @-included, never inlined.
 
         // Collect Claude config assets (commands and hooks) from kit forge
         let cipher = kit.cipher.prefix();
@@ -198,44 +198,6 @@ pub fn vofr_load_registry(path: &Path) -> Result<BTreeMap<u32, vofr_RegistryEntr
 // =============================================================================
 // Internal Functions (zvofr_*)
 // =============================================================================
-
-/// Copy managed section templates from vov_veiled/ to templates/.
-fn zvofr_copy_templates(
-    kit_source: &Path,
-    kit_staging: &Path,
-    kit: &vofc_Kit,
-) -> Result<u32, String> {
-    let mut count = 0u32;
-
-    if kit.managed_sections.is_empty() {
-        return Ok(0);
-    }
-
-    let veiled_dir = kit_source.join("vov_veiled");
-    let templates_dir = kit_staging.join("templates");
-
-    for section in kit.managed_sections {
-        let template_source = veiled_dir.join(section.template_path);
-        if !template_source.exists() {
-            return Err(format!(
-                "Template not found for kit {}: {}",
-                kit.cipher.kit_id(),
-                template_source.display()
-            ));
-        }
-
-        fs::create_dir_all(&templates_dir)
-            .map_err(|e| format!("Failed to create templates dir: {}", e))?;
-
-        let template_dest = templates_dir.join(section.template_path);
-        fs::copy(&template_source, &template_dest)
-            .map_err(|e| format!("Failed to copy template {}: {}", section.template_path, e))?;
-
-        count += 1;
-    }
-
-    Ok(count)
-}
 
 /// Collect a single kit's assets.
 fn zvofr_collect_kit(

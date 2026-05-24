@@ -106,6 +106,53 @@ pub fn voff_collapse(content: &str, tags: &[&str]) -> String {
     result
 }
 
+/// Remove managed regions entirely — both `BEGIN..END` blocks and standalone
+/// `UNINSTALLED` markers — for the given tags.
+///
+/// Unlike `voff_collapse` (which leaves an UNINSTALLED breadcrumb), this excises
+/// the region outright. Used for the one-time migration away from the legacy
+/// per-kit inline model: the old `MANAGED:BUK/CMK/JJK/VVK` blocks are deleted
+/// before the consolidated `@`-include region is written.
+pub fn voff_remove_regions(content: &str, tags: &[&str]) -> String {
+    let mut result = content.to_string();
+
+    for tag in tags {
+        let begin = format!("<!-- MANAGED:{}:BEGIN -->", tag);
+        let end = format!("<!-- MANAGED:{}:END -->", tag);
+        let uninstalled = format!("<!-- MANAGED:{}:UNINSTALLED -->", tag);
+
+        // Excise each BEGIN..END block (loop guards against repeats).
+        loop {
+            let (Some(b), Some(e)) = (result.find(&begin), result.find(&end)) else { break };
+            if e <= b {
+                break;
+            }
+            result = zvoff_splice_out(&result, b, e + end.len());
+        }
+
+        // Excise standalone UNINSTALLED markers.
+        while let Some(p) = result.find(&uninstalled) {
+            result = zvoff_splice_out(&result, p, p + uninstalled.len());
+        }
+    }
+
+    result
+}
+
+/// Remove the byte range [start, end) plus one trailing newline and one
+/// leading newline if present, so excising a region leaves no blank gap.
+fn zvoff_splice_out(content: &str, start: usize, end: usize) -> String {
+    let mut tail = end;
+    if content[tail..].starts_with('\n') {
+        tail += 1;
+    }
+    let mut head = start;
+    if head > 0 && content[..head].ends_with('\n') {
+        head -= 1;
+    }
+    format!("{}{}", &content[..head], &content[tail..])
+}
+
 /// Parse existing managed sections from CLAUDE.md content.
 ///
 /// # Returns

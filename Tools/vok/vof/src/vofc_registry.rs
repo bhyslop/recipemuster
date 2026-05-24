@@ -169,15 +169,14 @@ pub const ALL_CIPHERS: &[vofc_Cipher] = &[
 // Typed kit declarations for distribution. Field names align with VOS entity
 // members (vosem_kit_id, vosem_display_name).
 
-/// A managed section declaration for CLAUDE.md.
-/// Template content lives in vov_veiled/, copied to parcel during release.
-#[derive(Debug, Clone, Copy)]
-pub struct vofc_ManagedSection {
-    /// Tag identifier for the section (e.g., "JJK", "BUK")
-    pub tag: &'static str,
-    /// Template file path relative to kit's vov_veiled/ directory
-    pub template_path: &'static str,
-}
+/// Single CLAUDE.md managed-region tag for the consolidated @-include block.
+///
+/// The target repo's CLAUDE.md carries exactly one
+/// `<!-- MANAGED:{tag}:BEGIN -->` / `:END` region whose body is the set of
+/// `@`-include lines for installed kits' public guidance files. The guidance
+/// content lives in the `@`-targets, never inline — so the region cannot go
+/// stale. Replaces the former per-kit inline-template mechanism.
+pub const VOFC_INCLUDE_REGION_TAG: &str = "VVK-INCLUDES";
 
 /// A distributable kit with typed cipher reference.
 /// Kit identifier derived from cipher via cipher.kit_id().
@@ -187,8 +186,11 @@ pub struct vofc_Kit {
     pub cipher: &'static vofc_Cipher,
     /// Human-readable name. See vosem_display_name.
     pub display_name: &'static str,
-    /// Managed sections for CLAUDE.md. Templates in vov_veiled/.
-    pub managed_sections: &'static [vofc_ManagedSection],
+    /// Public Claude guidance files (claude-{kit}-*.md), relative to the kit
+    /// directory. Shipped via normal collection and `@`-included by the
+    /// target's CLAUDE.md. Veiled per-owner files (claude-{kit}-{owner}.md)
+    /// are NOT listed here — they never distribute.
+    pub claude_includes: &'static [&'static str],
 }
 
 /// Asset routing rule for kit installation.
@@ -209,30 +211,22 @@ pub const DISTRIBUTABLE_KITS: &[vofc_Kit] = &[
     vofc_Kit {
         cipher: &BU,
         display_name: "Bash Utilities",
-        managed_sections: &[
-            vofc_ManagedSection { tag: "BUK", template_path: "vocbumc_core.md" },
-        ],
+        claude_includes: &["claude-buk-core.md"],
     },
     vofc_Kit {
         cipher: &CM,
         display_name: "Concept Model",
-        managed_sections: &[
-            vofc_ManagedSection { tag: "CMK", template_path: "voccmmc_core.md" },
-        ],
+        claude_includes: &["claude-cmk-core.md"],
     },
     vofc_Kit {
         cipher: &JJ,
         display_name: "Job Jockey",
-        managed_sections: &[
-            vofc_ManagedSection { tag: "JJK", template_path: "vocjjmc_core.md" },
-        ],
+        claude_includes: &["claude-jjk-core.md"],
     },
     vofc_Kit {
         cipher: &VV,
         display_name: "Voce Viva",
-        managed_sections: &[
-            vofc_ManagedSection { tag: "VVK", template_path: "vocvvmc_core.md" },
-        ],
+        claude_includes: &["claude-vvk-core.md"],
     },
 ];
 

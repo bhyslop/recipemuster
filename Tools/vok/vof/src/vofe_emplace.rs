@@ -36,8 +36,8 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use crate::voff_freshen::{voff_freshen, voff_collapse, voff_ManagedSection};
-use crate::vofc_registry::{vofc_find_kit_by_id, VOFC_COMMAND_SIGNET_SUFFIX, VOFC_HOOK_SIGNET_SUFFIX};
+use crate::voff_freshen::{voff_freshen, voff_collapse, voff_remove_regions, voff_ManagedSection, voff_FreshenResult};
+use crate::vofc_registry::{DISTRIBUTABLE_KITS, VOFC_INCLUDE_REGION_TAG, VOFC_COMMAND_SIGNET_SUFFIX, VOFC_HOOK_SIGNET_SUFFIX};
 
 // =============================================================================
 // Constants
@@ -284,12 +284,11 @@ pub fn vofe_emplace(args: &vofe_EmplaceArgs) -> Result<vofe_EmplaceResult, Strin
     commands_routed += parcel_cmds;
     hooks_routed += parcel_hks;
 
-    // 8. Freshen CLAUDE.md with kit sections
-    let sections = zvofe_read_templates(&args.parcel_dir, &kit_ids)?;
-    let section_tags: Vec<String> = sections.iter().map(|s| s.tag.clone()).collect();
-
+    // 8. Freshen CLAUDE.md: sweep any legacy per-kit inline blocks (migration)
+    //    and upsert the single consolidated @-include region.
     let claude_path = burc.project_root.join("CLAUDE.md");
-    zvofe_freshen_claude(&claude_path, &sections)?;
+    zvofe_freshen_claude(&claude_path, &burc, &kit_ids)?;
+    let section_tags = vec![VOFC_INCLUDE_REGION_TAG.to_string()];
 
     // 9. Commit installation
     let commit_msg = format!("VVK install: brand {}", brand);
@@ -354,15 +353,11 @@ pub fn vofe_vacate(args: &vofe_VacateArgs) -> Result<vofe_VacateResult, String> 
         }
     }
 
-    // 5. Collapse CLAUDE.md sections (get tags from registry)
-    let section_tags: Vec<String> = kit_ids
-        .iter()
-        .filter_map(|kit_id| vofc_find_kit_by_id(kit_id))
-        .flat_map(|kit| kit.managed_sections.iter().map(|s| s.tag.to_string()))
-        .collect();
-
+    // 5. Collapse CLAUDE.md: sweep legacy per-kit blocks, collapse the single
+    //    @-include region to an UNINSTALLED breadcrumb.
     let claude_path = burc.project_root.join("CLAUDE.md");
-    zvofe_collapse_claude(&claude_path, &section_tags)?;
+    zvofe_collapse_claude(&claude_path)?;
+    let section_tags = vec![VOFC_INCLUDE_REGION_TAG.to_string()];
 
     // 6. Delete vvx binary from Tools/vvk/bin/
     // Kit directories are intentionally preserved (open-source utilities)
@@ -421,10 +416,9 @@ pub struct vofe_FreshenResult {
     pub appended: Vec<String>,
 }
 
-/// Freshen CLAUDE.md managed sections from kit forge source templates.
-///
-/// Reads templates directly from Tools/{kit}/vov_veiled/ (bypassing parcel pipeline).
-/// Does NOT commit — caller decides when to commit.
+/// Freshen CLAUDE.md in place (no parcel): migrate away from any legacy per-kit
+/// inline blocks and upsert the single consolidated `@`-include region for the
+/// kits in BURC_MANAGED_KITS. Does NOT commit — caller decides when.
 ///
 /// # Arguments
 /// * `burc_path` - Path to target repo's burc.env file
@@ -433,50 +427,10 @@ pub struct vofe_FreshenResult {
 /// FreshenResult with update summary, or error message
 pub fn vofe_freshen_forge(burc_path: &Path) -> Result<vofe_FreshenResult, String> {
     let burc = vofe_parse_burc(burc_path)?;
-
-    // Read templates from forge vov_veiled/ directories
-    let mut sections = Vec::new();
-    for kit_id in &burc.managed_kits {
-        let kit = vofc_find_kit_by_id(kit_id)
-            .ok_or_else(|| format!("Kit not in registry: {}", kit_id))?;
-
-        let veiled_dir = burc.tools_dir.join(kit_id).join("vov_veiled");
-
-        for section in kit.managed_sections {
-            let template_path = veiled_dir.join(section.template_path);
-            if !template_path.exists() {
-                return Err(format!(
-                    "Template not found in forge: {} (expected at {})",
-                    section.template_path,
-                    template_path.display()
-                ));
-            }
-
-            let content = fs::read_to_string(&template_path)
-                .map_err(|e| format!("Failed to read template {}: {}", section.template_path, e))?;
-
-            sections.push(voff_ManagedSection {
-                tag: section.tag.to_string(),
-                content,
-            });
-        }
-    }
-
-    // Freshen CLAUDE.md
     let claude_path = burc.project_root.join("CLAUDE.md");
-    let existing = if claude_path.exists() {
-        fs::read_to_string(&claude_path)
-            .map_err(|e| format!("Failed to read CLAUDE.md: {}", e))?
-    } else {
-        "# Claude Code Project Memory\n".to_string()
-    };
 
-    let result = voff_freshen(&existing, &sections);
+    let result = zvofe_freshen_claude(&claude_path, &burc, &burc.managed_kits)?;
 
-    fs::write(&claude_path, &result.content)
-        .map_err(|e| format!("Failed to write CLAUDE.md: {}", e))?;
-
-    // Report what happened
     for tag in &result.updated {
         eprintln!("  freshen: updated [{}]", tag);
     }
@@ -484,7 +438,7 @@ pub fn vofe_freshen_forge(burc_path: &Path) -> Result<vofe_FreshenResult, String
         eprintln!("  freshen: expanded [{}] (was UNINSTALLED)", tag);
     }
     for tag in &result.appended {
-        eprintln!("  freshen: appended [{}] (new section)", tag);
+        eprintln!("  freshen: appended [{}] (new region)", tag);
     }
 
     Ok(vofe_FreshenResult {
@@ -779,47 +733,16 @@ fn zvofe_copy_all_files(source_dir: &Path, dest_dir: &Path) -> Result<u32, Strin
     Ok(count)
 }
 
-/// Read managed section templates from parcel.
-fn zvofe_read_templates(
-    parcel_dir: &Path,
-    kit_ids: &[String],
-) -> Result<Vec<voff_ManagedSection>, String> {
-    let mut sections = Vec::new();
-
-    for kit_id in kit_ids {
-        let kit = vofc_find_kit_by_id(kit_id)
-            .ok_or_else(|| format!("Kit not in registry: {}", kit_id))?;
-
-        let templates_dir = parcel_dir.join("kits").join(kit_id).join("templates");
-
-        for section in kit.managed_sections {
-            let template_path = templates_dir.join(section.template_path);
-            if !template_path.exists() {
-                return Err(format!(
-                    "Template not found in parcel: {}",
-                    template_path.display()
-                ));
-            }
-
-            let content = fs::read_to_string(&template_path)
-                .map_err(|e| format!("Failed to read template {}: {}", section.template_path, e))?;
-
-            sections.push(voff_ManagedSection {
-                tag: section.tag.to_string(),
-                content,
-            });
-        }
-    }
-
-    Ok(sections)
-}
-
-/// Freshen CLAUDE.md with managed sections.
+/// Freshen CLAUDE.md: migrate away from any legacy per-kit inline blocks and
+/// upsert the single consolidated `@`-include region for the installed kits.
+///
+/// Returns the underlying freshen result (updated/expanded/appended) so the
+/// standalone forge-freshen path can report what changed.
 fn zvofe_freshen_claude(
     claude_path: &Path,
-    sections: &[voff_ManagedSection],
-) -> Result<(), String> {
-    // Read existing content or start with empty
+    burc: &vofe_BurcEnv,
+    kit_ids: &[String],
+) -> Result<voff_FreshenResult, String> {
     let content = if claude_path.exists() {
         fs::read_to_string(claude_path)
             .map_err(|e| format!("Failed to read CLAUDE.md: {}", e))?
@@ -827,18 +750,69 @@ fn zvofe_freshen_claude(
         "# Claude Code Project Memory\n".to_string()
     };
 
-    // Freshen with new sections
-    let result = voff_freshen(&content, sections);
+    // Migration: excise legacy per-kit MANAGED blocks (old inline model).
+    let legacy_tags = zvofe_legacy_tags();
+    let legacy_refs: Vec<&str> = legacy_tags.iter().map(|s| s.as_str()).collect();
+    let swept = voff_remove_regions(&content, &legacy_refs);
 
-    // Write back
+    // Upsert the single @-include region.
+    let section = voff_ManagedSection {
+        tag: VOFC_INCLUDE_REGION_TAG.to_string(),
+        content: zvofe_build_include_body(burc, kit_ids)?,
+    };
+    let result = voff_freshen(&swept, std::slice::from_ref(&section));
+
     fs::write(claude_path, &result.content)
         .map_err(|e| format!("Failed to write CLAUDE.md: {}", e))?;
 
-    Ok(())
+    Ok(result)
 }
 
-/// Collapse CLAUDE.md managed sections to UNINSTALLED markers.
-fn zvofe_collapse_claude(claude_path: &Path, tags: &[String]) -> Result<(), String> {
+/// Legacy per-kit managed-section tags (uppercased kit id) from the old inline
+/// model. Swept on every freshen so a once-installed consumer migrates cleanly.
+fn zvofe_legacy_tags() -> Vec<String> {
+    DISTRIBUTABLE_KITS
+        .iter()
+        .map(|k| k.cipher.kit_id().to_uppercase())
+        .collect()
+}
+
+/// Build the `@`-include region body: one line per public guidance file of each
+/// installed kit, in registry order, written project-root-relative.
+fn zvofe_build_include_body(
+    burc: &vofe_BurcEnv,
+    kit_ids: &[String],
+) -> Result<String, String> {
+    let tools_rel = burc
+        .tools_dir
+        .strip_prefix(&burc.project_root)
+        .map_err(|_| {
+            format!(
+                "BURC_TOOLS_DIR ({}) is not under project root ({})",
+                burc.tools_dir.display(),
+                burc.project_root.display()
+            )
+        })?;
+
+    let mut lines = Vec::new();
+    for kit in DISTRIBUTABLE_KITS {
+        let kit_id = kit.cipher.kit_id();
+        if !kit_ids.iter().any(|k| k == &kit_id) {
+            continue;
+        }
+        for include in kit.claude_includes {
+            let rel = tools_rel.join(&kit_id).join(include);
+            lines.push(format!("@{}", rel.display()));
+        }
+    }
+
+    Ok(lines.join("\n"))
+}
+
+/// Collapse CLAUDE.md for uninstall: excise any legacy per-kit blocks and
+/// collapse the single `@`-include region to an UNINSTALLED breadcrumb (so a
+/// future reinstall re-expands it in place).
+fn zvofe_collapse_claude(claude_path: &Path) -> Result<(), String> {
     if !claude_path.exists() {
         return Ok(()); // Nothing to collapse
     }
@@ -846,8 +820,10 @@ fn zvofe_collapse_claude(claude_path: &Path, tags: &[String]) -> Result<(), Stri
     let content = fs::read_to_string(claude_path)
         .map_err(|e| format!("Failed to read CLAUDE.md: {}", e))?;
 
-    let tag_refs: Vec<&str> = tags.iter().map(|s| s.as_str()).collect();
-    let collapsed = voff_collapse(&content, &tag_refs);
+    let legacy_tags = zvofe_legacy_tags();
+    let legacy_refs: Vec<&str> = legacy_tags.iter().map(|s| s.as_str()).collect();
+    let swept = voff_remove_regions(&content, &legacy_refs);
+    let collapsed = voff_collapse(&swept, &[VOFC_INCLUDE_REGION_TAG]);
 
     fs::write(claude_path, &collapsed)
         .map_err(|e| format!("Failed to write CLAUDE.md: {}", e))?;
