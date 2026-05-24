@@ -461,4 +461,72 @@ JJK content
         // Verify user content preserved
         assert!(result.content.contains("User notes here."));
     }
+
+    #[test]
+    fn test_legacy_migration_to_single_include_region() {
+        // Mimics a consumer (e.g. paneboard) installed under the OLD per-kit
+        // inline model: three MANAGED:{KIT} blocks plus hand-written content.
+        // Exercises the exact two-step migration emplace performs.
+        let content = "\
+# PaneBoard Project Memo
+
+Hand-written intent the operator owns.
+
+<!-- MANAGED:BUK:BEGIN -->
+old inline BUK guidance
+<!-- MANAGED:BUK:END -->
+
+User notes between blocks.
+
+<!-- MANAGED:JJK:BEGIN -->
+old inline JJK guidance (two-param era)
+<!-- MANAGED:JJK:END -->
+
+<!-- MANAGED:VVK:BEGIN -->
+old inline VVK guidance
+<!-- MANAGED:VVK:END -->
+
+Trailing user content.
+";
+
+        // Step 1: sweep legacy per-kit tags (as zvofe_legacy_tags yields).
+        let swept = voff_remove_regions(content, &["BUK", "CMK", "JJK", "VVK"]);
+
+        // Step 2: upsert the single consolidated @-include region.
+        let section = voff_ManagedSection {
+            tag: "VVK-INCLUDES".to_string(),
+            content: "@Tools/buk/claude-buk-core.md\n\
+                      @Tools/jjk/claude-jjk-core.md\n\
+                      @Tools/vvk/claude-vvk-core.md"
+                .to_string(),
+        };
+        let out = voff_freshen(&swept, std::slice::from_ref(&section)).content;
+
+        // Legacy blocks and their inline bodies are gone.
+        assert!(!out.contains("MANAGED:BUK:BEGIN"));
+        assert!(!out.contains("MANAGED:JJK:BEGIN"));
+        assert!(!out.contains("MANAGED:VVK:BEGIN"));
+        assert!(!out.contains("old inline BUK guidance"));
+        assert!(!out.contains("old inline JJK guidance (two-param era)"));
+        assert!(!out.contains("old inline VVK guidance"));
+
+        // The single region exists with the @-include lines.
+        assert!(out.contains("<!-- MANAGED:VVK-INCLUDES:BEGIN -->"));
+        assert!(out.contains("@Tools/buk/claude-buk-core.md"));
+        assert!(out.contains("@Tools/jjk/claude-jjk-core.md"));
+        assert!(out.contains("@Tools/vvk/claude-vvk-core.md"));
+        assert!(out.contains("<!-- MANAGED:VVK-INCLUDES:END -->"));
+
+        // Hand-written content is preserved.
+        assert!(out.contains("Hand-written intent the operator owns."));
+        assert!(out.contains("User notes between blocks."));
+        assert!(out.contains("Trailing user content."));
+
+        // Idempotent: a second migration pass changes nothing. Critically, the
+        // VVK legacy sweep must NOT eat the new VVK-INCLUDES region.
+        let swept2 = voff_remove_regions(&out, &["BUK", "CMK", "JJK", "VVK"]);
+        let out2 = voff_freshen(&swept2, std::slice::from_ref(&section)).content;
+        assert_eq!(out2, out, "second migration pass must be a no-op");
+        assert!(out2.contains("<!-- MANAGED:VVK-INCLUDES:BEGIN -->"));
+    }
 }
