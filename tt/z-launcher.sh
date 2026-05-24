@@ -49,9 +49,15 @@ esac
 z_sprue="${1:-}"
 test -n "${z_sprue}" || { echo "z-launcher: no sprue given" >&2; exit 1; }
 
+# Project-intimate config-dir anchor. z-launcher is the SOLE file that knows
+# where THIS project keeps its moorings/config dir (.buk, rbmm_moorings, …).
+# The shared kit (bul_launcher, bubc) consumes BURD_CONFIG_DIR exported below
+# rather than hardcoding a name — so one kit serves every consumer.
+z_moorings_dir="rbmm_moorings"
+
 # Recover the launcher-id by stripping the *ml_ ownership prefix.
 z_launcher_id="${z_sprue#*ml_}"
-z_launcher="${z_dir}/../rbmm_moorings/rbml_launchers/launcher.${z_launcher_id}_workbench.sh"
+z_launcher="${z_dir}/../${z_moorings_dir}/rbml_launchers/launcher.${z_launcher_id}_workbench.sh"
 
 # Fail loud on a mistyped sprue rather than dispatching silently to nothing.
 test -f "${z_launcher}" || {
@@ -62,10 +68,13 @@ test -f "${z_launcher}" || {
 # Normalize cwd to repo root for the dispatched workbench.
 cd -P "${z_dir}/.." || { echo "z-launcher: cannot cd to repo root" >&2; exit 1; }
 
+# Hand the config-dir location to the shared launcher (absolute, cd-proof).
+export BURD_CONFIG_DIR="${PWD}/${z_moorings_dir}"
+
 # Preserve the BURD_LAUNCHER regime contract (required by burd_regime,
 # consumed by every post-dispatch zburd_enforce). Repo-relative form matches
 # the value the tabtarget exported before the trampoline.
-export BURD_LAUNCHER="rbmm_moorings/rbml_launchers/launcher.${z_launcher_id}_workbench.sh"
+export BURD_LAUNCHER="${z_moorings_dir}/rbml_launchers/launcher.${z_launcher_id}_workbench.sh"
 
 # Forward everything after the sprue: tabtarget basename + user args.
 exec "${z_launcher}" "${@:2}"
