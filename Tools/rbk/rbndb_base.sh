@@ -106,7 +106,7 @@ rbrd_inscribe() {
   local -r z_manifest_stderr="${ZRBNDB_INSCRIBE_PREFIX}manifest_stderr.txt"
   local -r z_build_dir="${ZRBNDB_INSCRIBE_PREFIX}build"
   local -r z_dockerfile="${z_build_dir}/Dockerfile"
-  local -r z_rbrd_copy="${z_build_dir}/rbrd.env"
+  local -r z_rbrd_copy="${z_build_dir}/${RBCC_rbrd_basename}"
   local -r z_build_stdout="${ZRBNDB_INSCRIBE_PREFIX}build_stdout.txt"
   local -r z_build_stderr="${ZRBNDB_INSCRIBE_PREFIX}build_stderr.txt"
   local -r z_push_stdout="${ZRBNDB_INSCRIBE_PREFIX}push_stdout.txt"
@@ -127,6 +127,12 @@ rbrd_inscribe() {
     buc_die "Cannot inscribe over existing tripwire (would mask drift)"
   fi
 
+  # Pin the canonical build-runner platform. The image is FROM-scratch data
+  # (rbrd.env only, never executed), so its architecture is semantically
+  # irrelevant — but docker's manifest selection on pull demands a platform
+  # match. Pinning one canonical platform on both inscribe (build) and check
+  # (pull/create) makes the tripwire pullable on every host regardless of the
+  # levying host's arch, instead of baking the inscriber's native arch.
   buc_log_args "Build FROM-scratch image carrying ${RBCC_rbrd_file}"
   mkdir -p "${z_build_dir}" || buc_die "Failed to create build dir ${z_build_dir}"
 
@@ -135,11 +141,11 @@ rbrd_inscribe() {
 
   printf '%s\n' \
     'FROM scratch' \
-    'COPY rbrd.env /rbrd.env' \
+    "COPY ${RBCC_rbrd_basename} /${RBCC_rbrd_basename}" \
     > "${z_dockerfile}" \
     || buc_die "Failed to write Dockerfile at ${z_dockerfile}"
 
-  docker build -t "${ZRBNDB_TRIPWIRE_IMAGE}" "${z_build_dir}" \
+  docker build --platform "${RBGC_BUILD_RUNNER_PLATFORM}" -t "${ZRBNDB_TRIPWIRE_IMAGE}" "${z_build_dir}" \
       > "${z_build_stdout}" 2>"${z_build_stderr}" \
     || buc_die "docker build failed for ${ZRBNDB_TRIPWIRE_IMAGE} — see ${z_build_stderr}"
 
@@ -173,7 +179,7 @@ rbrd_check() {
   local -r z_create_stderr="${ZRBNDB_CHECK_PREFIX}create_stderr.txt"
   local -r z_cp_stderr="${ZRBNDB_CHECK_PREFIX}cp_stderr.txt"
   local -r z_rm_stderr="${ZRBNDB_CHECK_PREFIX}rm_stderr.txt"
-  local -r z_inscribed_file="${ZRBNDB_CHECK_PREFIX}rbrd.env.inscribed"
+  local -r z_inscribed_file="${ZRBNDB_CHECK_PREFIX}${RBCC_rbrd_basename}.inscribed"
   local -r z_diff_file="${ZRBNDB_CHECK_PREFIX}diff.txt"
   local -r z_diff_stderr="${ZRBNDB_CHECK_PREFIX}diff_stderr.txt"
 
@@ -193,28 +199,31 @@ rbrd_check() {
       buc_die "Cannot proceed without tripwire — depot regime drift cannot be detected"
     }
 
+  # Pull the canonical build-runner platform explicitly: the tripwire is
+  # inscribed single-platform (see rbrd_inscribe), so a host-default pull would
+  # fail on any host whose native arch differs from RBGC_BUILD_RUNNER_PLATFORM.
   buc_log_args "Pull tripwire image"
-  docker pull "${ZRBNDB_TRIPWIRE_IMAGE}" \
+  docker pull --platform "${RBGC_BUILD_RUNNER_PLATFORM}" "${ZRBNDB_TRIPWIRE_IMAGE}" \
       > "${z_pull_stdout}" 2>"${z_pull_stderr}" \
     || buc_die "docker pull failed for ${ZRBNDB_TRIPWIRE_IMAGE} — see ${z_pull_stderr}"
 
-  buc_log_args "Create temp container to extract /rbrd.env"
+  buc_log_args "Create temp container to extract /${RBCC_rbrd_basename}"
   # The tripwire is FROM-scratch (no CMD/ENTRYPOINT); the Linux daemon rejects
   # docker create on such an image with "no command specified". The container
   # is never started — only docker cp + docker rm touch it — so a never-executed
   # placeholder command satisfies the create-time requirement harmlessly.
-  docker create "${ZRBNDB_TRIPWIRE_IMAGE}" /rbrd.env \
+  docker create --platform "${RBGC_BUILD_RUNNER_PLATFORM}" "${ZRBNDB_TRIPWIRE_IMAGE}" "/${RBCC_rbrd_basename}" \
       > "${z_create_stdout}" 2>"${z_create_stderr}" \
     || buc_die "docker create failed for ${ZRBNDB_TRIPWIRE_IMAGE} — see ${z_create_stderr}"
 
   local -r z_cid=$(<"${z_create_stdout}")
   test -n "${z_cid}" || buc_die "docker create returned empty container ID — see ${z_create_stdout}"
 
-  docker cp "${z_cid}:/rbrd.env" "${z_inscribed_file}" 2>"${z_cp_stderr}" \
+  docker cp "${z_cid}:/${RBCC_rbrd_basename}" "${z_inscribed_file}" 2>"${z_cp_stderr}" \
     || {
       docker rm "${z_cid}" > /dev/null 2>"${z_rm_stderr}" \
         || buc_warn "Failed to remove temp container ${z_cid} — see ${z_rm_stderr}"
-      buc_die "docker cp failed extracting /rbrd.env from tripwire image — see ${z_cp_stderr}"
+      buc_die "docker cp failed extracting /${RBCC_rbrd_basename} from tripwire image — see ${z_cp_stderr}"
     }
 
   docker rm "${z_cid}" > /dev/null 2>"${z_rm_stderr}" \

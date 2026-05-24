@@ -42,7 +42,8 @@ RBCC_vessels_subdir="rbmv_vessels"
 RBCC_rbrr_file="${RBCC_moorings_dir}/rbrr.env"
 RBCC_rbrp_file="${RBCC_moorings_dir}/rbrp.env"
 RBCC_rbrm_file="${RBCC_moorings_dir}/rbrm.env"
-RBCC_rbrd_file="${RBCC_moorings_dir}/rbrd.env"
+RBCC_rbrd_basename="rbrd.env"
+RBCC_rbrd_file="${RBCC_moorings_dir}/${RBCC_rbrd_basename}"
 
 # Literal constants (pure string literals, no variable expansion — available at source time)
 RBCC_rbrs_file="../station-files/rbrs.env"
