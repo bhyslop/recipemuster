@@ -114,4 +114,4 @@ RBK-owned directory namespace for the consumer-config moorings tree (`rbmm_moori
 - **`rbmu_`** → moorings users — remote BURP user profiles
 - **`rbmv_`** → moorings vessels — vessel build contexts
 
-Tabtargets dispatch through `tt/z-launcher.sh` by passing a launcher *sprue* `{owner}ml_{launcher-id}` (`rbml_*` RBK-authored, `buml_*` BUK-hosted — see the BUK include). Sprue rationale lives in BCG "Tabtarget Path Indirection"; this entry is the allocation record only.
+Tabtargets dispatch through `tt/z-launcher.sh`, naming their launcher in the `BURD_LAUNCHER` config line as a bare `launcher.<id>_workbench.sh` basename that the trampoline resolves directly under `rbml_launchers/`. Rationale lives in BCG "Tabtarget Path Indirection"; this entry is the directory allocation record only.

@@ -14,7 +14,6 @@
 - **BURC** → `buk/burc_cli.sh`, `buk/burc_regime.sh` (regime configuration)
 - **BURS** → `buk/burs_cli.sh`, `buk/burs_regime.sh` (regime station)
 - **BUJP** → `buk/bujp_preflight.sh` (garrison step-1 preflight gate)
-- **`buml_`** → BUK moorings-launcher sprue namespace (not a `Tools/buk/` file). The `tt/z-launcher.sh` dispatch token for every non-RBK kit's launcher (`buml_buw`, `buml_jjw`, `buml_cmw`, `buml_vow`, `buml_vvw`, `buml_vslw`, `buml_apcw`, `buml_study`). Ownership-semantic, not a path — launchers co-locate in `rbmm_moorings/rbml_launchers/`; parallel to RBK's `rbml_`. A kit that later earns its own moorings migrates its sprue `buml_X` → `Xml_X`. See BCG "Tabtarget Path Indirection".
 
 ## Bash Utility Kit (BUK) Concepts
 

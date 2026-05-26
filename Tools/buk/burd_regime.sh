@@ -51,7 +51,7 @@ zburd_kindle() {
   buv_string_enroll  BURD_REGIME_FILE           1  256  "Path to the BURC regime configuration file"
   buv_string_enroll  BURD_STATION_FILE          1  256  "Path to the developer's BURS station file"
   buv_string_enroll  BURD_COORDINATOR_SCRIPT    1  256  "Path to the coordinator script for this tabtarget"
-  buv_string_enroll  BURD_LAUNCHER              1  256  "Path to the tabtarget launcher script"
+  buv_string_enroll  BURD_LAUNCHER              1  256  "Launcher basename (e.g. launcher.rbw_workbench.sh), set by the tabtarget"
   buv_string_enroll  BURD_TERM_COLS             1    8  "Terminal column width at dispatch time"
 
   buv_group_enroll "Directory Paths"

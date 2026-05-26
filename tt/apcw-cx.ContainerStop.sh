@@ -1,2 +1,3 @@
 #!/bin/bash
-exec "${BASH_SOURCE[0]%/*}/z-launcher.sh" buml_apcw "${0##*/}" "${@}"
+export BURD_LAUNCHER=launcher.apcw_workbench.sh
+exec "${BASH_SOURCE[0]%/*}/z-launcher.sh" "${0##*/}" "${@}"

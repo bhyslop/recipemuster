@@ -1,3 +1,4 @@
 #!/bin/bash
+export BURD_LAUNCHER=launcher.vvw_workbench.sh
 export BURD_NO_LOG=1
-exec "${BASH_SOURCE[0]%/*}/z-launcher.sh" buml_vvw "${0##*/}" "${@}"
+exec "${BASH_SOURCE[0]%/*}/z-launcher.sh" "${0##*/}" "${@}"

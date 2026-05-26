@@ -1,3 +1,4 @@
 #!/bin/bash
+export BURD_LAUNCHER=launcher.apcw_workbench.sh
 export BURD_INTERACTIVE=1
-exec "${BASH_SOURCE[0]%/*}/z-launcher.sh" buml_apcw "${0##*/}" "${@}"
+exec "${BASH_SOURCE[0]%/*}/z-launcher.sh" "${0##*/}" "${@}"
