@@ -27,7 +27,9 @@ use std::process::Command;
 use crate::case;
 use crate::rbtdrb_probe::{rbtdrb_assert, rbtdrb_Probe};
 use crate::rbtdrc_crucible::rbtdrc_with_ctx;
-use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
+use crate::rbtdre_engine::{
+    rbtdre_tree_clean, rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict,
+};
 use crate::rbtdri_invocation::{
     rbtdri_invoke_global, rbtdri_read_burv_fact, rbtdri_Context,
     RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP, RBTDRI_BURV_OUTPUT_SUBDIR,
@@ -236,29 +238,12 @@ fn rbtdrp_resolve(root: &Path, raw: &str) -> PathBuf {
     }
 }
 
-/// Class A — working tree clean (`git status --porcelain` empty).
+/// Class A — working tree clean (`git status --porcelain` empty). Delegates to
+/// the shared engine check so the run-start guard and this fixture gate stay in
+/// lockstep.
 fn rbtdrp_check_tree_clean(root: &Path, violations: &mut Vec<String>) {
-    match Command::new("git")
-        .args(["status", "--porcelain"])
-        .current_dir(root)
-        .output()
-    {
-        Ok(out) if out.status.success() => {
-            let stdout = String::from_utf8_lossy(&out.stdout);
-            let trimmed = stdout.trim();
-            if !trimmed.is_empty() {
-                violations.push(format!(
-                    "working tree not clean — uncommitted changes:\n{}",
-                    trimmed
-                ));
-            }
-        }
-        Ok(out) => violations.push(format!(
-            "git status --porcelain failed (exit {}): {}",
-            out.status.code().unwrap_or(-1),
-            String::from_utf8_lossy(&out.stderr).trim()
-        )),
-        Err(e) => violations.push(format!("git status invocation failed: {}", e)),
+    if let Err(msg) = rbtdre_tree_clean(root) {
+        violations.push(msg);
     }
 }
 

@@ -69,6 +69,40 @@ pub fn rbtdre_resolve_fail_fast(
     }
 }
 
+// ── Working-tree hygiene ───────────────────────────────────────
+
+/// Returns Ok(()) when the working tree rooted at `root` is clean
+/// (`git status --porcelain` empty); Err with a human diagnostic when the tree
+/// carries uncommitted changes or git itself fails. Shared by the pristine
+/// fixture's Class-A check and the suite run-start hygiene guard so both express
+/// "clean tree" through one implementation.
+pub fn rbtdre_tree_clean(root: &Path) -> Result<(), String> {
+    match std::process::Command::new("git")
+        .args(["status", "--porcelain"])
+        .current_dir(root)
+        .output()
+    {
+        Ok(out) if out.status.success() => {
+            let stdout = String::from_utf8_lossy(&out.stdout);
+            let trimmed = stdout.trim();
+            if trimmed.is_empty() {
+                Ok(())
+            } else {
+                Err(format!(
+                    "working tree not clean — uncommitted changes:\n{}",
+                    trimmed
+                ))
+            }
+        }
+        Ok(out) => Err(format!(
+            "git status --porcelain failed (exit {}): {}",
+            out.status.code().unwrap_or(-1),
+            String::from_utf8_lossy(&out.stderr).trim()
+        )),
+        Err(e) => Err(format!("git status invocation failed: {}", e)),
+    }
+}
+
 // ── Case and Fixture ───────────────────────────────────────────
 
 /// A named test case with a function that receives its isolated temp directory.

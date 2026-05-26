@@ -36,7 +36,7 @@ use rbtd::rbtdrc_crucible::{
 };
 use rbtd::rbtdre_engine::{
     rbtdre_detect_colors, rbtdre_find_case, rbtdre_list_cases, rbtdre_print_summary,
-    rbtdre_run_fixture, rbtdre_run_single_case,
+    rbtdre_run_fixture, rbtdre_run_single_case, rbtdre_tree_clean,
 };
 use rbtd::rbtdri_invocation::{
     rbtdri_Context, rbtdri_invoke_global,
@@ -113,6 +113,18 @@ fn rbtdb_run_suite(args: &[String]) -> ExitCode {
         Ok(p) => p,
         Err(e) => rbtd::rbtdrg_fatal_now!("rbtd: cannot determine working directory: {}", e),
     };
+
+    // Run-start hygiene guard (suite only). A suite run commits a sequence of
+    // hallmark/yoke changes; starting on a dirty tree would interleave the
+    // operator's uncommitted edits with those commits. Single-case mode is the
+    // crucible-debug loop and is intentionally left unguarded.
+    if let Err(msg) = rbtdre_tree_clean(&project_root) {
+        rbtd::rbtdrg_fatal_now!(
+            "rbtd: refusing to start a suite run on a dirty working tree — \
+             commit or stash first.\n{}",
+            msg
+        );
+    }
 
     let roots = match rbtdb_allocate_roots() {
         Ok(r) => r,

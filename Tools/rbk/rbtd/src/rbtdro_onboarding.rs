@@ -510,13 +510,54 @@ fn rbtdro_drive_hallmark(
     Ok(())
 }
 
-/// Auto-commit helper. Checks git status --porcelain; if the working tree is
-/// clean, returns Ok without committing. Otherwise runs `git add -A` then
-/// `git commit -m <message>`. Theurge launches from project root so no
-/// explicit current_dir is needed.
-fn rbtdro_git_commit(message: &str) -> Result<(), rbtdre_Verdict> {
+/// Repo-relative path to a nameplate's rbrn.env — the file a hallmark drive
+/// rewrites. Mirrors the join in `rbtdro_drive_hallmark`.
+fn rbtdro_nameplate_rbrn_path(nameplate: &str) -> String {
+    format!("{}/{}/rbrn.env", crate::RBTD_MOORINGS_DIR, nameplate)
+}
+
+/// Repo-relative path to a vessel's rbrv.env. `vessel_dir` is already the
+/// moorings-relative vessel directory (e.g. RBTDRO_VESSEL_DIR_*).
+fn rbtdro_vessel_rbrv_path(vessel_dir: &str) -> String {
+    format!("{}/{}", vessel_dir, RBTDRO_VESSEL_RBRV_FILE)
+}
+
+/// Enumerate every vessel's rbrv.env under the vessels directory — the dynamic
+/// set the wildcard yoke rewrites. Repo-relative paths, one per vessel subdir
+/// that carries an rbrv.env, sorted for stable commit staging.
+fn rbtdro_all_vessel_rbrv_paths(root: &Path) -> Result<Vec<String>, String> {
+    let vessels_rel = crate::rbtd_vessels_dir!();
+    let vessels_abs = root.join(vessels_rel);
+    let mut paths: Vec<String> = Vec::new();
+    let entries = std::fs::read_dir(&vessels_abs)
+        .map_err(|e| format!("read vessels dir {}: {}", vessels_abs.display(), e))?;
+    for entry in entries {
+        let entry = entry.map_err(|e| format!("read vessels dir entry: {}", e))?;
+        if entry.path().is_dir() {
+            let name = entry.file_name();
+            let rbrv_rel = format!("{}/{}/{}", vessels_rel, name.to_string_lossy(), RBTDRO_VESSEL_RBRV_FILE);
+            if root.join(&rbrv_rel).is_file() {
+                paths.push(rbrv_rel);
+            }
+        }
+    }
+    paths.sort();
+    Ok(paths)
+}
+
+/// Surgical auto-commit helper. Each caller passes the explicit repo-relative
+/// files its step changed (was `git add -A`, which once swept an unrelated
+/// working-tree edit into a hallmark commit). Checks `git status --porcelain`
+/// scoped to just those files first; an empty result means the step changed
+/// nothing (e.g. an idempotent yoke, or terminal graft with no consumers) and
+/// is a clean no-op, not an error. Otherwise `git add -- <files>` then
+/// `git commit -m <message>`. Theurge launches from project root so no explicit
+/// current_dir is needed.
+fn rbtdro_git_commit(files: &[String], message: &str) -> Result<(), rbtdre_Verdict> {
+    let mut status_args: Vec<&str> = vec!["status", "--porcelain", "--"];
+    status_args.extend(files.iter().map(String::as_str));
     let status = std::process::Command::new("git")
-        .args(["status", "--porcelain"])
+        .args(&status_args)
         .output()
         .map_err(|e| {
             rbtdre_Verdict::Fail(format!("git status --porcelain exec failed: {}", e))
@@ -527,19 +568,20 @@ fn rbtdro_git_commit(message: &str) -> Result<(), rbtdre_Verdict> {
             status.status.code().unwrap_or(-1)
         )));
     }
-    let porcelain = String::from_utf8_lossy(&status.stdout);
-    if porcelain.trim().is_empty() {
-        // Nothing to commit — clean tree is not an error.
+    if String::from_utf8_lossy(&status.stdout).trim().is_empty() {
+        // None of the owned files changed — clean no-op, not an error.
         return Ok(());
     }
 
+    let mut add_args: Vec<&str> = vec!["add", "--"];
+    add_args.extend(files.iter().map(String::as_str));
     let add = std::process::Command::new("git")
-        .args(["add", "-A"])
+        .args(&add_args)
         .output()
-        .map_err(|e| rbtdre_Verdict::Fail(format!("git add -A exec failed: {}", e)))?;
+        .map_err(|e| rbtdre_Verdict::Fail(format!("git add exec failed: {}", e)))?;
     if !add.status.success() {
         return Err(rbtdre_Verdict::Fail(format!(
-            "git add -A exited {}: {}",
+            "git add exited {}: {}",
             add.status.code().unwrap_or(-1),
             String::from_utf8_lossy(&add.stderr).trim()
         )));
@@ -581,10 +623,13 @@ fn rbtdro_kludge_nameplate(
     )?;
 
     // Commit sentry hallmark before bottle kludge — kludge asserts clean tree.
-    rbtdro_git_commit(&format!(
-        "{}-{}: {} hallmark",
-        RBTDRM_OPERATION_KLUDGE, nameplate, RBTDRM_CONTAINER_SENTRY
-    ))?;
+    rbtdro_git_commit(
+        &[rbtdro_nameplate_rbrn_path(nameplate)],
+        &format!(
+            "{}-{}: {} hallmark",
+            RBTDRM_OPERATION_KLUDGE, nameplate, RBTDRM_CONTAINER_SENTRY
+        ),
+    )?;
 
     rbtdro_invoke_or_fail(
         ctx,
@@ -597,10 +642,13 @@ fn rbtdro_kludge_nameplate(
         &format!("{}-{}-{}", RBTDRM_OPERATION_KLUDGE, RBTDRM_CONTAINER_BOTTLE, nameplate),
     )?;
 
-    rbtdro_git_commit(&format!(
-        "{}-{}: {} hallmark",
-        RBTDRM_OPERATION_KLUDGE, nameplate, RBTDRM_CONTAINER_BOTTLE
-    ))?;
+    rbtdro_git_commit(
+        &[rbtdro_nameplate_rbrn_path(nameplate)],
+        &format!(
+            "{}-{}: {} hallmark",
+            RBTDRM_OPERATION_KLUDGE, nameplate, RBTDRM_CONTAINER_BOTTLE
+        ),
+    )?;
     Ok(())
 }
 
@@ -623,6 +671,7 @@ fn rbtdro_onboarding_inscribe_reliquary_impl(
     ctx: &mut rbtdri_Context,
     dir: &Path,
 ) -> rbtdre_Verdict {
+    let root = ctx.project_root().to_path_buf();
     let result = match rbtdro_invoke_or_fail(
         ctx,
         RBTDRM_OPERATION_INSCRIBE,
@@ -649,11 +698,19 @@ fn rbtdro_onboarding_inscribe_reliquary_impl(
         return v;
     }
 
-    // Commit the rbrv.env changes for all yoked vessels.
-    if let Err(v) = rbtdro_git_commit(&format!(
-        "inscribe-reliquary: {} stamp across all vessels",
-        RBTDRM_OPERATION_YOKE
-    )) {
+    // Commit the rbrv.env changes for all yoked vessels — the wildcard yoke
+    // rewrites every vessel's rbrv.env, so stage that enumerated set.
+    let yoked = match rbtdro_all_vessel_rbrv_paths(&root) {
+        Ok(p) => p,
+        Err(e) => return rbtdre_Verdict::Fail(format!("enumerate vessel rbrv.env set: {}", e)),
+    };
+    if let Err(v) = rbtdro_git_commit(
+        &yoked,
+        &format!(
+            "inscribe-reliquary: {} stamp across all vessels",
+            RBTDRM_OPERATION_YOKE
+        ),
+    ) {
         return v;
     }
 
@@ -857,7 +914,12 @@ fn rbtdro_onboarding_ordain_conjure_sentry_impl(ctx: &mut rbtdri_Context, dir: &
         }
     }
 
+    let owned: Vec<String> = RBTDRO_CONSUMERS_SENTRY_TETHER
+        .iter()
+        .map(|n| rbtdro_nameplate_rbrn_path(n))
+        .collect();
     if let Err(v) = rbtdro_git_commit(
+        &owned,
         "ordain-conjure: sentry-tether hallmark + propagate to consumers",
     ) {
         return v;
@@ -905,8 +967,12 @@ fn rbtdro_onboarding_ordain_conjure_jupyter_impl(ctx: &mut rbtdri_Context, dir: 
         }
     }
 
+    let owned: Vec<String> = RBTDRO_CONSUMERS_JUPYTER_BOTTLE
+        .iter()
+        .map(|n| rbtdro_nameplate_rbrn_path(n))
+        .collect();
     if let Err(v) =
-        rbtdro_git_commit("conjure-srjcl: jupyter-bottle hallmark + propagate to srjcl")
+        rbtdro_git_commit(&owned, "conjure-srjcl: jupyter-bottle hallmark + propagate to srjcl")
     {
         return v;
     }
@@ -943,8 +1009,10 @@ fn rbtdro_onboarding_ordain_airgap_chain_impl(ctx: &mut rbtdri_Context, dir: &Pa
     if let Err(v) = rbtdro_enshrine(ctx, dir, forge_sigil, "enshrine-upstream") {
         return v;
     }
-    // Commit before ordain-forge: ordain has clean-tree precondition.
+    // Commit before ordain-forge: ordain has clean-tree precondition. Enshrine
+    // wrote the forge vessel's RBRV_IMAGE_n_ANCHOR digests.
     if let Err(v) = rbtdro_git_commit(
+        &[rbtdro_vessel_rbrv_path(RBTDRO_VESSEL_DIR_AIRGAP_FORGE)],
         "ordain-airgap: enshrine upstream rust base into forge vessel",
     ) {
         return v;
@@ -987,6 +1055,7 @@ fn rbtdro_onboarding_ordain_airgap_chain_impl(ctx: &mut rbtdri_Context, dir: &Pa
     // precondition. The forge hallmark's existence in GAR is established by
     // ordain-forge's success above — no separate enshrine validation step.
     if let Err(v) = rbtdro_git_commit(
+        &[rbtdro_vessel_rbrv_path(RBTDRO_VESSEL_DIR_AIRGAP_BOTTLE)],
         "ordain-airgap: write forge-hallmark locator into airgap-bottle base anchor",
     ) {
         return v;
@@ -1014,8 +1083,12 @@ fn rbtdro_onboarding_ordain_airgap_chain_impl(ctx: &mut rbtdri_Context, dir: &Pa
         }
     }
 
+    let owned: Vec<String> = RBTDRO_CONSUMERS_AIRGAP_BOTTLE
+        .iter()
+        .map(|n| rbtdro_nameplate_rbrn_path(n))
+        .collect();
     if let Err(v) =
-        rbtdro_git_commit("ordain-airgap: airgap-bottle hallmark + propagate to moriah")
+        rbtdro_git_commit(&owned, "ordain-airgap: airgap-bottle hallmark + propagate to moriah")
     {
         return v;
     }
@@ -1153,8 +1226,12 @@ fn rbtdro_onboarding_ordain_bind_plantuml_impl(ctx: &mut rbtdri_Context, dir: &P
         }
     }
 
+    let owned: Vec<String> = RBTDRO_CONSUMERS_PLANTUML_BOTTLE
+        .iter()
+        .map(|n| rbtdro_nameplate_rbrn_path(n))
+        .collect();
     if let Err(v) =
-        rbtdro_git_commit("ordain-bind: plantuml-bottle hallmark + propagate to pluml")
+        rbtdro_git_commit(&owned, "ordain-bind: plantuml-bottle hallmark + propagate to pluml")
     {
         return v;
     }
@@ -1245,7 +1322,13 @@ fn rbtdro_onboarding_ordain_graft_demo_impl(ctx: &mut rbtdri_Context, dir: &Path
         return rbtdre_Verdict::Fail(format!("rmi: {}", e));
     }
 
-    if let Err(v) = rbtdro_git_commit("ordain-graft: graft-demo hallmark") {
+    // graft-demo is terminal (no consumers); the step writes no regime file, so
+    // this commit owns only the graft vessel's rbrv.env and is normally a clean
+    // no-op (the scoped status check skips it when nothing changed).
+    if let Err(v) = rbtdro_git_commit(
+        &[rbtdro_vessel_rbrv_path(RBTDRO_VESSEL_DIR_GRAFT)],
+        "ordain-graft: graft-demo hallmark",
+    ) {
         return v;
     }
 
