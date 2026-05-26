@@ -92,11 +92,13 @@ zrbte_kindle() {
   # Dogfight — standing-depot cloud-build viability probe. Sibling to skirmish
   # in the operator-precondition family (reuses a hand-levied depot, no levy,
   # no unmake) but charges NO crucible: it proves only the cloud-build → summon
-  # → run path yields a runnable artifact. Single fixture; the suite name is
-  # the operator's memorable batch handle. OPERATOR PRECONDITION: a canonical
-  # depot already levied with a director + retriever invested (the same
-  # standing-depot setup skirmish assumes).
+  # → run path yields a runnable artifact. canonical-invest leads exactly as it
+  # does in skirmish — re-mantling the governor and divest/re-investing
+  # retriever + director so the dogfight fixture finds fresh credentials; the
+  # dogfight fixture itself stays crucible-free. OPERATOR PRECONDITION: a
+  # canonical depot already levied (the standing-depot setup skirmish assumes).
   ZRBTE_SUITE_DOGFIGHT=(
+    "canonical-invest"
     "dogfight"
   )
 
