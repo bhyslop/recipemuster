@@ -161,6 +161,12 @@ pub const RBTDRM_FIXTURE_ONBOARDING_SEQUENCE: &str = "onboarding-sequence";
 // charges against a clean nameplate). Reuses onboarding's kludge helper minus
 // its reliquary-stamp witness probe — local kludge has no GCP/reliquary dep.
 pub const RBTDRM_FIXTURE_KLUDGE_TADMOR: &str = "kludge-tadmor";
+// Dogfight cloud-build viability fixture — standing-depot sibling to
+// canonical-invest, proving the cloud-build → summon → run path yields a
+// runnable artifact with NO crucible charged (the orthogonal axis skirmish
+// covers). Ordains conjure-mode busybox, summons it, runs a degenerate
+// container-runtime command proving executability, then abjures.
+pub const RBTDRM_FIXTURE_DOGFIGHT: &str = "dogfight";
 // Calibrant fixtures — synthetic deterministic-verdict fixtures driving the
 // bash blackbox testbench. Internal framework-test plumbing.
 pub const RBTDRM_FIXTURE_CALIBRANT_VERDICTS: &str = "calibrant-verdicts";
@@ -277,6 +283,13 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         RBTDRM_FIXTURE_KLUDGE_TADMOR => Some(&[
             RBTDRM_COLOPHON_KLUDGE_SENTRY,
             RBTDRM_COLOPHON_KLUDGE_BOTTLE,
+        ]),
+        // dogfight ordains/summons/abjures a single conjure-mode hallmark; the
+        // bare container-runtime run is shelled directly, not via a colophon.
+        RBTDRM_FIXTURE_DOGFIGHT => Some(&[
+            RBTDRM_COLOPHON_ORDAIN,
+            RBTDRM_COLOPHON_SUMMON,
+            RBTDRM_COLOPHON_ABJURE,
         ]),
         RBTDRM_FIXTURE_ONBOARDING_SEQUENCE => Some(&[
             RBTDRM_COLOPHON_INSCRIBE_RELIQUARY,

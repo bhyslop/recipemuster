@@ -89,6 +89,16 @@ zrbte_kindle() {
     "srjcl"
     "pluml"
   )
+  # Dogfight — standing-depot cloud-build viability probe. Sibling to skirmish
+  # in the operator-precondition family (reuses a hand-levied depot, no levy,
+  # no unmake) but charges NO crucible: it proves only the cloud-build → summon
+  # → run path yields a runnable artifact. Single fixture; the suite name is
+  # the operator's memorable batch handle. OPERATOR PRECONDITION: a canonical
+  # depot already levied with a director + retriever invested (the same
+  # standing-depot setup skirmish assumes).
+  ZRBTE_SUITE_DOGFIGHT=(
+    "dogfight"
+  )
 
   readonly ZRBTE_KINDLED=1
 }
@@ -120,7 +130,8 @@ zrbte_resolve_suite() {
     complete) echo "${ZRBTE_SUITE_COMPLETE[*]}" ;;
     gauntlet) echo "${ZRBTE_SUITE_GAUNTLET[*]}" ;;
     skirmish) echo "${ZRBTE_SUITE_SKIRMISH[*]}" ;;
-    *)        buc_die "Unknown suite: ${z_suite} (expected fast|service|crucible|complete|gauntlet|skirmish)" ;;
+    dogfight) echo "${ZRBTE_SUITE_DOGFIGHT[*]}" ;;
+    *)        buc_die "Unknown suite: ${z_suite} (expected fast|service|crucible|complete|gauntlet|skirmish|dogfight)" ;;
   esac
 }
 

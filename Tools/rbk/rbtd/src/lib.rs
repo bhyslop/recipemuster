@@ -48,6 +48,7 @@ pub const RBTD_MOORINGS_DIR: &str = rbtd_moorings_dir!();
 
 pub mod rbtdrb_probe;
 pub mod rbtdrc_crucible;
+pub mod rbtdrd_dogfight;
 pub mod rbtdre_engine;
 pub mod rbtdrf_fast;
 pub mod rbtdrf_handbook;

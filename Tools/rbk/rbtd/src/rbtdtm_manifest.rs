@@ -118,6 +118,20 @@ fn rbtdtm_onboarding_sequence_rejects_missing_colophon() {
 }
 
 #[test]
+fn rbtdtm_accepts_valid_dogfight_manifest() {
+    let manifest = rbtdtm_manifest_for(RBTDRM_FIXTURE_DOGFIGHT);
+    assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_DOGFIGHT).is_ok());
+}
+
+#[test]
+fn rbtdtm_dogfight_rejects_missing_colophon() {
+    // Manifest with only the ordain colophon — missing summon and abjure
+    let manifest = RBTDRM_COLOPHON_ORDAIN;
+    let err = rbtdrm_verify(manifest, RBTDRM_FIXTURE_DOGFIGHT).unwrap_err();
+    assert!(err.contains(RBTDRM_COLOPHON_SUMMON));
+}
+
+#[test]
 fn rbtdtm_accepts_valid_handbook_render_manifest() {
     let manifest = rbtdtm_manifest_for(RBTDRM_FIXTURE_HANDBOOK_RENDER);
     assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_HANDBOOK_RENDER).is_ok());
