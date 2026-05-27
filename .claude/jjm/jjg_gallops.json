@@ -10379,6 +10379,13 @@
         "₢BSAAA": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260527-1019",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nMechanical cleanup; confirm dead-ness, then delete.\n\n`RBRP_PARENT_TYPE` and `RBRP_PARENT_ID` are defined in `rbrp.env` and string-enrolled in `rbrp_regime.sh`, but nothing reads them — depot project creation is parentless and GCP auto-parents under the org. `RBSDE-depot_levy.adoc`'s create-project step describes a `parent:` it never actually sets — a spec/code divergence.\n\nDone: both fields removed from `rbrp.env` and the rbrp regime validator; the RBSDE create-project step rewritten to describe the parentless create + GCP auto-parenting reality. Before deleting, `grep RBRP_PARENT` across the tree confirms zero non-definition readers.",
+              "jjgtn_silks": "delete-dead-rbrp-parent-fields",
+              "jjgtn_basis": "79e072c"
+            },
+            {
               "jjgtn_ts": "260521-1606",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nMechanical cleanup; confirm dead-ness, then delete.\n\n`RBRP_PARENT_TYPE` and `RBRP_PARENT_ID` are defined in `rbrp.env` and string-enrolled in `rbrp_regime.sh`, but nothing reads them — depot project creation is parentless and GCP auto-parents under the org. `RBSDE-depot_levy.adoc`'s create-project step describes a `parent:` it never actually sets — a spec/code divergence.\n\nDone: both fields removed from `rbrp.env` and the rbrp regime validator; the RBSDE create-project step rewritten to describe the parentless create + GCP auto-parenting reality. Before deleting, `grep RBRP_PARENT` across the tree confirms zero non-definition readers.",
