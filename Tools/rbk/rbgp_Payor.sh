@@ -1372,8 +1372,8 @@ rbgp_depot_unmake() {
   # displayName format: "${RBGC_DEPOT_DISPLAY_PREFIX} <moniker>"
   # project_id   format: "<cloud_prefix>${RBGC_depot_project_infix}<moniker>"
   # pool_stem    format: "<cloud_prefix><moniker>-pool" (mirrors RBDC_GCB_POOL_STEM)
-  local -r z_moniker="${z_display_name#${z_display_prefix}}"
-  local -r z_cloud_prefix="${z_project_id%${RBGC_depot_project_infix}${z_moniker}}"
+  local -r z_moniker="${z_display_name#"${z_display_prefix}"}"
+  local -r z_cloud_prefix="${z_project_id%"${RBGC_depot_project_infix}""${z_moniker}"}"
   local -r z_pool_stem="${z_cloud_prefix}${z_moniker}-pool"
 
   buc_step 'Clean up governor service accounts (404-tolerant)'
@@ -1577,9 +1577,9 @@ rbgp_depot_list() {
   # stem is the moniker, content is the state. The sidecar depot-project fact
   # file (same parent dir) carries the canonical project_id.
   shopt -s nullglob
-  for z_fact_path in "${BURD_OUTPUT_DIR}"/*/*.${RBCC_fact_ext_depot}; do
+  for z_fact_path in "${BURD_OUTPUT_DIR}"/*/*."${RBCC_fact_ext_depot}"; do
     z_basename="${z_fact_path##*/}"
-    z_moniker="${z_basename%.${RBCC_fact_ext_depot}}"
+    z_moniker="${z_basename%."${RBCC_fact_ext_depot}"}"
     z_dir_path="${z_fact_path%/*}"
     z_project_fact_path="${z_dir_path}/${z_moniker}.${RBCC_fact_ext_depot_project}"
     z_state=$(<"${z_fact_path}")

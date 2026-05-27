@@ -104,9 +104,12 @@ zrbv_extract_natural_tag() {
   local z_init_output_file="$1"
 
   local z_init_line
+  local z_tag
   while IFS= read -r z_init_line; do
     case "${z_init_line}" in *"Looking up Podman Machine image at"*)
-      echo "${z_init_line}" | sed 's/.*Looking up Podman Machine image at \(.*\) to create VM/\1/'
+      z_tag="${z_init_line#*Looking up Podman Machine image at }"
+      z_tag="${z_tag% to create VM*}"
+      printf '%s\n' "${z_tag}"
       break
     ;; esac
   done < "${z_init_output_file}" > "${ZRBV_NATURAL_TAG_FILE}"

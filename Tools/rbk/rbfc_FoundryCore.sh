@@ -298,7 +298,7 @@ zrbfc_wait_build_completion() {
       z_consecutive_failures=$((z_consecutive_failures + 1))
       buc_warn "Curl failed (rc=${z_curl_rc}; ${z_consecutive_failures}/${ZRBFC_BUILD_POLL_RETRY_TOLERANCE} consecutive) — see ${z_stderr_file}"
       buc_log_pipe < "${z_stderr_file}"
-      test ${z_consecutive_failures} -ge ${ZRBFC_BUILD_POLL_RETRY_TOLERANCE} \
+      test "${z_consecutive_failures}" -ge "${ZRBFC_BUILD_POLL_RETRY_TOLERANCE}" \
         && buc_die "Failed to get build status after ${ZRBFC_BUILD_POLL_RETRY_TOLERANCE} consecutive failures (last rc=${z_curl_rc}; see ${z_stderr_file})"
       continue
     fi
@@ -306,7 +306,7 @@ zrbfc_wait_build_completion() {
     if ! test -s "${z_response_file}"; then
       z_consecutive_failures=$((z_consecutive_failures + 1))
       buc_warn "Empty response (poll ${z_polls}; ${z_consecutive_failures}/${ZRBFC_BUILD_POLL_RETRY_TOLERANCE} consecutive) — see ${z_response_file}"
-      test ${z_consecutive_failures} -ge ${ZRBFC_BUILD_POLL_RETRY_TOLERANCE} \
+      test "${z_consecutive_failures}" -ge "${ZRBFC_BUILD_POLL_RETRY_TOLERANCE}" \
         && buc_die "Empty build status after ${ZRBFC_BUILD_POLL_RETRY_TOLERANCE} consecutive failures"
       continue
     fi
@@ -315,7 +315,7 @@ zrbfc_wait_build_completion() {
     if test -s "${z_err_check_file}"; then
       z_consecutive_failures=$((z_consecutive_failures + 1))
       buc_warn "HTTP error $(<"${z_err_check_file}") (poll ${z_polls}; ${z_consecutive_failures}/${ZRBFC_BUILD_POLL_RETRY_TOLERANCE} consecutive) — see ${z_response_file}"
-      test ${z_consecutive_failures} -ge ${ZRBFC_BUILD_POLL_RETRY_TOLERANCE} \
+      test "${z_consecutive_failures}" -ge "${ZRBFC_BUILD_POLL_RETRY_TOLERANCE}" \
         && buc_die "HTTP errors after ${ZRBFC_BUILD_POLL_RETRY_TOLERANCE} consecutive failures"
       continue
     fi
