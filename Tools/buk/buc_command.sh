@@ -117,9 +117,9 @@ buc_tabtarget() {
   local z_colophon="$1"
   shift
   local z_extra="${*:+ $*}"
-  local z_matches=("${BURD_TABTARGET_DIR}"/${z_colophon}.*)
-  test -e "${z_matches[0]}" || buc_die "buc_tabtarget: no tabtarget found for colophon '${z_colophon}'"
-  buc_bare "        ${z_matches[0]}${z_extra}"
+  zbuym_tt_path "${z_colophon}"
+  test -n "${z_buym_tt_path}" || buc_die "buc_tabtarget: no tabtarget found for colophon '${z_colophon}'"
+  buc_bare "        ${z_buym_tt_path}${z_extra}"
 }
 
 buc_context() {

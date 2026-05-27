@@ -143,6 +143,7 @@ zbuym_kindle() {
   # --- Mutable kindle state for yawp groups ---
   z_buym_yelp=""
   z_buym_format=""
+  z_buym_tt_path=""
 
   readonly ZBUYM_KINDLED=1
 }
@@ -185,17 +186,29 @@ buyy_link_yawp() {
   z_buym_yelp="${ZBUYM_DIASTEMA_LINK_URL}${z_url}${ZBUYM_DIASTEMA_LINK_TEXT}${z_display}${ZBUYM_DIASTEMA_END}"
 }
 
+# zbuym_tt_path colophon [imprint];  matched path -> z_buym_tt_path (empty on no match)
+# The single colophon->tabtarget-filename glob for the kit.  Callers own the
+# no-match policy (placeholder vs die) by inspecting the empty result.
+zbuym_tt_path() {
+  zbuym_sentinel
+  local -r z_colophon="${1:-}"
+  local z_matches
+  if test -n "${2:-}"; then
+    z_matches=("${BURD_TABTARGET_DIR}/${z_colophon}."*".${2}.sh")
+  else
+    z_matches=("${BURD_TABTARGET_DIR}/${z_colophon}."*)
+  fi
+  test -e "${z_matches[0]}" && z_buym_tt_path="${z_matches[0]}" || z_buym_tt_path=""
+}
+
 # buyy_tt_yawp colophon [imprint] [args];  local -r z_tt="${z_buym_yelp}"
 buyy_tt_yawp() {
   zbuym_sentinel
   local -r z_colophon="${1:-}"
-  local z_path=""
-  if test -n "${2:-}"; then
-    local z_matches=("${BURD_TABTARGET_DIR}/${z_colophon}."*".${2}.sh")
-    test -e "${z_matches[0]}" && z_path="${z_matches[0]}" || z_path="??${z_colophon}.${2}??"
-  else
-    local z_matches=("${BURD_TABTARGET_DIR}/${z_colophon}."*)
-    test -e "${z_matches[0]}" && z_path="${z_matches[0]}" || z_path="??${z_colophon}??"
+  zbuym_tt_path "${z_colophon}" "${2:-}"
+  local z_path="${z_buym_tt_path}"
+  if test -z "${z_path}"; then
+    test -n "${2:-}" && z_path="??${z_colophon}.${2}??" || z_path="??${z_colophon}??"
   fi
   z_buym_yelp="${ZBUYM_DIASTEMA_TT}${z_path}${3:-}${ZBUYM_DIASTEMA_END}"
 }
