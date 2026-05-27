@@ -32,12 +32,15 @@ source "${BURD_BUK_DIR}/buym_yelp.sh"
 
 zrbte_furnish() {
   buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env "BURD_TABTARGET_DIR    " "Tabtarget directory (dispatch-provided; codegen input)"
+  buc_doc_env "BURD_TEMP_DIR         " "Temp directory (dispatch-provided; codegen scratch)"
   buc_doc_env_done || return 0
 
   local z_cli_dir="${BASH_SOURCE[0]%/*}"
   source "${BURD_BUK_DIR}/buv_validation.sh"
   source "${BURD_BUK_DIR}/burd_regime.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh"
+  source "${z_cli_dir}/../rbcc_Constants.sh"
   source "${z_cli_dir}/../rbz_zipper.sh"
   source "${z_cli_dir}/rbte_engine.sh"
 

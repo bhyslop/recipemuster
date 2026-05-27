@@ -46,6 +46,7 @@ macro_rules! rbtd_vessels_dir {
 /// Runtime `&str` form for `Path::join` sites that take a value, not a literal.
 pub const RBTD_MOORINGS_DIR: &str = rbtd_moorings_dir!();
 
+pub mod rbtdgc_consts;
 pub mod rbtdrb_probe;
 pub mod rbtdrc_crucible;
 pub mod rbtdrd_dogfight;

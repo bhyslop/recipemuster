@@ -151,7 +151,6 @@ zrbz_kindle() {
   buz_group RBZ__GROUP_MARSHAL    "rbw-M"   "Marshal — Lifecycle"
   buz_enroll RBZ_MARSHAL_ZERO           "rbw-MZ"  "rblm_cli.sh" "rblm_zero"      ""  "Zero regime to blank template"
   buz_enroll RBZ_MARSHAL_PROOF          "rbw-MP"  "rblm_cli.sh" "rblm_proof"     ""  "Proof repo for release testing"
-  buz_enroll RBZ_MARSHAL_GENERATE       "rbw-MG"  "rblm_cli.sh" "rblm_generate"  ""  "Generate tabtarget context from zipper registry"
 
   # Nameplate — cross-nameplate operations (rbw-n)
   buz_group RBZ__GROUP_NAMEPLATE  "rbw-n"   "Nameplate — Cross-nameplate operations"
@@ -231,6 +230,63 @@ zrbz_kindle() {
 zrbz_healthcheck() {
   zrbz_sentinel
   buz_healthcheck
+}
+
+######################################################################
+# Rust const projection (colophons → RBTDGC_)
+
+# rbz_emit_consts() - Emit the colophon consts to stdout. The sole site binding
+# the RBK projection prefixes: const name is RBTDGC_ + the enroll varname with
+# its RBZ_ prefix stripped; value is the colophon string.
+rbz_emit_consts() {
+  zrbz_sentinel
+  buz_emit_colophon_consts "RBTDGC_" "RBZ_" || buc_die "rbz_emit_consts: emit failed"
+}
+
+# rbz_generate_consts() - Write the colophon const file, only on difference.
+# Args: target_path
+# Emits to a temp file, diffs against the target, and copies only when changed
+# (stable timestamps). The single producer for the generated file — rblm and
+# the theurge build wrapper both call this; rbq's gate verifies via rbz_emit_consts.
+rbz_generate_consts() {
+  zrbz_sentinel
+
+  local -r z_target="${1:-}"
+  test -n "${z_target}" || buc_die "rbz_generate_consts: target path required"
+
+  local -r z_tmp="${BURD_TEMP_DIR}/rbz_generate_consts.rs"
+  rbz_emit_consts > "${z_tmp}" || buc_die "rbz_generate_consts: emit failed"
+
+  if test -f "${z_target}" && diff -q "${z_tmp}" "${z_target}" >/dev/null 2>&1; then
+    buc_log_args "Colophon consts already up to date: ${z_target}"
+  else
+    cp "${z_tmp}" "${z_target}" || buc_die "rbz_generate_consts: failed to write ${z_target}"
+    buc_log_args "Generated: ${z_target}"
+  fi
+}
+
+# rbz_generate_context() - Write the markdown tabtarget context, only on difference.
+# Args: tt_dir, target_path
+# Emits via buz_emit_context (which resolves frontispieces from tt_dir filenames),
+# diffs against the target, and copies only when changed. Companion producer to
+# rbz_generate_consts; the theurge build calls both, rbq's gate verifies via buz_emit_context.
+rbz_generate_context() {
+  zrbz_sentinel
+
+  local -r z_tt_dir="${1:-}"
+  local -r z_target="${2:-}"
+  test -n "${z_tt_dir}" || buc_die "rbz_generate_context: tabtarget dir required"
+  test -n "${z_target}" || buc_die "rbz_generate_context: target path required"
+
+  local -r z_tmp="${BURD_TEMP_DIR}/rbz_generate_context.md"
+  buz_emit_context "${z_tt_dir}" > "${z_tmp}" || buc_die "rbz_generate_context: emit failed"
+
+  if test -f "${z_target}" && diff -q "${z_tmp}" "${z_target}" >/dev/null 2>&1; then
+    buc_log_args "Tabtarget context already up to date: ${z_target}"
+  else
+    cp "${z_tmp}" "${z_target}" || buc_die "rbz_generate_context: failed to write ${z_target}"
+    buc_log_args "Generated: ${z_target}"
+  fi
 }
 
 ######################################################################

@@ -132,20 +132,41 @@ rbq_qualify_context() {
 
   buc_step "Qualifying generated context freshness"
 
-  local -r z_committed="${ZRBQ_RBW_DIR}/rbk-claude-tabtarget-context.md"
+  local -r z_committed="${RBCC_tabtarget_context_file}"
   local -r z_fresh="${BURD_TEMP_DIR}/rbq_context_check.md"
 
   buz_emit_context "${ZRBQ_TT_DIR}" > "${z_fresh}" || buc_die "Failed to generate context for comparison"
 
   if ! test -f "${z_committed}"; then
-    buc_die "Generated context file missing: ${z_committed} — run tt/rbw-MG.MarshalGenerate.sh"
+    buc_die "Generated context file missing: ${z_committed} — run tt/rbw-tb.Build.sh"
   fi
 
   if ! diff -q "${z_fresh}" "${z_committed}" >/dev/null 2>&1; then
-    buc_die "Generated context file is stale: ${z_committed} — run tt/rbw-MG.MarshalGenerate.sh"
+    buc_die "Generated context file is stale: ${z_committed} — run tt/rbw-tb.Build.sh"
   fi
 
   buc_log_args "Context file is fresh"
+}
+
+rbq_qualify_rust_consts() {
+  zrbq_sentinel
+
+  buc_step "Qualifying generated Rust consts freshness"
+
+  local -r z_committed="${RBCC_rbtdgc_consts_file}"
+  local -r z_fresh="${BURD_TEMP_DIR}/rbq_rust_consts_check.rs"
+
+  rbz_emit_consts > "${z_fresh}" || buc_die "Failed to generate Rust consts for comparison"
+
+  if ! test -f "${z_committed}"; then
+    buc_die "Generated Rust consts file missing: ${z_committed} — run tt/rbw-tb.Build.sh"
+  fi
+
+  if ! diff -q "${z_fresh}" "${z_committed}" >/dev/null 2>&1; then
+    buc_die "Generated Rust consts file is stale: ${z_committed} — run tt/rbw-tb.Build.sh"
+  fi
+
+  buc_log_args "Rust consts file is fresh"
 }
 
 rbq_qualify_fast() {
@@ -160,6 +181,7 @@ rbq_qualify_fast() {
     # End of exempt list
   rbq_qualify_colophons
   rbq_qualify_context
+  rbq_qualify_rust_consts
   rbrn_preflight
 
   buc_step "Running shellcheck"

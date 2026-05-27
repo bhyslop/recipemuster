@@ -127,9 +127,22 @@ zrbte_sentinel() {
 ######################################################################
 # Internal helpers
 
+# zrbte_codegen() - Refresh all zipper-derived artifacts before compiling.
+# Write-on-change, so unchanged files keep their mtime and cargo skips rebuilds.
+# The build is the sole producer — there is no standalone generate command.
+zrbte_codegen() {
+  zrbte_sentinel
+
+  rbz_generate_context "${BURD_TABTARGET_DIR}" "${RBCC_tabtarget_context_file}" \
+    || buc_die "Failed to generate tabtarget context"
+  rbz_generate_consts "${RBCC_rbtdgc_consts_file}" \
+    || buc_die "Failed to generate colophon consts"
+}
+
 zrbte_build_binary() {
   zrbte_sentinel
 
+  zrbte_codegen
   buc_step "Building theurge"
   cargo build --manifest-path "${RBTE_MANIFEST}" || buc_die "cargo build failed"
   test -x "${ZRBTE_BINARY}" || buc_die "Theurge binary not found: ${ZRBTE_BINARY}"
@@ -156,6 +169,7 @@ zrbte_resolve_suite() {
 rbte_build() {
   zrbte_sentinel
 
+  zrbte_codegen
   buc_step "Building theurge"
   buc_log_args "Manifest: ${RBTE_MANIFEST}"
   cargo build --manifest-path "${RBTE_MANIFEST}" "$@" || buc_die "cargo build failed"
@@ -165,6 +179,7 @@ rbte_build() {
 rbte_test() {
   zrbte_sentinel
 
+  zrbte_codegen
   buc_step "Testing theurge"
   buc_log_args "Manifest: ${RBTE_MANIFEST}"
   cargo test --manifest-path "${RBTE_MANIFEST}" "$@" || buc_die "cargo test failed"

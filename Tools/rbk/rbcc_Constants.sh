@@ -30,6 +30,12 @@ ZRBCC_SOURCED=1
 # canon: rbtd/rbte_cli.sh).
 readonly RBCC_KIT_DIR="${BASH_SOURCE[0]%/*}"
 
+# Generated zipper-derived artifacts — the theurge build materializes both
+# (write-on-change), rbq's gates verify them. Absolute, composed from the
+# readonly kit dir (source-time, no kindle dependency).
+readonly RBCC_rbtdgc_consts_file="${RBCC_KIT_DIR}/rbtd/src/rbtdgc_consts.rs"
+readonly RBCC_tabtarget_context_file="${RBCC_KIT_DIR}/rbk-claude-tabtarget-context.md"
+
 # ── Moorings inventory constants ──────────────────────────────────────────
 # Moorings-relative path values. Every consumer reads these names directly
 # (the transitional RBBC_* aliases were retired by the literal-sweep pace).
