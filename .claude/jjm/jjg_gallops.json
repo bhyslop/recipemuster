@@ -10513,9 +10513,10 @@
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
         "₢BTAAA",
-        "₢BTAAB"
+        "₢BTAAB",
+        "₢BTAAC"
       ],
-      "jjghn_next_pace_seed": "AAC",
+      "jjghn_next_pace_seed": "AAD",
       "jjghn_paces": {
         "₢BTAAA": {
           "jjgpn_tacks": [
@@ -10536,6 +10537,17 @@
               "jjgtn_text": "## Character\nMechanical, blind-safe. BCG-canonical quoting plus one safety guard.\n\n## Goal\nClear the mechanical baseline findings — the ones that are correct-by-rote under\nBCG quoting discipline, plus the one `rm -rf` guard worth doing for its own sake.\n\n## Scope\nRun the live list (`buw-qsc`, or `rbw-tq` once the gate lands) — it drifts as\nfixes land, so trust the run, not any enumeration. The mechanical findings:\n- BCG-canonical quoting: SC2086 (double-quote), SC2295 (quote expansions inside\n  `${..}`), SC2231 (quote for-loop glob), SC2001. Same shape as the\n  `buyy_tt_yawp` repair landed under ₣BQ — blind-safe.\n- Safety win: SC2115 on `jjfp_fundus.sh` — `rm -rf` wants a `${var:?}` guard so\n  it can never expand to `/home`. Worth doing independent of the warning.\n\n## Exclusions\n- Do NOT touch the two shellcheckrc-survivor candidates (the `jjfp_fundus.sh`\n  remote tilde SC2088 and the `rbfh_FoundryHygiene.sh` literal-backslash SC1003)\n  — those are the next pace.\n- `rbv_PodmanVM.sh` sits under `vov_veiled/FUTURE/`; confirm it is in scan scope\n  intentionally before editing — if FUTURE/ should be excluded, that is a\n  shellcheckrc/scan-path question, not a code fix.\n\n## Done looks like\n- Every mechanical finding is fixed; only the two survivor candidates remain.",
               "jjgtn_silks": "mechanical-blind-safe-quoting-sweep",
               "jjgtn_basis": "5454b68"
+            }
+          ]
+        },
+        "₢BTAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260527-1032",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nJudgment-light but verify-before-silence. Two suspected false-positives, then green.\n\n## Goal\nResolve the last two findings as documented `busc_shellcheckrc` survivors — the\nones that are likely intentional and want a recorded rationale rather than a code\nchange — and bring `rbw-tq` green.\n\n## The two candidates\n- `jjfp_fundus.sh:482` SC2088 — a `\"~/...\"` tilde handed to a double-hop ssh\n  pipe. Tilde is meant to expand on the REMOTE side, not locally; quoting is\n  correct. Verify the remote-expansion intent before silencing.\n- `rbfh_FoundryHygiene.sh:85` SC1003 — a literal-backslash `case` pattern.\n  Confirm the backslash is genuinely literal/intentional.\n\n## Locked decisions\n- Suppression only in `busc_shellcheckrc`, never inline, and only for a TRUE\n  false-positive, always with a rationale comment naming why.\n- If verification shows either is actually a bug, fix the code instead of\n  silencing.\n\n## Done looks like\n- Both findings are either fixed or documented `busc_shellcheckrc` survivors with\n  rationale.\n- `rbw-tq` runs shellcheck and is GREEN — the single routine gate, no\n  release-only blind spot. (Closes the heat's done-looks-like.)",
+              "jjgtn_silks": "document-shellcheckrc-survivors-go-green",
+              "jjgtn_basis": "2fbab1a"
             }
           ]
         }
