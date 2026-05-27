@@ -2,6 +2,7 @@
   "jjgrn_schema_version": 4,
   "jjgrn_next_heat_seed": "BU",
   "jjgrn_heat_order": [
+    "₣BT",
     "₣BS",
     "₣BQ",
     "₣BP",
@@ -32,8 +33,7 @@
     "₣Au",
     "₣BC",
     "₣BI",
-    "₣BL",
-    "₣BT"
+    "₣BL"
   ],
   "jjgrn_heats": {
     "₣A-": {
@@ -10510,7 +10510,7 @@
     "₣BT": {
       "jjghn_silks": "rbk-11-mvp-shellcheck-error-gaps",
       "jjghn_creation_time": "260527",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BTAAA",
         "₢BTAAB",
