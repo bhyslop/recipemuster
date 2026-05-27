@@ -29,6 +29,7 @@ BUV_check_fail="fail:"
 # Source the console utility library
 ZBUV_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 source "${ZBUV_SCRIPT_DIR}/buc_command.sh"
+source "${ZBUV_SCRIPT_DIR}/buym_yelp.sh"
 
 buv_file_exists() {
   local z_filepath="${1:-}"

@@ -26,6 +26,7 @@ ZBUQ_INCLUDED=1
 # Source the console utility library + moorings-layout names (launcher subdir)
 ZBUQ_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 source "${ZBUQ_SCRIPT_DIR}/buc_command.sh"
+source "${ZBUQ_SCRIPT_DIR}/buym_yelp.sh"
 source "${ZBUQ_SCRIPT_DIR}/bubc_constants.sh"
 
 ######################################################################
