@@ -26,9 +26,21 @@ use std::process::Command;
 use crate::case;
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
 use crate::rbtdri_invocation::rbtdri_find_tabtarget_global;
+use crate::rbtdgc_consts::{
+    RBTDGC_HYGIENE_CHECK_DOCKERFILE,
+    RBTDGC_HYGIENE_CHECK_VESSEL,
+    RBTDGC_LIST_DEPOT,
+    RBTDGC_RENDER_NAMEPLATE,
+    RBTDGC_RENDER_PAYOR,
+    RBTDGC_RENDER_REPO,
+    RBTDGC_RENDER_VESSEL,
+    RBTDGC_UNMAKE_DEPOT,
+    RBTDGC_VALIDATE_NAMEPLATE,
+    RBTDGC_VALIDATE_PAYOR,
+    RBTDGC_VALIDATE_REPO,
+    RBTDGC_VALIDATE_VESSEL,
+};
 use crate::rbtdrm_manifest::{
-    RBTDRM_COLOPHON_HYGIENE_CHECK,
-    RBTDRM_COLOPHON_HYGIENE_CHECK_VESSEL,
     RBTDRM_FIXTURE_DOCKERFILE_HYGIENE,
     RBTDRM_FIXTURE_ENROLLMENT_VALIDATION,
     RBTDRM_FIXTURE_REGIME_SMOKE,
@@ -1063,7 +1075,7 @@ fn rbtdrf_rv_rbrr_repo(dir: &Path) -> rbtdre_Verdict {
         Ok(r) => r,
         Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
-    match rbtdrf_run_tt(&root, "rbw-rrv", &[], dir, "rbrr-repo-validate") {
+    match rbtdrf_run_tt(&root, RBTDGC_VALIDATE_REPO, &[], dir, "rbrr-repo-validate") {
         Ok(()) => rbtdre_Verdict::Pass,
         Err(e) => rbtdre_Verdict::Fail(e),
     }
@@ -1120,7 +1132,7 @@ fn rbtdrf_rv_rbrv_all_vessels(dir: &Path) -> rbtdre_Verdict {
             found = true;
             let sigil = entry.file_name().to_string_lossy().to_string();
             if let Err(e) = rbtdrf_run_tt(
-                &root, "rbw-rvv", &[&sigil], dir,
+                &root, RBTDGC_VALIDATE_VESSEL, &[&sigil], dir,
                 &format!("rbrv-{}-validate", sigil),
             ) {
                 return rbtdre_Verdict::Fail(e);
@@ -1154,7 +1166,7 @@ fn rbtdrf_rv_rbrn_all_nameplates(dir: &Path) -> rbtdre_Verdict {
             found = true;
             let moniker = entry.file_name().to_string_lossy().to_string();
             if let Err(e) = rbtdrf_run_tt(
-                &root, "rbw-rnv", &[&moniker], dir,
+                &root, RBTDGC_VALIDATE_NAMEPLATE, &[&moniker], dir,
                 &format!("rbrn-{}-validate", moniker),
             ) {
                 return rbtdre_Verdict::Fail(e);
@@ -1212,13 +1224,13 @@ fn rbtdrf_rs_rbrn(dir: &Path) -> rbtdre_Verdict {
             found = true;
             let moniker = entry.file_name().to_string_lossy().to_string();
             if let Err(e) = rbtdrf_run_tt(
-                &root, "rbw-rnr", &[&moniker], dir,
+                &root, RBTDGC_RENDER_NAMEPLATE, &[&moniker], dir,
                 &format!("rbrn-{}-render", moniker),
             ) {
                 return rbtdre_Verdict::Fail(e);
             }
             if let Err(e) = rbtdrf_run_tt(
-                &root, "rbw-rnv", &[&moniker], dir,
+                &root, RBTDGC_VALIDATE_NAMEPLATE, &[&moniker], dir,
                 &format!("rbrn-{}-validate", moniker),
             ) {
                 return rbtdre_Verdict::Fail(e);
@@ -1233,7 +1245,7 @@ fn rbtdrf_rs_rbrn(dir: &Path) -> rbtdre_Verdict {
 }
 
 fn rbtdrf_rs_rbrr(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_rs_render_validate(dir, "rbw-rrr", "rbw-rrv", "rbrr")
+    rbtdrf_rs_render_validate(dir, RBTDGC_RENDER_REPO, RBTDGC_VALIDATE_REPO, "rbrr")
 }
 
 fn rbtdrf_rs_rbrr_nonempty_prefix(dir: &Path) -> rbtdre_Verdict {
@@ -1351,13 +1363,13 @@ fn rbtdrf_rs_rbrv(dir: &Path) -> rbtdre_Verdict {
             found = true;
             let sigil = entry.file_name().to_string_lossy().to_string();
             if let Err(e) = rbtdrf_run_tt(
-                &root, "rbw-rvr", &[&sigil], dir,
+                &root, RBTDGC_RENDER_VESSEL, &[&sigil], dir,
                 &format!("rbrv-{}-render", sigil),
             ) {
                 return rbtdre_Verdict::Fail(e);
             }
             if let Err(e) = rbtdrf_run_tt(
-                &root, "rbw-rvv", &[&sigil], dir,
+                &root, RBTDGC_VALIDATE_VESSEL, &[&sigil], dir,
                 &format!("rbrv-{}-validate", sigil),
             ) {
                 return rbtdre_Verdict::Fail(e);
@@ -1372,7 +1384,7 @@ fn rbtdrf_rs_rbrv(dir: &Path) -> rbtdre_Verdict {
 }
 
 fn rbtdrf_rs_rbrp(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_rs_render_validate(dir, "rbw-rpr", "rbw-rpv", "rbrp")
+    rbtdrf_rs_render_validate(dir, RBTDGC_RENDER_PAYOR, RBTDGC_VALIDATE_PAYOR, "rbrp")
 }
 
 fn rbtdrf_rs_burd(dir: &Path) -> rbtdre_Verdict {
@@ -1407,7 +1419,7 @@ fn rbtdrf_rs_unmake_empty_arg_refusal(dir: &Path) -> rbtdre_Verdict {
         Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
 
-    let tt = match rbtdri_find_tabtarget_global(&root, "rbw-dU") {
+    let tt = match rbtdri_find_tabtarget_global(&root, RBTDGC_UNMAKE_DEPOT) {
         Ok(p) => p,
         Err(e) => return rbtdre_Verdict::Fail(e),
     };
@@ -1430,18 +1442,18 @@ fn rbtdrf_rs_unmake_empty_arg_refusal(dir: &Path) -> rbtdre_Verdict {
     let _ = std::fs::write(dir.join("empty-arg-stderr.txt"), &stderr);
 
     if code == 0 {
-        return rbtdre_Verdict::Fail(
-            "rbw-dU exited 0 with no argument — BBAA9 empty-arg refusal contract violated"
-                .to_string(),
-        );
+        return rbtdre_Verdict::Fail(format!(
+            "{} exited 0 with no argument — BBAA9 empty-arg refusal contract violated",
+            RBTDGC_UNMAKE_DEPOT
+        ));
     }
 
     let combined = format!("{}{}", stdout, stderr);
-    if !combined.contains("rbw-dl") {
+    if !combined.contains(RBTDGC_LIST_DEPOT) {
         return rbtdre_Verdict::Fail(format!(
-            "rbw-dU empty-arg refusal did not point at rbw-dl for operator discovery\n\
+            "{} empty-arg refusal did not point at {} for operator discovery\n\
              stdout:\n{}\n\nstderr:\n{}",
-            stdout, stderr
+            RBTDGC_UNMAKE_DEPOT, RBTDGC_LIST_DEPOT, stdout, stderr
         ));
     }
 
@@ -1481,9 +1493,9 @@ fn rbtdrf_dh_run_synthetic(
     }
     let path_str = dockerfile.to_string_lossy().into_owned();
     let result = if expect_pass {
-        rbtdrf_run_tt(&root, RBTDRM_COLOPHON_HYGIENE_CHECK, &[&path_str], dir, label)
+        rbtdrf_run_tt(&root, RBTDGC_HYGIENE_CHECK_DOCKERFILE, &[&path_str], dir, label)
     } else {
-        rbtdrf_run_tt_neg(&root, RBTDRM_COLOPHON_HYGIENE_CHECK, &[&path_str], dir, label)
+        rbtdrf_run_tt_neg(&root, RBTDGC_HYGIENE_CHECK_DOCKERFILE, &[&path_str], dir, label)
     };
     match result {
         Ok(()) => rbtdre_Verdict::Pass,
@@ -1601,7 +1613,7 @@ fn rbtdrf_dh_all_vessels_pass(dir: &Path) -> rbtdre_Verdict {
 
         if let Err(e) = rbtdrf_run_tt(
             &root,
-            RBTDRM_COLOPHON_HYGIENE_CHECK_VESSEL,
+            RBTDGC_HYGIENE_CHECK_VESSEL,
             &[&sigil],
             dir,
             &format!("vessel-{}", sigil),

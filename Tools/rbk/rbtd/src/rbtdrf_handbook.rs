@@ -25,16 +25,17 @@ use std::process::Command;
 use crate::case;
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
 use crate::rbtdri_invocation::rbtdri_find_tabtarget_global;
-use crate::rbtdrm_manifest::{
-    RBTDRM_COLOPHON_HANDBOOK_TOP, RBTDRM_COLOPHON_HANDBOOK_WINDOWS,
-    RBTDRM_COLOPHON_HW_DOCKER_CONTEXT, RBTDRM_COLOPHON_HW_DOCKER_DESKTOP,
-    RBTDRM_COLOPHON_ONBOARD_CRASH_COURSE, RBTDRM_COLOPHON_ONBOARD_CRED_DIRECTOR,
-    RBTDRM_COLOPHON_ONBOARD_CRED_RETRIEVER, RBTDRM_COLOPHON_ONBOARD_DIR_FIRST_BUILD,
-    RBTDRM_COLOPHON_ONBOARD_FIRST_CRUCIBLE, RBTDRM_COLOPHON_ONBOARD_GOVERNOR_HB,
-    RBTDRM_COLOPHON_ONBOARD_PAYOR_HB, RBTDRM_COLOPHON_ONBOARD_START_HERE,
-    RBTDRM_COLOPHON_PAYOR_ESTABLISH, RBTDRM_COLOPHON_PAYOR_REFRESH,
-    RBTDRM_COLOPHON_QUOTA_BUILD, RBTDRM_FIXTURE_HANDBOOK_RENDER,
+use crate::rbtdgc_consts::{
+    RBTDGC_HANDBOOK_TOP, RBTDGC_HANDBOOK_WINDOWS,
+    RBTDGC_HW_DOCKER_CONTEXT, RBTDGC_HW_DOCKER_DESKTOP,
+    RBTDGC_ONBOARD_CRASH_COURSE, RBTDGC_ONBOARD_CRED_DIRECTOR,
+    RBTDGC_ONBOARD_CRED_RETRIEVER, RBTDGC_ONBOARD_DIR_FIRST_BUILD,
+    RBTDGC_ONBOARD_FIRST_CRUCIBLE, RBTDGC_ONBOARD_GOVERNOR_HB,
+    RBTDGC_ONBOARD_PAYOR_HB, RBTDGC_ONBOARD_START_HERE,
+    RBTDGC_PAYOR_ESTABLISH, RBTDGC_PAYOR_REFRESH,
+    RBTDGC_QUOTA_BUILD,
 };
+use crate::rbtdrm_manifest::RBTDRM_FIXTURE_HANDBOOK_RENDER;
 
 // ── Helper ───────────────────────────────────────────────────
 
@@ -82,67 +83,67 @@ fn rbtdrf_hb_render(dir: &Path, colophon: &str, label: &str) -> rbtdre_Verdict {
 // ── Onboarding cases (8) ────────────────────────────────────
 
 fn rbtdrf_hb_onboard_start_here(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_ONBOARD_START_HERE, "onboard-start-here")
+    rbtdrf_hb_render(dir, RBTDGC_ONBOARD_START_HERE, "onboard-start-here")
 }
 
 fn rbtdrf_hb_onboard_crash_course(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_ONBOARD_CRASH_COURSE, "onboard-crash-course")
+    rbtdrf_hb_render(dir, RBTDGC_ONBOARD_CRASH_COURSE, "onboard-crash-course")
 }
 
 fn rbtdrf_hb_onboard_cred_retriever(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_ONBOARD_CRED_RETRIEVER, "onboard-cred-retriever")
+    rbtdrf_hb_render(dir, RBTDGC_ONBOARD_CRED_RETRIEVER, "onboard-cred-retriever")
 }
 
 fn rbtdrf_hb_onboard_cred_director(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_ONBOARD_CRED_DIRECTOR, "onboard-cred-director")
+    rbtdrf_hb_render(dir, RBTDGC_ONBOARD_CRED_DIRECTOR, "onboard-cred-director")
 }
 
 fn rbtdrf_hb_onboard_first_crucible(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_ONBOARD_FIRST_CRUCIBLE, "onboard-first-crucible")
+    rbtdrf_hb_render(dir, RBTDGC_ONBOARD_FIRST_CRUCIBLE, "onboard-first-crucible")
 }
 
 fn rbtdrf_hb_onboard_dir_first_build(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_ONBOARD_DIR_FIRST_BUILD, "onboard-dir-first-build")
+    rbtdrf_hb_render(dir, RBTDGC_ONBOARD_DIR_FIRST_BUILD, "onboard-dir-first-build")
 }
 
 fn rbtdrf_hb_onboard_payor_hb(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_ONBOARD_PAYOR_HB, "onboard-payor-hb")
+    rbtdrf_hb_render(dir, RBTDGC_ONBOARD_PAYOR_HB, "onboard-payor-hb")
 }
 
 fn rbtdrf_hb_onboard_governor_hb(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_ONBOARD_GOVERNOR_HB, "onboard-governor-hb")
+    rbtdrf_hb_render(dir, RBTDGC_ONBOARD_GOVERNOR_HB, "onboard-governor-hb")
 }
 
 // ── Windows cases ───────────────────────────────────────────
 
 fn rbtdrf_hb_handbook_top(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_HANDBOOK_TOP, "handbook-top")
+    rbtdrf_hb_render(dir, RBTDGC_HANDBOOK_TOP, "handbook-top")
 }
 
 fn rbtdrf_hb_handbook_windows(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_HANDBOOK_WINDOWS, "handbook-windows")
+    rbtdrf_hb_render(dir, RBTDGC_HANDBOOK_WINDOWS, "handbook-windows")
 }
 
 fn rbtdrf_hb_hw_docker_desktop(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_HW_DOCKER_DESKTOP, "hw-docker-desktop")
+    rbtdrf_hb_render(dir, RBTDGC_HW_DOCKER_DESKTOP, "hw-docker-desktop")
 }
 
 fn rbtdrf_hb_hw_docker_context(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_HW_DOCKER_CONTEXT, "hw-docker-context")
+    rbtdrf_hb_render(dir, RBTDGC_HW_DOCKER_CONTEXT, "hw-docker-context")
 }
 
 // ── Payor cases (3) ─────────────────────────────────────────
 
 fn rbtdrf_hb_payor_establish(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_PAYOR_ESTABLISH, "payor-establish")
+    rbtdrf_hb_render(dir, RBTDGC_PAYOR_ESTABLISH, "payor-establish")
 }
 
 fn rbtdrf_hb_payor_refresh(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_PAYOR_REFRESH, "payor-refresh")
+    rbtdrf_hb_render(dir, RBTDGC_PAYOR_REFRESH, "payor-refresh")
 }
 
 fn rbtdrf_hb_quota_build(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_QUOTA_BUILD, "quota-build")
+    rbtdrf_hb_render(dir, RBTDGC_QUOTA_BUILD, "quota-build")
 }
 
 // ── Case array ──────────────────────────────────────────────

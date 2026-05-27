@@ -16,49 +16,12 @@
 //
 // RBTDRM — colophon manifest verification for theurge
 
-/// Colophon consts — single definition per String Boundary Discipline.
-/// Each names the bash tabtarget colophon theurge invokes for that operation.
-
-// Crucible lifecycle colophons (nameplate-scoped)
-pub const RBTDRM_COLOPHON_CHARGE: &str = "rbw-cC";
-pub const RBTDRM_COLOPHON_QUENCH: &str = "rbw-cQ";
-pub const RBTDRM_COLOPHON_WRIT: &str = "rbw-cw";
-pub const RBTDRM_COLOPHON_FIAT: &str = "rbw-cf";
-pub const RBTDRM_COLOPHON_BARK: &str = "rbw-cb";
-
-// Foundry colophons (global — no nameplate imprint)
-pub const RBTDRM_COLOPHON_ORDAIN: &str = "rbw-fO";
-pub const RBTDRM_COLOPHON_ABJURE: &str = "rbw-fA";
-pub const RBTDRM_COLOPHON_TALLY: &str = "rbw-ft";
-pub const RBTDRM_COLOPHON_KLUDGE: &str = "rbw-fk";
-pub const RBTDRM_COLOPHON_VOUCH: &str = "rbw-fV";
-pub const RBTDRM_COLOPHON_SUMMON: &str = "rbw-fs";
-pub const RBTDRM_COLOPHON_PLUMB_FULL: &str = "rbw-fpf";
-pub const RBTDRM_COLOPHON_PLUMB_COMPACT: &str = "rbw-fpc";
-pub const RBTDRM_COLOPHON_HYGIENE_CHECK: &str = "rbw-fhc";
-pub const RBTDRM_COLOPHON_HYGIENE_CHECK_VESSEL: &str = "rbw-fhv";
-
-// Image colophons (global — no nameplate imprint)
-// Three-domain symmetric: hallmarks (h), reliquaries (r), enshrinements (e).
-// Verbs: rekon (member-list), audit (catalog-list), Jettison (delete), wrest (pull).
-pub const RBTDRM_COLOPHON_REKON_HALLMARK: &str = "rbw-irh";
-pub const RBTDRM_COLOPHON_REKON_RELIQUARY: &str = "rbw-irr";
-pub const RBTDRM_COLOPHON_AUDIT_HALLMARKS: &str = "rbw-iah";
-pub const RBTDRM_COLOPHON_AUDIT_RELIQUARIES: &str = "rbw-iar";
-pub const RBTDRM_COLOPHON_AUDIT_ENSHRINEMENTS: &str = "rbw-iae";
-pub const RBTDRM_COLOPHON_WREST_HALLMARK_IMAGE: &str = "rbw-iwh";
-pub const RBTDRM_COLOPHON_WREST_RELIQUARY_IMAGE: &str = "rbw-iwr";
-pub const RBTDRM_COLOPHON_WREST_ENSHRINED_IMAGE: &str = "rbw-iwe";
-pub const RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE: &str = "rbw-iJh";
-pub const RBTDRM_COLOPHON_JETTISON_RELIQUARY_IMAGE: &str = "rbw-iJr";
-pub const RBTDRM_COLOPHON_JETTISON_ENSHRINEMENT: &str = "rbw-iJe";
-
-// Kludge colophons (param1 channel — nameplate as argument)
-pub const RBTDRM_COLOPHON_KLUDGE_SENTRY: &str = "rbw-cKS";
-pub const RBTDRM_COLOPHON_KLUDGE_BOTTLE: &str = "rbw-cKB";
-
-// Crucible active check (param1 channel — nameplate as argument)
-pub const RBTDRM_COLOPHON_CRUCIBLE_ACTIVE: &str = "rbw-cic";
+// Colophon names are projected from the zipper registry into the generated
+// RBTDGC_* consts (rbtdgc_consts.rs). This module consumes them for the
+// per-fixture required-colophon manifest and the role→probe mapping; the
+// runtime drift check (rbtdrm_verify) is retained until the build-time diff
+// gate lands.
+use crate::rbtdgc_consts::*;
 
 // Credential role consts — the credential vocabulary that crosses the
 // access-probe CLI boundary (role → colophon mapping, fact-file labels,
@@ -68,62 +31,18 @@ pub const RBTDRM_ROLE_RETRIEVER: &str = "retriever";
 pub const RBTDRM_ROLE_DIRECTOR: &str = "director";
 pub const RBTDRM_ROLE_PAYOR: &str = "payor";
 
-// Credential access-probe colophons (global — one per role, no imprint)
-pub const RBTDRM_COLOPHON_CHECK_GOVERNOR: &str = "rbw-acg";
-pub const RBTDRM_COLOPHON_CHECK_RETRIEVER: &str = "rbw-acr";
-pub const RBTDRM_COLOPHON_CHECK_DIRECTOR: &str = "rbw-acd";
-pub const RBTDRM_COLOPHON_CHECK_PAYOR: &str = "rbw-acp";
-
 /// Map a credential role to its access-probe colophon. Returns None for
 /// unknown roles. Replaces the former role-as-imprint scheme: each role now
 /// names its own global tabtarget under the rbw-ac* family.
 pub fn rbtdrm_credential_check_colophon(role: &str) -> Option<&'static str> {
     match role {
-        RBTDRM_ROLE_GOVERNOR => Some(RBTDRM_COLOPHON_CHECK_GOVERNOR),
-        RBTDRM_ROLE_RETRIEVER => Some(RBTDRM_COLOPHON_CHECK_RETRIEVER),
-        RBTDRM_ROLE_DIRECTOR => Some(RBTDRM_COLOPHON_CHECK_DIRECTOR),
-        RBTDRM_ROLE_PAYOR => Some(RBTDRM_COLOPHON_CHECK_PAYOR),
+        RBTDRM_ROLE_GOVERNOR => Some(RBTDGC_CHECK_GOVERNOR),
+        RBTDRM_ROLE_RETRIEVER => Some(RBTDGC_CHECK_RETRIEVER),
+        RBTDRM_ROLE_DIRECTOR => Some(RBTDGC_CHECK_DIRECTOR),
+        RBTDRM_ROLE_PAYOR => Some(RBTDGC_CHECK_PAYOR),
         _ => None,
     }
 }
-
-// Payor depot colophons (global — no nameplate imprint)
-pub const RBTDRM_COLOPHON_DEPOT_LEVY: &str = "rbw-dL";
-pub const RBTDRM_COLOPHON_DEPOT_LIST: &str = "rbw-dl";
-pub const RBTDRM_COLOPHON_DEPOT_UNMAKE: &str = "rbw-dU";
-
-// Director depot colophons — reliquary inscribe/yoke and vessel enshrine
-// (global — no nameplate imprint)
-pub const RBTDRM_COLOPHON_INSCRIBE_RELIQUARY: &str = "rbw-dI";
-pub const RBTDRM_COLOPHON_YOKE_RELIQUARY: &str = "rbw-dY";
-pub const RBTDRM_COLOPHON_ENSHRINE_VESSEL: &str = "rbw-dE";
-
-// Governor service-account colophons (global — no nameplate imprint)
-pub const RBTDRM_COLOPHON_GOV_MANTLE: &str = "rbw-aM";
-pub const RBTDRM_COLOPHON_GOV_INVEST_RETRIEVER: &str = "rbw-arI";
-pub const RBTDRM_COLOPHON_GOV_INVEST_DIRECTOR: &str = "rbw-adI";
-pub const RBTDRM_COLOPHON_GOV_DIVEST_RETRIEVER: &str = "rbw-arD";
-pub const RBTDRM_COLOPHON_GOV_DIVEST_DIRECTOR: &str = "rbw-adD";
-
-// Handbook display colophons — one symbolic ref per RBZ_* zipper constant.
-// Onboarding group (8)
-pub const RBTDRM_COLOPHON_ONBOARD_START_HERE: &str = "rbw-o";
-pub const RBTDRM_COLOPHON_ONBOARD_CRASH_COURSE: &str = "rbw-Occ";
-pub const RBTDRM_COLOPHON_ONBOARD_CRED_RETRIEVER: &str = "rbw-Ocr";
-pub const RBTDRM_COLOPHON_ONBOARD_CRED_DIRECTOR: &str = "rbw-Ocd";
-pub const RBTDRM_COLOPHON_ONBOARD_FIRST_CRUCIBLE: &str = "rbw-Ofc";
-pub const RBTDRM_COLOPHON_ONBOARD_DIR_FIRST_BUILD: &str = "rbw-Odf";
-pub const RBTDRM_COLOPHON_ONBOARD_PAYOR_HB: &str = "rbw-Op";
-pub const RBTDRM_COLOPHON_ONBOARD_GOVERNOR_HB: &str = "rbw-Og";
-// Windows group
-pub const RBTDRM_COLOPHON_HANDBOOK_TOP: &str = "rbw-h0";
-pub const RBTDRM_COLOPHON_HANDBOOK_WINDOWS: &str = "rbw-hw";
-pub const RBTDRM_COLOPHON_HW_DOCKER_DESKTOP: &str = "rbw-HWdd";
-pub const RBTDRM_COLOPHON_HW_DOCKER_CONTEXT: &str = "rbw-HWdc";
-// Payor group (3)
-pub const RBTDRM_COLOPHON_PAYOR_ESTABLISH: &str = "rbw-gPE";
-pub const RBTDRM_COLOPHON_PAYOR_REFRESH: &str = "rbw-gPR";
-pub const RBTDRM_COLOPHON_QUOTA_BUILD: &str = "rbw-gq";
 
 // Fixture name consts — single definition per String Boundary Discipline.
 // Crucible fixtures (charge/quench lifecycle)
@@ -210,31 +129,31 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         | RBTDRM_FIXTURE_MORIAH
         | RBTDRM_FIXTURE_SRJCL
         | RBTDRM_FIXTURE_PLUML => Some(&[
-            RBTDRM_COLOPHON_CHARGE,
-            RBTDRM_COLOPHON_QUENCH,
-            RBTDRM_COLOPHON_WRIT,
-            RBTDRM_COLOPHON_FIAT,
-            RBTDRM_COLOPHON_BARK,
-            RBTDRM_COLOPHON_CRUCIBLE_ACTIVE,
+            RBTDGC_CRUCIBLE_CHARGE,
+            RBTDGC_CRUCIBLE_QUENCH,
+            RBTDGC_CRUCIBLE_WRIT,
+            RBTDGC_CRUCIBLE_FIAT,
+            RBTDGC_CRUCIBLE_BARK,
+            RBTDGC_CRUCIBLE_ACTIVE,
         ]),
         RBTDRM_FIXTURE_HALLMARK_LIFECYCLE => Some(&[
-            RBTDRM_COLOPHON_ORDAIN,
-            RBTDRM_COLOPHON_ABJURE,
-            RBTDRM_COLOPHON_REKON_HALLMARK,
-            RBTDRM_COLOPHON_AUDIT_HALLMARKS,
+            RBTDGC_ORDAIN_HALLMARK,
+            RBTDGC_ABJURE_HALLMARK,
+            RBTDGC_REKON_HALLMARK,
+            RBTDGC_AUDIT_HALLMARKS,
         ]),
         RBTDRM_FIXTURE_BATCH_VOUCH => Some(&[
-            RBTDRM_COLOPHON_ORDAIN,
-            RBTDRM_COLOPHON_ABJURE,
-            RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE,
-            RBTDRM_COLOPHON_VOUCH,
-            RBTDRM_COLOPHON_TALLY,
+            RBTDGC_ORDAIN_HALLMARK,
+            RBTDGC_ABJURE_HALLMARK,
+            RBTDGC_JETTISON_HALLMARK_IMAGE,
+            RBTDGC_VOUCH_HALLMARKS,
+            RBTDGC_TALLY_HALLMARKS,
         ]),
         RBTDRM_FIXTURE_ACCESS_PROBE => Some(&[
-            RBTDRM_COLOPHON_CHECK_GOVERNOR,
-            RBTDRM_COLOPHON_CHECK_RETRIEVER,
-            RBTDRM_COLOPHON_CHECK_DIRECTOR,
-            RBTDRM_COLOPHON_CHECK_PAYOR,
+            RBTDGC_CHECK_GOVERNOR,
+            RBTDGC_CHECK_RETRIEVER,
+            RBTDGC_CHECK_DIRECTOR,
+            RBTDGC_CHECK_PAYOR,
         ]),
         RBTDRM_FIXTURE_ENROLLMENT_VALIDATION
         | RBTDRM_FIXTURE_REGIME_VALIDATION
@@ -244,84 +163,84 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         | RBTDRM_FIXTURE_CALIBRANT_PROGRESSING
         | RBTDRM_FIXTURE_CALIBRANT_SENTINEL => Some(&[]),
         RBTDRM_FIXTURE_DOCKERFILE_HYGIENE => Some(&[
-            RBTDRM_COLOPHON_HYGIENE_CHECK,
-            RBTDRM_COLOPHON_HYGIENE_CHECK_VESSEL,
+            RBTDGC_HYGIENE_CHECK_DOCKERFILE,
+            RBTDGC_HYGIENE_CHECK_VESSEL,
         ]),
         RBTDRM_FIXTURE_PRISTINE_LIFECYCLE => Some(&[
-            RBTDRM_COLOPHON_DEPOT_LEVY,
-            RBTDRM_COLOPHON_DEPOT_LIST,
-            RBTDRM_COLOPHON_DEPOT_UNMAKE,
-            RBTDRM_COLOPHON_GOV_MANTLE,
-            RBTDRM_COLOPHON_GOV_INVEST_RETRIEVER,
-            RBTDRM_COLOPHON_GOV_INVEST_DIRECTOR,
-            RBTDRM_COLOPHON_GOV_DIVEST_RETRIEVER,
-            RBTDRM_COLOPHON_GOV_DIVEST_DIRECTOR,
-            RBTDRM_COLOPHON_CHECK_RETRIEVER,
-            RBTDRM_COLOPHON_CHECK_DIRECTOR,
+            RBTDGC_LEVY_DEPOT,
+            RBTDGC_LIST_DEPOT,
+            RBTDGC_UNMAKE_DEPOT,
+            RBTDGC_MANTLE_GOVERNOR,
+            RBTDGC_INVEST_RETRIEVER,
+            RBTDGC_INVEST_DIRECTOR,
+            RBTDGC_DIVEST_RETRIEVER,
+            RBTDGC_DIVEST_DIRECTOR,
+            RBTDGC_CHECK_RETRIEVER,
+            RBTDGC_CHECK_DIRECTOR,
         ]),
         RBTDRM_FIXTURE_CANONICAL_ESTABLISH => Some(&[
-            RBTDRM_COLOPHON_DEPOT_LEVY,
-            RBTDRM_COLOPHON_DEPOT_LIST,
-            RBTDRM_COLOPHON_GOV_MANTLE,
-            RBTDRM_COLOPHON_GOV_INVEST_RETRIEVER,
-            RBTDRM_COLOPHON_GOV_INVEST_DIRECTOR,
-            RBTDRM_COLOPHON_CHECK_RETRIEVER,
-            RBTDRM_COLOPHON_CHECK_DIRECTOR,
+            RBTDGC_LEVY_DEPOT,
+            RBTDGC_LIST_DEPOT,
+            RBTDGC_MANTLE_GOVERNOR,
+            RBTDGC_INVEST_RETRIEVER,
+            RBTDGC_INVEST_DIRECTOR,
+            RBTDGC_CHECK_RETRIEVER,
+            RBTDGC_CHECK_DIRECTOR,
         ]),
         // canonical-invest reuses canonical-establish's investiture cases sans
-        // levy — same colophons minus DEPOT_LEVY (depot is operator-provided).
+        // levy — same colophons minus LEVY_DEPOT (depot is operator-provided).
         RBTDRM_FIXTURE_CANONICAL_INVEST => Some(&[
-            RBTDRM_COLOPHON_DEPOT_LIST,
-            RBTDRM_COLOPHON_GOV_MANTLE,
-            RBTDRM_COLOPHON_GOV_INVEST_RETRIEVER,
-            RBTDRM_COLOPHON_GOV_INVEST_DIRECTOR,
-            RBTDRM_COLOPHON_CHECK_RETRIEVER,
-            RBTDRM_COLOPHON_CHECK_DIRECTOR,
+            RBTDGC_LIST_DEPOT,
+            RBTDGC_MANTLE_GOVERNOR,
+            RBTDGC_INVEST_RETRIEVER,
+            RBTDGC_INVEST_DIRECTOR,
+            RBTDGC_CHECK_RETRIEVER,
+            RBTDGC_CHECK_DIRECTOR,
         ]),
         // kludge-tadmor builds both vessels locally; only the two kludge
         // colophons are exercised (no charge/credential colophons here).
         RBTDRM_FIXTURE_KLUDGE_TADMOR => Some(&[
-            RBTDRM_COLOPHON_KLUDGE_SENTRY,
-            RBTDRM_COLOPHON_KLUDGE_BOTTLE,
+            RBTDGC_CRUCIBLE_KLUDGE_SENTRY,
+            RBTDGC_CRUCIBLE_KLUDGE_BOTTLE,
         ]),
         // dogfight ordains/summons/abjures a single conjure-mode hallmark; the
         // bare container-runtime run is shelled directly, not via a colophon.
         RBTDRM_FIXTURE_DOGFIGHT => Some(&[
-            RBTDRM_COLOPHON_ORDAIN,
-            RBTDRM_COLOPHON_SUMMON,
-            RBTDRM_COLOPHON_ABJURE,
+            RBTDGC_ORDAIN_HALLMARK,
+            RBTDGC_SUMMON_HALLMARK,
+            RBTDGC_ABJURE_HALLMARK,
         ]),
         RBTDRM_FIXTURE_ONBOARDING_SEQUENCE => Some(&[
-            RBTDRM_COLOPHON_INSCRIBE_RELIQUARY,
-            RBTDRM_COLOPHON_YOKE_RELIQUARY,
-            RBTDRM_COLOPHON_ENSHRINE_VESSEL,
-            RBTDRM_COLOPHON_ORDAIN,
-            RBTDRM_COLOPHON_KLUDGE_SENTRY,
-            RBTDRM_COLOPHON_KLUDGE_BOTTLE,
-            RBTDRM_COLOPHON_WREST_HALLMARK_IMAGE,
-            RBTDRM_COLOPHON_SUMMON,
-            RBTDRM_COLOPHON_PLUMB_FULL,
-            RBTDRM_COLOPHON_PLUMB_COMPACT,
-            RBTDRM_COLOPHON_REKON_HALLMARK,
-            RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE,
-            RBTDRM_COLOPHON_ABJURE,
+            RBTDGC_INSCRIBE_RELIQUARY,
+            RBTDGC_YOKE_RELIQUARY,
+            RBTDGC_ENSHRINE_VESSEL,
+            RBTDGC_ORDAIN_HALLMARK,
+            RBTDGC_CRUCIBLE_KLUDGE_SENTRY,
+            RBTDGC_CRUCIBLE_KLUDGE_BOTTLE,
+            RBTDGC_WREST_HALLMARK_IMAGE,
+            RBTDGC_SUMMON_HALLMARK,
+            RBTDGC_PLUMB_FULL,
+            RBTDGC_PLUMB_COMPACT,
+            RBTDGC_REKON_HALLMARK,
+            RBTDGC_JETTISON_HALLMARK_IMAGE,
+            RBTDGC_ABJURE_HALLMARK,
         ]),
         RBTDRM_FIXTURE_HANDBOOK_RENDER => Some(&[
-            RBTDRM_COLOPHON_ONBOARD_START_HERE,
-            RBTDRM_COLOPHON_ONBOARD_CRASH_COURSE,
-            RBTDRM_COLOPHON_ONBOARD_CRED_RETRIEVER,
-            RBTDRM_COLOPHON_ONBOARD_CRED_DIRECTOR,
-            RBTDRM_COLOPHON_ONBOARD_FIRST_CRUCIBLE,
-            RBTDRM_COLOPHON_ONBOARD_DIR_FIRST_BUILD,
-            RBTDRM_COLOPHON_ONBOARD_PAYOR_HB,
-            RBTDRM_COLOPHON_ONBOARD_GOVERNOR_HB,
-            RBTDRM_COLOPHON_HANDBOOK_TOP,
-            RBTDRM_COLOPHON_HANDBOOK_WINDOWS,
-            RBTDRM_COLOPHON_HW_DOCKER_DESKTOP,
-            RBTDRM_COLOPHON_HW_DOCKER_CONTEXT,
-            RBTDRM_COLOPHON_PAYOR_ESTABLISH,
-            RBTDRM_COLOPHON_PAYOR_REFRESH,
-            RBTDRM_COLOPHON_QUOTA_BUILD,
+            RBTDGC_ONBOARD_START_HERE,
+            RBTDGC_ONBOARD_CRASH_COURSE,
+            RBTDGC_ONBOARD_CRED_RETRIEVER,
+            RBTDGC_ONBOARD_CRED_DIRECTOR,
+            RBTDGC_ONBOARD_FIRST_CRUCIBLE,
+            RBTDGC_ONBOARD_DIR_FIRST_BUILD,
+            RBTDGC_ONBOARD_PAYOR_HB,
+            RBTDGC_ONBOARD_GOVERNOR_HB,
+            RBTDGC_HANDBOOK_TOP,
+            RBTDGC_HANDBOOK_WINDOWS,
+            RBTDGC_HW_DOCKER_DESKTOP,
+            RBTDGC_HW_DOCKER_CONTEXT,
+            RBTDGC_PAYOR_ESTABLISH,
+            RBTDGC_PAYOR_REFRESH,
+            RBTDGC_QUOTA_BUILD,
         ]),
         _ => None,
     }

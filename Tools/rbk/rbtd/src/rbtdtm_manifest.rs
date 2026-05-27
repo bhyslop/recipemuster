@@ -16,6 +16,7 @@
 //
 // RBTDTM — tests for colophon manifest verification
 
+use super::rbtdgc_consts::*;
 use super::rbtdrm_manifest::*;
 
 /// Build a manifest string from the required colophons for a fixture.
@@ -54,27 +55,27 @@ fn rbtdtm_accepts_valid_accessprobe_manifest() {
 #[test]
 fn rbtdtm_rejects_missing_colophon() {
     // Manifest with only charge — missing quench and others
-    let manifest = RBTDRM_COLOPHON_CHARGE;
+    let manifest = RBTDGC_CRUCIBLE_CHARGE;
     let err = rbtdrm_verify(manifest, RBTDRM_FIXTURE_TADMOR).unwrap_err();
-    assert!(err.contains(RBTDRM_COLOPHON_QUENCH));
+    assert!(err.contains(RBTDGC_CRUCIBLE_QUENCH));
 }
 
 #[test]
 fn rbtdtm_rejects_empty_manifest() {
     let err = rbtdrm_verify("", RBTDRM_FIXTURE_TADMOR).unwrap_err();
-    assert!(err.contains(RBTDRM_COLOPHON_CHARGE));
+    assert!(err.contains(RBTDGC_CRUCIBLE_CHARGE));
 }
 
 #[test]
 fn rbtdtm_no_partial_match() {
-    let manifest = format!("{}X {}Y", RBTDRM_COLOPHON_CHARGE, RBTDRM_COLOPHON_QUENCH);
+    let manifest = format!("{}X {}Y", RBTDGC_CRUCIBLE_CHARGE, RBTDGC_CRUCIBLE_QUENCH);
     let err = rbtdrm_verify(&manifest, RBTDRM_FIXTURE_TADMOR).unwrap_err();
-    assert!(err.contains(RBTDRM_COLOPHON_CHARGE));
+    assert!(err.contains(RBTDGC_CRUCIBLE_CHARGE));
 }
 
 #[test]
 fn rbtdtm_rejects_unknown_fixture() {
-    let err = rbtdrm_verify(RBTDRM_COLOPHON_CHARGE, "nonexistent").unwrap_err();
+    let err = rbtdrm_verify(RBTDGC_CRUCIBLE_CHARGE, "nonexistent").unwrap_err();
     assert!(err.contains("unknown fixture"));
 }
 
@@ -97,10 +98,10 @@ fn rbtdtm_accepts_valid_pristine_lifecycle_manifest() {
 #[test]
 fn rbtdtm_pristine_lifecycle_rejects_missing_colophon() {
     // Manifest with only the depot levy colophon — missing the other 5
-    let manifest = RBTDRM_COLOPHON_DEPOT_LEVY;
+    let manifest = RBTDGC_LEVY_DEPOT;
     let err = rbtdrm_verify(manifest, RBTDRM_FIXTURE_PRISTINE_LIFECYCLE).unwrap_err();
     // verify returns the first missing colophon — DEPOT_LIST is second in the list
-    assert!(err.contains(RBTDRM_COLOPHON_DEPOT_LIST));
+    assert!(err.contains(RBTDGC_LIST_DEPOT));
 }
 
 #[test]
@@ -112,9 +113,9 @@ fn rbtdtm_accepts_valid_onboarding_sequence_manifest() {
 #[test]
 fn rbtdtm_onboarding_sequence_rejects_missing_colophon() {
     // Manifest with only the inscribe colophon — missing yoke, enshrine, ordain, kludge-sentry, kludge-bottle
-    let manifest = RBTDRM_COLOPHON_INSCRIBE_RELIQUARY;
+    let manifest = RBTDGC_INSCRIBE_RELIQUARY;
     let err = rbtdrm_verify(manifest, RBTDRM_FIXTURE_ONBOARDING_SEQUENCE).unwrap_err();
-    assert!(err.contains(RBTDRM_COLOPHON_YOKE_RELIQUARY));
+    assert!(err.contains(RBTDGC_YOKE_RELIQUARY));
 }
 
 #[test]
@@ -126,9 +127,9 @@ fn rbtdtm_accepts_valid_dogfight_manifest() {
 #[test]
 fn rbtdtm_dogfight_rejects_missing_colophon() {
     // Manifest with only the ordain colophon — missing summon and abjure
-    let manifest = RBTDRM_COLOPHON_ORDAIN;
+    let manifest = RBTDGC_ORDAIN_HALLMARK;
     let err = rbtdrm_verify(manifest, RBTDRM_FIXTURE_DOGFIGHT).unwrap_err();
-    assert!(err.contains(RBTDRM_COLOPHON_SUMMON));
+    assert!(err.contains(RBTDGC_SUMMON_HALLMARK));
 }
 
 #[test]
@@ -140,7 +141,7 @@ fn rbtdtm_accepts_valid_handbook_render_manifest() {
 #[test]
 fn rbtdtm_handbook_render_rejects_missing_colophon() {
     // Manifest with only the onboarding start-here colophon — missing the other 14
-    let manifest = RBTDRM_COLOPHON_ONBOARD_START_HERE;
+    let manifest = RBTDGC_ONBOARD_START_HERE;
     let err = rbtdrm_verify(manifest, RBTDRM_FIXTURE_HANDBOOK_RENDER).unwrap_err();
-    assert!(err.contains(RBTDRM_COLOPHON_ONBOARD_CRASH_COURSE));
+    assert!(err.contains(RBTDGC_ONBOARD_CRASH_COURSE));
 }

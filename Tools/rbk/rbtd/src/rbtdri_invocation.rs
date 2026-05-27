@@ -28,7 +28,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use crate::rbtdre_engine::rbtdre_Verdict;
-use crate::rbtdrm_manifest::RBTDRM_COLOPHON_BARK;
+use crate::rbtdgc_consts::RBTDGC_CRUCIBLE_BARK;
 use crate::rbtdrx_platform::rbtdrx_native_to_posix;
 
 /// Ifrit binary name inside the bottle container.
@@ -361,6 +361,6 @@ pub fn rbtdri_invoke_ifrit(
     ctx: &mut rbtdri_Context,
     attack_selector: &str,
 ) -> Result<rbtdre_Verdict, String> {
-    let result = rbtdri_invoke(ctx, RBTDRM_COLOPHON_BARK, &[RBTDRI_IFRIT_BINARY, attack_selector])?;
+    let result = rbtdri_invoke(ctx, RBTDGC_CRUCIBLE_BARK, &[RBTDRI_IFRIT_BINARY, attack_selector])?;
     Ok(rbtdri_parse_ifrit_verdict(&result.stdout, result.exit_code))
 }

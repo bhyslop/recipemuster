@@ -42,7 +42,8 @@ use rbtd::rbtdri_invocation::{
     rbtdri_Context, rbtdri_invoke_global,
     RBTDRI_BURD_TEMP_DIR_KEY,
 };
-use rbtd::rbtdrm_manifest::{rbtdrm_verify, RBTDRM_COLOPHON_CRUCIBLE_ACTIVE};
+use rbtd::rbtdgc_consts::RBTDGC_CRUCIBLE_ACTIVE;
+use rbtd::rbtdrm_manifest::rbtdrm_verify;
 use rbtd::rbtdrx_platform::rbtdrx_posix_to_native;
 
 fn main() -> ExitCode {
@@ -238,7 +239,7 @@ fn rbtdb_run_single(args: &[String]) -> ExitCode {
     if fixture_def.setup.is_some() {
         match rbtdri_invoke_global(
             &mut ctx,
-            RBTDRM_COLOPHON_CRUCIBLE_ACTIVE,
+            RBTDGC_CRUCIBLE_ACTIVE,
             &[fixture],
             &[],
         ) {

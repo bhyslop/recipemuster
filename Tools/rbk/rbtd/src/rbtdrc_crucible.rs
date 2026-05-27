@@ -36,12 +36,14 @@ use crate::rbtdri_invocation::{
     rbtdri_parse_ifrit_verdict, rbtdri_read_burv_fact, rbtdri_read_burv_facts_multi,
     RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP,
 };
+use crate::rbtdgc_consts::{
+    RBTDGC_ABJURE_HALLMARK, RBTDGC_AUDIT_HALLMARKS, RBTDGC_CRUCIBLE_ACTIVE, RBTDGC_CRUCIBLE_BARK,
+    RBTDGC_CRUCIBLE_CHARGE, RBTDGC_CRUCIBLE_FIAT, RBTDGC_CRUCIBLE_QUENCH, RBTDGC_CRUCIBLE_WRIT,
+    RBTDGC_JETTISON_HALLMARK_IMAGE, RBTDGC_ORDAIN_HALLMARK, RBTDGC_REKON_HALLMARK,
+    RBTDGC_TALLY_HALLMARKS, RBTDGC_VOUCH_HALLMARKS,
+};
 use crate::rbtdrm_manifest::{
-    rbtdrm_credential_check_colophon, RBTDRM_COLOPHON_ABJURE, RBTDRM_COLOPHON_AUDIT_HALLMARKS,
-    RBTDRM_COLOPHON_BARK, RBTDRM_COLOPHON_CHARGE, RBTDRM_COLOPHON_CRUCIBLE_ACTIVE,
-    RBTDRM_COLOPHON_FIAT, RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE, RBTDRM_COLOPHON_ORDAIN,
-    RBTDRM_COLOPHON_QUENCH, RBTDRM_COLOPHON_REKON_HALLMARK, RBTDRM_COLOPHON_TALLY,
-    RBTDRM_COLOPHON_VOUCH, RBTDRM_COLOPHON_WRIT, RBTDRM_ROLE_DIRECTOR, RBTDRM_ROLE_GOVERNOR,
+    rbtdrm_credential_check_colophon, RBTDRM_ROLE_DIRECTOR, RBTDRM_ROLE_GOVERNOR,
     RBTDRM_ROLE_PAYOR, RBTDRM_ROLE_RETRIEVER,
 };
 
@@ -119,7 +121,7 @@ pub fn rbtdrc_quench_crucible() {
 fn zrbtdrc_charge_impl(ctx: &mut rbtdri_Context) -> Result<(), String> {
     let fixture = ctx.fixture().to_string();
     crate::rbtdrg_info_now!("Charging crucible for nameplate '{}'...", fixture);
-    match rbtdri_invoke(ctx, RBTDRM_COLOPHON_CHARGE, &[]) {
+    match rbtdri_invoke(ctx, RBTDGC_CRUCIBLE_CHARGE, &[]) {
         Ok(r) if r.exit_code == 0 => {
             crate::rbtdrg_info_now!("Crucible charged");
         }
@@ -132,7 +134,7 @@ fn zrbtdrc_charge_impl(ctx: &mut rbtdri_Context) -> Result<(), String> {
     }
 
     crate::rbtdrg_info_now!("Verifying crucible is active after charge...");
-    match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_CRUCIBLE_ACTIVE, &[&fixture], &[]) {
+    match rbtdri_invoke_global(ctx, RBTDGC_CRUCIBLE_ACTIVE, &[&fixture], &[]) {
         Ok(r) if r.exit_code == 0 => {
             crate::rbtdrg_info_now!("Crucible active confirmed");
         }
@@ -156,14 +158,14 @@ fn zrbtdrc_charge_impl(ctx: &mut rbtdri_Context) -> Result<(), String> {
 fn zrbtdrc_quench_impl(ctx: &mut rbtdri_Context) {
     let fixture = ctx.fixture().to_string();
     crate::rbtdrg_info_now!("Quenching crucible...");
-    match rbtdri_invoke(ctx, RBTDRM_COLOPHON_QUENCH, &[]) {
+    match rbtdri_invoke(ctx, RBTDGC_CRUCIBLE_QUENCH, &[]) {
         Ok(r) if r.exit_code == 0 => crate::rbtdrg_info_now!("Crucible quenched"),
         Ok(r) => crate::rbtdrg_error_now!("quench exited {}", r.exit_code),
         Err(e) => crate::rbtdrg_error_now!("quench invocation failed: {}", e),
     }
 
     crate::rbtdrg_info_now!("Verifying crucible is inactive after quench...");
-    match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_CRUCIBLE_ACTIVE, &[&fixture], &[]) {
+    match rbtdri_invoke_global(ctx, RBTDGC_CRUCIBLE_ACTIVE, &[&fixture], &[]) {
         Ok(r) if r.exit_code != 0 => {
             crate::rbtdrg_info_now!("Crucible inactive confirmed");
         }
@@ -190,7 +192,7 @@ fn rbtdrc_invoke_ifrit(
     attack: &str,
     dir: &Path,
 ) -> rbtdre_Verdict {
-    let result = match rbtdri_invoke(ctx, RBTDRM_COLOPHON_BARK, &[RBTDRC_IFRIT_BINARY, attack]) {
+    let result = match rbtdri_invoke(ctx, RBTDGC_CRUCIBLE_BARK, &[RBTDRC_IFRIT_BINARY, attack]) {
         Ok(r) => r,
         Err(e) => return rbtdre_Verdict::Fail(format!("bark invocation error: {}", e)),
     };
@@ -208,7 +210,7 @@ fn rbtdrc_invoke_ifrit_with_args(
 ) -> rbtdre_Verdict {
     let mut bark_args = vec![RBTDRC_IFRIT_BINARY, attack];
     bark_args.extend_from_slice(extra_args);
-    let result = match rbtdri_invoke(ctx, RBTDRM_COLOPHON_BARK, &bark_args) {
+    let result = match rbtdri_invoke(ctx, RBTDGC_CRUCIBLE_BARK, &bark_args) {
         Ok(r) => r,
         Err(e) => return rbtdre_Verdict::Fail(format!("bark invocation error: {}", e)),
     };
@@ -219,7 +221,7 @@ fn rbtdrc_invoke_ifrit_with_args(
 
 /// Execute a command in the sentry via writ, returning captured stdout.
 fn rbtdrc_writ(ctx: &mut rbtdri_Context, args: &[&str]) -> Result<String, String> {
-    let result = rbtdri_invoke(ctx, RBTDRM_COLOPHON_WRIT, args)?;
+    let result = rbtdri_invoke(ctx, RBTDGC_CRUCIBLE_WRIT, args)?;
     if result.exit_code != 0 {
         return Err(format!(
             "writ exit {}\nstdout: {}\nstderr: {}",
@@ -231,7 +233,7 @@ fn rbtdrc_writ(ctx: &mut rbtdri_Context, args: &[&str]) -> Result<String, String
 
 /// Execute a command in the pentacle via fiat, returning the invocation result.
 fn rbtdrc_fiat(ctx: &mut rbtdri_Context, args: &[&str]) -> Result<String, String> {
-    let result = rbtdri_invoke(ctx, RBTDRM_COLOPHON_FIAT, args)?;
+    let result = rbtdri_invoke(ctx, RBTDGC_CRUCIBLE_FIAT, args)?;
     if result.exit_code != 0 {
         return Err(format!(
             "fiat exit {}\nstdout: {}\nstderr: {}",
@@ -815,7 +817,7 @@ fn rbtdrc_coordinated_sentry_egress_lockdown(dir: &Path) -> rbtdre_Verdict {
         // Negative: attempt TCP to 1.1.1.1:443 from sentry via bash /dev/tcp
         let tcp1_result = rbtdri_invoke(
             ctx,
-            RBTDRM_COLOPHON_WRIT,
+            RBTDGC_CRUCIBLE_WRIT,
             &["timeout", "2", "bash", "-c", "echo > /dev/tcp/1.1.1.1/443"],
         );
         let tcp1_blocked = match &tcp1_result {
@@ -839,7 +841,7 @@ fn rbtdrc_coordinated_sentry_egress_lockdown(dir: &Path) -> rbtdre_Verdict {
         // Negative: attempt TCP to 140.82.121.4:443 (GitHub) from sentry
         let tcp2_result = rbtdri_invoke(
             ctx,
-            RBTDRM_COLOPHON_WRIT,
+            RBTDGC_CRUCIBLE_WRIT,
             &[
                 "timeout",
                 "2",
@@ -907,7 +909,7 @@ fn rbtdrc_coordinated_dnsmasq_query_audit(dir: &Path) -> rbtdre_Verdict {
         // Invoke ifrit dns-allowed-example via bark
         let allowed_result = match rbtdri_invoke(
             ctx,
-            RBTDRM_COLOPHON_BARK,
+            RBTDGC_CRUCIBLE_BARK,
             &[RBTDRC_IFRIT_BINARY, "dns-allowed-example"],
         ) {
             Ok(r) => r,
@@ -919,7 +921,7 @@ fn rbtdrc_coordinated_dnsmasq_query_audit(dir: &Path) -> rbtdre_Verdict {
         // Invoke ifrit dns-blocked-google via bark
         let blocked_result = match rbtdri_invoke(
             ctx,
-            RBTDRM_COLOPHON_BARK,
+            RBTDGC_CRUCIBLE_BARK,
             &[RBTDRC_IFRIT_BINARY, "dns-blocked-google"],
         ) {
             Ok(r) => r,
@@ -1009,7 +1011,7 @@ fn rbtdrc_coordinated_tcp_rst_hijack(dir: &Path) -> rbtdre_Verdict {
         // Attack: invoke tcp-rst-hijack from bottle
         let result = match rbtdri_invoke(
             ctx,
-            RBTDRM_COLOPHON_BARK,
+            RBTDGC_CRUCIBLE_BARK,
             &[RBTDRC_IFRIT_BINARY, "tcp-rst-hijack"],
         ) {
             Ok(r) => r,
@@ -1110,7 +1112,7 @@ fn rbtdrc_coordinated_arp_gratuitous(dir: &Path) -> rbtdre_Verdict {
         // Execute attack via bark
         let result = match rbtdri_invoke(
             ctx,
-            RBTDRM_COLOPHON_BARK,
+            RBTDGC_CRUCIBLE_BARK,
             &[RBTDRC_IFRIT_BINARY, "arp-send-gratuitous"],
         ) {
             Ok(r) => r,
@@ -1226,7 +1228,7 @@ fn rbtdrc_coordinated_arp_gateway_poison(dir: &Path) -> rbtdre_Verdict {
         // Execute attack via bark
         let result = match rbtdri_invoke(
             ctx,
-            RBTDRM_COLOPHON_BARK,
+            RBTDGC_CRUCIBLE_BARK,
             &[RBTDRC_IFRIT_BINARY, "arp-send-gateway-poison"],
         ) {
             Ok(r) => r,
@@ -1314,7 +1316,7 @@ fn rbtdrc_coordinated_arp_table_stability(dir: &Path) -> rbtdre_Verdict {
         // Run the full ARP sortie (gratuitous + targeted + cache check)
         let result = match rbtdri_invoke(
             ctx,
-            RBTDRM_COLOPHON_BARK,
+            RBTDGC_CRUCIBLE_BARK,
             &[RBTDRC_IFRIT_BINARY, "direct-arp-poison"],
         ) {
             Ok(r) => r,
@@ -1401,7 +1403,7 @@ fn rbtdrc_coordinated_sentry_integrity(dir: &Path) -> rbtdre_Verdict {
         for (i, attack) in attacks.iter().enumerate() {
             let result = rbtdri_invoke(
                 ctx,
-                RBTDRM_COLOPHON_BARK,
+                RBTDGC_CRUCIBLE_BARK,
                 &[RBTDRC_IFRIT_BINARY, attack],
             );
             if let Ok(r) = &result {
@@ -1510,7 +1512,7 @@ fn rbtdrc_coordinated_dns_cache_integrity(dir: &Path) -> rbtdre_Verdict {
         // Pre-snapshot: query google.com via sentry's dnsmasq (blocked)
         let pre_google_result = rbtdri_invoke(
             ctx,
-            RBTDRM_COLOPHON_WRIT,
+            RBTDGC_CRUCIBLE_WRIT,
             &["dig", "+short", "+time=2", "+tries=1", &dig_server, "google.com"],
         );
         let pre_google = match &pre_google_result {
@@ -1522,7 +1524,7 @@ fn rbtdrc_coordinated_dns_cache_integrity(dir: &Path) -> rbtdre_Verdict {
         // Attack: invoke dns-forge-response from bottle
         let result = match rbtdri_invoke(
             ctx,
-            RBTDRM_COLOPHON_BARK,
+            RBTDGC_CRUCIBLE_BARK,
             &[RBTDRC_IFRIT_BINARY, "dns-forge-response"],
         ) {
             Ok(r) => r,
@@ -1548,7 +1550,7 @@ fn rbtdrc_coordinated_dns_cache_integrity(dir: &Path) -> rbtdre_Verdict {
         // Post-snapshot: query google.com again
         let post_google_result = rbtdri_invoke(
             ctx,
-            RBTDRM_COLOPHON_WRIT,
+            RBTDGC_CRUCIBLE_WRIT,
             &["dig", "+short", "+time=2", "+tries=1", &dig_server, "google.com"],
         );
         let post_google = match &post_google_result {
@@ -1626,7 +1628,7 @@ fn rbtdrc_coordinated_mac_flood_resilience(dir: &Path) -> rbtdre_Verdict {
         // Attack: invoke mac-flood-bridge from bottle
         let result = match rbtdri_invoke(
             ctx,
-            RBTDRM_COLOPHON_BARK,
+            RBTDGC_CRUCIBLE_BARK,
             &[RBTDRC_IFRIT_BINARY, "mac-flood-bridge"],
         ) {
             Ok(r) => r,
@@ -1672,7 +1674,7 @@ fn rbtdrc_coordinated_mac_flood_resilience(dir: &Path) -> rbtdre_Verdict {
         // Post: bark still works (sentry→bottle direction)
         match rbtdri_invoke(
             ctx,
-            RBTDRM_COLOPHON_BARK,
+            RBTDGC_CRUCIBLE_BARK,
             &["echo", "post-connectivity-check"],
         ) {
             Ok(r) if r.exit_code == 0 => {
@@ -1791,7 +1793,7 @@ fn rbtdrc_curl_post_stdin(url: &str, body: &str) -> Result<String, String> {
 fn rbtdrc_srjcl_jupyter_running(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
         let result =
-            match rbtdri_invoke(ctx, RBTDRM_COLOPHON_BARK, &["ps", "aux"]) {
+            match rbtdri_invoke(ctx, RBTDGC_CRUCIBLE_BARK, &["ps", "aux"]) {
                 Ok(r) => r,
                 Err(e) => return rbtdre_Verdict::Fail(format!("bark ps aux: {}", e)),
             };
@@ -2589,7 +2591,7 @@ fn rbtdrc_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
 
         // Step 1: baseline audit.
         let _ = std::fs::write(dir.join("01-audit-baseline.txt"), "auditing baseline");
-        let baseline_audit = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_AUDIT_HALLMARKS, &[], &[]) {
+        let baseline_audit = match rbtdri_invoke_global(ctx, RBTDGC_AUDIT_HALLMARKS, &[], &[]) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtdre_Verdict::Fail(format!("baseline audit failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("baseline audit invocation: {}", e)),
@@ -2603,7 +2605,7 @@ fn rbtdrc_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
 
         // Step 2: ordain.
         let _ = std::fs::write(dir.join("02-ordain.txt"), "ordaining busybox");
-        let ordain_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ORDAIN, &[vessel_dir], &[]) {
+        let ordain_result = match rbtdri_invoke_global(ctx, RBTDGC_ORDAIN_HALLMARK, &[vessel_dir], &[]) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtdre_Verdict::Fail(format!("ordain failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("ordain invocation: {}", e)),
@@ -2616,7 +2618,7 @@ fn rbtdrc_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
 
         // Step 3: audit shows new hallmark added.
         let _ = std::fs::write(dir.join("03-audit-after-ordain.txt"), "auditing after ordain");
-        let after_ordain_audit = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_AUDIT_HALLMARKS, &[], &[]) {
+        let after_ordain_audit = match rbtdri_invoke_global(ctx, RBTDGC_AUDIT_HALLMARKS, &[], &[]) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtdre_Verdict::Fail(format!("post-ordain audit failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("post-ordain audit invocation: {}", e)),
@@ -2638,7 +2640,7 @@ fn rbtdrc_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
 
         // Step 4: rekon shows all five ark basenames present.
         let _ = std::fs::write(dir.join("04-rekon-after-ordain.txt"), "rekoning after ordain");
-        let rekon_after_ordain = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_REKON_HALLMARK, &[&hallmark], &[]) {
+        let rekon_after_ordain = match rbtdri_invoke_global(ctx, RBTDGC_REKON_HALLMARK, &[&hallmark], &[]) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtdre_Verdict::Fail(format!("post-ordain rekon failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("post-ordain rekon invocation: {}", e)),
@@ -2655,7 +2657,7 @@ fn rbtdrc_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
 
         // Step 5: abjure.
         let _ = std::fs::write(dir.join("05-abjure.txt"), "abjuring");
-        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ABJURE, &[&hallmark], &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)]) {
+        match rbtdri_invoke_global(ctx, RBTDGC_ABJURE_HALLMARK, &[&hallmark], &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtdre_Verdict::Fail(format!("abjure failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("abjure invocation: {}", e)),
@@ -2666,7 +2668,7 @@ fn rbtdrc_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
         // normative). Stdout captured for diagnostic value only; never read
         // for assertions.
         let _ = std::fs::write(dir.join("06-rekon-after-abjure.txt"), "rekoning after abjure");
-        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_REKON_HALLMARK, &[&hallmark], &[]) {
+        match rbtdri_invoke_global(ctx, RBTDGC_REKON_HALLMARK, &[&hallmark], &[]) {
             Ok(r) if r.exit_code != 0 => {
                 let _ = std::fs::write(dir.join("06-rekon-after-abjure-stdout.txt"), &r.stdout);
             }
@@ -2682,7 +2684,7 @@ fn rbtdrc_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
 
         // Step 7: final audit — registry restored to baseline.
         let _ = std::fs::write(dir.join("07-audit-final.txt"), "auditing final");
-        let final_audit = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_AUDIT_HALLMARKS, &[], &[]) {
+        let final_audit = match rbtdri_invoke_global(ctx, RBTDGC_AUDIT_HALLMARKS, &[], &[]) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtdre_Verdict::Fail(format!("final audit failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("final audit invocation: {}", e)),
@@ -2732,7 +2734,7 @@ fn rbtdrc_batch_vouch_lifecycle(dir: &Path) -> rbtdre_Verdict {
         }
 
         let _ = std::fs::write(dir.join("01-ordain.txt"), "ordaining conjure for plant");
-        let ordain_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ORDAIN, &[vessel_dir], &[]) {
+        let ordain_result = match rbtdri_invoke_global(ctx, RBTDGC_ORDAIN_HALLMARK, &[vessel_dir], &[]) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtdre_Verdict::Fail(format!("ordain failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("ordain invocation: {}", e)),
@@ -2749,7 +2751,7 @@ fn rbtdrc_batch_vouch_lifecycle(dir: &Path) -> rbtdre_Verdict {
             "{}/{}/{}:{}",
             RBTDRC_GAR_CATEGORY_HALLMARKS, hallmark, RBTDRC_ARK_BASENAME_VOUCH, hallmark
         );
-        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE, &[&jettison_locator], &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)]) {
+        match rbtdri_invoke_global(ctx, RBTDGC_JETTISON_HALLMARK_IMAGE, &[&jettison_locator], &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtdre_Verdict::Fail(format!("plant jettison failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("plant jettison invocation: {}", e)),
@@ -2757,7 +2759,7 @@ fn rbtdrc_batch_vouch_lifecycle(dir: &Path) -> rbtdre_Verdict {
 
         // Tally — expect pending classification on our hallmark.
         let _ = std::fs::write(dir.join("03-tally-pending.txt"), "tallying for pending");
-        let tally_pending = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_TALLY, &[], &[]) {
+        let tally_pending = match rbtdri_invoke_global(ctx, RBTDGC_TALLY_HALLMARKS, &[], &[]) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtdre_Verdict::Fail(format!("tally (pending) failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("tally (pending) invocation: {}", e)),
@@ -2777,7 +2779,7 @@ fn rbtdrc_batch_vouch_lifecycle(dir: &Path) -> rbtdre_Verdict {
 
         // Batch vouch — should detect the pending hallmark and re-create vouch.
         let _ = std::fs::write(dir.join("04-batch-vouch.txt"), "running batch vouch");
-        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_VOUCH, &[], &[]) {
+        match rbtdri_invoke_global(ctx, RBTDGC_VOUCH_HALLMARKS, &[], &[]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtdre_Verdict::Fail(format!("batch_vouch failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("batch_vouch invocation: {}", e)),
@@ -2785,7 +2787,7 @@ fn rbtdrc_batch_vouch_lifecycle(dir: &Path) -> rbtdre_Verdict {
 
         // Tally — expect vouched after batch_vouch.
         let _ = std::fs::write(dir.join("05-tally-vouched.txt"), "tallying for vouched");
-        let tally_vouched = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_TALLY, &[], &[]) {
+        let tally_vouched = match rbtdri_invoke_global(ctx, RBTDGC_TALLY_HALLMARKS, &[], &[]) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtdre_Verdict::Fail(format!("tally (vouched) failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("tally (vouched) invocation: {}", e)),
@@ -2804,7 +2806,7 @@ fn rbtdrc_batch_vouch_lifecycle(dir: &Path) -> rbtdre_Verdict {
         }
 
         let _ = std::fs::write(dir.join("06-abjure.txt"), "abjuring");
-        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ABJURE, &[&hallmark], &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)]) {
+        match rbtdri_invoke_global(ctx, RBTDGC_ABJURE_HALLMARK, &[&hallmark], &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtdre_Verdict::Fail(format!("abjure failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("abjure invocation: {}", e)),

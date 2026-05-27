@@ -20,9 +20,8 @@ use std::path::PathBuf;
 
 use super::rbtdre_engine::rbtdre_Verdict;
 use super::rbtdri_invocation::*;
-use super::rbtdrm_manifest::{
-    RBTDRM_COLOPHON_CHARGE, RBTDRM_COLOPHON_ORDAIN, RBTDRM_FIXTURE_SRJCL, RBTDRM_FIXTURE_TADMOR,
-};
+use super::rbtdgc_consts::{RBTDGC_CRUCIBLE_BARK, RBTDGC_CRUCIBLE_CHARGE, RBTDGC_CRUCIBLE_WRIT, RBTDGC_ORDAIN_HALLMARK};
+use super::rbtdrm_manifest::{RBTDRM_FIXTURE_SRJCL, RBTDRM_FIXTURE_TADMOR};
 use super::rbtdth_helpers::rbtdth_scratch_root;
 
 fn rbtdti_make_temp(label: &str) -> PathBuf {
@@ -53,12 +52,12 @@ fn rbtdti_write_script(tt_dir: &PathBuf, name: &str, body: &str) {
 fn rbtdti_finds_matching_tabtarget() {
     let tmp = rbtdti_make_temp("find-match");
     let tt = rbtdti_make_tt_dir(&tmp);
-    rbtdti_write_script(&tt, "rbw-cb.Bark.tadmor.sh", "exit 0\n");
+    rbtdti_write_script(&tt, &format!("{}.Bark.tadmor.sh", RBTDGC_CRUCIBLE_BARK), "exit 0\n");
 
-    let result = rbtdri_find_tabtarget(&tmp, "rbw-cb", "tadmor");
+    let result = rbtdri_find_tabtarget(&tmp, RBTDGC_CRUCIBLE_BARK, "tadmor");
     assert!(result.is_ok());
     let path = result.unwrap();
-    assert!(path.file_name().unwrap().to_str().unwrap() == "rbw-cb.Bark.tadmor.sh");
+    assert!(path.file_name().unwrap().to_str().unwrap() == &format!("{}.Bark.tadmor.sh", RBTDGC_CRUCIBLE_BARK));
 
     let _ = std::fs::remove_dir_all(&tmp);
 }
@@ -68,7 +67,7 @@ fn rbtdti_find_rejects_no_match() {
     let tmp = rbtdti_make_temp("find-nomatch");
     let _tt = rbtdti_make_tt_dir(&tmp);
 
-    let result = rbtdri_find_tabtarget(&tmp, "rbw-cb", "tadmor");
+    let result = rbtdri_find_tabtarget(&tmp, RBTDGC_CRUCIBLE_BARK, "tadmor");
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("no tabtarget"));
 
@@ -79,10 +78,10 @@ fn rbtdti_find_rejects_no_match() {
 fn rbtdti_find_rejects_multiple_matches() {
     let tmp = rbtdti_make_temp("find-multi");
     let tt = rbtdti_make_tt_dir(&tmp);
-    rbtdti_write_script(&tt, "rbw-cb.Bark.tadmor.sh", "exit 0\n");
-    rbtdti_write_script(&tt, "rbw-cb.AlsoBark.tadmor.sh", "exit 0\n");
+    rbtdti_write_script(&tt, &format!("{}.Bark.tadmor.sh", RBTDGC_CRUCIBLE_BARK), "exit 0\n");
+    rbtdti_write_script(&tt, &format!("{}.AlsoBark.tadmor.sh", RBTDGC_CRUCIBLE_BARK), "exit 0\n");
 
-    let result = rbtdri_find_tabtarget(&tmp, "rbw-cb", "tadmor");
+    let result = rbtdri_find_tabtarget(&tmp, RBTDGC_CRUCIBLE_BARK, "tadmor");
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("2 tabtargets"));
 
@@ -93,9 +92,9 @@ fn rbtdti_find_rejects_multiple_matches() {
 fn rbtdti_find_does_not_match_wrong_nameplate() {
     let tmp = rbtdti_make_temp("find-wrongnp");
     let tt = rbtdti_make_tt_dir(&tmp);
-    rbtdti_write_script(&tt, "rbw-cb.Bark.tadmor.sh", "exit 0\n");
+    rbtdti_write_script(&tt, &format!("{}.Bark.tadmor.sh", RBTDGC_CRUCIBLE_BARK), "exit 0\n");
 
-    let result = rbtdri_find_tabtarget(&tmp, "rbw-cb", "srjcl");
+    let result = rbtdri_find_tabtarget(&tmp, RBTDGC_CRUCIBLE_BARK, "srjcl");
     assert!(result.is_err());
 
     let _ = std::fs::remove_dir_all(&tmp);
@@ -105,9 +104,9 @@ fn rbtdti_find_does_not_match_wrong_nameplate() {
 fn rbtdti_find_does_not_match_wrong_colophon() {
     let tmp = rbtdti_make_temp("find-wrongcol");
     let tt = rbtdti_make_tt_dir(&tmp);
-    rbtdti_write_script(&tt, "rbw-cb.Bark.tadmor.sh", "exit 0\n");
+    rbtdti_write_script(&tt, &format!("{}.Bark.tadmor.sh", RBTDGC_CRUCIBLE_BARK), "exit 0\n");
 
-    let result = rbtdri_find_tabtarget(&tmp, "rbw-cw", "tadmor");
+    let result = rbtdri_find_tabtarget(&tmp, RBTDGC_CRUCIBLE_WRIT, "tadmor");
     assert!(result.is_err());
 
     let _ = std::fs::remove_dir_all(&tmp);
@@ -117,10 +116,15 @@ fn rbtdti_find_does_not_match_wrong_colophon() {
 fn rbtdti_find_no_partial_colophon_match() {
     let tmp = rbtdti_make_temp("find-partial");
     let tt = rbtdti_make_tt_dir(&tmp);
-    rbtdti_write_script(&tt, "rbw-cbb.Bark.tadmor.sh", "exit 0\n");
+    rbtdti_write_script(&tt, &format!("{}b.Bark.tadmor.sh", RBTDGC_CRUCIBLE_BARK), "exit 0\n");
 
-    let result = rbtdri_find_tabtarget(&tmp, "rbw-cb", "tadmor");
-    assert!(result.is_err(), "rbw-cbb should not match rbw-cb");
+    let result = rbtdri_find_tabtarget(&tmp, RBTDGC_CRUCIBLE_BARK, "tadmor");
+    assert!(
+        result.is_err(),
+        "{}b should not match {}",
+        RBTDGC_CRUCIBLE_BARK,
+        RBTDGC_CRUCIBLE_BARK
+    );
 
     let _ = std::fs::remove_dir_all(&tmp);
 }
@@ -194,12 +198,12 @@ fn rbtdti_parse_ifrit_empty_stdout() {
 fn rbtdti_invoke_creates_burv_dirs() {
     let tmp = rbtdti_make_temp("invoke-burv");
     let tt = rbtdti_make_tt_dir(&tmp);
-    rbtdti_write_script(&tt, "rbw-cb.Bark.testplate.sh", "exit 0\n");
+    rbtdti_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTDGC_CRUCIBLE_BARK), "exit 0\n");
 
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
     let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
-    let result = rbtdri_invoke(&mut ctx, "rbw-cb", &[]);
+    let result = rbtdri_invoke(&mut ctx, RBTDGC_CRUCIBLE_BARK, &[]);
 
     assert!(result.is_ok());
     assert!(burv_output_root.join(rbtdri_invoke_dir_name(0)).is_dir());
@@ -213,14 +217,14 @@ fn rbtdti_invoke_creates_burv_dirs() {
 fn rbtdti_invoke_sequential_burv_isolation() {
     let tmp = rbtdti_make_temp("invoke-seq");
     let tt = rbtdti_make_tt_dir(&tmp);
-    rbtdti_write_script(&tt, "rbw-cb.Bark.testplate.sh", "exit 0\n");
+    rbtdti_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTDGC_CRUCIBLE_BARK), "exit 0\n");
 
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
     let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
 
-    let _ = rbtdri_invoke(&mut ctx, "rbw-cb", &[]).unwrap();
-    let _ = rbtdri_invoke(&mut ctx, "rbw-cb", &[]).unwrap();
+    let _ = rbtdri_invoke(&mut ctx, RBTDGC_CRUCIBLE_BARK, &[]).unwrap();
+    let _ = rbtdri_invoke(&mut ctx, RBTDGC_CRUCIBLE_BARK, &[]).unwrap();
 
     assert_eq!(ctx.invoke_count, 2);
     assert!(burv_output_root.join(rbtdri_invoke_dir_name(0)).is_dir());
@@ -237,12 +241,12 @@ fn rbtdti_invoke_sequential_burv_isolation() {
 fn rbtdti_invoke_captures_stdout() {
     let tmp = rbtdti_make_temp("invoke-stdout");
     let tt = rbtdti_make_tt_dir(&tmp);
-    rbtdti_write_script(&tt, "rbw-cb.Bark.testplate.sh", "echo 'hello stdout'\n");
+    rbtdti_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTDGC_CRUCIBLE_BARK), "echo 'hello stdout'\n");
 
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
     let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
-    let result = rbtdri_invoke(&mut ctx, "rbw-cb", &[]).unwrap();
+    let result = rbtdri_invoke(&mut ctx, RBTDGC_CRUCIBLE_BARK, &[]).unwrap();
 
     assert!(result.stdout.contains("hello stdout"));
     assert_eq!(result.exit_code, 0);
@@ -254,12 +258,12 @@ fn rbtdti_invoke_captures_stdout() {
 fn rbtdti_invoke_captures_stderr() {
     let tmp = rbtdti_make_temp("invoke-stderr");
     let tt = rbtdti_make_tt_dir(&tmp);
-    rbtdti_write_script(&tt, "rbw-cb.Bark.testplate.sh", "echo 'hello stderr' >&2\n");
+    rbtdti_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTDGC_CRUCIBLE_BARK), "echo 'hello stderr' >&2\n");
 
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
     let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
-    let result = rbtdri_invoke(&mut ctx, "rbw-cb", &[]).unwrap();
+    let result = rbtdri_invoke(&mut ctx, RBTDGC_CRUCIBLE_BARK, &[]).unwrap();
 
     assert!(result.stderr.contains("hello stderr"));
 
@@ -270,12 +274,12 @@ fn rbtdti_invoke_captures_stderr() {
 fn rbtdti_invoke_captures_nonzero_exit() {
     let tmp = rbtdti_make_temp("invoke-exit");
     let tt = rbtdti_make_tt_dir(&tmp);
-    rbtdti_write_script(&tt, "rbw-cb.Bark.testplate.sh", "exit 7\n");
+    rbtdti_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTDGC_CRUCIBLE_BARK), "exit 7\n");
 
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
     let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
-    let result = rbtdri_invoke(&mut ctx, "rbw-cb", &[]).unwrap();
+    let result = rbtdri_invoke(&mut ctx, RBTDGC_CRUCIBLE_BARK, &[]).unwrap();
 
     assert_eq!(result.exit_code, 7);
 
@@ -286,12 +290,12 @@ fn rbtdti_invoke_captures_nonzero_exit() {
 fn rbtdti_invoke_passes_args() {
     let tmp = rbtdti_make_temp("invoke-args");
     let tt = rbtdti_make_tt_dir(&tmp);
-    rbtdti_write_script(&tt, "rbw-cb.Bark.testplate.sh", "echo \"args: $*\"\n");
+    rbtdti_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTDGC_CRUCIBLE_BARK), "echo \"args: $*\"\n");
 
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
     let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
-    let result = rbtdri_invoke(&mut ctx, "rbw-cb", &["alpha", "bravo"]).unwrap();
+    let result = rbtdri_invoke(&mut ctx, RBTDGC_CRUCIBLE_BARK, &["alpha", "bravo"]).unwrap();
 
     assert!(result.stdout.contains("args: alpha bravo"));
 
@@ -304,14 +308,14 @@ fn rbtdti_invoke_sets_burv_env_vars() {
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(
         &tt,
-        "rbw-cb.Bark.testplate.sh",
+        &format!("{}.Bark.testplate.sh", RBTDGC_CRUCIBLE_BARK),
         "echo \"OUT:${BURV_OUTPUT_ROOT_DIR}\"\necho \"TMP:${BURV_TEMP_ROOT_DIR}\"\n",
     );
 
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
     let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
-    let result = rbtdri_invoke(&mut ctx, "rbw-cb", &[]).unwrap();
+    let result = rbtdri_invoke(&mut ctx, RBTDGC_CRUCIBLE_BARK, &[]).unwrap();
 
     let expected_output = burv_output_root.join(rbtdri_invoke_dir_name(0));
     let expected_temp = burv_temp_root.join(rbtdri_invoke_dir_name(0));
@@ -327,12 +331,12 @@ fn rbtdti_invoke_sets_burv_env_vars() {
 fn rbtdti_invoke_returns_burv_output_path() {
     let tmp = rbtdti_make_temp("invoke-burvpath");
     let tt = rbtdti_make_tt_dir(&tmp);
-    rbtdti_write_script(&tt, "rbw-cb.Bark.testplate.sh", "exit 0\n");
+    rbtdti_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTDGC_CRUCIBLE_BARK), "exit 0\n");
 
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
     let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
-    let result = rbtdri_invoke(&mut ctx, "rbw-cb", &[]).unwrap();
+    let result = rbtdri_invoke(&mut ctx, RBTDGC_CRUCIBLE_BARK, &[]).unwrap();
 
     assert_eq!(result.burv_output, burv_output_root.join(rbtdri_invoke_dir_name(0)));
     assert!(result.burv_output.is_dir());
@@ -346,10 +350,10 @@ fn rbtdti_invoke_returns_burv_output_path() {
 fn rbtdti_find_global_matches() {
     let tmp = rbtdti_make_temp("global-match");
     let tt = rbtdti_make_tt_dir(&tmp);
-    let script_name = format!("{}.DirectorOrdains.sh", RBTDRM_COLOPHON_ORDAIN);
+    let script_name = format!("{}.DirectorOrdains.sh", RBTDGC_ORDAIN_HALLMARK);
     rbtdti_write_script(&tt, &script_name, "exit 0\n");
 
-    let result = rbtdri_find_tabtarget_global(&tmp, RBTDRM_COLOPHON_ORDAIN);
+    let result = rbtdri_find_tabtarget_global(&tmp, RBTDGC_ORDAIN_HALLMARK);
     assert!(result.is_ok());
     assert!(result.unwrap().file_name().unwrap().to_str().unwrap() == script_name);
 
@@ -361,10 +365,10 @@ fn rbtdti_find_global_rejects_imprint_suffix() {
     let tmp = rbtdti_make_temp("global-imprint");
     let tt = rbtdti_make_tt_dir(&tmp);
     // Only an imprint-scoped tabtarget — global discovery should not find it
-    let script_name = format!("{}.DirectorOrdains.tadmor.sh", RBTDRM_COLOPHON_ORDAIN);
+    let script_name = format!("{}.DirectorOrdains.tadmor.sh", RBTDGC_ORDAIN_HALLMARK);
     rbtdti_write_script(&tt, &script_name, "exit 0\n");
 
-    let result = rbtdri_find_tabtarget_global(&tmp, RBTDRM_COLOPHON_ORDAIN);
+    let result = rbtdri_find_tabtarget_global(&tmp, RBTDGC_ORDAIN_HALLMARK);
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("no global tabtarget"));
 
@@ -376,7 +380,7 @@ fn rbtdti_find_global_rejects_no_match() {
     let tmp = rbtdti_make_temp("global-nomatch");
     let _tt = rbtdti_make_tt_dir(&tmp);
 
-    let result = rbtdri_find_tabtarget_global(&tmp, RBTDRM_COLOPHON_ORDAIN);
+    let result = rbtdri_find_tabtarget_global(&tmp, RBTDGC_ORDAIN_HALLMARK);
     assert!(result.is_err());
 
     let _ = std::fs::remove_dir_all(&tmp);
@@ -388,7 +392,7 @@ fn rbtdti_find_global_rejects_no_match() {
 fn rbtdti_invoke_global_passes_extra_env() {
     let tmp = rbtdti_make_temp("invoke-global-env");
     let tt = rbtdti_make_tt_dir(&tmp);
-    let script_name = format!("{}.DirectorOrdains.sh", RBTDRM_COLOPHON_ORDAIN);
+    let script_name = format!("{}.DirectorOrdains.sh", RBTDGC_ORDAIN_HALLMARK);
     rbtdti_write_script(
         &tt,
         &script_name,
@@ -400,7 +404,7 @@ fn rbtdti_invoke_global_passes_extra_env() {
     let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
     let result = rbtdri_invoke_global(
         &mut ctx,
-        RBTDRM_COLOPHON_ORDAIN,
+        RBTDGC_ORDAIN_HALLMARK,
         &[],
         &[("BURE_TWEAK_NAME", "threemodegraft")],
     )
@@ -417,8 +421,8 @@ fn rbtdti_invoke_global_passes_extra_env() {
 fn rbtdti_invoke_imprint_finds_correct_target() {
     let tmp = rbtdti_make_temp("invoke-imprint");
     let tt = rbtdti_make_tt_dir(&tmp);
-    let charge_tadmor = format!("{}.Charge.{}.sh", RBTDRM_COLOPHON_CHARGE, RBTDRM_FIXTURE_TADMOR);
-    let charge_srjcl = format!("{}.Charge.{}.sh", RBTDRM_COLOPHON_CHARGE, RBTDRM_FIXTURE_SRJCL);
+    let charge_tadmor = format!("{}.Charge.{}.sh", RBTDGC_CRUCIBLE_CHARGE, RBTDRM_FIXTURE_TADMOR);
+    let charge_srjcl = format!("{}.Charge.{}.sh", RBTDGC_CRUCIBLE_CHARGE, RBTDRM_FIXTURE_SRJCL);
     rbtdti_write_script(&tt, &charge_tadmor, &format!("echo '{}'\n", RBTDRM_FIXTURE_TADMOR));
     rbtdti_write_script(&tt, &charge_srjcl, &format!("echo '{}'\n", RBTDRM_FIXTURE_SRJCL));
 
@@ -426,7 +430,7 @@ fn rbtdti_invoke_imprint_finds_correct_target() {
     let burv_output_root = tmp.join("burv-output");
     let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
     let result =
-        rbtdri_invoke_imprint(&mut ctx, RBTDRM_COLOPHON_CHARGE, RBTDRM_FIXTURE_TADMOR, &[]).unwrap();
+        rbtdri_invoke_imprint(&mut ctx, RBTDGC_CRUCIBLE_CHARGE, RBTDRM_FIXTURE_TADMOR, &[]).unwrap();
 
     assert!(result.stdout.contains(RBTDRM_FIXTURE_TADMOR));
 
@@ -441,14 +445,14 @@ fn rbtdti_read_burv_fact_reads_value() {
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(
         &tt,
-        "rbw-cb.Bark.testplate.sh",
+        &format!("{}.Bark.testplate.sh", RBTDGC_CRUCIBLE_BARK),
         "mkdir -p \"${BURV_OUTPUT_ROOT_DIR}/current\"\necho 'c260305-r260305' > \"${BURV_OUTPUT_ROOT_DIR}/current/rbf_fact_hallmark\"\n",
     );
 
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
     let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
-    let result = rbtdri_invoke(&mut ctx, "rbw-cb", &[]).unwrap();
+    let result = rbtdri_invoke(&mut ctx, RBTDGC_CRUCIBLE_BARK, &[]).unwrap();
 
     let fact = rbtdri_read_burv_fact(&result, "rbf_fact_hallmark").unwrap();
     assert_eq!(fact, "c260305-r260305");
@@ -460,12 +464,12 @@ fn rbtdti_read_burv_fact_reads_value() {
 fn rbtdti_read_burv_fact_rejects_missing() {
     let tmp = rbtdti_make_temp("burv-fact-missing");
     let tt = rbtdti_make_tt_dir(&tmp);
-    rbtdti_write_script(&tt, "rbw-cb.Bark.testplate.sh", "exit 0\n");
+    rbtdti_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTDGC_CRUCIBLE_BARK), "exit 0\n");
 
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
     let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
-    let result = rbtdri_invoke(&mut ctx, "rbw-cb", &[]).unwrap();
+    let result = rbtdri_invoke(&mut ctx, RBTDGC_CRUCIBLE_BARK, &[]).unwrap();
 
     let fact = rbtdri_read_burv_fact(&result, "rbf_fact_hallmark");
     assert!(fact.is_err());
@@ -483,7 +487,7 @@ fn rbtdti_invoke_fails_no_tabtarget() {
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
     let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
-    let result = rbtdri_invoke(&mut ctx, "rbw-cb", &[]);
+    let result = rbtdri_invoke(&mut ctx, RBTDGC_CRUCIBLE_BARK, &[]);
 
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("no tabtarget"));

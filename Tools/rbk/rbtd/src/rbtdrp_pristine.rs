@@ -35,11 +35,12 @@ use crate::rbtdri_invocation::{
     rbtdri_invoke_global, rbtdri_read_burv_fact, rbtdri_Context,
     RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP, RBTDRI_BURV_OUTPUT_SUBDIR,
 };
+use crate::rbtdgc_consts::{
+    RBTDGC_CHECK_DIRECTOR, RBTDGC_CHECK_RETRIEVER, RBTDGC_DIVEST_DIRECTOR,
+    RBTDGC_DIVEST_RETRIEVER, RBTDGC_INVEST_DIRECTOR, RBTDGC_INVEST_RETRIEVER,
+    RBTDGC_LEVY_DEPOT, RBTDGC_LIST_DEPOT, RBTDGC_MANTLE_GOVERNOR, RBTDGC_UNMAKE_DEPOT,
+};
 use crate::rbtdrm_manifest::{
-    RBTDRM_COLOPHON_CHECK_DIRECTOR, RBTDRM_COLOPHON_CHECK_RETRIEVER, RBTDRM_COLOPHON_DEPOT_LEVY,
-    RBTDRM_COLOPHON_DEPOT_LIST, RBTDRM_COLOPHON_DEPOT_UNMAKE, RBTDRM_COLOPHON_GOV_DIVEST_DIRECTOR,
-    RBTDRM_COLOPHON_GOV_DIVEST_RETRIEVER, RBTDRM_COLOPHON_GOV_INVEST_DIRECTOR,
-    RBTDRM_COLOPHON_GOV_INVEST_RETRIEVER, RBTDRM_COLOPHON_GOV_MANTLE,
     RBTDRM_FIXTURE_PRISTINE_LIFECYCLE, RBTDRM_ROLE_DIRECTOR, RBTDRM_ROLE_GOVERNOR,
     RBTDRM_ROLE_RETRIEVER,
 };
@@ -724,7 +725,7 @@ fn rbtdrp_depot_stand_up_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Ve
 
     let list_pre = match rbtdrp_invoke_logged(
         ctx,
-        RBTDRM_COLOPHON_DEPOT_LIST,
+        RBTDGC_LIST_DEPOT,
         &[],
         &[],
         dir,
@@ -755,7 +756,7 @@ fn rbtdrp_depot_stand_up_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Ve
 
     let levy = match rbtdrp_invoke_logged(
         ctx,
-        RBTDRM_COLOPHON_DEPOT_LEVY,
+        RBTDGC_LEVY_DEPOT,
         &[],
         &[],
         dir,
@@ -773,7 +774,7 @@ fn rbtdrp_depot_stand_up_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Ve
 
     let list_present = match rbtdrp_invoke_logged(
         ctx,
-        RBTDRM_COLOPHON_DEPOT_LIST,
+        RBTDGC_LIST_DEPOT,
         &[],
         &[],
         dir,
@@ -861,7 +862,7 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
 
     let mantle = match rbtdrp_invoke_logged(
         ctx,
-        RBTDRM_COLOPHON_GOV_MANTLE,
+        RBTDGC_MANTLE_GOVERNOR,
         &[],
         &[],
         dir,
@@ -919,7 +920,7 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
     // Retriever: invest → assay → canonical → access-probe.
     let invest_ret = match rbtdrp_invoke_logged(
         ctx,
-        RBTDRM_COLOPHON_GOV_INVEST_RETRIEVER,
+        RBTDGC_INVEST_RETRIEVER,
         &[RBTDRP_IDENTITY_RETRIEVER],
         &[],
         dir,
@@ -965,7 +966,7 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
 
     let probe_ret = match rbtdri_invoke_global(
         ctx,
-        RBTDRM_COLOPHON_CHECK_RETRIEVER,
+        RBTDGC_CHECK_RETRIEVER,
         &[],
         &[],
     ) {
@@ -986,7 +987,7 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
     // Director: invest → assay → canonical → access-probe.
     let invest_dir = match rbtdrp_invoke_logged(
         ctx,
-        RBTDRM_COLOPHON_GOV_INVEST_DIRECTOR,
+        RBTDGC_INVEST_DIRECTOR,
         &[RBTDRP_IDENTITY_DIRECTOR],
         &[],
         dir,
@@ -1031,7 +1032,7 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
 
     let probe_dir = match rbtdri_invoke_global(
         ctx,
-        RBTDRM_COLOPHON_CHECK_DIRECTOR,
+        RBTDGC_CHECK_DIRECTOR,
         &[],
         &[],
     ) {
@@ -1052,7 +1053,7 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
     // Divests in reverse order.
     let divest_dir = match rbtdrp_invoke_logged(
         ctx,
-        RBTDRM_COLOPHON_GOV_DIVEST_DIRECTOR,
+        RBTDGC_DIVEST_DIRECTOR,
         &[RBTDRP_IDENTITY_DIRECTOR],
         &[],
         dir,
@@ -1077,7 +1078,7 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
 
     let divest_ret = match rbtdrp_invoke_logged(
         ctx,
-        RBTDRM_COLOPHON_GOV_DIVEST_RETRIEVER,
+        RBTDGC_DIVEST_RETRIEVER,
         &[RBTDRP_IDENTITY_RETRIEVER],
         &[],
         dir,
@@ -1159,21 +1160,23 @@ fn rbtdrp_depot_live_disqualify_impl(
 
     let result = match rbtdrp_invoke_logged(
         ctx,
-        RBTDRM_COLOPHON_DEPOT_UNMAKE,
+        RBTDGC_UNMAKE_DEPOT,
         &[&project_id],
         &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
         dir,
         "live-disqualify",
     ) {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("rbw-dU invocation: {}", e)),
+        Err(e) => {
+            return rbtdre_Verdict::Fail(format!("{} invocation: {}", RBTDGC_UNMAKE_DEPOT, e))
+        }
     };
 
     if result.exit_code == 0 {
         return rbtdre_Verdict::Fail(format!(
-            "rbw-dU '{}' exited 0 — BBAA9 live-disqualify contract violated \
+            "{} '{}' exited 0 — BBAA9 live-disqualify contract violated \
              (refusal must die when target == RBDC_DEPOT_PROJECT_ID)",
-            project_id
+            RBTDGC_UNMAKE_DEPOT, project_id
         ));
     }
 
@@ -1181,9 +1184,9 @@ fn rbtdrp_depot_live_disqualify_impl(
     let combined = format!("{}{}", result.stdout, result.stderr);
     if !combined.contains(RBTDRP_LIVE_DISQUALIFY_RECOVERY) {
         return rbtdre_Verdict::Fail(format!(
-            "rbw-dU live-disqualify diagnostic did not name '{}' as recovery path\n\
+            "{} live-disqualify diagnostic did not name '{}' as recovery path\n\
              stdout:\n{}\n\nstderr:\n{}",
-            RBTDRP_LIVE_DISQUALIFY_RECOVERY, result.stdout, result.stderr
+            RBTDGC_UNMAKE_DEPOT, RBTDRP_LIVE_DISQUALIFY_RECOVERY, result.stdout, result.stderr
         ));
     }
 
@@ -1232,7 +1235,7 @@ fn rbtdrp_depot_tear_down_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_V
 
     let unmake = match rbtdrp_invoke_logged(
         ctx,
-        RBTDRM_COLOPHON_DEPOT_UNMAKE,
+        RBTDGC_UNMAKE_DEPOT,
         &[&project_id],
         &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
         dir,
@@ -1250,7 +1253,7 @@ fn rbtdrp_depot_tear_down_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_V
 
     let list_after = match rbtdrp_invoke_logged(
         ctx,
-        RBTDRM_COLOPHON_DEPOT_LIST,
+        RBTDGC_LIST_DEPOT,
         &[],
         &[],
         dir,

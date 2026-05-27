@@ -39,15 +39,17 @@ use crate::rbtdri_invocation::{
     rbtdri_invoke_global, rbtdri_read_burv_fact, rbtdri_Context,
     rbtdri_InvokeResult, RBTDRI_BURV_OUTPUT_SUBDIR,
 };
+use crate::rbtdgc_consts::{
+    RBTDGC_DIVEST_DIRECTOR,
+    RBTDGC_DIVEST_RETRIEVER,
+    RBTDGC_INVEST_DIRECTOR,
+    RBTDGC_INVEST_RETRIEVER,
+    RBTDGC_LEVY_DEPOT,
+    RBTDGC_LIST_DEPOT,
+    RBTDGC_MANTLE_GOVERNOR,
+};
 use crate::rbtdrm_manifest::{
     rbtdrm_credential_check_colophon,
-    RBTDRM_COLOPHON_DEPOT_LEVY,
-    RBTDRM_COLOPHON_DEPOT_LIST,
-    RBTDRM_COLOPHON_GOV_DIVEST_DIRECTOR,
-    RBTDRM_COLOPHON_GOV_DIVEST_RETRIEVER,
-    RBTDRM_COLOPHON_GOV_INVEST_DIRECTOR,
-    RBTDRM_COLOPHON_GOV_INVEST_RETRIEVER,
-    RBTDRM_COLOPHON_GOV_MANTLE,
     RBTDRM_FIXTURE_CANONICAL_ESTABLISH,
     RBTDRM_FIXTURE_CANONICAL_INVEST,
     RBTDRM_ROLE_DIRECTOR,
@@ -469,7 +471,7 @@ fn rbtdrk_depot_levy_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdic
 
     let list_pre = match rbtdrk_invoke_logged(
         ctx,
-        RBTDRM_COLOPHON_DEPOT_LIST,
+        RBTDGC_LIST_DEPOT,
         &[],
         &[],
         dir,
@@ -500,7 +502,7 @@ fn rbtdrk_depot_levy_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdic
 
     let levy = match rbtdrk_invoke_logged(
         ctx,
-        RBTDRM_COLOPHON_DEPOT_LEVY,
+        RBTDGC_LEVY_DEPOT,
         &[],
         &[],
         dir,
@@ -518,7 +520,7 @@ fn rbtdrk_depot_levy_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdic
 
     let list_present = match rbtdrk_invoke_logged(
         ctx,
-        RBTDRM_COLOPHON_DEPOT_LIST,
+        RBTDGC_LIST_DEPOT,
         &[],
         &[],
         dir,
@@ -600,7 +602,7 @@ fn rbtdrk_governor_mantle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_V
 
     let mantle = match rbtdrk_invoke_logged(
         ctx,
-        RBTDRM_COLOPHON_GOV_MANTLE,
+        RBTDGC_MANTLE_GOVERNOR,
         &[],
         &[],
         dir,
@@ -669,8 +671,8 @@ fn rbtdrk_retriever_invest(dir: &Path) -> rbtdre_Verdict {
         rbtdrk_role_invest_impl(
             ctx,
             dir,
-            RBTDRM_COLOPHON_GOV_DIVEST_RETRIEVER,
-            RBTDRM_COLOPHON_GOV_INVEST_RETRIEVER,
+            RBTDGC_DIVEST_RETRIEVER,
+            RBTDGC_INVEST_RETRIEVER,
             RBTDRK_IDENTITY_RETRIEVER,
             RBTDRM_ROLE_RETRIEVER,
         )
@@ -691,8 +693,8 @@ fn rbtdrk_director_invest(dir: &Path) -> rbtdre_Verdict {
         rbtdrk_role_invest_impl(
             ctx,
             dir,
-            RBTDRM_COLOPHON_GOV_DIVEST_DIRECTOR,
-            RBTDRM_COLOPHON_GOV_INVEST_DIRECTOR,
+            RBTDGC_DIVEST_DIRECTOR,
+            RBTDGC_INVEST_DIRECTOR,
             RBTDRK_IDENTITY_DIRECTOR,
             RBTDRM_ROLE_DIRECTOR,
         )

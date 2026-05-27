@@ -48,9 +48,8 @@ use crate::rbtdri_invocation::{
     RBTDRI_BURE_CONFIRM_SKIP,
 };
 use crate::rbtdrk_canonical::rbtdrk_canonical_rbra;
-use crate::rbtdrm_manifest::{
-    RBTDRM_COLOPHON_ABJURE, RBTDRM_COLOPHON_ORDAIN, RBTDRM_COLOPHON_SUMMON, RBTDRM_ROLE_DIRECTOR,
-};
+use crate::rbtdgc_consts::{RBTDGC_ABJURE_HALLMARK, RBTDGC_ORDAIN_HALLMARK, RBTDGC_SUMMON_HALLMARK};
+use crate::rbtdrm_manifest::RBTDRM_ROLE_DIRECTOR;
 
 /// Container runtime for the bare executability proof. Hardcoded to docker;
 /// podman is deferred to the Director-governed runtime-regime decision that
@@ -136,7 +135,7 @@ fn rbtdrd_build_run_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtd
     // the hallmark plus the gar_root/ark_stem facts needed to name the
     // locally-pulled image after summon.
     let _ = std::fs::write(dir.join("01-ordain.txt"), "ordaining busybox");
-    let ordain = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ORDAIN, &[vessel_dir], &[]) {
+    let ordain = match rbtdri_invoke_global(ctx, RBTDGC_ORDAIN_HALLMARK, &[vessel_dir], &[]) {
         Ok(r) if r.exit_code == 0 => r,
         Ok(r) => {
             return rbtdre_Verdict::Fail(format!("ordain failed (exit {})\n{}", r.exit_code, r.stderr))
@@ -169,7 +168,7 @@ fn rbtdrd_build_run_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtd
     // Summon: retriever pulls the hallmark's arks locally. Confirm the image
     // ark is resolvable before attempting to run it.
     let _ = std::fs::write(dir.join("03-summon.txt"), "summoning");
-    let summon = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_SUMMON, &[&hallmark], &[]) {
+    let summon = match rbtdri_invoke_global(ctx, RBTDGC_SUMMON_HALLMARK, &[&hallmark], &[]) {
         Ok(r) if r.exit_code == 0 => r,
         Ok(r) => {
             return rbtdre_Verdict::Fail(format!("summon failed (exit {})\n{}", r.exit_code, r.stderr))
@@ -197,7 +196,7 @@ fn rbtdrd_build_run_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtd
     let _ = std::fs::write(dir.join("05-abjure.txt"), "abjuring");
     match rbtdri_invoke_global(
         ctx,
-        RBTDRM_COLOPHON_ABJURE,
+        RBTDGC_ABJURE_HALLMARK,
         &[&hallmark],
         &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
     ) {
