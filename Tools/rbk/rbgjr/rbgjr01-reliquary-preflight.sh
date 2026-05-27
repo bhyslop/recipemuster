@@ -27,7 +27,9 @@
 # wget (no curl in alpine by default; apk add not viable on airgap pools).
 # wget exit code is the binary signal — 0 for HTTP 2xx, non-zero otherwise.
 
-set -euo pipefail
+# POSIX sh (busybox ash on alpine): pipefail is non-portable and not load-bearing
+# here — the one pipe (token extract) is validated by the test -n guard below.
+set -eu
 
 test -n "${_RBGR_GAR_HOST}"          || { echo "FATAL: _RBGR_GAR_HOST missing"          >&2; exit 1; }
 test -n "${_RBGR_GAR_PATH}"          || { echo "FATAL: _RBGR_GAR_PATH missing"          >&2; exit 1; }

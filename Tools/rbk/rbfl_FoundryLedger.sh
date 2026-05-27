@@ -600,7 +600,7 @@ rbfl_rekon_hallmark() {
   zrbfc_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
 
   # Filter the full hallmark enumeration to rows for this hallmark.
-  local z_present=""
+  local z_found=""
   local z_line=""
   local z_h=""
   local z_b=""
@@ -609,11 +609,11 @@ rbfl_rekon_hallmark() {
     z_h="${z_line%% *}"
     z_b="${z_line#* }"
     if test "${z_h}" = "${z_hallmark}"; then
-      z_present="${z_present}${z_present:+ }${z_b}"
+      z_found="${z_found}${z_found:+ }${z_b}"
     fi
   done < "${ZRBFC_PACKAGE_LIST_FILE}"
 
-  test -n "${z_present}" || buc_die "Hallmark not found: ${z_hallmark}"
+  test -n "${z_found}" || buc_die "Hallmark not found: ${z_hallmark}"
 
   echo ""
   printf "  %-10s  %-6s  %s\n" "BASENAME" "EXISTS" "PACKAGE-PATH"
@@ -630,7 +630,7 @@ rbfl_rekon_hallmark() {
     "${RBGC_ARK_BASENAME_POUCH}" \
     "${RBGC_ARK_BASENAME_DIAGS}"; do
     z_mark="no"
-    case " ${z_present} " in
+    case " ${z_found} " in
       *" ${z_canon} "*) z_mark="yes" ;;
     esac
     if test "${z_mark}" = "yes"; then
@@ -667,7 +667,7 @@ rbfl_rekon_reliquary() {
   zrbfc_list_packages_capture "${z_token}" "${RBGL_RELIQUARIES_ROOT}"
 
   # Filter the full reliquary enumeration to rows for this stamp.
-  local z_present=""
+  local z_found=""
   local z_line=""
   local z_s=""
   local z_t=""
@@ -676,11 +676,11 @@ rbfl_rekon_reliquary() {
     z_s="${z_line%% *}"
     z_t="${z_line#* }"
     if test "${z_s}" = "${z_stamp}"; then
-      z_present="${z_present}${z_present:+ }${z_t}"
+      z_found="${z_found}${z_found:+ }${z_t}"
     fi
   done < "${ZRBFC_PACKAGE_LIST_FILE}"
 
-  test -n "${z_present}" || buc_die "Reliquary stamp not found: ${z_stamp}"
+  test -n "${z_found}" || buc_die "Reliquary stamp not found: ${z_stamp}"
 
   echo ""
   printf "  %-10s  %-6s  %s\n" "TOOL" "EXISTS" "PACKAGE-PATH"
@@ -697,7 +697,7 @@ rbfl_rekon_reliquary() {
     "${RBGC_RELIQUARY_TOOL_BINFMT}" \
     "${RBGC_RELIQUARY_TOOL_SKOPEO}"; do
     z_mark="no"
-    case " ${z_present} " in
+    case " ${z_found} " in
       *" ${z_canon} "*) z_mark="yes" ;;
     esac
     if test "${z_mark}" = "yes"; then

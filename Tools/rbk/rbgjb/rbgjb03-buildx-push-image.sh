@@ -29,10 +29,10 @@ test -n "${_RBGY_GIT_BRANCH}"          || (echo "_RBGY_GIT_BRANCH missing"      
 test -n "${_RBGY_ARK_BASENAME_IMAGE}"  || (echo "_RBGY_ARK_BASENAME_IMAGE missing"  >&2; exit 1)
 
 # Resolve base image build-args (anchored GAR refs or upstream pass-through)
-BUILD_ARGS=""
-test -z "${_RBGY_IMAGE_1}" || BUILD_ARGS="${BUILD_ARGS} --build-arg RBF_IMAGE_1=${_RBGY_IMAGE_1}"
-test -z "${_RBGY_IMAGE_2}" || BUILD_ARGS="${BUILD_ARGS} --build-arg RBF_IMAGE_2=${_RBGY_IMAGE_2}"
-test -z "${_RBGY_IMAGE_3}" || BUILD_ARGS="${BUILD_ARGS} --build-arg RBF_IMAGE_3=${_RBGY_IMAGE_3}"
+BUILD_ARGS=()
+test -z "${_RBGY_IMAGE_1}" || BUILD_ARGS+=(--build-arg "RBF_IMAGE_1=${_RBGY_IMAGE_1}")
+test -z "${_RBGY_IMAGE_2}" || BUILD_ARGS+=(--build-arg "RBF_IMAGE_2=${_RBGY_IMAGE_2}")
+test -z "${_RBGY_IMAGE_3}" || BUILD_ARGS+=(--build-arg "RBF_IMAGE_3=${_RBGY_IMAGE_3}")
 
 test -s .hallmark || (echo "hallmark not derived" >&2; exit 1)
 HALLMARK="$(cat .hallmark)"
@@ -69,7 +69,7 @@ docker buildx build \
   --label "hallmark=${HALLMARK}" \
   --label "git.commit=${_RBGY_GIT_COMMIT}" \
   --label "git.branch=${_RBGY_GIT_BRANCH}" \
-  ${BUILD_ARGS} \
+  "${BUILD_ARGS[@]}" \
   -f "${_RBGY_DOCKERFILE}" \
   .
 

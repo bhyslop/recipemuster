@@ -191,11 +191,14 @@ PermitEmptyPasswords no'
 BUJB_useradd_workload_args="--create-home --shell ${BUJB_shell_bash}"
 BUJB_netuser_add_args='/add /passwordreq:no /active:yes'
 
-# ssh-keygen invocation prefix for emitting the public key derived from a
-# private key under empty-passphrase dry-load. Idiom used for admin-key
+# ssh-keygen argv prefix for emitting the public key derived from a private
+# key under empty-passphrase dry-load. Idiom used for admin-key
 # resolve-investiture validation and for workload/admin pubkey emission in
 # garrison step4, w-lockdown, and caparison-windows phase 1.
-BUJB_sshkeygen_emit_pubkey="ssh-keygen -y -P '' -f"
+# Array, not string: word-splitting a string form would pass the literal
+# token '' to -P rather than an empty passphrase; the array carries -P ''
+# as a genuine empty-string argument. Expanded "${...[@]}" at every site.
+BUJB_sshkeygen_emit_pubkey=(ssh-keygen -y -P '' -f)
 
 # SSH option values used inline at every ssh call alongside
 # ZBUJB_SSH_BASE_ARGS. BatchMode=yes / ConnectTimeout=15 is the dominant
@@ -376,7 +379,7 @@ zbujb_check_key_file() {
   test "${z_mode}" = "600" \
     || buc_die "${z_varname}: mode must be 0600, got ${z_mode}: ${z_path}"
 
-  ${BUJB_sshkeygen_emit_pubkey} "${z_path}" \
+  "${BUJB_sshkeygen_emit_pubkey[@]}" "${z_path}" \
       > "${z_dry_stdout}" \
       2> "${z_dry_stderr}" \
     || buc_die "${z_varname}: ssh-keygen -y dry-load failed (passphrase-protected or malformed): ${z_path} — see ${z_dry_stderr}"
@@ -1176,7 +1179,7 @@ zbujb_garrison_step4_place_trust() {
   z_command_directive=$(bujb_command_for_capture "${z_letter}") \
     || buc_die "step4: bujb_command_for_capture failed for letter='${z_letter}'"
 
-  ${BUJB_sshkeygen_emit_pubkey} "${BURP_WORKLOAD_KEY_FILE}" \
+  "${BUJB_sshkeygen_emit_pubkey[@]}" "${BURP_WORKLOAD_KEY_FILE}" \
       > "${ZBUJB_PUBKEY_STDOUT_WORK}" \
       2> "${ZBUJB_PUBKEY_STDERR_WORK}" \
     || buc_die "ssh-keygen -y failed for workload key: ${BURP_WORKLOAD_KEY_FILE} — see ${ZBUJB_PUBKEY_STDERR_WORK}"
@@ -1299,7 +1302,7 @@ zbujb_garrison_w_place_bare_trust() {
   zbujb_sentinel
   buc_step "  [w-place-bare-trust] Write bare workload pubkey to absolute-path authorized_keys"
 
-  ${BUJB_sshkeygen_emit_pubkey} "${BURP_WORKLOAD_KEY_FILE}" \
+  "${BUJB_sshkeygen_emit_pubkey[@]}" "${BURP_WORKLOAD_KEY_FILE}" \
       > "${ZBUJB_PUBKEY_STDOUT_WORK}" \
       2> "${ZBUJB_PUBKEY_STDERR_WORK}" \
     || buc_die "w-place-bare-trust: ssh-keygen -y failed — see ${ZBUJB_PUBKEY_STDERR_WORK}"
@@ -1413,7 +1416,7 @@ zbujb_garrison_w_lockdown_rewrite() {
   z_command_directive=$(bujb_command_for_capture w) \
     || buc_die "w-lockdown-rewrite: bujb_command_for_capture failed for letter='w'"
 
-  ${BUJB_sshkeygen_emit_pubkey} "${BURP_WORKLOAD_KEY_FILE}" \
+  "${BUJB_sshkeygen_emit_pubkey[@]}" "${BURP_WORKLOAD_KEY_FILE}" \
       > "${ZBUJB_PUBKEY_STDOUT_WORK}" \
       2> "${ZBUJB_PUBKEY_STDERR_WORK}" \
     || buc_die "w-lockdown-rewrite: ssh-keygen -y failed — see ${ZBUJB_PUBKEY_STDERR_WORK}"
@@ -1662,7 +1665,7 @@ zbujb_caparison_windows_phase1() {
   zbujb_sentinel
 
   buc_step "  [Phase 1] [Step 1/13] Derive admin pubkey"
-  ${BUJB_sshkeygen_emit_pubkey} "${BURP_PRIVILEGED_KEY_FILE}" \
+  "${BUJB_sshkeygen_emit_pubkey[@]}" "${BURP_PRIVILEGED_KEY_FILE}" \
       > "${ZBUJB_PUBKEY_STDOUT_PRIV}" \
       2> "${ZBUJB_PUBKEY_STDERR_PRIV}" \
     || buc_die "Phase 1 step 1: ssh-keygen -y failed for admin key: ${BURP_PRIVILEGED_KEY_FILE} — see ${ZBUJB_PUBKEY_STDERR_PRIV}"
