@@ -10022,6 +10022,13 @@
         "₢BMAAL": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260527-1006",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\n\nCross-platform regression leg on the cerebro Linux fundus. Foray dispatch\nis mechanical; a suite reding is opus-grade triage.\n\n## Goal\n\nThe same skirmish + faster-suite ladder proven on macos re-run on the\ncerebro Linux fundus — confirming the sprue migration and theurge-colophon\nconsolidation are platform-independent, not a macos-only pass.\n\n## Recipe\n\n- Foray per the JJK Foray Protocol: bind a legatio to cerebro (alias from\n  its BUK Regime Node profile, reldir `projects/rbm_alpha_recipemuster`),\n  ensure curia clean + pushed, plant to HEAD.\n- Relay the `rbw-ts.TestSuite.*` suites sequentially — faster suites first,\n  then `skirmish`. Skirmish carries the standing-depot precondition: confirm\n  a canonical depot is reachable from cerebro's regime before relaying it.\n- `jjx_check` each pensum to terminal; `jjx_fetch` the `../logs-buk/`\n  result; triage red as real-bug vs. the known ACCOUNT_STATE_INVALID flap.\n\n## Acceptance\n\n- skirmish + faster suites green on cerebro.",
+              "jjgtn_silks": "cerebro-regression-run",
+              "jjgtn_basis": "d627186"
+            },
+            {
               "jjgtn_ts": "260527-0729",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\n\nCross-platform regression leg on the cerebro Linux fundus. Foray dispatch\nis mechanical; a suite reding is opus-grade triage.\n\n## Goal\n\nThe same skirmish + faster-suite ladder proven on macos re-run on the\ncerebro Linux fundus — confirming the sprue migration and theurge-colophon\nconsolidation are platform-independent, not a macos-only pass.\n\n## Recipe\n\n- Foray per the JJK Foray Protocol: bind a legatio to cerebro (alias from\n  its BUK Regime Node profile, reldir `projects/rbm_alpha_recipemuster`),\n  ensure curia clean + pushed, plant to HEAD.\n- Relay the `rbw-ts.TestSuite.*` suites sequentially — faster suites first,\n  then `skirmish`. Skirmish carries the standing-depot precondition: confirm\n  a canonical depot is reachable from cerebro's regime before relaying it.\n- `jjx_check` each pensum to terminal; `jjx_fetch` the `../logs-buk/`\n  result; triage red as real-bug vs. the known ACCOUNT_STATE_INVALID flap.\n\n## Acceptance\n\n- skirmish + faster suites green on cerebro.",
