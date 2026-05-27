@@ -74,7 +74,11 @@ zbuc_tag_args() {
   local z_label="${1:-}"
   shift
   zbuc_make_tag "${z_d}" "${z_label}"
-  printf '%s\n' "$@" | zbuc_log "${ZBUC_TAG}" " ---- "
+  local z_arg
+  for z_arg in "$@"; do
+    buyf_strip_yawp "${z_arg}"
+    printf '%s\n' "${z_buym_format}"
+  done | zbuc_log "${ZBUC_TAG}" " ---- "
 }
 
 ######################################################################
@@ -217,18 +221,24 @@ buc_usage_die() {
 }
 
 # Multi-line print function with verbosity control
-# Sends output to stderr to avoid interfering with stdout returns
+# Sends output to stderr to avoid interfering with stdout returns.
+# Each message renders through the shared buym resolver, so inline yawp
+# spans resolve and the gray operation sigil is terminal-aware.  The
+# sentinel kindles buym here so a cold display (e.g. buc_die before any
+# kindle) does not dereference an unset BUYC_* readonly under set -u.
 zbuc_print() {
   local min_verbosity="$1"
   shift
 
   # Always print if min_verbosity is -1, otherwise check BURE_VERBOSE
   if test "${min_verbosity}" -eq -1 || test "${BURE_VERBOSE:-0}" -ge "${min_verbosity}"; then
+    zbuym_sentinel
     while test $# -gt 0; do
+      buyf_format_yawp "" "$1"
       if test -n "${ZBUC_CONTEXT}"; then
-        printf '%b%s%b %s\n' "${BUC_gray}" "${ZBUC_CONTEXT}" "${BUC_reset}" "$1" >&2
+        printf '%s%s%s %s\n' "${BUYC_GRAY}" "${ZBUC_CONTEXT}" "${BUYC_RESET}" "${z_buym_format}" >&2
       else
-        echo "$1" >&2
+        printf '%s\n' "${z_buym_format}" >&2
       fi
       shift
     done

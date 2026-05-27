@@ -91,7 +91,7 @@ butt_kindle() {
   butr_case_enroll "buh-link" butclc_link_fallback_tcase
   butr_case_enroll "buh-link" butclc_link_variants_tcase
 
-  # buym-yelp fixture (13 cases)
+  # buym-yelp fixture (15 cases)
   butr_fixture_enroll "buym-yelp" "" "zbutt_noop_baste"
   butr_case_enroll "buym-yelp" butcym_cmd_resolve_tcase
   butr_case_enroll "buym-yelp" butcym_link_osc8_tcase
@@ -106,6 +106,8 @@ butt_kindle() {
   butr_case_enroll "buym-yelp" butcym_strip_link_tcase
   butr_case_enroll "buym-yelp" butcym_strip_href_tcase
   butr_case_enroll "buym-yelp" butcym_strip_fast_path_tcase
+  butr_case_enroll "buym-yelp" butcym_cold_die_tcase
+  butr_case_enroll "buym-yelp" butcym_cold_die_plain_tcase
 }
 
 zbutt_noop_baste() {
