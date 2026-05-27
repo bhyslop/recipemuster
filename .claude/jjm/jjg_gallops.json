@@ -10370,6 +10370,13 @@
         "₢BSAAF": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260527-0813",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\n\nInteractive design conversation requiring operator judgment — do NOT implement.\nProduct is a *decision record*: a decided answer to every §11 open question,\nbanked durably, independent of which heat implements them. The operator has not\ncommitted this heat to implementation — decisions may seed a future heat. The\npace wraps when §11 is fully decided, not when downstream paces are cut.\n\n## Substrate\n\n- memo-20260522-org-affiliated-credential-reorientation.md — §11 open questions\n  and the accumulating Resolutions section (decisions land there, not in this docket).\n- memo-20260427-google-native-human-auth.md — impersonation mechanism detail.\n\n## Goal\n\nWork §11 with the operator; record each decided answer as a Resolution in the\n2026-05-22 memo. Output: §11 fully decided and recorded.\n\n## Constraint\n\nProduces decisions, not code. Decisions live in the memo (durable design\nsubstance), pointed at — never restated — from paddock or docket.",
+              "jjgtn_silks": "org-affiliated-account-reorientation",
+              "jjgtn_basis": "c285582"
+            },
+            {
               "jjgtn_ts": "260522-1249",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\n\nInteractive design conversation requiring operator judgment — do NOT implement.\nProduct is a *decision record*: a decided answer to every §11 open question,\nbanked durably, independent of which heat implements them. The operator has not\ncommitted this heat to implementation — decisions may seed a future heat. The\npace wraps when §11 is fully decided, not when downstream paces are cut.\n\n## Substrate\n\n- memo-20260522-org-affiliated-credential-reorientation.md — §11 open questions\n  and the accumulating Resolutions section (decisions land there, not in this docket).\n- memo-20260427-google-native-human-auth.md — impersonation mechanism detail.\n\n## Goal\n\nWork §11 with the operator; record each decided answer as a Resolution in the\n2026-05-22 memo. Output: §11 fully decided and recorded.\n\n## Constraint\n\nProduces decisions, not code. Decisions live in the memo (durable design\nsubstance), pointed at — never restated — from paddock or docket.",
