@@ -529,6 +529,8 @@ z_result=$((z_value * 2 + 10))    # Instead of: expr or bc
 
 All external command output capture uses temp files. The three prohibited `$()` patterns are: `local z_var=$(cmd)` (local swallows exit status), pipelines inside `$()` (hidden intermediate failures), and unguarded `$()` (silent failure). The only `$()` permitted on functions is for `_capture` (secrets that must not touch disk) and `_recite` (read-only roll access) — both with explicit `|| buc_die` or `|| return 1`. Bash introspection (`compgen`, `declare -F`, `mktemp`) is also permitted in `$()` as no file-based alternative exists.
 
+These rules govern **command substitution** — `$(command)`, which spawns a subshell, runs a command, and can fail. They do not apply to `$(<file)`, which despite sharing the `$()` syntax is a bash **builtin file redirect**: no subshell, no command, nothing to fail. `$(<file)` needs no `|| buc_die` guard — it takes content validation (`test -n` on the result) instead, since a successful read of an empty or missing file still yields the empty string.
+
 ```bash
 # ❌ Anti-pattern: nested command substitution
 z_result=$(echo $(complex_command) | process)  # Hidden failures!
@@ -1691,7 +1693,7 @@ buc_warn    # Instead of echo >&2
 - [ ] NO unguarded `$()` — every `$(cmd)` must have `|| buc_die` or `|| return 1`
 - [ ] NO `$()` on external commands — use temp files; `_capture`/`_recite` for contracted functions only
 - [ ] Bash introspection (`compgen`, `declare -F`, `mktemp`) permitted in `$()` — no file-based alternative
-- [ ] `$(<file)` always followed by validation
+- [ ] `$(<file)` is a builtin redirect, not command substitution — needs content validation (`test -n`), NOT a `|| buc_die` guard
 - [ ] Temp files for all external command output capture
 - [ ] `_capture` and `_recite` functions properly named with suffix
 - [ ] `_yawp` functions properly named with suffix
