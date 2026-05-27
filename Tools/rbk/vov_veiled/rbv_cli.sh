@@ -20,6 +20,7 @@
 set -euo pipefail
 
 source "${BURD_BUK_DIR}/buc_command.sh"
+source "${BURD_BUK_DIR}/buym_yelp.sh"
 
 # CLI-specific environment function
 zrbv_furnish() {

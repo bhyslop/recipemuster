@@ -21,6 +21,7 @@
 set -euo pipefail
 
 source "${BURD_BUK_DIR}/buc_command.sh"
+source "${BURD_BUK_DIR}/buym_yelp.sh"
 
 ZAPCC_APCD_DIR="${BASH_SOURCE[0]%/*}/apcd"
 ZAPCC_MANIFEST="${ZAPCC_APCD_DIR}/Cargo.toml"

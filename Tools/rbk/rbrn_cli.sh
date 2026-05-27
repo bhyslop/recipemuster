@@ -25,6 +25,7 @@ set -euo pipefail
 
 # Source dependencies
 source "${BURD_BUK_DIR}/buc_command.sh"
+source "${BURD_BUK_DIR}/buym_yelp.sh"
 
 ######################################################################
 # Internal Helpers
