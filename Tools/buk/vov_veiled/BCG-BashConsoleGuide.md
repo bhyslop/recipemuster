@@ -1260,15 +1260,15 @@ A **commit-message comment** describes the *change event* rather than the *code*
 
 ```bash
 # ❌ Commit-message comment: narrates the insertion
-# Added qualification subsystem for shellcheck support
-buw-qsc) exec "${z_buq_cli}" buq_shellcheck "$@" ;;
+# Added regime validation route
+buw-rcv) exec "${z_burc_cli}" burc_validate "$@" ;;
 
 # ❌ Commit-message comment: documents the change, not the code
 # New helper for retry logic (see PR #142)
 zrbf_retry_with_backoff() {
 
 # ✅ No comment needed — the code is self-evident
-buw-qsc) exec "${z_buq_cli}" buq_shellcheck "$@" ;;
+buw-rcv) exec "${z_burc_cli}" burc_validate "$@" ;;
 
 # ✅ Comment describes the code, not the change
 # Retry with exponential backoff; max delay capped at 60s
@@ -1889,9 +1889,8 @@ BCG uses [shellcheck](https://www.shellcheck.net) for static analysis of bash so
 | Artifact | Location | Purpose |
 |----------|----------|---------|
 | `busc_shellcheckrc` | `Tools/buk/` | BCG-structural suppressions with rationale |
-| `buq_cli.sh` | `Tools/buk/` | BUK qualification CLI hosting shellcheck command |
-| `buw-qsc` | Workbench route | Invokes `buq_shellcheck` |
-| `buw-qsc.QualifyShellCheck.sh` | `tt/` | Tabtarget for shellcheck qualification |
+| `buq_shellcheck` | `Tools/buk/buq_qualify.sh` | Reusable BUK shellcheck engine; hard-requires shellcheck (`buc_die` when absent) |
+| `rbq_qualify_fast` | `Tools/rbk/rbq_Qualify.sh` | Invokes `buq_shellcheck` as part of the `rbw-tq` fast-qualify gate |
 
 ### Suppressed Codes (BCG-structural)
 

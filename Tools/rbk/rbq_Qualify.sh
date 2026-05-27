@@ -162,6 +162,11 @@ rbq_qualify_fast() {
   rbq_qualify_context
   rbrn_preflight
 
+  buc_step "Running shellcheck"
+  buq_shellcheck "${BURC_TOOLS_DIR}" \
+    "${BURD_BUK_DIR}/busc_shellcheckrc" \
+    "${BURD_TEMP_DIR}/buq_shellcheck_results.txt"
+
   buc_step "Fast qualification passed"
 }
 
@@ -170,16 +175,10 @@ rbq_qualify_release() {
 
   buc_step "Running release qualification"
 
-  # Phase 1: Fast qualification (tabtargets, colophons, nameplate preflight)
+  # Phase 1: Fast qualification (tabtargets, colophons, nameplate preflight, shellcheck)
   rbq_qualify_fast
 
-  # Phase 2: Shellcheck (expensive, release-only)
-  buc_step "Running shellcheck"
-  buq_shellcheck "${BURC_TOOLS_DIR}" \
-    "${BURD_BUK_DIR}/busc_shellcheckrc" \
-    "${BURD_TEMP_DIR}/buq_shellcheck_results.txt"
-
-  # Phase 3: Complete test suite (sequential)
+  # Phase 2: Complete test suite (sequential)
   buc_step "Running complete test suite"
   "${ZRBQ_PROJECT_ROOT}/tt/rbw-ts.TestSuite.complete.sh"
 

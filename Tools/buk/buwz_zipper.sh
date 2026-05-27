@@ -69,10 +69,6 @@ zbuwz_kindle() {
   buz_enroll BUWZ_RP_RENDER   "buw-rpr" "${z_mod}" "burp_render"   "param1" "Render BURP profile"
   buz_enroll BUWZ_RP_LIST     "buw-rpl" "${z_mod}" "burp_list"     ""       "List BURP profiles"
 
-  # Qualification subsystem (buq_cli.sh)
-  z_mod="buq_cli.sh"
-  buz_enroll BUWZ_QUALIFY_SHELLCHECK "buw-qsc" "${z_mod}" "buq_shellcheck"  ""  "Run shellcheck on all tools"
-
   # Test fixtures (bux_cli.sh)
   z_mod="bux_cli.sh"
   buz_enroll BUWZ_DELAY "buw-xd" "${z_mod}" "bux_delay"  ""  "Sleep 20 seconds (timing fixture)"
