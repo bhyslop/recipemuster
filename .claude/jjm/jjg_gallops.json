@@ -10512,9 +10512,10 @@
       "jjghn_creation_time": "260527",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
-        "₢BTAAA"
+        "₢BTAAA",
+        "₢BTAAB"
       ],
-      "jjghn_next_pace_seed": "AAB",
+      "jjghn_next_pace_seed": "AAC",
       "jjghn_paces": {
         "₢BTAAA": {
           "jjgpn_tacks": [
@@ -10524,6 +10525,17 @@
               "jjgtn_text": "## Character\nMechanical plumbing with one locked policy call. Routing change, not logic.\n\n## Goal\nFold shellcheck onto the routine fast-qualify path so style debt can no longer\naccumulate invisibly between releases, and retire the now-redundant standalone\ninvocation.\n\n## Locked decisions\n- `rbw-tq` (QualifyFast) gains a shellcheck gate that runs `buq_shellcheck`.\n- **Hard-require shellcheck**: absent shellcheck → `rbw-tq` fails. (Operator\n  decision at slate time — strongest gate; dependency-light machines must\n  install shellcheck to pass fast qualify.)\n- The standalone `buw-qsc` colophon is retired (tabtarget + its zipper/launcher\n  enrollment).\n- `buq_shellcheck` stays BUK-level and reusable — the gate must add no\n  rbk-specific assumptions to the engine; only the invocation path consolidates.\n\n## Done looks like\n- `rbw-tq` invokes shellcheck and reports its findings; `buw-qsc` is gone.\n- The gate runs RED against the remaining ~12 baseline findings — expected and\n  intentional; later paces drive it green.\n\n## Entry points\n- `rbw-tq` lives in the qualify orchestrator (`Tools/rbk/rbq_Qualify.sh`,\n  `rbw-tq`/`rbw-tr` colophons).\n- Find the standalone path: `grep -rn 'buw-qsc\\|buq_shellcheck' tt/ Tools/`.",
               "jjgtn_silks": "close-the-gate-fold-shellcheck-into-rbw-tq",
               "jjgtn_basis": "daf12ad"
+            }
+          ]
+        },
+        "₢BTAAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260527-1032",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical, blind-safe. BCG-canonical quoting plus one safety guard.\n\n## Goal\nClear the mechanical baseline findings — the ones that are correct-by-rote under\nBCG quoting discipline, plus the one `rm -rf` guard worth doing for its own sake.\n\n## Scope\nRun the live list (`buw-qsc`, or `rbw-tq` once the gate lands) — it drifts as\nfixes land, so trust the run, not any enumeration. The mechanical findings:\n- BCG-canonical quoting: SC2086 (double-quote), SC2295 (quote expansions inside\n  `${..}`), SC2231 (quote for-loop glob), SC2001. Same shape as the\n  `buyy_tt_yawp` repair landed under ₣BQ — blind-safe.\n- Safety win: SC2115 on `jjfp_fundus.sh` — `rm -rf` wants a `${var:?}` guard so\n  it can never expand to `/home`. Worth doing independent of the warning.\n\n## Exclusions\n- Do NOT touch the two shellcheckrc-survivor candidates (the `jjfp_fundus.sh`\n  remote tilde SC2088 and the `rbfh_FoundryHygiene.sh` literal-backslash SC1003)\n  — those are the next pace.\n- `rbv_PodmanVM.sh` sits under `vov_veiled/FUTURE/`; confirm it is in scan scope\n  intentionally before editing — if FUTURE/ should be excluded, that is a\n  shellcheckrc/scan-path question, not a code fix.\n\n## Done looks like\n- Every mechanical finding is fixed; only the two survivor candidates remain.",
+              "jjgtn_silks": "mechanical-blind-safe-quoting-sweep",
+              "jjgtn_basis": "5454b68"
             }
           ]
         }
