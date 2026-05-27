@@ -39,8 +39,6 @@ zrbrp_kindle() {
 
   buv_group_enroll "Payor Project Identity"
   buv_string_enroll  RBRP_PAYOR_PROJECT_ID  1  128  "GCP project hosting OAuth client"
-  buv_string_enroll  RBRP_PARENT_TYPE       1   64  "Parent resource type"
-  buv_string_enroll  RBRP_PARENT_ID         1   64  "Parent resource identifier"
 
   buv_group_enroll "Billing Configuration"
   buv_string_enroll  RBRP_BILLING_ACCOUNT_ID  0  20  "Billing account for depot projects"

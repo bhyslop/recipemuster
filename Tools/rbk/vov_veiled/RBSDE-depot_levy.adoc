@@ -44,7 +44,7 @@ link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/create
 ... projectId: `«DEPOT_PROJECT_ID»`
 ... displayName: `«RBGC_DEPOT_DISPLAY_PREFIX» «RBRD_DEPOT_MONIKER»`
 ... NOTE: This displayName prefix anchors CRM v3 search-based depot discrimination used by {rbtgo_depot_list}.
-... parent: `{rbrp_parent_type}s/{rbrp_parent_id}` (if parent_type != `none`)
+... NOTE: No `parent` is supplied. The create request is parentless; GCP places the new project automatically — under the payor account's organization when one exists, or org-less otherwise. RBK does not select or pin a parent resource.
 .. {rbbc_await}
 returned operation
 .. {rbbc_require}
