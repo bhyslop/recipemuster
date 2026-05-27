@@ -10281,6 +10281,13 @@
         "₢BQAAE": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260527-0931",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nVerification — proves the refactor is a no-op except the intended capability.\n\nConfirm the merge changed nothing observable but terminal-awareness. Exercise a\nsampling of operational output (e.g. a payor or regime command) and handbook\noutput (e.g. `tt/rbw-gPE.PayorEstablish.sh`) under three terminal modes: default,\n`NO_COLOR=1`, and `TERM=dumb`. Color must suppress cleanly in the latter two, and\nthe gray operation sigil must never appear on handbook prose (the two-register\nguarantee).\n\nDone: all three modes verified across both registers; full `fast` suite green.",
+              "jjgtn_silks": "verify-terminal-awareness-both-registers",
+              "jjgtn_basis": "685a428"
+            },
+            {
               "jjgtn_ts": "260521-1009",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nVerification — proves the refactor is a no-op except the intended capability.\n\nConfirm the merge changed nothing observable but terminal-awareness. Exercise a\nsampling of operational output (e.g. a payor or regime command) and handbook\noutput (e.g. `tt/rbw-gPE.PayorEstablish.sh`) under three terminal modes: default,\n`NO_COLOR=1`, and `TERM=dumb`. Color must suppress cleanly in the latter two, and\nthe gray operation sigil must never appear on handbook prose (the two-register\nguarantee).\n\nDone: all three modes verified across both registers; full `fast` suite green.",
