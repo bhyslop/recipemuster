@@ -10511,9 +10511,23 @@
       "jjghn_silks": "rbk-11-mvp-shellcheck-error-gaps",
       "jjghn_creation_time": "260527",
       "jjghn_status": "jjghe_stabled",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
+      "jjghn_order": [
+        "₢BTAAA"
+      ],
+      "jjghn_next_pace_seed": "AAB",
+      "jjghn_paces": {
+        "₢BTAAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260527-1032",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical plumbing with one locked policy call. Routing change, not logic.\n\n## Goal\nFold shellcheck onto the routine fast-qualify path so style debt can no longer\naccumulate invisibly between releases, and retire the now-redundant standalone\ninvocation.\n\n## Locked decisions\n- `rbw-tq` (QualifyFast) gains a shellcheck gate that runs `buq_shellcheck`.\n- **Hard-require shellcheck**: absent shellcheck → `rbw-tq` fails. (Operator\n  decision at slate time — strongest gate; dependency-light machines must\n  install shellcheck to pass fast qualify.)\n- The standalone `buw-qsc` colophon is retired (tabtarget + its zipper/launcher\n  enrollment).\n- `buq_shellcheck` stays BUK-level and reusable — the gate must add no\n  rbk-specific assumptions to the engine; only the invocation path consolidates.\n\n## Done looks like\n- `rbw-tq` invokes shellcheck and reports its findings; `buw-qsc` is gone.\n- The gate runs RED against the remaining ~12 baseline findings — expected and\n  intentional; later paces drive it green.\n\n## Entry points\n- `rbw-tq` lives in the qualify orchestrator (`Tools/rbk/rbq_Qualify.sh`,\n  `rbw-tq`/`rbw-tr` colophons).\n- Find the standalone path: `grep -rn 'buw-qsc\\|buq_shellcheck' tt/ Tools/`.",
+              "jjgtn_silks": "close-the-gate-fold-shellcheck-into-rbw-tq",
+              "jjgtn_basis": "daf12ad"
+            }
+          ]
+        }
+      }
     }
   }
 }
