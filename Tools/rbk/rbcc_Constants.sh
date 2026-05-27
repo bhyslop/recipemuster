@@ -58,11 +58,26 @@ RBCC_role_assay="assay"
 RBCC_role_mason="mason"
 RBCC_onboarding_nameplate="tadmor"
 
-# Cult-verb tinder — used by SA-management surface (invest/divest/roster) and
-# composed into fact-extension constants below.
-RBCC_verb_invest="invest"
+# Operation-verb tinder — the canonical bash home for RBK operation verbs.
+# Members are bare verb tokens; the group carries one author here so it is
+# projectable under the single-canonical-author rule. Two surfaces:
+#
+#   SA-management (divest/invest/roster) — composed into the fact-extension
+#   constants below; consumed by the governor/director account surface.
 RBCC_verb_divest="divest"
+RBCC_verb_invest="invest"
 RBCC_verb_roster="roster"
+#
+#   Image/build lifecycle (enshrine/inscribe/kludge/ordain/yoke) — name the
+#   registry and build operations. Previously implicit in command-function
+#   names (rbfl_inscribe, rbfd_ordain, …) and tabtarget descriptions; homed
+#   here so the group has a single owner rather than being reconstructed by
+#   grep across rbfd_/rbfl_/rbfk_/rbob_.
+RBCC_verb_enshrine="enshrine"
+RBCC_verb_inscribe="inscribe"
+RBCC_verb_kludge="kludge"
+RBCC_verb_ordain="ordain"
+RBCC_verb_yoke="yoke"
 
 # Fact-file extension tinder — multi-fact registry for buf_write_fact_multi.
 # Producers emit "<basename>.<extension>" via filesystem-as-data-bus pattern;
@@ -73,6 +88,15 @@ RBCC_fact_ext_depot_project="depot-project"
 RBCC_fact_ext_roster_retriever="${RBCC_verb_roster}-${RBCC_role_retriever}"
 RBCC_fact_ext_roster_director="${RBCC_verb_roster}-${RBCC_role_director}"
 RBCC_fact_ext_audit_hallmark="audit-hallmark"
+
+# Container-role tinder — the canonical bash home for the crucible's container
+# roles. Bare role tokens; the crucible is sentry + pentacle + bottle and every
+# container name / compose service derives from these. Distinct from the
+# credential RBCC_role_* family above (that names SA roles, a different axis —
+# the names are not reused across the two to keep each word monosemous).
+RBCC_container_bottle="bottle"
+RBCC_container_pentacle="pentacle"
+RBCC_container_sentry="sentry"
 
 ######################################################################
 # Internal Functions (zrbcc_*)

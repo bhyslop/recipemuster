@@ -107,9 +107,9 @@ zrbob_kindle() {
   readonly ZRBOB_PROJECT="${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}"
 
   # Container names (for connect and info commands)
-  readonly ZRBOB_SENTRY="${ZRBOB_PROJECT}-sentry"
-  readonly ZRBOB_PENTACLE="${ZRBOB_PROJECT}-pentacle"
-  readonly ZRBOB_BOTTLE="${ZRBOB_PROJECT}-bottle"
+  readonly ZRBOB_SENTRY="${ZRBOB_PROJECT}-${RBCC_container_sentry}"
+  readonly ZRBOB_PENTACLE="${ZRBOB_PROJECT}-${RBCC_container_pentacle}"
+  readonly ZRBOB_BOTTLE="${ZRBOB_PROJECT}-${RBCC_container_bottle}"
 
   # Network name (compose names as {project}_{network}; used by observe and info)
   readonly ZRBOB_NETWORK="${ZRBOB_PROJECT}_enclave"
@@ -505,7 +505,7 @@ rbob_charged_predicate() {
   local z_ids_file=""
   local z_stderr_file=""
 
-  for z_service in sentry pentacle bottle; do
+  for z_service in "${RBCC_container_sentry}" "${RBCC_container_pentacle}" "${RBCC_container_bottle}"; do
     z_ids_file="${BURD_TEMP_DIR}/zrbob_charged_${z_service}_ids.txt"
     z_stderr_file="${BURD_TEMP_DIR}/zrbob_charged_${z_service}_stderr.txt"
 
