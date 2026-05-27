@@ -7165,9 +7165,10 @@
         "₢BBAA1",
         "₢BBAA5",
         "₢BBABF",
-        "₢BBABG"
+        "₢BBABG",
+        "₢BBABL"
       ],
-      "jjghn_next_pace_seed": "ABL",
+      "jjghn_next_pace_seed": "ABM",
       "jjghn_paces": {
         "₢BBAA-": {
           "jjgpn_tacks": [
@@ -8941,6 +8942,17 @@
               "jjgtn_text": "## Character\n\nMechanical: relocate per-module acronym mappings from project-root `CLAUDE.md` into the existing per-kit `*-claude-context.md` files. Each kit already has a context file `@`-included from CLAUDE.md, so payload is token-neutral — content moves, not duplicates. Blast radius for future per-module acronym mints collapses to domain-local.\n\n## Move\n\nPer-module acronym tables migrate to per-kit context files:\n\n- **RBK** acronyms (~140 lines under `### Tools Directory` / `#### RBK Subdirectory` in CLAUDE.md) → fold into `Tools/rbk/rbk-claude-tabtarget-context.md` as a new top section, OR mint `Tools/rbk/rbk-claude-acronyms.md` if the tabtarget file feels overloaded (mount-time call).\n- **BUK** acronyms → `Tools/buk/buk-claude-context.md` (which already has \"BUK Concepts\").\n- **JJK** acronyms → `Tools/jjk/vov_veiled/jjk-claude-context.md` (already has \"Job Jockey Configuration\").\n- **CMK** acronyms → `Tools/cmk/vov_veiled/cmk-claude-context.md` (already partially holds CMK file acronyms; consolidate, remove duplicates from CLAUDE.md).\n- **GAD** acronyms → CLAUDE.md currently redirects to `Tools/gad/CLAUDE.md`; verify target completeness, remove redirect stub from project-root.\n- **VOK** acronyms (RCG, VLS, VOS0) → fold into VOK context file (verify path at mount-time — context above mentions VOK but not its claude-context location).\n- **CNMP Lenses** acronyms → fold into the appropriate context file in `../cnmp_CellNodeMessagePrototype/`, or leave if cross-repo coordination required (mount-time call — likely defer).\n\n## Keep in CLAUDE.md\n\n- Directory Permissions\n- Project Prefix Registry (top-level prefix→project map)\n- Prefix Naming Discipline, Quoin Sub-Letter Discipline, Minting Workflow, Kit Infrastructure Suffixes\n- Heredoc Delimiter Selection\n- AsciiDoc Linked Terms guidance\n- Rust Build Discipline, Test Execution\n- Working Preferences\n- Common Workflows\n- Design Principles (Load-Bearing Complexity)\n- `@`-includes to kit context files (unchanged)\n\nThe split is: **rules and top-level prefix→project map stay in CLAUDE.md; per-module file listings live with the kit they describe**.\n\n## Verification\n\n- `tt/rbtd-s.TestSuite.fast.sh` green (handbook-render re-renders full handbook through includes — surfaces broken cross-references).\n- Spot-check three acronym lookups (`RBFH`, `BUC`, `MCM`) — each finds its entry in exactly one place across the loaded context.\n- Project Prefix Registry in CLAUDE.md still enumerates every top-level prefix (`rb`, `bu`, `jj`, `mcm`/`axl`, `gad`, etc.).\n- CLAUDE.md line-count drops materially (current acronym table dominates the file).\n\n## Out of scope\n\n- Adding new acronyms not currently in CLAUDE.md.\n- Restructuring kit context files beyond accommodating the moved tables.\n- Touching the GAD/CMK redirect entries if those already work end-to-end (verify-don't-fix).\n- Cross-repo CNMP coordination if it requires touching a sibling repository.\n\n## Silks\n\n`claude-md-acronym-table-explode` — \"explode\" chosen over \"split\"/\"decompose\" because the work is fan-out across many kit files, not bisection. If RBK ends up minting its own dedicated acronyms file rather than folding into tabtarget context, the silks still fits.",
               "jjgtn_silks": "claude-md-acronym-table-explode",
               "jjgtn_basis": "16cd001"
+            }
+          ]
+        },
+        "₢BBABL": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260526-1825",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical retry-tolerance extension; shape locked by the memo. Two touchpoints, one error class. Surfaced by dogfight verification (2 failures / 3 runs — transient).\n\n## Source\n`Memos/memo-20260527-account-state-invalid-reinvest-flap.md` — full 401/`ACCOUNT_STATE_INVALID` signature, two-host evidence, the prior-art gap, and the time-bound tolerance model to reuse.\n\n## Shape (locked)\n- `rbfc_FoundryCore.sh` build-status poll loop: absorb a transient `401 UNAUTHENTICATED` + `ACCOUNT_STATE_INVALID` with bounded backoff instead of counting it toward the consecutive-error fatal — a still-`WORKING` build must survive a director-SA auth flap.\n- `rbgo_OAuth.sh` consumer-retry token mint: extend the existing retry error-class to `ACCOUNT_STATE_INVALID`, covering the `rbfv` vouch path (Host B in the memo).\n- The retry budget is the discriminator (settling completes within budget; real denial waits it out and fails clean) — reuse the established propagation / access-probe time-bound model rather than minting new literals.\n\n## Done\nA director re-invest immediately followed by `ordain` survives the flap: the transient is logged and retried within budget, never fatal on a healthy build. Confirm the `rbfv` vouch failure body is the same class (memo caveat).",
+              "jjgtn_silks": "foundry-account-state-invalid-tolerance",
+              "jjgtn_basis": "5e63889"
             }
           ]
         }
