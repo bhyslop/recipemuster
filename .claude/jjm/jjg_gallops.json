@@ -4883,6 +4883,13 @@
         "₢AUAA4": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260527-1053",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\n\nQuick editorial clarification — mechanical, not architectural.\n\n## Docket\n\nBCG Command Substitution Rules currently say: \"NO unguarded `$()` — every `$(cmd)` must have `|| buc_die`\". This conflates two syntactically similar but semantically distinct forms:\n\n- **`$(command)`** — spawns a subshell, runs a command, captures stdout. Can fail. Guard required.\n- **`$(<file)`** — bash builtin file redirect. No subshell, no command. Reads file content directly.\n\nClarify in BCG that `$(<file)` is a builtin redirect exempt from the `|| buc_die` guard requirement. It is not a command substitution despite sharing the `$()` syntax. Add a note in the Command Substitution Rules section distinguishing the two forms.",
+              "jjgtn_silks": "bcg-builtin-redirect-vs-subshell",
+              "jjgtn_basis": "37e29e6"
+            },
+            {
               "jjgtn_ts": "260417-0659",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\n\nQuick editorial clarification — mechanical, not architectural.\n\n## Docket\n\nBCG Command Substitution Rules currently say: \"NO unguarded `$()` — every `$(cmd)` must have `|| buc_die`\". This conflates two syntactically similar but semantically distinct forms:\n\n- **`$(command)`** — spawns a subshell, runs a command, captures stdout. Can fail. Guard required.\n- **`$(<file)`** — bash builtin file redirect. No subshell, no command. Reads file content directly.\n\nClarify in BCG that `$(<file)` is a builtin redirect exempt from the `|| buc_die` guard requirement. It is not a command substitution despite sharing the `$()` syntax. Add a note in the Command Substitution Rules section distinguishing the two forms.",
