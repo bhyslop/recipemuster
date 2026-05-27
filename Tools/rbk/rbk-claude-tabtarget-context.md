@@ -168,13 +168,15 @@ The Folio column shows how each tabtarget receives it:
 
 | Colophon | Frontispiece | Folio | Purpose |
 |----------|-------------|-------|---------|
+| `rbw-tb` | Build | imprint | Build the theurge crate |
+| `rbw-tt` | Test | imprint | Run theurge unit tests |
+| `rbw-ts` | TestSuite | imprint | Run a named test suite (fast/service/crucible/complete/gauntlet/skirmish/dogfight/tadmor) |
+| `rbw-tf` | FixtureRun | param1 | Run a single named test fixture |
+| `rbw-tc` | FixtureCase | param1 | Run one case against a charged crucible (omit to list fixtures/cases) |
 | `rbw-tK` | KludgeCycle | imprint | Local kludge build + install hallmark into nameplate |
 | `rbw-tO` | OrdainCycle | imprint | Cloud build + install hallmark into nameplate |
-| `rbw-tf` | QualifyFast | — | Fast qualify: tabtargets, colophons, nameplate health |
+| `rbw-tq` | QualifyFast | — | Fast qualify: tabtargets, colophons, nameplate health |
 | `rbw-tr` | QualifyRelease | — | Release qualify: + shellcheck, full test suite |
-| `rbw-tP` | QualifyPristine | — | Pristine qualify: gauntlet test suite (release gate) |
-| `rbw-tS` | QualifySkirmish | — | Skirmish qualify: mini-gauntlet suite (reuses standing depot, no project churn) |
-| `rbw-tT` | QualifyTadmor | — | Tadmor self-contained: local kludge build + charge + security cases (no cloud) |
 
 ### Handbook — Human-facing procedures (`rbw-HW`)
 

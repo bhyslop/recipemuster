@@ -16,68 +16,37 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# RBTE CLI - Theurge test engine CLI entry point with differential furnish
+# RBTE CLI - Theurge test engine CLI entry point
 #
-# Sourced by rbtw_workbench.sh. Provides rbte_dispatch() for command routing.
-# Light furnish: buv + burd + buz + rbz + rbte (all commands)
+# Enrolled in rbz_zipper, dispatched by rbw_workbench via buz_exec_lookup.
+# Public functions (rbte_build/test/run/suite/single) live in rbte_engine.sh;
+# fixture/suite folio arrives via BUZ_FOLIO from the colophon channel.
 
 set -euo pipefail
 
-ZRBTE_CLI_DIR="${BASH_SOURCE[0]%/*}"
+source "${BURD_BUK_DIR}/buc_command.sh"
 
 ######################################################################
-# Light furnish — source and kindle for all commands
+# Furnish and Main
 
-source "${BURD_BUK_DIR}/buv_validation.sh"
-source "${BURD_BUK_DIR}/burd_regime.sh"
-source "${BURD_BUK_DIR}/buz_zipper.sh"
-source "${ZRBTE_CLI_DIR}/../rbz_zipper.sh"
-source "${ZRBTE_CLI_DIR}/rbte_engine.sh"
+zrbte_furnish() {
+  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env_done || return 0
 
-zbuv_kindle
-zburd_kindle
-zbuz_kindle
-zrbz_kindle
-zrbte_kindle
+  local z_cli_dir="${BASH_SOURCE[0]%/*}"
+  source "${BURD_BUK_DIR}/buv_validation.sh"
+  source "${BURD_BUK_DIR}/burd_regime.sh"
+  source "${BURD_BUK_DIR}/buz_zipper.sh"
+  source "${z_cli_dir}/../rbz_zipper.sh"
+  source "${z_cli_dir}/rbte_engine.sh"
 
-######################################################################
-# Dispatch
-
-rbte_dispatch() {
-  local z_command="$1"
-  shift
-
-  zburd_sentinel
-  zrbte_sentinel
-
-  case "${z_command}" in
-
-    rbtd-b)
-      rbte_build "$@"
-      ;;
-
-    rbtd-t)
-      rbte_test "$@"
-      ;;
-
-    rbtd-r)
-      rbte_run "$@"
-      ;;
-
-    rbtd-s)
-      local z_frontispiece="${BURD_TOKEN_2:-}"
-      case "${z_frontispiece}" in
-        TestSuite)    rbte_suite "$@" ;;
-        FixtureCase)  rbte_single "$@" ;;
-        *)            buc_die "Unknown frontispiece for rbtd-s: ${z_frontispiece} (expected TestSuite|FixtureCase)" ;;
-      esac
-      ;;
-
-    *)
-      buc_die "Unknown command: ${z_command}"
-      ;;
-
-  esac
+  zbuv_kindle
+  zburd_kindle
+  zbuz_kindle
+  zrbz_kindle
+  zrbte_kindle
 }
+
+buc_execute rbte_ "Theurge test engine" zrbte_furnish "$@"
 
 # eof

@@ -101,6 +101,18 @@ zrbte_kindle() {
     "canonical-invest"
     "dogfight"
   )
+  # Tadmor self-contained — fully local, no GCP/depot/project. Two fixtures in
+  # sequence: kludge-tadmor builds BOTH vessels (sentry + bottle) locally and
+  # commits each hallmark (the fixture owns the notch — same precedent as
+  # onboarding's rbtdro_kludge_nameplate); then the tadmor crucible fixture
+  # charges against the now-clean nameplate, runs the security cases, quenches.
+  # The build is a separate fixture (nameplate passed explicitly) rather than a
+  # self-charging tadmor fixture, because the crucible security cases resolve
+  # their nameplate from the fixture name and would collide on "tadmor".
+  ZRBTE_SUITE_TADMOR=(
+    "kludge-tadmor"
+    "tadmor"
+  )
 
   readonly ZRBTE_KINDLED=1
 }
@@ -133,7 +145,8 @@ zrbte_resolve_suite() {
     gauntlet) echo "${ZRBTE_SUITE_GAUNTLET[*]}" ;;
     skirmish) echo "${ZRBTE_SUITE_SKIRMISH[*]}" ;;
     dogfight) echo "${ZRBTE_SUITE_DOGFIGHT[*]}" ;;
-    *)        buc_die "Unknown suite: ${z_suite} (expected fast|service|crucible|complete|gauntlet|skirmish|dogfight)" ;;
+    tadmor)   echo "${ZRBTE_SUITE_TADMOR[*]}" ;;
+    *)        buc_die "Unknown suite: ${z_suite} (expected fast|service|crucible|complete|gauntlet|skirmish|dogfight|tadmor)" ;;
   esac
 }
 
@@ -161,8 +174,8 @@ rbte_test() {
 rbte_run() {
   zrbte_sentinel
 
-  local z_fixture="${BURD_TOKEN_3:-}"
-  test -n "${z_fixture}" || buc_die "No fixture imprint — use tabtarget with imprint (e.g. rbtd-r.FixtureRun.tadmor.sh)"
+  local z_fixture="${BUZ_FOLIO:-}"
+  test -n "${z_fixture}" || buc_die "No fixture — pass one as the folio (e.g. rbw-tf.FixtureRun.sh tadmor)"
 
   zrbte_build_binary
 
@@ -173,8 +186,8 @@ rbte_run() {
 rbte_suite() {
   zrbte_sentinel
 
-  local z_suite="${BURD_TOKEN_3:-}"
-  test -n "${z_suite}" || buc_die "No suite imprint — use tabtarget with imprint (e.g. rbtd-s.TestSuite.fast.sh)"
+  local z_suite="${BUZ_FOLIO:-}"
+  test -n "${z_suite}" || buc_die "No suite imprint — use tabtarget with imprint (e.g. rbw-ts.TestSuite.fast.sh)"
 
   local z_fixture_list
   z_fixture_list="$(zrbte_resolve_suite "${z_suite}")"
@@ -197,8 +210,8 @@ rbte_single() {
 
   zrbte_build_binary
 
-  local z_fixture="${1:-}"
-  local z_case="${2:-}"
+  local z_fixture="${BUZ_FOLIO:-}"
+  local z_case="${1:-}"
   "${ZRBTE_BINARY}" single "${ZRBZ_COLOPHON_MANIFEST}" ${z_fixture:+"${z_fixture}"} ${z_case:+"${z_case}"}
 }
 

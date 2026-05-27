@@ -191,17 +191,26 @@ zrbz_kindle() {
   buz_enroll RBZ_VALIDATE_AUTH          "rbw-rav" "${z_mod}" "rbra_validate"  "param1"  "Validate auth regime"
   buz_enroll RBZ_LIST_AUTH              "rbw-ral" "${z_mod}" "rbra_list"      ""        "List auth regimes"
 
-  # Theurge — test infrastructure (rbw-t)
+  # Theurge — test infrastructure (rbw-t). One pipeline: the theurge engine
+  # (build/test/run/suite/single) dispatches through rbw_workbench like every
+  # other rbw command — no second workbench. Suites fold the former
+  # tP/tS/tT into rbw-ts imprints (gauntlet/skirmish/tadmor).
   buz_group RBZ__GROUP_THEURGE    "rbw-t"   "Theurge — Test infrastructure"
+  z_mod="rbtd/rbte_cli.sh"
+  # Build/Test carry the imprint channel solely to forward cargo passthrough
+  # args ("$@"); the 2-segment filename leaves BURD_TOKEN_3 empty, so no folio
+  # is consumed. (Empty channel would drop the args; param1 would eat the first.)
+  buz_enroll RBZ_THEURGE_BUILD    "rbw-tb"  "${z_mod}" "rbte_build"   "imprint"  "Build the theurge crate"
+  buz_enroll RBZ_THEURGE_TEST     "rbw-tt"  "${z_mod}" "rbte_test"    "imprint"  "Run theurge unit tests"
+  buz_enroll RBZ_THEURGE_SUITE    "rbw-ts"  "${z_mod}" "rbte_suite"   "imprint"  "Run a named test suite (fast/service/crucible/complete/gauntlet/skirmish/dogfight/tadmor)"
+  buz_enroll RBZ_THEURGE_FIXTURE  "rbw-tf"  "${z_mod}" "rbte_run"     "param1"   "Run a single named test fixture"
+  buz_enroll RBZ_THEURGE_CASE     "rbw-tc"  "${z_mod}" "rbte_single"  "param1"   "Run one case against a charged crucible (omit to list fixtures/cases)"
   z_mod="rbob_cli.sh"
   buz_enroll RBZ_THEURGE_KLUDGE  "rbw-tK"  "${z_mod}" "rbob_kludge"        "imprint"  "Local kludge build + install hallmark into nameplate"
   buz_enroll RBZ_THEURGE_ORDAIN  "rbw-tO"  "${z_mod}" "rbob_ordain"        "imprint"  "Cloud build + install hallmark into nameplate"
   z_mod="rbq_cli.sh"
-  buz_enroll RBZ_QUALIFY_FAST     "rbw-tf"   "${z_mod}" "rbq_qualify_fast"     ""        "Fast qualify: tabtargets, colophons, nameplate health"
+  buz_enroll RBZ_QUALIFY_FAST     "rbw-tq"   "${z_mod}" "rbq_qualify_fast"     ""        "Fast qualify: tabtargets, colophons, nameplate health"
   buz_enroll RBZ_QUALIFY_RELEASE  "rbw-tr"   "${z_mod}" "rbq_qualify_release"  ""        "Release qualify: + shellcheck, full test suite"
-  buz_enroll RBZ_QUALIFY_PRISTINE "rbw-tP"   "${z_mod}" "rbq_qualify_pristine" ""        "Pristine qualify: gauntlet test suite (release gate)"
-  buz_enroll RBZ_QUALIFY_SKIRMISH "rbw-tS"   "${z_mod}" "rbq_qualify_skirmish" ""        "Skirmish qualify: mini-gauntlet suite (reuses standing depot, no project churn)"
-  buz_enroll RBZ_QUALIFY_TADMOR   "rbw-tT"   "${z_mod}" "rbq_qualify_tadmor"   ""        "Tadmor self-contained: local kludge build + charge + security cases (no cloud)"
 
   # Handbook — human-facing procedures (rbw-h0 index, rbw-hw/HW* windows)
   buz_group RBZ__GROUP_HANDBOOK   "rbw-HW"  "Handbook — Human-facing procedures"

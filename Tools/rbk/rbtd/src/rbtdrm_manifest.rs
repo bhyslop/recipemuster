@@ -156,7 +156,7 @@ pub const RBTDRM_FIXTURE_CANONICAL_INVEST: &str = "canonical-invest";
 // construction — inscribe reliquary, enshrine bases, kludge tadmor/ccyolo,
 // plus one ordain-* case per director-mode handbook track, build-only)
 pub const RBTDRM_FIXTURE_ONBOARDING_SEQUENCE: &str = "onboarding-sequence";
-// Self-contained tadmor build fixture (rbw-tT): kludges tadmor sentry+bottle
+// Self-contained tadmor build fixture (rbw-ts.TestSuite.tadmor): kludges tadmor sentry+bottle
 // locally and commits each hallmark (so the subsequent tadmor crucible fixture
 // charges against a clean nameplate). Reuses onboarding's kludge helper minus
 // its reliquary-stamp witness probe — local kludge has no GCP/reliquary dep.

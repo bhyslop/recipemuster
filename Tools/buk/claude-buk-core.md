@@ -89,13 +89,13 @@ Both stdout and stderr are captured. Adding your own `tee` or `2>&1` duplicates 
 
 ```
 # Wrong — exit code is from `tail`, not the tabtarget; failures masked
-./tt/rbw-tP.QualifyPristine.sh 2>&1 | tee /tmp/log | tail -80
+./tt/rbw-ts.TestSuite.gauntlet.sh 2>&1 | tee /tmp/log | tail -80
 
 # Wrong — even a bare `| head` discards the real signal
-./tt/rbtd-s.TestSuite.fast.sh | head -50
+./tt/rbw-ts.TestSuite.fast.sh | head -50
 
 # Right — separate commands; exit code preserved
-./tt/rbw-tP.QualifyPristine.sh
+./tt/rbw-ts.TestSuite.gauntlet.sh
 tail -80 ../logs-buk/last.txt
 ```
 

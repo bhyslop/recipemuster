@@ -64,16 +64,16 @@ When working with .adoc files using MCM patterns:
 
 ### Rust Build Discipline
 
-Two orthogonal Rust pipelines. Always use the tabtarget, never raw cargo commands.
+Two Rust build targets. Always use the tabtarget, never raw cargo commands.
 
 **VOW pipeline** (vvk/jjk/cmk kits — parceled for delivery):
 - `tt/vow-b.Build.sh` — build vvr binary and install to VVK bin
 - `tt/vow-t.Test.sh` — run all kit crate tests
 - `tt/vvw-r.RunVVX.sh <cmd>` — run vvx binary with arguments
 
-**RBTW pipeline** (theurge — rbk's own test infrastructure, orthogonal from VOW):
-- `tt/rbtd-b.Build.sh` — build theurge crate
-- `tt/rbtd-t.Test.sh` — run theurge unit tests
+**Theurge** (rbk's own test infrastructure — dispatches through the unified rbw workbench):
+- `tt/rbw-tb.Build.sh` — build theurge crate
+- `tt/rbw-tt.Test.sh` — run theurge unit tests
 
 ### Test Execution
 
@@ -81,10 +81,10 @@ Two orthogonal Rust pipelines. Always use the tabtarget, never raw cargo command
 
 | Suite | Tabtarget | Dependencies | What it covers |
 |-------|-----------|-------------|----------------|
-| `fast` | `tt/rbtd-s.TestSuite.fast.sh` | None | enrollment-validation (47), regime-validation (21), regime-smoke (7) = 75 cases |
-| `service` | `tt/rbtd-s.TestSuite.service.sh` | GCP credentials | fast + access-probe (4), hallmark-lifecycle (1), batch-vouch (1) = 81 cases |
-| `crucible` | `tt/rbtd-s.TestSuite.crucible.sh` | Container runtime | fast + tadmor-security (34), srjcl-jupyter (3), pluml-diagram (5) = 117 cases |
-| `complete` | `tt/rbtd-s.TestSuite.complete.sh` | All of the above | All 8 fixtures = 122 cases |
+| `fast` | `tt/rbw-ts.TestSuite.fast.sh` | None | enrollment-validation (47), regime-validation (21), regime-smoke (7) = 75 cases |
+| `service` | `tt/rbw-ts.TestSuite.service.sh` | GCP credentials | fast + access-probe (4), hallmark-lifecycle (1), batch-vouch (1) = 81 cases |
+| `crucible` | `tt/rbw-ts.TestSuite.crucible.sh` | Container runtime | fast + tadmor-security (34), srjcl-jupyter (3), pluml-diagram (5) = 117 cases |
+| `complete` | `tt/rbw-ts.TestSuite.complete.sh` | All of the above | All 8 fixtures = 122 cases |
 
 **After code changes**, run the appropriate tier:
 - Regime/validation changes → `fast`
@@ -92,9 +92,9 @@ Two orthogonal Rust pipelines. Always use the tabtarget, never raw cargo command
 - Bottle/sentry/network changes → `crucible`
 - Pre-release or decomposition sweep → `complete`
 
-**Single fixture**: `tt/rbtd-r.FixtureRun.{name}.sh` (e.g., `tadmor`, `enrollment-validation`, `regime-smoke`)
+**Single fixture**: `tt/rbw-tf.FixtureRun.sh <name>` (e.g., `tadmor`, `enrollment-validation`, `regime-smoke`)
 
-**Single case**: `tt/rbtd-s.FixtureCase.sh <fixture> [case-name]` — run one case against an already-charged crucible (no charge/quench). Omit case name to list all cases for the fixture; omit fixture to list all fixtures. Workflow for crucible debugging: charge via `tt/rbw-cC.Charge.{nameplate}.sh`, run individual cases, quench via `tt/rbw-cQ.Quench.{nameplate}.sh` when done.
+**Single case**: `tt/rbw-tc.FixtureCase.sh <fixture> [case-name]` — run one case against an already-charged crucible (no charge/quench). Omit case name to list all cases for the fixture; omit fixture to list all fixtures. Workflow for crucible debugging: charge via `tt/rbw-cC.Charge.{nameplate}.sh`, run individual cases, quench via `tt/rbw-cQ.Quench.{nameplate}.sh` when done.
 
 **BUK self-test**: `tt/buw-st.BukSelfTest.sh` — exercises BUK test framework (kick-tires + bure-tweak, 9 cases)
 

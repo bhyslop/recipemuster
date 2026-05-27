@@ -290,7 +290,7 @@ rbho_director_airgap() {
   buh_line "Run the full 34-case security suite — the same suite you ran"
   buh_line "against ${z_lk_tadmor} with kludged ${RBYC_HALLMARKS}:"
   buh_e
-  buh_tt "   " "rbtd-r" "${z_moniker}"
+  buh_tt "   " "rbw-tf" "" " ${z_moniker}"
   buh_e
   buh_line "Expect green across the board. Same attacks, same containment"
   buh_line "boundaries, same expected responses — now against a ${RBYC_BOTTLE}"

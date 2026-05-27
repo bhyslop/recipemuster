@@ -16,7 +16,8 @@
 //
 // RBTDRP — pristine-lifecycle fixture for theurge release qualification
 //
-// Case 1 (marshal-zero-attestation) is the entry gate for `rbw-tP`. It asserts
+// Case 1 (marshal-zero-attestation) is the entry gate for the gauntlet suite
+// (`rbw-ts.TestSuite.gauntlet.sh`). It asserts
 // that the working tree was just zeroed by `rbw-MZ` (rblm_zero) — five
 // violation classes are checked and ALL surfaced in one aggregated diagnostic.
 // Failure short-circuits subsequent cases via the per-fixture fail_fast switch.

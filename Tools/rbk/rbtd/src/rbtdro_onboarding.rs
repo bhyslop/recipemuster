@@ -738,7 +738,7 @@ fn rbtdro_onboarding_kludge_tadmor_impl(ctx: &mut rbtdri_Context, dir: &Path) ->
     }
 }
 
-/// Standalone tadmor kludge for the self-contained build+run path (rbw-tT).
+/// Standalone tadmor kludge for the self-contained build+run path (rbw-ts.TestSuite.tadmor).
 /// Same build+commit of both vessels as the onboarding case, but WITHOUT the
 /// reliquary-stamp probe: that probe is an onboarding-sequence sequencing
 /// witness, not a local-kludge dependency (kludge is local docker, no GCP, no

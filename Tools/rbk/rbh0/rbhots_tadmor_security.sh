@@ -165,7 +165,7 @@ rbho_tadmor_security() {
   buh_line "The full ${z_moniker} fixture runs all 34 cases against the ${RBYC_CRUCIBLE}"
   buh_line "you just charged:"
   buh_e
-  buh_tt  "   " "rbtd-r" "${z_moniker}"
+  buh_tt  "   " "rbw-tf" "" " ${z_moniker}"
   buh_e
   buh_line "Expect green across the board. A red case surfaces either a"
   buh_line "containment regression or a test that needs updating against a"
@@ -174,7 +174,7 @@ rbho_tadmor_security() {
   buh_line "For iterative debugging or a deep-dive on a single attack, run"
   buh_line "one case against an already-charged ${RBYC_CRUCIBLE}:"
   buh_e
-  buh_tt  "   " "rbtd-s" "${z_moniker}" " [case-name]"
+  buh_tt  "   " "rbw-tc" "" " ${z_moniker} [case-name]"
   buh_e
   buh_line "Omit the case name to list all 34. Useful when investigating a"
   buh_line "specific failure without re-running the full fixture."

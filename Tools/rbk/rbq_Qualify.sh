@@ -186,53 +186,9 @@ rbq_qualify_release() {
   buc_step "Release qualification passed"
 }
 
-rbq_qualify_pristine() {
-  zrbq_sentinel
-
-  # The gauntlet's first content fixture (pristine-lifecycle case 1) is the
-  # entry-contract gate: tree clean, RBRR blank, RBRA absent, nameplate
-  # hallmarks empty, vessel depot fields empty. Preceding enrollment-validation
-  # is state-indifferent. The bash for-loop in rbte_suite() runs under set -e
-  # so any fixture failure halts the gauntlet immediately.
-  buc_step "Running pristine qualification (gauntlet test suite)"
-  "${ZRBQ_PROJECT_ROOT}/tt/rbtd-s.TestSuite.gauntlet.sh"
-
-  buc_step "Pristine qualification passed"
-}
-
-rbq_qualify_skirmish() {
-  zrbq_sentinel
-
-  # Skirmish — the mini-gauntlet. Runs the depot->build->crucible chain against
-  # a depot the operator has already levied by hand: canonical-invest skips the
-  # levy and pristine-lifecycle is dropped, so no GCP project is created per
-  # run (cloud build/GAR are still spent). The release gate stays rbw-tP; this
-  # is the project-lifecycle-frugal substitute for iterative runs.
-  # PRECONDITION: install canonical prefixes + levy a depot (rbw-dL) by hand.
-  buc_step "Running skirmish qualification (mini-gauntlet test suite)"
-  "${ZRBQ_PROJECT_ROOT}/tt/rbtd-s.TestSuite.skirmish.sh"
-
-  buc_step "Skirmish qualification passed"
-}
-
-rbq_qualify_tadmor() {
-  zrbq_sentinel
-
-  # Tadmor self-contained — fully local, no GCP/depot/project. Two fixtures in
-  # sequence: kludge-tadmor builds BOTH vessels (sentry + bottle) locally and
-  # commits each hallmark (the fixture owns the notch — same precedent as
-  # onboarding's rbtdro_kludge_nameplate); then the tadmor crucible fixture
-  # charges against the now-clean nameplate, runs the security cases, quenches.
-  # The build is a separate fixture (nameplate passed explicitly) rather than a
-  # self-charging tadmor fixture, because the crucible security cases resolve
-  # their nameplate from the fixture name and would collide on "tadmor".
-  buc_step "Building tadmor vessels locally (kludge sentry + bottle, commit hallmarks)"
-  "${ZRBQ_PROJECT_ROOT}/tt/rbtd-r.FixtureRun.kludge-tadmor.sh"
-
-  buc_step "Running tadmor crucible fixture (charge + security + quench)"
-  "${ZRBQ_PROJECT_ROOT}/tt/rbtd-r.FixtureRun.tadmor.sh"
-
-  buc_step "Tadmor self-contained qualification passed"
-}
+# Pristine/skirmish/tadmor qualification collapsed into rbw-ts suite imprints
+# (gauntlet/skirmish/tadmor) — see the suite arrays in rbte_engine.sh. The
+# tadmor suite preserves the deliberate two-fixture (kludge-tadmor, tadmor)
+# sequence; its rationale moved to ZRBTE_SUITE_TADMOR.
 
 # eof

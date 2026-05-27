@@ -96,7 +96,7 @@ fn rbtdb_run_suite(args: &[String]) -> ExitCode {
         Some(m) => m,
         None => rbtd::rbtdrg_fatal_now!(
             "rbtd: usage: rbtd <manifest> <fixture>\n\
-             theurge must be launched via tabtarget (e.g. tt/rbtd-r.FixtureRun.tadmor.sh)"
+             theurge must be launched via tabtarget (e.g. tt/rbw-tf.FixtureRun.sh tadmor)"
         ),
     };
 

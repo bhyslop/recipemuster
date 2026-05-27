@@ -6,7 +6,7 @@ Read this file when working on theurge (test orchestrator), ifrit (attack binary
 
 Two Rust binaries with completely different roles and build targets:
 
-- **Theurge** (`Tools/rbk/rbtd/`) — test orchestrator, runs on the **host** (macOS/Linux). Charges a crucible (sentry + pentacle + bottle containers), invokes attacks, observes results, produces verdicts. Built via `tt/rbtd-b.Build.sh`.
+- **Theurge** (`Tools/rbk/rbtd/`) — test orchestrator, runs on the **host** (macOS/Linux). Charges a crucible (sentry + pentacle + bottle containers), invokes attacks, observes results, produces verdicts. Built via `tt/rbw-tb.Build.sh`.
 - **Ifrit** (`rbev-vessels/common-ifrit-context/`) — attack binary, runs **inside the bottle container**. Probes network security boundaries from the attacker's perspective. Source lives in the shared build context consumed by `rbev-bottle-ifrit-tether` (and the forthcoming airgap variant). Built inside the Docker image during `docker build` — there is no host-side compilation, no cross-compile, no `cargo check` on macOS. The Dockerfile IS the build system.
 
 **Coordinated tests** are the distinctive capability: theurge simultaneously observes from outside (via sentry writ/fiat commands) while ifrit attacks from inside. Neither binary alone can do this.
@@ -37,7 +37,7 @@ This applies to **all** crucible verification: new tests, bug fixes, refactors. 
 3. Git commit the hallmark change (kludge dirties `rbrn.env` — a clean working tree is required for charge, and the commit trail maintains audit integrity)
 4. Run the full tadmor fixture:
    ```
-   tt/rbtd-r.FixtureRun.tadmor.sh
+   tt/rbw-tf.FixtureRun.sh tadmor
    ```
    This charges the crucible, runs all cases, and quenches — one command.
 
@@ -51,10 +51,10 @@ When iterating on a specific failing test case:
    ```
 2. Run individual cases against the live crucible:
    ```
-   tt/rbtd-s.FixtureCase.sh tadmor case-name
+   tt/rbw-tc.FixtureCase.sh tadmor case-name
    ```
    Omit the case name to list all available cases. Omit the fixture name to list all available fixtures.
-3. Edit code, rebuild as needed (kludge for ifrit, `tt/rbtd-b.Build.sh` for theurge), re-run the single case. Repeat.
+3. Edit code, rebuild as needed (kludge for ifrit, `tt/rbw-tb.Build.sh` for theurge), re-run the single case. Repeat.
 4. Quench when done:
    ```
    tt/rbw-cQ.Quench.tadmor.sh
@@ -107,7 +107,7 @@ Cases group by purpose in source order (no formal section structure):
 
 **Crucible verification workflow** (applies to all new tests and changes):
 
-1. Build theurge: `tt/rbtd-b.Build.sh` and run unit tests: `tt/rbtd-t.Test.sh`
+1. Build theurge: `tt/rbw-tb.Build.sh` and run unit tests: `tt/rbw-tt.Test.sh`
 2. If ifrit source changed: kludge-rebuild, commit hallmark, then charge:
    ```
    tt/rbw-cKB.KludgeBottle.sh tadmor    # builds image, drives hallmark into rbrn.env
@@ -116,10 +116,10 @@ Cases group by purpose in source order (no formal section structure):
    ```
 3. Verify each new/changed case individually against the live crucible:
    ```
-   tt/rbtd-s.FixtureCase.sh tadmor rbtdrc_sortie_new_case_name
+   tt/rbw-tc.FixtureCase.sh tadmor rbtdrc_sortie_new_case_name
    ```
 4. Only after all targeted cases pass, run the full fixture for regression:
    ```
-   tt/rbtd-r.FixtureRun.tadmor.sh
+   tt/rbw-tf.FixtureRun.sh tadmor
    ```
    Note: this charges and quenches internally — quench the manual crucible first if one is active (`tt/rbw-cQ.Quench.tadmor.sh`).

@@ -16,7 +16,7 @@
 //
 // RBTDTH — shared test helpers
 //
-// Tests run via `tt/rbtd-t.Test.sh`, which routes through BUK dispatch and
+// Tests run via `tt/rbw-tt.Test.sh`, which routes through BUK dispatch and
 // exports BURD_TEMP_DIR pointing under ../temp-buk/. Direct `cargo test`
 // invocations from outside BUK dispatch are not a supported workflow and
 // fail loudly here rather than silently leaking scratch under /tmp.
@@ -32,7 +32,7 @@ pub(crate) fn rbtdth_scratch_root() -> PathBuf {
     match std::env::var(RBTDRI_BURD_TEMP_DIR_KEY) {
         Ok(v) if !v.is_empty() => PathBuf::from(v),
         _ => panic!(
-            "rbtdth: {} is not set — run tests via `tt/rbtd-t.Test.sh`",
+            "rbtdth: {} is not set — run tests via `tt/rbw-tt.Test.sh`",
             RBTDRI_BURD_TEMP_DIR_KEY
         ),
     }
