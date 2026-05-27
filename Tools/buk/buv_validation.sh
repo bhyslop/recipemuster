@@ -809,9 +809,9 @@ buv_render() {
   local z_desc=""
 
   echo ""
-  echo "${BUC_white}${z_label}${BUC_reset}"
+  zbuc_tint BUYC_BRIGHT_WHITE "${z_label}"; echo "${z_buym_format}"
   if test -n "${z_file_path}"; then
-    echo "  ${BUC_gray}File: ${z_file_path}${BUC_reset}"
+    zbuc_tint BUYC_GRAY "File: ${z_file_path}"; echo "  ${z_buym_format}"
   fi
   echo ""
 
