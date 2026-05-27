@@ -59,15 +59,52 @@ zrbgo_sentinel() {
   test "${ZRBGO_KINDLED:-}" = "1" || buc_die "Module rbgo not kindled - call zrbgo_kindle first"
 }
 
+######################################################################
+# Base64 primitives — generic openssl wrappers.
+#
+# Stateless — no sentinel; safe to call from any module regardless of
+# kindle order. rbgo base64url-encodes JWT material; rbgg/rbgp decode SA
+# private keys and rbfd decodes Cloud Build step outputs. The -A flag
+# (suppress line wrapping) is load-bearing on every site and lives only
+# here, so it cannot be silently dropped on one path.
+
+rbgo_base64_decode_string_to_file() {
+  local -r z_b64="${1:-}"
+  local -r z_output="${2:-}"
+  test -n "${z_b64}"    || return 1
+  test -n "${z_output}" || return 1
+  printf '%s' "${z_b64}" | openssl enc -base64 -d -A > "${z_output}" || return 1
+}
+
+rbgo_base64_decode_file_to_file() {
+  local -r z_input="${1:-}"
+  local -r z_output="${2:-}"
+  test -n "${z_input}"  || return 1
+  test -n "${z_output}" || return 1
+  test -f "${z_input}"  || return 1
+  openssl enc -base64 -d -A < "${z_input}" > "${z_output}" || return 1
+}
+
+rbgo_base64_encode_string_capture() {
+  local -r z_input="${1:-}"
+  printf '%s' "${z_input}" | openssl enc -base64 -A
+}
+
+rbgo_base64_encode_file_capture() {
+  local -r z_file="${1:-}"
+  test -f "${z_file}" || return 1
+  openssl enc -base64 -A < "${z_file}"
+}
+
 zrbgo_base64url_encode_capture() {
   zrbgo_sentinel
 
-  local -r z_input="$1"
+  local -r z_input="${1:-}"
 
-  # Base64url encode: -A suppresses line wrapping, then URL-safe transform and remove padding
+  # Base64url: encode, then URL-safe transform and strip = padding
   local z_encoded
-  z_encoded=$(printf '%s' "${z_input}" | openssl enc -base64 -A 2>"${ZRBGO_OPENSSL_STDERR_FILE}") || {
-    buc_warn "openssl base64url encode failed: $(<"${ZRBGO_OPENSSL_STDERR_FILE}")"
+  z_encoded=$(rbgo_base64_encode_string_capture "${z_input}") || {
+    buc_warn "openssl base64url encode failed"
     return 1
   }
   z_encoded="${z_encoded//+/-}"
@@ -136,8 +173,8 @@ zrbgo_build_jwt_capture() {
 
   buc_log_args "Base64url encode signature"
   local z_signature
-  z_signature=$(openssl enc -base64 -A < "${ZRBGO_JWT_SIGNATURE_FILE}" 2>"${ZRBGO_OPENSSL_STDERR_FILE}") || {
-    buc_warn "openssl signature base64 encode failed: $(<"${ZRBGO_OPENSSL_STDERR_FILE}")"
+  z_signature=$(rbgo_base64_encode_file_capture "${ZRBGO_JWT_SIGNATURE_FILE}") || {
+    buc_warn "openssl signature base64 encode failed"
     return 1
   }
   z_signature="${z_signature//+/-}"

@@ -1848,7 +1848,7 @@ rbgp_governor_mantle() {
   # with the final RBRA file — credentials never leak into BURD_TEMP_DIR.
   local -r z_assay_dir="${RBDC_ASSAY_RBRA_FILE%/*}"
   local -r z_key_json="${z_assay_dir}/_decoded_governor_key.json"
-  printf '%s' "${z_key_b64}" | openssl enc -base64 -d -A > "${z_key_json}" \
+  rbgo_base64_decode_string_to_file "${z_key_b64}" "${z_key_json}" \
     || buc_die "Failed to decode key data"
 
   buc_step 'Convert JSON key to RBRA format'
