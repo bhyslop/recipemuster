@@ -10227,6 +10227,13 @@
         "₢BQAAB": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260527-0904",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nThe risk pace. Careful — touches the busiest output path and the error path.\n\nIntroduce `buc`'s internal display path: gate on `BURE_VERBOSE`, apply the gray\n`ZBUC_CONTEXT` operation sigil, and render the message through the shared\n`buyf_format_yawp` (color) — superseding the current raw-string display in\n`zbuc_print`. Wire the transcript half to render plain via the strip resolver so\nlogs carry neither ANSI nor diastema bytes.\n\nLocked hazard: `buc` color shifts from source-time literals to kindle-time\n`BUYC_*` readonlys, so display now depends on `buym` having kindled. A cold\n`buc_die` (no prior kindle) must not throw unbound-variable inside the error\npath. Guard with `zbuym_sentinel`; prove with an explicit cold-`buc_die` test.\n\nSource: `Tools/buk/buc_command.sh` — `zbuc_print`, `zbuc_tag_args`, `buc_die`.\n\nDone: the internal path renders terminal-aware and logs plain; the cold-die test\nis green.",
+              "jjgtn_silks": "buc-shared-render-path-kindle-safe",
+              "jjgtn_basis": "15d3b7f"
+            },
+            {
               "jjgtn_ts": "260521-1009",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nThe risk pace. Careful — touches the busiest output path and the error path.\n\nIntroduce `buc`'s internal display path: gate on `BURE_VERBOSE`, apply the gray\n`ZBUC_CONTEXT` operation sigil, and render the message through the shared\n`buyf_format_yawp` (color) — superseding the current raw-string display in\n`zbuc_print`. Wire the transcript half to render plain via the strip resolver so\nlogs carry neither ANSI nor diastema bytes.\n\nLocked hazard: `buc` color shifts from source-time literals to kindle-time\n`BUYC_*` readonlys, so display now depends on `buym` having kindled. A cold\n`buc_die` (no prior kindle) must not throw unbound-variable inside the error\npath. Guard with `zbuym_sentinel`; prove with an explicit cold-`buc_die` test.\n\nSource: `Tools/buk/buc_command.sh` — `zbuc_print`, `zbuc_tag_args`, `buc_die`.\n\nDone: the internal path renders terminal-aware and logs plain; the cold-die test\nis green.",
