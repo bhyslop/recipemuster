@@ -40,7 +40,7 @@ use rbtd::rbtdre_engine::{
 };
 use rbtd::rbtdri_invocation::{
     rbtdri_Context, rbtdri_invoke_global,
-    RBTDRI_BURD_OUTPUT_DIR_KEY, RBTDRI_BURD_TEMP_DIR_KEY,
+    RBTDRI_BURD_TEMP_DIR_KEY,
 };
 use rbtd::rbtdrm_manifest::{rbtdrm_verify, RBTDRM_COLOPHON_CRUCIBLE_ACTIVE};
 use rbtd::rbtdrx_platform::rbtdrx_posix_to_native;
@@ -73,11 +73,17 @@ struct rbtdb_Roots {
 
 fn rbtdb_allocate_roots() -> Result<rbtdb_Roots, String> {
     let burd_temp = rbtdb_read_dispatch_dir(RBTDRI_BURD_TEMP_DIR_KEY)?;
-    let burd_output = rbtdb_read_dispatch_dir(RBTDRI_BURD_OUTPUT_DIR_KEY)?;
 
+    // Both BURV roots are anchored under the per-run trace dir
+    // (BURD_TEMP_DIR/rbtd), which is stable for the life of the run. The output
+    // root deliberately does NOT live under BURD_OUTPUT_DIR (output-buk/current):
+    // that dir is cleared at the start of every BUK dispatch, so a fact captured
+    // there can be deleted out from under a still-running invocation by any
+    // default-root dispatch — leaving the durable temp copy as the only survivor
+    // (the failure that made rbgp_fact_governor_sa_email unreadable mid-suite).
     let trace_root = burd_temp.join("rbtd");
-    let burv_temp_root = trace_root.join("burv");
-    let burv_output_root = burd_output.join("rbtd").join("burv");
+    let burv_temp_root = trace_root.join("burv-temp");
+    let burv_output_root = trace_root.join("burv-output");
 
     std::fs::create_dir_all(&trace_root)
         .map_err(|e| format!("rbtd: failed to create trace root '{}': {}", trace_root.display(), e))?;

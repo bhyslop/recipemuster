@@ -50,10 +50,6 @@ pub const RBTDRI_BURE_CONFIRM_SKIP: &str = "skip";
 /// fails at startup if unset. Set by bud_dispatch.sh on every tabtarget call.
 pub const RBTDRI_BURD_TEMP_DIR_KEY: &str = "BURD_TEMP_DIR";
 
-/// BUK dispatch env var carrying the output root for theurge — anchors BURV
-/// per-invoke output dirs under output-buk/. Same lifecycle as BURD_TEMP_DIR.
-pub const RBTDRI_BURD_OUTPUT_DIR_KEY: &str = "BURD_OUTPUT_DIR";
-
 /// BURV invoke-directory name from a zero-based invoke count.
 ///
 /// Single source of truth for the `invoke-NNNNN` naming pattern; tests call
