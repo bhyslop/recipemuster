@@ -191,10 +191,10 @@ buyy_tt_yawp() {
   local -r z_colophon="${1:-}"
   local z_path=""
   if test -n "${2:-}"; then
-    local z_matches=("${BURD_TABTARGET_DIR}"/${z_colophon}.*.${2}.sh)
+    local z_matches=("${BURD_TABTARGET_DIR}/${z_colophon}."*".${2}.sh")
     test -e "${z_matches[0]}" && z_path="${z_matches[0]}" || z_path="??${z_colophon}.${2}??"
   else
-    local z_matches=("${BURD_TABTARGET_DIR}"/${z_colophon}.*)
+    local z_matches=("${BURD_TABTARGET_DIR}/${z_colophon}."*)
     test -e "${z_matches[0]}" && z_path="${z_matches[0]}" || z_path="??${z_colophon}??"
   fi
   z_buym_yelp="${ZBUYM_DIASTEMA_TT}${z_path}${3:-}${ZBUYM_DIASTEMA_END}"
