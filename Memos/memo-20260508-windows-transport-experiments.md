@@ -19,7 +19,7 @@ chain branches by which child shell is invoked: `wsl.exe ... bash` (w),
 `C:/cygwin64/bin/bash --login` (c), or `powershell -NoProfile -Command`
 (direct PS).
 
-Fundus: `bujn-winpc` (BURN_HOST=rocket, BURN_PLATFORM=bubep_windows).
+Fundus: `bujn-winpc` (BURN_HOST=rocket, BURN_PLATFORM=bunne_windows).
 WSL distribution: `rbtww-main` (admin: `--user root`). Cygwin path:
 `C:/cygwin64/bin/bash --login`.
 
@@ -281,7 +281,7 @@ cmd.exe and Windows argv-parser conventions, which do not include
 ### Resolution: deferred (no Linux/Mac fundus in matrix)
 
 The only registered BURN profile in this regime is `bujn-winpc`
-(`BURN_PLATFORM=bubep_windows`). There is no Linux or Mac investiture
+(`BURN_PLATFORM=bunne_windows`). There is no Linux or Mac investiture
 available for the probe vehicle.
 
 Rationale for deferral being acceptable:

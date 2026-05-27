@@ -139,7 +139,7 @@ do a cold boot by default" — we are asking for a cold boot explicitly.
 
 - Helper: `zbujb_reboot_and_await_ssh` in
   `Tools/buk/bujb_jurisdiction.sh`.
-- Wired unconditionally on `BURN_PLATFORM = bubep_windows` in
+- Wired unconditionally on `BURN_PLATFORM = bunne_windows` in
   `bujb_garrison()` between `bujp_preflight` and
   `zbujb_obliterate_workload`.
 - Tinder constants: `BUJB_ssh_opt_connecttimeout_5`,
