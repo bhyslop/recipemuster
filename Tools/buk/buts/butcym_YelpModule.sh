@@ -88,6 +88,50 @@ zbutcym_plain_mode() {
   printf '%b' "${z_buym_format}" >&2
 }
 
+zbutcym_gray_color() {
+  buyc_unconditional
+  zbuym_kindle
+  printf '%b' "[${BUYC_GRAY}]" >&2
+}
+
+zbutcym_gray_plain() {
+  buyc_plain
+  zbuym_kindle
+  printf '%b' "[${BUYC_GRAY}]" >&2
+}
+
+zbutcym_strip_cmd() {
+  # color ON — strip must ignore terminal mode
+  buyc_unconditional
+  zbuym_kindle
+  buyy_cmd_yawp "git status"
+  buyf_strip_yawp "Run ${z_buym_yelp} now"
+  printf '%b' "${z_buym_format}" >&2
+}
+
+zbutcym_strip_link() {
+  buyc_unconditional
+  zbuym_kindle
+  buyy_link_yawp "https://example.com" "Depot"
+  buyf_strip_yawp "See ${z_buym_yelp}."
+  printf '%b' "${z_buym_format}" >&2
+}
+
+zbutcym_strip_href() {
+  buyc_unconditional
+  zbuym_kindle
+  buyy_href_yawp "https://example.com" "Docs"
+  buyf_strip_yawp "${z_buym_yelp}"
+  printf '%b' "${z_buym_format}" >&2
+}
+
+zbutcym_strip_fast_path() {
+  buyc_unconditional
+  zbuym_kindle
+  buyf_strip_yawp "plain text no markers"
+  printf '%b' "${z_buym_format}" >&2
+}
+
 ######################################################################
 # Test cases
 
@@ -214,6 +258,94 @@ butcym_plain_mode_tcase() {
   case "${ZBUTO_STDERR}" in
     *$'\x02'*) buto_fatal "Diastema byte survived in plain mode" ;;
     *) ;;
+  esac
+}
+
+butcym_gray_color_tcase() {
+  buto_trace "BUYC_GRAY: resolves to ANSI gray in color mode"
+  zbuto_invoke zbutcym_gray_color
+  buto_fatal_on_error "${ZBUTO_STATUS}" "gray color failed" "STDERR: ${ZBUTO_STDERR}"
+  local z_gray
+  z_gray=$(printf '\033[90m')
+  case "${ZBUTO_STDERR}" in
+    *"[${z_gray}]"*) ;;
+    *) buto_fatal "Gray ANSI not found" "Got: ${ZBUTO_STDERR}" ;;
+  esac
+}
+
+butcym_gray_plain_tcase() {
+  buto_trace "BUYC_GRAY: empty when color is off"
+  zbuto_invoke zbutcym_gray_plain
+  buto_fatal_on_error "${ZBUTO_STATUS}" "gray plain failed" "STDERR: ${ZBUTO_STDERR}"
+  case "${ZBUTO_STDERR}" in
+    *"[]"*) ;;
+    *) buto_fatal "Gray should be empty in plain mode" "Got: ${ZBUTO_STDERR}" ;;
+  esac
+  case "${ZBUTO_STDERR}" in
+    *$'\033'*) buto_fatal "ESC byte in plain-mode gray" "Got: ${ZBUTO_STDERR}" ;;
+    *) ;;
+  esac
+}
+
+butcym_strip_cmd_tcase() {
+  buto_trace "buyf_strip_yawp: CMD marker strips to bare text, ignores color mode"
+  zbuto_invoke zbutcym_strip_cmd
+  buto_fatal_on_error "${ZBUTO_STATUS}" "strip cmd failed" "STDERR: ${ZBUTO_STDERR}"
+  case "${ZBUTO_STDERR}" in
+    *"Run git status now"*) ;;
+    *) buto_fatal "Stripped text not found" "Got: ${ZBUTO_STDERR}" ;;
+  esac
+  case "${ZBUTO_STDERR}" in
+    *$'\033'*) buto_fatal "ESC byte in stripped output (must ignore color mode)" "Got: ${ZBUTO_STDERR}" ;;
+    *) ;;
+  esac
+  case "${ZBUTO_STDERR}" in
+    *$'\x02'*) buto_fatal "Diastema byte survived strip" "Got: ${ZBUTO_STDERR}" ;;
+    *) ;;
+  esac
+}
+
+butcym_strip_link_tcase() {
+  buto_trace "buyf_strip_yawp: LINK degrades to 'text <url>' with no ANSI/OSC-8"
+  zbuto_invoke zbutcym_strip_link
+  buto_fatal_on_error "${ZBUTO_STATUS}" "strip link failed" "STDERR: ${ZBUTO_STDERR}"
+  case "${ZBUTO_STDERR}" in
+    *"See Depot <https://example.com#Depot>."*) ;;
+    *) buto_fatal "Stripped link form not found" "Got: ${ZBUTO_STDERR}" ;;
+  esac
+  local z_osc
+  z_osc=$(printf '\033]8;;')
+  case "${ZBUTO_STDERR}" in
+    *"${z_osc}"*) buto_fatal "OSC-8 should not appear in strip" "Got: ${ZBUTO_STDERR}" ;;
+    *) ;;
+  esac
+  case "${ZBUTO_STDERR}" in
+    *$'\033'*) buto_fatal "ESC byte in stripped link output" "Got: ${ZBUTO_STDERR}" ;;
+    *) ;;
+  esac
+}
+
+butcym_strip_href_tcase() {
+  buto_trace "buyf_strip_yawp: HREF degrades to 'text <url>'"
+  zbuto_invoke zbutcym_strip_href
+  buto_fatal_on_error "${ZBUTO_STATUS}" "strip href failed" "STDERR: ${ZBUTO_STDERR}"
+  case "${ZBUTO_STDERR}" in
+    *"Docs <https://example.com>"*) ;;
+    *) buto_fatal "Stripped href form not found" "Got: ${ZBUTO_STDERR}" ;;
+  esac
+  case "${ZBUTO_STDERR}" in
+    *$'\033'*) buto_fatal "ESC byte in stripped href output" "Got: ${ZBUTO_STDERR}" ;;
+    *) ;;
+  esac
+}
+
+butcym_strip_fast_path_tcase() {
+  buto_trace "buyf_strip_yawp: no diastema markers takes fast path"
+  zbuto_invoke zbutcym_strip_fast_path
+  buto_fatal_on_error "${ZBUTO_STATUS}" "strip fast path failed" "STDERR: ${ZBUTO_STDERR}"
+  case "${ZBUTO_STDERR}" in
+    *"plain text no markers"*) ;;
+    *) buto_fatal "Plain text not found" "Got: ${ZBUTO_STDERR}" ;;
   esac
 }
 
