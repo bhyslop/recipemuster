@@ -10263,6 +10263,13 @@
         "₢BQAAD": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260527-0921",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nSmall, self-contained dedup.\n\n`buc_tabtarget` re-implements the colophon-to-filename glob that `buyy_tt_yawp`\nalready owns. Make `buc_tabtarget` delegate to the yawp resolver so a single glob\nexists in the kit.\n\nSource: `buc_tabtarget` in `Tools/buk/buc_command.sh`; `buyy_tt_yawp` in\n`Tools/buk/buym_yelp.sh`.\n\nDone: one resolver; existing `buc_tabtarget` call sites render unchanged.",
+              "jjgtn_silks": "collapse-tabtarget-glob-clone",
+              "jjgtn_basis": "b10a0f6"
+            },
+            {
               "jjgtn_ts": "260521-1009",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nSmall, self-contained dedup.\n\n`buc_tabtarget` re-implements the colophon-to-filename glob that `buyy_tt_yawp`\nalready owns. Make `buc_tabtarget` delegate to the yawp resolver so a single glob\nexists in the kit.\n\nSource: `buc_tabtarget` in `Tools/buk/buc_command.sh`; `buyy_tt_yawp` in\n`Tools/buk/buym_yelp.sh`.\n\nDone: one resolver; existing `buc_tabtarget` call sites render unchanged.",
