@@ -404,3 +404,64 @@ the map, choose the tier when org adoption actually demands keyless.
 Note: this federation is *ingress* identity (operators reaching the depot), distinct
 from the roadmap's envoy entry, which uses federation for *egress* (GCP→AWS
 cross-post). Same mechanism family, opposite direction — keep them unconflated.
+
+### R4 — Synthetic-human CI emplacement and test-org session policy (resolves §11 "synthetic-human CI emplacement" and "session-policy as a lever vs constraint")
+
+The two test-rig questions resolve together. A federated operator (Workforce
+Identity Federation) authenticates by device flow; the resulting Google session
+is capped at **12 hours** — a hard GCP limit, even on an org you own. So
+month-scale unattended test machines are *not* a long session: they are a
+**persisted IdP refresh token** that the machine silently re-exchanges every
+≤12 h, headless. The human touch happens once, when the token is minted.
+
+Decision:
+
+- **Shipped human roles persist no refresh token** — device flow per session,
+  reauth on the operator-org's own cadence. This is the org-native ideal.
+- **The project's own test rig** (firewalled machines, project-administered test
+  org) gets a **test-only enrollment** that persists one refresh token per
+  machine — the single acknowledged durable-secret residual (§8). Set the test
+  org's Workforce session to its 12 h maximum; the month-span comes from the
+  refresh token, not the session.
+- **Not security-breaking:** a federated/OAuth refresh token is not an SA key
+  (org-legal, no policy override needed), is centrally revocable (disable the
+  principal at the IdP — kills every machine at once), is capability-scoped, and
+  is physically contained behind the firewall.
+- This is a **federation-era** mechanism. Under MVP/keyfile the same durable
+  test-credential need is met by the SA key itself (where key creation is
+  permitted). Two eras, one need.
+
+Session policy is therefore a lever pulled only on the org you administer (the
+test rig), documented as test-rig-only because end users always get *their* org's
+cadence — never a project-set value.
+
+### R5 — Gauntlet coupling: regression leans on skirmish (resolves §11 "gauntlet coupling")
+
+Independent of credential tier. A full-gauntlet run levies a fresh depot, which
+re-hits `disableServiceAccountKeyCreation` on a secure-by-default org **even in
+RBRA/keyfile mode**. Skirmish (standing depot) does not re-levy and does not hit
+the wall.
+
+Decision: burn-down and routine regression **lean on skirmish**; full-gauntlet
+fresh-depot levies run only on an account that permits SA-key creation (no-org,
+or an org with the override). This is an operational testing posture, live for
+MVP — not contingent on any keyless work.
+
+### §11 disposition (closure)
+
+All seven §11 questions are now decided or deliberately retired:
+
+| §11 question | Disposition |
+|---|---|
+| One human credential vs per-role | Resolved — R2 |
+| Does Payor stay distinct | Resolved — R1 / R2 |
+| Coexistence & migration | Resolved — R3 (mode-enum migration; see feasibility memo) |
+| Synthetic-human CI emplacement | Resolved — R4 |
+| Session-policy lever vs constraint | Resolved — R4 |
+| Gauntlet coupling | Resolved — R5 |
+| Probe / handbook / regime keyfile surfaces (RBSAJ/RBSAO/RBSAV, onboarding, `rbw-gPR`) | **Retired** — R3 ships RBRA for MVP, so these surfaces stay correct as-is; no MVP rework. Re-decided if/when the keyless tier is chosen; the revisit-trigger lives in the RBSHR "Operator federation" roadmap entry. |
+
+The federation tier's mechanism — and the RBRA→RBRI obsolescence, credential
+mode-enum, and cult-verb shape — are recorded separately in
+`memo-20260527-workforce-federation-feasibility.md` (a labeled sketch; the
+keyless tier remains deferred and unchosen per R3).

@@ -319,14 +319,17 @@ to trust an external OIDC/SAML identity provider (any compliant issuer — self-
 The
 {rbtgi_depot}
 remains the home of the participant roster (the role-to-identity mapping); the IdP owns only identity proofing.
-Org-only — federation pools are organization-level, so a no-org
+Org-only — federation pools are organization-level (Workforce Identity Federation, the human-identity product), so a no-org
 {rbtr_payor}
 cannot use this tier.
-Distinct from the envoy's egress federation (GCP-to-AWS delivery): this is
+The Google-side credential path is curl-native — an STS token exchange (RFC 8693), no gcloud and no added stack dependency; only the IdP-auth leg (device flow where the issuer supports it) varies by issuer.
+Distinct from the envoy's egress federation (GCP-to-AWS delivery, the machine-identity Workload product): this is
 {at_operator}
 *access* identity arriving the other way.
 _Trigger_: first concrete need to admit
 {at_operator}s
 who cannot hold Google accounts, or when Google-account / keyfile requirements materially block adoption rather than being theoretically frictionful.
-_Reference_: `Memos/memo-20260522-org-affiliated-credential-reorientation.md` (R1/R2/R3 — credential model, the three-tier ladder, federation as far tier, and the deliberate deferral of the keyless successor);
-`Memos/memo-20260427-google-native-human-auth.md` (impersonation mechanism detail — its human-auth *framing* is superseded by the 2026-05-22 memo).
+_Reference_: `Memos/memo-20260527-workforce-federation-feasibility.md` (the source document for this entry — Workforce mechanism, curl-native two-leg flow, device-flow / 12-hour session cap, and the RBRA→RBRI obsolescence / credential mode-enum / cult-verb sketch);
+`Memos/memo-20260522-org-affiliated-credential-reorientation.md` (R1/R2/R3 credential model and three-tier ladder, plus R4/R5 test-rig and gauntlet resolutions);
+`Memos/memo-20260427-google-native-human-auth.md` (impersonation mechanism detail — its human-auth *framing* is superseded by R2);
+Google docs: Workforce Identity Federation overview (`https://docs.cloud.google.com/iam/docs/workforce-identity-federation`) and short-lived token exchange (`https://docs.cloud.google.com/iam/docs/workforce-obtaining-short-lived-credentials`).
