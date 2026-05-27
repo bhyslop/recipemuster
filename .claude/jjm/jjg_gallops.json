@@ -9710,9 +9710,10 @@
         "₢BMAAE",
         "₢BMAAH",
         "₢BMAAI",
-        "₢BMAAF"
+        "₢BMAAF",
+        "₢BMAAL"
       ],
-      "jjghn_next_pace_seed": "AAL",
+      "jjghn_next_pace_seed": "AAM",
       "jjghn_paces": {
         "₢BMAAA": {
           "jjgpn_tacks": [
@@ -9979,6 +9980,17 @@
               "jjgtn_text": "## Character\nMechanical rename + single-pipeline collapse. Judgment only at the\ndoc-sweep's prose-vs-value calls; the colophon mint is pre-resolved below.\nIntricate but mechanical — hands the heavy gauntlet/cloud regression to the\nfinal-regression pace that follows.\n\n## Goal\nCollapse the theurge rbtd-* tabtarget family into rbw-t* and retire the\nsecond (RBTW) pipeline — all test/qualify dispatch on one workbench, no\ntest lost, materially fewer tabtargets.\n\n## Mint (resolved)\n- rbw-tb Build           <- rbtd-b\n- rbw-tt Test            <- rbtd-t\n- rbw-ts TestSuite.<imprint> (imprint)  <- rbtd-s.TestSuite.* + folded\n  tP/tS/tT; carries every current imprint incl. dogfight + new `tadmor`.\n- rbw-tf FixtureRun (param1)            <- 17x rbtd-r.FixtureRun.*\n- rbw-tc FixtureCase <fixture> [case] (param1)  <- rbtd-s.FixtureCase\n- rbw-tq QualifyFast (moved off rbw-tf); rbw-tr QualifyRelease kept (fix\n  its complete-suite call); rbw-tK/tO kept.\n\n## Shape — one pipeline\nRe-home rbte_cli as a buz module enrolled in rbz_zipper, dispatched by\nrbw_workbench. Delete rbtw_workbench.sh, launcher.rbtw_workbench.sh, and\nthe rbte_dispatch switch. rbte_engine.sh and the Rust binary unchanged.\n\n## Recipe (not site lists)\n- Live callers: grep -rn 'rbtd-[bstr]' Tools/ tt/ (exclude .claude/jjm).\n- Operator-facing: buh_tt calls naming rbtd-* in handbook scripts.\n- Consumer-visible: CLAUDE.consumer.md ships these colophons — release-note\n  the rename (esp. rbw-tP release-gate -> rbw-ts.TestSuite.gauntlet.sh).\n\n## Done (cheap/local — heavy regression is the next pace, AAF)\n- grep -rn 'rbtd-' Tools/ tt/ returns zero live colophons (history aside).\n- Theurge crate builds clean; rbw-ts.TestSuite.fast.sh green (proves the\n  one-pipeline dispatch end-to-end on the cheap path).\n- rbw-tq QualifyFast green (colophon/tabtarget health — every enrolled\n  colophon resolves).",
               "jjgtn_silks": "theurge-colophon-consolidation",
               "jjgtn_basis": "81cd9ff"
+            }
+          ]
+        },
+        "₢BMAAL": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260527-0729",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nCross-platform regression leg on the cerebro Linux fundus. Foray dispatch\nis mechanical; a suite reding is opus-grade triage.\n\n## Goal\n\nThe same skirmish + faster-suite ladder proven on macos re-run on the\ncerebro Linux fundus — confirming the sprue migration and theurge-colophon\nconsolidation are platform-independent, not a macos-only pass.\n\n## Recipe\n\n- Foray per the JJK Foray Protocol: bind a legatio to cerebro (alias from\n  its BUK Regime Node profile, reldir `projects/rbm_alpha_recipemuster`),\n  ensure curia clean + pushed, plant to HEAD.\n- Relay the `rbw-ts.TestSuite.*` suites sequentially — faster suites first,\n  then `skirmish`. Skirmish carries the standing-depot precondition: confirm\n  a canonical depot is reachable from cerebro's regime before relaying it.\n- `jjx_check` each pensum to terminal; `jjx_fetch` the `../logs-buk/`\n  result; triage red as real-bug vs. the known ACCOUNT_STATE_INVALID flap.\n\n## Acceptance\n\n- skirmish + faster suites green on cerebro.",
+              "jjgtn_silks": "cerebro-regression-run",
+              "jjgtn_basis": "a2ae860"
             }
           ]
         }
