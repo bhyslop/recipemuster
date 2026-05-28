@@ -105,6 +105,51 @@ RBCC_container_pentacle="pentacle"
 RBCC_container_sentry="sentry"
 
 ######################################################################
+# Rust const projection (rbcc single-homed set → RBTDGC_)
+
+# rbcc_emit_consts() - Emit the RBCC-owned co-maintained constants as Rust
+# string consts to stdout, one `pub const` line per name/value pair via the
+# shared buz_emit_const primitive (BUK must be kindled). The single-homed set:
+# moorings/vessels dirs, credential roles, .env filenames. Each Rust const is
+# RBTDGC_ + the RBCC stem (RBCC_ prefix stripped) uppercased; the value is
+# carried verbatim. Bash stays mixed-case (RBCC_moorings_dir); the generated
+# Rust is SCREAMING (RBTDGC_MOORINGS_DIR) per Rust convention — that casing is
+# the sole transform, applied mechanically, so there is no per-entry mapping
+# and no drift. rbtd's lib.rs paths, the manifest role mirror, and the
+# rbtdrk/rbtdrp .env consts all source these instead of hand-copying.
+rbcc_emit_consts() {
+  printf '%s\n' "// RBCC constants (rbcc_Constants.sh single-homed set)"
+
+  local z_name=""
+  local z_stem=""
+  local z_upper=""
+  for z_name in \
+    RBCC_moorings_dir    \
+    RBCC_vessels_subdir  \
+    RBCC_role_governor   \
+    RBCC_role_retriever  \
+    RBCC_role_director   \
+    RBCC_role_payor      \
+    RBCC_role_assay      \
+    RBCC_role_mason      \
+    RBCC_rbrr_file       \
+    RBCC_rbrp_file       \
+    RBCC_rbrm_file       \
+    RBCC_rbrd_basename   \
+    RBCC_rbrd_file       \
+    RBCC_rbrs_file       \
+    RBCC_rbrn_file       \
+    RBCC_rbra_file       \
+    RBCC_rbro_file       \
+  ; do
+    z_stem="${z_name#RBCC_}"
+    z_upper="$(printf '%s' "${z_stem}" | tr '[:lower:]' '[:upper:]')"
+    buz_emit_const "RBTDGC_${z_upper}" "${!z_name}" \
+      || buc_die "rbcc_emit_consts: emit failed for ${z_name}"
+  done
+}
+
+######################################################################
 # Internal Functions (zrbcc_*)
 
 zrbcc_kindle() {

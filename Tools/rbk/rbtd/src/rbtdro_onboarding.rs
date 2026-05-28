@@ -59,6 +59,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_PLUMB_COMPACT,
     RBTDGC_PLUMB_FULL,
     RBTDGC_REKON_HALLMARK,
+    RBTDGC_ROLE_GOVERNOR,
     RBTDGC_SUMMON_HALLMARK,
     RBTDGC_WREST_HALLMARK_IMAGE,
     RBTDGC_YOKE_RELIQUARY,
@@ -73,7 +74,6 @@ use crate::rbtdrm_manifest::{
     RBTDRM_OPERATION_KLUDGE,
     RBTDRM_OPERATION_ORDAIN,
     RBTDRM_OPERATION_YOKE,
-    RBTDRM_ROLE_GOVERNOR,
 };
 
 // ── Vessel directories ────────────────────────────────────────
@@ -186,7 +186,7 @@ fn rbtdro_read_env_value(path: &Path, key: &str) -> Option<String> {
 /// Established by canonical-establish §2 (rbtdrk_governor_mantle).
 fn rbtdro_probe_governor_rbra() -> Result<(), String> {
     let root = rbtdro_probe_root()?;
-    let path = rbtdrk_canonical_rbra(&root, RBTDRM_ROLE_GOVERNOR)?;
+    let path = rbtdrk_canonical_rbra(&root, RBTDGC_ROLE_GOVERNOR)?;
     if !path.exists() {
         return Err(format!("governor RBRA absent at {}", path.display()));
     }
@@ -465,7 +465,7 @@ fn rbtdro_drive_hallmark(
     var_name: &str,
     hallmark: &str,
 ) -> Result<(), String> {
-    let rbrn_path = root.join(crate::RBTD_MOORINGS_DIR).join(nameplate).join("rbrn.env");
+    let rbrn_path = root.join(crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR).join(nameplate).join("rbrn.env");
     let file = std::fs::File::open(&rbrn_path)
         .map_err(|e| format!("open rbrn.env for {}: {}", nameplate, e))?;
 
@@ -491,12 +491,12 @@ fn rbtdro_drive_hallmark(
     if !found {
         return Err(format!(
             "variable {} not found in {}/{}/rbrn.env",
-            var_name, crate::RBTD_MOORINGS_DIR, nameplate
+            var_name, crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR, nameplate
         ));
     }
 
     let tmp_path = root
-        .join(crate::RBTD_MOORINGS_DIR)
+        .join(crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR)
         .join(nameplate)
         .join("rbrn.env.drive_tmp");
     {
@@ -515,7 +515,7 @@ fn rbtdro_drive_hallmark(
 /// Repo-relative path to a nameplate's rbrn.env — the file a hallmark drive
 /// rewrites. Mirrors the join in `rbtdro_drive_hallmark`.
 fn rbtdro_nameplate_rbrn_path(nameplate: &str) -> String {
-    format!("{}/{}/rbrn.env", crate::RBTD_MOORINGS_DIR, nameplate)
+    format!("{}/{}/rbrn.env", crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR, nameplate)
 }
 
 /// Repo-relative path to a vessel's rbrv.env. `vessel_dir` is already the

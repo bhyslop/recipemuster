@@ -19,6 +19,19 @@
 use super::rbtdgc_consts::*;
 use super::rbtdrm_manifest::*;
 
+/// Pin the one surviving compile-time path literal (the `rbtd_vessels_dir!`
+/// macro in lib.rs) to the generated source of truth. The macro must equal
+/// `<RBTDGC_MOORINGS_DIR>/<RBTDGC_VESSELS_SUBDIR>`; if rbcc_Constants.sh changes
+/// either, codegen updates the consts and this test fails until the macro
+/// literal is corrected — drift caught at test time, no new dependency.
+#[test]
+fn rbtdtm_vessels_dir_matches_generated() {
+    assert_eq!(
+        crate::rbtd_vessels_dir!(),
+        format!("{}/{}", RBTDGC_MOORINGS_DIR, RBTDGC_VESSELS_SUBDIR)
+    );
+}
+
 /// Build a manifest string from the required colophons for a fixture.
 fn rbtdtm_manifest_for(fixture: &str) -> String {
     rbtdrm_required_colophons(fixture)

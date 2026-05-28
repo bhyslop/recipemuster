@@ -48,8 +48,9 @@ use crate::rbtdri_invocation::{
     RBTDRI_BURE_CONFIRM_SKIP,
 };
 use crate::rbtdrk_canonical::rbtdrk_canonical_rbra;
-use crate::rbtdgc_consts::{RBTDGC_ABJURE_HALLMARK, RBTDGC_ORDAIN_HALLMARK, RBTDGC_SUMMON_HALLMARK};
-use crate::rbtdrm_manifest::RBTDRM_ROLE_DIRECTOR;
+use crate::rbtdgc_consts::{
+    RBTDGC_ABJURE_HALLMARK, RBTDGC_ORDAIN_HALLMARK, RBTDGC_ROLE_DIRECTOR, RBTDGC_SUMMON_HALLMARK,
+};
 
 /// Container runtime for the bare executability proof. Hardcoded to docker;
 /// podman is deferred to the Director-governed runtime-regime decision that
@@ -79,7 +80,7 @@ fn rbtdrd_probe_root() -> Result<PathBuf, String> {
 /// probed; summon fails loud if it is absent.
 fn rbtdrd_probe_director_rbra() -> Result<(), String> {
     let root = rbtdrd_probe_root()?;
-    let path = rbtdrk_canonical_rbra(&root, RBTDRM_ROLE_DIRECTOR)?;
+    let path = rbtdrk_canonical_rbra(&root, RBTDGC_ROLE_DIRECTOR)?;
     if !path.exists() {
         return Err(format!("director RBRA absent at {}", path.display()));
     }

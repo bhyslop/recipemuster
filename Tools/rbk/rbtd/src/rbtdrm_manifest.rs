@@ -23,23 +23,19 @@
 // gate lands.
 use crate::rbtdgc_consts::*;
 
-// Credential role consts — the credential vocabulary that crosses the
-// access-probe CLI boundary (role → colophon mapping, fact-file labels,
-// diagnostics). Single definition per String Boundary Discipline.
-pub const RBTDRM_ROLE_GOVERNOR: &str = "governor";
-pub const RBTDRM_ROLE_RETRIEVER: &str = "retriever";
-pub const RBTDRM_ROLE_DIRECTOR: &str = "director";
-pub const RBTDRM_ROLE_PAYOR: &str = "payor";
+// Credential roles are projected from rbcc_Constants.sh into the generated
+// RBTDGC_ROLE_* consts (rbtdgc_consts.rs) — consumed here and across the access
+// probe surface. The former hand-written RBTDRM_ROLE_* mirror is retired.
 
 /// Map a credential role to its access-probe colophon. Returns None for
 /// unknown roles. Replaces the former role-as-imprint scheme: each role now
 /// names its own global tabtarget under the rbw-ac* family.
 pub fn rbtdrm_credential_check_colophon(role: &str) -> Option<&'static str> {
     match role {
-        RBTDRM_ROLE_GOVERNOR => Some(RBTDGC_CHECK_GOVERNOR),
-        RBTDRM_ROLE_RETRIEVER => Some(RBTDGC_CHECK_RETRIEVER),
-        RBTDRM_ROLE_DIRECTOR => Some(RBTDGC_CHECK_DIRECTOR),
-        RBTDRM_ROLE_PAYOR => Some(RBTDGC_CHECK_PAYOR),
+        RBTDGC_ROLE_GOVERNOR => Some(RBTDGC_CHECK_GOVERNOR),
+        RBTDGC_ROLE_RETRIEVER => Some(RBTDGC_CHECK_RETRIEVER),
+        RBTDGC_ROLE_DIRECTOR => Some(RBTDGC_CHECK_DIRECTOR),
+        RBTDGC_ROLE_PAYOR => Some(RBTDGC_CHECK_PAYOR),
         _ => None,
     }
 }

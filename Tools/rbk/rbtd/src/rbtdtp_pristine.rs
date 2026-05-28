@@ -121,6 +121,6 @@ fn rbtdtp_install_throwaway_prefixes_rejects_missing_rbrr() {
     assert!(
         result.is_err(),
         "expected Err when {}/rbrr.env is absent",
-        crate::RBTD_MOORINGS_DIR
+        crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR
     );
 }

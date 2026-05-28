@@ -40,12 +40,10 @@ use crate::rbtdgc_consts::{
     RBTDGC_ABJURE_HALLMARK, RBTDGC_AUDIT_HALLMARKS, RBTDGC_CRUCIBLE_ACTIVE, RBTDGC_CRUCIBLE_BARK,
     RBTDGC_CRUCIBLE_CHARGE, RBTDGC_CRUCIBLE_FIAT, RBTDGC_CRUCIBLE_QUENCH, RBTDGC_CRUCIBLE_WRIT,
     RBTDGC_JETTISON_HALLMARK_IMAGE, RBTDGC_ORDAIN_HALLMARK, RBTDGC_REKON_HALLMARK,
+    RBTDGC_ROLE_DIRECTOR, RBTDGC_ROLE_GOVERNOR, RBTDGC_ROLE_PAYOR, RBTDGC_ROLE_RETRIEVER,
     RBTDGC_TALLY_HALLMARKS, RBTDGC_VOUCH_HALLMARKS,
 };
-use crate::rbtdrm_manifest::{
-    rbtdrm_credential_check_colophon, RBTDRM_ROLE_DIRECTOR, RBTDRM_ROLE_GOVERNOR,
-    RBTDRM_ROLE_PAYOR, RBTDRM_ROLE_RETRIEVER,
-};
+use crate::rbtdrm_manifest::rbtdrm_credential_check_colophon;
 
 // ── Thread-local invocation context ──────────────────────────
 
@@ -1713,7 +1711,7 @@ fn rbtdrc_coordinated_mac_flood_resilience(dir: &Path) -> rbtdre_Verdict {
 fn rbtdrc_read_nameplate_port(ctx: &rbtdri_Context) -> Result<u16, String> {
     let env_path = ctx
         .project_root()
-        .join(crate::RBTD_MOORINGS_DIR)
+        .join(crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR)
         .join(ctx.fixture())
         .join("rbrn.env");
     let content = std::fs::read_to_string(&env_path)
@@ -2844,19 +2842,19 @@ fn rbtdrc_access_probe_role(ctx: &mut rbtdri_Context, role: &str, dir: &Path) ->
 }
 
 fn rbtdrc_jwt_governor(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, RBTDRM_ROLE_GOVERNOR, dir))
+    rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, RBTDGC_ROLE_GOVERNOR, dir))
 }
 
 fn rbtdrc_jwt_director(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, RBTDRM_ROLE_DIRECTOR, dir))
+    rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, RBTDGC_ROLE_DIRECTOR, dir))
 }
 
 fn rbtdrc_jwt_retriever(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, RBTDRM_ROLE_RETRIEVER, dir))
+    rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, RBTDGC_ROLE_RETRIEVER, dir))
 }
 
 fn rbtdrc_oauth_payor(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, RBTDRM_ROLE_PAYOR, dir))
+    rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, RBTDGC_ROLE_PAYOR, dir))
 }
 
 pub static RBTDRC_CASES_ACCESS_PROBE: &[rbtdre_Case] = &[

@@ -47,14 +47,18 @@ use crate::rbtdgc_consts::{
     RBTDGC_LEVY_DEPOT,
     RBTDGC_LIST_DEPOT,
     RBTDGC_MANTLE_GOVERNOR,
+    RBTDGC_RBRA_FILE,
+    RBTDGC_RBRD_FILE,
+    RBTDGC_RBRR_FILE,
+    RBTDGC_ROLE_ASSAY,
+    RBTDGC_ROLE_DIRECTOR,
+    RBTDGC_ROLE_GOVERNOR,
+    RBTDGC_ROLE_RETRIEVER,
 };
 use crate::rbtdrm_manifest::{
     rbtdrm_credential_check_colophon,
     RBTDRM_FIXTURE_CANONICAL_ESTABLISH,
     RBTDRM_FIXTURE_CANONICAL_INVEST,
-    RBTDRM_ROLE_DIRECTOR,
-    RBTDRM_ROLE_GOVERNOR,
-    RBTDRM_ROLE_RETRIEVER,
 };
 
 // ── Canonical-fixture identities ─────────────────────────────
@@ -101,11 +105,6 @@ const RBTDRK_FIELD_RBRD_CLOUD_PREFIX: &str = "RBRD_CLOUD_PREFIX";
 const RBTDRK_FIELD_RBRR_RUNTIME_PREFIX: &str = "RBRR_RUNTIME_PREFIX";
 const RBTDRK_FIELD_RBRD_DEPOT_MONIKER: &str = "RBRD_DEPOT_MONIKER";
 const RBTDRK_FIELD_RBRR_SECRETS_DIR: &str = "RBRR_SECRETS_DIR";
-
-// Bundled moorings paths, composed from the crate-canonical moorings dir.
-const RBTDRK_RBRR_FILE: &str = concat!(crate::rbtd_moorings_dir!(), "/rbrr.env");
-const RBTDRK_RBRD_FILE: &str = concat!(crate::rbtd_moorings_dir!(), "/rbrd.env");
-const RBTDRK_RBRA_FILE: &str = "rbra.env";
 
 /// BURS station-file env var (exported by bul_launcher.sh) — absolute path
 /// to the developer's burs.env. Source for BURS_TINCTURE.
@@ -224,7 +223,7 @@ fn rbtdrk_git_add_and_commit_paths(
 
 /// Resolve canonical RBRA path for a role: <RBRR_SECRETS_DIR>/<role>/rbra.env.
 pub(crate) fn rbtdrk_canonical_rbra(root: &Path, role: &str) -> Result<PathBuf, String> {
-    let rbrr = root.join(RBTDRK_RBRR_FILE);
+    let rbrr = root.join(RBTDGC_RBRR_FILE);
     let secrets_dir = rbtdrk_read_env_value(&rbrr, RBTDRK_FIELD_RBRR_SECRETS_DIR)
         .ok_or_else(|| format!("RBRR_SECRETS_DIR missing from {}", rbrr.display()))?;
     if secrets_dir.is_empty() {
@@ -232,7 +231,7 @@ pub(crate) fn rbtdrk_canonical_rbra(root: &Path, role: &str) -> Result<PathBuf, 
     }
     Ok(rbtdrk_resolve(root, &secrets_dir)
         .join(role)
-        .join(RBTDRK_RBRA_FILE))
+        .join(RBTDGC_RBRA_FILE))
 }
 
 // ── Canonical-prefix install (case 1) ───────────────────────
@@ -242,8 +241,8 @@ pub(crate) fn rbtdrk_canonical_rbra(root: &Path, role: &str) -> Result<PathBuf, 
 /// already match the canonical markers; otherwise rewrites both files and
 /// commits in one go.
 pub(crate) fn rbtdrk_install_canonical_prefixes(root: &Path) -> Result<(), String> {
-    let rbrr = root.join(RBTDRK_RBRR_FILE);
-    let rbrd = root.join(RBTDRK_RBRD_FILE);
+    let rbrr = root.join(RBTDGC_RBRR_FILE);
+    let rbrd = root.join(RBTDGC_RBRD_FILE);
     let tincture = rbtdrk_burs_tincture()?;
     let cloud_target = rbtdrk_canonical_cloud_prefix(&tincture);
     let runtime_target = rbtdrk_canonical_runtime_prefix(&tincture);
@@ -283,13 +282,13 @@ pub(crate) fn rbtdrk_install_canonical_prefixes(root: &Path) -> Result<(), Strin
     );
     rbtdrk_git_add_and_commit_paths(
         root,
-        &[RBTDRK_RBRR_FILE, RBTDRK_RBRD_FILE],
+        &[RBTDGC_RBRR_FILE, RBTDGC_RBRD_FILE],
         &commit_msg,
     )
 }
 
 fn rbtdrk_install_depot_moniker(root: &Path, moniker: &str) -> Result<(), String> {
-    let rbrd = root.join(RBTDRK_RBRD_FILE);
+    let rbrd = root.join(RBTDGC_RBRD_FILE);
     let content = std::fs::read_to_string(&rbrd)
         .map_err(|e| format!("rbtdrk: read {}: {}", rbrd.display(), e))?;
     let new_content =
@@ -300,12 +299,12 @@ fn rbtdrk_install_depot_moniker(root: &Path, moniker: &str) -> Result<(), String
         "canonical-establish fixture: set {}={}",
         RBTDRK_FIELD_RBRD_DEPOT_MONIKER, moniker
     );
-    rbtdrk_git_add_and_commit(root, RBTDRK_RBRD_FILE, &commit_msg)
+    rbtdrk_git_add_and_commit(root, RBTDGC_RBRD_FILE, &commit_msg)
 }
 
 /// Compose depot project_id from kindled regime values: <CLOUD>d-<moniker>.
 fn rbtdrk_compose_project_id(root: &Path, moniker: &str) -> Result<String, String> {
-    let rbrd = root.join(RBTDRK_RBRD_FILE);
+    let rbrd = root.join(RBTDGC_RBRD_FILE);
     let cloud_prefix = rbtdrk_read_env_value(&rbrd, RBTDRK_FIELD_RBRD_CLOUD_PREFIX)
         .ok_or_else(|| format!("RBRD_CLOUD_PREFIX missing from {}", rbrd.display()))?;
     Ok(format!("{}d-{}", cloud_prefix, moniker))
@@ -316,7 +315,7 @@ fn rbtdrk_compose_project_id(root: &Path, moniker: &str) -> Result<String, Strin
 /// the structural trailing `-` stripped so it matches the filesystem layout
 /// emitted by zrbgp_depot_state_emit.
 fn rbtdrk_cloud_prefix_subdir(root: &Path) -> Result<String, String> {
-    let rbrd = root.join(RBTDRK_RBRD_FILE);
+    let rbrd = root.join(RBTDGC_RBRD_FILE);
     let cloud_prefix = rbtdrk_read_env_value(&rbrd, RBTDRK_FIELD_RBRD_CLOUD_PREFIX)
         .ok_or_else(|| format!("RBRD_CLOUD_PREFIX missing from {}", rbrd.display()))?;
     Ok(cloud_prefix.trim_end_matches('-').to_string())
@@ -409,7 +408,7 @@ fn rbtdrk_probe_root() -> Result<PathBuf, String> {
 /// blank-template shape.
 fn rbtdrk_probe_rbrr_present() -> Result<(), String> {
     let root = rbtdrk_probe_root()?;
-    let rbrr = root.join(RBTDRK_RBRR_FILE);
+    let rbrr = root.join(RBTDGC_RBRR_FILE);
     if !rbrr.exists() {
         return Err(format!("rbrr.env not found at {}", rbrr.display()));
     }
@@ -420,7 +419,7 @@ fn rbtdrk_probe_rbrr_present() -> Result<(), String> {
 /// by case 1; absence means depot-levy didn't run or rbrd.env was rewritten.
 fn rbtdrk_probe_canonical_moniker() -> Result<(), String> {
     let root = rbtdrk_probe_root()?;
-    let rbrd = root.join(RBTDRK_RBRD_FILE);
+    let rbrd = root.join(RBTDGC_RBRD_FILE);
     let tincture = rbtdrk_burs_tincture()?;
     let family_stem = rbtdrk_family_stem(&tincture);
     let moniker =
@@ -438,7 +437,7 @@ fn rbtdrk_probe_canonical_moniker() -> Result<(), String> {
 /// Established by case 2's mantle + canonical-copy step.
 fn rbtdrk_probe_governor_rbra() -> Result<(), String> {
     let root = rbtdrk_probe_root()?;
-    let path = rbtdrk_canonical_rbra(&root, RBTDRM_ROLE_GOVERNOR)?;
+    let path = rbtdrk_canonical_rbra(&root, RBTDGC_ROLE_GOVERNOR)?;
     if !path.exists() {
         return Err(format!("governor RBRA absent at {}", path.display()));
     }
@@ -595,7 +594,7 @@ fn rbtdrk_governor_mantle(dir: &Path) -> rbtdre_Verdict {
 fn rbtdrk_governor_mantle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
     let root = ctx.project_root().to_path_buf();
 
-    let assay = match rbtdrk_canonical_rbra(&root, "assay") {
+    let assay = match rbtdrk_canonical_rbra(&root, RBTDGC_ROLE_ASSAY) {
         Ok(p) => p,
         Err(e) => return rbtdre_Verdict::Fail(format!("canonical assay RBRA path: {}", e)),
     };
@@ -631,7 +630,7 @@ fn rbtdrk_governor_mantle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_V
         ));
     }
 
-    let canonical = match rbtdrk_canonical_rbra(&root, RBTDRM_ROLE_GOVERNOR) {
+    let canonical = match rbtdrk_canonical_rbra(&root, RBTDGC_ROLE_GOVERNOR) {
         Ok(p) => p,
         Err(e) => return rbtdre_Verdict::Fail(format!("canonical governor RBRA path: {}", e)),
     };
@@ -674,7 +673,7 @@ fn rbtdrk_retriever_invest(dir: &Path) -> rbtdre_Verdict {
             RBTDGC_DIVEST_RETRIEVER,
             RBTDGC_INVEST_RETRIEVER,
             RBTDRK_IDENTITY_RETRIEVER,
-            RBTDRM_ROLE_RETRIEVER,
+            RBTDGC_ROLE_RETRIEVER,
         )
     })
 }
@@ -696,7 +695,7 @@ fn rbtdrk_director_invest(dir: &Path) -> rbtdre_Verdict {
             RBTDGC_DIVEST_DIRECTOR,
             RBTDGC_INVEST_DIRECTOR,
             RBTDRK_IDENTITY_DIRECTOR,
-            RBTDRM_ROLE_DIRECTOR,
+            RBTDGC_ROLE_DIRECTOR,
         )
     })
 }
@@ -713,7 +712,7 @@ fn rbtdrk_role_invest_impl(
 ) -> rbtdre_Verdict {
     let root = ctx.project_root().to_path_buf();
 
-    let assay = match rbtdrk_canonical_rbra(&root, "assay") {
+    let assay = match rbtdrk_canonical_rbra(&root, RBTDGC_ROLE_ASSAY) {
         Ok(p) => p,
         Err(e) => return rbtdre_Verdict::Fail(format!("canonical assay RBRA path: {}", e)),
     };

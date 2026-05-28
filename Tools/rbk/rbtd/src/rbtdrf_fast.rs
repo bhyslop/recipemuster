@@ -1107,7 +1107,7 @@ fn rbtdrf_rv_rbrv_all_vessels(dir: &Path) -> rbtdre_Verdict {
          echo \"${{RBRR_VESSEL_DIR}}\"",
         buv_p,
         rbk_p, rbk_p, rbk_p, rbk_p, rbk_p,
-        moorings = crate::RBTD_MOORINGS_DIR,
+        moorings = crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR,
     );
 
     let vessel_dir = match rbtdrf_run_bash(&root, &script, dir, "rbrv-discover") {
@@ -1153,10 +1153,10 @@ fn rbtdrf_rv_rbrn_all_nameplates(dir: &Path) -> rbtdre_Verdict {
     };
 
     // Discover nameplates by listing rbmm_moorings/*/rbrn.env
-    let rbk_dir = root.join(crate::RBTD_MOORINGS_DIR);
+    let rbk_dir = root.join(crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR);
     let entries = match std::fs::read_dir(&rbk_dir) {
         Ok(e) => e,
-        Err(e) => return rbtdre_Verdict::Fail(format!("cannot read {}: {}", crate::RBTD_MOORINGS_DIR, e)),
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot read {}: {}", crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR, e)),
     };
 
     let mut found = false;
@@ -1175,7 +1175,7 @@ fn rbtdrf_rv_rbrn_all_nameplates(dir: &Path) -> rbtdre_Verdict {
     }
 
     if !found {
-        return rbtdre_Verdict::Fail(format!("no nameplates found in {}/", crate::RBTD_MOORINGS_DIR));
+        return rbtdre_Verdict::Fail(format!("no nameplates found in {}/", crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR));
     }
     rbtdre_Verdict::Pass
 }
@@ -1211,10 +1211,10 @@ fn rbtdrf_rs_rbrn(dir: &Path) -> rbtdre_Verdict {
     };
 
     // Discover nameplates by listing rbmm_moorings/*/rbrn.env
-    let rbk_dir = root.join(crate::RBTD_MOORINGS_DIR);
+    let rbk_dir = root.join(crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR);
     let entries = match std::fs::read_dir(&rbk_dir) {
         Ok(e) => e,
-        Err(e) => return rbtdre_Verdict::Fail(format!("cannot read {}: {}", crate::RBTD_MOORINGS_DIR, e)),
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot read {}: {}", crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR, e)),
     };
 
     let mut found = false;
@@ -1239,7 +1239,7 @@ fn rbtdrf_rs_rbrn(dir: &Path) -> rbtdre_Verdict {
     }
 
     if !found {
-        return rbtdre_Verdict::Fail(format!("no nameplates found in {}/", crate::RBTD_MOORINGS_DIR));
+        return rbtdre_Verdict::Fail(format!("no nameplates found in {}/", crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR));
     }
     rbtdre_Verdict::Pass
 }
@@ -1278,7 +1278,7 @@ fn rbtdrf_rs_rbrr_nonempty_prefix(dir: &Path) -> rbtdre_Verdict {
         rbk_p, rbk_p, rbk_p, rbk_p, rbk_p,
         cloud_var = RBTDRF_VAR_RBRD_CLOUD_PREFIX,
         runtime_var = RBTDRF_VAR_RBRR_RUNTIME_PREFIX,
-        moorings = crate::RBTD_MOORINGS_DIR,
+        moorings = crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR,
     );
 
     match rbtdrf_run_bash(&root, &script, dir, "rbrr-nonempty-prefix") {
@@ -1338,7 +1338,7 @@ fn rbtdrf_rs_rbrv(dir: &Path) -> rbtdre_Verdict {
          echo \"${{RBRR_VESSEL_DIR}}\"",
         buv_p,
         rbk_p, rbk_p, rbk_p, rbk_p, rbk_p,
-        moorings = crate::RBTD_MOORINGS_DIR,
+        moorings = crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR,
     );
 
     let vessel_dir = match rbtdrf_run_bash(&root, &script, dir, "rbrv-discover") {
@@ -1562,7 +1562,7 @@ fn rbtdrf_dh_all_vessels_pass(dir: &Path) -> rbtdre_Verdict {
          printf '%s' \"${{RBRR_VESSEL_DIR}}\"",
         buv_p,
         rbk_p, rbk_p, rbk_p, rbk_p, rbk_p,
-        moorings = crate::RBTD_MOORINGS_DIR,
+        moorings = crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR,
     );
     let vessel_dir = match rbtdrf_run_bash(&root, &resolve_script, dir, "resolve-vessel-dir") {
         Ok((0, stdout, _)) => stdout,

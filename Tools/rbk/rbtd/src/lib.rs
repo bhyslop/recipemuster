@@ -20,31 +20,22 @@
 #![allow(non_camel_case_types)]
 #![allow(private_interfaces)]
 
-/// Single source of truth for the moorings directory name, mirroring bash
-/// RBCC_moorings_dir across the language boundary. Defined as a macro, not a
-/// const, so bundled path constants can compose from it at compile time:
-/// `concat!` rejects a const *identifier* (an opaque name by expansion time)
-/// but eagerly expands a `macro_rules!` invocation, consuming the literal
-/// token it produces. Zero dependency, zero runtime cost, no textual
-/// repetition — every moorings path derives from this one literal.
-#[macro_export]
-macro_rules! rbtd_moorings_dir {
-    () => {
-        "rbmm_moorings"
-    };
-}
-
-/// Vessels directory, composed from the moorings dir (single-sources both the
-/// `rbmm_moorings` root and the `rbmv_vessels` subdir).
+/// Vessels directory as a compile-time literal, for the `concat!` sites that
+/// compose `<vessels>/rbev-*` const paths (their leaf names are Rust-local, so
+/// nothing in bash composes them). `concat!` rejects a const *identifier* but
+/// eagerly expands a `macro_rules!` invocation, consuming the literal token it
+/// produces — the codebase's established zero-dependency idiom for compile-time
+/// path composition. This literal is the one mooring/vessel path NOT taken from
+/// the generated `RBTDGC_*` consts; `rbtdtm_vessels_dir_matches_generated` pins
+/// it to `RBTDGC_MOORINGS_DIR`/`RBTDGC_VESSELS_SUBDIR` so any drift from the
+/// bash source of truth is a test failure. Runtime `Path::join` sites that take
+/// a value (not a literal) use `RBTDGC_MOORINGS_DIR` directly.
 #[macro_export]
 macro_rules! rbtd_vessels_dir {
     () => {
-        concat!($crate::rbtd_moorings_dir!(), "/rbmv_vessels")
+        "rbmm_moorings/rbmv_vessels"
     };
 }
-
-/// Runtime `&str` form for `Path::join` sites that take a value, not a literal.
-pub const RBTD_MOORINGS_DIR: &str = rbtd_moorings_dir!();
 
 pub mod rbtdgc_consts;
 pub mod rbtdrb_probe;

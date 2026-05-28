@@ -152,5 +152,5 @@ fn rbtdtk_install_canonical_prefixes_rejects_missing_rbrr() {
     std::fs::create_dir_all(&tmp).expect("create tempdir");
     let result = rbtdrk_install_canonical_prefixes(&tmp);
     let _ = std::fs::remove_dir_all(&tmp);
-    assert!(result.is_err(), "expected Err when {}/rbrr.env is absent", crate::RBTD_MOORINGS_DIR);
+    assert!(result.is_err(), "expected Err when {}/rbrr.env is absent", crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR);
 }

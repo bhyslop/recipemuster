@@ -38,12 +38,12 @@ use crate::rbtdri_invocation::{
 use crate::rbtdgc_consts::{
     RBTDGC_CHECK_DIRECTOR, RBTDGC_CHECK_RETRIEVER, RBTDGC_DIVEST_DIRECTOR,
     RBTDGC_DIVEST_RETRIEVER, RBTDGC_INVEST_DIRECTOR, RBTDGC_INVEST_RETRIEVER,
-    RBTDGC_LEVY_DEPOT, RBTDGC_LIST_DEPOT, RBTDGC_MANTLE_GOVERNOR, RBTDGC_UNMAKE_DEPOT,
+    RBTDGC_LEVY_DEPOT, RBTDGC_LIST_DEPOT, RBTDGC_MANTLE_GOVERNOR, RBTDGC_MOORINGS_DIR,
+    RBTDGC_RBRA_FILE, RBTDGC_RBRD_FILE, RBTDGC_RBRN_FILE, RBTDGC_RBRR_FILE,
+    RBTDGC_ROLE_ASSAY, RBTDGC_ROLE_DIRECTOR, RBTDGC_ROLE_GOVERNOR, RBTDGC_ROLE_RETRIEVER,
+    RBTDGC_UNMAKE_DEPOT,
 };
-use crate::rbtdrm_manifest::{
-    RBTDRM_FIXTURE_PRISTINE_LIFECYCLE, RBTDRM_ROLE_DIRECTOR, RBTDRM_ROLE_GOVERNOR,
-    RBTDRM_ROLE_RETRIEVER,
-};
+use crate::rbtdrm_manifest::RBTDRM_FIXTURE_PRISTINE_LIFECYCLE;
 
 /// RBRR field names referenced by the pristine-lifecycle fixture. Field
 /// identifiers extracted as consts so the blank-field array and the
@@ -125,25 +125,21 @@ const RBTDRP_FACT_GOVERNOR_SA_EMAIL: &str = "rbgp_fact_governor_sa_email";
 /// after a soft-delete, used by case 2 to relax the post-unmake assertion.
 const RBTDRP_DELETE_REQUESTED: &str = "DELETE_REQUESTED";
 
-/// Roles whose RBRA credential files rblm_zero deletes. "assay" is the
-/// invest-drop slot, not a credential role, so it stays a bare literal.
+/// Roles whose RBRA credential files rblm_zero deletes, including the assay
+/// invest-drop slot — all projected from rbcc_Constants.sh.
 const RBTDRP_RBRA_ROLES: &[&str] = &[
-    RBTDRM_ROLE_GOVERNOR,
-    RBTDRM_ROLE_DIRECTOR,
-    RBTDRM_ROLE_RETRIEVER,
-    "assay",
+    RBTDGC_ROLE_GOVERNOR,
+    RBTDGC_ROLE_DIRECTOR,
+    RBTDGC_ROLE_RETRIEVER,
+    RBTDGC_ROLE_ASSAY,
 ];
 
 /// Nameplate hallmark fields rblm_zero blanks.
 const RBTDRP_RBRN_BLANK_FIELDS: &[&str] = &["RBRN_SENTRY_HALLMARK", "RBRN_BOTTLE_HALLMARK"];
 
-/// File-relative constants matching the RBBC aliases in rbcc_Constants.sh,
-/// composed from the crate-canonical moorings dir (single source of truth).
-const RBTDRP_DOT_DIR: &str = crate::rbtd_moorings_dir!();
-const RBTDRP_RBRR_FILE: &str = concat!(crate::rbtd_moorings_dir!(), "/rbrr.env");
-const RBTDRP_RBRD_FILE: &str = concat!(crate::rbtd_moorings_dir!(), "/rbrd.env");
-const RBTDRP_RBRA_FILE: &str = "rbra.env";
-const RBTDRP_RBRN_FILE: &str = "rbrn.env";
+/// Vessel-local regime file — no rbcc home, so it stays a bare literal. The
+/// moorings dir and the other .env paths come from the generated RBTDGC_*
+/// consts directly (projected from rbcc_Constants.sh).
 const RBTDRP_RBRV_FILE: &str = "rbrv.env";
 
 /// BURS station-file env var (exported by bul_launcher.sh) — absolute path
@@ -188,7 +184,7 @@ pub(crate) fn rbtdrp_family_stem_arc(tincture: &str) -> String {
 fn rbtdrp_probe_depot_levied() -> Result<(), String> {
     let root = std::env::current_dir()
         .map_err(|e| format!("cannot resolve project root: {}", e))?;
-    let rbrd = root.join(RBTDRP_RBRD_FILE);
+    let rbrd = root.join(RBTDGC_RBRD_FILE);
 
     let cloud = rbtdrp_read_env_value(&rbrd, RBTDRP_FIELD_RBRD_CLOUD_PREFIX).unwrap_or_default();
     if cloud.is_empty() {
@@ -290,7 +286,7 @@ fn rbtdrp_check_rbra_files(root: &Path, secrets_dir: &str, violations: &mut Vec<
     }
     let secrets = rbtdrp_resolve(root, secrets_dir);
     for role in RBTDRP_RBRA_ROLES {
-        let path = secrets.join(role).join(RBTDRP_RBRA_FILE);
+        let path = secrets.join(role).join(RBTDGC_RBRA_FILE);
         if path.exists() {
             violations.push(format!("RBRA credential present: {}", path.display()));
         }
@@ -300,7 +296,7 @@ fn rbtdrp_check_rbra_files(root: &Path, secrets_dir: &str, violations: &mut Vec<
 /// Class D — every nameplate's RBRN_SENTRY_HALLMARK and RBRN_BOTTLE_HALLMARK
 /// is blank.
 fn rbtdrp_check_nameplate_hallmarks(root: &Path, violations: &mut Vec<String>) {
-    let dot_dir = root.join(RBTDRP_DOT_DIR);
+    let dot_dir = root.join(RBTDGC_MOORINGS_DIR);
     let entries = match std::fs::read_dir(&dot_dir) {
         Ok(e) => e,
         Err(e) => {
@@ -313,7 +309,7 @@ fn rbtdrp_check_nameplate_hallmarks(root: &Path, violations: &mut Vec<String>) {
         if !np_dir.is_dir() {
             continue;
         }
-        let rbrn = np_dir.join(RBTDRP_RBRN_FILE);
+        let rbrn = np_dir.join(RBTDGC_RBRN_FILE);
         if !rbrn.exists() {
             continue;
         }
@@ -478,8 +474,8 @@ fn rbtdrp_git_add_and_commit_paths(
 /// HEAD walks off marshal-zero after the commit; recovery is `rbw-MZ`,
 /// matching the pristine fixture's start-over-from-zero failure mode.
 pub(crate) fn rbtdrp_install_throwaway_prefixes(root: &Path) -> Result<(), String> {
-    let rbrr = root.join(RBTDRP_RBRR_FILE);
-    let rbrd = root.join(RBTDRP_RBRD_FILE);
+    let rbrr = root.join(RBTDGC_RBRR_FILE);
+    let rbrd = root.join(RBTDGC_RBRD_FILE);
     let tincture = rbtdrp_burs_tincture()?;
     let cloud_target = rbtdrp_throwaway_cloud_prefix(&tincture);
     let runtime_target = rbtdrp_throwaway_runtime_prefix(&tincture);
@@ -518,7 +514,7 @@ pub(crate) fn rbtdrp_install_throwaway_prefixes(root: &Path) -> Result<(), Strin
         "pristine-lifecycle fixture: install throwaway prefixes ({}/{})",
         cloud_target, runtime_target
     );
-    rbtdrp_git_add_and_commit_paths(root, &[RBTDRP_RBRR_FILE, RBTDRP_RBRD_FILE], &commit_msg)
+    rbtdrp_git_add_and_commit_paths(root, &[RBTDGC_RBRR_FILE, RBTDGC_RBRD_FILE], &commit_msg)
 }
 
 /// Pick the next free moniker for `family_stem` by walking the depot_list
@@ -584,7 +580,7 @@ fn rbtdrp_pick_next_moniker(
 /// recover the project_id post-levy without re-reading a fact file (the
 /// pre-collapse `rbgp_fact_depot_project_id` producer is gone).
 fn rbtdrp_compose_project_id(root: &Path, moniker: &str) -> Result<String, String> {
-    let rbrd = root.join(RBTDRP_RBRD_FILE);
+    let rbrd = root.join(RBTDGC_RBRD_FILE);
     let cloud_prefix = rbtdrp_read_env_value(&rbrd, RBTDRP_FIELD_RBRD_CLOUD_PREFIX)
         .ok_or_else(|| format!("RBRD_CLOUD_PREFIX missing from {}", rbrd.display()))?;
     Ok(format!("{}d-{}", cloud_prefix, moniker))
@@ -596,7 +592,7 @@ fn rbtdrp_compose_project_id(root: &Path, moniker: &str) -> Result<String, Strin
 /// emitted by zrbgp_depot_state_emit (which derives the subdir from
 /// projectId via `${project_id%%-d-*}`).
 fn rbtdrp_cloud_prefix_subdir(root: &Path) -> Result<String, String> {
-    let rbrd = root.join(RBTDRP_RBRD_FILE);
+    let rbrd = root.join(RBTDGC_RBRD_FILE);
     let cloud_prefix = rbtdrp_read_env_value(&rbrd, RBTDRP_FIELD_RBRD_CLOUD_PREFIX)
         .ok_or_else(|| format!("RBRD_CLOUD_PREFIX missing from {}", rbrd.display()))?;
     Ok(cloud_prefix.trim_end_matches('-').to_string())
@@ -607,7 +603,7 @@ fn rbtdrp_cloud_prefix_subdir(root: &Path) -> Result<String, String> {
 /// kindle derivation. The commit is separate from the throwaway-prefix
 /// commit so the audit trail shows the moniker landing as its own pace.
 fn rbtdrp_install_depot_moniker(root: &Path, moniker: &str) -> Result<(), String> {
-    let rbrd = root.join(RBTDRP_RBRD_FILE);
+    let rbrd = root.join(RBTDGC_RBRD_FILE);
     let content = std::fs::read_to_string(&rbrd)
         .map_err(|e| format!("rbtdrp: read {}: {}", rbrd.display(), e))?;
     let new_content = rbtdrp_replace_env_fields(
@@ -621,7 +617,7 @@ fn rbtdrp_install_depot_moniker(root: &Path, moniker: &str) -> Result<(), String
         "pristine-lifecycle fixture: set {}={}",
         RBTDRP_FIELD_RBRD_DEPOT_MONIKER, moniker
     );
-    rbtdrp_git_add_and_commit(root, RBTDRP_RBRD_FILE, &commit_msg)
+    rbtdrp_git_add_and_commit(root, RBTDGC_RBRD_FILE, &commit_msg)
 }
 
 // ── Case ─────────────────────────────────────────────────────
@@ -635,11 +631,11 @@ fn rbtdrp_marshal_zero_attestation(_dir: &Path) -> rbtdre_Verdict {
         Err(e) => return rbtdre_Verdict::Fail(format!("cannot resolve project root: {}", e)),
     };
 
-    let rbrr = root.join(RBTDRP_RBRR_FILE);
+    let rbrr = root.join(RBTDGC_RBRR_FILE);
     if !rbrr.exists() {
         return rbtdre_Verdict::Fail(format!("RBRR file not found: {}", rbrr.display()));
     }
-    let rbrd = root.join(RBTDRP_RBRD_FILE);
+    let rbrd = root.join(RBTDGC_RBRD_FILE);
     if !rbrd.exists() {
         return rbtdre_Verdict::Fail(format!("RBRD file not found: {}", rbrd.display()));
     }
@@ -696,13 +692,13 @@ fn rbtdrp_invoke_logged(
 /// Resolve the canonical RBRA path for a role by reading RBRR_SECRETS_DIR
 /// from rbrr.env and joining `<role>/rbra.env`.
 fn rbtdrp_canonical_rbra(root: &Path, role: &str) -> Result<PathBuf, String> {
-    let rbrr = root.join(RBTDRP_RBRR_FILE);
+    let rbrr = root.join(RBTDGC_RBRR_FILE);
     let secrets_dir = rbtdrp_read_env_value(&rbrr, "RBRR_SECRETS_DIR")
         .ok_or_else(|| format!("RBRR_SECRETS_DIR missing from {}", rbrr.display()))?;
     if secrets_dir.is_empty() {
         return Err(format!("RBRR_SECRETS_DIR is blank in {}", rbrr.display()));
     }
-    Ok(rbtdrp_resolve(root, &secrets_dir).join(role).join(RBTDRP_RBRA_FILE))
+    Ok(rbtdrp_resolve(root, &secrets_dir).join(role).join(RBTDGC_RBRA_FILE))
 }
 
 // ── Case 2: depot stand-up ───────────────────────────────────
@@ -847,7 +843,7 @@ fn rbtdrp_sa_cycle(dir: &Path) -> rbtdre_Verdict {
 fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
     let root = ctx.project_root().to_path_buf();
 
-    let rbrd = root.join(RBTDRP_RBRD_FILE);
+    let rbrd = root.join(RBTDGC_RBRD_FILE);
     let moniker = match rbtdrp_read_env_value(&rbrd, RBTDRP_FIELD_RBRD_DEPOT_MONIKER) {
         Some(m) if !m.is_empty() => m,
         _ => {
@@ -884,7 +880,7 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
     };
     let _ = std::fs::write(dir.join("governor-sa-email.txt"), &governor_email);
 
-    let assay_canonical = match rbtdrp_canonical_rbra(&root, "assay") {
+    let assay_canonical = match rbtdrp_canonical_rbra(&root, RBTDGC_ROLE_ASSAY) {
         Ok(p) => p,
         Err(e) => return rbtdre_Verdict::Fail(format!("canonical assay RBRA path: {}", e)),
     };
@@ -896,7 +892,7 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
         ));
     }
 
-    let governor_canonical = match rbtdrp_canonical_rbra(&root, RBTDRM_ROLE_GOVERNOR) {
+    let governor_canonical = match rbtdrp_canonical_rbra(&root, RBTDGC_ROLE_GOVERNOR) {
         Ok(p) => p,
         Err(e) => return rbtdre_Verdict::Fail(format!("canonical governor RBRA path: {}", e)),
     };
@@ -943,7 +939,7 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
         ));
     }
 
-    let retriever_canonical = match rbtdrp_canonical_rbra(&root, RBTDRM_ROLE_RETRIEVER) {
+    let retriever_canonical = match rbtdrp_canonical_rbra(&root, RBTDGC_ROLE_RETRIEVER) {
         Ok(p) => p,
         Err(e) => return rbtdre_Verdict::Fail(format!("canonical retriever RBRA path: {}", e)),
     };
@@ -1009,7 +1005,7 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
             assay_canonical.display()
         ));
     }
-    let director_canonical = match rbtdrp_canonical_rbra(&root, RBTDRM_ROLE_DIRECTOR) {
+    let director_canonical = match rbtdrp_canonical_rbra(&root, RBTDGC_ROLE_DIRECTOR) {
         Ok(p) => p,
         Err(e) => return rbtdre_Verdict::Fail(format!("canonical director RBRA path: {}", e)),
     };
@@ -1142,7 +1138,7 @@ fn rbtdrp_depot_live_disqualify_impl(
 ) -> rbtdre_Verdict {
     let root = ctx.project_root().to_path_buf();
 
-    let rbrd = root.join(RBTDRP_RBRD_FILE);
+    let rbrd = root.join(RBTDGC_RBRD_FILE);
     let moniker = match rbtdrp_read_env_value(&rbrd, RBTDRP_FIELD_RBRD_DEPOT_MONIKER) {
         Some(m) if !m.is_empty() => m,
         _ => {
@@ -1209,7 +1205,7 @@ fn rbtdrp_depot_tear_down(dir: &Path) -> rbtdre_Verdict {
 fn rbtdrp_depot_tear_down_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
     let root = ctx.project_root().to_path_buf();
 
-    let rbrd = root.join(RBTDRP_RBRD_FILE);
+    let rbrd = root.join(RBTDGC_RBRD_FILE);
     let moniker = match rbtdrp_read_env_value(&rbrd, RBTDRP_FIELD_RBRD_DEPOT_MONIKER) {
         Some(m) if !m.is_empty() => m,
         _ => {
