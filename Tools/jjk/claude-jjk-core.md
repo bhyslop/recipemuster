@@ -161,7 +161,7 @@ Gazette file exchange uses two directional files in the officium exchange direct
   - `jjx_paddock` (getter) → `# jjezs_paddock <firemark>` + paddock content
 
 **Gazette wire format (setter commands):**
-Each notice is a `#`-header line with slug and lede, followed by content body. Write `gazette_in.md`, then call the command.
+Each notice is a `#`-header line with slug and lede, followed by content body. The lede is **exactly one whitespace-free token** (silks / coronet / firemark) — nothing follows it on the `#` line; the body goes on the lines beneath. This is uniform across every input slug: `jjezs_slate` takes silks, `jjezs_reslate` takes a coronet, `jjezs_paddock` takes a firemark, and in each case appending extra text to the lede folds it into the identity and fails validation. Write `gazette_in.md`, then call the command.
 
 **Critical: `#` (H1) in gazette_in.md is a wire format delimiter, NOT a markdown heading.** For single-notice commands (enroll, paddock set), use exactly ONE `#` line. For mass reslate, each `# jjezs_reslate` line starts a new notice. All markdown headings within body content must use `##` or deeper — a bare `#` line inside content will be parsed as a notice boundary.
 
