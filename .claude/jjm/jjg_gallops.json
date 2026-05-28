@@ -9768,9 +9768,10 @@
         "₢BMAAH",
         "₢BMAAI",
         "₢BMAAF",
-        "₢BMAAL"
+        "₢BMAAL",
+        "₢BMAAM"
       ],
-      "jjghn_next_pace_seed": "AAM",
+      "jjghn_next_pace_seed": "AAN",
       "jjghn_paces": {
         "₢BMAAA": {
           "jjgpn_tacks": [
@@ -10062,6 +10063,17 @@
               "jjgtn_text": "## Character\n\nCross-platform regression leg on the cerebro Linux fundus. Foray dispatch\nis mechanical; a suite reding is opus-grade triage.\n\n## Goal\n\nThe same skirmish + faster-suite ladder proven on macos re-run on the\ncerebro Linux fundus — confirming the sprue migration and theurge-colophon\nconsolidation are platform-independent, not a macos-only pass.\n\n## Recipe\n\n- Foray per the JJK Foray Protocol: bind a legatio to cerebro (alias from\n  its BUK Regime Node profile, reldir `projects/rbm_alpha_recipemuster`),\n  ensure curia clean + pushed, plant to HEAD.\n- Relay the `rbw-ts.TestSuite.*` suites sequentially — faster suites first,\n  then `skirmish`. Skirmish carries the standing-depot precondition: confirm\n  a canonical depot is reachable from cerebro's regime before relaying it.\n- `jjx_check` each pensum to terminal; `jjx_fetch` the `../logs-buk/`\n  result; triage red as real-bug vs. the known ACCOUNT_STATE_INVALID flap.\n\n## Acceptance\n\n- skirmish + faster suites green on cerebro.",
               "jjgtn_silks": "cerebro-regression-run",
               "jjgtn_basis": "a2ae860"
+            }
+          ]
+        },
+        "₢BMAAM": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260528-1012",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical migration under a new enum family, plus one deliberate die-text breadcrumb.\n\n## Goal\nMigrate operator role enum values from bare words (\"governor\") to sprue tokens, so every role-value site is greppable as a family — closing the gap where the role family violates the Regime Enum Sprue Convention.\n\n## The mint\nNew family **`rbnae_`** (rb · n · a=auth regime · e=enum-value): `rbnae_governor` / `rbnae_director` / `rbnae_retriever`, extended across the `RBCC_role_*` set. Register it in BUS0 \"Target Enums\" beside `rbnve_`/`rbnne_`/`bunne_`.\n\n## Migrate — Class 2 only (per BUS0 Use-Site Classification)\n- Make the sprue tokens the canonical values in `rbcc_Constants.sh` `RBCC_role_*`.\n- Sweep enum-value sites onto them: `case` arms, equality tests, `RBRA_ROLE` value and its regime validation, folio defaults.\n- Leave bare — Class 3 — role words embedded in tabtarget colophons/frontispieces and doc filenames.\n\n## Secret directories\n- Dir names derive from the const, so they become `rbnae_governor/` etc. automatically. Operators rename existing dirs by hand.\n- No auto-repair: retire any existing role-dir migration dynamic. On a role-credential-not-found die, append a breadcrumb such as `\" (have secrets directories been renamed correctly?)\"`.\n\n## Discovery\n- `grep RBCC_role_` and bare `governor|director|retriever` across `Tools/rbk`; classify each hit against BUS0 Use-Site Classification.\n\n## What done looks like\nRole values are `rbnae_*` tokens; one family grep returns every role-value site; tabtarget/doc names unchanged; BUS0 lists the new family; the not-found die carries the rename breadcrumb; shellcheck + relevant suites green.",
+              "jjgtn_silks": "roles-to-sprue",
+              "jjgtn_basis": "fe17b94"
             }
           ]
         }
