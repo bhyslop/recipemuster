@@ -455,13 +455,12 @@ All seven §11 questions are now decided or deliberately retired:
 |---|---|
 | One human credential vs per-role | Resolved — R2 |
 | Does Payor stay distinct | Resolved — R1 / R2 |
-| Coexistence & migration | Resolved — R3 (mode-enum migration; see feasibility memo) |
+| Coexistence & migration | Resolved — R3 (mode-enum migration; see the credential-models memo) |
 | Synthetic-human CI emplacement | Resolved — R4 |
 | Session-policy lever vs constraint | Resolved — R4 |
 | Gauntlet coupling | Resolved — R5 |
 | Probe / handbook / regime keyfile surfaces (RBSAJ/RBSAO/RBSAV, onboarding, `rbw-gPR`) | **Retired** — R3 ships RBRA for MVP, so these surfaces stay correct as-is; no MVP rework. Re-decided if/when the keyless tier is chosen; the revisit-trigger lives in the RBSHR "Operator federation" roadmap entry. |
 
-The federation tier's mechanism — and the RBRA→RBRI obsolescence, credential
-mode-enum, and cult-verb shape — are recorded separately in
-`memo-20260527-workforce-federation-feasibility.md` (a labeled sketch; the
-keyless tier remains deferred and unchosen per R3).
+The federation tier's mechanism — and the credential mode-enum and cult-verb
+shape — are recorded separately in
+`memo-20260527-operator-credential-models.md`.

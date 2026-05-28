@@ -329,7 +329,7 @@ Distinct from the envoy's egress federation (GCP-to-AWS delivery, the machine-id
 _Trigger_: first concrete need to admit
 {at_operator}s
 who cannot hold Google accounts, or when Google-account / keyfile requirements materially block adoption rather than being theoretically frictionful.
-_Reference_: `Memos/memo-20260527-workforce-federation-feasibility.md` (the source document for this entry — Workforce mechanism, curl-native two-leg flow, device-flow / 12-hour session cap, and the RBRA→RBRI obsolescence / credential mode-enum / cult-verb sketch);
+_Reference_: `Memos/memo-20260527-operator-credential-models.md` (the source document for this entry — the committed two-tier plan: keyfile (free, no-org) and Workforce federation (paid, org-required), the curl-native two-leg flow, device-flow / 12-hour session cap, the per-depot mode enum homed in RBRD, and the cult-verb shape);
 `Memos/memo-20260522-org-affiliated-credential-reorientation.md` (R1/R2/R3 credential model and three-tier ladder, plus R4/R5 test-rig and gauntlet resolutions);
 `Memos/memo-20260427-google-native-human-auth.md` (impersonation mechanism detail — its human-auth *framing* is superseded by R2);
 Google docs: Workforce Identity Federation overview (`https://docs.cloud.google.com/iam/docs/workforce-identity-federation`) and short-lived token exchange (`https://docs.cloud.google.com/iam/docs/workforce-obtaining-short-lived-credentials`).
