@@ -10456,9 +10456,10 @@
         "₢BSAAB",
         "₢BSAAC",
         "₢BSAAD",
-        "₢BSAAE"
+        "₢BSAAE",
+        "₢BSAAG"
       ],
-      "jjghn_next_pace_seed": "AAG",
+      "jjghn_next_pace_seed": "AAH",
       "jjghn_paces": {
         "₢BSAAA": {
           "jjgpn_tacks": [
@@ -10586,6 +10587,17 @@
               "jjgtn_text": "## Character\n\nInteractive design conversation requiring operator judgment — do NOT\nimplement. A strategic reorientation that should reshape this heat's tactical\npaces before they are cut; its product is an agreed direction, not code.\n\n## Trigger\n\nSurfaced live while first-running the ₣BM skirmish suite. The project's active\nPayor moved from a **consumer** Google account (`bhyslop@gmail.com`, no org) to\nan **org-affiliated** Workspace identity (`bhyslop@scaleinvariant.org`, org\n`247899326218`). The operator's read: this is a major use-style change, not a\none-off config tweak, and the project must be reoriented to treat\norg-affiliated accounts as a first-class mode.\n\n## What we proved this session (the durable reminder)\n\nOrg-affiliated identities inherit secure-by-default posture the prior consumer\naccount never had — two distinct behaviors, two distinct layers:\n\n- **Reauth cadence.** The org's session/reauth policy refuses the payor OAuth\n  refresh token after a short window (a ~22h-old token returned `invalid_rapt`;\n  `rbw-gPI` re-auth cleared it). `rbw-gPR` is stale here — its text assumes the\n  consumer \"6-month idle expiry\" model, which no longer describes reality.\n- **Key-creation block.** `iam.disableServiceAccountKeyCreation` is `enforced`\n  by default on the standing depot, so governor/retriever/director SA-key\n  creation will be refused — the wall the mantle would hit next.\n- The payor **lacks** `orgpolicy.policy.set` but **holds**\n  `resourcemanager.organizations.setIamPolicy` (so it could self-grant\n  policyAdmin). The standing depot is ACTIVE under the org; no levy needed.\n\n## Goal\n\nDecide, honestly and with the operator, how org-affiliated accounts become a\nsupported use style: where reauth cadence and the key-creation override are\nsurfaced, owned, and documented across establish / levy / onboarding — and\nwhether the tactical org-policy paces already slated in this heat are the right\nshape or need recasting in light of the above. Output: an agreed design\ndirection written back into the paddock, with the downstream paces reshaped to\nmatch.\n\n## Constraint\n\nProduces understanding and a reshaped plan, not code. Implementation belongs to\nthe downstream paces, governed by this pace's conclusions.",
               "jjgtn_silks": "org-affiliated-account-reorientation",
               "jjgtn_basis": "64f648a"
+            }
+          ]
+        },
+        "₢BSAAG": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260528-1000",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nIntricate but mechanical — a behavior-preserving move/rename sweep.\n\n## Goal\nDissolve `rbgu_Utility.sh` (the \"Google Utility\" grab-bag) into focused modules whose prefix matches what the code actually is. No behavior change.\n\n## Locked mapping\nDrop the now-redundant infix (`rbgu_http_request` → `rbuh_request`):\n\n- **rbuh** (new — Recipe Bottle Utility / HTTP): http_request, http_json, http_require_ok, http_code, curl-transient predicate, poll_until_ok, poll_until_gone\n- **rbuj** (new — Utility / JSON+string): json_valid, json_field, jq_file_to_file, urlencode\n- **rba** (new — Auth / RBK credential domain, mode-neutral): get_governor_token, authenticate_role, rbra_load, rbro_load, extract_json_to_rbra\n- **rbge** (new — GCP REST, GCP conventions over rbuh): http_json_lro_ok, newly_created_delay, api_enable, error_message\n- **rbgi** (existing — IAM): write_vanilla_json, jq_add_member_to_role, provision_service_agent, sa_email\n\n`rbgu` dissolves entirely.\n\n## Constraints\n- Behavior-preserving: move + rename + resite only; no new logic.\n- OUT of scope: the role-keyed token accessor and the keyfile/federation fork — those belong to the gcp-hardening heat, not here. `rba` just holds the moved functions.\n- Each new module carries its own kindle/sentinel per BCG; relocate the `ZRBGU_` temp-file machinery to its new owner(s).\n- Library-only — no tabtarget/colophon changes.\n- Mint: rbuh/rbuj/rba/rbge confirmed free. `rbu` is a family (children rbuh/rbuj); `rba` and `rbge` are terminal.\n\n## Discovery\n- `grep \"rbgu_\" Tools/rbk` for call sites and sourcing wiring.\n\n## What done looks like\n`rbgu_Utility.sh` is gone; every former function lives in its mapped module under the new name; all callers and sourcing updated; deny-warnings + shellcheck (qualify) clean; the service-tier suite passes (exercises `rba`'s token path).",
+              "jjgtn_silks": "explode-rbgu-grab-bag",
+              "jjgtn_basis": "73ddc72"
             }
           ]
         }
