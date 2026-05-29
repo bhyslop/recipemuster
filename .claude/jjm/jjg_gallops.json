@@ -7146,9 +7146,10 @@
         "₢BBABF",
         "₢BBABG",
         "₢BBABL",
-        "₢BBABN"
+        "₢BBABN",
+        "₢BBABP"
       ],
-      "jjghn_next_pace_seed": "ABP",
+      "jjghn_next_pace_seed": "ABQ",
       "jjghn_paces": {
         "₢BBAA-": {
           "jjgpn_tacks": [
@@ -9022,6 +9023,17 @@
               "jjgtn_text": "## Character\nLong unattended verification on an operator-independent station (cerebro). Mechanical to launch; exposed to one known transient. Launched out-of-band ahead of the heat's remaining sequence by operator request.\n\n## Goal\nProve the skirmish suite (mini-gauntlet: standing-depot depot→build→crucible chain, no project churn) runs green on cerebro, as the standing-depot counterpart to the full-gauntlet first-run.\n\n## Wrap criterion\nGreen skirmish tally on cerebro. Not \"ran to completion.\"\n\n## Known exposure\nskirmish's canonical-invest + onboarding-sequence ordain path is exposed to the ACCOUNT_STATE_INVALID re-invest flap (memo-20260527; repair slated separately in this heat). A failure carrying that signature is the known transient — re-run, don't triage. Any other failure is a real surprise: capture and route.\n\n## On wrap\nThe wrap summary records the clean skirmish result and explicitly notes it as the green light to retire the rbk- heats now pace-complete: rbk-11-mvp-shellcheck-error-gaps, rbk-12-harmonize-buc-and-buh, rbk-13-mvp-redundancy-cleanup, rbk-09-mvp-regime-sprues-misc (each paddock confirmed shape-complete at retire time).",
               "jjgtn_silks": "skirmish-cerebro-standing-run",
               "jjgtn_basis": "84c65e1"
+            }
+          ]
+        },
+        "₢BBABP": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260529-0818",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nShort, mechanical observability fix. One judgment call (where the emission belongs); the rest is rote.\n\n## Goal\nDuring the silent cloud-build poll window, the operator gets periodic console progress — answering \"is it progressing?\" — without spelunking rbfc_poll_response_*.json. Wanted live for dogfight, skirmish, gauntlet, any ordain-bearing fixture.\n\n## The silence, two layers\n- rbfc_FoundryCore.sh zrbfc_wait_build_completion emits per-poll status via buc_log_args — log-only, never console.\n- The theurge engine rbtdre_run_cases emits only terminal PASSED/FAILED per case; the case closure is an opaque blocking call, so nothing surfaces while ordain waits on the build.\n\n## The one judgment call\nConfirm theurge captures/redirects the case closure's child stdout (rbfc's visible \"Waiting for build completion\" buc_step never reached the console during dogfight — strong evidence it does). If captured, the heartbeat belongs engine-side (periodic \"running <case> (Ns elapsed)\"), not in rbfc — surface progress without un-quieting all child output.\n\n## Wrap criterion\nRunning dogfight shows periodic build-phase progress on the console during the poll wait.\n\n## Out of scope\nBroader theurge trace overhaul; per-step structured progress. Heartbeat only.",
+              "jjgtn_silks": "ordain-poll-progress-heartbeat",
+              "jjgtn_basis": "3061913"
             }
           ]
         }
