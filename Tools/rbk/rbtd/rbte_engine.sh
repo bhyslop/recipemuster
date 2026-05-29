@@ -38,81 +38,9 @@ zrbte_kindle() {
   readonly RBTE_MANIFEST="${z_dir}/Cargo.toml"
   readonly ZRBTE_BINARY="${z_dir}/target/debug/rbtd"
 
-  # Suite-to-fixture mappings
-  ZRBTE_SUITE_FAST=(
-    "enrollment-validation"
-    "regime-validation"
-    "regime-smoke"
-    "handbook-render"
-    "dockerfile-hygiene"
-  )
-  ZRBTE_SUITE_SERVICE=("${ZRBTE_SUITE_FAST[@]}" "access-probe" "hallmark-lifecycle" "batch-vouch")
-  ZRBTE_SUITE_CRUCIBLE=("${ZRBTE_SUITE_FAST[@]}" "tadmor" "srjcl" "pluml")
-  ZRBTE_SUITE_COMPLETE=("${ZRBTE_SUITE_FAST[@]}" "access-probe" "hallmark-lifecycle" "batch-vouch" "tadmor" "srjcl" "pluml")
-  # Gauntlet — release-qualification ladder, walks marshal-zero state through
-  # canonical-credentialed state to crucible verification. Pristine-lifecycle
-  # case 1 is the entry-contract gate; preceding enrollment-validation runs
-  # state-indifferent and is harmless on broken state. Fail-fast across
-  # fixtures is provided by the for-loop's set -e.
-  ZRBTE_SUITE_GAUNTLET=(
-    "enrollment-validation"
-    "pristine-lifecycle"
-    "canonical-establish"
-    "onboarding-sequence"
-    "regime-validation"
-    "regime-smoke"
-    "dockerfile-hygiene"
-    "hallmark-lifecycle"
-    "tadmor"
-    "moriah"
-    "srjcl"
-    "pluml"
-  )
-  # Skirmish — the "mini gauntlet": the depot->build->crucible chain WITHOUT
-  # project-ID churn. canonical-invest reuses a standing operator-levied depot
-  # (no levy, no unmake) where the gauntlet's pristine-lifecycle/canonical
-  # -establish each levy a fresh project; pristine-lifecycle is dropped
-  # entirely. onboarding-sequence then builds the crucible images (local kludge
-  # + cloud ordain into the standing depot) and the four crucibles charge+run.
-  # OPERATOR PRECONDITION: a canonical depot already levied — install canonical
-  # prefixes and run rbw-dL by hand before this suite. Spends cloud build/GAR
-  # but creates no GCP project per run.
-  ZRBTE_SUITE_SKIRMISH=(
-    "enrollment-validation"
-    "canonical-invest"
-    "onboarding-sequence"
-    "regime-validation"
-    "regime-smoke"
-    "dockerfile-hygiene"
-    "tadmor"
-    "moriah"
-    "srjcl"
-    "pluml"
-  )
-  # Dogfight — standing-depot cloud-build viability probe. Sibling to skirmish
-  # in the operator-precondition family (reuses a hand-levied depot, no levy,
-  # no unmake) but charges NO crucible: it proves only the cloud-build → summon
-  # → run path yields a runnable artifact. canonical-invest leads exactly as it
-  # does in skirmish — re-mantling the governor and divest/re-investing
-  # retriever + director so the dogfight fixture finds fresh credentials; the
-  # dogfight fixture itself stays crucible-free. OPERATOR PRECONDITION: a
-  # canonical depot already levied (the standing-depot setup skirmish assumes).
-  ZRBTE_SUITE_DOGFIGHT=(
-    "canonical-invest"
-    "dogfight"
-  )
-  # Tadmor self-contained — fully local, no GCP/depot/project. Two fixtures in
-  # sequence: kludge-tadmor builds BOTH vessels (sentry + bottle) locally and
-  # commits each hallmark (the fixture owns the notch — same precedent as
-  # onboarding's rbtdro_kludge_nameplate); then the tadmor crucible fixture
-  # charges against the now-clean nameplate, runs the security cases, quenches.
-  # The build is a separate fixture (nameplate passed explicitly) rather than a
-  # self-charging tadmor fixture, because the crucible security cases resolve
-  # their nameplate from the fixture name and would collide on "tadmor".
-  ZRBTE_SUITE_TADMOR=(
-    "kludge-tadmor"
-    "tadmor"
-  )
+  # Suite→fixture composition is owned by theurge (RBTDRC_SUITES in
+  # rbtdrc_crucible.rs), not bash. Suite names survive here only as tabtarget
+  # imprints passed straight through to the binary's `suite` mode.
 
   readonly ZRBTE_KINDLED=1
 }
@@ -146,21 +74,6 @@ zrbte_build_binary() {
   buc_step "Building theurge"
   cargo build --manifest-path "${RBTE_MANIFEST}" || buc_die "cargo build failed"
   test -x "${ZRBTE_BINARY}" || buc_die "Theurge binary not found: ${ZRBTE_BINARY}"
-}
-
-zrbte_resolve_suite() {
-  local z_suite="$1"
-  case "${z_suite}" in
-    fast)     echo "${ZRBTE_SUITE_FAST[*]}" ;;
-    service)  echo "${ZRBTE_SUITE_SERVICE[*]}" ;;
-    crucible) echo "${ZRBTE_SUITE_CRUCIBLE[*]}" ;;
-    complete) echo "${ZRBTE_SUITE_COMPLETE[*]}" ;;
-    gauntlet) echo "${ZRBTE_SUITE_GAUNTLET[*]}" ;;
-    skirmish) echo "${ZRBTE_SUITE_SKIRMISH[*]}" ;;
-    dogfight) echo "${ZRBTE_SUITE_DOGFIGHT[*]}" ;;
-    tadmor)   echo "${ZRBTE_SUITE_TADMOR[*]}" ;;
-    *)        buc_die "Unknown suite: ${z_suite} (expected fast|service|crucible|complete|gauntlet|skirmish|dogfight|tadmor)" ;;
-  esac
 }
 
 ######################################################################
@@ -204,20 +117,12 @@ rbte_suite() {
   local z_suite="${BUZ_FOLIO:-}"
   test -n "${z_suite}" || buc_die "No suite imprint — use tabtarget with imprint (e.g. rbw-ts.TestSuite.fast.sh)"
 
-  local z_fixture_list
-  z_fixture_list="$(zrbte_resolve_suite "${z_suite}")"
-
   zrbte_build_binary
 
-  local z_count=0
-  local z_fixture
-  for z_fixture in ${z_fixture_list}; do
-    buc_step "Running theurge fixture '${z_fixture}'"
-    "${ZRBTE_BINARY}" "${ZRBZ_COLOPHON_MANIFEST}" "${z_fixture}"
-    z_count=$((z_count + 1))
-  done
-
-  buc_success "Suite '${z_suite}' complete (${z_count} fixtures)"
+  # Composition is owned by theurge: pass the suite imprint straight through to
+  # the binary's `suite` mode, which resolves and runs its fixtures.
+  buc_step "Running theurge suite '${z_suite}'"
+  "${ZRBTE_BINARY}" suite "${ZRBZ_COLOPHON_MANIFEST}" "${z_suite}"
 }
 
 rbte_single() {

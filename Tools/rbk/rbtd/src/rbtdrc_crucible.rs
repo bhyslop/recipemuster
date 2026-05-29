@@ -29,7 +29,7 @@ use std::process::{Command, Stdio};
 
 use crate::case;
 use crate::rbtdre_engine::{
-    rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict,
+    rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Suite, rbtdre_Verdict,
 };
 use crate::rbtdri_invocation::{
     rbtdri_Context, rbtdri_invoke, rbtdri_invoke_global,
@@ -2384,6 +2384,158 @@ pub static RBTDRC_FIXTURES: &[&'static rbtdre_Fixture] = &[
 /// for unregistered names; callers decide whether that is fatal.
 pub fn rbtdrc_lookup_fixture(fixture: &str) -> Option<&'static rbtdre_Fixture> {
     RBTDRC_FIXTURES.iter().find(|f| f.name == fixture).copied()
+}
+
+/// Suite registry — the sole owner of suite→fixture composition. The
+/// `rbw-ts.TestSuite.{imprint}` tabtargets carry only the suite name; theurge
+/// resolves membership here. Each member is a compile-checked reference to a
+/// fixture static, so a mistyped or deleted member fails the build.
+///
+/// The dependency-tiered suites (service, crucible, complete) list the fast
+/// fixtures explicitly rather than splicing a shared `fast` slice: const slice
+/// concatenation would be non-load-bearing cleverness, and the compile-time
+/// member check already guards correctness. Fast remains the conceptual base —
+/// the explicit duplication is the cost of that being a compile-checked list.
+pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
+    // Fast — no external dependencies.
+    rbtdre_Suite {
+        name: "fast",
+        fixtures: &[
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_SMOKE,
+            &crate::rbtdrf_handbook::RBTDRF_FIXTURE_HANDBOOK_RENDER,
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_DOCKERFILE_HYGIENE,
+        ],
+    },
+    // Service — fast + GCP-credentialed bare fixtures.
+    rbtdre_Suite {
+        name: "service",
+        fixtures: &[
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_SMOKE,
+            &crate::rbtdrf_handbook::RBTDRF_FIXTURE_HANDBOOK_RENDER,
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_DOCKERFILE_HYGIENE,
+            &RBTDRC_FIXTURE_ACCESS_PROBE,
+            &RBTDRC_FIXTURE_HALLMARK_LIFECYCLE,
+            &RBTDRC_FIXTURE_BATCH_VOUCH,
+        ],
+    },
+    // Crucible — fast + container-runtime crucible fixtures.
+    rbtdre_Suite {
+        name: "crucible",
+        fixtures: &[
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_SMOKE,
+            &crate::rbtdrf_handbook::RBTDRF_FIXTURE_HANDBOOK_RENDER,
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_DOCKERFILE_HYGIENE,
+            &RBTDRC_FIXTURE_TADMOR,
+            &RBTDRC_FIXTURE_SRJCL,
+            &RBTDRC_FIXTURE_PLUML,
+        ],
+    },
+    // Complete — fast + every dependency-tiered fixture (service ∪ crucible).
+    rbtdre_Suite {
+        name: "complete",
+        fixtures: &[
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_SMOKE,
+            &crate::rbtdrf_handbook::RBTDRF_FIXTURE_HANDBOOK_RENDER,
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_DOCKERFILE_HYGIENE,
+            &RBTDRC_FIXTURE_ACCESS_PROBE,
+            &RBTDRC_FIXTURE_HALLMARK_LIFECYCLE,
+            &RBTDRC_FIXTURE_BATCH_VOUCH,
+            &RBTDRC_FIXTURE_TADMOR,
+            &RBTDRC_FIXTURE_SRJCL,
+            &RBTDRC_FIXTURE_PLUML,
+        ],
+    },
+    // Gauntlet — release-qualification ladder. Walks marshal-zero state through
+    // canonical-credentialed state to crucible verification. Pristine-lifecycle
+    // case 1 is the entry-contract gate; the preceding enrollment-validation
+    // runs state-indifferent and is harmless on broken state. Fail-fast across
+    // fixtures is provided by the suite runner's break-on-failure.
+    rbtdre_Suite {
+        name: "gauntlet",
+        fixtures: &[
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
+            &crate::rbtdrp_pristine::RBTDRP_FIXTURE_PRISTINE_LIFECYCLE,
+            &crate::rbtdrk_canonical::RBTDRK_FIXTURE_CANONICAL_ESTABLISH,
+            &crate::rbtdro_onboarding::RBTDRO_FIXTURE_ONBOARDING_SEQUENCE,
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_SMOKE,
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_DOCKERFILE_HYGIENE,
+            &RBTDRC_FIXTURE_HALLMARK_LIFECYCLE,
+            &RBTDRC_FIXTURE_TADMOR,
+            &RBTDRC_FIXTURE_MORIAH,
+            &RBTDRC_FIXTURE_SRJCL,
+            &RBTDRC_FIXTURE_PLUML,
+        ],
+    },
+    // Skirmish — the "mini gauntlet": the depot→build→crucible chain WITHOUT
+    // project-ID churn. canonical-invest reuses a standing operator-levied depot
+    // (no levy, no unmake) where the gauntlet's pristine-lifecycle/canonical-
+    // establish each levy a fresh project; pristine-lifecycle is dropped
+    // entirely. onboarding-sequence then builds the crucible images (local
+    // kludge + cloud ordain into the standing depot) and the four crucibles
+    // charge+run. OPERATOR PRECONDITION: a canonical depot already levied —
+    // install canonical prefixes and run rbw-dL by hand before this suite.
+    // Spends cloud build/GAR but creates no GCP project per run.
+    rbtdre_Suite {
+        name: "skirmish",
+        fixtures: &[
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
+            &crate::rbtdrk_canonical::RBTDRK_FIXTURE_CANONICAL_INVEST,
+            &crate::rbtdro_onboarding::RBTDRO_FIXTURE_ONBOARDING_SEQUENCE,
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_SMOKE,
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_DOCKERFILE_HYGIENE,
+            &RBTDRC_FIXTURE_TADMOR,
+            &RBTDRC_FIXTURE_MORIAH,
+            &RBTDRC_FIXTURE_SRJCL,
+            &RBTDRC_FIXTURE_PLUML,
+        ],
+    },
+    // Dogfight — standing-depot cloud-build viability probe. Sibling to skirmish
+    // in the operator-precondition family (reuses a hand-levied depot, no levy,
+    // no unmake) but charges NO crucible: it proves only the cloud-build →
+    // summon → run path yields a runnable artifact. canonical-invest leads
+    // exactly as it does in skirmish — re-mantling the governor and divest/re-
+    // investing retriever + director so the dogfight fixture finds fresh
+    // credentials; the dogfight fixture itself stays crucible-free. OPERATOR
+    // PRECONDITION: a canonical depot already levied (the standing-depot setup
+    // skirmish assumes).
+    rbtdre_Suite {
+        name: "dogfight",
+        fixtures: &[
+            &crate::rbtdrk_canonical::RBTDRK_FIXTURE_CANONICAL_INVEST,
+            &crate::rbtdrd_dogfight::RBTDRD_FIXTURE_DOGFIGHT,
+        ],
+    },
+    // Tadmor self-contained — fully local, no GCP/depot/project. Two fixtures in
+    // sequence: kludge-tadmor builds BOTH vessels (sentry + bottle) locally and
+    // commits each hallmark (the fixture owns the notch — same precedent as
+    // onboarding's rbtdro_kludge_nameplate); then the tadmor crucible fixture
+    // charges against the now-clean nameplate, runs the security cases, quenches.
+    // The build is a separate fixture (nameplate passed explicitly) rather than
+    // a self-charging tadmor fixture, because the crucible security cases resolve
+    // their nameplate from the fixture name and would collide on "tadmor".
+    rbtdre_Suite {
+        name: "tadmor",
+        fixtures: &[
+            &crate::rbtdro_onboarding::RBTDRO_FIXTURE_KLUDGE_TADMOR,
+            &RBTDRC_FIXTURE_TADMOR,
+        ],
+    },
+];
+
+/// Resolve a suite name to its registered Suite definition. Returns None for
+/// unregistered names; callers decide whether that is fatal.
+pub fn rbtdrc_lookup_suite(suite: &str) -> Option<&'static rbtdre_Suite> {
+    RBTDRC_SUITES.iter().find(|s| s.name == suite)
 }
 
 pub static RBTDRC_CASES_SRJCL: &[rbtdre_Case] = &[

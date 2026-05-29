@@ -208,8 +208,8 @@ rbq_qualify_release() {
 }
 
 # Pristine/skirmish/tadmor qualification collapsed into rbw-ts suite imprints
-# (gauntlet/skirmish/tadmor) — see the suite arrays in rbte_engine.sh. The
-# tadmor suite preserves the deliberate two-fixture (kludge-tadmor, tadmor)
-# sequence; its rationale moved to ZRBTE_SUITE_TADMOR.
+# (gauntlet/skirmish/tadmor) — see the suite registry RBTDRC_SUITES in
+# rbtdrc_crucible.rs. The tadmor suite preserves the deliberate two-fixture
+# (kludge-tadmor, tadmor) sequence; its rationale lives on that registry entry.
 
 # eof

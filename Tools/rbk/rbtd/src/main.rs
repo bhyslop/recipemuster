@@ -18,7 +18,10 @@
 //
 // Subcommands:
 //   rbtd <manifest> <fixture>
-//     Suite runner — verify manifest, charge, run all cases, quench.
+//     Single-fixture runner — verify manifest, charge, run all cases, quench.
+//   rbtd suite <manifest> <suite>
+//     Suite runner — resolve the suite's fixtures (composition owned here, not
+//     in bash) and run each in sequence, fail-fast, with one aggregate summary.
 //   rbtd single <manifest> <fixture> [case]
 //     Single-case runner — no charge/quench. List cases or run one.
 
@@ -32,7 +35,8 @@ use std::path::PathBuf;
 use std::process::ExitCode;
 
 use rbtd::rbtdrc_crucible::{
-    rbtdrc_lookup_fixture, rbtdrc_set_context, rbtdrc_take_context, RBTDRC_FIXTURES,
+    rbtdrc_lookup_fixture, rbtdrc_lookup_suite, rbtdrc_set_context, rbtdrc_take_context,
+    RBTDRC_FIXTURES, RBTDRC_SUITES,
 };
 use rbtd::rbtdre_engine::{
     rbtdre_detect_colors, rbtdre_find_case, rbtdre_list_cases, rbtdre_print_summary,
@@ -49,11 +53,11 @@ use rbtd::rbtdrx_platform::rbtdrx_posix_to_native;
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().collect();
 
-    if args.get(1).map(|s| s.as_str()) == Some("single") {
-        return rbtdb_run_single(&args[2..]);
+    match args.get(1).map(|s| s.as_str()) {
+        Some("single") => rbtdb_run_single(&args[2..]),
+        Some("suite") => rbtdb_run_suite(&args[2..]),
+        _ => rbtdb_run_fixture(&args[1..]),
     }
-
-    rbtdb_run_suite(&args[1..])
 }
 
 fn rbtdb_read_dispatch_dir(name: &str) -> Result<PathBuf, String> {
@@ -96,9 +100,9 @@ fn rbtdb_allocate_roots() -> Result<rbtdb_Roots, String> {
     Ok(rbtdb_Roots { trace_root, burv_temp_root, burv_output_root })
 }
 
-// ── Suite runner ─────────────────────────────────────────────
+// ── Single-fixture runner ────────────────────────────────────
 
-fn rbtdb_run_suite(args: &[String]) -> ExitCode {
+fn rbtdb_run_fixture(args: &[String]) -> ExitCode {
     let manifest = match args.first() {
         Some(m) => m,
         None => rbtd::rbtdrg_fatal_now!(
@@ -174,6 +178,133 @@ fn rbtdb_run_suite(args: &[String]) -> ExitCode {
         ExitCode::FAILURE
     } else {
         ExitCode::SUCCESS
+    }
+}
+
+// ── Suite runner ─────────────────────────────────────────────
+
+fn rbtdb_run_suite(args: &[String]) -> ExitCode {
+    let manifest = match args.first() {
+        Some(m) => m,
+        None => rbtd::rbtdrg_fatal_now!(
+            "rbtd suite: usage: rbtd suite <manifest> <suite>\n\
+             theurge must be launched via tabtarget (e.g. tt/rbw-ts.TestSuite.fast.sh)"
+        ),
+    };
+
+    let suite = match args.get(1) {
+        Some(name) => match rbtdrc_lookup_suite(name) {
+            Some(s) => s,
+            None => {
+                rbtd::rbtdrg_error_now!("rbtd suite: unknown suite '{}'", name);
+                rbtdb_list_suites();
+                return ExitCode::FAILURE;
+            }
+        },
+        None => {
+            rbtd::rbtdrg_error_now!("rbtd suite: no suite argument");
+            rbtdb_list_suites();
+            return ExitCode::FAILURE;
+        }
+    };
+
+    // Verify every member's required colophons up front — fail before charging
+    // anything if the zipper manifest has drifted from any fixture's needs.
+    for fixture in suite.fixtures {
+        if let Err(msg) = rbtdrm_verify(manifest, fixture.name) {
+            rbtd::rbtdrg_fatal_now!("{}", msg);
+        }
+    }
+
+    let project_root = match std::env::current_dir() {
+        Ok(p) => p,
+        Err(e) => rbtd::rbtdrg_fatal_now!("rbtd: cannot determine working directory: {}", e),
+    };
+
+    // Run-start hygiene guard, once per suite (under the bash loop it ran once
+    // per fixture). A suite commits a sequence of hallmark/yoke changes; a dirty
+    // tree at the start would interleave the operator's uncommitted edits.
+    if let Err(msg) = rbtdre_tree_clean(&project_root) {
+        rbtd::rbtdrg_fatal_now!(
+            "rbtd: refusing to start a suite run on a dirty working tree — \
+             commit or stash first.\n{}",
+            msg
+        );
+    }
+
+    // Roots allocated once per suite; all fixtures share the trace/burv roots.
+    // This matches the bash loop, where every per-fixture process inherited the
+    // same BURD_TEMP_DIR and thus the same trace root.
+    let roots = match rbtdb_allocate_roots() {
+        Ok(r) => r,
+        Err(msg) => rbtd::rbtdrg_fatal_now!("{}", msg),
+    };
+
+    let colors = rbtdre_detect_colors();
+
+    let mut total_passed = 0usize;
+    let mut total_failed = 0usize;
+    let mut total_skipped = 0usize;
+    let mut ran = 0usize;
+
+    // Sequential, fail-fast across fixtures — matches the bash for-loop under
+    // `set -e`. A fixture whose cases fail (or whose setup errors) stops the
+    // suite; fixtures already run have charged-and-quenched cleanly.
+    //
+    // Note: a case that *panics* (rather than returning a Fail verdict) unwinds
+    // past its fixture's quench and aborts the whole suite process with that
+    // fixture's crucible left charged — the same leak the per-process bash loop
+    // had. Routine failure is always a Fail verdict, which quenches normally
+    // (teardown is finally-shaped in rbtdre_run_fixture).
+    for fixture in suite.fixtures {
+        let ctx = rbtdri_Context::new(
+            &project_root,
+            fixture.name,
+            &roots.burv_temp_root,
+            &roots.burv_output_root,
+        );
+        rbtdrc_set_context(ctx);
+
+        let run_result = rbtdre_run_fixture(fixture, &colors, &roots.trace_root);
+
+        let _ctx = rbtdrc_take_context();
+
+        match run_result {
+            Ok(result) => {
+                rbtdre_print_summary(&result, &colors);
+                total_passed += result.passed;
+                total_failed += result.failed;
+                total_skipped += result.skipped;
+                ran += 1;
+                if result.failed > 0 {
+                    break;
+                }
+            }
+            Err(msg) => {
+                rbtd::rbtdrg_error_now!("rbtd: fixture '{}': {}", fixture.name, msg);
+                total_failed += 1;
+                ran += 1;
+                break;
+            }
+        }
+    }
+
+    rbtd::rbtdrg_info_now!(
+        "Suite '{}': {} fixture(s) run, {} passed, {} failed, {} skipped",
+        suite.name, ran, total_passed, total_failed, total_skipped
+    );
+
+    if total_failed > 0 {
+        ExitCode::FAILURE
+    } else {
+        ExitCode::SUCCESS
+    }
+}
+
+fn rbtdb_list_suites() {
+    rbtd::rbtdrg_info_now!("available suites:");
+    for s in RBTDRC_SUITES {
+        rbtd::rbtdrg_info_now!("  {}", s.name);
     }
 }
 

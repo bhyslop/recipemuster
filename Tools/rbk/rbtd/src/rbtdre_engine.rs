@@ -131,6 +131,18 @@ pub struct rbtdre_Fixture {
     pub cases: &'static [rbtdre_Case],
 }
 
+/// A named suite — an ordered set of fixtures run as one sequential batch.
+///
+/// Suite composition lives here, in theurge, not in bash: the `rbw-ts.TestSuite.*`
+/// tabtargets pass only their imprint (the suite name) and theurge resolves the
+/// membership. Members are `&'static rbtdre_Fixture` references to the registered
+/// fixture statics, so a mistyped member is a compile error — not a name string
+/// mirrored across the bash/Rust boundary that fails at runtime.
+pub struct rbtdre_Suite {
+    pub name: &'static str,
+    pub fixtures: &'static [&'static rbtdre_Fixture],
+}
+
 /// Case registration macro. Derives case name from function name via `stringify!`.
 /// Compiler enforces uniqueness — duplicate function names won't compile.
 #[macro_export]
