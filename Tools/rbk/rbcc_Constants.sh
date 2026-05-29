@@ -125,7 +125,8 @@ RBCC_container_sentry="sentry"
 # rbcc_emit_consts() - Emit the RBCC-owned co-maintained constants as Rust
 # string consts to stdout, one `pub const` line per name/value pair via the
 # shared buz_emit_const primitive (BUK must be kindled). The single-homed set:
-# moorings/vessels dirs, account labels, .env filenames. Each Rust const is
+# moorings/vessels dirs, account labels, .env filenames, operation verbs, and
+# container roles. Each Rust const is
 # RBTDGC_ + the RBCC stem (RBCC_ prefix stripped) uppercased; the value is
 # carried verbatim. Bash stays mixed-case (RBCC_moorings_dir); the generated
 # Rust is SCREAMING (RBTDGC_MOORINGS_DIR) per Rust convention — that casing is
@@ -156,6 +157,17 @@ rbcc_emit_consts() {
     RBCC_rbrn_file       \
     RBCC_rbra_file       \
     RBCC_rbro_file       \
+    RBCC_verb_divest     \
+    RBCC_verb_invest     \
+    RBCC_verb_roster     \
+    RBCC_verb_enshrine   \
+    RBCC_verb_inscribe   \
+    RBCC_verb_kludge     \
+    RBCC_verb_ordain     \
+    RBCC_verb_yoke       \
+    RBCC_container_bottle    \
+    RBCC_container_pentacle  \
+    RBCC_container_sentry    \
   ; do
     z_stem="${z_name#RBCC_}"
     z_upper="$(printf '%s' "${z_stem}" | tr '[:lower:]' '[:upper:]')"

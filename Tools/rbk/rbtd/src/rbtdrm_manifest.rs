@@ -89,22 +89,11 @@ pub const RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST: &str = "calibrant-fail-fast";
 pub const RBTDRM_FIXTURE_CALIBRANT_PROGRESSING: &str = "calibrant-progressing";
 pub const RBTDRM_FIXTURE_CALIBRANT_SENTINEL: &str = "calibrant-sentinel";
 
-// Operation verb consts — single definition per String Boundary Discipline.
-// Used for error-message prefixes, log labels, and commit messages where the
-// operation name is a vocabulary unit. Atomic — compound operations like
-// "kludge sentry" are composed at the call site from RBTDRM_OPERATION_KLUDGE
-// and the relevant container-role constant.
-pub const RBTDRM_OPERATION_INSCRIBE: &str = "inscribe";
-pub const RBTDRM_OPERATION_YOKE: &str = "yoke";
-pub const RBTDRM_OPERATION_ORDAIN: &str = "ordain";
-pub const RBTDRM_OPERATION_ENSHRINE: &str = "enshrine";
-pub const RBTDRM_OPERATION_KLUDGE: &str = "kludge";
-
-// Container role consts — sentry (security gateway) and bottle (workload) are
-// the two container roles within a crucible. Used as suffixes for kludge
-// operations and as commit-message vocabulary distinguishing the two builds.
-pub const RBTDRM_CONTAINER_SENTRY: &str = "sentry";
-pub const RBTDRM_CONTAINER_BOTTLE: &str = "bottle";
+// Operation verbs and container roles are generated as RBTDGC_VERB_* and
+// RBTDGC_CONTAINER_* (rbtdgc_consts.rs) from their canonical bash home in
+// rbcc_Constants.sh; consumers source those directly. Compound operations like
+// "kludge sentry" are composed at the call site from RBTDGC_VERB_KLUDGE and the
+// relevant RBTDGC_CONTAINER_* constant.
 
 // Regime-validation contract surfaces — the regime module theurge sources and
 // the public *_probate entry it calls to drive a staged regime file through
