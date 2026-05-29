@@ -9131,9 +9131,10 @@
         "₢BDAAI",
         "₢BDAAJ",
         "₢BDAAK",
-        "₢BDAAL"
+        "₢BDAAL",
+        "₢BDAAM"
       ],
-      "jjghn_next_pace_seed": "AAM",
+      "jjghn_next_pace_seed": "AAN",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -9418,6 +9419,17 @@
               "jjgtn_text": "## Character\nIntricate but mechanical — rewiring existing load/save machinery, not new validation logic.\n\n## What done looks like\n`jjx_validate` becomes a deliberate normalize-and-report pass over the gallops, replacing today's read-only behavior (which fatals on any non-canonical-but-valid file via the load round-trip check). It leans on the canonicalization that already exists latently in migration mode.\n\nTri-state outcome, exit code carries the verdict so a caller branches without scraping stdout:\n- **exit 0 / clean** — valid and already canonical; no write.\n- **exit 2 / normalized** — valid but non-canonical; validate rewrote it to canonical form and committed.\n- **exit 1 / broken** — could not load/validate (parse or invariant failure); file untouched.\n\n## Locked constraints\n- **Fix scope is normalization only** — key order, whitespace, `heat_order` population. Never invents or repairs missing/contradictory data; structural breakage is exit 1, never a silent fix.\n- **Idempotent** — re-running after a `2` yields `0`.\n- **Commit-on-normalize** (operator decision, additive-safe). validate is gallops-wide, affiliated with neither heat nor pace, so the standard identity-keyed persist path does not fit — needs its own commit path (action code + gallops-level or marker-style primitive).\n- **Correct under in-progress merge** — committing with `MERGE_HEAD` present must finalize the merge (two parents), not leave it dangling. This finalization is intended: validate is the post-merge gallops cleanup step.\n- **Self-describing stdout** — every outcome names its bucket and prints a census, so green is positive evidence, not mere silence.\n\n## Also in scope\nUpdate the JJK command-reference wording (CLAUDE.md JJK section / jjk core) so the entry states the three outcomes and the residual: *normalized ≠ semantically correct; eyeball the heat/pace inventory against both branches yourself.*\n\n## Sources\n`JJSCVL-validate.adoc` (rules), `JJSRLD-load.adoc` (round-trip + migration rewrite), `JJSRSV-save.adoc` (load-back validation), `JJSRPS-persist.adoc` (identity-keyed commit path this cannot reuse).",
               "jjgtn_silks": "validate-normalize-and-report",
               "jjgtn_basis": "156066f"
+            }
+          ]
+        },
+        "₢BDAAM": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260529-0649",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nIntricate but mechanical — restructure one search loop; rendering decision belongs to mount.\n\n## What done looks like\n`scout` (`jjx_search`) surfaces a heat whose paddock matches the pattern **even when the heat has zero paces**. Today the entire search — including the paddock read — is nested inside the per-pace loop (`for coronet_key in &heat.order`), so a pace-less heat's `order` is empty, the loop body never runs, and the paddock is never read. Planning/design heats, whose whole value lives in the paddock, are exactly this case and are silently invisible.\n\nThe bug is broader than zero-pace heats: the paddock sits in the `else` of an `if silks / else if text / else if direction / else paddock` chain, so a heat whose paces all self-match never has its paddock searched either; and when searched, the paddock is re-read from disk once per pace.\n\n## The fix\nHoist the paddock search out of the pace loop into a **once-per-heat** search, independent of pace count. When only the paddock matches, emit a **heat-level row** (heat header + paddock excerpt, no coronet).\n\n## Locked constraints\n- Paddock search is per-heat, not per-pace; paddock read happens once per heat.\n- Paddock-only matches render as a heat-level row with no coronet.\n- The `actionable` filter applies only to pace rows — a paddock is not actionable, so `actionable` suppresses heat-level paddock rows.\n- No status filter regression: all heats (racing, stabled, retired) remain searched.\n\n## Sources\n`Tools/jjk/vov_veiled/src/jjrsc_scout.rs` (the nested loop and the else-chain). Spook origin: ₣BH (rbk-29-win-enshrine-triple), a 0-pace heat whose paddock saturates with `enshrine`/`reliquary`/`unify` yet never appeared in scout.",
+              "jjgtn_silks": "scout-paddock-per-heat",
+              "jjgtn_basis": "3bae01e"
             }
           ]
         }
