@@ -18,9 +18,10 @@
 
 // Colophon names are projected from the zipper registry into the generated
 // RBTDGC_* consts (rbtdgc_consts.rs). This module consumes them for the
-// per-fixture required-colophon manifest and the role→probe mapping; the
-// runtime drift check (rbtdrm_verify) is retained until the build-time diff
-// gate lands.
+// per-fixture required-colophon manifest and the role→probe mapping. Colophon
+// existence is now enforced by compilation (this map references the generated
+// consts directly) plus the build-time diff gate (rbq regenerates and diffs
+// the consts against the zipper); the former runtime drift check is retired.
 use crate::rbtdgc_consts::*;
 
 // Credential roles are projected from rbcc_Constants.sh into the generated
@@ -231,25 +232,3 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
     }
 }
 
-/// Verify that all required colophons for a fixture appear in the zipper manifest string.
-pub fn rbtdrm_verify(manifest: &str, fixture: &str) -> Result<(), String> {
-    let required = match rbtdrm_required_colophons(fixture) {
-        Some(r) => r,
-        None => {
-            return Err(format!(
-                "rbtd: unknown fixture '{}' — not registered in manifest",
-                fixture
-            ));
-        }
-    };
-    for colophon in required {
-        let found = manifest.split_whitespace().any(|token| token == *colophon);
-        if !found {
-            return Err(format!(
-                "rbtd: colophon '{}' not found in zipper manifest (fixture '{}')",
-                colophon, fixture
-            ));
-        }
-    }
-    Ok(())
-}

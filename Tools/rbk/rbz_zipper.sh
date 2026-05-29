@@ -219,8 +219,6 @@ zrbz_kindle() {
   buz_enroll RBZ_HW_DOCKER_DESKTOP     "rbw-HWdd"  "${z_mod}" "rbhw_docker_desktop"            ""        "Docker Desktop install"
   buz_enroll RBZ_HW_DOCKER_CONTEXT     "rbw-HWdc"  "${z_mod}" "rbhw_docker_context_discipline" ""        "Deterministic daemon selection"
 
-  readonly ZRBZ_COLOPHON_MANIFEST="${z_buz_colophon_roll[*]}"
-
   readonly ZRBZ_KINDLED=1
 }
 

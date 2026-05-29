@@ -14,10 +14,9 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBTDTM — tests for colophon manifest verification
+// RBTDTM — manifest-module tests: pin the generated-const path literal
 
 use super::rbtdgc_consts::*;
-use super::rbtdrm_manifest::*;
 
 /// Pin the one surviving compile-time path literal (the `rbtd_vessels_dir!`
 /// macro in lib.rs) to the generated source of truth. The macro must equal
@@ -30,131 +29,4 @@ fn rbtdtm_vessels_dir_matches_generated() {
         crate::rbtd_vessels_dir!(),
         format!("{}/{}", RBTDGC_MOORINGS_DIR, RBTDGC_VESSELS_SUBDIR)
     );
-}
-
-/// Build a manifest string from the required colophons for a fixture.
-fn rbtdtm_manifest_for(fixture: &str) -> String {
-    rbtdrm_required_colophons(fixture)
-        .expect("unknown fixture")
-        .join(" ")
-}
-
-#[test]
-fn rbtdtm_accepts_valid_crucible_manifest() {
-    let manifest = rbtdtm_manifest_for(RBTDRM_FIXTURE_TADMOR);
-    assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_TADMOR).is_ok());
-    assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_SRJCL).is_ok());
-    assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_PLUML).is_ok());
-}
-
-#[test]
-fn rbtdtm_accepts_valid_hallmark_lifecycle_manifest() {
-    let manifest = rbtdtm_manifest_for(RBTDRM_FIXTURE_HALLMARK_LIFECYCLE);
-    assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_HALLMARK_LIFECYCLE).is_ok());
-}
-
-#[test]
-fn rbtdtm_accepts_valid_batchvouch_manifest() {
-    let manifest = rbtdtm_manifest_for(RBTDRM_FIXTURE_BATCH_VOUCH);
-    assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_BATCH_VOUCH).is_ok());
-}
-
-#[test]
-fn rbtdtm_accepts_valid_accessprobe_manifest() {
-    let manifest = rbtdtm_manifest_for(RBTDRM_FIXTURE_ACCESS_PROBE);
-    assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_ACCESS_PROBE).is_ok());
-}
-
-#[test]
-fn rbtdtm_rejects_missing_colophon() {
-    // Manifest with only charge — missing quench and others
-    let manifest = RBTDGC_CRUCIBLE_CHARGE;
-    let err = rbtdrm_verify(manifest, RBTDRM_FIXTURE_TADMOR).unwrap_err();
-    assert!(err.contains(RBTDGC_CRUCIBLE_QUENCH));
-}
-
-#[test]
-fn rbtdtm_rejects_empty_manifest() {
-    let err = rbtdrm_verify("", RBTDRM_FIXTURE_TADMOR).unwrap_err();
-    assert!(err.contains(RBTDGC_CRUCIBLE_CHARGE));
-}
-
-#[test]
-fn rbtdtm_no_partial_match() {
-    let manifest = format!("{}X {}Y", RBTDGC_CRUCIBLE_CHARGE, RBTDGC_CRUCIBLE_QUENCH);
-    let err = rbtdrm_verify(&manifest, RBTDRM_FIXTURE_TADMOR).unwrap_err();
-    assert!(err.contains(RBTDGC_CRUCIBLE_CHARGE));
-}
-
-#[test]
-fn rbtdtm_rejects_unknown_fixture() {
-    let err = rbtdrm_verify(RBTDGC_CRUCIBLE_CHARGE, "nonexistent").unwrap_err();
-    assert!(err.contains("unknown fixture"));
-}
-
-#[test]
-fn rbtdtm_accepts_fast_fixtures() {
-    // Fast-tier fixtures have no colophon requirements — empty manifest passes
-    let manifest = rbtdtm_manifest_for(RBTDRM_FIXTURE_ENROLLMENT_VALIDATION);
-    assert!(manifest.is_empty());
-    assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_ENROLLMENT_VALIDATION).is_ok());
-    assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_REGIME_VALIDATION).is_ok());
-    assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_REGIME_SMOKE).is_ok());
-}
-
-#[test]
-fn rbtdtm_accepts_valid_pristine_lifecycle_manifest() {
-    let manifest = rbtdtm_manifest_for(RBTDRM_FIXTURE_PRISTINE_LIFECYCLE);
-    assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_PRISTINE_LIFECYCLE).is_ok());
-}
-
-#[test]
-fn rbtdtm_pristine_lifecycle_rejects_missing_colophon() {
-    // Manifest with only the depot levy colophon — missing the other 5
-    let manifest = RBTDGC_LEVY_DEPOT;
-    let err = rbtdrm_verify(manifest, RBTDRM_FIXTURE_PRISTINE_LIFECYCLE).unwrap_err();
-    // verify returns the first missing colophon — DEPOT_LIST is second in the list
-    assert!(err.contains(RBTDGC_LIST_DEPOT));
-}
-
-#[test]
-fn rbtdtm_accepts_valid_onboarding_sequence_manifest() {
-    let manifest = rbtdtm_manifest_for(RBTDRM_FIXTURE_ONBOARDING_SEQUENCE);
-    assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_ONBOARDING_SEQUENCE).is_ok());
-}
-
-#[test]
-fn rbtdtm_onboarding_sequence_rejects_missing_colophon() {
-    // Manifest with only the inscribe colophon — missing yoke, enshrine, ordain, kludge-sentry, kludge-bottle
-    let manifest = RBTDGC_INSCRIBE_RELIQUARY;
-    let err = rbtdrm_verify(manifest, RBTDRM_FIXTURE_ONBOARDING_SEQUENCE).unwrap_err();
-    assert!(err.contains(RBTDGC_YOKE_RELIQUARY));
-}
-
-#[test]
-fn rbtdtm_accepts_valid_dogfight_manifest() {
-    let manifest = rbtdtm_manifest_for(RBTDRM_FIXTURE_DOGFIGHT);
-    assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_DOGFIGHT).is_ok());
-}
-
-#[test]
-fn rbtdtm_dogfight_rejects_missing_colophon() {
-    // Manifest with only the ordain colophon — missing summon and abjure
-    let manifest = RBTDGC_ORDAIN_HALLMARK;
-    let err = rbtdrm_verify(manifest, RBTDRM_FIXTURE_DOGFIGHT).unwrap_err();
-    assert!(err.contains(RBTDGC_SUMMON_HALLMARK));
-}
-
-#[test]
-fn rbtdtm_accepts_valid_handbook_render_manifest() {
-    let manifest = rbtdtm_manifest_for(RBTDRM_FIXTURE_HANDBOOK_RENDER);
-    assert!(rbtdrm_verify(&manifest, RBTDRM_FIXTURE_HANDBOOK_RENDER).is_ok());
-}
-
-#[test]
-fn rbtdtm_handbook_render_rejects_missing_colophon() {
-    // Manifest with only the onboarding start-here colophon — missing the other 14
-    let manifest = RBTDGC_ONBOARD_START_HERE;
-    let err = rbtdrm_verify(manifest, RBTDRM_FIXTURE_HANDBOOK_RENDER).unwrap_err();
-    assert!(err.contains(RBTDGC_ONBOARD_CRASH_COURSE));
 }

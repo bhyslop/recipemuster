@@ -195,7 +195,7 @@ rbte_run() {
   zrbte_build_binary
 
   buc_step "Running theurge fixture '${z_fixture}'"
-  "${ZRBTE_BINARY}" "${ZRBZ_COLOPHON_MANIFEST}" "${z_fixture}"
+  "${ZRBTE_BINARY}" "${z_fixture}"
 }
 
 rbte_suite() {
@@ -213,7 +213,7 @@ rbte_suite() {
   local z_fixture
   for z_fixture in ${z_fixture_list}; do
     buc_step "Running theurge fixture '${z_fixture}'"
-    "${ZRBTE_BINARY}" "${ZRBZ_COLOPHON_MANIFEST}" "${z_fixture}"
+    "${ZRBTE_BINARY}" "${z_fixture}"
     z_count=$((z_count + 1))
   done
 
@@ -227,7 +227,7 @@ rbte_single() {
 
   local z_fixture="${BUZ_FOLIO:-}"
   local z_case="${1:-}"
-  "${ZRBTE_BINARY}" single "${ZRBZ_COLOPHON_MANIFEST}" ${z_fixture:+"${z_fixture}"} ${z_case:+"${z_case}"}
+  "${ZRBTE_BINARY}" single ${z_fixture:+"${z_fixture}"} ${z_case:+"${z_case}"}
 }
 
 # eof
