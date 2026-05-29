@@ -1862,6 +1862,7 @@
       "jjghn_creation_time": "260409",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢A6AA_",
         "₢A6AA-",
         "₢A6AA6",
         "₢A6AA7",
@@ -1923,7 +1924,7 @@
         "₢A6AAz",
         "₢A6AA9"
       ],
-      "jjghn_next_pace_seed": "AA_",
+      "jjghn_next_pace_seed": "ABA",
       "jjghn_paces": {
         "₢A6AA-": {
           "jjgpn_tacks": [
@@ -2854,6 +2855,17 @@
               "jjgtn_text": "## Character\nDesign + implementation — new GAR structural concept (VOUCHES superdirectory), rewrite plumb from local-only to GAR-direct, update vouch to populate the new namespace.\n\n## Docket\n\n### Problem\nPlumb currently requires `summon` (local pull) before it can display provenance. This is unnecessarily heavy for a read-only inspection. Additionally, there is no way to reverse-map a hallmark to its vessel without iterating all vessel packages.\n\n### Design\n\nIntroduce a VOUCHES superdirectory in GAR — a single package where every vouch artifact is additionally tagged. Since GAR is content-addressable, this is a tag pointer, not data duplication.\n\n- **`RBGC_VOUCHES_PACKAGE`** — new constant in `rbgc_Constants.sh` alongside the `RBGC_ARK_SUFFIX_*` family\n- Vouch step additionally tags into `VOUCHES/{hallmark}-vouch` after pushing to `{vessel}:{hallmark}-vouch`\n- Plumb queries GAR directly via Retriever credentials (curl), never touches local docker\n\n### Plumb conversion\n\n- Remove all `docker image inspect` / `docker create` / `docker cp` logic\n- Authenticate as Retriever (new requirement — plumb was previously unauthenticated)\n- Fetch `-about` and `-vouch` manifests via Registry API, extract JSON layers via blob API\n- New hallmark-only mode: look up in VOUCHES, read `vouch_summary.json` to discover vessel, then fetch about from the vessel package\n- Vessel+hallmark mode still works (skips VOUCHES lookup)\n\n### Vouch amendment\n\n- After pushing vouch artifact to `{vessel}:{hallmark}-vouch`, additionally tag into VOUCHES package\n- This is a registry-side tag operation (no re-push of blobs)\n\n### Spec documents to update\n\n| Document | Changes |\n|----------|---------|\n| **RBSAP** (ark_plumb) | Complete rewrite: GAR-direct, Retriever auth, hallmark-only mode via VOUCHES |\n| **RBSAV** (ark_vouch) | New step: tag vouch artifact into VOUCHES superdirectory |\n| **RBS0** (SpecTop) | New `RBGC_VOUCHES_PACKAGE` constant definition |\n| **RBSGS** (GettingStarted) | Remove \"summon first\" prerequisite for plumb |\n\n### Implementation files\n\n- `rbgc_Constants.sh` — add `RBGC_VOUCHES_PACKAGE`\n- `rbfc_FoundryCore.sh` — rewrite `zrbfc_plumb_core`, `rbfc_plumb_full`, `rbfc_plumb_compact`\n- `rbfv_FoundryVerify.sh` — amend `rbfv_vouch` / vouch Cloud Build to tag into VOUCHES\n- `rbgjv03-assemble-push-vouch.sh` — additional tag push\n- `rbfr_FoundryRetriever.sh` — plumb no longer needs summon; update any coupling",
               "jjgtn_silks": "plumb-goes-remote-with-vouches-superdirectory",
               "jjgtn_basis": "8d97b93"
+            }
+          ]
+        },
+        "₢A6AA_": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260529-0902",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nInteractive design + triage session requiring judgment. Mount-time work is a\nconversation, not a mechanical sweep: decide what survives, salvage before\ndropping, leave A6 on a clean path to retire on validation.\n\n## Why first on the rail\n\nThis pace decides the fate of A6's remaining tail, so every other remaining\npace is downstream of its conclusions. Mount it before touching any of them.\n\n## The work\n\nA6's mission (intent-axis handbook tracks) is largely landed; the tail has\naccreted three kinds of leftover. This pace resolves the tail.\n\n### 1. Collapse the validation cluster into one corpus-grounded pace\n\nFive paces are validation-flavored and were all written before the corpus\nexisted (₢A6AAF's own docket opens with a stale-vocabulary warning):\n₢A6AAu, ₢A6AAx, ₢A6AAM, ₢A6AAF, plus inbound ₢AUAA7 (currently in ₣AU).\n\nSalvage-then-drop — author the replacement first, then remove the originals:\n- Author one new A6 pace written against the corpus as it stands, folding in\n  ₢A6AAF's three concrete gates (dangling-ref grep, tt/ existence integrity,\n  ₣A5 anchor coordination), ₢A6AAM's differential agent-learner eval design,\n  and ₢AUAA7's end-to-end learner walk.\n- Then drop ₢A6AAu, ₢A6AAx, ₢A6AAM, ₢A6AAF; restring/drop ₢AUAA7 out of ₣AU\n  and prune AU's \"onboarding end-to-end walk\" paddock bullet.\n\nItches are nonfunctional here, so a drop is permanent docket loss (committed\ncode is untouched regardless). Salvage the load-bearing text into the new\ndocket before dropping anything.\n\n### 2. Resolve the two implementation paces by fact\n\n- ₢A6AAW (bind track): the swim-bitmap shows rbhodb_director_bind.sh and\n  rbw-Odb already exist — confirm landed state, then wrap or finish. The\n  paddock is ambivalent about whether a hands-on bind track is even wanted.\n- ₢A6AAU: fold its concrete -attest-{arch} durability correction into the\n  validation pass.\n\n### 3. Park Bucket 3 (orthogonal accretion) for this session\n\n₢A6AAZ (plumb→GAR-direct + VOUCHES superdirectory) is a worked-out foundry\nredesign worth preserving via rehome, not a drop. ₢A6AA-, ₢A6AAy, ₢A6AA9 are\nsmaller. Disposition deferred — revisit after the validation re-vision lands.\n\n## Done\n\nA6's tail is re-visioned: the five validation paces collapsed into one pace\nauthored against the actual corpus, the two implementation paces resolved by\nfact, Bucket 3 dispositioned or explicitly parked, and A6 pointed at a clean\nretire-on-validation termination.",
+              "jjgtn_silks": "revision-onboarding-validation-tail",
+              "jjgtn_basis": "d167e25"
             }
           ]
         },
