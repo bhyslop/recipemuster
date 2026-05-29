@@ -29,6 +29,18 @@ source "${ZBUQ_SCRIPT_DIR}/buc_command.sh"
 source "${ZBUQ_SCRIPT_DIR}/buym_yelp.sh"
 source "${ZBUQ_SCRIPT_DIR}/bubc_constants.sh"
 
+# Pinned shellcheck version. The shellcheck gate hard-fails if the running
+# binary differs, locking every station to one version. The pin is exact, not a
+# floor, for two reasons:
+#   1. --rcfile (used by buq_shellcheck) did not exist before 0.10.0; an older
+#      binary silently rejects the flag and runs rule-less — a false pass.
+#   2. Check coverage and severity defaults drift across versions, so the same
+#      tree can pass on one station and fail on another. The pin converts that
+#      silent cross-station divergence into an immediate, actionable failure.
+# Bump deliberately and in lockstep across all stations (linux/cerebro,
+# macos/pym): install the matching binary everywhere, then change this constant.
+readonly BUQ_SHELLCHECK_VERSION="0.11.0"
+
 ######################################################################
 # Tabtarget structural qualification
 
@@ -182,6 +194,15 @@ buq_shellcheck() {
   test -d "${z_tools_dir}" || buc_die "Tools directory not found: ${z_tools_dir}"
 
   command -v shellcheck >/dev/null 2>&1 || buc_die "shellcheck not found — install from https://www.shellcheck.net"
+
+  # Hard version pin — fail instantly if this station's shellcheck is not the
+  # pinned version, before any check runs. Prevents silent cross-station
+  # divergence (e.g. a pre-0.10.0 binary that rejects --rcfile). Keep stations
+  # in lockstep; bump BUQ_SHELLCHECK_VERSION only after upgrading all of them.
+  local z_sc_version=""
+  z_sc_version="$(shellcheck --version | awk '/^version:/ {print $2}')"
+  test "${z_sc_version}" = "${BUQ_SHELLCHECK_VERSION}" || buc_die \
+    "shellcheck version mismatch: found '${z_sc_version}', require '${BUQ_SHELLCHECK_VERSION}'. Install the pinned version ahead of the system binary on PATH — static release: https://github.com/koalaman/shellcheck/releases/tag/v${BUQ_SHELLCHECK_VERSION}"
 
   # Collect .sh files (load-then-iterate per BCG)
   local z_files=()
