@@ -10421,6 +10421,13 @@
         "₢BPAAH": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260529-0621",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nMechanical projection over two now-single-homed groups; the bash-home prerequisite landed in the chivvied front pace.\n\n## Goal\n\nProject operation verbs and container roles to generated `RBTDGC_*` consts via the shared primitive, retiring their hand-mirror in `rbtdrm_manifest.rs`.\n\n## Shape\n\n- Assumes operation verbs and container roles each have one canonical bash declaration — landed by the front bash-home pace, now in `rbcc_Constants.sh` (`RBCC_verb_*`, `RBCC_container_*`).\n- Feed them through the shared primitive into the `RBTDGC_` file (const name `RBTDGC_` + stem); migrate the manifest consumers onto the generated consts.\n- Keep the runtime drift check alive until the diff-gate lands.\n\n## Sources\n\n- `Tools/rbk/rbcc_Constants.sh` — canonical bash home for operation verbs (`RBCC_verb_*`) and container roles (`RBCC_container_*`)\n- `Tools/rbk/rbtd/src/rbtdrm_manifest.rs` — operation/container hand-mirror\n\n## What done looks like\n\nOperation-verb and container-role consts are generated `RBTDGC_*` from their bash home; the manifest hand-mirror is retired for these groups; Rust builds and the fast suite is green.",
+              "jjgtn_silks": "verb-container-project",
+              "jjgtn_basis": "c3de04d"
+            },
+            {
               "jjgtn_ts": "260527-1034",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\n\nMechanical projection over two now-single-homed groups; the bash-home prerequisite landed in the chivvied front pace.\n\n## Goal\n\nProject operation verbs and container roles to generated `RBTDGC_*` consts via the shared primitive, retiring their hand-mirror in `rbtdrm_manifest.rs`.\n\n## Shape\n\n- Assumes operation verbs and container roles each have one canonical bash declaration — landed by the front bash-home pace, now in `rbcc_Constants.sh` (`RBCC_verb_*`, `RBCC_container_*`).\n- Feed them through the shared primitive into the `RBTDGC_` file (const name `RBTDGC_` + stem); migrate the manifest consumers onto the generated consts.\n- Keep the runtime drift check alive until the diff-gate lands.\n\n## Sources\n\n- `Tools/rbk/rbcc_Constants.sh` — canonical bash home for operation verbs (`RBCC_verb_*`) and container roles (`RBCC_container_*`)\n- `Tools/rbk/rbtd/src/rbtdrm_manifest.rs` — operation/container hand-mirror\n\n## What done looks like\n\nOperation-verb and container-role consts are generated `RBTDGC_*` from their bash home; the manifest hand-mirror is retired for these groups; Rust builds and the fast suite is green.",
