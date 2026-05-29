@@ -9624,9 +9624,10 @@
         "₢BJAAA",
         "₢BJAAB",
         "₢BJAAD",
-        "₢BJAAC"
+        "₢BJAAC",
+        "₢BJAAE"
       ],
-      "jjghn_next_pace_seed": "AAE",
+      "jjghn_next_pace_seed": "AAF",
       "jjghn_paces": {
         "₢BJAAA": {
           "jjgpn_tacks": [
@@ -9711,6 +9712,17 @@
               "jjgtn_text": "## Character\n\nDesign sub-task, forced by the ₢BJAAB step gate. Interface design + minting\nfirst, then mechanical migration. Not a mechanical pace.\n\n## Goal\n\nMigrate the 24 regime-validation *negative* cases in `rbtdrf_fast.rs` off their\nbypass (RBRR: source real regime + `export`-override one var; RBRV/RBRN: fully\nsynthetic env baselines; all then call `z`-private kindle/enforce) onto a\ndeclared file-accepting validate entry point. Verdicts unchanged; each negative\nmust fail for the same reason.\n\n## Why a new entry is required (step-gate finding — do not re-derive)\n\nExisting validate tabtargets (`rbw-rrv`/`rvv`/`rnv`) read the fixed real moorings\ntree: `RBCC_moorings_dir` is a non-overridable relative literal, and\n`tt/z-launcher.sh` pins CWD to the real repo root (`cd -P` to `tt/..`). So\nstaging a malformed regime via cwd or env is impossible, and physically staging\nmalformed files under `rbmm_moorings/` pollutes the tree AND breaks the positive\nall-`*` glob cases. The malformed state the negatives inject lives in-shell and\ncannot cross a tabtarget process boundary.\n\n## Shape\n\n- Declare a public/test entry validating an arbitrary regime file — sketch\n  `<prefix>_t_validate <regime>` on rbrr/rbrv/rbrn. NOT a test-only tabtarget.\n  Mint per prefix discipline.\n- Migrate the 24 negatives (12 RBRR, 4 RBRV, 8 RBRN) to write a staged malformed\n  regime to the case temp dir and drive that entry against it.\n\n## Reliability\n\nBaseline at `/tmp/bjaab-fast-baseline.md` (re-capture if stale). Post-migration\nverdict set matches exactly; each negative fails for the SAME diagnostic\n(spot-check, not just exit status).\n\n## References\n\n- `Tools/rbk/rbtd/src/rbtdrf_fast.rs` — `rbtdrf_run_rv` + the 24 negative cases\n- `Tools/rbk/rbrr_cli.sh`, `rbrv_cli.sh`, `rbrn_cli.sh` — `*_validate` entries\n- `Tools/rbk/rbcc_Constants.sh` — `RBCC_moorings_dir`; `tt/z-launcher.sh` — CWD pin",
               "jjgtn_silks": "rv-negative-test-api",
               "jjgtn_basis": "169ea0c"
+            }
+          ]
+        },
+        "₢BJAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260529-1318",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nArchitecture move requiring judgment — one load-bearing risk (single-process fixture isolation) gates an otherwise mechanical collapse.\n\n## Goal\n\nMake theurge the sole owner of suite→fixture composition. Suite names survive only as tabtarget imprints; no suite name or fixture list appears anywhere in bash.\n\n## Locked constraints\n\n- Supersedes the \"suite is bash composition\" decision (₢BBAAh, ₣BB) — a release-qual conformance call, not a principled ownership stance.\n- Suite membership is expressed in Rust by reference to the existing `RBTDRC_FIXTURES` statics, so a bad member fails at compile time — not a name-string list mirrored across the boundary.\n- The dirty-tree guard and per-run root allocation move to once-per-suite; today they run once per fixture.\n\n## Shape\n\n- Rust gains a suite registry and the binary a suite mode (suite name in, its fixtures run); the single-fixture and `single` modes stay. Bash's suite arrays, the suite-resolve, and the per-fixture loop collapse to an imprint pass-through; the suite-rationale comments (gauntlet state-walk, skirmish/dogfight operator preconditions) migrate to Rust doc on the registry.\n- Load-bearing risk: the per-fixture loop becomes one process instead of N. Confirm crucible quench runs on the case-failure path, and settle quench-on-panic, before relying on the in-process loop.\n\n## Sources\n\n- `Tools/rbk/rbtd/rbte_engine.sh` — suite arrays, resolve, `rbte_suite` loop\n- `Tools/rbk/rbtd/src/main.rs` — binary modes, dirty-tree guard, root allocation\n- `Tools/rbk/rbtd/src/rbtdrc_crucible.rs` — `RBTDRC_FIXTURES` fixture statics\n- the `rbw-ts.TestSuite.*` suite tabtargets — imprint channel\n\n## What done looks like\n\nSuite composition lives only in theurge; grep finds no suite names or fixture lists in bash; suite tabtargets pass only their imprint; a typo'd suite member fails compilation; all suites run green.",
+              "jjgtn_silks": "theurge-owns-suite-composition",
+              "jjgtn_basis": "99bcfb1"
             }
           ]
         }
