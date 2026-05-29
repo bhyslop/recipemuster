@@ -108,7 +108,7 @@ rbte_run() {
   zrbte_build_binary
 
   buc_step "Running theurge fixture '${z_fixture}'"
-  "${ZRBTE_BINARY}" "${ZRBZ_COLOPHON_MANIFEST}" "${z_fixture}"
+  "${ZRBTE_BINARY}" "${z_fixture}"
 }
 
 rbte_suite() {
@@ -122,7 +122,7 @@ rbte_suite() {
   # Composition is owned by theurge: pass the suite imprint straight through to
   # the binary's `suite` mode, which resolves and runs its fixtures.
   buc_step "Running theurge suite '${z_suite}'"
-  "${ZRBTE_BINARY}" suite "${ZRBZ_COLOPHON_MANIFEST}" "${z_suite}"
+  "${ZRBTE_BINARY}" suite "${z_suite}"
 }
 
 rbte_single() {
@@ -132,7 +132,7 @@ rbte_single() {
 
   local z_fixture="${BUZ_FOLIO:-}"
   local z_case="${1:-}"
-  "${ZRBTE_BINARY}" single "${ZRBZ_COLOPHON_MANIFEST}" ${z_fixture:+"${z_fixture}"} ${z_case:+"${z_case}"}
+  "${ZRBTE_BINARY}" single ${z_fixture:+"${z_fixture}"} ${z_case:+"${z_case}"}
 }
 
 # eof

@@ -85,7 +85,11 @@ zrbho_po_extract_capture() {
 }
 
 zrbho_credential_install() {
-  local -r z_role_constant="${1}"
+  # The auth role splits across two axes here: z_account_label is the bare
+  # secret-directory name; z_role_folio is the minted rbnae_ sprue passed as
+  # the rbw-rav folio.
+  local -r z_account_label="${1}"
+  local -r z_role_folio="${2}"
 
   local z_secrets_dir=""
   if test -f "${RBCC_rbrr_file}"; then
@@ -94,7 +98,7 @@ zrbho_credential_install() {
 
   local z_cred_present=0
   if test -n "${z_secrets_dir}" \
-     && test -f "${z_secrets_dir}/${z_role_constant}/${RBCC_rbra_file}"; then
+     && test -f "${z_secrets_dir}/${z_account_label}/${RBCC_rbra_file}"; then
     z_cred_present=1
   fi
 
@@ -112,7 +116,7 @@ zrbho_credential_install() {
   if test -n "${z_secrets_dir}"; then
     buh_line "Place the file at the path derived from ${RBYC_RBRR}:"
     buh_e
-    buh_code "   ${z_secrets_dir}/${z_role_constant}/${RBCC_rbra_file}"
+    buh_code "   ${z_secrets_dir}/${z_account_label}/${RBCC_rbra_file}"
     buh_e
     buh_line "Create the directory if it does not exist."
   else
@@ -132,7 +136,7 @@ zrbho_credential_install() {
   buh_e
   buh_line "Run the ${RBYC_RBRA} validator for your role:"
   buh_e
-  buh_tt   "   " "${RBZ_VALIDATE_AUTH}" "" " ${z_role_constant}"
+  buh_tt   "   " "${RBZ_VALIDATE_AUTH}" "" " ${z_role_folio}"
   buh_e
   buh_line "Read the output — it checks the file format and reports"
   buh_line "what the credential grants."

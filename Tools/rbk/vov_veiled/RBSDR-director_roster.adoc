@@ -34,7 +34,7 @@ HTTP 200 response
 
 //axhos_step
 . *Filter to director service accounts*:
-.. From `«ACCOUNTS»`, retain only entries whose `.accountId` begins with the `${RBCC_role_director}-` prefix
+.. From `«ACCOUNTS»`, retain only entries whose `.accountId` begins with the `${RBCC_account_director}-` prefix
 .. {rbbc_store}
 `«DIRECTOR_ACCOUNTS»` — the filtered set; per-role observation per BBAAQ contract
 
@@ -42,7 +42,7 @@ HTTP 200 response
 . *Emit Fact Per Discovered {rbtr_director}*:
 .. For each entry in `«DIRECTOR_ACCOUNTS»`:
 ... {rbbc_store}
-`«IDENTITY»` by stripping the `${RBCC_role_director}-` prefix from the entry's `accountId`
+`«IDENTITY»` by stripping the `${RBCC_account_director}-` prefix from the entry's `accountId`
 ... {rbbc_call}
 {buf_write_fact_multi}
 with three positional arguments:

@@ -18,8 +18,10 @@
 #
 # RBRA CLI - Command line interface for RBRA credential operations
 #
-# Manifold regime: BUZ_FOLIO carries role name (governor, retriever, director).
-# Role resolves to RBRA file path via RBRR references.
+# Manifold regime: BUZ_FOLIO carries the minted role sprue (rbnae_governor,
+# rbnae_retriever, rbnae_director). Role resolves to RBRA file path via RBRR
+# references — the resolve case is the translation point where the minted folio
+# maps to a bare secret-directory path.
 
 set -euo pipefail
 
@@ -32,15 +34,17 @@ source "${BURD_BUK_DIR}/buym_yelp.sh"
 # Resolve role name to RBRA file path via RBRR
 zrbra_resolve_role() {
   local z_role="${1:-}"
-  test -n "${z_role}" || buc_die "RBRA role required (governor|retriever|director)"
+  test -n "${z_role}" || buc_die "RBRA role required (rbnae_governor|rbnae_retriever|rbnae_director)"
 
   zrbrr_sentinel
 
+  # Minted folio → bare secret-directory path: the case arms match the rbnae_
+  # enum sprue while the RBDC targets resolve to bare-named directories.
   case "${z_role}" in
-    governor)  echo "${RBDC_GOVERNOR_RBRA_FILE}" ;;
-    retriever) echo "${RBDC_RETRIEVER_RBRA_FILE}" ;;
-    director)  echo "${RBDC_DIRECTOR_RBRA_FILE}" ;;
-    *)         buc_die "Unknown RBRA role: ${z_role}. Valid roles: governor, retriever, director" ;;
+    rbnae_governor)  echo "${RBDC_GOVERNOR_RBRA_FILE}" ;;
+    rbnae_retriever) echo "${RBDC_RETRIEVER_RBRA_FILE}" ;;
+    rbnae_director)  echo "${RBDC_DIRECTOR_RBRA_FILE}" ;;
+    *)               buc_die "Unknown RBRA role: ${z_role}. Valid roles: rbnae_governor, rbnae_retriever, rbnae_director" ;;
   esac
 }
 
@@ -80,7 +84,7 @@ rbra_list() {
   zrbrr_sentinel
 
   buc_step "RBRA credential roles (from RBRR):"
-  local z_roles=("governor" "retriever" "director")
+  local z_roles=("rbnae_governor" "rbnae_retriever" "rbnae_director")
   local z_vars=("RBDC_GOVERNOR_RBRA_FILE" "RBDC_RETRIEVER_RBRA_FILE" "RBDC_DIRECTOR_RBRA_FILE")
 
   local z_i

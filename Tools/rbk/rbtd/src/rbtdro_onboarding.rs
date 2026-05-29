@@ -50,6 +50,8 @@ use crate::rbtdri_invocation::{
 use crate::rbtdrk_canonical::rbtdrk_canonical_rbra;
 use crate::rbtdgc_consts::{
     RBTDGC_ABJURE_HALLMARK,
+    RBTDGC_CONTAINER_BOTTLE,
+    RBTDGC_CONTAINER_SENTRY,
     RBTDGC_CRUCIBLE_KLUDGE_BOTTLE,
     RBTDGC_CRUCIBLE_KLUDGE_SENTRY,
     RBTDGC_ENSHRINE_VESSEL,
@@ -59,21 +61,19 @@ use crate::rbtdgc_consts::{
     RBTDGC_PLUMB_COMPACT,
     RBTDGC_PLUMB_FULL,
     RBTDGC_REKON_HALLMARK,
-    RBTDGC_ROLE_GOVERNOR,
+    RBTDGC_ACCOUNT_GOVERNOR,
     RBTDGC_SUMMON_HALLMARK,
+    RBTDGC_VERB_ENSHRINE,
+    RBTDGC_VERB_INSCRIBE,
+    RBTDGC_VERB_KLUDGE,
+    RBTDGC_VERB_ORDAIN,
+    RBTDGC_VERB_YOKE,
     RBTDGC_WREST_HALLMARK_IMAGE,
     RBTDGC_YOKE_RELIQUARY,
 };
 use crate::rbtdrm_manifest::{
-    RBTDRM_CONTAINER_BOTTLE,
-    RBTDRM_CONTAINER_SENTRY,
     RBTDRM_FIXTURE_KLUDGE_TADMOR,
     RBTDRM_FIXTURE_ONBOARDING_SEQUENCE,
-    RBTDRM_OPERATION_ENSHRINE,
-    RBTDRM_OPERATION_INSCRIBE,
-    RBTDRM_OPERATION_KLUDGE,
-    RBTDRM_OPERATION_ORDAIN,
-    RBTDRM_OPERATION_YOKE,
 };
 
 // ── Vessel directories ────────────────────────────────────────
@@ -186,7 +186,7 @@ fn rbtdro_read_env_value(path: &Path, key: &str) -> Option<String> {
 /// Established by canonical-establish §2 (rbtdrk_governor_mantle).
 fn rbtdro_probe_governor_rbra() -> Result<(), String> {
     let root = rbtdro_probe_root()?;
-    let path = rbtdrk_canonical_rbra(&root, RBTDGC_ROLE_GOVERNOR)?;
+    let path = rbtdrk_canonical_rbra(&root, RBTDGC_ACCOUNT_GOVERNOR)?;
     if !path.exists() {
         return Err(format!("governor RBRA absent at {}", path.display()));
     }
@@ -279,7 +279,7 @@ fn rbtdro_ordain_capture(
 ) -> Result<String, rbtdre_Verdict> {
     let result = rbtdro_invoke_or_fail(
         ctx,
-        RBTDRM_OPERATION_ORDAIN,
+        RBTDGC_VERB_ORDAIN,
         vessel_dir,
         RBTDGC_ORDAIN_HALLMARK,
         &[vessel_dir],
@@ -290,7 +290,7 @@ fn rbtdro_ordain_capture(
     let hallmark = rbtdri_read_burv_fact(&result, RBTDRC_FACT_HALLMARK).map_err(|e| {
         rbtdre_Verdict::Fail(format!(
             "read hallmark fact after {} {}: {}",
-            RBTDRM_OPERATION_ORDAIN, vessel_dir, e
+            RBTDGC_VERB_ORDAIN, vessel_dir, e
         ))
     })?;
     let _ = std::fs::write(dir.join(format!("{}-hallmark.txt", label)), &hallmark);
@@ -308,7 +308,7 @@ fn rbtdro_ordain_capture_full(
 ) -> Result<(String, String, String), rbtdre_Verdict> {
     let result = rbtdro_invoke_or_fail(
         ctx,
-        RBTDRM_OPERATION_ORDAIN,
+        RBTDGC_VERB_ORDAIN,
         vessel_dir,
         RBTDGC_ORDAIN_HALLMARK,
         &[vessel_dir],
@@ -319,19 +319,19 @@ fn rbtdro_ordain_capture_full(
     let hallmark = rbtdri_read_burv_fact(&result, RBTDRC_FACT_HALLMARK).map_err(|e| {
         rbtdre_Verdict::Fail(format!(
             "read hallmark fact after {} {}: {}",
-            RBTDRM_OPERATION_ORDAIN, vessel_dir, e
+            RBTDGC_VERB_ORDAIN, vessel_dir, e
         ))
     })?;
     let gar_root = rbtdri_read_burv_fact(&result, RBTDRC_FACT_GAR_ROOT).map_err(|e| {
         rbtdre_Verdict::Fail(format!(
             "read gar_root fact after {} {}: {}",
-            RBTDRM_OPERATION_ORDAIN, vessel_dir, e
+            RBTDGC_VERB_ORDAIN, vessel_dir, e
         ))
     })?;
     let ark_stem = rbtdri_read_burv_fact(&result, RBTDRC_FACT_ARK_STEM).map_err(|e| {
         rbtdre_Verdict::Fail(format!(
             "read ark_stem fact after {} {}: {}",
-            RBTDRM_OPERATION_ORDAIN, vessel_dir, e
+            RBTDGC_VERB_ORDAIN, vessel_dir, e
         ))
     })?;
     let _ = std::fs::write(dir.join(format!("{}-hallmark.txt", label)), &hallmark);
@@ -350,7 +350,7 @@ fn rbtdro_yoke(
 ) -> Result<(), rbtdre_Verdict> {
     rbtdro_invoke_or_fail(
         ctx,
-        RBTDRM_OPERATION_YOKE,
+        RBTDGC_VERB_YOKE,
         "",
         RBTDGC_YOKE_RELIQUARY,
         &[stamp],
@@ -373,7 +373,7 @@ fn rbtdro_enshrine(
 ) -> Result<(), rbtdre_Verdict> {
     rbtdro_invoke_or_fail(
         ctx,
-        RBTDRM_OPERATION_ENSHRINE,
+        RBTDGC_VERB_ENSHRINE,
         vessel_sigil,
         RBTDGC_ENSHRINE_VESSEL,
         &[vessel_sigil],
@@ -615,13 +615,13 @@ fn rbtdro_kludge_nameplate(
 ) -> Result<(), rbtdre_Verdict> {
     rbtdro_invoke_or_fail(
         ctx,
-        &format!("{} {}", RBTDRM_OPERATION_KLUDGE, RBTDRM_CONTAINER_SENTRY),
+        &format!("{} {}", RBTDGC_VERB_KLUDGE, RBTDGC_CONTAINER_SENTRY),
         nameplate,
         RBTDGC_CRUCIBLE_KLUDGE_SENTRY,
         &[nameplate],
         &[],
         dir,
-        &format!("{}-{}-{}", RBTDRM_OPERATION_KLUDGE, RBTDRM_CONTAINER_SENTRY, nameplate),
+        &format!("{}-{}-{}", RBTDGC_VERB_KLUDGE, RBTDGC_CONTAINER_SENTRY, nameplate),
     )?;
 
     // Commit sentry hallmark before bottle kludge — kludge asserts clean tree.
@@ -629,26 +629,26 @@ fn rbtdro_kludge_nameplate(
         &[rbtdro_nameplate_rbrn_path(nameplate)],
         &format!(
             "{}-{}: {} hallmark",
-            RBTDRM_OPERATION_KLUDGE, nameplate, RBTDRM_CONTAINER_SENTRY
+            RBTDGC_VERB_KLUDGE, nameplate, RBTDGC_CONTAINER_SENTRY
         ),
     )?;
 
     rbtdro_invoke_or_fail(
         ctx,
-        &format!("{} {}", RBTDRM_OPERATION_KLUDGE, RBTDRM_CONTAINER_BOTTLE),
+        &format!("{} {}", RBTDGC_VERB_KLUDGE, RBTDGC_CONTAINER_BOTTLE),
         nameplate,
         RBTDGC_CRUCIBLE_KLUDGE_BOTTLE,
         &[nameplate],
         &[],
         dir,
-        &format!("{}-{}-{}", RBTDRM_OPERATION_KLUDGE, RBTDRM_CONTAINER_BOTTLE, nameplate),
+        &format!("{}-{}-{}", RBTDGC_VERB_KLUDGE, RBTDGC_CONTAINER_BOTTLE, nameplate),
     )?;
 
     rbtdro_git_commit(
         &[rbtdro_nameplate_rbrn_path(nameplate)],
         &format!(
             "{}-{}: {} hallmark",
-            RBTDRM_OPERATION_KLUDGE, nameplate, RBTDRM_CONTAINER_BOTTLE
+            RBTDGC_VERB_KLUDGE, nameplate, RBTDGC_CONTAINER_BOTTLE
         ),
     )?;
     Ok(())
@@ -676,13 +676,13 @@ fn rbtdro_onboarding_inscribe_reliquary_impl(
     let root = ctx.project_root().to_path_buf();
     let result = match rbtdro_invoke_or_fail(
         ctx,
-        RBTDRM_OPERATION_INSCRIBE,
+        RBTDGC_VERB_INSCRIBE,
         "",
         RBTDGC_INSCRIBE_RELIQUARY,
         &[],
         &[],
         dir,
-        RBTDRM_OPERATION_INSCRIBE,
+        RBTDGC_VERB_INSCRIBE,
     ) {
         Ok(r) => r,
         Err(v) => return v,
@@ -696,7 +696,7 @@ fn rbtdro_onboarding_inscribe_reliquary_impl(
 
     // Wildcard-yoke: single invocation writes RBRV_RELIQUARY into every
     // vessel under ${RBRR_VESSEL_DIR}.
-    if let Err(v) = rbtdro_yoke(ctx, dir, &stamp, RBTDRM_OPERATION_YOKE) {
+    if let Err(v) = rbtdro_yoke(ctx, dir, &stamp, RBTDGC_VERB_YOKE) {
         return v;
     }
 
@@ -710,7 +710,7 @@ fn rbtdro_onboarding_inscribe_reliquary_impl(
         &yoked,
         &format!(
             "inscribe-reliquary: {} stamp across all vessels",
-            RBTDRM_OPERATION_YOKE
+            RBTDGC_VERB_YOKE
         ),
     ) {
         return v;

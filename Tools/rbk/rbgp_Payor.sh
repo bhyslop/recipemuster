@@ -1223,7 +1223,7 @@ rbgp_depot_levy() {
   rbgu_poll_until_ok "IAM API" "${z_iam_preflight_url}" "${z_token}" "iam_sa_preflight"
 
   buc_step 'Create Mason service account'
-  local -r z_mason_name="${RBCC_role_mason}-${RBRD_DEPOT_MONIKER}"
+  local -r z_mason_name="${RBCC_account_mason}-${RBRD_DEPOT_MONIKER}"
   local -r z_mason_display_name="${RBGC_DEPOT_DISPLAY_PREFIX} mason ${RBRD_DEPOT_MONIKER}"
   local -r z_create_sa_body="${BURD_TEMP_DIR}/rbgp_create_mason.json"
 
@@ -1409,7 +1409,7 @@ rbgp_depot_unmake() {
     while test "${z_unmake_sa_index}" -lt "${z_unmake_sa_count}"; do
       z_unmake_sa_email=$(rbgu_json_field_capture "${z_unmake_sa_infix}" ".accounts[${z_unmake_sa_index}].email") \
         || { z_unmake_sa_index=$((z_unmake_sa_index + 1)); continue; }
-      if [[ "${z_unmake_sa_email}" == ${RBCC_role_governor}-* ]]; then
+      if [[ "${z_unmake_sa_email}" == ${RBCC_account_governor}-* ]]; then
         buc_log_args "Deleting governor SA: ${z_unmake_sa_email}"
         z_unmake_gov_delete_infix="depot_unmake_gov_delete_${z_governor_sa_count}"
         rbgu_http_json "DELETE" "${z_unmake_sa_url_base}/${z_unmake_sa_email}" "${z_token}" "${z_unmake_gov_delete_infix}"
@@ -1619,7 +1619,7 @@ rbgp_depot_info() {
   local z_token
   z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
 
-  local -r z_mason_email="${RBCC_role_mason}-${RBRD_DEPOT_MONIKER}@${RBDC_DEPOT_PROJECT_ID}.${RBGC_SA_EMAIL_DOMAIN}"
+  local -r z_mason_email="${RBCC_account_mason}-${RBRD_DEPOT_MONIKER}@${RBDC_DEPOT_PROJECT_ID}.${RBGC_SA_EMAIL_DOMAIN}"
   local -r z_tether_id="${RBDC_GCB_POOL_STEM}${RBGC_POOL_SUFFIX_TETHER}"
   local -r z_airgap_id="${RBDC_GCB_POOL_STEM}${RBGC_POOL_SUFFIX_AIRGAP}"
 
@@ -1741,7 +1741,7 @@ rbgp_governor_mantle() {
     while test "${z_mantle_sa_index}" -lt "${z_mantle_sa_count}"; do
       z_mantle_sa_email=$(rbgu_json_field_capture "${z_mantle_sa_infix}" ".accounts[${z_mantle_sa_index}].email") \
         || { z_mantle_sa_index=$((z_mantle_sa_index + 1)); continue; }
-      if [[ "${z_mantle_sa_email}" == ${RBCC_role_governor}-* ]]; then
+      if [[ "${z_mantle_sa_email}" == ${RBCC_account_governor}-* ]]; then
         buc_log_args "Deleting existing governor SA: ${z_mantle_sa_email}"
         z_mantle_delete_infix="${ZRBGP_INFIX_GOV_DELETE_SA}_${z_mantle_delete_attempt}"
         rbgu_http_json "DELETE" "${z_sa_list_url}/${z_mantle_sa_email}" "${z_token}" "${z_mantle_delete_infix}"
@@ -1769,7 +1769,7 @@ rbgp_governor_mantle() {
   date +%Y%m%d%H%M > "${ZRBGP_SCRATCH_FILE}" \
     || buc_die "Failed to generate timestamp"
   z_timestamp=$(<"${ZRBGP_SCRATCH_FILE}")
-  local -r z_governor_account_id="${RBCC_role_governor}-${z_timestamp}"
+  local -r z_governor_account_id="${RBCC_account_governor}-${z_timestamp}"
   local z_governor_email
   z_governor_email=$(rbgu_sa_email_capture "${z_governor_account_id}" "${z_depot_project_id}") \
     || buc_die "Failed to compose Governor email"

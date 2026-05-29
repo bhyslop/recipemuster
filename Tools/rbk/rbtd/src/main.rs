@@ -17,12 +17,12 @@
 // RBTD Theurge — test orchestrator entry point
 //
 // Subcommands:
-//   rbtd <manifest> <fixture>
-//     Single-fixture runner — verify manifest, charge, run all cases, quench.
-//   rbtd suite <manifest> <suite>
+//   rbtd <fixture>
+//     Single-fixture runner — charge, run all cases, quench.
+//   rbtd suite <suite>
 //     Suite runner — resolve the suite's fixtures (composition owned here, not
 //     in bash) and run each in sequence, fail-fast, with one aggregate summary.
-//   rbtd single <manifest> <fixture> [case]
+//   rbtd single <fixture> [case]
 //     Single-case runner — no charge/quench. List cases or run one.
 
 // RCG output discipline: all emission via rbtdrg_*! — no direct println!/eprintln!
@@ -47,7 +47,6 @@ use rbtd::rbtdri_invocation::{
     RBTDRI_BURD_TEMP_DIR_KEY,
 };
 use rbtd::rbtdgc_consts::RBTDGC_CRUCIBLE_ACTIVE;
-use rbtd::rbtdrm_manifest::rbtdrm_verify;
 use rbtd::rbtdrx_platform::rbtdrx_posix_to_native;
 
 fn main() -> ExitCode {
@@ -103,22 +102,13 @@ fn rbtdb_allocate_roots() -> Result<rbtdb_Roots, String> {
 // ── Single-fixture runner ────────────────────────────────────
 
 fn rbtdb_run_fixture(args: &[String]) -> ExitCode {
-    let manifest = match args.first() {
-        Some(m) => m,
+    let fixture = match args.first() {
+        Some(n) => n,
         None => rbtd::rbtdrg_fatal_now!(
-            "rbtd: usage: rbtd <manifest> <fixture>\n\
+            "rbtd: usage: rbtd <fixture>\n\
              theurge must be launched via tabtarget (e.g. tt/rbw-tf.FixtureRun.sh tadmor)"
         ),
     };
-
-    let fixture = match args.get(1) {
-        Some(n) => n,
-        None => rbtd::rbtdrg_fatal_now!("rbtd: no fixture argument — which test fixture to run?"),
-    };
-
-    if let Err(msg) = rbtdrm_verify(manifest, fixture) {
-        rbtd::rbtdrg_fatal_now!("{}", msg);
-    }
 
     let project_root = match std::env::current_dir() {
         Ok(p) => p,
@@ -153,7 +143,7 @@ fn rbtdb_run_fixture(args: &[String]) -> ExitCode {
         Some(f) => f,
         None => rbtd::rbtdrg_fatal_now!(
             "rbtd: fixture '{}' has no registered Fixture — \
-             manifest verification accepted the name but no Fixture static is bound. \
+             no Fixture static is bound. \
              Update rbtdrc_lookup_fixture in rbtdrc_crucible.rs.",
             fixture
         ),
@@ -184,15 +174,7 @@ fn rbtdb_run_fixture(args: &[String]) -> ExitCode {
 // ── Suite runner ─────────────────────────────────────────────
 
 fn rbtdb_run_suite(args: &[String]) -> ExitCode {
-    let manifest = match args.first() {
-        Some(m) => m,
-        None => rbtd::rbtdrg_fatal_now!(
-            "rbtd suite: usage: rbtd suite <manifest> <suite>\n\
-             theurge must be launched via tabtarget (e.g. tt/rbw-ts.TestSuite.fast.sh)"
-        ),
-    };
-
-    let suite = match args.get(1) {
+    let suite = match args.first() {
         Some(name) => match rbtdrc_lookup_suite(name) {
             Some(s) => s,
             None => {
@@ -207,14 +189,6 @@ fn rbtdb_run_suite(args: &[String]) -> ExitCode {
             return ExitCode::FAILURE;
         }
     };
-
-    // Verify every member's required colophons up front — fail before charging
-    // anything if the zipper manifest has drifted from any fixture's needs.
-    for fixture in suite.fixtures {
-        if let Err(msg) = rbtdrm_verify(manifest, fixture.name) {
-            rbtd::rbtdrg_fatal_now!("{}", msg);
-        }
-    }
 
     let project_root = match std::env::current_dir() {
         Ok(p) => p,
@@ -311,18 +285,13 @@ fn rbtdb_list_suites() {
 // ── Single-case runner ───────────────────────────────────────
 
 fn rbtdb_run_single(args: &[String]) -> ExitCode {
-    let manifest = match args.first() {
-        Some(m) => m,
-        None => rbtd::rbtdrg_fatal_now!(
-            "rbtd single: usage: rbtd single <manifest> <fixture> [case]\n\
-             omit case to list all cases for the fixture"
-        ),
-    };
-
-    let fixture = match args.get(1) {
+    let fixture = match args.first() {
         Some(f) => f,
         None => {
-            rbtd::rbtdrg_error_now!("rbtd single: no fixture argument");
+            rbtd::rbtdrg_error_now!(
+                "rbtd single: usage: rbtd single <fixture> [case]\n\
+                 omit case to list all cases for the fixture"
+            );
             rbtdb_list_fixtures();
             return ExitCode::FAILURE;
         }
@@ -332,10 +301,6 @@ fn rbtdb_run_single(args: &[String]) -> ExitCode {
         rbtd::rbtdrg_error_now!("rbtd single: unknown fixture '{}'", fixture);
         rbtdb_list_fixtures();
         return ExitCode::FAILURE;
-    }
-
-    if let Err(msg) = rbtdrm_verify(manifest, fixture) {
-        rbtd::rbtdrg_fatal_now!("{}", msg);
     }
 
     // Set up execution context early — needed for charge check and case execution
@@ -388,7 +353,7 @@ fn rbtdb_run_single(args: &[String]) -> ExitCode {
     let cases = fixture_def.cases;
 
     // No case argument — list all cases
-    let case_name = match args.get(2) {
+    let case_name = match args.get(1) {
         None => {
             rbtdre_list_cases(cases);
             return ExitCode::SUCCESS;

@@ -38,7 +38,7 @@ zrbra_kindle() {
   buv_regime_enroll RBRA
 
   buv_group_enroll "Role Identity"
-  buv_string_enroll   RBRA_ROLE                1    20  "Service account role (governor|retriever|director)"
+  buv_string_enroll   RBRA_ROLE                1    20  "Service account role (rbnae_governor|rbnae_retriever|rbnae_director)"
 
   buv_group_enroll "Service Account Credentials"
   buv_string_enroll   RBRA_CLIENT_EMAIL        1   256  "Service account email address"
@@ -65,10 +65,10 @@ zrbra_enforce() {
 
   buv_vet RBRA
 
-  # RBRA_ROLE must be a valid role name
+  # RBRA_ROLE must be a valid role name (minted rbnae_ enum sprue)
   case "${RBRA_ROLE}" in
-    governor|retriever|director) ;;
-    *) buc_die "RBRA_ROLE must be governor, retriever, or director — got: '${RBRA_ROLE}'" ;;
+    rbnae_governor|rbnae_retriever|rbnae_director) ;;
+    *) buc_die "RBRA_ROLE must be rbnae_governor, rbnae_retriever, or rbnae_director — got: '${RBRA_ROLE}'" ;;
   esac
 
   # Client email must match service account pattern

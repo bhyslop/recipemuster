@@ -50,10 +50,10 @@ use crate::rbtdgc_consts::{
     RBTDGC_RBRA_FILE,
     RBTDGC_RBRD_FILE,
     RBTDGC_RBRR_FILE,
-    RBTDGC_ROLE_ASSAY,
-    RBTDGC_ROLE_DIRECTOR,
-    RBTDGC_ROLE_GOVERNOR,
-    RBTDGC_ROLE_RETRIEVER,
+    RBTDGC_ACCOUNT_ASSAY,
+    RBTDGC_ACCOUNT_DIRECTOR,
+    RBTDGC_ACCOUNT_GOVERNOR,
+    RBTDGC_ACCOUNT_RETRIEVER,
 };
 use crate::rbtdrm_manifest::{
     rbtdrm_credential_check_colophon,
@@ -437,7 +437,7 @@ fn rbtdrk_probe_canonical_moniker() -> Result<(), String> {
 /// Established by case 2's mantle + canonical-copy step.
 fn rbtdrk_probe_governor_rbra() -> Result<(), String> {
     let root = rbtdrk_probe_root()?;
-    let path = rbtdrk_canonical_rbra(&root, RBTDGC_ROLE_GOVERNOR)?;
+    let path = rbtdrk_canonical_rbra(&root, RBTDGC_ACCOUNT_GOVERNOR)?;
     if !path.exists() {
         return Err(format!("governor RBRA absent at {}", path.display()));
     }
@@ -594,7 +594,7 @@ fn rbtdrk_governor_mantle(dir: &Path) -> rbtdre_Verdict {
 fn rbtdrk_governor_mantle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
     let root = ctx.project_root().to_path_buf();
 
-    let assay = match rbtdrk_canonical_rbra(&root, RBTDGC_ROLE_ASSAY) {
+    let assay = match rbtdrk_canonical_rbra(&root, RBTDGC_ACCOUNT_ASSAY) {
         Ok(p) => p,
         Err(e) => return rbtdre_Verdict::Fail(format!("canonical assay RBRA path: {}", e)),
     };
@@ -630,7 +630,7 @@ fn rbtdrk_governor_mantle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_V
         ));
     }
 
-    let canonical = match rbtdrk_canonical_rbra(&root, RBTDGC_ROLE_GOVERNOR) {
+    let canonical = match rbtdrk_canonical_rbra(&root, RBTDGC_ACCOUNT_GOVERNOR) {
         Ok(p) => p,
         Err(e) => return rbtdre_Verdict::Fail(format!("canonical governor RBRA path: {}", e)),
     };
@@ -673,7 +673,7 @@ fn rbtdrk_retriever_invest(dir: &Path) -> rbtdre_Verdict {
             RBTDGC_DIVEST_RETRIEVER,
             RBTDGC_INVEST_RETRIEVER,
             RBTDRK_IDENTITY_RETRIEVER,
-            RBTDGC_ROLE_RETRIEVER,
+            RBTDGC_ACCOUNT_RETRIEVER,
         )
     })
 }
@@ -695,7 +695,7 @@ fn rbtdrk_director_invest(dir: &Path) -> rbtdre_Verdict {
             RBTDGC_DIVEST_DIRECTOR,
             RBTDGC_INVEST_DIRECTOR,
             RBTDRK_IDENTITY_DIRECTOR,
-            RBTDGC_ROLE_DIRECTOR,
+            RBTDGC_ACCOUNT_DIRECTOR,
         )
     })
 }
@@ -712,7 +712,7 @@ fn rbtdrk_role_invest_impl(
 ) -> rbtdre_Verdict {
     let root = ctx.project_root().to_path_buf();
 
-    let assay = match rbtdrk_canonical_rbra(&root, RBTDGC_ROLE_ASSAY) {
+    let assay = match rbtdrk_canonical_rbra(&root, RBTDGC_ACCOUNT_ASSAY) {
         Ok(p) => p,
         Err(e) => return rbtdre_Verdict::Fail(format!("canonical assay RBRA path: {}", e)),
     };

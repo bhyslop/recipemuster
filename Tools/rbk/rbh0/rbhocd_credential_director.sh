@@ -35,7 +35,7 @@ rbho_credential_director() {
   buh_line "  ${RBYC_DEPOT} — write access to the registry."
   buh_e
 
-  zrbho_credential_install "${RBCC_role_director}"
+  zrbho_credential_install "${RBCC_account_director}" "${RBCC_role_director}"
 
   buh_step1 "Confirm live access"
   buh_e

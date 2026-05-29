@@ -56,12 +56,25 @@ RBCC_rbrs_file="../station-files/rbrs.env"
 RBCC_rbrn_file="rbrn.env"
 RBCC_rbra_file="rbra.env"
 RBCC_rbro_file="rbro.env"
-RBCC_role_governor="governor"
-RBCC_role_retriever="retriever"
-RBCC_role_director="director"
-RBCC_role_payor="payor"
-RBCC_role_assay="assay"
-RBCC_role_mason="mason"
+# Auth-role enum (rbnae_): the RBRA_ROLE value — minted sprue, RBRA_ROLE domain
+# (3 members). Written into credential files, validated, carried as the auth
+# folio, swizzle-checked against BUZ_FOLIO. Distinct axis from RBCC_account_*
+# below: that one is the bare composition label.
+RBCC_role_governor="rbnae_governor"
+RBCC_role_retriever="rbnae_retriever"
+RBCC_role_director="rbnae_director"
+
+# Account composition labels — bare fragments that compose GCP SA account-ids/
+# emails AND local secret-directory names (6 members, superset of the 3 roles
+# plus payor/assay/mason which are NEVER RBRA_ROLE values). These stay bare:
+# a derived resource-name string in cloud/filesystem space, structurally like
+# the SA email and the -tether/-airgap pool suffixes the heat keeps bare.
+RBCC_account_governor="governor"
+RBCC_account_retriever="retriever"
+RBCC_account_director="director"
+RBCC_account_payor="payor"
+RBCC_account_assay="assay"
+RBCC_account_mason="mason"
 RBCC_onboarding_nameplate="tadmor"
 
 # Operation-verb tinder — the canonical bash home for RBK operation verbs.
@@ -91,15 +104,17 @@ RBCC_verb_yoke="yoke"
 # Roster extensions composed from earlier tinder (BCG tinder-on-tinder).
 RBCC_fact_ext_depot="depot"
 RBCC_fact_ext_depot_project="depot-project"
-RBCC_fact_ext_roster_retriever="${RBCC_verb_roster}-${RBCC_role_retriever}"
-RBCC_fact_ext_roster_director="${RBCC_verb_roster}-${RBCC_role_director}"
+RBCC_fact_ext_roster_retriever="${RBCC_verb_roster}-${RBCC_account_retriever}"
+RBCC_fact_ext_roster_director="${RBCC_verb_roster}-${RBCC_account_director}"
 RBCC_fact_ext_audit_hallmark="audit-hallmark"
 
 # Container-role tinder — the canonical bash home for the crucible's container
 # roles. Bare role tokens; the crucible is sentry + pentacle + bottle and every
 # container name / compose service derives from these. Distinct from the
-# credential RBCC_role_* family above (that names SA roles, a different axis —
-# the names are not reused across the two to keep each word monosemous).
+# credential auth-role axis above, which itself splits in two: RBCC_role_*
+# (minted enum, the RBRA_ROLE value) and RBCC_account_* (bare composition label
+# for SA names + secret dirs). None of these words are reused across families,
+# keeping each token monosemous.
 RBCC_container_bottle="bottle"
 RBCC_container_pentacle="pentacle"
 RBCC_container_sentry="sentry"
@@ -110,12 +125,13 @@ RBCC_container_sentry="sentry"
 # rbcc_emit_consts() - Emit the RBCC-owned co-maintained constants as Rust
 # string consts to stdout, one `pub const` line per name/value pair via the
 # shared buz_emit_const primitive (BUK must be kindled). The single-homed set:
-# moorings/vessels dirs, credential roles, .env filenames. Each Rust const is
+# moorings/vessels dirs, account labels, .env filenames, operation verbs, and
+# container roles. Each Rust const is
 # RBTDGC_ + the RBCC stem (RBCC_ prefix stripped) uppercased; the value is
 # carried verbatim. Bash stays mixed-case (RBCC_moorings_dir); the generated
 # Rust is SCREAMING (RBTDGC_MOORINGS_DIR) per Rust convention — that casing is
 # the sole transform, applied mechanically, so there is no per-entry mapping
-# and no drift. rbtd's lib.rs paths, the manifest role mirror, and the
+# and no drift. rbtd's lib.rs paths, the manifest account-label mirror, and the
 # rbtdrk/rbtdrp .env consts all source these instead of hand-copying.
 rbcc_emit_consts() {
   printf '%s\n' "// RBCC constants (rbcc_Constants.sh single-homed set)"
@@ -126,12 +142,12 @@ rbcc_emit_consts() {
   for z_name in \
     RBCC_moorings_dir    \
     RBCC_vessels_subdir  \
-    RBCC_role_governor   \
-    RBCC_role_retriever  \
-    RBCC_role_director   \
-    RBCC_role_payor      \
-    RBCC_role_assay      \
-    RBCC_role_mason      \
+    RBCC_account_governor   \
+    RBCC_account_retriever  \
+    RBCC_account_director   \
+    RBCC_account_payor      \
+    RBCC_account_assay      \
+    RBCC_account_mason      \
     RBCC_rbrr_file       \
     RBCC_rbrp_file       \
     RBCC_rbrm_file       \
@@ -141,6 +157,17 @@ rbcc_emit_consts() {
     RBCC_rbrn_file       \
     RBCC_rbra_file       \
     RBCC_rbro_file       \
+    RBCC_verb_divest     \
+    RBCC_verb_invest     \
+    RBCC_verb_roster     \
+    RBCC_verb_enshrine   \
+    RBCC_verb_inscribe   \
+    RBCC_verb_kludge     \
+    RBCC_verb_ordain     \
+    RBCC_verb_yoke       \
+    RBCC_container_bottle    \
+    RBCC_container_pentacle  \
+    RBCC_container_sentry    \
   ; do
     z_stem="${z_name#RBCC_}"
     z_upper="$(printf '%s' "${z_stem}" | tr '[:lower:]' '[:upper:]')"

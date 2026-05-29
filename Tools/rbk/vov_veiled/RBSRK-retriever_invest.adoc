@@ -12,7 +12,7 @@ access.
 The
 {rbtr_governor}
 mints the SA, generates its credential key, and writes the RBRA bytes to the assay output slot.
-The operation is singleton-per-role: no instance argument; the SA identity is derived from regime constants as `${RBCC_role_retriever}-${RBRD_DEPOT_MONIKER}`.
+The operation is singleton-per-role: no instance argument; the SA identity is derived from regime constants as `${RBCC_account_retriever}-${RBRD_DEPOT_MONIKER}`.
 Fatal if the SA already exists — operator must
 {rbtgo_retriever_divest}
 first to re-key.
@@ -30,7 +30,7 @@ first to re-key.
 {rbtr_retriever}
 Service Account Identity*:
 .. {rbbc_store}
-`«RETRIEVER_ACCOUNT_NAME»` as `${RBCC_role_retriever}-${RBRD_DEPOT_MONIKER}` (regime-kindled from
+`«RETRIEVER_ACCOUNT_NAME»` as `${RBCC_account_retriever}-${RBRD_DEPOT_MONIKER}` (regime-kindled from
 {rbrd_depot_moniker})
 .. {rbbc_store}
 `«RETRIEVER_EMAIL»` as `«RETRIEVER_ACCOUNT_NAME»@${RBDC_DEPOT_PROJECT_ID}.iam.gserviceaccount.com`

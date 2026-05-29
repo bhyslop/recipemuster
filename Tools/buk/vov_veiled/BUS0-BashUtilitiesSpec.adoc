@@ -1039,6 +1039,21 @@ BURN node regime (`bunne_`):
 
 * `BURN_PLATFORM` — linux/mac/windows → `bunne_linux` / `bunne_mac` / `bunne_windows`
 
+Auth regime (`rbnae_`):
+
+* `RBRA_ROLE` — governor/retriever/director → `rbnae_governor` / `rbnae_retriever` / `rbnae_director`
+
+The auth role is the one enum whose value axis uniquely splits in two. The
+minted family `RBCC_role_*` (`rbnae_*`, domain = governor/retriever/director)
+is the `RBRA_ROLE` value — written into credential files, validated, carried as
+the auth folio, swizzle-checked. A separate bare family `RBCC_account_*` (domain
+also includes payor/assay/mason) composes GCP service-account account-ids/emails
+and local secret-directory names. The bare side is justified by class-4 below:
+those derived strings live in cloud/filesystem resource-name space and stay
+bare even though they share the role words. The folio→file `case` in the RBRA
+resolver is the translation point — the minted folio maps to a bare-named
+secret directory.
+
 ==== Use-Site Classification
 
 A bare-word grep on a value yields four classes; only two of them migrate.

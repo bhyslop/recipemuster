@@ -18,13 +18,14 @@
 
 // Colophon names are projected from the zipper registry into the generated
 // RBTDGC_* consts (rbtdgc_consts.rs). This module consumes them for the
-// per-fixture required-colophon manifest and the role→probe mapping; the
-// runtime drift check (rbtdrm_verify) is retained until the build-time diff
-// gate lands.
+// per-fixture required-colophon manifest and the role→probe mapping. Colophon
+// existence is now enforced by compilation (this map references the generated
+// consts directly) plus the build-time diff gate (rbq regenerates and diffs
+// the consts against the zipper); the former runtime drift check is retired.
 use crate::rbtdgc_consts::*;
 
 // Credential roles are projected from rbcc_Constants.sh into the generated
-// RBTDGC_ROLE_* consts (rbtdgc_consts.rs) — consumed here and across the access
+// RBTDGC_ACCOUNT_* consts (rbtdgc_consts.rs) — consumed here and across the access
 // probe surface. The former hand-written RBTDRM_ROLE_* mirror is retired.
 
 /// Map a credential role to its access-probe colophon. Returns None for
@@ -32,10 +33,10 @@ use crate::rbtdgc_consts::*;
 /// names its own global tabtarget under the rbw-ac* family.
 pub fn rbtdrm_credential_check_colophon(role: &str) -> Option<&'static str> {
     match role {
-        RBTDGC_ROLE_GOVERNOR => Some(RBTDGC_CHECK_GOVERNOR),
-        RBTDGC_ROLE_RETRIEVER => Some(RBTDGC_CHECK_RETRIEVER),
-        RBTDGC_ROLE_DIRECTOR => Some(RBTDGC_CHECK_DIRECTOR),
-        RBTDGC_ROLE_PAYOR => Some(RBTDGC_CHECK_PAYOR),
+        RBTDGC_ACCOUNT_GOVERNOR => Some(RBTDGC_CHECK_GOVERNOR),
+        RBTDGC_ACCOUNT_RETRIEVER => Some(RBTDGC_CHECK_RETRIEVER),
+        RBTDGC_ACCOUNT_DIRECTOR => Some(RBTDGC_CHECK_DIRECTOR),
+        RBTDGC_ACCOUNT_PAYOR => Some(RBTDGC_CHECK_PAYOR),
         _ => None,
     }
 }
@@ -89,22 +90,11 @@ pub const RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST: &str = "calibrant-fail-fast";
 pub const RBTDRM_FIXTURE_CALIBRANT_PROGRESSING: &str = "calibrant-progressing";
 pub const RBTDRM_FIXTURE_CALIBRANT_SENTINEL: &str = "calibrant-sentinel";
 
-// Operation verb consts — single definition per String Boundary Discipline.
-// Used for error-message prefixes, log labels, and commit messages where the
-// operation name is a vocabulary unit. Atomic — compound operations like
-// "kludge sentry" are composed at the call site from RBTDRM_OPERATION_KLUDGE
-// and the relevant container-role constant.
-pub const RBTDRM_OPERATION_INSCRIBE: &str = "inscribe";
-pub const RBTDRM_OPERATION_YOKE: &str = "yoke";
-pub const RBTDRM_OPERATION_ORDAIN: &str = "ordain";
-pub const RBTDRM_OPERATION_ENSHRINE: &str = "enshrine";
-pub const RBTDRM_OPERATION_KLUDGE: &str = "kludge";
-
-// Container role consts — sentry (security gateway) and bottle (workload) are
-// the two container roles within a crucible. Used as suffixes for kludge
-// operations and as commit-message vocabulary distinguishing the two builds.
-pub const RBTDRM_CONTAINER_SENTRY: &str = "sentry";
-pub const RBTDRM_CONTAINER_BOTTLE: &str = "bottle";
+// Operation verbs and container roles are generated as RBTDGC_VERB_* and
+// RBTDGC_CONTAINER_* (rbtdgc_consts.rs) from their canonical bash home in
+// rbcc_Constants.sh; consumers source those directly. Compound operations like
+// "kludge sentry" are composed at the call site from RBTDGC_VERB_KLUDGE and the
+// relevant RBTDGC_CONTAINER_* constant.
 
 // Regime-validation contract surfaces — the regime module theurge sources and
 // the public *_probate entry it calls to drive a staged regime file through
@@ -242,25 +232,3 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
     }
 }
 
-/// Verify that all required colophons for a fixture appear in the zipper manifest string.
-pub fn rbtdrm_verify(manifest: &str, fixture: &str) -> Result<(), String> {
-    let required = match rbtdrm_required_colophons(fixture) {
-        Some(r) => r,
-        None => {
-            return Err(format!(
-                "rbtd: unknown fixture '{}' — not registered in manifest",
-                fixture
-            ));
-        }
-    };
-    for colophon in required {
-        let found = manifest.split_whitespace().any(|token| token == *colophon);
-        if !found {
-            return Err(format!(
-                "rbtd: colophon '{}' not found in zipper manifest (fixture '{}')",
-                colophon, fixture
-            ));
-        }
-    }
-    Ok(())
-}

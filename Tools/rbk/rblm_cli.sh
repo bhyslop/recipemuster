@@ -85,7 +85,7 @@ rblm_zero() {
   if test -n "${z_secrets_dir}"; then
     local z_preview=""
     local z_any_cred=0
-    for z_preview in "${RBCC_role_governor}/${RBCC_rbra_file}" "${RBCC_role_director}/${RBCC_rbra_file}" "${RBCC_role_retriever}/${RBCC_rbra_file}" "${RBCC_role_assay}/${RBCC_rbra_file}"; do
+    for z_preview in "${RBCC_account_governor}/${RBCC_rbra_file}" "${RBCC_account_director}/${RBCC_rbra_file}" "${RBCC_account_retriever}/${RBCC_rbra_file}" "${RBCC_account_assay}/${RBCC_rbra_file}"; do
       if test -f "${z_secrets_dir}/${z_preview}"; then
         buh_line "    ${z_secrets_dir}/${z_preview}"
         z_any_cred=1
@@ -122,7 +122,7 @@ rblm_zero() {
   fi
   buh_e
   buh_line "  Preserved (payor-scoped, survives depot change):"
-  buh_line "    ${z_secrets_dir}/${RBCC_role_payor}/${RBCC_rbro_file}"
+  buh_line "    ${z_secrets_dir}/${RBCC_account_payor}/${RBCC_rbro_file}"
   buh_e
   buh_line "  On completion, marshal-zero auto-commits the in-tree mutations."
   buh_e
@@ -164,7 +164,7 @@ rblm_zero() {
   # z_secrets_dir already extracted above for pre-confirmation inventory.
   if test -n "${z_secrets_dir}"; then
     local z_rbra=""
-    for z_rbra in "${RBCC_role_governor}/${RBCC_rbra_file}" "${RBCC_role_director}/${RBCC_rbra_file}" "${RBCC_role_retriever}/${RBCC_rbra_file}" "${RBCC_role_assay}/${RBCC_rbra_file}"; do
+    for z_rbra in "${RBCC_account_governor}/${RBCC_rbra_file}" "${RBCC_account_director}/${RBCC_rbra_file}" "${RBCC_account_retriever}/${RBCC_rbra_file}" "${RBCC_account_assay}/${RBCC_rbra_file}"; do
       if test -f "${z_secrets_dir}/${z_rbra}"; then
         rm "${z_secrets_dir}/${z_rbra}" || buc_die "Failed to remove: ${z_secrets_dir}/${z_rbra}"
         buh_line "  Removed stale depot credential: ${z_rbra}"

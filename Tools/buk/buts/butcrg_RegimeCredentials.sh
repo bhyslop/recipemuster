@@ -33,7 +33,9 @@ butcrg_rbra_tcase() {
   zrbrr_enforce
   zrbdc_kindle
 
-  local z_roles=("governor" "retriever" "director")
+  # Minted role sprues — passed verbatim as the rbw-rav/rbw-rar folio below,
+  # so these MUST track the rbnae_ enum or zrbra_resolve_role dies "Unknown role".
+  local z_roles=("rbnae_governor" "rbnae_retriever" "rbnae_director")
   local z_vars=("RBDC_GOVERNOR_RBRA_FILE" "RBDC_RETRIEVER_RBRA_FILE" "RBDC_DIRECTOR_RBRA_FILE")
 
   local z_i
