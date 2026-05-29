@@ -2,6 +2,7 @@
   "jjgrn_schema_version": 4,
   "jjgrn_next_heat_seed": "BU",
   "jjgrn_heat_order": [
+    "₣BH",
     "₣BT",
     "₣BS",
     "₣BQ",
@@ -15,7 +16,6 @@
     "₣BN",
     "₣A-",
     "₣BG",
-    "₣BH",
     "₣Aq",
     "₣Ap",
     "₣Ah",
@@ -9452,9 +9452,9 @@
       "jjghn_paces": {}
     },
     "₣BH": {
-      "jjghn_silks": "rbk-29-win-enshrine-triple",
+      "jjghn_silks": "rbk-16-mvp-lode-universal-capture",
       "jjghn_creation_time": "260511",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [],
       "jjghn_next_pace_seed": "AAA",
       "jjghn_paces": {}
