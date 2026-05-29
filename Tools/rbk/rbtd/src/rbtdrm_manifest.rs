@@ -24,7 +24,7 @@
 use crate::rbtdgc_consts::*;
 
 // Credential roles are projected from rbcc_Constants.sh into the generated
-// RBTDGC_ROLE_* consts (rbtdgc_consts.rs) — consumed here and across the access
+// RBTDGC_ACCOUNT_* consts (rbtdgc_consts.rs) — consumed here and across the access
 // probe surface. The former hand-written RBTDRM_ROLE_* mirror is retired.
 
 /// Map a credential role to its access-probe colophon. Returns None for
@@ -32,10 +32,10 @@ use crate::rbtdgc_consts::*;
 /// names its own global tabtarget under the rbw-ac* family.
 pub fn rbtdrm_credential_check_colophon(role: &str) -> Option<&'static str> {
     match role {
-        RBTDGC_ROLE_GOVERNOR => Some(RBTDGC_CHECK_GOVERNOR),
-        RBTDGC_ROLE_RETRIEVER => Some(RBTDGC_CHECK_RETRIEVER),
-        RBTDGC_ROLE_DIRECTOR => Some(RBTDGC_CHECK_DIRECTOR),
-        RBTDGC_ROLE_PAYOR => Some(RBTDGC_CHECK_PAYOR),
+        RBTDGC_ACCOUNT_GOVERNOR => Some(RBTDGC_CHECK_GOVERNOR),
+        RBTDGC_ACCOUNT_RETRIEVER => Some(RBTDGC_CHECK_RETRIEVER),
+        RBTDGC_ACCOUNT_DIRECTOR => Some(RBTDGC_CHECK_DIRECTOR),
+        RBTDGC_ACCOUNT_PAYOR => Some(RBTDGC_CHECK_PAYOR),
         _ => None,
     }
 }

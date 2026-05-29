@@ -36,7 +36,7 @@ HTTP 200 response
 . *Filter to
 {rbtr_retriever}
 Service Accounts*:
-.. From `«ACCOUNTS»`, select entries whose `accountId` begins with `${RBCC_role_retriever}-`
+.. From `«ACCOUNTS»`, select entries whose `accountId` begins with `${RBCC_account_retriever}-`
 .. {rbbc_store}
 `«RETRIEVER_ACCOUNTS»` — the filtered set; per-role observation per BBAAQ contract
 
@@ -45,7 +45,7 @@ Service Accounts*:
 {rbtr_retriever}*:
 .. For each entry in `«RETRIEVER_ACCOUNTS»`:
 ... {rbbc_store}
-`«IDENTITY»` by stripping the `${RBCC_role_retriever}-` prefix from the entry's `accountId`
+`«IDENTITY»` by stripping the `${RBCC_account_retriever}-` prefix from the entry's `accountId`
 ... {rbbc_call}
 {buf_write_fact_multi}
 with three positional arguments:

@@ -49,7 +49,7 @@ use crate::rbtdri_invocation::{
 };
 use crate::rbtdrk_canonical::rbtdrk_canonical_rbra;
 use crate::rbtdgc_consts::{
-    RBTDGC_ABJURE_HALLMARK, RBTDGC_ORDAIN_HALLMARK, RBTDGC_ROLE_DIRECTOR, RBTDGC_SUMMON_HALLMARK,
+    RBTDGC_ABJURE_HALLMARK, RBTDGC_ORDAIN_HALLMARK, RBTDGC_ACCOUNT_DIRECTOR, RBTDGC_SUMMON_HALLMARK,
 };
 
 /// Container runtime for the bare executability proof. Hardcoded to docker;
@@ -80,7 +80,7 @@ fn rbtdrd_probe_root() -> Result<PathBuf, String> {
 /// probed; summon fails loud if it is absent.
 fn rbtdrd_probe_director_rbra() -> Result<(), String> {
     let root = rbtdrd_probe_root()?;
-    let path = rbtdrk_canonical_rbra(&root, RBTDGC_ROLE_DIRECTOR)?;
+    let path = rbtdrk_canonical_rbra(&root, RBTDGC_ACCOUNT_DIRECTOR)?;
     if !path.exists() {
         return Err(format!("director RBRA absent at {}", path.display()));
     }

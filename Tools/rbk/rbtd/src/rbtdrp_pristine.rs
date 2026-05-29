@@ -40,7 +40,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_DIVEST_RETRIEVER, RBTDGC_INVEST_DIRECTOR, RBTDGC_INVEST_RETRIEVER,
     RBTDGC_LEVY_DEPOT, RBTDGC_LIST_DEPOT, RBTDGC_MANTLE_GOVERNOR, RBTDGC_MOORINGS_DIR,
     RBTDGC_RBRA_FILE, RBTDGC_RBRD_FILE, RBTDGC_RBRN_FILE, RBTDGC_RBRR_FILE,
-    RBTDGC_ROLE_ASSAY, RBTDGC_ROLE_DIRECTOR, RBTDGC_ROLE_GOVERNOR, RBTDGC_ROLE_RETRIEVER,
+    RBTDGC_ACCOUNT_ASSAY, RBTDGC_ACCOUNT_DIRECTOR, RBTDGC_ACCOUNT_GOVERNOR, RBTDGC_ACCOUNT_RETRIEVER,
     RBTDGC_UNMAKE_DEPOT,
 };
 use crate::rbtdrm_manifest::RBTDRM_FIXTURE_PRISTINE_LIFECYCLE;
@@ -128,10 +128,10 @@ const RBTDRP_DELETE_REQUESTED: &str = "DELETE_REQUESTED";
 /// Roles whose RBRA credential files rblm_zero deletes, including the assay
 /// invest-drop slot — all projected from rbcc_Constants.sh.
 const RBTDRP_RBRA_ROLES: &[&str] = &[
-    RBTDGC_ROLE_GOVERNOR,
-    RBTDGC_ROLE_DIRECTOR,
-    RBTDGC_ROLE_RETRIEVER,
-    RBTDGC_ROLE_ASSAY,
+    RBTDGC_ACCOUNT_GOVERNOR,
+    RBTDGC_ACCOUNT_DIRECTOR,
+    RBTDGC_ACCOUNT_RETRIEVER,
+    RBTDGC_ACCOUNT_ASSAY,
 ];
 
 /// Nameplate hallmark fields rblm_zero blanks.
@@ -880,7 +880,7 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
     };
     let _ = std::fs::write(dir.join("governor-sa-email.txt"), &governor_email);
 
-    let assay_canonical = match rbtdrp_canonical_rbra(&root, RBTDGC_ROLE_ASSAY) {
+    let assay_canonical = match rbtdrp_canonical_rbra(&root, RBTDGC_ACCOUNT_ASSAY) {
         Ok(p) => p,
         Err(e) => return rbtdre_Verdict::Fail(format!("canonical assay RBRA path: {}", e)),
     };
@@ -892,7 +892,7 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
         ));
     }
 
-    let governor_canonical = match rbtdrp_canonical_rbra(&root, RBTDGC_ROLE_GOVERNOR) {
+    let governor_canonical = match rbtdrp_canonical_rbra(&root, RBTDGC_ACCOUNT_GOVERNOR) {
         Ok(p) => p,
         Err(e) => return rbtdre_Verdict::Fail(format!("canonical governor RBRA path: {}", e)),
     };
@@ -939,7 +939,7 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
         ));
     }
 
-    let retriever_canonical = match rbtdrp_canonical_rbra(&root, RBTDGC_ROLE_RETRIEVER) {
+    let retriever_canonical = match rbtdrp_canonical_rbra(&root, RBTDGC_ACCOUNT_RETRIEVER) {
         Ok(p) => p,
         Err(e) => return rbtdre_Verdict::Fail(format!("canonical retriever RBRA path: {}", e)),
     };
@@ -1005,7 +1005,7 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
             assay_canonical.display()
         ));
     }
-    let director_canonical = match rbtdrp_canonical_rbra(&root, RBTDGC_ROLE_DIRECTOR) {
+    let director_canonical = match rbtdrp_canonical_rbra(&root, RBTDGC_ACCOUNT_DIRECTOR) {
         Ok(p) => p,
         Err(e) => return rbtdre_Verdict::Fail(format!("canonical director RBRA path: {}", e)),
     };

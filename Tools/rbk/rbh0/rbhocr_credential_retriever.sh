@@ -35,7 +35,7 @@ rbho_credential_retriever() {
   buh_line "  ${RBYC_DEPOT} — read-only access to what others have built."
   buh_e
 
-  zrbho_credential_install "${RBCC_role_retriever}"
+  zrbho_credential_install "${RBCC_account_retriever}" "${RBCC_role_retriever}"
 
   buh_step1 "Confirm live access"
   buh_e

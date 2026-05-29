@@ -37,7 +37,7 @@ rbho_director_first_build() {
     z_secrets_dir=$(zrbho_po_extract_capture "${RBCC_rbrr_file}" "RBRR_SECRETS_DIR") || z_secrets_dir=""
   fi
   if test -n "${z_secrets_dir}" && \
-     test -f "${z_secrets_dir}/${RBCC_role_director}/${RBCC_rbra_file}"; then
+     test -f "${z_secrets_dir}/${RBCC_account_director}/${RBCC_rbra_file}"; then
     z_has_director=1
   fi
 

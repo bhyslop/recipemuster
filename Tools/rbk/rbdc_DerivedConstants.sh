@@ -31,51 +31,21 @@ zrbdc_kindle() {
   test -z "${ZRBDC_KINDLED:-}" || buc_die "Module rbdc already kindled"
   zrbrr_sentinel
 
-  # Ensure secrets directory and role subdirectories exist
-  mkdir -p "${RBRR_SECRETS_DIR}/${RBCC_role_governor}" \
-           "${RBRR_SECRETS_DIR}/${RBCC_role_retriever}" \
-           "${RBRR_SECRETS_DIR}/${RBCC_role_director}" \
-           "${RBRR_SECRETS_DIR}/${RBCC_role_payor}" \
-           "${RBRR_SECRETS_DIR}/${RBCC_role_assay}" \
+  # Ensure secrets directory and account subdirectories exist (bare-named:
+  # secret dirs are derived resource-name strings, not the minted role enum)
+  mkdir -p "${RBRR_SECRETS_DIR}/${RBCC_account_governor}" \
+           "${RBRR_SECRETS_DIR}/${RBCC_account_retriever}" \
+           "${RBRR_SECRETS_DIR}/${RBCC_account_director}" \
+           "${RBRR_SECRETS_DIR}/${RBCC_account_payor}" \
+           "${RBRR_SECRETS_DIR}/${RBCC_account_assay}" \
     || buc_die "Failed to create secrets directories under: ${RBRR_SECRETS_DIR}"
 
-  # One-shot migration: move old flat rbra-{role}.env to {role}/rbra.env
-  local z_mig_role=""
-  for z_mig_role in "${RBCC_role_governor}" "${RBCC_role_retriever}" "${RBCC_role_director}"; do
-    local z_mig_old="${RBRR_SECRETS_DIR}/rbra-${z_mig_role}.env"
-    local z_mig_new="${RBRR_SECRETS_DIR}/${z_mig_role}/${RBCC_rbra_file}"
-    if test -f "${z_mig_old}" && test -f "${z_mig_new}"; then
-      buc_die "Migration ambiguous for role ${z_mig_role}: both ${z_mig_old} and ${z_mig_new} exist; delete the obsolete file before continuing"
-    fi
-    if test -f "${z_mig_old}" && ! test -f "${z_mig_new}"; then
-      mv "${z_mig_old}" "${z_mig_new}" || buc_die "Failed to migrate: ${z_mig_old} → ${z_mig_new}"
-      local z_has_role=0
-      local z_mig_line
-      while IFS= read -r z_mig_line; do
-        case "${z_mig_line}" in RBRA_ROLE=*) z_has_role=1; break ;; esac
-      done < "${z_mig_new}"
-      if test "${z_has_role}" = "0"; then
-        printf 'RBRA_ROLE=%s\n' "${z_mig_role}" >> "${z_mig_new}"
-      fi
-    fi
-  done
-
-  # Payor migration: rbro.env -> payor/rbro.env
-  local z_mig_payor_old="${RBRR_SECRETS_DIR}/${RBCC_rbro_file}"
-  local z_mig_payor_new="${RBRR_SECRETS_DIR}/${RBCC_role_payor}/${RBCC_rbro_file}"
-  if test -f "${z_mig_payor_old}" && test -f "${z_mig_payor_new}"; then
-    buc_die "Migration ambiguous: both ${z_mig_payor_old} and ${z_mig_payor_new} exist; delete the obsolete file before continuing"
-  fi
-  if test -f "${z_mig_payor_old}"; then
-    mv "${z_mig_payor_old}" "${z_mig_payor_new}" || buc_die "Failed to migrate: ${z_mig_payor_old} → ${z_mig_payor_new}"
-  fi
-
   # Derive credential file paths from RBRR_SECRETS_DIR
-  readonly RBDC_GOVERNOR_RBRA_FILE="${RBRR_SECRETS_DIR}/${RBCC_role_governor}/${RBCC_rbra_file}"
-  readonly RBDC_RETRIEVER_RBRA_FILE="${RBRR_SECRETS_DIR}/${RBCC_role_retriever}/${RBCC_rbra_file}"
-  readonly RBDC_DIRECTOR_RBRA_FILE="${RBRR_SECRETS_DIR}/${RBCC_role_director}/${RBCC_rbra_file}"
-  readonly RBDC_PAYOR_RBRO_FILE="${RBRR_SECRETS_DIR}/${RBCC_role_payor}/${RBCC_rbro_file}"
-  readonly RBDC_ASSAY_RBRA_FILE="${RBRR_SECRETS_DIR}/${RBCC_role_assay}/${RBCC_rbra_file}"
+  readonly RBDC_GOVERNOR_RBRA_FILE="${RBRR_SECRETS_DIR}/${RBCC_account_governor}/${RBCC_rbra_file}"
+  readonly RBDC_RETRIEVER_RBRA_FILE="${RBRR_SECRETS_DIR}/${RBCC_account_retriever}/${RBCC_rbra_file}"
+  readonly RBDC_DIRECTOR_RBRA_FILE="${RBRR_SECRETS_DIR}/${RBCC_account_director}/${RBCC_rbra_file}"
+  readonly RBDC_PAYOR_RBRO_FILE="${RBRR_SECRETS_DIR}/${RBCC_account_payor}/${RBCC_rbro_file}"
+  readonly RBDC_ASSAY_RBRA_FILE="${RBRR_SECRETS_DIR}/${RBCC_account_assay}/${RBCC_rbra_file}"
 
   # Derive depot identity from (RBRD_CLOUD_PREFIX, RBRD_DEPOT_MONIKER).
   # Project ID, GAR repository, pool stem, and bucket fall out at kindle.

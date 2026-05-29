@@ -557,7 +557,7 @@ rbgg_roster_retrievers() {
   buc_doc_brief "Roster Retriever service accounts (emit per-identity fact files)"
   buc_doc_shown || return 0
 
-  zrbgg_roster_role "${RBCC_role_retriever}" "${RBCC_fact_ext_roster_retriever}"
+  zrbgg_roster_role "${RBCC_account_retriever}" "${RBCC_fact_ext_roster_retriever}"
 }
 
 rbgg_roster_directors() {
@@ -566,7 +566,7 @@ rbgg_roster_directors() {
   buc_doc_brief "Roster Director service accounts (emit per-identity fact files)"
   buc_doc_shown || return 0
 
-  zrbgg_roster_role "${RBCC_role_director}" "${RBCC_fact_ext_roster_director}"
+  zrbgg_roster_role "${RBCC_account_director}" "${RBCC_fact_ext_roster_director}"
 }
 
 rbgg_invest_retriever() {
@@ -575,12 +575,12 @@ rbgg_invest_retriever() {
   local z_identity="${BUZ_FOLIO:-}"
 
   buc_doc_brief "Invest a Retriever service account for an identity"
-  buc_doc_param "identity" "Identity (required) — composes ${RBCC_role_retriever}-<identity>"
+  buc_doc_param "identity" "Identity (required) — composes ${RBCC_account_retriever}-<identity>"
   buc_doc_shown || return 0
 
   test -n "${z_identity}" || buc_die "Identity required"
 
-  local z_account_name="${RBCC_role_retriever}-${z_identity}"
+  local z_account_name="${RBCC_account_retriever}-${z_identity}"
   local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
 
   buc_step "Investing Retriever service account: ${z_account_name}"
@@ -626,12 +626,12 @@ rbgg_invest_director() {
   local z_identity="${BUZ_FOLIO:-}"
 
   buc_doc_brief "Invest a Director service account for an identity"
-  buc_doc_param "identity" "Identity (required) — composes ${RBCC_role_director}-<identity>"
+  buc_doc_param "identity" "Identity (required) — composes ${RBCC_account_director}-<identity>"
   buc_doc_shown || return 0
 
   test -n "${z_identity}" || buc_die "Identity required"
 
-  local z_account_name="${RBCC_role_director}-${z_identity}"
+  local z_account_name="${RBCC_account_director}-${z_identity}"
   local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
 
   buc_step "Investing Director service account: ${z_account_name}"
@@ -822,12 +822,12 @@ rbgg_divest_retriever() {
   local z_identity="${BUZ_FOLIO:-}"
 
   buc_doc_brief "Divest a Retriever service account by identity"
-  buc_doc_param "identity" "Identity (required) — composes ${RBCC_role_retriever}-<identity>"
+  buc_doc_param "identity" "Identity (required) — composes ${RBCC_account_retriever}-<identity>"
   buc_doc_shown || return 0
 
   test -n "${z_identity}" || buc_die "Identity required"
 
-  zrbgg_divest_role "${RBCC_role_retriever}" "${z_identity}" "${RBDC_RETRIEVER_RBRA_FILE}"
+  zrbgg_divest_role "${RBCC_account_retriever}" "${z_identity}" "${RBDC_RETRIEVER_RBRA_FILE}"
 }
 
 rbgg_divest_director() {
@@ -836,12 +836,12 @@ rbgg_divest_director() {
   local z_identity="${BUZ_FOLIO:-}"
 
   buc_doc_brief "Divest a Director service account by identity"
-  buc_doc_param "identity" "Identity (required) — composes ${RBCC_role_director}-<identity>"
+  buc_doc_param "identity" "Identity (required) — composes ${RBCC_account_director}-<identity>"
   buc_doc_shown || return 0
 
   test -n "${z_identity}" || buc_die "Identity required"
 
-  zrbgg_divest_role "${RBCC_role_director}" "${z_identity}" "${RBDC_DIRECTOR_RBRA_FILE}"
+  zrbgg_divest_role "${RBCC_account_director}" "${z_identity}" "${RBDC_DIRECTOR_RBRA_FILE}"
 }
 
 rbgg_destroy_project() {

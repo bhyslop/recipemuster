@@ -59,7 +59,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_PLUMB_COMPACT,
     RBTDGC_PLUMB_FULL,
     RBTDGC_REKON_HALLMARK,
-    RBTDGC_ROLE_GOVERNOR,
+    RBTDGC_ACCOUNT_GOVERNOR,
     RBTDGC_SUMMON_HALLMARK,
     RBTDGC_WREST_HALLMARK_IMAGE,
     RBTDGC_YOKE_RELIQUARY,
@@ -186,7 +186,7 @@ fn rbtdro_read_env_value(path: &Path, key: &str) -> Option<String> {
 /// Established by canonical-establish §2 (rbtdrk_governor_mantle).
 fn rbtdro_probe_governor_rbra() -> Result<(), String> {
     let root = rbtdro_probe_root()?;
-    let path = rbtdrk_canonical_rbra(&root, RBTDGC_ROLE_GOVERNOR)?;
+    let path = rbtdrk_canonical_rbra(&root, RBTDGC_ACCOUNT_GOVERNOR)?;
     if !path.exists() {
         return Err(format!("governor RBRA absent at {}", path.display()));
     }
