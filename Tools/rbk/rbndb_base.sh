@@ -70,6 +70,11 @@ zrbndb_sentinel() {
 
 # Authenticate the host docker client to the depot's GAR registry
 # using a bearer token. Idempotent — repeated calls refresh credential.
+# Bounded retry on the moby/moby#44350 premature-timeout transient (see
+# RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE); the rbgo_docker_login twin serves the
+# foundry cluster, but the depot-regime cluster does not reach rbgo, so this
+# shares only the signature + retry-budget constants out of rbgc. Real auth
+# failures do not match the signature and fail fast.
 # Args: bearer_token stderr_file
 zrbndb_docker_login() {
   zrbndb_sentinel
@@ -77,10 +82,29 @@ zrbndb_docker_login() {
   local -r z_token="${1}"
   local -r z_stderr_file="${2}"
 
-  printf '%s' "${z_token}" \
-    | docker login -u oauth2accesstoken --password-stdin "${ZRBNDB_REGISTRY_HOST}" \
-        > /dev/null 2>"${z_stderr_file}" \
-    || buc_die "Docker login to ${ZRBNDB_REGISTRY_HOST} failed — see ${z_stderr_file}"
+  local z_attempt=0
+  local z_rc=0
+
+  while :; do
+    z_attempt=$((z_attempt + 1))
+
+    z_rc=0
+    printf '%s' "${z_token}" \
+      | docker login -u oauth2accesstoken --password-stdin "${ZRBNDB_REGISTRY_HOST}" \
+          > /dev/null 2>"${z_stderr_file}" \
+      || z_rc=$?
+
+    test "${z_rc}" -ne 0 || break
+
+    grep -qF "${RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE}" "${z_stderr_file}" \
+      || buc_die "Docker login to ${ZRBNDB_REGISTRY_HOST} failed — see ${z_stderr_file}"
+
+    test "${z_attempt}" -lt "${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS}" \
+      || buc_die "Docker login to ${ZRBNDB_REGISTRY_HOST} failed after ${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS} attempts (transient daemon->registry timeout, moby#44350) — see ${z_stderr_file}"
+
+    buc_warn "Docker login transient (attempt ${z_attempt}/${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS}, moby#44350 timeout) — retrying in ${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}s"
+    sleep "${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}"
+  done
 }
 
 ######################################################################

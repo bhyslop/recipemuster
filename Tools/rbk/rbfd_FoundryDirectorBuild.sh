@@ -861,8 +861,7 @@ zrbfd_push_build_context() {
 
   # Push to GAR
   buc_step "Pushing context image to GAR"
-  echo "${z_token}" | docker login -u oauth2accesstoken --password-stdin "https://${z_gar_host}" \
-    || buc_die "GAR authentication failed for context push"
+  rbgo_docker_login "${z_token}" "${z_gar_host}"
 
   docker push "${z_context_tag}" \
     || buc_die "Failed to push context image to GAR"
@@ -1726,8 +1725,7 @@ rbfd_graft() {
 
   # Tag and push
   buc_step "Logging into GAR"
-  echo "${z_token}" | docker login -u oauth2accesstoken --password-stdin "https://${z_gar_host}" \
-    || buc_die "GAR authentication failed"
+  rbgo_docker_login "${z_token}" "${z_gar_host}"
 
   buc_step "Tagging local image"
   docker tag "${z_local_image}" "${z_image_ref}" \

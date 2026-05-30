@@ -91,6 +91,17 @@ zrbgc_kindle() {
   readonly RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS=3
   readonly RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC=3
 
+  # docker login daemon->registry transient — the moby/moby#44350 signature.
+  # docker login's registry-auth client carries a hardcoded, non-configurable
+  # 15s timeout (moby/registry/auth.go); against a healthy-but-slow GAR auth
+  # backend it fires prematurely, emitting this Go net/http stdlib string.
+  # Alone among login/pull/push, login carries no internal retry, so callers
+  # wrap it (rbgo_docker_login, zrbndb_docker_login) reusing the HTTP retry
+  # budget above. The string is a Go standard-library invariant, stable across
+  # docker versions; this is a surveyed-signature allowlist, NOT a catch-all —
+  # real auth failures emit "unauthorized" and fail fast.
+  readonly RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE='Client.Timeout exceeded while awaiting headers'
+
   # URL Roots & Well-known Endpoints
   readonly RBGC_OAUTH_TOKEN_URL="https://oauth2.googleapis.com/token"
   readonly RBGC_OAUTH_AUTHORIZE_URL="https://accounts.google.com/o/oauth2/v2/auth"

@@ -742,8 +742,7 @@ rbfl_wrest() {
   buc_step "Logging into container registry"
   local -r z_full_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${z_locator}"
 
-  echo "${z_token}" | docker login -u oauth2accesstoken --password-stdin "https://${ZRBFC_REGISTRY_HOST}" \
-    || buc_die "Container runtime authentication failed"
+  rbgo_docker_login "${z_token}" "${ZRBFC_REGISTRY_HOST}"
 
   buc_step "Pulling image: ${z_full_ref}"
   docker pull "${z_full_ref}" || buc_die "Image pull failed"

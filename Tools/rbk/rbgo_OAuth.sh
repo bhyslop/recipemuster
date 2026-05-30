@@ -308,4 +308,48 @@ rbgo_get_token_capture() {
   done
 }
 
+# Authenticate the host docker client to a GAR registry with bounded retry on
+# the moby/moby#44350 premature-timeout transient (see
+# RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE). docker login is the lone login/pull/push
+# verb with no internal retry and a hardcoded 15s daemon->registry auth timeout;
+# against a healthy-but-slow backend it fails where the endpoint is in fact fine.
+# This mirrors the curl-transient tolerance in rbgu_http_json: retry only the
+# surveyed signature, fail fast on everything else (real auth failures emit
+# "unauthorized" and do not match), so clean-failure semantics are preserved.
+# Stateless (no sentinel) — safe to call from any module regardless of kindle
+# order, like rbgu_curl_status_is_transient_predicate.
+# Args: token registry_host
+rbgo_docker_login() {
+  local -r z_token="${1:?rbgo_docker_login: token required}"
+  local -r z_host="${2:?rbgo_docker_login: registry host required}"
+
+  local z_attempt=0
+  local z_stderr_file=""
+  local z_rc=0
+
+  while :; do
+    z_attempt=$((z_attempt + 1))
+    z_stderr_file="${BURD_TEMP_DIR}/rbgo_docker_login_${z_attempt}_stderr.txt"
+
+    z_rc=0
+    printf '%s' "${z_token}" \
+      | docker login -u oauth2accesstoken --password-stdin "https://${z_host}" \
+          > /dev/null 2>"${z_stderr_file}" \
+      || z_rc=$?
+
+    test "${z_rc}" -ne 0 || break
+
+    buc_log_pipe < "${z_stderr_file}"
+
+    grep -qF "${RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE}" "${z_stderr_file}" \
+      || buc_die "Docker login to ${z_host} failed — see ${z_stderr_file}"
+
+    test "${z_attempt}" -lt "${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS}" \
+      || buc_die "Docker login to ${z_host} failed after ${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS} attempts (transient daemon->registry timeout, moby#44350) — see ${z_stderr_file}"
+
+    buc_warn "Docker login transient (attempt ${z_attempt}/${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS}, moby#44350 timeout) — retrying in ${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}s"
+    sleep "${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}"
+  done
+}
+
 # eof

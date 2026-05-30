@@ -271,8 +271,7 @@ zrbob_summon_full_hallmark() {
 
   buc_step "Auto-summoning hallmark ${z_hallmark} (image + about + vouch)"
 
-  echo "${z_token}" | docker login -u oauth2accesstoken --password-stdin "https://${z_registry_host}" \
-    || buc_die "Container registry authentication failed during auto-summon"
+  rbgo_docker_login "${z_token}" "${z_registry_host}"
 
   docker pull "${z_image_ref}" || buc_die "Failed to pull image ark: ${z_image_ref}"
   docker pull "${z_about_ref}" || buc_die "Failed to pull about ark: ${z_about_ref}"
@@ -304,8 +303,7 @@ zrbob_vouch_gate_and_summon() {
   # Pull the image
   buc_step "Auto-summoning ${z_image_ref}"
 
-  echo "${z_token}" | docker login -u oauth2accesstoken --password-stdin "https://${z_registry_host}" \
-    || buc_die "Container registry authentication failed during auto-summon"
+  rbgo_docker_login "${z_token}" "${z_registry_host}"
 
   docker pull "${z_image_ref}" || buc_die "Failed to pull image: ${z_image_ref}"
 

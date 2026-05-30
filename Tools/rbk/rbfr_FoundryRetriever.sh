@@ -165,8 +165,7 @@ rbfr_summon() {
   buc_step "Logging into container registry"
 
   # Docker login to GAR
-  echo "${z_token}" | docker login -u oauth2accesstoken --password-stdin "https://${ZRBFC_REGISTRY_HOST}" \
-    || buc_die "Container runtime authentication failed"
+  rbgo_docker_login "${z_token}" "${ZRBFC_REGISTRY_HOST}"
 
   # Pull image ark if exists
   if test "${z_image_exists}" = "true"; then
