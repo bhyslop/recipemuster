@@ -151,7 +151,9 @@ Each chat session must open an officium before using any jjx commands.
 2. **On every subsequent jjx call**, pass the returned identity as the `officium` field on the MCP tool (sibling to `command` and `params`).
 3. **Self-healing**: If any jjx command fails with "Officium directory not found", call `jjx_open` again to create a fresh officium, then retry.
 
-The ☉ (U+2609 SUN) prefix parallels ₣/₢ for firemarks/coronets. Pass it exactly as returned — the dispatcher strips it.
+**⚠️ `jjx_open` must land alone — never co-batch it with any call that consumes its result.** The officium ID is a server-minted opaque token; it cannot be guessed, predicted, or pattern-matched from a prior session. Issue `jjx_open`, read the returned ☉-id, and only *then* issue `jjx_show`/`jjx_orient`/`jjx_list`/etc. in a later tool block. Inventing a plausible-looking officium ID to fill a parallel batch is the classic self-inflicted "Officium directory not found" — the same trap applies to any "mint an ID → use the ID" pair (`jjx_create` → operate on the new firemark, `jjx_bind` → use the legatio token, `jjx_relay` → use the pensum token).
+
+The ☉ (U+2609 SUN) prefix parallels ₣/₢ for firemarks/coronets. Pass it exactly as returned — the dispatcher strips it. **On disk the officium directory name has the ☉ stripped** (`.claude/jjm/officia/260327-1000/`, never `☉260327-1000`) — relevant only when constructing a gazette path by hand (see Gazette paths below).
 
 Gazette file exchange uses two directional files in the officium exchange directory. Every jjx MCP call unconditionally deletes both gazette files on entry (read+delete `gazette_in.md`, delete `gazette_out.md`). Gazette content has single-MCP-call lifetime — it is a parameter or a return value, not persistent state.
 
@@ -189,7 +191,9 @@ body...
 | `jjx_redocket` (mass) | Multiple `# jjezs_reslate <coronet>` notices, each with docket body | `{}` |
 | `jjx_paddock` (set) | `# jjezs_paddock <firemark>` + content body | `{"note?": "commit annotation"}` |
 
-Gazette paths: `.claude/jjm/officia/<officium-id>/gazette_in.md` and `gazette_out.md`.
+Gazette paths: `.claude/jjm/officia/<id>/gazette_in.md` and `gazette_out.md`, where **`<id>` is the officium id with the ☉ prefix stripped** (the dispatcher strips it; on disk the directory is `260327-1000`, never `☉260327-1000`).
+
+**Construct the gazette path directly from the known officium id — never `find` for it.** Gazette files have single-MCP-call lifetime (deleted on entry, written only by getters on success), so a filesystem search will usually find nothing or a stale file, and an empty search result then poisons any command built on it. If a getter command *failed*, no gazette was written — fix the command, don't hunt the filesystem.
 
 Example — reslate a pace docket:
 1. Write `gazette_in.md`: `# jjezs_reslate AvAAH\n\n## Character\nNew docket content...`
