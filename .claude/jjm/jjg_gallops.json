@@ -9190,9 +9190,10 @@
         "₢BDAAJ",
         "₢BDAAK",
         "₢BDAAL",
-        "₢BDAAM"
+        "₢BDAAM",
+        "₢BDAAN"
       ],
-      "jjghn_next_pace_seed": "AAN",
+      "jjghn_next_pace_seed": "AAO",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -9488,6 +9489,17 @@
               "jjgtn_text": "## Character\nIntricate but mechanical — restructure one search loop; rendering decision belongs to mount.\n\n## What done looks like\n`scout` (`jjx_search`) surfaces a heat whose paddock matches the pattern **even when the heat has zero paces**. Today the entire search — including the paddock read — is nested inside the per-pace loop (`for coronet_key in &heat.order`), so a pace-less heat's `order` is empty, the loop body never runs, and the paddock is never read. Planning/design heats, whose whole value lives in the paddock, are exactly this case and are silently invisible.\n\nThe bug is broader than zero-pace heats: the paddock sits in the `else` of an `if silks / else if text / else if direction / else paddock` chain, so a heat whose paces all self-match never has its paddock searched either; and when searched, the paddock is re-read from disk once per pace.\n\n## The fix\nHoist the paddock search out of the pace loop into a **once-per-heat** search, independent of pace count. When only the paddock matches, emit a **heat-level row** (heat header + paddock excerpt, no coronet).\n\n## Locked constraints\n- Paddock search is per-heat, not per-pace; paddock read happens once per heat.\n- Paddock-only matches render as a heat-level row with no coronet.\n- The `actionable` filter applies only to pace rows — a paddock is not actionable, so `actionable` suppresses heat-level paddock rows.\n- No status filter regression: all heats (racing, stabled, retired) remain searched.\n\n## Sources\n`Tools/jjk/vov_veiled/src/jjrsc_scout.rs` (the nested loop and the else-chain). Spook origin: ₣BH (rbk-29-win-enshrine-triple), a 0-pace heat whose paddock saturates with `enshrine`/`reliquary`/`unify` yet never appeared in scout.",
               "jjgtn_silks": "scout-paddock-per-heat",
               "jjgtn_basis": "3bae01e"
+            }
+          ]
+        },
+        "₢BDAAN": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260530-0911",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nDesign conversation requiring judgment. The `remaining` defeature is mechanical; the `detail`-by-default promotion and the double-emit cleanup carry a CLI-vs-MCP channel-ownership fork; the thin JJS* spec corpus needs editorial repair, not just a behavior patch.\n\n## Locked decisions (operator)\n\n- **`remaining` defeatured.** A groom never wants completed/abandoned paces. Remove the param from `jjx_show`/parade; exclusion of complete/abandoned becomes always-on.\n- **`detail` defeatured by promotion.** A groom wants the whole picture in one shot — full paddock + all (remaining) dockets — and the chat is short afterward, so the cost is accepted. Remove the flag; full-picture becomes the default heat view.\n\n## Scope\n\n- `jjx_show`/parade: drop both `detail` and `remaining` params; heat view is always full-picture with complete/abandoned excluded.\n- Eliminate the double docket emission — in heat-detail the body currently goes to BOTH the inline tool result and the gazette. Resolve channel ownership (gazette owns docket bodies; the inline result carries tables/bitmaps/summary), accounting for direct-CLI vs MCP callers.\n- Repair the under-detailed JJS* specs (parade, saddle, get-spec, get-coronets) so behavior, params, output channel, and the gazette contract are actually documented — the linked-term-stub thinness is itself the defect this pace corrects.\n\n## After landing\n\nSimplify the `claude-jjk-core.md` command reference + Groom Protocol to the new no-param shape. (Brief/coronets glosses and the don't-scrape-raw-storage rule already landed separately.)\n\n## Sources\n\n`jjrpd_parade.rs` (heat/pace view, double-emit), `jjrm_mcp.rs` (dispatch + gazette write), `jjrz_gazette.rs`; specs JJSCPD / JJSCSD / JJSCGS / JJSCGC. Build via `tt/vow-b`, test via `tt/vow-t`.",
+              "jjgtn_silks": "parade-defeature-detail-remaining-and-jjs-spec-repair",
+              "jjgtn_basis": "a7c871f"
             }
           ]
         }
