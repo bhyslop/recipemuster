@@ -116,8 +116,8 @@ jjx_relocate       {coronet, to, before?, after?, first?}
 jjx_redocket       {size_limit?}                                    # docket via gazette_in.md only; supports mass reslate
 jjx_relabel        {coronet, silks}
 jjx_drop           {coronet}
-jjx_brief      {coronet}
-jjx_coronets   {firemark, remaining?, rough?}
+jjx_brief      {coronet}                                            # raw docket text for ONE pace, returned inline (no gazette) — the clean single-docket read
+jjx_coronets   {firemark, remaining?, rough?}                       # coronet IDs in heat order, one per line, inline — no silks, no docket
 jjx_landing        {coronet, agent, content?}
 jjx_validate       {}
 jjx_bind           {alias, reldir}                                  # remote: create legatio session (alias resolves BURN profile)
@@ -135,6 +135,7 @@ jjx_fetch          {legatio, path}                                  # remote: re
   - Additional params: `detail`, `remaining` only
 - `jjx_orient` output includes next actionable pace — no separate show call needed
 - **Gazette output**: `jjx_orient`, `jjx_show` (with detail), and `jjx_paddock` (getter) write `gazette_out.md` with paddock and pace docket notices. Read the gazette file after these commands to get full content.
+- **Never reach past the JJK interface to raw storage — NO exceptions.** Do not parse the harness's persisted tool-result files or the gallops JSON (`.claude/jjm/jjg_gallops.json`) directly. To read one pace's docket, call `jjx_brief {coronet}` (returns inline). To read full paddock/dockets after `jjx_show`/`jjx_orient`, read the `gazette_out.md` file directly. When a large `jjx_show` overflows the display and the harness persists the tool result, re-read `gazette_out.md` or loop `jjx_brief` per pace — never scrape the persisted blob. Same discipline as "never read regime files directly, go through the CLI."
 - **Gazette input**: `jjx_enroll`, `jjx_redocket`, and `jjx_paddock` (setter) read docket/content from `gazette_in.md`. Gazette is the sole input path for docket content — no JSON param fallback.
 - `jjx_redocket` supports **mass reslate**: multiple `# jjezs_reslate <coronet>` notices in a single `gazette_in.md`, each with its own docket body. All paces updated in one call.
 - `jjx_paddock` `note` param: optional short string appended to the paddock discussion commit message (e.g., `{"note": "updated after spook fix"}`)
@@ -223,7 +224,7 @@ When user says "mount" or you need to engage the next pace:
 When user says "groom":
 
 1. Run `jjx_show` command with `{target: FIREMARK, detail: true, remaining: true}`
-2. Read `gazette_out.md` for full paddock and pace docket content
+2. Read `gazette_out.md` for full paddock and pace docket content — read the file directly; never parse the harness's persisted tool-result output, and never read `jjg_gallops.json` directly
 3. Display overview: heat silks, progress, remaining paces with dockets (from gazette)
 4. Enter planning mode: suggest structural operations (slate new paces, rail to reorder, reslate to refine dockets, paddock review)
 
