@@ -20,6 +20,49 @@
 
 use std::path::Path;
 use std::path::PathBuf;
+use std::sync::mpsc;
+use std::time::{Duration, Instant};
+
+// ── Heartbeat ──────────────────────────────────────────────────
+
+/// Interval between progress heartbeats for a blocking case.
+///
+/// A case's function is an opaque blocking call — for ordain-bearing cases it
+/// waits out a multi-minute cloud build whose per-poll status is captured (and
+/// thus silenced) by the tabtarget invocation in rbtdri. Without a heartbeat
+/// the console shows nothing between a case's start and its terminal verdict.
+const RBTDRE_HEARTBEAT_INTERVAL_SECS: u64 = 30;
+
+/// Run a case's function, emitting a periodic `running <case> (Ns elapsed)`
+/// heartbeat to the console while it blocks.
+///
+/// The case function runs on the **calling** thread so the `rbtdrc` thread-local
+/// invocation context (established before the fixture runs) stays visible to it.
+/// A background thread emits the heartbeat and exits the instant the case
+/// returns — the dropped sender disconnects the channel, so short cases incur no
+/// added latency and only genuinely long waits ever tick.
+fn rbtdre_run_with_heartbeat(case: &rbtdre_Case, case_dir: &Path) -> rbtdre_Verdict {
+    let (tx, rx) = mpsc::channel::<()>();
+    let name = case.name;
+    let start = Instant::now();
+    let interval = Duration::from_secs(RBTDRE_HEARTBEAT_INTERVAL_SECS);
+
+    let handle = std::thread::spawn(move || loop {
+        match rx.recv_timeout(interval) {
+            // Case finished (sender dropped) — stop heartbeating.
+            Ok(_) | Err(mpsc::RecvTimeoutError::Disconnected) => return,
+            // Interval elapsed with the case still running — emit progress.
+            Err(mpsc::RecvTimeoutError::Timeout) => {
+                crate::rbtdrg_info_now!("running {} ({}s elapsed)", name, start.elapsed().as_secs());
+            }
+        }
+    });
+
+    let verdict = (case.func)(case_dir);
+    drop(tx);
+    let _ = handle.join();
+    verdict
+}
 
 // ── Verdict ────────────────────────────────────────────────────
 
@@ -224,7 +267,7 @@ pub fn rbtdre_run_cases(
             format!("rbtd: failed to create case dir '{}': {}", case.name, e)
         })?;
 
-        let verdict = (case.func)(&case_dir);
+        let verdict = rbtdre_run_with_heartbeat(case, &case_dir);
         rbtdre_write_trace(&case_dir, case.name, &verdict);
 
         match &verdict {
@@ -334,7 +377,7 @@ pub fn rbtdre_run_single_case(
     std::fs::create_dir_all(&case_dir)
         .map_err(|e| format!("rbtd: failed to create case dir '{}': {}", case.name, e))?;
 
-    let verdict = (case.func)(&case_dir);
+    let verdict = rbtdre_run_with_heartbeat(case, &case_dir);
     rbtdre_write_trace(&case_dir, case.name, &verdict);
 
     let (passed, failed, skipped) = match &verdict {
