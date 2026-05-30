@@ -48,13 +48,29 @@ use crate::rbtdrm_manifest::{
     RBTDRM_FIXTURE_ENROLLMENT_VALIDATION,
     RBTDRM_FIXTURE_REGIME_SMOKE,
     RBTDRM_FIXTURE_REGIME_VALIDATION,
+    RBTDRM_MODULE_BURC,
+    RBTDRM_MODULE_BURN,
+    RBTDRM_MODULE_BURP,
+    RBTDRM_MODULE_BURS,
+    RBTDRM_MODULE_RBRA,
     RBTDRM_MODULE_RBRD,
     RBTDRM_MODULE_RBRN,
+    RBTDRM_MODULE_RBRO,
+    RBTDRM_MODULE_RBRP,
     RBTDRM_MODULE_RBRR,
+    RBTDRM_MODULE_RBRS,
     RBTDRM_MODULE_RBRV,
+    RBTDRM_PROBATE_BURC,
+    RBTDRM_PROBATE_BURN,
+    RBTDRM_PROBATE_BURP,
+    RBTDRM_PROBATE_BURS,
+    RBTDRM_PROBATE_RBRA,
     RBTDRM_PROBATE_RBRD,
     RBTDRM_PROBATE_RBRN,
+    RBTDRM_PROBATE_RBRO,
+    RBTDRM_PROBATE_RBRP,
     RBTDRM_PROBATE_RBRR,
+    RBTDRM_PROBATE_RBRS,
     RBTDRM_PROBATE_RBRV,
 };
 use crate::rbtdrx_platform::rbtdrx_native_to_posix;
@@ -156,10 +172,20 @@ fn rbtdrf_run_ev(
 /// Sources only the contract surface — `buv_validation.sh` plus the one regime
 /// module — mirroring the `buv_vet` bridge that enrollment-validation uses: no
 /// internal-module chain, no z-private reach.
-fn rbtdrf_run_probate(
+///
+/// `tools_subdir` is the repo-relative directory holding the module
+/// ("Tools/rbk" or "Tools/buk"). `prelude` is raw bash staged after buv's
+/// kindle but before the regime module's probate — for regimes whose kindle or
+/// enforce reaches a neighbor (rbrp → rbgc's payor regex; burs → bubc, whose
+/// constants its enrollment help-string expands). Relative paths resolve
+/// against cwd (the repo root, set by rbtdrf_run_bash). Empty for the common
+/// case, mirroring how rbtdrf_rs_rbrr_nonempty_prefix stages rbgc in-harness.
+fn rbtdrf_run_probate_in(
     dir: &Path,
+    tools_subdir: &str,
     module: &str,
     probate_fn: &str,
+    prelude: &str,
     baseline: &str,
     override_: &str,
     expect_ok: bool,
@@ -170,7 +196,7 @@ fn rbtdrf_run_probate(
         Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
     let buv = root.join("Tools/buk/buv_validation.sh");
-    let module_path = root.join("Tools/rbk").join(module);
+    let module_path = root.join(tools_subdir).join(module);
 
     let env_file = dir.join(format!("{}.env", label));
     let body = format!("{}\n{}\n", baseline, override_);
@@ -183,9 +209,11 @@ fn rbtdrf_run_probate(
          source '{}'\n\
          source '{}'\n\
          zbuv_kindle\n\
+         {}\
          {} '{}'",
         rbtdrx_native_to_posix(&buv),
         rbtdrx_native_to_posix(&module_path),
+        prelude,
         probate_fn,
         rbtdrx_native_to_posix(&env_file),
     );
@@ -203,6 +231,22 @@ fn rbtdrf_run_probate(
         }
         Err(e) => rbtdre_Verdict::Fail(format!("{}: {}", label, e)),
     }
+}
+
+/// Common-case wrapper: RBK module, no prereqs. Preserves the call shape used
+/// by the reference rv_ quartet (rbrr/rbrd/rbrv/rbrn).
+fn rbtdrf_run_probate(
+    dir: &Path,
+    module: &str,
+    probate_fn: &str,
+    baseline: &str,
+    override_: &str,
+    expect_ok: bool,
+    label: &str,
+) -> rbtdre_Verdict {
+    rbtdrf_run_probate_in(
+        dir, "Tools/rbk", module, probate_fn, "", baseline, override_, expect_ok, label,
+    )
 }
 
 /// Run a tabtarget and check exit 0.
@@ -1071,6 +1115,173 @@ fn rbtdrf_rv_rbrn_bad_ip(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_rv_rbrn_neg(dir, "rbrn-bad-ip", "export RBRN_ENCLAVE_BASE_IP=\"not-an-ip\"")
 }
 
+// --- RBRP negative tests ---
+
+// Valid synthetic RBRP baseline — payor project matches RBGC_GLOBAL_PAYOR_REGEX
+// (^rbwg-p-[0-9]{12}$); the three optional fields stay empty so their format
+// guards self-skip. The violation trips the payor-project regex, whose pattern
+// lives in RBGC — supplied to the harness as a kindle prereq.
+const RBTDRF_RBRP_BASELINE: &str = "\
+export RBRP_PAYOR_PROJECT_ID=\"rbwg-p-260101000000\"\n\
+export RBRP_BILLING_ACCOUNT_ID=\"\"\n\
+export RBRP_OAUTH_CLIENT_ID=\"\"\n\
+export RBRP_OPERATOR_EMAIL=\"\"";
+
+// rbrp enforce reaches RBGC_GLOBAL_PAYOR_REGEX; stage rbgc kindled ahead of the
+// probate, mirroring rbtdrf_rs_rbrr_nonempty_prefix.
+const RBTDRF_RBGC_PRELUDE: &str = "source 'Tools/rbk/rbgc_Constants.sh'\nzrbgc_kindle\n";
+
+fn rbtdrf_rv_rbrp_baseline_valid(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_run_probate_in(dir, "Tools/rbk", RBTDRM_MODULE_RBRP, RBTDRM_PROBATE_RBRP,
+        RBTDRF_RBGC_PRELUDE, RBTDRF_RBRP_BASELINE, "", true, "rbrp-baseline-valid")
+}
+
+fn rbtdrf_rv_rbrp_bad_payor_project(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_run_probate_in(dir, "Tools/rbk", RBTDRM_MODULE_RBRP, RBTDRM_PROBATE_RBRP,
+        RBTDRF_RBGC_PRELUDE, RBTDRF_RBRP_BASELINE,
+        "export RBRP_PAYOR_PROJECT_ID=\"not-a-payor-project\"", false, "rbrp-bad-payor-project")
+}
+
+// --- RBRS negative tests ---
+
+const RBTDRF_RBRS_BASELINE: &str = "\
+export RBRS_PODMAN_ROOT_DIR=\"/tmp/podman-root\"\n\
+export RBRS_VMIMAGE_CACHE_DIR=\"/tmp/vmimage-cache\"\n\
+export RBRS_VM_PLATFORM=\"linux/arm64\"";
+
+fn rbtdrf_rv_rbrs_baseline_valid(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_run_probate(dir, RBTDRM_MODULE_RBRS, RBTDRM_PROBATE_RBRS,
+        RBTDRF_RBRS_BASELINE, "", true, "rbrs-baseline-valid")
+}
+
+fn rbtdrf_rv_rbrs_missing_platform(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_run_probate(dir, RBTDRM_MODULE_RBRS, RBTDRM_PROBATE_RBRS,
+        RBTDRF_RBRS_BASELINE, "unset RBRS_VM_PLATFORM", false, "rbrs-missing-platform")
+}
+
+// --- RBRO negative tests ---
+
+// Synthetic non-secret RBRO baseline — a malformed installed OAuth credential
+// is a real user-facing failure, but the values here carry no secret.
+const RBTDRF_RBRO_BASELINE: &str = "\
+export RBRO_CLIENT_SECRET=\"synthetic-non-secret-client-secret\"\n\
+export RBRO_REFRESH_TOKEN=\"synthetic-non-secret-refresh-token\"";
+
+fn rbtdrf_rv_rbro_baseline_valid(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_run_probate(dir, RBTDRM_MODULE_RBRO, RBTDRM_PROBATE_RBRO,
+        RBTDRF_RBRO_BASELINE, "", true, "rbro-baseline-valid")
+}
+
+fn rbtdrf_rv_rbro_missing_refresh_token(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_run_probate(dir, RBTDRM_MODULE_RBRO, RBTDRM_PROBATE_RBRO,
+        RBTDRF_RBRO_BASELINE, "unset RBRO_REFRESH_TOKEN", false, "rbro-missing-refresh-token")
+}
+
+// --- RBRA negative tests ---
+
+// Synthetic non-secret RBRA baseline — role enum, SA-email regex, and PEM BEGIN
+// material all satisfied. The violation strips the PEM marker, tripping rbra's
+// custom private-key check.
+const RBTDRF_RBRA_BASELINE: &str = "\
+export RBRA_ROLE=\"rbnae_retriever\"\n\
+export RBRA_CLIENT_EMAIL=\"synthetic@synthetic-project.iam.gserviceaccount.com\"\n\
+export RBRA_PRIVATE_KEY=\"-----BEGIN PRIVATE KEY----- synthetic-non-secret-material -----END PRIVATE KEY-----\"\n\
+export RBRA_PROJECT_ID=\"synthetic-project\"\n\
+export RBRA_TOKEN_LIFETIME_SEC=\"3600\"";
+
+fn rbtdrf_rv_rbra_baseline_valid(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_run_probate(dir, RBTDRM_MODULE_RBRA, RBTDRM_PROBATE_RBRA,
+        RBTDRF_RBRA_BASELINE, "", true, "rbra-baseline-valid")
+}
+
+fn rbtdrf_rv_rbra_bad_private_key(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_run_probate(dir, RBTDRM_MODULE_RBRA, RBTDRM_PROBATE_RBRA,
+        RBTDRF_RBRA_BASELINE, "export RBRA_PRIVATE_KEY=\"no-pem-material\"", false, "rbra-bad-private-key")
+}
+
+// --- BURC negative tests ---
+
+const RBTDRF_BURC_BASELINE: &str = "\
+export BURC_STATION_FILE=\"/tmp/station/burs.env\"\n\
+export BURC_TABTARGET_DIR=\"tt\"\n\
+export BURC_TABTARGET_DELIMITER=\".\"\n\
+export BURC_TOOLS_DIR=\"Tools\"\n\
+export BURC_PROJECT_ROOT=\"..\"\n\
+export BURC_MANAGED_KITS=\"rbk,buk\"\n\
+export BURC_TEMP_ROOT_DIR=\"/tmp/burc-temp\"\n\
+export BURC_OUTPUT_ROOT_DIR=\"/tmp/burc-output\"\n\
+export BURC_LOG_LAST=\"last\"\n\
+export BURC_LOG_EXT=\"txt\"";
+
+fn rbtdrf_rv_burc_baseline_valid(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_run_probate_in(dir, "Tools/buk", RBTDRM_MODULE_BURC, RBTDRM_PROBATE_BURC,
+        "", RBTDRF_BURC_BASELINE, "", true, "burc-baseline-valid")
+}
+
+fn rbtdrf_rv_burc_missing_station_file(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_run_probate_in(dir, "Tools/buk", RBTDRM_MODULE_BURC, RBTDRM_PROBATE_BURC,
+        "", RBTDRF_BURC_BASELINE, "unset BURC_STATION_FILE", false, "burc-missing-station-file")
+}
+
+// --- BURN negative tests ---
+
+const RBTDRF_BURN_BASELINE: &str = "\
+export BURN_HOST=\"192.0.2.10\"\n\
+export BURN_PLATFORM=\"bunne_linux\"";
+
+fn rbtdrf_rv_burn_baseline_valid(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_run_probate_in(dir, "Tools/buk", RBTDRM_MODULE_BURN, RBTDRM_PROBATE_BURN,
+        "", RBTDRF_BURN_BASELINE, "", true, "burn-baseline-valid")
+}
+
+fn rbtdrf_rv_burn_bad_platform(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_run_probate_in(dir, "Tools/buk", RBTDRM_MODULE_BURN, RBTDRM_PROBATE_BURN,
+        "", RBTDRF_BURN_BASELINE, "export BURN_PLATFORM=\"bunne_solaris\"", false, "burn-bad-platform")
+}
+
+// --- BURP negative tests ---
+
+// Synthetic non-secret BURP baseline — the credential fields are filesystem
+// paths to operator-managed keys, not secret material themselves.
+const RBTDRF_BURP_BASELINE: &str = "\
+export BURP_PRIVILEGED_USER=\"admin\"\n\
+export BURP_PRIVILEGED_KEY_FILE=\"/tmp/keys/privileged_id_ed25519\"\n\
+export BURP_WORKLOAD_KEY_FILE=\"/tmp/keys/workload_id_ed25519\"";
+
+fn rbtdrf_rv_burp_baseline_valid(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_run_probate_in(dir, "Tools/buk", RBTDRM_MODULE_BURP, RBTDRM_PROBATE_BURP,
+        "", RBTDRF_BURP_BASELINE, "", true, "burp-baseline-valid")
+}
+
+fn rbtdrf_rv_burp_missing_workload_key(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_run_probate_in(dir, "Tools/buk", RBTDRM_MODULE_BURP, RBTDRM_PROBATE_BURP,
+        "", RBTDRF_BURP_BASELINE, "unset BURP_WORKLOAD_KEY_FILE", false, "burp-missing-workload-key")
+}
+
+// --- BURS negative tests ---
+
+const RBTDRF_BURS_BASELINE: &str = "\
+export BURS_USER=\"devuser\"\n\
+export BURS_TINCTURE=\"ab1\"\n\
+export BURS_LOG_DIR=\"/tmp/burs-logs\"";
+
+// burs kindle expands BUBC_moorings_dir / BUBC_rbmu_users_subdir in the
+// BURS_USER enrollment help-string; under set -u those must exist. bubc derives
+// the former from BURD_CONFIG_DIR, so stage a synthetic value and source bubc.
+// The values feed only display text — no validation reads them.
+const RBTDRF_BUBC_PRELUDE: &str =
+    "export BURD_CONFIG_DIR='rbmm_moorings'\nsource 'Tools/buk/bubc_constants.sh'\n";
+
+fn rbtdrf_rv_burs_baseline_valid(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_run_probate_in(dir, "Tools/buk", RBTDRM_MODULE_BURS, RBTDRM_PROBATE_BURS,
+        RBTDRF_BUBC_PRELUDE, RBTDRF_BURS_BASELINE, "", true, "burs-baseline-valid")
+}
+
+fn rbtdrf_rv_burs_bad_tincture(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_run_probate_in(dir, "Tools/buk", RBTDRM_MODULE_BURS, RBTDRM_PROBATE_BURS,
+        RBTDRF_BUBC_PRELUDE, RBTDRF_BURS_BASELINE, "export BURS_TINCTURE=\"A1\"", false, "burs-bad-tincture")
+}
+
 // --- Positive tests ---
 
 fn rbtdrf_rv_rbrr_repo(dir: &Path) -> rbtdre_Verdict {
@@ -1739,6 +1950,22 @@ pub static RBTDRF_CASES_REGIME_VALIDATION: &[rbtdre_Case] = &[
     case!(rbtdrf_rv_rbrn_port_conflict),
     case!(rbtdrf_rv_rbrn_unexpected_var),
     case!(rbtdrf_rv_rbrn_bad_ip),
+    case!(rbtdrf_rv_rbrp_baseline_valid),
+    case!(rbtdrf_rv_rbrp_bad_payor_project),
+    case!(rbtdrf_rv_rbrs_baseline_valid),
+    case!(rbtdrf_rv_rbrs_missing_platform),
+    case!(rbtdrf_rv_rbro_baseline_valid),
+    case!(rbtdrf_rv_rbro_missing_refresh_token),
+    case!(rbtdrf_rv_rbra_baseline_valid),
+    case!(rbtdrf_rv_rbra_bad_private_key),
+    case!(rbtdrf_rv_burc_baseline_valid),
+    case!(rbtdrf_rv_burc_missing_station_file),
+    case!(rbtdrf_rv_burn_baseline_valid),
+    case!(rbtdrf_rv_burn_bad_platform),
+    case!(rbtdrf_rv_burp_baseline_valid),
+    case!(rbtdrf_rv_burp_missing_workload_key),
+    case!(rbtdrf_rv_burs_baseline_valid),
+    case!(rbtdrf_rv_burs_bad_tincture),
     case!(rbtdrf_rv_rbrr_repo),
     case!(rbtdrf_rv_rbrv_all_vessels),
     case!(rbtdrf_rv_rbrn_all_nameplates),

@@ -81,4 +81,19 @@ zburc_enforce() {
   buv_vet BURC
 }
 
+######################################################################
+# Public Functions (burc_*)
+
+# Source an arbitrary BURC regime file and run the full kindle->enforce
+# chain against it, failing on first fault. Test-facing contract surface:
+# theurge drives synthetic-malformed regime files through this without
+# reaching module internals. Prerequisite: buv kindled.
+burc_probate() {
+  local -r z_file="${1:-}"
+  test -n "${z_file}" || buc_die "burc_probate: regime file argument required"
+  source "${z_file}"  || buc_die "burc_probate: cannot source ${z_file}"
+  zburc_kindle
+  zburc_enforce
+}
+
 # eof

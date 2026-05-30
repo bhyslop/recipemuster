@@ -107,6 +107,26 @@ pub const RBTDRM_MODULE_RBRV: &str = "rbrv_regime.sh";
 pub const RBTDRM_PROBATE_RBRV: &str = "rbrv_probate";
 pub const RBTDRM_MODULE_RBRN: &str = "rbrn_regime.sh";
 pub const RBTDRM_PROBATE_RBRN: &str = "rbrn_probate";
+// Payor/station/oauth/auth regimes — RBK file-based regimes gaining a probate
+// seam alongside the reference quartet above. RBRP's enforce reaches RBGC's
+// payor-project regex, so its case supplies an rbgc kindle prereq to the harness.
+pub const RBTDRM_MODULE_RBRP: &str = "rbrp_regime.sh";
+pub const RBTDRM_PROBATE_RBRP: &str = "rbrp_probate";
+pub const RBTDRM_MODULE_RBRS: &str = "rbrs_regime.sh";
+pub const RBTDRM_PROBATE_RBRS: &str = "rbrs_probate";
+pub const RBTDRM_MODULE_RBRO: &str = "rbro_regime.sh";
+pub const RBTDRM_PROBATE_RBRO: &str = "rbro_probate";
+pub const RBTDRM_MODULE_RBRA: &str = "rbra_regime.sh";
+pub const RBTDRM_PROBATE_RBRA: &str = "rbra_probate";
+// BUK file-based regimes — same probate seam, sourced from Tools/buk.
+pub const RBTDRM_MODULE_BURC: &str = "burc_regime.sh";
+pub const RBTDRM_PROBATE_BURC: &str = "burc_probate";
+pub const RBTDRM_MODULE_BURN: &str = "burn_regime.sh";
+pub const RBTDRM_PROBATE_BURN: &str = "burn_probate";
+pub const RBTDRM_MODULE_BURP: &str = "burp_regime.sh";
+pub const RBTDRM_PROBATE_BURP: &str = "burp_probate";
+pub const RBTDRM_MODULE_BURS: &str = "burs_regime.sh";
+pub const RBTDRM_PROBATE_BURS: &str = "burs_probate";
 
 /// Per-fixture required colophons. Returns None for unknown fixtures.
 pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str]> {
