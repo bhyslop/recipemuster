@@ -230,6 +230,14 @@ This principle is instantiated in domain-specific forms:
 
 When evaluating any new pattern, extraction, or structural choice, the litmus test is: "Does this element earn its existence?" If not, it doesn't belong.
 
+<!-- Partnership rules of engagement (never distributed; hand-maintained outside
+     the managed block). Salutation leads — the wake-up greeting — then the stance.
+     Companion detail at Tools/cmk/cmk-rules-of-engagement-detail.md is read on
+     demand, not @-included. -->
+@Tools/cmk/claude-cmk-salutation.md
+
+@Tools/cmk/claude-cmk-rules-of-engagement.md
+
 <!-- Distributable-kit guidance: managed @-include block (mirrors what consumer
      repos receive via vvx_emplace). Edit content in the @-targets, not here;
      `tt/vow-F.Freshen.sh` regenerates this block from the kit registry. -->
