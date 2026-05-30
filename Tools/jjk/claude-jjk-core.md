@@ -208,6 +208,13 @@ Example — mass reslate multiple paces:
 2. Rename `gazette_out.md` → `gazette_in.md`, edit content
 3. Call `jjx_paddock` setter
 
+### Parallel Tool Batch Discipline
+
+When several tool calls share one parallel block and one of them exits non-zero, the harness **cancels the still-queued siblings** ("Cancelled: parallel tool call … errored"). A screenful of cancellations therefore almost always traces to *one* real error upstream — diagnose that single failure, don't react to the cascade. Two rules keep jjx work out of this trap:
+
+- **Never co-batch a producer with its consumer.** A command and another that needs its output, its minted id, or a path built from it must be sequenced across tool blocks, not issued together. (`jjx_open` is the canonical case — see the Officium Protocol barrier above.) This includes batching a state-mutating command like `jjx_record` alongside the edits or checks that are supposed to *precede* it: verify the tree first, commit second.
+- **Keep fragile or dependent commands out of wide read-only batches.** An empty/failed sibling can silently cancel unrelated reads, which then reads as a far bigger failure than it is.
+
 ### Mount Protocol
 
 When user says "mount" or you need to engage the next pace:
