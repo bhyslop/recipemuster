@@ -4,7 +4,6 @@
   "jjgrn_heat_order": [
     "₣BH",
     "₣BS",
-    "₣BQ",
     "₣BP",
     "₣BM",
     "₣BJ",
@@ -10542,111 +10541,6 @@
               "jjgtn_text": "## Character\n\nPure bash refactor — depot-free, emitter-independent, do-now-able. Judgment lives in choosing the single home; no behavior change.\n\n## Goal\n\nGive operation verbs and container roles each a single canonical bash home, so they become projectable under the heat's single-author rule. No Rust touched here.\n\n## Shape\n\n- Today these are implicit/scattered: operation verbs across tabtarget/zipper definitions (rbz), container roles across `rbob_*.sh`. Neither has one owner.\n- Settle a single bash module that canonically declares each group as a named list — the home, not new behavior. Existing call sites reference the new home.\n- Terms to home (verify against live files first): operation verbs — inscribe, yoke, ordain, enshrine, kludge; container roles — sentry, bottle.\n- Prerequisite for the projection pace; touches no Rust and no manifest.\n\n## Sources\n\n- `Tools/rbk/rbz_zipper.sh` — operation verbs (implicit in tabtarget defs)\n- `Tools/rbk/rbob_*.sh` — container roles (implicit)\n\n## What done looks like\n\n- Operation verbs and container roles each declared once in a canonical bash home; call sites reference it; bash behavior unchanged; fast suite green.",
               "jjgtn_silks": "scattered-const-bash-home",
               "jjgtn_basis": "e3c254b"
-            }
-          ]
-        }
-      }
-    },
-    "₣BQ": {
-      "jjghn_silks": "rbk-12-harmonize-buc-and-buh",
-      "jjghn_creation_time": "260521",
-      "jjghn_status": "jjghe_racing",
-      "jjghn_order": [
-        "₢BQAAA",
-        "₢BQAAB",
-        "₢BQAAC",
-        "₢BQAAD",
-        "₢BQAAE"
-      ],
-      "jjghn_next_pace_seed": "AAF",
-      "jjghn_paces": {
-        "₢BQAAA": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260527-0815",
-              "jjgtn_state": "jjgte_complete",
-              "jjgtn_text": "## Character\nMechanical, purely additive to the render core.\n\nGive `buym` the two capabilities `buc` will need as a front-end, without changing\nany existing behavior:\n\n- A gray ambient suitable for `buc`'s operation sigil — the current handbook\n  palette has no gray. It must honor the existing terminal-capability kindle\n  (empty when color is off).\n- A plain resolver that strips diastema markers to text (no color; hyperlinks\n  degrade to \"text <url>\"), for `buc`'s transcript path. Sibling to the existing\n  color resolver, independent of terminal mode.\n\nSource: `Tools/buk/buym_yelp.sh` — palette lives in the kindle block; the color\nresolver `buyf_format_yawp` is the structural sibling for the strip variant.\n\nDone: the two additions exist with unit coverage; existing `buym` and `buh`\noutput is byte-unchanged.",
-              "jjgtn_silks": "extend-render-core-gray-and-strip",
-              "jjgtn_basis": "d2c1a7b"
-            },
-            {
-              "jjgtn_ts": "260521-1009",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": "## Character\nMechanical, purely additive to the render core.\n\nGive `buym` the two capabilities `buc` will need as a front-end, without changing\nany existing behavior:\n\n- A gray ambient suitable for `buc`'s operation sigil — the current handbook\n  palette has no gray. It must honor the existing terminal-capability kindle\n  (empty when color is off).\n- A plain resolver that strips diastema markers to text (no color; hyperlinks\n  degrade to \"text <url>\"), for `buc`'s transcript path. Sibling to the existing\n  color resolver, independent of terminal mode.\n\nSource: `Tools/buk/buym_yelp.sh` — palette lives in the kindle block; the color\nresolver `buyf_format_yawp` is the structural sibling for the strip variant.\n\nDone: the two additions exist with unit coverage; existing `buym` and `buh`\noutput is byte-unchanged.",
-              "jjgtn_silks": "extend-render-core-gray-and-strip",
-              "jjgtn_basis": "1fcd7a4"
-            }
-          ]
-        },
-        "₢BQAAB": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260527-0904",
-              "jjgtn_state": "jjgte_complete",
-              "jjgtn_text": "## Character\nThe risk pace. Careful — touches the busiest output path and the error path.\n\nIntroduce `buc`'s internal display path: gate on `BURE_VERBOSE`, apply the gray\n`ZBUC_CONTEXT` operation sigil, and render the message through the shared\n`buyf_format_yawp` (color) — superseding the current raw-string display in\n`zbuc_print`. Wire the transcript half to render plain via the strip resolver so\nlogs carry neither ANSI nor diastema bytes.\n\nLocked hazard: `buc` color shifts from source-time literals to kindle-time\n`BUYC_*` readonlys, so display now depends on `buym` having kindled. A cold\n`buc_die` (no prior kindle) must not throw unbound-variable inside the error\npath. Guard with `zbuym_sentinel`; prove with an explicit cold-`buc_die` test.\n\nSource: `Tools/buk/buc_command.sh` — `zbuc_print`, `zbuc_tag_args`, `buc_die`.\n\nDone: the internal path renders terminal-aware and logs plain; the cold-die test\nis green.",
-              "jjgtn_silks": "buc-shared-render-path-kindle-safe",
-              "jjgtn_basis": "15d3b7f"
-            },
-            {
-              "jjgtn_ts": "260521-1009",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": "## Character\nThe risk pace. Careful — touches the busiest output path and the error path.\n\nIntroduce `buc`'s internal display path: gate on `BURE_VERBOSE`, apply the gray\n`ZBUC_CONTEXT` operation sigil, and render the message through the shared\n`buyf_format_yawp` (color) — superseding the current raw-string display in\n`zbuc_print`. Wire the transcript half to render plain via the strip resolver so\nlogs carry neither ANSI nor diastema bytes.\n\nLocked hazard: `buc` color shifts from source-time literals to kindle-time\n`BUYC_*` readonlys, so display now depends on `buym` having kindled. A cold\n`buc_die` (no prior kindle) must not throw unbound-variable inside the error\npath. Guard with `zbuym_sentinel`; prove with an explicit cold-`buc_die` test.\n\nSource: `Tools/buk/buc_command.sh` — `zbuc_print`, `zbuc_tag_args`, `buc_die`.\n\nDone: the internal path renders terminal-aware and logs plain; the cold-die test\nis green.",
-              "jjgtn_silks": "buc-shared-render-path-kindle-safe",
-              "jjgtn_basis": "868d167"
-            }
-          ]
-        },
-        "₢BQAAC": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260527-0917",
-              "jjgtn_state": "jjgte_complete",
-              "jjgtn_text": "## Character\nMechanical, broad but shallow — many functions, each a thin rewrite.\n\nRoute every public `buc_*` display function through the new internal path with\nits semantic ambient color (step = white, success = green, warn = yellow prefix,\ndie = red prefix, code/bare = cyan, info = default). Signatures and observable\noutput stay unchanged except for terminal-awareness. Retire `buc`'s private\n`BUC_*` palette.\n\nSource: `Tools/buk/buc_command.sh` for the public wrappers. The few files outside\n`buc_command.sh` that reference raw `BUC_*` constants must migrate to the kindled\npalette — discover them with\n`grep -rl 'BUC_\\(red\\|yellow\\|green\\|cyan\\|white\\|gray\\|reset\\)' Tools/ --include=*.sh`.\n\nDone: all `buc_*` render via the shared core; the private palette is gone;\n`bash -n` clean and the `fast` suite green.",
-              "jjgtn_silks": "reexpress-buc-public-on-core",
-              "jjgtn_basis": "02241f7"
-            },
-            {
-              "jjgtn_ts": "260521-1009",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": "## Character\nMechanical, broad but shallow — many functions, each a thin rewrite.\n\nRoute every public `buc_*` display function through the new internal path with\nits semantic ambient color (step = white, success = green, warn = yellow prefix,\ndie = red prefix, code/bare = cyan, info = default). Signatures and observable\noutput stay unchanged except for terminal-awareness. Retire `buc`'s private\n`BUC_*` palette.\n\nSource: `Tools/buk/buc_command.sh` for the public wrappers. The few files outside\n`buc_command.sh` that reference raw `BUC_*` constants must migrate to the kindled\npalette — discover them with\n`grep -rl 'BUC_\\(red\\|yellow\\|green\\|cyan\\|white\\|gray\\|reset\\)' Tools/ --include=*.sh`.\n\nDone: all `buc_*` render via the shared core; the private palette is gone;\n`bash -n` clean and the `fast` suite green.",
-              "jjgtn_silks": "reexpress-buc-public-on-core",
-              "jjgtn_basis": "d63dc5c"
-            }
-          ]
-        },
-        "₢BQAAD": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260527-0921",
-              "jjgtn_state": "jjgte_complete",
-              "jjgtn_text": "## Character\nSmall, self-contained dedup.\n\n`buc_tabtarget` re-implements the colophon-to-filename glob that `buyy_tt_yawp`\nalready owns. Make `buc_tabtarget` delegate to the yawp resolver so a single glob\nexists in the kit.\n\nSource: `buc_tabtarget` in `Tools/buk/buc_command.sh`; `buyy_tt_yawp` in\n`Tools/buk/buym_yelp.sh`.\n\nDone: one resolver; existing `buc_tabtarget` call sites render unchanged.",
-              "jjgtn_silks": "collapse-tabtarget-glob-clone",
-              "jjgtn_basis": "b10a0f6"
-            },
-            {
-              "jjgtn_ts": "260521-1009",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": "## Character\nSmall, self-contained dedup.\n\n`buc_tabtarget` re-implements the colophon-to-filename glob that `buyy_tt_yawp`\nalready owns. Make `buc_tabtarget` delegate to the yawp resolver so a single glob\nexists in the kit.\n\nSource: `buc_tabtarget` in `Tools/buk/buc_command.sh`; `buyy_tt_yawp` in\n`Tools/buk/buym_yelp.sh`.\n\nDone: one resolver; existing `buc_tabtarget` call sites render unchanged.",
-              "jjgtn_silks": "collapse-tabtarget-glob-clone",
-              "jjgtn_basis": "4f2ea0a"
-            }
-          ]
-        },
-        "₢BQAAE": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260527-0931",
-              "jjgtn_state": "jjgte_complete",
-              "jjgtn_text": "## Character\nVerification — proves the refactor is a no-op except the intended capability.\n\nConfirm the merge changed nothing observable but terminal-awareness. Exercise a\nsampling of operational output (e.g. a payor or regime command) and handbook\noutput (e.g. `tt/rbw-gPE.PayorEstablish.sh`) under three terminal modes: default,\n`NO_COLOR=1`, and `TERM=dumb`. Color must suppress cleanly in the latter two, and\nthe gray operation sigil must never appear on handbook prose (the two-register\nguarantee).\n\nDone: all three modes verified across both registers; full `fast` suite green.",
-              "jjgtn_silks": "verify-terminal-awareness-both-registers",
-              "jjgtn_basis": "685a428"
-            },
-            {
-              "jjgtn_ts": "260521-1009",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": "## Character\nVerification — proves the refactor is a no-op except the intended capability.\n\nConfirm the merge changed nothing observable but terminal-awareness. Exercise a\nsampling of operational output (e.g. a payor or regime command) and handbook\noutput (e.g. `tt/rbw-gPE.PayorEstablish.sh`) under three terminal modes: default,\n`NO_COLOR=1`, and `TERM=dumb`. Color must suppress cleanly in the latter two, and\nthe gray operation sigil must never appear on handbook prose (the two-register\nguarantee).\n\nDone: all three modes verified across both registers; full `fast` suite green.",
-              "jjgtn_silks": "verify-terminal-awareness-both-registers",
-              "jjgtn_basis": "9527eb0"
             }
           ]
         }
