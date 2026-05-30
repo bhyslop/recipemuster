@@ -42,7 +42,9 @@ zrbfd_furnish() {
   source "${RBCC_rbrr_file}"
   source "${RBCC_rbrd_file}"
   source "${z_rbk_kit_dir}/rbgo_OAuth.sh"
-  source "${z_rbk_kit_dir}/rbgu_Utility.sh"
+  source "${z_rbk_kit_dir}/rbuh_Http.sh"
+  source "${z_rbk_kit_dir}/rbge_Rest.sh"
+  source "${z_rbk_kit_dir}/rba_Auth.sh"
   source "${z_rbk_kit_dir}/rbfh_FoundryHygiene.sh"
   source "${z_rbk_kit_dir}/rbfd_FoundryDirectorBuild.sh"
   source "${z_rbk_kit_dir}/rbndb_base.sh"
@@ -76,7 +78,9 @@ zrbfd_furnish() {
   zrbgl_kindle
   zrbgd_kindle
   zrbgo_kindle
-  zrbgu_kindle
+  zrbuh_kindle
+  zrbge_kindle
+  zrba_kindle
   zrbfh_kindle
   zrbfd_kindle
   zrbndb_kindle

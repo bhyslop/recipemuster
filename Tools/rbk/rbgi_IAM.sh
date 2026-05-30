@@ -53,7 +53,8 @@ zrbgi_kindle() {
 
   # Ensure dependencies are kindled
   zrbgc_sentinel
-  zrbgu_sentinel
+  zrbuh_sentinel
+  zrbge_sentinel
 
   # Module prefix for temp files
   readonly ZRBGI_PREFIX="${BURD_TEMP_DIR}/rbgi_"
@@ -119,7 +120,7 @@ zrbgi_propagation_error_predicate() {
     test -n "${z_tol_glob}" || return 0
 
     if test "${z_err_loaded}" = "0"; then
-      z_err_msg=$(rbgu_error_message_capture "${z_infix}") || z_err_msg=""
+      z_err_msg=$(rbge_error_message_capture "${z_infix}") || z_err_msg=""
       z_err_loaded=1
     fi
 
@@ -180,10 +181,10 @@ rbgi_add_project_iam_role() {
     local z_get_body="${ZRBGI_PREFIX}${z_parent_infix}_get_body.json"
     local z_get_infix="${z_parent_infix}-get-${z_prop_elapsed}s"
     printf '%s\n' '{"options":{"requestedPolicyVersion":3}}' > "${z_get_body}"
-    rbgu_http_json "POST" "${z_get_url}" "${z_token}" "${z_get_infix}" "${z_get_body}"
+    rbuh_json "POST" "${z_get_url}" "${z_token}" "${z_get_infix}" "${z_get_body}"
 
     local z_get_code=""
-    z_get_code=$(rbgu_http_code_capture "${z_get_infix}") || buc_die "No HTTP code from getIamPolicy"
+    z_get_code=$(rbuh_code_capture "${z_get_infix}") || buc_die "No HTTP code from getIamPolicy"
 
     # Check for propagation error on GET
     if zrbgi_propagation_error_predicate "${z_get_infix}" "${z_get_code}" "${z_tolerance[@]}"; then
@@ -199,18 +200,18 @@ rbgi_add_project_iam_role() {
     fi
 
     # Not a propagation error on GET — require success
-    rbgu_http_require_ok "${z_label} (get policy)" "${z_get_infix}"
+    rbuh_require_ok "${z_label} (get policy)" "${z_get_infix}"
 
     buc_log_args 'Extract etag; require non-empty'
     local z_etag=""
-    z_etag=$(rbgu_json_field_capture "${z_get_infix}" ".etag") || buc_die "Missing etag"
+    z_etag=$(rbuh_json_field_capture "${z_get_infix}" ".etag") || buc_die "Missing etag"
     test -n "${z_etag}" || buc_die "Empty etag"
 
     buc_log_args "Using etag ${z_etag}"
 
     buc_log_args '2) Build new policy JSON in temp (bindings unique; version=3; keep etag)'
     local z_new_policy_json=""
-    z_new_policy_json=$(rbgu_jq_add_member_to_role_capture "${z_get_infix}" "${z_role}" "${z_member}" "${z_etag}") \
+    z_new_policy_json=$(rbgi_jq_add_member_to_role_capture "${z_get_infix}" "${z_role}" "${z_member}" "${z_etag}") \
       || buc_die "Failed to compose policy JSON"
 
     local z_set_body="${ZRBGI_PREFIX}${z_parent_infix}_set_body.json"
@@ -222,10 +223,10 @@ rbgi_add_project_iam_role() {
     local z_set_succeeded=0
     while :; do
       z_set_infix="${z_parent_infix}-set-${z_prop_elapsed}s-${z_set_elapsed}s"
-      rbgu_http_json "POST" "${z_set_url}" "${z_token}" "${z_set_infix}" "${z_set_body}"
+      rbuh_json "POST" "${z_set_url}" "${z_token}" "${z_set_infix}" "${z_set_body}"
 
       local z_code=""
-      z_code=$(rbgu_http_code_capture "${z_set_infix}") || buc_die "No HTTP code"
+      z_code=$(rbuh_code_capture "${z_set_infix}") || buc_die "No HTTP code"
 
       # Check for propagation error on SET — break inner loop to retry outer
       if zrbgi_propagation_error_predicate "${z_set_infix}" "${z_code}" "${z_tolerance[@]}"; then
@@ -237,7 +238,7 @@ rbgi_add_project_iam_role() {
         200)                 z_set_succeeded=1; break ;;
         409)                 buc_die "${z_label}: HTTP 409 ABORTED (etag mismatch — concurrent policy change)" ;;
         429|500|502|503|504) buc_log_args "Transient ${z_code} at ${z_set_elapsed}s; retry" ;;
-        *)                   rbgu_http_require_ok "${z_label} (set policy)" "${z_set_infix}" "" ;;
+        *)                   rbuh_require_ok "${z_label} (set policy)" "${z_set_infix}" "" ;;
       esac
 
       test "${z_set_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die "${z_label}: timeout setting policy"
@@ -318,10 +319,10 @@ rbgi_add_repo_iam_role() {
     local z_get_infix="${ZRBGI_INFIX_REPO_ROLE}-${z_prop_elapsed}s"
 
     buc_log_args "1) GET repo IAM policy (v3) [attempt ${z_prop_attempt}]"
-    rbgu_http_json "GET" "${z_get_url}" "${z_token}" "${z_get_infix}"
+    rbuh_json "GET" "${z_get_url}" "${z_token}" "${z_get_infix}"
 
     local z_get_code
-    z_get_code=$(rbgu_http_code_capture "${z_get_infix}") || buc_die "No HTTP code from repo getIamPolicy"
+    z_get_code=$(rbuh_code_capture "${z_get_infix}") || buc_die "No HTTP code from repo getIamPolicy"
 
     # Check for propagation error on GET
     if zrbgi_propagation_error_predicate "${z_get_infix}" "${z_get_code}" "${z_tolerance[@]}"; then
@@ -337,18 +338,18 @@ rbgi_add_repo_iam_role() {
     fi
 
     # Not a propagation error on GET — require success
-    rbgu_http_require_ok "Get repo IAM policy" "${z_get_infix}"
+    rbuh_require_ok "Get repo IAM policy" "${z_get_infix}"
 
     buc_log_args 'Extract etag; require non-empty'
     local z_etag=""
-    z_etag=$(rbgu_json_field_capture "${z_get_infix}" ".etag") || buc_die "Missing repo etag"
+    z_etag=$(rbuh_json_field_capture "${z_get_infix}" ".etag") || buc_die "Missing repo etag"
     test -n "${z_etag}" || buc_die "Empty repo etag"
 
     buc_log_args "Using etag ${z_etag}"
 
     buc_log_args '2) Build new policy JSON (bindings unique; version=3; keep etag)'
     local z_updated_policy_json=""
-    z_updated_policy_json=$(rbgu_jq_add_member_to_role_capture "${z_get_infix}" \
+    z_updated_policy_json=$(rbgi_jq_add_member_to_role_capture "${z_get_infix}" \
       "${z_role}" "serviceAccount:${z_account_email}" "${z_etag}") \
       || buc_die "Failed to update policy JSON"
 
@@ -362,10 +363,10 @@ rbgi_add_repo_iam_role() {
     local z_set_succeeded=0
     while :; do
       z_set_infix="${ZRBGI_INFIX_REPO_ROLE_SET}-${z_prop_elapsed}s-${z_set_elapsed}s"
-      rbgu_http_json "POST" "${z_set_url}" "${z_token}" "${z_set_infix}" "${z_repo_set_body}"
+      rbuh_json "POST" "${z_set_url}" "${z_token}" "${z_set_infix}" "${z_repo_set_body}"
 
       local z_set_code=""
-      z_set_code=$(rbgu_http_code_capture "${z_set_infix}") || buc_die "No HTTP code from setIamPolicy"
+      z_set_code=$(rbuh_code_capture "${z_set_infix}") || buc_die "No HTTP code from setIamPolicy"
 
       # Check for propagation error on SET — break inner loop to retry outer
       if zrbgi_propagation_error_predicate "${z_set_infix}" "${z_set_code}" "${z_tolerance[@]}"; then
@@ -377,7 +378,7 @@ rbgi_add_repo_iam_role() {
         200)                 z_set_succeeded=1; break ;;
         409)                 buc_die "Repo IAM: HTTP 409 ABORTED (etag mismatch — concurrent policy change)" ;;
         429|500|502|503|504) buc_log_args "Transient ${z_set_code} at ${z_set_elapsed}s; retry" ;;
-        *)                   rbgu_http_require_ok "Set repo IAM policy" "${z_set_infix}" "" ;;
+        *)                   rbuh_require_ok "Set repo IAM policy" "${z_set_infix}" "" ;;
       esac
 
       test "${z_set_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die "Repo IAM: timeout setting policy"
@@ -421,14 +422,14 @@ rbgi_add_sa_iam_role() {
 
   buc_log_args 'Verify target SA exists'
   local z_target_encoded
-  z_target_encoded=$(rbgu_urlencode_capture "${z_target_sa_email}") \
+  z_target_encoded=$(rbuh_urlencode_capture "${z_target_sa_email}") \
     || buc_die "Failed to encode SA email"
 
   local z_verify_code
-  rbgu_http_json "GET" \
+  rbuh_json "GET" \
     "${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_target_encoded}" \
                             "${z_token}" "${ZRBGI_INFIX_SA_IAM_VERIFY}"
-  z_verify_code=$(rbgu_http_code_capture "${ZRBGI_INFIX_SA_IAM_VERIFY}") || buc_die "No HTTP code from SA verify"
+  z_verify_code=$(rbuh_code_capture "${ZRBGI_INFIX_SA_IAM_VERIFY}") || buc_die "No HTTP code from SA verify"
   test "${z_verify_code}" = "200" || \
     buc_die "Target service account not accessible: ${z_target_sa_email} (HTTP ${z_verify_code})"
 
@@ -453,11 +454,11 @@ rbgi_add_sa_iam_role() {
     local z_get_infix="${ZRBGI_INFIX_ROLE}-${z_prop_elapsed}s"
 
     buc_log_args "1) GET SA IAM policy (v3) [attempt ${z_prop_attempt}]"
-    rbgu_http_json "POST" "${z_sa_resource}:getIamPolicy" "${z_token}" \
+    rbuh_json "POST" "${z_sa_resource}:getIamPolicy" "${z_token}" \
       "${z_get_infix}" "${ZRBGI_VERSION3_BODY}"
 
     local z_code
-    z_code=$(rbgu_http_code_capture "${z_get_infix}") || buc_die "No HTTP code from SA getIamPolicy"
+    z_code=$(rbuh_code_capture "${z_get_infix}") || buc_die "No HTTP code from SA getIamPolicy"
 
     # Check for propagation error on GET
     if zrbgi_propagation_error_predicate "${z_get_infix}" "${z_code}" "${z_tolerance[@]}"; then
@@ -473,18 +474,18 @@ rbgi_add_sa_iam_role() {
     fi
 
     # Not a propagation error on GET — require success
-    rbgu_http_require_ok "Get SA IAM policy" "${z_get_infix}"
+    rbuh_require_ok "Get SA IAM policy" "${z_get_infix}"
 
     buc_log_args 'Extract etag; require non-empty'
     local z_etag=""
-    z_etag=$(rbgu_json_field_capture "${z_get_infix}" ".etag") || buc_die "Missing SA etag"
+    z_etag=$(rbuh_json_field_capture "${z_get_infix}" ".etag") || buc_die "Missing SA etag"
     test -n "${z_etag}" || buc_die "Empty SA etag"
 
     buc_log_args "Using etag ${z_etag}"
 
     buc_log_args '2) Build new policy JSON (bindings unique; version=3; keep etag)'
     local z_updated_policy_json=""
-    z_updated_policy_json=$(rbgu_jq_add_member_to_role_capture "${z_get_infix}" \
+    z_updated_policy_json=$(rbgi_jq_add_member_to_role_capture "${z_get_infix}" \
       "${z_role}" "serviceAccount:${z_member_email}" "${z_etag}") \
       || buc_die "Failed to update SA IAM policy"
 
@@ -498,11 +499,11 @@ rbgi_add_sa_iam_role() {
     local z_set_succeeded=0
     while :; do
       z_set_infix="${ZRBGI_INFIX_ROLE_SET}-${z_prop_elapsed}s-${z_set_elapsed}s"
-      rbgu_http_json "POST" "${z_sa_resource}:setIamPolicy" "${z_token}" \
+      rbuh_json "POST" "${z_sa_resource}:setIamPolicy" "${z_token}" \
         "${z_set_infix}" "${z_set_body}"
 
       local z_set_code=""
-      z_set_code=$(rbgu_http_code_capture "${z_set_infix}") || buc_die "No HTTP code from setIamPolicy"
+      z_set_code=$(rbuh_code_capture "${z_set_infix}") || buc_die "No HTTP code from setIamPolicy"
 
       # Check for propagation error on SET — break inner loop to retry outer
       if zrbgi_propagation_error_predicate "${z_set_infix}" "${z_set_code}" "${z_tolerance[@]}"; then
@@ -514,7 +515,7 @@ rbgi_add_sa_iam_role() {
         200)                 z_set_succeeded=1; break ;;
         409)                 buc_die "SA IAM: HTTP 409 ABORTED (etag mismatch — concurrent policy change)" ;;
         429|500|502|503|504) buc_log_args "Transient ${z_set_code} at ${z_set_elapsed}s; retry" ;;
-        *)                   rbgu_http_require_ok "Set SA IAM policy" "${z_set_infix}" "" ;;
+        *)                   rbuh_require_ok "Set SA IAM policy" "${z_set_infix}" "" ;;
       esac
 
       test "${z_set_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die "SA IAM: timeout setting policy"
@@ -574,10 +575,10 @@ rbgi_add_bucket_iam_role() {
     local z_get_infix="${ZRBGI_INFIX_BUCKET_IAM}-${z_prop_elapsed}s"
 
     buc_log_args "1) GET bucket IAM policy (v3) [attempt ${z_prop_attempt}]"
-    rbgu_http_json "GET" "${z_iam_url}?optionsRequestedPolicyVersion=3" "${z_token}" "${z_get_infix}"
+    rbuh_json "GET" "${z_iam_url}?optionsRequestedPolicyVersion=3" "${z_token}" "${z_get_infix}"
 
     local z_code
-    z_code=$(rbgu_http_code_capture "${z_get_infix}") || buc_die "No HTTP code from bucket getIamPolicy"
+    z_code=$(rbuh_code_capture "${z_get_infix}") || buc_die "No HTTP code from bucket getIamPolicy"
 
     # Check for propagation error on GET
     if zrbgi_propagation_error_predicate "${z_get_infix}" "${z_code}" "${z_tolerance[@]}"; then
@@ -593,18 +594,18 @@ rbgi_add_bucket_iam_role() {
     fi
 
     # Not a propagation error on GET — require success
-    rbgu_http_require_ok "Get bucket IAM policy" "${z_get_infix}"
+    rbuh_require_ok "Get bucket IAM policy" "${z_get_infix}"
 
     buc_log_args 'Extract etag; require non-empty'
     local z_etag=""
-    z_etag=$(rbgu_json_field_capture "${z_get_infix}" ".etag") || buc_die "Missing bucket etag"
+    z_etag=$(rbuh_json_field_capture "${z_get_infix}" ".etag") || buc_die "Missing bucket etag"
     test -n "${z_etag}" || buc_die "Empty bucket etag"
 
     buc_log_args "Using etag ${z_etag}"
 
     buc_log_args '2) Build new policy JSON (bindings unique; keep etag)'
     local z_updated_policy_json=""
-    z_updated_policy_json=$(rbgu_jq_add_member_to_role_capture "${z_get_infix}" \
+    z_updated_policy_json=$(rbgi_jq_add_member_to_role_capture "${z_get_infix}" \
       "${z_role}" "serviceAccount:${z_account_email}" "${z_etag}") \
       || buc_die "Failed to update bucket IAM policy"
 
@@ -618,10 +619,10 @@ rbgi_add_bucket_iam_role() {
     local z_set_succeeded=0
     while :; do
       z_set_infix="${ZRBGI_INFIX_BUCKET_IAM_SET}-${z_prop_elapsed}s-${z_set_elapsed}s"
-      rbgu_http_json "PUT" "${z_iam_url}" "${z_token}" "${z_set_infix}" "${z_bucket_set_body}"
+      rbuh_json "PUT" "${z_iam_url}" "${z_token}" "${z_set_infix}" "${z_bucket_set_body}"
 
       local z_set_code=""
-      z_set_code=$(rbgu_http_code_capture "${z_set_infix}") || buc_die "No HTTP code from setIamPolicy"
+      z_set_code=$(rbuh_code_capture "${z_set_infix}") || buc_die "No HTTP code from setIamPolicy"
 
       # Check for propagation error on SET — break inner loop to retry outer
       if zrbgi_propagation_error_predicate "${z_set_infix}" "${z_set_code}" "${z_tolerance[@]}"; then
@@ -634,7 +635,7 @@ rbgi_add_bucket_iam_role() {
         412)                 buc_die "Bucket IAM: HTTP 412 Precondition Failed (etag mismatch)" ;;
         409)                 buc_die "Bucket IAM: HTTP 409 ABORTED (defensive — unexpected for Storage)" ;;
         429|500|502|503|504) buc_log_args "Transient ${z_set_code} at ${z_set_elapsed}s; retry" ;;
-        *)                   rbgu_http_require_ok "Set bucket IAM policy" "${z_set_infix}" "" ;;
+        *)                   rbuh_require_ok "Set bucket IAM policy" "${z_set_infix}" "" ;;
       esac
 
       test "${z_set_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die "Bucket IAM: timeout setting policy"
@@ -701,10 +702,10 @@ rbgi_grant_secret_iam() {
     local z_get_infix="${z_parent_infix}-get-${z_prop_elapsed}s"
 
     buc_log_args "1) GET secret IAM policy (v3) [attempt ${z_prop_attempt}]"
-    rbgu_http_json "GET" "${z_get_url}" "${z_token}" "${z_get_infix}"
+    rbuh_json "GET" "${z_get_url}" "${z_token}" "${z_get_infix}"
 
     local z_get_code
-    z_get_code=$(rbgu_http_code_capture "${z_get_infix}") || buc_die "No HTTP code from secret getIamPolicy"
+    z_get_code=$(rbuh_code_capture "${z_get_infix}") || buc_die "No HTTP code from secret getIamPolicy"
 
     # Check for propagation error on GET
     if zrbgi_propagation_error_predicate "${z_get_infix}" "${z_get_code}" "${z_tolerance[@]}"; then
@@ -720,18 +721,18 @@ rbgi_grant_secret_iam() {
     fi
 
     # Not a propagation error on GET — require success
-    rbgu_http_require_ok "Get secret IAM policy" "${z_get_infix}"
+    rbuh_require_ok "Get secret IAM policy" "${z_get_infix}"
 
     buc_log_args 'Extract etag; require non-empty'
     local z_etag=""
-    z_etag=$(rbgu_json_field_capture "${z_get_infix}" ".etag") || buc_die "Missing secret etag"
+    z_etag=$(rbuh_json_field_capture "${z_get_infix}" ".etag") || buc_die "Missing secret etag"
     test -n "${z_etag}" || buc_die "Empty secret etag"
 
     buc_log_args "Using etag ${z_etag}"
 
     buc_log_args '2) Build new policy JSON (bindings unique; version=3; keep etag)'
     local z_updated_policy_json=""
-    z_updated_policy_json=$(rbgu_jq_add_member_to_role_capture "${z_get_infix}" \
+    z_updated_policy_json=$(rbgi_jq_add_member_to_role_capture "${z_get_infix}" \
       "${z_role}" "${z_member}" "${z_etag}") \
       || buc_die "Failed to update secret IAM policy"
 
@@ -745,10 +746,10 @@ rbgi_grant_secret_iam() {
     local z_set_succeeded=0
     while :; do
       z_set_infix="${z_parent_infix}-set-${z_prop_elapsed}s-${z_set_elapsed}s"
-      rbgu_http_json "POST" "${z_set_url}" "${z_token}" "${z_set_infix}" "${z_set_body}"
+      rbuh_json "POST" "${z_set_url}" "${z_token}" "${z_set_infix}" "${z_set_body}"
 
       local z_set_code=""
-      z_set_code=$(rbgu_http_code_capture "${z_set_infix}") || buc_die "No HTTP code from setIamPolicy"
+      z_set_code=$(rbuh_code_capture "${z_set_infix}") || buc_die "No HTTP code from setIamPolicy"
 
       # Check for propagation error on SET — break inner loop to retry outer
       if zrbgi_propagation_error_predicate "${z_set_infix}" "${z_set_code}" "${z_tolerance[@]}"; then
@@ -760,7 +761,7 @@ rbgi_grant_secret_iam() {
         200)                 z_set_succeeded=1; break ;;
         409)                 buc_die "Secret IAM: HTTP 409 ABORTED (etag mismatch — concurrent policy change)" ;;
         429|500|502|503|504) buc_log_args "Transient ${z_set_code} at ${z_set_elapsed}s; retry" ;;
-        *)                   rbgu_http_require_ok "Set secret IAM policy" "${z_set_infix}" "" ;;
+        *)                   rbuh_require_ok "Set secret IAM policy" "${z_set_infix}" "" ;;
       esac
 
       test "${z_set_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die "Secret IAM: timeout setting policy"
@@ -784,6 +785,126 @@ rbgi_grant_secret_iam() {
   test "${z_prop_succeeded}" = "1" || buc_die "Secret IAM: propagation retry loop exited without success"
 
   buc_log_args "Successfully granted secret role ${z_role}"
+}
+
+# Compose service account email from name and project ID.
+# Args: account_name project_id
+# Returns: name@project.iam.gserviceaccount.com
+rbgi_sa_email_capture() {
+  zrbgi_sentinel
+
+  local -r z_name="${1:-}"
+  local -r z_project="${2:-}"
+
+  test -n "${z_name}"    || return 1
+  test -n "${z_project}" || return 1
+
+  echo "${z_name}@${z_project}.${RBGC_SA_EMAIL_DOMAIN}"
+}
+
+# Add member to IAM policy role binding with version=3 enforcement
+#
+# RBGU IAM Policy Standard: All IAM policies are standardized to version=3
+# to ensure consistent conditional role binding support across Google Cloud APIs.
+# This is enforced by default in all policy operations to prevent version drift.
+#
+# Args: infix role member [etag_optional]
+# Returns: JSON policy string with added member and version=3
+rbgi_jq_add_member_to_role_capture() {
+  zrbgi_sentinel
+
+  local -r z_infix="${1:-}"
+  local -r z_role="${2:-}"
+  local -r z_member="${3:-}"
+  local -r z_etag_opt="${4:-}"
+
+  local -r z_policy_file="${ZRBUH_PREFIX}${z_infix}${ZRBUH_POSTFIX_JSON}"
+
+  test -n "${z_policy_file}" || return 1
+  test -f "${z_policy_file}" || return 1
+  test -n "${z_role}"        || return 1
+  test -n "${z_member}"      || return 1
+
+  local z_out=""
+  z_out=$(
+    jq --arg role "${z_role}" --arg member "${z_member}" --arg etag "${z_etag_opt}" '
+      # Enforce RBGU standard: version=3 for all IAM policies
+      .version = 3 |
+      .bindings = (.bindings // []) |
+      if ([.bindings[]? | .role] | index($role))
+      then .bindings |= map(if .role == $role
+                            then .members = ((.members // []) + [$member] | unique)
+                            else . end)
+      else .bindings += [{role: $role, members: [$member]}]
+      end
+      # Set etag if provided (optimistic concurrency)
+      | (if $etag != "" then .etag = $etag else . end)
+    ' "${z_policy_file}"
+  ) || return 1
+
+  test -n "${z_out}" || return 1
+  printf '%s\n' "${z_out}"
+}
+
+# Provision service agent (Google-managed service account) for an enabled API.
+# Uses serviceusage.googleapis.com generateServiceIdentity to deterministically
+# ensure the service agent exists before granting it IAM roles.
+# Prints the service agent email to stdout.
+rbgi_provision_service_agent() {
+  zrbgi_sentinel
+
+  local -r z_api_service="${1}"
+  local -r z_project_id="${2}"
+  local -r z_token="${3}"
+
+  test -n "${z_api_service}" || buc_die "rbgi_provision_service_agent: API service name required"
+  test -n "${z_project_id}" || buc_die "rbgi_provision_service_agent: project ID required"
+  test -n "${z_token}" || buc_die "rbgi_provision_service_agent: access token required"
+
+  buc_log_args "Provisioning service agent for ${z_api_service} in ${z_project_id}"
+
+  local -r z_infix="provision-sa-${z_api_service}"
+  local -r z_url="https://serviceusage.googleapis.com/v1beta1/projects/${z_project_id}/services/${z_api_service}.googleapis.com:generateServiceIdentity"
+
+  rbuh_json "POST" "${z_url}" "${z_token}" "${z_infix}" ""
+  rbuh_require_ok "Provision service agent ${z_api_service}" "${z_infix}"
+
+  local z_done
+  z_done=$(rbuh_json_field_capture "${z_infix}" ".done") || z_done=""
+
+  local z_final_infix="${z_infix}"
+  if test "${z_done}" != "true"; then
+    local z_op_name
+    z_op_name=$(rbuh_json_field_capture "${z_infix}" ".name") || buc_die "Provision ${z_api_service}: no operation name"
+    local -r z_poll_url="https://serviceusage.googleapis.com/v1beta1/${z_op_name}"
+
+    local z_elapsed=0
+    while :; do
+      sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+      z_elapsed=$((z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
+
+      z_final_infix="${z_infix}-poll-${z_elapsed}s"
+      rbuh_json "GET" "${z_poll_url}" "${z_token}" "${z_final_infix}"
+
+      local z_code
+      z_code=$(rbuh_code_capture "${z_final_infix}") || z_code=""
+      test "${z_code}" = "200" || buc_die "Provision ${z_api_service}: poll failed (HTTP ${z_code})"
+
+      z_done=$(rbuh_json_field_capture "${z_final_infix}" ".done") || z_done=""
+      test "${z_done}" != "true" || break
+
+      test "${z_elapsed}" -ge "${RBGC_MAX_CONSISTENCY_SEC}" \
+        && buc_die "Provision ${z_api_service}: timeout after ${RBGC_MAX_CONSISTENCY_SEC}s"
+      buc_log_args "Provision ${z_api_service}: still running at ${z_elapsed}s..."
+    done
+  fi
+
+  local z_email
+  z_email=$(rbuh_json_field_capture "${z_final_infix}" ".response.email") || z_email=""
+  test -n "${z_email}" || buc_die "Provision service agent ${z_api_service}: no email in response"
+
+  buc_log_args "Service agent provisioned: ${z_email}"
+  printf '%s' "${z_email}"
 }
 
 # eof

@@ -37,7 +37,9 @@ zrbgg_furnish() {
   source "${z_rbk_kit_dir}/rbgc_Constants.sh"
   source "${z_rbk_kit_dir}/rbgd_DepotConstants.sh"
   source "${z_rbk_kit_dir}/rbgo_OAuth.sh"
-  source "${z_rbk_kit_dir}/rbgu_Utility.sh"
+  source "${z_rbk_kit_dir}/rbuh_Http.sh"
+  source "${z_rbk_kit_dir}/rbge_Rest.sh"
+  source "${z_rbk_kit_dir}/rba_Auth.sh"
   source "${z_rbk_kit_dir}/rbgi_IAM.sh"
   source "${z_rbk_kit_dir}/rbrr_regime.sh"
   source "${z_rbk_kit_dir}/rbrd_regime.sh"
@@ -59,7 +61,9 @@ zrbgg_furnish() {
   zrbgc_kindle
   zrbgd_kindle
   zrbgo_kindle
-  zrbgu_kindle
+  zrbuh_kindle
+  zrbge_kindle
+  zrba_kindle
   zrbgi_kindle
   zrbgg_kindle
 }

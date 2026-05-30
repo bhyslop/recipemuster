@@ -289,7 +289,7 @@ zrbfc_wait_build_completion() {
 
     buc_log_args "Fetch build status (poll ${z_polls}/${z_max_polls})"
     z_curl_rc=0
-    rbgu_http_request "GET" "${ZRBFC_GCB_PROJECT_BUILDS_URL}/${z_build_id}" \
+    rbuh_request "GET" "${ZRBFC_GCB_PROJECT_BUILDS_URL}/${z_build_id}" \
                       "${z_token}"                                          \
                       "${z_response_file}" "${z_code_file}" "${z_stderr_file}" \
       || z_curl_rc=$?
@@ -615,10 +615,10 @@ zrbfc_list_packages_capture() {
   local -r z_list_infix="rbfc_list_packages"
   local -r z_subtree="${z_subtree_root}/"
 
-  rbgu_http_json "GET" "${z_list_url}" "${z_token}" "${z_list_infix}"
-  rbgu_http_require_ok "List GAR packages" "${z_list_infix}"
+  rbuh_json "GET" "${z_list_url}" "${z_token}" "${z_list_infix}"
+  rbuh_require_ok "List GAR packages" "${z_list_infix}"
 
-  local -r z_resp_file="${ZRBGU_PREFIX}${z_list_infix}${ZRBGU_POSTFIX_JSON}"
+  local -r z_resp_file="${ZRBUH_PREFIX}${z_list_infix}${ZRBUH_POSTFIX_JSON}"
   local -r z_raw_file="${BURD_TEMP_DIR}/rbfc_package_list_raw.txt"
 
   # GAR returns package names URL-encoded (slashes as %2F). Decode, strip the
@@ -655,9 +655,9 @@ zrbfc_list_packages_capture() {
     z_tag_infix=$(printf 'rbfc_tags_%04d' "${z_tag_idx}")
     z_tag_idx=$((z_tag_idx + 1))
     local z_tags_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1"
-    rbgu_http_json "GET" "${z_tags_url}" "${z_token}" "${z_tag_infix}"
-    rbgu_http_require_ok "List tags for ${z_pkg_name}" "${z_tag_infix}"
-    z_tag_count=$(rbgu_json_field_capture "${z_tag_infix}" '(.tags // []) | length') \
+    rbuh_json "GET" "${z_tags_url}" "${z_token}" "${z_tag_infix}"
+    rbuh_require_ok "List tags for ${z_pkg_name}" "${z_tag_infix}"
+    z_tag_count=$(rbuh_json_field_capture "${z_tag_infix}" '(.tags // []) | length') \
       || buc_die "Failed to count tags for ${z_pkg_name}"
     test "${z_tag_count}" -gt 0 || continue
     echo "${z_element} ${z_basename}" >> "${ZRBFC_PACKAGE_LIST_FILE}"
@@ -680,10 +680,10 @@ zrbfc_list_anchors_capture() {
   local -r z_list_infix="rbfc_list_anchors"
   local -r z_subtree="${z_subtree_root}/"
 
-  rbgu_http_json "GET" "${z_list_url}" "${z_token}" "${z_list_infix}"
-  rbgu_http_require_ok "List GAR anchor packages" "${z_list_infix}"
+  rbuh_json "GET" "${z_list_url}" "${z_token}" "${z_list_infix}"
+  rbuh_require_ok "List GAR anchor packages" "${z_list_infix}"
 
-  local -r z_resp_file="${ZRBGU_PREFIX}${z_list_infix}${ZRBGU_POSTFIX_JSON}"
+  local -r z_resp_file="${ZRBUH_PREFIX}${z_list_infix}${ZRBUH_POSTFIX_JSON}"
   local -r z_raw_file="${BURD_TEMP_DIR}/rbfc_anchor_list_raw.txt"
 
   # Filter to <subtree>/<anchor> shape (length == 1 after split excludes

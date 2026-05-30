@@ -106,7 +106,9 @@ zrbgv_furnish() {
   source "${z_rbk}/rbgc_Constants.sh"
   source "${z_rbk}/rbdc_DerivedConstants.sh"
   source "${z_rbk}/rbgo_OAuth.sh"
-  source "${z_rbk}/rbgu_Utility.sh"
+  source "${z_rbk}/rbuh_Http.sh"
+  source "${z_rbk}/rbge_Rest.sh"
+  source "${z_rbk}/rba_Auth.sh"
   source "${z_rbk}/rbgi_IAM.sh"
   source "${z_rbk}/rbgp_Payor.sh"
   source "${z_rbk}/rbgv_AccessProbe.sh"
@@ -132,7 +134,9 @@ zrbgv_furnish() {
   zrbdc_kindle
   zrbgc_kindle
   zrbgo_kindle
-  zrbgu_kindle
+  zrbuh_kindle
+  zrbge_kindle
+  zrba_kindle
   zrbgi_kindle
   zrbgp_kindle
   zrbgv_kindle

@@ -1,16 +1,17 @@
 ## File Acronym Mappings — RBK Subdirectory (`Tools/rbk/`)
 
+- **RBA**  → `rbk/rba_Auth.sh` (Auth — RBRA/RBRO credential load and role token mint)
 - **RBDC** → `rbk/rbdc_DerivedConstants.sh`
 - **RBF**  → `rbk/rbf_Foundry.sh`
 - **RBFH** → `rbk/rbfh_FoundryHygiene.sh` (Foundry Hygiene — Dockerfile FROM-line constraint shared by kludge and conjure; thin BCG CLI partner `rbk/rbfh_cli.sh` surfaces the contract via `rbw-fhc`/`rbw-fhv`)
 - **RBGA** → `rbk/rbga_ArtifactRegistry.sh`
 - **RBGB** → `rbk/rbgb_Buckets.sh`
 - **RBGC** → `rbk/rbgc_Constants.sh`
+- **RBGE** → `rbk/rbge_Rest.sh` (Google REST — LRO polling + API-enable patterns over rbuh)
 - **RBGG** → `rbk/rbgg_Governor.sh`
 - **RBGI** → `rbk/rbgi_IAM.sh`
-- **RBGO** → `rbk/rbgo_OAuth.sh`
+- **RBGO** → `rbk/rbgo_OAuth.sh` (also owns the stateless `rbgo_curl_status_is_transient_predicate` transient-curl-exit classifier)
 - **RBGP** → `rbk/rbgp_Payor.sh`
-- **RBGU** → `rbk/rbgu_Utility.sh`
 - **RBGV** → `rbk/rbgv_AccessProbe.sh` (Google Verification — JWT SA and Payor OAuth access probes)
 - **RBH0** → `rbk/rbh0/` (Handbook directory — decomposed one-function-per-file)
   - `rbh*` is the Handbook family (human-facing procedures), parallel to `rbg*` (Google machinery). Three groups: `RBHO` onboarding, `RBHP` payor, `RBHW` windows. Colophon pattern: `rbw-h0` (HandbookTOP index), `rbw-h{o,p,w}` (group tops), `rbw-H{O,P,W}*` (subordinate procedures).
@@ -30,6 +31,7 @@
 - **RBQ**  → `rbk/rbq_Qualify.sh` (Qualification orchestrator - tabtarget/colophon/nameplate health)
 - **RBTD** → `rbk/rbtd/` (Theurge — crucible test orchestrator)
 - **RBTW** → `rbk/rbtd/rbtw_workbench.sh` (Theurge workbench — build/test routing, orthogonal from VOW)
+- **RBUH** → `rbk/rbuh_Http.sh` (Utility HTTP — JSON REST, polling, shared temp-file machinery)
 - **RBS0** → `rbk/vov_veiled/RBS0-SpecTop.adoc`
 - **RBSAA** → `rbk/vov_veiled/RBSAA-ark_abjure.adoc`
 - **RBSAB** → `rbk/vov_veiled/RBSAB-ark_about.adoc` (Standalone Cloud Build about pipeline - syft SBOM + mode-aware build_info)

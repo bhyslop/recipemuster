@@ -51,7 +51,7 @@ zrbgg_kindle() {
   buc_log_args 'Ensure dependencies are kindled first'
   zrbgc_sentinel
   zrbgo_sentinel
-  zrbgu_sentinel
+  zrbuh_sentinel
   zrbgi_sentinel
 
   readonly ZRBGG_PREFIX="${BURD_TEMP_DIR}/rbgg_"
@@ -98,7 +98,7 @@ zrbgg_sentinel() {
   test "${ZRBGG_KINDLED:-}" = "1" || buc_die "Module rbgg not kindled - call zrbgg_kindle first"
 }
 
-# Path-driven sibling of rbgu_json_field_capture for files that live outside
+# Path-driven sibling of rbuh_json_field_capture for files that live outside
 # the rbgu cache (under RBRR_SECRETS_DIR/assay/* for credential bytes that
 # must not leak into BURD_TEMP_DIR).
 zrbgg_secrets_json_field_capture() {
@@ -138,14 +138,14 @@ zrbgg_required_apis_missing_capture() {
     z_service="${z_api##*/}"
     z_infix="${ZRBGG_INFIX_API_CHECK}_${z_service}"
 
-    rbgu_http_json "GET" "${z_api}" "${z_token}" "${z_infix}" || true
+    rbuh_json "GET" "${z_api}" "${z_token}" "${z_infix}" || true
 
     buc_log_args 'If we cannot even read an HTTP code file, that is a processing failure.'
-    z_code=$(rbgu_http_code_capture "${z_infix}") || z_code=""
+    z_code=$(rbuh_code_capture "${z_infix}") || z_code=""
     test -n "${z_code}" || return 1
 
     if test "${z_code}" = "200"; then
-      z_state=$(rbgu_json_field_capture "${z_infix}" ".state") || z_state=""
+      z_state=$(rbuh_json_field_capture "${z_infix}" ".state") || z_state=""
       test "${z_state}" = "ENABLED" || z_missing="${z_missing} ${z_service}"
     else
       buc_log_args 'Any non-200 (403/404/5xx/etc) => treat as NOT enabled'
@@ -168,16 +168,16 @@ zrbgg_create_service_account_with_key() {
 
   buc_step 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   buc_step "Preflight: confirm ${z_account_name} does not already exist"
   # Invest is fail-loud by design (RBSRK/RBSDK): a pre-existing SA is treated as
   # state drift, not an idempotent rerun. The operator clears it with the
   # matching GovernorDivests verb (rbw-arD/rbw-adD) before re-investing.
-  rbgu_http_json "GET" "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}" "${z_token}" \
+  rbuh_json "GET" "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}" "${z_token}" \
                                                  "${ZRBGG_INFIX_PREFLIGHT}"
   local z_preflight_code
-  z_preflight_code=$(rbgu_http_code_capture "${ZRBGG_INFIX_PREFLIGHT}") || z_preflight_code=""
+  z_preflight_code=$(rbuh_code_capture "${ZRBGG_INFIX_PREFLIGHT}") || z_preflight_code=""
   case "${z_preflight_code}" in
     404) buc_log_args "Service account ${z_account_email} absent — clear to create" ;;
     200) buc_die "Service account ${z_account_email} already exists — run the matching GovernorDivests verb (rbw-arD/rbw-adD) first to re-key" ;;
@@ -198,16 +198,16 @@ zrbgg_create_service_account_with_key() {
     }' > "${ZRBGG_PREFIX}create_request.json" || buc_die "Failed to create request JSON"
 
   buc_step 'Create service account via REST API'
-  rbgu_http_json "POST" "${RBGD_API_SERVICE_ACCOUNTS}" "${z_token}" \
+  rbuh_json "POST" "${RBGD_API_SERVICE_ACCOUNTS}" "${z_token}" \
     "${ZRBGG_INFIX_CREATE}" "${ZRBGG_PREFIX}create_request.json"
-  rbgu_http_require_ok "Create service account" "${ZRBGG_INFIX_CREATE}"
+  rbuh_require_ok "Create service account" "${ZRBGG_INFIX_CREATE}"
 
   local z_sa_uid
-  z_sa_uid=$(rbgu_json_field_capture "${ZRBGG_INFIX_CREATE}" '.uniqueId') \
+  z_sa_uid=$(rbuh_json_field_capture "${ZRBGG_INFIX_CREATE}" '.uniqueId') \
     || buc_die "Failed to get uniqueId from SA creation response"
   buc_info "Service account created: ${z_account_email} (uid: ${z_sa_uid})"
 
-  rbgu_poll_until_ok "SA propagation (by email)" \
+  rbuh_poll_until_ok "SA propagation (by email)" \
     "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}" "${z_token}" "${ZRBGG_INFIX_VERIFY}"
 
   buc_step 'Preflight: ensure no existing USER_MANAGED keys (manual cleanup path)'
@@ -221,11 +221,11 @@ zrbgg_create_service_account_with_key() {
   while :; do
     z_list_attempt=$((z_list_attempt + 1))
     z_list_infix="${ZRBGG_INFIX_LIST_KEYS}-attempt${z_list_attempt}"
-    rbgu_http_json "GET"                                                        \
+    rbuh_json "GET"                                                        \
       "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}${RBGC_PATH_KEYS}"        \
                                         "${z_token}" "${z_list_infix}"
 
-    z_list_code=$(rbgu_http_code_capture "${z_list_infix}") || z_list_code=""
+    z_list_code=$(rbuh_code_capture "${z_list_infix}") || z_list_code=""
 
     if test "${z_list_code}" = "200"; then
       break
@@ -237,12 +237,12 @@ zrbgg_create_service_account_with_key() {
       continue
     fi
 
-    rbgu_http_require_ok "List service account keys" "${z_list_infix}"
+    rbuh_require_ok "List service account keys" "${z_list_infix}"
   done
 
   buc_log_args 'Count existing user-managed keys'
   local z_user_keys
-  z_user_keys=$(rbgu_json_field_capture "${z_list_infix}" \
+  z_user_keys=$(rbuh_json_field_capture "${z_list_infix}" \
                  '[.keys[]? | select(.keyType=="USER_MANAGED")] | length') \
     || buc_die "Failed to parse service account keys"
 
@@ -267,10 +267,10 @@ zrbgg_create_service_account_with_key() {
   while :; do
     z_key_attempt=$((z_key_attempt + 1))
     z_key_infix="${ZRBGG_INFIX_KEY}-attempt${z_key_attempt}"
-    rbgu_http_json "POST" "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}${RBGC_PATH_KEYS}" \
+    rbuh_json "POST" "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}${RBGC_PATH_KEYS}" \
                                            "${z_token}" "${z_key_infix}" "${z_key_req}"
 
-    z_key_code=$(rbgu_http_code_capture "${z_key_infix}") || z_key_code=""
+    z_key_code=$(rbuh_code_capture "${z_key_infix}") || z_key_code=""
 
     if test "${z_key_code}" = "200"; then
       break
@@ -282,12 +282,12 @@ zrbgg_create_service_account_with_key() {
       continue
     fi
 
-    rbgu_http_require_ok "Generate service account key" "${z_key_infix}"
+    rbuh_require_ok "Generate service account key" "${z_key_infix}"
   done
 
   buc_step 'Extract and decode key data'
   local z_key_b64
-  z_key_b64=$(rbgu_json_field_capture "${z_key_infix}" '.privateKeyData') \
+  z_key_b64=$(rbuh_json_field_capture "${z_key_infix}" '.privateKeyData') \
     || buc_die "Failed to extract privateKeyData"
   # Decode into the assay subdirectory (RBRR_SECRETS_DIR/assay/) so the
   # only readable form of the private key shares lifecycle and location
@@ -358,10 +358,10 @@ zrbgg_create_gcs_bucket() {
   buc_log_args 'Send bucket creation request'
   local z_code
   local z_err
-  rbgu_http_json "POST" "${RBGD_API_GCS_BUCKET_CREATE}" "${z_token}" \
+  rbuh_json "POST" "${RBGD_API_GCS_BUCKET_CREATE}" "${z_token}" \
                                   "${ZRBGG_INFIX_BUCKET_CREATE}" "${z_bucket_req}"
-  z_code=$(rbgu_http_code_capture "${ZRBGG_INFIX_BUCKET_CREATE}") || buc_die "Bad bucket creation HTTP code"
-  z_err=$(rbgu_json_field_capture "${ZRBGG_INFIX_BUCKET_CREATE}" '.error.message') || z_err="HTTP ${z_code}"
+  z_code=$(rbuh_code_capture "${ZRBGG_INFIX_BUCKET_CREATE}") || buc_die "Bad bucket creation HTTP code"
+  z_err=$(rbuh_json_field_capture "${ZRBGG_INFIX_BUCKET_CREATE}" '.error.message') || z_err="HTTP ${z_code}"
 
   case "${z_code}" in
     200|201) buc_info "Bucket ${z_bucket_name} created";                    return 0 ;;
@@ -386,22 +386,22 @@ zrbgg_list_bucket_objects_capture() {
     if test -n "${z_page_token}"; then
       buc_log_args 'pageToken must be URL-encoded'
       local z_tok_enc
-      z_tok_enc=$(rbgu_urlencode_capture "${z_page_token}") || return 1
+      z_tok_enc=$(rbuh_urlencode_capture "${z_page_token}") || return 1
       z_url="${z_url}?pageToken=${z_tok_enc}"
     fi
 
     buc_log_args 'Use a unique infix per page to avoid clobbering files'
     local z_infix="${ZRBGG_INFIX_BUCKET_LIST}${z_first}"
-    rbgu_http_json "GET" "${z_url}" "${z_token}" "${z_infix}"
+    rbuh_json "GET" "${z_url}" "${z_token}" "${z_infix}"
 
     local z_code
-    z_code=$(rbgu_http_code_capture "${z_infix}") || return 1
+    z_code=$(rbuh_code_capture "${z_infix}") || return 1
     test "${z_code}" = "200" || return 1
 
     buc_log_args 'Print names from this page (if any)'
     buc_log_args 'Next page?'
-    jq -r                '.items[]?.name // empty' "${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"  || return 1
-    z_page_token=$(rbgu_json_field_capture "${z_infix}" '.nextPageToken') || z_page_token=""
+    jq -r                '.items[]?.name // empty' "${ZRBUH_PREFIX}${z_infix}${ZRBUH_POSTFIX_JSON}"  || return 1
+    z_page_token=$(rbuh_json_field_capture "${z_infix}" '.nextPageToken') || z_page_token=""
 
     test -n "${z_page_token}" || break
     z_first=$((z_first + 1))
@@ -412,13 +412,13 @@ zrbgg_get_project_number_capture() {
   zrbgg_sentinel
 
   local z_token
-  z_token=$(rbgu_get_governor_token_capture) || return 1
+  z_token=$(rba_get_governor_token_capture) || return 1
 
-  rbgu_http_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_INFO}"
-  rbgu_http_require_ok "Get project info"                         "${ZRBGG_INFIX_PROJECT_INFO}" || return 1
+  rbuh_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_INFO}"
+  rbuh_require_ok "Get project info"                         "${ZRBGG_INFIX_PROJECT_INFO}" || return 1
 
   local z_project_number
-  z_project_number=$(rbgu_json_field_capture "${ZRBGG_INFIX_PROJECT_INFO}" '.projectNumber') || return 1
+  z_project_number=$(rbuh_json_field_capture "${ZRBGG_INFIX_PROJECT_INFO}" '.projectNumber') || return 1
   test -n "${z_project_number}" || return 1
 
   echo "${z_project_number}"
@@ -448,13 +448,13 @@ zrbgg_empty_gcs_bucket() {
     buc_log_args "Deleting object: ${z_object}"
 
     local z_object_enc
-    z_object_enc=$(rbgu_urlencode_capture "${z_object}") || z_object_enc=""
+    z_object_enc=$(rbuh_urlencode_capture "${z_object}") || z_object_enc=""
     test -n "${z_object_enc}" || { buc_warn "Failed to encode object name: ${z_object}"; continue; }
     z_delete_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/o/${z_object_enc}"
 
-    rbgu_http_json "DELETE" "${z_delete_url}" \
+    rbuh_json "DELETE" "${z_delete_url}" \
                               "${z_token}" "${ZRBGG_INFIX_OBJECT_DELETE}"
-    z_delete_code=$(rbgu_http_code_capture "${ZRBGG_INFIX_OBJECT_DELETE}") || z_delete_code=""
+    z_delete_code=$(rbuh_code_capture "${ZRBGG_INFIX_OBJECT_DELETE}") || z_delete_code=""
     case "${z_delete_code}" in
       204|404) buc_log_args "Object ${z_object}: deleted or not found"                     ;;
       *)       buc_warn     "Object ${z_object}: Failed to delete (HTTP ${z_delete_code})" ;;
@@ -475,10 +475,10 @@ zrbgg_delete_gcs_bucket_predicate() {
   local z_code
   local z_err
   local z_delete_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}"
-  rbgu_http_json "DELETE" "${z_delete_url}" \
+  rbuh_json "DELETE" "${z_delete_url}" \
                       "${z_token}" "${ZRBGG_INFIX_BUCKET_DELETE}"
-  z_code=$(rbgu_http_code_capture "${ZRBGG_INFIX_BUCKET_DELETE}") || z_code=""
-  z_err=$(rbgu_json_field_capture "${ZRBGG_INFIX_BUCKET_DELETE}" '.error.message') || z_err="HTTP ${z_code}"
+  z_code=$(rbuh_code_capture "${ZRBGG_INFIX_BUCKET_DELETE}") || z_code=""
+  z_err=$(rbuh_json_field_capture "${ZRBGG_INFIX_BUCKET_DELETE}" '.error.message') || z_err="HTTP ${z_code}"
   case "${z_code}" in
     204) buc_info "Bucket ${z_bucket_name} deleted";                           return 0 ;;
     404) buc_warn "Bucket ${z_bucket_name} not found (already deleted)";       return 0 ;;
@@ -504,7 +504,7 @@ zrbgg_roster_role() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token (rc=$?)"
+  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token (rc=$?)"
 
   local z_url_base="${RBGD_API_SERVICE_ACCOUNTS}"
   local z_page_token=""
@@ -515,23 +515,23 @@ zrbgg_roster_role() {
     local z_url="${z_url_base}"
     if test -n "${z_page_token}"; then
       local z_tok_enc
-      z_tok_enc=$(rbgu_urlencode_capture "${z_page_token}") \
+      z_tok_enc=$(rbuh_urlencode_capture "${z_page_token}") \
         || buc_die "Failed to URL-encode pageToken"
       z_url="${z_url}?pageToken=${z_tok_enc}"
     fi
 
     local z_infix="${ZRBGG_INFIX_ROSTER}_${z_role}_${z_page}"
-    rbgu_http_json "GET" "${z_url}" "${z_token}" "${z_infix}"
-    rbgu_http_require_ok "List service accounts (page ${z_page})" "${z_infix}"
+    rbuh_json "GET" "${z_url}" "${z_token}" "${z_infix}"
+    rbuh_require_ok "List service accounts (page ${z_page})" "${z_infix}"
 
     local z_sa_count
-    z_sa_count=$(rbgu_json_field_capture "${z_infix}" '.accounts // [] | length') \
+    z_sa_count=$(rbuh_json_field_capture "${z_infix}" '.accounts // [] | length') \
       || buc_die "Failed to parse service accounts page"
 
     local z_index=0
     while test "${z_index}" -lt "${z_sa_count}"; do
       local z_sa_email
-      z_sa_email=$(rbgu_json_field_capture "${z_infix}" ".accounts[${z_index}].email") \
+      z_sa_email=$(rbuh_json_field_capture "${z_infix}" ".accounts[${z_index}].email") \
         || { z_index=$((z_index + 1)); continue; }
       if [[ "${z_sa_email}" =~ ^${z_role}-(.+)@${RBGD_SA_EMAIL_FULL}$ ]]; then
         local z_identity="${BASH_REMATCH[1]}"
@@ -542,7 +542,7 @@ zrbgg_roster_role() {
       z_index=$((z_index + 1))
     done
 
-    z_page_token=$(rbgu_json_field_capture "${z_infix}" '.nextPageToken') || z_page_token=""
+    z_page_token=$(rbuh_json_field_capture "${z_infix}" '.nextPageToken') || z_page_token=""
     test -n "${z_page_token}" || break
     z_page=$((z_page + 1))
   done
@@ -592,7 +592,7 @@ rbgg_invest_retriever() {
     "${RBCC_role_retriever}" > /dev/null || buc_die "Failed to create Retriever SA"
 
   local z_token
-  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   buc_step 'Adding Artifact Registry Reader role'
   rbgi_add_project_iam_role                 \
@@ -644,7 +644,7 @@ rbgg_invest_director() {
 
   buc_step 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   buc_step 'Adding Cloud Build Editor role (project scope)'
   rbgi_add_project_iam_role                 \
@@ -702,8 +702,8 @@ rbgg_invest_director() {
     z_gar_get_infix="director_gar_get_iam-${z_gar_prop_elapsed}s"
     z_gar_set_infix="director_gar_set_iam-${z_gar_prop_elapsed}s"
 
-    rbgu_http_json "GET" "${z_gar_get_url}" "${z_token}" "${z_gar_get_infix}"
-    z_gar_get_code=$(rbgu_http_code_capture "${z_gar_get_infix}") || z_gar_get_code=""
+    rbuh_json "GET" "${z_gar_get_url}" "${z_token}" "${z_gar_get_infix}"
+    z_gar_get_code=$(rbuh_code_capture "${z_gar_get_infix}") || z_gar_get_code=""
 
     # Propagation retry on GET — covers newly-empowered governor (403) and
     # newly-created Director SA member-visibility lag (400 patterns).
@@ -718,30 +718,30 @@ rbgg_invest_director() {
       continue
     fi
 
-    rbgu_http_require_ok "Get GAR repo IAM policy" "${z_gar_get_infix}"
+    rbuh_require_ok "Get GAR repo IAM policy" "${z_gar_get_infix}"
 
     # Build complete expected policy: Director repoAdmin + Mason writer
     local z_gar_partial
-    z_gar_partial=$(rbgu_jq_add_member_to_role_capture "${z_gar_get_infix}" \
+    z_gar_partial=$(rbgi_jq_add_member_to_role_capture "${z_gar_get_infix}" \
       "roles/artifactregistry.repoAdmin" "serviceAccount:${z_account_email}" "") \
       || buc_die "Failed to add Director repoAdmin to GAR IAM policy"
 
-    local z_gar_intermediate="${BURD_TEMP_DIR}/rbgu_director_gar_complete_iam_u_resp.json"
+    local z_gar_intermediate="${BURD_TEMP_DIR}/rbuh_director_gar_complete_iam_u_resp.json"
     printf '%s\n' "${z_gar_partial}" > "${z_gar_intermediate}" \
       || buc_die "Failed to write intermediate GAR IAM policy"
 
     local z_gar_complete
-    z_gar_complete=$(rbgu_jq_add_member_to_role_capture "director_gar_complete_iam" \
+    z_gar_complete=$(rbgi_jq_add_member_to_role_capture "director_gar_complete_iam" \
       "roles/artifactregistry.writer" "serviceAccount:${RBGD_MASON_EMAIL}" "") \
       || buc_die "Failed to add Mason writer to GAR IAM policy"
 
     local z_gar_set_body="${BURD_TEMP_DIR}/rbgg_gar_complete_policy_body.json"
     printf '{"policy":%s}\n' "${z_gar_complete}" > "${z_gar_set_body}" \
       || buc_die "Failed to write GAR setIamPolicy body"
-    rbgu_http_json "POST" "${z_gar_set_url}" "${z_token}" "${z_gar_set_infix}" "${z_gar_set_body}"
+    rbuh_json "POST" "${z_gar_set_url}" "${z_token}" "${z_gar_set_infix}" "${z_gar_set_body}"
 
     local z_gar_set_code
-    z_gar_set_code=$(rbgu_http_code_capture "${z_gar_set_infix}") || buc_die "No HTTP code from GAR setIamPolicy"
+    z_gar_set_code=$(rbuh_code_capture "${z_gar_set_infix}") || buc_die "No HTTP code from GAR setIamPolicy"
 
     # Propagation retry on SET — same tolerance list as GET.
     if zrbgi_propagation_error_predicate "${z_gar_set_infix}" "${z_gar_set_code}" "${z_gar_tolerance[@]}"; then
@@ -755,7 +755,7 @@ rbgg_invest_director() {
       continue
     fi
 
-    rbgu_http_require_ok "Set GAR repo IAM policy (complete)" "${z_gar_set_infix}"
+    rbuh_require_ok "Set GAR repo IAM policy (complete)" "${z_gar_set_infix}"
     break
   done
 
@@ -782,12 +782,12 @@ zrbgg_divest_role() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   buc_log_args 'Delete via REST API (404-tolerant)'
-  rbgu_http_json "DELETE" "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}" "${z_token}" \
+  rbuh_json "DELETE" "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}" "${z_token}" \
                                                  "${ZRBGG_INFIX_DELETE}"
-  rbgu_http_require_ok "Delete service account" "${ZRBGG_INFIX_DELETE}" \
+  rbuh_require_ok "Delete service account" "${ZRBGG_INFIX_DELETE}" \
     404 "not found (already deleted)"
 
   buc_log_args 'Confirm deletion propagated before any same-name recreate'
@@ -796,9 +796,9 @@ zrbgg_divest_role() {
   # following same-name invest would otherwise race a still-visible account.
   # Skipped on 404: the account was already absent, nothing to wait for.
   local z_delete_code
-  z_delete_code=$(rbgu_http_code_capture "${ZRBGG_INFIX_DELETE}") || z_delete_code=""
+  z_delete_code=$(rbuh_code_capture "${ZRBGG_INFIX_DELETE}") || z_delete_code=""
   if test "${z_delete_code}" != "404"; then
-    rbgu_poll_until_gone "Service account ${z_account_email}" \
+    rbuh_poll_until_gone "Service account ${z_account_email}" \
       "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}" "${z_token}" "${ZRBGG_INFIX_DELETE_GONE}"
   fi
 
@@ -871,7 +871,7 @@ rbgg_destroy_project() {
 
   buc_step 'Mint admin OAuth token'
   local z_token
-  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   buc_step 'Triple confirmation required'
   buc_warn ""
@@ -892,11 +892,11 @@ rbgg_destroy_project() {
   buc_require "Final confirmation - type OBLITERATE to proceed" "OBLITERATE"
 
   buc_step 'Check for liens (will block deletion)'
-  rbgu_http_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens?parent=projects/${RBDC_DEPOT_PROJECT_ID}" "${z_token}" "${ZRBGG_INFIX_LIST_LIENS}"
-  rbgu_http_require_ok "List liens" "${ZRBGG_INFIX_LIST_LIENS}"
+  rbuh_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens?parent=projects/${RBDC_DEPOT_PROJECT_ID}" "${z_token}" "${ZRBGG_INFIX_LIST_LIENS}"
+  rbuh_require_ok "List liens" "${ZRBGG_INFIX_LIST_LIENS}"
 
   local z_lien_count
-  z_lien_count=$(rbgu_json_field_capture "${ZRBGG_INFIX_LIST_LIENS}" '.liens // [] | length') || buc_die "Failed to parse liens response"
+  z_lien_count=$(rbuh_json_field_capture "${ZRBGG_INFIX_LIST_LIENS}" '.liens // [] | length') || buc_die "Failed to parse liens response"
 
   if [[ "${z_lien_count}" -gt 0 ]]; then
     buc_step 'BLOCKED: Liens exist on project'
@@ -909,15 +909,15 @@ rbgg_destroy_project() {
   fi
 
   buc_step 'Delete project (immediate lifecycle change to DELETE_REQUESTED)'
-  rbgu_http_json "DELETE" "${RBGD_API_CRM_DELETE_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_DELETE}"
-  rbgu_http_require_ok "Delete project" "${ZRBGG_INFIX_PROJECT_DELETE}"
+  rbuh_json "DELETE" "${RBGD_API_CRM_DELETE_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_DELETE}"
+  rbuh_require_ok "Delete project" "${ZRBGG_INFIX_PROJECT_DELETE}"
 
   buc_step 'Verify deletion state'
-  rbgu_http_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_STATE}"
-  rbgu_http_require_ok "Get project state" "${ZRBGG_INFIX_PROJECT_STATE}"
+  rbuh_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_STATE}"
+  rbuh_require_ok "Get project state" "${ZRBGG_INFIX_PROJECT_STATE}"
 
   local z_lifecycle_state
-  z_lifecycle_state=$(rbgu_json_field_capture "${ZRBGG_INFIX_PROJECT_STATE}" '.lifecycleState // "UNKNOWN"') || buc_die "Failed to parse project state"
+  z_lifecycle_state=$(rbuh_json_field_capture "${ZRBGG_INFIX_PROJECT_STATE}" '.lifecycleState // "UNKNOWN"') || buc_die "Failed to parse project state"
 
   if test "${z_lifecycle_state}" = "DELETE_REQUESTED"; then
     buc_success "Project successfully marked for deletion"
@@ -937,17 +937,17 @@ rbgg_restore_project() {
 
   buc_step 'Mint admin OAuth token'
   local z_token
-  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   buc_step 'Check current project state'
-  rbgu_http_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_STATE}"
+  rbuh_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_STATE}"
 
-  if ! rbgu_http_is_ok "${ZRBGG_INFIX_PROJECT_STATE}"; then
+  if ! rbuh_code_ok_predicate "${ZRBGG_INFIX_PROJECT_STATE}"; then
     buc_die "Cannot access project - it may have been permanently deleted or never existed"
   fi
 
   local z_lifecycle_state
-  z_lifecycle_state=$(rbgu_json_field_capture "${ZRBGG_INFIX_PROJECT_STATE}" '.lifecycleState // "UNKNOWN"') || buc_die "Failed to parse project state"
+  z_lifecycle_state=$(rbuh_json_field_capture "${ZRBGG_INFIX_PROJECT_STATE}" '.lifecycleState // "UNKNOWN"') || buc_die "Failed to parse project state"
 
   if test "${z_lifecycle_state}" != "DELETE_REQUESTED"; then
     buc_die "Project state is ${z_lifecycle_state} - can only restore projects in DELETE_REQUESTED state"
@@ -960,13 +960,13 @@ rbgg_restore_project() {
   buc_require "Confirm restoration of project" "RESTORE"
 
   buc_step 'Attempt project restoration'
-  rbgu_http_json "POST" "${RBGD_API_CRM_UNDELETE_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_RESTORE}"
-  if rbgu_http_is_ok                                                    "${ZRBGG_INFIX_PROJECT_RESTORE}"; then
+  rbuh_json "POST" "${RBGD_API_CRM_UNDELETE_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_RESTORE}"
+  if rbuh_code_ok_predicate                                                    "${ZRBGG_INFIX_PROJECT_RESTORE}"; then
     buc_step 'Verify restoration'
-    rbgu_http_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_STATE}"
-    rbgu_http_require_ok "Get restored project state"               "${ZRBGG_INFIX_PROJECT_STATE}"
+    rbuh_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_STATE}"
+    rbuh_require_ok "Get restored project state"               "${ZRBGG_INFIX_PROJECT_STATE}"
 
-    z_lifecycle_state=$(rbgu_json_field_capture "${ZRBGG_INFIX_PROJECT_STATE}" '.lifecycleState // "UNKNOWN"') || buc_die "Failed to parse restored project state"
+    z_lifecycle_state=$(rbuh_json_field_capture "${ZRBGG_INFIX_PROJECT_STATE}" '.lifecycleState // "UNKNOWN"') || buc_die "Failed to parse restored project state"
 
     if test "${z_lifecycle_state}" = "ACTIVE"; then
       buc_success "Project successfully restored to ACTIVE state"
@@ -977,7 +977,7 @@ rbgg_restore_project() {
     fi
   else
     local z_error_msg
-    z_error_msg=$(rbgu_json_field_capture "${ZRBGG_INFIX_PROJECT_RESTORE}" '.error.message // "Unknown error"') || z_error_msg="Failed to parse error"
+    z_error_msg=$(rbuh_json_field_capture "${ZRBGG_INFIX_PROJECT_RESTORE}" '.error.message // "Unknown error"') || z_error_msg="Failed to parse error"
     buc_die "Project restoration failed: ${z_error_msg}"
   fi
 }

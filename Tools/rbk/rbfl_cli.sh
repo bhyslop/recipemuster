@@ -42,7 +42,9 @@ zrbfl_furnish() {
   source "${RBCC_rbrr_file}"
   source "${RBCC_rbrd_file}"
   source "${z_rbk_kit_dir}/rbgo_OAuth.sh"
-  source "${z_rbk_kit_dir}/rbgu_Utility.sh"
+  source "${z_rbk_kit_dir}/rbuh_Http.sh"
+  source "${z_rbk_kit_dir}/rbge_Rest.sh"
+  source "${z_rbk_kit_dir}/rba_Auth.sh"
   source "${z_rbk_kit_dir}/rbfl_FoundryLedger.sh"
   source "${z_rbk_kit_dir}/rbndb_base.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh"
@@ -68,7 +70,9 @@ zrbfl_furnish() {
   zrbgl_kindle
   zrbgd_kindle
   zrbgo_kindle
-  zrbgu_kindle
+  zrbuh_kindle
+  zrbge_kindle
+  zrba_kindle
   zrbfc_kindle
   zrbfl_kindle
   zrbndb_kindle

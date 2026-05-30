@@ -33,7 +33,7 @@ with an empty body-glob; project-scope sites do not.
   the Secret Manager resource propagates across Google's control plane.  The API documents that
   `getIamPolicy` returns an empty policy (HTTP 200) when no policy has been set — so 404 indicates
   the resource itself is not yet visible, not that the policy is absent.  After creating secrets,
-  `rbgu_poll_until_ok` polls each secret's `getIamPolicy` endpoint until 200 before proceeding to
+  `rbuh_poll_until_ok` polls each secret's `getIamPolicy` endpoint until 200 before proceeding to
   grant IAM bindings.
 
 * **SA keys subresource propagation**: After
@@ -41,11 +41,11 @@ with an empty body-glob; project-scope sites do not.
   returns 200, the keys subresource read path
   (link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts.keys/list[serviceAccounts.keys.list])
   can lag the SA email path independently — empirically observed as a non-monotonic 200→200→404 flap where
-  both the SA GET probe and a keys subresource `rbgu_poll_until_ok` probe return 200 while the real
+  both the SA GET probe and a keys subresource `rbuh_poll_until_ok` probe return 200 while the real
   `keys.list` call immediately returns 404 on the same URL.  Mitigation: retry the actual `keys.list`
   call on HTTP 404 using the same backoff budget as step 7 keys.create (`RBGC_SA_KEY_CREATE_RETRY_*`) —
   same underlying physics (subresource visibility after parent creation).  A separate
-  `rbgu_poll_until_ok` proxy probe before `keys.list` was found insufficient: it returned 200 in the
+  `rbuh_poll_until_ok` proxy probe before `keys.list` was found insufficient: it returned 200 in the
   same flap window that the real call observed 404, exemplifying why proxy probes are not retained as
   correctness gates (see "What Dies" below).  See evidence row below.
 
@@ -121,13 +121,13 @@ and any need for `roles/iam.serviceAccountTokenCreator` grants for the readiness
 * Any `roles/iam.serviceAccountTokenCreator` grant solely for the readiness gate
   (build-time Mason impersonation grants are unrelated and preserved)
 * Fixed `sleep 15` delays before CB v2 connection creation and after Governor SA creation
-* Standalone `rbgu_poll_until_ok` as a correctness gate for IAM propagation
+* Standalone `rbuh_poll_until_ok` as a correctness gate for IAM propagation
   (the SA GET poll remains as a fast-path existence check, not a grant propagation gate)
 * Any assumption that SA existence implies SA usability in IAM policy operations
 
 ==== What Survives
 
-* SA GET poll via `rbgu_poll_until_ok` -- retained as a fast-path check that the SA resource itself
+* SA GET poll via `rbuh_poll_until_ok` -- retained as a fast-path check that the SA resource itself
   is readable, which typically resolves well before IAM policy propagation completes
 * The existing 429/5xx transient retry loop in {rbtoe_iam_grant_project} step 3 --
   this handles a different failure class (rate limiting, server errors) and is preserved inside

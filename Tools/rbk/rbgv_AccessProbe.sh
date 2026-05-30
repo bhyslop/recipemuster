@@ -33,7 +33,7 @@ zrbgv_kindle() {
   buc_log_args "Ensure dependencies are kindled first"
   zrbgc_sentinel
   zrbgo_sentinel
-  zrbgu_sentinel
+  zrbuh_sentinel
   zrbgp_sentinel
 
   # Kindle-constant temp file paths for forensic visibility
@@ -120,7 +120,7 @@ zrbgv_http_get_with_5xx_retry() {
     buc_log_args "${z_label}: HTTP GET attempt ${z_attempt}/${ZRBGV_HTTP_RETRY_ATTEMPTS}"
 
     z_curl_status=0
-    rbgu_http_request "GET" "${z_url}" "${z_token}"          \
+    rbuh_request "GET" "${z_url}" "${z_token}"          \
                       "${z_resp_file}" "${z_code_file}" "${z_stderr_file}" \
       || z_curl_status=$?
 

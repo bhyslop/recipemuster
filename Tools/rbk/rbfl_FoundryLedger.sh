@@ -147,12 +147,12 @@ zrbfl_inscribe_submit() {
   rbrd_check "${z_token}"
 
   buc_step "Submitting inscribe Cloud Build"
-  rbgu_http_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+  rbuh_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
     "reliquary_build_create" "${z_build_file}"
-  rbgu_http_require_ok "Inscribe build submission" "reliquary_build_create"
+  rbuh_require_ok "Inscribe build submission" "reliquary_build_create"
 
   local z_build_id=""
-  z_build_id=$(rbgu_json_field_capture "reliquary_build_create" '.metadata.build.id') || z_build_id=""
+  z_build_id=$(rbuh_json_field_capture "reliquary_build_create" '.metadata.build.id') || z_build_id=""
   test -n "${z_build_id}" || buc_die "Build ID not found in builds.create response"
   echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
 
@@ -215,10 +215,10 @@ rbfl_yoke() {
   local -r z_list_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages?pageSize=1000"
   local -r z_list_infix="rbfl_yoke_list"
 
-  rbgu_http_json "GET" "${z_list_url}" "${z_token}" "${z_list_infix}"
-  rbgu_http_require_ok "List reliquary packages" "${z_list_infix}"
+  rbuh_json "GET" "${z_list_url}" "${z_token}" "${z_list_infix}"
+  rbuh_require_ok "List reliquary packages" "${z_list_infix}"
 
-  local -r z_resp_file="${ZRBGU_PREFIX}${z_list_infix}${ZRBGU_POSTFIX_JSON}"
+  local -r z_resp_file="${ZRBUH_PREFIX}${z_list_infix}${ZRBUH_POSTFIX_JSON}"
   local -r z_present_file="${BURD_TEMP_DIR}/rbfl_yoke_present.txt"
 
   jq -r --arg subtree "${z_rqy_subtree}" '
@@ -368,7 +368,7 @@ rbfl_jettison() {
   local z_response_file="${ZRBFL_DELETE_PREFIX}response.json"
   local z_stderr_file="${ZRBFL_DELETE_PREFIX}stderr.txt"
 
-  rbgu_http_request "DELETE"                                                  \
+  rbuh_request "DELETE"                                                  \
                     "${ZRBFC_REGISTRY_API_BASE}/${z_pkg_path}/manifests/${z_tag}" \
                     "${z_token}"                                              \
                     "${z_response_file}" "${z_status_file}" "${z_stderr_file}" \
@@ -414,12 +414,12 @@ rbfl_abjure() {
   local -r z_list_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages?pageSize=1000"
   local -r z_list_infix="rbfl_abjure_list"
 
-  rbgu_http_json "GET" "${z_list_url}" "${z_token}" "${z_list_infix}"
-  rbgu_http_require_ok "List packages for abjure" "${z_list_infix}"
+  rbuh_json "GET" "${z_list_url}" "${z_token}" "${z_list_infix}"
+  rbuh_require_ok "List packages for abjure" "${z_list_infix}"
 
   # GAR returns package names URL-encoded in the resource name (slashes as
   # %2F); decode and prefix-match to the hallmark subtree.
-  local -r z_resp_file="${ZRBGU_PREFIX}${z_list_infix}${ZRBGU_POSTFIX_JSON}"
+  local -r z_resp_file="${ZRBUH_PREFIX}${z_list_infix}${ZRBUH_POSTFIX_JSON}"
   local -r z_pkg_file="${ZRBFL_DELETE_PREFIX}packages.txt"
 
   jq -r --arg subtree "${z_subtree}" '
@@ -456,8 +456,8 @@ rbfl_abjure() {
     local z_del_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}"
     local z_del_infix="rbfl_abjure_del_${z_del_idx}"
 
-    rbgu_http_json "DELETE" "${z_del_url}" "${z_token}" "${z_del_infix}"
-    rbgu_http_require_ok "Delete package ${z_pkg_path}" "${z_del_infix}"
+    rbuh_json "DELETE" "${z_del_url}" "${z_token}" "${z_del_infix}"
+    rbuh_require_ok "Delete package ${z_pkg_path}" "${z_del_infix}"
 
     buc_info "Deleted: ${z_pkg_path}"
     z_del_idx=$((z_del_idx + 1))

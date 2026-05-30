@@ -211,11 +211,11 @@
 
 // Recipe Bottle Term Orchestration Embodiments (RB-specific patterns)
 :rbtoe_jwt_oauth_exchange:   <<rbtoe_jwt_oauth_exchange,rbgo_get_token_capture>>
-:rbtoe_api_enable:           <<rbtoe_api_enable,rbgu_api_enable>>
-:rbtoe_rbra_generate:        <<rbtoe_rbra_generate,rbgu_extract_json_to_rbra>>
-:rbtoe_rbra_load:            <<rbtoe_rbra_load,rbgu_rbra_load>>
-:rbtoe_rbro_load:            <<rbtoe_rbro_load,rbgu_rbro_load>>
-:rbtoe_poll_readiness:       <<rbtoe_poll_readiness,rbgu_poll_until_ok>>
+:rbtoe_api_enable:           <<rbtoe_api_enable,rbge_api_enable>>
+:rbtoe_rbra_generate:        <<rbtoe_rbra_generate,rba_extract_json_to_rbra>>
+:rbtoe_rbra_load:            <<rbtoe_rbra_load,rba_rbra_load>>
+:rbtoe_rbro_load:            <<rbtoe_rbro_load,rba_rbro_load>>
+:rbtoe_poll_readiness:       <<rbtoe_poll_readiness,rbuh_poll_until_ok>>
 :rbtoe_iam_grant_project:    <<rbtoe_iam_grant_project,rbgi_add_project_iam_role>>
 :rbtoe_iam_grant_repo:       <<rbtoe_iam_grant_repo,rbgi_add_repo_iam_role>>
 :rbtoe_iam_grant_sa:         <<rbtoe_iam_grant_sa,rbgi_add_sa_iam_role>>

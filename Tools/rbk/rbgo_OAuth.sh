@@ -96,6 +96,14 @@ rbgo_base64_encode_file_capture() {
   openssl enc -base64 -A < "${z_file}"
 }
 
+# Stateless — no sentinel; safe to call from any module regardless of kindle order.
+rbgo_curl_status_is_transient_predicate() {
+  case "${1:-}" in
+    7|28|35|56) return 0 ;;
+    *)          return 1 ;;
+  esac
+}
+
 zrbgo_base64url_encode_capture() {
   zrbgo_sentinel
 
@@ -207,7 +215,7 @@ zrbgo_exchange_jwt_capture() {
     test "${z_curl_status}" -eq 0 && break
 
     buc_warn "OAuth curl exit ${z_curl_status}: $(<"${ZRBGO_CURL_STDERR_FILE}")"
-    rbgu_curl_status_is_transient_predicate "${z_curl_status}" || return 1
+    rbgo_curl_status_is_transient_predicate "${z_curl_status}" || return 1
     test "${z_attempt}" -lt "${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS}" || return 1
 
     buc_step "OAuth token mint: transient curl ${z_curl_status}, retry ${z_attempt}/${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS} in ${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}s"

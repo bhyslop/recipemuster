@@ -402,12 +402,12 @@ zrbfv_graft_metadata_submit() {
   rbrd_check "${z_token}"
 
   buc_step "Submitting combined about+vouch Cloud Build"
-  rbgu_http_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+  rbuh_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
     "graft_meta_build_create" "${z_build_file}"
-  rbgu_http_require_ok "Combined about+vouch build submission" "graft_meta_build_create"
+  rbuh_require_ok "Combined about+vouch build submission" "graft_meta_build_create"
 
   local z_build_id=""
-  z_build_id=$(rbgu_json_field_capture "graft_meta_build_create" '.metadata.build.id') || z_build_id=""
+  z_build_id=$(rbuh_json_field_capture "graft_meta_build_create" '.metadata.build.id') || z_build_id=""
   test -n "${z_build_id}" || buc_die "Build ID not found in builds.create response"
   echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
 
@@ -567,12 +567,12 @@ zrbfv_about_submit() {
   rbrd_check "${z_token}"
 
   buc_step "Submitting about Cloud Build"
-  rbgu_http_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+  rbuh_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
     "about_build_create" "${z_about_build_file}"
-  rbgu_http_require_ok "About build submission" "about_build_create"
+  rbuh_require_ok "About build submission" "about_build_create"
 
   local z_build_id=""
-  z_build_id=$(rbgu_json_field_capture "about_build_create" '.metadata.build.id') || z_build_id=""
+  z_build_id=$(rbuh_json_field_capture "about_build_create" '.metadata.build.id') || z_build_id=""
   test -n "${z_build_id}" || buc_die "Build ID not found in builds.create response"
   echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
 
@@ -805,12 +805,12 @@ zrbfv_vouch_submit() {
   rbrd_check "${z_token}"
 
   buc_step "Submitting vouch Cloud Build"
-  rbgu_http_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+  rbuh_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
     "vouch_build_create" "${z_vouch_build_file}"
-  rbgu_http_require_ok "Vouch build submission" "vouch_build_create"
+  rbuh_require_ok "Vouch build submission" "vouch_build_create"
 
   local z_build_id=""
-  z_build_id=$(rbgu_json_field_capture "vouch_build_create" '.metadata.build.id') || z_build_id=""
+  z_build_id=$(rbuh_json_field_capture "vouch_build_create" '.metadata.build.id') || z_build_id=""
   test -n "${z_build_id}" || buc_die "Build ID not found in builds.create response"
   echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
 

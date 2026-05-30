@@ -141,7 +141,7 @@ load-bearing even under single-writer, and why {rbtoe_iam_grant_repo} and
 the single-writer assumption alone.
 
 **Accidental etag passthrough in current code.**
-The compose function (`rbgu_jq_add_member_to_role_capture`) applies
+The compose function (`rbgi_jq_add_member_to_role_capture`) applies
 `if $etag != "" then .etag = $etag else . end` — when the caller passes empty
 string for etag, the jq filter does nothing, leaving the original `.etag` field
 from the `getIamPolicy` response in the composed JSON.  This means

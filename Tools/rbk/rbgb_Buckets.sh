@@ -37,7 +37,7 @@ zrbgb_kindle() {
   buc_log_args "Ensure dependencies are kindled first"
   zrbgc_sentinel
   zrbgo_sentinel
-  zrbgu_sentinel
+  zrbuh_sentinel
   zrbgi_sentinel
 
   readonly ZRBGB_PREFIX="${BURD_TEMP_DIR}/rbgb_"
@@ -77,22 +77,22 @@ zrbgb_list_bucket_objects_capture() {
     if test -n "${z_page_token}"; then
       buc_log_args 'pageToken must be URL-encoded'
       local z_tok_enc
-      z_tok_enc=$(rbgu_urlencode_capture "${z_page_token}") || return 1
+      z_tok_enc=$(rbuh_urlencode_capture "${z_page_token}") || return 1
       z_url="${z_url}?pageToken=${z_tok_enc}"
     fi
 
     buc_log_args 'Use a unique infix per page to avoid clobbering files'
     local z_infix="${ZRBGB_INFIX_LIST}${z_first}"
-    rbgu_http_json "GET" "${z_url}" "${z_token}" "${z_infix}"
+    rbuh_json "GET" "${z_url}" "${z_token}" "${z_infix}"
 
     local z_code
-    z_code=$(rbgu_http_code_capture "${z_infix}") || return 1
+    z_code=$(rbuh_code_capture "${z_infix}") || return 1
     test "${z_code}" = "200" || return 1
 
     buc_log_args 'Print names from this page (if any)'
     buc_log_args 'Next page?'
-    jq -r                '.items[]?.name // empty' "${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}"  || return 1
-    z_page_token=$(jq -r '.nextPageToken // empty' "${ZRBGU_PREFIX}${z_infix}${ZRBGU_POSTFIX_JSON}") || return 1
+    jq -r                '.items[]?.name // empty' "${ZRBUH_PREFIX}${z_infix}${ZRBUH_POSTFIX_JSON}"  || return 1
+    z_page_token=$(jq -r '.nextPageToken // empty' "${ZRBUH_PREFIX}${z_infix}${ZRBUH_POSTFIX_JSON}") || return 1
 
     test -n "${z_page_token}" || break
     z_first=$((z_first + 1))
@@ -123,13 +123,13 @@ zrbgb_empty_gcs_bucket() {
     buc_log_args "Deleting object: ${z_object}"
 
     local z_object_enc
-    z_object_enc=$(rbgu_urlencode_capture "${z_object}") || z_object_enc=""
+    z_object_enc=$(rbuh_urlencode_capture "${z_object}") || z_object_enc=""
     test -n "${z_object_enc}" || { buc_warn "Failed to encode object name: ${z_object}"; continue; }
     z_delete_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/o/${z_object_enc}"
 
-    rbgu_http_json "DELETE" "${z_delete_url}" \
+    rbuh_json "DELETE" "${z_delete_url}" \
                               "${z_token}" "${ZRBGB_INFIX_OBJECT_DELETE}"
-    z_delete_code=$(rbgu_http_code_capture "${ZRBGB_INFIX_OBJECT_DELETE}") || z_delete_code=""
+    z_delete_code=$(rbuh_code_capture "${ZRBGB_INFIX_OBJECT_DELETE}") || z_delete_code=""
     case "${z_delete_code}" in
       204|404) buc_log_args "Object ${z_object}: deleted or not found"                     ;;
       *)       buc_warn     "Object ${z_object}: Failed to delete (HTTP ${z_delete_code})" ;;
@@ -155,7 +155,7 @@ rbgb_bucket_create() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   buc_log_args 'Create bucket request JSON'
   local z_bucket_req="${BURD_TEMP_DIR}/rbgb_bucket_create_req.json"
@@ -170,10 +170,10 @@ rbgb_bucket_create() {
   buc_log_args 'Send bucket creation request'
   local z_code
   local z_err
-  rbgu_http_json "POST" "${RBGD_API_GCS_BUCKET_CREATE}" "${z_token}" \
+  rbuh_json "POST" "${RBGD_API_GCS_BUCKET_CREATE}" "${z_token}" \
                                   "${ZRBGB_INFIX_CREATE}" "${z_bucket_req}"
-  z_code=$(rbgu_http_code_capture "${ZRBGB_INFIX_CREATE}") || buc_die "Bad bucket creation HTTP code"
-  z_err=$(rbgu_json_field_capture "${ZRBGB_INFIX_CREATE}" '.error.message') || z_err="HTTP ${z_code}"
+  z_code=$(rbuh_code_capture "${ZRBGB_INFIX_CREATE}") || buc_die "Bad bucket creation HTTP code"
+  z_err=$(rbuh_json_field_capture "${ZRBGB_INFIX_CREATE}" '.error.message') || z_err="HTTP ${z_code}"
 
   case "${z_code}" in
     200|201) buc_success "Bucket ${z_bucket_name} created";        return 0 ;;
@@ -197,14 +197,14 @@ rbgb_bucket_get() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   buc_log_args 'Get bucket via REST API'
-  rbgu_http_json "GET" "${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}" "${z_token}" "${ZRBGB_INFIX_GET}"
-  rbgu_http_require_ok "Get bucket" "${ZRBGB_INFIX_GET}" 404 "not found"
+  rbuh_json "GET" "${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}" "${z_token}" "${ZRBGB_INFIX_GET}"
+  rbuh_require_ok "Get bucket" "${ZRBGB_INFIX_GET}" 404 "not found"
 
   local z_http_code
-  z_http_code=$(rbgu_http_code_capture "${ZRBGB_INFIX_GET}")
+  z_http_code=$(rbuh_code_capture "${ZRBGB_INFIX_GET}")
   if test "${z_http_code}" = "404"; then
     buc_info "Bucket not found: ${z_bucket_name}"
     return 1
@@ -232,7 +232,7 @@ rbgb_bucket_set_iam() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   buc_log_args 'Set IAM policy'
   local z_iam_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/iam"
@@ -244,9 +244,9 @@ rbgb_bucket_set_iam() {
     printf '%s\n' "${z_policy_json}" > "${z_policy_file}"
   fi
 
-  rbgu_http_json "PUT" "${z_iam_url}" "${z_token}" \
+  rbuh_json "PUT" "${z_iam_url}" "${z_token}" \
                                   "${ZRBGB_INFIX_IAM_SET}" "${z_policy_file}"
-  rbgu_http_require_ok "Set bucket IAM policy" "${ZRBGB_INFIX_IAM_SET}"
+  rbuh_require_ok "Set bucket IAM policy" "${ZRBGB_INFIX_IAM_SET}"
 
   buc_success "IAM policy set on bucket: ${z_bucket_name}"
 }
@@ -272,7 +272,7 @@ rbgb_bucket_add_iam_role() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   buc_log_args 'Use rbgi_add_bucket_iam_role'
   rbgi_add_bucket_iam_role "${z_token}" "${z_bucket_name}" "${z_member}" "${z_role}"
@@ -298,7 +298,7 @@ rbgb_bucket_set_lifecycle() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   buc_log_args 'Set lifecycle policy'
   local z_lifecycle_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}"
@@ -310,9 +310,9 @@ rbgb_bucket_set_lifecycle() {
     jq -n --argjson lifecycle "${z_lifecycle_json}" '{ lifecycle: $lifecycle }' > "${z_lifecycle_file}"
   fi
 
-  rbgu_http_json "PATCH" "${z_lifecycle_url}" "${z_token}" \
+  rbuh_json "PATCH" "${z_lifecycle_url}" "${z_token}" \
                                   "${ZRBGB_INFIX_LIFECYCLE_SET}" "${z_lifecycle_file}"
-  rbgu_http_require_ok "Set bucket lifecycle policy" "${ZRBGB_INFIX_LIFECYCLE_SET}"
+  rbuh_require_ok "Set bucket lifecycle policy" "${ZRBGB_INFIX_LIFECYCLE_SET}"
 
   buc_success "Lifecycle policy set on bucket: ${z_bucket_name}"
 }
@@ -334,7 +334,7 @@ rbgb_bucket_delete() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   if test "${z_force}" = "true"; then
     buc_log_args 'Empty bucket before deletion'
@@ -345,10 +345,10 @@ rbgb_bucket_delete() {
   local z_code
   local z_err
   local z_delete_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}"
-  rbgu_http_json "DELETE" "${z_delete_url}" \
+  rbuh_json "DELETE" "${z_delete_url}" \
                       "${z_token}" "${ZRBGB_INFIX_DELETE}"
-  z_code=$(rbgu_http_code_capture "${ZRBGB_INFIX_DELETE}") || z_code=""
-  z_err=$(rbgu_json_field_capture "${ZRBGB_INFIX_DELETE}" '.error.message') || z_err="HTTP ${z_code}"
+  z_code=$(rbuh_code_capture "${ZRBGB_INFIX_DELETE}") || z_code=""
+  z_err=$(rbuh_json_field_capture "${ZRBGB_INFIX_DELETE}" '.error.message') || z_err="HTTP ${z_code}"
   case "${z_code}" in
     204) buc_success "Bucket ${z_bucket_name} deleted";                           return 0 ;;
     404) buc_info    "Bucket ${z_bucket_name} not found (already deleted)";       return 0 ;;

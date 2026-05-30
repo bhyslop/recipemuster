@@ -36,7 +36,7 @@ zrbga_kindle() {
   buc_log_args "Ensure dependencies are kindled first"
   zrbgc_sentinel
   zrbgo_sentinel
-  zrbgu_sentinel
+  zrbuh_sentinel
   zrbgi_sentinel
 
   readonly ZRBGA_PREFIX="${BURD_TEMP_DIR}/rbga_"
@@ -81,7 +81,7 @@ rbga_repo_create() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   local z_parent="projects/${RBDC_DEPOT_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${z_location}"
   local z_resource="${z_parent}${RBGC_PATH_REPOSITORIES}/${z_repo_name}"
@@ -91,7 +91,7 @@ rbga_repo_create() {
   jq -n --arg format "${z_format}" '{format: $format}' > "${z_create_body}" || buc_die "Failed to build create-repo body"
 
   buc_step "Create ${z_format} format repository"
-  rbgu_http_json_lro_ok                                              \
+  rbge_lro_ok                                              \
     "Create Artifact Registry repo"                                  \
     "${z_token}"                                                     \
     "${z_create_url}"                                                \
@@ -124,17 +124,17 @@ rbga_repo_get() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   local z_resource="projects/${RBDC_DEPOT_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${z_location}${RBGC_PATH_REPOSITORIES}/${z_repo_name}"
   local z_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}"
 
   buc_step 'Get repository via REST API'
-  rbgu_http_json "GET" "${z_get_url}" "${z_token}" "${ZRBGA_INFIX_GET_REPO}"
-  rbgu_http_require_ok "Get repository" "${ZRBGA_INFIX_GET_REPO}" 404 "not found"
+  rbuh_json "GET" "${z_get_url}" "${z_token}" "${ZRBGA_INFIX_GET_REPO}"
+  rbuh_require_ok "Get repository" "${ZRBGA_INFIX_GET_REPO}" 404 "not found"
 
   local z_http_code
-  z_http_code=$(rbgu_http_code_capture "${ZRBGA_INFIX_GET_REPO}")
+  z_http_code=$(rbuh_code_capture "${ZRBGA_INFIX_GET_REPO}")
   if test "${z_http_code}" = "404"; then
     buc_info "Repository not found: ${z_repo_name} in ${z_location}"
     return 1
@@ -142,7 +142,7 @@ rbga_repo_get() {
 
   buc_log_args 'Verify repository format'
   local z_format
-  z_format=$(rbgu_json_field_capture "${ZRBGA_INFIX_GET_REPO}" '.format') || z_format="UNKNOWN"
+  z_format=$(rbuh_json_field_capture "${ZRBGA_INFIX_GET_REPO}" '.format') || z_format="UNKNOWN"
   buc_success "Repository found: ${z_repo_name} (format: ${z_format}) in ${z_location}"
   return 0
 }
@@ -168,7 +168,7 @@ rbga_repo_set_iam() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   local z_resource="projects/${RBDC_DEPOT_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${z_location}${RBGC_PATH_REPOSITORIES}/${z_repo_name}"
   local z_set_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:setIamPolicy"
@@ -180,9 +180,9 @@ rbga_repo_set_iam() {
     jq -n --argjson policy "${z_policy_json}" '{ policy: $policy }' > "${z_policy_file}"
   fi
 
-  rbgu_http_json "POST" "${z_set_url}" "${z_token}" \
+  rbuh_json "POST" "${z_set_url}" "${z_token}" \
                                   "${ZRBGA_INFIX_REPO_IAM_SET}" "${z_policy_file}"
-  rbgu_http_require_ok "Set repository IAM policy" "${ZRBGA_INFIX_REPO_IAM_SET}"
+  rbuh_require_ok "Set repository IAM policy" "${ZRBGA_INFIX_REPO_IAM_SET}"
 
   buc_success "IAM policy set on repository: ${z_repo_name} in ${z_location}"
 }
@@ -211,7 +211,7 @@ rbga_repo_add_iam_role() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   # Extract email from member if it's in serviceAccount:email format
   local z_account_email="${z_member}"
@@ -243,21 +243,21 @@ rbga_repo_delete() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
 
   local z_resource="projects/${RBDC_DEPOT_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${z_location}${RBGC_PATH_REPOSITORIES}/${z_repo_name}"
   buc_log_args "Delete Artifact Registry repo '${z_repo_name}' in ${z_location}"
   local z_delete_code
-  rbgu_http_json "DELETE"                                                           \
+  rbuh_json "DELETE"                                                           \
     "${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}"    \
                             "${z_token}" "${ZRBGA_INFIX_DELETE_REPO}"
-  z_delete_code=$(rbgu_http_code_capture "${ZRBGA_INFIX_DELETE_REPO}") || z_delete_code="000"
+  z_delete_code=$(rbuh_code_capture "${ZRBGA_INFIX_DELETE_REPO}") || z_delete_code="000"
   case "${z_delete_code}" in
     200|204) buc_success "Repository ${z_repo_name} deleted" ;;
     404)     buc_info "Repository ${z_repo_name} not found (already deleted)" ;;
     *)
       local z_err
-      z_err=$(rbgu_json_field_capture "${ZRBGA_INFIX_DELETE_REPO}" '.error.message') || z_err="Unknown error"
+      z_err=$(rbuh_json_field_capture "${ZRBGA_INFIX_DELETE_REPO}" '.error.message') || z_err="Unknown error"
       buc_die "Failed to delete repository: ${z_err}"
       ;;
   esac

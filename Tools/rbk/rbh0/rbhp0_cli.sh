@@ -46,7 +46,9 @@ zrbhp_furnish() {
   source "${RBCC_rbrd_file}" || buc_die "Failed to source RBRD: ${RBCC_rbrd_file}"
   source "${z_rbk_kit_dir}/rbrp_regime.sh"                 || buc_die "Failed to source rbrp_regime.sh"
   source "${z_rbk_kit_dir}/rbgo_OAuth.sh"                  || buc_die "Failed to source rbgo_OAuth.sh"
-  source "${z_rbk_kit_dir}/rbgu_Utility.sh"                || buc_die "Failed to source rbgu_Utility.sh"
+  source "${z_rbk_kit_dir}/rbuh_Http.sh"                   || buc_die "Failed to source rbuh_Http.sh"
+  source "${z_rbk_kit_dir}/rbge_Rest.sh"                   || buc_die "Failed to source rbge_Rest.sh"
+  source "${z_rbk_kit_dir}/rba_Auth.sh"                    || buc_die "Failed to source rba_Auth.sh"
   source "${z_rbk_kit_dir}/rbgi_IAM.sh"                    || buc_die "Failed to source rbgi_IAM.sh"
   source "${z_rbk_kit_dir}/rbra_regime.sh"                 || buc_die "Failed to source rbra_regime.sh"
   source "${z_rbk_kit_dir}/rbh0/rbhpb_base.sh"             || buc_die "Failed to source rbhpb_base.sh"
@@ -73,7 +75,9 @@ zrbhp_furnish() {
   zrbrp_enforce
 
   zrbgo_kindle
-  zrbgu_kindle
+  zrbuh_kindle
+  zrbge_kindle
+  zrba_kindle
   zrbgi_kindle
   zrbhp_kindle
   zrbhp_enforce

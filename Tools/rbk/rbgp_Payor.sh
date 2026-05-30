@@ -45,7 +45,7 @@ zrbgp_kindle() {
   buc_log_args "Ensure dependencies are kindled first"
   zrbgc_sentinel
   zrbgo_sentinel
-  zrbgu_sentinel
+  zrbuh_sentinel
   zrbgi_sentinel
 
   readonly ZRBGP_PREFIX="${BURD_TEMP_DIR}/rbgp_"
@@ -96,7 +96,7 @@ zrbgp_sentinel() {
 zrbgp_refresh_capture() {
   zrbgp_sentinel
 
-  # RBRO credentials already loaded and validated by caller (rbgu_rbro_load)
+  # RBRO credentials already loaded and validated by caller (rba_rbro_load)
   zrbro_sentinel
   test -n "${RBRP_OAUTH_CLIENT_ID:-}" || buc_die "RBRP_OAUTH_CLIENT_ID not set in environment"
 
@@ -149,7 +149,7 @@ zrbgp_authenticate_capture() {
   buc_log_args "Establishing Payor OAuth authentication context"
   
   # Load RBRO credentials
-  rbgu_rbro_load
+  rba_rbro_load
   
   # Load RBRP_OAUTH_CLIENT_ID from environment
   test -n "${RBRP_OAUTH_CLIENT_ID:-}" || buc_die "RBRP_OAUTH_CLIENT_ID not set in environment"
@@ -218,30 +218,30 @@ zrbgp_depot_state_emit() {
   local z_get_code=""
   local z_prefix_dir=""
 
-  z_query_enc=$(rbgu_urlencode_capture "${z_search_query}") \
+  z_query_enc=$(rbuh_urlencode_capture "${z_search_query}") \
     || buc_die "Failed to URL-encode CRM v3 search query"
 
   while :; do
     z_search_url="${z_search_url_base}?query=${z_query_enc}"
     if test -n "${z_search_page_token}"; then
-      z_tok_enc=$(rbgu_urlencode_capture "${z_search_page_token}") \
+      z_tok_enc=$(rbuh_urlencode_capture "${z_search_page_token}") \
         || buc_die "Failed to URL-encode CRM v3 pageToken"
       z_search_url="${z_search_url}&pageToken=${z_tok_enc}"
     fi
 
     z_search_infix="depot_state_search_${z_search_page}"
-    rbgu_http_json "GET" "${z_search_url}" "${z_token}" "${z_search_infix}"
-    rbgu_http_require_ok "CRM v3 projects:search" "${z_search_infix}"
+    rbuh_json "GET" "${z_search_url}" "${z_token}" "${z_search_infix}"
+    rbuh_require_ok "CRM v3 projects:search" "${z_search_infix}"
 
-    z_project_count=$(rbgu_json_field_capture "${z_search_infix}" '.projects // [] | length') \
+    z_project_count=$(rbuh_json_field_capture "${z_search_infix}" '.projects // [] | length') \
       || z_project_count=0
 
     z_index=0
     while test "${z_index}" -lt "${z_project_count}"; do
-      z_project_id=$(rbgu_json_field_capture "${z_search_infix}" ".projects[${z_index}].projectId") \
+      z_project_id=$(rbuh_json_field_capture "${z_search_infix}" ".projects[${z_index}].projectId") \
         || { z_index=$((z_index + 1)); continue; }
 
-      z_display_name=$(rbgu_json_field_capture "${z_search_infix}" ".projects[${z_index}].displayName") \
+      z_display_name=$(rbuh_json_field_capture "${z_search_infix}" ".projects[${z_index}].displayName") \
         || { z_index=$((z_index + 1)); continue; }
 
       # Strip the anchor prefix (including trailing space) to get the moniker.
@@ -264,11 +264,11 @@ zrbgp_depot_state_emit() {
       # GET against the strongly-consistent endpoint for authoritative state.
       z_get_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_project_id}"
       z_get_infix="depot_state_get_${z_project_id}"
-      rbgu_http_json "GET" "${z_get_url}" "${z_token}" "${z_get_infix}"
-      z_get_code=$(rbgu_http_code_capture "${z_get_infix}") || z_get_code=""
+      rbuh_json "GET" "${z_get_url}" "${z_token}" "${z_get_infix}"
+      z_get_code=$(rbuh_code_capture "${z_get_infix}") || z_get_code=""
       case "${z_get_code}" in
         200)
-          z_crm_state=$(rbgu_json_field_capture "${z_get_infix}" '.state // "UNKNOWN"') \
+          z_crm_state=$(rbuh_json_field_capture "${z_get_infix}" '.state // "UNKNOWN"') \
             || z_crm_state="UNKNOWN"
           ;;
         404)
@@ -306,7 +306,7 @@ zrbgp_depot_state_emit() {
       z_index=$((z_index + 1))
     done
 
-    z_search_page_token=$(rbgu_json_field_capture "${z_search_infix}" '.nextPageToken') \
+    z_search_page_token=$(rbuh_json_field_capture "${z_search_infix}" '.nextPageToken') \
       || z_search_page_token=""
     test -n "${z_search_page_token}" || break
     z_search_page=$((z_search_page + 1))
@@ -344,7 +344,7 @@ zrbgp_billing_attach() {
   buc_step "Attaching billing account: ${z_billing_account}"
 
   local z_token
-  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
   local -r z_billing_body="${BURD_TEMP_DIR}/rbgp_billing_attach.json"
   jq -n --arg billingAccountName "billingAccounts/${z_billing_account}" \
     --arg projectId "${RBDC_DEPOT_PROJECT_ID}" \
@@ -355,9 +355,9 @@ zrbgp_billing_attach() {
     }' > "${z_billing_body}" || buc_die "Failed to build billing attach body"
 
   local -r z_billing_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${RBDC_DEPOT_PROJECT_ID}:setBillingInfo"
-  rbgu_http_json "PUT" "${z_billing_url}" "${z_token}" \
+  rbuh_json "PUT" "${z_billing_url}" "${z_token}" \
                                   "${ZRBGP_INFIX_BILLING_ATTACH}" "${z_billing_body}"
-  rbgu_http_require_ok "Attach billing account" "${ZRBGP_INFIX_BILLING_ATTACH}"
+  rbuh_require_ok "Attach billing account" "${ZRBGP_INFIX_BILLING_ATTACH}"
 
   buc_success "Billing account ${z_billing_account} attached to project"
 }
@@ -371,7 +371,7 @@ zrbgp_billing_detach() {
   buc_step "Detaching billing account from project"
 
   local z_token
-  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
   local -r z_billing_body="${BURD_TEMP_DIR}/rbgp_billing_detach.json"
   jq -n --arg projectId "${RBDC_DEPOT_PROJECT_ID}" \
     '{
@@ -380,9 +380,9 @@ zrbgp_billing_detach() {
     }' > "${z_billing_body}" || buc_die "Failed to build billing detach body"
 
   local -r z_billing_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${RBDC_DEPOT_PROJECT_ID}:setBillingInfo"
-  rbgu_http_json "PUT" "${z_billing_url}" "${z_token}" \
+  rbuh_json "PUT" "${z_billing_url}" "${z_token}" \
                                   "${ZRBGP_INFIX_BILLING_DETACH}" "${z_billing_body}"
-  rbgu_http_require_ok "Detach billing account" "${ZRBGP_INFIX_BILLING_DETACH}"
+  rbuh_require_ok "Detach billing account" "${ZRBGP_INFIX_BILLING_DETACH}"
 
   buc_success "Billing account detached from project"
 }
@@ -398,12 +398,12 @@ zrbgp_liens_list() {
   buc_step "Listing liens on project: ${RBDC_DEPOT_PROJECT_ID}"
 
   local z_token
-  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
-  rbgu_http_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens?parent=projects/${RBDC_DEPOT_PROJECT_ID}" "${z_token}" "${ZRBGP_INFIX_LIST_LIENS}"
-  rbgu_http_require_ok "List liens" "${ZRBGP_INFIX_LIST_LIENS}"
+  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
+  rbuh_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens?parent=projects/${RBDC_DEPOT_PROJECT_ID}" "${z_token}" "${ZRBGP_INFIX_LIST_LIENS}"
+  rbuh_require_ok "List liens" "${ZRBGP_INFIX_LIST_LIENS}"
 
   local z_lien_count
-  z_lien_count=$(rbgu_json_field_capture "${ZRBGP_INFIX_LIST_LIENS}" '.liens // [] | length') || buc_die "Failed to parse liens response"
+  z_lien_count=$(rbuh_json_field_capture "${ZRBGP_INFIX_LIST_LIENS}" '.liens // [] | length') || buc_die "Failed to parse liens response"
 
   if test "${z_lien_count}" -eq 0; then
     buc_info "No liens found on project"
@@ -412,7 +412,7 @@ zrbgp_liens_list() {
 
   buc_step "Found ${z_lien_count} lien(s):"
   jq -r '.liens[]? | "  - " + .name + " (reason: " + .reason + ")"' \
-    "${ZRBGU_PREFIX}${ZRBGP_INFIX_LIST_LIENS}${ZRBGU_POSTFIX_JSON}" || true
+    "${ZRBUH_PREFIX}${ZRBGP_INFIX_LIST_LIENS}${ZRBUH_POSTFIX_JSON}" || true
 
   return 0
 }
@@ -431,9 +431,9 @@ zrbgp_lien_delete() {
   buc_step "Deleting lien: ${z_lien_name}"
 
   local z_token
-  z_token=$(rbgu_get_governor_token_capture) || buc_die "Failed to get admin token"
-  rbgu_http_json "DELETE" "${RBGC_API_CRM_DELETE_LIEN}/${z_lien_name}" "${z_token}" "${ZRBGP_INFIX_DELETE_LIEN}"
-  rbgu_http_require_ok "Delete lien" "${ZRBGP_INFIX_DELETE_LIEN}" 404 "not found (already deleted)"
+  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
+  rbuh_json "DELETE" "${RBGC_API_CRM_DELETE_LIEN}/${z_lien_name}" "${z_token}" "${ZRBGP_INFIX_DELETE_LIEN}"
+  rbuh_require_ok "Delete lien" "${ZRBGP_INFIX_DELETE_LIEN}" 404 "not found (already deleted)"
 
   buc_success "Lien deleted: ${z_lien_name}"
 }
@@ -465,14 +465,14 @@ zrbgp_required_apis_missing_capture() {
     z_service="${z_api##*/}"
     z_infix="${ZRBGP_INFIX_API_CHECK}_${z_service}"
 
-    rbgu_http_json "GET" "${z_api}" "${z_token}" "${z_infix}" || true
+    rbuh_json "GET" "${z_api}" "${z_token}" "${z_infix}" || true
 
     buc_log_args 'If we cannot even read an HTTP code file, that is a processing failure.'
-    z_code=$(rbgu_http_code_capture "${z_infix}") || z_code=""
+    z_code=$(rbuh_code_capture "${z_infix}") || z_code=""
     test -n "${z_code}" || return 1
 
     if test "${z_code}" = "200"; then
-      z_state=$(rbgu_json_field_capture "${z_infix}" ".state") || z_state=""
+      z_state=$(rbuh_json_field_capture "${z_infix}" ".state") || z_state=""
       test "${z_state}" = "ENABLED" || z_missing="${z_missing} ${z_service}"
     else
       buc_log_args 'Any non-200 (403/404/5xx/etc) => treat as NOT enabled'
@@ -487,13 +487,13 @@ zrbgp_get_project_number_capture() {
   zrbgp_sentinel
 
   local z_token
-  z_token=$(rbgu_get_governor_token_capture) || return 1
+  z_token=$(rba_get_governor_token_capture) || return 1
 
-  rbgu_http_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}${RBGC_PATH_PROJECTS}/${RBDC_DEPOT_PROJECT_ID}" "${z_token}" "${ZRBGP_INFIX_PROJECT_INFO}"
-  rbgu_http_require_ok "Get project info" "${ZRBGP_INFIX_PROJECT_INFO}" || return 1
+  rbuh_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}${RBGC_PATH_PROJECTS}/${RBDC_DEPOT_PROJECT_ID}" "${z_token}" "${ZRBGP_INFIX_PROJECT_INFO}"
+  rbuh_require_ok "Get project info" "${ZRBGP_INFIX_PROJECT_INFO}" || return 1
 
   local z_project_number
-  z_project_number=$(rbgu_json_field_capture "${ZRBGP_INFIX_PROJECT_INFO}" '.projectNumber') || return 1
+  z_project_number=$(rbuh_json_field_capture "${ZRBGP_INFIX_PROJECT_INFO}" '.projectNumber') || return 1
   test -n "${z_project_number}" || return 1
 
   echo "${z_project_number}"
@@ -519,10 +519,10 @@ zrbgp_create_gcs_bucket() {
   buc_log_args 'Send bucket creation request'
   local z_code
   local z_err
-  rbgu_http_json "POST" "${RBGC_API_GCS_BUCKETS}?project=${RBDC_DEPOT_PROJECT_ID}" "${z_token}" \
+  rbuh_json "POST" "${RBGC_API_GCS_BUCKETS}?project=${RBDC_DEPOT_PROJECT_ID}" "${z_token}" \
                                   "${ZRBGP_INFIX_BUCKET_CREATE}" "${z_bucket_req}"
-  z_code=$(rbgu_http_code_capture "${ZRBGP_INFIX_BUCKET_CREATE}") || buc_die "Bad bucket creation HTTP code"
-  z_err=$(rbgu_json_field_capture "${ZRBGP_INFIX_BUCKET_CREATE}" '.error.message') || z_err="HTTP ${z_code}"
+  z_code=$(rbuh_code_capture "${ZRBGP_INFIX_BUCKET_CREATE}") || buc_die "Bad bucket creation HTTP code"
+  z_err=$(rbuh_json_field_capture "${ZRBGP_INFIX_BUCKET_CREATE}" '.error.message') || z_err="HTTP ${z_code}"
 
   case "${z_code}" in
     200|201) buc_info "Bucket ${z_bucket_name} created";                         return 0 ;;
@@ -617,9 +617,9 @@ zrbgp_pool_build_submit_await() {
   local -r z_build_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/locations/${z_region}/builds"
   local -r z_infix="${z_infix_prefix}_${z_pool_variant}_submit"
 
-  rbgu_http_json "POST" "${z_build_url}" "${z_token}" "${z_infix}" "${z_build_json_file}"
+  rbuh_json "POST" "${z_build_url}" "${z_token}" "${z_infix}" "${z_build_json_file}"
   local z_submit_code
-  z_submit_code=$(rbgu_http_code_capture "${z_infix}") \
+  z_submit_code=$(rbuh_code_capture "${z_infix}") \
     || buc_die "Bad ${z_operation_label} submission HTTP code for ${z_pool_variant}"
 
   buc_info "${z_operation_label}: ${z_pool_variant}"
@@ -632,13 +632,13 @@ zrbgp_pool_build_submit_await() {
     200|201) : ;;
     *)
       local z_err
-      z_err=$(rbgu_json_field_capture "${z_infix}" '.error.message') || z_err="HTTP ${z_submit_code}"
+      z_err=$(rbuh_json_field_capture "${z_infix}" '.error.message') || z_err="HTTP ${z_submit_code}"
       buc_die "${z_operation_label} submission failed for ${z_pool_variant}: ${z_err}"
       ;;
   esac
 
   local z_build_id
-  z_build_id=$(rbgu_json_field_capture "${z_infix}" '.metadata.build.id') || z_build_id=""
+  z_build_id=$(rbuh_json_field_capture "${z_infix}" '.metadata.build.id') || z_build_id=""
   test -n "${z_build_id}" \
     || buc_die "${z_operation_label} submission for ${z_pool_variant} returned no build ID (HTTP ${z_submit_code})"
 
@@ -657,8 +657,8 @@ zrbgp_pool_build_submit_await() {
     test "${z_polls}" -le "${ZRBGP_POOL_BUILD_POLL_CEILING}" \
       || buc_die "${z_operation_label} ${z_pool_variant}: timeout after ${ZRBGP_POOL_BUILD_POLL_CEILING} polls (${ZRBGP_POOL_BUILD_POLL_INTERVAL_SEC}s interval); last status=${z_status}"
     z_poll_infix="${z_infix_prefix}_${z_pool_variant}_poll_${z_polls}"
-    rbgu_http_json "GET" "${z_build_get_url}" "${z_token}" "${z_poll_infix}"
-    z_status=$(rbgu_json_field_capture "${z_poll_infix}" '.status') || z_status="UNKNOWN"
+    rbuh_json "GET" "${z_build_get_url}" "${z_token}" "${z_poll_infix}"
+    z_status=$(rbuh_json_field_capture "${z_poll_infix}" '.status') || z_status="UNKNOWN"
     buc_info "  ${z_operation_label} ${z_pool_variant}: ${z_status} (poll ${z_polls}/${ZRBGP_POOL_BUILD_POLL_CEILING})"
   done
   buc_info "  ${z_operation_label} ${z_pool_variant}: terminal = ${z_status}"
@@ -950,21 +950,21 @@ rbgp_payor_install() {
   test -n "${z_access_token}" || buc_die "OAuth authentication test returned empty token"
   
   buc_step 'Discover operator email'
-  rbgu_http_json "GET" "${RBGC_OAUTH_USERINFO_URL}" "${z_access_token}" "payor_userinfo"
-  rbgu_http_require_ok "Discover operator email" "payor_userinfo"
+  rbuh_json "GET" "${RBGC_OAUTH_USERINFO_URL}" "${z_access_token}" "payor_userinfo"
+  rbuh_require_ok "Discover operator email" "payor_userinfo"
   local z_operator_email
-  z_operator_email=$(rbgu_json_field_capture "payor_userinfo" '.email') \
+  z_operator_email=$(rbuh_json_field_capture "payor_userinfo" '.email') \
     || buc_die "Userinfo response missing email — ensure OAuth scope includes email"
   test -n "${z_operator_email}" || buc_die "Userinfo response missing email"
   buc_info "Operator email: ${z_operator_email}"
 
   buc_step 'Verify payor project access'
   local -r z_project_info_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${z_project_id}"
-  rbgu_http_json "GET" "${z_project_info_url}" "${z_access_token}" "payor_verify" 
-  rbgu_http_require_ok "Verify payor project" "payor_verify"
+  rbuh_json "GET" "${z_project_info_url}" "${z_access_token}" "payor_verify" 
+  rbuh_require_ok "Verify payor project" "payor_verify"
   
   local z_project_state
-  z_project_state=$(rbgu_json_field_capture "payor_verify" '.lifecycleState') || buc_die "Failed to get project state"
+  z_project_state=$(rbuh_json_field_capture "payor_verify" '.lifecycleState') || buc_die "Failed to get project state"
   test "${z_project_state}" = "ACTIVE" || buc_die "Payor project is not ACTIVE (state: ${z_project_state})"
 
   buc_success "Payor OAuth installation completed successfully"
@@ -1025,11 +1025,11 @@ rbgp_depot_levy() {
 
   buc_step 'Validate region against Artifact Registry locations'
   local -r z_locations_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBRP_PAYOR_PROJECT_ID}/locations"
-  rbgu_http_json "GET" "${z_locations_url}" "${z_token}" "region_validation"
-  rbgu_http_require_ok "Validate region" "region_validation"
+  rbuh_json "GET" "${z_locations_url}" "${z_token}" "region_validation"
+  rbuh_require_ok "Validate region" "region_validation"
 
   local z_valid_regions
-  z_valid_regions=$(rbgu_json_field_capture "region_validation" '.locations[].locationId' | tr '\n' ' ') || buc_die "Failed to parse region list"
+  z_valid_regions=$(rbuh_json_field_capture "region_validation" '.locations[].locationId' | tr '\n' ' ') || buc_die "Failed to parse region list"
 
   if ! [[ " ${z_valid_regions} " =~ [[:space:]]${z_region}[[:space:]] ]]; then
     buc_die "Invalid region. Valid regions: ${z_valid_regions}"
@@ -1048,7 +1048,7 @@ rbgp_depot_levy() {
     }' > "${z_create_project_body}" || buc_die "Failed to build project creation body"
 
   local -r z_create_project_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects"
-  rbgu_http_json_lro_ok \
+  rbge_lro_ok \
     "Create depot project" \
     "${z_token}" \
     "${z_create_project_url}" \
@@ -1072,23 +1072,23 @@ rbgp_depot_levy() {
     }' > "${z_billing_body}" || buc_die "Failed to build billing link body"
 
   local -r z_billing_url="${RBGC_API_ROOT_CLOUDBILLING}${RBGC_CLOUDBILLING_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/billingInfo"
-  rbgu_http_json "PUT" "${z_billing_url}" "${z_token}" "depot_billing_link" "${z_billing_body}"
-  rbgu_http_require_ok "Link billing account" "depot_billing_link"
+  rbuh_json "PUT" "${z_billing_url}" "${z_token}" "depot_billing_link" "${z_billing_body}"
+  rbuh_require_ok "Link billing account" "depot_billing_link"
 
   buc_step 'Get depot project number'
   local -r z_project_info_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${RBDC_DEPOT_PROJECT_ID}"
-  rbgu_http_json "GET" "${z_project_info_url}" "${z_token}" "depot_project_info"
-  rbgu_http_require_ok "Get project info" "depot_project_info"
+  rbuh_json "GET" "${z_project_info_url}" "${z_token}" "depot_project_info"
+  rbuh_require_ok "Get project info" "depot_project_info"
 
   local z_project_number
   # CRM v3 returns project number in name field as "projects/{number}"
-  z_project_number=$(rbgu_json_field_capture "depot_project_info" '.name | sub("projects/"; "")') || buc_die "Failed to get project number"
+  z_project_number=$(rbuh_json_field_capture "depot_project_info" '.name | sub("projects/"; "")') || buc_die "Failed to get project number"
   test -n "${z_project_number}" || buc_die "Project number is empty"
 
   buc_step 'Enable depot project APIs'
   local -r z_api_services="artifactregistry cloudbuild cloudresourcemanager containeranalysis iam serviceusage storage"
   for z_service in ${z_api_services}; do
-    rbgu_api_enable "${z_service}" "${RBDC_DEPOT_PROJECT_ID}" "${z_token}"
+    rbge_api_enable "${z_service}" "${RBDC_DEPOT_PROJECT_ID}" "${z_token}"
   done
 
   buc_step 'Create dual worker pools (tether + airgap)'
@@ -1108,7 +1108,7 @@ rbgp_depot_levy() {
       }
     }' > "${z_tether_create_body}" || buc_die "Failed to build tether pool creation body"
 
-  rbgu_http_json_lro_ok \
+  rbge_lro_ok \
     "Create tether worker pool" \
     "${z_token}" \
     "${z_tether_create_url}" \
@@ -1137,7 +1137,7 @@ rbgp_depot_levy() {
       }
     }' > "${z_airgap_create_body}" || buc_die "Failed to build airgap pool creation body"
 
-  rbgu_http_json_lro_ok \
+  rbge_lro_ok \
     "Create airgap worker pool" \
     "${z_token}" \
     "${z_airgap_create_url}" \
@@ -1157,7 +1157,7 @@ rbgp_depot_levy() {
 
   buc_step 'Verify IAM propagation before resource creation'
   local -r z_preflight_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/locations/${z_region}/repositories"
-  rbgu_poll_until_ok "AR IAM propagation" "${z_preflight_url}" "${z_token}" "iam_preflight"
+  rbuh_poll_until_ok "AR IAM propagation" "${z_preflight_url}" "${z_token}" "iam_preflight"
 
   buc_step 'Create build bucket'
   local -r z_bucket_req="${BURD_TEMP_DIR}/rbgp_bucket_create_req.json"
@@ -1173,10 +1173,10 @@ rbgp_depot_levy() {
     }' > "${z_bucket_req}" || buc_die "Failed to create bucket request JSON"
 
   local -r z_bucket_create_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b?project=${RBDC_DEPOT_PROJECT_ID}"
-  rbgu_http_json "POST" "${z_bucket_create_url}" "${z_token}" "depot_bucket_create" "${z_bucket_req}"
+  rbuh_json "POST" "${z_bucket_create_url}" "${z_token}" "depot_bucket_create" "${z_bucket_req}"
 
   local z_bucket_code
-  z_bucket_code=$(rbgu_http_code_capture "depot_bucket_create") || buc_die "Bad bucket creation HTTP code"
+  z_bucket_code=$(rbuh_code_capture "depot_bucket_create") || buc_die "Bad bucket creation HTTP code"
   case "${z_bucket_code}" in
     200|201) buc_log_args "Build bucket ${RBDC_GCS_BUCKET} created" ;;
     409)     buc_die "Build bucket ${RBDC_GCS_BUCKET} already exists" ;;
@@ -1206,7 +1206,7 @@ rbgp_depot_levy() {
       }
     }' > "${z_create_repo_body}" || buc_die "Failed to build create-repo body"
 
-  rbgu_http_json_lro_ok \
+  rbge_lro_ok \
     "Create container repository" \
     "${z_token}" \
     "${z_create_repo_url}" \
@@ -1220,7 +1220,7 @@ rbgp_depot_levy() {
 
   buc_step 'Verify IAM API is ready for service account creation'
   local -r z_iam_preflight_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts"
-  rbgu_poll_until_ok "IAM API" "${z_iam_preflight_url}" "${z_token}" "iam_sa_preflight"
+  rbuh_poll_until_ok "IAM API" "${z_iam_preflight_url}" "${z_token}" "iam_sa_preflight"
 
   buc_step 'Create Mason service account'
   local -r z_mason_name="${RBCC_account_mason}-${RBRD_DEPOT_MONIKER}"
@@ -1238,15 +1238,15 @@ rbgp_depot_levy() {
     }' > "${z_create_sa_body}" || buc_die "Failed to build Mason creation body"
 
   local -r z_create_sa_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts"
-  rbgu_http_json "POST" "${z_create_sa_url}" "${z_token}" "depot_mason_create" "${z_create_sa_body}"
-  rbgu_http_require_ok "Create Mason service account" "depot_mason_create"
+  rbuh_json "POST" "${z_create_sa_url}" "${z_token}" "depot_mason_create" "${z_create_sa_body}"
+  rbuh_require_ok "Create Mason service account" "depot_mason_create"
 
   local z_mason_sa_email
-  z_mason_sa_email=$(rbgu_json_field_capture "depot_mason_create" '.email') || buc_die "Failed to get Mason email"
+  z_mason_sa_email=$(rbuh_json_field_capture "depot_mason_create" '.email') || buc_die "Failed to get Mason email"
 
   buc_step 'Verify Mason service account propagation'
   local -r z_mason_sa_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts/${z_mason_sa_email}"
-  rbgu_poll_until_ok "Mason SA" "${z_mason_sa_url}" "${z_token}" "mason_sa_preflight"
+  rbuh_poll_until_ok "Mason SA" "${z_mason_sa_url}" "${z_token}" "mason_sa_preflight"
 
   buc_step 'Configure Mason permissions'
   # Repository admin (AR repo IAM requires email, not numeric ID)
@@ -1269,7 +1269,7 @@ rbgp_depot_levy() {
   # needs serviceAccountTokenCreator on Mason to impersonate it during builds.create.
   # The service agent is auto-created when the Cloud Build API is enabled; its email is
   # deterministic from the project number. See RBSCIP for the two-SA distinction.
-  rbgu_provision_service_agent "cloudbuild" "${RBDC_DEPOT_PROJECT_ID}" "${z_token}" > /dev/null \
+  rbgi_provision_service_agent "cloudbuild" "${RBDC_DEPOT_PROJECT_ID}" "${z_token}" > /dev/null \
     || buc_die "Failed to provision Cloud Build service agent"
   local -r z_cb_service_agent="service-${z_project_number}@gcp-sa-cloudbuild.${RBGC_SA_EMAIL_DOMAIN}"
   buc_log_args "CB service agent: ${z_cb_service_agent}"
@@ -1340,11 +1340,11 @@ rbgp_depot_unmake() {
 
   buc_step 'Validate target depot'
   local -r z_project_info_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_project_id}"
-  rbgu_http_json "GET" "${z_project_info_url}" "${z_token}" "depot_destroy_validate"
-  rbgu_http_require_ok "Validate depot project" "depot_destroy_validate"
+  rbuh_json "GET" "${z_project_info_url}" "${z_token}" "depot_destroy_validate"
+  rbuh_require_ok "Validate depot project" "depot_destroy_validate"
 
   local z_lifecycle_state
-  z_lifecycle_state=$(rbgu_json_field_capture "depot_destroy_validate" '.state // "UNKNOWN"') || buc_die "Failed to parse project state"
+  z_lifecycle_state=$(rbuh_json_field_capture "depot_destroy_validate" '.state // "UNKNOWN"') || buc_die "Failed to parse project state"
 
   if test "${z_lifecycle_state}" != "ACTIVE"; then
     if test "${z_lifecycle_state}" = "DELETE_REQUESTED"; then
@@ -1359,7 +1359,7 @@ rbgp_depot_unmake() {
   # protecting non-depot projects in the Payor's account from accidental
   # destruction once unmake is decoupled from RBRR.
   local z_display_name
-  z_display_name=$(rbgu_json_field_capture "depot_destroy_validate" '.displayName // ""') || buc_die "Failed to parse displayName"
+  z_display_name=$(rbuh_json_field_capture "depot_destroy_validate" '.displayName // ""') || buc_die "Failed to parse displayName"
   local -r z_display_prefix="${RBGC_DEPOT_DISPLAY_PREFIX} "
   if [[ "${z_display_name}" != "${z_display_prefix}"* ]]; then
     buc_warn "Project displayName does not match depot anchor: ${z_display_name}"
@@ -1394,33 +1394,33 @@ rbgp_depot_unmake() {
   while :; do
     z_unmake_sa_url="${z_unmake_sa_url_base}"
     if test -n "${z_unmake_sa_page_token}"; then
-      z_unmake_sa_tok_enc=$(rbgu_urlencode_capture "${z_unmake_sa_page_token}") \
+      z_unmake_sa_tok_enc=$(rbuh_urlencode_capture "${z_unmake_sa_page_token}") \
         || buc_die "Failed to URL-encode pageToken"
       z_unmake_sa_url="${z_unmake_sa_url}?pageToken=${z_unmake_sa_tok_enc}"
     fi
     z_unmake_sa_infix="depot_unmake_gov_list_${z_unmake_sa_page}"
-    rbgu_http_json "GET" "${z_unmake_sa_url}" "${z_token}" "${z_unmake_sa_infix}"
-    rbgu_http_require_ok "List service accounts (page ${z_unmake_sa_page})" "${z_unmake_sa_infix}"
+    rbuh_json "GET" "${z_unmake_sa_url}" "${z_token}" "${z_unmake_sa_infix}"
+    rbuh_require_ok "List service accounts (page ${z_unmake_sa_page})" "${z_unmake_sa_infix}"
 
-    z_unmake_sa_count=$(rbgu_json_field_capture "${z_unmake_sa_infix}" '.accounts // [] | length') \
+    z_unmake_sa_count=$(rbuh_json_field_capture "${z_unmake_sa_infix}" '.accounts // [] | length') \
       || buc_die "Failed to parse SA list"
 
     z_unmake_sa_index=0
     while test "${z_unmake_sa_index}" -lt "${z_unmake_sa_count}"; do
-      z_unmake_sa_email=$(rbgu_json_field_capture "${z_unmake_sa_infix}" ".accounts[${z_unmake_sa_index}].email") \
+      z_unmake_sa_email=$(rbuh_json_field_capture "${z_unmake_sa_infix}" ".accounts[${z_unmake_sa_index}].email") \
         || { z_unmake_sa_index=$((z_unmake_sa_index + 1)); continue; }
       if [[ "${z_unmake_sa_email}" == ${RBCC_account_governor}-* ]]; then
         buc_log_args "Deleting governor SA: ${z_unmake_sa_email}"
         z_unmake_gov_delete_infix="depot_unmake_gov_delete_${z_governor_sa_count}"
-        rbgu_http_json "DELETE" "${z_unmake_sa_url_base}/${z_unmake_sa_email}" "${z_token}" "${z_unmake_gov_delete_infix}"
-        rbgu_http_require_ok "Delete governor SA ${z_unmake_sa_email}" "${z_unmake_gov_delete_infix}" \
+        rbuh_json "DELETE" "${z_unmake_sa_url_base}/${z_unmake_sa_email}" "${z_token}" "${z_unmake_gov_delete_infix}"
+        rbuh_require_ok "Delete governor SA ${z_unmake_sa_email}" "${z_unmake_gov_delete_infix}" \
           404 "not found (already deleted)"
         z_governor_sa_count=$((z_governor_sa_count + 1))
       fi
       z_unmake_sa_index=$((z_unmake_sa_index + 1))
     done
 
-    z_unmake_sa_page_token=$(rbgu_json_field_capture "${z_unmake_sa_infix}" '.nextPageToken') \
+    z_unmake_sa_page_token=$(rbuh_json_field_capture "${z_unmake_sa_infix}" '.nextPageToken') \
       || z_unmake_sa_page_token=""
     test -n "${z_unmake_sa_page_token}" || break
     z_unmake_sa_page=$((z_unmake_sa_page + 1))
@@ -1429,23 +1429,23 @@ rbgp_depot_unmake() {
 
   buc_step 'Check for and remove liens'
   local -r z_liens_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens?parent=projects%2F${z_project_id}"
-  rbgu_http_json "GET" "${z_liens_url}" "${z_token}" "depot_destroy_liens_list"
-  rbgu_http_require_ok "List liens" "depot_destroy_liens_list"
+  rbuh_json "GET" "${z_liens_url}" "${z_token}" "depot_destroy_liens_list"
+  rbuh_require_ok "List liens" "depot_destroy_liens_list"
   
   local z_lien_count
-  z_lien_count=$(rbgu_json_field_capture "depot_destroy_liens_list" '.liens // [] | length') || buc_die "Failed to parse liens response"
+  z_lien_count=$(rbuh_json_field_capture "depot_destroy_liens_list" '.liens // [] | length') || buc_die "Failed to parse liens response"
   
   if test "${z_lien_count}" -gt 0; then
     buc_log_args "Found ${z_lien_count} lien(s) - removing them"
     local z_lien_names
-    z_lien_names=$(rbgu_json_field_capture "depot_destroy_liens_list" '.liens[].name' | tr '\n' ' ') || buc_die "Failed to extract lien names"
+    z_lien_names=$(rbuh_json_field_capture "depot_destroy_liens_list" '.liens[].name' | tr '\n' ' ') || buc_die "Failed to extract lien names"
     
     for z_lien_name in ${z_lien_names}; do
       if test -n "${z_lien_name}"; then
         buc_log_args "Removing lien: ${z_lien_name}"
         local z_delete_lien_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens/${z_lien_name}"
-        rbgu_http_json "DELETE" "${z_delete_lien_url}" "${z_token}" "depot_destroy_lien_delete"
-        rbgu_http_require_ok "Delete lien" "depot_destroy_lien_delete"
+        rbuh_json "DELETE" "${z_delete_lien_url}" "${z_token}" "depot_destroy_lien_delete"
+        rbuh_require_ok "Delete lien" "depot_destroy_lien_delete"
       fi
     done
   fi
@@ -1455,10 +1455,10 @@ rbgp_depot_unmake() {
   echo '{"billingAccountName":""}' > "${z_billing_unlink_body}" || buc_die "Failed to build billing unlink body"
 
   local -r z_billing_unlink_url="${RBGC_API_ROOT_CLOUDBILLING}${RBGC_CLOUDBILLING_V1}/projects/${z_project_id}/billingInfo"
-  rbgu_http_json "PUT" "${z_billing_unlink_url}" "${z_token}" "depot_destroy_billing_unlink" "${z_billing_unlink_body}"
+  rbuh_json "PUT" "${z_billing_unlink_url}" "${z_token}" "depot_destroy_billing_unlink" "${z_billing_unlink_body}"
 
   local z_billing_unlink_code
-  z_billing_unlink_code=$(rbgu_http_code_capture "depot_destroy_billing_unlink") || z_billing_unlink_code=""
+  z_billing_unlink_code=$(rbuh_code_capture "depot_destroy_billing_unlink") || z_billing_unlink_code=""
   if test "${z_billing_unlink_code}" = "200"; then
     buc_log_args "Billing account unlinked - quota released"
   else
@@ -1469,9 +1469,9 @@ rbgp_depot_unmake() {
   # Delete tether pool
   local -r z_tether_del_id="${z_pool_stem}${RBGC_POOL_SUFFIX_TETHER}"
   local -r z_tether_del_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${z_project_id}/locations/${RBRD_GCP_REGION}${RBGC_PATH_WORKER_POOLS}/${z_tether_del_id}"
-  rbgu_http_json "DELETE" "${z_tether_del_url}" "${z_token}" "depot_destroy_pool_tether"
+  rbuh_json "DELETE" "${z_tether_del_url}" "${z_token}" "depot_destroy_pool_tether"
   local z_tether_del_code
-  z_tether_del_code=$(rbgu_http_code_capture "depot_destroy_pool_tether") || z_tether_del_code=""
+  z_tether_del_code=$(rbuh_code_capture "depot_destroy_pool_tether") || z_tether_del_code=""
   case "${z_tether_del_code}" in
     200|204|404) buc_log_args "Tether pool ${z_tether_del_id} cleanup: HTTP ${z_tether_del_code}" ;;
     *) buc_warn "Tether pool cleanup failed: HTTP ${z_tether_del_code} — proceeding" ;;
@@ -1480,9 +1480,9 @@ rbgp_depot_unmake() {
   # Delete airgap pool
   local -r z_airgap_del_id="${z_pool_stem}${RBGC_POOL_SUFFIX_AIRGAP}"
   local -r z_airgap_del_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${z_project_id}/locations/${RBRD_GCP_REGION}${RBGC_PATH_WORKER_POOLS}/${z_airgap_del_id}"
-  rbgu_http_json "DELETE" "${z_airgap_del_url}" "${z_token}" "depot_destroy_pool_airgap"
+  rbuh_json "DELETE" "${z_airgap_del_url}" "${z_token}" "depot_destroy_pool_airgap"
   local z_airgap_del_code
-  z_airgap_del_code=$(rbgu_http_code_capture "depot_destroy_pool_airgap") || z_airgap_del_code=""
+  z_airgap_del_code=$(rbuh_code_capture "depot_destroy_pool_airgap") || z_airgap_del_code=""
   case "${z_airgap_del_code}" in
     200|204|404) buc_log_args "Airgap pool ${z_airgap_del_id} cleanup: HTTP ${z_airgap_del_code}" ;;
     *) buc_warn "Airgap pool cleanup failed: HTTP ${z_airgap_del_code} — proceeding" ;;
@@ -1490,16 +1490,16 @@ rbgp_depot_unmake() {
 
   buc_step 'Initiate depot deletion'
   local -r z_delete_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_project_id}"
-  rbgu_http_json "DELETE" "${z_delete_url}" "${z_token}" "depot_destroy_delete"
+  rbuh_json "DELETE" "${z_delete_url}" "${z_token}" "depot_destroy_delete"
   
   local z_delete_response
-  z_delete_response=$(rbgu_http_code_capture "depot_destroy_delete") || buc_die "Failed to get deletion response code"
+  z_delete_response=$(rbuh_code_capture "depot_destroy_delete") || buc_die "Failed to get deletion response code"
   
   if test "${z_delete_response}" = "200" || test "${z_delete_response}" = "204"; then
     buc_log_args "Project deletion initiated successfully"
   else
     local z_error_msg
-    z_error_msg=$(rbgu_json_field_capture "depot_destroy_delete" '.error.message // "Unknown error"') || z_error_msg="HTTP ${z_delete_response}"
+    z_error_msg=$(rbuh_json_field_capture "depot_destroy_delete" '.error.message // "Unknown error"') || z_error_msg="HTTP ${z_delete_response}"
     buc_die "Failed to initiate project deletion: ${z_error_msg}"
   fi
 
@@ -1512,12 +1512,12 @@ rbgp_depot_unmake() {
     sleep 5
     buc_log_args "Checking deletion state (attempt ${z_attempt}/${z_max_attempts})"
     
-    rbgu_http_json "GET" "${z_project_info_url}" "${z_token}" "depot_destroy_state_check"
+    rbuh_json "GET" "${z_project_info_url}" "${z_token}" "depot_destroy_state_check"
 
     local z_state_check_code
-    z_state_check_code=$(rbgu_http_code_capture "depot_destroy_state_check") || z_state_check_code=""
+    z_state_check_code=$(rbuh_code_capture "depot_destroy_state_check") || z_state_check_code=""
     if test "${z_state_check_code}" = "200"; then
-      z_final_state=$(rbgu_json_field_capture "depot_destroy_state_check" '.state // "UNKNOWN"') || z_final_state="UNKNOWN"
+      z_final_state=$(rbuh_json_field_capture "depot_destroy_state_check" '.state // "UNKNOWN"') || z_final_state="UNKNOWN"
 
       if test "${z_final_state}" = "DELETE_REQUESTED"; then
         break
@@ -1700,11 +1700,11 @@ rbgp_governor_mantle() {
 
   buc_step 'Validate depot project exists and is active'
   local -r z_project_info_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_depot_project_id}"
-  rbgu_http_json "GET" "${z_project_info_url}" "${z_token}" "${ZRBGP_INFIX_PROJECT_INFO}"
-  rbgu_http_require_ok "Validate depot project" "${ZRBGP_INFIX_PROJECT_INFO}"
+  rbuh_json "GET" "${z_project_info_url}" "${z_token}" "${ZRBGP_INFIX_PROJECT_INFO}"
+  rbuh_require_ok "Validate depot project" "${ZRBGP_INFIX_PROJECT_INFO}"
 
   local z_lifecycle_state
-  z_lifecycle_state=$(rbgu_json_field_capture "${ZRBGP_INFIX_PROJECT_INFO}" '.state') || buc_die "Failed to get project state"
+  z_lifecycle_state=$(rbuh_json_field_capture "${ZRBGP_INFIX_PROJECT_INFO}" '.state') || buc_die "Failed to get project state"
   test "${z_lifecycle_state}" = "ACTIVE" || buc_die "Depot project is not ACTIVE (state: ${z_lifecycle_state})"
 
   test "${z_depot_project_id}" != "${RBRP_PAYOR_PROJECT_ID}" || buc_die "Cannot create Governor in Payor project"
@@ -1726,26 +1726,26 @@ rbgp_governor_mantle() {
   while :; do
     z_mantle_sa_url="${z_sa_list_url}"
     if test -n "${z_mantle_sa_page_token}"; then
-      z_mantle_sa_tok_enc=$(rbgu_urlencode_capture "${z_mantle_sa_page_token}") \
+      z_mantle_sa_tok_enc=$(rbuh_urlencode_capture "${z_mantle_sa_page_token}") \
         || buc_die "Failed to URL-encode pageToken"
       z_mantle_sa_url="${z_mantle_sa_url}?pageToken=${z_mantle_sa_tok_enc}"
     fi
     z_mantle_sa_infix="${ZRBGP_INFIX_GOV_LIST_SA}_${z_mantle_sa_page}"
-    rbgu_http_json "GET" "${z_mantle_sa_url}" "${z_token}" "${z_mantle_sa_infix}"
-    rbgu_http_require_ok "List service accounts (page ${z_mantle_sa_page})" "${z_mantle_sa_infix}"
+    rbuh_json "GET" "${z_mantle_sa_url}" "${z_token}" "${z_mantle_sa_infix}"
+    rbuh_require_ok "List service accounts (page ${z_mantle_sa_page})" "${z_mantle_sa_infix}"
 
-    z_mantle_sa_count=$(rbgu_json_field_capture "${z_mantle_sa_infix}" '.accounts // [] | length') \
+    z_mantle_sa_count=$(rbuh_json_field_capture "${z_mantle_sa_infix}" '.accounts // [] | length') \
       || buc_die "Failed to parse SA list"
 
     z_mantle_sa_index=0
     while test "${z_mantle_sa_index}" -lt "${z_mantle_sa_count}"; do
-      z_mantle_sa_email=$(rbgu_json_field_capture "${z_mantle_sa_infix}" ".accounts[${z_mantle_sa_index}].email") \
+      z_mantle_sa_email=$(rbuh_json_field_capture "${z_mantle_sa_infix}" ".accounts[${z_mantle_sa_index}].email") \
         || { z_mantle_sa_index=$((z_mantle_sa_index + 1)); continue; }
       if [[ "${z_mantle_sa_email}" == ${RBCC_account_governor}-* ]]; then
         buc_log_args "Deleting existing governor SA: ${z_mantle_sa_email}"
         z_mantle_delete_infix="${ZRBGP_INFIX_GOV_DELETE_SA}_${z_mantle_delete_attempt}"
-        rbgu_http_json "DELETE" "${z_sa_list_url}/${z_mantle_sa_email}" "${z_token}" "${z_mantle_delete_infix}"
-        z_mantle_delete_code=$(rbgu_http_code_capture "${z_mantle_delete_infix}") || z_mantle_delete_code=""
+        rbuh_json "DELETE" "${z_sa_list_url}/${z_mantle_sa_email}" "${z_token}" "${z_mantle_delete_infix}"
+        z_mantle_delete_code=$(rbuh_code_capture "${z_mantle_delete_infix}") || z_mantle_delete_code=""
         case "${z_mantle_delete_code}" in
           200|204) z_deleted_count=$((z_deleted_count + 1)) ;;
           404)     buc_log_args "SA already deleted: ${z_mantle_sa_email}" ;;
@@ -1756,7 +1756,7 @@ rbgp_governor_mantle() {
       z_mantle_sa_index=$((z_mantle_sa_index + 1))
     done
 
-    z_mantle_sa_page_token=$(rbgu_json_field_capture "${z_mantle_sa_infix}" '.nextPageToken') \
+    z_mantle_sa_page_token=$(rbuh_json_field_capture "${z_mantle_sa_infix}" '.nextPageToken') \
       || z_mantle_sa_page_token=""
     test -n "${z_mantle_sa_page_token}" || break
     z_mantle_sa_page=$((z_mantle_sa_page + 1))
@@ -1771,7 +1771,7 @@ rbgp_governor_mantle() {
   z_timestamp=$(<"${ZRBGP_SCRATCH_FILE}")
   local -r z_governor_account_id="${RBCC_account_governor}-${z_timestamp}"
   local z_governor_email
-  z_governor_email=$(rbgu_sa_email_capture "${z_governor_account_id}" "${z_depot_project_id}") \
+  z_governor_email=$(rbgi_sa_email_capture "${z_governor_account_id}" "${z_depot_project_id}") \
     || buc_die "Failed to compose Governor email"
 
   buc_log_args "Governor account ID: ${z_governor_account_id}"
@@ -1788,15 +1788,15 @@ rbgp_governor_mantle() {
       }
     }' > "${z_create_sa_body}" || buc_die "Failed to build Governor creation body"
 
-  rbgu_http_json "POST" "${z_sa_list_url}" "${z_token}" "${ZRBGP_INFIX_GOV_CREATE_SA}" "${z_create_sa_body}"
-  rbgu_http_require_ok "Create Governor service account" "${ZRBGP_INFIX_GOV_CREATE_SA}"
+  rbuh_json "POST" "${z_sa_list_url}" "${z_token}" "${ZRBGP_INFIX_GOV_CREATE_SA}" "${z_create_sa_body}"
+  rbuh_require_ok "Create Governor service account" "${ZRBGP_INFIX_GOV_CREATE_SA}"
 
   buc_log_args "Governor service account created: ${z_governor_email}"
   buf_write_fact_single "${RBGP_FACT_GOVERNOR_SA_EMAIL}" "${z_governor_email}"
 
   buc_step 'Wait for Governor SA propagation'
   local -r z_verify_url="${z_sa_list_url}/${z_governor_email}"
-  rbgu_poll_until_ok "Governor SA" "${z_verify_url}" "${z_token}" "gov_verify"
+  rbuh_poll_until_ok "Governor SA" "${z_verify_url}" "${z_token}" "gov_verify"
 
   # No fixed sleep needed: rbgi_add_project_iam_role retries on "does not exist"
   # propagation errors with exponential backoff (see RBSCIP trade study)
@@ -1821,9 +1821,9 @@ rbgp_governor_mantle() {
   while :; do
     z_key_attempt=$((z_key_attempt + 1))
     z_gov_key_infix="${ZRBGP_INFIX_GOV_KEY}-attempt${z_key_attempt}"
-    rbgu_http_json "POST" "${z_key_url}" "${z_token}" "${z_gov_key_infix}" "${z_key_req}"
+    rbuh_json "POST" "${z_key_url}" "${z_token}" "${z_gov_key_infix}" "${z_key_req}"
 
-    z_key_code=$(rbgu_http_code_capture "${z_gov_key_infix}") || z_key_code=""
+    z_key_code=$(rbuh_code_capture "${z_gov_key_infix}") || z_key_code=""
 
     if test "${z_key_code}" = "200"; then
       break
@@ -1835,12 +1835,12 @@ rbgp_governor_mantle() {
       continue
     fi
 
-    rbgu_http_require_ok "Generate Governor key" "${z_gov_key_infix}"
+    rbuh_require_ok "Generate Governor key" "${z_gov_key_infix}"
   done
 
   buc_step 'Extract and decode key data'
   local z_key_b64
-  z_key_b64=$(rbgu_json_field_capture "${z_gov_key_infix}" '.privateKeyData') \
+  z_key_b64=$(rbuh_json_field_capture "${z_gov_key_infix}" '.privateKeyData') \
     || buc_die "Failed to extract privateKeyData"
 
   # Decode into the assay subdirectory (RBRR_SECRETS_DIR/assay/) so the

@@ -212,25 +212,25 @@ zrbfd_quota_preflight() {
   local -r z_url="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1BETA1}/projects/${RBDC_DEPOT_PROJECT_ID}/services/cloudbuild.googleapis.com/consumerQuotaMetrics/${z_metric_encoded}"
 
   buc_step "Checking concurrent build quota"
-  rbgu_http_json "GET" "${z_url}" "${z_token}" "quota_preflight"
+  rbuh_json "GET" "${z_url}" "${z_token}" "quota_preflight"
 
   local z_code=""
-  z_code=$(rbgu_http_code_capture "quota_preflight") || z_code=""
+  z_code=$(rbuh_code_capture "quota_preflight") || z_code=""
   if test "${z_code}" != "200"; then
     buc_warn "Could not query build quota (HTTP ${z_code}) -- skipping preflight check"
     return 0
   fi
 
   # Filter quota response to region-specific bucket via intermediate file
-  rbgu_jq_file_to_file_ok "quota_preflight" "quota_region" \
+  rbuh_jq_file_to_file_ok "quota_preflight" "quota_region" \
     "[.consumerQuotaLimits[0].quotaBuckets[] | select(.dimensions.region == \"${RBRD_GCP_REGION}\")] | .[0] // {}" \
     || true
 
   # Extract effective limit from region bucket, then fallback to first bucket
   local z_limit=""
-  z_limit=$(rbgu_json_field_capture "quota_region" '.effectiveLimit') || z_limit=""
+  z_limit=$(rbuh_json_field_capture "quota_region" '.effectiveLimit') || z_limit=""
   if test -z "${z_limit}"; then
-    z_limit=$(rbgu_json_field_capture "quota_preflight" \
+    z_limit=$(rbuh_json_field_capture "quota_preflight" \
       '.consumerQuotaLimits[0].quotaBuckets[0].effectiveLimit') || z_limit=""
   fi
 
@@ -1043,12 +1043,12 @@ zrbfd_enshrine_submit() {
   rbrd_check "${z_token}"
 
   buc_step "Submitting enshrine Cloud Build"
-  rbgu_http_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+  rbuh_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
     "enshrine_build_create" "${z_build_file}"
-  rbgu_http_require_ok "Enshrine build submission" "enshrine_build_create"
+  rbuh_require_ok "Enshrine build submission" "enshrine_build_create"
 
   local z_build_id=""
-  z_build_id=$(rbgu_json_field_capture "enshrine_build_create" '.metadata.build.id') || z_build_id=""
+  z_build_id=$(rbuh_json_field_capture "enshrine_build_create" '.metadata.build.id') || z_build_id=""
   test -n "${z_build_id}" || buc_die "Build ID not found in builds.create response"
   echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
 
@@ -1283,13 +1283,13 @@ rbfd_build() {
 
   # Submit via builds.create (no source — context delivered via GAR image)
   buc_step "Submitting build via builds.create"
-  rbgu_http_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+  rbuh_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
     "build_direct_create" "${z_build_file}"
-  rbgu_http_require_ok "Direct build submission" "build_direct_create"
+  rbuh_require_ok "Direct build submission" "build_direct_create"
 
   # Extract build ID from Operation response
   local z_build_id=""
-  z_build_id=$(rbgu_json_field_capture "build_direct_create" '.metadata.build.id') || z_build_id=""
+  z_build_id=$(rbuh_json_field_capture "build_direct_create" '.metadata.build.id') || z_build_id=""
   test -n "${z_build_id}" || buc_die "Build ID not found in builds.create response"
   echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
 
@@ -1612,12 +1612,12 @@ zrbfd_mirror_submit() {
   rbrd_check "${z_token}"
 
   buc_step "Submitting combined mirror Cloud Build"
-  rbgu_http_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+  rbuh_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
     "mirror_build_create" "${z_mirror_build_file}"
-  rbgu_http_require_ok "Mirror build submission" "mirror_build_create"
+  rbuh_require_ok "Mirror build submission" "mirror_build_create"
 
   local z_build_id=""
-  z_build_id=$(rbgu_json_field_capture "mirror_build_create" '.metadata.build.id') || z_build_id=""
+  z_build_id=$(rbuh_json_field_capture "mirror_build_create" '.metadata.build.id') || z_build_id=""
   test -n "${z_build_id}" || buc_die "Build ID not found in builds.create response"
   echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
 
