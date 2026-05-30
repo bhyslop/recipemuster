@@ -1,3 +1,12 @@
+# Heat Trophy: rbk-16-gcp-hardening
+
+**Firemark:** ₣BR
+**Created:** 260521
+**Retired:** 260530
+**Status:** retired
+
+## Paddock
+
 ## Shape
 
 This heat hardens RBK against GCP behaviors that surface only under real-world churn. Current content: one problem — **depot projectId reservation collisions**.
@@ -22,3 +31,30 @@ Low urgency. Same-identity churn already self-heals; the residual collision recu
 ## What done looks like
 
 A decision on fix surface (fixture vs production) and fix shape (probe vs guidance), then the implementation plus matching spec update. Until then, paces stay uncut.
+
+## Paces
+
+## Commit Activity
+
+```
+File-touch bitmap: (no work file changes)
+```
+
+## Steeplechase
+
+### 2026-05-28 09:19 - Heat - n
+
+Commit the operator-credential-models memo as a committed two-tier plan (keyfile free/no-org + Workforce federation paid/org-required), renamed from the federation-feasibility memo. Mode enum homed in RBRD (tamper-evident, depot-wide), RBRI eliminated, RBRA keyfile-only; single role-keyed token-accessor seam with refactor-first sequencing. Repoint RBSHR roadmap and the reorientation memo to the new filename and both-models framing.
+
+### 2026-05-21 16:20 - Heat - d
+
+paddock curried: capture allocator projectId-reservation problem; cross-identity scope; BCG-before-bash constraint
+
+### 2026-05-21 11:16 - Heat - f
+
+stabled
+
+### 2026-05-21 11:16 - Heat - N
+
+rbk-16-gcp-hardening
+

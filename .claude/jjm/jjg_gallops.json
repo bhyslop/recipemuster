@@ -7,7 +7,6 @@
     "₣BF",
     "₣BD",
     "₣BB",
-    "₣BR",
     "₣BN",
     "₣A-",
     "₣BG",
@@ -9738,14 +9737,6 @@
     "₣BN": {
       "jjghn_silks": "rbk-20-win-depot-regime",
       "jjghn_creation_time": "260514",
-      "jjghn_status": "jjghe_stabled",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
-    },
-    "₣BR": {
-      "jjghn_silks": "rbk-16-gcp-hardening",
-      "jjghn_creation_time": "260521",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [],
       "jjghn_next_pace_seed": "AAA",
