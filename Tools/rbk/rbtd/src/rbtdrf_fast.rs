@@ -30,14 +30,17 @@ use crate::rbtdgc_consts::{
     RBTDGC_HYGIENE_CHECK_DOCKERFILE,
     RBTDGC_HYGIENE_CHECK_VESSEL,
     RBTDGC_LIST_DEPOT,
+    RBTDGC_RBRS_FILE,
     RBTDGC_RENDER_NAMEPLATE,
     RBTDGC_RENDER_PAYOR,
     RBTDGC_RENDER_REPO,
+    RBTDGC_RENDER_STATION,
     RBTDGC_RENDER_VESSEL,
     RBTDGC_UNMAKE_DEPOT,
     RBTDGC_VALIDATE_NAMEPLATE,
     RBTDGC_VALIDATE_PAYOR,
     RBTDGC_VALIDATE_REPO,
+    RBTDGC_VALIDATE_STATION,
     RBTDGC_VALIDATE_VESSEL,
 };
 use crate::rbtdrm_manifest::{
@@ -1204,6 +1207,27 @@ fn rbtdrf_rs_burs(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_rs_render_validate(dir, "buw-rsr", "buw-rsv", "burs")
 }
 
+// The RBK station regime (RBRS) lives outside the repo, in the operator's
+// station-files tree — present only on a configured workstation. Unlike the
+// repo-baseline regimes above it self-skips when absent, so the fast suite
+// stays green on a fresh checkout while a configured station validates for
+// real. This is the surviving slice of the orphaned regime-credentials suite;
+// its RBRA/RBRO siblings are covered more strongly by the service-tier
+// access-probe, which mints real tokens against those credentials.
+fn rbtdrf_rs_rbrs(dir: &Path) -> rbtdre_Verdict {
+    let root = match std::env::current_dir() {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+    };
+    if !root.join(RBTDGC_RBRS_FILE).exists() {
+        return rbtdre_Verdict::Skip(format!(
+            "station file {} absent — requires a configured workstation",
+            RBTDGC_RBRS_FILE
+        ));
+    }
+    rbtdrf_rs_render_validate(dir, RBTDGC_RENDER_STATION, RBTDGC_VALIDATE_STATION, "rbrs")
+}
+
 fn rbtdrf_rs_rbrn(dir: &Path) -> rbtdre_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
@@ -1723,6 +1747,7 @@ pub static RBTDRF_CASES_REGIME_VALIDATION: &[rbtdre_Case] = &[
 pub static RBTDRF_CASES_REGIME_SMOKE: &[rbtdre_Case] = &[
     case!(rbtdrf_rs_burc),
     case!(rbtdrf_rs_burs),
+    case!(rbtdrf_rs_rbrs),
     case!(rbtdrf_rs_rbrn),
     case!(rbtdrf_rs_rbrr),
     case!(rbtdrf_rs_rbrr_nonempty_prefix),
