@@ -416,6 +416,26 @@ zrbfc_ensure_git_metadata() {
     || buc_die "Failed to write derived git repo"
 }
 
+# Internal: write a script's body (everything after the shebang line) to a file
+# using only builtins — the portable replacement for `tail -n +2 src > dst`.
+# Returns non-zero if the source is unreadable or the destination unwritable.
+zrbfc_write_script_body() {
+  local -r z_src="$1"
+  local -r z_dst="$2"
+  local z_line
+  local z_seen_shebang=""
+  test -r "${z_src}" || return 1
+  : > "${z_dst}"     || return 1
+  while IFS= read -r z_line || [ -n "${z_line}" ]; do
+    if [ -z "${z_seen_shebang}" ]; then
+      z_seen_shebang=1
+      continue
+    fi
+    printf '%s\n' "${z_line}" >> "${z_dst}"
+  done < "${z_src}"
+  return 0
+}
+
 # Internal: assemble about step scripts into JSON array file
 # Args: output_file temp_prefix
 # Reads ZRBFC_RBGJA_STEPS_DIR and z_rbfc_tool_* image refs from module state
@@ -458,7 +478,7 @@ zrbfc_assemble_about_steps() {
     test -f "${z_ascript_path}" || buc_die "About step script not found: ${z_ascript_path}"
 
     buc_log_args "Reading script body for ${z_aid} (skip shebang)"
-    tail -n +2 "${z_ascript_path}" > "${z_abody_file}" \
+    zrbfc_write_script_body "${z_ascript_path}" "${z_abody_file}" \
       || buc_die "Failed to read about step script: ${z_ascript_path}"
     z_abody=$(<"${z_abody_file}")
     test -n "${z_abody}" || buc_die "Empty about script body: ${z_ascript_path}"
@@ -529,7 +549,7 @@ zrbfc_assemble_vouch_steps() {
     test -f "${z_vscript_path}" || buc_die "Vouch step script not found: ${z_vscript_path}"
 
     buc_log_args "Reading script body for ${z_vid} (skip shebang)"
-    tail -n +2 "${z_vscript_path}" > "${z_vbody_file}" \
+    zrbfc_write_script_body "${z_vscript_path}" "${z_vbody_file}" \
       || buc_die "Failed to read vouch step script: ${z_vscript_path}"
     z_vbody=$(<"${z_vbody_file}")
     test -n "${z_vbody}" || buc_die "Empty vouch script body: ${z_vscript_path}"
@@ -576,7 +596,7 @@ zrbfc_assemble_preflight_step() {
   test -f "${z_pscript_path}" || buc_die "Preflight step script not found: ${z_pscript_path}"
 
   buc_log_args "Reading preflight step script (skip shebang)"
-  tail -n +2 "${z_pscript_path}" > "${z_pbody_file}" \
+  zrbfc_write_script_body "${z_pscript_path}" "${z_pbody_file}" \
     || buc_die "Failed to read preflight step script: ${z_pscript_path}"
   local z_pbody=""
   z_pbody=$(<"${z_pbody_file}")

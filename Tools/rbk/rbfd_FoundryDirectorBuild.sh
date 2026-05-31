@@ -581,7 +581,7 @@ zrbfd_stitch_build_json() {
     test -f "${z_script_path}" || buc_die "Step script not found: ${z_script_path}"
 
     buc_log_args "Reading script body for ${z_id} (skip shebang, comments pass through)"
-    tail -n +2 "${z_script_path}" > "${z_body_file}" || buc_die "Failed to read step script: ${z_script_path}"
+    zrbfc_write_script_body "${z_script_path}" "${z_body_file}" || buc_die "Failed to read step script: ${z_script_path}"
     z_body=$(<"${z_body_file}")
     test -n "${z_body}" || buc_die "Empty script body: ${z_script_path}"
 
@@ -953,7 +953,7 @@ zrbfd_enshrine_submit() {
   local -r z_escaped_file="${ZRBFD_ENSHRINE_PREFIX}escaped.txt"
 
   buc_log_args "Reading enshrine step script (skip shebang)"
-  tail -n +2 "${z_script_path}" > "${z_body_file}" \
+  zrbfc_write_script_body "${z_script_path}" "${z_body_file}" \
     || buc_die "Failed to read enshrine step script"
   local z_body=""
   z_body=$(<"${z_body_file}")
@@ -1473,7 +1473,7 @@ zrbfd_mirror_submit() {
   local -r z_mirror_step_built="${ZRBFD_MIRROR_PREFIX}mirror_step_built.json"
 
   buc_log_args "Reading mirror step script (skip shebang)"
-  tail -n +2 "${z_mscript_path}" > "${z_mbody_file}" \
+  zrbfc_write_script_body "${z_mscript_path}" "${z_mbody_file}" \
     || buc_die "Failed to read mirror step script"
   local z_mbody
   z_mbody=$(<"${z_mbody_file}")

@@ -88,7 +88,7 @@ zrbfl_inscribe_submit() {
   local -r z_escaped_file="${ZRBFL_RELIQUARY_PREFIX}escaped.txt"
 
   buc_log_args "Reading inscribe step script (skip shebang)"
-  tail -n +2 "${z_script_path}" > "${z_body_file}" \
+  zrbfc_write_script_body "${z_script_path}" "${z_body_file}" \
     || buc_die "Failed to read inscribe step script"
   local z_body=""
   z_body=$(<"${z_body_file}")
