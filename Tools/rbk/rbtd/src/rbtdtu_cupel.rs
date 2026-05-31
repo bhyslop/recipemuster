@@ -110,6 +110,27 @@ fn rbtdtu_arithmetic_not_scanned() {
 }
 
 #[test]
+fn rbtdtu_nested_arithmetic_parens_balanced() {
+    // Inner parens inside `$(( ... ))` must not terminate the arithmetic early.
+    let src = "z=$(( (0xFFFFFFFF << (32 - m)) & 0xFFFFFFFF ))\nmything";
+    assert_eq!(cmds(src), vec!["mything"]);
+}
+
+#[test]
+fn rbtdtu_array_literal_elements_not_commands() {
+    // `NAME=( ... )` is an array literal; its elements (including bare flags)
+    // are data, not commands.
+    let src = "OPTS=(-U -l -nn -vvv)\nmything";
+    assert_eq!(cmds(src), vec!["mything"]);
+}
+
+#[test]
+fn rbtdtu_multiline_array_literal() {
+    let src = "ARGS=(\n  -o IdentitiesOnly=yes\n  -o StrictHostKeyChecking=accept-new\n)\nmything";
+    assert_eq!(cmds(src), vec!["mything"]);
+}
+
+#[test]
 fn rbtdtu_line_numbers_tracked() {
     let got = zrbtdru_command_words("one\ntwo\nthree");
     assert_eq!(got, vec![

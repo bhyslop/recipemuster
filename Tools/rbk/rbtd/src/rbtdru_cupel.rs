@@ -77,6 +77,11 @@ pub(crate) const ZRBTDRU_SH_EXT: &str = "sh";
 /// as new rbgj* job groups are added.
 pub(crate) const ZRBTDRU_GCB_DIR_PREFIX: &str = "rbgj";
 
+/// Directory-name prefix marking abandoned code retained for reference but not
+/// maintained. Bash under any `ABANDONED*` directory is excluded from the walk
+/// — dead code is not held to the live command-dependency discipline.
+pub(crate) const ZRBTDRU_ABANDONED_DIR_PREFIX: &str = "ABANDONED";
+
 // ── BCG allowlists (source of truth: BCG + RBS0 Dependency Inventory) ──
 
 /// POSIX Utility Allowlist — the irreducible external-command floor. No bash
@@ -284,6 +289,46 @@ pub(crate) fn zrbtdru_is_assignment(word: &str) -> bool {
     false
 }
 
+/// Advance `*i` past a balanced run of parentheses, tracking newlines in
+/// `*line`. `depth` is the count of opening parens already consumed by the
+/// caller; scanning ends when it returns to zero. Quoted segments are skipped
+/// so parens inside strings do not affect the balance — covering array literals
+/// `NAME=( … )` and nested arithmetic `$(( ( … ) ))`.
+pub(crate) fn zrbtdru_skip_balanced_parens(chars: &[char], i: &mut usize, line: &mut usize, mut depth: usize) {
+    let n = chars.len();
+    while *i < n && depth > 0 {
+        match chars[*i] {
+            '(' => depth += 1,
+            ')' => depth -= 1,
+            '\n' => *line += 1,
+            '\'' => {
+                *i += 1;
+                while *i < n && chars[*i] != '\'' {
+                    if chars[*i] == '\n' {
+                        *line += 1;
+                    }
+                    *i += 1;
+                }
+            }
+            '"' => {
+                *i += 1;
+                while *i < n && chars[*i] != '"' {
+                    if chars[*i] == '\\' && *i + 1 < n {
+                        *i += 2;
+                        continue;
+                    }
+                    if chars[*i] == '\n' {
+                        *line += 1;
+                    }
+                    *i += 1;
+                }
+            }
+            _ => {}
+        }
+        *i += 1;
+    }
+}
+
 /// Extract every command-position token from a bash source string, paired with
 /// its 1-based line number. A token is in command position at the start of the
 /// script and after any command separator (`;`, `|`, `&`, `&&`, `||`, newline,
@@ -469,16 +514,9 @@ pub(crate) fn zrbtdru_command_words(src: &str) -> Vec<(usize, String)> {
         }
         if c == '(' {
             if i + 1 < n && chars[i + 1] == '(' {
+                // Arithmetic `(( … ))` — not a command list.
                 i += 2;
-                while i + 1 < n && !(chars[i] == ')' && chars[i + 1] == ')') {
-                    if chars[i] == '\n' {
-                        line += 1;
-                    }
-                    i += 1;
-                }
-                if i + 1 < n {
-                    i += 2;
-                }
+                zrbtdru_skip_balanced_parens(&chars, &mut i, &mut line, 2);
                 cmd_pos = false;
                 continue;
             }
@@ -511,16 +549,9 @@ pub(crate) fn zrbtdru_command_words(src: &str) -> Vec<(usize, String)> {
         if c == '$' {
             if i + 1 < n && chars[i + 1] == '(' {
                 if i + 2 < n && chars[i + 2] == '(' {
+                    // Arithmetic substitution `$(( … ))` — not a command.
                     i += 3;
-                    while i + 1 < n && !(chars[i] == ')' && chars[i + 1] == ')') {
-                        if chars[i] == '\n' {
-                            line += 1;
-                        }
-                        i += 1;
-                    }
-                    if i + 1 < n {
-                        i += 2;
-                    }
+                    zrbtdru_skip_balanced_parens(&chars, &mut i, &mut line, 2);
                     cmd_pos = false;
                     continue;
                 }
@@ -598,6 +629,15 @@ pub(crate) fn zrbtdru_command_words(src: &str) -> Vec<(usize, String)> {
             continue;
         }
         if zrbtdru_is_assignment(&word) {
+            // `NAME=( … )` array literal — the elements are data, not commands.
+            let mut j = i;
+            while j < n && (chars[j] == ' ' || chars[j] == '\t') {
+                j += 1;
+            }
+            if j < n && chars[j] == '(' {
+                i = j + 1;
+                zrbtdru_skip_balanced_parens(&chars, &mut i, &mut line, 1);
+            }
             continue;
         }
         match zrbtdru_keyword_kind(&word) {
@@ -710,6 +750,14 @@ fn zrbtdru_walk_sh(dir: &Path, out: &mut Vec<PathBuf>) {
     for entry in entries.flatten() {
         let path = entry.path();
         if path.is_dir() {
+            let abandoned = path
+                .file_name()
+                .and_then(|s| s.to_str())
+                .map(|s| s.starts_with(ZRBTDRU_ABANDONED_DIR_PREFIX))
+                .unwrap_or(false);
+            if abandoned {
+                continue;
+            }
             zrbtdru_walk_sh(&path, out);
         } else if path.extension().and_then(|e| e.to_str()) == Some(ZRBTDRU_SH_EXT) {
             out.push(path);
