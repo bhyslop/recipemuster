@@ -29,20 +29,24 @@
 //   - Eviction table — commands with builtin/declared replacements; enforced,
 //                     failing with BCG's prescribed replacement
 //
-// Algorithm — two-pass, function-aware. Pass 1 collects every locally-defined
-// function name across the whole corpus; pass 2 flags each command-position
-// token not in {bash builtins, local functions, POSIX floor, declared deps},
-// failing-with-replacement on the eviction table. Soundness rests on the corpus
-// already being shellcheck-clean (rbq_qualify_fast), so a command-position
-// lexer suffices — no full shell parser.
+// Algorithm — two-pass, function-aware, with asymmetric scope. Pass 1 collects
+// every locally-defined function name across the WHOLE corpus (all kits, minus
+// dead ABANDONED code) so that cross-kit and sourced names resolve; pass 2 lints
+// only the release kit roots, flagging each command-position token not in {bash
+// builtins, local functions, POSIX floor, declared deps} and failing-with-
+// replacement on the eviction table. Soundness rests on the corpus already being
+// shellcheck-clean (rbq_qualify_fast), so a command-position lexer suffices — no
+// full shell parser.
 //
 // Corpus scope — only the release-relevant kit roots (Tools/buk, Tools/rbk) are
 // linted. These are the kits that ship in the recipe-bottle consumer release and
 // are authored under BCG; other kits under Tools/ are separate products never
 // written to the discipline, and holding them to it would surface noise, not
 // defects. A kit adopts the discipline by being added to ZRBTDRU_KIT_ROOTS —
-// opt-in, never by default. ABANDONED*/FUTURE* directories within a linted kit
-// are excluded as dead / not-yet-live code.
+// opt-in, never by default. Within the lint target, ABANDONED* and FUTURE*
+// directories are excluded (dead / not-yet-live); the pass-1 function universe
+// excludes only ABANDONED* (FUTURE* code is present and sourceable, so its
+// definitions stay visible).
 //
 // Two execution-environment domains, partitioned by path:
 //   - Kit-bash   — strict BCG. Eviction table enforced; unknown commands fail.
@@ -91,10 +95,16 @@ pub(crate) const ZRBTDRU_SH_EXT: &str = "sh";
 /// as new rbgj* job groups are added.
 pub(crate) const ZRBTDRU_GCB_DIR_PREFIX: &str = "rbgj";
 
-/// Directory-name prefixes marking code excluded from the walk: `ABANDONED*`
-/// (dead code retained for reference) and `FUTURE*` (defined-but-not-yet-live
-/// code). Neither is held to the live command-dependency discipline.
-pub(crate) const ZRBTDRU_EXCLUDED_DIR_PREFIXES: &[&str] = &["ABANDONED", "FUTURE"];
+/// Dead-code directory prefixes excluded from the function-visibility universe.
+/// `ABANDONED*` is retained for reference but unbuilt and unsourceable, so its
+/// definitions must NOT clear a live command-position token — a live reference
+/// to a dead function is a defect the lint should still surface.
+pub(crate) const ZRBTDRU_UNIVERSE_EXCLUDED_DIR_PREFIXES: &[&str] = &["ABANDONED"];
+
+/// Lint-target directory prefixes — additionally exclude `FUTURE*`. Not-yet-live
+/// code is present on disk (so its functions stay visible for pass-1 collection,
+/// resolving live code that sources it) but is not itself held to the discipline.
+pub(crate) const ZRBTDRU_LINT_EXCLUDED_DIR_PREFIXES: &[&str] = &["ABANDONED", "FUTURE"];
 
 /// Filename affixes for the per-domain findings trace written into the case
 /// directory: `cupel-<label>-findings.txt`.
@@ -764,8 +774,9 @@ pub(crate) fn zrbtdru_classify(
 
 // ── Corpus walk and scan ────────────────────────────────────
 
-/// Recursively collect every `*.sh` file under `dir` into `out`.
-fn zrbtdru_walk_sh(dir: &Path, out: &mut Vec<PathBuf>) {
+/// Recursively collect every `*.sh` file under `dir` into `out`, skipping any
+/// subdirectory whose basename begins with one of `excluded_prefixes`.
+fn zrbtdru_walk_sh(dir: &Path, excluded_prefixes: &[&str], out: &mut Vec<PathBuf>) {
     let entries = match std::fs::read_dir(dir) {
         Ok(e) => e,
         Err(_) => return,
@@ -777,7 +788,7 @@ fn zrbtdru_walk_sh(dir: &Path, out: &mut Vec<PathBuf>) {
                 .file_name()
                 .and_then(|s| s.to_str())
                 .map(|name| {
-                    ZRBTDRU_EXCLUDED_DIR_PREFIXES
+                    excluded_prefixes
                         .iter()
                         .any(|prefix| name.starts_with(prefix))
                 })
@@ -785,7 +796,7 @@ fn zrbtdru_walk_sh(dir: &Path, out: &mut Vec<PathBuf>) {
             if excluded {
                 continue;
             }
-            zrbtdru_walk_sh(&path, out);
+            zrbtdru_walk_sh(&path, excluded_prefixes, out);
         } else if path.extension().and_then(|e| e.to_str()) == Some(ZRBTDRU_SH_EXT) {
             out.push(path);
         }
@@ -806,27 +817,30 @@ fn zrbtdru_is_gcb(path: &Path) -> bool {
 /// Walk the corpus, collect functions across all of it, then scan the files
 /// belonging to `domain`, returning every finding sorted by file and line.
 fn zrbtdru_scan_domain(tools: &Path, domain: zrbtdru_Domain) -> Result<Vec<zrbtdru_Finding>, String> {
-    let mut files: Vec<PathBuf> = Vec::new();
-    for kit in ZRBTDRU_KIT_ROOTS {
-        zrbtdru_walk_sh(&tools.join(kit), &mut files);
-    }
-    files.sort();
-
-    let mut sources: Vec<(PathBuf, String)> = Vec::with_capacity(files.len());
-    for f in &files {
-        let src = std::fs::read_to_string(f)
-            .map_err(|e| format!("read {} failed: {}", f.display(), e))?;
-        sources.push((f.clone(), src));
-    }
+    // Pass 1 — function-visibility universe. Walk every kit so cross-kit and
+    // sourced function names resolve (e.g. rbk's Windows handbook sources jjk's
+    // zipper); only dead ABANDONED code stays invisible.
+    let mut universe_files: Vec<PathBuf> = Vec::new();
+    zrbtdru_walk_sh(tools, ZRBTDRU_UNIVERSE_EXCLUDED_DIR_PREFIXES, &mut universe_files);
+    universe_files.sort();
 
     let mut locals: BTreeSet<String> = BTreeSet::new();
-    for (_, src) in &sources {
-        zrbtdru_collect_functions(src, &mut locals);
+    for f in &universe_files {
+        let src = std::fs::read_to_string(f)
+            .map_err(|e| format!("read {} failed: {}", f.display(), e))?;
+        zrbtdru_collect_functions(&src, &mut locals);
     }
+
+    // Pass 2 — lint target. Only the release kit roots, minus dead/not-yet-live.
+    let mut lint_files: Vec<PathBuf> = Vec::new();
+    for kit in ZRBTDRU_KIT_ROOTS {
+        zrbtdru_walk_sh(&tools.join(kit), ZRBTDRU_LINT_EXCLUDED_DIR_PREFIXES, &mut lint_files);
+    }
+    lint_files.sort();
 
     let root = tools.parent().unwrap_or(tools);
     let mut findings: Vec<zrbtdru_Finding> = Vec::new();
-    for (path, src) in &sources {
+    for path in &lint_files {
         let is_gcb = zrbtdru_is_gcb(path);
         let in_domain = match domain {
             zrbtdru_Domain::Kit => !is_gcb,
@@ -835,8 +849,10 @@ fn zrbtdru_scan_domain(tools: &Path, domain: zrbtdru_Domain) -> Result<Vec<zrbtd
         if !in_domain {
             continue;
         }
+        let src = std::fs::read_to_string(path)
+            .map_err(|e| format!("read {} failed: {}", path.display(), e))?;
         let rel = path.strip_prefix(root).unwrap_or(path).display().to_string();
-        for (line, command) in zrbtdru_command_words(src) {
+        for (line, command) in zrbtdru_command_words(&src) {
             if let Some(detail) = zrbtdru_classify(&command, &locals, domain) {
                 findings.push(zrbtdru_Finding {
                     file: rel.clone(),
