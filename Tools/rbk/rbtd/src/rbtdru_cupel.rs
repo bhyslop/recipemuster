@@ -45,8 +45,8 @@
 //
 // Known lexer limits (accepted per the fixture's design — the corpus is
 // shellcheck-clean and the discovery run surfaces residue for triage):
-//   - The first word of a `case` branch is not scanned (no case parser).
 //   - Command substitutions nested inside double-quoted strings are not scanned.
+//   - The `;&` / `;;&` case fall-through operators are treated as a plain `;`.
 
 use std::collections::BTreeSet;
 use std::path::{
@@ -300,6 +300,10 @@ pub(crate) fn zrbtdru_command_words(src: &str) -> Vec<(usize, String)> {
     let mut paren_depth = 0usize;
     let mut in_dbracket = false;
     let mut pending_heredoc: Option<String> = None;
+    // case…esac nesting. Each frame tracks the position within a `case`:
+    // 0 = subject (between `case` and `in`), 1 = pattern (suppress recording;
+    // `|` is alternation, not a pipe), 2 = branch body (record commands).
+    let mut case_stack: Vec<u8> = Vec::new();
 
     while i < n {
         let c = chars[i];
@@ -349,6 +353,12 @@ pub(crate) fn zrbtdru_command_words(src: &str) -> Vec<(usize, String)> {
             i += 1;
             if i < n && chars[i] == ';' {
                 i += 1;
+                // `;;` ends a case branch — the next token opens a new pattern.
+                if let Some(top) = case_stack.last_mut() {
+                    *top = 1;
+                }
+                cmd_pos = false;
+                continue;
             }
             if !in_dbracket {
                 cmd_pos = true;
@@ -359,6 +369,10 @@ pub(crate) fn zrbtdru_command_words(src: &str) -> Vec<(usize, String)> {
             i += 1;
             if i < n && chars[i] == '|' {
                 i += 1;
+            }
+            // Within a case pattern `|` is alternation, not a pipe.
+            if case_stack.last() == Some(&1) {
+                continue;
             }
             if !in_dbracket {
                 cmd_pos = true;
@@ -478,9 +492,13 @@ pub(crate) fn zrbtdru_command_words(src: &str) -> Vec<(usize, String)> {
             if paren_depth > 0 {
                 paren_depth -= 1;
                 cmd_pos = false;
+            } else if case_stack.last() == Some(&1) {
+                // Pattern terminator — the branch body's command list follows.
+                if let Some(top) = case_stack.last_mut() {
+                    *top = 2;
+                }
+                cmd_pos = true;
             } else {
-                // Unmatched ')' — a case-pattern terminator; a command list
-                // follows on the branch.
                 cmd_pos = true;
             }
             continue;
@@ -549,6 +567,31 @@ pub(crate) fn zrbtdru_command_words(src: &str) -> Vec<(usize, String)> {
             continue;
         }
         if in_dbracket {
+            continue;
+        }
+        // case…esac structure — tracked regardless of command position so that
+        // branch patterns (which sit at command position) are not mistaken for
+        // commands.
+        if word == "case" {
+            case_stack.push(0);
+            cmd_pos = false;
+            continue;
+        }
+        if word == "esac" {
+            case_stack.pop();
+            cmd_pos = false;
+            continue;
+        }
+        if word == "in" && case_stack.last() == Some(&0) {
+            if let Some(top) = case_stack.last_mut() {
+                *top = 1;
+            }
+            cmd_pos = false;
+            continue;
+        }
+        if case_stack.last() == Some(&1) {
+            // Matching a case pattern — suppress; the pattern is not a command.
+            cmd_pos = false;
             continue;
         }
         if !cmd_pos {

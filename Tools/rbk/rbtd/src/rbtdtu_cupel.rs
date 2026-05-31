@@ -125,6 +125,37 @@ fn rbtdtu_subshell_command_scanned() {
 }
 
 #[test]
+fn rbtdtu_case_patterns_suppressed_bodies_scanned() {
+    // Patterns (200, *) are not commands; branch bodies (echo, buc_die) are.
+    let src = "case $x in\n  200) echo hi ;;\n  *) buc_die ;;\nesac";
+    assert_eq!(cmds(src), vec!["echo", "buc_die"]);
+}
+
+#[test]
+fn rbtdtu_case_alternation_pattern_not_a_command() {
+    // `a|b)` is pattern alternation — `b` must not be recorded as a command.
+    assert_eq!(cmds("case $x in a|b) grep y ;; esac"), vec!["grep"]);
+}
+
+#[test]
+fn rbtdtu_case_flag_pattern_suppressed() {
+    // getopts-style flag patterns must not be flagged as commands.
+    assert_eq!(cmds("case $opt in -o) mything ;; esac"), vec!["mything"]);
+}
+
+#[test]
+fn rbtdtu_nested_case_scoped() {
+    let src = "case $a in\n  x) case $b in y) grep z ;; esac ;;\nesac";
+    assert_eq!(cmds(src), vec!["grep"]);
+}
+
+#[test]
+fn rbtdtu_command_after_esac() {
+    // Both the branch body and the command following the case are scanned.
+    assert_eq!(cmds("case $a in x) mybody ;; esac\nmything"), vec!["mybody", "mything"]);
+}
+
+#[test]
 fn rbtdtu_is_assignment_recognizes_forms() {
     assert!(zrbtdru_is_assignment("FOO=bar"));
     assert!(zrbtdru_is_assignment("FOO+=bar"));
