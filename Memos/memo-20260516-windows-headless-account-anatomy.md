@@ -1,6 +1,10 @@
 # Windows Headless SSH Account Anatomy
 
 Date: 2026-05-16
+Last consolidated: 2026-05-31 — promoted to the single best-memory reference
+for Windows SSH access (accounts, privileged admin lever, current live state).
+Prefer adding here over spawning sibling docs; a cloud of semi-healthy notes
+is how this knowledge gets lost.
 
 ## Why this memo exists
 
@@ -17,6 +21,70 @@ The pattern is load-bearing in `bujuw_user` infrastructure
 (`Tools/buk/bujb_jurisdiction.sh`) and surfaces again whenever an
 operator wants a parallel test account for ad-hoc Windows SSH work.
 The brad@rocket setup on 2026-05-16 was the most recent rediscovery.
+
+## Current access state on rocket (bujn-winpc)
+
+Verified 2026-05-31 via `tt/buw-jpS` (admin) and direct `ssh` (ad-hoc
+accounts). This is the live picture for manual testing; the recipes that
+produced it follow in the sections below. Tailnet host `rocket` =
+`bujn-winpc`. All authentication is pubkey-only.
+
+### Accounts present
+
+| Account      | Reach                          | Lands in                                                                    | Role |
+|--------------|--------------------------------|-----------------------------------------------------------------------------|------|
+| `bhyslop`    | `tt/buw-jpS bujn-winpc <cmd>`  | Windows default shell (cmd.exe); prepend `powershell -Command` / `bash -c`  | **Privileged admin** — the lever that writes ACL-locked files |
+| `brad`       | `ssh brad@rocket`              | Interactive Cygwin `bash --login -i`                                        | Human ad-hoc; forced-command ignores a passed command |
+| `cygwin`     | `ssh cygwin@rocket "<cmd>"`    | Non-interactive Cygwin bash, full shell semantics                          | Programmatic Cygwin path (wrapper-fixed 2026-05-31) |
+| `wsl`        | `ssh wsl@rocket "<cmd>"`       | WSL Ubuntu 24.04 as **root**, `bash -lc`                                    | Programmatic WSL path; **Docker 29.1.3 daemon live** |
+| `bujuw_user` | `tt/buw-jws bujn-winpc`        | Garrison-determined shell                                                   | Formal BURN/BURP workload account (garrison-managed) — not ad-hoc |
+
+The first four (admin + brad/cygwin/wsl) are the ad-hoc manual-testing
+surface. `bujuw_user` is the formal jurisdiction path and is owned by the
+garrison ceremony, not by hand-edits.
+
+### sshd posture (global, `C:\ProgramData\ssh\sshd_config`)
+
+- `PubkeyAuthentication yes`, `PasswordAuthentication no`, `PermitEmptyPasswords no`
+- `AuthorizedKeysFile .ssh/authorized_keys` (default; overridden per-account
+  by the Match blocks below)
+- `LogLevel DEBUG3` — verbose, a debugging carry-over; harmless, revert to
+  default when convenient (not load-bearing for access)
+
+Match-block map:
+
+| Match                  | AuthorizedKeysFile |
+|------------------------|--------------------|
+| `Group administrators` | `__PROGRAMDATA__/ssh/administrators_authorized_keys` |
+| `User bujuw_user`      | `__PROGRAMDATA__/ssh/users/bujuw_user/authorized_keys` |
+| `User brad`            | `__PROGRAMDATA__/ssh/users/brad/authorized_keys` |
+| `User cygwin`          | `__PROGRAMDATA__/ssh/users/cygwin/authorized_keys` |
+| `User wsl`             | `__PROGRAMDATA__/ssh/users/wsl/authorized_keys` |
+
+### Privileged admin account (`bhyslop`)
+
+Reached by `tt/buw-jpS` (`bujb_privileged_ssh`, pass-through) using
+`~/.ssh/id_ed25519_winpc-admin`, key-only / BatchMode. Directly observed on
+2026-05-31:
+
+- Member of `BUILTIN\Administrators` and `rocket\docker-users`; High integrity.
+- Trust is a **bare** key (no forced command) in
+  `C:\ProgramData\ssh\administrators_authorized_keys`:
+  `ssh-ed25519 AAAA…R9aZJ bhyslop@winpc-admin`
+- ACL: `BUILTIN\Administrators:(F)`, `NT AUTHORITY\SYSTEM:(F)` — the canonical
+  `administrators_authorized_keys` lockdown. The principal is the admins
+  *group*, not a per-user grant.
+- Authenticates via the `Match Group administrators` block.
+- Default remote shell is cmd.exe; since the SSH path is pass-through, prepend
+  `powershell -Command …` (or `C:\cygwin64\bin\bash -lc …`) as the task needs.
+
+**Origin note (observed, not replayed).** This account's *establishment* —
+admin pubkey placement, ACL lockdown, sshd hardening — is the
+caparison-windows Phase 1 ceremony's job (`BUSJCW-CaparisonWindows.adoc`). It
+pre-existed this consolidation; the above is the verified current state, not a
+re-derivation of the original setup steps. When the formal ceremony is rebuilt
+later, that is where the authoritative admin-setup recipe belongs; this section
+records what is true on the box today so manual testing has a complete picture.
 
 ## The chain, in causal order
 
@@ -205,18 +273,53 @@ The noninteractive variants intercept the SSH-protocol-level original
 command (which sshd exposes as the `SSH_ORIGINAL_COMMAND` environment
 variable in the spawned process) and route it through the substrate.
 
-**cygwin@rocket.** The forced-command launches a non-interactive Cygwin
-login shell and feeds it `$SSH_ORIGINAL_COMMAND` via `-c`:
+**cygwin@rocket.** The intuitive *inline* form is a trap. It was deployed
+through 2026-05-31 and silently mangled every non-trivial command:
 
 ```
-command="C:\cygwin64\bin\bash --login -c \"$SSH_ORIGINAL_COMMAND\""
+command="C:\cygwin64\bin\bash --login -c \"$SSH_ORIGINAL_COMMAND\""   # BROKEN
 ```
 
-The `\"` is sshd's authkeys-string escape for `"`; after parsing, the
-inner command is `bash --login -c "$SSH_ORIGINAL_COMMAND"`. When sshd
-spawns the forced-command process, the `SSH_ORIGINAL_COMMAND` env var
-is set on the child. Bash expands the variable inside the `-c` script
-body and executes whatever the client supplied.
+Why it fails: Windows OpenSSH runs the forced command through the default
+shell, **cmd.exe**, which does not expand `$`-style variables (it uses
+`%VAR%`). So bash's `-c` argument arrives as the literal token
+`$SSH_ORIGINAL_COMMAND`. The single bash then expands it *during execution*,
+and the result is only word-split — never re-parsed for shell metacharacters.
+Net effect: the client command runs as one bare command with whitespace-split
+argv. No pipes, no `;`, no quoting, no `$var`, no redirection.
+`ssh cygwin@rocket 'uname -o; whoami'` fails with `uname: unknown option --
+;` because `;` is handed to uname as an argument. (Contrast wsl below, which
+re-parses correctly — same symptom, opposite outcome, which is what made this
+confusing.)
+
+The fix mirrors the wsl variant: a wrapper that adds a second bash layer, so
+the inner `bash -c` receives a fully-expanded, re-parseable script. Wrapper at
+`C:\ProgramData\ssh\users\cygwin\runcmd.sh` (LF line endings — CRLF breaks the
+shebang/exec):
+
+```
+#!/bin/bash
+exec /bin/bash --login -c "$SSH_ORIGINAL_COMMAND"
+```
+
+The wrapper's bash is a real shell: it expands `"$SSH_ORIGINAL_COMMAND"`
+(Cygwin inherits the Windows env var sshd set on the child) and hands the
+*value* to the inner login `bash -c`, which parses it normally. The authkeys
+forced-command points cmd.exe at the wrapper via Cygwin bash, passing the
+script as a POSIX path:
+
+```
+command="C:\cygwin64\bin\bash /cygdrive/c/ProgramData/ssh/users/cygwin/runcmd.sh"
+```
+
+ACL-lock the wrapper to the StrictModes allowlist **plus the account's own
+read+execute** — `SYSTEM:F`, `BUILTIN\Administrators:F`, `rocket\cygwin:(RX)`
+— exactly as the wsl wrapper carries `wsl:RX`. This grant is load-bearing and
+easy to miss: the forced command runs as the unprivileged `cygwin` user, so
+testing the wrapper *as admin* passes while the real SSH connection fails
+`Permission denied` on read. **Validate through the target account, never as
+admin.** (Mechanism reproduced and fix verified working 2026-05-31:
+`ssh cygwin@rocket 'echo hi | tr a-z A-Z'` → `HI`, matching wsl.)
 
 **wsl@rocket.** Embedding the wsl.exe invocation directly in the
 authkeys command= field works in principle but compounds escape layers
@@ -298,13 +401,24 @@ modifications on the headless account, no cross-user impersonation.
 
 ### Operational notes
 
-**ACL re-lock after `[IO.File]::WriteAllText`.** Writing a fresh file
-via the .NET method resets the file's ACL to inherited from its parent
-directory, undoing the `icacls /inheritance:r` lockdown established in
-section 6 above. Re-apply the icacls lockdown after every rewrite of
-authkeys (or the wrapper `.cmd`, or any file living under the locked
-ProgramData subtree). `Set-Content` has the same behavior. The sequence
-is: rewrite file → reapply ACL.
+**ACL re-lock after .NET / PowerShell file writes.** `[IO.File]::WriteAllText`,
+`[IO.File]::WriteAllBytes`, and `Set-Content` all behave the same way, and the
+behavior differs by whether the target already exists:
+
+- **New file** (e.g. a freshly created `runcmd.sh`): inherits its parent
+  directory's ACL, which does *not* include the account's own read+execute.
+  You must apply the full lockdown including `<user>:(RX)` — otherwise the
+  forced command runs as the unprivileged account and fails `Permission
+  denied` reading its own wrapper. (This is exactly the 2026-05-31 cygwin
+  wrapper miss — see "Noninteractive forced-command variants" above.)
+- **Existing file overwritten in place** (e.g. truncating and rewriting an
+  already-locked `authorized_keys`): the existing ACL/owner is preserved, so
+  no re-lock is needed.
+
+When in doubt, the safe sequence is always: write file → (re)apply the icacls
+lockdown → verify with `icacls <file>`. And remember the trap above: a wrapper
+that the unprivileged account must *read* needs that account in the ACL, which
+you cannot confirm by testing as admin.
 
 **Transit content past cmd.exe / PowerShell.** Writing arbitrary file
 content from a remote bash session over `ssh ... cmd.exe ... powershell
@@ -337,6 +451,7 @@ or invoke via a PowerShell wrapper that handles UTF-16 natively.
 
 - `Tools/buk/bujb_jurisdiction.sh:124-125` — `BUJB_sshd_match_block_text`
 - `Tools/buk/bujb_jurisdiction.sh:166-168` — `BUJB_command_b/c/w` forced-command directives
+- `Tools/buk/bujb_jurisdiction.sh` `bujb_privileged_ssh` — admin pass-through, surfaced as `tt/buw-jpS bujn-winpc <cmd>` (the privileged lever used for all admin-side edits in this memo)
 - `Tools/buk/vov_veiled/BUSJCW-CaparisonWindows.adoc` — caparison spec
 - `Tools/buk/vov_veiled/BUSJGC-GarrisonCygwin.adoc` — garrison-c spec
 - `Tools/buk/vov_veiled/BUSJGW-GarrisonWsl.adoc` — garrison-w spec
