@@ -141,7 +141,7 @@ rbq_qualify_context() {
     buc_die "Generated context file missing: ${z_committed} — run tt/rbw-tb.Build.sh"
   fi
 
-  if ! diff -q "${z_fresh}" "${z_committed}" >/dev/null 2>&1; then
+  if [[ "$(<"${z_fresh}")" != "$(<"${z_committed}")" ]]; then
     buc_die "Generated context file is stale: ${z_committed} — run tt/rbw-tb.Build.sh"
   fi
 
@@ -162,7 +162,7 @@ rbq_qualify_rust_consts() {
     buc_die "Generated Rust consts file missing: ${z_committed} — run tt/rbw-tb.Build.sh"
   fi
 
-  if ! diff -q "${z_fresh}" "${z_committed}" >/dev/null 2>&1; then
+  if [[ "$(<"${z_fresh}")" != "$(<"${z_committed}")" ]]; then
     buc_die "Generated Rust consts file is stale: ${z_committed} — run tt/rbw-tb.Build.sh"
   fi
 
