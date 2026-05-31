@@ -263,22 +263,28 @@ When evaluating any new pattern, extraction, or structural choice, the litmus te
 
 Operator-specific test machines reachable from this station.
 
-- **bujn-winpc** — Windows host (tailnet hostname `rocket`). Formal BURN profile
-  at `rbmm_moorings/rbmn_nodes/bujn-winpc/` for BUK caparison/garrison/invigilate work
-  under heat ₣A-.
-  - Admin SSH: `tt/buw-jpS bujn-winpc <cmd>` (as `bhyslop`).
-  - Formal workload: `tt/buw-jws bujn-winpc` (as `bujuw_user`; current garrison
-    routes to WSL `rbtww-main`).
-  - **Ad-hoc hack — `ssh brad@rocket`** — unprivileged Cygwin login shell.
-    Independent of the formal caparison/garrison machinery; safe scratch for
-    ad-hoc Windows testing. Setup recipe, gotchas, and teardown live in
-    `Memos/memo-20260516-windows-headless-account-anatomy.md`. Repo cloned at
-    `~/projects/rbm_alpha_recipemuster` inside brad's session.
-- **cerebro** — Linux test host used by JJK fundus scenario tests
-  (`Tools/jjk/jjfp_fundus.sh:518`). Tabtargets:
-  `tt/jjw-tfP2.ProvisionPhase2.cerebro.sh`,
-  `tt/jjw-tfs.TestFundusScenario.cerebro.sh`. Scenario tests marked
-  `#[ignore]`; `--ignored` is required to exercise them.
+- **bujn-winpc** — Windows host, tailnet hostname `rocket`. Formal BURN profile
+  at `rbmm_moorings/rbmn_nodes/bujn-winpc/` for BUK caparison/garrison/invigilate
+  work under heat ₣A-. **Consolidated access reference + live account state:**
+  `Memos/memo-20260516-windows-headless-account-anatomy.md`.
+  - Admin SSH: `tt/buw-jpS bujn-winpc <cmd>` (as `bhyslop`; cmd.exe default shell,
+    so prepend `powershell -Command` / `bash -c` as the task needs).
+  - Formal workload: `tt/buw-jws bujn-winpc` (as `bujuw_user`; garrison routes to
+    WSL `rbtww-main`). Owned by the garrison ceremony, not hand-edits.
+  - Ad-hoc test accounts (pubkey-only, independent of the formal garrison — safe
+    scratch). Repo cloned at `~/projects/rbm_alpha_recipemuster`:
+    - `ssh brad@rocket` — interactive Cygwin login shell (human use; ignores a passed command).
+    - `ssh cygwin@rocket "<cmd>"` (one-shot) or `ssh -t cygwin@rocket` (interactive) — Cygwin, full shell semantics.
+    - `ssh wsl@rocket "<cmd>"` (one-shot) or `ssh -t wsl@rocket` (interactive) — WSL Ubuntu 24.04 as root; **Docker daemon live — container tests run here**.
+  - Legacy LAN aliases `winhost-{wsl,cyg,ps}` (192.168.86.27) are currently
+    unreachable; use the `rocket` tailnet paths above.
+- **cerebro** — Linux test host (Ubuntu 24.04). Direct access: `ssh cerebro`
+  (user `bhyslop`, key `~/.ssh/id_ed25519`). Also the remote fundus for JJK
+  scenario tests: tabtargets `tt/jjw-tfP2.ProvisionPhase2.cerebro.sh`,
+  `tt/jjw-tfs.TestFundusScenario.cerebro.sh` (tests marked `#[ignore]`,
+  `--ignored` required; fundus accounts must be provisioned on cerebro first).
+- **localhost** — local fundus for JJK scenario tests via `jjfu-*` ssh aliases
+  (`jjfu-full`, `jjfu-nogit`, `jjfu-nokey`, `jjfu-norepo`).
 
 @Tools/rbk/rbk-claude-acronyms.md
 
