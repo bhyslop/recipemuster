@@ -242,7 +242,7 @@ zrbgo_exchange_jwt_capture() {
     buc_warn "OAuth response missing access_token; redacted response body follows:"
     jq 'with_entries(select(.key | test("token|secret|key|password"; "i") | not))' \
       "${ZRBGO_OAUTH_RESPONSE_FILE}" 2>"${ZRBGO_JQ_STDERR_FILE}" >&2 \
-      || cat "${ZRBGO_OAUTH_RESPONSE_FILE}" >&2
+      || printf '%s\n' "$(<"${ZRBGO_OAUTH_RESPONSE_FILE}")" >&2
     return 1
   }
 

@@ -26,17 +26,11 @@ ZRBHP_SOURCED=1
 zrbhp_kindle() {
   test -z "${ZRBHP_KINDLED:-}" || buc_die "Module rbhp already kindled"
 
-  # BCG stderr-capture prefixes for uname probe — discriminator appended at use site.
-  # BURD_TEMP_DIR is dispatcher-provided.
-  local -r z_uname_out="${BURD_TEMP_DIR}/zrbhp_uname_1_kernel.txt"
-  local -r z_uname_err="${BURD_TEMP_DIR}/zrbhp_uname_2_kernel.txt"
-
-  uname -s > "${z_uname_out}" 2>"${z_uname_err}" || buc_die "uname -s failed"
-  local z_uname_kernel=""
-  IFS= read -r z_uname_kernel < "${z_uname_out}" || true
-  case "${z_uname_kernel}" in
-    Darwin) readonly ZRBHP_CLICK_MOD="Cmd" ;;
-    *)      readonly ZRBHP_CLICK_MOD="Ctrl" ;;
+  # Kernel discrimination for click-modifier display via the bash $OSTYPE
+  # builtin (darwin* on macOS) — no external uname dependency.
+  case "${OSTYPE}" in
+    darwin*) readonly ZRBHP_CLICK_MOD="Cmd" ;;
+    *)       readonly ZRBHP_CLICK_MOD="Ctrl" ;;
   esac
 
   readonly ZRBHP_RBRP_FILE="${RBCC_rbrp_file}"

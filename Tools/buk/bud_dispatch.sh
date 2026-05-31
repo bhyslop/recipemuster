@@ -250,14 +250,12 @@ zbud_resolve_color() {
   esac
 }
 
-# Write nanosecond-precision timestamp to the file specified by $1
+# Write a fixed-width timestamp (YYYYMMDD-HHMMSS.NNNNNNNNN) to the file at $1.
+# Sub-second precision is not load-bearing — the nanosecond field is always
+# zero — but the fixed width is preserved for stable downstream BURX parsing.
 zbud_nanosecond_timestamp() {
   local -r z_output_file="${1}"
-  if command -v gdate >/dev/null 2>&1; then
-    gdate +'%Y%m%d-%H%M%S.%N' > "${z_output_file}" || zbud_die "gdate failed"
-  else
-    date +'%Y%m%d-%H%M%S.000000000' > "${z_output_file}" || zbud_die "date failed"
-  fi
+  date +'%Y%m%d-%H%M%S.000000000' > "${z_output_file}" || zbud_die "date failed"
 }
 
 zbud_write_burx_initial() {
@@ -381,7 +379,7 @@ zbud_main() {
       done
   fi
 
-  zBURD_EXIT_STATUS=$(cat "${zBURD_STATUS_FILE}")
+  zBURD_EXIT_STATUS=$(<"${zBURD_STATUS_FILE}")
   rm                     "${zBURD_STATUS_FILE}"
 
   # Write BURX completion state

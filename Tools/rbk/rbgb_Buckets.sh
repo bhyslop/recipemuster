@@ -352,8 +352,8 @@ rbgb_bucket_delete() {
   case "${z_code}" in
     204) buc_success "Bucket ${z_bucket_name} deleted";                           return 0 ;;
     404) buc_info    "Bucket ${z_bucket_name} not found (already deleted)";       return 0 ;;
-    409) buc_warning "Bucket ${z_bucket_name} not empty or has retention policy"; return 1 ;;
-    *)   buc_warning "Bucket ${z_bucket_name} failed delete";                     return 1 ;;
+    409) buc_warn "Bucket ${z_bucket_name} not empty or has retention policy"; return 1 ;;
+    *)   buc_warn "Bucket ${z_bucket_name} failed delete";                     return 1 ;;
   esac
 }
 
