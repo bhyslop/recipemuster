@@ -7,10 +7,17 @@ The noun system, settled in conversation. Three roles per side; all primary word
 | Recipe / intent (authored, reused) | Vessel | *(no unified noun — distributed per kind; see premise)* |
 | Package (GAR substrate, atomic-delete unit, ~internal) | Ark | **Lode** |
 | Identifier (the handle a consumer pins) | Hallmark | **Touchmark** |
-| Capture/build verb (recipe → package) | ordain / conjure | **enshrine** |
-| Delete verb (acts on the package) | abjure | *(open — next question)* |
+| Capture/build verb (recipe → package) | ordain / conjure | **per-kind** — `bank`/`sheathe`/`garner`/`harbor`/`vault` (NOT one verb; `enshrine` retired) |
+| Delete verb (acts on the package) | abjure | **`expel`** |
 
-- **`enshrine`** kept as the universal capture verb, generalized from base-only. The reading holds across the hostile-upstream kinds: you enshrine *your attested copy* into the depot under provenance — not a vouch for upstream's virtue.
+- **Capture is per-kind, not one verb — a deliberate reversal this session of the earlier "one verb to lode them all."** `enshrine` **retires entirely** (it survives nowhere — the made side is `conjure`/`ordain`). Each kind gets its own custodial verb so an operator speaks one word and means exactly one thing, with no kind-argument indirection. The reversal is *safe* because the unification was relocated off the verb name onto the **capture-file + the `Lode` noun** (the shared *output*): every per-kind verb emits the same-shaped provenance fact-file into the same package noun — that sameness *is* "one shape," and it is the guard that keeps per-kind *names* from becoming per-kind *code paths* (the parallel-infrastructure the model rejects). Verbs and their kinds — register is **custodial/stronghold** (each names a kind of secure store), deliberately distinct from the made side's **alchemical** `conjure`/`ordain` (a down-payment on the made/fetched side-labels, still parked):
+  - `base` → **bank** (`rbw-lB`) — the foundation held in reserve
+  - `tool` → **sheathe** (`rbw-lS`) — a single instrument sheathed
+  - `reliquary` → **garner** (`rbw-lG`) — gather the date-cohort into the granary
+  - `wsl` → **harbor** (`rbw-lH`) — safe harbor for the substrate everything docks upon
+  - `podvm` → **vault** (`rbw-lV`) — seal the opaque VM blob; **one verb spanning both quay families** (`machine-os-wsl` / `machine-os`) via an archive argument, not two verbs
+- **`expel`** names the whole-Lode delete (parallel to made-side `abjure`). Chosen for the prefix-rhyme that signals the role while staying gesture-distinct: **ab**jure (swear *away* what we made) ‖ **ex**pel (drive *out* what we captured); a Lode is foreign captured bytes, so "expel the foreign deposit" is the right image. Shared `packages delete` backbone with `abjure`, distinct verb/colophon/spec. `jettison` keeps its narrow per-member meaning on both sides — **no double duty**; whole-package delete is `abjure`/`expel`, single-member is `jettison`.
+- **Lode command family is `l`; spec is `RBSL` (`L` verified free).** `l` is an *artifact-keyed* command family — a departure from the place-keyed scheme (Crucible/Depot/Foundry), pioneered fetched-first; **Ark earns its own family (`k`) in the sibling made-side retrofit heat**, closing the package parallel. Colophon **capitalization is load-bearing**: a capital letter marks an op that touches persistent GAR/cost state in *either* direction (create *or* destroy) — so the capture verbs and `expel` are all capital (`rbw-lB/lS/lG/lH/lV/lE`); read-only and local-only ops stay lowercase.
 - **`Lode`** names the **package** (Ark-parallel), re-pointed this session from the earlier recipe framing. The ore-deposit sense fits a stored body of bytes, and it gives the package an *independent* word that owes nothing to `enshrine`, preserving verb/noun independence.
 - **`Touchmark`** names the **identifier** (Hallmark-parallel), minted this session. The shared `-mark` suffix with `hallmark` is a deliberate **role-signal**: any `*mark` is a specific-instance handle; the first syllable carries the side (`hall-` = what we forged, `touch-` = what we captured). `mint`/`mintmark` rejected — `mint` is load-bearing as the meta-verb for naming.
 - **`enshrinement`** retires as a quoin — with the verb `enshrine` and the package `Lode`, no slot remains for the noun. The `rbi_es` namespace and the `*Enshrinements` tabtargets re-orient to Lode in the rename map.
@@ -37,7 +44,9 @@ This section exists so a returning session can re-orient against the *why* of th
 
 **Why consumption stays per-kind and out of Lode's scope.** Lode unifies acquisition, the GAR substrate, provenance, and delete. It does not unify consumption: a made image is consumed as a Cloud Build FROM-line or build-mount; a `wsl` instance by the host's `wsl --import`; a podvm instance by the host's `podman machine init` — some consumers are not even on Cloud Build. Lode's value at consumption is not one verb; it is that the bytes the host consumes are cloud-acquired, verified, and vouched instead of locally-exported and uncontrolled. **Touchmark election co-locates with consumption and forks the same way** (see Touchmark Election). The `wsl` seed is the sharp case: today it is born from `wsl --export` of a Store-installed distro (the corruptible-workstation path); under this model the workload's `wsl --import` consumes a verified seed pulled from GAR — same consumption verb, trusted seed. A future session must resist inventing a *consumption-verb* unification (a "yoke for hosts"); the consumer asymmetry is intended — but note this is distinct from the determinism premise, which *does* unify the *authority* (Director, via nameplate) over substrate election.
 
-**Why registry-level operations get parallel cult verbs per side, not shared verbs.** Made-side `abjure` and the fetched-side delete operation share one registry primitive (`packages delete`), but the noun-split keeps them as parallel verbs — distinct name, colophon, spec, and surface vocabulary, with the shared mechanism living in registry-utility code. The analogy carries through verbs; it does not collapse at the substrate. A future session tempted to unify because "the code is identical" should resist — the parallelism is load-bearing for the model even where the implementation is not.
+**Why registry-level operations get parallel cult verbs per side, not shared verbs.** Made-side `abjure` and fetched-side `expel` share one registry primitive (`packages delete`), but the noun-split keeps them as parallel verbs — distinct name, colophon, spec, and surface vocabulary, with the shared mechanism living in registry-utility code. The analogy carries through verbs; it does not collapse at the substrate. A future session tempted to unify because "the code is identical" should resist — the parallelism is load-bearing for the model even where the implementation is not.
+
+**Why capture and election are separate layers — no mixing of the GAR copy with the install into a final resting place.** Capture (a `bank`/`sheathe`/… verb) is **capture-pure**: it mints the Lode, emits the signed provenance envelope, resolves and *reports* the touchmark — and writes **no consumer config**. Election (where a consumer pins a touchmark) is a separate consumption-side layer that *reads* what capture emitted. The interface between the layers is the **capture-file**: one provenance fact-file per capture, in the existing `rbf_fact_*` presence-as-fact idiom (NOT one mega-JSON, NOT per-aspect explosion — one file per captured touchmark, the roster precedent). This is the prototype's brand-file promoted from "unsigned text written at consumption" to "signed artifact emitted at acquisition." The payoff is concrete: election *chains* off the capture-file, retries independently, and **survives an election failure** (the Lode + file persist); and a fan-out election (one touchmark → N vessels) iterates by *reading the file*, not by a verb taking N vessel arguments. The made side already half-violates this for ergonomics (the kludge cycle drives a hallmark into a nameplate in one gesture) — so the rule is at the **verb/spec** level (`bank` etc. stay pure); a *cycle tabtarget* may still bundle capture+elect for dev ergonomics, exactly as kludge does. Bundling lives in `tt/`, never in the verb's meaning.
 
 **Why the per-kind intent carries no FQIN — most regression-prone principle.** When quay, docker-hub, or Canonical reorganizes upstream paths, kind-pipeline code changes; the per-kind intent declaration does not. If a future pace proposes adding resolved-coordinate detail to a kind's intent file, that is a smell — the principle is being violated. RBSRV's ORIGIN/ANCHOR pattern is the precedent: ORIGIN as author intent, ANCHOR as resolved-by-pipeline (and, on the fetched side, the resolved ANCHOR *is* the elected touchmark). The Lode model generalizes that pattern, not weakens it. Each kind's upstream-source convention lives in pipeline code where it can be fixed in one place.
 
@@ -51,7 +60,7 @@ This section exists so a returning session can re-orient against the *why* of th
 
 ## Shape
 
-Generalize today's narrow `enshrine` (base OCI mirror) into a universal verb for project-controlled capture of upstream artifacts. The verb spans heterogeneous content kinds — base images, build-time tools, WSL substrate, and podman machine images — producing a single **package** noun, **Lode**, paralleling Ark on the made side; each Lode is referred to by its **Touchmark**, paralleling Hallmark.
+Generalize today's narrow `enshrine` (base OCI mirror) into project-controlled capture of upstream artifacts across heterogeneous content kinds — base images, build-time tools, WSL substrate, and podman machine images — via **per-kind capture verbs** (`bank`/`sheathe`/`garner`/`harbor`/`vault`, NOT one verb; `enshrine` retires). What unifies them is the *output*, not the verb: a single **package** noun, **Lode**, paralleling Ark on the made side, plus a single capture-file envelope shape; each Lode is referred to by its **Touchmark**, paralleling Hallmark.
 
 The analogy (acquisition / substrate / delete only — see premises):
 
@@ -61,7 +70,7 @@ The analogy (acquisition / substrate / delete only — see premises):
 | Package | Ark | **Lode** |
 | Identifier | Hallmark | **Touchmark** |
 
-The enshrine pipeline, running on Cloud Build, resolves upstream coordinates from kind conventions, fetches bytes from within GCP, verifies them (against a published checksum where the upstream offers one), captures them into a GAR package (the Lode), and emits a signed provenance envelope. **Intent declarations are distributed, not unified:** each kind's "what to capture" lives in its naturally-owning regime — `base` in the vessel (`RBRV_IMAGE_n_ORIGIN`), `tool`/`reliquary` as a build-infrastructure constant, `wsl`/`podvm` in host-tier config. Wherever intent lives it stays declarative-only — no FQIN, no resolved-identity field; kindle code computes upstream coordinates and GAR tags from primitives at module-startup, mirroring the prototype's `ZRBV_VMIMAGE_TAG_PREFIX` pattern.
+Each kind's capture pipeline, running on Cloud Build, resolves upstream coordinates from kind conventions, fetches bytes from within GCP, verifies them (against a published checksum where the upstream offers one), captures them into a GAR package (the Lode), and emits a signed provenance envelope as the per-capture fact-file — writing no consumer config (capture-pure; see the no-mixing premise). **Intent declarations are distributed, not unified:** each kind's "what to capture" lives in its naturally-owning regime — `base` in the vessel (`RBRV_IMAGE_n_ORIGIN`), `tool`/`reliquary` as a build-infrastructure constant, `wsl`/`podvm` in host-tier config. Wherever intent lives it stays declarative-only — no FQIN, no resolved-identity field; kindle code computes upstream coordinates and GAR tags from primitives at module-startup, mirroring the prototype's `ZRBV_VMIMAGE_TAG_PREFIX` pattern.
 
 Scope is the fetched side only. The same package / atomic-delete / provenance-envelope model is mechanically true of the made side (the Ark/Hallmark already are this), and the symmetry is confirmed (`abjure` is essentially an Ark `packages delete`) — but retrofitting made-images is left to a sibling heat to keep this one bounded.
 
@@ -71,12 +80,12 @@ A touchmark is *elected* where a consumer pins a specific captured deposit to us
 
 | Kind | Consumed | Elected in | Mechanism |
 |------|----------|-----------|-----------|
-| `base` | build-time (FROM) | vessel (the ANCHOR slot, renamed) | **enshrine writes it** — derived, not operator-pinned |
+| `base` | build-time (FROM) | vessel (the ANCHOR slot, renamed) | **derived — the vessel *pulls* the resolved coordinate** from the capture-file; the capture verb writes no vessel config (no mixing) |
 | `tool` / `reliquary` | build-time (syft/skopeo) | vessel (the RELIQUARY slot) | **yoke stamps it** across all vessels |
 | `wsl` | runtime substrate | **nameplate** (Director-dictated) | charge-time provision (deferred) |
 | `podvm-*` | runtime substrate | **nameplate** (Director-dictated) | charge-time provision (deferred) |
 
-The election *mechanism* differs even where the *location* is the same — `base` is auto-written by enshrine, `reliquary` is explicitly stamped by yoke — and the rename map must preserve that distinction (do not collapse "enshrine writes ANCHOR" and "yoke writes RELIQUARY" because both land in the vessel). Nameplate is **not** a touchmark site for the build-time kinds; for the runtime-substrate kinds it *is* the election site, under Director authority, per the determinism premise. The charge-time provisioning mechanism for substrate touchmarks is consumption-side and deferred this heat (see Heat nature).
+The election *mechanism* differs even where the *location* is the same — `base` election is **derived-pull** (the vessel reaches for the resolved coordinate the capture-file reports; capture stays pure and writes nothing), `reliquary` election is an **explicit yoke-stamp** across vessels — and the rename map must preserve that distinction (do not collapse derived-pull-ANCHOR and yoke-stamp-RELIQUARY because both land in the vessel). Nameplate is **not** a touchmark site for the build-time kinds; for the runtime-substrate kinds it *is* the election site, under Director authority, per the determinism premise. The charge-time provisioning mechanism for substrate touchmarks is consumption-side and deferred this heat (see Heat nature).
 
 ## Package layout
 
@@ -98,6 +107,8 @@ One Lode = one GAR `package`. Members are versions/tags within that single packa
 | `podvm-wsl` | N | `quay.io/podman/machine-os-wsl` — platform fan-out, consumed by Windows podman | recorded |
 | `podvm-native` | N | `quay.io/podman/machine-os` — platform fan-out, consumed by macOS/Linux podman | recorded |
 
+Capture verb per kind (all capital-colophon `rbw-l*`, GAR-blob creators): `base`→`bank` (`lB`), `tool`→`sheathe` (`lS`), `reliquary`→`garner` (`lG`), `wsl`→`harbor` (`lH`), `podvm-wsl`+`podvm-native`→`vault` (`lV`, one verb, quay archive as argument). Six kinds, five capture verbs.
+
 Member count is the only structural variable — every kind is "a GAR package holding 1..N members plus batch provenance." `wsl` and `podvm-wsl` both touch WSL but are entirely distinct: `wsl` is the Linux distro rootfs that hosts everything on the Windows workload, `podvm-wsl` is the podman machine image that runs *inside* that distro. Names kept visibly different.
 
 Payload shapes (orthogonal to member count): native layered OCI image (`base`, `tool`) vs opaque-blob-wrapped-as-OCI (`wsl`, `podvm-*` — a rootfs tar or disk blob in a scratch/oras wrapper). The provenance envelope rides uniformly on both.
@@ -106,16 +117,17 @@ Payload shapes (orthogonal to member count): native layered OCI image (`base`, `
 
 - **caparison-w / garrison-w for the `wsl` kind.** The workload's `rbtww-main` is registered via `wsl --import` from a seed tarball; today that seed is created by `wsl --export` of admin's installed distro (GarrisonWsl). Under the `wsl` kind, that export path retires — the seed becomes a verified artifact pulled from GAR. The pre-existing revert pace in ₣A- targeting the WSL-stage DEV CACHE shortcut becomes obsolete and wants dropping or transferring when this heat commits to development.
 - **Windows onboarding is stale and deferred.** The `rbhw*` Windows handbook tracks (Docker Desktop, context discipline) are stale and incomplete, and `wsl`/`podvm` consumption is deferred — so their onboarding has nothing live to teach. Lean: mark those tracks loudly NOT-available / deferred rather than delete, so the eventual `wsl`-kind consumption work rereads the host-side prose rather than reconstructing it. Onboarding follows *consumption*, not *acquisition*: the Lode acquisition unification does NOT unify the onboarding surface; substrate-kind onboarding lands in the host/Windows tracks, never in the Director build-lifecycle tracks.
-- **`inscribe` is verb-overloaded — disambiguate, don't conflate.** `rbfl_inscribe` (reliquary tool-mirror, `rbw-dI`) is **in scope** — it is the operation absorbed into enshrine on the `tool`/`reliquary` kinds. `rbrd_inscribe` (depot tripwire, `rbw-rdi`) is a **different operation, out of scope, stays put**. (Strike the earlier "the `mirror` verb retires" wording: at quoin level there is no mirror verb — `rbfd_mirror` is the bind vessel-mode copy, made-side, also out of scope. What is absorbed is `inscribe`/reliquary, not "mirror.")
+- **`inscribe` is verb-overloaded — disambiguate, don't conflate.** `rbfl_inscribe` (reliquary tool-mirror, `rbw-dI`) is **in scope** — it is the operation absorbed into the per-kind capture verbs on the `tool`/`reliquary` kinds (`sheathe`/`garner`). `rbrd_inscribe` (depot tripwire, `rbw-rdi`) is a **different operation, out of scope, stays put**. (Strike the earlier "the `mirror` verb retires" wording: at quoin level there is no mirror verb — `rbfd_mirror` is the bind vessel-mode copy, made-side, also out of scope. What is absorbed is `inscribe`/reliquary, not "mirror.")
 - **Onboarding rename surface (tri-surfaced vs greenfield).** `base`/`tool`/`reliquary` are fully present across bash, adoc, and the Director onboarding tracks (`rbw-Odf`/`Oda`/`Odb`) — for these the cost is *rename* (only two typed linked terms, `RBYC_ENSHRINE` + `RBYC_RELIQUARY`, drive the typed references; the rest is hand-edited prose). `wsl`/`podvm-*` are surfaced *nowhere* today — for these the cost is *greenfield*, not rename. Do not estimate the onboarding work as uniform.
 - **Refresh cadence** is per-kind and may diverge (podvm-wsl vs podvm-native).
-- Tabtarget shape for the universal verb (unified `rbw-dE` with a kind argument vs siblings) is a pace-time decision.
+- **Maintenance verbs stay in the `image` family (`rbw-i*`), deliberately.** `rekon` / `audit` / `wrest` / `jettison` survive intact and do **not** move into `rbw-l*`. They are a low-level backdoor — primitives for cleaning up bad things at the member/tag grain — and that's where they belong; the `l` family is for the first-class Lode lifecycle. Their fetched-side domain variants (Reliquary + Enshrinement) consolidate under Lode/touchmark addressing; the made-side Hallmark variants are out of scope, untouched.
+- **Tabtarget shape is decided, not open:** per-kind capture verbs under the new `l` (Lode) command family — `rbw-lB/lS/lG/lH/lV` capture, `rbw-lE` expel — superseding the earlier "unified `rbw-dE` with a kind argument" framing. (These move out of the Depot `d` family where `enshrine`/`inscribe`/`yoke` live today.)
 
 ## Discovery recipes — work to enumerate when paces approach
 
 - **Verb redesign blast radius.** Scan `Tools/rbk/vov_veiled/RBSA*.adoc` and `RBSI*.adoc` for verbs touching captured artifacts; for each, classify per-kind variance (unchanged / split / retired). Yoke is the headline because consumer-landing differs per kind; other splits expected. Recipe, not enumeration — premature listing ages poorly. (Quoin anchors live in `RBS0-SpecTop.adoc`: `rbtgo_ark_enshrine`, `rbtgo_depot_inscribe`, `rbtgo_director_yoke`, `gar_enshrines_namespace`/`gar_reliquaries_namespace`, `rbst_reliquary_stamp`, `rbf_fact_reliquary` are the capture cluster.)
 - **Substrate election landing.** For `wsl` and `podvm-*`, the touchmark is Director-pinned at the nameplate (determinism premise), materialized at charge — but *which* host-tier regime backs the node-side provisioning (station regime vs BURN node profile vs a new host-config regime) is open. Decide when the first non-vessel Lode consumption pace mounts.
-- **Spec letter allocation** for the new Lode spec — consult CLAUDE.md Prefix Naming and Quoin Sub-Letter Discipline; check terminal exclusivity against the RBS* tree.
+- **Spec letter — RESOLVED this session: `RBSL`** (`L` verified free against the RBS* tree; no `RBSL*` exists). The Lode *code* module must take a prefix **other than `rbl`** (occupied by `rblm` Lifecycle Marshal) to avoid muddying that branch — pace-time pick; colophon `l` and spec `L` don't force it.
 - **GAR provenance attachment mechanism** — reserved tag names vs OCI referrers API; verify GAR referrers maturity before committing.
 - **GAR layout collapse** — whether `rbi_es` (enshrines) and `rbi_rq` (reliquaries) collapse into one Lode namespace shape is a pace-time layout choice; one-package-per-Lode is the only fixed constraint.
 
@@ -125,25 +137,22 @@ Lifecycle fixtures against the new Lode surface must be slated and landed before
 
 ## Vocabulary — still parked / next questions
 
-Resolved this session (now in Vocabulary — decided): the package noun (Lode), the identifier (Touchmark), keeping `enshrine`, the no-unified-recipe-noun call, reliquary→kind, the `-mark` role-suffix. The cohort-stamp term dissolved (it is the touchmark of a `reliquary` Lode). Still open:
+Resolved this session (now in Vocabulary — decided): the package noun (Lode), the identifier (Touchmark), the **per-kind capture verbs** (`bank`/`sheathe`/`garner`/`harbor`/`vault`, retiring `enshrine`), the **delete verb `expel`**, the no-unified-recipe-noun call, reliquary→kind, the `-mark` role-suffix, the **`l` command family + capital-colophon convention**, the **`RBSL` spec letter**. The cohort-stamp term dissolved (it is the touchmark of a `reliquary` Lode). Still open:
 
-- **Fetched-side delete verb** (parallel to `abjure`) — open. Forge/Solomonic register, lexically distinct, must parse against `Lode`/`Touchmark`; colophon in the depot family `rbw-d?`; shared `packages delete` backbone, distinct verb. Note: this verb is *new* (no current identifier retires into it).
-- **"Made" vs "fetched"** (the side distinction) — load-bearing concept (did Recipe Bottle build the bytes, or pull someone else's); the working labels are descriptive placeholders (prior unreviewed labels were "built/captured") and open to a better pair when minting.
-- **Spec letter** for the new Lode spec — gates every *new* `rbXX_` quoin prefix; terminal-exclusivity check against the RBS* tree (a sub-agent sweep suggested several free single letters but it is unverified — treat as pace-time).
-- **GAR layout** — the `rbi_es` + `rbi_rq` collapse question (above).
-- **Host-tier regime for substrate election** — which regime backs nameplate-pinned `wsl`/`podvm` provisioning (above).
+- **"Made" vs "fetched"** (the side distinction) — load-bearing concept (did Recipe Bottle build the bytes, or pull someone else's); the working labels are descriptive placeholders (prior unreviewed labels were "built/captured") and open to a better pair when minting. **Down-payment landed this session:** the verb registers now mark the split — made = **alchemical** (`conjure`/`ordain`), fetched = **custodial/stronghold** (`bank`/`vault`/…); the side-labels should harmonize with that pair when minted. *This is the one remaining conversational mint — parked for a fresh exchange, not pace-time.*
+- **GAR layout** — the `rbi_es` + `rbi_rq` collapse question (below). Pace-time.
+- **Host-tier regime for substrate election** — which regime backs nameplate-pinned `wsl`/`podvm` provisioning (below). Pace-time.
 
-## Next questions for refinement (interview order)
+## Open issues before mounting paces
 
-The conversational interview that produced this revision settled Q1–Q3 + the recipe-vacancy + the determinism premise. Remaining, in the same order:
+This 260531 session settled: the per-kind capture verbs + register, `expel`, the capture/election no-mixing separation + capture-file handoff, the `l` family + capital-colophon convention, the `RBSL` spec letter, the Ark-`k`-in-sibling-heat rider, maintenance-verbs-stay-in-`image`. What remains before paces:
 
-1. **Fetched-side delete verb** (parallel to `abjure`) — the natural next mint.
-2. **Made/fetched side-labels** — the words for the whole distinction.
-3. **Spec letter** for the Lode spec.
-4. **GAR layout** — namespace collapse.
-5. **Host-tier regime** for substrate touchmark election/provisioning.
+1. **Made/fetched side-labels** — the one remaining *conversational* mint (the register down-payment above is the hook). Settle in a fresh exchange, then bleed into the relevant spec/docket.
+2. **GAR layout** — `rbi_es` + `rbi_rq` namespace collapse. Pace-time.
+3. **Host-tier regime** for substrate touchmark election/provisioning. Pace-time.
+4. **GAR provenance attachment mechanism** — reserved tag names vs OCI referrers API (below). Pace-time.
 
-(Items 3–5 are genuinely pace-time and may be left to the first relevant pace rather than settled in conversation.)
+(Items 2–4 are genuinely pace-time and may be left to the first relevant pace rather than settled in conversation.)
 
 ## Heat nature
 
@@ -153,7 +162,7 @@ Planning/design heat — no paces yet. Paddock encodes the model and the recipes
 
 - ₣AV `rbw-implement-gar-mirroring` (retired) — predecessor heat
 - ₣Az `rbk-90-deferred-ark-concept-debt` (retired) — closed by the GAR-package substrate finding
-- RBSAE `ark_enshrine` — current narrow-scope spec; becomes the `base`-kind pipeline
+- RBSAE `ark_enshrine` — current narrow-scope spec; becomes the `base`-kind `bank` pipeline (`enshrine` the verb retires into per-kind capture)
 - RBSAS `ark_summon`, RBSDI `depot_inscribe`, RBSDY `director_yoke` — verbs within blast radius
 - RBSRV `RegimeVessel` — ORIGIN/ANCHOR precedent; enum-gated-variable-groups pattern
 - `Tools/rbk/vov_veiled/FUTURE/rbv_PodmanVM.sh` + RBSPV — concrete podman-vm pipeline; reveals fan-out, the two-source quay split, the brand-file provenance embryo, and the ignite-VM machination that cloud-side acquisition dissolves
