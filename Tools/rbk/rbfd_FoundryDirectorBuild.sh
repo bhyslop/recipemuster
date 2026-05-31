@@ -647,16 +647,10 @@ zrbfd_stitch_build_json() {
   local z_stitch_dockerfile_content=""
   local -r z_stitch_df_max_bytes=4000
   if test -f "${RBRV_CONJURE_DOCKERFILE:-}"; then
-    local -r z_stitch_df_size_file="${ZRBFD_STITCH_PREFIX}df_size.txt"
-    wc -c < "${RBRV_CONJURE_DOCKERFILE}" > "${z_stitch_df_size_file}" \
-      || buc_die "Failed to measure Dockerfile size"
-    local z_stitch_df_size=""
-    z_stitch_df_size=$(<"${z_stitch_df_size_file}")
-    z_stitch_df_size="${z_stitch_df_size// /}"
-    if test "${z_stitch_df_size}" -le "${z_stitch_df_max_bytes}"; then
-      z_stitch_dockerfile_content=$(<"${RBRV_CONJURE_DOCKERFILE}")
-    else
-      buc_warn "Dockerfile exceeds 4KB substitution limit (${z_stitch_df_size} bytes) — recipe.txt via -diags only"
+    z_stitch_dockerfile_content=$(<"${RBRV_CONJURE_DOCKERFILE}")
+    if test "${#z_stitch_dockerfile_content}" -gt "${z_stitch_df_max_bytes}"; then
+      buc_warn "Dockerfile exceeds 4KB substitution limit (${#z_stitch_dockerfile_content} bytes) — recipe.txt via -diags only"
+      z_stitch_dockerfile_content=""
     fi
   fi
 
@@ -1520,16 +1514,10 @@ zrbfd_mirror_submit() {
   local z_dockerfile_content=""
   local -r z_dockerfile_max_bytes=4000
   if test -n "${RBRV_BIND_OPTIONAL_DOCKERFILE:-}" && test -f "${RBRV_BIND_OPTIONAL_DOCKERFILE}"; then
-    local -r z_df_size_file="${ZRBFD_MIRROR_PREFIX}df_size.txt"
-    wc -c < "${RBRV_BIND_OPTIONAL_DOCKERFILE}" > "${z_df_size_file}" \
-      || buc_die "Failed to measure Dockerfile size"
-    local z_df_size=""
-    z_df_size=$(<"${z_df_size_file}")
-    z_df_size="${z_df_size// /}"  # Strip spaces (wc output varies by platform)
-    if test "${z_df_size}" -le "${z_dockerfile_max_bytes}"; then
-      z_dockerfile_content=$(<"${RBRV_BIND_OPTIONAL_DOCKERFILE}")
-    else
-      buc_warn "Dockerfile exceeds 4KB substitution limit (${z_df_size} bytes) — recipe.txt omitted"
+    z_dockerfile_content=$(<"${RBRV_BIND_OPTIONAL_DOCKERFILE}")
+    if test "${#z_dockerfile_content}" -gt "${z_dockerfile_max_bytes}"; then
+      buc_warn "Dockerfile exceeds 4KB substitution limit (${#z_dockerfile_content} bytes) — recipe.txt omitted"
+      z_dockerfile_content=""
     fi
   fi
 

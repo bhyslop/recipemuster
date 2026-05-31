@@ -349,7 +349,7 @@ rbgo_docker_login() {
 
     buc_log_pipe < "${z_stderr_file}"
 
-    grep -qF "${RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE}" "${z_stderr_file}" \
+    [[ "$(<"${z_stderr_file}")" == *"${RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE}"* ]] \
       || buc_die "Docker login to ${z_host} failed — see ${z_stderr_file}"
 
     test "${z_attempt}" -lt "${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS}" \

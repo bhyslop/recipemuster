@@ -96,7 +96,7 @@ zrbndb_docker_login() {
 
     test "${z_rc}" -ne 0 || break
 
-    grep -qF "${RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE}" "${z_stderr_file}" \
+    [[ "$(<"${z_stderr_file}")" == *"${RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE}"* ]] \
       || buc_die "Docker login to ${ZRBNDB_REGISTRY_HOST} failed — see ${z_stderr_file}"
 
     test "${z_attempt}" -lt "${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS}" \
@@ -204,8 +204,6 @@ rbrd_check() {
   local -r z_cp_stderr="${ZRBNDB_CHECK_PREFIX}cp_stderr.txt"
   local -r z_rm_stderr="${ZRBNDB_CHECK_PREFIX}rm_stderr.txt"
   local -r z_inscribed_file="${ZRBNDB_CHECK_PREFIX}${RBCC_rbrd_basename}.inscribed"
-  local -r z_diff_file="${ZRBNDB_CHECK_PREFIX}diff.txt"
-  local -r z_diff_stderr="${ZRBNDB_CHECK_PREFIX}diff_stderr.txt"
 
   buc_log_args "Tripwire check against: ${ZRBNDB_TRIPWIRE_IMAGE}"
 
@@ -253,19 +251,20 @@ rbrd_check() {
   docker rm "${z_cid}" > /dev/null 2>"${z_rm_stderr}" \
     || buc_warn "Failed to remove temp container ${z_cid} — see ${z_rm_stderr}"
 
-  # cmp is authoritative for byte-match; diff is for human display on mismatch.
-  # diff exits 1 when differences exist — expected since cmp already detected
-  # them. Exit ≥ 2 is a real diff error; capture explicit status and fatal.
-  if ! cmp -s "${z_inscribed_file}" "${RBCC_rbrd_file}"; then
-    local z_diff_status=0
-    diff -u "${z_inscribed_file}" "${RBCC_rbrd_file}" \
-        > "${z_diff_file}" 2>"${z_diff_stderr}" \
-      || z_diff_status=$?
-    test "${z_diff_status}" -le 1 \
-      || buc_die "diff failed (status ${z_diff_status}) generating drift report — see ${z_diff_stderr}"
+  # Byte-exact match via openssl sha256 digests (declared dependency; replaces
+  # cmp). On drift, refuse to proceed and point the operator at both copies for
+  # manual inspection — no diff dependency for the drift report.
+  local z_inscribed_digest=""
+  local z_local_digest=""
+  z_inscribed_digest=$(openssl dgst -sha256 -r < "${z_inscribed_file}") \
+    || buc_die "Failed to digest inscribed tripwire copy: ${z_inscribed_file}"
+  z_local_digest=$(openssl dgst -sha256 -r < "${RBCC_rbrd_file}") \
+    || buc_die "Failed to digest local ${RBCC_rbrd_file}"
+  if [[ "${z_inscribed_digest}" != "${z_local_digest}" ]]; then
     buc_warn "RBRD drift detected"
-    buc_info "Local ${RBCC_rbrd_file} differs from the depot-inscribed copy."
-    buc_info "Full diff (inscribed → local) at: ${z_diff_file}"
+    buc_info "Local ${RBCC_rbrd_file} differs from the depot-inscribed copy (sha256 mismatch)."
+    buc_info "Inscribed copy: ${z_inscribed_file}"
+    buc_info "Local copy:     ${RBCC_rbrd_file}"
     buc_info "Recovery options:"
     buc_info "  (a) Restore ${RBCC_rbrd_file} to match the inscribed copy (preserves depot)."
     buc_info "  (b) Unmake and re-levy the depot if rbrd.env genuinely needs to change:"

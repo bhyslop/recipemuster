@@ -1029,7 +1029,8 @@ rbgp_depot_levy() {
   rbuh_require_ok "Validate region" "region_validation"
 
   local z_valid_regions
-  z_valid_regions=$(rbuh_json_field_capture "region_validation" '.locations[].locationId' | tr '\n' ' ') || buc_die "Failed to parse region list"
+  z_valid_regions=$(rbuh_json_field_capture "region_validation" '.locations[].locationId') || buc_die "Failed to parse region list"
+  z_valid_regions="${z_valid_regions//$'\n'/ }"
 
   if ! [[ " ${z_valid_regions} " =~ [[:space:]]${z_region}[[:space:]] ]]; then
     buc_die "Invalid region. Valid regions: ${z_valid_regions}"
@@ -1438,7 +1439,8 @@ rbgp_depot_unmake() {
   if test "${z_lien_count}" -gt 0; then
     buc_log_args "Found ${z_lien_count} lien(s) - removing them"
     local z_lien_names
-    z_lien_names=$(rbuh_json_field_capture "depot_destroy_liens_list" '.liens[].name' | tr '\n' ' ') || buc_die "Failed to extract lien names"
+    z_lien_names=$(rbuh_json_field_capture "depot_destroy_liens_list" '.liens[].name') || buc_die "Failed to extract lien names"
+    z_lien_names="${z_lien_names//$'\n'/ }"
     
     for z_lien_name in ${z_lien_names}; do
       if test -n "${z_lien_name}"; then
