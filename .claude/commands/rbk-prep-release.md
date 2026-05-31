@@ -22,27 +22,7 @@ Ask the user for permission to execute all git operations needed (checkout, bran
 - Verify main is pushed to origin
 - If dirty or unpushed, **STOP** and ask user to resolve
 
-## Step 2: External command audit (LLM task)
-
-Scan all .sh files that will survive stripping for external command invocations beyond declared dependencies. This catches problems before the expensive test suite in Step 4.
-
-**Scope**: All .sh files under `Tools/buk/` and `Tools/rbk/` EXCEPT:
-- `Tools/rbk/rbgja/` — cloudbuild about pipeline (runs on GCB, not user workstation)
-- `Tools/rbk/rbgjb/` — cloudbuild conjure pipeline (runs on GCB)
-- `Tools/rbk/rbgjv/` — cloudbuild vouch pipeline (runs on GCB)
-- `**/vov_veiled/` — will be stripped
-
-**Declared dependencies** (index.html promise): bash, git, curl, ssh/scp/ssh-keygen, jq, docker
-
-**Assumed POSIX/coreutils** (any system with bash): chmod, cp, mv, rm, mkdir, mktemp, date, sleep, cat, grep, sed, awk, sort, head, tail, wc, tee, touch, ln, tr, cut, printf, test, true, false, kill, read, source, local, return, exit, set, unset, export, readonly, shift, trap, wait, type, command, cd, ls, stat, basename, dirname, xargs, find, diff, comm, paste, tput, stty, env
-
-Read each .sh file and identify any command invocations not in either tier. Report findings to the user. Common catches: gcloud, podman, python, shellcheck, column, openssl, base64, shasum.
-
-If unpermitted commands are found, **STOP** and discuss with user before proceeding.
-
-Wait for user acknowledgment.
-
-## Step 3: Regime variable completeness check (LLM task)
+## Step 2: Regime variable completeness check (LLM task)
 
 Before stripping removes the spec documents, verify every enrolled RBK regime variable has spec treatment. For each regime, read the enrollment file and corresponding spec:
 
@@ -65,7 +45,7 @@ Present results to the user. Gaps are informational — they don't block the cer
 
 Wait for user acknowledgment.
 
-## Step 4: Pre-strip qualification
+## Step 3: Pre-strip qualification
 
 Run full release qualification on main to verify the complete codebase is healthy before any transforms:
 
@@ -73,18 +53,20 @@ Run full release qualification on main to verify the complete codebase is health
 tt/rbw-tr.QualifyRelease.sh
 ```
 
+This runs shellcheck and the `complete` test suite. The suite includes the **cupel** command-dependency lint (theurge fixture), which statically enforces BCG's POSIX-floor / declared-dependency / eviction-table discipline across all kit bash — the automated successor to the former manual external-command audit.
+
 If qualification fails, **STOP**. The full codebase must pass before we proceed.
 
 Show the qualification result and wait for user acknowledgment.
 
-## Step 5: Fetch upstream state
+## Step 4: Fetch upstream state
 
 - `git fetch OPEN_SOURCE_UPSTREAM`
 - If fetch fails, **ABORT** and ask user to verify remote configuration
 
 Show results and wait for user acknowledgment.
 
-## Step 6: Auto-detect next candidate branch
+## Step 5: Auto-detect next candidate branch
 
 - Find max batch from upstream: `git ls-remote --heads OPEN_SOURCE_UPSTREAM | grep 'candidate-'`
 - Find max batch from local branches
@@ -94,7 +76,7 @@ Show results and wait for user acknowledgment.
 
 Wait for user approval of the branch name.
 
-## Step 7: Create candidate branch and squash merge
+## Step 6: Create candidate branch and squash merge
 
 - Show commits that will be included: `git log OPEN_SOURCE_UPSTREAM/main..main --oneline`
 - `git checkout -b candidate-NNN-R OPEN_SOURCE_UPSTREAM/main`
@@ -103,22 +85,21 @@ Wait for user approval of the branch name.
 
 Wait for user acknowledgment.
 
-## Step 8: Extract consumer templates
+## Step 7: Extract consumer templates
 
-The consumer templates live in `vov_veiled/` which will be stripped in Step 10. Extract them now:
+The consumer `CLAUDE.md` template lives in `vov_veiled/`, which will be stripped in Step 9. Extract it now. `README.md` is tracked directly at the repo root (consumer-facing) and needs no extraction.
 
 ```
 cp Tools/rbk/vov_veiled/CLAUDE.consumer.md CLAUDE.md
-cp Tools/rbk/vov_veiled/README.consumer.md README.md
 ```
 
-Note: `CLAUDE.md` is overwritten (replacing the development version). The existing `readme.md` (lowercase) will be removed in the strip step; `README.md` (uppercase) replaces it.
+Note: `CLAUDE.md` is overwritten (replacing the development version).
 
 Show the user what was copied. Wait for acknowledgment.
 
-## Step 9: Marshal zero
+## Step 8: Marshal zero
 
-Run marshal zero while the tabtarget is still available (it will be stripped in Step 10):
+Run marshal zero while the tabtarget is still available (it will be stripped in Step 9):
 
 ```
 tt/rbw-MZ.MarshalZeroes.sh
@@ -134,11 +115,11 @@ The command will prompt for confirmation — the user must type `reset` to proce
 
 After the reset, show `git status` to confirm the changes. Wait for user acknowledgment.
 
-## Step 10: Strip proprietary content
+## Step 9: Strip proprietary content
 
 Remove all proprietary content from the candidate branch. Present the full strip plan to the user, then execute after approval.
 
-**10a. Recursive glob — all vov_veiled directories:**
+**9a. Recursive glob — all vov_veiled directories:**
 ```
 git rm -rf --ignore-unmatch Tools/buk/vov_veiled/
 git rm -rf --ignore-unmatch Tools/cmk/vov_veiled/
@@ -149,7 +130,7 @@ git rm -rf --ignore-unmatch Tools/vok/vov_veiled/
 git rm -rf --ignore-unmatch Tools/vvk/vov_veiled/
 ```
 
-**10b. Whole directories — internal tools and infrastructure:**
+**9b. Whole directories — internal tools and infrastructure:**
 ```
 git rm -rf --ignore-unmatch .claude/
 git rm -rf --ignore-unmatch lenses/
@@ -171,7 +152,7 @@ git rm -rf --ignore-unmatch Tools/vvc/
 git rm -rf --ignore-unmatch Tools/vvk/
 ```
 
-**10c. Internal tabtargets (non-rbw, non-buw operational targets):**
+**9c. Internal tabtargets (non-rbw, non-buw operational targets):**
 ```
 git rm -f --ignore-unmatch tt/butctt.TestTarget.sh
 git rm -f --ignore-unmatch tt/ccck-s.ConnectShell.sh
@@ -183,7 +164,7 @@ git rm -f --ignore-unmatch tt/rbw-MZ.MarshalZeroes.sh
 git rm -f --ignore-unmatch tt/rbw-MP.MarshalProofs.sh
 ```
 
-**10d. Internal .buk/ launchers (for stripped workbenches):**
+**9d. Internal .buk/ launchers (for stripped workbenches):**
 ```
 git rm -f --ignore-unmatch .buk/launcher.cccw_workbench.sh
 git rm -f --ignore-unmatch .buk/launcher.cmw_workbench.sh
@@ -194,17 +175,17 @@ git rm -f --ignore-unmatch .buk/launcher.vslw_workbench.sh
 git rm -f --ignore-unmatch .buk/launcher.vvw_workbench.sh
 ```
 
-**10e. Individual files:**
+**9e. Individual files:**
 ```
 git rm -f --ignore-unmatch podman-gateway-proposal.md
 git rm -f --ignore-unmatch brm_recipemuster.iml
 git rm -f --ignore-unmatch MBS.STATION-reference.sh
-git rm -f --ignore-unmatch readme.md
+git rm -f --ignore-unmatch index.html .nojekyll
 ```
 
-**10f. Stage the consumer templates and marshal zero changes:**
+**9f. Stage the consumer templates and marshal zero changes:**
 ```
-git add CLAUDE.md README.md
+git add CLAUDE.md
 git add -u
 ```
 
@@ -213,33 +194,31 @@ After all removals, verify with `git ls-files` that no proprietary content remai
 ### What should survive after stripping:
 
 - `.buk/` — `burc.env`, `rbbc_constants.sh`, `launcher.buw_workbench.sh`, `launcher.rbw_workbench.sh`
-- `.rbk/` — all regime `.env` files (already blanked by marshal zero in Step 9)
-- `CLAUDE.md` — consumer version (copied in Step 8)
-- `README.md` — consumer version (copied in Step 8)
+- `.rbk/` — all regime `.env` files (already blanked by marshal zero in Step 8)
+- `CLAUDE.md` — consumer version (copied in Step 7)
+- `README.md` — consumer-facing, tracked directly at the repo root
 - `LICENSE`
-- `.nojekyll`
-- `index.html`
 - `rbm-abstract-drawio.svg`
 - `rbev-vessels/` — vessel definitions and README
 - `Tools/buk/` — all `.sh` files, `busc_shellcheckrc`, `README.md`, `buts/` test support (minus `vov_veiled/`)
 - `Tools/rbk/` — all `.sh` files (minus `vov_veiled/`)
 - `tt/` — `rbw-*` and `buw-*` tabtargets only (minus `rbw-MZ`, `rbw-MP` marshal tabtargets)
 
-## Step 11: Post-strip verification
+## Step 10: Post-strip verification
 
 Run fast qualification only on the stripped candidate tree:
 
 ```
-tt/rbw-tf.QualifyFast.sh
+tt/rbw-tq.QualifyFast.sh
 ```
 
-This validates that stripping didn't break wiring — tabtargets resolve, colophons match surviving modules, nameplate preflight passes. No shellcheck, no test suite — the full `.complete.` test already passed pre-strip on main in Step 4, and the stripped tree lacks cloud infrastructure to run integration tests.
+This validates that stripping didn't break wiring — tabtargets resolve, colophons match surviving modules, nameplate preflight passes. No shellcheck, no test suite — the full `.complete.` test already passed pre-strip on main in Step 3, and the stripped tree lacks cloud infrastructure to run integration tests.
 
 **If fast qualification fails, STOP.** This means something in the consumer-visible code depends on stripped content. Report the specific failure to the user — this is a real finding that must be investigated before proceeding.
 
 Show the result and wait for user acknowledgment.
 
-## Step 12: Generate commit
+## Step 11: Generate commit
 
 - Stage any remaining changes: `git add -u`
 - Analyze all changes for a consolidated commit message
@@ -247,7 +226,7 @@ Show the result and wait for user acknowledgment.
 - Create commit (no attribution footer — this is a release candidate)
 - Show `git log -1 --stat`
 
-## Step 13: Final review
+## Step 12: Final review
 
 Show the user:
 - The commit stat summary
