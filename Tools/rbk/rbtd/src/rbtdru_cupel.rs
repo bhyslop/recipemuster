@@ -36,6 +36,14 @@
 // already being shellcheck-clean (rbq_qualify_fast), so a command-position
 // lexer suffices — no full shell parser.
 //
+// Corpus scope — only the release-relevant kit roots (Tools/buk, Tools/rbk) are
+// linted. These are the kits that ship in the recipe-bottle consumer release and
+// are authored under BCG; other kits under Tools/ are separate products never
+// written to the discipline, and holding them to it would surface noise, not
+// defects. A kit adopts the discipline by being added to ZRBTDRU_KIT_ROOTS —
+// opt-in, never by default. ABANDONED*/FUTURE* directories within a linted kit
+// are excluded as dead / not-yet-live code.
+//
 // Two execution-environment domains, partitioned by path:
 //   - Kit-bash   — strict BCG. Eviction table enforced; unknown commands fail.
 //   - GCB-bash   — Google Cloud Build job scripts under any Tools/rbk/rbgj*
@@ -65,8 +73,14 @@ use crate::rbtdrm_manifest::RBTDRM_FIXTURE_CUPEL;
 
 // ── Corpus location ─────────────────────────────────────────
 
-/// Repo-relative directory holding all linted bash, walked recursively.
+/// Repo-relative directory holding all kit trees, walked per release kit root.
 pub(crate) const ZRBTDRU_TOOLS_SUBDIR: &str = "Tools";
+
+/// Release-relevant kit roots under Tools/, each walked recursively. Only these
+/// kits ship in the recipe-bottle consumer release and are authored under BCG,
+/// so only these are held to the discipline. Names are directory basenames under
+/// Tools/; adding one opts that kit into the lint deliberately.
+pub(crate) const ZRBTDRU_KIT_ROOTS: &[&str] = &["buk", "rbk"];
 
 /// Extension (no dot) selecting bash files from the corpus walk.
 pub(crate) const ZRBTDRU_SH_EXT: &str = "sh";
@@ -77,10 +91,19 @@ pub(crate) const ZRBTDRU_SH_EXT: &str = "sh";
 /// as new rbgj* job groups are added.
 pub(crate) const ZRBTDRU_GCB_DIR_PREFIX: &str = "rbgj";
 
-/// Directory-name prefix marking abandoned code retained for reference but not
-/// maintained. Bash under any `ABANDONED*` directory is excluded from the walk
-/// — dead code is not held to the live command-dependency discipline.
-pub(crate) const ZRBTDRU_ABANDONED_DIR_PREFIX: &str = "ABANDONED";
+/// Directory-name prefixes marking code excluded from the walk: `ABANDONED*`
+/// (dead code retained for reference) and `FUTURE*` (defined-but-not-yet-live
+/// code). Neither is held to the live command-dependency discipline.
+pub(crate) const ZRBTDRU_EXCLUDED_DIR_PREFIXES: &[&str] = &["ABANDONED", "FUTURE"];
+
+/// Filename affixes for the per-domain findings trace written into the case
+/// directory: `cupel-<label>-findings.txt`.
+pub(crate) const ZRBTDRU_FINDINGS_PREFIX: &str = "cupel-";
+pub(crate) const ZRBTDRU_FINDINGS_SUFFIX: &str = "-findings.txt";
+
+/// Domain labels — name the findings trace and the verdict message per domain.
+pub(crate) const ZRBTDRU_LABEL_KIT: &str = "kit";
+pub(crate) const ZRBTDRU_LABEL_GCB: &str = "gcb";
 
 // ── BCG allowlists (source of truth: BCG + RBS0 Dependency Inventory) ──
 
@@ -750,12 +773,16 @@ fn zrbtdru_walk_sh(dir: &Path, out: &mut Vec<PathBuf>) {
     for entry in entries.flatten() {
         let path = entry.path();
         if path.is_dir() {
-            let abandoned = path
+            let excluded = path
                 .file_name()
                 .and_then(|s| s.to_str())
-                .map(|s| s.starts_with(ZRBTDRU_ABANDONED_DIR_PREFIX))
+                .map(|name| {
+                    ZRBTDRU_EXCLUDED_DIR_PREFIXES
+                        .iter()
+                        .any(|prefix| name.starts_with(prefix))
+                })
                 .unwrap_or(false);
-            if abandoned {
+            if excluded {
                 continue;
             }
             zrbtdru_walk_sh(&path, out);
@@ -780,7 +807,9 @@ fn zrbtdru_is_gcb(path: &Path) -> bool {
 /// belonging to `domain`, returning every finding sorted by file and line.
 fn zrbtdru_scan_domain(tools: &Path, domain: zrbtdru_Domain) -> Result<Vec<zrbtdru_Finding>, String> {
     let mut files: Vec<PathBuf> = Vec::new();
-    zrbtdru_walk_sh(tools, &mut files);
+    for kit in ZRBTDRU_KIT_ROOTS {
+        zrbtdru_walk_sh(&tools.join(kit), &mut files);
+    }
     files.sort();
 
     let mut sources: Vec<(PathBuf, String)> = Vec::with_capacity(files.len());
@@ -843,7 +872,8 @@ fn zrbtdru_run_domain(dir: &Path, domain: zrbtdru_Domain, label: &str) -> rbtdre
         Err(e) => return rbtdre_Verdict::Fail(e),
     };
     let report = zrbtdru_render(&findings);
-    let _ = std::fs::write(dir.join(format!("cupel-{}-findings.txt", label)), &report);
+    let trace_name = format!("{}{}{}", ZRBTDRU_FINDINGS_PREFIX, label, ZRBTDRU_FINDINGS_SUFFIX);
+    let _ = std::fs::write(dir.join(trace_name), &report);
 
     if findings.is_empty() {
         rbtdre_Verdict::Pass
@@ -860,11 +890,11 @@ fn zrbtdru_run_domain(dir: &Path, domain: zrbtdru_Domain, label: &str) -> rbtdre
 // ── Cases and fixture ───────────────────────────────────────
 
 fn rbtdru_kit_bash(dir: &Path) -> rbtdre_Verdict {
-    zrbtdru_run_domain(dir, zrbtdru_Domain::Kit, "kit")
+    zrbtdru_run_domain(dir, zrbtdru_Domain::Kit, ZRBTDRU_LABEL_KIT)
 }
 
 fn rbtdru_gcb_bash(dir: &Path) -> rbtdre_Verdict {
-    zrbtdru_run_domain(dir, zrbtdru_Domain::Gcb, "gcb")
+    zrbtdru_run_domain(dir, zrbtdru_Domain::Gcb, ZRBTDRU_LABEL_GCB)
 }
 
 pub static RBTDRU_CASES_CUPEL: &[rbtdre_Case] = &[
