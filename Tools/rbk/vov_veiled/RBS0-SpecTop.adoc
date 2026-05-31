@@ -903,6 +903,9 @@ Enforced by qualification and documented on the project page.
 
 | `ssh` / `scp` / `ssh-keygen`
 | Secure credential transport and key generation
+
+| `tee`
+| Interactive-run logging in the dispatcher: live terminal plus historical-log split
 |===
 
 === Developer Dependencies
@@ -919,6 +922,9 @@ Not required for consumer workflows.
 
 | `timeout`
 | GNU coreutils test timeout, used by testbench; absent on stock macOS
+
+| `cargo`
+| Rust toolchain; builds the theurge and vvr crates from the build tabtargets
 |===
 
 === Specialized Runtime Dependencies
@@ -933,8 +939,11 @@ Not required for core consumer or developer workflows.
 | `podman`
 | Alternative container runtime (deferred: dual-runtime support alongside docker)
 
-| `tcpdump`
-| Network debugging in observe module
+| `tar`
+| Extracting gzipped OCI image-layer blobs during foundry registry operations (director only)
+
+| `stat`
+| SSH private-key permission (0600) enforcement in the caparison/jurisdiction module
 
 | `sed`
 | 2 load-bearing uses: log timestamp normalization, Podman output parsing
@@ -942,6 +951,11 @@ Not required for core consumer or developer workflows.
 | `stty`
 | Terminal width detection in launcher
 |===
+
+NOTE: `tcpdump` is *not* a {at_workstation} dependency.
+The observe/scry module runs it inside the bottle, pentacle, and sentry containers
+(via {at_runtime} `exec`) and the runtime VM (via `machine ssh`), never on the host —
+so it is a requirement of those container images, not of this inventory.
 
 == Operation Groups
 
