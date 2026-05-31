@@ -35,8 +35,8 @@ produced it follow in the sections below. Tailnet host `rocket` =
 |--------------|--------------------------------|-----------------------------------------------------------------------------|------|
 | `bhyslop`    | `tt/buw-jpS bujn-winpc <cmd>`  | Windows default shell (cmd.exe); prepend `powershell -Command` / `bash -c`  | **Privileged admin** — the lever that writes ACL-locked files |
 | `brad`       | `ssh brad@rocket`              | Interactive Cygwin `bash --login -i`                                        | Human ad-hoc; forced-command ignores a passed command |
-| `cygwin`     | `ssh cygwin@rocket "<cmd>"`    | Non-interactive Cygwin bash, full shell semantics                          | Programmatic Cygwin path (wrapper-fixed 2026-05-31) |
-| `wsl`        | `ssh wsl@rocket "<cmd>"`       | WSL Ubuntu 24.04 as **root**, `bash -lc`                                    | Programmatic WSL path; **Docker 29.1.3 daemon live** |
+| `cygwin`     | `ssh cygwin@rocket "<cmd>"` or `ssh -t cygwin@rocket` | Cygwin bash — one-shot *or* interactive login shell                         | Dual-mode Cygwin (conditional wrapper, 2026-05-31) |
+| `wsl`        | `ssh wsl@rocket "<cmd>"` or `ssh -t wsl@rocket`       | WSL Ubuntu 24.04 as **root** — one-shot *or* interactive login shell        | Dual-mode WSL; **Docker 29.1.3 daemon live** |
 | `bujuw_user` | `tt/buw-jws bujn-winpc`        | Garrison-determined shell                                                   | Formal BURN/BURP workload account (garrison-managed) — not ad-hoc |
 
 The first four (admin + brad/cygwin/wsl) are the ad-hoc manual-testing
@@ -245,21 +245,26 @@ chmod 700 /home/brad/.ssh
 printf 'export HOME=/home/brad\ncd "$HOME"\n' > /home/brad/.bash_profile
 ```
 
-## Noninteractive forced-command variants
+## Substrate-routing forced-command variants (cygwin / wsl)
 
-The brad@rocket worked example above puts the account on an interactive
-Cygwin shell — useful for ad-hoc human work, less useful for programmatic
-access where each SSH connection should run a single command and exit.
-The same chain (account creation, `__PROGRAMDATA__/ssh/users/<name>/`
-authkeys, ACL lockdown, Match block) also supports noninteractive
-substrate-routing personas where the forced-command field encodes which
-substrate the session lands in. Two variants were stood up alongside
-brad@rocket on 2026-05-17 and verified:
+The brad@rocket worked example puts the account on a hardcoded interactive
+Cygwin shell. The same chain (account creation,
+`__PROGRAMDATA__/ssh/users/<name>/` authkeys, ACL lockdown, Match block) also
+supports substrate-routing personas whose forced-command wrapper encodes which
+substrate the session lands in. Two were stood up on 2026-05-17 and, after the
+2026-05-31 repair + broadening, both are **dual-mode** — one-shot *and*
+interactive on the same account:
 
-- `cygwin@rocket` — `ssh cygwin@rocket "uname -o"` → `Cygwin`
-- `wsl@rocket` — `ssh wsl@rocket "uname -o"` → `GNU/Linux`
+- `cygwin@rocket` — `ssh cygwin@rocket "<cmd>"` runs a command in Cygwin;
+  `ssh -t cygwin@rocket` drops to an interactive Cygwin login shell.
+- `wsl@rocket` — `ssh wsl@rocket "<cmd>"` runs a command in WSL Ubuntu 24.04
+  (as root); `ssh -t wsl@rocket` drops to an interactive WSL login shell.
 
-The differences from brad@rocket fall in three places.
+The dual-mode behavior comes from a wrapper that branches on
+`$SSH_ORIGINAL_COMMAND`: empty (no command supplied → interactive intent) execs
+an interactive login shell; non-empty execs `bash -c` with the client command.
+Real-TTY `ssh -t` interactivity to both accounts was operator-confirmed
+2026-05-31. The differences from brad@rocket fall in a few places.
 
 ### Forced-command pattern
 
@@ -299,14 +304,19 @@ shebang/exec):
 
 ```
 #!/bin/bash
-exec /bin/bash --login -c "$SSH_ORIGINAL_COMMAND"
+if [ -z "$SSH_ORIGINAL_COMMAND" ]; then
+  exec /bin/bash --login -i
+else
+  exec /bin/bash --login -c "$SSH_ORIGINAL_COMMAND"
+fi
 ```
 
-The wrapper's bash is a real shell: it expands `"$SSH_ORIGINAL_COMMAND"`
-(Cygwin inherits the Windows env var sshd set on the child) and hands the
-*value* to the inner login `bash -c`, which parses it normally. The authkeys
-forced-command points cmd.exe at the wrapper via Cygwin bash, passing the
-script as a POSIX path:
+The wrapper's bash is a real shell: in the command branch it expands
+`"$SSH_ORIGINAL_COMMAND"` (Cygwin inherits the Windows env var sshd set on the
+child) and hands the *value* to the inner login `bash -c`, which parses it
+normally; in the empty branch it execs an interactive login shell. The authkeys
+forced-command points cmd.exe at the wrapper via Cygwin bash, passing the script
+as a POSIX path:
 
 ```
 command="C:\cygwin64\bin\bash /cygdrive/c/ProgramData/ssh/users/cygwin/runcmd.sh"
@@ -318,20 +328,36 @@ read+execute** — `SYSTEM:F`, `BUILTIN\Administrators:F`, `rocket\cygwin:(RX)`
 easy to miss: the forced command runs as the unprivileged `cygwin` user, so
 testing the wrapper *as admin* passes while the real SSH connection fails
 `Permission denied` on read. **Validate through the target account, never as
-admin.** (Mechanism reproduced and fix verified working 2026-05-31:
-`ssh cygwin@rocket 'echo hi | tr a-z A-Z'` → `HI`, matching wsl.)
+admin.** Verified 2026-05-31: one-shot `ssh cygwin@rocket 'echo hi | tr a-z
+A-Z'` → `HI`; interactive (no command) lands a live Cygwin `bash --login -i`.
 
-**wsl@rocket.** Embedding the wsl.exe invocation directly in the
-authkeys command= field works in principle but compounds escape layers
-(the inner `$SSH_ORIGINAL_COMMAND` must survive sshd's authkeys parsing,
-cmd.exe's interpretation, and wsl.exe's argument splitting). A wrapper
-`.cmd` file at `C:\ProgramData\ssh\users\wsl\runcmd.cmd` isolates the
-runtime concern:
+**wsl@rocket.** Embedding the wsl.exe invocation directly in the authkeys
+command= field works in principle but compounds escape layers (the inner
+`$SSH_ORIGINAL_COMMAND` must survive sshd's authkeys parsing, cmd.exe's
+interpretation, and wsl.exe's argument splitting). A wrapper `.cmd` file at
+`C:\ProgramData\ssh\users\wsl\runcmd.cmd` isolates the runtime concern. To get
+**dual-mode** (one-shot + interactive) without re-introducing that escape
+graveyard inside the `.cmd`, keep the conditional on the *Linux* side: the
+`.cmd` just invokes a clean script inside the distro.
+
+Linux-side `/usr/local/bin/sshrun` (mode 755, inside the `Ubuntu-24.04` distro,
+LF endings):
+
+```
+#!/bin/bash
+if [ -z "$SSH_ORIGINAL_COMMAND" ]; then
+  exec bash -li
+else
+  exec bash -lc "$SSH_ORIGINAL_COMMAND"
+fi
+```
+
+Windows-side `C:\ProgramData\ssh\users\wsl\runcmd.cmd` (CRLF):
 
 ```
 @echo off
 set WSLENV=SSH_ORIGINAL_COMMAND/u
-C:\Windows\System32\wsl.exe -d Ubuntu-24.04 -u root -- bash -lc "$SSH_ORIGINAL_COMMAND"
+C:\Windows\System32\wsl.exe -d Ubuntu-24.04 -u root -- /usr/local/bin/sshrun
 ```
 
 The authkeys forced-command then becomes:
@@ -343,17 +369,20 @@ command="C:\ProgramData\ssh\users\wsl\runcmd.cmd"
 The wrapper does two load-bearing things:
 
 - `set WSLENV=SSH_ORIGINAL_COMMAND/u` tells WSL to forward
-  `SSH_ORIGINAL_COMMAND` into the Linux side as a Unix-style env var.
-  By default WSL only shares a fixed subset of env vars across the
-  Windows ↔ Linux boundary; arbitrary vars require an explicit `WSLENV`
-  declaration.
-- The `"$SSH_ORIGINAL_COMMAND"` inside the inner `bash -lc` argument is
-  literal text at the Windows-side cmd.exe layer (cmd.exe does not
-  expand `$`-style variables) and gets expanded later by the WSL bash,
-  which sees the value WSLENV forwarded.
+  `SSH_ORIGINAL_COMMAND` into the Linux side as a Unix-style env var. By
+  default WSL only shares a fixed subset of env vars across the Windows ↔ Linux
+  boundary; arbitrary vars require an explicit `WSLENV` declaration. `sshrun`
+  then reads it natively — no `$`-through-cmd.exe escaping at all.
+- Routing the conditional through a Linux file (rather than an inline
+  `bash -lc "…"` branch in the `.cmd`) keeps cmd.exe's tokenizer away from the
+  nested quotes a conditional would otherwise need.
 
-The wrapper file is ACL-locked to the same allowlist as authkeys
-(`SYSTEM:F`, `BUILTIN\Administrators:F`, plus `wsl:RX`).
+The `.cmd` wrapper is ACL-locked to the same allowlist as authkeys (`SYSTEM:F`,
+`BUILTIN\Administrators:F`, plus `wsl:RX`). **Caveat:** `/usr/local/bin/sshrun`
+lives inside the distro, so a distro re-import (e.g. a future garrison
+re-provision) wipes it — recreate it as part of any wsl re-provisioning.
+Verified 2026-05-31: one-shot `ssh wsl@rocket 'docker --version'` → `Docker
+version 29.1.3`; interactive (no command) lands a live WSL `bash -li` as root.
 
 ### Per-user WSL state and provisioning without elevation
 

@@ -274,8 +274,8 @@ Operator-specific test machines reachable from this station.
   - Ad-hoc test accounts (pubkey-only, independent of the formal garrison — safe
     scratch). Repo cloned at `~/projects/rbm_alpha_recipemuster`:
     - `ssh brad@rocket` — interactive Cygwin login shell (human use; ignores a passed command).
-    - `ssh cygwin@rocket "<cmd>"` — programmatic Cygwin, full shell semantics.
-    - `ssh wsl@rocket "<cmd>"` — programmatic WSL Ubuntu 24.04 as root; **Docker daemon live — container tests run here**.
+    - `ssh cygwin@rocket "<cmd>"` (one-shot) or `ssh -t cygwin@rocket` (interactive) — Cygwin, full shell semantics.
+    - `ssh wsl@rocket "<cmd>"` (one-shot) or `ssh -t wsl@rocket` (interactive) — WSL Ubuntu 24.04 as root; **Docker daemon live — container tests run here**.
   - Legacy LAN aliases `winhost-{wsl,cyg,ps}` (192.168.86.27) are currently
     unreachable; use the `rocket` tailnet paths above.
 - **cerebro** — Linux test host (Ubuntu 24.04). Direct access: `ssh cerebro`
