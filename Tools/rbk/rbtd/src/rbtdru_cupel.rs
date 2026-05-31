@@ -106,10 +106,15 @@ pub(crate) const ZRBTDRU_UNIVERSE_EXCLUDED_DIR_PREFIXES: &[&str] = &["ABANDONED"
 /// resolving live code that sources it) but is not itself held to the discipline.
 pub(crate) const ZRBTDRU_LINT_EXCLUDED_DIR_PREFIXES: &[&str] = &["ABANDONED", "FUTURE"];
 
-/// Filename affixes for the per-domain findings trace written into the case
-/// directory: `cupel-<label>-findings.txt`.
-pub(crate) const ZRBTDRU_FINDINGS_PREFIX: &str = "cupel-";
+/// Filename affixes for the per-domain trace files written into the case dir:
+/// `cupel-<label>-findings.txt` (violations) and `cupel-<label>-inventory.txt`
+/// (the full external-command surface — every command-position token that is
+/// neither a bash builtin nor a local function, allowed or not). The inventory
+/// is the empirical basis for curating an allowlist; it is always emitted,
+/// independent of pass/fail.
+pub(crate) const ZRBTDRU_TRACE_PREFIX: &str = "cupel-";
 pub(crate) const ZRBTDRU_FINDINGS_SUFFIX: &str = "-findings.txt";
+pub(crate) const ZRBTDRU_INVENTORY_SUFFIX: &str = "-inventory.txt";
 
 /// Domain labels — name the findings trace and the verdict message per domain.
 pub(crate) const ZRBTDRU_LABEL_KIT: &str = "kit";
@@ -772,6 +777,35 @@ pub(crate) fn zrbtdru_classify(
     }
 }
 
+/// True when `command` names an external command in the corpus's surface — a
+/// static token that is neither a bash builtin nor a locally-defined function.
+/// This is the classification-independent inventory predicate: it admits the
+/// union of allowed externals (floor / declared / gcb-extra / tolerated
+/// evictions) AND violations. Dynamic tokens (expansion or quote) cannot be
+/// statically named and are excluded.
+fn zrbtdru_is_external(command: &str, locals: &BTreeSet<String>) -> bool {
+    if command.is_empty()
+        || command.contains('$')
+        || command.contains('`')
+        || command.contains('"')
+        || command.contains('\'')
+    {
+        return false;
+    }
+    let base = command.rsplit('/').next().unwrap_or(command);
+    !ZRBTDRU_BUILTINS.contains(&base)
+        && !locals.contains(command)
+        && !locals.contains(base)
+}
+
+/// One domain scan: violations, plus the full external-command inventory (base
+/// command names, deduplicated and sorted) — the empirical basis for curating
+/// an allowlist.
+struct zrbtdru_ScanResult {
+    findings: Vec<zrbtdru_Finding>,
+    inventory: BTreeSet<String>,
+}
+
 // ── Corpus walk and scan ────────────────────────────────────
 
 /// Recursively collect every `*.sh` file under `dir` into `out`, skipping any
@@ -815,8 +849,9 @@ fn zrbtdru_is_gcb(path: &Path) -> bool {
 }
 
 /// Walk the corpus, collect functions across all of it, then scan the files
-/// belonging to `domain`, returning every finding sorted by file and line.
-fn zrbtdru_scan_domain(tools: &Path, domain: zrbtdru_Domain) -> Result<Vec<zrbtdru_Finding>, String> {
+/// belonging to `domain`, returning every finding (sorted by file and line)
+/// plus the domain's external-command inventory.
+fn zrbtdru_scan_domain(tools: &Path, domain: zrbtdru_Domain) -> Result<zrbtdru_ScanResult, String> {
     // Pass 1 — function-visibility universe. Walk every kit so cross-kit and
     // sourced function names resolve (e.g. rbk's Windows handbook sources jjk's
     // zipper); only dead ABANDONED code stays invisible.
@@ -840,6 +875,7 @@ fn zrbtdru_scan_domain(tools: &Path, domain: zrbtdru_Domain) -> Result<Vec<zrbtd
 
     let root = tools.parent().unwrap_or(tools);
     let mut findings: Vec<zrbtdru_Finding> = Vec::new();
+    let mut inventory: BTreeSet<String> = BTreeSet::new();
     for path in &lint_files {
         let is_gcb = zrbtdru_is_gcb(path);
         let in_domain = match domain {
@@ -853,6 +889,10 @@ fn zrbtdru_scan_domain(tools: &Path, domain: zrbtdru_Domain) -> Result<Vec<zrbtd
             .map_err(|e| format!("read {} failed: {}", path.display(), e))?;
         let rel = path.strip_prefix(root).unwrap_or(path).display().to_string();
         for (line, command) in zrbtdru_command_words(&src) {
+            if zrbtdru_is_external(&command, &locals) {
+                let base = command.rsplit('/').next().unwrap_or(&command);
+                inventory.insert(base.to_string());
+            }
             if let Some(detail) = zrbtdru_classify(&command, &locals, domain) {
                 findings.push(zrbtdru_Finding {
                     file: rel.clone(),
@@ -863,7 +903,7 @@ fn zrbtdru_scan_domain(tools: &Path, domain: zrbtdru_Domain) -> Result<Vec<zrbtd
             }
         }
     }
-    Ok(findings)
+    Ok(zrbtdru_ScanResult { findings, inventory })
 }
 
 /// Render findings as a stable one-per-line report.
@@ -883,13 +923,22 @@ fn zrbtdru_run_domain(dir: &Path, domain: zrbtdru_Domain, label: &str) -> rbtdre
         Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
     let tools = root.join(ZRBTDRU_TOOLS_SUBDIR);
-    let findings = match zrbtdru_scan_domain(&tools, domain) {
-        Ok(f) => f,
+    let scan = match zrbtdru_scan_domain(&tools, domain) {
+        Ok(s) => s,
         Err(e) => return rbtdre_Verdict::Fail(e),
     };
-    let report = zrbtdru_render(&findings);
-    let trace_name = format!("{}{}{}", ZRBTDRU_FINDINGS_PREFIX, label, ZRBTDRU_FINDINGS_SUFFIX);
-    let _ = std::fs::write(dir.join(trace_name), &report);
+    let findings = &scan.findings;
+    let report = zrbtdru_render(findings);
+    let findings_name = format!("{}{}{}", ZRBTDRU_TRACE_PREFIX, label, ZRBTDRU_FINDINGS_SUFFIX);
+    let _ = std::fs::write(dir.join(findings_name), &report);
+
+    let mut inventory_report = String::new();
+    for cmd in &scan.inventory {
+        inventory_report.push_str(cmd);
+        inventory_report.push('\n');
+    }
+    let inventory_name = format!("{}{}{}", ZRBTDRU_TRACE_PREFIX, label, ZRBTDRU_INVENTORY_SUFFIX);
+    let _ = std::fs::write(dir.join(inventory_name), &inventory_report);
 
     if findings.is_empty() {
         rbtdre_Verdict::Pass
