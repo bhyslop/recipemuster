@@ -133,15 +133,22 @@ pub(crate) const ZRBTDRU_POSIX_FLOOR: &[&str] = &[
 /// + specialized). A cost accepted by every consumer; each appears in RBS0 with
 /// its justification.
 pub(crate) const ZRBTDRU_DECLARED_DEPS: &[&str] = &[
-    "bash", "curl", "docker", "git", "jq", "openssl", "podman", "scp",
-    "shellcheck", "ssh", "ssh-keygen", "tcpdump", "timeout",
+    "bash", "cargo", "curl", "docker", "git", "jq", "openssl", "podman", "scp",
+    "shellcheck", "ssh", "ssh-keygen", "stat", "tar", "tee", "timeout",
 ];
 
-/// GCB-extra allowlist — commands present in the Cloud Build cloud-sdk image
-/// and used only by GCB-bash. Empty until the discovery run enumerates actual
-/// GCB command usage; encoded thereafter.
-pub(crate) const ZRBTDRU_GCB_EXTRA: &[&str] = &[
-    // Populated from the cupel discovery run over Tools/rbk/rbgj*.
+/// Curated GCB container-tool allowlist — the external commands present in the
+/// reliquary tool images (alpine/docker→busybox, gcloud→Debian, skopeo→Fedora)
+/// that GCB-bash legitimately uses, enumerated empirically via the cupel
+/// inventory over Tools/rbk/rbgj*. GCB-allowed = POSIX floor (universal in every
+/// container) ∪ this list. It deliberately does NOT inherit the kit declared
+/// deps: the GCB containers lack jq/openssl/etc., and the rbgj* scripts already
+/// avoid them by hand ("no jq dependency — use grep+cut"), so a GCB script
+/// reaching for a tool outside the controlled containers must fail — a supply-
+/// chain conformance check, not merely a portability one.
+pub(crate) const ZRBTDRU_GCB_ALLOWED: &[&str] = &[
+    "awk", "cat", "cut", "curl", "docker", "grep", "ls", "sha256sum",
+    "skopeo", "tr", "wget",
 ];
 
 /// Bash builtins and command-position keywords that name no external command —
@@ -748,14 +755,15 @@ pub(crate) fn zrbtdru_classify(
     if locals.contains(command) || locals.contains(base) {
         return None;
     }
+    // POSIX floor is universal — cleared in both domains.
     if ZRBTDRU_POSIX_FLOOR.contains(&base) {
-        return None;
-    }
-    if ZRBTDRU_DECLARED_DEPS.contains(&base) {
         return None;
     }
     match domain {
         zrbtdru_Domain::Kit => {
+            if ZRBTDRU_DECLARED_DEPS.contains(&base) {
+                return None;
+            }
             for ev in ZRBTDRU_EVICTIONS {
                 if ev.command == base {
                     return Some(format!("evicted command — use {}", ev.replacement));
@@ -764,15 +772,12 @@ pub(crate) fn zrbtdru_classify(
             Some("unknown command — not in POSIX floor or RBS0 declared dependencies".to_string())
         }
         zrbtdru_Domain::Gcb => {
-            if ZRBTDRU_GCB_EXTRA.contains(&base) {
+            // No declared-dep inheritance and no eviction free-pass: GCB-bash is
+            // held to floor ∪ the curated container-tool list (supply-chain).
+            if ZRBTDRU_GCB_ALLOWED.contains(&base) {
                 return None;
             }
-            for ev in ZRBTDRU_EVICTIONS {
-                if ev.command == base {
-                    return None;
-                }
-            }
-            Some("unknown command — not in the GCB allowlist".to_string())
+            Some("unknown command — not in the curated GCB container-tool allowlist".to_string())
         }
     }
 }

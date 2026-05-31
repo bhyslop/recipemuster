@@ -212,9 +212,21 @@ fn rbtdtu_classify_eviction_in_kit() {
 }
 
 #[test]
-fn rbtdtu_classify_eviction_tolerated_in_gcb() {
+fn rbtdtu_classify_gcb_allowlist_is_floor_plus_curated() {
     let locals = BTreeSet::new();
+    // Curated container tools clear — incl. ones evicted in kit (grep) and ones
+    // that are kit-declared deps (curl). POSIX floor clears (universal).
     assert!(zrbtdru_classify("grep", &locals, zrbtdru_Domain::Gcb).is_none());
+    assert!(zrbtdru_classify("skopeo", &locals, zrbtdru_Domain::Gcb).is_none());
+    assert!(zrbtdru_classify("curl", &locals, zrbtdru_Domain::Gcb).is_none());
+    assert!(zrbtdru_classify("cp", &locals, zrbtdru_Domain::Gcb).is_none());
+    // No eviction free-pass: an evicted command absent from the curated list is
+    // flagged in GCB (base64 is not in any reliquary container).
+    assert!(zrbtdru_classify("base64", &locals, zrbtdru_Domain::Gcb).is_some());
+    // No declared-dep inheritance: jq/openssl are kit deps but absent from the
+    // GCB containers, so they are flagged — supply-chain conformance.
+    assert!(zrbtdru_classify("jq", &locals, zrbtdru_Domain::Gcb).is_some());
+    assert!(zrbtdru_classify("openssl", &locals, zrbtdru_Domain::Gcb).is_some());
 }
 
 #[test]
@@ -223,6 +235,13 @@ fn rbtdtu_classify_posix_floor_and_declared_deps_clear() {
     assert!(zrbtdru_classify("cp", &locals, zrbtdru_Domain::Kit).is_none());
     assert!(zrbtdru_classify("git", &locals, zrbtdru_Domain::Kit).is_none());
     assert!(zrbtdru_classify("openssl", &locals, zrbtdru_Domain::Kit).is_none());
+    // Newly declared deps (ratified 2026-05-31): tar/stat/cargo/tee clear in kit.
+    assert!(zrbtdru_classify("tar", &locals, zrbtdru_Domain::Kit).is_none());
+    assert!(zrbtdru_classify("stat", &locals, zrbtdru_Domain::Kit).is_none());
+    assert!(zrbtdru_classify("cargo", &locals, zrbtdru_Domain::Kit).is_none());
+    assert!(zrbtdru_classify("tee", &locals, zrbtdru_Domain::Kit).is_none());
+    // tcpdump was removed (container/VM-side only); now flagged in kit.
+    assert!(zrbtdru_classify("tcpdump", &locals, zrbtdru_Domain::Kit).is_some());
 }
 
 #[test]
