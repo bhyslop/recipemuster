@@ -25,6 +25,10 @@ use super::rbtdru_cupel::{
     zrbtdru_is_assignment,
     zrbtdru_keyword_kind,
     zrbtdru_Domain,
+    ZRBTDRU_DECLARED_DEPS,
+    ZRBTDRU_EVICTIONS,
+    ZRBTDRU_GCB_ALLOWED,
+    ZRBTDRU_POSIX_FLOOR,
 };
 
 /// Command-position tokens of `src`, as bare strings (line numbers dropped).
@@ -203,45 +207,81 @@ fn rbtdtu_collect_functions_both_forms() {
     assert!(set.contains("bar_fn"));
 }
 
+// The classify-membership tests derive their inputs from the source-of-truth
+// allowlist arrays rather than hardcoded command names: every entry must obey
+// its array's contract, and renaming a dep cannot silently drift the test.
+
 #[test]
-fn rbtdtu_classify_eviction_in_kit() {
+fn rbtdtu_classify_evictions_flagged_in_kit() {
     let locals = BTreeSet::new();
-    let verdict = zrbtdru_classify("grep", &locals, zrbtdru_Domain::Kit);
-    assert!(verdict.is_some());
-    assert!(verdict.unwrap().contains("evicted"));
+    for ev in ZRBTDRU_EVICTIONS {
+        let verdict = zrbtdru_classify(ev.command, &locals, zrbtdru_Domain::Kit);
+        assert!(
+            verdict.as_deref().is_some_and(|d| d.contains("evicted")),
+            "eviction-table command must be flagged as evicted in kit: {}",
+            ev.command
+        );
+    }
 }
 
 #[test]
-fn rbtdtu_classify_gcb_allowlist_is_floor_plus_curated() {
+fn rbtdtu_classify_floor_clears_in_both_domains() {
     let locals = BTreeSet::new();
-    // Curated container tools clear — incl. ones evicted in kit (grep) and ones
-    // that are kit-declared deps (curl). POSIX floor clears (universal).
-    assert!(zrbtdru_classify("grep", &locals, zrbtdru_Domain::Gcb).is_none());
-    assert!(zrbtdru_classify("skopeo", &locals, zrbtdru_Domain::Gcb).is_none());
-    assert!(zrbtdru_classify("curl", &locals, zrbtdru_Domain::Gcb).is_none());
-    assert!(zrbtdru_classify("cp", &locals, zrbtdru_Domain::Gcb).is_none());
-    // No eviction free-pass: an evicted command absent from the curated list is
-    // flagged in GCB (base64 is not in any reliquary container).
-    assert!(zrbtdru_classify("base64", &locals, zrbtdru_Domain::Gcb).is_some());
-    // No declared-dep inheritance: jq/openssl are kit deps but absent from the
-    // GCB containers, so they are flagged — supply-chain conformance.
-    assert!(zrbtdru_classify("jq", &locals, zrbtdru_Domain::Gcb).is_some());
-    assert!(zrbtdru_classify("openssl", &locals, zrbtdru_Domain::Gcb).is_some());
+    for cmd in ZRBTDRU_POSIX_FLOOR {
+        assert!(zrbtdru_classify(cmd, &locals, zrbtdru_Domain::Kit).is_none(),
+            "POSIX floor must clear in kit: {cmd}");
+        assert!(zrbtdru_classify(cmd, &locals, zrbtdru_Domain::Gcb).is_none(),
+            "POSIX floor is universal — must clear in gcb: {cmd}");
+    }
 }
 
 #[test]
-fn rbtdtu_classify_posix_floor_and_declared_deps_clear() {
+fn rbtdtu_classify_declared_deps_clear_in_kit() {
     let locals = BTreeSet::new();
-    assert!(zrbtdru_classify("cp", &locals, zrbtdru_Domain::Kit).is_none());
-    assert!(zrbtdru_classify("git", &locals, zrbtdru_Domain::Kit).is_none());
-    assert!(zrbtdru_classify("openssl", &locals, zrbtdru_Domain::Kit).is_none());
-    // Newly declared deps (ratified 2026-05-31): tar/stat/cargo/tee clear in kit.
-    assert!(zrbtdru_classify("tar", &locals, zrbtdru_Domain::Kit).is_none());
-    assert!(zrbtdru_classify("stat", &locals, zrbtdru_Domain::Kit).is_none());
-    assert!(zrbtdru_classify("cargo", &locals, zrbtdru_Domain::Kit).is_none());
-    assert!(zrbtdru_classify("tee", &locals, zrbtdru_Domain::Kit).is_none());
-    // tcpdump was removed (container/VM-side only); now flagged in kit.
-    assert!(zrbtdru_classify("tcpdump", &locals, zrbtdru_Domain::Kit).is_some());
+    for cmd in ZRBTDRU_DECLARED_DEPS {
+        assert!(zrbtdru_classify(cmd, &locals, zrbtdru_Domain::Kit).is_none(),
+            "declared dependency must clear in kit: {cmd}");
+    }
+}
+
+#[test]
+fn rbtdtu_classify_gcb_curated_list_clears_in_gcb() {
+    let locals = BTreeSet::new();
+    for cmd in ZRBTDRU_GCB_ALLOWED {
+        assert!(zrbtdru_classify(cmd, &locals, zrbtdru_Domain::Gcb).is_none(),
+            "curated GCB container tool must clear in gcb: {cmd}");
+    }
+}
+
+#[test]
+fn rbtdtu_classify_gcb_does_not_inherit_kit_only_deps() {
+    // GCB inherits the floor but NOT the kit declared deps: any declared dep
+    // absent from both the floor and the curated GCB list must be flagged —
+    // the supply-chain conformance contract (jq/openssl/etc. aren't in the
+    // reliquary containers).
+    let locals = BTreeSet::new();
+    for cmd in ZRBTDRU_DECLARED_DEPS {
+        if ZRBTDRU_POSIX_FLOOR.contains(cmd) || ZRBTDRU_GCB_ALLOWED.contains(cmd) {
+            continue;
+        }
+        assert!(zrbtdru_classify(cmd, &locals, zrbtdru_Domain::Gcb).is_some(),
+            "kit-only declared dep must be flagged in gcb: {cmd}");
+    }
+}
+
+#[test]
+fn rbtdtu_classify_gcb_has_no_eviction_free_pass() {
+    // Evictions are not blanket-tolerated in GCB: an eviction-table command
+    // absent from the curated list must be flagged.
+    let locals = BTreeSet::new();
+    for ev in ZRBTDRU_EVICTIONS {
+        if ZRBTDRU_GCB_ALLOWED.contains(&ev.command) {
+            continue;
+        }
+        assert!(zrbtdru_classify(ev.command, &locals, zrbtdru_Domain::Gcb).is_some(),
+            "eviction absent from the curated GCB list must be flagged in gcb: {}",
+            ev.command);
+    }
 }
 
 #[test]
