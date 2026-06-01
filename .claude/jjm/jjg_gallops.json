@@ -8337,9 +8337,23 @@
       "jjghn_silks": "rbk-mvp-lode-universal-capture",
       "jjghn_creation_time": "260511",
       "jjghn_status": "jjghe_racing",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
+      "jjghn_order": [
+        "₢BHAAA"
+      ],
+      "jjghn_next_pace_seed": "AAB",
+      "jjghn_paces": {
+        "₢BHAAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260601-0619",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nDesign conversation requiring judgment — the first kind locks the reusable shape for all six. Opus, conversational mount.\n\n## Goal\nSketch base-kind capture (`ensconce`) running parallel-safe alongside live `enshrine`, and through that slice settle the reusable Lode backbone. No cutover.\n\n## First action — gate\nRead-only blast-radius scan to verify the daylight the whole strategy rests on: confirm `enshrine` capture (writes `rbi_es`, feeds the vessel ANCHOR consumption checked by conjure's in-pool preflight) is cleanly separable from a new additive Lode module. If hidden coupling surfaces (namespace enumerators, shared kindle/regime state, preflight assumptions), surface it before writing code — the strategy may need narrowing or a pivot to a greenfield kind.\n\n## Locked constraints\n- Base-first because small artifacts make the backbone-tuning loop cheap.\n- Capture-pure: `ensconce` mints a Lode + capture-file and writes NO consumer config. This is the daylight guarantee (paddock no-mixing premise) — it must not touch `enshrine` code or ANCHOR consumption.\n- Distinct GAR namespace, never `rbi_es`. Namespace collapse is a cutover act, deferred.\n- Settle through this slice: GAR package naming, the capture-file envelope shape, the code-module prefix.\n- Test architecture is backbone (not coverage): push logic to deterministic `fast` (resolve-coordinate, verify-checksum, envelope-shape over fixtures); thin `service` live-GAR lifecycle (capture → list → inspect → banish, guaranteed teardown); minimal upstream smoke. Upstream is the Pale — contain its nondeterminism at one membrane. Assert capture-fidelity (digest matches upstream), not mere existence.\n- Design the 1-member package so an N-member cohort would slot in without restructuring — the cheap test of the paddock's \"cardinality is just an attribute\" claim.\n- `RBSL` spec stub only if useful; do not finish it. RBS0* edits are out of scope (deferred to the remainder pace).\n\n## Done\n`ensconce` captures a base into a parallel Lode with a real provenance envelope + capture-file; list / inspect / banish work against live GAR; the fast/service/smoke layers exist for base; live `enshrine` and all conjure builds remain untouched and green.",
+              "jjgtn_silks": "lode-base-pilot-sketch",
+              "jjgtn_basis": "d3fc156"
+            }
+          ]
+        }
+      }
     },
     "₣BI": {
       "jjghn_silks": "rbk-22-win-tadmor-deepening",
