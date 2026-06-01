@@ -1,6 +1,6 @@
 {
   "jjgrn_schema_version": 4,
-  "jjgrn_next_heat_seed": "BV",
+  "jjgrn_next_heat_seed": "BW",
   "jjgrn_heat_order": [
     "₣BH",
     "₣BF",
@@ -26,7 +26,8 @@
     "₣Au",
     "₣BC",
     "₣BI",
-    "₣BL"
+    "₣BL",
+    "₣BV"
   ],
   "jjgrn_heats": {
     "₣A-": {
@@ -8665,6 +8666,14 @@
     },
     "₣BU": {
       "jjghn_silks": "rbk-mvp-final-release-prep",
+      "jjghn_creation_time": "260601",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [],
+      "jjghn_next_pace_seed": "AAA",
+      "jjghn_paces": {}
+    },
+    "₣BV": {
+      "jjghn_silks": "rbk-mvp-uncontrolled-cygwin-test",
       "jjghn_creation_time": "260601",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [],
