@@ -4932,6 +4932,13 @@
         "₢AUAA7": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260601-0538",
+              "jjgtn_state": "jjgte_abandoned",
+              "jjgtn_text": "Drafted from ₢A_AAG in ₣A_.\n\n## Character\nEnd-to-end validation — user perspective. Every handbook track must complete cleanly.\n\n## Work\nWalk every onboarding track in sequence: Crash Course, Credential Retriever, Credential Director, First Crucible, Director First Cloud Build, Payor, Governor. Verify all handbook windows render correctly with prefixed resource names. Confirm probe outputs show the correct prefixed container/image identifiers. Fix any display or functional issues.",
+              "jjgtn_silks": "run-all-onboarding-tracks",
+              "jjgtn_basis": "ae57c43"
+            },
+            {
               "jjgtn_ts": "260514-1128",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "Drafted from ₢A_AAG in ₣A_.\n\n## Character\nEnd-to-end validation — user perspective. Every handbook track must complete cleanly.\n\n## Work\nWalk every onboarding track in sequence: Crash Course, Credential Retriever, Credential Director, First Crucible, Director First Cloud Build, Payor, Governor. Verify all handbook windows render correctly with prefixed resource names. Confirm probe outputs show the correct prefixed container/image identifiers. Fix any display or functional issues.",
