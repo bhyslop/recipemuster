@@ -8676,9 +8676,23 @@
       "jjghn_silks": "rbk-mvp-uncontrolled-cygwin-test",
       "jjghn_creation_time": "260601",
       "jjghn_status": "jjghe_racing",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
+      "jjghn_order": [
+        "₢BVAAA"
+      ],
+      "jjghn_next_pace_seed": "AAB",
+      "jjghn_paces": {
+        "₢BVAAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260601-0733",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nMechanical, operator-driven. Install the route-independent Cygwin packages on\nthe stock `cygwin@rocket` box.\n\n## Scope\n\nInstall via Cygwin `setup-x86_64.exe`: `tmux`, `shellcheck`, `curl`. The `curl`\npackage makes `/usr/bin/curl` shadow the Windows `system32` curl — a platform-\nvariant hazard per BCG's Platform-Variant Command Guidance.\n\n## Locked\n\nNo `gcc` / `rust` / LLVM here — those are Route-C-specific toolchain, deferred to\nthe experiment pace by ₣BV paddock decision.\n\n## Out of scope\n\nRemote automation — the operator runs `setup` interactively at the machine.\n\n## Done\n\n`tmux` and `shellcheck` present; `command -v curl` resolves to `/usr/bin/curl`\n(Cygwin), not the Windows `system32` curl.",
+              "jjgtn_silks": "install-known-cygwin-deps",
+              "jjgtn_basis": "9439c05"
+            }
+          ]
+        }
+      }
     }
   }
 }
