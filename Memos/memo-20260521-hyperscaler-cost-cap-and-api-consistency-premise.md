@@ -122,6 +122,85 @@ non-optional cost line — not a one-time setup.*
    is physics; the second is a contract decision. S3-2020 proves the
    vendor closes consistency gaps when motivated.
 
+### Mechanism vs. contract — where the "laziness" actually lives
+
+A fair reading separates two things the gripe tends to fuse, because only
+one of them is laziness:
+
+- **The eventual-consistency *mechanism* is largely sound engineering.**
+  PACELC (Abadi 2010, extending the Brewer / Gilbert-Lynch CAP theorem)
+  names the everyday tradeoff CAP omits: even with *no* partition, strong
+  consistency demands coordination, and coordination costs latency. IAM
+  is *read on every API call* across the platform — north of 500M/sec —
+  while policy writes are comparatively rare. Optimizing the billions of
+  reads to be fast, locally cached, and available even when a region is
+  cut off from the control plane, at the price of a rare write taking ~4s
+  to fully propagate, is the defensible common-case choice. Conceding
+  this is what sharpens the real complaint.
+- **The missing *completion contract* is the unforced error.** Keeping
+  every bit of the propagation physics while *also* exposing a pollable
+  terminal-state signal with a bounded SLA costs the vendor nothing in
+  consistency model. They mostly decline. That omission — not eventual
+  consistency itself — is what forces every customer to independently
+  reinvent retry/poll/tolerate scaffolding.
+
+**The smell test for which is which:** look at the shape of the
+workaround. A `poll-until-terminal-state` loop is the honest cost of a
+distributed world. A fixed `time_sleep N` magic number is papering over a
+contract the vendor declined to give — a guessed timeout standing in for
+a signal that should exist. Blind sleeps are the laziness fingerprint,
+ours forced by theirs; they are the concrete locus of the externalized
+cost, worth hunting down as such.
+
+**Fairness caveat on the S3-2020 hammer.** S3 going strongly consistent
+proves AWS closes consistency gaps when motivated — but S3's problem
+(read-after-write on one object in one region's metadata) is a genuinely
+easier shape than IAM's (global cross-region auth state read on every
+call). S3-2020 therefore indicts the *contract gap* convincingly; it does
+not by itself prove the *eventual mechanism* is laziness. Cite it against
+the missing contract, not against the mechanism.
+
+**Update (2026-06).** AWS acknowledged the IAM-consistency security
+implications in April 2025 — applying fixes and documentation updates
+without classifying it as a vulnerability — and the ~4s auth-plane lag
+persists into 2026. A second cost now rides the same defect: the
+propagation window is an active *security* vector (revoked credentials
+staying briefly valid for attacker persistence; see the `notyet`
+revocation-gap tester). The original framing treated eventual consistency
+purely as an automation-correctness tax; it is also a
+credential-revocation-latency exposure.
+
+### The client-library mirror — generic vs. vague
+
+The vendor's missing *completion* contract has a downstream twin in the
+SDKs: a missing *error-surface* contract. A client library that types
+every method as "may return any HTTP error" has not made the interface
+**generic** — it has made it **vague**, and the two are opposite virtues.
+Genericity done right is parametric: one mechanism, many concrete types,
+each fully specified at the use site. Vagueness is a union too wide to be
+a contract: a method's real return set might be `{403, 404, 409}`, but the
+declared type says `{anything}` — losing information in both directions.
+You write (or guiltily skip) handlers for codes that cannot occur here,
+*and* get no warning about the codes that genuinely can. A contract that
+admits everything asserts nothing.
+
+This compounds the missing-contract defect twice over: no completion
+contract forces retry/poll/sleep; no error-surface contract means that
+scaffolding cannot even be precise about *what* it tolerates, so it
+catches broad swaths and hopes. The bespoke per-code handling already in
+this codebase is us re-deriving, one observed 409 at a time, the contract
+the SDK refused to assert.
+
+This is Interface Contamination Discipline inverted across the Pale.
+Inside our realm we mandate one canonical form and tolerate nothing; the
+SDK does the reverse — tolerates every form, canonicalizes nothing, and
+exports that entropy to us. The disciplined membrane: characterize the
+*actual* per-operation code set empirically, pin it in one place, and
+fail fast on anything outside the surveyed set — so a genuinely new code
+crashes loudly rather than being swallowed by an over-broad catch, with a
+logged bend and a removal condition if the vendor ever tightens the
+contract.
+
 **Axis-B premise to cite:** *A terminal-state operation contract is a
 solved, available pattern that the giants apply unevenly, omitting it on
 exactly the IAM/billing operations that cause races. Eventual
@@ -172,5 +251,9 @@ transient workaround awaiting a vendor fix.*
 - [Google AIP-151: Long-running operations](https://google.aip.dev/151)
 - [AWS S3 Update — Strong Read-After-Write Consistency (Dec 2020)](https://aws.amazon.com/blogs/aws/amazon-s3-update-strong-read-after-write-consistency/)
 - [AWS IAM eventual consistency and Terraform (the time_sleep workaround)](https://blog.pesky.moe/posts/2023-09-11-iam-consistency-terraform/)
+- [PACELC theorem (Abadi 2010, extending CAP)](https://en.wikipedia.org/wiki/PACELC_theorem)
+- [AWS docs: Troubleshoot IAM — changes propagate with delay](https://docs.aws.amazon.com/IAM/latest/UserGuide/troubleshoot.html)
+- [IAM Persistence through Eventual Consistency — Hacking The Cloud](https://hackingthe.cloud/aws/post_exploitation/iam_persistence_eventual_consistency/)
+- [notyet — open-source tester for AWS IAM credential-revocation gaps (OffensAI)](https://www.offensai.com/blog/notyet-aws-iam-credential-revocation-gaps)
 
 <!-- eof -->
