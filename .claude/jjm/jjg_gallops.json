@@ -8723,9 +8723,23 @@
       "jjghn_silks": "rbk-podman-vm-feature",
       "jjghn_creation_time": "260601",
       "jjghn_status": "jjghe_stabled",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
+      "jjghn_order": [
+        "₢BWAAA"
+      ],
+      "jjghn_next_pace_seed": "AAB",
+      "jjghn_paces": {
+        "₢BWAAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260601-0751",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nReinstatement — mount-time judgment against the podman feature as it then stands.\n\n## Goal\nUn-quarantine the RBK station regime (RBRS) from Tools/rbk/vov_veiled/FUTURE/ and re-register\nits active surface, as part of the podman/VM feature build-out. RBRS supplies the podman\nstation config (podman root dir, VM image cache, VM platform) consumed by\nFUTURE/rbv_PodmanVM.sh.\n\n## Shape\nReverse the removal done under ₢BBABT (rbrs-relocate-to-future): move rbrs_regime.sh,\nrbrs_cli.sh, and RBSRS-RegimeStation.adoc back to the live tree, then restore the active\nsurface — rbw-rsr / rbw-rsv tabtargets, the rbtdrf_rs_rbrs test, the RBTDRM_MODULE_RBRS\nmanifest entry, the RBTDGC_RBRS_* constants, and the RBS0 TOC reference. The removal commit\non ₢BBABT is the reinstatement blueprint.\n\n## Sources\nFUTURE/rbv_PodmanVM.sh, FUTURE/RBSPV-PodmanVmSupplyChain.adoc, removal pace ₢BBABT.\n\n## Done\nRBRS validates for real on a configured station; the fast suite exercises rbtdrf_rs_rbrs\n(no longer self-skipping when rbrs.env is present).",
+              "jjgtn_silks": "rbrs-reinstate-from-future",
+              "jjgtn_basis": "0265ec4"
+            }
+          ]
+        }
+      }
     }
   }
 }
