@@ -42,7 +42,7 @@ if missing: "Usage: rbw-irh <hallmark>"
 //axhos_step
 . *Enumerate Packages Under Hallmarks Root*:
 .. {rbbc_store}
-`«HALLMARKS_ROOT»` from `RBGL_HALLMARKS_ROOT` (kindled as `RBRD_CLOUD_PREFIX` + `hallmarks`)
+`«HALLMARKS_ROOT»` from `RBGL_HALLMARKS_ROOT` (kindled from `RBGC_GAR_CATEGORY_HALLMARKS`, the token `rbi_hm`)
 .. {rbbc_store}
 `«REPO_BASE»` as the GAR REST API repository base (`projects/«PROJECT»/locations/«REGION»/repositories/«REPOSITORY»`)
 .. {rbbc_call}
@@ -109,7 +109,7 @@ if missing: "Usage: rbw-irr <stamp>"
 //axhos_step
 . *Enumerate Packages Under Reliquaries Root*:
 .. {rbbc_store}
-`«RELIQUARIES_ROOT»` from `RBGL_RELIQUARIES_ROOT` (kindled as `RBRD_CLOUD_PREFIX` + `reliquaries`)
+`«RELIQUARIES_ROOT»` from `RBGL_RELIQUARIES_ROOT` (kindled from `RBGC_GAR_CATEGORY_RELIQUARIES`, the token `rbi_rq`)
 .. {rbbc_store}
 `«REPO_BASE»` as the GAR REST API repository base (`projects/«PROJECT»/locations/«REGION»/repositories/«REPOSITORY»`)
 .. {rbbc_call}

@@ -42,11 +42,15 @@ avoid re-selecting a moniker that is still in the soft-delete graveyard.
 //axhos_step
 . *Emit per-moniker fact files*:
 .. {rbbc_store}
-state string to `«MONIKER».depot`
-(extension constant `RBGP_FACT_EXT_DEPOT`)
+`«CLOUD_PREFIX»` by stripping the `-d-*` suffix from the project_id; namespace
+fact files under this subdir so two depots sharing a moniker under different
+cloud_prefixes can coexist
 .. {rbbc_store}
-canonical project_id to `«MONIKER».depot-project`
-(extension constant `RBGP_FACT_EXT_DEPOT_PROJECT`)
+state string to `«CLOUD_PREFIX»/«MONIKER».depot`
+(extension constant `RBCC_fact_ext_depot`)
+.. {rbbc_store}
+canonical project_id to `«CLOUD_PREFIX»/«MONIKER».depot-project`
+(extension constant `RBCC_fact_ext_depot_project`)
 
 //axhoot_typed_output
 {rbtgi_depot}

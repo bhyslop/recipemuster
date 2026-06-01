@@ -49,6 +49,16 @@ About and vouch always use airgap regardless of this setting.
 Conjure and bind use the pool selected by this variable.
 
 //axhrgb_group
+{rbrv_group_reliquary}
+
+//axhrgv_variable
+{rbrv_reliquary}
+
+Reliquary datestamp identifying the tool image set in GAR (e.g., `r260324193326`).
+Applies to every vessel regardless of mode.
+Must be 1-14 characters.
+
+//axhrgb_group
 {rbrv_group_binding}
 
 //axhrgc_gate
