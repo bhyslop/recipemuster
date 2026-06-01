@@ -12,7 +12,7 @@ access.
 The
 {rbtr_governor}
 mints the SA, generates its credential key, and writes the RBRA bytes to the assay output slot.
-The operation is singleton-per-role: no instance argument; the SA identity is derived from regime constants as `${RBCC_account_retriever}-${RBRD_DEPOT_MONIKER}`.
+The operation is identity-parameterized: a required identity folio (param1) is supplied by the operator; the SA account name is composed as `${RBCC_account_retriever}-<identity>`.
 Fatal if the SA already exists — operator must
 {rbtgo_retriever_divest}
 first to re-key.
@@ -26,12 +26,13 @@ first to re-key.
 `«GOVERNOR_TOKEN»` for subsequent API calls
 
 //axhos_step
-. *Derive
+. *Compose
 {rbtr_retriever}
 Service Account Identity*:
+.. {rbbc_require}
+identity folio (param1) is non-empty
 .. {rbbc_store}
-`«RETRIEVER_ACCOUNT_NAME»` as `${RBCC_account_retriever}-${RBRD_DEPOT_MONIKER}` (regime-kindled from
-{rbrd_depot_moniker})
+`«RETRIEVER_ACCOUNT_NAME»` as `${RBCC_account_retriever}-<identity>` (operator-supplied identity composing the account name)
 .. {rbbc_store}
 `«RETRIEVER_EMAIL»` as `«RETRIEVER_ACCOUNT_NAME»@${RBDC_DEPOT_PROJECT_ID}.iam.gserviceaccount.com`
 .. NOTE: `RBDC_DEPOT_PROJECT_ID` is derived from `(RBRD_CLOUD_PREFIX, RBRD_DEPOT_MONIKER)` at regime kindle time; no operator-supplied project ID field is referenced.
@@ -54,8 +55,8 @@ Service Account*:
 .. {rbbc_call}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/create[iam.serviceAccounts.create] with:
 ... accountId: `«RETRIEVER_ACCOUNT_NAME»`
-... displayName: `Recipe Bottle Retriever`
-... description: `Read-only access to Google Artifact Registry for depot ${RBRD_DEPOT_MONIKER}`
+... displayName: `Recipe Bottle Retriever (<identity>)`
+... description: `Read-only access to Google Artifact Registry - identity: <identity>`
 ... project:
 {rbtgi_depot_project}
 .. {rbbc_require}
@@ -118,4 +119,4 @@ IAM policy update successful
 `«RETRIEVER_RBRA_FILE»` RBRA bytes to the assay output slot via the producer-output discipline (the orphan's `${BURD_OUTPUT_DIR}` credential write retires)
 
 //axhoc_completion
-Successful execution invests retriever service account with read-only Artifact Registry access and delivers the RBRA credential bytes to the assay output slot.
+Successful execution invests retriever service account `«RETRIEVER_ACCOUNT_NAME»` with read-only Artifact Registry access, generates its credential key, and delivers the RBRA credential bytes to the assay output slot.

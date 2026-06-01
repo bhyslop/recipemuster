@@ -8,8 +8,8 @@ from the
 {rbtgi_depot_project}.
 The
 {rbtr_governor}
-reads the retriever's installed RBRA, extracts the SA email from the RBRA's `client_email` field, issues a REST DELETE against the IAM API, and removes the production RBRA file from disk to mirror cloud state and prevent stale-credential reuse.
-No arguments are required; the target SA is derived entirely from the kindled regime and the retriever's installed credential file.
+synthesizes the SA email from the supplied identity folio, issues a REST DELETE against the IAM API, and opportunistically removes the production RBRA file if its `client_email` matches the synthesized email.
+A required identity folio (param1) is supplied by the operator; the SA email is composed as `${RBCC_account_retriever}-<identity>@${RBGD_SA_EMAIL_FULL}`.
 
 //axhos_step
 . *Authenticate as {rbtr_governor}*:
@@ -19,16 +19,11 @@ No arguments are required; the target SA is derived entirely from the kindled re
 `«GOVERNOR_TOKEN»` for subsequent API calls
 
 //axhos_step
-. *Read Retriever RBRA and Extract SA Email*:
+. *Synthesize Service Account Email*:
 .. {rbbc_require}
-RBRA file present at
-{rbrr_retriever_rbra_file}
-.. {rbbc_fatal}
-if file missing: "Retriever RBRA file not found — retriever may not be invested"
+identity folio (param1) is non-empty
 .. {rbbc_store}
-`«RETRIEVER_EMAIL»` from RBRA's `client_email` field
-.. {rbbc_fatal}
-if `«RETRIEVER_EMAIL»` is empty or absent: "client_email field missing from retriever RBRA"
+`«RETRIEVER_EMAIL»` as `${RBCC_account_retriever}-<identity>@${RBGD_SA_EMAIL_FULL}` (composed from the role prefix and the operator-supplied identity)
 
 //axhos_step
 . *Divest Retriever Service Account*:
@@ -55,14 +50,12 @@ would otherwise race a still-visible account
 HTTP 404 within the eventual-consistency deadline
 
 //axhos_step
-. *Remove Production RBRA File*:
-.. Remove the retriever's RBRA file at
-{rbrr_retriever_rbra_file}
-from disk
-.. {rbbc_require}
-file removal successful or file already absent
-.. NOTE: Removing the RBRA file mirrors cloud state locally and prevents any process from reusing a credential that no longer corresponds to an active
-{giam_service_account}.
+. *Opportunistic RBRA Cleanup*:
+.. If the role's RBRA file exists at
+{rbrr_retriever_rbra_file},
+source it and read `RBRA_CLIENT_EMAIL`
+.. If `RBRA_CLIENT_EMAIL` equals `«RETRIEVER_EMAIL»`, remove the file
+.. NOTE: The removal is conditional — if the installed RBRA's `client_email` does not match the divested `«RETRIEVER_EMAIL»` (e.g., a different identity is currently installed), the file is left in place. No fatal error is raised when the file is absent or non-matching.
 
 //axhos_step
 . *Display Result*:
@@ -74,12 +67,13 @@ Successful execution removes the
 {rbtr_retriever}
 {giam_service_account}
 from
-{rbtgi_depot_project}
-and deletes the local RBRA credential file.
-Cloud state and local credential state are left in agreement: no stale key file remains after a successful divest.
+{rbtgi_depot_project}.
+If the installed RBRA at
+{rbrr_retriever_rbra_file}
+matches the divested identity, it is also removed; otherwise it is left intact.
 A 404 response from the cloud DELETE is accepted as success — the
 {giam_service_account}
-is absent either way, and the RBRA file is removed regardless.
+is absent either way.
 Proceed to
 {rbtgo_retriever_invest}
 to re-issue a fresh

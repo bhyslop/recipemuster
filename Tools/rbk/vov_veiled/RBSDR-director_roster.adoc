@@ -7,10 +7,10 @@ NOTE: This operation rosters
 in the
 {rbtgi_depot_project}
 via per-SA fact-file emission.
-Read-only observation: lists all SAs, filters to director-prefixed accountIds, and emits one fact per discovered SA via
+Read-only observation: lists all SAs, filters to director-prefixed emails, and emits one fact per discovered SA via
 {buf_write_fact_multi}
 against the `RBCC_fact_ext_roster_director` extension constant.
-Fact content is empty (presence-as-fact); stdout assertion of individual identities is retired.
+Fact value is the full SA email; `file_root` is the bare identity extracted from the email.
 
 //axhos_step
 . *Authenticate as
@@ -34,21 +34,21 @@ HTTP 200 response
 
 //axhos_step
 . *Filter to director service accounts*:
-.. From `«ACCOUNTS»`, retain only entries whose `.accountId` begins with the `${RBCC_account_director}-` prefix
+.. From `«ACCOUNTS»`, read the `.email` field of each entry and test whether it matches `^${RBCC_account_director}-(.+)@${RBGD_SA_EMAIL_FULL}$`
 .. {rbbc_store}
-`«DIRECTOR_ACCOUNTS»` — the filtered set; per-role observation per BBAAQ contract
+`«DIRECTOR_EMAILS»` — the matching emails; per-role observation per BBAAQ contract
 
 //axhos_step
 . *Emit Fact Per Discovered {rbtr_director}*:
-.. For each entry in `«DIRECTOR_ACCOUNTS»`:
+.. For each `«SA_EMAIL»` in `«DIRECTOR_EMAILS»`:
 ... {rbbc_store}
-`«IDENTITY»` by stripping the `${RBCC_account_director}-` prefix from the entry's `accountId`
+`«IDENTITY»` from the regex capture group — the portion of `«SA_EMAIL»` between `${RBCC_account_director}-` and `@${RBGD_SA_EMAIL_FULL}`
 ... {rbbc_call}
 {buf_write_fact_multi}
 with three positional arguments:
-.... `<file_root>`: composed as `<roster_subdir>/«IDENTITY»` (the basename root for the emitted fact file)
+.... `<file_root>`: `«IDENTITY»` (bare identity — the basename root for the emitted fact file)
 .... `<ext>`: `RBCC_fact_ext_roster_director` (resolves at source time to `roster-director`)
-.... `<value>`: `""` (empty content — presence-as-fact convention per RBS0:1081)
+.... `<value>`: `«SA_EMAIL»` (the full service account email address)
 
 //axhos_step
 . *Report count*:
@@ -56,5 +56,5 @@ with three positional arguments:
 total count of emitted director fact files
 
 //axhoc_completion
-Successful execution rosters {rbtr_director} service accounts via per-SA fact emission — one `roster-director` fact file per discovered identity.
+Successful execution rosters {rbtr_director} service accounts via per-SA fact emission — one `roster-director` fact file per discovered identity, each containing the full SA email as its value.
 The operation is read-only; no service accounts are created or modified.
