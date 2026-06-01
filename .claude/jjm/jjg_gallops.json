@@ -5901,9 +5901,10 @@
         "₢BBAAX",
         "₢BBABA",
         "₢BBABP",
-        "₢BBABT"
+        "₢BBABT",
+        "₢BBABU"
       ],
-      "jjghn_next_pace_seed": "ABU",
+      "jjghn_next_pace_seed": "ABV",
       "jjghn_paces": {
         "₢BBAA-": {
           "jjgpn_tacks": [
@@ -7965,6 +7966,17 @@
               "jjgtn_text": "## Character\nIntricate but mechanical.\n\n## Goal\nPull the RBK station regime (RBRS) off the active MVP surface. RBRS is dormant podman/VM\nstation config (RBRS_PODMAN_ROOT_DIR / _VMIMAGE_CACHE_DIR / _VM_PLATFORM) that self-skips in\nthe fast suite under the Docker MVP — noise for first MVP users. Preserve the payload intact\nfor the podman build-out (heat ₣BW).\n\n## Shape\nRelocate intact into Tools/rbk/vov_veiled/FUTURE/ (beside rbv_PodmanVM.sh): rbrs_regime.sh,\nrbrs_cli.sh, RBSRS-RegimeStation.adoc. Delete the active-surface hooks: rbw-rsr / rbw-rsv\ntabtargets, the rbtdrf_rs_rbrs test plus its rbrs-missing-platform negative case, the\nRBTDRM_MODULE_RBRS manifest entry, the RBTDGC_RBRS_* constants, the RBS0 TOC reference.\nDiscovery: grep -rn \"RBRS|RENDER_STATION|VALIDATE_STATION\" Tools/ (exclude burs, buk/).\n\n## Locked\nDo NOT touch the BUK station regime (BURC_STATION_FILE / BURD_STATION_FILE / burs) — it is\nload-bearing for every BUD dispatch and is a distinct regime from RBRS.\n\n## Done\nVerify rbv_cli.sh is not behind a live tabtarget before relocating it. Regenerate the\ngenerated context and rebuild theurge. Fast suite green with 0 skipped; no rbw-rs*\ntabtargets remain; RBRS payload intact under FUTURE/.",
               "jjgtn_silks": "rbrs-relocate-to-future",
               "jjgtn_basis": "0bb54c1"
+            }
+          ]
+        },
+        "₢BBABU": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260601-0820",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nMechanical lint cleanup with a security-boundary caveat. Most fixes are\nbehavior-neutral; the risk is concentrated in the jailer, where a quoting or\nword-splitting \"fix\" can change runtime behavior. Each jailer touch must be\ngated by appropriate crucible re-testing — not forbidden, but verified.\n\n## Goal\n\nBring the bash that lives outside `Tools/` — and is therefore un-gated today,\nsince the shellcheck root scans `Tools/` only — to shellcheck-clean, then widen\nthe release-tier shellcheck (`rbq_qualify_shellcheck`) to cover it so it stays\nclean by construction.\n\n## Scope\n\nDiscovery recipe (these are the currently-uncovered `.sh` files):\n\n  find . -name '*.sh' -type f -not -path './Tools/*' -not -path './tt/*' \\\n    -not -path './.git/*' -not -path '*/target/*'\n\nInclude the load-bearing ones: the moorings vessel jailer scripts under\n`rbmm_moorings/rbmv_vessels/common-sentry-context/` (sentry + pentacle),\n`MBS.STATION-reference.sh`, and the `rbnnh_post_charge.sh` charge hooks.\nExclude the same classes the release-tier gate already excludes: `Study/`\nscratch scripts and `rbmm_moorings/rbml_launchers/launcher.*.sh` trivial shims.\n\n## Jailer risk assessment — required, gating\n\nThe sentry and pentacle scripts run inside the crucible and define the security\nboundary (iptables, dnsmasq, enclave network). Before landing edits to them,\nclassify each finding as behavior-neutral vs behavior-affecting. For anything\nnot provably neutral, re-run the crucible security testing appropriately — at\nminimum the tadmor security fixture (`tt/rbw-ts.TestSuite.crucible.sh`, or the\ntadmor fixture directly), charging and quenching a crucible as the change\ndemands. RBSIP / the tadmor suite is the relevant containment contract.\n\n## Done looks like\n\n- The included outside-`Tools/` scripts are clean under `busc_shellcheckrc`.\n- `rbq_qualify_shellcheck` covers them (root widened beyond `Tools/` — multi-root\n  parameter vs explicit extra-file list is a mount-time call).\n- Jailer behavior verified intact by appropriate tadmor-tier testing after any\n  sentry/pentacle edit; the risk assessment is recorded in the commit trail.\n- The marshal-zero lint gate consequently refuses a dirty tree across the\n  widened set too.\n\n## Out of scope\n\n- `Study/` scratch and launcher shims.\n- Parallelizing shellcheck — settled out: serial is fine at release-prep cadence,\n  and `xargs -P` is non-POSIX / outside the allowed-command set.",
+              "jjgtn_silks": "shellcheck-cover-moorings-and-jailer",
+              "jjgtn_basis": "94adb0b"
             }
           ]
         }
