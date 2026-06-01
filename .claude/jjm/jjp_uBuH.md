@@ -87,14 +87,25 @@ A touchmark is *elected* where a consumer pins a specific captured deposit to us
 
 The election *mechanism* differs even where the *location* is the same — `base` election is **derived-pull** (the vessel reaches for the resolved coordinate the capture-file reports; capture stays pure and writes nothing), `reliquary` election is an **explicit yoke-stamp** across vessels — and the rename map must preserve that distinction (do not collapse derived-pull-ANCHOR and yoke-stamp-RELIQUARY because both land in the vessel). Nameplate is **not** a touchmark site for the build-time kinds; for the runtime-substrate kinds it *is* the election site, under Director authority, per the determinism premise. The charge-time provisioning mechanism for substrate touchmarks is consumption-side and deferred this heat (see Heat nature).
 
-## Package layout
+## Lode registry layout & naming (locked)
 
-One Lode = one GAR `package`. Members are versions/tags within that single package; batch-level provenance (about / vouch) attaches to the same package — reserved tag names, or the OCI referrers API if GAR support is mature enough (pace-time choice). Atomic whole-Lode delete is `packages delete` (one call); per-member cleanup is `versions delete` / `tags delete`.
+GAR category is **`rbi_ld`** (2-char, consistent with `rbi_hm`/`rq`/`es`/`df`). One Lode = one GAR `package` named **`rbi_ld/<kind-letter><stamp>`**, and that package *is* the atomic-delete unit. Kind-letters: `b` base, `t` tool, `r` reliquary, `w` wsl, `vw`/`vn` podvm-{wsl,native} (`v`=VM, echoing the retired `rbv_PodmanVM.sh`; `b=base` shares a letter with hallmark `b=bind` but the namespaces are separate, so it's accepted). Stamp matches the hallmark second-granular form (`YYMMDDHHMMSS`).
 
-- Single-member kinds (`base`, `tool`, `wsl`): a 1-member package + its provenance.
-- Multi-member kinds (`reliquary`, `podvm-wsl`, `podvm-native`): an N-member package + whole-batch provenance; each member individually addressable and deletable for post-bug cleanup.
+Members and provenance ride as **tags within that one package — never `/`-path-segments.** GAR has no subtree delete, so a slash makes sibling packages that can't be removed atomically (the exact regression today's reliquary `rbi_rq/<date>/<tool>` layout suffers). `packages delete rbi_ld/<kind><stamp>` removes the whole Lode in one call; per-member cleanup is `tags delete` / `versions delete`. ("Atomic" = single operation, not transactional rollback; partial-delete fixtures still assert member absence.) If GAR ever refuses a single-call delete of a mixed-artifact package, the fallback is a GCP-run delete loop over the package's tags — effectively atomic for our purposes.
 
-"Atomic" here means a single delete operation, not transactional rollback — no registry guarantees clean state if a bulk delete fails mid-flight; per-member fixtures must assert member absence after partial deletes.
+**The sprue.** `rbi_*` is RB's reserved tag prefix; the Director's semantic names take everything else (RB refuses Director tags beginning `rbi_`). The sprue marks strings from **RB's domain** — RB's authored lexicon (`base`, `vouch`, `sha256`, the reliquary tool words) **and** RB-measured-from-content values (the digest). It does **not** mark **foreign-cued** strings — anything derived from the vessel ORIGIN, the nameplate, or Director input. Hence `rbi_<name>` is forbidden (the name is a vessel cue) while `rbi_sha256-<digest>` is fine (the digest is RB-measured).
+
+Member tags:
+
+- **base** (singleton): `:rbi_base` (uniform greppable handle) + `:rbi_sha256-<full-hex>` (canonical OCI digest — matches what every tool reports, exact cross-Lode dedup) + `:<sanitized-origin>-<sha10>` (UNSPRUED — origin is a vessel cue; name + glance-fingerprint, = today's enshrine anchor, so cutover is a near-rename) + 0..N Director semantic names (unsprued) + `:rbi_vouch`.
+- **reliquary** (cohort): `:rbi_<tool>` per member + `:rbi_vouch` (closed RB vocabulary; no Director/digest layer — kept clean).
+
+**Provenance envelope (`:rbi_vouch`).** One per Lode, batch-level — the prototype brand-file promoted from a consumption-time text file to an acquisition-time artifact. Two homes, identical content: the host-side capture-file (the `rbf_fact_*` handoff that election's derived-pull reads) and the in-GAR `:rbi_vouch` tag (the Lode self-describing in the registry). Fields: lode identity (kind/package), `acquired_at`, `acquired_by` (Cloud Build SA), `capture_build` (the capture's own provenance), `trust_grade`, and `members[]` each carrying `name`/`origin`/`digest`/`verification`/its assigned `tags` — so the Director's naming is itself attested. `members[]` is the cardinality axis (length 1 for singletons, N for cohorts — same shape). Near-term unsigned (`signature: null`) but `schema`-versioned; future signing via cosign or the OCI referrers API (reserved-tag now, referrers once GAR maturity is confirmed). Exact field serialization is pace-time, firmed against `fast`-test fixtures — the shape above is the lock.
+
+**Two trust grades, declared per Lode — Pale honesty, never over-claim:**
+
+- **verified-against-published** (base/tool/reliquary/wsl): bytes re-checkable against a *persistent* upstream — OCI content-address on a durable registry, or an out-of-band published checksum (Canonical's SHA-256 for `wsl`).
+- **recorded-at-acquisition** (podvm-*): upstream offers no durable re-checkable reference (quay rotates podvm out within days), so RB attests only the digest observed at capture — trust-on-first-acquisition.
 
 ## Kinds
 
@@ -129,8 +140,7 @@ Payload shapes (orthogonal to member count): native layered OCI image (`base`, `
 - **Verb redesign blast radius.** Scan `Tools/rbk/vov_veiled/RBSA*.adoc` and `RBSI*.adoc` for verbs touching captured artifacts; for each, classify per-kind variance (unchanged / split / retired). Yoke is the headline because consumer-landing differs per kind; other splits expected. Recipe, not enumeration — premature listing ages poorly. (Quoin anchors live in `RBS0-SpecTop.adoc`: `rbtgo_ark_enshrine`, `rbtgo_depot_inscribe`, `rbtgo_director_yoke`, `gar_enshrines_namespace`/`gar_reliquaries_namespace`, `rbst_reliquary_stamp`, `rbf_fact_reliquary` are the capture cluster.)
 - **Substrate election landing.** For `wsl` and `podvm-*`, the touchmark is Director-pinned at the nameplate (determinism premise), materialized at charge — but *which* host-tier regime backs the node-side provisioning (station regime vs BURN node profile vs a new host-config regime) is open. Decide when the first non-vessel Lode consumption pace mounts.
 - **Spec letter — `RBSL`** (`L` verified free against the RBS* tree; no `RBSL*` exists). The Lode *code* module must take a prefix **other than `rbl`** (occupied by `rblm` Lifecycle Marshal) to avoid muddying that branch — pace-time pick; colophon `l` and spec `L` don't force it.
-- **GAR provenance attachment mechanism** — reserved tag names vs OCI referrers API; verify GAR referrers maturity before committing.
-- **GAR layout collapse** — whether `rbi_es` (enshrines) and `rbi_rq` (reliquaries) collapse into one Lode namespace shape is a pace-time layout choice; one-package-per-Lode is the only fixed constraint.
+- **GAR layout & provenance attachment — DECIDED** (see *Lode registry layout & naming*): single `rbi_ld`, one-package-per-Lode, members + reserved `:rbi_vouch` tag; `rbi_es`/`rbi_rq` migrate into `rbi_ld` at the deferred cutover. The OCI referrers API remains the future upgrade for signed attestation once GAR maturity is confirmed.
 
 ## Test coverage gate before deploy
 
@@ -138,11 +148,11 @@ Lifecycle fixtures against the new Lode surface must be slated and landed before
 
 ## Open issues before mounting paces
 
-All remaining open items are pace-time choices (detailed how-to under *Discovery recipes*, above), settled by the first relevant pace rather than in conversation:
+Remaining open items are pace-time choices, settled by the first relevant pace:
 
-1. **GAR layout** — `rbi_es` + `rbi_rq` namespace collapse.
-2. **Host-tier regime** for substrate touchmark election/provisioning.
-3. **GAR provenance attachment mechanism** — reserved tag names vs OCI referrers API.
+1. **Host-tier regime** for substrate touchmark election/provisioning (`wsl`/`podvm`) — station regime vs BURN node profile vs a new host-config regime. Decide when the first substrate-kind consumption pace mounts.
+
+(GAR layout and provenance attachment, formerly open here, are now decided — see *Lode registry layout & naming*: single `rbi_ld`, one-package-per-Lode, reserved `:rbi_vouch` tag.)
 
 ## Heat nature
 
