@@ -6,7 +6,9 @@ NOTE: This operation probes
 read access for a specified
 {rbtr_role}
 by performing a JWT-to-OAuth token exchange and then calling the Artifact Registry packages.list API.
-It may repeat for a configured number of iterations with a configurable delay, enabling sustained access verification and token lifecycle testing.
+It is a bounded propagation-absorbing retry, not a sustained-access check: the first successful response wins and the operation returns immediately.
+A freshly-granted IAM role is not yet readable during the post-grant propagation window, surfacing as HTTP 403; the operation re-attempts — re-exchanging the token each time — until access propagates or the attempt budget is exhausted.
+The operation's own defaults are a single attempt with no delay (`--count` 1, `--delay_ms` 0); the SA-role propagation budget (e.g. 60 attempts at 3000ms spacing) is supplied by the dispatching call-site, not baked into this operation.
 
 The operation accepts a role parameter selecting among
 {rbtr_governor},
@@ -25,11 +27,11 @@ if role missing: "Role parameter required (governor|director|retriever)"
 .. {rbbc_fatal}
 if role unrecognized: "Unknown role: «INPUT_ROLE» — must be governor, director, or retriever"
 .. {rbbc_store}
-`«ITERATION_COUNT»` from `--count` flag (default: 1)
+`«MAX_ATTEMPTS»` from `--count` flag (default: 1) — the maximum number of probe attempts, not a fixed iteration count; the first successful response ends the loop early
 .. {rbbc_store}
-`«DELAY_MS»` from `--delay_ms` flag (default: 0)
+`«DELAY_MS»` from `--delay_ms` flag (default: 0) — milliseconds to sleep between retries
 .. {rbbc_fatal}
-if `«ITERATION_COUNT»` is not a positive integer: "Count must be a positive integer"
+if `«MAX_ATTEMPTS»` is not a positive integer: "Count must be a positive integer"
 .. {rbbc_fatal}
 if `«DELAY_MS»` is not a non-negative integer: "Delay must be a non-negative integer"
 
@@ -70,17 +72,17 @@ if file missing: "«ROLE_DISPLAY» RBRA file missing at «RBRA_FILE»"
 `https://artifactregistry.googleapis.com/v1/projects/«DEPOT_PROJECT_ID»/locations/{rbrd_gcp_region}/repositories/«GAR_REPOSITORY»/packages`
 
 //axhos_step
-. *Execute Probe Iterations*:
-.. For each iteration `«I»` from 1 to `«ITERATION_COUNT»`:
+. *Execute Bounded Probe Attempts*:
+.. For each attempt `«ATTEMPT»` from 1 to `«MAX_ATTEMPTS»` (the loop ends early on the first successful response):
 
 ... *Acquire «ROLE_DISPLAY» Token*:
 .... Execute
 {rbtoe_jwt_oauth_exchange}
-with `«RBRA_FILE»`
+with `«RBRA_FILE»` — the token is re-exchanged on every attempt, so each retry carries a freshly-minted token
 .... {rbbc_store}
 `«ROLE_TOKEN»` from exchange result
 .... {rbbc_fatal}
-if token exchange fails: "Iteration «I»: JWT-to-OAuth exchange failed for «ROLE_DISPLAY»"
+if token exchange fails: "Attempt «ATTEMPT»: JWT-to-OAuth exchange failed for «ROLE_DISPLAY»"
 
 ... *Call Artifact Registry Packages API*:
 .... {rbbc_call}
@@ -88,43 +90,39 @@ link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.
 ..... method: `GET`
 ..... endpoint: `«VERIFY_URL»`
 ..... header: `Authorization: Bearer «ROLE_TOKEN»`
+.... The call absorbs transient server-side errors internally: on HTTP 500, 502, 503, or 504 it re-executes up to 3 total attempts with exponential backoff (2s, then 4s), and {rbbc_fatal} if all 3 return a 5xx status: "«ROLE_DISPLAY» repeated transient HTTP «HTTP_STATUS» after 3 attempts". The status surfaced to *Evaluate Response* is therefore always non-5xx.
 .... {rbbc_store}
 `«HTTP_STATUS»` from response status code
 .... {rbbc_store}
 `«RESPONSE_BODY»` from response body
+.... {rbbc_store}
+`«ERROR_SUMMARY»` as the `.error.message` field extracted from `«RESPONSE_BODY»` via jq (with a fallback string for empty, missing, or non-JSON bodies)
 
 ... *Evaluate Response*:
-.... If `«HTTP_STATUS»` is 200:
+.... If `«HTTP_STATUS»` is 200 or 206:
 ..... {rbbc_show}
-`Iteration «I»/«ITERATION_COUNT»: «ROLE_DISPLAY» OK — packages.list HTTP 200`
-.... If `«HTTP_STATUS»` is 403:
+`Attempt «ATTEMPT»: «ROLE_DISPLAY» OK — packages.list HTTP «HTTP_STATUS»`
+..... The operation succeeds and returns immediately; no further attempts run
+.... If `«HTTP_STATUS»` is 403 (access not yet propagated):
+..... If `«ATTEMPT»` is less than `«MAX_ATTEMPTS»`:
+...... {rbbc_show}
+`Attempt «ATTEMPT»: «ROLE_DISPLAY» 'not yet' (HTTP 403); retrying`
+...... If `«DELAY_MS»` is greater than 0: sleep `«DELAY_MS»` milliseconds before the next attempt
+..... Otherwise (the final attempt is still 403):
+...... {rbbc_fatal}
+"Attempt «ATTEMPT»: «ROLE_DISPLAY» propagation budget exhausted (HTTP 403): «ERROR_SUMMARY»"
+.... Otherwise (any other status, including 401):
 ..... {rbbc_fatal}
-"Iteration «I»: «ROLE_DISPLAY» access denied — HTTP 403 (token valid but role lacks Artifact Registry read permission)"
-.... If `«HTTP_STATUS»` is 401:
-..... {rbbc_fatal}
-"Iteration «I»: «ROLE_DISPLAY» token rejected — HTTP 401 (token exchange succeeded but token is invalid)"
-.... If `«HTTP_STATUS»` is one of 500, 502, 503, or 504 (transient server-side error):
-..... Re-execute the {rbbc_call} up to 3 total attempts, sleeping with exponential backoff between attempts (2s, then 4s)
-..... On any non-5xx response within the retry window, re-enter *Evaluate Response* with that status
-..... {rbbc_fatal}
-if all 3 attempts return a 5xx status: "Iteration «I»: «ROLE_DISPLAY» repeated transient HTTP «HTTP_STATUS» after 3 attempts"
-.... Otherwise:
-..... {rbbc_fatal}
-"Iteration «I»: «ROLE_DISPLAY» unexpected HTTP «HTTP_STATUS»: «RESPONSE_BODY»"
-
-... *Apply Inter-Iteration Delay* (if not final iteration):
-.... If `«DELAY_MS»` is greater than 0 and `«I»` is less than `«ITERATION_COUNT»`:
-..... {rbbc_show}
-`Sleeping «DELAY_MS»ms before next iteration`
-..... Sleep `«DELAY_MS»` milliseconds
+"Attempt «ATTEMPT»: «ROLE_DISPLAY» unexpected HTTP «HTTP_STATUS»: «ERROR_SUMMARY»"
 
 //axhos_step
-. *Display Summary*:
-.. {rbbc_show}
-`«ROLE_DISPLAY» JWT access probe complete: «ITERATION_COUNT»/«ITERATION_COUNT» iterations passed`
+. *Loop Exhaustion Guard*:
+.. Reaching the end of the attempt loop without having returned success or died is an internal-logic error (a 200/206 returns, 403 either retries or exhausts, every other status dies).
+.. {rbbc_fatal}
+"«ROLE_DISPLAY» JWT SA probe: loop exited without verdict — internal logic error"
 
 //axhoc_completion
-Procedure completes successfully when all iterations confirm that the selected role's JWT-derived OAuth token grants read access to the
+Procedure completes successfully on the first attempt whose response confirms that the selected role's JWT-derived OAuth token grants read access to the
 {gar_service}
 packages list endpoint.
-Completion demonstrates both that JWT-to-OAuth token exchange is operational for the role and that the resulting token carries the expected Artifact Registry read permissions.
+Completion demonstrates both that JWT-to-OAuth token exchange is operational for the role and that the resulting token carries the expected Artifact Registry read permissions, having absorbed any post-grant propagation delay within the attempt budget.

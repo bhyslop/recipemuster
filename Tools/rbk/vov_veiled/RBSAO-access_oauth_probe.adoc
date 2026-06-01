@@ -66,11 +66,6 @@ link:https://cloud.google.com/resource-manager/reference/rest/v1/projects/get[cl
 ..... {rbbc_fatal}
 "Iteration «I»: Payor token rejected — HTTP 401 (OAuth credentials expired — run
 {rbtgo_payor_refresh})"
-.... If `«HTTP_STATUS»` is 404:
-..... {rbbc_fatal}
-"Iteration «I»: Payor project not found — HTTP 404 (verify
-{rbrp_payor_project_id}
-in the {rbrp_regime})"
 .... If `«HTTP_STATUS»` is one of 500, 502, 503, or 504 (transient server-side error):
 ..... Re-execute the {rbbc_call} up to 3 total attempts, sleeping with exponential backoff between attempts (2s, then 4s)
 ..... On any non-5xx response within the retry window, re-enter *Evaluate Response* with that status
