@@ -8107,9 +8107,10 @@
         "₢BDAAK",
         "₢BDAAL",
         "₢BDAAM",
-        "₢BDAAN"
+        "₢BDAAN",
+        "₢BDAAO"
       ],
-      "jjghn_next_pace_seed": "AAO",
+      "jjghn_next_pace_seed": "AAP",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -8416,6 +8417,17 @@
               "jjgtn_text": "## Character\n\nDesign conversation requiring judgment. The `remaining` defeature is mechanical; the `detail`-by-default promotion and the double-emit cleanup carry a CLI-vs-MCP channel-ownership fork; the thin JJS* spec corpus needs editorial repair, not just a behavior patch.\n\n## Locked decisions (operator)\n\n- **`remaining` defeatured.** A groom never wants completed/abandoned paces. Remove the param from `jjx_show`/parade; exclusion of complete/abandoned becomes always-on.\n- **`detail` defeatured by promotion.** A groom wants the whole picture in one shot — full paddock + all (remaining) dockets — and the chat is short afterward, so the cost is accepted. Remove the flag; full-picture becomes the default heat view.\n\n## Scope\n\n- `jjx_show`/parade: drop both `detail` and `remaining` params; heat view is always full-picture with complete/abandoned excluded.\n- Eliminate the double docket emission — in heat-detail the body currently goes to BOTH the inline tool result and the gazette. Resolve channel ownership (gazette owns docket bodies; the inline result carries tables/bitmaps/summary), accounting for direct-CLI vs MCP callers.\n- Repair the under-detailed JJS* specs (parade, saddle, get-spec, get-coronets) so behavior, params, output channel, and the gazette contract are actually documented — the linked-term-stub thinness is itself the defect this pace corrects.\n\n## After landing\n\nSimplify the `claude-jjk-core.md` command reference + Groom Protocol to the new no-param shape. (Brief/coronets glosses and the don't-scrape-raw-storage rule already landed separately.)\n\n## Sources\n\n`jjrpd_parade.rs` (heat/pace view, double-emit), `jjrm_mcp.rs` (dispatch + gazette write), `jjrz_gazette.rs`; specs JJSCPD / JJSCSD / JJSCGS / JJSCGC. Build via `tt/vow-b`, test via `tt/vow-t`.",
               "jjgtn_silks": "parade-defeature-detail-remaining-and-jjs-spec-repair",
               "jjgtn_basis": "a7c871f"
+            }
+          ]
+        },
+        "₢BDAAO": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260601-0843",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nDesign decision, not implementation. The analysis is done (in the chat that slated this); the deliverable is a go/no-go plus a chosen approach. If go, this pace's product is the *implementation* docket — the type change itself is out of scope here. Decide before undertaking.\n\n## The question\nConvert docket-text storage from `jjrg_Tack.text: String` to `Vec<String>` (newline-split), so pretty-JSON's one-element-per-physical-line decomposition reaches *inside* the docket blob. Motivation is tooling ergonomics: today a whole multi-paragraph docket serializes as one physical JSON line (observed 25KB+), which blows up editors and greps. This is the natural completion of pretty-printing — the only place per-line layout can't reach is the interior of a JSON string.\n\n## Already decided — do not re-litigate\n- **Newline-split, NOT sentence-split.** JJK's docket diff (`jjrtl_diff_docket` in `jjrtl_tally.rs`) is line-granular LCS, and tacks are append-only (never edited in place). Newline-split matches the diff unit and git's merge unit; sentence-split breaks the diff and shreds markdown structure (lists, headers, code fences) on rejoin. Paragraph breaks fall out free as `\"\"` elements.\n- **Keep pretty JSON** (`to_string_pretty` in `jjri_io.rs`). The per-line whitespace is load-bearing for both grep ergonomics and git merge granularity; compact JSON would recreate the long-line pathology at the structural level.\n- **Round-trip is not a blocker.** Once the field is natively `Vec<String>`, the canonical form is the array — `jjdr_load` reserializes the Vec, no re-split. One split, at ingest only.\n\n## What this does NOT fix — set expectations\nThe bad gallops merges that first motivated this came from concurrent allocation (`jjgrn_next_heat_seed` + `jjgrn_heat_order`) and array-tail appends (`jjgpn_tacks`) — confirmed by inspecting the conflicted merge commits, NOT from docket text. Line-splitting text will not reduce those. The real lever for merges is a structure-aware git merge driver for `jjg_gallops.json` — a separate, larger idea worth its own ₣Am pace.\n\n## The fork to decide at mount\n- **(a) Cheap / tack-only:** split at the tack/ops boundary; `.join(\"\\n\")` scattered at the read sites.\n- **(b) Coherent / gazette-currency:** make `Vec<String>` the currency from `jjrz_parse` through the tack, materializing a flat string only at `jjrz_emit` (the true markdown wire). The gazette ALREADY builds `content_lines: Vec<String>` then joins it away in `zjjrz_trim_blank_lines` — (b) preserves it, deleting a redundant split→join→split sandwich and most of the join scatter. Bigger blast radius (gazette public surface: add/query/emit, the `parse_*_input` fns, `build_read_output`) but a cleaner end state.\n\n## Verify before undertaking\n- Confirm `JJSCGZ-gazette.adoc` does not pin the gazette's *internal* content type — the markdown wire format is unchanged, but if the spec pins the Rust type, option (b) grows a spec pace.\n- Migration: `jjdr_load` already has an `is_migration_mode` hook; split legacy `String` tacks → `Vec` there and bump `schema_version` to 5.",
+              "jjgtn_silks": "reconsider-docket-text-as-line-array",
+              "jjgtn_basis": "f14125b"
             }
           ]
         }
