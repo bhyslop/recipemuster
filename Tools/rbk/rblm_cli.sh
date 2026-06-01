@@ -52,6 +52,13 @@ rblm_zero() {
   git rev-list '@{u}..HEAD' > "${z_unpushed_temp}" || buc_die "git rev-list failed"
   test ! -s "${z_unpushed_temp}" || buc_die "HEAD has unpushed commits — push before marshal-zero. See: ${z_unpushed_temp}"
 
+  # Shellcheck gate: the codebase must be lint-clean before marshal-zero mints
+  # the pristine baseline commit, so gauntlet entry-state cannot be shellcheck-
+  # dirty by construction. Runs the release-tier shellcheck via the sibling
+  # rbq_cli; any finding aborts here, before any mutation.
+  local -r z_rbk_dir="${BASH_SOURCE[0]%/*}"
+  "${z_rbk_dir}/rbq_cli.sh" rbq_qualify_shellcheck || buc_die "Shellcheck findings present — fix before marshal-zero; the pristine baseline must be lint-clean"
+
   # Discover secrets dir and vessel dir for pre-confirmation inventory
   local z_secrets_dir=""
   local z_vessel_dir=""

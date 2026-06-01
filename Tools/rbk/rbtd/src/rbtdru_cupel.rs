@@ -35,7 +35,8 @@
 // only the release kit roots, flagging each command-position token not in {bash
 // builtins, local functions, POSIX floor, declared deps} and failing-with-
 // replacement on the eviction table. Soundness rests on the corpus already being
-// shellcheck-clean (rbq_qualify_fast), so a command-position lexer suffices — no
+// shellcheck-clean (enforced at release qualification and marshal-zero), so a
+// command-position lexer suffices — no
 // full shell parser.
 //
 // Corpus scope — only the release-relevant kit roots (Tools/buk, Tools/rbk) are
