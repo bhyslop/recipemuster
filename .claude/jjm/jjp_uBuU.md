@@ -99,18 +99,14 @@ became:
 The `/rbk-prep-release` ceremony treats a pristine pass as a precondition; the
 README points into the cleanup-ceremony section. Keep those cross-doc links live.
 
-### Onboarding end-to-end walk (carried from ₣AU)
+### Handbook learner-walk validation — owned by ₣A6
 
-Walk every handbook track in sequence from a learner's perspective — Crash
-Course, Credential Retriever, Credential Director, First Crucible, Director First
-Cloud Build, Payor, Governor — confirming windows render with prefixed resource
-names and probe outputs report the correct prefixed container/image identifiers.
-This is a pre-release user-perspective validation and a natural companion to the
-pristine runs.
-
-> **A6 overlap to reconcile:** ₣A6 (rbk-17-mvp-handbook-restart) covers handbook
-> territory and may be the better owner of, or already cover, this walk. Decide
-> the ownership split when ₣A6 is groomed before slating this here.
+A pre-release release would want the operator-facing onboarding handbook tracks
+(`rbh*`) confirmed against working code. **That validation is ₣A6's work, not
+this heat's** — ₣A6 (handbook-restart) owns the intent-axis handbook corpus, and
+its tail-resolution pace folds the end-to-end learner walk (carried over from the
+retired ₣AU) into a single corpus-grounded validation pace. When releasing,
+confirm ₣A6's learner-walk validation has run rather than duplicating it here.
 
 ## Precursor engineering (lands in ₣BB, not here)
 
@@ -128,7 +124,6 @@ have landed before racing this heat.
 - `RELEASE.md` — the runbook under revision
 - `.claude/commands/rbk-prep-release.md` — upstream contribution ceremony;
   pristine pass is a precondition
-- ₣BB rbk-15-mvp-release-qualification — built the machinery; holds precursor
+- ₣BB rbk-mvp-release-qualification — built the machinery; holds precursor
   engineering and the git history of the dropped run/doc dockets
-- ₣A6 rbk-17-mvp-handbook-restart — handbook territory; reconcile onboarding-walk
-  ownership
+- ₣A6 rbk-mvp-handbook-restart — owns the handbook learner-walk validation
