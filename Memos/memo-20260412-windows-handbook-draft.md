@@ -243,17 +243,25 @@ Install POSIX userland for orchestration testing.
    ```powershell
    C:\cygwin64\bin\bash.exe -l
    ```
+4. Ensure Cygwin's `curl` shadows the Windows-native `curl.exe`. Cygwin's
+   `/usr/bin` must precede `C:\WINDOWS\system32` on the login PATH.
+   Windows-native `curl.exe` cannot write `-o` output to `/cygdrive` POSIX
+   paths (fails with `CURLE_WRITE_ERROR`, exit 23), which breaks every RBK
+   step that writes an HTTP response into `BURD_TEMP_DIR` (OAuth userinfo
+   discovery, most `rbuh_json` calls).
 
 **Postconditions (invariants)**
 
 * Cygwin bash functional
 * OpenSSL + curl available
+* `curl` resolves to Cygwin's, not Windows-native `curl.exe`
 
 **Verification**
 
 ```bash
 openssl version
-bash --version  # expect 3.x
+bash --version       # expect 3.x
+type -a curl         # /usr/bin/curl must appear first, NOT /cygdrive/c/WINDOWS/system32/curl
 ```
 
 ---

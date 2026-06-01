@@ -47,6 +47,9 @@ rbhw_top() {
   buh_line     "  4. WSL distribution setup:             Install WSL and create distribution per vendor docs"
   buh_line     "     Use distribution name: ${z_wsl_distro_yelp}"
   buh_line     "  5. Cygwin installation:                Install Cygwin POSIX userland per vendor docs"
+  buh_line     "     Required packages: bash, openssl, curl"
+  buh_line     "     Cygwin curl MUST precede Windows curl on PATH — verify: 'type -a curl' shows /usr/bin/curl first"
+  buh_line     "     (Windows-native curl.exe cannot write -o output to /cygdrive paths; breaks OAuth + HTTP steps)"
   buh_e
   buh_section  "Phase 4: Workload Provisioning (BUK — jurisdiction)"
   buh_tt       "  6. Garrison-Cygwin (workload):         " "${BUWZ_JP_GARRISON_CYGWIN}" "" " <investiture>"
