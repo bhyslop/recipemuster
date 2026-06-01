@@ -8338,9 +8338,10 @@
       "jjghn_creation_time": "260511",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
-        "₢BHAAA"
+        "₢BHAAA",
+        "₢BHAAB"
       ],
-      "jjghn_next_pace_seed": "AAB",
+      "jjghn_next_pace_seed": "AAC",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -8350,6 +8351,17 @@
               "jjgtn_text": "## Character\nDesign conversation requiring judgment — the first kind locks the reusable shape for all six. Opus, conversational mount.\n\n## Goal\nSketch base-kind capture (`ensconce`) running parallel-safe alongside live `enshrine`, and through that slice settle the reusable Lode backbone. No cutover.\n\n## First action — gate\nRead-only blast-radius scan to verify the daylight the whole strategy rests on: confirm `enshrine` capture (writes `rbi_es`, feeds the vessel ANCHOR consumption checked by conjure's in-pool preflight) is cleanly separable from a new additive Lode module. If hidden coupling surfaces (namespace enumerators, shared kindle/regime state, preflight assumptions), surface it before writing code — the strategy may need narrowing or a pivot to a greenfield kind.\n\n## Locked constraints\n- Base-first because small artifacts make the backbone-tuning loop cheap.\n- Capture-pure: `ensconce` mints a Lode + capture-file and writes NO consumer config. This is the daylight guarantee (paddock no-mixing premise) — it must not touch `enshrine` code or ANCHOR consumption.\n- Distinct GAR namespace, never `rbi_es`. Namespace collapse is a cutover act, deferred.\n- Settle through this slice: GAR package naming, the capture-file envelope shape, the code-module prefix.\n- Test architecture is backbone (not coverage): push logic to deterministic `fast` (resolve-coordinate, verify-checksum, envelope-shape over fixtures); thin `service` live-GAR lifecycle (capture → list → inspect → banish, guaranteed teardown); minimal upstream smoke. Upstream is the Pale — contain its nondeterminism at one membrane. Assert capture-fidelity (digest matches upstream), not mere existence.\n- Design the 1-member package so an N-member cohort would slot in without restructuring — the cheap test of the paddock's \"cardinality is just an attribute\" claim.\n- `RBSL` spec stub only if useful; do not finish it. RBS0* edits are out of scope (deferred to the remainder pace).\n\n## Done\n`ensconce` captures a base into a parallel Lode with a real provenance envelope + capture-file; list / inspect / banish work against live GAR; the fast/service/smoke layers exist for base; live `enshrine` and all conjure builds remain untouched and green.",
               "jjgtn_silks": "lode-base-pilot-sketch",
               "jjgtn_basis": "d3fc156"
+            }
+          ]
+        },
+        "₢BHAAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260601-0620",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nRe-plan checkpoint, not work. Mount only after the pilot lands; re-groom the remainder informed by what the pilot taught — do not pre-decide here.\n\n## Goal\nIdentify and slate the full Lode remainder, now that the pilot has settled the backbone shape (naming, envelope, test architecture).\n\n## Topics to re-investigate (durable list — settle at re-groom, not now)\n- RBS0* reconciliation: retire `enshrine`/`enshrinement` quoins, rewire cross-refs; write/finish the `RBSL` spec.\n- GAR namespace collapse: whether `rbi_es` + `rbi_rq` fold into one Lode shape.\n- Cutover: rewire the base derived-pull ANCHOR to read the capture-file; retire the `enshrine` path.\n- Remaining kinds — `tool`, `reliquary`, `wsl`, `podvm-wsl`, `podvm-native` — each its own capture verb + tests; `reliquary`/`podvm` prove the multi-member package layout.\n- Provenance attachment mechanism: reserved tags vs OCI referrers (verify GAR maturity).\n- Full test coverage per kind (the pilot sets architecture; coverage scales out here).\n- Onboarding surface: rename tri-surfaced `base`/`tool`/`reliquary`; greenfield `wsl`/`podvm`; mark stale Windows tracks deferred.\n- The ₣A- WSL-stage DEV CACHE revert pace: drop or transfer once wsl-kind work commits.\n\n## Done\nRemainder is groomed and slated as concrete paces; this checkpoint wraps.",
+              "jjgtn_silks": "lode-remainder-replan",
+              "jjgtn_basis": "9d96cff"
             }
           ]
         }
