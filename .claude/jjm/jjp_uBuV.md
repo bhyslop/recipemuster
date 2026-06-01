@@ -1,9 +1,64 @@
-# Paddock: rbk-mvp-uncontrolled-cygwin-test
+## Shape
 
-## Context
+Prove that Recipe Bottle's test harness (theurge) can run on an **uncontrolled**
+Cygwin — a stock Windows+Cygwin box we do not provision. This is a consumer-
+credibility claim: a consumer can qualify their own install on their own machine
+and trust the verdict. It is deliberately distinct from the `rbk-NN-win-*` heats,
+which are all controlled-infrastructure work (formal BURN garrison, remote
+control, depot regime) on machines we own.
 
-(Describe the initiative's background and goals)
+## Central thesis (the real problem)
 
-## References
+The build system is not the hard part — **the bash-launch boundary is.** RBTDRX
+(`rbtdrx_platform.rs`) already solves the *path-string* boundary at theurge's
+Rust↔bash crossing, and it is sound: it keys on `OSTYPE=cygwin`, which Cygwin
+bash exports to spawned children (verified on `cygwin@rocket`). But RBTDRX does
+**not** solve the *process-launch* boundary, and that is where the wall is:
 
-(List relevant files, docs, or prior work)
+- A Windows-native binary (which `x86_64-pc-windows-gnu` produces) **cannot**
+  `CreateProcess` a `.sh` directly — Rust's `std::process::Command` on Windows
+  supports only `.exe` (undocumented `.bat`/`.cmd`); a `.sh` yields "not a valid
+  Win32 application." This is a documented Rust limitation, not a bug to wait out.
+- theurge's invocation layer is inconsistent: some paths route through
+  `bash -c` (correct), but the tabtarget-invocation primitives
+  (`rbtdri_invoke_impl`, `rbtdrf_run_tt`) exec the `.sh` directly via
+  `Command::new(tabtarget)`. Those paths cannot have run green on Cygwin —
+  RBTDRX is forward-looking scaffolding and the Cygwin bring-up is unfinished.
+
+## Locked decisions
+
+- **Commit to Route A first — not route-neutral.** Build with the
+  already-installed `stable-x86_64-pc-windows-gnu` toolchain (rustc 1.95.0 at
+  `/cygdrive/c/Users/cygwin/.cargo/bin`; theurge's deps are pure-Rust, so no C
+  toolchain / no system libs needed), and **finish the bring-up by routing every
+  tabtarget invocation through `bash` instead of exec'ing the `.sh` directly.**
+  RBTDRX stays and handles the path strings.
+- **Route C is the documented fallback, not the opening move.** A first-class
+  `x86_64-pc-cygwin` target exists (Rust 1.86+, Tier 3) and is semantically the
+  "correct" answer — but it ships no precompiled std (needs nightly `-Z
+  build-std`), and requires Cygwin `gcc` + LLVM ≥20.1. Fall back to it only if
+  the native-binary path translation proves too leaky to finish Route A.
+- **Toolchain installs are deferred to the experiment, not the dep pace.** The
+  dep-install pace carries only route-independent knowns; `gcc`/`rust`/LLVM are
+  Route-C-specific and must not be installed until/unless Route A is abandoned.
+- **Scope is the runtime-free tier.** Container tiers (service/crucible) need a
+  real container runtime; on Cygwin the only `docker` is Windows Docker Desktop,
+  with a separate bind-mount path-translation wall RBTDRX does not cover.
+  Per existing discipline, container tests run on the WSL side. This heat
+  targets the **fast/validation** tier only.
+
+## What done looks like
+
+`tt/rbw-ts.TestSuite.fast.sh` runs green over `cygwin@rocket`. A legitimate
+alternative outcome is honest: the launch-boundary fix is proven and the
+remaining work scoped, with heavier surgery deferred — the experiment is
+exploratory and may reveal more than the release timeline wants to absorb.
+
+## Known gaps to close
+
+- **PATH visibility.** `cargo` exists on the host but is not on the
+  non-interactive ssh command channel's PATH (rustup wired the Windows user
+  PATH; the sshd-spawned shell that runs tabtargets does not see it). Make
+  `.cargo/bin` resolvable to that shell — most robustly via the Windows *system*
+  PATH or `~/.ssh/environment`.
+- **The launch-boundary code change** in `rbtdri`/`rbtdrf` (above).
