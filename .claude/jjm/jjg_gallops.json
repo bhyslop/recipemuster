@@ -5900,9 +5900,10 @@
         "₢BBABN",
         "₢BBAAX",
         "₢BBABA",
-        "₢BBABP"
+        "₢BBABP",
+        "₢BBABT"
       ],
-      "jjghn_next_pace_seed": "ABT",
+      "jjghn_next_pace_seed": "ABU",
       "jjghn_paces": {
         "₢BBAA-": {
           "jjgpn_tacks": [
@@ -7953,6 +7954,17 @@
               "jjgtn_text": "## Character\n\nLow-risk cleanup of small, independent spec drifts surfaced by the BB audit —\nstale constant names, one-line cross-refs, one missing field, and one obsolete\nRBS0 orchestration pattern. Each edit is local and independent; this is a\nchecklist pace.\n\n## Items (source-of-truth code in parentheses)\n\n- **RBSDL-depot_list**: fact-ext constants `RBGP_FACT_EXT_DEPOT*` → `RBCC_fact_ext_depot*`; emit step omits the per-cloud_prefix subdir (`<cloud_prefix>/<moniker>.depot`). (`rbgp_depot_list`)\n- **RBSDI-depot_inscribe**: substitution `_RBGN_CLOUD_PREFIX` → `_RBGN_RELIQUARIES_ROOT`. (inscribe mirror script)\n- **RBSIA-image_audit, RBSIR-image_rekon**: stale kindle prose \"`RBRD_CLOUD_PREFIX` + hallmarks\"; actual tokens are `rbi_hm`/`rbi_rq`/`rbi_es` from `RBGC_GAR_CATEGORY_*`. Display-text linked-terms already correct — only the inline prose claim is stale. (`rbgl_GarLayout.sh`, `rbgc_Constants.sh`)\n- **RBSTB-trigger_build**: cites `RBGC_RUBRIC_TRIGGER_PREFIX`; confirm the live constant name and correct. (`rbfc_FoundryCore.sh`)\n- **RBSNX-network_connect**: remove the compose `priority 1000/500` route-selection claim; sentry-side default-route override is load-bearing. (`rbob_compose.yml`, `rbjs_sentry.sh`)\n- **RBSRV-RegimeVessel**: add the required `RBRV_RELIQUARY` field (Tool Image Reliquary group, 1–14 chars). (`rbrv_regime.sh`)\n- **RBSCIG-IamGrantContracts**: the \"Current Code vs Actual API Contract\" discrepancy table is pre-convergence; code now uses 409 (not 412), requires non-empty etag, GET+v3 everywhere. (`rbgi_IAM.sh`)\n- **RBS0 §rbtoe_depot_list_update**: replace the obsolete mechanism (Cloud-Billing-v1 enumerate + Mason-SA inspect, flat facts, payor_install invoker) with the shipped CRM-v3 projects:search displayName-anchor, cloud-prefix-namespaced facts, levy/unmake-only invokers. (`zrbgp_depot_list_update`)\n- **RBS0 §rbgc_depot_project_infix**: fix the cross-ref mis-attributing the displayName-discriminator role to the project-ID infix (discriminator is `RBGC_DEPOT_DISPLAY_PREFIX`).\n\n## Out of scope\n\nRBSRR, RBSAA, RBSAP — pre-existing drift independent of BB's changes; not swept here.\n\n## Wrap criterion\n\nEach listed item corrected against its source-of-truth code; the three\nout-of-scope specs untouched.",
               "jjgtn_silks": "rbs0-scattered-constant-sync",
               "jjgtn_basis": "1062840"
+            }
+          ]
+        },
+        "₢BBABT": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260601-0750",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nIntricate but mechanical.\n\n## Goal\nPull the RBK station regime (RBRS) off the active MVP surface. RBRS is dormant podman/VM\nstation config (RBRS_PODMAN_ROOT_DIR / _VMIMAGE_CACHE_DIR / _VM_PLATFORM) that self-skips in\nthe fast suite under the Docker MVP — noise for first MVP users. Preserve the payload intact\nfor the podman build-out (heat ₣BW).\n\n## Shape\nRelocate intact into Tools/rbk/vov_veiled/FUTURE/ (beside rbv_PodmanVM.sh): rbrs_regime.sh,\nrbrs_cli.sh, RBSRS-RegimeStation.adoc. Delete the active-surface hooks: rbw-rsr / rbw-rsv\ntabtargets, the rbtdrf_rs_rbrs test plus its rbrs-missing-platform negative case, the\nRBTDRM_MODULE_RBRS manifest entry, the RBTDGC_RBRS_* constants, the RBS0 TOC reference.\nDiscovery: grep -rn \"RBRS|RENDER_STATION|VALIDATE_STATION\" Tools/ (exclude burs, buk/).\n\n## Locked\nDo NOT touch the BUK station regime (BURC_STATION_FILE / BURD_STATION_FILE / burs) — it is\nload-bearing for every BUD dispatch and is a distinct regime from RBRS.\n\n## Done\nVerify rbv_cli.sh is not behind a live tabtarget before relocating it. Regenerate the\ngenerated context and rebuild theurge. Fast suite green with 0 skipped; no rbw-rs*\ntabtargets remain; RBRS payload intact under FUTURE/.",
+              "jjgtn_silks": "rbrs-relocate-to-future",
+              "jjgtn_basis": "0bb54c1"
             }
           ]
         }
