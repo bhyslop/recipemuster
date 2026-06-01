@@ -8677,9 +8677,10 @@
       "jjghn_creation_time": "260601",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
-        "₢BVAAA"
+        "₢BVAAA",
+        "₢BVAAB"
       ],
-      "jjghn_next_pace_seed": "AAB",
+      "jjghn_next_pace_seed": "AAC",
       "jjghn_paces": {
         "₢BVAAA": {
           "jjgpn_tacks": [
@@ -8689,6 +8690,17 @@
               "jjgtn_text": "## Character\n\nMechanical, operator-driven. Install the route-independent Cygwin packages on\nthe stock `cygwin@rocket` box.\n\n## Scope\n\nInstall via Cygwin `setup-x86_64.exe`: `tmux`, `shellcheck`, `curl`. The `curl`\npackage makes `/usr/bin/curl` shadow the Windows `system32` curl — a platform-\nvariant hazard per BCG's Platform-Variant Command Guidance.\n\n## Locked\n\nNo `gcc` / `rust` / LLVM here — those are Route-C-specific toolchain, deferred to\nthe experiment pace by ₣BV paddock decision.\n\n## Out of scope\n\nRemote automation — the operator runs `setup` interactively at the machine.\n\n## Done\n\n`tmux` and `shellcheck` present; `command -v curl` resolves to `/usr/bin/curl`\n(Cygwin), not the Windows `system32` curl.",
               "jjgtn_silks": "install-known-cygwin-deps",
               "jjgtn_basis": "9439c05"
+            }
+          ]
+        },
+        "₢BVAAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260601-0733",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nExperiment requiring judgment. Finish theurge's Cygwin bring-up so the\nruntime-free fast suite runs on an uncontrolled Cygwin. Read the ₣BV paddock\nfirst — the launch-boundary thesis and the Route A / Route C decision live\nthere; this docket does not restate them.\n\n## Scope (Route A — committed)\n\n- Build theurge with the installed `stable-x86_64-pc-windows-gnu` toolchain\n  (deps are pure-Rust; no C toolchain needed).\n- Wire `.cargo/bin` onto the non-interactive ssh-channel PATH so\n  `rbte_engine.sh`'s bare `cargo` resolves.\n- Route tabtarget invocation through `bash` in `rbtdri`/`rbtdrf` — no direct\n  `Command::new(.sh)`. RBTDRX stays for path strings.\n\n## Done\n\n`tt/rbw-ts.TestSuite.fast.sh` green over `cygwin@rocket`. Legitimate alternative:\nthe launch-boundary fix proven and remaining scope documented, with heavier\nsurgery deferred — the experiment may reveal more than the release timeline\nwants to absorb.",
+              "jjgtn_silks": "theurge-fast-suite-cygwin-bringup",
+              "jjgtn_basis": "e855700"
             }
           ]
         }
