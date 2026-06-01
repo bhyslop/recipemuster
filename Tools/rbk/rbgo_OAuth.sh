@@ -288,6 +288,16 @@ rbgo_get_token_capture() {
       return 0
     fi
 
+    # TEMP-FORENSIC ₢BBABL: capture every token-endpoint mint failure to a
+    # stable, append-only absolute log so a later successful mint cannot clobber
+    # the failing body (the memo's Host-B capture gap, memo-20260527). Purpose:
+    # confirm the ACCOUNT_STATE_INVALID token-endpoint shape before writing the
+    # touchpoint-2 match. REMOVE once the shape is captured and the match lands.
+    { printf '=== rbgo mint fail rbra=%s status=%s ===\n' "${z_rbra_file}" "${z_status}"
+      cat "${ZRBGO_CURL_STDERR_FILE}" "${ZRBGO_OAUTH_RESPONSE_FILE}" 2>/dev/null
+      printf '\n=== end ===\n'
+    } >> /tmp/rbgo_BBABL_forensic.log 2>/dev/null || true
+
     # Discriminate failure: only the SA-propagation race shapes retry —
     #   `invalid_grant` + `Invalid JWT Signature.`         (fresh-key propagation lag)
     #   `invalid_grant` + `Invalid grant: account not found` (fresh-SA propagation lag)
