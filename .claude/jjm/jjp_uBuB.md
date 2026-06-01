@@ -1,3 +1,22 @@
+## Status — scope narrowed (260601)
+
+The release-qualification **machinery is built**: `rbw-tP` QualifyPristine, the
+gauntlet suite, and the marshal-zero signature gate all shipped. What remained —
+the actual pristine **runs**, the RELEASE.md **revision**, and the post-success
+**cleanup-ceremony documentation** — was gated on "are we actually releasing,"
+which is deferred. Those ideas now live in **₣BU rbk-mvp-final-release-prep**
+(stabled, paddock-only) and will be slated fresh when release time comes.
+
+₣BB stays racing for **three tail items only** — ordinary engineering that gates
+a clean pristine run but is not release ceremony:
+
+- Foundry account-state-invalid retry-tolerance bug fix (401/`ACCOUNT_STATE_INVALID` flap)
+- Fast-tier shellcheck fold + parallelization + marshal-zero gate
+- RBS0 spec-sync sweep (known sync point: RBSAJ probe semantic)
+
+Everything below is the design record of the machinery as built — retained as
+the authoritative account of what shipped, not as open scope.
+
 ## Context
 
 Release qualification gap surfaced by the ₣A_ depot-regen heat. Every existing test tier (`rbw-tf` fast, `rbw-tr` release) tolerates accumulated depot state, so silent first-build assumptions slip through. Recent spooks — kludge-aware-charge-prereq (k-prefixed hallmarks at GAR), ZRBOB_PROJECT (compose project name without runtime prefix), rbob_charged_predicate prefix omission, reliquary integrity-broken on negative test — all share a property: they only manifest on first-build paths, and none were caught until live verification surfaced them.
@@ -107,7 +126,7 @@ The gauntlet suite omits an automatic teardown phase. After green tally, the can
 - **Failed runs don't accumulate cleanup debt** — under fail-fast, teardown wouldn't run anyway; the no-teardown decision only changes behavior on full success.
 - **Cost visibility** — pending-delete soft-deleted projects accumulate per run (RELEASE.md accepts this); not changed by teardown decision.
 
-Documentation of the post-success cleanup ceremony is BBAAI work (RELEASE.md).
+Documentation of the post-success cleanup ceremony moved to ₣BU (RELEASE.md revision), where the release-run and doc work now lives.
 
 ## Operator scope
 
@@ -142,8 +161,9 @@ Downstream consumption — bash testbench, manifest-coverage runtime checks, cov
 
 ## References
 
+- ₣BU rbk-mvp-final-release-prep — the release runs, RELEASE.md revision, and cleanup-ceremony docs now live here (stabled until release time)
 - ₣A_ rbk-mvp-3-resource-prefix-and-depot-regen — surfaced the gap
 - ₣BC rbk-mvp-3-theurge-self-test — calibrant downstream consumers
 - `tt/rbw-tr.QualifyRelease.sh` — current release qualify; layered alongside, not replaced
 - `Tools/rbk/rblm_cli.sh` — `rbw-MZ` zeroes local regime; marshal-zero signature baked here per BBAAB
-- `.claude/commands/rbk-prep-release.md` — upstream contribution ceremony; pristine-pass becomes a precondition (BBAAH)
+- `.claude/commands/rbk-prep-release.md` — upstream contribution ceremony; pristine-pass becomes a precondition
