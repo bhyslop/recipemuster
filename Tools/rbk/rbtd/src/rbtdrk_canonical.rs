@@ -35,6 +35,7 @@ use crate::case;
 use crate::rbtdrb_probe::{rbtdrb_assert, rbtdrb_Probe};
 use crate::rbtdrc_crucible::rbtdrc_with_ctx;
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
+use crate::rbtdrx_platform::rbtdrx_path_from_env;
 use crate::rbtdri_invocation::{
     rbtdri_invoke_global, rbtdri_read_burv_fact, rbtdri_Context,
     rbtdri_InvokeResult, RBTDRI_BURV_OUTPUT_SUBDIR,
@@ -114,9 +115,7 @@ const RBTDRK_ENV_STATION_FILE: &str = "BURD_STATION_FILE";
 /// BURS validation upstream (zburs_enforce) guarantees the value is 1-3 chars
 /// of lowercase alphanumeric starting with a letter.
 pub(crate) fn rbtdrk_burs_tincture() -> Result<String, String> {
-    let path_str = std::env::var(RBTDRK_ENV_STATION_FILE)
-        .map_err(|_| format!("{} not set in environment", RBTDRK_ENV_STATION_FILE))?;
-    let path = PathBuf::from(&path_str);
+    let path = rbtdrx_path_from_env(RBTDRK_ENV_STATION_FILE)?;
     rbtdrk_read_env_value(&path, "BURS_TINCTURE")
         .ok_or_else(|| format!("BURS_TINCTURE not in {}", path.display()))
 }

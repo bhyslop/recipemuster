@@ -64,6 +64,27 @@ pub fn rbtdrx_posix_to_native(s: &str) -> Result<PathBuf, String> {
     rbtdrx_posix_to_native_for(s, rbtdrx_is_cygwin())
 }
 
+/// Read an env var holding a filesystem path and return it in native form.
+///
+/// The single intake membrane: the BUK launcher exports paths in Cygwin POSIX
+/// form, and a Windows-native binary must nativize them before any `std::fs`
+/// use (see module header). Routing every env-sourced path through here keeps
+/// the conversion in one place — `std::fs` call sites stay platform-blind, and
+/// paths theurge composes from `current_dir()` (already native) need no
+/// handling. On non-Cygwin platforms the nativization is identity.
+///
+/// Returns `Err` when the var is unset or empty: theurge is always launched via
+/// BUK dispatch, which exports these.
+pub fn rbtdrx_path_from_env(name: &str) -> Result<PathBuf, String> {
+    match std::env::var(name) {
+        Ok(v) if !v.is_empty() => rbtdrx_posix_to_native(&v),
+        _ => Err(format!(
+            "{} not set in environment — theurge must be launched via BUK dispatch",
+            name
+        )),
+    }
+}
+
 /// Convert a Path from native form to POSIX form suitable for embedding in
 /// a Cygwin bash script or for passing as an env var to a Cygwin-bash
 /// tabtarget. On non-Cygwin platforms, returns the path's display form.

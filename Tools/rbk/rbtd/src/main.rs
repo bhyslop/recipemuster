@@ -47,7 +47,7 @@ use rbtd::rbtdri_invocation::{
     RBTDRI_BURD_TEMP_DIR_KEY,
 };
 use rbtd::rbtdgc_consts::RBTDGC_CRUCIBLE_ACTIVE;
-use rbtd::rbtdrx_platform::rbtdrx_posix_to_native;
+use rbtd::rbtdrx_platform::rbtdrx_path_from_env;
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().collect();
@@ -59,16 +59,6 @@ fn main() -> ExitCode {
     }
 }
 
-fn rbtdb_read_dispatch_dir(name: &str) -> Result<PathBuf, String> {
-    match std::env::var(name) {
-        Ok(v) if !v.is_empty() => rbtdrx_posix_to_native(&v),
-        _ => Err(format!(
-            "rbtd: {} is not set — theurge must be launched via BUK tabtarget",
-            name
-        )),
-    }
-}
-
 struct rbtdb_Roots {
     trace_root: PathBuf,
     burv_temp_root: PathBuf,
@@ -76,7 +66,7 @@ struct rbtdb_Roots {
 }
 
 fn rbtdb_allocate_roots() -> Result<rbtdb_Roots, String> {
-    let burd_temp = rbtdb_read_dispatch_dir(RBTDRI_BURD_TEMP_DIR_KEY)?;
+    let burd_temp = rbtdrx_path_from_env(RBTDRI_BURD_TEMP_DIR_KEY)?;
 
     // Both BURV roots are anchored under the per-run trace dir
     // (BURD_TEMP_DIR/rbtd), which is stable for the life of the run. The output

@@ -24,13 +24,15 @@
 use std::path::PathBuf;
 
 use crate::rbtdri_invocation::RBTDRI_BURD_TEMP_DIR_KEY;
+use crate::rbtdrx_platform::rbtdrx_posix_to_native;
 
 /// Return the scratch root for test tempdirs. Panics if BURD_TEMP_DIR is
 /// unset — tests must be launched via the BUK tabtarget so artifacts land
 /// under temp-buk and survive reboot.
 pub(crate) fn rbtdth_scratch_root() -> PathBuf {
     match std::env::var(RBTDRI_BURD_TEMP_DIR_KEY) {
-        Ok(v) if !v.is_empty() => PathBuf::from(v),
+        Ok(v) if !v.is_empty() => rbtdrx_posix_to_native(&v)
+            .unwrap_or_else(|e| panic!("rbtdth: cannot nativize {}: {}", RBTDRI_BURD_TEMP_DIR_KEY, e)),
         _ => panic!(
             "rbtdth: {} is not set — run tests via `tt/rbw-tt.Test.sh`",
             RBTDRI_BURD_TEMP_DIR_KEY
