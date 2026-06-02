@@ -343,18 +343,67 @@ rbld_divine() {
       return 0
     fi
 
+    # Kind-letter legend, printed once so rows carry no repeated per-row column.
+    # A touchmark's leading letter is its kind (b260602075327 -> base); the
+    # reader decodes the prefix from this key. One entry per implemented kind.
+    local -r z_kind_fmt="    %-3s %-10s %s\n"
     echo ""
-    printf "  %s\n" "LODE-TOUCHMARK"
-    printf "  %s\n" "------------------------------"
-    local z_count=0
-    local z_line=""
-    while IFS= read -r z_line || test -n "${z_line}"; do
-      test -n "${z_line}" || continue
-      printf "  %s\n" "${z_line}"
-      z_count=$((z_count + 1))
+    printf "  Kinds (touchmark prefix):\n"
+    printf "${z_kind_fmt}" "${RBGC_LODE_KIND_BASE}" "base" "upstream OCI image, consumed as a FROM line"
+
+    # Load the touchmark list fully before iterating: the per-Lode tags fetch
+    # spawns curl (via rbuh), and a child touching stdin would consume the
+    # loop's remaining input. Load-then-iterate keeps that FD closed.
+    local z_touchmarks=()
+    local z_touch=""
+    while IFS= read -r z_touch || test -n "${z_touch}"; do
+      test -n "${z_touch}" || continue
+      z_touchmarks+=("${z_touch}")
     done < "${ZRBFC_PACKAGE_LIST_FILE}"
+
+    local -r z_row_fmt="  %-15s %s\n"
     echo ""
-    buc_info "Total Lodes: ${z_count}"
+    printf "${z_row_fmt}" "TOUCHMARK" "IMAGE"
+    printf "${z_row_fmt}" "---------------" "--------------------------------------"
+
+    local z_idx=0
+    local z_pkg=""
+    local z_pkg_encoded=""
+    local z_tags_url=""
+    local z_enum_infix=""
+    local z_resp_file=""
+    local z_image_file=""
+    local z_image=""
+    for z_idx in "${!z_touchmarks[@]}"; do
+      z_touch="${z_touchmarks[$z_idx]}"
+
+      # One tags-list per Lode. IMAGE is the unsprued fingerprint tag
+      # <sanitized-origin>-<sha10>; it is located via the sha10 taken from the
+      # rbi_sha256-<hex> member tag, so Director semantic names (also unsprued)
+      # cannot masquerade as the fingerprint. Per-Lode infix preserves each
+      # response for forensics.
+      z_pkg="${RBGL_LODES_ROOT}/${z_touch}"
+      z_pkg_encoded="${z_pkg//\//%2F}"
+      z_tags_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1000"
+      z_enum_infix="rbld_divine_enum_${z_idx}"
+      rbuh_json "GET" "${z_tags_url}" "${z_token}" "${z_enum_infix}"
+      rbuh_require_ok "List tags for Lode ${z_touch}" "${z_enum_infix}"
+      z_resp_file="${ZRBUH_PREFIX}${z_enum_infix}${ZRBUH_POSTFIX_JSON}"
+
+      z_image_file="${ZRBLD_DIVINE_PREFIX}enum_${z_idx}_image.txt"
+      jq -r --arg dp "${RBGC_LODE_TAG_DIGEST_PREFIX}" '
+        [.tags[]?.name | sub(".*/tags/"; "")] as $names
+        | ([$names[] | select(startswith($dp)) | ltrimstr($dp)[0:10]][0]) as $sha10
+        | ([$names[] | select((startswith("rbi_") | not) and ($sha10 != null) and endswith("-" + $sha10))][0]) // "(no fingerprint)"
+      ' "${z_resp_file}" > "${z_image_file}" \
+        || buc_die "Failed to extract fingerprint for Lode ${z_touch}"
+      z_image=$(<"${z_image_file}")
+      test -n "${z_image}" || buc_die "Empty fingerprint extraction for Lode ${z_touch}"
+
+      printf "${z_row_fmt}" "${z_touch}" "${z_image}"
+    done
+    echo ""
+    buc_info "Total Lodes: ${#z_touchmarks[@]}"
     buc_success "Divine complete"
     return 0
   fi
