@@ -183,14 +183,14 @@ Allowlist-only nameplate can be created now;
 tunnel-mode nameplate follows WireGuard sentry work.
 _Reference_: `Memos/memo-20260415-crucible-conduit-architecture.md` (approach A for allowlist-only, approach C for tunnel mode).
 
-**Credential confinement to crucible.**
-Move cloud service credentials (AWS IAM keys, API tokens, SSH keys) from the operator's workstation into the crucible, injected via nameplate/regime configuration.
-The workstation starts the crucible but never holds service credentials.
-The existing RBRA file pattern provides a model;
-extending to tunnel keys and cloud service credentials follows the same regime path approach.
-Reduces the attack surface from "everything on the workstation" to "one minimal container."
-_Trigger_: alongside the conduit nameplate work — credentials and network access are naturally paired.
-_Reference_: `Memos/memo-20260415-crucible-conduit-architecture.md` (Credential Confinement section, threat model table).
+**Bottle credential custody.**
+Move the service secrets a bottle workload uses — cloud API keys, IAM keys, SSH keys — off the operator's workstation and into the bottle itself, injected at charge time via nameplate/regime configuration rather than baked into the bottle image (a published image must never carry a live secret).
+The workstation starts the crucible but never holds the service secret; its only credential becomes permission to charge.
+This blocks credential theft from a compromised workstation — the one threat the sentry allowlist and the encrypted tunnel do not already close — by shrinking the secret's resting place to the contained bottle.
+The existing RBRA file regime-path pattern provides the model.
+Orthogonal to but naturally paired with the encrypted tunnel conduit: the tunnel grants the bottle network reach to a cloud service and the sentry custodies the tunnel key, while this item custodies the service secret inside the bottle — network access and the credential to use it configured together.
+_Trigger_: alongside the conduit nameplate work.
+_Reference_: `Memos/memo-20260415-crucible-conduit-architecture.md` (Credential Confinement section; the `Credential theft from workstation` row of the threat-model table).
 
 NOTE: For SaaS services without PrivateLink (GitHub.com, GitLab.com), the sentry CIDR/domain allowlist + TLS remains the realistic ceiling.
 The sentry still provides the core value: the bottle cannot reach anything the sentry doesn't allow, and the workstation is cut out of the data path.
@@ -309,10 +309,10 @@ _Reference_: RBSCB-CloudBuildPosture.adoc (Deferred Items: Reproducibility).
 Recipe Bottle grants
 {rbtgi_depot}
 capabilities to identities the depot's IAM recognizes.
-The near-term keyless model grants them to Google identities directly (an
-{at_operator}
-holds a Google account; the depot lists `user:…`).
-Operator federation is the heavyweight tier for the case that model cannot serve — participants who cannot or will not hold Google accounts.
+The shipping model is the keyfile tier: each operator role holds a service-account key file (the
+{rbtgi_rbra_file})
+on disk, possession of the key is the identity, and no GCP organization is required.
+Operator federation is the heavyweight successor tier for installations that cannot accept an operator secret on disk.
 The depot owner configures the
 {rbtgi_depot}
 to trust an external OIDC/SAML identity provider (any compliant issuer — self-hosted Dex/Keycloak, or GCP Identity Platform as an in-house IdP), then grants capabilities to those federated `principal://` subjects: keyless, no Google accounts for participants, revocation central at the depot.
@@ -321,14 +321,13 @@ The
 remains the home of the participant roster (the role-to-identity mapping); the IdP owns only identity proofing.
 Org-only — federation pools are organization-level (Workforce Identity Federation, the human-identity product), so a no-org
 {rbtr_payor}
-cannot use this tier.
+cannot use this tier; the organization requirement is the line between the free keyfile tier and the federation tier.
+A qualifying organization is free via Cloud Identity once its owner verifies control of a DNS domain, so the true prerequisite is that the operator controls a domain — not that they pay Google.
 The Google-side credential path is curl-native — an STS token exchange (RFC 8693), no gcloud and no added stack dependency; only the IdP-auth leg (device flow where the issuer supports it) varies by issuer.
 Distinct from the envoy's egress federation (GCP-to-AWS delivery, the machine-identity Workload product): this is
 {at_operator}
 *access* identity arriving the other way.
-_Trigger_: first concrete need to admit
-{at_operator}s
-who cannot hold Google accounts, or when Google-account / keyfile requirements materially block adoption rather than being theoretically frictionful.
+_Trigger_: first concrete need from an organization that cannot accept on-disk operator keyfiles, or when the keyfile tier's secret-distribution and rotation burden materially blocks adoption rather than being theoretically frictionful.
 _Reference_: `Memos/memo-20260527-operator-credential-models.md` (the source document for this entry — the committed two-tier plan: keyfile (free, no-org) and Workforce federation (paid, org-required), the curl-native two-leg flow, device-flow / 12-hour session cap, the per-depot mode enum homed in RBRD, and the cult-verb shape);
 `Memos/memo-20260522-org-affiliated-credential-reorientation.md` (R1/R2/R3 credential model and three-tier ladder, plus R4/R5 test-rig and gauntlet resolutions);
 `Memos/memo-20260427-google-native-human-auth.md` (impersonation mechanism detail — its human-auth *framing* is superseded by R2);
