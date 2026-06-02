@@ -15,7 +15,7 @@
 > If you evaluate or deploy this, you are contributing to its hardening.
 > Security-focused contributors and responsible disclosure are especially valued.
 
-**Host platform scope.** [Recipe Bottle](#RecipeBottle) is qualified for release-1 only on Linux and macOS with Docker. Windows host support is planned but not yet tested — see [Roadmap](#Roadmap) for the upcoming supply-chain and transport work that enables it.
+**Host platform scope.** [Recipe Bottle](#RecipeBottle) is release-1 qualified on Linux and macOS with Docker. Windows host support works and is exercised in testing, but is not yet part of the release-1 qualification baseline — treat it as supported-experimental for now.
 
 [Recipe Bottle](#RecipeBottle) is a set of bash scripts enabling enterprise grade container image management intended for incorporation into any project.
 The dependency footprint is deliberately narrow — `bash 3.2` and a handful of standard tools — with no Python runtime, no language-specific package manager, and no `gcloud` CLI.
@@ -41,8 +41,8 @@ The two compose but neither requires the other.
 - **Linux host** — native Docker Engine (Docker CE / `docker.io`) running directly on the host kernel; no VM. Tested on Ubuntu LTS with cgroup v2 and a 6.x kernel.
 - **macOS host** — Docker Desktop for Mac on a supported macOS release. Apple Silicon hosts use the Apple Virtualization framework or Docker VMM hypervisor backend.
 
-Windows host support is planned but not yet tested — see [Roadmap](#Roadmap).
-Podman support is architecturally accommodated by the spec but deferred — see [Roadmap](#Roadmap).
+Windows host support works — [Recipe Bottle](#RecipeBottle) runs on Windows via Docker Desktop — but is not yet part of the release-1 qualification baseline; treat it as supported-experimental pending a green Windows test pass.
+Podman support is architecturally accommodated by the spec but deferred — see [Podman Support](#PodmanSupport).
 
 <a id="Regime"></a>All configuration flows through [Regimes](#Regime) — structured `.env` files with typed validation, each with its own render and validate commands.
 Some regimes are committed in the repo: [Vessel](#Vessel) definitions ([RBRV](#RBRV)), [Nameplate](#Nameplate) configurations ([RBRN](#RBRN)), [Depot](#Depot) identity ([RBRD](#RBRD)), repository-wide settings ([RBRR](#RBRR)), and [Payor](#Payor) identity ([RBRP](#RBRP)).
@@ -150,6 +150,7 @@ Each [Hallmark](#Hallmark) produces three tagged artifacts in the [Depot](#Depot
 
 The [Payor](#Payor) stands apart — it requires manual Google Cloud Console work and OAuth authentication.
 All downstream roles authenticate via credential files, enabling full automation.
+Every role's credential is an on-disk key file and **no GCP organization is required**; admitting operators through an external identity provider instead is the planned [Operator Federation](#OperatorFederation) tier.
 
 #### Establishment and Provisioning
 
@@ -482,34 +483,34 @@ No framework mandates build-time network blocking by name, but egress-locked bui
 
 The following features are not yet implemented but are under consideration:
 
-- **Crucible conduit for cloud services** - Encrypted tunnel from the [Sentry](#Sentry) to a VPC hosting PrivateLink endpoints, enabling [Bottles](#Bottle) to reach cloud AI services (AWS Bedrock, Vertex AI, Azure OpenAI) without exposing floating cloud IP ranges in the CIDR allowlist.
+- <a id="CrucibleConduit"></a>**[Crucible Conduit for Cloud Services](#CrucibleConduit)** - Encrypted tunnel from the [Sentry](#Sentry) to a VPC hosting PrivateLink endpoints, enabling [Bottles](#Bottle) to reach cloud AI services (AWS Bedrock, Vertex AI, Azure OpenAI) without exposing floating cloud IP ranges in the CIDR allowlist.
 WireGuard terminated at the [Sentry](#Sentry) replaces per-service IP tracking with a single stable VPC CIDR.
 Near-term, allowlist-only [Nameplates](#Nameplate) targeting specific service CIDRs and domains work today with existing [Sentry](#Sentry) machinery.
 The tunnel adds defense-in-depth for PrivateLink-capable services; SaaS endpoints without PrivateLink (GitHub.com, GitLab.com) remain served by CIDR/domain allowlisting.
 
-- **Credential confinement** - Move cloud service credentials (API keys, IAM keys, SSH keys) from the operator's workstation into the [Crucible](#Crucible), injected via [Nameplate](#Nameplate) [Regime](#Regime) configuration.
-The workstation [Charges](#Charge) the [Crucible](#Crucible) but never holds service credentials — reducing the attack surface from "everything on the workstation" to "one minimal container."
-Naturally paired with conduit work: credentials and network access are configured together.
+- <a id="BottleCredentialCustody"></a>**[Bottle Credential Custody](#BottleCredentialCustody)** - Move the service secrets a [Bottle](#Bottle) workload uses (cloud API keys, IAM keys, SSH keys) off the operator's workstation and into the [Bottle](#Bottle) itself, injected at [Charge](#Charge) time via [Nameplate](#Nameplate) [Regime](#Regime) configuration — never baked into the image.
+The workstation [Charges](#Charge) the [Crucible](#Crucible) but never holds the secret; its only credential becomes permission to charge, which blocks credential theft from a compromised workstation.
+Orthogonal to but paired with the [Crucible Conduit](#CrucibleConduit): the conduit gives the [Bottle](#Bottle) network reach to a cloud service while the [Sentry](#Sentry) holds the tunnel key, and this holds the service secret inside the [Bottle](#Bottle).
 
-- **VPC Service Controls** - Google Cloud security perimeters that prevent data from being copied out of a project even if an attacker holds valid credentials.
+- <a id="OperatorFederation"></a>**[Operator Federation](#OperatorFederation)** - Admit operators through an external identity provider (OIDC/SAML) instead of distributing service-account key files — identity proved by a fresh sign-in, capabilities granted to a federated principal, no secret on disk.
+This tier **requires a GCP organization**, which is the dividing line from today's keyfile model (which needs none): a qualifying organization is free via Google Cloud Identity once you verify ownership of a **DNS domain**, so the real prerequisite is controlling a domain, not paying Google.
+Revocation becomes central at the identity provider rather than per-keyfile rotation.
+
+- <a id="VpcServiceControls"></a>**[VPC Service Controls](#VpcServiceControls)** - Google Cloud security perimeters that prevent data from being copied out of a project even if an attacker holds valid credentials.
 [Recipe Bottle's](#RecipeBottle) Cloud Build architecture uses private pools, which are the prerequisite for VPC enforcement; enabling the controls themselves is deferred until organizational policy or external distribution requires them.
-If a VPC is stood up for the crucible conduit architecture, the VPC-SC perimeter should serve both Cloud Build [egress lockdown](#BuildIsolation) and [Bottle](#Bottle) conduit consumers.
+If a VPC is stood up for the [Crucible Conduit](#CrucibleConduit) architecture, the VPC-SC perimeter should serve both Cloud Build [egress lockdown](#BuildIsolation) and [Bottle](#Bottle) conduit consumers.
 
-- **Cosign container signing** - Cryptographic image signatures independent of registry trust.
+- <a id="CosignSigning"></a>**[Cosign Container Signing](#CosignSigning)** - Cryptographic image signatures independent of registry trust.
 Deferred alongside VPC Service Controls until external distribution triggers the need.
 
-- **CDN-aware IP gating** - When allowed domains are CDN-hosted (e.g. Cloudflare), the [Sentry's](#Sentry) CIDR allowlist becomes coarse: DNS-level gating remains precise, but IP-level gating is porous across shared CDN address ranges.
+- <a id="CdnAwareIpGating"></a>**[CDN-Aware IP Gating](#CdnAwareIpGating)** - When allowed domains are CDN-hosted (e.g. Cloudflare), the [Sentry's](#Sentry) CIDR allowlist becomes coarse: DNS-level gating remains precise, but IP-level gating is porous across shared CDN address ranges.
 A tighter mechanism is recognized but not yet designed.
 
-- **Podman support** - The spec accommodates Podman as an alternative container runtime, but support is deferred.
+- <a id="PodmanSupport"></a>**[Podman Support](#PodmanSupport)** - The spec accommodates Podman as an alternative container runtime, but support is deferred.
 On macOS, both Docker and Podman run Linux containers inside a hidden Linux VM — there is no native container runtime on Darwin.
 Podman support would require managing that VM's lifecycle within the customer's [Depot](#Depot), adding infrastructure complexity with no architectural advantage over Docker Desktop.
 
-- **Windows host support** - Two strands of work are required before Recipe Bottle can claim qualified Windows host support.
-The supply chain needs to widen: today's [Enshrine](#Enshrine) ceremony mirrors only upstream base images, and a planned revision generalizes it into a universal capture verb covering build-time tools, a project-controlled WSL distribution, and Podman VM disk images — closing the gap that today leaves the Windows path dependent on Microsoft Store distributions that change without notice.
-Independently, the bash transport stack that traverses cmd.exe, PowerShell, Cygwin's `bash.exe`, and `wsl.exe` needs per-leg hardening across all tabtargets, with green test coverage from a Windows test fundus.
-
-- **[Crucible](#Crucible)-to-[Crucible](#Crucible) networking** - Under the current [Sentry](#Sentry) model, [Bottles](#Bottle) have no direct network path to each other; any inter-[Bottle](#Bottle) communication would route through their respective [Sentries](#Sentry).
+- <a id="CrucibleToCrucible"></a>**[Crucible-to-Crucible Networking](#CrucibleToCrucible)** - Under the current [Sentry](#Sentry) model, [Bottles](#Bottle) have no direct network path to each other; any inter-[Bottle](#Bottle) communication would route through their respective [Sentries](#Sentry).
 The plumbing is feasible but not implemented, pending a concrete use case.
 
 ## Appendix: Reference Project
