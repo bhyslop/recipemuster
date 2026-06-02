@@ -182,6 +182,31 @@ zrbgc_kindle() {
   readonly RBGC_GAR_CATEGORY_RELIQUARIES="rbi_rq"
   readonly RBGC_GAR_CATEGORY_ENSHRINES="rbi_es"
   readonly RBGC_GAR_CATEGORY_DEPOT_FACTS="rbi_df"
+  readonly RBGC_GAR_CATEGORY_LODES="rbi_ld"
+
+  # GAR Lode Layout (fetched-side universal capture — see RBSL)
+  # One Lode = one GAR package named rbi_ld/<kind-letter><stamp>; that package
+  # IS the atomic-delete unit (single `packages delete`). Members and provenance
+  # ride as TAGS within the one package, never as /-path-segments (GAR has no
+  # subtree delete). Stamp matches the hallmark second-granular form YYMMDDHHMMSS.
+  #
+  # Kind letters (reserved set; only base is implemented this pace):
+  #   b  base | t  tool | r  reliquary | w  wsl | vw  podvm-wsl | vn  podvm-native
+  readonly RBGC_LODE_KIND_BASE="b"
+
+  # Member/provenance tags. The rbi_ sprue marks strings from RB's domain:
+  # RB's authored lexicon (base, vouch) and RB-measured-from-content values
+  # (the digest). It does NOT mark foreign-cued strings — the sanitized-origin
+  # tag is UNSPRUED (origin is a vessel cue), computed at capture, not a constant.
+  readonly RBGC_LODE_TAG_BASE="rbi_base"            # uniform greppable handle (base singleton)
+  readonly RBGC_LODE_TAG_VOUCH="rbi_vouch"          # one-per-Lode provenance envelope
+  readonly RBGC_LODE_TAG_DIGEST_PREFIX="rbi_sha256-"  # canonical OCI digest tag: rbi_sha256-<full-hex>
+
+  # Provenance envelope (:rbi_vouch) — two honest trust grades, declared per Lode.
+  # base captures the durable-upstream grade; podvm-* will carry the recorded grade.
+  readonly RBGC_LODE_TRUST_VERIFIED="verified-against-published"
+  readonly RBGC_LODE_TRUST_RECORDED="recorded-at-acquisition"
+  readonly RBGC_LODE_VOUCH_SCHEMA="rbld-vouch-1"    # near-term unsigned, schema-versioned
 
   # rbi_df layout: flat namespace. No subdirs. Each filename names one
   # depot-scoped artifact; tag varies by artifact role.

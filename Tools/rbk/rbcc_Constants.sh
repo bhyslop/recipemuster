@@ -107,6 +107,7 @@ RBCC_fact_ext_depot_project="depot-project"
 RBCC_fact_ext_roster_retriever="${RBCC_verb_roster}-${RBCC_account_retriever}"
 RBCC_fact_ext_roster_director="${RBCC_verb_roster}-${RBCC_account_director}"
 RBCC_fact_ext_audit_hallmark="audit-hallmark"
+RBCC_fact_ext_lode="lode"
 
 # Container-role tinder — the canonical bash home for the crucible's container
 # roles. Bare role tokens; the crucible is sentry + pentacle + bottle and every
