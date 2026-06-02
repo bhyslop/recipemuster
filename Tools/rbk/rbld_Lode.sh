@@ -201,7 +201,7 @@ zrbld_ensconce_submit() {
   echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
 
   local -r z_console_url="${ZRBFC_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
-  buc_info "Ensconce build submitted: ${z_build_id}"
+  buc_info "Ensconce Cloud Build submitted: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
   zrbfc_wait_build_completion "${ZRBFC_BUILD_POLL_CEILING_ENSHRINE}" "Ensconce"
