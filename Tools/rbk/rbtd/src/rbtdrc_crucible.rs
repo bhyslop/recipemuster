@@ -42,6 +42,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_JETTISON_HALLMARK_IMAGE, RBTDGC_ORDAIN_HALLMARK, RBTDGC_REKON_HALLMARK,
     RBTDGC_ACCOUNT_DIRECTOR, RBTDGC_ACCOUNT_GOVERNOR, RBTDGC_ACCOUNT_PAYOR, RBTDGC_ACCOUNT_RETRIEVER,
     RBTDGC_TALLY_HALLMARKS, RBTDGC_VOUCH_HALLMARKS,
+    RBTDGC_ENSCONCE_BASE, RBTDGC_DIVINE_LODES, RBTDGC_BANISH_LODE,
 };
 use crate::rbtdrm_manifest::rbtdrm_credential_check_colophon;
 
@@ -2335,6 +2336,14 @@ pub static RBTDRC_FIXTURE_HALLMARK_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     cases: RBTDRC_CASES_HALLMARK_LIFECYCLE,
 };
 
+pub static RBTDRC_FIXTURE_LODE_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
+    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_LODE_LIFECYCLE,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    cases: RBTDRC_CASES_LODE_LIFECYCLE,
+};
+
 pub static RBTDRC_FIXTURE_BATCH_VOUCH: rbtdre_Fixture = rbtdre_Fixture {
     name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_BATCH_VOUCH,
     disposition: rbtdre_Disposition::Independent,
@@ -2361,6 +2370,7 @@ pub static RBTDRC_FIXTURES: &[&'static rbtdre_Fixture] = &[
     &RBTDRC_FIXTURE_SRJCL,
     &RBTDRC_FIXTURE_PLUML,
     &RBTDRC_FIXTURE_HALLMARK_LIFECYCLE,
+    &RBTDRC_FIXTURE_LODE_LIFECYCLE,
     &RBTDRC_FIXTURE_BATCH_VOUCH,
     &RBTDRC_FIXTURE_ACCESS_PROBE,
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
@@ -2422,6 +2432,7 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdru_cupel::RBTDRU_FIXTURE_CUPEL,
             &RBTDRC_FIXTURE_ACCESS_PROBE,
             &RBTDRC_FIXTURE_HALLMARK_LIFECYCLE,
+            &RBTDRC_FIXTURE_LODE_LIFECYCLE,
             &RBTDRC_FIXTURE_BATCH_VOUCH,
         ],
     },
@@ -2452,6 +2463,7 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdru_cupel::RBTDRU_FIXTURE_CUPEL,
             &RBTDRC_FIXTURE_ACCESS_PROBE,
             &RBTDRC_FIXTURE_HALLMARK_LIFECYCLE,
+            &RBTDRC_FIXTURE_LODE_LIFECYCLE,
             &RBTDRC_FIXTURE_BATCH_VOUCH,
             &RBTDRC_FIXTURE_TADMOR,
             &RBTDRC_FIXTURE_SRJCL,
@@ -2739,6 +2751,18 @@ const ZRBTDRC_ARK_BASENAMES_ALL: &[&str] = &[
 /// rbcc_Constants.sh RBCC_fact_ext_audit_hallmark.
 const RBTDRC_FACT_EXT_AUDIT_HALLMARK: &str = "audit-hallmark";
 
+/// Multi-fact extension emitted by `rbw-lE` (rbld_ensconce): one
+/// `<touchmark>.lode` capture-file per ensconced Lode, carrying the provenance
+/// envelope. Its root is the Lode touchmark. Mirrors rbcc_Constants.sh
+/// RBCC_fact_ext_lode.
+const RBTDRC_FACT_EXT_LODE: &str = "lode";
+
+/// Base-Lode member tags asserted by divine inspect. Mirror rbgc_Constants.sh
+/// RBGC_LODE_TAG_BASE / RBGC_LODE_TAG_VOUCH / RBGC_LODE_TAG_DIGEST_PREFIX.
+const RBTDRC_LODE_TAG_BASE: &str = "rbi_base";
+const RBTDRC_LODE_TAG_VOUCH: &str = "rbi_vouch";
+const RBTDRC_LODE_TAG_DIGEST_PREFIX: &str = "rbi_sha256-";
+
 fn rbtdrc_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
         let vessel_dir = RBTDRC_BUSYBOX_VESSEL_DIR;
@@ -2864,6 +2888,105 @@ fn rbtdrc_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
 }
 
 pub static RBTDRC_CASES_HALLMARK_LIFECYCLE: &[rbtdre_Case] = &[case!(rbtdrc_hallmark_lifecycle)];
+
+
+// Lode-lifecycle fixture — fetched-side base capture against live GAR. Single
+// self-contained round-trip: ensconce the busybox base into a fresh rbi_ld
+// Lode, divine-enumerate to confirm it appears, divine-inspect to confirm the
+// member tags + vouch envelope rode in, banish the whole Lode, then divine-
+// enumerate to confirm the registry is restored. Parallel to hallmark-lifecycle
+// on the made side. Requires a reliquary yoked on the busybox vessel (same
+// precondition hallmark-lifecycle's ordain carries).
+fn rbtdrc_lode_lifecycle(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        let vessel_dir = RBTDRC_BUSYBOX_VESSEL_DIR;
+        if !ctx.project_root().join(vessel_dir).is_dir() {
+            return rbtdre_Verdict::Fail(format!("vessel directory not found: {}", vessel_dir));
+        }
+
+        // Step 1: ensconce the busybox base into a fresh Lode.
+        let _ = std::fs::write(dir.join("01-ensconce.txt"), "ensconcing busybox base");
+        let ensconce = match rbtdri_invoke_global(ctx, RBTDGC_ENSCONCE_BASE, &[vessel_dir], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("ensconce failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("ensconce invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("01-ensconce-stdout.txt"), &ensconce.stdout);
+
+        // The capture-file root is the Lode touchmark.
+        let touchmarks = match rbtdri_read_burv_facts_multi(&ensconce, RBTDRC_FACT_EXT_LODE) {
+            Ok(v) => v,
+            Err(e) => return rbtdre_Verdict::Fail(format!("read capture-file: {}", e)),
+        };
+        if touchmarks.len() != 1 {
+            return rbtdre_Verdict::Fail(format!("expected exactly 1 capture-file, got {:?}", touchmarks));
+        }
+        let touchmark = touchmarks[0].clone();
+        let _ = std::fs::write(dir.join("02-touchmark.txt"), &touchmark);
+
+        // Step 2: divine enumerate shows the new Lode.
+        let after = match rbtdri_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("post-ensconce divine failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("post-ensconce divine invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("03-divine-after.txt"), &after.stdout);
+        if !after.stdout.contains(&touchmark) {
+            return rbtdre_Verdict::Fail(format!(
+                "post-ensconce divine missing touchmark {}\nstdout:\n{}",
+                touchmark, after.stdout
+            ));
+        }
+
+        // Step 3: divine inspect shows the member tags + the vouch envelope.
+        let inspect = match rbtdri_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[&touchmark], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("divine inspect failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("divine inspect invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("04-divine-inspect.txt"), &inspect.stdout);
+        for member in &[RBTDRC_LODE_TAG_BASE, RBTDRC_LODE_TAG_VOUCH, RBTDRC_LODE_TAG_DIGEST_PREFIX] {
+            if !inspect.stdout.contains(member) {
+                return rbtdre_Verdict::Fail(format!(
+                    "divine inspect missing member tag '{}'\nstdout:\n{}",
+                    member, inspect.stdout
+                ));
+            }
+        }
+
+        // Step 4: banish the whole Lode.
+        let _ = std::fs::write(dir.join("05-banish.txt"), "banishing");
+        match rbtdri_invoke_global(
+            ctx,
+            RBTDGC_BANISH_LODE,
+            &[&touchmark],
+            &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
+        ) {
+            Ok(r) if r.exit_code == 0 => {}
+            Ok(r) => return rbtdre_Verdict::Fail(format!("banish failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("banish invocation: {}", e)),
+        }
+
+        // Step 5: divine enumerate no longer shows the Lode — registry restored.
+        let final_divine = match rbtdri_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("final divine failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("final divine invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("06-divine-final.txt"), &final_divine.stdout);
+        if final_divine.stdout.contains(&touchmark) {
+            return rbtdre_Verdict::Fail(format!(
+                "final divine still shows banished touchmark {} — banish did not restore baseline\nstdout:\n{}",
+                touchmark, final_divine.stdout
+            ));
+        }
+
+        let _ = std::fs::write(dir.join("07-passed.txt"), "passed");
+        rbtdre_Verdict::Pass
+    })
+}
+
+pub static RBTDRC_CASES_LODE_LIFECYCLE: &[rbtdre_Case] = &[case!(rbtdrc_lode_lifecycle)];
 
 
 // Batch-vouch fixture — exercises rbfv_batch_vouch's two-pass pending→vouched

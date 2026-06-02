@@ -51,6 +51,9 @@ pub const RBTDRM_FIXTURE_PLUML: &str = "pluml";
 pub const RBTDRM_FIXTURE_HALLMARK_LIFECYCLE: &str = "hallmark-lifecycle";
 pub const RBTDRM_FIXTURE_BATCH_VOUCH: &str = "batch-vouch";
 pub const RBTDRM_FIXTURE_ACCESS_PROBE: &str = "access-probe";
+// Lode-lifecycle fixture — fetched-side base capture against live GAR:
+// ensconce -> divine (enumerate + inspect) -> banish, registry restored.
+pub const RBTDRM_FIXTURE_LODE_LIFECYCLE: &str = "lode-lifecycle";
 // Fast fixtures (no external dependencies)
 pub const RBTDRM_FIXTURE_ENROLLMENT_VALIDATION: &str = "enrollment-validation";
 pub const RBTDRM_FIXTURE_REGIME_VALIDATION: &str = "regime-validation";
@@ -150,6 +153,11 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDGC_ABJURE_HALLMARK,
             RBTDGC_REKON_HALLMARK,
             RBTDGC_AUDIT_HALLMARKS,
+        ]),
+        RBTDRM_FIXTURE_LODE_LIFECYCLE => Some(&[
+            RBTDGC_ENSCONCE_BASE,
+            RBTDGC_DIVINE_LODES,
+            RBTDGC_BANISH_LODE,
         ]),
         RBTDRM_FIXTURE_BATCH_VOUCH => Some(&[
             RBTDGC_ORDAIN_HALLMARK,
