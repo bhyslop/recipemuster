@@ -294,7 +294,7 @@ rbgo_get_token_capture() {
     # confirm the ACCOUNT_STATE_INVALID token-endpoint shape before writing the
     # touchpoint-2 match. REMOVE once the shape is captured and the match lands.
     { printf '=== rbgo mint fail rbra=%s status=%s ===\n' "${z_rbra_file}" "${z_status}"
-      cat "${ZRBGO_CURL_STDERR_FILE}" "${ZRBGO_OAUTH_RESPONSE_FILE}" 2>/dev/null
+      printf '%s' "$(<"${ZRBGO_CURL_STDERR_FILE}")" "$(<"${ZRBGO_OAUTH_RESPONSE_FILE}")"
       printf '\n=== end ===\n'
     } >> /tmp/rbgo_BBABL_forensic.log 2>/dev/null || true
 
