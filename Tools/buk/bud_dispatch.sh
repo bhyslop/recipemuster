@@ -137,6 +137,24 @@ zbud_setup() {
   fi
   zbud_show "Git context: ${BURD_GIT_CONTEXT}"
 
+  # Platform facts for native binaries (e.g. theurge) that cannot inherit
+  # bash's own $OSTYPE / $BASH across the process boundary — synthesized live
+  # each dispatch and delivered through the exported BURD_ channel.
+  BURD_OSTYPE="${OSTYPE}"
+  if test "${OSTYPE}" = "cygwin"; then
+    # A bare "bash" from a native binary resolves via CreateProcess to
+    # System32's WSL launcher, not Cygwin's bash; hand over the native path.
+    local -r z_bash_bin_file="${BURD_TEMP_DIR}/bud_bash_bin.txt"
+    local -r z_bash_bin_stderr="${BURD_TEMP_DIR}/bud_bash_bin_stderr.txt"
+    cygpath -w "${BASH}" > "${z_bash_bin_file}" 2>"${z_bash_bin_stderr}" \
+      || zbud_die "cygpath -w failed for ${BASH} — see ${z_bash_bin_stderr}"
+    BURD_BASH_BIN=$(<"${z_bash_bin_file}")
+    test -n "${BURD_BASH_BIN}" || zbud_die "Empty native bash path from cygpath -w ${BASH}"
+  else
+    BURD_BASH_BIN="${BASH}"
+  fi
+  zbud_show "Platform: ${BURD_OSTYPE}, bash: ${BURD_BASH_BIN}"
+
   # Export for child processes
   export BURD_TEMP_DIR
   export BURD_OUTPUT_DIR
@@ -144,6 +162,8 @@ zbud_setup() {
   export BURD_NOW_EPOCH
   export BURD_TRANSCRIPT
   export BURD_GIT_CONTEXT
+  export BURD_OSTYPE
+  export BURD_BASH_BIN
 
   return 0
 }
@@ -307,7 +327,7 @@ zbud_main() {
   zbud_write_burx_initial
 
   # Detect unexpected BURD_ variables
-  local -r z_known="BURD_CONFIG_DIR BURD_REGIME_FILE BURD_NO_LOG BURD_INTERACTIVE BURD_COORDINATOR_SCRIPT BURD_LAUNCHER BURD_STATION_FILE BURD_TERM_COLS BURD_NOW_STAMP BURD_NOW_EPOCH BURD_TEMP_DIR BURD_OUTPUT_DIR BURD_TRANSCRIPT BURD_GIT_CONTEXT BURD_LOG_LAST BURD_LOG_SAME BURD_LOG_HIST BURD_COMMAND BURD_TARGET BURD_CLI_ARGS BURD_TOKEN_1 BURD_TOKEN_2 BURD_TOKEN_3 BURD_TOKEN_4 BURD_TOKEN_5 BURD_TOOLS_DIR BURD_BUK_DIR BURD_TABTARGET_DIR"
+  local -r z_known="BURD_CONFIG_DIR BURD_REGIME_FILE BURD_NO_LOG BURD_INTERACTIVE BURD_COORDINATOR_SCRIPT BURD_LAUNCHER BURD_STATION_FILE BURD_TERM_COLS BURD_NOW_STAMP BURD_NOW_EPOCH BURD_TEMP_DIR BURD_OUTPUT_DIR BURD_TRANSCRIPT BURD_GIT_CONTEXT BURD_LOG_LAST BURD_LOG_SAME BURD_LOG_HIST BURD_COMMAND BURD_TARGET BURD_CLI_ARGS BURD_TOKEN_1 BURD_TOKEN_2 BURD_TOKEN_3 BURD_TOKEN_4 BURD_TOKEN_5 BURD_TOOLS_DIR BURD_BUK_DIR BURD_TABTARGET_DIR BURD_OSTYPE BURD_BASH_BIN"
   ZBURD_UNEXPECTED=()
   local z_var
   for z_var in $(compgen -v BURD_); do

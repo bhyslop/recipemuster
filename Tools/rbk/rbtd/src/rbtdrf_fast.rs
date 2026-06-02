@@ -25,7 +25,7 @@ use std::process::Command;
 
 use crate::case;
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
-use crate::rbtdri_invocation::{rbtdri_find_tabtarget_global, rbtdri_tabtarget_command};
+use crate::rbtdri_invocation::{rbtdri_find_tabtarget_global, rbtdri_tabtarget_command, rbtdri_bash_program};
 use crate::rbtdgc_consts::{
     RBTDGC_HYGIENE_CHECK_DOCKERFILE,
     RBTDGC_HYGIENE_CHECK_VESSEL,
@@ -107,7 +107,7 @@ fn rbtdrf_run_bash(
     dir: &Path,
     trace_prefix: &str,
 ) -> Result<(i32, String, String), String> {
-    let output = Command::new("bash")
+    let output = Command::new(rbtdri_bash_program())
         .arg("-c")
         .arg(script)
         .current_dir(project_root)

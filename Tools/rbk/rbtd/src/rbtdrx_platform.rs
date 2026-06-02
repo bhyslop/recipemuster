@@ -37,14 +37,20 @@ use std::sync::OnceLock;
 
 static RBTDRX_IS_CYGWIN: OnceLock<bool> = OnceLock::new();
 
-/// Detect whether we're running under a Cygwin-spawned shell environment.
+/// Dispatch-synthesized BURD member carrying bash's OSTYPE across the process
+/// boundary. bash's own `$OSTYPE` is a shell variable, not exported, so a
+/// native binary never inherits it; `bud_dispatch.sh` reads the live `$OSTYPE`
+/// in bash and re-exports it under this name.
+const RBTDRX_ENV_OSTYPE: &str = "BURD_OSTYPE";
+
+/// Detect whether we're running on Cygwin.
 ///
-/// On Cygwin, the launching bash exports `OSTYPE=cygwin` to spawned
-/// processes — including Windows-native binaries like a
-/// `x86_64-pc-windows-gnu` theurge. Result is cached for binary lifetime.
+/// Reads the dispatch-provided `BURD_OSTYPE` (see `RBTDRX_ENV_OSTYPE`) rather
+/// than bash's own `$OSTYPE`, which a native binary does not inherit. Result is
+/// cached for binary lifetime.
 pub fn rbtdrx_is_cygwin() -> bool {
     *RBTDRX_IS_CYGWIN.get_or_init(|| {
-        matches!(std::env::var("OSTYPE").as_deref(), Ok("cygwin"))
+        matches!(std::env::var(RBTDRX_ENV_OSTYPE).as_deref(), Ok("cygwin"))
     })
 }
 

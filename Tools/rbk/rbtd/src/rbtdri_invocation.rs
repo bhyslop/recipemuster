@@ -50,6 +50,11 @@ pub const RBTDRI_BURE_CONFIRM_SKIP: &str = "skip";
 /// fails at startup if unset. Set by bud_dispatch.sh on every tabtarget call.
 pub const RBTDRI_BURD_TEMP_DIR_KEY: &str = "BURD_TEMP_DIR";
 
+/// Dispatch-synthesized BURD member: the OS-native path to the bash a native
+/// binary must launch. A bare "bash" resolves via Windows `CreateProcess` to
+/// System32's WSL launcher, never Cygwin's bash; this carries the right one.
+pub const RBTDRI_BURD_BASH_BIN_KEY: &str = "BURD_BASH_BIN";
+
 /// BURV invoke-directory name from a zero-based invoke count.
 ///
 /// Single source of truth for the `invoke-NNNNN` naming pattern; tests call
@@ -204,18 +209,31 @@ pub fn rbtdri_find_tabtarget_global(
 
 // ── Tabtarget invocation with BURV isolation ─────────────────
 
+/// The bash program theurge launches scripts with.
+///
+/// Reads `BURD_BASH_BIN` — the dispatch-synthesized OS-native path to bash. A
+/// bare `"bash"` from a Windows-native binary resolves via `CreateProcess` to
+/// System32's WSL launcher, never Cygwin's bash, so the native path must be
+/// handed over explicitly. Falls back to `"bash"` only when run outside BUK
+/// dispatch (correct on posix, where a PATH `bash` is fine).
+pub fn rbtdri_bash_program() -> String {
+    match std::env::var(RBTDRI_BURD_BASH_BIN_KEY) {
+        Ok(v) if !v.is_empty() => v,
+        _ => "bash".to_string(),
+    }
+}
+
 /// Build a `Command` that launches a tabtarget — a bash `.sh` — portably.
 ///
 /// A Windows-native theurge (`x86_64-pc-windows-gnu`) cannot `CreateProcess` a
-/// `.sh` directly: Rust's `Command` on Windows launches only `.exe` (plus the
-/// undocumented `.bat`/`.cmd`), so `Command::new("foo.sh")` yields "not a valid
-/// Win32 application." Routing through `bash <script> …` sidesteps that. The
-/// script path is rendered to POSIX form (RBTDRX) for Cygwin bash; on Linux and
-/// macOS that conversion is identity and `bash script.sh` is equivalent to a
-/// shebang exec, so this call site is unconditional. Callers chain `.args(...)`,
-/// `.current_dir(...)`, and `.env(...)` exactly as on a `Command::new` result.
+/// `.sh` directly: Rust's `Command` on Windows launches only `.exe`. So we run
+/// the script through bash — via `rbtdri_bash_program()` so the right bash is
+/// chosen on Cygwin — with the script path rendered to POSIX form (RBTDRX). On
+/// Linux/macOS that conversion is identity and the bash program is just "bash",
+/// so the call site is unconditional. Callers chain `.args(...)`,
+/// `.current_dir(...)`, and `.env(...)` as on any `Command::new` result.
 pub fn rbtdri_tabtarget_command(tabtarget: &Path) -> Command {
-    let mut cmd = Command::new("bash");
+    let mut cmd = Command::new(rbtdri_bash_program());
     cmd.arg(rbtdrx_native_to_posix(tabtarget));
     cmd
 }
