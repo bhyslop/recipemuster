@@ -26,10 +26,11 @@
 
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use std::sync::OnceLock;
 
 use crate::rbtdre_engine::rbtdre_Verdict;
 use crate::rbtdgc_consts::RBTDGC_CRUCIBLE_BARK;
-use crate::rbtdrx_platform::rbtdrx_native_to_posix;
+use crate::rbtdrx_platform::{rbtdrx_is_cygwin, rbtdrx_native_to_posix, rbtdrx_posix_to_native};
 
 /// Ifrit binary name inside the bottle container.
 const RBTDRI_IFRIT_BINARY: &str = "rbid";
@@ -50,10 +51,10 @@ pub const RBTDRI_BURE_CONFIRM_SKIP: &str = "skip";
 /// fails at startup if unset. Set by bud_dispatch.sh on every tabtarget call.
 pub const RBTDRI_BURD_TEMP_DIR_KEY: &str = "BURD_TEMP_DIR";
 
-/// Dispatch-synthesized BURD member: the OS-native path to the bash a native
-/// binary must launch. A bare "bash" resolves via Windows `CreateProcess` to
-/// System32's WSL launcher, never Cygwin's bash; this carries the right one.
-pub const RBTDRI_BURD_BASH_BIN_KEY: &str = "BURD_BASH_BIN";
+/// Canonical Cygwin bash in POSIX form. theurge nativizes this via RBTDRX
+/// (cygpath) to launch scripts: a bare "bash" from a Windows-native binary
+/// resolves through `CreateProcess` to System32's WSL launcher, never Cygwin's.
+const RBTDRI_CYGWIN_BASH_POSIX: &str = "/bin/bash";
 
 /// BURV invoke-directory name from a zero-based invoke count.
 ///
@@ -209,18 +210,29 @@ pub fn rbtdri_find_tabtarget_global(
 
 // ── Tabtarget invocation with BURV isolation ─────────────────
 
-/// The bash program theurge launches scripts with.
+static RBTDRI_BASH_PROGRAM: OnceLock<String> = OnceLock::new();
+
+/// The bash program theurge launches scripts with, resolved once per process.
 ///
-/// Reads `BURD_BASH_BIN` — the dispatch-synthesized OS-native path to bash. A
-/// bare `"bash"` from a Windows-native binary resolves via `CreateProcess` to
-/// System32's WSL launcher, never Cygwin's bash, so the native path must be
-/// handed over explicitly. Falls back to `"bash"` only when run outside BUK
-/// dispatch (correct on posix, where a PATH `bash` is fine).
-pub fn rbtdri_bash_program() -> String {
-    match std::env::var(RBTDRI_BURD_BASH_BIN_KEY) {
-        Ok(v) if !v.is_empty() => v,
-        _ => "bash".to_string(),
-    }
+/// On Cygwin a bare `"bash"` from a Windows-native binary resolves through
+/// `CreateProcess` to System32's WSL launcher, never Cygwin's bash — so we
+/// nativize the canonical Cygwin bash (`/bin/bash`) via RBTDRX's cygpath. That
+/// keeps cygpath inside theurge's existing Rust dependency rather than kit bash,
+/// and cygpath itself resolves correctly from a native binary (no System32 twin,
+/// unlike bash). Off Cygwin — and as a fallback if cygpath fails — it is "bash".
+pub fn rbtdri_bash_program() -> &'static str {
+    RBTDRI_BASH_PROGRAM
+        .get_or_init(|| {
+            if rbtdrx_is_cygwin() {
+                match rbtdrx_posix_to_native(RBTDRI_CYGWIN_BASH_POSIX) {
+                    Ok(p) => p.to_string_lossy().into_owned(),
+                    Err(_) => "bash".to_string(),
+                }
+            } else {
+                "bash".to_string()
+            }
+        })
+        .as_str()
 }
 
 /// Build a `Command` that launches a tabtarget — a bash `.sh` — portably.
