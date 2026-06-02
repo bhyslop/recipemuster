@@ -2,7 +2,7 @@
 # RBGJL Step 01: Ensconce a base image into a Lode (capture) via skopeo
 # Builder: skopeo (from reliquary)
 # Substitutions: _RBGL_GAR_HOST, _RBGL_GAR_PATH, _RBGL_LODES_ROOT,
-#                _RBGL_TAG_BASE, _RBGL_TAG_DIGEST_PREFIX,
+#                _RBGL_TAG_BOLE, _RBGL_TAG_DIGEST_PREFIX,
 #                _RBGL_TRUST_GRADE, _RBGL_VOUCH_SCHEMA, _RBGL_ACQUIRED_BY,
 #                _RBGL_IMAGE_1_ORIGIN, _RBGL_IMAGE_2_ORIGIN, _RBGL_IMAGE_3_ORIGIN,
 #                _RBGL_LODE_1_STAMP,   _RBGL_LODE_2_STAMP,   _RBGL_LODE_3_STAMP
@@ -16,7 +16,7 @@
 # Package shape:  <host>/<path>/<LODES_ROOT>/<stamp>            (one package = one Lode)
 # Member tags on that package, all pointing at the base manifest:
 #   :<TAG_DIGEST_PREFIX><full-hex>   canonical OCI digest (exact cross-Lode dedup)
-#   :<TAG_BASE>                      uniform greppable handle
+#   :<TAG_BOLE>                      uniform greppable handle
 #   :<sanitized-origin>-<sha10>      UNSPRUED — name + glance-fingerprint (= legacy enshrine anchor)
 # The :rbi_vouch tag is a separate manifest pushed by step 02.
 
@@ -82,7 +82,7 @@ for SLOT in 1 2 3; do
 
   echo "Package: ${PKG}"
   echo "Digest:  sha256:${SHA}"
-  echo "Tags:    ${DIGEST_TAG}, ${_RBGL_TAG_BASE}, ${FINGERPRINT_TAG}"
+  echo "Tags:    ${DIGEST_TAG}, ${_RBGL_TAG_BOLE}, ${FINGERPRINT_TAG}"
 
   # Copy upstream into the Lode package under the canonical digest tag.
   skopeo copy --all \
@@ -92,7 +92,7 @@ for SLOT in 1 2 3; do
     || { echo "FATAL: skopeo copy failed for slot ${SLOT}" >&2; exit 1; }
 
   # Apply remaining member tags by GAR->GAR retag (same blobs, manifest re-tag only).
-  for MEMBER_TAG in "${_RBGL_TAG_BASE}" "${FINGERPRINT_TAG}"; do
+  for MEMBER_TAG in "${_RBGL_TAG_BOLE}" "${FINGERPRINT_TAG}"; do
     skopeo copy --all \
       "docker://${PKG}:${DIGEST_TAG}" \
       "docker://${PKG}:${MEMBER_TAG}" \
@@ -106,10 +106,10 @@ for SLOT in 1 2 3; do
   # Author the provenance envelope (identical content lands in :rbi_vouch and the
   # host capture-file). No jq dependency — values are controlled (sanitized origin,
   # hex digest, SA email, build id, ISO timestamp); none can carry a literal quote.
-  # members[] is the cardinality axis — length 1 for the base singleton.
+  # members[] is the cardinality axis — length 1 for the bole singleton.
   ENVELOPE='{'
   ENVELOPE="${ENVELOPE}\"schema\":\"${_RBGL_VOUCH_SCHEMA}\","
-  ENVELOPE="${ENVELOPE}\"kind\":\"base\","
+  ENVELOPE="${ENVELOPE}\"kind\":\"bole\","
   ENVELOPE="${ENVELOPE}\"lode\":\"${STAMP}\","
   ENVELOPE="${ENVELOPE}\"acquired_at\":\"${ACQUIRED_AT}\","
   ENVELOPE="${ENVELOPE}\"acquired_by\":\"${_RBGL_ACQUIRED_BY}\","
@@ -117,11 +117,11 @@ for SLOT in 1 2 3; do
   ENVELOPE="${ENVELOPE}\"trust_grade\":\"${_RBGL_TRUST_GRADE}\","
   ENVELOPE="${ENVELOPE}\"signature\":null,"
   ENVELOPE="${ENVELOPE}\"members\":[{"
-  ENVELOPE="${ENVELOPE}\"name\":\"${_RBGL_TAG_BASE}\","
+  ENVELOPE="${ENVELOPE}\"name\":\"${_RBGL_TAG_BOLE}\","
   ENVELOPE="${ENVELOPE}\"origin\":\"${ORIGIN}\","
   ENVELOPE="${ENVELOPE}\"digest\":\"sha256:${SHA}\","
   ENVELOPE="${ENVELOPE}\"verification\":\"oci-digest\","
-  ENVELOPE="${ENVELOPE}\"tags\":[\"${_RBGL_TAG_BASE}\",\"${DIGEST_TAG}\",\"${FINGERPRINT_TAG}\"]"
+  ENVELOPE="${ENVELOPE}\"tags\":[\"${_RBGL_TAG_BOLE}\",\"${DIGEST_TAG}\",\"${FINGERPRINT_TAG}\"]"
   ENVELOPE="${ENVELOPE}}]}"
 
   # Stage the envelope for step 02 (pushes it as the :rbi_vouch artifact).

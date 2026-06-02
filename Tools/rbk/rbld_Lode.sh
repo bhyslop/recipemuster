@@ -147,7 +147,7 @@ zrbld_ensconce_submit() {
     --arg zjq_gar_host         "${z_gar_host}" \
     --arg zjq_gar_path         "${z_gar_path}" \
     --arg zjq_lodes_root       "${RBGL_LODES_ROOT}" \
-    --arg zjq_tag_base         "${RBGC_LODE_TAG_BASE}" \
+    --arg zjq_tag_bole         "${RBGC_LODE_TAG_BOLE}" \
     --arg zjq_tag_vouch        "${RBGC_LODE_TAG_VOUCH}" \
     --arg zjq_tag_digest       "${RBGC_LODE_TAG_DIGEST_PREFIX}" \
     --arg zjq_trust_grade      "${RBGC_LODE_TRUST_VERIFIED}" \
@@ -163,7 +163,7 @@ zrbld_ensconce_submit() {
         _RBGL_GAR_HOST:          $zjq_gar_host,
         _RBGL_GAR_PATH:          $zjq_gar_path,
         _RBGL_LODES_ROOT:        $zjq_lodes_root,
-        _RBGL_TAG_BASE:          $zjq_tag_base,
+        _RBGL_TAG_BOLE:          $zjq_tag_bole,
         _RBGL_TAG_VOUCH:         $zjq_tag_vouch,
         _RBGL_TAG_DIGEST_PREFIX: $zjq_tag_digest,
         _RBGL_TRUST_GRADE:       $zjq_trust_grade,
@@ -308,7 +308,7 @@ rbld_ensconce() {
 
   # Mint the Lode stamp on the host: <kind-letter><YYMMDDHHMMSS>. The host owns
   # the stamp so the touchmark is known before the build for the capture-file.
-  local -r z_stamp="${RBGC_LODE_KIND_BASE}${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
+  local -r z_stamp="${RBGC_LODE_KIND_BOLE}${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
   buc_info "Lode: ${RBGL_LODES_ROOT}/${z_stamp}"
 
   zrbld_ensconce_submit "${z_token}" "${z_origin}" "${z_stamp}"
@@ -344,12 +344,12 @@ rbld_divine() {
     fi
 
     # Kind-letter legend, printed once so rows carry no repeated per-row column.
-    # A touchmark's leading letter is its kind (b260602075327 -> base); the
+    # A touchmark's leading letter is its kind (b260602075327 -> bole); the
     # reader decodes the prefix from this key. One entry per implemented kind.
     local -r z_kind_fmt="    %-3s %-10s %s\n"
     echo ""
     printf "  Kinds (touchmark prefix):\n"
-    printf "${z_kind_fmt}" "${RBGC_LODE_KIND_BASE}" "base" "upstream OCI image, consumed as a FROM line"
+    printf "${z_kind_fmt}" "${RBGC_LODE_KIND_BOLE}" "bole" "upstream OCI image, consumed as a FROM line"
 
     # Load the touchmark list fully before iterating: the per-Lode tags fetch
     # spawns curl (via rbuh), and a child touching stdin would consume the

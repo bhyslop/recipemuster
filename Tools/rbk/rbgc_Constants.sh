@@ -190,20 +190,20 @@ zrbgc_kindle() {
   # ride as TAGS within the one package, never as /-path-segments (GAR has no
   # subtree delete). Stamp matches the hallmark second-granular form YYMMDDHHMMSS.
   #
-  # Kind letters (reserved set; only base is implemented this pace):
-  #   b  base | t  tool | r  reliquary | w  wsl | vw  podvm-wsl | vn  podvm-native
-  readonly RBGC_LODE_KIND_BASE="b"
+  # Kind letters (reserved set; only bole is implemented this pace):
+  #   b  bole | t  tool | r  reliquary | w  wsl | vw  podvm-wsl | vn  podvm-native
+  readonly RBGC_LODE_KIND_BOLE="b"
 
   # Member/provenance tags. The rbi_ sprue marks strings from RB's domain:
-  # RB's authored lexicon (base, vouch) and RB-measured-from-content values
+  # RB's authored lexicon (bole, vouch) and RB-measured-from-content values
   # (the digest). It does NOT mark foreign-cued strings — the sanitized-origin
   # tag is UNSPRUED (origin is a vessel cue), computed at capture, not a constant.
-  readonly RBGC_LODE_TAG_BASE="rbi_base"            # uniform greppable handle (base singleton)
+  readonly RBGC_LODE_TAG_BOLE="rbi_bole"            # uniform greppable handle (bole singleton)
   readonly RBGC_LODE_TAG_VOUCH="rbi_vouch"          # one-per-Lode provenance envelope
   readonly RBGC_LODE_TAG_DIGEST_PREFIX="rbi_sha256-"  # canonical OCI digest tag: rbi_sha256-<full-hex>
 
   # Provenance envelope (:rbi_vouch) — two honest trust grades, declared per Lode.
-  # base captures the durable-upstream grade; podvm-* will carry the recorded grade.
+  # bole captures the durable-upstream grade; podvm-* will carry the recorded grade.
   readonly RBGC_LODE_TRUST_VERIFIED="verified-against-published"
   readonly RBGC_LODE_TRUST_RECORDED="recorded-at-acquisition"
   readonly RBGC_LODE_VOUCH_SCHEMA="rbld-vouch-1"    # near-term unsigned, schema-versioned

@@ -155,7 +155,7 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDGC_AUDIT_HALLMARKS,
         ]),
         RBTDRM_FIXTURE_LODE_LIFECYCLE => Some(&[
-            RBTDGC_ENSCONCE_BASE,
+            RBTDGC_ENSCONCE_BOLE,
             RBTDGC_DIVINE_LODES,
             RBTDGC_BANISH_LODE,
         ]),

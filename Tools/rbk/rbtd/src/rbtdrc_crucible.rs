@@ -42,7 +42,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_JETTISON_HALLMARK_IMAGE, RBTDGC_ORDAIN_HALLMARK, RBTDGC_REKON_HALLMARK,
     RBTDGC_ACCOUNT_DIRECTOR, RBTDGC_ACCOUNT_GOVERNOR, RBTDGC_ACCOUNT_PAYOR, RBTDGC_ACCOUNT_RETRIEVER,
     RBTDGC_TALLY_HALLMARKS, RBTDGC_VOUCH_HALLMARKS,
-    RBTDGC_ENSCONCE_BASE, RBTDGC_DIVINE_LODES, RBTDGC_BANISH_LODE,
+    RBTDGC_ENSCONCE_BOLE, RBTDGC_DIVINE_LODES, RBTDGC_BANISH_LODE,
 };
 use crate::rbtdrm_manifest::rbtdrm_credential_check_colophon;
 
@@ -2757,9 +2757,9 @@ const RBTDRC_FACT_EXT_AUDIT_HALLMARK: &str = "audit-hallmark";
 /// RBCC_fact_ext_lode.
 const RBTDRC_FACT_EXT_LODE: &str = "lode";
 
-/// Base-Lode member tags asserted by divine inspect. Mirror rbgc_Constants.sh
-/// RBGC_LODE_TAG_BASE / RBGC_LODE_TAG_VOUCH / RBGC_LODE_TAG_DIGEST_PREFIX.
-const RBTDRC_LODE_TAG_BASE: &str = "rbi_base";
+/// Bole-Lode member tags asserted by divine inspect. Mirror rbgc_Constants.sh
+/// RBGC_LODE_TAG_BOLE / RBGC_LODE_TAG_VOUCH / RBGC_LODE_TAG_DIGEST_PREFIX.
+const RBTDRC_LODE_TAG_BOLE: &str = "rbi_bole";
 const RBTDRC_LODE_TAG_VOUCH: &str = "rbi_vouch";
 const RBTDRC_LODE_TAG_DIGEST_PREFIX: &str = "rbi_sha256-";
 
@@ -2906,7 +2906,7 @@ fn rbtdrc_lode_lifecycle(dir: &Path) -> rbtdre_Verdict {
 
         // Step 1: ensconce the busybox base into a fresh Lode.
         let _ = std::fs::write(dir.join("01-ensconce.txt"), "ensconcing busybox base");
-        let ensconce = match rbtdri_invoke_global(ctx, RBTDGC_ENSCONCE_BASE, &[vessel_dir], &[]) {
+        let ensconce = match rbtdri_invoke_global(ctx, RBTDGC_ENSCONCE_BOLE, &[vessel_dir], &[]) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtdre_Verdict::Fail(format!("ensconce failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtdre_Verdict::Fail(format!("ensconce invocation: {}", e)),
@@ -2945,7 +2945,7 @@ fn rbtdrc_lode_lifecycle(dir: &Path) -> rbtdre_Verdict {
             Err(e) => return rbtdre_Verdict::Fail(format!("divine inspect invocation: {}", e)),
         };
         let _ = std::fs::write(dir.join("04-divine-inspect.txt"), &inspect.stdout);
-        for member in &[RBTDRC_LODE_TAG_BASE, RBTDRC_LODE_TAG_VOUCH, RBTDRC_LODE_TAG_DIGEST_PREFIX] {
+        for member in &[RBTDRC_LODE_TAG_BOLE, RBTDRC_LODE_TAG_VOUCH, RBTDRC_LODE_TAG_DIGEST_PREFIX] {
             if !inspect.stdout.contains(member) {
                 return rbtdre_Verdict::Fail(format!(
                     "divine inspect missing member tag '{}'\nstdout:\n{}",
