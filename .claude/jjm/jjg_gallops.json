@@ -8796,11 +8796,12 @@
       "jjghn_creation_time": "260601",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BVAAD",
         "₢BVAAC",
         "₢BVAAA",
         "₢BVAAB"
       ],
-      "jjghn_next_pace_seed": "AAD",
+      "jjghn_next_pace_seed": "AAE",
       "jjghn_paces": {
         "₢BVAAA": {
           "jjgpn_tacks": [
@@ -8867,6 +8868,17 @@
               "jjgtn_text": "## Character\nContained path-translation fix; designed shape, mostly mechanical.\n\n## Goal\nFoundry docker builds resolve their path arguments on an uncontrolled Cygwin host, so the conjure \"pouch\" context build (rbfd_FoundryDirectorBuild.sh) and the local kludge build (rbfk_kludge.sh) succeed. Today a Windows-native docker.exe receives a `/cygdrive/...` context and `CreateFile` fails.\n\n## Locked approach (decided 260602)\n- One BCG `_capture` path normalizer: pure `/cygdrive/X/... -> X:/...` parameter-expansion transform, gated on `BURD_OSTYPE=cygwin`, identity off-Cygwin, fail-fast on any unsurveyed shape. Mirrors RBTDRX's existing `/cygdrive` fast path (rbtdrx_platform.rs) and zrbte_kindle's manifest-path transform — same technique, in kit bash.\n- NO cygpath. The prior pace deliberately evicted cygpath from kit bash (the cupel command-discipline scanner flags it); do not reintroduce it. Pure bash only.\n- Wrap the `-f` dockerfile and the build-context positional at the two foundry build sites above. The pouch is the proven failure; the kludge is the same `docker build` pattern (confirm whether its rendered context is already relative — it may not need wrapping).\n\n## Done\nNormalizer has a basic test (identity off-Cygwin; `/cygdrive`->drive on-Cygwin). A wrapped docker build succeeds on cygwin@rocket. Full skirmish-green is the next pace's gate, not this one's.",
               "jjgtn_silks": "foundry-docker-cygwin-paths",
               "jjgtn_basis": "7afcb74"
+            }
+          ]
+        },
+        "₢BVAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260602-1426",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nPale-boundary workaround — characterize, contain at one membrane.\n\n## Goal\nrbgo_docker_login (rbgo_OAuth.sh) succeeds on an uncontrolled Cygwin host so the conjure pouch's GAR push completes — the remaining block to a green dogfight on cygwin@rocket.\n\n## The wall\ndocker login authenticates but fails to SAVE the credential: Docker Desktop's docker-credential-wincred returns \"A specified logon session does not exist\" — a headless sshd session has no interactive Windows logon for the credential vault. The token mint and the docker-build path are sound; only credential persistence fails.\n\n## Done\nThe pouch push completes on cygwin@rocket. At the Pale (docker's own credential store): contain at the rbgo_docker_login membrane with a logged bend and a removal condition; do not suppress real login errors.",
+              "jjgtn_silks": "cygwin-docker-login-headless",
+              "jjgtn_basis": "3178e08"
             }
           ]
         }
