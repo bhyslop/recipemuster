@@ -149,7 +149,7 @@ Each [Hallmark](#Hallmark) produces three tagged artifacts in the [Depot](#Depot
 
 The [Payor](#Payor) stands apart — it requires manual Google Cloud Console work and OAuth authentication.
 All downstream roles authenticate via credential files, enabling full automation.
-Every role's credential is an on-disk service-account key, and **no GCP organization is required** — which makes this tier ideal for evaluating [Recipe Bottle](#RecipeBottle) and for running it at small-team scale. The tradeoff is honest: a long-lived key at rest on disk, revoked by rotation rather than centrally. That posture is unlikely to clear a corporate security bar in the long run — which is why admitting operators through a full external identity provider (short-lived sign-in, central revocation, no static key on disk) is the planned [Operator Federation](#OperatorFederation) tier.
+Every role's credential is an on-disk service-account key, and **no GCP organization is required** — which makes this tier ideal for evaluating [Recipe Bottle](#RecipeBottle) and for running it at small-team scale. The tradeoff is honest: that key is long-lived, does not expire on its own, and stays valid until a human revokes it by hand (deleting the account) — there is no central or automatic revocation. That posture is unlikely to clear a corporate security bar in the long run — which is why admitting operators through a full external identity provider (short-lived sign-in, central revocation, no static key on disk) is the planned [Operator Federation](#OperatorFederation) tier.
 
 #### Establishment and Provisioning
 
@@ -509,7 +509,7 @@ Orthogonal to but paired with the [Crucible Conduit](#CrucibleConduit): the cond
 
 - <a id="OperatorFederation"></a>**[Operator Federation](#OperatorFederation)** - The path to corporate-acceptable identity — admit operators through an external identity provider (OIDC/SAML) instead of long-lived service-account keys on disk, with identity proved by a fresh sign-in and capabilities granted to a federated principal, no secret at rest.
 This tier **requires a GCP organization**, which is the dividing line from today's keyfile model (which needs none): a qualifying organization is free via Google Cloud Identity once you verify ownership of a **DNS domain**, so the real prerequisite is controlling a domain, not paying Google.
-Revocation becomes central at the identity provider rather than per-keyfile rotation.
+Revocation becomes central at the identity provider rather than a manual, per-key [Divest](#Divest).
 
 - <a id="VpcServiceControls"></a>**[VPC Service Controls](#VpcServiceControls)** - Google Cloud security perimeters that prevent data from being copied out of a project even if an attacker holds valid credentials.
 [Recipe Bottle's](#RecipeBottle) Cloud Build architecture uses private pools, which are the prerequisite for VPC enforcement; enabling the controls themselves is deferred until organizational policy or external distribution requires them.
