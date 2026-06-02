@@ -62,3 +62,15 @@ exploratory and may reveal more than the release timeline wants to absorb.
   `.cargo/bin` resolvable to that shell — most robustly via the Windows *system*
   PATH or `~/.ssh/environment`.
 - **The launch-boundary code change** in `rbtdri`/`rbtdrf` (above).
+- **shellcheck path-argument boundary (deferred — off the fast-tier critical
+  path).** `shellcheck` has no native Cygwin package (Haskell/GHC is
+  incompatible with Cygwin's path layout); the install is the official Windows
+  `shellcheck.exe` in `/usr/local/bin` (admin-placed — the unprivileged account
+  cannot write there). It resolves and runs, but as a Windows-native tool it
+  cannot open Cygwin `/`-style path arguments (`openBinaryFile: does not
+  exist`) — it needs Windows-form paths (`cygpath -w`) or stdin. This is
+  RBTDRX-family path translation but a **distinct site** from the `.sh`-launch
+  boundary above: a Windows *tool* receiving Cygwin path *arguments*, not a
+  `.sh` being `CreateProcess`'d. It surfaces only when the harness drives
+  shellcheck in `rbw-tr` QualifyRelease — never in the fast/validation tier this
+  heat targets. Close it if/when QualifyRelease is brought to Cygwin.
