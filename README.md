@@ -149,7 +149,7 @@ Each [Hallmark](#Hallmark) produces three tagged artifacts in the [Depot](#Depot
 
 The [Payor](#Payor) stands apart — it requires manual Google Cloud Console work and OAuth authentication.
 All downstream roles authenticate via credential files, enabling full automation.
-Every role's credential is an on-disk key file and **no GCP organization is required**; admitting operators through an external identity provider instead is the planned [Operator Federation](#OperatorFederation) tier.
+Every role's credential is an on-disk service-account key, and **no GCP organization is required** — which makes this tier ideal for evaluating [Recipe Bottle](#RecipeBottle) and for running it at small-team scale. The tradeoff is honest: a long-lived key at rest on disk, revoked by rotation rather than centrally. That posture is unlikely to clear a corporate security bar in the long run — which is why admitting operators through a full external identity provider (short-lived sign-in, central revocation, no static key on disk) is the planned [Operator Federation](#OperatorFederation) tier.
 
 #### Establishment and Provisioning
 
@@ -507,7 +507,7 @@ The tunnel adds defense-in-depth for PrivateLink-capable services; SaaS endpoint
 The workstation [Charges](#Charge) the [Crucible](#Crucible) but never holds the secret; its only credential becomes permission to charge, which blocks credential theft from a compromised workstation.
 Orthogonal to but paired with the [Crucible Conduit](#CrucibleConduit): the conduit gives the [Bottle](#Bottle) network reach to a cloud service while the [Sentry](#Sentry) holds the tunnel key, and this holds the service secret inside the [Bottle](#Bottle).
 
-- <a id="OperatorFederation"></a>**[Operator Federation](#OperatorFederation)** - Admit operators through an external identity provider (OIDC/SAML) instead of distributing service-account key files — identity proved by a fresh sign-in, capabilities granted to a federated principal, no secret on disk.
+- <a id="OperatorFederation"></a>**[Operator Federation](#OperatorFederation)** - The path to corporate-acceptable identity — admit operators through an external identity provider (OIDC/SAML) instead of long-lived service-account keys on disk, with identity proved by a fresh sign-in and capabilities granted to a federated principal, no secret at rest.
 This tier **requires a GCP organization**, which is the dividing line from today's keyfile model (which needs none): a qualifying organization is free via Google Cloud Identity once you verify ownership of a **DNS domain**, so the real prerequisite is controlling a domain, not paying Google.
 Revocation becomes central at the identity provider rather than per-keyfile rotation.
 
