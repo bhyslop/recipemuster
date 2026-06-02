@@ -8768,10 +8768,11 @@
       "jjghn_creation_time": "260601",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BVAAC",
         "₢BVAAA",
         "₢BVAAB"
       ],
-      "jjghn_next_pace_seed": "AAC",
+      "jjghn_next_pace_seed": "AAD",
       "jjghn_paces": {
         "₢BVAAA": {
           "jjgpn_tacks": [
@@ -8806,6 +8807,17 @@
               "jjgtn_text": "## Character\n\nExperiment requiring judgment. Finish theurge's Cygwin bring-up so the\nruntime-free fast suite runs on an uncontrolled Cygwin. Read the ₣BV paddock\nfirst — the launch-boundary thesis and the Route A / Route C decision live\nthere; this docket does not restate them.\n\n## Scope (Route A — committed)\n\n- Build theurge with the installed `stable-x86_64-pc-windows-gnu` toolchain\n  (deps are pure-Rust; no C toolchain needed).\n- Wire `.cargo/bin` onto the non-interactive ssh-channel PATH so\n  `rbte_engine.sh`'s bare `cargo` resolves.\n- Route tabtarget invocation through `bash` in `rbtdri`/`rbtdrf` — no direct\n  `Command::new(.sh)`. RBTDRX stays for path strings.\n\n## Done\n\n`tt/rbw-ts.TestSuite.fast.sh` green over `cygwin@rocket`. Legitimate alternative:\nthe launch-boundary fix proven and remaining scope documented, with heavier\nsurgery deferred — the experiment may reveal more than the release timeline\nwants to absorb.",
               "jjgtn_silks": "theurge-fast-suite-cygwin-bringup",
               "jjgtn_basis": "e855700"
+            }
+          ]
+        },
+        "₢BVAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260602-1336",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nContained path-translation fix; designed shape, mostly mechanical.\n\n## Goal\nFoundry docker builds resolve their path arguments on an uncontrolled Cygwin host, so the conjure \"pouch\" context build (rbfd_FoundryDirectorBuild.sh) and the local kludge build (rbfk_kludge.sh) succeed. Today a Windows-native docker.exe receives a `/cygdrive/...` context and `CreateFile` fails.\n\n## Locked approach (decided 260602)\n- One BCG `_capture` path normalizer: pure `/cygdrive/X/... -> X:/...` parameter-expansion transform, gated on `BURD_OSTYPE=cygwin`, identity off-Cygwin, fail-fast on any unsurveyed shape. Mirrors RBTDRX's existing `/cygdrive` fast path (rbtdrx_platform.rs) and zrbte_kindle's manifest-path transform — same technique, in kit bash.\n- NO cygpath. The prior pace deliberately evicted cygpath from kit bash (the cupel command-discipline scanner flags it); do not reintroduce it. Pure bash only.\n- Wrap the `-f` dockerfile and the build-context positional at the two foundry build sites above. The pouch is the proven failure; the kludge is the same `docker build` pattern (confirm whether its rendered context is already relative — it may not need wrapping).\n\n## Done\nNormalizer has a basic test (identity off-Cygwin; `/cygdrive`->drive on-Cygwin). A wrapped docker build succeeds on cygwin@rocket. Full skirmish-green is the next pace's gate, not this one's.",
+              "jjgtn_silks": "foundry-docker-cygwin-paths",
+              "jjgtn_basis": "7afcb74"
             }
           ]
         }
