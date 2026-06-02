@@ -36,6 +36,32 @@ zrbte_kindle() {
   local z_dir="${BASH_SOURCE[0]%/*}"
 
   readonly RBTE_MANIFEST="${z_dir}/Cargo.toml"
+
+  # Windows-native cargo (the x86_64-pc-windows-gnu toolchain) cannot open a
+  # Cygwin /cygdrive-style path argument — it reads it as a literal Windows path
+  # and reports "does not exist". Under Cygwin, hand cargo a Windows-form path
+  # (drive-letter root, forward slashes — which Windows accepts). Pure parameter
+  # expansion, no subshell and no external cygpath, mirroring RBTDRX's /cygdrive
+  # fast path on the Rust side. Same path-argument boundary as the Windows
+  # shellcheck.exe, distinct from the .sh process-launch boundary RBTDRX/rbtdri
+  # handle Rust-side. Identity off Cygwin; fails fast on an unsurveyed shape.
+  # Retire when theurge builds as a true Cygwin binary.
+  if test "${OSTYPE:-}" = "cygwin"; then
+    case "${RBTE_MANIFEST}" in
+      /cygdrive/?/*)
+        local -r z_drive_rest="${RBTE_MANIFEST#/cygdrive/}"
+        local -r z_drive="${z_drive_rest%%/*}"
+        local -r z_drive_tail="${z_drive_rest#"${z_drive}/"}"
+        readonly RBTE_MANIFEST_ARG="${z_drive}:/${z_drive_tail}"
+        ;;
+      *)
+        buc_die "rbte: cannot translate manifest path for Windows cargo (expected /cygdrive/X/...): ${RBTE_MANIFEST}"
+        ;;
+    esac
+  else
+    readonly RBTE_MANIFEST_ARG="${RBTE_MANIFEST}"
+  fi
+
   readonly ZRBTE_BINARY="${z_dir}/target/debug/rbtd"
 
   # Suite→fixture composition is owned by theurge (RBTDRC_SUITES in
@@ -72,7 +98,7 @@ zrbte_build_binary() {
 
   zrbte_codegen
   buc_step "Building theurge"
-  cargo build --manifest-path "${RBTE_MANIFEST}" || buc_die "cargo build failed"
+  cargo build --manifest-path "${RBTE_MANIFEST_ARG}" || buc_die "cargo build failed"
   test -x "${ZRBTE_BINARY}" || buc_die "Theurge binary not found: ${ZRBTE_BINARY}"
 }
 
@@ -85,7 +111,7 @@ rbte_build() {
   zrbte_codegen
   buc_step "Building theurge"
   buc_log_args "Manifest: ${RBTE_MANIFEST}"
-  cargo build --manifest-path "${RBTE_MANIFEST}" "$@" || buc_die "cargo build failed"
+  cargo build --manifest-path "${RBTE_MANIFEST_ARG}" "$@" || buc_die "cargo build failed"
   buc_success "Theurge built"
 }
 
@@ -95,7 +121,7 @@ rbte_test() {
   zrbte_codegen
   buc_step "Testing theurge"
   buc_log_args "Manifest: ${RBTE_MANIFEST}"
-  cargo test --manifest-path "${RBTE_MANIFEST}" "$@" || buc_die "cargo test failed"
+  cargo test --manifest-path "${RBTE_MANIFEST_ARG}" "$@" || buc_die "cargo test failed"
   buc_success "All theurge tests passed"
 }
 
