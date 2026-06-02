@@ -245,6 +245,12 @@ The [Theurge](#Theurge) test orchestrator [Charges](#Charge) [tadmor](#tadmor) a
 The [moriah](#moriah) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with the [Ifrit](#Ifrit) attack [Vessel](#Vessel) under the same restrictive network allowlist as [tadmor](#tadmor), consuming [Hallmarks](#Hallmark) [Ordained](#Ordain) end-to-end on the [Airgap](#Airgap) pool.
 The [Theurge](#Theurge) runs the same escape attempts against [moriah](#moriah) as against [tadmor](#tadmor) — the cloud-built variant validating that containment holds identically when the supply chain produces the inputs.
 
+<a id="srjcl"></a>**[srjcl](#srjcl)** — Jupyter notebook server for network-contained analysis.
+The [srjcl](#srjcl) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with a [Conjure](#Conjure)-mode Jupyter [Bottle](#Bottle) under an academic-domain network allowlist — a working service rather than an attack vessel, showing the [Crucible](#Crucible) run useful software with its egress fenced to a curated set of domains.
+
+<a id="pluml"></a>**[pluml](#pluml)** — PlantUML diagram server that needs no outbound network.
+The [pluml](#pluml) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with a [Bind](#Bind)-mode PlantUML [Bottle](#Bottle) — an upstream image pinned by digest — under a no-egress allowlist: the renderer needs no internet, so the [Crucible](#Crucible) grants it none. It exercises the [Bind](#Bind) supply-chain path and the most restrictive network posture.
+
 ## <a id="ReleaseProcedure"></a>Release Procedure
 
 The project maintainer release qualification ceremony — five operator steps, roughly one hour wall-clock, with cloud cost on the order of two GCP projects per run.
@@ -538,7 +544,7 @@ The annotated tree below maps its files to the concepts defined above.
 | `Project Root/` | |
 | `├── CLAUDE.md` | [Claude Code](https://claude.com/claude-code) command reference, glossary, conventions |
 | `├── RELEASE.md` | [Release Procedure](#ReleaseProcedure) — maintainer release qualification ceremony |
-| `├── tt/` | 136 [Tabtargets](#Tabtarget) — `tt/rbw-<TAB>` for all operations |
+| `├── tt/` | [Tabtargets](#Tabtarget) — `tt/rbw-<TAB>` for all operations |
 | `├── Tools/` | |
 | `│   ├── buk/` | Bash Utility Kit — portable CLI infrastructure |
 | `│   └── rbk/` | Recipe Bottle Kit — domain logic |
