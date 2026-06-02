@@ -79,17 +79,6 @@ _Reference_: RBSAE-ark_enshrine.adoc (current narrow-scope spec);
 RBSRV-RegimeVessel.adoc (ORIGIN/ANCHOR precedent, kind-enum-gated variable groups pattern);
 `Tools/rbk/vov_veiled/FUTURE/rbv_PodmanVM.sh` (existing podman-vm fan-out machinery).
 
-**Windows host workstation support — shell transport hardening.**
-Recipe Bottle commands invoked on a Windows workstation traverse a multi-leg shell transport stack — cmd.exe, PowerShell, Cygwin's bash.exe, and wsl.exe — each with its own escaping, heredoc, and quoting discipline.
-The bash-console body authoring patterns that hold trivially on Linux/macOS need explicit per-leg discipline on Windows;
-WSG-WindowsScriptingGuide.md catalogs the empirical rules.
-Today's tabtargets and workbench bodies have not been hardened against this stack, and the test infrastructure lacks a Windows fundus signal.
-Release-quality Windows host support requires both per-tabtarget audit for transport-stack safety and a green test suite from a Windows fundus, on top of the project-controlled WSL distro delivered by the revised-enshrine `wsl` kind.
-_Trigger_: when Recipe Bottle moves toward a release claiming Windows host support;
-naturally paired with the revised-enshrine entry above.
-_Reference_: WSG-WindowsScriptingGuide.md (transport-stack discipline);
-BUSJCW-CaparisonWindows.adoc, BUSJGW-GarrisonWsl.adoc, BUSJIW-InvigilateWindows.adoc (Windows workload-side specs).
-
 **Hairpin peer access between crucibles.**
 Bottled containers cannot currently reach each other's published entry ports.
 Each bottle is isolated behind its own sentry on a separate enclave network.
