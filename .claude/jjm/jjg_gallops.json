@@ -8455,9 +8455,10 @@
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BHAAA",
-        "₢BHAAB"
+        "₢BHAAB",
+        "₢BHAAC"
       ],
-      "jjghn_next_pace_seed": "AAC",
+      "jjghn_next_pace_seed": "AAD",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -8513,6 +8514,17 @@
               "jjgtn_text": "## Character\nRe-plan checkpoint, not work. Mount only after the pilot lands; re-groom the remainder informed by what the pilot taught — do not pre-decide here.\n\n## Goal\nIdentify and slate the full Lode remainder, now that the pilot has settled the backbone shape (naming, envelope, test architecture).\n\n## Topics to re-investigate (durable list — settle at re-groom, not now)\n- RBS0* reconciliation: retire `enshrine`/`enshrinement` quoins, rewire cross-refs; write/finish the `RBSL` spec.\n- GAR namespace collapse: whether `rbi_es` + `rbi_rq` fold into one Lode shape.\n- Cutover: rewire the base derived-pull ANCHOR to read the capture-file; retire the `enshrine` path.\n- Remaining kinds — `tool`, `reliquary`, `wsl`, `podvm-wsl`, `podvm-native` — each its own capture verb + tests; `reliquary`/`podvm` prove the multi-member package layout.\n- Provenance attachment mechanism: reserved tags vs OCI referrers (verify GAR maturity).\n- Full test coverage per kind (the pilot sets architecture; coverage scales out here).\n- Onboarding surface: rename tri-surfaced `base`/`tool`/`reliquary`; greenfield `wsl`/`podvm`; mark stale Windows tracks deferred.\n- The ₣A- WSL-stage DEV CACHE revert pace: drop or transfer once wsl-kind work commits.\n\n## Done\nRemainder is groomed and slated as concrete paces; this checkpoint wraps.",
               "jjgtn_silks": "lode-remainder-replan",
               "jjgtn_basis": "9d96cff"
+            }
+          ]
+        },
+        "₢BHAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260602-1313",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nDesign settled this session — implementation + spec sync, largely mechanical. The one subtlety is retry-idempotency.\n\n## Goal\nEnsconce must never silently clobber an existing Lode. Add a digest-aware collision guard on the cloud capture step (rbgjl01): before the skopeo copy, if the touchmark package already exists, fail loud — unless it holds the identical digest, in which case proceed.\n\n## Locked\n- Cloud-side only. The guard must be atomic with the GAR write; a host pre-check is TOCTOU plus a multi-second pre-submit window (the \"acquisition runs cloud-side\" premise). Do not add a host collision check.\n- Digest-aware, not naive fail-if-exists — a Cloud Build retry re-copies the same digest and must still pass.\n- Scope is touchmark collision only. Content dedup (same origin@digest under a different touchmark — a host read-before-submit cost-saver) is a separate optional pace, explicitly out of scope here.\n\n## Spec\nUpdate the RBS0* spec surface for the ensconce/Lode capture contract to document the guard alongside the code (RBSAE is today's ensconce-pipeline spec per the paddock; RBSL reserved/unwritten). Spec and code land together.\n\n## Done\nA second ensconce reusing a touchmark fails loud cloud-side with a clear message; an identical-digest retry still succeeds; the RBS0* contract states it; the lifecycle fixture (or a new case) exercises the collision path.",
+              "jjgtn_silks": "lode-ensconce-collision-guard",
+              "jjgtn_basis": "89c208f"
             }
           ]
         }
