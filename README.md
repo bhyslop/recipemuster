@@ -21,7 +21,7 @@ The two compose, but neither requires the other.
 > If you evaluate or deploy this, you are contributing to its hardening.
 > Security-focused contributors and responsible disclosure are especially valued.
 
-**Host platform scope.** [Recipe Bottle](#RecipeBottle) is release-1 qualified on Linux and macOS with Docker. Windows host support works and is exercised in testing, but is not yet part of the release-1 qualification baseline — treat it as supported-experimental for now.
+**Host platform scope.** [Recipe Bottle](#RecipeBottle) is [release-qualified](#ReleaseProcedure) on Linux and macOS with Docker. Windows host support works and is exercised in testing, but is not yet part of the release-qualification baseline — treat it as supported-experimental for now.
 
 **Project page**: https://scaleinv.github.io/recipebottle
 
@@ -33,12 +33,12 @@ The two compose, but neither requires the other.
 
 ### Supported Platforms
 
-[Recipe Bottle's](#RecipeBottle) [Crucible](#Crucible) runtime is qualified for release-1 against **Docker** as the container runtime, on two host families:
+[Recipe Bottle's](#RecipeBottle) [Crucible](#Crucible) runtime is qualified for release against **Docker** as the container runtime, on two host families:
 
 - **Linux host** — native Docker Engine (Docker CE / `docker.io`) running directly on the host kernel; no VM. Tested on Ubuntu LTS with cgroup v2 and a 6.x kernel.
 - **macOS host** — Docker Desktop for Mac on a supported macOS release. Apple Silicon hosts use the Apple Virtualization framework or Docker VMM hypervisor backend.
 
-Windows host support works — [Recipe Bottle](#RecipeBottle) runs on Windows via Docker Desktop — but is not yet part of the release-1 qualification baseline; treat it as supported-experimental pending a green Windows test pass.
+Windows host support works — [Recipe Bottle](#RecipeBottle) runs on Windows via Docker Desktop — but is not yet part of the release-qualification baseline; treat it as supported-experimental pending a green Windows test pass.
 Podman support is architecturally accommodated by the spec but deferred — see [Podman Support](#PodmanSupport).
 
 One dependency note for evaluators: [Recipe Bottle's](#RecipeBottle) regression and adversarial test suites — including the [Theurge](#Theurge) orchestrator — are written in Rust. Validating the [Crucible's](#Crucible) containment yourself, or contributing, additionally needs a Rust toolchain; running Recipe Bottle does not.
@@ -245,7 +245,7 @@ The [Theurge](#Theurge) test orchestrator [Charges](#Charge) [tadmor](#tadmor) a
 The [moriah](#moriah) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with the [Ifrit](#Ifrit) attack [Vessel](#Vessel) under the same restrictive network allowlist as [tadmor](#tadmor), consuming [Hallmarks](#Hallmark) [Ordained](#Ordain) end-to-end on the [Airgap](#Airgap) pool.
 The [Theurge](#Theurge) runs the same escape attempts against [moriah](#moriah) as against [tadmor](#tadmor) — the cloud-built variant validating that containment holds identically when the supply chain produces the inputs.
 
-## Release Procedure
+## <a id="ReleaseProcedure"></a>Release Procedure
 
 The project maintainer release qualification ceremony — five operator steps, roughly one hour wall-clock, with cloud cost on the order of two GCP projects per run.
 See [RELEASE.md](RELEASE.md) for the full procedure.
@@ -537,7 +537,7 @@ The annotated tree below maps its files to the concepts defined above.
 |------|-------------|
 | `Project Root/` | |
 | `├── CLAUDE.md` | [Claude Code](https://claude.com/claude-code) command reference, glossary, conventions |
-| `├── RELEASE.md` | [Release Procedure](#Release-Procedure) — maintainer release qualification ceremony |
+| `├── RELEASE.md` | [Release Procedure](#ReleaseProcedure) — maintainer release qualification ceremony |
 | `├── tt/` | 136 [Tabtargets](#Tabtarget) — `tt/rbw-<TAB>` for all operations |
 | `├── Tools/` | |
 | `│   ├── buk/` | Bash Utility Kit — portable CLI infrastructure |
