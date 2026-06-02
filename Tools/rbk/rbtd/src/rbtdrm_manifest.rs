@@ -60,6 +60,9 @@ pub const RBTDRM_FIXTURE_REGIME_VALIDATION: &str = "regime-validation";
 pub const RBTDRM_FIXTURE_REGIME_SMOKE: &str = "regime-smoke";
 pub const RBTDRM_FIXTURE_HANDBOOK_RENDER: &str = "handbook-render";
 pub const RBTDRM_FIXTURE_DOCKERFILE_HYGIENE: &str = "dockerfile-hygiene";
+// Foundry-path — zrbfc_native_path_capture Cygwin /cygdrive normalizer. No
+// external dependency; pure bash-function unit test sourced direct (no kindle).
+pub const RBTDRM_FIXTURE_FOUNDRY_PATH: &str = "foundry-path";
 // Cupel — BCG command-dependency static analysis over all Tools/ bash. No
 // external dependency; partitions kit-bash (strict) from GCB-bash (looser).
 pub const RBTDRM_FIXTURE_CUPEL: &str = "cupel";
@@ -175,6 +178,7 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         RBTDRM_FIXTURE_ENROLLMENT_VALIDATION
         | RBTDRM_FIXTURE_REGIME_VALIDATION
         | RBTDRM_FIXTURE_REGIME_SMOKE
+        | RBTDRM_FIXTURE_FOUNDRY_PATH
         | RBTDRM_FIXTURE_CUPEL
         | RBTDRM_FIXTURE_CALIBRANT_VERDICTS
         | RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST

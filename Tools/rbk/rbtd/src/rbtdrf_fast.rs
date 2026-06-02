@@ -46,6 +46,7 @@ use crate::rbtdgc_consts::{
 use crate::rbtdrm_manifest::{
     RBTDRM_FIXTURE_DOCKERFILE_HYGIENE,
     RBTDRM_FIXTURE_ENROLLMENT_VALIDATION,
+    RBTDRM_FIXTURE_FOUNDRY_PATH,
     RBTDRM_FIXTURE_REGIME_SMOKE,
     RBTDRM_FIXTURE_REGIME_VALIDATION,
     RBTDRM_MODULE_BURC,
@@ -1868,6 +1869,80 @@ fn rbtdrf_dh_all_vessels_pass(dir: &Path) -> rbtdre_Verdict {
     rbtdre_Verdict::Pass
 }
 
+// ── Foundry-path cases ──────────────────────────────────────
+//
+// Drives zrbfc_native_path_capture directly: source rbfc_FoundryCore.sh, force
+// BURD_OSTYPE, assert the normalized stdout (or, for the bare-absolute
+// unsurveyed shape, that the capture returns non-zero). The normalizer is
+// sentinel-free and reads only its argument plus BURD_OSTYPE, so this stays a
+// dependency-free unit test — no foundry kindle, no regime, no credentials —
+// and exercises the Cygwin transform on any host by forcing the platform fact.
+
+fn rbtdrf_np_run(
+    dir: &Path,
+    label: &str,
+    ostype: &str,
+    input: &str,
+    expect: Option<&str>,
+) -> rbtdre_Verdict {
+    let root = match std::env::current_dir() {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+    };
+    let rbfc = root.join("Tools/rbk/rbfc_FoundryCore.sh");
+
+    let assertion = match expect {
+        Some(out) => format!("test \"$(zrbfc_native_path_capture '{}')\" = '{}'", input, out),
+        None => format!("zrbfc_native_path_capture '{}'", input),
+    };
+    let script = format!(
+        "set -euo pipefail\nsource '{}'\nexport BURD_OSTYPE='{}'\n{}",
+        rbtdrx_native_to_posix(&rbfc),
+        ostype,
+        assertion,
+    );
+
+    let expect_ok = expect.is_some();
+    match rbtdrf_run_bash(&root, &script, dir, label) {
+        Ok((code, _, _)) => {
+            let ok = code == 0;
+            if ok == expect_ok {
+                rbtdre_Verdict::Pass
+            } else if expect_ok {
+                rbtdre_Verdict::Fail(format!("{}: expected ok, got exit {}", label, code))
+            } else {
+                rbtdre_Verdict::Fail(format!("{}: expected non-zero (unsurveyed), got exit 0", label))
+            }
+        }
+        Err(e) => rbtdre_Verdict::Fail(format!("{}: {}", label, e)),
+    }
+}
+
+fn rbtdrf_np_cygdrive_transform(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_np_run(dir, "np-cygdrive-transform", "cygwin",
+        "/cygdrive/c/Users/foo", Some("c:/Users/foo"))
+}
+
+fn rbtdrf_np_relative_passthrough(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_np_run(dir, "np-relative-passthrough", "cygwin",
+        "rbmv_vessels/rbev-busybox", Some("rbmv_vessels/rbev-busybox"))
+}
+
+fn rbtdrf_np_native_passthrough(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_np_run(dir, "np-native-passthrough", "cygwin",
+        "c:/Users/foo", Some("c:/Users/foo"))
+}
+
+fn rbtdrf_np_offcygwin_identity(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_np_run(dir, "np-offcygwin-identity", "linux-gnu",
+        "/cygdrive/c/Users/foo", Some("/cygdrive/c/Users/foo"))
+}
+
+fn rbtdrf_np_bare_absolute_unsurveyed(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_np_run(dir, "np-bare-absolute-unsurveyed", "cygwin",
+        "/etc/hosts", None)
+}
+
 // ── Case arrays ─────────────────────────────────────────────
 
 pub static RBTDRF_CASES_ENROLLMENT_VALIDATION: &[rbtdre_Case] = &[
@@ -2028,4 +2103,20 @@ pub static RBTDRF_FIXTURE_DOCKERFILE_HYGIENE: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRF_CASES_DOCKERFILE_HYGIENE,
+};
+
+pub static RBTDRF_CASES_FOUNDRY_PATH: &[rbtdre_Case] = &[
+    case!(rbtdrf_np_cygdrive_transform),
+    case!(rbtdrf_np_relative_passthrough),
+    case!(rbtdrf_np_native_passthrough),
+    case!(rbtdrf_np_offcygwin_identity),
+    case!(rbtdrf_np_bare_absolute_unsurveyed),
+];
+
+pub static RBTDRF_FIXTURE_FOUNDRY_PATH: rbtdre_Fixture = rbtdre_Fixture {
+    name: RBTDRM_FIXTURE_FOUNDRY_PATH,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    cases: RBTDRF_CASES_FOUNDRY_PATH,
 };
