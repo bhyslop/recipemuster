@@ -204,6 +204,22 @@ pub fn rbtdri_find_tabtarget_global(
 
 // ── Tabtarget invocation with BURV isolation ─────────────────
 
+/// Build a `Command` that launches a tabtarget — a bash `.sh` — portably.
+///
+/// A Windows-native theurge (`x86_64-pc-windows-gnu`) cannot `CreateProcess` a
+/// `.sh` directly: Rust's `Command` on Windows launches only `.exe` (plus the
+/// undocumented `.bat`/`.cmd`), so `Command::new("foo.sh")` yields "not a valid
+/// Win32 application." Routing through `bash <script> …` sidesteps that. The
+/// script path is rendered to POSIX form (RBTDRX) for Cygwin bash; on Linux and
+/// macOS that conversion is identity and `bash script.sh` is equivalent to a
+/// shebang exec, so this call site is unconditional. Callers chain `.args(...)`,
+/// `.current_dir(...)`, and `.env(...)` exactly as on a `Command::new` result.
+pub fn rbtdri_tabtarget_command(tabtarget: &Path) -> Command {
+    let mut cmd = Command::new("bash");
+    cmd.arg(rbtdrx_native_to_posix(tabtarget));
+    cmd
+}
+
 /// Internal: execute a resolved tabtarget with BURV isolation and optional extra env vars.
 fn rbtdri_invoke_impl(
     ctx: &mut rbtdri_Context,
@@ -223,7 +239,7 @@ fn rbtdri_invoke_impl(
     std::fs::create_dir_all(&burv_temp)
         .map_err(|e| format!("rbtdri: failed to create BURV temp dir: {}", e))?;
 
-    let mut cmd = Command::new(tabtarget);
+    let mut cmd = rbtdri_tabtarget_command(tabtarget);
     cmd.args(args)
         .current_dir(&ctx.project_root)
         .env("BURV_OUTPUT_ROOT_DIR", rbtdrx_native_to_posix(&burv_output))

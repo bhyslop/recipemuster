@@ -20,11 +20,10 @@
 // Each case invokes a handbook colophon with no arguments and asserts exit 0.
 
 use std::path::Path;
-use std::process::Command;
 
 use crate::case;
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
-use crate::rbtdri_invocation::rbtdri_find_tabtarget_global;
+use crate::rbtdri_invocation::{rbtdri_find_tabtarget_global, rbtdri_tabtarget_command};
 use crate::rbtdgc_consts::{
     RBTDGC_HANDBOOK_TOP, RBTDGC_HANDBOOK_WINDOWS,
     RBTDGC_HW_DOCKER_CONTEXT, RBTDGC_HW_DOCKER_DESKTOP,
@@ -52,7 +51,7 @@ fn rbtdrf_hb_render(dir: &Path, colophon: &str, label: &str) -> rbtdre_Verdict {
         Err(e) => return rbtdre_Verdict::Fail(e),
     };
 
-    let output = match Command::new(&tt).current_dir(&root).output() {
+    let output = match rbtdri_tabtarget_command(&tt).current_dir(&root).output() {
         Ok(o) => o,
         Err(e) => {
             return rbtdre_Verdict::Fail(format!(

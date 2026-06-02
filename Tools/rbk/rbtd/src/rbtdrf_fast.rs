@@ -25,7 +25,7 @@ use std::process::Command;
 
 use crate::case;
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
-use crate::rbtdri_invocation::rbtdri_find_tabtarget_global;
+use crate::rbtdri_invocation::{rbtdri_find_tabtarget_global, rbtdri_tabtarget_command};
 use crate::rbtdgc_consts::{
     RBTDGC_HYGIENE_CHECK_DOCKERFILE,
     RBTDGC_HYGIENE_CHECK_VESSEL,
@@ -258,7 +258,7 @@ fn rbtdrf_run_tt(
     label: &str,
 ) -> Result<(), String> {
     let tt = rbtdri_find_tabtarget_global(project_root, colophon)?;
-    let output = Command::new(&tt)
+    let output = rbtdri_tabtarget_command(&tt)
         .args(args)
         .current_dir(project_root)
         .output()
@@ -291,7 +291,7 @@ fn rbtdrf_run_tt_neg(
     label: &str,
 ) -> Result<(), String> {
     let tt = rbtdri_find_tabtarget_global(project_root, colophon)?;
-    let output = Command::new(&tt)
+    let output = rbtdri_tabtarget_command(&tt)
         .args(args)
         .current_dir(project_root)
         .output()
@@ -1659,7 +1659,7 @@ fn rbtdrf_rs_unmake_empty_arg_refusal(dir: &Path) -> rbtdre_Verdict {
         Err(e) => return rbtdre_Verdict::Fail(e),
     };
 
-    let output = match Command::new(&tt).current_dir(&root).output() {
+    let output = match rbtdri_tabtarget_command(&tt).current_dir(&root).output() {
         Ok(o) => o,
         Err(e) => {
             return rbtdre_Verdict::Fail(format!(
