@@ -2,7 +2,7 @@
 
 Containers give you control over what runs. Getting that control to hold at the *edges* — [knowing where an image actually came from](#ControlledContainerBuilds), and [constraining what it can reach once it runs](#RestrictingAccess) — is normally a standing job for a platform team.
 
-[Recipe Bottle](#RecipeBottle) collapses that cost. It's a set of bash scripts — `bash 3.2`, `curl`, `openssl`, `jq`, and a handful of standard tools, with no Python runtime, no language package manager, and no `gcloud` CLI — that a small team can use to stand up a hardened build pipeline and a sandboxed runtime without one. After initial setup, every cloud API call is `openssl` + `curl`.
+[Recipe Bottle](#RecipeBottle) collapses that cost. It's a set of bash scripts with a deliberately tiny dependency surface: running it needs only `bash 3.2`, `curl`, `openssl`, `jq`, and a handful of standard tools — no Python runtime, no language package manager, no `gcloud` CLI — so there is nothing language-specific to install and almost nothing of its own to audit, patch, or trust. A small team can stand up a hardened build pipeline and a sandboxed runtime without one; after initial setup, every cloud API call is `openssl` + `curl`.
 
 It extends a container's control to its two edges:
 
@@ -40,6 +40,8 @@ The two compose, but neither requires the other.
 
 Windows host support works — [Recipe Bottle](#RecipeBottle) runs on Windows via Docker Desktop — but is not yet part of the release-1 qualification baseline; treat it as supported-experimental pending a green Windows test pass.
 Podman support is architecturally accommodated by the spec but deferred — see [Podman Support](#PodmanSupport).
+
+One dependency note for evaluators: [Recipe Bottle's](#RecipeBottle) regression and adversarial test suites — including the [Theurge](#Theurge) orchestrator — are written in Rust. Validating the [Crucible's](#Crucible) containment yourself, or contributing, additionally needs a Rust toolchain; running Recipe Bottle does not.
 
 <a id="Regime"></a>All configuration flows through [Regimes](#Regime) — structured `.env` files with typed validation, each with its own render and validate commands.
 Some regimes are committed in the repo: [Vessel](#Vessel) definitions ([RBRV](#RBRV)), [Nameplate](#Nameplate) configurations ([RBRN](#RBRN)), [Depot](#Depot) identity ([RBRD](#RBRD)), repository-wide settings ([RBRR](#RBRR)), and [Payor](#Payor) identity ([RBRP](#RBRP)).
