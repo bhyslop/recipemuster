@@ -1,9 +1,15 @@
 # <a id="RecipeBottle"></a>Recipe Bottle
 
-[Recipe Bottle](#RecipeBottle) provides two independent container image capabilities:
+Containers give you control over what runs. Getting that control to hold at the *edges* — [knowing where an image actually came from](#ControlledContainerBuilds), and [constraining what it can reach once it runs](#RestrictingAccess) — is normally a standing job for a platform team.
 
-- **[Foundry](#Foundry)**: orchestrate Google Cloud Build to produce multiplatform container images (x86 + ARM), fetch, retain, and serve them using a role-managed private cloud registry — with optional [egress-locked](#BuildIsolation) builds and supply-chain [provenance](#Provenance)
-- **[Crucible](#Crucible)**: run untrusted containers behind enforced network isolation — DNS filtering and IP filtering — even using images unmodified from "in the wild"
+[Recipe Bottle](#RecipeBottle) collapses that cost. It's a set of bash scripts — `bash 3.2`, `curl`, `openssl`, `jq`, and a handful of standard tools, with no Python runtime, no language package manager, and no `gcloud` CLI — that a small team can use to stand up a hardened build pipeline and a sandboxed runtime without one. After initial setup, every cloud API call is `openssl` + `curl`.
+
+It extends a container's control to its two edges:
+
+- **[Foundry](#Foundry)** — *where images come from.* Orchestrates Google Cloud Build to produce multiplatform images (x86 + ARM) with verifiable [SLSA provenance](#Provenance), serves them from a role-managed private cloud registry, and can build [egress-locked](#BuildIsolation) so a compromised build step cannot phone home.
+- **[Crucible](#Crucible)** — *what images can reach.* Runs untrusted containers — even images pulled unmodified "in the wild" — behind enforced network isolation: DNS and IP filtering that a compromised workload cannot bypass.
+
+The two compose, but neither requires the other.
 
 > [!IMPORTANT]
 > **Early-stage project — security review welcome in both domains**
@@ -17,12 +23,6 @@
 
 **Host platform scope.** [Recipe Bottle](#RecipeBottle) is release-1 qualified on Linux and macOS with Docker. Windows host support works and is exercised in testing, but is not yet part of the release-1 qualification baseline — treat it as supported-experimental for now.
 
-[Recipe Bottle](#RecipeBottle) is a set of bash scripts enabling enterprise grade container image management intended for incorporation into any project.
-The dependency footprint is deliberately narrow — `bash 3.2` and a handful of standard tools — with no Python runtime, no language-specific package manager, and no `gcloud` CLI.
-After initial manual setup, all cloud API calls use `openssl` + `curl`.
-A small team can stand up a hardened build pipeline and a sandboxed runtime without specialized DevOps expertise.
-[Recipe Bottle's](#RecipeBottle) goal is a workflow where every container image has a verified origin and a controlled version, running behind appropriate network safeguards.
-
 **Project page**: https://scaleinv.github.io/recipebottle
 
 <p align="center">
@@ -30,9 +30,6 @@ A small team can stand up a hardened build pipeline and a sandboxed runtime with
 </p>
 
 ## Environment
-
-[Recipe Bottle](#RecipeBottle) is organized around two independent capabilities: the [Foundry](#Foundry) builds container images with verifiable [provenance](#Provenance), and the [Crucible](#Crucible) runs untrusted images with enforced network isolation.
-The two compose but neither requires the other.
 
 ### Supported Platforms
 
@@ -250,6 +247,22 @@ The [Theurge](#Theurge) runs the same escape attempts against [moriah](#moriah) 
 
 The project maintainer release qualification ceremony — five operator steps, roughly one hour wall-clock, with cloud cost on the order of two GCP projects per run.
 See [RELEASE.md](RELEASE.md) for the full procedure.
+
+## <a id="HowThisIsNormallyDone"></a>Appendix: How This Is Normally Done
+
+The two controls [Recipe Bottle](#RecipeBottle) provides are not novel — they are what a platform team normally assembles from dedicated infrastructure. This appendix names that conventional stack, so the comparison stays honest and the trade-off stays legible.
+
+### <a id="ControlledContainerBuilds"></a>Controlled container builds
+
+Knowing where an image came from — and proving it — is the domain of software supply-chain security. The stabilized toolchain pairs build provenance ([SLSA](https://slsa.dev)) with cryptographic signing ([Sigstore](https://www.sigstore.dev)/cosign), a [software bill of materials](#SBOM) ([Syft](https://github.com/anchore/syft)), vulnerability scanning, and deploy-time admission control ([Kyverno](https://kyverno.io), OPA Gatekeeper) that rejects unsigned or unattested images.
+Reaching SLSA Build Level 2 with this stack is a matter of weeks; the [Foundry](#Foundry) reaches **Level 3** with none of it resident on the workstation.
+
+### <a id="RestrictingAccess"></a>Restricting access
+
+Constraining what a workload can reach on the internet is the domain of network egress control. At the corporate-network tier this is a [secure web gateway](https://www.paloaltonetworks.com/cyberpedia/what-is-secure-web-gateway), increasingly bundled into [SASE](https://www.checkpoint.com/cyber-hub/network-security/what-is-secure-access-service-edge-sase/) alongside a CASB and firewall. At the container tier it is [Kubernetes NetworkPolicy](https://kubernetes.io/docs/concepts/services-networking/network-policies/), usually upgraded to [Cilium](https://cilium.io/use-cases/egress-gateway/) or Calico for DNS-aware, deny-by-default egress.
+That "deny-by-default, allow only where needed" posture is exactly the [Sentry](#Sentry) model.
+
+**Honest scope.** These are multi-tenant corporate systems, centrally administered and kept alive by a standing team. [Recipe Bottle](#RecipeBottle) puts the same two controls in reach of a small team or a solo developer; it is not a fleet-scale replacement for a secure web gateway or a service mesh, and does not try to be. The value is the control, at a cost a small team can carry.
 
 ## Appendix: Foundry Operations
 
