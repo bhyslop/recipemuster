@@ -99,3 +99,14 @@ Either outcome matters; we cannot tell which from this single run.
 - The bottle/crucible only charged on cygwin at all because of the two
   Windows-Docker-Desktop membranes — see
   `memo-20260603-windows-docker-desktop-bind-mount.md`.
+
+## Addendum (2026-06-03, after blockade)
+
+blockade (moriah — conjure-mode, GAR-summoned, airgap-built) ran on Cygwin and
+produced the **identical 45/46** — the same single `conntrack_spoofed_ack`
+BREACH. moriah carries a runtime egress allowlist too (`tcp443_allow_example`
+and `cidr_all_ports_allowed` both passed), so the breach reproduces
+**cross-nameplate** on Cygwin DD — it is *not* asymmetric between the tether and
+airgap nameplates. That narrows the cause toward the shared sentry-rule /
+conntrack property and makes the **native-Linux/WSL reproduction the decisive
+next test**: does it breach there too?
