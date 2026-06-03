@@ -9179,6 +9179,13 @@
         "₢BXAAK": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260603-1048",
+              "jjgtn_state": "jjgte_abandoned",
+              "jjgtn_text": "## Character\nMechanical follow-on — a second body onto the proven spine.\n\n## Goal\nMake reliquary inscribe a thin body riding the host spine (rblds_): its build-submit composes through the spine instead of carrying its own copy. Kills the inscribe↔bole submit duplication and gives the spine its second validating caller.\n\n## Cinched (paddock)\n- Behavior-preserving: inscribe keeps its namespace, cohort, and docker-mirror behavior; only its submit path is rewired. The rbi_rq→rbi_ld conversion stays ₣BH's cutover.\n- inscribe rides the host spine (submit/poll/extract); its docker-mirror stays a kind-specific cloud step (no token snippet — docker auto-auths).\n\n## Done\n- inscribe composes its build through the spine via recipe + substitutions as a thin body; the duplicated submit logic is gone; the inscribe/reliquary path is behavior-identical (proven at the skirmish gate).",
+              "jjgtn_silks": "inscribe-rides-spine",
+              "jjgtn_basis": "0835195"
+            },
+            {
               "jjgtn_ts": "260603-0601",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nMechanical follow-on — a second body onto the proven spine.\n\n## Goal\nMake reliquary inscribe a thin body riding the host spine (rblds_): its build-submit composes through the spine instead of carrying its own copy. Kills the inscribe↔bole submit duplication and gives the spine its second validating caller.\n\n## Cinched (paddock)\n- Behavior-preserving: inscribe keeps its namespace, cohort, and docker-mirror behavior; only its submit path is rewired. The rbi_rq→rbi_ld conversion stays ₣BH's cutover.\n- inscribe rides the host spine (submit/poll/extract); its docker-mirror stays a kind-specific cloud step (no token snippet — docker auto-auths).\n\n## Done\n- inscribe composes its build through the spine via recipe + substitutions as a thin body; the duplicated submit logic is gone; the inscribe/reliquary path is behavior-identical (proven at the skirmish gate).",
