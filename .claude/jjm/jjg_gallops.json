@@ -8940,9 +8940,10 @@
         "₢BXAAE",
         "₢BXAAF",
         "₢BXAAG",
-        "₢BXAAH"
+        "₢BXAAH",
+        "₢BXAAI"
       ],
-      "jjghn_next_pace_seed": "AAI",
+      "jjghn_next_pace_seed": "AAJ",
       "jjghn_paces": {
         "₢BXAAA": {
           "jjgpn_tacks": [
@@ -9029,6 +9030,17 @@
               "jjgtn_text": "## Character\nOperator-driven, heavyweight verification.\n\n## Goal\nProve the whole refactor behavior-preserving against the live system.\n\n## Cinched (paddock)\n- Requires live GCP credentials and a standing canonical depot — not free-standing.\n- The ~100-minute skirmish cook is a milestone, not a per-commit cost.\n\n## Done\n- Full skirmish + service lode-lifecycle green; artifacts and provenance verdicts identical to pre-refactor; provenance-insensitivity-to-restructuring confirmed.",
               "jjgtn_silks": "milestone-skirmish-gate",
               "jjgtn_basis": "511d26e"
+            }
+          ]
+        },
+        "₢BXAAI": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260603-0517",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nAuthoring — distillation from the code this heat wrote.\n\n## Goal\nHarvest CBG (the Cloud Build Guide) by distilling the per-script cloud discipline this refactor established; the spine, library, and bodies are its exemplars.\n\n## Cinched (paddock)\n- Read WSG first so the sibling framing rests on the document, not its label.\n- CBG governs single-script precision (inside one cloud step), not component wiring or architecture.\n\n## Done\n- CBG is authored from the heat's exemplars; the name is confirmed against the BCG/RCG/WSG sibling set.",
+              "jjgtn_silks": "cbg-capstone-harvest",
+              "jjgtn_basis": "5ed1c4d"
             }
           ]
         }
