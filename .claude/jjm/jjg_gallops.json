@@ -8110,9 +8110,10 @@
         "₢BDAAM",
         "₢BDAAN",
         "₢BDAAO",
-        "₢BDAAP"
+        "₢BDAAP",
+        "₢BDAAQ"
       ],
-      "jjghn_next_pace_seed": "AAQ",
+      "jjghn_next_pace_seed": "AAR",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -8441,6 +8442,17 @@
               "jjgtn_text": "## Character\nSpook — small JJK legibility tweak; judgment on where the state-confirmation belongs.\n\n## Memory (260603)\nDropping ₢BXAAK, `jjx_drop` returned only a bare commit hash. The drop is additive — it pushes an `abandoned`-state tack onto the pace and never purges it — so `jjx_coronets` still lists the pace and `jjx_brief` still returns its docket verbatim, both presenting an abandoned pace indistinguishably from a live one. Verifying with those two reads, an agent misread a successful drop as a failure and contradicted itself across turns; only `jjx_show`'s State column revealed `abandoned`. `jjx_validate` passed throughout — the command did exactly its job; only its effect was illegible.\n\n## Goal\nMake a successful drop confirmable from the commands used to perform and verify it, so a tombstoned pace can't be mistaken for a live one.\n\n## Recommendation\n- Primary — `jjx_drop` should echo the prior→new state in its return (e.g. `₢BXAAK: rough → abandoned`) rather than a bare commit hash; a state mutation should confirm its own effect. Extend to sibling state-transition commands.\n- Secondary — quick reads that surface abandoned paces should distinguish them: `jjx_coronets` tags or filters abandoned; `jjx_brief` leads with an `[abandoned]` marker.\n\n## Done\n- A drop's return names the prior→new state; abandoned paces are visibly distinguished (or filtered) in `jjx_coronets`/`jjx_brief`; confirming a drop no longer requires `jjx_show`.",
               "jjgtn_silks": "jjx-drop-state-legibility",
               "jjgtn_basis": "fd433ad"
+            }
+          ]
+        },
+        "₢BDAAQ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260603-1133",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nSpook — discipline gap surfaced while grooming ₣BH: a paddock named its own heat silks, which had drifted from the gallops silks. Mechanical doc edit; the only judgment is where the rule lives and how it meshes with the existing coronet/silks reference rules.\n\n## Goal\nCodify in the JJK Claude context the principle that paddock and docket *prose* must never name heat silks — refer to heats by firemark, paces by coronet. Silks evolve via `jjx_relabel` and go stale; firemarks and coronets are lifecycle-bound.\n\n## Where\nThe JJK guidance in the `@`-included Claude context (`claude-jjk-core.md`), alongside the existing \"Paddock posture\" / \"Reference discipline\" / \"Display discipline\" rules. The sibling rule \"Coronets do not appear in paddock prose\" is the model — extend the same logic to silks, stating the three-way distinction so the nuance is not lost:\n- **Firemarks** — lifecycle-bound → fine in both paddock and dockets.\n- **Coronets** — stable but invalidated by pace ops → already barred from paddock prose; in dockets only for cross-order deps.\n- **Silks** — evolve via relabel → barred from BOTH paddock and dockets (the new rule).\n\n## Done\nThe no-silks-in-prose principle is written into the JJK Claude context where future groom/mount sessions read it, with the firemark/coronet/silks distinction stated. (Optional check: grep paddocks/dockets for silks-shaped kebab strings.)",
+              "jjgtn_silks": "jjk-no-silks-in-paddock-docket-prose",
+              "jjgtn_basis": "36b8025"
             }
           ]
         }
