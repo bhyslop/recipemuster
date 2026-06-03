@@ -2553,16 +2553,26 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &RBTDRC_FIXTURE_TADMOR,
         ],
     },
-    // Blockade - moriah self-contained: the conjure-mode (cloud-built,
-    // GAR-summoned) airgap crucible. Sibling to siege on the network-posture
-    // axis (siege = tether bottle, blockade = airgap bottle). Single fixture:
-    // the moriah crucible charges (auto-summoning its conjure hallmarks from
-    // the depot's GAR), runs the security cases, quenches. No kludge predecessor
-    // - conjure hallmarks come from GAR, not a local build, so unlike siege
-    // there is nothing to build-and-commit first.
+    // Blockade - moriah airgap crucible with credential self-heal. Sibling to
+    // siege on the network-posture axis (siege = tether bottle, blockade =
+    // airgap bottle), but unlike siege it is NOT fully local: moriah is
+    // conjure-mode and auto-summons its hallmarks from the depot's GAR, so the
+    // charge needs a live Retriever SA. canonical-invest leads (exactly as in
+    // skirmish/dogfight) to re-mantle the Governor and re-invest Retriever +
+    // Director against the standing operator-levied depot, so a shared-depot
+    // host that has obsoleted this station's SAs no longer walls the summon
+    // with a persistent Invalid JWT Signature. Then the moriah crucible charges
+    // (auto-summoning its already-ordained conjure hallmarks), runs the security
+    // cases, quenches. No kludge predecessor - conjure hallmarks come from GAR,
+    // not a local build. NOTE: like skirmish/dogfight, the governor mantle
+    // re-mantles the SHARED governor, which in turn obsoletes Retriever/Director
+    // SAs on other hosts until they re-invest. OPERATOR PRECONDITION: canonical
+    // depot levied AND the moriah conjure hallmark already ordained into its GAR
+    // (canonical-invest heals credentials, not a missing hallmark).
     rbtdre_Suite {
         name: "blockade",
         fixtures: &[
+            &crate::rbtdrk_canonical::RBTDRK_FIXTURE_CANONICAL_INVEST,
             &RBTDRC_FIXTURE_MORIAH,
         ],
     },
