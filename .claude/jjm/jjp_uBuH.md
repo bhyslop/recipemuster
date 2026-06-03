@@ -160,12 +160,12 @@ Remaining open items are pace-time choices, settled by the first relevant pace:
 
 ## Heat nature
 
-Design heat with the **bole kind landed**. Bole-kind capture (`ensconce`/`divine`/`banish`, the `rbld_` module + `rbi_ld` layout + the two cloud-side in-pool steps) is implemented and verified first-run against live GAR via the `lode-lifecycle` service fixture — it is the reusable shape every later kind copies. Remaining kinds (`tool`/`reliquary`/`wsl`/`podvm`), the rename map, election (`yoke`), and the RBS0/`RBSL` spec writing are follow-up paces; the remaining landing-regime decisions defer until those commit, when everything here is re-investigated. Scope locked to the fetched side (made-images out of scope; see Shape) and to acquisition (wsl/podvm consumption deferred — this heat captures their bytes into GAR and proves control there; host consumption is the locked-but-deferred sequel). Heat silks are `rbk-16-mvp-lode-universal-capture`.
+Design heat with the **bole kind landed**. Bole-kind capture (`ensconce`/`divine`/`banish`, the `rbld_` module + `rbi_ld` layout + the two cloud-side in-pool steps) is implemented and verified first-run against live GAR via the `lode-lifecycle` service fixture — it is the reusable shape every later kind copies. Remaining kinds (`tool`/`reliquary`/`wsl`/`podvm`), the rename map, election (`yoke`), and the RBS0/`RBSL` spec writing are follow-up paces; the remaining landing-regime decisions defer until those commit, when everything here is re-investigated. Scope locked to the fetched side (made-images out of scope; see Shape) and to acquisition (wsl/podvm consumption deferred — this heat captures their bytes into GAR and proves control there; host consumption is the locked-but-deferred sequel).
 
 ## References
 
-- ₣AV `rbw-implement-gar-mirroring` (retired) — predecessor heat
-- ₣Az `rbk-90-deferred-ark-concept-debt` (retired) — closed by the GAR-package substrate finding
+- ₣AV (retired) — predecessor GAR-mirroring heat
+- ₣Az (retired) — deferred ark-concept-debt heat, closed by the GAR-package substrate finding
 - RBSAE `ark_enshrine` — current narrow-scope spec; becomes the `bole`-kind `ensconce` pipeline (`enshrine` the verb retires into per-kind capture)
 - RBSAS `ark_summon`, RBSDI `depot_inscribe`, RBSDY `director_yoke` — verbs within blast radius
 - RBSRV `RegimeVessel` — ORIGIN/ANCHOR precedent; enum-gated-variable-groups pattern
