@@ -54,13 +54,22 @@ This heat is ₣BH's prerequisite: its kind verticals attach as thin bodies once
 
 Spine module name, per-kind body file names, and the shared-step namespace (which breaks the rbgj family-letter scheme, since a shared step belongs to no single family) — mint deliberately, enumerating namespaces per the project's minting discipline. Also: whether the normative step-contract (requires/provides plus validator behavior) gets its own spec letter or a section in the Cloud Build JSON trade study.
 
+## Capstone — harvest CBG (Cloud Build Guide)
+
+A required output of this heat, produced at landing by distilling the patterns this refactor establishes — not a speculative pre-write. CBG fills the same slot for the Cloud-Build-container stack that WSG fills for the ssh-to-Windows stack: a foreign-environment sibling to BCG, sharing its philosophy (crash-fast, no silent failures, load-bearing complexity, interface contamination) but diverging entirely on mechanics. CBG operates at single-script precision — it governs the inside of one cloud step, NOT component wiring or architecture; those lessons live in the spec and this paddock.
+
+Contents are the cloud dialect's per-script discipline: crash-fast in the cloud idiom, the metadata-token preamble, JSON-construction rules (when hand-rolled printf is acceptable vs when jq is required), substitution naming and double-dollar escaping, idempotency under Cloud Build retry, the pure-logic/network-op split that makes a step unit-testable, and the /workspace constraints — foremost what must NOT go in it (secrets; the invariant recorded in RBSCB). CBG points at the executable contract and validator rather than restating them.
+
+The guide is only as good as the code it distills, so the spine, library, and per-kind bodies are written as its exemplars — quality now is what makes CBG worth harvesting. Name CBG chosen; confirm against the BCG/RCG/WSG sibling set at mint, and read WSG before authoring so the sibling framing rests on the document, not its label.
+
 ## Done
 
-Bole ensconce and reliquary inscribe ride one host spine and one shared cloud step-library with explicit per-step contracts; the canonical token is composed once (no copy-paste); the dispatch validator is in place with its own tests; full skirmish plus service pass with artifacts and provenance verdicts identical to pre-refactor (provenance-insensitivity-to-restructuring confirmed); no new Lode kinds exist; and the rationales are recorded in the Cloud Build spec — posture in RBSCB, the composition/contract decision in RBSCJ.
+Bole ensconce and reliquary inscribe ride one host spine and one shared cloud step-library with explicit per-step contracts; the canonical token is composed once (no copy-paste); the dispatch validator is in place with its own tests; full skirmish plus service pass with artifacts and provenance verdicts identical to pre-refactor (provenance-insensitivity-to-restructuring confirmed); no new Lode kinds exist; the rationales are recorded in the Cloud Build spec — posture in RBSCB, the composition/contract decision in RBSCJ; and CBG (the Cloud Build Guide) is harvested from the patterns this heat establishes — see Capstone.
 
 ## References
 
 - ₣BH — the Lode kind universe heat this unblocks.
 - RBSCB CloudBuildPosture — holds the skopeo-token/credential-helper and capture-duplication posture.
 - RBSCJ CloudBuildJson — JSON-composition trade study; eventual home for the spine/contract decision (currently trigger-era stale — refresh when touched).
+- WSG WindowsScriptingGuide — the foreign-environment sibling guide to BCG (ssh-to-Windows stack); structural precedent for CBG, to be read before CBG is authored.
 - The bole pilot, the reliquary and enshrine predecessors, and the cloud step family.
