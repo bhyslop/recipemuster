@@ -8,10 +8,11 @@ Job Jockey (JJ) is installed for managing project initiatives.
 - **Itch**: Future work (any detail level), lives in jji_itch.md
 - **Scar**: Closed work with lessons learned, lives in jjs_scar.md
 - **Spook**: Team infrastructure stumble — any workflow failure improvable with deft attention. Capture as a pace when encountered, don't lose the current thread.
+- **Cinch**: A decision settled in a paddock or docket and not to be re-litigated — both noun and verb ("cinch the approach," "the inscribe-skip is cinched"). Distinct from a *lock* in the concurrency sense (JJK's git-ref commit lock), which keeps that word.
 
 **Sincerity over efficiency:** When you notice something — a pattern, a concern, an insight about the work or the collaboration itself — say it. Discovery through conversation is part of the work, not a detour from it.
 
-**Docket posture:** A docket is a specification of needed change, not architectural commentary. It articulates what done looks like and any locked constraints; it points at sources rather than restating them. A short `## Character` line naming the cognitive posture (e.g., "intricate but mechanical," "design conversation requiring judgment") earns its keep; the rest of the docket should resist filling in.
+**Docket posture:** A docket is a specification of needed change, not architectural commentary. It articulates what done looks like and any cinched constraints; it points at sources rather than restating them. A short `## Character` line naming the cognitive posture (e.g., "intricate but mechanical," "design conversation requiring judgment") earns its keep; the rest of the docket should resist filling in.
 
 **Slate-time vs mount-time.** The slate agent has just done analysis; the mount agent will reorient against the project as it stands then, with CLAUDE.md and specs already loaded. Hand off goal and boundary, not the analysis. Depth belongs in the slate commit message, not the docket body.
 
@@ -27,7 +28,7 @@ Job Jockey (JJ) is installed for managing project initiatives.
 
 **Reference discipline.** Pace order is the dependency tree — single-operator workflow runs paces in heat order, so explicit dependency markers in docket prose are usually overspecified. Coronet cross-refs in dockets earn their keep only when the dependency crosses heats or skips order — rare, not never.
 
-**Paddock posture.** A paddock articulates shape, locked decisions, and what done looks like — not a progress journal. Git log and `jjx_log` are the journal; the paddock is the shape. **Coronets do not appear in paddock prose** — not retrospectively (annotating landed work, e.g., "BBAAM depot-identity-collapse"), not prospectively (naming planned paces, e.g., "AAF — Docker dual-daemon"), not as cross-references. A coronet is an enrollment-ledger key, not shape data; pace-state operations (drop, relabel, reorder, transfer) silently invalidate coronet refs while the prose keeps them. Refer to paces by purpose, not identifier; `jjx_show` is the authoritative source for what paces exist. Firemarks may appear (heats change rarely). When editing a paddock for other reasons, prune any coronet refs you find.
+**Paddock posture.** A paddock articulates shape, cinched decisions, and what done looks like — not a progress journal. Git log and `jjx_log` are the journal; the paddock is the shape. **Coronets do not appear in paddock prose** — not retrospectively (annotating landed work, e.g., "BBAAM depot-identity-collapse"), not prospectively (naming planned paces, e.g., "AAF — Docker dual-daemon"), not as cross-references. A coronet is an enrollment-ledger key, not shape data; pace-state operations (drop, relabel, reorder, transfer) silently invalidate coronet refs while the prose keeps them. Refer to paces by purpose, not identifier; `jjx_show` is the authoritative source for what paces exist. Firemarks may appear (heats change rarely). When editing a paddock for other reasons, prune any coronet refs you find.
 
 **Mid-execution posture.** When a failure or surprise surfaces while a pace is mounted, the default response is mechanism + one specific repair you'd attempt. Do not proliferate options or weigh consequences across alternatives — pace scope and segmentation are operator territory. If the repair is obvious, proceed; if not, surface the question and stop.
 
