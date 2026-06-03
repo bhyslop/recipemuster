@@ -2547,10 +2547,23 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
     // a self-charging tadmor fixture, because the crucible security cases resolve
     // their nameplate from the fixture name and would collide on "tadmor".
     rbtdre_Suite {
-        name: "tadmor",
+        name: "siege",
         fixtures: &[
             &crate::rbtdro_onboarding::RBTDRO_FIXTURE_KLUDGE_TADMOR,
             &RBTDRC_FIXTURE_TADMOR,
+        ],
+    },
+    // Blockade - moriah self-contained: the conjure-mode (cloud-built,
+    // GAR-summoned) airgap crucible. Sibling to siege on the network-posture
+    // axis (siege = tether bottle, blockade = airgap bottle). Single fixture:
+    // the moriah crucible charges (auto-summoning its conjure hallmarks from
+    // the depot's GAR), runs the security cases, quenches. No kludge predecessor
+    // - conjure hallmarks come from GAR, not a local build, so unlike siege
+    // there is nothing to build-and-commit first.
+    rbtdre_Suite {
+        name: "blockade",
+        fixtures: &[
+            &RBTDRC_FIXTURE_MORIAH,
         ],
     },
 ];
