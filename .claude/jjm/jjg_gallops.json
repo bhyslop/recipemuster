@@ -8801,9 +8801,10 @@
         "₢BVAAC",
         "₢BVAAA",
         "₢BVAAB",
-        "₢BVAAE"
+        "₢BVAAE",
+        "₢BVAAF"
       ],
-      "jjghn_next_pace_seed": "AAF",
+      "jjghn_next_pace_seed": "AAG",
       "jjghn_paces": {
         "₢BVAAA": {
           "jjgpn_tacks": [
@@ -8913,6 +8914,17 @@
               "jjgtn_text": "## Character\nMechanical cross-platform validation; the one judgment is reading the conntrack verdict.\n\nValidate this heat's Windows-docker changes off-Windows: run the suites on cerebro (native Linux) and rocket's WSL side. The path normalizers are BURD_OSTYPE-gated, so expect identity behavior there — confirm it, no regression. Capture the conntrack_spoofed_ack verdict on each platform; that cross-platform read is the decisive input for the conntrack-adjudication pace — siege and blockade both breach it on Cygwin Docker Desktop, so the open question is whether native Linux/WSL breaches it too.\n\n## Done\nsiege + blockade green (or differences characterized) on cerebro and WSL, with the conntrack_spoofed_ack verdict recorded per platform.",
               "jjgtn_silks": "requal-cerebro-and-wsl",
               "jjgtn_basis": "09bbb17"
+            }
+          ]
+        },
+        "₢BVAAF": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260603-0601",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nInvestigation, then a conditional fix; security-relevant — may warrant jumping ahead of the cleanup paces.\n\nsiege and blockade both BREACHED conntrack_spoofed_ack on Cygwin Docker Desktop (a stateless spoofed ACK to an allowlisted dest drew a response). Adjudicate platform-divergence vs latent egress gap using the cross-platform verdicts and the sortie source (rbtid, \"conntrack-spoofed-ack\"). Likely mechanism: the sentry's RELATED,ESTABLISHED accept combined with nf_conntrack_tcp_loose adopting a lone mid-stream ACK as established. See Memos/memo-20260603-cygwin-ifrit-first-run-conntrack.md.\n\n## Done\nVerdict explained (platform-divergence vs real gap). If a real gap: sentry egress hardened (e.g. tcp_loose=0, drop INVALID, or state-gate the allowlist) and re-tested green. If divergence: documented with rationale, and the suite's verdict reconciled across platforms.",
+              "jjgtn_silks": "conntrack-spoofed-ack-adjudication",
+              "jjgtn_basis": "070dd40"
             }
           ]
         }
