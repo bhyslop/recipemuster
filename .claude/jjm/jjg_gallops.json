@@ -8854,6 +8854,13 @@
         "₢BVAAC": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260603-0608",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nPath-translation fix — landed; remaining work is the integration gate.\n\n## Goal\nBoth foundry docker builds — the conjure \"pouch\" (rbfd_FoundryDirectorBuild.sh) and the local kludge (rbfk_kludge.sh) — succeed on an uncontrolled Cygwin host.\n\n## Landed (ce106ec0a)\nzrbfc_native_path_capture normalizes docker path args (/cygdrive/X -> X:/, BURD_OSTYPE-gated, sentinel-free) at both build sites, plus a foundry-path fast fixture. Verified on cygwin@rocket: kludge build green (rbw-fk); the pouch's docker build — the proven-failure absolute -f — accepted in the real conjure (dogfight), context image built and tagged.\n\n## Done — final gate\ntt/rbw-ts.TestSuite.dogfight.sh runs green on cygwin@rocket. The dogfight currently stops at the conjure GAR push (docker-login wall), so this gate depends on the preceding docker-login pace; run it after that lands.",
+              "jjgtn_silks": "foundry-docker-cygwin-paths",
+              "jjgtn_basis": "15314d7"
+            },
+            {
               "jjgtn_ts": "260602-1426",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nPath-translation fix — landed; remaining work is the integration gate.\n\n## Goal\nBoth foundry docker builds — the conjure \"pouch\" (rbfd_FoundryDirectorBuild.sh) and the local kludge (rbfk_kludge.sh) — succeed on an uncontrolled Cygwin host.\n\n## Landed (ce106ec0a)\nzrbfc_native_path_capture normalizes docker path args (/cygdrive/X -> X:/, BURD_OSTYPE-gated, sentinel-free) at both build sites, plus a foundry-path fast fixture. Verified on cygwin@rocket: kludge build green (rbw-fk); the pouch's docker build — the proven-failure absolute -f — accepted in the real conjure (dogfight), context image built and tagged.\n\n## Done — final gate\ntt/rbw-ts.TestSuite.dogfight.sh runs green on cygwin@rocket. The dogfight currently stops at the conjure GAR push (docker-login wall), so this gate depends on the preceding docker-login pace; run it after that lands.",
