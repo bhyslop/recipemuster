@@ -8934,9 +8934,10 @@
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BXAAA",
-        "₢BXAAB"
+        "₢BXAAB",
+        "₢BXAAC"
       ],
-      "jjghn_next_pace_seed": "AAC",
+      "jjghn_next_pace_seed": "AAD",
       "jjghn_paces": {
         "₢BXAAA": {
           "jjgpn_tacks": [
@@ -8957,6 +8958,17 @@
               "jjgtn_text": "## Character\nMechanical, agent-choreographed. Relocation only — no smuggling.\n\n## Goal\nDecompose rbld_Lode.sh into the rbldX_ files per the paddock legend, so bole's machinery lives in small, well-prefixed files — and extract the capture-relevant Foundry build-primitives the spine rides into rbfcb_.\n\n## Cinched (paddock)\n- Relocation only: zero logic edits ride along; lode-lifecycle is the oracle.\n- Legend: rblds_ spine, rbldb_ bole body, rbldl_ lifecycle REST, rbldk_ kindle/shared; reserved kind-letters allocated but no files.\n\n## Execution\nOne sonnet agent per new file (each handed the old module + its slice); review the full set, then delete the old; haiku for call-site rewrites.\n\n## Done\n- rbld_Lode.sh is decomposed into the legend files and the rbfcb_ build-primitives are extracted; old content removed after review.\n- All call sites updated; lode-lifecycle green with identical behavior.",
               "jjgtn_silks": "lode-module-explosion",
               "jjgtn_basis": "af8d5c5"
+            }
+          ]
+        },
+        "₢BXAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260603-0516",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical, broad, agent-choreographed. Relocation only — no smuggling.\n\n## Goal\nDecompose rbfc_FoundryCore.sh and rbfl_FoundryLedger.sh into their rbfcX_/rbflX_ clusters per the paddock legend. Reaches made-side files (step-assembly, plumb); acceptable as pure relocation.\n\n## Cinched (paddock)\n- Relocation only: a move carries no logic change; full skirmish is the oracle.\n- rbfc clusters rbfcv_/rbfca_/rbfcg_/rbfcp_/rbfck_ (rbfcb_ already extracted in lode explosion); rbfl by gesture (inscribe / yoke / delete / inventory / wrest). Exact intra-file split firms here.\n\n## Execution\nOne sonnet agent per new file; review the set, then delete the old; haiku for call-site rewrites.\n\n## Done\n- rbfc and rbfl decomposed; old files deleted after review; all call sites updated.\n- Full skirmish green with verdicts identical to pre-refactor.",
+              "jjgtn_silks": "foundry-module-explosion",
+              "jjgtn_basis": "72be0f9"
             }
           ]
         }
