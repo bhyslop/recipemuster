@@ -8802,9 +8802,10 @@
         "₢BVAAA",
         "₢BVAAB",
         "₢BVAAE",
-        "₢BVAAF"
+        "₢BVAAF",
+        "₢BVAAG"
       ],
-      "jjghn_next_pace_seed": "AAG",
+      "jjghn_next_pace_seed": "AAH",
       "jjghn_paces": {
         "₢BVAAA": {
           "jjgpn_tacks": [
@@ -8925,6 +8926,17 @@
               "jjgtn_text": "## Character\nInvestigation, then a conditional fix; security-relevant — may warrant jumping ahead of the cleanup paces.\n\nsiege and blockade both BREACHED conntrack_spoofed_ack on Cygwin Docker Desktop (a stateless spoofed ACK to an allowlisted dest drew a response). Adjudicate platform-divergence vs latent egress gap using the cross-platform verdicts and the sortie source (rbtid, \"conntrack-spoofed-ack\"). Likely mechanism: the sentry's RELATED,ESTABLISHED accept combined with nf_conntrack_tcp_loose adopting a lone mid-stream ACK as established. See Memos/memo-20260603-cygwin-ifrit-first-run-conntrack.md.\n\n## Done\nVerdict explained (platform-divergence vs real gap). If a real gap: sentry egress hardened (e.g. tcp_loose=0, drop INVALID, or state-gate the allowlist) and re-tested green. If divergence: documented with rationale, and the suite's verdict reconciled across platforms.",
               "jjgtn_silks": "conntrack-spoofed-ack-adjudication",
               "jjgtn_basis": "070dd40"
+            }
+          ]
+        },
+        "₢BVAAG": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260603-0601",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nDesign conversation, then a mechanical fold; needs judgment on the adapter's shape.\n\nThree byte-identical /cygdrive path normalizers (zrbfc_native_path_capture, zrbndb_native_path_capture, zrbob_native_path_capture), the nested-mountpoint discipline (rbtid/project), and the rbgo headless-login auths-file bend are scattered Windows-docker membranes accreted across this heat. Fold them into one adapter. Off-Windows identity must be preserved (BURD_OSTYPE-gated); suites stay green. See Memos/memo-20260603-windows-docker-desktop-bind-mount.md.\n\n## Done\nOne canonical Windows-docker adapter; the duplicate normalizers removed; suites green on Cygwin and at least one non-Windows platform.",
+              "jjgtn_silks": "windows-docker-adapter-consolidation",
+              "jjgtn_basis": "490e2fb"
             }
           ]
         }
