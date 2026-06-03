@@ -336,6 +336,14 @@ rbgo_get_token_capture() {
 # "unauthorized" and do not match), so clean-failure semantics are preserved.
 # Stateless (no sentinel) — safe to call from any module regardless of kindle
 # order, like rbgu_curl_status_is_transient_predicate.
+#
+# A second Pale neighbor lives here for headless Cygwin: Docker Desktop's
+# wincred credential helper cannot persist the credential it just authenticated
+# (RBGC_DOCKER_WINCRED_HEADLESS_SIGNATURE). On that exact signature the function
+# bends ONCE — forces docker's base64 file store at ${HOME}/.docker/config.json
+# and retries. The caller's `docker push` shares this shell and the default
+# config location, so the bent-in credential carries through without a
+# DOCKER_CONFIG path the Windows-native docker would need translated.
 # Args: token registry_host
 rbgo_docker_login() {
   local -r z_token="${1:?rbgo_docker_login: token required}"
@@ -344,6 +352,7 @@ rbgo_docker_login() {
   local z_attempt=0
   local z_stderr_file=""
   local z_rc=0
+  local z_credstore_bent=0
 
   while :; do
     z_attempt=$((z_attempt + 1))
@@ -358,6 +367,24 @@ rbgo_docker_login() {
     test "${z_rc}" -ne 0 || break
 
     buc_log_pipe < "${z_stderr_file}"
+
+    # Pale bend (docker's own credential store): under headless Cygwin the
+    # wincred helper cannot persist the credential auth just succeeded for.
+    # Force the base64 file store at the user's default docker config and retry
+    # once; everything else falls through to the surveyed transient / fail-fast
+    # below. Self-stabilizing: once credsStore is "" the next login persists
+    # first try and this branch never re-enters, so prior auths are not nuked.
+    if [[ "$(<"${z_stderr_file}")" == *"${RBGC_DOCKER_WINCRED_HEADLESS_SIGNATURE}"* ]]; then
+      test "${z_credstore_bent}" -eq 0 \
+        || buc_die "Docker login to ${z_host} still cannot persist the credential after forcing the file store (wincred headless) — see ${z_stderr_file}"
+      buc_warn "Docker credential helper cannot persist headless (wincred: no interactive Windows logon); forcing the base64 file store in \${HOME}/.docker/config.json and retrying. REMOVE this bend when the host gains a working credential vault."
+      mkdir -p "${HOME}/.docker" \
+        || buc_die "Cannot create ${HOME}/.docker for the credential-store bend"
+      printf '%s' '{"credsStore":""}' > "${HOME}/.docker/config.json" \
+        || buc_die "Cannot write ${HOME}/.docker/config.json credential-store bend"
+      z_credstore_bent=1
+      continue
+    fi
 
     [[ "$(<"${z_stderr_file}")" == *"${RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE}"* ]] \
       || buc_die "Docker login to ${z_host} failed — see ${z_stderr_file}"

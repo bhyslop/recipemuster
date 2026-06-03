@@ -102,6 +102,18 @@ zrbgc_kindle() {
   # real auth failures emit "unauthorized" and fail fast.
   readonly RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE='Client.Timeout exceeded while awaiting headers'
 
+  # docker login credential-persist failure under headless Cygwin. Docker
+  # Desktop's docker-credential-wincred backend cannot reach the Windows
+  # credential vault from an sshd session that owns no interactive logon,
+  # emitting this Win32 string (rc=1) AFTER auth has already succeeded — the
+  # token mint and the push path are sound; only credential persistence fails.
+  # At this Pale (docker's own credential store, source we cannot edit)
+  # rbgo_docker_login bends ONCE on this exact signature: it forces docker to
+  # the base64 file store and retries, never matching a real "unauthorized".
+  # The string is a stable Win32 system-error message. REMOVE the bend when the
+  # uncontrolled-Cygwin host gains an interactive Windows logon / working vault.
+  readonly RBGC_DOCKER_WINCRED_HEADLESS_SIGNATURE='A specified logon session does not exist'
+
   # URL Roots & Well-known Endpoints
   readonly RBGC_OAUTH_TOKEN_URL="https://oauth2.googleapis.com/token"
   readonly RBGC_OAUTH_AUTHORIZE_URL="https://accounts.google.com/o/oauth2/v2/auth"
