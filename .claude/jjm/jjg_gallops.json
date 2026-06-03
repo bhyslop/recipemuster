@@ -9013,6 +9013,13 @@
         "₢BXAAA": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260603-1047",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical registry transcription; gates the explosion paces.\n\n## Goal\nRecord the host-module submint allocation in the rbk acronyms map (per the paddock legend) so the explosion paces have stable target names. Each old name flips to a container (terminal exclusivity). The shared-cloud-step home and the contract FORMAT are NOT minted here — they land where consumed.\n\n## Cinched (paddock)\n- Submint pattern rbXY_ → rbXYZ_; the old name becomes a container; precise sub-letters are not load-bearing — uniqueness and consistency are. rbld is definitive; the exact intra-rbfc/rbfl split firms at the foundry explosion.\n- The contract's home is an RBSCJ section (not a new spec letter, not RBSL); its requires/provides FORMAT is designed where consumed — the spine pace and the library pace — not here.\n- The shared cloud-step home is minted at the library pace, not here.\n\n## Done\n- The submint allocation is recorded in the rbk acronyms map per the paddock legend, with old names flipped to containers; the explosion paces have stable targets.",
+              "jjgtn_silks": "mint-and-step-contract",
+              "jjgtn_basis": "da07536"
+            },
+            {
               "jjgtn_ts": "260603-0542",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nDesign — judgment; gates all.\n\n## Goal\nMint the stable names and site the contract: the submint allocation (per the paddock legend), the shared-cloud-step namespace, and the contract's spec home.\n\n## Cinched (paddock)\n- The contract is SITED in an RBSCJ section here; its requires/provides FORMAT is designed with the spine (AAD) and the step declarations (AAE) where it is consumed — not minted standalone.\n- Submint pattern rbXY_ → rbXYZ_; precise letters are not load-bearing.\n\n## Done\n- Submint allocation recorded in the rbk acronyms map; the shared-cloud-step home minted (breaking the rbgj family-letter scheme); RBSCJ named as the contract's home.",
@@ -9067,6 +9074,13 @@
         "₢BXAAD": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260603-1047",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nThe heat's core — design plus implementation.\n\n## Goal\nDesign the spine/body boundary and the recipe + substitutions contract shape, then carve rblds_ (spine) and rbldb_ (bole body) accordingly and make the spine data-driven; bole rides it.\n\n## Cinched (paddock)\n- Registration-agnostic: the spine takes the recipe as data — no per-kind branch, no kind-registration or discovery mechanism; registering kinds is left to the consumer, not baked into the spine.\n- The spine/body boundary is decided HERE, not pre-split mechanically at the lode explosion; the requires/provides contract FORMAT is designed here against the capture domain's known axes (N-member envelopes, tool-variety, opaque-blob payloads) and recorded in the contract's RBSCJ section.\n\n## Done\n- rblds_/rbldb_ carved along the designed boundary; bole ensconce composes through the spine via recipe + substitutions, with no kind knowledge in the spine; behavior-preserving (lode-lifecycle green, provenance verdicts identical).",
+              "jjgtn_silks": "capture-spine-data-driven",
+              "jjgtn_basis": "da07536"
+            },
+            {
               "jjgtn_ts": "260603-0542",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nThe heat's core — design plus implementation.\n\n## Goal\nDesign the spine/body boundary and the recipe + substitutions contract shape, then carve rblds_ (spine) and rbldb_ (bole body) accordingly and make the spine data-driven; bole rides it.\n\n## Cinched (paddock)\n- Registration-agnostic: the spine takes the recipe as data — no per-kind branch, no kind-registration/discovery (that is ₣BH's scaffold).\n- The spine/body boundary is decided HERE, not pre-split mechanically; the requires/provides contract FORMAT is designed here against ₣BH's locked axes and recorded in the RBSCJ section sited by AAA.\n\n## Done\n- rblds_/rbldb_ carved along the designed boundary; bole ensconce composes through the spine via recipe + substitutions, with no kind knowledge in the spine; behavior-preserving (lode-lifecycle green, provenance verdicts identical).",
@@ -9084,6 +9098,13 @@
         },
         "₢BXAAE": {
           "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260603-1047",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nExtraction touching one made-side step; mints the shared-cloud-step home.\n\n## Goal\nStand up the shared cloud step-library: mint its home namespace (which breaks the rbgj family-letter scheme, since a shared step belongs to no single family), then unify the FROM-scratch vouch-push across Lode (rbgjl02) and hallmark-verify (rbgjv03); author the metadata-token fetch and the skopeo copy/digest block as composed snippets; keep envelope authoring per-kind. Each library step declares its requires/provides, refining the contract shape from the spine pace.\n\n## Cinched (paddock)\n- The shared cloud-step home is minted HERE (the library pace) — it breaks the rbgj family-letter scheme since a shared step belongs to no single family.\n- vouch-push is the one whole shared step (two live callers); rbgjv03 is the only made-side touch.\n- Shared in-step logic rides the composed-snippet channel; the members[] envelope tail stays per-kind.\n- The ensconce collision guard is out of scope (behavior-adding); this pace neither adds it nor forecloses it — keep the capture step's pre-copy point clean.\n\n## Done\n- The shared-cloud-step home is minted and recorded; the Lode and hallmark vouch-push paths ride one library step; token + copy/digest composed once; each step's requires/provides declared; lode-lifecycle and a conjure path green with verdicts identical to pre-refactor.",
+              "jjgtn_silks": "cloud-step-library",
+              "jjgtn_basis": "da07536"
+            },
             {
               "jjgtn_ts": "260603-0542",
               "jjgtn_state": "jjgte_rough",
