@@ -8934,6 +8934,7 @@
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BXAAA",
+        "₢BXAAJ",
         "₢BXAAB",
         "₢BXAAC",
         "₢BXAAD",
@@ -8943,7 +8944,7 @@
         "₢BXAAH",
         "₢BXAAI"
       ],
-      "jjghn_next_pace_seed": "AAJ",
+      "jjghn_next_pace_seed": "AAK",
       "jjghn_paces": {
         "₢BXAAA": {
           "jjgpn_tacks": [
@@ -9076,6 +9077,17 @@
               "jjgtn_text": "## Character\nAuthoring — distillation from the code this heat wrote.\n\n## Goal\nHarvest CBG (the Cloud Build Guide) by distilling the per-script cloud discipline this refactor established; the spine, library, and bodies are its exemplars.\n\n## Cinched (paddock)\n- Read WSG first so the sibling framing rests on the document, not its label.\n- CBG governs single-script precision (inside one cloud step), not component wiring or architecture.\n\n## Done\n- CBG is authored from the heat's exemplars; the name is confirmed against the BCG/RCG/WSG sibling set.",
               "jjgtn_silks": "cbg-capstone-harvest",
               "jjgtn_basis": "5ed1c4d"
+            }
+          ]
+        },
+        "₢BXAAJ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260603-0543",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nCheap de-risk of the heat's load-bearing assumption — gates the spine/library investment.\n\n## Goal\nConfirm SLSA provenance survives cloud-step restructuring BEFORE investing in the spine and library. Read the verifier (rbgjv02-verify-provenance.py) to confirm it keys on build inputs/outputs, not step bytes or order; one targeted cook (restructure a step trivially, compare the verdict) only if the code is ambiguous.\n\n## Cinched (paddock)\n- The behavior-preserving rail rests on this; if it is false, the spine/library approach changes — so it gates them, rather than being discovered at the final gate.\n\n## Done\n- A clear verdict that provenance is insensitive to step restructuring (verifier analysis, plus one confirming cook if needed), recorded so the spine and library proceed on confirmed ground — or, if sensitive, the approach is revisited before any investment.",
+              "jjgtn_silks": "provenance-insensitivity-spike",
+              "jjgtn_basis": "1360ead"
             }
           ]
         }
