@@ -338,12 +338,14 @@ rbgo_get_token_capture() {
 # order, like rbgu_curl_status_is_transient_predicate.
 #
 # A second Pale neighbor lives here for headless Cygwin: Docker Desktop's
-# wincred credential helper cannot persist the credential it just authenticated
-# (RBGC_DOCKER_WINCRED_HEADLESS_SIGNATURE). On that exact signature the function
-# bends ONCE — forces docker's base64 file store at ${HOME}/.docker/config.json
-# and retries. The caller's `docker push` shares this shell and the default
-# config location, so the bent-in credential carries through without a
-# DOCKER_CONFIG path the Windows-native docker would need translated.
+# wincred helper cannot persist the credential auth just succeeded for
+# (RBGC_DOCKER_WINCRED_HEADLESS_SIGNATURE), and Windows docker ignores an empty
+# credsStore, so config alone cannot divert the store to the file store. On
+# that exact signature the function bends ONCE: auth already succeeded, so it
+# writes the credential straight into docker's base64 file store at
+# ${HOME}/.docker/config.json (the `auths` map, the form WSL uses) and returns
+# success. The caller's `docker push` reads that credential from the file, so
+# the push completes without ever touching the Windows vault.
 # Args: token registry_host
 rbgo_docker_login() {
   local -r z_token="${1:?rbgo_docker_login: token required}"
@@ -352,7 +354,6 @@ rbgo_docker_login() {
   local z_attempt=0
   local z_stderr_file=""
   local z_rc=0
-  local z_credstore_bent=0
 
   while :; do
     z_attempt=$((z_attempt + 1))
@@ -369,21 +370,24 @@ rbgo_docker_login() {
     buc_log_pipe < "${z_stderr_file}"
 
     # Pale bend (docker's own credential store): under headless Cygwin the
-    # wincred helper cannot persist the credential auth just succeeded for.
-    # Force the base64 file store at the user's default docker config and retry
-    # once; everything else falls through to the surveyed transient / fail-fast
-    # below. Self-stabilizing: once credsStore is "" the next login persists
-    # first try and this branch never re-enters, so prior auths are not nuked.
+    # wincred helper cannot persist the credential auth just succeeded for, and
+    # an empty credsStore does not divert Windows docker to the file store
+    # (verified — the CLI still detects wincred). Auth already succeeded, so
+    # write the credential into the base64 file store ourselves — the on-disk
+    # `auths` form WSL uses and `docker push` reads directly — and treat login
+    # as done. credsStore is intentionally omitted so retrieval reads the file.
+    # A real auth failure emits "unauthorized", never matches, and falls through
+    # to the surveyed-transient / fail-fast handling below.
     if [[ "$(<"${z_stderr_file}")" == *"${RBGC_DOCKER_WINCRED_HEADLESS_SIGNATURE}"* ]]; then
-      test "${z_credstore_bent}" -eq 0 \
-        || buc_die "Docker login to ${z_host} still cannot persist the credential after forcing the file store (wincred headless) — see ${z_stderr_file}"
-      buc_warn "Docker credential helper cannot persist headless (wincred: no interactive Windows logon); forcing the base64 file store in \${HOME}/.docker/config.json and retrying. REMOVE this bend when the host gains a working credential vault."
+      buc_warn "Docker wincred helper cannot persist headless (no interactive Windows logon); writing the authenticated credential to the base64 file store in \${HOME}/.docker/config.json. REMOVE this bend when the host gains a working credential vault."
+      local z_auth_b64=""
+      z_auth_b64=$(printf 'oauth2accesstoken:%s' "${z_token}" | openssl base64 -A) \
+        || buc_die "Cannot base64-encode the docker credential for the file-store bend"
       mkdir -p "${HOME}/.docker" \
         || buc_die "Cannot create ${HOME}/.docker for the credential-store bend"
-      printf '%s' '{"credsStore":""}' > "${HOME}/.docker/config.json" \
+      printf '{"auths":{"%s":{"auth":"%s"}}}' "${z_host}" "${z_auth_b64}" > "${HOME}/.docker/config.json" \
         || buc_die "Cannot write ${HOME}/.docker/config.json credential-store bend"
-      z_credstore_bent=1
-      continue
+      return 0
     fi
 
     [[ "$(<"${z_stderr_file}")" == *"${RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE}"* ]] \

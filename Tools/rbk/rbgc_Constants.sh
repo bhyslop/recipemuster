@@ -104,13 +104,18 @@ zrbgc_kindle() {
 
   # docker login credential-persist failure under headless Cygwin. Docker
   # Desktop's docker-credential-wincred backend cannot reach the Windows
-  # credential vault from an sshd session that owns no interactive logon,
-  # emitting this Win32 string (rc=1) AFTER auth has already succeeded — the
-  # token mint and the push path are sound; only credential persistence fails.
-  # At this Pale (docker's own credential store, source we cannot edit)
-  # rbgo_docker_login bends ONCE on this exact signature: it forces docker to
-  # the base64 file store and retries, never matching a real "unauthorized".
-  # The string is a stable Win32 system-error message. REMOVE the bend when the
+  # Credential Manager from an sshd session that owns no interactive logon
+  # (cmdkey /list is empty over SSH), emitting this Win32 string (rc=1) AFTER
+  # auth has already succeeded — the token mint and the push path are sound;
+  # only the credential STORE fails. Windows docker also ignores an empty
+  # credsStore (the CLI still detects wincred), so config alone cannot divert
+  # the store to the file store. At this Pale (docker's own credential store,
+  # source we cannot edit) rbgo_docker_login bends ONCE on this exact signature:
+  # since auth already succeeded it writes the credential into the base64 file
+  # store itself (the config.json `auths` map docker push reads directly — the
+  # form WSL uses natively) and treats login as done. A real auth failure emits
+  # "unauthorized" and never matches. Stable Win32 system-error message;
+  # corroborated by docker/cli#4353 and #1263. REMOVE the bend when the
   # uncontrolled-Cygwin host gains an interactive Windows logon / working vault.
   readonly RBGC_DOCKER_WINCRED_HEADLESS_SIGNATURE='A specified logon session does not exist'
 
