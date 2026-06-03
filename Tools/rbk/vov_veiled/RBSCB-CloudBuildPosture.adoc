@@ -65,6 +65,14 @@ The upgrade path is runtime-aware analysis, not removal.
 Build requests set `options.logging: CLOUD_LOGGING_ONLY`.
 Log hygiene (no credential echo) was audited during trigger migration script inlining.
 
+**Registry authentication is per-step, with no credential-helper dependency.**
+Docker-based steps authenticate to GAR automatically — Cloud Build pre-populates Docker credentials, so no `docker login` step is needed.
+skopeo-based steps cannot use that path (skopeo cannot consume the gcloud credential helper — gcloud is not a single binary to place on the skopeo container's PATH), so each skopeo step fetches a short-lived OAuth2 token directly from the GCB metadata server (the Mason SA's ambient identity) and passes it via `--src-creds`/`--dest-creds`.
+This is the canonical skopeo→Artifact Registry pattern, not a workaround — the credential-helper alternative was evaluated and rejected (see Deferred Items).
+The token is held in step-local memory and re-minted by each step that needs it; it is never written to `/workspace`.
+_Invariant: `/workspace` carries non-secret build data only — secrets stay step-local._
+The per-step token fetch is consequently duplicated across skopeo steps by deliberate necessity today; its planned de-duplication (one authored snippet composed into each step, never a shared on-disk secret) is tracked under Deferred Items.
+
 **Provenance on demand.**
 `rbfl_tally()` lists all hallmarks and queries Container Analysis inline for each per-platform image, displaying SLSA build level, build invocation ID, and single-origin verification per hallmark.
 Tabtarget:
@@ -269,6 +277,17 @@ Periodic independent rebuilds compared by digest.
 Requires reproducible toolchains — a vessel-author discipline, not a pipeline control.
 Not actionable until vessel ecosystem matures.
 
+**skopeo credential helper — rejected, not merely deferred (evaluated 2026-06).**
+The standalone `docker-credential-gcr` helper could let skopeo authenticate to GAR via a `credHelpers` config entry instead of the inline token fetch (see Current Posture).
+Rejected: on GCB the helper mints the _same_ metadata-server token we already obtain (no new capability), but requires injecting a new binary into the skopeo container — a fresh vouched supply-chain dependency, the opposite of our minimize-the-dependency-manifold posture — and skopeo→GAR via credential helper carries documented 400-error friction (skopeo issue #2573, locked/unresolved), with the community fallback being the explicit `oauth2accesstoken` token, i.e. exactly the current approach.
+Revisit only if skopeo gains first-class GAR/ADC authentication or the helper friction is resolved upstream.
+
+**Capture-machinery duplication — token fetch, skopeo-capture, vouch-push.**
+The cloud capture steps presently duplicate logic by copy: the metadata-token fetch across every skopeo step, the inspect→digest→fingerprint→copy block (enshrine and ensconce), and the `FROM scratch` vouch-push step (Lode `rbgjl02` and hallmark-verify `rbgjv03`).
+This is acknowledged, not accidental — Cloud Build offers no native step reuse (no YAML anchors or includes), and its blessed reuse mechanism, custom builder images, conflicts with the _cloud is just labor; the Director controls what enters_ posture above (a custom builder holding our logic would be a new vouched artifact rather than inline-from-repo).
+Planned remedy: a host assembly spine (aligned with the `stitch` vocabulary) plus a shared cloud step-library with explicit `/workspace` pre/post contracts and a dispatch-time recipe validator — composed once and referenced, replacing copy-by-example with compose-from-library.
+Scoped to a dedicated behavior-preserving refactor heat (full skirmish + service as the oracle); resolve there.
+
 ==== References
 
 **Google Cloud documentation:**
@@ -291,6 +310,13 @@ Not actionable until vessel ecosystem matures.
 
 * https://docs.sigstore.dev/cosign/signing/signing_with_containers/[Cosign container signing]
 * https://slsa.dev/provenance/v1[SLSA Provenance v1.0 specification]
+
+**Registry authentication (skopeo / credential helpers):**
+
+* https://github.com/containers/skopeo/issues/2573[skopeo #2573 — Artifact Registry credential-helper 400 error (locked)]
+* https://github.com/GoogleCloudPlatform/docker-credential-gcr[docker-credential-gcr — standalone, gcloud-SDK-independent GCR/GAR credential helper]
+* https://cloud.google.com/blog/topics/developers-practitioners/five-ways-skopeo-can-simplify-your-google-cloud-container-workflow/[Five ways Skopeo can simplify your Google Cloud container workflow]
+* https://docs.cloud.google.com/artifact-registry/docs/docker/authentication[Configure authentication to Artifact Registry for Docker]
 
 **Internal references:**
 
