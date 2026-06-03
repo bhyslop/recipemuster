@@ -8988,6 +8988,7 @@
       "jjghn_creation_time": "260603",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BXAAL",
         "₢BXAAA",
         "₢BXAAJ",
         "₢BXAAB",
@@ -9000,7 +9001,7 @@
         "₢BXAAH",
         "₢BXAAI"
       ],
-      "jjghn_next_pace_seed": "AAL",
+      "jjghn_next_pace_seed": "AAM",
       "jjghn_paces": {
         "₢BXAAA": {
           "jjgpn_tacks": [
@@ -9155,6 +9156,17 @@
               "jjgtn_text": "## Character\nMechanical follow-on — a second body onto the proven spine.\n\n## Goal\nMake reliquary inscribe a thin body riding the host spine (rblds_): its build-submit composes through the spine instead of carrying its own copy. Kills the inscribe↔bole submit duplication and gives the spine its second validating caller.\n\n## Cinched (paddock)\n- Behavior-preserving: inscribe keeps its namespace, cohort, and docker-mirror behavior; only its submit path is rewired. The rbi_rq→rbi_ld conversion stays ₣BH's cutover.\n- inscribe rides the host spine (submit/poll/extract); its docker-mirror stays a kind-specific cloud step (no token snippet — docker auto-auths).\n\n## Done\n- inscribe composes its build through the spine via recipe + substitutions as a thin body; the duplicated submit logic is gone; the inscribe/reliquary path is behavior-identical (proven at the skirmish gate).",
               "jjgtn_silks": "inscribe-rides-spine",
               "jjgtn_basis": "d65b5e8"
+            }
+          ]
+        },
+        "₢BXAAL": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260603-0605",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nOperator-driven, heavyweight — manual host setup, long cook.\n\n## Goal\nCapture the pre-refactor green baseline on the centos host (the platform the milestone gate re-runs on), so \"behavior-preserving\" has a real before/after to diff against.\n\n## Cinched (paddock)\n- Operator sets up the host: live GCP creds + standing canonical depot. Run under tmux so the ~100-min cook survives disconnect.\n- Same suites the gate uses: full skirmish + service lode-lifecycle.\n\n## Done\n- skirmish + service green on centos before any refactor; artifacts and provenance verdicts recorded as the baseline the gate compares against.",
+              "jjgtn_silks": "skirmish-centos-baseline",
+              "jjgtn_basis": "f2433a1"
             }
           ]
         }
