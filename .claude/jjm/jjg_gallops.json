@@ -2,6 +2,7 @@
   "jjgrn_schema_version": 4,
   "jjgrn_next_heat_seed": "BY",
   "jjgrn_heat_order": [
+    "₣BX",
     "₣BV",
     "₣BH",
     "₣BF",
@@ -28,8 +29,7 @@
     "₣Au",
     "₣BC",
     "₣BI",
-    "₣BL",
-    "₣BX"
+    "₣BL"
   ],
   "jjgrn_heats": {
     "₣A-": {
@@ -8931,7 +8931,7 @@
     "₣BX": {
       "jjghn_silks": "rbk-09-capture-machinery-unification",
       "jjghn_creation_time": "260603",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [],
       "jjghn_next_pace_seed": "AAA",
       "jjghn_paces": {}
