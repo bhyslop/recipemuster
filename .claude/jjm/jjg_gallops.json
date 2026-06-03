@@ -9056,6 +9056,13 @@
         "₢BXAAA": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260603-1116",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical registry transcription; gates the explosion paces.\n\n## Goal\nRecord the host-module submint allocation in the rbk acronyms map (per the paddock legend) so the explosion paces have stable target names. Each old name flips to a container (terminal exclusivity). The shared-cloud-step home and the contract FORMAT are NOT minted here — they land where consumed.\n\n## Cinched (paddock)\n- Submint pattern rbXY_ → rbXYZ_; the old name becomes a container; precise sub-letters are not load-bearing — uniqueness and consistency are. rbld is definitive; the exact intra-rbfc/rbfl split firms at the foundry explosion.\n- The contract's home is an RBSCJ section (not a new spec letter, not RBSL); its requires/provides FORMAT is designed where consumed — the spine pace and the library pace — not here.\n- The shared cloud-step home is minted at the library pace, not here.\n\n## Done\n- The submint allocation is fully recorded in the rbk acronyms map per the paddock legend — old names flipped to containers and each planned `rbXYZ_` child entered with a brief description — so the explosion paces have stable, documented targets.",
+              "jjgtn_silks": "mint-and-step-contract",
+              "jjgtn_basis": "6d1f4aa"
+            },
+            {
               "jjgtn_ts": "260603-1047",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nMechanical registry transcription; gates the explosion paces.\n\n## Goal\nRecord the host-module submint allocation in the rbk acronyms map (per the paddock legend) so the explosion paces have stable target names. Each old name flips to a container (terminal exclusivity). The shared-cloud-step home and the contract FORMAT are NOT minted here — they land where consumed.\n\n## Cinched (paddock)\n- Submint pattern rbXY_ → rbXYZ_; the old name becomes a container; precise sub-letters are not load-bearing — uniqueness and consistency are. rbld is definitive; the exact intra-rbfc/rbfl split firms at the foundry explosion.\n- The contract's home is an RBSCJ section (not a new spec letter, not RBSL); its requires/provides FORMAT is designed where consumed — the spine pace and the library pace — not here.\n- The shared cloud-step home is minted at the library pace, not here.\n\n## Done\n- The submint allocation is recorded in the rbk acronyms map per the paddock legend, with old names flipped to containers; the explosion paces have stable targets.",
@@ -9081,6 +9088,13 @@
         "₢BXAAB": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260603-1116",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical, agent-choreographed. Relocation only — no smuggling.\n\n## Goal\nExtract the boundary-independent slices of rbld into their own files — lifecycle REST (rbldl_), kindle/shared-consts (rbldk_) — plus the capture-relevant Foundry build-primitives (rbfcb_). The spine/body carve (rblds_/rbldb_) is NOT here: that boundary is designed in the spine pace, so it does not get pre-split mechanically.\n\n## Cinched (paddock)\n- Relocation only: zero logic edits ride along; lode-lifecycle is the oracle.\n\n## Execution\nPer-file sonnet agents (each handed the old module + its slice); review the set, then remove relocated content; haiku for call-site rewrites.\n\n## Done\n- rbldl_, rbldk_, rbfcb_ exist and match their acronym entries; their content is removed from the monoliths; all call sites updated, and sibling context docs that named the old module (tabtarget / theurge context and the like) swept so nothing points at a deleted file; lode-lifecycle green.",
+              "jjgtn_silks": "lode-module-explosion",
+              "jjgtn_basis": "6d1f4aa"
+            },
+            {
               "jjgtn_ts": "260603-0542",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nMechanical, agent-choreographed. Relocation only — no smuggling.\n\n## Goal\nExtract the boundary-independent slices of rbld into their own files — lifecycle REST (rbldl_), kindle/shared-consts (rbldk_) — plus the capture-relevant Foundry build-primitives (rbfcb_). The spine/body carve (rblds_/rbldb_) is NOT here: that boundary is designed in the spine pace, so it does not get pre-split mechanically.\n\n## Cinched (paddock)\n- Relocation only: zero logic edits ride along; lode-lifecycle is the oracle.\n\n## Execution\nPer-file sonnet agents (each handed the old module + its slice); review the set, then remove relocated content; haiku for call-site rewrites.\n\n## Done\n- rbldl_, rbldk_, rbfcb_ exist; their content is removed from the monoliths; all call sites updated; lode-lifecycle green.",
@@ -9098,6 +9112,13 @@
         },
         "₢BXAAC": {
           "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260603-1116",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical, broad, agent-choreographed. Relocation only — no smuggling.\n\n## Goal\nDecompose the rest of rbfc and rbfl into their rbfcX_/rbflX_ clusters per the paddock legend (rbfcb_ already extracted in the lode-extraction pace). Reaches made-side files (step-assembly, plumb); acceptable as pure relocation.\n\n## Cinched (paddock)\n- Relocation only: a move carries no logic change.\n- Inner-loop oracle is shellcheck + the fast/service fixtures plus one conjure path; the FULL skirmish is NOT re-run here — the milestone gate carries it, so the heat pays one full cook, not two.\n\n## Execution\nPer-file sonnet agents; review the set, then delete the old files; haiku for call-site rewrites.\n\n## Done\n- rbfc and rbfl decomposed into their clusters, matching their acronym entries; old files deleted after review; all call sites updated, and sibling context docs naming the old modules swept so nothing points at a deleted file; the targeted fixtures green.",
+              "jjgtn_silks": "foundry-module-explosion",
+              "jjgtn_basis": "6d1f4aa"
+            },
             {
               "jjgtn_ts": "260603-0542",
               "jjgtn_state": "jjgte_rough",
