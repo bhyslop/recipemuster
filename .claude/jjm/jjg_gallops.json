@@ -9114,6 +9114,13 @@
         "₢BXAAB": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260603-1145",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical, agent-choreographed. Relocation only — no smuggling.\n\n## Goal\nExtract the boundary-independent slices of rbld into their own files — lifecycle REST (rbldl_), kindle/shared-consts (rbldk_) — plus the capture-relevant Foundry build-primitives (rbfcb_). The spine/body carve (rblds_/rbldb_) is NOT here: that boundary is designed in the spine pace, so it does not get pre-split mechanically.\n\n## Cinched (paddock)\n- Relocation only: zero logic edits ride along; lode-lifecycle is the oracle.\n\n## Found (pre-impl review)\n- Bound by the paddock's Relocation discipline (kindle atom on the entry file, verbatim globals, flat placement, forced cross-language call-site rewrites).\n- rbfcb_ specifically keeps sourcing the kindle for the ZRBFC_ constants its primitives read — pure relocation; making any primitive kindle-independent for unit-testing is a separate anneal, not this move.\n\n## Execution\nPer-file sonnet agents (each handed the old module + its slice); review the set, then remove relocated content; haiku for call-site rewrites.\n\n## Done\n- rbldl_, rbldk_, rbfcb_ exist and match their acronym entries; their content is removed from the monoliths; all call sites updated, and sibling context docs that named the old module (tabtarget / theurge context and the like) swept so nothing points at a deleted file; lode-lifecycle green.",
+              "jjgtn_silks": "lode-module-explosion",
+              "jjgtn_basis": "48ebe1e"
+            },
+            {
               "jjgtn_ts": "260603-1138",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nMechanical, agent-choreographed. Relocation only — no smuggling.\n\n## Goal\nExtract the boundary-independent slices of rbld into their own files — lifecycle REST (rbldl_), kindle/shared-consts (rbldk_) — plus the capture-relevant Foundry build-primitives (rbfcb_). The spine/body carve (rblds_/rbldb_) is NOT here: that boundary is designed in the spine pace, so it does not get pre-split mechanically.\n\n## Cinched (paddock)\n- Relocation only: zero logic edits ride along; lode-lifecycle is the oracle.\n\n## Found (pre-impl review)\n- Kindle/sentinel/guard is one indivisible atom — do NOT distribute it: rbldk_ is the entry file holding rbld's single guard + kindle and sourcing its guard-free siblings; cluster files stay flat in Tools/rbk/ (BASH_SOURCE-relative paths break if nested).\n- rbfcb_ keeps sourcing the kindle for the ZRBFC_ constants its primitives read — pure relocation; making any primitive kindle-independent for unit-testing is a separate anneal, not this move.\n\n## Execution\nPer-file sonnet agents (each handed the old module + its slice); review the set, then remove relocated content; haiku for call-site rewrites.\n\n## Done\n- rbldl_, rbldk_, rbfcb_ exist and match their acronym entries; their content is removed from the monoliths; all call sites updated, and sibling context docs that named the old module (tabtarget / theurge context and the like) swept so nothing points at a deleted file; lode-lifecycle green.",
@@ -9152,6 +9159,13 @@
         },
         "₢BXAAC": {
           "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260603-1145",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical, broad, agent-choreographed. Relocation only — no smuggling.\n\n## Goal\nDecompose the rest of rbfc and rbfl into their rbfcX_/rbflX_ clusters per the paddock legend (rbfcb_ already extracted in the lode-extraction pace). Reaches made-side files (step-assembly, plumb); acceptable as pure relocation.\n\n## Cinched (paddock)\n- Relocation only: a move carries no logic change.\n- Inner-loop oracle is shellcheck + the fast/service fixtures plus one conjure path; the FULL skirmish is NOT re-run here — the milestone gate carries it, so the heat pays one full cook, not two.\n\n## Found (pre-impl review)\n- Bound by the paddock's Relocation discipline — the rbfc kindle atom (→ rbfck_ entry), the verbatim z_rbfc_tool_* globals, and the cross-language call-site sweep (incl. the Rust driver) all land here.\n\n## Execution\nPer-file sonnet agents; review the set, then delete the old files; haiku for call-site rewrites.\n\n## Done\n- rbfc and rbfl decomposed into their clusters, matching their acronym entries; old files deleted after review; all call sites updated, and sibling context docs naming the old modules swept so nothing points at a deleted file; the targeted fixtures green.",
+              "jjgtn_silks": "foundry-module-explosion",
+              "jjgtn_basis": "48ebe1e"
+            },
             {
               "jjgtn_ts": "260603-1138",
               "jjgtn_state": "jjgte_rough",
