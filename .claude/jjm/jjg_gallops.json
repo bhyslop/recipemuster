@@ -8932,9 +8932,23 @@
       "jjghn_silks": "rbk-09-capture-machinery-unification",
       "jjghn_creation_time": "260603",
       "jjghn_status": "jjghe_racing",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
+      "jjghn_order": [
+        "₢BXAAA"
+      ],
+      "jjghn_next_pace_seed": "AAB",
+      "jjghn_paces": {
+        "₢BXAAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260603-0515",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nDesign conversation requiring judgment.\n\n## Goal\nFinalize the cross-cutting pieces the rest of the heat composes against: the step requires/provides contract, its spec home, and the shared-cloud-step namespace.\n\n## Cinched (paddock)\n- Contract lives in an RBSCJ section — not RBSL, not a new spec letter.\n- Submint pattern rbXY_ → rbXYZ_ and the rbldX_ legend are set; precise letters are not load-bearing — uniqueness and consistency are.\n\n## Done\n- The step contract is specified: each step declares requires/provides over /workspace registers + substitutions + buildStepOutputs, in a form the validator can check.\n- The shared-cloud-step home (for vouch-push + composed snippets) is minted, breaking the rbgj family-letter scheme deliberately.\n- The submint allocation is recorded where future minters look (the rbk acronyms map).",
+              "jjgtn_silks": "mint-and-step-contract",
+              "jjgtn_basis": "4b66c95"
+            }
+          ]
+        }
+      }
     }
   }
 }
