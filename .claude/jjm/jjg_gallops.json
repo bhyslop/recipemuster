@@ -8933,9 +8933,10 @@
       "jjghn_creation_time": "260603",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
-        "₢BXAAA"
+        "₢BXAAA",
+        "₢BXAAB"
       ],
-      "jjghn_next_pace_seed": "AAB",
+      "jjghn_next_pace_seed": "AAC",
       "jjghn_paces": {
         "₢BXAAA": {
           "jjgpn_tacks": [
@@ -8945,6 +8946,17 @@
               "jjgtn_text": "## Character\nDesign conversation requiring judgment.\n\n## Goal\nFinalize the cross-cutting pieces the rest of the heat composes against: the step requires/provides contract, its spec home, and the shared-cloud-step namespace.\n\n## Cinched (paddock)\n- Contract lives in an RBSCJ section — not RBSL, not a new spec letter.\n- Submint pattern rbXY_ → rbXYZ_ and the rbldX_ legend are set; precise letters are not load-bearing — uniqueness and consistency are.\n\n## Done\n- The step contract is specified: each step declares requires/provides over /workspace registers + substitutions + buildStepOutputs, in a form the validator can check.\n- The shared-cloud-step home (for vouch-push + composed snippets) is minted, breaking the rbgj family-letter scheme deliberately.\n- The submint allocation is recorded where future minters look (the rbk acronyms map).",
               "jjgtn_silks": "mint-and-step-contract",
               "jjgtn_basis": "4b66c95"
+            }
+          ]
+        },
+        "₢BXAAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260603-0516",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical, agent-choreographed. Relocation only — no smuggling.\n\n## Goal\nDecompose rbld_Lode.sh into the rbldX_ files per the paddock legend, so bole's machinery lives in small, well-prefixed files — and extract the capture-relevant Foundry build-primitives the spine rides into rbfcb_.\n\n## Cinched (paddock)\n- Relocation only: zero logic edits ride along; lode-lifecycle is the oracle.\n- Legend: rblds_ spine, rbldb_ bole body, rbldl_ lifecycle REST, rbldk_ kindle/shared; reserved kind-letters allocated but no files.\n\n## Execution\nOne sonnet agent per new file (each handed the old module + its slice); review the full set, then delete the old; haiku for call-site rewrites.\n\n## Done\n- rbld_Lode.sh is decomposed into the legend files and the rbfcb_ build-primitives are extracted; old content removed after review.\n- All call sites updated; lode-lifecycle green with identical behavior.",
+              "jjgtn_silks": "lode-module-explosion",
+              "jjgtn_basis": "af8d5c5"
             }
           ]
         }
