@@ -9114,6 +9114,13 @@
         "₢BXAAB": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260603-1136",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical, agent-choreographed. Relocation only — no smuggling.\n\n## Goal\nExtract the boundary-independent slices of rbld into their own files — lifecycle REST (rbldl_), kindle/shared-consts (rbldk_) — plus the capture-relevant Foundry build-primitives (rbfcb_). The spine/body carve (rblds_/rbldb_) is NOT here: that boundary is designed in the spine pace, so it does not get pre-split mechanically.\n\n## Cinched (paddock)\n- Relocation only: zero logic edits ride along; lode-lifecycle is the oracle.\n\n## Found (pre-impl review)\n- Kindle/sentinel/guard is one indivisible atom — do NOT distribute it: rbldk_ is the entry file holding rbld's single guard + kindle and sourcing its guard-free siblings; cluster files stay flat in Tools/rbk/ (BASH_SOURCE-relative paths break if nested).\n- rbfcb_ keeps sourcing the kindle for the ZRBFC_ constants its primitives read — pure relocation; making any primitive kindle-independent for unit-testing is a separate anneal, not this move.\n\n## Execution\nPer-file sonnet agents (each handed the old module + its slice); review the set, then remove relocated content; haiku for call-site rewrites.\n\n## Done\n- rbldl_, rbldk_, rbfcb_ exist; their content is removed from the monoliths; all call sites updated; lode-lifecycle green.",
+              "jjgtn_silks": "lode-module-explosion",
+              "jjgtn_basis": "79a2430"
+            },
+            {
               "jjgtn_ts": "260603-1116",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nMechanical, agent-choreographed. Relocation only — no smuggling.\n\n## Goal\nExtract the boundary-independent slices of rbld into their own files — lifecycle REST (rbldl_), kindle/shared-consts (rbldk_) — plus the capture-relevant Foundry build-primitives (rbfcb_). The spine/body carve (rblds_/rbldb_) is NOT here: that boundary is designed in the spine pace, so it does not get pre-split mechanically.\n\n## Cinched (paddock)\n- Relocation only: zero logic edits ride along; lode-lifecycle is the oracle.\n\n## Execution\nPer-file sonnet agents (each handed the old module + its slice); review the set, then remove relocated content; haiku for call-site rewrites.\n\n## Done\n- rbldl_, rbldk_, rbfcb_ exist and match their acronym entries; their content is removed from the monoliths; all call sites updated, and sibling context docs that named the old module (tabtarget / theurge context and the like) swept so nothing points at a deleted file; lode-lifecycle green.",
@@ -9138,6 +9145,13 @@
         },
         "₢BXAAC": {
           "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260603-1136",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical, broad, agent-choreographed. Relocation only — no smuggling.\n\n## Goal\nDecompose the rest of rbfc and rbfl into their rbfcX_/rbflX_ clusters per the paddock legend (rbfcb_ already extracted in the lode-extraction pace). Reaches made-side files (step-assembly, plumb); acceptable as pure relocation.\n\n## Cinched (paddock)\n- Relocation only: a move carries no logic change.\n- Inner-loop oracle is shellcheck + the fast/service fixtures plus one conjure path; the FULL skirmish is NOT re-run here — the milestone gate carries it.\n\n## Found (pre-impl review)\n- Kindle/sentinel/guard is one indivisible atom: rbfck_ becomes the entry file holding rbfc's single guard + whole kindle and sourcing the guard-free body clusters; flat in Tools/rbk/ only.\n- Copy the leaked tool-image globals (z_rbfc_tool_*) verbatim — global-by-bare-assignment, read cross-module by rbfd; adding local/readonly/declare while moving them silently breaks step assembly.\n- Call-site rewrites are forced and cross-language: terminal exclusivity deletes rbfc_FoundryCore.sh, so all source sites AND the Rust test driver (rbtdrf_fast.rs, sources it by name) repoint; rbfd reads rbfc internals, so the entry file must keep sourcing the full cluster set.\n\n## Execution\nPer-file sonnet agents; review the set, then delete the old files; haiku for call-site rewrites.\n\n## Done\n- rbfc and rbfl decomposed into their clusters; old files deleted after review; all call sites updated; the targeted fixtures green.",
+              "jjgtn_silks": "foundry-module-explosion",
+              "jjgtn_basis": "79a2430"
+            },
             {
               "jjgtn_ts": "260603-1116",
               "jjgtn_state": "jjgte_rough",
@@ -9164,6 +9178,13 @@
         "₢BXAAD": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260603-1136",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nThe heat's core — design plus implementation.\n\n## Goal\nDesign the spine/body boundary and the recipe + substitutions contract shape, then carve rblds_ (spine) and rbldb_ (bole body) accordingly and make the spine data-driven; bole rides it.\n\n## Cinched (paddock)\n- Registration-agnostic: the spine takes the recipe as data — no per-kind branch, no kind-registration or discovery mechanism; registering kinds is left to the consumer, not baked into the spine.\n- The spine/body boundary is decided HERE, not pre-split mechanically at the lode explosion; the requires/provides contract FORMAT is designed here against the capture domain's known axes (N-member envelopes, tool-variety, opaque-blob payloads) and recorded in the contract's RBSCJ section.\n\n## Found (pre-impl review)\n- A recipe row is (script_path, builder_image, id, entrypoint) handed pre-resolved by the body — NOT bare step ids the spine resolves (resolving would re-import kind knowledge). The substitutions blob stays opaque to the spine: it slots into an identical jq envelope, reads no key.\n- Extract cut-line: the spine decodes buildStepOutputs[N] to a file (N the one generic param); the per-slot envelope / stamp / buf_write_fact_multi loop is body. Today's zrbld_ensconce_extract threads both — this is a real carve, not relocation.\n- The poll ceiling is kind-flavored (ensconce borrows the enshrine ceiling); the body/recipe passes it — the spine does not own the ceiling table.\n\n## Done\n- rblds_/rbldb_ carved along the designed boundary; bole ensconce composes through the spine via recipe + substitutions, with no kind knowledge in the spine; behavior-preserving (lode-lifecycle green, provenance verdicts identical).",
+              "jjgtn_silks": "capture-spine-data-driven",
+              "jjgtn_basis": "79a2430"
+            },
+            {
               "jjgtn_ts": "260603-1047",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nThe heat's core — design plus implementation.\n\n## Goal\nDesign the spine/body boundary and the recipe + substitutions contract shape, then carve rblds_ (spine) and rbldb_ (bole body) accordingly and make the spine data-driven; bole rides it.\n\n## Cinched (paddock)\n- Registration-agnostic: the spine takes the recipe as data — no per-kind branch, no kind-registration or discovery mechanism; registering kinds is left to the consumer, not baked into the spine.\n- The spine/body boundary is decided HERE, not pre-split mechanically at the lode explosion; the requires/provides contract FORMAT is designed here against the capture domain's known axes (N-member envelopes, tool-variety, opaque-blob payloads) and recorded in the contract's RBSCJ section.\n\n## Done\n- rblds_/rbldb_ carved along the designed boundary; bole ensconce composes through the spine via recipe + substitutions, with no kind knowledge in the spine; behavior-preserving (lode-lifecycle green, provenance verdicts identical).",
@@ -9188,6 +9209,13 @@
         },
         "₢BXAAE": {
           "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260603-1136",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nExtraction touching one made-side step; mints the shared-cloud-step home.\n\n## Goal\nStand up the shared cloud step-library: mint its home namespace (which breaks the rbgj family-letter scheme, since a shared step belongs to no single family), then unify the FROM-scratch vouch-push across Lode (rbgjl02) and hallmark-verify (rbgjv03); author the metadata-token fetch and the skopeo copy/digest block as composed snippets; keep envelope authoring per-kind. Each library step declares its requires/provides, refining the contract shape from the spine pace.\n\n## Cinched (paddock)\n- The shared cloud-step home is minted HERE (the library pace) — it breaks the rbgj family-letter scheme since a shared step belongs to no single family.\n- vouch-push is the one whole shared step (two live callers); rbgjv03 is the only made-side touch.\n- Shared in-step logic rides the composed-snippet channel; the members[] envelope tail stays per-kind.\n- The ensconce collision guard is out of scope (behavior-adding); this pace neither adds it nor forecloses it — keep the capture step's pre-copy point clean.\n\n## Found (pre-impl review)\n- OPEN, resolve before executing: the vouch-push \"one whole shared step\" claim is challenged — l02 vs v03 diverge on five load-bearing axes (loop-N vs single, URI arity, platform literal-vs-file, conditional Dockerfile, disjoint _RBGL_/_RBGV_ substitutions); only a 3-line buildx bootstrap is verbatim-shared, so unifying as cinched injects ~4 branches to delete ~15 lines. Settle keep-vs-share-bootstrap-only (a paddock decision) first.\n- Composed-snippet contract to decide: the metadata-token fetch is verbatim-shareable (param-free); the skopeo inspect→digest→fingerprint→first-copy block shares only if raw-file path + destination URI are parameters (the Lode-only retag loop and the per-kind envelope stay out). Decide whether a snippet reads host-injected _RBGx_ substitutions or only shell vars the host sets before inlining.\n- Snippet payoff is mostly forward: the token/skopeo block's other consumer is enshrine (e01), which is NOT migrated — so in-heat the snippet has one live caller (bole). Consistent with the paddock's partial-dedup, but state it.\n\n## Done\n- The shared-cloud-step home is minted and recorded; the Lode and hallmark vouch-push paths ride one library step; token + copy/digest composed once; each step's requires/provides declared; lode-lifecycle and a conjure path green with verdicts identical to pre-refactor.",
+              "jjgtn_silks": "cloud-step-library",
+              "jjgtn_basis": "79a2430"
+            },
             {
               "jjgtn_ts": "260603-1047",
               "jjgtn_state": "jjgte_rough",
@@ -9257,6 +9285,13 @@
         },
         "₢BXAAJ": {
           "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260603-1136",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nCheap de-risk of the heat's load-bearing assumption — gates the spine/library investment.\n\n## Goal\nConfirm SLSA provenance survives cloud-step restructuring BEFORE investing in the spine and library, by reading the verifier (rbgjv02-verify-provenance.py).\n\n## Cinched (paddock)\n- The behavior-preserving rail rests on this; if it is false, the spine/library approach changes — so it gates them, rather than being discovered at the final gate.\n\n## Found (pre-impl review)\n- Verdict reached, NO cook needed: the verifier gates only on DSSE keyid, openssl signature validity, and builder.id == GoogleHostedWorker — all builder-identity. The one recipe-ish field (buildDefinition.buildType) is read but never asserted; nothing reads steps/buildConfig/externalParameters. Restructuring steps leaves the verdict invariant; the conjure read is decisive.\n- This review already performed the read, so mounting AAJ is confirm-and-record, not fresh investigation. Pale caveat: this vouches what our verifier asserts, not Google's upstream signing — but we gate on identity+signature, so our verdict holds regardless.\n\n## Done\n- The verdict (provenance insensitive to step restructuring) is recorded so the spine and library proceed on confirmed ground.",
+              "jjgtn_silks": "provenance-insensitivity-spike",
+              "jjgtn_basis": "79a2430"
+            },
             {
               "jjgtn_ts": "260603-0543",
               "jjgtn_state": "jjgte_rough",
