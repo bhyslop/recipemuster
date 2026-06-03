@@ -8109,9 +8109,10 @@
         "₢BDAAL",
         "₢BDAAM",
         "₢BDAAN",
-        "₢BDAAO"
+        "₢BDAAO",
+        "₢BDAAP"
       ],
-      "jjghn_next_pace_seed": "AAP",
+      "jjghn_next_pace_seed": "AAQ",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -8429,6 +8430,17 @@
               "jjgtn_text": "## Character\nDesign decision, not implementation. The analysis is done (in the chat that slated this); the deliverable is a go/no-go plus a chosen approach. If go, this pace's product is the *implementation* docket — the type change itself is out of scope here. Decide before undertaking.\n\n## The question\nConvert docket-text storage from `jjrg_Tack.text: String` to `Vec<String>` (newline-split), so pretty-JSON's one-element-per-physical-line decomposition reaches *inside* the docket blob. Motivation is tooling ergonomics: today a whole multi-paragraph docket serializes as one physical JSON line (observed 25KB+), which blows up editors and greps. This is the natural completion of pretty-printing — the only place per-line layout can't reach is the interior of a JSON string.\n\n## Already decided — do not re-litigate\n- **Newline-split, NOT sentence-split.** JJK's docket diff (`jjrtl_diff_docket` in `jjrtl_tally.rs`) is line-granular LCS, and tacks are append-only (never edited in place). Newline-split matches the diff unit and git's merge unit; sentence-split breaks the diff and shreds markdown structure (lists, headers, code fences) on rejoin. Paragraph breaks fall out free as `\"\"` elements.\n- **Keep pretty JSON** (`to_string_pretty` in `jjri_io.rs`). The per-line whitespace is load-bearing for both grep ergonomics and git merge granularity; compact JSON would recreate the long-line pathology at the structural level.\n- **Round-trip is not a blocker.** Once the field is natively `Vec<String>`, the canonical form is the array — `jjdr_load` reserializes the Vec, no re-split. One split, at ingest only.\n\n## What this does NOT fix — set expectations\nThe bad gallops merges that first motivated this came from concurrent allocation (`jjgrn_next_heat_seed` + `jjgrn_heat_order`) and array-tail appends (`jjgpn_tacks`) — confirmed by inspecting the conflicted merge commits, NOT from docket text. Line-splitting text will not reduce those. The real lever for merges is a structure-aware git merge driver for `jjg_gallops.json` — a separate, larger idea worth its own ₣Am pace.\n\n## The fork to decide at mount\n- **(a) Cheap / tack-only:** split at the tack/ops boundary; `.join(\"\\n\")` scattered at the read sites.\n- **(b) Coherent / gazette-currency:** make `Vec<String>` the currency from `jjrz_parse` through the tack, materializing a flat string only at `jjrz_emit` (the true markdown wire). The gazette ALREADY builds `content_lines: Vec<String>` then joins it away in `zjjrz_trim_blank_lines` — (b) preserves it, deleting a redundant split→join→split sandwich and most of the join scatter. Bigger blast radius (gazette public surface: add/query/emit, the `parse_*_input` fns, `build_read_output`) but a cleaner end state.\n\n## Verify before undertaking\n- Confirm `JJSCGZ-gazette.adoc` does not pin the gazette's *internal* content type — the markdown wire format is unchanged, but if the spec pins the Rust type, option (b) grows a spec pace.\n- Migration: `jjdr_load` already has an `is_migration_mode` hook; split legacy `String` tacks → `Vec` there and bump `schema_version` to 5.",
               "jjgtn_silks": "reconsider-docket-text-as-line-array",
               "jjgtn_basis": "f14125b"
+            }
+          ]
+        },
+        "₢BDAAP": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260603-1100",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nSpook — small JJK legibility tweak; judgment on where the state-confirmation belongs.\n\n## Memory (260603)\nDropping ₢BXAAK, `jjx_drop` returned only a bare commit hash. The drop is additive — it pushes an `abandoned`-state tack onto the pace and never purges it — so `jjx_coronets` still lists the pace and `jjx_brief` still returns its docket verbatim, both presenting an abandoned pace indistinguishably from a live one. Verifying with those two reads, an agent misread a successful drop as a failure and contradicted itself across turns; only `jjx_show`'s State column revealed `abandoned`. `jjx_validate` passed throughout — the command did exactly its job; only its effect was illegible.\n\n## Goal\nMake a successful drop confirmable from the commands used to perform and verify it, so a tombstoned pace can't be mistaken for a live one.\n\n## Recommendation\n- Primary — `jjx_drop` should echo the prior→new state in its return (e.g. `₢BXAAK: rough → abandoned`) rather than a bare commit hash; a state mutation should confirm its own effect. Extend to sibling state-transition commands.\n- Secondary — quick reads that surface abandoned paces should distinguish them: `jjx_coronets` tags or filters abandoned; `jjx_brief` leads with an `[abandoned]` marker.\n\n## Done\n- A drop's return names the prior→new state; abandoned paces are visibly distinguished (or filtered) in `jjx_coronets`/`jjx_brief`; confirming a drop no longer requires `jjx_show`.",
+              "jjgtn_silks": "jjx-drop-state-legibility",
+              "jjgtn_basis": "fd433ad"
             }
           ]
         }
