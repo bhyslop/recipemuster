@@ -50,6 +50,15 @@ The bole pilot is an unfactored fork: its host build-submit largely duplicates r
 
 **Cinched — the Foundry explosion is relocation only.** Decomposing rbfl/rbfc reaches made-side machinery (step-assembly, plumb); this is acceptable because zero logic edits ride along, so behavior is trivially preserved and skirmish is a sufficient oracle. The discipline is absolute — a move carries no logic change. Annealing is a separate named pace.
 
+## Relocation discipline (cinched)
+
+Discovered in pre-implementation review; binds both host-module explosion paces — the decomposition is pure relocation only if the scaffolding is treated as copy-verbatim atoms, not as code to redistribute.
+
+- **Kindle/sentinel/guard is one indivisible atom per module.** Each module keeps a single entry file (`rbldk_` for rbld, `rbfck_` for rbfc) that holds the one inclusion-guard and the whole kindle and sources the guard-free body clusters; the readonly consts the kindle sets stay there and are read globally. Do not mint a guard per cluster file and do not split the kindle — both are logic edits, and per-cluster kindles break the single `ZRBFC_KINDLED` idempotency gate. (This is what "a sourced-guard always" means in practice: one guard per source-unit, on the entry file — not one per cluster.)
+- **Leaked globals move verbatim.** The tool-image vars (`z_rbfc_tool_*`) are global-by-bare-assignment and read cross-module (rbfd reads them); adding `local`/`readonly`/`declare` while relocating silently breaks step assembly. Copy them untouched.
+- **Flat placement only.** All cluster files stay flat siblings in `Tools/rbk/`; `BASH_SOURCE`-relative path derivations break if a cluster is nested.
+- **Call-site rewrites are forced and cross-language.** Terminal exclusivity deletes the old module file, so every reference repoints — code source sites, the Rust test driver (`rbtdrf_fast.rs` sources `rbfc_FoundryCore.sh` by name), and sibling context docs (acronym map, tabtarget / theurge context) that name the deleted module.
+
 ## Verification
 
 Provenance-insensitivity is spiked early — read the verifier (rbgjv02) to confirm it keys on build inputs/outputs not step bytes, with one targeted cook only if ambiguous — so the spine and library invest on confirmed ground rather than discovering a broken rail at the gate. Cheap inner loop thereafter: shellcheck plus targeted fixtures, plus the validator's own unit tests; the explosion's inner loop is shellcheck plus a fixture subset, since relocation-only makes behavior trivially preserved. Milestone gate: full skirmish plus the service lode-lifecycle fixture, green with artifacts and provenance verdicts identical to pre-refactor (provenance-insensitivity-to-restructuring confirmed end-to-end). Operational precondition for the gate: live GCP credentials and a standing canonical depot must be provisioned — the gate is not free-standing. The ~100-minute skirmish cook is a milestone, not a per-commit cost; the heat pays one full cook, at the gate.
