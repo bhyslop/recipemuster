@@ -8803,9 +8803,10 @@
         "₢BVAAB",
         "₢BVAAE",
         "₢BVAAF",
-        "₢BVAAG"
+        "₢BVAAG",
+        "₢BVAAH"
       ],
-      "jjghn_next_pace_seed": "AAH",
+      "jjghn_next_pace_seed": "AAI",
       "jjghn_paces": {
         "₢BVAAA": {
           "jjgpn_tacks": [
@@ -8937,6 +8938,17 @@
               "jjgtn_text": "## Character\nDesign conversation, then a mechanical fold; needs judgment on the adapter's shape.\n\nThree byte-identical /cygdrive path normalizers (zrbfc_native_path_capture, zrbndb_native_path_capture, zrbob_native_path_capture), the nested-mountpoint discipline (rbtid/project), and the rbgo headless-login auths-file bend are scattered Windows-docker membranes accreted across this heat. Fold them into one adapter. Off-Windows identity must be preserved (BURD_OSTYPE-gated); suites stay green. See Memos/memo-20260603-windows-docker-desktop-bind-mount.md.\n\n## Done\nOne canonical Windows-docker adapter; the duplicate normalizers removed; suites green on Cygwin and at least one non-Windows platform.",
               "jjgtn_silks": "windows-docker-adapter-consolidation",
               "jjgtn_basis": "490e2fb"
+            }
+          ]
+        },
+        "₢BVAAH": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260603-0601",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nCleanup; mostly mechanical, one decision (the kludge-stamp commits).\n\nWind down the spike's residue. On cygwin@rocket: remove probe scripts, the live-token ~/.docker/config.json, and GAR test artifacts (cygprobe/probe images, graft test hallmarks). Reconcile the cygwin-resident kludge-stamp commits (push as accepted temporary pollution, or discard). BCG-clean the rbgo login bend (the local declared mid-loop, the piped openssl capture). Regenerate the rbw-ts help string (still lists the pre-rename suite names) with its generated context doc.\n\n## Done\ncygwin@rocket and the repo clean; rbgo BCG debt cleared; rbw-ts help string current.",
+              "jjgtn_silks": "cygwin-host-and-repo-winddown",
+              "jjgtn_basis": "24d5b59"
             }
           ]
         }
