@@ -181,6 +181,38 @@ rbrd_inscribe() {
   buc_success "Tripwire inscribed: ${ZRBNDB_TRIPWIRE_IMAGE}"
 }
 
+# DRAFT (heat ₣BV — uncontrolled Cygwin): docker cp's host-side dest must be a
+# Windows-native path. A Windows-native docker reads a Cygwin /cygdrive/X/...
+# dest as drive-relative and prepends the current drive (C:\cygdrive\c\... —
+# "invalid output path: directory does not exist"). This DUPLICATES
+# zrbfc_native_path_capture (rbfc_FoundryCore.sh); the scattered per-module
+# copies are slated to consolidate into one Windows-docker path adapter. Pure
+# /cygdrive parameter expansion, gated on BURD_OSTYPE; identity off Cygwin; a
+# bare-absolute POSIX path is unsurveyed and returns 1. Kindle-independent.
+zrbndb_native_path_capture() {
+  local -r z_path="${1:?zrbndb_native_path_capture: path required}"
+
+  if test "${BURD_OSTYPE:-}" != "cygwin"; then
+    printf '%s\n' "${z_path}"
+    return 0
+  fi
+
+  case "${z_path}" in
+    /cygdrive/?/*)
+      local -r z_drive_rest="${z_path#/cygdrive/}"
+      local -r z_drive="${z_drive_rest%%/*}"
+      local -r z_drive_tail="${z_drive_rest#"${z_drive}/"}"
+      printf '%s\n' "${z_drive}:/${z_drive_tail}"
+      ;;
+    /*)
+      return 1
+      ;;
+    *)
+      printf '%s\n' "${z_path}"
+      ;;
+  esac
+}
+
 # Check local rbmm_moorings/rbrd.env against the inscribed tripwire image
 # before submitting cloud work. Exact-byte mismatch, missing image,
 # or registry/auth failure all fatal with recovery guidance.
@@ -241,7 +273,14 @@ rbrd_check() {
   local -r z_cid=$(<"${z_create_stdout}")
   test -n "${z_cid}" || buc_die "docker create returned empty container ID — see ${z_create_stdout}"
 
-  docker cp "${z_cid}:/${RBCC_rbrd_basename}" "${z_inscribed_file}" 2>"${z_cp_stderr}" \
+  # docker cp's host-side dest must be Windows-native under Cygwin; the cp source
+  # is a container path and stays POSIX. z_inscribed_file itself stays POSIX for
+  # the openssl read below — only the cp argument is normalized.
+  local z_inscribed_native=""
+  z_inscribed_native=$(zrbndb_native_path_capture "${z_inscribed_file}") \
+    || buc_die "Cannot normalize inscribed-file path for docker cp: ${z_inscribed_file}"
+
+  docker cp "${z_cid}:/${RBCC_rbrd_basename}" "${z_inscribed_native}" 2>"${z_cp_stderr}" \
     || {
       docker rm "${z_cid}" > /dev/null 2>"${z_rm_stderr}" \
         || buc_warn "Failed to remove temp container ${z_cid} — see ${z_rm_stderr}"
