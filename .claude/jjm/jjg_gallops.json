@@ -1,6 +1,6 @@
 {
   "jjgrn_schema_version": 4,
-  "jjgrn_next_heat_seed": "BX",
+  "jjgrn_next_heat_seed": "BY",
   "jjgrn_heat_order": [
     "₣BV",
     "₣BH",
@@ -28,7 +28,8 @@
     "₣Au",
     "₣BC",
     "₣BI",
-    "₣BL"
+    "₣BL",
+    "₣BX"
   ],
   "jjgrn_heats": {
     "₣A-": {
@@ -8912,6 +8913,14 @@
           ]
         }
       }
+    },
+    "₣BX": {
+      "jjghn_silks": "rbk-capture-machinery-unification",
+      "jjghn_creation_time": "260603",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [],
+      "jjghn_next_pace_seed": "AAA",
+      "jjghn_paces": {}
     }
   }
 }
