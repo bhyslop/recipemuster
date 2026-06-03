@@ -8937,9 +8937,10 @@
         "₢BXAAB",
         "₢BXAAC",
         "₢BXAAD",
-        "₢BXAAE"
+        "₢BXAAE",
+        "₢BXAAF"
       ],
-      "jjghn_next_pace_seed": "AAF",
+      "jjghn_next_pace_seed": "AAG",
       "jjghn_paces": {
         "₢BXAAA": {
           "jjgpn_tacks": [
@@ -8993,6 +8994,17 @@
               "jjgtn_text": "## Character\nExtraction touching one made-side step.\n\n## Goal\nStand up the shared cloud step-library: unify the FROM-scratch vouch-push across Lode (rbgjl02) and hallmark-verify (rbgjv03); author the metadata-token fetch and the skopeo copy/digest block as composed snippets stitched into capture steps; keep envelope authoring per-kind.\n\n## Cinched (paddock)\n- vouch-push is the one whole shared step (two live callers); rbgjv03 is the only made-side touch.\n- Shared in-step logic rides the composed-snippet channel; the members[] envelope tail stays per-kind.\n- Leave a clean pre-copy seam in the capture step for ₣BH's collision-guard.\n\n## Done\n- The Lode and hallmark vouch-push paths ride one library step; token + copy/digest are composed once.\n- lode-lifecycle and a conjure path green with verdicts identical to pre-refactor.",
               "jjgtn_silks": "cloud-step-library",
               "jjgtn_basis": "3dd59ed"
+            }
+          ]
+        },
+        "₢BXAAF": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260603-0517",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nNew code with its own tests — the heat's one declared behavior-adding sliver.\n\n## Goal\nA dispatch-time validator that checks each step's declared requires against the substitutions plus prior steps' provides, failing a bad composition before the expensive build.\n\n## Cinched (paddock)\n- The only behavior-adding work in the heat; the accept-path leaves every existing recipe unchanged.\n- The reject-path is exercised by no current fixture, so it carries its own targeted unit tests.\n\n## Done\n- A bad composition fails at dispatch with a clear message; every existing recipe passes unchanged; unit tests cover the reject-path.",
+              "jjgtn_silks": "dispatch-recipe-validator",
+              "jjgtn_basis": "e5c1b10"
             }
           ]
         }
