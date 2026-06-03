@@ -434,9 +434,11 @@ rbfl_abjure() {
     buc_die "No packages found under ${z_subtree} — hallmark not present in registry"
   fi
 
-  local -a z_pkg_lines=()
-  mapfile -t z_pkg_lines < "${z_pkg_file}"
-  local z_count=${#z_pkg_lines[@]}
+  local z_count=0
+  local z_count_line=""
+  while IFS= read -r z_count_line || test -n "${z_count_line}"; do
+    z_count=$((z_count + 1))
+  done < "${z_pkg_file}"
 
   local z_confirm_msg="Will abjure ${z_count} packages under ${z_subtree}:"
   local z_pkg_path=""
