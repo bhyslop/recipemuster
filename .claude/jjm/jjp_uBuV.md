@@ -7,6 +7,55 @@ and trust the verdict. It is deliberately distinct from the `rbk-NN-win-*` heats
 which are all controlled-infrastructure work (formal BURN garrison, remote
 control, depot regime) on machines we own.
 
+## Progress & scope (updated 2026-06-03)
+
+The heat outgrew its original fast/validation-tier scope: the **crucible tier now
+runs on uncontrolled Cygwin Docker Desktop**. siege (the renamed tadmor suite)
+charges and runs the adversarial sortie set 45/46; blockade (moriah, airgap)
+follows. The two membranes that made it possible — the compose-CLI path
+normalizer and the nested bind-mountpoint pre-creation — are documented in
+`Memos/memo-20260603-windows-docker-desktop-bind-mount.md`. This supersedes the
+"container tiers run on WSL only / fast-tier only" locked decision below. One
+open finding: the `conntrack_spoofed_ack` sortie BREACHED on siege; adjudication
+pending (`Memos/memo-20260603-cygwin-ifrit-first-run-conntrack.md`).
+
+## Remote build discipline (git is the filesystem)
+
+All work runs on a remote fundus (`cygwin@rocket`); code reaches it through git,
+never scp. The cycle, learned the hard way this heat:
+
+1. Edit on the curia (this station).
+2. Notch (`jjx_record`) — a real commit; the affiliation is the transport label.
+3. `git pull --rebase` then `git push` on the curia.
+4. On the fundus: `git pull` to fast-forward — or, when the fundus tree is dirty
+   or detached (a prior `jjx_plant` or scratch state), `git fetch && git checkout
+   -f main && git reset --hard origin/main`. Destructive git is sanctioned here
+   only because it replaces with byte-identical committed content.
+5. Run the tabtarget on the fundus over ssh. No trailing `echo` — it masks the
+   exit code; let ssh propagate the tabtarget's status.
+
+Two traps that cost time this heat:
+
+- **scp is wrong.** It dirties the fundus tree and diverges from git. Git is the
+  only sanctioned transport for code.
+- **The fundus needs a git identity.** Without `git config user.name/email` on
+  the fundus, any fixture that owns its own notch (kludge-tadmor and friends)
+  dies with `Author identity unknown` (exit 128). Set it once per host.
+
+Exceptions and adjuncts:
+
+- **Kludge-mode crucibles cannot ride git-as-filesystem.** Kludge images are
+  host-local — the image must be built on the fundus. So kludge on the fundus and
+  let the fixture commit the stamp there; accept the temporary cygwin-resident
+  stamp pollution. (Conjure-mode / blockade summons from GAR, so it rides git
+  normally.)
+- **Shared-depot credentials go stale.** Another host's governor mantle obsoletes
+  this fundus's Director/Retriever SAs — they fail with `Invalid JWT Signature`
+  (persisting past the retry budget, not a real propagation race). Re-establish
+  before any GAR-touching run: reinstall the Payor OAuth, then run `dogfight`
+  (its `canonical-invest` re-mantles the Governor and re-invests
+  Retriever+Director).
+
 ## Central thesis (the real problem)
 
 The build system is not the hard part — **the bash-launch boundary is.** RBTDRX
@@ -46,6 +95,8 @@ bash exports to spawned children (verified on `cygwin@rocket`). But RBTDRX does
   with a separate bind-mount path-translation wall RBTDRX does not cover.
   Per existing discipline, container tests run on the WSL side. This heat
   targets the **fast/validation** tier only.
+  *(Superseded 2026-06-03 — see "Progress & scope" above: the crucible tier now
+  runs on Cygwin Docker Desktop via the two Windows-docker membranes.)*
 
 ## What done looks like
 
