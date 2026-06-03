@@ -9169,6 +9169,13 @@
         "₢BXAAL": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260603-1533",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nOperator-driven, heavyweight — manual host setup, long cook.\n\n## Goal\nCapture the pre-refactor green baseline on the centos host (the platform the milestone gate re-runs on), so \"behavior-preserving\" has a real before/after to diff against.\n\n## Cinched (paddock)\n- Operator sets up the host: live GCP creds + standing canonical depot. Run under tmux so the ~100-min cook survives disconnect.\n- Same suites the gate uses: full skirmish + service lode-lifecycle.\n\n## Done\n- skirmish + service green on centos before any refactor; artifacts and provenance verdicts recorded as the baseline the gate compares against.",
+              "jjgtn_silks": "skirmish-centos-baseline",
+              "jjgtn_basis": "3c98de0"
+            },
+            {
               "jjgtn_ts": "260603-0605",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nOperator-driven, heavyweight — manual host setup, long cook.\n\n## Goal\nCapture the pre-refactor green baseline on the centos host (the platform the milestone gate re-runs on), so \"behavior-preserving\" has a real before/after to diff against.\n\n## Cinched (paddock)\n- Operator sets up the host: live GCP creds + standing canonical depot. Run under tmux so the ~100-min cook survives disconnect.\n- Same suites the gate uses: full skirmish + service lode-lifecycle.\n\n## Done\n- skirmish + service green on centos before any refactor; artifacts and provenance verdicts recorded as the baseline the gate compares against.",
