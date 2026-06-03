@@ -8948,6 +8948,13 @@
         "₢BXAAA": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260603-0542",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nDesign — judgment; gates all.\n\n## Goal\nMint the stable names and site the contract: the submint allocation (per the paddock legend), the shared-cloud-step namespace, and the contract's spec home.\n\n## Cinched (paddock)\n- The contract is SITED in an RBSCJ section here; its requires/provides FORMAT is designed with the spine (AAD) and the step declarations (AAE) where it is consumed — not minted standalone.\n- Submint pattern rbXY_ → rbXYZ_; precise letters are not load-bearing.\n\n## Done\n- Submint allocation recorded in the rbk acronyms map; the shared-cloud-step home minted (breaking the rbgj family-letter scheme); RBSCJ named as the contract's home.",
+              "jjgtn_silks": "mint-and-step-contract",
+              "jjgtn_basis": "82973b2"
+            },
+            {
               "jjgtn_ts": "260603-0515",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nDesign conversation requiring judgment.\n\n## Goal\nFinalize the cross-cutting pieces the rest of the heat composes against: the step requires/provides contract, its spec home, and the shared-cloud-step namespace.\n\n## Cinched (paddock)\n- Contract lives in an RBSCJ section — not RBSL, not a new spec letter.\n- Submint pattern rbXY_ → rbXYZ_ and the rbldX_ legend are set; precise letters are not load-bearing — uniqueness and consistency are.\n\n## Done\n- The step contract is specified: each step declares requires/provides over /workspace registers + substitutions + buildStepOutputs, in a form the validator can check.\n- The shared-cloud-step home (for vouch-push + composed snippets) is minted, breaking the rbgj family-letter scheme deliberately.\n- The submint allocation is recorded where future minters look (the rbk acronyms map).",
@@ -8958,6 +8965,13 @@
         },
         "₢BXAAB": {
           "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260603-0542",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical, agent-choreographed. Relocation only — no smuggling.\n\n## Goal\nExtract the boundary-independent slices of rbld into their own files — lifecycle REST (rbldl_), kindle/shared-consts (rbldk_) — plus the capture-relevant Foundry build-primitives (rbfcb_). The spine/body carve (rblds_/rbldb_) is NOT here: that boundary is designed in the spine pace, so it does not get pre-split mechanically.\n\n## Cinched (paddock)\n- Relocation only: zero logic edits ride along; lode-lifecycle is the oracle.\n\n## Execution\nPer-file sonnet agents (each handed the old module + its slice); review the set, then remove relocated content; haiku for call-site rewrites.\n\n## Done\n- rbldl_, rbldk_, rbfcb_ exist; their content is removed from the monoliths; all call sites updated; lode-lifecycle green.",
+              "jjgtn_silks": "lode-module-explosion",
+              "jjgtn_basis": "82973b2"
+            },
             {
               "jjgtn_ts": "260603-0516",
               "jjgtn_state": "jjgte_rough",
@@ -8970,6 +8984,13 @@
         "₢BXAAC": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260603-0542",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical, broad, agent-choreographed. Relocation only — no smuggling.\n\n## Goal\nDecompose the rest of rbfc and rbfl into their rbfcX_/rbflX_ clusters per the paddock legend (rbfcb_ already extracted in the lode-extraction pace). Reaches made-side files (step-assembly, plumb); acceptable as pure relocation.\n\n## Cinched (paddock)\n- Relocation only: a move carries no logic change.\n- Inner-loop oracle is shellcheck + the fast/service fixtures plus one conjure path; the FULL skirmish is NOT re-run here — the milestone gate carries it, so the heat pays one full cook, not two.\n\n## Execution\nPer-file sonnet agents; review the set, then delete the old files; haiku for call-site rewrites.\n\n## Done\n- rbfc and rbfl decomposed into their clusters; old files deleted after review; all call sites updated; the targeted fixtures green.",
+              "jjgtn_silks": "foundry-module-explosion",
+              "jjgtn_basis": "82973b2"
+            },
+            {
               "jjgtn_ts": "260603-0516",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nMechanical, broad, agent-choreographed. Relocation only — no smuggling.\n\n## Goal\nDecompose rbfc_FoundryCore.sh and rbfl_FoundryLedger.sh into their rbfcX_/rbflX_ clusters per the paddock legend. Reaches made-side files (step-assembly, plumb); acceptable as pure relocation.\n\n## Cinched (paddock)\n- Relocation only: a move carries no logic change; full skirmish is the oracle.\n- rbfc clusters rbfcv_/rbfca_/rbfcg_/rbfcp_/rbfck_ (rbfcb_ already extracted in lode explosion); rbfl by gesture (inscribe / yoke / delete / inventory / wrest). Exact intra-file split firms here.\n\n## Execution\nOne sonnet agent per new file; review the set, then delete the old; haiku for call-site rewrites.\n\n## Done\n- rbfc and rbfl decomposed; old files deleted after review; all call sites updated.\n- Full skirmish green with verdicts identical to pre-refactor.",
@@ -8981,6 +9002,13 @@
         "₢BXAAD": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260603-0542",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nThe heat's core — design plus implementation.\n\n## Goal\nDesign the spine/body boundary and the recipe + substitutions contract shape, then carve rblds_ (spine) and rbldb_ (bole body) accordingly and make the spine data-driven; bole rides it.\n\n## Cinched (paddock)\n- Registration-agnostic: the spine takes the recipe as data — no per-kind branch, no kind-registration/discovery (that is ₣BH's scaffold).\n- The spine/body boundary is decided HERE, not pre-split mechanically; the requires/provides contract FORMAT is designed here against ₣BH's locked axes and recorded in the RBSCJ section sited by AAA.\n\n## Done\n- rblds_/rbldb_ carved along the designed boundary; bole ensconce composes through the spine via recipe + substitutions, with no kind knowledge in the spine; behavior-preserving (lode-lifecycle green, provenance verdicts identical).",
+              "jjgtn_silks": "capture-spine-data-driven",
+              "jjgtn_basis": "82973b2"
+            },
+            {
               "jjgtn_ts": "260603-0516",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nThe heat's core — design plus implementation.\n\n## Goal\nMake the spine (rblds_) compose a build from a recipe (ordered step ids) plus a substitutions blob taken as data, riding rbfcb_; bole rides it as a thin body (rbldb_).\n\n## Cinched (paddock)\n- Registration-agnostic: no per-kind branch, no kind-registration/discovery mechanism (that is ₣BH's scaffold).\n- Designed against ₣BH's locked axes (N-member envelopes, tool-variety, opaque-blob payloads); the recipe + substitutions shape is the ₣BH attach point.\n\n## Done\n- bole ensconce composes through the spine via recipe + substitutions, with no kind knowledge in the spine.\n- Behavior-preserving: lode-lifecycle green, provenance verdicts identical to pre-refactor.",
@@ -8991,6 +9019,13 @@
         },
         "₢BXAAE": {
           "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260603-0542",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nExtraction touching one made-side step.\n\n## Goal\nStand up the shared cloud step-library: unify the FROM-scratch vouch-push across Lode (rbgjl02) and hallmark-verify (rbgjv03); author the metadata-token fetch and the skopeo copy/digest block as composed snippets; keep envelope authoring per-kind. Each library step declares its requires/provides, refining the contract shape from the spine pace.\n\n## Cinched (paddock)\n- vouch-push is the one whole shared step (two live callers); rbgjv03 is the only made-side touch.\n- Shared in-step logic rides the composed-snippet channel; the members[] envelope tail stays per-kind.\n- Leave a clean pre-copy seam in the capture step for ₣BH's collision-guard.\n\n## Done\n- The Lode and hallmark vouch-push paths ride one library step; token + copy/digest composed once; each step's requires/provides declared; lode-lifecycle and a conjure path green with verdicts identical to pre-refactor.",
+              "jjgtn_silks": "cloud-step-library",
+              "jjgtn_basis": "82973b2"
+            },
             {
               "jjgtn_ts": "260603-0516",
               "jjgtn_state": "jjgte_rough",
