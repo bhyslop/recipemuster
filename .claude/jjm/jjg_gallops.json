@@ -8469,9 +8469,10 @@
       "jjghn_order": [
         "₢BHAAA",
         "₢BHAAB",
-        "₢BHAAC"
+        "₢BHAAC",
+        "₢BHAAD"
       ],
-      "jjghn_next_pace_seed": "AAD",
+      "jjghn_next_pace_seed": "AAE",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -8566,6 +8567,17 @@
               "jjgtn_text": "## Character\nDesign settled this session — implementation + spec sync, largely mechanical. The one subtlety is retry-idempotency.\n\n## Goal\nEnsconce must never silently clobber an existing Lode. Add a digest-aware collision guard on the cloud capture step (rbgjl01): before the skopeo copy, if the touchmark package already exists, fail loud — unless it holds the identical digest, in which case proceed.\n\n## Locked\n- Cloud-side only. The guard must be atomic with the GAR write; a host pre-check is TOCTOU plus a multi-second pre-submit window (the \"acquisition runs cloud-side\" premise). Do not add a host collision check.\n- Digest-aware, not naive fail-if-exists — a Cloud Build retry re-copies the same digest and must still pass.\n- Scope is touchmark collision only. Content dedup (same origin@digest under a different touchmark — a host read-before-submit cost-saver) is a separate optional pace, explicitly out of scope here.\n\n## Spec\nUpdate the RBS0* spec surface for the ensconce/Lode capture contract to document the guard alongside the code (RBSAE is today's ensconce-pipeline spec per the paddock; RBSL reserved/unwritten). Spec and code land together.\n\n## Done\nA second ensconce reusing a touchmark fails loud cloud-side with a clear message; an identical-digest retry still succeeds; the RBS0* contract states it; the lifecycle fixture (or a new case) exercises the collision path.",
               "jjgtn_silks": "lode-ensconce-collision-guard",
               "jjgtn_basis": "89c208f"
+            }
+          ]
+        },
+        "₢BHAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260603-1102",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nTerminal heat-wide pass — mechanical but exacting. The single danger is a kill-stem that also lives inside a word we keep; the KEEP guards below are load-bearing, not courtesy. Runs LAST, after every cutover. Never before.\n\n## Goal\nOnce all cutovers have repointed their chokepoints and banished their old GAR namespaces, sweep the whole repo so NO vocabulary superseded by this heat survives — in code, specs, tabtargets, onboarding prose, comments, or constant names — while leaving the introduced Lode vocabulary and the legitimately-overloaded survivors untouched.\n\n## Why this pace is terminal (do not front-run)\nThis is the delete-old-last tail of the heat. Each cutover deletes its own namespace in-place; until a cutover lands, its surviving old vocabulary IS the rollback. This pace catches only what the per-cutover deletes could not reach — stray prose, comments, cross-refs, a mis-filed spec, a vestigial constant name. It MUST remain the final pace; nothing scrubs shared vocabulary before that vocabulary's cutover has landed.\n\n## KILL — these stems must not survive (except where a KEEP guard applies)\n- `enshrine`, `enshrinement`, `Enshrines`, `*Enshrinements` (tabtarget frontispieces) — superseded by `ensconce` / `bole`\n- `rbi_es` — enshrinement GAR namespace, folded into `rbi_ld`\n- `rbi_rq` — reliquary GAR namespace, folded into `rbi_ld`\n- `reliquary stamp`, and `reliquary` used as a standalone identifier-noun — replaced by the reliquary-kind **touchmark**\n- `rbfl_inscribe` and the reliquary-mirror sense of `inscribe` — absorbed into `fetter` / `conclave`\n- `RBSAE-ark_enshrine` (whole file) and its `rbtgo_ark_enshrine` quoin — superseded by `RBSLE` / `rbtgo_lode_ensconce`. (RBSAE is mis-filed under `ark_` though it is fetched-side base capture; delete it, do not adapt it.)\n- constant names carrying `ENSHRINE` (e.g. `ZRBFC_BUILD_POLL_CEILING_ENSHRINE`) — verb-neutralize the name\n\n## KEEP — never flag these (introduced or legitimately retained)\n- New Lode vocab: `lode`, `rbi_ld`, `rbld_`, `RBSL*`, `bole`, `ensconce`, `divine`, `banish`, `touchmark`, and the inspect verb (`augur` leading — pending final mint in the spec pace)\n- `reliquary` as a **kind name** survives (it is `conclave`'s kind) — only the standalone noun / \"stamp\" identifier dies\n- `rbrd_inscribe` (depot tripwire, `rbw-rdi`) — different operation, OUT of scope, stays\n- `rbfd_mirror` (bind vessel-mode copy, made-side) — OUT of scope, stays\n\n## Discovery recipe\n`grep -rinE 'enshrine|rbi_es|rbi_rq|reliquary stamp|rbfl_inscribe' Tools/ tt/` → expect zero. For bare `inscribe` and bare `reliquary` (both overloaded), grep and hand-classify every hit against the KEEP guards above. This list ACCRETES: as each cutover lands, append any stragglers it could not delete in place.\n\n## Done\nThe recipe returns zero un-guarded hits; every KEEP term is intact; `fast` plus the relevant suites stay green. The heat's superseded vocabulary is gone from the repo.",
+              "jjgtn_silks": "lode-vocab-finalization-scrub",
+              "jjgtn_basis": "d776442"
             }
           ]
         }
