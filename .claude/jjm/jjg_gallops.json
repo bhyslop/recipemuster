@@ -8935,9 +8935,10 @@
       "jjghn_order": [
         "₢BXAAA",
         "₢BXAAB",
-        "₢BXAAC"
+        "₢BXAAC",
+        "₢BXAAD"
       ],
-      "jjghn_next_pace_seed": "AAD",
+      "jjghn_next_pace_seed": "AAE",
       "jjghn_paces": {
         "₢BXAAA": {
           "jjgpn_tacks": [
@@ -8969,6 +8970,17 @@
               "jjgtn_text": "## Character\nMechanical, broad, agent-choreographed. Relocation only — no smuggling.\n\n## Goal\nDecompose rbfc_FoundryCore.sh and rbfl_FoundryLedger.sh into their rbfcX_/rbflX_ clusters per the paddock legend. Reaches made-side files (step-assembly, plumb); acceptable as pure relocation.\n\n## Cinched (paddock)\n- Relocation only: a move carries no logic change; full skirmish is the oracle.\n- rbfc clusters rbfcv_/rbfca_/rbfcg_/rbfcp_/rbfck_ (rbfcb_ already extracted in lode explosion); rbfl by gesture (inscribe / yoke / delete / inventory / wrest). Exact intra-file split firms here.\n\n## Execution\nOne sonnet agent per new file; review the set, then delete the old; haiku for call-site rewrites.\n\n## Done\n- rbfc and rbfl decomposed; old files deleted after review; all call sites updated.\n- Full skirmish green with verdicts identical to pre-refactor.",
               "jjgtn_silks": "foundry-module-explosion",
               "jjgtn_basis": "72be0f9"
+            }
+          ]
+        },
+        "₢BXAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260603-0516",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nThe heat's core — design plus implementation.\n\n## Goal\nMake the spine (rblds_) compose a build from a recipe (ordered step ids) plus a substitutions blob taken as data, riding rbfcb_; bole rides it as a thin body (rbldb_).\n\n## Cinched (paddock)\n- Registration-agnostic: no per-kind branch, no kind-registration/discovery mechanism (that is ₣BH's scaffold).\n- Designed against ₣BH's locked axes (N-member envelopes, tool-variety, opaque-blob payloads); the recipe + substitutions shape is the ₣BH attach point.\n\n## Done\n- bole ensconce composes through the spine via recipe + substitutions, with no kind knowledge in the spine.\n- Behavior-preserving: lode-lifecycle green, provenance verdicts identical to pre-refactor.",
+              "jjgtn_silks": "capture-spine-data-driven",
+              "jjgtn_basis": "d4f61df"
             }
           ]
         }
