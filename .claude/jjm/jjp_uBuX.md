@@ -35,7 +35,7 @@ The bole pilot is an unfactored fork: its host build-submit largely duplicates r
 - **Per-kind body** — bole ensconce (`rbldb_`) as a thin recipe + substitutions + envelope intent riding the spine. Future kinds add sibling body files on the reserved kind-letters.
 - **Host-module decomposition** (relocation only — see Scope):
   - `rbld → rbldX_` (Lode capture): `rblds_` spine, `rbldb_` bole body, `rbldl_` lifecycle REST, `rbldk_` kindle/shared-consts. Reserved for future kinds (legend only, no files this heat): `rbldt_` tool, `rbldr_` reliquary/conclave, `rbldw_` wsl, `rbldv_` podvm — kind-letters matching the Lode GAR kind-letters.
-  - `rbfl → rbflX_` (Foundry Ledger): clustered by gesture (inscribe / yoke / delete / inventory / wrest); exact split firms at the explosion pace.
+  - `rbfl → rbflX_` (Foundry Ledger): clustered by gesture (inscribe / yoke / delete / inventory / wrest); letters allocated at the mint pace, cluster boundaries refined at the explosion pace.
   - `rbfc → rbfcX_` (Foundry Core, the 1576-line monolith): `rbfcv_` vessel-resolution, `rbfcb_` build-host primitives, `rbfca_` step-assembly, `rbfcg_` GAR-REST, `rbfcp_` plumb (~640 lines), `rbfck_` kindle/shared. The plumb extraction is the single biggest file win.
 
 ## Scope
@@ -50,13 +50,22 @@ The bole pilot is an unfactored fork: its host build-submit largely duplicates r
 
 **Cinched — the Foundry explosion is relocation only.** Decomposing rbfl/rbfc reaches made-side machinery (step-assembly, plumb); this is acceptable because zero logic edits ride along, so behavior is trivially preserved and skirmish is a sufficient oracle. The discipline is absolute — a move carries no logic change. Annealing is a separate named pace.
 
+## Relocation discipline (cinched)
+
+Discovered in pre-implementation review; binds both host-module explosion paces — the decomposition is pure relocation only if the scaffolding is treated as copy-verbatim atoms, not as code to redistribute.
+
+- **Kindle/sentinel/guard is one indivisible atom per module.** Each module keeps a single entry file (`rbldk_` for rbld, `rbfck_` for rbfc) that holds the one inclusion-guard and the whole kindle and sources the guard-free body clusters; the readonly consts the kindle sets stay there and are read globally. Do not mint a guard per cluster file and do not split the kindle — both are logic edits, and per-cluster kindles break the single `ZRBFC_KINDLED` idempotency gate. (This is what "a sourced-guard always" means in practice: one guard per source-unit, on the entry file — not one per cluster.)
+- **Leaked globals move verbatim.** The tool-image vars (`z_rbfc_tool_*`) are global-by-bare-assignment and read cross-module (rbfd reads them); adding `local`/`readonly`/`declare` while relocating silently breaks step assembly. Copy them untouched.
+- **Flat placement only.** All cluster files stay flat siblings in `Tools/rbk/`; `BASH_SOURCE`-relative path derivations break if a cluster is nested.
+- **Call-site rewrites are forced and cross-language.** Terminal exclusivity deletes the old module file, so every reference repoints — code source sites, the Rust test driver (`rbtdrf_fast.rs` sources `rbfc_FoundryCore.sh` by name), and sibling context docs (acronym map, tabtarget / theurge context) that name the deleted module.
+
 ## Verification
 
 Provenance-insensitivity is spiked early — read the verifier (rbgjv02) to confirm it keys on build inputs/outputs not step bytes, with one targeted cook only if ambiguous — so the spine and library invest on confirmed ground rather than discovering a broken rail at the gate. Cheap inner loop thereafter: shellcheck plus targeted fixtures, plus the validator's own unit tests; the explosion's inner loop is shellcheck plus a fixture subset, since relocation-only makes behavior trivially preserved. Milestone gate: full skirmish plus the service lode-lifecycle fixture, green with artifacts and provenance verdicts identical to pre-refactor (provenance-insensitivity-to-restructuring confirmed end-to-end). Operational precondition for the gate: live GCP credentials and a standing canonical depot must be provisioned — the gate is not free-standing. The ~100-minute skirmish cook is a milestone, not a per-commit cost; the heat pays one full cook, at the gate.
 
 ## Minting — decided
 
-The open naming items are settled here: spine and bodies in the `rbldX_` family (legend in Shape); host modules decompose `rbXY_ → rbXYZ_`, the old name becoming a container and stopping naming a thing (terminal exclusivity preserved); the composition contract lives in an RBSCJ section, not a new spec letter and not RBSL (the Lode-domain spec). Precise sub-letters are not load-bearing — uniqueness and consistency are; the exact intra-rbfl/rbfc split firms at the explosion pace. The shared cloud-step home (for vouch-push and the composed snippets) breaks the rbgj family-letter scheme since a shared step belongs to no single family — minted at the library pace.
+The open naming items are settled here: spine and bodies in the `rbldX_` family (legend in Shape); host modules decompose `rbXY_ → rbXYZ_`, the old name becoming a container and stopping naming a thing (terminal exclusivity preserved); the composition contract lives in an RBSCJ section, not a new spec letter and not RBSL (the Lode-domain spec). Precise sub-letters are not load-bearing — uniqueness and consistency are; the full allocation is recorded at the mint pace so the explosion paces inherit stable, documented targets — the explosion paces may refine cluster boundaries (which function lands in which file) but not the allocated letters. The shared cloud-step home (for vouch-push and the composed snippets) breaks the rbgj family-letter scheme since a shared step belongs to no single family — minted at the library pace.
 
 ## Capstone — harvest CBG (Cloud Build Guide)
 

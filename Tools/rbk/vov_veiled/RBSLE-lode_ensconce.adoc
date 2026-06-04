@@ -1,0 +1,151 @@
+//axhob_operation
+{rbtgo_lode_ensconce}
+
+NOTE: This operation captures a single upstream base image into a
+{rbtga_lode}
+— one
+{gar_service}
+package under the
+{gar_lodes_namespace}
+namespace, identified by a host-minted
+{rbtga_touchmark}.
+It is the bole kind: base images consumed as a Dockerfile FROM line.
+Ensconce is the canonical capture skeleton — the remaining Lode kinds (tool, reliquary, wsl, podvm) reuse its shape, varying only member cardinality and trust grade.
+
+NOTE: Acquisition runs cloud-side.
+The
+{rbtr_director}
+submits a
+{gcb_service}
+job on the tethered (egress-permitted) pool, executed by the
+{rbtr_mason}
+service account via the metadata server.
+The workstation never fetches the upstream bytes — it trusts the GCP environment over a potentially-compromised station.
+
+NOTE: Ensconce is capture-pure.
+It mints the Lode, emits the
+{rbtga_lode_vouch}
+provenance envelope, and reports the touchmark — but writes NO consumer config.
+Election (where a consumer pins a touchmark) is a separate consumption-side layer that reads the
+{rbf_fact_lode}
+this operation writes.
+
+NOTE: Ensconce captures one base per Lode per invocation.
+A vessel declaring multiple base slots is dispatched once per base; a vessel
+{rbrv_image_origin}
+that names a local producer-vessel directory is a made-side hallmark-pin, not an upstream base, and is rejected.
+
+The
+{rbtr_director}
+ensconces a base Lode:
+
+//axhopt_typed_parameter
+{rbrv_sigil}
+. *Validate Input Parameters*:
+.. {rbbc_require}
+vessel sigil (or vessel directory path) provided as the operation folio
+.. {rbbc_require}
+the resolved vessel declares exactly one populated
+{rbrv_image_origin}
+slot (slots 1-3); zero slots or more than one is fatal — base-kind ensconce captures one base per Lode
+.. {rbbc_fatal}
+if the
+{rbrv_image_origin}
+names a local vessel directory: "origin names a producer vessel — base-Lode capture is for upstream bases, not hallmark-pins"
+
+//axhos_step
+. *Resolve Tool Images*:
+.. {rbbc_use}
+the reliquary skopeo image (capture step) and docker image (vouch step), resolved from the vessel's `RBRV_RELIQUARY` via the shared tool-image resolver
+
+//axhos_step
+. *Authenticate as
+{rbtr_director}*:
+.. Execute
+{rbtoe_director_authenticate}
+.. {rbbc_store}
+`«DIRECTOR_TOKEN»` for subsequent API calls
+
+//axhos_step
+. *Mint Touchmark (host-side)*:
+.. {rbbc_store}
+`«TOUCHMARK»` as the bole kind-letter `b` + `YYMMDDHHMMSS` from current time
+.. The host owns the stamp so the touchmark — and thus the
+{rbf_fact_lode}
+path — is known before the build
+.. Example: `b260602120000`
+
+//axhos_step
+. *Submit Two-Step Capture Cloud Build*:
+.. Compose `builds.create` JSON with:
+... Step 1 — the reliquary skopeo builder image, script `rbgjl01-ensconce-capture.sh` (the capture step)
+... Step 2 — the reliquary docker builder image, script `rbgjl02-assemble-push-vouch.sh` (the vouch push)
+... substitutions carrying GAR host/path, the
+{gar_lodes_namespace}
+root, `«TOUCHMARK»`, the
+{rbrv_image_origin}
+value, the acquiring SA email, and the trust grade
+... serviceAccount:
+{rbtr_mason}
+... pool: tethered (upstream pull requires public egress)
+.. {rbbc_submit}
+link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.builds/create[builds.create] with:
+... project:
+{rbtgi_depot_project}
+... location:
+{rbrd_gcp_region}
+.. {rbbc_store}
+`«BUILD_ID»` from response `.metadata.build.id`
+.. {rbbc_show}
+build dispatched with `«BUILD_ID»` and the Cloud Console URL
+
+//axhos_step
+. *Capture Step (in-pool — rbgjl01)*:
+.. Fetch the raw upstream manifest (`skopeo inspect --raw`) and compute its sha256 (`sha256sum` of the raw bytes) — the canonical OCI digest
+.. {rbbc_store}
+`«DIGEST»` — the manifest-list digest for multi-platform images, the single-manifest digest otherwise
+.. Compose the unsprued glance fingerprint: sanitize the
+{rbrv_image_origin}
+(`:` and `/` to `-`) and append the first 10 hex chars of `«DIGEST»`
+.. Copy the upstream image into the Lode package with `skopeo copy --all` (manifest list and all per-platform manifests) under the `:rbi_sha256-«DIGEST»` tag
+.. Apply the remaining member tags by GAR→GAR retag (blobs deduplicate): `:rbi_bole` (uniform handle) and `:«SANITIZED-ORIGIN»-«SHA10»` (fingerprint)
+.. Author the
+{rbtga_lode_vouch}
+envelope JSON (schema `rbld-vouch-1`, trust grade `verified-against-published`, single-element `members[]`) and stage it on the build workspace
+.. Write the per-slot result JSON to `buildStepOutputs`
+
+//axhos_step
+. *Vouch Step (in-pool — rbgjl02)*:
+.. For the staged envelope, build a `FROM scratch` image copying `vouch.json` and push it to the Lode package under the `:rbi_vouch` tag — a distinct manifest sharing the one package
+
+//axhos_step
+. *Wait for Build Completion*:
+.. {rbbc_poll}
+link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.builds/get[cloudbuild.builds.get] for `«BUILD_ID»`
+.. {rbbc_require}
+final status is `SUCCESS`
+
+//axhoot_typed_output
+{rbf_fact_lode}
+. *Write Capture-File*:
+.. Read `buildStepOutputs[0]` (base64-decoded JSON) from the completed build
+.. {rbbc_store}
+the
+{rbtga_lode_vouch}
+envelope as the
+{rbf_fact_lode}
+at `«TOUCHMARK».lode` — identical content to the in-GAR `:rbi_vouch` tag
+
+//axhoc_completion
+Successful execution captures the upstream base into a single
+{gar_service}
+package at `{gar_lodes_namespace}/«TOUCHMARK»`, carrying the base manifest under its digest, handle, and fingerprint tags plus the `:rbi_vouch`
+{rbtga_lode_vouch}
+envelope, and writes the identical envelope host-side as the
+{rbf_fact_lode}.
++
+The operation is capture-pure: no vessel or nameplate config is written.
+A consumer elects the touchmark separately by reading the capture-file — so election retries independently and survives, and a one-to-many fan-out iterates by reading the file rather than by a verb taking N consumer arguments.
++
+Capture-fidelity (`recorded == upstream`) is established by construction — the same `skopeo inspect` that records the digest is the truth it would be checked against — so fidelity is a live/service-tier property, not an offline-checkable one.
+Re-running against the same upstream digest reproduces the same canonical digest tag; a rotated upstream yields a different digest, and that is the capture surfacing the change, not a fault.
