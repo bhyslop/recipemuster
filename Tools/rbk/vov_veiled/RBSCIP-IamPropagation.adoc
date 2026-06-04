@@ -49,6 +49,18 @@ with an empty body-glob; project-scope sites do not.
   same flap window that the real call observed 404, exemplifying why proxy probes are not retained as
   correctness gates (see "What Dies" below).  See evidence row below.
 
+* **SA delete read-path flap**: The inverse of the create-side flap above.  After
+  link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/delete[serviceAccounts.delete]
+  returns 200, the SA email GET read path flaps non-monotonically 404→200 across replicas while the
+  deletion propagates — so a single 404 is not durable proof the account is gone.  A same-name recreate
+  ({rbtgo_retriever_invest} / {rbtgo_director_invest}) racing a still-lagging replica then trips the
+  invest existence preflight (200 → fail-loud "already exists").  Empirically observed where
+  `rbuh_poll_until_gone` saw GET 200,200,404 and declared gone at 6s, then the recreate's preflight GET
+  returned 200 two seconds later.  Mitigation: `rbuh_poll_until_gone` requires `RBGC_GONE_CONFIRM_STREAK`
+  consecutive 404 observations before declaring the resource durably gone; any intervening 200 resets the
+  streak, and the total wait stays bounded by `RBGC_MAX_CONSISTENCY_SEC`.  Same underlying physics as the
+  create-side flap (multi-replica read convergence after a parent mutation).  See evidence row below.
+
 ==== Rationale
 
 The connection creation LRO tests the actual operation, not a proxy.
@@ -113,6 +125,9 @@ and any need for `roles/iam.serviceAccountTokenCreator` grants for the readiness
 
 |SA keys subresource read-path can flap non-monotonically (200→200→404) after SA create
 |`Memos/memo-20260514-pristine-gauntlet-iam-flap.md` -- transcript-level evidence, pristine depot `prlcbhl-d-pristlbhl100009`, 2026-05-14
+
+|SA email read-path flaps 404→200 after delete; a single 404 is not durable proof of deletion
+|`Memos/memo-20260604-canonical-divest-delete-flap.md` -- transcript-level evidence, canonical depot `cancbhm-d-canest3bhm100001`, 2026-06-04
 |===
 
 ==== What Dies

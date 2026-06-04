@@ -41,14 +41,14 @@ if HTTP 404: "Service account not found (already divested)"
 //axhos_step
 . *Confirm Deletion Propagated*:
 .. {rbbc_poll}
-the SA GET endpoint until HTTP 404 confirms the
+the SA GET endpoint until it returns HTTP 404 for `RBGC_GONE_CONFIRM_STREAK` consecutive observations, confirming the
 {giam_service_account}
-is gone — a delete-accepted response precedes propagation, so an immediately following same-name
+is durably gone. A delete-accepted response precedes propagation, and the post-delete read path flaps 404→200 across replicas (see <<rbscip_trade_study>>), so a single 404 is not durable proof — an immediately following same-name
 {rbtgo_director_invest}
-would otherwise race a still-visible account
+would otherwise race a still-visible account. Any intervening non-404 resets the streak.
 .. NOTE: skipped when the DELETE returned HTTP 404 — the account was already absent, so there is nothing to wait for
 .. {rbbc_require}
-HTTP 404 within the eventual-consistency deadline
+`RBGC_GONE_CONFIRM_STREAK` consecutive HTTP 404s within the eventual-consistency deadline
 
 //axhos_step
 . *Opportunistic RBRA Cleanup*:
