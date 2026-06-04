@@ -84,7 +84,7 @@ zrbz_kindle() {
 
   # Lode — fetched-side universal capture (rbw-l, UPPER=mutates GAR/cost, lower=read-only)
   buz_group RBZ__GROUP_LODE       "rbw-l"   "Lode — Fetched-side universal capture"
-  z_mod="rbld_cli.sh"
+  z_mod="rbld0_cli.sh"
   buz_enroll RBZ_ENSCONCE_BOLE          "rbw-lE"  "${z_mod}" "rbld_ensconce"      "param1"  "Ensconce an upstream base image into a Lode (capture)"
   buz_enroll RBZ_DIVINE_LODES           "rbw-ld"  "${z_mod}" "rbld_divine"        "param1"  "Divine Lodes — enumerate all, or inspect one Lode's members (read-only)"
   buz_enroll RBZ_BANISH_LODE            "rbw-lB"  "${z_mod}" "rbld_banish"        "param1"  "Banish a Lode — delete the whole rbi_ld/<touchmark> package"
