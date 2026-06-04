@@ -41,6 +41,8 @@ Every module has an implementation file. CLI entry points are only present if mo
 «prefix»_cli.sh (entry point - OPTIONAL, omit for library/utility modules)
 ```
 
+When a module outgrows one implementation file, it decomposes across several files while remaining one module — see **Module Decomposition** below.
+
 ### CLI as Module Gateway
 
 **Rule**: Code outside the BCG module system must never call `z*_kindle()` directly. All external access to BCG modules goes through CLI scripts.
@@ -115,6 +117,37 @@ Furnish sequence: kindle → enforce → lock (ironclad gate before any command 
 **Singleton** regimes source config unconditionally in furnish. **Manifold** regimes (multiple instances, e.g. nameplates) source conditionally when a folio identifies the instance.
 
 Enrollment types and gating API: see `buv_validation.sh`.
+
+### Module Decomposition
+
+Module Architecture above assumes one module fits in one implementation file. When a module outgrows that — the single file grows past comprehension, or distinct gesture-clusters within it acquire independent mass — the module **decomposes** across several files while remaining one module. Decomposition is load-bearing only when the single file genuinely no longer fits: a module that fits in one file stays in one file (Load-Bearing Complexity).
+
+**The container prefix names no file.** Once a module decomposes, its prefix becomes a *container* — the function namespace and the sort-root for the file family, but no file is named `«prefix»_«name».sh` with the bare prefix. Terminal exclusivity here is a **filesystem** invariant, not a function-namespace one: the dispatch functions keep the bare container prefix (`«prefix»_«command»`, `buc_execute «prefix»_ …`) even though every *file* carries a tier marker. A reader greps `«prefix»_` for behavior and `«prefix»0_`/`«prefix»«g»_` for files.
+
+Decomposition has two tiers.
+
+**Top tier — `«prefix»0_`** (the `0` sorts it to the head of an `ls`):
+
+| File | Role | Executable | Guard |
+|------|------|------------|-------|
+| `«prefix»0_cli.sh` | CLI gateway — `z«prefix»_furnish`, `buc_execute «prefix»_ …` | yes | — (CLI header) |
+| `«prefix»0_«ModuleName».sh` | Entry — the single inclusion-guard, the whole kindle, the sentinel | no | `Z«PREFIX»_SOURCED` |
+
+The entry is the module's **sourcing hub**: it holds the one `Z«PREFIX»_SOURCED` guard and the complete `z«prefix»_kindle` / `z«prefix»_sentinel`, and it sources the cluster bodies. The CLI's furnish sources the entry (alongside the module's dependencies) and then calls `z«prefix»_kindle` — the CLI-as-gateway contract is unchanged; only the file furnish reaches is now the entry hub rather than a lone `«prefix»_«name».sh`. The entry is not the CLI: the executable gateway stays in `«prefix»0_cli.sh`.
+
+**Cluster tier — `«prefix»«g»_«Name».sh`** (gesture-letter bodies):
+
+Each cluster is a body file carrying one coherent group of the module's functions, named with a gesture letter (`«g»`) that scopes the group. Clusters are **guard-free**: the entry sources each exactly once, so a per-cluster inclusion guard would be inert ceremony. Clusters read the entry's `readonly Z«PREFIX»_*` kindle constants as globals — kindle runs in the entry, the constants are visible module-wide.
+
+**The single-guard rule, and its one exception.** Exactly one file carries `Z«PREFIX»_SOURCED`: the entry. Clusters omit it because they are sourced once, by the entry alone. The exception is a cluster sourced by **more than one** entry — e.g. a primitives cluster shared between a module and an independent consumer that sources it directly. A multiply-sourced cluster keeps its own `Z«PREFIX»…_SOURCED` guard, because the "sourced exactly once" premise no longer holds. The guard tracks *how many entries source the file*, not the tier.
+
+**Sourcing.** Decomposition adds one sanctioned sourcing site beyond the three in Sourcing Rules: the entry hub sources its sibling cluster bodies (and, where a dependency is itself decomposed, that dependency's entry). This is the kindle graph made physical — see **Sourcing Rules**.
+
+**Filesystem marker.** The `_cli.sh`-is-executable invariant is unchanged: `«prefix»0_cli.sh` carries `+x`; the entry `«prefix»0_«ModuleName».sh` and every cluster do not. Decomposition adds files but no new executables.
+
+**Topology — flat by default.** A single decomposed module's files live flat in the kit directory alongside undecomposed modules; the `0`/gesture markers already group them in a listing. A subdirectory is reserved for a *family of distinct modules* grouped for cohesion (each with its own `«prefix»0_cli` + entry) — never for the parts of one decomposed module. One module decomposing is not grounds for a subdirectory.
+
+`«prefix»0_«ModuleName».sh` is the canonical entry form. An earlier interim form postfixed the entry with `k` (`«prefix»k_«Name».sh`); see **Fading Memory FM-002**.
 
 ---
 
@@ -1029,6 +1062,9 @@ The one-yawp-one-capture rhythm is the invariant. Pre-captured constants (e.g., 
 | Module prefix                | `[a-z]{2,4}_`                | `rbv_`, `buc_`, `auth_`      | Both     | single char group             |
 | Implementation file          | `«prefix»_«name».sh`         | `rbv_podman.sh`              | N/A      | lowercase (prefer 1 word, allow snake_case) |
 | CLI file                     | `«prefix»_cli.sh`            | `rbv_cli.sh`                 | N/A      | snake_case (fixed)            |
+| Decomposition CLI            | `«prefix»0_cli.sh`           | —                            | N/A      | fixed (decomposed module)     |
+| Decomposition entry          | `«prefix»0_«ModuleName».sh`  | —                            | N/A      | PascalCase «ModuleName»        |
+| Decomposition cluster        | `«prefix»«g»_«Name».sh`      | —                            | N/A      | gesture letter + PascalCase «Name» |
 | Public functions             | `«prefix»_«command»`         | `rbv_init`, `rbv_start`      | Impl     | snake_case (usually one word) |
 | Internal functions           | `z«prefix»_«name»`           | `zrbv_validate_pat`          | Impl     | snake_case (often multi word) |
 | Furnish function             | `z«prefix»_furnish`          | `zrbv_furnish`               | CLI      | fixed name                    |
@@ -1451,15 +1487,18 @@ done
 
 ## Sourcing Rules
 
-Sourcing is restricted because it breaks error handling. Only three locations may source files:
+Sourcing is restricted because it breaks error handling. Only these locations may source files:
 
 | Location             | Can Source                 | Purpose                                              |
 |----------------------|----------------------------|------------------------------------------------------|
 | CLI file header      | `buc_command.sh` only      | Bootstrap command infrastructure                     |
 | CLI Furnish Function | All deps + config files    | Module loading, environment setup                    |
 | Internal functions   | Credentials when necessary | Context-specific secrets (with documented rationale) |
+| Decomposition entry hub | Sibling cluster bodies + dependency entries | Assemble a decomposed module (see **Module Decomposition**) |
 
 The CLI header sources only `buc_command.sh` (via `BURD_BUK_DIR`). All other module and config sourcing happens inside the furnish function, after the `buc_doc_env` / `buc_doc_env_done` gate. This enables doc-mode help display without runtime dependencies.
+
+The **decomposition entry hub** is the one implementation file permitted to source at file top level: a decomposed module's `«prefix»0_«ModuleName».sh` sources its guard-free cluster bodies (and any decomposed dependency's entry) at top level, not inside a function. An undecomposed implementation file still sources nothing outside its kindle. This carve-out exists only because the entry owns the single inclusion guard for the whole module — see **Module Decomposition**.
 
 ## Eval Policy
 
@@ -1607,7 +1646,7 @@ buc_warn    # Instead of echo >&2
 
 | Situation           | Use This Pattern                                                 |
 |---------------------|------------------------------------------------------------------|
-| Module structure    | Always split: implementation + CLI                               |
+| Module structure    | Always split: implementation + CLI (decompose when one file outgrows — see Module Decomposition) |
 | Need return value   | Check error handling decision tree                               |
 | Simple validation   | `test ... \|\| buc_die`                                          |
 | Config validation   | Regime archetype: enrollment → enforce → report                  |
@@ -1638,14 +1677,23 @@ buc_warn    # Instead of echo >&2
 ## Module Maturity Checklist
 
 ### Module Structure
-- [ ] Implementation file «prefix»_«name».sh exists
-- [ ] CLI file «prefix»_cli.sh exists (skip if library/utility module with no direct user commands)
-- [ ] Implementation has multiple inclusion detection guard (`Z«PREFIX»_SOURCED`)
+- [ ] Implementation file «prefix»_«name».sh exists (decomposed: container prefix names no file — see Decomposed Modules below)
+- [ ] CLI file «prefix»_cli.sh exists — `«prefix»0_cli.sh` if decomposed (skip if library/utility module with no direct user commands)
+- [ ] Implementation has multiple inclusion detection guard (`Z«PREFIX»_SOURCED`) — decomposed: only the entry hub carries it; clusters are guard-free (except a cluster sourced by more than one entry)
 - [ ] CLI starts with `set -euo pipefail`
-- [ ] Implementation file sources nothing (except within kindle function)
+- [ ] Implementation file sources nothing (except within kindle function; a decomposition entry hub also sources its clusters at top level)
 - [ ] CLI header sources only `buc_command.sh`; all other deps sourced in furnish
 - [ ] External code accesses module through CLI only (no direct `z*_kindle()` calls from outside)
 - [ ] `_cli.sh` files are executable; all other `*.sh` files in the module directory are not
+
+### Decomposed Modules (when applicable)
+- [ ] Container prefix names no file — every file carries a `0` or gesture-letter marker (`«prefix»0_*`, `«prefix»«g»_*`); none is bare `«prefix»_«name».sh`
+- [ ] Dispatch functions keep the bare container prefix (`buc_execute «prefix»_ …`, `«prefix»_«command»`) — terminal exclusivity is filesystem-level, not function-level
+- [ ] Entry is `«prefix»0_«ModuleName».sh` (not the `k`-postfix interim form — see FM-002); holds the single `Z«PREFIX»_SOURCED` guard, the whole kindle, and the sentinel; non-executable
+- [ ] Cluster bodies `«prefix»«g»_«Name».sh` are guard-free and sourced exactly once by the entry; they read kindle constants as module-wide globals
+- [ ] CLI furnish sources the entry hub, then calls `z«prefix»_kindle`
+- [ ] `«prefix»0_cli.sh` is the only executable file; entry and clusters are not
+- [ ] Files live flat in the kit directory — no subdirectory for a single decomposed module
 
 ### Required Functions
 - [ ] `z«prefix»_kindle` - first line: `test -z "${Z«PREFIX»_KINDLED:-}" || buc_die`
@@ -1948,3 +1996,21 @@ This section documents conventions that have been replaced. When encountering le
 - `butr_register` in `Tools/buk/butr_registry.sh`
 
 **Migration:** When touching a file that uses the old pattern, transform to new. Enroll calls must move into kindle. Return variables must use `z_«funcname»_«retval»`. Arrays must gain `_roll` suffix using `z_«prefix»_` convention. Accessors must gain `_recite` suffix.
+
+### FM-002: `k`-entry → `0_«ModuleName»` entry
+
+The first module decompositions named the entry hub with a `k` postfix (`«prefix»k_«Name».sh`) before the `«prefix»0_«ModuleName».sh` form was settled. The `0`-tier entry is now canonical (see **Module Decomposition**). This convention never appeared in BCG proper — it is an interim form that arose in practice; FM-002 records it so a maintainer who finds a `k`-entry recognizes the lag and knows the target.
+
+**Superseded pattern:**
+- Entry file: `«prefix»k_«Name».sh` (e.g. a `…k_Kindle.sh`), holding the single inclusion guard and the whole kindle
+- The `k` postfix marked "the kindle entry"
+
+**Recognition — legacy code looks like:**
+- A `«prefix»k_*` file carrying the single `Z«PREFIX»_SOURCED` guard and the complete `z«prefix»_kindle`, sourced by a sibling `«prefix»0_cli.sh`
+- A decomposed module whose entry does not sort adjacent to its `0_cli` in a directory listing
+
+**Current convention:**
+- Entry file: `«prefix»0_«ModuleName».sh` — identical role (single guard + whole kindle + sentinel), renamed so entry and CLI share the `0` top tier and sort together
+- The `k` gesture letter is freed for ordinary cluster use
+
+**Migration:** Rename `«prefix»k_«Name».sh` → `«prefix»0_«ModuleName».sh` and update the one `source` line in `«prefix»0_cli.sh`'s furnish. Pure rename plus one sourcing-path edit; no behavior change. Migrate opportunistically — do not bulk-rename.
