@@ -9,7 +9,7 @@
   - **RBFCA** → `rbk/rbfca_*.sh` (Foundry Core step-assembly)
   - **RBFCG** → `rbk/rbfcg_*.sh` (Foundry Core GAR-REST)
   - **RBFCP** → `rbk/rbfcp_*.sh` (Foundry Core plumb — ~640 lines, the single biggest extraction)
-  - **RBFCK** → `rbk/rbfck_*.sh` (Foundry Core kindle/shared — single inclusion-guard + kindle + leaked tool-image globals `z_rbfc_tool_*`, copied verbatim)
+  - **RBFCK** → `rbk/rbfck_*.sh` (Foundry Core kindle-entry — single inclusion-guard + kindle + leaked tool-image globals `z_rbfc_tool_*` (copied verbatim); also re-homes the cli dispatch as `rbfck_cli` (`zrbfck_furnish`), retiring bare `rbfc_cli.sh` so `rbfc` names nothing once it has children)
 - **RBFD** → `rbk/rbfd_FoundryDirectorBuild.sh` (Foundry Director Build — Director-side Cloud Build orchestration: `rbfd_ordain`/`rbfd_build`/`rbfd_enshrine`/`rbfd_mirror`/`rbfd_graft`, plus reliquary/quota/registry preflights and `zrbfd_stitch_build_json`; CLI partner `rbfd_cli.sh`)
 - **RBFH** → `rbk/rbfh_FoundryHygiene.sh` (Foundry Hygiene — Dockerfile FROM-line constraint shared by kludge and conjure; thin BCG CLI partner `rbk/rbfh_cli.sh` surfaces the contract via `rbw-fhc`/`rbw-fhv`)
 - **RBFK** → `rbk/rbfk_kludge.sh` (Foundry Kludge — local vessel image build for development (`rbfk_kludge`); CLI partner `rbfk_cli.sh`, colophon `rbw-fk`)
@@ -19,6 +19,7 @@
   - **RBFLD** → `rbk/rbfld_*.sh` (Foundry Ledger delete — reliquary / ledger removal gesture)
   - **RBFLN** → `rbk/rbfln_*.sh` (Foundry Ledger inventory — ledger listing / enumeration gesture)
   - **RBFLW** → `rbk/rbflw_*.sh` (Foundry Ledger wrest — image wrest from registry)
+  - **RBFLK** → `rbk/rbflk_*.sh` (Foundry Ledger kindle-entry — single inclusion-guard + kindle/sentinel; also re-homes the cli dispatch as `rbflk_cli` (`zrbflk_furnish`), retiring bare `rbfl_cli.sh` so `rbfl` names nothing once it has children)
 - **RBFR** → `rbk/rbfr_FoundryRetriever.sh` (Foundry Retriever — retriever-credentialed hallmark summon (`rbfr_summon`); CLI partner `rbfr_cli.sh`)
 - **RBFV** → `rbk/rbfv_FoundryVerify.sh` (Foundry Verify — hallmark provenance verification: `rbfv_vouch`/`rbfv_about`/`rbfv_vouch_gate`/`rbfv_batch_vouch`; CLI partner `rbfv_cli.sh`)
 - **RBGA** → `rbk/rbga_ArtifactRegistry.sh`
