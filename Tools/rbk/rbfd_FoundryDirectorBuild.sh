@@ -706,7 +706,6 @@ zrbfd_stitch_build_json() {
     z_remaining_suffixes="${z_remaining_suffixes#*,}"
   done
 
-  # shellcheck disable=SC2016
   local -r z_cb_build_id='$BUILD_ID'
 
   # Pool routing: conjure/bind use vessel's egress mode

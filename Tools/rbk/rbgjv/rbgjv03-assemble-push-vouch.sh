@@ -32,7 +32,6 @@ mkdir -p /workspace/vouch_ctx
 cp /workspace/vouch_summary.json /workspace/vouch_ctx/
 
 # Copy per-platform verification files if they exist (conjure only)
-# shellcheck disable=SC2086
 if ls /workspace/verify-*.json >/dev/null 2>&1; then
   cp /workspace/verify-*.json /workspace/vouch_ctx/
   echo "FROM scratch" > /workspace/vouch_ctx/Dockerfile

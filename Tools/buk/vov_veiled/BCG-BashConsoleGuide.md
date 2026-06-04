@@ -185,7 +185,7 @@ A tabtarget in `tt/` is a colophon, not a program — it names *what* to run, ne
 
 ```bash
 #!/bin/bash
-export BURD_LAUNCHER=launcher.rbw_workbench.sh
+export BURD_LAUNCHER=launcher.«workbench»_workbench.sh
 exec "${BASH_SOURCE[0]%/*}/z-launcher.sh" "${0##*/}" "${@}"
 ```
 
@@ -972,7 +972,7 @@ z_«module»_«group»=""
 ```bash
 # CORRECT — semicolon capture on same line, compose from captured locals
 «prefix»_cmd_yawp "git status";  local -r z_cmd="${z_«module»_«group»}"
-«prefix»_tt_yawp "rbw-rrv";      local -r z_tt="${z_«module»_«group»}"
+«prefix»_tt_yawp "«colophon»";      local -r z_tt="${z_«module»_«group»}"
 buh_line "Run ${z_cmd} to validate: ${z_tt}"
 
 # AVOID — two-line form works but doesn't enforce discipline
@@ -987,7 +987,7 @@ buh_line "Run ${z_«module»_«group»}"
 
 # WRONG — two yawps before capture (first value lost)
 «prefix»_cmd_yawp "git status"
-«prefix»_tt_yawp "rbw-rrv"
+«prefix»_tt_yawp "«colophon»"
 buh_line "${z_«module»_«group»}"  # only has tt, cmd is gone
 ```
 
@@ -1521,9 +1521,9 @@ These commands have bash builtin or declared-dependency replacements. Do not rei
 
 ### Declared Dependency Principle
 
-Anything beyond bash builtins and the POSIX allowlist is a **declared dependency** — a cost accepted by every consumer of the project. Declared dependencies must appear in the project's consumer-facing documentation (e.g., the dependency inventory in RBS0) with their justification.
+Anything beyond bash builtins and the POSIX allowlist is a **declared dependency** — a cost accepted by every consumer of the project. Declared dependencies must appear in the project's consumer-facing documentation (e.g., the project's dependency inventory) with their justification.
 
-Recipe Bottle's declared dependencies are inventoried in RBS0 (split into consumer, developer, and specialized-runtime tiers); that inventory is the authoritative list. The canonical example is `openssl`, which replaces three platform-variant commands (`base64`, `sha256sum`/`shasum`) with a single portable binary present on every target platform.
+The project's declared dependencies are inventoried in its consumer-facing spec; that inventory is the authoritative list. The canonical example is `openssl`, which replaces three platform-variant commands (`base64`, `sha256sum`/`shasum`) with a single portable binary present on every target platform.
 
 ### Platform-Variant Command Guidance
 
