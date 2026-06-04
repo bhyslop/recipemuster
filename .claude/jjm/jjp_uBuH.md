@@ -164,6 +164,14 @@ Remaining open items are pace-time choices, settled by the first relevant pace:
 
 Design heat with the **bole kind landed**. Bole-kind capture (`ensconce`/`divine`/`banish`, the `rbld_` module + `rbi_ld` layout + the two cloud-side in-pool steps) is implemented and verified first-run against live GAR via the `lode-lifecycle` service fixture — it is the reusable shape every later kind copies. Remaining kinds (`tool`/`reliquary`/`wsl`/`podvm`), the rename map, and election (`yoke`) are follow-up paces — the bole `RBSL` cluster (RBSLE/D/A/B) and the shared RBS0 Lode quoin schema are now landed, leaving only the per-kind capture subdocs (RBSLF/C/U/I) to ride the verticals; the remaining landing-regime decisions defer until those commit, when everything here is re-investigated. Scope locked to the fetched side (made-images out of scope; see Shape) and to acquisition (wsl/podvm consumption deferred — this heat captures their bytes into GAR and proves control there; host consumption is the locked-but-deferred sequel).
 
+## Cross-heat dependency — ₣BX builds the capture spine
+
+The remaining implementation work rides infrastructure the sibling heat **₣BX** (rbk-09-capture-machinery-unification) builds, not this one. ₣BX is a behavior-preserving refactor: it decomposes the host monoliths (`rbld`/`rbfl`/`rbfc`) into well-prefixed cluster files and stands up a **data-driven capture spine** (`rblds_`) plus a shared cloud step-library, where a kind is a recipe (data) + a substitutions blob the spine consumes — no per-kind branch, no shared-file edit. ₣BX migrates only bole and reserves the per-kind body letters (`rbldt_`/`rbldr_`/`rbldw_`/`rbldv_`) for this heat's kinds.
+
+Consequence for this heat's shape: the "scaffold" the verticals were to ride is ₣BX's deliverable, not ours. Once ₣BX lands, each kind here attaches as a **thin body file riding the spine — file-disjoint by construction**, which dissolves the stub-vs-serialize question outright; this heat's own scaffold shrinks to the kind-registration surface ₣BX does not touch (colophons, kind-letter constants, the theurge registry, the divine-legend kinds-loop). ₣BX deliberately preserves the seams this heat needs: it keeps the capture step's pre-copy point clean for the ensconce collision guard, and leaves inscribe/enshrine as forks for this heat's cutovers to remove — but it relocates chokepoints those cutovers repoint (e.g. `zrbfc_resolve_tool_images` moves out of the `rbfc` monolith into its cluster file).
+
+**Sequencing (load-bearing):** the bole `RBSL` spec work was independent of ₣BX and is done; everything else here is downstream of ₣BX. So the re-plan checkpoint and every implementation pace **mount only after ₣BX wraps**, re-baselined against its landed file layout — never before, or they regress into the copy-paste forks ₣BX exists to abolish.
+
 ## References
 
 - ₣AV (retired) — predecessor GAR-mirroring heat
