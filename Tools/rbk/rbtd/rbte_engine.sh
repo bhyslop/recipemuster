@@ -42,9 +42,10 @@ zrbte_kindle() {
   # and reports "does not exist". Under Cygwin, hand cargo a Windows-form path
   # (drive-letter root, forward slashes — which Windows accepts). Pure parameter
   # expansion, no subshell and no external cygpath, mirroring RBTDRX's /cygdrive
-  # fast path on the Rust side. Same path-argument boundary as the Windows
-  # shellcheck.exe, distinct from the .sh process-launch boundary RBTDRX/rbtdri
-  # handle Rust-side. Identity off Cygwin; fails fast on an unsurveyed shape.
+  # fast path on the Rust side. Same path-argument boundary as the
+  # Windows shellcheck.exe, distinct from the .sh process-launch boundary
+  # RBTDRX/rbtdri handle Rust-side. Identity off Cygwin; fails fast on an
+  # unsurveyed shape.
   # Retire when theurge builds as a true Cygwin binary.
   if test "${OSTYPE:-}" = "cygwin"; then
     case "${RBTE_MANIFEST}" in

@@ -143,10 +143,6 @@ RBK-owned directory namespace for the consumer-config moorings tree (`rbmm_moori
 
 Tabtargets dispatch through `tt/z-launcher.sh`, naming their launcher in the `BURD_LAUNCHER` config line as a bare `launcher.<id>_workbench.sh` basename that the trampoline resolves directly under `rbml_launchers/`. Rationale lives in BCG "Tabtarget Path Indirection"; this entry is the directory allocation record only.
 
-## Shellcheck Discipline
+## Shellcheck
 
-To lint this project's bash, run **`tt/rbw-tl.Shellcheck.sh`** — never invoke `shellcheck` directly.
-
-BCG's module architecture (dynamic sourcing, cross-module kindle constants, indirect dispatch) trips a fixed set of shellcheck codes that are **expressly elected false positives**, suppressed with rationale in `Tools/buk/busc_shellcheckrc` (SC2153 kindle-chain, SC1090/91 dynamic source, SC2034/2154 cross-module constants, SC2155 `$(<file)`, and others). A bare `shellcheck file.sh` ignores that rcfile and floods you with those structural warnings — that is the stumble to avoid, not a real signal.
-
-`rbw-tl` drives the BCG-configured engine (`buq_shellcheck`): it applies `busc_shellcheckrc`, version-pins the binary (`BUQ_SHELLCHECK_VERSION` — a mismatched station gets a clean version-mismatch die, not lint output), and sweeps every `*.sh` under `Tools/`. It runs lint only — no test suite — unlike `rbw-tr` (release qualify) and `rbw-MZ` (marshal-zero), which also carry it. If shellcheck flags something that is *not* in `busc_shellcheckrc`, it is a genuine finding: fix the code, never add an inline `# shellcheck disable` directive (BCG prohibits them — all structural suppressions live in `busc_shellcheckrc`).
+Lint bash with `tt/rbw-tl.Shellcheck.sh`; never run `shellcheck` directly. Suppressions and the inline-directive policy live in `Tools/buk/busc_shellcheckrc` and BCG § Shellcheck Integration.

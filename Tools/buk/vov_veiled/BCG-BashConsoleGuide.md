@@ -156,7 +156,6 @@ This table defines scope: «prefix»_* is public, z«prefix»_* is internal.
 
 ```bash
 #!/bin/bash
-# shellcheck disable=SC2153  # kindle chain - per BCG
 #
 # Copyright 2026 Scale Invariant, Inc.
 #
@@ -176,9 +175,9 @@ This table defines scope: «prefix»_* is public, z«prefix»_* is internal.
 #
 ```
 
-**Line-2 directive (REQUIRED for cross-module consumers).** Files that reference cross-module `Z*_/RB*_` readonly state — full BCG modules and BCG-adjacent bootstrappers alike — MUST include `# shellcheck disable=SC2153  # kindle chain - per BCG` on line 2, immediately after the shebang and before any other content. The coda wording is fixed; do not vary.
+**Cross-module references need no per-file directive.** Files that reference cross-module `Z*_/RB*_` readonly state trip SC2153 (possible misspelling) and SC2154 (referenced but not assigned). Both are suppressed globally in `busc_shellcheckrc`, applied on the canonical lint path (the project's shellcheck tabtarget always passes `--rcfile`). No inline directive is carried — see **Shellcheck Integration** and **Prohibited Constructs § Inline Shellcheck Directives**.
 
-Placement is load-bearing. shellcheck honors file-scope directives only when they precede every executable statement; placing the directive after `set -euo pipefail` or `Z«PREFIX»_SOURCED=1` reduces it to next-statement scope and the disable becomes silently inert — warnings continue to fire. The `set -u` clause of `set -euo pipefail` is the runtime backstop for the same typo class SC2153 catches statically: misspelled cross-module references die at first reference rather than silently expanding to empty.
+The `set -u` clause of `set -euo pipefail` is the runtime backstop for the same typo class SC2153 catches statically: a misspelled cross-module reference dies at first reference rather than silently expanding to empty.
 
 ### Tabtarget Path Indirection
 
