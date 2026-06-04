@@ -46,7 +46,7 @@
   - **RBLDS** → `rbk/rblds_*.sh` (Lode capture-assembly spine — composes a build from a recipe + substitutions blob, submits, polls, optionally extracts buildStepOutputs into per-capture capture-files; takes the recipe as data, owns no kind knowledge)
   - **RBLDB** → `rbk/rbldb_*.sh` (Bole body — thin ensconce recipe + substitutions + envelope intent riding the spine)
   - **RBLDL** → `rbk/rbldl_*.sh` (Lode lifecycle REST — `divine`/`banish`, direct GAR-REST host ops, kept distinct from the assembly spine)
-  - **RBLDK** → `rbk/rbldk_*.sh` (Lode kindle/shared-consts — single inclusion-guard + kindle; readonly consts read globally)
+  - **RBLDK** → `rbk/rbldk_*.sh` (Lode kindle-entry — single inclusion-guard + kindle, readonly consts read globally; also re-homes the cli dispatch as `rbldk_cli` (`zrbldk_furnish`), retiring bare `rbld_cli.sh` so `rbld` names nothing once it has children)
   - Reserved (legend only, no files this heat — future Lode kinds, letters matching the Lode GAR kind-letters): **RBLDT** tool, **RBLDR** reliquary/conclave, **RBLDW** wsl, **RBLDV** podvm
 - **RBLM** → `rbk/rblm_cli.sh` (Lifecycle Marshal - zero regime to blank template, proof repo for release testing)
 - **RBNNH** → `rbnnh_` prefix family — optional per-nameplate customization files in `.rbk/{moniker}/`: `rbnnh_compose.yml` (Compose overlay fragment) and `rbnnh_post_charge.sh` (post-charge hook script). Contract: `Tools/rbk/vov_veiled/RBSCH-charge_hook.adoc`.
