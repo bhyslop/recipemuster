@@ -2,8 +2,25 @@
 
 - **RBA**  → `rbk/rba_Auth.sh` (Auth — RBRA/RBRO credential load and role token mint)
 - **RBDC** → `rbk/rbdc_DerivedConstants.sh`
-- **RBF**  → `rbk/rbf_Foundry.sh`
+- **RBF**  → Foundry prefix (non-terminal: children rbfc, rbfd, rbfh, rbfk, rbfl, rbfr, rbfv). The former `rbf_Foundry.sh` monolith was decomposed and its residual renamed to `rbfd_FoundryDirectorBuild.sh`; no file is named bare `rbf_`.
+- **RBFC** → `rbk/rbfc*` (Foundry Core family — the current 1576-line `rbfc_FoundryCore.sh` decomposes into the children below at the foundry-explosion pace; these are the allocated targets. Container.)
+  - **RBFCV** → `rbk/rbfcv_*.sh` (Foundry Core vessel-resolution)
+  - **RBFCB** → `rbk/rbfcb_*.sh` (Foundry Core build-host primitives — write-script-body, wait-build-completion, native-path, git-metadata; called by the `rblds_` spine)
+  - **RBFCA** → `rbk/rbfca_*.sh` (Foundry Core step-assembly)
+  - **RBFCG** → `rbk/rbfcg_*.sh` (Foundry Core GAR-REST)
+  - **RBFCP** → `rbk/rbfcp_*.sh` (Foundry Core plumb — ~640 lines, the single biggest extraction)
+  - **RBFCK** → `rbk/rbfck_*.sh` (Foundry Core kindle/shared — single inclusion-guard + kindle + leaked tool-image globals `z_rbfc_tool_*`, copied verbatim)
+- **RBFD** → `rbk/rbfd_FoundryDirectorBuild.sh` (Foundry Director Build — Director-side Cloud Build orchestration: `rbfd_ordain`/`rbfd_build`/`rbfd_enshrine`/`rbfd_mirror`/`rbfd_graft`, plus reliquary/quota/registry preflights and `zrbfd_stitch_build_json`; CLI partner `rbfd_cli.sh`)
 - **RBFH** → `rbk/rbfh_FoundryHygiene.sh` (Foundry Hygiene — Dockerfile FROM-line constraint shared by kludge and conjure; thin BCG CLI partner `rbk/rbfh_cli.sh` surfaces the contract via `rbw-fhc`/`rbw-fhv`)
+- **RBFK** → `rbk/rbfk_kludge.sh` (Foundry Kludge — local vessel image build for development (`rbfk_kludge`); CLI partner `rbfk_cli.sh`, colophon `rbw-fk`)
+- **RBFL** → `rbk/rbfl*` (Foundry Ledger family — the current ~900-line `rbfl_FoundryLedger.sh` decomposes into the children below at the foundry-explosion pace; these are the allocated targets. Container. Sub-letters fixed here; cluster boundaries — which function lands in which file — refine at explosion.)
+  - **RBFLI** → `rbk/rbfli_*.sh` (Foundry Ledger inscribe — reliquary creation / tool-image mirror gesture)
+  - **RBFLY** → `rbk/rbfly_*.sh` (Foundry Ledger yoke — reliquary-stamp yoke into vessel regimes)
+  - **RBFLD** → `rbk/rbfld_*.sh` (Foundry Ledger delete — reliquary / ledger removal gesture)
+  - **RBFLN** → `rbk/rbfln_*.sh` (Foundry Ledger inventory — ledger listing / enumeration gesture)
+  - **RBFLW** → `rbk/rbflw_*.sh` (Foundry Ledger wrest — image wrest from registry)
+- **RBFR** → `rbk/rbfr_FoundryRetriever.sh` (Foundry Retriever — retriever-credentialed hallmark summon (`rbfr_summon`); CLI partner `rbfr_cli.sh`)
+- **RBFV** → `rbk/rbfv_FoundryVerify.sh` (Foundry Verify — hallmark provenance verification: `rbfv_vouch`/`rbfv_about`/`rbfv_vouch_gate`/`rbfv_batch_vouch`; CLI partner `rbfv_cli.sh`)
 - **RBGA** → `rbk/rbga_ArtifactRegistry.sh`
 - **RBGB** → `rbk/rbgb_Buckets.sh`
 - **RBGC** → `rbk/rbgc_Constants.sh`
@@ -24,7 +41,12 @@
 - **RBID** → `rbev-vessels/common-ifrit-context/` (Ifrit — in-bottle attack binary for crucible testing; shared source across tether/airgap variants)
 - **RBJ**  → Jailer prefix (non-terminal: children rbjs, rbjp, rbje, rbjh)
 - **RBJS** → `rbk/rbjs_sentry.sh` (Jailer Sentry - container security setup: iptables, dnsmasq, enclave network)
-- **RBLD** → `rbk/rbld_Lode.sh` (Lode — fetched-side universal capture: `ensconce`/`divine`/`banish`; cloud-side in-pool steps in `rbgjl/`; GAR namespace `rbi_ld`; colophon family `rbw-l*`; spec letter `RBSL` reserved, file not yet written)
+- **RBLD** → `rbk/rbld*` (Lode capture family — fetched-side universal capture; cloud-side in-pool steps in `rbgjl/`; GAR namespace `rbi_ld`; colophon family `rbw-l*`; spec letter `RBSL` reserved, file not yet written. Container: the current `rbld_Lode.sh` decomposes into the children below at the host-explosion pace — these are the allocated targets, the files land there.)
+  - **RBLDS** → `rbk/rblds_*.sh` (Lode capture-assembly spine — composes a build from a recipe + substitutions blob, submits, polls, optionally extracts buildStepOutputs into per-capture capture-files; takes the recipe as data, owns no kind knowledge)
+  - **RBLDB** → `rbk/rbldb_*.sh` (Bole body — thin ensconce recipe + substitutions + envelope intent riding the spine)
+  - **RBLDL** → `rbk/rbldl_*.sh` (Lode lifecycle REST — `divine`/`banish`, direct GAR-REST host ops, kept distinct from the assembly spine)
+  - **RBLDK** → `rbk/rbldk_*.sh` (Lode kindle/shared-consts — single inclusion-guard + kindle; readonly consts read globally)
+  - Reserved (legend only, no files this heat — future Lode kinds, letters matching the Lode GAR kind-letters): **RBLDT** tool, **RBLDR** reliquary/conclave, **RBLDW** wsl, **RBLDV** podvm
 - **RBLM** → `rbk/rblm_cli.sh` (Lifecycle Marshal - zero regime to blank template, proof repo for release testing)
 - **RBNNH** → `rbnnh_` prefix family — optional per-nameplate customization files in `.rbk/{moniker}/`: `rbnnh_compose.yml` (Compose overlay fragment) and `rbnnh_post_charge.sh` (post-charge hook script). Contract: `Tools/rbk/vov_veiled/RBSCH-charge_hook.adoc`.
 - **RBOB** → `rbk/rbob_bottle.sh`
