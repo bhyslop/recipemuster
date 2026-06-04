@@ -104,7 +104,7 @@ zrbfh_furnish() {
   source "${RBCC_rbrr_file}"
   source "${RBCC_rbrd_file}"
   source "${z_rbk_kit_dir}/rbgo_OAuth.sh"
-  source "${z_rbk_kit_dir}/rbfc_FoundryCore.sh"
+  source "${z_rbk_kit_dir}/rbfck_Kindle.sh"
   source "${z_rbk_kit_dir}/rbfh_FoundryHygiene.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh"
   source "${z_rbk_kit_dir}/rbz_zipper.sh"

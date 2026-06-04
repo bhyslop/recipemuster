@@ -1,0 +1,70 @@
+#!/bin/bash
+#
+# Copyright 2026 Scale Invariant, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Author: Brad Hyslop <bhyslop@scaleinvariant.org>
+#
+# Recipe Bottle Foundry Ledger - kindle entry: the single rbfl inclusion-guard and
+# kindle/sentinel, sourcing the Foundry Core entry (rbfck_) and the guard-free body
+# clusters (rbfli_ inscribe, rbfly_ yoke, rbfld_ delete, rbfln_ inventory, rbflw_
+# wrest). The readonly ZRBFL_* constants the kindle sets are read globally.
+
+set -euo pipefail
+
+# Multiple inclusion detection
+test -z "${ZRBFL_SOURCED:-}" || buc_die "Module rbfl multiply sourced - check sourcing hierarchy"
+ZRBFL_SOURCED=1
+
+# Source shared Foundry Core entry and the guard-free body clusters
+source "${BASH_SOURCE[0]%/*}/rbfck_Kindle.sh"
+source "${BASH_SOURCE[0]%/*}/rbfli_Inscribe.sh"
+source "${BASH_SOURCE[0]%/*}/rbfly_Yoke.sh"
+source "${BASH_SOURCE[0]%/*}/rbfld_Delete.sh"
+source "${BASH_SOURCE[0]%/*}/rbfln_Inventory.sh"
+source "${BASH_SOURCE[0]%/*}/rbflw_Wrest.sh"
+
+######################################################################
+# Internal Functions (zrbfl_*)
+
+zrbfl_kindle() {
+  test -z "${ZRBFL_KINDLED:-}" || buc_die "Module rbfl already kindled"
+
+  buc_log_args 'Validate Foundry Core is kindled'
+  zrbfc_sentinel
+
+  buc_log_args 'Verify Director RBRA file'
+  test -n "${RBDC_DIRECTOR_RBRA_FILE:-}" || buc_die "RBDC_DIRECTOR_RBRA_FILE not set"
+  test -f "${RBDC_DIRECTOR_RBRA_FILE}"   || buc_die "GCB service env file not found: ${RBDC_DIRECTOR_RBRA_FILE}"
+
+  buc_log_args 'RBGJI inscribe step scripts (same Tools directory)'
+  local z_self_dir="${BASH_SOURCE[0]%/*}"
+  readonly ZRBFL_RBGJI_STEPS_DIR="${z_self_dir}/rbgji"
+  test -d "${ZRBFL_RBGJI_STEPS_DIR}"   || buc_die "RBGJI steps directory not found: ${ZRBFL_RBGJI_STEPS_DIR}"
+
+  buc_log_args 'Define delete operation file prefix'
+  readonly ZRBFL_DELETE_PREFIX="${BURD_TEMP_DIR}/rbfl_delete_"
+
+  buc_log_args 'Define reliquary inscribe operation file prefix'
+  readonly ZRBFL_RELIQUARY_PREFIX="${BURD_TEMP_DIR}/rbfl_reliquary_"
+
+  readonly ZRBFL_KINDLED=1
+}
+
+zrbfl_sentinel() {
+  zrbfc_sentinel
+  test "${ZRBFL_KINDLED:-}" = "1" || buc_die "Module rbfl not kindled - call zrbfl_kindle first"
+}
+
+# eof

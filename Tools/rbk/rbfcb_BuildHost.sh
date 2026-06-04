@@ -17,11 +17,12 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # Recipe Bottle Foundry Core - build-host primitives (wait-build-completion,
-# git-metadata, write-script-body, native-path). Relocated verbatim from
-# rbfc_FoundryCore.sh; sourced by rbfc so every existing consumer (and the Rust
-# driver that sources rbfc by name) reaches them unchanged. Reads ZRBFC_* kindle
-# constants at call time; write-script-body and native-path are kindle-independent
-# and carry no sentinel.
+# git-metadata, write-script-body, native-path). Relocated verbatim from the
+# former rbfc_FoundryCore.sh monolith; sourced by the rbfc kindle-entry (rbfck_)
+# so every consumer reaches them unchanged, and sourced directly by the Rust
+# fast-path driver and the capture spine. Reads ZRBFC_* kindle constants at call
+# time; write-script-body and native-path are kindle-independent and carry no
+# sentinel.
 
 set -euo pipefail
 

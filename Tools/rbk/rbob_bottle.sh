@@ -207,7 +207,7 @@ zrbob_sentinel() {
 # paths, so a /cygdrive/X/... absolute is misread ("does not exist") exactly as
 # docker build/cp were; hand it the drive-letter form (X:/... — forward slashes,
 # which Windows accepts). DRAFT — third copy of zrbfc_native_path_capture
-# (rbfc_FoundryCore.sh); the scattered per-module copies are slated to
+# (rbfcb_BuildHost.sh); the scattered per-module copies are slated to
 # consolidate into one Windows-docker path adapter (heat ₣BV). Pure /cygdrive
 # parameter expansion, gated on BURD_OSTYPE; identity off Cygwin; a bare-absolute
 # POSIX path is unsurveyed and returns 1. Kindle-independent.

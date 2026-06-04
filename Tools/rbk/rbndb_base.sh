@@ -184,7 +184,7 @@ rbrd_inscribe() {
 # Windows-native path. A Windows-native docker reads a Cygwin /cygdrive/X/...
 # dest as drive-relative and prepends the current drive (C:\cygdrive\c\... —
 # "invalid output path: directory does not exist"). This DUPLICATES
-# zrbfc_native_path_capture (rbfc_FoundryCore.sh); the scattered per-module
+# zrbfc_native_path_capture (rbfcb_BuildHost.sh); the scattered per-module
 # copies are slated to consolidate into one Windows-docker path adapter. Pure
 # /cygdrive parameter expansion, gated on BURD_OSTYPE; identity off Cygwin; a
 # bare-absolute POSIX path is unsurveyed and returns 1. Kindle-independent.

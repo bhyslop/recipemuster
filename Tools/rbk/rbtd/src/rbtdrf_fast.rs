@@ -1871,7 +1871,7 @@ fn rbtdrf_dh_all_vessels_pass(dir: &Path) -> rbtdre_Verdict {
 
 // ── Foundry-path cases ──────────────────────────────────────
 //
-// Drives zrbfc_native_path_capture directly: source rbfc_FoundryCore.sh, force
+// Drives zrbfc_native_path_capture directly: source rbfcb_BuildHost.sh, force
 // BURD_OSTYPE, assert the normalized stdout (or, for the bare-absolute
 // unsurveyed shape, that the capture returns non-zero). The normalizer is
 // sentinel-free and reads only its argument plus BURD_OSTYPE, so this stays a
@@ -1889,7 +1889,7 @@ fn rbtdrf_np_run(
         Ok(r) => r,
         Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
-    let rbfc = root.join("Tools/rbk/rbfc_FoundryCore.sh");
+    let rbfcb = root.join("Tools/rbk/rbfcb_BuildHost.sh");
 
     let assertion = match expect {
         Some(out) => format!("test \"$(zrbfc_native_path_capture '{}')\" = '{}'", input, out),
@@ -1897,7 +1897,7 @@ fn rbtdrf_np_run(
     };
     let script = format!(
         "set -euo pipefail\nsource '{}'\nexport BURD_OSTYPE='{}'\n{}",
-        rbtdrx_native_to_posix(&rbfc),
+        rbtdrx_native_to_posix(&rbfcb),
         ostype,
         assertion,
     );

@@ -41,7 +41,7 @@ zrbfc_furnish() {
   source "${RBCC_rbrr_file}"
   source "${RBCC_rbrd_file}"
   source "${z_rbk_kit_dir}/rbgo_OAuth.sh"
-  source "${z_rbk_kit_dir}/rbfc_FoundryCore.sh"
+  source "${z_rbk_kit_dir}/rbfck_Kindle.sh"
 
   zbuv_kindle
 
