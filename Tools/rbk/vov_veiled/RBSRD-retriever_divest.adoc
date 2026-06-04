@@ -1,14 +1,15 @@
 //axhob_operation
 {rbtgo_retriever_divest}
 
-NOTE: This operation divests a
+NOTE: This operation tears down a
 {rbtr_retriever}
 {giam_service_account}
 from the
 {rbtgi_depot_project}.
 The
 {rbtr_governor}
-synthesizes the SA email from the supplied identity folio, issues a REST DELETE against the IAM API, and opportunistically removes the production RBRA file if its `client_email` matches the synthesized email.
+synthesizes the SA email from the supplied identity folio, *revokes the SA's own IAM bindings*, then issues a REST DELETE against the IAM API, and opportunistically removes the production RBRA file if its `client_email` matches the synthesized email.
+Revoking the live member before the delete is what keeps the binding leak closed: a member removed while still live leaves no `deleted:...?uid=` ghost, whereas deleting the SA first would have GCP retag its bindings as unbounded tombstones.
 A required identity folio (param1) is supplied by the operator; the SA email is composed as `${RBCC_account_retriever}-<identity>@${RBGD_SA_EMAIL_FULL}`.
 
 //axhos_step
@@ -24,6 +25,21 @@ A required identity folio (param1) is supplied by the operator; the SA email is 
 identity folio (param1) is non-empty
 .. {rbbc_store}
 `«RETRIEVER_EMAIL»` as `${RBCC_account_retriever}-<identity>@${RBGD_SA_EMAIL_FULL}` (composed from the role prefix and the operator-supplied identity)
+
+//axhos_step
+. *Revoke
+{rbtr_retriever}
+IAM Bindings*:
+.. NOTE: Run before the DELETE so the live member is removed while the SA still exists — no `deleted:...?uid=` tombstone is minted. Mirrors exactly the bindings granted by {rbtgo_retriever_invest}. See the member-removal contract in <<rbscig_iam_grant_contracts>>.
+.. Remove `serviceAccount:«RETRIEVER_EMAIL»` from the
+{rbtgi_depot_project}
+IAM policy, roles:
+... `roles/artifactregistry.reader`
+... `roles/containeranalysis.occurrences.viewer`
+.. Policy version: 3; a binding left with no members is pruned
+.. {rbbc_fatal}
+on revoke failure — teardown is fail-loud: a non-OK policy status or an HTTP 409 etag conflict (single-writer invariant) aborts the divest before the SA is deleted; the operator reruns
+.. NOTE: Idempotent — removing an absent member is a no-op, so a re-divest, or a divest of an already-partially-torn-down identity, revokes cleanly without error.
 
 //axhos_step
 . *Divest Retriever Service Account*:
@@ -63,11 +79,10 @@ source it and read `RBRA_CLIENT_EMAIL`
 single-line success notice naming `«RETRIEVER_EMAIL»` and confirming divestiture, or a 404-already-gone notice if cloud state was already clean
 
 //axhoc_completion
-Successful execution removes the
+Successful execution revokes the
 {rbtr_retriever}
-{giam_service_account}
-from
-{rbtgi_depot_project}.
+{giam_service_account}'s IAM bindings and then removes it from
+{rbtgi_depot_project}, leaving no `deleted:` ghost on the project policy.
 If the installed RBRA at
 {rbrr_retriever_rbra_file}
 matches the divested identity, it is also removed; otherwise it is left intact.
