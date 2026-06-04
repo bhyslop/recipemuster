@@ -1892,7 +1892,8 @@ BCG uses [shellcheck](https://www.shellcheck.net) for static analysis of bash so
 |----------|----------|---------|
 | `busc_shellcheckrc` | `Tools/buk/` | BCG-structural suppressions with rationale |
 | `buq_shellcheck` | `Tools/buk/buq_qualify.sh` | Reusable BUK shellcheck engine; hard-requires shellcheck (`buc_die` when absent) |
-| `rbq_qualify_shellcheck` | `Tools/rbk/rbq_Qualify.sh` | Invokes `buq_shellcheck` in the release-prep tier (`rbw-tr`) and the marshal-zero gate (`rbw-MZ`) only — not in fast qualify nor the charge/ordain workbench gate |
+
+A consuming kit invokes `buq_shellcheck` from its own qualification gates — typically a standalone lint entry plus the heavier release and marshal gates, never the routine development path. That wiring lives in the consumer; BCG stays unaware of any specific kit's tabtargets.
 
 ### Suppressed Codes (BCG-structural)
 

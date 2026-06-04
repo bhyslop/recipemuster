@@ -106,6 +106,7 @@ pub const RBTDGC_THEURGE_KLUDGE: &str = "rbw-tK";
 pub const RBTDGC_THEURGE_ORDAIN: &str = "rbw-tO";
 pub const RBTDGC_QUALIFY_FAST: &str = "rbw-tq";
 pub const RBTDGC_QUALIFY_RELEASE: &str = "rbw-tr";
+pub const RBTDGC_QUALIFY_SHELLCHECK: &str = "rbw-tl";
 pub const RBTDGC_HANDBOOK_TOP: &str = "rbw-h0";
 pub const RBTDGC_HANDBOOK_WINDOWS: &str = "rbw-hw";
 pub const RBTDGC_HW_DOCKER_DESKTOP: &str = "rbw-HWdd";

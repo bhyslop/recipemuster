@@ -187,10 +187,11 @@ rbq_qualify_fast() {
   buc_step "Fast qualification passed"
 }
 
-# Shellcheck lives in the release-prep tier only — not in fast qualify nor the
-# charge/ordain workbench gate. Routine development and container operations run
-# already-linted, shipped code and do not require the shellcheck binary; only
-# release preparation (rbw-tr) and the marshal-zero gate (rbw-MZ) demand it.
+# Shellcheck is surfaced standalone as rbw-tl (lint without the test suite), and
+# also runs inside the release-prep tier (rbw-tr) and the marshal-zero gate
+# (rbw-MZ). It is deliberately absent from fast qualify and the charge/ordain
+# workbench gate: routine development and container operations run already-linted,
+# shipped code and do not require the shellcheck binary.
 rbq_qualify_shellcheck() {
   zrbq_sentinel
 

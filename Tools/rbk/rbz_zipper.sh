@@ -215,8 +215,9 @@ zrbz_kindle() {
   buz_enroll RBZ_THEURGE_KLUDGE  "rbw-tK"  "${z_mod}" "rbob_kludge"        "imprint"  "Local kludge build + install hallmark into nameplate"
   buz_enroll RBZ_THEURGE_ORDAIN  "rbw-tO"  "${z_mod}" "rbob_ordain"        "imprint"  "Cloud build + install hallmark into nameplate"
   z_mod="rbq_cli.sh"
-  buz_enroll RBZ_QUALIFY_FAST     "rbw-tq"   "${z_mod}" "rbq_qualify_fast"     ""        "Fast qualify: tabtargets, colophons, nameplate health"
-  buz_enroll RBZ_QUALIFY_RELEASE  "rbw-tr"   "${z_mod}" "rbq_qualify_release"  ""        "Release qualify: + shellcheck, full test suite"
+  buz_enroll RBZ_QUALIFY_FAST       "rbw-tq"   "${z_mod}" "rbq_qualify_fast"        ""        "Fast qualify: tabtargets, colophons, nameplate health"
+  buz_enroll RBZ_QUALIFY_RELEASE    "rbw-tr"   "${z_mod}" "rbq_qualify_release"     ""        "Release qualify: + shellcheck, full test suite"
+  buz_enroll RBZ_QUALIFY_SHELLCHECK "rbw-tl"   "${z_mod}" "rbq_qualify_shellcheck"  ""        "Shellcheck only: BCG-configured static analysis, no test suite"
 
   # Handbook — human-facing procedures (rbw-h0 index, rbw-hw/HW* windows)
   buz_group RBZ__GROUP_HANDBOOK   "rbw-HW"  "Handbook — Human-facing procedures"
