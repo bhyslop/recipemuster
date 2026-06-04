@@ -404,6 +404,9 @@ The [JWT Probe](#JWTProbe) verifies that a [Governor](#Governor), [Director](#Di
 <a id="OAuthProbe"></a>**[OAuth Probe](#OAuthProbe)** — Test [Payor](#Payor) OAuth authentication.
 The [OAuth Probe](#OAuthProbe) verifies that the stored refresh token can obtain a valid access token — useful for diagnosing [Payor](#Payor) operation failures before attempting a full [Refresh](#Refresh).
 
+<a id="StaleDeleteRead"></a>**["Already Exists" After a Delete](#StaleDeleteRead)** — An operation that fails with "already exists" immediately after you [Divested](#Divest) or deleted the same-named resource is almost always GCP's [post-delete read flap](#EventualConsistency), not leftover local state.
+Wait a few seconds and retry rather than hunting for a stale resource.
+
 ## Appendix: Crucible Operations
 
 Formal definitions for all [Crucible](#Crucible) operations.
@@ -499,6 +502,34 @@ A [Tethered](#Tethered) build of the base image followed by an [Airgapped](#Airg
 
 **Regulatory alignment.**
 No framework mandates build-time network blocking by name, but egress-locked builds are the simplest way to evidence several common controls: FedRAMP CM-7 (least functionality) and SC-7 (boundary protection), SOC 2 CC6.1 (logical access) and CC8.1 (change management), and SLSA Level 3's hermetic build requirement.
+
+## <a id="EventualConsistency"></a>Appendix: Eventual Consistency and the Missing Completion Contract
+
+[Recipe Bottle](#RecipeBottle) is built on cloud APIs, and cloud APIs are *eventually consistent*: when you mutate state — grant a role, delete a [service account](#Governor), link billing — the change does not take effect everywhere at once.
+It propagates across replicas over seconds, occasionally minutes.
+For systems that are read on essentially every API call across the globe, choosing fast, always-available reads over instantly-consistent ones is a defensible engineering tradeoff, and we grant it without complaint.
+
+The defensible part is the consistency *model*.
+The indefensible part is what the term quietly omits: a **completion contract**.
+When a mutating call returns, it tells you nothing about whether the work is finished — there is no terminal-state signal you can poll to learn that the change has settled.
+This is not a law of physics.
+The pattern for providing it is well understood and widely shipped: Google's own API design guidelines define long-running operations with a `done` flag and a terminal state, and Azure's Resource Manager specifies an async-operation contract end to end.
+The giants deliver it excellently in places — and then withhold it on exactly the operations that race: IAM propagation, billing linkage, identity lifecycle.
+The capability exists; it is selectively absent where it would matter most.
+
+Without a completion contract, every consumer independently reinvents the same retry-poll-tolerate scaffolding to compensate.
+The honest version of that scaffolding polls for an *observable terminal state*; the dishonest version, which the gap quietly encourages, is a blind `sleep N` — a guessed magic number standing in for a signal that should have existed.
+[Recipe Bottle](#RecipeBottle) holds the honest line where it can: it polls for the real state, requires *consecutive* confirming reads before believing a transition (debouncing the flap rather than trusting the first answer), and bounds every wait with a timeout so a never-settling operation fails loudly instead of hanging.
+
+The sharpest instance is service-account deletion.
+The delete returns an empty success with no operation handle, and the account is not actually removed — it is *soft-deleted*, recoverable for thirty days.
+So even the simplest question, "is it gone; can I reuse the name?", has no clean answer: a read of the just-deleted account flaps between "present" and "absent" across replicas while the tombstone propagates, and no API will tell you when the name is safe to reuse.
+[Recipe Bottle's](#RecipeBottle) [Divest](#Divest) path copes by treating the account as durably gone only after several consecutive "not found" reads — see the ["already exists" after a delete](#StaleDeleteRead) diagnostic for the symptom this produces.
+
+Plainly: this is not a hard distributed-systems problem.
+It is a completion contract the vendors chose not to provide, dressed in distributed-systems vocabulary.
+"Eventual consistency" accurately describes the read path; here it is also a polite way of saying *we will not tell you when we are finished*.
+We depend on Google Cloud and expect to keep depending on it — and building atop eventually-consistent APIs with no completion contract is still crappy engineering on the vendor's part, on exactly the surfaces where getting it right would cost them nothing in their consistency model.
 
 ## <a id="Roadmap"></a>Appendix: Roadmap
 

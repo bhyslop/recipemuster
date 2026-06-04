@@ -52,7 +52,13 @@ with an empty body-glob; project-scope sites do not.
 * **SA delete read-path flap**: The inverse of the create-side flap above.  After
   link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/delete[serviceAccounts.delete]
   returns 200, the SA email GET read path flaps non-monotonically 404→200 across replicas while the
-  deletion propagates — so a single 404 is not durable proof the account is gone.  A same-name recreate
+  deletion propagates — so a single 404 is not durable proof the account is gone.  Mechanism: the delete
+  is a *soft* delete (the account stays recoverable for 30 days), so the GET is reading a not-yet-purged
+  tombstone whose presence the replicas report non-monotonically — "gone" is itself fuzzy because the
+  account is not actually removed.  Compounding this, `serviceAccounts.delete` returns an empty body with
+  no long-running-operation handle (AIP-151 defines such a terminal-completion contract but it is not
+  applied to this operation), so there is no pollable "deletion settled" signal at all — consecutive-404
+  confirmation is the only available proxy.  A same-name recreate
   ({rbtgo_retriever_invest} / {rbtgo_director_invest}) racing a still-lagging replica then trips the
   invest existence preflight (200 → fail-loud "already exists").  Empirically observed where
   `rbuh_poll_until_gone` saw GET 200,200,404 and declared gone at 6s, then the recreate's preflight GET

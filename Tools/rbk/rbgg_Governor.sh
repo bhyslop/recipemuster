@@ -180,7 +180,10 @@ zrbgg_create_service_account_with_key() {
   z_preflight_code=$(rbuh_code_capture "${ZRBGG_INFIX_PREFLIGHT}") || z_preflight_code=""
   case "${z_preflight_code}" in
     404) buc_log_args "Service account ${z_account_email} absent — clear to create" ;;
-    200) buc_die "Service account ${z_account_email} already exists — run the matching GovernorDivests verb (rbw-arD/rbw-adD) first to re-key" ;;
+    200)
+      buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "EventualConsistency" "GCP's post-delete read flap"
+      local z_lk_flap="${z_buym_yelp}"
+      buc_die "Service account ${z_account_email} already exists — run the matching GovernorDivests verb (rbw-arD/rbw-adD) first to re-key. Maybe this is ${z_lk_flap}: if you just divested this same-name account, GCP may still read it as present for a few seconds while the delete propagates across replicas — wait and retry before hunting for leftover state." ;;
     *)   buc_die "Preflight GET for ${z_account_email} returned unexpected HTTP ${z_preflight_code}" ;;
   esac
 
