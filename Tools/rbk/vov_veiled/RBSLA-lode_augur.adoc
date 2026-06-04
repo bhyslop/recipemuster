@@ -10,14 +10,14 @@ Read-only; no local container runtime.
 Authenticates as
 {rbtr_director}.
 
-NOTE: Augur is the inspect verb minted in this specification — the per-Lode inspect depth split out from
-{rbtgo_lode_divine},
-which stays the lifecycle-grain enumeration.
-Until the implementation split lands, the member-tag listing is carried by the touchmark-argument mode of
-{rbtgo_lode_divine};
-augur is its successor and additionally decodes the
+NOTE: Augur is the single-Lode inspect verb — the perceiving counterpart, at member grain, to
+{rbtgo_lode_divine}'s
+lifecycle-grain enumeration.
+Divine answers which Lodes exist; augur answers what is inside one — its member tags and its decoded
 {rbtga_lode_vouch}
 envelope.
+The fetched-side parallel of made-side
+{rbtgo_ark_inspect}.
 
 NOTE: Augur is kind-agnostic.
 It decodes the kind from the

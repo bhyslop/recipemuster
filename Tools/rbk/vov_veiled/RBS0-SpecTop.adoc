@@ -1466,7 +1466,7 @@ include::RBSLD-lode_divine.adoc[]
 
 Augurs a single {rbtga_lode} — inspecting its member tags and decoding its {rbtga_lode_vouch}
 ({rbtgog_lode}).
-Read-only and kind-agnostic; the per-Lode inspect depth split out from {rbtgo_lode_divine}.
+Read-only and kind-agnostic; the single-Lode inspect counterpart to {rbtgo_lode_divine} enumeration, paralleling made-side {rbtgo_ark_inspect}.
 
 include::RBSLA-lode_augur.adoc[]
 
@@ -2131,7 +2131,7 @@ Single and compound Lodes are the same shape — a cardinality attribute, not a 
 A bole Lode is a 1-member package; a forthcoming reliquary or podvm cohort is an N-member package.
 Same delete primitive, same provenance attachment point, same wire shape.
 +
-For the bole kind (the only kind landed), the member tags on the package are:
+For the bole kind, the member tags on the package are:
 +
 * `:rbi_bole` — uniform greppable handle for the singleton base
 * `:rbi_sha256-«HEX»` — the canonical OCI digest tag (matches what every tool reports; the exact cross-Lode dedup key)
@@ -2153,7 +2153,7 @@ The identifier marking a captured
 Minted host-side before submission, so the touchmark is known before the build (the host owns the stamp in order to write the {rbf_fact_lode}).
 +
 Format: `«KIND»«YYMMDDHHMMSS»`, where `«KIND»` is the one- or two-letter kind code and the datestamp matches the hallmark's second-granular form.
-Kind letters (reserved set; only bole is implemented): `b` bole, `t` tool, `r` reliquary, `w` wsl, `vw` podvm-wsl, `vn` podvm-native.
+Kind letters: `b` bole, `t` tool, `r` reliquary, `w` wsl, `vw` podvm-wsl, `vn` podvm-native.
 Example: `b260602120000`.
 +
 The shared `-mark` suffix with {rbtga_hallmark} is a deliberate role-signal: any `*mark` is a specific-instance handle; the first syllable carries the side — `hall-` what we forged, `touch-` what we captured.
@@ -3849,7 +3849,7 @@ Mints once at {rbtgo_depot_inscribe} time and serves both as the GAR path segmen
 //axl_voices axtu_string
 {rbst_touchmark}::
 Datestamp identifying a {rbtga_lode} — the GAR package holding a captured upstream artifact and its provenance.
-Format: `«KIND»YYMMDDHHMMSS`, where `«KIND»` is the kind-letter (`b` bole; `t`/`r`/`w`/`vw`/`vn` reserved) and the datestamp is second-granular (e.g., `b260602120000`).
+Format: `«KIND»YYMMDDHHMMSS`, where `«KIND»` is the kind-letter (`b` bole, `t` tool, `r` reliquary, `w` wsl, `vw`/`vn` podvm) and the datestamp is second-granular (e.g., `b260602120000`).
 Regex: `[a-z]{1,2}\d{12}`.
 Mints host-side at {rbtgo_lode_ensconce} time and serves as the GAR path segment (`{gar_lodes_namespace}/«TOUCHMARK»`), so a single value names the whole Lode package.
 The fetched-side parallel of {rbst_hallmark}; carried as the concept {rbtga_touchmark}.

@@ -47,7 +47,7 @@ root
 //axhos_step
 . *Print Kind Legend*:
 .. {rbbc_show}
-one row per implemented kind — currently `b  bole  upstream OCI image, consumed as a FROM line` — so each data row carries no repeated per-row kind column
+one row per Lode kind — e.g. `b  bole  upstream OCI image, consumed as a FROM line` — so each data row carries no repeated per-row kind column
 
 //axhos_step
 . *Resolve Each Lode's Fingerprint*:
