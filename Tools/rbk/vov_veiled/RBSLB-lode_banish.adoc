@@ -1,0 +1,78 @@
+//axhob_operation
+{rbtgo_lode_banish}
+
+NOTE: This operation banishes a whole
+{rbtga_lode}
+from
+{gar_service}
+via a single GAR `packages delete` on the touchmark package — the atomic whole-Lode delete.
+Kind-agnostic; the fetched-side parallel of made-side
+{rbtgo_ark_abjure}.
+
+NOTE: A
+{rbtga_lode}
+is exactly one GAR package, so `packages delete` removes the package and all its member versions and tags in one call.
+("Atomic" = single operation, not transactional rollback.)
+Banishment is whole-Lode; single-member cleanup — the fix-a-bad-member case — is a member/tag-grain operation in the image family ({rbtgo_image_delete}), not here.
+
+The
+{rbtr_director}
+banishes a Lode:
+
+//axhopt_typed_parameter
+{rbtga_touchmark}
+. *Validate Input Parameters*:
+.. {rbbc_require}
+`«TOUCHMARK»` provided as the operation folio
+.. {rbbc_fatal}
+if missing: "Touchmark parameter required"
+
+//axhos_step
+. *Authenticate as
+{rbtr_director}*:
+.. Execute
+{rbtoe_director_authenticate}
+.. {rbbc_store}
+`«DIRECTOR_TOKEN»` for subsequent API calls
+
+//axhos_step
+. *Verify Lode Present*:
+.. {rbbc_call}
+GAR REST `tags.list` (pageSize 1) for the package `{gar_lodes_namespace}/«TOUCHMARK»`
+.. {rbbc_require}
+at least one tag present
+.. {rbbc_fatal}
+if none: "No Lode found at «PACKAGE» — nothing to banish"
+
+//axhos_step
+. *Confirm Banishment*:
+.. {rbbc_show}
+"Will banish the whole Lode «PACKAGE» (single packages delete)"
+.. {rbbc_require}
+user types `yes` to confirm
+.. {rbbc_fatal}
+if not confirmed: "prompt not confirmed."
+
+//axhos_step
+. *Delete Lode Package*:
+.. {rbbc_call}
+link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.packages/delete[GAR REST API: packages.delete] for `{gar_lodes_namespace}/«TOUCHMARK»`
+.. {rbbc_require}
+HTTP 200 response (deletion returns a long-running operation; the 200 is treated as accepted)
+
+//axhoot_typed_output
+{rbtga_lode}
+. *Display Result*:
+.. {rbbc_show}
+"Lode banished: «TOUCHMARK»"
+
+//axhoc_completion
+Procedure completes when the touchmark package — the whole
+{rbtga_lode}
+with every member version and tag — has been removed from
+{gar_service}
+in one `packages delete`.
++
+A presence probe drives the confirmation, so an absent Lode is reported as a clean "nothing to banish" rather than a delete error.
+Because one Lode is one package, there is no per-member dance and no orphan-detection branch — the single delete is the whole operation.
+If GAR ever refuses a single-call delete of a mixed-artifact package, the fallback is a pool-run delete loop over the package's tags, effectively atomic for these purposes.

@@ -1,0 +1,84 @@
+//axhob_operation
+{rbtgo_lode_divine}
+
+NOTE: This operation enumerates every
+{rbtga_lode}
+under the
+{gar_lodes_namespace}
+namespace — one row per Lode, keyed by
+{rbtga_touchmark},
+with the Lode's unsprued glance fingerprint as the IMAGE column.
+Read-only.
+
+NOTE: Divine is kind-agnostic.
+A touchmark's leading letter is its kind (`b260602...` is bole); divine prints a kind legend once and decodes each row's kind from the prefix, so a new Lode kind needs no change here.
+Divine is lifecycle-grain — it enumerates Lodes by touchmark.
+The per-Lode inspect depth — member tags and the
+{rbtga_lode_vouch}
+envelope — belongs to
+{rbtgo_lode_augur},
+not here.
+
+The
+{rbtr_director}
+divines the Lodes:
+
+//axhos_step
+. *Authenticate as
+{rbtr_director}*:
+.. {rbbc_require}
+Director credential file present
+.. Execute
+{rbtoe_director_authenticate}
+.. {rbbc_store}
+`«DIRECTOR_TOKEN»` for subsequent API calls
+
+//axhos_step
+. *List Lode Packages*:
+.. {rbbc_call}
+GAR REST `packages.list` scoped to the
+{gar_lodes_namespace}
+root
+.. {rbbc_store}
+`«TOUCHMARKS»` — the package basenames under the namespace
+.. If empty: {rbbc_show}
+"0 Lodes" and complete — an empty namespace is not an error
+
+//axhos_step
+. *Print Kind Legend*:
+.. {rbbc_show}
+one row per implemented kind — currently `b  bole  upstream OCI image, consumed as a FROM line` — so each data row carries no repeated per-row kind column
+
+//axhos_step
+. *Resolve Each Lode's Fingerprint*:
+.. For each `«TOUCHMARK»` in `«TOUCHMARKS»`:
+... {rbbc_call}
+GAR REST `tags.list` for the Lode package `{gar_lodes_namespace}/«TOUCHMARK»`
+... {rbbc_store}
+`«SHA10»` as the first 10 hex chars of the `:rbi_sha256-«HEX»` member tag
+... {rbbc_store}
+`«IMAGE»` as the unsprued fingerprint tag ending in `-«SHA10»` (or `(no fingerprint)` when absent) — located via the digest-derived sha10 so a Director semantic name cannot masquerade as the fingerprint
+
+//axhoot_typed_output
+{rbtga_lode}
+. *Display Roster*:
+.. {rbbc_show}
+a `TOUCHMARK | IMAGE` table, one row per Lode
+.. {rbbc_show}
+total Lode count
+
+//axhoc_completion
+Divine is a read-only enumeration over the
+{gar_lodes_namespace}
+namespace: it lists every
+{rbtga_lode}
+by
+{rbtga_touchmark}
+with a glance fingerprint, and modifies nothing.
++
+The kind legend plus prefix-decoding keeps divine kind-agnostic — adding a Lode kind adds a legend row, not a code path.
+Per-Lode member and
+{rbtga_lode_vouch}
+detail is the inspect depth of
+{rbtgo_lode_augur},
+a distinct read-only operation in the same lifecycle family.

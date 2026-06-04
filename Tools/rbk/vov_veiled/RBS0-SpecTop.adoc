@@ -84,6 +84,13 @@
 :rbtga_vessel:               <<rbtga_vessel,Vessel>>
 :rbtga_vessel_s:             <<rbtga_vessel,Vessels>>
 
+// Recipe Bottle Term Google Lode (fetched-side capture package, Ark-parallel)
+:rbtga_lode:                 <<rbtga_lode,Lode>>
+:rbtga_lode_s:               <<rbtga_lode,Lodes>>
+:rbtga_touchmark:            <<rbtga_touchmark,Touchmark>>
+:rbtga_touchmark_s:          <<rbtga_touchmark,Touchmarks>>
+:rbtga_lode_vouch:           <<rbtga_lode_vouch,Lode Vouch Artifact>>
+
 // Recipe Bottle Foundry Fact Files (output contract identifiers)
 :rbf_fact_hallmark:          <<rbf_fact_hallmark,RBF_FACT_HALLMARK>>
 :rbf_fact_build_id:          <<rbf_fact_build_id,RBF_FACT_BUILD_ID>>
@@ -91,6 +98,7 @@
 :rbf_fact_ark_stem:          <<rbf_fact_ark_stem,RBF_FACT_ARK_STEM>>
 :rbf_fact_ark_yield:         <<rbf_fact_ark_yield,RBF_FACT_ARK_YIELD>>
 :rbf_fact_reliquary:         <<rbf_fact_reliquary,RBF_FACT_RELIQUARY>>
+:rbf_fact_lode:              <<rbf_fact_lode,Lode Capture-File>>
 
 // Recipe Bottle Payor Fact Files (governor identifying values)
 :rbgp_fact_governor_sa_email:  <<rbgp_fact_governor_sa_email,RBGP_FACT_GOVERNOR_SA_EMAIL>>
@@ -136,12 +144,19 @@
 :rbtgo_access_jwt_probe:          <<rbtgo_access_jwt_probe,rbgv_jwt_sa_probe>>
 :rbtgo_access_oauth_probe:        <<rbtgo_access_oauth_probe,rbgv_payor_oauth_probe>>
 
+// Recipe Bottle Term Google Operations — Lode (fetched-side universal capture)
+:rbtgo_lode_ensconce:            <<rbtgo_lode_ensconce,rbld_ensconce>>
+:rbtgo_lode_divine:              <<rbtgo_lode_divine,rbld_divine>>
+:rbtgo_lode_augur:               <<rbtgo_lode_augur,rbld_augur>>
+:rbtgo_lode_banish:              <<rbtgo_lode_banish,rbld_banish>>
+
 // Recipe Bottle Term Google Operation Groups
 :rbtgog_access:                   <<rbtgog_access,Access Probe Group>>
 :rbtgog_ark:                      <<rbtgog_ark,Ark Group>>
 :rbtgog_depot:                    <<rbtgog_depot,Depot Group>>
 :rbtgog_governor:                 <<rbtgog_governor,Governor Group>>
 :rbtgog_image:                    <<rbtgog_image,Image Group>>
+:rbtgog_lode:                     <<rbtgog_lode,Lode Group>>
 :rbtgog_payor:                    <<rbtgog_payor,Payor Group>>
 :rbtgog_rubric:                   <<rbtgog_rubric,Build Definition Group>>
 
@@ -182,6 +197,7 @@
 :gar_hallmarks_namespace:    <<gar_hallmarks_namespace,rbi_hm>>
 :gar_reliquaries_namespace:  <<gar_reliquaries_namespace,rbi_rq>>
 :gar_enshrines_namespace:    <<gar_enshrines_namespace,rbi_es>>
+:gar_lodes_namespace:        <<gar_lodes_namespace,rbi_ld>>
 
 // Google Cloud Storage
 :gcs_bucket:                 <<gcs_bucket,Cloud Storage Bucket>>
@@ -477,6 +493,7 @@
 :rbst_locator:               <<rbst_locator,Locator>>
 :rbst_hallmark:                  <<rbst_hallmark,Hallmark>>
 :rbst_reliquary_stamp:       <<rbst_reliquary_stamp,Reliquary Stamp>>
+:rbst_touchmark:             <<rbst_touchmark,Touchmark>>
 :rbst_path:                  <<rbst_path,Path>>
 :rbst_platform_list:         <<rbst_platform_list,Platform List>>
 :rbst_binfmt_policy:         <<rbst_binfmt_policy,Binfmt Policy>>
@@ -1001,6 +1018,13 @@ Operations on
 {rbtga_ark}
 units: abjuration, conjuring, grafting, about assembly, vouching, summoning, inspection, and hallmark checking.
 
+[[rbtgog_lode]]
+//axvo_group axd_tabtarget
+{rbtgog_lode}::
+Operations on
+{rbtga_lode}
+packages: per-kind capture, read-only enumeration ({rbtgo_lode_divine}) and inspection ({rbtgo_lode_augur}), and banishment ({rbtgo_lode_banish}).
+
 [[rbtgog_access]]
 //axvo_group axd_tabtarget
 {rbtgog_access}::
@@ -1412,6 +1436,50 @@ Dispatches {rbtgo_ark_vouch} per pending hallmark; mode-specific verification (c
 Any vouch failure terminates the batch fail-fast at the broken hallmark.
 
 include::RBSDV-director_vouch.adoc[]
+
+[[rbtgo_lode_ensconce]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_lode_ensconce}
+
+Ensconces a single upstream base image into a {rbtga_lode}
+({rbtgog_lode}),
+capturing it cloud-side into the `{gar_lodes_namespace}/` namespace under a host-minted {rbtga_touchmark}.
+The {rbtr_director} submits a two-step Cloud Build job — skopeo capture of the upstream manifest, then a vouch push — and writes the {rbtga_lode_vouch} provenance envelope both as a `:rbi_vouch` tag in GAR and as the host-side {rbf_fact_lode}.
+The bole kind — base images consumed as a FROM line — is the canonical capture skeleton the remaining kinds reuse.
+
+include::RBSLE-lode_ensconce.adoc[]
+
+[[rbtgo_lode_divine]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_lode_divine}
+
+Enumerates every {rbtga_lode} under the `{gar_lodes_namespace}/` namespace
+({rbtgog_lode}),
+reading each {rbtga_touchmark} and its glance fingerprint.
+Read-only and kind-agnostic — the kind is decoded from the touchmark's leading letter.
+
+include::RBSLD-lode_divine.adoc[]
+
+[[rbtgo_lode_augur]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_lode_augur}
+
+Augurs a single {rbtga_lode} — inspecting its member tags and decoding its {rbtga_lode_vouch}
+({rbtgog_lode}).
+Read-only and kind-agnostic; the per-Lode inspect depth split out from {rbtgo_lode_divine}.
+
+include::RBSLA-lode_augur.adoc[]
+
+[[rbtgo_lode_banish]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_lode_banish}
+
+Banishes a whole {rbtga_lode}
+({rbtgog_lode})
+via a single GAR `packages delete` on the touchmark package — the atomic whole-Lode delete.
+Kind-agnostic; parallels made-side {rbtgo_ark_abjure}.
+
+include::RBSLB-lode_banish.adoc[]
 
 == {rbtr_retriever} Operations
 
@@ -2036,6 +2104,86 @@ on each successful build.
 A vessel's {rbrv_regime} declares its mode, Dockerfile path (conjure), upstream reference (bind), or local image (graft), along with platform targets and build configuration.
 The vessel name appears in all artifact tags as the stem before the hallmark.
 
+=== Lode Definitions
+
+[[gar_lodes_namespace]]
+{gar_lodes_namespace}::
+GAR top-level path token under which every {rbtga_lode} lives as one package keyed by its {rbtga_touchmark}; members and provenance ride as tags within that package, never as path-segment siblings.
+A path-segment value, not a cloud-visible resource name; carries no {rbrd_cloud_prefix} since each {rbtgi_depot} owns its own GAR repo.
+The fetched-side counterpart to {gar_hallmarks_namespace}; the prior {gar_enshrines_namespace} and {gar_reliquaries_namespace} fold into it as the bole and reliquary kinds land.
+
+[[rbtga_lode]]
+//axl_voices axig_artifact_group
+{rbtga_lode}::
+The fetched-side capture package: one
+{gar_service}
+package under the `{gar_lodes_namespace}/` namespace, named by its
+{rbtga_touchmark},
+holding an upstream artifact captured from outside the project together with its provenance.
+The Ark-parallel of the made side — where an
+{rbtga_ark}
+is the coherent unit of a *built* output, a Lode is the coherent unit of a *captured* one.
++
+One Lode is exactly one GAR package, and that package IS the atomic-delete unit: a single `packages delete` removes the Lode and every member version and tag in one call (see {rbtgo_lode_banish}).
+Members and provenance ride as *tags within the one package*, never as `/`-path-segments — GAR has no subtree delete, so a slash would make sibling packages that cannot be removed atomically.
++
+Single and compound Lodes are the same shape — a cardinality attribute, not a structural distinction.
+A bole Lode is a 1-member package; a forthcoming reliquary or podvm cohort is an N-member package.
+Same delete primitive, same provenance attachment point, same wire shape.
++
+For the bole kind (the only kind landed), the member tags on the package are:
++
+* `:rbi_bole` — uniform greppable handle for the singleton base
+* `:rbi_sha256-«HEX»` — the canonical OCI digest tag (matches what every tool reports; the exact cross-Lode dedup key)
+* `:«SANITIZED-ORIGIN»-«SHA10»` — an unsprued glance fingerprint (origin cue + 10-hex digest prefix)
+* `:rbi_vouch` — the one-per-Lode {rbtga_lode_vouch} provenance envelope
++
+The `rbi_` sprue marks strings from RB's own domain — RB's authored lexicon (`bole`, `vouch`) and RB-measured-from-content values (the digest) — and is withheld from foreign-cued strings such as the sanitized origin.
++
+Lode acquisition runs cloud-side, never the workstation: every kind fetches its bytes over the network from within GCP, trusting the GCP environment over the operator's potentially-compromised station.
+A Lode is banished atomically by {rbtgo_lode_banish}.
+
+[[rbtga_touchmark]]
+//axl_voices axtg_timestamp
+{rbtga_touchmark}::
+The identifier marking a captured
+{rbtga_lode}
+— the fetched-side parallel of the
+{rbtga_hallmark}.
+Minted host-side before submission, so the touchmark is known before the build (the host owns the stamp in order to write the {rbf_fact_lode}).
++
+Format: `«KIND»«YYMMDDHHMMSS»`, where `«KIND»` is the one- or two-letter kind code and the datestamp matches the hallmark's second-granular form.
+Kind letters (reserved set; only bole is implemented): `b` bole, `t` tool, `r` reliquary, `w` wsl, `vw` podvm-wsl, `vn` podvm-native.
+Example: `b260602120000`.
++
+The shared `-mark` suffix with {rbtga_hallmark} is a deliberate role-signal: any `*mark` is a specific-instance handle; the first syllable carries the side — `hall-` what we forged, `touch-` what we captured.
+The touchmark is the GAR path segment: the Lode package is `{gar_lodes_namespace}/«TOUCHMARK»`, so one value names the whole package.
+See {rbst_touchmark} for the string type and regex.
+
+[[rbtga_lode_vouch]]
+//axl_voices axig_verification_artifact
+{rbtga_lode_vouch}::
+The provenance envelope carried by every
+{rbtga_lode}
+— one per Lode, batch-level — recording *capture-fidelity* rather than build-integrity.
+The fetched-side parallel to the made-side
+{rbtga_ark_vouch},
+and a different claim: "we faithfully captured upstream X at digest D," not "we built this securely."
++
+It has two identical-content homes: the in-GAR `:rbi_vouch` tag (the Lode self-describing in the registry, decoded by {rbtgo_lode_augur}) and the host-side {rbf_fact_lode} (the handoff the consumption-side election reads).
++
+Fields (schema `rbld-vouch-1`, near-term unsigned — `signature: null` — but schema-versioned):
+`schema`, `kind`, `lode` (the touchmark), `acquired_at` (ISO-8601 UTC), `acquired_by` (the capturing Cloud Build service account), `capture_build` (the capture's own build id), `trust_grade`, and `members[]`.
+Each `members[]` entry carries `name`, `origin`, `digest`, `verification`, and its assigned `tags` — so the captured identity and any Director-assigned names are themselves attested.
+`members[]` is the cardinality axis: length 1 for singletons (bole), N for cohorts.
++
+Two honest trust grades, declared per Lode (Pale honesty — never over-claim):
++
+* `verified-against-published` — bytes re-checkable against a persistent upstream (OCI content-address, or an out-of-band published checksum). The bole kind carries this grade.
+* `recorded-at-acquisition` — upstream offers no durable re-checkable reference (e.g. quay rotates podvm images out within days), so RB attests only the digest observed at capture. Reserved for the podvm kinds.
++
+Future signing is reserved via cosign or the OCI referrers API once GAR maturity is confirmed.
+
 === Foundry Fact Files
 
 [[rbf_fact_hallmark]]
@@ -2069,6 +2217,12 @@ Per-platform image reference.
 {rbf_fact_reliquary}::
 Reliquary datestamp (`r` + `YYMMDDHHMMSS`).
 Written by {rbtgo_depot_inscribe} on successful Cloud Build submission.
+
+[[rbf_fact_lode]]
+//axpof_fact
+{rbf_fact_lode}::
+Per-Lode provenance capture-file, written host-side by {rbtgo_lode_ensconce} as `«TOUCHMARK».lode` (one file per captured Lode, the roster fact-multi idiom).
+Holds the same envelope as the in-GAR {rbtga_lode_vouch}; the consumption-side touchmark election reads it via derived-pull, so it survives an election failure and a one-to-many fan-out iterates by reading the file rather than by a verb taking N consumer arguments.
 
 === Payor Fact Files
 
@@ -3690,6 +3844,15 @@ Datestamp identifying a reliquary — the GAR namespace holding a coherent set o
 Format: `r` + `YYMMDDHHMMSS` (e.g., `r260327172456`); 13 characters.
 Regex: `r\d{12}`.
 Mints once at {rbtgo_depot_inscribe} time and serves both as the GAR path segment (`{gar_reliquaries_namespace}/«STAMP»/...`) and the per-tool tag, so a single value identifies the namespace and pins every member.
+
+[[rbst_touchmark]]
+//axl_voices axtu_string
+{rbst_touchmark}::
+Datestamp identifying a {rbtga_lode} — the GAR package holding a captured upstream artifact and its provenance.
+Format: `«KIND»YYMMDDHHMMSS`, where `«KIND»` is the kind-letter (`b` bole; `t`/`r`/`w`/`vw`/`vn` reserved) and the datestamp is second-granular (e.g., `b260602120000`).
+Regex: `[a-z]{1,2}\d{12}`.
+Mints host-side at {rbtgo_lode_ensconce} time and serves as the GAR path segment (`{gar_lodes_namespace}/«TOUCHMARK»`), so a single value names the whole Lode package.
+The fetched-side parallel of {rbst_hallmark}; carried as the concept {rbtga_touchmark}.
 
 [[rbst_path]]
 //axl_voices axtu_path

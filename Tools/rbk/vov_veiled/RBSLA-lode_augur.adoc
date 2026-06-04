@@ -1,0 +1,85 @@
+//axhob_operation
+{rbtgo_lode_augur}
+
+NOTE: This operation inspects a single
+{rbtga_lode}
+— listing its member tags and decoding its
+{rbtga_lode_vouch}
+provenance envelope — by querying GAR directly via the Registry API.
+Read-only; no local container runtime.
+Authenticates as
+{rbtr_director}.
+
+NOTE: Augur is the inspect verb minted in this specification — the per-Lode inspect depth split out from
+{rbtgo_lode_divine},
+which stays the lifecycle-grain enumeration.
+Until the implementation split lands, the member-tag listing is carried by the touchmark-argument mode of
+{rbtgo_lode_divine};
+augur is its successor and additionally decodes the
+{rbtga_lode_vouch}
+envelope.
+
+NOTE: Augur is kind-agnostic.
+It decodes the kind from the
+{rbtga_touchmark}
+leading letter and reads the same-shaped envelope every kind carries — so a new Lode kind needs no change here.
+
+The
+{rbtr_director}
+augurs a Lode:
+
+//axhopt_typed_parameter
+{rbtga_touchmark}
+. *Validate Input Parameters*:
+.. {rbbc_require}
+`«TOUCHMARK»` provided as the operation folio
+.. {rbbc_require}
+`«TOUCHMARK»` matches the touchmark format `«KIND»YYMMDDHHMMSS` (see
+{rbst_touchmark})
+.. {rbbc_fatal}
+if malformed: "Touchmark format invalid"
+
+//axhos_step
+. *Authenticate as
+{rbtr_director}*:
+.. Execute
+{rbtoe_director_authenticate}
+.. {rbbc_store}
+`«DIRECTOR_TOKEN»` for subsequent API calls
+
+//axhos_step
+. *Fetch Member Tags*:
+.. {rbbc_call}
+GAR REST `tags.list` for the Lode package `{gar_lodes_namespace}/«TOUCHMARK»`
+.. {rbbc_require}
+at least one tag present — an empty package is the "Lode not present" signal
+.. {rbbc_store}
+`«MEMBER_TAGS»` — every member tag on the package
+
+//axhos_step
+. *Decode Provenance Envelope*:
+.. {rbbc_call}
+Registry API: extract the `:rbi_vouch` manifest from the `{gar_lodes_namespace}/«TOUCHMARK»` package and read its `vouch.json` layer
+.. {rbbc_store}
+the
+{rbtga_lode_vouch}
+fields: `kind`, `acquired_at`, `acquired_by`, `capture_build`, `trust_grade`, and `members[]` (each `origin` / `digest` / `verification` / `tags`)
+
+//axhoot_typed_output
+{rbtga_lode}
+. *Display*:
+.. {rbbc_show}
+the kind (decoded from the touchmark prefix), the member tags, and the decoded provenance — origin, canonical digest, trust grade, and acquisition facts
+.. {rbbc_show}
+explicit trust-grade posture: `verified-against-published` versus `recorded-at-acquisition`, so the displayed claim never over-states what the upstream permits
+
+//axhoc_completion
+Augur is a read-only inspection of one
+{rbtga_lode}
+via the GAR Registry API: it lists the member tags and decodes the
+{rbtga_lode_vouch}
+envelope, and modifies nothing.
++
+The categorical layout makes the touchmark the primary index — every member tag and the provenance envelope sit within the one `{gar_lodes_namespace}/«TOUCHMARK»` package, so no cross-Lode aggregator is needed.
++
+Trust posture is reported honestly per the envelope's declared grade: a `recorded-at-acquisition` Lode states that RB attests only the digest observed at capture, never that it remains re-checkable against a vanished upstream.
