@@ -243,6 +243,18 @@ garrison's precondition check.
 
 ## Standing Notes
 
+- **Heat deferred by design — converge against the known host first.** This
+  heat is shaped to land first-time Windows setup against a *known* box —
+  `bujn-winpc` (tailnet `rocket`) — before generalizing to fresh specimens.
+  Standing up a brand-new node does not strictly require the old host (the node
+  model is self-contained: BURN profile + local provisioning + Tailscale
+  self-auth), but the convergence design prefers proving the ceremony against
+  the known box first; it stays stabled until the operator elects to converge
+  it — against rocket, or a deliberately-adopted new specimen. Orientation map
+  for the whole Windows remote-node facility (spine, bring-up sequence, entry
+  points, the two live handbook lineages, residue-already-culled):
+  `Memos/memo-20260604-windows-node-orientation.md`.
+
 - **Caparison-Windows handles first-time admin trust establishment plus the
   broader admin posture (WSL distribution staging, sleep/hibernate disable,
   Tailscale service auto-start).** SSH-trust phases retain the prior
