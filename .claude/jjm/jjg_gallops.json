@@ -8112,9 +8112,10 @@
         "₢BDAAN",
         "₢BDAAO",
         "₢BDAAP",
-        "₢BDAAQ"
+        "₢BDAAQ",
+        "₢BDAAR"
       ],
-      "jjghn_next_pace_seed": "AAR",
+      "jjghn_next_pace_seed": "AAS",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -8454,6 +8455,17 @@
               "jjgtn_text": "## Character\nSpook — discipline gap surfaced while grooming ₣BH: a paddock named its own heat silks, which had drifted from the gallops silks. Mechanical doc edit; the only judgment is where the rule lives and how it meshes with the existing coronet/silks reference rules.\n\n## Goal\nCodify in the JJK Claude context the principle that paddock and docket *prose* must never name heat silks — refer to heats by firemark, paces by coronet. Silks evolve via `jjx_relabel` and go stale; firemarks and coronets are lifecycle-bound.\n\n## Where\nThe JJK guidance in the `@`-included Claude context (`claude-jjk-core.md`), alongside the existing \"Paddock posture\" / \"Reference discipline\" / \"Display discipline\" rules. The sibling rule \"Coronets do not appear in paddock prose\" is the model — extend the same logic to silks, stating the three-way distinction so the nuance is not lost:\n- **Firemarks** — lifecycle-bound → fine in both paddock and dockets.\n- **Coronets** — stable but invalidated by pace ops → already barred from paddock prose; in dockets only for cross-order deps.\n- **Silks** — evolve via relabel → barred from BOTH paddock and dockets (the new rule).\n\n## Done\nThe no-silks-in-prose principle is written into the JJK Claude context where future groom/mount sessions read it, with the firemark/coronet/silks distinction stated. (Optional check: grep paddocks/dockets for silks-shaped kebab strings.)",
               "jjgtn_silks": "jjk-no-silks-in-paddock-docket-prose",
               "jjgtn_basis": "36b8025"
+            }
+          ]
+        },
+        "₢BDAAR": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260604-1111",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nDesign conversation — the fix is undecided; mount to design it together.\n\nSpook (team-infrastructure stumble): jjx_open mints officium ids that are\ntime-bucketed (YYMMDD-HHMM), so two machines that call jjx_open within the same\nminute mint the SAME id. Observed 2026-06-04: ☉260604-1000 was minted independently\non two hosts — one landed on origin/main as commit be145c9b7 (\"OFFICIUM 260604-1000\"),\nanother in a parallel chat on a different machine — both writing\n.claude/jjm/officia/260604-1000/. That time the gallops automerge reconciled it by\nluck and jjx_validate passed, but the collision defeats the opaque/unique intent of\nofficium ids and is a latent hazard for the officium directory and its gazette\nexchange files under concurrent multi-machine work.\n\nDone: an agreed design (not yet chosen) for making officium ids collision-safe across\nconcurrent machines.",
+              "jjgtn_silks": "officium-id-collision-cross-machine",
+              "jjgtn_basis": "9189678"
             }
           ]
         }
