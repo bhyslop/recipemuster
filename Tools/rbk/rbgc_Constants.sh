@@ -59,6 +59,13 @@ zrbgc_kindle() {
   # Timeouts
   readonly RBGC_MAX_CONSISTENCY_SEC=90
   readonly RBGC_EVENTUAL_CONSISTENCY_SEC=3
+  # Consecutive 404s rbuh_poll_until_gone requires before declaring a deleted
+  # resource durably gone. GCP IAM's SA read path is multi-replica eventually-
+  # consistent: a post-DELETE GET flaps 200<->404 for seconds as replicas
+  # converge, so a single 404 is not durable proof — a same-name recreate can
+  # still race a lagging replica's existence preflight. The streak debounces
+  # that flap; any intervening 200 resets it. Bounded by RBGC_MAX_CONSISTENCY_SEC.
+  readonly RBGC_GONE_CONFIRM_STREAK=3
   readonly RBGC_SA_KEY_CREATE_RETRY_MAX=7
   readonly RBGC_SA_KEY_CREATE_RETRY_DELAY_SEC=10
 

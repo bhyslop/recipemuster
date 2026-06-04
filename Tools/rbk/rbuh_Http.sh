@@ -46,6 +46,7 @@ zrbuh_kindle() {
   # Validate eventual consistency settings from rbgc
   test -n "${RBGC_EVENTUAL_CONSISTENCY_SEC:-}" || buc_die "RBGC_EVENTUAL_CONSISTENCY_SEC unset"
   test -n "${RBGC_MAX_CONSISTENCY_SEC:-}"      || buc_die "RBGC_MAX_CONSISTENCY_SEC unset"
+  test -n "${RBGC_GONE_CONFIRM_STREAK:-}"      || buc_die "RBGC_GONE_CONFIRM_STREAK unset"
 
   readonly ZRBUH_KINDLED=1
 }
@@ -358,10 +359,16 @@ rbuh_poll_until_ok() {
   done
 }
 
-# Inverse of rbuh_poll_until_ok: poll a GET endpoint until it returns HTTP 404.
-# Used after a DELETE to confirm the resource is gone (not merely delete-accepted)
-# before a same-name recreate — absorbs the seconds-scale deletion-propagation
-# race. A GET still returning 200 means the deletion has not yet propagated.
+# Inverse of rbuh_poll_until_ok: poll a GET endpoint until it returns HTTP 404
+# RBGC_GONE_CONFIRM_STREAK times in a row. Used after a DELETE to confirm the
+# resource is durably gone (not merely delete-accepted) before a same-name
+# recreate. GCP IAM's SA read path is multi-replica eventually-consistent: a
+# post-DELETE GET flaps 200<->404 for seconds as replicas converge, so a single
+# 404 is not durable proof — observed live as DELETE->200, GET->200,200,404
+# ("gone"), then the recreate's preflight GET ->200 two seconds later, failing
+# fail-loud on a stale read. Requiring consecutive 404s debounces that flap; any
+# intervening 200 resets the streak. Total wait stays bounded by
+# RBGC_MAX_CONSISTENCY_SEC.
 rbuh_poll_until_gone() {
   zrbuh_sentinel
 
@@ -371,6 +378,7 @@ rbuh_poll_until_gone() {
   local -r z_infix="${4}"
 
   local z_elapsed=0
+  local z_streak=0
   while :; do
     local z_poll_infix="${z_infix}-${z_elapsed}s"
     rbuh_json "GET" "${z_url}" "${z_token}" "${z_poll_infix}" || true
@@ -379,12 +387,21 @@ rbuh_poll_until_gone() {
     z_code=$(rbuh_code_capture "${z_poll_infix}") || z_code=""
 
     if test "${z_code}" = "404"; then
-      buc_log_args "${z_label} gone after ${z_elapsed} seconds"
-      return 0
+      z_streak=$((z_streak + 1))
+      if test "${z_streak}" -ge "${RBGC_GONE_CONFIRM_STREAK}"; then
+        buc_log_args "${z_label} durably gone after ${z_elapsed}s (${z_streak} consecutive 404s)"
+        return 0
+      fi
+      buc_log_args "${z_label} read-gone (HTTP 404, streak ${z_streak}/${RBGC_GONE_CONFIRM_STREAK}); confirming in ${RBGC_EVENTUAL_CONSISTENCY_SEC}s..."
+    else
+      test "${z_streak}" -eq 0 \
+        || buc_log_args "${z_label} reappeared (HTTP ${z_code}) — deletion not yet propagated, streak reset"
+      z_streak=0
+      buc_log_args "${z_label} still present (HTTP ${z_code}), waiting ${RBGC_EVENTUAL_CONSISTENCY_SEC}s..."
     fi
 
-    test "${z_elapsed}" -ge "${RBGC_MAX_CONSISTENCY_SEC}" && buc_die "${z_label}: still present after ${RBGC_MAX_CONSISTENCY_SEC}s"
-    buc_log_args "${z_label} still present (HTTP ${z_code}), waiting ${RBGC_EVENTUAL_CONSISTENCY_SEC}s..."
+    test "${z_elapsed}" -ge "${RBGC_MAX_CONSISTENCY_SEC}" \
+      && buc_die "${z_label}: not durably gone after ${RBGC_MAX_CONSISTENCY_SEC}s (last HTTP ${z_code}, streak ${z_streak}/${RBGC_GONE_CONFIRM_STREAK})"
     sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
     z_elapsed=$((z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
   done
