@@ -9485,6 +9485,13 @@
         "₢BYAAA": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260604-1302",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nIntricate but mechanical refactor; the one judgment is the establish/re-key boundary.\n\nClose the credential-lifecycle hole on director + retriever. The fused invest does\nSA-create + Binding-grant + Key-create, and its only inverse (divest) does SA-delete\nalone — so Bindings are never revoked (H1) and re-key churns the whole SA (H2).\n\nSplit the fused invest into three operations:\n- establish (idempotent — ensure SA exists + grant its Bindings once)\n- re-key (Key-only — delete all Keys, add one; the blunt-kill guarantee preserved)\n- teardown (revoke Bindings, then delete SA — the never-wired inverse; only at genuine retirement)\n\nSource: `Memos/memo-20260604-credential-churn-leak-and-propagation-races.md` — objects,\nthe three lifecycles, H1/H2, and the 8 scope notes (idempotent establish; re-key presumes\nestablished; keep the DRS-400 in rbgi's retry tolerance at establish; governor out of scope).\n\nDone: re-key touches only Keys; Bindings granted once and revoked only on teardown;\nstanding-depot reruns stop accruing `deleted:` tombstones.",
+              "jjgtn_silks": "lifecycle-split-establish-rekey",
+              "jjgtn_basis": "95a2d93"
+            },
+            {
               "jjgtn_ts": "260604-1027",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nIntricate but mechanical refactor; the one judgment is the establish/re-key boundary.\n\nClose the credential-lifecycle hole on director + retriever. The fused invest does\nSA-create + Binding-grant + Key-create, and its only inverse (divest) does SA-delete\nalone — so Bindings are never revoked (H1) and re-key churns the whole SA (H2).\n\nSplit the fused invest into three operations:\n- establish (idempotent — ensure SA exists + grant its Bindings once)\n- re-key (Key-only — delete all Keys, add one; the blunt-kill guarantee preserved)\n- teardown (revoke Bindings, then delete SA — the never-wired inverse; only at genuine retirement)\n\nSource: `Memos/memo-20260604-credential-churn-leak-and-propagation-races.md` — objects,\nthe three lifecycles, H1/H2, and the 8 scope notes (idempotent establish; re-key presumes\nestablished; keep the DRS-400 in rbgi's retry tolerance at establish; governor out of scope).\n\nDone: re-key touches only Keys; Bindings granted once and revoked only on teardown;\nstanding-depot reruns stop accruing `deleted:` tombstones.",
