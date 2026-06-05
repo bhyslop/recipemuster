@@ -8529,9 +8529,10 @@
         "₢BHAAM",
         "₢BHAAN",
         "₢BHAAO",
+        "₢BHAAP",
         "₢BHAAD"
       ],
-      "jjghn_next_pace_seed": "AAP",
+      "jjghn_next_pace_seed": "AAQ",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -8835,6 +8836,17 @@
               "jjgtn_text": "## Character\nSerial — rides the cutovers. The public concept surface, not a verb catalog.\n\n## Goal\nSurface Lode and touchmark in the public README as concept-level glossary entries (parallel to Vessel/Hallmark), retire the public Enshrine/Reliquary entries, and refresh the stale RBSHR \"revised enshrine\" frame to the per-kind-verb model.\n\n## Locked\n- Concept-level only — do NOT enumerate per-kind verbs in README. The README delegates the command/verb catalog to CLAUDE.md; concept-level entries are kind-invariant, so the public surface stabilizes once and no vertical reopens it.\n- Meaningful only after the cutovers land (else README would describe two parallel capture systems).\n\n## Done\nREADME glossary reflects Lode/touchmark at concept level, superseded public capture entries retired, RBSHR frame refreshed.",
               "jjgtn_silks": "lode-public-docs-concept",
               "jjgtn_basis": "77e0f6c"
+            }
+          ]
+        },
+        "₢BHAAP": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260605-1121",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nSmall housekeeping — mark deferred surfaces; settle one cross-heat revert.\n\n## Goal\nMark the stale Windows onboarding tracks (rbhw*) loudly NOT-available/deferred rather than writing them, and resolve the heat ₣A- WSL-stage DEV CACHE revert pace now that wsl-kind work is committed to.\n\n## Locked\n- Onboarding follows consumption, not acquisition: substrate-kind (wsl/podvm) host consumption is out of scope this heat, so mark-deferred — do not write the tracks. Resist a unified Lode-onboarding track; onboarding stays distributed by consumer (paddock Carried-forward).\n- The DEV-CACHE revert pace lives in heat ₣A- — drop or transfer it (operator's choice at mount).\n\n## Done\nStale Windows tracks marked deferred; the ₣A- WSL-stage DEV CACHE revert pace dropped or transferred.",
+              "jjgtn_silks": "lode-housekeeping-deferrals",
+              "jjgtn_basis": "31a803f"
             }
           ]
         }
