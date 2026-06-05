@@ -2,6 +2,7 @@
   "jjgrn_schema_version": 4,
   "jjgrn_next_heat_seed": "Ba",
   "jjgrn_heat_order": [
+    "₣BZ",
     "₣BY",
     "₣BX",
     "₣BV",
@@ -30,8 +31,7 @@
     "₣Au",
     "₣BC",
     "₣BI",
-    "₣BL",
-    "₣BZ"
+    "₣BL"
   ],
   "jjgrn_heats": {
     "₣A-": {
@@ -9594,7 +9594,7 @@
     "₣BZ": {
       "jjghn_silks": "rbk-15-identity-credential-convergence",
       "jjghn_creation_time": "260604",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [],
       "jjghn_next_pace_seed": "AAA",
       "jjghn_paces": {}
