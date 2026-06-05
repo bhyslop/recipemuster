@@ -8526,9 +8526,10 @@
         "₢BHAAJ",
         "₢BHAAK",
         "₢BHAAL",
+        "₢BHAAM",
         "₢BHAAD"
       ],
-      "jjghn_next_pace_seed": "AAM",
+      "jjghn_next_pace_seed": "AAN",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -8799,6 +8800,17 @@
               "jjgtn_text": "## Character\nGreenfield follow-on to the podvm capture machinery — the two-family, multi-platform selection layer.\n\n## Goal\nExtend immure to span both quay families (machine-os-wsl and machine-os-native) via an archive argument, with curated per-platform variant selection. The families share the crane capture path and differ only in quay repo + variant set.\n\n## Locked\n- One verb spanning both families, not two verbs (paddock Kinds). Support an \"expand selected set against the same upstream version\" refresh mode, distinct from a version bump (paddock podvm-selective premise).\n- Builds on the podvm capture machinery (preceding pace).\n\n## Done\nimmure captures both families' curated sets into their respective Lodes; a fixture proves the fan-out.",
               "jjgtn_silks": "lode-podvm-platform-fanout",
               "jjgtn_basis": "e62e02d"
+            }
+          ]
+        },
+        "₢BHAAM": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260605-1120",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nSerial cutover — sibling of the bole cutover. Gated on the conclave vertical existing.\n\n## Goal\nRetire the inscribe reliquary-mirror path and repoint RBRV_RELIQUARY onto a reliquary-kind (conclave) Lode.\n\n## Locked\n- Follow the paddock Cutover technique (rebuild-and-repoint, delete-old-last). The single repoint is the tool-resolution chokepoint zrbfc_resolve_tool_images (in rbfca_StepAssembly), which feeds conjure/about/vouch/enshrine and bole ensconce.\n- Onboarding rides the done: flip the inscribe/reliquary handbook tracks + RBYC_RELIQUARY + the literal inscribe prose + the matching rbtdro fixture (prose is not test-guarded; the done is the only guard).\n- rbrd_inscribe (depot tripwire, rbw-rdi) is a DIFFERENT operation — out of scope, leave it.\n- Flag: inscribe mirrors :latest, so a fresh re-inscribe bumps the toolchain — copy old digests into rbi_ld if a byte-identical cohort is wanted.\n- Verify gate: one conjure build green.\n\n## Done\ninscribe retired, RBRV_RELIQUARY resolves from a conclave Lode, conjure green, rbi_rq banished last.",
+              "jjgtn_silks": "lode-reliquary-inscribe-cutover",
+              "jjgtn_basis": "0ff2cc8"
             }
           ]
         }
