@@ -9509,6 +9509,13 @@
         "₢BXAAH": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260605-1449",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nOperator-driven, heavyweight verification.\n\n## Goal\nProve the whole refactor behavior-preserving against the live system.\n\n## Cinched (paddock)\n- Requires live GCP credentials and a standing canonical depot — not free-standing.\n- The ~100-minute skirmish cook is a milestone, not a per-commit cost.\n\n## Done\n- Full skirmish + service lode-lifecycle green; artifacts and provenance verdicts identical to pre-refactor; provenance-insensitivity-to-restructuring confirmed.",
+              "jjgtn_silks": "milestone-skirmish-gate",
+              "jjgtn_basis": "2d91161"
+            },
+            {
               "jjgtn_ts": "260603-0517",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nOperator-driven, heavyweight verification.\n\n## Goal\nProve the whole refactor behavior-preserving against the live system.\n\n## Cinched (paddock)\n- Requires live GCP credentials and a standing canonical depot — not free-standing.\n- The ~100-minute skirmish cook is a milestone, not a per-commit cost.\n\n## Done\n- Full skirmish + service lode-lifecycle green; artifacts and provenance verdicts identical to pre-refactor; provenance-insensitivity-to-restructuring confirmed.",
