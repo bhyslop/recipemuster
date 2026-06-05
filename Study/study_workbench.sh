@@ -14,9 +14,9 @@ set -euo pipefail
 # Get script directory (Study/)
 STUDYW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
-# Source dependencies
-source "${STUDYW_SCRIPT_DIR}/../Tools/buk/buc_command.sh"
-source "${STUDYW_SCRIPT_DIR}/../Tools/buk/burd_regime.sh"
+# Source dependencies (dispatch exports BURD_BUK_DIR before this body runs)
+source "${BURD_BUK_DIR}/buc_command.sh"
+source "${BURD_BUK_DIR}/burd_regime.sh"
 
 # Show filename on each displayed line
 buc_context "${0##*/}"

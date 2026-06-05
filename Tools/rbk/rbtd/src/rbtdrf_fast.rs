@@ -77,6 +77,16 @@ use crate::rbtdrm_manifest::{
 };
 use crate::rbtdrx_platform::rbtdrx_native_to_posix;
 
+// Repo-root-relative kit paths. Every probate harness runs with cwd = repo
+// root, so these are repo-root-relative. Hoisted per RCG Identity Rule (cf.
+// VVCC_REGISTRY_PATH) so running-code joins reference a named const rather
+// than an inline magic string.
+const RBTDRF_BUK_ROOT: &str = "Tools/buk";
+const RBTDRF_RBK_ROOT: &str = "Tools/rbk";
+const RBTDRF_BUV_VALIDATION: &str = "Tools/buk/buv_validation.sh";
+const RBTDRF_RBFCB_BUILDHOST: &str = "Tools/rbk/rbfcb_BuildHost.sh";
+const RBTDRF_RBLDS_SPINE: &str = "Tools/rbk/rblds_Spine.sh";
+
 // ── Helpers ──────────────────────────────────────────────────
 
 /// Sub-assertion within a case: run bash snippet, check exit code.
@@ -137,7 +147,7 @@ fn rbtdrf_run_ev(
         Ok(r) => r,
         Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
-    let buv = root.join("Tools/buk/buv_validation.sh");
+    let buv = root.join(RBTDRF_BUV_VALIDATION);
 
     for (i, sub) in subs.iter().enumerate() {
         let script = format!(
@@ -197,7 +207,7 @@ fn rbtdrf_run_probate_in(
         Ok(r) => r,
         Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
-    let buv = root.join("Tools/buk/buv_validation.sh");
+    let buv = root.join(RBTDRF_BUV_VALIDATION);
     let module_path = root.join(tools_subdir).join(module);
 
     let env_file = dir.join(format!("{}.env", label));
@@ -247,7 +257,7 @@ fn rbtdrf_run_probate(
     label: &str,
 ) -> rbtdre_Verdict {
     rbtdrf_run_probate_in(
-        dir, "Tools/rbk", module, probate_fn, "", baseline, override_, expect_ok, label,
+        dir, RBTDRF_RBK_ROOT, module, probate_fn, "", baseline, override_, expect_ok, label,
     )
 }
 
@@ -576,7 +586,7 @@ fn rbtdrf_ev_odref_valid(dir: &Path) -> rbtdre_Verdict {
         Ok(r) => r,
         Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
-    let buv = root.join("Tools/buk/buv_validation.sh");
+    let buv = root.join(RBTDRF_BUV_VALIDATION);
     let enrollment = format!(
         "set -euo pipefail\nsource '{}'\nzbuv_kindle\nzbuv_reset_enrollment\n\
          buv_regime_enroll \"TEST\"\nbuv_group_enroll \"References\"\n\
@@ -839,7 +849,7 @@ fn rbtdrf_ev_multiscope(dir: &Path) -> rbtdre_Verdict {
         Ok(r) => r,
         Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
-    let buv = root.join("Tools/buk/buv_validation.sh");
+    let buv = root.join(RBTDRF_BUV_VALIDATION);
 
     // Two-scope enrollment: ALPHA and BETA
     let enrollment = format!(
@@ -1134,12 +1144,12 @@ export RBRP_OPERATOR_EMAIL=\"\"";
 const RBTDRF_RBGC_PRELUDE: &str = "source 'Tools/rbk/rbgc_Constants.sh'\nzrbgc_kindle\n";
 
 fn rbtdrf_rv_rbrp_baseline_valid(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_run_probate_in(dir, "Tools/rbk", RBTDRM_MODULE_RBRP, RBTDRM_PROBATE_RBRP,
+    rbtdrf_run_probate_in(dir, RBTDRF_RBK_ROOT, RBTDRM_MODULE_RBRP, RBTDRM_PROBATE_RBRP,
         RBTDRF_RBGC_PRELUDE, RBTDRF_RBRP_BASELINE, "", true, "rbrp-baseline-valid")
 }
 
 fn rbtdrf_rv_rbrp_bad_payor_project(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_run_probate_in(dir, "Tools/rbk", RBTDRM_MODULE_RBRP, RBTDRM_PROBATE_RBRP,
+    rbtdrf_run_probate_in(dir, RBTDRF_RBK_ROOT, RBTDRM_MODULE_RBRP, RBTDRM_PROBATE_RBRP,
         RBTDRF_RBGC_PRELUDE, RBTDRF_RBRP_BASELINE,
         "export RBRP_PAYOR_PROJECT_ID=\"not-a-payor-project\"", false, "rbrp-bad-payor-project")
 }
@@ -1216,12 +1226,12 @@ export BURC_LOG_LAST=\"last\"\n\
 export BURC_LOG_EXT=\"txt\"";
 
 fn rbtdrf_rv_burc_baseline_valid(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_run_probate_in(dir, "Tools/buk", RBTDRM_MODULE_BURC, RBTDRM_PROBATE_BURC,
+    rbtdrf_run_probate_in(dir, RBTDRF_BUK_ROOT, RBTDRM_MODULE_BURC, RBTDRM_PROBATE_BURC,
         "", RBTDRF_BURC_BASELINE, "", true, "burc-baseline-valid")
 }
 
 fn rbtdrf_rv_burc_missing_station_file(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_run_probate_in(dir, "Tools/buk", RBTDRM_MODULE_BURC, RBTDRM_PROBATE_BURC,
+    rbtdrf_run_probate_in(dir, RBTDRF_BUK_ROOT, RBTDRM_MODULE_BURC, RBTDRM_PROBATE_BURC,
         "", RBTDRF_BURC_BASELINE, "unset BURC_STATION_FILE", false, "burc-missing-station-file")
 }
 
@@ -1232,12 +1242,12 @@ export BURN_HOST=\"192.0.2.10\"\n\
 export BURN_PLATFORM=\"bunne_linux\"";
 
 fn rbtdrf_rv_burn_baseline_valid(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_run_probate_in(dir, "Tools/buk", RBTDRM_MODULE_BURN, RBTDRM_PROBATE_BURN,
+    rbtdrf_run_probate_in(dir, RBTDRF_BUK_ROOT, RBTDRM_MODULE_BURN, RBTDRM_PROBATE_BURN,
         "", RBTDRF_BURN_BASELINE, "", true, "burn-baseline-valid")
 }
 
 fn rbtdrf_rv_burn_bad_platform(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_run_probate_in(dir, "Tools/buk", RBTDRM_MODULE_BURN, RBTDRM_PROBATE_BURN,
+    rbtdrf_run_probate_in(dir, RBTDRF_BUK_ROOT, RBTDRM_MODULE_BURN, RBTDRM_PROBATE_BURN,
         "", RBTDRF_BURN_BASELINE, "export BURN_PLATFORM=\"bunne_solaris\"", false, "burn-bad-platform")
 }
 
@@ -1251,12 +1261,12 @@ export BURP_PRIVILEGED_KEY_FILE=\"/tmp/keys/privileged_id_ed25519\"\n\
 export BURP_WORKLOAD_KEY_FILE=\"/tmp/keys/workload_id_ed25519\"";
 
 fn rbtdrf_rv_burp_baseline_valid(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_run_probate_in(dir, "Tools/buk", RBTDRM_MODULE_BURP, RBTDRM_PROBATE_BURP,
+    rbtdrf_run_probate_in(dir, RBTDRF_BUK_ROOT, RBTDRM_MODULE_BURP, RBTDRM_PROBATE_BURP,
         "", RBTDRF_BURP_BASELINE, "", true, "burp-baseline-valid")
 }
 
 fn rbtdrf_rv_burp_missing_workload_key(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_run_probate_in(dir, "Tools/buk", RBTDRM_MODULE_BURP, RBTDRM_PROBATE_BURP,
+    rbtdrf_run_probate_in(dir, RBTDRF_BUK_ROOT, RBTDRM_MODULE_BURP, RBTDRM_PROBATE_BURP,
         "", RBTDRF_BURP_BASELINE, "unset BURP_WORKLOAD_KEY_FILE", false, "burp-missing-workload-key")
 }
 
@@ -1275,12 +1285,12 @@ const RBTDRF_BUBC_PRELUDE: &str =
     "export BURD_CONFIG_DIR='rbmm_moorings'\nsource 'Tools/buk/bubc_constants.sh'\n";
 
 fn rbtdrf_rv_burs_baseline_valid(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_run_probate_in(dir, "Tools/buk", RBTDRM_MODULE_BURS, RBTDRM_PROBATE_BURS,
+    rbtdrf_run_probate_in(dir, RBTDRF_BUK_ROOT, RBTDRM_MODULE_BURS, RBTDRM_PROBATE_BURS,
         RBTDRF_BUBC_PRELUDE, RBTDRF_BURS_BASELINE, "", true, "burs-baseline-valid")
 }
 
 fn rbtdrf_rv_burs_bad_tincture(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_run_probate_in(dir, "Tools/buk", RBTDRM_MODULE_BURS, RBTDRM_PROBATE_BURS,
+    rbtdrf_run_probate_in(dir, RBTDRF_BUK_ROOT, RBTDRM_MODULE_BURS, RBTDRM_PROBATE_BURS,
         RBTDRF_BUBC_PRELUDE, RBTDRF_BURS_BASELINE, "export BURS_TINCTURE=\"A1\"", false, "burs-bad-tincture")
 }
 
@@ -1304,8 +1314,8 @@ fn rbtdrf_rv_rbrv_all_vessels(dir: &Path) -> rbtdre_Verdict {
     };
 
     // Discover vessels: source rbrr.env to get RBRR_VESSEL_DIR, scan it
-    let buv = root.join("Tools/buk/buv_validation.sh");
-    let rbk = root.join("Tools/rbk");
+    let buv = root.join(RBTDRF_BUV_VALIDATION);
+    let rbk = root.join(RBTDRF_RBK_ROOT);
     let buv_p = rbtdrx_native_to_posix(&buv);
     let rbk_p = rbtdrx_native_to_posix(&rbk);
     let script = format!(
@@ -1490,8 +1500,8 @@ fn rbtdrf_rs_rbrr_nonempty_prefix(dir: &Path) -> rbtdre_Verdict {
         Ok(r) => r,
         Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
-    let buv = root.join("Tools/buk/buv_validation.sh");
-    let rbk = root.join("Tools/rbk");
+    let buv = root.join(RBTDRF_BUV_VALIDATION);
+    let rbk = root.join(RBTDRF_RBK_ROOT);
 
     let buv_p = rbtdrx_native_to_posix(&buv);
     let rbk_p = rbtdrx_native_to_posix(&rbk);
@@ -1555,8 +1565,8 @@ fn rbtdrf_rs_rbrv(dir: &Path) -> rbtdre_Verdict {
     };
 
     // Discover vessels: source rbrr.env to get RBRR_VESSEL_DIR, scan it
-    let buv = root.join("Tools/buk/buv_validation.sh");
-    let rbk = root.join("Tools/rbk");
+    let buv = root.join(RBTDRF_BUV_VALIDATION);
+    let rbk = root.join(RBTDRF_RBK_ROOT);
 
     let buv_p = rbtdrx_native_to_posix(&buv);
     let rbk_p = rbtdrx_native_to_posix(&rbk);
@@ -1780,8 +1790,8 @@ fn rbtdrf_dh_all_vessels_pass(dir: &Path) -> rbtdre_Verdict {
 
     // Resolve RBRR_VESSEL_DIR via one-shot bash (kindle ceremony unavoidable
     // for derived-path resolution).
-    let buv = root.join("Tools/buk/buv_validation.sh");
-    let rbk = root.join("Tools/rbk");
+    let buv = root.join(RBTDRF_BUV_VALIDATION);
+    let rbk = root.join(RBTDRF_RBK_ROOT);
     let buv_p = rbtdrx_native_to_posix(&buv);
     let rbk_p = rbtdrx_native_to_posix(&rbk);
     let resolve_script = format!(
@@ -1890,7 +1900,7 @@ fn rbtdrf_np_run(
         Ok(r) => r,
         Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
-    let rbfcb = root.join("Tools/rbk/rbfcb_BuildHost.sh");
+    let rbfcb = root.join(RBTDRF_RBFCB_BUILDHOST);
 
     let assertion = match expect {
         Some(out) => format!("test \"$(zrbfc_native_path_capture '{}')\" = '{}'", input, out),
@@ -1973,8 +1983,8 @@ fn rbtdrf_rc_run(
     if let Err(e) = std::fs::write(&body_file, body) {
         return rbtdre_Verdict::Fail(format!("{}: write body failed: {}", label, e));
     }
-    let buv = root.join("Tools/buk/buv_validation.sh");
-    let spine = root.join("Tools/rbk/rblds_Spine.sh");
+    let buv = root.join(RBTDRF_BUV_VALIDATION);
+    let spine = root.join(RBTDRF_RBLDS_SPINE);
     let script = format!(
         "set -euo pipefail\n\
          source '{}'\n\
