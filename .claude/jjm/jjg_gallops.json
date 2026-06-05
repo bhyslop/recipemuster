@@ -8521,9 +8521,10 @@
         "₢BHAAB",
         "₢BHAAE",
         "₢BHAAG",
+        "₢BHAAH",
         "₢BHAAD"
       ],
-      "jjghn_next_pace_seed": "AAH",
+      "jjghn_next_pace_seed": "AAI",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -8739,6 +8740,17 @@
               "jjgtn_text": "## Character\nMechanical — a one-file constant promotion. Lands first; every vertical mints stamps off these.\n\n## Goal\nPromote the reserved Lode kind-letter set in rbgc_Constants.sh from comment to actual constants, mirroring the existing RBGC_LODE_KIND_BOLE. Cover tool, reliquary, wsl, and podvm — podvm carries two letters (its two quay families), per the paddock Lode registry layout.\n\n## Locked\n- Scope is the kind-letter constants only. Capture colophons (rbw-lF/lC/lU/lI) and divine-legend rows are NOT here — they ride each vertical (a colophon points at a verb that does not yet exist; a legend row for an unimplemented kind would lie).\n\n## Done\nThe full kind-letter constant set exists in rbgc_Constants.sh; shellcheck green.",
               "jjgtn_silks": "lode-scaffold-kind-letters",
               "jjgtn_basis": "ed2437c"
+            }
+          ]
+        },
+        "₢BHAAH": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260605-1117",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nSerial cutover, run early — it hardens the bole pilot and proves the rebuild-and-repoint technique before the other verticals copy it. Live-path, verify-gated.\n\n## Goal\nRetire the enshrine base-mirror path and make the landed ensconce (bole) capture the real source: repoint the conjure base ANCHOR to resolve from the bole capture-file's touchmark locator.\n\n## Locked\n- Follow the paddock Cutover technique (rebuild-and-repoint, delete-old-last — no dual-read bridge).\n- The conjure ANCHOR consumer is already namespace-agnostic, so a rbi_ld locator flows through unchanged — the work is the ANCHOR-population SOURCE, not the consumer. The bole locator needs the touchmark read from the capture-file (the old enshrine anchor could be derived from origin+digest; the Lode one cannot).\n- Onboarding rides this done: flip the enshrine handbook track + RBYC_ENSHRINE + the matching rbtdro_onboarding fixture. The handbook render only asserts exit-0, so stale prose passes silently — this done is the only guard.\n- Verify gate: one airgap conjure build green (airgap is the strict anchor consumer; a tether build's pass-through would mask a broken anchor).\n- Discover enshrine's secondary consumers by grepping functional RBGC_GAR_CATEGORY_ENSHRINES / enshrine uses, not the literal rbi_es (comments and doc-examples are noise).\n\n## Done\nEnshrine path retired (writer + rbw-dE + secondary consumers), base ANCHOR resolves from the bole capture-file, one airgap conjure green, rbi_es banished last.",
+              "jjgtn_silks": "lode-bole-enshrine-cutover",
+              "jjgtn_basis": "b56efb6"
             }
           ]
         }
