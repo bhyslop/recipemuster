@@ -5905,9 +5905,10 @@
         "₢BBABA",
         "₢BBABP",
         "₢BBABT",
-        "₢BBABU"
+        "₢BBABU",
+        "₢BBABV"
       ],
-      "jjghn_next_pace_seed": "ABV",
+      "jjghn_next_pace_seed": "ABW",
       "jjghn_paces": {
         "₢BBAA-": {
           "jjgpn_tacks": [
@@ -7987,6 +7988,17 @@
               "jjgtn_text": "## Character\n\nMechanical lint cleanup with a security-boundary caveat. Most fixes are\nbehavior-neutral; the risk is concentrated in the jailer, where a quoting or\nword-splitting \"fix\" can change runtime behavior. Each jailer touch must be\ngated by appropriate crucible re-testing — not forbidden, but verified.\n\n## Goal\n\nBring the bash that lives outside `Tools/` — and is therefore un-gated today,\nsince the shellcheck root scans `Tools/` only — to shellcheck-clean, then widen\nthe release-tier shellcheck (`rbq_qualify_shellcheck`) to cover it so it stays\nclean by construction.\n\n## Scope\n\nDiscovery recipe (these are the currently-uncovered `.sh` files):\n\n  find . -name '*.sh' -type f -not -path './Tools/*' -not -path './tt/*' \\\n    -not -path './.git/*' -not -path '*/target/*'\n\nInclude the load-bearing ones: the moorings vessel jailer scripts under\n`rbmm_moorings/rbmv_vessels/common-sentry-context/` (sentry + pentacle),\n`MBS.STATION-reference.sh`, and the `rbnnh_post_charge.sh` charge hooks.\nExclude the same classes the release-tier gate already excludes: `Study/`\nscratch scripts and `rbmm_moorings/rbml_launchers/launcher.*.sh` trivial shims.\n\n## Jailer risk assessment — required, gating\n\nThe sentry and pentacle scripts run inside the crucible and define the security\nboundary (iptables, dnsmasq, enclave network). Before landing edits to them,\nclassify each finding as behavior-neutral vs behavior-affecting. For anything\nnot provably neutral, re-run the crucible security testing appropriately — at\nminimum the tadmor security fixture (`tt/rbw-ts.TestSuite.crucible.sh`, or the\ntadmor fixture directly), charging and quenching a crucible as the change\ndemands. RBSIP / the tadmor suite is the relevant containment contract.\n\n## Done looks like\n\n- The included outside-`Tools/` scripts are clean under `busc_shellcheckrc`.\n- `rbq_qualify_shellcheck` covers them (root widened beyond `Tools/` — multi-root\n  parameter vs explicit extra-file list is a mount-time call).\n- Jailer behavior verified intact by appropriate tadmor-tier testing after any\n  sentry/pentacle edit; the risk assessment is recorded in the commit trail.\n- The marshal-zero lint gate consequently refuses a dirty tree across the\n  widened set too.\n\n## Out of scope\n\n- `Study/` scratch and launcher shims.\n- Parallelizing shellcheck — settled out: serial is fine at release-prep cadence,\n  and `xargs -P` is non-POSIX / outside the allowed-command set.",
               "jjgtn_silks": "shellcheck-cover-moorings-and-jailer",
               "jjgtn_basis": "94adb0b"
+            }
+          ]
+        },
+        "₢BBABV": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260604-2306",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical — two stale-reference corrections in the Cloud Build specs; verify-then-edit, low risk.\n\n## Goal\nTwo dangling references in the Cloud Build specs name symbols that no longer exist. Correct each to a live referent so the specs cite only real files/functions. (Surfaced during a Cloud Build spec audit; left out-of-scope there.)\n\n## Items\n- **RBSCB broken acronym.** The authoritative-specs list (`RBSAC, RBSAV, RBSDC, RBSDN`) names `RBSDC`, which has no file — confirm via `ls Tools/rbk/vov_veiled/RBSD*-*.adoc`. Determine the intended spec from what that sentence asserts and correct it (likely `RBSDI` depot_inscribe, but confirm — don't guess-substitute).\n- **RBSCJ dead function name.** The trigger-era Decision section names `zrbf_stitch_build_json` (`grep -rn zrbf_stitch_build_json Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc`); the live function is `zrbfd_stitch_build_json` (renamed in the foundry decomposition; RBSCB already cites it correctly). Repoint to the live name. Scope is the name only — a broader refresh of the trigger-era Decision section is a separate question, not this pace.\n\n## Done\nNeither `RBSDC` nor `zrbf_stitch_build_json` appears in the Cloud Build specs (RBSCB-CloudBuildPosture.adoc, RBSCJ-CloudBuildJson.adoc); each former reference now names a live spec/function.",
+              "jjgtn_silks": "cloudbuild-spec-stale-refs",
+              "jjgtn_basis": "98d64da"
             }
           ]
         }
