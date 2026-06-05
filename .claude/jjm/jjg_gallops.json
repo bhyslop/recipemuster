@@ -8527,9 +8527,10 @@
         "₢BHAAK",
         "₢BHAAL",
         "₢BHAAM",
+        "₢BHAAN",
         "₢BHAAD"
       ],
-      "jjghn_next_pace_seed": "AAN",
+      "jjghn_next_pace_seed": "AAO",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -8811,6 +8812,17 @@
               "jjgtn_text": "## Character\nSerial cutover — sibling of the bole cutover. Gated on the conclave vertical existing.\n\n## Goal\nRetire the inscribe reliquary-mirror path and repoint RBRV_RELIQUARY onto a reliquary-kind (conclave) Lode.\n\n## Locked\n- Follow the paddock Cutover technique (rebuild-and-repoint, delete-old-last). The single repoint is the tool-resolution chokepoint zrbfc_resolve_tool_images (in rbfca_StepAssembly), which feeds conjure/about/vouch/enshrine and bole ensconce.\n- Onboarding rides the done: flip the inscribe/reliquary handbook tracks + RBYC_RELIQUARY + the literal inscribe prose + the matching rbtdro fixture (prose is not test-guarded; the done is the only guard).\n- rbrd_inscribe (depot tripwire, rbw-rdi) is a DIFFERENT operation — out of scope, leave it.\n- Flag: inscribe mirrors :latest, so a fresh re-inscribe bumps the toolchain — copy old digests into rbi_ld if a byte-identical cohort is wanted.\n- Verify gate: one conjure build green.\n\n## Done\ninscribe retired, RBRV_RELIQUARY resolves from a conclave Lode, conjure green, rbi_rq banished last.",
               "jjgtn_silks": "lode-reliquary-inscribe-cutover",
               "jjgtn_basis": "0ff2cc8"
+            }
+          ]
+        },
+        "₢BHAAN": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260605-1120",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nSmall standalone — split a read verb out of divine, plus the net-new envelope decode the spec mandates. Kind-agnostic; blocks no vertical.\n\n## Goal\nRealize the divine/augur grain split per the landed RBSLA/RBSLD specs: extract single-Lode inspect out of divine into augur (rbw-la), trim divine to enumerate-only, and implement the augur substance — decoding the rbi_vouch provenance envelope, which divine's inspect branch never did.\n\n## Locked\n- Code to RBSLA/RBSLD (already written). The verb split is mechanical (mirror the rbw-ld trampoline; require the touchmark folio as banish does). The envelope decode (the provenance fields + the verified-vs-recorded posture) is the real new logic.\n- augur is kind-agnostic — no per-kind work.\n\n## Done\nrbw-la augur decodes and displays one Lode's provenance envelope; divine is enumerate-only; theurge covers the split.",
+              "jjgtn_silks": "lode-augur-inspect-split",
+              "jjgtn_basis": "f93913d"
             }
           ]
         }
