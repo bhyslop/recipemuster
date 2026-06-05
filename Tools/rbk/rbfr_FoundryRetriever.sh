@@ -26,7 +26,7 @@ test -z "${ZRBFR_SOURCED:-}" || buc_die "Module rbfr multiply sourced - check so
 ZRBFR_SOURCED=1
 
 # Source shared Foundry Core module
-source "${BASH_SOURCE[0]%/*}/rbfck_Kindle.sh"
+source "${BASH_SOURCE[0]%/*}/rbfc0_FoundryCore.sh"
 
 ######################################################################
 # Internal Functions (zrbfr_*)

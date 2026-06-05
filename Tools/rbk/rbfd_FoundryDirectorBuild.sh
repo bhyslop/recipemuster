@@ -25,7 +25,7 @@ test -z "${ZRBFD_SOURCED:-}" || buc_die "Module rbfd multiply sourced - check so
 ZRBFD_SOURCED=1
 
 # Source shared Foundry Core module
-source "${BASH_SOURCE[0]%/*}/rbfck_Kindle.sh"
+source "${BASH_SOURCE[0]%/*}/rbfc0_FoundryCore.sh"
 
 # Source Foundry Verify module (ordain cross-module calls: rbfv_vouch, zrbfv_graft_metadata_submit)
 source "${BASH_SOURCE[0]%/*}/rbfv_FoundryVerify.sh"
@@ -49,7 +49,7 @@ zrbfd_kindle() {
   readonly ZRBFD_RBGJB_STEPS_DIR="${z_self_dir}/rbgjb"
   test -d "${ZRBFD_RBGJB_STEPS_DIR}"   || buc_die "RBGJB steps directory not found: ${ZRBFD_RBGJB_STEPS_DIR}"
 
-  # RBGJV and RBGJA step dirs now owned by rbfck_Kindle.sh (shared assembly helpers)
+  # RBGJV and RBGJA step dirs now owned by rbfc0_FoundryCore.sh (shared assembly helpers)
 
   buc_log_args 'RBGJM mirror step scripts (same Tools directory)'
   # Acronym: rbgjm = Recipe Bottle Google Json Mirror (step scripts in rbgjm/ dir)
@@ -61,15 +61,15 @@ zrbfd_kindle() {
   readonly ZRBFD_RBGJE_STEPS_DIR="${z_self_dir}/rbgje"
   test -d "${ZRBFD_RBGJE_STEPS_DIR}"   || buc_die "RBGJE steps directory not found: ${ZRBFD_RBGJE_STEPS_DIR}"
 
-  # RBGJI inscribe step scripts now owned by rbflk_Kindle.sh
+  # RBGJI inscribe step scripts now owned by rbfl0_FoundryLedger.sh
 
-  # Delete, token, inscribe, reliquary prefixes now owned by rbflk_Kindle.sh
+  # Delete, token, inscribe, reliquary prefixes now owned by rbfl0_FoundryLedger.sh
   # Vouch and about prefixes now owned by rbfv_FoundryVerify.sh
 
   buc_log_args 'Define stitch operation file prefix (postfixed per step id)'
   readonly ZRBFD_STITCH_PREFIX="${BURD_TEMP_DIR}/rbfd_stitch_"
 
-  # Inscribe and reliquary prefixes now owned by rbflk_Kindle.sh
+  # Inscribe and reliquary prefixes now owned by rbfl0_FoundryLedger.sh
 
   buc_log_args 'Define mirror operation files'
   readonly ZRBFD_MIRROR_PREFIX="${BURD_TEMP_DIR}/rbfd_mirror_"

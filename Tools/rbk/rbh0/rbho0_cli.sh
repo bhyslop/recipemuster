@@ -33,6 +33,7 @@ zrbho_furnish() {
   buc_doc_env_done || return 0
 
   local -r z_rbk_kit_dir="${BASH_SOURCE[0]%/*}/.."
+  local -r z_rbh0_dir="${z_rbk_kit_dir}/rbh0"
 
   source "${BURD_BUK_DIR}/buh_handbook.sh"           || buc_die "Failed to source buh_handbook.sh"
   source "${BURD_BUK_DIR}/buym_yelp.sh"             || buc_die "Failed to source buym_yelp.sh"
@@ -57,21 +58,21 @@ zrbho_furnish() {
   zrbrr_kindle
   zrbrd_kindle
   zrbyc_kindle
-  source "${z_rbk_kit_dir}/rbh0/rbhob_base.sh"               || buc_die "Failed to source rbhob_base.sh"
-  source "${z_rbk_kit_dir}/rbh0/rbho0_start_here.sh"         || buc_die "Failed to source rbho0_start_here.sh"
-  source "${z_rbk_kit_dir}/rbh0/rbhocc_crash_course.sh"      || buc_die "Failed to source rbhocc_crash_course.sh"
-  source "${z_rbk_kit_dir}/rbh0/rbhocr_credential_retriever.sh" || buc_die "Failed to source rbhocr_credential_retriever.sh"
-  source "${z_rbk_kit_dir}/rbh0/rbhocd_credential_director.sh"  || buc_die "Failed to source rbhocd_credential_director.sh"
-  source "${z_rbk_kit_dir}/rbh0/rbhoct_crucible_trunk.sh"    || buc_die "Failed to source rbhoct_crucible_trunk.sh"
-  source "${z_rbk_kit_dir}/rbh0/rbhocq_crucible_quench.sh"   || buc_die "Failed to source rbhocq_crucible_quench.sh"
-  source "${z_rbk_kit_dir}/rbh0/rbhofc_first_crucible.sh"    || buc_die "Failed to source rbhofc_first_crucible.sh"
-  source "${z_rbk_kit_dir}/rbh0/rbhots_tadmor_security.sh"   || buc_die "Failed to source rbhots_tadmor_security.sh"
-  source "${z_rbk_kit_dir}/rbh0/rbhodf_director_first_build.sh" || buc_die "Failed to source rbhodf_director_first_build.sh"
-  source "${z_rbk_kit_dir}/rbh0/rbhoda_director_airgap.sh"   || buc_die "Failed to source rbhoda_director_airgap.sh"
-  source "${z_rbk_kit_dir}/rbh0/rbhodb_director_bind.sh"     || buc_die "Failed to source rbhodb_director_bind.sh"
-  source "${z_rbk_kit_dir}/rbh0/rbhodg_director_graft.sh"    || buc_die "Failed to source rbhodg_director_graft.sh"
-  source "${z_rbk_kit_dir}/rbh0/rbhopw_payor_wrapper.sh"     || buc_die "Failed to source rbhopw_payor_wrapper.sh"
-  source "${z_rbk_kit_dir}/rbh0/rbhogw_governor_wrapper.sh"  || buc_die "Failed to source rbhogw_governor_wrapper.sh"
+  source "${z_rbh0_dir}/rbho0_Onboarding.sh"            || buc_die "Failed to source rbho0_Onboarding.sh"
+  source "${z_rbh0_dir}/rbho0_start_here.sh"            || buc_die "Failed to source rbho0_start_here.sh"
+  source "${z_rbh0_dir}/rbhocc_crash_course.sh"         || buc_die "Failed to source rbhocc_crash_course.sh"
+  source "${z_rbh0_dir}/rbhocr_credential_retriever.sh" || buc_die "Failed to source rbhocr_credential_retriever.sh"
+  source "${z_rbh0_dir}/rbhocd_credential_director.sh"  || buc_die "Failed to source rbhocd_credential_director.sh"
+  source "${z_rbh0_dir}/rbhoct_crucible_trunk.sh"       || buc_die "Failed to source rbhoct_crucible_trunk.sh"
+  source "${z_rbh0_dir}/rbhocq_crucible_quench.sh"      || buc_die "Failed to source rbhocq_crucible_quench.sh"
+  source "${z_rbh0_dir}/rbhofc_first_crucible.sh"       || buc_die "Failed to source rbhofc_first_crucible.sh"
+  source "${z_rbh0_dir}/rbhots_tadmor_security.sh"      || buc_die "Failed to source rbhots_tadmor_security.sh"
+  source "${z_rbh0_dir}/rbhodf_director_first_build.sh" || buc_die "Failed to source rbhodf_director_first_build.sh"
+  source "${z_rbh0_dir}/rbhoda_director_airgap.sh"      || buc_die "Failed to source rbhoda_director_airgap.sh"
+  source "${z_rbh0_dir}/rbhodb_director_bind.sh"        || buc_die "Failed to source rbhodb_director_bind.sh"
+  source "${z_rbh0_dir}/rbhodg_director_graft.sh"       || buc_die "Failed to source rbhodg_director_graft.sh"
+  source "${z_rbh0_dir}/rbhopw_payor_wrapper.sh"        || buc_die "Failed to source rbhopw_payor_wrapper.sh"
+  source "${z_rbh0_dir}/rbhogw_governor_wrapper.sh"     || buc_die "Failed to source rbhogw_governor_wrapper.sh"
   zrbho_kindle
 }
 

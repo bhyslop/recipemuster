@@ -32,6 +32,7 @@ zrbhw_furnish() {
   buc_doc_env_done || return 0
 
   local -r z_rbk_kit_dir="${BASH_SOURCE[0]%/*}/.."
+  local -r z_rbh0_dir="${z_rbk_kit_dir}/rbh0"
   local -r z_jjk_kit_dir="${BURD_TOOLS_DIR}/jjk"
 
   source "${BURD_BUK_DIR}/buym_yelp.sh"                                || buc_die "Failed to source buym_yelp.sh"
@@ -44,11 +45,11 @@ zrbhw_furnish() {
   zbuwz_kindle
   zrbz_kindle
   zjjz_kindle
-  source "${z_rbk_kit_dir}/rbh0/rbhwb_base.sh"                         || buc_die "Failed to source rbhwb_base.sh"
-  source "${z_rbk_kit_dir}/rbh0/rbhwht_handbook_top.sh"                || buc_die "Failed to source rbhwht_handbook_top.sh"
-  source "${z_rbk_kit_dir}/rbh0/rbhw0_top.sh"                          || buc_die "Failed to source rbhw0_top.sh"
-  source "${z_rbk_kit_dir}/rbh0/rbhwdd_docker_desktop.sh"              || buc_die "Failed to source rbhwdd_docker_desktop.sh"
-  source "${z_rbk_kit_dir}/rbh0/rbhwcd_docker_context_discipline.sh"   || buc_die "Failed to source rbhwcd_docker_context_discipline.sh"
+  source "${z_rbh0_dir}/rbhw0_Windows.sh"                    || buc_die "Failed to source rbhw0_Windows.sh"
+  source "${z_rbh0_dir}/rbhwht_handbook_top.sh"              || buc_die "Failed to source rbhwht_handbook_top.sh"
+  source "${z_rbh0_dir}/rbhw0_top.sh"                        || buc_die "Failed to source rbhw0_top.sh"
+  source "${z_rbh0_dir}/rbhwdd_docker_desktop.sh"            || buc_die "Failed to source rbhwdd_docker_desktop.sh"
+  source "${z_rbh0_dir}/rbhwcd_docker_context_discipline.sh" || buc_die "Failed to source rbhwcd_docker_context_discipline.sh"
 
   zrbhw_kindle
 }

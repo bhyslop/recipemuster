@@ -28,7 +28,7 @@ test -z "${ZRBLD_SOURCED:-}" || buc_die "Module rbld multiply sourced - check so
 ZRBLD_SOURCED=1
 
 # Source shared Foundry Core module
-source "${BASH_SOURCE[0]%/*}/rbfck_Kindle.sh"
+source "${BASH_SOURCE[0]%/*}/rbfc0_FoundryCore.sh"
 
 # Lode body clusters (guard-free; sourced once here, the single rbld entry)
 source "${BASH_SOURCE[0]%/*}/rbldl_Lifecycle.sh"

@@ -28,7 +28,7 @@ test -z "${ZRBFL_SOURCED:-}" || buc_die "Module rbfl multiply sourced - check so
 ZRBFL_SOURCED=1
 
 # Source shared Foundry Core entry and the guard-free body clusters
-source "${BASH_SOURCE[0]%/*}/rbfck_Kindle.sh"
+source "${BASH_SOURCE[0]%/*}/rbfc0_FoundryCore.sh"
 source "${BASH_SOURCE[0]%/*}/rbfli_Inscribe.sh"
 source "${BASH_SOURCE[0]%/*}/rbfly_Yoke.sh"
 source "${BASH_SOURCE[0]%/*}/rbfld_Delete.sh"

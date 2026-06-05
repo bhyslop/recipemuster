@@ -32,6 +32,7 @@ zrbhp_furnish() {
   buc_doc_env_done || return 0
 
   local -r z_rbk_kit_dir="${BASH_SOURCE[0]%/*}/.."
+  local -r z_rbh0_dir="${z_rbk_kit_dir}/rbh0"
 
   source "${BURD_BUK_DIR}/burd_regime.sh"                  || buc_die "Failed to source burd_regime.sh"
   source "${BURD_BUK_DIR}/buv_validation.sh"               || buc_die "Failed to source buv_validation.sh"
@@ -51,10 +52,10 @@ zrbhp_furnish() {
   source "${z_rbk_kit_dir}/rba_Auth.sh"                    || buc_die "Failed to source rba_Auth.sh"
   source "${z_rbk_kit_dir}/rbgi_IAM.sh"                    || buc_die "Failed to source rbgi_IAM.sh"
   source "${z_rbk_kit_dir}/rbra_regime.sh"                 || buc_die "Failed to source rbra_regime.sh"
-  source "${z_rbk_kit_dir}/rbh0/rbhpb_base.sh"             || buc_die "Failed to source rbhpb_base.sh"
-  source "${z_rbk_kit_dir}/rbh0/rbhpe_establish.sh"        || buc_die "Failed to source rbhpe_establish.sh"
-  source "${z_rbk_kit_dir}/rbh0/rbhpr_refresh.sh"          || buc_die "Failed to source rbhpr_refresh.sh"
-  source "${z_rbk_kit_dir}/rbh0/rbhpq_quota_build.sh"      || buc_die "Failed to source rbhpq_quota_build.sh"
+  source "${z_rbh0_dir}/rbhp0_Payor.sh"       || buc_die "Failed to source rbhp0_Payor.sh"
+  source "${z_rbh0_dir}/rbhpe_establish.sh"   || buc_die "Failed to source rbhpe_establish.sh"
+  source "${z_rbh0_dir}/rbhpr_refresh.sh"     || buc_die "Failed to source rbhpr_refresh.sh"
+  source "${z_rbh0_dir}/rbhpq_quota_build.sh" || buc_die "Failed to source rbhpq_quota_build.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh"                   || buc_die "Failed to source buz_zipper.sh"
   source "${z_rbk_kit_dir}/rbz_zipper.sh"                  || buc_die "Failed to source rbz_zipper.sh"
 
