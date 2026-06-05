@@ -15,10 +15,10 @@ nothing else. That is what makes the switch non-disruptive.
 Mechanism for everything below lives in `Memos/memo-20260605-citizen-capability-model.md`; this
 paddock holds shape only.
 
-NOTE — supersedes memo-20260527 on one point: it says operator verbs "keep their names, only
-bodies differ" and keyfile is "one SA key file each per role." This heat converges the verb
-*bodies* in shape and makes the citizen tier one SA *per person*. Update that memo when the model
-is frozen.
+NOTE — supersedes memo-20260527: it says operator verbs "keep their names, only bodies differ" and
+keyfile is "one SA key file each per role." This heat converges the verb *bodies* in shape, makes
+the citizen tier one SA *per person*, and generalizes 20260527's role-keyed token seam to an
+identity-keyed one. Update that memo when the model is frozen.
 
 ## The citizen model — identity decoupled from capability
 
@@ -40,8 +40,9 @@ is frozen.
   OAuth backing). rekey is keyfile-only.
 - **Grant/revoke operate only on named capability-sets, never raw bindings** — the contamination
   guard that keeps the roster auditable.
-- Ontology: a depot has **citizens** (and later federates) — people who hold capabilities — and
-  **holdings** (arks/hoards/bullions) — property.
+- Ontology: the depot's civic ontology covers **operator** identities — citizens (and later
+  federates), people who hold capabilities — and **holdings** (arks/hoards/bullions), property.
+  Cloud-native system identities (Mason, future Envoy) sit outside it.
 
 ## Intent vs enforcement — the declared roster (cinched)
 
@@ -60,8 +61,10 @@ is the Pale recognition test:
 - **Surplus** (IAM beyond intent — touched outside our verbs) crossed the Pale → report; a human
   adjudicates. No verb auto-revokes; the destructive operation is always human-driven.
 
-(Drift taxonomy, the intent-first bypass signal, definition-change versioning, and the orphan
-marker: memo.)
+Auto-converge presumes roster-write authority is at least as protected as the grant verbs (else it
+is a softer escalation path) — a security constraint on where the roster lives; see Open. (Drift
+taxonomy, the intent-first bypass signal, definition-change versioning, and the orphan marker:
+memo.)
 
 ## Authority topology — the one seam with policy content
 
@@ -69,30 +72,30 @@ marker: memo.)
 
 - Authority boundaries are IAM-real only where they fall on resource-scope splits (payor/governor
   holds because billing is a separate resource; governor/director does not).
-- The governor's grant power **is** scopable by role at project scope (IAM `modifiedGrantsByRole`)
-  but **not** at resource scope (repo/bucket/SA). So the resolution composes: IAM-limit the
-  project-scoped grants, detective-audit the resource-scoped residual, and pull authority to the
-  payor where a standing governor buys nothing.
+- Grant authority is preventively scopable at **project** scope but only **detectively** at
+  **resource** scope — so the resolution composes: IAM-limit the project-scoped grants,
+  detective-audit the resource-scoped residual, and pull authority to the payor where a standing
+  governor buys nothing.
 - **Tier-dependent**: keyfile/solo → topology (no/minimal standing governor); federation/multi-admin
   → a condition-limited governor. The model allows the answer to differ (actor and capability-set
   are parameters).
 - Surplus-detection's security value depends on the topology — do not substitute detective audit for
-  structural closure. (modifiedGrantsByRole limits + the seam reasoning: memo.)
+  structural closure. (The IAM attribute, its scope/role limits, and the seam reasoning: memo.)
 
 ## Blast radius — larger resting target, finer response (cinched)
 
 One citizen = one SA = one key carrying the union of held capabilities — forced by "one identity per
-person," accepted as a tradeoff. Bounded to the citizen tier (federation has no key); most citizens
-wear one hat; and decoupling buys finer incident response (revoke a capability without touching the
-key; rekey without touching capabilities). (Reasoning: memo.)
+person," accepted as a tradeoff. The resting-key form of this exposure is citizen-tier-only
+(federation has no key at rest; the union property itself is tier-blind); most citizens wear one
+hat; and decoupling buys finer incident response (revoke a capability without touching the key;
+rekey without touching capabilities). (Reasoning: memo.)
 
 ## Inherited concern — governor teardown leak
 
-`rbgp_governor_mantle` deletes outgoing `governor-*` SAs without revoking first, minting a
-`deleted:…?uid=` tombstone per re-mantle. The convergence closes it for free (generic
-revoke-before-delete + idempotent rekey-not-delete), reusing the rbk-08 revoke layer + Class-C
-tolerance. Standalone fix if the governor is descoped:
-memo-20260605-governor-mantle-tombstone-leak.md.
+Governor teardown sits inside this heat's blast radius: today's mantle leaks a project tombstone
+per re-mantle. The convergence closes it (cheap revoke-before-delete; an idempotent governor is a
+further, not-free refinement). Mechanism, and the standalone fallback if the governor is descoped:
+memo + memo-20260605-governor-mantle-tombstone-leak.md.
 
 ## What done looks like
 
@@ -103,9 +106,9 @@ it names roles, the .adoc specs that voice the cult verbs, the Rust theurge case
 and the onboarding handbook tracks that teach them. "citizen" replaces the role-named identity
 throughout.
 
-The load-bearing federation-enabling core within that surface is narrow and shippable with no
-behavior change: route the role/file-path-keyed token-accessor calls through one identity-keyed
-accessor (memo-20260527 "single code seam"). The vocabulary convergence is the larger,
+The load-bearing federation-enabling core within that surface is narrow: route the
+role/file-path-keyed token-accessor calls through one identity-keyed accessor (generalizing
+memo-20260527's "single code seam"). The vocabulary convergence is the larger,
 motivated-but-not-required remainder. Scoping/heat-chopping is deferred — recorded here as shape.
 
 ## Cinched decisions
@@ -118,7 +121,8 @@ motivated-but-not-required remainder. Scoping/heat-chopping is deferred — reco
   blast-radius tradeoff accepted.
 - Capability-sets are named code; grant/revoke operate only on named sets, never raw bindings.
 - The declared roster (intent) is part of the model; IAM is enforcement; the audit diffs them.
-- Audit healing is asymmetric: auto-converge deficits, report surplus; no verb auto-revokes.
+- Audit healing is asymmetric: auto-converge deficits, report surplus; no verb auto-revokes —
+  with auto-converge presuming roster-write is at least as protected as grant.
 - Governor breadth is resolved per tier, not globally: keyfile pulls grant authority to the payor /
   minimizes the standing governor; federation may keep a condition-limited governor.
 - The mode enum (keyfile vs federation) belongs in RBRD and is added only when federation lands —
@@ -139,11 +143,13 @@ motivated-but-not-required remainder. Scoping/heat-chopping is deferred — reco
 ## Open — resolve within the heat
 
 - Where the declared roster physically lives (GCS object in the depot bucket vs GAR artifact) and
-  its writer/etag discipline.
-- Whether the keyfile tier drops the standing governor entirely or demotes it to non-privileged.
+  its writer/etag discipline — a security boundary, not just storage: roster-write authority must be
+  at least as protected as the grant verbs (the auto-heal invariant).
+- Whether the keyfile tier drops the standing governor entirely or demotes it to non-privileged —
+  this choice gates whether project-scope grant-limiting is in-heat.
 - The citizen orphan marker: SA tags (Preview) vs description sentinel.
-- Operator add-citizen UX: add yields a powerless credential, a separate grant makes it useful —
-  confirm the two-gesture flow is intended.
+- Whether to offer a combined add+grant convenience wrapper for the common one-hat citizen (the
+  two-gesture add-then-grant flow itself follows from the decoupling).
 
 ## Sources
 
@@ -152,4 +158,4 @@ memo-20260604-credential-churn-leak-and-propagation-races (the lifecycle split �
 memo-20260527-operator-credential-models (the two-tier plan and cult-verb shape — to be updated per
 the divergence above); memo-20260605-governor-mantle-tombstone-leak (standalone governor-leak fix);
 memo-20260605-citizen-capability-model (the mechanism this paddock points to); RBSHR "Operator
-federation". This revision folds in the 260605 design conversation.
+federation". This revision folds in the 260605 design conversation and the 260605 review pass.
