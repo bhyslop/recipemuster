@@ -17,8 +17,9 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # Recipe Bottle Lode - kindle entry: the single rbld inclusion-guard and kindle,
-# sourcing the guard-free body clusters (rbldl_ lifecycle, rbldb_ bole). The
-# readonly ZRBLD_* constants the kindle sets are read globally by the clusters.
+# sourcing the guard-free body clusters (rbldl_ lifecycle, rblds_ capture spine,
+# rbldb_ bole). The readonly ZRBLD_* constants the kindle sets are read globally
+# by the clusters.
 
 set -euo pipefail
 
@@ -31,6 +32,7 @@ source "${BASH_SOURCE[0]%/*}/rbfck_Kindle.sh"
 
 # Lode body clusters (guard-free; sourced once here, the single rbld entry)
 source "${BASH_SOURCE[0]%/*}/rbldl_Lifecycle.sh"
+source "${BASH_SOURCE[0]%/*}/rblds_Spine.sh"
 source "${BASH_SOURCE[0]%/*}/rbldb_Bole.sh"
 
 ######################################################################

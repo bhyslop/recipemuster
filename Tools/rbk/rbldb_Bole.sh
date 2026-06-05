@@ -18,8 +18,11 @@
 #
 # Recipe Bottle Lode - bole body (guard-free cluster, sourced by rbldk_):
 #   ensconce — capture an upstream base image into a Lode (Director credentials)
-# Holds the full ensconce path; the spine/body carve (rblds_) is the capture-spine
-# pace's design, not pre-split here.
+# The bole rides the capture-assembly spine (rblds_): this body owns only the
+# kind-specific data — the ensconce recipe (skopeo capture + docker vouch push),
+# the substitutions blob, and the per-member envelope extract loop — and composes
+# them through zrbld_spine_dispatch / zrbld_spine_extract. No build-submission or
+# step-composition machinery lives here.
 
 set -euo pipefail
 
@@ -30,9 +33,11 @@ set -euo pipefail
 ######################################################################
 # Internal Helpers (zrbld_*)
 
-# Internal: Submit the two-step ensconce Cloud Build job (skopeo capture +
-# docker vouch push). Mirrors zrbfl_inscribe_submit; pool is TETHER because the
-# skopeo step fetches upstream bytes over the network from within GCP.
+# Internal: compose the ensconce capture recipe (skopeo capture + docker vouch
+# push) and its substitutions blob, then ride the capture spine to submit and
+# poll. The spine owns the capture-domain build knobs (mason SA, TETHER pool,
+# regime timeout); this body chooses only the recipe, the substitutions, and the
+# enshrine-borrowed poll ceiling.
 # Args: token origin stamp
 zrbld_ensconce_submit() {
   zrbld_sentinel
@@ -41,161 +46,84 @@ zrbld_ensconce_submit() {
   local -r z_origin="${2:?Origin required}"
   local -r z_stamp="${3:?Stamp required}"
 
-  buc_step "Constructing ensconce Cloud Build resource"
+  buc_step "Constructing ensconce capture recipe"
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
   local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
-  local -r z_mason_sa="projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
 
-  # Step definitions: script|builder|id (skopeo capture, then docker vouch push).
-  # Delimiter is | because builder refs contain colons (image tags).
-  local -r z_step_defs=(
-    "rbgjl01-ensconce-capture.sh|${z_rbfc_tool_skopeo}|ensconce-capture"
-    "rbgjl02-assemble-push-vouch.sh|${z_rbfc_tool_docker}|assemble-push-vouch"
+  # Recipe rows: script_path|builder_image|id|entrypoint, pre-resolved for the
+  # spine. The | delimiter is load-bearing — builder refs carry colons (tags).
+  local -r z_recipe=(
+    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl01-ensconce-capture.sh|${z_rbfc_tool_skopeo}|ensconce-capture|bash"
+    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl02-assemble-push-vouch.sh|${z_rbfc_tool_docker}|assemble-push-vouch|bash"
   )
 
-  local -r z_steps_file="${ZRBLD_ENSCONCE_PREFIX}steps.json"
-  echo "[]" > "${z_steps_file}" || buc_die "Failed to initialize ensconce steps JSON"
-
-  local z_def=""
-  local z_script=""
-  local z_builder=""
-  local z_id=""
-  local z_script_path=""
-  local z_body=""
-  local z_body_file=""
-  local z_escaped_file=""
-  local z_steps_built=""
-  local z_index=0
-  for z_def in "${z_step_defs[@]}"; do
-    IFS='|' read -r z_script z_builder z_id <<<"${z_def}"
-    z_script_path="${ZRBLD_RBGJL_STEPS_DIR}/${z_script}"
-    z_body_file="${ZRBLD_ENSCONCE_PREFIX}${z_index}_body.txt"
-    z_escaped_file="${ZRBLD_ENSCONCE_PREFIX}${z_index}_escaped.txt"
-    z_steps_built="${ZRBLD_ENSCONCE_PREFIX}${z_index}_steps.json"
-
-    test -f "${z_script_path}" || buc_die "Ensconce step script not found: ${z_script_path}"
-
-    zrbfc_write_script_body "${z_script_path}" "${z_body_file}" \
-      || buc_die "Failed to read ensconce step script: ${z_script_path}"
-    z_body=$(<"${z_body_file}")
-    test -n "${z_body}" || buc_die "Empty ensconce script body: ${z_script_path}"
-
-    printf '#!/bin/bash\n%s' "${z_body}" > "${z_escaped_file}" \
-      || buc_die "Failed to write escaped ensconce script body for ${z_id}"
-
-    jq \
-      --arg name "${z_builder}" \
-      --arg id "${z_id}" \
-      --rawfile script "${z_escaped_file}" \
-      '. + [{name: $name, id: $id, script: $script}]' \
-      "${z_steps_file}" > "${z_steps_built}" \
-      || buc_die "Failed to append ensconce step ${z_id}"
-    mv "${z_steps_built}" "${z_steps_file}" \
-      || buc_die "Failed to update ensconce steps JSON for ${z_id}"
-
-    z_index=$((z_index + 1))
-  done
-
-  buc_log_args "Composing ensconce Build resource JSON"
-  local -r z_build_file="${ZRBLD_ENSCONCE_PREFIX}build.json"
-
+  buc_log_args "Composing ensconce substitutions blob"
+  local -r z_subs_file="${ZRBLD_ENSCONCE_PREFIX}subs.json"
   jq -n \
-    --slurpfile zjq_steps      "${z_steps_file}" \
-    --arg zjq_sa               "${z_mason_sa}" \
-    --arg zjq_gar_host         "${z_gar_host}" \
-    --arg zjq_gar_path         "${z_gar_path}" \
-    --arg zjq_lodes_root       "${RBGL_LODES_ROOT}" \
-    --arg zjq_tag_bole         "${RBGC_LODE_TAG_BOLE}" \
-    --arg zjq_tag_vouch        "${RBGC_LODE_TAG_VOUCH}" \
-    --arg zjq_tag_digest       "${RBGC_LODE_TAG_DIGEST_PREFIX}" \
-    --arg zjq_trust_grade      "${RBGC_LODE_TRUST_VERIFIED}" \
-    --arg zjq_vouch_schema     "${RBGC_LODE_VOUCH_SCHEMA}" \
-    --arg zjq_acquired_by      "${RBGD_MASON_EMAIL}" \
-    --arg zjq_origin_1         "${z_origin}" \
-    --arg zjq_stamp_1          "${z_stamp}" \
-    --arg zjq_pool             "${RBDC_POOL_TETHER}" \
-    --arg zjq_timeout          "${RBRR_GCB_TIMEOUT}" \
+    --arg zjq_gar_host     "${z_gar_host}" \
+    --arg zjq_gar_path     "${z_gar_path}" \
+    --arg zjq_lodes_root   "${RBGL_LODES_ROOT}" \
+    --arg zjq_tag_bole     "${RBGC_LODE_TAG_BOLE}" \
+    --arg zjq_tag_vouch    "${RBGC_LODE_TAG_VOUCH}" \
+    --arg zjq_tag_digest   "${RBGC_LODE_TAG_DIGEST_PREFIX}" \
+    --arg zjq_trust_grade  "${RBGC_LODE_TRUST_VERIFIED}" \
+    --arg zjq_vouch_schema "${RBGC_LODE_VOUCH_SCHEMA}" \
+    --arg zjq_acquired_by  "${RBGD_MASON_EMAIL}" \
+    --arg zjq_origin_1     "${z_origin}" \
+    --arg zjq_stamp_1      "${z_stamp}" \
     '{
-      steps: $zjq_steps[0],
-      substitutions: {
-        _RBGL_GAR_HOST:          $zjq_gar_host,
-        _RBGL_GAR_PATH:          $zjq_gar_path,
-        _RBGL_LODES_ROOT:        $zjq_lodes_root,
-        _RBGL_TAG_BOLE:          $zjq_tag_bole,
-        _RBGL_TAG_VOUCH:         $zjq_tag_vouch,
-        _RBGL_TAG_DIGEST_PREFIX: $zjq_tag_digest,
-        _RBGL_TRUST_GRADE:       $zjq_trust_grade,
-        _RBGL_VOUCH_SCHEMA:      $zjq_vouch_schema,
-        _RBGL_ACQUIRED_BY:       $zjq_acquired_by,
-        _RBGL_IMAGE_1_ORIGIN:    $zjq_origin_1,
-        _RBGL_IMAGE_2_ORIGIN:    "",
-        _RBGL_IMAGE_3_ORIGIN:    "",
-        _RBGL_LODE_1_STAMP:      $zjq_stamp_1,
-        _RBGL_LODE_2_STAMP:      "",
-        _RBGL_LODE_3_STAMP:      ""
-      },
-      serviceAccount: $zjq_sa,
-      options: {
-        automapSubstitutions: true,
-        logging: "CLOUD_LOGGING_ONLY",
-        pool: { name: $zjq_pool }
-      },
-      timeout: $zjq_timeout
-    }' > "${z_build_file}" \
-    || buc_die "Failed to compose ensconce build JSON"
+      _RBGL_GAR_HOST:          $zjq_gar_host,
+      _RBGL_GAR_PATH:          $zjq_gar_path,
+      _RBGL_LODES_ROOT:        $zjq_lodes_root,
+      _RBGL_TAG_BOLE:          $zjq_tag_bole,
+      _RBGL_TAG_VOUCH:         $zjq_tag_vouch,
+      _RBGL_TAG_DIGEST_PREFIX: $zjq_tag_digest,
+      _RBGL_TRUST_GRADE:       $zjq_trust_grade,
+      _RBGL_VOUCH_SCHEMA:      $zjq_vouch_schema,
+      _RBGL_ACQUIRED_BY:       $zjq_acquired_by,
+      _RBGL_IMAGE_1_ORIGIN:    $zjq_origin_1,
+      _RBGL_IMAGE_2_ORIGIN:    "",
+      _RBGL_IMAGE_3_ORIGIN:    "",
+      _RBGL_LODE_1_STAMP:      $zjq_stamp_1,
+      _RBGL_LODE_2_STAMP:      "",
+      _RBGL_LODE_3_STAMP:      ""
+    }' > "${z_subs_file}" \
+    || buc_die "Failed to compose ensconce substitutions blob"
 
-  buc_log_args "Ensconce build JSON: ${z_build_file}"
-
-  rbrd_check "${z_token}"
-
-  buc_step "Submitting ensconce Cloud Build"
-  rbuh_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
-    "lode_build_create" "${z_build_file}"
-  rbuh_require_ok "Ensconce build submission" "lode_build_create"
-
-  local z_build_id=""
-  z_build_id=$(rbuh_json_field_capture "lode_build_create" '.metadata.build.id') || z_build_id=""
-  test -n "${z_build_id}" || buc_die "Build ID not found in builds.create response"
-  echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
-
-  local -r z_console_url="${ZRBFC_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
-  buc_info "Ensconce Cloud Build submitted: ${z_build_id}"
-  buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
-
-  zrbfc_wait_build_completion "${ZRBFC_BUILD_POLL_CEILING_ENSHRINE}" "Ensconce"
+  zrbld_spine_dispatch \
+    "${z_token}" "Ensconce" "${ZRBFC_BUILD_POLL_CEILING_ENSHRINE}" \
+    "${z_subs_file}" "${ZRBLD_ENSCONCE_PREFIX}" \
+    "${z_recipe[@]}"
 }
 
-# Internal: Extract per-Lode provenance envelopes from the completed ensconce
-# build and write one capture-file per Lode. buildStepOutputs[0] is the base64
-# JSON authored by the skopeo capture step (step 0); the docker vouch step
-# writes no /builder/outputs/output.
+# Internal: extract per-Lode provenance envelopes from the completed ensconce
+# build and write one capture-file per Lode member. The skopeo capture step
+# (step 0) authors the base64 JSON; the docker vouch step writes no output. The
+# spine decodes step 0's slot to a file; the per-member slot_n envelope below is
+# bole's shape, not the spine's.
 zrbld_ensconce_extract() {
   zrbld_sentinel
 
   buc_step "Extracting capture results from build step outputs"
 
-  local -r z_b64_file="${ZRBLD_ENSCONCE_PREFIX}output_b64.txt"
   local -r z_output_file="${ZRBLD_ENSCONCE_PREFIX}output.json"
-
-  jq -r '.results.buildStepOutputs[0] // empty' "${ZRBFC_BUILD_STATUS_FILE}" \
-    > "${z_b64_file}" || buc_die "Failed to extract buildStepOutputs from build result"
-  test -s "${z_b64_file}" || buc_die "No buildStepOutputs in build result — capture step produced no output"
-
-  rbgo_base64_decode_file_to_file "${z_b64_file}" "${z_output_file}" \
-    || buc_die "Failed to decode buildStepOutputs base64"
-  test -s "${z_output_file}" || buc_die "Empty decoded buildStepOutputs"
+  zrbld_spine_extract 0 "${z_output_file}"
 
   buc_log_args "Ensconce output:"
   buc_log_pipe < "${z_output_file}"
 
   local z_n=""
   local z_slot_key=""
+  local z_stamp_file=""
   local z_stamp=""
   local z_vouch_file=""
   local z_vouch=""
   for z_n in 1 2 3; do
     z_slot_key="slot_${z_n}"
-    z_stamp=$(jq -r ".${z_slot_key}.stamp // empty" "${z_output_file}") || z_stamp=""
+    z_stamp_file="${ZRBLD_ENSCONCE_PREFIX}${z_n}_stamp.txt"
+    jq -r ".${z_slot_key}.stamp // empty" "${z_output_file}" > "${z_stamp_file}" \
+      || buc_die "Failed to read stamp for ${z_slot_key}"
+    z_stamp=$(<"${z_stamp_file}")
     test -n "${z_stamp}" || continue
 
     z_vouch_file="${ZRBLD_ENSCONCE_PREFIX}${z_n}_vouch.json"

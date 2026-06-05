@@ -67,3 +67,124 @@ This is a cosmetic difference from `cloudbuild.yaml` — the structured provenan
 * Research conducted: 2026-02-24 (web search + API documentation review)
 * Google docs consistently present YAML examples by convention, not by requirement
 * The `gcloud builds submit` CLI internally converts any config format to JSON for API submission
+
+==== Capture Composition Contract (rblds_ spine)
+
+This section governs the host-composed `projects.builds.create` path for Lode
+captures — distinct from the trigger-autodetect path the Decision above covers.
+A Lode capture is composed on the host by the capture-assembly spine
+(`rblds_Spine.sh`) from two data inputs handed by a per-kind body (e.g. bole's
+`zrbld_ensconce_submit`): an ordered _recipe_ of step rows and an opaque
+_substitutions_ blob. The spine carries no per-kind branch and no
+kind-registration mechanism — a new Lode kind is a new body file the spine
+consumes as data, never a conditional inside the spine.
+
+===== Spine/body boundary
+
+[cols="1,3",options="header"]
+|===
+|Owner |Carries
+
+|Spine (`rblds_`)
+|The step-composition loop (recipe rows -> `steps[]`); the Build-resource
+envelope shape (`serviceAccount`, `options.automapSubstitutions`,
+`options.logging`, `options.pool`, `timeout`); submit + build-id persist +
+console link; the poll via `zrbfc_wait_build_completion`; and the
+`buildStepOutputs[N]` base64-decode. The capture-domain constants — the mason
+capture SA, the `TETHER` pool, the regime build timeout — are spine-owned,
+because every Lode capture fetches upstream bytes as mason over the network.
+
+|Body (`rbld«kind»_`)
+|The recipe rows (pre-resolved); the substitutions blob; the poll ceiling (the
+one kind-flavored build knob); and the interpretation of the decoded step
+output (the per-member envelope fan-out).
+|===
+
+The only kind-flavored build knob the body passes is the poll ceiling (ensconce
+borrows the enshrine ceiling). `serviceAccount`/`pool`/`timeout` are NOT body
+parameters: they are capture-domain invariants the spine owns. A future kind
+that needed a different pool or SA would change the spine's capture-domain
+constants deliberately, not slip past as recipe data.
+
+===== Recipe row format
+
+A recipe is an ordered list of `|`-delimited step rows. The `|` delimiter is
+load-bearing: builder image refs carry colons (tags and `sha256:` digests), so a
+colon delimiter would be ambiguous.
+
+----
+script_path | builder_image | id | entrypoint
+----
+
+[cols="1,3",options="header"]
+|===
+|Field |Meaning
+
+|`script_path`   |Absolute path to the step script, _pre-resolved by the body_. The spine owns no steps-directory knowledge.
+|`builder_image` |The step's builder image ref (a reliquary tool image).
+|`id`            |The Cloud Build step id.
+|`entrypoint`    |`bash` \| `sh` \| `python3` — selects the composed shebang line. Any other value fails composition.
+|===
+
+The spine reads each script's body (shebang stripped), prepends the shebang the
+entrypoint selects, and inlines it as the step's `script` field. This is the
+same shape the made-side `rbfca_` assemblers use; the capture spine is the
+canonical single copy for the fetched side.
+
+===== Substitutions blob — opaque
+
+The body composes the substitutions object (the `_RBGL_*` keys) into a file; the
+spine slots it verbatim into the Build resource's `substitutions` field and
+reads no key from it. `options.automapSubstitutions` maps the keys into each
+step's environment. The spine's opacity to the blob is what keeps it
+registration-agnostic — a new kind authors a different blob without touching the
+spine.
+
+Invariant (RBSCB): substitutions and `/workspace` carry non-secret data only;
+secrets are step-local and re-minted.
+
+===== Extract contract
+
+The spine's extract decodes one step's `buildStepOutputs[N]` slot — base64 to a
+destination file — where `N` is the only generic parameter. The decoded JSON's
+shape (for bole: `slot_1`..`slot_N` member envelopes, each a stamp + vouch) is
+the body's knowledge; the spine is member-count-agnostic. This keeps the
+N-member envelope axis out of the spine.
+
+===== Requires/provides format (designed here; enforced by the recipe validator)
+
+The recipe row above is the format implemented today. The capture domain also
+needs a per-step _requires/provides_ declaration so a dispatch-time validator
+can reject a bad composition before the expensive build. The FORMAT is fixed
+here; its enforcement is the recipe-validator pace.
+
+A step composes over two register channels:
+
+* _Substitution registers_ — `_RBGL_*` keys present in the substitutions blob,
+  automapped into the step environment.
+* _/workspace registers_ — non-secret files a step writes for a later step,
+  named by path relative to `/workspace`.
+
+Each step declares two token lists:
+
+* `requires` — substitution-register keys and `/workspace` register paths the
+  step reads before it runs.
+* `provides` — `/workspace` register paths the step writes (and, for the
+  terminal capture step, the `buildStepOutputs` slot it authors).
+
+The validator walks the recipe in order: every `requires` token must be
+satisfied by either a key present in the substitutions blob or a `provides`
+token from an earlier step. An unsatisfiable `requires` fails dispatch with a
+named-token diagnostic, before submit.
+
+The format is deliberately shaped by the capture domain's three axes:
+
+* _N-member envelopes_ — the terminal step's `provides` is the single
+  `buildStepOutputs` slot, not per-member registers; member fan-out is body
+  knowledge and stays out of the step contract.
+* _Tool variety_ — registers are declared identically regardless of builder
+  image or entrypoint, so a `python3` step and a `bash` step speak the same
+  contract vocabulary.
+* _Opaque-blob payloads_ — `requires` references substitution keys by NAME; the
+  validator checks key _presence_, never value shape, preserving the spine's
+  opacity to the blob.
