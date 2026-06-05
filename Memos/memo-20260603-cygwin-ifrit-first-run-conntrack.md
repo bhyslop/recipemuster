@@ -4,6 +4,14 @@
 adversarial security suite ran on an uncontrolled Cygwin + Docker Desktop
 host** (`cygwin@rocket`).*
 
+> **RESOLVED 2026-06-04 — platform divergence, not an egress gap.** Proven at
+> packet level: the breaching RST is manufactured by Docker Desktop's userspace
+> network stack and injected onto the enclave bridge from a non-sentry MAC,
+> bypassing the sentry; native docker (WSL) shows no such response. The
+> `nf_conntrack_tcp_loose` hypothesis below is disproven (it is `1` on the secure
+> platform too). Full adjudication, captures, and reconciliation options:
+> `memo-20260604-conntrack-spoofed-ack-adjudication.md`.
+
 ## Headline
 
 The `siege` suite (renamed this session from `tadmor` = `kludge-tadmor` +
