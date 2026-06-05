@@ -9534,6 +9534,13 @@
         "₢BYAAB": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260604-1940",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nDesign exploration — judgment, not mechanical. Output is a recommendation, not an implementation.\n\nEvaluate refactoring RBRA from one-file-per-role-type (director, retriever — each with its\nown cult verbs) to one-file-per-person carrying any combination of roles. Collapses the\nrole-typed verb surface and aligns the keyfile tier with the federation model's\nprincipal -> capability-set shape (smoother eventual migration).\n\nThe lifecycle split is its enabler: once identity (establish) and credential (re-key) are\nseparated, \"a principal with a role-set\" is the natural next shape.\n\nKey question to resolve: does per-person multi-role preserve least-privilege? Today's\nrole-typed SAs enforce it by construction — a retriever cannot act as director. A per-person\nSA is only as least-privilege as the grants chosen; show the security guarantee survives,\nnot just the convenience.\n\nSource: the federation footnote in `Memos/memo-20260604-credential-churn-leak-and-propagation-races.md`;\n`Memos/memo-20260527-operator-credential-models.md`.\n\nDone: a decision/recommendation (do / don't / how), not implementation.",
+              "jjgtn_silks": "consider-per-person-multirole-rbra",
+              "jjgtn_basis": "127a593"
+            },
+            {
               "jjgtn_ts": "260604-1028",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nDesign exploration — judgment, not mechanical. Output is a recommendation, not an implementation.\n\nEvaluate refactoring RBRA from one-file-per-role-type (director, retriever — each with its\nown cult verbs) to one-file-per-person carrying any combination of roles. Collapses the\nrole-typed verb surface and aligns the keyfile tier with the federation model's\nprincipal -> capability-set shape (smoother eventual migration).\n\nThe lifecycle split is its enabler: once identity (establish) and credential (re-key) are\nseparated, \"a principal with a role-set\" is the natural next shape.\n\nKey question to resolve: does per-person multi-role preserve least-privilege? Today's\nrole-typed SAs enforce it by construction — a retriever cannot act as director. A per-person\nSA is only as least-privilege as the grants chosen; show the security guarantee survives,\nnot just the convenience.\n\nSource: the federation footnote in `Memos/memo-20260604-credential-churn-leak-and-propagation-races.md`;\n`Memos/memo-20260527-operator-credential-models.md`.\n\nDone: a decision/recommendation (do / don't / how), not implementation.",
