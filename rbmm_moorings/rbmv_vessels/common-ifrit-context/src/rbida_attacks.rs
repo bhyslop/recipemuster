@@ -78,6 +78,7 @@ const RBIDA_SEL_TCP_RST_HIJACK: &str = "tcp-rst-hijack";
 const RBIDA_SEL_HTTP_END_TO_END: &str = "http-end-to-end";
 const RBIDA_SEL_CONNTRACK_SPOOFED_ACK: &str = "conntrack-spoofed-ack";
 const RBIDA_SEL_OFFPATH_BLOCKED_DEST: &str = "offpath-blocked-dest";
+const RBIDA_SEL_CONNTRACK_PIPELINE_SELFCHECK: &str = "conntrack-pipeline-selfcheck";
 const RBIDA_SEL_SENTRY_UDP_NON_DNS: &str = "sentry-udp-non-dns";
 
 // ── Attack Enum ─────────────────────────────────────────────────
@@ -190,6 +191,10 @@ pub enum rbida_Attack {
     /// rbsq_wdd_offpath_reply quirk's "blocked dests are dropped before the
     /// substrate sees them" premise; any reply of any provenance is a BREACH
     OffpathBlockedDest,
+    /// Self-check of the conntrack provenance capture/classify pipeline — feeds
+    /// inspect_capture_frame synthetic frames and asserts correct classification.
+    /// Load-bearing control proving SECURE verdicts are not masking a dead detector.
+    ConntrackPipelineSelfcheck,
     // ── Sentry self-protection ──
     /// UDP to sentry on non-53 ports — INPUT DROP should block all non-DNS UDP
     SentryUdpNonDns,
@@ -256,6 +261,7 @@ impl rbida_Attack {
             RBIDA_SEL_HTTP_END_TO_END => Some(Self::HttpEndToEnd),
             RBIDA_SEL_CONNTRACK_SPOOFED_ACK => Some(Self::ConntrackSpoofedAck),
             RBIDA_SEL_OFFPATH_BLOCKED_DEST => Some(Self::OffpathBlockedDest),
+            RBIDA_SEL_CONNTRACK_PIPELINE_SELFCHECK => Some(Self::ConntrackPipelineSelfcheck),
             RBIDA_SEL_SENTRY_UDP_NON_DNS => Some(Self::SentryUdpNonDns),
             _ => None,
         }
@@ -311,6 +317,7 @@ impl rbida_Attack {
             Self::HttpEndToEnd => RBIDA_SEL_HTTP_END_TO_END,
             Self::ConntrackSpoofedAck => RBIDA_SEL_CONNTRACK_SPOOFED_ACK,
             Self::OffpathBlockedDest => RBIDA_SEL_OFFPATH_BLOCKED_DEST,
+            Self::ConntrackPipelineSelfcheck => RBIDA_SEL_CONNTRACK_PIPELINE_SELFCHECK,
             Self::SentryUdpNonDns => RBIDA_SEL_SENTRY_UDP_NON_DNS,
         }
     }
@@ -524,6 +531,9 @@ pub fn rbida_run(attack: &rbida_Attack, extra_args: &[&str]) -> rbida_Verdict {
         rbida_Attack::HttpEndToEnd => rbida_sorties::sortie_http_end_to_end(extra_args),
         rbida_Attack::ConntrackSpoofedAck => rbida_sorties::sortie_conntrack_spoofed_ack(extra_args),
         rbida_Attack::OffpathBlockedDest => rbida_sorties::sortie_offpath_blocked_dest(extra_args),
+        rbida_Attack::ConntrackPipelineSelfcheck => {
+            rbida_sorties::sortie_conntrack_pipeline_selfcheck(extra_args)
+        }
         rbida_Attack::SentryUdpNonDns => rbida_sorties::sortie_sentry_udp_non_dns(extra_args),
     }
 }

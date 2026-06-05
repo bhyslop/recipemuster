@@ -807,6 +807,10 @@ fn rbtdrc_sortie_offpath_blocked_dest(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "offpath-blocked-dest", dir))
 }
 
+fn rbtdrc_sortie_conntrack_pipeline_selfcheck(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "conntrack-pipeline-selfcheck", dir))
+}
+
 fn rbtdrc_sortie_sentry_udp_non_dns(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "sentry-udp-non-dns", dir))
 }
@@ -2657,6 +2661,7 @@ static RBTDRC_CASES_SECURITY: &[rbtdre_Case] = &[
     case!(rbtdrc_sortie_http_end_to_end),
     case!(rbtdrc_sortie_conntrack_spoofed_ack),
     case!(rbtdrc_sortie_offpath_blocked_dest),
+    case!(rbtdrc_sortie_conntrack_pipeline_selfcheck),
     case!(rbtdrc_sortie_sentry_udp_non_dns),
     case!(rbtdrc_sortie_net_route_manipulation),
     case!(rbtdrc_sortie_net_enclave_subnet_escape),

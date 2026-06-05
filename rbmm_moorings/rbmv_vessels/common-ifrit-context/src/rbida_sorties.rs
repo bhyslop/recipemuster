@@ -2899,6 +2899,7 @@ pub fn sortie_sentry_udp_non_dns(_extra_args: &[&str]) -> rbida_Verdict {
 /// host-side enclave gateway answers the out-of-state ACK itself), not a sentry
 /// failure. We classify by L2 source rather than by L3, because the substrate
 /// spoofs the destination IP either way — only the MAC distinguishes the two.
+#[derive(Debug, PartialEq)]
 enum AckProvenance {
     /// No reply within the window — sentry return-path state enforcement held.
     NoResponse,
@@ -2911,12 +2912,84 @@ enum AckProvenance {
     Indeterminate { src_mac: String },
 }
 
+/// Outcome of inspecting one captured Ethernet frame against the probe's endpoints.
+#[derive(Debug, PartialEq)]
+enum FrameInspection {
+    /// Our own outbound probe frame — carries the learned next-hop (gateway) MAC.
+    Outbound { gateway_mac: String },
+    /// The reply we are listening for, classified by L2 provenance.
+    Reply(AckProvenance),
+    /// Anything else — not relevant to this probe.
+    Ignore,
+}
+
+/// Inspect a raw Ethernet frame: is it our outbound probe (learn the gateway MAC),
+/// the reply we await (classify by L2 provenance), or irrelevant noise?
+///
+/// This is the load-bearing parse+classify core of the conntrack probe — the byte
+/// offsets that locate the reply and the L2 compare that decides SentryMediated vs
+/// OffPath. A silent break here (wrong offset, inverted compare) would mask a real
+/// breach as SECURE, which is exactly the rot conntrack_spoofed_ack's verdict is
+/// vulnerable to. Pure over the frame bytes so the pipeline self-check sortie can
+/// exercise it with synthetic frames, no live socket required.
+fn inspect_capture_frame(
+    frame: &[u8],
+    dst_addr: Ipv4Addr,
+    bottle_addr: Ipv4Addr,
+    gateway_mac: Option<&str>,
+) -> FrameInspection {
+    if frame.len() < 14 + 20 + 20 {
+        return FrameInspection::Ignore; // too short for Ethernet + IPv4 + TCP
+    }
+    if frame[12] != 0x08 || frame[13] != 0x00 {
+        return FrameInspection::Ignore; // not IPv4
+    }
+    let ihl = (frame[14] & 0x0f) as usize * 4;
+    if ihl < 20 || 14 + ihl + 20 > frame.len() {
+        return FrameInspection::Ignore;
+    }
+    if frame[14 + 9] != 6 {
+        return FrameInspection::Ignore; // not TCP
+    }
+    let src_ip = Ipv4Addr::new(frame[26], frame[27], frame[28], frame[29]);
+    let dst_ip = Ipv4Addr::new(frame[30], frame[31], frame[32], frame[33]);
+
+    // Our own outbound ACK: learn the next-hop (gateway) MAC the kernel chose
+    // (Ethernet destination of the frame we sent).
+    if src_ip == bottle_addr && dst_ip == dst_addr {
+        return FrameInspection::Outbound {
+            gateway_mac: mac_to_string(&frame[0..6]),
+        };
+    }
+    // The reply: from the probed destination, to the bottle. Classify by Ethernet
+    // source against the gateway MAC.
+    if src_ip == dst_addr && dst_ip == bottle_addr {
+        let src_mac = mac_to_string(&frame[6..12]);
+        return FrameInspection::Reply(match gateway_mac {
+            Some(gw) if src_mac.eq_ignore_ascii_case(gw) => AckProvenance::SentryMediated { src_mac },
+            Some(_) => AckProvenance::OffPath { src_mac },
+            None => AckProvenance::Indeterminate { src_mac },
+        });
+    }
+    FrameInspection::Ignore
+}
+
 /// Render a 6-byte MAC as lowercase colon-hex (matching /proc/net/arp form).
 fn mac_to_string(b: &[u8]) -> String {
     b.iter()
         .map(|x| format!("{:02x}", x))
         .collect::<Vec<_>>()
         .join(":")
+}
+
+/// Parse a colon-hex MAC string into 6 bytes. Used only to assemble synthetic
+/// frames for the pipeline self-check; returns zeroes for malformed input.
+fn mac_from_string(s: &str) -> [u8; 6] {
+    let mut out = [0u8; 6];
+    for (i, part) in s.split(':').take(6).enumerate() {
+        out[i] = u8::from_str_radix(part, 16).unwrap_or(0);
+    }
+    out
 }
 
 /// Resolve the MAC for `ip` from the kernel neighbor table (/proc/net/arp).
@@ -3020,38 +3093,11 @@ fn send_lone_ack_classify_provenance(
         if n < 0 {
             return Ok(AckProvenance::NoResponse); // timeout / EAGAIN
         }
-        let n = n as usize;
-        if n < 14 + 20 + 20 {
-            continue; // too short for Ethernet + IPv4 + TCP
-        }
-        if buf[12] != 0x08 || buf[13] != 0x00 {
-            continue; // not IPv4
-        }
-        let ihl = (buf[14] & 0x0f) as usize * 4;
-        if ihl < 20 || 14 + ihl + 20 > n {
-            continue;
-        }
-        if buf[14 + 9] != 6 {
-            continue; // not TCP
-        }
-        let src_ip = Ipv4Addr::new(buf[26], buf[27], buf[28], buf[29]);
-        let dst_ip = Ipv4Addr::new(buf[30], buf[31], buf[32], buf[33]);
-
-        // Our own outbound ACK: learn the next-hop (gateway) MAC the kernel chose.
-        if src_ip == bottle_addr && dst_ip == dst_addr {
-            gateway_mac = Some(mac_to_string(&buf[0..6])); // Ethernet dest = gateway
-            continue;
-        }
-        // The reply: from the probed destination, to the bottle.
-        if src_ip == dst_addr && dst_ip == bottle_addr {
-            let src_mac = mac_to_string(&buf[6..12]);
-            return Ok(match &gateway_mac {
-                Some(gw) if src_mac.eq_ignore_ascii_case(gw) => {
-                    AckProvenance::SentryMediated { src_mac }
-                }
-                Some(_) => AckProvenance::OffPath { src_mac },
-                None => AckProvenance::Indeterminate { src_mac },
-            });
+        match inspect_capture_frame(&buf[0..n as usize], dst_addr, bottle_addr, gateway_mac.as_deref()) {
+            // Our own outbound ACK taught us the gateway MAC — keep listening for the reply.
+            FrameInspection::Outbound { gateway_mac: gw } => gateway_mac = Some(gw),
+            FrameInspection::Reply(provenance) => return Ok(provenance),
+            FrameInspection::Ignore => {}
         }
     }
 }
@@ -3099,7 +3145,10 @@ pub fn sortie_conntrack_spoofed_ack(_extra_args: &[&str]) -> rbida_Verdict {
 
     match send_lone_ack_classify_provenance(&packet, &dst_ip, &bottle_ip, &gateway_ip, timeout) {
         Ok(AckProvenance::NoResponse) => pass(format!(
-            "SECURE: spoofed ACK to {}:80 drew no reply — sentry return-path state enforcement intact",
+            "SECURE: spoofed ACK to {}:80 drew no observed reply — no return path reached the bottle. \
+             (Honest scope: this reflects observed silence, which a non-answering remote also produces; \
+             it is not by itself proof the sentry dropped a reply. Capture/classify liveness — that a \
+             real gateway-sourced reply WOULD be caught — is covered by conntrack-pipeline-selfcheck.)",
             dst_ip
         )),
         Ok(AckProvenance::SentryMediated { src_mac }) => fail(format!(
@@ -3200,4 +3249,130 @@ pub fn sortie_offpath_blocked_dest(_extra_args: &[&str]) -> rbida_Verdict {
             dst_ip, e
         )),
     }
+}
+
+// ── Pipeline self-check: conntrack_pipeline_selfcheck ────────
+
+/// Load-bearing negative control for the conntrack provenance pipeline.
+///
+/// conntrack_spoofed_ack's SECURE verdicts (NoResponse, and OffPath-suppressed)
+/// are only trustworthy if the capture-parse + L2-classify path actually works —
+/// a silently broken parser or an inverted MAC compare would turn a real breach
+/// into a false SECURE. On Linux no real gateway-sourced reply can be produced
+/// (the substrate never injects one; the firewall cannot fabricate one — the
+/// spoofed ACK is conntrack-INVALID, so NAT/REJECT levers do not fire), so we
+/// cannot stage an end-to-end breach here. Instead we feed inspect_capture_frame
+/// — the exact code the live loop runs — synthetic frames with known provenance
+/// and assert it classifies each correctly. If anyone breaks the offsets or the
+/// compare, this goes red.
+///
+/// Scope, stated honestly: this proves the parse+classify stage is alive. It does
+/// NOT exercise the live AF_PACKET socket read or the kernel egress path.
+pub fn sortie_conntrack_pipeline_selfcheck(_extra_args: &[&str]) -> rbida_Verdict {
+    // Synthetic, network-independent endpoints (TEST-NET-1 / RFC1918).
+    let dst: Ipv4Addr = Ipv4Addr::new(192, 0, 2, 1);
+    let bottle: Ipv4Addr = Ipv4Addr::new(10, 0, 0, 9);
+    let gateway_mac = "aa:bb:cc:dd:ee:01";
+    let off_path_mac = "aa:bb:cc:dd:ee:02";
+
+    // Assemble an Ethernet+IPv4+TCP frame for a reply (dst -> bottle) with a chosen
+    // L2 source, mirroring what the live socket would hand the parser.
+    let make_reply = |l2_src_mac: &str| -> Vec<u8> {
+        let tcp = build_tcp_ack(80, 40080);
+        let ip = match build_ip_header(6, "192.0.2.1", "10.0.0.9", tcp.len()) {
+            Ok(h) => h,
+            Err(_) => Vec::new(),
+        };
+        let mut frame = Vec::with_capacity(14 + ip.len() + tcp.len());
+        frame.extend_from_slice(&mac_from_string("00:11:22:33:44:55")); // Ethernet dst (bottle) — unchecked
+        frame.extend_from_slice(&mac_from_string(l2_src_mac)); // Ethernet src — the provenance under test
+        frame.extend_from_slice(&[0x08, 0x00]); // ethertype IPv4
+        frame.extend_from_slice(&ip);
+        frame.extend_from_slice(&tcp);
+        frame
+    };
+
+    // Case 1 — the breach the live sortie must never miss: a reply whose L2 source
+    // IS the gateway must classify SentryMediated.
+    let f_gateway = make_reply(gateway_mac);
+    match inspect_capture_frame(&f_gateway, dst, bottle, Some(gateway_mac)) {
+        FrameInspection::Reply(AckProvenance::SentryMediated { .. }) => {}
+        other => {
+            return fail(format!(
+                "BREACH (self-check failed): a gateway-sourced reply classified as {:?}, not SentryMediated \
+                 — the conntrack capture/classify pipeline is broken and live SECURE verdicts cannot be trusted",
+                other
+            ))
+        }
+    }
+
+    // Case 2 — the suppression arm: a reply from a non-gateway L2 source must
+    // classify OffPath (this is the arm that turns a would-be breach into SECURE).
+    let f_offpath = make_reply(off_path_mac);
+    match inspect_capture_frame(&f_offpath, dst, bottle, Some(gateway_mac)) {
+        FrameInspection::Reply(AckProvenance::OffPath { .. }) => {}
+        other => {
+            return fail(format!(
+                "BREACH (self-check failed): an off-path reply classified as {:?}, not OffPath \
+                 — the provenance suppression logic is wrong",
+                other
+            ))
+        }
+    }
+
+    // Case 3 — conservative fallback: a reply with no known gateway MAC must
+    // classify Indeterminate (reported as breach, never silently dropped).
+    let f_indet = make_reply(gateway_mac);
+    match inspect_capture_frame(&f_indet, dst, bottle, None) {
+        FrameInspection::Reply(AckProvenance::Indeterminate { .. }) => {}
+        other => {
+            return fail(format!(
+                "BREACH (self-check failed): an unresolved-gateway reply classified as {:?}, not Indeterminate",
+                other
+            ))
+        }
+    }
+
+    // Case 4 — the outbound-learning branch: our own probe frame (bottle -> dst)
+    // must be recognized as Outbound and teach the gateway MAC, not be mistaken
+    // for a reply.
+    let tcp_out = build_tcp_ack(40080, 80);
+    let ip_out = match build_ip_header(6, "10.0.0.9", "192.0.2.1", tcp_out.len()) {
+        Ok(h) => h,
+        Err(e) => return fail(format!("ERROR: self-check could not build outbound frame: {}", e)),
+    };
+    let mut f_out = Vec::with_capacity(14 + ip_out.len() + tcp_out.len());
+    f_out.extend_from_slice(&mac_from_string(gateway_mac)); // Ethernet dst = next hop (gateway)
+    f_out.extend_from_slice(&mac_from_string("00:11:22:33:44:55")); // Ethernet src = bottle
+    f_out.extend_from_slice(&[0x08, 0x00]);
+    f_out.extend_from_slice(&ip_out);
+    f_out.extend_from_slice(&tcp_out);
+    match inspect_capture_frame(&f_out, dst, bottle, None) {
+        FrameInspection::Outbound { gateway_mac: learned } if learned.eq_ignore_ascii_case(gateway_mac) => {}
+        other => {
+            return fail(format!(
+                "BREACH (self-check failed): our own outbound probe classified as {:?}, not Outbound{{{}}} \
+                 — gateway-MAC learning is broken",
+                other, gateway_mac
+            ))
+        }
+    }
+
+    // Case 5 — noise rejection: a too-short / non-matching frame must be ignored.
+    match inspect_capture_frame(&[0u8; 10], dst, bottle, Some(gateway_mac)) {
+        FrameInspection::Ignore => {}
+        other => {
+            return fail(format!(
+                "BREACH (self-check failed): a runt frame classified as {:?}, not Ignore",
+                other
+            ))
+        }
+    }
+
+    pass(
+        "SECURE: conntrack provenance pipeline self-check passed — parse+classify intact \
+         (gateway->SentryMediated, off-path->OffPath, no-gateway->Indeterminate, outbound learned, runt ignored). \
+         Scope: proves the classify stage is alive; does not exercise the live socket read."
+            .to_string(),
+    )
 }
