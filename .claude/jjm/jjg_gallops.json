@@ -8525,9 +8525,10 @@
         "₢BHAAI",
         "₢BHAAJ",
         "₢BHAAK",
+        "₢BHAAL",
         "₢BHAAD"
       ],
-      "jjghn_next_pace_seed": "AAL",
+      "jjghn_next_pace_seed": "AAM",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -8787,6 +8788,17 @@
               "jjgtn_text": "## Character\nGreenfield vertical, the largest — crane-based opaque-blob capture, ported from the GHCR prototype to GAR.\n\n## Goal\nLand the podvm (immure) capture machinery: port the podman-machine-image capture (crane manifest/blob navigation, FROM-scratch repackage) from the prototype (rbv_PodmanVM, RBSPV) onto the spine and into rbi_ld. This pace builds the single-family capture path; the two-family fan-out is the next pace.\n\n## Locked\n- crane (not skopeo/docker) for opaque non-layered blobs; recorded-at-acquisition trust grade (quay publishes no durable checksum). Cloud-side acquisition. Ride the spine on the rbldv_ letter.\n- Multi-member package holding a curated platform subset, never a full mirror (paddock podvm-selective premise). File-disjoint. Write RBSLI.\n\n## Done\nimmure captures one quay family's curated platform set into rbi_ld with provenance; a theurge fixture proves capture -> divine -> banish live.",
               "jjgtn_silks": "lode-podvm-capture-machinery",
               "jjgtn_basis": "3fc6057"
+            }
+          ]
+        },
+        "₢BHAAL": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260605-1119",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nGreenfield follow-on to the podvm capture machinery — the two-family, multi-platform selection layer.\n\n## Goal\nExtend immure to span both quay families (machine-os-wsl and machine-os-native) via an archive argument, with curated per-platform variant selection. The families share the crane capture path and differ only in quay repo + variant set.\n\n## Locked\n- One verb spanning both families, not two verbs (paddock Kinds). Support an \"expand selected set against the same upstream version\" refresh mode, distinct from a version bump (paddock podvm-selective premise).\n- Builds on the podvm capture machinery (preceding pace).\n\n## Done\nimmure captures both families' curated sets into their respective Lodes; a fixture proves the fan-out.",
+              "jjgtn_silks": "lode-podvm-platform-fanout",
+              "jjgtn_basis": "e62e02d"
             }
           ]
         }
