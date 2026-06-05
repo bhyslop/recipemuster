@@ -28,9 +28,11 @@ that federation plugs in later by swapping identity-kind and token mint and noth
 - **Capability-set** — a named bundle of IAM grants, defined in code (the role's binding list,
   lifted out of today's invest bodies). Tier-blind.
 - **Declared ledger** — depot-resident data mapping identity → {capability-sets held}: the stored
-  *intent*. Tier-blind. Distinct from the existing `roster` cult-verb (RBSDR), which reads the
-  *actual* discovered IAM state — the audit is precisely the diff between the actual-state roster
-  and the declared ledger. (Short form below: "the ledger.")
+  *intent*. Tier-blind. Distinct from today's `roster` verb (RBSDR), which name-regex-reads the
+  *actual* IAM state — that verb is retired here (no role prefix to filter on). The **audit**
+  performs the actual-state read; the audit is precisely the diff between **actual IAM state** and
+  the declared ledger, and routine "who holds what" is the ledger read. (Short form below: "the
+  ledger.")
 - **Holdings** — the depot's artifacts (arks/hoards/bullions). Property, not identities. The
   depot's civic ontology — citizens/federates (people) + holdings (property) — covers *operator*
   identities; cloud-native system identities (Mason, future Envoy) sit outside it, reusing the
@@ -53,9 +55,10 @@ Today's role-keyed verbs decompose into a generic register parameterized by
 |---|---|---|
 | invest (director/retriever) | add-citizen + grant(set) | governor is actor |
 | mantle (governor) | add-citizen + grant(governor-set) | payor is actor; not special *once the governor is idempotent* (see below) |
-| divest | revoke(all held) + remove-citizen | ledger-withdraw-first (see Identity verbs) |
-| roster (verb) | read the declared ledger | the actual-reading verb; the audit diffs it against IAM |
-| — | grant(set) / revoke(set) | the capability axis, tier-blind |
+| divest | revoke(all held) + remove-citizen | revoke is intent-first (withdraw ledger, then unbind); remove-citizen then deletes the SA |
+| roster | read-ledger (routine) + actual-state read folds into the audit | the old name-regex roster is retired — no prefix to filter |
+| — | grant(set) / revoke(set) | the capability axis, tier-blind; each intent-first |
+| — | read-ledger | read the declared ledger (routine "who holds what", tier-blind) |
 | — | rekey | keyfile-only identity-backing maintenance |
 
 Actor and capability-set are parameters, not verb variants. Federation reuses the capability
@@ -68,7 +71,11 @@ the governor stays datestamped delete+recreate (today's RBSGM), mantle decompose
 ## Identity verbs branch; capability verbs do not
 
 - **Capability verbs (grant/revoke)** never branch on tier — both are an IAM binding on a
-  pre-existing identity.
+  pre-existing identity. Both are **intent-first**: grant writes the ledger entry then adds
+  bindings; revoke withdraws the ledger entry then removes them. Invariant: *no IAM revoke without a
+  prior ledger withdrawal* — a crashed teardown then lands as a transient *surplus* (reported,
+  safe), not an auto-converging *deficit* that would resurrect the just-removed identity (acute
+  because RBSDD anticipates immediate same-folio re-invest).
 - **Identity verbs** are tier-specific (this is the seam):
   - *citizen* (this heat):
     - **add** = mint SA + key + deliver RBRA.
@@ -77,11 +84,9 @@ the governor stays datestamped delete+recreate (today's RBSGM), mantle decompose
       a live citizen keyless). GCP caps an SA at **10 keys** (hard, non-adjustable), so a rekey
       that fails to reclaim the old key accumulates toward the ceiling; reclaim stale keys, and let
       the orphan/audit sweep flag `>1` USER_MANAGED key on a citizen as a stranded key to reclaim.
-    - **remove** = **withdraw ledger intent (delete the citizen's ledger rows) FIRST**, then revoke
-      IAM, then delete the SA. Invariant: *no IAM revoke without a prior ledger withdrawal* — the
-      teardown dual of grant-writes-intent-first. (Ledger-first means a crashed teardown lands as a
-      transient *surplus* — reported, safe — not an auto-converging *deficit* that would resurrect
-      the just-removed citizen, acute because RBSDD anticipates immediate same-folio re-invest.)
+    - **remove** = delete the SA (and key). Capabilities are revoked first by divest's
+      revoke(all held), which is intent-first (see Capability verbs), so the full teardown order is
+      withdraw-ledger → unbind-IAM → delete-SA.
   - *federate* (future): add ≈ first grant (identity owned by the IdP, not minted here); no rekey
     (the IdP owns rotation); remove = de-register + revoke-all (the principal is not ours to
     delete).
