@@ -9125,6 +9125,13 @@
         "₢BVAAG": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260605-1018",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nDesign conversation, then a mechanical fold; needs judgment on the adapter's shape.\n\nThree byte-identical /cygdrive path normalizers (zrbfc_native_path_capture, zrbndb_native_path_capture, zrbob_native_path_capture), the nested-mountpoint discipline (rbtid/project), and the rbgo headless-login auths-file bend are scattered Windows-docker membranes accreted across this heat. Fold them into one adapter. Off-Windows identity must be preserved (BURD_OSTYPE-gated); suites stay green. See Memos/memo-20260603-windows-docker-desktop-bind-mount.md.\n\n## Done\nOne canonical Windows-docker adapter; the duplicate normalizers removed; suites green on Cygwin and at least one non-Windows platform.",
+              "jjgtn_silks": "windows-docker-adapter-consolidation",
+              "jjgtn_basis": "8f5faf1"
+            },
+            {
               "jjgtn_ts": "260603-0601",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nDesign conversation, then a mechanical fold; needs judgment on the adapter's shape.\n\nThree byte-identical /cygdrive path normalizers (zrbfc_native_path_capture, zrbndb_native_path_capture, zrbob_native_path_capture), the nested-mountpoint discipline (rbtid/project), and the rbgo headless-login auths-file bend are scattered Windows-docker membranes accreted across this heat. Fold them into one adapter. Off-Windows identity must be preserved (BURD_OSTYPE-gated); suites stay green. See Memos/memo-20260603-windows-docker-desktop-bind-mount.md.\n\n## Done\nOne canonical Windows-docker adapter; the duplicate normalizers removed; suites green on Cygwin and at least one non-Windows platform.",
