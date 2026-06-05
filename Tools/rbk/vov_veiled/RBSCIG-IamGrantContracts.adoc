@@ -358,15 +358,19 @@ grant trio above.  The contract:
   write re-asserts the same policy and returns HTTP 200.  A re-divest, or a
   divest of an identity already partially torn down, revokes cleanly.
 
-* **No propagation tolerance — and why.**  Unlike the grant catalog above, the
-  revoke sites declare *none* of the three propagation classes.  Every class is a
-  freshly-mutated-member race: Class A/B are member-visibility lag on a
-  just-created or just-deleted SA, and Class C is a just-empowered caller.  At
-  revoke time the member is long-established (its binding has existed since the
-  invest) and the governor's `roles/owner` reached every cache long ago, so none
-  of those windows is open.  Carrying the grant envelope here would be
-  non-load-bearing state space: the revoke is a plain read-modify-write with only
-  the etag-conflict and transient-server retries below.
+* **Class C only — and why.**  The member-visibility classes (A: forward "does
+  not exist", B: backward "is not deleted") cannot fire on a revoke — the member
+  being removed is long-established, not freshly created or deleted — so the
+  revokes drop them.  Class C (caller-recently-empowered, 403) is different: it is
+  about the *governor*, not the member.  A governor freshly re-mantled before a
+  teardown has not yet propagated its `roles/owner` to the resource-scope IAM
+  cache, so the **resource-scope** revokes (repo and Mason SA) retry the
+  `getIamPolicy` on 403 against `RBGC_PROPAGATION_DEADLINE_SEC`, exactly as the
+  grant resource-scope sites do.  **Project-scope** revoke carries none — project
+  caches absorb governor empowerment instantly (the grant project sites declare no
+  403 tolerance either).  `setIamPolicy` carries no Class C retry: it is gated by
+  the same `roles/owner` permission as the read, so once `getIamPolicy` clears the
+  write will not 403.
 
 * **Etag conflict is fatal (single-writer invariant).**  As with the grant
   sites, RBGI is single-writer; an HTTP 409 on `setIamPolicy` (etag mismatch) is

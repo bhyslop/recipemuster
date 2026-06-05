@@ -41,6 +41,8 @@ use crate::rbtdri_invocation::{
     rbtdri_InvokeResult, RBTDRI_BURV_OUTPUT_SUBDIR,
 };
 use crate::rbtdgc_consts::{
+    RBTDGC_DIVEST_DIRECTOR,
+    RBTDGC_DIVEST_RETRIEVER,
     RBTDGC_INVEST_DIRECTOR,
     RBTDGC_INVEST_RETRIEVER,
     RBTDGC_LEVY_DEPOT,
@@ -695,6 +697,75 @@ fn rbtdrk_director_invest(dir: &Path) -> rbtdre_Verdict {
     })
 }
 
+/// Shared divest body: invoke the divest colophon for the identity, 404-tolerant
+/// (the standing SA may be present or already gone). Exercises rbgg_divest_*'s
+/// revoke-before-delete and poll_until_gone debounce, so the following invest
+/// hits the create branch against a durably-gone SA.
+fn rbtdrk_role_divest_impl(
+    ctx: &mut rbtdri_Context,
+    dir: &Path,
+    divest_colophon: &str,
+    identity: &str,
+    role: &str,
+) -> rbtdre_Verdict {
+    let label = format!("divest-{}", role);
+    let divest = match rbtdrk_invoke_logged(ctx, divest_colophon, &[identity], &[], dir, &label) {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("divest {}: {}", role, e)),
+    };
+    if divest.exit_code != 0 {
+        return rbtdre_Verdict::Fail(format!(
+            "divest {} exit {}\n{}",
+            role, divest.exit_code, divest.stderr
+        ));
+    }
+    rbtdre_Verdict::Pass
+}
+
+/// Case — director divest. Clears the standing director SA (revoke bindings →
+/// delete) so the following director invest exercises the create branch.
+fn rbtdrk_director_divest(dir: &Path) -> rbtdre_Verdict {
+    let probe = rbtdrb_Probe {
+        name: "governor RBRA present",
+        check: rbtdrk_probe_governor_rbra,
+        remediation: "rerun rbtdrk_governor_mantle or the full canonical-establish fixture",
+    };
+    if let Err(v) = rbtdrb_assert(&probe) {
+        return v;
+    }
+    rbtdrc_with_ctx(|ctx| {
+        rbtdrk_role_divest_impl(
+            ctx,
+            dir,
+            RBTDGC_DIVEST_DIRECTOR,
+            RBTDRK_IDENTITY_DIRECTOR,
+            RBTDGC_ACCOUNT_DIRECTOR,
+        )
+    })
+}
+
+/// Case — retriever divest. Clears the standing retriever SA (revoke bindings →
+/// delete) so the following retriever invest exercises the create branch.
+fn rbtdrk_retriever_divest(dir: &Path) -> rbtdre_Verdict {
+    let probe = rbtdrb_Probe {
+        name: "governor RBRA present",
+        check: rbtdrk_probe_governor_rbra,
+        remediation: "rerun rbtdrk_governor_mantle or the full canonical-establish fixture",
+    };
+    if let Err(v) = rbtdrb_assert(&probe) {
+        return v;
+    }
+    rbtdrc_with_ctx(|ctx| {
+        rbtdrk_role_divest_impl(
+            ctx,
+            dir,
+            RBTDGC_DIVEST_RETRIEVER,
+            RBTDRK_IDENTITY_RETRIEVER,
+            RBTDGC_ACCOUNT_RETRIEVER,
+        )
+    })
+}
+
 /// Shared invest body for retriever and director: invest → assert assay
 /// dropped by the invest tabtarget → copy to canonical role path → access-probe.
 fn rbtdrk_role_invest_impl(
@@ -810,16 +881,22 @@ pub static RBTDRK_FIXTURE_CANONICAL_ESTABLISH: rbtdre_Fixture = rbtdre_Fixture {
     cases: RBTDRK_CASES_CANONICAL_ESTABLISH,
 };
 
-// canonical-invest — the skirmish suite's no-levy variant. Reuses the three
-// investiture case fns verbatim but omits `depot_levy`: skirmish runs against
-// a depot the operator has levied by hand, so no GCP project is created per
-// run. Each investiture case carries its own precondition probe (governor
-// mantle probes the standing depot's moniker; the invests probe the governor),
-// so the cases compose against an operator-levied depot exactly as they do
-// after canonical-establish's case 1. Sharing the case fns is the same
-// provenance-vs-behavior split tadmor/moriah exploit with RBTDRC_CASES_SECURITY.
+// canonical-invest — the no-levy recycle variant shared by skirmish, dogfight,
+// and blockade. Runs against a depot the operator has levied by hand (no GCP
+// project created per run). After re-mantling the governor it divests then
+// re-invests retriever + director, so every run exercises the full teardown →
+// reinvest cycle: rbgg_divest_*'s revoke-before-delete and poll_until_gone
+// debounce, then the invest create branch against a durably-gone SA. This
+// deliberately stresses the IAM eventual-consistency edges (the delete→recreate
+// read-flap) on every run. Each case carries its own precondition probe
+// (governor mantle probes the standing depot's moniker; divest/invest probe the
+// governor). Divest runs in reverse role order, invest in forward order. Sharing
+// the case fns is the same provenance-vs-behavior split tadmor/moriah exploit
+// with RBTDRC_CASES_SECURITY.
 pub static RBTDRK_CASES_CANONICAL_INVEST: &[rbtdre_Case] = &[
     case!(rbtdrk_governor_mantle),
+    case!(rbtdrk_director_divest),
+    case!(rbtdrk_retriever_divest),
     case!(rbtdrk_retriever_invest),
     case!(rbtdrk_director_invest),
 ];
