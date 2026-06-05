@@ -4,7 +4,7 @@ IAM propagation delays for Cloud Build v2 connection creation are handled by
 connection-creation retry with exponential backoff, not by an impersonation
 readiness gate or fixed sleep delays.
 
-Three propagation classes are recognized by the IAM grant harness in
+Three propagation classes are recognized by the shared IAM grant/revoke harness in
 `zrbgi_propagation_error_predicate`, all sharing the same exponential-backoff
 budget defined by the `RBGC_PROPAGATION_*` constants:
 
@@ -23,8 +23,13 @@ budget defined by the `RBGC_PROPAGATION_*` constants:
 Class C is time-bounded only — no body fingerprinting. The bound itself is
 the discriminator: real propagation succeeds within budget, real denial
 waits the budget and fails cleanly. The same model is already proven in
-{rbtgo_access_jwt_probe}. Resource-scope grant sites declare 403 tolerance
-with an empty body-glob; project-scope sites do not.
+{rbtgo_access_jwt_probe}. Resource-scope sites — both grant (`rbgi_add_*`)
+and revoke (`rbgi_revoke_*`) — declare 403 tolerance with an empty body-glob;
+project-scope sites do not. Class C attaches to how recently the *caller* was
+empowered against the resource-scope IAM cache, not to the direction of the
+policy edit: any resource-scope `getIamPolicy` / `setIamPolicy` issued by a
+recently-empowered caller can draw the 403, whether it adds or removes a
+member.
 
 * **Secret access readiness**: The CB v2 connection creation LRO itself serves as the propagation test.
   If the Cloud Build Service Agent cannot yet access the secrets (IAM grant not propagated), the LRO fails.
@@ -150,6 +155,9 @@ and any need for `roles/iam.serviceAccountTokenCreator` grants for the readiness
 
 |SA email read-path flaps 404→200 after delete; a single 404 is not durable proof of deletion
 |`Memos/memo-20260604-canonical-divest-delete-flap.md` -- transcript-level evidence, canonical depot `cancbhm-d-canest3bhm100001`, 2026-06-04
+
+|Resource-scope `getIamPolicy` on a *revoke* draws a Class-C 403 when the caller was just re-empowered (governor re-mantle); a single 403 is not denial
+|`Memos/memo-20260604-credential-churn-leak-and-propagation-races.md` (revoke-side addendum) -- transcript-level evidence, canonical depot `cancbhm-d-canest3bhm100001`, 2026-06-05: divest repo `getIamPolicy` 403 at 0/3/9/21/41/61s, 200 at 81s, then revoked with no `deleted:` tombstone
 |===
 
 ==== What Dies
