@@ -5906,9 +5906,10 @@
         "₢BBABP",
         "₢BBABT",
         "₢BBABU",
-        "₢BBABV"
+        "₢BBABV",
+        "₢BBABW"
       ],
-      "jjghn_next_pace_seed": "ABW",
+      "jjghn_next_pace_seed": "ABX",
       "jjghn_paces": {
         "₢BBAA-": {
           "jjgpn_tacks": [
@@ -7999,6 +8000,17 @@
               "jjgtn_text": "## Character\nMechanical — two stale-reference corrections in the Cloud Build specs; verify-then-edit, low risk.\n\n## Goal\nTwo dangling references in the Cloud Build specs name symbols that no longer exist. Correct each to a live referent so the specs cite only real files/functions. (Surfaced during a Cloud Build spec audit; left out-of-scope there.)\n\n## Items\n- **RBSCB broken acronym.** The authoritative-specs list (`RBSAC, RBSAV, RBSDC, RBSDN`) names `RBSDC`, which has no file — confirm via `ls Tools/rbk/vov_veiled/RBSD*-*.adoc`. Determine the intended spec from what that sentence asserts and correct it (likely `RBSDI` depot_inscribe, but confirm — don't guess-substitute).\n- **RBSCJ dead function name.** The trigger-era Decision section names `zrbf_stitch_build_json` (`grep -rn zrbf_stitch_build_json Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc`); the live function is `zrbfd_stitch_build_json` (renamed in the foundry decomposition; RBSCB already cites it correctly). Repoint to the live name. Scope is the name only — a broader refresh of the trigger-era Decision section is a separate question, not this pace.\n\n## Done\nNeither `RBSDC` nor `zrbf_stitch_build_json` appears in the Cloud Build specs (RBSCB-CloudBuildPosture.adoc, RBSCJ-CloudBuildJson.adoc); each former reference now names a live spec/function.",
               "jjgtn_silks": "cloudbuild-spec-stale-refs",
               "jjgtn_basis": "98d64da"
+            }
+          ]
+        },
+        "₢BBABW": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260604-2349",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nStandalone tooling fix + one design addition; no dependency on this heat's release-qual gestalt. Goal: make scry a trustworthy, scriptable network-diagnostic primitive.\n\nscry (`rboo_observe.sh`, colophon `rbw-cs`) proved wanting during the ₣BV Docker-Desktop containment investigation (see `Memos/memo-20260604-conntrack-spoofed-ack-adjudication.md`). Four changes:\n\n- **Latent correctness bug — interface roles are hardcoded.** scry assumes sentry eth0=uplink / eth1=enclave. Docker's interface ordering is not guaranteed; on the WSL native-docker host the two are reversed, so scry captures the wrong sentry interface and mislabels its output. Discover interfaces by IP/role the way `rbjs_sentry.sh` already does (`ip -o addr`), never by hardcoded name.\n- **Add `-e`** to the tcpdump options so L2 source MACs show. Without MACs, off-path delivery (the whole DD finding) can only be inferred from absence, not demonstrated.\n- **Capture both sentry legs on docker** (currently enclave-only; the bridge leg is podman-only), so the full enclave↔uplink path is visible in one run.\n- **Bound-duration / non-interactive mode.** Today scry traps SIGINT and `wait`s forever, so nothing can drive it programmatically. Add an optional duration and optional tcpdump filter expression: when a duration is supplied, run the parallel captures under `timeout <dur>` (already present in the vessels), collect, and exit 0 — a scriptable capture primitive a fixture or operator one-liner can call. When no duration is given, preserve today's run-until-Ctrl+C behavior unchanged. The filter argument scopes the capture (e.g. one host) so output stays legible.\n\n## Done\nscry resolves interfaces by role (correct under either ordering), shows MACs, captures both sentry legs on docker, and supports a bounded non-interactive capture (duration + optional filter) that returns cleanly for scripted use — interactive behavior unchanged when no duration is passed.",
+              "jjgtn_silks": "scry-diagnostic-repairs",
+              "jjgtn_basis": "49c8d96"
             }
           ]
         }
