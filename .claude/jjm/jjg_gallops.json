@@ -8946,11 +8946,12 @@
         "₢BVAAA",
         "₢BVAAE",
         "₢BVAAF",
+        "₢BVAAI",
         "₢BVAAB",
         "₢BVAAG",
         "₢BVAAH"
       ],
-      "jjghn_next_pace_seed": "AAI",
+      "jjghn_next_pace_seed": "AAJ",
       "jjghn_paces": {
         "₢BVAAA": {
           "jjgpn_tacks": [
@@ -9121,6 +9122,17 @@
               "jjgtn_text": "## Character\nCleanup; mostly mechanical, one decision (the kludge-stamp commits).\n\nWind down the spike's residue. On cygwin@rocket: remove probe scripts, the live-token ~/.docker/config.json, and GAR test artifacts (cygprobe/probe images, graft test hallmarks). Reconcile the cygwin-resident kludge-stamp commits (push as accepted temporary pollution, or discard). BCG-clean the rbgo login bend (the local declared mid-loop, the piped openssl capture). Regenerate the rbw-ts help string (still lists the pre-rename suite names) with its generated context doc.\n\n## Done\ncygwin@rocket and the repo clean; rbgo BCG debt cleared; rbw-ts help string current.",
               "jjgtn_silks": "cygwin-host-and-repo-winddown",
               "jjgtn_basis": "24d5b59"
+            }
+          ]
+        },
+        "₢BVAAI": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260604-2325",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nJudgment plus a real fixture build; security-relevant. Closes epistemic debt the conntrack hardening incurred.\n\n## Goal\nconntrack_spoofed_ack now suppresses a would-be breach by L2 provenance, so its SECURE verdict is unfalsifiable — green could mean containment held, or that the probe/capture/classify pipeline silently broke (egress never left, AF_PACKET capture missed the reply, or the gateway-MAC compare is wrong). Build a deliberately-weakened-sentry nameplate whose loosened return path lets the lone-ACK reply transit the sentry (arriving with gateway-MAC provenance), and assert the sortie BREACHes there — proving the whole pipeline still goes red on a real return-path failure.\n\n## Cinched\n- Validates the SentryMediated -> BREACH direction only. OffPath -> SECURE suppression is certified solely by running on real Windows DD; the control does not prove quirk suppression.\n- Pilots a discipline: any sortie that suppresses a would-be breach on an observation carries a negative control proving the suppression is conditional. This is currently the only such gate.\n- Live upstream plus container runtime -> service/crucible tier, not fast. The new weakened-sentry nameplate is the real cost.\n\n## Done\nA weakened-sentry nameplate forwards the lone-ACK reply to the bottle; conntrack_spoofed_ack asserts BREACH against it and SECURE against the hardened nameplates, and the contrast runs green in the suite.\n\nSources: Memos/memo-20260604-conntrack-spoofed-ack-adjudication.md; RBSIP \"Substrate Quirks\" (rbsq_wdd_offpath_reply); sortie_conntrack_spoofed_ack in rbida_sorties.rs; RBS0 Security Properties (\"architectural reasoning alone has been empirically insufficient\").",
+              "jjgtn_silks": "conntrack-provenance-negative-control",
+              "jjgtn_basis": "71b777e"
             }
           ]
         }
