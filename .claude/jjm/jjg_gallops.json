@@ -8524,9 +8524,10 @@
         "₢BHAAH",
         "₢BHAAI",
         "₢BHAAJ",
+        "₢BHAAK",
         "₢BHAAD"
       ],
-      "jjghn_next_pace_seed": "AAK",
+      "jjghn_next_pace_seed": "AAL",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -8775,6 +8776,17 @@
               "jjgtn_text": "## Character\nGreenfield vertical — the structural outlier. Needs a new cloud capture step, not the skopeo registry path.\n\n## Goal\nLand the wsl (underpin) capture kind: a project-controlled WSL rootfs captured into a Lode. wsl fetches a vendor-published rootfs tarball over HTTPS and verifies it against the published checksum (Canonical cloud-images SHA-256), then wraps the opaque tarball as a Lode member.\n\n## Locked\n- This is genuinely verified-against-published (the published checksum is real here). Acquisition runs cloud-side — no workstation export (paddock acquisition premise).\n- Needs a NEW cloud capture step (curl + checksum-verify + opaque-blob wrap); it does not reuse the registry-pull step. Ride the spine envelope on the rbldw_ letter.\n- Consumption (wsl --import) is deferred this heat — stop at the registry. File-disjoint. Write RBSLU.\n\n## Done\nunderpin captures a checksum-verified rootfs into rbi_ld with provenance; a theurge fixture proves capture -> divine -> banish live (no host consumption).",
               "jjgtn_silks": "lode-wsl-capture",
               "jjgtn_basis": "f282bb1"
+            }
+          ]
+        },
+        "₢BHAAK": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260605-1119",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nGreenfield vertical, the largest — crane-based opaque-blob capture, ported from the GHCR prototype to GAR.\n\n## Goal\nLand the podvm (immure) capture machinery: port the podman-machine-image capture (crane manifest/blob navigation, FROM-scratch repackage) from the prototype (rbv_PodmanVM, RBSPV) onto the spine and into rbi_ld. This pace builds the single-family capture path; the two-family fan-out is the next pace.\n\n## Locked\n- crane (not skopeo/docker) for opaque non-layered blobs; recorded-at-acquisition trust grade (quay publishes no durable checksum). Cloud-side acquisition. Ride the spine on the rbldv_ letter.\n- Multi-member package holding a curated platform subset, never a full mirror (paddock podvm-selective premise). File-disjoint. Write RBSLI.\n\n## Done\nimmure captures one quay family's curated platform set into rbi_ld with provenance; a theurge fixture proves capture -> divine -> banish live.",
+              "jjgtn_silks": "lode-podvm-capture-machinery",
+              "jjgtn_basis": "3fc6057"
             }
           ]
         }
