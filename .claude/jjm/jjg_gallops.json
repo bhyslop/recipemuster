@@ -9436,6 +9436,13 @@
         "₢BXAAG": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260604-2303",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nProse — recording cinched rationale alongside the code.\n\n## Goal\nRecord the heat's rationale in the Cloud Build specs: posture in RBSCB, the composition/contract decision as an RBSCJ section.\n\n## Cinched (paddock)\n- RBSCB holds the token / credential-helper posture, the capture-duplication posture, and the /workspace-no-secrets invariant.\n- RBSCJ is trigger-era stale; refresh it where touched.\n\n## Done\n- RBSCB and RBSCJ state the cinched rationales; the step contract is documented in the RBSCJ section.",
+              "jjgtn_silks": "cloud-build-spec-record",
+              "jjgtn_basis": "0011600"
+            },
+            {
               "jjgtn_ts": "260603-0517",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nProse — recording cinched rationale alongside the code.\n\n## Goal\nRecord the heat's rationale in the Cloud Build specs: posture in RBSCB, the composition/contract decision as an RBSCJ section.\n\n## Cinched (paddock)\n- RBSCB holds the token / credential-helper posture, the capture-duplication posture, and the /workspace-no-secrets invariant.\n- RBSCJ is trigger-era stale; refresh it where touched.\n\n## Done\n- RBSCB and RBSCJ state the cinched rationales; the step contract is documented in the RBSCJ section.",
