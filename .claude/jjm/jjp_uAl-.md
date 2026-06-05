@@ -333,3 +333,12 @@ garrison's precondition check.
   of `C:\Users\bujuw_user.*` orphans to prevent silent profile-suffix
   mints on the next cycle — fits naturally inside ABJ's obliterate
   reshaping. ABK and AAx carry explicit memo citations in their dockets.
+- **Remote theurge fundus hosts must expose `~/.cargo/bin` to non-interactive
+  ssh.** Otherwise `tt/rbw-ts.*` run over `ssh <host> "…"` dies at
+  `cargo: command not found` before any suite builds — rustup's PATH line sits
+  after the non-interactive guard in stock `~/.bashrc`. Check
+  `ssh <host> "command -v cargo"`; if empty, prepend `. "$HOME/.cargo/env"` to
+  that host's `~/.bashrc` above the interactive-shell guard. Mechanism, the
+  per-host fix, and the cerebro application (2026-06-05, done) are in
+  `Memos/memo-20260605-cerebro-noninteractive-cargo-path.md`. cygwin and WSL
+  were already provisioned; audit any new remote host here when provisioning it.
