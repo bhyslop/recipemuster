@@ -9,11 +9,11 @@ Full read and edit access is pre-approved for all files in:
 ## File Acronym Mappings
 
 Per-kit acronym mappings live in each kit's context file (loaded via `@` includes below).
-- RBK: `@Tools/rbk/rbk-claude-acronyms.md`
+- RBK: `@Tools/rbk/claude-rbk-acronyms.md`
 - BUK: `@Tools/buk/claude-buk-core.md`
 - CMK: `@Tools/cmk/claude-cmk-core.md`
 - JJK: `@Tools/jjk/claude-jjk-core.md` (+ veiled `@Tools/jjk/vov_veiled/claude-jjk-bhyslop.md`)
-- VOK: `@Tools/vok/vok-claude-context.md`
+- VOK: `@Tools/vok/claude-vok-context.md`
 - GAD: `Tools/gad/CLAUDE.md` (not `@`-included — loaded only when working in that kit)
 
 ### CNMP Lenses Directory (`../cnmp_CellNodeMessagePrototype/lenses/`)
@@ -232,11 +232,11 @@ When evaluating any new pattern, extraction, or structural choice, the litmus te
 
 <!-- Partnership rules of engagement (never distributed; hand-maintained outside
      the managed block). Salutation leads — the wake-up greeting — then the stance.
-     Companion detail at Tools/cmk/cmk-rules-of-engagement-detail.md is read on
+     Companion detail at Tools/cmk/claude-cmk-roe-detail.md is read on
      demand, not @-included. -->
 @Tools/cmk/claude-cmk-salutation.md
 
-@Tools/cmk/claude-cmk-rules-of-engagement.md
+@Tools/cmk/claude-cmk-roe.md
 
 <!-- Distributable-kit guidance: managed @-include block (mirrors what consumer
      repos receive via vvx_emplace). Edit content in the @-targets, not here;
@@ -251,7 +251,7 @@ When evaluating any new pattern, extraction, or structural choice, the litmus te
 <!-- rbm-only veiled guidance (never distributed); hand-maintained outside the block -->
 @Tools/jjk/vov_veiled/claude-jjk-bhyslop.md
 
-@Tools/vok/vok-claude-context.md
+@Tools/vok/claude-vok-context.md
 
 ## Current Context
 - Primary focus: Recipe Bottle infrastructure and tooling
@@ -286,10 +286,10 @@ Operator-specific test machines reachable from this station.
 - **localhost** — local fundus for JJK scenario tests via `jjfu-*` ssh aliases
   (`jjfu-full`, `jjfu-nogit`, `jjfu-nokey`, `jjfu-norepo`).
 
-@Tools/rbk/rbk-claude-acronyms.md
+@Tools/rbk/claude-rbk-acronyms.md
 
-@Tools/rbk/rbk-claude-tabtarget-context.md
+@Tools/rbk/claude-rbk-tabtarget-context.md
 
-For theurge/ifrit crucible testing work, read `Tools/rbk/rbk-claude-theurge-ifrit-context.md` — covers the iteration loop (kludge, charge, test, ordain), architecture of the two Rust binaries, and how to add new security test cases.
+For theurge/ifrit crucible testing work, read `Tools/rbk/claude-rbk-theurge-ifrit-context.md` — covers the iteration loop (kludge, charge, test, ordain), architecture of the two Rust binaries, and how to add new security test cases.
 
-@Tools/apck/apck-claude-context.md
+@Tools/apck/claude-apck-context.md

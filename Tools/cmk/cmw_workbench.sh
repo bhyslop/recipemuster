@@ -116,7 +116,7 @@ zcmw_emit_prep_pr() {
 }
 
 ## RETIRED: zcmw_emit_claudemd_section
-## CMK context is now maintained as Tools/cmk/cmk-claude-context.md
+## CMK context is now maintained as Tools/cmk/claude-cmk-core.md
 ## and included via @-directive in CLAUDE.md. No patching needed.
 
 ######################################################################
@@ -134,9 +134,9 @@ cmw_install() {
   zcmw_emit_prep_pr     > ".claude/commands/cma-prep-pr.md"
 
   buc_step "Verifying CLAUDE.md include directive"
-  if ! grep -q '@Tools/cmk/cmk-claude-context.md' CLAUDE.md 2>/dev/null; then
-    buc_warn "CLAUDE.md does not contain '@Tools/cmk/cmk-claude-context.md' include directive"
-    buc_warn "Add this line to CLAUDE.md: @Tools/cmk/cmk-claude-context.md"
+  if ! grep -q '@Tools/cmk/claude-cmk-core.md' CLAUDE.md 2>/dev/null; then
+    buc_warn "CLAUDE.md does not contain '@Tools/cmk/claude-cmk-core.md' include directive"
+    buc_warn "Add this line to CLAUDE.md: @Tools/cmk/claude-cmk-core.md"
   fi
 
   buc_success "Concept Model Kit installed"
@@ -153,7 +153,7 @@ cmw_uninstall() {
 
 ## RETIRED: zcmw_patch_claudemd, zcmw_unpatch_claudemd
 ## CLAUDE.md patching replaced by @-directive includes.
-## Context file: Tools/cmk/cmk-claude-context.md
+## Context file: Tools/cmk/claude-cmk-core.md
 
 ######################################################################
 # Routing

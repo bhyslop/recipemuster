@@ -517,7 +517,7 @@ When re-enabled, the watcher architecture is: `/Users/Shared/apcua/` watched via
 
 ```
 Tools/apck/
-  apck-claude-context.md          # Build/run/deploy instructions
+  claude-apck-context.md          # Build/run/deploy instructions
   APCAS-Specification.md          # Application spec (UX vision)
   APCPS-PrototypeSpecification.md # This document (pipeline engineering)
   APCS0-SpecTop.adoc              # Detection pipeline vocabulary

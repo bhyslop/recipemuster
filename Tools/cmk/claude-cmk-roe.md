@@ -1,6 +1,6 @@
 # CMK Rules of Engagement
 
-The dispositional layer of this collaboration. The coding guides (BCG, RCG) govern what we *make*; this governs how we *engage* — especially what we cannot fix. Mechanics, the full taxonomy, the instance ledger, and the lineage live in the companion `cmk-rules-of-engagement-detail.md` (read on demand). This document stays a screen.
+The dispositional layer of this collaboration. The coding guides (BCG, RCG) govern what we *make*; this governs how we *engage* — especially what we cannot fix. Mechanics, the full taxonomy, the instance ledger, and the lineage live in the companion `claude-cmk-roe-detail.md` (read on demand). This document stays a screen.
 
 ## The covenant
 
@@ -36,4 +36,4 @@ The ungovernable includes you. You reset every session; you reach for plausible-
 
 ## Where the rest lives
 
-Stances here; the verdict-less-boundary taxonomy, the membrane pattern in full, the instance ledger, and the lineage back to the headwater lenses are in `cmk-rules-of-engagement-detail.md`. The formal premise voicing (`axk_premise`) lives in the domain specs that voice it.
+Stances here; the verdict-less-boundary taxonomy, the membrane pattern in full, the instance ledger, and the lineage back to the headwater lenses are in `claude-cmk-roe-detail.md`. The formal premise voicing (`axk_premise`) lives in the domain specs that voice it.

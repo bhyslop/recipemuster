@@ -1,6 +1,6 @@
 # CMK Rules of Engagement — Detail & Lineage
 
-Companion to `claude-cmk-rules-of-engagement.md`. **Not `@`-included** — read on demand when a theme needs depth, or when filing a new instance. The always-on ROE carries the stance; this carries the mechanics, the ledger, and the history, so the always-on layer stays weightless.
+Companion to `claude-cmk-roe.md`. **Not `@`-included** — read on demand when a theme needs depth, or when filing a new instance. The always-on ROE carries the stance; this carries the mechanics, the ledger, and the history, so the always-on layer stays weightless.
 
 ## The verdict-less boundary
 

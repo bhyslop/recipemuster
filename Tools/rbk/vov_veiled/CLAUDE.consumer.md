@@ -112,15 +112,15 @@ All credential files require `600` permissions and must never be committed to ve
 - **Payor OAuth**: `~/.rbw/payor/rbro.env` — client secret + refresh token. Only on the administrator's workstation.
 - **Governor/Director/Retriever**: credential files at paths defined in RBRR (`RBRR_SECRETS_DIR`). Each file contains a service account credential scoped to one role within one depot.
 
-@Tools/buk/buk-claude-context.md
+@Tools/buk/claude-buk-core.md
 
-@Tools/rbk/rbk-claude-tabtarget-context.md
+@Tools/rbk/claude-rbk-tabtarget-context.md
 
 Test suite/fixture tabtargets use the `rbw-ts` (suites), `rbw-tf` (single fixture), and `rbw-tc` (single case) colophons:
 - Available test suites: `ls tt/rbw-ts.TestSuite.*`
 - Run one fixture: `tt/rbw-tf.FixtureRun.sh <fixture>` (run `tt/rbw-tc.FixtureCase.sh` with no argument to list fixtures)
 
-For theurge/ifrit crucible testing work (editing test cases, adding new security probes, debugging test failures), read `Tools/rbk/rbk-claude-theurge-ifrit-context.md` — covers the two-binary architecture, the kludge/charge/test/ordain iteration loop, and how to add new test cases.
+For theurge/ifrit crucible testing work (editing test cases, adding new security probes, debugging test failures), read `Tools/rbk/claude-rbk-theurge-ifrit-context.md` — covers the two-binary architecture, the kludge/charge/test/ordain iteration loop, and how to add new test cases.
 
 ### Regime Inspection
 
