@@ -285,8 +285,9 @@ Revisit only if skopeo gains first-class GAR/ADC authentication or the helper fr
 **Capture-machinery duplication — token fetch, skopeo-capture, vouch-push.**
 The cloud capture steps presently duplicate logic by copy: the metadata-token fetch across every skopeo step, the inspect→digest→fingerprint→copy block (enshrine and ensconce), and the `FROM scratch` vouch-push step (Lode `rbgjl02` and hallmark-verify `rbgjv03`).
 This is acknowledged, not accidental — Cloud Build offers no native step reuse (no YAML anchors or includes), and its blessed reuse mechanism, custom builder images, conflicts with the _cloud is just labor; the Director controls what enters_ posture above (a custom builder holding our logic would be a new vouched artifact rather than inline-from-repo).
-Planned remedy: a host assembly spine (aligned with the `stitch` vocabulary) plus a shared cloud step-library and a dispatch-time recipe validator that derives each step's substitution coverage — composed once and referenced, replacing copy-by-example with compose-from-library. The `/workspace` inter-step channel stays guarded in-step (the steps' own `test -f` preconditions) rather than by a dispatch contract.
-Scoped to a dedicated behavior-preserving refactor heat (full skirmish + service as the oracle); resolve there.
+Remedy (built in the capture-machinery-unification refactor): a host assembly spine (aligned with the `stitch` vocabulary), a shared cloud step-library (`rbgjs`) of compose-once snippets, and a dispatch-time recipe validator that derives each step's substitution coverage — composed once and referenced, replacing copy-by-example with compose-from-library. The `/workspace` inter-step channel stays guarded in-step (the steps' own `test -f` preconditions) rather than by a dispatch contract.
+Dedup is deliberately partial: only the survivor (bole) rides the spine; the doomed enshrine and inscribe forks are left in place for later removal, so the duplicated copies above persist until that cutover.
+Behavior-preservation is confirmed against the live system at the heat's milestone skirmish gate (full skirmish + service).
 
 ==== References
 
