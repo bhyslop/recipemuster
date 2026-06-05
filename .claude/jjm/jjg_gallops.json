@@ -9153,6 +9153,13 @@
         "₢BVAAB": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260605-1101",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nIntegration gate — verification, plus whatever walls skirmish still surfaces.\n\n## Goal\nskirmish runs green over cygwin@rocket — the full standing-depot chain on an uncontrolled Cygwin host, not just the fast tier. The bar before the uncontrolled-Cygwin bringup is considered done.\n\n## Landed (this heat — jjx_log BV)\n- Fast tier green on cygwin@rocket (cat repair + the prior pace's launch/platform boundaries).\n- theurge native config reads nativized on Cygwin (rbtdrx_path_from_env); canonical-invest proven green end-to-end on cygwin@rocket — governor mantle + retriever/director invest, real GCP IAM.\n- rocket station BURS_TINCTURE aligned to the live canonical depot.\n\n## Remaining\nRe-run skirmish on cygwin@rocket; characterize and fix-or-scope each wall it surfaces (crucible-charge bind-mounts the next likely one). Payor OAuth on rocket expires periodically — refresh before a run.\n\n## Done\nskirmish green over cygwin@rocket.",
+              "jjgtn_silks": "crucible-tier-cygwin-bringup",
+              "jjgtn_basis": "753bfab"
+            },
+            {
               "jjgtn_ts": "260602-1336",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nIntegration gate — verification, plus whatever walls skirmish still surfaces.\n\n## Goal\nskirmish runs green over cygwin@rocket — the full standing-depot chain on an uncontrolled Cygwin host, not just the fast tier. The bar before the uncontrolled-Cygwin bringup is considered done.\n\n## Landed (this heat — jjx_log BV)\n- Fast tier green on cygwin@rocket (cat repair + the prior pace's launch/platform boundaries).\n- theurge native config reads nativized on Cygwin (rbtdrx_path_from_env); canonical-invest proven green end-to-end on cygwin@rocket — governor mantle + retriever/director invest, real GCP IAM.\n- rocket station BURS_TINCTURE aligned to the live canonical depot.\n\n## Remaining\nRe-run skirmish on cygwin@rocket; characterize and fix-or-scope each wall it surfaces (crucible-charge bind-mounts the next likely one). Payor OAuth on rocket expires periodically — refresh before a run.\n\n## Done\nskirmish green over cygwin@rocket.",
