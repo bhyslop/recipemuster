@@ -8523,9 +8523,10 @@
         "₢BHAAG",
         "₢BHAAH",
         "₢BHAAI",
+        "₢BHAAJ",
         "₢BHAAD"
       ],
-      "jjghn_next_pace_seed": "AAJ",
+      "jjghn_next_pace_seed": "AAK",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -8763,6 +8764,17 @@
               "jjgtn_text": "## Character\nGreenfield vertical, parallel-chat — thin bodies on the landed spine. Mostly absorbing logic that already exists.\n\n## Goal\nLand the tool (fetter) and reliquary (conclave) capture kinds. The docker-pull machinery they need already exists as today's inscribe (rbfli_Inscribe + its inscribe-mirror cloud step) — absorb it onto the spine. tool is the single-image case; reliquary is the date-cohort (N-member) case that proves the multi-member package layout.\n\n## Locked\n- Ride the landed spine (rblds_Spine) as thin body files on the reserved rbldt_/rbldr_ letters; reuse the rbi_vouch envelope + capture-file pattern. Author the rbw-lF/lC colophons + their zipper/theurge consts with the bodies.\n- Write the RBSLF/RBSLC capture subdocs on the existing RBSLE skeleton + each capture-verb quoin. divine/augur/banish are kind-general and already exist.\n- Do NOT retire inscribe here — that is the separate reliquary cutover. This vertical leaves the inscribe fork live.\n- File-disjoint from the other verticals.\n\n## Done\nfetter and conclave capture into rbi_ld with provenance; a theurge fixture proves capture -> divine -> banish live against GAR; RBSLF/RBSLC written; inscribe still live.",
               "jjgtn_silks": "lode-tool-reliquary-capture",
               "jjgtn_basis": "210fe6b"
+            }
+          ]
+        },
+        "₢BHAAJ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260605-1119",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nGreenfield vertical — the structural outlier. Needs a new cloud capture step, not the skopeo registry path.\n\n## Goal\nLand the wsl (underpin) capture kind: a project-controlled WSL rootfs captured into a Lode. wsl fetches a vendor-published rootfs tarball over HTTPS and verifies it against the published checksum (Canonical cloud-images SHA-256), then wraps the opaque tarball as a Lode member.\n\n## Locked\n- This is genuinely verified-against-published (the published checksum is real here). Acquisition runs cloud-side — no workstation export (paddock acquisition premise).\n- Needs a NEW cloud capture step (curl + checksum-verify + opaque-blob wrap); it does not reuse the registry-pull step. Ride the spine envelope on the rbldw_ letter.\n- Consumption (wsl --import) is deferred this heat — stop at the registry. File-disjoint. Write RBSLU.\n\n## Done\nunderpin captures a checksum-verified rootfs into rbi_ld with provenance; a theurge fixture proves capture -> divine -> banish live (no host consumption).",
+              "jjgtn_silks": "lode-wsl-capture",
+              "jjgtn_basis": "f282bb1"
             }
           ]
         }
