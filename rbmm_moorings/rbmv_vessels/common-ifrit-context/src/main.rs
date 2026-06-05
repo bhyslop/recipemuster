@@ -20,7 +20,7 @@
 // line to stdout, and exits 0 (PASS/SECURE) or nonzero (FAIL).
 //
 // Wire protocol (consumed by theurge's rbtdri_parse_ifrit_verdict):
-//   stdout: "IFRIT_VERDICT: PASS" or "IFRIT_VERDICT: FAIL <detail>"
+//   stdout: "IFRIT_VERDICT: PASS [detail]" or "IFRIT_VERDICT: FAIL <detail>"
 //   exit:   0 for pass, 1 for fail
 
 use std::process::ExitCode;
@@ -49,7 +49,7 @@ fn main() -> ExitCode {
             let extra_args: Vec<&str> = args[2..].iter().map(|s| s.as_str()).collect();
             let result = rbida_run(&attack, &extra_args);
             if result.passed {
-                println!("IFRIT_VERDICT: PASS");
+                println!("IFRIT_VERDICT: PASS {}", result.detail);
                 ExitCode::SUCCESS
             } else {
                 println!("IFRIT_VERDICT: FAIL {}", result.detail);
