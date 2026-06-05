@@ -801,14 +801,19 @@ rbgi_grant_secret_iam() {
 # APIs with distinct getIamPolicy/setIamPolicy shapes (BCG load-bearing). They
 # share only the jq member-removal transform.
 #
-# Leaner than the add trio on purpose: the add path's member-visibility
-# propagation envelope (400 forward/backward tolerance, exponential backoff, 403
-# resource-cache tolerance) handles a freshly-minted member not yet visible — a
-# grant-only race. The member being revoked is long-established, so that
-# machinery earns nothing here. GET -> remove -> setIamPolicy; transient 5xx
-# retried; 409 fatal under the single-writer invariant. Removing an absent member
-# is a jq no-op, so revoke is idempotent. Fatal on failure like every regular
-# function — divest calls them as ordinary commands.
+# Leaner than the add trio, but not class-free. The member being revoked is
+# long-established, so the member-visibility classes (400 forward "does not
+# exist" / backward "is not deleted") cannot fire on a revoke and are dropped.
+# Class C — caller-recently-empowered (403) — DOES fire: it is about the governor,
+# not the member, and a governor freshly re-mantled before a teardown has not yet
+# propagated its roles/owner to the resource-scope IAM cache. So the
+# resource-scope revokes (repo, sa) retry the GET on 403 against the propagation
+# deadline; project-scope revoke needs none (project caches absorb governor
+# empowerment instantly). setIamPolicy stays lean: it is gated by the same
+# roles/owner permission as the GET, so once the GET clears the SET will not 403;
+# 409 stays fatal under the single-writer invariant, transient 5xx retried.
+# Removing an absent member is a jq no-op, so revoke is idempotent. Fatal on
+# failure like every regular function — divest calls them as ordinary commands.
 
 # Revoke a project-scoped IAM member binding — inverse of rbgi_add_project_iam_role.
 rbgi_revoke_project_member() {
@@ -904,16 +909,43 @@ rbgi_revoke_repo_member() {
 
   buc_log_args 'Revoking repo-scoped IAM role' " ${z_role} from ${z_account_email} on ${z_location}/${z_repository}"
 
-  buc_log_args '1) GET repo IAM policy (v3)'
-  rbuh_json "GET" "${z_get_url}" "${z_token}" "${ZRBGI_INFIX_REPO_REVOKE}"
-  rbuh_require_ok "Get repo IAM policy" "${ZRBGI_INFIX_REPO_REVOKE}"
+  # GET with Class C (403) propagation retry only — a freshly-mantled governor's
+  # read permission on this resource-scope target can lag the resource IAM cache.
+  # The member-visibility classes (400) cannot fire on a revoke.
+  local -ra z_tolerance=(
+    "403" ""
+  )
+  local z_prop_delay=${RBGC_PROPAGATION_INITIAL_DELAY_SEC}
+  local z_prop_elapsed=0
+  local z_get_infix=""
+  local z_get_code=""
+  while :; do
+    z_get_infix="${ZRBGI_INFIX_REPO_REVOKE}-${z_prop_elapsed}s"
+    buc_log_args "1) GET repo IAM policy (v3) [${z_prop_elapsed}s]"
+    rbuh_json "GET" "${z_get_url}" "${z_token}" "${z_get_infix}"
+    z_get_code=$(rbuh_code_capture "${z_get_infix}") || buc_die "No HTTP code from repo getIamPolicy"
+
+    if zrbgi_propagation_error_predicate "${z_get_infix}" "${z_get_code}" "${z_tolerance[@]}"; then
+      test "${z_prop_elapsed}" -lt "${RBGC_PROPAGATION_DEADLINE_SEC}" \
+        || buc_die "Repo IAM: governor empowerment propagation timeout after ${z_prop_elapsed}s (last HTTP ${z_get_code})"
+      buc_log_args "Repo getIamPolicy ${z_get_code} (caller-empowerment propagating); retry at ${z_prop_elapsed}s"
+      sleep "${z_prop_delay}"
+      z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
+      z_prop_delay=$((z_prop_delay * 2))
+      test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
+      continue
+    fi
+
+    rbuh_require_ok "Get repo IAM policy" "${z_get_infix}"
+    break
+  done
 
   local z_etag=""
-  z_etag=$(rbuh_json_field_capture "${ZRBGI_INFIX_REPO_REVOKE}" ".etag") || buc_die "Missing repo etag"
+  z_etag=$(rbuh_json_field_capture "${z_get_infix}" ".etag") || buc_die "Missing repo etag"
   test -n "${z_etag}" || buc_die "Empty repo etag"
 
   local z_updated_policy_json=""
-  z_updated_policy_json=$(rbgi_jq_remove_member_from_role_capture "${ZRBGI_INFIX_REPO_REVOKE}" \
+  z_updated_policy_json=$(rbgi_jq_remove_member_from_role_capture "${z_get_infix}" \
     "${z_role}" "serviceAccount:${z_account_email}" "${z_etag}") \
     || buc_die "Failed to update policy JSON"
 
@@ -968,16 +1000,43 @@ rbgi_revoke_sa_member() {
   z_target_encoded=$(rbuh_urlencode_capture "${z_target_sa_email}") || buc_die "Failed to encode SA email"
   local -r z_sa_resource="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_target_encoded}"
 
-  buc_log_args '1) GET SA IAM policy (v3)'
-  rbuh_json "POST" "${z_sa_resource}:getIamPolicy" "${z_token}" "${ZRBGI_INFIX_SA_REVOKE}" "${ZRBGI_VERSION3_BODY}"
-  rbuh_require_ok "Get SA IAM policy" "${ZRBGI_INFIX_SA_REVOKE}"
+  # GET with Class C (403) propagation retry only — a freshly-mantled governor's
+  # read permission on this resource-scope target can lag the resource IAM cache.
+  # The member-visibility classes (400) cannot fire on a revoke.
+  local -ra z_tolerance=(
+    "403" ""
+  )
+  local z_prop_delay=${RBGC_PROPAGATION_INITIAL_DELAY_SEC}
+  local z_prop_elapsed=0
+  local z_get_infix=""
+  local z_get_code=""
+  while :; do
+    z_get_infix="${ZRBGI_INFIX_SA_REVOKE}-${z_prop_elapsed}s"
+    buc_log_args "1) GET SA IAM policy (v3) [${z_prop_elapsed}s]"
+    rbuh_json "POST" "${z_sa_resource}:getIamPolicy" "${z_token}" "${z_get_infix}" "${ZRBGI_VERSION3_BODY}"
+    z_get_code=$(rbuh_code_capture "${z_get_infix}") || buc_die "No HTTP code from SA getIamPolicy"
+
+    if zrbgi_propagation_error_predicate "${z_get_infix}" "${z_get_code}" "${z_tolerance[@]}"; then
+      test "${z_prop_elapsed}" -lt "${RBGC_PROPAGATION_DEADLINE_SEC}" \
+        || buc_die "SA IAM: governor empowerment propagation timeout after ${z_prop_elapsed}s (last HTTP ${z_get_code})"
+      buc_log_args "SA getIamPolicy ${z_get_code} (caller-empowerment propagating); retry at ${z_prop_elapsed}s"
+      sleep "${z_prop_delay}"
+      z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
+      z_prop_delay=$((z_prop_delay * 2))
+      test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
+      continue
+    fi
+
+    rbuh_require_ok "Get SA IAM policy" "${z_get_infix}"
+    break
+  done
 
   local z_etag=""
-  z_etag=$(rbuh_json_field_capture "${ZRBGI_INFIX_SA_REVOKE}" ".etag") || buc_die "Missing SA etag"
+  z_etag=$(rbuh_json_field_capture "${z_get_infix}" ".etag") || buc_die "Missing SA etag"
   test -n "${z_etag}" || buc_die "Empty SA etag"
 
   local z_updated_policy_json=""
-  z_updated_policy_json=$(rbgi_jq_remove_member_from_role_capture "${ZRBGI_INFIX_SA_REVOKE}" \
+  z_updated_policy_json=$(rbgi_jq_remove_member_from_role_capture "${z_get_infix}" \
     "${z_role}" "serviceAccount:${z_member_email}" "${z_etag}") \
     || buc_die "Failed to update SA IAM policy"
 
