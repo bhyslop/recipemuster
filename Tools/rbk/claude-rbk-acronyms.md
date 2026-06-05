@@ -1,5 +1,6 @@
 ## File Acronym Mappings — RBK Subdirectory (`Tools/rbk/`)
 
+- **CBG**  → `rbk/vov_veiled/CBG-CloudBuildGuide.md` (Cloud Build Guide — step-body discipline for Google Cloud Build steps; polyglot bash/sh + python; foreign-environment sibling to BCG/RCG/WSG. Rule families CBi-/CBb-/CBp-/CBh-.)
 - **RBA**  → `rbk/rba_Auth.sh` (Auth — RBRA/RBRO credential load and role token mint)
 - **RBDC** → `rbk/rbdc_DerivedConstants.sh`
 - **RBF**  → Foundry prefix (non-terminal: children rbfc, rbfd, rbfh, rbfk, rbfl, rbfr, rbfv). The former `rbf_Foundry.sh` monolith was decomposed and its residual renamed to `rbfd_FoundryDirectorBuild.sh`; no file is named bare `rbf_`.
