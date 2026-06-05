@@ -9,6 +9,11 @@ the architecture that lets both live in the codebase while never coexisting in a
 single depot. It is the source document for the RBSHR "Operator federation"
 roadmap entry.
 
+NOTE (2026-06-05): the keyfile-tier shape is under active redesign in heat ₣BZ
+(`Memos/memo-20260605-citizen-capability-model.md` — the "citizen" model). The
+one-SA-per-role and verb-naming assumptions here may change; that memo will fold its
+divergences in once the model is frozen. Not yet revised.
+
 ---
 
 ## The plan
