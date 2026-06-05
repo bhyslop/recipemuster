@@ -202,39 +202,6 @@ zrbob_sentinel() {
 ######################################################################
 # Compose Command Helper
 
-# Internal: normalize a path argument for the Windows-native compose CLI under
-# Cygwin. docker compose opens -f / --env-file / --project-directory as Windows
-# paths, so a /cygdrive/X/... absolute is misread ("does not exist") exactly as
-# docker build/cp were; hand it the drive-letter form (X:/... — forward slashes,
-# which Windows accepts). DRAFT — third copy of zrbfc_native_path_capture
-# (rbfcb_BuildHost.sh); the scattered per-module copies are slated to
-# consolidate into one Windows-docker path adapter (heat ₣BV). Pure /cygdrive
-# parameter expansion, gated on BURD_OSTYPE; identity off Cygwin; a bare-absolute
-# POSIX path is unsurveyed and returns 1. Kindle-independent.
-zrbob_native_path_capture() {
-  local -r z_path="${1:?zrbob_native_path_capture: path required}"
-
-  if test "${BURD_OSTYPE:-}" != "cygwin"; then
-    printf '%s\n' "${z_path}"
-    return 0
-  fi
-
-  case "${z_path}" in
-    /cygdrive/?/*)
-      local -r z_drive_rest="${z_path#/cygdrive/}"
-      local -r z_drive="${z_drive_rest%%/*}"
-      local -r z_drive_tail="${z_drive_rest#"${z_drive}/"}"
-      printf '%s\n' "${z_drive}:/${z_drive_tail}"
-      ;;
-    /*)
-      return 1
-      ;;
-    *)
-      printf '%s\n' "${z_path}"
-      ;;
-  esac
-}
-
 # Build and execute a compose command with standard args
 # Usage: zrbob_compose <compose_subcommand> [args...]
 zrbob_compose() {
@@ -248,25 +215,25 @@ zrbob_compose() {
   # additionally makes compose resolve the fragment's relative volume mounts to
   # Windows-native paths — what Docker Desktop's WSL2 backend needs to bind-mount.
   local z_native_projdir=""
-  z_native_projdir=$(zrbob_native_path_capture "${RBCC_moorings_dir}") \
+  z_native_projdir=$(buc_native_path_capture "${RBCC_moorings_dir}") \
     || buc_die "Cannot normalize compose --project-directory: ${RBCC_moorings_dir}"
   local z_native_rbrr=""
-  z_native_rbrr=$(zrbob_native_path_capture "${ZRBOB_ENV_RBRR}") \
+  z_native_rbrr=$(buc_native_path_capture "${ZRBOB_ENV_RBRR}") \
     || buc_die "Cannot normalize compose --env-file (RBRR): ${ZRBOB_ENV_RBRR}"
   local z_native_rbrd=""
-  z_native_rbrd=$(zrbob_native_path_capture "${ZRBOB_ENV_RBRD}") \
+  z_native_rbrd=$(buc_native_path_capture "${ZRBOB_ENV_RBRD}") \
     || buc_die "Cannot normalize compose --env-file (RBRD): ${ZRBOB_ENV_RBRD}"
   local z_native_rbdc=""
-  z_native_rbdc=$(zrbob_native_path_capture "${ZRBOB_ENV_RBDC}") \
+  z_native_rbdc=$(buc_native_path_capture "${ZRBOB_ENV_RBDC}") \
     || buc_die "Cannot normalize compose --env-file (RBDC): ${ZRBOB_ENV_RBDC}"
   local z_native_rbje=""
-  z_native_rbje=$(zrbob_native_path_capture "${ZRBOB_ENV_RBJE}") \
+  z_native_rbje=$(buc_native_path_capture "${ZRBOB_ENV_RBJE}") \
     || buc_die "Cannot normalize compose --env-file (RBJE): ${ZRBOB_ENV_RBJE}"
   local z_native_rbrn=""
-  z_native_rbrn=$(zrbob_native_path_capture "${ZRBOB_ENV_RBRN}") \
+  z_native_rbrn=$(buc_native_path_capture "${ZRBOB_ENV_RBRN}") \
     || buc_die "Cannot normalize compose --env-file (RBRN): ${ZRBOB_ENV_RBRN}"
   local z_native_base=""
-  z_native_base=$(zrbob_native_path_capture "${ZRBOB_COMPOSE_BASE}") \
+  z_native_base=$(buc_native_path_capture "${ZRBOB_COMPOSE_BASE}") \
     || buc_die "Cannot normalize compose -f base: ${ZRBOB_COMPOSE_BASE}"
 
   local z_args=()
@@ -289,7 +256,7 @@ zrbob_compose() {
   # path; the normalized native form is what compose receives)
   if test -f "${ZRBOB_COMPOSE_FRAGMENT}"; then
     local z_native_fragment=""
-    z_native_fragment=$(zrbob_native_path_capture "${ZRBOB_COMPOSE_FRAGMENT}") \
+    z_native_fragment=$(buc_native_path_capture "${ZRBOB_COMPOSE_FRAGMENT}") \
       || buc_die "Cannot normalize compose -f fragment: ${ZRBOB_COMPOSE_FRAGMENT}"
     z_args+=("-f" "${z_native_fragment}")
   fi

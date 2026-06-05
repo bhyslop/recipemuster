@@ -84,7 +84,7 @@ use crate::rbtdrx_platform::rbtdrx_native_to_posix;
 const RBTDRF_BUK_ROOT: &str = "Tools/buk";
 const RBTDRF_RBK_ROOT: &str = "Tools/rbk";
 const RBTDRF_BUV_VALIDATION: &str = "Tools/buk/buv_validation.sh";
-const RBTDRF_RBFCB_BUILDHOST: &str = "Tools/rbk/rbfcb_BuildHost.sh";
+const RBTDRF_BUC_COMMAND: &str = "Tools/buk/buc_command.sh";
 const RBTDRF_RBLDS_SPINE: &str = "Tools/rbk/rblds_Spine.sh";
 
 // ── Helpers ──────────────────────────────────────────────────
@@ -1882,7 +1882,7 @@ fn rbtdrf_dh_all_vessels_pass(dir: &Path) -> rbtdre_Verdict {
 
 // ── Foundry-path cases ──────────────────────────────────────
 //
-// Drives zrbfc_native_path_capture directly: source rbfcb_BuildHost.sh, force
+// Drives buc_native_path_capture directly: source buc_command.sh, force
 // BURD_OSTYPE, assert the normalized stdout (or, for the bare-absolute
 // unsurveyed shape, that the capture returns non-zero). The normalizer is
 // sentinel-free and reads only its argument plus BURD_OSTYPE, so this stays a
@@ -1900,15 +1900,15 @@ fn rbtdrf_np_run(
         Ok(r) => r,
         Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
-    let rbfcb = root.join(RBTDRF_RBFCB_BUILDHOST);
+    let buc = root.join(RBTDRF_BUC_COMMAND);
 
     let assertion = match expect {
-        Some(out) => format!("test \"$(zrbfc_native_path_capture '{}')\" = '{}'", input, out),
-        None => format!("zrbfc_native_path_capture '{}'", input),
+        Some(out) => format!("test \"$(buc_native_path_capture '{}')\" = '{}'", input, out),
+        None => format!("buc_native_path_capture '{}'", input),
     };
     let script = format!(
         "set -euo pipefail\nsource '{}'\nexport BURD_OSTYPE='{}'\n{}",
-        rbtdrx_native_to_posix(&rbfcb),
+        rbtdrx_native_to_posix(&buc),
         ostype,
         assertion,
     );

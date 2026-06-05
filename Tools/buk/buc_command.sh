@@ -460,4 +460,44 @@ buc_link() {
   fi
 }
 
+# --- Native path translation (Cygwin -> Windows-native) ---
+#
+# Normalize a path argument for a Windows-native tool (docker, cargo, ...)
+# invoked from Cygwin bash. A Windows-native binary reads a Cygwin /cygdrive/X/...
+# path as a literal Windows path and reports "does not exist"; hand it the
+# drive-letter form (X:/... — forward slashes, which Windows accepts). Pure
+# /cygdrive parameter expansion, no cygpath subshell, mirroring RBTDRX's Rust
+# fast path. Gated on BURD_OSTYPE (the dispatch-synthesized platform fact): off
+# Cygwin every path is emitted unchanged. A relative or already-native path
+# passes through; a bare-absolute POSIX path (leading / but not /cygdrive) is an
+# unsurveyed shape and returns 1 so the caller dies. Reads only its argument and
+# BURD_OSTYPE — no kindle state — so it stays unit-testable in isolation.
+#
+# This is the single home for the transform: it folds the formerly-duplicated
+# per-module copies (zrbfc/zrbndb/zrbob_native_path_capture) into one (heat ₣BV).
+# Retire when the Windows-native tools build/run as true Cygwin binaries.
+buc_native_path_capture() {
+  local -r z_path="${1:?buc_native_path_capture: path required}"
+
+  if test "${BURD_OSTYPE:-}" != "cygwin"; then
+    printf '%s\n' "${z_path}"
+    return 0
+  fi
+
+  case "${z_path}" in
+    /cygdrive/?/*)
+      local -r z_drive_rest="${z_path#/cygdrive/}"
+      local -r z_drive="${z_drive_rest%%/*}"
+      local -r z_drive_tail="${z_drive_rest#"${z_drive}/"}"
+      printf '%s\n' "${z_drive}:/${z_drive_tail}"
+      ;;
+    /*)
+      return 1
+      ;;
+    *)
+      printf '%s\n' "${z_path}"
+      ;;
+  esac
+}
+
 # eof

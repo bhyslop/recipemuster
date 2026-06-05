@@ -61,7 +61,7 @@ pub const RBTDRM_FIXTURE_REGIME_VALIDATION: &str = "regime-validation";
 pub const RBTDRM_FIXTURE_REGIME_SMOKE: &str = "regime-smoke";
 pub const RBTDRM_FIXTURE_HANDBOOK_RENDER: &str = "handbook-render";
 pub const RBTDRM_FIXTURE_DOCKERFILE_HYGIENE: &str = "dockerfile-hygiene";
-// Foundry-path — zrbfc_native_path_capture Cygwin /cygdrive normalizer. No
+// Foundry-path — buc_native_path_capture Cygwin /cygdrive normalizer. No
 // external dependency; pure bash-function unit test sourced direct (no kindle).
 pub const RBTDRM_FIXTURE_FOUNDRY_PATH: &str = "foundry-path";
 // Cupel — BCG command-dependency static analysis over all Tools/ bash. No

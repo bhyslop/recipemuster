@@ -854,10 +854,10 @@ zrbfd_push_build_context() {
   # routed too because dockerfile-inside-context is not guaranteed (no-op when a
   # path is already relative or native, and off Cygwin).
   local z_norm_dockerfile=""
-  z_norm_dockerfile=$(zrbfc_native_path_capture "${z_context_dockerfile}") \
+  z_norm_dockerfile=$(buc_native_path_capture "${z_context_dockerfile}") \
     || buc_die "Cannot normalize context Dockerfile path for docker: ${z_context_dockerfile}"
   local z_norm_context=""
-  z_norm_context=$(zrbfc_native_path_capture "${z_bldctx}") \
+  z_norm_context=$(buc_native_path_capture "${z_bldctx}") \
     || buc_die "Cannot normalize build-context path for docker: ${z_bldctx}"
 
   docker build --platform "${RBGC_BUILD_RUNNER_PLATFORM}" -f "${z_norm_dockerfile}" -t "${z_context_tag}" "${z_norm_context}" \

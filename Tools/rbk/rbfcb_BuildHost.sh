@@ -277,40 +277,4 @@ zrbfc_expand_includes() {
   return 0
 }
 
-# Internal: normalize a path argument for a Windows-native build tool (docker
-# under Cygwin). A Windows-native binary reads a Cygwin /cygdrive/X/... path as a
-# literal Windows path and reports "does not exist"; hand it the drive-letter
-# form (X:/... — forward slashes, which Windows accepts). Pure /cygdrive
-# parameter expansion, no cygpath, mirroring RBTDRX's fast path and zrbte_kindle.
-# Gated on BURD_OSTYPE (the dispatch-synthesized platform fact): off Cygwin every
-# path is emitted unchanged. A relative or already-native path passes through; a
-# bare-absolute POSIX path (leading / but not /cygdrive) is an unsurveyed shape
-# and returns 1 so the caller dies. Kindle-independent — reads only its argument
-# and BURD_OSTYPE — so, like zrbfc_write_script_body, it carries no sentinel and
-# stays unit-testable without the foundry kindle chain. Retire when the foundry
-# builds as a true Cygwin binary.
-zrbfc_native_path_capture() {
-  local -r z_path="${1:?zrbfc_native_path_capture: path required}"
-
-  if test "${BURD_OSTYPE:-}" != "cygwin"; then
-    printf '%s\n' "${z_path}"
-    return 0
-  fi
-
-  case "${z_path}" in
-    /cygdrive/?/*)
-      local -r z_drive_rest="${z_path#/cygdrive/}"
-      local -r z_drive="${z_drive_rest%%/*}"
-      local -r z_drive_tail="${z_drive_rest#"${z_drive}/"}"
-      printf '%s\n' "${z_drive}:/${z_drive_tail}"
-      ;;
-    /*)
-      return 1
-      ;;
-    *)
-      printf '%s\n' "${z_path}"
-      ;;
-  esac
-}
-
 # eof

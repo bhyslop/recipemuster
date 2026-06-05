@@ -210,10 +210,10 @@ rbfk_kludge() {
   # docker is Windows-native under Cygwin; hand it Windows-form paths (no-op when
   # a path is already relative or native, and off Cygwin).
   local z_norm_dockerfile=""
-  z_norm_dockerfile=$(zrbfc_native_path_capture "${RBRV_CONJURE_DOCKERFILE}") \
+  z_norm_dockerfile=$(buc_native_path_capture "${RBRV_CONJURE_DOCKERFILE}") \
     || buc_die "Cannot normalize conjure Dockerfile path for docker: ${RBRV_CONJURE_DOCKERFILE}"
   local z_norm_context=""
-  z_norm_context=$(zrbfc_native_path_capture "${RBRV_CONJURE_BLDCONTEXT}") \
+  z_norm_context=$(buc_native_path_capture "${RBRV_CONJURE_BLDCONTEXT}") \
     || buc_die "Cannot normalize conjure build-context path for docker: ${RBRV_CONJURE_BLDCONTEXT}"
   docker build \
     "${z_build_args[@]}" \
