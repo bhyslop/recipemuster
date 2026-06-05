@@ -111,7 +111,7 @@ build dispatched with `«BUILD_ID»` and the Cloud Console URL
 .. Apply the remaining member tags by GAR→GAR retag (blobs deduplicate): `:rbi_bole` (uniform handle) and `:«SANITIZED-ORIGIN»-«SHA10»` (fingerprint)
 .. Author the
 {rbtga_lode_vouch}
-envelope JSON (schema `rbld-vouch-1`, trust grade `verified-against-published`, single-element `members[]`) and stage it on the build workspace
+envelope JSON (schema `rbld-vouch-1`, trust grade `verified-against-published`, single-element `members[]`) and stage it on the {rbtgr_workspace}
 .. Write the per-slot result JSON to `buildStepOutputs`
 
 //axhos_step

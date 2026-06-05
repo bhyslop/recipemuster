@@ -106,6 +106,7 @@
 // Recipe Bottle Term Google Build Definitions
 :rbtgr_build_json:          <<rbtgr_build_json,cloudbuild.json>>
 :rbtgr_provenance:          <<rbtgr_provenance,Rubric Provenance>>
+:rbtgr_workspace:           <<rbtgr_workspace,Build Workspace>>
 
 // Recipe Bottle Term Google Operations
 :rbtgo_ark_abjure:                <<rbtgo_ark_abjure,rbfl_abjure>>
@@ -2303,6 +2304,12 @@ About assembly (syft, build_info, metadata push) uses reusable {rbtgo_ark_about}
 `images:` lists the per-arch `attest` tags — Cloud Build pushes each (idempotent if already present from step 5) and generates SLSA provenance.
 `options.requestedVerifyOption: VERIFIED` ensures build fails if provenance cannot be generated.
 The consumer-facing `image` package (produced by `buildx --push` in step 3) is platform-transparent, identical to single-arch.
+
+[[rbtgr_workspace]]
+{rbtgr_workspace}::
+The Cloud Build shared inter-step filesystem mount (conventionally `/workspace`), a register channel by which one build step leaves non-secret build data for a later step.
+Carries non-secret build data only — secrets stay step-local, re-minted per step, never written here.
+Distinct from {rbrr_bottle_workspace}, the bottle container's working directory.
 
 === Support Infrastructure Definitions
 

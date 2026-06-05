@@ -113,7 +113,7 @@ Push Phase (auth provided by gcloud auth configure-docker):
 Docker credential configuration
 * **Google-endorsed**: crane is Google's own container registry tool from the go-containerregistry project
 * **Token timeout eliminated**: Build phase can take hours; push phase takes seconds with fresh credentials
-* **{gcb_service} native**: `/workspace` shared across steps provides natural bridge
+* **{gcb_service} native**: {rbtgr_workspace} shared across steps provides natural bridge
 
 ==== Implementation Details
 

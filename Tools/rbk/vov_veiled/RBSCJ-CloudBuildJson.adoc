@@ -142,7 +142,7 @@ step's environment. The spine's opacity to the blob is what keeps it
 registration-agnostic — a new kind authors a different blob without touching the
 spine.
 
-Invariant (RBSCB): substitutions and `/workspace` carry non-secret data only;
+Invariant (RBSCB): substitutions and the {rbtgr_workspace} carry non-secret data only;
 secrets are step-local and re-minted.
 
 ===== Extract contract

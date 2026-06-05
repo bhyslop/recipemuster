@@ -70,7 +70,7 @@ Docker-based steps authenticate to GAR automatically — Cloud Build pre-populat
 skopeo-based steps cannot use that path (skopeo cannot consume the gcloud credential helper — gcloud is not a single binary to place on the skopeo container's PATH), so each skopeo step fetches a short-lived OAuth2 token directly from the GCB metadata server (the Mason SA's ambient identity) and passes it via `--src-creds`/`--dest-creds`.
 This is the canonical skopeo→Artifact Registry pattern, not a workaround — the credential-helper alternative was evaluated and rejected (see Deferred Items).
 The token is held in step-local memory and re-minted by each step that needs it; it is never written to `/workspace`.
-_Invariant: `/workspace` carries non-secret build data only — secrets stay step-local._
+_Invariant: the {rbtgr_workspace} carries non-secret build data only — secrets stay step-local._
 The per-step token fetch is consequently duplicated across skopeo steps by deliberate necessity today; its planned de-duplication (one authored snippet composed into each step, never a shared on-disk secret) is tracked under Deferred Items.
 
 **Provenance on demand.**
