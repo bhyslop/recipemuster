@@ -4,7 +4,8 @@ Date: 2026-06-05
 
 Status: Design captured during the 260605 grooming conversation for heat ₣BZ
 (`rbk-14-citizen-model`). The *shape* lives in the ₣BZ paddock; this memo holds the
-*mechanism* the paddock points to. Nothing here is built yet.
+*mechanism* the paddock points to. Nothing here is built yet. Amended 260605 after an
+independent review pass (findings #1–#5, #9, #11, #12).
 
 ## Scope and vocabulary
 
@@ -24,12 +25,17 @@ that federation plugs in later by swapping identity-kind and token mint and noth
 - **Declared roster** — depot-resident data mapping identity → {capability-sets held}.
   Tier-blind.
 - **Holdings** — the depot's artifacts (arks/hoards/bullions). Property, not identities. The
-  depot's civic ontology is citizens/federates (people) + holdings (property).
+  depot's civic ontology — citizens/federates (people) + holdings (property) — covers *operator*
+  identities; cloud-native system identities (Mason, future Envoy) sit outside it, reusing the
+  capability-set abstraction without the citizen lifecycle (whether they deserve their own
+  ontological category is deferred).
 
 The convergence: the **capability layer** (capability-sets, grant/revoke, the declared roster,
 the audit) is tier-blind and shared. The **identity** differs by tier (citizen vs federate) —
 that difference is the one real seam. "Structural isomorphism" means the capability layer is
-byte-identical across tiers; only identity-kind and token mint (signed-JWT vs STS) differ.
+identical across tiers *modulo the opaque principal handle the identity layer supplies*
+(`serviceAccount:…` vs `principal://…`); only identity-kind, that handle, and the token mint
+(signed-JWT vs STS) differ.
 
 ## Verb dissolution
 
@@ -81,7 +87,9 @@ tiers and makes routine roster identical and O(1) across tiers.
   IAM?
 - **Physical home (open).** A GCS object in the depot bucket — mutable, high-churn, etag-guarded
   read-modify-write (like IAM policies themselves) — is the natural fit, unlike tripwire-protected
-  RBRD. A GAR artifact is an alternative. Decide in-heat.
+  RBRD. A GAR artifact is an alternative. Decide in-heat — but the home must place roster-write
+  authority at least on par with grant authority (see the audit invariant below), so this is a
+  security decision, not only storage.
 - **Writers.** The governor writes director/retriever entries; the payor writes the governor
   entry — matching the authority hierarchy.
 
@@ -107,10 +115,19 @@ bindings):
   would deprovision a working identity); never auto-backfill intent (re-enters the tautology). No
   verb auto-revokes; the destructive operation is always human-driven.
 
+**Invariant the asymmetry rests on.** Auto-converging deficits treats the declared roster as
+authoritative intent, so writing the roster *upward* is itself a grant. The auto-heal is safe only
+if roster-write authority is at least as protected as the grant verbs (setIamPolicy); otherwise it
+is a softer escalation path than setIamPolicy. The roster's physical home (above) must satisfy that
+ACL constraint — it is a security boundary, not a storage convenience.
+
 Consequences:
 
-- Because grant writes intent *first*, our tooling cannot produce a surplus — so a surplus is a
-  clean "someone bypassed the verbs" signal.
+- Because grant writes intent *first*, our tooling cannot produce a surplus *absent a definition
+  change* — so a surplus is normally a clean "someone bypassed the verbs" signal. The one
+  tooling-side surplus source is a capability-set definition *shrink* (next bullet), which strands a
+  binding our own earlier grant placed — which is why surplus is reported, not auto-revoked,
+  regardless of origin.
 - A capability-set definition change decomposes into deficit-on-additions (auto-heal via
   roster-wide re-converge) + surplus-on-removals (report for human-confirmed revoke) — no special
   versioning machinery.
@@ -145,7 +162,10 @@ hazard is citizen-tier-specific.
   services don't recognize the limit (request fails); the governor must NOT hold plain
   `roles/owner` (unconditional setIamPolicy) — give it a conditioned setIamPolicy instead.
   Google's own caveat — don't let a limited admin grant roles bearing setIamPolicy — is satisfied
-  because director/retriever sets contain none.
+  at *project* scope: the project-scoped director/retriever grants bear no setIamPolicy. The
+  repo-scoped `roles/artifactregistry.repoAdmin` *does* carry
+  `artifactregistry.repositories.setIamPolicy` — but that is exactly the resource-scope residual
+  the detective audit covers, and modifiedGrantsByRole does not reach repo scope anyway.
 - **Composed resolution.**
   - Project-scoped grants → IAM-limit on the governor (preventive, server-side).
   - Resource-scoped grants (repo/bucket/SA) → not IAM-limitable → detective audit covers the
@@ -171,18 +191,24 @@ which discards the citizen goal. So accepting multi-role on one citizen *is* acc
 key; they are one decision.
 
 - Cost: larger resting target (a leaked key carries more).
-- Bounded: only in the citizen tier (a file to steal); federation has no key. Most citizens wear
-  one hat (one-per-person == one-per-role).
+- Bounded: the *resting-key* form of this exposure is citizen-tier-only (a file to steal);
+  federation has no key at rest. The union-of-capabilities-on-one-identity property is itself
+  tier-blind — a federate granted director+retriever wields both too, exposed through a hijacked
+  live session rather than a file at rest. Most citizens wear one hat (one-per-person ==
+  one-per-role).
 - Upside: finer incident response — revoke a capability without touching the citizen/key, or rekey
   without touching capabilities. The old model's only lever was delete-and-recreate.
 
 ## Governor teardown leak (folds in)
 
 `rbgp_governor_mantle` deletes outgoing `governor-*` SAs without first revoking their grants,
-minting a `deleted:…?uid=` tombstone per re-mantle. The convergence closes it for free: the
-generic revoke-before-delete covers the governor like any citizen, and an idempotent governor
-(rekey, not delete+recreate) drops the delete entirely. Reuse the rbk-08 revoke layer + Class-C
-propagation tolerance. Standalone fix (if the heat descopes the governor):
+minting a `deleted:…?uid=` tombstone per re-mantle. The leak closes cheaply: add the generic
+revoke-before-delete (reusing the rbk-08 revoke layer + Class-C propagation tolerance) before the
+existing delete — no tombstone, no naming change. The further idempotent-governor refinement (rekey
+instead of delete+recreate, dropping the delete entirely) is *not* free: it needs a *stable*
+governor name in place of today's datestamped `governor-YYYYMMDDHHmm` (which exists precisely to
+dodge the delete→recreate flap), plus a one-time migration of existing datestamped governors.
+Standalone leak fix (if the heat descopes the governor):
 memo-20260605-governor-mantle-tombstone-leak.md.
 
 ## Verified facts (checked 260605)
@@ -203,4 +229,12 @@ Sources:
 memo-20260527 states the operator verbs "keep their names, only their bodies differ," and that
 keyfile holds "one SA key file each per role." This heat supersedes both: the verb *bodies*
 converge in shape (not just names), and the citizen tier is one SA *per person*, not per role.
-Update memo-20260527 to record this when the model is frozen.
+
+A third divergence the paddock leans on by name: 20260527's "single code seam" is a *role-keyed*
+token accessor ("a token as director"), shippable with no behavior change over today's per-role
+SAs. Under one-SA-per-person the accessor becomes *identity-keyed* ("a token as alice", carrying the
+union) — a generalization of that seam, but *not* itself no-behavior-change, since it presupposes
+the per-person migration. (Whether the heat's "load-bearing core" is the role-keyed no-behavior
+stepping-stone or the identity-keyed end state is an open scoping question — see the paddock.)
+
+Update memo-20260527 to record these when the model is frozen.
